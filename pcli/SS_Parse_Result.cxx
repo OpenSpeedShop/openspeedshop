@@ -17,7 +17,7 @@ using namespace std;
 using namespace OpenSpeedShop::cli;
 
 command_type_t OpenSpeedShop::cli::cmd_desc[CMD_MAX] = {
-    "ERROR",	    false,  CMD_HEAD_ERROR, /* used in error reporting */
+    "Syntax_Error", false,  CMD_HEAD_ERROR, /* used in error reporting */
     "expAttach",    false,  CMD_EXP_ATTACH,
     "expClose",     false,  CMD_EXP_CLOSE,
     "expCreate",    false,  CMD_EXP_CREATE,
@@ -106,6 +106,7 @@ char *OpenSpeedShop::cli::general_name[H_GEN_MAX] = {
  */
 ParseResult::
 ParseResult() :
+    dm_command_type(CMD_HEAD_ERROR),
     dm_experiment_id(-1),
     dm_experiment_set(false),
     dm_param_set(false),
@@ -205,9 +206,18 @@ s_dumpParam(vector<ParseParam> *p_list, char *label)
  *
  */
 static void 
-s_dumpRange(vector<ParseRange> *p_list, char *label)
+s_dumpRange(vector<ParseRange> *p_list, char *label, bool is_hex)
 {
     vector<ParseRange>::iterator iter;
+    
+    if (is_hex){
+    	cout.setf(ios_base::hex,ios_base::basefield);
+    	cout.setf(ios_base::showbase);
+    }
+    else {
+    	cout.setf(ios_base::dec,ios_base::basefield);
+    	cout.unsetf(ios_base::showbase);
+    }
     
     if (p_list->begin() != p_list->end())
     	    cout << "\t\t" << label << ": " ;
@@ -315,13 +325,13 @@ dumpInfo()
     	cout << endl ;
 
     // Address list.
-    s_dumpRange(this->getAddressList(), "ADDRESSES");
+    s_dumpRange(this->getAddressList(), "ADDRESSES",true /* is_hex */);
 
     // Param list.
     s_dumpParam(this->getParmList(), "PARAMS");
 
     // Syntax error.
-    s_dumpRange(this->getErrorList(), "ERROR");
+    s_dumpRange(this->getErrorList(), "ERROR", false /* is_hex */);
 
     // target list.
     vector<ParseTarget>::iterator t_iter;
@@ -332,12 +342,12 @@ dumpInfo()
     	cout << "\tTarget #" << count++ << " : " << endl;
 	
 	// various lists
-	s_dumpRange(t_iter->getHostList(), "HOST");
-	s_dumpRange(t_iter->getFileList(), "FILE");
-	s_dumpRange(t_iter->getRankList(), "RANK");
-	s_dumpRange(t_iter->getPidList(),  "PID");
-	s_dumpRange(t_iter->getThreadList(), "THREAD");
-	s_dumpRange(t_iter->getClusterList(), "CLUSTER");
+	s_dumpRange(t_iter->getHostList(), "HOST",true /* is_hex */);
+	s_dumpRange(t_iter->getFileList(), "FILE",false /* is_hex */);
+	s_dumpRange(t_iter->getRankList(), "RANK",false /* is_hex */);
+	s_dumpRange(t_iter->getPidList(),  "PID",false /* is_hex */);
+	s_dumpRange(t_iter->getThreadList(), "THREAD",false /* is_hex */);
+	s_dumpRange(t_iter->getClusterList(), "CLUSTER",false /* is_hex */);
     }
 }
 
