@@ -64,6 +64,7 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n, void *argument) : Pa
   frameLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
   expID = (int)argument;
+  groupID = expID;
 
   splitter = new QSplitter(getBaseWidgetFrame(), "SourcePanel: splitter");
   splitter->setOrientation( QSplitter::Horizontal );
