@@ -53,6 +53,7 @@ ossObjects_la_SOURCES = \
 	MessageObject.hxx MessageObject.cxx \
 	SourceObject.hxx SourceObject.cxx \
 	LoadAttachObject.hxx LoadAttachObject.cxx \
+	SaveAsObject.hxx SaveAsObject.cxx \
 	ControlObject.hxx ControlObject.cxx \
 	ProcessListObject.hxx ProcessListObject.cxx \
 	OutputObject.hxx OutputObject.cxx \
