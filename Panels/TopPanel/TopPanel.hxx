@@ -81,6 +81,9 @@ public:
   //! The data list (right side)
   QTextEdit *textEdit;
 
+  //! If the line is highlighted, return its' description.
+  QString getDescription(int line);
+
 public slots:
   void setOrientation();
 
