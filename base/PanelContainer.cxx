@@ -911,7 +911,7 @@ found_count++;
   }
 
 nprintf(DEBUG_PANELCONTAINERS) ("findPanelContainerByMouseLocation() found (%d) possible candidates.\n", found_count );
-nprintf(DEBUG_PANELCONTAINERS) ("  the found_pc=(%s-%s)\n", found_pc->getInternalName(), found_pc->getExternalName() );
+nprintf(DEBUG_PANELCONTAINERS) ("  the found_pc=(%s-%s)\n", found_pc ? found_pc->getInternalName() : "", found_pc ? found_pc->getExternalName() : "" );
 
   return( found_pc );
 } 
