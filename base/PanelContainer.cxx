@@ -729,6 +729,43 @@ PanelContainer::findNamedPanel(PanelContainer *start_pc, char *panel_name)
   return foundPanel;
 }
 
+/*! Return a list of all panels with the same id.
+*/
+PanelList *
+PanelContainer::getPanelListByID(int id)
+{
+  printf("PanelContainer::getPanelListByID(%d) entered\n", id);
+
+  PanelList *panelList = new PanelList();
+  panelList->clear();
+
+  PanelContainer *pc = NULL;
+  for( PanelContainerList::Iterator it = _masterPanelContainerList->begin();
+               it != _masterPanelContainerList->end();
+               it++ )
+  {
+    pc = (PanelContainer *)*it;
+    for( PanelList::Iterator it = pc->panelList.begin();
+             it != pc->panelList.end();
+             ++it )
+    {
+      Panel *p = (Panel *)*it;
+      if( p->groupID == id )
+      {
+        panelList->push_back(p);
+      }
+    }
+  }
+
+  if( panelList->count() == 0 )
+  {
+    delete panelList;
+    panelList = NULL;
+  }
+
+  return panelList;
+}
+
 
 /*! Look for PanelContainer based on it's internal name.
     Find a named PanelContainer, somewhere in the master list of

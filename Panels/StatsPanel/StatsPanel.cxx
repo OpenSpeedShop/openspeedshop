@@ -40,7 +40,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, void *argument) : Pane
 {
   setCaption("StatsPanel");
 
-  expID = (int)argument;
+  groupID = (int)argument;
 
   metricHeaderTypeArray = NULL;
 
@@ -59,7 +59,7 @@ printf("Invalid \"number of items\" in preferences.   Resetting to default.\n");
   getBaseWidgetFrame()->setCaption("StatsPanelBaseWidget");
 
   char name_buffer[100];
-  sprintf(name_buffer, "%s [%d]", getName(), expID);
+  sprintf(name_buffer, "%s [%d]", getName(), groupID);
   setName(name_buffer);
 }
 
@@ -162,7 +162,7 @@ StatsPanel::matchSelectedItem(int element)
   { // No source view up...
     char *panel_type = "Source Panel";
 //Find the nearest toplevel and start placement from there...
-    Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, NULL, (void *)expID);
+    Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, NULL, (void *)groupID);
     if( p != NULL ) 
     {
       p->listener((void *)spo);

@@ -33,14 +33,12 @@
 #include <qcombobox.h>
 #include <qlistview.h>
 
-#include "openspeedshop.hxx" // For cli
-
 SelectExperimentDialog::SelectExperimentDialog( QWidget* parent, const char* name, bool modal, WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
   nprintf(DEBUG_CONST_DESTRUCT) ("SelectExperimentDialog::SelectExperimentDialog() constructor called.\n");
 
-  OpenSpeedshop *mw = (OpenSpeedshop *)parent;
+  mw = (OpenSpeedshop *)parent;
   cli = mw->cli;
   
   if ( !name ) setName( "SelectExperimentDialog" );
@@ -64,6 +62,7 @@ SelectExperimentDialog::SelectExperimentDialog( QWidget* parent, const char* nam
   availableExperimentsListView->setSorting( 0, FALSE );
   availableExperimentsListView->setAllColumnsShowFocus(TRUE);
   availableExperimentsListView->setSortOrder( Qt::Ascending );
+  availableExperimentsListView->setRootIsDecorated(TRUE);
   SelectExperimentDialogLayout->addWidget( availableExperimentsListView );
 
 
@@ -137,8 +136,22 @@ SelectExperimentDialog::selectedExperiment()
   if( selectedItem )
   {
 //    printf("Got an ITEM!\n");
+#ifdef OLDWAY
     QString ret_value = selectedItem->text(0);
     return( ret_value );
+#else // OLDWAY
+    QListViewItem *nitem = selectedItem;
+    while( nitem->parent() )
+    {
+      printf("looking for 0x%x\n", nitem->parent() );
+      nitem = nitem->parent();
+    }
+    if( nitem )
+    {
+      QString ret_value = nitem->text(0);
+      return( ret_value );
+    }
+#endif // OLDWAY
   } else
   {
 //    printf("NO ITEMS SELECTED\n");
@@ -148,6 +161,7 @@ SelectExperimentDialog::selectedExperiment()
 
 
 
+#include "PanelContainer.hxx"
 void
 SelectExperimentDialog::updateAvailableExperimentList()
 {
@@ -174,7 +188,18 @@ SelectExperimentDialog::updateAvailableExperimentList()
     sprintf(entry_buffer, "%4d %-20s %-20s\n", cr_int, "Experiment Name", "other info..." );
     QListViewItem *item = new QListViewItem( availableExperimentsListView, QString("%1").arg(cr_int), "Name", "Description" );
 //    item->setText( 0, entry_buffer );
+PanelList *panelList = mw->topPC->getPanelListByID(cr_int);
+if( panelList )
+{
+  for( PanelList::Iterator pit = panelList->begin(); pit != panelList->end(); pit++ )
+  {
+    Panel *p = (Panel *)*pit;
+    (void) new QListViewItem( item, p->getName() );
   }
+  delete panelList;
+}
+  }
+
 }
 
 void SelectExperimentDialog::attachHostComboBoxActivated()

@@ -62,7 +62,7 @@ IOPanel::IOPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, 
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("IOPanel::IOPanel() constructor called\n");
 
-  expID = (int)argument;
+  groupID = (int)argument;
 
   mw = getPanelContainer()->getMainWindow();
 
@@ -116,7 +116,7 @@ printf("# theApplication.attachCollector(theCollector.getValue());\n");
   topLevel = TRUE;
   topPC->topLevel = TRUE;
 
-  SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", topPC, (void *)expID);
+  SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", topPC, (void *)groupID);
 
 // Begin demo position at dummy file... For the real stuff we'll need to 
 // look up the main()... and position at it...
@@ -366,7 +366,7 @@ pco->terminateButton->setEnabled(FALSE);
 pco->terminateButton->setFlat(TRUE);
 pco->terminateButton->setEnabled(FALSE);
 
-TopPanel *tp = (TopPanel *)topPC->dl_create_and_add_panel("Top Panel", topPC, (void *)expID); 
+TopPanel *tp = (TopPanel *)topPC->dl_create_and_add_panel("Top Panel", topPC, (void *)groupID); 
 } // End demo only...
         ret_val = 1;
         break;
@@ -435,7 +435,7 @@ IOPanel::updateInitialStatus()
       if( broadcast((char *)spo, NEAREST_T) == 0 )
       { // No source view up...
         char *panel_type = "Source Panel";
-        Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, topPC, (void *)expID);
+        Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, topPC, (void *)groupID);
         if( p != NULL )
         {
           if( !p->listener((void *)spo) )
@@ -550,5 +550,5 @@ void
 IOPanel::loadSourcePanel()
 {
   printf("From this pc on down, send out a saveAs message and put it to a file.\n");
-  SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", topPC, (void *)expID);
+  SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", topPC, (void *)groupID);
 }

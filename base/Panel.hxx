@@ -101,8 +101,8 @@ public:
 
     virtual void addWhatsThis(QObject *o, Panel *p);
 
-    //! The experiment id associated with this panel.
-    int expID;
+    //! The id (grouping) associated with this panel.
+    int groupID;
 protected:
     //! Sets the Panel specific strings.
     virtual void languageChange();

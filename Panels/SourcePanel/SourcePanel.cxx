@@ -61,7 +61,7 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n, void *argument) : Pa
   nprintf(DEBUG_CONST_DESTRUCT) ( "SourcePanel::SourcePanel() constructor called\n");
   frameLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
-  expID = (int)argument;
+  groupID = (int)argument;
 
   splitter = new QSplitter(getBaseWidgetFrame(), "SourcePanel: splitter");
   splitter->setOrientation( QSplitter::Horizontal );
@@ -160,7 +160,7 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n, void *argument) : Pa
   }
 
 char name_buffer[100];
-sprintf(name_buffer, "%s [%d]", getName(), expID);
+sprintf(name_buffer, "%s [%d]", getName(), groupID);
 setName(name_buffer);
 }
 

@@ -23,6 +23,7 @@
 #include <qvariant.h>
 #include <qdialog.h>
 
+#include "openspeedshop.hxx"
 #include "CLIInterface.hxx"
 
 class QVBoxLayout;
@@ -61,6 +62,7 @@ protected:
     QSpacerItem* Horizontal_Spacing2;
 
     CLIInterface *cli;
+    OpenSpeedshop *mw;
 
 protected slots:
     virtual void languageChange();

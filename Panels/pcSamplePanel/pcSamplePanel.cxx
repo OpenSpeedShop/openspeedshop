@@ -134,6 +134,7 @@ if( expID == -1 )
   char name_buffer[100];
   sprintf(name_buffer, "%s [%d]", getName(), expID);
   setName(name_buffer);
+groupID = expID;
 
   pcSampleControlPanelContainerWidget->show();
   topPC->show();

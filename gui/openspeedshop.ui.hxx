@@ -133,7 +133,6 @@ void OpenSpeedshop::fileOpenExperiment()
   {
 // printf("QDialog::Accepted\n");
     expStr = dialog->selectedExperiment();
-  }
 
 printf("expStr = %s\n", expStr.ascii() );
 
@@ -156,6 +155,7 @@ printf("Try to locate panel with name/id pair (%s)\n", experimentName.ascii() );
       printf("Create a new one!\n");
       topPC->dl_create_and_add_panel("pc Sampling", topPC->leftPanelContainer, (void *)&expStr);
     }
+  }
 
   delete dialog;
 
@@ -244,6 +244,7 @@ void OpenSpeedshop::fileExit()
   {
     fprintf(stderr, "FATAL ERROR: No clip returned from cli for exit attempting exit regardless.\n");
   }
+
 
  pthread_exit(EXIT_SUCCESS);
  dprintf("fileExit() called pthread_exit.\n");

@@ -62,7 +62,7 @@ ConstructNewExperimentPanel::ConstructNewExperimentPanel(PanelContainer *pc, con
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("ConstructNewExperimentPanel::ConstructNewExperimentPanel() constructor called\n");
 
-  expID = (int)argument;
+  groupID = (int)argument;
 
   mw = getPanelContainer()->getMainWindow();
 
@@ -433,7 +433,7 @@ ConstructNewExperimentPanel::updateInitialStatus()
       if( broadcast((char *)spo, NEAREST_T) == 0 )
       { // No source view up...
         char *panel_type = "Source Panel";
-        Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, topPC, (void *)expID);
+        Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, topPC, (void *)groupID);
         if( p != NULL )
         {
           if( !p->listener((void *)spo) )

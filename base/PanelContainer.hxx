@@ -174,8 +174,11 @@ class PanelContainer : public QWidget
     //! Find a PanelContainer by internal name.
     PanelContainer *findInternalNamedPanelContainer(char *panel_container_name);
 
-//! Find nearest Panel by name.
-Panel *findNamedPanel(PanelContainer *start_pc, char *panel_name);
+    //! Find nearest Panel by name.
+    Panel *findNamedPanel(PanelContainer *start_pc, char *panel_name);
+
+//! Return a list of all the panels matching the id.
+PanelList *getPanelListByID(int id);
 
     //! Find the PanelContainer by external name.
     PanelContainer *findPanelContainerWithNamedPanel(char *panel_container_name);
