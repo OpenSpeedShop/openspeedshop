@@ -66,6 +66,7 @@ posscli_la_SOURCES = \
 	SS_View.cxx \
 	SS_View_exp.cxx \
 	SS_View_pcfunc.cxx \
+	SS_View_params.cxx \
 	SS_Parse_Param.cxx \
 	SS_Parse_Range.cxx \
 	SS_Parse_Result.cxx \
