@@ -16,6 +16,9 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
+# this is needed to pickup the openss script for the make dist target
+EXTRA_DIST = openss
+
 bin_PROGRAMS = openspeedshop
 
 bin_SCRIPTS = openss
