@@ -9,4 +9,5 @@
   plugin_entry->menu_accel =  "Ctrl+J";
   plugin_entry->panel_type =  "Source Panel";
   plugin_entry->preference_category =  "Source Panel";
-  plugin_entry->initialize_preferences_entry_point =  "preference_info_init";
+  plugin_entry->initialize_preferences_entry_point =  "initialize_preferences_entry_point";
+  plugin_entry->save_preferences_entry_point =  "save_preferences_entry_point";

@@ -2,6 +2,8 @@
 #include <qapplication.h>
 
 #include "openspeedshop.hxx"
+#include "PluginInfo.hxx"
+#include <dlfcn.h>
 
 void PreferencesDialog::readPreferencesOnEntry()
 {
@@ -128,12 +130,12 @@ PreferencesDialog::matchPreferencesToStack(QString s)
     QWidget *w = (QWidget *)*it;
     if( s == w->name() )
     {
-printf("Found s->(%s)\n", s.ascii() );
+// printf("Found s->(%s)\n", s.ascii() );
       return(w);
     }
   }
 
-printf("(%s) not Found\n", s.ascii() );
+// printf("(%s) not Found\n", s.ascii() );
   return( (QWidget *)NULL );
 }
 
@@ -199,10 +201,12 @@ void PreferencesDialog::buttonOkSelected()
 {
     applyPreferences();
 
+    savePreferences();
+
     hide();
 }
 
-void PreferencesDialog::savePreferencesOnExit()
+void PreferencesDialog::savePreferences()
 {
   QSettings settings;
 //  settings.insertSearchPath( QSettings::Unix, "openspeedshop" );
@@ -225,5 +229,43 @@ void PreferencesDialog::savePreferencesOnExit()
   settings.writeEntry( "/openspeedshop/source panel/showLineNumber", showLineNumbersCheckBox->isChecked() );
   settings.writeEntry( "/openspeedshop/stats panel/sortDecending", sortDecendingCheckBox->isChecked() );
   settings.writeEntry( "/openspeedshop/stats panel/showTopN", showTopNLineEdit->text() );
+#else // OLDWAY
+
+// Begin try to save all preferences
+//This is the base plugin directory.   In this directory there should
+// be a list of dso (.so) which are the plugins.
+char plugin_file[1024];
+if( panelContainer->getMasterPC() && panelContainer->getMasterPC()->_pluginRegistryList )
+{
+  char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
+  if( !plugin_directory )
+  {
+    fprintf(stderr, "Can't find the PanelContainer plugin. $OPENSPEEDSHOP_PLUGIN_PATH not set correctly.\n");
+      return;
+  }
+  PluginInfo *pi = NULL;
+  for( PluginRegistryList::Iterator it = panelContainer->getMasterPC()->_pluginRegistryList->begin();
+       it != panelContainer->getMasterPC()->_pluginRegistryList->end();
+       it++ )
+  {
+    pi = (PluginInfo *)*it;
+    sprintf(plugin_file, "%s/%s", plugin_directory, pi->plugin_name );
+    void *dl_object = dlopen((const char *)plugin_file, (int)RTLD_LAZY );
+
+    if( dl_object )
+    {
+// printf("about to lookup(%s).\n", "save_preferences_entry_point");
+      void (*dl_plugin_info_init_preferences_routine)(QSettings *, char *) =
+        (void (*)(QSettings *, char *))dlsym(dl_object, "save_preferences_entry_point" );
+       if( dl_plugin_info_init_preferences_routine )
+       {
+// printf("about to call the routine.\n");
+         (*dl_plugin_info_init_preferences_routine)(&settings, pi->preference_category);
+       }
+       dlclose(dl_object);
+    }
+  }
+}
+// End try to save all preferences
 #endif // OLDWAY
 }

@@ -87,7 +87,7 @@ public:
     bool globalFontItalic;
 
     void readPreferencesOnEntry();
-    void savePreferencesOnExit();
+    void savePreferences();
     void applyPreferences();
 public slots:
     virtual void resetPreferenceDefaults();

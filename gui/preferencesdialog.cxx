@@ -295,7 +295,7 @@ PreferencesDialog::createStatsPanelStackPage(QWidgetStack* stack, char *name )
 void PreferencesDialog::languageChange()
 {
 
-printf("PreferencesDialog::languageChange() entered\n");
+// printf("PreferencesDialog::languageChange() entered\n");
   globalFontFamily = "Helvetica";
   globalFontPointSize = 12;
   globalFontWeight = QFont::Normal;

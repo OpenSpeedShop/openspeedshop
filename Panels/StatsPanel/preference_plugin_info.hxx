@@ -7,6 +7,7 @@
 #include <qlineedit.h>
 #include <qlabel.h>
 #include <qcheckbox.h>
+#include <qsettings.h>
 
 
 extern "C"
@@ -19,10 +20,11 @@ extern "C"
   QHBoxLayout* layout7;
   QLabel* showTopNTextLabel;
   QLineEdit* showTopNLineEdit;
+  QSettings* settings;
 
-  QWidget *preference_info_init(QWidgetStack *stack, char *name)
+  QWidget *initialize_preferences_entry_point(QWidgetStack *stack, char *name)
   {
-    printf("preference_info_init(0x%x %s) entered\n", stack, name);
+    printf("initialize_preferences_entry_point(0x%x %s) entered\n", stack, name);
 //    QWidget *statsPanelStackPage = new QWidget( stack, "statsPanelStackPage" );
 //    QWidget *statsPanelStackPage = new QWidget( stack, "Stats Panel" );
     QWidget *statsPanelStackPage = new QWidget( stack, name );
@@ -65,6 +67,10 @@ extern "C"
     showTopNLineEdit->setText( "5" );
 
     return statsPanelStackPage;
+  }
+  int save_preferences_entry_point(QSettings *settings, char *name)
+  {
+    printf("save_preferences_entry_point(0x%x %s) entered\n", settings, name);
   }
 }
 

@@ -46,6 +46,7 @@ PluginInfo::initialize()
 
   preference_category=NULL;
   initialize_preferences_entry_point=NULL;
+  save_preferences_entry_point=NULL;
 
   dl_create_and_add_panel = NULL;
 }
@@ -82,6 +83,7 @@ PluginInfo::~PluginInfo()
   if( panel_type ) free( panel_type );
   if( preference_category ) free( preference_category );
   if( initialize_preferences_entry_point ) free( initialize_preferences_entry_point );
+  if( save_preferences_entry_point ) free( save_preferences_entry_point );
 */
 }
 
@@ -100,4 +102,5 @@ PluginInfo::Print()
   printf("panel_type=%s\n", panel_type );
   printf("preference_category=%s\n", preference_category );
   printf("initialize_preferences_entry_point=%s\n", initialize_preferences_entry_point );
+  printf("save_preferences_entry_point=%s\n", save_preferences_entry_point );
 }

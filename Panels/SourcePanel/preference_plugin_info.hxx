@@ -7,6 +7,7 @@
 #include <qlineedit.h>
 #include <qlabel.h>
 #include <qcheckbox.h>
+#include <qsettings.h>
 
 extern "C"
 {
@@ -16,11 +17,12 @@ extern "C"
   QCheckBox* showLineNumbersCheckBox;
   QVBoxLayout* generalStackPageLayout_2;
   QVBoxLayout* layout6;
+  QSettings *settings;
 
 
-  QWidget *preference_info_init(QWidgetStack *stack, char *name)
+  QWidget *initialize_preferences_entry_point(QWidgetStack *stack, char *name)
   {
-    printf("preference_info_init(0x%x %s) entered\n", stack, name);
+    printf("initialize_preferences_entry_point(0x%x %s) entered\n", stack, name);
 
     sourcePanelStackPage = new QWidget( stack, "Source Panel" );
     generalStackPageLayout_2 = new QVBoxLayout( sourcePanelStackPage, 11, 6, "generalStackPageLayout_2"); 
@@ -55,6 +57,10 @@ extern "C"
     showLineNumbersCheckBox->setText( "Show line numbers" );
 
     return( sourcePanelStackPage );
+  }
+  void save_preferences_entry_point(QSettings *settings, char *name)
+  {
+    printf("save_preferences_entry_point(0x%x %s) entered\n", settings, name);
   }
 }
 

@@ -46,8 +46,11 @@ class PluginInfo {
     //! The plugin preference category listing.
     char *preference_category;
 
-    //! The plugin preferences entry point.
+    //! The plugin initialize preferences entry point.
     char *initialize_preferences_entry_point;
+
+    //! The plugin save preferences entry point.
+    char *save_preferences_entry_point;
 
     //! This will handle the menu callback.
     SlotInfo *slotInfo;

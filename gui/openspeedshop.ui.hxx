@@ -24,6 +24,7 @@
 extern QApplication *qapplication;
 
 #include "plugin_handler.hxx"
+#include <dlfcn.h>
 
 // #include "debug.hxx"  // This includes the definition of dprintf
 #include "AttachProcessDialog.hxx"
@@ -158,8 +159,6 @@ void OpenSpeedshop::fileExit()
 {
   dprintf("fileExit() entered.\n");
 
-  topPC->getMainWindow()->preferencesDialog->savePreferencesOnExit();
-
  /* close all the panel containers.   Well all except the masterPC's
     That one we need to do explicitly. (See the next line.) */
  ((PanelContainer *)topPC)->getMasterPC()->closeAllExternalPanelContainers();
@@ -202,8 +201,6 @@ void OpenSpeedshop::helpAbout()
  QMessageBox::about(this, "Open/SpeedShop", "Open/SpeedShop about example....");
 }
 
-
-#include <dlfcn.h>
 
 /*! \class AppEventFilter
     AppEventFilter catches all the events.   All events are caught to 
@@ -389,56 +386,53 @@ void OpenSpeedshop::init()
   }
 
 
-// Load the GUI plugins...
-#ifdef VERBOSE
-printf("# http://sahara.engr.sgi.com/Tools/WDH/ASCI/Framework-API-V3/P1.html\n");
-printf("GUI Action: Load the GUI plugins.\n");
-#endif // VERBOSE
+  // Load the GUI plugins...
   (*dl_ph_init_routine)( (QWidget *)this, masterPC);
 
-// Create the master preferences dialog so we can set the defaults and 
-// so everyone else can reference them....
+  // Create the master preferences dialog so we can set the defaults and 
+  // so everyone else can reference them....
   preferencesDialog = new PreferencesDialog(masterPC);
-// Begin try to load preferences
-//This is the base plugin directory.   In this directory there should
-// be a list of dso (.so) which are the plugins.
-char plugin_file[1024];
-if( masterPC && masterPC->_pluginRegistryList )
-{
-  PluginInfo *pi = NULL;
-  for( PluginRegistryList::Iterator it = masterPC->_pluginRegistryList->begin();
-       it != masterPC->_pluginRegistryList->end();
-       it++ )
-  {
-    pi = (PluginInfo *)*it;
-    sprintf(plugin_file, "%s/%s", plugin_directory, pi->plugin_name );
-// printf("about to open(%s).\n", plugin_file);
-    void *dl_object = dlopen((const char *)plugin_file, (int)RTLD_LAZY );
 
-    if( dl_object )
+  // Begin to load preferences
+  //This is the base plugin directory.   In this directory there should
+  // be a list of dso (.so) which are the plugins.
+  char plugin_file[1024];
+  if( masterPC && masterPC->_pluginRegistryList )
+  {
+    PluginInfo *pi = NULL;
+    for( PluginRegistryList::Iterator it = masterPC->_pluginRegistryList->begin();
+         it != masterPC->_pluginRegistryList->end();
+         it++ )
     {
-// printf("about to lookup(%s).\n", "preference_info_init");
-      QWidget * (*dl_plugin_info_init_preferences_routine)(QWidgetStack*, char *) =
-        (QWidget * (*)(QWidgetStack*, char *))dlsym(dl_object, "preference_info_init" );
-       if( dl_plugin_info_init_preferences_routine )
-       {
+      pi = (PluginInfo *)*it;
+      sprintf(plugin_file, "%s/%s", plugin_directory, pi->plugin_name );
+// printf("about to open(%s).\n", plugin_file);
+      void *dl_object = dlopen((const char *)plugin_file, (int)RTLD_LAZY );
+
+      if( dl_object )
+      {
+// printf("about to lookup(%s).\n", "initialize_preferences_entry_point");
+        QWidget * (*dl_plugin_info_init_preferences_routine)(QWidgetStack*, char *) =
+          (QWidget * (*)(QWidgetStack*, char *))dlsym(dl_object, "initialize_preferences_entry_point" );
+          if( dl_plugin_info_init_preferences_routine )
+          {
 // printf("about to call the routine.\n");
-         QWidget *panelStackPage = (*dl_plugin_info_init_preferences_routine)(preferencesDialog->preferenceDialogWidgetStack, pi->preference_category);
-if( panelStackPage )
-{
-  preferencesStackPagesList.push_back(panelStackPage);
-  QListViewItem *item = new QListViewItem( preferencesDialog->categoryListView );
-  item->setText( 0, tr( panelStackPage->name() ) );
-}
-       }
-       dlclose(dl_object);
+            QWidget *panelStackPage = (*dl_plugin_info_init_preferences_routine)(preferencesDialog->preferenceDialogWidgetStack, pi->preference_category);
+            if( panelStackPage )
+            {
+              preferencesStackPagesList.push_back(panelStackPage);
+              QListViewItem *item = new QListViewItem( preferencesDialog->categoryListView );
+              item->setText( 0, tr( panelStackPage->name() ) );
+            }
+          }
+          dlclose(dl_object);
+        }
+      }
     }
-  }
-}
-preferencesStackPagesList.push_back(preferencesDialog->generalStackPage);
-QListViewItem *item = new QListViewItem( preferencesDialog->categoryListView );
-item->setText( 0, tr( "General" ) );
-// End try to load preferences
+    preferencesStackPagesList.push_back(preferencesDialog->generalStackPage);
+    QListViewItem *item = new QListViewItem( preferencesDialog->categoryListView );
+    item->setText( 0, tr( "General" ) );
+    // End load preferences
 
 // Begin: Set up a saved session geometry.
 const int BUFSIZE=100;
