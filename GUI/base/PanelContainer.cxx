@@ -4,7 +4,7 @@
     GUI.   It is responsible for the screen management within the tool.
 
     The base functionality it provides is the interactions with the user
-    to create and manage PanelContainers.   A PanelContainer is reponsible for
+    to create and manage Panels.   A PanelContainer is reponsible for
     managing one or more Panels (User Panels).    There can be one or many 
     PanelContainers.   There is one master PanelContainer in the MainWindow
     which is the first PanelContainer created.   This master PanelContainer
