@@ -44,14 +44,6 @@ struct sort_decending : public std::binary_function<T,T,bool> {
 
 static bool VIEWN_vtop (CommandObject *cmd, ExperimentObject *exp, int64_t topn) {
 
- // Build a Header for the table.
-  CommandResult_Headers *H = new CommandResult_Headers ();
-  CommandResult *T = new CommandResult_String ( "  CPU Time (Seconds)" );
-  H->CommandResult_Headers::Add_Header (T);
-  T = new CommandResult_String ( "Function" );
-  H->CommandResult_Headers::Add_Header (T);
-  cmd->Result_Predefined (H);
-
  // For each requested metric, try to pick up the associated data.
   Experiment *fw_experiment = exp->FW();
   CollectorGroup cgrp = exp->FW()->getCollectors();
@@ -84,6 +76,14 @@ static bool VIEWN_vtop (CommandObject *cmd, ExperimentObject *exp, int64_t topn)
       return false;
     }
 
+   // Build a Header for the table.
+    CommandResult_Headers *H = new CommandResult_Headers ();
+    CommandResult *T = new CommandResult_String ( "  CPU Time (Seconds)" );
+    H->CommandResult_Headers::Add_Header (T);
+    T = new CommandResult_String ( "Function" );
+    H->CommandResult_Headers::Add_Header (T);
+    cmd->Result_Predefined (H);
+
    // Now we can sort the data.
     typedef std::pair<std::string, double> item_type;
     std::vector<item_type> items;
@@ -101,7 +101,7 @@ static bool VIEWN_vtop (CommandObject *cmd, ExperimentObject *exp, int64_t topn)
     int64_t foundn = 0;
     for( ; it != items.end(); it++ ) {
       if (foundn++ >= topn) {
-       // We ahve all that was asked for!
+       // We have all that was asked for!
         break;
       }
       CommandResult_Columns *C = new CommandResult_Columns (2);
