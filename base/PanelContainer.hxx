@@ -84,17 +84,6 @@ class PanelContainer : public QWidget
     //! The parent QWidget that this PanelContainer is a child of.
     QWidget *parent;   // The parent that this constructor was called with...
 
-    //! A arbitrary derived PanelContainer name.
-    /*! It's base on the string literal "pc: " and the panel_container_count
-        which is incremented and decremented base on the current number 
-        of PanelContainers.  
-
-        NOTE: These names are not to be relied upon to stay the same
-        throughout the execution of the application.  In fact, it would 
-        be highly unlikely for this name to stay the same.   
-     */
-    char pc_name_count[128];
-
 QPopupMenu *pcMenu;
 QPopupMenu *contextMenu;
 
@@ -288,6 +277,17 @@ QPopupMenu *contextMenu;
     //! The number of panel containers that have been created.
     /*! This is used to generate the internal panel container name. */
     int _panel_container_count;
+
+    //! A arbitrary derived PanelContainer name.
+    /*! It's base on the string literal "pc: " and the panel_container_count
+        which is incremented and decremented base on the current number 
+        of PanelContainers.  
+
+        NOTE: These names are not to be relied upon to stay the same
+        throughout the execution of the application.  In fact, it would 
+        be highly unlikely for this name to stay the same.   
+     */
+    char pc_name_count[128];
 
     //! Context Sensitive Menu's panel container.
     PanelContainer *_lastPC;
