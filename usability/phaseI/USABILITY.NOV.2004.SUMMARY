@@ -79,6 +79,8 @@ Following is a summary of comments and observations.
 
    Additionally is seems that double-clicking may be a good metaphor
    for peeling off panels into their own windows.
+FIX: current:OpenSpeedShop:184212a
+     Allow double click to equate to peeling off a window.
 
  - Panel menus
    The panel menus are not obvious.   There should be an indicator
