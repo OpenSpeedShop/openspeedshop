@@ -70,55 +70,6 @@ extern "C"
     for(int i=0;i<argc;i++)
     {
       QString arg = argv[i];
-#ifdef OLDWAY
-      if( arg == "--no_splash" ||
-          arg == "-ns" ) 
-      {
-        splashFLAG = FALSE;
-      } else if( arg == "-f" )
-      {  // Get the target executableName.
-        executableStr = QString(argv[++i]);
-      } else if( arg == "-h" )
-      { // Get the target host (or host list)
-        hostStr = QString(argv[++i]);
-      } else if( arg == "-r" )
-      { // attach to the rank (list) specified
-        rankStr = QString(argv[++i]);
-      } else if( arg == "-p" )
-      { // attach to the proces (list) specified )
-        pidStr = QString(argv[++i]);
-      } else if( arg == "-x" )
-      { // load the collector (experiment) 
-        expStr = QString(argv[++i]);
-      } else if( arg == "-wid" )
-      { // You have a window id from the cli
-        for( ;i<argc;)
-        {
-          widStr += QString(argv[++i]);
-          widStr += QString(" ");
-        }
-      } else if( arg == "-a" )
-      { // load the command line arguments (to the exectuable)
-        for( ;i<argc;)
-        {
-          argsStr += QString(argv[++i]);
-          argsStr += QString(" ");
-        }
-      } else if( arg == "-help" || arg == "--help" )
-      {
-//        usage();
-        return; // Failure to complete...
-      } else if( arg == "-cli" )
-      {
-        // Valid: though not currently documented.   Just ignore 
-        // and fall through.
-      } else if( !arg.contains("openspeedshop") )
-      {
-        printf("Unknown argument syntax: argument in question: (%s)\n", arg.ascii() );
-//        usage();
-        return; // Failure to complete...
-      }
-#else // OLDWAY
       if( arg == "-wid" )
       { // You have a window id from the cli
         for( ;i<argc;)
@@ -127,13 +78,12 @@ extern "C"
           widStr += QString(" ");
         }
       }
-#endif // OLDWAY
 
     }
 
     OpenSpeedshop *w;
 
-    w = new OpenSpeedshop();
+    w = new OpenSpeedshop(widStr.toInt());
 
     QPixmap *splash_pixmap = NULL;
     QSplashScreen *splash = NULL;
@@ -176,35 +126,6 @@ extern "C"
     w->expStr = expStr;
     w->hostStr = hostStr;
     w->argsStr = argsStr;
-
-#ifdef OLDWAY
-    if( w->expStr != NULL )
-    {
-      if( w->expStr == "pcsamp" )
-      {
-        w->topPC->dl_create_and_add_panel("pc Sampling");
-      } else if( w->expStr == "usertime" )
-      {
-        w->topPC->dl_create_and_add_panel("User Time");
-      } else if( w->expStr == "fpe" )
-      {
-        w->topPC->dl_create_and_add_panel("FPE Tracing");
-      } else if( w->expStr == "hwc" )
-      {
-        w->topPC->dl_create_and_add_panel("HW Counter");
-      } else if( w->expStr == "io" )
-      { 
-        w->topPC->dl_create_and_add_panel("IO");
-      } else if( w->expStr == "mpi" )
-      { 
-        w->topPC->dl_create_and_add_panel("MPI");
-      } else
-      {
-        fprintf(stderr, "Unknown experiment type.   Try using the IntroWizard.\n");
-        exit(0);
-      }
-    }
-#endif // OLDWAY
 
     w->show();
 
