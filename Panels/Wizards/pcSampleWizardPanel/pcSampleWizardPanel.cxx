@@ -583,7 +583,7 @@ nprintf(DEBUG_PANELS) ("eDescriptionPageNextButtonSelected() \n");
 void pcSampleWizardPanel::eDescriptionPageStartButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("eDescriptionPageStartButtonSelected() \n");
-    Panel *p = getPanelContainer()->raiseNamedPanel("Intro Wizard");
+    Panel *p = getPanelContainer()->raiseNamedPanel("&Intro Wizard");
     if( !p )
     {
       getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Intro Wizard", getPanelContainer());
@@ -719,7 +719,7 @@ nprintf(DEBUG_PANELS) ("vDescriptionPageNextButtonSelected() \n");
 void pcSampleWizardPanel::vDescriptionPageStartButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("vDescriptionPageStartButtonSelected() \n");
-    Panel *p = getPanelContainer()->raiseNamedPanel("Intro Wizard");
+    Panel *p = getPanelContainer()->raiseNamedPanel("&Intro Wizard");
     if( !p )
     {
       getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Intro Wizard", getPanelContainer());
