@@ -14,6 +14,8 @@ namespace OpenSpeedShop { namespace cli {
   // ... almost. In fact it returns a boost::python::object type
   // and boos::python::object also has an operator[]( std::string ) defined
   // which gives the same flexibility. 
+  // ParseResult is based on the Python dictionary type.
+  // See Boost Python documentation for the C++ interface of boost::python::dict
 
     class ParseResult : public boost::python::dict
     {
@@ -47,6 +49,10 @@ namespace OpenSpeedShop { namespace cli {
             _isLeaf = true;
         }
 
+        // For all other types, this constructor will do 
+        // as long as there is a way for boost::python to convert
+        // the type T into a python base object 
+        // aka boost::python::object.
         template <class T>
         ParseResult( const std::string& key, const T& v )
             : boost::python::dict()
@@ -55,6 +61,10 @@ namespace OpenSpeedShop { namespace cli {
             _isLeaf = true;
         }
 
+        // Just in case the default constructors don't work
+        // this constructor can also be used.
+        // ToPythonCvt as a function object is supposed to be 
+        // able to convert the template type T into a boost::python::object
         template <class T, class ToPythonCvt>
         ParseResult( const std::string& key, const T& v )
             : boost::python::dict()
@@ -73,6 +83,8 @@ namespace OpenSpeedShop { namespace cli {
         ParseResult( const std::string& key, const boost::python::dict& r )
             : boost::python::dict()
         {
+            // Update the dictionary with the given dictionary
+            // Since we're in a constructor, this dictionary is empty
             update( r );
             _isLeaf = false;
         }
