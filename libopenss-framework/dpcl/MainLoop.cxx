@@ -149,9 +149,11 @@ void MainLoop::start()
 {
     // Initialize the DPCL client library
     Ais_initialize();
-    char host[256];
-    Assert(gethostname(host, 256) == 0);    
-    Ais_blog_on(host, LGL_detail, LGD_daemon, NULL, 0);
+    if(getenv("OPENSPEEDSHOP_DPCLD_DEBUG") != NULL) {
+	char host[256];
+	Assert(gethostname(host, 256) == 0);    
+	Ais_blog_on(host, LGL_detail, LGD_daemon, NULL, 0);
+    }
     
     // Setup pipe used for asynchronously interrupting the DPCL main loop
     Assert(pipe(pipe_fds) == 0);

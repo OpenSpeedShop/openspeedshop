@@ -51,19 +51,24 @@ int main(int argc, char* argv[])
 	Experiment experiment(name);
 	
 	// Create a process for the command in the suspended state
+
+ 	std::cout << std::endl
+		  << "Starting process for command \"" << command << "\"..."
+		  << std::endl;	
 	Time t_start = Time::Now();
+	
 	Thread thread = experiment.createProcess(command);
+	
 	Time t_stop = Time::Now();
-	std::cout << std::endl
-		  << "Process initialization took "
+	std::cout << "Process creation took "
 		  << static_cast<double>(t_stop - t_start) / 1000000000.0
-		  << " seconds." << std::endl
-		  << std::endl;
+		  << " seconds." << std::endl;
+	std::cout << "Running the process..." << std::endl << std::endl;
 	
 	// Create the PC sampling collector and set its sampling rate
 	Collector collector = experiment.createCollector("pcsamp");
 	collector.setParameterValue("sampling_rate", (unsigned)100);
-
+	
 	// Attach this process to the collector and start collecting data
 	collector.attachThread(thread);
 	collector.startCollecting();
@@ -74,41 +79,48 @@ int main(int argc, char* argv[])
 	    sleep(1);
 
 	// Evaluate the collector's time metric for all functions in the thread
-	SmartPtr<std::map<Function, double> > data;
+
+	std::cout << std::endl << "Calculating results..." << std::endl;
 	t_start = Time::Now();
+
+	SmartPtr<std::map<Function, double> > data;
 	Queries::GetMetricByFunctionInThread(collector, "time", thread, data);
+
+	std::multimap<double, Function> sorted;
+	for(std::map<Function, double>::const_iterator
+		i = data->begin(); i != data->end(); ++i)
+	    sorted.insert(std::make_pair(i->second, i->first));	
+
 	t_stop = Time::Now();
-	std::cout << std::endl
-		  << "Calculating function times took "
+	std::cout << "Results calculation took "
 		  << static_cast<double>(t_stop - t_start) / 1000000000.0
-		  << " seconds." << std::endl
-		  << std::endl;
-
+		  << " seconds." << std::endl;
+	
 	// Display the results
-
-	std::cout << std::endl
+	
+	std::cout << std::endl << std::endl
 		  << std::setw(10) << "Time"
 		  << "    "
 		  << "Function" << std::endl
 		  << std::endl;
-	
-	for(std::map<Function, double>::const_iterator
-		i = data->begin(); i != data->end(); ++i) {
+
+	for(std::multimap<double, Function>::reverse_iterator
+		i = sorted.rbegin(); i != sorted.rend(); ++i) {
 	    
 	    std::cout << std::setw(10) << std::fixed << std::setprecision(3)
-		      << i->second
+		      << i->first
 		      << "    "
-		      << i->first.getName();
+		      << i->second.getName();
 
-	    Optional<Statement> definition = i->first.getDefinition();
+	    Optional<Statement> definition = i->second.getDefinition();
 	    if(definition.hasValue())
 		std::cout << " (" << definition.getValue().getPath()
 			  << ", " << definition.getValue().getLine() << ")";
 	    
 	    std::cout << std::endl;
-
+	    
 	}
-
+	
 	std::cout << std::endl << std::endl;
 	
     }

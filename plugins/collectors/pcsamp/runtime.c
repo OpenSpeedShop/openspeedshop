@@ -29,6 +29,10 @@
 #include "RuntimeAPI.h"
 #include "blobs.h"
 
+/* Forward Declarations */
+void pcsamp_start_sampling(const char*);
+void pcsamp_stop_sampling(const char*);
+
 
 
 /*
@@ -38,9 +42,8 @@
  *       function" even though the size IS constant... Maybe this can be fixed?
  */
 
-/* WDH: BUFFER SIZE REDUCED FROM 1024 TO 4 FOR DEBUGGING ONLY
 /** Number of entries in the sample buffer. */
-#define BufferSize 4
+#define BufferSize 1024
 
 /** Number of entries in the hash table. */
 #define HashTableSize (BufferSize + (BufferSize / 4))
@@ -155,6 +158,7 @@ static void pcsampTimerHandler(ucontext_t* context)
 
 
 
+
 /**
  * Start sampling.
  *
@@ -196,6 +200,15 @@ void pcsamp_start_sampling(const char* arguments)
     /* Begin sampling */
     tls.header.time_begin = OpenSS_GetTime();
     OpenSS_Timer(tls.data.interval, pcsampTimerHandler);
+
+    /* 
+     * WDH: Temporary hack to insure that pcsamp_stop_sampling() is called
+     *      before the process exits. This insures that any samples remaining
+     *      in the sampling buffer are still sent. Eventually this will be
+     *      replaced with an instrumentation call to pcsamp_stop_sampling()
+     *      instead.
+     */
+    atexit(pcsamp_stop_sampling);
 }
 
 

@@ -272,10 +272,6 @@ Process::Process(const std::string& host, const std::string& command) :
     AisStatus retval = dm_process->bcreate(dm_host.c_str(),
 					   argv[0], argv, ::environ,
 					   stdoutCB, NULL, stderrCB, NULL);
-
-    // WDH: NEXT LINE IS DEBUGGING ONLY
-    printf("WDH: Process::bcreate() = %s\n", retval.status_name());
-
     if(retval.status() == ASC_failure) {
 	MainLoop::resume();
 	throw std::runtime_error("Cannot create process to execute the "
@@ -354,10 +350,6 @@ Process::Process(const std::string& host, const pid_t& pid) :
     // Ask DPCL to connect and attach to the process
     MainLoop::suspend();    
     AisStatus retval = dm_process->bconnect();    
-
-    // WDH: NEXT LINE IS DEBUGGING ONLY
-    printf("WDH: Process::bconnect() = %s\n", retval.status_name());
-    
     if((retval.status() == ASC_invalid_pid) ||
        (retval.status() == ASC_unknown_status)) {
 	MainLoop::resume();
@@ -1017,49 +1009,6 @@ void Process::processStatements(const Thread& thread,
 
     // End the transaction on this thread's database
     END_TRANSACTION(database);
-
-
-#ifdef WDH_REAL_STATEMENT_PROCESSING
-
-    // Ask DPCL for the statements in this (module) source object
-    MainLoop::suspend();
-    AisStatus retval;
-    StatementInfoList* statements =
-	object.bget_all_statements(*dm_process, &retval);
-    Assert(statements != NULL);
-    Assert(retval.status() == ASC_success);
-    MainLoop::resume();
-
-    // Iterate over each source file of this module
-    for(int i = 0; i < statements->get_count(); ++i) {
-	StatementInfo info = statements->get_entry(i);
-
-	// info.get_filename();
-	
-	// Iterate over each statement in this source file
-	for(int j = 0; j < info.get_line_count(); ++j) {
-	    StatementInfoLine line = info.get_line_entry(j);
-
-	    // line.get_line();
-	    // line.get_column();
-
-	    // Iterate over each address range in this statement
-	    for(int k = 0; k < line.get_address_count(); ++k) {
-
-		// Address(line.get_address_entry(k)) - range.getBegin()
-
-	    }
-
-	}
-	
-    }
-    
-    // Destroy the statement information returned by DPCL
-    delete statements;    
-
-#endif
-
-
 }
 
 
