@@ -25,7 +25,7 @@
 //unused  plugin_entry->plugin_location = "$OPENSS_PLUGIN_PATH";
   plugin_entry->plugin_entry_point = "panel_init";
   plugin_entry->menu_heading =  "&Tools";
-  plugin_entry->menu_label =  "&Source Panel";
+  plugin_entry->menu_label =  "Source Panel";
   plugin_entry->menu_accel =  "Alt+J";
   plugin_entry->panel_type =  "Source Panel";
   plugin_entry->preference_category =  "Source Panel";
