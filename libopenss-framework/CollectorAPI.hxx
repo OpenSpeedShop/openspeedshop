@@ -30,8 +30,8 @@
 #endif
 
 #include "Blob.hxx"
-
 #include "CallSite.hxx"
+#include "Collector.hxx"
 #include "CollectorImpl.hxx"
 #include "Function.hxx"
 #include "LinkedObject.hxx"

@@ -151,7 +151,7 @@ void ExperimentTable::storePerformanceData(const Blob& blob) const
 
     // Decode the performance data header
     OpenSS_DataHeader header;
-    memset(&header, 0, sizeof(OpenSS_DataHeader));
+    memset(&header, 0, sizeof(header));
     unsigned header_size =
 	blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_OpenSS_DataHeader),
 			    &header);

@@ -29,15 +29,14 @@
 #include "config.h"
 #endif
 
-#include "Database.hxx"
-#include "Path.hxx"
-
 #include "CallSite.hxx"
 #include "Collector.hxx"
 #include "CollectorGroup.hxx"
+#include "Database.hxx"
 #include "Experiment.hxx"
 #include "Function.hxx"
 #include "LinkedObject.hxx"
+#include "Path.hxx"
 #include "Statement.hxx"
 #include "Thread.hxx"
 #include "ThreadGroup.hxx"

@@ -73,7 +73,7 @@ namespace OpenSpeedShop { namespace Framework {
      *     sampling data by calling startCollecting(). The resulting data would
      *     then be accessed via the time metric.
      * 
-     * @ingroup ToolAPI
+     * @ingroup CollectorAPI ToolAPI
      */
     class Collector :
 	public Entry

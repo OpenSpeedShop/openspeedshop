@@ -52,7 +52,6 @@
 bool_t OpenSS_DecodeParameters(const char* argument,
 			       const xdrproc_t xdrproc, void* data)
 {
-    const char SafeValue = 0xBA;  /* Constant used in decoding */    
     bool_t ok = TRUE;  /* Assume success unless otherwise found below */
     unsigned i, size;
     char* buffer = NULL;
@@ -63,27 +62,22 @@ bool_t OpenSS_DecodeParameters(const char* argument,
     assert(xdrproc != NULL);
     assert(data != NULL);
 
+    /* Length of encoded blob argument must be a multiple of two */
+    if((strlen(argument) % 2) != 0)
+	return FALSE;
+    
     /* Allocate the decoding buffer */
-    buffer = alloca(strlen(argument));
+    buffer = alloca(strlen(argument) / 2);
     
     /* Iterate over each byte in the string-encoded blob argument */
-    for(i = 0, size = 0; i < strlen(argument); ++i, ++size) {
-
-	/* Replace doubled-up occurences of the safe value with one occurence */
-	if((argument[i] == SafeValue) &&
-	   (i < (strlen(argument) - 1)) && (argument[i + 1] == SafeValue)) {
-	    buffer[size] = SafeValue;
-	    ++i;
-	}
-
-        /* Replace safe values with zero */
-	else if(argument[i] == SafeValue)
-	    buffer[size] = 0x00;
+    for(i = 0; i < strlen(argument); i += 2) {
 	
-	/* Otherwise pass the byte through unchanged */
-	else
-	    buffer[size] = argument[i];
+	/* Decode the most-significant four bits */
+	buffer[i / 2] = (argument[i] - '0') << 4;
 	
+	/* Decode the least-significant four bits */
+	buffer[i / 2] |= argument[i + 1] - '0';
+
     }
 
     /* Create an XDR stream using the decoding buffer */
