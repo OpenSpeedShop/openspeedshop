@@ -181,6 +181,7 @@ AC_CONFIG_FILES(Makefile
 		Panels/Wizards/HW_CounterWizardPanel/Makefile
 		Panels/Wizards/IOWizardPanel/Makefile
 		Panels/Wizards/MPIWizardPanel/Makefile
+		tests/fw/database/Makefile
 )
 
 AC_OUTPUT

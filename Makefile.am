@@ -25,6 +25,10 @@ LDFLAGS = -lc -ldl
 
 SUBDIRS = . libltdl libssf collectors examples base objects dialogs expr_info plugin objects chart pcli gui Panels
 
+TEST_SUBDIRS = tests/fw/database
+
+tests: $(TEST_SUBDIRS)
+
 DOC_SUBDIRS = libssf Panels pcli base chart gui plugin collectors objects dialogs
 
 doc: $(DOC_SUBDIRS) 
