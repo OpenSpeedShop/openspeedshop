@@ -19,7 +19,7 @@ void PreferencesDialog::readPreferencesOnEntry()
   settings->readEntry( "/openspeedshop/general/globalFontFamily", ds, &ok);
   if( ok == FALSE )
   {
-    printf("Didn't find any defaults file.  Just take the defaults.\n");
+//    printf("Didn't find any defaults file.  Just take the defaults.\n");
     return;
   } else
   {
