@@ -55,8 +55,14 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
   highlightList = NULL;
   firstTimeShowingStatAreaFLAG = TRUE;
 
-  canvasForm = new SPCanvasForm( splitter );
+// Create a label so I can get's it's height...
+  label = new QLabel( getBaseWidgetFrame(), "text label", 0 );
+printf("label->height()=%d\n", label->height() );
+
+  canvasForm = new SPCanvasForm( label->height(), splitter );
   canvasForm->hide();
+
+  delete label;
 
   textEditLayoutFrame = new QFrame( splitter, "New QFrame" );
   textEditLayout = new QVBoxLayout( textEditLayoutFrame );
@@ -64,17 +70,15 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
   textEditHeaderLayout = new QHBoxLayout( textEditLayout, 2, "textEditHeaderLayout" );
   textEditHeaderLayout->setMargin(1);
 
-  QSpacerItem *spacerItem = new QSpacerItem(1,20, QSizePolicy::Fixed, QSizePolicy::Minimum );
+  QSpacerItem *spacerItem = new QSpacerItem(1,label->height(), QSizePolicy::Fixed, QSizePolicy::Minimum );
   textEditHeaderLayout->addItem( spacerItem );
 
   label = new QLabel( textEditLayoutFrame, "text label", 0 );
   label->setCaption("SourcePanel: text label");
-  label->setFrameStyle( QFrame::NoFrame );
-  label->setSizePolicy(QSizePolicy( (QSizePolicy::SizeType)5,
-                                    (QSizePolicy::SizeType)0, 0, 0,
-                                    label->sizePolicy().hasHeightForWidth() ) );
+//  label->setFrameStyle( QFrame::NoFrame );
   QString label_text = "No source file specified.";
   label->setText(label_text);
+
 
   textEditHeaderLayout->addWidget( label );
 

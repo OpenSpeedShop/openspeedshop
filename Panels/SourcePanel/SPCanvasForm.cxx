@@ -6,7 +6,7 @@
 /*! Work constructor.   Set's the name of the frame, the pointer to the
     parent panel container, and the frame shape and shadow characteristics.
 */
-SPCanvasForm::SPCanvasForm( QWidget *parent, const char *n, WFlags fl )
+SPCanvasForm::SPCanvasForm( int label_height, QWidget *parent, const char *n, WFlags fl )
     : QWidget( parent, n, fl )
 {
   nprintf(DEBUG_CONST_DESTRUCT) ( "SPCanvasForm::SPCanvasForm( ) constructor called\n");
@@ -20,12 +20,11 @@ SPCanvasForm::SPCanvasForm( QWidget *parent, const char *n, WFlags fl )
   canvasFormHeaderLayout = new QHBoxLayout( canvasFormLayout, 2, "canvasFormHeaderLayout" );
   canvasFormHeaderLayout->setMargin(1);
 
-  QSpacerItem *spacerItem = new QSpacerItem(1,20, QSizePolicy::Fixed, QSizePolicy::Minimum );
+  QSpacerItem *spacerItem = new QSpacerItem(1,label_height, QSizePolicy::Fixed, QSizePolicy::Minimum );
   canvasFormHeaderLayout->addItem( spacerItem );
 
   header = new QHeader( this, "canvas header" );
   header->setCaption("canvas header");
-
   canvasFormHeaderLayout->addWidget( header );
   header->addLabel("LN", DEFAULT_CANVAS_WIDTH);
   header->show();

@@ -19,7 +19,7 @@ class SPCanvasForm : public QWidget
   //! Q_OBJECT is needed as there are slots defined for the class
   Q_OBJECT
 public:
-    SPCanvasForm( QWidget *parent=0, const char *name=0, WFlags fl=0 );
+    SPCanvasForm( int label_height, QWidget *parent=0, const char *name=0, WFlags fl=0 );
     ~SPCanvasForm( );
 
     int numColumns;
