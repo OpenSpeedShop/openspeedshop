@@ -33,7 +33,7 @@ def RunWithoutExecutable(testname, fileptr):
 	os.system('rm tempresultsfile')
 
 
-def OutputCompare(testname, exp_input, typeofrun, fileptr):
+def OutputCompare(testname, typeofrun, fileptr):
 
 
 	if typeofrun == 1:
@@ -57,7 +57,6 @@ def CreateOutput(runtype, fileptr):
 	os.system('make')
 
 	test_input = open(listname, 'r')
-	expected_input = open(expectedfile, 'r')
 
 	while 1:
 		tests_line = test_input.readline()
@@ -69,7 +68,7 @@ def CreateOutput(runtype, fileptr):
 		else:
 
 			name_of_test = tests_line[0:-1]
-			OutputCompare(name_of_test, expected_input, runtype, fileptr)
+			OutputCompare(name_of_test, runtype, fileptr)
 		
 
 	
