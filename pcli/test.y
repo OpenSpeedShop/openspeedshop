@@ -93,7 +93,7 @@ command_desc: exp_attach_com 	{set_command_type(CMD_EXP_ATTACH);}
 	    | list_breaks_com 	{set_command_type(CMD_LIST_BREAKS);}
 	    | list_types_com 	{set_command_type(CMD_LIST_TYPES);}
 	    | gen_clear_break_com 	{set_command_type(CMD_CLEAR_BREAK);}
-	    | gen_exit_com      	{set_command_type(CMD_EXIT);exit(0);}
+	    | gen_exit_com      	{set_command_type(CMD_EXIT);}
 	    | gen_open_gui_com  	{set_command_type(CMD_OPEN_GUI);}
 	    | gen_help_com      	{set_command_type(CMD_HELP);}
 	    | gen_history_com   	{set_command_type(CMD_HISTORY);}
@@ -112,12 +112,10 @@ exp_attach_com:     exp_attach_head   exp_attach_args
 exp_attach_head:    ATTACH_HEAD   
     	    	;
 exp_attach_args:    /* empty */
-    	    	|   exp_attach_arg
-    	    	|   exp_attach_args exp_attach_arg
-    	    	;
-exp_attach_arg:     host_file_rpt_list
-    	    	|   expId_spec
-		|   expType_list
+    	    	|   host_file_rpt_list
+    	    	|   expType_list host_file_rpt_list
+    	    	|   host_file_rpt_list expType_list
+    	    	|   expType_list
     	    	;
 
     	    /** EXP_CLOSE **/
@@ -153,6 +151,7 @@ exp_create_head:    CREATE_HEAD
     	    	;
 exp_create_args:    /* empty */
     	    	|   host_file_rpt_list
+    	    	|   expType_list host_file_rpt_list
     	    	|   host_file_rpt_list expType_list
     	    	|   expType_list
     	    	;
@@ -164,13 +163,11 @@ exp_detach_com:     exp_detach_head   exp_detach_args
 exp_detach_head:    DETACH_HEAD   
     	    	;
 exp_detach_args:    /* empty */
-    	    	|   exp_detach_arg
-    	    	|   exp_detach_args exp_detach_arg
-    	    	;
-exp_detach_arg:     host_file_rpt_list
-    	    	|   expId_spec
-		|   expType_list
-    	    	;
+    	    	|   host_file_rpt_list
+    	    	|   expType_list host_file_rpt_list
+    	    	|   host_file_rpt_list expType_list
+    	    	|   expType_list
+    	    	;    	    	;
 
     	    /** EXP_DISABLE **/
 exp_disable_com:    exp_disable_head   exp_disable_args 
@@ -654,32 +651,32 @@ expParam:   	    expType DOUBLE_COLON param_name
     	    	|   param_name
     	    	;
 
-param_name: 	    PARAM_DISPLAY_MODE	    	{push_string($1,NAME_PARAM);}
-    	    	|   PARAM_DISPLAY_MEDIA     	{push_string($1,NAME_PARAM);}
-    	    	|   PARAM_DISPLAY_REFRESH_RATE	{push_string($1,NAME_PARAM);}
-    	    	|   PARAM_EXP_SAVE_FILE     	{push_string($1,NAME_PARAM);}
-    	    	|   PARAM_SAMPLING_RATE     	{push_string($1,NAME_PARAM);}
+param_name: 	    PARAM_DISPLAY_MODE	    	{push_parameter($1);}
+    	    	|   PARAM_DISPLAY_MEDIA     	{push_parameter($1);}
+    	    	|   PARAM_DISPLAY_REFRESH_RATE	{push_parameter($1);}
+    	    	|   PARAM_EXP_SAVE_FILE     	{push_parameter($1);}
+    	    	|   PARAM_SAMPLING_RATE     	{push_parameter($1);}
 		;
 
 expType_list:  	    expType
     	    	|   expType_list COMMA expType
 		;
 
-expType:	    EXP_PCSAMP	    	    	{push_string($1,NAME_EXPERIMENT);}
-    	    	|   EXP_USERTIME    	    	{push_string($1,NAME_EXPERIMENT);}
-    	    	|   EXP_MPI 	    	    	{push_string($1,NAME_EXPERIMENT);}
-    	    	|   EXP_FPE 	    	    	{push_string($1,NAME_EXPERIMENT);}
-    	    	|   EXP_HWC 	    	    	{push_string($1,NAME_EXPERIMENT);}
-    	    	|   EXP_IO  	    	    	{push_string($1,NAME_EXPERIMENT);}
-		|   NAME  	    	    	{push_string($1,NAME_EXPERIMENT);}
+expType:	    EXP_PCSAMP	    	    	{push_experiment($1);}
+    	    	|   EXP_USERTIME    	    	{push_experiment($1);}
+    	    	|   EXP_MPI 	    	    	{push_experiment($1);}
+    	    	|   EXP_FPE 	    	    	{push_experiment($1);}
+    	    	|   EXP_HWC 	    	    	{push_experiment($1);}
+    	    	|   EXP_IO  	    	    	{push_experiment($1);}
+		|   NAME  	    	    	{push_experiment($1);}
 		;
 
-viewType:   	    VIEW_TOPN	    	    	{push_string($1,NAME_VIEW_TYPE);}
-    	    	|   VIEW_EXCLTIME   	    	{push_string($1,NAME_VIEW_TYPE);}
-    	    	|   VIEW_IO 	    	    	{push_string($1,NAME_VIEW_TYPE);}
-    	    	|   VIEW_FPE	    	    	{push_string($1,NAME_VIEW_TYPE);}
-    	    	|   VIEW_HWC	    	    	{push_string($1,NAME_VIEW_TYPE);}
-    	    	|   NAME	    	    	{push_string($1,NAME_VIEW_TYPE);}
+viewType:   	    VIEW_TOPN	    	    	{push_view_type($1);}
+    	    	|   VIEW_EXCLTIME   	    	{push_view_type($1);}
+    	    	|   VIEW_IO 	    	    	{push_view_type($1);}
+    	    	|   VIEW_FPE	    	    	{push_view_type($1);}
+    	    	|   VIEW_HWC	    	    	{push_view_type($1);}
+    	    	|   NAME	    	    	{push_view_type($1);}
 		;
 
 param_list: 	    expParam EQUAL NUMBER
