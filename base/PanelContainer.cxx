@@ -687,6 +687,7 @@ PanelContainer::findInternalNamedPanelContainer(char *panel_container_name)
 PanelContainer *
 PanelContainer::findBestFitPanelContainer(PanelContainer *start_pc)
 {
+printf("findBestFitPanelContainer() entered\n");
   PanelContainer *pc = start_pc;
   if( pc == NULL )
   {
@@ -697,6 +698,11 @@ PanelContainer::findBestFitPanelContainer(PanelContainer *start_pc)
   {
     start_pc = getMasterPC();
   }
+
+if( start_pc->leftPanelContainer && start_pc->rightPanelContainer )
+{
+  printf("WARNING! You can't add this to this panelContainer!  It's split!\n");
+}
 
   nprintf(DEBUG_PANELCONTAINERS) ("findBestFitPanelContainer() from %s %s\n", start_pc->getInternalName(), start_pc->getExternalName() );
 
@@ -1177,17 +1183,23 @@ PanelContainer::__saveOrderedPanelContainerTree(PanelContainer *pc, FILE *fd, in
 Panel *
 PanelContainer::addPanel(Panel *p, PanelContainer *panel_container, char *tab_name)
 {
-  PanelContainer *pc = panel_container;
+  PanelContainer *start_pc = panel_container;
 
-  nprintf(DEBUG_PANELCONTAINERS) ("PanelContinaer::addPanel(%s, %s) in (%s)\n", tab_name, p->getName(), pc->getInternalName() );
-  if( pc->tabWidget == NULL )
+  if( panel_container->leftPanelContainer && panel_container->rightPanelContainer )
+  {
+    printf("PC:addPanel() WARNING! You can't add this to this panelContainer!  It's split!\n");
+    start_pc = panel_container->findBestFitPanelContainer(start_pc);
+  }
+
+  nprintf(DEBUG_PANELCONTAINERS) ("PanelContinaer::addPanel(%s, %s) in (%s)\n", tab_name, p->getName(), start_pc->getInternalName() );
+  if( start_pc->tabWidget == NULL )
   {
     fprintf(stderr, "ERROR: addPanel.  No tabWidget\n");
     return NULL;
   }
 
   nprintf(DEBUG_PANELCONTAINERS) ("PanelContinaer::addPanel() add the tab\n");
-  pc->tabWidget->addTab( p->getBaseWidgetFrame(), tab_name );
+  start_pc->tabWidget->addTab( p->getBaseWidgetFrame(), tab_name );
 
   // Add the panel to the iterator list.   This list (panelList) aids us
   // when cleaning up PanelContainers.  We'll just loop over this list
@@ -1197,25 +1209,25 @@ PanelContainer::addPanel(Panel *p, PanelContainer *panel_container, char *tab_na
   //  PanelContainer::removePanel(int panel_index) to have the panel and
   // it's location in the iterator list removed.
   nprintf(DEBUG_PANELCONTAINERS) ("PanelContinaer::addPanel() push_back() it!\n");
-  pc->panelList.push_back(p);
+  start_pc->panelList.push_back(p);
 
-  nprintf(DEBUG_PANELCONTAINERS) ("PanelContinaer::addPanel() setCurrentPage(%d)\n", pc->tabWidget->count()-1);
+  nprintf(DEBUG_PANELCONTAINERS) ("PanelContinaer::addPanel() setCurrentPage(%d)\n", start_pc->tabWidget->count()-1);
 
 
   // Put the newly added tab on top
-  nprintf(DEBUG_PANELCONTAINERS) ("Try to put %d on top\n", pc->tabWidget->count()-1 );
+  nprintf(DEBUG_PANELCONTAINERS) ("Try to put %d on top\n", start_pc->tabWidget->count()-1 );
 
-  pc->tabWidget->setCurrentPage(pc->tabWidget->count()-1);
+  start_pc->tabWidget->setCurrentPage(start_pc->tabWidget->count()-1);
 
-  pc->handleSizeEvent((QResizeEvent *)NULL);
+  start_pc->handleSizeEvent((QResizeEvent *)NULL);
 
   // Make it visible to the world.  At somepoint we may want to create a tab,
   // but not make it visible.  If/when that day comes, you'll need to pass in 
   // an additional parameter (showing by default) that let's one toggle this 
   // call.
-  pc->dropSiteLayoutParent->show();
+  start_pc->dropSiteLayoutParent->show();
   nprintf(DEBUG_PANELCONTAINERS) ("PanelContinaer::addPanel() show() it!\n");
-  pc->tabWidget->show();
+  start_pc->tabWidget->show();
 
   nprintf(DEBUG_PANELCONTAINERS) ("PanelContinaer::addPanel() returning\n");
 
