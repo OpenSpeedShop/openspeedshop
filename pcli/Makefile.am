@@ -55,26 +55,34 @@ posscli_la_SOURCES = \
 	Commander.cxx \
 	CommandObject.cxx \
 	SS_Cmd_Execution.cxx \
+	SS_Parse_Param.cxx \
 	SS_Parse_Range.cxx \
 	SS_Parse_Result.cxx \
 	SS_Parse_Target.cxx \
 	Experiment.cxx \
 	support.cxx \
 	help.cxx \
-	y.tab.cxx \
-	lex.yy.cxx \
+	SS_Parse_Yacc.cxx \
+	SS_Parse_Lex.cxx \
 	PY_Input.cxx
 
-y.tab.cxx:
+SS_Parse_Yacc.cxx: $(YFILES) SS_Parse_Result.hxx
+	-rm -f SS_Parse_Yacc.cxx
 	-yacc $(YFLAGS) $(YFILES);
-	-mv y.tab.c y.tab.cxx
+	-mv y.tab.c SS_Parse_Yacc.cxx
 
-lex.yy.cxx: y.tab.cxx
+SS_Parse_Lex.cxx: $(LFILES)
+	-rm -f SS_Parse_Lex.cxx
 	-lex $(LFILES);
-	-mv lex.yy.c lex.yy.cxx
+	-mv lex.yy.c SS_Parse_Lex.cxx
 
 clobber:
-	-rm *.lo *.la lex.yy.cxx y.tab.cxx y.tab.h
+	-rm \
+	*.lo \
+	*.la \
+	y.tab.h \
+	SS_Parse_Lex.cxx \
+	SS_Parse_Yacc.cxx
 
 bin_PROGRAMS = pcli
 
