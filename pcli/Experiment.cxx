@@ -26,10 +26,17 @@ ExperimentObject *Find_Experiment_Object (EXPID ExperimentID)
 
 // Low Level Semantic Routines
 
-CommandResult *Experiment_Create (CMDWID WindowID, EXPID ExperimentID,
-                                ApplicationGroupObject *App, Collector *Inst)
-{
+bool SS_expAttach (CommandObject *cmd) {
+  InputLineObject *clip = cmd->Clip();
+  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+
+  ApplicationGroupObject *App = NULL;
+  Collector *Inst = NULL;
+
+  CommandResult *cmr = NULL;
   ExperimentObject *exp = NULL;
+  EXPID ExperimentID = 0;
+
   if (ExperimentID <= 0) {
    // Use the current focused experiment.
     ExperimentID =  Experiment_Focus (WindowID);
@@ -44,7 +51,9 @@ CommandResult *Experiment_Create (CMDWID WindowID, EXPID ExperimentID,
     (void)Experiment_Focus (WindowID, exp->ExperimentObject_ID());
   }
   if (exp == NULL) {
-    return new CommandResult_String("The requested experiment could not be found");
+    cmd->Result_String ("The requested experiment could not be found");
+    cmd->set_Status(CMD_ERROR);
+    return false;
   }
   if (App != NULL) {
     exp->ExperimentObject_Add_Application (App);
@@ -52,13 +61,22 @@ CommandResult *Experiment_Create (CMDWID WindowID, EXPID ExperimentID,
   if (Inst != NULL) {
     exp->ExperimentObject_Add_Instrumention (Inst);
   }
-  return new  CommandResult_Int (exp->ExperimentObject_ID());
+
+ // Return the EXPID for this command.
+  cmd->Result_Int (exp->ExperimentObject_ID());
+  cmd->set_Status(CMD_COMPLETE);
+
+  return true;
 }
 
-bool Experiment_Create (CommandObject *cmd) {
-  CommandResult *cmr = NULL;
+#define Define_Line_Info( a, b, c) (b = a->Clip(), \
+                                    c = ((b != NULL) ? b->Who() : 0))
+
+bool SS_expCreate (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+
+  CommandResult *cmr = NULL;
   ExperimentObject *exp = NULL;
   EXPID ExperimentID = 0;
 
@@ -76,9 +94,48 @@ bool Experiment_Create (CommandObject *cmd) {
 //  if (Inst != NULL) {
 //    exp->ExperimentObject_Add_Instrumention (Inst);
 //  }
-  cmr = new CommandResult_Int (exp->ExperimentObject_ID());
-  cmd->Add_Result(cmr);
+
+ // Return the EXPID for this command.
+  cmd->Result_Int (exp->ExperimentObject_ID());
   cmd->set_Status(CMD_COMPLETE);
+
+  return true;
+}
+
+bool SS_expFocus  (CommandObject *cmd) {
+  InputLineObject *clip = cmd->Clip();
+  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+
+  CommandResult *cmr = NULL;
+  ExperimentObject *exp = NULL;
+  EXPID ExperimentID = 0;
+
+  if (ExperimentID == 0) {
+    ExperimentID = Experiment_Focus ( WindowID );
+  } else {
+    ExperimentID = Experiment_Focus ( WindowID, ExperimentID);
+  }
+
+ // Return the EXPID for this command.
+  cmd->Result_Int (ExperimentID);
+  cmd->set_Status(CMD_COMPLETE);
+
+  return true;
+}
+
+bool SS_Record (CommandObject *cmd) {
+  InputLineObject *clip = cmd->Clip();
+  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+
+  char *tofile = NULL;
+
+  if (tofile == NULL) {
+   (void)SpeedShop_Trace_OFF ();
+  } else {
+    (void)SpeedShop_Trace_ON(tofile);
+  }
+
+ // There is no result returned for this command.
 
   return true;
 }
