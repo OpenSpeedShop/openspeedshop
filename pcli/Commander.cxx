@@ -1163,11 +1163,13 @@ read_another_window:
     return NULL;
   }
 
+// Initialize fields in the Clip:
  // Assign a sequence number to the command.
   clip->SetSeq (++Command_Sequence_Number);
-
-// Reflect internal state in the command and log it to the trace file
+ // Reflect internal state in the command and log it to the trace file
   clip->SetStatus (ILO_IN_PARSER);
+ // Mark nested commands
+  if (is_more)   clip-> Set_Complex_Exp ();
 
  // Log the command.
   cw->Record(clip);
