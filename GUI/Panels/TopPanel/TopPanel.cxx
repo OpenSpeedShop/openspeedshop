@@ -233,7 +233,7 @@ TopPanel::saveAs()
  * Add message listener() functionality here.
  */
 int 
-TopPanel::listener(char *msg)
+TopPanel::listener(void *msg)
 {
   dprintf("TopPanel::listener() requested.\n");
   return 0;  // 0 means, did not want this message and did not act on anything.

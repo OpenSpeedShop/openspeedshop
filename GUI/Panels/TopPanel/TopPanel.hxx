@@ -39,7 +39,7 @@ public:
   void save();
 
   //! Listener routine for the TopPanel
-  int listener(char *msg);
+  int listener(void *msg);
 
   //! prototype: get the top 'n' values
   int getValues(int values[], char *colors[], char *strings[], int n);

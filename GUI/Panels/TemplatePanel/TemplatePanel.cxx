@@ -137,7 +137,7 @@ TemplatePanel::saveAs()
     \return 1 means you handled the message.
  */
 int 
-TemplatePanel::listener(char *msg)
+TemplatePanel::listener(void *msg)
 {
   dprintf("TemplatePanel::listener() requested.\n");
   return 0;  // 0 means, did not want this message and did not act on anything.

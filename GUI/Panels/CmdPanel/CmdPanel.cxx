@@ -116,7 +116,7 @@ CmdPanel::saveAs()
  * Add message listener() functionality here.
  */
 int 
-CmdPanel::listener(char *msg)
+CmdPanel::listener(void *msg)
 {
   dprintf("CmdPanel::listener() requested.\n");
   return 0;  // 0 means, did not want this message and did not act on anything.

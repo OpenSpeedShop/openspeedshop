@@ -12,6 +12,7 @@
 #include <qbitmap.h>
 
 #include "ProcessControlObject.hxx"
+#include "ControlObject.hxx"
 
 
 
@@ -40,7 +41,7 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
   printf("pcSamplePanel::pcSamplePanel() constructor called\n");
   frameLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
-  ProcessControlObject *pco = new ProcessControlObject(frameLayout, getBaseWidgetFrame() );
+  ProcessControlObject *pco = new ProcessControlObject(frameLayout, getBaseWidgetFrame(), (Panel *)this );
 
   statusLayout = new QHBoxLayout( 0, 10, 0, "statusLayout" );
   
@@ -172,9 +173,61 @@ pcSamplePanel::saveAs()
 
 //! This function listens for messages.
 int 
-pcSamplePanel::listener(char *msg)
+pcSamplePanel::listener(void *msg)
 {
-  dprintf("pcSamplePanel::listener() requested.\n");
+  printf("pcSamplePanel::listener() requested.\n");
+
+  ControlObject *co = (ControlObject *)msg;
+
+  if( !co )
+  {
+     return 0; // 0 means, did not act on message
+  }
+
+  // Check the message type to make sure it's our type...
+  if( co->msgType != "ControlObject" )
+  {
+    nprintf(DEBUG_PANELS) ("psSamplePanel::listener() Not a ControlObject.\n");
+    return 0; // o means, did not act on message.
+  }
+
+  co->print();
+
+  switch( (int)co->cot )
+  {
+    case  ATTACH_PROCESS_T:
+      printf("Attach to a process\n");
+      break;
+    case  DETACH_PROCESS_T:
+      printf("Detach from a process\n");
+      break;
+    case  ATTACH_COLLECTOR_T:
+      printf("Attach to a collector\n");
+      break;
+    case  REMOVE_COLLECTOR_T:
+      printf("Remove a collector\n");
+      break;
+    case  RUN_T:
+      printf("Run\n");
+      break;
+    case  PAUSE_T:
+      printf("Pause\n");
+      break;
+    case  CONT_T:
+      printf("Continue\n");
+      break;
+    case  UPDATE_T:
+      printf("Update\n");
+      break;
+    case  INTERRUPT_T:
+      printf("Interrupt\n");
+      break;
+    case  TERMINATE_T:
+      printf("Terminate\n");
+      break;
+    default:
+      break;
+  }
   return 0;  // 0 means, did not want this message and did not act on anything.
 }
 

@@ -49,6 +49,7 @@ ftObjects_la_SOURCES = \
 	ProcessEntryClass.hxx \
 	MessageObject.hxx MessageObject.cxx \
 	SourceObject.hxx SourceObject.cxx \
+	ControlObject.hxx ControlObject.cxx \
 	ProcessListObject.hxx ProcessListObject.cxx \
 	OutputObject.hxx OutputObject.cxx \
 	AnimatedQPushButton.hxx AnimatedQPushButton.cxx moc_AnimatedQPushButton.cxx \

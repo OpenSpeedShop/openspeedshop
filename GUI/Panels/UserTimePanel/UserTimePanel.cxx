@@ -68,7 +68,7 @@ UserTimePanel::saveAs()
 
 /*! This function listens for messages. */
 int 
-UserTimePanel::listener(char *msg)
+UserTimePanel::listener(void *msg)
 {
   dprintf("UserTimePanel::listener() requested.\n");
   return 0;  // 0 means, did not want this message and did not act on anything.

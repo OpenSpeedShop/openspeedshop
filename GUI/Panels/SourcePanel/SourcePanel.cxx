@@ -173,7 +173,7 @@ SourcePanel::saveAs()
    TopPanel) to load and position source files.
  */
 int 
-SourcePanel::listener(char *msg)
+SourcePanel::listener(void *msg)
 {
   SourceObject *spo = (SourceObject *)msg;
   nprintf(DEBUG_PANELS) ("SourcePanel::listener() requested.\n");
@@ -184,9 +184,9 @@ SourcePanel::listener(char *msg)
   }
 
   // Check the message type to make sure it's our type...
-  if( spo->msgType == "Source Object" )
-    {
-    nprintf(DEBUG_PANELS) ("SourcePanel::listener() Not a Source Object.\n");
+  if( spo->msgType != "SourceObject" )
+  {
+    nprintf(DEBUG_PANELS) ("SourcePanel::listener() Not a SourceObject.\n");
     return 0; // o means, did not act on message.
   }
 

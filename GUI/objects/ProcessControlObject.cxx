@@ -1,5 +1,7 @@
 #include "ProcessControlObject.hxx"
 
+#include "ControlObject.hxx"
+
 
 #include <qapplication.h>
 #include <qbuttongroup.h>
@@ -37,9 +39,11 @@
 
 
 /*! The default constructor.   Unused. */
-ProcessControlObject::ProcessControlObject(QVBoxLayout *frameLayout, QWidget *baseWidget)
+ProcessControlObject::ProcessControlObject(QVBoxLayout *frameLayout, QWidget *baseWidget, Panel *p)
 { // Unused... Here for completeness...
   printf("ProcessControlObject::ProcessControlObject() constructor called\n");
+
+  panel = p;
 
   buttonGroup = new QButtonGroup( baseWidget, "buttonGroup" );
   buttonGroup->setColumnLayout(0, Qt::Vertical );
@@ -272,24 +276,40 @@ void
 ProcessControlObject::attachProcessButtonSlot()
 {
   printf("PCO: Attach Process\n");
+
+  ControlObject *co = new ControlObject(ATTACH_PROCESS_T);
+  panel->listener((void *)co);
+  delete co;
 }
 
 void 
 ProcessControlObject::detachProcessButtonSlot()
 {
   printf("PCO: Detach Process\n");
+
+  ControlObject *co = new ControlObject(DETACH_PROCESS_T);
+  panel->listener((void *)co);
+  delete co;
 }
 
 void 
 ProcessControlObject::attachCollectorButtonSlot()
 {
   printf("PCO: Attach Collector\n");
+
+  ControlObject *co = new ControlObject(ATTACH_COLLECTOR_T);
+  panel->listener((void *)co);
+  delete co;
 }
 
 void 
 ProcessControlObject::detachCollectorButtonSlot()
 {
   printf("PCO: Detach Collector\n");
+
+  ControlObject *co = new ControlObject(REMOVE_COLLECTOR_T);
+  panel->listener((void *)co);
+  delete co;
 }
 
 
@@ -317,7 +337,11 @@ printf("# theApplication.setStatus(Thread::Running\n");
   detachProcessButton->setEnabled(TRUE);
   detachCollectorButton->setEnabled(TRUE);
   terminateButton->setEnabled(TRUE);
-terminateButton->enabledFLAG = TRUE;
+  terminateButton->enabledFLAG = TRUE;
+
+  ControlObject *co = new ControlObject(RUN_T);
+  panel->listener((void *)co);
+  delete co;
 }
 
 
@@ -335,6 +359,10 @@ printf("# theApplication.setStatus(Thread::Suspended)\n");;
   continueButton->setEnabled(TRUE);
   continueButton->enabledFLAG = TRUE;
   continueButton->setFlat(TRUE);
+
+  ControlObject *co = new ControlObject(PAUSE_T);
+  panel->listener((void *)co);
+  delete co;
 }
 
 
@@ -352,6 +380,10 @@ printf("# theApplication.setStatus(Thread::Running\n");
   continueButton->setEnabled(FALSE);
   continueButton->enabledFLAG = TRUE;
   continueButton->setFlat(TRUE);
+
+  ControlObject *co = new ControlObject(CONT_T);
+  panel->listener((void *)co);
+  delete co;
 }
 
 
@@ -360,6 +392,10 @@ ProcessControlObject::updateButtonSlot()
 {
   printf("PCO: Update button pressed.\n");
 printf("Get some data!\n");
+
+  ControlObject *co = new ControlObject(UPDATE_T);
+  panel->listener((void *)co);
+  delete co;
 }
 
 
@@ -368,6 +404,10 @@ void
 ProcessControlObject::interruptButtonSlot()
 {
   printf("PCO: Interrupt button pressed\n");
+
+  ControlObject *co = new ControlObject(INTERRUPT_T);
+  panel->listener((void *)co);
+  delete co;
 }
 
 
@@ -400,6 +440,10 @@ printf("# if( response is yes, then called theApplication.saveAs();\n");
   terminateButton->setFlat(TRUE);
   terminateButton->setEnabled(FALSE);
   terminateButton->enabledFLAG = FALSE;
+
+  ControlObject *co = new ControlObject(TERMINATE_T);
+  panel->listener((void *)co);
+  delete co;
 }
 
 /*

@@ -41,7 +41,7 @@ class DebugPanel  : public Panel
     void saveAs();
 
     //! Calls the user panel function listener() request.
-    int listener(char *msg);
+    int listener(void *msg);
 
     //! Calls the panel function broadcast() message request.
     int broadcast(char *msg);

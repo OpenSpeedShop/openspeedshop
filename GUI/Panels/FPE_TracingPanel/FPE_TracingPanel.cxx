@@ -137,7 +137,7 @@ FPE_TracingPanel::saveAs()
     \return 1 means you handled the message.
  */
 int 
-FPE_TracingPanel::listener(char *msg)
+FPE_TracingPanel::listener(void *msg)
 {
   dprintf("FPE_TracingPanel::listener() requested.\n");
   return 0;  // 0 means, did not want this message and did not act on anything.

@@ -44,7 +44,7 @@ public:
   void saveAs();
 
   //! The listener routine for fielding messages.
-  int listener(char *msg);
+  int listener(void *msg);
 
   //! The broadcaster for sending messages.
   int broadcast(char *msg, BROADCAST_TYPE bt);

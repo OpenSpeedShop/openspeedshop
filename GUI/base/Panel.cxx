@@ -168,7 +168,7 @@ void Panel::saveAs()
     \return 0 means you didn't do anything with the message.
     \return 1 means you handled the message.
  */
-int Panel::listener(char *msg)
+int Panel::listener(void *msg)
 {
   nprintf(DEBUG_PANELS) ("Panel::listener() entered\n");
 

@@ -65,7 +65,7 @@ public:
     virtual void saveAs();
 
     //! Calls the user panel function listener() request.
-    virtual int listener(char *msg);
+    virtual int listener(void *msg);
 
     //! Calls the panel function broadcast() message request.
     virtual int broadcast(char *msg, BROADCAST_TYPE bt=ALL_T);

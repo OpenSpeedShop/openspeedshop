@@ -2,6 +2,7 @@
 #define PROCESS_CONTROL_OBJECT_H
 
 #include "AnimatedQPushButton.hxx"
+#include "Panel.hxx"
 #include <qpushbutton.h>
 
 #include <qlayout.h>
@@ -18,7 +19,7 @@ class ProcessControlObject : public QWidget
   Q_OBJECT
 public:
   //! ProcessControlObject() - A default constructor the the Panel Class.
-  ProcessControlObject(QVBoxLayout *, QWidget *);  // Default construct
+  ProcessControlObject(QVBoxLayout *, QWidget *, Panel *);  // Default construct
 
   //! ~ProcessControlObject() - The default destructor.
   ~ProcessControlObject();  // Active destructor
@@ -34,6 +35,8 @@ public:
   AnimatedQPushButton *updateButton;
   AnimatedQPushButton *interruptButton;
   AnimatedQPushButton *terminateButton;
+
+  Panel *panel;
 
 public slots:
   virtual void attachCollectorButtonSlot();

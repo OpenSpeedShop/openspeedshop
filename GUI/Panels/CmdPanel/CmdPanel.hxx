@@ -24,7 +24,7 @@ public:
   bool menu(QPopupMenu* contextMenu);
   void save();
   void saveAs();
-  int listener(char *msg);
+  int listener(void *msg);
   int broadcast(char *msg, BROADCAST_TYPE bt);
 
 public slots:
