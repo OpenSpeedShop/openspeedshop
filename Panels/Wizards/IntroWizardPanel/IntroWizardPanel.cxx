@@ -453,6 +453,11 @@ void IntroWizardPanel::epage1NextButtonSelected()
     if( !p )
     {
       getPanelContainer()->getMasterPC()->dl_create_and_add_panel("pc Sample Wizard", getPanelContainer(), (char *)TRUE);
+    } else
+    {
+      MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
+      p->listener((void *)msg);
+      delete msg;
     }
   }
   if( epage1UserTimeRB->isOn() )
@@ -461,6 +466,11 @@ void IntroWizardPanel::epage1NextButtonSelected()
     if( !p )
     {
       getPanelContainer()->getMasterPC()->dl_create_and_add_panel("User Time Wizard", getPanelContainer(), (char *)TRUE);
+    } else
+    {
+      MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
+      p->listener((void *)msg);
+      delete msg;
     }
   }
   if( epage1HardwareCounterRB->isOn() )
@@ -469,6 +479,11 @@ void IntroWizardPanel::epage1NextButtonSelected()
     if( !p )
     {
       getPanelContainer()->getMasterPC()->dl_create_and_add_panel("HW Counter Wizard", getPanelContainer(), (char *)TRUE);
+    } else
+    {
+      MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
+      p->listener((void *)msg);
+      delete msg;
     }
   }
   if( epage1FloatingPointRB->isOn() )
@@ -477,6 +492,11 @@ void IntroWizardPanel::epage1NextButtonSelected()
     if( !p )
     {
       getPanelContainer()->getMasterPC()->dl_create_and_add_panel("FPE Tracing Wizard", getPanelContainer(), (char *)TRUE);
+    } else
+    {
+      MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
+      p->listener((void *)msg);
+      delete msg;
     }
   }
   if( epage1InputOutputRB->isOn() )
@@ -485,6 +505,11 @@ void IntroWizardPanel::epage1NextButtonSelected()
     if( !p )
     {
       getPanelContainer()->getMasterPC()->dl_create_and_add_panel("IO Wizard", getPanelContainer(), (char *)TRUE);
+    } else
+    {
+      MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
+      p->listener((void *)msg);
+      delete msg;
     }
   }
   if( epage1MPIRB->isOn() )
@@ -493,6 +518,11 @@ void IntroWizardPanel::epage1NextButtonSelected()
     if( !p )
     {
       getPanelContainer()->getMasterPC()->dl_create_and_add_panel("MPI Wizard", getPanelContainer(), (char *)TRUE);
+    } else
+    {
+      MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
+      p->listener((void *)msg);
+      delete msg;
     }
   }
   getPanelContainer()->hidePanel((Panel *)this);
@@ -523,6 +553,11 @@ void IntroWizardPanel::vpage1NextButtonSelected()
     if( !p )
     {
       getPanelContainer()->getMasterPC()->dl_create_and_add_panel("pc Sample Wizard", getPanelContainer(), (char *)TRUE);
+    } else
+    {
+      MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
+      p->listener((void *)msg);
+      delete msg;
     }
   }
   if( vpage1UserTimeRB->isOn() )
@@ -531,6 +566,11 @@ void IntroWizardPanel::vpage1NextButtonSelected()
     if( !p )
     {
       getPanelContainer()->getMasterPC()->dl_create_and_add_panel("User Time Wizard", getPanelContainer(), (char *)TRUE);
+    } else
+    {
+      MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
+      p->listener((void *)msg);
+      delete msg;
     }
   }
   if( vpage1HardwareCounterRB->isOn() )
@@ -539,6 +579,11 @@ void IntroWizardPanel::vpage1NextButtonSelected()
     if( !p )
     {
       getPanelContainer()->getMasterPC()->dl_create_and_add_panel("HW Counter Wizard", getPanelContainer(), (char *)TRUE);
+    } else
+    {
+      MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
+      p->listener((void *)msg);
+      delete msg;
     }
   }
   if( vpage1FloatingPointRB->isOn() )
@@ -547,6 +592,11 @@ void IntroWizardPanel::vpage1NextButtonSelected()
     if( !p )
     {
       getPanelContainer()->getMasterPC()->dl_create_and_add_panel("FPE Tracing Wizard", getPanelContainer(), (char *)TRUE);
+    } else
+    {
+      MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
+      p->listener((void *)msg);
+      delete msg;
     }
   }
   if( vpage1InputOutputRB->isOn() )
@@ -555,6 +605,11 @@ void IntroWizardPanel::vpage1NextButtonSelected()
     if( !p )
     {
       getPanelContainer()->getMasterPC()->dl_create_and_add_panel("IO Wizard", getPanelContainer(), (char *)TRUE);
+    } else
+    {
+      MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
+      p->listener((void *)msg);
+      delete msg;
     }
   }
   if( vpage1MPIRB->isOn() )
@@ -563,6 +618,11 @@ void IntroWizardPanel::vpage1NextButtonSelected()
     if( !p )
     {
       getPanelContainer()->getMasterPC()->dl_create_and_add_panel("MPI Wizard", getPanelContainer(), (char *)TRUE);
+    } else
+    {
+      MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
+      p->listener((void *)msg);
+      delete msg;
     }
   }
 
