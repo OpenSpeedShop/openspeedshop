@@ -1,0 +1,80 @@
+Estimated Time:
+   Anticipated test time; 15 minutes.   Max test time; 25 minutes.
+
+Task 1:
+  Launch Open/SpeedShop and optionally load a target application.
+  (named 'fred_calls_ted').
+Reason:
+  To see if the user can initiate the tool and (optionally) figure out how to 
+  load an executable from the command syntax arguments or from the 
+  main "File" menu.
+
+Task 2:
+  Figure out which experiment will show the routine in the
+  application that is taking the most time.
+Reason:
+  To determine if the user can navigate the different experiments to find out
+  where to start performance debugging.
+
+Task 3:
+  Actively select the experiment determined in Task 2.
+Reason:
+  To see if it's obvious that an experiment type needs to be selected before
+  anything >other than running the program< will be accomplished.
+
+Task 4:
+  Associate the executable with the selected experiment.
+Reason:
+  To make the required association between an experiment and the executable.
+
+Task 5:
+  Pass/add the required command line arguments to the exectuable.
+Reason:
+  To determine if it's obvious how to pass command line arguments to 
+  the executable.
+  
+Task 6:
+  Run the experiment/executable.  (With the correct command
+  line argurments.)
+Reason: 
+  To see if it's easy to launch (run) an program under the control of 
+  and experiment.
+
+Task 7:
+  Determine the current state of the process.
+Reason:
+  To see if the "Status" field is obviuos to the user that it contains the 
+  current status of the process under control of the experiment.
+
+Task 8:
+  Determine the user's comfortable with a default view being displayed
+  at termination?
+Reason:
+  To determine if it's reasonable to volunteer a default report to the user
+  with a default set of attributes.
+
+Task 9:
+  Give the default view (report).   Can the user determine how much time 
+  the Top routines took?
+Reason: 
+  Does the report make any sense to the user.
+
+Task 10:
+  Display line numbers on the source.
+Reason:
+  To see if the user can find the panel specific menu's.
+
+Task 11: 
+  Display the Top Panel side by side with the Source Panel.
+Reason: 
+  To determine if the user can figure out how to split panel
+  containers and drag-n-drop panels.   Accomplishing this will 
+  clue us in if the user can easily understand how to manage
+  the screen realestate.
+
+Task 12:
+   Save the report to a file for later viewing.
+Reason:
+   To see if the save menu item can be discovered and distinguished from
+   the save data file.
+
