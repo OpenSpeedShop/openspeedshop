@@ -46,6 +46,8 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
 
   splitter = new QSplitter(getBaseWidgetFrame(), "SourcePanel: splitter");
   splitter->setOrientation( QSplitter::Horizontal );
+// splitter->setHandleWidth(splitter->handleWidth()/2);
+splitter->setHandleWidth(1);
 
   lastTop = 0;
   last_para = -1;   // For last find command.
@@ -55,15 +57,15 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
   line_numbersFLAG = FALSE;
   highlightList = NULL;
 
-  statArea = new QListView( splitter );
-  statArea->header()->setClickEnabled( FALSE );
-//  statArea->setVScrollBarMode( QScrollView::AlwaysOff );
-//  statArea->setHScrollBarMode( QScrollView::AlwaysOff );
-statArea->setSorting(-1);
-  statArea->addColumn( "Expr 1" );
-  statArea->addColumn( "Expr 2" );
-  statArea->addColumn( "Expr 3" );
-  statArea->addColumn( "Average" );
+  statArea = new QTable( splitter );
+statArea->setVScrollBarMode( QScrollView::AlwaysOff );
+statArea->setHScrollBarMode( QScrollView::AlwaysOn );
+vbar = statArea->verticalScrollBar();
+hbar = statArea->horizontalScrollBar();
+statArea->verticalHeader()->hide();
+statArea->setLeftMargin(0);
+statArea->setShowGrid(FALSE);
+
   textEditLayoutFrame = new QFrame( splitter );
   textEditLayout = new QVBoxLayout( textEditLayoutFrame );
 
@@ -82,9 +84,8 @@ statArea->setSorting(-1);
   QString label_text = "No source file specified.";
   label->setText(label_text);
 
-  // We subtract 2 pixels because qheader.cpp adds 2.  This calculates the 
-  // exact height of the QListView's header area.
-  QSpacerItem *spacerItem = new QSpacerItem(1, statArea->header()->height()-2, QSizePolicy::Fixed, QSizePolicy::Fixed );
+//  QSpacerItem *spacerItem = new QSpacerItem(1, statArea->horizontalHeader()->height()-2, QSizePolicy::Fixed, QSizePolicy::Fixed );
+  QSpacerItem *spacerItem = new QSpacerItem(1, statArea->horizontalHeader()->height()-4, QSizePolicy::Fixed, QSizePolicy::Fixed );
   textEditHeaderLayout->addItem( spacerItem );
   textEditHeaderLayout->addWidget( label );
 
@@ -94,6 +95,7 @@ statArea->setSorting(-1);
   textEdit = new SPTextEdit( this, textEditLayoutFrame );
   textEdit->setCaption("SourcePanel: SPTextEdit");
   textEditLayout->addWidget( textEdit );
+textEdit->setHScrollBarMode( QScrollView::AlwaysOn );
 
   addWhatsThis(textEdit, this);
 
@@ -107,6 +109,8 @@ statArea->setSorting(-1);
     connect( vscrollbar, SIGNAL(sliderReleased()),
            this, SLOT(valueChanged()) );
     connect( vscrollbar, SIGNAL(nextLine()),
+           this, SLOT(valueChanged()) );
+    connect( vscrollbar, SIGNAL(sliderMoved(int)),
            this, SLOT(valueChanged()) );
     connect( vscrollbar, SIGNAL(prevLine()),
            this, SLOT(valueChanged()) );
@@ -418,6 +422,9 @@ SourcePanel::showStats()
     statsFLAG = TRUE;
     statArea->show();
   }
+
+// Make sure the scrollbar is sync'd with everyone..
+valueChanged();
 }
 
 /*! Display/Undisplay line numbers in the display. */
@@ -522,30 +529,23 @@ SourcePanel::loadFile(const QString &_fileName)
   // Disabling highlights, makes updating the source much quicker and cleaner.
   textEdit->setUpdatesEnabled( FALSE );
 
-  QString line;
-  QString new_line("\n");
+  QString line = NULL;
+//  QString new_line("\n");
+  QString blank_line("");
   QTextStream ts( &f );
   QString line_number;
   char line_number_buffer[10];
   textEdit->clear();
-statArea->clear();
-QListViewItem *last_item = NULL;
+  lineCount = 0;
   if( line_numbersFLAG )
   {
-    lineCount = 1;
     while( !ts.atEnd() )
     {
       line = ts.readLine();  // line of text excluding '\n'
-      sprintf(line_number_buffer, "%6d ", lineCount);
+      sprintf(line_number_buffer, "%6d ", lineCount+1);
       line_number = QString(line_number_buffer);
-      textEdit->append(line_number+line+new_line);
-// (void ) new QListViewItem( statArea, line_number, line_number);
-//QListViewItem *item = new QListViewItem( statArea );
-//item->setText( 0, line_number+"0blah");
-//item->setText( 1, line_number+"1blah");
-QListViewItem *item = new QListViewItem( statArea, last_item, "0:"+line_number, "1:"+line_number);
+      textEdit->append(line_number+line);
       lineCount++;
-last_item = item;
     }
   } else
   {
@@ -556,23 +556,30 @@ last_item = item;
     while( !ts.atEnd() )
     {
       line = ts.readLine();  // line of text excluding '\n'
-      textEdit->append(line+new_line);
-lineCount++;
-sprintf(line_number_buffer, "%6d ", lineCount);
-line_number = QString(line_number_buffer);
-//(void ) new QListViewItem( statArea, line_number+"1blah", line_number+"2blah");
-// QListViewItem *item = new QListViewItem( statArea );
-// item->setText( 0, line_number+"0blah");
-// item->setText( 1, line_number+"1blah");
-QListViewItem *item = new QListViewItem( statArea, last_item, "0:"+line_number, "1:"+line_number);
-last_item = item;
+      textEdit->append(line);
+      lineCount++;
     }
 #endif //  OLDWAY
     // Need to set cursor position so subsequent position requests are fielded.
     textEdit->setCursorPosition(0, 0);
   }
-  lineCount = textEdit->paragraphs();
-  lineCount--;
+//   lineCount = textEdit->paragraphs();
+  printf("lineCount=%d paragraphs()=%d\n", lineCount, textEdit->paragraphs() );
+
+  statArea->setNumRows(lineCount);
+  statArea->setNumCols(1);
+int heightForWidth = textEdit->heightForWidth(80);
+float lineHeight = (heightForWidth-hscrollbar->height())/(float)lineCount;
+printf("lineCount=%d lineHeight=%d\n", lineCount, lineHeight);
+for(int i=0;i<lineCount;i++)
+{
+  sprintf(line_number_buffer, "%6d ", i+1);
+  statArea->setRowHeight(i,(int)lineHeight+1);
+//  statArea->setRowHeight(i,(int)15);
+  statArea->setText(i, 0, QString(QString(line_number_buffer)));
+}
+printf("The last line was: %s\n", line_number_buffer );
+
 
   nprintf(DEBUG_PANELS) ("lineCount=%d\n", lineCount);
   textEdit->setModified( FALSE );
@@ -599,6 +606,9 @@ last_item = item;
     positionLineAtTop(lastTop);
     nprintf(DEBUG_PANELS) ("loadFile:: down here sameFile: lastTop=%d\n", lastTop);
   }
+
+// Make sure the scrollbar is sync'd with everyone..
+valueChanged();
 }
 
 /*! Get more information about the current posotion (if any). */
@@ -678,6 +688,11 @@ SourcePanel::highlightLine(int line, char *color, bool inverse)
 
   // Annotate the scrollbar for this highlight....
   textEdit->annotateScrollBarLine(line, QColor(color));
+
+  if( statArea )
+  {
+printf("Set the annotation here...\n");
+  }
 }
 
 /*! Clear the highlight at the give line. */
@@ -842,6 +857,7 @@ SourcePanel::valueChanged()
   float minValue = (float)vscrollbar->minValue();
   float maxValue = (float)vscrollbar->maxValue();
   float value = (float)vscrollbar->value();
+printf("valueChanged:: (%d)\n", vscrollbar->value() );
   int lineStep = vscrollbar->lineStep();
   int height = textEdit->height();
   int heightForWidth = textEdit->heightForWidth(80);
@@ -849,7 +865,7 @@ SourcePanel::valueChanged()
   float lineHeight = (heightForWidth-vscrollbar->width())/(float)lineCount;
 
 
-  nprintf(DEBUG_PANELS) ("heightForWidth = %d pointSize=%d\n", heightForWidth, pointSize );
+  nprintf(DEBUG_PANELS) ("heightForWidth = %d pointSize=%d height=%d\n", heightForWidth, pointSize, height );
 
 
   nprintf(DEBUG_PANELS) ("height=%d visibleLines=%f page=%d\n", height, height/lineHeight, vscrollbar->pageStep() );
@@ -857,12 +873,49 @@ SourcePanel::valueChanged()
 
   nprintf(DEBUG_PANELS) ("minValue=%f maxValue=%f value=%f\n", minValue, maxValue, value);
   nprintf(DEBUG_PANELS) ("lineStep=%d lineHeight=%f lineCount=%d\n",
-    lineStep, lineHeight, lineCount);
+    lineStep, lineHeight, lineCount );
 
   int top_line = (int)(value/lineHeight);
   top_line++;
   lastTop = top_line;
-  nprintf(DEBUG_PANELS) ("top_line =%d\n", top_line);
+nprintf(DEBUG_PANELS) ("top_line =%d\n", top_line);
+if( statArea )
+{
+  nprintf(DEBUG_PANELS) ("vbar: minValue=%f vbar: maxValue=%f\n", vbar->minValue(), vbar->maxValue());
+
+int teh = textEdit->height();
+int tesbh = textEdit->vbar->height();
+int sah = statArea->height();
+int sasbh = vbar->height();
+printf("teh=%d sah=%d\n", teh, sah);
+printf("tesbh=%d sasbh=%d\n", tesbh, sasbh);
+printf ("lineHeight=%f lineCount=%d\n", lineHeight, lineCount);
+printf("vscrollbar->width()=%d\n", vscrollbar->width() );
+printf("textEdit->vbar->minValue()=%d\n", textEdit->vbar->minValue() );
+printf("textEdit->vbar->maxValue()=%d\n", textEdit->vbar->maxValue() );
+printf("vbar->minValue()=%d\n", vbar->minValue() );
+printf("vbar->maxValue()=%d\n", vbar->maxValue() );
+//  vbar->setValue((int)value-(vscrollbar->width())+25);
+// There's a difference between where the scrollbar for the statArea and
+// the textEdit are relative too.   We need to adjust the "value" return
+// from the textEdit's scrollbar to be relative to the statArea (QTable).
+// This following line does that....
+int new_value = 0;
+if( vbar && vbar->maxValue() > 0 )
+{
+//  new_value =  (int)( value*(textEdit->vbar->maxValue()/vbar->maxValue()) );
+float factor = (float)vbar->maxValue()/(float)textEdit->vbar->maxValue();
+printf("factor=%f\n", factor );
+  new_value =  (int)( value*factor );
+printf("CALCULATE NEW VALUE=new_value=%d\n", new_value);
+}
+// if( value >= textEdit->vbar->maxValue() )
+// {
+//   new_value = vbar->maxValue();
+// }
+printf("pos statArea to %d\n", new_value );
+  vbar->setValue(new_value);
+}
 }
 
 /*! If there's a highlight list.... highlight the lines. */

@@ -3,7 +3,7 @@
 #include "Panel.hxx"           // Do not remove
 
 #include <qtextedit.h>
-#include <qlistview.h>
+#include <qtable.h>
 #include <qlabel.h>
 #include <qpopupmenu.h>
 #include <qscrollbar.h>
@@ -71,17 +71,22 @@ QSplitter *splitter;
   //! Label for displaying current file displayed.
   QLabel *label;
 
-//! The eventual statisics area...
-QListView *statArea;
+  QTable *statArea;
 
   //! The QTextEdit for managing the actual text.
   SPTextEdit *textEdit;
 
-  //! A pointer to the vertical scrollbar.
+  //! A pointer to the textEdit vertical scrollbar.
   QScrollBar *vscrollbar;
 
-  //! A pointer to the horizontal scrollbar.
+  //! A pointer to the textEdit horizontal scrollbar.
   QScrollBar *hscrollbar;
+
+  //! A pointer to the statArea (QListView) vertical scrollbar.
+  QScrollBar *vbar;
+
+  //! A pointer to the statArea (QListView) horizontal scrollbar.
+  QScrollBar *hbar;
 
   //! The current file lineCount.
   int lineCount;
