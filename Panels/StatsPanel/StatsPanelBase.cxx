@@ -1,0 +1,568 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+//
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License as published by the Free
+// Software Foundation; either version 2.1 of the License, or (at your option)
+// any later version.
+//
+// This library is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this library; if not, write to the Free Software Foundation, Inc.,
+// 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+////////////////////////////////////////////////////////////////////////////////
+
+
+#include "StatsPanelBase.hxx"   // Change this to your new class header file name
+#include "PanelContainer.hxx"   // Do not remove
+
+#include <qvaluelist.h>
+class MetricHeaderInfo;
+typedef QValueList<MetricHeaderInfo *> MetricHeaderInfoList;
+
+
+#include "SPListView.hxx"   // Change this to your new class header file name
+#include "SPListViewItem.hxx"   // Change this to your new class header file name
+#include "UpdateObject.hxx"
+#include "SourceObject.hxx"
+#include "PreferencesChangedObject.hxx"
+#include "preference_plugin_info.hxx" // Do not remove
+
+
+#include "MetricInfo.hxx" // dummy data only...
+// This is only hear for the debugging tables....
+static char *color_name_table[10] =
+  { "red", "orange", "yellow", "skyblue", "green" };
+
+
+#include "ToolAPI.hxx"
+using namespace OpenSpeedShop::Framework;
+
+
+StatsPanelBase::StatsPanelBase(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
+{
+printf("StatsPanelBase() entered\n");
+
+  setCaption("StatsPanelBase");
+
+  groupID = (int)argument;
+
+  metricHeaderTypeArray = NULL;
+
+  bool ok;
+  numberItemsToRead = getPreferenceTopNLineEdit().toInt(&ok);
+  if( !ok )
+  {
+printf("Invalid \"number of items\" in preferences.   Resetting to default.\n");
+    numberItemsToRead = 5;
+  }
+
+  frameLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
+
+  lv = NULL;
+  
+  getBaseWidgetFrame()->setCaption("StatsPanelBaseBaseWidget");
+
+  char name_buffer[100];
+  sprintf(name_buffer, "%s [%d]", getName(), groupID);
+  setName(name_buffer);
+}
+
+
+/*! The only thing that needs to be cleaned is anything allocated in this
+    class.  By default that is nothing.
+ */
+StatsPanelBase::~StatsPanelBase()
+{
+  // Delete anything you new'd from the constructor.
+}
+
+void
+StatsPanelBase::itemSelected(QListViewItem *item)
+{
+  dprintf("StatsPanelBase::clicked() entered\n");
+
+  if( item )
+  {
+    dprintf("  item->depth()=%d\n", item->depth() );
+  
+    SPListViewItem *nitem = (SPListViewItem *)item;
+    while( nitem->parent() )
+    {
+      dprintf("looking for 0x%x\n", nitem->parent() );
+      nitem = (SPListViewItem *)nitem->parent();
+    }
+  
+
+    if( nitem )
+    {
+      dprintf("here's the parent! 0x%x\n", nitem);
+      dprintf("  here's the rank of that parent: rank = %s\n",
+        nitem->text(1).ascii() );
+      matchSelectedItem( atoi( nitem->text(1).ascii() ) );
+    }
+  }
+}
+
+
+void
+StatsPanelBase::matchSelectedItem(int element)
+{
+  dprintf ("StatsPanelBase::matchSelectedItem() = %d\n", element );
+#ifdef OLDWAY
+
+  int i = 0;
+  HighlightList *highlightList = new HighlightList();
+  highlightList->clear();
+  HighlightObject *hlo = NULL;
+
+  MetricInfo *fi = NULL;
+  MetricInfoList::Iterator it = NULL;
+
+  i = 0;
+  for( it = collectorData->metricInfoList.begin();
+       it != collectorData->metricInfoList.end();
+       it++ )
+  {
+    fi = (MetricInfo *)*it;
+    for( int line=fi->start; line <= fi->end; line++)
+    {
+      if( i >= 5 )
+      {
+        hlo = new HighlightObject(fi->fileName, line, color_name_table[4], "exclusive time");
+      } else
+      {
+        hlo = new HighlightObject(fi->fileName, line, color_name_table[i], "exclusive time");
+      }
+// fprintf(stderr, "  pushback hlo: line=%d in color (%s)\n", line, hlo->color);
+      highlightList->push_back(hlo);
+    }
+    i++;
+  }
+
+
+  i = 0;
+  for( it = collectorData->metricInfoList.begin();
+       it != collectorData->metricInfoList.end();
+       it++ )
+  {
+     fi = (MetricInfo *)*it;
+     if( i == element )
+     {
+       break;
+     }
+     i++;
+  }
+
+  dprintf ("%d (%s) (%s) (%d)\n", element, fi->functionName, fi->fileName, fi->function_line_number );
+  
+  char msg[1024];
+  sprintf(msg, "%d (%s) (%s) (%d)\n", element, fi->functionName, fi->fileName, fi->function_line_number );
+  
+
+  SourceObject *spo = new SourceObject(fi->functionName, fi->fileName, fi->function_line_number, TRUE, highlightList);
+
+
+
+  if( broadcast((char *)spo, NEAREST_T) == 0 )
+  { // No source view up...
+    char *panel_type = "Source Panel";
+//Find the nearest toplevel and start placement from there...
+    Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, NULL, (void *)groupID);
+    if( p != NULL ) 
+    {
+      p->listener((void *)spo);
+    }
+  }
+#endif // OLDWAY
+}
+
+
+void
+StatsPanelBase::updateStatsPanelBaseData(void *expr, int expID, QString experiment_name)
+{
+   // Read the new data, destroy the old data, and update the StatsPanelBase with
+   // the new data.
+
+
+  dprintf("updateStatsPanelBaseData() enterd.\n");
+// printf("updateStatsPanelBaseData(0x%x %d, %s) enterd.\n", expr, expID, experiment_name.ascii() );
+
+  if( lv != NULL )
+  {
+    delete lv;
+    lv = NULL;
+  }
+
+  if( lv == NULL )
+  {
+    lv = new SPListView( this, getBaseWidgetFrame(), getName(), 0 );
+ 
+    connect( lv, SIGNAL(clicked(QListViewItem *)), this, SLOT( itemSelected( QListViewItem* )) );
+
+    lv->setAllColumnsShowFocus(TRUE);
+
+    // If there are subitems, then indicate with root decorations.
+    lv->setRootIsDecorated(TRUE);
+
+    // If there should be sort indicators in the header, show them here.
+    lv->setShowSortIndicator(TRUE);
+
+  }
+
+  // Sort in decending order
+  bool ok;
+  int columnToSort = getPreferenceColumnToSortLineEdit().toInt(&ok);
+  if( !ok )
+  {
+    columnToSort = 0;
+  }
+  lv->setSorting ( columnToSort, FALSE );
+
+  // Figure out which way to sort
+  bool sortOrder = getPreferenceSortDecending();
+  if( sortOrder == TRUE )
+  {
+    lv->setSortOrder ( Qt::Descending );
+  } else
+  {
+    lv->setSortOrder ( Qt::Ascending );
+  }
+
+
+  lv->clear();
+
+  SPListViewItem *lvi;
+  columnList.clear();
+if( expr )
+{
+  Experiment *fw_experiment = (Experiment *)expr;
+// Evaluate the collector's time metric for all functions in the thread
+SmartPtr<std::map<Function, double> > data;
+ThreadGroup tgrp = fw_experiment->getThreads();
+ThreadGroup::iterator ti = tgrp.begin();
+Thread t1 = *ti;
+CollectorGroup cgrp = fw_experiment->getCollectors();
+CollectorGroup::iterator ci = cgrp.begin();
+Collector c1 = *ci;
+
+Queries::GetMetricByFunctionInThread(c1, "time", t1, data);
+
+// Display the results
+  MetricHeaderInfoList metricHeaderInfoList;
+  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Time"), FLOAT_T));
+  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Function"), CHAR_T));
+  if( metricHeaderTypeArray != NULL )
+  {
+    delete []metricHeaderTypeArray;
+  }
+  int header_count = metricHeaderInfoList.count();
+  metricHeaderTypeArray = new int[header_count];
+
+  int i=0;
+  for( MetricHeaderInfoList::Iterator pit = metricHeaderInfoList.begin(); pit != metricHeaderInfoList.end(); ++pit )
+  { 
+    MetricHeaderInfo *mhi = (MetricHeaderInfo *)*pit;
+    QString s = mhi->label;
+    lv->addColumn( s );
+    metricHeaderTypeArray[i] = mhi->type;
+  
+    columnList.push_back( s );
+    i++;
+  }
+
+  
+  char timestr[50];
+  for(std::map<Function, double>::const_iterator
+        item = data->begin(); item != data->end(); ++item)
+  {
+    sprintf(timestr, "%f", item->second);
+    lvi =  new SPListViewItem( this, lv, timestr,  item->first.getName() );
+#ifdef OLDWAY
+        std::cout << std::setw(10) << std::fixed << std::setprecision(3)
+              << item->second
+              << "    "
+              << item->first.getName() << std::endl;
+#endif // OLDWAY
+  }
+}
+
+  frameLayout->addWidget(lv);
+
+  lv->show();
+}
+void
+StatsPanelBase::languageChange()
+{
+  // Set language specific information here.
+}
+
+/*! This calls the user 'menu()' function
+    if the user provides one.   The user can attach any specific panel
+    menus to the passed argument and they will be displayed on a right
+    mouse down in the panel.
+    /param  contextMenu is the QPopupMenu * that use menus can be attached.
+ */
+bool
+StatsPanelBase::menu(QPopupMenu* contextMenu)
+{
+  dprintf("StatsPanelBase::menu() requested.\n");
+  contextMenu->insertSeparator();
+
+//  contextMenu->insertItem("Number visible entries...", this, SLOT(setNumberVisibleEntries()), CTRL+Key_1, 0, -1);
+  contextMenu->insertItem("Number visible entries...", this, SLOT(setNumberVisibleEntries()));
+
+  contextMenu->insertSeparator();
+
+//  contextMenu->insertItem("Compare...", this, SLOT(compareSelected()), CTRL+Key_1, 0, -1);
+  contextMenu->insertItem("Compare...", this, SLOT(compareSelected()) );
+
+  contextMenu->insertSeparator();
+
+  int id = 0;
+  QPopupMenu *columnsMenu = new QPopupMenu(this);
+  columnsMenu->setCaption("Columns Menu");
+  contextMenu->insertItem("&Columns Menu", columnsMenu, CTRL+Key_C);
+
+  for( ColumnList::Iterator pit = columnList.begin();
+           pit != columnList.end();
+           ++pit )
+  { 
+    QString s = (QString)*pit;
+    columnsMenu->insertItem(s, this, SLOT(doOption(int)), CTRL+Key_1, id, -1);
+    if( lv->columnWidth(id) )
+    {
+      columnsMenu->setItemChecked(id, TRUE);
+    } else
+    {
+      columnsMenu->setItemChecked(id, FALSE);
+    }
+    id++;
+  }
+
+//  contextMenu->insertItem("Export Report Data...", this, NULL, NULL);
+  contextMenu->insertItem("Export Report Data...");
+
+  return( TRUE );
+}
+
+/*! If the user panel save functionality, their function
+     should provide the saving.
+ */
+void 
+StatsPanelBase::save()
+{
+  dprintf("StatsPanelBase::save() requested.\n");
+}
+
+/*! If the user panel provides save to functionality, their function
+     should provide the saving.  This callback will invoke a popup prompting
+     for a file name.
+ */
+void 
+StatsPanelBase::saveAs()
+{
+  dprintf("StatsPanelBase::saveAs() requested.\n");
+}
+
+void
+StatsPanelBase::preferencesChanged()
+{ 
+//  printf("StatsPanelBase::preferencesChanged\n");
+
+  bool thereWasAChangeICareAbout = FALSE;
+
+  SortOrder old_sortOrder = lv->sortOrder();
+  bool new_sortOrder = getPreferenceSortDecending();
+
+  if( old_sortOrder != new_sortOrder )
+  {
+    if( new_sortOrder == TRUE )
+    {
+      lv->setSortOrder ( Qt::Descending );
+    } else
+    {
+      lv->setSortOrder ( Qt::Ascending );
+    }
+    thereWasAChangeICareAbout = TRUE;
+  }
+
+
+  bool ok;
+  int new_numberItemsToRead = getPreferenceTopNLineEdit().toInt(&ok);
+  if( ok )
+  {
+    if( new_numberItemsToRead != numberItemsToRead )
+    {
+      numberItemsToRead = new_numberItemsToRead;
+      thereWasAChangeICareAbout = TRUE;
+    }
+  }
+
+  int new_columnToSort = getPreferenceColumnToSortLineEdit().toInt(&ok);
+  if( ok )
+  {
+    int old_columnToSort = lv->sortColumn();
+    if( old_columnToSort != new_columnToSort )
+    {
+      thereWasAChangeICareAbout = TRUE;
+    }
+  }
+
+  if( thereWasAChangeICareAbout )
+  {
+// printf("  thereWasAChangeICareAbout!!!!\n");
+    updateStatsPanelBaseData();
+  }
+} 
+
+
+/*! When a message has been sent (from anyone) and the message broker is
+    notifying panels that they may want to know about the message, this is the
+    function the broker notifies.   The listener then needs to determine
+    if it wants to handle the message.
+    \param msg is the incoming message.
+    \return 0 means you didn't do anything with the message.
+    \return 1 means you handled the message.
+ */
+int 
+StatsPanelBase::listener(void *msg)
+{
+  printf("StatsPanelBase::listener() requested.\n");
+  PreferencesChangedObject *pco = NULL;
+
+// BUG - BIG TIME KLUDGE.   This should have a message type.
+  MessageObject *msgObject = (MessageObject *)msg;
+  if(  msgObject->msgType  == "UpdateExperimentDataObject" )
+  {
+    UpdateObject *msg = (UpdateObject *)msgObject;
+msg->print();
+    updateStatsPanelBaseData(msg->fw_expr, msg->expID, msg->experiment_name);
+if( msg->raiseFLAG )
+{
+  getPanelContainer()->raisePanel((Panel *)this);
+}
+  } else if( msgObject->msgType == "PreferencesChangedObject" )
+  {
+//    printf("StatsPanelBase:  The preferences changed.\n");
+    pco = (PreferencesChangedObject *)msgObject;
+    preferencesChanged();
+  }
+
+  return 0;  // 0 means, did not want this message and did not act on anything.
+}
+
+/*! Create the context senstive menu for the report. */
+bool
+StatsPanelBase::createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos )
+{
+  dprintf ("StatsPanelBase: Popup the context sensitive menu here.... can you augment it with the default popupmenu?\n");
+  
+  dprintf("selected item = %d\n", lv->selectedItem() );
+
+  QPopupMenu *panelMenu = new QPopupMenu(this);
+  panelMenu->setCaption("Panel Menu");
+  contextMenu->insertItem("&Panel Menu", panelMenu, CTRL+Key_C);
+  panelMenu->insertSeparator();
+  menu(panelMenu);
+
+  if( lv->selectedItem() )
+  {
+  //  contextMenu->insertItem("Tell Me MORE about %d!!!", this, SLOT(details()), CTRL+Key_1 );
+    contextMenu->insertItem("Go to source location...", this, SLOT(gotoSource()), CTRL+Key_1 );
+    return( TRUE );
+  }
+  
+
+  return( FALSE );
+}
+
+
+void
+StatsPanelBase::gotoSource()
+{
+  dprintf("gotoSource() menu selected.\n");
+}
+
+void
+StatsPanelBase::compareSelected()
+{
+  dprintf("compareSelected()\n");
+}
+
+void
+StatsPanelBase::setNumberVisibleEntries()
+{
+  dprintf("setNumberVisibleEntries()\n");
+{
+  bool ok;
+  QString s = QString("%1").arg(numberItemsToRead);
+  QString text = QInputDialog::getText(
+          "Visible Lines", "Enter number visible lines:", QLineEdit::Normal,
+          s, &ok, this );
+  if( ok && !text.isEmpty() )
+  {
+    // user entered something and pressed OK
+    numberItemsToRead = atoi(text.ascii());
+    dprintf ("numberItemsToRead=%d\n", numberItemsToRead);
+    updateStatsPanelBaseData();
+  } else
+  {
+    // user entered nothing or pressed Cancel
+  }
+}
+}
+
+static int cwidth = 0;  // This isn't what I want to do long term.. 
+void
+StatsPanelBase::doOption(int id)
+{
+  dprintf("doOption() id=%d\n", id);
+
+  if( lv->columnWidth(id) )
+  {
+    cwidth = lv->columnWidth(id);
+    lv->hideColumn(id);
+  } else
+  {
+    lv->setColumnWidth(id, cwidth);
+  }
+}
+
+
+/*! This is just a utility routine to truncate_name long names. */
+char *
+StatsPanelBase::truncateCharString(char *str, int length)
+{
+  char *newstr = NULL;
+//  newstr = new char( length );
+  newstr = (char *)calloc( length, sizeof(char)+3+1 );
+
+  if( length > strlen(str) )
+  {
+    strcpy(newstr, str);
+  } else
+  {
+    strcpy(newstr, "...");
+    int extra = strlen(str)-length;
+    strcat(newstr, str+extra);
+    strcat(newstr, "");
+  }
+
+  return newstr;
+}
+
+#ifdef OLDWAY
+// This routine needs to be rewritten when we really get the framework 
+// round trip written.
+void
+StatsPanelBase::getUpdatedData()
+{
+  // Get the information about the collector.  
+  collectorData = new CollectorInfo();
+}
+#endif // OLDWAY

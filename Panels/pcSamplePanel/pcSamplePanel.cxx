@@ -183,7 +183,7 @@ printf(" expID == -1\n");
       fprintf(stderr, "Unable to open file.  File (%s) does not exist.\n", mw->executableName.ascii() );
     }
     QString basename = fileInfo.baseName().ascii();
-    std::string name = std::string("./") + basename.ascii() + ".openss";
+    std::string name = std::string(tempnam ("./", basename.ascii()  )) + ".openss";
     nprintf( DEBUG_CONST_DESTRUCT ) ("name = (%s)\n", name.c_str() );
   
     try
@@ -766,7 +766,11 @@ pcSamplePanel::loadStatsPanel()
 
   PanelContainer *pc = topPC->findBestFitPanelContainer(topPC);
 
+#ifdef OLDWAY
   Panel *p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Stats Panel", pc, (void *)expID);
+#else // OLDWAY
+  Panel *p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("pc Stats Panel", pc, (void *)expID);
+#endif // OLDWAY
 
   if( p )
   {

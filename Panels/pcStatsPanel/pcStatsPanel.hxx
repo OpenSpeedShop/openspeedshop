@@ -17,8 +17,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef STATSPANEL_H
-#define STATSPANEL_H
+#ifndef PCSTATSPANEL_H
+#define PCSTATSPANEL_H
 #include "StatsPanelBase.hxx"           // Do not remove
 #include "Panel.hxx"           // Do not remove
 
@@ -37,18 +37,18 @@ typedef QValueList<QString> ColumnList;
 
 #include <qsettings.h>
 
-#define PANEL_CLASS_NAME StatsPanel   // Change the value of the define
-//! StatsPanel Class
-class StatsPanel  : public StatsPanelBase
+#define PANEL_CLASS_NAME pcStatsPanel   // Change the value of the define
+//! pcStatsPanel Class
+class pcStatsPanel  : public StatsPanelBase
 {
     //! Q_OBJECT is needed as there are slots defined for the class
     Q_OBJECT
   public:
-    //! StatsPanel(PanelContainer *pc, const char *name)
-    StatsPanel(PanelContainer *pc, const char *n, void *argument);
+    //! pcStatsPanel(PanelContainer *pc, const char *name)
+    pcStatsPanel(PanelContainer *pc, const char *n, void *argument);
 
-    //! ~StatsPanel() - The default destructor.
-    ~StatsPanel();  // Active destructor
+    //! ~pcStatsPanel() - The default destructor.
+    ~pcStatsPanel();  // Active destructor
 
     //! Calls the user panel function listener() request.
     int listener(void *msg);
@@ -59,4 +59,4 @@ class StatsPanel  : public StatsPanelBase
 
   private:
 };
-#endif // STATSPANEL_H
+#endif // PCSTATSPANEL_H

@@ -17,32 +17,17 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef SPLISTVIEW_H
-#define SPLISTVIEW_H
-
-class StatsPanelBase;
-
-#include "qlistview.h"
-#include <qpopupmenu.h>
-
-#include <qwidget.h>
-
-class SPListView : public QListView
-{
-public:
-  SPListView( StatsPanelBase *rp, QWidget *w, const char *name=0, int flags=0 );
-
-  ~SPListView( );
-
-
-  StatsPanelBase *resultsPanel;
-
-  void contentsContextMenuEvent( QContextMenuEvent *e );
-  QPopupMenu* createPopupMenu( const QPoint & pos );
-  QPopupMenu* createPopupMenu( ) { /* obsoleted function. */ return NULL; };
-
-public slots:
-
-private:
-};
-#endif // SPLISTVIEW_H
+  plugin_entry->grouping = "";
+  plugin_entry->show_immediate = 0;
+  plugin_entry->plugin_description = "PLUGIN_DESCRIPTION";
+  plugin_entry->plugin_short_description = "Displays experiment statistics.";
+  plugin_entry->plugin_name =  "pcStatsPanel.so";
+  plugin_entry->plugin_location = "$OPENSPEEDSHOP_PLUGIN_PATH";
+  plugin_entry->plugin_entry_point = "panel_init";
+  plugin_entry->menu_heading =  ""; // Leaving this blank hides the menu entry.
+  plugin_entry->menu_label =  "pc Stats Panel";
+  plugin_entry->menu_accel =  "Alt+R";
+  plugin_entry->panel_type =  "pc Stats Panel";
+  plugin_entry->preference_category =  "pc Stats Panel";
+  plugin_entry->initialize_preferences_entry_point =  "initialize_preferences_entry_point";
+  plugin_entry->save_preferences_entry_point =  "save_preferences_entry_point";

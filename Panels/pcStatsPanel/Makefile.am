@@ -16,38 +16,30 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-pkglib_LTLIBRARIES = StatsPanel.la
+pkglib_LTLIBRARIES = pcStatsPanel.la
 
-StatsPanel_la_CXXFLAGS = \
+pcStatsPanel_la_CXXFLAGS = \
     -I/usr/include \
     -I$(QTDIR)/include \
     -I. \
     -I../../objects \
     -I../../libopenss-framework \
+    -I../StatsPanel \
     -I../../gui \
     -I../../expr_info \
     -I../../plugin \
     -I../../base
 
-StatsPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../objects/.libs/ossObjects.so -Wl,../../expr_info/.libs/ossExprInfo.so -Wl,../../base/.libs/ossBase.so  -Wl,../../libopenss-framework/.libs/libopenss-framework.so 
+pcStatsPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../objects/.libs/ossObjects.so -Wl,../../expr_info/.libs/ossExprInfo.so -Wl,../../base/.libs/ossBase.so  -Wl,../StatsPanel/.libs/StatsPanel.so -Wl,../../libopenss-framework/.libs/libopenss-framework.so 
 
-StatsPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
+pcStatsPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
 
-moc_StatsPanel.cxx: StatsPanel.hxx
-	-moc -o moc_StatsPanel.cxx StatsPanel.hxx
+moc_pcStatsPanel.cxx: pcStatsPanel.hxx
+	-moc -o moc_pcStatsPanel.cxx pcStatsPanel.hxx
 
-moc_StatsPanelBase.cxx: StatsPanelBase.hxx
-	-moc -o moc_StatsPanelBase.cxx StatsPanelBase.hxx
-
-moc_SPListView.cxx: SPListView.hxx
-	-moc -o moc_SPListView.cxx SPListView.hxx
-
-StatsPanel_la_SOURCES = \
-	StatsPanel.hxx StatsPanel.cxx moc_StatsPanel.cxx \
-	StatsPanelBase.hxx StatsPanelBase.cxx moc_StatsPanelBase.cxx \
-	SPListViewItem.hxx SPListViewItem.cxx \
-	SPListView.hxx SPListView.cxx moc_SPListView.cxx \
+pcStatsPanel_la_SOURCES = \
+	pcStatsPanel.hxx pcStatsPanel.cxx moc_pcStatsPanel.cxx \
 	plugin_entry_point.hxx Panel.hxx \
 	PanelContainer.hxx local_plugin_info.hxx debug.hxx
 
-CLEANFILES=moc_SPListView.cxx moc_StatsPanel.cxx
+CLEANFILES=moc_pcStatsPanel.cxx

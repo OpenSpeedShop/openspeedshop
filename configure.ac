@@ -173,6 +173,7 @@ AC_CONFIG_FILES(Makefile
 		Panels/CmdPanel/Makefile
 		Panels/TopPanel/Makefile
 		Panels/StatsPanel/Makefile
+		Panels/pcStatsPanel/Makefile
 		Panels/PerformancePanel/Makefile
 		Panels/DebugPanel/Makefile
 		Panels/HW_CounterPanel/Makefile

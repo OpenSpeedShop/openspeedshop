@@ -25,7 +25,7 @@
 
 #include <qpopupmenu.h>
 #include <qcursor.h>
-#include "StatsPanel.hxx"
+#include "StatsPanelBase.hxx"
 
 #include "debug.hxx"
 
@@ -34,7 +34,7 @@
 /*! Work constructor.   Set's the name of the frame, the pointer to the
     parent panel container, and the frame shape and shadow characteristics.
 */
-SPListView::SPListView( StatsPanel *rp, QWidget *w, const char *n, int flags )
+SPListView::SPListView( StatsPanelBase *rp, QWidget *w, const char *n, int flags )
      : QListView( w, n, flags )
 {
   resultsPanel = rp;

@@ -17,4 +17,4 @@
 ################################################################################
 
 
-SUBDIRS = SourcePanel CmdPanel TopPanel StatsPanel pcSamplePanel UserTimePanel HW_CounterPanel IOPanel FPE_TracingPanel MPIPanel ConstructNewExperimentPanel Wizards
+SUBDIRS = SourcePanel CmdPanel TopPanel StatsPanel pcStatsPanel pcSamplePanel UserTimePanel HW_CounterPanel IOPanel FPE_TracingPanel MPIPanel ConstructNewExperimentPanel Wizards

@@ -17,7 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#include "StatsPanel.hxx"   // Change this to your new class header file name
+#include "pcStatsPanel.hxx"   // Change this to your new class header file name
 #include "StatsPanelBase.hxx"   // Change this to your new class header file name
 #include "PanelContainer.hxx"   // Do not remove
 #include "plugin_entry_point.hxx"   // Do not remove
@@ -45,23 +45,23 @@ static char *color_name_table[10] =
 using namespace OpenSpeedShop::Framework;
 
 
-StatsPanel::StatsPanel(PanelContainer *pc, const char *n, void *argument) : StatsPanelBase(pc, n, argument)
+pcStatsPanel::pcStatsPanel(PanelContainer *pc, const char *n, void *argument) : StatsPanelBase(pc, n, argument)
 {
-printf("StatsPanel() entered\n");
-  setCaption("StatsPanel");
+printf("pcStatsPanel() entered\n");
+  setCaption("pcStatsPanel");
 }
 
 
 /*! The only thing that needs to be cleaned is anything allocated in this
     class.  By default that is nothing.
  */
-StatsPanel::~StatsPanel()
+pcStatsPanel::~pcStatsPanel()
 {
   // Delete anything you new'd from the constructor.
 }
 
 void
-StatsPanel::languageChange()
+pcStatsPanel::languageChange()
 {
   // Set language specific information here.
 }
@@ -76,8 +76,8 @@ StatsPanel::languageChange()
     \return 1 means you handled the message.
  */
 int 
-StatsPanel::listener(void *msg)
+pcStatsPanel::listener(void *msg)
 {
-  printf("StatsPanel::listener() requested.\n");
+  printf("pcStatsPanel::listener() requested.\n");
   StatsPanelBase::listener(msg);
 }

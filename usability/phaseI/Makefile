@@ -56,4 +56,5 @@ clean:
 	-rm -fr test00*
 	-rm -fr ss*
 	-rm -fr *.openss
+	-rm -fr nohup.out
 	-rm -fr *html*
