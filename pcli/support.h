@@ -4,11 +4,6 @@
 #define TABLE_START 8
 
 typedef enum {
-    FALSE,
-    TRUE
-} boolean;
-
-typedef enum {
     HELP_DUNNO,
     HELP_CMD,
     HELP_PARM,
@@ -218,7 +213,7 @@ typedef struct a_command_struct {
     
     int 	    exp_id; 	    /**< experiment ID */
     oss_cmd_enum    type;   	    /**< type of command */
-    boolean 	    error_found;    /**< This command has been invalidated */
+    bool 	    error_found;    /**< This command has been invalidated */
 } command_t;
 
 extern command_t command;

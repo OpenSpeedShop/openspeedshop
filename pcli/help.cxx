@@ -147,10 +147,10 @@ is_type(char **table, int count, char *name)
  *     
  * @param   p_help  pointer to help descriptor.
  *
- * @return  TRUE/FALSE.
+ * @return  true/false.
  *
  */
-static boolean
+static bool
 help_get_type(help_desc_t *p_help)
 {
 
@@ -160,34 +160,34 @@ help_get_type(help_desc_t *p_help)
     if (ret != CMD_MAX) {
     	p_help->tag = HELP_CMD;
 	p_help->u.cmd_ndx = (oss_cmd_enum)ret;
-	return TRUE;
+	return true;
     }
     ret = is_type(paramtype_name,H_PARAM_MAX,p_help->name);
     if (ret != H_PARAM_MAX) {
     	p_help->tag = HELP_PARM;
 	p_help->u.param_ndx = (help_param_enum)ret;
-	return TRUE;
+	return true;
     }
     ret = is_type(experiment_name,H_EXP_MAX,p_help->name);
     if (ret != H_EXP_MAX) {
     	p_help->tag = HELP_EXPERIMENT;
 	p_help->u.exp_ndx = (help_exp_enum)ret;
-	return TRUE;
+	return true;
     }
     ret = is_type(viewtype_name,H_VIEW_MAX,p_help->name);
     if (ret != H_VIEW_MAX) {
     	p_help->tag = HELP_VIEW;
 	p_help->u.view_ndx = (help_view_enum)ret;
-	return TRUE;
+	return true;
     }
     ret = is_type(general_name,H_GEN_MAX,p_help->name);
     if (ret != H_GEN_MAX) {
     	p_help->tag = HELP_GENERAL;
 	p_help->u.gen_ndx = (help_gen_enum)ret;
-	return TRUE;
+	return true;
     }
     
-    return FALSE;
+    return false;
 }
  
 /******************************************************************/
@@ -258,7 +258,7 @@ help_range(char *name, char *format, int indent_ndx)
  *
  */
 static void
-help_list(char *name, char *format, boolean has_range, int indent_ndx)
+help_list(char *name, char *format, bool has_range, int indent_ndx)
 {
     if (has_range) {
     	printf("%s<%s_list> = <%s_range>[,<%s_range>]...\n",
@@ -293,7 +293,7 @@ help_list_spec(
     	    	char *icon, 
     	    	char *name, 
 		char *format, 
-		boolean has_range, 
+		bool has_range, 
 		int indent_ndx)
 {
     if (has_range) {
@@ -599,11 +599,11 @@ help_host_file_rpd(int indent_ndx)
 	    "\n\t\t\t\t[<thread_list_spec>]"
 	    "\n\t\t\t\t[<rank_list_spec>]\n",
 	    indent_table[indent_ndx]);
-    help_list_spec("-h","host",     "int",TRUE,indent_ndx+1);
-    help_list_spec("-f","file",     "int",TRUE,indent_ndx+1);
-    help_list_spec("-p","pid",	    "int",TRUE,indent_ndx+1);
-    help_list_spec("-t","thread",   "int",TRUE,indent_ndx+1);
-    help_list_spec("-r","rank",     "int",TRUE,indent_ndx+1);
+    help_list_spec("-h","host",     "int",true,indent_ndx+1);
+    help_list_spec("-f","file",     "int",true,indent_ndx+1);
+    help_list_spec("-p","pid",	    "int",true,indent_ndx+1);
+    help_list_spec("-t","thread",   "int",true,indent_ndx+1);
+    help_list_spec("-r","rank",     "int",true,indent_ndx+1);
 }
 
 /**

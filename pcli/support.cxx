@@ -134,7 +134,7 @@ set_error(char *input, char *help_str)
     dump_help(&command);
     
     /* This will prevent further messages */
-    command.error_found = TRUE;
+    command.error_found = true;
     reset_command();
 }
 
@@ -454,7 +454,7 @@ static void
 reset_command()
 {
     command.type = CMD_MAX;
-    command.error_found = FALSE;
+    command.error_found = false;
     command.exp_id = 0;
     /* ADDRESS TABLE */
     if (command.address_table.cur_node){
