@@ -51,11 +51,18 @@ int main(int argc, char* argv[])
 	Experiment experiment(name);
 	
 	// Create a process for the command in the suspended state
+	Time t_start = Time::Now();
 	Thread thread = experiment.createProcess(command);
-
+	Time t_stop = Time::Now();
+	std::cout << std::endl
+		  << "Process initialization took "
+		  << static_cast<double>(t_stop - t_start) / 1000000000.0
+		  << " seconds." << std::endl
+		  << std::endl;
+	
 	// Create the example collector and set its sampling rate
 	Collector collector = experiment.createCollector("example");
-	collector.setParameterValue("sampling_rate", (unsigned)10);
+	collector.setParameterValue("sampling_rate", (unsigned)100);
 
 	// Attach this process to the collector and start collecting data
 	collector.attachThread(thread);
@@ -68,7 +75,14 @@ int main(int argc, char* argv[])
 
 	// Evaluate the collector's time metric for all functions in the thread
 	SmartPtr<std::map<Function, double> > data;
+	t_start = Time::Now();
 	Queries::GetMetricByFunctionInThread(collector, "time", thread, data);
+	t_stop = Time::Now();
+	std::cout << std::endl
+		  << "Calculating function times took "
+		  << static_cast<double>(t_stop - t_start) / 1000000000.0
+		  << " seconds." << std::endl
+		  << std::endl;
 
 	// Display the results
 

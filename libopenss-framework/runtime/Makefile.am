@@ -21,12 +21,17 @@ SUBDIRS = @INSTRUMENTOR@
 noinst_LTLIBRARIES = libopenss-framework-runtime.la
 
 libopenss_framework_runtime_la_LIBADD = \
-	@INSTRUMENTOR@/libopenss-framework-runtime-@INSTRUMENTOR@.la
+	@INSTRUMENTOR@/libopenss-framework-runtime-@INSTRUMENTOR@.la \
+	-lpthread -lrt
 
 libopenss_framework_runtime_la_SOURCES = \
+	Assert.h \
 	OpenSS_DataHeader.h OpenSS_DataHeader.c OpenSS_DataHeader.x \
 	OpenSS_DecodeParameters.c \
+	OpenSS_GetPCFromContext.c \
+	OpenSS_GetTime.c \
 	OpenSS_Send.c \
+	OpenSS_Timer.c \
 	RuntimeAPI.h
 
 SUFFIXES = .x

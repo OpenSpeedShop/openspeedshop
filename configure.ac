@@ -50,6 +50,7 @@ AH_TOP([
 # Check for Standard Build Tools
 ################################################################################
 
+AC_GNU_SOURCE
 AC_PROG_CXX
 
 AC_DISABLE_STATIC

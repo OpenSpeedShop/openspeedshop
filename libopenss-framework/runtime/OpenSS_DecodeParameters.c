@@ -22,10 +22,10 @@
  *
  */
 
+#include "Assert.h"
 #include "RuntimeAPI.h"
 
 #include <alloca.h>
-#include <assert.h>
 
 
 
@@ -48,6 +48,8 @@
  * @param xdrproc   XDR procedure for the parameter data structure.
  * @retval data     Pointer to the decoded parameter data structure.
  * @return          Boolean "TRUE" if succeeded or "FALSE" if failed.
+ *
+ * @ingroup RuntimeAPI
  */
 bool_t OpenSS_DecodeParameters(const char* argument,
 			       const xdrproc_t xdrproc, void* data)
@@ -58,9 +60,9 @@ bool_t OpenSS_DecodeParameters(const char* argument,
     XDR xdrs;
     
     /* Check assertions */
-    assert(argument != NULL);
-    assert(xdrproc != NULL);
-    assert(data != NULL);
+    Assert(argument != NULL);
+    Assert(xdrproc != NULL);
+    Assert(data != NULL);
 
     /* Length of encoded blob argument must be a multiple of two */
     if((strlen(argument) % 2) != 0)

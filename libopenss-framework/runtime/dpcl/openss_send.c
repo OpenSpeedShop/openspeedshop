@@ -22,7 +22,8 @@
  *
  */
 
-#include <assert.h>
+#include "Assert.h"
+
 #include <dpclExt.h>
 #include <stdio.h>
 
@@ -71,8 +72,8 @@ void openss_set_msg_handle(AisPointer msg_handle)
 int openss_send(const unsigned size, const void* data)
 {
     /* Check assertions */
-    assert(MsgHandle != NULL);
+    Assert(MsgHandle != NULL);
     
     /* Send the data and inform the caller whether we succeeded or not */
-    return (Ais_send(MsgHandle, data, size) == 0) ? 1 : 0;
+    return (Ais_send(MsgHandle, (void*)data, size) == 0) ? 1 : 0;
 }

@@ -177,7 +177,7 @@ void ExperimentTable::storePerformanceData(const Blob& blob) const
     
     // Store the data in this database
     try {
-    
+	
 	// Begin a multi-statement transaction
 	BEGIN_TRANSACTION(database);
 
@@ -229,7 +229,8 @@ void ExperimentTable::storePerformanceData(const Blob& blob) const
 	database->bindArgument(5, Address(header.addr_begin));
 	database->bindArgument(6, Address(header.addr_end));
 	database->bindArgument(7, Blob(data_size, data_ptr));
-
+	while(database->executeStatement());
+	
 	// End this multi-statement transaction
 	END_TRANSACTION(database);
 	

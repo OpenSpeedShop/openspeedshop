@@ -18,38 +18,36 @@
 
 /** @file
  *
- * Declaration of the Runtime API.
+ * Definition of the OpenSS_GetTime() function.
  *
  */
 
-#ifndef _OpenSpeedShop_Framework_RuntimeAPI_
-#define _OpenSpeedShop_Framework_RuntimeAPI_
+#include "Assert.h"
+#include "RuntimeAPI.h"
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
-#include "OpenSS_DataHeader.h"
-
-#ifdef HAVE_INTTYPES_H
-#include <inttypes.h>
-#endif
-#include <rpc/rpc.h>
-#include <ucontext.h>
+#include <time.h>
 
 
 
-/** Type representing a function pointer to a timer event handler. */
-typedef void (*OpenSS_TimerEventHandler)(ucontext_t* context);
+/**
+ * Get the current time.
+ *
+ * Returns the current wall-clock time as a single 64-bit unsigned integer.
+ * This integer is interpreted as the number of nanoseconds that have passed
+ * since midnight (00:00) Coordinated Universal Time (UTC), on January 1, 1970.
+ *
+ * @return    Current time.
+ *
+ * @ingroup RuntimeAPI
+ */
+uint64_t OpenSS_GetTime()
+{
+    struct timespec now;
 
-
-
-bool_t OpenSS_DecodeParameters(const char*, const xdrproc_t, void*);
-uint64_t OpenSS_GetPCFromContext(ucontext_t*);
-uint64_t OpenSS_GetTime();
-bool_t OpenSS_Send(const OpenSS_DataHeader*, const xdrproc_t, const void*);
-bool_t OpenSS_Timer(uint64_t, OpenSS_TimerEventHandler);
-
-
-
-#endif
+    /* Get the current wall-clock time */
+    Assert(clock_gettime(CLOCK_REALTIME, &now) == 0);
+ 
+    /* Return the time to the caller */
+    return ((uint64_t)(now.tv_sec) * (uint64_t)(1000000000)) +
+	(uint64_t)(now.tv_nsec);
+}

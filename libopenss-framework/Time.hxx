@@ -71,7 +71,9 @@ namespace OpenSpeedShop { namespace Framework {
 	{
 	    struct timespec now;
 	    Assert(clock_gettime(CLOCK_REALTIME, &now) == 0);
-	    return Time((now.tv_sec * 1000000000) + now.tv_nsec);
+	    return Time((static_cast<value_type>(now.tv_sec) *
+			 static_cast<value_type>(1000000000)) +
+			static_cast<value_type>(now.tv_nsec));
 	}
 
 	/** Create the last possible time value. */

@@ -18,37 +18,41 @@
 
 /** @file
  *
- * Declaration of the Runtime API.
+ * Declaration and definition of the Assert function.
  *
  */
 
-#ifndef _OpenSpeedShop_Framework_RuntimeAPI_
-#define _OpenSpeedShop_Framework_RuntimeAPI_
+#ifndef _OpenSpeedShop_Framework_Assert_
+#define _OpenSpeedShop_Framework_Assert_
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include "OpenSS_DataHeader.h"
-
-#ifdef HAVE_INTTYPES_H
-#include <inttypes.h>
-#endif
-#include <rpc/rpc.h>
-#include <ucontext.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 
 
-/** Type representing a function pointer to a timer event handler. */
-typedef void (*OpenSS_TimerEventHandler)(ucontext_t* context);
-
-
-
-bool_t OpenSS_DecodeParameters(const char*, const xdrproc_t, void*);
-uint64_t OpenSS_GetPCFromContext(ucontext_t*);
-uint64_t OpenSS_GetTime();
-bool_t OpenSS_Send(const OpenSS_DataHeader*, const xdrproc_t, const void*);
-bool_t OpenSS_Timer(uint64_t, OpenSS_TimerEventHandler);
+/**
+ * Check a runtime assertion.
+ *
+ * Asserts (i.e. checks at runtime) that a particular expression is true. Does
+ * so in a manner almost identical to that of the standard C assert() function.
+ * The only real difference is that this function is NOT disabled by defining
+ * the NDEBUG macro.
+ *
+ * @param assertion    Assertion expression to be checked.
+ *
+ * @ingroup Implementation
+ */
+#define Assert(assertion)			    			    \
+    if(!(assertion)) {							    \
+	fprintf(stderr, "Assertion \"%s\" failed in file %s at line %d.\n", \
+		# assertion, __FILE__, __LINE__);			    \
+	fflush(stderr);                                                     \
+	abort();							    \
+    }
 
 
 

@@ -22,10 +22,10 @@
  *
  */
 
+#include "Assert.h"
 #include "RuntimeAPI.h"
 
 #include <alloca.h>
-#include <assert.h>
 
 /* External declaration (defined by the instrumentor) */
 int openss_send(const unsigned, const void*);
@@ -48,6 +48,8 @@ int openss_send(const unsigned, const void*);
  * @param xdrproc    XDR procedure for the passed data structure.
  * @param data       Pointer to the data structure to be sent.
  * @return           Boolean "TRUE" if succeeded or "FALSE" if failed.
+ *
+ * @ingroup RuntimeAPI
  */
 bool_t OpenSS_Send(const OpenSS_DataHeader* header,
 		   const xdrproc_t xdrproc, const void* data)
@@ -59,9 +61,9 @@ bool_t OpenSS_Send(const OpenSS_DataHeader* header,
     XDR xdrs;
     
     /* Check assertions */
-    assert(header != NULL);
-    assert(xdrproc != NULL);
-    assert(data != NULL);
+    Assert(header != NULL);
+    Assert(xdrproc != NULL);
+    Assert(data != NULL);
     
     /* Allocate the encoding buffer */
     buffer = alloca(EncodingBufferSize);

@@ -40,8 +40,8 @@ namespace OpenSpeedShop { namespace Framework {
      *
      * Simple example performance data collector illustrating the basics of the
      * Collector API. Periodically interrupts the running thread, obtains the
-     * current program counter (PC) value, increments a counter associated with
-     * that PC value, and allows the thread to continue execution.
+     * current program counter (PC) value, stores it, and allows the thread to
+     * continue execution.
      */
     class ExampleCollector :
 	public CollectorImpl

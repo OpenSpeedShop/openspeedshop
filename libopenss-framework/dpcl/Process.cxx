@@ -962,7 +962,7 @@ void Process::processStatements(const Thread& thread,
 		);
 	    database->bindArgument(1, info.get_filename());
 	    while(database->executeStatement());
-	    int file = database->getLastInsertedUID();	    
+	    file = database->getLastInsertedUID();	    
 	}
 	
 	// Iterate over each statement in this source file
@@ -1279,7 +1279,8 @@ void Process::execute(const std::string& library,
     // Ask DPCL to execute the function in this process    
     MainLoop::suspend();
     AisStatus retval = dm_process->bexecute(call_exp, NULL, NULL);
-    Assert(retval.status() == ASC_success);
+    // WDH: NEXT LINE COMMENTED OUT FOR DEBUGGING ONLY
+    // Assert(retval.status() == ASC_success);
     MainLoop::resume();    
 }
 

@@ -36,7 +36,7 @@ example_rt_la_LDFLAGS = \
 	-no-undefined -module -avoid-version
 
 example_rt_la_LIBADD = \
-	-lopenss-framework-runtime
+	-lopenss-framework-runtime -lpthread -lrt
 
 example_rt_la_SOURCES = \
 	blobs.h blobs.c blobs.x \
@@ -46,5 +46,6 @@ SUFFIXES = .x
 CLEANFILES = blobs.h blobs.c
 
 blobs.h blobs.c : blobs.x
+	rm -f  $(patsubst %.x, %.h, $<) $(patsubst %.x, %.c, $<)
 	$(RPCGEN) -h -o $(patsubst %.x, %.h, $<) $<
 	$(RPCGEN) -c -o $(patsubst %.x, %.c, $<) $<
