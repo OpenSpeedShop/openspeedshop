@@ -206,7 +206,7 @@ nprintf(DEBUG_DND) ("Drag panel=(%s)\n", p->getName() );
   {
     targetPC->dropSiteLayout = new QVBoxLayout( w, 0, 0, "dropSiteLayout");
 //    targetPC->tabWidget = new QTabWidget( w, "tabWidget" );
-    targetPC->tabWidget = new TabWidget( w, "tabWidget" );
+    targetPC->tabWidget = new TabWidget( targetPC, w, "tabWidget" );
 fprintf(stderr, "WHOAOOOOO Expect to error shortly!\n");
 targetPC->tabBarWidget = new TabBarWidget( targetPC, w, "tabBarWidget");
 targetPC->tabWidget->setTabBar(targetPC->tabBarWidget);
@@ -402,7 +402,7 @@ nprintf(DEBUG_DND) ("Drag panel=(%s)\n", p->getName() );
   {
     targetPC->dropSiteLayout = new QVBoxLayout( w, 0, 0, "dropSiteLayout");
 //    targetPC->tabWidget = new QTabWidget( w, "tabWidget" );
-    targetPC->tabWidget = new TabWidget( w, "tabWidget" );
+    targetPC->tabWidget = new TabWidget( targetPC, w, "tabWidget" );
 fprintf(stderr, "WHOAOOOOO Expect to error shortly!\n");
 targetPC->tabBarWidget = new TabBarWidget( targetPC, w, "tabBarWidget");
 targetPC->tabWidget->setTabBar(targetPC->tabBarWidget);

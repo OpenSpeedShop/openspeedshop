@@ -214,7 +214,7 @@ PanelContainer::PanelContainer( QWidget* _parent, const char* n, PanelContainer 
 
   dropSiteLayout = new QVBoxLayout( dropSiteLayoutParent, 0, 0, "dropSiteLayout");
 
-  tabWidget = new TabWidget( dropSiteLayoutParent, "tabWidget" );
+  tabWidget = new TabWidget( this, dropSiteLayoutParent, "tabWidget" );
   if( debug(DEBUG_FRAMES) ) tabWidget->setBackgroundColor("orange");
   strcpy(cn,"tabWidget:");strcat(cn, internal_name);strcat(cn,"-");strcat(cn,external_name); tabWidget->setCaption(cn);
 
@@ -2111,7 +2111,7 @@ PanelContainer::movePanelsToNewPanelContainer( PanelContainer *sourcePC)
   if( targetPC->dropSiteLayout == NULL )
   {
     targetPC->dropSiteLayout = new QVBoxLayout( w, 0, 0, "dropSiteLayout");
-    targetPC->tabWidget = new TabWidget( w, "tabWidget" );
+    targetPC->tabWidget = new TabWidget( targetPC, w, "tabWidget" );
     {
     char n[1024]; strcpy(n,"tabWidget:A:");strcat(n, targetPC->internal_name);strcat(n,"-");strcat(n,targetPC->external_name);
     targetPC->setCaption(n);
