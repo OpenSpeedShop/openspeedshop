@@ -68,6 +68,7 @@ static CMDWID Command_Window_ID = 0;
 static CMDWID Last_ReadWindow = 0;
 static bool Async_Inputs = false;
 static bool Looking_for_Async_Inputs = false;
+static CMDWID More_Input_Needed_From_Window = 0;
 static pthread_mutex_t Async_Input_Lock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t  Async_Input_Available = PTHREAD_COND_INITIALIZER;
 
@@ -204,9 +205,22 @@ class Input_Source
   void Dump(FILE *TFile) {
     fprintf(TFile,"  Active Input Source Stack:\n");
     for (Input_Source *inp = this; inp != NULL; inp = inp->Next()) {
+      bool nl_at_eol = false;
       fprintf(TFile,"    Read from: %s",(inp->Fp) ? inp->Name.c_str() : "buffer");
-      if (!inp->Fp) fprintf(TFile," len=%d, next=%d",inp->Buffer_Size,inp->Next_Line_At);
-      fprintf(TFile,"\n");
+      if (!inp->Fp) {
+        fprintf(TFile," len=%d, next=%d",inp->Buffer_Size,inp->Next_Line_At);
+        if (inp->Buffer_Size > inp->Next_Line_At) {
+          int nline = strlen (&(inp->Buffer[inp->Next_Line_At]));
+          nl_at_eol = (inp->Buffer[inp->Next_Line_At+nline] == *("\n"));
+          if (nline > 2) {
+            fprintf(TFile,": %.20s", &(inp->Buffer[inp->Next_Line_At]));
+            if (nline > 20) fprintf(TFile,"...");
+          }
+        }
+      }
+      if (!nl_at_eol) {
+        fprintf(TFile,"\n");
+      }
       if (inp->Trace_F) {
         fprintf(TFile,"     trace to: %s\n",inp->Trace_Name.c_str());
       }
@@ -410,7 +424,7 @@ public:
   }
 
   bool Input_Available () {
-    return  ((Input != NULL));
+    return  ((Input == NULL) ? Input_Is_Async : true);
   }
 
   // Field access
@@ -538,29 +552,25 @@ int64_t Find_Command_Level (CMDWID WindowID)
 // Low Level Semantic Routines
 
 // What is the current focus associated with a CommandWindow?
-ResultObject Experiment_Focus (CMDWID WindowID)
+EXPID Experiment_Focus (CMDWID WindowID)
 {
+  if (WindowID == 0) WindowID = Last_ReadWindow;
   CommandWindowID *my_window = Find_Command_Window (WindowID);
-  if (my_window && my_window->Focus()) {
-    return ResultObject ( SUCCESS, "ExperimentObject", (void *)my_window->Focus(), "");
-  } else {
-    return ResultObject ( SUCCESS, "", NULL, "There is no Focused Experiment");
-  }
+  return (my_window && my_window->Focus()) ? my_window->Focus() : 0;
 }
+
 // Set the focus for a particular CommandWindow.
-ResultObject Experiment_Focus (CMDWID WindowID, EXPID ExperimentID)
+EXPID Experiment_Focus (CMDWID WindowID, EXPID ExperimentID)
 {
+  if (WindowID == 0) WindowID = Last_ReadWindow;
   CommandWindowID *my_window = Find_Command_Window (WindowID);
   if (my_window) {
     ExperimentObject *Experiment = (ExperimentID) ? Find_Experiment_Object (ExperimentID) : NULL;
+fprintf(stdout,"set focus W:%d to %d\n",WindowID,ExperimentID);
     my_window->Set_Focus(ExperimentID);
-    if (ExperimentID) {
-      return (Experiment != NULL)
-             ? ResultObject ( SUCCESS, "ExperimentObject", (void *)my_window, "") 
-             : ResultObject ( FAILURE, "Experiment could not be found" );
-    }
+    return ExperimentID;
   }
-  return ResultObject ( SUCCESS, "ExperimentObject", NULL, "");
+  return 0;
 }
 
 void List_CommandWindows ( FILE *TFile )
@@ -715,16 +725,32 @@ void Commander_Termination (CMDWID im)
 
 
 bool Isa_SS_Command (CMDWID issuedbywindow, int64_t b_size, char *b_ptr) {
-  CommandWindowID *cw = Find_Command_Window (issuedbywindow);
-  Assert (cw);
   int fc;
   for (fc = 0; fc < b_size; fc++) {
     if (b_ptr[fc] != *(" ")) break;
   }
   if (b_ptr[fc] == *("\?")) {
+    bool Fatal_Error_Encountered = false;
     fprintf(stdout,"SpeedShop Status:\n");
-    fprintf(stdout,"  %s Waiting for Async input\n",Looking_for_Async_Inputs?"":"Not");
+    CommandWindowID *cw = Find_Command_Window (issuedbywindow);
+    if ((cw == NULL) || (cw->ID() == 0)) {
+      fprintf(stdout,"    ERROR: the window this command came from is illegal\n");
+      Fatal_Error_Encountered = true;
+    }
+    fprintf(stdout,"  %s Waiting for Async input\n",Looking_for_Async_Inputs?" ":"Not");
+    if (Looking_for_Async_Inputs) {
+      if (More_Input_Needed_From_Window) {
+        fprintf(stdout,"    Processing of a complex statement requires input from W %d.\n",
+                More_Input_Needed_From_Window);
+        CommandWindowID *lw = Find_Command_Window (More_Input_Needed_From_Window);
+        if ((lw == NULL) || (!lw->Input_Available())) {
+          fprintf(stdout,"    ERROR: this window can not provide more input!!\n");
+          Fatal_Error_Encountered = true;
+        }
+      }
+    }
     List_CommandWindows(stdout);
+    Assert(!Fatal_Error_Encountered);
     return false;
   } else if (b_ptr[fc] == *("!")) {
     int ret = system(&b_ptr[fc+1]);
@@ -795,13 +821,14 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
   int Buffer_Size= DEFAULT_INPUT_BUFFER_SIZE;
   char Buffer[Buffer_Size];
   Buffer[Buffer_Size-1] = *"\0";
-  FILE *fdin = fopen ( "/dev/tty", "rw" );  // Read directly from the xterm window
+  FILE *ttyin = fopen ( "/dev/tty", "r" );  // Read directly from the xterm window
+  FILE *ttyout = fopen ( "/dev/tty", "w" );  // Write prompt directly to the xterm window
   for(;;) {
     sleep (1); // DEBUG - give testing code time to react before splashing screen with prompt
-    fprintf(stdout,"%s->",current_prompt);
+    fprintf(ttyout,"%s->",current_prompt);
+    fflush (ttyout);
     Buffer[0] == *("\0");
-    // char *read_result = fgets (&Buffer[0], Buffer_Size, stdin);
-    char *read_result = fgets (&Buffer[0], Buffer_Size, fdin);
+    char *read_result = fgets (&Buffer[0], Buffer_Size, ttyin);
     if (Buffer[Buffer_Size-1] != (char)0) {
       fprintf(stderr,"ERROR: Input line from stdin is too long for buffer.\n");
       exit (0); // terminate the thread
@@ -867,11 +894,23 @@ window_found:
   return selectwindow;
 }
 
+static void There_Must_Be_More_Input (CommandWindowID *cw) {
+  if ((cw == NULL) || (!cw->Input_Available())) {
+    fprintf(stdout,"ERROR: The input source that started a complex statement"
+                   " failed to complete the expression.\n");
+    Assert (cw->Input_Available());
+  }
+}
+
 #include "Python.h"
 
 char *SpeedShop_ReadLine (int is_more)
 {
   char *save_prompt = current_prompt;
+
+static int cnt = 0;
+if (cnt++ > 3) is_more = true;
+if (cnt > 8) is_more = false;
 
   CMDWID readfromwindow = select_input_window(is_more);
   CMDWID firstreadwindow = readfromwindow;
@@ -905,10 +944,16 @@ read_another_window:
       if (Async_Inputs) {
         if (I_HAVE_ASYNC_INPUT_LOCK) {
          // Force a wait until data is ready.
+          More_Input_Needed_From_Window = (is_more) ? readfromwindow : 0;
           Assert(pthread_cond_wait(&Async_Input_Available,&Async_Input_Lock) == 0);
           I_HAVE_ASYNC_INPUT_LOCK = false;
           Assert(pthread_mutex_unlock(&Async_Input_Lock) == 0);
         } else {
+  
+          if (is_more) {
+            There_Must_Be_More_Input (cw);
+          }
+
          // Get the lock and try again to read from each of the input windows
          // because something might have arrived after our first check of the
          // window.
@@ -923,7 +968,7 @@ read_another_window:
       if (is_more) {
        // We MUST read from this window!
        // This is an error situation.  How can we recover?
-        Assert (!is_more);
+        There_Must_Be_More_Input(NULL);
       }
 
      // Return an empty line to indicate an EOF.
@@ -978,7 +1023,6 @@ fprintf(stdout,"gui instruction encountered\n");
 
  // Assign a sequence number to the command.
   clip->SetSeq (++Command_Sequence_Number);
-//fprintf(stdout,"command[%d] from w%d: %s\n",Command_Sequence_Number,readfromwindow,sbuf);
 
  // Log the command.
   cw->Trace(clip);
