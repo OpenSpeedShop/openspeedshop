@@ -247,7 +247,8 @@ printf("we've got a ControlObject\n");
 printf("we've got a LoadAttachObject\n");
   } else
   {
-    fprintf(stderr, "Unknown object type recieved.\n");
+//    fprintf(stderr, "Unknown object type recieved.\n");
+//    fprintf(stderr, "msgType = %s\n", mo->msgType.ascii() );
     return 0;  // 0 means, did not act on message
   }
 
@@ -287,14 +288,8 @@ sleep(1);
 qApp->processEvents(1);
 sleep(1);
 statusLabelText->setText( tr("Process completed...") );
-qApp->processEvents(1);
 sleep(1);
 qApp->processEvents(1);
-sleep(1);
-qApp->processEvents(1);
-sleep(1);
-qApp->processEvents(1);
-sleep(1);
 pco->runButton->setEnabled(TRUE);
 pco->runButton->enabledFLAG = TRUE;
 pco->pauseButton->setEnabled(FALSE);
