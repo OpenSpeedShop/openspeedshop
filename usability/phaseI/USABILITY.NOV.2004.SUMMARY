@@ -30,7 +30,8 @@ Following is a summary of comments and observations.
    data saved to a file so they can come back later and do more
    interrogation with openss.  Open/SpeedShop will save the data by default,
    but there should be a way for the user to interface and rename the file.
-   Also wanted is the ability to save the data in an easily readable format    that could be parsed with a script.  i.e. ASCII.    One individual
+   Also wanted is the ability to save the data in an easily readable format
+   that could be parsed with a script.  i.e. ASCII.    One individual
    politely requested the ability to export data in a tab deliminated list
    to input to a spreadsheet application.
 
@@ -186,7 +187,8 @@ Following is a summary of comments and observations.
    Apparently, its common to have many disjoint directories contain
    multiple levels of directories with source files.  There's a need to
    have a way to find and manipulate the searching of these directory
-   structures.   There needs to be a way of rearranging the searching.    When doing this loop detection needs to be implemented.  The searching
+   structures.   There needs to be a way of rearranging the searching.
+   When doing this loop detection needs to be implemented.  The searching
    also needs to be able to be interrupted.  One also needs to be able to
    save away the modifications as well.
                                                                               
@@ -332,380 +334,27 @@ Following is a summary of comments and observations.
 It's the first time I've seen that happen in all my studies I've done.
 
 
-
-
-
-This report summarizes a usability conducted on November 2004
-
-There were 5 candidates.  
-
-Candidate one results:
-
-  - Candidate one read the man page to determine which experiment
-  to run.  
-
-  - User uses the command line options -f fred_calls_ted -x pcsamp
-
-  - Afraid to click on the 'x' on the window lest he lose the whole session.
-
-  - Candidate makes comment, "graphics for run button".  (I failed to follow
-  up on in the interview so I'm not sure what was meant here.
-
-  - User hits run button.
-
-  - User was able to navigate source, via Top Panel with mouse clicks.
-
-  - "That was interesting" comment from user.  He was expecting to only 
-    highlight one line as the report only mentions one line.
-    Suggestion: Report should contain line ranges or comment such as
-               "loop starting at line 11"
-
-  - Was not clear if the line number given for the most time indicated the
-    start of an expensive loop, or the most expensive line. 
-
-  - Was able to delete the prompt.
-
-  - User tries to display source panel and top panel at the same time.
-    It's clear that its not intuitively obvious how to accomplish the 
-    task.
-
-  - User split the panel container, but was expecting the 2 panels to 
-    be divided between the 2 new panel containers.    The user eventually
-    gave up on this task.
-
-  - The user chooses, "Remove Panel Container" option and blew away his
-    panel container with the TopPanel and SrcPanel.    He exited and 
-    started over.
-    Suggestion: When deleting a PanelContainer, with data that can't be
-                recovered, a confirmation dialog should be posted.
-
-  - Seg fault occurs when many panels up.
-
-  - When the user tries to Drag-n-Drop a panel container, the cursor doesn't
-    correctly target a valid drop site.
-    Suggestion: Make sure the Drag is distinguished from the drop when over
-                a valid drop site.
-
-  - The user was able to erase the prompt in the CmdPanel.
-    Bug (know bug):   Don't erase the prompt.
-
-  - Fonts are too small
-    Bug: The font selection needs to be resolve.     Even though the font
-         is set and passed in on the openss script, the font still comes
-         out different on different platforms.    Action:  Research and
-         resolve.
-
-  - The user exits and come in again without specifying any command line
-    options.   He's able to successfully navigate the wizard panels, but
-    comments on a wording style issue.   His comment regards the negative
-    in the pcsample wizard panel.    
-    Suggestion: Change the wording to be more clear and direct.
-
-  - When selecting on the "Other" slice the user gets a double prompt
-    explaining the source doesn't exist.
-    Bug: Fix the double prompt.
-
-  - The user brings up the "statistics" and comments they should be on 
-    by default.
-
-  - Notices the menus are different in the source panel commenting that 
-    they're different.    I didn't follow up to find out if there was 
-    confusion, or if it was just a comment.
-    Suggestion: See if this is bothersome for other candidates.
-
-  - The user tries to reload the executable from disk but the options are 
-    confusing.   The options are Back, Reset, Next.   The user eventually 
-    determines the "Reset" button works.   However the user suggests a 
-    better option.
-    Suggestion:  Change the selections to have 3 radio buttons rather 
-                 than 2.   Have the third be to select a new executable
-                 which then implies that the second should be annotated
-                 with an existing executable name if available.
-
-  - The user was looking for a "Finish" button on the wizards to "wrap up and
-    take all the rest of the options at their default values".  
-    Suggestion: That's another reasonable request.   Add a finish button
-                to wrap up setup.
-
-  - The user gets multiple pcSample experiment panels up by going back to 
-    the wizard panel.
-    Suggestion:  (See later candidates results and suggestions.)
-
-  - Save as.   The user is unclear what is being save or how it's being saved.
-    The user looks to the mainwindow File menu for the save option.
-
-Candidate one followup:
-
-  The Save as was confusing.   One suggestion was have a cascading Save as 
-  button that would allow the format to be save.   Maybe even changing the 
-  wording to "Export".  
-
-   There may then be a menu structure such as:
-       Export->Text
-               Graphic
-               Html
-               Deliminated list  (tab deliminated)
-
-  The user also discusses the fact that they work with long running jobs. 
-  "Very common."  There's a need o dump info o a file for later viewing.
-  This is related to the save as feature.
-
-  John and Scott both want checks for executable/data file correctness.
-  One reason: To prevent a modified executable from being matched up 
-  with old data.
-
-  User discusses source file browsing.   Its common to have many disjoint
-  directories contain multiple levels of directories with source files.
-  There's a need to have a way to find and manipulate the searching of 
-  these directory structures.   There needs to be a way of rearranging 
-  the searching.   When doing this loop detection needs to be implemented.
-  The searching also needs to be interruptable.  One also needs to be able
-  to save away the modifications as well.
-
-  Further the user comments that path names can be at least 128 characters.
-  The toolgear approach is to truncate the filenames, then use popup help
-  technology to volunteer the specific file information.
-
-  ssh issue:  Security issue.   To authenticate a separate process is 
-              spawned on the host, a random number is sent down to stdin,
-              the spawned process echos back the name to confirm.
-
-  When looking up X resources via Qt be careful.  It's been noted that calls
-  to look up colors can take .2 seconds to take a round trip to resolve.
-  Doing many of these can cause very noticable slowdowns.
-
-
-
-
-Candidate two results:
-
-  - Candidate also comments on small fonts.
-    Bug: The font issue should be researched and resolved.
-
-  - The user did a man, then attempted to open help.   There was a problem 
-    with the online help system and online help was unavailable.
-
-  - This user also encountered the double-dialog when selecting the "other"
-    field in the TopPanel.
-    Bug: Fix this problem.
-
-  - The user brings up "Create New Experiment" and overlays existing experiment.
-  
-  - The user tries different experment (UserTime) to answer step 5.
-
-  - Wants to be able to open a tab into a new window in one click.
-
-  - Segv: occurs.
-
-  - Save file: User goes to the mainwindow File button to find this option.
-    Suggestion: This is a consistent problem which needs to be address.
-              Add Save As feature (with formatting attributes) to the 
-              mainwindow:File menu.
-
-  
-Candidate two followup:
-
-  It's suggested that double clicking on a tab should peel the tab off into
-  it's own window.
-
-  When splitting a panel container and there's multiple panel, the panels
-  should be separated into the 2 new panel containers.    Put one panel
-  in the left and one in the right.
-
-  Don't save (Save as) the file as graphical or html, but rather as ascii.
-
-  Kill the graphics and colors and only list out the report in list form.
-
-
-
-Candidate three results:
-
-  - Candidate reads the man page.
-
-  - Candidate comments that the -f option is not very intuitive.   He 
-  suggests that one should be able to simply do:  "openss a.out"
-
-  - The man page wording suggests only one experiment at a time can be run.
-
-  - User comments they like the wizard panels.
-
-  - The user deletes panels and gets an empty panel container.
-
-  - Its not intuitive to drag and drop the panels.
-
-  - There's currently no way to get the TopPanel back once its been 
-    deleted inside an experiment.
-
-  - This user (too) goes to the mainwindow:File menu to perform the 
-    Save As.
-    BUG: Fix this problem.   The user comments they don't want it in 
-         html format.  At least not by default.
-
-  - The user played with the top panel graphics.  They comment that the
-    graphics don't have labels on them.
-
-  - Wants buttons (similar to a web-browser) to browse source.
-
-  
-Candidate three followup:
-
-   If any graphics are to be outputed from the tool they should be able to 
-   be drag-n-dropped into PowerPoint.
-
-   The TopPanel should be able to be 'cut-n-pasted' from to a file.
-
-  The user wants to compare one run to another.
-
-  This user really wants to navigate by a source code browser.  
-  
-  They want to have easy access to a call graph facility.
-
-  They want a sorted file list
-
-  Finally they want to make sure there's a "Back" button on the source
-  navigation.
-
-  The user also comments that when one hovers over a line in the source, and
-  there's something that can be done (diving) a visual clue like highighting
-  or underlining should be done to emphasize the functionality.
-
-  The update button doesn't make sense.   Maybe an up arrow.   It was 
-  later suggested that a circular arrow icon may have good meaning.
-
-  Interrupt (button) doesn't make much sense where it is.
-
-  2 wish list items are noted by the user.
-
-   1)  They'd like an expert system that not only shows them the performance
-       issue, but one that gives suggestions to remedy the issue.
-
-   2)  They like a way to predict results for a different system.  i.e. 
-       run this on one vendors box and predict what it would perform like
-       on a different vendors box.
-       (It was later noted that a user could potentially comparatively debug one
-        architecture against another.)
-
-
-
-Candidate four results:
-
-  - User comments on small font size.
-
-  - User comments to distinguish file types by color in the file dialog.
-
-  - It seems navigating the source code by clicking on the top panel is
-    not obvious.   ... Then he got it...
-
-  - Splitting panel containers seems to leave users wanting a facility 
-    to spit and separate existing panels into the newly divided panel
-    container.
-
-  - Drag-n-drop is not obvious.
-
-  - The user hates using help, but goes there to figure out how to separate
-    TopPanel from SourcePanel.  (Help doesn't work, so they don't manage to 
-    complete this option.)
-
-  - The user is unable to separate the panels.
-
-  - Save as: Problem.   Everyone hit this one.
-    Action item:  Move the Save As to the mainwindow's File menu. 
-                  Accomidate different modes to save to.
-
-
-Candidate four follow up:
-
-  The user suggests we implement a Open recent list for the Save as files.
-
-  Also a open recent experiments would be very useful.
-
-  When splitting and drag-n-dropping.  Possibly add new menu items that 
-  allow the menus to be 'move to the next panel', 'move to a newly split 
-  panel container' ...
-
-  Make the Intro wizard go away when popping up the pcSampleWizard.
-
-  Make the pcSampleWizard go away when popping up the pcSample experiment.
-
-  Aggragate data for one result.   note:  not comparison, but together as
-  one new data file.)
-
-
-Candidate five results:
-
-  - The users comments about the small fonts
-
-  - Has troubles reading through wizard at first (probably due to fonts)
-
-  - Tries to restart openss with executable and experiment name,
-    but assume "experiment" is a user given name under which the data
-    is stored
-
-  - Restarts with just executable name
-
-  - Plays with wizard, comments that explanation for pcsample is a bit
-    unclear
-
-  - Unit missing for pcsampling argument
-
-  - At the end of Wizard, comments "feels like MS Visual Studio"
-    (I don't know whether that's good or bad.)
-
-  - Comment: Table should again clearly mention that this is exclusive
-    time, would like to see right click on top of column (the column
-    description) to change the column data (e.g., switch from exclusive
-    to inclusive time)
-
-  - some, quickly resolved troubles with the two different tab lines
-    in the GUI (top container vs. pcsampling container) - the user
-    was a bit surprised when after changing the top tabs, the other
-    data was gone
-
-  - While doing step 8 (splitting of windows), finds the split option
-    in the right-click menu, but doesn't find the drag option
-
-  - Finds the save window option for saving the data and assumes that
-    this saved the data - only at second attempt sees that this is
-    the wrong save and then finds the save function in the right click
-    menu (after searching for it)
-
-Candidate five other comments:
-
-  - Save graphics options confusing, since it only mentions "Save" or
-    "Save as". User unsure about what is saved where - suggests more
-    explicit names like "save data" or "save chart".
-
-  - When asked about his opinion about the pie chart, the user
-    says that he prefers it to come up in the first view
-
-  - Panel containers: wishes
-    - drag and drop not only from the tabs, but from any window
-      part
-    - pop-off panel when double clicking tab (Motif-like style)
-    - Additional menu option during right click: dive -> open
-      a new panel and pop it off.
-    - Suggest additional entries in right-click menu showing
-      panel options - especially helpful over empty containers
-      to choose how to populate them
-
-  - Important feature is to experiment with two different
-    executable at the same time, i.e., have multiple experiments
-    (of same or different type) open at the same time
-
-  - More expressive naming in the top tab - include executable
-    name and/or use coloring scheme (the latter is used in TV
-    to distinguish different processes in MPI applications or
-    to support parallel debugs of two processes.
-
-  - The user suggests that most tool users will either run the GUI
-    or the CLI and hence having the CLI by default part of the main
-    window might be a waste of screen space
-
-  - Suggests preference file to guide screen layout in three stages:
-    default preferences, overwritten by system wide preferences set
-    by the site administrator, overwritten by user preferences 
-
-
-* Interestingly, not a single user went to the CmdPanel for this study.
-It's the first time I've seen that happen in all my studies I've done.
-
+Follow up comments:
+After the (above) summary was sent out there were additional comments
+volunteered.  Following is a summary of those comments:
+
+ - Reports (A follow up to "Save As....")
+   Its been suggested that one possibility to solve the formatting of data
+   to a file is to provide a Report Panel.  This Report Panel would
+   describe the format saved data should be stored.   This would allow the
+   user to specify that exported graphics should be saved as images, tables,
+   ascii, or raw data.   Likewise, table data could be described to be saved
+   as tables, ascii, or tab deliminated lists.
+
+ - Diving  (A follow up to "Diving clues")
+   Diving also implies there needs to be Forward/Back functionality.    
+   When diving into a function, the user will want to be able to easily
+   Back out.
+
+   When implementing the Forward/Back functionality make sure there's a
+   stack history that is represented by a menu that the user can jump
+   forward or back.
+
+ - Window-itis/Too Many Panels
+   Avoid too many panels/windows.    Provide a kde-like menu of all
+   panels that are currently opened. 
