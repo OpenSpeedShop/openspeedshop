@@ -91,6 +91,7 @@ public:
     QRadioButton* vpage1HardwareCounterRB;
     QRadioButton* vpage1FloatingPointRB;
     QRadioButton* vpage1InputOutputRB;
+QRadioButton* vpage1MPIRB;
     QPushButton* vpage1NextButton;
 
     QWidget* eWStackPage;
@@ -103,6 +104,7 @@ public:
     QRadioButton* epage1HardwareCounterRB;
     QRadioButton* epage1FloatingPointRB;
     QRadioButton* epage1InputOutputRB;
+QRadioButton* epage1MPIRB;
     QPushButton* epage1NextButton;
 
     QCheckBox* wizardMode;
@@ -120,12 +122,14 @@ public slots:
     void vpage1HardwareCounterRBChanged();
     void vpage1FloatingPointRBChanged();
     void vpage1InputOutputRBChanged();
+void vpage1MPIRBChanged();
 
     void epage1pcSampleRBChanged();
     void epage1UserTimeRBChanged();
     void epage1HardwareCounterRBChanged();
     void epage1FloatingPointRBChanged();
     void epage1InputOutputRBChanged();
+void epage1MPIRBChanged();
 
     void handleSizeEvent( QResizeEvent *e );
     QScrollView *sv;
@@ -146,6 +150,7 @@ protected:
     QHBoxLayout* vFloatingPointRBLayout;
     QSpacerItem* spacer7_3;
     QHBoxLayout* vInputOutputRBLayout;
+QHBoxLayout* vMPIRBLayout;
     QSpacerItem* spacer7_4;
     QHBoxLayout* layout18;
     QSpacerItem* spacer7_5;
@@ -164,6 +169,7 @@ protected:
     QHBoxLayout* eFloatingPointRBLayout;
     QSpacerItem* spacer7_3_2;
     QHBoxLayout* eInputOutputRBLayout;
+QHBoxLayout* eMPIRBLayout;
     QSpacerItem* spacer7_4_2;
     QHBoxLayout* layout18_2;
     QSpacerItem* spacer7_5_2;

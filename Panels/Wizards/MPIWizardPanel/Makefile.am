@@ -10,9 +10,9 @@
 #      http://oss.sgi.com/projects/FreeB
 # 
 # Note that, as provided in the License, the Software is distributed on
-# on "AS IS" basis, with ALL EXPRESS AND IMPLIED WARRANTIES AND CONDITIONS
-# DISCLAIMED, INCLUDING, WITHOUT LIMITATION, ANY IMPLIED WARRANTIES AND
-# CONDITIONS OF MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A
+# on "AS IS" basis, with ALL EXPRESS AND IMPLIED WARRANTIES AND CONDITMPINS
+# DISCLAIMED, INCLUDING, WITHOUT LIMITATMPIN, ANY IMPLIED WARRANTIES AND
+# CONDITMPINS OF MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A
 # PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
 # 
 # Original Code.  The Original Code is: Open/Speedshop, Version 1.0, released
@@ -22,5 +22,27 @@
 # All Rights Reserved.
 ################################################################################
 
-# SUBDIRS = SourcePanel CmdPanel TopPanel pcSamplePanel PerformancePanel DebugPanel UserTimePanel GettingStartedPanel HW_CounterPanel IOPanel FPE_TracingPanel CreateNewExperimentPanel Wizards
-SUBDIRS = SourcePanel CmdPanel TopPanel pcSamplePanel UserTimePanel HW_CounterPanel IOPanel FPE_TracingPanel MPIPanel CreateNewExperimentPanel Wizards
+pkglib_LTLIBRARIES = MPIWizardPanel.la
+
+MPIWizardPanel_la_CXXFLAGS = \
+    -I/usr/include \
+    -I$(QTDIR)/include \
+    -I. \
+    -I../../../gui \
+    -I../../../images \
+    -I../../../objects \
+    -I../../../dialogs \
+    -I../../../plugin \
+    -I../../../base
+
+MPIWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../../base/.libs/ossBase.so  -Wl,../../../objects/.libs/ossObjects.so -Wl,../../../dialogs/.libs/ossDialogs.so
+
+MPIWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
+
+moc_MPIWizardPanel.cxx: MPIWizardPanel.hxx
+	-moc -o moc_MPIWizardPanel.cxx MPIWizardPanel.hxx
+
+MPIWizardPanel_la_SOURCES = \
+	MPIWizardPanel.hxx MPIWizardPanel.cxx moc_MPIWizardPanel.cxx \
+	plugin_entry_point.hxx Panel.hxx \
+	PanelContainer.hxx local_plugin_info.hxx debug.hxx

@@ -22,4 +22,4 @@
 # All Rights Reserved.
 ################################################################################
 
-SUBDIRS = IntroWizardPanel pcSampleWizardPanel UserTimeWizardPanel FPE_TracingWizardPanel HW_CounterWizardPanel IOWizardPanel
+SUBDIRS = IntroWizardPanel pcSampleWizardPanel UserTimeWizardPanel FPE_TracingWizardPanel HW_CounterWizardPanel IOWizardPanel MPIWizardPanel

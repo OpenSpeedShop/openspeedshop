@@ -138,6 +138,7 @@ AC_CONFIG_FILES(Makefile
 		Panels/DebugPanel/Makefile
 		Panels/HW_CounterPanel/Makefile
 		Panels/IOPanel/Makefile
+		Panels/MPIPanel/Makefile
 		Panels/FPE_TracingPanel/Makefile
 		Panels/CreateNewExperimentPanel/Makefile
 		Panels/Wizards/Makefile
@@ -147,6 +148,7 @@ AC_CONFIG_FILES(Makefile
 		Panels/Wizards/FPE_TracingWizardPanel/Makefile
 		Panels/Wizards/HW_CounterWizardPanel/Makefile
 		Panels/Wizards/IOWizardPanel/Makefile
+		Panels/Wizards/MPIWizardPanel/Makefile
 )
 
 AC_OUTPUT

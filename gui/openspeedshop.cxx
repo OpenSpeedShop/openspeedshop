@@ -46,11 +46,13 @@ OpenSpeedshop::OpenSpeedshop( QWidget* parent, const char* name, WFlags fl )
   OpenSpeedshopLayout = new QVBoxLayout( centralWidget(), 11, 6, "OpenSpeedshopLayout"); 
 
   // actions
+#ifdef MOVE_FILE_ATTACH_ACTIONS
   fileLoadNewAction = new QAction( this, "fileLoadNewAction" );
   fileLoadNewAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "filenew" ) ) );
 
   fileAttachNewProcessAction = new QAction( this, "fileAttachNewProcessAction" );
   fileAttachNewProcessAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "process" ) ) );
+#endif // MOVE_FILE_ATTACH_ACTIONS
 
   fileOpenAction = new QAction( this, "fileOpenAction" );
   fileOpenAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "fileopen" ) ) );
@@ -83,8 +85,10 @@ OpenSpeedshop::OpenSpeedshop( QWidget* parent, const char* name, WFlags fl )
   menubar = new QMenuBar( this, "menubar" );
 
   fileMenu = new QPopupMenu( this );
+#ifdef MOVE_FILE_ATTACH_ACTIONS
   fileLoadNewAction->addTo( fileMenu );
   fileAttachNewProcessAction->addTo( fileMenu );
+#endif // MOVE_FILE_ATTACH_ACTIONS
   fileOpenAction->addTo( fileMenu );
   fileSaveAction->addTo( fileMenu );
 #ifdef EVENTUALLY
@@ -110,8 +114,10 @@ OpenSpeedshop::OpenSpeedshop( QWidget* parent, const char* name, WFlags fl )
 
 
     // signals and slots connections
+#ifdef MOVE_FILE_ATTACH_ACTIONS
   connect( fileLoadNewAction, SIGNAL( activated() ), this, SLOT( fileLoadNewProgram() ) );
   connect( fileAttachNewProcessAction, SIGNAL( activated() ), this, SLOT( fileAttachNewProcess() ) );
+#endif // MOVE_FILE_ATTACH_ACTIONS
   connect( fileOpenAction, SIGNAL( activated() ), this, SLOT( fileOpen() ) );
   connect( fileSaveAction, SIGNAL( activated() ), this, SLOT( fileSave() ) );
 #ifdef EVENTUALLY
@@ -170,12 +176,14 @@ OpenSpeedshop::~OpenSpeedshop()
 void OpenSpeedshop::languageChange()
 {
   setCaption( tr( "Open/SpeedShop" ) );
+#ifdef MOVE_FILE_ATTACH_ACTIONS
   fileLoadNewAction->setText( tr( "Load New Program " ) );
   fileLoadNewAction->setMenuText( tr( "Load &New Program" ) );
   fileLoadNewAction->setAccel( tr( "Ctrl+N" ) );
   fileAttachNewProcessAction->setText( tr( "Attach To Executable " ) );
   fileAttachNewProcessAction->setMenuText( tr( "&Attach To Executable" ) );
   fileAttachNewProcessAction->setAccel( tr( "Ctrl+A" ) );
+#endif // MOVE_FILE_ATTACH_ACTIONS
   fileOpenAction->setText( tr( "Open Saved Experiment..." ) );
   fileOpenAction->setMenuText( tr( "&Open Saved Experiment..." ) );
   fileOpenAction->setAccel( tr( "Ctrl+O" ) );

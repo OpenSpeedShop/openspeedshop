@@ -45,8 +45,10 @@ class OpenSpeedshop : public QMainWindow
     QPopupMenu *fileMenu;
     QPopupMenu *editMenu;
     QPopupMenu *helpMenu;
+#ifdef MOVE_FILE_ATTACH_ACTIONS
     QAction* fileLoadNewAction;
     QAction* fileAttachNewProcessAction;
+#endif // MOVE_FILE_ATTACH_ACTIONS
     QAction* fileOpenAction;
     QAction* fileSaveAction;
 #ifdef EVENTUALLY

@@ -139,6 +139,14 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n) : Panel(pc
     vInputOutputRBLayout->addWidget( vpage1InputOutputRB );
     vRBLayout->addLayout( vInputOutputRBLayout );
 
+    vMPIRBLayout = new QHBoxLayout( 0, 0, 6, "vMPIRBLayout"); 
+    spacer7_4 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
+    vMPIRBLayout->addItem( spacer7_4 );
+
+    vpage1MPIRB = new QRadioButton( vWStackPage, "vpage1MPIRB" );
+    vMPIRBLayout->addWidget( vpage1MPIRB );
+    vRBLayout->addLayout( vMPIRBLayout );
+
     vWStackPageLayout->addLayout( vRBLayout );
 
     vNextButtonLayout = new QHBoxLayout( 0, 0, 6, "vNextButtonLayout"); 
@@ -220,6 +228,14 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n) : Panel(pc
     eInputOutputRBLayout->addWidget( epage1InputOutputRB );
     eRBLayout->addLayout( eInputOutputRBLayout );
 
+    eMPIRBLayout = new QHBoxLayout( 0, 0, 6, "eMPIRBLayout"); 
+    spacer7_4_2 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
+    eMPIRBLayout->addItem( spacer7_4_2 );
+
+    epage1MPIRB = new QRadioButton( eWStackPage, "epage1MPIRB" );
+    eMPIRBLayout->addWidget( epage1MPIRB );
+    eRBLayout->addLayout( eMPIRBLayout );
+
     WStackPageLayout_2->addLayout( eRBLayout );
 
     eNextButtonLayout = new QHBoxLayout( 0, 0, 6, "eNextButtonLayout"); 
@@ -261,12 +277,14 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n) : Panel(pc
     connect( vpage1HardwareCounterRB, SIGNAL( clicked() ), this, SLOT(vpage1HardwareCounterRBChanged() ) );
     connect( vpage1FloatingPointRB, SIGNAL( clicked() ), this, SLOT(vpage1FloatingPointRBChanged() ) );
     connect( vpage1InputOutputRB, SIGNAL( clicked() ), this, SLOT(vpage1InputOutputRBChanged() ) );
+connect( vpage1MPIRB, SIGNAL( clicked() ), this, SLOT(vpage1MPIRBChanged() ) );
 
     connect( epage1pcSampleRB, SIGNAL( clicked() ), this, SLOT(epage1pcSampleRBChanged() ) );
     connect( epage1UserTimeRB, SIGNAL( clicked() ), this, SLOT(epage1UserTimeRBChanged() ) );
     connect( epage1HardwareCounterRB, SIGNAL( clicked() ), this, SLOT(epage1HardwareCounterRBChanged() ) );
     connect( epage1FloatingPointRB, SIGNAL( clicked() ), this, SLOT(epage1FloatingPointRBChanged() ) );
     connect( epage1InputOutputRB, SIGNAL( clicked() ), this, SLOT(epage1InputOutputRBChanged() ) );
+connect( epage1MPIRB, SIGNAL( clicked() ), this, SLOT(epage1MPIRBChanged() ) );
 
 #ifdef DEBUG_WITH_COLOR
 sv->viewport()->setPaletteBackgroundColor("red");
@@ -349,6 +367,7 @@ IntroWizardPanel::languageChange()
 "hardware to measure certain attributes of program execution.)" ) );
     vpage1FloatingPointRB->setText( tr( "I need to measure how many times I am causing Floating Point Exceptions." ) );
     vpage1InputOutputRB->setText( tr( "My program does a lot of Input and Output and I'd like to trace that work." ) );
+    vpage1MPIRB->setText( tr( "I have and MPI program and I'd like trace the mpi calls." ) );
     vpage1NextButton->setText( tr( "> Next" ) );
     eWelcomeHeader->setText( tr( "<h2>Welcome to Open/SpeedShop(tm)</h2>" ) );
     eHelpfulLabel->setText( tr( "Please select which of the following are true for your application:" ) );
@@ -358,6 +377,7 @@ IntroWizardPanel::languageChange()
     epage1HardwareCounterRB->setText( tr( "Hardware Counter Tracing." ) );
     epage1FloatingPointRB->setText( tr( "Floating Point Exceptions Tracing" ) );
     epage1InputOutputRB->setText( tr( "Input/Output Tracing" ) );
+epage1MPIRB->setText( tr( "MPI Tracing" ) );
     epage1NextButton->setText( tr( "> Next" ) );
     wizardMode->setText( tr( "Verbose Wizard Mode" ) );
     broughtToYouByLabel->setText( tr( "Brought to you by SGI (SiliconGraphics)" ) );
@@ -439,6 +459,14 @@ void IntroWizardPanel::epage1NextButtonSelected()
       getPanelContainer()->getMasterPC()->dl_create_and_add_panel("IO Wizard", getPanelContainer());
     }
   }
+  if( epage1MPIRB->isOn() )
+  {
+    p = getPanelContainer()->raiseNamedPanel("&MPI Wizard");
+    if( !p )
+    {
+      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("MPI Wizard", getPanelContainer());
+    }
+  }
 }
 
 void IntroWizardPanel::vpage1NextButtonSelected()
@@ -500,6 +528,14 @@ void IntroWizardPanel::vpage1NextButtonSelected()
       getPanelContainer()->getMasterPC()->dl_create_and_add_panel("IO Wizard", getPanelContainer());
     }
   }
+  if( vpage1MPIRB->isOn() )
+  {
+    p = getPanelContainer()->raiseNamedPanel("&MPI Wizard");
+    if( !p )
+    {
+      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("MPI Wizard", getPanelContainer());
+    }
+  }
 }
 
 void IntroWizardPanel::vpage1pcSampleRBChanged()
@@ -527,6 +563,11 @@ void IntroWizardPanel::vpage1InputOutputRBChanged()
   vSetStateChanged(vpage1InputOutputRB);
 }
 
+void IntroWizardPanel::vpage1MPIRBChanged()
+{
+  vSetStateChanged(vpage1MPIRB);
+}
+
 void IntroWizardPanel::vSetStateChanged(QRadioButton *rb)
 {
   vpage1pcSampleRB->setChecked( FALSE );
@@ -534,6 +575,7 @@ void IntroWizardPanel::vSetStateChanged(QRadioButton *rb)
   vpage1HardwareCounterRB->setChecked( FALSE );
   vpage1FloatingPointRB->setChecked( FALSE );
   vpage1InputOutputRB->setChecked( FALSE );
+  vpage1MPIRB->setChecked( FALSE );
   rb->setChecked(TRUE);
 }
 
@@ -563,6 +605,11 @@ void IntroWizardPanel::epage1InputOutputRBChanged()
   eSetStateChanged(epage1InputOutputRB);
 }
 
+void IntroWizardPanel::epage1MPIRBChanged()
+{
+  eSetStateChanged(epage1MPIRB);
+}
+
 void IntroWizardPanel::eSetStateChanged(QRadioButton *rb)
 {
   epage1pcSampleRB->setChecked( FALSE );
@@ -570,6 +617,7 @@ void IntroWizardPanel::eSetStateChanged(QRadioButton *rb)
   epage1HardwareCounterRB->setChecked( FALSE );
   epage1FloatingPointRB->setChecked( FALSE );
   epage1InputOutputRB->setChecked( FALSE );
+  epage1MPIRB->setChecked( FALSE );
   rb->setChecked(TRUE);
 }
 

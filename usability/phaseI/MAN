@@ -28,6 +28,35 @@ DESCRIPTION
     -x experiment_name
       Specifies the experiment to be run on the executable or process.
 
+      o pssamp   - Actual CPU time at the source line, machine instruction,
+                   and function levels by sampling the program counter at
+                   10 or 1-millisecond intervals. See “PC Sampling
+                   Wizard.
+  
+      o usertime - Inclusive and exclusive CPU time for each function by
+                   sampling the callstack at 30-millisecond intervals.
+                   See   User Time Wizard.
+
+      o fpe      - All floating-point exceptions, with the exception type
+                   and the call stack at the time of the exception. See 
+                   FPE Tracing Wizard.
+
+      o hwc      - Counts at the source line, machine instruction, and
+                   function levels of various hardware events, including:
+                   clock cycles, graduated instructions, primary
+                   instruction cache misses, secondary instruction cache
+                   misses, primary data cache misses, secondary data
+                   cache misses, translation lookaside buffer (TLB)
+                   misses, and graduated floating-point instructions.
+                   See HW Counter Wizard.
+
+      o io       - Traces the following I/O system calls: read, readv,
+                   write, writev, open, close, dup, pipe, creat. 
+                   See IO Wizard.
+
+      o mpi      - Traces calls to various MPI routines.
+                   See MPI Wizard.
+
     -p process_ID
       Specifies the running process to attach to for performance gathering.
 
