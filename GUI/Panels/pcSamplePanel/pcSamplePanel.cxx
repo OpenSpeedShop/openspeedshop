@@ -329,7 +329,7 @@ printf("# theApplication.attachCollector(theCollector.getValue());\n");
 
 
 
-  topPC->splitVertical();
+  topPC->splitVertical(80);
 //  topPC->rightPanelContainer->splitVertical();
 
   pcSampleControlPanelContainerWidget->show();

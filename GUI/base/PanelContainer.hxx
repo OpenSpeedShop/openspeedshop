@@ -237,13 +237,13 @@ QPopupMenu *contextMenu;
 
   public slots:
     //! This is a convienience routine that splits PanelContainers horizontally.
-    void splitHorizontal();
+    void splitHorizontal(int leftSidePercent=-1);
 
     //! This is a convienience routine that splits PanelContainers vertically.
-    void splitVertical();
+    void splitVertical(int leftSidePercent=-1);
 
     //! This is the routine that does the actual split.
-    void split(Orientation orientation, bool showRight=TRUE);
+    void split(Orientation orientation, bool showRight=TRUE, int leftSidePercent=-1);
 
     //! This routine removes a PanelContainer.
     void removePanelContainer(PanelContainer *pc=NULL);

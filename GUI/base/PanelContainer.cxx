@@ -315,7 +315,7 @@ PanelContainer::languageChange()
     PanelContainers.   Otherwise, only show the left.
  */
 void
-PanelContainer::split(Orientation orientation, bool showRight)
+PanelContainer::split(Orientation orientation, bool showRight, int leftSidePercent)
 {
   // We've received a request to split the panelContainer.
   nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::split(%s-%s)\n", getInternalName(), getExternalName() );
@@ -355,17 +355,34 @@ PanelContainer::split(Orientation orientation, bool showRight)
   nprintf(DEBUG_PANELCONTAINERS) ("::split: The parent's: width=%d height=%d\n", width, height);
   QValueList<int> sizeList;
   sizeList.clear();
+  int left_side_size = 0;
+  int right_side_size = 0;
   if( orientation == QSplitter::Vertical )
   {
-    nprintf(DEBUG_PANELCONTAINERS) ("	split try to resize top to w=%d h=%d\n", width, height/2);
-    sizeList.push_back((int)(height/2));
-    sizeList.push_back((int)(height/2));
+    nprintf(DEBUG_PANELCONTAINERS) ("	split try to resize top to w=%d h=%d p=%d\n", width, height/2, leftSidePercent);
+    if( leftSidePercent > -1 )
+    {
+      left_side_size = height*(leftSidePercent*.01);
+      right_side_size = height-left_side_size;
+    } else
+    {
+      right_side_size = left_side_size = height/2;
+    }
   } else // Horizontal
   {
-    nprintf(DEBUG_PANELCONTAINERS) ("	split try to resize left to w=%d h=%d\n", width/2, height);
-    sizeList.push_back((int)(width/2));
-    sizeList.push_back((int)(width/2));
+    nprintf(DEBUG_PANELCONTAINERS) ("	split try to resize left to w=%d h=%d p=%d\n", width/2, height, leftSidePercent);
+    if( leftSidePercent > -1 )
+    {
+      left_side_size = width*(leftSidePercent*.01);
+      right_side_size = width-left_side_size;
+    } else
+    {
+      right_side_size = left_side_size = width/2;
+    }
   }
+sizeList.push_back(left_side_size);
+sizeList.push_back(right_side_size);
+
   splitter->setSizes(sizeList);
 
   leftPanelContainer->show();
@@ -444,22 +461,22 @@ PanelContainer::addPanelMenuItems(QPopupMenu* contextMenu)
 
 /*! Set the orientation to QSplitter::Horizontal in the call to split. */
 void
-PanelContainer::splitHorizontal()
+PanelContainer::splitHorizontal(int leftSidePercent)
 {
   nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::splitHorizontal()\n");
 
   // We've received a request to split the panelContainer horizontally.
-  split( QSplitter::Horizontal );
+  split( QSplitter::Horizontal, TRUE, leftSidePercent );
 }
 
 /*! Set the orientation to QSplitter::Vertical in the call to split. */
 void
-PanelContainer::splitVertical()
+PanelContainer::splitVertical(int leftSidePercent )
 {
   nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::splitVertical()\n");
 
   // We've received a request to split the panelContainer vertically.
-  split( QSplitter::Vertical );
+  split( QSplitter::Vertical, TRUE, leftSidePercent );
 }
 
 /*! If there are panels in this PanelContainer, determine which panel
