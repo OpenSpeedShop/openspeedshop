@@ -61,16 +61,6 @@ SPTextEdit::createPopupMenu( const QPoint & pos )
   return popupMenu;
 }
 
-#ifdef OLDWAY
-void
-SPTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
-{
-  nprintf(DEBUG_PANELS) ("SPTextEdit::contentsMouseMoveEvent() entered\n");
-
-  sourcePanel->armPanelsWhatsThis();
-}
-#endif // OLDWAY
-
 void
 SPTextEdit::annotateScrollBarLine(int line, QColor(color))
 {
@@ -116,7 +106,7 @@ SPTextEdit::clearScrollBar()
   {
     vbar = verticalScrollBar();
     hbar = horizontalScrollBar();
-    sourcePanel->addWhatsThis( vbar, sourcePanel );
+//    sourcePanel->addWhatsThis( vbar, sourcePanel );
   }
 
   if( vannotatePixmap != NULL )

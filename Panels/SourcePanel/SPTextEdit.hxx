@@ -27,17 +27,15 @@ public:
     void annotateScrollBarLine( int line, QColor);
     void clearScrollBarLine(int line);
     void clearScrollBar();
+
+    QScrollBar *vbar;
+    QScrollBar *hbar;
 protected: 
-#ifdef OLDWAY
-    void contentsMouseMoveEvent( QMouseEvent *e );
-#endif // OLDWAY
 public slots:
 
 private:
     SourcePanel *sourcePanel;
 
-    QScrollBar *vbar;
-    QScrollBar *hbar;
     QPixmap *vannotatePixmap;
 };
 #endif // SPTEXTEDIT_H

@@ -251,22 +251,55 @@ void
 SourcePanel::info(QPoint p, QObject *target)
 {
   nprintf(DEBUG_PANELS) ("SourcePanel::info() called.\n");
+  int tew = 0;
+  int vbw = 0;
 
-if( /* target == NULL || */ target == textEdit )
-{
-  printf("target == textEdit\n");
-} else
-{
-  printf("target == vbar\n");
-}
-
-#ifdef OLDWAY
-  QPoint pos = textEdit->mapFromGlobal( QCursor::pos() );
-#else // OLDWAY
   QPoint pos = textEdit->mapFromGlobal( p );
-#endif // OLDWAY
-  pos.setY( pos.y() + vscrollbar->value() );
 
+  // If we have a vertical scrollbar, see if the event was generated 
+  // in the scrollbar area.
+  if( textEdit->vbar )
+  {
+//    printf("we have a vbar\n");
+    tew = textEdit->width();
+    vbw = textEdit->vbar->width();
+  }
+
+  // If it was a scrollbar event then convert the pos.y location...
+  if( textEdit->vbar && pos.x() > tew - vbw )
+  { // This is a scrollbar pos.  Convert to a source location then continue
+    // as usual.
+    int vbh = textEdit->vbar->height() - (textEdit->vbar->width()*2);
+    int y = pos.y()-textEdit->vbar->width();
+
+// printf("first: The nominalized y=%d\n", y);
+    if( y < 0 )
+    {
+//      y = 0;
+      return;
+    }
+    if( y > vbh )
+    {
+//      y = vbh;
+      return;
+    }
+
+    float ratio = (float)y/(float)vbh;
+//    printf("second: The ratio=%f\n", ratio);
+
+    int new_y = int (ratio * (float)textEdit->vbar->maxValue());
+//    printf("finally: The new_y=%d (maxValue=%d)\n", new_y, textEdit->vbar->maxValue() );
+  
+    // set this to a textEdit.document() value...
+    pos.setY( new_y );
+  } else
+  {
+    pos.setY( pos.y() + vscrollbar->value() );
+  }
+//  printf("tew=%d vbw=%d pos.x()=%d pos.y()=%d\n", tew, vbw, pos.x(), pos.y() );
+
+  // Now, based on the pos (location) see if there's anything interesting 
+  // we can detail.
   int line = whatIsAtPos( pos );
   nprintf(DEBUG_PANELS) ("SourcePanel::info() line=%d\n", line);
   if( line <= 0 )
