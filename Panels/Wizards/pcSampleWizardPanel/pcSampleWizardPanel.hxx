@@ -26,6 +26,7 @@ class QListBox;
 class QListBoxItem;
 class QButtonGroup;
 class QTextEdit;
+class QScrollView;
 
 
 #define PANEL_CLASS_NAME pcSampleWizardPanel   // Change the value of the define
@@ -85,6 +86,8 @@ public:
   int broadcast(char *msg);
 
 
+  QHBoxLayout * panelLayout;
+  QWidget* topWidget;
     QFrame* topFrame;
     QWidgetStack* pcSampleWizardPanelStack;
     QWidget* vDescriptionPageWidget;
@@ -218,6 +221,10 @@ protected:
 
     void eUpdateAttachOrLoadPageWidget();
     void vUpdateAttachOrLoadPageWidget();
+
+
+    void handleSizeEvent( QResizeEvent *e );
+    QScrollView *sv;
 
 protected slots:
     virtual void languageChange();

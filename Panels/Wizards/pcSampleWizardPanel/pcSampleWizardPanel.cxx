@@ -23,6 +23,7 @@
 #include <qfile.h>   // For the file dialog box.
 #include <qfiledialog.h>  // For the file dialog box.
 #include <qmessagebox.h>
+#include <qscrollview.h>
 
 #include <qbitmap.h>
 #include "rightarrow.xpm"
@@ -55,12 +56,22 @@ pcSampleWizardPanel::pcSampleWizardPanel()
 pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
 {
   nprintf(DEBUG_CONST_DESTRUCT) ("pcSampleWizardPanel::pcSampleWizardPanel() constructor called\n");
-  QHBoxLayout * panelLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
+sv = new QScrollView(getBaseWidgetFrame(), "scrollview");
+sv->setResizePolicy( QScrollView::Manual );
+
+  panelLayout = new QHBoxLayout( sv->viewport(), 1, 2, getName() );
 
     if ( !getName() )
 	setName( "pc Sample" );
 
-    QWidget* topWidget = new QWidget( getBaseWidgetFrame(), "topWidget" );
+    // I'm not calculating this, but rather just setting a "reasonable"
+    // size.   Eventually this should be calculated.
+    sv->resize(700,400);
+    sv->resizeContents(750,450);
+
+
+
+    topWidget = new QWidget( sv->viewport(), "topWidget" );
     topLayout = new QVBoxLayout( topWidget, 11, 6, "topLayout"); 
 
     topFrame = new QFrame( topWidget, "topFrame" );
@@ -443,6 +454,8 @@ eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageExecutableLabel
 
   // This next line makes it all magically appear and resize correctly.
   panelLayout->addWidget(topWidget);
+
+  sv->viewport()->setBackgroundColor(getBaseWidgetFrame()->backgroundColor() );
 }
 
 
@@ -571,6 +584,13 @@ if( raisedWidget == vDescriptionPageWidget )
         nprintf(DEBUG_PANELS) ("Expert to Verbose: unknown WStackPage\n");
     }
   }
+
+  // Before we swith reposition to top...
+  sv->verticalScrollBar()->setValue(0);
+  sv->horizontalScrollBar()->setValue(0);
+
+  handleSizeEvent(NULL);  
+
 }
 
 
@@ -1053,3 +1073,20 @@ pcSampleWizardPanel::vUpdateAttachOrLoadPageWidget()
     }
   }
 }
+
+void
+pcSampleWizardPanel::handleSizeEvent( QResizeEvent *e )
+{
+
+  int width=100;
+  int height=100;
+
+
+
+  width=getBaseWidgetFrame()->width();
+  height=getBaseWidgetFrame()->height();
+
+
+  sv->resize(width, height);
+}
+
