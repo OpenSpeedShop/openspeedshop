@@ -83,7 +83,7 @@ namespace OpenSpeedShop { namespace Framework {
 	 *
 	 * @param thread    Thread to be attached.
 	 */
-	void attachUnderlyingThread(const Thread&);
+	void attachUnderlyingThread(const Thread& thread);
 	
 	/**
 	 * Detach from underlying thread.
@@ -98,7 +98,7 @@ namespace OpenSpeedShop { namespace Framework {
 	 *
 	 * @param thread    Thread to be detached.
 	 */
-	void detachUnderlyingThread(const Thread&);
+	void detachUnderlyingThread(const Thread& thread);
 	
 	/**
 	 * Get a thread's state.
@@ -150,7 +150,8 @@ namespace OpenSpeedShop { namespace Framework {
 	 * @param thread    Thread whose state should be changed.
 	 * @param state     Change the theread to this state.
 	 */
-	void changeThreadState(const Thread&, const Thread::State&);
+	void changeThreadState(const Thread& thread,
+			       const Thread::State& state);
 
     }
     

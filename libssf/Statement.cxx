@@ -287,7 +287,7 @@ std::vector<AddressRange> Statement::getAddresseRanges() const
 /**
  * Default constructor.
  *
- * Construcst a Statement that refers to a non-existent statement. Any use of
+ * Constructs a Statement that refers to a non-existent statement. Any use of
  * a member function on an object constructed in this way will result in an
  * assertion failure.
  */

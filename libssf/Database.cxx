@@ -783,7 +783,7 @@ double Database::getResultAsReal(const unsigned& index) const
  *          statement will result in an assertion failure.
  *
  * @param index    Index (number) of column to obtain.
- * @param value    Value from this column.
+ * @return         Address result from this column.
  */
 Address Database::getResultAsAddress(const unsigned& index) const
 {

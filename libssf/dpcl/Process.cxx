@@ -149,8 +149,8 @@ namespace {
  * Form a process' unique name.
  *
  * Returns the unique name for a process. The name is defined as being the
- * string "<host>:<pid>", where <host> is the name of the host on which the
- * process resides, and <pid> is the identifier of the process on that host.
+ * string "[host]:[pid]", where [host] is the name of the host on which the
+ * process resides, and [pid] is the identifier of the process on that host.
  * This unique name is used for identifying processes within messages sent
  * between hosts.
  *

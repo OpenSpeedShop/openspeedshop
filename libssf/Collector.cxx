@@ -464,7 +464,7 @@ std::set<Metadata> Collector::getAvailable()
  * provided default is insufficient here because we need to instantiate another,
  * separate, implementation for the new copy.
  *
- * @other    Collector to be copied.
+ * @param other    Collector to be copied.
  */
 Collector::Collector(const Collector& other) :
     dm_database(other.dm_database),
@@ -505,7 +505,7 @@ Collector::~Collector()
  * is insufficient here because we need to instantiate another, separate,
  * implementation for the new copy.
  * 
- * @other    Collector to be copied.
+ * @param other    Collector to be copied.
  */
 Collector& Collector::operator=(const Collector& other)
 {
