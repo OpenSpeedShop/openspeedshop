@@ -94,7 +94,7 @@ printf("# theApplication.attachCollector(theCollector.getValue());\n");
 //  topPC->dl_create_and_add_panel("Toolbar Panel", topPC->leftPanelContainer);
 //  topPC->dl_create_and_add_panel("Top Five Panel", topPC->leftPanelContainer);
 #ifdef DEMO
-  SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", topPC->leftPanelContainer);
+  SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", topPC);
 #else // DEMO
   topPC->dl_create_and_add_panel("Source Panel", topPC->leftPanelContainer);
 #endif // DEMO
@@ -259,8 +259,7 @@ pco->terminateButton->setEnabled(FALSE);
 pco->terminateButton->setFlat(TRUE);
 pco->terminateButton->setEnabled(FALSE);
 
-// TopPanel *tp = (TopPanel *)topPC->dl_create_and_add_panel("Top Panel", topPC->leftPanelContainer);
-TopPanel *tp = (TopPanel *)topPC->dl_create_and_add_panel("Top Panel", NULL); 
+TopPanel *tp = (TopPanel *)topPC->dl_create_and_add_panel("Top Panel", topPC); 
 // Uncomment the next line if you want the TopPanel to position the 
 // source automatically.
 // tp->listener((void *)NULL);
