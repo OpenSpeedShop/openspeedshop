@@ -126,23 +126,19 @@ Load_Initial_Modules (int argc, char **argv)
   }
 
  /* Open the Python interpreter */
-printf("call Initial_Python()\n");
   Initial_Python ();
 
   switch (command_mode) {
 
   case INITIATE_MODE_BATCH:
-printf("BATCH()\n");
    /* Start up batch mode operation. */
     Start_BATCH_Mode( 0, argc, argv, initiate_command_at, read_stdin_file);
     break;
   case INITIATE_MODE_GUI:
-printf("GUI()\n");
    /* Load the GUI dso and let it initialize SpeedShop. */
     Start_GUI_Mode( 0, argc, argv, initiate_command_at, read_stdin_file);
     break;
   case INITIATE_MODE_TLI:
-printf("TLI()\n");
    /* Start up the text line interface. */
     Start_TLI_Mode( 0, argc, argv, initiate_command_at, read_stdin_file);
     break;
@@ -234,29 +230,20 @@ extern "C"
   cli_init(int argc, char **argv)
   {
     bool splashFLAG=true;
-    printf("A: pcli.so cli_init() entered\n");
-    printf("argc=%d\n", argc);
     ArgStruct *argStruct = new ArgStruct(argc, argv);
     bool cliOnlyFLAG = false;
     for(int i=0;i<argc;i++)
     {
-      printf("argv[%d]=%s\n", i, argv[i] );
       if(strcmp(argv[i], "-cli") == 0 )
       {
-        printf("cliOnlyFLAG == true!\n");
         cliOnlyFLAG = true;
       }
     }
 
     if( cliOnlyFLAG == false )
     {
-      printf("A:Then start the gui as well..\n");
       extern void loadTheGUI(ArgStruct *);
       loadTheGUI(argStruct);
-      printf("called loadTheGUI()\n");
-// I sleep for now, only to get the prompt to come out after the GUI is up.
-// We won't do this in the real product....
-sleep(7);
     }
 
 

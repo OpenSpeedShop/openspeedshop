@@ -31,12 +31,6 @@ extern "C"
     int argc = arg_struct->argc;
     char **argv = arg_struct->argv;
     bool splashFLAG=TRUE;
-    printf("A: gui.so gui_init() entered\n");
-    printf("argc=%d\n", argc);
-    for(int i=0;i<argc;i++)
-    {
-      printf("argv[%d]=%s\n", i, argv[i] );
-    }
   
     qapplication = new QApplication( argc, argv );
 
@@ -117,15 +111,13 @@ extern "C"
   char *fontname = getenv("OPENSPEEDSHOP_FONTNAME");
   if( fontname )
   {
-printf("we have a fontname=(%s)\n", fontname );
     QFont m_font = QFont(fontname);
     m_font.setRawName(fontname);
     qapplication->setFont(m_font);
   }
-    printf("create QApplication(A)\n");
 
     OpenSpeedshop *w;
-fprintf(stderr, "gui_init() entered.  call new OpenSpeedshop()\n");
+
     w = new OpenSpeedshop();
     w->executableName = executableStr;
     w->pidStr = pidStr;
@@ -133,7 +125,6 @@ fprintf(stderr, "gui_init() entered.  call new OpenSpeedshop()\n");
     w->expStr = expStr;
     w->hostStr = hostStr;
     w->argsStr = argsStr;
-    printf("create OpenSpeedshop()\n");
 
     if( w->expStr != NULL )
     {
@@ -163,10 +154,8 @@ fprintf(stderr, "gui_init() entered.  call new OpenSpeedshop()\n");
     }
 
     w->show();
-    printf("show OpenSpeedshop()\n");
 
     qapplication->connect( qapplication, SIGNAL( lastWindowClosed() ), qapplication, SLOT( quit() ) );
-    printf("connect this up.\n");
 
     if( splashFLAG )
     {
