@@ -79,7 +79,7 @@ public slots:
 
 
 private slots:
-    void removeSelected();
+    void detachSelected();
     void disableSelected();
     void modifySelected();
     void nothingSelected();

@@ -32,6 +32,7 @@
 #include <qlabel.h>
 #include <qcombobox.h>
 #include <qlistview.h>
+#include <qinputdialog.h>
 
 #include "SS_Input_Manager.hxx"
 
@@ -122,9 +123,24 @@ void ManageCollectorsDialog::languageChange()
   buttonCancel->setText( tr( "&Cancel" ) );
   buttonCancel->setAccel( QKeySequence( QString::null ) );
   availableCollectorsLabel->setText( tr("Available Collectors:") );
-  availableCollectorsComboBox->insertItem( "pcsamp" );
-  availableCollectorsComboBox->insertItem( "usertime" );
-  availableCollectorsComboBox->insertItem( "fpe" );
+  QString command;
+  command = QString("listTypes all");
+// printf("command=(%s)\n", command.ascii() );
+  std::list<std::string> list_of_collectors;
+  if( !cli->getStringListValueFromCLI( (char *)command.ascii(), 
+         &list_of_collectors, FALSE ) )
+  {
+    printf("Unable to run %s command.\n", command.ascii() );
+  }
+
+  if( list_of_collectors.size() > 0 ) 
+  {
+    for( std::list<std::string>::const_iterator it = list_of_collectors.begin();         it != list_of_collectors.end(); it++ )
+    {
+      std::string collector_name = *it;
+      availableCollectorsComboBox->insertItem( collector_name.c_str() );
+    }
+  }
 }
 
 QString
@@ -182,15 +198,20 @@ void ManageCollectorsDialog::availableCollectorsComboBoxActivated()
 void
 ManageCollectorsDialog::contextMenuRequested( QListViewItem *item, const QPoint &pos, int col)
 {
-  printf("ManagerCollectorsDialog::createPopupMenu() entered.\n");
+//  printf("ManagerCollectorsDialog::createPopupMenu() entered.\n");
 
   QPopupMenu *popupMenu = new QPopupMenu(this);
  
   if( attachCollectorsListView->selectedItem() )
   {
-    popupMenu->insertItem("Remove...", this, SLOT(removeSelected()) );
-    popupMenu->insertItem("Disable...", this, SLOT(disableSelected()) );
-    popupMenu->insertItem("Modify Parameter..", this, SLOT(modifySelected()) );
+    if( attachCollectorsListView->selectedItem()->parent() == NULL ) // it's a root node.
+    {
+      popupMenu->insertItem("Detach...", this, SLOT(detachSelected()) );
+      popupMenu->insertItem("Disable...", this, SLOT(disableSelected()) );
+    } else
+    {
+      popupMenu->insertItem("Modify Parameter..", this, SLOT(modifySelected()) );
+    }
   } else
   {
     popupMenu->insertItem("Nothing selected.", this, SLOT(nothingSelected()) );
@@ -202,18 +223,19 @@ ManageCollectorsDialog::contextMenuRequested( QListViewItem *item, const QPoint 
 
 
 void
-ManageCollectorsDialog::removeSelected()
+ManageCollectorsDialog::detachSelected()
 {
-  printf("removeSelected\n");
+  printf("detachSelected\n");
   QListViewItem *selectedItem = attachCollectorsListView->selectedItem();
   if( selectedItem )
   {
     printf("Got an ITEM!\n");
     QString ret_value = selectedItem->text(0);
-    printf("remove = (%s)\n", ret_value.ascii() );
+    printf("detach = (%s)\n", ret_value.ascii() );
 
+    QString collector_name = selectedItem->text(0);
     QString command;
-    command = QString("expDetach -x %1 %2").arg(expID).arg(QString("pcsamp"));
+    command = QString("expDetach -x %1 %2").arg(expID).arg(collector_name);
 printf("command=(%s)\n", command.ascii() );
     if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
     {
@@ -234,8 +256,9 @@ ManageCollectorsDialog::disableSelected()
     QString ret_value = selectedItem->text(0);
     printf("disable = (%s)\n", ret_value.ascii() );
 
+    QString collector_name = selectedItem->text(0);
     QString command;
-    command = QString("expDisable -x %1 %2").arg(expID).arg(QString("pcsamp"));
+    command = QString("expDisable -x %1 %2").arg(expID).arg(collector_name);
 printf("command=(%s)\n", command.ascii() );
     if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
     {
@@ -253,10 +276,32 @@ ManageCollectorsDialog::modifySelected()
   QListViewItem *selectedItem = attachCollectorsListView->selectedItem();
   if( selectedItem )
   {
-    printf("Got an ITEM!\n");
-    QString ret_value = selectedItem->text(0);
-    printf("modify = (%s)\n", ret_value.ascii() );
+//    printf("Got an ITEM!\n");
+    QString collector_name = selectedItem->parent()->text(0);
+    QString param_name = selectedItem->text(0);
+    QString param_value = selectedItem->text(1);
+//printf("modify = parent()->text(0)=(%s)\n", collector_name.ascii());
+//printf("modify = text(0)=(%s)\n", param_name.ascii());
+//printf("modify = text(1)=(%s)\n", param_value.ascii());
 // Modify the parameter....
+    bool ok;
+    int res = QInputDialog::getInteger(QString("Set %1 : %2").arg(collector_name).arg(param_name), QString("New Value:"), param_value.toUInt(), 0, 9999999, 10, &ok, this);
+printf("res = %d\n", res);
+    if( ok )
+    {
+      printf("user entered a value and pressed OK\n");
+      QString command;
+      command = QString("expSetParam -x %1 %2 %3=%4").arg(expID).arg(collector_name).arg(param_name).arg(res);
+printf("command=(%s)\n", command.ascii() );
+      if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
+      {
+        printf("Unable to run %s command.\n", command.ascii() );
+      }
+    } else
+    {
+      printf("user pressed cancel.\n");
+    }
+    
   }
   updateAttachedCollectorsList();
 }
