@@ -1506,13 +1506,20 @@ to Open/SpeedShop
     <ul>
       <li><a href="#mozTocId391912">Brief Open/SpeedShop Overview
         </a></li>
+      <li><a href="#mozTocId921847">Common Terminology</a></li>
       <li><a href="#mozTocId464331">Extensibility
         </a></li>
     </ul>
   </li>
   <li><a href="#mozTocId137584">Open/SpeedShop
-Installation Information</a></li>
-  <li><a href="#mozTocId929923">Open/SpeedShop Tools</a>
+Installation Information</a>
+    <ul>
+      <li><a href="#mozTocId640719">Installing Open/SpeedShop</a></li>
+      <li><a href="#mozTocId475161">Installing DPCL</a></li>
+    </ul>
+  </li>
+  <li><a href="#mozTocId929923">Open/SpeedShop
+Tools</a>
     <ul>
       <li><a href="#mozTocId738956">Open/SpeedShop
 Invocation Command&nbsp; "openss"
@@ -1529,7 +1536,8 @@ Invocation Command&nbsp; "openss"
       <li><a href="#mozTocId237449">Batch Command Tool </a></li>
     </ul>
   </li>
-  <li><a href="#mozTocId811614">Scripting API
+  <li><a href="#mozTocId811614">Scripting
+API
     </a></li>
   <li><a href="#mozTocId417846">Plugin
 API (Extensibility)&nbsp; Description
@@ -1553,8 +1561,81 @@ to Open/SpeedShop</span><br>
  style="font-family: times new roman,times,serif;">Open/SpeedShop
 provides open source performance measurement and performance analysis
 capabilities for a wide
-range of platforms.&nbsp; <br>
+range of platforms. <br>
 </span></p>
+<h2><a name="mozTocId921847" class="mozTocH2"></a><span
+ style="font-family: times new roman,times,serif;"><a
+ name="Common_Terminology"></a>Common Terminology</span></h2>
+<p>Technical terms can have multiple and/or context sensitive meanings,
+therefore this section attempts to explain and clarify the meanings of
+the terms used in this document.&nbsp; </p>
+<br>
+<ul>
+  <li><font size="2"><font size="2"><li><b><i>Experiment</i></b>: A set
+of collectors and
+executables
+bound together to generate performance metric</li>
+    </font></font><br>
+  </li>
+  <li><font size="2"><font size="2"><i><b>Components:</b></i>&nbsp; A
+somewhat self-contained section of the Open/SpeedShop performance
+tool.&nbsp;&nbsp; This section of code does a set of specific related
+tasks for the tool.&nbsp;&nbsp; For example, the GUI component does all
+the tasks related to displaying Open/SpeedShop wizards, experiment
+creation, and results using a graphical user interface.&nbsp;&nbsp; The
+CLI component does similar functions but uses the interactive command
+line delivery method.<br>
+    </font></font></li>
+</ul>
+<ul>
+  <li><font size="2"><font size="2"> <li><b><i>Collector</i></b>: The
+portion of the tool containing logic
+that is
+responsible for the gathering of the performance metric.</li>
+    </font></font></li>
+</ul>
+<ul>
+  <li><font size="2"><font size="2"> <li><b><i>Metric</i></b>: The
+entity, which the collector/experiment
+is gathering.
+A time, occurrence counter, or other entity, which reflects in some way
+on the applications performance and is gathered by a performance
+experiment (by the collector).</li>
+    </font></font></li>
+</ul>
+<ul>
+  <li><font size="2"><font size="2"> <li><b><i>Focused experiment</i></b>:&nbsp;
+The experiment that is in
+current
+active context.&nbsp; The last created experiment is usually the
+default or focused experiment, however, the <b>expFocus</b> command
+will set the
+experiment specified in the <b>expFocus</b>
+command to be the focused or default experiment.</li>
+    </font></font></li>
+</ul>
+<ul>
+  <li><font size="2"><font size="2"> <li><b><i>Framework</i></b>:&nbsp;
+The set of API functions that
+allows the user
+interface to manage the creation and viewing of performance
+experiments.&nbsp; It is the interface between the&nbsp; user interface
+and the <b>DPCL</b> and <b>Dyninst</b> components</li>
+    </font></font><br>
+    <font size="2"><font size="2"><li><i><b>Plugin:</b></i>&nbsp; A
+portion of the performance tool that can be loaded and included in the
+tool at tool start-up time.&nbsp; Development of the plugin uses a tool
+specific interface (API) so that the plugin, and the tool it is to be
+included in, know how to interact with each other.&nbsp;&nbsp; Plugins
+are normally placed in a specific directory so that the tool knows
+where to find the plugins.<br>
+    </li>
+    </font></font></li>
+</ul>
+<br>
+<br>
+<br>
+<br>
 <p class="MsoBodyText"><span
  style="font-family: times new roman,times,serif;"></span></p>
 <h2><a class="mozTocH2" name="mozTocId464331"></a><a
@@ -1589,10 +1670,11 @@ running processes.&nbsp;&nbsp;</span>
  style="color: rgb(0, 0, 128);">Open/SpeedShop
 Installation Information</span></h1>
 </div>
-<h2>Installing Open/SpeedShop</h2>
+<h2><a name="mozTocId640719" class="mozTocH2"></a>Installing
+Open/SpeedShop</h2>
 TBD<br>
 <br>
-<h2>Installing DPCL</h2>
+<h2><a name="mozTocId475161" class="mozTocH2"></a>Installing DPCL</h2>
 DPCL is ....<br>
 The <a href="TroubleShootingGuide/index.html">DPCL installation
 trouble shooting guide</a> provides problem solving information and
