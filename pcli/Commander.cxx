@@ -167,7 +167,7 @@ class Input_Source
     int64_t line_len = strlen(next_line);
     int i;
     for (i = 1; i < line_len; i++) {  
-      if (next_line[i] == *("\n")) {
+      if (next_line[i] == *("\0")) {
         line_len = i;
         break;
       }
@@ -348,6 +348,15 @@ private:
   }
 public:
   char *Read_Command () {
+    if (Input == NULL) {
+     // Is there a good chance of finding something to read?
+     // Yes, there is a race condiiton here, but the worst that
+     // can happen is that we miss reading a line of input as
+     // soon as we could.  Since this read is in a loop, we will
+     // eventually get back here to read the new line.
+      return NULL;
+    }
+
    // Get exclusive access to the lock so that only one
    // read, write, add or delete is done at a time.
     Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
@@ -637,6 +646,16 @@ ResultObject Command_Trace_OFF (CMDWID WindowID)
   return ResultObject(SUCCESS, "Command_Trace_OFF", (void *)0, "");
 }
 
+void  SpeedShop_Trace_ON (char *tofile) {
+fprintf(stdout,"Enter SpeedShop_Trace_ON %s\n",tofile);
+  (void)Command_Trace_ON (Last_ReadWindow, std::string(tofile));
+}
+
+void  SpeedShop_Trace_OFF(void) {
+fprintf(stdout,"Enter SpeedShop_Trace_OFF\n");
+  (void)Command_Trace_OFF (Last_ReadWindow);
+}
+
 // This is the start of the Command Line Processing Routines.
 // Only one thread can be executing one of these rotuines at a time,
 // so the must be protected with the use of Window_List_Lock.
@@ -797,7 +816,7 @@ fprintf(stdout,"quit instruction encountered\n");
     }
     len  = strlen(s);
     if (len > 1) {
-      if (!strncasecmp ( s, "gui\n", 5)) {
+      if (!strncasecmp ( s, "gui\n", 4)) {
 fprintf(stdout,"gui instruction encountered\n");
         loadTheGUI((ArgStruct *)NULL);
         s = NULL;
