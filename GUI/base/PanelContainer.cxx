@@ -362,22 +362,22 @@ PanelContainer::split(Orientation orientation, bool showRight, int leftSidePerce
     nprintf(DEBUG_PANELCONTAINERS) ("	split try to resize top to w=%d h=%d p=%d\n", width, height/2, leftSidePercent);
     if( leftSidePercent > -1 )
     {
-      left_side_size = height*(leftSidePercent*.01);
+      left_side_size = (int)(height*(leftSidePercent*.01));
       right_side_size = height-left_side_size;
     } else
     {
-      right_side_size = left_side_size = height/2;
+      right_side_size = left_side_size = (int)(height/2);
     }
   } else // Horizontal
   {
     nprintf(DEBUG_PANELCONTAINERS) ("	split try to resize left to w=%d h=%d p=%d\n", width/2, height, leftSidePercent);
     if( leftSidePercent > -1 )
     {
-      left_side_size = width*(leftSidePercent*.01);
+      left_side_size = (int)(width*(leftSidePercent*.01));
       right_side_size = width-left_side_size;
     } else
     {
-      right_side_size = left_side_size = width/2;
+      right_side_size = left_side_size = (int)(width/2);
     }
   }
 sizeList.push_back(left_side_size);

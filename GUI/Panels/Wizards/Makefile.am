@@ -22,4 +22,4 @@
 # All Rights Reserved.
 ################################################################################
 
-SUBDIRS = IntroWizardPanel pcSampleWizardPanel
+SUBDIRS = IntroWizardPanel pcSampleWizardPanel UserTimeWizardPanel

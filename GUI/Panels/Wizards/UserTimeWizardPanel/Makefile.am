@@ -22,24 +22,25 @@
 # All Rights Reserved.
 ################################################################################
 
-pkglib_LTLIBRARIES = UserTimePanel.la
+pkglib_LTLIBRARIES = UserTimeWizardPanel.la
 
-UserTimePanel_la_CXXFLAGS = \
+UserTimeWizardPanel_la_CXXFLAGS = \
     -I/usr/include \
     -I$(QTDIR)/include \
     -I. \
-    -I../../gui \
-    -I../../plugin \
-    -I../../base
+    -I../../../gui \
+    -I../../../plugin \
+    -I../../../objects \
+    -I../../../base
 
-UserTimePanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../base/.libs/ftBase.so
+UserTimeWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../../base/.libs/ftBase.so  -Wl,../../../objects/.libs/ftObjects.so
 
-UserTimePanel_la_LIBADD = -L$(QTDIR)/lib -lqt
+UserTimeWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
 
-moc_UserTimePanel.cxx: UserTimePanel.hxx
-	-moc -o moc_UserTimePanel.cxx UserTimePanel.hxx
+moc_UserTimeWizardPanel.cxx: UserTimeWizardPanel.hxx
+	-moc -o moc_UserTimeWizardPanel.cxx UserTimeWizardPanel.hxx
 
-UserTimePanel_la_SOURCES = \
-	UserTimePanel.hxx UserTimePanel.cxx moc_UserTimePanel.cxx \
+UserTimeWizardPanel_la_SOURCES = \
+	UserTimeWizardPanel.hxx UserTimeWizardPanel.cxx moc_UserTimeWizardPanel.cxx \
 	plugin_entry_point.hxx Panel.hxx \
 	PanelContainer.hxx local_plugin_info.hxx debug.hxx
