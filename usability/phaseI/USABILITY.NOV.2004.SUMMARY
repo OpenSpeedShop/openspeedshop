@@ -17,7 +17,7 @@ in this summary.
 
 Following is a summary of comments and observations.
 
- - Save As...
+x - Save As...
 
    This was definitely a problem.  Users are drawn to the top level
    main window's "File" entry to do a save.   This was repeated
@@ -56,19 +56,27 @@ Following is a summary of comments and observations.
    the user doesn't want to save the entire session's output.   This may
    be accomplished with a local menu accessing the same dialog interface
    to save the panels contents.
+   Partially completed: I pulled the entry point to save and load
+                        experiment data to the main File menu.
+                        The rest of the implementation will be done
+                        once the underlying functionality is available.
 
- - Load Experiment
+x - Load Experiment
    While this feature wasn't enabled for the usability test, one user
    made a very good suggestion.  They suggested to have a list of available
    experiments to open, via the File->Load Experiment menu.
    i.e. File->Load Experiment->Expr 1 (pcsamp)
                                                    Columbia (MPI)
+   Partially completed: I pulled the entry point to save and load
+                        experiment data to the main File menu.
+                        The rest of the implementation will be done
+                        once the underlying functionality is available.
                                                    New ...
    - Make the CommandPanel optional
    Since there's a default command line interface (cli) terminal, make the
    CommandPanel optional.
 
- - Drag-n-Drop of Panels
+x - Drag-n-Drop of Panels
    Targets icon needs to be defined better.   Also there may be a
    need to put some menu entry out to help the user move panels
    around.  i.e. Drag Panel, Move Panel Up, Move Panel Over ???
@@ -85,7 +93,7 @@ Following is a summary of comments and observations.
    FIXED: current:OpenSpeedShop:184212a
           Allow double click to equate to peeling off a window.
 
- - Panel menus
+x - Panel menus
    The panel menus are not obvious.   There should be an indicator
    possibly a 'v'  (Upside down triangle.), located on the panels tab,
    to indicate there's something there to menu.
@@ -104,7 +112,7 @@ Following is a summary of comments and observations.
    possibly be accomplished with a pop up help like expansion or with
    color coding and pattern coding.  i.e. as in TotalView.
 
- - Splitting of Panels
+x - Splitting of Panels
    Divide up the panels between the panels.
 
    When splitting panel containers, all/most users suggested
@@ -126,7 +134,7 @@ Following is a summary of comments and observations.
           the current panel stays in the current panel container and all other 
           panels are moved to the new panel container.
 
- - Fonts, fonts, fonts
+x - Fonts, fonts, fonts
    The default font selected not the best.   Additionally it wasn't obvious
    how to set the font.
    First, we should select a better default (more universal font).   Second,
@@ -240,7 +248,7 @@ Following is a summary of comments and observations.
      date.  i.e. exclusive time to inclusive times.
 
 
- - Wizard navigation.
+x - Wizard navigation.
    Users in general seemed to like the wizard navigation.   There was a
    comment about the (wording) style that should be address.   But there
    seemed to be an agreement that the wizard panels, when navigating from
@@ -260,7 +268,7 @@ Following is a summary of comments and observations.
           wording but will base it on what is used in the pcSampling
           collector description.
 
- - Wizard Confusion
+x - Wizard Confusion
    There was confusion by the user when they got to the screen to load
    a new executable from disk... for the second time.   The tool remembered
    their first selection and didn't prompt them the second time... .to the
@@ -272,7 +280,9 @@ Following is a summary of comments and observations.
    FIXED: Changed the wording of the "Reset" button to "Clear" and added the
           additional setting to "Select a new program from disk."
 
- - The wording describing pcsampling should be made more clear.
+x - The wording describing pcsampling should be made more clear.
+   To be fixed:   This will be change for the actual release.  The
+                  current wording was for the usability study only.
 
  - There should be a "Unit" for the pcsampling argument. (And all other
    experiment arguments.)
@@ -303,12 +313,12 @@ Following is a summary of comments and observations.
    place/split windows, default font, ...
 
  - BUGS
-   Double pop up when selecting Top Panel "other".
+   - Double pop up when selecting Top Panel "other".
 
-   Segfault.   This resulted several times, but it was not obvious what
-   the cause was.   Running this under gdb while doing an extended run
-   should catch this seemingly elusive bug.
-   FIXED: When explicitly adding a panel to a panel container that was
+x   - Segfault.   This resulted several times, but it was not obvious what
+     the cause was.   Running this under gdb while doing an extended run
+     should catch this seemingly elusive bug.
+     FIXED: When explicitly adding a panel to a panel container that was
           already split, openss would attempt to gracefully place the 
           panel in the best place possible.   Rather and error should
           have been printed to warn the gui writer. 
@@ -316,18 +326,19 @@ Following is a summary of comments and observations.
           attempted.   (In this case we simply need to find the best 
           fit panel container first, then place the pane in it.)
 
-   CmdPanels prompt was removed.   The command panel used in the study
-   was incomplete to say the least.   However this is worth noting for
-   the eventual CmdPanel.
+x   - CmdPanels prompt was removed.   The command panel used in the study
+     was incomplete to say the least.   However this is worth noting for
+     the eventual CmdPanel.
+     To be fixed later when real CmdPanel is developed.
 
-   The heuristics for the find best panel container logic is still being
-   being worked on.   This was seen during the testing when some panels
-   where placed in sub-marvelous locations.  Reasonable, I might say,
-   but unexpected by the user.
-   When the use had multiple experiments up, with multiple source panels,
-   then they selected a routine from the TopPanel, the visible source
-   didn't update to the new location.   Rather, the source panel that was
-   hidden was updated.
+   - The heuristics for the find best panel container logic is still being
+     being worked on.   This was seen during the testing when some panels
+     where placed in sub-marvelous locations.  Reasonable, I might say,
+     but unexpected by the user.
+     When the use had multiple experiments up, with multiple source panels,
+     then they selected a routine from the TopPanel, the visible source
+     didn't update to the new location.   Rather, the source panel that was
+     hidden was updated.
 
  - Additional comments:
    One user discussed the fact that they work with long running jobs.
@@ -394,11 +405,12 @@ volunteered.  Following is a summary of those comments:
 More follow-up comments from Martin regarding the above summary:
 These comments were received 12/21/04 via email.
 
-- Splitting of panels:
+x - Splitting of panels:
   One idea would be to follow the model of emacs - there, the
   currently visible panel is split and then shown on both sides.
   This is normally not very helpful, but it's obvious, easy to
   follow, and users might already be used to this from emacs.
+  (See FIX from above...)
 
 - Fonts:
   It would be nice to have this in a preference menu inside the
@@ -436,8 +448,9 @@ These comments were received 12/21/04 via email.
   the users double-clicks the stats could be an option to
   make the correct association obvious.
 
-- Interestingly, nobody went to the CmdPanel
+x - Interestingly, nobody went to the CmdPanel
   This is probably more an advertising problem - I invited the
   candidates to a GUI study, so perhaps people didn't think that
   they should go there. In general, many users here are big fans
   of cmdlines. 
+  NOTED:
