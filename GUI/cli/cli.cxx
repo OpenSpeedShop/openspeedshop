@@ -181,21 +181,41 @@ OutputObject *
 process_command(const char *command_buffer)
 {
 // printf("process_command: command_buffer=(%s)\n", command_buffer);
-char return_buffer[1024];
+    char return_buffer[1024];
     if( strncmp(command_buffer, "quit", 4) == 0  ||
         strncmp(command_buffer, "exit", 4) == 0 )
     {
       exit(1);
     } else if( strncmp(command_buffer, "help", 4) == 0 ) 
     {
-//      printf("Man... you really need some help.   Seek a professional.\n");
-//      printf("prof:   N/A\n");
-//      printf("gui:   Loads and brings up the gui.\n");
-//      printf("quit:  We're outta here...\n");
-      strcpy(return_buffer, "Man... you really need some help.   Seek a professional.\n");
-      strcat(return_buffer, "prof:   N/A\n");
+      strcat(return_buffer, "alias name [name|string]\n");
+      strcat(return_buffer, "attach <HOST_FILE_RPT_LIST> \n");
+      strcat(return_buffer, "break <filename>|<line number> \n");
+      strcat(return_buffer, "continue <HOST_FILE_RPT> \n");
+      strcat(return_buffer, "defineExp \n");
+      strcat(return_buffer, "detach <HOST_FILE_RPT_LIST> \n");
+      strcat(return_buffer, "disableExp \n");
+      strcat(return_buffer, "enableExp \n");
+      strcat(return_buffer, "halt <HOST_FILE_RPT_LIST> \n");
+      strcat(return_buffer, "help \n");
+      strcat(return_buffer, "history \n");
+      strcat(return_buffer, "input \n");
+      strcat(return_buffer, "list -exp [<expId> || all]\n");
+      strcat(return_buffer, "list -hosts <HOST_FILE_LIST> \n");
+      strcat(return_buffer, "list -obj <HOST_FILE_LIST> \n");
+      strcat(return_buffer, "list -pids <HOST_FILE_LIST>[-mpi] \n");
+      strcat(return_buffer, "list -src <HOST_FILE_LIST> \n");
+      strcat(return_buffer, "load - load an executable or list of executables \n");
+      strcat(return_buffer, "log \n");
+      strcat(return_buffer, "run [<expId>] [<HOST_FILE_LIST>] arguments [-hang] \n");
+      strcat(return_buffer, "set \n");
+      strcat(return_buffer, "show -params \n");
+      strcat(return_buffer, "show -reports \n");
+      strcat(return_buffer, "unalias \n");
+      strcat(return_buffer, "unset \n");
       strcat(return_buffer, "gui:   Loads and brings up the gui.\n");
-      strcat(return_buffer, "quit:  We're outta here...\n");
+      strcat(return_buffer, "quit:  quit Open/SpeedShop...\n");
+      strcat(return_buffer, "exit:  exit Open/SpeedShop...\n");
       return( new OutputObject(return_buffer) );
     } else
     {

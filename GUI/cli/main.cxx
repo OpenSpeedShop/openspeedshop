@@ -16,12 +16,14 @@
 int
 main( int argc, char ** argv )
 {
-  extern void do_gui(int, char **);
   extern void main_loop(int, char **);
+/*
+  extern void do_gui(int, char **);
   for(int i=0;i<argc;i++)
   {
     printf("argv[%d]=(%s)\n", i, argv[i] );
   }
+*/
 
   main_loop(argc, argv);
 }

@@ -22,4 +22,5 @@
 # All Rights Reserved.
 ################################################################################
 
-SUBDIRS = SourcePanel CmdPanel TopPanel pcSamplePanel PerformancePanel DebugPanel UserTimePanel GettingStartedPanel HW_CounterPanel IOPanel FPE_TracingPanel CreateNewExperimentPanel Wizards
+# SUBDIRS = SourcePanel CmdPanel TopPanel pcSamplePanel PerformancePanel DebugPanel UserTimePanel GettingStartedPanel HW_CounterPanel IOPanel FPE_TracingPanel CreateNewExperimentPanel Wizards
+SUBDIRS = SourcePanel CmdPanel TopPanel pcSamplePanel UserTimePanel GettingStartedPanel HW_CounterPanel IOPanel FPE_TracingPanel CreateNewExperimentPanel Wizards

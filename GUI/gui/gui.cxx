@@ -31,7 +31,7 @@ extern "C"
   gui_init(int argc, char **argv, int cliFLAG)
   {
     bool SPLASH=TRUE;
-//    printf("gui.so gui_init(cliFLAG=%d) entered\n", cliFLAG);
+// printf("gui.so gui_init(cliFLAG=%d) entered\n", cliFLAG);
   
     qeventloop = new QEventLoop();
     qapplication = new QApplication( argc, argv );
@@ -44,6 +44,10 @@ extern "C"
         SPLASH = FALSE;
       }
     }
+if( cliFLAG )
+{
+  SPLASH = FALSE;
+}
 
     QPixmap *splash_pixmap = NULL;
     QSplashScreen *splash = NULL;
@@ -68,6 +72,17 @@ extern "C"
     m_font.setFixedPitch(TRUE);
     qapplication->setFont(m_font);
 #endif // FONT_CHANGE
+if( cliFLAG )
+{
+  char *fontname = getenv("OPENSPEEDSHOP_FONTNAME");
+  if( fontname )
+  {
+// printf("we have a fontname=(%s)\n", fontname );
+    QFont m_font = QFont(fontname);
+    m_font.setRawName(fontname);
+    qapplication->setFont(m_font);
+  }
+}
 //    printf("create QApplication(A)\n");
 
     OpenSpeedshop *w;
@@ -142,26 +157,26 @@ extern "C"
   }
 #endif // SPLASH_MESSAGES
 
-printf("argc=%d\n", argc);
+// printf("argc=%d\n", argc);
 if( SPLASH )
 {
   if( argc == 1 )
   { // Pretend absolutely no clues are there for us...
-printf("Pretend absolutely no clues are there for us...\n");
+// printf("Pretend absolutely no clues are there for us...\n");
     w->topPC->dl_create_and_add_panel("Intro Wizard", w->topPC);
   } else if( argc == 2 )
   {
   // Pretend there is an a.out and/or experiment file in the directory.
-printf("Pretend there is an a.out and/or experiment file in the directory.\n");
+// printf("Pretend there is an a.out and/or experiment file in the directory.\n");
     w->topPC->dl_create_and_add_panel("Intro Wizard", w->topPC);
     w->topPC->dl_create_and_add_panel("Getting Started", w->topPC);
   } else if( argc == 3 )
   { // Pretend there was an executable file given...
-printf("Pretend there was an executable file given...\n");
+// printf("Pretend there was an executable file given...\n");
     w->topPC->dl_create_and_add_panel("Getting Started", w->topPC);
   } else if( argc == 4 )
   {  // Pretend there was an experiment file given...
-printf("Pretend there was an experiment file given...\n");
+// printf("Pretend there was an experiment file given...\n");
     w->topPC->dl_create_and_add_panel("pcSample Panel", w->topPC);
   }
 }

@@ -253,14 +253,18 @@ void OpenSpeedshop::init()
   }
 
 // Load the GUI plugins...
+#ifdef VERBOSE
 printf("# http://sahara.engr.sgi.com/Tools/WDH/ASCI/Framework-API-V3/P1.html\n");
 printf("GUI Action: Load the GUI plugins.\n");
+#endif // VERBOSE
   (*dl_ph_init_routine)( (QWidget *)this, masterPC);
 
+#ifdef VERBOSE
 printf("NOTE: Check the GUI plugins against known Collectors.\n");
 printf("CLI Action: Get a list of all the Collectors.\n");
 printf("#    Collector *collectorSet = Collector::getAllCollectors();\n");
 printf("GUI Action: Match the Collectors up to the GUI panels.... Set the menu sensitivities.\n");
+#endif // VERBOSE
 
 // Begin: Set up a saved session geometry.
 const int BUFSIZE=100;
