@@ -16,41 +16,6 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
-// ApplicationGroupObject
-class ApplicationGroupObject
-{
- private:
-  bool remote;
-  CommandWindowID *RemoteFW;
-  EXPID RemoteExp;
-  std::string App_Name;
-  Experiment   *App;
-
- public:
-  ApplicationGroupObject ()
-    { remote = false;
-      RemoteFW = NULL;
-      RemoteExp = 0;
-      App = NULL;
-    }
-  ApplicationGroupObject (std::string name, Experiment  *Local_App)
-    { *this = ApplicationGroupObject ();
-      App_Name = name;
-      App = Local_App;
-    }
-  ApplicationGroupObject (CommandWindowID *Rfw, EXPID Rexp)
-    { *this = ApplicationGroupObject ();
-      remote = true;
-      RemoteFW = Rfw;
-      RemoteExp = Rexp;
-    }
-  bool Application_Is_Remote() {return remote;}
-  Experiment   *Application_App() {return App;}
-  void Print(FILE *TFile) {
-      fprintf(TFile," %s",App_Name.c_str());
-    }
-};
-
 // ExperimentObject
 // Note: ALL the instrumentation in the experiment's list is applied
 //       to ALL of the executables in the experiment's list.
@@ -74,9 +39,6 @@ class ExperimentObject
   OpenSpeedShop::Framework::Experiment *FW_Experiment;
 
   std::string Suspended_Data_File_Name;
-
-  std::list<ApplicationGroupObject *> ApplicationObjectList;
-  std::list<Collector *> CollectorList;
 
  public:
   ExperimentObject (std::string data_base_name = std::string("")) {
@@ -128,27 +90,11 @@ class ExperimentObject
     Exp_ID = 0;
     ExpStatus = ExpStatus_NonExistant;
   }
-  void ExperimentObject_Merge_Application(std::list<ApplicationGroupObject *> App_List)
-    {
-      ApplicationObjectList.merge(App_List);
-    }
-  void ExperimentObject_Merge_Instrumentation(std::list<Collector *> Collector_List)
-    {
-      CollectorList.merge(Collector_List);
-    }
-  void ExperimentObject_Add_Application(ApplicationGroupObject *App)
-    {
-      ApplicationObjectList.push_front(App);
-    }
-  void ExperimentObject_Add_Instrumention(Collector *Inst)
-    {
-      CollectorList.push_front(Inst);
-    }
 
   EXPID ExperimentObject_ID() {return Exp_ID;}
   Experiment *FW() {return FW_Experiment;}
   int Status() {return ExpStatus;}
-  void Determine_Status() {
+  int Determine_Status() {
     int S = ExpStatus;
     if (FW() == NULL) {
       if (ExpStatus != ExpStatus_Suspended) ExpStatus = ExpStatus_NonExistant;
@@ -162,6 +108,7 @@ class ExperimentObject
       else A = ExpStatus_InError;
       ExpStatus = A;
     }
+    return ExpStatus;
   }
 
   void setStatus (int S) {ExpStatus = S;}
@@ -242,6 +189,7 @@ class ExperimentObject
   }
 
   std::string ExpStatus_Name () {
+    Determine_Status();
     if ((this == NULL) || (ExpStatus == ExpStatus_NonExistant)) return std::string("NonExistant");
     if (ExpStatus == ExpStatus_Paused) return std::string("Paused");
     if (ExpStatus == ExpStatus_Suspended) return std::string("Disabled");
