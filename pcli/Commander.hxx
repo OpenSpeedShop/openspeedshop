@@ -107,13 +107,16 @@ CMDWID TLI_Window     (char *my_name, char *my_host, pid_t my_pid, int64_t my_pa
 CMDWID GUI_Window     (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
 CMDWID RLI_Window     (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
 
+void Default_TLI_Line_Output (InputLineObject *clip);
+void Default_TLI_Command_Output (CommandObject *C);
+
 extern CMDWID command_line_window;
 extern CMDWID tli_window;
 extern CMDWID gui_window;
 extern char *Current_OpenSpeedShop_Prompt;
 extern char *Alternate_Current_OpenSpeedShop_Prompt;
 inline void SS_Issue_Prompt (FILE *TFile) {
-  fprintf(TFile,"%s->",Current_OpenSpeedShop_Prompt);
+  fprintf(TFile,"%s",Current_OpenSpeedShop_Prompt);
   fflush(TFile);
 }
 
@@ -136,21 +139,24 @@ extern InputLineObject *Current_ILO;
 extern CommandObject   *Current_CO;
 
 // Attach a new input source that will be read AFTER all the previous ones
-bool Append_Input_File (CMDWID issuedbywindow, std::string fromfname);
+bool Append_Input_File (CMDWID issuedbywindow, std::string fromfname,
+                                      void (*CallBackLine) (InputLineObject *b) = NULL,
+                                      void (*CallBackCmd) (CommandObject *b) = NULL);
 InputLineObject *Append_Input_String (CMDWID issuedbywindow, char *b_ptr,
                                       void *LocalCmdId = NULL,
                                       void (*CallBackLine) (InputLineObject *b) = NULL,
                                       void (*CallBackCmd) (CommandObject *b) = NULL);
 
 // Attach a new input source that will be read BEFORE all the previous ones
-bool Push_Input_File (CMDWID issuedbywindow, std::string fromfname);
+bool Push_Input_File (CMDWID issuedbywindow, std::string fromfname,
+                                      void (*CallBackLine) (InputLineObject *b) = NULL,
+                                      void (*CallBackCmd) (CommandObject *b) = NULL);
 
 // Manipulate tracing options
-void Command_Trace (enum Trace_Entry_Type trace_type, CMDWID cmdwinid, std::string tofname);
+bool Command_Trace (CommandObject *cmd, enum Trace_Entry_Type trace_type,
+                    CMDWID cmdwinid, std::string tofname);
 bool Command_Trace_OFF (CMDWID WindowID);
 bool Command_Trace_ON (CMDWID WindowID, std::string tofname);
-void  SpeedShop_Trace_ON (char *tofile);
-void  SpeedShop_Trace_OFF(void);
 
 // Focus is a property of the Command Window that issued the command.
 EXPID Experiment_Focus (CMDWID WindowID);
