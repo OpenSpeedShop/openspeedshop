@@ -46,11 +46,11 @@ OpenSpeedshop::OpenSpeedshop( QWidget* parent, const char* name, WFlags fl )
   OpenSpeedshopLayout = new QVBoxLayout( centralWidget(), 11, 6, "OpenSpeedshopLayout"); 
 
   // actions
-  fileNewAction = new QAction( this, "fileNewAction" );
-  fileNewAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "filenew" ) ) );
+  fileLoadNewAction = new QAction( this, "fileLoadNewAction" );
+  fileLoadNewAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "filenew" ) ) );
 
-  fileAttachAction = new QAction( this, "fileAttachAction" );
-  fileAttachAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "process" ) ) );
+  fileAttachNewProcessAction = new QAction( this, "fileAttachNewProcessAction" );
+  fileAttachNewProcessAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "process" ) ) );
 
   fileOpenAction = new QAction( this, "fileOpenAction" );
   fileOpenAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "fileopen" ) ) );
@@ -83,8 +83,8 @@ OpenSpeedshop::OpenSpeedshop( QWidget* parent, const char* name, WFlags fl )
   menubar = new QMenuBar( this, "menubar" );
 
   fileMenu = new QPopupMenu( this );
-  fileNewAction->addTo( fileMenu );
-  fileAttachAction->addTo( fileMenu );
+  fileLoadNewAction->addTo( fileMenu );
+  fileAttachNewProcessAction->addTo( fileMenu );
   fileOpenAction->addTo( fileMenu );
   fileSaveAction->addTo( fileMenu );
 #ifdef EVENTUALLY
@@ -110,8 +110,8 @@ OpenSpeedshop::OpenSpeedshop( QWidget* parent, const char* name, WFlags fl )
 
 
     // signals and slots connections
-  connect( fileNewAction, SIGNAL( activated() ), this, SLOT( fileNew() ) );
-  connect( fileAttachAction, SIGNAL( activated() ), this, SLOT( fileAttach() ) );
+  connect( fileLoadNewAction, SIGNAL( activated() ), this, SLOT( fileLoadNewProgram() ) );
+  connect( fileAttachNewProcessAction, SIGNAL( activated() ), this, SLOT( fileAttachNewProcess() ) );
   connect( fileOpenAction, SIGNAL( activated() ), this, SLOT( fileOpen() ) );
   connect( fileSaveAction, SIGNAL( activated() ), this, SLOT( fileSave() ) );
 #ifdef EVENTUALLY
@@ -170,12 +170,12 @@ OpenSpeedshop::~OpenSpeedshop()
 void OpenSpeedshop::languageChange()
 {
   setCaption( tr( "Open/SpeedShop" ) );
-  fileNewAction->setText( tr( "Load New Program " ) );
-  fileNewAction->setMenuText( tr( "Load &New Program" ) );
-  fileNewAction->setAccel( tr( "Ctrl+N" ) );
-  fileAttachAction->setText( tr( "Attach To Executable " ) );
-  fileAttachAction->setMenuText( tr( "&Attach To Executable" ) );
-  fileAttachAction->setAccel( tr( "Ctrl+A" ) );
+  fileLoadNewAction->setText( tr( "Load New Program " ) );
+  fileLoadNewAction->setMenuText( tr( "Load &New Program" ) );
+  fileLoadNewAction->setAccel( tr( "Ctrl+N" ) );
+  fileAttachNewProcessAction->setText( tr( "Attach To Executable " ) );
+  fileAttachNewProcessAction->setMenuText( tr( "&Attach To Executable" ) );
+  fileAttachNewProcessAction->setAccel( tr( "Ctrl+A" ) );
   fileOpenAction->setText( tr( "Open Saved Experiment..." ) );
   fileOpenAction->setMenuText( tr( "&Open Saved Experiment..." ) );
   fileOpenAction->setAccel( tr( "Ctrl+O" ) );
