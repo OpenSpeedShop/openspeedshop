@@ -112,21 +112,77 @@ Initial_Python ()
   // There are multiple directories this can be locate in...
   // First look in the user defined one, then the installed,
   // and finally the package directory.
+  char *myparse_name = "myparse.py";
   char *plugin_directory = getenv("OPENSS_PLUGIN_PATH");
+  if( plugin_directory != NULL )
+  {
+    char *filename = (char *)calloc(strlen(plugin_directory)+
+                                    strlen(myparse_name)+1,
+                                    sizeof(char *) );
+    strcpy(filename, plugin_directory);
+    strcat(filename, "/");
+    strcat(filename, myparse_name);
+    struct stat buf;
+    if( !stat(filename, &buf) == 0 )
+    {
+      plugin_directory = NULL;
+    } else
+    {
+      strcpy(pyfile, filename);
+    }
+    free(filename);
+  }
   if( plugin_directory == NULL )
   {
-    plugin_directory = getenv("OPENSS_INSTALL_DIR");
+    char *openss_install_dir = getenv("OPENSS_INSTALL_DIR");
+    if( openss_install_dir != NULL )
+    {
+      char *install_path = (char *)calloc(strlen(openss_install_dir)+
+                                          strlen("/lib/openspeedshop")+1,
+                                          sizeof(char *) );
+      plugin_directory = install_path;
+
+      char *filename = (char *)calloc(strlen(plugin_directory)+
+                                    strlen(myparse_name)+1, 
+                                    sizeof( char *) );
+      strcpy(filename, plugin_directory);
+      strcat(filename, "/");
+      strcat(filename, myparse_name);
+      struct stat buf;
+      if( !stat(filename, &buf) == 0 )
+      {
+        plugin_directory = NULL;
+      } else
+      {
+        strcpy(pyfile, filename);
+      }
+      free(filename);
+    }
   }
   if( plugin_directory == NULL )
   {
     plugin_directory = PLUGIN_PATH;
+    char *filename = (char *)calloc(strlen(plugin_directory)+
+                                  strlen(myparse_name)+1,
+                                    sizeof(char *) );
+    strcpy(filename, plugin_directory);
+    strcat(filename, "/");
+    strcat(filename, myparse_name);
+    struct stat buf;
+    if( !stat(filename, &buf) == 0 )
+    {
+      plugin_directory = NULL;
+    } else
+    {
+      strcpy(pyfile, filename); }
+    free(filename);
   }
   if( plugin_directory == NULL )
   {
     fprintf(stderr, "Unable to locate myparse.py to initialize python.\n");
     exit(EXIT_FAILURE);
   }
-  sprintf(pyfile, "%s/%s", plugin_directory, "myparse.py");
+//  sprintf(pyfile, "%s/%s", plugin_directory, "myparse.py");
   fp = fopen (pyfile, "r");
   PyRun_SimpleFile ( fp, "myparse.py" );
   fclose (fp);
