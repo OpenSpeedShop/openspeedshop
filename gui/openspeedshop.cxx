@@ -140,7 +140,18 @@ OpenSpeedshop::OpenSpeedshop( int _wid, QWidget* parent, const char* name, WFlag
 //    assistant->setArguments(QStringList("-hideSidebar"));
   QStringList slist;
   slist.append("-profile");
-  slist.append("doc/help.adp");
+
+
+ char *doc_dir = getenv("OPENSPEEDSHOP_DOC_DIR");
+ if( !doc_dir ) 
+ {
+   doc_dir = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
+   QString base_dir(doc_dir);
+   QString relative_dir("/../../../OpenSpeedShop/current/doc");
+ }
+ slist.append(QString(doc_dir)+"/help.adp");
+ 
+//  slist.append("doc/help.adp");
 //    slist.append("-hideSidebar");
   assistant->setArguments(slist);
 

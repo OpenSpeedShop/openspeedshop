@@ -69,6 +69,10 @@ Gives a simple usage command.
 
 
 To make the doxygen documentation: (again from the .../current directory)
-# make doc
+$ make doc
+$ export OPENSPEEDSHOP_DOC_DIR=<path_to_current_dir>/current/doc
+(Or whereever the documentation was moved to...)
+By default this is in the workarea/current/doc directory.
+
 
 
