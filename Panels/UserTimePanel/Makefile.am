@@ -24,13 +24,18 @@
 
 pkglib_LTLIBRARIES = UserTimePanel.la
 
+# NOTE 1: The -I../SourcePanel is only here for #define DEMO 1
+# NOTE 2: The -I../TopPanel is only here for #define DEMO 1
 UserTimePanel_la_CXXFLAGS = \
     -I/usr/include \
     -I$(QTDIR)/include \
     -I. \
     -I../../gui \
+    -I../../images \
     -I../../plugin \
     -I../../objects \
+    -I../SourcePanel \
+    -I../TopPanel \
     -I../../base
 
 UserTimePanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../base/.libs/ossBase.so -Wl,../../objects/.libs/ossObjects.so

@@ -1,6 +1,9 @@
-#ifndef FPE_TRACINGPANEL_H
-#define FPE_TRACINGPANEL_H
+#ifndef FPETRACINGPANEL_H
+#define FPETRACINGPANEL_H
 #include "Panel.hxx"           // Do not remove
+
+#include "ProcessControlObject.hxx"
+#include "ControlObject.hxx"
 
 #include "AnimatedQPushButton.hxx"
 #include <qpushbutton.h>
@@ -14,6 +17,9 @@ class QLineEdit;
 class QButtonGroup;
 class QHBoxLayout;
 
+class OpenSpeedshop;
+
+#undef PANEL_CLASS_NAME
 #define PANEL_CLASS_NAME FPE_TracingPanel   // Change the value of the define
                                          // to the name of your new class.
 
@@ -68,10 +74,6 @@ public:
    */
   int listener(void *msg);
 
-  //! Calls the panel function broadcast() message request.
-  int broadcast(char *msg);
-
-
   QButtonGroup *buttonGroup;
   AnimatedQPushButton *attachCollectorButton;
   AnimatedQPushButton *detachCollectorButton;
@@ -89,15 +91,18 @@ public:
   QLineEdit *statusLabelText;
 
   QVBoxLayout * frameLayout;
-#ifdef PULL
-  void enterEvent(QEvent *);
-  void leaveEvent(QEvent *);
-#endif // PULL
+  ProcessControlObject *pco;
 
+  bool runnableFLAG;
 public slots:
   void saveAsSelected();
+  void loadNewProgramSelected();
+  bool detachFromProgramSelected();
+  void attachToExecutableSelected();
   void manageCollectorsSelected();
   void manageProcessesSelected();
+  void manageDataSetsSelected();
+  void loadSourcePanel();
 
 protected slots:
   virtual void languageChange();
@@ -105,5 +110,8 @@ protected slots:
 protected:
 
 private:
+  OpenSpeedshop *mw;
+
+  void updateInitialStatus();
 };
-#endif // FPE_TRACINGPANEL_H
+#endif // FPETRACINGPANEL_H

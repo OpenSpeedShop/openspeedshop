@@ -1,5 +1,5 @@
-#ifndef PC_SAMPLEPANEL_H
-#define PC_SAMPLEPANEL_H
+#ifndef PCSAMPLEPANEL_H
+#define PCSAMPLEPANEL_H
 #include "Panel.hxx"           // Do not remove
 
 #include "ProcessControlObject.hxx"
@@ -114,4 +114,4 @@ private:
 
   void updateInitialStatus();
 };
-#endif // PC_SAMPLEPANEL_H
+#endif // PCSAMPLEPANEL_H

@@ -24,13 +24,18 @@
 
 pkglib_LTLIBRARIES = IOPanel.la
 
+# NOTE 1: The -I../SourcePanel is only here for #define DEMO 1
+# NOTE 2: The -I../TopPanel is only here for #define DEMO 1
 IOPanel_la_CXXFLAGS = \
     -I/usr/include \
     -I$(QTDIR)/include \
     -I. \
     -I../../gui \
+    -I../../images \
     -I../../plugin \
     -I../../objects \
+    -I../SourcePanel \
+    -I../TopPanel \
     -I../../base
 
 IOPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../base/.libs/ossBase.so -Wl,../../objects/.libs/ossObjects.so

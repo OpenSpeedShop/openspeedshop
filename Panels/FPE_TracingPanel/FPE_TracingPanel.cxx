@@ -11,15 +11,18 @@
 
 #include <qbitmap.h>
 
-#include "ProcessControlObject.hxx"
-#include "ControlObject.hxx"
+#include <qmessagebox.h>
+
+#include "SourcePanel.hxx"
+#include "SourceObject.hxx"
+#include "SourceObject.hxx"
+#include "TopPanel.hxx"
+
+#include "LoadAttachObject.hxx"
 
 
 
 /*!  FPE_TracingPanel Class
-     This class is used by the script mknewpanel to create a new work area
-     for the panel creator to design a new panel.
-
 
      Autor: Al Stipek (stipek@sgi.com)
  */
@@ -38,10 +41,16 @@ FPE_TracingPanel::FPE_TracingPanel()
  */
 FPE_TracingPanel::FPE_TracingPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
 {
-  printf("FPE_TracingPanel::FPE_TracingPanel() constructor called\n");
+  nprintf( DEBUG_CONST_DESTRUCT ) ("FPE_TracingPanel::FPE_TracingPanel() constructor called\n");
+
+  mw = getPanelContainer()->getMainWindow();
+
   frameLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
-  ProcessControlObject *pco = new ProcessControlObject(frameLayout, getBaseWidgetFrame(), (Panel *)this );
+  pco = new ProcessControlObject(frameLayout, getBaseWidgetFrame(), (Panel *)this );
+  runnableFLAG = FALSE;
+  pco->runButton->setEnabled(FALSE);
+  pco->runButton->enabledFLAG = FALSE;
 
   statusLayout = new QHBoxLayout( 0, 10, 0, "statusLayout" );
   
@@ -59,12 +68,12 @@ FPE_TracingPanel::FPE_TracingPanel(PanelContainer *pc, const char *n) : Panel(pc
   PanelContainerList *lpcl = new PanelContainerList();
   lpcl->clear();
 
-  QWidget *fpeTracingPanelContainerWidget = new QWidget( getBaseWidgetFrame(),
-                                        "fpeTracingPanelContainerWidget" );
-  topPC = createPanelContainer( fpeTracingPanelContainerWidget,
+  QWidget *FPE_TracingControlPanelContainerWidget = new QWidget( getBaseWidgetFrame(),
+                                        "FPE_TracingControlPanelContainerWidget" );
+  topPC = createPanelContainer( FPE_TracingControlPanelContainerWidget,
                               "PCSamplingControlPanel_topPC", NULL,
                               pc->getMasterPCList() );
-  frameLayout->addWidget( fpeTracingPanelContainerWidget );
+  frameLayout->addWidget( FPE_TracingControlPanelContainerWidget );
 
 printf("Create an Application\n");
 printf("# Application theApplication;\n");
@@ -81,20 +90,34 @@ printf("attach the collector to the Application.\n");
 printf("# // Attach the collector to all threads in the application\n");
 printf("# theApplication.attachCollector(theCollector.getValue());\n");
 
-
-
-  topPC->splitVertical(75);
-//  topPC->rightPanelContainer->splitVertical();
-
-  fpeTracingPanelContainerWidget->show();
+  FPE_TracingControlPanelContainerWidget->show();
   topPC->show();
   topLevel = TRUE;
   topPC->topLevel = TRUE;
 
-//  topPC->dl_create_and_add_panel("Toolbar Panel", topPC->leftPanelContainer);
-//  topPC->dl_create_and_add_panel("Top Five Panel", topPC->leftPanelContainer);
-  topPC->dl_create_and_add_panel("Source Panel", topPC->leftPanelContainer);
-  topPC->dl_create_and_add_panel("Command Panel", topPC->rightPanelContainer);
+  SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", topPC);
+
+// Begin demo position at dummy file... For the real stuff we'll need to 
+// look up the main()... and position at it...
+if( mw && !mw->executableName.isEmpty() && mw->executableName.endsWith("fred_calls_ted") )
+{
+  char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
+  char buffer[200];
+  strcpy(buffer, plugin_directory);
+  strcat(buffer, "/../../../usability/phaseI/fred_calls_ted.c");
+printf("load (%s)\n", buffer);
+  SourceObject *spo = new SourceObject("main", buffer, 22, TRUE, NULL);
+
+  if( !sp->listener((void *)spo) )
+  {
+    fprintf(stderr, "Unable to position at main in %s\n", buffer);
+  } else
+  {
+nprintf( DEBUG_CONST_DESTRUCT ) ("Positioned at main in %s ????? \n", buffer);
+  }
+}
+// End demo.
+  
 }
 
 
@@ -103,7 +126,7 @@ printf("# theApplication.attachCollector(theCollector.getValue());\n");
  */
 FPE_TracingPanel::~FPE_TracingPanel()
 {
-  printf("  FPE_TracingPanel::~FPE_TracingPanel() destructor called\n");
+  nprintf( DEBUG_CONST_DESTRUCT ) ("  FPE_TracingPanel::~FPE_TracingPanel() destructor called\n");
   delete frameLayout;
 }
 
@@ -111,27 +134,110 @@ FPE_TracingPanel::~FPE_TracingPanel()
 bool
 FPE_TracingPanel::menu(QPopupMenu* contextMenu)
 {
-  printf("FPE_TracingPanel::menu() requested.\n");
+  nprintf( DEBUG_PANELS ) ("FPE_TracingPanel::menu() requested.\n");
 
   contextMenu->insertSeparator();
-  contextMenu->insertItem("&Manage Collectors", this, SLOT(manageCollectorsSelected()), CTRL+Key_A );
-  contextMenu->insertItem("&Manage Processes", this, SLOT(manageProcessesSelected()), CTRL+Key_A );
-  contextMenu->insertSeparator();
   contextMenu->insertItem("&Save As ...", this, SLOT(saveAsSelected()), CTRL+Key_S ); 
+  contextMenu->insertSeparator();
+  contextMenu->insertItem(tr("Load &New Program..."), this, SLOT(loadNewProgramSelected()), CTRL+Key_N );
+  contextMenu->insertItem(tr("Detach &From Program..."), this, SLOT(detachFromProgramSelected()), CTRL+Key_N );
+  contextMenu->insertItem(tr("Attach To &Executable..."), this, SLOT(attachToExecutableSelected()), CTRL+Key_E );
+  contextMenu->insertSeparator();
+  contextMenu->insertItem(tr("&Manage Collectors..."), this, SLOT(manageCollectorsSelected()), CTRL+Key_M );
+  contextMenu->insertItem(tr("Manage &Processes..."), this, SLOT(manageProcessesSelected()), CTRL+Key_P );
+  contextMenu->insertItem(tr("&Manage &Data Sets..."), this, SLOT(manageDataSetsSelected()), CTRL+Key_D );
+  contextMenu->insertSeparator();
+  contextMenu->insertItem(tr("S&ource Panel..."), this, SLOT(loadSourcePanel()), CTRL+Key_O );
 
   return( TRUE );
 }
 
 void
+FPE_TracingPanel::loadNewProgramSelected()
+{
+  nprintf( DEBUG_PANELS ) ("FPE_TracingPanel::loadNewProgramSelected()\n");
+  if( runnableFLAG == TRUE )
+  {
+    printf("Disconnect First?\n"); 
+    if( detachFromProgramSelected() == FALSE )
+    {
+      return;
+    }
+  }
+  if( mw )
+  {
+    mw->executableName = QString::null;
+    mw->pidStr = QString::null;
+    mw->fileLoadNewProgram();
+  }
+}   
+
+bool
+FPE_TracingPanel::detachFromProgramSelected()
+{
+  nprintf( DEBUG_PANELS ) ("FPE_TracingPanel::detachFromProgramSelected()\n");
+
+  
+  if( QMessageBox::question(
+            this,
+            tr("Detach?"),
+            tr("Process or executable already attached: Do you want to detach from the exising process(es)?"),
+            tr("&Yes"), tr("&No"),
+            QString::null, 0, 1 ) )
+  {
+    return FALSE;
+  }
+
+  if( mw )
+  {
+    mw->executableName = QString::null;
+    mw->pidStr = QString::null;
+  }
+
+  updateInitialStatus();
+
+  SourceObject *spo = new SourceObject(QString::null, QString::null, 0, TRUE, NULL);
+
+  broadcast((char *)spo, NEAREST_T);
+
+runnableFLAG = FALSE;
+}
+
+void
+FPE_TracingPanel::attachToExecutableSelected()
+{
+  nprintf( DEBUG_PANELS ) ("FPE_TracingPanel::attachToExecutableSelected()\n");
+  if( runnableFLAG == TRUE )
+  {
+    if( detachFromProgramSelected() == FALSE )
+    {
+      return;
+    }
+  }
+  if( mw )
+  {
+    mw->executableName = QString::null;
+    mw->pidStr = QString::null;
+    mw->fileAttachNewProcess();
+  }
+}   
+
+void
 FPE_TracingPanel::manageCollectorsSelected()
 {
-  printf("FPE_TracingPanel::manageCollectorsSelected()\n");
+  nprintf( DEBUG_PANELS ) ("FPE_TracingPanel::manageCollectorsSelected()\n");
 }   
 
 void
 FPE_TracingPanel::manageProcessesSelected()
 {
-  printf("FPE_TracingPanel::manageProcessesSelected()\n");
+  nprintf( DEBUG_PANELS ) ("FPE_TracingPanel::managerProcessesSelected()\n");
+}   
+
+void
+FPE_TracingPanel::manageDataSetsSelected()
+{
+  nprintf( DEBUG_PANELS ) ("FPE_TracingPanel::managerDataSetsSelected()\n");
 }   
 
 //! Save ascii version of this panel.
@@ -141,7 +247,7 @@ FPE_TracingPanel::manageProcessesSelected()
 void 
 FPE_TracingPanel::save()
 {
-  dprintf("FPE_TracingPanel::save() requested.\n");
+  nprintf( DEBUG_PANELS ) ("FPE_TracingPanel::save() requested.\n");
 }
 
 //! Save ascii version of this panel (to a file).
@@ -152,76 +258,209 @@ FPE_TracingPanel::save()
 void 
 FPE_TracingPanel::saveAs()
 {
-  printf("FPE_TracingPanel::saveAs() requested.\n");
+  nprintf( DEBUG_SAVEAS ) ("FPE_TracingPanel::saveAs() requested.\n");
 }
 
 //! This function listens for messages.
 int 
 FPE_TracingPanel::listener(void *msg)
 {
-  printf("FPE_TracingPanel::listener() requested.\n");
+  nprintf( DEBUG_MESSAGES ) ("FPE_TracingPanel::listener() requested.\n");
+  int ret_val = 0; // zero means we didn't handle the message.
 
-  ControlObject *co = (ControlObject *)msg;
+  ControlObject *co = NULL;
+  LoadAttachObject *lao = NULL;
 
-  if( !co )
+  MessageObject *mo = (MessageObject *)msg;
+
+  if( mo->msgType  == "ControlObject" )
   {
-     return 0; // 0 means, did not act on message
+    co = (ControlObject *)msg;
+    nprintf( DEBUG_MESSAGES ) ("we've got a ControlObject\n");
+  } else if( mo->msgType  == "LoadAttachObject" )
+  {
+    lao = (LoadAttachObject *)msg;
+    nprintf( DEBUG_MESSAGES ) ("we've got a LoadAttachObject\n");
+  } else
+  {
+//    fprintf(stderr, "Unknown object type recieved.\n");
+//    fprintf(stderr, "msgType = %s\n", mo->msgType.ascii() );
+    return 0;  // 0 means, did not act on message
   }
 
-  // Check the message type to make sure it's our type...
-  if( co->msgType != "ControlObject" )
+  if( co )
   {
-    nprintf(DEBUG_PANELS) ("psSamplePanel::listener() Not a ControlObject.\n");
-    return 0; // o means, did not act on message.
-  }
+//    if( DEBUG_MESSAGES )
+//    {
+//      co->print();
+//    }
 
-  co->print();
+    switch( (int)co->cot )
+    {
+      case  ATTACH_PROCESS_T:
+        nprintf( DEBUG_MESSAGES ) ("Attach to a process\n");
+        break;
+      case  DETACH_PROCESS_T:
+        nprintf( DEBUG_MESSAGES ) ("Detach from a process\n");
+        ret_val = 1;
+        break;
+      case  ATTACH_COLLECTOR_T:
+        nprintf( DEBUG_MESSAGES ) ("Attach to a collector\n");
+        ret_val = 1;
+        break;
+      case  REMOVE_COLLECTOR_T:
+        nprintf( DEBUG_MESSAGES ) ("Remove a collector\n");
+        ret_val = 1;
+        break;
+      case  RUN_T:
+        nprintf( DEBUG_MESSAGES ) ("Run\n");
+        statusLabelText->setText( tr("Process running...") );
+{ // Begin demo only...
+pco->runButton->setEnabled(FALSE);
+pco->runButton->enabledFLAG = FALSE;
+qApp->processEvents(1);
+sleep(1);
+qApp->processEvents(1);
+sleep(1);
+qApp->processEvents(1);
+sleep(1);
+qApp->processEvents(1);
+sleep(1);
+statusLabelText->setText( tr("Process completed...") );
+sleep(1);
+qApp->processEvents(1);
+pco->runButton->setEnabled(TRUE);
+runnableFLAG = TRUE;
+pco->pauseButton->setEnabled(FALSE);
+pco->pauseButton->enabledFLAG = FALSE;
+pco->continueButton->setEnabled(FALSE);
+pco->continueButton->setEnabled(FALSE);
+pco->continueButton->enabledFLAG = FALSE;
+pco->updateButton->setEnabled(FALSE);
+pco->updateButton->setEnabled(FALSE);
+pco->updateButton->enabledFLAG = FALSE;
+pco->terminateButton->setEnabled(FALSE);
+pco->terminateButton->setFlat(TRUE);
+pco->terminateButton->setEnabled(FALSE);
 
-  switch( (int)co->cot )
-  {
-    case  ATTACH_PROCESS_T:
-      printf("Attach to a process\n");
-      break;
-    case  DETACH_PROCESS_T:
-      printf("Detach from a process\n");
-      break;
-    case  ATTACH_COLLECTOR_T:
-      printf("Attach to a collector\n");
-      break;
-    case  REMOVE_COLLECTOR_T:
-      printf("Remove a collector\n");
-      break;
-    case  RUN_T:
-      printf("Run\n");
-      break;
-    case  PAUSE_T:
-      printf("Pause\n");
-      break;
-    case  CONT_T:
-      printf("Continue\n");
-      break;
-    case  UPDATE_T:
-      printf("Update\n");
-      break;
-    case  INTERRUPT_T:
-      printf("Interrupt\n");
-      break;
-    case  TERMINATE_T:
-      printf("Terminate\n");
-      break;
-    default:
-      break;
-  }
-  return 0;  // 0 means, did not want this message and did not act on anything.
+TopPanel *tp = (TopPanel *)topPC->dl_create_and_add_panel("Top Panel", topPC); 
+} // End demo only...
+        ret_val = 1;
+        break;
+      case  PAUSE_T:
+        nprintf( DEBUG_MESSAGES ) ("Pause\n");
+        statusLabelText->setText( tr("Process suspended...") );
+        ret_val = 1;
+        break;
+      case  CONT_T:
+        nprintf( DEBUG_MESSAGES ) ("Continue\n");
+          statusLabelText->setText( tr("Process continued...") );
+          sleep(1);
+          statusLabelText->setText( tr("Process running...") );
+        ret_val = 1;
+        break;
+      case  UPDATE_T:
+        nprintf( DEBUG_MESSAGES ) ("Update\n");
+        ret_val = 1;
+        break;
+      case  INTERRUPT_T:
+        nprintf( DEBUG_MESSAGES ) ("Interrupt\n");
+        ret_val = 1;
+        break;
+      case  TERMINATE_T:
+        statusLabelText->setText( tr("Process terminated...") );
+        ret_val = 1;
+ //       nprintf( DEBUG_MESSAGES ) ("Terminate\n");
+        break;
+      default:
+        break;
+    }
+ } else if( lao )
+ {
+   nprintf( DEBUG_MESSAGES ) ("we've got a LoadAttachObject message\n");
+
+   if( lao->loadNowHint == TRUE || runnableFLAG == FALSE )
+   {
+     mw->executableName = lao->executableName;
+     mw->pidStr = lao->pidStr;
+     updateInitialStatus();
+ 
+     ret_val = 1;
+    }
+ }
+
+  return ret_val;  // 0 means, did not want this message and did not act on anything.
 }
 
-
-//! This function broadcasts messages.
-int 
-FPE_TracingPanel::broadcast(char *msg)
+void
+FPE_TracingPanel::updateInitialStatus()
 {
-  dprintf("FPE_TracingPanel::broadcast() requested.\n");
-  return 0;
+  if( !mw->executableName.isEmpty() )
+  {
+
+    // Begin demo position at dummy file... For the real stuff we'll need to 
+    // look up the main()... and position at it...
+    if( mw && !mw->executableName.isEmpty() && mw->executableName.endsWith("fred_calls_ted") )
+    {
+      statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the Run button to begin the experiment.")) );
+      char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
+      char buffer[200];
+      strcpy(buffer, plugin_directory);
+      strcat(buffer, "/../../../usability/phaseI/fred_calls_ted.c");
+      SourceObject *spo = new SourceObject("main", buffer, 22, TRUE, NULL);
+
+      if( broadcast((char *)spo, NEAREST_T) == 0 )
+      { // No source view up...
+        char *panel_type = "Source Panel";
+        Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, topPC);
+        if( p != NULL )
+        {
+          if( !p->listener((void *)spo) )
+          {
+            fprintf(stderr, "Unable to position at main in %s\n", buffer);
+          } else
+          {
+            nprintf( DEBUG_CONST_DESTRUCT ) ("Positioned at main in %s ????? \n", buffer);
+          }
+        }
+        runnableFLAG = TRUE;
+        pco->runButton->setEnabled(TRUE);
+        pco->runButton->enabledFLAG = TRUE;
+      }
+    } else
+    {
+      QString msg = QString(tr("File entered is not an executable file.  No main() entry found.\n") );
+      QMessageBox::information( (QWidget *)this, "Process or executable needed...",
+                                   msg, QMessageBox::Ok );
+      runnableFLAG = FALSE;
+      pco->runButton->setEnabled(FALSE);
+      pco->runButton->enabledFLAG = FALSE;
+      return;
+    }
+// End demo.
+
+  } else if( !mw->pidStr.isEmpty() )
+  {
+    if( runnableFLAG == TRUE )
+    {
+      if( detachFromProgramSelected() == FALSE )
+      {
+        return;
+      }
+    }
+    statusLabelText->setText( tr(QString("Attached to:  "))+mw->pidStr+tr(QString("  Click on the Run button to begin collecting data.")) );
+  } else
+  {
+    statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("Select a process or executable with the \"Load New *... or Attach To *...\" menu.") );
+
+    runnableFLAG = FALSE;
+    pco->runButton->setEnabled(FALSE);
+    pco->runButton->enabledFLAG = FALSE;
+    return;
+  }
+  runnableFLAG = TRUE;
+  pco->runButton->setEnabled(TRUE);
+  pco->runButton->enabledFLAG = TRUE;
 }
 
 /*
@@ -231,6 +470,62 @@ FPE_TracingPanel::broadcast(char *msg)
 void
 FPE_TracingPanel::languageChange()
 {
-  statusLabel->setText( tr("Status:") );
-  statusLabelText->setText( tr("No status currently available.") );
+  statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("Select a process or executable with the \"Load New *... or Attach To *...\" menu.") );
+}
+
+#include "SaveAsObject.hxx"
+void
+FPE_TracingPanel::saveAsSelected()
+{
+  nprintf( DEBUG_CONST_DESTRUCT ) ("From this pc on down, send out a saveAs message and put it to a file.\n");
+
+  QFileDialog *sfd = NULL;
+  QString dirName = QString::null;
+  if( sfd == NULL )
+  {
+    sfd = new QFileDialog(this, "file dialog", TRUE );
+    sfd->setCaption( QFileDialog::tr("Enter filename:") );
+    sfd->setMode( QFileDialog::AnyFile );
+    sfd->setSelection(QString("FPE_TracingPanel.html"));
+    QString types(
+                  "Any Files (*);;"
+                  "Image files (*.png *.xpm *.jpg);;"
+                  "Text files (*.txt);;"
+                  "(*.c *.cpp *.cxx *.C *.c++ *.f* *.F*);;"
+                  );
+    sfd->setFilters( types );
+    sfd->setDir(dirName);
+  }
+
+  QString fileName = QString::null;
+  if( sfd->exec() == QDialog::Accepted )
+  {
+    fileName = sfd->selectedFile();
+
+    if( !fileName.isEmpty() )
+    { 
+      SaveAsObject *sao = new SaveAsObject(fileName);
+
+      *sao->ts << "<html>";
+      *sao->ts << "<head>";
+      *sao->ts << "<meta content=\"text/html; charset=ISO-8859-1\" http-equiv=\"content-type\"> ";
+      *sao->ts << "<title>FPE_TracingReport</title>";
+      *sao->ts << "<h2>FPE_TracingReport</h2>";
+      *sao->ts << "</head>";
+
+sao->f->flush();
+
+  
+      broadcast((char *)sao, ALL_DECENDANTS_T, topPC);
+
+      delete( sao );
+    }
+  }
+}
+
+void
+FPE_TracingPanel::loadSourcePanel()
+{
+  printf("From this pc on down, send out a saveAs message and put it to a file.\n");
+  SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", topPC);
 }
