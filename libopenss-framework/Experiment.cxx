@@ -33,6 +33,7 @@
 #include "Thread.hxx"
 #include "ThreadGroup.hxx"
 
+#include <unistd.h>
 #include <pthread.h>
 #include <stdexcept>
 
