@@ -1,6 +1,7 @@
 #include "SS_Input_Manager.hxx"
 extern "C" void loadTheGUI(ArgStruct *);
 
+bool All_Command_Objects_Are_Used (InputLineObject *clip);
 
 // Local Macros
 static inline
@@ -386,11 +387,22 @@ class CommandWindowID
       Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
     }
   }
-  void Clip_Is_Complete (InputLineObject *Clip) {
-    if (Clip->Results_Used()) {
-      delete Clip;
-    } else {
-      Complete_Cmds.push_back (Clip);
+  void TrackCmd (InputLineObject *Clip) { Complete_Cmds.push_back (Clip); }
+  void Remove_Completed_Input_Lines () {
+   // Look through the list for unneeded lines
+    std::list<InputLineObject *> cmd_object = Complete_Cmds;
+    std::list<InputLineObject *>::iterator cmi;
+    for (cmi = cmd_object.begin(); cmi != cmd_object.end(); ) {
+      if (!(*cmi)->Results_Used ()) {
+        if (All_Command_Objects_Are_Used( (*cmi) )) {
+          (void)((*cmi)->CallBackL ());
+        }
+      }
+      InputLineObject *L = (*cmi);
+      ++cmi;
+      if (L->Results_Used ()) {
+        Complete_Cmds.remove(L);
+      }
     }
   }
 private:
@@ -637,33 +649,38 @@ void Link_Cmd_Obj_to_Input (InputLineObject *I, CommandObject *C)
   I->Push_Cmd_Obj(C);
 }
 
-void Clip_Complete (InputLineObject *clip) {
-  CommandWindowID *win = Find_Command_Window (clip->Who());
-  if(!(clip->CallBackL ())) {
-
-   // DEBUG: the output should go somewhere.  Until we finish the implementation,
-   // process the CommandObject list and produce the output here.
-/* Remove this code so we can test the GUI -
-    std::list<CommandObject *> cmd_object = clip->CmdObj_List();
-    std::list<CommandObject *>::iterator coi;
-    for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
-      if (!((*coi)->Results_Used())) {
-        Default_TLI_Command_Output ( (*coi) );
-      }
+bool All_Command_Objects_Are_Used (InputLineObject *clip) {
+  std::list<CommandObject *> cmd_object = clip->CmdObj_List();
+  std::list<CommandObject *>::iterator coi;
+  for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
+    if (!((*coi)->Results_Used())) {
+      return false;
     }
-*/
   }
+  return true;
+}
 
- // Record the InputObject and decide if it can be deleted
-  win->Clip_Is_Complete(clip);
+bool All_Command_Objects_Have_Executed (InputLineObject *clip) {
+  std::list<CommandObject *> cmd_object = clip->CmdObj_List();
+  std::list<CommandObject *>::iterator coi;
+  for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
+    Command_Status S = (*coi)->Status();
+    if ((S != CMD_COMPLETE) &&
+        (S != CMD_ERROR) &&
+        (S != CMD_ABORTED)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+void Clip_Complete (InputLineObject *clip) {
+  (void)(clip->CallBackL ());
 }
 
 void Cmd_Obj_Complete (CommandObject *C) {
-  InputLineObject *lin = C->Clip();
-  (void)(lin->CallBackC (C));
-/* TEST - for the moment, assume 1 Result per line */
-/*  lin->Set_Results_Used(); */
-  Clip_Complete (lin);
+  InputLineObject *clip = C->Clip();
+  (void)(clip->CallBackC (C));
 }
 
 int64_t Find_Command_Level (CMDWID WindowID)
@@ -997,6 +1014,15 @@ bool Push_Input_File (CMDWID issuedbywindow, std::string fromfname) {
   return true;
 }
 
+void Default_TLI_Line_Output (InputLineObject *clip) {
+  if (!(clip->Results_Used())) {
+   // The individual CommandObject's have been marked as "Results_Used"
+   // by the time this function is caled.  Since there is no additional
+   // output to produce, this line is also complete.
+    clip->Set_Results_Used();
+  }
+}
+
 void Default_TLI_Command_Output (CommandObject *C) {
   if (!(C->Results_Used())) {
     FILE *outfile = (ttyout != NULL) ? ttyout : stdout;
@@ -1052,7 +1078,7 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
       exit (0); // terminate the thread
     }
     (void) Append_Input_String ((CMDWID)attachtowindow, &Buffer[0], 
-                                 NULL, NULL, &Default_TLI_Command_Output);
+                                 NULL, &Default_TLI_Line_Output, &Default_TLI_Command_Output);
   }
 }
 
@@ -1126,6 +1152,10 @@ read_another_window:
 
   CommandWindowID *cw = Find_Command_Window (readfromwindow);
   Assert (cw);
+  if (is_more == 0) {
+   // What is waiting for completion?
+    cw->Remove_Completed_Input_Lines ();
+  }
 
   do {
     clip = cw->Read_Command ();
@@ -1231,7 +1261,10 @@ read_another_window:
  // Mark nested commands
   if (is_more)   clip-> Set_Complex_Exp ();
 
- // Log the command.
+ // Track it until completion
+  cw->TrackCmd(clip);
+
+ // Log the command to any user defined trace file.
   cw->Record(clip);
 
   return clip;
