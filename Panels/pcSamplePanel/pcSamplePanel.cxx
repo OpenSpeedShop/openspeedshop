@@ -578,7 +578,7 @@ if( eo && eo->FW() )
   status = eo->Determine_Status();
   while( status != ExpStatus_Terminated )
   {
-    printf("sleep(1)\n");
+//    printf("sleep(1)\n");
     sleep(1);
     qApp->processEvents(1000);
     if( status == ExpStatus_InError )

@@ -47,7 +47,7 @@ using namespace OpenSpeedShop::Framework;
 
 pcStatsPanel::pcStatsPanel(PanelContainer *pc, const char *n, void *argument) : StatsPanelBase(pc, n, argument)
 {
-printf("pcStatsPanel() entered\n");
+//  printf("pcStatsPanel() entered\n");
   setCaption("pcStatsPanel");
 }
 
@@ -78,7 +78,7 @@ pcStatsPanel::languageChange()
 int 
 pcStatsPanel::listener(void *msg)
 {
-  printf("pcStatsPanel::listener() requested.\n");
+//  printf("pcStatsPanel::listener() requested.\n");
 //  StatsPanelBase::listener(msg);
 
 
@@ -113,7 +113,7 @@ PrintView(msg->expID);
 bool
 pcStatsPanel::createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos )
 {
-  printf ("pcStatsPanel: Popup the context sensitive menu here.... can you augment it with the default popupmenu?\n");
+//  printf ("pcStatsPanel: Popup the context sensitive menu here.... can you augment it with the default popupmenu?\n");
   
   QPopupMenu *panelMenu = new QPopupMenu(this);
   panelMenu->setCaption("Panel Menu");
@@ -135,30 +135,30 @@ pcStatsPanel::createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos )
 void
 pcStatsPanel::gotoSource()
 {
-  printf("gotoSource() menu selected.\n");
+//  printf("gotoSource() menu selected.\n");
 }
 
 void
 pcStatsPanel::itemSelected(QListViewItem *item)
 {
-  printf("pcStatsPanel::itemSelected(clicked) entered\n");
+//  printf("pcStatsPanel::itemSelected(clicked) entered\n");
 
   if( item )
   {
-    printf("  item->depth()=%d\n", item->depth() );
+//    printf("  item->depth()=%d\n", item->depth() );
 
     SPListViewItem *nitem = (SPListViewItem *)item;
     while( nitem->parent() )
     {
-      printf("looking for 0x%x\n", nitem->parent() );
+//      printf("looking for 0x%x\n", nitem->parent() );
       nitem = (SPListViewItem *)nitem->parent();
     } 
   
     
     if( nitem )
     {
-      printf("here's the parent! 0x%x\n", nitem);
-      printf("  here's the rank of that parent: function name = %s\n",
+//      printf("here's the parent! 0x%x\n", nitem);
+//      printf("  here's the rank of that parent: function name = %s\n",
         nitem->text(1).ascii() );
 //      matchSelectedItem( atoi( nitem->text(1).ascii() ) );
       matchSelectedItem( std::string(nitem->text(1).ascii()) );
@@ -171,7 +171,7 @@ void
 pcStatsPanel::matchSelectedItem(std::string selected_function )
 {
   bool foundFLAG = FALSE;
-  printf ("pcStatsPanel::matchSelectedItem() = %s\n", selected_function.c_str() );
+//  printf ("pcStatsPanel::matchSelectedItem() = %s\n", selected_function.c_str() );
 
 std::vector<item_type>::const_iterator it = data_items.begin();
 char timestr[50];
@@ -180,7 +180,7 @@ for( ; it != data_items.end(); it++ )
 //  printf("%s %f\n", it->first.c_str(), it->second );
   if( selected_function == it->first.getName()  )
   {
-    printf("FOUND IT!\n");
+//    printf("FOUND IT!\n");
     Optional<Statement> definition = it->first.getDefinition();
     if(definition.hasValue())
     {
@@ -189,7 +189,7 @@ for( ; it != data_items.end(); it++ )
       std::cout << std::endl;
       break;
     }
-fprintf(stderr, "No function definition for this entry.   Unable to position source.\n");
+    fprintf(stderr, "No function definition for this entry.   Unable to position source.\n");
   }
 }
 
@@ -227,14 +227,14 @@ struct sort_decending : public std::binary_function<T,T,bool> {
 void
 pcStatsPanel::updateStatsPanelBaseData(void *expr, int expID, QString experiment_name)
 {
-  printf("pcStatsPanel::updateStatsPanelBaseData() entered.\n");
+//  printf("pcStatsPanel::updateStatsPanelBaseData() entered.\n");
 
   StatsPanelBase::updateStatsPanelBaseData(expr, expID, experiment_name);
 
   
   SPListViewItem *lvi;
   columnList.clear();
-printf("This should be overloaded in pcStatsPanel....\n");
+//printf("This should be overloaded in pcStatsPanel....\n");
 
 ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
 if( eo && eo->FW() )
@@ -279,6 +279,7 @@ for(std::map<Function, double>::const_iterator
         item = data->begin(); item != data->end(); ++item)
 {
   data_items.push_back( std::pair<Function, double>(item->first, item->second ) );
+}
 
 // std::sort(data_items.begin(), data_items.end(), sort_ascending<item_type>());
 std::sort(data_items.begin(), data_items.end(), sort_decending<item_type>());
@@ -292,17 +293,6 @@ for( ; it != data_items.end(); it++ )
     lvi =  new SPListViewItem( this, lv, timestr,  it->first.getName().c_str() );
 }
 
-}
-
-#ifdef OLDDWAY
-  char timestr[50];
-  for(std::map<Function, double>::const_iterator
-        item = data->begin(); item != data->end(); ++item)
-  {
-    sprintf(timestr, "%f", item->second);
-    lvi =  new SPListViewItem( this, lv, timestr,  item->first.getName() );
-  }
-#endif // OLDDWAY
 }
 }
 
