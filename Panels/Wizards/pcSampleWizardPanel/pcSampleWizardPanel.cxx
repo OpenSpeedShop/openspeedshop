@@ -681,7 +681,7 @@ char buffer[2048];
   {
     if( mw->pidStr.isEmpty() )
     {
-      mw->fileAttach();
+      mw->attachNewProcess();
       if( mw->pidStr.isEmpty() )
       {
         return;
@@ -694,7 +694,7 @@ char buffer[2048];
     if( mw->executableName.isEmpty() )
     {
       nprintf(DEBUG_PANELS) ("Load the QFile \n");
-      mw->fileNew();
+      mw->fileLoadNewProgram();
     }
     if( mw->executableName.isEmpty() )
     {
@@ -812,7 +812,7 @@ char buffer[2048];
   { 
     if( mw->pidStr.isEmpty() )
     {
-      mw->fileAttach();
+      mw->attachNewProcess();
     }
     if( mw->pidStr.isEmpty() )
     {
@@ -825,7 +825,7 @@ char buffer[2048];
     if( mw->executableName.isEmpty() )
     {
       nprintf(DEBUG_PANELS) ("Load the QFile \n");
-      mw->fileNew();
+      mw->loadNewProgram();
     }
     if( mw->executableName.isEmpty() )
     {
@@ -857,16 +857,16 @@ nprintf(DEBUG_PANELS) ("vSummaryPageFinishButtonSelected() \n");
   if( getPanelContainer()->getMainWindow() )
   { 
     OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
-    printf("mw=0x%x\n", mw );
+//    printf("mw=0x%x\n", mw );
     if( mw )
     {
       LoadAttachObject *lao = NULL;
       if( !mw->executableName.isEmpty() )
       {
-        lao = new LoadAttachObject(mw->executableName, (char *)NULL, sampleRate);
+        lao = new LoadAttachObject(mw->executableName, (char *)NULL, sampleRate, TRUE);
       } else if( !mw->pidStr.isEmpty() )
       {
-        lao = new LoadAttachObject((char *)NULL, mw->pidStr, sampleRate);
+        lao = new LoadAttachObject((char *)NULL, mw->pidStr, sampleRate, TRUE);
       } else
       {
         printf("Warning: No attach or load paramaters available.\n");
@@ -984,7 +984,7 @@ pcSampleWizardPanel::eUpdateAttachOrLoadPageWidget()
   if( getPanelContainer()->getMainWindow() )
   { 
     OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
-    printf("mw=0x%x\n", mw );
+//    printf("mw=0x%x\n", mw );
     if( mw )
     {
       if( !mw->executableName.isEmpty() )
@@ -1024,7 +1024,7 @@ pcSampleWizardPanel::vUpdateAttachOrLoadPageWidget()
   if( getPanelContainer()->getMainWindow() )
   {
     OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
-    printf("mw=0x%x\n", mw );
+//    printf("mw=0x%x\n", mw );
     if( mw )
     {
       if( !mw->executableName.isEmpty() )
