@@ -31,11 +31,26 @@ posscli_la_CXXFLAGS =  \
 	-I/perftools/ROOT/include/python2.3 \
 	-I/usr/include -I. -I../objects -I../base
 
-posscli_la_LDFLAGS = -fpic --export-dynamic -module -avoid-version -Wl,/perftools/ROOT/lib/libpython2.3.so -lpthread -lutil -LANG:std -ldl
+posscli_la_LDFLAGS = \
+    	-fpic \
+	--export-dynamic \
+	-module \
+	-avoid-version \
+	-Wl,/perftools/ROOT/lib/libpython2.3.so \
+	-lpthread -lutil -LANG:std -ldl
 
 posscli_la_LIBADD = $(LIBLTDL)
 
-posscli_la_SOURCES = Start.cxx Start_Modes.cxx Commander.cxx Experiment.cxx PY_Input.cxx
+posscli_la_SOURCES = \
+    	Start.cxx \
+	Start_Modes.cxx \
+	Commander.cxx \
+	Experiment.cxx \
+	support.cxx \
+	help.cxx \
+	lex.yy.cxx \
+	y.tab.cxx \
+	PY_Input.cxx
 
 
 
