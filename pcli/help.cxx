@@ -4,7 +4,7 @@
 #include <ctype.h>
 #include "support.h"
 
-#define MAX_INDENT 7
+#define MAX_INDENT 11
 char *indent_table[MAX_INDENT] = {
     "",
     "    ",
@@ -12,7 +12,11 @@ char *indent_table[MAX_INDENT] = {
     "            ",
     "                ",
     "                    ",
-    "                        "
+    "                        ",
+    "                            ",
+    "                                ",
+    "                                    ",
+    "                                        "
 };
 
 /* This must match oss_cmd_enum in support.h */
@@ -210,11 +214,13 @@ help_name(char *name, char *format, int indent_ndx)
 static void
 help_spec(char *icon, char *name, char *format, int indent_ndx)
 {
-    printf("%s %s<%sname> = <%s>\n",
+    printf("%s<%s_spec> = %s <%sname> \n",
     	    indent_table[indent_ndx],
-	    icon,
 	    name,
-	    format);
+	    icon,
+	    name);
+
+    help_name(name, format, indent_ndx+1);
 }
  
 /**
@@ -228,7 +234,7 @@ help_spec(char *icon, char *name, char *format, int indent_ndx)
 static void
 help_range(char *name, char *format, int indent_ndx)
 {
-    printf("%s<%s_range> = <%sname> [: <%sname>]*\n",
+    printf("%s<%s_range> = <%sname> [: <%sname>]...\n",
     	    indent_table[indent_ndx],
 	    name,
 	    name,
@@ -250,7 +256,7 @@ static void
 help_list(char *name, char *format, boolean has_range, int indent_ndx)
 {
     if (has_range) {
-    	printf("%s<%s_list> = <%s_range>[,<%s_range>]*\n",
+    	printf("%s<%s_list> = <%s_range>[,<%s_range>]...\n",
     	    	indent_table[indent_ndx],
 	    	name,
 	    	name,
@@ -258,7 +264,7 @@ help_list(char *name, char *format, boolean has_range, int indent_ndx)
     	help_range(name, format, indent_ndx+1);
     }
     else {
-    	printf("%s<%s_list> = <%s_name>[,<%s_name>]*\n",
+    	printf("%s<%s_list> = <%s_name>[,<%s_name>]...\n",
     	    	indent_table[indent_ndx],
 	    	name,
 	    	name,
@@ -286,20 +292,18 @@ help_list_spec(
 		int indent_ndx)
 {
     if (has_range) {
-    	printf("%s %s<%s_list> = <%s_range>[,<%s_range>]*\n",
+    	printf("%s<%s_list_spec> = %s <%s_list> \n",
     	    	indent_table[indent_ndx],
+	    	name,
 	    	icon,
-	    	name,
-	    	name,
 	    	name);
-    	help_range(name, format, indent_ndx+1);
+    	help_list(name, format, has_range, indent_ndx+1);
     }
     else {
-    	printf("%s %s<%s_name> = <%s_list>[,<%s_name>]*\n",
+    	printf("%s<%s_list_spec> = <%s_name>[,<%s_name>]...\n",
     	    	indent_table[indent_ndx],
+	    	name,
 	    	icon,
-	    	name,
-	    	name,
 	    	name);
     	help_name(name, format, indent_ndx+1);
     }
@@ -583,8 +587,12 @@ help_host_list(int indent_ndx)
 static void
 help_host_file_rpd(int indent_ndx)
 {
-    printf("%s<host_file_rpd> =[<host_list_spec>][<file_list_spec>]"
-    	    "[<pid_list_spec>][<thread_list_spec>][<rank_list_spec>]\n",
+    printf("%s<host_file_rpd> = "
+    	    "\t[<host_list_spec>]"
+	    "\n\t\t\t\t[<file_list_spec>]"
+    	    "\n\t\t\t\t[<pid_list_spec>]"
+	    "\n\t\t\t\t[<thread_list_spec>]"
+	    "\n\t\t\t\t[<rank_list_spec>]\n",
 	    indent_table[indent_ndx]);
     help_list_spec("-h","host",     "int",TRUE,indent_ndx+1);
     help_list_spec("-f","file",     "int",TRUE,indent_ndx+1);
