@@ -165,6 +165,7 @@ AC_CONFIG_FILES(Makefile
 		examples/libopenss-framework/Makefile
 		examples/libopenss-framework/collector/Makefile
 		examples/libopenss-framework/tool/Makefile
+		open_speed_shop/Makefile
 		base/Makefile
 		plugin/Makefile
 		expr_info/Makefile

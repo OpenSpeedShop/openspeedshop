@@ -16,32 +16,16 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = . \
-	libltdl \
-	libopenss-framework \
-	plugins \
-	examples \
-	open_speed_shop \
-	base \
-	objects \
-	dialogs \
-	expr_info \
-	plugin \
-	chart \
-	pcli \
-	gui \
-	Panels
+bin_PROGRAMS = openspeedshop
 
-TEST_SUBDIRS = tests/fw/database \
-		tests/fw/interval \
-		tests/pcli/parse_target \
-		tests/pcli/parse_result
+bin_SCRIPTS = openss
 
-tests: $(TEST_SUBDIRS)
+openspeedshop_la_CXXFLAGS = -I/usr/include -I.
 
-DOC_SUBDIRS = \
-	libopenss-framework \
-	Panels pcli open_speed_shop base chart gui plugin objects dialogs
+LDFLAGS = -lc -ldl
+
+# openss:
+#	-cp openss $(prefix)/bin;
 
 doc: $(DOC_SUBDIRS) 
 	-doxygen Doxyfile

@@ -93,8 +93,6 @@ bin_PROGRAMS = pcli
 pcli:
 	-rm -f $(OPENSPEEDSHOP_PLUGIN_PATH)/myparse.py;
 	-cp myparse.py $(OPENSPEEDSHOP_PLUGIN_PATH);
-	-rm -f $(OPENSPEEDSHOP_PLUGIN_PATH)/../../bin/openss;
-	-cp ../openss $(OPENSPEEDSHOP_PLUGIN_PATH)/../../bin;
 
 doc:
 	-doxygen Doxyfile
