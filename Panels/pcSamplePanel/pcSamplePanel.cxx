@@ -18,6 +18,7 @@
 #include "TopPanel.hxx" // For demo only....
 #endif // DEMO
 
+#include "LoadAttachObject.hxx"
 
 
 /*!  pcSamplePanel Class
@@ -194,42 +195,49 @@ pcSamplePanel::listener(void *msg)
   nprintf( DEBUG_MESSAGES ) ("pcSamplePanel::listener() requested.\n");
   int ret_val = 0; // zero means we didn't handle the message.
 
-  ControlObject *co = (ControlObject *)msg;
+  ControlObject *co = NULL;
+  LoadAttachObject *lao = NULL;
 
-  if( !co )
+  MessageObject *mo = (MessageObject *)msg;
+
+  if( mo->msgType  == "ControlObject" )
   {
-     return 0; // 0 means, did not act on message
+    co = (ControlObject *)msg;
+printf("we've got a ControlObject\n");
+  } else if( mo->msgType  == "LoadAttachObject" )
+  {
+    lao = (LoadAttachObject *)msg;
+printf("we've got a LoadAttachObject\n");
+  } else
+  {
+    fprintf(stderr, "Unknown object type recieved.\n");
+    return 0;  // 0 means, did not act on message
   }
 
-  // Check the message type to make sure it's our type...
-  if( co->msgType != "ControlObject" )
+  if( co )
   {
-    nprintf( DEBUG_MESSAGES ) ("psSamplePanel::listener() Not a ControlObject.\n");
-    return 0; // o means, did not act on message.
-  }
+    co->print();
 
-  co->print();
-
-  switch( (int)co->cot )
-  {
-    case  ATTACH_PROCESS_T:
-      nprintf( DEBUG_MESSAGES ) ("Attach to a process\n");
-      break;
-    case  DETACH_PROCESS_T:
-      nprintf( DEBUG_MESSAGES ) ("Detach from a process\n");
-      ret_val = 1;
-      break;
-    case  ATTACH_COLLECTOR_T:
-      nprintf( DEBUG_MESSAGES ) ("Attach to a collector\n");
-      ret_val = 1;
-      break;
-    case  REMOVE_COLLECTOR_T:
-      nprintf( DEBUG_MESSAGES ) ("Remove a collector\n");
-      ret_val = 1;
-      break;
-    case  RUN_T:
-      nprintf( DEBUG_MESSAGES ) ("Run\n");
-statusLabelText->setText( tr("Process running...") );
+    switch( (int)co->cot )
+    {
+      case  ATTACH_PROCESS_T:
+        nprintf( DEBUG_MESSAGES ) ("Attach to a process\n");
+        break;
+      case  DETACH_PROCESS_T:
+        nprintf( DEBUG_MESSAGES ) ("Detach from a process\n");
+        ret_val = 1;
+        break;
+      case  ATTACH_COLLECTOR_T:
+        nprintf( DEBUG_MESSAGES ) ("Attach to a collector\n");
+        ret_val = 1;
+        break;
+      case  REMOVE_COLLECTOR_T:
+        nprintf( DEBUG_MESSAGES ) ("Remove a collector\n");
+        ret_val = 1;
+        break;
+      case  RUN_T:
+        nprintf( DEBUG_MESSAGES ) ("Run\n");
+        statusLabelText->setText( tr("Process running...") );
 #ifdef DEMO
 {
 qApp->processEvents(500);
@@ -265,36 +273,43 @@ TopPanel *tp = (TopPanel *)topPC->dl_create_and_add_panel("Top Panel", topPC);
 // tp->listener((void *)NULL);
 }
 #endif // DEMO
-      ret_val = 1;
-      break;
-    case  PAUSE_T:
-      nprintf( DEBUG_MESSAGES ) ("Pause\n");
-statusLabelText->setText( tr("Process suspended...") );
-      ret_val = 1;
-      break;
-    case  CONT_T:
-      nprintf( DEBUG_MESSAGES ) ("Continue\n");
-statusLabelText->setText( tr("Process continued...") );
-sleep(1);
-statusLabelText->setText( tr("Process running...") );
-      ret_val = 1;
-      break;
-    case  UPDATE_T:
-      nprintf( DEBUG_MESSAGES ) ("Update\n");
-      ret_val = 1;
-      break;
-    case  INTERRUPT_T:
-      nprintf( DEBUG_MESSAGES ) ("Interrupt\n");
-      ret_val = 1;
-      break;
-    case  TERMINATE_T:
-statusLabelText->setText( tr("Process terminated...") );
-      ret_val = 1;
-      nprintf( DEBUG_MESSAGES ) ("Terminate\n");
-      break;
-    default:
-      break;
-  }
+        ret_val = 1;
+        break;
+      case  PAUSE_T:
+        nprintf( DEBUG_MESSAGES ) ("Pause\n");
+  statusLabelText->setText( tr("Process suspended...") );
+        ret_val = 1;
+        break;
+      case  CONT_T:
+        nprintf( DEBUG_MESSAGES ) ("Continue\n");
+          statusLabelText->setText( tr("Process continued...") );
+          sleep(1);
+          statusLabelText->setText( tr("Process running...") );
+        ret_val = 1;
+        break;
+      case  UPDATE_T:
+        nprintf( DEBUG_MESSAGES ) ("Update\n");
+        ret_val = 1;
+        break;
+      case  INTERRUPT_T:
+        nprintf( DEBUG_MESSAGES ) ("Interrupt\n");
+        ret_val = 1;
+        break;
+      case  TERMINATE_T:
+        statusLabelText->setText( tr("Process terminated...") );
+        ret_val = 1;
+        nprintf( DEBUG_MESSAGES ) ("Terminate\n");
+        break;
+      default:
+        break;
+    }
+ } else if( lao )
+ {
+   printf("we've got a LoadAttachObject message\n");
+   lao->print();
+   ret_val = 1;
+ }
+
   return ret_val;  // 0 means, did not want this message and did not act on anything.
 }
 

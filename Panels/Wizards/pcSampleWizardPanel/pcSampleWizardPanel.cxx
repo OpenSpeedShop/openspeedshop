@@ -28,6 +28,8 @@
 #include "rightarrow.xpm"
 #include "leftarrow.xpm"
 
+#include "LoadAttachObject.hxx"
+
 
 /*!  pcSampleWizardPanel Class
      This class is used by the script mknewpanel to create a new work area
@@ -618,7 +620,11 @@ void pcSampleWizardPanel::eSummaryPageFinishButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("eSummaryPageFinishButtonSelected() \n");
 
+#ifdef OLDWAY
   Panel *p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("pc Sampling", getPanelContainer());
+#else // OLDWAY
+  vSummaryPageFinishButtonSelected();
+#endif // OLDWAY
 }
 
 // Begin advanced (expert) AttachOrLoad callbacks
@@ -872,10 +878,10 @@ char buffer[2048];
       }
       delete dialog;
     }
-if( mw->pid_str == NULL )
-{
-  return;
-}
+    if( mw->pid_str == NULL )
+    {
+      return;
+    }
     sprintf(buffer, "<p align=\"left\">You've selected a pc Sample experiment for process \"%s\" running on host \"%s\".  Futher you've chosed a sample rate of \"%s\" milliseconds.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"pcSample\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->pid_str, "localhost", vParameterPageSampleRateText->text().ascii() );
   }
   if( vAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
@@ -898,10 +904,10 @@ if( mw->pid_str == NULL )
         return;
       }
     }
-if( mw->executable_name == NULL )
-{
-  return;
-}
+    if( mw->executable_name == NULL )
+    {
+      return;
+    }
     sprintf(buffer, "<p align=\"left\">You've selected a pc Sample experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%s\" milliseconds.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"pcSample\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executable_name, "localhost", vParameterPageSampleRateText->text().ascii() );
   }
 
@@ -924,6 +930,27 @@ void pcSampleWizardPanel::vSummaryPageFinishButtonSelected()
 nprintf(DEBUG_PANELS) ("vSummaryPageFinishButtonSelected() \n");
 
   Panel *p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("pc Sampling", getPanelContainer());
+
+  if( getPanelContainer()->getMainWindow() )
+  { 
+    OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
+    printf("mw=0x%x\n", mw );
+    if( mw )
+    {
+      LoadAttachObject *lao = NULL;
+      if( mw->executable_name != NULL )
+      {
+        lao = new LoadAttachObject(mw->executable_name, (char *)NULL);
+      } else if( mw->pid_str != NULL )
+      {
+        lao = new LoadAttachObject((char *)NULL, mw->pid_str);
+      } else
+      {
+        printf("Warning: No attach or load paramaters available.\n");
+      }
+      p->listener((void *)lao);
+    }
+  }
 }
 
 /*
