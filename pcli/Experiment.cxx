@@ -185,17 +185,17 @@ static ThreadGroup Resolve_Command_Targets (CommandObject *cmd, ExperimentObject
         for (int i = 0; i < p_len; ++i) {
 // fprintf(stdout,"Link Process(%d,%d): %s %s\n",h,i,host_tab[h].u.name,p_tab[i]);
           if (t_len) {
-            for (int j = 0; j < p_len; j++) {
-              Thread t = exp->FW()->attachPosixThread((pid_t)p_tab[i], (pthread_t)t_tab[j],host_tab[h].u.name);
-              tgrp.push_back(t);
-            }
-          } else if (r_len) {
 #ifdef HAVE_OPENMP
             for (int j = 0; j < r_len; j++) {
               Thread t = exp->FW()->attachOpenMPThread((pid_t)p_tab[i], (int)r_tab[r],host_tab[h].u.name);
               tgrp.push_back(t);
             }
 #endif
+          } else if (r_len) {
+            for (int j = 0; j < p_len; j++) {
+              Thread t = exp->FW()->attachPosixThread((pid_t)p_tab[i], (pthread_t)t_tab[j],host_tab[h].u.name);
+              tgrp.push_back(t);
+            }
           } else {
             ThreadGroup ngrp = exp->FW()->attachProcess((pid_t)p_tab[i], host_tab[h].u.name);
             for(ThreadGroup::const_iterator tgi = ngrp.begin(); tgi != ngrp.end(); ++tgi) {
@@ -410,7 +410,16 @@ bool SS_expDisable (CommandObject *cmd) {
     return false;
   }
 
- // Disconnect the FrameWOrk from the experiment
+  if ((exp->Status() != ExpStatus_Paused) &&
+      (exp->Status() != ExpStatus_Running)) {
+   // These are the only states that can be changed.
+    cmd->Result_String ("The experiment can not be Disabled because it is in the "
+                         + exp->ExpStatus_Name() + " state.");
+    cmd->set_Status(CMD_ERROR);
+    return false;
+  }
+
+ // Disconnect the FrameWork from the experiment
   exp->Suspend();
 
   cmd->set_Status(CMD_COMPLETE);
@@ -421,6 +430,14 @@ bool SS_expEnable (CommandObject *cmd) {
   ExperimentObject *exp = Find_Specified_Experiment (cmd);
 
   if (exp == NULL) {
+    return false;
+  }
+
+  if (exp->Status() != ExpStatus_Suspended) {
+   // This is the only state that can be enabled.
+    cmd->Result_String ("The experiment can not be Enabled because it is in the "
+                         + exp->ExpStatus_Name() + " state.");
+    cmd->set_Status(CMD_ERROR);
     return false;
   }
 
@@ -464,6 +481,15 @@ bool SS_expGo (CommandObject *cmd) {
     return false;
   }
 
+  if ((exp->Status() != ExpStatus_Paused) &&
+      (exp->Status() != ExpStatus_Running)) {
+   // These are the only states that can be changed.
+    cmd->Result_String ("The experiment can not Go because it is in the "
+                         + exp->ExpStatus_Name() + " state.");
+    cmd->set_Status(CMD_ERROR);
+    return false;
+  }
+
   ThreadGroup trg = exp->FW()->getThreads();
 
   if (trg.empty()) {
@@ -472,6 +498,7 @@ bool SS_expGo (CommandObject *cmd) {
     return false;
   }
   trg.changeState (Thread::Running);
+  exp->setStatus (ExpStatus_Running);
 
   cmd->set_Status(CMD_COMPLETE);
   return true;
@@ -484,10 +511,20 @@ bool SS_expPause (CommandObject *cmd) {
     return false;
   }
 
+  if ((exp->Status() != ExpStatus_Paused) &&
+      (exp->Status() != ExpStatus_Running)) {
+   // These are the only states that can be changed.
+    cmd->Result_String ("The experiment can not Paus because it is in the "
+                         + exp->ExpStatus_Name() + " state.");
+    cmd->set_Status(CMD_ERROR);
+    return false;
+  }
+
   ThreadGroup trg = exp->FW()->getThreads();
 
   if (!trg.empty()) {
     trg.changeState (Thread::Suspended);
+    exp->setStatus (ExpStatus_Paused);
   }
 
   cmd->set_Status(CMD_COMPLETE);
@@ -498,7 +535,8 @@ bool SS_expRestore (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
-  std::string data_base_name = std::string("ssdb.openss");;
+  char **f_tab = (char **)command.file_table.table;
+  std::string data_base_name = std::string(f_tab[0]);
   ExperimentObject *exp = new ExperimentObject (data_base_name);
   EXPID ExperimentID = 0;
 
@@ -526,7 +564,17 @@ bool SS_expSave (CommandObject *cmd) {
     return false;
   }
 
-  cmd->Result_String ("not yet implemented");
+  if (command.file_table.cur_node != 1) {
+    cmd->Result_String ("need a file name for the Data Base.");
+    cmd->set_Status(CMD_ERROR);
+    return false;
+  }
+
+  char **f_tab = (char **)command.file_table.table;
+  std::string data_base_name = std::string(f_tab[0]);
+
+  exp->RenameDB (data_base_name);
+
   cmd->set_Status(CMD_COMPLETE);
   return true;
 }
