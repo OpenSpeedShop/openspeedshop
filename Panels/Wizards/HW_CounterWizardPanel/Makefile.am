@@ -32,7 +32,7 @@ HW_CounterWizardPanel_la_CXXFLAGS = \
 
 HW_CounterWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
-HW_CounterWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt -L../../../base -lopenss-Base -L../../../objects -lopenss-Objects  -L../../../dialogs -lopenss-Dialogs
+HW_CounterWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt 
 
 moc_HW_CounterWizardPanel.cxx: HW_CounterWizardPanel.hxx
 	-moc -o moc_HW_CounterWizardPanel.cxx HW_CounterWizardPanel.hxx
