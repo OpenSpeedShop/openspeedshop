@@ -1,21 +1,16 @@
 #include "Python.h"
 #include <stdio.h>
-#include <ctype.h>
-#include <string.h>
+// #include <ctype.h>
+// #include <string.h>
 
-#include "ToolAPI.hxx"
-using namespace OpenSpeedShop::Framework;
-
-#include "support.h"
-#include "Commander.hxx"
-#include "Clip.hxx"
+#include "SS_Input_Manager.hxx"
 
 extern FILE *yyin;
 extern int yyparse (void);
 
 /* Global Data for tracking the current command line. */
 InputLineObject *Current_ILO = NULL;
-a_command_struct *Current_CO = NULL;
+CommandObject   *Current_CO  = NULL;
 
 static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     char *input_line = NULL;
