@@ -60,103 +60,40 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, int bu
     }
     strcat(cmdstr,"\n\0");
 
-   /* First, put the "expCreate" command to the input stack */
+   /* Put the "expCreate" command to the input stack */
     (void)Append_Input_String (my_window, strlen(cmdstr), cmdstr);
-
-   /* Second, follow it with an "expRun" command. */
-    char *cmdrun = "expRun\n";
-    (void)Append_Input_String (my_window, strlen(cmdrun), cmdrun);
   }
 
 }
 
-int Start_BATCH_Mode (CMDWID my_window, int argc, char ** argv, int butnotarg, bool read_stdin_file)
+int Start_TLI_Mode (CMDWID my_window)
 {
-  if (my_window <= 0) {
-    struct hostent *my_host = gethostent();
-    pid_t my_pid = getpid();
-    my_window = Commander_Initialization ("BATCH_MODE",my_host->h_name,my_pid,0);
-    if (my_window <= 0) {
-      return -1;  /* We tried and failed to define a window. */
-    }
-  }
-
- /* Set up buffers to read command line arguments. */
-  Input_Command_Args ( my_window, argc, argv, butnotarg);
-
- /*
-    Read from stdin if one was piped into the command, otherwise
-    assume that only the command line needs to be precessed.
- */
-  if (read_stdin_file) {
-    (void)Append_Input_File (my_window, std::string("stdin"));
-  }
-
- /* Fire off Python. */
-  PyRun_SimpleString( "myparse.do_input ()\n");
-
-/* >>>>> Start DEBUG <<<<<
-  fprintf(stdout,"\nList of defined Window IDs:\n");
-  List_CommandWindows (stdout);
-  fprintf(stdout,"\n");
->>>>> Stop  DEBUG <<<<< */
-
-  Commander_Termination(my_window);
-  return 1;
-}
-
-int Start_GUI_Mode (CMDWID my_window, int argc, char ** argv, int butnotarg, bool read_stdin_file)
-{
-  if (my_window <= 0) {
-    struct hostent *my_host = gethostent();
-    pid_t my_pid = getpid();
-    my_window = Commander_Initialization ("BATCH_MODE",my_host->h_name,my_pid,0);
-    if (my_window <= 0) {
-      return -1;  /* We tried and failed to define a window. */
-    }
-  }
-
- /* NOW????  WHAT DO WE DO TO GET THE GUI UP??? */
-
- /* Set up buffers to read command line arguments. */
- // Input_Command_Args ( my_window, argc, argv, butnotarg);
-
- /* Define stdin as the main input file. */
- // (void)Append_Input_File (my_window, std::string("stdin"));
-
- /* Fire off Python. */
- // PyRun_SimpleString( "myparse.do_input ()\n");
-
-  Commander_Termination(my_window);
-  return 1;
-}
-
-int Start_TLI_Mode (CMDWID my_window, int argc, char ** argv, int butnotarg, bool read_stdin_file)
-{
-  if (my_window <= 0) {
-    struct hostent *my_host = gethostent();
-    pid_t my_pid = getpid();
-    my_window = Commander_Initialization ("TLI_MODE",my_host->h_name,my_pid,0);
-    if (my_window <= 0) {
-      return -1;  /* We tried and failed to define a window. */
-    }
-  }
-
- /* Set up buffers to read command line arguments. */
-  Input_Command_Args ( my_window, argc, argv, butnotarg);
+  Assert (my_window);
 
  /* Define stdin as the main input file. */
   (void)Append_Input_File (my_window, std::string("stdin"));
 
- /* Fire off Python. */
-  PyRun_SimpleString( "myparse.do_input ()\n");
+  return 1;
+}
 
-/* >>>>> Start DEBUG <<<<<
-  fprintf(stdout,"\nList of defined Window IDs:\n");
-  List_CommandWindows (stdout);
-  fprintf(stdout,"\n");
->>>>> Stop  DEBUG <<<<< */
+int Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, int butnotarg,
+                             bool batch_mode, bool read_stdin_file)
+{
+  Assert (my_window);
 
-  Commander_Termination(my_window);
+ // Translate the command line arguments into an "expCreate command".
+  Input_Command_Args ( my_window, argc, argv, butnotarg);
+
+  if (read_stdin_file) {
+   // Read a piped-in file.
+    (void)Append_Input_File (my_window, std::string("stdin"));
+  }
+
+  if (batch_mode) {
+   // If in "-batch" mode, end with an "expRun" command.
+    char *cmdrun = "expRun\n";
+    (void)Append_Input_String (my_window, strlen(cmdrun), cmdrun);
+  }
+
   return 1;
 }
