@@ -94,24 +94,10 @@ public:
   void leaveEvent(QEvent *);
 #endif // PULL
 
-#ifdef OLDWAY // - move to public slots:
-  virtual void attachCollectorButtonSlot();
-  virtual void detachCollectorButtonSlot();
-  virtual void attachProcessButtonSlot();
-  virtual void detachProcessButtonSlot();
-  virtual void runButtonSlot();
-  virtual void pauseButtonSlot();
-  virtual void continueButtonSlot();
-  virtual void updateButtonSlot();
-  virtual void interruptButtonSlot();
-  virtual void terminateButtonSlot();
-#endif // OLDWAY - move to public slots:
-  void saveAsSelected();
-  void addCollectorSelected();
-  void removeCollectorSelected();
-  void addProcessSelected();
-  void removeProcessSelected();
 public slots:
+  void saveAsSelected();
+  void manageCollectorsSelected();
+  void manageProcessesSelected();
 
 protected slots:
   virtual void languageChange();

@@ -115,11 +115,8 @@ HW_CounterPanel::menu(QPopupMenu* contextMenu)
   printf("HW_CounterPanel::menu() requested.\n");
 
   contextMenu->insertSeparator();
-  contextMenu->insertItem("&Add Collector", this, SLOT(addCollectorSelected()), CTRL+Key_A );
-  contextMenu->insertItem("&Remove Collector", this, SLOT(removeCollectorSelected()), CTRL+Key_R );
-  contextMenu->insertSeparator();
-  contextMenu->insertItem("&Add Process", this, SLOT(addProcessSelected()), CTRL+Key_A );
-  contextMenu->insertItem("&Remove Process", this, SLOT(removeProcessSelected()), CTRL+Key_R );
+  contextMenu->insertItem("&Manage Collectors", this, SLOT(manageCollectorsSelected()), CTRL+Key_A );
+  contextMenu->insertItem("&Manage Processes", this, SLOT(manageProcessesSelected()), CTRL+Key_A );
   contextMenu->insertSeparator();
   contextMenu->insertItem("&Save As ...", this, SLOT(saveAsSelected()), CTRL+Key_S ); 
 
@@ -127,29 +124,17 @@ HW_CounterPanel::menu(QPopupMenu* contextMenu)
 }
 
 void
-HW_CounterPanel::addCollectorSelected()
+HW_CounterPanel::manageCollectorsSelected()
 {
-  printf("HW_CounterPanel::addCollectorSelected()\n");
+  printf("HW_CounterPanel::manageCollectorsSelected()\n");
 }   
-
-void 
-HW_CounterPanel::removeCollectorSelected()
-{
-  printf("HW_CounterPanel::removeCollectorSelected() requested.\n");
-}
 
 void
-HW_CounterPanel::addProcessSelected()
+HW_CounterPanel::manageProcessesSelected()
 {
-  printf("HW_CounterPanel::addProcessSelected()\n");
+  printf("HW_CounterPanel::manageProcessesSelected()\n");
 }   
 
-void 
-HW_CounterPanel::removeProcessSelected()
-{
-  printf("HW_CounterPanel::removeProcessSelected() requested.\n");
-}
-    
 //! Save ascii version of this panel.
 /*! If the user panel provides save to ascii functionality, their function
      should provide the saving.

@@ -115,11 +115,8 @@ FPE_TracingPanel::menu(QPopupMenu* contextMenu)
   printf("FPE_TracingPanel::menu() requested.\n");
 
   contextMenu->insertSeparator();
-  contextMenu->insertItem("&Add Collector", this, SLOT(addCollectorSelected()), CTRL+Key_A );
-  contextMenu->insertItem("&Remove Collector", this, SLOT(removeCollectorSelected()), CTRL+Key_R );
-  contextMenu->insertSeparator();
-  contextMenu->insertItem("&Add Process", this, SLOT(addProcessSelected()), CTRL+Key_A );
-  contextMenu->insertItem("&Remove Process", this, SLOT(removeProcessSelected()), CTRL+Key_R );
+  contextMenu->insertItem("&Manage Collectors", this, SLOT(manageCollectorsSelected()), CTRL+Key_A );
+  contextMenu->insertItem("&Manage Processes", this, SLOT(manageProcessesSelected()), CTRL+Key_A );
   contextMenu->insertSeparator();
   contextMenu->insertItem("&Save As ...", this, SLOT(saveAsSelected()), CTRL+Key_S ); 
 
@@ -127,29 +124,17 @@ FPE_TracingPanel::menu(QPopupMenu* contextMenu)
 }
 
 void
-FPE_TracingPanel::addCollectorSelected()
+FPE_TracingPanel::manageCollectorsSelected()
 {
-  printf("FPE_TracingPanel::addCollectorSelected()\n");
+  printf("FPE_TracingPanel::manageCollectorsSelected()\n");
 }   
-
-void 
-FPE_TracingPanel::removeCollectorSelected()
-{
-  printf("FPE_TracingPanel::removeCollectorSelected() requested.\n");
-}
 
 void
-FPE_TracingPanel::addProcessSelected()
+FPE_TracingPanel::manageProcessesSelected()
 {
-  printf("FPE_TracingPanel::addProcessSelected()\n");
+  printf("FPE_TracingPanel::manageProcessesSelected()\n");
 }   
 
-void 
-FPE_TracingPanel::removeProcessSelected()
-{
-  printf("FPE_TracingPanel::removeProcessSelected() requested.\n");
-}
-    
 //! Save ascii version of this panel.
 /*! If the user panel provides save to ascii functionality, their function
      should provide the saving.

@@ -115,11 +115,8 @@ pcSamplePanel::menu(QPopupMenu* contextMenu)
   printf("pcSamplePanel::menu() requested.\n");
 
   contextMenu->insertSeparator();
-  contextMenu->insertItem("&Add Collector", this, SLOT(addCollectorSelected()), CTRL+Key_A );
-  contextMenu->insertItem("&Remove Collector", this, SLOT(removeCollectorSelected()), CTRL+Key_R );
-  contextMenu->insertSeparator();
-  contextMenu->insertItem("&Add Process", this, SLOT(addProcessSelected()), CTRL+Key_A );
-  contextMenu->insertItem("&Remove Process", this, SLOT(removeProcessSelected()), CTRL+Key_R );
+  contextMenu->insertItem("&Manage Collectors", this, SLOT(manageCollectorsSelected()), CTRL+Key_A );
+  contextMenu->insertItem("&Manage Processes", this, SLOT(manageProcessesSelected()), CTRL+Key_A );
   contextMenu->insertSeparator();
   contextMenu->insertItem("&Save As ...", this, SLOT(saveAsSelected()), CTRL+Key_S ); 
 
@@ -127,29 +124,17 @@ pcSamplePanel::menu(QPopupMenu* contextMenu)
 }
 
 void
-pcSamplePanel::addCollectorSelected()
+pcSamplePanel::manageCollectorsSelected()
 {
-  printf("pcSamplePanel::addCollectorSelected()\n");
+  printf("pcSamplePanel::manageCollectorsSelected()\n");
 }   
-
-void 
-pcSamplePanel::removeCollectorSelected()
-{
-  printf("pcSamplePanel::removeCollectorSelected() requested.\n");
-}
 
 void
-pcSamplePanel::addProcessSelected()
+pcSamplePanel::manageProcessesSelected()
 {
-  printf("pcSamplePanel::addProcessSelected()\n");
+  printf("pcSamplePanel::managerProcessesSelected()\n");
 }   
 
-void 
-pcSamplePanel::removeProcessSelected()
-{
-  printf("pcSamplePanel::removeProcessSelected() requested.\n");
-}
-    
 //! Save ascii version of this panel.
 /*! If the user panel provides save to ascii functionality, their function
      should provide the saving.
