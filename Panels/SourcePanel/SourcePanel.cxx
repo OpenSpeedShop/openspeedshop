@@ -558,7 +558,7 @@ SourcePanel::loadFile(const QString &_fileName)
   } else
   {
 
-#ifdef OLDWAY
+#ifndef OLDWAY
     textEdit->setText( ts.read() );
 #else //  OLDWAY
     while( !ts.atEnd() )
@@ -571,13 +571,13 @@ SourcePanel::loadFile(const QString &_fileName)
     // Need to set cursor position so subsequent position requests are fielded.
     textEdit->setCursorPosition(0, 0);
   }
-//   lineCount = textEdit->paragraphs();
+  lineCount = textEdit->paragraphs();
+  lineCount--;
   nprintf(DEBUG_PANELS) ("lineCount=%d paragraphs()=%d\n", lineCount, textEdit->paragraphs() );
 
-// #ifdef PROTO
+#ifdef PROTO    // This is too darn slow!!!!
   statArea->setNumRows(lineCount);
   statArea->setNumCols(1);
-// #endif // PROTO
   int heightForWidth = textEdit->heightForWidth(80);
   float lineHeight = (heightForWidth-hscrollbar->height())/(float)lineCount;
   float remainder = (int)(heightForWidth-hscrollbar->height())%lineCount;
@@ -585,7 +585,7 @@ SourcePanel::loadFile(const QString &_fileName)
 #ifdef HEADER_LABELED
 statArea->horizontalHeader()->setLabel(0, "Metric" );
 #endif // HEADER_LABELED
-// #ifdef PROTO
+
   for(int i=0;i<lineCount;i++)
   {
     sprintf(line_number_buffer, "%6d ", i+1);
@@ -600,7 +600,7 @@ statArea->setColumnWidth(0,DEFAULT_STAT_WIDTH-5);
     }
     statArea->setText(i, 0, QString(QString(line_number_buffer)));
   }
-// #endif // PROTO
+#endif // PROTO
 //  printf("The last line was: %s\n", line_number_buffer );
 
 
@@ -608,15 +608,19 @@ statArea->setColumnWidth(0,DEFAULT_STAT_WIDTH-5);
   textEdit->setModified( FALSE );
   label->setText(fileName);
 
+#ifdef SLOWS_ME_DOWN
   clearAllHighlights();
 
   clearAllSelections();
+#endif // SLOWS_ME_DOWN
 
   textEdit->setUpdatesEnabled( TRUE );
 
   textEdit->show();
 
+// #ifdef SLOWS_ME_DOWN
   textEdit->clearScrollBar();
+// #endif // SLOWS_ME_DOWN
 
   if( sameFile == FALSE ) // Then position at top.
   {
@@ -631,7 +635,7 @@ statArea->setColumnWidth(0,DEFAULT_STAT_WIDTH-5);
   }
 
   // Make sure the scrollbar is sync'd with everyone..
-  valueChanged(-1);
+//  valueChanged(-1);
 }
 
 /*! Get more information about the current posotion (if any). */
@@ -875,7 +879,7 @@ SourcePanel::clicked(int para, int offset)
 void
 SourcePanel::valueChanged(int passed_in_value)
 {
-  if( textEdit->isUpdatesEnabled( FALSE ) )
+  if( textEdit->isUpdatesEnabled() == FALSE )
   {
     return;
   }
