@@ -374,7 +374,6 @@ printf ("raise the panel.\n");
     }
 
     nprintf(DEBUG_PANELS) ("Try to position at line %d\n", spo->line_number);
-printf ("Try to position at line %d\n", spo->line_number);
 
     positionLineAtCenter(spo->line_number);
   } else if( msgObject->msgType == "SaveAsObject" )
