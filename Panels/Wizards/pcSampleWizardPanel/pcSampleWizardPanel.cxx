@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
+#include <stdio.h>
 #include "pcSampleWizardPanel.hxx"
 #include "PanelContainer.hxx"   // Do not remove
 #include "plugin_entry_point.hxx"   // Do not remove
@@ -1167,9 +1168,46 @@ void pcSampleWizardPanel::vSummaryPageFinishButtonSelected()
  *  Sets the strings of the subwidgets using the current
  *  language.
  */
+#include "SS_Input_Manager.hxx"
+using namespace OpenSpeedShop::Framework;
 void
 pcSampleWizardPanel::languageChange()
 {
+  // Look up default metrics.   There's only one in this case.
+  // Get list of all the collectors from the FrameWork.
+  // To do this, we need to create a dummy experiment.
+  unsigned int sampling_rate = 100;
+  try {
+    char *temp_name = tmpnam(NULL);
+    static std::string tmpdb = std::string(temp_name);
+    OpenSpeedShop::Framework::Experiment::create (tmpdb);
+    OpenSpeedShop::Framework::Experiment dummy_experiment(tmpdb);
+    Collector pcSampleCollector = dummy_experiment.createCollector("pcsamp");
+
+    Metadata cm = pcSampleCollector.getMetadata();
+      std::set<Metadata> md =pcSampleCollector.getParameters();
+      std::set<Metadata>::const_iterator mi;
+      for (mi = md.begin(); mi != md.end(); mi++) {
+        Metadata m = *mi;
+        printf("%s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
+        printf("%s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
+        printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
+      }
+      pcSampleCollector.getParameterValue("sampling_rate", sampling_rate);
+// printf("sampling_rate=%d\n", sampling_rate);
+//    pcSampleCollector.setParameterValue("sampling_rate", (unsigned)100);
+
+    if( temp_name )
+    {
+      (void) remove( temp_name );
+    }
+
+  }
+  catch(const std::exception& error)
+  {
+    return;
+  }
+
   setCaption( tr( "pc Sample Wizard Panel" ) );
   vDescriptionPageTitleLabel->setText( tr( "<h1>pc Sample Wizard</h1>" ) );
   vDescriptionPageText->setText( tr( vpcSampleDescripition ) );
@@ -1179,17 +1217,17 @@ pcSampleWizardPanel::languageChange()
   QToolTip::add( vDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
   vDescriptionPageFinishButton->setText( tr( ">> Finish" ) );
   QToolTip::add( vDescriptionPageFinishButton, tr( "Advance to the wizard finish page." ) );
-  vParameterPageDescriptionLabel->setText( tr( "The following options (paramaters) are available to adjust.   These are the options the collector has exported.<br><br>\n"
+  vParameterPageDescriptionLabel->setText( tr( QString("The following options (paramaters) are available to adjust.   These are the options the collector has exported.<br><br>\n"
 "The smaller the number used for the sample rate, the more\n"
 "pc Sample detail will be shown.   However, the trade off will be slower\n"
 "performance and a larger data file.<br><br>\n"
 "It may take a little experimenting to find the right setting for your \n"
 "particular executable.   We suggest starting with the default setting\n"
-"of 100." ) );
+"of %1.").arg(sampling_rate) ) );
   vParameterPageSampleRateHeaderLabel->setText( tr( "You can set the following option(s):" ) );
   vParameterPageSampleRateLabel->setText( tr( "pc Sample rate:" ) );
-  vParameterPageSampleRateText->setText( tr( "100" ) );
-  QToolTip::add( vParameterPageSampleRateText, tr( "The rate to sample.   (Default 100 milliseconds.)" ) );
+  vParameterPageSampleRateText->setText( tr( QString("%1").arg(sampling_rate) ) );
+  QToolTip::add( vParameterPageSampleRateText, tr( QString("The rate to sample.   (Default %1 milliseconds.)").arg(sampling_rate) ) );
   vParameterPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( vParameterPageBackButton, tr( "Takes you back one page." ) );
   vParameterPageResetButton->setText( tr( "Reset" ) );
@@ -1227,8 +1265,8 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new execu
   eParameterPageDescriptionLabel->setText( tr( "The following options (paramaters) are available to adjust.     <br>These are the options the collector has exported." ) );
   eParameterPageSampleRateHeaderLabel->setText( tr( "You can set the following option(s):" ) );
   eParameterPageSampleRateLabel->setText( tr( "pc Sample rate:" ) );
-  eParameterPageSampleRateText->setText( tr( "100" ) );
-  QToolTip::add( eParameterPageSampleRateText, tr( "The rate to sample.   (Default 100 milliseconds.)" ) );
+  eParameterPageSampleRateText->setText( tr( QString("%1").arg(sampling_rate) ) );
+  QToolTip::add( eParameterPageSampleRateText, tr( QString("The rate to sample.   (Default %1 milliseconds.)").arg(sampling_rate) ) );
   eParameterPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( eParameterPageBackButton, tr( "Takes you back one page." ) );
   eParameterPageResetButton->setText( tr( "Reset" ) );

@@ -129,7 +129,7 @@ public:
     QFrame* vAttachOrLoadPageLine;
     QCheckBox* vAttachOrLoadPageAttachToProcessCheckBox;
     QCheckBox* vAttachOrLoadPageLoadExecutableCheckBox;
-QCheckBox* vAttachOrLoadPageLoadDifferentExecutableCheckBox;
+    QCheckBox* vAttachOrLoadPageLoadDifferentExecutableCheckBox;
     QPushButton* vAttachOrLoadPageBackButton;
     QPushButton* vAttachOrLoadPageNextButton;
     QPushButton* vAttachOrLoadPageFinishButton;
@@ -159,7 +159,7 @@ QCheckBox* vAttachOrLoadPageLoadDifferentExecutableCheckBox;
     QFrame* eAttachOrLoadPageLine;
     QCheckBox* eAttachOrLoadPageAttachToProcessCheckBox;
     QCheckBox* eAttachOrLoadPageLoadExecutableCheckBox;
-QCheckBox* eAttachOrLoadPageLoadDifferentExecutableCheckBox;
+    QCheckBox* eAttachOrLoadPageLoadDifferentExecutableCheckBox;
     QPushButton* eAttachOrLoadPageBackButton;
     QPushButton* eAttachOrLoadPageNextButton;
     QPushButton* eAttachOrLoadPageFinishButton;
@@ -198,9 +198,9 @@ public slots:
     virtual void vAttachOrLoadPageAttachToProcessCheckBoxSelected();
     virtual void eAttachOrLoadPageAttachToProcessCheckBoxSelected();
     virtual void vAttachOrLoadPageLoadExecutableCheckBoxSelected();
-virtual void vAttachOrLoadPageLoadDifferentExecutableCheckBoxSelected();
+    virtual void vAttachOrLoadPageLoadDifferentExecutableCheckBoxSelected();
     virtual void eAttachOrLoadPageLoadExecutableCheckBoxSelected();
-virtual void eAttachOrLoadPageLoadDifferentExecutableCheckBoxSelected();
+    virtual void eAttachOrLoadPageLoadDifferentExecutableCheckBoxSelected();
     virtual void finishButtonSelected();
 
 protected:
@@ -263,6 +263,5 @@ protected slots:
 
 private:
     QString sampleRate;
-
 };
 #endif // PCSAMPLEWIZARDPANEL_H
