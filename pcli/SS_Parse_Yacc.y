@@ -86,7 +86,6 @@ char *string;
 
 %type <val> lineno
 %type <val> ip_address
-%type <val> expId_spec
 %type <string> file_name gen_help_arg param_name viewType expType
 
 %%
