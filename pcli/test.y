@@ -9,7 +9,7 @@ extern int yylex();
 extern int yywrap();
 extern void exit(int);
 
-/* int yydebug = 1; */
+int yydebug = 1;
 %}
 
 %union {
