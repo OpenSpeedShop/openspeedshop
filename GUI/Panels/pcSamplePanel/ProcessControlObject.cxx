@@ -1,6 +1,5 @@
-#include "pcSamplePanel.hxx"   // Change this to your new class header file name
-#include "PanelContainer.hxx"   // Do not remove
-#include "plugin_entry_point.hxx"   // Do not remove
+#include "ProcessControlObject.hxx"
+
 
 #include <qapplication.h>
 #include <qbuttongroup.h>
@@ -10,8 +9,6 @@
 #include <qiconset.h>
 
 #include <qbitmap.h>
-
-#ifdef OLDWAY
 #include "attach_hand.xpm"
 #include "attach_hand2.xpm"
 #include "attach_hand3.xpm"
@@ -36,39 +33,15 @@
 #include "update.xpm"
 #include "interrupt.xpm"
 #include "terminate.xpm"
-#else // OLDWAY
-#include "ProcessControlObject.hxx"
-#endif // OLDWAY
 
-
-
-/*!  pcSamplePanel Class
-     This class is used by the script mknewpanel to create a new work area
-     for the panel creator to design a new panel.
-
-
-     Autor: Al Stipek (stipek@sgi.com)
- */
 
 
 /*! The default constructor.   Unused. */
-pcSamplePanel::pcSamplePanel()
+ProcessControlObject::ProcessControlObject(QVBoxLayout *frameLayout, QWidget *baseWidget)
 { // Unused... Here for completeness...
-}
+  printf("ProcessControlObject::ProcessControlObject() constructor called\n");
 
-
-/*! Constructs a new UserPanel object */
-/*! This is the most often used constructor call.
-    \param pc    The panel container the panel will initially be attached.
-    \param n     The initial name of the panel container
- */
-pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
-{
-  printf("pcSamplePanel::pcSamplePanel() constructor called\n");
-  frameLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
-
-#ifdef OLDWAY
-  buttonGroup = new QButtonGroup( getBaseWidgetFrame(), "buttonGroup" );
+  buttonGroup = new QButtonGroup( baseWidget, "buttonGroup" );
   buttonGroup->setColumnLayout(0, Qt::Vertical );
   buttonGroup->layout()->setSpacing( 6 );
   buttonGroup->layout()->setMargin( 11 );
@@ -248,24 +221,7 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
   buttonGroupLayout->addWidget( terminateButton );
   terminateButton->setText( QString::null );
   }
-#else // OLDWAY
-  ProcessControlObject *pco = new ProcessControlObject(frameLayout, getBaseWidgetFrame() );
-#endif // OLDWAY
 
-  statusLayout = new QHBoxLayout( 0, 10, 0, "statusLayout" );
-  
-  statusLabel = new QLabel( getBaseWidgetFrame(), "statusLabel");
-  statusLayout->addWidget( statusLabel );
-
-  statusLabelText = new QLineEdit( getBaseWidgetFrame(), "statusLabelText");
-  statusLabelText->setReadOnly(TRUE);
-  statusLayout->addWidget( statusLabelText );
-
-  frameLayout->addLayout( statusLayout );
-
-  languageChange();
-
-#ifdef OLDWAY
   // set button look.
   attachProcessButton->setFlat(TRUE);
   detachProcessButton->setFlat(TRUE);
@@ -300,176 +256,50 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
   connect( pauseButton, SIGNAL( clicked() ), this, SLOT( pauseButtonSlot() ) );   
   connect( terminateButton, SIGNAL( clicked() ), this, SLOT( terminateButtonSlot() ) );
   connect( updateButton, SIGNAL( clicked() ), this, SLOT( updateButtonSlot() ) );
-#endif // OLDWAY
-
-  PanelContainerList *lpcl = new PanelContainerList();
-  lpcl->clear();
-
-  QWidget *pcSampleControlPanelContainerWidget = new QWidget( getBaseWidgetFrame(),
-                                        "pcSampleControlPanelContainerWidget" );
-  topPC = createPanelContainer( pcSampleControlPanelContainerWidget,
-                              "PCSamplingControlPanel_topPC", NULL,
-                              pc->_masterPanelContainerList );
-  frameLayout->addWidget( pcSampleControlPanelContainerWidget );
-
-printf("Create an Application\n");
-printf("# Application theApplication;\n");
-printf("# //Create a process for the command in the suspended state\n");
-printf("# load the executable or attach to the process.\n");
-printf("# if( loadExecutable ) {\n");
-printf("# theApplication.createProcess(command);\n");
-printf("# } else { // attach \n");
-printf("#   theApplication.attachToPrcess(pid, hostname);\n");
-printf("# }\n");
-printf("set the parameters.\n");
-printf("# pcCollector.setParameter(param);  // obviously looping over each.\n");
-printf("attach the collector to the Application.\n");
-printf("# // Attach the collector to all threads in the application\n");
-printf("# theApplication.attachCollector(theCollector.getValue());\n");
-
-
-
-  topPC->splitVertical();
-//  topPC->rightPanelContainer->splitVertical();
-
-  pcSampleControlPanelContainerWidget->show();
-  topPC->show();
-  topLevel = TRUE;
-  topPC->topLevel = TRUE;
-
-//  topPC->dl_create_and_add_panel("Toolbar Panel", topPC->leftPanelContainer);
-//  topPC->dl_create_and_add_panel("Top Five Panel", topPC->leftPanelContainer);
-  topPC->dl_create_and_add_panel("Source Panel", topPC->leftPanelContainer);
-  topPC->dl_create_and_add_panel("Command Panel", topPC->rightPanelContainer);
 }
 
 
-//! Destroys the object and frees any allocated resources
-/*! The only thing that needs to be cleaned up is the baseWidgetFrame.
- */
-pcSamplePanel::~pcSamplePanel()
+ProcessControlObject::~ProcessControlObject()
 {
-  printf("  pcSamplePanel::~pcSamplePanel() destructor called\n");
-  delete frameLayout;
-  delete baseWidgetFrame;
-}
-
-//! Add user panel specific menu items if they have any.
-bool
-pcSamplePanel::menu(QPopupMenu* contextMenu)
-{
-  printf("pcSamplePanel::menu() requested.\n");
-
-  contextMenu->insertSeparator();
-  contextMenu->insertItem("&Add Collector", this, SLOT(addCollectorSelected()), CTRL+Key_A );
-  contextMenu->insertItem("&Remove Collector", this, SLOT(removeCollectorSelected()), CTRL+Key_R );
-  contextMenu->insertSeparator();
-  contextMenu->insertItem("&Add Process", this, SLOT(addProcessSelected()), CTRL+Key_A );
-  contextMenu->insertItem("&Remove Process", this, SLOT(removeProcessSelected()), CTRL+Key_R );
-  contextMenu->insertSeparator();
-  contextMenu->insertItem("&Save As ...", this, SLOT(saveAsSelected()), CTRL+Key_S ); 
-
-  return( TRUE );
-}
-
-void
-pcSamplePanel::addCollectorSelected()
-{
-  printf("pcSamplePanel::addCollectorSelected()\n");
-}   
-
-void 
-pcSamplePanel::removeCollectorSelected()
-{
-  printf("pcSamplePanel::removeCollectorSelected() requested.\n");
-}
-
-void
-pcSamplePanel::addProcessSelected()
-{
-  printf("pcSamplePanel::addProcessSelected()\n");
-}   
-
-void 
-pcSamplePanel::removeProcessSelected()
-{
-  printf("pcSamplePanel::removeProcessSelected() requested.\n");
-}
-    
-//! Save ascii version of this panel.
-/*! If the user panel provides save to ascii functionality, their function
-     should provide the saving.
- */
-void 
-pcSamplePanel::save()
-{
-  dprintf("pcSamplePanel::save() requested.\n");
-}
-
-//! Save ascii version of this panel (to a file).
-/*! If the user panel provides save to ascii functionality, their function
-     should provide the saving.  This callback will invoke a popup prompting
-     for a file name.
- */
-void 
-pcSamplePanel::saveAs()
-{
-  printf("pcSamplePanel::saveAs() requested.\n");
-}
-
-//! This function listens for messages.
-int 
-pcSamplePanel::listener(char *msg)
-{
-  dprintf("pcSamplePanel::listener() requested.\n");
-  return 0;  // 0 means, did not want this message and did not act on anything.
-}
-
-
-//! This function broadcasts messages.
-int 
-pcSamplePanel::broadcast(char *msg)
-{
-  dprintf("pcSamplePanel::broadcast() requested.\n");
-  return 0;
-}
-
-
-#ifdef OLDWAY
-void 
-pcSamplePanel::attachProcessButtonSlot()
-{
-  printf("Attach Process\n");
+//  printf("  ProcessControlObject::~ProcessControlObject() destructor called\n");
+//  delete frameLayout;
+//  delete baseWidgetFrame;
 }
 
 void 
-pcSamplePanel::detachProcessButtonSlot()
+ProcessControlObject::attachProcessButtonSlot()
 {
-  printf("Detach Process\n");
+  printf("PCO: Attach Process\n");
 }
 
 void 
-pcSamplePanel::attachCollectorButtonSlot()
+ProcessControlObject::detachProcessButtonSlot()
 {
-  printf("Attach Collector\n");
+  printf("PCO: Detach Process\n");
 }
 
 void 
-pcSamplePanel::detachCollectorButtonSlot()
+ProcessControlObject::attachCollectorButtonSlot()
 {
-  printf("Detach Collector\n");
+  printf("PCO: Attach Collector\n");
+}
+
+void 
+ProcessControlObject::detachCollectorButtonSlot()
+{
+  printf("PCO: Detach Collector\n");
 }
 
 
 void 
-pcSamplePanel::runButtonSlot()
+ProcessControlObject::runButtonSlot()
 {
-  printf("Run button pressed\n");
+  printf("PCO: Run button pressed\n");
 
 printf("# theApplication.startAllCollecting();\n");
 printf("# theApplication.setStatus(Thread::Running\n");
 
-  statusLabelText->setText( tr("Process running...") );
+//  statusLabelText->setText( tr("Process running...") );
 
   attachProcessButton->setEnabled(TRUE);
   attachCollectorButton->setEnabled(TRUE);
@@ -490,12 +320,12 @@ terminateButton->enabledFLAG = TRUE;
 
 
 void 
-pcSamplePanel::pauseButtonSlot()
+ProcessControlObject::pauseButtonSlot()
 {
-  printf("Pause button pressed\n");
+  printf("PCO: Pause button pressed\n");
 printf("# theApplication.setStatus(Thread::Suspended)\n");;
 
-  statusLabelText->setText( tr("Process suspended...") );
+//  statusLabelText->setText( tr("Process suspended...") );
 
   pauseButton->setEnabled(FALSE);
   pauseButton->enabledFLAG = TRUE;
@@ -507,12 +337,12 @@ printf("# theApplication.setStatus(Thread::Suspended)\n");;
 
 
 void 
-pcSamplePanel::continueButtonSlot()
+ProcessControlObject::continueButtonSlot()
 {
-  printf("Continue button pressed.\n");
+  printf("PCO: Continue button pressed.\n");
 printf("# theApplication.setStatus(Thread::Running\n");
 
-  statusLabelText->setText( tr("Process running...") );
+//  statusLabelText->setText( tr("Process running...") );
 
   pauseButton->setEnabled(TRUE);
   pauseButton->enabledFLAG = TRUE;
@@ -524,30 +354,30 @@ printf("# theApplication.setStatus(Thread::Running\n");
 
 
 void 
-pcSamplePanel::updateButtonSlot()
+ProcessControlObject::updateButtonSlot()
 {
-  printf("Update button pressed.\n");
+  printf("PCO: Update button pressed.\n");
 printf("Get some data!\n");
 }
 
 
 
 void 
-pcSamplePanel::interruptButtonSlot()
+ProcessControlObject::interruptButtonSlot()
 {
-  printf("Interrupt button pressed\n");
+  printf("PCO: Interrupt button pressed\n");
 }
 
 
 void 
-pcSamplePanel::terminateButtonSlot()
+ProcessControlObject::terminateButtonSlot()
 {
-  printf("Terminate button pressed\n");
+  printf("PCO: Terminate button pressed\n");
 printf("# theApplication.stopAllCollecting();???????   \n"); 
 printf("prompt for saving data.\n");
 printf("# if( response is yes, then called theApplication.saveAs();\n");
 
-  statusLabelText->setText( tr("Process terminated...") );
+//  statusLabelText->setText( tr("Process terminated...") );
 
   // set button sensitivities.
   attachProcessButton->setEnabled(TRUE);
@@ -569,16 +399,14 @@ printf("# if( response is yes, then called theApplication.saveAs();\n");
   terminateButton->setEnabled(FALSE);
   terminateButton->enabledFLAG = FALSE;
 }
-#endif // OLDWAY
 
 /*
 *  Sets the strings of the subwidgets using the current
  *  language.
  */
 void
-pcSamplePanel::languageChange()
+ProcessControlObject::languageChange()
 {
-#ifdef OLDWAY
   buttonGroup->setTitle( tr( "Process Control" ) );
   QToolTip::add( attachProcessButton, tr( "Load or attach to a process." ) );
   QToolTip::add( detachProcessButton, tr( "Detach a process from the experiment(s)." ) );
@@ -590,8 +418,7 @@ pcSamplePanel::languageChange()
   QToolTip::add( updateButton, tr( "Update the display with the current information." ) );
   QToolTip::add( interruptButton, tr( "Interrupt the current action." ) );
   QToolTip::add( terminateButton, tr( "Terminate the experiment." ) );
-#endif // OLDWAY
 
-  statusLabel->setText( tr("Status:") );
-  statusLabelText->setText( tr("No status currently available.") );
+//  statusLabel->setText( tr("Status:") );
+//  statusLabelText->setText( tr("No status currently available.") );
 }

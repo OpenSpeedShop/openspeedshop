@@ -43,8 +43,13 @@ moc_pcSamplePanel.cxx: pcSamplePanel.hxx
 moc_AnimatedQPushButton.cxx: AnimatedQPushButton.hxx
 	-moc -o moc_AnimatedQPushButton.cxx AnimatedQPushButton.hxx
 
+moc_ProcessControlObject.cxx: ProcessControlObject.hxx
+	-moc -o moc_ProcessControlObject.cxx ProcessControlObject.hxx
+
+
 pcSamplePanel_la_SOURCES = \
 	AnimatedQPushButton.hxx AnimatedQPushButton.cxx moc_AnimatedQPushButton.cxx \
 	pcSamplePanel.hxx pcSamplePanel.cxx moc_pcSamplePanel.cxx \
+	ProcessControlObject.hxx ProcessControlObject.cxx moc_ProcessControlObject.cxx \
 	plugin_entry_point.hxx Panel.hxx \
 	PanelContainer.hxx local_plugin_info.hxx debug.hxx
