@@ -25,38 +25,23 @@
 pkglib_LTLIBRARIES = posscli.la
 
 posscli_la_CXXFLAGS =  \
-	-c -LANG:std \
+	-c -LANG:std -fpic \
 	-I. \
 	-I../libssf \
 	-I/perftools/ROOT/include/python2.3 \
 	-I/usr/include -I. -I../objects -I../base
 
-posscli_la_LDFLAGS = --export-dynamic -module -avoid-version -Wl,/perftools/ROOT/lib/python2.3/config/libpython2.3.a -lpthread -lutil -LANG:std -ldl
+posscli_la_LDFLAGS = -fpic --export-dynamic -module -avoid-version -Wl,/perftools/ROOT/lib/libpython2.3.so -lpthread -lutil -LANG:std -ldl
 
 posscli_la_LIBADD = $(LIBLTDL)
 
-posscli_la_SOURCES = Start_Modes.cxx Commander.cxx Experiment.cxx PY_Input.cxx
+posscli_la_SOURCES = Start.cxx Start_Modes.cxx Commander.cxx Experiment.cxx SS_Util.cxx
 
 
 
 
 bin_PROGRAMS = pcli
 
-pcli_la_CXXFLAGS = \
-	-c -LANG:std \
-	-I. \
-	-I../libssf \
-	-I/perftools/ROOT/include/python2.3
-
-LDFLAGS = /perftools/ROOT/lib/python2.3/config/libpython2.3.a -lpthread -lutil -LANG:std -ldl
-
 pcli:
-	if test -f /perftools/ROOT/lib/python2.3/config/libpython2.3.a ; then \
-		g++ $(pcli_la_CXXFLAGS) -fpic -c Start.cxx; \
-		g++ $(pcli_la_CXXFLAGS) -fpic -c Start_Modes.cxx; \
-		g++ $(pcli_la_CXXFLAGS) -fpic -c Commander.cxx; \
-		g++ $(pcli_la_CXXFLAGS) -fpic -c Experiment.cxx; \
-		g++ $(pcli_la_CXXFLAGS) -fpic -c PY_Input.cxx; \
-		g++ -dynamic -fpic -o pcli Start.o Start_Modes.o Commander.o Experiment.o PY_Input.o $(LDFLAGS); \
-	 fi;
-
+	-rm -f $(OPENSPEEDSHOP_PLUGIN_PATH)/myparse.py;
+	-cp myparse.py $(OPENSPEEDSHOP_PLUGIN_PATH);
