@@ -118,9 +118,13 @@ class InputLineObject
     }
 
   void SetStatus (Input_Line_Status st) {
+   // Capture only the first error
+    if (status != ILO_ERROR) {
+      Assert (status != ILO_COMPLETE);
       cmd_time = time(0);
       status = st;
       status_change ();
+    }
   }
   void SetSeq (CMDID seq) {seq_num = seq;}
   CMDID Seq () { return seq_num; }
