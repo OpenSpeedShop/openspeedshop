@@ -37,6 +37,8 @@
 
 namespace OpenSpeedShop { namespace Framework {
 
+    class Blob;
+
     /**
      * Instrumentor.
      *
@@ -58,7 +60,7 @@ namespace OpenSpeedShop { namespace Framework {
 	void loadLibrary(const Thread&, const std::string&);
 	void unloadLibrary(const Thread&, const std::string&);
 	void execute(const Thread&, const std::string&, const std::string&,
-		     const std::string&);
+		     const Blob&);
     }
     
 } }

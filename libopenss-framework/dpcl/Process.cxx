@@ -23,6 +23,7 @@
  */
 
 #include "Assert.hxx"
+#include "Blob.hxx"
 #include "Guard.hxx"
 #include "MainLoop.hxx"
 #include "Process.hxx"
@@ -980,11 +981,11 @@ void Process::unloadLibrary(const std::string& library)
  *
  * @param library     Name of library containing function to be executed.
  * @param function    Name of function to be executed.
- * @param argument    String argument to the function.
+ * @param argument    Blob argument to the function.
  */
 void Process::execute(const std::string& library,
 		      const std::string& function,
-		      const std::string& argument)
+		      const Blob& argument)
 {    
     Guard guard_myself(this);
 
@@ -1013,8 +1014,8 @@ void Process::execute(const std::string& library,
     // Obtain a probe expression reference for the function
     ProbeExp function_exp = i->second.module->get_reference(j->second);
 
-    // Create a probe experssion for the argument
-    ProbeExp argument_exp(argument.c_str());
+    // Create a probe experssion for the argument (first encoded as a string)
+    ProbeExp argument_exp(encodeBlobAsString(argument).c_str());
     
     // Create a probe expression for the function call
     ProbeExp call_exp = function_exp.call(1, &argument_exp);
@@ -1024,6 +1025,65 @@ void Process::execute(const std::string& library,
     AisStatus retval = dm_process->bexecute(call_exp, NULL, NULL);
     Assert(retval.status() == ASC_success);
     MainLoop::resume();    
+}
+
+
+
+/**
+ * Encode a blob as a string.
+ *
+ * Encodes a blob into a standard (0x00 terminated) C string. This is done by
+ * replacing all occurences of 0x00 within the blob with a different, "safe",
+ * non-zero byte value. In addition, all previous occurences of that safe value
+ * are doubled up. For example, if the safe value is 0x22, the translations
+ * ( 0x00 --> 0x22 ) and ( 0x22 --> 0x22 0x22 ) are applied to each byte in the
+ * blob. This encoding is easily reversed and imposes minimal overhead.
+ *
+ * @note    The only reason this encoding is even necessary is that DPCL only
+ *          allows passing a restricted subset of types (integers, floats, and
+ *          strings) as parameters when calling a library function. We can get
+ *          about 95% around this by utilizing blobs containing XDR encodings
+ *          of arbitrary data structures. Those blobs, however, contain 0x00
+ *          bytes that prevent them from being directly passed to the library
+ *          function as a string. This encoding gets us the last 5% of the way.
+ *
+ * @note    The safe value is chosen to be a non-zero byte that isn't likely
+ *          to occur frequently in a typical blob. This minimizes the overhead
+ *          imposed by the encoding. Using 0x01, 0x80, 0xFE, or 0xFF, for
+ *          example, would be a poor choice because they all occur frequently
+ *          in structures containing integer or floating-point values.
+ *
+ * @param blob    Blob to be encoded.
+ * @return        String encoding of the blob.
+ */
+std::string Process::encodeBlobAsString(const Blob& blob)
+{
+    std::string encoding;
+    
+    // Constants used in encoding
+    const char ZeroValue = 0x00;
+    const char SafeValue = 0xBA;
+    
+    // Iterate over each byte in the blob
+    for(unsigned i = 0; i < blob.getSize(); ++i) {	
+	char byte = reinterpret_cast<const char*>(blob.getContents())[i];
+	
+	// Replace zero values with the safe value
+	if(byte == ZeroValue)
+	    encoding.append(1, SafeValue);
+	
+	// Double-up occurences of the safe value
+	else if(byte == SafeValue)
+	    encoding.append(2, SafeValue);
+	
+	// Otherwise pass the byte through unchanged
+	else
+	    encoding.append(1, byte);
+	
+    }
+    
+    // Return the encoding to the caller
+    return encoding;
 }
 
 

@@ -23,6 +23,7 @@
  */
 
 #include "Assert.hxx"
+#include "Blob.hxx"
 #include "Database.hxx"
 #include "Guard.hxx"
 #include "Instrumentor.hxx"
@@ -318,12 +319,12 @@ void Instrumentor::unloadLibrary(const Thread& thread,
  * @param thread      Thread in which the function should be executed.
  * @param library     Name of library containing function to be executed.
  * @param function    Name of function to be executed.
- * @param argument    String argument to the function.
+ * @param argument    Blob argument to the function.
  */
 void Instrumentor::execute(const Thread& thread,
 			   const std::string& library,
 			   const std::string& function,
-			   const std::string& argument)
+			   const Blob& argument)
 {
     SmartPtr<Process> process;
     

@@ -29,6 +29,8 @@
 #include "config.h"
 #endif
 
+#include <rpc/rpc.h>
+
 
 
 namespace OpenSpeedShop { namespace Framework {
@@ -36,8 +38,11 @@ namespace OpenSpeedShop { namespace Framework {
     /**
      * Binary large object.
      *
-     * ...
-     *     
+     * Encapsulates a buffer of raw, untyped, binary data. Relational database
+     * management systems typically use such "blobs" to store data which has a
+     * unknown structure. Mechanisms are also provided here for performing XDR
+     * encoding/decoding of typed data structures to/from such blobs.
+     *
      * @sa    http://www.hyperdictionary.com/computing/binary+large+object
      *
      * @ingroup Utility
@@ -50,10 +55,11 @@ namespace OpenSpeedShop { namespace Framework {
 	Blob();
 	Blob(const Blob&);
 	Blob(const unsigned&, const void*);
+	Blob(const xdrproc_t, const void*);	
 	~Blob();
-
+	
 	Blob& operator=(const Blob&);
-
+	
 	/** Read-only data member accessor function. */
 	const unsigned& getSize() const
 	{
@@ -65,6 +71,10 @@ namespace OpenSpeedShop { namespace Framework {
 	{
 	    return dm_contents;
 	}
+
+	void getXDRDecoding(const xdrproc_t, void*) const;	
+
+	bool isEmpty() const;
 
     private:
 

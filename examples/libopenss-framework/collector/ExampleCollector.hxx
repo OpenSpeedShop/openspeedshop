@@ -39,7 +39,9 @@ namespace OpenSpeedShop { namespace Framework {
      * Example collector.
      *
      * Simple example performance data collector illustrating the basics of the
-     * Collector API. Gathers ...
+     * Collector API. Periodically interrupts the running thread, obtains the
+     * current program counter (PC) value, increments a counter associated with
+     * that PC value, and allows the thread to continue execution.
      */
     class ExampleCollector :
 	public CollectorImpl
@@ -49,6 +51,12 @@ namespace OpenSpeedShop { namespace Framework {
 	
 	ExampleCollector();    
 
+	virtual Blob getDefaultParameterValues() const;
+	virtual void getParameterValue(const std::string&,
+				       const Blob&, void*) const;
+	virtual void setParameterValue(const std::string&,
+				       const void*, Blob&) const;
+	
 	virtual void startCollecting(const Collector&, const Thread&) const;
 	virtual void stopCollecting(const Collector&, const Thread&) const;
 

@@ -130,16 +130,10 @@ namespace {
 	"CREATE TABLE Collectors ("
 	"    id INTEGER PRIMARY KEY,"
 	"    unique_id TEXT,"
+	"    parameter_data BLOB DEFAULT NULL,"
 	"    is_collecting INTEGER DEFAULT 0"
 	");",
 	
-	// Parameter Table
-	"CREATE TABLE Parameters ("
-	"    collector INTEGER," // From Collectors.id
-	"    unique_id TEXT,"
-	"    value TEXT"
-	");",
-
 	// Attachments Table
 	"CREATE TABLE Attachments ("
 	"    collector INTEGER," // From Collectors.id
@@ -154,7 +148,7 @@ namespace {
 	"    time_end INTEGER,"
 	"    addr_begin INTEGER,"
 	"    addr_end INTEGER,"
-	"    raw_data BLOB"
+	"    data BLOB"
 	");",
 
 	// Remove address spaces referencing removed threads
@@ -181,13 +175,6 @@ namespace {
 	"        DELETE FROM Files"
 	"            WHERE id NOT IN (SELECT file FROM LinkedObjects) AND"
 	"                  id NOT IN (SELECT file FROM Statements);"
-	"    END;",
-
-	// Remove parameters referencing removed collectors
-	"CREATE TRIGGER RemoveParametersOnCollectors"
-	"    AFTER DELETE ON Collectors FOR EACH ROW"
-	"    BEGIN"
-        "        DELETE FROM Parameters WHERE collector = OLD.id;"
 	"    END;",
 
 	// Remove attachments referencing removed threads or collectors
@@ -640,8 +627,10 @@ Collector Experiment::createCollector(const std::string& unique_id) const
 {
     Collector collector;
 
+    // Begin a multi-statement transaction
+    BEGIN_TRANSACTION(dm_database);
+
     // Create the collector
-    BEGIN_TRANSACTION(dm_database); 
     dm_database->prepareStatement(
 	"INSERT INTO Collectors (unique_id) VALUES (?);"
 	);
@@ -652,6 +641,11 @@ Collector Experiment::createCollector(const std::string& unique_id) const
 	throw std::invalid_argument("Cannot create a collector instance for "
 				    "unknown unique identifier \"" + unique_id +
 				    "\".");
+
+    // Update collector with default parameter values
+    collector.setParameterData(collector.dm_impl->getDefaultParameterValues());
+    
+    // End this multi-statement transaction
     END_TRANSACTION(dm_database);
     
     // Return the collector to the caller

@@ -36,6 +36,7 @@ libopenss_framework_la_SOURCES = \
 	Address.hxx \
 	AddressRange.hxx \
 	Assert.hxx \
+	Blob.hxx Blob.cxx \
 	CallSite.hxx CallSite.cxx \
 	Collector.hxx Collector.cxx \
 	CollectorAPI.hxx \

@@ -33,5 +33,8 @@ tool_SOURCES = \
 mutatee_CFLAGS = \
 	-g -gdwarf-2
 
+mutatee_LDADD = \
+	-ldl
+
 mutatee_SOURCES = \
 	mutatee.c

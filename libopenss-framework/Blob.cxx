@@ -22,8 +22,10 @@
  *
  */
 
+#include "Assert.hxx"
 #include "Blob.hxx"
 
+#include <stdexcept>
 #include <string.h>
 
 using namespace OpenSpeedShop::Framework;
@@ -33,7 +35,7 @@ using namespace OpenSpeedShop::Framework;
 /**
  * Default constructor.
  *
- * Constructs an empty Blob whose size is zero and contents is NULL.
+ * Constructs an empty Blob whose size is zero and contents is null.
  */
 Blob::Blob() :
     dm_size(0),
@@ -53,11 +55,18 @@ Blob::Blob() :
  * @param other    Blob to be copied.
  */
 Blob::Blob(const Blob& other) :
-    dm_size(other.dm_size),
+    dm_size(0),
     dm_contents(NULL)
 {
-    dm_contents = new char[dm_size];
-    memcpy(dm_contents, other.dm_contents, dm_size);
+    // Only do an actual copy if the other blob is non-empty
+    if((other.dm_size > 0) && (other.dm_contents != NULL)) {
+	
+	// Make a copy of the blob
+	dm_size = other.dm_size;
+	dm_contents = new char[dm_size];
+	memcpy(dm_contents, other.dm_contents, dm_size);
+	
+    }
 }
 
 
@@ -72,11 +81,72 @@ Blob::Blob(const Blob& other) :
  * @param contents    Pointer to the blob's contents.
  */
 Blob::Blob(const unsigned& size, const void* contents) :
-    dm_size(size),
+    dm_size(0),
     dm_contents(NULL)
 {
+    // Check assertions
+    Assert(size > 0);
+    Assert(contents != NULL);
+    
+    // Make a copy of the blob's contents
+    dm_size = size;
     dm_contents = new char[dm_size];
     memcpy(dm_contents, contents, dm_size);
+}
+
+
+
+/**
+ * Constructor from XDR encoding.
+ *
+ * Constructs a new Blob containing the XDR encoding of the specified data
+ * structure. The XDR procedure for the specified data structure's type must
+ * also be passed as a parameter.
+ *
+ * @note    The size of the XDR encoding for the data structure cannot be
+ *          determined apriori. As a result, we end up trying to make some
+ *          semi-intelligent guesses at appropriate encoding buffer sizes.
+ *          Basically we keep increasing the size until it is large enough.
+ *          This is not pretty and maybe could be improved in the future.
+ *
+ * @param xdrproc    XDR procedure for the passed data type.
+ * @param data       Pointer to the data structure to be encoded.
+ */
+Blob::Blob(const xdrproc_t xdrproc, const void* data) :
+    dm_size(0),
+    dm_contents(NULL)
+{
+    // Check assertions
+    Assert(xdrproc != NULL);
+    Assert(data != NULL);
+    
+    // Iteratively allocate increasingly large buffers to hold the XDR encoding
+    for(unsigned size = 1024; dm_contents == NULL; size *= 2) {
+	
+	// Allocate the encoding buffer
+	char* buffer = new char[size];
+	
+	// Create an XDR stream using the encoding buffer
+	XDR xdrs;
+	xdrmem_create(&xdrs, buffer, size, XDR_ENCODE);
+
+	// Attempt to encode the data structure to this stream
+	if((*xdrproc)(&xdrs, const_cast<void*>(data)) == TRUE) {
+	    
+	    // Success! Make this encoding the blob's contents
+	    dm_size = xdr_getpos(&xdrs);
+	    dm_contents = buffer;
+	    
+	}
+	
+	// Close the XDR stream
+	xdr_destroy(&xdrs);
+	
+	// Destroy the encoding buffer if encoding failed
+	if(dm_contents == NULL)
+	    delete buffer;
+	
+    }    
 }
 
 
@@ -108,14 +178,81 @@ Blob& Blob::operator=(const Blob& other)
 	
 	// Destroy our current contents (if any)
 	delete reinterpret_cast<char*>(dm_contents);
+
+	// Only do an actual copy if the RHS is a non-empty blob
+	if((other.dm_size > 0) && (other.dm_contents != NULL)) {
+
+	    // Copy the RHS blob
+	    dm_size = other.dm_size;
+	    dm_contents = new char[dm_size];
+	    memcpy(dm_contents, other.dm_contents, dm_size);
 	
-	// Replace with the new blob
-	dm_size = other.dm_size;
-	dm_contents = new char[dm_size];
-	memcpy(dm_contents, other.dm_contents, dm_size);
+	}
 
     }
 
     // Return ourselves to the caller
     return *this;
+}
+
+
+
+/**
+ * Get XDR decoding of contents.
+ *
+ * Gets an XDR decoding of the blob's contents, placed into a caller-provided
+ * data structure. The XDR procedure for the specified data structure's type
+ * must also be passed as a parameter.
+ *
+ * @note    An exception of type std::logic_error is thrown if the XDR decoding
+ *          of the blob's contents fails for any reason.
+ *
+ * @note    It is crucial that the data structure be initialized to zero by
+ *          the caller before being passed into this function. In several places
+ *          where decoding variable length data, such as in xdr_string(), the
+ *          XDR library assumes that if it finds a non-null pointer it can
+ *          simply use the memory at that location. If that pointer is a bunch
+ *          of uninitialized values, a crash is almost certain. The memory
+ *          cannot be zeroed here because we don't know the type (or even the
+ *          size) of the data structure.
+ *
+ * @note    It is the responsibility of the caller to use xdr_free() in order
+ *          to free the decoded data structure when it is no longer needed.
+ *
+ * @param xdrproc    XDR procedure for the returned data type.
+ * @retval data      Pointer to the decoded data structure.
+ */
+void Blob::getXDRDecoding(const xdrproc_t xdrproc, void* data) const
+{
+    // Check assertions
+    Assert(xdrproc != NULL);
+    Assert(data != NULL);
+
+    // Open an XDR stream using our contents
+    XDR xdrs;
+    xdrmem_create(&xdrs, reinterpret_cast<char*>(dm_contents),
+		  dm_size, XDR_DECODE);
+    
+    // Attempt to decode the data structure from this stream
+    if((*xdrproc)(&xdrs, const_cast<void*>(data)) == FALSE)
+	throw std::runtime_error("Cannot decode this blob's contents into "
+				 "the specified data structure.");
+    
+    // Close the XDR stream
+    xdr_destroy(&xdrs);    
+}
+
+
+
+/**
+ * Test if empty.
+ *
+ * Returns a boolean value indicating if the blob is empty (has a zero size or
+ * null contents).
+ *
+ * @return    Boolean "true" if the blob is empty, "false" otherwise.
+ */
+bool Blob::isEmpty() const
+{
+    return (dm_size == 0) || (dm_contents == NULL);
 }

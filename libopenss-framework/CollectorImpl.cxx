@@ -22,6 +22,7 @@
  *
  */
 
+#include "Blob.hxx"
 #include "CollectorImpl.hxx"
 #include "Instrumentor.hxx"
 
@@ -177,12 +178,12 @@ void CollectorImpl::unloadLibrary(const Thread& thread,
  * @param thread      Thread in which the function should be executed.
  * @param library     Name of library containing function to be executed.
  * @param function    Name of function to be executed.
- * @param argument    String argument to the function.
+ * @param argument    Blob argument to the function.
  */
 void CollectorImpl::execute(const Thread& thread,
 			    const std::string& library,
 			    const std::string& function,
-			    const std::string& argument) const
+			    const Blob& argument) const
 {
     Instrumentor::execute(thread, library, function, argument);
 }

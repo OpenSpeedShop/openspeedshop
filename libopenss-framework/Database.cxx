@@ -24,6 +24,7 @@
 
 #include "Address.hxx"
 #include "Assert.hxx"
+#include "Blob.hxx"
 #include "Database.hxx"
 #include "Time.hxx"
 
@@ -287,7 +288,7 @@ void Database::beginTransaction()
  * Prepare a SQL statement.
  *
  * Prepares the passed SQL statement for execution by parsing it. After parsing,
- * any arguments to the statement are cleared by binding them to NULL values.
+ * any arguments to the statement are cleared by binding them to null values.
  * Performance is improved by automatically caching parsed prepared statements
  * so that subsequent executions of the same query will not require parsing.
  *
@@ -357,42 +358,6 @@ void Database::prepareStatement(const std::string& statement)
     // Bind NULL values to all arguments of this statement
     for(int i = 1; i <= sqlite3_bind_parameter_count(dm_current_statement); ++i)
 	Assert(sqlite3_bind_null(dm_current_statement, i) == SQLITE_OK);
-}
-
-
-
-/**
- * Bind arbitrary data to an argument.
- *
- * Binds the passed arbitrary data blob to the specified numbered argument of
- * the currently prepared statement. Arguments in a SQL statement are indicated
- * by wildcard ('?') characters. For example, "INSERT INTO tbl VALUES (?,?);"
- * has two arguments numbered "1" and "2".
- *
- * @note    Arguments may only be bound after a statement has previously been
- *          prepared via a call to prepareStatement(). Any attempt to bind an
- *          argument before preparing a statement will result in an assertion
- *          failure.
- *
- * @note    Attempting to bind an argument index less than one or greater than
- *          the number of bindable arguments in the currently prepared statement
- *          will result in an assertion failure.
- *
- * @param index    Index (number) of argument to be bound.
- * @param ptr      Pointer to the data blob to be bound to this argument.
- * @param size     Size of the data blob to be bound to this argument.
- */
-void Database::bindArgument(const unsigned& index, 
-			    const void* ptr, const unsigned& size)
-{
-    // Check assertions
-    Assert(dm_current_statement != NULL);
-    Assert((index > 0) && 
-	   (index <= sqlite3_bind_parameter_count(dm_current_statement)));
-    
-    // Bind the argument
-    Assert(sqlite3_bind_blob(dm_current_statement, index, ptr, size,
-			     SQLITE_TRANSIENT) == SQLITE_OK);
 }
 
 
@@ -495,6 +460,40 @@ void Database::bindArgument(const unsigned& index, const double& value)
     // Bind the argument
     Assert(sqlite3_bind_double(dm_current_statement, index,
 			       value) == SQLITE_OK);
+}
+
+
+
+/**
+ * Bind a blob to an argument.
+ *
+ * Binds the passed blob value to the specified numbered argument of the
+ * currently prepared statement. Arguments in a SQL statement are indicated
+ * by wildcard ('?') characters. For example, "INSERT INTO tbl VALUES (?,?);"
+ * has two arguments numbered "1" and "2".
+ *
+ * @note    Arguments may only be bound after a statement has previously been
+ *          prepared via a call to prepareStatement(). Any attempt to bind an
+ *          argument before preparing a statement will result in an assertion
+ *          failure.
+ *
+ * @note    Attempting to bind an argument index less than one or greater than
+ *          the number of bindable arguments in the currently prepared statement
+ *          will result in an assertion failure.
+ *
+ * @param index    Index (number) of argument to be bound.
+ * @param value    Value to be bound to this argument.
+ */
+void Database::bindArgument(const unsigned& index, const Blob& value)
+{
+    // Check assertions
+    Assert(dm_current_statement != NULL);
+    Assert((index > 0) && 
+	   (index <= sqlite3_bind_parameter_count(dm_current_statement)));
+
+    // Bind the argument
+    Assert(sqlite3_bind_blob(dm_current_statement, index, value.getContents(),
+			     value.getSize(), SQLITE_TRANSIENT) == SQLITE_OK);
 }
 
 
@@ -636,44 +635,6 @@ bool Database::getResultIsNull(const unsigned& index) const
 
 
 /**
- * Get a blob result.
- *
- * Obtains a blob of arbitrary data from the specified numbered column in the
- * active row of the currently executing statement.
- *
- * @note    Results may be obtained only after a statement has previously been
- *          executed via a call to executeStatement(). Any attempt to obtain a
- *          result from a column before executing a statement will result in an
- *          assertion failure.
- *
- * @note    Attempting to obtain a result for a column index less than one
- *          or greater than the number of columns in the currently prepared
- *          statement will result in an assertion failure.
- *
- * @param index    Index (number) of column to obtain.
- * @return         Blob result from this column. Returned as a pairing of the
- *                 data size with a pointer to the actual data.
- */
-std::pair<unsigned, const void*>
-Database::getResultAsBlob(const unsigned& index) const
-{
-    // Check assertions
-    Assert(dm_current_statement != NULL);
-    Assert((index > 0) &&
-	   (index <= sqlite3_column_count(dm_current_statement)));
-    
-    // Get the result
-    std::pair<unsigned, const void*> result;
-    result.first = sqlite3_column_bytes(dm_current_statement, index - 1);
-    result.second = sqlite3_column_blob(dm_current_statement, index - 1);    
-    
-    // Return the result to the caller
-    return result;
-}
-    
-
-
-/**
  * Get a string result.
  *
  * Obtains a string from the specified numbered column in the active row of the
@@ -763,6 +724,38 @@ double Database::getResultAsReal(const unsigned& index) const
 
     // Return the result to the caller
     return sqlite3_column_double(dm_current_statement, index - 1);
+}
+
+
+
+/**
+ * Get a blob result.
+ *
+ * Obtains a blob from the specified numbered column in the active row of the
+ * currently executing statement.
+ *
+ * @note    Results may be obtained only after a statement has previously been
+ *          executed via a call to executeStatement(). Any attempt to obtain a
+ *          result from a column before executing a statement will result in an
+ *          assertion failure.
+ *
+ * @note    Attempting to obtain a result for a column index less than one
+ *          or greater than the number of columns in the currently prepared
+ *          statement will result in an assertion failure.
+ *
+ * @param index    Index (number) of column to obtain.
+ * @return         Blob result from this column.
+ */
+Blob Database::getResultAsBlob(const unsigned& index) const
+{
+    // Check assertions
+    Assert(dm_current_statement != NULL);
+    Assert((index > 0) &&
+	   (index <= sqlite3_column_count(dm_current_statement)));
+    
+    // Return the result to the caller
+    return Blob(sqlite3_column_bytes(dm_current_statement, index - 1),
+		sqlite3_column_blob(dm_current_statement, index - 1));
 }
 
 

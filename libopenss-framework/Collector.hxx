@@ -30,6 +30,7 @@
 #endif
 
 #include "AddressRange.hxx"
+#include "Blob.hxx"
 #include "CollectorImpl.hxx"
 #include "Metadata.hxx"
 #include "SmartPtr.hxx"
@@ -118,6 +119,9 @@ namespace OpenSpeedShop { namespace Framework {
 	Collector(const SmartPtr<Database>&, const int&);
 	
 	void validateEntry() const;
+
+	Blob getParameterData() const;
+	void setParameterData(const Blob&) const;	
 	
 	/** Database containing this collector. */
         SmartPtr<Database> dm_database;
@@ -176,8 +180,14 @@ namespace OpenSpeedShop { namespace Framework {
             throw std::invalid_argument("Parameter \"" + unique_id +
                                         "\" can't be read as a value with a "
                                         "type other than its own.");
+	
+	// Get our parameter data
+	Blob blob = getParameterData();
+	
+	// Extract the parameter value
+	dm_impl->getParameterValue(unique_id, blob, &value);
     }
-
+    
 
 
     /**
@@ -224,8 +234,17 @@ namespace OpenSpeedShop { namespace Framework {
             throw std::invalid_argument("Parameter \"" + unique_id +
                                         "\" can't be written as a value with "
                                         "a type other than its own.");
-    }
+		
+	// Get our parameter data
+	Blob blob = getParameterData();
 
+	// Set the parameter value
+	dm_impl->setParameterValue(unique_id, &value, blob);
+	
+	// Set our parameter data
+	setParameterData(blob);
+    }
+    
 
 
     /**

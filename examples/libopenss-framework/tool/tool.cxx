@@ -28,17 +28,17 @@ using namespace OpenSpeedShop::Framework;
 int main(int argc, char* argv[])
 {
     // Display usage information when necessary
-    if(argc < 3) {
+    if(argc < 2) {
         std::cout << "Usage: "
                   << ((argc > 0) ? argv[0] : "???")
-                  << " <function> <a.out> <args>" << std::endl;
+                  << " <a.out> <args>" << std::endl;
 	return 1;
     }
     
     // Build a command string from the passed arguments
     std::string command;
-    for(int i = 2; i < argc; ++i) {
-        if(i > 2)
+    for(int i = 1; i < argc; ++i) {
+        if(i > 1)
             command += " ";
         command += argv[i];
     }
@@ -46,24 +46,17 @@ int main(int argc, char* argv[])
     try {
 	
 	// Create and open an experiment
-	std::string name = std::string(argv[2]) + ".openss";
+	std::string name = std::string(argv[1]) + ".openss";
 	Experiment::create(name);
 	Experiment experiment(name);
 	
 	// Create a process for the command in the suspended state
 	Thread thread = experiment.createProcess(command);
 
-	// Find the requested function within this thread
-	Optional<Function> function = thread.getFunctionByName(argv[1]);
-	if(!function.hasValue())
-	    throw std::runtime_error("Cannot find function " + 
-				     std::string(argv[1]) +
-				     "() in this process.");
-	
-	// Create the example collector and set its parameter
+	// Create the example collector and set its sampling rate
 	Collector collector = experiment.createCollector("example");
-	collector.setParameterValue("function", function.getValue());
-	
+	collector.setParameterValue("sampling_rate", (unsigned)10);
+
 	// Attach this process to the collector and start collecting data
 	collector.attachThread(thread);
 	collector.startCollecting();
@@ -73,20 +66,8 @@ int main(int argc, char* argv[])
 	while(!experiment.getThreads().areAllState(Thread::Terminated))
 	    sleep(1);
 	
-	// Evaluate the time metric for this function
-	double t;
-	collector.getMetricValue("time", thread,
-				 function.getValue().getAddressRange(),
-				 TimeInterval(Time::TheBeginning(),
-					      Time::TheEnd()),
-				 t);
-	
-	// Show the amount of time spent in this function
-	std::cout << std::endl
-		  << "Spent " << t << " seconds executing "
-		  << function.getValue().getName() << "()." << std::endl
-		  << std::endl;
-	
+	// TODO: metric evaluation
+
     }
     catch(const std::exception& error) {
 	std::cerr

@@ -40,9 +40,7 @@ namespace OpenSpeedShop { namespace Framework {
      *
      * Periodically interupts the running process, obtains the current program
      * counter (PC) value, increments a running counter associated with that
-     * value, and allows the process to continue execution. All of this is
-     * implemented directly in the kernel to allow for minimal perturbation of
-     * the process' behavior.
+     * value, and allows the process to continue execution.
      */
     class PCSampCollector :
 	public CollectorImpl
@@ -52,13 +50,6 @@ namespace OpenSpeedShop { namespace Framework {
 	
 	PCSampCollector();    
 
-	virtual void startCollecting(const Collector&, const Thread&) const;
-	virtual void stopCollecting(const Collector&, const Thread&) const;
-
-	virtual void getMetricValue(const std::string&, const Thread&,
-				    const AddressRange&, const TimeInterval&,
-				    void*) const;
-	
     };
     
 } }

@@ -35,7 +35,6 @@
 #include <pthread.h>
 #include <stdexcept>
 #include <string>
-#include <utility>
 
 struct sqlite3;
 struct sqlite3_stmt;
@@ -45,6 +44,7 @@ struct sqlite3_stmt;
 namespace OpenSpeedShop { namespace Framework {
 
     class Address;
+    class Blob;
     class Time;
 
     /**
@@ -114,20 +114,20 @@ namespace OpenSpeedShop { namespace Framework {
 	void beginTransaction();
 	void prepareStatement(const std::string&);
 	
-	void bindArgument(const unsigned&, const void*, const unsigned&);
 	void bindArgument(const unsigned&, const std::string&);
 	void bindArgument(const unsigned&, const int&);
-	void bindArgument(const unsigned&, const double&);	
+	void bindArgument(const unsigned&, const double&);
+	void bindArgument(const unsigned&, const Blob&);
 	void bindArgument(const unsigned&, const Address&);
 	void bindArgument(const unsigned&, const Time&);
 	
 	bool executeStatement();
 
 	bool getResultIsNull(const unsigned&) const;
-	std::pair<unsigned, const void*> getResultAsBlob(const unsigned&) const;
 	std::string getResultAsString(const unsigned&) const;
 	int getResultAsInteger(const unsigned&) const;
 	double getResultAsReal(const unsigned&) const;
+	Blob getResultAsBlob(const unsigned&) const;
 	Address getResultAsAddress(const unsigned&) const;
 	Time getResultAsTime(const unsigned&) const;
 

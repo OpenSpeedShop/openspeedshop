@@ -29,6 +29,8 @@
 #include "config.h"
 #endif
 
+#include "Blob.hxx"
+
 #include "CallSite.hxx"
 #include "CollectorImpl.hxx"
 #include "Function.hxx"

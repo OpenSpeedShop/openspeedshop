@@ -48,6 +48,7 @@ class SourceObj;
 
 namespace OpenSpeedShop { namespace Framework {
 
+    class Blob;
     class Time;
 
     /**
@@ -86,11 +87,12 @@ namespace OpenSpeedShop { namespace Framework {
 			    std::vector<SourceObj>&);
 	void loadLibrary(const std::string&);
 	void unloadLibrary(const std::string&);
-	void execute(const std::string&, const std::string&,
-		     const std::string&);
+	void execute(const std::string&, const std::string&, const Blob&);
 
     private:
-	
+
+	static std::string encodeBlobAsString(const Blob&);
+
 	/** DPCL process handle. */
 	::Process* dm_process;
 	

@@ -1,5 +1,5 @@
 /*******************************************************************************
-** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+** Copyright (c) 2004 Silicon Graphics, Inc. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -18,25 +18,13 @@
 
 /** @file
  *
- * Declaration and definition of the example collector's runtime.
+ * Specification of the example collector's blobs.
  *
  */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
-#include "RuntimeAPI.h"
 
 
-
-/**
- * ...
- *
- * ...
- *
- * @param arguments    ...
- */
-void example_start_sampling(const char* arguments)
-{
-}
+/** Structure of blob containing our parameters. */
+struct example_parameters {
+    unsigned sampling_rate;  /**< Sampling rate in samples/milliseconds. */
+};

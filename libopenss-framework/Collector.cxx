@@ -24,7 +24,6 @@
 
 #include "Assert.hxx"
 #include "Collector.hxx"
-#include "CollectorImpl.hxx"
 #include "Database.hxx"
 #include "Guard.hxx"
 #include "Lockable.hxx"
@@ -1061,4 +1060,57 @@ void Collector::validateEntry() const
     else if(rows > 1)
 	throw Database::Corrupted(*dm_database,
 				  "collector entry is not unique");
+}
+
+
+
+/**
+ * Get our parameter data.
+ *
+ * Return the parameter data of this collector.
+ *
+ * @return    Parameter data for this collector.
+ */
+Blob Collector::getParameterData() const
+{
+    // Check assertions
+    Assert(!dm_database.isNull());
+
+    // Find our parameter data
+    Blob data;
+    BEGIN_TRANSACTION(dm_database);
+    validateEntry();
+    dm_database->prepareStatement(
+        "SELECT parameter_data FROM Collectors WHERE id = ?;"
+        );
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement())
+        data = dm_database->getResultAsBlob(1);
+    END_TRANSACTION(dm_database);
+
+    // Return the parameter data to the caller
+    return data;
+}
+
+
+
+/**
+ * Set our parameter data.
+ *
+ * Sets the paramter data of this collector.
+ *
+ * @param data    Parameter data to be set.
+ */
+void Collector::setParameterData(const Blob& data) const
+{
+    // Update our parameter data
+    BEGIN_TRANSACTION(dm_database);
+    validateEntry();
+    dm_database->prepareStatement(
+	"UPDATE Collectors SET parameter_data = ? WHERE id = ?;"
+	);
+    dm_database->bindArgument(1, data);
+    dm_database->bindArgument(2, dm_entry);
+    while(dm_database->executeStatement());
+    END_TRANSACTION(dm_database);
 }

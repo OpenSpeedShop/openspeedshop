@@ -24,8 +24,7 @@ pcsamp_la_CXXFLAGS = \
 pcsamp_la_LDFLAGS = \
 	-no-undefined -module -avoid-version
 
-pcsamp_la_SOURCES = \
-	PCSampCollector.hxx PCSampCollector.cxx
+pcsamp_la_SOURCES =
 
 pcsamp_rt_la_CFLAGS = \
 	-I$(top_srcdir)/libopenss-frameworkrt
@@ -33,5 +32,11 @@ pcsamp_rt_la_CFLAGS = \
 pcsamp_rt_la_LDFLAGS = \
 	-no-undefined -module -avoid-version
 
-pcsamp_rt_la_SOURCES = \
-	PCSampCollectorRT.c
+pcsamp_rt_la_SOURCES =
+
+SUFFIXES = .x
+CLEANFILES = blobs.h blobs.c
+
+blobs.h blobs.c: blobs.x
+	$(RPCGEN) -h -o $(patsubst %.x, %.h, $<) $<
+	$(RPCGEN) -c -o $(patsubst %.x, %.c, $<) $<
