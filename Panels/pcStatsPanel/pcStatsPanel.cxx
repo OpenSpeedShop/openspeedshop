@@ -162,7 +162,7 @@ pcStatsPanel::itemSelected(QListViewItem *item)
 //      printf("  here's the rank of that parent: function name = %s\n",
 //        nitem->text(1).ascii() );
 //      matchSelectedItem( atoi( nitem->text(1).ascii() ) );
-      matchSelectedItem( std::string(nitem->text(1).ascii()) );
+      matchSelectedItem( std::string(nitem->text(3).ascii()) );
     }
   }
 }
@@ -174,7 +174,6 @@ pcStatsPanel::matchSelectedItem(std::string selected_function )
   bool foundFLAG = FALSE;
 //  printf ("pcStatsPanel::matchSelectedItem() = %s\n", selected_function.c_str() );
 
-char timestr[50];
 std::map<Function, double>::const_iterator it = orig_data->begin();
 for( ; it != orig_data->end(); ++it)
 {
@@ -254,7 +253,9 @@ pcStatsPanel::updateStatsPanelBaseData(void *expr, int expID, QString experiment
 
     // Display the results
     MetricHeaderInfoList metricHeaderInfoList;
-    metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Time"), FLOAT_T));
+    metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("CPU Time (Seconds)"), FLOAT_T));
+metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("% of Time"), FLOAT_T));
+metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Cumulative %"), FLOAT_T));
     metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Function"), CHAR_T));
     if( metricHeaderTypeArray != NULL )
     {
@@ -304,12 +305,26 @@ pcStatsPanel::updateStatsPanelBaseData(void *expr, int expID, QString experiment
 
 
     nprintf( DEBUG_PANELS) ("Put the data out...\n");
-    char timestr[50];
+
+    double TotalTime = Get_Total_Time();
+
+    char cputimestr[50];
+char a_percent_str[50];
+a_percent_str[0] = '\0';
+char c_percent_str[50];
+    // convert time to %
+    double percent_factor = 100.0 / TotalTime;
+double a_percent = 0; // accumulated percent
+double c_percent = 0.0;
     for(std::map<Function, double>::const_iterator
             it = orig_data->begin(); it != orig_data->end(); ++it)
     {
-      sprintf(timestr, "%f", it->second);
-      lvi =  new SPListViewItem( this, lv, timestr,  it->first.getName().c_str() );
+c_percent = it->second*percent_factor;  // current item's percent of total time
+      sprintf(cputimestr, "%f", it->second);
+      sprintf(a_percent_str, "%f", c_percent);
+      sprintf(c_percent_str, "%f", a_percent);
+//      lvi =  new SPListViewItem( this, lv, cputimestr,  it->first.getName().c_str() );
+      lvi =  new SPListViewItem( this, lv, cputimestr,  a_percent_str, c_percent_str, it->first.getName().c_str() );
 
       numberItemsToRead--;
       if( numberItemsToRead == 0)
@@ -320,6 +335,41 @@ pcStatsPanel::updateStatsPanelBaseData(void *expr, int expID, QString experiment
     }
     
     lv->sort();
-  
+
+
+    sortCalledRecalculateCumulative(0);
+
+  }
+}
+
+double
+pcStatsPanel::Get_Total_Time()
+{
+ // Calculate the total time for this set of samples.
+  double TotalTime = 0.0;
+  for(std::map<Function, double>::const_iterator
+            it = orig_data->begin(); it != orig_data->end(); ++it)
+  {
+    TotalTime += it->second;
+  }
+  return TotalTime;
+}
+
+
+void
+pcStatsPanel::sortCalledRecalculateCumulative(int val)
+{
+  // Now calculate the cumulative %
+  double a_percent = 0.0;
+  QPtrList<QListViewItem> lst;
+  QListViewItemIterator it( lv );
+  while( it.current() )
+  {
+    QListViewItem *item = *it;
+    QString val_str = item->text(1);
+    double val = val_str.toDouble();
+    a_percent += val;
+    item->setText( 2, QString("%1").arg(a_percent) );
+    ++it;
   }
 }

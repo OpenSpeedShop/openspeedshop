@@ -21,6 +21,7 @@
 #include "PanelContainer.hxx"   // Do not remove
 
 #include <qvaluelist.h>
+#include <qheader.h>
 class MetricHeaderInfo;
 typedef QValueList<MetricHeaderInfo *> MetricHeaderInfoList;
 
@@ -107,6 +108,8 @@ StatsPanelBase::updateStatsPanelBaseData(void *expr, int expID, QString experime
     // If there should be sort indicators in the header, show them here.
     lv->setShowSortIndicator(TRUE);
 
+    // Hook the click in the header up to a sort routine...
+    connect( lv->header(), SIGNAL(clicked(int)), this, SLOT( sortCalledRecalculateCumulative(int)) );
   }
 
   lv->clear();
@@ -115,6 +118,12 @@ StatsPanelBase::updateStatsPanelBaseData(void *expr, int expID, QString experime
 
   lv->show();
 }
+
+void
+StatsPanelBase::sortCalledRecalculateCumulative(int i)
+{
+}
+
 void
 StatsPanelBase::languageChange()
 {

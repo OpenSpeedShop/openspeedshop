@@ -91,6 +91,9 @@ private:
 
     void itemSelected( QListViewItem * );
 
+virtual void sortCalledRecalculateCumulative(int);
+
+
   protected:
     ColumnList columnList;
 

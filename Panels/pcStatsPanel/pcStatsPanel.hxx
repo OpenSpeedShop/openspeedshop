@@ -68,11 +68,16 @@ class pcStatsPanel  : public StatsPanelBase
     void itemSelected( QListViewItem * );
     void gotoSource();
 
+  private slots:
+    virtual void sortCalledRecalculateCumulative(int);
+
   private:
     void matchSelectedItem( std::string function_name );
 
     void updateStatsPanelBaseData(void *expr = 0, int expID = 0, QString experiment_name = NULL);
 
     SmartPtr<std::map<Function, double> > orig_data;
+
+    double Get_Total_Time();
 };
 #endif // PCSTATSPANEL_H
