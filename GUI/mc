@@ -2,7 +2,7 @@
 if [ "$OPENSPEEDSHOP_PLUGIN_PATH" = "" ]
 then
   echo "OPENSPEEDSHOP_PLUGIN_PATH not set."
-  echo "For oss developers that's usually .../GUI/plugin/lib/futuretool"
+  echo "For oss developers that's usually .../GUI/plugin/lib/openspeedshop"
   exit
 fi
 if test -d Panels

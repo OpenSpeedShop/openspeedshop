@@ -61,7 +61,7 @@ main_loop(int argc, char **argv)
 
 
   char command_buffer[2048];
-  printf("ft> ");
+  printf("openss> ");
   fflush(NULL);
   while(1)
   {
@@ -98,7 +98,7 @@ main_loop(int argc, char **argv)
           printf("%s", oo->outputBuffer );
         }
       }
-      printf("ft> ");
+      printf("openss> ");
       fflush(NULL);
     }
   }
@@ -117,11 +117,11 @@ void do_event_work()
 
 void do_gui(int argc, char **argv)
 {
-  printf("dlopen the ftgui.so here.\n");
+  printf("dlopen the ossgui.so here.\n");
 
   char gui_plugin_file[2048];
 
-  char *gui_dl_name="/ftgui.so";
+  char *gui_dl_name="/ossgui.so";
 
   char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
 

@@ -7,7 +7,7 @@ echo SYSNAME=$SYSNAME
 
 if [[ $1 = --help ]]
 then
-  echo "ft [-cli] [executable] [experiment] [pid] [host] [--help]"
+  echo "openss [-cli] [executable] [experiment] [pid] [host] [--help]"
   echo "  where:"
   echo "    -cli:         brings up the future in command line mode"
   echo "    executable:   loads the executable file"
@@ -22,11 +22,11 @@ fi
 if [ "$OPENSPEEDSHOP_PLUGIN_PATH" = "" ]
 then
   echo "OPENSPEEDSHOP_PLUGIN_PATH not set."
-  echo "For oss developers that's usually .../GUI/plugin/lib/futuretool"
+  echo "For oss developers that's usually .../GUI/plugin/lib/openspeedshop"
   exit
 fi
 
-export OPENSPEEDSHOP_RELOCATABLE_NAME=ftgui.so
+export OPENSPEEDSHOP_RELOCATABLE_NAME=ossgui.so
 export OPENSPEEDSHOP_ENTRY_POINT=gui_init
 set +x
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$OPENSPEEDSHOP_PLUGIN_PATH

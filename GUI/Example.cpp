@@ -1016,7 +1016,7 @@ PanelContainer::findFirstEmptyPanelContainer(PanelContainer *pc)
 void
 PanelContainer::savePanelContainerTree()
 {
-  char *fn = "ft.geometry";
+  char *fn = ".openss.geometry";
   FILE *fd = fopen(fn, "w");
   if( fd == NULL ) 
   {

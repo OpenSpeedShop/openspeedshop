@@ -15,16 +15,16 @@
 # CONDITIONS OF MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A
 # PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
 # 
-# Original Code.  The Original Code is: FutureTool, Version 1.0, released
+# Original Code.  The Original Code is: Open/Speedshop, Version 1.0, released
 # <MONTH>, <DAY>, 2004, developed by Silicon Graphics, Inc. The Original
 # Code is Copyright (c) 2004 Silicon Graphics, Inc. Copyright in any
 # portions created by third parties is as indicated elsewhere herein.
 # All Rights Reserved.
 ################################################################################
 
-pkglib_LTLIBRARIES = ftDialogs.la
+pkglib_LTLIBRARIES = ossDialogs.la
 
-ftDialogs_la_CXXFLAGS = \
+ossDialogs_la_CXXFLAGS = \
 	-I/usr/include \
 	-I$(QTDIR)/include \
 	-I. \
@@ -35,12 +35,12 @@ ftDialogs_la_CXXFLAGS = \
     -I../objects \
 	-I$(QTDIR)
 
-ftDialogs_la_LDFLAGS = --export-dynamic -module -avoid-version -Wl,../objects/.libs/ftObjects.so
+ossDialogs_la_LDFLAGS = --export-dynamic -module -avoid-version -Wl,../objects/.libs/ossObjects.so
 
-ftDialogs_la_LIBADD = $(LIBLTDL)
+ossDialogs_la_LIBADD = $(LIBLTDL)
 
 moc_AttachProcessDialog.cxx: AttachProcessDialog.hxx
 	-moc -o moc_AttachProcessDialog.cxx AttachProcessDialog.hxx
 
-ftDialogs_la_SOURCES = \
+ossDialogs_la_SOURCES = \
 	AttachProcessDialog.hxx AttachProcessDialog.cxx moc_AttachProcessDialog.cxx

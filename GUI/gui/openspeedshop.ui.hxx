@@ -211,7 +211,7 @@ void OpenSpeedshop::init()
 
 
   char pc_plugin_file[2048];
-  char *pc_dl_name="/ftBase.so";
+  char *pc_dl_name="/ossBase.so";
   char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
   if( !plugin_directory )
   {
@@ -237,7 +237,7 @@ void OpenSpeedshop::init()
 
 // fprintf(stderr, "OpenSpeedshop::init(A)\n");
   char ph_file[2048];
-  char *ph_dl_name = "/ftPlugin.so";
+  char *ph_dl_name = "/ossPlugin.so";
   sprintf(ph_file, "%s%s", plugin_directory, ph_dl_name);
   void *dl_ph_object = dlopen((const char *)ph_file, (int)RTLD_NOW );
   if( !dl_ph_object )
@@ -264,7 +264,7 @@ printf("GUI Action: Match the Collectors up to the GUI panels.... Set the menu s
 
 // Begin: Set up a saved session geometry.
 const int BUFSIZE=100;
-char *fn = "ft.geometry";
+char *fn = ".openss.geometry";
 FILE *fd = fopen(fn, "r");
 
 char line_buffer[1024];
