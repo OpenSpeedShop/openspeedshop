@@ -18,7 +18,14 @@
 
 pkglib_LTLIBRARIES = libopenss-Plugin.la
 
-libopenss_Plugin_la_CXXFLAGS = -I/usr/include -I$(QTDIR)/include -I. -I.. -I../base -I../gui
+libopenss_Plugin_la_CXXFLAGS =  \
+	-I/usr/include \
+	-I$(QTDIR)/include \
+	-I. \
+	-I.. \
+	-I../base \
+	-I../gui \
+    -DPLUGIN_PATH=\"$(pkglibdir)\"
 
 libopenss_Plugin_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
