@@ -3,7 +3,7 @@
 #include "Panel.hxx"           // Do not remove
 
 #include <qtextedit.h>
-#include <qtable.h>
+#include "SPCanvasForm.hxx"
 #include <qlabel.h>
 #include <qpopupmenu.h>
 #include <qscrollbar.h>
@@ -72,7 +72,7 @@ public:
   //! Label for displaying current file displayed.
   QLabel *label;
 
-  QTable *statArea;
+  SPCanvasForm *canvasForm;
 
   //! The QTextEdit for managing the actual text.
   SPTextEdit *textEdit;
@@ -97,6 +97,12 @@ public:
 
   //! The last scrollbar value.
   int lastScrollBarValue;
+
+//! The last line height
+int lastLineHeight;
+
+//! The last calculated visible lines...
+int lastVisibleLines;
 
   //! Should line numbers be displayed flag.
   bool line_numbersFLAG;
@@ -174,7 +180,7 @@ public slots:
   void chooseFile();
   void goToLine();
   void showLineNumbers();
-  void showStats();
+  void showCanvasForm();
   void findString();
   void details();
   void whoCallsMe();

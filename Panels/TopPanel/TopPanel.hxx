@@ -14,6 +14,7 @@ class ExprInfo;
 class TPChartForm;
 class QHBoxLayout;
 
+#undef PANEL_CLASS_NAME
 #define PANEL_CLASS_NAME TopPanel   // Change the value of the define
 
                                          // to the name of your new class.

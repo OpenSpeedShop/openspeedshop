@@ -43,7 +43,15 @@ moc_SPTextEdit.cxx: SPTextEdit.hxx
 moc_SourcePanel.cxx: SourcePanel.hxx
 	-moc -o moc_SourcePanel.cxx SourcePanel.hxx
 
+moc_SPCanvasView.cxx: SPCanvasView.hxx
+	-moc -o moc_SPCanvasView.cxx SPCanvasView.hxx
+
+moc_SPCanvasForm.cxx: SPCanvasForm.hxx
+	-moc -o moc_SPCanvasForm.cxx SPCanvasForm.hxx
+
 SourcePanel_la_SOURCES = \
+    SPCanvasForm.hxx SPCanvasForm.cxx moc_SPCanvasForm.cxx \
+    SPCanvasView.hxx SPCanvasView.cxx moc_SPCanvasView.cxx \
     SPTextEdit.hxx SPTextEdit.cxx moc_SPTextEdit.cxx \
 	SourcePanel.hxx SourcePanel.cxx moc_SourcePanel.cxx \
 	PanelContainer.hxx local_plugin_info.hxx debug.hxx \
