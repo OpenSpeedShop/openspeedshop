@@ -84,7 +84,12 @@ class ExperimentObject
         int err = remove (FW_Experiment->getName().c_str());
         Data_File_Has_A_Generated_Name = false;
       }
-      delete FW_Experiment;
+      try {
+        delete FW_Experiment;
+      }
+      catch(const std::exception& error) {
+        Data_File_Has_A_Generated_Name = false;
+      }
       FW_Experiment = NULL;
     }
     Exp_ID = 0;
@@ -93,6 +98,19 @@ class ExperimentObject
 
   EXPID ExperimentObject_ID() {return Exp_ID;}
   Experiment *FW() {return FW_Experiment;}
+  bool Data_Base_Is_Tmp () {return Data_File_Has_A_Generated_Name;}
+  std::string Data_Base_Name () {
+    if (FW() == NULL) {
+      return Suspended_Data_File_Name;
+    } else {
+      try {
+        return FW()->getName();
+      }
+      catch(const std::exception& error) {
+        return "(Unable to determine.)";
+      }
+    }
+  }
   int Status() {return ExpStatus;}
   int Determine_Status() {
     int S = ExpStatus;
@@ -303,6 +321,9 @@ void Experiment_Termination ();
 
 // Experiment Utilities
 ExperimentObject *Find_Experiment_Object (EXPID ExperimentID);
+
+bool Collector_Used_In_Experiment (OpenSpeedShop::Framework::Experiment *fexp, std::string myname);
+Collector Get_Collector (OpenSpeedShop::Framework::Experiment *fexp, std::string myname);
 
 inline void Mark_Cmd_With_Std_Error (CommandObject *cmd, const std::exception& error) {
    cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
