@@ -1,346 +1,711 @@
-                  LLNL PhaseI Usability Study   11/17/04
-          Conducted by Martin Shulz, Helen Stepanov, and Al Stipek
+                 Phase I Usability Study   11/17/04
+         Conducted by Martin Shulz, Helen Stepanov, and Al Stipek
 
 
-           As always, there's definately room for improvement...
+          As always, there's definitely room for improvement...
 
 
 Martin picked some very good candidates and I'd like to thank him and
-all the candidates for their time.    He's now set the bar for future
-studies.  
+all the candidates for their time.    Martin's set the bar for future
+studies.
+
+Four candidates were chosen for the study conducted on 11/17/04.   Two were
+tool users/developers and two were application engineers.   A fifth
+candidate was studied after 11/17/04 and those results are also included
+in this summary.
 
 
-Four candidates were chosen.   Two were tool users/developers and two
-were application engineers.
+Following is a summary of comments and observations.
 
-Following is a summary of all comments and observations as I saw and 
-understood them.   Please feel free to reply with any comments, corrections,
-or additions.
+ - Save As...
 
-  - Save As...
+   This was definitely a problem.  Users are drawn to the top level
+   main window's "File" entry to do a save.   This was repeated
+   by 4 candidates.     There were many suggestions regarding what
+   format should be save, but there was uniform agreement that this
+   functionality should hang off the main window's File (menu) entry.
 
-    This was definately a problem.  Users are drawn to the top level
-    main window's "File" entry to do a save.   This was repeated 
-    by each of the 4 candidates.     There were many suggestions
-    regarding what format should be save, but there was uniform
-    agreement that this functionality should hang off the main window's
-    File (menu) entry.
-  
-    Additionally there seems to be several formats the users 
-    want to save the data.   First, they want the actual performance
-    data saved to a file so they can come back later and do more
-    interrogation with openss.  Open/SpeedShop will do that by default,
-    but there should be a way for the user to interface and rename the file.
-    Also wanted is the ability to be able to save the data in an easily
-    readable, script parsable format. i.e. ASCII.    One individual politely
-    requested the ability to export data in a tab deliminated list to
-    input to a spreadsheet application.   
+   Additionally there seems to be several formats the users
+   want to save the data.   First, they want the actual performance
+   data saved to a file so they can come back later and do more
+   interrogation with openss.  Open/SpeedShop will save the data by default,
+   but there should be a way for the user to interface and rename the file.
+   Also wanted is the ability to save the data in an easily readable format    that could be parsed with a script.  i.e. ASCII.    One individual
+   politely requested the ability to export data in a tab deliminated list
+   to input to a spreadsheet application.
 
-    Only one individual commented they'd like to see the graphical
-    data saved to a file so it could be shown later in a report.  Another
-    commented that they'd rather be able to drag-n-drop the 
-    graphics into a presentation such as PowerPoint, rather than
-    be required to save away the file names.
+   Only one individual commented they'd like to see the graphical
+   data saved to a file so it could be shown later in a report.  Another
+   commented that they'd rather be able to drag-n-drop the
+   graphics into a presentation such as PowerPoint, rather than
+   be required to save away the file names.
 
-    There will be some usability issues that will result from moving
-    this functionality to the top level.   The question of "What" 
-    is actually being saved will be a problem.    To alleviate this
-    the candidates and observers discussed the possibility of having
-    the File->Save As menu be more robust.   That is, there will be
-    a need for the menu to allow the user to easily select which 
-    experiment (they may have more than one on the screen) should be 
-    saved to a file.   AND... What format should the data be saved.
-    i.e. ASCII text, performance information file, graphical.
+   There will be some usability issues that will result from moving
+   this functionality to the top level.   The question of "What"
+   is actually being saved will be a problem.    To alleviate this
+   the candidates and observers discussed the possibility of having
+   the File->Save As menu be more robust.   That is, there will be
+   a need for the menu to allow the user to easily select which
+   experiment (they may have more than one on the screen) should be
+   saved to a file.   AND... What format to save the data.
+   i.e. ASCII text, performance information file, graphical.
 
-    It still will be important to have this feature pushed down to 
-    each panel type.   That will allow for each panel to be saved if
-    the user doesn't want to save the entire session's output.   This may
-    be accomplished with a local menu accessing the same dialog interface
-    to save the panels contents.
+   It still will be important to have this feature pushed down to
+   each panel type.   That will allow for each panel to be saved if
+   the user doesn't want to save the entire session's output.   This may
+   be accomplished with a local menu accessing the same dialog interface
+   to save the panels contents.
 
-  - Load Experiment
-    While this feature wasn't enabled for the usability test, one user
-    made a very good suggestion.  The suggested to have a list of available
-    experiments to open, via the File->Load Experiment menu.
-    i.e. File->Load Experiment->Expr 1 (pcsamp)
-                                Expr White (pcsamp, hwc)
-                                Blue (MPI)
-                                Columbia (MPI)
-                                New ...
-    
-  - Make the CommandPanel optional
-    Since there's a default cli terminal, make the CommandPanel 
-    optional.
+ - Load Experiment
+   While this feature wasn't enabled for the usability test, one user
+   made a very good suggestion.  They suggested to have a list of available
+   experiments to open, via the File->Load Experiment menu.
+   i.e. File->Load Experiment->Expr 1 (pcsamp)
+                                                   Columbia (MPI)
+                                                   New ...
+   - Make the CommandPanel optional
+   Since there's a default command line interface (cli) terminal, make the
+   CommandPanel optional.
 
-  - Drag-n-Drop of Panels
-    Targets icon needs to be defined better.   Also there may be a 
-    need to put some menu entry out to help the user move panels
-    around.  i.e. Drag Panel, Move Panel Up, Move Panel Over ???
+ - Drag-n-Drop of Panels
+   Targets icon needs to be defined better.   Also there may be a
+   need to put some menu entry out to help the user move panels
+   around.  i.e. Drag Panel, Move Panel Up, Move Panel Over ???
 
-    When drag-n-drop is happening, the drop locations need to be better
-    indicated to the user. It was unclear that the drop zone was in the tab
-    area.   The drop are should be the entire panel container area.
+   When drag-n-drop is happening, the drop locations need to be better
+   indicated to the user. It was unclear that the drop zone was in the tab
+   area.   The drop zone should be the entire panel container area.
 
-    Additionally is seems that double-clicking may be a good metaphor 
-    for peeling off panels into their own windows.
+   Additionally is seems that double-clicking may be a good metaphor
+   for peeling off panels into their own windows.
 
-  - Panel menus
-    The panel menus are not obvious.   There should be an indicator
-    possibly a 'v'  (Upside down triangle.), located on the panels tab,
-    to indicate there's something there to look for.
+ - Panel menus
+   The panel menus are not obvious.   There should be an indicator
+   possibly a 'v'  (Upside down triangle.), located on the panels tab,
+   to indicate there's something there to menu.
 
-    Overall, users found all the menus they need (fairly quickly) 
-    for the tasks requested.
+   Overall, users found all the menus they need (fairly quickly)
+   for the tasks requested.
 
-  - Panel Container menus
-    One user suggested additional entries when bringing up the menu
-    over a blank panel container.   One that helps the user (with possible
-    suggetions) about what they can do with the screen area.
+ - Panel Container menus
+   One user suggested additional entries when bringing up the menu
+   over a blank panel container.   One that helps the user (with possible
+   suggestions) about what they can do with the screen area.
 
-  - Expand tab names
-    There's a need for a more expressive nameing of tabs.   The could
-    possibly be accomplished with a popup help like expansion or with
-    color coding and pattern coding.  i.e. as in TotalView.
+ - Expand tab names
+   There's a need for a more expressive naming of tabs.   This could
+   possibly be accomplished with a pop up help like expansion or with
+   color coding and pattern coding.  i.e. as in TotalView.
 
-  - Splitting of Panels
-    Divide up the panels between the panels.
+ - Splitting of Panels
+   Divide up the panels between the panels.
 
-    When splitting panel containers, all/most users suggested
-    we move one of the panels to the new panel.   I'm not sure we decided
-    how to do this exactly, so I'll submit this for feedback.  When more than
-    one panel is in a panel container and the use splits the panel container,
-    the top panel (visible panel) should stay in the current panel and all
-    others should be moved to the new panel container.   Is this a reasonable
-    approach?
+   When splitting panel containers, all/most users suggested
+   we move one of the panels to the new panel.   I'm not sure we decided
+   how to do this exactly, so I'll submit this for feedback.  When more than
+   one panel is in a panel container and the use splits the panel container,
+   the top panel (visible panel) should stay in the current panel and all
+   others should be moved to the new panel container.
+
+ - Fonts, fonts, fonts
+   The default font selected not the best.   Additionally it wasn't obvious
+   how to set the font.
+   First, we should select a better default (more universal font).   Second,
+   we should add an entry in the man page to allow the user to change the
+   global font (i.e. Simply document the -fn option.), Finally, we should
+   have a top-level font entry (likely in the preference panel) that will
+   change the global font.  (This feature is supported in Qt.)
 
 
-  - Fonts, fonts, fonts
-    The default font selected not the best.   Additionally it wasn't obvious
-    how to set the font.  
+ - Diving clues
+   Discussion during a summary interview led to a comment that when one
+   hovers over a line in the source, and there's something that can be
+   done (diving/menu) a visual clue like highlighting or underlining should
+   be done to emphasize the functionality.
 
-    First, we should select a better default (more universal font).   Second,
-    we should add an entry in the man page to allow the user to change the 
-    global font (i.e. Simply document the -fn option.), Finally, we should
-    have a top-level font entry (likely in the preference panel) that will
-    change the global font.  (This feature is supported in Qt.)
+ - Accidental Deletion of Panel Container
+   When a user removes a Panel Container (or a Panel for that matter) that
+   cannot be easily reproduce they should be prompted before the action
+   occurs.   i.e. "Do you really want to delete this Panel? Y/N"
+   Possibly, as a more robust feature, add an "Undo" feature.  
+   The problem that occurred in the study, will not (should not) be
+   a problem when the full-featured tool is available.   In the shipped
+   version, there would be panel specific (in this case pcSample Panel)
+   menu that would have allowed the user to bring back the reports.
 
-  
-  - Diving clues
-    Discussion during a summary interview led to a comment that when one
-    hovers over a line in the source, and there's something that can be
-    done (diving/menu) a visual clue like highlighting or underlining should
-    be done to emphasize the functionality.
+   The other (bigger) problem is if the user accidentally deletes the
+   experiment panel.   There likely should be a prompt for this (if an
+   experiment has actually been defined) delete.   Otherwise, to compliment
+   this, there should be some management function that lists all the
+   current experiments.   
+   It should be noted that the command line interface (cli) is the keeper of
+   all experiments.   So it's (should be) possible for the user to
+   close an experiment panel (pcSample) but not delete the experiment (i.e
+   the cli still can manage it).   There will likely need to be a dialog
+   prompt, when a gui delete of an experiment occurs.  The dialog may
+   have three choices.    "Whoops!", "Terminate and delete experiment",
+   or simply "Close the gui's experiment panel".
 
-  - Accidental Deletion of Panel Container
-    When a user removes a Panel Container (or a Panel) for that matter that
-    cannot be easily reproduce they should be prompted before the action
-    occurs.   That or add an "Undo" feature.    
+   A side problem recognized, while typing up this summary, is that I now
+   realize the user can delete the experiment in the cli while running in
+   gui mode.    This action needs to alert the gui that any associated
+   panels must be disabled or deleted.
 
-    The problem that occurred in the study, will not (should not) be 
-    a problem when the full-featured tool is available.   In the shipped
-    version, there would be panel specific (in this case pcSample Panel)
-    menu that would have allowed the user to bring back the reports.
+ - Graphics/No Graphics
+   Displaying graphics (i.e. pie chart) on top 'n' panel by default
+   may not be the best approach.   A report may be all that's needed.
+   One user commented that they'd like the colors nixed as well.
 
-    The other (bigger) problem is if the user accidentally deletes the 
-    experiment panel.   There likely should be a prompt for this (if an
-    experiment has actually been defined) delete.   Otherwise, to compliment
-    this, there should be some management function that lists all the
-    current experiments.     
+   The follow up discussions were regarding; Is a pie chart that useful?
+   If we don't show the graphics by default, will the user find them
+   when they need them?   If the graphics are really valuable, possibly
+   shrink them up to a thumbnail that can be expanded.   Also, the graphics
+   should have labels on them.  (At least when the size is large enough
+   to accommodate text.)
 
-    It should be noted that the command line interface (cli) is the keeper of
-    all experiments.   So it's (should be) possible for the user to 
-    close an experiment panel (pcSample) but not delete the experiment (i.e
-    the cli still can manage it).   There will likely need to be a dialog
-    prompt, when a gui delete of an experiment occurs.  The dialog may
-    have three choices.    Whoops!, Terminate and delete experiment,
-    or simply close the gui's experiment panel.
+   The panel's function is to show the top 'n' routines.  Where 'n' is user
+   definable. 
+ - Empty Panel Containers
+   Some users commented there never should be an empty panel container
+   left on the screen.   I'm not sure I agree, but am open to being
+   convinced.   My argument against this would be the user can take
+   an empty panel container, split it the way they like, then drag
+   the panels they want organized into the newly divided interface.
 
-    The fun of all this typing, is I now realize the user can delete the
-    experiment in the cli while running in gui mode.    This message needs
-    to alert the gui that any associated panels must be disabled or deleted.
+   While I agree we should have a blank screen... but I'm not sure what
+   to place (in the background?) by default.
 
-  - Graphics/No Graphics
-    Displaying graphics (i.e. pie chart) on top 'n' panel by default
-    may not be the best approach.   A report may be all that's needed.
-    One user commented that they'd like the colors nixed as well.
+ - File Dialog color annotation
+   One user commented that the File Dialog should use some color to
+   distinguish file types.   Highlighting executable files.
 
-    The follow up discussions were regarding; Is a pie chart that useful?
-    If we don't show the graphics by default, will the user find them 
-    when they need them?   If he graphics are really valuable, possibly 
-    shrink them up to a thumbnail that can be expanded.   Also, the graphics
-    should have labels on them.  (At least when the size is large enough
-    to accomadate text.)
+ - Source Navigation vs Result (data) navigation.
+   There needs to be a Source Browsing/Source Navigation added and
+   integrated with openss.   Toolgear may be a very good place to start.
 
-    The panel's function is to show the top 'n' routines.  Where 'n' is user
-    definable.   
+   Apparently, its common to have many disjoint directories contain
+   multiple levels of directories with source files.  There's a need to
+   have a way to find and manipulate the searching of these directory
+   structures.   There needs to be a way of rearranging the searching.    When doing this loop detection needs to be implemented.  The searching
+   also needs to be able to be interrupted.  One also needs to be able to
+   save away the modifications as well.
+                                                                              
+   Further the user comments that path names can be at least 128 characters.
+   The toolgear approach is to truncate the filenames, then use pop up help
+   technology to volunteer the specific file information.
 
-  - Empty Panel Containers
-    Some users commented there never should be an empty panel container
-    left on the screen.   I'm not sure I agree, but am open to being 
-    convinced.   My argument against this would be the user can take
-    an empty panel container, split it the way they like, then drag 
-    the panels they want organized into the newly divided interface.
+   Regarding source navigation there needs to be Forward and Back
+   functionality.   Additionally, a user suggested having a recently opened
+   file list.    All good ideas.
 
-    While I agree we should have a blank screen... but I'm not sure what
-    to place (in the background?) by default.
+   One user (a TotalView user?) wanted to navigate the source via diving
+   on functions.   Obviously a good suggestion.
 
-  - File Dialog color annotation
-    One user commented that the File Dialog should use some color to 
-    distinguish file types.   Highlighting executable files.
+ - Call graph - Source Navigation (cont)
 
-  - Source Navigation vs Result (data) navigation.
-    There needs to be a Source Browsing/Source Navigation added and 
-    integrated with openss.   Toolgear may be a very good place to start.
+   Several users wanted to quickly go to call graph from either the source
+   or the report.   One suggested hooking into this via the dynamic menus
+   created in the source panel and in the Top Panel report.    If available,
+   this feature would also be accessible via a top level menu entry as
+   well.  i.e. View->Call Graph...
 
-    Apparently, its common to have many disjoint directories contain
-    multiple levels of directories with source files.  There's a need to
-    have a way to find and manipulate the searching of these directory
-    structures.   There needs to be a way of rearranging the searching.  
-    When doing this loop detection needs to be implemented.  The searching
-    also needs to be able to be interrupted.  One also needs to be able to
-    save away the modifications as well.
-                                                                                
-    Further the user comments that path names can be at least 128 characters.
-    The toolgear approach is to truncate the filenames, then use popup help
-    technology to volunteer the specific file information.
-
-    Regarding source navigation there needs to be Forward and Back
-    functionality.   Additionally, a user suggested having a recently opened
-    file list.    All good ideas.
-
-    One user (a TotalView user?) wanted to navigate the source via diving
-    on functions.   Obviously a good suggestion.
-
-  - Call graph - Source Navigation (cont)
-
-    Several users wanted to quickly go to call graph from either the source
-    or the report.   This is going to be an important feature.   One suggested
-    hooking into this would via the dynamic menus created in the source panel
-    and in the Top Panel report.    Likely this feature will be accessible
-    via a top level menu entry as well.  i.e. View->Call Graph...
-
-  - Report Features
-    - Sort columns
-    - Reorder columns
-    - Search
-    - There also needs to be able to iteract with the report to toggle
-      date.  i.e. exclusive time to inclusive times.
+ - Report Features
+   - Sort columns
+   - Reorder columns
+   - Search
+   - There also needs to be able to interact with the report to toggle
+     date.  i.e. exclusive time to inclusive times.
 
 
-  - Wizard navigation.
-    Users in general seemed to like the wizard navigation.   There was a
-    comment about the (wording) style that should be address.   But there
-    seemed to be an agreement that the wizard panels, when navigating from
-    the general Intro Wizard, to a experiment specific wizard, then finally
-    to the experiment the previous (wizard panel) should be 'replaced' with
-    the new one.   
+ - Wizard navigation.
+   Users in general seemed to like the wizard navigation.   There was a
+   comment about the (wording) style that should be address.   But there
+   seemed to be an agreement that the wizard panels, when navigating from
+   the general Intro Wizard, to a experiment specific wizard, then finally
+   to the experiment the previous (wizard panel) should be 'replaced' with
+   the new one. 
+   When we implement this, each sub-panel will need a "Start Over" button
+   and a "Finish" button added.
 
-    When we implement this, each sub-panel will need a "Start Over" button
-    and a "Finish" button added.
+   Upon completion of the wizard, only the experiment panel should be
+   showing.  In the follow up discussion, it seemed that the Intro Wizard,
+   as well as the others, could easily be found and brought back up.
 
-    Upon completion of the wizard, only the experiment panel should be 
-    showing.  In the followup discussion, it seemed that the Intro Wizard,
-    as well as the others, could easily be found and brought back up.
+   Additionally, there should be a "Finish" button on all the panels leading
+   up to the final summary panel.   That "Finish" button would simply take
+   all the remaining "suggested defaults" and advance to the Summary wizard.
 
-    Additionally, there should be a "Finish" button on all the panels leading
-    up to the final summary panel.   That "Finish" button would simply take
-    all the remaining "suggested defaults" and advance to the Summary wizard.
+ - Wizard Confusion
+   There was confusion by the user when they got to the screen to load
+   a new executable from disk... for the second time.   The tool remembered
+   their first selection and didn't prompt them the second time... .to the
+   user's surprise.   There was(is) a "Reset" button, but it was obvious
+   enough and the consensus seemed to be we could do better.
+      The suggestion was to possibly offer 3 options.   The 2 that are there
+   (but add the current file name to the existing selection), but add a
+   third that would be an explicit "Select a new program from disk".
 
-  - Wizard Confusion
-    There was confusion by the user when they got to the screen to load
-    a new executable form disk... for the second time.   The tool remembered
-    their first selection and didn't prompt them the second time... .to the
-    user's surprise.   There was(is) a "Reset" button, but it was obvious 
-    enough and the consensus seemed to be we could do better.
-   
-    The suggestion was to possibly offer 3 options.   The 2 that are there
-    (but add the current file name to the existing selection), but add a
-    third that would be an explicit "Select a new program from disk".
+ - The wording describing pcsampling should be made more clear.
 
-  - The wording for pcsampling should be made more clear.
+ - There should be a "Unit" for the pcsampling argument. (And all other
+   experiment arguments.)
 
-  - There should be a "Unit" for the pcsampling argument. (And all other
-    experiment arguments.)
+ - Statistics on by default
+   This functionality wasn't ready for the study, but the menu item
+   was lying around.   Of course, users found it.    One user thought
+   that the statistics (source panel) should be displayed by default.
+   We'll need to support and test this during the next study, but I wanted
+   to make note of it for this round.
 
-  - Statistics on by default
-    This functionality wasn't ready for the study, but the menu item
-    was lying around.   Of course, users found it.    One user thought
-    that the statistics (source panel) should be displayed by default.
-    We'll need to support and test this during the next study, but I wanted
-    to make note of it for this round.
+ - Buttons
+   Not all the buttons were meaningful.  The Interrupt and the Update
+   were two examples. 
+   Regarding the Update button.   This buttons icon should be change.  A
+   good suggest was presented that it should be "Circular arrows" or a
+   looping arrow.  It should also be move (or visually) separated from the
+   process control buttons.
 
-  - Buttons
-    Not all the buttons were meaningful.  The Interrupt and the Update
-    were two examples.   
+   Regarding the Interrupt button.  This button too, should be move or
+   visually separated from the process control buttons.   Additionally
+   its meaning isn't exactly clear to the users.  Maybe clearer pop up
+   help, a new name, and/or a new icon would be helpful.
 
-    Regarding the Update button.   This buttons icon should be change.  A 
-    good suggest was presented that it should be "Circular arrows" or a 
-    looping arrow.  It should also be move (or visually) separated from the
-    process control buttons.
+ - Preference file needed
+   There needs to be a preference file added for user preferences such
+   as: line numbers on source, graphics displayed by default, where to
+   place/split windows, default font, ...
 
-    Regarding the Interrupt button.  This button too, should be move or 
-    visually separated from the process control buttons.   Additionally 
-    its meaning isn't exactly clear to the users.  Maybe clearer popup
-    help, a new name, and/or a new icon would be helpful.
+ - BUGS
+   Double pop up when selecting Top Panel "other".
 
-  - Preference file needed
-    There needs to be a preference file added for user preferences such
-    as: line numbers on source, graphics displayed by default, where to 
-    place/split windows...
+   Segfault.   This resulted several times, but it was not obvious what
+   the cause was.   Running this under gdb while doing an extended run
+   should catch this seemingly elusive bug.
 
-  - BUGS
-    Double popup when selecting Top Panel "other".
- 
-    Segfault.   This resulted several times, but it was not obvious what
-    the cause was.   Running this under gdb while doing an extended run
-    should catch this seemingly elusive bug.
+   CmdPanels prompt was removed.   The command panel used in the study
+   was incomplete to say the least.   However this is worth noting for
+   the eventual CmdPanel.
 
-    CmdPanels prompt was removed.   The command panel used in the study
-    was incomplete to say the least.   However this is worth noting for 
-    the eventual CmdPanel.
+   The heuristics for the find best panel container logic is still being
+   being worked on.   This was seen during the testing when some panels
+   where placed in sub-marvelous locations.  Reasonable, I might say,
+   but unexpected by the user.
+   When the use had multiple experiments up, with multiple source panels,
+   then they selected a routine from the TopPanel, the visible source
+   didn't update to the new location.   Rather, the source panel that was
+   hidden was updated.
 
-    The heuristics for the find best panel container logic is still being 
-    being worked on.   This was seen during the testing when some panels
-    where placed in sub-marvelous locations.  Reasonable, I might say,
-    but unexpected by the user.
+ - Additional comments:
+   One user discussed the fact that they work with long running jobs.
+   "Very common."  There's a need to dump info to a file for later viewing.
+   This is related to the save as feature.
+                                                                              
+   Users want checks for executable/data file correctness.
+   One reason: To prevent a modified executable from being matched up
+   with old data.
 
-    When the use had multiple experiments up, with multiple source panels,
-    then they selected a routine from the TopPanel, the visible source 
-    didn't update to the new location.   Rather, the source panel that was
-    hidden was updated.
+   Further the user comments that path names can be at least 128 characters.
+   The toolgear approach is to truncate the filenames, then use pop up help
+   technology to volunteer the specific file information.
 
-  - Additional comments:
-    One user discussed the fact that they work with long running jobs.
-    "Very common."  There's a need to dump info to a file for later viewing.
-    This is related to the save as feature.
-                                                                                
-    Users want checks for executable/data file correctness.
-    One reason: To prevent a modified executable from being matched up
-    with old data.
+   There was a comment that the -f command line option wasn't intuitively
+   obvious.  The user suggested that $ openss a.out is more natural.
+   That may indeed be the case.
 
-    Further the user comments that path names can be at least 128 characters.
-    The toolgear approach is to truncate the filenames, then use popup help
-    technology to volunteer the specific file information.
+   Reports, such as the Top Panel, should be cut-n-paste enabled.   User
+   commented they'd simply like to be able to cut-n-paste the list into
+   a file.
 
-    There was a comment that the -f command line option wasn't intuitively
-    obvious.  The user suggested that $ openss a.out is more natural.
-    That may indeed be the case.
-
-    Reports, such as the Top Panel, should be cut-n-paste enabled.   User
-    commented they'd simply like to be able to cut-n-paste the list into
-    a file.
-
-  - Additional Comments (cont)   Wish list items.
-    One user mentioned an expert system that not only shows them the
-    performance issue, but one that gives suggestions to remedy the issue.
-                                                                                
-    A request was made to predict results for a different system.  i.e.  run
-    this on one vendors box and predict what it would perform like on a
-    different vendors box.  (It was later noted that a user could potentially
-    comparatively debug one architecture against another.)
+ - Additional Comments (Wish list items)
+   One user mentioned an expert system that not only shows them the
+   performance issue, but one that gives suggestions to remedy the issue.
+                                                                              
+   A request was made to predict results for a different system.  i.e.  run
+   this on one vendors box and predict what it would perform like on a
+   different vendors box.  (It was later noted that a user could potentially
+   comparatively debug one architecture against another.)
 
 
 
 
 * Interestingly, not a single user went to the CmdPanel for this study.
 It's the first time I've seen that happen in all my studies I've done.
+
+
+
+
+
+This report summarizes a usability conducted on November 2004
+
+There were 5 candidates.  
+
+Candidate one results:
+
+  - Candidate one read the man page to determine which experiment
+  to run.  
+
+  - User uses the command line options -f fred_calls_ted -x pcsamp
+
+  - Afraid to click on the 'x' on the window lest he lose the whole session.
+
+  - Candidate makes comment, "graphics for run button".  (I failed to follow
+  up on in the interview so I'm not sure what was meant here.
+
+  - User hits run button.
+
+  - User was able to navigate source, via Top Panel with mouse clicks.
+
+  - "That was interesting" comment from user.  He was expecting to only 
+    highlight one line as the report only mentions one line.
+    Suggestion: Report should contain line ranges or comment such as
+               "loop starting at line 11"
+
+  - Was not clear if the line number given for the most time indicated the
+    start of an expensive loop, or the most expensive line. 
+
+  - Was able to delete the prompt.
+
+  - User tries to display source panel and top panel at the same time.
+    It's clear that its not intuitively obvious how to accomplish the 
+    task.
+
+  - User split the panel container, but was expecting the 2 panels to 
+    be divided between the 2 new panel containers.    The user eventually
+    gave up on this task.
+
+  - The user chooses, "Remove Panel Container" option and blew away his
+    panel container with the TopPanel and SrcPanel.    He exited and 
+    started over.
+    Suggestion: When deleting a PanelContainer, with data that can't be
+                recovered, a confirmation dialog should be posted.
+
+  - Seg fault occurs when many panels up.
+
+  - When the user tries to Drag-n-Drop a panel container, the cursor doesn't
+    correctly target a valid drop site.
+    Suggestion: Make sure the Drag is distinguished from the drop when over
+                a valid drop site.
+
+  - The user was able to erase the prompt in the CmdPanel.
+    Bug (know bug):   Don't erase the prompt.
+
+  - Fonts are too small
+    Bug: The font selection needs to be resolve.     Even though the font
+         is set and passed in on the openss script, the font still comes
+         out different on different platforms.    Action:  Research and
+         resolve.
+
+  - The user exits and come in again without specifying any command line
+    options.   He's able to successfully navigate the wizard panels, but
+    comments on a wording style issue.   His comment regards the negative
+    in the pcsample wizard panel.    
+    Suggestion: Change the wording to be more clear and direct.
+
+  - When selecting on the "Other" slice the user gets a double prompt
+    explaining the source doesn't exist.
+    Bug: Fix the double prompt.
+
+  - The user brings up the "statistics" and comments they should be on 
+    by default.
+
+  - Notices the menus are different in the source panel commenting that 
+    they're different.    I didn't follow up to find out if there was 
+    confusion, or if it was just a comment.
+    Suggestion: See if this is bothersome for other candidates.
+
+  - The user tries to reload the executable from disk but the options are 
+    confusing.   The options are Back, Reset, Next.   The user eventually 
+    determines the "Reset" button works.   However the user suggests a 
+    better option.
+    Suggestion:  Change the selections to have 3 radio buttons rather 
+                 than 2.   Have the third be to select a new executable
+                 which then implies that the second should be annotated
+                 with an existing executable name if available.
+
+  - The user was looking for a "Finish" button on the wizards to "wrap up and
+    take all the rest of the options at their default values".  
+    Suggestion: That's another reasonable request.   Add a finish button
+                to wrap up setup.
+
+  - The user gets multiple pcSample experiment panels up by going back to 
+    the wizard panel.
+    Suggestion:  (See later candidates results and suggestions.)
+
+  - Save as.   The user is unclear what is being save or how it's being saved.
+    The user looks to the mainwindow File menu for the save option.
+
+Candidate one followup:
+
+  The Save as was confusing.   One suggestion was have a cascading Save as 
+  button that would allow the format to be save.   Maybe even changing the 
+  wording to "Export".  
+
+   There may then be a menu structure such as:
+       Export->Text
+               Graphic
+               Html
+               Deliminated list  (tab deliminated)
+
+  The user also discusses the fact that they work with long running jobs. 
+  "Very common."  There's a need o dump info o a file for later viewing.
+  This is related to the save as feature.
+
+  John and Scott both want checks for executable/data file correctness.
+  One reason: To prevent a modified executable from being matched up 
+  with old data.
+
+  User discusses source file browsing.   Its common to have many disjoint
+  directories contain multiple levels of directories with source files.
+  There's a need to have a way to find and manipulate the searching of 
+  these directory structures.   There needs to be a way of rearranging 
+  the searching.   When doing this loop detection needs to be implemented.
+  The searching also needs to be interruptable.  One also needs to be able
+  to save away the modifications as well.
+
+  Further the user comments that path names can be at least 128 characters.
+  The toolgear approach is to truncate the filenames, then use popup help
+  technology to volunteer the specific file information.
+
+  ssh issue:  Security issue.   To authenticate a separate process is 
+              spawned on the host, a random number is sent down to stdin,
+              the spawned process echos back the name to confirm.
+
+  When looking up X resources via Qt be careful.  It's been noted that calls
+  to look up colors can take .2 seconds to take a round trip to resolve.
+  Doing many of these can cause very noticable slowdowns.
+
+
+
+
+Candidate two results:
+
+  - Candidate also comments on small fonts.
+    Bug: The font issue should be researched and resolved.
+
+  - The user did a man, then attempted to open help.   There was a problem 
+    with the online help system and online help was unavailable.
+
+  - This user also encountered the double-dialog when selecting the "other"
+    field in the TopPanel.
+    Bug: Fix this problem.
+
+  - The user brings up "Create New Experiment" and overlays existing experiment.
+  
+  - The user tries different experment (UserTime) to answer step 5.
+
+  - Wants to be able to open a tab into a new window in one click.
+
+  - Segv: occurs.
+
+  - Save file: User goes to the mainwindow File button to find this option.
+    Suggestion: This is a consistent problem which needs to be address.
+              Add Save As feature (with formatting attributes) to the 
+              mainwindow:File menu.
+
+  
+Candidate two followup:
+
+  It's suggested that double clicking on a tab should peel the tab off into
+  it's own window.
+
+  When splitting a panel container and there's multiple panel, the panels
+  should be separated into the 2 new panel containers.    Put one panel
+  in the left and one in the right.
+
+  Don't save (Save as) the file as graphical or html, but rather as ascii.
+
+  Kill the graphics and colors and only list out the report in list form.
+
+
+
+Candidate three results:
+
+  - Candidate reads the man page.
+
+  - Candidate comments that the -f option is not very intuitive.   He 
+  suggests that one should be able to simply do:  "openss a.out"
+
+  - The man page wording suggests only one experiment at a time can be run.
+
+  - User comments they like the wizard panels.
+
+  - The user deletes panels and gets an empty panel container.
+
+  - Its not intuitive to drag and drop the panels.
+
+  - There's currently no way to get the TopPanel back once its been 
+    deleted inside an experiment.
+
+  - This user (too) goes to the mainwindow:File menu to perform the 
+    Save As.
+    BUG: Fix this problem.   The user comments they don't want it in 
+         html format.  At least not by default.
+
+  - The user played with the top panel graphics.  They comment that the
+    graphics don't have labels on them.
+
+  - Wants buttons (similar to a web-browser) to browse source.
+
+  
+Candidate three followup:
+
+   If any graphics are to be outputed from the tool they should be able to 
+   be drag-n-dropped into PowerPoint.
+
+   The TopPanel should be able to be 'cut-n-pasted' from to a file.
+
+  The user wants to compare one run to another.
+
+  This user really wants to navigate by a source code browser.  
+  
+  They want to have easy access to a call graph facility.
+
+  They want a sorted file list
+
+  Finally they want to make sure there's a "Back" button on the source
+  navigation.
+
+  The user also comments that when one hovers over a line in the source, and
+  there's something that can be done (diving) a visual clue like highighting
+  or underlining should be done to emphasize the functionality.
+
+  The update button doesn't make sense.   Maybe an up arrow.   It was 
+  later suggested that a circular arrow icon may have good meaning.
+
+  Interrupt (button) doesn't make much sense where it is.
+
+  2 wish list items are noted by the user.
+
+   1)  They'd like an expert system that not only shows them the performance
+       issue, but one that gives suggestions to remedy the issue.
+
+   2)  They like a way to predict results for a different system.  i.e. 
+       run this on one vendors box and predict what it would perform like
+       on a different vendors box.
+       (It was later noted that a user could potentially comparatively debug one
+        architecture against another.)
+
+
+
+Candidate four results:
+
+  - User comments on small font size.
+
+  - User comments to distinguish file types by color in the file dialog.
+
+  - It seems navigating the source code by clicking on the top panel is
+    not obvious.   ... Then he got it...
+
+  - Splitting panel containers seems to leave users wanting a facility 
+    to spit and separate existing panels into the newly divided panel
+    container.
+
+  - Drag-n-drop is not obvious.
+
+  - The user hates using help, but goes there to figure out how to separate
+    TopPanel from SourcePanel.  (Help doesn't work, so they don't manage to 
+    complete this option.)
+
+  - The user is unable to separate the panels.
+
+  - Save as: Problem.   Everyone hit this one.
+    Action item:  Move the Save As to the mainwindow's File menu. 
+                  Accomidate different modes to save to.
+
+
+Candidate four follow up:
+
+  The user suggests we implement a Open recent list for the Save as files.
+
+  Also a open recent experiments would be very useful.
+
+  When splitting and drag-n-dropping.  Possibly add new menu items that 
+  allow the menus to be 'move to the next panel', 'move to a newly split 
+  panel container' ...
+
+  Make the Intro wizard go away when popping up the pcSampleWizard.
+
+  Make the pcSampleWizard go away when popping up the pcSample experiment.
+
+  Aggragate data for one result.   note:  not comparison, but together as
+  one new data file.)
+
+
+Candidate five results:
+
+  - The users comments about the small fonts
+
+  - Has troubles reading through wizard at first (probably due to fonts)
+
+  - Tries to restart openss with executable and experiment name,
+    but assume "experiment" is a user given name under which the data
+    is stored
+
+  - Restarts with just executable name
+
+  - Plays with wizard, comments that explanation for pcsample is a bit
+    unclear
+
+  - Unit missing for pcsampling argument
+
+  - At the end of Wizard, comments "feels like MS Visual Studio"
+    (I don't know whether that's good or bad.)
+
+  - Comment: Table should again clearly mention that this is exclusive
+    time, would like to see right click on top of column (the column
+    description) to change the column data (e.g., switch from exclusive
+    to inclusive time)
+
+  - some, quickly resolved troubles with the two different tab lines
+    in the GUI (top container vs. pcsampling container) - the user
+    was a bit surprised when after changing the top tabs, the other
+    data was gone
+
+  - While doing step 8 (splitting of windows), finds the split option
+    in the right-click menu, but doesn't find the drag option
+
+  - Finds the save window option for saving the data and assumes that
+    this saved the data - only at second attempt sees that this is
+    the wrong save and then finds the save function in the right click
+    menu (after searching for it)
+
+Candidate five other comments:
+
+  - Save graphics options confusing, since it only mentions "Save" or
+    "Save as". User unsure about what is saved where - suggests more
+    explicit names like "save data" or "save chart".
+
+  - When asked about his opinion about the pie chart, the user
+    says that he prefers it to come up in the first view
+
+  - Panel containers: wishes
+    - drag and drop not only from the tabs, but from any window
+      part
+    - pop-off panel when double clicking tab (Motif-like style)
+    - Additional menu option during right click: dive -> open
+      a new panel and pop it off.
+    - Suggest additional entries in right-click menu showing
+      panel options - especially helpful over empty containers
+      to choose how to populate them
+
+  - Important feature is to experiment with two different
+    executable at the same time, i.e., have multiple experiments
+    (of same or different type) open at the same time
+
+  - More expressive naming in the top tab - include executable
+    name and/or use coloring scheme (the latter is used in TV
+    to distinguish different processes in MPI applications or
+    to support parallel debugs of two processes.
+
+  - The user suggests that most tool users will either run the GUI
+    or the CLI and hence having the CLI by default part of the main
+    window might be a waste of screen space
+
+  - Suggests preference file to guide screen layout in three stages:
+    default preferences, overwritten by system wide preferences set
+    by the site administrator, overwritten by user preferences 
+
+
+* Interestingly, not a single user went to the CmdPanel for this study.
+It's the first time I've seen that happen in all my studies I've done.
+
