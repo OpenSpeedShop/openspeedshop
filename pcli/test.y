@@ -681,6 +681,7 @@ expType:	    EXP_PCSAMP	    	    	{push_string($1,NAME_EXPERIMENT);}
     	    	|   EXP_FPE 	    	    	{push_string($1,NAME_EXPERIMENT);}
     	    	|   EXP_HWC 	    	    	{push_string($1,NAME_EXPERIMENT);}
     	    	|   EXP_IO  	    	    	{push_string($1,NAME_EXPERIMENT);}
+		|   NAME  	    	    	{push_string($1,NAME_EXPERIMENT);}
 		;
 
 viewType:   	    VIEW_TOPN	    	    	{push_string($1,NAME_VIEW_TYPE);}

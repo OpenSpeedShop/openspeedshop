@@ -405,7 +405,7 @@ help_predefined_exp(int indent_ndx)
 static void
 help_user_defined_exp(int indent_ndx)
 {
-    printf("%s<user_define_exp = string\n",
+    printf("%s<user_define_exp> = string\n",
     	    indent_table[indent_ndx]);
 }
  
