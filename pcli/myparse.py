@@ -186,10 +186,23 @@ def preParseArgs(line, command_dict, arg_dict, str_opts_dict, num_opts_dict):
     parts = line.split()
     count = len(parts)
     blank_delim = " "
+    global_dict = globals()
 
     for ndx in range(count):
+
+        if ndx is 0 and count > 2 and parts[1] == '=':
+            # Don't process target of assignment
+            continue
+
         # Find the function for this command in the command dictionary
 	t_part = string.lower(parts[ndx])
+        x = global_dict.get(string.lower(parts[ndx]))
+        if x is not None:
+          t_part = string.lower(x)
+          parts[ndx] = t_part
+          # n_part = eval(t_part)
+          # if n_part is not None:
+          #   print "replacement:",t_part,"with",n_part
         #function = command_dict.get(parts[ndx])
         function = command_dict.get(t_part)
 
