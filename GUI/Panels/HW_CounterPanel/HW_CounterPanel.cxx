@@ -2,113 +2,156 @@
 #include "PanelContainer.hxx"   // Do not remove
 #include "plugin_entry_point.hxx"   // Do not remove
 
+#include <qapplication.h>
+#include <qbuttongroup.h>
+#include <qtooltip.h>
+#include <qlayout.h>
+#include <qlineedit.h>
+#include <qiconset.h>
 
-/*! HW_CounterPanel Class is intended to be used as a starting point to create
-    user defined panels.   There's a script: mknewpanel that takes this
-    template panel and creates a panel for the user to work with.    (See:
-    mknewpanel in this directory.  i.e. type: mknewpanel --help)
+#include <qbitmap.h>
 
-    $ mknewpanel
-    usage: mknewpanel directory panelname "menu header" "menu label" "show immediate" "grouping"
-    where:
-      directory:  Is the path to the directory to put the new panel code.
-      panelname:  Is the name of the new panel.
-      menu header: Is the Menu named to be put on the menu bar.
-      menu label: Is the menu label under the menu header.
-      show immediate: Default is 0.  Setting this to 1 will display the panel upon initialization.
-      grouping: Which named panel container should this menu item drop this panel by default.
+#include "ProcessControlObject.hxx"
+#include "ControlObject.hxx"
 
 
-    An exmple would be to cd to this HW_CounterPanel directory and issue the
-    following command:
-    mknewpanel ../NewPanelName "NewPanelName" "New Panel Menu Heading" "New Panel Label" 0 "Performance"
 
-    That command would create a new panel directory, with the necessary
-    structure for the user to create a new panel.   The user's new panel would
-    be in the NewPanelName directory.   The future panel would be called,
-    "NewPanelName".   A toplevel menu heading will be created called "New 
-    Panel Menu Heading".   An entry under that topleve menu would read "New
-    Panel Label".    The panel would not be displayed upon initialization of
-    the tool, but only upon menu selection.    The final argument hints to the 
-    tool that this panel belongs to the group of other Performance related 
-    panels.
-*/
+/*!  HW_CounterPanel Class
+     This class is used by the script mknewpanel to create a new work area
+     for the panel creator to design a new panel.
+
+
+     Autor: Al Stipek (stipek@sgi.com)
+ */
 
 
 /*! The default constructor.   Unused. */
 HW_CounterPanel::HW_CounterPanel()
 { // Unused... Here for completeness...
-  fprintf(stderr, "HW_CounterPanel::HW_CounterPanel() should not be called.\n");
-  fprintf(stderr, "see: HW_CounterPanel::HW_CounterPanel(PanelContainer *pc, const char *n)\n");
 }
 
 
-/*! This constructor is the work constructor.   It is called to
-    create the new Panel and attach it to a PanelContainer.
-    \param pc is a pointer to PanelContainer
-      the Panel will be initially attached.
-    \param name is the name give to the Panel.
-      This is where the user would create the panel specific Qt code
-      to do whatever functionality the user wanted the panel to perform.
+/*! Constructs a new UserPanel object */
+/*! This is the most often used constructor call.
+    \param pc    The panel container the panel will initially be attached.
+    \param n     The initial name of the panel container
  */
 HW_CounterPanel::HW_CounterPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
 {
-  setCaption("HW_CounterPanel");
-  frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
+  printf("HW_CounterPanel::HW_CounterPanel() constructor called\n");
+  frameLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
-/* Here's an example of adding a class you created with QtDesigner...
-  ProfileClass *ppc = new ProfileClass(getBaseWidgetFrame(), getName() );
-  frameLayout->addWidget( ppc );
-  ppc->show();
-*/
+  ProcessControlObject *pco = new ProcessControlObject(frameLayout, getBaseWidgetFrame(), (Panel *)this );
 
-/*
-// Here's an example of a putting a name toplevel panel container in the
-// panel.
-  QWidget *namedPanelContainerWidget = new QWidget( getBaseWidgetFrame(),
-                                        "namedPanelContainerWidget" );
-  PanelContainer *topPPL = createPanelContainer( namedPanelContainerWidget, "", NULL );
-  frameLayout->addWidget( namedPanelContainerWidget );
+  statusLayout = new QHBoxLayout( 0, 10, 0, "statusLayout" );
   
-  namedPanelContainerWidget->show();
-  topPPL->show();
-  topPPL->topLevel = TRUE;
-*/
+  statusLabel = new QLabel( getBaseWidgetFrame(), "statusLabel");
+  statusLayout->addWidget( statusLabel );
 
-  baseWidgetFrame->setCaption("HW_CounterPanelBaseWidget");
+  statusLabelText = new QLineEdit( getBaseWidgetFrame(), "statusLabelText");
+  statusLabelText->setReadOnly(TRUE);
+  statusLayout->addWidget( statusLabelText );
+
+  frameLayout->addLayout( statusLayout );
+
+  languageChange();
+
+  PanelContainerList *lpcl = new PanelContainerList();
+  lpcl->clear();
+
+  QWidget *hwCounterPanelContainerWidget = new QWidget( getBaseWidgetFrame(),
+                                        "hwCounterPanelContainerWidget" );
+  topPC = createPanelContainer( hwCounterPanelContainerWidget,
+                              "HwCounterPanel_topPC", NULL,
+                              pc->_masterPanelContainerList );
+  frameLayout->addWidget( hwCounterPanelContainerWidget );
+
+printf("Create an Application\n");
+printf("# Application theApplication;\n");
+printf("# //Create a process for the command in the suspended state\n");
+printf("# load the executable or attach to the process.\n");
+printf("# if( loadExecutable ) {\n");
+printf("# theApplication.createProcess(command);\n");
+printf("# } else { // attach \n");
+printf("#   theApplication.attachToPrcess(pid, hostname);\n");
+printf("# }\n");
+printf("set the parameters.\n");
+printf("# pcCollector.setParameter(param);  // obviously looping over each.\n");
+printf("attach the collector to the Application.\n");
+printf("# // Attach the collector to all threads in the application\n");
+printf("# theApplication.attachCollector(theCollector.getValue());\n");
+
+
+
+  topPC->splitVertical(75);
+//  topPC->rightPanelContainer->splitVertical();
+
+  hwCounterPanelContainerWidget->show();
+  topPC->show();
+  topLevel = TRUE;
+  topPC->topLevel = TRUE;
+
+//  topPC->dl_create_and_add_panel("Toolbar Panel", topPC->leftPanelContainer);
+//  topPC->dl_create_and_add_panel("Top Five Panel", topPC->leftPanelContainer);
+  topPC->dl_create_and_add_panel("Source Panel", topPC->leftPanelContainer);
+  topPC->dl_create_and_add_panel("Command Panel", topPC->rightPanelContainer);
 }
 
 
-/*! The only thing that needs to be cleaned is anything allocated in this
-    class.  By default that is nothing.
+//! Destroys the object and frees any allocated resources
+/*! The only thing that needs to be cleaned up is the baseWidgetFrame.
  */
 HW_CounterPanel::~HW_CounterPanel()
 {
-  // Delete anything you new'd from the constructor.
+  printf("  HW_CounterPanel::~HW_CounterPanel() destructor called\n");
+  delete frameLayout;
+  delete baseWidgetFrame;
 }
 
-void
-HW_CounterPanel::languageChange()
-{
-  // Set language specific information here.
-}
-
-
-/*! This calls the user 'menu()' function
-    if the user provides one.   The user can attach any specific panel
-    menus to the passed argument and they will be displayed on a right
-    mouse down in the panel.
-    /param  contextMenu is the QPopupMenu * that use menus can be attached.
- */
+//! Add user panel specific menu items if they have any.
 bool
 HW_CounterPanel::menu(QPopupMenu* contextMenu)
 {
-  dprintf("HW_CounterPanel::menu() requested.\n");
+  printf("HW_CounterPanel::menu() requested.\n");
 
-  return( FALSE );
+  contextMenu->insertSeparator();
+  contextMenu->insertItem("&Add Collector", this, SLOT(addCollectorSelected()), CTRL+Key_A );
+  contextMenu->insertItem("&Remove Collector", this, SLOT(removeCollectorSelected()), CTRL+Key_R );
+  contextMenu->insertSeparator();
+  contextMenu->insertItem("&Add Process", this, SLOT(addProcessSelected()), CTRL+Key_A );
+  contextMenu->insertItem("&Remove Process", this, SLOT(removeProcessSelected()), CTRL+Key_R );
+  contextMenu->insertSeparator();
+  contextMenu->insertItem("&Save As ...", this, SLOT(saveAsSelected()), CTRL+Key_S ); 
+
+  return( TRUE );
 }
 
-/*! If the user panel save functionality, their function
+void
+HW_CounterPanel::addCollectorSelected()
+{
+  printf("HW_CounterPanel::addCollectorSelected()\n");
+}   
+
+void 
+HW_CounterPanel::removeCollectorSelected()
+{
+  printf("HW_CounterPanel::removeCollectorSelected() requested.\n");
+}
+
+void
+HW_CounterPanel::addProcessSelected()
+{
+  printf("HW_CounterPanel::addProcessSelected()\n");
+}   
+
+void 
+HW_CounterPanel::removeProcessSelected()
+{
+  printf("HW_CounterPanel::removeProcessSelected() requested.\n");
+}
+    
+//! Save ascii version of this panel.
+/*! If the user panel provides save to ascii functionality, their function
      should provide the saving.
  */
 void 
@@ -117,40 +160,93 @@ HW_CounterPanel::save()
   dprintf("HW_CounterPanel::save() requested.\n");
 }
 
-/*! If the user panel provides save to functionality, their function
+//! Save ascii version of this panel (to a file).
+/*! If the user panel provides save to ascii functionality, their function
      should provide the saving.  This callback will invoke a popup prompting
      for a file name.
  */
 void 
 HW_CounterPanel::saveAs()
 {
-  dprintf("HW_CounterPanel::saveAs() requested.\n");
+  printf("HW_CounterPanel::saveAs() requested.\n");
 }
 
-
-/*! When a message has been sent (from anyone) and the message broker is
-    notifying panels that they may want to know about the message, this is the
-    function the broker notifies.   The listener then needs to determine
-    if it wants to handle the message.
-    \param msg is the incoming message.
-    \return 0 means you didn't do anything with the message.
-    \return 1 means you handled the message.
- */
+//! This function listens for messages.
 int 
 HW_CounterPanel::listener(void *msg)
 {
-  dprintf("HW_CounterPanel::listener() requested.\n");
+  printf("HW_CounterPanel::listener() requested.\n");
+
+  ControlObject *co = (ControlObject *)msg;
+
+  if( !co )
+  {
+     return 0; // 0 means, did not act on message
+  }
+
+  // Check the message type to make sure it's our type...
+  if( co->msgType != "ControlObject" )
+  {
+    nprintf(DEBUG_PANELS) ("psSamplePanel::listener() Not a ControlObject.\n");
+    return 0; // o means, did not act on message.
+  }
+
+  co->print();
+
+  switch( (int)co->cot )
+  {
+    case  ATTACH_PROCESS_T:
+      printf("Attach to a process\n");
+      break;
+    case  DETACH_PROCESS_T:
+      printf("Detach from a process\n");
+      break;
+    case  ATTACH_COLLECTOR_T:
+      printf("Attach to a collector\n");
+      break;
+    case  REMOVE_COLLECTOR_T:
+      printf("Remove a collector\n");
+      break;
+    case  RUN_T:
+      printf("Run\n");
+      break;
+    case  PAUSE_T:
+      printf("Pause\n");
+      break;
+    case  CONT_T:
+      printf("Continue\n");
+      break;
+    case  UPDATE_T:
+      printf("Update\n");
+      break;
+    case  INTERRUPT_T:
+      printf("Interrupt\n");
+      break;
+    case  TERMINATE_T:
+      printf("Terminate\n");
+      break;
+    default:
+      break;
+  }
   return 0;  // 0 means, did not want this message and did not act on anything.
 }
 
 
-/*! If the user wants to override the Panel::broadcast() functionality, put
-    that logic here.  Otherwise, based on the broadcast type, send out the
-    message.
- */
+//! This function broadcasts messages.
 int 
 HW_CounterPanel::broadcast(char *msg)
 {
   dprintf("HW_CounterPanel::broadcast() requested.\n");
   return 0;
+}
+
+/*
+*  Sets the strings of the subwidgets using the current
+ *  language.
+ */
+void
+HW_CounterPanel::languageChange()
+{
+  statusLabel->setText( tr("Status:") );
+  statusLabelText->setText( tr("No status currently available.") );
 }

@@ -30,9 +30,10 @@ HW_CounterPanel_la_CXXFLAGS = \
     -I. \
     -I../../gui \
     -I../../plugin \
+    -I../../objects \
     -I../../base
 
-HW_CounterPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../base/.libs/ftBase.so
+HW_CounterPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../base/.libs/ftBase.so -Wl,../../objects/.libs/ftObjects.so
 
 HW_CounterPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
 

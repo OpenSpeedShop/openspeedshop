@@ -30,9 +30,10 @@ IOPanel_la_CXXFLAGS = \
     -I. \
     -I../../gui \
     -I../../plugin \
+    -I../../objects \
     -I../../base
 
-IOPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../base/.libs/ftBase.so
+IOPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../base/.libs/ftBase.so -Wl,../../objects/.libs/ftObjects.so
 
 IOPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
 

@@ -30,9 +30,10 @@ CreateNewExperimentPanel_la_CXXFLAGS = \
     -I. \
     -I../../gui \
     -I../../plugin \
+    -I../../objects \
     -I../../base
 
-CreateNewExperimentPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../base/.libs/ftBase.so
+CreateNewExperimentPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../base/.libs/ftBase.so -Wl,../../objects/.libs/ftObjects.so
 
 CreateNewExperimentPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
 
