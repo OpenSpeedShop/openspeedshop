@@ -135,12 +135,14 @@ pcSamplePanel::menu(QPopupMenu* contextMenu)
   nprintf( DEBUG_PANELS ) ("pcSamplePanel::menu() requested.\n");
 
   contextMenu->insertSeparator();
-  contextMenu->insertItem(tr("Load &New Program..."), this, SLOT(loadNewProgramSelected()), CTRL+Key_A );
-  contextMenu->insertItem(tr("Attach To Executable..."), this, SLOT(attachToExecutableSelected()), CTRL+Key_A );
+  contextMenu->insertItem(tr("Load &New Program..."), this, SLOT(loadNewProgramSelected()), CTRL+Key_N );
+  contextMenu->insertItem(tr("Attach To &Executable..."), this, SLOT(attachToExecutableSelected()), CTRL+Key_E );
   contextMenu->insertSeparator();
-  contextMenu->insertItem(tr("&Manage Collectors..."), this, SLOT(manageCollectorsSelected()), CTRL+Key_A );
-  contextMenu->insertItem(tr("&Manage Processes..."), this, SLOT(manageProcessesSelected()), CTRL+Key_A );
-  contextMenu->insertItem(tr("&Manage Data Sets..."), this, SLOT(manageDataSetsSelected()), CTRL+Key_A );
+  contextMenu->insertItem(tr("&Manage Collectors..."), this, SLOT(manageCollectorsSelected()), CTRL+Key_M );
+  contextMenu->insertItem(tr("Manage &Processes..."), this, SLOT(manageProcessesSelected()), CTRL+Key_P );
+  contextMenu->insertItem(tr("&Manage &Data Sets..."), this, SLOT(manageDataSetsSelected()), CTRL+Key_D );
+  contextMenu->insertSeparator();
+  contextMenu->insertItem(tr("S&ource Panel..."), this, SLOT(loadSourcePanel()), CTRL+Key_O );
   contextMenu->insertSeparator();
   contextMenu->insertItem("&Save As ...", this, SLOT(saveAsSelected()), CTRL+Key_S ); 
 
@@ -439,4 +441,11 @@ void
 pcSamplePanel::saveAsSelected()
 {
   printf("From this pc on down, send out a saveAs message and put it to a file.\n");
+}
+
+void
+pcSamplePanel::loadSourcePanel()
+{
+  printf("From this pc on down, send out a saveAs message and put it to a file.\n");
+  SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", topPC);
 }
