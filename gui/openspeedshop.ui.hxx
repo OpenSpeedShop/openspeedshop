@@ -14,8 +14,6 @@
 #include <qframe.h>
 #include <qmessagebox.h>
 #include <qassistantclient.h>
-// #include <qfiledialog.h>
-//#include <qfileinfo.h>
 #include <qdir.h>
 #include "PluginInfo.hxx"
 
@@ -25,7 +23,7 @@ extern QApplication *qapplication;
 #include "plugin_handler.hxx"
 
 #include "debug.hxx"  // This includes the definition of dprintf
-
+#include "AttachProcessDialog.hxx"
 
 /*! Here are the needed globals for this application... */
 #include "PanelContainer.hxx"
@@ -60,13 +58,28 @@ void OpenSpeedshop::fileNew()
     if( !fileName.isEmpty() )
     {
       printf("fileName.ascii() = (%s)\n", fileName.ascii() );
+      executable_name = strdup( fileName.ascii() );
     } 
   }
+
 }
 
 void OpenSpeedshop::fileAttach()
 {
   printf("fileAttach() entered\n");
+
+  QString pidString;
+  AttachProcessDialog *dialog = new AttachProcessDialog(this, "AttachProcessDialog", TRUE);
+  if( dialog->exec() == QDialog::Accepted )
+  {
+    pidString = dialog->selectedProcesses();
+    if( !pidString.isEmpty() )
+    {
+      printf("pidString.ascii()=%s\n", pidString.ascii() );
+      pid_str = strdup( pidString.ascii() );
+    }
+  }
+  delete dialog;
 }
 
 
