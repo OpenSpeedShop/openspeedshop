@@ -19,12 +19,12 @@
 #include "SS_Input_Manager.hxx"
 extern "C" void loadTheGUI(ArgStruct *);
 
-char *Current_OpenSpeedShop_Prompt = "openss>";
+char *Current_OpenSpeedShop_Prompt = "openss>>";
 char *Alternate_Current_OpenSpeedShop_Prompt = "....ss>";
 static FILE *ttyin = NULL;  // Read directly from this xterm window.
 static FILE *ttyout = NULL; // Write directly to this xterm window.
 
-// FOrward definitions of local functions
+// Forward definitions of local functions
 void Default_TLI_Command_Output (CommandObject *C);
 bool All_Command_Objects_Are_Used (InputLineObject *clip);
 
@@ -334,8 +334,8 @@ class CommandWindowID
 
      // Allocate a trace file for commands associated with this window
       char base[20];
-      snprintf(base, 20, "sshist%lld.XXXXXX",id);
-      Trace_File_Name = std::string(tempnam ("./", &base[0] ));
+      snprintf(base, 20, "sstr%lld.XXXXXX",id);
+      Trace_File_Name = std::string(tempnam ("./", &base[0] )) + ".openss";
       Trace_F  = fopen (Trace_File_Name.c_str(), "w");
       Trace_File_Is_A_Temporary_File = true;
     }
@@ -602,8 +602,8 @@ public:
   // Debug aids
   void Print(FILE *TFile) {
     fprintf(TFile,
-       "W %lld: %s remote:%s IAM:%s %s %lld %lld, focus at %lld, history->%s\n",
-        id,Input_Is_Async?"async":" sync",remote?"T":"F",
+       "W %lld: %s %s IAM:%s %s %lld %lld, focus at %lld, log->%s\n",
+        id,Input_Is_Async?"async":" sync",remote?"remote":"local",
         I_Call_Myself.c_str(),Host_ID.c_str(),(int64_t)Process_ID,Panel_ID,
         Focus(),Trace_File_Name.c_str());
     if (Input) {
@@ -771,6 +771,18 @@ int64_t Find_Command_Level (CMDWID WindowID)
 }
 
 // Low Level Semantic Routines
+
+// Remove all knowledge of the given EXPID.
+void Experiment_Purge_Focus (EXPID ExperimentID)
+{
+  std::list<CommandWindowID *>::reverse_iterator cwi;
+  for (cwi = CommandWindowID_list.rbegin(); cwi != CommandWindowID_list.rend(); cwi++)
+  {
+    if (ExperimentID == (*cwi)->Focus ()) {
+      (*cwi)->Set_Focus(0);
+    }
+  }
+}
 
 // What is the current focus associated with a CommandWindow?
 EXPID Experiment_Focus (CMDWID WindowID)
@@ -1053,6 +1065,7 @@ static bool Isa_SS_Command (CMDWID issuedbywindow, const char *b_ptr) {
       }
     }
     List_CommandWindows(stdout);
+    ExperimentObject *a; a->Dump(stdout);
     Assert(!Fatal_Error_Encountered);
     return false;
   } else if (b_ptr[fc] == *("!")) {
@@ -1162,6 +1175,8 @@ void Default_TLI_Command_Output (CommandObject *C) {
     FILE *outfile = (ttyout != NULL) ? ttyout : stdout;
 
    // Print the ResultdObject list
+    C->Print_Results (outfile, "\n", "");
+/*
     std::list<CommandResult *> cmd_object = C->Result_List();
     std::list<CommandResult *>::iterator coi;
     int num_results = 0;
@@ -1169,9 +1184,9 @@ void Default_TLI_Command_Output (CommandObject *C) {
       if (num_results++ != 0) fprintf(outfile,"\n");
       (*coi)->Print (outfile);
     }
+*/
     C->set_Results_Used (); // Everything is where it belongs.
-    if ((num_results != 0) &&
-        (ttyout != NULL)) {
+    if (ttyout != NULL) {
      // Re-issue the prompt
       fprintf(ttyout,"\n");
       SS_Issue_Prompt (ttyout);
