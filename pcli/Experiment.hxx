@@ -216,19 +216,21 @@ class ExperimentObject
           Thread t = *ti;
           std::string host = t.getHost();
           pid_t pid = t.getProcessId();
-          Optional<pthread_t> pthread = t.getPosixThreadId();
-          Optional<int> rank = t.getMpiRank();
           if (!atleastone) {
             fprintf(TFile,"  Applications:\n");
             atleastone = true;
           }
           fprintf(TFile,"    -h %s -p %lld",host.c_str(),pid);
+          Optional<pthread_t> pthread = t.getPosixThreadId();
           if (pthread.hasValue()) {
             fprintf(TFile," -t %lld",pthread.getValue());
           }
+#ifdef HAVE_MPI
+          Optional<int> rank = t.getMpiRank();
           if (rank.hasValue()) {
             fprintf(TFile," -r %lld",rank.getValue());
           }
+#endif
           fprintf(TFile,"\n");
         }
 
