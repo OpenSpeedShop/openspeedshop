@@ -26,7 +26,12 @@
 for i in `p_list -c`
 do
   echo $i: Is in a modified state.   Unable to continue.
-  exit
+  if [ $i == "pcSamplePanel" ]
+  then
+    echo "WARNING: pcSamplePanel is check out."
+  else
+    exit
+  fi
 done
 for i in `echo "ConstructNewExperimentPanel FPE_TracingPanel HW_CounterPanel IOPanel MPIPanel UserTimePanel"`
 do
@@ -36,7 +41,7 @@ do
   cp pcSamplePanel/pcSamplePanel.cxx $i/$i.cxx
   cp pcSamplePanel/pcSamplePanel.hxx $i/$i.hxx
   cp pcSamplePanel/Makefile.am $i
-  mysed "PCSAMPLEPANEL" $i_H $i/$i.cxx $i/$i.hxx $i/Makefile.am
+  mysed "PCSAMPLEPANEL" ${i}_H $i/$i.cxx $i/$i.hxx $i/Makefile.am
   mysed "pcSamplePanel" $i $i/$i.cxx $i/$i.hxx $i/Makefile.am
 
   if [ $i == "ConstructNewExperimentPanel" ]
