@@ -81,6 +81,9 @@ void ExampleCollector::startCollecting(const Collector& collector,
     std::cout << "ExampleCollector::startCollecting() for "
 	      << thread.getHost() << ":" << thread.getProcessId()
 	      << std::endl;
+
+    // Load our runtime library into the thread
+    loadLibrary(thread, "example-rt");
 }
 
 
@@ -99,6 +102,9 @@ void ExampleCollector::stopCollecting(const Collector& collector,
     std::cout << "ExampleCollector::stopCollecting() for "
 	      << thread.getHost() << ":" << thread.getProcessId()
 	      << std::endl;
+
+    // Unload our runtime library from the thread
+    unloadLibrary(thread, "example-rt");
 }
 
 

@@ -29,7 +29,7 @@ using namespace OpenSpeedShop::Framework;
 
 
 /*
- * See "../Implementor.hxx" for this function's description.
+ * See "../dpcl/Instrumentor.cxx" for this function's description.
  */
 void Instrumentor::createUnderlyingThread(const Thread& thread,
 					  const std::string& command)
@@ -39,7 +39,7 @@ void Instrumentor::createUnderlyingThread(const Thread& thread,
 
 
 /*
- * See "../Implementor.hxx" for this function's description.
+ * See "../dpcl/Instrumentor.cxx" for this function's description.
  */
 void Instrumentor::attachUnderlyingThread(const Thread& thread)
 {
@@ -48,7 +48,7 @@ void Instrumentor::attachUnderlyingThread(const Thread& thread)
 
 
 /*
- * See "../Implementor.hxx" for this function's description.
+ * See "../dpcl/Instrumentor.cxx" for this function's description.
  */
 void Instrumentor::detachUnderlyingThread(const Thread& thread)
 {
@@ -57,7 +57,7 @@ void Instrumentor::detachUnderlyingThread(const Thread& thread)
 
 
 /*
- * See "../Implementor.hxx" for this function's description.
+ * See "../dpcl/Instrumentor.cxx" for this function's description.
  */
 Thread::State Instrumentor::getThreadState(const Thread& thread)
 {
@@ -66,9 +66,29 @@ Thread::State Instrumentor::getThreadState(const Thread& thread)
 
 
 /*
- * See "../Implementor.hxx" for this function's description.
+ * See "../dpcl/Instrumentor.cxx" for this function's description.
  */
 void Instrumentor::changeThreadState(const Thread& thread, 
 				     const Thread::State& state)
+{
+}
+
+
+
+/*
+ * See "../dpcl/Instrumentor.cxx" for this function's description.
+ */
+void Instrumentor::loadLibrary(const Thread& thread,
+			       const std::string& library)
+{
+}
+
+
+
+/*
+ * See "../dpcl/Instrumentor.cxx" for this function's description.
+ */
+void Instrumentor::unloadLibrary(const Thread& thread,
+				 const std::string& library)
 {
 }

@@ -16,22 +16,18 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-pkglib_LTLIBRARIES = pcsamp.la pcsamp-rt.la
+SUBDIRS = @INSTRUMENTOR@
 
-pcsamp_la_CXXFLAGS = \
-	-I$(top_srcdir)/libopenss-framework
+lib_LTLIBRARIES = libopenss-frameworkrt.la
 
-pcsamp_la_LDFLAGS = \
-	-no-undefined -module -avoid-version
+libopenss_frameworkrt_la_CFLAGS =
 
-pcsamp_la_SOURCES = \
-	PCSampCollector.hxx PCSampCollector.cxx
+libopenss_frameworkrt_la_LDFLAGS = \
+	-export-dynamic -version-info 0:0:0
 
-pcsamp_rt_la_CFLAGS = \
-	-I$(top_srcdir)/libopenss-frameworkrt
+libopenss_frameworkrt_la_LIBADD = \
+	@INSTRUMENTOR@/libopenss-frameworkrt-@INSTRUMENTOR@.la
 
-pcsamp_rt_la_LDFLAGS = \
-	-no-undefined -module -avoid-version
-
-pcsamp_rt_la_SOURCES = \
-	PCSampCollectorRT.c
+libopenss_frameworkrt_la_SOURCES = \
+	Message.h \
+	RuntimeAPI.h

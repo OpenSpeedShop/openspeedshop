@@ -101,11 +101,6 @@ bool ThreadGroup::areAllState(const Thread::State& state) const
  * function does not wait until the threads have actually completed the state
  * change.
  *
- * @note    Some transitions are disallowed because they do not make sense or
- *          cannot be implemented. For example, a terminated thread cannot be
- *          set to a running thread. An exception of type std::logic_error is
- *          thrown when such an invalid transition is requested.
- *
  * @param state    Change to this state.
  */
 void ThreadGroup::changeState(const Thread::State& state)

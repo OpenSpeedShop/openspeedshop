@@ -25,13 +25,13 @@
 #include "Assert.hxx"
 #include "Guard.hxx"
 #include "MainLoop.hxx"
-#include "Path.hxx"
 #include "Process.hxx"
 #include "ProcessTable.hxx"
 #include "SmartPtr.hxx"
 #include "Time.hxx"
 
 #include <dpcl.h>
+#include <ltdl.h>
 #include <sstream>
 #include <stdexcept>
 #include <vector>
@@ -175,12 +175,16 @@ std::string Process::formUniqueName(const std::string& host, const pid_t& pid)
  * environment variables, etc.) as when the tool was started. The process
  * is created in a suspended state.
  *
+ * @note    An exception of type std::runtime_error is thrown if the thread 
+ *          cannot be created for any reason (host doesn't exist, specified
+ *          command cannot be executed, etc.)
+ *
  * @todo    Should probably try to find a full pathname for argv[0].
  *
  * @todo    The stdout and stderr callbacks don't appear to be working.
  *
- * @param host           Name of host on which to execute the command.
- * @param command        Command to be executed.
+ * @param host       Name of host on which to execute the command.
+ * @param command    Command to be executed.
  */
 Process::Process(const std::string& host, const std::string& command) :
     dm_process(NULL),
@@ -188,7 +192,8 @@ Process::Process(const std::string& host, const std::string& command) :
     dm_pid(0),
     dm_current_state(Thread::Suspended),
     dm_is_state_changing(false),
-    dm_future_state(Thread::Suspended)
+    dm_future_state(Thread::Suspended),
+    dm_library_name_to_entry()
 {
     // Critical section touching the process table
     {
@@ -269,11 +274,15 @@ Process::Process(const std::string& host, const std::string& command) :
  *
  * Attaches to an existing process. The process is assumed to be in the running
  * state.
+ *
+ * @note    An exception of type std::runtime_error is thrown if the thread
+ *          cannot be attached for any reason (host or process identifier
+ *          doesn't exist, etc.) 
  * 
  * @todo    Explore using asynchronous connect/attach.
  *
- * @param host           Name of the host on which the process resides.
- * @param pid            Process identifier for the process.
+ * @param host    Name of the host on which the process resides.
+ * @param pid     Process identifier for the process.
  */
 Process::Process(const std::string& host, const pid_t& pid) :
     dm_process(),
@@ -281,7 +290,8 @@ Process::Process(const std::string& host, const pid_t& pid) :
     dm_pid(pid),
     dm_current_state(Thread::Running),
     dm_is_state_changing(false),
-    dm_future_state(Thread::Running)
+    dm_future_state(Thread::Running),
+    dm_library_name_to_entry()
 {
     // Critical section touching the process table
     {
@@ -409,9 +419,9 @@ pid_t Process::getProcessId() const
  * Get our state.
  *
  * Returns the caller the current state of this process. Since this state
- * changes asynchronously and must be updated across a network, there is
- * a lag between when the actual process' state changes and when that is
- * reflected here.
+ * changes asynchronously and must be updated across a network, there is a lag
+ * between when the actual process' state changes and when that is reflected
+ * here.
  *
  * @return    Current state of this process.
  */
@@ -434,16 +444,16 @@ Thread::State Process::getState() const
  * calling getState() immediately following changeState() will not reflect the
  * new state until the change has actually completed.
  *
- * @note    Some transitions are disallowed because they do not make sense or
- *          cannot be implemented. For example, a terminated process cannot be
- *          set to a running process. An exception of type std::logic_error is
- *          thrown when such an invalid transition is requested.
- *
  * @note    Only one in-progress state change is allowed per process at any
  *          given time. For example, if you request that a process be suspended,
  *          you cannot request that it be terminated before the suspension is
  *          completed. An exception of type std::logic_error is thrown when
  *          multiple in-progress changes are requested.
+ *
+ * @note    Some transitions are disallowed because they do not make sense or
+ *          cannot be implemented. For example, a terminated process cannot be
+ *          set to a running process. An exception of type std::logic_error is
+ *          thrown when such an invalid transition is requested.
  *
  * @param state    Change to this state.
  */
@@ -815,7 +825,130 @@ void Process::processSymbols(const Thread& thread,
     // End the transaction on the specified database
     END_TRANSACTION(database);
 }
+
+
+
+/**
+ * Load a library.
+ *
+ * Loads the specified library into this process. Each process maintains a list
+ * of loaded libraries and their reference counts. If the specified library is
+ * already loaded, its reference count is simply incremented. Otherwise the
+ * library is located and loaded into the process.
+ *
+ * @note    Libraries are located using libltdl and the standard search path
+ *          established by the CollectorPluginTable class. An exception of type
+ *          std::invalid_arguemnt is thrown if the library can't be located.
+ *
+ * @param library    Name of library to be loaded.
+ */
+void Process::loadLibrary(const std::string& library)
+{
+    Guard guard_myself(this);
     
+    // Has this library been previously loaded?
+    std::map<std::string, LibraryEntry>::iterator
+	i = dm_library_name_to_entry.find(library);
+    if(i != dm_library_name_to_entry.end()) {
+	
+	// Increment the library's reference count
+	i->second.references++;
+	
+    }
+    else {
+	
+	// Can we open this library as a libltdl module?
+	lt_dlhandle handle = lt_dlopenext(library.c_str());
+	if(handle == NULL)
+	    throw std::invalid_argument(
+		"Cannot locate the library \"" + library + 
+		"\" that was to be loaded."
+		);
+	
+	// Get the full path of the library
+	const lt_dlinfo* info = lt_dlgetinfo(handle);
+	Assert(info != NULL);
+	Path full_path = info->filename;
+	
+	// Close the module handle
+	Assert(lt_dlclose(handle) == 0);
+
+	// Ask DPCL to load the library
+	ProbeModule* module = new ProbeModule(full_path.c_str());
+	MainLoop::suspend();
+	AisStatus retval = dm_process->bload_module(module);
+	Assert(retval.status() == ASC_success);
+	MainLoop::resume();	
+	
+	// Create an entry for this library
+	LibraryEntry entry;
+	entry.name = library;
+	entry.path = full_path;
+	entry.module = module;
+	entry.references = 1;
+	
+	// Add this entry to the list of libraries
+	dm_library_name_to_entry.insert(std::make_pair(library, entry));
+	
+    }
+}
+
+
+
+/**
+ * Unload a library.
+ *
+ * Unloads the specified library from this process. Each process maintains a
+ * list of loaded libraries and their reference counts. If the specified library
+ * has more than one reference, its reference count is simply decremeneted.
+ * Otherwise the library is actually unloaded from the process.
+ *
+ * @pre    A library must be loaded before it can be unloaded. An exception of
+ *         type std::invalid_argument is thrown if the library is not already
+ *         loaded into the process.
+ *
+ * @param library    Name of library to be unloaded.
+ */
+void Process::unloadLibrary(const std::string& library)
+{
+    Guard guard_myself(this);
+
+    // Find the entry for this library
+    std::map<std::string, LibraryEntry>::iterator
+	i = dm_library_name_to_entry.find(library);
+
+    // Check preconditions
+    if(i == dm_library_name_to_entry.end())
+	throw std::invalid_argument(
+	    "Cannot unload the library \"" + library + 
+	    "\" that was not previously loaded."
+	    );
+    
+    // Decrement the library's reference count
+    i->second.references--;
+    
+    // Was this the last reference to this library?
+    if(i->second.references == 0) {
+
+	// Note: An error of ASC_terminated_pid is silently ignored here because
+	//       closing an experiment frequently results in colllectors trying
+	//       to unload their runtime libraries after the processes being
+	//       monitored have already terminated.
+	
+	// Ask DPCL to unload the library
+	MainLoop::suspend();
+	AisStatus retval = dm_process->bunload_module(i->second.module);
+	Assert((retval.status() == ASC_success) ||
+	       (retval.status() == ASC_terminated_pid));
+	MainLoop::resume();
+	delete i->second.module;
+	
+	// Remove this entry from the list of libraries
+	dm_library_name_to_entry.erase(i);
+	
+    }
+}
+
 
     
 } }  // OpenSpeedShop::Framework

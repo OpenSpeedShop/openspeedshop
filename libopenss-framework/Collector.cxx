@@ -279,6 +279,9 @@ namespace {
 	 */
 	void destroy(CollectorImpl* impl)
 	{
+	    // Check assertions
+	    Assert(impl != NULL);
+
 	    // Find the entry for this collector's plugin
 	    std::map<std::string, Entry>::iterator
 		i = dm_unique_id_to_entry.find(impl->getUniqueId());
@@ -330,8 +333,12 @@ namespace {
 	 */
 	void foreachCallback(const std::string& filename)
 	{    
+	    // Create an entry for this possible collector plugin
+	    Entry entry;
+	    entry.path = filename;
+	    
 	    // Can we open this file as a libltdl module?
-	    lt_dlhandle handle = lt_dlopenext(filename.c_str());
+	    lt_dlhandle handle = lt_dlopenext(entry.path.c_str());
 	    if(handle == NULL)
 		return;
     
@@ -342,34 +349,24 @@ namespace {
 		Assert(lt_dlclose(handle) == 0);
 		return;
 	    }
-    
-	    // Create a temporary instance of this collector implementation
+
+	    // Get the metadata for this collector implementation
 	    CollectorImpl* instance = (*factory)();
-	    
-	    // Have we already used this unique identifier?
-	    if(dm_unique_id_to_entry.find(instance->getUniqueId()) != 
-	       dm_unique_id_to_entry.end()) {
-		delete instance;
-		Assert(lt_dlclose(handle) == 0);
-		return;
-	    }
-	    
-	    // Create an entry for this collector plugin
-	    Entry entry;
 	    entry.metadata = *instance;
-	    entry.path = filename;
-	    entry.instances = 0;
-	    entry.handle = NULL;
-	    
-	    // Add this entry to the table of collector plugins
-	    dm_unique_id_to_entry.insert(std::make_pair(instance->getUniqueId(),
-							entry));
-	    
-	    // Destroy the temporary instance
 	    delete instance;
 	    
 	    // Close the module handle
 	    Assert(lt_dlclose(handle) == 0);
+	    
+	    // Have we already used this unique identifier?
+	    if(dm_unique_id_to_entry.find(entry.metadata.getUniqueId()) != 
+	       dm_unique_id_to_entry.end())
+		return;
+	    
+	    // Add this entry to the table of collector plugins
+	    dm_unique_id_to_entry.insert(
+		std::make_pair(entry.metadata.getUniqueId(), entry)
+		);
 	}
 	
 
@@ -380,10 +377,8 @@ namespace {
 	 * Collector plugin table entry.
 	 *
 	 * Structure for an entry in the collector plugin table describing
-	 * a single collector plugin. Contains the path, instance count, and
-	 * handle for the plugin.
-	 *
-	 * @ingroup Implementation     
+	 * a single collector plugin. Contains the metadata, path, instance
+	 * count, and handle for the plugin.
 	 */
 	struct Entry
 	{
@@ -399,6 +394,15 @@ namespace {
 	    
 	    /** Handle to this plugin. */
 	    void* handle;	
+
+	    /** Default constructor. */
+	    Entry() :
+		metadata(),
+		path(""),
+		instances(0),
+		handle(NULL)
+	    {
+	    }		
 	    
 	};	
 	
@@ -665,8 +669,8 @@ ThreadGroup Collector::getThreads() const
  * for the newly attached thread.
  *
  * @pre    The thread must be in the same experiment as the collector. An
- *         exception of type std::invalid_arugment or Database::Corrupted is
- *         thrown if the thread is in a different experiment than the collector.
+ *         exception of type std::invalid_arugment is thrown if the thread
+ *         is in a different experiment than the collector.
  *
  * @pre    A thread that is already attached to this collector cannot be
  *         attached again without first being detached. An exception of type
@@ -747,8 +751,8 @@ void Collector::attachThread(const Thread& thread) const
  * for the thread being detached.
  *
  * @pre    The thread must be in the same experiment as the collector. An
- *         exception of type std::invalid_argument Database::Corrupted is
- *         thrown if the thread is in a different experiment than the collector.
+ *         exception of type std::invalid_argument is thrown if the thread
+ *         is in a different experiment than the collector.
  *
  * @pre    A thread cannot be detached before it was attached. An exception of
  *         type std::logic_error is thrown if the thread is not attached to this
@@ -804,7 +808,7 @@ void Collector::detachThread(const Thread& thread) const
 
 	// Defer to our implementation
 	dm_impl->stopCollecting(*this, thread);
-	
+
     }
 
     // Remove the attachment
@@ -895,8 +899,8 @@ void Collector::startCollecting() const
 			       "already collecting.");
     if(dm_impl == NULL)
         throw std::logic_error("Collector has no implementation.");
-    
-    // Defer to our implementation for each attached thread
+
+    // Iterate over each attached thread, deferring to our implementation
     ThreadGroup threads = getThreads();
     for(ThreadGroup::const_iterator 
 	    i = threads.begin(); i != threads.end(); ++i)
@@ -952,13 +956,13 @@ void Collector::stopCollecting() const
 	
     // Check assertions
     Assert(dm_impl != NULL);
-	
-    // Defer to our implementation for each attached thread
+
+    // Iterate over each attached thread, deferring to our implementation
     ThreadGroup threads = getThreads();
     for(ThreadGroup::const_iterator 
 	    i = threads.begin(); i != threads.end(); ++i)
 	dm_impl->stopCollecting(*this, *i);
-    
+
     // Indicate we are no longer collecting
     dm_database->prepareStatement(
 	"UPDATE Collectors SET is_collecting = 0 WHERE id = ?;"

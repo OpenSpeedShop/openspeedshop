@@ -16,7 +16,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-pkglib_LTLIBRARIES = example.la
+pkglib_LTLIBRARIES = example.la example-rt.la
 
 example_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
@@ -26,3 +26,12 @@ example_la_LDFLAGS = \
 
 example_la_SOURCES = \
 	ExampleCollector.hxx ExampleCollector.cxx
+
+example_rt_la_CFLAGS = \
+	-I$(top_srcdir)/libopenss-frameworkrt
+
+example_rt_la_LDFLAGS = \
+	-no-undefined -module -avoid-version
+
+example_rt_la_SOURCES = \
+	ExampleCollectorRT.c

@@ -267,10 +267,6 @@ bool Experiment::isAccessible(const std::string& name)
  *
  * Creates a new, empty, experiment database with the specified name.
  *
- * @note    An exception of type std::runtime_error is thrown if the
- *          experiment database cannot be created for any reason (including
- *          the pre-existence of the named database).
- *
  * @param name    Name of the database to be created.
  */
 void Experiment::create(const std::string& name)
@@ -409,10 +405,6 @@ ThreadGroup Experiment::getThreads() const
  * (standard file descriptors, environment variables, etc.) as when the tool was
  * started. The process is created in a suspended state.
  *
- * @note    An exception of type std::runtime_error is thrown if the thread
- *          cannot be created for any reason (host doesn't exist, specified
- *          command cannot be executed, etc.)
- *
  * @param command    Command to be executed.
  * @param host       Name of host on which to execute the command.
  * @return           Newly created thread.
@@ -442,10 +434,6 @@ Thread Experiment::createProcess(const std::string& command,
  *
  * Attaches to an existing process and adds all threads within that process to
  * this experiment. The threads' statuses are not affected.
- *
- * @note    An exception of type std::runtime_error is thrown if the process
- *          cannot be attached for any reason (host or process doesn't exist,
- *          etc.)
  *
  * @todo    Currently this routine assumes each process has a single thread and
  *          thus creates only one Thread object. Once a mechanism is found to
@@ -485,10 +473,6 @@ ThreadGroup Experiment::attachProcess(const pid_t& pid,
  *
  * Attaches to an existing POSIX thread and adds that thread to this experiment.
  * The thread's status is not affected.
- *
- * @note    An exception of type std::runtime_error is thrown if the thread
- *          cannot be attached for any reason (host or process doesn't exist,
- *          etc.)
  *
  * @param pid     Process identifier of the process in which the thread resides.
  * @param tid     Thread identifier for the thread.
@@ -574,8 +558,8 @@ ThreadGroup Experiment::attachArraySession(const ash_t& ash,
  * suspended state, it is put into the running state before being removed.
  *
  * @pre    Threads must be in the experiment to be removed. An exception
- *         of type std::invalid_argument or Database::Corrupted is thrown if
- *         the thread is not in the experiment.
+ *         of type std::invalid_argument is thrown if the thread is not in
+ *         the experiment.
  *
  * @param thread    Thread to be removed.
  */
@@ -610,13 +594,12 @@ void Experiment::removeThread(const Thread& thread) const
  */
 CollectorGroup Experiment::getCollectors() const
 {
-    // Implementation Note: Collector's constructor uses an SQL query to find
-    //                      its unique identifier so that it can instantiate a
-    //                      collector implementation. Since we use an SQL query
-    //                      here to find the collectors, and Database does not
-    //                      allow multiple in-flight SQL statements, the lookup
-    //                      of the collector list had to be separated from the
-    //                      creation of the collector objects.
+    // Note: Collector's constructor uses an SQL query to find its unique
+    //       identifier so that it can instantiate a collector implementation.
+    //       Since we use an SQL query here to find the collectors, and the
+    //       Database class does not allow multiple in-flight SQL statements,
+    //       the lookup of the collector list had to be separated from the
+    //       creation of the collector objects.
 
     // Find our collectors
     std::vector<int> entries;
@@ -686,8 +669,8 @@ Collector Experiment::createCollector(const std::string& unique_id) const
  * destroyed.
  *
  * @pre    Collectors must be in the experiment to be removed. An exception
- *         of type std::invalid_argument or Database::Corrupted is thrown if
- *         the collector is not in the experiment.
+ *         of type std::invalid_argument is thrown if the collector is not in
+ *         the experiment.
  *
  * @param collector    Collector to be removed.
  */

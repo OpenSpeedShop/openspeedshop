@@ -19,6 +19,7 @@
 SUBDIRS = . \
 	libltdl \
 	libopenss-framework \
+	libopenss-frameworkrt \
 	plugins \
 	examples \
 	base \

@@ -35,8 +35,17 @@ using namespace OpenSpeedShop::Framework;
 
 
 
-/*
- * See "../Implementor.hxx" for this function's description.
+/**
+ * Create underlying thread.
+ *
+ * Creates the specified thread as a new process to execute the passed command.
+ * The command is created with the same initial environment (standard file
+ * descriptors, environment variables, etc.) as when the tool was started. The
+ * process is created in a suspended state. When a thread is created, it is
+ * automatically attached.
+ *
+ * @param thread     Thread to be created.
+ * @param command    Command to be executed.
  */
 void Instrumentor::createUnderlyingThread(const Thread& thread,
 					  const std::string& command)
@@ -70,8 +79,14 @@ void Instrumentor::createUnderlyingThread(const Thread& thread,
 
 
 
-/*
- * See "../Implementor.hxx" for this function's description.
+/**
+ * Attach to underlying thread.
+ *
+ * Attaches the specified thread to its underlying thread in the operating
+ * system. Once a thread is attached, the instrumentor can perform operations
+ * (such as changing its state) on this thread.
+ *
+ * @param thread    Thread to be attached.
  */
 void Instrumentor::attachUnderlyingThread(const Thread& thread)
 {
@@ -101,8 +116,17 @@ void Instrumentor::attachUnderlyingThread(const Thread& thread)
 
 
 
-/*
- * See "../Implementor.hxx" for this function's description.
+/**
+ * Detach from underlying thread.
+ *
+ * Detaches the specified thread from its underlying thread in the operating
+ * system. Once a thread is detached, the instrumentor can no longer perform
+ * operations (such as changing its state) on this thread without first being
+ * attached again. The underlying thread in the operating system is <em>not</em>
+ * destroyed. If the thread was in the suspended state, it is put into the
+ * running state before being detached.
+ *
+ * @param thread    Thread to be detached.
  */
 void Instrumentor::detachUnderlyingThread(const Thread& thread)
 {
@@ -117,8 +141,20 @@ void Instrumentor::detachUnderlyingThread(const Thread& thread)
 
 
 
-/*
- * See "../Implementor.hxx" for this function's description.
+/**
+ * Get a thread's state.
+ *
+ * Returns the current state of the specified thread. Since this state changes
+ * asynchronously, and may be updated across a network, there is a lag between
+ * when the actual thread's state changes and when it is reflected here.
+ *
+ * @todo    Currently DPCL provides the ability to get the state of an entire
+ *          process only - not that of a single thread. For now, in the DPCL
+ *          implementation, <em>all</em> threads in a given process will have
+ *          the same state.
+ *
+ * @param thread    Thread whose state should be obtained.
+ * @return          Current state of the thread.
  */
 Thread::State Instrumentor::getThreadState(const Thread& thread)
 {
@@ -138,8 +174,26 @@ Thread::State Instrumentor::getThreadState(const Thread& thread)
 
 
 
-/*
- * See "../Implementor.hxx" for this function's description.
+/**
+ * Change a thread's state.
+ *
+ * Changes the current state of the specified thread to the passed value. Used 
+ * to, for example, suspend a thread that was previously running. This function
+ * does not wait until the thread has actually completed the state change, and
+ * calling getThreadState() immediately following changeThreadState() will not
+ * reflect the new state until the change has actually completed.
+ *
+ * @pre    Only applies to a thread which has been attached to an underlying
+ *         thread. An exception of type std::logic_error is thrown if called
+ *         for a thread that is not attached.
+ *
+ * @todo    Currently DPCL provides the ability to change the state of an entire
+ *          process only - not that of a single thread. For now, in the DPCL
+ *          implementation, if a thread's state is changed, <em>all</em> threads
+ *          in the process containing that thread will have their state changed.
+ *
+ * @param thread    Thread whose state should be changed.
+ * @param state     Change the theread to this state.
  */
 void Instrumentor::changeThreadState(const Thread& thread, 
 				     const Thread::State& state)
@@ -153,22 +207,94 @@ void Instrumentor::changeThreadState(const Thread& thread,
 	// Get the process for this thread (if any)
 	process = ProcessTable::TheTable.getProcessByThread(thread);
     }
-    
-    // Unattached threads cannot have their state changed
+
+    // Check preconditions
     if(process.isNull())
-	switch(state) {
-	case Thread::Running:
-	    throw std::logic_error("Cannot run a terminated process.");
-	case Thread::Suspended:
-	    throw std::logic_error("Cannot suspend a terminated process.");
-	case Thread::Terminated:
-	    throw std::logic_error("Cannot terminate a terminated process.");
-	default:
-	    Assert((state == Thread::Running) ||
-		   (state == Thread::Suspended) ||
-		   (state == Thread::Terminated));
-	}
+	throw std::logic_error(
+	    "Cannot change the state of an unattached thread."
+	    );
     
     // Request a state change from the process
     process->changeState(state);    
+}
+
+
+
+/**
+ * Load library into a thread.
+ *
+ * Loads the passed library into the specified thread. Collectors use this
+ * function to load their runtime library(ies). Separated loads of the same
+ * library into a single thread do <em>not</em> result in multiple loaded
+ * copies. Instead a reference count is maintained and the library will not
+ * be unloaded until each reference is released via unloadLibrary().
+ *
+ * @pre    Only applies to a thread which has been attached to an underlying
+ *         thread. An exception of type std::logic_error is thrown if called
+ *         for a thread that is not attached.
+ *
+ * @param thread     Thread into which the library should be loaded.
+ * @param library    Name of library to be loaded.
+ */
+void Instrumentor::loadLibrary(const Thread& thread,
+			       const std::string& library)
+{
+    SmartPtr<Process> process;
+
+    // Critical section touching the process table
+    {
+	Guard guard_process_table(ProcessTable::TheTable);
+	
+	// Get the process for this thread (if any)
+	process = ProcessTable::TheTable.getProcessByThread(thread);
+    }
+
+    // Check preconditions
+    if(process.isNull())
+	throw std::logic_error(
+	    "Cannot load a library into an unattached thread."
+	    );
+
+    // Request the library be loaded into the process
+    process->loadLibrary(library);    
+}
+
+
+
+/**
+ * Unload library from a thread.
+ *
+ * Unloads the passed library from the specified thread. Collectors use this
+ * function to unload their runtime library(ies). The library isn't actually
+ * unloaded until each call to loadLibrary() for that library has been matched
+ * by a corresponding call to unloadLibrary().
+ *
+ * @pre    Only applies to a thread which has been attached to an underlying
+ *         thread. An exception of type std::logic_error is thrown if called
+ *         for a thread that is not attached.
+ *
+ * @param thread     Thread from which the library should be unloaded.
+ * @param library    Name of library to be unloaded.
+ */
+void Instrumentor::unloadLibrary(const Thread& thread,
+				 const std::string& library)
+{
+    SmartPtr<Process> process;
+    
+    // Critical section touching the process table
+    {
+	Guard guard_process_table(ProcessTable::TheTable);
+	
+	// Get the process for this thread (if any)
+	process = ProcessTable::TheTable.getProcessByThread(thread);
+    } 
+
+    // Check preconditions
+    if(process.isNull())
+	throw std::logic_error(
+	    "Cannot unload a library from an unattached thread."
+	    );
+    
+    // Request the library be unloaded from the process
+    process->unloadLibrary(library);    
 }

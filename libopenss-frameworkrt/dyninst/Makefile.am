@@ -16,22 +16,14 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-pkglib_LTLIBRARIES = pcsamp.la pcsamp-rt.la
+noinst_LTLIBRARIES = libopenss-frameworkrt-dyninst.la
 
-pcsamp_la_CXXFLAGS = \
-	-I$(top_srcdir)/libopenss-framework
-
-pcsamp_la_LDFLAGS = \
-	-no-undefined -module -avoid-version
-
-pcsamp_la_SOURCES = \
-	PCSampCollector.hxx PCSampCollector.cxx
-
-pcsamp_rt_la_CFLAGS = \
+libopenss_frameworkrt_dyninst_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-frameworkrt
 
-pcsamp_rt_la_LDFLAGS = \
-	-no-undefined -module -avoid-version
+libopenss_frameworkrt_dyninst_la_LDFLAGS =
 
-pcsamp_rt_la_SOURCES = \
-	PCSampCollectorRT.c
+libopenss_frameworkrt_dyninst_la_LIBADD =
+
+libopenss_frameworkrt_dyninst_la_SOURCES = \
+	Message.c

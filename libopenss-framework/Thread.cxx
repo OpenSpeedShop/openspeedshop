@@ -78,17 +78,6 @@ bool Thread::isState(const State& state) const
  * getState() immediately following changeState() will not reflect the new state
  * until the change has actually completed.
  *
- * @note    Some transitions are disallowed because they do not make sense or
- *          cannot be implemented. For example, a terminated thread cannot be
- *          set to a running thread. An exception of type std::logic_error is
- *          thrown when such an invalid transition is requested.
- *
- * @note    Only one in-progress state change is allowed per thread at any
- *          given time. For example, if you request that a thread be suspended,
- *          you cannot request that it be terminated before the suspension is
- *          completed. An exception of type std::logic_error is thrown when
- *          multiple in-progress changes are requested.
- *
  * @param state    Change to this state.
  */
 void Thread::changeState(const State& state) const

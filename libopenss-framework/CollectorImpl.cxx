@@ -23,6 +23,7 @@
  */
 
 #include "CollectorImpl.hxx"
+#include "Instrumentor.hxx"
 
 #include <stdexcept>
 
@@ -129,4 +130,38 @@ void CollectorImpl::declareMetric(const Metadata& metric)
     
     // Add the new metric
     dm_metrics.insert(metric);
+}
+
+
+
+/**
+ * Load library into a thread.
+ *
+ * Loads the passed library into the specified thread. Called by derived classes
+ * when loading their runtime library(ies).
+ *
+ * @param thread     Thread into which the library should be loaded.
+ * @param library    Name of library to be loaded.
+ */
+void CollectorImpl::loadLibrary(const Thread& thread,
+				const std::string& library) const
+{
+    Instrumentor::loadLibrary(thread, library);
+}
+
+
+
+/**
+ * Unload library from a thread.
+ *
+ * Unloads the passed library from the specified thread. Called by derived
+ * classes when unloading their runtime library(ies).
+ *
+ * @param thread     Thread from which the library should be unloaded.
+ * @param library    Name of library to be unloaded.
+ */
+void CollectorImpl::unloadLibrary(const Thread& thread,
+				  const std::string& library) const
+{
+    Instrumentor::unloadLibrary(thread, library);
 }

@@ -31,13 +31,16 @@
 
 #include "AddressRange.hxx"
 #include "Lockable.hxx"
+#include "Path.hxx"
 #include "Thread.hxx"
 
+#include <map>
 #include <string>
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
 
+class ProbeModule;
 class Process;
 class SourceObj;
 
@@ -81,6 +84,8 @@ namespace OpenSpeedShop { namespace Framework {
 	void updateAddressSpace(const Thread&, const Time&);
 	void processSymbols(const Thread&, const int&, const AddressRange&,
 			    std::vector<SourceObj>&);
+	void loadLibrary(const std::string&);
+	void unloadLibrary(const std::string&);
 
     private:
 	
@@ -101,6 +106,32 @@ namespace OpenSpeedShop { namespace Framework {
 	
 	/** Future state of this process. */
 	Thread::State dm_future_state;
+
+	/**
+	 * Library entry.
+	 *
+	 * Structure for an entry in the library table describing a single
+	 * library that has been loaded into the process. Contains the name,
+	 * full path, probe module, and reference count for the library.
+	 */
+	struct LibraryEntry {
+
+	    /** Name of this library. */
+	    std::string name;
+	    
+	    /** Full path of this library. */
+	    Path path;
+	    
+	    /** Probe module for this library. */
+	    ProbeModule* module;
+	    
+	    /** Number of references to this library. */
+	    unsigned references;
+	    
+	};
+
+	/** Map loaded library names to their entries. */
+	std::map<std::string, LibraryEntry> dm_library_name_to_entry;
 	
     };
     

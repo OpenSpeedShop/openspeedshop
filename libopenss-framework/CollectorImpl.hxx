@@ -126,7 +126,10 @@ namespace OpenSpeedShop { namespace Framework {
 	
 	void declareParameter(const Metadata&);
 	void declareMetric(const Metadata&);
-	
+
+	void loadLibrary(const Thread&, const std::string&) const;
+	void unloadLibrary(const Thread&, const std::string&) const;
+
     private:
 
 	/** Set of parameters. */

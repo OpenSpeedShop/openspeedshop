@@ -166,8 +166,8 @@ namespace OpenSpeedShop { namespace Framework {
 	    pthread_mutex_t dm_lock;  /**< Mutual exclusion lock. */
 	    unsigned dm_references;   /**< Reference count. */
 	    
-	    /** Constructor from auto-locked setting. */
-	    Bookkeeping():
+	    /** Default constructor. */
+	    Bookkeeping() :
 		dm_lock(),
 		dm_references(1)
 	    {
