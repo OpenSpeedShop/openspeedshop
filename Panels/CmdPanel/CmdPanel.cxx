@@ -18,6 +18,7 @@ CmdPanel::CmdPanel()
 CmdPanel::CmdPanel(PanelContainer *pc, const char *n, char *argument) : Panel(pc, n)
 {
   nprintf(DEBUG_CONST_DESTRUCT) ( "CmdPanel::CmdPanel() constructor called.\n");
+
   frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
   output = new QTextEdit( getBaseWidgetFrame() );
@@ -65,7 +66,9 @@ CmdPanel::returnPressed()
   nprintf(DEBUG_PANELS) ("The user entered (%s)\n", text.ascii() );
 
   char *buffer = strdup(text.stripWhiteSpace().ascii());
-  ResultObject ro = Append_Input_Buffer( 0, text.length(), buffer);
+  strcat(buffer, "\n");
+  int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
+  InputLineObject *ilp = Append_Input_String( wid, buffer);
   free( buffer );
 
   output->append( prompt );

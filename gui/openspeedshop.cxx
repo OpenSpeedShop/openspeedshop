@@ -27,6 +27,7 @@ OpenSpeedshop::OpenSpeedshop( QWidget* parent, const char* name, WFlags fl )
 {
   lfd = NULL;
   sfd = NULL;
+  widStr = QString::null;
   pidStr = QString::null;
   executableName = QString::null;
   experimentName = QString::null;
@@ -185,6 +186,7 @@ void OpenSpeedshop::languageChange()
 void
 OpenSpeedshop::print()
 {
+  printf("widStr = %s\n",  widStr.ascii() );
   printf("pidStr = %s\n",  pidStr.ascii() );
   printf("executableName = %s\n",  executableName.ascii() );
   printf("argsStr = %s\n",  argsStr.ascii() );

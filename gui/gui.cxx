@@ -40,9 +40,11 @@ extern "C"
     }
     bool splashFLAG=TRUE;
   
+// printf("guithreadinit() \n");
     QString fontname = QString::null;
     for(int i=0;i<argc;i++)
     {
+// printf("  argv[%d]=(%s)\n", i, argv[i] );
       QString arg = argv[i];
       if( arg == "-fn" || arg == "--fn" )
       {
@@ -60,6 +62,7 @@ extern "C"
 
     QString hostStr = QString::null;
     QString executableStr = QString::null;
+    QString widStr = QString::null;
     QString argsStr = QString::null;
     QString pidStr = QString::null;
     QString rankStr = QString::null;
@@ -86,6 +89,13 @@ extern "C"
       } else if( arg == "-x" )
       { // load the collector (experiment) 
         expStr = QString(argv[++i]);
+      } else if( arg == "-wid" )
+      { // You have a window id from the cli
+        for( ;i<argc;)
+        {
+          widStr += QString(argv[++i]);
+          widStr += QString(" ");
+        }
       } else if( arg == "-a" )
       { // load the command line arguments (to the exectuable)
         for( ;i<argc;)
@@ -149,6 +159,7 @@ extern "C"
 
 
     w->executableName = executableStr;
+    w->widStr = widStr;
     w->pidStr = pidStr;
     w->rankStr = rankStr;
     w->expStr = expStr;

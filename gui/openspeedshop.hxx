@@ -71,6 +71,9 @@ class OpenSpeedshop : public QMainWindow
     //! A pointer to the top PanelContainer that is parented to this mainwindow.
     PanelContainer *topPC;
 
+    //! The window id string associated with the cli
+    QString widStr;
+
     //! The hinted process id string that is to be attached (eventually).
     QString pidStr;
 

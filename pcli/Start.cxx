@@ -286,10 +286,6 @@ setup_signal_handler (int s)
 
     if (need_gui)
     {
-     // The gui will be started in a pthread and do it's own itinialization.
-      extern void loadTheGUI(ArgStruct *);
-//      loadTheGUI((ArgStruct *)NULL); // argStruct);
-      loadTheGUI((ArgStruct *)argStruct); // NULL);
 
 // The following is a timing hack -
 // if the TLI window hasn't been opened or didn't specify async input,
@@ -298,6 +294,14 @@ setup_signal_handler (int s)
 // The hack is to define a dummy async window before python starts.
 // We will need to sort this out at some point in the future.
       gui_window = Commander_Initialization ("GUI",my_host->h_name,my_pid,0,true);
+      argStruct->addArg("-wid");
+      char buffer[10];
+      sprintf(buffer, "%d", gui_window);
+      argStruct->addArg(buffer);
+     // The gui will be started in a pthread and do it's own itinialization.
+      extern void loadTheGUI(ArgStruct *);
+//      loadTheGUI((ArgStruct *)NULL); // argStruct);
+      loadTheGUI((ArgStruct *)argStruct); // NULL);
     }
 
    // Fire off Python.
