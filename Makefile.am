@@ -40,7 +40,8 @@ SUBDIRS = . \
 	chart \
 	pcli \
 	gui \
-	Panels
+	Panels \
+	usability
 
 DIST_SUBDIRS = $(SUBDIRS)
 # need the images files and the tests files in tarball.
