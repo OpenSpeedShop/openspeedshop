@@ -217,8 +217,12 @@ void OpenSpeedshop::fileExit()
  // qApp->exit();
  //printf("fileExit() called qApp->exit.\n");
 
-int wid = ((PanelContainer *)topPC)->getMainWindow()->widStr.toInt();
-InputLineObject *ilp = Append_Input_String( wid, "quit");
+  int wid = ((PanelContainer *)topPC)->getMainWindow()->widStr.toInt();
+  InputLineObject *ilp = Append_Input_String( wid, "quit");
+  if( clip == NULL )
+  {
+    fprintf(stderr, "FATAL ERROR: No clip returned from cli for exit attempting exit regardless.\n");
+  }
 
  pthread_exit(EXIT_SUCCESS);
  dprintf("fileExit() called pthread_exit.\n");
