@@ -8,6 +8,9 @@ void CommandObject::set_Status (Command_Status S) {
     Cmd_Obj_Complete (this);
   } else if (S == CMD_ERROR) {
     clip->SetStatus (ILO_ERROR);
+    Cmd_Obj_Complete (this);
+  } else if (S == CMD_ABORTED) {
+    Cmd_Obj_Complete (this);
   }
 }
 
