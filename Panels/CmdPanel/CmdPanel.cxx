@@ -38,7 +38,8 @@ CmdPanel::CmdPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc
   nprintf(DEBUG_CONST_DESTRUCT) ( "CmdPanel::CmdPanel() constructor called.\n");
 
   // grab the prompt from the cli.
-  prompt = QString(Current_OpenSpeedShop_Prompt)+"-> ";
+//  prompt = QString(Current_OpenSpeedShop_Prompt)+"-> ";
+  prompt = QString(Current_OpenSpeedShop_Prompt);
 
   textDisabled = FALSE;
 
