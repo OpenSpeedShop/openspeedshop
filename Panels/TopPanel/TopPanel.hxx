@@ -5,13 +5,13 @@
 class PanelContainer;   // Do not remove
 class ExprInfo;
 
-#include "MyQTextEdit.hxx"
+#include "TPTextEdit.hxx"
 #include <qsplitter.h>
 #include <qtextedit.h>
 #include <qlistview.h>
 #include <qcolor.h>
 
-class ChartForm;
+class TPChartForm;
 class QHBoxLayout;
 
 #define PANEL_CLASS_NAME TopPanel   // Change the value of the define
@@ -70,7 +70,7 @@ public:
   QSplitter *splitterA; 
 
   //! The chart (left side)
-  ChartForm *cf;
+  TPChartForm *cf;
 
   //! The data list (right side)
   QTextEdit *textEdit;

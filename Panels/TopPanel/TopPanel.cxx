@@ -19,7 +19,7 @@
 #include <qapplication.h>
 
 #include "chartform.hxx"
-#include "MyChartForm.hxx"
+#include "TPChartForm.hxx"
 
 #include <stdlib.h>  // for calloc
 
@@ -84,11 +84,11 @@ TopPanel::TopPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
 
   splitterA->setOrientation( QSplitter::Horizontal );
 
-  cf = new MyChartForm(this, splitterA, getName(), 0);
-  cf->setCaption("MyChartFormIntoSplitterA");
+  cf = new TPChartForm(this, splitterA, getName(), 0);
+  cf->setCaption("TPChartFormIntoSplitterA");
 
-  textEdit = new MyQTextEdit( this, splitterA );
-  textEdit->setCaption("MyQTextEditIntoSplitterA");
+  textEdit = new TPTextEdit( this, splitterA );
+  textEdit->setCaption("TPTextEditIntoSplitterA");
   textEdit->setTextFormat(PlainText);  // This makes one para == 1 line.
   textEdit->setReadOnly(TRUE);
   textEdit->setWordWrap(QTextEdit::NoWrap);
@@ -539,7 +539,7 @@ TopPanel::listClicked(int para, int offset)
 
 /*! Highlight a line of text, with a color.
  \note This could likely be abstrated out to a class that is inherited by 
- anyone using a QTextEdit.   (i.e. MyTextEdit in SourcePanel may
+ anyone using a QTextEdit.   (i.e. TPTextEdit in SourcePanel may
  include this functionality. */
 void
 TopPanel::highlightLine(int line, char *color, bool inverse)

@@ -21,13 +21,7 @@ public:
   CmdPanel(PanelContainer *pc, const char *n); // Active constructor
   ~CmdPanel();  // Active destructor
 
-  bool menu(QPopupMenu* contextMenu);
-  void save();
-  void saveAs();
-  int listener(void *msg);
-  int broadcast(char *msg, BROADCAST_TYPE bt);
-
-public slots:
+protected slots:
   void menu1callback();
   void menu2callback();
   void returnPressed();
@@ -39,5 +33,12 @@ private:
   QTextEdit *output;
   int last_para;   // The from portion of the last cursor position.
   int last_index;  // The from portion of the last cursor position.
+
+  bool menu(QPopupMenu* contextMenu);
+  void save();
+  void saveAs();
+  int listener(void *msg);
+  int broadcast(char *msg, BROADCAST_TYPE bt);
+
 };
 #endif // CMD_PANEL_H

@@ -156,7 +156,7 @@ DebugPanel::DebugPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
   applyButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, applyButton->sizePolicy().hasHeightForWidth() ) );
   bottomLayout->addWidget( applyButton );
 
-  baseWidgetFrame->setCaption("DebugPanelBaseWidget");
+  getBaseWidgetFrame()->setCaption("DebugPanelBaseWidget");
 
 
   // signals and slots connetions

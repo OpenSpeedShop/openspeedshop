@@ -46,5 +46,5 @@ TopPanel_la_SOURCES = \
 	TopPanel.hxx TopPanel.cxx moc_TopPanel.cxx \
 	PanelContainer.hxx local_plugin_info.hxx debug.hxx \
 	plugin_entry_point.hxx Panel.hxx \
-	MyQTextEdit.hxx MyQTextEdit.cxx \
-	MyChartForm.hxx MyChartForm.cxx
+	TPTextEdit.hxx TPTextEdit.cxx \
+	TPChartForm.hxx TPChartForm.cxx
