@@ -25,8 +25,7 @@ class InputLineObject
   int64_t num_results;		// If result field is used, how big is it?
   void *result;			// Pointer to unlimited buffer space.
 
- public:
-  InputLineObject ()
+  void Basic_Initialization ()
     { 
       seq_num = 0;
       cmd_time = time(0);
@@ -39,26 +38,34 @@ class InputLineObject
       num_results = 0;
       result = NULL;
     }
+
+ public:
+  InputLineObject ()
+    { this->Basic_Initialization();
+    }
   InputLineObject (CMDWID From, std::string Cmd)
-    { *this = InputLineObject ();
+    { this->Basic_Initialization();
       who = From;
       // cmd_type = CMD_PARSE,
       command = Cmd;
     }
   InputLineObject (oss_cmd_enum type)
-    { *this = InputLineObject ();
+    { this->Basic_Initialization();
       cmd_type = type;
     }
   InputLineObject (CMDWID From, oss_cmd_enum type)
-    { *this = InputLineObject ();
+    { this->Basic_Initialization();
       who = From;
       cmd_type = type;
     }
   InputLineObject (CMDWID From, oss_cmd_enum type, std::string Cmd)
-    { *this = InputLineObject ();
+    { this->Basic_Initialization();
       who = From;
       cmd_type = type;
       command = Cmd;
+    }
+  ~InputLineObject ()
+    {
     }
 
   void SetSeq (CMDID seq) {seq_num = seq;}
