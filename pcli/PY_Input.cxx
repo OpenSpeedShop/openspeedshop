@@ -243,6 +243,32 @@ static PyObject *SS_ReadLine (PyObject *self, PyObject *args) {
   return Prepare_Input_Line(clip);
 }
 
+// This will be used to determine how to react to
+// errors found during the python preparse part
+// of our CLI parsing. This is different from the
+// Scripting API that is done in python.
+//
+// This is not finished yet!
+//
+static PyObject *SS_ParseError (PyObject *self, PyObject *args) {
+    CommandObject *cmd = NULL;
+    PyObject *p_object = NULL;
+    ParseResult parse_result = ParseResult();
+
+    // Build a CommandObject so that the semantic routines can be called.
+    cmd = new CommandObject (&parse_result);
+
+    cmd->Result_String ("Preparse syntax error");
+    cmd->set_Status(CMD_ERROR);
+    
+    //cmd->Clip()->Print(stdout);
+
+    // I should be reporting exactly what went wrong here.
+    p_object = Py_BuildValue("");
+    return p_object;
+
+}
+    
 static PyMethodDef PY_Input_Methods[] = {
 
     {"CallParser",  SS_CallParser, METH_VARARGS,
@@ -256,6 +282,9 @@ static PyMethodDef PY_Input_Methods[] = {
 
     {"ReadLine",  SS_ReadLine, METH_VARARGS,
      "Read a SpeedShop command."},
+
+    {"ParseError",  SS_ParseError, METH_VARARGS,
+     "Python or Yacc parser error marking."},
 
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };

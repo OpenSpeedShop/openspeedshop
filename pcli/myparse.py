@@ -457,6 +457,17 @@ class CLI(code.InteractiveConsole):
 
     ################################################################################
     #
+    # write
+    #
+    # Replacement for standard python code:write function 
+    #
+    ################################################################################
+    def showtraceback(self):
+
+	arg = PY_Input.ParseError()
+
+    ################################################################################
+    #
     # Do_quit
     #
     # Quit python 
