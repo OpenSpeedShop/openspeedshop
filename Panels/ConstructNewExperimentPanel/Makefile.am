@@ -22,11 +22,11 @@
 # All Rights Reserved.
 ################################################################################
 
-pkglib_LTLIBRARIES = CreateNewExperimentPanel.la
+pkglib_LTLIBRARIES = ConstructNewExperimentPanel.la
 
 # NOTE 1: The -I../SourcePanel is only here for #define DEMO 1
 # NOTE 2: The -I../TopPanel is only here for #define DEMO 1
-CreateNewExperimentPanel_la_CXXFLAGS = \
+ConstructNewExperimentPanel_la_CXXFLAGS = \
     -I/usr/include \
     -I$(QTDIR)/include \
     -I. \
@@ -38,14 +38,14 @@ CreateNewExperimentPanel_la_CXXFLAGS = \
     -I../TopPanel \
     -I../../base
 
-CreateNewExperimentPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../base/.libs/ossBase.so -Wl,../../objects/.libs/ossObjects.so
+ConstructNewExperimentPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../base/.libs/ossBase.so -Wl,../../objects/.libs/ossObjects.so
 
-CreateNewExperimentPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
+ConstructNewExperimentPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
 
-moc_CreateNewExperimentPanel.cxx: CreateNewExperimentPanel.hxx
-	-moc -o moc_CreateNewExperimentPanel.cxx CreateNewExperimentPanel.hxx
+moc_ConstructNewExperimentPanel.cxx: ConstructNewExperimentPanel.hxx
+	-moc -o moc_ConstructNewExperimentPanel.cxx ConstructNewExperimentPanel.hxx
 
-CreateNewExperimentPanel_la_SOURCES = \
-	CreateNewExperimentPanel.hxx CreateNewExperimentPanel.cxx moc_CreateNewExperimentPanel.cxx \
+ConstructNewExperimentPanel_la_SOURCES = \
+	ConstructNewExperimentPanel.hxx ConstructNewExperimentPanel.cxx moc_ConstructNewExperimentPanel.cxx \
 	plugin_entry_point.hxx Panel.hxx \
 	PanelContainer.hxx local_plugin_info.hxx debug.hxx
