@@ -265,6 +265,8 @@ Following is a summary of comments and observations.
       The suggestion was to possibly offer 3 options.   The 2 that are there
    (but add the current file name to the existing selection), but add a
    third that would be an explicit "Select a new program from disk".
+   FIXED: Changed the wording of the "Reset" button to "Clear" and added the
+          additional setting to "Select a new program from disk."
 
  - The wording describing pcsampling should be made more clear.
 
@@ -384,3 +386,54 @@ volunteered.  Following is a summary of those comments:
  - Window-itis/Too Many Panels
    Avoid too many panels/windows.    Provide a kde-like menu of all
    panels that are currently opened. 
+
+More follow-up comments from Martin regarding the above summary:
+These comments were received 12/21/04 via email.
+
+- Splitting of panels:
+  One idea would be to follow the model of emacs - there, the
+  currently visible panel is split and then shown on both sides.
+  This is normally not very helpful, but it's obvious, easy to
+  follow, and users might already be used to this from emacs.
+
+- Fonts:
+  It would be nice to have this in a preference menu inside the
+  GUI - real GUI users probably hate to specify any command line
+  arguments. This menu could also hold many other options we
+  already talked about, including whether to delete empty
+  containers, show graphics, etc. It could be a graphical frontend
+  for the individual configuration file proposed by our fifth
+  candidate.
+
+- It should be noted that the cli is the keeper of all ...
+  I understand this from the architecture, but it would still
+  be nice if the pure GUI user would have some kind of
+  indication which experiments are currently loaded with
+  which parameter. What about adding another dialog box off
+  the main menu that shows just a list of all experiments?
+  Even if the user closes the panel, they can still get back
+  to it through this global list.
+
+- Showing graphics by default
+  One option would be to not show it, but to offer an obvious
+  button in the same panel indicating how to get graphics
+  (i.e., similar to Excel).
+
+- Empty panel containers:
+  -> see also preference menu above
+  Also (again could be used more general) a dialog box with
+  a check box "never ask this again" could be useful. Through
+  Windows, users should be quite familiar with this already.
+
+- Reference from stats to source / BUG: update of wrong window
+  I don't think it's necessary to always update the nearest
+  window (especially if this window originally was used for
+  something else). However, always raising the window once
+  the users double-clicks the stats could be an option to
+  make the correct association obvious.
+
+- Interestingly, nobody went to the CmdPanel
+  This is probably more an advertising problem - I invited the
+  candidates to a GUI study, so perhaps people didn't think that
+  they should go there. In general, many users here are big fans
+  of cmdlines. 
