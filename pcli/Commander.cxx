@@ -52,48 +52,16 @@ FILE *predefined_filename (std::string filename)
 
 // Allow only one thread at a time through the Command processor.
 // Doing this allows only one thread at a time to allocate sequence numbers.
-static pthread_mutex_t Command_Processing_Lock = PTHREAD_MUTEX_INITIALIZER;
 static CMDID Command_Sequence_Number = 0;
 
-// Allow only one thread at a time to allocate a Window ID.
-// The only path to allocating a Window ID is through the command processor.
-// That fact prevents overlapping manipulation of the CommandWindowID_list
-// because the preceeding lock allows only one thread at a time to access it.
+// To the outside world, Window_IDs are just simple integers.
+// Allow only one thread at a time to allocate a Window ID or to
+// add, remove or search the list of defined windows.
+static pthread_mutex_t Window_List_Lock = PTHREAD_MUTEX_INITIALIZER;
+static std::list<CommandWindowID *> CommandWindowID_list;
 static CMDWID Command_Window_ID = 0;
+static CMDWID Last_ReadWindow = 0;
 
-// 
-class CommandTrace
-{
- protected:
-  CommandTrace *Next_Trace;
-  int64_t Active_Level;
-  bool Alt_Is_A_Predefined_File;
-  FILE *Alternate_Trace_F;
-
- public:
-  CommandTrace (int64_t l, bool p, FILE *f) {
-    Next_Trace = NULL;
-    Active_Level = l;
-    Alt_Is_A_Predefined_File = p;
-    Alternate_Trace_F = f;
-  }
-  ~CommandTrace () {
-    if (Alternate_Trace_F && !Alt_Is_A_Predefined_File) {
-      fclose (Alternate_Trace_F);
-    }
-  }
-  void Reset (int64_t l, bool p, FILE *f) {
-    Active_Level = l;
-    Alt_Is_A_Predefined_File = p;
-    Alternate_Trace_F = f;
-  }
-  int64_t Level () { return Active_Level; }
-  bool File_Is_Predefined () { return Alt_Is_A_Predefined_File; }
-  FILE *Trace_File () { return Alternate_Trace_F; }
-
-  void Link (CommandTrace *ct) { Next_Trace = ct; }
-  CommandTrace *Next () { return Next_Trace; }
-};
 
 // Input_Source
 #define DEFAULT_INPUT_BUFFER_SIZE 4096
@@ -119,6 +87,7 @@ class Input_Source
  public:
   // Constructor & Destructor
   Input_Source (std::string my_name) {
+    Next_Source = NULL;
     Name = my_name;
     Fp = predefined_filename (my_name);
     Predefined = (Fp != NULL);
@@ -142,6 +111,7 @@ class Input_Source
     Trace_F = NULL;
   }
   Input_Source (int64_t buffsize, char *buffer) {
+    Next_Source = NULL;
     Name = std::string("");
     Fp = NULL;
     Predefined = false;
@@ -155,10 +125,8 @@ class Input_Source
     Trace_F = NULL;
   }
   ~Input_Source () {
-   /* Only free the buffers that the constructor allocated. */
-    if (Fp != NULL) {
-      free (Buffer);
-    }
+   /* Assume that this routine has ownership of any buffer it was given. */
+    free (Buffer);
    /* Close input files. */
     if (Fp && !Predefined) {
       fclose (Fp);
@@ -247,7 +215,6 @@ class Input_Source
 
 // CommandWindowID
 class CommandWindowID;
-static std::list<CommandWindowID *> CommandWindowID_list;
 
 class CommandWindowID
 {
@@ -264,12 +231,14 @@ class CommandWindowID
   std::string Trace_File_Name;
   FILE *Trace_F;
   Input_Source *Input;
+  pthread_mutex_t Input_List_Lock;
   EXPID FocusedExp;
 
  public:
   // Constructor & Destructor
   CommandWindowID ( std::string IAM, std::string  Host, pid_t Process, int64_t Panel)
     {
+      remote = false;
       I_Call_Myself = IAM;
       Host_ID = Host;
       Process_ID = Process;
@@ -279,11 +248,20 @@ class CommandWindowID
       Trace_File_Name = "";
       Trace_F = NULL;
       Input = NULL;
+      Assert(pthread_mutex_init(&Input_List_Lock, NULL) == 0); // dynamic initialization
       FocusedExp = 0;
 
      // Generate a unique ID and remember it
+
+     // Get exclusive access to the lock so that only one
+     // add/remove/search of the list is done at a time.
+      Assert(pthread_mutex_lock(&Window_List_Lock) == 0);
+
       id = ++Command_Window_ID;
       CommandWindowID_list.push_front(this);
+
+     // Release the lock.
+      Assert(pthread_mutex_unlock(&Window_List_Lock) == 0);
 
      // Allocate a trace file for commands associated with this window
       char base[20];
@@ -298,6 +276,7 @@ class CommandWindowID
         fclose (Trace_F);
         remove (Trace_File_Name.c_str());
       }
+     // Remove the input specifiers
       if (Input) {
         for (Input_Source *inp = Input; inp != NULL; ) {
           Input_Source *next = inp->Next();
@@ -306,43 +285,86 @@ class CommandWindowID
         }
         Input = NULL;
       }
+     // Remove the control structures associate with the lock
+      pthread_mutex_destroy(&Input_List_Lock);
 
      // Unlink from the chain of windows
+
+     // Get exclusive access to the lock so that only one
+     // add/remove/search of the list is done at a time.
+      Assert(pthread_mutex_lock(&Window_List_Lock) == 0);
+
       if (*CommandWindowID_list.begin()) {
         CommandWindowID_list.remove(this);
       }
+
+     // Release the lock.
+      Assert(pthread_mutex_unlock(&Window_List_Lock) == 0);
     }
 
-  void    Define_Input_File ( std::string fromfname ) {
-    Input_Source *inp = new Input_Source (fromfname); 
+  void Append_Input_Source (Input_Source *inp) {
+   // Get exclusive access to the lock so that only one
+   // read, write, add or delete is done at a time.
+    Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
+
+    if (Input == NULL) {
+      Input = inp;
+    } else {
+      Input_Source *previous_inp = Input;
+      while (previous_inp->Next() != NULL) {
+        previous_inp = previous_inp->Next();
+      }
+      previous_inp->Link(inp);
+    }
+
+   // Release the lock.
+    Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
+  }
+  void Push_Input_Source (Input_Source *inp) {
+   // Get exclusive access to the lock so that only one
+   // read, write, add or delete is done at a time.
+    Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
+
     Input_Source *previous_inp = Input;
     inp->Link(previous_inp);
     Input = inp;
-    Current_Input_Level++;
+
+   // Release the lock.
+    Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
   }
-  void    Define_Input_Buffer ( int64_t bsize, char *bptr ) {
-    Input_Source *inp = new Input_Source (bsize, bptr);
-    Input_Source *previous_inp = Input;
-    inp->Link(previous_inp);
-    Input = inp;
-    Current_Input_Level++;
-  }
-  void    Pop_Input_Source () {
+private:
+  void Pop_Input_Source () {
+   // We do not need to get exclusive access to Input_List_Lock
+   // Because the only path to this routine is through Read_Command,
+   // which already has exclusive use of the lock.
+
     Input_Source *old = Input;
     Input = Input->Next();
     delete old;
-    Current_Input_Level--;
   }
+public:
   char *Read_Command () {
+   // Get exclusive access to the lock so that only one
+   // read, write, add or delete is done at a time.
+    Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
+
     char *next_line = NULL;
     while (Input != NULL) {
       next_line = Input->Get_Next_Line ();
       if (next_line != NULL) {
-        return next_line;
+        break;
       }
       Pop_Input_Source();
     }
-    return NULL;
+
+   // Release the lock.
+    Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
+
+    return next_line;
+  }
+
+  bool Input_Available () {
+    return  ((Input != NULL));
   }
 
   // Field access
@@ -437,17 +459,27 @@ class CommandWindowID
 
 CommandWindowID *Find_Command_Window (CMDWID WindowID)
 {
+  CommandWindowID *found_window = NULL;
+
+ // Get exclusive access to the lock so that only one
+ // add/remove/search of the list is done at a time.
+  Assert(pthread_mutex_lock(&Window_List_Lock) == 0);
+
 // Search for existing entry.
   if (WindowID > 0) {
     std::list<CommandWindowID *>::iterator cwi;
     for (cwi = CommandWindowID_list.begin(); cwi != CommandWindowID_list.end(); cwi++) {
       if (WindowID == (*cwi)->ID ()) {
-        return *cwi;
+        found_window = *cwi;
+        break;
       }
     }
   }
 
-  return NULL;
+ // Release the lock.
+  Assert(pthread_mutex_unlock(&Window_List_Lock) == 0);
+
+  return found_window;
 }
 
 int64_t Find_Command_Level (CMDWID WindowID)
@@ -603,66 +635,113 @@ ResultObject Command_Trace_OFF (CMDWID WindowID)
 
 // This is the start of the Command Line Processing Routines.
 // Only one thread can be executing one of these rotuines at a time,
-// so the must be protected with the use of Command_Processing_Lock.
+// so the must be protected with the use of Window_List_Lock.
 
 CMDWID Commander_Initialization (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel)
 {
- // Get exclusive access to the lock so that only one
- // command is processed at a time.
-  Assert(pthread_mutex_lock(&Command_Processing_Lock) == 0);
-
  // Create a new Window
   CommandWindowID *cwid = new CommandWindowID(std::string(my_name ? my_name : ""),
                                               std::string(my_host ? my_host : ""),
                                               my_pid, my_panel);
-
- // Release the lock.
-  Assert(pthread_mutex_unlock(&Command_Processing_Lock) == 0);
-
   return cwid->ID();
 }
 
 void Commander_Termination (CMDWID im)
 {
- // Get exclusive access to the lock so that only one
- // command is processed at a time.
-  Assert(pthread_mutex_lock(&Command_Processing_Lock) == 0);
-
   if (im) {
     CommandWindowID *my_window = Find_Command_Window (im);
     if (my_window) delete my_window;
   }
-
- // Release the lock.
-  Assert(pthread_mutex_unlock(&Command_Processing_Lock) == 0);
-
   return;
 }
 
 
-ResultObject Attach_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_ptr) {
+ResultObject Append_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_ptr) {
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
   Assert (cw);
-  cw->Define_Input_Buffer (b_size, b_ptr);
+  Input_Source *inp = new Input_Source (b_size, b_ptr);
+  cw->Append_Input_Source (inp);
   return ResultObject(SUCCESS, "Command_File_T", NULL, "Command file read and processed");
 }
 
-ResultObject Attach_Input_File (CMDWID issuedbywindow, std::string fromfname) {
+ResultObject Append_Input_String (CMDWID issuedbywindow, int64_t b_size, char *b_ptr) {
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
   Assert (cw);
-  cw->Define_Input_File (fromfname);
+  int64_t buffer_size = b_size+1;
+  char *buffer = (char *)malloc(buffer_size);
+  strncpy (buffer, b_ptr, buffer_size);
+  Input_Source *inp = new Input_Source (buffer_size, buffer);
+  cw->Append_Input_Source (inp);
   return ResultObject(SUCCESS, "Command_File_T", NULL, "Command file read and processed");
 }
 
-ResultObject Detach_Input_Source (CMDWID issuedbywindow) {
+ResultObject Append_Input_File (CMDWID issuedbywindow, std::string fromfname) {
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
   Assert (cw);
-  cw->Pop_Input_Source();
+  Input_Source *inp = new Input_Source (fromfname);
+  cw->Append_Input_Source (inp);
   return ResultObject(SUCCESS, "Command_File_T", NULL, "Command file read and processed");
+}
+
+ResultObject Push_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_ptr) {
+  CommandWindowID *cw = Find_Command_Window (issuedbywindow);
+  Assert (cw);
+  Input_Source *inp = new Input_Source (b_size, b_ptr);
+  cw->Push_Input_Source (inp);
+  return ResultObject(SUCCESS, "Command_File_T", NULL, "Command file read and processed");
+}
+
+ResultObject Push_Input_File (CMDWID issuedbywindow, std::string fromfname) {
+  CommandWindowID *cw = Find_Command_Window (issuedbywindow);
+  Assert (cw);
+  Input_Source *inp = new Input_Source (fromfname);
+  cw->Push_Input_Source (inp);
+  return ResultObject(SUCCESS, "Command_File_T", NULL, "Command file read and processed");
+}
+
+// The algorithm is to do a round-robin search of the defined window list
+// by starting with the last widow that was read from.  The usual choice
+// to read from the next window in the list but, if the parser indicates
+// that it is processing a complex statement (e.g. a loop) the next line
+// read MUST come from the previous window.
+static CMDWID select_input_window (int is_more) {
+  CMDWID selectwindow = Last_ReadWindow;
+
+ // Get exclusive access to the lock so that only one
+ // add/remove/search of the list is done at a time.
+  Assert(pthread_mutex_lock(&Window_List_Lock) == 0);
+
+  if (is_more == 0) {
+
+    std::list<CommandWindowID *>::iterator cwi;
+    for (cwi = CommandWindowID_list.begin(); cwi != CommandWindowID_list.end(); cwi++) {
+      if (selectwindow == (*cwi)->ID ()) {
+        std::list<CommandWindowID *>::iterator next_cwi = ++cwi;
+        if (next_cwi == CommandWindowID_list.end()) {
+          next_cwi = CommandWindowID_list.begin();
+        }
+        selectwindow = (*next_cwi)->ID();
+        goto window_found;
+      }
+    }
+
+   // A fall through the loop indicates that we didn't find the Last_ReadWindow.
+   // Do error recovery by choosing the first one on the list.
+    selectwindow = (*CommandWindowID_list.begin())->ID();
+
+  }
+
+window_found:
+
+ // Release the lock.
+  Assert(pthread_mutex_unlock(&Window_List_Lock) == 0);
+
+  Assert (selectwindow);
+  Last_ReadWindow = selectwindow;
+  return selectwindow;
 }
 
 #include "Python.h"
-static char *sbuf = NULL;
 
 char *SpeedShop_ReadLine (int is_more)
 {
@@ -671,16 +750,35 @@ char *SpeedShop_ReadLine (int is_more)
     current_prompt = "....ss";
   }
 
-  if (sbuf == NULL) {
-    sbuf = (char *)PyMem_Malloc(4069);
-  }
-  CommandWindowID *cw = Find_Command_Window (1);
+  CMDWID readfromwindow = select_input_window(is_more);
+  CMDWID firstreadwindow = readfromwindow;
+
+read_another_window:
+
+  CommandWindowID *cw = Find_Command_Window (readfromwindow);
   Assert (cw);
   char *s;
 
   do {
     s = cw->Read_Command ();
     if (s == NULL) {
+     // The read failed.  Why?  Can we find something else to read?
+      if (is_more) {
+       // We MUST read from this window!
+       // This is an error situation.  How can we recover?
+      }
+     // It might be possible to read from a different window.
+     // Try to find another one.
+      readfromwindow = select_input_window(is_more);
+      if (readfromwindow != firstreadwindow) {
+       // There is another window to read from.
+        goto read_another_window;
+      }
+     // Sould we attempt to read from stdin?
+     // HOW DO WE FORCE A WAIT UNTIL DATA IS READY?
+
+     // The end of all window inputs has been reached.
+     // Return an empty line to indicate an EOF.
       break;
     }
     int len  = strlen(s);
@@ -693,11 +791,20 @@ fprintf(stdout,"quit instruction encountered\n");
     }
   } while (s == NULL);
 
+  current_prompt = save_prompt;
   if (s == NULL) {
-    current_prompt = save_prompt;
     return NULL;
   }
+
+  char *sbuf = (char *)PyMem_Malloc(strlen(s) + 1);
   strcpy (sbuf, s);
-  current_prompt = save_prompt;
+  CommandObject *clip = new CommandObject(readfromwindow,sbuf);
+
+ // Assign a sequence number to the command.
+  clip->SetSeq (++Command_Sequence_Number);
+
+ // Log the command.
+  cw->Trace(clip);
+
   return sbuf;
 }
