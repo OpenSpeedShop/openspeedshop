@@ -582,6 +582,8 @@ void PanelContainer::mouseReleaseEvent(QMouseEvent *e)
 
 #ifndef OLD_DRAG_AND_DROP
 #include <qbitmap.h>
+#include "drag.xpm"
+/*
 static const char *drag_xpm[]={
 "16 16 2 1",
 "# c #000000",
@@ -602,6 +604,7 @@ static const char *drag_xpm[]={
 "#..............#",
 "#..............#",
 "################"};
+*/
 
 /*! This routine is called upon completion of the drag event.   
     The exception to a simple drag is that we want to be able to drop
@@ -2714,6 +2717,15 @@ PanelContainer::panelContainerContextMenuEvent( PanelContainer *targetPC, bool l
   apm = new QPixmap( vsplit_xpm );
   apm->setMask( apm->createHeuristicMask());
   getMasterPC()->pcMenu->insertItem(*apm, "Split &Vertical", targetPC, SLOT(splitVertical()), CTRL+Key_V );
+
+if( targetPC->areTherePanels() )
+{
+  apm = new QPixmap( drag_xpm );
+  apm->setMask( apm->createHeuristicMask());
+  getMasterPC()->pcMenu->insertItem(*apm, "&Drag Panel", targetPC, SLOT(dragRaisedPanel()), CTRL+Key_V );
+}
+
+  getMasterPC()->pcMenu->insertSeparator();
 
   delete apm;
   apm = new QPixmap( x_xpm );

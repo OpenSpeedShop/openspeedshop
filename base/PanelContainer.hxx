@@ -228,8 +228,10 @@ Panel *findNamedPanel(PanelContainer *start_pc, char *panel_name);
     void mouseReleaseEvent(QMouseEvent *e=NULL);
 #endif // OLD_DRAG_AND_DROP
 
+#ifdef OLDWAY
     //! This routine drags a the current (raised) Panel.
     void dragRaisedPanel();
+#endif // OLDWAY
 
     //! Sets the main window (OpenSpeedshop class)
     void setMainWindow(OpenSpeedshop *oss) { _masterPC->mainWindow = oss; };
@@ -255,6 +257,9 @@ Panel *findNamedPanel(PanelContainer *start_pc, char *panel_name);
 
     //! This is a convienience routine that splits PanelContainers vertically.
     void splitVertical(int leftSidePercent=-1);
+
+    //! This routine drags the current (raised) Panel.
+    void dragRaisedPanel();
 
     //! This routine removes a PanelContainer.
     void removePanelContainer(PanelContainer *pc=NULL);
