@@ -254,10 +254,15 @@ Panel *findNamedPanel(PanelContainer *start_pc, char *panel_name);
     void closeWindow(PanelContainer *pc=NULL);
 
 
-//! Sets the main window (OpenSpeedshop class)
-void setMainWindow(OpenSpeedshop *oss) { _masterPC->mainWindow = oss; };
-//! Returns the main window (OpenSpeedshop class) 
-OpenSpeedshop *getMainWindow() { return _masterPC->mainWindow; };
+    //! Sets the main window (OpenSpeedshop class)
+    void setMainWindow(OpenSpeedshop *oss) { _masterPC->mainWindow = oss; };
+
+    //! Returns the main window (OpenSpeedshop class) 
+    OpenSpeedshop *getMainWindow() { return _masterPC->mainWindow; };
+
+    //! Moves give panel to targetPC.
+    void movePanel( Panel *p, QWidget *currentPage, PanelContainer *targetPC );
+
 
   protected:
 
@@ -311,8 +316,8 @@ OpenSpeedshop *getMainWindow() { return _masterPC->mainWindow; };
     //! This is a handle to the sourcePC for reparenting.
     PanelContainer *sourcePC;
 
-//! A pointer back to the mainwindow and the initial launch information.
-OpenSpeedshop *mainWindow;
+    //! A pointer back to the mainwindow and the initial launch information.
+    OpenSpeedshop *mainWindow;
 
     //! Recovers any hidden (markedForDelete) PanelContainers.
     void recover(PanelContainer *pc);
@@ -320,8 +325,11 @@ OpenSpeedshop *mainWindow;
     //! Convienece routine to reparent one PanelContainer's Panels into another.
     void reparentPCPanels(PanelContainer *tPC, PanelContainer *fPC);
 
-    //! Moves this Panels PanelContainer to the target PanelContainer.
-    void movePanelsToNewPanelContainer( PanelContainer *targetPC);
+    //! Moves all source PanelContainer's Panels to 'this' PanelContainer.
+    void movePanelsToNewPanelContainer( PanelContainer *sourcePC);
+
+    //! Moves current sourcePC PanelContainer's to 'this' PanelContainer.
+    void moveCurrentPanelToNewPanelContainer( PanelContainer *sourcePC );
 
     //! Loops through all PanelContainers saving by level. (depth)
     void _saveOrderedPanelContainerTree(PanelContainer *pc, FILE *fd);

@@ -400,8 +400,8 @@ PanelContainer::split(Orientation orientation, bool showRight, int leftSidePerce
       right_side_size = left_side_size = (int)(width/2);
     }
   }
-sizeList.push_back(left_side_size);
-sizeList.push_back(right_side_size);
+  sizeList.push_back(left_side_size);
+  sizeList.push_back(right_side_size);
 
   splitter->setSizes(sizeList);
 
@@ -459,7 +459,24 @@ sizeList.push_back(right_side_size);
 
   // Now, if there was a widget to reparent, we've split everything, now
   // reparent the widget into the new left side panel container's drop site.
-  leftPanelContainer->movePanelsToNewPanelContainer( sourcePC );
+
+  // During the usability 
+  // studies (phaseI) many people suggested that when splitting and 
+  // when mulitiple panels are in the split panel container that we should
+  // divide the panels up.    So, keep the focused panel in the left/top
+  // and move the remaining panels to the right/bottom panel container.
+  if( sourcePC->areTherePanels() )
+  {
+printf("There are (%d) panels\n", sourcePC->panelList.count() );
+    if( sourcePC->panelList.count() > 1 ) 
+    {
+      rightPanelContainer->movePanelsToNewPanelContainer( sourcePC );
+      leftPanelContainer->moveCurrentPanelToNewPanelContainer( rightPanelContainer );
+    } else
+    {
+      leftPanelContainer->movePanelsToNewPanelContainer( sourcePC );
+    }
+  }
 }
 
 /*! This routine is called when a PanelContainer's menu is requested.
@@ -2214,6 +2231,173 @@ PanelContainer::movePanelsToNewPanelContainer( PanelContainer *sourcePC)
   sourcePC->panelList.clear();
 
   nprintf(DEBUG_PANELCONTAINERS) ("\n\n\n");
+}
+
+
+/*! This routine actually reparents widgets (One Panel) from 
+    one PanelContainer to another.   
+    \par
+    Given a source PanelContainer, look for the current Panel there and
+    it to 'this' (targetPC) PanelContainer.
+*/
+void
+PanelContainer::moveCurrentPanelToNewPanelContainer( PanelContainer *sourcePC )
+{
+  PanelContainer *targetPC = this;
+
+  nprintf(DEBUG_PANELCONTAINERS) ("moveCurrentPanelToNewPanelContainer targetPC=(%s-%s) from (%s-%s)\n", targetPC->getInternalName(), targetPC->getExternalName(), sourcePC->getInternalName(), sourcePC->getExternalName() );
+
+  if( sourcePC == NULL || sourcePC == targetPC || 
+      sourcePC->tabWidget == NULL )
+  {
+    return;
+  }
+
+  QWidget *currentPage = sourcePC->tabWidget->currentPage();
+  Panel *panelToMove = sourcePC->getRaisedPanel();
+  if( !panelToMove )
+  {
+    fprintf(stderr, "Error: Couldn't locate a panel to move.\n");
+    return;
+  }
+
+  QPoint point;
+  QWidget *widget_to_reparent = currentPage;
+  int original_index = sourcePC->tabWidget->currentPageIndex();
+
+  nprintf(DEBUG_PANELCONTAINERS) ("I think there are %d panels to move ", sourcePC->tabWidget->count() );
+printf ("I think there are %d panels to move ", sourcePC->tabWidget->count() );
+ 
+  nprintf(DEBUG_PANELCONTAINERS) ("onto targetPC=(%s)\n", targetPC->getInternalName() );
+printf ("onto targetPC=(%s)\n", targetPC->getInternalName() );
+
+  QWidget *w = targetPC->dropSiteLayoutParent;
+
+  if( targetPC->dropSiteLayout == NULL )
+  {
+    targetPC->dropSiteLayout = new QVBoxLayout( w, 0, 0, "dropSiteLayout");
+    targetPC->tabWidget = new TabWidget( targetPC, w, "tabWidget" );
+    {
+    char n[1024]; strcpy(n,"tabWidget:A:");strcat(n, targetPC->internal_name);strcat(n,"-");strcat(n,targetPC->external_name);
+    targetPC->setCaption(n);
+    }
+    tabBarWidget = new TabBarWidget( targetPC, w, "tabBarWidget");
+    {
+    char n[1024]; strcpy(n,"tabBarWidget:");strcat(n, internal_name);strcat(n,"-");strcat(n,external_name);
+    tabBarWidget->setCaption(n);
+    }
+    tabWidget->setTabBar(tabBarWidget);
+  
+    targetPC->dropSiteLayout->addWidget( targetPC->tabWidget );
+  }
+
+  if( !sourcePC->panelList.empty() )
+  {
+    int i = 0;
+    nprintf(DEBUG_PANELCONTAINERS) ("we're going to try to move these panels:\n");
+    for( PanelList::Iterator pit = sourcePC->panelList.begin();
+             pit != sourcePC->panelList.end();
+             ++pit )
+    {
+      Panel *p = (Panel *)*pit;
+      nprintf(DEBUG_PANELCONTAINERS) ("p=(%s)=0x%x panelToMove=(%s)=0x%x\n", p->getName(), p, panelToMove->getName(), panelToMove );
+      if( p == panelToMove )
+      {
+        nprintf(DEBUG_PANELCONTAINERS) ("  try to move p (%s)\n", p->getName() );
+        // We're about to move the Panel.
+        p->getPanelContainer()->movePanel(p, currentPage, targetPC);
+
+        break; // Only move one with this routine.
+      }
+    
+    }
+  }
+
+  int count = targetPC->tabWidget->count();
+  nprintf(DEBUG_PANELCONTAINERS) ("we've moved %d panels\n", count);
+printf ("we've moved %d panels\n", count);
+  if( count > 0 )
+  {
+    targetPC->tabWidget->setCurrentPage(original_index);
+  }
+
+  sourcePC->panelList.remove(panelToMove);
+
+  nprintf(DEBUG_PANELCONTAINERS) ("\n\n\n");
+}
+
+/*! This routine actually reparents widgets (One Panel) from 
+    one PanelContainer to another.   
+    \par
+    Given a source PanelContainer, look for the current Panel there and
+    it to 'this' (targetPC) PanelContainer.
+*/
+void
+PanelContainer::movePanel( Panel *p, QWidget *currentPage, PanelContainer *targetPC )
+{
+  PanelContainer *sourcePC = p->getPanelContainer();
+  QPoint point;
+  QWidget *w = targetPC->dropSiteLayoutParent;
+
+  // First remove the Panel from the old PanelContainer list.
+  p->getPanelContainer()->panelList.remove(p);
+
+  // Set the Panels parent PanelContainer field to the new PanelContainer.
+  p->setPanelContainer(targetPC);
+
+  // Also set the Panel's base frame's pointer to the new PanelContainer.
+  p->getBaseWidgetFrame()->setPanelContainer(targetPC);
+
+  // Set the TabBarWidget to the new panel container.
+  p->getBaseWidgetFrame()->getPanelContainer()->tabBarWidget->setPanelContainer(targetPC);
+
+  // Reparent the tabWidget.
+  currentPage->reparent(p->getPanelContainer()->tabWidget, 0, point, TRUE);
+  // Reparent the baseWidget
+  p->getBaseWidgetFrame()->reparent(w, 0, point, TRUE);
+
+  // Reparent the Panel's base widget. (Create with the call to the Panel
+  // constructor.
+  QWidget *panel_base = (QWidget *)p;
+  panel_base->reparent((QWidget *)targetPC, 0, point, TRUE);
+
+  // Now add the actual tab to the tabWidget in the new PanelContainer.
+  p->getPanelContainer()->tabWidget->addTab( currentPage, p->getName() );
+
+  p->getPanelContainer()->augmentTab( currentPage );
+
+  // Add the move Panel to the new PanelContainers panelList.
+  p->getPanelContainer()->panelList.push_back(p);
+
+  // Make sure we can see it, so call show....
+  p->getBaseWidgetFrame()->show();
+  p->getPanelContainer()->dropSiteLayoutParent->show();
+
+  p->getPanelContainer()->handleSizeEvent(NULL);
+  // Now set the newest one current...
+  int count = p->getPanelContainer()->tabWidget->count();
+  if( count > 0 )
+  {
+    p->getPanelContainer()->tabWidget->setCurrentPage(count-1);
+  }
+
+  // Remove the tab from the old PanelContainer.
+  sourcePC->tabWidget->removePage(currentPage);
+
+
+  // If we just pulled off the last Panel from the old PanelContainer
+  // hide the dropSiteLayoutParent (since it's only needed for the tabWidget
+  // to show Panels.   This cleans up the look for the PanelContainer to 
+  // keep it fresh and clean like a split().
+  if( !sourcePC->areTherePanels() )
+  {
+    sourcePC->dropSiteLayoutParent->hide();
+  }
+  // Make sure the new PanelContainer has everything showing.
+  targetPC->leftFrame->show();
+  targetPC->dropSiteLayoutParent->show();
+  targetPC->tabWidget->show();
+  targetPC->splitter->show();
 }
 
 // Begin Debug routines
