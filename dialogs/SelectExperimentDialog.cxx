@@ -56,10 +56,14 @@ SelectExperimentDialog::SelectExperimentDialog( QWidget* parent, const char* nam
   SelectExperimentDialogLayout->addWidget( hostComboBox );
 
   availableExperimentsListView = new QListView( this, "availableExperimentsListView" );
-  availableExperimentsListView->addColumn( tr( "Available Experiments:" ) );
+  availableExperimentsListView->addColumn( tr( "id:" ) );
+  availableExperimentsListView->addColumn( tr( "Name:" ) );
+  availableExperimentsListView->addColumn( tr( "Description:" ) );
   availableExperimentsListView->setSelectionMode( QListView::Single );
   availableExperimentsListView->setAllColumnsShowFocus( FALSE );
-  availableExperimentsListView->setShowSortIndicator( FALSE );
+  availableExperimentsListView->setShowSortIndicator( TRUE );
+  availableExperimentsListView->setSorting( 0, FALSE );
+  availableExperimentsListView->setSortOrder( Qt::Ascending );
   SelectExperimentDialogLayout->addWidget( availableExperimentsListView );
 
 
@@ -109,7 +113,7 @@ SelectExperimentDialog::~SelectExperimentDialog()
  */
 void SelectExperimentDialog::languageChange()
 {
-  setCaption( tr( "SelectExperimentDialog" ) );
+  setCaption( tr( name() ) );
   buttonHelp->setText( tr( "&Help" ) );
   buttonHelp->setAccel( QKeySequence( tr( "F1" ) ) );
   buttonOk->setText( tr( "&OK" ) );
@@ -168,8 +172,8 @@ SelectExperimentDialog::updateAvailableExperimentList()
 
     printf("Here are the experiment ids that can be saved (%d)\n", cr_int);
     sprintf(entry_buffer, "%4d %-20s %-20s\n", cr_int, "Experiment Name", "other info..." );
-    QListViewItem *item = new QListViewItem( availableExperimentsListView, 0 );
-    item->setText( 0, entry_buffer );
+    QListViewItem *item = new QListViewItem( availableExperimentsListView, QString("%1").arg(cr_int), "Name", "Description" );
+//    item->setText( 0, entry_buffer );
   }
 }
 

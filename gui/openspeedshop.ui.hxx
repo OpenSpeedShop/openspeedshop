@@ -138,8 +138,7 @@ void OpenSpeedshop::fileOpenExperiment()
 printf("expStr = %s\n", expStr.ascii() );
 
 // Given an expStr (the -x experiment id) look up all the data... 
-// QString experimentName = QString("&pc Sampling [1]");
-QString experimentName = QString("pc Sampling [1]");
+QString experimentName = QString("pc Sampling ["+expStr+"]");
 const char *name = experimentName.ascii();
 printf("Try to locate panel with name/id pair (%s)\n", experimentName.ascii() );
 // Determine if an experiment already exits for the experiment and if so 
@@ -155,7 +154,7 @@ printf("Try to locate panel with name/id pair (%s)\n", experimentName.ascii() );
 // as an argument for it to load an existing experiment rather than 
 // creating a new one.
       printf("Create a new one!\n");
-      topPC->dl_create_and_add_panel("pc Sampling", topPC->leftPanelContainer, (void *)&QString("1"));
+      topPC->dl_create_and_add_panel("pc Sampling", topPC->leftPanelContainer, (void *)&expStr);
     }
 
   delete dialog;
