@@ -61,13 +61,13 @@ class StatsPanel  : public Panel
 //! Store away the header types.  This is used later by the SPListView::key(...)
 //! routine to sort the columns.  (i.e. It's used to determine the column
 //! 'type'.
-    MetricHeaderType metricHeaderTypeArray[8];  // 8 matches the QListView column limitation.
+//    MetricHeaderType metricHeaderTypeArray[8];  // 8 matches the QListView column limitation.
+    int *metricHeaderTypeArray;  // matches the QListView # of column entries.
 private:
     int numberItemsToRead;
     ColumnList columnList;
     CollectorInfo *collectorData;
-    int getUpdatedData(int num_entries_to_read);
-    int getMetrics(int number_entries_to_read);
+    void getUpdatedData();
     void matchSelectedItem( int );
 
   public slots:

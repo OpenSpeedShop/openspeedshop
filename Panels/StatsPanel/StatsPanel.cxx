@@ -21,7 +21,8 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, char *argument) : Pane
 {
   setCaption("StatsPanel");
 
-//  numberItemsToRead = 5;
+  metricHeaderTypeArray = NULL;
+
   bool ok;
   numberItemsToRead = getPreferenceTopNLineEdit().toInt(&ok);
   if( !ok )
@@ -198,12 +199,18 @@ StatsPanel::updateStatsPanelData()
 
   lv->clear();
 
-  int number_entries = getUpdatedData(numberItemsToRead);
+  getUpdatedData();
 
   SPListViewItem *lvi;
 
 // First delete the old column list.  (also used for dynamic menus)
   columnList.clear();
+  if( metricHeaderTypeArray != NULL )
+  {
+    delete []metricHeaderTypeArray;
+  }
+  int header_count = collectorData->metricHeaderInfoList.count();
+  metricHeaderTypeArray = new int[header_count];
   int i=0;
   for( MetricHeaderInfoList::Iterator pit = collectorData->metricHeaderInfoList.begin(); pit != collectorData->metricHeaderInfoList.end(); ++pit )
   { 
@@ -519,104 +526,9 @@ StatsPanel::truncateCharString(char *str, int length)
 
 // This routine needs to be rewritten when we really get the framework 
 // round trip written.
-int
-StatsPanel::getUpdatedData(int num_entries_to_read)
+void
+StatsPanel::getUpdatedData()
 {
   // Get the information about the collector.  
   collectorData = new CollectorInfo();
-
-  int number_returned = getMetrics(num_entries_to_read);
-  if( number_returned == 0 )
-  {
-    return 0;
-  }
-
-  return( number_returned );
-}
-
-// This routine will either go away or be rewritten.
-
-/*! Get the values from the collectorData. */
-enum LABEL_TYPE  { PERCENT_T, FUNCTION_NAME_T, RANK_T, NONE_T };
-int
-StatsPanel::getMetrics(int number_entries_to_read)
-{
-  int values[1024];
-  char *color_names[1024];
-  char *strings[1024];
-
-  int i=0;
-  float sum = 0.0;
-
-LABEL_TYPE lt = NONE_T;
-
-  MetricInfo *fi = NULL;
-
-  if( !collectorData )
-  {
-    return 0;
-  }
-
-  for( MetricInfoList::Iterator it = collectorData->metricInfoList.begin();
-       it != collectorData->metricInfoList.end();
-       it++ )
-  {
-    values[i] = 0;
-    color_names[i] = "";
-    strings[i] = "";
-    if( i == number_entries_to_read-1 )
-    {
-      break;
-    }
-    if( i >= 5 )
-    {
-      color_names[i] = color_name_table[4];
-    } else
-    {
-      color_names[i] = color_name_table[i];
-    }
-    fi = (MetricInfo *)*it;
-    values[i] = (int)fi->percent;
-
-    if( lt == FUNCTION_NAME_T )
-    {
-      char *ptr = strchr(fi->functionName, ':');
-     if( ptr )
-      {
-        strings[i] = ptr+=2;
-      } else
-      {
-        strings[i] = fi->functionName;
-      }
-    } else if( lt == RANK_T )
-    {
-      char rank_buffer[10];
-      sprintf(rank_buffer, "%d", i+1);
-      strings[i] = strdup(rank_buffer);   // leak   FIX
-    } else if( lt == PERCENT_T )
-    {
-      char percent_buffer[10];
-      sprintf(percent_buffer, "%.2f", fi->percent);
-      strings[i] = strdup(percent_buffer);   // leak   FIX
-    } else   // NONE_T
-    {
-      strings[i] = strdup(""); // leak   FIX
-    }
-    sum+= values[i];
-    i++;
-  }
-  values[i] = (int)(100-sum);
-  if( lt != NONE_T )
-  {
-    strings[i] = strdup("other...");   // leak   FIX
-  }
-  if( i > 5 )
-  {
-    color_names[i] = color_name_table[4];
-  } else
-  {
-    color_names[i] = color_name_table[i];
-  }
-
-  return(i+1);
 }

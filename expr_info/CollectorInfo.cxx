@@ -57,6 +57,29 @@ CollectorInfo::fudgeValues()
   metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Start Line #"), INT_T));
   metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Range"), INT_T));
 
+/*
+  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Range1"), INT_T));
+  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Range2"), INT_T));
+  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Range3"), INT_T));
+  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Range4"), INT_T));
+  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Range5"), INT_T));
+  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Range6"), INT_T));
+  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Range7"), INT_T));
+  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Range8"), INT_T));
+  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Range9"), INT_T));
+  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Range10"), INT_T));
+  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Range11"), INT_T));
+  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Range12"), INT_T));
+  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Range13"), INT_T));
+  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Range14"), INT_T));
+  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Range15"), INT_T));
+  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Range16"), INT_T));
+  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Range17"), INT_T));
+  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Range18"), INT_T));
+  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Range19"), INT_T));
+  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Range20"), INT_T));
+*/
+
   int i = 0;
   MetricInfo *nfi;
   nfi = new MetricInfo(i, (float)44.2, (float)0.190, "foo()", "foo.c", 11, 11, 14);
