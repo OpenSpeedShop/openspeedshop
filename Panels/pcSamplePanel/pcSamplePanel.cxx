@@ -488,27 +488,16 @@ pcSamplePanel::manageCollectorsSelected()
 {
   nprintf( DEBUG_PANELS ) ("pcSamplePanel::manageCollectorsSelected()\n");
 
-#ifdef OLDWAY
-  ManageCollectorsDialog *dialog = new ManageCollectorsDialog(this, "ManageCollectorsDialog", TRUE, 0, expID);
-  if( dialog->exec() == QDialog::Accepted )
-  {
-    printf("QDialog::Accepted\n");
-//    pidStr = dialog->selectedProcesses();
-  }
-
-  //printf("pidStr = %s\n", pidStr.ascii() );
-  delete dialog;
-#else // OLDWAY
   if( manageCollectorsDialog == NULL )
   {
-    manageCollectorsDialog = new ManageCollectorsDialog(this, "ManageCollectorsDialog", TRUE, 0, expID);
+//    manageCollectorsDialog = new ManageCollectorsDialog(this, "ManageCollectorsDialog", TRUE, 0, expID);
+    manageCollectorsDialog = new ManageCollectorsDialog(mw, "ManageCollectorsDialog", TRUE, 0, expID);
   }
   if( manageCollectorsDialog->exec() == QDialog::Accepted )
   {
     printf("QDialog::Accepted\n");
 //    pidStr = dialog->selectedProcesses();
   }
-#endif // OLDWAY
 }   
 
 void

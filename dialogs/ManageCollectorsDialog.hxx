@@ -24,6 +24,9 @@
 #include <qdialog.h>
 #include <qpopupmenu.h>
 
+#include "openspeedshop.hxx"
+#include "CLIInterface.hxx"
+
 #include "CollectorListObject.hxx"  // For getting pid list off a host...
 #include "CollectorEntryClass.hxx"
 
@@ -64,6 +67,9 @@ protected:
     QHBoxLayout* Layout1;
     QSpacerItem* Horizontal_Spacing2;
 
+    CLIInterface *cli;
+    OpenSpeedshop *mw;
+
 protected slots:
     virtual void languageChange();
 
@@ -73,6 +79,10 @@ public slots:
 
 
 private slots:
+    void removeSelected();
+    void disableSelected();
+    void modifySelected();
+    void nothingSelected();
 
 private:
     int expID;
