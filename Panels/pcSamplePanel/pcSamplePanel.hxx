@@ -42,6 +42,7 @@ class OpenSpeedshop;
 #define PANEL_CLASS_NAME pcSamplePanel   // Change the value of the define
                                          // to the name of your new class.
 
+#include "Experiment.hxx"
 //! Creates the pcSamplePanel that controls the pcSampling experiment.
 class pcSamplePanel  : public Panel
 {
@@ -110,6 +111,9 @@ public:
   ProcessControlObject *pco;
 
   bool runnableFLAG;
+
+OpenSpeedShop::Framework::Experiment *fw_experiment() { return experiment; }
+
 public slots:
   void saveAsSelected();
   void loadNewProgramSelected();
@@ -130,6 +134,7 @@ private:
   OpenSpeedshop *mw;
  
   int expID;  // Experiment ID of the expCreate, returned from the cli
+OpenSpeedShop::Framework::Experiment *experiment;
 
   void updateInitialStatus();
 };

@@ -39,7 +39,6 @@
 
 #include "LoadAttachObject.hxx"
 
-// #include "SS_Input_Manager.hxx"
 #include "CLIInterface.hxx"
 
 using namespace OpenSpeedShop::Framework;
@@ -191,19 +190,22 @@ printf(" expID == -1\n");
     {
   //  Experiment::create(mw->executableName.ascii());
       Experiment::create(name);
-      Experiment experiment(name);
+//      Experiment experiment(name);
+//      Experiment *experiment = new Experiment(name);
+      experiment = new Experiment(name);
   
       // Create a process for the command in the suspended state
       std::string command = std::string(mw->executableName.ascii());
   
 // Currently this hangs...
-printf("call experiment.createProcess(%s)\n", command.c_str() );
-      Thread thread = experiment.createProcess(command);
+printf("call experiment->createProcess(%s)\n", command.c_str() );
+      Thread thread = experiment->createProcess(command);
   
       // Create the example collector and set its sampling rate
       nprintf( DEBUG_CONST_DESTRUCT ) ("call the createCollector...(pcsamp)\n");
 printf("call the createCollector...(pcsamp)\n");
-      Collector collector = experiment.createCollector("example");
+      Collector collector = experiment->createCollector("example");
+
       nprintf( DEBUG_CONST_DESTRUCT ) ("call the setParameterValue...(sampling_rate, 10)\n");
 printf("call the setParameterValue...(sampling_rate, 10)\n");
       collector.setParameterValue("sampling_rate", (unsigned)10);
@@ -211,9 +213,10 @@ printf("call the setParameterValue...(sampling_rate, 10)\n");
 collector.attachThread(thread);
 collector.startCollecting();
 
+#ifdef MOVE
 // Resume all threads and wait for them to terminate
-experiment.getThreads().changeState(Thread::Running);
-while(!experiment.getThreads().areAllState(Thread::Terminated))
+experiment->getThreads().changeState(Thread::Running);
+while(!experiment->getThreads().areAllState(Thread::Terminated))
 {
   sleep(1);
 }
@@ -239,6 +242,8 @@ for(std::map<Function, double>::const_iterator
 		      << i->first.getName() << std::endl;
 }
 std::cout << std::endl << std::endl << std::endl;
+#else // MOVE
+#endif // MOVE
 	
     }
 
@@ -260,7 +265,7 @@ std::cout << std::endl << std::endl << std::endl;
 
 
   // Create a process for the command in the suspended state
-//  Thread thread = experiment.createProcess(mw->executableName.ascii());
+//  Thread thread = experiment->createProcess(mw->executableName.ascii());
 }
 // End  direct connect to framework
 
@@ -526,6 +531,19 @@ if( !cli->runSynchronousCLI(command) )
         nprintf( DEBUG_MESSAGES ) ("Run\n");
         statusLabelText->setText( tr("Process running...") );
 // Begin demo only...
+
+if( fw_experiment() )
+{
+fw_experiment()->getThreads().changeState(Thread::Running);
+while(!fw_experiment()->getThreads().areAllState(Thread::Terminated))
+{
+printf("sleep(1)\n");
+  sleep(1);
+}
+
+
+}
+
 if( 1 )
 {
 pco->runButton->setEnabled(FALSE);
@@ -788,4 +806,34 @@ pcSamplePanel::loadStatsPanel()
     MessageObject *msg = new MessageObject("UpdateAllObject");
     p->listener( (void *)msg );  // Kludge to simple put out some data... 
   }
+if( fw_experiment() )
+{
+// Evaluate the collector's time metric for all functions in the thread
+SmartPtr<std::map<Function, double> > data;
+ThreadGroup tgrp = fw_experiment()->getThreads();
+ThreadGroup::iterator ti = tgrp.begin();
+Thread t1 = *ti;
+CollectorGroup cgrp = fw_experiment()->getCollectors();
+CollectorGroup::iterator ci = cgrp.begin();
+Collector c1 = *ci;
+
+Queries::GetMetricByFunctionInThread(c1, "time", t1, data);
+
+// Display the results
+std::cout << std::endl << std::endl << std::endl
+		  << std::setw(10) << "Time"
+		  << "    "
+		  << "Function" << std::endl
+		  << std::endl;
+	
+for(std::map<Function, double>::const_iterator
+		i = data->begin(); i != data->end(); ++i)
+{
+	    std::cout << std::setw(10) << std::fixed << std::setprecision(3)
+		      << i->second
+		      << "    "
+		      << i->first.getName() << std::endl;
+}
+std::cout << std::endl << std::endl << std::endl;
+}
 }
