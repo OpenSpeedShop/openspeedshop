@@ -57,7 +57,7 @@ CmdPanel::~CmdPanel()
 void
 CmdPanel::returnPressed()
 {
-//  printf ("CmdPanel::returnPressed()\n");
+  nprintf(DEBUG_PANELS)  ("CmdPanel::returnPressed()\n");
 
   int current_para;
   int current_index;
@@ -69,7 +69,6 @@ CmdPanel::returnPressed()
 
   int i = 0;
   for( i = last_para;i<=current_para;i++ )
-  for( i = last_para;i<current_para;i++ )
   {
     QString text = output->text(i);
     char *buffer = strdup(text.stripWhiteSpace().ascii());
@@ -86,7 +85,7 @@ CmdPanel::returnPressed()
     {
       start_ptr += prompt.length()-1;
     }
-//    printf("Send down (%s)\n", start_ptr);
+    nprintf(DEBUG_PANELS) ("Send down (%s)\n", start_ptr);
     int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
     InputLineObject *ilp = Append_Input_String( wid, start_ptr);
 
@@ -107,10 +106,10 @@ CmdPanel::returnPressed()
 void
 CmdPanel::textChanged()
 {
-//  printf ("CmdPanel::textChanged()\n");
+  nprintf(DEBUG_PANELS)  ("CmdPanel::textChanged()\n");
   if( textDisabled == TRUE )
   { 
-//    printf("textDisabled return\n");
+    nprintf(DEBUG_PANELS) ("textDisabled return\n");
     return;
   }
 
@@ -121,11 +120,11 @@ CmdPanel::textChanged()
 
   output->getCursorPosition(&current_para, &current_index);
 
-// printf("last_para=%d current_para=%d last_index=%d current_index=%d\n", last_para, current_para, last_index, current_index );
+  nprintf(DEBUG_PANELS) ("last_para=%d current_para=%d last_index=%d current_index=%d\n", last_para, current_para, last_index, current_index );
 
   if( current_para == last_para && current_index < last_index )
   {
-//    printf("They're back spacing!!!!  Undo the backspace!\n");
+    nprintf(DEBUG_PANELS) ("They're back spacing!!!!  Undo the backspace!\n");
     output->undo();
     output->moveCursor(QTextEdit::MoveEnd, FALSE);
     return;
@@ -134,7 +133,7 @@ CmdPanel::textChanged()
 
   if( current_para < last_para )
   {
-//    printf("They're wacking a previous line!\n");
+    nprintf(DEBUG_PANELS) ("They're wacking a previous line!\n");
     output->undo();
     output->moveCursor(QTextEdit::MoveEnd, FALSE);
     return;
@@ -144,17 +143,18 @@ CmdPanel::textChanged()
   if( current_para != history_start_para ||
       current_index < history_start_index )
   {
-//    printf("Right, or wrong.  Move cursor to the end.\n");
+    nprintf(DEBUG_PANELS) ("Right, or wrong.  Move cursor to the end.\n");
     output->moveCursor(QTextEdit::MoveEnd, FALSE);
   }
 
 
-// printf("current_para=%d last_para=%d\n", current_para, last_para );
+  nprintf(DEBUG_PANELS) ("current_para=%d last_para=%d\n", current_para, last_para );
+
   if( last_para > -1 && current_para != last_para )
   {
     textDisabled = TRUE;
     returnPressed();
-// printf("OUTPUT PROMPT!\n");
+    nprintf(DEBUG_PANELS) ("OUTPUT PROMPT!\n");
     output->append( prompt );
     output->scrollToBottom();
     output->moveCursor(QTextEdit::MoveEnd, FALSE);
@@ -167,7 +167,7 @@ CmdPanel::textChanged()
 void
 CmdPanel::upKey()
 {
-//  printf("CmdPanel::upKey()\n");
+  nprintf(DEBUG_PANELS) ("CmdPanel::upKey()\n");
 
   if( cmdHistoryListIterator != cmdHistoryList.begin() ) 
   {
@@ -177,7 +177,7 @@ CmdPanel::upKey()
 
   if( str )
   {
-//    printf("upKey() str=(%s)\n", str.ascii() );
+    nprintf(DEBUG_PANELS) ("upKey() str=(%s)\n", str.ascii() );
 
     appendHistory(str);
   }
@@ -186,7 +186,7 @@ CmdPanel::upKey()
 void
 CmdPanel::downKey()
 {
-//  printf("CmdPanel::downKey()\n");
+  nprintf(DEBUG_PANELS) ("CmdPanel::downKey()\n");
   if( cmdHistoryListIterator != cmdHistoryList.end() ) 
   {
     cmdHistoryListIterator++;
@@ -196,7 +196,7 @@ CmdPanel::downKey()
 
   if( str )
   {
-//    printf("downKey() str=(%s)\n", str.ascii() );
+    nprintf(DEBUG_PANELS) ("downKey() str=(%s)\n", str.ascii() );
     appendHistory(str);
   }
 }
@@ -204,7 +204,7 @@ CmdPanel::downKey()
 void
 CmdPanel::positionToEndForReturn()
 {
-//  printf("CmdPanel::positionToEndForReturn()\n");
+  nprintf(DEBUG_PANELS) ("CmdPanel::positionToEndForReturn()\n");
   output->moveCursor(QTextEdit::MoveEnd, FALSE);
 }
 
@@ -218,7 +218,8 @@ CmdPanel::appendHistory(QString str)
   output->getCursorPosition(&para, &index);
   output->setSelection(history_start_para, history_start_index, para, index);
   output->removeSelectedText();
-  // printf("history_start_para=%d history_start_index=%d para=%d index=%d\n", history_start_para, history_start_index, para, index);
+
+  nprintf(DEBUG_PANELS) ("history_start_para=%d history_start_index=%d para=%d index=%d\n", history_start_para, history_start_index, para, index);
 
   output->insertAt(str, history_start_para, history_start_index);
 
