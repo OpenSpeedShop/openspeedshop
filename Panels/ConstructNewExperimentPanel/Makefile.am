@@ -21,9 +21,12 @@ pkglib_LTLIBRARIES = ConstructNewExperimentPanel.la
 # NOTE 1: The -I../SourcePanel is only here for #define DEMO 1
 # NOTE 2: The -I../TopPanel is only here for #define DEMO 1
 ConstructNewExperimentPanel_la_CXXFLAGS = \
+	-c -LANG:std -fpic \
     -I/usr/include \
     -I$(QTDIR)/include \
     -I. \
+	-I../../libopenss-framework \
+    -I../../pcli \
     -I../../gui \
     -I../../images \
     -I../../plugin \
@@ -32,9 +35,22 @@ ConstructNewExperimentPanel_la_CXXFLAGS = \
     -I../TopPanel \
     -I../../base
 
-ConstructNewExperimentPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../base/.libs/ossBase.so -Wl,../../objects/.libs/ossObjects.so
+ConstructNewExperimentPanel_la_LDFLAGS = \
+	-fpic \
+	--export-dynamic \
+	--export-all-symbols \
+	-module \
+	-avoid-version \
+	-L../../libopenss-framework \
+	-Wl,../../base/.libs/ossBase.so \
+	-Wl,../../objects/.libs/ossObjects.so \
+	-Wl,../../pcli/.libs/posscli.so \
+	-Wl,../../gui/.libs/ossgui.so \
+	-L$(QTDIR)/lib \
+	-lqt \
+	-ldl
 
-ConstructNewExperimentPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
+ConstructNewExperimentPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework
 
 moc_ConstructNewExperimentPanel.cxx: ConstructNewExperimentPanel.hxx
 	-moc -o moc_ConstructNewExperimentPanel.cxx ConstructNewExperimentPanel.hxx

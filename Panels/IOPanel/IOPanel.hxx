@@ -29,6 +29,8 @@
 
 #include <qlayout.h>
 #include <qhbox.h>
+#include <qtimer.h>
+#include <qprogressdialog.h>
 
 class PanelContainer;   // Do not remove
 class QLabel;
@@ -42,15 +44,13 @@ class OpenSpeedshop;
 #define PANEL_CLASS_NAME IOPanel   // Change the value of the define
                                          // to the name of your new class.
 
+#include "Experiment.hxx"
 //! Creates the IOPanel that controls the pcSampling experiment.
 class IOPanel  : public Panel
 {
   //! Q_OBJECT is needed as there are slots defined for the class
   Q_OBJECT
 public:
-  //! IOPanel() - A default constructor the the Panel Class.
-  IOPanel();  // Default construct
-
   //! IOPanel(PanelContainer *pc, const char *name)
     /*! This constructor is the work constructor.   It is called to
         create the new Panel and attach it to a PanelContainer.
@@ -113,6 +113,14 @@ public:
   ProcessControlObject *pco;
 
   bool runnableFLAG;
+
+  QString executableNameStr;
+  QString pidStr;
+  QTimer *timer;
+  QTimer *loadTimer;
+
+OpenSpeedShop::Framework::Experiment *fw_experiment() { return experiment; }
+
 public slots:
   void saveAsSelected();
   void loadNewProgramSelected();
@@ -122,6 +130,9 @@ public slots:
   void manageProcessesSelected();
   void manageDataSetsSelected();
   void loadSourcePanel();
+  void loadStatsPanel();
+  void __demoWakeUpToLoadExperiment();
+  void progressUpdate();
 
 protected slots:
   virtual void languageChange();
@@ -130,7 +141,14 @@ protected:
 
 private:
   OpenSpeedshop *mw;
+ 
+  int expID;  // Experiment ID of the expCreate, returned from the cli
+OpenSpeedShop::Framework::Experiment *experiment;
 
   void updateInitialStatus();
+
+  void loadMain();
+  QProgressDialog *pd;
+  int steps;
 };
 #endif // IOPANEL_H

@@ -21,9 +21,12 @@ pkglib_LTLIBRARIES = FPE_TracingPanel.la
 # NOTE 1: The -I../SourcePanel is only here for #define DEMO 1
 # NOTE 2: The -I../TopPanel is only here for #define DEMO 1
 FPE_TracingPanel_la_CXXFLAGS = \
+	-c -LANG:std -fpic \
     -I/usr/include \
     -I$(QTDIR)/include \
     -I. \
+	-I../../libopenss-framework \
+    -I../../pcli \
     -I../../gui \
     -I../../images \
     -I../../plugin \
@@ -32,9 +35,22 @@ FPE_TracingPanel_la_CXXFLAGS = \
     -I../TopPanel \
     -I../../base
 
-FPE_TracingPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../base/.libs/ossBase.so -Wl,../../objects/.libs/ossObjects.so
+FPE_TracingPanel_la_LDFLAGS = \
+	-fpic \
+	--export-dynamic \
+	--export-all-symbols \
+	-module \
+	-avoid-version \
+	-L../../libopenss-framework \
+	-Wl,../../base/.libs/ossBase.so \
+	-Wl,../../objects/.libs/ossObjects.so \
+	-Wl,../../pcli/.libs/posscli.so \
+	-Wl,../../gui/.libs/ossgui.so \
+	-L$(QTDIR)/lib \
+	-lqt \
+	-ldl
 
-FPE_TracingPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
+FPE_TracingPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework
 
 moc_FPE_TracingPanel.cxx: FPE_TracingPanel.hxx
 	-moc -o moc_FPE_TracingPanel.cxx FPE_TracingPanel.hxx
