@@ -572,7 +572,7 @@ printf("eDescriptionPageNextButtonSelected() \n");
 void FPE_TracingWizardPanel::eDescriptionPageStartButtonSelected()
 {
 printf("eDescriptionPageStartButtonSelected() \n");
-    Panel *p = getPanelContainer()->raiseNamedPanel("Intro Wizard");
+    Panel *p = getPanelContainer()->raiseNamedPanel("&Intro Wizard");
     if( !p )
     {
       getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Intro Wizard", getPanelContainer());
@@ -680,7 +680,7 @@ printf("vDescriptionPageNextButtonSelected() \n");
 void FPE_TracingWizardPanel::vDescriptionPageStartButtonSelected()
 {
 printf("vDescriptionPageStartButtonSelected() \n");
-    Panel *p = getPanelContainer()->raiseNamedPanel("Intro Wizard");
+    Panel *p = getPanelContainer()->raiseNamedPanel("&Intro Wizard");
     if( !p )
     {
       getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Intro Wizard", getPanelContainer());
