@@ -94,6 +94,39 @@ static ExperimentObject *Find_Specified_Experiment (CommandObject *cmd) {
   return exp;
 }
 
+parse_val_t *Get_Simple_File_Name (CommandObject *cmd) {
+  OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
+  vector<ParseTarget> *p_tlist = (p_result != NULL) ? p_result->GetTargetList() : NULL;
+  if (p_tlist == NULL) {
+    return NULL;
+  }
+  vector<ParseTarget>::iterator pi = p_tlist->begin();
+  vector<ParseRange> *f_list = (*pi).getFileList();
+  if (f_list == NULL) {
+    return NULL;
+  }
+  vector<ParseRange>::iterator fi = f_list->begin();
+  parse_range_t *f_range = (*fi).getRange();
+  return (f_range != NULL) ? &f_range->start_range : NULL;
+}
+
+bool Look_For_KeyWord (CommandObject *cmd, std::string Key) {
+  Assert (cmd->P_Result() != NULL);
+
+ // Look at general modifier types for a specific KeyWord option.
+  vector<string> *p_slist = cmd->P_Result()->getModifierList();
+  vector<string>::iterator j;
+
+  for (j=p_slist->begin();j != p_slist->end(); j++) {
+    std::string S = *j;
+    if (!strcmp(S.c_str(),Key.c_str())) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 bool Thread_Already_Exists (Thread **returnThread, ExperimentObject *exp, std::string myhost, pid_t mypid) {
   ThreadGroup current_tgrp = exp->FW()->getThreads();
   ThreadGroup::iterator ti;
@@ -734,8 +767,17 @@ bool SS_expRestore (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
-  char **f_tab = (char **)command.file_table.table;
-  std::string data_base_name = std::string(f_tab[0]);
+ // Extract the savefile name.
+  parse_val_t *file_name_value = Get_Simple_File_Name (cmd);
+  if (file_name_value == NULL) {
+    cmd->Result_String ("need a file name for the Data Base.");
+    cmd->set_Status(CMD_ERROR);
+    return false;
+  }
+
+  std::string data_base_name = file_name_value->name;
+
+ // Create a new experiment and connect it to the saved data base.
   ExperimentObject *exp = new ExperimentObject (data_base_name);
   EXPID ExperimentID = 0;
 
@@ -763,19 +805,28 @@ bool SS_expSave (CommandObject *cmd) {
     return false;
   }
 
-  if (command.file_table.cur_node != 1) {
+ // Extract the savefile name.
+  parse_val_t *file_name_value = Get_Simple_File_Name (cmd);
+  if (file_name_value == NULL) {
     cmd->Result_String ("need a file name for the Data Base.");
     cmd->set_Status(CMD_ERROR);
     return false;
   }
 
-  char **f_tab = (char **)command.file_table.table;
-  std::string data_base_name = std::string(f_tab[0]);
+  std::string data_base_name = file_name_value->name;
 
-  exp->RenameDB (data_base_name);
+ // Look at general modifier types for "copy" option.
+  bool Copy_KeyWord = Look_For_KeyWord (cmd, "copy");
 
-  cmd->set_Status(CMD_COMPLETE);
-  return true;
+  bool cmd_success = false;
+  if (Copy_KeyWord) {
+    cmd_success = exp->CopyDB (data_base_name);
+  } else {
+    cmd_success = exp->RenameDB (data_base_name);
+  }
+
+  cmd->set_Status(cmd_success ? CMD_COMPLETE : CMD_ERROR);
+  return cmd_success;
 }
 
 bool SS_expSetParam (CommandObject *cmd) {
@@ -805,22 +856,9 @@ bool SS_ListBreaks (CommandObject *cmd) {
 }
 
 bool SS_ListExp (CommandObject *cmd) {
-  vector<string> *p_slist;
-  vector<string>::iterator j;
-
-  Assert(cmd->P_Result() != NULL);
 
  // Look at general modifier types for "-all" option.
-  bool All_KeyWord = false;
-  p_slist = cmd->P_Result()->getModifierList();
-
-  for (j=p_slist->begin();j != p_slist->end(); j++) {
-    std::string S = *j;
-    if (!strcmp(S.c_str(),"all")) {
-      All_KeyWord = true;
-      break;
-    }
-  }
+  bool All_KeyWord = Look_For_KeyWord (cmd, "all");
 
   if (All_KeyWord) {
    // List all the allocated experiments
