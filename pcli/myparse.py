@@ -220,7 +220,7 @@ def preParseArgs(line, command_dict, arg_dict, str_opts_dict, num_opts_dict):
                 # live with this.
 		t_part = string.lower(parts[i])
                 t_arg = arg_dict.get(t_part)
-		print parts[i],i
+		#print parts[i],i
                 if t_arg is not None:
                     #print t_arg
 		    parts[i] = t_part
