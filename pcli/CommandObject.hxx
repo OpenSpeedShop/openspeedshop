@@ -14,8 +14,7 @@ class CommandResult {
   CommandResult () {
     Result_Type = CMD_RESULT_NULL; }
   void Set_Type (cmd_result_type_enum T) {
-    Result_Type = T;
-  }
+    Result_Type = T; }
   cmd_result_type_enum Type () {
     return Result_Type;
   }
@@ -108,11 +107,11 @@ public:
     Cmd_Type = T;
     Parse_Result = NULL;
   }
-  CommandObject(oss_cmd_enum T, command_t *P)
+  CommandObject(command_t *P)
   {
     this->Associate_Input ();
     Cmd_Status = CMD_PARSED;
-    Cmd_Type = T;
+    Cmd_Type =  P->type;
     Parse_Result = P;
   }
 
@@ -133,6 +132,9 @@ public:
   }
   void Result_String (std::string S) {
     Add_Result (new CommandResult_String (S));
+  }
+  void Result_String (char *C) {
+    Add_Result (new CommandResult_String (C));
   }
 
   std::list<CommandResult *> Result_List () {

@@ -99,5 +99,4 @@ class ExperimentObject
 };
 
 ExperimentObject *Find_Experiment_Object (EXPID ExperimentID);
-ResultObject Experiment_Create (CMDWID WindowID, EXPID ExperimentID,
-                                ApplicationGroupObject *App, Collector *Inst);
+bool Experiment_Create (CommandObject *cmd);

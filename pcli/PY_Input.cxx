@@ -4,6 +4,7 @@
 // #include <string.h>
 
 #include "SS_Input_Manager.hxx"
+#include "SS_Cmd_Execution.hxx"
 
 extern FILE *yyin;
 extern int yyparse (void);
@@ -16,6 +17,8 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     char *input_line = NULL;
     PyObject *p_object;
     int ret;
+    CommandObject *cmd = NULL;
+    command_t *cmd_args = NULL;
 
     if (!PyArg_ParseTuple(args, "s", &input_line)) {
     	;
@@ -32,6 +35,13 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     ret = yyparse();
 
     fclose(yyin); 
+
+   // Build a CommandObject so that the semantic routiens can be called.
+    cmd_args = (command_t *)malloc(sizeof(command_t));
+    memcpy (cmd_args, &command, sizeof(command_t));
+    cmd = new CommandObject (cmd_args);
+    Execute_Cmd (cmd);
+
 
     p_object = Py_BuildValue("");
 

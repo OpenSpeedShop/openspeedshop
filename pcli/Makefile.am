@@ -58,6 +58,7 @@ posscli_la_SOURCES = \
     	Start.cxx \
 	Start_Modes.cxx \
 	Commander.cxx \
+	SS_Cmd_Execution.cxx \
 	Experiment.cxx \
 	support.cxx \
 	help.cxx \

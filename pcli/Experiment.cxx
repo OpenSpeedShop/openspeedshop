@@ -1,27 +1,3 @@
-// include <unistd.h>
-// include <sys/types.h>
-// include <pthread.h>
-// include <sys/stat.h>               /* for fstat() */
-// include <sys/mman.h>               /* for mmap() */
-// include <time.h>
-// include <stdio.h>
-// include <list>
-// include <inttypes.h>
-// include <stdexcept>
-// include <string>
-
-// for host name description
-     #include <sys/socket.h>
-     #include <netinet/in.h>
-     #include <netdb.h>
-
-// include "ToolAPI.hxx"
-// using namespace OpenSpeedShop::Framework;
-
-// include "support.h"
-// include "Commander.hxx"
-// include "Clip.hxx"
-// include "Experiment.hxx"
 #include "SS_Input_Manager.hxx"
 
 // Static Local Data
@@ -50,7 +26,7 @@ ExperimentObject *Find_Experiment_Object (EXPID ExperimentID)
 
 // Low Level Semantic Routines
 
-ResultObject Experiment_Create (CMDWID WindowID, EXPID ExperimentID,
+CommandResult *Experiment_Create (CMDWID WindowID, EXPID ExperimentID,
                                 ApplicationGroupObject *App, Collector *Inst)
 {
   ExperimentObject *exp = NULL;
@@ -68,7 +44,7 @@ ResultObject Experiment_Create (CMDWID WindowID, EXPID ExperimentID,
     (void)Experiment_Focus (WindowID, exp->ExperimentObject_ID());
   }
   if (exp == NULL) {
-    return (ResultObject ( FAILURE, "ExperimentObject", NULL, "The requested experiment could not be found" ));
+    return new CommandResult_String("The requested experiment could not be found");
   }
   if (App != NULL) {
     exp->ExperimentObject_Add_Application (App);
@@ -76,5 +52,33 @@ ResultObject Experiment_Create (CMDWID WindowID, EXPID ExperimentID,
   if (Inst != NULL) {
     exp->ExperimentObject_Add_Instrumention (Inst);
   }
-  return (ResultObject ( SUCCESS, "ExperimentObject", (void *)exp, ""));
+  return new  CommandResult_Int (exp->ExperimentObject_ID());
+}
+
+bool Experiment_Create (CommandObject *cmd) {
+  CommandResult *cmr = NULL;
+  InputLineObject *clip = cmd->Clip();
+  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+  ExperimentObject *exp = NULL;
+  EXPID ExperimentID = 0;
+
+  if (ExperimentID <= 0) {
+   // There is no specified experiment.  Allocate a new Experiment.
+    exp = new ExperimentObject ();
+   // When we allocate a new experiment, set the focus to point to it.
+    (void)Experiment_Focus (WindowID, exp->ExperimentObject_ID());
+  } else {
+    exp = Find_Experiment_Object (ExperimentID);
+  }
+//  if (App != NULL) {
+//    exp->ExperimentObject_Add_Application (App);
+//  }
+//  if (Inst != NULL) {
+//    exp->ExperimentObject_Add_Instrumention (Inst);
+//  }
+  cmr = new CommandResult_Int (exp->ExperimentObject_ID());
+  cmd->Add_Result(cmr);
+  cmd->set_Status(CMD_COMPLETE);
+
+  return true;
 }

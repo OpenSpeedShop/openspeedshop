@@ -131,18 +131,18 @@ extern InputLineObject *Current_ILO;
 extern CommandObject   *Current_CO;
 
 // Attach a new input source that will be read AFTER all the previous ones
-ResultObject Append_Input_File (CMDWID issuedbywindow, std::string fromfname);
-// ResultObject Append_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_ptr);
+bool Append_Input_File (CMDWID issuedbywindow, std::string fromfname);
+// bool Append_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_ptr);
 InputLineObject *Append_Input_String (CMDWID issuedbywindow, char *b_ptr);
 
 // Attach a new input source that will be read BEFORE all the previous ones
-ResultObject Push_Input_File (CMDWID issuedbywindow, std::string fromfname);
-// ResultObject Push_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_ptr);
+bool Push_Input_File (CMDWID issuedbywindow, std::string fromfname);
+// bool Push_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_ptr);
 
 // Manipulate tracing options
 void Command_Trace (enum Trace_Entry_Type trace_type, CMDWID cmdwinid, std::string tofname);
-ResultObject Command_Trace_OFF (CMDWID WindowID);
-ResultObject Command_Trace_ON (CMDWID WindowID, std::string tofname);
+bool Command_Trace_OFF (CMDWID WindowID);
+bool Command_Trace_ON (CMDWID WindowID, std::string tofname);
 void  SpeedShop_Trace_ON (char *tofile);
 void  SpeedShop_Trace_OFF(void);
 

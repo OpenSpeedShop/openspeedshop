@@ -519,22 +519,6 @@ public:
       clip->Print (TFile);
     }
   }
-  void Trace (ResultObject *rslt) {
-    if (Trace_F) {
-      RStatus status = rslt->Status();
-      std::string result_type = rslt->Type();
-      std::string msg_string = rslt->ResultMsg();
-      void *result = rslt->Result();
-      fprintf(Trace_F,
-       "R %s %s 0x%x %s\n", (status == SUCCESS) ? "SUCCESS"
-                                : (status == FAILURE) ? "FAILURE"
-                                : (status == EXIT) ? "EXIT"
-                                : "PARTIAL_SUCCESS",
-                          (result_type.length()) ? result_type.c_str() : "notype",
-                          (result != NULL) ? result : 0,
-                          msg_string.c_str());
-    }
-  }
   void Dump(FILE *TFile)
     {
       std::list<CommandWindowID *>::reverse_iterator cwi;
@@ -783,17 +767,17 @@ void Command_Trace (enum Trace_Entry_Type trace_type, CMDWID cmdwinid, std::stri
 }
 
 // Set up an alternative trace file at user request.
-ResultObject Command_Trace_ON (CMDWID WindowID, std::string tofname)
+bool Command_Trace_ON (CMDWID WindowID, std::string tofname)
 {
   CommandWindowID *cmdw = Find_Command_Window (WindowID);
   cmdw->Set_Record_File (tofname);
-  return ResultObject(SUCCESS, "Command_Trace_ON", (void *)0, "");
+  return true;
 }
-ResultObject Command_Trace_OFF (CMDWID WindowID)
+bool Command_Trace_OFF (CMDWID WindowID)
 {
   CommandWindowID *cmdw = Find_Command_Window (WindowID);
   cmdw->Remove_Record_File ();
-  return ResultObject(SUCCESS, "Command_Trace_OFF", (void *)0, "");
+  return true;
 }
 
 void  SpeedShop_Trace_ON (char *tofile) {
@@ -935,7 +919,7 @@ InputLineObject *Append_Input_String (CMDWID issuedbywindow, char *b_ptr) {
   return clip;
 }
 
-ResultObject Append_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_ptr) {
+bool Append_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_ptr) {
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
 
 // DEBUG: hacks to let the gui pass information in without initializing a window.
@@ -948,31 +932,31 @@ if (!cw) {
   Input_Source *inp = new Input_Source (b_size, b_ptr);
   cw->Append_Input_Source (inp);
 }
-  return ResultObject(SUCCESS, "Command_File_T", NULL, "Command file read and processed");
+  return true;
 }
 
-ResultObject Append_Input_File (CMDWID issuedbywindow, std::string fromfname) {
+bool Append_Input_File (CMDWID issuedbywindow, std::string fromfname) {
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
   Assert (cw);
   Input_Source *inp = new Input_Source (fromfname);
   cw->Append_Input_Source (inp);
-  return ResultObject(SUCCESS, "Command_File_T", NULL, "Command file read and processed");
+  return true;
 }
 
-ResultObject Push_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_ptr) {
+bool Push_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_ptr) {
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
   Assert (cw);
   Input_Source *inp = new Input_Source (b_size, b_ptr);
   cw->Push_Input_Source (inp);
-  return ResultObject(SUCCESS, "Command_File_T", NULL, "Command file read and processed");
+  return true;
 }
 
-ResultObject Push_Input_File (CMDWID issuedbywindow, std::string fromfname) {
+bool Push_Input_File (CMDWID issuedbywindow, std::string fromfname) {
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
   Assert (cw);
   Input_Source *inp = new Input_Source (fromfname);
   cw->Push_Input_Source (inp);
-  return ResultObject(SUCCESS, "Command_File_T", NULL, "Command file read and processed");
+  return true;
 }
 
 // This routine continuously reads from stdin and appends the string to an input window.

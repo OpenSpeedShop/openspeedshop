@@ -696,7 +696,10 @@ dump_command()
 
     fflush(stdout);
 
-    reset_command();
+// Comment out this reset call
+// This is needed so the result of parsing is
+// preserved for the return to  SS_CallParser.
+//    reset_command();
 }
 
 /**
