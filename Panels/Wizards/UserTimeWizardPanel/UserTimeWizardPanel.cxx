@@ -1069,9 +1069,9 @@ UserTimeWizardPanel::handleSizeEvent( QResizeEvent *e )
   width=getBaseWidgetFrame()->width();
   height=getBaseWidgetFrame()->height();
 
+  // We've got to reposition this on a resize or all alignment goes amuck...
+  sv->verticalScrollBar()->setValue(0);
 
   sv->resize(width, height);  // this line is correct..
-// sv->resizeContents(800,450); // nope.
-//  mainFrame->resize(800,400); // nope...
 }
 
