@@ -102,8 +102,7 @@ or running rank, process, or thread.</font></b></p>
       <td width="50%" valign="top"> <b><font face="Courier New"
  size="2"></font></b>
       <p><b><font face="Courier New" size="2">Close/release the
-experiment using the input argument representing the experiment
-identifier.</font></b></p>
+experiment by removing all knowledge of it.</font></b></p>
       </td>
     </tr>
     <tr>
@@ -124,8 +123,8 @@ an experiment and return an identifier.</font></b></p>
       </td>
       <td width="50%" valign="top"> <b><font face="Courier New"
  size="2"></font></b>
-      <p><b><font face="Courier New" size="2">Remove a collector, rank, process or
-thread.
+      <p><b><font face="Courier New" size="2">Remove data collection for
+a process, rank or thread.
       </font></b></p>
       </td>
     </tr>
@@ -135,9 +134,7 @@ thread.
  face="Courier New" size="2"><a name="expDisable"></a>expDisable</font></b></h4>
       </td>
       <td style="vertical-align: top;"><b><font face="Courier New"
- size="2">Turn off data collection for the experiment
-using the input argument representing the experiment
-identifier.</font></b></td>
+ size="2">Turn off data collection for an experiment.</font></b></td>
     </tr>
     <tr>
       <td style="vertical-align: top;">
@@ -145,9 +142,7 @@ identifier.</font></b></td>
  face="Courier New" size="2"><a name="expEnable"></a>expEnable</font></b></h4>
       </td>
       <td style="vertical-align: top;"><b><font face="Courier New"
- size="2">Turn on data collection for the experiment
-using the input argument representing the experiment
-identifier.</font></b></td>
+ size="2">Turn on data collection for an experiment.</font></b></td>
     </tr>
     <tr>
       <td width="50%" valign="top">
@@ -156,8 +151,8 @@ identifier.</font></b></td>
       </td>
       <td width="50%" valign="top"> <b><font face="Courier New"
  size="2"></font></b>
-      <p><b><font face="Courier New" size="2">Focus the CLI tool on the
-specified input argument representing the experiment identifier.</font></b></p>
+      <p><b><font face="Courier New" size="2">Focus the CLI tool on a
+specified experiment.</font></b></p>
       </td>
     </tr>
     <tr>
@@ -260,7 +255,7 @@ that have been set by the user.</font></b></p>
       <td width="50%" valign="top" colspan="2"> <b><font
  face="Courier New" size="2"></font></b>
       <p><b><font face="Courier New" size="2">List the experiments
-that have been selected for this session.</font></b></p>
+that are currently defined for this session.</font></b></p>
       </td>
     </tr>
     <tr>
@@ -271,8 +266,7 @@ that have been selected for this session.</font></b></p>
       <td width="50%" valign="top" colspan="2"> <b><font
  face="Courier New" size="2"></font></b>
       <p><b><font face="Courier New" size="2">List the machine hosts
-that
-are known.</font></b></p>
+that are known.</font></b></p>
       </td>
     </tr>
     <tr>
@@ -283,7 +277,7 @@ are known.</font></b></p>
       <td width="50%" valign="top" colspan="2"> <b><font
  face="Courier New" size="2"></font></b>
       <p><b><font face="Courier New" size="2">List the object files
-based on user input arguments.</font></b></p>
+that are known.</font></b></p>
       </td>
     </tr>
     <tr>
@@ -293,8 +287,8 @@ based on user input arguments.</font></b></p>
       </td>
       <td width="50%" valign="top" colspan="2"> <b><font
  face="Courier New" size="2"></font></b>
-      <p><b><font face="Courier New" size="2">List the ranks,
-processes, and threads based on user input arguments.</font></b></p>
+      <p><b><font face="Courier New" size="2">List the process Id's
+that are known.</font></b></p>
       </td>
     </tr>
     <tr>
@@ -344,12 +338,44 @@ specified as the default source file in the CLI tool.</font></b></p>
     <tr>
       <td width="50%" valign="top">
       <h4><a name="mozTocId102423" class="mozTocH4"></a><b><font
+ face="Courier New" size="2"><a name="listRanks"></a>listRanks</font></b></h4>
+      </td>
+      <td width="50%" valign="top" colspan="2"> <b><font
+ face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">List the mpi ranks that are known.
+            </font></b></p>
+      </td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top">
+      <h4><a name="mozTocId102423" class="mozTocH4"></a><b><font
+ face="Courier New" size="2"><a name="listStatus"></a>listStatus</font></b></h4>
+      </td>
+      <td width="50%" valign="top" colspan="2"> <b><font
+ face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">List the current status of an experiment.
+            </font></b></p>
+      </td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top">
+      <h4><a name="mozTocId102423" class="mozTocH4"></a><b><font
+ face="Courier New" size="2"><a name="listThreads"></a>listThread</font></b></h4>
+      </td>
+      <td width="50%" valign="top" colspan="2"> <b><font
+ face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">List the threads that are known.
+            </font></b></p>
+      </td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top">
+      <h4><a name="mozTocId102423" class="mozTocH4"></a><b><font
  face="Courier New" size="2"><a name="listTypes"></a>listTypes</font></b></h4>
       </td>
       <td width="50%" valign="top" colspan="2"> <b><font
  face="Courier New" size="2"></font></b>
-      <p><b><font face="Courier New" size="2">List the performance
-measurement
+      <p><b><font face="Courier New" size="2">List the performance measurement
 utilities that are available to instrument an application.</font></b></p>
       </td>
     </tr>
@@ -447,8 +473,7 @@ stored in a file.</font></b></p>
       <td width="50%" valign="top" colspan="2"> <b><font
  face="Courier New" size="2"></font></b>
       <p><b><font face="Courier New" size="2">Save to a user-specified
-filename the commands and output generated by the actions of the user
-and the command output.</font></b></p>
+filename the commands entered by the user.</font></b></p>
       </td>
     </tr>
     <tr>
