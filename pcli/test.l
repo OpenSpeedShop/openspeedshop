@@ -21,6 +21,7 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+// leave for comparator - jeg
 #include <ctype.h>
 #include <string.h>
 #include "y.tab.h"

@@ -123,11 +123,11 @@ StatsPanel::createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos )
     return( TRUE );
   }
 
-
   return( FALSE );
 }
 
 
+/*! The go to source menu item was selected. */
 void
 StatsPanel::gotoSource()
 {

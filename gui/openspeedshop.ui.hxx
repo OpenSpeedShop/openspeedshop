@@ -493,6 +493,7 @@ AppEventFilter::eventFilter( QObject *obj, QEvent *e )
 //        dprintf("  ... And it was one we wanted to ignore.\n");
         return TRUE;
         break;
+// default case means ?
       default:
         return FALSE;
     } 

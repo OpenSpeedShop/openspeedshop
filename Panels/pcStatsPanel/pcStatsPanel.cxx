@@ -126,11 +126,10 @@ pcStatsPanel::createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos )
     return( TRUE );
   }
   
-
   return( FALSE );
 }
 
-
+/*! Go to source menu item was selected. */
 void
 pcStatsPanel::gotoSource()
 {
