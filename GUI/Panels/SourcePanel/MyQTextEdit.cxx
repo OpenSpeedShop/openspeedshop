@@ -128,4 +128,12 @@ MyQTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
   }
 
 }
+
+void
+MyQTextEdit::leaveEvent( QEvent *leaveEvent )
+{
+  dprintf("You left the TextEdit.   Stop any event timers.\n");
+  if( popupTimer ) popupTimer->stop();
+  if( sleepTimer ) sleepTimer->stop();
+}
 #endif // FINGERLINGER

@@ -37,6 +37,8 @@ protected:
     QTimer *popupTimer;
     QTimer *sleepTimer;
     void contentsMouseMoveEvent( QMouseEvent *e );
+
+    void leaveEvent( QEvent * );
 #endif // FINGERLINGER
 
 public slots:
