@@ -35,6 +35,13 @@ extern int ip_number(char *,int);
 %}
 
 %%
+
+\"[^"\n]*["\n] {
+    	    yylval.string = strdup(yytext+1);
+	    yylval.string[yyleng-2] = 0;
+	    return NAME;
+	    }
+
 ","     { return COMMA; }
 ";" 	{ return SEMICOLON; }
 "::" 	{ return DOUBLE_COLON; }

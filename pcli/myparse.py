@@ -27,6 +27,29 @@ global terminate_SS
 
 ################################################################################
 #
+# pseudo_quote_check
+#
+# Python consumes quotes so we need to make pseudo 
+# quotes earlier if we want the quotes to be passed
+# on to lex/yacc. This routine finds and reconverts 
+# them to real quotes.
+#
+################################################################################
+def pseudo_quote_check(args):
+
+    count = len(args)
+    for ndx in range(count):
+    	arg = args[ndx]
+    	arg_len = len(args[ndx])
+	
+	if arg_len > 3:
+	    if (arg[0:2] == "-z") and (arg[arg_len-2:arg_len] == "-z"):
+	    	args[ndx] = '"' + arg[2:arg_len-2] + '"'
+
+    return args
+
+################################################################################
+#
 # cmd_parse
 #
 # Dummy function that I will eventually use to call 
@@ -42,6 +65,10 @@ def cmd_parse(args):
 	    args[ndx] = str(args[ndx])
 	if type(args[ndx]) is types.LongType:
 	    args[ndx] = str(args[ndx])
+
+    #print "args: ",args
+    # Replace pseudo quotes with the real thing
+    args = pseudo_quote_check(args)
 
     # combine all the argument strings into a
     # single space delimitted string to pass
@@ -62,19 +89,23 @@ def cmd_parse(args):
 # we need to make sure that python doesn't
 # throw out the commas and colons. 
 #
+# Changes current argument pointer.
+#
 ################################################################################
-def cloak_list_range(arg, is_name):
+def cloak_list_range(parts,i,count,is_name):
 
     #print 'in cloak_list(',arg,')'
+    arg = parts[i]
 
     # Check for prequoated symbols.
     if arg[0] == '"':
-    	return arg
+    	(parts,i,count) = match_quotes(parts,i,count)
+    	return (parts,i,count)
 	
     if type(arg) is types.StringType:
     	# Check to see if operand is name and cloak everything.
     	if is_name is 1:
-    	    arg = '"' + arg + '"'
+    	    parts[i] = '"' + arg + '"'
 	# Must be numerical. Only cloak delimeters.
 	else:
 	    # The assumption here is that the first character is always kosher
@@ -91,10 +122,81 @@ def cloak_list_range(arg, is_name):
 		else:
 		    t_arg = t_arg + c
 
-    	    arg = t_arg
+    	    parts[i] = t_arg
 
     #print arg
-    return arg
+    #return arg
+    return (parts,i+1,count)
+
+################################################################################
+#
+# match_quotes
+#
+# Find range of parts that are bounded by quotes
+# and consolodate into one part bounded by quotes
+# so it can get past python processing and passed
+# on whole to lex/yacc. 
+#
+# expcreate -f "bosco 24u394 fasf"
+#
+# Changes argument list and current argument index.
+#
+################################################################################
+def match_quotes(parts,i,count):
+
+    blank_delim = " "
+
+    #print "first", " ",parts, " ",i," ",count
+    i_start = i
+    while i < count:
+    	arg  = parts[i]
+    	arg_len = len(arg)
+	#print arg_len," ",arg," ",[arg_len-1]
+    	if arg[arg_len-1] ==    '"':
+	    # check if single part 
+	    if i_start == i:
+	    	return (parts,i+1,count)
+	    else:
+    	    	t_arg = blank_delim.join(parts[i_start:i+1])
+		t_arg = t_arg[1:len(t_arg)-1]
+
+		#print "t_arg: ", t_arg
+		
+	    	if i_start == 0:
+	    	    t_parts[0] = t_arg
+		else:
+		    t_parts_2 = [" "," "]
+		    t_parts_2[0] = t_arg
+	    	    t_parts = parts[0:i_start] +  t_parts_2[0:1]
+
+    	    	if i+1 < count:
+		    t_parts = t_parts+parts[i+1:count]
+		count = count - (i-i_start)
+
+    	    	#print "second", " ",t_parts, " ",i_start+1," ",count
+    	    	t_parts[i_start] = '"-z' + t_parts[i_start] + '-z"'
+
+		return (t_parts,i_start+1,count)
+
+	i = i+1
+
+    #print "last", " ",parts, " ",i_start+1," ",count
+    return (parts,i_start+1,count)
+
+################################################################################
+#
+# quote_arg
+# 
+# Surround a list element with quotes to prevent python
+# from evaluating it as a symbol, operator or value.
+#
+# Increments current argument index
+#
+################################################################################
+def quote_arg(args,i):
+    args[i] = '"' + args[i] + '"'
+
+    return (args,i+1)
 
 ################################################################################
 #
@@ -108,7 +210,7 @@ def return_none(args):
     return
 
 def return_int(args):
-    #print args
+    #print "return_int(",args,")"
     ret = cmd_parse(args)
     return ret
 
@@ -234,7 +336,7 @@ def preParseArgs(line, command_dict, arg_dict, str_opts_dict, num_opts_dict):
         if function is not None:
 	    parts[ndx] = t_part
             func_ndx = ndx
-            #for i in range(ndx+1,count):
+
 	    i = ndx+1
 	    while i < count:
 
@@ -246,46 +348,46 @@ def preParseArgs(line, command_dict, arg_dict, str_opts_dict, num_opts_dict):
                 # live with this.
 	      t_part = string.lower(parts[i])
 	      t_arg = arg_dict.get(t_part)
+	      #print "t_part =",t_part
 	      if t_part[0] == '"':
-		    i = i+1
+	      	#print "before match_quotes()"
+	      	(parts,i,count) = match_quotes(parts,i,count)
 	      else:
 		#print parts[i],i
                 if t_arg is not None:
                     #print t_arg
 		    parts[i] = t_part
-                    parts[i] = '"' + parts[i] + '"'
+		    (parts,i) = quote_arg(parts,i)
 		else:
 		    # Look for HELP arguments for commands
                     t_arg = command_dict.get(t_part)
 		    if t_arg is not None:
 		    	parts[i] = t_part
-                    	parts[i] = '"' + parts[i] + '"'
+			(parts,i) = quote_arg(parts,i)
                     else:
 		    	# Look for dash arguments
 			t_arg = str_opts_dict.get(parts[i])
 			if t_arg is not None:
-    	    	    	    parts[i] = '"' + parts[i] + '"'
+			    (parts,i) = quote_arg(parts,i)
     	    	    	    # Don't crash if no argument
     	    	    	    if i < count-1:
 			    	# cloak sensitive characters and strings
-    	    	    	    	parts[i+1] = cloak_list_range(parts[i+1],1)
-				i = i+1
+				(parts,i,count) = cloak_list_range(parts,i,count,1)
 			else:
 			    t_arg = num_opts_dict.get(parts[i])
 			    if t_arg is not None:
-    	    	    	    	parts[i] = '"' + parts[i] + '"'
+				(parts,i) = quote_arg(parts,i)
     	    	    	    	# Don't crash if no argument
     	    	    	    	if i < count-1:
 			    	    # cloak sensitive characters and strings
-    	    	    	    	    parts[i+1] = cloak_list_range(parts[i+1],0)
-				    i = i+1
+				    (parts,i,count) = cloak_list_range(parts,i,count,0)
 			    else:
 			    	# oh well, just cloak it for now
 				# this is because of experiment type lists
 				# don't have an associated dash option
-    	    	    	    	parts[i] = '"' + parts[i] + '"'			    	
+    	    	    	    	(parts,i) = quote_arg(parts,i)		    	
 
-                i = i+1
+                #i = i+1
 
             # line = makePythonCall("myparse." + function, parts[func_ndx+1:])
 	    parts[func_ndx] = '"' + parts[func_ndx] + '"'
