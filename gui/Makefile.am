@@ -29,6 +29,7 @@ ossgui_la_CXXFLAGS =  \
 	-I/usr/include \
 	-I$(QTDIR)/include \
 	-I. \
+	-I../pcli \
 	-I../plugin \
 	-I../images \
 	-I../dialogs \
@@ -37,7 +38,7 @@ ossgui_la_CXXFLAGS =  \
 
 ossgui_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../plugin/.libs/ossPlugin.so -Wl,../base/.libs/ossBase.so -Wl,../objects/.libs/ossObjects.so -Wl,../dialogs/.libs/ossDialogs.so
 
-ossgui_la_LIBADD = -L$(QTDIR)/lib -lqt -lqassistantclient -L/usr/X11R6/lib -lXext -lX11 -lm
+ossgui_la_LIBADD = -L$(QTDIR)/lib -lqt -lqassistantclient -L/usr/X11R6/lib -lXext -lX11 -lm -lpthread
 
 moc_openspeedshop.cxx: openspeedshop.hxx
 	-moc -o moc_openspeedshop.cxx openspeedshop.hxx
