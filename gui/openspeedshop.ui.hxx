@@ -17,6 +17,8 @@
 #include <qdir.h>
 #include "PluginInfo.hxx"
 
+#include "preferencesdialog.hxx"
+
 #include <qapplication.h>
 extern QApplication *qapplication;
 
@@ -142,6 +144,13 @@ void OpenSpeedshop::fileExportExperimentData()
   printf("  to export.  Also prompt them for the export format type.\n\n");
 
   QMessageBox::information( (QWidget *)NULL, tr("Info:"), tr("This feature currently under construction. - Unable to fulfill request."), QMessageBox::Ok );
+}
+
+void OpenSpeedshop::filePreferences()
+{
+  printf("filePreferences() entered.\n");
+
+  preferencesDialog->show();
 }
 
 void OpenSpeedshop::fileExit()
@@ -359,7 +368,10 @@ void OpenSpeedshop::init()
 
   masterPC->setMainWindow(this);
   topPC = masterPC;
-  
+
+// Create the master preferences dialog so we can set the defaults and 
+// so everyone else can reference them....
+  preferencesDialog = new PreferencesDialog(masterPC);
 
   char ph_file[2048];
   char *ph_dl_name = "/ossPlugin.so";

@@ -34,6 +34,7 @@ OpenSpeedshop::OpenSpeedshop( QWidget* parent, const char* name, WFlags fl )
   rankStr = QString::null;
   hostStr = QString::null;
   expStr = QString::null;
+  preferencesDialog = NULL;
 
   (void)statusBar();
 
@@ -56,6 +57,7 @@ OpenSpeedshop::OpenSpeedshop( QWidget* parent, const char* name, WFlags fl )
 
   fileSaveSessionAction = new QAction( this, "fileSaveSessionAction" );
 //  fileSaveSessionAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "filesave" ) ) );
+  filePreferencesAction = new QAction( this, "filePreferencesAction" );
   fileExitAction = new QAction( this, "fileExitAction" );
   helpContentsAction = new QAction( this, "helpContentsAction" );
   helpIndexAction = new QAction( this, "helpIndexAction" );
@@ -75,6 +77,8 @@ OpenSpeedshop::OpenSpeedshop( QWidget* parent, const char* name, WFlags fl )
 
   fileSaveSessionAction->addTo( fileMenu );
   fileMenu->insertSeparator();
+  filePreferencesAction->addTo( fileMenu );
+  fileMenu->insertSeparator();
   fileMenu->insertSeparator();
   fileExitAction->addTo( fileMenu );
   menubar->insertItem( QString(""), fileMenu, 1 );
@@ -87,6 +91,7 @@ OpenSpeedshop::OpenSpeedshop( QWidget* parent, const char* name, WFlags fl )
   connect( fileExportExperimentDataAction, SIGNAL( activated() ), this, SLOT( fileExportExperimentData() ) );
 
   connect( fileSaveSessionAction, SIGNAL( activated() ), this, SLOT( fileSaveSession() ) );
+  connect( filePreferencesAction, SIGNAL( activated() ), this, SLOT( filePreferences() ) );
   connect( fileExitAction, SIGNAL( activated() ), this, SLOT( fileExit() ) );
   connect( helpIndexAction, SIGNAL( activated() ), this, SLOT( helpIndex() ) );
   connect( helpContentsAction, SIGNAL( activated() ), this, SLOT( helpContents() ) );
@@ -150,6 +155,9 @@ void OpenSpeedshop::languageChange()
   fileSaveSessionAction->setMenuText( tr( "Save &Window Setup" ) );
   fileSaveSessionAction->setAccel( tr( "Ctrl+W" ) );
 
+  filePreferencesAction->setText( tr( "Preferences" ) );
+  filePreferencesAction->setMenuText( tr( "&Preferences..." ) );
+  filePreferencesAction->setAccel( QString::null );
   fileExitAction->setText( tr( "Exit" ) );
   fileExitAction->setMenuText( tr( "E&xit" ) );
   fileExitAction->setAccel( QString::null );

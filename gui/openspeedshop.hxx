@@ -15,6 +15,8 @@
 #include "PanelContainer.hxx"
 #include <qassistantclient.h>
 
+#include "preferencesdialog.hxx"
+
 #include <qfile.h>   // For the file dialog box.
 #include <qfiledialog.h>  // For the file dialog box.
 
@@ -53,6 +55,7 @@ class OpenSpeedshop : public QMainWindow
     QAction* fileSaveExperimentAction;
     QAction* fileExportExperimentDataAction;
     QAction* fileSaveSessionAction;
+    QAction* filePreferencesAction;
     QAction* fileExitAction;
     QAction* helpContentsAction;
     QAction* helpIndexAction;
@@ -90,6 +93,7 @@ class OpenSpeedshop : public QMainWindow
     //! The save file dialog.
     QFileDialog *sfd;
 
+    PreferencesDialog *preferencesDialog;
     //! print out some internal debug information about this class.
     void print();
 
@@ -101,6 +105,7 @@ class OpenSpeedshop : public QMainWindow
     virtual void fileSaveExperiment();
     virtual void fileExportExperimentData();
     virtual void fileSaveSession();
+    virtual void filePreferences();
     virtual void fileExit();
     virtual void helpIndex();
     virtual void helpContents();

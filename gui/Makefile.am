@@ -43,9 +43,14 @@ ossgui_la_LIBADD = -L$(QTDIR)/lib -lqt -lqassistantclient -L/usr/X11R6/lib -lXex
 moc_openspeedshop.cxx: openspeedshop.hxx
 	-moc -o moc_openspeedshop.cxx openspeedshop.hxx
 
+moc_preferencesdialog.cxx: preferencesdialog.hxx
+	-moc -o moc_preferencesdialog.cxx preferencesdialog.hxx
+
 ossgui_la_SOURCES = \
 	gui.hxx gui.cxx \
-    openspeedshop.hxx openspeedshop.cxx moc_openspeedshop.cxx qmake_image_collection.cxx openspeedshop.ui.hxx \
+    openspeedshop.hxx openspeedshop.cxx moc_openspeedshop.cxx \
+    qmake_image_collection.cxx openspeedshop.ui.hxx \
+    preferencesdialog.hxx preferencesdialog.cxx moc_preferencesdialog.cxx \
 	Panel.hxx PanelContainer.hxx debug.hxx
 
 doc:
