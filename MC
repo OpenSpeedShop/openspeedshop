@@ -91,7 +91,7 @@ done
 for i in `find . -name Makefile -print`
 do
   echo removing $i
-  rm -f $i
+  rm $i
 done
 
 for i in `find . -name Makefile.in -print`
