@@ -51,7 +51,7 @@ extern QApplication *qapplication;
 
 void OpenSpeedshop::fileLoadNewProgram()
 {
-//  printf("OpenSpeedshop::fileLoadNewProgram() entered\n");
+//printf("OpenSpeedshop::fileLoadNewProgram() entered\n");
 
   pidStr = QString::null;
 
@@ -64,7 +64,7 @@ void OpenSpeedshop::fileLoadNewProgram()
 
 void OpenSpeedshop::fileAttachNewProcess()
 {
-//  printf("OpenSpeedshop::fileAttachNewProcess() entered\n");
+//printf("OpenSpeedshop::fileAttachNewProcess() entered\n");
   executableName = QString::null;
 
   attachNewProcess();
@@ -76,7 +76,7 @@ void OpenSpeedshop::fileAttachNewProcess()
 
 void OpenSpeedshop::fileSaveSession()
 {
-// printf("OpenSpeedshop::fileSaveSession() entered\n");
+//printf("OpenSpeedshop::fileSaveSession() entered\n");
 
   QMessageBox::information( (QWidget *)NULL, tr("Info:"), tr("This feature currently under construction."), QMessageBox::Ok );
 
@@ -107,7 +107,7 @@ void OpenSpeedshop::fileSaveSession()
     fileName = sfd->selectedFile();
     if( !fileName.isEmpty() )
     {
-//      printf("fileName.ascii() = (%s)\n", fileName.ascii() );
+//printf("fileName.ascii() = (%s)\n", fileName.ascii() );
       fn = strdup(fileName.ascii());
     } else
     {
@@ -115,7 +115,7 @@ void OpenSpeedshop::fileSaveSession()
     }
   }
 
-//  printf("go and save the setup...\n");
+//printf("go and save the setup...\n");
   if( !fileName.isEmpty() )
   {
     ((PanelContainer *)topPC)->savePanelContainerTree(fn);
@@ -131,7 +131,7 @@ void OpenSpeedshop::fileOpenExperiment()
   QString expStr;
   if( dialog->exec() == QDialog::Accepted )
   {
-// printf("QDialog::Accepted\n");
+//printf("QDialog::Accepted\n");
     int expID = 0;
     PanelListViewItem *item = dialog->selectedExperiment(&expID);
     Panel *p = NULL;
@@ -146,26 +146,26 @@ if( !p )
 {
   if( !item->text(0).isEmpty() )
   {
-    printf("item->text(0).ascii()=(%s)\n", item->text(0).ascii() );
-    printf("item->text(1).ascii()=(%s)\n", item->text(1).ascii() );
+//printf("item->text(0).ascii()=(%s)\n", item->text(0).ascii() );
+//printf("item->text(1).ascii()=(%s)\n", item->text(1).ascii() );
   } else
   {
-    printf("item->text(0) is empty.\n");
+//printf("item->text(0) is empty.\n");
   }
 }
     } else
     {
-      printf("no panel.\n");
+//printf("no panel.\n");
     }
     if( p )
     {
-const char *name = p->getName();
-printf( "panel name = (%s)\n", name );
+      //const char *name = p->getName();
+      //printf( "panel name = (%s)\n", name );
       p->getPanelContainer()->raisePanel(p);
     } else
     {
-      printf("Create a new one!\n");
-printf("expID = (%d) \n", expID );
+      //printf("Create a new one!\n");
+      //printf("expID = (%d) \n", expID );
       QString expStr = QString("%1").arg(expID);
       topPC->dl_create_and_add_panel("pc Sampling", topPC->leftPanelContainer, (void *)&expStr);
     }
@@ -177,40 +177,28 @@ printf("expID = (%d) \n", expID );
 
 void OpenSpeedshop::fileOpenSavedExperiment()
 {
-  printf("OpenSpeedshop::fileOpenSavedExperiment() entered\n");
-  printf("  Get a list of all the experiment files in the current directory\n");
-  printf("  and in the environment variable >INSERTONEHERE<.   Then create\n");
-  printf("  a dynamice menu with the list...    \n\n");
-  printf("  When the list is selected, examine it for the type, then bring\n");
-  printf("  up the associated experiment.    It would be nice, if the save\n");
-  printf("  session information could be read to bring that experiment up\n");
-  printf("  with the same layout as what it was left in during the prior\n");
-  printf("  save.\n");
+//printf("OpenSpeedshop::fileOpenSavedExperiment() entered\n");
+//printf("  Get a list of all the experiment files in the current directory\n");
+//printf("  and in the environment variable >INSERTONEHERE<.   Then create\n");
+//printf("  a dynamice menu with the list...    \n\n");
+//printf("  When the list is selected, examine it for the type, then bring\n");
+//printf("  up the associated experiment.    It would be nice, if the save\n");
+//printf("  session information could be read to bring that experiment up\n");
+//printf("  with the same layout as what it was left in during the prior\n");
+//printf("  save.\n");
 
   QMessageBox::information( (QWidget *)NULL, tr("Info:"), tr("This feature currently under construction. - Unable to fulfill request."), QMessageBox::Ok );
 }
 
 void OpenSpeedshop::fileSaveExperiment()
 {
-/*
-  printf("OpenSpeedshop::fileSaveExperiment() entered\n");
-  printf("  Get a list of all the current experiments openned.  Present\n");
-  printf("  list to the user so they can chose to have the experiment data\n");
-  printf("  saved away to a file.\n\n");
-  printf("  Additionally, at this point, it might be nice to prompt the\n");
-  printf("  user to save the session (window layout) information away as\n");
-  printf("  well.\n");
-
-  QMessageBox::information( (QWidget *)NULL, tr("Info:"), tr("This feature currently under construction. - Unable to fulfill request."), QMessageBox::Ok );
-*/
-
   SelectExperimentDialog *dialog = new SelectExperimentDialog(this, "Select Experiment To Save Dialog", TRUE);
 
   QString expStr;
   if( dialog->exec() == QDialog::Accepted )
   {
     const char *name = NULL;
-// printf("QDialog::Accepted\n");
+//printf("QDialog::Accepted\n");
     int expID = 0;
     PanelListViewItem *item = dialog->selectedExperiment(&expID);
     Panel *p = NULL;
@@ -221,13 +209,13 @@ void OpenSpeedshop::fileSaveExperiment()
     if( p )
     {
       name = p->getName();
-      printf( "save panel name = (%s)\n", name );
+//printf( "save panel name = (%s)\n", name );
 //      p->getPanelContainer()->raisePanel(p);
     } else
     {
       QString expStr = QString("%1").arg(expID);
-      printf("Save the expiriment.  It's not loaded in the gui... only the cli\n");
-      printf("expID = (%d) \n", expID );
+//printf("Save the expiriment.  It's not loaded in the gui... only the cli\n");
+//printf("expID = (%d) \n", expID );
     }
 // Begin save dialog
     QString dirName = QString::null;
@@ -256,7 +244,7 @@ void OpenSpeedshop::fileSaveExperiment()
       fileName = sed->selectedFile();
       if( !fileName.isEmpty() )
       {
-        printf("fileName.ascii() = (%s)\n", fileName.ascii() );
+//printf("fileName.ascii() = (%s)\n", fileName.ascii() );
         fn = strdup(fileName.ascii());
       } else
       {
@@ -264,34 +252,34 @@ void OpenSpeedshop::fileSaveExperiment()
       }
     }
   
-//  printf("go and save the setup...\n");
+//printf("go and save the setup...\n");
     if( !fileName.isEmpty() )
     {
-      printf("Based on the extension name, save away the file.\n");
+//printf("Based on the extension name, save away the file.\n");
       free(fn);
     }
 // End save dialog
 
   }
 
-// printf("expStr = %s\n", expStr.ascii() );
+//printf("expStr = %s\n", expStr.ascii() );
   delete dialog;
 
 }
 
 void OpenSpeedshop::fileExportExperimentData()
 {
-  printf("OpenSpeedshop::fileExportExperimentData() entered\n");
-  printf("  Get a list of all the current experiments openned.  Present\n");
-  printf("  list to the user so they can chose to have the experiment data\n");
-  printf("  to export.  Also prompt them for the export format type.\n\n");
+//printf("OpenSpeedshop::fileExportExperimentData() entered\n");
+//printf("  Get a list of all the current experiments openned.  Present\n");
+//printf("  list to the user so they can chose to have the experiment data\n");
+//printf("  to export.  Also prompt them for the export format type.\n\n");
 
   QMessageBox::information( (QWidget *)NULL, tr("Info:"), tr("This feature currently under construction. - Unable to fulfill request."), QMessageBox::Ok );
 }
 
 void OpenSpeedshop::filePreferences()
 {
-//  printf("filePreferences() entered.\n");
+//printf("filePreferences() entered.\n");
 
   preferencesDialog->show();
 }
@@ -350,12 +338,12 @@ void OpenSpeedshop::fileClose()
 
 void OpenSpeedshop::helpIndex()
 {
-// printf("helpIndex() entered.\n");
+//printf("helpIndex() entered.\n");
 }
 
 void OpenSpeedshop::helpContents()
 {
-// printf("helpContents() entered.\n");
+//printf("helpContents() entered.\n");
  char *plugin_directory = NULL;
   
  plugin_directory = getenv("OPENSPEEDSHOP_DOC_DIR");
@@ -376,7 +364,7 @@ void OpenSpeedshop::helpContents()
 
 void OpenSpeedshop::helpAbout()
 {
-// printf("helpAbout() entered.\n");
+//printf("helpAbout() entered.\n");
 
  QMessageBox::about(this, "Open/SpeedShop", "Open/SpeedShop about example....");
 }
@@ -449,33 +437,33 @@ AppEventFilter::eventFilter( QObject *obj, QEvent *e )
 //      masterPC->last_pos  = QCursor::pos();
       if( masterPC->sleepTimer && masterPC->popupTimer )
       {
-//         printf("QEvent::MouseMove: we have timers!\n");
+//printf("QEvent::MouseMove: we have timers!\n");
         if( masterPC->sleepTimer->isActive() )
         { // If we're sleeping, just ignore this...
-//          printf ("we're sleeping, just return.\n");
+//printf ("we're sleeping, just return.\n");
           masterPC->sleepTimer->start(1000, TRUE);
         } else
         { // Otherwise, check to see if there's a timer set.   If it is set
           // just go to sleep for a whil and return.   Otherwise, set a new one.
           if( masterPC->popupTimer->isActive() )
           {
-//            printf ("popupTimer is already active... start sleeping...\n");
+//printf ("popupTimer is already active... start sleeping...\n");
             masterPC->sleepTimer->start(1000, TRUE);
             masterPC->popupTimer->stop();
           } else
           {
-//            printf ("start the popup timer...\n");
+//printf ("start the popup timer...\n");
             masterPC->sleepTimer->stop();
             masterPC->popupTimer->start(1000, TRUE);
           }
         }
       } else
       {
-//        printf("QEvent::MouseMove: NO timers!\n");
+//printf("QEvent::MouseMove: NO timers!\n");
       }
       if( masterPC->whatsThisActive == TRUE && masterPC->whatsThis )
       {
-//        printf("QEvent::MouseMove: SEND MouseButtonPress event to app!\n");
+//printf("QEvent::MouseMove: SEND MouseButtonPress event to app!\n");
         masterPC->whatsThis->hide( obj );
         masterPC->whatsThisActive = FALSE;
       }
@@ -586,17 +574,17 @@ void OpenSpeedshop::init()
     {
       pi = (PluginInfo *)*it;
       sprintf(plugin_file, "%s/%s", plugin_directory, pi->plugin_name );
-// printf("about to open(%s).\n", plugin_file);
+//printf("about to open(%s).\n", plugin_file);
       void *dl_object = dlopen((const char *)plugin_file, (int)RTLD_LAZY );
 
       if( dl_object )
       {
-// printf("about to lookup(%s).\n", "initialize_preferences_entry_point");
+//printf("about to lookup(%s).\n", "initialize_preferences_entry_point");
         QWidget * (*dl_plugin_info_init_preferences_routine)(QSettings *, QWidgetStack*, char *) =
           (QWidget * (*)(QSettings *, QWidgetStack*, char *))dlsym(dl_object, "initialize_preferences_entry_point" );
           if( dl_plugin_info_init_preferences_routine )
           {
-// printf("about to call the routine.\n");
+//printf("about to call the routine.\n");
             QWidget *panelStackPage = (*dl_plugin_info_init_preferences_routine)(preferencesDialog->settings, preferencesDialog->preferenceDialogWidgetStack, pi->preference_category);
             if( panelStackPage )
             {
@@ -828,7 +816,7 @@ void OpenSpeedshop::loadNewProgram()
     fileName = lfd->selectedFile();
     if( !fileName.isEmpty() )
     {
-//      printf("fileName.ascii() = (%s)\n", fileName.ascii() );
+//printf("fileName.ascii() = (%s)\n", fileName.ascii() );
       QFileInfo fi(fileName);
       if( !fi.isExecutable() )
       {
@@ -845,10 +833,10 @@ void OpenSpeedshop::attachNewProcess()
   AttachProcessDialog *dialog = new AttachProcessDialog(this, "AttachProcessDialog", TRUE);
   if( dialog->exec() == QDialog::Accepted )
   {
-// printf("QDialog::Accepted\n");
+    //printf("QDialog::Accepted\n");
     pidStr = dialog->selectedProcesses();
   }
 
-printf("pidStr = %s\n", pidStr.ascii() );
+  //printf("pidStr = %s\n", pidStr.ascii() );
   delete dialog;
 }

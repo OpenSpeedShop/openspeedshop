@@ -89,7 +89,7 @@ pcStatsPanel::listener(void *msg)
   if(  msgObject->msgType  == "UpdateExperimentDataObject" )
   {
     UpdateObject *msg = (UpdateObject *)msgObject;
-msg->print();
+// msg->print();
 #ifdef PRINT_DEBUG
 PrintView(msg->expID);
 #endif // PRINT_DEBUG
@@ -184,9 +184,9 @@ for( ; it != orig_data->end(); ++it)
     Optional<Statement> definition = it->first.getDefinition();
     if(definition.hasValue())
     {
-      std::cout << " (" << definition.getValue().getPath()
-              << ", " << definition.getValue().getLine() << ")";
-      std::cout << std::endl;
+//      std::cout << " (" << definition.getValue().getPath()
+//              << ", " << definition.getValue().getLine() << ")";
+//      std::cout << std::endl;
       break;
     }
     fprintf(stderr, "No function definition for this entry.   Unable to position source.\n");

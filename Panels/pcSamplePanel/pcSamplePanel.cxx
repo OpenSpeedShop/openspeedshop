@@ -74,7 +74,7 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n, void *argument) 
     QString *expIDString = (QString *)argument;
     if( (int)argument == -1 )
     {
-      printf("we're coming in from the pcSampleWizardPanel.\n");
+      nprintf( DEBUG_PANELS ) ("we're coming in from the pcSampleWizardPanel.\n");
       // We're comming in cold,
       // Check to see if there's a suggested executable or pid ...
       if( !mw->executableName.isEmpty() )
@@ -87,11 +87,11 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n, void *argument) 
     } else if( expIDString->toInt() > 0 )
     {
       expID = expIDString->toInt();
-      printf("we're coming in with an expID=%d\n", expID);
+      nprintf( DEBUG_PANELS ) ("we're coming in with an expID=%d\n", expID);
     }
   } else
   {
-    printf("We're coming in cold (i.e. from main menu)\n");
+    nprintf( DEBUG_PANELS ) ("We're coming in cold (i.e. from main menu)\n");
   }
 
 
@@ -125,8 +125,8 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n, void *argument) 
                               pc->getMasterPCList() );
   frameLayout->addWidget( pcSampleControlPanelContainerWidget );
 
-OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
-// printf("Create a new pcSample experiment.\n");
+  OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
+  nprintf( DEBUG_PANELS ) ("Create a new pcSample experiment.\n");
 
 
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
@@ -160,7 +160,7 @@ statusLabelText->setText( tr(QString("Loading ...  "))+mw->executableName);
 runnableFLAG = FALSE;
 pco->runButton->setEnabled(FALSE);
 pco->runButton->enabledFLAG = FALSE;
-printf("Attempting to do an (%s)\n", command );
+nprintf( DEBUG_PANELS ) ("Attempting to do an (%s)\n", command );
 
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
   if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete, 60000 ) )
@@ -189,7 +189,7 @@ if( !executableNameStr.isEmpty() || !pidStr.isEmpty() )
 }
 } else
 {
-  printf("pcSample has been requested to open an existing experiment!!!\n");
+  nprintf( DEBUG_PANELS ) ("pcSample has been requested to open an existing experiment!!!\n");
 // Look up the framework experiment and squirrel it away.
   ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
   if( eo && eo->FW() )
@@ -252,7 +252,7 @@ pcSamplePanel::~pcSamplePanel()
             tr("&Yes"), tr("&No"),
             QString::null, 0, 1 ) )
   {
-    printf("NOTE: This does not need to be a syncronous call.\n");
+   nprintf( DEBUG_PANELS ) ("NOTE: This does not need to be a syncronous call.\n");
 #ifdef OLDWAY
     bool mark_value_for_delete = true;
     int64_t val = 0;
@@ -296,7 +296,6 @@ void
 pcSamplePanel::loadNewProgramSelected()
 {
   nprintf( DEBUG_PANELS ) ("pcSamplePanel::loadNewProgramSelected()\n");
-printf("pcSamplePanel::loadNewProgramSelected()\n");
   if( runnableFLAG == TRUE )
   {
     nprintf( DEBUG_PANELS ) ("Disconnect First?\n"); 
@@ -314,7 +313,7 @@ printf("pcSamplePanel::loadNewProgramSelected()\n");
     {
       executableNameStr = mw->executableName;
 
- printf("Attempt to load %s\n", mw->executableName.ascii() );
+    nprintf( DEBUG_PANELS ) ("Attempt to load %s\n", mw->executableName.ascii() );
     CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
 
     char command[1024];
@@ -331,7 +330,7 @@ printf("pcSamplePanel::loadNewProgramSelected()\n");
     runnableFLAG = FALSE;
     pco->runButton->setEnabled(FALSE);
     pco->runButton->enabledFLAG = FALSE;
-    printf("Attempting to do an (%s)\n", command );
+    nprintf( DEBUG_PANELS ) ("Attempting to do an (%s)\n", command );
 
     if( !cli->runSynchronousCLI(command) )
     {
@@ -407,14 +406,13 @@ pcSamplePanel::detachFromProgramSelected()
   broadcast((char *)spo, NEAREST_T);
 
   runnableFLAG = FALSE;
-printf("WARNING: Disable this window!!!!! Until an experiment (pcsamp) is restarted.\n");
+  nprintf( DEBUG_PANELS ) ("WARNING: Disable this window!!!!! Until an experiment (pcsamp) is restarted.\n");
 }
 
 void
 pcSamplePanel::attachToExecutableSelected()
 {
   nprintf( DEBUG_PANELS ) ("pcSamplePanel::attachToExecutableSelected()\n");
-printf("pcSamplePanel::attachToExecutableSelected()\n");
   if( runnableFLAG == TRUE )
   {
     if( detachFromProgramSelected() == FALSE )
@@ -431,7 +429,7 @@ printf("pcSamplePanel::attachToExecutableSelected()\n");
 
   if( !mw->pidStr.isEmpty() )
   {
- printf("Attempt to load %s\n", mw->pidStr.ascii() );
+    nprintf( DEBUG_PANELS ) ("Attempt to load %s\n", mw->pidStr.ascii() );
     CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
 
     char command[1024];
@@ -448,7 +446,7 @@ printf("pcSamplePanel::attachToExecutableSelected()\n");
     runnableFLAG = FALSE;
     pco->runButton->setEnabled(FALSE);
     pco->runButton->enabledFLAG = FALSE;
-    printf("Attempting to do an (%s)\n", command );
+    nprintf( DEBUG_PANELS ) ("Attempting to do an (%s)\n", command );
 
     int64_t val = 0;  // unused
     bool mark_value_for_delete = true;
@@ -561,7 +559,7 @@ CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
     switch( (int)co->cot )
     {
       case  ATTACH_PROCESS_T:
-sprintf(command, "attach a process collector %d\n", expID);
+sprintf(command, "expAttach  -x %d\n", expID);
 if( !cli->runSynchronousCLI(command) )
 {
   fprintf(stderr, "Error (%s).\n", command);
@@ -569,7 +567,7 @@ if( !cli->runSynchronousCLI(command) )
         nprintf( DEBUG_MESSAGES ) ("Attach to a process\n");
         break;
       case  DETACH_PROCESS_T:
-sprintf(command, "detach a process %d\n", expID);
+sprintf(command, "expDetach -x %d\n", expID);
 if( !cli->runSynchronousCLI(command) )
 {
   fprintf(stderr, "Error (%s).\n", command);
@@ -610,12 +608,11 @@ if( eo && eo->FW() )
   status = eo->Determine_Status();
   while( status != ExpStatus_Terminated )
   {
-//    printf("sleep(1)\n");
     sleep(1);
     qApp->processEvents(1000);
     if( status == ExpStatus_InError )
     {
-      printf("Process errored.\n");
+      nprintf( DEBUG_PANELS ) ("Process errored.\n");
       statusLabelText->setText( tr("Process errored...") );
     }
     status = eo->Determine_Status();
@@ -858,7 +855,7 @@ sao->f->flush();
 void
 pcSamplePanel::loadSourcePanel()
 {
-  printf("From this pc on down, send out a saveAs message and put it to a file.\n");
+  nprintf( DEBUG_PANELS ) ("From this pc on down, send out a saveAs message and put it to a file.\n");
   SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", topPC, (char *)expID);
 }
 
@@ -866,7 +863,6 @@ void
 pcSamplePanel::loadStatsPanel()
 {
   nprintf( DEBUG_PANELS ) ("load the stats panel.\n");
-printf("load the stats panel.\n");
 
   PanelContainer *pc = topPC->findBestFitPanelContainer(topPC);
 
@@ -902,7 +898,7 @@ pd->hide();
 void
 pcSamplePanel::loadMain()
 {
-printf("loadMain() entered\n");
+  nprintf( DEBUG_PANELS ) ("loadMain() entered\n");
 #ifdef OLDWAY
 
 // Begin Demo (direct connect to framework) only...
@@ -957,9 +953,9 @@ printf("loadMain() entered\n");
     Optional<Statement> statement_definition = function.getDefinition();
     if(statement_definition.hasValue())
     {
-      std::cout << " (" << statement_definition.getValue().getPath()
-              << ", " << statement_definition.getValue().getLine() << ")";
-      std::cout << std::endl;
+//      std::cout << " (" << statement_definition.getValue().getPath()
+//              << ", " << statement_definition.getValue().getLine() << ")";
+//      std::cout << std::endl;
       SourceObject *spo = new SourceObject("main", statement_definition.getValue().getPath(), statement_definition.getValue().getLine()-1, TRUE, NULL);
   
       if( broadcast((char *)spo, NEAREST_T) == 0 )
@@ -980,14 +976,10 @@ printf("loadMain() entered\n");
 void
 pcSamplePanel::progressUpdate()
 {
-// printf("progressUpdate() entered..\n");
   pd->setProgress( steps );
   steps++;
   if( steps > 100 )
   {
-// printf("progressUpdate() finished..\n");
     loadTimer->stop();
   }
-//printf("progressUpdate() sleep..\n");
-//  sleep(1);
 }

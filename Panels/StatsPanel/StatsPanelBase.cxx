@@ -41,8 +41,6 @@ static char *color_name_table[10] =
 
 StatsPanelBase::StatsPanelBase(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
 {
-printf("StatsPanelBase() entered\n");
-
   setCaption("StatsPanelBase");
 
   groupID = (int)argument;
@@ -53,7 +51,6 @@ printf("StatsPanelBase() entered\n");
   numberItemsToRead = getPreferenceTopNLineEdit().toInt(&ok);
   if( !ok )
   {
-printf("Invalid \"number of items\" in preferences.   Resetting to default.\n");
     numberItemsToRead = 5;
   }
 
@@ -85,7 +82,6 @@ StatsPanelBase::updateStatsPanelBaseData(void *expr, int expID, QString experime
 
 
   dprintf("updateStatsPanelBaseData() enterd.\n");
-// printf("updateStatsPanelBaseData(0x%x %d, %s) enterd.\n", expr, expID, experiment_name.ascii() );
 
   if( lv != NULL )
   {
@@ -150,7 +146,6 @@ StatsPanelBase::languageChange()
 bool
 StatsPanelBase::menu(QPopupMenu* contextMenu)
 {
-printf("StatsPanelBase::menu() requested.\n");
   contextMenu->insertSeparator();
 
 //  contextMenu->insertItem("Number visible entries...", this, SLOT(setNumberVisibleEntries()), CTRL+Key_1, 0, -1);
@@ -212,7 +207,7 @@ StatsPanelBase::saveAs()
 void
 StatsPanelBase::preferencesChanged()
 { 
-//  printf("StatsPanelBase::preferencesChanged\n");
+  dprintf("StatsPanelBase::preferencesChanged\n");
 
   bool thereWasAChangeICareAbout = FALSE;
 
@@ -255,7 +250,6 @@ StatsPanelBase::preferencesChanged()
 
   if( thereWasAChangeICareAbout )
   {
-// printf("  thereWasAChangeICareAbout!!!!\n");
     updateStatsPanelBaseData();
   }
 } 
@@ -288,13 +282,13 @@ StatsPanelBase::createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos )
 void
 StatsPanelBase::compareSelected()
 {
-  printf("compareSelected()\n");
+  dprintf("compareSelected()\n");
 }
 
 void
 StatsPanelBase::setNumberVisibleEntries()
 {
-  printf("setNumberVisibleEntries()\n");
+  dprintf("setNumberVisibleEntries()\n");
 {
   bool ok;
   QString s = QString("%1").arg(numberItemsToRead);

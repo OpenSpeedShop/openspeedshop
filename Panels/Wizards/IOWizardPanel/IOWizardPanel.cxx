@@ -814,7 +814,6 @@ nprintf(DEBUG_PANELS) ("vAttachOrLoadPageBackButtonSelected() \n");
 void IOWizardPanel::vAttachOrLoadPageResetButtonSelected()
 {
   nprintf(DEBUG_PANELS) ("vAttachOrLoadPageResetButtonSelected() \n");
-printf ("vAttachOrLoadPageResetButtonSelected() \n");
   if( getPanelContainer()->getMainWindow() )
   { 
     OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
@@ -907,7 +906,6 @@ nprintf(DEBUG_PANELS) ("vSummaryPageFinishButtonSelected() \n");
   if( getPanelContainer()->getMainWindow() )
   { 
     OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
-//    printf("mw=0x%x\n", mw );
     if( mw )
     {
       LoadAttachObject *lao = NULL;
@@ -1023,7 +1021,6 @@ IOWizardPanel::eUpdateAttachOrLoadPageWidget()
   if( getPanelContainer()->getMainWindow() )
   { 
     OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
-//    printf("mw=0x%x\n", mw );
     if( mw )
     {
       if( !mw->executableName.isEmpty() )
@@ -1063,7 +1060,6 @@ IOWizardPanel::vUpdateAttachOrLoadPageWidget()
   if( getPanelContainer()->getMainWindow() )
   {
     OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
-//    printf("mw=0x%x\n", mw );
     if( mw )
     {
       if( !mw->executableName.isEmpty() )

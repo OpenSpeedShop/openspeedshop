@@ -47,7 +47,6 @@ using namespace OpenSpeedShop::Framework;
 
 StatsPanel::StatsPanel(PanelContainer *pc, const char *n, void *argument) : StatsPanelBase(pc, n, argument)
 {
-printf("StatsPanel() entered\n");
   setCaption("StatsPanel");
 }
 
@@ -78,7 +77,6 @@ StatsPanel::languageChange()
 int 
 StatsPanel::listener(void *msg)
 {
-  printf("StatsPanel::listener() requested.\n");
 //  StatsPanelBase::listener(msg);
 
   PreferencesChangedObject *pco = NULL;
@@ -88,7 +86,7 @@ StatsPanel::listener(void *msg)
   if(  msgObject->msgType  == "UpdateExperimentDataObject" )
   {
     UpdateObject *msg = (UpdateObject *)msgObject;
-msg->print();
+// msg->print();
     updateStatsPanelBaseData(msg->fw_expr, msg->expID, msg->experiment_name);
     if( msg->raiseFLAG )
     {
@@ -96,7 +94,6 @@ msg->print();
     }
   } else if( msgObject->msgType == "PreferencesChangedObject" )
   {
-//    printf("StatsPanelBase:  The preferences changed.\n");
     pco = (PreferencesChangedObject *)msgObject;
     preferencesChanged();
   }
@@ -108,8 +105,6 @@ msg->print();
 bool
 StatsPanel::createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos )
 {
-  printf ("StatsPanel: Popup the context sensitive menu here.... can you augment it with the default popupmenu?\n");
-
   QPopupMenu *panelMenu = new QPopupMenu(this);
   panelMenu->setCaption("Panel Menu");
   contextMenu->insertItem("&Panel Menu", panelMenu, CTRL+Key_C);
@@ -131,12 +126,10 @@ StatsPanel::createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos )
 void
 StatsPanel::gotoSource()
 {
-  printf("gotoSource() menu selected.\n");
 }
 
 
 void
 StatsPanel::itemSelected(QListViewItem *item)
 {
-  printf("StatsPanel::itemSelected(clicked) entered\n");
 }

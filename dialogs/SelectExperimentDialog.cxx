@@ -145,13 +145,14 @@ SelectExperimentDialog::selectedExperiment(int *expID)
     QListViewItem *parent_node = availableExperimentsListView->selectedItem();
     while( parent_node->parent() )
     {
-      printf("looking for 0x%x\n", parent_node->parent() );
+      nprintf( DEBUG_PANELS ) ("looking for 0x%x\n", parent_node->parent() );
       parent_node = parent_node->parent();
     }
-printf("parent text=%s\n", parent_node->text(0).ascii() );
+    nprintf( DEBUG_PANELS ) ("parent text=%s\n", parent_node->text(0).ascii() );
+
     *expID = parent_node->text(0).toInt();
 
-//    printf("Got an ITEM!\n");
+    nprintf( DEBUG_PANELS ) ("Got an ITEM!\n");
     // If the user selected a leaf, just return it...
     if( selectedItem->parent() )
     {
@@ -168,7 +169,7 @@ return selectedItem;
     }
   } else
   {
-//    printf("NO ITEMS SELECTED\n");
+    nprintf( DEBUG_PANELS ) ("NO ITEMS SELECTED\n");
     return( NULL );
   }
 }
@@ -192,12 +193,12 @@ SelectExperimentDialog::updateAvailableExperimentList()
   }
 
   std::list<int64_t>::iterator it;
-// printf("int_list.size() =%d\n", int_list.size() );
+  nprintf( DEBUG_PANELS ) ("int_list.size() =%d\n", int_list.size() );
   for(it = int_list.begin(); it != int_list.end(); it++ )
   {
     int64_t expID = (int64_t)(*it);
 
-    printf("Here are the experiment ids that can be saved (%d)\n", expID);
+    nprintf( DEBUG_PANELS ) ("Here are the experiment ids that can be saved (%d)\n", expID);
 QString expName = QString::null;
 ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
 Experiment *fw_experiment = NULL;
@@ -238,6 +239,5 @@ if( panelList )
 
 void SelectExperimentDialog::attachHostComboBoxActivated()
 {
-//  printf("hostComboBox\n");
     updateAvailableExperimentList();
 }

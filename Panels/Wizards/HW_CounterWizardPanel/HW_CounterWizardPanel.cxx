@@ -812,7 +812,6 @@ nprintf(DEBUG_PANELS) ("vAttachOrLoadPageBackButtonSelected() \n");
 void HW_CounterWizardPanel::vAttachOrLoadPageResetButtonSelected()
 {
   nprintf(DEBUG_PANELS) ("vAttachOrLoadPageResetButtonSelected() \n");
-printf ("vAttachOrLoadPageResetButtonSelected() \n");
   if( getPanelContainer()->getMainWindow() )
   { 
     OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
@@ -905,7 +904,6 @@ nprintf(DEBUG_PANELS) ("vSummaryPageFinishButtonSelected() \n");
   if( getPanelContainer()->getMainWindow() )
   { 
     OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
-//    printf("mw=0x%x\n", mw );
     if( mw )
     {
       LoadAttachObject *lao = NULL;
@@ -1021,7 +1019,6 @@ HW_CounterWizardPanel::eUpdateAttachOrLoadPageWidget()
   if( getPanelContainer()->getMainWindow() )
   { 
     OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
-//    printf("mw=0x%x\n", mw );
     if( mw )
     {
       if( !mw->executableName.isEmpty() )
@@ -1061,7 +1058,6 @@ HW_CounterWizardPanel::vUpdateAttachOrLoadPageWidget()
   if( getPanelContainer()->getMainWindow() )
   {
     OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
-//    printf("mw=0x%x\n", mw );
     if( mw )
     {
       if( !mw->executableName.isEmpty() )

@@ -813,7 +813,6 @@ void pcSampleWizardPanel::eAttachOrLoadPageClearButtonSelected()
     OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
     if( mw )
     {
-printf("Clear out the mw->executableName\n");
       mw->executableName = QString::null;
       mw->pidStr = QString::null;
     }
@@ -1144,7 +1143,6 @@ void pcSampleWizardPanel::vSummaryPageFinishButtonSelected()
   if( getPanelContainer()->getMainWindow() )
   { 
     OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
-//    printf("mw=0x%x\n", mw );
     if( mw )
     {
       LoadAttachObject *lao = NULL;
@@ -1186,11 +1184,11 @@ pcSampleWizardPanel::languageChange()
 "performance and a larger data file.<br><br>\n"
 "It may take a little experimenting to find the right setting for your \n"
 "particular executable.   We suggest starting with the default setting\n"
-"of 10." ) );
+"of 100." ) );
   vParameterPageSampleRateHeaderLabel->setText( tr( "You can set the following option(s):" ) );
   vParameterPageSampleRateLabel->setText( tr( "pc Sample rate:" ) );
-  vParameterPageSampleRateText->setText( tr( "10" ) );
-  QToolTip::add( vParameterPageSampleRateText, tr( "The rate to sample.   (Default 10 milliseconds.)" ) );
+  vParameterPageSampleRateText->setText( tr( "100" ) );
+  QToolTip::add( vParameterPageSampleRateText, tr( "The rate to sample.   (Default 100 milliseconds.)" ) );
   vParameterPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( vParameterPageBackButton, tr( "Takes you back one page." ) );
   vParameterPageResetButton->setText( tr( "Reset" ) );
@@ -1228,8 +1226,8 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new execu
   eParameterPageDescriptionLabel->setText( tr( "The following options (paramaters) are available to adjust.     <br>These are the options the collector has exported." ) );
   eParameterPageSampleRateHeaderLabel->setText( tr( "You can set the following option(s):" ) );
   eParameterPageSampleRateLabel->setText( tr( "pc Sample rate:" ) );
-  eParameterPageSampleRateText->setText( tr( "10" ) );
-  QToolTip::add( eParameterPageSampleRateText, tr( "The rate to sample.   (Default 10 milliseconds.)" ) );
+  eParameterPageSampleRateText->setText( tr( "100" ) );
+  QToolTip::add( eParameterPageSampleRateText, tr( "The rate to sample.   (Default 100 milliseconds.)" ) );
   eParameterPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( eParameterPageBackButton, tr( "Takes you back one page." ) );
   eParameterPageResetButton->setText( tr( "Reset" ) );
@@ -1277,7 +1275,6 @@ pcSampleWizardPanel::vUpdateAttachOrLoadPageWidget()
   if( getPanelContainer()->getMainWindow() )
   {
     OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
-// printf("mw=0x%x\n", mw );
     if( mw )
     {
       if( !mw->executableName.isEmpty() )

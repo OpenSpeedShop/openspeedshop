@@ -247,7 +247,7 @@ void
 ProcessControlObject::updateButtonSlot()
 {
   nprintf( DEBUG_PANELS ) ("PCO: Update button pressed.\n");
-printf("Get some data!\n");
+//printf("Get some data!\n");
 
   ControlObject *co = new ControlObject(UPDATE_T);
   panel->listener((void *)co);
