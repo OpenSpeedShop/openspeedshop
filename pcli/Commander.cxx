@@ -383,7 +383,6 @@ class CommandWindowID
     }
   }
   void Clip_Is_Complete (InputLineObject *Clip) {
-fprintf(stdout,"Clip_Is_Complete: ");Clip->Print(stdout);
     Complete_Cmds.push_back (Clip);
   }
 private:
@@ -512,6 +511,13 @@ public:
         inp->Dump(TFile );
       }
     }
+/* TEST */
+   // Print the list of completed commands
+    std::list<InputLineObject *> cmd_object = Complete_Cmds;
+    std::list<InputLineObject *>::iterator cmi;
+    for (cmi = cmd_object.begin(); cmi != cmd_object.end(); cmi++) {
+      (*cmi)->Print (TFile);
+    }
   }
   void Trace (InputLineObject *clip) {
     if (Trace_File()) {
@@ -627,11 +633,13 @@ void Link_Cmd_Obj_to_Input (InputLineObject *I, CommandObject *C)
 void Clip_Complete (InputLineObject *clip) {
   CommandWindowID *win = Find_Command_Window (clip->Who());
   win->Clip_Is_Complete(clip);
+  clip->CallBackL ();
 }
 
 void Cmd_Obj_Complete (CommandObject *C) {
   InputLineObject *lin = C->Clip();
   Clip_Complete (lin);
+  lin->CallBackC (C);
 }
 
 int64_t Find_Command_Level (CMDWID WindowID)
@@ -905,7 +913,10 @@ InputLineObject *Append_Input_String (CMDWID issuedbywindow, InputLineObject *cl
   return NULL;
 }
 
-InputLineObject *Append_Input_String (CMDWID issuedbywindow, char *b_ptr) {
+InputLineObject *Append_Input_String (CMDWID issuedbywindow, char *b_ptr,
+                                      void *LocalCmdId,
+                                      void (*CallBackLine) (InputLineObject *b),
+                                      void (*CallBackCmd) (CommandObject *b)) {
   InputLineObject *clip = NULL;;
   if (Isa_SS_Command(issuedbywindow,b_ptr)) {
     CommandWindowID *cw = Find_Command_Window (issuedbywindow);
@@ -914,6 +925,9 @@ InputLineObject *Append_Input_String (CMDWID issuedbywindow, char *b_ptr) {
     clip->Set_Trace (cw->Trace_File());
     Input_Source *inp = new Input_Source (clip);
     clip->SetStatus (ILO_QUEUED_INPUT);
+    clip->Set_CallBackId (LocalCmdId);
+    clip->Set_CallBackL (CallBackLine);
+    clip->Set_CallBackC (CallBackCmd);
     cw->Append_Input_Source (inp);
   }
   return clip;
