@@ -1,6 +1,8 @@
 #ifndef PANELCONTAINER_H
 #define PANELCONTAINER_H
 
+#include <debug.hxx>
+
 #include "Panel.hxx"
 
 #include "Frame.hxx"
@@ -21,7 +23,6 @@
 #include <qsplitter.h>
 
 #include <qvaluelist.h>
-#include <debug.hxx>
 
 #include <qtimer.h>
 #include <qpoint.h>

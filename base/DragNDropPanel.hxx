@@ -1,6 +1,8 @@
 #ifndef DRAGNDROPPANEL_H
 #define DRAGNDROPPANEL_H
 
+#include "debug.hxx"
+
 class PanelContainer;
 class Frame;
 
@@ -9,7 +11,6 @@ class Frame;
 
 #include <qcursor.h>
 
-#include "debug.hxx"
 
 //! Defines drag and drop functions.
 class DragNDropPanel

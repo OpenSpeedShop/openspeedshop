@@ -1,13 +1,14 @@
 #ifndef FRAME_H
 #define FRAME_H
 
+#include "debug.hxx"
+
 class PanelContainer;
 
 #include "debug.hxx"
 #include <qwidget.h>
 #include <qframe.h>
 
-#include "debug.hxx"
 
 //! This is the container for a PanelContainer.
 class Frame : public QFrame

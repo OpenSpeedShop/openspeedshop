@@ -20,6 +20,7 @@
     Author: Al Stipek   (stipek@sgi.com)
  */
 
+#include "debug.hxx"  // This includes the definition of nprintf
 
 #include "DragNDropPanel.hxx"
 
@@ -33,7 +34,6 @@
 #include "TabBarWidget.hxx"
 #include "TopWidget.hxx"
 
-#include "debug.hxx"  // This includes the definition of nprintf
 
 #ifdef OLD_DRAG_AND_DROP
 #define CHANGE_CURSOR 1

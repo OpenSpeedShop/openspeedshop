@@ -13,6 +13,7 @@
       This is the worker event for the drop event.
  */
 
+#include "debug.hxx"  // This includes the definition of nprintf(DEBUG_FRAMES) 
 
 #include "Frame.hxx"
 
@@ -26,7 +27,6 @@
 #include <qcursor.h>
 
 #define DEBUG_OUTPUT_REQUESTED 1
-#include "debug.hxx"  // This includes the definition of nprintf(DEBUG_FRAMES) 
 
 #include <stdlib.h>  // for the free() call below.
 

@@ -40,6 +40,8 @@
     Author: Al Stipek   (stipek@sgi.com)
  */
 
+#include "debug.hxx"  // This includes the definition of nprintf(DEBUG_PANELCONTAINERS) 
+
 #include "Panel.hxx"
 #include "PanelContainer.hxx"
 
@@ -65,7 +67,6 @@
 #include "WhatsThis.hxx"
 
 unsigned int __internal_debug_setting = 0x0000;  // Referenced in debug.hxx, define here.
-#include "debug.hxx"  // This includes the definition of nprintf(DEBUG_PANELCONTAINERS) 
 #include <stdlib.h>
 #include <string.h>
 
