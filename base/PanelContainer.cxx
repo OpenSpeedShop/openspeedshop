@@ -640,6 +640,7 @@ PanelContainer::dragRaisedPanel()
     to another. 
     \note  See PanelContainer::movePanelsToNewPanelContainer() for details.
   */
+#include "MessageObject.hxx"
 void
 PanelContainer::reparentPCPanels(PanelContainer *tPC, PanelContainer *fPC)
 {
@@ -649,6 +650,35 @@ PanelContainer::reparentPCPanels(PanelContainer *tPC, PanelContainer *fPC)
   sourcePC = fPC;
   tPC->movePanelsToNewPanelContainer( sourcePC );
 }
+
+/*! Find nearest Panel by name.
+*/
+Panel *
+PanelContainer::findNamedPanel(PanelContainer *start_pc, char *panel_name)
+{
+  Panel *foundPanel = NULL;
+  int return_value = 0; // unused
+
+  MessageObject *msg = new MessageObject(panel_name);
+  foundPanel = findNearestInterestedPanel(start_pc, (char *)msg, &return_value);
+
+  for( PanelContainerList::Iterator it = _masterPanelContainerList->begin();
+               it != _masterPanelContainerList->end();
+               it++ )
+  {
+    PanelContainer *pc = (PanelContainer *)*it;
+    foundPanel = findNearestInterestedPanel(pc, (char *)msg, &return_value);
+    if( foundPanel )
+    {
+      break;
+    }
+  }
+
+  delete msg;
+
+  return foundPanel;
+}
+
 
 /*! Look for PanelContainer based on it's internal name.
     Find a named PanelContainer, somewhere in the master list of
@@ -2027,6 +2057,7 @@ PanelContainer::setExternalName( const char *n )
     (NOTE: See SlotInfo::dynamicMenuCallback() for the hook from the
            main window's toolbar.)
 */
+#include "MessageObject.hxx"
 Panel *
 PanelContainer::dl_create_and_add_panel(char *panel_type, PanelContainer *targetPC)
 {
@@ -2418,14 +2449,15 @@ PanelContainer::notifyPC(char *msg)
     PanelContainers are found shortly, then message is passed to the 
     all Panels in the master PanelContainer list.
  */
-int
+Panel *
 PanelContainer::notifyNearest(char *msg)
 {
   PanelContainer *pc = this;
+  Panel *foundPanel = NULL;
   int return_value = 0;
   nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::notifyNearest()\n");
 
-  wasThereAnInterestedPanel(pc, msg, &return_value );
+  foundPanel = wasThereAnInterestedPanel(pc, msg, &return_value );
  
   if( return_value == 0 )
   {
@@ -2433,10 +2465,11 @@ PanelContainer::notifyNearest(char *msg)
     if( pc->parentPanelContainer )
     {
       pc = pc->parentPanelContainer;
-      if( findNearestInterestedPanel(pc, msg, &return_value) )
+      foundPanel = findNearestInterestedPanel(pc, msg, &return_value);
+      if( foundPanel )
       {
         nprintf(DEBUG_PANELCONTAINERS) ("Found the nearest interesting panel and delivered message.\n");
-        return(1);
+        return(foundPanel);
       } else
       {
         while( pc )
@@ -2451,10 +2484,11 @@ PanelContainer::notifyNearest(char *msg)
             }
           }
   
-          if( findNearestInterestedPanel(pc, msg, &return_value) )
+          foundPanel = findNearestInterestedPanel(pc, msg, &return_value);
+          if( foundPanel )
           {
             nprintf(DEBUG_PANELCONTAINERS) ("WEll that was a lot of work, but we found one..\n");
-            return(1);
+            return(foundPanel);
           }
           pc = pc->parentPanelContainer;
         }
@@ -2479,7 +2513,7 @@ PanelContainer::notifyNearest(char *msg)
         if( return_value > 0 )
         {
           // At least one panel wanted to see this message.
-          return(1);
+          return(p);
         }
       }
       for( PanelList::Iterator pit = pc->panelList.begin();
@@ -2491,12 +2525,12 @@ PanelContainer::notifyNearest(char *msg)
         if( return_value > 0 )
         {
           // At least on panel wanted to see this message.
-          return(1);
+          return(p);
         }
       }
     }
   }
-  return(return_value);
+  return( foundPanel );
 }
 
 /*! First check the raised Panel, then loop through all the Panels in the
@@ -2505,22 +2539,18 @@ PanelContainer::notifyNearest(char *msg)
     If there was a Panel interested, return the Panel's listener routines
     return value up the call chain.
  */
-int
+Panel *
 PanelContainer::wasThereAnInterestedPanel(PanelContainer *pc, char *msg, int *return_value )
 {
   Panel *p = NULL;
-  int ret_val = 0;
   // First see if there's a raised panel that's interested. (In this
   // PanelContaienr.)
   p = pc->getRaisedPanel();
   if( p )
   {
-    ret_val = p->listener(msg);
-    if( ret_val > 0 )
+    if( p->listener(msg) > 0 )
     {
-      // At least on panel wanted to see this message.
-      *return_value = ret_val;
-      return(*return_value);
+      return(p);
     }
   }
 
@@ -2530,15 +2560,14 @@ PanelContainer::wasThereAnInterestedPanel(PanelContainer *pc, char *msg, int *re
            ++pit )
   {
     p = (Panel *)*pit;
-    ret_val = p->listener(msg);
-    if( ret_val > 0 )
+    if( p->listener(msg) > 0 )
     {
       // At least on panel wanted to see this message.
-      *return_value = ret_val;
+      return(p);
     }
   }
 
-  return(*return_value);
+  return (Panel *)0;
 }
 
 /*! Recursively walks the PanelContainer tree looking for a Panel to field
@@ -2546,10 +2575,10 @@ PanelContainer::wasThereAnInterestedPanel(PanelContainer *pc, char *msg, int *re
    \note FIX: This routine isn't even close... It's just started for the sake
    of a demo and needs to be rethought out and reengineered. 
  */
-PanelContainer *
+Panel *
 PanelContainer::findNearestInterestedPanel(PanelContainer *pc, char *msg, int *ret_val)
 {
-  PanelContainer *foundPC = NULL;
+  Panel *foundPanel = NULL;
 
   nprintf(DEBUG_PANELCONTAINERS) ("findNearestInterestedPanel: entered\n");
 
@@ -2557,34 +2586,35 @@ PanelContainer::findNearestInterestedPanel(PanelContainer *pc, char *msg, int *r
       !pc->leftPanelContainer && !pc->rightPanelContainer )
   {
     nprintf(DEBUG_PANELCONTAINERS) ("A: just return pc\n");
-    if( wasThereAnInterestedPanel(pc, msg, ret_val ) )
+    foundPanel = wasThereAnInterestedPanel(pc, msg, ret_val );
+    if( foundPanel )
     {
       nprintf(DEBUG_PANELCONTAINERS) ("There was!   There was a nearest intresting panel!\n");
-      return pc;
+      return foundPanel;
     }
   }
   if( pc->leftPanelContainer &&
       pc->leftPanelContainer->markedForDelete == FALSE )
   {
-    foundPC = findNearestInterestedPanel(pc->leftPanelContainer, msg, ret_val);
-    if( foundPC )
+    foundPanel = findNearestInterestedPanel(pc->leftPanelContainer, msg, ret_val);
+    if( foundPanel )
     {
       nprintf(DEBUG_PANELCONTAINERS) ("found an interested Panel!\n");
-      return( foundPC );
+      return( foundPanel );
     }
   } 
   if( pc->rightPanelContainer &&
       pc->rightPanelContainer->markedForDelete == FALSE )
   {
-    foundPC = findNearestInterestedPanel(pc->rightPanelContainer, msg, ret_val);
-    if( foundPC )
+    foundPanel = findNearestInterestedPanel(pc->rightPanelContainer, msg, ret_val);
+    if( foundPanel )
     {
       nprintf(DEBUG_PANELCONTAINERS) ("found an interested Panel!\n");
-      return( foundPC );
+      return( foundPanel );
     }
   }
 
-  return NULL;
+  return (Panel *)foundPanel;
 }
 
 /*! This routine is currently unimplemented.   
