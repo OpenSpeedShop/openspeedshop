@@ -128,6 +128,7 @@ void OpenSpeedshop::fileSaveSession()
 
 void OpenSpeedshop::fileOpenExperiment()
 {
+  QApplication::setOverrideCursor(QCursor::WaitCursor);
   SelectExperimentDialog *dialog = new SelectExperimentDialog(this, "Select Experiment To Open Dialog", TRUE);
 
   QString expStr;
@@ -175,6 +176,7 @@ if( !p )
 
   delete dialog;
 
+  QApplication::restoreOverrideCursor();
 }
 
 void OpenSpeedshop::fileOpenSavedExperiment()
