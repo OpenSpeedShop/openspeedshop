@@ -37,14 +37,14 @@ SourcePanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-ve
 
 SourcePanel_la_LIBADD = ../../objects/.libs/ossObjects.so -L$(QTDIR)/lib -lqt
 
-moc_MyQTextEdit.cxx: MyQTextEdit.hxx
-	-moc -o moc_MyQTextEdit.cxx MyQTextEdit.hxx
+moc_SPTextEdit.cxx: SPTextEdit.hxx
+	-moc -o moc_SPTextEdit.cxx SPTextEdit.hxx
 
 moc_SourcePanel.cxx: SourcePanel.hxx
 	-moc -o moc_SourcePanel.cxx SourcePanel.hxx
 
 SourcePanel_la_SOURCES = \
-    MyQTextEdit.hxx MyQTextEdit.cxx moc_MyQTextEdit.cxx \
+    SPTextEdit.hxx SPTextEdit.cxx moc_SPTextEdit.cxx \
 	SourcePanel.hxx SourcePanel.cxx moc_SourcePanel.cxx \
 	PanelContainer.hxx local_plugin_info.hxx debug.hxx \
 	plugin_entry_point.hxx Panel.hxx HighlightObject.hxx
