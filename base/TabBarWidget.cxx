@@ -46,11 +46,25 @@ void TabBarWidget::mousePressEvent(QMouseEvent *e)
   nprintf(DEBUG_PANELCONTAINERS) ("TabBarWidget::mousePressEvent()\n");
 
   nprintf(DEBUG_PANELCONTAINERS) ("e->pos().x()=%d e->pos().y()=%d\n", e->pos().x(), e->pos().y() );
+
   if( getPanelContainer() == NULL )
   {
     return;
   }
- 
+
+  if( getPanelContainer()->leftPanelContainer && getPanelContainer()->rightPanelContainer)
+  {  // There should be no menu action for this split panel container.  Only
+     // for it's children.
+    nprintf(DEBUG_PANELCONTAINERS) ("  There are children.  - return\n");
+     return;
+  }
+
+  if( getPanelContainer()->getMasterPC()->_doingMenuFLAG == TRUE )
+  {
+    nprintf(DEBUG_PANELCONTAINERS) ("  already doing menu - return\n");
+    return;
+  }
+
   nprintf(DEBUG_PANELCONTAINERS) ("  pc=(%s)(%s)\n", getPanelContainer()->getInternalName(), getPanelContainer()->getExternalName() );
 
   QTab *selectedTab = NULL;
@@ -68,10 +82,10 @@ void TabBarWidget::mousePressEvent(QMouseEvent *e)
     {
       nprintf(DEBUG_PANELCONTAINERS) ("RightButton!\n");
       nprintf(DEBUG_PANELCONTAINERS) ("TabBarWidget() call the menu....\n");
-      getPanelContainer()->panelContainerContextMenuEvent( getPanelContainer(), TRUE );
-      return;
-    }
-    if( e->button() == LeftButton )
+      // The frame has all the locking for handling PanelContainer events.
+      // Use that path...
+      getPanelContainer()->leftFrame->contextMenuEvent( (QContextMenuEvent *)e, TRUE );
+    } else if( e->button() == LeftButton )
     {
       nprintf(DEBUG_PANELCONTAINERS) ("LeftButton!\n");
       getPanelContainer()->dragRaisedPanel();
