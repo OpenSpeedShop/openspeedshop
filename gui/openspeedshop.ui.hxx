@@ -19,6 +19,7 @@
 
 
 #include <stdlib.h>
+#include <libgen.h> // basename()
 #include "PanelContainer.hxx"
 #include "TopWidget.hxx"
 #include <qvbox.h>
@@ -42,6 +43,7 @@ extern QApplication *qapplication;
 // #include "debug.hxx"  // This includes the definition of dprintf
 #include "AttachProcessDialog.hxx"
 #include "SelectExperimentDialog.hxx"
+#include "SaveAsExperimentDialog.hxx"
 
 /*! Here are the needed globals for this application... */
 #include "openspeedshop.hxx"
@@ -237,81 +239,60 @@ void OpenSpeedshop::fileOpenSavedExperiment()
 
 void OpenSpeedshop::fileSaveExperiment()
 {
-  SelectExperimentDialog *dialog = new SelectExperimentDialog(this, "Select Experiment To Save Dialog", TRUE);
+  SaveAsExperimentDialog *dialog = new SaveAsExperimentDialog(this, "Select Experiment To Save Dialog", TRUE);
 
   QString expStr;
   if( dialog->exec() == QDialog::Accepted )
   {
     const char *name = NULL;
-//printf("QDialog::Accepted\n");
     int expID = 0;
     PanelListViewItem *item = dialog->selectedExperiment(&expID);
-    Panel *p = NULL;
-    if( item )
-    {
-      p = item->panel;
-    }
-    if( p )
-    {
-      name = p->getName();
-//printf( "save panel name = (%s)\n", name );
-//      p->getPanelContainer()->raisePanel(p);
-    } else
-    {
-      QString expStr = QString("%1").arg(expID);
-//printf("Save the expiriment.  It's not loaded in the gui... only the cli\n");
-//printf("expID = (%d) \n", expID );
-    }
-// Begin save dialog
-    QString dirName = QString::null;
+    QString expStr = QString("%1").arg(expID);
+    QString databaseName = QString("%1").arg(item->text(2));
+//printf("expStr=(%s) databaseName=(%s)\n", expStr.ascii(), databaseName.ascii() );
+    QString dirName = "./";
     if( sed == NULL )
     {
       sed = new QFileDialog(this, "file dialog", TRUE );
       sed->setCaption( QFileDialog::tr("Enter session name:") );
       sed->setMode( QFileDialog::AnyFile );
       QString types(
-                  "Image files (*.png *.xpm *.jpg);;"
-                  "Text files (*.txt);;"
-                  "(*.html);;"
-                  "(*.xls);;"
-                  "(*.ps);;"
+                  "Open|SpeedShop files (*.openss);;"
                   );
       sed->setFilters( types );
 //    sed->setViewMode( QFileDialog::Detail );
       sed->setDir(dirName);
     }
-    sed->setSelection( QString(name)+QString(".txt") );
+    const char *n = databaseName.ascii();
+    char *bn = basename( (char *)n );
+    sed->setSelection(bn);
   
-    char *fn = NULL;
     QString fileName = QString::null;
     if( sed->exec() == QDialog::Accepted )
     {
       fileName = sed->selectedFile();
       if( !fileName.isEmpty() )
       {
-//printf("fileName.ascii() = (%s)\n", fileName.ascii() );
-        fn = strdup(fileName.ascii());
+printf("fileName.ascii() = (%s)\n", fileName.ascii() );
+        QString command;
+        command = QString("expSave -x %1 %2").arg(expID).arg(fileName);
+printf("command=(%s)\n", command.ascii() );
+        if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
+        {
+          printf("Unable to run %s command.\n", command.ascii() );
+        }
       } else
       {
         return;
       }
     }
-  
-//printf("go and save the setup...\n");
-    if( !fileName.isEmpty() )
-    {
-//printf("Based on the extension name, save away the file.\n");
-      free(fn);
-    }
-// End save dialog
-
   }
 
-//printf("expStr = %s\n", expStr.ascii() );
   delete dialog;
 
 }
 
+#ifdef EXPORT
 void OpenSpeedshop::fileExportExperimentData()
 {
 //printf("OpenSpeedshop::fileExportExperimentData() entered\n");
@@ -321,6 +302,7 @@ void OpenSpeedshop::fileExportExperimentData()
 
   QMessageBox::information( (QWidget *)NULL, tr("Info:"), tr("This feature currently under construction. - Unable to fulfill request."), QMessageBox::Ok );
 }
+#endif // EXPORT
 
 void OpenSpeedshop::filePreferences()
 {

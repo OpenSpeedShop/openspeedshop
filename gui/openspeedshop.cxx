@@ -74,8 +74,10 @@ OpenSpeedshop::OpenSpeedshop( int _wid, QWidget* parent, const char* name, WFlag
   fileSaveExperimentAction = new QAction( this, "fileSaveExperimentAction" );
 //  fileSaveExperimentAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "filesave" ) ) );
 
+#ifdef EXPORT
   fileExportExperimentDataAction = new QAction( this, "fileExportExperimentDataAction" );
 //  fileExportExperimentDataAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "filesave" ) ) );
+#endif // EXPORT
 
   fileSaveSessionAction = new QAction( this, "fileSaveSessionAction" );
 //  fileSaveSessionAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "filesave" ) ) );
@@ -95,7 +97,9 @@ OpenSpeedshop::OpenSpeedshop( int _wid, QWidget* parent, const char* name, WFlag
   fileOpenExperimentAction->addTo( fileMenu );
   fileOpenSavedExperimentAction->addTo( fileMenu );
   fileSaveExperimentAction->addTo( fileMenu );
+#ifdef EXPORT
   fileExportExperimentDataAction->addTo( fileMenu );
+#endif // EXPORT
 
   fileMenu->insertSeparator();
 
@@ -115,7 +119,9 @@ OpenSpeedshop::OpenSpeedshop( int _wid, QWidget* parent, const char* name, WFlag
   connect( fileOpenExperimentAction, SIGNAL( activated() ), this, SLOT( fileOpenExperiment() ) );
   connect( fileOpenSavedExperimentAction, SIGNAL( activated() ), this, SLOT( fileOpenSavedExperiment() ) );
   connect( fileSaveExperimentAction, SIGNAL( activated() ), this, SLOT( fileSaveExperiment() ) );
+#ifdef EXPORT
   connect( fileExportExperimentDataAction, SIGNAL( activated() ), this, SLOT( fileExportExperimentData() ) );
+#endif // EXPORT
 
   connect( fileSaveSessionAction, SIGNAL( activated() ), this, SLOT( fileSaveSession() ) );
   connect( filePreferencesAction, SIGNAL( activated() ), this, SLOT( filePreferences() ) );
@@ -192,9 +198,11 @@ void OpenSpeedshop::languageChange()
   fileSaveExperimentAction->setMenuText( tr( "&Save Experiment Data" ) );
   fileSaveExperimentAction->setAccel( tr( "Ctrl+S" ) );
 
+#ifdef EXPORT
   fileExportExperimentDataAction->setText( tr( "Export Experiment Data" ) );
   fileExportExperimentDataAction->setMenuText( tr( "&Export Experiment Data" ) );
   fileExportExperimentDataAction->setAccel( tr( "Ctrl+E" ) );
+#endif // EXPORT
 
   fileSaveSessionAction->setText( tr( "Save Window Setup" ) );
   fileSaveSessionAction->setMenuText( tr( "Save &Window Setup" ) );
