@@ -882,7 +882,10 @@ SourcePanel::doFileHighlights()
        ++it)
   {
     hlo = (HighlightObject *)*it;
-    highlightLine(hlo->line, hlo->color, TRUE);
+    if( hlo->fileName == fileName )
+    {
+      highlightLine(hlo->line, hlo->color, TRUE);
+    }
 //    highlightSegment(para, index, para, index+4, "yellow");
   }
   // End for demos and testing (for now)...   FIX

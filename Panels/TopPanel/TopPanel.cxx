@@ -412,10 +412,10 @@ TopPanel::itemSelected(int element)
     {
       if( i >= 5 )
       {
-        hlo = new HighlightObject(line, color_name_table[4], "description");
+        hlo = new HighlightObject(fi->fileName, line, color_name_table[4], "description");
       } else 
       {
-        hlo = new HighlightObject(line, color_name_table[i], "description");
+        hlo = new HighlightObject(fi->fileName, line, color_name_table[i], "description");
       }
 // fprintf(stderr, "  pushback hlo: line=%d in color (%s)\n", line, hlo->color);
       highlightList->push_back(hlo);

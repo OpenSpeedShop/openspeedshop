@@ -22,8 +22,9 @@ public:
       description = "none";
     };
 
-    HighlightObject(int l, char *c="red", char *d="N/A")
+    HighlightObject(QString fn, int l, char *c="red", char *d="N/A")
     {
+      fileName = fn;
       line = l;
       color = strdup(c);
       description = strdup(d);
@@ -47,6 +48,7 @@ public:
       printf("%d %s %s\n", line, color, description);
     }
 
+    QString fileName;
     int line;
     char *color;
     char *description;

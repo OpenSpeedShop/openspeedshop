@@ -11,11 +11,14 @@
 
 #include <qbitmap.h>
 
+#include <qmessagebox.h>
+
 #include "SourcePanel.hxx"
 #include "SourceObject.hxx"
 #include "TopPanel.hxx"
 
 #include "LoadAttachObject.hxx"
+
 
 
 /*!  pcSamplePanel Class
@@ -94,14 +97,14 @@ printf("# theApplication.attachCollector(theCollector.getValue());\n");
 
 // Begin demo position at dummy file... For the real stuff we'll need to 
 // look up the main()... and position at it...
-if( mw && !mw->executableName.isEmpty() )
+if( mw && !mw->executableName.isEmpty() && mw->executableName.endsWith("fred_calls_ted") )
 {
   char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
   char buffer[200];
   strcpy(buffer, plugin_directory);
-  strcat(buffer, "/../../../Example.cpp");
+  strcat(buffer, "/../../../usability/phaseI/fred_calls_ted.c");
 printf("load (%s)\n", buffer);
-  SourceObject *spo = new SourceObject("main", buffer, 1556, TRUE, NULL);
+  SourceObject *spo = new SourceObject("main", buffer, 22, TRUE, NULL);
 
   if( !sp->listener((void *)spo) )
   {
@@ -374,13 +377,14 @@ printf("Position at main!\n");
 
 // Begin demo position at dummy file... For the real stuff we'll need to 
 // look up the main()... and position at it...
+if( mw && !mw->executableName.isEmpty() && mw->executableName.endsWith("fred_calls_ted") )
 {
 char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
   char buffer[200];
   strcpy(buffer, plugin_directory);
-  strcat(buffer, "/../../../Example.cpp");
-printf("load (%s)\n", buffer);
-  SourceObject *spo = new SourceObject("main", buffer, 1556, TRUE, NULL);
+  strcat(buffer, "/../../../usability/phaseI/fred_calls_ted.c");
+// printf("load (%s)\n", buffer);
+  SourceObject *spo = new SourceObject("main", buffer, 22, TRUE, NULL);
 
   if( broadcast((char *)spo, NEAREST_T) == 0 )
   { // No source view up...
@@ -397,6 +401,14 @@ printf("load (%s)\n", buffer);
       }
     }
   }
+} else
+{
+  QString msg = QString(tr("File entered is not an executable file.  No main() entry found.\n") );
+  QMessageBox::information( (QWidget *)this, "Process or executable needed...",
+                               msg, QMessageBox::Ok );
+printf("NOTE: CLEAR THE SOURCE IN THIS CASE (Or revert back???)!!!\n");
+  pco->runButton->setEnabled(FALSE);
+  pco->runButton->enabledFLAG = FALSE;
 }
 // End demo.
 

@@ -34,42 +34,42 @@ ExprInfo::fudgeValues()
   dprintf("Debug only!!! fudging values...\n");
   if( targetProgram == NULL )
   {
-    targetProgram = strdup("generic (ia64)");
+    targetProgram = strdup("fred_calls_ted (ia32)");
   }
   if( experimentName == NULL )
   {
-    experimentName = strdup("usertime");
+    experimentName = strdup("pc Sampling");
   }
   if( marchingOrders == NULL )
   {
-    marchingOrders = strdup("ut:cu:");
+    marchingOrders = strdup("n/a");
   }
   if( experimentNotes == NULL )
   {
-    experimentNotes = strdup("From file generic.usertime.m16957:\nCaliper point 0 at target begin, PID 16957\n/speedtest/generic/generic\nCaliper point 1 at exit(0)");
+    experimentNotes = strdup("From file fred_calls_ted.pcsamp\n");
   }
 
   int i = 0;
   FuncInfo *nfi;
-  nfi = new FuncInfo(0, (float)40, "fred()", "Example.cpp", 80, 80, 82);
+  nfi = new FuncInfo(0, (float)44.2, (float)0.190, "foo()", "foo.c", 11, 11, 14);
   funcInfoList.push_back(nfi);
   i++;
 
-  nfi = new FuncInfo(1, (float)20, "barney()", "Example.cpp", 455, 455, 460);
+  nfi = new FuncInfo(1, (float)34.9, (float)0.150, "init()", "fred_calls_ted.c", 15, 15, 18 );
   funcInfoList.push_back(nfi);
   i++;
 
-  nfi = new FuncInfo(2, (float)15, "arney()", "Example.cpp", 786, 786, 787);
+  nfi = new FuncInfo(2, (float)11.6, (float)0.050, "fred()", "fred.c", 20, 20, 23);
   funcInfoList.push_back(nfi);
   i++;
 
-  nfi = new FuncInfo(3, (float)10, "foo()", "Example.cpp", 1110, 1110, 1115 );
+  nfi = new FuncInfo(3, (float)9.3, (float)0.040, "ted()", "ted.c", 10, 10, 13);
   funcInfoList.push_back(nfi);
   i++;
 
   for( /* i */; i < 1024; i++ )
   {
-    nfi = new FuncInfo(3, (float).001, "foo().001", "Example.cpp", 0, 0, 0 );
+    nfi = new FuncInfo(3, (float).000, (float)0.000, "__libcall()", "_libcall.cpp", 0, 0, 0 );
     funcInfoList.push_back(nfi);
   }
 }
