@@ -10,7 +10,7 @@
 #include "SourceObject.hxx"
 #include "HighlightObject.hxx"
 
-#include "MyQTextEdit.hxx"
+#include "SPTextEdit.hxx"
 
 class PanelContainer;   // Do not remove
 #include <qlayout.h>
@@ -58,7 +58,7 @@ void info();
   QLabel *label;
 
   //! The QTextEdit for managing the actual text.
-  MyQTextEdit *textEdit;
+  SPTextEdit *textEdit;
 
   //! A pointer to the vertical scrollbar.
   QScrollBar *vscrollbar;

@@ -56,8 +56,8 @@ label->setCaption("SourcePanel: text label");
   QString label_text = "No source file specified.";
   label->setText(label_text);
 
-  textEdit = new MyQTextEdit( this, getBaseWidgetFrame() );
-textEdit->setCaption("SourcePanel: MyQTextEdit");
+  textEdit = new SPTextEdit( this, getBaseWidgetFrame() );
+textEdit->setCaption("SourcePanel: SPTextEdit");
   textEdit->setTextFormat(PlainText);  // This makes one para == 1 line.
   textEdit->setReadOnly(TRUE);
   textEdit->setWordWrap(QTextEdit::NoWrap);
