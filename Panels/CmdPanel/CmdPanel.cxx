@@ -26,6 +26,8 @@ CmdPanel::CmdPanel(PanelContainer *pc, const char *n, char *argument) : Panel(pc
                 this, SLOT(returnPressed()) );
   connect( output, SIGNAL(textChanged()),
                 this, SLOT(textChanged()) );
+  connect( output, SIGNAL(clicked(int, int)),
+                this, SLOT(clicked(int, int)) );
 
   frameLayout->addWidget(output);
 
@@ -52,6 +54,13 @@ CmdPanel::CmdPanel(PanelContainer *pc, const char *n, char *argument) : Panel(pc
 CmdPanel::~CmdPanel()
 {
   nprintf(DEBUG_CONST_DESTRUCT) ( "  CmdPanel::~CmdPanel() destructor called.\n");
+}
+
+void
+CmdPanel::clicked(int, int)
+{
+printf("Hard set the focus to the textedit!\n");
+  output->setFocus();
 }
 
 void

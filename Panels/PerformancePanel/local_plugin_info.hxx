@@ -6,5 +6,5 @@
   plugin_entry->plugin_entry_point = "panel_init";
   plugin_entry->menu_heading =  "E&xperiments";
   plugin_entry->menu_label =  "&Performance";
-  plugin_entry->menu_accel =  "Ctrl+P";
+  plugin_entry->menu_accel =  "Alt+P";
   plugin_entry->panel_type =  "Performance";

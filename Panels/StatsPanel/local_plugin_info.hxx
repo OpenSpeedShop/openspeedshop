@@ -6,7 +6,7 @@
   plugin_entry->plugin_entry_point = "panel_init";
   plugin_entry->menu_heading =  ""; // Leaving this blank hides the menu entry.
   plugin_entry->menu_label =  "Stats Panel";
-  plugin_entry->menu_accel =  "Cntrl R";
+  plugin_entry->menu_accel =  "Alt+R";
   plugin_entry->panel_type =  "Stats Panel";
   plugin_entry->preference_category =  "Stats Panel";
   plugin_entry->initialize_preferences_entry_point =  "initialize_preferences_entry_point";

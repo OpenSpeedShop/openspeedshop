@@ -6,5 +6,5 @@
   plugin_entry->plugin_entry_point = "panel_init";
   plugin_entry->menu_heading =  "E&xperiments";
   plugin_entry->menu_label =  "&pc Sampling";
-  plugin_entry->menu_accel =  "Ctrl+R";
+  plugin_entry->menu_accel =  "Alt+R";
   plugin_entry->panel_type =  "pc Sampling";

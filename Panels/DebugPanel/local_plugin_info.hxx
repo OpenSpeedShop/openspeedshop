@@ -6,5 +6,5 @@
   plugin_entry->plugin_entry_point = "panel_init";
   plugin_entry->menu_heading =  "&Debug";
   plugin_entry->menu_label =  "&Debug Panel";
-  plugin_entry->menu_accel =  "Ctrl+D";
+  plugin_entry->menu_accel =  "Alt+D";
   plugin_entry->panel_type =  "Debug Panel";

@@ -12,7 +12,6 @@ KeyEventFilter::KeyEventFilter(QObject *t, CmdPanel *p) : QObject(t)
 bool
 KeyEventFilter::eventFilter( QObject *o, QEvent *e)
 {
-
   if( e->type() == QEvent::KeyPress )
   {
     QKeyEvent *key_event = (QKeyEvent *)e;
@@ -32,6 +31,20 @@ KeyEventFilter::eventFilter( QObject *o, QEvent *e)
       cmdPanel->positionToEndForReturn();
       return FALSE;
     }
+#ifdef OLDWAY
+printf("key_event->state()=%d\n", key_event->state() );
+if( key_event->state() == QEvent::ControlButton && key_event->key() == Qt::Key_J )
+{
+  cmdPanel->downKey();
+  return FALSE;
+}
+if( key_event->state() == QEvent::ControlButton && key_event->key() == Qt::Key_K )
+{
+  cmdPanel->upKey();
+  return FALSE;
+}
+#endif // OLDWAY
+
   }
 
   return FALSE;

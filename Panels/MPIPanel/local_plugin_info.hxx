@@ -6,5 +6,5 @@
   plugin_entry->plugin_entry_point = "panel_init";
   plugin_entry->menu_heading =  "E&xperiments";
   plugin_entry->menu_label =  "&MPI";
-  plugin_entry->menu_accel =  "Ctrl+M";
+  plugin_entry->menu_accel =  "Alt+M";
   plugin_entry->panel_type =  "MPI";
