@@ -509,7 +509,7 @@ void UserTimeWizardPanel::epage2BackButtonSelected()
 void UserTimeWizardPanel::epage2FinishButtonSelected()
 {
     qWarning( "UserTimeWizardPanel::epage2FinishButtonSelected(): Not implemented yet" );
-     panelContainer->_masterPC->dl_create_and_add_panel("User Time Panel Control", panelContainer);
+     panelContainer->_masterPC->dl_create_and_add_panel("User Time", panelContainer);
 }
 
 void UserTimeWizardPanel::wizardModeSelected()
@@ -632,7 +632,7 @@ void UserTimeWizardPanel::vpage2BackButtonSelected()
 void UserTimeWizardPanel::vpage2FinishButtonSelected()
 {
     qWarning( "UserTimeWizardPanel::vpage2FinishButtonSelected(): Not implemented yet" );
-     panelContainer->_masterPC->dl_create_and_add_panel("User Time Panel Control", panelContainer);
+     panelContainer->_masterPC->dl_create_and_add_panel("User Time", panelContainer);
 }
 
 void UserTimeWizardPanel::vpage1SampleRateTextSelected()
