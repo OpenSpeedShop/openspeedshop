@@ -49,5 +49,7 @@ libopenss_Chart_la_SOURCES = \
 	chartform.cxx         moc_chartform.cxx    setdataform.cxx \
 	chartform_files.cxx   moc_optionsform.cxx
 
+EXTRA_DIST = images
+
 
 CLEANFILES=moc_canvasview.cxx moc_chartform.cxx moc_optionsform.cxx moc_setdataform.cxx
