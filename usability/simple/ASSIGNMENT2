@@ -1,98 +1,96 @@
-                         ASSIGNMENT 2
+                         Usability Study
 
 
 Introduction:
 -------------
 
 For this assignment you'll be asked to do a few common
-debugging tasks.  There are no time constraint, nor should you
+performance tuning tasks.  There are no time constraint, nor should you
 feel there are any.   Please try to "think out loud" as you
 work through these problems.   It will greatly help us understand
 where our problems are.
+
+
+Your task is to take the simple program (fred_calls_ted) in this
+directory and determine which routine(s) are taking the most time.
+
+
+Remember:  You are not being tested here.    The User Interface strategy
+is being analyzed.   Your initial feedback and thoughts as you 
+navigate through this set of tasks will enable us to see our problem
+areas.
 
 Enjoy.
 
 
 Step 1:
   Type the following command at the prompt:
-    $ cd /home/tulip22/stipek/demo/usability/test2
-
-Step 2:
-  Type the following command at the prompt:
     $ make 
 
   This should have made the test case 'fred_calls_ted'.   It's a
   very simple 'c' example that has a few straight forward function
-  calls and a few variables.   This test case is nearly identical to 
-  the previous task, but it's been broken up into 5 separate files.
+  calls and a few variables.
 
-Step 3:
-  Run the executable 'fred_calls_ted'.   The output is 2 simple lines.
+
+Step 2:
+  Run the executable 'fred_calls_ted'.
 
   Type:
     $ fred_calls_ted
-    Set a breakpoint at this line.
-    The final value of small_array[9,9]=0
     $
 
+
+Step 3:
+  The Open/Speedshop performance tool is 'openss'.    'man openss' gives you
+  the typical man description of the command.
+
+
 Step 4:
-  SGI's debugger is named 'cvd'.    'man cvd' gives you the
-  typical IRIX description of the command.
+  Launch the Open/Speedshop command so you can run performance debugging
+  on the executable named 'fred_calls_ted'.
 
 
-Step 5:
-  Bring up the debugger, cvd, so you can debug the executable
-  named 'fred_calls_ted'.
+Step 5: 
+  Determine which performance experiment will show you where the application
+  is spending most of it's time.
 
 
 Step 6:
-  Run the program (under the control of cvd).
-
- Does the output from this run match the output from the previous
-  run?	 (From Step 3.)
+  Using the experiment you determined (in Step 5) gather the performance
+  date for it on the application 'fred_calls_ted'.
 
 
 Step 7:
-  Set a breakpoint at the line, near the end of the file, that has
-  the printf with the message, "Set a breakpoint at this line.".
+  Once the application has run to completion, find which routine took the
+  most time.   
 
+  Which routine took the most time?
+
+  Which routine too the second most time?
 
 Step 8:
-  At line 13, main calls the function foo.   Set a breakpoint in
-  function 'foo'.
+  The applications source may have been covered up by the default report.
+  If it is, attempt to make both the Source Panel and the Top Panel visible
+  on screen at the same time.
 
 
 Step 9:
-  There's a file called 'fred.c'.   Load fred.c into the source view and set a 
-  breakpoint at line 29.
+  Position the source at the routine that took the most time.
 
 
 Step 10:
-  Run to the breakpoint at line 29 of 'fred.c'.
+  Position the source at the routine that took the second most time.
 
 
 Step 11:
-  What routine called fred()?   That is what's the call stack for
-  this current program counter?
+  Display line numbers in the Source Panel.
+
 
 
 Step 12:
-  Continue to the last line of the program.  (HINT:  That's the first
-  breakpoint you set in main() at line 17 in fred_calls_ted.c.)
+  Save this report to a file for later viewing.
+
 
 
 Step 13:
-  Display the contents of the variable small_array;   What's the value
-  of element cell small_array[2][2]?
-
-
-Step 14:
-  Set the value of the cell offset 9,9 to 100.
-
-
-Step 15:
-  Continue until the program has completed.
-
-
-Step 16: 
-  What value was printed out to the 'execution view' for small_array[9,9]?
+  Exit the Open/Speedshop tool.
