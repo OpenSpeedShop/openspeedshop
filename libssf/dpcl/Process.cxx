@@ -313,7 +313,7 @@ Process::Process(const std::string& host, const pid_t& pid) :
     if(retval.status() == ASC_failure) {
 	MainLoop::resume();
 	char pid_name[16];
-	sprintf(pid_name, "%d", static_cast<int>(pid));
+	sprintf(pid_name, "%d", static_cast<int>(dm_pid));
 	throw std::runtime_error("Cannot connect to PID " + pid_name + 
 				 " on host \"" + host + "\".");
     }
