@@ -186,6 +186,9 @@ extern "C"
    // Close Python
     Py_Finalize ();
 
+   // Close any open experiments
+    Experiment_Termination ();
+
    // Close allocated input windows.
     if (gui_window != 0)
     {
@@ -223,8 +226,8 @@ fprintf(stderr,"catch_signal %d\n",sig);
 inline static void
 setup_signal_handler (int s)
 {
-    if (signal (s, SIG_IGN) != SIG_IGN)
-        signal (s,  reinterpret_cast <void (*)(int)> (catch_signal));
+    // if (signal (s, SIG_IGN) != SIG_IGN)
+        // signal (s,  reinterpret_cast <void (*)(int)> (catch_signal));
 }
 
   int
@@ -264,7 +267,7 @@ setup_signal_handler (int s)
     executable_encountered = false;
     collector_encountered = false;
     Process_Command_Line (argc, argv);
-  
+
    // Open the Python interpreter.
     Initial_Python ();
 
@@ -353,5 +356,5 @@ setup_signal_handler (int s)
   
     (*dl_gui_init_routine)((void *)argStruct);
   }
-  
+
 }
