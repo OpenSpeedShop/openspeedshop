@@ -65,6 +65,7 @@ void OpenSpeedshop::fileExit()
  exit(EXIT_SUCCESS);
 }
 
+#ifdef EVENTUALLY
 void OpenSpeedshop::editUndo()
 {
  printf("editUndo() entered.\n");
@@ -95,6 +96,7 @@ void OpenSpeedshop::editFind()
 
 
 }
+#endif // EVENTUALLY
 
 void OpenSpeedshop::helpIndex()
 {

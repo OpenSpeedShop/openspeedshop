@@ -41,6 +41,7 @@ OpenSpeedshop::OpenSpeedshop( QWidget* parent, const char* name, WFlags fl )
     fileSaveAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "filesave" ) ) );
     fileSaveAsAction = new QAction( this, "fileSaveAsAction" );
     fileExitAction = new QAction( this, "fileExitAction" );
+#ifdef EVENTUALLY
     editUndoAction = new QAction( this, "editUndoAction" );
     editUndoAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "undo" ) ) );
     editRedoAction = new QAction( this, "editRedoAction" );
@@ -53,6 +54,7 @@ OpenSpeedshop::OpenSpeedshop( QWidget* parent, const char* name, WFlags fl )
     editPasteAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "editpaste" ) ) );
     editFindAction = new QAction( this, "editFindAction" );
     editFindAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "searchfind" ) ) );
+#endif // EVENTUALLY
     helpContentsAction = new QAction( this, "helpContentsAction" );
     helpIndexAction = new QAction( this, "helpIndexAction" );
     helpAboutAction = new QAction( this, "helpAboutAction" );
@@ -76,6 +78,7 @@ OpenSpeedshop::OpenSpeedshop( QWidget* parent, const char* name, WFlags fl )
     menubar->insertItem( QString(""), fileMenu, 1 );
 
     editMenu = new QPopupMenu( this );
+#ifdef EVENTUALLY
     editUndoAction->addTo( editMenu );
     editRedoAction->addTo( editMenu );
     editMenu->insertSeparator();
@@ -85,6 +88,7 @@ OpenSpeedshop::OpenSpeedshop( QWidget* parent, const char* name, WFlags fl )
     editMenu->insertSeparator();
     editFindAction->addTo( editMenu );
     menubar->insertItem( QString(""), editMenu, 2 );
+#endif // EVENTUALLY
 
 
     // signals and slots connections
@@ -93,11 +97,13 @@ OpenSpeedshop::OpenSpeedshop( QWidget* parent, const char* name, WFlags fl )
     connect( fileSaveAction, SIGNAL( activated() ), this, SLOT( fileSave() ) );
     connect( fileSaveAsAction, SIGNAL( activated() ), this, SLOT( fileSaveAs() ) );
     connect( fileExitAction, SIGNAL( activated() ), this, SLOT( fileExit() ) );
+#ifdef EVENTUALLY
     connect( editUndoAction, SIGNAL( activated() ), this, SLOT( editUndo() ) );
     connect( editRedoAction, SIGNAL( activated() ), this, SLOT( editRedo() ) );
     connect( editCutAction, SIGNAL( activated() ), this, SLOT( editCut() ) );
     connect( editPasteAction, SIGNAL( activated() ), this, SLOT( editPaste() ) );
     connect( editFindAction, SIGNAL( activated() ), this, SLOT( editFind() ) );
+#endif // EVENTUALLY
     connect( helpIndexAction, SIGNAL( activated() ), this, SLOT( helpIndex() ) );
     connect( helpContentsAction, SIGNAL( activated() ), this, SLOT( helpContents() ) );
     connect( helpAboutAction, SIGNAL( activated() ), this, SLOT( helpAbout() ) );
@@ -158,6 +164,7 @@ void OpenSpeedshop::languageChange()
     fileExitAction->setText( tr( "Exit" ) );
     fileExitAction->setMenuText( tr( "E&xit" ) );
     fileExitAction->setAccel( QString::null );
+#ifdef EVENTUALLY
     editUndoAction->setText( tr( "Undo" ) );
     editUndoAction->setMenuText( tr( "&Undo" ) );
     editUndoAction->setAccel( tr( "Ctrl+Z" ) );
@@ -176,6 +183,7 @@ void OpenSpeedshop::languageChange()
     editFindAction->setText( tr( "Find" ) );
     editFindAction->setMenuText( tr( "&Find..." ) );
     editFindAction->setAccel( tr( "Ctrl+F" ) );
+#endif // EVENTUALLY
     helpContentsAction->setText( tr( "Contents" ) );
     helpContentsAction->setMenuText( tr( "&Contents..." ) );
     helpContentsAction->setAccel( QString::null );
@@ -187,8 +195,10 @@ void OpenSpeedshop::languageChange()
     helpAboutAction->setAccel( QString::null );
     if (menubar->findItem(1))
         menubar->findItem(1)->setText( tr( "&File" ) );
+#ifdef EVENTUALLY
     if (menubar->findItem(2))
         menubar->findItem(2)->setText( tr( "&Edit" ) );
+#endif // EVENTUALLY
 #ifdef HOLD
     if (menubar->findItem(3))
         menubar->findItem(3)->setText( tr( "&Help" ) );

@@ -47,12 +47,14 @@ public:
     QAction* fileSaveAction;
     QAction* fileSaveAsAction;
     QAction* fileExitAction;
+#ifdef EVENTUALLY
     QAction* editUndoAction;
     QAction* editRedoAction;
     QAction* editCutAction;
     QAction* editCopyAction;
     QAction* editPasteAction;
     QAction* editFindAction;
+#endif // EVENTUALLY
     QAction* helpContentsAction;
     QAction* helpIndexAction;
     QAction* helpAboutAction;
@@ -62,17 +64,19 @@ public:
     //! A pointer to the top PanelContainer that is parented to this mainwindow.
     PanelContainer *topPC;
 
+#ifdef EVENTUALLY // Move back to 'public slots:' if needed.
+    virtual void editUndo();
+    virtual void editRedo();
+    virtual void editCut();
+    virtual void editPaste();
+    virtual void editFind();
+#endif // EVENTUALLY
 public slots:
     virtual void fileNew();
     virtual void fileOpen();
     virtual void fileSave();
     virtual void fileSaveAs();
     virtual void fileExit();
-    virtual void editUndo();
-    virtual void editRedo();
-    virtual void editCut();
-    virtual void editPaste();
-    virtual void editFind();
     virtual void helpIndex();
     virtual void helpContents();
     virtual void helpAbout();
