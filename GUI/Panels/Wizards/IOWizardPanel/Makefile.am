@@ -29,11 +29,13 @@ IOWizardPanel_la_CXXFLAGS = \
     -I$(QTDIR)/include \
     -I. \
     -I../../../gui \
-    -I../../../plugin \
+    -I../../../images \
     -I../../../objects \
+    -I../../../dialogs \
+    -I../../../plugin \
     -I../../../base
 
-IOWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../../base/.libs/ftBase.so  -Wl,../../../objects/.libs/ftObjects.so
+IOWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../../base/.libs/ftBase.so  -Wl,../../../objects/.libs/ftObjects.so -Wl,../../../dialogs/.libs/ftDialogs.so
 
 IOWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
 
