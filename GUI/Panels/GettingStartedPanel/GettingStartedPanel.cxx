@@ -2,7 +2,7 @@
 #include "PanelContainer.hxx"   // Do not remove
 #include "plugin_entry_point.hxx"   // Do not remove
 
-#include "GettingStartedClass/.ui/gettingstartedclass.hxx"
+#include "GettingStartedClass/.ui/gettingstartedclass.h"
 
 GettingStartedPanel *gettingStartedPanel = NULL;
 
