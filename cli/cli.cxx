@@ -188,6 +188,7 @@ process_command(const char *command_buffer)
       exit(1);
     } else if( strncmp(command_buffer, "help", 4) == 0 ) 
     {
+#ifdef PULL_FOR_USABILITY_STUDY
       strcat(return_buffer, "alias name [name|string]\n");
       strcat(return_buffer, "attach <HOST_FILE_RPT_LIST> \n");
       strcat(return_buffer, "break <filename>|<line number> \n");
@@ -197,7 +198,6 @@ process_command(const char *command_buffer)
       strcat(return_buffer, "disableExp \n");
       strcat(return_buffer, "enableExp \n");
       strcat(return_buffer, "halt <HOST_FILE_RPT_LIST> \n");
-      strcat(return_buffer, "help \n");
       strcat(return_buffer, "history \n");
       strcat(return_buffer, "input \n");
       strcat(return_buffer, "list -exp [<expId> || all]\n");
@@ -214,6 +214,10 @@ process_command(const char *command_buffer)
       strcat(return_buffer, "unalias \n");
       strcat(return_buffer, "unset \n");
       strcat(return_buffer, "gui:   Loads and brings up the gui.\n");
+#endif // PULL_FOR_USABILITY_STUDY
+      strcat(return_buffer, "help \n");
+      strcat(return_buffer, "For this round of usability studies, no command \n");
+      strcat(return_buffer, "line is supported.\n\n");
       strcat(return_buffer, "quit:  quit Open/SpeedShop...\n");
       strcat(return_buffer, "exit:  exit Open/SpeedShop...\n");
       return( new OutputObject(return_buffer) );
