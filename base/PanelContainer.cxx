@@ -199,8 +199,8 @@ PanelContainer::PanelContainer( QWidget* _parent, const char* n, PanelContainer 
   sprintf(tmp_str, "originalLeftFrame for %s", getInternalName() );
   leftFrame = new Frame(this, splitter, "left_frame");
   if( debug(DEBUG_FRAMES) ) leftFrame->setBackgroundColor("white");
-  leftFrame->dragEnabled = TRUE;
-  leftFrame->dropEnabled = TRUE;
+  leftFrame->setDragEnabled(TRUE);
+  leftFrame->setDropEnabled(TRUE);
 
   // This is only used to hold panels... not PanelContainers.
   dropSiteLayoutParent = new QWidget( leftFrame, "dropSiteLayoutParent" );
@@ -227,7 +227,7 @@ PanelContainer::PanelContainer( QWidget* _parent, const char* n, PanelContainer 
   if( debug(DEBUG_FRAMES) ) rightFrame->setBackgroundColor("green");
 
 
-  rightFrame->dragEnabled = TRUE;
+  rightFrame->setDragEnabled(TRUE);
   rightFrame->hide();
 
   // Add the splitter to the the layout box.

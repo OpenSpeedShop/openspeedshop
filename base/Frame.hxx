@@ -24,16 +24,19 @@ public:
     //! ~Frame() - The default destructor.
     ~Frame( );
 
-
-    //! Set to TRUE if this Frame is able to be dragged.
-    bool dragEnabled;
-
-    //! Set to TRUE if this Frame is able to accept drops.
-    bool dropEnabled;
-
     //! Convienience member function to return the name of this Frame.
     PanelContainer *getPanelContainer() { return _panelContainer; }
     PanelContainer *setPanelContainer(PanelContainer *pc) { _panelContainer = pc; }
+    //! Convienience member function to return the this flag setting.
+    bool isDragEnabled() { return _dragEnabled; }
+    void setDragEnabled(bool setting) { _dragEnabled = setting; }
+
+    //! Convienience member function to return the this flag setting.
+    bool isDropEnabled() { return _dropEnabled; }
+    void setDropEnabled(bool setting) { _dropEnabled = setting; }
+
+    //! Convienience member function to return the this flag setting.
+
     const char *getName() { return name; }
 
     //! A static flag indicating that a drag is taking place.
@@ -49,6 +52,12 @@ public:
 
     //! The event callback that a resize needs to be handle.
     void resizeEvent ( QResizeEvent * );
+
+    //! Set to TRUE if this Frame is able to be dragged.
+    bool _dragEnabled;
+
+    //! Set to TRUE if this Frame is able to accept drops.
+    bool _dropEnabled;
 
 #ifdef  OLDWAY  // Left here for debugging...
     void enterEvent ( QEvent * );

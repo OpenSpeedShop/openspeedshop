@@ -37,9 +37,9 @@ Frame::Frame( )
 {
   fprintf(stderr, "This constructor should not be called.\n");
   fprintf(stderr, "see: Frame::Frame(PanelContainer *, QWidget *, const char *);\n");
-  dragEnabled = FALSE;
-  dropEnabled = FALSE;
-  _panelContainer = NULL;
+  setDragEnabled(FALSE);
+  setDropEnabled(FALSE);
+  setPanelContainer(NULL);
 }
 
 /*! Work constructor.   Set's the name of the frame, the pointer to the
@@ -58,8 +58,8 @@ Frame::Frame( PanelContainer *pc, QWidget *parent, const char *n )
 
   sprintf(tmp_name, "%s: %s", pc->getInternalName(), n);
   name = strdup(tmp_name);
-  dragEnabled = FALSE;
-  dropEnabled = FALSE;
+  setDragEnabled(FALSE);
+  setDropEnabled(FALSE);
   setFrameShape( QFrame::StyledPanel );
   setFrameShadow( QFrame::Raised );
   setPanelContainer(pc);
@@ -97,7 +97,7 @@ void Frame::mousePressEvent(QMouseEvent *e)
     return;
   }
 
-  if( !dragEnabled )
+  if( !isDragEnabled() )
   {
       nprintf(DEBUG_FRAMES) (" dragging not enable for this frame\n");
     return;
@@ -126,9 +126,9 @@ void Frame::mouseReleaseEvent(QMouseEvent *)
     return;
   }
 
-  nprintf(DEBUG_FRAMES) ("Frame::mouseReleaseEvent(%s-%s) dropEnabled=%d Frame::dragging=%d entered\n", getPanelContainer()->getInternalName(), getPanelContainer()->getExternalName(), dropEnabled, Frame::dragging );
+  nprintf(DEBUG_FRAMES) ("Frame::mouseReleaseEvent(%s-%s) isDropEnabled()=%d Frame::dragging=%d entered\n", getPanelContainer()->getInternalName(), getPanelContainer()->getExternalName(), isDropEnabled(), Frame::dragging );
 
-  if( !dropEnabled || !Frame::dragging )
+  if( !isDropEnabled() || !Frame::dragging )
   {
     return;
   }
@@ -169,9 +169,9 @@ void Frame::dragEnterEvent(QDragEnterEvent* event)
 void Frame::dropEvent(QDropEvent* event)
 {
   nprintf(DEBUG_FRAMES) ("Frame::dropEnterEvent() entered\n");
-  nprintf(DEBUG_FRAMES) ("Frame::dropEvent(%s-%s) dropEnabled=%d Frame::dragging=%d entered\n", getPanelContainer()->getInternalName(), getPanelContainer()->getExternalName(), dropEnabled, Frame::dragging );
+  nprintf(DEBUG_FRAMES) ("Frame::dropEvent(%s-%s) isDropEnabled()=%d Frame::dragging=%d entered\n", getPanelContainer()->getInternalName(), getPanelContainer()->getExternalName(), isDropEnabled(), Frame::dragging );
 
-  if( !dropEnabled || !Frame::dragging )
+  if( !isDropEnabled() || !Frame::dragging )
   {
     return;
   }
