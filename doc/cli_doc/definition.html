@@ -89,7 +89,7 @@ command is issued.</li>
 - If there is no &lt;expId_spec&gt; provided, information is attached
 to the focused
 experiment. <br>
-- The &lt;host_file_rpt_list&gt; is used to restrict the knowledge of
+- The &lt;target_list&gt; is used to restrict the knowledge of
 the
 experiment or data collection to certain portions of an appliaction. <br>
 - It is ambiguous to use both the <b>-f</b> and <b>-p</b> options.
@@ -98,24 +98,24 @@ loaded into the <b>OpenSS</b> tool from a file.</li>
   <li>The use of <b>-p</b> option implies that the <b>OpenSS</b>
 tool is to attach to a program that is already executing.</li>
   </dir>
-- If &lt;host_file_rpt_list&gt; is provided without &lt;expType_list&gt;,
+- If &lt;target_list&gt; is provided without &lt;expType_list&gt;,
 those applications are attached to all the &lt;expType&gt;s that are already
 attached of the experiment. <br>
 - If &lt;expType_list&gt; is provided without
-&lt;host_file_rpt_list&gt;,
+&lt;target_list&gt;,
 the specified data collectors are used to instrument all the executable
 routines that are already attached to the indicated experiment. <br>
--If both &lt;host_file_rpt_list&gt; and &lt;expType_list&gt; are
+-If both &lt;target_list&gt; and &lt;expType_list&gt; are
 provided,
 only those portions of the application in the
-&lt;host_file_rpt_list&gt; are
+&lt;target_list&gt; are
 linked to the specified collectors in &lt;expType_list&gt;. <br>
-- If neither &lt;host_file_rpt_list&gt; nor &lt;expType_list&gt; is
+- If neither &lt;target_list&gt; nor &lt;expType_list&gt; is
 provided,
 the command does nothing. </font><br>
   <br>
   <font size="-1"><b>expAttach </b>[ &lt;expId_spec&gt; ] [
-&lt;host_file_rpt_list&gt; ] [ &lt;expType_list&gt; ]</font>
+&lt;target_list&gt; ] [ &lt;expType_list&gt; ]</font>
 </ul>
 <h3><a name="mozTocId67486" class="mozTocH3"></a><a name="expClose"></a><font
  size="+0"><b><li>expClose</li>
@@ -163,7 +163,7 @@ be deleted. </font><br>
   <li>The experiment will not execute until an <b>expGo</b> command is
 issued.</li>
   </dir>
--The &lt;host_file_rpt_list&gt; will associate the specified executable
+-The &lt;target_list&gt; will associate the specified executable
 with the experiment being defined. <br>
 - The experiment type argument, &lt;expType_list&gt;, can be used to
 specify
@@ -175,7 +175,7 @@ new
 &lt;expId&gt; and will set the focus. </font><br>
   <br>
   <font size="-1">&lt;expId&gt;<b> = expCreate </b>[
-&lt;host_file_rpt_list&gt; ] [ &lt;expType_list&gt; ]</font>
+&lt;target_list&gt; ] [ &lt;expType_list&gt; ]</font>
   <p></p>
 </ul>
 <h3><a name="mozTocId859330" class="mozTocH3"></a><a name="expDetach_"></a><font
@@ -192,20 +192,20 @@ new
       specified application.</li>
   </dir>
 - If there is no &lt;expId_spec&gt; provided, the focused experiment is used.<br>
-- If &lt;host_file_rpt_list&gt; is provided without &lt;expType_list&gt;,
+- If &lt;target_list&gt; is provided without &lt;expType_list&gt;,
 all collectors are detached for those applications. <br>
-- If &lt;expType_list&gt; is provided without &lt;host_file_rpt_list&gt;,
+- If &lt;expType_list&gt; is provided without &lt;target_list&gt;,
 the specified data collectors are detached from all the executable
 routines that are ttached to the indicated experiment. <br>
--If both &lt;host_file_rpt_list&gt; and &lt;expType_list&gt; are provided,
+-If both &lt;target_list&gt; and &lt;expType_list&gt; are provided,
 only the specified collectores in &lt;expType_list&gt; are detached from
-just those applications described in &lt;host_file_rpt_list&gt;. <br>
-- If neither &lt;host_file_rpt_list&gt; nor &lt;expType_list&gt; is
+just those applications described in &lt;target_list&gt;. <br>
+- If neither &lt;target_list&gt; nor &lt;expType_list&gt; is
 provided,
 the command does nothing. </font><br>
   <br>
   <font size="-1"><b>expDetach </b>[ &lt;expId_spec&gt; ] [
-&lt;host_file_rpt_list&gt; ]
+&lt;target_list&gt; ]
 [ &lt;expType_list&gt; ]</font>
 </ul>
 <h3><a name="mozTocId526141" class="mozTocH3"></a><font size="+0"><b><a
@@ -525,17 +525,17 @@ of the
 specified experiment. <br>
   <dir><li>If &lt;expId_spec&gt; is not provided, the focused experiment is
       used. </li></dir>
-- The listing can be restricted with the use of a &lt;host_file_rpt&gt;
+- The listing can be restricted with the use of a &lt;target&gt;
 specification. <br>
-- Any component described in the &lt;host_file_rpt&gt; specification
+- Any component described in the &lt;target&gt; specification
 must be
 part of the selected experiment. <br>
-- If &lt;host_file_rpt&gt; is not provided, information will be
+- If &lt;target&gt; is not provided, information will be
 provided for
 all portions of all applications that are attached to the experiment. </font><br>
   <br>
   <font size="-1"><b>&lt;</b>ListOf_filename&gt; <b>= listObj</b> [
-&lt;expId_spec&gt; ] [ &lt;host_file_rpt&gt; ]</font>
+&lt;expId_spec&gt; ] [ &lt;target&gt; ]</font>
 </ul>
 <h3><a name="mozTocId629516" class="mozTocH3"></a><a name="listPids"></a><b><font
  size="+0"><li>listPids</li>
@@ -619,7 +619,7 @@ experiment, a specific Pid or on a specific machine.
   <li>If the <b>all</b> option is supplied, all Ranks that are active on the
       specified system are listed.</li>
   </dir>
-- The use of the "&lt;host_file_rpt&gt;" option acts like a filter on the output.
+- The use of the "&lt;target&gt;" option acts like a filter on the output.
   <dir><li>The use of the <b>all</b> option and the absence of any
        "<b>-h</b> &lt;hostname&gt;" specification will
       cause all Ranks on all systems in the cluster to be listed. </li>
@@ -635,7 +635,7 @@ experiment, a specific Pid or on a specific machine.
 </font>
   <br>
   <font size="-1"><b>&lt;</b>ListOf_Ranks&gt; <b>= listRanks</b> [
-&lt;expId_spec&gt; || <b>all</b> ] [ &lt;host_file_rpt&gt; ]</font>
+&lt;expId_spec&gt; || <b>all</b> ] [ &lt;target&gt; ]</font>
 </ul>
 <h3><a name="mozTocId924408" class="mozTocH3"></a><a name="listSrc"></a><b><font
  size="+0"><li>listSrc</li>
@@ -645,12 +645,12 @@ experiment, a specific Pid or on a specific machine.
 applications that are part of the specified, or focused, experiment. <br>
 - If &lt;expId_spec&gt; is not provided, the focused experiment is
 used. <br>
-- The listing can be restricted with the use of a &lt;host_file_rpt&gt;
+- The listing can be restricted with the use of a &lt;target&gt;
 specification. <br>
-- Any component described in the &lt;host_file_rpt&gt; specification
+- Any component described in the &lt;target&gt; specification
 must be
 part of the selected experiment. <br>
-- If &lt;host_file_rpt&gt; is not provided, information will be
+- If &lt;target&gt; is not provided, information will be
 provided for
 all portions of all applications that are attached to the experiment. <br>
 - The listing can be restricted with the use of
@@ -660,7 +660,7 @@ provided
 for all portions of any application that has been selected. </font><br>
   <br>
   <font size="-1"><b>&lt;</b>string&gt; <b>= listSrc</b> [
-&lt;expId_spec&gt; ] [ &lt;host_file_rpt&gt; ] [
+&lt;expId_spec&gt; ] [ &lt;target&gt; ] [
 &lt;linenumber_spec&gt; ]</font>
 </ul>
 <h3><a name="mozTocId613828" class="mozTocH3"></a><b><font size="+0"><a
@@ -691,7 +691,7 @@ experiment, a specific Pid or on a specific machine.
   <li>If the <b>all</b> option is supplied, all Threads that are active on the
       specified system are listed.</li>
   </dir>
-- The use of the "&lt;host_file_rpt&gt;" option acts like a filter on the output.
+- The use of the "&lt;target&gt;" option acts like a filter on the output.
   <dir><li>The absence of any "<b>-h</b> &lt;hostname&gt;" specification will
       cause all pids on all systems in the cluster to be listed. </li>
   <li>The default cluster contains only localhost and must be specified by
@@ -706,7 +706,7 @@ experiment, a specific Pid or on a specific machine.
 </font>
   <br>
   <font size="-1"><b>&lt;</b>ListOf_Threads&gt; <b>= listThreads</b> [
-&lt;expId_spec&gt; || <b>all</b> ] [ &lt;host_file_rpt&gt; ]</font>
+&lt;expId_spec&gt; || <b>all</b> ] [ &lt;target&gt; ]</font>
 </ul>
 <h3><a name="mozTocId613827" class="mozTocH3"></a><b><font size="+0"><a
  name="listTypes"></a><li>listTypes</li>
@@ -859,15 +859,15 @@ when reached. <br>
 - If &lt;expId_spec&gt; is not provided, the focused experiment is
 used. <br>
 - The break location is specified through the combination of the
-&lt;host_file_rpt&gt; and &lt;address_description&gt; arguments. <br>
+&lt;target&gt; and &lt;address_description&gt; arguments. <br>
 - The break location must be a location in the specified experiment. <br>
-- If &lt;host_file_rpt&gt; is not provided, the
+- If &lt;target&gt; is not provided, the
 &lt;address_description&gt;
 must be valid on every host and executable attached to the experiment. </font><br>
   <br>
   <font size="-1">&lt;breakId&gt; <b>setbreak</b> [ &lt;expId_spec&gt;
 ]
-[ &lt;host_file_rpt&gt; ] &lt;address_description&gt;</font>
+[ &lt;target&gt; ] &lt;address_description&gt;</font>
 </ul>
 </body>
 </html>
