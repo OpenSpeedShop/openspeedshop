@@ -99,7 +99,6 @@ private slots:
     void progressUpdate();
 
     void paramSelected(int);
-    void nothingSelected();
 
     void addCollectorSelected();
 

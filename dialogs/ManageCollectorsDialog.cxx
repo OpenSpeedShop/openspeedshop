@@ -64,7 +64,6 @@ ManageCollectorsDialog::ManageCollectorsDialog( QWidget* parent, const char* nam
 
   ManageCollectorsDialogLayout->addWidget( attachCollectorsListView );
 
-//  AddCollectorLayout = new QHBoxLayout( this, 11, 6, "AddCollectorLayout"); 
   AddCollectorLayout = new QHBoxLayout( 0, 0, 6, "AddCollectorLayout"); 
 
   availableCollectorsLabel = new QLabel( this, "availableCollectorsLabel" );
@@ -234,8 +233,6 @@ paramMenu = NULL;
     {
       popupMenu->insertItem("Detach...", this, SLOT(detachSelected()) );
       popupMenu->insertItem("Disable...", this, SLOT(disableSelected()) );
-      popupMenu->insertItem("Attach Process...", this, SLOT(attachProcessSelected()) );
-      popupMenu->insertItem("Attach Program...", this, SLOT(attachProgramSelected()) );
       CollectorEntry *ce = NULL;
       CollectorEntryList::Iterator it;
       for( it = clo->collectorEntryList.begin();
@@ -272,10 +269,9 @@ paramMenu = NULL;
     } else
     {
     }
-  } else
-  {
-    popupMenu->insertItem("Nothing selected.", this, SLOT(nothingSelected()) );
   }
+  popupMenu->insertItem("Attach Process...", this, SLOT(attachProcessSelected()) );
+  popupMenu->insertItem("Attach Program...", this, SLOT(attachProgramSelected()) );
 
 
   popupMenu->popup( pos );
@@ -458,12 +454,6 @@ ManageCollectorsDialog::paramSelected(int val)
     
   }
   updateAttachedCollectorsList();
-}
-
-void
-ManageCollectorsDialog::nothingSelected()
-{
-//  printf("nothingSelected\n");
 }
 
 void
