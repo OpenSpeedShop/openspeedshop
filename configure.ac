@@ -120,6 +120,33 @@ AC_CONFIG_FILES(Makefile
 		examples/Makefile
 		examples/libssf/Makefile
 		examples/libssf/tool/Makefile
+		base/Makefile
+		plugin/Makefile
+		expr_info/Makefile
+		objects/Makefile
+		dialogs/Makefile
+		chart/Makefile
+		cli/Makefile
+		gui/Makefile
+		Panels/Makefile
+		Panels/pcSamplePanel/Makefile
+		Panels/UserTimePanel/Makefile
+		Panels/SourcePanel/Makefile
+		Panels/CmdPanel/Makefile
+		Panels/TopPanel/Makefile
+		Panels/PerformancePanel/Makefile
+		Panels/DebugPanel/Makefile
+		Panels/HW_CounterPanel/Makefile
+		Panels/IOPanel/Makefile
+		Panels/FPE_TracingPanel/Makefile
+		Panels/CreateNewExperimentPanel/Makefile
+		Panels/Wizards/Makefile
+		Panels/Wizards/IntroWizardPanel/Makefile
+		Panels/Wizards/pcSampleWizardPanel/Makefile
+		Panels/Wizards/UserTimeWizardPanel/Makefile
+		Panels/Wizards/FPE_TracingWizardPanel/Makefile
+		Panels/Wizards/HW_CounterWizardPanel/Makefile
+		Panels/Wizards/IOWizardPanel/Makefile
 )
 
 AC_OUTPUT

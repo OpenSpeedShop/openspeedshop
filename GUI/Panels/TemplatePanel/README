@@ -1,1 +1,0 @@
-mknewpanel ../FPE_TracingPanel "FPE_TracingPanel" "&Experiments" "&FPE_Tracing" "Ctrl+F" 0 "Performance"

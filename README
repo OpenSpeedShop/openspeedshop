@@ -1,0 +1,24 @@
+p_tupdate this tree....
+
+From the .../GUI directory type:
+$ ./mc
+This will configure and build the GUI portion of OpenSpeedShop.
+When the build completes you should be able to run.  The script to 
+launch the tool is openss.  (Also located in the .../GUI directory.)
+$ openss
+If openss fails to execute, check to make sure the FUTURE_TOOL_PLUGIN_DIR
+is set to the install location.  The default setting for FUTURE_TOOL_PLUGIN_DIR
+is usually: .../GUI/plugin/lib/openspeedshop
+
+On hope.americas.sgi.com, mine is set to:
+$ set | grep FUTU
+FUTURE_TOOL_PLUGIN_DIR=/home/tulip22/stipek/OpenSpeedShop/current/GUI/plugin/lib/openspeedshop
+
+$ openss --help 
+Gives a simple usage command.
+
+
+To make the doxygen documentation: (again from the .../GUI directory)
+# mkdoc
+
+- stipek

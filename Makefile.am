@@ -16,4 +16,15 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = libltdl libssf collectors examples
+# bin_PROGRAMS = openspeedshop doc
+bin_PROGRAMS = openspeedshop
+
+openspeedshop_la_CXXFLAGS = -I/usr/include -I.
+
+LDFLAGS = -lc -ldl
+
+SUBDIRS = . libltdl libssf collectors examples base objects dialogs expr_info plugin objects chart cli gui Panels
+
+doc: $(SUBDIRS) Panels/* Panels/*/*
+	-doxygen Doxyfile
+
