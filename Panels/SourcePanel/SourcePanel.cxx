@@ -16,6 +16,7 @@
 #include <qfile.h>
 #include <qfiledialog.h>
 #include <qinputdialog.h>
+#include <qheader.h>
 
 #include <qmessagebox.h>
 
@@ -43,8 +44,8 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
   nprintf(DEBUG_CONST_DESTRUCT) ( "SourcePanel::SourcePanel() constructor called\n");
   frameLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
-splitter = new QSplitter(getBaseWidgetFrame(), "SourcePanel: splitter");
-splitter->setOrientation( QSplitter::Horizontal );
+  splitter = new QSplitter(getBaseWidgetFrame(), "SourcePanel: splitter");
+  splitter->setOrientation( QSplitter::Horizontal );
 
   lastTop = 0;
   last_para = -1;   // For last find command.
@@ -54,23 +55,44 @@ splitter->setOrientation( QSplitter::Horizontal );
   line_numbersFLAG = FALSE;
   highlightList = NULL;
 
-  label = new QLabel( getBaseWidgetFrame(), "text label", 0 );
+  statArea = new QListView( splitter );
+  statArea->header()->setClickEnabled( FALSE );
+  statArea->setVScrollBarMode( QScrollView::AlwaysOff );
+  statArea->setHScrollBarMode( QScrollView::AlwaysOff );
+  statArea->addColumn( "Expr 1" );
+  statArea->addColumn( "Expr 2" );
+  statArea->addColumn( "Expr 3" );
+  statArea->addColumn( "Average" );
+  textEditLayoutFrame = new QFrame( splitter );
+  textEditLayout = new QVBoxLayout( textEditLayoutFrame );
+
+  textEditHeaderLayout = new QHBoxLayout( textEditLayoutFrame, 1, 2, "textEditHeaderLayout" );
+  textEditLayout->addLayout( textEditHeaderLayout);
+
+  label = new QLabel( textEditLayoutFrame, "text label", 0 );
   label->setCaption("SourcePanel: text label");
   QFont font = label->font();
   font.setBold(TRUE);
   label->setFont(font);
-  label->setFrameStyle( QFrame::Panel | QFrame::Sunken );
+  label->setFrameStyle( QFrame::NoFrame );
   label->setSizePolicy(QSizePolicy( (QSizePolicy::SizeType)5,
                                     (QSizePolicy::SizeType)0, 0, 0,
-                                   label->sizePolicy().hasHeightForWidth() ) );
+                                    label->sizePolicy().hasHeightForWidth() ) );
   QString label_text = "No source file specified.";
   label->setText(label_text);
 
-  statArea = new SPTextEdit( this, splitter );
+  // We subtract 2 pixels because qheader.cpp adds 2.  This calculates the 
+  // exact height of the QListView's header area.
+  QSpacerItem *spacerItem = new QSpacerItem(1, statArea->header()->height()-2, QSizePolicy::Fixed, QSizePolicy::Fixed );
+  textEditHeaderLayout->addItem( spacerItem );
+  textEditHeaderLayout->addWidget( label );
+
+
   statArea->setCaption("SourcePanel: Statistics");
 
-  textEdit = new SPTextEdit( this, splitter );
+  textEdit = new SPTextEdit( this, textEditLayoutFrame );
   textEdit->setCaption("SourcePanel: SPTextEdit");
+  textEditLayout->addWidget( textEdit );
 
   addWhatsThis(textEdit, this);
 
@@ -98,7 +120,6 @@ splitter->setOrientation( QSplitter::Horizontal );
   connect( textEdit, SIGNAL(clicked(int, int)),
            this, SLOT(clicked(int, int)) );
 
-  frameLayout->addWidget(label);
   frameLayout->addWidget(splitter);
   QValueList<int> sizeList;
   sizeList.clear();
@@ -500,14 +521,15 @@ SourcePanel::loadFile(const QString &_fileName)
   // Disabling highlights, makes updating the source much quicker and cleaner.
   textEdit->setUpdatesEnabled( FALSE );
 
+  QString line;
+  QString new_line("\n");
   QTextStream ts( &f );
   textEdit->clear();
+statArea->clear();
   if( line_numbersFLAG )
   {
     char line_number_buffer[10];
-    QString line;
     QString line_number;
-    QString new_line("\n");
     lineCount = 1;
     while( !ts.atEnd() )
     {
@@ -515,12 +537,26 @@ SourcePanel::loadFile(const QString &_fileName)
       sprintf(line_number_buffer, "%6d ", lineCount);
       line_number = QString(line_number_buffer);
       textEdit->append(line_number+line+new_line);
+QListViewItem *item = new QListViewItem( statArea );
+item->setText( 0, "0blah");
+item->setText( 1, "1blah");
       lineCount++;
     }
   } else
   {
 
+#ifdef OLDWAY
     textEdit->setText( ts.read() );
+#else //  OLDWAY
+    while( !ts.atEnd() )
+    {
+      line = ts.readLine();  // line of text excluding '\n'
+      textEdit->append(line+new_line);
+QListViewItem *item = new QListViewItem( statArea );
+item->setText( 0, "0blah");
+item->setText( 1, "1blah");
+    }
+#endif //  OLDWAY
     // Need to set cursor position so subsequent position requests are fielded.
     textEdit->setCursorPosition(0, 0);
   }

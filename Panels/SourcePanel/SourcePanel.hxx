@@ -3,6 +3,7 @@
 #include "Panel.hxx"           // Do not remove
 
 #include <qtextedit.h>
+#include <qlistview.h>
 #include <qlabel.h>
 #include <qpopupmenu.h>
 #include <qscrollbar.h>
@@ -55,6 +56,15 @@ public:
   //! Layout for managing child widgets.
   QVBoxLayout * frameLayout;
 
+//! Layout for managing child widgets.
+QFrame *textEditLayoutFrame;
+
+//! Layout for managing text header size widgets.
+QHBoxLayout * textEditHeaderLayout;
+
+//! Layout for managing child widgets.
+QVBoxLayout * textEditLayout;
+
 //! Sliter for the stat/text area.
 QSplitter *splitter;
 
@@ -62,7 +72,7 @@ QSplitter *splitter;
   QLabel *label;
 
 //! The eventual statisics area...
-SPTextEdit *statArea;
+QListView *statArea;
 
   //! The QTextEdit for managing the actual text.
   SPTextEdit *textEdit;
