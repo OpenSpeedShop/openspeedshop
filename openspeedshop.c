@@ -3,27 +3,27 @@
 #include <dlfcn.h>
 int
 main( int argc, char ** argv ) {
-  char gui_plugin_file[2048];
-  char *gui_dl_name = getenv("OPENSPEEDSHOP_RELOCATABLE_NAME");
-  char *gui_entry_point = getenv("OPENSPEEDSHOP_ENTRY_POINT");
+  char cli_plugin_file[2048];
+  char *cli_dl_name = getenv("OPENSPEEDSHOP_CLI_RELOCATABLE_NAME");
+  char *cli_entry_point = getenv("OPENSPEEDSHOP_CLI_ENTRY_POINT");
   char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
 
   if( !plugin_directory ) exit(EXIT_FAILURE);
 
-  sprintf(gui_plugin_file, "%s/%s", plugin_directory, gui_dl_name);
-  void *dl_gui_object = dlopen((const char *)gui_plugin_file, (int)RTLD_LAZY );
-  if( !dl_gui_object ) {
+  sprintf(cli_plugin_file, "%s/%s", plugin_directory, cli_dl_name);
+  void *dl_cli_object = dlopen((const char *)cli_plugin_file, (int)RTLD_LAZY );
+  if( !dl_cli_object ) {
     fprintf(stderr, "%s\n", dlerror() );
     exit(EXIT_FAILURE);
   }
 
-  int (*dl_gui_init_routine)(int, char **, int);
-  dl_gui_init_routine = (int (*)(int, char **, int))dlsym(dl_gui_object, gui_entry_point);
-  if( dl_gui_init_routine == NULL )
+  int (*dl_cli_init_routine)(int, char **);
+  dl_cli_init_routine = (int (*)(int, char **))dlsym(dl_cli_object, cli_entry_point);
+  if( dl_cli_init_routine == NULL )
   {
     fprintf(stderr, "%s\n", dlerror() );
     exit(EXIT_FAILURE);
   }
 
-  (*dl_gui_init_routine)(argc, argv, 0);
+  (*dl_cli_init_routine)(argc, argv);
 }
