@@ -84,9 +84,6 @@ class PanelContainer : public QWidget
     //! The parent QWidget that this PanelContainer is a child of.
     QWidget *parent;   // The parent that this constructor was called with...
 
-QPopupMenu *pcMenu;
-QPopupMenu *contextMenu;
-
     //! Default contructor for a PanelContainer.   
     PanelContainer( );
 
@@ -363,6 +360,9 @@ QPopupMenu *contextMenu;
 
     //! Prints Panel specific information during debuggging call.
     void printPanels(char *indent_buffer);
+
+    QPopupMenu *pcMenu;
+    QPopupMenu *contextMenu;
 
 };
 
