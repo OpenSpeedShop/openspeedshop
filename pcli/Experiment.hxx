@@ -188,15 +188,13 @@ class ExperimentObject
     }
   }
 
-  void RenameDB (std::string New_DB) {
+  bool RenameDB (std::string New_DB) {
    // Determine the old DataBase Name.
     std::string Old_DB;
     if (Status() == ExpStatus_Suspended) {
       Old_DB = Suspended_Data_File_Name;
     } else {
       Old_DB = FW_Experiment->getName();
-      delete FW_Experiment;
-      FW_Experiment = NULL;
     }
 
    // Rename the Old DataBase.
@@ -207,13 +205,40 @@ class ExperimentObject
     int ret = system(scmd);
     free (scmd);
     if (ret == 0) {
+     // Success!
       if (Status() == ExpStatus_Suspended) {
         Suspended_Data_File_Name = New_DB;
       } else {
-        FW_Experiment = new OpenSpeedShop::Framework::Experiment (New_DB);
-        Data_File_Has_A_Generated_Name = false;
+        try {
+          delete FW_Experiment;  // Get rid of the old experiment
+          FW_Experiment = new OpenSpeedShop::Framework::Experiment (New_DB);
+          Data_File_Has_A_Generated_Name = false;
+        }
+        catch(const std::exception& error) {
+          ret = -1;  // signal an error to calling routine.
+        }
       }
     }
+    return (ret == 0);  // "0" indicates succcess!
+  }
+
+  bool CopyDB (std::string New_DB) {
+   // Determine the old DataBase Name.
+    std::string Old_DB;
+    if (Status() == ExpStatus_Suspended) {
+      Old_DB = Suspended_Data_File_Name;
+    } else {
+      Old_DB = FW_Experiment->getName();
+    }
+
+   // Copy the Old DataBase into the New location.
+    int len1 = Old_DB.length();
+    int len2 = New_DB.length();
+    char *scmd = (char *)malloc(6 + len1 + len2);
+    sprintf(scmd,"cp %s %s\n\0",Old_DB.c_str(),New_DB.c_str());
+    int ret = system(scmd);
+    free (scmd);
+    return (ret == 0);  // "0" indicates success!
   }
 
   std::string ExpStatus_Name () {
