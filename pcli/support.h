@@ -218,6 +218,7 @@ typedef struct a_command_struct {
 
 extern command_t command;
 extern char *command_name[];
+extern bool  command_list[];        /* set to "true" if the command returns a list of values. */
 extern char *experiment_name[];
 extern char *viewtype_name[];
 extern char *paramtype_name[];
