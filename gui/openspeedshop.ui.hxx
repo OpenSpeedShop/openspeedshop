@@ -598,6 +598,12 @@ void OpenSpeedshop::loadNewProgram()
     if( !fileName.isEmpty() )
     {
 //      printf("fileName.ascii() = (%s)\n", fileName.ascii() );
+      QFileInfo fi(fileName);
+      if( !fi.isExecutable() )
+      {
+        QMessageBox::information( (QWidget *)this, tr("Info:"), tr("The selected file is not executable."), QMessageBox::Ok );
+        return;
+      }
       executableName = fileName;
     }
   }
