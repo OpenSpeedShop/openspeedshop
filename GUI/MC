@@ -17,7 +17,7 @@ mkdir plugin/lib/futuretool
 
 
 clear
-rm -fr docs/*;
+rm -fr doc;
 rm -fr ftd
 cd ftf
 make clean
