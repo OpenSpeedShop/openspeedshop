@@ -6,5 +6,5 @@
   plugin_entry->plugin_entry_point = "panel_init";
   plugin_entry->menu_heading =  "&Wizards";
   plugin_entry->menu_label =  "&HW Counter Wizard";
-  plugin_entry->menu_accel =  "Ctrl+H";
+  plugin_entry->menu_accel =  "Ctrl+B";
   plugin_entry->panel_type =  "HW Counter Wizard";

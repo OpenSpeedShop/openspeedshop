@@ -5,6 +5,6 @@
   plugin_entry->plugin_location = "$OPENSPEEDSHOP_PLUGIN_PATH";
   plugin_entry->plugin_entry_point = "panel_init";
   plugin_entry->menu_heading =  "&Wizards";
-  plugin_entry->menu_label =  "&IO Wizard";
-  plugin_entry->menu_accel =  "Ctrl+O";
+  plugin_entry->menu_label =  "I&O Wizard";
+  plugin_entry->menu_accel =  "Ctrl+D";
   plugin_entry->panel_type =  "IO Wizard";
