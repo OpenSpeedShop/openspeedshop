@@ -15,16 +15,16 @@
 # CONDITIONS OF MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A
 # PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
 # 
-# Original Code.  The Original Code is: FutureTool, Version 1.0, released
+# Original Code.  The Original Code is: Open/Speedshop, Version 1.0, released
 # <MONTH>, <DAY>, 2004, developed by Silicon Graphics, Inc. The Original
 # Code is Copyright (c) 2004 Silicon Graphics, Inc. Copyright in any
 # portions created by third parties is as indicated elsewhere herein.
 # All Rights Reserved.
 ################################################################################
 
-pkglib_LTLIBRARIES = ftgui.la
+pkglib_LTLIBRARIES = ossgui.la
 
-ftgui_la_CXXFLAGS =  \
+ossgui_la_CXXFLAGS =  \
 	-g \
 	-I/usr/include \
 	-I$(QTDIR)/include \
@@ -33,14 +33,14 @@ ftgui_la_CXXFLAGS =  \
 	-I../images \
 	-I../base
 
-ftgui_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../plugin/.libs/ftPlugin.so -Wl,../base/.libs/ftBase.so
+ossgui_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../plugin/.libs/ossPlugin.so -Wl,../base/.libs/ossBase.so
 
-ftgui_la_LIBADD = -L$(QTDIR)/lib -lqt -lqassistantclient -L/usr/X11R6/lib -lXext -lX11 -lm
+ossgui_la_LIBADD = -L$(QTDIR)/lib -lqt -lqassistantclient -L/usr/X11R6/lib -lXext -lX11 -lm
 
 moc_openspeedshop.cxx: openspeedshop.hxx
 	-moc -o moc_openspeedshop.cxx openspeedshop.hxx
 
-ftgui_la_SOURCES = \
+ossgui_la_SOURCES = \
 	gui.hxx gui.cxx \
     openspeedshop.hxx openspeedshop.cxx moc_openspeedshop.cxx qmake_image_collection.cxx openspeedshop.ui.hxx \
 	Panel.hxx PanelContainer.hxx debug.hxx

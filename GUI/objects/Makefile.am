@@ -15,16 +15,16 @@
 # CONDITIONS OF MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A
 # PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
 # 
-# Original Code.  The Original Code is: FutureTool, Version 1.0, released
+# Original Code.  The Original Code is: Open/Speedshop, Version 1.0, released
 # <MONTH>, <DAY>, 2004, developed by Silicon Graphics, Inc. The Original
 # Code is Copyright (c) 2004 Silicon Graphics, Inc. Copyright in any
 # portions created by third parties is as indicated elsewhere herein.
 # All Rights Reserved.
 ################################################################################
 
-pkglib_LTLIBRARIES = ftObjects.la
+pkglib_LTLIBRARIES = ossObjects.la
 
-ftObjects_la_CXXFLAGS = \
+ossObjects_la_CXXFLAGS = \
 	-I/usr/include \
 	-I$(QTDIR)/include \
 	-I. \
@@ -34,9 +34,9 @@ ftObjects_la_CXXFLAGS = \
 	-I../plugin \
 	-I$(QTDIR)
 
-ftObjects_la_LDFLAGS = --export-dynamic -module -avoid-version
+ossObjects_la_LDFLAGS = --export-dynamic -module -avoid-version
 
-ftObjects_la_LIBADD = $(LIBLTDL)
+ossObjects_la_LIBADD = $(LIBLTDL)
 
 moc_AnimatedQPushButton.cxx: AnimatedQPushButton.hxx
 	-moc -o moc_AnimatedQPushButton.cxx AnimatedQPushButton.hxx
@@ -44,7 +44,7 @@ moc_AnimatedQPushButton.cxx: AnimatedQPushButton.hxx
 moc_ProcessControlObject.cxx: ProcessControlObject.hxx
 	-moc -o moc_ProcessControlObject.cxx ProcessControlObject.hxx
 
-ftObjects_la_SOURCES = \
+ossObjects_la_SOURCES = \
 	HighlightObject.hxx \
 	ProcessEntryClass.hxx \
 	MessageObject.hxx MessageObject.cxx \

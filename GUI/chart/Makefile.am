@@ -15,25 +15,25 @@
 # CONDITIONS OF MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A
 # PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
 # 
-# Original Code.  The Original Code is: FutureTool, Version 1.0, released
+# Original Code.  The Original Code is: Open/Speedshop, Version 1.0, released
 # <MONTH>, <DAY>, 2004, developed by Silicon Graphics, Inc. The Original
 # Code is Copyright (c) 2004 Silicon Graphics, Inc. Copyright in any
 # portions created by third parties is as indicated elsewhere herein.
 # All Rights Reserved.
 ################################################################################
 
-pkglib_LTLIBRARIES = ftChart.la
+pkglib_LTLIBRARIES = ossChart.la
 
-ftChart_la_CXXFLAGS = \
+ossChart_la_CXXFLAGS = \
 	-I/usr/include \
 	-I$(QTDIR)/include \
 	-I. \
 	-I../plugin \
 	-I../base
 
-ftChart_la_LDFLAGS = --export-dynamic -module -avoid-version
+ossChart_la_LDFLAGS = --export-dynamic -module -avoid-version
 
-ftChart_la_LIBADD = $(LIBLTDL)
+ossChart_la_LIBADD = $(LIBLTDL)
 
 moc_canvasview.cxx: canvasview.hxx
 	-moc -o moc_canvasview.cxx canvasview.hxx
@@ -47,7 +47,7 @@ moc_optionsform.cxx: optionsform.hxx
 moc_setdataform.cxx: setdataform.hxx
 	-moc -o moc_setdataform.cxx setdataform.hxx
 
-ftChart_la_SOURCES = \
+ossChart_la_SOURCES = \
 	canvasellipse.hxx        canvastext.hxx  chartform.hxx  optionsform.hxx \
 	canvasshadowellipse.hxx  canvasview.hxx  element.hxx    setdataform.hxx \
 	canvasview.cxx        element.cxx          moc_setdataform.cxx \

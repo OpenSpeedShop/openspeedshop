@@ -15,14 +15,14 @@
 # CONDITIONS OF MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A
 # PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
 # 
-# Original Code.  The Original Code is: FutureTool, Version 1.0, released
+# Original Code.  The Original Code is: Open/Speedshop, Version 1.0, released
 # <MONTH>, <DAY>, 2004, developed by Silicon Graphics, Inc. The Original
 # Code is Copyright (c) 2004 Silicon Graphics, Inc. Copyright in any
 # portions created by third parties is as indicated elsewhere herein.
 # All Rights Reserved.
 ################################################################################
 
-AC_INIT(FutureTool, 1.0)
+AC_INIT(OpenSpeedshop, 1.0)
 AC_COPYRIGHT([[Copyright (c) 2004 Silicon Graphics, Inc. All Rights Reserved.]])
 AM_INIT_AUTOMAKE
 
@@ -50,7 +50,7 @@ AH_TOP([
 ** CONDITIONS OF MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A
 ** PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
 ** 
-** Original Code.  The Original Code is: FutureTool, Version 1.0, released
+** Original Code.  The Original Code is: OpenSpeedshop, Version 1.0, released
 ** <MONTH>, <DAY>, <YEAR>, developed by Silicon Graphics, Inc. The Original
 ** Code is Copyright (c) <YEAR> Silicon Graphics, Inc. Copyright in any
 ** portions created by third parties is as indicated elsewhere herein.

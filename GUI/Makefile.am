@@ -15,15 +15,15 @@
 # CONDITIONS OF MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A
 # PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
 # 
-# Original Code.  The Original Code is: FutureTool, Version 1.0, released
+# Original Code.  The Original Code is: Open/Speedshop, Version 1.0, released
 # <MONTH>, <DAY>, 2004, developed by Silicon Graphics, Inc. The Original
 # Code is Copyright (c) 2004 Silicon Graphics, Inc. Copyright in any
 # portions created by third parties is as indicated elsewhere herein.
 # All Rights Reserved.
 ################################################################################
 
-# This is the future tool driver executable.   This is the driver for 
-# the future tool.   It's basically a main that starts the load of the
+# This is the Open/Speedshop driver executable.   This is the driver for 
+# the Open/Speedshop tool.   It's basically a main that starts the load of the
 # necessary dynamic libraries (.so's).
 
 bin_PROGRAMS = openspeedshop doc

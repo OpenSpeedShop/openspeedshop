@@ -15,25 +15,25 @@
 # CONDITIONS OF MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A
 # PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
 # 
-# Original Code.  The Original Code is: FutureTool, Version 1.0, released
+# Original Code.  The Original Code is: Open/Speedshop, Version 1.0, released
 # <MONTH>, <DAY>, 2004, developed by Silicon Graphics, Inc. The Original
 # Code is Copyright (c) 2004 Silicon Graphics, Inc. Copyright in any
 # portions created by third parties is as indicated elsewhere herein.
 # All Rights Reserved.
 ################################################################################
 
-pkglib_LTLIBRARIES = ftPlugin.la
+pkglib_LTLIBRARIES = ossPlugin.la
 
-ftPlugin_la_CXXFLAGS = -I/usr/include -I$(QTDIR)/include -I. -I.. -I../base -I../gui
+ossPlugin_la_CXXFLAGS = -I/usr/include -I$(QTDIR)/include -I. -I.. -I../base -I../gui
 
-ftPlugin_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
+ossPlugin_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
-ftPlugin_la_LIBADD = $(LIBLTDL)
+ossPlugin_la_LIBADD = $(LIBLTDL)
 
 moc_SlotInfo.cxx: SlotInfo.hxx
 	-moc -o moc_SlotInfo.cxx SlotInfo.hxx
 
-ftPlugin_la_SOURCES = \
+ossPlugin_la_SOURCES = \
     ../gui/openspeedshop.hxx \
 	plugin_handler.hxx plugin_handler.cxx \
 	PluginInfo.hxx PluginInfo.cxx \

@@ -15,7 +15,7 @@
 # CONDITIONS OF MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A
 # PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
 # 
-# Original Code.  The Original Code is: FutureTool, Version 1.0, released
+# Original Code.  The Original Code is: Open/Speedshop, Version 1.0, released
 # <MONTH>, <DAY>, 2004, developed by Silicon Graphics, Inc. The Original
 # Code is Copyright (c) 2004 Silicon Graphics, Inc. Copyright in any
 # portions created by third parties is as indicated elsewhere herein.
@@ -35,7 +35,7 @@ TopPanel_la_CXXFLAGS = \
 	-I../../plugin \
 	-I../../base
 
-TopPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../base/.libs/ftBase.so -Wl,../../expr_info/.libs/ftExprInfo.so -Wl,../../objects/.libs/ftObjects.so -Wl,../../chart/.libs/ftChart.so
+TopPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../base/.libs/ossBase.so -Wl,../../expr_info/.libs/ossExprInfo.so -Wl,../../objects/.libs/ossObjects.so -Wl,../../chart/.libs/ossChart.so
 
 TopPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
 

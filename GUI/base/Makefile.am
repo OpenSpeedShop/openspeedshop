@@ -15,16 +15,16 @@
 # CONDITIONS OF MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A
 # PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
 # 
-# Original Code.  The Original Code is: FutureTool, Version 1.0, released
+# Original Code.  The Original Code is: Open/Speedshop, Version 1.0, released
 # <MONTH>, <DAY>, 2004, developed by Silicon Graphics, Inc. The Original
 # Code is Copyright (c) 2004 Silicon Graphics, Inc. Copyright in any
 # portions created by third parties is as indicated elsewhere herein.
 # All Rights Reserved.
 ################################################################################
 
-pkglib_LTLIBRARIES = ftBase.la
+pkglib_LTLIBRARIES = ossBase.la
 
-ftBase_la_CXXFLAGS = \
+ossBase_la_CXXFLAGS = \
     -I../objects \
     -I/usr/include \
     -I$(QTDIR)/include \
@@ -33,9 +33,9 @@ ftBase_la_CXXFLAGS = \
     -I../base
 
 
-ftBase_la_LDFLAGS = --export-dynamic -module -avoid-version
+ossBase_la_LDFLAGS = --export-dynamic -module -avoid-version
 
-ftBase_la_LIBADD = $(LIBLTDL)
+ossBase_la_LIBADD = $(LIBLTDL)
 
 moc_TopWidget.cxx: TopWidget.hxx
 	-moc -o moc_TopWidget.cxx TopWidget.hxx
@@ -55,7 +55,7 @@ moc_PanelContainer.cxx: PanelContainer.hxx
 moc_Panel.cxx: Panel.hxx
 	-moc -o moc_Panel.cxx Panel.hxx
 
-ftBase_la_SOURCES = \
+ossBase_la_SOURCES = \
 	pc_plugin.cxx \
 	DragNDropPanel.hxx DragNDropPanel.cxx \
 	TopWidget.hxx TopWidget.cxx moc_TopWidget.cxx \

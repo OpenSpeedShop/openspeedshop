@@ -15,25 +15,25 @@
 # CONDITIONS OF MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A
 # PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
 # 
-# Original Code.  The Original Code is: FutureTool, Version 1.0, released
+# Original Code.  The Original Code is: Open/Speedshop, Version 1.0, released
 # <MONTH>, <DAY>, 2004, developed by Silicon Graphics, Inc. The Original
 # Code is Copyright (c) 2004 Silicon Graphics, Inc. Copyright in any
 # portions created by third parties is as indicated elsewhere herein.
 # All Rights Reserved.
 ################################################################################
 
-pkglib_LTLIBRARIES = ftExprInfo.la
+pkglib_LTLIBRARIES = ossExprInfo.la
 
-ftExprInfo_la_CXXFLAGS = \
+ossExprInfo_la_CXXFLAGS = \
 	-I/usr/include\
 	 -I$(QTDIR)/include\
 	 -I.\
 	 -I../base
 
-ftExprInfo_la_LDFLAGS = --export-dynamic -module -avoid-version
+ossExprInfo_la_LDFLAGS = --export-dynamic -module -avoid-version
 
-ftExprInfo_la_LIBADD = $(LIBLTDL)
+ossExprInfo_la_LIBADD = $(LIBLTDL)
 
-ftExprInfo_la_SOURCES = \
+ossExprInfo_la_SOURCES = \
 	FuncInfo.h FuncInfo.cxx \
 	ExprInfo.h ExprInfo.cxx 

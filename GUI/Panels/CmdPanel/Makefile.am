@@ -15,7 +15,7 @@
 # CONDITIONS OF MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A
 # PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
 # 
-# Original Code.  The Original Code is: FutureTool, Version 1.0, released
+# Original Code.  The Original Code is: Open/Speedshop, Version 1.0, released
 # <MONTH>, <DAY>, 2004, developed by Silicon Graphics, Inc. The Original
 # Code is Copyright (c) 2004 Silicon Graphics, Inc. Copyright in any
 # portions created by third parties is as indicated elsewhere herein.
@@ -34,9 +34,9 @@ CmdPanel_la_CXXFLAGS = \
     -I../../plugin \
     -I../../base
 
-CmdPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../base/.libs/ftBase.so -Wl,../../cli/.libs/ftcli.so -Wl,../../objects/.libs/ftObjects.so
+CmdPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../base/.libs/ossBase.so -Wl,../../cli/.libs/osscli.so -Wl,../../objects/.libs/ossObjects.so
 
-CmdPanel_la_LIBADD =  ../../cli/.libs/ftcli.so -L$(QTDIR)/lib -lqt
+CmdPanel_la_LIBADD =  ../../cli/.libs/osscli.so -L$(QTDIR)/lib -lqt
 
 moc_CmdPanel.cxx: CmdPanel.hxx
 	-moc -o moc_CmdPanel.cxx CmdPanel.hxx
