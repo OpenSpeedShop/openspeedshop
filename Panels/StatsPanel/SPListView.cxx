@@ -38,7 +38,7 @@ SPListView::SPListView( StatsPanelBase *rp, QWidget *w, const char *n, int flags
      : QListView( w, n, flags )
 {
   resultsPanel = rp;
-  dprintf ( "SPListView::SPListView( ) constructor called\n");
+printf ( "SPListView::SPListView( ) constructor called\n");
 }
 
 /*! The default destructor. */
@@ -62,8 +62,6 @@ SPListView::createPopupMenu( const QPoint & pos )
 {
   dprintf ("SPListView: Hello from down under the hood.\n");
 
-  // First create the default Qt widget menu...
-//  QPopupMenu *popupMenu = SPListView::createPopupMenu(pos);
   QPopupMenu *popupMenu = new QPopupMenu(this);
 
   if( resultsPanel->createPopupMenu(popupMenu, pos) )
