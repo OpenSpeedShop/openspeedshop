@@ -2,12 +2,17 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+
+#include "ToolAPI.hxx"
+using namespace OpenSpeedShop::Framework;
+
 #include "support.h"
+#include "Commander.hxx"
+#include "Clip.hxx"
 
 extern FILE *yyin;
 extern int yyparse (void);
 
-char *SpeedShop_ReadLine (int is_more);
 void  SpeedShop_Trace_ON (char *tofile);
 void  SpeedShop_Trace_OFF(void);
 
@@ -42,12 +47,25 @@ static PyObject *SS_ReadLine (PyObject *self, PyObject *args) {
   
   if (!PyArg_ParseTuple(args, "i", &more))
         return NULL;
-  char *news = SpeedShop_ReadLine(more);
-  if (news == NULL) {
+  InputLineObject *clip = SpeedShop_ReadLine(more);
+  if (clip == NULL) {
     PyErr_SetString(PyExc_EOFError, "End Of File");
     return NULL;
   }
-  return Py_BuildValue("s", news);
+  int64_t buffer_size = clip->Command().length()+1;
+  bool need_newline = false;
+  if (clip->Command().c_str()[buffer_size-2] != *("\n")) {
+    buffer_size++;
+    need_newline = true;
+  }
+  char *sbuf = (char *)PyMem_Malloc(buffer_size);
+  strcpy (sbuf, clip->Command().c_str());
+  if (need_newline) {
+    sbuf[buffer_size-2] = *("\n");
+    sbuf[buffer_size-1] = *("\0");
+  }
+  delete (clip);
+  return Py_BuildValue("s", sbuf);
 }
 
 static PyObject *SS_Record (PyObject *self, PyObject *args) {
