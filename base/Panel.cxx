@@ -123,15 +123,15 @@ void Panel::handleSizeEvent(QResizeEvent *)
   nprintf(DEBUG_PANELS) ("attempt to resize the panel baseWidgetFrame\n");
 }
 
-//! Set the name of the Panel.
 void Panel::setName(const char *n)
 {
-  if( strlen(n) > MAX_TAB_NAME_LENGTH-1 )
-  {
-    fprintf(stderr, "Panel::setName(%s) string to long. Truncating at %d\n", 
-      n, MAX_TAB_NAME_LENGTH-1 );
-  }
-  strncpy(name, n, MAX_TAB_NAME_LENGTH-1);
+  setName(QString(n));
+}
+
+//! Set the name of the Panel.
+void Panel::setName(QString n)
+{
+  name = n;
 }
 
 /*! Add user panel specific menu items if they have any.

@@ -65,6 +65,9 @@ public:
     //! Sets the Panel name.
     void setName(const char *);
 
+    //! Sets the Panel name.
+    void setName(QString);
+
     //! Returns the Panel name.
     const char *getName() { return name; }
 
@@ -87,11 +90,7 @@ protected:
 
 private: 
     //! A simple char array for holding the Panel name.
-    /*! Note: This
-        could (should?) be managed with new/delete, but it currently is
-        not.
-     */
-    char name[MAX_TAB_NAME_LENGTH];
+    QString name;
 
     //! The QWidget object that will hold all children in the user Panel.
     Frame *baseWidgetFrame;
