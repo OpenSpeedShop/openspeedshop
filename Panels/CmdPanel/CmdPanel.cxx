@@ -48,8 +48,8 @@ CmdPanel::~CmdPanel()
 {
   nprintf(DEBUG_CONST_DESTRUCT) ( "  CmdPanel::~CmdPanel() destructor called.\n");
 
-  delete frameLayout;
-  delete output;
+//  delete frameLayout;
+//  delete output;
 }
 
 void
