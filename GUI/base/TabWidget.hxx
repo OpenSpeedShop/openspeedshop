@@ -4,8 +4,7 @@
 #include <qwidget.h>
 #include <qtabwidget.h>
 
-
-//! Overloads the QTabWidget so we can accept menu events.
+//! This overloads QTabWidget so the tabbar can accept mouse down events.
 class TabWidget : public QTabWidget
 {
     Q_OBJECT

@@ -1,12 +1,10 @@
-/* \class TabWidget
+/*! \class TabWidget
    Overloads the QTabWidget so we can trap and manage mouse events.
    Specifically menu events.
  */  
 #include "TabWidget.hxx"
 
 #include "debug.hxx"  // This includes the definition of nprintf(DEBUG_PANELCONTAINERS) 
-
-/*! This overloads QTabWidget so the tabbar can accept mouse down events. */
 
 /*! default constructor.   Here for completeness only. (unused) */
 TabWidget::TabWidget( )
