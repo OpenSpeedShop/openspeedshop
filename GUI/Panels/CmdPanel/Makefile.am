@@ -39,7 +39,7 @@ CmdPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-versi
 CmdPanel_la_LIBADD =  ../../cli/.libs/ftcli.so -L$(QTDIR)/lib -lqt
 
 moc_CmdPanel.cxx: CmdPanel.hxx
-	-moc -o moc_CmdPanel.cxx CmdPanel.h.
+	-moc -o moc_CmdPanel.cxx CmdPanel.hxx
 
 CmdPanel_la_SOURCES = \
 	CmdPanel.h CmdPanel.cxx moc_CmdPanel.cxx \
