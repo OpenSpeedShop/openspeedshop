@@ -127,12 +127,6 @@ class PanelContainer : public QWidget
     //! Notify the nearest Panel who is listening and handles this message.
     int notifyNearest(char *msg);
 
-    //! Find the nearest Panel that is interested in a message.
-    PanelContainer *findNearestInterestedPanel(PanelContainer *start_pc, char *msg, int *ret_val);
-
-    //! Returns true if a Panel interested in the message in this PanelContainer
-    int wasThereAnInterestedPanel(PanelContainer *pc, char *msg, int *return_value );
-
     //! Notify a group of panels of a message.
     int notifyGroup(char *msg);
 
@@ -363,6 +357,12 @@ class PanelContainer : public QWidget
 
     //! The name of this PanelContainer.
     char *internal_name;
+
+    //! Find the nearest Panel that is interested in a message.
+    PanelContainer *findNearestInterestedPanel(PanelContainer *start_pc, char *msg, int *ret_val);
+
+    //! Returns true if a Panel interested in the message in this PanelContainer
+    int wasThereAnInterestedPanel(PanelContainer *pc, char *msg, int *return_value );
 
 };
 
