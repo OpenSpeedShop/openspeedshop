@@ -228,17 +228,18 @@ extern "C"
 
     if (need_gui)
     {
+fprintf(stdout,"open gui: %s need_tli %s read_stdin_file \n",need_tli?"":"NOT",read_stdin_file?"":"NOT");
      // The gui will be started in a pthread and do it's own itinialization.
       extern void loadTheGUI(ArgStruct *);
-      loadTheGUI(argStruct);
+      loadTheGUI((ArgStruct *)NULL); // argStruct);
 
 // The following is a timing hack -
-// if the TLI window hasn't been opened or specify async input,
-// the input routines may think they are at the end of file
-// before the GUI can open and define an async input window.
+// if the TLI window hasn't been opened or didn't specify async input,
+// the input routines may think they are at the end of file before
+// the GUI can open and define an async input window.
 // The hack is to define a dummy async window before python starts.
 // We will need to sort this out at some point in the future.
-if (!need_tli || !read_stdin_file) gui_window = Commander_Initialization ("GUI",my_host->h_name,my_pid,0,true);
+if (!need_tli || read_stdin_file) gui_window = Commander_Initialization ("GUI",my_host->h_name,my_pid,0,true);
     }
 
    // Fire off Python.
