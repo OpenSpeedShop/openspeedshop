@@ -179,7 +179,9 @@ protected:
     QHBoxLayout* vDescriptionPageButtonLayout;
     QSpacerItem* vDescriptionPageButtonSpacer;
     QVBoxLayout* vParameterPageLayout;
+    QSpacerItem* vParameterPageButtonSpacer;
     QVBoxLayout* vAttachOrLoadPageLayout;
+    QSpacerItem* vAttachOrLoadPageButtonSpacer;
     QSpacerItem* vParameterPageSpacer;
     QSpacerItem* vAttachOrLoadPageSpacer;
     QVBoxLayout* vParameterPageParameterLayout;
@@ -191,12 +193,14 @@ protected:
     QHBoxLayout* vAttachOrLoadPageButtonLayout;
     QVBoxLayout* vSummaryPageLayout;
     QVBoxLayout* vSummaryPageLabelLayout;
+    QSpacerItem* vSummaryPageButtonSpacer;
     QSpacerItem* vSummaryPageSpacer;
     QHBoxLayout* vSummaryPageButtonLayout;
     QVBoxLayout* eDescriptionPageLayout;
     QHBoxLayout* eHideWizardLayout;
     QSpacerItem* eHideWizardSpacer;
     QHBoxLayout* eDescriptionPageButtonLayout;
+QSpacerItem* eDescriptionPageButtonSpacer;
     QSpacerItem* eDescriptionPageSpacer;
     QVBoxLayout* eParameterPageLayout;
     QVBoxLayout* eAttachOrLoadPageLayout;
@@ -204,10 +208,13 @@ protected:
     QVBoxLayout* eParameterPageParameterLayout;
     QHBoxLayout* eParameterPageSampleRateLayout;
     QHBoxLayout* eParameterPageButtonLayout;
+QSpacerItem* eParameterPageButtonSpacer;
     QVBoxLayout* eAttachOrLoadPageAttachOrLoadLayout;
     QHBoxLayout* eAttachOrLoadPageSampleRateLayout;
     QHBoxLayout* eAttachOrLoadPageButtonLayout;
+QSpacerItem* eAttachOrLoadPageButtonSpacer;
     QVBoxLayout* eSummaryPageLayout;
+QSpacerItem* eSummaryPageButtonSpacer;
     QHBoxLayout* eSummaryPageButtonLayout;
     QHBoxLayout* bottomLayout;
     QSpacerItem* bottomSpacer;
