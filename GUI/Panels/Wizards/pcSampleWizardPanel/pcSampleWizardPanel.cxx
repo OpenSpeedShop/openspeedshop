@@ -478,152 +478,6 @@ pcSampleWizardPanel::broadcast(char *msg)
   return 0;
 }
 
-#ifdef PULL
-void
-pcSampleWizardPanel::page1NextSelected()
-{
-  QString fn = QString::null;
-
-  if( loadExecutableRB->isChecked() || attachProcessRB->isChecked() )
-  {
-printf("GUI ONLY?: get a list of executables to attach to.\n");
-    pcSampleWizardPanelStack->raiseWidget(1);
-  } else if( viewDataRB->isChecked() )
-  {
-printf("GUI ONLY?: get a list of experiment files to load.\n");
-    char *cwd = get_current_dir_name();
-    fn = QFileDialog::getOpenFileName( cwd, "Experiment Files (*.exp)", this, "open experiment dialog", "Choose an experiment file to open");
-    free(cwd);
-    if( !fn.isEmpty() )
-    {
-      printf("fn = %s\n", fn.ascii() );
-      page3FinishSelected();
-    } else
-    {
-      fprintf(stderr, "No experiment file name given.\n");
-      return;
-    }
-  } else
-  {
-    fprintf(stderr, "Confusion on page1 \"Next\" button.\n");
-    return;
-  }
-}
-
-void
-pcSampleWizardPanel::page2BackSelected()
-{
-  pcSampleWizardPanelStack->raiseWidget(0);
-}
-
-void
-pcSampleWizardPanel::page2ResetSelected()
-{
-  printf("Reset selected.\n");
-}
-
-void
-pcSampleWizardPanel::page2NextSelected()
-{
-QString fn = QString::null;
-  if( loadExecutableRB->isChecked() )
-  {
-printf("GUI ONLY?: get an executable to open.\n");
-    char *cwd = get_current_dir_name();
-    fn = QFileDialog::getOpenFileName( cwd, "All Files (*)", this, "open executable dialog", "Choose an executable to open");
-    free(cwd);
-    if( !fn.isEmpty() )
-    {
-      printf("fn = %s\n", fn.ascii() );
-    } else
-    {
-      fprintf(stderr, "No executable name given.\n");
-      return;
-    }
-  } else if( attachProcessRB->isChecked() )
-  {
-    QString msg = QString("No PID specified.  Please select one.\n");
-    QMessageBox::information( (QWidget *)this, "PID Needed...",
-                               msg, QMessageBox::Ok );
-fn = QString("12345");
-  } else
-  {
-    // error...
-    return;
-  }
-
-char buffer[2048];
-sprintf(buffer, "<p align=\"left\">You've selected a pc Sampling experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%s\" milliseconds.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"pcSample\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", fn.ascii(), "localhost", pcSampleRateText->text().ascii() );
-  vSummaryPageFinishLabel->setText( tr( buffer ) );
-  pcSampleWizardPanelStack->raiseWidget(2);
-}
-
-void
-pcSampleWizardPanel::page3BackSelected()
-{
-  pcSampleWizardPanelStack->raiseWidget(1);
-}
-
-void
-pcSampleWizardPanel::setLoadExecutableRB()
-{
-//  printf("setLoadExecutableRB() selected.\n");
-
-printf("CLI: set the executable\n");
-#ifdef LATER
-  // Make sure this one is set on...
-  loadExecutableRB->setChecked(TRUE);
-  // Set the other 2 to off....
-  attachProcessRB->setChecked(FALSE);
-  viewDataRB->setChecked(FALSE);
-#endif // LATER
-}
-
-void
-pcSampleWizardPanel::setAttachProcessRB()
-{
-//  printf("setAttachProcessRB() selected.\n");
-printf("CLI: attach to the process\n");
-#ifdef LATER
-  // Make sure this one is set on...
-  attachProcessRB->setChecked(TRUE);
-  // Set the other 2 to off....
-  loadExecutableRB->setChecked(FALSE);
-  viewDataRB->setChecked(FALSE);
-#endif // LATER
-}
-
-void
-pcSampleWizardPanel::setViewDataRB()
-{
-//  printf("setViewDataRB() selected.\n");
-printf("CLI: load the experiment file.\n");
-#ifdef LATER
-  // Make sure this one is set on...
-  viewDataRB->setChecked(TRUE);
-  // Set the other 2 to off....
-  loadExecutableRB->setChecked(FALSE);
-  attachProcessRB->setChecked(FALSE);
-#endif // LATER
-}
-
-
-void
-pcSampleWizardPanel::hideWizardCheck()
-{
-  printf("hideWizardCheck selected.\n");
-  printf("turn on/off this wizard next time in...\n");
-}
-
-void
-pcSampleWizardPanel::page3FinishSelected()
-{
-  printf("Finish selected.\n");
-
-  _masterPC->dl_create_and_add_panel("pc Sampling", _masterPC);
-}
-#else // PULL
-
 void pcSampleWizardPanel::wizardModeSelected()
 {
   QWidget *raisedWidget = pcSampleWizardPanelStack->visibleWidget();
@@ -761,6 +615,44 @@ void pcSampleWizardPanel::eAttachOrLoadPageNextButtonSelected()
 {
 printf("eAttachOrLoadPageNextButtonSelected() \n");
 
+char buffer[2048];
+  if( !eAttachOrLoadPageAttachToProcessCheckBox->isChecked() &&
+      !eAttachOrLoadPageLoadProcessCheckBox->isChecked() )
+  {
+    QString msg = QString("You must either select the option to attach to an \nexisting process or load an executable.  Please select one.\n");
+    QMessageBox::information( (QWidget *)this, "Process or executable needed...",
+                               msg, QMessageBox::Ok );
+    
+    return;
+  }
+  
+  if( eAttachOrLoadPageAttachToProcessCheckBox->isChecked() )
+  {
+    QString result;
+     AttachProcessDialog *dialog = new AttachProcessDialog(this, "AttachProcessDialog", TRUE);
+    if( dialog->exec() == QDialog::Accepted )
+    {
+      result = dialog->selectedProcesses();
+sprintf(buffer, "<p align=\"left\">Requesting to load process \"%s\" on host \"%s\",  sampling at \"%s\" milliseconds.<br><br></p>", result.ascii(), "localhost", vParameterPageSampleRateText->text().ascii() );
+    }
+    delete dialog;
+  
+    printf("result.acsii()=(%s)\n", result.ascii() );
+  }
+  if( eAttachOrLoadPageLoadProcessCheckBox->isChecked() )
+  {
+    printf("Load the QFile \n");
+    QString fn = QFileDialog::getOpenFileName( QString::null, QString::null,
+                             this);
+    if( !fn.isEmpty() )
+    {
+      printf("fn.ascii()=(%s)\n", fn.ascii() );
+sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", sampling at \"%s\" milliseconds.<br><br></p>", fn.ascii(), "localhost", eParameterPageSampleRateText->text().ascii() );
+    }
+  }
+
+  eSummaryPageFinishLabel->setText( tr( buffer ) );
+
     pcSampleWizardPanelStack->raiseWidget(eSummaryPageWidget);
 }
 // End  advanced (expert) AttachOrLoad callbacks
@@ -885,8 +777,6 @@ printf("vSummaryPageFinishButtonSelected() \n");
     panelContainer->_masterPC->dl_create_and_add_panel("pc Sampling", panelContainer);
   }
 }
-
-#endif // PULL
 
 /*
  *  Sets the strings of the subwidgets using the current
