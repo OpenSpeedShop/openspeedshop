@@ -42,17 +42,17 @@
 "hwc"  	    	{ yylval.string = yytext; return EXP_HWC;}
 "io"  	    	{ yylval.string = yytext; return EXP_IO;}
 
-"vtopn"  	{ return VIEW_TOPN;}
-"vexcltime"  	{ return VIEW_EXCLTIME;}
-"vio"	    	{ return VIEW_IO;}
-"vfpe"  	{ return VIEW_FPE;}
-"vhwc"  	{ return VIEW_HWC;}
+"vtopn"  	{ yylval.string = yytext; return VIEW_TOPN;}
+"vexcltime"  	{ yylval.string = yytext; return VIEW_EXCLTIME;}
+"vio"	    	{ yylval.string = yytext; return VIEW_IO;}
+"vfpe"  	{ yylval.string = yytext; return VIEW_FPE;}
+"vhwc"  	{ yylval.string = yytext; return VIEW_HWC;}
 
-"displaymode"  	{ return PARAM_DISPLAY_MODE;}
-"displaymedia"	{ return PARAM_DISPLAY_MEDIA;}
-"displayrefreshrate"  	{ return PARAM_DISPLAY_REFRESH_RATE;}
-"expsavefile"  	{ return PARAM_EXP_SAVE_FILE;}
-"samplingrate"	{ return PARAM_SAMPLING_RATE;}
+"displaymode"  	{ yylval.string = yytext; return PARAM_DISPLAY_MODE;}
+"displaymedia"	{ yylval.string = yytext; return PARAM_DISPLAY_MEDIA;}
+"displayrefreshrate"  	{ yylval.string = yytext; return PARAM_DISPLAY_REFRESH_RATE;}
+"expsavefile"  	{ yylval.string = yytext; return PARAM_EXP_SAVE_FILE;}
+"samplingrate"	{ yylval.string = yytext; return PARAM_SAMPLING_RATE;}
 
 "expattach" 	{ return ATTACH_HEAD; }
 "expclose"  	{ return CLOSE_HEAD; }
@@ -99,6 +99,7 @@
 "-f"	{ return FILE_ID; }
 "-x"	{ return EXP_ID; }
 "-l"	{ return LINE_ID;}
+"-c"	{ return CLUSTER_ID;}
 
 0x[0-9a-f]+	{yylval.val = atoi(yytext); return(HEXNUMBER);}
 [0-9]+   { yylval.val = atoi(yytext); return NUMBER; }
