@@ -43,6 +43,10 @@ class PanelContainer;   // Do not remove
 
 #include <qsettings.h>
 
+#include "SS_Input_Manager.hxx"
+// #include "Experiment.hxx"
+using namespace OpenSpeedShop::Framework;
+
 #undef PANEL_CLASS_NAME
 #define PANEL_CLASS_NAME SourcePanel   // Change the value of the define
                                          // to the name of your new class.
@@ -207,6 +211,7 @@ public slots:
   void valueChanged(int = -1);
   void chooseFile();
   void goToLine();
+  void goToFunction();
   void showLineNumbers();
   void showCanvasForm();
   void findString();
@@ -221,11 +226,17 @@ public slots:
 protected:
 
 private:
+  // Experiment ID of the associated expCreate
+  int expID;
+
   //! Handles the resize event to redraw the scrollbar's pixmap ...
   void handleSizeEvent(QResizeEvent *e=NULL);
 
   //! Set the lastLineHeight and lastVisibleLines variables.
   void calculateLastParameters();
+
+  OpenSpeedShop::Framework::Experiment *experiment;
+//  OpenSpeedShop::Framework::Experiment *fw_experiment() { return experiment; }
   
 };
 #endif // SOURCE_PANEL_H

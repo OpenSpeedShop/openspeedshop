@@ -25,15 +25,15 @@ pcSamplePanel_la_CXXFLAGS = \
     -I/usr/include \
     -I$(QTDIR)/include \
     -I. \
-	-I../../libopenss-framework \
-    -I../../pcli \
-    -I../../gui \
-    -I../../images \
-    -I../../plugin \
-    -I../../objects \
-    -I../SourcePanel \
-    -I../TopPanel \
-    -I../../base
+	-I$(top_srcdir)/libopenss-framework \
+    -I$(top_srcdir)/pcli \
+    -I$(top_srcdir)/gui \
+    -I$(top_srcdir)/images \
+    -I$(top_srcdir)/plugin \
+    -I$(top_srcdir)/objects \
+    -I$(top_srcdir)/Panels/SourcePanel \
+    -I$(top_srcdir)/Panels/TopPanel \
+    -I$(top_srcdir)/base
 
 pcSamplePanel_la_LDFLAGS = \
 	-fpic \
@@ -41,7 +41,7 @@ pcSamplePanel_la_LDFLAGS = \
 	--export-all-symbols \
 	-module \
 	-avoid-version \
-	-L../../libopenss-framework \
+	-L$(top_srcdir)/libopenss-framework \
 	-L$(QTDIR)/lib \
 	-lqt \
 	-ldl

@@ -213,22 +213,6 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n, void *argument) 
   topLevel = TRUE;
   topPC->topLevel = TRUE;
 
-#ifdef OLDWAY
-  QString name = QString("Source Panel [%1]").arg(expID);
-  Panel *sourcePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
-  if( !sourcePanel )
-  {
-printf("Raise the source panel\n");
-  } else
-  {
-printf("AAAA\n");
-    SourcePanel *sp =
-      (SourcePanel *)topPC->dl_create_and_add_panel((char *)name.ascii(),
-                                                  (PanelContainer *)topPC,
-                                                  (void *)expID);
-  }
-#endif // OLDWAY
-
   if( expID > 0 && !executableNameStr.isEmpty() )
   {
     statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the Run button to begin the experiment.")) );
@@ -239,16 +223,13 @@ printf("AAAA\n");
   {
     ThreadGroup tgrp = experiment->getThreads();
     ThreadGroup::iterator ti = tgrp.begin();
-#ifdef OLDWAY
-    if( tgrp.begin() == tgrp.end() )
-#else // OLDWAY
     if( tgrp.size() == 0 )
-#endif // OLDWAY
     {
       statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\" with the local menu.") );
     } else
     {
       statusLabelText->setText( tr(QString("Process Loaded: Click on the Run button to begin the experiment.")) );
+      updateInitialStatus();
     }
   } else if( executableNameStr.isEmpty() )
   {
@@ -864,11 +845,7 @@ pcSamplePanel::loadMain()
   {
     ThreadGroup tgrp = experiment->getThreads();
     ThreadGroup::iterator ti = tgrp.begin();
-#ifdef OLDWAY
-    if( tgrp.begin() == tgrp.end() )
-#else // OLDWAY
     if( tgrp.size() == 0 )
-#endif // OLDWAY
     {
       return;
     }

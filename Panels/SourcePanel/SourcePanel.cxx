@@ -59,9 +59,11 @@ SourcePanel::SourcePanel()
 SourcePanel::SourcePanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
 {
   nprintf(DEBUG_CONST_DESTRUCT) ( "SourcePanel::SourcePanel() constructor called\n");
+  expID = 0;
+
   frameLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
-  groupID = (int)argument;
+  expID = (int)argument;
 
   splitter = new QSplitter(getBaseWidgetFrame(), "SourcePanel: splitter");
   splitter->setOrientation( QSplitter::Horizontal );
@@ -159,9 +161,9 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n, void *argument) : Pa
     showLineNumbers();
   }
 
-char name_buffer[100];
-sprintf(name_buffer, "%s [%d]", getName(), groupID);
-setName(name_buffer);
+  char name_buffer[100];
+  sprintf(name_buffer, "%s [%d]", getName(), expID);
+  setName(name_buffer);
 }
 
 
@@ -191,6 +193,10 @@ contextMenu->insertItem("&Save As...", this, SLOT(saveAs()), CTRL+Key_O );
   contextMenu->insertSeparator();
   contextMenu->insertItem("&Open New", this, SLOT(chooseFile()), CTRL+Key_O );
   contextMenu->insertItem("&Goto Line...", this, SLOT(goToLine()), CTRL+Key_G );
+if( expID > 0 )
+{
+  contextMenu->insertItem("&Goto Function...", this, SLOT(goToFunction()), CTRL+Key_F );
+}
   if( line_numbersFLAG == TRUE )
   {
     contextMenu->insertItem("Hide &Line Numbers...", this,
@@ -512,6 +518,60 @@ SourcePanel::goToLine()
     int line = atoi(text.ascii());
     nprintf(DEBUG_PANELS) ("goto line %d\n", line);
     positionLineAtCenter(line);
+//    positionLineAtTop(line);
+  } else
+  {
+    // user entered nothing or pressed Cancel
+  }
+}
+
+
+void
+SourcePanel::goToFunction()
+{
+  nprintf(DEBUG_PANELS) ("SourcePanel::goToFunction() entered\n");
+  bool ok;
+  QString text = QInputDialog::getText(
+          "Goto Function", "Enter function name:", QLineEdit::Normal,
+          QString::null, &ok, this );
+  if( ok && !text.isEmpty() )
+  {
+    // user entered something and pressed OK
+    nprintf(DEBUG_PANELS) ("goto function %s\n", text.ascii());
+
+    ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+    if( eo && eo->FW() )
+    {
+      experiment = eo->FW();
+      if( experiment != NULL );
+      {
+        ThreadGroup tgrp = experiment->getThreads();
+        ThreadGroup::iterator ti = tgrp.begin();
+        if( tgrp.size() == 0 )
+        {
+          return;
+        }
+        Thread thread = *ti;
+        Time time = Time::Now();
+        const std::string func_string = std::string(text.ascii());
+        Optional<Function> function_definition = thread.getFunctionByName(func_string, time);
+        if( function_definition.hasValue() )
+        {
+          Optional<Statement> statement_definition = function_definition.getValue().getDefinition();
+          if(statement_definition.hasValue())
+          {
+            std::string fileName = statement_definition.getValue().getPath();
+            int line = statement_definition.getValue().getLine()-1;
+      
+            loadFile( fileName.c_str() );
+            positionLineAtCenter(line);
+          }
+        }
+      }
+    }
+
+    
+
 //    positionLineAtTop(line);
   } else
   {

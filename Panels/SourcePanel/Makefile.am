@@ -23,13 +23,15 @@ SourcePanel_la_CXXFLAGS = \
     -I/usr/include \
     -I$(QTDIR)/include \
     -I. \
-    -I../../gui \
-    -I../../plugin \
-    -I../../base
+    -I$(top_srcdir)/pcli \
+    -I$(top_srcdir)/gui \
+    -I$(top_srcdir)/plugin \
+    -I$(top_srcdir)/libopenss-framework \
+    -I$(top_srcdir)/base
 
 SourcePanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
-SourcePanel_la_LIBADD = -L$(QTDIR)/lib -lqt
+SourcePanel_la_LIBADD = -L$(QTDIR)/lib -lqt $(top_srcdir)/pcli/.libs/posscli.so
 
 moc_SPTextEdit.cxx: SPTextEdit.hxx
 	-moc -o moc_SPTextEdit.cxx SPTextEdit.hxx
