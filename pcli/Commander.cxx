@@ -793,6 +793,7 @@ InputLineObject *Append_Input_String (CMDWID issuedbywindow, char *b_ptr) {
     Assert (cw);
     clip = new InputLineObject(issuedbywindow, std::string(b_ptr));
     Input_Source *inp = new Input_Source (clip);
+    clip->SetStatus (ILO_QUEUED_INPUT);
     cw->Append_Input_Source (inp);
   }
   return clip;
@@ -850,7 +851,7 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
   FILE *ttyin = fopen ( "/dev/tty", "r" );  // Read directly from the xterm window
   FILE *ttyout = fopen ( "/dev/tty", "w" );  // Write prompt directly to the xterm window
   for(;;) {
-    sleep (1); // DEBUG - give testing code time to react before splashing screen with prompt
+    sleep (1); /* DEBUG - give testing code time to react before splashing screen with prompt */
     fprintf(ttyout,"%s->",current_prompt);
     fflush (ttyout);
     Buffer[0] == *("\0");
@@ -931,6 +932,7 @@ static void There_Must_Be_More_Input (CommandWindowID *cw) {
 InputLineObject *SpeedShop_ReadLine (int is_more)
 {
   char *save_prompt = current_prompt;
+  InputLineObject *clip;
 
   CMDWID readfromwindow = select_input_window(is_more);
   CMDWID firstreadwindow = readfromwindow;
@@ -944,7 +946,6 @@ read_another_window:
 
   CommandWindowID *cw = Find_Command_Window (readfromwindow);
   Assert (cw);
-  InputLineObject *clip;
 
   do {
     clip = cw->Read_Command ();
