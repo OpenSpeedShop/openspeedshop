@@ -22,10 +22,8 @@ void CommandObject::set_Status (Command_Status S) {
  // Once in the ERROR or ABORTED state, it must stay there.
  // Furthermore, propagate these states to the Clip only once.
   if ((Cmd_Status != CMD_ERROR) &&
-      (Cmd_Status != CMD_ABORTED)) {
-    if (Cmd_Status == S) {
-      fprintf(stdout,"Resetting CommandObject Status to same value %d\n",S);
-    }
+      (Cmd_Status != CMD_ABORTED) &&
+      (Cmd_Status != S)) {
     Cmd_Status = S;
     InputLineObject *clip = Clip();
     if (S == CMD_COMPLETE) {
@@ -41,6 +39,7 @@ void CommandObject::set_Status (Command_Status S) {
 }
 
 
+// For tracing commands to the log file.
 void CommandObject::Print (FILE *TFile) {
  // Header information
   InputLineObject *clip = Associated_Clip;
@@ -71,12 +70,14 @@ void CommandObject::Print (FILE *TFile) {
   fprintf(TFile,"\n");
 }
 
+// For printing the results to an Xterm Window.
 void CommandObject::Print_Results (FILE *TFile, std::string list_seperator, std::string termination_char) {
  // Print only the result information
   std::list<CommandResult *> cmd_result = Result_List();
   std::list<CommandResult *>::iterator cri = cmd_result.begin();
   if ((cri != cmd_result.end()) &&
-      ((*cri)->Type() == CMD_RESULT_COLUMN_HEADER)) fprintf(TFile,"\n");
+       (((*cri)->Type() == CMD_RESULT_COLUMN_HEADER) ||
+         (++cri != cmd_result.end()))) fprintf(TFile,"\n");
   int cnt = 0;
   for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++) {
     if (cnt++ > 0) fprintf(TFile,"%s",list_seperator.c_str());
