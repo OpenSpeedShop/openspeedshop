@@ -16,6 +16,11 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
+TEST_SUBDIRS = tests/fw/database \
+		tests/fw/interval \
+		tests/pcli/parse_target \
+		tests/pcli/parse_result
+
 SUBDIRS = . \
 	libltdl \
 	libopenss-framework \
@@ -32,10 +37,10 @@ SUBDIRS = . \
 	gui \
 	Panels
 
-TEST_SUBDIRS = tests/fw/database \
-		tests/fw/interval \
-		tests/pcli/parse_target \
-		tests/pcli/parse_result
+DIST_SUBDIRS = $(SUBDIRS)
+EXTRA_DIST = images $(TEST_SUBDIRS)
+
+openspeedshop_la_CXXFLAGS = -I/usr/include -I.
 
 tests: $(TEST_SUBDIRS)
 
