@@ -30,9 +30,9 @@ complete this task.
 Please try to "think aloud" as you work through the scenario.   
 It will help us understand where our problems are.
 
-Your task is to take a simple program ("mutatee") and, by
+Your task is to take a simple program ("fred") and, by
 using the Open/Speedshop tool, determine which routine(s) are
-taking the most time.    The program, "mutatee", is
+taking the most time.    The program, "fred", is
 provided in the current directory.
 
 
@@ -49,19 +49,19 @@ Step 1:
   Type the following command at the prompt:
     $ make 
 
-  This should have made the test case "mutatee".   It's a
+  This should have made the test case "fred".   It's a
   very simple 'c' example that has a few straight forward function
   calls and a few variables.
 
 
 Step 2:
-  Run the executable "mutatee".
+  Run the executable "fred".
 
   Type:
-    $ mutatee
-    Usage: mutatee <size>
+    $ fred
+    Usage: fred <size>
     No size argument given.   Defaulting to 1000.
-    mutatee: succesfully competed.
+    fred: succesfully competed.
     $
 
 
@@ -72,7 +72,7 @@ Step 3:
 
 Step 4:
   Launch the Open/Speedshop command so you can run performance debugging
-  on the executable named "mutatee".
+  on the executable named "fred".
 
 
 Step 5: 
@@ -82,7 +82,7 @@ Step 5:
 
 Step 6:
   Using the experiment you determined (in Step 5) gather the performance
-  date for it on the application "mutatee".
+  date for it on the application "fred".
 
 
 Step 7:

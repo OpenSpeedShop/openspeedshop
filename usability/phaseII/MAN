@@ -20,11 +20,10 @@ openss(1)                                                openss(1)
 
 
 NAME
-  openss - Collects Open/Speedshop performance data
+  openss - Collects Open|SpeedShop performance data
 
 SYNOPSIS
-  openss [-f "executable arg1 arg2 arg3 ..."] [-h host] [-x experiment_name]
-              [-p process_ID [-r thread_rank] ]
+  openss [-h host] [-f "executable arg1 arg2 arg3 ..."] [-p process_ID [-r thread_rank] ] [experiment_name]
 
 
 DESCRIPTION
@@ -36,13 +35,19 @@ DESCRIPTION
   or the graphical user interface.
  
   You can specify the following options on the command line:
-    -f executable
-      Specifies the executable to run the performance experiment on.
-
     -h host
       Specifies the target host.
 
-    -x experiment_name
+    -f executable
+      Specifies the executable to run the performance experiment on.
+
+    -p process_ID
+      Specifies the running process to attach to for performance gathering.
+
+    -r thread_rank
+      Specifies which thread of a process to gather data.
+
+    experiment_name
       Specifies the experiment to be run on the executable or process.
 
       o pssamp   - Actual CPU time at the source line, machine instruction,
@@ -74,12 +79,6 @@ DESCRIPTION
       o mpi      - Traces calls to various MPI routines.
                    See MPI Wizard.
 
-    -p process_ID
-      Specifies the running process to attach to for performance gathering.
-
-    -r thread_rank
-      Specifies which thread of a process to gather data.
-
 
 EXAMPLES:
   To start Open/Speedshop simply type:
@@ -96,11 +95,11 @@ EXAMPLES:
 
 
   To load an executable to run a simple timing (pcSampling) experiment:
-  $ openss -f a.out -x pcsamp
+  $ openss -f a.out pcsamp
 
   To load an executable that takes a command line argument:
-  $ openss -f "a.out abc"  -x pcsamp
+  $ openss -f "a.out abc"  pcsamp
 
 
 COMMAND LINE:
-    Currently the command line interface is unavailable.
+  Currently undocumented.
