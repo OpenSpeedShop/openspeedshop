@@ -29,6 +29,7 @@ ossgui_la_CXXFLAGS =  \
 	-I/usr/include \
 	-I$(QTDIR)/include \
 	-I. \
+	-I../libopenss-framework \
 	-I../pcli \
 	-I../plugin \
 	-I../images \
@@ -48,6 +49,7 @@ moc_preferencesdialog.cxx: preferencesdialog.hxx
 
 ossgui_la_SOURCES = \
 	gui.hxx gui.cxx \
+	CLIInterface.hxx CLIInterface.cxx \
     openspeedshop.hxx openspeedshop.cxx moc_openspeedshop.cxx \
     qmake_image_collection.cxx openspeedshop.ui.hxx \
     preferencesdialog.hxx preferencesdialog.cxx moc_preferencesdialog.cxx \
