@@ -15,6 +15,7 @@
 
 #include "SourcePanel.hxx"
 #include "SourceObject.hxx"
+#include "SourceObject.hxx"
 #include "TopPanel.hxx"
 
 #include "LoadAttachObject.hxx"
@@ -47,6 +48,7 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
   frameLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
   pco = new ProcessControlObject(frameLayout, getBaseWidgetFrame(), (Panel *)this );
+  runnableFLAG = FALSE;
   pco->runButton->setEnabled(FALSE);
   pco->runButton->enabledFLAG = FALSE;
 
@@ -136,6 +138,7 @@ pcSamplePanel::menu(QPopupMenu* contextMenu)
 
   contextMenu->insertSeparator();
   contextMenu->insertItem(tr("Load &New Program..."), this, SLOT(loadNewProgramSelected()), CTRL+Key_N );
+  contextMenu->insertItem(tr("Detach &From Program..."), this, SLOT(detachFromProgramSelected()), CTRL+Key_N );
   contextMenu->insertItem(tr("Attach To &Executable..."), this, SLOT(attachToExecutableSelected()), CTRL+Key_E );
   contextMenu->insertSeparator();
   contextMenu->insertItem(tr("&Manage Collectors..."), this, SLOT(manageCollectorsSelected()), CTRL+Key_M );
@@ -153,42 +156,70 @@ void
 pcSamplePanel::loadNewProgramSelected()
 {
   nprintf( DEBUG_PANELS ) ("pcSamplePanel::loadNewProgramSelected()\n");
+  if( runnableFLAG == TRUE )
+  {
+    printf("Disconnect First?\n"); 
+    if( detachFromProgramSelected() == FALSE )
+    {
+      return;
+    }
+  }
   if( mw )
   {
     mw->executableName = QString::null;
     mw->pidStr = QString::null;
-    mw->fileNew();
+    mw->fileLoadNewProgram();
   }
-  if( !mw->executableName.isEmpty() )
-  {
-    printf("mw->executableName=(%s)\n", mw->executableName.ascii() );
-    if( pco->runButton->enabledFLAG == TRUE )
-    {
-      printf("Disconnect First?\n"); 
-    }
-  }
-  updateInitialStatus();
 }   
+
+bool
+pcSamplePanel::detachFromProgramSelected()
+{
+  nprintf( DEBUG_PANELS ) ("pcSamplePanel::detachFromProgramSelected()\n");
+
+  
+  if( QMessageBox::question(
+            this,
+            tr("Detach?"),
+            tr("Process or executable already attached: Do you want to detach from the exising process(es)?"),
+            tr("&Yes"), tr("&No"),
+            QString::null, 0, 1 ) )
+  {
+    return FALSE;
+  }
+
+  if( mw )
+  {
+    mw->executableName = QString::null;
+    mw->pidStr = QString::null;
+  }
+
+  updateInitialStatus();
+
+  SourceObject *spo = new SourceObject(QString::null, QString::null, 0, TRUE, NULL);
+
+  broadcast((char *)spo, NEAREST_T);
+
+runnableFLAG = FALSE;
+}
 
 void
 pcSamplePanel::attachToExecutableSelected()
 {
   nprintf( DEBUG_PANELS ) ("pcSamplePanel::attachToExecutableSelected()\n");
+  if( runnableFLAG == TRUE )
+  {
+    if( detachFromProgramSelected() == FALSE )
+    {
+      return;
+    }
+  }
   if( mw )
   {
     mw->executableName = QString::null;
     mw->pidStr = QString::null;
-    mw->fileAttach();
+    mw->fileAttachNewProcess();
   }
-  if( !mw->pidStr.isEmpty() )
-  {
-    printf("mw->pidStr=(%s)\n", mw->pidStr.ascii() );
-    if( pco->runButton->enabledFLAG == TRUE )
-    {
-      printf("Disconnect First?\n"); 
-    }
-  }
-  updateInitialStatus();
 }   
 
 void
@@ -245,11 +276,11 @@ pcSamplePanel::listener(void *msg)
   if( mo->msgType  == "ControlObject" )
   {
     co = (ControlObject *)msg;
-printf("we've got a ControlObject\n");
+    nprintf( DEBUG_MESSAGES ) ("we've got a ControlObject\n");
   } else if( mo->msgType  == "LoadAttachObject" )
   {
     lao = (LoadAttachObject *)msg;
-printf("we've got a LoadAttachObject\n");
+    nprintf( DEBUG_MESSAGES ) ("we've got a LoadAttachObject\n");
   } else
   {
 //    fprintf(stderr, "Unknown object type recieved.\n");
@@ -259,7 +290,10 @@ printf("we've got a LoadAttachObject\n");
 
   if( co )
   {
-    co->print();
+//    if( DEBUG_MESSAGES )
+//    {
+//      co->print();
+//    }
 
     switch( (int)co->cot )
     {
@@ -296,7 +330,7 @@ statusLabelText->setText( tr("Process completed...") );
 sleep(1);
 qApp->processEvents(1);
 pco->runButton->setEnabled(TRUE);
-pco->runButton->enabledFLAG = TRUE;
+runnableFLAG = TRUE;
 pco->pauseButton->setEnabled(FALSE);
 pco->pauseButton->enabledFLAG = FALSE;
 pco->continueButton->setEnabled(FALSE);
@@ -315,7 +349,7 @@ TopPanel *tp = (TopPanel *)topPC->dl_create_and_add_panel("Top Panel", topPC);
         break;
       case  PAUSE_T:
         nprintf( DEBUG_MESSAGES ) ("Pause\n");
-  statusLabelText->setText( tr("Process suspended...") );
+        statusLabelText->setText( tr("Process suspended...") );
         ret_val = 1;
         break;
       case  CONT_T:
@@ -336,21 +370,23 @@ TopPanel *tp = (TopPanel *)topPC->dl_create_and_add_panel("Top Panel", topPC);
       case  TERMINATE_T:
         statusLabelText->setText( tr("Process terminated...") );
         ret_val = 1;
-        nprintf( DEBUG_MESSAGES ) ("Terminate\n");
+ //       nprintf( DEBUG_MESSAGES ) ("Terminate\n");
         break;
       default:
         break;
     }
  } else if( lao )
  {
-   printf("we've got a LoadAttachObject message\n");
-   lao->print();
+   nprintf( DEBUG_MESSAGES ) ("we've got a LoadAttachObject message\n");
 
-   mw->executableName = lao->executableName;
-   mw->pidStr = lao->pidStr;
-   updateInitialStatus();
+   if( lao->loadNowHint == TRUE || runnableFLAG == FALSE )
+   {
+     mw->executableName = lao->executableName;
+     mw->pidStr = lao->pidStr;
+     updateInitialStatus();
  
-   ret_val = 1;
+     ret_val = 1;
+    }
  }
 
   return ret_val;  // 0 means, did not want this message and did not act on anything.
@@ -359,72 +395,72 @@ TopPanel *tp = (TopPanel *)topPC->dl_create_and_add_panel("Top Panel", topPC);
 void
 pcSamplePanel::updateInitialStatus()
 {
-printf("begin arguments.\n");
-printf("pidStr = %s\n",  mw->pidStr.ascii() );
-printf("executableName = %s\n",  mw->executableName.ascii() );
-printf("argsStr = %s\n",  mw->argsStr.ascii() );
-printf("rankStr = %s\n",  mw->rankStr.ascii() );
-printf("hostStr = %s\n",  mw->hostStr.ascii() );
-printf("expStr = %s\n",  mw->expStr.ascii() );
-printf("end arguments.\n");
-
-  pco->runButton->setEnabled(TRUE);
-  pco->runButton->enabledFLAG = TRUE;
-
   if( !mw->executableName.isEmpty() )
   {
-    statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the Run button to begin the experiment.")) );
 
-printf("Position at main!\n");
-
-// Begin demo position at dummy file... For the real stuff we'll need to 
-// look up the main()... and position at it...
-if( mw && !mw->executableName.isEmpty() && mw->executableName.endsWith("fred_calls_ted") )
-{
-char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
-  char buffer[200];
-  strcpy(buffer, plugin_directory);
-  strcat(buffer, "/../../../usability/phaseI/fred_calls_ted.c");
-// printf("load (%s)\n", buffer);
-  SourceObject *spo = new SourceObject("main", buffer, 22, TRUE, NULL);
-
-  if( broadcast((char *)spo, NEAREST_T) == 0 )
-  { // No source view up...
-    char *panel_type = "Source Panel";
-    Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, topPC);
-    if( p != NULL )
+    // Begin demo position at dummy file... For the real stuff we'll need to 
+    // look up the main()... and position at it...
+    if( mw && !mw->executableName.isEmpty() && mw->executableName.endsWith("fred_calls_ted") )
     {
-      if( !p->listener((void *)spo) )
-      {
-        fprintf(stderr, "Unable to position at main in %s\n", buffer);
-      } else
-      {
-        nprintf( DEBUG_CONST_DESTRUCT ) ("Positioned at main in %s ????? \n", buffer);
+      statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the Run button to begin the experiment.")) );
+      char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
+      char buffer[200];
+      strcpy(buffer, plugin_directory);
+      strcat(buffer, "/../../../usability/phaseI/fred_calls_ted.c");
+      SourceObject *spo = new SourceObject("main", buffer, 22, TRUE, NULL);
+
+      if( broadcast((char *)spo, NEAREST_T) == 0 )
+      { // No source view up...
+        char *panel_type = "Source Panel";
+        Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, topPC);
+        if( p != NULL )
+        {
+          if( !p->listener((void *)spo) )
+          {
+            fprintf(stderr, "Unable to position at main in %s\n", buffer);
+          } else
+          {
+            nprintf( DEBUG_CONST_DESTRUCT ) ("Positioned at main in %s ????? \n", buffer);
+          }
+        }
+        runnableFLAG = TRUE;
+        pco->runButton->setEnabled(TRUE);
+        pco->runButton->enabledFLAG = TRUE;
       }
+    } else
+    {
+      QString msg = QString(tr("File entered is not an executable file.  No main() entry found.\n") );
+      QMessageBox::information( (QWidget *)this, "Process or executable needed...",
+                                   msg, QMessageBox::Ok );
+      runnableFLAG = FALSE;
+      pco->runButton->setEnabled(FALSE);
+      pco->runButton->enabledFLAG = FALSE;
+      return;
     }
-  }
-} else
-{
-  QString msg = QString(tr("File entered is not an executable file.  No main() entry found.\n") );
-  QMessageBox::information( (QWidget *)this, "Process or executable needed...",
-                               msg, QMessageBox::Ok );
-printf("NOTE: CLEAR THE SOURCE IN THIS CASE (Or revert back???)!!!\n");
-  pco->runButton->setEnabled(FALSE);
-  pco->runButton->enabledFLAG = FALSE;
-}
 // End demo.
 
   } else if( !mw->pidStr.isEmpty() )
   {
+    if( runnableFLAG == TRUE )
+    {
+      if( detachFromProgramSelected() == FALSE )
+      {
+        return;
+      }
+    }
     statusLabelText->setText( tr(QString("Attached to:  "))+mw->pidStr+tr(QString("  Click on the Run button to begin collecting data.")) );
   } else
   {
+    statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("Select a process or executable with the \"Load New *... or Attach To *...\" menu.") );
 
-printf("Position at callstack!\n");
-
+    runnableFLAG = FALSE;
     pco->runButton->setEnabled(FALSE);
     pco->runButton->enabledFLAG = FALSE;
- }
+    return;
+  }
+  runnableFLAG = TRUE;
+  pco->runButton->setEnabled(TRUE);
+  pco->runButton->enabledFLAG = TRUE;
 }
 
 /*
@@ -434,7 +470,7 @@ printf("Position at callstack!\n");
 void
 pcSamplePanel::languageChange()
 {
-  statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("No status currently available.") );
+  statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("Select a process or executable with the \"Load New *... or Attach To *...\" menu.") );
 }
 
 void
