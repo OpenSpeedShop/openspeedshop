@@ -31,10 +31,12 @@ enum cmd_result_type_enum {
 class CommandResult {
   cmd_result_type_enum Result_Type;
 
- public:
+ private:
   CommandResult () {
     Result_Type = CMD_RESULT_NULL; }
-  void Set_Type (cmd_result_type_enum T) {
+
+ public:
+  CommandResult (cmd_result_type_enum T) {
     Result_Type = T; }
   cmd_result_type_enum Type () {
     return Result_Type;
@@ -52,8 +54,7 @@ class CommandResult_Int : public CommandResult {
   int64_t int_value;
 
  public:
-  CommandResult_Int (int64_t I) {
-    Set_Type (CMD_RESULT_INT);
+  CommandResult_Int (int64_t I) : CommandResult(CMD_RESULT_INT) {
     int_value = I;
   }
 
@@ -70,8 +71,7 @@ class CommandResult_Float : public CommandResult {
   double float_value;
 
  public:
-  CommandResult_Float (double f) {
-    Set_Type (CMD_RESULT_FLOAT);
+  CommandResult_Float (double f) : CommandResult(CMD_RESULT_FLOAT) {
     float_value = f;
   }
 
@@ -88,12 +88,10 @@ class CommandResult_String : public CommandResult {
     std::string string_value;
 
  public:
-  CommandResult_String (std::string S) {
-    Set_Type (CMD_RESULT_STRING);
+  CommandResult_String (std::string S) : CommandResult(CMD_RESULT_STRING) {
     string_value = S;
   }
-  CommandResult_String (char *S) {
-    Set_Type (CMD_RESULT_STRING);
+  CommandResult_String (char *S) : CommandResult(CMD_RESULT_STRING) {
     string_value = std::string(S);
   }
 
@@ -112,8 +110,7 @@ class CommandResult_Headers : public CommandResult {
  std::list<CommandResult *> Headers;
 
  public:
-  CommandResult_Headers () {
-    Set_Type (CMD_RESULT_COLUMN_HEADER);
+  CommandResult_Headers () : CommandResult(CMD_RESULT_COLUMN_HEADER) {
     number_of_columns = 0;
   }
   void Add_Header (CommandResult *R) {
@@ -144,8 +141,7 @@ class CommandResult_Columns : public CommandResult {
  std::list<CommandResult *> Columns;
 
  public:
-  CommandResult_Columns (int64_t C) {
-    Set_Type (CMD_RESULT_COLUMN_HEADER);
+  CommandResult_Columns (int64_t C) : CommandResult(CMD_RESULT_COLUMN_HEADER) {
     number_of_columns = C;
   }
   void Add_Column (CommandResult *R) {
