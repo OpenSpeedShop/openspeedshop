@@ -502,7 +502,7 @@ MPIWizardPanel::saveAs()
 
 //! This function listens for messages.
 int 
-MPIWizardPanel::listener(char *msg)
+MPIWizardPanel::listener(void *msg)
 {
   nprintf(DEBUG_PANELS) ("MPIWizardPanel::listener() requested.\n");
   return 0;  // 0 means, did not want this message and did not act on anything.
@@ -609,7 +609,7 @@ nprintf(DEBUG_PANELS) ("eDescriptionPageIntroButtonSelected() \n");
 
     getPanelContainer()->hidePanel((Panel *)this);
 
-    Panel *p = getPanelContainer()->raiseNamedPanel("&Intro Wizard");
+    Panel *p = getPanelContainer()->raiseNamedPanel("Intro Wizard");
     if( !p )
     {
       getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Intro Wizard", getPanelContainer() );
@@ -748,7 +748,7 @@ nprintf(DEBUG_PANELS) ("vDescriptionPageIntroButtonSelected() \n");
 
     getPanelContainer()->hidePanel((Panel *)this);
 
-    Panel *p = getPanelContainer()->raiseNamedPanel("&Intro Wizard");
+    Panel *p = getPanelContainer()->raiseNamedPanel("Intro Wizard");
     if( !p )
     {
       getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Intro Wizard", getPanelContainer() );

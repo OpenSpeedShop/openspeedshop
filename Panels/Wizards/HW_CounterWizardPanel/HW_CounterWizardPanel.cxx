@@ -502,7 +502,7 @@ HW_CounterWizardPanel::saveAs()
 
 //! This function listens for messages.
 int 
-HW_CounterWizardPanel::listener(char *msg)
+HW_CounterWizardPanel::listener(void *msg)
 {
   nprintf(DEBUG_PANELS) ("HW_CounterWizardPanel::listener() requested.\n");
   return 0;  // 0 means, did not want this message and did not act on anything.

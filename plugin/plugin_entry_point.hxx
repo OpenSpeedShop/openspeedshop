@@ -193,6 +193,7 @@ extern "C"
 
 
     dprintf("Don't forget to add a preference and check it!\n");
+    dprintf("create_and_add_panel::: name=(%s)\n", name );
     if( strcmp(name, "&Command Panel") == 0 )
     {
       Panel *p = local_masterPC->findNamedPanel(local_masterPC, name);
@@ -204,7 +205,22 @@ extern "C"
       {
         return p;
       }
+    } else if( strcmp(name, "Intro Wizard") == 0 )
+    {
+      dprintf("name = (%s)\n", name );
+      Panel *p = local_masterPC->findNamedPanel(local_masterPC, name);
+      if( p )
+      {
+        p = p->getPanelContainer()->raiseNamedPanel(name);
+      }
+      if( p )
+      {
+        dprintf("Found a hidden Intro Wizard Panel!  raise it!\n");
+        return p;
+      }
+      dprintf("Bzzzt.  No panel around!\n");
     }
+
 
     // FIX:
     // This needs to be pushed to a 
@@ -245,7 +261,9 @@ extern "C"
     {
       name = "Warning: Unamed Panel: No menu_label or panel_type.";
     }
-dprintf("name=(%s)\n", name);
+
+    dprintf("name=(%s)\n", name);
+
     plugin_panel = new PANEL_CLASS_NAME(targetPC, name, (char *)argument);
     targetPC->addPanel((Panel *)plugin_panel, targetPC, name);
     

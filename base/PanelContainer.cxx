@@ -2943,19 +2943,24 @@ PanelContainer::notifyNearest(char *msg)
 Panel *
 PanelContainer::wasThereAnInterestedPanel(PanelContainer *pc, char *msg, int *return_value )
 {
+  nprintf(DEBUG_PANELCONTAINERS) ("wasThereAnInterestedPanel() entered.\n");
+
   Panel *p = NULL;
   // First see if there's a raised panel that's interested. (In this
   // PanelContaienr.)
   p = pc->getRaisedPanel();
   if( p )
   {
+    nprintf(DEBUG_PANELCONTAINERS) ("wasThereAnInterestedPanel() there was one raised (%s) call it's listener.\n", p->getName() );
     if( p->listener(msg) > 0 )
     {
+      nprintf(DEBUG_PANELCONTAINERS) ("wasThereAnInterestedPanel() The listener was interested!!!! Return (%s)\n", p->getName() );
       return(p);
     }
   }
 
   // Then look in this PanelContainer
+  nprintf(DEBUG_PANELCONTAINERS) ("wasThereAnInterestedPanel() look at the rest of the panel container (%s,%s) panels.\n", pc->getInternalName(), pc->getExternalName() );
   for( PanelList::Iterator pit = pc->panelList.begin();
            pit != pc->panelList.end();
            ++pit )
@@ -2981,12 +2986,12 @@ PanelContainer::findNearestInterestedPanel(PanelContainer *pc, char *msg, int *r
 {
   Panel *foundPanel = NULL;
 
-  nprintf(DEBUG_PANELCONTAINERS) ("findNearestInterestedPanel: entered\n");
+  nprintf(DEBUG_PANELCONTAINERS) ("findNearestInterestedPanel: (%s,%s) entered\n", pc->getInternalName(), pc->getExternalName() );
 
   if( pc->markedForDelete == FALSE &&
       !pc->leftPanelContainer && !pc->rightPanelContainer )
   {
-    nprintf(DEBUG_PANELCONTAINERS) ("A: just return pc\n");
+    nprintf(DEBUG_PANELCONTAINERS) ("Call wasThereAnInsteredPanel()\n");
     foundPanel = wasThereAnInterestedPanel(pc, msg, ret_val );
     if( foundPanel )
     {
@@ -2997,20 +3002,22 @@ PanelContainer::findNearestInterestedPanel(PanelContainer *pc, char *msg, int *r
   if( pc->leftPanelContainer &&
       pc->leftPanelContainer->markedForDelete == FALSE )
   {
+    nprintf(DEBUG_PANELCONTAINERS) ("call left side\n");
     foundPanel = findNearestInterestedPanel(pc->leftPanelContainer, msg, ret_val);
     if( foundPanel )
     {
-      nprintf(DEBUG_PANELCONTAINERS) ("found an interested Panel!\n");
+      nprintf(DEBUG_PANELCONTAINERS) ("L: found an interested Panel!\n");
       return( foundPanel );
     }
   } 
   if( pc->rightPanelContainer &&
       pc->rightPanelContainer->markedForDelete == FALSE )
   {
+    nprintf(DEBUG_PANELCONTAINERS) ("call right side\n");
     foundPanel = findNearestInterestedPanel(pc->rightPanelContainer, msg, ret_val);
     if( foundPanel )
     {
-      nprintf(DEBUG_PANELCONTAINERS) ("found an interested Panel!\n");
+      nprintf(DEBUG_PANELCONTAINERS) ("R: found an interested Panel!\n");
       return( foundPanel );
     }
   }

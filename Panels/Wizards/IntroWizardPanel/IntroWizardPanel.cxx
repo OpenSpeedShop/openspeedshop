@@ -14,6 +14,8 @@
 #include "PanelContainer.hxx"   // Do not remove
 #include "plugin_entry_point.hxx"   // Do not remove
 
+#include "MessageObject.hxx"
+
 
 #include <qvariant.h>
 #include <qpushbutton.h>
@@ -337,9 +339,17 @@ IntroWizardPanel::saveAs()
 
 //! This function listens for messages.
 int 
-IntroWizardPanel::listener(char *msg)
+IntroWizardPanel::listener(void *msg)
 {
   nprintf( DEBUG_PANELS ) ("IntroWizardPanel::listener() requested.\n");
+  MessageObject *messageObject = (MessageObject *)msg;
+  if( messageObject->msgType == "&Intro Wizard" || 
+      messageObject->msgType == "Intro Wizard" )
+  {
+    nprintf(DEBUG_MESSAGES) ("IntroWizardPanel::listener() interested!\n");
+    return 1;
+  }
+
   return 0;  // 0 means, did not want this message and did not act on anything.
 }
 

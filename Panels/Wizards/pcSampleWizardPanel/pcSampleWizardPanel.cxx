@@ -593,7 +593,7 @@ pcSampleWizardPanel::saveAs()
 
 //! This function listens for messages.
 int 
-pcSampleWizardPanel::listener(char *msg)
+pcSampleWizardPanel::listener(void *msg)
 {
   nprintf(DEBUG_PANELS) ("pcSampleWizardPanel::listener() requested.\n");
   return 0;  // 0 means, did not want this message and did not act on anything.
@@ -701,7 +701,7 @@ void pcSampleWizardPanel::eDescriptionPageIntroButtonSelected()
 
   nprintf(DEBUG_PANELS) ("eDescriptionPageIntroButtonSelected() \n");
 
-  Panel *p = getPanelContainer()->raiseNamedPanel("&Intro Wizard");
+  Panel *p = getPanelContainer()->raiseNamedPanel("Intro Wizard");
   if( !p )
   {
     getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Intro Wizard", getPanelContainer());
@@ -852,7 +852,7 @@ void pcSampleWizardPanel::vDescriptionPageIntroButtonSelected()
 
   getPanelContainer()->hidePanel((Panel *)this);
 
-  Panel *p = getPanelContainer()->raiseNamedPanel("&Intro Wizard");
+  Panel *p = getPanelContainer()->raiseNamedPanel("Intro Wizard");
   if( !p )
   {
     nprintf(DEBUG_PANELS) ("vDescriptionPageIntroButtonSelected() create a new one!\n");

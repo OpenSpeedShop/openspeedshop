@@ -289,6 +289,7 @@ CmdPanel::listener(void *msg)
   if( messageObject->msgType == "&Command Panel" )
   {
     nprintf(DEBUG_MESSAGES) ("CmdPanel::listener() interested!\n");
+    getPanelContainer()->raisePanel(this);
     return 1;
   }
   return 0;  // 0 means, did not want this message and did not act on anything.

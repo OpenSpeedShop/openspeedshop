@@ -29,6 +29,7 @@ IntroWizardPanel_la_CXXFLAGS = \
     -I$(QTDIR)/include \
     -I. \
     -I../../../gui \
+    -I../../../objects \
     -I../../../plugin \
     -I../../../base
 

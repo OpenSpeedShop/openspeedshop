@@ -80,7 +80,7 @@ public:
       \return 0 means you didn't do anything with the message.
       \return 1 means you handled the message.
    */
-  int listener(char *msg);
+  int listener(void *msg);
 
   //! Calls the panel function broadcast() message request.
   int broadcast(char *msg);
