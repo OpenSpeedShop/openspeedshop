@@ -2,7 +2,9 @@
 #include "PanelContainer.hxx"   // Do not remove
 #include "plugin_entry_point.hxx"   // Do not remove
 
-QString prompt = QString("openss-> ");
+// QString prompt = QString("openss-> ");
+extern char *Current_OpenSpeedShop_Prompt;
+QString prompt = QString::null;
 
 
 /*! \class CmdPanel
@@ -15,6 +17,9 @@ QString prompt = QString("openss-> ");
 CmdPanel::CmdPanel(PanelContainer *pc, const char *n, char *argument) : Panel(pc, n)
 {
   nprintf(DEBUG_CONST_DESTRUCT) ( "CmdPanel::CmdPanel() constructor called.\n");
+
+  // grab the prompt from the cli.
+  prompt = QString(Current_OpenSpeedShop_Prompt)+"-> ";
 
   textDisabled = FALSE;
 
@@ -78,10 +83,11 @@ CmdPanel::returnPressed()
       return;
     }
     char *start_ptr = buffer;
-    if( text.startsWith("openss-> ") )
+//    if( text.startsWith("openss-> ") )
+    if( text.startsWith(prompt+" ") )
     {
       start_ptr += prompt.length();
-    } else if( text.startsWith("openss->") )
+    } else if( text.startsWith(prompt) )
     {
       start_ptr += prompt.length()-1;
     }
@@ -96,7 +102,6 @@ CmdPanel::returnPressed()
     free( buffer );
     output->moveCursor(QTextEdit::MoveEnd, FALSE);
     output->getCursorPosition(&history_start_para, &history_start_index);
-    // It's always strlen(prompt)+1
     history_start_index = prompt.length();
   } 
   output->moveCursor(QTextEdit::MoveEnd, FALSE);
