@@ -9,10 +9,12 @@
 QApplication *qapplication;
 
 #include <qeventloop.h>
+#include <qlineedit.h>
 QEventLoop *qeventloop;
 
 #include "splash.xpm"
 #include <qsplashscreen.h>
+#include <qcheckbox.h>
 
 #include <pthread.h>
 #define PTMAX 10
@@ -108,19 +110,16 @@ extern "C"
 
     }
 
-    if( !fontname )
-    {
-      fontname = getenv("OPENSPEEDSHOP_FONTNAME");
-    }
-    if( fontname )
-    {
-      QFont m_font = QFont(fontname);
-//      m_font.setRawName(fontname);
-      qapplication->setFont(m_font);
-    }
+    OpenSpeedshop *w;
+
+    w = new OpenSpeedshop();
 
     QPixmap *splash_pixmap = NULL;
     QSplashScreen *splash = NULL;
+    if( !w->preferencesDialog->setShowSplashScreenCheckBox->isChecked() )
+    {
+      splashFLAG = FALSE;
+    } 
     if( splashFLAG )
     {
       splash_pixmap = new QPixmap( splash_xpm );
@@ -131,9 +130,24 @@ extern "C"
       splash->raise();
     }
 
-    OpenSpeedshop *w;
+    // Set the font from the preferences...
+    QFont *m_font = NULL;
+    if( w->preferencesDialog->preferencesAvailable == TRUE )
+    {
+      m_font = new QFont( w->preferencesDialog->globalFontFamily,
+                      w->preferencesDialog->globalFontPointSize,
+                      w->preferencesDialog->globalFontWeight,
+                      w->preferencesDialog->globalFontItalic );
+    }
 
-    w = new OpenSpeedshop();
+    if( m_font != NULL )
+    {
+      qApp->setFont(*m_font, TRUE);
+
+      delete m_font;
+    }
+
+
     w->executableName = executableStr;
     w->pidStr = pidStr;
     w->rankStr = rankStr;

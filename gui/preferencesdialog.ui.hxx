@@ -3,8 +3,7 @@
 
 void PreferencesDialog::readPreferencesOnEntry()
 {
-
-printf("readPreferencesOnEntry() entered\n");
+//  printf("readPreferencesOnEntry() entered\n");
 
   QSettings settings;
 //  settings.insertSearchPath( QSettings::Unix, "openspeedshop" );
@@ -20,23 +19,47 @@ printf("readPreferencesOnEntry() entered\n");
     return;
   }
 
-  fontLineEdit->setText( settings.readEntry( "/openspeedshop/general/globalFontFamily" ));
-  precisionLineEdit->setText( settings.readEntry( "/openspeedshop/general/globalPrecision" ));
+  preferencesAvailable = TRUE;
 
-  setShowSplashScreenCheckBox->setChecked(settings.readBoolEntry( "/openspeedshop/general/showSplashScreen") );
-  setShowColoredTabsCheckBox->setChecked(settings.readBoolEntry( "/openspeedshop/general/showColoredTabs") );
-  deleteEmptyPCCheckBox->setChecked(settings.readBoolEntry( "/openspeedshop/general/deleteEmptyPC") );
-  showGraphicsCheckBox->setChecked(settings.readBoolEntry( "/openspeedshop/general/showGraphics") );
-  showStatisticsCheckBox->setChecked(settings.readBoolEntry( "/openspeedshop/source panel/showStatistics") );
-  showLineNumbersCheckBox->setChecked(settings.readBoolEntry( "/openspeedshop/source panel/showLineNumber") );
-  sortDecendingCheckBox->setChecked(settings.readEntry( "/openspeedshop/stats panel/sortDecending") );
+  globalFontFamily =
+    settings.readEntry( "/openspeedshop/general/globalFontFamily" );
+  fontLineEdit->setText( globalFontFamily );
 
-  showTopNLineEdit->setText( settings.readEntry( "/openspeedshop/stats panel/showTopN" ));
+  globalFontPointSize =
+    settings.readNumEntry("/openspeedshop/general/globalFontPointSize");
+  globalFontWeight =
+    settings.readNumEntry("/openspeedshop/general/globalFontWeight");
+  globalFontItalic =
+     settings.readBoolEntry("/openspeedshop/general/globalFontItalic");
+
+
+
+  precisionLineEdit->setText(
+    settings.readEntry( "/openspeedshop/general/globalPrecision") );
+
+  setShowSplashScreenCheckBox->setChecked(
+    settings.readBoolEntry( "/openspeedshop/general/showSplashScreen") );
+  setShowColoredTabsCheckBox->setChecked(settings
+    .readBoolEntry( "/openspeedshop/general/showColoredTabs") );
+  deleteEmptyPCCheckBox->setChecked(
+    settings.readBoolEntry( "/openspeedshop/general/deleteEmptyPC") );
+  showGraphicsCheckBox->setChecked(
+    settings.readBoolEntry( "/openspeedshop/general/showGraphics") );
+  showStatisticsCheckBox->setChecked(
+    settings.readBoolEntry( "/openspeedshop/source panel/showStatistics") );
+  showLineNumbersCheckBox->setChecked(
+    settings.readBoolEntry( "/openspeedshop/source panel/showLineNumber") );
+  sortDecendingCheckBox->setChecked(
+    settings.readEntry( "/openspeedshop/stats panel/sortDecending") );
+
+  showTopNLineEdit->setText( 
+    settings.readEntry( "/openspeedshop/stats panel/showTopN" ));
 }
 
 void PreferencesDialog::resetPreferenceDefaults()
 {
     qWarning( "PreferencesDialog::resetPreferenceDefaults(): Not implemented yet" );
+  languageChange();
 }
 
 void PreferencesDialog::setGlobalPrecision()
@@ -115,31 +138,65 @@ void PreferencesDialog::listItemSelected(QListViewItem*lvi)
   }
 }
 
+#include <qfontdialog.h>
 void PreferencesDialog::selectGlobalFont()
 {
-    qWarning( "PreferencesDialog::selectGlobalFont(): Not implemented yet" );
+  bool ok;
+  QFont font = QFontDialog::getFont( &ok, this );
+  if ( ok )
+  { // font is set to the font the user selected
+    globalFontFamily = font.family();
+    fontLineEdit->setText( globalFontFamily );
+    globalFontPointSize = font.pointSize();
+//  fontLineEdit->setText( globalFontFamily );
+    globalFontWeight = font.weight();
+//  fontLineEdit->setText( globalFontFamily );
+    globalFontItalic = font.italic();
+//  fontLineEdit->setText( globalFontFamily );
+  }
 }
 
-void PreferencesDialog::setGlobalFont()
+void PreferencesDialog::applyPreferences()
 {
-    qWarning( "PreferencesDialog::setGlobalFont(): Not implemented yet" );
+
+  QFont *m_font = new QFont( globalFontFamily,
+                      globalFontPointSize,
+                      globalFontWeight,
+                      globalFontItalic );
+  qApp->setFont(*m_font, TRUE);
+
+  delete( m_font );
+
+
+  // NOTIFY EVERYONE THAT PREFERENCES HAVE CHANGED!
+  printf("NOTIFY EVERYONE THAT PREFERENCES HAVE CHANGED!\n");
+}
+
+void PreferencesDialog::buttonApplySelected()
+{
+    applyPreferences();
 }
 
 void PreferencesDialog::buttonOkSelected()
 {
-    qWarning( "PreferencesDialog::buttonOkSelected(): Not implemented yet" );
+    applyPreferences();
 
     hide();
 }
 
 void PreferencesDialog::savePreferencesOnExit()
 {
-    qWarning( "PreferencesDialog::savePreferencesOnExit(): Not implemented yet" );
-
   QSettings settings;
 //  settings.insertSearchPath( QSettings::Unix, "openspeedshop" );
   // No search path needed for Unix; see notes further on.
-  settings.writeEntry( "/openspeedshop/general/globalFontFamily", qApp->font().family() );
+
+  settings.writeEntry( "/openspeedshop/general/globalFontFamily", globalFontFamily );
+
+  settings.writeEntry("/openspeedshop/general/globalFontPointSize", globalFontPointSize );
+  settings.writeEntry("/openspeedshop/general/globalFontWeight", globalFontWeight );
+  settings.writeEntry("/openspeedshop/general/globalFontItalic", globalFontItalic );
+
+
   settings.writeEntry( "/openspeedshop/general/globalPrecision", precisionLineEdit->text() );
   settings.writeEntry( "/openspeedshop/general/showSplashScreen", setShowSplashScreenCheckBox->isChecked() );
   settings.writeEntry( "/openspeedshop/general/showColoredTabs", setShowColoredTabsCheckBox->isChecked() );

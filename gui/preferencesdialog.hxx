@@ -65,11 +65,18 @@ public:
     QGroupBox* cmdPanelGroupBox;
     QPushButton* buttonHelp;
     QPushButton* buttonDefaults;
+    QPushButton* buttonApply;
     QPushButton* buttonOk;
     QPushButton* buttonCancel;
 
+bool preferencesAvailable;
+QString globalFontFamily;
+int globalFontPointSize;
+int globalFontWeight;
+bool globalFontItalic;
     void readPreferencesOnEntry();
     void savePreferencesOnExit();
+    void applyPreferences();
 public slots:
     virtual void resetPreferenceDefaults();
     virtual void setGlobalPrecision();
@@ -84,7 +91,7 @@ public slots:
     virtual void setShowStats();
     virtual void listItemSelected(QListViewItem *);
     virtual void selectGlobalFont();
-    virtual void setGlobalFont();
+    virtual void buttonApplySelected();
     virtual void buttonOkSelected();
 
 protected:

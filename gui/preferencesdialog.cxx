@@ -38,6 +38,12 @@
 PreferencesDialog::PreferencesDialog( QWidget* parent, const char* name, bool modal, WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
+
+   globalFontFamily = "Helvetica";
+   globalFontPointSize = 12;
+   globalFontWeight = QFont::Normal;
+   globalFontItalic = FALSE;
+
     if ( !name )
 	setName( "PreferencesDialog" );
     setSizeGripEnabled( TRUE );
@@ -103,7 +109,6 @@ categoryListView->setSortColumn( -1 );
 
     setShowSplashScreenCheckBox = new QCheckBox( generalPrivateLayout, "setShowSplashScreenCheckBox" );
     setShowSplashScreenCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, setShowSplashScreenCheckBox->sizePolicy().hasHeightForWidth() ) );
-    setShowSplashScreenCheckBox->setChecked( TRUE );
     rightSideLayout->addWidget( setShowSplashScreenCheckBox );
 
     setShowColoredTabsCheckBox = new QCheckBox( generalPrivateLayout, "setShowColoredTabsCheckBox" );
@@ -151,7 +156,6 @@ categoryListView->setSortColumn( -1 );
     layout8 = new QVBoxLayout( statsPanelPrivateLayout, 11, 6, "layout8"); 
 
     sortDecendingCheckBox = new QCheckBox( statsPanelPrivateLayout, "sortDecendingCheckBox" );
-    sortDecendingCheckBox->setChecked( TRUE );
     layout8->addWidget( sortDecendingCheckBox );
 
     layout7 = new QHBoxLayout( 0, 0, 6, "layout7"); 
@@ -185,6 +189,11 @@ categoryListView->setSortColumn( -1 );
     buttonDefaults = new QPushButton( this, "buttonDefaults" );
     preferenceDialogWidgetStackLayout->addWidget( buttonDefaults );
 
+    buttonApply = new QPushButton( this, "buttonApply" );
+    buttonApply->setAutoDefault( TRUE );
+    buttonApply->setDefault( TRUE );
+    preferenceDialogWidgetStackLayout->addWidget( buttonApply );
+
     buttonOk = new QPushButton( this, "buttonOk" );
     buttonOk->setAutoDefault( TRUE );
     buttonOk->setDefault( TRUE );
@@ -200,22 +209,38 @@ categoryListView->setSortColumn( -1 );
     clearWState( WState_Polished );
 
     // signals and slots connections
-//    connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
-    connect( buttonOk, SIGNAL( clicked() ), this, SLOT( buttonOkSelected() ) );
-    connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
-    connect( setFontButton, SIGNAL( clicked() ), this, SLOT( selectGlobalFont() ) );
-    connect( fontLineEdit, SIGNAL( returnPressed() ), this, SLOT( setGlobalFont() ) );
-    connect( precisionLineEdit, SIGNAL( returnPressed() ), this, SLOT( setGlobalPrecision() ) );
-    connect( setShowSplashScreenCheckBox, SIGNAL( stateChanged(int) ), this, SLOT( setShowSplashScreen() ) );
-    connect( setShowColoredTabsCheckBox, SIGNAL( stateChanged(int) ), this, SLOT( setShowColoredPanelTabs() ) );
-    connect( deleteEmptyPCCheckBox, SIGNAL( stateChanged(int) ), this, SLOT( setRemoveEmptyPC() ) );
-    connect( showGraphicsCheckBox, SIGNAL( stateChanged(int) ), this, SLOT( setShowAvailableGraphics() ) );
-    connect( showStatisticsCheckBox, SIGNAL( stateChanged(int) ), this, SLOT( setShowStats() ) );
-    connect( showLineNumbersCheckBox, SIGNAL( stateChanged(int) ), this, SLOT( setShowLineNumbers() ) );
-    connect( sortDecendingCheckBox, SIGNAL( stateChanged(int) ), this, SLOT( setSortDescending() ) );
-    connect( showTopNLineEdit, SIGNAL( selectionChanged() ), this, SLOT( setShowTopN() ) );
-    connect( categoryListView, SIGNAL( clicked(QListViewItem*) ), this, SLOT( listItemSelected(QListViewItem*) ) );
+    connect( buttonDefaults, SIGNAL( clicked() ), this,
+      SLOT( resetPreferenceDefaults() ) );
+    connect( buttonApply, SIGNAL( clicked() ), this,
+      SLOT( buttonApplySelected() ) );
+    connect( buttonOk, SIGNAL( clicked() ), this,
+      SLOT( buttonOkSelected() ) );
+    connect( buttonCancel, SIGNAL( clicked() ), this,
+      SLOT( reject() ) );
+    connect( setFontButton, SIGNAL( clicked() ), this,
+      SLOT( selectGlobalFont() ) );
+    connect( precisionLineEdit, SIGNAL( returnPressed() ), this,
+      SLOT( setGlobalPrecision() ) );
+    connect( setShowSplashScreenCheckBox, SIGNAL( stateChanged(int) ), this,
+      SLOT( setShowSplashScreen() ) );
+    connect( setShowColoredTabsCheckBox, SIGNAL( stateChanged(int) ), this,
+      SLOT( setShowColoredPanelTabs() ) );
+    connect( deleteEmptyPCCheckBox, SIGNAL( stateChanged(int) ), this,
+      SLOT( setRemoveEmptyPC() ) );
+    connect( showGraphicsCheckBox, SIGNAL( stateChanged(int) ), this,
+      SLOT( setShowAvailableGraphics() ) );
+    connect( showStatisticsCheckBox, SIGNAL( stateChanged(int) ), this,
+      SLOT( setShowStats() ) );
+    connect( showLineNumbersCheckBox, SIGNAL( stateChanged(int) ), this,
+      SLOT( setShowLineNumbers() ) );
+    connect( sortDecendingCheckBox, SIGNAL( stateChanged(int) ), this,
+      SLOT( setSortDescending() ) );
+    connect( showTopNLineEdit, SIGNAL( selectionChanged() ), this,
+      SLOT( setShowTopN() ) );
+    connect( categoryListView, SIGNAL( clicked(QListViewItem*) ), this,
+      SLOT( listItemSelected(QListViewItem*) ) );
 
+    preferencesAvailable = FALSE;
     readPreferencesOnEntry();
 }
 
@@ -233,6 +258,22 @@ PreferencesDialog::~PreferencesDialog()
  */
 void PreferencesDialog::languageChange()
 {
+
+printf("PreferencesDialog::languageChange() entered\n");
+  globalFontFamily = "Helvetica";
+  globalFontPointSize = 12;
+  globalFontWeight = QFont::Normal;
+  globalFontItalic = FALSE;
+  fontLineEdit->setText( globalFontFamily );
+fontLineEdit->setReadOnly(TRUE);
+  setShowSplashScreenCheckBox->setChecked( TRUE );
+  setShowColoredTabsCheckBox->setChecked(FALSE);
+  deleteEmptyPCCheckBox->setChecked(FALSE);
+  showGraphicsCheckBox->setChecked(FALSE);
+  showStatisticsCheckBox->setChecked(FALSE);
+  showLineNumbersCheckBox->setChecked(FALSE);
+  sortDecendingCheckBox->setChecked( TRUE );
+
     setCaption( tr( "Preferences Dialog" ) );
     categoryListView->header()->setLabel( 0, tr( "Categories" ) );
     categoryListView->clear();
@@ -268,6 +309,8 @@ void PreferencesDialog::languageChange()
     buttonHelp->setAccel( QKeySequence( tr( "F1" ) ) );
     buttonDefaults->setText( tr( "&Defaults" ) );
     buttonDefaults->setAccel( QKeySequence( tr( "Alt+D" ) ) );
+    buttonApply->setText( tr( "&Apply" ) );
+    buttonApply->setAccel( QKeySequence( QString::null ) );
     buttonOk->setText( tr( "&OK" ) );
     buttonOk->setAccel( QKeySequence( QString::null ) );
     buttonCancel->setText( tr( "&Cancel" ) );
