@@ -143,13 +143,6 @@ sv->resizeContents(800,450);
     layout19->addWidget( vpage1InputOutputRB );
     layout21->addLayout( layout19 );
 
-    layout18 = new QHBoxLayout( 0, 0, 6, "layout18"); 
-    spacer7_5 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
-    layout18->addItem( spacer7_5 );
-
-    vpage1OtherRB = new QRadioButton( WStackPage, "vpage1OtherRB" );
-    layout18->addWidget( vpage1OtherRB );
-    layout21->addLayout( layout18 );
     WStackPageLayout->addLayout( layout21 );
 
     layout52 = new QHBoxLayout( 0, 0, 6, "layout52"); 
@@ -231,13 +224,6 @@ sv->resizeContents(800,450);
     layout19_2_2->addWidget( epage1InputOutputRB );
     layout20_3->addLayout( layout19_2_2 );
 
-    layout18_2 = new QHBoxLayout( 0, 0, 6, "layout18_2"); 
-    spacer7_5_2 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
-    layout18_2->addItem( spacer7_5_2 );
-
-    epage1OtherRB = new QRadioButton( WStackPage_2, "epage1OtherRB" );
-    layout18_2->addWidget( epage1OtherRB );
-    layout20_3->addLayout( layout18_2 );
     WStackPageLayout_2->addLayout( layout20_3 );
 
     layout44 = new QHBoxLayout( 0, 0, 6, "layout44"); 
@@ -279,16 +265,12 @@ sv->resizeContents(800,450);
     connect( vpage1HardwareCounterRB, SIGNAL( clicked() ), this, SLOT(vpage1HardwareCounterRBChanged() ) );
     connect( vpage1FloatingPointRB, SIGNAL( clicked() ), this, SLOT(vpage1FloatingPointRBChanged() ) );
     connect( vpage1InputOutputRB, SIGNAL( clicked() ), this, SLOT(vpage1InputOutputRBChanged() ) );
-    connect( vpage1OtherRB, SIGNAL( clicked() ), this, SLOT(vpage1OtherRBChanged() ) );
 
     connect( epage1pcSampleRB, SIGNAL( clicked() ), this, SLOT(epage1pcSampleRBChanged() ) );
     connect( epage1UserTimeRB, SIGNAL( clicked() ), this, SLOT(epage1UserTimeRBChanged() ) );
     connect( epage1HardwareCounterRB, SIGNAL( clicked() ), this, SLOT(epage1HardwareCounterRBChanged() ) );
     connect( epage1FloatingPointRB, SIGNAL( clicked() ), this, SLOT(epage1FloatingPointRBChanged() ) );
     connect( epage1InputOutputRB, SIGNAL( clicked() ), this, SLOT(epage1InputOutputRBChanged() ) );
-    connect( epage1OtherRB, SIGNAL( clicked() ), this, SLOT(epage1InputOutputRBChanged() ) );
-    connect( epage1OtherRB, SIGNAL( clicked() ), this, SLOT(epage1OtherRBChanged() ) );
-// Cut-n-paste to here...
 
 #ifdef DEBUG_WITH_COLOR
 sv->viewport()->setPaletteBackgroundColor("red");
@@ -371,7 +353,6 @@ IntroWizardPanel::languageChange()
 "hardware to measure certain attributes of program execution.)" ) );
     vpage1FloatingPointRB->setText( tr( "I need to measure how many times I am causing Floating Point Exceptions." ) );
     vpage1InputOutputRB->setText( tr( "My program does a lot of Input and Output and I'd like to trace that work." ) );
-    vpage1OtherRB->setText( tr( "I'm looking for something else.  Show me more options." ) );
     vpage1NextButton->setText( tr( "> Next" ) );
     epage1Header->setText( tr( "<h2>Welcome to Open/SpeedShop(tm)</h2>" ) );
     epage1Label->setText( tr( "Please select which of the following are true for your application:" ) );
@@ -381,7 +362,6 @@ IntroWizardPanel::languageChange()
     epage1HardwareCounterRB->setText( tr( "Hardware Counter Tracing." ) );
     epage1FloatingPointRB->setText( tr( "Floating Point Exceptions Tracing" ) );
     epage1InputOutputRB->setText( tr( "Input/Output Tracing" ) );
-    epage1OtherRB->setText( tr( "Other ..." ) );
     epage1NextButton->setText( tr( "> Next" ) );
     wizardMode->setText( tr( "Verbose Wizard Mode" ) );
     broughtToYouByLabel->setText( tr( "Brought to you by SGI (SiliconGraphics)" ) );
@@ -551,11 +531,6 @@ void IntroWizardPanel::vpage1InputOutputRBChanged()
   vSetStateChanged(vpage1InputOutputRB);
 }
 
-void IntroWizardPanel::vpage1OtherRBChanged()
-{
-  vSetStateChanged(vpage1OtherRB);
-}
-
 void IntroWizardPanel::vSetStateChanged(QRadioButton *rb)
 {
   vpage1pcSampleRB->setChecked( FALSE );
@@ -563,7 +538,6 @@ void IntroWizardPanel::vSetStateChanged(QRadioButton *rb)
   vpage1HardwareCounterRB->setChecked( FALSE );
   vpage1FloatingPointRB->setChecked( FALSE );
   vpage1InputOutputRB->setChecked( FALSE );
-  vpage1OtherRB->setChecked( FALSE );
   rb->setChecked(TRUE);
 }
 
@@ -593,11 +567,6 @@ void IntroWizardPanel::epage1InputOutputRBChanged()
   eSetStateChanged(epage1InputOutputRB);
 }
 
-void IntroWizardPanel::epage1OtherRBChanged()
-{
-  eSetStateChanged(epage1OtherRB);
-}
-
 void IntroWizardPanel::eSetStateChanged(QRadioButton *rb)
 {
   epage1pcSampleRB->setChecked( FALSE );
@@ -605,7 +574,6 @@ void IntroWizardPanel::eSetStateChanged(QRadioButton *rb)
   epage1HardwareCounterRB->setChecked( FALSE );
   epage1FloatingPointRB->setChecked( FALSE );
   epage1InputOutputRB->setChecked( FALSE );
-  epage1OtherRB->setChecked( FALSE );
   rb->setChecked(TRUE);
 }
 

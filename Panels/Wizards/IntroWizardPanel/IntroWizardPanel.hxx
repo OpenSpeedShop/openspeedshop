@@ -90,7 +90,6 @@ public:
     QRadioButton* vpage1HardwareCounterRB;
     QRadioButton* vpage1FloatingPointRB;
     QRadioButton* vpage1InputOutputRB;
-    QRadioButton* vpage1OtherRB;
     QPushButton* vpage1NextButton;
     QWidget* WStackPage_2;
     QLabel* epage1Header;
@@ -102,36 +101,31 @@ public:
     QRadioButton* epage1HardwareCounterRB;
     QRadioButton* epage1FloatingPointRB;
     QRadioButton* epage1InputOutputRB;
-    QRadioButton* epage1OtherRB;
     QPushButton* epage1NextButton;
     QCheckBox* wizardMode;
     QLabel* broughtToYouByLabel;
 
-void vSetStateChanged(QRadioButton *rb);
-void eSetStateChanged(QRadioButton *rb);
+    void vSetStateChanged(QRadioButton *rb);
+    void eSetStateChanged(QRadioButton *rb);
 
 public slots:
     virtual void wizardModeSelected();
     virtual void epage1NextButtonSelected();
     virtual void vpage1NextButtonSelected();
-void vpage1pcSampleRBChanged();
-void vpage1UserTimeRBChanged();
-void vpage1HardwareCounterRBChanged();
-void vpage1FloatingPointRBChanged();
-void vpage1InputOutputRBChanged();
-void vpage1OtherRBChanged();
+    void vpage1pcSampleRBChanged();
+    void vpage1UserTimeRBChanged();
+    void vpage1HardwareCounterRBChanged();
+    void vpage1FloatingPointRBChanged();
+    void vpage1InputOutputRBChanged();
 
-void epage1pcSampleRBChanged();
-void epage1UserTimeRBChanged();
-void epage1HardwareCounterRBChanged();
-void epage1FloatingPointRBChanged();
-void epage1InputOutputRBChanged();
-void epage1OtherRBChanged();
+    void epage1pcSampleRBChanged();
+    void epage1UserTimeRBChanged();
+    void epage1HardwareCounterRBChanged();
+    void epage1FloatingPointRBChanged();
+    void epage1InputOutputRBChanged();
 
-
-void handleSizeEvent( QResizeEvent *e );
-QScrollView *sv;
-
+    void handleSizeEvent( QResizeEvent *e );
+    QScrollView *sv;
 
 protected:
     QVBoxLayout* IntroWizardFormLayout;
