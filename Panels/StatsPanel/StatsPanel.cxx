@@ -38,7 +38,7 @@ StatsPanel::~StatsPanel()
 }
 
 void
-StatsPanel::itemSelected(SPListViewItem *item)
+StatsPanel::itemSelected(QListViewItem *item)
 {
   dprintf("StatsPanel::clicked() entered\n");
 
@@ -46,7 +46,7 @@ StatsPanel::itemSelected(SPListViewItem *item)
   {
     dprintf("  item->depth()=%d\n", item->depth() );
   
-    SPListViewItem *nitem = item;
+    SPListViewItem *nitem = (SPListViewItem *)item;
     while( nitem->parent() )
     {
       dprintf("looking for 0x%x\n", nitem->parent() );
@@ -157,7 +157,7 @@ StatsPanel::updateStatsPanelData()
   {
     lv = new SPListView( this, getBaseWidgetFrame(), getName(), 0 );
  
-    connect( lv, SIGNAL(clicked(SPListViewItem *)), this, SLOT( itemSelected( SPListViewItem* )) );
+    connect( lv, SIGNAL(clicked(QListViewItem *)), this, SLOT( itemSelected( QListViewItem* )) );
 
     lv->setAllColumnsShowFocus(TRUE);
 

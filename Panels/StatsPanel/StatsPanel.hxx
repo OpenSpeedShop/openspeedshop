@@ -66,7 +66,7 @@ private:
     void setNumberVisibleEntries();
     void doOption(int id);
 
-    void itemSelected( SPListViewItem * );
+    void itemSelected( QListViewItem * );
 
   protected:
     //! Sets the language specific strings.
