@@ -21,9 +21,13 @@
 #include "PanelContainer.hxx"   // Do not remove
 #include "plugin_entry_point.hxx"   // Do not remove
 
+#include "qapplication.h" // For qApp->processEvent() below.
+
 // QString prompt = QString("openss-> ");
 extern char *Current_OpenSpeedShop_Prompt;
 QString prompt = QString::null;
+
+#include "SS_Input_Manager.hxx"
 
 
 /*! \class CmdPanel
@@ -79,6 +83,7 @@ CmdPanel::~CmdPanel()
   nprintf(DEBUG_CONST_DESTRUCT) ( "  CmdPanel::~CmdPanel() destructor called.\n");
 }
 
+typedef QValueList<QString> CommandList;
 void
 CmdPanel::returnPressed()
 {
@@ -93,15 +98,19 @@ CmdPanel::returnPressed()
   output->setSelection(last_para, last_index, current_para, current_index);
 
   int i = 0;
+  CommandList commandList;
+  commandList.clear();
   for( i = last_para;i<=current_para;i++ )
   {
+    nprintf(DEBUG_PANELS) ("i=%d last_para=%d current_para=%d\n", i, last_para, current_para );
     QString text = output->text(i);
     char *buffer = strdup(text.stripWhiteSpace().ascii());
     nprintf(DEBUG_PANELS) ("buffer=(%s)\n", buffer);
     if( text.stripWhiteSpace() == "" || text.stripWhiteSpace() == prompt )
     {
       free(buffer);
-      return;
+//      return;
+      continue;
     }
     char *start_ptr = buffer;
     if( text.startsWith(prompt+" ") )
@@ -112,21 +121,87 @@ CmdPanel::returnPressed()
       start_ptr += prompt.length();
     }
     QString command_string = QString(start_ptr).stripWhiteSpace();
-    nprintf(DEBUG_PANELS) ("Send down (%s)\n", command_string.ascii());
+
+    commandList.push_back(command_string);
+    nprintf(DEBUG_PANELS) ("Put command_string on the list(%s)\n", command_string.ascii() );
+
+    free( buffer );
+  }
+
+  nprintf(DEBUG_PANELS) ("commandList.count()=%d\n", commandList.count() );
+
+  textDisabled = TRUE;
+  for( CommandList::Iterator ci = commandList.begin(); ci != commandList.end(); ci++ )
+  {
+    QString command = (QString) *ci;
+    nprintf(DEBUG_PANELS) ("Send down (%s)\n", command.ascii());
     int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
-    InputLineObject *ilp = Append_Input_String( wid, (char *)command_string.ascii());
+    InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii());
 
     // Push the command onto the history list.
     cmdHistoryListIterator = cmdHistoryList.end();
-    cmdHistoryList.push_back(start_ptr);
+    cmdHistoryList.push_back(command);
 
-    free( buffer );
     output->moveCursor(QTextEdit::MoveEnd, FALSE);
-    output->getCursorPosition(&history_start_para, &history_start_index);
-    history_start_index = prompt.length();
+
+    // Try to check the status an print some 'bogus, but real' cli text.
+    Input_Line_Status status = clip->What();
+    int rough_second_count = 0;
+    while( status != ILO_COMPLETE )
+    {
+      nprintf(DEBUG_PANELS) ("status = %d\n", status );
+      if( status == ILO_ERROR )
+      {
+        fprintf(stderr, "ILO_ERROR !!!\n");
+        break;
+      }
+      sleep(1);
+      qApp->processEvents(3);
+      status = clip->What();
+      rough_second_count++;
+      if( rough_second_count > 9 )
+      {
+        fprintf(stdout, "Fake an error!\n");
+        output->append("Unable to process command.");
+        break;
+      }
+    }
+    // This in only a cludge for now!!! FIX
+    if( status == ILO_COMPLETE )
+    {
+      fprintf(stderr, "ILO_COMPLETE!\n");
+      char *fname = tempnam("/tmp", "__oss");
+      FILE *fp = fopen(fname, "w+");
+      clip->Print(fp);
+      fclose(fp);
+      QFile f( fname );
+      QString line = NULL;
+      if( f.open( IO_ReadOnly ) )
+      {
+        QTextStream ts(&f);
+        while( !ts.atEnd() )
+        {
+          line = ts.readLine();  // line of text excluding '\n'
+          output->append(line);
+        }
+        output->moveCursor(QTextEdit::MoveEnd, FALSE);
+        output->getCursorPosition(&history_start_para, &history_start_index);
+        history_start_index = prompt.length();
+        output->moveCursor(QTextEdit::MoveEnd, FALSE);
+        output->getCursorPosition(&last_para, &last_index);
+      }
+      unlink(fname);
+    }
   } 
+  textDisabled = FALSE;
+
+  nprintf(DEBUG_PANELS) ("Set the positions for the next command.\n");
+  output->moveCursor(QTextEdit::MoveEnd, FALSE);
+  output->getCursorPosition(&history_start_para, &history_start_index);
+  history_start_index = prompt.length();
   output->moveCursor(QTextEdit::MoveEnd, FALSE);
   output->getCursorPosition(&last_para, &last_index);
+  nprintf(DEBUG_PANELS) ("Try to get another command.\n");
 }
 
 void

@@ -23,6 +23,7 @@ CmdPanel_la_CXXFLAGS = \
     -I$(QTDIR)/include \
     -I. \
 	-I../../objects \
+	-I../../libopenss-framework \
 	-I../../pcli \
     -I../../gui \
     -I../../plugin \
