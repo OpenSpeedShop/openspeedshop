@@ -10,6 +10,8 @@ class QVBoxLayout;
 
 #include "CollectorInfo.hxx"   // For dummied up data...
 
+#include "SPListViewItem.hxx"
+
 #include <qvaluelist.h>
 typedef QValueList<QString> ColumnList;
 
@@ -52,22 +54,19 @@ class StatsPanel  : public Panel
     char *truncateCharString(char *str, int length);
 
 private:
-int numberItemsToRead;
+    int numberItemsToRead;
     ColumnList columnList;
-CollectorInfo *collectorData;
+    CollectorInfo *collectorData;
     int getUpdatedData(int num_entries_to_read);
     int getMetrics(int number_entries_to_read);
-void matchSelectedItem( int );
+    void matchSelectedItem( int );
 
-//    void selectionChanged();
-//    void selectionChanged( QListViewItem* );
-//    void myContextMenuEvent( QListViewItem* );
   public slots:
     void gotoSource();
     void setNumberVisibleEntries();
     void doOption(int id);
 
-    void itemSelected( QListViewItem * );
+    void itemSelected( SPListViewItem * );
 
   protected:
     //! Sets the language specific strings.

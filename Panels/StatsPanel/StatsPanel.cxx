@@ -4,6 +4,7 @@
 
 
 #include "SPListView.hxx"   // Change this to your new class header file name
+#include "SPListViewItem.hxx"   // Change this to your new class header file name
 #include "SourceObject.hxx"
 
 
@@ -37,7 +38,7 @@ StatsPanel::~StatsPanel()
 }
 
 void
-StatsPanel::itemSelected(QListViewItem *item)
+StatsPanel::itemSelected(SPListViewItem *item)
 {
   dprintf("StatsPanel::clicked() entered\n");
 
@@ -45,11 +46,11 @@ StatsPanel::itemSelected(QListViewItem *item)
   {
     dprintf("  item->depth()=%d\n", item->depth() );
   
-    QListViewItem *nitem = item;
+    SPListViewItem *nitem = item;
     while( nitem->parent() )
     {
       dprintf("looking for 0x%x\n", nitem->parent() );
-      nitem = nitem->parent();
+      nitem = (SPListViewItem *)nitem->parent();
     }
   
 
@@ -156,18 +157,21 @@ StatsPanel::updateStatsPanelData()
   {
     lv = new SPListView( this, getBaseWidgetFrame(), getName(), 0 );
  
-    connect( lv, SIGNAL(clicked(QListViewItem *)), this, SLOT( itemSelected( QListViewItem* )) );
+    connect( lv, SIGNAL(clicked(SPListViewItem *)), this, SLOT( itemSelected( SPListViewItem* )) );
 
     lv->setAllColumnsShowFocus(TRUE);
 
     // If there are subitems, then indicate with root decorations.
     lv->setRootIsDecorated(TRUE);
+
+    // If there should be sort indicators in the header, show them here.
+    lv->setShowSortIndicator(TRUE);
   }
 
   lv->clear();
 
 
-  QListViewItem *lvi;
+  SPListViewItem *lvi;
 
 // First delete the old column list.  (also used for dynamic menus)
   columnList.clear();
@@ -212,9 +216,9 @@ StatsPanel::updateStatsPanelData()
     sprintf(exclusivestr, "%f", fi->exclusive_seconds);
     sprintf(startlinenostr, "%d", fi->start);
     sprintf(endlinenostr, "%d", fi->end);
-    lvi=  new QListViewItem( lv, percentstr, rankstr, exclusivestr, funcstr, filestr, startlinenostr, endlinenostr );
-      lvi = new QListViewItem( lvi, "SubText", QString("Additional Text for Rank ")+QString(rankstr) );
-        (void)new QListViewItem( lvi, "SubSubText", QString("Additional Text for Rank ")+QString(rankstr) );
+    lvi=  new SPListViewItem( lv, percentstr, rankstr, exclusivestr, funcstr, filestr, startlinenostr, endlinenostr );
+      lvi = new SPListViewItem( lvi, "SubText", QString("Additional Text for Rank ")+QString(rankstr) );
+        (void)new SPListViewItem( lvi, "SubSubText", QString("Additional Text for Rank ")+QString(rankstr) );
     i++;
   }
 

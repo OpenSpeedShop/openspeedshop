@@ -46,6 +46,7 @@ moc_SPListView.cxx: SPListView.hxx
 
 StatsPanel_la_SOURCES = \
 	StatsPanel.hxx StatsPanel.cxx moc_StatsPanel.cxx \
+	SPListViewItem.hxx SPListViewItem.cxx \
 	SPListView.hxx SPListView.cxx moc_SPListView.cxx \
 	plugin_entry_point.hxx Panel.hxx \
 	PanelContainer.hxx local_plugin_info.hxx debug.hxx
