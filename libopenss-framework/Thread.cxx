@@ -100,7 +100,7 @@ std::string Thread::getHost() const
 
     // Find our host name
     BEGIN_TRANSACTION(dm_database);
-    validateEntry();
+    validate("Threads");
     dm_database->prepareStatement("SELECT host FROM Threads WHERE id = ?;");
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement())
@@ -126,7 +126,7 @@ pid_t Thread::getProcessId() const
 
     // Find our process identifier
     BEGIN_TRANSACTION(dm_database);
-    validateEntry();
+    validate("Threads");
     dm_database->prepareStatement("SELECT pid FROM Threads WHERE id = ?;");
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement())
@@ -153,7 +153,7 @@ Optional<pthread_t> Thread::getPosixThreadId() const
 
     // Find our POSIX thread identifier	
     BEGIN_TRANSACTION(dm_database);
-    validateEntry();
+    validate("Threads");
     dm_database->prepareStatement(
 	"SELECT posix_tid FROM Threads WHERE id = ?;"
 	);
@@ -185,7 +185,7 @@ Optional<int> Thread::getOmpThreadId() const
 
     // Find our OpenMP thread identifier	
     BEGIN_TRANSACTION(dm_database);
-    validateEntry();
+    validate("Threads");
     dm_database->prepareStatement("SELECT omp_tid FROM Threads WHERE id = ?;");
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement())
@@ -216,7 +216,7 @@ Optional<int> Thread::getMpiRank() const
     
     // Find our MPI rank
     BEGIN_TRANSACTION(dm_database);
-    validateEntry();
+    validate("Threads");
     dm_database->prepareStatement("SELECT mpi_rank FROM Threads WHERE id = ?;");
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement())
@@ -246,7 +246,7 @@ Optional<ash_t> Thread::getArraySessionHandle() const
 
     // Find our array session handle
     BEGIN_TRANSACTION(dm_database);
-    validateEntry();
+    validate("Threads");
     dm_database->prepareStatement("SELECT ash FROM Threads WHERE id = ?;");
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement())
@@ -265,20 +265,19 @@ Optional<ash_t> Thread::getArraySessionHandle() const
  * Get our linked objects.
  *
  * Returns the linked objects contained within this thread at a particular
- * moment in time. If no linked objects can be found, the Optional retruned
- * will not have a value.
+ * moment in time. An empty list is returned if no linked objects can be
+ * found (unlikely).
  *
  * @param time    Query time.
  * @return        Linked objects contained within this thread.
  */
-Optional<std::vector<LinkedObject> >
-Thread::getLinkedObjects(const Time& time) const
+std::vector<LinkedObject> Thread::getLinkedObjects(const Time& time) const
 {
     std::vector<LinkedObject> linked_objects;
 
     // Find our address space entries containing the query time
     BEGIN_TRANSACTION(dm_database);
-    validateEntry();
+    validate("Threads");
     dm_database->prepareStatement(
 	"SELECT id, linked_object FROM AddressSpaces"
 	" WHERE thread = ? AND ? >= time_begin AND ? < time_end;"
@@ -294,9 +293,7 @@ Thread::getLinkedObjects(const Time& time) const
     END_TRANSACTION(dm_database);
    
     // Return the linked objects to the caller
-    return linked_objects.empty() ?
-	Optional<std::vector<LinkedObject> >() :
-	Optional<std::vector<LinkedObject> >(linked_objects);
+    return linked_objects;
 }
 
 
@@ -305,8 +302,7 @@ Thread::getLinkedObjects(const Time& time) const
  * Get our functions.
  *
  * Returns the functions contained within this thread at a particular moment
- * in time. If no functions can be found, the Optional returned will not have
- * a value.
+ * in time. An empty list is returned if no functions can be found (unlikely).
  *
  * @note    This is an extremely high cost operation in terms of time and memory
  *          used. Avoid using this member function if at all possible.
@@ -314,14 +310,13 @@ Thread::getLinkedObjects(const Time& time) const
  * @param time    Query time.
  * @return        Functions contained within this thread.
  */
-Optional<std::vector<Function> >
-Thread::getFunctions(const Time& time) const
+std::vector<Function> Thread::getFunctions(const Time& time) const
 {
     std::vector<Function> functions;
 
     // Find our functions and their contexts containing the query time
     BEGIN_TRANSACTION(dm_database);
-    validateEntry();
+    validate("Threads");
     dm_database->prepareStatement(
 	"SELECT Functions.id, AddressSpaces.id"
 	" FROM Functions JOIN AddressSpaces"
@@ -339,9 +334,7 @@ Thread::getFunctions(const Time& time) const
     END_TRANSACTION(dm_database);
 
     // Return the functions to the caller
-    return functions.empty() ?
-	Optional<std::vector<Function> >() :
-	Optional<std::vector<Function> >(functions);
+    return functions;
 }
 
 
@@ -364,7 +357,7 @@ Optional<LinkedObject> Thread::getLinkedObjectAt(const Address& address,
 
     // Find the address space entry containing the query time/address
     BEGIN_TRANSACTION(dm_database);
-    validateEntry();
+    validate("Threads");
     dm_database->prepareStatement(
 	"SELECT id, linked_object FROM AddressSpaces"
 	" WHERE thread = ? AND ? >= time_begin AND ? < time_end"
@@ -409,7 +402,7 @@ Optional<Function> Thread::getFunctionAt(const Address& address,
     
     // Begin a multi-statement transaction
     BEGIN_TRANSACTION(dm_database);
-    validateEntry();
+    validate("Threads");
 
     // Find the address space entry containing the query time/address
     Optional<int> context;
@@ -483,7 +476,7 @@ Optional<Statement> Thread::getStatementAt(const Address& address,
     
     // Begin a multi-statement transaction
     BEGIN_TRANSACTION(dm_database);
-    validateEntry();
+    validate("Threads");
     
     // Find the address space entry containing the query time/address
     Optional<int> context;
@@ -558,7 +551,7 @@ Optional<Function> Thread::getFunctionByName(const std::string& name,
 
     // Find the function and its context containing the query time
     BEGIN_TRANSACTION(dm_database);
-    validateEntry();
+    validate("Threads");
     dm_database->prepareStatement(
 	"SELECT Functions.id, AddressSpaces.id"
 	" FROM Functions JOIN AddressSpaces"
@@ -589,13 +582,10 @@ Optional<Function> Thread::getFunctionByName(const std::string& name,
  *
  * Constructs a Thread that refers to a non-existent thread. Any use of a
  * member function on an object constructed in this way will result in an
- * assertion failure. The only reason this default constructor exists is to
- * allow Optional<Thread> to create an empty optional value and to allow
- * Experiment to temporarily create "empty" threads.
+ * assertion failure.
  */
 Thread::Thread() :
-    dm_database(NULL),
-    dm_entry(0)
+    Entry()
 {
 }
 
@@ -604,47 +594,12 @@ Thread::Thread() :
 /**
  * Constructor from a thread entry.
  *
- * Constructs a new Thread for the specified thread entry, contained within the
- * passed database.
+ * Constructs a new Thread for the specified thread entry.
  *
- * @param database         Database containing the thread.
- * @param entry            Entry (id) for the thread.
+ * @param database    Database containing this thread.
+ * @param entry       Identifier for this thread.
  */
-Thread::Thread(const SmartPtr<Database>& database, const int& entry):
-    dm_database(database),
-    dm_entry(entry)
+Thread::Thread(const SmartPtr<Database>& database, const int& entry) :
+    Entry(database, entry, 0)
 {
-}
-
-
-
-/**
- * Validate our entry.
- *
- * Validates the existence and uniqueness of our entry within our database. If
- * our entry is found and is unique, this function simply returns. Otherwise
- * an exception of type Database::Corrupted is thrown.
- *
- * @note    Validation may only be performed within the context of an existing
- *          transaction. Any attempt to validate before beginning a transaction
- *          will result in an assertion failure.
- */
-void Thread::validateEntry() const
-{
-    // Find the number of rows matching our entry
-    int rows = 0;
-    dm_database->prepareStatement(
-	"SELECT COUNT(*) FROM Threads WHERE id = ?;"
-	);
-    dm_database->bindArgument(1, dm_entry);
-    while(dm_database->executeStatement())
-	rows = dm_database->getResultAsInteger(1);
-    
-    // Validate
-    if(rows == 0)
-	throw Database::Corrupted(*dm_database,
-				  "thread entry no longer exists");
-    else if(rows > 1)
-	throw Database::Corrupted(*dm_database,
-				  "thread entry is not unique");
 }

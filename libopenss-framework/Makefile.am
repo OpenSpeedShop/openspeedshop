@@ -44,6 +44,8 @@ libopenss_framework_la_SOURCES = \
 	CollectorGroup.hxx CollectorGroup.cxx \
 	CollectorImpl.hxx CollectorImpl.cxx \
 	Database.hxx Database.cxx \
+	Entry.hxx Entry.cxx \
+	EntrySpy.hxx \
 	Experiment.hxx Experiment.cxx \
 	ExperimentTable.hxx ExperimentTable.cxx \
 	Function.hxx Function.cxx \
@@ -56,11 +58,11 @@ libopenss_framework_la_SOURCES = \
 	NonCopyable.hxx \
 	Optional.hxx \
 	Path.hxx \
+	Queries.hxx Queries.cxx \
 	SmartPtr.hxx \
 	Statement.hxx Statement.cxx \
 	Thread.hxx Thread.cxx \
 	ThreadGroup.hxx ThreadGroup.cxx \
-	ThreadSpy.hxx \
 	Time.hxx \
 	TimeInterval.hxx \
 	ToolAPI.hxx \

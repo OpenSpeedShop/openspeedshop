@@ -24,6 +24,8 @@
 
 #include "Assert.hxx"
 #include "Blob.hxx"
+#include "Database.hxx"
+#include "EntrySpy.hxx"
 #include "ExperimentTable.hxx"
 #include "Guard.hxx"
 #include "MainLoop.hxx"
@@ -695,7 +697,7 @@ void Process::updateAddressSpace(const Thread& thread, const Time& when)
     }
 
     // Begin a transaction on this thread's database
-    SmartPtr<Database> database = ThreadSpy(thread).getDatabase();
+    SmartPtr<Database> database = EntrySpy(thread).getDatabase();
     BEGIN_TRANSACTION(database);
     
     //
@@ -707,7 +709,7 @@ void Process::updateAddressSpace(const Thread& thread, const Time& when)
     database->prepareStatement(
 	"SELECT COUNT(*) FROM AddressSpaces WHERE thread = ?;"
 	);
-    database->bindArgument(1, ThreadSpy(thread).getEntry());
+    database->bindArgument(1, EntrySpy(thread).getEntry());
     while(database->executeStatement())
 	if(database->getResultAsInteger(1) > 0)
 	    time_begin = when;
@@ -718,7 +720,7 @@ void Process::updateAddressSpace(const Thread& thread, const Time& when)
 	" WHERE thread = ? AND time_end = ?;"
 	);
     database->bindArgument(1, when);
-    database->bindArgument(2, ThreadSpy(thread).getEntry());
+    database->bindArgument(2, EntrySpy(thread).getEntry());
     database->bindArgument(3, Time::TheEnd());
     while(database->executeStatement());
     
@@ -777,7 +779,7 @@ void Process::updateAddressSpace(const Thread& thread, const Time& when)
 	    " addr_begin, addr_end, linked_object)"
 	    "VALUES (?, ?, ?, ?, ?, ?);"
 	    );
-	database->bindArgument(1, ThreadSpy(thread).getEntry());
+	database->bindArgument(1, EntrySpy(thread).getEntry());
 	database->bindArgument(2, time_begin);
 	database->bindArgument(3, Time::TheEnd());
 	database->bindArgument(4, i->first.getBegin());
@@ -817,7 +819,7 @@ void Process::processFunctions(const Thread& thread,
     MainLoop::resume();
     
     // Begin a transaction on this thread's database
-    SmartPtr<Database> database = ThreadSpy(thread).getDatabase();
+    SmartPtr<Database> database = EntrySpy(thread).getDatabase();
     BEGIN_TRANSACTION(database);
     
     // Iterate over each child of this source object
@@ -914,7 +916,7 @@ void Process::processStatements(const Thread& thread,
     MainLoop::resume();
 
     // Begin a transaction on this thread's database
-    SmartPtr<Database> database = ThreadSpy(thread).getDatabase();
+    SmartPtr<Database> database = EntrySpy(thread).getDatabase();
     BEGIN_TRANSACTION(database);
     
     // Iterate over each source file of this module

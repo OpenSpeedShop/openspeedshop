@@ -29,11 +29,9 @@
 #include "config.h"
 #endif
 
-#include "Database.hxx"
 #include "Lockable.hxx"
 #include "SmartPtr.hxx"
 #include "Thread.hxx"
-#include "ThreadSpy.hxx"
 
 #include <map>
 #include <set>
@@ -41,44 +39,9 @@
 
 
 
-namespace std {
-
-    /**
-     * Less-than predicate for threads.
-     *
-     * Partial template specialization of less<> for Thread. The only reason
-     * this specialization exists is to allow the placement of Thread into STL
-     * associative containers within ProcessTable.
-     */
-    template <>
-    struct less<OpenSpeedShop::Framework::Thread> :
-	binary_function<const OpenSpeedShop::Framework::Thread&,
-			const OpenSpeedShop::Framework::Thread&,
-			bool>
-    {
-
-	/** Evaluator for this predicate. */
-	bool operator()(const OpenSpeedShop::Framework::Thread& lhs,
-			const OpenSpeedShop::Framework::Thread& rhs) const
-	{
-	    OpenSpeedShop::Framework::ThreadSpy spy_lhs(lhs);
-	    OpenSpeedShop::Framework::ThreadSpy spy_rhs(rhs);
-
-	    if(spy_lhs.getDatabase() == spy_rhs.getDatabase())
-		return spy_lhs.getEntry() < spy_rhs.getEntry();
-	    return spy_lhs.getDatabase() < spy_rhs.getDatabase();
-	}
-	
-    };
-   
-}
-
-
-
 namespace OpenSpeedShop { namespace Framework {
 
     class Process;
-    class Thread;
 
     /**
      * Process table.

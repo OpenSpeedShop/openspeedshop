@@ -26,10 +26,10 @@
 #include "Collector.hxx"
 #include "CollectorGroup.hxx"
 #include "Database.hxx"
+#include "EntrySpy.hxx"
 #include "Experiment.hxx"
 #include "ExperimentTable.hxx"
 #include "Instrumentor.hxx"
-#include "Metadata.hxx"
 #include "Thread.hxx"
 #include "ThreadGroup.hxx"
 
@@ -563,7 +563,7 @@ ThreadGroup Experiment::attachArraySession(const ash_t& ash,
 void Experiment::removeThread(const Thread& thread) const
 {
     // Check preconditions
-    if(thread.dm_database != dm_database)
+    if(EntrySpy(thread).getDatabase() != dm_database)
 	throw std::invalid_argument("Cannot remove a thread that isn't in the "
                                     "experiment.");
     
@@ -572,9 +572,9 @@ void Experiment::removeThread(const Thread& thread) const
     
     // Remove this thread
     BEGIN_TRANSACTION(dm_database);
-    thread.validateEntry();
+    EntrySpy(thread).validate("Threads");
     dm_database->prepareStatement("DELETE FROM Threads WHERE id = ?;");
-    dm_database->bindArgument(1, thread.dm_entry);
+    dm_database->bindArgument(1, EntrySpy(thread).getEntry());
     while(dm_database->executeStatement());    
     END_TRANSACTION(dm_database);
 }
@@ -681,7 +681,7 @@ Collector Experiment::createCollector(const std::string& unique_id) const
 void Experiment::removeCollector(const Collector& collector) const
 {
     // Check preconditions
-    if(collector.dm_database != dm_database)
+    if(EntrySpy(collector).getDatabase() != dm_database)
 	throw std::invalid_argument("Cannot remove a collector that isn't in "
                                     "the experiment.");
     
@@ -690,9 +690,9 @@ void Experiment::removeCollector(const Collector& collector) const
     
     // Remove this collector
     BEGIN_TRANSACTION(dm_database);    
-    collector.validateEntry();
+    EntrySpy(collector).validate("Collectors");
     dm_database->prepareStatement("DELETE FROM Collectors WHERE id = ?;");
-    dm_database->bindArgument(1, collector.dm_entry);
+    dm_database->bindArgument(1, EntrySpy(collector).getEntry());
     while(dm_database->executeStatement());    
     END_TRANSACTION(dm_database);    
 }

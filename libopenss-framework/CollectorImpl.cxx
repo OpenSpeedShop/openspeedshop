@@ -26,10 +26,10 @@
 #include "Collector.hxx"
 #include "CollectorImpl.hxx"
 #include "Database.hxx"
+#include "EntrySpy.hxx"
 #include "ExperimentTable.hxx"
 #include "Instrumentor.hxx"
 #include "Thread.hxx"
-#include "ThreadSpy.hxx"
 
 #include <stdexcept>
 
@@ -215,15 +215,16 @@ void CollectorImpl::getECT(const Collector& collector,
 			   int& thread_id) const
 {
     // Check assertions
-    Assert(collector.dm_database == ThreadSpy(thread).getDatabase());
+    Assert(EntrySpy(collector).getDatabase() ==
+	   EntrySpy(thread).getDatabase());
 
     // Get and set the experiment identifier
-    experiment_id =
-	ExperimentTable::TheTable.getIdentifier(collector.dm_database);
+    experiment_id = ExperimentTable::TheTable.getIdentifier(
+	EntrySpy(collector).getDatabase());
     
     // Set the collector and thread identifiers
-    collector_id = collector.dm_entry;
-    thread_id = ThreadSpy(thread).getEntry();
+    collector_id = EntrySpy(collector).getEntry();
+    thread_id = EntrySpy(thread).getEntry();
 }
 
 
@@ -251,24 +252,25 @@ std::vector<Blob> CollectorImpl::getData(const Collector& collector,
 					 const TimeInterval& interval) const
 {
     std::vector<Blob> data;
-    
+
     // Find the data matching the specified criteria
-    BEGIN_TRANSACTION(collector.dm_database);
-    collector.dm_database->prepareStatement(
+    SmartPtr<Database> database = EntrySpy(collector).getDatabase();
+    BEGIN_TRANSACTION(database);
+    database->prepareStatement(
 	"SELECT data FROM Data"
 	" WHERE collector = ? AND thread = ?"
 	"   AND ? >= time_begin AND ? < time_end"
         "   AND ? >= addr_begin AND ? < addr_end;"
         );
-    collector.dm_database->bindArgument(1, collector.dm_entry);
-    collector.dm_database->bindArgument(2, ThreadSpy(thread).getEntry());
-    collector.dm_database->bindArgument(3, interval.getEnd());
-    collector.dm_database->bindArgument(4, interval.getBegin());
-    collector.dm_database->bindArgument(5, range.getEnd());
-    collector.dm_database->bindArgument(6, range.getBegin());
-    while(collector.dm_database->executeStatement())
-	data.push_back(collector.dm_database->getResultAsBlob(1));
-    END_TRANSACTION(collector.dm_database);
+    database->bindArgument(1, EntrySpy(collector).getEntry());
+    database->bindArgument(2, EntrySpy(thread).getEntry());
+    database->bindArgument(3, interval.getEnd());
+    database->bindArgument(4, interval.getBegin());
+    database->bindArgument(5, range.getEnd());
+    database->bindArgument(6, range.getBegin());
+    while(database->executeStatement())
+	data.push_back(database->getResultAsBlob(1));
+    END_TRANSACTION(database);
 
     // Return the data to the caller
     return data;

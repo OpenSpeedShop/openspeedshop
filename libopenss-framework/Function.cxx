@@ -50,7 +50,7 @@ Thread Function::getThread() const
     
     // Find our context's thread    
     BEGIN_TRANSACTION(dm_database);
-    validateContext();
+    validate("Functions");
     dm_database->prepareStatement(
 	"SELECT thread FROM AddressSpaces WHERE id = ?;"
 	);
@@ -81,7 +81,7 @@ LinkedObject Function::getLinkedObject() const
 
     // Find our context's linked object
     BEGIN_TRANSACTION(dm_database);
-    validateContext();
+    validate("Functions");
     dm_database->prepareStatement(
 	"SELECT linked_object FROM AddressSpaces WHERE id = ?;"
 	);
@@ -114,7 +114,7 @@ std::string Function::getName() const
 
     // Find our demangled name
     BEGIN_TRANSACTION(dm_database);
-    validateEntry();
+    validate("Functions");
     dm_database->prepareStatement(
 	"SELECT name FROM Functions WHERE id = ?;"
 	);
@@ -145,8 +145,7 @@ AddressRange Function::getAddressRange() const
 
     // Find our context's base address and our address range
     BEGIN_TRANSACTION(dm_database);
-    validateEntry();
-    validateContext();
+    validate("Functions");
     dm_database->prepareStatement(
 	"SELECT AddressSpaces.addr_begin,"
 	"       Functions.addr_begin, Functions.addr_end"
@@ -188,7 +187,7 @@ Optional<Statement> Function::getDefinition() const
 
     // Find the statement containing our beginning address
     BEGIN_TRANSACTION(dm_database);
-    validateEntry();
+    validate("Functions");
     dm_database->prepareStatement(
 	"SELECT DISTINCT statement FROM StatementRanges JOIN Functions"
 	" ON StatementRanges.linked_object = Functions.linked_object"
@@ -228,7 +227,7 @@ std::vector<Statement> Function::getStatements() const
 
     // Find the statements intersecting our address range
     BEGIN_TRANSACTION(dm_database);
-    validateEntry();
+    validate("Functions");
     dm_database->prepareStatement(
 	"SELECT DISTINCT statement FROM StatementRanges JOIN Functions"
 	" ON StatementRanges.linked_object = Functions.linked_object"
@@ -291,9 +290,7 @@ std::vector<CallSite> Function::getCallers() const
  * assertion failure.
  */
 Function::Function() :
-    dm_database(NULL),
-    dm_entry(0),
-    dm_context(0)
+    Entry()
 {
 }
 
@@ -302,83 +299,14 @@ Function::Function() :
 /**
  * Constructor from a function entry.
  *
- * Constructs a new Function for the specified function entry within the passed
- * database, given the context of the specified address space entry.
+ * Constructs a new Function for the specified function entry.
  *
- * @param database    Database containing the function.
- * @param entry       Entry (id) for the function.
- * @param context     Address space entry (id) context for the function.
+ * @param database    Database containing this function.
+ * @param entry       Identifier for this function.
+ * @param context     Identifier of the context for this function.
  */
 Function::Function(const SmartPtr<Database>& database,
 		   const int& entry, const int& context) :
-    dm_database(database),
-    dm_entry(entry),
-    dm_context(context)
+    Entry(database, entry, context)
 {
-}
-
-
-
-/**
- * Validate our entry.
- *
- * Validates the existence and uniqueness of our entry within our database. If
- * our entry is found and is unique, this function simply returns. Otherwise
- * an exception of type Database::Corrupted is thrown.
- *
- * @note    Validation may only be performed within the context of an existing
- *          transaction. Any attempt to validate before beginning a transaction
- *          will result in an assertion failure.
- */
-void Function::validateEntry() const
-{
-    // Find the number of rows matching our entry
-    int rows = 0;
-    dm_database->prepareStatement(
-	"SELECT COUNT(*) FROM Functions WHERE id = ?;"
-	);
-    dm_database->bindArgument(1, dm_entry);
-    while(dm_database->executeStatement())
-	rows = dm_database->getResultAsInteger(1);
-    
-    // Validate
-    if(rows == 0)
-	throw Database::Corrupted(*dm_database,
-				  "function entry no longer exists");
-    else if(rows > 1)
-	throw Database::Corrupted(*dm_database,
-				  "function entry is not unique");
-}
-
-
-
-/**
- * Validate our context.
- *
- * Validates the existence and uniqueness of our context within the database. If
- * our context is found and is unique, this function simply returns. Otherwise
- * an exception of type Database::Corrupted is thrown.
- *
- * @note    Validation may only be performed within the context of an existing
- *          transaction. Any attempt to validate before beginning a transaction
- *          will result in an assertion failure.
- */
-void Function::validateContext() const
-{
-    // Find the number of rows matching our context
-    int rows = 0;
-    dm_database->prepareStatement(
-	"SELECT COUNT(*) FROM AddressSpaces WHERE id = ?;"
-	);
-    dm_database->bindArgument(1, dm_context);
-    while(dm_database->executeStatement())
-	rows = dm_database->getResultAsInteger(1);
-    
-    // Validate
-    if(rows == 0)
-	throw Database::Corrupted(*dm_database,
-				  "address space entry no longer exists");
-    else if(rows > 1)
-	throw Database::Corrupted(*dm_database,
-				  "address space entry is not unique");
 }

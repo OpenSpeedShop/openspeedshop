@@ -18,65 +18,64 @@
 
 /** @file
  *
- * Declaration of the LinkedObject class.
+ * Declaration of the Entry class.
  *
  */
 
-#ifndef _OpenSpeedShop_Framework_LinkedObject_
-#define _OpenSpeedShop_Framework_LinkedObject_
+#ifndef _OpenSpeedShop_Framework_Entry_
+#define _OpenSpeedShop_Framework_Entry_
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include "AddressRange.hxx"
-#include "Entry.hxx"
+#include "Database.hxx"
 #include "SmartPtr.hxx"
+#include "TotallyOrdered.hxx"
 
-#include <vector>
+#include <string>
 
 
 
 namespace OpenSpeedShop { namespace Framework {
 
-    class Database;
-    class Function;
-    template <typename> class Optional;
-    class Path;
-    class Statement;
-    class Thread;
-    
-    /**
-     * Linked object.
+    class EntrySpy;
+
+    /**       
+     * Entry within a database table.
      *
-     * Representation of a single executable or library (linked object).
-     * Provides member functions for getting the containing thread, full path
-     * name, address range, and the list of all functions contained within this
-     * linked object.
+     * Representation of a single entry within a database table. Really not much
+     * more than a container grouping together the entry's database pointer, its
+     * identifier, and its address space entry (context) identifier. Member
+     * functions are provided here for comparing and validating entries.
      *
-     * @ingroup CollectorAPI ToolAPI
+     * @ingroup Implementation
      */
-    class LinkedObject :
-	public Entry
+    class Entry :
+	public TotallyOrdered<Entry>
     {
-	friend class Function;
-	friend class Optional<LinkedObject>;
-	friend class Statement;
-	friend class Thread;
-	
+	friend class EntrySpy;
+
     public:
 
-	Thread getThread() const;
-
-	Path getPath() const;
-	AddressRange getAddressRange() const;
+	bool operator<(const Entry&) const;
 	
-	std::vector<Function> getFunctions() const;
+    protected:
 	
-    private:
+	Entry();
+	Entry(const SmartPtr<Database>&, const int&, const int&);
+	virtual ~Entry();
+	
+	void validate(const std::string&) const;
+	
+	/** Database containing this entry. */
+        SmartPtr<Database> dm_database;
 
-	LinkedObject();
-	LinkedObject(const SmartPtr<Database>&, const int&, const int&);
+	/** Identifier for this entry. */
+	int dm_entry;
+	
+	/** Identifier of the context (address space entry) for this entry. */
+	int dm_context;
 	
     };
     

@@ -170,6 +170,8 @@ Blob::~Blob()
  * Operator "=" defined for a Blob object. The compiler provided default is
  * insufficient here because we need a deep, rather than shallow, copy of the
  * contents for correct object destruction.
+ *
+ * @param other    Blob to be copied.
  */
 Blob& Blob::operator=(const Blob& other)
 {

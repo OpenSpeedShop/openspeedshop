@@ -50,7 +50,7 @@ Thread LinkedObject::getThread() const
 
     // Find our context's thread
     BEGIN_TRANSACTION(dm_database);
-    validateContext();
+    validate("LinkedObjects");
     dm_database->prepareStatement(
 	"SELECT thread FROM AddressSpaces WHERE id = ?;"
 	);
@@ -81,7 +81,7 @@ Path LinkedObject::getPath() const
     
     // Find our full path name
     BEGIN_TRANSACTION(dm_database);
-    validateEntry();
+    validate("LinkedObjects");
     dm_database->prepareStatement(
 	"SELECT Files.path FROM Files JOIN LinkedObjects"
 	" ON Files.id = LinkedObjects.file WHERE LinkedObjects.id = ?;"
@@ -118,7 +118,7 @@ AddressRange LinkedObject::getAddressRange() const
 
     // Find our context's address range
     BEGIN_TRANSACTION(dm_database);
-    validateContext();
+    validate("LinkedObjects");
     dm_database->prepareStatement(
 	"SELECT addr_begin, addr_end FROM AddressSpaces WHERE id = ?;"
 	);
@@ -154,7 +154,7 @@ std::vector<Function> LinkedObject::getFunctions() const
 
     // Find our functions
     BEGIN_TRANSACTION(dm_database);
-    validateEntry();
+    validate("LinkedObjects");
     dm_database->prepareStatement(
 	"SELECT id FROM Functions WHERE linked_object = ?;"
 	);	
@@ -179,9 +179,7 @@ std::vector<Function> LinkedObject::getFunctions() const
  * an assertion failure.
  */
 LinkedObject::LinkedObject() :
-    dm_database(NULL),
-    dm_entry(0),
-    dm_context(0)
+    Entry()
 {
 }
 
@@ -190,83 +188,14 @@ LinkedObject::LinkedObject() :
 /**
  * Constructor from a linked object entry.
  *
- * Constructs a new LinkedObject for the specified linked object entry within
- * the passed database, given the context of the specified address space entry.
+ * Constructs a new LinkedObject for the specified linked object entry.
  *
- * @param database    Database containing the linked object.
- * @param entry       Entry (id) for the linked object.
- * @param context     Address space entry (id) context for the linked object.
+ * @param database    Database containing this linked object.
+ * @param entry       Identifier for this linked object.
+ * @param context     Identifier of the context for this linked object.
  */
 LinkedObject::LinkedObject(const SmartPtr<Database>& database,
 			   const int& entry, const int& context) :
-    dm_database(database),
-    dm_entry(entry),
-    dm_context(context)
+    Entry(database, entry, context)
 {
-}
-
-
-
-/**
- * Validate our entry.
- *
- * Validates the existence and uniqueness of our entry within our database. If
- * our entry is found and is unique, this function simply returns. Otherwise
- * an exception of type Database::Corrupted is thrown.
- *
- * @note    Validation may only be performed within the context of an existing
- *          transaction. Any attempt to validate before beginning a transaction
- *          will result in an assertion failure.
- */
-void LinkedObject::validateEntry() const
-{
-    // Find the number of rows matching our entry
-    int rows = 0;
-    dm_database->prepareStatement(
-	"SELECT COUNT(*) FROM LinkedObjects WHERE id = ?;"
-	);
-    dm_database->bindArgument(1, dm_entry);
-    while(dm_database->executeStatement())
-	rows = dm_database->getResultAsInteger(1);
-    
-    // Validate
-    if(rows == 0)
-	throw Database::Corrupted(*dm_database,
-				  "linked object entry no longer exists");
-    else if(rows > 1)
-	throw Database::Corrupted(*dm_database,
-				  "linked object entry is not unique");
-}
-
-
-
-/**
- * Validate our context.
- *
- * Validates the existence and uniqueness of our context within the database. If
- * our context is found and is unique, this function simply returns. Otherwise
- * an exception of type Database::Corrupted is thrown.
- *
- * @note    Validation may only be performed within the context of an existing
- *          transaction. Any attempt to validate before beginning a transaction
- *          will result in an assertion failure.
- */
-void LinkedObject::validateContext() const
-{
-    // Find the number of rows matching our context
-    int rows = 0;
-    dm_database->prepareStatement(
-	"SELECT COUNT(*) FROM AddressSpaces WHERE id = ?;"
-	);
-    dm_database->bindArgument(1, dm_context);
-    while(dm_database->executeStatement())
-	rows = dm_database->getResultAsInteger(1);
-    
-    // Validate
-    if(rows == 0)
-	throw Database::Corrupted(*dm_database,
-				  "address space entry no longer exists");
-    else if(rows > 1)
-	throw Database::Corrupted(*dm_database,
-				  "address space entry is not unique");
 }

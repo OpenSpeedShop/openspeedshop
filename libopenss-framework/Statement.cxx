@@ -51,7 +51,7 @@ Thread Statement::getThread() const
         
     // Find our context's thread
     BEGIN_TRANSACTION(dm_database);
-    validateContext();
+    validate("Statements");
     dm_database->prepareStatement(
 	"SELECT thread FROM AddressSpaces WHERE id = ?;"
 	);
@@ -82,7 +82,7 @@ LinkedObject Statement::getLinkedObject() const
 
     // Find our context's linked object
     BEGIN_TRANSACTION(dm_database);
-    validateContext();
+    validate("Statements");
     dm_database->prepareStatement(
 	"SELECT linked_object FROM AddressSpaces WHERE id = ?;"
 	);
@@ -116,8 +116,7 @@ std::vector<Function> Statement::getFunctions() const
   
     // Find the functions intersecting our address ranges
     BEGIN_TRANSACTION(dm_database);
-    validateEntry();
-    validateContext();
+    validate("Statements");
     dm_database->prepareStatement(
 	"SELECT Functions.id FROM Functions JOIN StatementRanges"
 	" ON Functions.linked_object = StatementRanges.linked_object"
@@ -157,7 +156,7 @@ Path Statement::getPath() const
 
     // Find our source file's path
     BEGIN_TRANSACTION(dm_database);
-    validateEntry();
+    validate("Statements");
     dm_database->beginTransaction();
     dm_database->prepareStatement(
 	"SELECT Files.path FROM Files JOIN Statements"
@@ -195,7 +194,7 @@ int Statement::getLine() const
 	
     // Find our line number
     BEGIN_TRANSACTION(dm_database);
-    validateEntry();
+    validate("Statements");
     dm_database->prepareStatement(
 	"SELECT line FROM Statements WHERE id = ?;"
 	);
@@ -226,7 +225,7 @@ int Statement::getColumn() const
 
     // Find our column number
     BEGIN_TRANSACTION(dm_database);
-    validateEntry();
+    validate("Statements");
     dm_database->prepareStatement(
 	"SELECT column FROM Statements WHERE id = ?;"
 	);
@@ -249,7 +248,7 @@ int Statement::getColumn() const
  *
  * @return    Addresse ranges associated with this statement.
  */
-std::vector<AddressRange> Statement::getAddresseRanges() const
+std::vector<AddressRange> Statement::getAddressRanges() const
 {
     std::vector<AddressRange> ranges;
 
@@ -258,8 +257,7 @@ std::vector<AddressRange> Statement::getAddresseRanges() const
 
     // Find our context's base address and our address ranges
     BEGIN_TRANSACTION(dm_database);
-    validateEntry();
-    validateContext();
+    validate("Statements");
     dm_database->prepareStatement(
 	"SELECT AddressSpaces.addr_begin,"
 	"       StatementRanges.addr_begin, StatementRanges.addr_end"
@@ -292,9 +290,7 @@ std::vector<AddressRange> Statement::getAddresseRanges() const
  * assertion failure.
  */
 Statement::Statement() :
-    dm_database(NULL),
-    dm_entry(0),
-    dm_context(0)
+    Entry()
 {
 }
 
@@ -303,83 +299,14 @@ Statement::Statement() :
 /**
  * Constructor from a statement entry.
  *
- * Constructs a new Statement for the specified statement entry within the
- * passed database, given the context of the specified address space entry.
+ * Constructs a new Statement for the specified statement entry.
  *
- * @param database    Database containing the statement.
- * @param entry       Entry (id) for the statement.
- * @param context     Address space entry (id) context for the statement.
+ * @param database    Database containing this statement.
+ * @param entry       Identifier for this statement.
+ * @param context     Identifier of the context for this statement.
  */
 Statement::Statement(const SmartPtr<Database>& database,
-		     const int& context, const int& entry) :
-    dm_database(database),
-    dm_entry(entry),
-    dm_context(context)
+		     const int& entry, const int& context) :
+    Entry(database, entry, context)
 {
-}
-
-
-
-/**
- * Validate our entry.
- *
- * Validates the existence and uniqueness of our entry within our database. If
- * our entry is found and is unique, this function simply returns. Otherwise
- * an exception of type Database::Corrupted is thrown.
- *
- * @note    Validation may only be performed within the context of an existing
- *          transaction. Any attempt to validate before beginning a transaction
- *          will result in an assertion failure.
- */
-void Statement::validateEntry() const
-{
-    // Find the number of rows matching our entry
-    int rows = 0;
-    dm_database->prepareStatement(
-	"SELECT COUNT(*) FROM Statements WHERE id = ?;"
-	);
-    dm_database->bindArgument(1, dm_entry);
-    while(dm_database->executeStatement())
-	rows = dm_database->getResultAsInteger(1);
-    
-    // Validate
-    if(rows == 0)
-	throw Database::Corrupted(*dm_database,
-				  "statement entry no longer exists");
-    else if(rows > 1)
-	throw Database::Corrupted(*dm_database, 
-				  "statement entry is not unique");
-}
-
-
-
-/**
- * Validate our context.
- *
- * Validates the existence and uniqueness of our context within the database. If
- * our context is found and is unique, this function simply returns. Otherwise
- * an exception of type Database::Corrupted is thrown.
- *
- * @note    Validation may only be performed within the context of an existing
- *          transaction. Any attempt to validate before beginning a transaction
- *          will result in an assertion failure.
- */
-void Statement::validateContext() const
-{
-    // Find the number of rows matching our context
-    int rows = 0;
-    dm_database->prepareStatement(
-	"SELECT COUNT(*) FROM AddressSpaces WHERE id = ?;"
-	);
-    dm_database->bindArgument(1, dm_context);
-    while(dm_database->executeStatement())
-	rows = dm_database->getResultAsInteger(1);
-    
-    // Validate
-    if(rows == 0)
-	throw Database::Corrupted(*dm_database, 
-				  "address space entry no longer exists");
-    else if(rows > 1)
-	throw Database::Corrupted(*dm_database, 
-				  "address space entry is not unique");
 }

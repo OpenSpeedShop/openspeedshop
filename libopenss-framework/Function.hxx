@@ -30,6 +30,7 @@
 #endif
 
 #include "AddressRange.hxx"
+#include "Entry.hxx"
 #include "Optional.hxx"
 #include "SmartPtr.hxx"
 
@@ -55,7 +56,8 @@ namespace OpenSpeedShop { namespace Framework {
      *
      * @ingroup CollectorAPI ToolAPI
      */
-    class Function
+    class Function :
+	public Entry
     {
 	friend class LinkedObject;
 	friend class Optional<Function>;
@@ -79,18 +81,6 @@ namespace OpenSpeedShop { namespace Framework {
 	
 	Function();
 	Function(const SmartPtr<Database>&, const int&, const int&);
-	
-	void validateEntry() const;
-	void validateContext() const;
-	
-	/** Database containing this function. */
-	SmartPtr<Database> dm_database;
-	
-	/** Entry (id) for this function. */
-	int dm_entry;
-	
-	/** Address space entry (id) context for this function. */
-	int dm_context;	
 	
     };
     

@@ -25,11 +25,11 @@
 #include "Assert.hxx"
 #include "Blob.hxx"
 #include "Database.hxx"
+#include "EntrySpy.hxx"
 #include "Guard.hxx"
 #include "Instrumentor.hxx"
 #include "Process.hxx"
 #include "ProcessTable.hxx"
-#include "ThreadSpy.hxx"
 #include "Time.hxx"
 
 using namespace OpenSpeedShop::Framework;
@@ -66,11 +66,11 @@ void Instrumentor::createUnderlyingThread(const Thread& thread,
     }
     
     // Update the thread's process identifier
-    SmartPtr<Database> database = ThreadSpy(thread).getDatabase();
+    SmartPtr<Database> database = EntrySpy(thread).getDatabase();
     BEGIN_TRANSACTION(database);
     database->prepareStatement("UPDATE Threads SET pid = ? WHERE id = ?;");
     database->bindArgument(1, static_cast<int>(process->getProcessId()));
-    database->bindArgument(2, ThreadSpy(thread).getEntry());
+    database->bindArgument(2, EntrySpy(thread).getEntry());
     while(database->executeStatement());    
     END_TRANSACTION(database);
     

@@ -32,6 +32,7 @@
 #include "AddressRange.hxx"
 #include "Blob.hxx"
 #include "CollectorImpl.hxx"
+#include "Entry.hxx"
 #include "Metadata.hxx"
 #include "SmartPtr.hxx"
 #include "TimeInterval.hxx"
@@ -74,9 +75,9 @@ namespace OpenSpeedShop { namespace Framework {
      * 
      * @ingroup ToolAPI
      */
-    class Collector
+    class Collector :
+	public Entry
     {
-	friend class CollectorImpl;
 	friend class Experiment;
 	
     public:
@@ -119,17 +120,9 @@ namespace OpenSpeedShop { namespace Framework {
 	Collector();
 	Collector(const SmartPtr<Database>&, const int&);
 	
-	void validateEntry() const;
-
 	Blob getParameterData() const;
 	void setParameterData(const Blob&) const;
 	
-	/** Database containing this collector. */
-        SmartPtr<Database> dm_database;
-	
-        /** Entry (id) for the collector. */
-        int dm_entry;
-
 	/** Collector's implementation. */
 	CollectorImpl* dm_impl;
 	
@@ -299,7 +292,8 @@ namespace OpenSpeedShop { namespace Framework {
                                         "type other than its own.");
 
         // Get the metric value
-        dm_impl->getMetricValue(unique_id, thread, range, interval, &value);	
+        dm_impl->getMetricValue(unique_id, *this, thread,
+				range, interval, &value);	
     }
     
     

@@ -30,6 +30,7 @@
 #endif
 
 #include "AddressRange.hxx"
+#include "Entry.hxx"
 #include "SmartPtr.hxx"
 
 #include <vector>
@@ -55,7 +56,8 @@ namespace OpenSpeedShop { namespace Framework {
      *
      * @ingroup CollectorAPI ToolAPI
      */
-    class Statement
+    class Statement :
+	public Entry
     {
 	friend class Function;
 	friend class Optional<Statement>;
@@ -71,24 +73,12 @@ namespace OpenSpeedShop { namespace Framework {
 	int getLine() const;
 	int getColumn() const;
 	
-	std::vector<AddressRange> getAddresseRanges() const;
+	std::vector<AddressRange> getAddressRanges() const;
 	
     private:
 
 	Statement();
 	Statement(const SmartPtr<Database>&, const int&, const int&);
-	
-	void validateEntry() const;
-	void validateContext() const;
-	
-	/** Database containing this statement. */
-	SmartPtr<Database> dm_database;
-	
-	/** Entry (id) for this statement. */
-	int dm_entry;
-
-	/** Address space entry (id) context for this statement. */
-	int dm_context;	
 	
     };
     

@@ -29,6 +29,7 @@
 #include "config.h"
 #endif
 
+#include "Entry.hxx"
 #include "Optional.hxx"
 #include "SmartPtr.hxx"
 #include "Time.hxx"
@@ -54,7 +55,6 @@ namespace OpenSpeedShop { namespace Framework {
     class Function;
     class LinkedObject;
     class Statement;
-    class ThreadSpy;
     
     /**
      * Single thread of code execution.
@@ -76,15 +76,14 @@ namespace OpenSpeedShop { namespace Framework {
      *
      * @ingroup CollectorAPI ToolAPI
      */
-    class Thread
+    class Thread :
+	public Entry
     {
 	friend class Collector;
 	friend class Experiment;
 	friend class Function;
 	friend class LinkedObject;
-	friend class Optional<Thread>;
 	friend class Statement;
-	friend class ThreadSpy;
 	
     public:
 	
@@ -119,9 +118,9 @@ namespace OpenSpeedShop { namespace Framework {
 	Optional<ash_t> getArraySessionHandle() const;
 #endif
 	
-	Optional<std::vector<LinkedObject> > getLinkedObjects(
+	std::vector<LinkedObject> getLinkedObjects(
 	    const Time& = Time::Now()) const;
-	Optional<std::vector<Function> > getFunctions(
+	std::vector<Function> getFunctions(
 	    const Time& = Time::Now()) const;
 	
 	Optional<LinkedObject> getLinkedObjectAt(
@@ -138,14 +137,6 @@ namespace OpenSpeedShop { namespace Framework {
 
 	Thread();
 	Thread(const SmartPtr<Database>&, const int&);
-	
-	void validateEntry() const;
-	
-	/** Database containing this thread. */
-        SmartPtr<Database> dm_database;
-	
-	/** Entry (id) for this thread. */
-        int dm_entry;
 	
     };
     

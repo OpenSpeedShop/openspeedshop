@@ -470,8 +470,7 @@ std::set<Metadata> Collector::getAvailable()
  * @param other    Collector to be copied.
  */
 Collector::Collector(const Collector& other) :
-    dm_database(other.dm_database),
-    dm_entry(other.dm_entry),
+    Entry(other.dm_database, other.dm_entry, 0),
     dm_impl(NULL)
 {
     // Attempt to instantiate an implementation for this collector
@@ -520,8 +519,7 @@ Collector& Collector::operator=(const Collector& other)
 	    collector_plugin_table.destroy(dm_impl);
 	
 	// Replace our collector with the new collector
-	dm_database = other.dm_database;
-	dm_entry = other.dm_entry;
+	Entry::operator=(other);
 	dm_impl = NULL;
 	
 	// Attempt to instantiate an implementation for this collector
@@ -561,7 +559,7 @@ Metadata Collector::getMetadata() const
     // Find our unique identifier
     std::string unique_id;
     BEGIN_TRANSACTION(dm_database);
-    validateEntry();
+    validate("Collectors");
     dm_database->prepareStatement(
         "SELECT unique_id FROM Collectors WHERE id = ?;"
         );
@@ -647,7 +645,7 @@ ThreadGroup Collector::getThreads() const
 
     // Find our attached threads
     BEGIN_TRANSACTION(dm_database);
-    validateEntry();
+    validate("Collectors");
     dm_database->prepareStatement(
         "SELECT thread FROM Attachments WHERE collector = ?;"
         );
@@ -692,9 +690,9 @@ void Collector::attachThread(const Thread& thread) const
     
     // Begin a multi-statement transaction
     BEGIN_TRANSACTION(dm_database);
-    validateEntry();
-    thread.validateEntry();
-
+    validate("Collectors");
+    thread.validate("Threads");
+    
     // Is this attachment already present?
     bool is_attached = false;
     dm_database->prepareStatement(
@@ -774,8 +772,8 @@ void Collector::detachThread(const Thread& thread) const
     
     // Begin a multi-statement transaction
     BEGIN_TRANSACTION(dm_database);
-    validateEntry();
-    thread.validateEntry();
+    validate("Collectors");
+    thread.validate("Threads");
     
     // Is this attachment already present?
     bool is_attached = false;
@@ -845,7 +843,7 @@ bool Collector::isCollecting() const
     
     // Are we collecting?
     BEGIN_TRANSACTION(dm_database);
-    validateEntry();
+    validate("Collectors");
     dm_database->prepareStatement(
         "SELECT is_collecting FROM Collectors WHERE id = ?;"
         );
@@ -883,7 +881,7 @@ void Collector::startCollecting() const
     
     // Begin a multi-statement transaction
     BEGIN_TRANSACTION(dm_database);
-    validateEntry();
+    validate("Collectors");
     
     // Are we collecting?
     bool is_collecting = false;
@@ -939,7 +937,7 @@ void Collector::stopCollecting() const
     
     // Begin a multi-statement transaction
     BEGIN_TRANSACTION(dm_database);
-    validateEntry();
+    validate("Collectors");
     
     // Are we collecting?
     bool is_collecting = false;
@@ -986,8 +984,7 @@ void Collector::stopCollecting() const
  * assertion failure.
  */
 Collector::Collector() :
-    dm_database(NULL),
-    dm_entry(0),
+    Entry(),
     dm_impl(NULL)
 {
 }
@@ -997,22 +994,20 @@ Collector::Collector() :
 /**
  * Constructor from a collector entry.
  *
- * Constructs a new Collector for the specified collector entry within the
- * passed database. Automatically finds and uses the collector's implementation
- * if one is available.
+ * Constructs a new Collector for the specified collector entry. Automatically 
+ * finds and uses the collector's implementation if one is available.
  *
- * @param database     Database containing the collector.
- * @param entry        Entry (id) for the collector.
+ * @param database    Database containing this collector.
+ * @param entry       Identifier for this collector.
  */
 Collector::Collector(const SmartPtr<Database>& database, const int& entry) :
-    dm_database(database),
-    dm_entry(entry),
+    Entry(database, entry, 0),
     dm_impl(NULL)
 {
     // Find our unique identifier
     std::string unique_id;
     BEGIN_TRANSACTION(dm_database);
-    validateEntry();
+    validate("Collectors");
     dm_database->prepareStatement(
         "SELECT unique_id FROM Collectors WHERE id = ?;"
         );
@@ -1032,39 +1027,6 @@ Collector::Collector(const SmartPtr<Database>& database, const int& entry) :
 
 
 /**
- * Validate our entry.
- *
- * Validates the existence and uniqueness of our entry within our database. If
- * our entry is found and is unique, this function simply returns. Otherwise
- * an exception of type Database::Corrupted is thrown.
- *
- * @note    Validation may only be performed within the context of an existing
- *          transaction. Any attempt to validate before beginning a transaction
- *          will result in an assertion failure.
- */
-void Collector::validateEntry() const
-{
-    // Find the number of rows matching our entry
-    int rows = 0;
-    dm_database->prepareStatement(
-	"SELECT COUNT(*) FROM Collectors WHERE id = ?;"
-	);
-    dm_database->bindArgument(1, dm_entry);
-    while(dm_database->executeStatement())
-	rows = dm_database->getResultAsInteger(1);
-    
-    // Validate
-    if(rows == 0)
-	throw Database::Corrupted(*dm_database,
-				  "collector entry no longer exists");
-    else if(rows > 1)
-	throw Database::Corrupted(*dm_database,
-				  "collector entry is not unique");
-}
-
-
-
-/**
  * Get our parameter data.
  *
  * Return the parameter data of this collector.
@@ -1079,7 +1041,7 @@ Blob Collector::getParameterData() const
     // Find our parameter data
     Blob data;
     BEGIN_TRANSACTION(dm_database);
-    validateEntry();
+    validate("Collectors");
     dm_database->prepareStatement(
         "SELECT parameter_data FROM Collectors WHERE id = ?;"
         );
@@ -1105,7 +1067,7 @@ void Collector::setParameterData(const Blob& data) const
 {
     // Update our parameter data
     BEGIN_TRANSACTION(dm_database);
-    validateEntry();
+    validate("Collectors");
     dm_database->prepareStatement(
 	"UPDATE Collectors SET parameter_data = ? WHERE id = ?;"
 	);
