@@ -275,7 +275,7 @@ void OpenSpeedshop::fileSaveExperiment()
       {
 printf("fileName.ascii() = (%s)\n", fileName.ascii() );
         QString command;
-        command = QString("expSave -x %1 %2").arg(expID).arg(fileName);
+        command = QString("expSave -x %1 -f %2").arg(expID).arg(fileName);
 printf("command=(%s)\n", command.ascii() );
         if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
         {
