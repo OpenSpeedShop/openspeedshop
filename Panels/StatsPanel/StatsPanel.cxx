@@ -126,11 +126,10 @@ StatsPanel::matchSelectedItem(int element)
   if( broadcast((char *)spo, NEAREST_T) == 0 )
   { // No source view up...
     char *panel_type = "Source Panel";
+//Find the nearest toplevel and start placement from there...
     Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type);
-//    if( i > 0 ) 
     if( p != NULL ) 
     {
-//      broadcast((char *)spo);
       p->listener((void *)spo);
     }
   }

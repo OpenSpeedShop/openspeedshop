@@ -2235,6 +2235,21 @@ PanelContainer::setExternalName( const char *n )
 Panel *
 PanelContainer::dl_create_and_add_panel(char *panel_type, PanelContainer *targetPC, char *arguments)
 {
+  // if targetPC is null, try starting from the nearest top level...
+  if( !targetPC )
+  {
+    PanelContainer *pc = this;
+    while( pc && pc->topLevel == FALSE && pc->parentPanelContainer )
+    {
+      pc->parentPanelContainer;
+    }
+    if( pc )
+    {
+      printf("Nearest toplevel=(%s:%s)\n", pc->getInternalName(), pc->getExternalName() );
+      targetPC = pc;
+    }
+  }
+
   if( getMasterPC() && getMasterPC()->_pluginRegistryList )
   {
     PluginInfo *pi = NULL;
