@@ -1,53 +1,6 @@
 import OSSParser
 import pySS
 
-def createcmd():
-    cmd=[]
-    # A hostname
-    host=OSSParser.ParseResult( "host", "onehost" )
-    #
-    # A filename
-    file=OSSParser.ParseResult( "file", "/home/foo/bin/bar")
-    #
-    # A pid
-    pid=OSSParser.ParseResult( "pid", 1234 )
-    # A tid
-    tid=OSSParser.ParseResult( "tid", 0x10000 )
-    # A rid
-    rid=OSSParser.ParseResult( "rid", 12 )
-    #
-    #
-    # Create rank as -f <file> -r <num>
-    rankfile=file
-    rankfile.update( rid )
-    rank=OSSParser.ParseResult( 'rank', rankfile )
-    #
-    # Create args as -h <host> and add the rank
-    rank.update(host)
-    rptid=OSSParser.ParseResult( 'rptid', rank)
-    #finalize the command
-    args=rptid
-    cmd.append(OSSParser.ParseResult( 'expAttach', args ))
-    #
-    # Create args as -p pid -t tid
-    hpid=host
-    hpid.update( pid )
-    hpid.update( tid )
-    rptid=OSSParser.ParseResult( 'rptid', hpid )
-    #finalize the command
-    args=rptid
-    cmd.append(OSSParser.ParseResult( 'expAttach', args))
-    #
-    #
-    args=host
-    args.update(file)
-    args.update(OSSParser.ParseResult( 'expType', 'pcsamp'))
-    cmd.append(OSSParser.ParseResult( 'expCreate', args ))
-    #
-    cmd.append(OSSParser.ParseResult( 'listPids', host ))
-    #
-    return cmd
-
 def rptidargs( args ):
     if args.has_key('host'):
         host=pySS.Host(args['host'])
@@ -132,10 +85,4 @@ def semantic( cmd ):
     if cmd.has_key('expCreate'):
         expCreateCmd( cmd )
 
-
-
-def runtst():
-    cmd = createcmd()
-    for c in cmd:
-        semantic(c)
 
