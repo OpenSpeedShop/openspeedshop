@@ -36,9 +36,6 @@ public:
     //! Ugh.  This Panel Designates itself it's own top PanelContainer.
     PanelContainer *topPC;
 
-    //! The QWidget object that will hold all children in the user Panel.
-    Frame *baseWidgetFrame;
-
     //! A convience function to return the baseWidgetFrame.
     Frame *getBaseWidgetFrame() { return baseWidgetFrame; }
 
@@ -86,6 +83,9 @@ private:
         not.
      */
     char name[MAX_TAB_NAME_LENGTH];
+
+    //! The QWidget object that will hold all children in the user Panel.
+    Frame *baseWidgetFrame;
 
 
 public slots:

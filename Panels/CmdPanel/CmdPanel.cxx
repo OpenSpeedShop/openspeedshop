@@ -53,8 +53,6 @@ CmdPanel::~CmdPanel()
 
   delete frameLayout;
   delete output;
-
-  delete baseWidgetFrame;
 }
 
 void

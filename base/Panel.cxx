@@ -91,8 +91,6 @@ Panel::Panel()
   nprintf(DEBUG_PANELS) ("Panel::Panel() entered.\n");
   topLevel = FALSE;
   topPC = NULL;
-
-  delete baseWidgetFrame;
 }
 
 /*! Destroys the object and frees any allocated resources.   None need to be

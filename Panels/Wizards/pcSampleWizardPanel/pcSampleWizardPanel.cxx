@@ -420,8 +420,6 @@ connect( vAttachOrLoadPageNextButton, SIGNAL( clicked() ), this, SLOT( vAttachOr
 pcSampleWizardPanel::~pcSampleWizardPanel()
 {
   nprintf(DEBUG_CONST_DESTRUCT) ("  pcSampleWizardPanel::~pcSampleWizardPanel() destructor called\n");
-
-  delete baseWidgetFrame;
 }
 
 //! Add user panel specific menu items if they have any.

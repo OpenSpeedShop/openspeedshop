@@ -105,7 +105,6 @@ IOPanel::~IOPanel()
 {
   printf("  IOPanel::~IOPanel() destructor called\n");
   delete frameLayout;
-  delete baseWidgetFrame;
 }
 
 //! Add user panel specific menu items if they have any.

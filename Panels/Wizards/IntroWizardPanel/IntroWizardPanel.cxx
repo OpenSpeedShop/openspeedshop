@@ -285,8 +285,6 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n) : Panel(pc
 IntroWizardPanel::~IntroWizardPanel()
 {
   printf( "  IntroWizardPanel::~IntroWizardPanel() destructor called.\n");
-
-  delete baseWidgetFrame;
 }
 
 //! Add user panel specific menu items if they have any.

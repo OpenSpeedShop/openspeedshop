@@ -101,8 +101,6 @@ SourcePanel::~SourcePanel()
   delete textEdit;
   delete label;
   delete frameLayout;
-
-  delete baseWidgetFrame;
 }
 
 /*!

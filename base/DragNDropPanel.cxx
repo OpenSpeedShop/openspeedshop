@@ -251,15 +251,15 @@ targetPC->tabWidget->setTabBar(targetPC->tabBarWidget);
   p->panelContainer = targetPC;
 
   // Also set the Panel's base frame's pointer to the new PanelContainer.
-  p->baseWidgetFrame->panelContainer = targetPC;
+  p->getBaseWidgetFrame()->panelContainer = targetPC;
 
   // Set the TabBarWidget to the new panel container.
-  p->baseWidgetFrame->panelContainer->tabBarWidget->panelContainer = targetPC;
+  p->getBaseWidgetFrame()->panelContainer->tabBarWidget->panelContainer = targetPC;
   
   // Reparent the tabWidget.
   currentPage->reparent(p->panelContainer->tabWidget, 0, point, TRUE);
   // Reparent the baseWidget
-  p->baseWidgetFrame->reparent(w, 0, point, TRUE);
+  p->getBaseWidgetFrame()->reparent(w, 0, point, TRUE);
 
   // Reparent the Panel's base widget. (Create with the call to the Panel
   // constructor.
@@ -445,12 +445,12 @@ targetPC->tabWidget->setTabBar(targetPC->tabBarWidget);
   p->panelContainer = targetPC;
 
   // Also set the Panel's base frame's pointer to the new PanelContainer.
-  p->baseWidgetFrame->panelContainer = targetPC;
+  p->getBaseWidgetFrame()->panelContainer = targetPC;
   
   // Reparent the tabWidget.
   currentPage->reparent(p->panelContainer->tabWidget, 0, point, TRUE);
   // Reparent the baseWidget
-  p->baseWidgetFrame->reparent(w, 0, point, TRUE);
+  p->getBaseWidgetFrame()->reparent(w, 0, point, TRUE);
 
   // Reparent the Panel's base widget. (Create with the call to the Panel
   // constructor.

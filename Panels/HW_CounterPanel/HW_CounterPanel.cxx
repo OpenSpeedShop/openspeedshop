@@ -105,7 +105,6 @@ HW_CounterPanel::~HW_CounterPanel()
 {
   printf("  HW_CounterPanel::~HW_CounterPanel() destructor called\n");
   delete frameLayout;
-  delete baseWidgetFrame;
 }
 
 //! Add user panel specific menu items if they have any.

@@ -127,7 +127,7 @@ TopPanel::TopPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
   // Here's the hook to go get a TopFiveObject
   getTopFiveData();
 
-  baseWidgetFrame->setCaption("TopPanelBaseWidget");
+  getBaseWidgetFrame()->setCaption("TopPanelBaseWidget");
 }
 // End Fill The QTextEdit with the values
 
@@ -143,8 +143,6 @@ TopPanel::~TopPanel()
   delete cf;
   delete splitterA;
   delete frameLayout;
-
-  delete baseWidgetFrame;
 }
 
 /*!

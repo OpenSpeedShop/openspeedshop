@@ -439,8 +439,6 @@ connect( vAttachOrLoadPageNextButton, SIGNAL( clicked() ), this, SLOT( vAttachOr
 FPE_TracingWizardPanel::~FPE_TracingWizardPanel()
 {
   printf("  FPE_TracingWizardPanel::~FPE_TracingWizardPanel() destructor called\n");
-
-  delete baseWidgetFrame;
 }
 
 //! Add user panel specific menu items if they have any.

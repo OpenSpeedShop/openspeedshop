@@ -42,5 +42,4 @@ PerformancePanel::~PerformancePanel()
 
   delete performancePanelContainerWidget;
   delete frameLayout;
-  delete baseWidgetFrame;
 }

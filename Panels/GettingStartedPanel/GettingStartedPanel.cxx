@@ -34,8 +34,6 @@ GettingStartedPanel::~GettingStartedPanel()
 
   delete gsc;
   delete frameLayout;
-
-  delete baseWidgetFrame;
 }
 
 void

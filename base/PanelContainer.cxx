@@ -2110,8 +2110,8 @@ PanelContainer::movePanelsToNewPanelContainer( PanelContainer *sourcePC)
       widget_to_reparent = currentPage = sourcePC->tabWidget->page(i);
       QWidget *panel_base = (QWidget *)p;
       p->panelContainer = targetPC;
-      p->baseWidgetFrame->panelContainer = targetPC;
-      p->baseWidgetFrame->reparent(targetPC->dropSiteLayoutParent, 0,
+      p->getBaseWidgetFrame()->panelContainer = targetPC;
+      p->getBaseWidgetFrame()->reparent(targetPC->dropSiteLayoutParent, 0,
                                    point, TRUE);
       panel_base->reparent((QWidget *)targetPC, 0, point, TRUE);
       widget_to_reparent->reparent(targetPC->tabWidget, 0, point, TRUE);

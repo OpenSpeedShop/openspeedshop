@@ -105,7 +105,6 @@ FPE_TracingPanel::~FPE_TracingPanel()
 {
   printf("  FPE_TracingPanel::~FPE_TracingPanel() destructor called\n");
   delete frameLayout;
-  delete baseWidgetFrame;
 }
 
 //! Add user panel specific menu items if they have any.

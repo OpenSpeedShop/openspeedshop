@@ -439,8 +439,6 @@ connect( vAttachOrLoadPageNextButton, SIGNAL( clicked() ), this, SLOT( vAttachOr
 IOWizardPanel::~IOWizardPanel()
 {
   printf("  IOWizardPanel::~IOWizardPanel() destructor called\n");
-
-  delete baseWidgetFrame;
 }
 
 //! Add user panel specific menu items if they have any.

@@ -439,8 +439,6 @@ connect( vAttachOrLoadPageNextButton, SIGNAL( clicked() ), this, SLOT( vAttachOr
 HW_CounterWizardPanel::~HW_CounterWizardPanel()
 {
   printf("  HW_CounterWizardPanel::~HW_CounterWizardPanel() destructor called\n");
-
-  delete baseWidgetFrame;
 }
 
 //! Add user panel specific menu items if they have any.
