@@ -309,6 +309,8 @@ extern void
 dump_help(command_t *);
 
 
+extern void push_cluster(char *);
+
 
 #endif	/* _SUPPORT_H */
 
