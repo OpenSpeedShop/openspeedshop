@@ -139,3 +139,65 @@ bool SS_Record (CommandObject *cmd) {
 
   return true;
 }
+
+//
+// Dummy routines for commands not finished yet.
+//
+
+// No value returned to python.
+bool SS_no_value (CommandObject *cmd) {
+  InputLineObject *clip = cmd->Clip();
+  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+
+  char *tofile = NULL;
+
+  if (tofile == NULL) {
+   (void)SpeedShop_Trace_OFF ();
+  } else {
+    (void)SpeedShop_Trace_ON(tofile);
+  }
+
+ // There is no result returned for this command.
+
+  return true;
+}
+
+// String value returned to python.
+bool SS_string_value (CommandObject *cmd) {
+  InputLineObject *clip = cmd->Clip();
+  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+
+  char *tofile = NULL;
+
+  if (tofile == NULL) {
+   (void)SpeedShop_Trace_OFF ();
+  } else {
+    (void)SpeedShop_Trace_ON(tofile);
+  }
+
+  cmd->Result_String ("fake string");
+  cmd->set_Status(CMD_COMPLETE);
+
+  return true;
+}
+
+// Integer (64 bit) value returned to python..
+bool SS_int_value (CommandObject *cmd) {
+  InputLineObject *clip = cmd->Clip();
+  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+
+  char *tofile = NULL;
+
+  if (tofile == NULL) {
+   (void)SpeedShop_Trace_OFF ();
+  } else {
+    (void)SpeedShop_Trace_ON(tofile);
+  }
+
+  cmd->Result_Int (-1);
+  cmd->set_Status(CMD_COMPLETE);
+
+  return true;
+}
+
+
