@@ -11,11 +11,9 @@
 </a></div>
 <h1><a name="mozTocId630358" class="mozTocH1"></a>Open/SpeedShop Design
 Documentation</h1>
-<p>
-</p>
-<h3 style="text-align: left;"><a name="mozTocId533182" class="mozTocH3"></a>Version
+<h2><a name="mozTocId533182" class="mozTocH3"></a>Version
 Milestone 2 - December 15, 2004<br>
-</h3>
+</h2>
 <br>
 <h2><a name="mozTocId156671" class="mozTocH2"></a><a class="anchor"
  name="TableOfContents">Table of Contents<br>
@@ -25,12 +23,9 @@ Milestone 2 - December 15, 2004<br>
 Design
 Documentation</a>
     <ol>
-      <li>
-        <ol>
-          <li><a href="#mozTocId533182">Version
-1.0</a></li>
-        </ol>
-      </li>
+      <li><a href="#mozTocId533182">Version
+Milestone 2 - December 15, 2004
+        </a></li>
       <li><a href="#mozTocId156671">Table of Contents
         </a></li>
       <li><a href="#mozTocId152427">Introduction</a>
@@ -41,19 +36,21 @@ Documentation</a>
             </a></li>
           <li><a href="#mozTocId708292">Framework
             </a></li>
+          <li><a href="#mozTocId198623">SQLITE
+            </a></li>
           <li><a href="#mozTocId864899">PAPI
             </a></li>
           <li><a href="#mozTocId824648">Graphical User
 Interface - GUI
             </a>
             <ol>
-              <li><a href="#mozTocId770242"> MainWindow - This is where
-the GUI starts.&nbsp;</a></li>
-              <li><a href="#mozTocId952597"> Panel Containers - A panel
-container is an area (container) on
+              <li><a href="#mozTocId770242"> MainWindow -
+This is where the GUI starts.&nbsp;</a></li>
+              <li><a href="#mozTocId952597"> Panel Containers
+- A panel container is an area (container) on
 the screen where panels can be placed and managed.&nbsp;</a></li>
-              <li><a href="#mozTocId540822"> Panels - A panel is where
-all the nuts-n-bolts knowledge and
+              <li><a href="#mozTocId540822"> Panels - A panel
+is where all the nuts-n-bolts knowledge and
 logic exists for an individual task. &nbsp; &nbsp;</a></li>
             </ol>
           </li>
@@ -213,8 +210,23 @@ For more information and for pointers into the Framework design see:
 <span style="font-family: times new roman,times,serif;"><a
  href="Framework/html/index.html">Framework specific design
 documentation.</a><br>
-<br>
 </span>
+<h3><a name="mozTocId198623" class="mozTocH3"></a><a
+ name="sqlite_anchor" class="mozTocH3"></a>SQLITE<br>
+</h3>
+SQLite (<a href="http://www.sqlite.org/">http://www.sqlite.org/</a>) is
+a small C library that implements a self-contained, embeddable,
+zero-configuration SQL database engine.&nbsp;&nbsp;<span
+ style="font-family: times new roman,times,serif;"> SQLiteis a tool
+that is
+used as the Open/SpeedShop </span><span
+ style="font-family: times new roman,times,serif;">database foundation
+component.&nbsp; The Framework component of Open/SpeedShop uses SQLite
+in it's Database class as the underlying database mechanism for storage
+of key executable and performance experiment data. &nbsp;&nbsp; Find
+out more by examining the Framework's <a
+ href="Framework/html/classOpenSpeedShop_1_1Framework_1_1Database.html">Database
+class</a>.</span><br style="font-family: times new roman,times,serif;">
 <h3><a name="mozTocId864899" class="mozTocH3"></a>PAPI<br>
 </h3>
 <span style="font-family: times new roman,times,serif;">PAPI (</span><a
@@ -380,8 +392,10 @@ with whatever plugins are currently located on the system.&nbsp; <br>
 A set of interactive CLI commands allow the creation of a
 performance
 measurement experiment, the ability to control the experiment enabled
-target application and the ability to view the performance measurement
-output values.&nbsp; The interactive CLI commands and their
+target application.&nbsp; the ability to view the performance
+measurement
+output values, and other supporting actions.&nbsp; The interactive CLI
+commands and their
 corresponding syntax is defined in
 the <small><small><small><b><font face="Courier New" size="5"><small><small><a
  href="../cli_doc/CLI_command_definition_MS2.html"><i>Open</i>/SpeedShop
@@ -436,8 +450,7 @@ entered under the "openss -cli" option.</div>
 </ul>
 <div style="margin-left: 40px;">This invocation of Open/SpeedShop
 causes the window terminal becomes the interactive
-CLI window.&nbsp;&nbsp;<small><small><small><font face="Courier New"
- size="5"><small><small></small></small></font></small></small></small>
+CLI window.&nbsp;&nbsp;
 </div>
 <ul>
   <li>
@@ -461,8 +474,7 @@ Command Line Definitions</a> </small></small></font><font
  face="Courier New" size="5"><small><small>document.&nbsp; This
 document also contains general usage scenarios to aid in successful
 usage of the commands.</small></small></font></small></small></small><br>
-<small><small><small><font face="Courier New" size="5"><small><small></small></small></font></small></small></small><small><small><small><font
- face="Courier New" size="5"><small><small><br>
+<small><small><small><font face="Courier New" size="5"><small><small><br>
 </small></small></font></small></small></small>
 <h3><a name="mozTocId282350" class="mozTocH3"></a>Bproc Support</h3>
 Open/SpeedShop will function on Open/SpeedShop supported Linux systems
