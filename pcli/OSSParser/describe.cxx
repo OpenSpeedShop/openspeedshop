@@ -2,6 +2,9 @@
 
 std::ostream& operator<< (std::ostream& out, PyObject* o )
 {
+    if( !o )
+        out << "(nil)" << std::endl;
+    else
     if(     PyObject_TypeCheck( o, &PyString_Type))
         out << "'" << PyString_AsString(o) << "'";
     else
@@ -17,7 +20,7 @@ std::ostream& operator<< (std::ostream& out, PyObject* o )
         out << "[";
         for( int i=0; i < PyList_Size( o ); i++ )
         {
-            PyObject* item = PyTuple_GetItem( o, i );
+            PyObject* item = PyList_GetItem( o, i );
             if( i ) 
                 out << ", ";
             out << item;
@@ -56,7 +59,10 @@ std::ostream& operator<< (std::ostream& out, PyObject* o )
         out << "}";
     }
     else
-        std::cout << "<" << (void*) o << ": Unknown type>";
+    {
+        out << "<" << (void*) o << ": Unknown type";
+        PyObject_Print( PyObject_Type(o), stdout, Py_PRINT_RAW );
+    }
 
     return out;
 }
@@ -67,7 +73,19 @@ std::ostream& operator<< (std::ostream& out, PyObject* o )
 
 void describe( PyObject* ptr )
 {
-    std::cout << "describe( " << (void*)ptr << ")" << std::endl
-              << ptr << std::endl;
+    std::cout << "describe( " << (void*)ptr << ")" << std::endl;
+    std::cout << ptr << std::endl;
 }
 
+
+#ifdef PYTHONMODULE
+#include <boost/python.hpp>
+using namespace boost::python;
+BOOST_PYTHON_MODULE(Describe)
+{
+    // debug function
+    def("describe", describe );
+
+}
+
+#endif
