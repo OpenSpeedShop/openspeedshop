@@ -18,20 +18,20 @@ SetBreak -h host2 -t 78 "flyingST"
 expDetach pcsamp
 expAttach -h host1 -t 299 io
 expAttach -h host2 -t 399 io
-playback -h host3 -f /silk/sows/ears/fe-fi&fo.script
+#playback -h host3 -f /silk/sows/ears/fe-fi&fo.script
 expGo
-expGetMetrics
-expView -gui user1View
+listMetrics
+expView -gui "user1View"
 expDetach io
 expAttach pcsamp
 expGo
 expPause
 expView vIO
-expSave copy -hhost1 -f my.data
+expSave copy -h host1 -f my.data
 expDetach -h host1
 expDetach -h host2 pcsamp
-expAttach -h host2 -p 6718917 -t 12:96 user2
-expView -gui user2View
+expAttach -h host2 -p 6718917 -t 12:96 "user_exp_2"
+expView -gui "user2View"
 expGo
 expDetach
 exit
