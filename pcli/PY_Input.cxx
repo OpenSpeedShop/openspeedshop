@@ -44,7 +44,7 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     SS_Execute_Cmd (cmd);
     
    // Free up and cleanup any parser generated structures
-     reset_command();
+   //  reset_command();
 
    // Build Python Objects for any return results.
     {
@@ -58,7 +58,7 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
           {
             int64_t I = 0;
             ((CommandResult_Int *)(*cri))->Value(&I);
-            p_object = Py_BuildValue("L", I);
+            p_object = Py_BuildValue("l", I);
             break;
           }
           case CMD_RESULT_STRING:
