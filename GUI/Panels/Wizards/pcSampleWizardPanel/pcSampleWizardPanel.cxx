@@ -450,7 +450,7 @@ fn = QString("12345");
   }
 
 char buffer[2048];
-sprintf(buffer, "<p align=\"left\">You've selected a pc Sampling experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%s\" milliseconds.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"Control\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", fn.ascii(), "localhost", pcSampleRateText->text().ascii() );
+sprintf(buffer, "<p align=\"left\">You've selected a pc Sampling experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%s\" milliseconds.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"pcSample\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", fn.ascii(), "localhost", pcSampleRateText->text().ascii() );
   psSampleFinishLabel->setText( tr( buffer ) );
   pcSampleWizardPanelStack->raiseWidget(2);
 }
@@ -517,8 +517,7 @@ pcSampleWizardPanel::page3FinishSelected()
 {
   printf("Finish selected.\n");
 
-  _masterPC->dl_create_and_add_panel("pc Sample Panel Control", _masterPC);
-//  Panel *p = panelContainer->raiseNamedPanel("pc Sample Panel Control");
+  _masterPC->dl_create_and_add_panel("pc Sampling", _masterPC);
 }
 #else // PULL
 
@@ -639,10 +638,10 @@ void pcSampleWizardPanel::epage2FinishButtonSelected()
 {
 printf("epage2FinishButtonSelected() \n");
 
-//  Panel *p = panelContainer->raiseNamedPanel("pc Sample Panel Control");
+//  Panel *p = panelContainer->raiseNamedPanel("pc Sample Panel");
 //  if( !p )
   {
-    panelContainer->_masterPC->dl_create_and_add_panel("pc Sample Panel Control", panelContainer);
+    panelContainer->_masterPC->dl_create_and_add_panel("pc Sampling", panelContainer);
   }
 }
 
@@ -710,10 +709,10 @@ void pcSampleWizardPanel::vpage2FinishButtonSelected()
 {
 printf("vpage2FinishButtonSelected() \n");
 
-//  Panel *p = panelContainer->raiseNamedPanel("pc Sample Panel Control");
+//  Panel *p = panelContainer->raiseNamedPanel("pc Sample Panel");
 //  if( !p )
   {
-    panelContainer->_masterPC->dl_create_and_add_panel("pc Sample Panel Control", panelContainer);
+    panelContainer->_masterPC->dl_create_and_add_panel("pc Sampling", panelContainer);
   }
 }
 
@@ -758,11 +757,11 @@ pcSampleWizardPanel::languageChange()
     vpage1NextButton->setText( tr( "Next" ) );
     QToolTip::add( vpage1NextButton, tr( "Advance to the next wizard page." ) );
     psSampleFinishLabel->setText( tr( "<p align=\"left\">\n"
-"You've selected a pc Sampling experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%d\" milliseconds.<br><br>To complete the exeriment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"Control\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>" ) );
+"You've selected a pc Sampling experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%d\" milliseconds.<br><br>To complete the exeriment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"pcSample\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>" ) );
     vpage2BackButton->setText( tr( "Back" ) );
     QToolTip::add( vpage2BackButton, tr( "Takes you back one page." ) );
     vpage2FinishButton->setText( tr( "Finish..." ) );
-    QToolTip::add( vpage2FinishButton, tr( "Finishes loading the wizard information and brings up a \"Control\" panel" ) );
+    QToolTip::add( vpage2FinishButton, tr( "Finishes loading the wizard information and brings up a \"pcSample\" panel" ) );
     pcSampleWizardPanelTitleLabel_2->setText( tr( "<h1>pc Sampling Wizard</h1>" ) );
     wizardDescriptionLabel->setText( tr( "<p align=\"center\"><p align=\"left\">\n"
 "Program counter (pc) sampling reveals the amount of execution time \n"
@@ -791,7 +790,7 @@ pcSampleWizardPanel::languageChange()
     epage2BackButton->setText( tr( "Back" ) );
     QToolTip::add( epage2BackButton, tr( "Takes you back one page." ) );
     epage2FinishButton->setText( tr( "Finish..." ) );
-    QToolTip::add( epage2FinishButton, tr( "Finishes loading the wizard information and brings up a \"Control\" panel" ) );
+    QToolTip::add( epage2FinishButton, tr( "Finishes loading the wizard information and brings up a \"pcSample\" panel" ) );
     wizardMode->setText( tr( "Verbose Wizard Mode" ) );
     broughtToYouByLabel->setText( tr( "Brought to you by SGI (SiliconGraphics)" ) );
 }

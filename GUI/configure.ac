@@ -70,7 +70,7 @@ AC_SUBST(LTDLINCL)
 AC_SUBST(LIBLTDL)
 AC_LIBTOOL_DLOPEN
 AC_PROG_LIBTOOL
-AC_CONFIG_SUBDIRS(base objects expr_info plugin chart cli gui Panels Panels/ToolbarPanel Panels/pcSamplePanel Panels/pcSamplePanel/pcSamplePanelControl Panels/UserTimePanelWizard Panels/SourcePanel Panels/CmdPanel Panels/TopPanel Panels/GettingStartedPanel/GettingStartedClass Panels/GettingStartedPanel Panels/PerformancePanel Panels/UserTimePanel Panels/HW_CounterPanel Panels/IOPanel Panels/FPE_TracingPanel Panels/Wizards/IntroWizardPanel Panels/Wizards/pcSampleWizardPanel)
+AC_CONFIG_SUBDIRS(base objects expr_info plugin chart cli gui Panels Panels/ToolbarPanel Panels/pcSamplePanel Panels/UserTimePanelWizard Panels/SourcePanel Panels/CmdPanel Panels/TopPanel Panels/GettingStartedPanel/GettingStartedClass Panels/GettingStartedPanel Panels/PerformancePanel Panels/UserTimePanel Panels/HW_CounterPanel Panels/IOPanel Panels/FPE_TracingPanel Panels/Wizards/IntroWizardPanel Panels/Wizards/pcSampleWizardPanel)
 
 AC_PROG_INSTALL
 
@@ -103,7 +103,6 @@ AC_CONFIG_FILES(Makefile
 		Panels/Makefile
 		Panels/ToolbarPanel/Makefile
 		Panels/pcSamplePanel/Makefile
-		Panels/pcSamplePanel/pcSamplePanelControl/Makefile
 		Panels/UserTimePanel/Makefile
 		Panels/UserTimePanel/UserTimePanelWizard/Makefile
 		Panels/SourcePanel/Makefile

@@ -2,10 +2,17 @@
 #define TEMPLATE_PANEL_H
 #include "Panel.hxx"           // Do not remove
 
+#include "AnimatedQPushButton.hxx"
 #include <qpushbutton.h>
 
-#include "PanelContainer.hxx"
+#include <qlayout.h>
+#include <qhbox.h>
+
 class PanelContainer;   // Do not remove
+class QLabel;
+class QLineEdit;
+class QButtonGroup;
+class QHBoxLayout;
 
 #define PANEL_CLASS_NAME pcSamplePanel   // Change the value of the define
                                          // to the name of your new class.
@@ -63,9 +70,6 @@ public:
   //! ~pcSamplePanel() - The default destructor.
   ~pcSamplePanel();  // Active destructor
 
-//! The global list of panel containers within this panel.
-PanelContainerList *lpcl;
-
   //! Adds use panel menus (if any).
   /*! This calls the user 'menu()' function
       if the user provides one.   The user can attach any specific panel
@@ -96,9 +100,41 @@ PanelContainerList *lpcl;
   //! Calls the panel function broadcast() message request.
   int broadcast(char *msg);
 
+
+  QButtonGroup *buttonGroup;
+  AnimatedQPushButton *attachButton;
+  AnimatedQPushButton *detachButton;
+  QPushButton *runButton;
+  QPushButton *pauseButton;
+  QPushButton *continueButton;
+  QPushButton *updateButton;
+  QPushButton *interruptButton;
+  QPushButton *terminateButton;
+
+  QHBoxLayout *statusLayout;
+  QLabel *statusLabel; 
+  QLineEdit *statusLabelText;
+
   QVBoxLayout * frameLayout;
-  QWidget *pcSamplePanelContainerWidget;
+#ifdef PULL
+  void enterEvent(QEvent *);
+  void leaveEvent(QEvent *);
+#endif // PULL
+
 public slots:
+  virtual void attachButtonSlot();
+  virtual void detachButtonSlot();
+  virtual void runButtonSlot();
+  virtual void pauseButtonSlot();
+  virtual void continueButtonSlot();
+  virtual void updateButtonSlot();
+  virtual void interruptButtonSlot();
+  virtual void terminateButtonSlot();
+  void saveAsSelected();
+  void openNewSelected();
+
+protected slots:
+  virtual void languageChange();
 
 protected:
 
