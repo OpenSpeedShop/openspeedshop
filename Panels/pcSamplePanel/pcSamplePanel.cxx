@@ -163,7 +163,7 @@ pco->runButton->enabledFLAG = FALSE;
 nprintf( DEBUG_PANELS ) ("Attempting to do an (%s)\n", command );
 
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-  if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete, 120000 ) )
+  if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete ) )
   {
     fprintf(stderr, "Error retreiving experiment id. \n");
 //    return;
@@ -388,7 +388,7 @@ pcSamplePanel::detachFromProgramSelected()
 #ifdef OLDWAY
   int64_t val = 0;  // unused
   bool mark_value_for_delete = true; 
-  if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete, 120000 ) )
+  if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete) )
   {
     fprintf(stderr, "Error detaching (expClose) for id=%d . \n", expID);
 //    return;
@@ -450,7 +450,7 @@ pcSamplePanel::attachToExecutableSelected()
 
     int64_t val = 0;  // unused
     bool mark_value_for_delete = true;
-    if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete, 120000 ) )
+    if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete) )
     {
       fprintf(stderr, "Error retreiving experiment id. \n");
   //    return;
@@ -856,7 +856,8 @@ void
 pcSamplePanel::loadSourcePanel()
 {
   nprintf( DEBUG_PANELS ) ("From this pc on down, send out a saveAs message and put it to a file.\n");
-  SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", topPC, (char *)expID);
+PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
+  SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", bestFitPC, (char *)expID);
 }
 
 void
@@ -962,7 +963,9 @@ pcSamplePanel::loadMain()
       { // No source view up...
         char *panel_type = "Source Panel";
   //Find the nearest toplevel and start placement from there...
-        Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, NULL, (void *)groupID);
+// PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(getPanelContainer());
+PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
+        Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, (void *)groupID);
         if( p != NULL )
         {
           p->listener((void *)spo);
