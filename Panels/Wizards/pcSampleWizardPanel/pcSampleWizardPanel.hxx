@@ -168,6 +168,10 @@ public slots:
     virtual void vSummaryPageFinishButtonSelected();
     virtual void eParameterPageSampleRateTextReturnPressed();
     virtual void wizardModeSelected();
+virtual void vAttachOrLoadPageAttachToProcessCheckBoxSelected();
+virtual void eAttachOrLoadPageAttachToProcessCheckBoxSelected();
+virtual void vAttachOrLoadPageLoadExecutableCheckBoxSelected();
+virtual void eAttachOrLoadPageLoadExecutableCheckBoxSelected();
 
 protected:
     QVBoxLayout* mainFrameLayout;

@@ -443,6 +443,14 @@ eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageExecutableLabel
 
     connect( vAttachOrLoadPageBackButton, SIGNAL( clicked() ), this, SLOT( vAttachOrLoadPageBackButtonSelected() ) );
     connect( vAttachOrLoadPageResetButton, SIGNAL( clicked() ), this, SLOT( vAttachOrLoadPageResetButtonSelected() ) );
+
+
+connect( vAttachOrLoadPageAttachToProcessCheckBox, SIGNAL( clicked() ), this, SLOT( vAttachOrLoadPageAttachToProcessCheckBoxSelected() ) );
+connect( eAttachOrLoadPageAttachToProcessCheckBox, SIGNAL( clicked() ), this, SLOT( eAttachOrLoadPageAttachToProcessCheckBoxSelected() ) );
+connect( vAttachOrLoadPageLoadExecutableCheckBox, SIGNAL( clicked() ), this, SLOT( vAttachOrLoadPageLoadExecutableCheckBoxSelected() ) );
+connect( eAttachOrLoadPageLoadExecutableCheckBox, SIGNAL( clicked() ), this, SLOT( eAttachOrLoadPageLoadExecutableCheckBoxSelected() ) );
+
+
     connect( vAttachOrLoadPageNextButton, SIGNAL( clicked() ), this, SLOT( vAttachOrLoadPageNextButtonSelected() ) );
 
     connect( vSummaryPageBackButton, SIGNAL( clicked() ), this, SLOT( vSummaryPageBackButtonSelected() ) );
@@ -791,6 +799,38 @@ printf ("vAttachOrLoadPageResetButtonSelected() \n");
     }
   }
   vUpdateAttachOrLoadPageWidget();
+}
+
+void pcSampleWizardPanel::vAttachOrLoadPageAttachToProcessCheckBoxSelected()
+{
+  if( vAttachOrLoadPageAttachToProcessCheckBox->isChecked() )
+  {
+    vAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
+  }
+}
+
+void pcSampleWizardPanel::eAttachOrLoadPageAttachToProcessCheckBoxSelected()
+{
+  if( eAttachOrLoadPageAttachToProcessCheckBox->isChecked() )
+  {
+    eAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
+  }
+}
+
+void pcSampleWizardPanel::vAttachOrLoadPageLoadExecutableCheckBoxSelected()
+{
+  if( vAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
+  {
+    vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+  }
+}
+
+void pcSampleWizardPanel::eAttachOrLoadPageLoadExecutableCheckBoxSelected()
+{
+  if( eAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
+  {
+    eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+  }
 }
 
 void pcSampleWizardPanel::vAttachOrLoadPageNextButtonSelected()
