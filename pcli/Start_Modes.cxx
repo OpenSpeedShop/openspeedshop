@@ -102,10 +102,9 @@ int Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, int butno
    // Read a piped-in file.
     (void)Append_Input_File (my_window, std::string("stdin"),
                              &Default_TLI_Line_Output, &Default_TLI_Command_Output);
-  }
-
-  if (batch_mode) {
-   // If in "-batch" mode, end with an "expGo" command.
+  } else if (batch_mode) {
+   // If there is no input file and in "-batch" mode, end with an "expGo" command.
+   // Otherwise, assume the input file will control execution.
     char *cmdrun = "expGo\n";
     (void)Append_Input_String (my_window, cmdrun,
                                NULL, &Default_TLI_Line_Output, &Default_TLI_Command_Output);
