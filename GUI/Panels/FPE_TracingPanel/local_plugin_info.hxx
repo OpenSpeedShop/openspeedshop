@@ -5,6 +5,6 @@
   plugin_entry->plugin_location = "$FUTURE_TOOL_PLUGIN_DIR";
   plugin_entry->plugin_entry_point = "panel_init";
   plugin_entry->menu_heading =  "&Experiments";
-  plugin_entry->menu_label =  "&FPE_Tracing";
+  plugin_entry->menu_label =  "&FPE Tracing";
   plugin_entry->menu_accel =  "Ctrl+F";
-  plugin_entry->panel_type =  "&FPE_Tracing";
+  plugin_entry->panel_type =  "FPE Tracing";

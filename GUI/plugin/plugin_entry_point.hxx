@@ -213,6 +213,7 @@ extern "C"
     {
       name = "Warning: Unamed Panel: No menu_label or panel_type.";
     }
+fprintf(stderr, "name=(%s)\n", name);
     plugin_panel = new PANEL_CLASS_NAME(targetPC, name);
     targetPC->addPanel((Panel *)plugin_panel, targetPC, name);
     

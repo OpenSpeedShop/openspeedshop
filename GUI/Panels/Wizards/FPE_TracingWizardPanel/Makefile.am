@@ -22,4 +22,25 @@
 # All Rights Reserved.
 ################################################################################
 
-SUBDIRS = IntroWizardPanel pcSampleWizardPanel UserTimeWizardPanel FPE_TracingWizardPanel
+pkglib_LTLIBRARIES = FPE_TracingWizardPanel.la
+
+FPE_TracingWizardPanel_la_CXXFLAGS = \
+    -I/usr/include \
+    -I$(QTDIR)/include \
+    -I. \
+    -I../../../gui \
+    -I../../../plugin \
+    -I../../../objects \
+    -I../../../base
+
+FPE_TracingWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../../base/.libs/ftBase.so  -Wl,../../../objects/.libs/ftObjects.so
+
+FPE_TracingWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
+
+moc_FPE_TracingWizardPanel.cxx: FPE_TracingWizardPanel.hxx
+	-moc -o moc_FPE_TracingWizardPanel.cxx FPE_TracingWizardPanel.hxx
+
+FPE_TracingWizardPanel_la_SOURCES = \
+	FPE_TracingWizardPanel.hxx FPE_TracingWizardPanel.cxx moc_FPE_TracingWizardPanel.cxx \
+	plugin_entry_point.hxx Panel.hxx \
+	PanelContainer.hxx local_plugin_info.hxx debug.hxx
