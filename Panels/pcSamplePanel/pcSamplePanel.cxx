@@ -39,7 +39,7 @@ pcSamplePanel::pcSamplePanel()
  */
 pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
 {
-  printf("pcSamplePanel::pcSamplePanel() constructor called\n");
+  nprintf( DEBUG_CONST_DESTRUCT ) ("pcSamplePanel::pcSamplePanel() constructor called\n");
   frameLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
   pco = new ProcessControlObject(frameLayout, getBaseWidgetFrame(), (Panel *)this );
@@ -116,7 +116,7 @@ printf("load (%s)\n", buffer);
     fprintf(stderr, "Unable to position at main in %s\n", buffer);
   } else
   {
-fprintf(stderr, "Positioned at main in %s ????? \n", buffer);
+nprintf( DEBUG_CONST_DESTRUCT ) ("Positioned at main in %s ????? \n", buffer);
   }
 } // End - for demo sake
 #endif // DEMO
@@ -129,7 +129,7 @@ fprintf(stderr, "Positioned at main in %s ????? \n", buffer);
  */
 pcSamplePanel::~pcSamplePanel()
 {
-  printf("  pcSamplePanel::~pcSamplePanel() destructor called\n");
+  nprintf( DEBUG_CONST_DESTRUCT ) ("  pcSamplePanel::~pcSamplePanel() destructor called\n");
   delete frameLayout;
 }
 
@@ -137,7 +137,7 @@ pcSamplePanel::~pcSamplePanel()
 bool
 pcSamplePanel::menu(QPopupMenu* contextMenu)
 {
-  printf("pcSamplePanel::menu() requested.\n");
+  nprintf( DEBUG_PANELS ) ("pcSamplePanel::menu() requested.\n");
 
   contextMenu->insertSeparator();
   contextMenu->insertItem("&Manage Collectors...", this, SLOT(manageCollectorsSelected()), CTRL+Key_A );
@@ -152,19 +152,19 @@ pcSamplePanel::menu(QPopupMenu* contextMenu)
 void
 pcSamplePanel::manageCollectorsSelected()
 {
-  printf("pcSamplePanel::manageCollectorsSelected()\n");
+  nprintf( DEBUG_PANELS ) ("pcSamplePanel::manageCollectorsSelected()\n");
 }   
 
 void
 pcSamplePanel::manageProcessesSelected()
 {
-  printf("pcSamplePanel::managerProcessesSelected()\n");
+  nprintf( DEBUG_PANELS ) ("pcSamplePanel::managerProcessesSelected()\n");
 }   
 
 void
 pcSamplePanel::manageDataSetsSelected()
 {
-  printf("pcSamplePanel::managerDataSetsSelected()\n");
+  nprintf( DEBUG_PANELS ) ("pcSamplePanel::managerDataSetsSelected()\n");
 }   
 
 //! Save ascii version of this panel.
@@ -174,7 +174,7 @@ pcSamplePanel::manageDataSetsSelected()
 void 
 pcSamplePanel::save()
 {
-  dprintf("pcSamplePanel::save() requested.\n");
+  nprintf( DEBUG_PANELS ) ("pcSamplePanel::save() requested.\n");
 }
 
 //! Save ascii version of this panel (to a file).
@@ -185,14 +185,14 @@ pcSamplePanel::save()
 void 
 pcSamplePanel::saveAs()
 {
-  printf("pcSamplePanel::saveAs() requested.\n");
+  nprintf( DEBUG_SAVEAS ) ("pcSamplePanel::saveAs() requested.\n");
 }
 
 //! This function listens for messages.
 int 
 pcSamplePanel::listener(void *msg)
 {
-  printf("pcSamplePanel::listener() requested.\n");
+  nprintf( DEBUG_MESSAGES ) ("pcSamplePanel::listener() requested.\n");
   int ret_val = 0; // zero means we didn't handle the message.
 
   ControlObject *co = (ControlObject *)msg;
@@ -205,7 +205,7 @@ pcSamplePanel::listener(void *msg)
   // Check the message type to make sure it's our type...
   if( co->msgType != "ControlObject" )
   {
-    nprintf(DEBUG_PANELS) ("psSamplePanel::listener() Not a ControlObject.\n");
+    nprintf( DEBUG_MESSAGES ) ("psSamplePanel::listener() Not a ControlObject.\n");
     return 0; // o means, did not act on message.
   }
 
@@ -214,22 +214,22 @@ pcSamplePanel::listener(void *msg)
   switch( (int)co->cot )
   {
     case  ATTACH_PROCESS_T:
-      printf("Attach to a process\n");
+      nprintf( DEBUG_MESSAGES ) ("Attach to a process\n");
       break;
     case  DETACH_PROCESS_T:
-      printf("Detach from a process\n");
+      nprintf( DEBUG_MESSAGES ) ("Detach from a process\n");
       ret_val = 1;
       break;
     case  ATTACH_COLLECTOR_T:
-      printf("Attach to a collector\n");
+      nprintf( DEBUG_MESSAGES ) ("Attach to a collector\n");
       ret_val = 1;
       break;
     case  REMOVE_COLLECTOR_T:
-      printf("Remove a collector\n");
+      nprintf( DEBUG_MESSAGES ) ("Remove a collector\n");
       ret_val = 1;
       break;
     case  RUN_T:
-      printf("Run\n");
+      nprintf( DEBUG_MESSAGES ) ("Run\n");
 statusLabelText->setText( tr("Process running...") );
 #ifdef DEMO
 {
@@ -270,29 +270,29 @@ TopPanel *tp = (TopPanel *)topPC->dl_create_and_add_panel("Top Panel", NULL);
       ret_val = 1;
       break;
     case  PAUSE_T:
-      printf("Pause\n");
+      nprintf( DEBUG_MESSAGES ) ("Pause\n");
 statusLabelText->setText( tr("Process suspended...") );
       ret_val = 1;
       break;
     case  CONT_T:
-      printf("Continue\n");
+      nprintf( DEBUG_MESSAGES ) ("Continue\n");
 statusLabelText->setText( tr("Process continued...") );
 sleep(1);
 statusLabelText->setText( tr("Process running...") );
       ret_val = 1;
       break;
     case  UPDATE_T:
-      printf("Update\n");
+      nprintf( DEBUG_MESSAGES ) ("Update\n");
       ret_val = 1;
       break;
     case  INTERRUPT_T:
-      printf("Interrupt\n");
+      nprintf( DEBUG_MESSAGES ) ("Interrupt\n");
       ret_val = 1;
       break;
     case  TERMINATE_T:
 statusLabelText->setText( tr("Process terminated...") );
       ret_val = 1;
-      printf("Terminate\n");
+      nprintf( DEBUG_MESSAGES ) ("Terminate\n");
       break;
     default:
       break;

@@ -15,7 +15,7 @@
 /*! Unused constructor. */
 SourceObject::SourceObject() : MessageObject("SourceObject")
 {
-  dprintf("SourceObject::SourceObject(entered.\n");
+  nprintf( DEBUG_CONST_DESTRUCT ) ("SourceObject::SourceObject(entered.\n");
 }
 
 /*! Constructor for the SourceObject.   Initializes the filename to load, 
@@ -23,7 +23,7 @@ SourceObject::SourceObject() : MessageObject("SourceObject")
     be raised, and passes a list of lines to highlight. */
 SourceObject::SourceObject(char *_functionName, char *_fileName, int l, bool rF, HighlightList *hll) : MessageObject("SourceObject")
 {
-  dprintf("SourceObject::SourceObject(entered.\n");
+  nprintf( DEBUG_CONST_DESTRUCT ) ("SourceObject::SourceObject(entered.\n");
   functionName = strdup(_functionName);
   fileName = strdup(_fileName);
   line_number = l;

@@ -48,7 +48,7 @@ IntroWizardPanel::IntroWizardPanel()
  */
 IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
 {
-  printf( "IntroWizardPanel::IntroWizardPanel() constructor called.\n");
+  nprintf( DEBUG_CONST_DESTRUCT) ( "IntroWizardPanel::IntroWizardPanel() constructor called.\n");
 // Cut-n-paste from here...
     if ( !getName() )
 	setName( "IntroWizardForm" );
@@ -284,14 +284,14 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n) : Panel(pc
  */
 IntroWizardPanel::~IntroWizardPanel()
 {
-  printf( "  IntroWizardPanel::~IntroWizardPanel() destructor called.\n");
+  nprintf( DEBUG_CONST_DESTRUCT) ( "  IntroWizardPanel::~IntroWizardPanel() destructor called.\n");
 }
 
 //! Add user panel specific menu items if they have any.
 bool
 IntroWizardPanel::menu(QPopupMenu* contextMenu)
 {
-  dprintf("IntroWizardPanel::menu() requested.\n");
+  nprintf( DEBUG_PANELS ) ("IntroWizardPanel::menu() requested.\n");
 
   return( FALSE );
 }
@@ -303,7 +303,7 @@ IntroWizardPanel::menu(QPopupMenu* contextMenu)
 void 
 IntroWizardPanel::save()
 {
-  dprintf("IntroWizardPanel::save() requested.\n");
+  nprintf( DEBUG_PANELS ) ("IntroWizardPanel::save() requested.\n");
 }
 
 //! Save ascii version of this panel (to a file).
@@ -314,14 +314,14 @@ IntroWizardPanel::save()
 void 
 IntroWizardPanel::saveAs()
 {
-  dprintf("IntroWizardPanel::saveAs() requested.\n");
+  nprintf( DEBUG_PANELS ) ("IntroWizardPanel::saveAs() requested.\n");
 }
 
 //! This function listens for messages.
 int 
 IntroWizardPanel::listener(char *msg)
 {
-  dprintf("IntroWizardPanel::listener() requested.\n");
+  nprintf( DEBUG_PANELS ) ("IntroWizardPanel::listener() requested.\n");
   return 0;  // 0 means, did not want this message and did not act on anything.
 }
 
@@ -330,7 +330,7 @@ IntroWizardPanel::listener(char *msg)
 int 
 IntroWizardPanel::broadcast(char *msg)
 {
-  dprintf("IntroWizardPanel::broadcast() requested.\n");
+  nprintf( DEBUG_PANELS ) ("IntroWizardPanel::broadcast() requested.\n");
   return 0;
 }
 
@@ -367,8 +367,6 @@ IntroWizardPanel::languageChange()
 
 void IntroWizardPanel::wizardModeSelected()
 {
-  qWarning( "IntroWizardPanel::wizardModeSelected(): Not implemented yet" );
-
   if( wizardMode->isOn() )
   {
     widgetStack5->raiseWidget(0);
@@ -380,7 +378,6 @@ void IntroWizardPanel::wizardModeSelected()
 
 void IntroWizardPanel::epage1NextButtonSelected()
 {
-    qWarning( "IntroWizardPanel::epage1NextButtonSelected(): Not implemented yet" );
   Panel *p = NULL;
   if( vpage1LoadExperimentCheckBox->isOn() )
   {
@@ -442,7 +439,6 @@ void IntroWizardPanel::epage1NextButtonSelected()
 
 void IntroWizardPanel::vpage1NextButtonSelected()
 {
-    qWarning( "IntroWizardPanel::vpage1NextButtonSelected(): Not implemented yet" );
   Panel *p = NULL;
   if( vpage1LoadExperimentCheckBox->isOn() )
   {

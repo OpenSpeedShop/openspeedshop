@@ -13,14 +13,14 @@
 /*! Unused constructor. */
 ControlObject::ControlObject() : MessageObject("ControlObject")
 {
-  dprintf("ControlObject::ControlObject(entered.\n");
+  nprintf( DEBUG_CONST_DESTRUCT ) ("ControlObject::ControlObject(entered.\n");
   cot = NONE_T;
 }
 
 /*! Initialize a control object message with a message type. */
 ControlObject::ControlObject(ControlObjectType _cot) : MessageObject("ControlObject")
 {
-  dprintf("ControlObject::ControlObject(entered.\n");
+  nprintf( DEBUG_CONST_DESTRUCT ) ("ControlObject::ControlObject(entered.\n");
   cot = _cot;
 }
 
@@ -33,7 +33,7 @@ ControlObject::~ControlObject()
 void
 ControlObject::print()
 {
-  printf("ControlObject:\n");
+  dprintf("ControlObject:\n");
 
-  printf("	control object type: %d\n", cot);
+  dprintf("	control object type: %d\n", cot);
 }

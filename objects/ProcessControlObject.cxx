@@ -38,12 +38,14 @@
 #include "interrupt.xpm"
 #include "terminate.xpm"
 
+#include "debug.hxx"
+
 
 
 /*! The default constructor.   Unused. */
 ProcessControlObject::ProcessControlObject(QVBoxLayout *frameLayout, QWidget *baseWidget, Panel *p)
 { // Unused... Here for completeness...
-  printf("ProcessControlObject::ProcessControlObject() constructor called\n");
+  nprintf( DEBUG_CONST_DESTRUCT ) ("ProcessControlObject::ProcessControlObject() constructor called\n");
 
   panel = p;
 
@@ -278,7 +280,7 @@ ProcessControlObject::ProcessControlObject(QVBoxLayout *frameLayout, QWidget *ba
 
 ProcessControlObject::~ProcessControlObject()
 {
-//  printf("  ProcessControlObject::~ProcessControlObject() destructor called\n");
+//  nprintf( DEBUG_CONST_DESTRUCT ) ("  ProcessControlObject::~ProcessControlObject() destructor called\n");
 //  delete frameLayout;
 //  delete baseWidgetFrame;
 }
@@ -287,7 +289,7 @@ ProcessControlObject::~ProcessControlObject()
 void 
 ProcessControlObject::attachProcessButtonSlot()
 {
-  printf("PCO: Attach Process\n");
+  nprintf( DEBUG_PANELS ) ("PCO: Attach Process\n");
 
   ControlObject *co = new ControlObject(ATTACH_PROCESS_T);
   panel->listener((void *)co);
@@ -297,7 +299,7 @@ ProcessControlObject::attachProcessButtonSlot()
 void 
 ProcessControlObject::detachProcessButtonSlot()
 {
-  printf("PCO: Detach Process\n");
+  nprintf( DEBUG_PANELS ) ("PCO: Detach Process\n");
 
   ControlObject *co = new ControlObject(DETACH_PROCESS_T);
   panel->listener((void *)co);
@@ -307,7 +309,7 @@ ProcessControlObject::detachProcessButtonSlot()
 void 
 ProcessControlObject::detachCollectorButtonSlot()
 {
-  printf("PCO: Detach Collector\n");
+  nprintf( DEBUG_PANELS ) ("PCO: Detach Collector\n");
 
   ControlObject *co = new ControlObject(REMOVE_COLLECTOR_T);
   panel->listener((void *)co);
@@ -317,7 +319,7 @@ ProcessControlObject::detachCollectorButtonSlot()
 void 
 ProcessControlObject::attachCollectorButtonSlot()
 {
-  printf("PCO: Attach Collector\n");
+  nprintf( DEBUG_PANELS ) ("PCO: Attach Collector\n");
 
   ControlObject *co = new ControlObject(ATTACH_COLLECTOR_T);
   panel->listener((void *)co);
@@ -328,7 +330,7 @@ ProcessControlObject::attachCollectorButtonSlot()
 void 
 ProcessControlObject::runButtonSlot()
 {
-  printf("PCO: Run button pressed\n");
+  nprintf( DEBUG_PANELS ) ("PCO: Run button pressed\n");
 
 printf("# theApplication.startAllCollecting();\n");
 printf("# theApplication.setStatus(Thread::Running\n");
@@ -362,7 +364,7 @@ printf("# theApplication.setStatus(Thread::Running\n");
 void 
 ProcessControlObject::pauseButtonSlot()
 {
-  printf("PCO: Pause button pressed\n");
+  nprintf( DEBUG_PANELS ) ("PCO: Pause button pressed\n");
 printf("# theApplication.setStatus(Thread::Suspended)\n");;
 
 //  statusLabelText->setText( tr("Process suspended...") );
@@ -383,7 +385,7 @@ printf("# theApplication.setStatus(Thread::Suspended)\n");;
 void 
 ProcessControlObject::continueButtonSlot()
 {
-  printf("PCO: Continue button pressed.\n");
+  nprintf( DEBUG_PANELS ) ("PCO: Continue button pressed.\n");
 printf("# theApplication.setStatus(Thread::Running\n");
 
 //  statusLabelText->setText( tr("Process running...") );
@@ -404,7 +406,7 @@ printf("# theApplication.setStatus(Thread::Running\n");
 void 
 ProcessControlObject::updateButtonSlot()
 {
-  printf("PCO: Update button pressed.\n");
+  nprintf( DEBUG_PANELS ) ("PCO: Update button pressed.\n");
 printf("Get some data!\n");
 
   ControlObject *co = new ControlObject(UPDATE_T);
@@ -417,7 +419,7 @@ printf("Get some data!\n");
 void 
 ProcessControlObject::interruptButtonSlot()
 {
-  printf("PCO: Interrupt button pressed\n");
+  nprintf( DEBUG_PANELS ) ("PCO: Interrupt button pressed\n");
 
   ControlObject *co = new ControlObject(INTERRUPT_T);
   panel->listener((void *)co);
@@ -428,7 +430,7 @@ ProcessControlObject::interruptButtonSlot()
 void 
 ProcessControlObject::terminateButtonSlot()
 {
-  printf("PCO: Terminate button pressed\n");
+  nprintf( DEBUG_PANELS ) ("PCO: Terminate button pressed\n");
 printf("# theApplication.stopAllCollecting();???????   \n"); 
 printf("prompt for saving data.\n");
 printf("# if( response is yes, then called theApplication.saveAs();\n");

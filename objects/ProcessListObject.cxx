@@ -15,14 +15,14 @@ class ProcessEntry;
 
 ProcessListObject::ProcessListObject(char *host)
 {
-  printf("SourceObject::ProcesslistObject(host=%s)\n", host);
+  nprintf( DEBUG_CONST_DESTRUCT ) ("SourceObject::ProcesslistObject(host=%s)\n", host);
 
   createProcList(host);
 }
 
 ProcessListObject::~ProcessListObject()
 {
-  printf("delete all the processEntries!\n");
+  nprintf( DEBUG_CONST_DESTRUCT ) ("delete all the processEntries!\n");
 
   ProcessEntry *pe = NULL;
   ProcessEntryList::Iterator it;
@@ -56,7 +56,7 @@ static int command_field_start = 0;
 bool
 ProcessListObject::analyze_ps_header ( char *header, char *first_line )
 {
-  printf("header=(%s)\n", header);
+  nprintf( DEBUG_PANELS ) ("header=(%s)\n", header);
 
   int header_column_count = 0;  // 0 based
   char *header_tracker = header;
@@ -120,7 +120,7 @@ ProcessListObject::analyze_ps_header ( char *header, char *first_line )
     header_column_count++;
   }
 
-printf("pid_field_name_column = %d command_field_name_column = %d\n", pid_field_name_column, command_field_name_column );
+nprintf( DEBUG_PANELS ) ("pid_field_name_column = %d command_field_name_column = %d\n", pid_field_name_column, command_field_name_column );
 
   // You've looked up the header, now set up the started of the actual fields.
 
@@ -375,7 +375,7 @@ sprintf(arg2, "-lu%s", login );
 
       in_fd = do_ps_cmd ( command, arg0, arg1, arg2, &child_pid );
     }
-printf("command=(%s)\n", command);
+nprintf( DEBUG_PANELS ) ("command=(%s)\n", command);
 
 
     if (in_fd < 0)

@@ -1,17 +1,18 @@
 #include <qpushbutton.h>
 #include <qbitmap.h>
 #include "AnimatedQPushButton.hxx"
+#include "debug.hxx"
 
 AnimatedQPushButton::AnimatedQPushButton(QWidget *p, const char *n, bool f) : QPushButton( p, n)
 {
-  printf("AnimatedQPushButton::AnimatedQPushButton() constructor called\n");
+  nprintf( DEBUG_CONST_DESTRUCT ) ("AnimatedQPushButton::AnimatedQPushButton() constructor called\n");
   enabledFLAG = f;
   imageList.clear();
 }
 
 AnimatedQPushButton::~AnimatedQPushButton()
 {
-  printf("  AnimatedQPushButton::~AnimatedQPushButton() destructor called\n");
+  nprintf( DEBUG_CONST_DESTRUCT ) ("  AnimatedQPushButton::~AnimatedQPushButton() destructor called\n");
   imageList.clear();
 }
 
