@@ -81,8 +81,8 @@ make install
 %{_libdir}/*
 
 %changelog
-* Mon Feb 21 2005  Jim Galarowicz
-- Initial spec file
 * Mon Mar 28 2005  Don Maghrak
 - Changes for rpmbuild to build from tarball in ${_topdir}/SOURCES and
 - package binary and source rpms.
+* Mon Feb 21 2005  Jim Galarowicz
+- Initial spec file
