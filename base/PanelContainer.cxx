@@ -1803,14 +1803,14 @@ PanelContainer::removePanelContainer(PanelContainer *targetPC)
   }
   Orientation orientation = pcToReparent->splitter->orientation();
 
-#ifdef DEBUG_OUTPUT_REQUESTED
+#ifdef DEBUG_OUTPUT_REQUESTED0
   nprintf(DEBUG_PANELCONTAINERS) ("Okay: we're here:\n");
   nprintf(DEBUG_PANELCONTAINERS) ("pcToReparent:\n");
   pcToReparent->printPanelContainer(1);
   nprintf(DEBUG_PANELCONTAINERS) ("parentPC:\n");
   parentPC->printPanelContainer(1);
   nprintf(DEBUG_PANELCONTAINERS) ("Now do the actual reparent and panelContainer reduction.\n");
-#endif // DEBUG_OUTPUT_REQUESTED
+#endif // DEBUG_OUTPUT_REQUESTED0
 
   // Disable the enter leave events
   // Now hide the parts that are going to be deleted...
