@@ -188,13 +188,14 @@ void initialize_plugins(QWidget *pl, PanelContainer *masterPC)
   // Go and get a list of all the plugin files.
   int glob_ret_value = 0;
   char target[1024];
-  const char *pattern = "*.so";
+  char *pattern = "*Panel.so";
   sprintf(target, "%s/%s", plugin_directory, pattern);
 //  int flags = GLOB_NOSORT | GLOB_ERR | GLOB_MARK | GLOB_TILDE;
   int flags = GLOB_ERR | GLOB_MARK | GLOB_TILDE;
   glob_t *pglob = new glob_t;
 
-  // Get all the files ending in ".so".   These are the plugin files...
+  // Get all the Panel (plugin) files "*Panel.so".  
+  // These are the plugin files...
   glob_ret_value = glob(target, flags, 0, pglob);
   if( glob_ret_value != 0 )
   {
@@ -202,6 +203,19 @@ void initialize_plugins(QWidget *pl, PanelContainer *masterPC)
 //    exit(1);
     return;
   }
+
+  pattern = "ft*.so";
+  // Append all the internal libraries.  
+  flags = GLOB_ERR | GLOB_MARK | GLOB_TILDE | GLOB_APPEND;
+  glob_ret_value = glob(target, flags, 0, pglob);
+  if( glob_ret_value != 0 )
+  {
+    fprintf(stderr, "Error: reading list of plugins in %s\n", target);
+//    exit(1);
+    return;
+  }
+
+
   // If no plugin files are located in the path, return after printing error.
   if( pglob->gl_pathc == 0 )
   {
@@ -214,6 +228,7 @@ void initialize_plugins(QWidget *pl, PanelContainer *masterPC)
   unsigned int i = 0;
   for(i=0;i<pglob->gl_pathc;i++)
   {
+// printf("processing plugin record (%s)\n", pglob->gl_pathv[i] );
     if( register_plugin(pl, pglob->gl_pathv[i], masterPC) == -1 )
     {
       fprintf(stderr, "Error processing the plugin record (%s)\n", pglob->gl_pathv[i] );
