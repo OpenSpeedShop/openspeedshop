@@ -1,7 +1,8 @@
 #!/bin/sh
 if [ "$FUTURE_TOOL_PLUGIN_DIR" = "" ]
 then
-  echo "FUTURE_TOOL_PLUGIN_DIR not set.
+  echo "FUTURE_TOOL_PLUGIN_DIR not set."
+  echo "For oss developers that's usually .../GUI/plugin/lib/futuretool"
   exit
 fi
 if test -d Panels
