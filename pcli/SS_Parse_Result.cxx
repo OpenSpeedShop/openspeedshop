@@ -9,7 +9,6 @@
 
 using namespace std;
 
-#include "support.h"
 #include "SS_Parse_Param.hxx"
 #include "SS_Parse_Range.hxx"
 #include "SS_Parse_Target.hxx"
@@ -53,6 +52,44 @@ command_type_t OpenSpeedShop::cli::cmd_desc[CMD_MAX] = {
     "setBreak",     false,  CMD_SETBREAK
 };
  
+/* This will eventually give way to an experiment registry. */
+char *OpenSpeedShop::cli::experiment_name[H_EXP_MAX] = {
+    "pcsamp",
+    "usertime",
+    "mpi",
+    "fpe",
+    "hwc",
+    "io"
+};
+
+/* This will eventually give way to a viewtype registry. */
+char *OpenSpeedShop::cli::viewtype_name[H_VIEW_MAX] = {
+    "vTopN",
+    "vExclTime",
+    "vIO",
+    "VFpe",
+    "vHwc"
+};
+
+/* This will eventually give way to a paramtype registry. */
+char *OpenSpeedShop::cli::paramtype_name[H_PARAM_MAX] = {
+    "displayMode",
+    "displayMedia",
+    "displayRefreshRate",
+    "expSaveFile",
+    "samplingRate"
+};
+
+/* General hodgepodge of names. */
+char *OpenSpeedShop::cli::general_name[H_GEN_MAX] = {
+    "focus",
+    "all",
+    "copy",
+    "kill",
+    "gui",
+    "mpi"
+};
+
 /**
  * Constructor: ParseResult::ParseResult()
  * 
