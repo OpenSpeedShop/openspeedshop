@@ -39,52 +39,38 @@ Usability Phase 1 Results</a>
   <li><a href="#mozTocId885503">October 25, 2004 Meeting Comments and
 Questions</a>
     <ul>
-      <li><a href="#mozTocId335773">C1: MPI Considered
-        </a></li>
-      <li><a href="#mozTocId653856">R1: MPI Considered
-        </a></li>
-      <li><a href="#mozTocId122429">C2: Comparison Question
-        </a></li>
-      <li><a href="#mozTocId737898">R2: Comparison Question
-        </a></li>
-      <li><a href="#mozTocId740862">C3: Asynchronous Run Question
-        </a></li>
-      <li><a href="#mozTocId316275">R3: Asynchronous Run Question
-        </a></li>
-      <li><a href="#mozTocId80071">C4: expFocus Question
-        </a></li>
-      <li><a href="#mozTocId928185">R4: expFocus Question
-        </a></li>
+      <li><a href="#mozTocId335773">C1: MPI Considered </a></li>
+      <li><a href="#mozTocId653856">R1: MPI Considered </a></li>
+      <li><a href="#mozTocId122429">C2: Comparison Question </a></li>
+      <li><a href="#mozTocId737898">R2: Comparison Question </a></li>
+      <li><a href="#mozTocId740862">C3: Asynchronous Run Question </a></li>
+      <li><a href="#mozTocId316275">R3: Asynchronous Run Question </a></li>
+      <li><a href="#mozTocId80071">C4: expFocus Question </a></li>
+      <li><a href="#mozTocId928185">R4: expFocus Question </a></li>
       <li><a href="#mozTocId795664">C5: "::" will cause Python Problems
         </a></li>
       <li><a href="#mozTocId733533">R5: "::" will cause Python Problems
         </a></li>
       <li><a href="#mozTocId587386">C6: listExp dual uses and listTypes
-suggestion
-        </a></li>
+suggestion </a></li>
       <li><a href="#mozTocId602913">R6: listExp dual uses and listTypes
 suggestion</a></li>
       <li><a href="#mozTocId637355">C7: What happens to the CLI window
-when launching the GUI?
-        </a></li>
+when launching the GUI? </a></li>
       <li><a href="#mozTocId724970">R7: What happens to the CLI window
 when launching the GUI?</a></li>
       <li><a href="#mozTocId865448">C8: Saving and Restoring the
-Experiment
-        </a></li>
+Experiment </a></li>
       <li><a href="#mozTocId623478">R8: Saving and Restoring the
 Experiment</a></li>
       <li><a href="#mozTocId534409">C9:&nbsp; How do you stop gathering
-data for a period of time?
-        </a></li>
+data for a period of time? </a></li>
       <li><a href="#mozTocId411470">R9: How do you stop gathering data
 for a period of time?</a></li>
-      <li><a href="#mozTocId556590">C10: CLI Command naming questions
-        </a></li>
+      <li><a href="#mozTocId556590">C10: CLI Command naming questions </a></li>
       <li><a href="#mozTocId609518">R10: CLI Command naming questions</a></li>
       <li><a href="#mozTocId754417">C11: "record" command feature
-enhancement
-        </a></li>
+enhancement </a></li>
       <li><a href="#mozTocId877836">R11: "record" command feature
 enhancement</a></li>
     </ul>
@@ -207,12 +193,9 @@ would and doesn't require any change to the specification. We think
 this
 would be the preferred solution.
 <br>
-<blockquote type="cite">bosco = expCreate -f my_prog -x pcsamp
-  <br>
-print bosco
-  <br>
-5
-  <br>
+<blockquote type="cite">bosco = expCreate -f my_prog -x pcsamp <br>
+print bosco <br>
+5 <br>
 </blockquote>
 <br>
 You can refer to the experiment as either "bosco" or 5.&nbsp;
@@ -441,10 +424,43 @@ implementation.
 <h1><a name="mozTocId706941" class="mozTocH1"></a><small>Post initial
 review follow up questions</small></h1>
 <h2><a name="mozTocId165661" class="mozTocH2"></a><small><span
- style="font-weight: bold;">C12:</span></small></h2>
-<br>
-<br>
+ style="font-weight: bold;">C12:&nbsp; Follow up question to C3/R3<br>
+</span></small></h2>
+<pre wrap="">How do these cases work into the batch "expRun" running synchronously?<br><br></pre>
+<ol>
+  <li>I want to collect data until "function" is called. After
+"function" is called, save the data so that I can view it separately
+from the data collected after "function" is called. (May be more than
+one "trigger" function)</li>
+  <li>On a month long job, I want to randomly select intervals where
+data is gathered for 5 minutes.</li>
+  <li>Other things along these lines where the instrumentation changes
+during the run</li>
+</ol>
+<pre wrap=""><br>Will this functionality be in the experiment modules and not the script?<br><span
+ class="moz-txt-citetags"><br></span></pre>
 <h2><a name="mozTocId688166" class="mozTocH2"></a><small><span
  style="font-weight: bold;">R12:</span></small></h2>
+<ol>
+  <li>We discussed this at our SGI performance tools weekly meeting and
+we
+concluded that once we enhance DPCL to support setting breakpoints
+Open/SpeedShop will support 1).&nbsp;&nbsp; With breakpoints the user
+can run to a breakpoint
+(or collect one type of data or collect performance data on a specific
+function)
+then change when the breakpoint is hit. <br>
+  </li>
+  <li>You can stop one experiment and start another interactively or in
+batch
+mode so that would support both items 2) and 3).&nbsp;&nbsp; You could
+also code the switching of
+the experiment type into a user specific collector.</li>
+  <li>Same as 2)</li>
+</ol>
+We think if the scripting API is enhanced to include more calls into
+the tool that the scripting API could support all of your items.<br>
+<br>
+<br>
 </body>
 </html>
