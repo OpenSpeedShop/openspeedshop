@@ -1628,7 +1628,7 @@ API
   <li><a href="#mozTocId167878">Plugin
 API (Extensibility)&nbsp; Description</a>
     <ul>
-      <li>
+      <li><a href="#mozTocId65995">Collector Plugin Definition</a>
         <ul>
           <li><a href="#mozTocId142378">Collector Plugin FAQ:</a>
             <ul>
@@ -1641,6 +1641,10 @@ a particular convention?</a></li>
           </li>
         </ul>
       </li>
+      <li><a href="#mozTocId512806">Graphical User Interface Panel
+Plugin Definition</a></li>
+      <li><a href="#mozTocId721763">Command Line Interface Plugin
+Definition</a></li>
     </ul>
   </li>
   <li><a href="#mozTocId10491">Appendix
@@ -2849,6 +2853,9 @@ There are multiple plugin types used in Open/SpeedShop.&nbsp; A
 collector plugin defines the performance experiment measurement data
 gathering and analysis mechanism.<br>
 <br>
+<h2><a class="mozTocH2" name="mozTocId65995"></a><a
+ name="Collector_Plugin_Definition"></a>Collector Plugin Definition</h2>
+<br>
 <h3><a class="mozTocH3" name="mozTocId142378"></a><a
  name="Collector_Plugin_FAQ:"></a>Collector Plugin FAQ:<br>
 <span class="moz-txt-citetags"><span style="font-family: monospace;"></span></span></h3>
@@ -2859,9 +2866,9 @@ the significance of the .x suffix?<br>
 </div>
 <div class="Section13">
 <blockquote>
-  <pre wrap="">"blob.x" contains XDR descriptions of the blobs (Binary Large OBjectS) used by<br>the collector. The term "blob" is a standard one in relational databases:<br><br>     <a
+  <pre wrap="">"blob.x" contains XDR descriptions of the blobs (Binary Large OBjectS) used by the collector. The term "blob" is a standard one in relational databases:<br><br>     <a
  class="moz-txt-link-freetext"
- href="http://www.hyperdictionary.com/dictionary/binary+large+object">http://www.hyperdictionary.com/dictionary/binary+large+object</a><br><br>And ".x" is the standard suffix used for XDR files. You can do (this is what I<br>did) a search for "XDR file suffix" and you'll see that everyone uses ".x".<br><br>Collector parameters can be of any arbitrary type or structure. And the raw<br>data gathered by the collector can be of any arbitrary type or structure. But<br>the relational database doesn't know anything about these types... So whenever<br>parameters or raw performance data is stored in the database, it must first be<br>converted into a "chunk of bytes" (a blob). XDR is added to the mix in order to<br>easily handle things like endianess and structure alignment issues.<br><span
+ href="http://www.hyperdictionary.com/dictionary/binary+large+object">http://www.hyperdictionary.com/dictionary/binary+large+object</a><br><br>And ".x" is the standard suffix used for XDR files. You can do (this is what I<br>did) a search for "XDR file suffix" and you'll see that everyone uses ".x".<br><br>Collector parameters can be of any arbitrary type or structure. And the raw data gathered by the collector can be of any arbitrary type or structure. But the relational database doesn't know anything about these types... So whenever<br>parameters or raw performance data is stored in the database, it must first be converted into a "chunk of bytes" (a blob). XDR is added to the mix in order to easily handle things like endianess and structure alignment issues.<br><span
  class="moz-txt-citetags"><br></span></pre>
 </blockquote>
 <h4><a class="mozTocH4" name="mozTocId541457"></a><a
@@ -2870,7 +2877,19 @@ specifically needed to be known by the framework? Do these<span
  class="moz-txt-citetags"> </span>class structures need to follow a
 particular convention?</h4>
 <blockquote>
-  <pre wrap=""><!----><br>The naming of these files (e.g. "blob.x" vs. "my_funny_file_name.x") makes no<br>difference to the framework. I believe Don was worried mainly about sticking to<br>any pre-existing naming convention (and I appreciate that). The only things<br>that really matter to the framework are:<br><br>1) That a libtool-constructed module is placed into one of the plugin search<br>   locations (see previous emails regarding how we decide where to look for<br>   plugins). The name of the module itself is irrelevant (although conventions<br>   are in place).<br><br>2) That the module defines an externally-visible function:<br><br>     CollectorImpl* CollectorFactor();<br><br>   which creates an CollectorImpl instance for the collector.<br><br>Each collector defines a single class (e.g. PCSampCollector or<br>UserTimeCollector) that inherits from CollectorImpl (which is in the framework<br>source). CollectorImpl declares a bunch of pure virtual functions which all<br>inheriting classes must implement. So you can think of CollectorImpl.hxx as<br>the "API" between the framework and the collectors.<br></pre>
+  <pre wrap=""><!---->The naming of these files (e.g. "blob.x" vs. "my_funny_file_name.x") makes no difference to the framework. I believe Don was worried mainly about sticking to any pre-existing naming convention (and I appreciate that). The only things<br>that really matter to the framework are:<br><br>1) That a libtool-constructed module is placed into one of the plugin search locations (see previous emails regarding how we decide where to look for plugins). The name of the module itself is irrelevant (although conventions are in place).<br><br>2) That the module defines an externally-visible function:<br><br>     CollectorImpl* CollectorFactor();<br><br>   which creates an CollectorImpl instance for the collector.<br><br>Each collector defines a single class (e.g. PCSampCollector or UserTimeCollector) that inherits from CollectorImpl (which is in the framework source). CollectorImpl declares a bunch of pure virtual functions which all<br>inheriting classes must implement. So you can think of CollectorImpl.hxx as the "API" between the framework and the collectors.<br></pre>
+</blockquote>
+<h2><a class="mozTocH2" name="mozTocId512806"></a><a
+ name="Graphical_User_Interface_Panel_Plugin"></a>Graphical User
+Interface Panel Plugin Definition</h2>
+<br>
+<br>
+<h2><a class="mozTocH2" name="mozTocId721763"></a><a
+ name="Command_Line_Interface_Plugin_Definition"></a>Command Line
+Interface Plugin Definition</h2>
+<br>
+<blockquote>
+  <pre wrap=""></pre>
   <p class="MsoBodyText"> </p>
 </blockquote>
 <h1><a class="mozTocH1" name="mozTocId10491"></a><span
