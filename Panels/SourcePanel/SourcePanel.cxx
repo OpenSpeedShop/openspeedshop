@@ -57,7 +57,7 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
 
 // Create a label so I can get's it's height...
   label = new QLabel( getBaseWidgetFrame(), "text label", 0 );
-printf("label->height()=%d\n", label->height() );
+// printf("label->height()=%d\n", label->height() );
 
   canvasForm = new SPCanvasForm( label->height(), splitter );
   canvasForm->hide();
@@ -513,6 +513,12 @@ SourcePanel::loadFile(const QString &_fileName)
     last_para = -1;   // For last find command.
     last_index = -1;   // For last find command.
 
+  }
+  if( _fileName.isEmpty() )
+  { // Just clear the Source Panel and return.
+    textEdit->clear();
+    textEdit->clearScrollBar();
+    return;
   }
   fileName = _fileName;
 
