@@ -1418,6 +1418,7 @@ PanelContainer::raisePanel(Panel *panel)
       nprintf(DEBUG_PANELCONTAINERS) ("raisePanel the panel to raise. count=%d\n", count );
 
 // Begin - try to raise the entire tree.
+/*
 printf("(%s-%s):\n", getInternalName(), getExternalName() );
 PanelContainer *ppc = p->getPanelContainer()->parentPanelContainer;
 while(ppc)
@@ -1426,6 +1427,7 @@ printf("  (%s-%s):\n", ppc->getInternalName(), ppc->getExternalName() );
 ppc->show();
 ppc = ppc->parentPanelContainer;
 }
+*/
 // End - try to raise the entire tree.
       int indexOf = tabWidget->indexOf(p->getBaseWidgetFrame());
       if( indexOf == -1 )
