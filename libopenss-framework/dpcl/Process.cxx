@@ -29,9 +29,11 @@
 #include "ExperimentTable.hxx"
 #include "Guard.hxx"
 #include "MainLoop.hxx"
+#include "Path.hxx"
 #include "Process.hxx"
 #include "ProcessTable.hxx"
 #include "SmartPtr.hxx"
+#include "StatementBuilder.hxx"
 #include "Time.hxx"
 
 #include <dpcl.h>
@@ -739,7 +741,7 @@ void Process::updateAddressSpace(const Thread& thread, const Time& when)
     for(table_t::iterator i = objects.begin(); i != objects.end(); ++i) {
 
 	// Is there an existing linked object in the database?
-	Optional<int> linked_object;
+	int linked_object = -1;
 	database->prepareStatement(
 	    "SELECT LinkedObjects.id FROM LinkedObjects JOIN Files"
 	    " ON LinkedObjects.file = Files.id WHERE Files.path = ?;"
@@ -749,7 +751,7 @@ void Process::updateAddressSpace(const Thread& thread, const Time& when)
 	    linked_object = database->getResultAsInteger(1);
 	
 	// Parse symbol information if it isn't present in the database
-	if(!linked_object.hasValue()) {
+	if(linked_object == -1) {
 	    
 	    // Create the file entry
 	    database->prepareStatement("INSERT INTO Files (path) VALUES (?);");
@@ -835,23 +837,31 @@ void Process::processFunctions(const Thread& thread,
 	for(int f = 0; f < o->child_count(); ++f)
 	    if(o->child(f).src_type() == SOT_function) {
 		SourceObj function = o->child(f);
-		
+
 		// Get the start/end address of the function
-		Address start =
-		    Address(function.address_start()) - range.getBegin();
-		Address end =
-		    Address(function.address_end()) - range.getBegin();
-		
-		// Note: There are cases where DPCL returns us functions whose
-		//       start and end addresses are the same (zero length). For
-		//       example, there are a bunch of functions in "libc.so.6"
-		//       of the form "__*_nocancel" that are zero length. These
-		//       cause havoc because AddressRange enforces the invariant
-		//       (end < begin). For now we are going to throw out these
-		//       zero-length functions because we shouldn't be able to
-		//       gather data for them anyway.
-		if(end == start)
+		Address start = function.address_start();
+		Address end = function.address_end();
+
+
+		// Note: Various conditions exist under which "garbage" appears
+		//       in the function list. For example, there are a bunch of
+		//       functions in "libc.so.6" of the form "__*_nocancel"
+		//       that are zero length (their start and end addresses are
+		//       the same). The following sanity checks help keep these
+		//       unusable function entries out of the symbol database.
+
+		// Discard any functions where (end <= start)
+		if(end <= start)
 		    continue;
+
+		// Discard functions not contained in this linked object
+		if(!range.doesContain(start) || !range.doesContain(end))
+		    continue;
+		
+
+		// Convert the start/end addresses to linked object offsets
+		start = start - range.getBegin();
+		end = end - range.getBegin();
 		
 		// Get the demangled name of the function
 		char name[function.get_demangled_name_length() + 1];
@@ -884,8 +894,9 @@ void Process::processFunctions(const Thread& thread,
  *
  * Process statement information for the specified source objects. DPCL is
  * queried for each statement's source file, line number, column number, and
- * list of addresses. This information is filled into the database for the
- * specified thread.
+ * list of addresses. This information is passed to a statement builder that
+ * processes the data into a form that is then stored into the database for
+ * the specified thread.
  *
  * @param thread           Thread that contains the linked object.
  * @param linked_object    Entry identifier for the linked object.
@@ -897,100 +908,71 @@ void Process::processStatements(const Thread& thread,
 				const AddressRange& range,
 				std::vector<SourceObj>& objects) const
 {
-    // Begin a transaction on this thread's database
-    SmartPtr<Database> database = EntrySpy(thread).getDatabase();
-    BEGIN_TRANSACTION(database);
-
+    // Allocate a statement builder for this linked object
+    StatementBuilder builder;
+    
     // Iterate over each source object in this linked object
     for(std::vector<SourceObj>::iterator
 	    o = objects.begin(); o != objects.end(); ++o) {
+
+	// Ask DPCL for all the statements in this (module) source object
+	MainLoop::suspend();
+	AisStatus retval;
+	StatementInfoList* statements =
+	    o->bget_all_statements(*dm_process, &retval);
+	Assert(statements != NULL);
+	Assert(retval.status() == ASC_success);
+	MainLoop::resume();
 	
-	// Iterate over each function in this source object
-	for(int f = 0; f < o->child_count(); ++f)
-	    if(o->child(f).src_type() == SOT_function) {
-		SourceObj function = o->child(f);
-		
-		// Get the start/end address of the function
-		Address start =
-		    Address(function.address_start()) - range.getBegin();
-		Address end =
-		    Address(function.address_end()) - range.getBegin();
-		
-		// Note: There are cases where DPCL returns us functions whose
-		//       start and end addresses are the same (zero length). For
-		//       example, there are a bunch of functions in "libc.so.6"
-		//       of the form "__*_nocancel" that are zero length. These
-		//       cause havoc because AddressRange enforces the invariant
-		//       (end < begin). For now we are going to throw out these
-		//       zero-length functions because we shouldn't be able to
-		//       gather data for them anyway.
-		if(end == start)
-		    continue;
-		
-		// Get the path of the source file containing this function
-		std::string path = "";
-		if(function.module_name_length() > 0) {
-		    char buffer[function.module_name_length() + 1];
-		    function.module_name(buffer,
-					 function.module_name_length() + 1);
-		    path = buffer;
-		}
+	// Iterate over each source file in this source object
+	for(int f = 0; f < statements->get_count(); ++f) {
+	    StatementInfo info = statements->get_entry(f);
 	    
-		// Get the source line of this function's definition
-		int line = function.line_start();
+	    // Iterate over each statement in this source file
+	    for(int s = 0; s < info.get_line_count(); ++s) {
+		StatementInfoLine line = info.get_line_entry(s);
+		
+		// Iterate over each address in this statement
+		for(int a = 0; a < line.get_address_count(); ++a) {
 
-		// Ignore functiosn with no source file name or source lines < 1
-		if((path.size() == 0) || (line < 1))
-		    continue;
-		
-		// Is there an existing source file in the database?
-		Optional<int> file;
-		database->prepareStatement(
-		    "SELECT id FROM Files WHERE path = ?;"
-		    );
-		database->bindArgument(1, path);
-		while(database->executeStatement())
-		    file = database->getResultAsInteger(1);
-		
-		// Create the file entry if it isn't present in the database
-		if(!file.hasValue()) {
-		    database->prepareStatement(
-			"INSERT INTO Files (path) VALUES (?);"
-			);
-		    database->bindArgument(1, path);
-		    while(database->executeStatement());
-		    file = database->getLastInsertedUID();	    
+		    // Get the address
+		    Address addr = line.get_address_entry(a);
+
+
+		    // Note: Various conditions exist under which "garbage"
+		    //       appears in the statement list. For example, several
+		    //       versions of GCC produced DWARF line information
+		    //       with small offsets rather than addresses under
+		    //       some circumstances. The following sanity checks
+		    //       help keep these unusable statement entries out of
+		    //       the symbol database.
+
+		    // Discard statements not contained in this linked object
+		    if(!range.doesContain(addr))
+			continue;
+
+
+		    // Convert the address to a linked object offset
+		    addr = addr - range.getBegin();
+		    
+		    // Add this entry to the builder
+		    builder.addEntry(info.get_filename(), line.get_line(),
+				     line.get_column(), addr);
+		    
 		}
 		
-		// Create the statement entry
-		database->prepareStatement(
-		    "INSERT INTO Statements (file, line, column)"
-		    " VALUES (?, ?, ?);"
-		    );
-		database->bindArgument(1, file);
-		database->bindArgument(2, line);
-		database->bindArgument(3, 0);
-		while(database->executeStatement());
-		int statement = database->getLastInsertedUID();
-	    
-		// Create the statement range entry
-		database->prepareStatement(
-		    "INSERT INTO StatementRanges"
-		    " (statement, linked_object, addr_begin, addr_end)"
-		    " VALUES (?, ?, ?, ?);"
-		    );
-		database->bindArgument(1, statement);
-		database->bindArgument(2, linked_object);
-		database->bindArgument(3, start);
-		database->bindArgument(4, end);
-		while(database->executeStatement());
-
 	    }
+	    
+	}
 	
-    }
+	// Destroy the statement information returned by DPCL
+	delete statements;   
 
-    // End the transaction on this thread's database
-    END_TRANSACTION(database);
+    }
+    
+    // Process and store this linked object's statements
+    SmartPtr<Database> database = EntrySpy(thread).getDatabase();
+    builder.processAndStore(database, linked_object);
 }
 
 

@@ -23,10 +23,12 @@
  */
 
 #include "Assert.hxx"
+#include "Address.hxx"
+#include "AddressBitmap.hxx"
+#include "Blob.hxx"
 #include "Database.hxx"
 #include "Function.hxx"
 #include "LinkedObject.hxx"
-#include "Optional.hxx"
 #include "Path.hxx"
 #include "Statement.hxx"
 #include "Thread.hxx"
@@ -102,15 +104,15 @@ LinkedObject Statement::getLinkedObject() const
 /**
  * Get functions.
  *
- * Returns the functions containing this statement. If no function contains this
- * statement (unlikely), an empty list is returned.
+ * Returns the functions containing this statement. An empty set is returned
+ * if no function contains this statement.
  *
  * @return    Functions containing this statement.
  */
-std::vector<Function> Statement::getFunctions() const
+std::set<Function> Statement::getFunctions() const
 {
-    std::vector<Function> functions;
-
+    std::set<Function> functions;
+    
     // Check assertions
     Assert(!dm_database.isNull());
   
@@ -118,20 +120,43 @@ std::vector<Function> Statement::getFunctions() const
     BEGIN_TRANSACTION(dm_database);
     validate("Statements");
     dm_database->prepareStatement(
-	"SELECT Functions.id FROM Functions JOIN StatementRanges"
-	" ON Functions.linked_object = StatementRanges.linked_object"
-	" WHERE StatementRanges.statement = ?"
-	"   AND StatementRanges.linked_object ="
-	"       (SELECT linked_object FROM AddressSpaces WHERE id = ?)"
-	"   AND StatementRanges.addr_end >= Functions.addr_begin"
-	"   AND StatementRanges.addr_begin < Functions.addr_end;"
+	"SELECT Functions.id, "
+	"       Functions.addr_begin, "
+	"       Functions.addr_end, "
+	"       StatementRanges.addr_begin, "
+	"       StatementRanges.addr_end, "
+	"       StatementRanges.valid_bitmap "
+	"FROM Functions "
+	"  JOIN Statements "
+	"  JOIN StatementRanges "
+	"ON Functions.linked_object = Statements.linked_object "
+	"  AND Statements.id = StatementRanges.statement "
+	"WHERE StatementRanges.statement = ? "
+	"  AND Statements.linked_object = ? "
+	"  AND StatementRanges.addr_end >= Functions.addr_begin "
+	"  AND StatementRanges.addr_begin < Functions.addr_end;"
 	);
     dm_database->bindArgument(1, dm_entry);	
     dm_database->bindArgument(2, dm_context);	
-    while(dm_database->executeStatement())
-	functions.push_back(Function(dm_database,
-				     dm_database->getResultAsInteger(1),
-				     dm_context));    
+    while(dm_database->executeStatement()) {
+
+	AddressBitmap bitmap(AddressRange(dm_database->getResultAsAddress(4),
+	 				  dm_database->getResultAsAddress(5)),
+			     dm_database->getResultAsBlob(6));
+	
+	AddressRange range =
+	    AddressRange(dm_database->getResultAsAddress(2),
+			 dm_database->getResultAsAddress(3)) &
+	    AddressRange(dm_database->getResultAsAddress(4),
+			 dm_database->getResultAsAddress(5));
+	
+	for(Address i = range.getBegin(); i != range.getEnd(); ++i)
+	    if(bitmap.getValue(i))
+		functions.insert(Function(dm_database,
+					  dm_database->getResultAsInteger(1),
+					  dm_context));
+	
+    }
     END_TRANSACTION(dm_database);
     
     // Return the functions to the caller
@@ -149,7 +174,7 @@ std::vector<Function> Statement::getFunctions() const
  */
 Path Statement::getPath() const
 {
-    Optional<Path> path;
+    Path path;
 
     // Check assertions
     Assert(!dm_database.isNull());
@@ -158,16 +183,19 @@ Path Statement::getPath() const
     BEGIN_TRANSACTION(dm_database);
     validate("Statements");
     dm_database->prepareStatement(
-	"SELECT Files.path FROM Files JOIN Statements"
-	" ON Files.id = Statements.file WHERE Statements.id = ?;"
+	"SELECT Files.path "
+	"FROM Files "
+	"  JOIN Statements "
+	"ON Files.id = Statements.file "
+	"WHERE Statements.id = ?;"
 	);
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement()) {
-	if(path.hasValue())
+	if(!path.empty())
 	    throw Database::Corrupted(*dm_database, "file entry is not unique");
 	path = Path(dm_database->getResultAsString(1));
     }    
-    if(!path.hasValue())
+    if(path.empty())
 	throw Database::Corrupted(*dm_database, "file entry no longer exists");
     END_TRANSACTION(dm_database);
     
@@ -242,37 +270,70 @@ int Statement::getColumn() const
 /**
  * Get our address ranges.
  *
- * Returns the address ranges associated with this statement. An empty list is
- * returned if no addresses are associated with this statement (unlikely).
+ * Returns the address ranges associated with this statement. An empty set is
+ * returned if no address ranges are associated with this statement.
  *
- * @return    Addresse ranges associated with this statement.
+ * @return    Address ranges associated with this statement.
  */
-std::vector<AddressRange> Statement::getAddressRanges() const
+std::set<AddressRange> Statement::getAddressRanges() const
 {
-    std::vector<AddressRange> ranges;
-
+    std::set<AddressRange> ranges;
+    
     // Check assertions
     Assert(!dm_database.isNull());
-
-    // Find our context's base address and our address ranges
+    
+    // Find our addresses
     BEGIN_TRANSACTION(dm_database);
     validate("Statements");
     dm_database->prepareStatement(
-	"SELECT AddressSpaces.addr_begin,"
-	"       StatementRanges.addr_begin, StatementRanges.addr_end"
-	" FROM AddressSpaces JOIN StatementRanges"
-	" ON AddressSpaces.linked_object = StatementRanges.linked_object"
-	" WHERE StatementRanges.statement = ?"
-	"   AND AddressSpaces.id = ?;"
+	"SELECT AddressSpaces.addr_begin, "
+	"       StatementRanges.addr_begin, "
+	"       StatementRanges.addr_end, "
+	"       StatementRanges.valid_bitmap "
+	"FROM AddressSpaces "
+	"  JOIN Statements "
+	"  JOIN StatementRanges "
+	"ON AddressSpaces.linked_object = Statements.linked_object "
+	"  AND Statements.id = StatementRanges.statement "
+	"WHERE StatementRanges.statement = ? "
+	"  AND AddressSpaces.id = ?;"
 	);
-    dm_database->bindArgument(1, dm_entry);	
-    dm_database->bindArgument(2, dm_context);	
-    while(dm_database->executeStatement())
-	ranges.push_back(AddressRange(
+    dm_database->bindArgument(1, dm_entry);
+    dm_database->bindArgument(2, dm_context);
+    while(dm_database->executeStatement()) {
+
+	AddressBitmap bitmap(AddressRange(dm_database->getResultAsAddress(2),
+					  dm_database->getResultAsAddress(3)),
+			     dm_database->getResultAsBlob(4));
+
+	bool in_range = false;
+	Address range_begin;
+
+	for(Address i = bitmap.getRange().getBegin();
+	    i != bitmap.getRange().getEnd();
+	    ++i)
+	    if(!in_range && bitmap.getValue(i)) {
+		in_range = true;
+		range_begin = i;
+	    }
+	    else if(in_range && !bitmap.getValue(i)) {
+		in_range = false;
+		ranges.insert(
+		    AddressRange(dm_database->getResultAsAddress(1) +
+				 range_begin,
+				 dm_database->getResultAsAddress(1) +
+				 i)
+		    );
+	    }
+	if(in_range)
+	    ranges.insert(
+		AddressRange(dm_database->getResultAsAddress(1) +
+			     range_begin,
 			     dm_database->getResultAsAddress(1) +
-			     dm_database->getResultAsAddress(2).getValue(),
-			     dm_database->getResultAsAddress(1) +
-			     dm_database->getResultAsAddress(3).getValue())); 
+			     bitmap.getRange().getEnd())
+		);
+	
+    }
     END_TRANSACTION(dm_database);
     
     // Return the address ranges to the caller

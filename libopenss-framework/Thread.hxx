@@ -30,19 +30,16 @@
 #endif
 
 #include "Entry.hxx"
-#include "Optional.hxx"
 #include "SmartPtr.hxx"
 #include "Time.hxx"
 
-#ifdef HAVE_ARRAY_SERVICES
-#include <arraysvcs.h>
-#endif
 #include <pthread.h>
+#include <set>
 #include <string>
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
-#include <vector>
+#include <utility>
 
 
 
@@ -108,32 +105,25 @@ namespace OpenSpeedShop { namespace Framework {
 	
 	std::string getHost() const;
 	pid_t getProcessId() const;
-	Optional<pthread_t> getPosixThreadId() const;
-#ifdef HAVE_OPENMP
-	Optional<int> getOmpThreadId() const;
-#endif
-#ifdef HAVE_MPI
-	Optional<int> getMpiRank() const;
-#endif
-#ifdef HAVE_ARRAY_SERVICES
-	Optional<ash_t> getArraySessionHandle() const;
-#endif
+	std::pair<bool, pthread_t> getPosixThreadId() const;
+	std::pair<bool, int> getOpenMPThreadId() const;
+	std::pair<bool, int> getMPIRank() const;
 	
-	std::vector<LinkedObject> getLinkedObjects(
+	std::set<LinkedObject> getLinkedObjects(
 	    const Time& = Time::Now()) const;
-	std::vector<Function> getFunctions(
+	std::set<Function> getFunctions(
 	    const Time& = Time::Now()) const;
-	
-	Optional<LinkedObject> getLinkedObjectAt(
-	    const Address&, const Time& = Time::Now()) const;
-	Optional<Function> getFunctionAt(
-	    const Address&, const Time& = Time::Now()) const;
-	Optional<Statement> getStatementAt(
-	    const Address&, const Time& = Time::Now()) const;
 
-	Optional<Function> getFunctionByName(
+	std::pair<bool, LinkedObject> getLinkedObjectAt(
+	    const Address&, const Time& = Time::Now()) const;
+	std::pair<bool, Function> getFunctionAt(
+	    const Address&, const Time& = Time::Now()) const;
+	std::set<Statement> getStatementsAt(
+	    const Address&, const Time& = Time::Now()) const;
+	
+	std::pair<bool, Function> getFunctionByName(
 	    const std::string&, const Time& = Time::Now()) const;
-
+	
 	CollectorGroup getCollectors() const;
 	
     private:

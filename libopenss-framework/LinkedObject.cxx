@@ -26,7 +26,6 @@
 #include "Database.hxx"
 #include "Function.hxx"
 #include "LinkedObject.hxx"
-#include "Optional.hxx"
 #include "Path.hxx"
 #include "Thread.hxx"
 
@@ -74,7 +73,7 @@ Thread LinkedObject::getThread() const
  */
 Path LinkedObject::getPath() const
 {
-    Optional<Path> path;
+    Path path;
 
     // Check assertions
     Assert(!dm_database.isNull());
@@ -83,16 +82,19 @@ Path LinkedObject::getPath() const
     BEGIN_TRANSACTION(dm_database);
     validate("LinkedObjects");
     dm_database->prepareStatement(
-	"SELECT Files.path FROM Files JOIN LinkedObjects"
-	" ON Files.id = LinkedObjects.file WHERE LinkedObjects.id = ?;"
+	"SELECT Files.path "
+	"FROM Files "
+	"  JOIN LinkedObjects "
+	"ON Files.id = LinkedObjects.file "
+	"WHERE LinkedObjects.id = ?;"
 	);
     dm_database->bindArgument(1, dm_entry);
-    while(dm_database->executeStatement()) {	
-	if(path.hasValue())
+    while(dm_database->executeStatement()) {
+	if(!path.empty())
 	    throw Database::Corrupted(*dm_database, "file entry is not unique");
 	path = Path(dm_database->getResultAsString(1));
     }
-    if(!path.hasValue())
+    if(path.empty())
 	throw Database::Corrupted(*dm_database, "file entry no longer exists");
     END_TRANSACTION(dm_database);
     
@@ -137,17 +139,17 @@ AddressRange LinkedObject::getAddressRange() const
 /**
  * Get our functions.
  *
- * Returns the functions contained within this linked object. An empty list is
- * returned if no functions are found within this linked object (unlikely).
+ * Returns the functions contained within this linked object. An empty set is
+ * returned if no functions are found within this linked object.
  *
  * @note    This is a relatively high cost operation in terms of time and memory
  *          used. Avoid using this member function if possible.
  *
  * @return    Functions contained within this linked object.
  */
-std::vector<Function> LinkedObject::getFunctions() const
+std::set<Function> LinkedObject::getFunctions() const
 {
-    std::vector<Function> functions;
+    std::set<Function> functions;
 
     // Check assertions
     Assert(!dm_database.isNull());
@@ -160,9 +162,9 @@ std::vector<Function> LinkedObject::getFunctions() const
 	);	
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement())
-	functions.push_back(Function(dm_database, 
-				     dm_database->getResultAsInteger(1),
-				     dm_context));    
+	functions.insert(Function(dm_database, 
+				  dm_database->getResultAsInteger(1),
+				  dm_context));    
     END_TRANSACTION(dm_database);
     
     // Return the functions to the caller

@@ -27,7 +27,6 @@
 #include "Database.hxx"
 #include "Guard.hxx"
 #include "Lockable.hxx"
-#include "Optional.hxx"
 #include "Path.hxx"
 #include "Thread.hxx"
 #include "ThreadGroup.hxx"
@@ -648,8 +647,7 @@ ThreadGroup Collector::getThreads() const
         );
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement())
-        threads.push_back(Thread(dm_database,
-                                 dm_database->getResultAsInteger(1)));
+        threads.insert(Thread(dm_database, dm_database->getResultAsInteger(1)));
     END_TRANSACTION(dm_database);
     
     // Return the threads to the caller
@@ -1001,6 +999,9 @@ Collector::Collector(const SmartPtr<Database>& database, const int& entry) :
     Entry(database, entry, 0),
     dm_impl(NULL)
 {
+    // Check assertions
+    Assert(!dm_database.isNull());
+
     // Find our unique identifier
     std::string unique_id;
     BEGIN_TRANSACTION(dm_database);
@@ -1062,6 +1063,9 @@ Blob Collector::getParameterData() const
  */
 void Collector::setParameterData(const Blob& data) const
 {
+    // Check assertions
+    Assert(!dm_database.isNull());
+
     // Update our parameter data
     BEGIN_TRANSACTION(dm_database);
     validate("Collectors");

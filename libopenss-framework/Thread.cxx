@@ -23,6 +23,7 @@
  */
 
 #include "Address.hxx"
+#include "AddressBitmap.hxx"
 #include "Collector.hxx"
 #include "CollectorGroup.hxx"
 #include "Database.hxx"
@@ -100,6 +101,9 @@ std::string Thread::getHost() const
 {
     std::string host;
 
+    // Check assertions
+    Assert(!dm_database.isNull());
+
     // Find our host name
     BEGIN_TRANSACTION(dm_database);
     validate("Threads");
@@ -126,6 +130,9 @@ pid_t Thread::getProcessId() const
 {
     pid_t pid;
 
+    // Check assertions
+    Assert(!dm_database.isNull());
+
     // Find our process identifier
     BEGIN_TRANSACTION(dm_database);
     validate("Threads");
@@ -145,13 +152,16 @@ pid_t Thread::getProcessId() const
  * Get our POSIX thread identifier.
  *
  * Returns the POSIX identifier of this thread. If this thread isn't a POSIX
- * thread, the Optional returned will not have a value.
+ * thread, the first value in the pair returned will be "false".
  *
- * @return    Optional identifier of this thread.
+ * @return    Pair containing identifier of this thread.
  */
-Optional<pthread_t> Thread::getPosixThreadId() const
+std::pair<bool, pthread_t> Thread::getPosixThreadId() const
 {
-    Optional<pthread_t> tid;
+    std::pair<bool, pthread_t> tid(false, 0);
+    
+    // Check assertions
+    Assert(!dm_database.isNull());
 
     // Find our POSIX thread identifier	
     BEGIN_TRANSACTION(dm_database);
@@ -161,9 +171,11 @@ Optional<pthread_t> Thread::getPosixThreadId() const
 	);
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement())
-	if(!dm_database->getResultIsNull(1))
-	    tid = static_cast<pthread_t>
+	if(!dm_database->getResultIsNull(1)) {
+	    tid.first = true;
+	    tid.second = static_cast<pthread_t>
 		(dm_database->getResultAsInteger(1));
+	}
     END_TRANSACTION(dm_database);
     
     // Return the POSIX thread identifier to the caller
@@ -172,49 +184,56 @@ Optional<pthread_t> Thread::getPosixThreadId() const
 
 
 
-#ifdef HAVE_OPENMP
 /**
  * Get our OpenMP thread identifier.
  *
  * Returns the OpenMP identifier of this thread. If this thread isn't an OpenMP
- * thread, the Optional returned will not have a value.
+ * thread, the first value in the pair returned will be "false".
  *
- * @return    Optional identifier of this thread.
+ * @return    Pair containing identifier of this thread.
  */
-Optional<int> Thread::getOmpThreadId() const
+std::pair<bool, int> Thread::getOpenMPThreadId() const
 {
-    Optional<int> tid;
-
+    std::pair<bool, int> tid(false, 0);
+    
+    // Check assertions
+    Assert(!dm_database.isNull());
+    
     // Find our OpenMP thread identifier	
     BEGIN_TRANSACTION(dm_database);
     validate("Threads");
-    dm_database->prepareStatement("SELECT omp_tid FROM Threads WHERE id = ?;");
+    dm_database->prepareStatement(
+	"SELECT openmp_tid FROM Threads WHERE id = ?;"
+	);
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement())
-	if(!dm_database->getResultIsNull(1))
-	    tid = dm_database->getResultAsInteger(1);
+	if(!dm_database->getResultIsNull(1)) {
+	    tid.first = true;
+	    tid.second = dm_database->getResultAsInteger(1);
+	}
     END_TRANSACTION(dm_database);
-
+    
     // Return the OpenMP thread identifier to the caller
     return tid;
 }
-#endif
 
 
 
-#ifdef HAVE_MPI
 /**
  * Get our MPI rank.
  *
  * Returns the MPI rank of this thread within the application's world
  * communicator. If this thread isn't part of an MPI application, the
- * Optional returned will not have a value.
+ * first value in the pair returned will be "false".
  *
- * @return    Optional rank of this thread.
+ * @return    Pair containing rank of this thread.
  */
-Optional<int> Thread::getMpiRank() const
+std::pair<bool, int> Thread::getMPIRank() const
 {
-    Optional<int> rank;
+    std::pair<bool, int> rank(false, 0);
+    
+    // Check assertions
+    Assert(!dm_database.isNull());
     
     // Find our MPI rank
     BEGIN_TRANSACTION(dm_database);
@@ -222,44 +241,15 @@ Optional<int> Thread::getMpiRank() const
     dm_database->prepareStatement("SELECT mpi_rank FROM Threads WHERE id = ?;");
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement())
-	if(!dm_database->getResultIsNull(1))
-	    rank = dm_database->getResultAsInteger(1);
+	if(!dm_database->getResultIsNull(1)) {
+	    rank.first = true;
+	    rank.second = dm_database->getResultAsInteger(1);
+	}
     END_TRANSACTION(dm_database);
     
     // Return the MPI rank to the caller
     return rank;
 }
-#endif
-
-
-
-#ifdef HAVE_ARRAY_SERVICES
-/**
- * Get our array session handle.
- *
- * Returns the array session handle containing this thread. If this thread
- * isn't part of an array session, the Optional returned will not have a value.
- *
- * @return    Optional array session handle containing this thread.
- */
-Optional<ash_t> Thread::getArraySessionHandle() const
-{
-    Optional<ash_t> ash;
-
-    // Find our array session handle
-    BEGIN_TRANSACTION(dm_database);
-    validate("Threads");
-    dm_database->prepareStatement("SELECT ash FROM Threads WHERE id = ?;");
-    dm_database->bindArgument(1, dm_entry);
-    while(dm_database->executeStatement())
-	if(!dm_database->getResultIsNull(1))
-	    ash = static_cast<ash_t>(dm_database->getResultAsInteger(1));
-    END_TRANSACTION(dm_database);
-    
-    // Return the array session handle to the caller
-    return ash;
-}
-#endif
 
 
 
@@ -267,28 +257,33 @@ Optional<ash_t> Thread::getArraySessionHandle() const
  * Get our linked objects.
  *
  * Returns the linked objects contained within this thread at a particular
- * moment in time. An empty list is returned if no linked objects can be
- * found (unlikely).
+ * moment in time. An empty set is returned if no linked objects are found.
  *
  * @param time    Query time.
  * @return        Linked objects contained within this thread.
  */
-std::vector<LinkedObject> Thread::getLinkedObjects(const Time& time) const
+std::set<LinkedObject> Thread::getLinkedObjects(const Time& time) const
 {
-    std::vector<LinkedObject> linked_objects;
-
+    std::set<LinkedObject> linked_objects;
+    
+    // Check assertions
+    Assert(!dm_database.isNull());
+    
     // Find our address space entries containing the query time
     BEGIN_TRANSACTION(dm_database);
     validate("Threads");
     dm_database->prepareStatement(
-	"SELECT id, linked_object FROM AddressSpaces"
-	" WHERE thread = ? AND ? >= time_begin AND ? < time_end;"
+	"SELECT id, linked_object "
+	"FROM AddressSpaces "
+	"WHERE thread = ? "
+	"  AND ? >= time_begin "
+	"  AND ? < time_end;"
 	);
     dm_database->bindArgument(1, dm_entry);
     dm_database->bindArgument(2, time);
     dm_database->bindArgument(3, time);
     while(dm_database->executeStatement())
-	linked_objects.push_back(
+	linked_objects.insert(
 	    LinkedObject(dm_database,
 			 dm_database->getResultAsInteger(2),
 			 dm_database->getResultAsInteger(1)));        
@@ -304,7 +299,7 @@ std::vector<LinkedObject> Thread::getLinkedObjects(const Time& time) const
  * Get our functions.
  *
  * Returns the functions contained within this thread at a particular moment
- * in time. An empty list is returned if no functions can be found (unlikely).
+ * in time. An empty set is returned if no functions are found.
  *
  * @note    This is an extremely high cost operation in terms of time and memory
  *          used. Avoid using this member function if at all possible.
@@ -312,29 +307,34 @@ std::vector<LinkedObject> Thread::getLinkedObjects(const Time& time) const
  * @param time    Query time.
  * @return        Functions contained within this thread.
  */
-std::vector<Function> Thread::getFunctions(const Time& time) const
+std::set<Function> Thread::getFunctions(const Time& time) const
 {
-    std::vector<Function> functions;
+    std::set<Function> functions;
+
+    // Check assertions
+    Assert(!dm_database.isNull());
 
     // Find our functions and their contexts containing the query time
     BEGIN_TRANSACTION(dm_database);
     validate("Threads");
     dm_database->prepareStatement(
-	"SELECT Functions.id, AddressSpaces.id"
-	" FROM Functions JOIN AddressSpaces"
-	" ON Functions.linked_object = AddressSpaces.linked_object"
-	" WHERE AddressSpaces.thread = ?"
-	"   AND ? >= AddressSpaces.time_begin AND ? < AddressSpaces.time_end;"
+	"SELECT Functions.id, AddressSpaces.id "
+	"FROM Functions "
+	"  JOIN AddressSpaces "
+	"ON Functions.linked_object = AddressSpaces.linked_object "
+	"WHERE AddressSpaces.thread = ? "
+	"  AND ? >= AddressSpaces.time_begin "
+	"  AND ? < AddressSpaces.time_end;"
 	);
     dm_database->bindArgument(1, dm_entry);
     dm_database->bindArgument(2, time);
     dm_database->bindArgument(3, time);
     while(dm_database->executeStatement())
-	functions.push_back(Function(dm_database,
-				     dm_database->getResultAsInteger(1),
-				     dm_database->getResultAsInteger(2)));    
+	functions.insert(Function(dm_database,
+				  dm_database->getResultAsInteger(1),
+				  dm_database->getResultAsInteger(2)));    
     END_TRANSACTION(dm_database);
-
+    
     // Return the functions to the caller
     return functions;
 }
@@ -346,24 +346,31 @@ std::vector<Function> Thread::getFunctions(const Time& time) const
  *
  * Returns the linked object containing the passed query address at a
  * particular moment in time. If a linked object cannot be found, the
- * Optional returned will not have a value.
+ * first value in the pair returned will be "false".
  *
  * @param address    Query address.
  * @param time       Query time.
- * @return           Optional linked object containing the query address.
+ * @return           Linked object containing this address/time.
  */
-Optional<LinkedObject> Thread::getLinkedObjectAt(const Address& address,
-						 const Time& time) const
+std::pair<bool, LinkedObject> 
+Thread::getLinkedObjectAt(const Address& address, const Time& time) const
 {
-    Optional<LinkedObject> linked_object;
+    std::pair<bool, LinkedObject> linked_object(false, LinkedObject());
 
+    // Check assertions
+    Assert(!dm_database.isNull());
+    
     // Find the address space entry containing the query time/address
     BEGIN_TRANSACTION(dm_database);
     validate("Threads");
     dm_database->prepareStatement(
-	"SELECT id, linked_object FROM AddressSpaces"
-	" WHERE thread = ? AND ? >= time_begin AND ? < time_end"
-	"   AND ? >= addr_begin AND ? < addr_end;"
+	"SELECT id, linked_object "
+	"FROM AddressSpaces "
+	"WHERE thread = ? "
+	"  AND ? >= time_begin "
+	"  AND ? < time_end "
+	"  AND ? >= addr_begin "
+	"  AND ? < addr_end;"
 	);
     dm_database->bindArgument(1, dm_entry);
     dm_database->bindArgument(2, time);
@@ -371,12 +378,13 @@ Optional<LinkedObject> Thread::getLinkedObjectAt(const Address& address,
     dm_database->bindArgument(4, address);
     dm_database->bindArgument(5, address);	
     while(dm_database->executeStatement()) {
-	if(linked_object.hasValue())
+	if(linked_object.first)
 	    throw Database::Corrupted(*dm_database, 
 				      "overlapping address space entries");
-	linked_object = LinkedObject(dm_database,
-				     dm_database->getResultAsInteger(2),
-				     dm_database->getResultAsInteger(1));
+	linked_object.first = true;
+	linked_object.second = LinkedObject(dm_database,
+					    dm_database->getResultAsInteger(2),
+					    dm_database->getResultAsInteger(1));
     }    
     END_TRANSACTION(dm_database);
     
@@ -390,70 +398,52 @@ Optional<LinkedObject> Thread::getLinkedObjectAt(const Address& address,
  * Get the function at an address.
  *
  * Returns the function containing the passed query address at a particular
- * moment in time. If a function cannot be found, the Optional returned will
- * not have a value.
+ * moment in time. If a function cannot be found, the first value in the pair
+ * returned will be "false".
  *
  * @param address    Query address.
  * @param time       Query time.
- * @return           Optional function containing the query address.
+ * @return           Function containing this address/time.
  */
-Optional<Function> Thread::getFunctionAt(const Address& address,
-					 const Time& time) const
+std::pair<bool, Function> 
+Thread::getFunctionAt(const Address& address, const Time& time) const
 {
-    Optional<Function> function;
+    std::pair<bool, Function> function(false, Function());
+
+    // Check assertions
+    Assert(!dm_database.isNull());
     
-    // Begin a multi-statement transaction
+    // Find the function containing the query time/address
     BEGIN_TRANSACTION(dm_database);
     validate("Threads");
-
-    // Find the address space entry containing the query time/address
-    Optional<int> context;
-    Optional<int> linked_object;
-    Optional<Address> base_address;
-    dm_database->beginTransaction();
     dm_database->prepareStatement(
-	"SELECT id, linked_object, addr_begin FROM AddressSpaces"
-	" WHERE thread = ? AND ? >= time_begin AND ? < time_end"
-	"   AND ? >= addr_begin AND ? < addr_end;"
+	"SELECT AddressSpaces.id, "
+	"       Functions.id "
+	"FROM AddressSpaces "
+	"  JOIN Functions "
+	"ON AddressSpaces.linked_object = Functions.linked_object "
+	"WHERE AddressSpaces.thread = ? "
+	"  AND ? >= AddressSpaces.time_begin "
+	"  AND ? < AddressSpaces.time_end "
+	"  AND ? >= addrAdd(AddressSpaces.addr_begin, Functions.addr_begin) "
+	"  AND ? < addrAdd(AddressSpaces.addr_begin, Functions.addr_end);"
 	);
     dm_database->bindArgument(1, dm_entry);
     dm_database->bindArgument(2, time);
     dm_database->bindArgument(3, time);
     dm_database->bindArgument(4, address);
-    dm_database->bindArgument(5, address);		
+    dm_database->bindArgument(5, address);
     while(dm_database->executeStatement()) {
-	if(context.hasValue())
-	    throw Database::Corrupted(*dm_database,
-				      "overlapping address space entries");
-	context = dm_database->getResultAsInteger(1);
-	linked_object = dm_database->getResultAsInteger(2);
-	base_address = dm_database->getResultAsAddress(3);
+	if(function.first)
+	    throw Database::Corrupted(*dm_database, 
+				      "overlapping function entries");
+	function.first = true;
+	function.second = Function(dm_database,
+				   dm_database->getResultAsInteger(2),
+				   dm_database->getResultAsInteger(1));
     }
-    
-    // Find the function containing the query address
-    if(context.hasValue() &&
-       linked_object.hasValue() &&
-       base_address.hasValue()) {
+    END_TRANSACTION(dm_database);
 
-	dm_database->prepareStatement(
-	    "SELECT id FROM Functions"
-	    " WHERE linked_object = ? AND ? >= addr_begin AND ? < addr_end;"
-	    );
-	dm_database->bindArgument(1, linked_object);
-	dm_database->bindArgument(2, Address(address - base_address));
-	dm_database->bindArgument(3, Address(address - base_address));
-	while(dm_database->executeStatement()) {
-	    Assert(!function.hasValue());
-	    function = Function(dm_database,
-				dm_database->getResultAsInteger(1),
-				context);
-	}
-	
-    }
-
-    // End this multi-statement transaction
-    END_TRANSACTION(dm_database);    
-    
     // Return the function to the caller
     return function;
 }
@@ -461,75 +451,67 @@ Optional<Function> Thread::getFunctionAt(const Address& address,
 
 
 /**
- * Get the statement at an address.
+ * Get the statements at an address.
  *
- * Returns the statement containing the passed query address at a particular
- * moment in time. If a statement cannot be found, or if no source statement
- * information is available, the Optional returned will not have a value.
+ * Returns the statements containing the passed query address at a particular
+ * moment in time. An empty set is returned if no statements are found.
  *
  * @param address    Query address.
  * @param time       Query time.
- * @return           Optional statement containing the query address.
+ * @return           Statements containing this address/time.
  */
-Optional<Statement> Thread::getStatementAt(const Address& address,
-					   const Time& time) const
+std::set<Statement>
+Thread::getStatementsAt(const Address& address, const Time& time) const
 {
-    Optional<Statement> statement;
-    
-    // Begin a multi-statement transaction
+    std::set<Statement> statements;
+
+    // Check assertions
+    Assert(!dm_database.isNull());
+
+    // Find the statements containing the query time/address
     BEGIN_TRANSACTION(dm_database);
     validate("Threads");
-    
-    // Find the address space entry containing the query time/address
-    Optional<int> context;
-    Optional<int> linked_object;
-    Optional<Address> base_address;
-    dm_database->beginTransaction();
     dm_database->prepareStatement(
-	"SELECT id, linked_object, addr_begin FROM AddressSpaces"
-	" WHERE thread = ? AND ? >= time_begin AND ? < time_end"
-	"   AND ? >= addr_begin AND ? < addr_end;"
+	"SELECT AddressSpaces.id, "
+	"       AddressSpaces.addr_begin, "
+	"       Statements.id, "
+	"       StatementRanges.addr_begin, "
+	"       StatementRanges.addr_end, "
+	"       StatementRanges.valid_bitmap "
+	"FROM AddressSpaces "
+	"  JOIN Statements "
+	"  JOIN StatementRanges "
+	"ON AddressSpaces.linked_object = Statements.linked_object "
+	"  AND Statements.id = StatementRanges.statement "
+	"WHERE AddressSpaces.thread = ? "
+	"  AND ? >= AddressSpaces.time_begin "
+	"  AND ? < AddressSpaces.time_end "
+	"  AND ? >= addrAdd(AddressSpaces.addr_begin, "
+	"                   StatementRanges.addr_begin) "
+	"  AND ? < addrAdd(AddressSpaces.addr_begin, "
+	"                  StatementRanges.addr_end);"
 	);
     dm_database->bindArgument(1, dm_entry);
     dm_database->bindArgument(2, time);
     dm_database->bindArgument(3, time);
     dm_database->bindArgument(4, address);
-    dm_database->bindArgument(5, address);		
+    dm_database->bindArgument(5, address);
     while(dm_database->executeStatement()) {
-	if(context.hasValue())
-	    throw Database::Corrupted(*dm_database, 
-				      "overlapping address space entries");
-	context = dm_database->getResultAsInteger(1);
-	linked_object = dm_database->getResultAsInteger(2);
-	base_address = dm_database->getResultAsAddress(3);
-    }
-    
-    // Find the statement containing the query address
-    if(context.hasValue() &&
-       linked_object.hasValue() &&
-       base_address.hasValue()) {
+
+	AddressBitmap bitmap(AddressRange(dm_database->getResultAsAddress(4),
+	 				  dm_database->getResultAsAddress(5)),
+			     dm_database->getResultAsBlob(6));
 	
-	dm_database->prepareStatement(
-	    "SELECT statement FROM StatementRanges"
-	    " WHERE linked_object = ? AND ? >= addr_begin AND ? < addr_end;"
-	    );
-	dm_database->bindArgument(1, linked_object);
-	dm_database->bindArgument(2, Address(address - base_address));
-	dm_database->bindArgument(3, Address(address - base_address));
-	while(dm_database->executeStatement()) {
-	    Assert(!statement.hasValue());
-	    statement = Statement(dm_database,
-				  dm_database->getResultAsInteger(1),
-				  context);
-	}
+	if(bitmap.getValue(address - dm_database->getResultAsAddress(2)))
+	    statements.insert(Statement(dm_database,
+					dm_database->getResultAsInteger(3),
+					dm_database->getResultAsInteger(1)));
 	
     }
+    END_TRANSACTION(dm_database);
 
-    // End this multi-statement transaction
-    END_TRANSACTION(dm_database);    
-
-    // Return the statement to the caller
-    return statement;
+    // Return the statements to the caller
+    return statements;
 }
 
 
@@ -538,39 +520,46 @@ Optional<Statement> Thread::getStatementAt(const Address& address,
  * Get a function by name.
  *
  * Returns the function with the passed query name at a particular moment in
- * time. If the function cannot be found, the Optional returned will not have
- * a value. If more than one function is found, the first function found is
- * returned.
+ * time. If the function cannot be found, the first value in the pair returned
+ * will be "false". If more than one function is found, the first function to
+ * be found is returned.
  *
  * @param name    Query name.
  * @param time    Query time.
- * @return        Optional function with the query name.
+ * @return        Function with this name, containing this time.
  */
-Optional<Function> Thread::getFunctionByName(const std::string& name,
-					     const Time& time) const
+std::pair<bool, Function>
+Thread::getFunctionByName(const std::string& name, const Time& time) const
 {
-    Optional<Function> function;
-
+    std::pair<bool, Function> function(false, Function());
+    
+    // Check assertions
+    Assert(!dm_database.isNull());
+    
     // Find the function and its context containing the query time
     BEGIN_TRANSACTION(dm_database);
     validate("Threads");
     dm_database->prepareStatement(
-	"SELECT Functions.id, AddressSpaces.id"
-	" FROM Functions JOIN AddressSpaces"
-	" ON Functions.linked_object = AddressSpaces.linked_object"
-	" WHERE AddressSpaces.thread = ?"
-	"   AND ? >= AddressSpaces.time_begin AND ? < AddressSpaces.time_end"
-	"   AND Functions.name = ?;"
+	"SELECT Functions.id, AddressSpaces.id "
+	"FROM Functions "
+	"  JOIN AddressSpaces "
+	"ON Functions.linked_object = AddressSpaces.linked_object "
+	"WHERE AddressSpaces.thread = ? "
+	"  AND ? >= AddressSpaces.time_begin "
+	"  AND ? < AddressSpaces.time_end "
+	"  AND Functions.name = ?;"
 	);
     dm_database->bindArgument(1, dm_entry);
     dm_database->bindArgument(2, time);
     dm_database->bindArgument(3, time);
     dm_database->bindArgument(4, name);
     while(dm_database->executeStatement())
-	if(!function.hasValue())
-	    function = Function(dm_database,
-				dm_database->getResultAsInteger(1),
-				dm_database->getResultAsInteger(2));    
+	if(!function.first) {
+	    function.first = true;
+	    function.second = Function(dm_database,
+				       dm_database->getResultAsInteger(1),
+				       dm_database->getResultAsInteger(2));
+	}    
     END_TRANSACTION(dm_database);
     
     // Return the function to the caller
@@ -600,7 +589,7 @@ CollectorGroup Thread::getCollectors() const
     //       creation of the collector objects.
 
     // Find our collectors
-    std::vector<int> entries;
+    std::set<int> entries;
     BEGIN_TRANSACTION(dm_database);
     validate("Threads");    
     dm_database->prepareStatement(
@@ -608,14 +597,14 @@ CollectorGroup Thread::getCollectors() const
         );
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement())
-	entries.push_back(dm_database->getResultAsInteger(1));    
+	entries.insert(dm_database->getResultAsInteger(1));    
     END_TRANSACTION(dm_database);
     
     // Create the collectors
     CollectorGroup collectors;
-    for(std::vector<int>::const_iterator
+    for(std::set<int>::const_iterator
 	    i = entries.begin(); i != entries.end(); ++i)
-	collectors.push_back(Collector(dm_database, *i));
+	collectors.insert(Collector(dm_database, *i));
     
     // Return the collectors to the caller
     return collectors;

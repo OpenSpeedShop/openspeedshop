@@ -22,7 +22,10 @@
  *
  */
 
+#include "Address.hxx"
+#include "AddressBitmap.hxx"
 #include "Assert.hxx"
+#include "Blob.hxx"
 #include "CallSite.hxx"
 #include "Database.hxx"
 #include "Function.hxx"
@@ -147,20 +150,22 @@ AddressRange Function::getAddressRange() const
     BEGIN_TRANSACTION(dm_database);
     validate("Functions");
     dm_database->prepareStatement(
-	"SELECT AddressSpaces.addr_begin,"
-	"       Functions.addr_begin, Functions.addr_end"
-	" FROM AddressSpaces JOIN Functions"
-	" ON AddressSpaces.linked_object = Functions.linked_object"
-	" WHERE Functions.id = ?"
-	"   AND AddressSpaces.id = ?"
+	"SELECT AddressSpaces.addr_begin, "
+	"       Functions.addr_begin, "
+	"       Functions.addr_end "
+	"FROM AddressSpaces "
+	"  JOIN Functions "
+	"ON AddressSpaces.linked_object = Functions.linked_object "
+	"WHERE Functions.id = ? "
+	"  AND AddressSpaces.id = ?;"
 	);	
     dm_database->bindArgument(1, dm_entry);	
     dm_database->bindArgument(2, dm_context);	
     while(dm_database->executeStatement())
 	range = AddressRange(dm_database->getResultAsAddress(1) +
-			     dm_database->getResultAsAddress(2).getValue(),
+			     dm_database->getResultAsAddress(2),
 			     dm_database->getResultAsAddress(1) +
-			     dm_database->getResultAsAddress(3).getValue());
+			     dm_database->getResultAsAddress(3));
     END_TRANSACTION(dm_database);
     
     // Return the address range to the caller	
@@ -170,41 +175,55 @@ AddressRange Function::getAddressRange() const
 
 
 /**
- * Get our definition.
+ * Get our definitions.
  *
- * Returns the definition of this function. If no definition can be found
- * for this function, or if no source information is available, the Optional
- * returned will not have a value.
+ * Returns the definitions of this function. An empty set is returned if no
+ * definitions of this function are found.
  *
- * @return    Optional definition of this function.
+ * @return    Definitions of this function.
  */
-Optional<Statement> Function::getDefinition() const
+std::set<Statement> Function::getDefinitions() const
 {
-    Optional<Statement> statement;
+    std::set<Statement> definitions;
 
     // Check assertions
     Assert(!dm_database.isNull());
 
-    // Find the statement containing our beginning address
+    // Find the statements containing our beginning address
     BEGIN_TRANSACTION(dm_database);
     validate("Functions");
     dm_database->prepareStatement(
-	"SELECT DISTINCT statement FROM StatementRanges JOIN Functions"
-	" ON StatementRanges.linked_object = Functions.linked_object"
-	" WHERE Functions.id = ?"
-	"   AND Functions.addr_begin >= StatementRanges.addr_begin"
-	"   AND Functions.addr_begin < StatementRanges.addr_end;"
+	"SELECT Functions.addr_begin, "
+	"       Statements.id, "
+	"       StatementRanges.addr_begin, "
+	"       StatementRanges.addr_end, "
+	"       StatementRanges.valid_bitmap "
+	"FROM Functions "
+	"  JOIN Statements "
+	"  JOIN StatementRanges "
+	"ON Functions.linked_object = Statements.linked_object "
+	"  AND Statements.id = StatementRanges.statement "
+	"WHERE Functions.id = ? "
+	"  AND Functions.addr_begin >= StatementRanges.addr_begin "
+	"  AND Functions.addr_begin < StatementRanges.addr_end;"
 	);
     dm_database->bindArgument(1, dm_entry);
-    while(dm_database->executeStatement())
-	if(!statement.hasValue())
-	    statement = Statement(dm_database,
-				  dm_database->getResultAsInteger(1),
-				  dm_context);
+    while(dm_database->executeStatement()) {
+	
+	AddressBitmap bitmap(AddressRange(dm_database->getResultAsAddress(3),
+	 				  dm_database->getResultAsAddress(4)),
+			     dm_database->getResultAsBlob(5));
+
+	if(bitmap.getValue(dm_database->getResultAsAddress(1)))
+	    definitions.insert(Statement(dm_database,
+					 dm_database->getResultAsInteger(2),
+					 dm_context));
+	
+    }
     END_TRANSACTION(dm_database);
     
-    // Return the statement to the caller
-    return statement;
+    // Return the definitions to the caller
+    return definitions;
 }
 
 
@@ -212,15 +231,14 @@ Optional<Statement> Function::getDefinition() const
 /**
  * Get our statements.
  *
- * Returns the statements associated with this function. An empty list is
- * returned if no statements are associated with this function or if no source
- * statement information is available.
+ * Returns the statements associated with this function. An empty set is
+ * returned if no statements are associated with this function.
  *
  * @return    Statements associated with this function.
  */
-std::vector<Statement> Function::getStatements() const
+std::set<Statement> Function::getStatements() const
 {
-    std::vector<Statement> statements;
+    std::set<Statement> statements;
 
     // Check assertions
     Assert(!dm_database.isNull());
@@ -229,17 +247,41 @@ std::vector<Statement> Function::getStatements() const
     BEGIN_TRANSACTION(dm_database);
     validate("Functions");
     dm_database->prepareStatement(
-	"SELECT DISTINCT statement FROM StatementRanges JOIN Functions"
-	" ON StatementRanges.linked_object = Functions.linked_object"
-	" WHERE Functions.id = ?"
-	"   AND Functions.addr_end >= StatementRanges.addr_begin"
-	"   AND Functions.addr_begin < StatementRanges.addr_end;"
+	"SELECT Functions.addr_begin, "
+	"       Functions.addr_end, "
+	"       Statements.id, "
+	"       StatementRanges.addr_begin, "
+	"       StatementRanges.addr_end, "
+	"       StatementRanges.valid_bitmap "
+	"FROM Functions "
+	"  JOIN Statements "
+	"  JOIN StatementRanges "
+	"ON Functions.linked_object = Statements.linked_object "
+	"  AND Statements.id = StatementRanges.statement "
+	"WHERE Functions.id = ? "
+	"  AND Functions.addr_end >= StatementRanges.addr_begin"
+	"  AND Functions.addr_begin < StatementRanges.addr_end;"
 	);
     dm_database->bindArgument(1, dm_entry);
-    while(dm_database->executeStatement())
-	statements.push_back(Statement(dm_database,
-				       dm_database->getResultAsInteger(1),
-				       dm_context));
+    while(dm_database->executeStatement()) {
+
+	AddressBitmap bitmap(AddressRange(dm_database->getResultAsAddress(4),
+	 				  dm_database->getResultAsAddress(5)),
+			     dm_database->getResultAsBlob(6));
+	
+	AddressRange range =
+	    AddressRange(dm_database->getResultAsAddress(1),
+			 dm_database->getResultAsAddress(2)) &
+	    AddressRange(dm_database->getResultAsAddress(4),
+			 dm_database->getResultAsAddress(5));
+
+	for(Address i = range.getBegin(); i != range.getEnd(); ++i)
+	    if(bitmap.getValue(i))
+		statements.insert(Statement(dm_database,
+					    dm_database->getResultAsInteger(3),
+					    dm_context));
+	
+    }
     END_TRANSACTION(dm_database);
     
     // Return the statements to the caller
@@ -251,16 +293,16 @@ std::vector<Statement> Function::getStatements() const
 /**
  * Get our callees.
  *
- * Returns the known callees of this function. An empty list is returned if no
- * callees are currently known.
+ * Returns the known callees of this function. An empty set is returned if no
+ * known callees are found.
  *
  * @todo    Needs to be implemented.
  *
  * @return    All known callees of this function.
  */
-std::vector<CallSite> Function::getCallees() const
+std::set<CallSite> Function::getCallees() const
 {
-    return std::vector<CallSite>();
+    return std::set<CallSite>();
 }
 
 
@@ -268,16 +310,16 @@ std::vector<CallSite> Function::getCallees() const
 /**
  * Get our callers.
  *
- * Returns the known callers of this function. An empty list is returned if no
- * callers are currently known.
+ * Returns the known callers of this function. An empty set is returned if no
+ * known callers are found.
  *
  * @todo    Needs to be implemented.
  * 
  * @return    All known callers of this function.
  */
-std::vector<CallSite> Function::getCallers() const
+std::set<CallSite> Function::getCallers() const
 {
-    return std::vector<CallSite>();
+    return std::set<CallSite>();
 }
 
 

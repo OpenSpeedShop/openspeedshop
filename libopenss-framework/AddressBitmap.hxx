@@ -18,46 +18,64 @@
 
 /** @file
  *
- * Declaration of the CollectorGroup class.
+ * Declaration of the AddressBitmap class.
  *
  */
 
-#ifndef _OpenSpeedShop_Framework_CollectorGroup_
-#define _OpenSpeedShop_Framework_CollectorGroup_
+#ifndef _OpenSpeedShop_Framework_AddressBitmap_
+#define _OpenSpeedShop_Framework_AddressBitmap_
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include "Collector.hxx"
+#include "AddressRange.hxx"
+#include "Blob.hxx"
 
-#include <set>
+#include <vector>
 
 
 
 namespace OpenSpeedShop { namespace Framework {
 
+    class Address;
+
     /**
-     * Arbitrary group of collectors.
+     * Address bitmap.
      *
-     * Container holding an arbitrary group of collectors. No specific
-     * relationship is implied between the collectors within a given collector
-     * group. The class is used simply to provide a more convenient way of
-     * applying operators to a group of collectors as a whole rather than each
-     * individually.
+     * A bitmap containing one bit per address within an address range. Used,
+     * when storing source statements in an experiment database, to indicate
+     * which addresses within an address range are actually attributable to
+     * the source statement.
      *
-     * @todo    Implement additional collective operations.
-     *
-     * @ingroup ToolAPI
+     * @ingroup Implementation
      */
-    class CollectorGroup :
-	public std::set<Collector>
+    class AddressBitmap
     {
 	
     public:
 
-	void startCollecting();
-        void stopCollecting();
+	AddressBitmap(const AddressRange&);
+	AddressBitmap(const AddressRange&, const Blob&);
+	
+	/** Read-only data member accessor function. */
+	const AddressRange& getRange() const
+	{
+	    return dm_range;
+	}
+
+	void setValue(const Address&, const bool&);
+	bool getValue(const Address&) const;
+	
+	Blob getBlob() const;
+
+    private:
+
+	/** Address range covered by this bitmap. */
+	AddressRange dm_range;
+
+	/** Actual bitmap. */
+	std::vector<bool> dm_bitmap;
 	
     };
     

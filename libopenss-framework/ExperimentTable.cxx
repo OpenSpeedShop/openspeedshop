@@ -218,9 +218,10 @@ void ExperimentTable::storePerformanceData(const Blob& blob) const
 
 	// Create an entry for this data
 	database->prepareStatement(
-	    "INSERT INTO Data (collector, thread,"
-	    " time_begin, time_end, addr_begin, addr_end, data)"
-	    " VALUES (?, ?, ?, ?, ?, ?, ?);"
+	    "INSERT INTO Data "
+	    "(collector, thread, time_begin, time_end, "
+	    "  addr_begin, addr_end, data) "
+	    "VALUES (?, ?, ?, ?, ?, ?, ?);"
 	    );
 	database->bindArgument(1, header.collector);
 	database->bindArgument(2, header.thread);

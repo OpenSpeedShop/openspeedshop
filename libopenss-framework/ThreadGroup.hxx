@@ -31,7 +31,7 @@
 
 #include "Thread.hxx"
 
-#include <vector>
+#include <set>
 
 
 
@@ -48,7 +48,7 @@ namespace OpenSpeedShop { namespace Framework {
      * @ingroup ToolAPI
      */
     class ThreadGroup :
-	public std::vector<Thread>
+	public std::set<Thread>
     {
 	
     public:

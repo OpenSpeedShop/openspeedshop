@@ -33,7 +33,7 @@
 #include "Entry.hxx"
 #include "SmartPtr.hxx"
 
-#include <vector>
+#include <set>
 
 
 
@@ -41,7 +41,6 @@ namespace OpenSpeedShop { namespace Framework {
 
     class Database;
     class Function;
-    template <typename> class Optional;
     class Path;
     class Statement;
     class Thread;
@@ -60,7 +59,6 @@ namespace OpenSpeedShop { namespace Framework {
 	public Entry
     {
 	friend class Function;
-	friend class Optional<LinkedObject>;
 	friend class Statement;
 	friend class Thread;
 	
@@ -71,7 +69,7 @@ namespace OpenSpeedShop { namespace Framework {
 	Path getPath() const;
 	AddressRange getAddressRange() const;
 	
-	std::vector<Function> getFunctions() const;
+	std::set<Function> getFunctions() const;
 	
     private:
 

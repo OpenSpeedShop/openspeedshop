@@ -33,17 +33,15 @@
 #include "Thread.hxx"
 #include "ThreadGroup.hxx"
 
-#include <unistd.h>
 #include <pthread.h>
 #include <stdexcept>
+#include <unistd.h>
 
 using namespace OpenSpeedShop::Framework;
 
 
 
 namespace {
-
-
     
     /**
      * Database schema.
@@ -57,11 +55,11 @@ namespace {
      */
     const char* DatabaseSchema[] = {
 
-	// Open/SpeedShop (Master) Table
-	"CREATE TABLE 'Open/SpeedShop' ("
+	// Open|SpeedShop Table
+	"CREATE TABLE 'Open|SpeedShop' ("
 	"    version INTEGER"
 	");",
-	"INSERT INTO 'Open/SpeedShop' (version) VALUES (1);",
+	"INSERT INTO 'Open|SpeedShop' (version) VALUES (1);",
 	
 	// Thread Table
 	"CREATE TABLE Threads ("
@@ -69,9 +67,8 @@ namespace {
 	"    host TEXT,"
 	"    pid INTEGER DEFAULT NULL,"
 	"    posix_tid INTEGER DEFAULT NULL,"
-	"    omp_tid INTEGER DEFAULT NULL,"
-	"    mpi_rank INTEGER DEFAULT NULL,"
-	"    ash INTEGER DEFAULT NULL"
+	"    openmp_tid INTEGER DEFAULT NULL,"
+	"    mpi_rank INTEGER DEFAULT NULL"
 	");",
 	
 	// Address Space Table
@@ -110,6 +107,7 @@ namespace {
 	// Statement Table
 	"CREATE TABLE Statements ("
 	"    id INTEGER PRIMARY KEY,"
+	"    linked_object INTEGER," // From LinkedObjects.id
 	"    file INTEGER," // From Files.id
 	"    line INTEGER,"
 	"    column INTEGER"
@@ -118,9 +116,9 @@ namespace {
 	// Statement Ranges Table
 	"CREATE TABLE StatementRanges ("
 	"    statement INTEGER," // From Statements.id
-	"    linked_object INTEGER," // From LinkedObjects.id
 	"    addr_begin INTEGER,"
-	"    addr_end INTEGER"
+	"    addr_end INTEGER,"
+	"    valid_bitmap BLOB"
 	");",
 	
 	// File Table
@@ -248,7 +246,7 @@ std::string Experiment::getLocalHost()
  *
  * Returns a boolean value indicating if the specified experiment database is
  * accessible. Simply confirms that the database exists, is accessible by the
- * database engine, and contains a "Open/SpeedShop" table with a single row.
+ * database engine, and contains a "Open|SpeedShop" table with a single row.
  * It does not check that any of the other tables match the experiment database
  * schema or that the tablesare internally consistent.
  *
@@ -265,9 +263,9 @@ bool Experiment::isAccessible(const std::string& name)
 	// Open the experiment database
 	SmartPtr<Database> database = SmartPtr<Database>(new Database(name));
 
-	// Verify there is a "Open/SpeedShop" table containing a single row
+	// Verify there is a "Open|SpeedShop" table containing a single row
 	BEGIN_TRANSACTION(database);
-	database->prepareStatement("SELECT COUNT(*) FROM 'Open/SpeedShop';");
+	database->prepareStatement("SELECT COUNT(*) FROM 'Open|SpeedShop';");
 	while(database->executeStatement())
 	    is_accessible = (database->getResultAsInteger(1) == 1);
 	END_TRANSACTION(database);
@@ -414,8 +412,7 @@ ThreadGroup Experiment::getThreads() const
     BEGIN_TRANSACTION(dm_database);    
     dm_database->prepareStatement("SELECT id FROM Threads;");
     while(dm_database->executeStatement())
-	threads.push_back(Thread(dm_database,
-				 dm_database->getResultAsInteger(1)));    
+	threads.insert(Thread(dm_database, dm_database->getResultAsInteger(1)));
     END_TRANSACTION(dm_database);
     
     // Return the threads to the caller
@@ -457,6 +454,27 @@ Thread Experiment::createProcess(const std::string& command,
 
 
 /**
+ * Attach to an MPI job.
+ *
+ * Attaches to an existing process that is part of an MPI job and adds all the
+ * threads within that job to this experiment. The threads' statuses are not
+ * affected.
+ *
+ * @todo    Currently this routine is unimplemented.
+ *
+ * @param pid     Process identifier for the process.
+ * @param host    Name of the host on which the process resides.
+ * @return        Attached threads.
+ */
+ThreadGroup Experiment::attachMPIJob(const pid_t& pid,
+				     const std::string& host) const
+{
+    return ThreadGroup();
+}
+
+
+
+/**
  * Attach to a process.
  *
  * Attaches to an existing process and adds all threads within that process to
@@ -486,7 +504,7 @@ ThreadGroup Experiment::attachProcess(const pid_t& pid,
     while(dm_database->executeStatement());
     Thread thread(dm_database, dm_database->getLastInsertedUID());
     Instrumentor::attachUnderlyingThread(thread);
-    threads.push_back(thread);    
+    threads.insert(thread);    
     END_TRANSACTION(dm_database);
     
     // Return the thread to the caller
@@ -530,7 +548,6 @@ Thread Experiment::attachPosixThread(const pid_t& pid, const pthread_t& tid,
 
 
 
-#ifdef HAVE_OPENMP
 /**
  * Attach to an OpenMP thread.
  *
@@ -549,29 +566,6 @@ Thread Experiment::attachOpenMPThread(const pid_t& pid, const int& tid,
 {
     return Thread();
 }
-#endif
-
-
-
-#ifdef HAVE_ARRAY_SERVICES
-/**
- * Attach to an array session.
- *
- * Attaches to to an existing array session and adds all threads within that
- * array session to this experiment. The threads' statuses are not affected.
- *
- * @todo    Currently this routine is unimplemented.
- *
- * @param ash     Handle for the array session.
- * @param host    Name of the host on which the array session resides.
- * @return        Attached threads.
- */
-ThreadGroup Experiment::attachArraySession(const ash_t& ash,
-					   const std::string& host) const
-{
-    return ThreadGroup();
-}
-#endif
 
 
 
@@ -629,18 +623,18 @@ CollectorGroup Experiment::getCollectors() const
     //       creation of the collector objects.
 
     // Find our collectors
-    std::vector<int> entries;
+    std::set<int> entries;
     BEGIN_TRANSACTION(dm_database);    
     dm_database->prepareStatement("SELECT id FROM Collectors;");
     while(dm_database->executeStatement())
-	entries.push_back(dm_database->getResultAsInteger(1));    
+	entries.insert(dm_database->getResultAsInteger(1));    
     END_TRANSACTION(dm_database);
     
     // Create the collectors
     CollectorGroup collectors;
-    for(std::vector<int>::const_iterator
+    for(std::set<int>::const_iterator
 	    i = entries.begin(); i != entries.end(); ++i)
-	collectors.push_back(Collector(dm_database, *i));
+	collectors.insert(Collector(dm_database, *i));
     
     // Return the collectors to the caller
     return collectors;

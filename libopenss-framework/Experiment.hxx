@@ -32,9 +32,6 @@
 #include "NonCopyable.hxx"
 #include "SmartPtr.hxx"
 
-#ifdef HAVE_ARRAY_SERVICES
-#include <arraysvcs.h>
-#endif
 #include <pthread.h>
 #include <string>
 #ifdef HAVE_SYS_TYPES_H
@@ -109,26 +106,21 @@ namespace OpenSpeedShop { namespace Framework {
 	Thread createProcess(const std::string&,
 			     const std::string& = getLocalHost()) const;
 	
+	ThreadGroup attachMPIJob(const pid_t&,
+				 const std::string& = getLocalHost()) const;
 	ThreadGroup attachProcess(const pid_t&,
 				  const std::string& = getLocalHost()) const;
 	Thread attachPosixThread(const pid_t&, const pthread_t&,
 				 const std::string& = getLocalHost()) const;
-#ifdef HAVE_OPENMP
 	Thread attachOpenMPThread(const pid_t&, const int&,
 				  const std::string& = getLocalHost()) const;
-#endif
-#ifdef HAVE_ARRAY_SERVICES	
-	ThreadGroup attachArraySession(const ash_t&,
-				       const std::string& =
-				       getLocalHost()) const;
-#endif
 	
 	void removeThread(const Thread&) const;
 	
 	CollectorGroup getCollectors() const;
 	Collector createCollector(const std::string&) const;
 	void removeCollector(const Collector&) const;
-
+	
     private:
 	
 	/** Experiment database. */

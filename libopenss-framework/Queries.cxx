@@ -59,10 +59,10 @@ void Queries::GetMetricByFunctionInThread(
     Assert(!result.isNull());
     
     // Get the current list of functions in this thread
-    std::vector<Function> functions = thread.getFunctions();
+    std::set<Function> functions = thread.getFunctions();
     
     // Iterate over each function
-    for(std::vector<Function>::const_iterator
+    for(std::set<Function>::const_iterator
 	    i = functions.begin(); i != functions.end(); ++i) {
 	
 	// Get the address range of this function
@@ -115,27 +115,27 @@ void Queries::GetMetricByStatementInFunction(
     Thread thread = function.getThread();
 
     // Get the list of statements in this function
-    std::vector<Statement> statements = function.getStatements();
+    std::set<Statement> statements = function.getStatements();
     
     // Iterate over each statement
-    for(std::vector<Statement>::const_iterator
+    for(std::set<Statement>::const_iterator
 	    i = statements.begin(); i != statements.end(); ++i) {
 	
 	// Get the address ranges of this statement
-	std::vector<AddressRange> ranges = i->getAddressRanges();
-
+	std::set<AddressRange> ranges = i->getAddressRanges();
+	
 	// Iterate over each address range
 	double value = 0.0;
-	for(std::vector<AddressRange>::const_iterator
+	for(std::set<AddressRange>::const_iterator
 		j = ranges.begin(); j != ranges.end(); ++j ) {
-
+	    
 	    // Evalute the metric over this address range
 	    double tmp = 0.0;
 	    collector.getMetricValue(metric, thread, *j, Forever, value);
 	    value += tmp;
 	    
 	}
-
+	
 	// Add this function and its metric value to the map
 	if(value != 0.0)
 	    result->insert(std::make_pair(*i, value));

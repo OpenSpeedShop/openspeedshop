@@ -16,7 +16,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-pkglib_LTLIBRARIES = example.la example-rt.la
+noinst_LTLIBRARIES = example.la example-rt.la
 
 example_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework

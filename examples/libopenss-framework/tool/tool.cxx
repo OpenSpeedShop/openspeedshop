@@ -112,17 +112,18 @@ int main(int argc, char* argv[])
 		      << "    "
 		      << i->second.getName();
 
-	    Optional<Statement> definition = i->second.getDefinition();
-	    if(definition.hasValue())
-		std::cout << " (" << definition.getValue().getPath()
-			  << ", " << definition.getValue().getLine() << ")";
+	    std::set<Statement> definitions = i->second.getDefinitions();
+	    for(std::set<Statement>::const_iterator
+		    i = definitions.begin(); i != definitions.end(); ++i)
+		std::cout << " (" << i->getPath().baseName()
+			  << ", " << i->getLine() << ")";
 	    
 	    std::cout << std::endl;
 	    
 	}
 	
 	std::cout << std::endl << std::endl;
-	
+
     }
     catch(const std::exception& error) {
 	std::cerr

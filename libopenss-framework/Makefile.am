@@ -36,6 +36,7 @@ libopenss_framework_la_LIBADD = \
 libopenss_framework_la_SOURCES = \
 	runtime/OpenSS_DataHeader.c \
 	Address.hxx \
+	AddressBitmap.hxx AddressBitmap.cxx \
 	AddressRange.hxx \
 	Assert.hxx \
 	Blob.hxx Blob.cxx \
@@ -57,11 +58,11 @@ libopenss_framework_la_SOURCES = \
 	Lockable.hxx \
 	Metadata.hxx \
 	NonCopyable.hxx \
-	Optional.hxx \
 	Path.hxx \
 	Queries.hxx Queries.cxx \
 	SmartPtr.hxx \
 	Statement.hxx Statement.cxx \
+	StatementBuilder.hxx StatementBuilder.cxx \
 	Thread.hxx Thread.cxx \
 	ThreadGroup.hxx ThreadGroup.cxx \
 	Time.hxx \

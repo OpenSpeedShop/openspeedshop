@@ -29,6 +29,7 @@
 #include "config.h"
 #endif
 
+#include "Assert.hxx"
 #include "TotallyOrdered.hxx"
 
 #ifdef HAVE_INTTYPES_H
@@ -37,7 +38,6 @@
 #include <iomanip>
 #include <iostream>
 #include <limits>
-#include <stdexcept>
 
 
 
@@ -88,24 +88,28 @@ namespace OpenSpeedShop { namespace Framework {
 	    return dm_value < other.dm_value;
 	}
 
-	/** Operator "+=" defined for an Address object and a signed offset. */
-	Address& operator+=(const difference_type& other)
+	/** Operator "+=" defined for two Address objects. */
+	Address& operator+=(const Address& other)
 	{
-	    value_type result = dm_value + other;
-	    if((other < 0) && (result >= dm_value))
-		throw std::range_error("Adding a negative offset to an address "
-				       "resulted in an address less than "
-				       "UINT64_MIN.");
-	    if((other > 0) && (result <= dm_value))
-		throw std::range_error("Adding a positive offset to an address "
-				       "resulted in an address greater than "
-				       "UINT64_MAX.");
+	    value_type result = dm_value + other.dm_value;
+	    Assert(result >= dm_value);
 	    dm_value = result;
 	    return *this;
 	}
 	
+	/** Operator "+=" defined for an Address object and a signed offset. */
+	Address& operator+=(const difference_type& other)
+	{
+	    value_type result = dm_value + other;
+	    Assert((other > 0) || (result <= dm_value));
+            Assert((other < 0) || (result >= dm_value));
+	    dm_value = result;
+	    return *this;
+	}
+
 	/** Operator "+" defined in terms of "+=". */
-	Address operator+(const difference_type& other) const
+	template <typename T>
+	Address operator+(const T& other) const
 	{
 	    return Address(*this) += other;
 	}
@@ -114,13 +118,37 @@ namespace OpenSpeedShop { namespace Framework {
 	difference_type operator-(const Address& other) const
 	{
 	    difference_type result = dm_value - other.dm_value;
-	    if((*this < other) && (result >= 0))
-		throw std::range_error("Subtracting two addresses resulted in "
-				       "an address less than INT64_MIN.");
-	    if((*this > other) && (result <= 0))
-		throw std::range_error("Subtracting two addresses resulted in "
-				       "an address greater than INT64_MAX.");
+	    Assert((*this > other) || (result <= 0));
+            Assert((*this < other) || (result >= 0));
 	    return result;
+	}
+
+	/** Operator "++" (prefix) defined in terms of "+=". */
+	Address& operator++()
+	{
+	    return *this += 1;
+	}
+	
+	/** Operator "++" (postfix) defined in terms of "++" (prefix). */
+	Address operator++(int)
+	{
+	    Address copy = *this;
+	    operator++();
+	    return copy;
+	}
+
+	/** Operator "--" (prefix) defined in terms of "+=". */
+	Address& operator--()
+	{
+	    return *this += -1;
+	}
+	
+	/** Operator "--" (postfix) defined in terms of "--" (prefix). */
+	Address operator--(int)
+	{
+	    Address copy = *this;
+	    operator--();
+	    return copy;
 	}
 	
 	/** Operator "<<" defined for std::ostream. */

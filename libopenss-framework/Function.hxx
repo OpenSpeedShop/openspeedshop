@@ -31,11 +31,10 @@
 
 #include "AddressRange.hxx"
 #include "Entry.hxx"
-#include "Optional.hxx"
 #include "SmartPtr.hxx"
 
+#include <set>
 #include <string>
-#include <vector>
 
 
 
@@ -52,7 +51,7 @@ namespace OpenSpeedShop { namespace Framework {
      *
      * Representation of a source code function. Provides member functions for
      * getting the containing thread and linked object, demangled name, address
-     * range, definition, callees, and callers of this function.
+     * range, definitions, statements, callees, and callers of this function.
      *
      * @ingroup CollectorAPI ToolAPI
      */
@@ -60,7 +59,6 @@ namespace OpenSpeedShop { namespace Framework {
 	public Entry
     {
 	friend class LinkedObject;
-	friend class Optional<Function>;
 	friend class Statement;
 	friend class Thread;
 	
@@ -72,10 +70,10 @@ namespace OpenSpeedShop { namespace Framework {
 	std::string getName() const;
 	AddressRange getAddressRange() const;
 	
-	Optional<Statement> getDefinition() const;
-	std::vector<Statement> getStatements() const;
-	std::vector<CallSite> getCallees() const;
-	std::vector<CallSite> getCallers() const;
+	std::set<Statement> getDefinitions() const;
+	std::set<Statement> getStatements() const;
+	std::set<CallSite> getCallees() const;
+	std::set<CallSite> getCallers() const;
 	
     private:
 	

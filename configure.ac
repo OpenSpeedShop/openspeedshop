@@ -58,14 +58,14 @@ AC_LIBLTDL_INSTALLABLE
 AC_SUBST(LTDLINCL)
 AC_SUBST(LIBLTDL)
 AC_LIBTOOL_DLOPEN
-AM_PROG_LEX
-AC_PROG_YACC
 AC_PROG_LIBTOOL
 AC_CONFIG_SUBDIRS(libltdl)
 
-AC_PROG_INSTALL
-
+AM_PROG_LEX
+AC_PROG_YACC
 AC_PATH_PROG([RPCGEN], rpcgen)
+
+AC_PROG_INSTALL
 
 ################################################################################
 # Check for Instrumentor
@@ -113,41 +113,10 @@ AC_CHECK_HEADER(pthread.h, [ AC_CHECK_LIB(pthread, pthread_create, [
 ]) ])
 
 ################################################################################
-# Check for OpenMP (http://www.openmp.org)
-################################################################################
-
-AC_CHECK_HEADER(omp.h, [
-    AC_DEFINE(HAVE_OPENMP, 1, [Define to 1 if you have OpenMP.])
-])
-
-################################################################################
-# Check for MPI (http://www.mpi-forum.org)
-################################################################################
-
-AC_CHECK_HEADER(mpi.h, [ AC_CHECK_LIB(mpi, MPI_Init, [
-    AC_DEFINE(HAVE_MPI, 1, [Define to 1 if you have MPI.])
-]) ])
-
-################################################################################
 # Check for Python (http://www.python.org)
 ################################################################################
 
-	AC_PKG_PYTHON()
-
-################################################################################
-# Check for SGI Array Services (proprietary)
-################################################################################
-
-AC_CHECK_HEADER(arraysvcs.h, [ AC_CHECK_LIB(array, asgeterror, [
-    AC_DEFINE(HAVE_ARRAY_SERVICES, 1, [Define to 1 if you have array services.])
-
-    case "$host" in
-        *linux*)
-            CPPFLAGS="$CPPFLAGS -DLINUX"
-            ;;
-    esac
-
-]) ])
+AC_PKG_PYTHON()
 
 ################################################################################
 # Generate Output Files

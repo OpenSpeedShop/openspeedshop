@@ -55,7 +55,7 @@ namespace OpenSpeedShop { namespace Framework {
      * provide an efficient identifier, this class maintains a mapping between
      * unique integers and every Experiment that has been created. Instead of
      * providing direct access to this mapping, this class provides the wrapping
-     * functioanlity around that mapping to get an experiment's identifier and
+     * functionality around that mapping to get an experiment's identifier and
      * to store a blob of performance data.
      *
      * @ingroup Implementation

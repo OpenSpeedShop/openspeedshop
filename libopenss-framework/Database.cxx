@@ -32,6 +32,7 @@
 #ifdef HAVE_INTTYPES_H
 #include <inttypes.h>
 #endif
+#include <limits>
 #include <pthread.h>
 #include <sqlite3.h>
 #include <time.h>
@@ -42,6 +43,11 @@ using namespace OpenSpeedShop::Framework;
 
 
 namespace {
+
+    /** Offset used to convert 64-bit unsigned integers to 64-bit signed. */
+    const int64_t signedOffset = std::numeric_limits<int64_t>::max() + 1;
+    
+    
 
     /**
      * Database busy handler.
@@ -66,6 +72,49 @@ namespace {
 	// Instruct SQLite to retry the query
 	return 1;
     }
+
+
+
+    /**
+     * Address addition function.
+     *
+     * Function used by SQLite for adding two addresses. SQLite doesn't support
+     * unsigned 64-bit values directly. So addresses are "shifted" in order to
+     * convert them into signed 64-bit quantities instead. Conditionals on these
+     * transformed addresses can be applied directly, but arithmetic operations
+     * don't work properly because of the sign change. This function implements
+     * addition of two such addresses.
+     *
+     * @param context    Handle to the database context in which to calculate.
+     * @param argc       Number of arguments.
+     * @param argv       Array of arguments.
+     */
+    void addressAdditionFunc(sqlite3_context* context,
+			     int argc, sqlite3_value** argv)
+    {
+	// Check assertions
+	Assert(argc == 2);
+	
+	// Return a null if either argument wasn't an integer
+	if((sqlite3_value_type(argv[0]) != SQLITE_INTEGER) ||
+	   (sqlite3_value_type(argv[1]) != SQLITE_INTEGER)) {
+	    sqlite3_result_null(context);
+	    return;
+	}
+	
+	// Convert the two arguments to addresses
+	Address lhs = sqlite3_value_int64(argv[0]) + signedOffset;
+	Address rhs = sqlite3_value_int64(argv[1]) + signedOffset;
+	
+	// Calculate the addition of these two addresses
+	Address result = lhs + rhs;
+	
+	// Return the result
+	sqlite3_result_int64(context, static_cast<int64_t>(result.getValue()) -
+			     signedOffset);
+    }
+    
+    
     
 }
 
@@ -190,6 +239,11 @@ Database::Database(const std::string& name) :
     
     // Specify our busy handler
     Assert(sqlite3_busy_handler(dm_handle, busyHandler, this) == SQLITE_OK);
+
+    // Specify the user-defined address addition function
+    Assert(sqlite3_create_function(dm_handle, "addrAdd", 2,
+				   SQLITE_ANY, NULL, addressAdditionFunc,
+				   NULL, NULL) == SQLITE_OK);
 }
 
 
@@ -517,12 +571,10 @@ void Database::bindArgument(const unsigned& index, const Address& value)
     Assert((index > 0) && 
 	   (index <= sqlite3_bind_parameter_count(dm_current_statement)));
 
-    // Convert address from unsigned to signed quantity
-    Address::difference_type x = value.getValue() -
-	(((Address::value_type)~0 >> 1) + 1);
-    
     // Bind the argument
-    Assert(sqlite3_bind_int64(dm_current_statement, index, x) == SQLITE_OK);
+    Assert(sqlite3_bind_int64(dm_current_statement, index, 
+			      static_cast<int64_t>(value.getValue()) -
+			      signedOffset) == SQLITE_OK);
 }
 
 
@@ -554,12 +606,10 @@ void Database::bindArgument(const unsigned& index, const Time& value)
     Assert((index > 0) && 
 	   (index <= sqlite3_bind_parameter_count(dm_current_statement)));
 
-    // Convert time from unsigned to signed quantity
-    Time::difference_type x = value.getValue() -
-	(((Time::value_type)~0 >> 1) + 1);
-    
     // Bind the argument
-    Assert(sqlite3_bind_int64(dm_current_statement, index, x) == SQLITE_OK);
+    Assert(sqlite3_bind_int64(dm_current_statement, index, 
+			      static_cast<int64_t>(value.getValue()) -
+			      signedOffset) == SQLITE_OK);
 }
 
 
@@ -777,12 +827,9 @@ Address Database::getResultAsAddress(const unsigned& index) const
     Assert((index > 0) &&
 	   (index <= sqlite3_column_count(dm_current_statement)));
     
-    // Get result and convert from a signed to an unsigned quantity
-    int64_t x = sqlite3_column_int64(dm_current_statement, index - 1);
-    Address result = x + (((Address::value_type)~0 >> 1) + 1);
-    
     // Return the result to the caller
-    return result;
+    return Address(sqlite3_column_int64(dm_current_statement, index - 1) +
+		   signedOffset);
 }
 
 
@@ -812,12 +859,9 @@ Time Database::getResultAsTime(const unsigned& index) const
     Assert((index > 0) &&
 	   (index <= sqlite3_column_count(dm_current_statement)));
     
-    // Get result and convert from a signed to an unsigned quantity
-    int64_t x = sqlite3_column_int64(dm_current_statement, index - 1);
-    Time result = x + (((Time::value_type)~0 >> 1) + 1);
-    
     // Return the result to the caller
-    return result;
+    return Time(sqlite3_column_int64(dm_current_statement, index - 1) +
+		signedOffset);
 }
 
 
