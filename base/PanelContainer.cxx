@@ -2722,7 +2722,7 @@ if( targetPC->areTherePanels() )
 {
   apm = new QPixmap( drag_xpm );
   apm->setMask( apm->createHeuristicMask());
-  getMasterPC()->pcMenu->insertItem(*apm, "&Drag Panel", targetPC, SLOT(dragRaisedPanel()), CTRL+Key_V );
+  getMasterPC()->pcMenu->insertItem(*apm, "Drag Raised &Panel", targetPC, SLOT(dragRaisedPanel()), CTRL+Key_P );
 }
 
   getMasterPC()->pcMenu->insertSeparator();
