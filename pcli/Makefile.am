@@ -33,6 +33,7 @@ libopenss_cli_la_LDFLAGS = \
 	-avoid-version \
 	-L$(top_srcdir)/libopenss-framework \
         $(PYTHON_LDFLAGS) \
+	$(LIBLTDL) \
 	-lpthread -lutil -LANG:std
 
 libopenss_cli_la_LIBADD = $(LIBLTDL) -lopenss-framework
