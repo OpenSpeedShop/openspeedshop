@@ -32,27 +32,31 @@ PerformanceLeader *topPL = NULL;
 
 void PerformanceLeader::fileNew()
 {
+  printf("fileNew() entered\n");
 }
 
 void PerformanceLeader::fileOpen()
 {
-
+  printf("fileOpen() entered\n");
 }
 
 void PerformanceLeader::fileSave()
 {
-  dprintf("PerformanceLeader::fileSave() entered\n");
+  printf("PerformanceLeader::fileSave() entered\n");
 
   ((PanelContainer *)topPC)->savePanelContainerTree();
 }
 
 void PerformanceLeader::fileSaveAs()
 {
+  printf("fileSaveAs() entered\n");
 }
 
 
 void PerformanceLeader::fileExit()
 {
+ printf("fileExit() entered.\n");
+
  qApp->closeAllWindows();
  qApp->exit();
 
@@ -61,41 +65,50 @@ void PerformanceLeader::fileExit()
 
 void PerformanceLeader::editUndo()
 {
+ printf("editUndo() entered.\n");
 
 }
 
 void PerformanceLeader::editRedo()
 {
+ printf("editRedo() entered.\n");
 
 }
 
 void PerformanceLeader::editCut()
 {
+ printf("editCut() entered.\n");
 
 }
 
 void PerformanceLeader::editPaste()
 {
+ printf("editPaste() entered.\n");
 
 }
 
 void PerformanceLeader::editFind()
 {
+ printf("editFind() entered.\n");
+
 
 }
 
 void PerformanceLeader::helpIndex()
 {
+ printf("helpIndex() entered.\n");
 
 }
 
 void PerformanceLeader::helpContents()
 {
+ printf("helpContents() entered.\n");
 
 }
 
 void PerformanceLeader::helpAbout()
 {
+ printf("helpAbout() entered.\n");
 
 }
 

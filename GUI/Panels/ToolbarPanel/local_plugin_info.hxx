@@ -6,4 +6,5 @@
   plugin_entry->plugin_entry_point = "panel_init";
 //  plugin_entry->menu_heading =  "Tools";
 //  plugin_entry->menu_label =  "Toolbar Panel";
+//  plugin_entry->menu_accel =  "Ctrl+P";
   plugin_entry->panel_type =  "Toolbar Panel";

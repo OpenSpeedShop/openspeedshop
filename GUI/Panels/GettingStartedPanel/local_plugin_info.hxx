@@ -4,6 +4,7 @@
   plugin_entry->plugin_name =  "GettingStartedPanel.so";
   plugin_entry->plugin_location = "$FUTURE_TOOL_PLUGIN_DIR";
   plugin_entry->plugin_entry_point = "panel_init";
-  plugin_entry->menu_heading =  "Performance";
-  plugin_entry->menu_label =  "Getting Started";
+  plugin_entry->menu_heading =  "&Performance";
+  plugin_entry->menu_label =  "&Getting Started";
+  plugin_entry->menu_accel =  "Ctrl+G";
   plugin_entry->panel_type =  "Getting Started";

@@ -50,6 +50,7 @@ PluginInfo::initialize()
   grouping=NULL;
   menu_heading=NULL;
   menu_label=NULL;
+  menu_accel=NULL;
   panel_type=NULL;
   slotInfo = NULL;
   dl_create_and_add_panel = NULL;
@@ -83,6 +84,7 @@ PluginInfo::~PluginInfo()
   if( grouping ) free( grouping );
   if( menu_heading ) free( menu_heading );
   if( menu_label ) free( menu_label );
+  if( menu_accel ) free( menu_accel );
   if( panel_type ) free( panel_type );
 */
 }
@@ -98,5 +100,6 @@ PluginInfo::Print()
   printf("grouping=%s\n", grouping );
   printf("menu_heading=%s\n", menu_heading );
   printf("menu_label=%s\n", menu_label );
+  printf("menu_accel=%s\n", menu_accel );
   printf("panel_type=%s\n", panel_type );
 }

@@ -4,6 +4,7 @@
   plugin_entry->plugin_name =  "TemplatePanel.so";
   plugin_entry->plugin_location = "$FUTURE_TOOL_PLUGIN_DIR";
   plugin_entry->plugin_entry_point = "panel_init";
-  plugin_entry->menu_heading =  "MENU_HEADING";
-  plugin_entry->menu_label =  "MENU_LABEL";
+  plugin_entry->menu_heading =  "&MENU_HEADING";
+  plugin_entry->menu_label =  "&MENU_LABEL";
+  plugin_entry->menu_accel =  "Ctrl+MENU_LABEL";
   plugin_entry->panel_type =  "MENU_LABEL";

@@ -84,15 +84,8 @@ extern "C"
 
     dprintf("menubar->count()=%d\n", menubar->count() );
 
-#ifdef LINUX_32
-    // Menu's off the menubar are 0 based... on LINUX!!!- FIX
-    dprintf("LINUX! FIX\n");
-    for( i=0;i<count;i++ )
-#else // LINUX_32
-    dprintf("IRIX! FIX\n");
-    // Menu's off the menubar are 1 based... on IRIX!!!!- FIX
+    // Menu's off the menubar are 1 based
     for( i=1;i<=count;i++ )
-#endif // LINUX_32
     {
       QMenuItem *item = menubar->findItem(i);
       if( item )
@@ -108,6 +101,7 @@ extern "C"
         dprintf("no menu_text at position %d\n", i );
       }
 
+      dprintf("menu_text(%d)=(%s) menu_heading=(%s)\n", i, menu_text.ascii(), pluginInfo->menu_heading );
       if( menu_text == pluginInfo->menu_heading )
       {
         dprintf("Found %s at %d\n", pluginInfo->menu_heading, i );
@@ -134,7 +128,10 @@ extern "C"
     }
 
     action->addTo( menu );
-    action->setText( pluginInfo->menu_label );
+//    action->setText( pluginInfo->menu_label );
+    action->setMenuText( pluginInfo->menu_label );
+    dprintf("assign the accelerator to %s\n", pluginInfo->menu_accel );
+    action->setAccel( QString(pluginInfo->menu_accel) );
   
     pluginInfo->slotInfo->connect( action,
       SIGNAL( activated() ), pluginInfo->slotInfo,

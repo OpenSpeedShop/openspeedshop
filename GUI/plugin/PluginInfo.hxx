@@ -33,6 +33,9 @@ class PluginInfo {
     //! The actual "words used" in the menu entry.
     char *menu_label;
 
+    //! The actual accelerator used in the menu entry.
+    char *menu_accel;
+
     //! The string representing the panel type.  i.e. "Source Panel"
     char *panel_type;
 

@@ -4,6 +4,7 @@
   plugin_entry->plugin_name =  "DebugPanel.so";
   plugin_entry->plugin_location = "$FUTURE_TOOL_PLUGIN_DIR";
   plugin_entry->plugin_entry_point = "panel_init";
-  plugin_entry->menu_heading =  "Debug";
-  plugin_entry->menu_label =  "DebugPanel";
-  plugin_entry->panel_type =  "DebugPanel";
+  plugin_entry->menu_heading =  "&Debug";
+  plugin_entry->menu_label =  "&Debug Panel";
+  plugin_entry->menu_accel =  "Ctrl+D";
+  plugin_entry->panel_type =  "Debug Panel";
