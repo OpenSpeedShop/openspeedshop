@@ -1501,14 +1501,11 @@ style='mso-spacerun:yes'>&nbsp;</span>TOC \o &quot;1-4&quot; <span
 style='mso-element:field-separator'></span></span><![endif]--></p>
 <ul style="color: rgb(0, 0, 128);" id="mozToc">
 <!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId513416">Introduction
-to Open/SpeedShop
-    </a>
+to Open/SpeedShop </a>
     <ul>
-      <li><a href="#mozTocId391912">Brief Open/SpeedShop Overview
-        </a></li>
+      <li><a href="#mozTocId391912">Brief Open/SpeedShop Overview </a></li>
       <li><a href="#mozTocId921847">Common Terminology</a></li>
-      <li><a href="#mozTocId464331">Extensibility
-        </a></li>
+      <li><a href="#mozTocId464331">Extensibility </a></li>
     </ul>
   </li>
   <li><a href="#mozTocId137584">Open/SpeedShop
@@ -1523,26 +1520,22 @@ Open/SpeedShop</a></li>
 Tools</a>
     <ul>
       <li><a href="#mozTocId738956">Open/SpeedShop
-Invocation Command&nbsp; "openss"
-        </a>
+Invocation Command&nbsp; "openss" </a>
         <ul>
           <li><a href="#mozTocId970272">openss -gui</a></li>
           <li><a href="#mozTocId694560">openss -cli:</a></li>
           <li><a href="#mozTocId436747">openss -batch:</a></li>
         </ul>
       </li>
-      <li><a href="#mozTocId527821">Using the GUI Tool
-        </a></li>
+      <li><a href="#mozTocId527821">Using the GUI Tool </a></li>
       <li><a href="#mozTocId376564">Using the Interactive CLI Tool </a></li>
       <li><a href="#mozTocId237449">Using the Batch Command Tool </a></li>
     </ul>
   </li>
   <li><a href="#mozTocId811614">Scripting
-API
-    </a></li>
+API </a></li>
   <li><a href="#mozTocId417846">Plugin
-API (Extensibility)&nbsp; Description
-    </a></li>
+API (Extensibility)&nbsp; Description </a></li>
 </ul>
 <br>
 </div>
@@ -1797,25 +1790,118 @@ event
 loop waiting for user interaction.<br>
   </p>
 </blockquote>
-<h3>Typical GUI Usage</h3>
+<h3>Typical Open/SpeedShop GUI Wizard Usage<br>
+</h3>
 <blockquote>Having launched the GUI via either the <b>openss -gui</b>
 or by default with the <b>openss</b> default command (no -cli, -batch,
 or -gui options), the initial window will look like this:<br>
 </blockquote>
 <blockquote>
-  <p><br>
+  <p><img src="snapshot2.png" title=""
+ alt="Initial Open/SpeedShop Start-Up Window" width="750" height="530"><br>
   </p>
 </blockquote>
 <br>
+<blockquote>Given this window the user can answer the wizard questions
+and proceed by clicking on the Next button on the lower right hand side
+of the Open/SpeedShop GUI window.&nbsp; In this example the user has
+chosen the default option which is to find out where the time is spent
+in the user's yet to be defined application.&nbsp;&nbsp; When the user
+clicks on the Next button this is the window that appears.<br>
+  <br>
+  <br>
+  <img src="snapshot13.png" title=""
+ alt="PC Sampling Wizard Intro Window" width="750" height="563"><br>
+</blockquote>
 <blockquote>
-  <p><br>
+  <p>The above panel/window is the introduction panel to the PC
+(Program Counter) Sampling Experiment Wizard.&nbsp; This panel explains
+what the Open/SpeedShop experiment, named PC sampling does.&nbsp; The
+program counter sampling experiment takes periodic samples of the
+machines program counter and stores them.&nbsp;&nbsp; Later in analysis
+the Open/SpeedShop tool associates the program counter addresses with
+the user's application and reports which functions, and/or source lines
+were executed during the applications execution.&nbsp;&nbsp; The user
+can now click on Next to proceed with the wizard process, go back, or
+quit the wizard by clicking on the Finish button.&nbsp;&nbsp; Here is
+the next window in the wizard process assuming the user clicked on the
+Next buttion.<br>
+  </p>
+  <p><img src="snapshot14.png" title=""
+ alt="PC Sampling Wizard window 2" width="750" height="563"><br>
   </p>
 </blockquote>
 <p class="MsoBodyText" style="margin-left: 0.5in;">
 </p>
 <h2><a name="mozTocId376564" class="mozTocH2"></a><span style=""><span
  style=""><span style=""><span style=""><a name="Interactive_CLI_Tool_"></a><span
- style=""><span style=""><!--[if !supportLists]-->Using the Interactive
+ style=""><span style=""><!--[if !supportLists]--></span></span></span></span></span></span></h2>
+<blockquote>The above panel/window is the parameter selection panel for
+the PC (Program
+Counter) Experiment Wizard.&nbsp; This panel allows the user to set the
+sampling rate at which the PC sampling experiment will sample the
+program counter and save that address as the experiment measurement
+data.&nbsp; The Program Counter experiment
+takes the periodic samples of the machines program counter and stores
+them.&nbsp;&nbsp; Later in analysis the Open/SpeedShop tool associates
+the
+program counter addresses with the user's application and reports which
+functions, and/or source lines were executed during the applications
+execution.&nbsp;&nbsp; The user can now click on Next to proceed with
+the wizard
+process, go back, or quit the wizard by clicking on the Finish
+button.&nbsp;&nbsp; The user may also click on the Reset button, which
+will reset the parameter to the default value.&nbsp; Here is the next
+window in the wizard process assuming the
+user clicked on the Next buttion.<br>
+  <br>
+  <img src="snapshot15.png" title=""
+ alt="PC Sampling wizard executable/application selection window"
+ width="750" height="563"><br>
+</blockquote>
+<blockquote><br>
+The panel/window above allows the user to select the executables or
+attach to a set of running processes.&nbsp;&nbsp; By selecting the
+"Load an Executable from Disk" item the user will cause a selection
+window to appear.&nbsp; Using the selection window the user can click
+on executables to be the application that the PC sampling experiment
+will gather data for.<br>
+  <br>
+  <br>
+  <img src="snapshot16.png" title="" alt="pc sampling wizard window"
+ width="750" height="563"><br>
+</blockquote>
+<blockquote><br>
+The panel/window above summarizes the results of the user's choices and
+tells the user to complete the process of creating the PC sampling
+experiment the user should click on the Finish button.&nbsp;&nbsp; Once
+the user clicks on the Finish button the PC sampling experiment window
+will appear.<br>
+  <br>
+  <br>
+  <img src="snapshot17.png" title="" alt="PC Sampling Experiment Window"
+ width="750" height="563"><br>
+</blockquote>
+<blockquote><br>
+The panel/window above is the PC Sampling experiment
+window.&nbsp;&nbsp; The experiment is ready to run.&nbsp; Note that in
+the Status output output area the executable fred_calls_ted is
+loaded.&nbsp;&nbsp; <br>
+  <br>
+The process control area provides icons that may be clicked on to
+control the execution of the experiment.<br>
+  <br>
+The source panel contains the source associated with the loaded
+application/executable.<br>
+</blockquote>
+<h3><br>
+</h3>
+<h3>Typical Open/SpeedShop GUI non-Wizard Usage</h3>
+<br>
+TBD<br>
+<br>
+<h2><span style=""><span style=""><span style=""><span style=""><span
+ style=""><span style="">Using the Interactive
 CLI Tool <br>
 </span></span></span></span></span></span></h2>
 <blockquote>The interactive command line interface tool accepts a
