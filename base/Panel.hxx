@@ -30,6 +30,8 @@
 class InfoEventFilter;
 
 class PanelContainer;
+
+class PluginInfo;
 #define MAX_TAB_NAME_LENGTH 30
 
 enum BROADCAST_TYPE { PC_T, NEAREST_T, GROUP_T, ALL_DECENDANTS_T, ALL_T };
@@ -103,6 +105,10 @@ public:
 
     //! The id (grouping) associated with this panel.
     int groupID;
+
+
+    //! The plugin information that hooked up this panel to the dso.
+    PluginInfo *pluginInfo;
 protected:
     //! Sets the Panel specific strings.
     virtual void languageChange();

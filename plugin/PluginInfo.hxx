@@ -31,8 +31,11 @@ class PluginInfo {
     //! True if panel is toplevel and is shown at initialization.
     int show_immediate;
 
-    //! A short description of the plugin.
+    //! A description of the plugin.
     char *plugin_description;
+
+    //! A short description of the plugin.
+    char *plugin_short_description;
  
     //! The name of the plugin executable
     char *plugin_name;

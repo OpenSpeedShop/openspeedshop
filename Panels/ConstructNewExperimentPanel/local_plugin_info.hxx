@@ -20,6 +20,7 @@
   plugin_entry->grouping = "TOPLEVEL";
   plugin_entry->show_immediate = 0;
   plugin_entry->plugin_description = "PLUGIN_DESCRIPTION";
+  plugin_entry->plugin_short_description = "Add collectors to create a new\nexperiment type.";
   plugin_entry->plugin_name =  "CreateNewExperimentPanel.so";
   plugin_entry->plugin_location = "$OPENSPEEDSHOP_PLUGIN_PATH";
   plugin_entry->plugin_entry_point = "panel_init";

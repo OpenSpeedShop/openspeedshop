@@ -211,7 +211,7 @@ PanelList *getPanelListByID(int id);
     TabBarWidget *tabBarWidget;
 
     //! The routine that puts the icon to the tab.
-    void augmentTab( QWidget *targetWidget,  QIconSet *iconset = NULL);
+    void augmentTab( QWidget *targetWidget,  Panel *p, QIconSet *iconset=NULL);
 
     //! Callback to notify to display the PanelContainer menu.
     void panelContainerContextMenuEvent( PanelContainer *targetPC,

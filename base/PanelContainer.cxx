@@ -1328,7 +1328,8 @@ PanelContainer::addPanel(Panel *p, PanelContainer *panel_container, char *tab_na
 //  start_pc->tabWidget->addTab( p->getBaseWidgetFrame(), tab_name );
   start_pc->tabWidget->addTab( p->getBaseWidgetFrame(), p->getName() );
 
-  start_pc->augmentTab( p->getBaseWidgetFrame() );
+//  start_pc->augmentTab( p->getBaseWidgetFrame() );
+  start_pc->augmentTab( p->getBaseWidgetFrame(), p );
 
   // Add the panel to the iterator list.   This list (panelList) aids us
   // when cleaning up PanelContainers.  We'll just loop over this list
@@ -2445,7 +2446,8 @@ PanelContainer::movePanelsToNewPanelContainer( PanelContainer *sourcePC)
       panel_base->reparent((QWidget *)targetPC, 0, point, TRUE);
       widget_to_reparent->reparent(targetPC->tabWidget, 0, point, TRUE);
       targetPC->tabWidget->addTab( currentPage, p->getName() );
-      targetPC->augmentTab(currentPage);
+//      targetPC->augmentTab(currentPage);
+     targetPC->augmentTab(currentPage, p);
 
       TabBarWidget *tbw = (TabBarWidget *)targetPC->tabWidget->tabBar();
       tbw->setPanelContainer(targetPC);
@@ -2601,7 +2603,8 @@ PanelContainer::movePanel( Panel *p, QWidget *currentPage, PanelContainer *targe
   // Now add the actual tab to the tabWidget in the new PanelContainer.
   p->getPanelContainer()->tabWidget->addTab( currentPage, p->getName() );
 
-  p->getPanelContainer()->augmentTab( currentPage );
+//  p->getPanelContainer()->augmentTab( currentPage );
+  p->getPanelContainer()->augmentTab( currentPage, p );
 
   // Add the move Panel to the new PanelContainers panelList.
   p->getPanelContainer()->panelList.push_back(p);
@@ -3189,12 +3192,18 @@ PanelContainer::notifyAll(char *msg)
 
 
 void
-PanelContainer::augmentTab( QWidget *targetWidget, QIconSet *iconset )
+PanelContainer::augmentTab( QWidget *targetWidget, Panel *p, QIconSet *iconset )
 {
   int index_of = tabWidget->indexOf( targetWidget );
   tabWidget->setCurrentPage(index_of);
   QWidget *cp = tabWidget->currentPage();
-  tabWidget->setTabToolTip( cp, tr("Use right mouse to get a  menu,\nleft mouse to drag."));
+  if( p && p->pluginInfo->plugin_short_description )
+  {
+    tabWidget->setTabToolTip( cp, tr(p->pluginInfo->plugin_short_description));
+  } else
+  {
+    tabWidget->setTabToolTip( cp, tr("Use right mouse to get a  menu,\nleft mouse to drag."));
+  }
 
   if( iconset != NULL )
   {

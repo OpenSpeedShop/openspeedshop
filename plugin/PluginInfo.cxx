@@ -53,6 +53,7 @@ PluginInfo::initialize()
   pl=NULL;
   show_immediate=0;
   plugin_description=NULL;
+  plugin_short_description=NULL;
   plugin_name=NULL;
   plugin_location=NULL;
   plugin_entry_point=NULL;
@@ -92,6 +93,7 @@ PluginInfo::~PluginInfo()
 {
 /* 
   if( plugin_description ) free( plugin_description );
+  if( plugin_short_description ) free( plugin_short_description );
   if( plugin_name ) free( plugin_name );
   if( plugin_location ) free( plugin_location );
   if( plugin_entry_point ) free( plugin_entry_point );
@@ -111,6 +113,7 @@ void
 PluginInfo::Print()
 {
   printf("plugin_description=%s\n", plugin_description);
+  printf("plugin_short_description=%s\n", plugin_short_description);
   printf("plugin_name=%s\n", plugin_name );
   printf("plugin_location=%s\n", plugin_location );
   printf("plugin_entry_point=%s\n", plugin_entry_point );

@@ -20,6 +20,7 @@
   plugin_entry->grouping = "PLUGIN_GROUPING";
   plugin_entry->show_immediate = SHOW_IMMEDIATE;
   plugin_entry->plugin_description = "PLUGIN_DESCRIPTION";
+  plugin_entry->plugin_short_description = "PLUGIN_SHORT_DESCRIPTION";
   plugin_entry->plugin_name =  "TemplatePanel.so";
   plugin_entry->plugin_location = "$OPENSPEEDSHOP_PLUGIN_PATH";
   plugin_entry->plugin_entry_point = "panel_init";
