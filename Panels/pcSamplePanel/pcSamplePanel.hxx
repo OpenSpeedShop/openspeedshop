@@ -133,8 +133,10 @@ public slots:
   void manageDataSetsSelected();
   void loadSourcePanel();
   void loadStatsPanel();
-  void __demoWakeUpToLoadExperiment();
   void progressUpdate();
+
+private slots:
+  void statusUpdate();
 
 protected slots:
   virtual void languageChange();
@@ -143,11 +145,16 @@ protected:
 
 private:
   OpenSpeedshop *mw;
+  void wakeUpAndCheckExperimentStatus();
+
  
   int expID;  // Experiment ID of the expCreate, returned from the cli
   OpenSpeedShop::Framework::Experiment *experiment;
 
   void updateInitialStatus();
+
+  QTimer *statusTimer;
+  void updateStatus();
 
   void loadMain();
   QProgressDialog *pd;

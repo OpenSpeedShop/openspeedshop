@@ -33,7 +33,7 @@ libopenss_GUI_la_CXXFLAGS =  \
 
 libopenss_GUI_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
-libopenss_GUI_la_LIBADD = -L$(QTDIR)/lib -lqt -lqassistantclient -L/usr/X11R6/lib -lXext -lX11 -lm -lpthread -lopenss-Base -lopenss-Dialogs -lopenss-Plugin -lopenss-Objects
+libopenss_GUI_la_LIBADD = -L$(QTDIR)/lib -lqt -lqassistantclient -L/usr/X11R6/lib -lXext -lX11 -lm -lpthread -L../base -lopenss-Base -L../dialogs -lopenss-Dialogs -L../plugin -lopenss-Plugin -lopenss-Objects
 
 moc_CLIInterface.cxx: CLIInterface.hxx
 	-moc -o moc_CLIInterface.cxx CLIInterface.hxx

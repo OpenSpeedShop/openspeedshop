@@ -31,7 +31,7 @@ FPE_TracingWizardPanel_la_CXXFLAGS = \
 
 FPE_TracingWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
-FPE_TracingWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt -lopenss-Base -lopenss-Objects -lopenss-Dialogs
+FPE_TracingWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt -L../../../base -lopenss-Base -L../../../objects -lopenss-Objects -L../../../dialogs -lopenss-Dialogs
 
 moc_FPE_TracingWizardPanel.cxx: FPE_TracingWizardPanel.hxx
 	-moc -o moc_FPE_TracingWizardPanel.cxx FPE_TracingWizardPanel.hxx

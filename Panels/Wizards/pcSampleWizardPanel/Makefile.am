@@ -31,7 +31,7 @@ pcSampleWizardPanel_la_CXXFLAGS = \
 
 pcSampleWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
-pcSampleWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt -lopenss-Base -lopenss-Objects -lopenss-Dialogs
+pcSampleWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt -L../../../base -lopenss-Base -L../../../objects -lopenss-Objects -L../../../dialogs -lopenss-Dialogs
 
 moc_pcSampleWizardPanel.cxx: pcSampleWizardPanel.hxx
 	-moc -o moc_pcSampleWizardPanel.cxx pcSampleWizardPanel.hxx

@@ -618,28 +618,7 @@ pcSamplePanel::listener(void *msg)
 
         int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
         InputLineObject *clip = Append_Input_String( wid, command);
-        ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-        if( eo && eo->FW() )
-        {
-          status = eo->Determine_Status();
-          while( status != ExpStatus_Terminated )
-          {
-            sleep(1);
-            qApp->processEvents(1000);
-            if( status == ExpStatus_InError )
-            {
-              nprintf( DEBUG_PANELS ) ("Process errored.\n");
-              statusLabelText->setText( tr("Process errored...") );
-              break;
-            }
-            status = eo->Determine_Status();
-          }
-        }
-        if( status == ExpStatus_Terminated )
-        {
-          statusLabelText->setText( tr("Process finished...") );
-        }
-
+#ifdef OLDWAY
         if( status == ExpStatus_Terminated || status == ExpStatus_InError )
         {
           pco->runButton->setEnabled(TRUE);
@@ -677,6 +656,11 @@ pcSamplePanel::listener(void *msg)
         PanelContainer *pc = topPC->findBestFitPanelContainer(topPC);
         
         loadStatsPanel();
+#endif // OLDWAY
+        statusTimer = new QTimer( this, "statusTimer" );
+        connect( statusTimer, SIGNAL(timeout()), this, SLOT(statusUpdate()) );
+        statusTimer->start( 1000 );
+        updateStatus();
   
         ret_val = 1;
         }
@@ -866,16 +850,9 @@ pcSamplePanel::loadStatsPanel()
 }
 
 void
-pcSamplePanel::__demoWakeUpToLoadExperiment()
+pcSamplePanel::wakeUpAndCheckExperimentStatus()
 {
-  statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the Run button to begin the experiment.")) );
-  loadTimer->stop();
-  pd->cancel();
-  pd->hide();
-
-  runnableFLAG = TRUE;
-  pco->runButton->setEnabled(TRUE);
-  pco->runButton->enabledFLAG = TRUE;
+  printf("pcSamplePanel::wakeUpAndCheckExperimentStatus() entered\n");
 }
 
 void
@@ -923,6 +900,111 @@ printf("CCCC\n");
   }
 }
 
+void
+pcSamplePanel::updateStatus()
+{
+  if( expID <= 0 )
+  {
+    statusLabelText->setText( "No expid" );
+    return;
+  } 
+  ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+  if( eo && eo->FW() )
+  {
+    int status = eo->Determine_Status();
+printf("status=%d\n", status);
+    switch( status )
+    {
+      case 0:
+        statusLabelText->setText( "0: ExpStatus_NonExistent" );
+        if( statusTimer ) statusTimer->stop();
+        pco->runButton->setEnabled(FALSE);
+        pco->runButton->enabledFLAG = FALSE;
+        runnableFLAG = FALSE;
+        pco->pauseButton->setEnabled(FALSE);
+        pco->pauseButton->enabledFLAG = FALSE;
+        pco->continueButton->setEnabled(FALSE);
+        pco->continueButton->setEnabled(FALSE);
+        pco->continueButton->enabledFLAG = FALSE;
+        pco->updateButton->setEnabled(FALSE);
+        pco->updateButton->setEnabled(FALSE);
+        pco->updateButton->enabledFLAG = FALSE;
+        pco->terminateButton->setEnabled(FALSE);
+        pco->terminateButton->setFlat(TRUE);
+        pco->terminateButton->setEnabled(FALSE);
+        break;
+      case 1:
+      case 2:
+      case 3:
+        if( status == 1 )
+        {
+          statusLabelText->setText( "1: ExpStatus_Paused" );
+        } else if( status == 2 )
+        {
+          statusLabelText->setText( "2: ExpStatus_Suspended" );
+        } else if( status == 3 )
+        {
+          statusLabelText->setText( "3: ExpStatus_Running" );
+        }
+        pco->runButton->setEnabled(FALSE);
+        pco->runButton->enabledFLAG = FALSE;
+        runnableFLAG = FALSE;
+        pco->pauseButton->setEnabled(TRUE);
+        pco->pauseButton->enabledFLAG = TRUE;
+        pco->continueButton->setEnabled(FALSE);
+        pco->continueButton->setEnabled(FALSE);
+        pco->continueButton->enabledFLAG = FALSE;
+        pco->updateButton->setEnabled(TRUE);
+        pco->updateButton->setEnabled(TRUE);
+        pco->updateButton->enabledFLAG = TRUE;
+        pco->terminateButton->setEnabled(TRUE);
+        pco->terminateButton->setFlat(TRUE);
+        pco->terminateButton->setEnabled(TRUE);
+        break;
+      case 4:
+      case 5:
+          if( status == 4 )
+          {
+            statusLabelText->setText( "4: ExpStatus_Terminated" );
+          } else if( status == 5 )
+          {
+            statusLabelText->setText( "5: ExpStatus_InError" );
+          }
+          if( statusTimer ) statusTimer->stop();
+          pco->runButton->setEnabled(TRUE);
+          pco->runButton->enabledFLAG = TRUE;
+          runnableFLAG = TRUE;
+          pco->pauseButton->setEnabled(FALSE);
+          pco->pauseButton->enabledFLAG = FALSE;
+          pco->continueButton->setEnabled(FALSE);
+          pco->continueButton->setEnabled(FALSE);
+          pco->continueButton->enabledFLAG = FALSE;
+          pco->updateButton->setEnabled(TRUE);
+          pco->updateButton->setEnabled(TRUE);
+          pco->updateButton->enabledFLAG = TRUE;
+          pco->terminateButton->setEnabled(FALSE);
+          pco->terminateButton->setFlat(TRUE);
+          pco->terminateButton->setEnabled(FALSE);
+        break;
+      default:
+        statusLabelText->setText( QString("%1: Unknown status").arg(status) );
+        break;
+    }
+  } else
+  {
+    statusLabelText->setText( "Cannot find experiment for expID" );
+    return;
+  }
+}
+
+void
+pcSamplePanel::statusUpdate()
+{
+//  statusTimer->stop();
+printf("pcSamplePanel::statusUpdate() entered\n");
+  updateStatus();
+  statusTimer->start( 2000 );
+}
 void
 pcSamplePanel::progressUpdate()
 {

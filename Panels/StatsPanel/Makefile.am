@@ -16,9 +16,21 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-pkglib_LTLIBRARIES = StatsPanel.la
+pkglib_LTLIBRARIES = StatsPanel.la libopenss-StatsPanel.la
 
 StatsPanel_la_CXXFLAGS = \
+    -I/usr/include \
+    -I$(QTDIR)/include \
+    -I. \
+    -I../../objects \
+    -I../../pcli \
+    -I../../libopenss-framework \
+    -I../../gui \
+    -I../../expr_info \
+    -I../../plugin \
+    -I../../base
+
+libopenss_StatsPanel_la_CXXFLAGS = \
     -I/usr/include \
     -I$(QTDIR)/include \
     -I. \
@@ -34,6 +46,10 @@ StatsPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-ver
 
 StatsPanel_la_LIBADD = -L$(QTDIR)/lib -lqt ../../libopenss-framework/.libs/libopenss-framework.so 
 
+libopenss_StatsPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
+
+libopenss_StatsPanel_la_LIBADD = -L$(QTDIR)/lib -lqt ../../libopenss-framework/.libs/libopenss-framework.so 
+
 moc_StatsPanel.cxx: StatsPanel.hxx
 	-moc -o moc_StatsPanel.cxx StatsPanel.hxx
 
@@ -44,6 +60,14 @@ moc_SPListView.cxx: SPListView.hxx
 	-moc -o moc_SPListView.cxx SPListView.hxx
 
 StatsPanel_la_SOURCES = \
+	StatsPanel.hxx StatsPanel.cxx moc_StatsPanel.cxx \
+	StatsPanelBase.hxx StatsPanelBase.cxx moc_StatsPanelBase.cxx \
+	SPListViewItem.hxx SPListViewItem.cxx \
+	SPListView.hxx SPListView.cxx moc_SPListView.cxx \
+	plugin_entry_point.hxx Panel.hxx \
+	PanelContainer.hxx local_plugin_info.hxx debug.hxx
+
+libopenss_StatsPanel_la_SOURCES = \
 	StatsPanel.hxx StatsPanel.cxx moc_StatsPanel.cxx \
 	StatsPanelBase.hxx StatsPanelBase.cxx moc_StatsPanelBase.cxx \
 	SPListViewItem.hxx SPListViewItem.cxx \

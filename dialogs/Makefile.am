@@ -34,7 +34,7 @@ libopenss_Dialogs_la_CXXFLAGS = \
 
 libopenss_Dialogs_la_LDFLAGS = --export-dynamic -module -avoid-version
 
-libopenss_Dialogs_la_LIBADD = $(LIBLTDL) -lopenss-Objects
+libopenss_Dialogs_la_LIBADD = $(LIBLTDL) -L../objects -lopenss-Objects
 
 moc_AttachProcessDialog.cxx: AttachProcessDialog.hxx
 	-moc -o moc_AttachProcessDialog.cxx AttachProcessDialog.hxx
