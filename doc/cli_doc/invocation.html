@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+  <title>Open/SS Invocation</title>
+</head>
+<body>
+<br>
+<br>
+<h1><small><i><a name="OpenSS_Invocation"></a>Open/SS</i> Invocation</small></h1>
+<br>
+<b>openss</b> [ <b>-batch</b> || <b>-gui</b> || <b>-cli</b> ]<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;
+[ [ <b>-c</b> &lt;cluster_list&gt;] || [ <b>-h</b>
+&lt;host_list&gt;]&nbsp; ]<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;
+[ <b>-f</b> &lt;file_list&gt;]<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;
+[ <b>-p</b> &lt;pid_list&gt;]<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+[ <b>-t</b> &lt;thread_list&gt;] <br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;
+[ <b>-r</b> &lt;rank_list&gt;]<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;&nbsp;
+[ &lt;expType_list&gt; ]<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;&nbsp;
+[ "<b>&lt;</b>" &lt;command_file&gt;]<br>
+<br>
+<br>
+&nbsp;"&lt;" = redirection operator -
+quoted for clarity,<br>
+<br>
+NOTE: Quotes are not part of the specification.<br>
+<br>
+<br>
+&lt;command_file&gt; = file containing Open/SpeedShop commands<br>
+to be executed<br>
+<br>
+NOTE: The command file redirection will occur after the<br>
+arguments have been evaluated and processed.<br>
+<br>
+<br>
+NOTE: &lt;filename&gt; can include commands to run mpi jobs<br>
+such as "mpirun -np 512 a.out"<br>
+<br>
+<dir>
+<dir>&lt;<b>filename</b>&gt; = &lt;string&gt; || <b>"</b>&lt;string&gt;<b>"</b><br>
+&lt;<b>file_list</b>&gt; = &lt;filename&gt; [ <b>,</b>
+&lt;filename&gt; ] ...<br>
+</dir>
+</dir>
+<dir>
+<dir>&lt;<b>cluster_name</b>&gt; = &lt;string&gt; || <b>"</b>&lt;string&gt;<b>"</b><br>
+&lt;<b>cluster_list</b>&gt; = &lt;cluster_name&gt; [ <b>,</b>
+&lt;cluster_name&gt; ]<br>
+</dir>
+</dir>
+</body>
+</html>

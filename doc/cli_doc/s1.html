@@ -1,0 +1,532 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>OpenSpeedShop Example 1</title>
+</head>
+<body bgcolor="#ffffff">
+<h1><a name="mozTocId203669" class="mozTocH1"></a><b><font face="Arial"
+ size="4"><a name="Example_1"></a>Example 1</font></b></h1>
+<h2><a name="mozTocId859660" class="mozTocH2"></a><small><a
+ name="Table_of_Contents"></a>Table of Contents</small></h2>
+<ul id="mozToc">
+<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId203669">Example
+1</a>
+    <ul>
+      <li><a href="#mozTocId859660">Table of Contents</a></li>
+      <li><a href="#mozTocId833970">Simple example scenario 1 to show
+command usage</a></li>
+      <li><a href="#mozTocId9430">More detailed example scenario 1 to
+show
+command usage</a></li>
+    </ul>
+  </li>
+</ul>
+<h2><a name="mozTocId833970" class="mozTocH2"></a><small><b><font
+ face="Arial"><a name="Simple_example_scenario_1_to_show"></a>Simple
+example scenario 1 to show command usage</font></b></small></h2>
+<ul>
+  <font size="2"><li>Simple list of the commands for the scenario that
+will load an executable on host1, create a pcsampling experiment for
+ranks 2 and 5 and start the experiment running:</li>
+  </font>
+</ul>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expCreate -h</b> host1 <b>-f</b> a.out pcsamp</font>
+</p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<div><font size="2"><b>"1"</b></font></div>
+</dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>listPids -h</b> host1</font></p>
+<p><font size="2"><b>expDetach -h</b> host1 <b>-r</b> *</font></p>
+<p><font size="2"><b>expAttach -h</b> host1 <b>-r</b> 2, 5</font></p>
+<p><font size="2"><b>listParams</b></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="2"><b>1 not executing</b></font></p>
+<dir><font size="2"><b>pcsamp::samplingRate=10
+<br>
+displayMode=AtCompletion
+<br>
+displayMedia=GUI
+<br>
+displayRefreshRate=0
+<br>
+<i>&lt;other default values</i>&gt;</b></font></dir>
+<p></p>
+</dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>listExp</b></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="2"><b>1 not executing
+<dir>&nbsp;-h host1 -f a.out -r 2,5 pcsamp
+</dir>
+</b></font></p>
+</dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expSetParam -x</b> 1 samplingRate=20</font></p>
+<p><font size="2"><b>expSetParam</b> displayMode=realtime</font></p>
+<p><font size="2"><b>expSetParam</b> displayMedia=GUI</font></p>
+<p><font size="2"><b>expSetParam</b> displayRefreshRate=60</font></p>
+<p><font size="2"><b>expGo</b></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<ul>
+  <li><font size="2">Now we want to stop the application and change the
+sampling rate</font></li>
+</ul>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expPause -x</b> 1</font></p>
+<p><font size="2"><b>expSetParam -x</b> 1 samplingRate=50</font></p>
+<p><font size="2"><b>expGo -x</b> 1</font></p>
+<p><font size="2"><b>listExp</b></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="2"><b>1 executing, data available
+<dir>&nbsp;-h host1 -f a.out -r 2,5 pcsamp
+</dir>
+</b></font></p>
+</dir>
+<ul>
+  <li><font size="2">Now stop the experiment and view the results</font></li>
+</ul>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expPause</b></font></p>
+<p><font size="2"><b>expGetMetrics</b></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<div><font size="2"><b>"vTopN, vExclTime, vIO, vFpe, vHwc"</b></font></div>
+</dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expView -x</b> 1 <b>-gui</b> vTopN</font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<ul>
+  <li><font size="2">Terminate the performance analysis session.</font></li>
+</ul>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>exit</b></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<br>
+<br>
+<h2><a name="mozTocId9430" class="mozTocH2"></a><small><b><font
+ face="Arial"><a name="More_detailed_example_scenario_1_to_show"></a>More
+detailed example scenario 1 to show
+command usage</font></b></small></h2>
+<p><font size="2">This scenario is the same as the simple scenario 1
+above but this one has more comments interspersed between the commands.
+It has a bit more information about what is going on under the hood.</font></p>
+<p><font size="2">#User launches Open/SpeedShop tool from a window. The
+CLI
+tool will come up first and then if the GUI option is not turned off
+the GUI will launch.<br>
+#The GUI will send low level commands such as:</font></p>
+<p><font size="2"># create an experiment to do pcsampling of the
+executable named
+<i>a.out</i> on <i>host1</i></font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expCreate -h </b>host1<b>
+-f </b>a.out pcsamp</font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="2"><b>"1"</b></font></p>
+</dir>
+<p><font size="2"># <b>expCreate </b>will cause the initial default
+values of the specified experiment to be instantiated and the proper
+collector to be associated with the newly created experiment. The <b>"1"</b>
+below the command is the &lt;expId&gt; for the new pcsamp experiment.</font></p>
+<p><font size="2"># <b>expCreate</b> also will "under the hood" poll
+the
+Framework to give us a list of the ranks, processes, and threads
+associated with <i>a.out</i> that
+are currently known to the FrameWork. <b>expCreate </b>will create a
+thread group including all the ranks, processes, and/or threads from
+the Application Object and associate the new thread group with the
+experiment that has just been created.</font></p>
+<p><font size="2"># <b>listPids</b> will list the ranks, processes,
+and threads
+on the specified list of hosts.</font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>listPids -h</b> host1</font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<p><font size="2"># The GUI presents the user a panel from which he/she
+chooses which ranks, processes, and/or threads he/she wants included in
+the experiment. The GUI sends down <b>expAttach</b> commands to
+add them to the thread group or <b>expDetach</b> to subtract
+them from the thread group that will be operated on by the experiment.
+Naturally if the user wants to operate on all the ranks, processes,
+and/or threads no additional commands to select or deselect are
+necessary.</font></p>
+<font size="2"><b>
+</b></font>
+<p><font size="2"><b># </b>In this example scenario we only want to
+look at ranks 2 and 5, so we can use the <b>expDetach</b> command to
+remove all the ranks in the thread group associated with this
+experiment.</font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expDetach -h</b> host1
+<b>-r</b> *</font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<p><font size="2"><b># </b>Now we use the <b>expAttach</b> command to
+add
+the ranks 2 and 5 into the thread group.</font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expAttach -h </b>host1
+<b>-r</b> 2, 5</font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<p><font size="2"><b># </b>An alternative would have been to specify
+the
+ranks on the original <b>expCreate</b> command:</font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expCreate -h </b>host1
+<b>-f</b> a.out <b>-r</b> 2, 5 pcsamp</font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<p><font size="2"># <b>listParams</b> retrieves the list of parameters
+that
+may be changed by the user. The GUI and CLI tools need to display this
+to the user in order for the user to have the option of tuning the
+experiment to their specific needs.</font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>listParams</b></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="2"><b>1 not executing</b></font></p>
+<dir><font size="2"><b>pcsamp::samplingRate=10
+<br>
+displayMode=AtCompletion
+<br>
+displayMedia=GUI
+<br>
+displayRefreshRate=0
+<br>
+<i>&lt;other default values&gt;</i></b></font></dir>
+<p></p>
+</dir>
+<p><font size="2"># We assume the user did not change the parameters in
+this part of the scenario because no expSetParam command is created.</font></p>
+<p><font size="2"><b># listExp </b>lists the active experiments to the
+screen</font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>listExp</b></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="2"><b>1 not executing</b></font></p>
+<dir><font size="2"><b>&nbsp;-h host1 -f a.out -r 2,5 pcsamp
+</b></font></dir>
+<p></p>
+</dir>
+<p><font size="2"># <b>expSetParam</b> defines arguments for the
+specified
+experiment. Here the "-x 1"" indicates the experiment identifier,
+however
+we can omit this argument as the tool will have a concept of default
+experiment. The experiment identifier is created by <b>expCreate</b>.
+The identifier created becomes the default current experiment. So
+commands following the <b>expCreate </b>will default to using the
+current experiment identifier as their experiment.</font></p>
+<p><font size="2"># For the <b>expSetParam</b> the expId is optional
+because the default focused experiment was set to "-x 1" by the <b>expCreate</b>
+command.<br>
+</font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expSetParam </b>samplingRate=20</font></p>
+<p><font size="2"><b>expSetParam </b>displayMode=realtime</font></p>
+<p><font size="2"><b>expSetParam </b>displayMedia=GUI</font></p>
+<p><font size="2"><b>expSetParam </b>displayRefreshRate=60</font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<p><font size="2"><b># </b>Run the application and the performance
+data
+collection utilities.
+experiment was created this command will also cause the instrumentation
+to be inserted into the application e.g. instruments the thread group.
+(the set of ranks, processes, and/or threads that are associated with
+the experiment). The experiment is starts the gathering of performance
+data as the application is started running. </font></p>
+<b><font face="Courier New" size="2"></font></b>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><b><font face="Courier New" size="2">expGo</font></b></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<ul>
+  <font size="2"><li>Now we want to stop the application and change the
+sampling rate</li>
+  </font>
+</ul>
+<p><font size="2"># We use the <b>expPause</b> command to halt/pause
+the performance data collection and the application.</font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expPause -x</b> 1</font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<font size="2"><b></b></font>
+<p><font size="2"># Here we use <b>expSetParam</b> to replace the
+existing sampling rate for experiment "-x 1" with the new value.</font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expSetParam -x</b> 1
+samplingRate=50</font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<p><font size="2"># We must do an <b>expGo</b>
+here to restart the application and to reengage the gathering of
+performance data.
+</font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expGo -x</b> 1</font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<p><font size="2"># The <b>listExp</b> command is presented here, only
+to show the it can be used at any point in a sequence to give
+experiment data back to the GUI or the CLI tools.</font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>listExp -x</b> 1</font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="2"><b>1 executing, data available</b></font></p>
+<dir><font size="2"><b>&nbsp;-h host1 -f a.out -r 2,5 pcsamp
+<br>
+pcsamp::samplingRate=50
+<br>
+displayMode=realtime
+<br>
+displayMedia=GUI
+<br>
+displayRefreshRate=60
+<br>
+<i>&lt;other default values&gt;</i></b></font></dir>
+<p></p>
+</dir>
+<ul>
+  <li><font size="2">Now stop the experiment and view the results.</font></li>
+</ul>
+<p><font size="2"># We use the <b>expPause</b> command to stop the
+application.
+The <b>focused</b> experiemnt is "-x 1", so it does not need to
+specified in
+the command.</font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expPause</b></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<p><font size="2"># The possible report types for this experiment are
+obtained. The GUI may want to present the user with a list of available
+views for this experiment (.e.g. in a menu item list. ).</font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expGetMetrics</b></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<div><font size="2"><b>"vTopN, vExclTime, vIO, vFpe, vHwc"</b></font></div>
+<p><font size="2"># <b>expView </b>causes much processing behind the
+scenes. This command is asking for the data to create a top "n"
+display and will open a <b>gui</b> window to display the result.</font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expView -x</b> 1 <b>-gui</b> vTopN</font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<ul>
+  <li><font size="2">Terminate the performance analysis session.</font>
+  </li>
+</ul>
+<p><font size="2"># Close <i>Open</i>/SpeedShop. The data that was
+collected
+for the experiment is discarded, the executable modules that were
+attached
+to the experiment are terminated and all memory is reclaimed by the
+system.</font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>exit</b></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+</body>
+</html>

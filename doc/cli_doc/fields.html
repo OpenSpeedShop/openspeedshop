@@ -1,0 +1,240 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>OpenSpeedShop command field definition</title>
+</head>
+<body bgcolor="#ffffff">
+<h1><a name="mozTocId97652" class="mozTocH1"></a><b><font face="Arial"
+ size="4"><a name="Type_and_Status_Defintions"></a><big>Type and Status
+Defintions</big><br>
+</font></b></h1>
+<h2><a name="mozTocId640109" class="mozTocH2"></a><a
+ name="Table_of_Contents"></a>Table of Contents</h2>
+<br>
+<ul id="mozToc">
+<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId97652">Type
+and Status Defintions</a>
+    <ul>
+      <li><a href="#mozTocId640109">Table of Contents</a>
+        <ul>
+          <li><a href="#mozTocId133354">address_description</a></li>
+          <li><a href="#mozTocId296052">breakId</a></li>
+          <li><a href="#mozTocId968019">expId</a></li>
+          <li><a href="#mozTocId784977">expMetric</a></li>
+          <li><a href="#mozTocId932908">expParam</a></li>
+          <li><a href="#mozTocId747157">expType</a></li>
+          <li><a href="#mozTocId464754">host_file_rpt</a></li>
+          <li><a href="#mozTocId769561">linenumber_spec</a></li>
+          <li><a href="#mozTocId359501">ListOf_</a></li>
+          <li><a href="#mozTocId958242">viewType</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+<br>
+<h3><a name="mozTocId133354" class="mozTocH3"></a><b><font size="3"><li><a
+ name="address_description"></a>address_description</li>
+</font></b></h3>
+<b><font size="3"></font></b><font size="2"> is an absolute or relative
+address.</font>
+<ul>
+  <p><font size="2"> &lt;<b>address_description</b>&gt; = &lt;int&gt;
+|| &lt;string&gt;</font></p>
+</ul>
+<h3><a name="mozTocId296052" class="mozTocH3"></a><b><font size="3"><li><a
+ name="breakId"></a>breakId</li>
+</font></b></h3>
+<b><font size="3"></font></b><font size="2"> is a breakpoint identifier.</font>
+<ul>
+  <p><font size="2">&lt;<b>breakId</b>&gt; = &lt;int&gt;<b></b></font></p>
+</ul>
+<h3><a name="mozTocId968019" class="mozTocH3"></a><b><b><font size="3"><li><a
+ name="expId"></a>expId</li>
+</font></b></b></h3>
+<b><b><font size="3"></font></b><font size="2"> is an experiment
+identifier.</font>
+</b>
+<ul>
+  <p><b><font size="2">&lt;<b>expId</b>&gt; = &lt;int&gt;<b></b></font></b></p>
+  <p><b><b><font size="2">&lt;<b>expId_spec</b>&gt; = <b>-x</b>
+&lt;expId&gt;</font></b></b></p>
+</ul>
+<h3><a name="mozTocId784977" class="mozTocH3"></a><b><b><b><font
+ size="3"><li><a name="expMetric"></a>expMetric</li>
+</font></b></b></b></h3>
+<b><b><b><font size="3"></font></b><font size="2"> is a result that an
+experiment can return.
+It could be a full report, a value or a set of values. </font>
+</b></b>
+<ul>
+  <p><b><b><font size="2">&lt;<b>metricname</b>&gt; =
+{ &#8230; }</font></b></b></p>
+  <p><b><b><font size="2">&lt;<b>expMetric</b>&gt; =
+[&lt;expType&gt;<b>::</b>]&lt;metricname&gt;</font></b></b></p>
+</ul>
+<h3><a name="mozTocId932908" class="mozTocH3"></a><b><b><b><font
+ size="3"><li><a name="expParam"></a>expParam</li>
+</font></b></b></b></h3>
+<b><b><b><font size="3"></font></b><font size="2"> is the experiment
+parameters correspond to
+items in the experiment class that can be changed by the user or a tool
+component.</font>
+</b></b>
+<ul>
+  <p><b><b><font size="2">&lt;<b>paramname</b>&gt; =
+{ <b>displayMode</b> || <b>displayMedia</b> || <b>displayRefreshRate</b>
+|| <b>expSaveFile</b> || <b>samplingRate</b> || &#8230; }</font></b></b></p>
+  <p><b><b><font size="2">&lt;<b>expParam</b>&gt; =
+[&lt;expType&gt;<b>::</b>]&lt;paramname&gt;</font></b></b></p>
+  <p><b><b><font size="2">&lt;<b>expParamValue</b>&gt; =
+[ &lt;int&gt; || &lt;float&gt; || &lt;string&gt; || <b>"</b>&lt;string&gt;<b>"</b>]</font></b></b></p>
+  <b><b><font size="2">
+- If &lt;expType&gt; is specified, then only that collector's
+parameter is updated.
+  <br>
+- If &lt;expType&gt; is NOT specified, then all
+parameters matching the parameter name are updated, regardless of the
+collector name, for that experiment .
+  </font></b></b>
+</ul>
+<h3><a name="mozTocId747157" class="mozTocH3"></a><b><b><b><font
+ size="3"><li><a name="expType"></a>expType</li>
+</font></b></b></b></h3>
+<b><b><font size="2"> is the experiment type designator. Using this in
+the expCreate
+or expAttach command fills in the default values for the experiment.</font>
+</b></b>
+<ul>
+  <b><b><font size="2">&lt;<b>predefined_exp</b>&gt; = {
+  <b>pcsamp</b> || <b>usertime</b> || <b>mpi</b> || <b>fpe</b> || <b>hwc</b>
+|| <b>io</b> || &#8230; }</font></b></b>
+  <p></p>
+  <b><b><font size="2">&lt;<b>user_defined_exp</b>&gt; =
+&lt;filename&gt;</font></b></b>
+  <p></p>
+  <b><b><font size="2">&lt;<b>expType&gt;</b>&gt; =
+[ &lt;predefined_exp&gt; || &lt;user_defined_exp&gt; ]</font></b></b>
+  <p></p>
+  <b><b><font size="2">&lt;<b>expType_list</b>&gt; =
+&lt;expType&gt; [ <b>,</b> &lt;expType&gt; ] ...</font></b></b>
+  <p></p>
+</ul>
+<h3><a name="mozTocId464754" class="mozTocH3"></a><b><b><b><font
+ size="3"><li><a name="host_file_rpt"></a>host_file_rpt</li>
+</font></b></b></b></h3>
+<b><b><font size="2"> represents the host file and machine
+along with a specific process, thread, or rank identifier.</font>
+</b></b>
+<ul>
+  <b><b><font size="2">&lt;<b>IP_Address</b>&gt;
+= &lt;int&gt;<b>.</b>&lt;int&gt;<b>.</b>&lt;int&gt;<b>.</b>&lt;int&gt;</font></b></b>
+  <p></p>
+  <b><b><font size="2">&lt;<b>rankname</b>&gt;
+= &lt;int&gt;</font></b></b>
+  <p></p>
+  <b><b><font size="2">&lt;<b>threadname</b>&gt;
+= &lt;int&gt;</font></b></b>
+  <p></p>
+  <b><b><font size="2">&lt;<b>pidname</b>&gt;
+= &lt;int&gt;</font></b></b>
+  <p></p>
+  <b><b><font size="2">&lt;<b>filename</b>&gt;
+= &lt;string&gt; || <b>"</b>&lt;string&gt;<b>"</b></font></b></b>
+  <p></p>
+  <b><b><font size="2">&lt;<b>hostname</b>&gt;
+= &lt;string&gt; || &lt;IP_Address&gt;</font></b></b>
+  <p></p>
+  <b><b><font size="2">&lt;<b>clustername</b>&gt;
+= &lt;string&gt;</font></b></b>
+  <p></p>
+  <b><b><font size="2">&lt;<b>rank_range</b>&gt;
+= &lt;rankname&gt; [ <b>:</b> &lt;rankname&gt; ]</font></b></b>
+  <p></p>
+  <b><b><font size="2">&lt;<b>rank_list</b>&gt;
+= &lt;rank_range&gt; [ <b>,</b> &lt;rank_range&gt; ] ...</font></b></b>
+  <p></p>
+  <b><b><font size="2">&lt;<b>thread_range</b>&gt;
+= &lt;threadname&gt; [ <b>:</b> &lt;threadname&gt; ]</font></b></b>
+  <p></p>
+  <b><b><font size="2">&lt;<b>thread_list</b>&gt;
+= &lt;thread_range&gt; [ <b>,</b> &lt;thread_range&gt; ] ...</font></b></b>
+  <p></p>
+  <b><b><font size="2">&lt;<b>pid_range</b>&gt;
+= &lt;pidname&gt; [ <b>:</b> &lt;pidname&gt; ]</font></b></b>
+  <p></p>
+  <b><b><font size="2">&lt;<b>pid_list</b>&gt;
+= &lt;pid_range&gt; [ <b>,</b> &lt;pid_range&gt; ] ...</font></b></b>
+  <p></p>
+  <b><b><font size="2">&lt;<b>file_list</b>&gt;
+= &lt;filename&gt; [ <b>,</b> &lt;filename&gt; ] ...</font></b></b>
+  <p></p>
+  <b><b><font size="2">&lt;<b>host_list</b>&gt;
+= &lt;hostname&gt; [ <b>,</b> &lt;hostname&gt; ] ...</font></b></b>
+  <p></p>
+  <b><b><font size="2">&lt;<b>cluster_list</b>&gt;
+= &lt;clustername&gt; [ <b>,</b> &lt;clustername&gt; ] ...</font></b></b>
+  <p></p>
+  <b><b><font size="2">&lt;<b>thread_spec</b>&gt;
+= <b>-t</b> &lt;thread_list&gt;</font></b></b>
+  <p></p>
+  <b><b><font size="2">&lt;<b>rank_spec</b>&gt;
+= <b>-r</b> &lt;rank_list&gt;</font></b></b>
+  <p></p>
+  <b><b><font size="2">&lt;<b>pid_spec</b>&gt;
+= <b>-p</b> &lt;pid_list&gt;</font></b></b>
+  <p></p>
+  <b><b><font size="2">&lt;<b>file_spec</b>&gt;
+= <b>-f</b> &lt;file_list&gt;</font></b></b>
+  <p></p>
+  <b><b><font size="2">&lt;<b>host_spec</b>&gt;
+= <b>-h</b> &lt;host_list&gt;</font></b></b>
+  <p></p>
+  <b><b><font size="2">&lt;<b>cluster_spec</b>&gt;
+= <b>-c</b> &lt;cluster_list&gt;</font></b></b>
+  <p></p>
+  <b><b><font size="2">&lt;<b>host_file</b>&gt;
+= [ &lt;host_spec&gt; ] <b>-f</b> &lt;filename&gt;</font></b></b>
+  <p></p>
+  <b><b><font size="2">&lt;<b>host_file_rpt</b>&gt;
+= [ &lt;cluster_spec&gt; ]
+[ &lt;host_spec&gt; ]
+[ &lt;file_spec&gt; ]
+[ &lt;pid_spec&gt; ]
+[ &lt;thread_spec ]
+[ &lt;rank_spec ]</font></b></b>
+  <p></p>
+  <b><b><font size="2">&lt;<b>host_file_rpt_list</b>&gt;
+= &lt;host_file_rpt&gt; [ <b> ,</b> &lt;host_file_rpt&gt; ] ...</font>
+  </b></b>
+</ul>
+<h3><a name="mozTocId769561" class="mozTocH3"></a><b><b><b><font
+ size="3"><li><a name="linenumber_spec"></a>linenumber_spec</li>
+</font></b></b></b></h3>
+<b><b><font size="2"> is a breakpoint identifier.</font>
+</b></b>
+<ul>
+  <p><b><b><font size="2">&lt;<b>linenumber_spec</b>&gt; = <b>-l</b>
+&lt;int&gt;</font></b></b></p>
+</ul>
+<h3><a name="mozTocId359501" class="mozTocH3"></a><b><b><b><font
+ sixe="2"><font size="3"><li><a name="ListOf_"></a>ListOf_</li>
+</font></font></b></b></b></h3>
+<b><b><b><font sixe="2">xxx</font></b>
+<font size="2">indicates a list of type xxx items.</font>
+</b></b>
+<h3><a name="mozTocId958242" class="mozTocH3"></a><b><b><b><font
+ size="3"><li><a name="viewType"></a>viewType</li>
+</font></b></b></b></h3>
+<p><b><b><font size="2">is the output view display/report type
+designator. This
+indicates the format of the output display that the performance data is
+needed for.</font>
+</b></b></p>
+<ul>
+  <p><b><b><font size="2">&lt;<b>viewType</b>&gt; =
+{ <b>vTopN</b> || <b>vExclTime</b> || <b>vIO</b> || <b>vFpe</b> || <b>vHwc</b>
+|| &#8230; }</font></b></b></p>
+</ul>
+</body>
+</html>

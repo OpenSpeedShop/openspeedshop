@@ -1,0 +1,141 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <title>OpenSpeedShop command summary</title>
+</head>
+<body bgcolor="#ffffff">
+<h1><a name="mozTocId167936" class="mozTocH1"></a><b><font
+ face="Courier New"><font size="+3"><a name="OpenSS_Command_Summary"></a>OpenSS
+Command Summary</font></font></b>
+</h1>
+<h2><a name="mozTocId54250" class="mozTocH2"></a><a
+ name="Table_of_Contents"></a>Table of Contents</h2>
+<ul id="mozToc">
+<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId167936">OpenSS
+Command Summary
+    </a>
+    <ul>
+      <li><a href="#mozTocId54250">Table of Contents</a></li>
+      <li><a href="#mozTocId860173">Experiment Building Block Commands
+        </a></li>
+      <li><a href="#mozTocId327521">Information Commands
+        </a></li>
+      <li><a href="#mozTocId801043">Session Commands
+        </a></li>
+    </ul>
+  </li>
+</ul>
+<h2><a name="mozTocId860173" class="mozTocH2"></a><font face="Arial"><font
+ size="+0"><a name="Experiment_Building_Block_Commands"></a><big>Experiment
+Building Block Commands</big></font></font>
+</h2>
+<br>
+<font size="-1"><b>expAttach </b>[ &lt;expId_spec&gt; ] [
+&lt;host_file_rpt_list&gt; ] [ &lt;expType_list&gt; ]</font>
+<br>
+<font size="-1"><b>expClose </b>[ <b>focus</b> || &lt;expId_spec&gt;
+|| <b>all</b> ] [ <b>kill</b> ]</font>
+<br>
+<font size="-1">&lt;expId&gt; <b>=</b>
+<b>expCreate </b>[ &lt;host_file_rpt_list&gt; ] [ &lt;expType_list&gt;
+]</font>
+<br>
+<font size="-1"><b>expDetach </b>[ &lt;expId_spec&gt; ] [
+&lt;host_file_rpt_list&gt; ] [ &lt;expType_list&gt; ]</font>
+<br>
+<font size="-1"><b>expDisable </b>[ &lt;expId_spec&gt; || <b>all</b> ]</font>
+<br>
+<font size="-1"><b>expEnable </b>[ &lt;expId_spec&gt; || <b>all</b> ]</font>
+<br>
+<font size="-1">&lt;expId&gt; =
+<b>expFocus </b>[ &lt;expId&gt; ]</font>
+<br>
+<font size="-1"><b>expGo </b>[ &lt;expId_spec&gt; || <b>all</b> ]</font>
+<br>
+<font size="-1"><b>expPause</b> [ &lt;expId_spec&gt; || <b>all</b> ]</font>
+<br>
+<font size="-1">&lt;expId&gt; <b>=</b>
+<b>expRestore </b> &lt;host_file&gt;</font>
+<br>
+<font size="-1"><b>expSave </b>[ &lt;expId_spec&gt; ] { <b>copy</b> }
+&lt;host_file&gt;</font>
+<br>
+<font size="-1"><b>expSetParam </b> [ &lt;expId_spec&gt; ]
+&lt;expParam&gt; <b>=</b> &lt;expParamValue&gt;
+[ <b>,</b> &lt;expParam&gt; <b>=</b> &lt;expParamValue&gt; ] ...</font>
+<br>
+<font size="-1"><b>expView </b>[ &lt;expId_spec&gt; ] [ <b>-gui</b> ]
+&lt;viewType&gt;</font>
+<br>
+&nbsp;
+<br>
+&nbsp;<br>
+<h2><a name="mozTocId327521" class="mozTocH2"></a><a
+ name="Information_Commands"></a><small>Information Commands</small><br>
+<font face="Arial"><font size="+0"></font></font></h2>
+<br>
+<font size="-1">&lt;listOf_string&gt;
+<b>= listExp </b>[ &lt;expId_spec&gt; || <b>all</b> ]</font>
+<br>
+<font size="-1">&lt;ListOf_breakId&gt;
+<b>= listBreaks </b>[ &lt;expId_spec&gt; || <b>all</b> ]</font>
+<br>
+<font size="-1">&lt;ListOf_hostname&gt;
+<b>= listHosts</b> [ &lt;cluster_spec&gt; ]</font>
+<br>
+<font size="-1">&lt;ListOf_filename&gt;
+<b>= listObj</b> [ &lt;expId_spec&gt; ] [ &lt;host_file_rpt&gt; ]</font>
+<br>
+<font size="-1">&lt;ListOf_pidname&gt;
+<b>= listPids</b> [ &lt;host_file&gt; ] [ <b>-mpi</b> ]</font>
+<br>
+<font size="-1">&lt;ListOf_expMetric&gt;
+<b>= listMetrics </b>[ &lt;expId_spec&gt; || <b>all</b> ]</font>
+<br>
+<font size="-1">&lt;ListOf_expParam&gt;
+<b>= listParams </b>[ &lt;expId_spec&gt; || <b>all</b> ]</font>
+<br>
+<font size="-1">&lt;ListOf_viewType&gt;
+<b>= listReports </b>[ &lt;expId_spec&gt; || <b>all</b> ]</font>
+<br>
+<font size="-1">&lt;string&gt;
+<b>= listSrc</b> [ &lt;expId_spec&gt; ] [ &lt;host_file_rpt&gt; ] [
+&lt;linenumber_spec&gt; ]</font>
+<br>
+<font size="-1">&lt;ListOf_viewType&gt;
+<b>= listTypes</b></font>
+<br>
+&nbsp;
+<br>
+<br>
+<h2><a name="mozTocId801043" class="mozTocH2"></a><a
+ name="Session_Commands"></a><small>Session Commands</small><br>
+<font face="Arial"><font size="+0"></font></font></h2>
+<br>
+<font size="-1"><b>clearbreak</b> &lt;breakId&gt;</font>
+<br>
+<font size="-1"><b>exit</b></font>
+<br>
+<font size="-1"><b>openGui</b></font>
+<br>
+<font size="-1">&lt;string&gt;
+<b>= help </b>[ &lt;string&gt; ]</font>
+<br>
+<font size="-1"><b>history </b>[ &lt;host_file&gt; ]</font>
+<br>
+<font size="-1"><b>log </b>[ &lt;host_file&gt; ]</font>
+<br>
+<font size="-1"><b>playback</b> &lt;host_file&gt;</font>
+<br>
+<font size="-1"><b>record</b> [ &lt;host_file&gt; ]</font>
+<br>
+<font size="-1">&lt;breakId&gt;
+<b>= setbreak</b> [ &lt;expId_spec&gt; ]
+[ &lt;host_file_rpt&gt; ] &lt;address_description&gt;<br>
+<br>
+<br>
+<br>
+<br>
+</font>
+</body>
+</html>

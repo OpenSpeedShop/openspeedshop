@@ -1,0 +1,482 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>OpenSpeedShop Example 2</title>
+</head>
+<body bgcolor="#ffffff">
+<h1><a name="mozTocId918411" class="mozTocH1"></a><b><font face="Arial"
+ size="4"><a name="Example_2"></a>Example 2</font></b></h1>
+<h2><a name="mozTocId428972" class="mozTocH2"></a><small><a
+ name="Table_of_Contents"></a>Table of Contents</small></h2>
+<ul id="mozToc">
+<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId918411">Example
+2</a>
+    <ul>
+      <li><a href="#mozTocId428972">Table of Contents</a></li>
+      <li><a href="#mozTocId914100">Simple example scenario 2 to show
+command usage</a></li>
+      <li><a href="#mozTocId340960">More detailed example scenario 2 to
+show
+command usage</a></li>
+    </ul>
+  </li>
+</ul>
+<h2><a name="mozTocId914100" class="mozTocH2"></a><small><font
+ face="Arial"><b><a name="Simple_example_scenario_2_to_show"></a>Simple
+example scenario 2 to show command usage</b></font></small></h2>
+<ul>
+  <font size="2"><li>Simple list of the commands for scenario 2 that
+will intermingle the creation of experiments and loading of executables
+on host1, create several experiments for all executables and start the
+experiment running:</li>
+  </font>
+</ul>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expCreate</b> pcsamp</font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="2"><b>"1"</b></font></p>
+</dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expCreate</b> io</font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="2"><b>"2"</b></font></p>
+</dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expCreate</b> fpe</font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="2"><b>"3"</b></font></p>
+</dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expAttach -x</b> 1 <b>-h</b> host1 <b>-f</b>
+a.out, b.out, c.out</font></p>
+<p><font size="2"><b>expAttach -x</b> 2 <b>-h</b> host1 <b>-f</b>
+a.out, c.out</font></p>
+<p><font size="2"><b>expAttach -h</b> host1 <b>-f</b> b.out, c.out</font></p>
+<p><font size="2"><b>expAttach -x</b> 3 malloc</font></p>
+<p><font size="2"><b>listParams</b></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="2"><b>1 not executing</b></font></p>
+<dir><font size="2"><b>pcsamp::samplingRate=10
+<br>
+displayMode=AtCompletion
+<br>
+displayMedia=GUI
+<br>
+displayRefreshRate=0
+<br>
+<i>&lt;other default values</i>&gt;</b></font></dir>
+<p></p>
+</dir>
+<dir>
+<p><font size="2"><b>2 not executing</b></font></p>
+<dir><font size="2"><b>displayMode=AtCompletion
+<br>
+displayMedia=GUI
+<br>
+displayRefreshRate=0
+<br>
+<i>&lt;other default values</i>&gt;</b></font></dir>
+<p></p>
+</dir>
+<dir>
+<p><font size="2"><b>3 not executing</b></font></p>
+<dir><font size="2"><b>displayMode=AtCompletion
+<br>
+displayMedia=GUI
+<br>
+displayRefreshRate=0
+<br>
+<i>&lt;other default values</i>&gt;</b></font></dir>
+<p></p>
+</dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expSetParam -x</b> 1 samplingRate=20</font></p>
+<p><font size="2"><b>expSetParam -x</b> 3 displayMode=realtime</font></p>
+<p><font size="2"><b>expSetParam -x</b> 3 displayMedia=GUI</font></p>
+<p><font size="2"><b>expSetParam -x</b> 3 displayRefreshRate=60</font></p>
+<p><font size="2"><b>expGo all</b></font></p>
+<p><font size="2"><b>explist</b></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="2"><b>1 executing, data available
+<dir>&nbsp;-h host1 -f a.out, b.out, c.out pcsamp
+</dir>
+</b></font></p>
+</dir>
+<dir>
+<p><font size="2"><b>2 complete, data available, realtime display
+<dir>&nbsp;-h host1 -f a.out, c.out io
+</dir>
+</b></font></p>
+</dir>
+<dir>
+<p><font size="2"><b>3 executing, data available, realtime display
+<dir>&nbsp;-h host1 -f b.out, c.out fpe, malloc
+</dir>
+</b></font></p>
+</dir>
+<ul>
+  <li><font size="2">Remove the executing experiment and the data</font></li>
+</ul>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expClose -x</b> 3</font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<ul>
+  <li><font size="2">Terminate the performance analysis session.</font></li>
+</ul>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>exit</b></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<br>
+<br>
+<h2><a name="mozTocId340960" class="mozTocH2"></a><small><b><font
+ face="Arial"><a name="More_detailed_example_scenario_2_to_show"></a>More
+detailed example scenario 2 to show
+command usage</font></b></small></h2>
+<p><font size="2">This scenario is the same as the simple scenario 2
+above but this one has more comments interspersed between the commands.
+It has a bit more information about what is going on under the hood.</font></p>
+<p><font size="2">#User launches Open/SpeedShop tool from a window. The
+CLI
+tool will come up first and then if the GUI option is not turned off
+the GUI will launch.</font></p>
+<p><font size="2"># <b>expCreate </b>will cause the initial default
+values of the specified experiment to be instantiated and the proper
+collector to be associated with the newly created experiment. The "1"
+below is the &lt;expId&gt; for the new pcsamp experiment.</font></p>
+<p><font size="2"># Since there is no executable specified on the<b>
+expCreate</b>, the experiment can not be executed but will act
+as a place holder for further commands.</font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expCreate</b> pcsamp</font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="2"><b>"1"</b></font></p>
+</dir>
+<p><font size="2"># <b>expCreate </b>creates a second experiment,
+this one for <i>io</i> performance anlysis. The default experiment is
+now "2".</font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expCreate</b> io</font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="2"><b>"2"</b></font></p>
+</dir>
+<p><font size="2"># <b>expCreate </b>creates a third experiment, this
+one for <i>fpe</i>. The default experiment is now "3".</font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expCreate</b> fpe</font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="2"><b>"3</b>"</font></p>
+</dir>
+<p><font size="2"># This <b>expAttach</b> command will associate the
+a.out, b.out,
+and c.out on host1 with experiment 1 as specified by the "-x 1"
+annotation.</font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expAttach -x</b> 1 <b>-h</b> host1
+<b>-f</b> a.out, b.out, c.out</font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<p><font size="2"># This <b>expAttach</b> command will associate the
+a.out and
+c.out on host1 with experiment 2 as specified by the "-x 2" annotation.</font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expAttach -x</b> 2 <b>-h</b> host1
+<b>-f</b> a.out, c.out</font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<p><font size="2"># This <b>expAttach</b> command will associate the
+b.out and
+c.out on host1 with experiment 3. This is not specifically called out
+via the "-x 3" annotation because experiment "3" is the default
+experiment. </font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expCreate -h</b> host1 <b>-f</b>
+b.out, c.out</font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<p><font size="2"># <b>expCreate </b>adds a collector to the third
+experiment, specifically this command adds a collector for <i>malloc</i>
+performance analysis in addition to
+the fpe collector. The default experiment is still "3".</font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expCreate -x</b> 3 malloc</font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<p><font size="2"># <b>listParams</b> retrieves the list of parameters
+that
+may be changed by the user. The GUI and CLI tools need to display this
+to the user in order for the user to have the option of tuning the
+experiment to their specific needs. This command gets the parameters
+for experiment "1" which is the pc sampling experiment.</font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>listParams -x</b> 1</font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="2"><b>1 not executing</b></font></p>
+<dir><font size="2"><b>pcsamp::samplingRate=10
+<br>
+displayMode=AtCompletion
+<br>
+displayMedia=GUI
+<br>
+displayRefreshRate=0
+<br>
+<i>&lt;other default values&amp;glt;</i></b></font></dir>
+<p></p>
+</dir>
+<p><font size="2"># <b>expSetParam</b> defines arguments for the
+specified
+experiment. Here the "-x 1" indicates the experiment identifier.</font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expSetParam -x</b> 1 pcsamp::samplingRate=10</font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<p><font size="2"># <b>expSetParam</b> defines arguments for the
+specified
+experiment. Here the "-x 3" indicates the experiment identifier,. These
+commands change the argument values for the fpe and malloc collectors
+comprising experiment "3".</font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expSetParam -x</b> 3 displayMode=realtime</font></p>
+<p><font size="2"><b>expSetParam -x</b> 3 displayMedia=GUI</font></p>
+<p><font size="2"><b>expSetParam -x</b> 3 displayRefreshRate=60</font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<p><font size="2"># <b>expGo all</b> causes all 3 experiments to be
+started.
+Data is collected for all experiments an displayed in a GUI window for
+experiment 3, since the <i>displayMode</i> parameter has been set to <i>realtime</i>.
+</font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expGo all</b></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<p><font size="2"># <b>listExp</b> causes the information about all 3
+experiments
+to be listed. In this example, experiments "1" and "2" have completed
+execution.
+Data is still being collected and displayed for experiment "3".
+</font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>explist</b></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="2"><b>1 executing, data available
+<dir>&nbsp;-h host1 -f a.out, b.out, c.out pcsamp</dir>
+</b></font></p>
+<p><font size="2"><b>2 complete, data available, realtime display
+<dir>&nbsp;-h host1 -f a.out, c.out io</dir>
+</b></font></p>
+<p><font size="2"><b>3 executing, data available, realtime display
+<dir>&nbsp;-h host1 -f b.out, c.out fpe, malloc</dir>
+</b></font></p>
+</dir>
+<ul>
+  <li><font size="2">Remove the executing experiment and the data</font></li>
+</ul>
+<p><font size="2"># Stop experiment "3" and remove the experiment and
+the data. The processing
+that implements an experiment close operation includes </font></p>
+<div>
+<ul>
+  <ul>
+    <li><font size="2">disconnecting the framework from DPCL</font></li>
+    <li><font size="2">extracting the instrumentation from the
+application</font></li>
+    <li><font size="2">removing the application object,</font></li>
+    <li><font size="2">removing the thread group associated with the
+experiment</font></li>
+    <li><font size="2">allowing the system to continue executing the
+attached module, <i>b.out</i>, as an independant process. Note that <i>c.out</i>
+has finished executing, since experiment "2" is "complete".</font></li>
+  </ul>
+</ul>
+</div>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expClose -x</b> 3</font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<ul>
+  <li><font size="2">Terminate the performance analysis session.</font></li>
+</ul>
+<p><font size="2"># Close <i>Open</i>/SpeedShop. The data that was
+collected
+for the all experiments is discarded and all GUI windows are closed.
+Since executables <i>a.out</i> and <i>c.out</i>
+are known to have terminated, all memory associated with them is
+reclaimed by
+the system. <i>b.out</i> is allowed to continue executing until it
+completes.
+</font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>exit</b></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+</body>
+</html>

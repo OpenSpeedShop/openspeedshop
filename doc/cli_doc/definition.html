@@ -1,0 +1,808 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <title>OpenSpeedShop detailed command definition</title>
+</head>
+<body bgcolor="#ffffff">
+&nbsp;
+<br>
+<h1><a name="mozTocId191302" class="mozTocH1"></a><b><font
+ face="Courier New"><font size="+3"><a name="OpenSS_Command_Definitions"></a>OpenSS
+Command Definitions</font></font></b>
+</h1>
+<h2><a name="mozTocId322544" class="mozTocH2"></a><a
+ name="Table_of_Contents"></a>Table of Contents</h2>
+<ul id="mozToc">
+<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId191302">OpenSS
+Command Definitions
+    </a>
+    <ul>
+      <li><a href="#mozTocId322544">Table of Contents</a></li>
+      <li><a href="#mozTocId423978">Experiment
+Building Block Commands
+        </a>
+        <ul>
+          <li><a href="#mozTocId95049">expAttach</a></li>
+          <li><a href="#mozTocId67486">expClose</a></li>
+          <li><a href="#mozTocId103692">expCreate</a></li>
+          <li><a href="#mozTocId859330">expDetach&nbsp;</a></li>
+          <li><a href="#mozTocId526141">expDisable</a></li>
+          <li><a href="#mozTocId946883">expEnable</a></li>
+          <li><a href="#mozTocId738829">expFocus</a></li>
+          <li><a href="#mozTocId888177">expGo</a></li>
+          <li><a href="#mozTocId104711">expPause</a></li>
+          <li><a href="#mozTocId811994">expRestore</a></li>
+          <li><a href="#mozTocId916219">expSave</a></li>
+          <li><a href="#mozTocId563762">expSetParam</a></li>
+          <li><a href="#mozTocId575759">expView</a></li>
+        </ul>
+      </li>
+      <li><a href="#mozTocId688201">Information Commands </a>
+        <ul>
+          <li><a href="#mozTocId332313">listExp</a></li>
+          <li><a href="#mozTocId842989">listBreaks</a></li>
+          <li><a href="#mozTocId760516">listHosts</a></li>
+          <li><a href="#mozTocId685141">listObj</a></li>
+          <li><a href="#mozTocId629516">listPids</a></li>
+          <li><a href="#mozTocId924408">listSrc</a></li>
+          <li><a href="#mozTocId965893">listMetrics</a></li>
+          <li><a href="#mozTocId362324">listParams</a></li>
+          <li><a href="#mozTocId460796">listReports</a></li>
+          <li><a href="#mozTocId613827">listTypes</a></li>
+        </ul>
+      </li>
+      <li><a href="#mozTocId40191">Session Commands
+        </a>
+        <ul>
+          <li><a href="#mozTocId388513">clearbreak</a></li>
+          <li><a href="#mozTocId433112">exit</a></li>
+          <li><a href="#mozTocId100987">help</a></li>
+          <li><a href="#mozTocId543492">history</a></li>
+          <li><a href="#mozTocId487321">log</a></li>
+          <li><a href="#mozTocId753973">openGui</a></li>
+          <li><a href="#mozTocId849326">playback</a></li>
+          <li><a href="#mozTocId407391">record </a></li>
+          <li><a href="#mozTocId471161">setbreak</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+<br>
+<h2><a name="mozTocId423978" class="mozTocH2"></a><font face="Arial"><font
+ size="+0"><a name="EXPERIMENT_BUILDING_BLOCK_COMMANDS_"></a><big>Experiment
+Building Block Commands</big></font></font>
+</h2>
+<p>&nbsp;
+</p>
+<h3><a name="mozTocId95049" class="mozTocH3"></a><font size="+0"><b><a
+ name="expAttach"></a><li>expAttach</li>
+</b></font></h3>
+<ul>
+  <font size="-1">- Attach application information or collectors to
+an experiment.
+  <dir><li>The attached applications will not execute until an <b>expGo</b>
+command is issued.</li>
+  </dir>
+- If there is no &lt;expId_spec&gt; provided, information is attached
+to the focused
+experiment. <br>
+- The &lt;host_file_rpt_list&gt; is used to restrict the knowledge of
+the
+experiment or data collection to certain portions of an appliaction. <br>
+- It is ambiguous to use both the <b>-f</b> and <b>-p</b> options.
+  <dir><li>The <b>-f</b> option implies that an executable is to be
+loaded into the <b>OpenSS</b> tool from a file.</li>
+  <li>The use of <b>-p</b> option implies that the <b>OpenSS</b>
+tool is to attach to a progtram that is already executing.</li>
+  </dir>
+- If &lt;host_file_rpt_list&gt; is provided without
+&lt;expType_list&gt;,
+those applications are attached to the experiment. <br>
+- If &lt;expType_list&gt; is provided without
+&lt;host_file_rpt_list&gt;,
+the specified data collectors are used to instrument all the executable
+routines that are already attached to the indicated experiment. <br>
+-If both &lt;host_file_rpt_list&gt; and &lt;expType_list&gt; are
+provided,
+only those portions of the application in the
+&lt;host_file_rpt_list&gt; are
+linked to the specified collectors in &lt;expType_list&gt;. <br>
+- If neither &lt;host_file_rpt_list&gt; nor &lt;expType_list&gt; is
+provided,
+the command does nothing. </font><br>
+  <br>
+  <font size="-1"><b>expAttach </b>[ &lt;expId_spec&gt; ] [
+&lt;host_file_rpt_list&gt; ] [ &lt;expType_list&gt; ]</font>
+</ul>
+<h3><a name="mozTocId67486" class="mozTocH3"></a><a name="expClose"></a><font
+ size="+0"><b><li>expClose</li>
+</b></font></h3>
+<ul>
+  <font size="-1">- Close/Terminate the experiment specified by
+&lt;expId_spec&gt;.
+  <dir><li>The <b>OpenSS</b> tool is NOT terminated. Use <b>exit</b>
+to terminate the session.</li>
+  <li>All data collectors attached to the experiment are removed from
+the attached applications.</li>
+  <li>All attached applications are removed from the experiment.</li>
+  <li>If the <b>kill</b> keyword is not provided, attached
+applications will
+continue executing.</li>
+  <li>If the <b>kill</b> keyword is provided, attached applications
+will
+be terminated.</li>
+  <li>The data base file that was used to save information about the
+applications and the collected data, is deleted if it is a temporary
+file, or
+closed if it is a user defined file. Use <b>expSave</b> for saving
+information.</li>
+  </dir>
+- Because important information may accidently be lost, the absence of
+any arguments will not cause the focused experiment to be deleted. This
+can
+only be done by specifying the <b>expId</b> of the focused experiment
+or by using the <b>focus</b> keyword. <br>
+- Use of the <b>all</b> keyword will cause all defined experiments to
+be deleted. </font><br>
+  <br>
+  <font size="-1"><b>expClose </b>[ <b>focus</b> ||
+&lt;expId_spec&gt; || <b>all</b> ]
+[ <b>kill</b> ]</font>
+</ul>
+<h3><a name="mozTocId103692" class="mozTocH3"></a><font size="+0"><b><a
+ name="expCreate"></a><li>expCreate</li>
+</b></font></h3>
+<ul>
+  <font size="-1">- Start the process of defining an experiment:
+  <dir><li>define a new experiment identifier,</li>
+  <li>set the current focus to the new identifier and</li>
+  <li>return the experiment identification identifier.</li>
+  <li>The experiment will not execute until an <b>expGo</b> command is
+issued.</li>
+  </dir>
+-The &lt;host_file_rpt_list&gt; will associate the specified executable
+with the experiment being defined. <br>
+- The experiment type argument, &lt;expType_list&gt;, can be used to
+specify
+the types of data that will be collected during the experiment. <br>
+- Missing arguments can be supplied later with the <b>expAttach</b>
+command. <br>
+- An <b>expCreate</b> command with no arguments will still return a
+new
+&lt;expId&gt; and will set the focus. </font><br>
+  <br>
+  <font size="-1">&lt;expId&gt;<b> = expCreate </b>[
+&lt;host_file_rpt_list&gt; ] [ &lt;expType_list&gt; ]</font>
+  <p></p>
+</ul>
+<h3><a name="mozTocId859330" class="mozTocH3"></a><a name="expDetach_"></a><font
+ size="+0"><b><li>expDetach</li>
+</b>&nbsp;</font></h3>
+<ul>
+  <font size="-1">- Detach application information or collectors from
+an
+experiment.
+  <dir><li>The remaining applications will not execute until an <b>expGo</b>
+command is issued.</li>
+  </dir>
+- If there is no &lt;expId_spec&gt; provided, information is detached
+from
+the focused experiment. <br>
+- The &lt;host_file_rpt_list&gt; is used to remove knowledge of parts
+of an
+application from the data collectors or experimant. <br>
+- If &lt;host_file_rpt_list&gt; is provided without
+&lt;expType_list&gt;,
+those applications are removed from the experiment. <br>
+- If &lt;expType_list&gt; is provided without
+&lt;host_file_rpt_list&gt;,
+the specified data collectors are fremoved from all the executable
+routines that are ttached to the indicated experiment. <br>
+-If both &lt;host_file_rpt_list&gt; and &lt;expType_list&gt; are
+provided,
+only the specified collectores in &lt;expType_list&gt; are removed from
+just
+the portions of the application described in
+&lt;host_file_rpt_list&gt;. <br>
+- If neither &lt;host_file_rpt_list&gt; nor &lt;expType_list&gt; is
+provided,
+the command does nothing. </font><br>
+  <br>
+  <font size="-1"><b>expDetach </b>[ &lt;expId_spec&gt; ] [
+&lt;host_file_rpt_list&gt; ]
+[ &lt;expType_list&gt; ]</font>
+</ul>
+<h3><a name="mozTocId526141" class="mozTocH3"></a><font size="+0"><b><a
+ name="expDisable"></a><li>expDisable</li>
+</b></font></h3>
+<ul>
+  <font size="-1">- Turn off data collection.
+  <dir><li>The experiment remains defined.</li>
+  <li>Data collection is "turned off" and no new information is saved.</li>
+  <li>Instrumentation is disabled but is not removed from the
+application.</li>
+  <li>Previously collected data is still available and can be viewed
+or saved.</li>
+  <li>The attached applications will not continue executing until an <b>expGo</b>
+command is issued.</li>
+  </dir>
+- See related commands:
+  <dir><li><b>expEnable</b> can be used to restart data collection.</li>
+  <li><b>expSave</b> can be used to save previously collected data.</li>
+  <li><b>expClose</b> can be used to destroy the experiment and free
+all data space used to save the collected data.</li>
+  </dir>
+- The <b>all</b> keyword will result in data collection being stopped
+for
+all defined experiments. <br>
+- If this command is issued with no arguments, data collection is
+stopped for the focused experiment. </font><br>
+  <br>
+  <font size="-1"><b>expDisable </b>[ &lt;expId_spec&gt; || <b>all</b>
+]</font>
+</ul>
+<h3><a name="mozTocId946883" class="mozTocH3"></a><font size="+0"><b><a
+ name="expEnable"></a><li>expEnable</li>
+</b></font></h3>
+<ul>
+  <font size="-1">- Turn on any instrumentation that was turned off
+with
+an <b>expDisable</b> command.
+  <dir><li>Existing instrumentation is enabled.</li>
+  <li>Data collection is "turned on" and new information will be
+saved.</li>
+  <li>New information will be merged with any previously collected
+data.</li>
+  <li>The attached applications will not continue executing until an <b>expGo</b>
+command is issued.</li>
+  </dir>
+- The <b>all</b> keyword will result in data collection being
+restarted for
+all defined experiments. <br>
+- If this command is issued with no arguments, data collection for
+the focused experiment is restarted. </font><br>
+  <br>
+  <font size="-1">&lt;expId&gt; <b> = expEnable </b> [
+&lt;expId_spec&gt; || <b>all</b> ]</font>
+</ul>
+<h3><a name="mozTocId738829" class="mozTocH3"></a><a name="expFocus"></a><font
+ size="+0"><b><li>expFocus</li>
+</b></font></h3>
+<ul>
+  <font size="-1">- Make the given experiment id the current, focused
+experiment. <br>
+- In many commands &lt;expId_spec&gt; is optional. When omitted, the
+currently "focused" experiment is used. <br>
+- If no argument is present on this command, return the focused
+experiment. <br>
+- If the &lt;expId_spec&gt; argument has an experiment id of zero (0),
+then clear the experiment focus.
+  <dir><li>A command that uses an experiment id of zero is illegal
+and
+will produce a fatal error.</li>
+  </dir>
+- This command does not change the execution state of an experiment. </font><br>
+  <br>
+  <font size="-1">&lt;expId&gt; <b>= expFocus </b>[
+&lt;expId_spec&gt; ]</font>
+</ul>
+<h3><a name="mozTocId888177" class="mozTocH3"></a><a name="expGo"></a><font
+ size="+0"><b><li>expGo</li>
+</b></font></h3>
+<ul>
+  <font size="-1">- Run the experiment and collect performance data.<br>
+- If the experiment has already begun execution, this command causes
+execution
+to continue from where it was interrupted.
+- The experiment will continue to run until either
+  <dir><li>the application terminates, or</li>
+  <li>the application executes a programmed halt, or</li>
+  <li>the user issues another <b>exp...</b> command that refers to
+this
+experiment Id. or</li>
+  <li>the <b>OpenSS</b> tool terminates due to an <b>exit</b>
+command, an external interrupt,
+or abnormal, internal event.</li>
+  </dir>
+- Except when executed in batch mode, the execution of the application
+and
+the collection of performance data does not, automatically, prevent
+other
+commands from being issued
+  <dir><li>A following command that depends on the result of this
+experiment may not be
+able to execute and may block further commands from being issued.</li>
+  <li>Independent commands may be issued and completed before this
+experiment completes.</li>
+  <li>The status of any experiment can be determined through the <b>expList</b>
+command.</li>
+  <li>Depending on the type of data collection that is taking place,
+it may be
+possible to view the results before the application completes.</li>
+  </dir>
+- The absence of the &lt;expId_spec&gt; and <b>all</b> keyword will
+result in
+only the focused experiment being run.<br>
+- The use of &lt;expId_spec&gt; will result in only that experiment
+being run.<br>
+- The use of the <b>all</b> option will result in every defined
+experiment being
+run. </font><br>
+  <br>
+  <font size="-1"><b>expGo </b>[ &lt;expId_spec&gt; || <b>all</b> ]</font>
+</ul>
+<h3><a name="mozTocId104711" class="mozTocH3"></a><font size="+0"><b><a
+ name="expPause"></a><li>expPause</li>
+</b></font></h3>
+<ul>
+  <font size="-1">- Temporarily
+halt the experiment identified by the input experiment id. <br>
+- If &lt;expId_spec&gt; is not provided, the focused experiment is
+used. <br>
+- If the keywork <b>all</b> is present, every defined experiment is
+halted. </font><br>
+  <br>
+  <font size="-1"><b>expPause</b> [ &lt;expId_spec&gt; || <b>all</b>
+]</font>
+</ul>
+<h3><a name="mozTocId811994" class="mozTocH3"></a><font size="+0"><b><a
+ name="expRestore"></a><li>expRestore</li>
+</b></font></h3>
+<ul>
+  <font size="-1">- Restore an experiment's definition and previously
+saved data from
+a data base that was saved with an <b>expSave</b> command.<br>
+  <dir> <li>A new experiment is created and intitialize with this
+information.</li>
+  <li>This command also sets the focus to the new experiment's
+Identifier.</li>
+  <li>Previously collected data can be looked at with the <b>expView</b>
+command.</li>
+  <li>If the original applications are still running, the <b>OpenSS</b>
+tool the
+user may perform a simple <b>expAttach</b> command to attach to the
+application
+and reinsert instrumentation into the application. If this is done, the
+applications
+are placed in a suspended state and will not resume execution until an <b>expGo</b>
+command is issued.</li>
+  <li>The new experiment can be modified with the use of <b>expAttach</b>
+or <b>expDetach</b> commands.</li>
+  <li>If an <b>expGo</b> command is issued, new data samples will be
+placed into the
+data base specified by &lt;host_file&gt;. A different data base can be
+specified
+with the <b>expSave</b> command.</li>
+  </dir>
+  </font> <br>
+  <br>
+  <font size="-1">&lt;exp_Id&gt;<b> = expRestore </b>&lt;host_file&gt;</font>
+</ul>
+<h3><a name="mozTocId916219" class="mozTocH3"></a><font size="+0"><b><a
+ name="expSave"></a><li>expSave</li>
+</b></font></h3>
+<ul>
+  <font size="-1">- Save the experiment information for further
+analysis.<br>
+  <dir> <li>For each experiment, information about the executable
+programs
+that are
+instrumented, information about the instrumentation that is used, and
+any performance data that is collected are saved in a data base.</li>
+  <li>The data base is created by the <b>OpenSS</b> tool in a
+temporary location and will
+be deleted when an <b>expClose</b> command is issued for the
+experiment, or
+when an <b>exit</b> command is issued that terminates the <b>OpenSS</b>
+tool.</li>
+  <li>The entire data base can be saved with the <b>expSave</b>
+command
+and can be reloaded into the <b>OpenSS</b> tool with the <b>expRestore</b>
+command.</li>
+  <li>The data base is in a special format that supprots the
+opertaions that
+the <b>OpenSS</b> tool must perform.</li>
+  </dir>
+- Without the <b>copy</b> option
+  <dir><li>If the original, temporary data base file is still in use,
+it is copied to the
+specified file name and the <b>OpenSS</b> tool will use the new file
+to collect any
+new information about the experiment. When the experiment completes,
+this data base
+will be retained.</li>
+  <li>If a previous <b>expSave</b> command has caused the
+experiment's information to
+be directed to a user defined data base</li>
+  <dir> <li>The contents of the previous data base - without any of
+the
+data samples - is
+copied to the new data base.</li>
+  <li>The previous data base is closed.</li>
+  <li>The new data base is used by the <b>OpenSS</b> tool to collect
+any new
+information that is added to or collected for, the experiment.</li>
+  </dir>
+  </dir>
+- With the <b>copy</b> option the given location receives a <i>copy</i>
+of the
+current state of the data base.
+  <dir><li>The current contents of the data base is duplicated and
+saved to the given location.</li>
+  <li>No new information will be added to the given location.</li>
+  <li>New information will be added to the original data base.</li>
+  </dir>
+- This command does not change the execution state of the experiment,
+although
+it may temporarily suspend execution while the command is being
+executed. </font><br>
+  <br>
+  <font size="-1"><b>expSave </b>[ &lt;expId_spec&gt; ] [ <b>copy</b>
+]
+&lt;host_file&gt;</font>
+</ul>
+<h3><a name="mozTocId563762" class="mozTocH3"></a><font size="+0"><b><a
+ name="expSetParam"></a><li>expSetParam</li>
+</b></font></h3>
+<ul>
+  <font size="-1">- Change the value an experiment's argument. <br>
+- &lt;expParam&gt; will be unique within the experiment. <br>
+- The parameter names can be used by other experiments. <br>
+- This command does not change the execution state of the experiment,
+although
+it may temporarily suspend execution while the command is being
+executed. </font><br>
+  <br>
+  <font size="-1"><b>expSetParam </b> [ &lt;expId_spec&gt; ]
+&lt;expParam&gt; <b>=</b> &lt;expParamValue&gt;
+[ <b>,</b> &lt;expParam&gt; <b>=</b> &lt;expParamValue&gt; ] ...</font>
+</ul>
+<h3><a name="mozTocId575759" class="mozTocH3"></a><font size="+0"><b><a
+ name="expView"></a><li>expView</li>
+</b></font></h3>
+<ul>
+  <font size="-1">- View the data associated with a particular
+&lt;viewType&gt;
+for the experiment specified by &lt;expId_spec&gt;. <br>
+- If this command is issued with no &lt;expId_spec&gt;, the focused
+experiment is used. <br>
+- The optional <b>-gui</b> argument will cause the data to be directed
+to an appropriate window for display in a graphical format. <br>
+- This command does not change the execution state of the experiment,
+although
+the nature of the requested data may require that the experiment
+complete execution
+before the information can be provided. </font><br>
+  <br>
+  <font size="-1"><b>expView </b>[ &lt;expId_spec&gt; ] [ <b>-gui</b>
+] &lt;viewType&gt;</font>
+</ul>
+<br>
+&nbsp; <br>
+<font size="+0"></font>
+<h2><a name="mozTocId688201" class="mozTocH2"></a><font face="Arial"><font
+ size="+0"><a name="INFORMATION_COMMANDS"></a><big>Information Commands</big><br>
+</font></font></h2>
+<p></p>
+<p></p>
+<h3><a name="mozTocId332313" class="mozTocH3"></a><a name="listExp"></a><b><font
+ size="+0"><li>listExp</li>
+</font></b></h3>
+<ul>
+  <font size="-1">- List the experiments that can be run, along
+with detailed information about the data measurement utilities and
+applications
+that may have been attached to the experiment. <br>
+- The absence of any experiment specification will cause information
+for
+the focused experiment to be listed. <br>
+- The &lt;expId_spec&gt; option will cause the selected experiment to
+be listed. <br>
+- The "<b>all</b>" option will cause all the defined experiments to be
+listed. <br>
+- The output will be similar to that of the listing of
+breakpoints in gdb, dbx, cvd, or totalview.</font> <br>
+  <br>
+  <font size="-1"><b>&lt;</b>ListOf_string&gt;<b>
+= listExp </b>[ &lt;expId_spec&gt; || <b>all</b> ]</font>
+</ul>
+<h3><a name="mozTocId842989" class="mozTocH3"></a><a name="listBreaks"></a><b><font
+ size="+0"><li>listBreaks</li>
+</font></b></h3>
+<ul>
+  <font size="-1">- List the breakpoints that have been set by the
+user. <br>
+- The absence of any option will cause all the breakpoints for the
+focused experiment to be listed. <br>
+- The use of &lt;expId_spec&gt; will cause all the breakpoints for
+the specified experiment to be listed. <br>
+- The use of <b>all</b> will cause all the known breakpoints, for all
+of
+the experiments defined by the user, to be listed. </font><br>
+  <br>
+  <font size="-1"><b>&lt;</b>ListOf_breakId&gt; <b>= listBreaks </b>[
+&lt;expId_spec&gt; || <b>all</b> ]</font>
+</ul>
+<h3><a name="mozTocId760516" class="mozTocH3"></a><a name="listHosts"></a><b><font
+ size="+0"><li>listHosts</li>
+</font></b></h3>
+<ul>
+  <font size="-1">- Lists the hosts that define the specified cluster. <br>
+- If &lt;cluster_spec&gt; is not provided, the default cluster is
+listed. <br>
+- The default cluster contains only localhost. </font><br>
+  <br>
+  <font size="-1"><b>&lt;</b>ListOf_hostname&gt; <b>= listHosts</b> [
+&lt;cluster_spec&gt; ]</font>
+</ul>
+<h3><a name="mozTocId685141" class="mozTocH3"></a><b><font size="+0"><a
+ name="listObj"></a><li>listObj</li>
+</font></b></h3>
+<ul>
+  <font size="-1">- List the objects of the applications that are part
+of the
+specified experiment. <br>
+- If &lt;expId_spec&gt; is not provided, the focused experiment is
+used. <br>
+- The listing can be restricted with the use of a &lt;host_file_rpt&gt;
+specification. <br>
+- Any component described in the &lt;host_file_rpt&gt; specification
+must be
+part of the selected experiment. <br>
+- If &lt;host_file_rpt&gt; is not provided, information will be
+provided for
+all portions of all applications that are attached to the experiment. </font><br>
+  <br>
+  <font size="-1"><b>&lt;</b>ListOf_filename&gt; <b>= listObj</b> [
+&lt;expId_spec&gt; ] [ &lt;host_file_rpt&gt; ]</font>
+</ul>
+<h3><a name="mozTocId629516" class="mozTocH3"></a><a name="listPids"></a><b><font
+ size="+0"><li>listPids</li>
+</font></b></h3>
+<ul>
+  <font size="-1">- List running processes info on a specific machine
+or on
+a specific cluster. <br>
+- The absence of any <b>-h</b> &lt;hostname&gt; specification will
+cause
+all pids on all systems in the cluster to be listed. <br>
+- The default cluster contains only localhost and must be specified by
+using <b>-h localhost</b>. <br>
+- Use of the <b>-f</b> &lt;filename&gt; option will result in only the
+pids
+associated with that &lt;filename&gt; being listed for the selected
+hosts. <br>
+- Mostly as <b>ps(1)</b>, but output will have filename
+indication and/or rank, process, or thread form. <br>
+- If <b>-mpi</b> is specified, the output will take the
+MPI rank format. </font><br>
+  <br>
+  <font size="-1"><b>&lt;</b>ListOf_pidname&gt; <b>= listPids</b> [
+&lt;host_file&gt; ] [ <b>-mpi</b> ]</font>
+</ul>
+<h3><a name="mozTocId924408" class="mozTocH3"></a><a name="listSrc"></a><b><font
+ size="+0"><li>listSrc</li>
+</font></b></h3>
+<ul>
+  <font size="-1">- List the source that was used to create the
+applications that are part of the
+specified, or focused, experiment. <br>
+- If &lt;expId_spec&gt; is not provided, the focused experiment is
+used. <br>
+- The listing can be restricted with the use of a &lt;host_file_rpt&gt;
+specification. <br>
+- Any component described in the &lt;host_file_rpt&gt; specification
+must be
+part of the selected experiment. <br>
+- If &lt;host_file_rpt&gt; is not provided, information will be
+provided for
+all portions of all applications that are attached to the experiment. <br>
+- The listing can be restricted with the use of
+&lt;linenumber_spec&gt;. <br>
+- If &lt;linenumber_spec&gt; is not provided, information will be
+provided
+for all portions of any application that has been selected. </font><br>
+  <br>
+  <font size="-1"><b>&lt;</b>string&gt; <b>= listSrc</b> [
+&lt;expId_spec&gt; ] [ &lt;host_file_rpt&gt; ] [
+&lt;linenumber_spec&gt; ]</font>
+</ul>
+<h3><a name="mozTocId965893" class="mozTocH3"></a><a name="listMetrics"></a><b><font
+ size="+0"><li>listMetrics</li>
+</font></b></h3>
+<ul>
+  <font size="-1">- Retrieve the metrics that can be produced by an
+experiment.
+This is a list of the types of information that an experiment can
+gather. <br>
+- If no options are selected, metrics for only the focused experiment
+will be listed. <br>
+- The use of &lt;expId_spec&gt; will cause the metrics for only that
+experiment to be listed. <br>
+- The use of the keyword <b>all</b> will cause all the metrics for all
+the experiments
+that have been defined by the user, through the use of <b>expCreate</b>
+commands,
+to be listed. </font><br>
+  <br>
+  <font size="-1">&lt;ListOf_expMetric&gt; <b>= listMetrics </b>[
+&lt;expId_spec&gt; || <b>all</b> ]</font>
+</ul>
+<h3><a name="mozTocId362324" class="mozTocH3"></a><a name="listParams"></a><b><font
+ size="+0"><li>listParams</li>
+</font></b></h3>
+<ul>
+  <font size="-1">- Retrieve the parameters, to a specified experiment,
+that can be changed by the user. <br>
+- If no option is selected, parameters for only the focused experiment
+will be listed. <br>
+- The use of &lt;expId_spec&gt; will cause the parameters for only that
+experiment to be listed. <br>
+- The use of the keyword <b>all</b> will cause all the parameters of
+all the experiments
+that have been defined by the user, through the use of <b>expCreate</b>
+commands,
+to be listed. </font><br>
+  <br>
+  <font size="-1">&lt;ListOf_expParam&gt; <b>= listParams </b>[
+&lt;expId_spec&gt; || <b>all</b> ]</font>
+</ul>
+<h3><a name="mozTocId460796" class="mozTocH3"></a><b><font size="+0"><a
+ name="listReports"></a><li>listReports</li>
+</font></b></h3>
+<ul>
+  <font size="-1">- Retrieve the reports that can be produced by an
+experiment. <br>
+- If no option is selected, reports for only the focused experiment
+to be listed. <br>
+- The use of &lt;expId_spec&gt; will cause the reports for only that
+experiment to be listed. <br>
+- The use of the <b>all</b> keyword will cause all the possible
+reports
+for all the experiments that have been defined by the user, through the
+use of <b>expCreate</b> commands, to be listed. </font><br>
+  <br>
+  <font size="-1"><b>&lt;</b>ListOf_viewType&gt; <b>= listReports </b>[
+&lt;expId_spec&gt; || <b>all</b> ]</font>
+</ul>
+<p>
+</p>
+<h3><a name="mozTocId613827" class="mozTocH3"></a><b><font size="+0"><a
+ name="listTypes"></a><li>listTypes</li>
+</font></b></h3>
+<ul>
+  <font size="-1">- List all the available performance measurement
+utilities, that can be used to collect data in an experiment.
+  <dir><li>List all the metrics that are available.</li>
+  <li>List all the parameters and their default values.</li>
+  <li>List all the reports that can be provided.</li>
+  </dir>
+  </font> <br>
+  <br>
+  <font size="-1"><b>&lt;</b>ListOf_string&gt;<b> = listTypes </b></font>
+</ul>
+<br>
+<font size="+0"></font>
+<h2><a name="mozTocId40191" class="mozTocH2"></a><font face="Arial"><font
+ size="+0"><a name="SESSION_COMMANDS"></a><big>Session Commands</big><br>
+</font></font></h2>
+<p></p>
+<p></p>
+<h3><a name="mozTocId388513" class="mozTocH3"></a><a name="clearbreak"></a><b><font
+ size="+0"><li>clearbreak</li>
+</font></b></h3>
+<ul>
+  <font size="-1">- Remove a breakpoint. <br>
+- This command does not change the execution state of an experiment,
+although it may be temporarily suspended during execution of the
+command. </font><br>
+  <br>
+  <font size="-1"><b>clearbreak</b> &lt;breakId&gt;</font>
+</ul>
+<h3><a name="mozTocId433112" class="mozTocH3"></a><a name="exit"></a><b><font
+ size="+0"><li>exit</li>
+</font></b></h3>
+<ul>
+  <font size="-1">- Terminate all experiments and the session.
+  <dir><li>Suspend execution or all executables</li>
+  <li>Suspend data collection.</li>
+  <li>Remove instrumentation from all applications.</li>
+  <li>Release all applications from control of the <b>OpenSS</b> tool</li>
+  <li>Allow all applications to continue executing.</li>
+  <li>Close all data base files.</li>
+  <li>Delete all temporary files.</li>
+  <li>Close the GUI and Command windows.</li>
+  <li>Terminate execution of the <b>OpenSS</b> tool.</li>
+  </dir>
+  </font><br>
+  <br>
+  <font size="-1"><b>exit</b></font>
+</ul>
+<h3><a name="mozTocId100987" class="mozTocH3"></a><b><font size="+0"><a
+ name="help"></a><li>help</li>
+</font></b></h3>
+<ul>
+  <font size="-1">- Request information about a topic.</font> <br>
+  <br>
+  <font size="-1">&lt;string&gt; <b>= help </b>[ &lt;string&gt; ]</font>
+</ul>
+<h3><a name="mozTocId543492" class="mozTocH3"></a><b><font size="+0"><a
+ name="history"></a><li>history</li>
+</font></b></h3>
+<ul>
+  <font size="-1">- Print a list of previously executed commands. <br>
+- If no &lt;host_file&gt; is provided, send the list to <b>stdout</b> </font><br>
+  <br>
+  <font size="-1"><b>history </b>[ &lt;host_file&gt; ]</font>
+</ul>
+<h3><a name="mozTocId487321" class="mozTocH3"></a><a name="log"></a><b><font
+ size="+0"><li>log</li>
+</font></b></h3>
+<ul>
+  <font size="-1">- Begin echoing executed commands and their results
+to a file. <br>
+- Stop echoing if no file is specified on a <b>log</b> command. <br>
+- This is primarly intended to be an internal debug aid for the <b>OpenSS</b>
+tool
+developer since the generated files can quickly become huge. </font><br>
+  <br>
+  <font size="-1"><b>log </b>[ &lt;host_file&gt; ]</font>
+</ul>
+<h3><a name="mozTocId753973" class="mozTocH3"></a><a name="openGui"></a><b><font
+ size="+0"><li>openGui</li>
+</font></b></h3>
+<ul>
+  <font size="-1">- Open the Graphical User Interface, if it is not
+already open.</font> <br>
+  <br>
+  <font size="-1"><b>openGui</b></font>
+</ul>
+<h3><a name="mozTocId849326" class="mozTocH3"></a><a name="playback"></a><b><font
+ size="+0"><li>playback</li>
+</font></b></h3>
+<ul>
+  <font size="-1">- Read and execute commands from a file. </font><br>
+  <br>
+  <font size="-1"><b>playback</b> &lt;host_file&gt;</font>
+</ul>
+<h3><a name="mozTocId407391" class="mozTocH3"></a><b><font size="+0"><a
+ name="record"></a><li>record</li>
+</font></b></h3>
+<ul>
+  <font size="-1">- Begin echoing executed commands to a file.
+  <dir><li>Recording is preformed relative to the input source that
+issues this
+command.</li>
+  <li>This design causes commands issued by the GUI to be recorded
+seperately from commands issued by the Command window.</li>
+  </dir>
+- Commands read from a file specified on a succeeding <b>playback</b>
+command will not be echoed. <br>
+- Stop echoing if no file is specified on a <b>record</b> command. <br>
+- Stop echoing if the end of the input file containing the original <b>record</b>
+command is encoutnered. </font><br>
+  <br>
+  <font size="-1"><b>record</b> [ &lt;host_file&gt; ]</font>
+</ul>
+<h3><a name="mozTocId471161" class="mozTocH3"></a><a name="setbreak"></a><b><font
+ size="+0"><li>setbreak</li>
+</font></b></h3>
+<ul>
+  <font size="-1">- Enter a breakpoint, which will halt the application
+when reached. <br>
+- If &lt;expId_spec&gt; is not provided, the focused experiment is
+used. <br>
+- The break location is specified through the combination of the
+&lt;host_file_rpt&gt; and &lt;address_description&gt; arguments. <br>
+- The break location must be a location in the specified experiment. <br>
+- If &lt;host_file_rpt&gt; is not provided, the
+&lt;address_description&gt;
+must be valid on every host and executable attached to the experiment. </font><br>
+  <br>
+  <font size="-1">&lt;breakId&gt; <b>setbreak</b> [ &lt;expId_spec&gt;
+]
+[ &lt;host_file_rpt&gt; ] &lt;address_description&gt;</font>
+</ul>
+</body>
+</html>
