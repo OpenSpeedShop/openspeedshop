@@ -111,9 +111,9 @@ class PanelContainer : public QWidget
     void setExternalName(const char *n);
 
     //! A convinience routine to get the internal PanelContainer name.
-    char *getInternalName() { return internal_name ? internal_name : (char *)"dead pc"; };
+    const char *getInternalName() { return internal_name ? internal_name : (char *)"dead pc"; };
     //! A convinience routine to get the external PanelContainer name.
-    char *getExternalName() { return external_name ? external_name : (char *)"dead pc"; };
+    const char *getExternalName() { return external_name ? external_name : (char *)"dead pc"; };
 
     //! Called to save the PanelContainer tree to a file.
     void savePanelContainerTree();
