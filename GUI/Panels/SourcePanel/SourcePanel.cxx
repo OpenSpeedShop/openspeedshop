@@ -4,6 +4,7 @@
 
 #include <stdlib.h>  // for atoi()
 
+#include <qapplication.h>
 #include <qfile.h>
 #include <qfiledialog.h>
 #include <qinputdialog.h>
@@ -97,7 +98,7 @@ SourcePanel::~SourcePanel()
 bool
 SourcePanel::menu(QPopupMenu* contextMenu)
 {
-  dprintf("SourcePanel::menu() requested.\n");
+  nprintf(DEBUG_PANELS) ("SourcePanel::menu() requested.\n");
 
   contextMenu->insertSeparator();
   contextMenu->insertItem("&Open New", this, SLOT(chooseFile()), CTRL+Key_O );
@@ -119,7 +120,7 @@ SourcePanel::menu(QPopupMenu* contextMenu)
 void
 SourcePanel::createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos )
 {
-  dprintf("Popup the context sensitive menu here.... can you augment it with the default popupmenu?\n");
+  nprintf(DEBUG_PANELS) ("Popup the context sensitive menu here.... can you augment it with the default popupmenu?\n");
 
 // int line = textEdit->paragraphAt(pos);
 // fprintf(stderr, "createPopupMenu for line %d if there's anything there.\n", line+1);
@@ -148,7 +149,7 @@ SourcePanel::save()
 void
 SourcePanel::saveAs()
 {
-  dprintf("SourcePanel::saveAs() requested.\n");
+  nprintf(DEBUG_PANELS) ("SourcePanel::saveAs() requested.\n");
 }
 
 /* 
@@ -158,18 +159,29 @@ int
 SourcePanel::listener(char *msg)
 {
   SourceObject *spo = (SourceObject *)msg;
-  dprintf("SourcePanel::listener() requested.\n");
+  nprintf(DEBUG_PANELS) ("SourcePanel::listener() requested.\n");
 
   if( !spo )
   {
     return 0;  // 0 means, did not act on message.
   }
 
+  // Check the message type to make sure it's our type...
+  if( spo->msgType == "Source Object" )
+    {
+    nprintf(DEBUG_PANELS) ("SourcePanel::listener() Not a Source Object.\n");
+    return 0; // o means, did not act on message.
+  }
+
 // spo->print();
+
+  // I'm not sure we really want to raise this all the time.   We may want
+  // to consider adding a flag to have the panel raised...
+  panelContainer->raisePanel((Panel *)this);
 
   loadFile(spo->fileName);
 
-// fprintf(stderr, "Try to position at line %d\n", spo->line_number);
+  nprintf(DEBUG_PANELS) ("Try to position at line %d\n", spo->line_number);
 // textEdit->setUpdatesEnabled( TRUE );
   positionLineAtCenter(spo->line_number);
 
@@ -189,10 +201,10 @@ SourcePanel::listener(char *msg)
              ++it )
     {
       p = (Panel *)*it;
-  dprintf("Is this it? (%s)\n", p->getName() );
+  nprintf(DEBUG_PANELS) ("Is this it? (%s)\n", p->getName() );
       if( p == this )
       {
-  dprintf("Set page %d current.\n", i );
+  nprintf(DEBUG_PANELS) ("Set page %d current.\n", i );
         panelContainer->tabWidget->setCurrentPage(i);
   //      panelContainer->tabWidget->showPage(i);
       }
@@ -209,14 +221,14 @@ SourcePanel::listener(char *msg)
 int
 SourcePanel::broadcast(char *msg, BROADCAST_TYPE bt)
 {
-  dprintf("SourcePanel::broadcast() requested.\n");
+  nprintf(DEBUG_PANELS) ("SourcePanel::broadcast() requested.\n");
   return 0;
 }
 
 void
 SourcePanel::chooseFile()
 {
-  dprintf("SourcePanel::chooseFile() entered\n");
+  nprintf(DEBUG_PANELS) ("SourcePanel::chooseFile() entered\n");
 
   QString fn = QFileDialog::getOpenFileName( QString::null, QString::null,
                            this);
@@ -232,7 +244,7 @@ SourcePanel::chooseFile()
 void
 SourcePanel::goToLine()
 {
-  dprintf("SourcePanel::goToLine() entered\n");
+  nprintf(DEBUG_PANELS) ("SourcePanel::goToLine() entered\n");
   bool ok;
   QString text = QInputDialog::getText(
           "Goto Line", "Enter line number:", QLineEdit::Normal,
@@ -241,7 +253,7 @@ SourcePanel::goToLine()
   {
     // user entered something and pressed OK
     int line = atoi(text.ascii());
-    dprintf("goto line %d\n", line);
+    nprintf(DEBUG_PANELS) ("goto line %d\n", line);
     positionLineAtCenter(line);
 //    positionLineAtTop(line);
   } else
@@ -260,14 +272,14 @@ SourcePanel::showLineNumbers()
   {
     line_numbersFLAG = TRUE;
   }
-  dprintf("SourcePanel::showLineNumbers() entered\n");
+  nprintf(DEBUG_PANELS) ("SourcePanel::showLineNumbers() entered\n");
   loadFile( fileName );
 }
 
 void
 SourcePanel::findString()
 {
-  dprintf("SourcePanel::findString() entered\n");
+  nprintf(DEBUG_PANELS) ("SourcePanel::findString() entered\n");
   int para = last_para == -1 ? lastTop : last_para;
   int index = last_index == -1 ? 0 : last_index;
   bool ok;
@@ -280,12 +292,12 @@ SourcePanel::findString()
     if(  textEdit->find(text, TRUE, TRUE, TRUE, &para, &index ) )
     {
       positionLineAtTop(para);
-last_para = para;
-last_index = index+1;
-lastSearchText = text;
+      last_para = para;
+      last_index = index+1;
+      lastSearchText = text;
     } else
     {
-// dprintf("DIDN'T FIND THE STRING ANYMORE.\n");
+       nprintf(DEBUG_PANELS) ("DIDN'T FIND THE STRING ANYMORE.\n");
       QString msg;
       msg = QString("No string %1 found from line %2 until the end of file").arg(lastSearchText).arg(para);
       QMessageBox::information( (QWidget *)this, "Search Results...",
@@ -300,13 +312,13 @@ lastSearchText = text;
 void
 SourcePanel::loadFile(const QString &_fileName)
 {
-  dprintf("SourcePanel::loadFile() entered\n");
+  nprintf(DEBUG_PANELS) ("SourcePanel::loadFile() entered\n");
 
   bool sameFile = FALSE;
   if( fileName == _fileName )
   {
     sameFile = TRUE;
-    dprintf("loadFile:: sameFile: lastTop=%d\n", lastTop );
+    nprintf(DEBUG_PANELS) ("loadFile:: sameFile: lastTop=%d\n", lastTop );
   } else
   {
     if( highlightList )
@@ -361,7 +373,7 @@ SourcePanel::loadFile(const QString &_fileName)
   lineCount = textEdit->paragraphs();
   lineCount--;
 
-  dprintf("lineCount=%d\n", lineCount);
+  nprintf(DEBUG_PANELS) ("lineCount=%d\n", lineCount);
   textEdit->setModified( FALSE );
   label->setText(fileName);
 
@@ -382,14 +394,14 @@ SourcePanel::loadFile(const QString &_fileName)
     doFileHighlights();
 
     positionLineAtTop(lastTop);
-    dprintf("loadFile:: down here sameFile: lastTop=%d\n", lastTop);
+    nprintf(DEBUG_PANELS) ("loadFile:: down here sameFile: lastTop=%d\n", lastTop);
   }
 }
 
 void
 SourcePanel::details()
 {
-  dprintf("SourcePanel::details() entered\n");
+  nprintf(DEBUG_PANELS) ("SourcePanel::details() entered\n");
 
   int para = 0;
   int index = 0;
@@ -407,7 +419,7 @@ SourcePanel::details()
 void
 SourcePanel::whoCallsMe()
 {
-  dprintf("SourcePanel::whoCallsMe() entered\n");
+  nprintf(DEBUG_PANELS) ("SourcePanel::whoCallsMe() entered\n");
 
   int para = 0;
   int index = 0;
@@ -425,7 +437,7 @@ SourcePanel::whoCallsMe()
 void
 SourcePanel::whoDoICall()
 {
-  dprintf("SourcePanel::whoDoICall() entered\n");
+  nprintf(DEBUG_PANELS) ("SourcePanel::whoDoICall() entered\n");
 
   int para = 0;
   int index = 0;
@@ -446,7 +458,7 @@ SourcePanel::highlightLine(int line, char *color, bool inverse)
 {
   // para == line when QTextEdit is in PlainText mode
   line--;
-  dprintf("highlightLine(%d, %s, %d)\n", line, color, inverse);
+  nprintf(DEBUG_PANELS) ("highlightLine(%d, %s, %d)\n", line, color, inverse);
   if( inverse )
   {
     textEdit->setParagraphBackgroundColor(line, QColor(color) );
@@ -499,15 +511,14 @@ SourcePanel::clearAllHighlights()
 void
 SourcePanel::positionLineAtCenter(int center_line)
 {
-  dprintf("positionLineAtCenter(%d)\n", center_line);
+  nprintf(DEBUG_PANELS) ("positionLineAtCenter(%d)\n", center_line);
 
   int heightForWidth = textEdit->heightForWidth(80);
   float lineHeight = (heightForWidth-hscrollbar->height())/(float)lineCount;
-//  int height = heightForWidth-textEdit->height();
   int height = textEdit->height();
-  dprintf("height=%d visibleLines=%f\n", height, height/lineHeight );
+  nprintf(DEBUG_PANELS) ("height=%d visibleLines=%f\n", height, height/lineHeight );
   int visibleLines = (int)(height/lineHeight);
-// dprintf("visibleLines=%d page=%d\n", visibleLines, vscrollbar->pageStep() );
+  nprintf(DEBUG_PANELS) ("visibleLines=%d page=%d\n", visibleLines, vscrollbar->pageStep() );
 
    int top_line = center_line - (visibleLines/2);
    if( top_line < 1 )
@@ -521,15 +532,16 @@ SourcePanel::positionLineAtCenter(int center_line)
 void
 SourcePanel::positionLineAtTop(int top_line)
 {
+
   lastTop = top_line;
-  dprintf("positionLineAtTop(top_line=%d)\n", top_line);
+  nprintf(DEBUG_PANELS) ("positionLineAtTop(top_line=%d)\n", top_line);
   top_line--; // We subtract 1 as textEdit is 0 based.
   // Clears the black background box(es) on the screen.
   int heightForWidth = textEdit->heightForWidth(80);
   float lineHeight = (heightForWidth-hscrollbar->height())/(float)lineCount;
   int value = (int) top_line * (int)lineHeight;
  
-  dprintf("So I think the value is %d\n", value);
+  nprintf(DEBUG_PANELS) ("So I think the value is %d\n", value);
   vscrollbar->setValue(value);
 }
 int
@@ -548,7 +560,7 @@ printf("SourcePanel::whatIsAtPos() length=%d\n", textEdit->length() );
   line++;
   int c = textEdit->charAt(pos, &para);
 
-  //  dprintf("whatIsAtPos() line=%d para=%d c=(%d)\n", line, para, c );
+  //  nprintf(DEBUG_PANELS) ("whatIsAtPos() line=%d para=%d c=(%d)\n", line, para, c );
   if( !highlightList )
   {
     return(0);
@@ -562,7 +574,7 @@ printf("SourcePanel::whatIsAtPos() length=%d\n", textEdit->length() );
     hlo = (HighlightObject *)*it;
     if( hlo->line == line )
     {
-      dprintf("We have data at that line!!!\n");
+      nprintf(DEBUG_PANELS) ("We have data at that line!!!\n");
       return( hlo->line );
     }
   }
@@ -573,14 +585,14 @@ printf("SourcePanel::whatIsAtPos() length=%d\n", textEdit->length() );
 void
 SourcePanel::clicked(int para, int offset)
 {
-  dprintf("You clicked?\n");
+  nprintf(DEBUG_PANELS) ("You clicked?\n");
 }
 
 void
 SourcePanel::valueChanged()
 {
 // This is not correct, but it's gets close enough for right now.  FIX
-  dprintf("Your valueChanged.\n");
+  nprintf(DEBUG_PANELS) ("Your valueChanged.\n");
   float minValue = (float)vscrollbar->minValue();
   float maxValue = (float)vscrollbar->maxValue();
   float value = (float)vscrollbar->value();
@@ -591,23 +603,20 @@ SourcePanel::valueChanged()
   float lineHeight = (heightForWidth-vscrollbar->width())/(float)lineCount;
 
 
-// dprintf("heightForWidth = %d pointSize=%d\n", heightForWidth, pointSize );
-
-//  float visibleLines = height/lineHeight;
-// dprintf("visibleLines=%f page=%d\n", visibleLines, vscrollbar->pageStep() );
-
-//  height = heightForWidth-textEdit->height();
-//  dprintf("height=%d visibleLines=%f\n", height, height/lineHeight );
+  nprintf(DEBUG_PANELS) ("heightForWidth = %d pointSize=%d\n", heightForWidth, pointSize );
 
 
-  dprintf("minValue=%f maxValue=%f value=%f\n", minValue, maxValue, value);
-  dprintf("lineStep=%d lineHeight=%f lineCount=%d\n",
+  nprintf(DEBUG_PANELS) ("height=%d visibleLines=%f page=%d\n", height, height/lineHeight, vscrollbar->pageStep() );
+
+
+  nprintf(DEBUG_PANELS) ("minValue=%f maxValue=%f value=%f\n", minValue, maxValue, value);
+  nprintf(DEBUG_PANELS) ("lineStep=%d lineHeight=%f lineCount=%d\n",
     lineStep, lineHeight, lineCount);
 
   int top_line = (int)(value/lineHeight);
   top_line++;
   lastTop = top_line;
-  dprintf("top_line =%d\n", top_line);
+  nprintf(DEBUG_PANELS) ("top_line =%d\n", top_line);
 }
 
 void
