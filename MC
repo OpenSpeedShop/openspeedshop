@@ -90,8 +90,11 @@ done
 
 for i in `find . -name Makefile -print`
 do
-  echo removing $i
-  rm $i
+  if test -w $i
+  then
+    echo removing $i
+    rm $i
+  fi
 done
 
 for i in `find . -name Makefile.in -print`
@@ -101,12 +104,6 @@ do
 done
 
 for i in `find . -name Makefile.in -print`
-do
-  echo removing $i
-  rm $i
-done
-
-for i in `find . -name Makefile -print`
 do
   echo removing $i
   rm $i
