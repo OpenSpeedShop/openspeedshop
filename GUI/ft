@@ -34,6 +34,6 @@ if [[ $1 = -cli ]]
 then
   $FUTURE_TOOL_PLUGIN_DIR/../../bin/cli $@
 else
-#  $FUTURE_TOOL_PLUGIN_DIR/../../bin/ftd -fn 6x13 $@
-  $FUTURE_TOOL_PLUGIN_DIR/../../bin/ftd $@
+FONTNAME="-adobe-helvetica-medium-r-normal--14-120-75-75-p-70-iso8859-1"
+  $FUTURE_TOOL_PLUGIN_DIR/../../bin/ftd -fn $FONTNAME $@
 fi
