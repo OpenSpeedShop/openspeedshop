@@ -76,16 +76,14 @@ enum Command_Status
   CMD_ABORTED 
 };
 
-// Forward definitions
-extern CMDWID Current_ILO_CMDWID ();
-extern void Link_Cmd_Obj_to_Input (InputLineObject *I, CommandObject *);
-
 class CommandObject
 {
-  InputLineObject *Associated_Clip;
+  InputLineObject *Associated_Clip; // The input line that caused generation of this object.
+  int Seq_Num; // The order this object was generated in from the input line.
   Command_Status Cmd_Status;
-  oss_cmd_enum Cmd_Type;
+  oss_cmd_enum Cmd_Type; // A copy of information in the Parse_Result.
   command_t *Parse_Result;
+  bool Results_Used; // Once used, this object can be deleted!
   std::list<CommandResult *> CMD_Result;
 
   void Associate_Input ()
@@ -94,40 +92,34 @@ class CommandObject
     Link_Cmd_Obj_to_Input (Associated_Clip, this);
   }
 
+  void Add_Result (CommandResult *R) {
+    CMD_Result.push_back(R);
+  }
+
+  CommandObject() { } // Hide default constructor to catch errors at compile time
+
 public:
-  CommandObject()
-  {
-    this->Associate_Input ();
-    Cmd_Status = CMD_UNKNOWN;
-    Parse_Result = NULL;
-  }
-  CommandObject(oss_cmd_enum T)
-  {
-    this->Associate_Input ();
-    Cmd_Status = CMD_PARSED;
-    Cmd_Type = T;
-    Parse_Result = NULL;
-  }
   CommandObject(command_t *P)
   {
     this->Associate_Input ();
     Cmd_Status = CMD_PARSED;
     Cmd_Type =  P->type;
     Parse_Result = P;
+    Results_Used = false;
+  }
+  ~CommandObject() {
   }
 
   InputLineObject *Clip () { return Associated_Clip; }
   Command_Status Status () { return Cmd_Status; }
   oss_cmd_enum Type () { return Cmd_Type; }
+  bool Results_Processed () { return Results_Used; }
   command_t *P_Result () { return Parse_Result; }
     
-  void set_Status (Command_Status S) { Cmd_Status = S; }
-  void set_Type (oss_cmd_enum T) { Cmd_Type = T; }
-  void set_P_Result (command_t *P) { Parse_Result = P; }
+  void SetSeqNum (int a) { Seq_Num = a; }
+  void set_Status (Command_Status S); // defined in CommandObject.cxx
+  void set_Results_Used () { Results_Used = true; }
 
-  void Add_Result (CommandResult *R) {
-    CMD_Result.push_back(R);
-  }
   void Result_Int (int64_t I) {
     Add_Result (new CommandResult_Int(I));
   }
@@ -142,15 +134,5 @@ public:
     return CMD_Result;
   }
 
-  void Print (FILE *TFile) {
-    std::list<CommandResult *> cmd_result = Result_List();
-    std::list<CommandResult *>::iterator cri;
-    int cnt = 0;
-    for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++) {
-      if (cnt++ > 0) fprintf(TFile,", ");
-      (*cri)->Print (TFile);
-    }
-    if (cnt > 0) fprintf(TFile,"\n");
-  }
-    
+  void Print (FILE *TFile); // defined in CommandObject.cxx
 };
