@@ -31,8 +31,8 @@ The GUI is broken into 3 basic parts. The Main Window, PanelContainers,
 and Panels.
 <h3><a class="anchor" name="intro_to_mainwindow">The Main Window</a></h3>
 There is only one Main Window and it is the owner of the master <a
- class="el" href="GUIbase/html/classPanelContainer.html">PanelContainer</a>.
-There is only one master <a class="el" href="GUIbase/html/classPanelContainer.html">PanelContainer</a>
+ class="el" href="GUI/html/classPanelContainer.html">PanelContainer</a>.
+There is only one master <a class="el" href="GUI/html/classPanelContainer.html">PanelContainer</a>
 and when it is closed, the GUI exits.
 <p>The Main Window will handle high level commands like managing the
 main menu toolbar. This menu bar is dynamically created from the list
@@ -41,61 +41,61 @@ of dynamic GUI plugins.</p>
 The PanelContainers will provide all the underlying support for screen
 layout, local menu management, dive management, drag-n-drop, and
 communication broker.
-<p>A <a class="el" href="GUIbase/html/classPanelContainer.html">PanelContainer</a>
+<p>A <a class="el" href="GUI/html/classPanelContainer.html">PanelContainer</a>
 is an area (container) on the screen where Panels can be placed and
 managed.</p>
-<p>Each <a class="el" href="GUIbase/html/classPanelContainer.html">PanelContainer</a>
+<p>Each <a class="el" href="GUI/html/classPanelContainer.html">PanelContainer</a>
 will have a simple communication broker to allow Panels to communicate
 between local and remote Panels.</p>
-<p>A <a class="el" href="GUIbase/html/classPanelContainer.html">PanelContainer</a>
+<p>A <a class="el" href="GUI/html/classPanelContainer.html">PanelContainer</a>
 is responsible for interacting with the user, via the <a class="el"
- href="GUIbase/html/classPanelContainer.html">PanelContainer</a> menu, to add,
+ href="GUI/html/classPanelContainer.html">PanelContainer</a> menu, to add,
 delete, resize, or move Panels.</p>
-<p>A <a class="el" href="GUIbase/html/classPanelContainer.html">PanelContainer</a>
+<p>A <a class="el" href="GUI/html/classPanelContainer.html">PanelContainer</a>
 can be split either horizontally or vertically into 2 PanelContainers.
-A <a class="el" href="GUIbase/html/classPanelContainer.html">PanelContainer</a> can
+A <a class="el" href="GUI/html/classPanelContainer.html">PanelContainer</a> can
 contain, one, many, or no Panels. A <a class="el"
- href="GUIbase/html/classPanelContainer.html">PanelContainer</a> has no specific
-knowledge of what a <a class="el" href="GUIbase/html/classPanel.html">Panel</a> is
+ href="GUI/html/classPanelContainer.html">PanelContainer</a> has no specific
+knowledge of what a <a class="el" href="GUI/html/classPanel.html">Panel</a> is
 doing. (i.e. I doesn't know anything about experiments. It just manages
 the Panels space and any communication with other Panels.)</p>
 <h3><a class="anchor" name="intro_to_panels">Panels</a></h3>
-A <a class="el" href="GUIbase/html/classPanel.html">Panel</a> is where all the
+A <a class="el" href="GUI/html/classPanel.html">Panel</a> is where all the
 nuts-n-bolts knowledge and logic exists for an individual task.
-<p>They will handle <a class="el" href="GUIbase/html/classPanel.html">Panel</a>
+<p>They will handle <a class="el" href="GUI/html/classPanel.html">Panel</a>
 specific user interaction and interaction with the Framework.</p>
-<p>A <a class="el" href="GUIbase/html/classPanel.html">Panel</a> is placed in a <a
- class="el" href="GUIbase/html/classPanelContainer.html">PanelContainer</a>. Each <a
- class="el" href="GUIbase/html/classPanel.html">Panel</a> is managed by its <a
- class="el" href="GUIbase/html/classPanelContainer.html">PanelContainer</a>. A <a
- class="el" href="GUIbase/html/classPanel.html">Panel</a> is the base handle for all
-views. That is each user defined <a class="el" href="GUIbase/html/classPanel.html">Panel</a>
+<p>A <a class="el" href="GUI/html/classPanel.html">Panel</a> is placed in a <a
+ class="el" href="GUI/html/classPanelContainer.html">PanelContainer</a>. Each <a
+ class="el" href="GUI/html/classPanel.html">Panel</a> is managed by its <a
+ class="el" href="GUI/html/classPanelContainer.html">PanelContainer</a>. A <a
+ class="el" href="GUI/html/classPanel.html">Panel</a> is the base handle for all
+views. That is each user defined <a class="el" href="GUI/html/classPanel.html">Panel</a>
 (i.e. performance experiment type) will have a <a class="el"
- href="GUIbase/html/classPanel.html">Panel</a> type derived from a base class <a
- class="el" href="GUIbase/html/classPanel.html">Panel</a>. Examples of <a class="el"
- href="GUIbase/html/classPanel.html">Panel</a> types and their functions would be:</p>
+ href="GUI/html/classPanel.html">Panel</a> type derived from a base class <a
+ class="el" href="GUI/html/classPanel.html">Panel</a>. Examples of <a class="el"
+ href="GUI/html/classPanel.html">Panel</a> types and their functions would be:</p>
 <p></p>
 <dl compact="compact">
   <dt><b>o Wizard Panel:</b></dt>
-  <dd>The Wizard <a class="el" href="GUIbase/html/classPanel.html">Panel</a> would
+  <dd>The Wizard <a class="el" href="GUI/html/classPanel.html">Panel</a> would
 be responsible for interviewing the user to aid them in selecting the
 right performance tool for the job. After the interview process was
 completed a command would be passed to the Framework for action. Upon
 completion the user would be notified and an appropriate (default)
-report (Experiment <a class="el" href="GUIbase/html/classPanel.html">Panel</a>)
+report (Experiment <a class="el" href="GUI/html/classPanel.html">Panel</a>)
 would be generated for the user. </dd>
 </dl>
 <dl compact="compact">
   <dt><b>o Top Panel:</b></dt>
-  <dd>The Top <a class="el" href="GUIbase/html/classPanel.html">Panel</a> would be
+  <dd>The Top <a class="el" href="GUI/html/classPanel.html">Panel</a> would be
 responsible for displaying the top 'n' metrics from a Collector. It
 would provide the implementation for fielding requests to find more
 information about a selected item and for sending source position
-updates to a Source <a class="el" href="GUIbase/html/classPanel.html">Panel</a>. </dd>
+updates to a Source <a class="el" href="GUI/html/classPanel.html">Panel</a>. </dd>
 </dl>
 <dl compact="compact">
   <dt><b>o Source Panel</b></dt>
-  <dd>The Source <a class="el" href="GUIbase/html/classPanel.html">Panel</a> would
+  <dd>The Source <a class="el" href="GUI/html/classPanel.html">Panel</a> would
 be responsible for displaying source files to the screen. It would
 provide functionality to display line numbers, search, highlight line
 segments, and field dive request for more information about specific
@@ -107,14 +107,14 @@ lines. </dd>
   </dd>
 </dl>
 Panels will look like a "tabbed" view. A <a class="el"
- href="GUIbase/html/classPanel.html">Panel</a> can be moved around to be placed near
+ href="GUI/html/classPanel.html">Panel</a> can be moved around to be placed near
 other Panels for association (communication) to be granted. An example
-of this could be a User Time <a class="el" href="GUIbase/html/classPanel.html">Panel</a>
+of this could be a User Time <a class="el" href="GUI/html/classPanel.html">Panel</a>
 could be placed near and existing Source <a class="el"
- href="GUIbase/html/classPanel.html">Panel</a>, when the user clicks on an object in
-the User Time <a class="el" href="GUIbase/html/classPanel.html">Panel</a> that
+ href="GUI/html/classPanel.html">Panel</a>, when the user clicks on an object in
+the User Time <a class="el" href="GUI/html/classPanel.html">Panel</a> that
 relates to a source line, the nearest Source <a class="el"
- href="GUIbase/html/classPanel.html">Panel</a> would be updated (repositioned) to
+ href="GUI/html/classPanel.html">Panel</a> would be updated (repositioned) to
 that source line.
 <h2><a class="anchor" name="intro_to_panel_plugins">Why Panel Plugins?</a></h2>
 Panels will be loaded as plugins. It will be the MainWindow's
@@ -130,7 +130,7 @@ functionality requested needs to be loaded.</p>
 <h2><a class="anchor" name="intro_to_gui_plugins">All The To-Do About
 Dynamic GUI Plugins.</a></h2>
 A dynamic plugin is a GUI component. A visible or hidden <a class="el"
- href="GUIbase/html/classPanel.html">Panel</a>. Each plugin includes the following
+ href="GUI/html/classPanel.html">Panel</a>. Each plugin includes the following
 information to a common structure in the panel description.
 <p>At initialization the default location (yet to be determined) or an
 environment variable FUTURE_TOOL_PLUGIN_DIR is check for the available
@@ -177,9 +177,9 @@ container. </dd>
     <dl compact="compact">
       <dt><b>Plugin Entry Point:</b></dt>
       <dd>The generic entry point that is called to do the menu add.
-This is separate from <a class="el" href="GUIbase/html/pc__plugin_8cxx.html#a1">_init()</a>
+This is separate from <a class="el" href="GUI/html/pc__plugin_8cxx.html#a1">_init()</a>
 to allow the user to still do 'other' initialization if they need to
-before calling <a class="el" href="GUIbase/html/plugin__entry__point_8hxx.html#a2">panel_init()</a>.
+before calling <a class="el" href="GUI/html/plugin__entry__point_8hxx.html#a2">panel_init()</a>.
       </dd>
     </dl>
   </li>
@@ -188,7 +188,7 @@ before calling <a class="el" href="GUIbase/html/plugin__entry__point_8hxx.html#a
       <dt><b>Menu Heading:</b></dt>
       <dd>This is the actual heading that will be put to the toplevel
 menu headings (The <a class="el"
- href="GUIbase/html/plugin__entry__point_8hxx.html#a2">panel_init()</a> function
+ href="GUI/html/plugin__entry__point_8hxx.html#a2">panel_init()</a> function
 will loop through existing headers to see if it needs to add this
 header or use an existing one.) </dd>
     </dl>
@@ -219,10 +219,10 @@ Into To How The GUI Launches Itself.</a></h2>
 The GUI is bundled into a dynamic library that is loaded on demand.
 It's the *Command Line Interface (CLI) that launches the GUI. By
 default the CLI will launch the GUI upon invocation of the <a
- class="el" href="libssf/html/namespaceOpenSpeedShop.html">OpenSpeedShop</a> tool.
+ class="el" href="Framework/html/namespaceOpenSpeedShop.html">OpenSpeedShop</a> tool.
 However, the CLI can be started without starting the GUI ($ oss -cli)
 and then the GUI can loaded and initialize when needed.
-<p>Upon invoking <a class="el" href="libssf/html/namespaceOpenSpeedShop.html">OpenSpeedShop</a>
+<p>Upon invoking <a class="el" href="Framework/html/namespaceOpenSpeedShop.html">OpenSpeedShop</a>
 ($ oss) the command line is parsed, and if the GUI is requested the GUI
 library is loaded and launched. We then drop into an event loop that
 parsed both command lines and GUI events.</p>
@@ -235,7 +235,7 @@ loop waiting for user interaction.</p>
 <h2><a class="anchor" name="intro_to_creating_a_panel">How do I create
 the initial panel structure?</a></h2>
 There's a script 'mknewpanel' in the <a class="el"
- href="Panels/html/classTemplatePanel.html">TemplatePanel</a> directory.
+ href="GUI/html/classTemplatePanel.html">TemplatePanel</a> directory.
 (.../Panels/TemplatePanel). Type in 'mknewpanel' to get a usage command.
 <p>An example to create a new panel template for a panel called
 "TreePanel" would be to type:</p>
