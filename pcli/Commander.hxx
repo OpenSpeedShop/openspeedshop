@@ -117,6 +117,8 @@ InputLineObject *SpeedShop_ReadLine (int is_more);
 void Command_Trace (enum Trace_Entry_Type trace_type, CMDWID cmdwinid, std::string tofname);
 ResultObject Command_Trace_OFF (CMDWID WindowID);
 ResultObject Command_Trace_ON (CMDWID WindowID, std::string tofname);
+void  SpeedShop_Trace_ON (char *tofile);
+void  SpeedShop_Trace_OFF(void);
 
 // Attach a new input source that will be read AFTER all the previous ones
 ResultObject Append_Input_File (CMDWID issuedbywindow, std::string fromfname);
@@ -127,4 +129,7 @@ ResultObject Append_Input_String (CMDWID issuedbywindow, int64_t b_size, char *b
 ResultObject Push_Input_File (CMDWID issuedbywindow, std::string fromfname);
 ResultObject Push_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_ptr);
 
+// Focus is a property of the Command Window that issued the command.
+EXPID Experiment_Focus (CMDWID WindowID);
+EXPID Experiment_Focus (CMDWID WindowID, EXPID ExperimentID);
 void List_CommandWindows ( FILE *TFile );
