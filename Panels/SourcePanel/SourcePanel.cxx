@@ -861,11 +861,16 @@ float remainder = value-(top_line*lastLineHeight);
 printf("remainder = %f\n", remainder );
 float residual = remainder-(int)remainder;
 printf("residual = %f\n", residual);
+#ifdef OLDWAY
 if( residual >= .5 )
 {
   remainder++;
 }
 remainder-=2;
+#else // OLDWAY
+remainder-=3; // For the textEdit margin.
+#endif // OLDWAY
+printf("new remainder = %f\n", remainder );
   top_line++;
   lastTop = top_line;
 
@@ -934,10 +939,19 @@ void SourcePanel::handleSizeEvent(QResizeEvent *e)
 void
 SourcePanel::calculateLastParameters()
 {
+  if( lineCount == 0 )
+  {
+    lastLineHeight = 0;
+    lastVisibleLines = 0;
+    return;
+  }
   int height = textEdit->height();
   int heightForWidth = textEdit->heightForWidth(80);
   int pointSize = textEdit->pointSize();
-  float lineHeight = (heightForWidth-vscrollbar->width())/(float)lineCount;
+//  float lineHeight = (heightForWidth-vscrollbar->width())/(float)lineCount;
+  float lineHeight = heightForWidth/lineCount;
   lastLineHeight = lineHeight;
   lastVisibleLines = (int)(height/lineHeight);
+printf("calculate: maxValue=%d lineHeight=%f lineCount=%d\n", vscrollbar->maxValue(), lineHeight, lineCount );
+printf("calculate: heightForWidth=%d\n", heightForWidth);
 }
