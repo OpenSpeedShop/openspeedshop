@@ -373,6 +373,9 @@ Panel *findNamedPanel(PanelContainer *start_pc, char *panel_name);
     //! Deletes the panels from existence.
     void deletePanel(Panel *p, PanelContainer *targetPC);
 
+    //! Deletes the hidden panels from target panel container.
+    void deleteHiddenPanels(PanelContainer *targetPC);
+
     //! This is the routine that calls the Panel->menu function.
     bool addPanelMenuItems(QPopupMenu* contextMenu);
 

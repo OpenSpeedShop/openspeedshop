@@ -161,7 +161,7 @@ DragNDropPanel::DropPanel( PanelContainer *sourcePC, bool doubleClickedFLAG )
     delete( DragNDropPanel::sourceDragNDropObject );
     return;
   }
-nprintf(DEBUG_DND) ("Drag panel=(%s)\n", p->getName() );
+  nprintf(DEBUG_DND) ("Drag panel=(%s)\n", p->getName() );
 
   QPoint point;
   // If there's not a targetPC, then the request is to create one.
@@ -246,82 +246,13 @@ fprintf(stderr, "Warning: Unexpected drop site. Trying to recover.  We may error
       upPC = upPC->parentPanelContainer;
     }
   }
-
-#ifdef OLDWAY
-  // We're about to move the Panel.
-
-  // First remove the Panel from the old PanelContainer list.
-  p->getPanelContainer()->panelList.remove(p);
-
-  // Set the Panels parent PanelContainer field to the new PanelContainer.
-  p->setPanelContainer(targetPC);
-
-  // Also set the Panel's base frame's pointer to the new PanelContainer.
-  p->getBaseWidgetFrame()->setPanelContainer(targetPC);
-
-  // Set the TabBarWidget to the new panel container.
-  p->getBaseWidgetFrame()->getPanelContainer()->tabBarWidget->setPanelContainer(targetPC);
   
-  // Reparent the tabWidget.
-  currentPage->reparent(p->getPanelContainer()->tabWidget, 0, point, TRUE);
-  // Reparent the baseWidget
-  p->getBaseWidgetFrame()->reparent(w, 0, point, TRUE);
-
-  // Reparent the Panel's base widget. (Create with the call to the Panel
-  // constructor.
-  QWidget *panel_base = (QWidget *)p;
-  panel_base->reparent((QWidget *)targetPC, 0, point, TRUE);
-
-  // Now add the actual tab to the tabWidget in the new PanelContainer.
-  p->getPanelContainer()->tabWidget->addTab( currentPage, p->getName() );
-
-  p->getPanelContainer()->augmentTab( currentPage );
-
-  // Add the move Panel to the new PanelContainers panelList.
-  p->getPanelContainer()->panelList.push_back(p);
-
-  // Make sure we can see it, so call show....
-  p->getBaseWidgetFrame()->show();
-  p->getPanelContainer()->dropSiteLayoutParent->show();
-
-  p->getPanelContainer()->handleSizeEvent(NULL);
-
-  // Now set the newest one current...
-  int count = p->getPanelContainer()->tabWidget->count();
-  if( count > 0 )
-  {
-    p->getPanelContainer()->tabWidget->setCurrentPage(count-1);
-  }
-
-  // Remove the tab from the old PanelContainer.
-  sourcePC->tabWidget->removePage(currentPage);
-
-
-  // If we just pulled off the last Panel from the old PanelContainer
-  // hide the dropSiteLayoutParent (since it's only needed for the tabWidget
-  // to show Panels.   This cleans up the look for the PanelContainer to 
-  // keep it fresh and clean like a split().
-  if( !sourcePC->areTherePanels() )
-  {
-    sourcePC->dropSiteLayoutParent->hide();
-  }
- 
-  // Once you know this happened correctly!
-  delete( DragNDropPanel::sourceDragNDropObject );
-
-  // Make sure the new PanelContainer has everything showing.
-  targetPC->leftFrame->show();
-  targetPC->dropSiteLayoutParent->show();
-  targetPC->tabWidget->show();
-  targetPC->splitter->show();
-#else // OLDWAY
-  
-printf("Try the new movePanel for the drag-n-drop.\n");
+  // Now move the panel to the new panel container (targetPC).  
+  nprintf(DEBUG_DND) ("move the panel for the drag-n-drop.\n");
   sourcePC->getMasterPC()->movePanel( p, currentPage, targetPC);
 
   // Once you know this happened correctly!
   delete( DragNDropPanel::sourceDragNDropObject );
-#endif // OLDWAY
 
   nprintf(DEBUG_DND) ("\n\n\n");
 }
