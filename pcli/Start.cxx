@@ -3,25 +3,35 @@
 #include <pthread.h>
 #include <time.h>
 #include <stdio.h>
+#include <inttypes.h>
 #include <stdexcept>
 #include <string>
 #include <sys/stat.h>               /* for fstat() */
+#include <sys/mman.h>               /* for mmap() */
+
+// for host name description
+     #include <sys/socket.h>
+     #include <netinet/in.h>
+     #include <netdb.h>
 
 #define PTMAX 10
 pthread_t phandle[PTMAX];
 
 #include "ArgClass.hxx"
+#include "Commander.hxx"
 
-enum INITIATE_MODE {
-  INITIATE_MODE_NULL,
-  INITIATE_MODE_BATCH,
-  INITIATE_MODE_GUI,
-  INITIATE_MODE_TLI
-};
-static INITIATE_MODE command_mode;
+static bool need_gui;
+static bool need_tli;
+static bool need_batch;
+static bool need_command_line;
+static CMDWID gui_window;
+static CMDWID tli_window;
+static CMDWID command_line_window;
+
 static int initiate_command_at;
 static bool executable_encountered;
 static bool collector_encountered;
+static bool read_stdin_file;
 
 
 static void
@@ -30,53 +40,59 @@ Process_Command_Line (int argc, char **argv)
   int i;
 
  /* Check the command line flags: */
-  for ( i=0; i<argc; i++ ) {
-    if ( argv[i] != NULL && *(argv[i]) == '-' ) {
-      char *cp = argv[i]+1;         /* Pointer to next flag character */
+  for ( i=1; i<argc; i++ ) {
 
-     /* Look for an indication of which input control window to open. */
-      if (command_mode == INITIATE_MODE_NULL) {
+    if (argv[i] == NULL) {
+      continue;
+    }
+
+   // Look for an indication of which input control window to open.
+   // Go with the first indication we encoutner.
+    if (initiate_command_at == -1) {
         initiate_command_at = i;
-        if (!strncasecmp( cp, "cli", 3)) {
-          command_mode = INITIATE_MODE_TLI;
-          continue;
-        } else if (!strncasecmp( cp, "gui", 3)) {
-          command_mode = INITIATE_MODE_GUI;
-          continue;
-        } else if (!strncasecmp( cp, "batch", 5)) {
-          command_mode = INITIATE_MODE_BATCH;
-          continue;
-        } else {
-         /* We haven't found the mode, yet. */
-          initiate_command_at = -1;
-        }
+      if (!strcasecmp( argv[i], "-cli")) {
+        need_tli = true;
+        continue;
+      } else if (!strcasecmp( argv[i], "-gui")) {
+        need_gui = true;
+        need_tli = true;
+        continue;
+      } else if (!strcasecmp( argv[i], "-batch")) {
+        need_batch = true;
+        read_stdin_file = (stdin && !isatty(fileno(stdin)));
+        //need_tli = read_stdin_file;
+        continue;
+      } else {
+       // We haven't found the mode, yet.
+        initiate_command_at = -1;
       }
+    }
 
-     /* Look for an executable description. */
-      switch ( *cp++ ) {
-
-      case 'h':               /* host options */
-      case 'f':               /* file options */
-      case 'p':               /* pid  options */
-      case 't':               /* thread options */
-      case 'r':               /* rank options */
-        executable_encountered = true;
-        break;
-
-      default:
-       /* This is probably an error. */
-        break;
-
-      }
+   /* Look for an executable description. */
+    if (!strcasecmp( argv[i], "-h") ||
+        !strcasecmp( argv[i], "-f") ||
+        !strcasecmp( argv[i], "-p") ||
+        !strcasecmp( argv[i], "-t") ||
+        !strcasecmp( argv[i], "-r") ||
+        !strcasecmp( argv[i], "-a")) {
+      executable_encountered = true;
+      need_command_line = true;
+     // if the next argv is not another "-" option, skip it.
       if (((i+1)<argc) &&
           (argv[i+1] != NULL) &&
           (*(argv[i+1]) != '-' )) i++;
       continue;
-
-    } else {
+    } else if ( argv[i] != NULL && *(argv[i]) != '-' ) {
       collector_encountered = true;
+      need_command_line = true;
       continue;
     }
+  }
+
+  if (initiate_command_at == -1) {
+   // If not specified by the user, default to -gui and -tli modes.
+    need_gui = true;
+    need_tli = true;
   }
 }
 
@@ -97,75 +113,10 @@ Initial_Python ()
   fclose (fp);
 }
 
-#include "Commander.hxx"
-int Start_BATCH_Mode (CMDWID my_window, int argc, char ** argv, int butnotarg, bool read_stdin_file);
-int Start_GUI_Mode (CMDWID my_window, int argc, char ** argv, int butnotarg, bool read_stdin_file);
-int Start_TLI_Mode (CMDWID my_window, int argc, char ** argv, int butnotarg, bool read_stdin_file);
-
-static void
-Load_Initial_Modules (int argc, char **argv)
-{
-  int charcnt = 0;
-  int i;
-  bool read_stdin_file = (stdin && !isatty(fileno(stdin)));
-
-  if (initiate_command_at == -1) {
-    if (read_stdin_file ||
-        (executable_encountered && collector_encountered)) {
-      command_mode = INITIATE_MODE_BATCH;
-    } else {
-      command_mode = INITIATE_MODE_TLI;
-    }
-  }
-
-  for ( i=0; i<argc; i++ ) {
-    if (initiate_command_at == i) {
-      continue;
-    }
-    charcnt += strlen(argv[i]) + 1;
-  }
-
- /* Open the Python interpreter */
-  Initial_Python ();
-
-  switch (command_mode) {
-
-  case INITIATE_MODE_BATCH:
-   /* Start up batch mode operation. */
-    Start_BATCH_Mode( 0, argc, argv, initiate_command_at, read_stdin_file);
-    break;
-  case INITIATE_MODE_GUI:
-   /* Load the GUI dso and let it initialize SpeedShop. */
-    Start_GUI_Mode( 0, argc, argv, initiate_command_at, read_stdin_file);
-    break;
-  case INITIATE_MODE_TLI:
-   /* Start up the text line interface. */
-    Start_TLI_Mode( 0, argc, argv, initiate_command_at, read_stdin_file);
-    break;
-  default:
-    fprintf(stderr,"ERROR: A supported interactive command mode was not specified.\n");
-    abort();
-  }
-
-/* >>>>> Start DEBUG <<<<<
-  switch (command_mode) {
-  case INITIATE_MODE_BATCH: fprintf(stdout,"openss -batch"); break;
-  case INITIATE_MODE_GUI:   fprintf(stdout,"openss -gui"); break;
-  case INITIATE_MODE_TLI:   fprintf(stdout,"openss -cli"); break;
-  }
-  for ( i=0; i<argc; i++ ) {
-    if ((command_mode != INITIATE_MODE_NULL) &&
-        (initiate_command_at == i)) {
-      continue;
-    }
-    fprintf(stdout," %s",argv[i]);
-  }
-  fprintf(stdout,"\n");
->>>>> Stop  DEBUG <<<<< */
-
- /* Close Python */
-  Py_Finalize ();
-}
+int Start_TLI_Mode (CMDWID my_window);
+int Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, int butnotarg,
+                             bool batch_mode,  bool read_stdin_file);
+void SS_Direct_stdin_Input (void *attachtowindow);
 
 extern "C"
 {
@@ -229,59 +180,86 @@ extern "C"
   int
   cli_init(int argc, char **argv)
   {
-    bool splashFLAG=true;
+    int i;
     ArgStruct *argStruct = new ArgStruct(argc, argv);
-    bool cliOnlyFLAG = false;
-    for(int i=0;i<argc;i++)
-    {
-      if(strcmp(argv[i], "-cli") == 0 )
-      {
-        cliOnlyFLAG = true;
-      }
-    }
+    struct hostent *my_host = gethostent();
+    pid_t my_pid = getpid();
 
-    if( cliOnlyFLAG == false )
-    {
-      extern void loadTheGUI(ArgStruct *);
-      loadTheGUI(argStruct);
-    }
+    need_gui = false;
+    need_tli = false;
+    need_batch = false;
+    need_command_line = false;
+    gui_window = 0;
+    tli_window = 0;
+    command_line_window = 0;
 
-
-    extern void loadTheCLI(ArgStruct *);
-    loadTheCLI(argStruct);
-
-    // I just spin here.   This really should be looping looking for some
-    // global variable that tells the cli/gui to go away...
-    while(1)
-    {
-      sleep(100);
-    }
-
-  }
-
-  // This is the initialization routine that (in it's own thread) initializes
-  // the cli/python pair.
-  void
-  clithreadinit(void *ptr)
-  {
-    ArgStruct *arg_struct = (ArgStruct *)ptr;
-    int argc = arg_struct->argc;
-    char **argv = arg_struct->argv;
-  
-    command_mode = INITIATE_MODE_NULL;
+    read_stdin_file = (stdin && !isatty(fileno(stdin)));;
     initiate_command_at = -1;
     executable_encountered = false;
     collector_encountered = false;
-    Process_Command_Line (argc-1, &argv[1]);
-    Load_Initial_Modules (argc-1, &argv[1]);
-  }
+    Process_Command_Line (argc, argv);
+  
+   // Open the Python interpreter.
+    Initial_Python ();
 
-  // This routine is called from cli_init to start the cli (The parsing
-  // stuff, in it's own thread.
-  void
-  loadTheCLI(ArgStruct *argStruct)
-  {
-    int stat = pthread_create(&phandle[0], 0, (void *(*)(void *))clithreadinit,argStruct);
+    if (need_command_line)
+    {
+     // Move the command line options to an input control window.
+      command_line_window = Commander_Initialization ("COMMAND_LINE",my_host->h_name,my_pid,0,false);
+      Start_COMMAND_LINE_Mode( command_line_window, argc-1, &argv[1], initiate_command_at-1,
+                               need_batch, read_stdin_file);
+    } else if (need_batch && (argc <= 2)) {
+      fprintf(stderr,"Missing command line arguments\n");
+      return -1;
+    }
+
+    if (need_tli)
+    {
+     // Start up the Text Line Interface to read from stdin.
+      tli_window = Commander_Initialization ("TLI",my_host->h_name,my_pid,0,!read_stdin_file);
+      if (read_stdin_file) {
+       // Read stdin from a piped-in file, as needed.
+        Start_TLI_Mode (tli_window);
+      } else {
+       // Create a thread to read from a terminal window.
+        int stat = pthread_create(&phandle[0], 0, (void *(*)(void *))SS_Direct_stdin_Input,(void *)tli_window);
+      }
+    }
+
+    if (need_gui)
+    {
+     // The gui will be started in a pthread and do it's own itinialization.
+      extern void loadTheGUI(ArgStruct *);
+      loadTheGUI(argStruct);
+
+// The following is a timing hack -
+// if the TLI window hasn't been opened or specify async input,
+// the input routines may think they are at the end of file
+// before the GUI can open and define an async input window.
+// The hack is to define a dummy async window before python starts.
+// We will need to sort this out at some point in the future.
+if (!need_tli || !read_stdin_file) gui_window = Commander_Initialization ("GUI",my_host->h_name,my_pid,0,true);
+    }
+
+   // Fire off Python.
+    PyRun_SimpleString( "myparse.do_input ()\n");
+
+   // When Python exits, terminate SpeedShop:
+
+   // Close Python
+    Py_Finalize ();
+
+   // Close allocated input windows.
+    if (tli_window != 0)
+    {
+      Commander_Termination(tli_window);
+    }
+    if (command_line_window != 0)
+    {
+      Commander_Termination(command_line_window);
+    }
+
+    return 0;
   }
 
   // When the cli requests to bring up a new GUI thread.  NOTE: One will 
