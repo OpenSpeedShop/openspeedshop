@@ -134,17 +134,15 @@ if( expID == -1 )
 {
 // We're coming in cold, or we're coming in from the pcSampleWizardPanel.
   char command[1024];
-// NOTE: "example" is used in place of "pcsamp" because it works for the
-//       test case.   "example" will eventually be replaced again with "pcsamp."
   if( !executableNameStr.isEmpty() )
   {
-    sprintf(command, "expCreate -f %s example\n", executableNameStr.ascii() );
+    sprintf(command, "expCreate -f %s pcsamp\n", executableNameStr.ascii() );
   } else if( !pidStr.isEmpty() )
   { 
-    sprintf(command, "expCreate -x %s example\n", pidStr.ascii() );
+    sprintf(command, "expCreate -x %s pcsamp\n", pidStr.ascii() );
   } else
   {
-    sprintf(command, "expCreate example\n" );
+    sprintf(command, "expCreate pcsamp\n" );
   }
   bool mark_value_for_delete = true;
   int64_t val = 0;
@@ -831,7 +829,7 @@ ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
 if( eo && eo->FW() )
 {
   Experiment *fw_experiment = eo->FW();
-  UpdateObject *msg = new UpdateObject((void *)fw_experiment, expID, "example", 1);
+  UpdateObject *msg = new UpdateObject((void *)fw_experiment, expID, "pcsamp", 1);
     p->listener( (void *)msg );
 }
   }

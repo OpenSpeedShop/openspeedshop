@@ -151,29 +151,29 @@ SelectExperimentDialog::selectedExperiment(int *expID)
 printf("parent text=%s\n", parent_node->text(0).ascii() );
     *expID = parent_node->text(0).toInt();
 
+//    printf("Got an ITEM!\n");
     // If the user selected a leaf, just return it...
     if( selectedItem->parent() )
     {
-printf("return A:\n");
       return selectedItem;
     }
     PanelListViewItem *firstChild = (PanelListViewItem *)selectedItem->firstChild();
     if( firstChild )
     {
-printf("return B:\n");
       return firstChild;
     } else
     {
-printf("return C:\n");
-      return selectedItem; // Error condition.
+return selectedItem;
+      return NULL; // Error condition.
     }
   } else
   {
 //    printf("NO ITEMS SELECTED\n");
-printf("return D:\n");
     return( NULL );
   }
 }
+
+
 
 #include "PanelContainer.hxx"
 void

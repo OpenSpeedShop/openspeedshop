@@ -158,72 +158,43 @@ pcStatsPanel::itemSelected(QListViewItem *item)
     if( nitem )
     {
       printf("here's the parent! 0x%x\n", nitem);
-      printf("  here's the rank of that parent: rank = %s\n",
+      printf("  here's the rank of that parent: function name = %s\n",
         nitem->text(1).ascii() );
-      matchSelectedItem( atoi( nitem->text(1).ascii() ) );
+//      matchSelectedItem( atoi( nitem->text(1).ascii() ) );
+      matchSelectedItem( std::string(nitem->text(1).ascii()) );
     }
   }
 }
 
 
 void
-pcStatsPanel::matchSelectedItem(int element)
+pcStatsPanel::matchSelectedItem(std::string selected_function )
 {
-  printf ("pcStatsPanel::matchSelectedItem() = %d\n", element );
+  bool foundFLAG = FALSE;
+  printf ("pcStatsPanel::matchSelectedItem() = %s\n", selected_function.c_str() );
 
-
-#ifdef OLDWAY
-
-  int i = 0;
-  HighlightList *highlightList = new HighlightList();
-  highlightList->clear();
-  HighlightObject *hlo = NULL;
-
-  MetricInfo *fi = NULL;
-  MetricInfoList::Iterator it = NULL;
-
-  i = 0;
-  for( it = collectorData->metricInfoList.begin();
-       it != collectorData->metricInfoList.end();
-       it++ )
+std::vector<item_type>::const_iterator it = data_items.begin();
+char timestr[50];
+for( ; it != data_items.end(); it++ )
+{
+//  printf("%s %f\n", it->first.c_str(), it->second );
+  if( selected_function == it->first.getName()  )
   {
-    fi = (MetricInfo *)*it;
-    for( int line=fi->start; line <= fi->end; line++)
+    printf("FOUND IT!\n");
+    Optional<Statement> definition = it->first.getDefinition();
+    if(definition.hasValue())
     {
-      if( i >= 5 )
-      {
-        hlo = new HighlightObject(fi->fileName, line, color_name_table[4], "exclusive time");
-      } else
-      {
-        hlo = new HighlightObject(fi->fileName, line, color_name_table[i], "exclusive time");
-      }
-// fprintf(stderr, "  pushback hlo: line=%d in color (%s)\n", line, hlo->color);
-      highlightList->push_back(hlo);
+      std::cout << " (" << definition.getValue().getPath()
+              << ", " << definition.getValue().getLine() << ")";
+      std::cout << std::endl;
+      break;
     }
-    i++;
+fprintf(stderr, "No function definition for this entry.   Unable to position source.\n");
   }
+}
 
-
-  i = 0;
-  for( it = collectorData->metricInfoList.begin();
-       it != collectorData->metricInfoList.end();
-       it++ )
-  {
-     fi = (MetricInfo *)*it;
-     if( i == element )
-     {
-       break;
-     }
-     i++;
-  }
-
-  dprintf ("%d (%s) (%s) (%d)\n", element, fi->functionName, fi->fileName, fi->function_line_number );
-  
-  char msg[1024];
-  sprintf(msg, "%d (%s) (%s) (%d)\n", element, fi->functionName, fi->fileName, fi->function_line_number );
-  
-
-  SourceObject *spo = new SourceObject(fi->functionName, fi->fileName, fi->function_line_number, TRUE, highlightList);
+//  SourceObject *spo = new SourceObject(it->first.getName().c_str(), it->first.getDefinition().getValue().getPath(), it->first.getDefinition().getValue().getLine(), TRUE, highlightList);
+  SourceObject *spo = new SourceObject(it->first.getName().c_str(), it->first.getDefinition().getValue().getPath(), it->first.getDefinition().getValue().getLine(), TRUE, NULL);
 
 
 
@@ -237,10 +208,8 @@ pcStatsPanel::matchSelectedItem(int element)
       p->listener((void *)spo);
     }
   }
-#endif // OLDWAY
 }
 
-typedef std::pair<std::string, double> item_type;
 template <class T>
 struct sort_ascending : public std::binary_function<T,T,bool> {
     bool operator()(const T& x, const T& y) const {
@@ -255,7 +224,6 @@ struct sort_decending : public std::binary_function<T,T,bool> {
 };
 
 
-#include "SS_Input_Manager.hxx"
 void
 pcStatsPanel::updateStatsPanelBaseData(void *expr, int expID, QString experiment_name)
 {
@@ -307,25 +275,21 @@ Queries::GetMetricByFunctionInThread(c1, "time", t1, data);
   }
 
 
-{
-typedef std::pair<std::string, double> item_type;
-std::vector<item_type> items;
 for(std::map<Function, double>::const_iterator
         item = data->begin(); item != data->end(); ++item)
 {
-  items.push_back( std::pair<std::string, double>(item->first.getName(), item->second ) );
-}
+  data_items.push_back( std::pair<Function, double>(item->first, item->second ) );
 
-// std::sort(items.begin(), items.end(), sort_ascending<item_type>());
-std::sort(items.begin(), items.end(), sort_decending<item_type>());
+// std::sort(data_items.begin(), data_items.end(), sort_ascending<item_type>());
+std::sort(data_items.begin(), data_items.end(), sort_decending<item_type>());
 
-std::vector<item_type>::const_iterator it = items.begin();
+std::vector<item_type>::const_iterator it = data_items.begin();
 char timestr[50];
-for( ; it != items.end(); it++ )
+for( ; it != data_items.end(); it++ )
 {
 //  printf("%s %f\n", it->first.c_str(), it->second );
   sprintf(timestr, "%f", it->second);
-  lvi =  new SPListViewItem( this, lv, timestr,  it->first.c_str() );
+    lvi =  new SPListViewItem( this, lv, timestr,  it->first.getName().c_str() );
 }
 
 }

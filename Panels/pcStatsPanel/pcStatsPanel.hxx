@@ -32,8 +32,12 @@ class QVBoxLayout;
 
 #include "SPListViewItem.hxx"
 
+#include "SS_Input_Manager.hxx"
+
 #include <qvaluelist.h>
 typedef QValueList<QString> ColumnList;
+
+typedef std::pair<Function, double> item_type;
 
 #include <qsettings.h>
 
@@ -65,10 +69,11 @@ class pcStatsPanel  : public StatsPanelBase
     void gotoSource();
 
   private:
-    void matchSelectedItem( int );
+    void matchSelectedItem( std::string function_name );
 
     void updateStatsPanelBaseData(void *expr = 0, int expID = 0, QString experiment_name = NULL);
 
+    std::vector<item_type> data_items;
 #ifdef PRINT_DEBUG
     void PrintView(int);
 #endif // PRINT_DEBUG

@@ -41,10 +41,15 @@ int work(int size)
  
 int main(int argc, char* argv[])
 {
+   int size = 1000;
+
     if(argc != 2) {
         printf("Usage: %s <size>\n", argv[0]);
-        exit(1);
+        printf("No size argument given.   Defaulting to %d.\n", size);
+    } else
+    {
+      size = atoi(argv[1]);
     }
     
-    work(atoi(argv[1]));
+    work(size);
 }
