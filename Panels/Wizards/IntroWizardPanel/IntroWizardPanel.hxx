@@ -78,12 +78,11 @@ public:
   int broadcast(char *msg);
 
 
-QFrame* iwpFrame;
-    QFrame* mainFrame;
+    QFrame* frame5;
     QWidgetStack* widgetStack5;
     QWidget* WStackPage;
-    QLabel* vWelcomeHeader;
-    QLabel* vHelpfulLabel;
+    QLabel* epage1Header_2;
+    QLabel* vpage1Label;
     QCheckBox* vpage1LoadExperimentCheckBox;
     QFrame* line3;
     QRadioButton* vpage1pcSampleRB;
@@ -91,11 +90,11 @@ QFrame* iwpFrame;
     QRadioButton* vpage1HardwareCounterRB;
     QRadioButton* vpage1FloatingPointRB;
     QRadioButton* vpage1InputOutputRB;
-    QRadioButton* vOtherRB;
+    QRadioButton* vpage1OtherRB;
     QPushButton* vpage1NextButton;
     QWidget* WStackPage_2;
-    QLabel* eWelcomeHeader;
-    QLabel* eHelpfulLabel;
+    QLabel* epage1Header;
+    QLabel* epage1Label;
     QCheckBox* epage1LoadExperimentCheckBox;
     QFrame* line2;
     QRadioButton* epage1pcSampleRB;
@@ -103,7 +102,7 @@ QFrame* iwpFrame;
     QRadioButton* epage1HardwareCounterRB;
     QRadioButton* epage1FloatingPointRB;
     QRadioButton* epage1InputOutputRB;
-    QRadioButton* eOtherRB;
+    QRadioButton* epage1OtherRB;
     QPushButton* epage1NextButton;
     QCheckBox* wizardMode;
     QLabel* broughtToYouByLabel;
@@ -120,56 +119,60 @@ void vpage1UserTimeRBChanged();
 void vpage1HardwareCounterRBChanged();
 void vpage1FloatingPointRBChanged();
 void vpage1InputOutputRBChanged();
-void vOtherRBChanged();
+void vpage1OtherRBChanged();
 
 void epage1pcSampleRBChanged();
 void epage1UserTimeRBChanged();
 void epage1HardwareCounterRBChanged();
 void epage1FloatingPointRBChanged();
 void epage1InputOutputRBChanged();
-void eOtherRBChanged();
+void epage1OtherRBChanged();
+
 
 void handleSizeEvent( QResizeEvent *e );
 QScrollView *sv;
 
 
-
 protected:
     QVBoxLayout* IntroWizardFormLayout;
-    QVBoxLayout* mainFrameLayout;
-    QVBoxLayout* vWStackPageLayout;
-    QHBoxLayout* pcSampleHLayout;
+    QVBoxLayout* frame5Layout;
+    QVBoxLayout* WStackPageLayout;
+    QVBoxLayout* layout21;
+    QHBoxLayout* layout20;
+    QSpacerItem* spacer5_3;
+    QHBoxLayout* layout9;
     QSpacerItem* spacer5;
-    QHBoxLayout* userTimeHLayout;
+    QHBoxLayout* layout10;
     QSpacerItem* spacer6;
-    QHBoxLayout* vHardwareCounterHLayout;
+    QHBoxLayout* layout21_2;
     QSpacerItem* spacer7;
-    QHBoxLayout* vFloatingPointHLayout;
+    QHBoxLayout* layout20_2;
     QSpacerItem* spacer7_3;
-    QHBoxLayout* vInputOutputHLayout;
+    QHBoxLayout* layout19;
     QSpacerItem* spacer7_4;
-    QHBoxLayout* vOtherHLayout;
+    QHBoxLayout* layout18;
     QSpacerItem* spacer7_5;
-    QHBoxLayout* vNextHLayout;
+    QHBoxLayout* layout52;
     QSpacerItem* spacer44;
-    QVBoxLayout* eWStackPageLayout;
-    QHBoxLayout* eLoadExperimentHLayout;
+    QVBoxLayout* WStackPageLayout_2;
+    QVBoxLayout* layout20_3;
+    QHBoxLayout* layout19_2;
     QSpacerItem* spacer5_2_2;
-    QHBoxLayout* epcSampleHLayout;
+    QHBoxLayout* layout9_2;
     QSpacerItem* spacer5_2;
-    QHBoxLayout* eUserTimeHLayout;
+    QHBoxLayout* layout10_2;
     QSpacerItem* spacer6_2;
-    QHBoxLayout* eHardwareCounterHLayout;
+    QHBoxLayout* layout21_2_2;
     QSpacerItem* spacer7_2;
-    QHBoxLayout* eFLoatingPointHLayout;
+    QHBoxLayout* layout20_2_2;
     QSpacerItem* spacer7_3_2;
-    QHBoxLayout* eInputOutputHLayout;
+    QHBoxLayout* layout19_2_2;
     QSpacerItem* spacer7_4_2;
-    QHBoxLayout* eOtherHLayout;
+    QHBoxLayout* layout18_2;
     QSpacerItem* spacer7_5_2;
-    QHBoxLayout* eNextHLayout;
+    QHBoxLayout* layout44;
     QSpacerItem* spacer37;
-    QHBoxLayout* wizardModeHLayout;
+    QHBoxLayout* layout5;
     QSpacerItem* spacer1;
 
 protected slots:
