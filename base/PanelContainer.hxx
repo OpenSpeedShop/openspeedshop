@@ -145,12 +145,6 @@ class PanelContainer : public QWidget
     //! Find the best (closest) PanelContainer that will accept a Panel drop.
     PanelContainer *findBestFitPanelContainer(PanelContainer *start_pc);
 
-    //! Find the first (nearest) PanelContainer that has no Panels
-    PanelContainer *findFirstEmptyPanelContainer(PanelContainer *start_pc);
-
-    //! Find the first (nearest) PanelContainer that can contain Panels
-    PanelContainer *findFirstAvailablePanelContainer(PanelContainer *start_pc);
-
     //! The list of Panels in this PanelContainer.
     PanelList panelList;
 
@@ -187,9 +181,6 @@ class PanelContainer : public QWidget
 
     //! Routine to tell if there are any Panels in the PaneContainer.
     bool areTherePanels();
-
-    //! The layout widget for this PanelContainer.
-    QVBoxLayout* panelContainerFrameLayout;
 
     //! The splitter widget for this PanelContainer.
     QSplitter *splitter;
@@ -363,6 +354,15 @@ class PanelContainer : public QWidget
 
     //! Returns true if a Panel interested in the message in this PanelContainer
     int wasThereAnInterestedPanel(PanelContainer *pc, char *msg, int *return_value );
+
+    //! Find the first (nearest) PanelContainer that has no Panels
+    PanelContainer *findFirstEmptyPanelContainer(PanelContainer *start_pc);
+
+    //! Find the first (nearest) PanelContainer that can contain Panels
+    PanelContainer *findFirstAvailablePanelContainer(PanelContainer *start_pc);
+
+    //! The layout widget for this PanelContainer.
+    QVBoxLayout* panelContainerFrameLayout;
 
 };
 
