@@ -24,6 +24,7 @@
 
 #include "Assert.hxx"
 #include "Blob.hxx"
+#include "ExperimentTable.hxx"
 #include "Guard.hxx"
 #include "MainLoop.hxx"
 #include "Process.hxx"
@@ -81,13 +82,16 @@ namespace {
      * Performance data callback.
      *
      * Callback function called by the DPCL main loop when performance data is
-     * sent to the tool ...
+     * sent to the tool. Simply passes this data on to the proper function to be
+     * stored in an experiment database.
      */
-    void performanceDataCB(GCBSysType, GCBTagType, GCBObjType, GCBMsgType)
+    void performanceDataCB(GCBSysType sys, GCBTagType,
+			   GCBObjType, GCBMsgType msg)
     {
-	// TODO: implement!
+	// Store this performance data in the correct experiment database
+	ExperimentTable::TheTable.storePerformanceData(Blob(sys.msg_size, msg));
     }
-
+    
 
 
     /**
@@ -1137,7 +1141,7 @@ void Process::execute(const std::string& library,
     ProbeExp function_exp = i->second.module->get_reference(j->second);
 
     // Create a probe experssion for the argument (first encoded as a string)
-    ProbeExp args_exp[1] = { ProbeExp(encodeBlobAsString(argument).c_str()) };
+    ProbeExp args_exp[1] = { ProbeExp(argument.getStringEncoding().c_str()) };
     
     // Create a probe expression for the function call
     ProbeExp call_exp = function_exp.call(1, args_exp);
@@ -1148,65 +1152,7 @@ void Process::execute(const std::string& library,
     Assert(retval.status() == ASC_success);
     MainLoop::resume();    
 }
-    
 
 
-/**
- * Encode a blob as a string.
- *
- * Encodes a blob into a standard (0x00 terminated) C string. This is done by
- * replacing all occurences of 0x00 within the blob with a different, "safe",
- * non-zero byte value. In addition, all previous occurences of that safe value
- * are doubled up. For example, if the safe value is 0x22, the translations
- * ( 0x00 --> 0x22 ) and ( 0x22 --> 0x22 0x22 ) are applied to each byte in the
- * blob. This encoding is easily reversed and imposes minimal overhead.
- *
- * @note    The only reason this encoding is even necessary is that DPCL only
- *          allows passing a restricted subset of types (integers, floats, and
- *          strings) as parameters when calling a library function. We can get
- *          about 95% around this by utilizing blobs containing XDR encodings
- *          of arbitrary data structures. Those blobs, however, contain 0x00
- *          bytes that prevent them from being directly passed to the library
- *          function as a string. This encoding gets us the last 5% of the way.
- *
- * @note    The safe value is chosen to be a non-zero byte that isn't likely
- *          to occur frequently in a typical blob. This minimizes the overhead
- *          imposed by the encoding. Using 0x01, 0x80, 0xFE, or 0xFF, for
- *          example, would be a poor choice because they all occur frequently
- *          in structures containing integer or floating-point values.
- *
- * @param blob    Blob to be encoded.
- * @return        String encoding of the blob.
- */
-std::string Process::encodeBlobAsString(const Blob& blob)
-{
-    std::string encoding;
-    
-    // Constant used in encoding
-    const char SafeValue = 0xBA;
-    
-    // Iterate over each byte in the blob
-    for(unsigned i = 0; i < blob.getSize(); ++i) {	
-	char byte = reinterpret_cast<const char*>(blob.getContents())[i];
-	
-	// Replace zero values with the safe value
-	if(byte == 0x00)
-	    encoding.append(1, SafeValue);
-	
-	// Double-up occurences of the safe value
-	else if(byte == SafeValue)
-	    encoding.append(2, SafeValue);
-	
-	// Otherwise pass the byte through unchanged
-	else
-	    encoding.append(1, byte);
-	
-    }
-    
-    // Return the encoding to the caller
-    return encoding;
-}
 
-    
-    
 } }  // OpenSpeedShop::Framework

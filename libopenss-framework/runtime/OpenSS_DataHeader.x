@@ -18,26 +18,29 @@
 
 /** @file
  *
- * Declaration of the Runtime API.
+ * Specification of the performance data header.
  *
  */
 
-#ifndef _OpenSpeedShop_Framework_RuntimeAPI_
-#define _OpenSpeedShop_Framework_RuntimeAPI_
-
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
-#include "OpenSS_DataHeader.h"
-
-#include <rpc/rpc.h>
 
 
+/**
+ * Performance data header.
+ *
+ * Header which is prepended to all performance data sent between a collector's
+ * runtime and the framework. Contains enough information to allow the framework
+ * to store and index the data within the proper experiment database.
+ */
+struct OpenSS_DataHeader {
 
-bool_t OpenSS_DecodeParameters(const char*, const xdrproc_t, void*);
-bool_t OpenSS_Send(const OpenSS_DataHeader*, const xdrproc_t, const void*);
-
-
-
-#endif
+    int experiment;  /**< Identifier of experiment to contain the data. */
+    int collector;   /**< Identifier of collector gathering data. */
+    int thread;      /**< Identifier of gathered data's thread. */
+    
+    uint64_t time_begin;  /**< Beginning of gathered data's time interval. */
+    uint64_t time_end;    /**< End of gathered data's time interval. */
+    
+    uint64_t addr_begin;  /**< Beginning of gathered data's address range. */
+    uint64_t addr_end;    /**< End of gathered data's address range. */
+    
+};

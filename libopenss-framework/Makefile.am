@@ -33,6 +33,7 @@ libopenss_framework_la_LIBADD = \
 	-lsqlite3 -lpthread -lrt
 
 libopenss_framework_la_SOURCES = \
+	runtime/OpenSS_DataHeader.c \
 	Address.hxx \
 	AddressRange.hxx \
 	Assert.hxx \
@@ -44,6 +45,7 @@ libopenss_framework_la_SOURCES = \
 	CollectorImpl.hxx CollectorImpl.cxx \
 	Database.hxx Database.cxx \
 	Experiment.hxx Experiment.cxx \
+	ExperimentTable.hxx ExperimentTable.cxx \
 	Function.hxx Function.cxx \
 	Guard.hxx \
 	Instrumentor.hxx \

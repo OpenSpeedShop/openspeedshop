@@ -27,11 +27,13 @@
 #include "CollectorGroup.hxx"
 #include "Database.hxx"
 #include "Experiment.hxx"
+#include "ExperimentTable.hxx"
 #include "Instrumentor.hxx"
 #include "Metadata.hxx"
 #include "Thread.hxx"
 #include "ThreadGroup.hxx"
 
+#include <pthread.h>
 #include <stdexcept>
 
 using namespace OpenSpeedShop::Framework;
@@ -39,6 +41,8 @@ using namespace OpenSpeedShop::Framework;
 
 
 namespace {
+
+
     
     /**
      * Database schema.
@@ -142,8 +146,8 @@ namespace {
 	
 	// Data Table
 	"CREATE TABLE Data ("
-	"    thread INTEGER," // From Thread.id
 	"    collector INTEGER," // From Collectors.id
+	"    thread INTEGER," // From Thread.id
 	"    time_begin INTEGER,"
 	"    time_end INTEGER,"
 	"    addr_begin INTEGER,"
@@ -204,7 +208,7 @@ namespace {
 	// End Of Table Entry
 	NULL
     };
-    
+
 }
 
 
@@ -307,6 +311,9 @@ Experiment::Experiment(const std::string& name) :
 	}
 	
     }    
+
+    // Add this experiment to the experiment table
+    ExperimentTable::TheTable.addExperiment(this);
 }
 
 
@@ -321,6 +328,9 @@ Experiment::Experiment(const std::string& name) :
  */
 Experiment::~Experiment()
 {
+    // Remove this experiment from the experiment table
+    ExperimentTable::TheTable.removeExperiment(this);
+    
     // Begin a multi-statement transaction
     BEGIN_TRANSACTION(dm_database);
 

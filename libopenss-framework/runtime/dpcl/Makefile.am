@@ -19,9 +19,7 @@
 noinst_LTLIBRARIES = libopenss-framework-runtime-dpcl.la
 
 libopenss_framework_runtime_dpcl_la_CFLAGS = \
-	-I$(top_srcdir)/libopenss-framework \
-	-I$(top_srcdir)/libopenss-framework/runtime
+	$(DPCL_CPPFLAGS)
 
 libopenss_framework_runtime_dpcl_la_SOURCES = \
-	OpenSS_DecodeParameters.c \
-	OpenSS_Send.c
+	openss_send.c

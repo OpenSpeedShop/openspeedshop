@@ -54,8 +54,10 @@ bool ProcessTable::isEmpty() const
  *
  * Adds the passed thread to this process table. If the passed thread is the
  * first thread within a given process, that process is also added to this
- * process table. An assertion is thrown if an attempt is made to add a thread
- * more than once.
+ * process table.
+ *
+ * @note     An assertion failure occurs if an attempt is made to add a thread
+ *           more than once.
  *
  * @param thread     Thread to be added.
  * @param process    Process containing the added thread.
@@ -86,8 +88,10 @@ void ProcessTable::addThread(const Thread& thread,
  *
  * Removes the passed thread from this process table. If the passed thread was
  * the last thread within a given process, that process is also removed from
- * this process table. An assertion is thrown if an attempt is made to remove
- * a thread that isn't in this process table.
+ * this process table.
+ *
+ * @note    An assertion failure occurs if an attempt is made to remove a
+ *          thread that isn't in this process table.
  *
  * @param thread    Thread to be removed.
  */

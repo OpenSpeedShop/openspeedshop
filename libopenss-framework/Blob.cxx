@@ -204,8 +204,8 @@ Blob& Blob::operator=(const Blob& other)
  * data structure. The XDR procedure for the specified data structure's type
  * must also be passed as a parameter.
  *
- * @note    An exception of type std::logic_error is thrown if the XDR decoding
- *          of the blob's contents fails for any reason.
+ * @note    An assertion failure occurs if the XDR decoding of the blob's
+ *          contents fails for any reason.
  *
  * @note    It is crucial that the data structure be initialized to zero by
  *          the caller before being passed into this function. In several places
@@ -221,8 +221,9 @@ Blob& Blob::operator=(const Blob& other)
  *
  * @param xdrproc    XDR procedure for the returned data type.
  * @retval data      Pointer to the decoded data structure.
+ * @return           Decoding size (in bytes).
  */
-void Blob::getXDRDecoding(const xdrproc_t xdrproc, void* data) const
+unsigned Blob::getXDRDecoding(const xdrproc_t xdrproc, void* data) const
 {
     // Check assertions
     Assert(xdrproc != NULL);
@@ -233,13 +234,74 @@ void Blob::getXDRDecoding(const xdrproc_t xdrproc, void* data) const
     xdrmem_create(&xdrs, reinterpret_cast<char*>(dm_contents),
 		  dm_size, XDR_DECODE);
     
-    // Attempt to decode the data structure from this stream
-    if((*xdrproc)(&xdrs, data) == FALSE)
-	throw std::runtime_error("Cannot decode this blob's contents into "
-				 "the specified data structure.");
+    // Decode the data structure from this stream
+    Assert((*xdrproc)(&xdrs, data) == TRUE);
+    
+    // Get the decoding size
+    unsigned size = xdr_getpos(&xdrs);
     
     // Close the XDR stream
     xdr_destroy(&xdrs);    
+    
+    // Return the decoding size to the caller
+    return size;
+}
+
+
+
+/**
+ * Get string encoding of contents.
+ *
+ * Gets an encoding of the blob's contents as a string. This is done by
+ * replacing all occurences of 0x00 within the blob with a different, "safe",
+ * non-zero byte value. In addition, all previous occurences of that safe value
+ * are doubled up. For example, if the safe value is 0x22, the translations
+ * ( 0x00 --> 0x22 ) and ( 0x22 --> 0x22 0x22 ) are applied to each byte in the
+ * blob. This encoding is easily reversed and imposes minimal overhead.
+ *
+ * @note    The only reason this encoding is even necessary is that DPCL only
+ *          allows passing a restricted subset of types (integers, floats, and
+ *          strings) as parameters when calling a library function. We can get
+ *          about 95% around this by utilizing blobs containing XDR encodings
+ *          of arbitrary data structures. These blobs, however, contain 0x00
+ *          bytes that prevent them from being directly passed to the library
+ *          function as a string. This encoding gets us the last 5% of the way.
+ *
+ * @note    The safe value is chosen to be a non-zero byte that isn't likely
+ *          to occur frequently in a typical blob. This minimizes the overhead
+ *          imposed by the encoding. Using 0x01, 0x80, 0xFE, or 0xFF, for
+ *          example, would be a poor choice because they all occur frequently
+ *          in structures containing integer or floating-point values.
+ *
+ * @return    String encoding of the blob.
+ */
+std::string Blob::getStringEncoding() const
+{
+    std::string encoding;
+    
+    // Constant used in encoding
+    const char SafeValue = 0xBA;
+    
+    // Iterate over each byte in the blob
+    for(unsigned i = 0; i < dm_size; ++i) {	
+	char byte = reinterpret_cast<const char*>(dm_contents)[i];
+	
+	// Replace zero values with the safe value
+	if(byte == 0x00)
+	    encoding.append(1, SafeValue);
+	
+	// Double-up occurences of the safe value
+	else if(byte == SafeValue)
+	    encoding.append(2, SafeValue);
+	
+	// Otherwise pass the byte through unchanged
+	else
+	    encoding.append(1, byte);
+	
+    }
+    
+    // Return the encoding to the caller
+    return encoding;
 }
 
 

@@ -94,8 +94,6 @@ namespace OpenSpeedShop { namespace Framework {
 
     private:
 
-	static std::string encodeBlobAsString(const Blob&);
-
 	/** DPCL process handle. */
 	::Process* dm_process;
 

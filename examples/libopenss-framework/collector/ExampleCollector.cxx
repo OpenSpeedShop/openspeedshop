@@ -192,12 +192,14 @@ void ExampleCollector::stopCollecting(const Collector& collector,
  * specific address range and time interval. ...
  *
  * @param metric      Unique identifier of the metric.
+ * @param collector    Collector for which to get a value.
  * @param thread      Thread for which to get a value.
  * @param range       Address range over which to get a value.
  * @param interval    Time interval over which to get a value.
  * @param ptr         Untyped pointer to the return value.
  */
 void ExampleCollector::getMetricValue(const std::string& metric,
+				      const Collector& collector,
 				      const Thread& thread,
 				      const AddressRange& range,
 				      const TimeInterval& interval,

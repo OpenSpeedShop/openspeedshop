@@ -1,0 +1,232 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+//
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License as published by the Free
+// Software Foundation; either version 2.1 of the License, or (at your option)
+// any later version.
+//
+// This library is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this library; if not, write to the Free Software Foundation, Inc.,
+// 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+////////////////////////////////////////////////////////////////////////////////
+
+/** @file
+ *
+ * Definition of the ExperimentTable class.
+ *
+ */
+
+#include "Assert.hxx"
+#include "Blob.hxx"
+#include "Collector.hxx"
+#include "Database.hxx"
+#include "Experiment.hxx"
+#include "ExperimentTable.hxx"
+#include "Guard.hxx"
+#include "runtime/OpenSS_DataHeader.h"
+#include "Thread.hxx"
+
+using namespace OpenSpeedShop::Framework;
+
+
+
+/** Singleton experiment table. */
+ExperimentTable ExperimentTable::TheTable;
+
+
+
+/**
+ * Add an experiment.
+ *
+ * Adds the passed experiment to this experiment table. The experiment is given
+ * the next available unique integer as its identifier.
+ *
+ * @note    An assertion failure occurs if an attempt is made to add a null
+ *          experiment or to add an experiment more than once.
+ *
+ * @param experiment    Experiment to be added.
+ */
+void ExperimentTable::addExperiment(const Experiment* experiment)
+{
+    Guard guard_myself(this);
+
+    // Check assertions
+    Assert(experiment != NULL);
+    Assert(dm_experiment_to_identifier.find(experiment) == 
+	   dm_experiment_to_identifier.end());
+
+    // Add this experiment
+    int identifier = dm_next_identifier++;
+    dm_identifier_to_experiment[identifier] = experiment;
+    dm_experiment_to_identifier[experiment] = identifier;
+}
+
+
+
+/**
+ * Remove an experiment.
+ *
+ * Removes the passed experiment from this experiment table.
+ *
+ * @note    An assertion failure occurs if an attempt is made to remove a null
+ *          experiment or to remove an experiment that isn't in this experiment
+ *          table.
+ *
+ * @param experiment    Experiment to be removed.
+ */
+void ExperimentTable::removeExperiment(const Experiment* experiment)
+{
+    Guard guard_myself(this);
+
+    // Check assertions
+    Assert(experiment != NULL);
+    Assert(dm_experiment_to_identifier.find(experiment) != 
+	   dm_experiment_to_identifier.end());
+
+    // Remove this experiment
+    int identifier = dm_experiment_to_identifier[experiment];    
+    dm_identifier_to_experiment.erase(identifier);
+    dm_experiment_to_identifier.erase(experiment);
+}
+
+
+
+/**
+ * Get experiment, collector, and thread (ECT) identifiers.
+ *
+ * Gets the experiment, collector, and thread (ECT) identifiers of the specified
+ * collector and thread. Used by collectors to specify for which ECT data is to
+ * be collected.
+ * 
+ * @note    An assertion failure occurs if the specified collector and thread
+ *          are not in the same experiment database or if there is no experiment
+ *          with that database in the experiment table.
+ *
+ * @param collector         Collector to be identified.
+ * @param thread            Thread to be identified.
+ * @retval experiment_id    Identifier of the experiment.
+ * @retval collector_id     Identifier of the collector.
+ * @retval thread_id        Identifier of the thread.
+ */
+void ExperimentTable::getECT(const Collector& collector, const Thread& thread,
+			     int& experiment_id,
+			     int& collector_id,
+			     int& thread_id) const
+{
+    Guard guard_myself(this);
+
+    // Set the identifiers (using an "undefined" value for the experiment)
+    experiment_id = -1;
+    collector_id = collector.dm_entry;
+    thread_id = thread.dm_entry;
+    
+    // Check assertions
+    Assert(collector.dm_database == thread.dm_database);
+    
+    // Iterate over every experiment in the experiment table
+    for(std::map<const Experiment*, int>::const_iterator
+	    i = dm_experiment_to_identifier.begin();
+	i != dm_experiment_to_identifier.end();
+	++i)
+	
+	// Is this the experiment containing the specified collector/thread?
+	if(collector.dm_database == i->first->dm_database) {
+
+	    // Set the real experiment identifier
+	    experiment_id = i->second;
+
+	    break;
+	}
+    
+    // Check assertions
+    Assert(experiment_id >= 0);
+}
+
+
+
+/**
+ * Store performance data in an experiment.
+ *
+ * Stores the specified performance data into the correct experiment database.
+ * The blob containing the data is assumed to have been encoded by OpenSS_Send
+ * and is thus prepended with a performance data header. That header is decoded
+ * in order to locate the correct experiment database and then create a properly
+ * indexed entry for the actual data.
+ *
+ * @note    Various timing issues can result in corner cases where, for example,
+ *          data arrives after a particular experiment, collector, or thread has
+ *          been destroyed/removed. It was deemed best to silently ignore the
+ *          data under these circumstances.
+ *
+ * @parma blob    Blob containing the performance data.
+ */
+void ExperimentTable::storePerformanceData(const Blob& blob) const
+{
+    Guard guard_myself(this);
+
+    // Decode the performance data header
+    OpenSS_DataHeader header;
+    memset(&header, 0, sizeof(OpenSS_DataHeader));
+    unsigned header_size =
+	blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_OpenSS_DataHeader),
+			    &header);
+    
+    // Calculate the size and location of the actual data
+    unsigned data_size = blob.getSize() - header_size;
+    const void* data_ptr =
+	&(reinterpret_cast<const char*>(blob.getContents())[header_size]);
+
+    // Look for the experiment object to contain this data
+    std::map<int, const Experiment*>::const_iterator
+	i = dm_identifier_to_experiment.find(header.experiment);
+    
+    // Ignore the data if the specified experiment cannot be found
+    if(i == dm_identifier_to_experiment.end())
+	return;
+
+    // Find the database for this experiment
+    SmartPtr<Database> database = i->second->dm_database;
+    
+    // Store the data in this database
+    try {
+    
+	// Begin a multi-statement transaction
+	BEGIN_TRANSACTION(database);
+
+	// Validate that the specified collector exists
+	Collector collector(database, header.collector);
+	collector.validateEntry();
+
+	// Validate that the specified thread exists
+	Thread thread(database, header.thread);
+	thread.validateEntry();
+
+	// Create an entry for this data
+	database->prepareStatement(
+	    "INSERT INTO Data (collector, thread,"
+	    " time_begin, time_end, addr_begin, addr_end, data)"
+	    " VALUES (?, ?, ?, ?, ?, ?, ?);"
+	    );
+	database->bindArgument(1, header.collector);
+	database->bindArgument(2, header.thread);
+	database->bindArgument(3, Time(header.time_begin));
+	database->bindArgument(4, Time(header.time_end));
+	database->bindArgument(5, Address(header.addr_begin));
+	database->bindArgument(6, Address(header.addr_end));
+	database->bindArgument(7, Blob(data_size, data_ptr));
+
+	// End this multi-statement transaction
+	END_TRANSACTION(database);
+	
+    }
+    
+    // Ignore the data if any exceptions were thrown
+    catch(...) {	
+    }
+}

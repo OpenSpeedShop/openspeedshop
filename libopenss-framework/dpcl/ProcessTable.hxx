@@ -18,7 +18,7 @@
 
 /** @file
  *
- * Declaration and definition of the ProcessTable class.
+ * Declaration of the ProcessTable class.
  *
  */
 

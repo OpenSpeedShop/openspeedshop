@@ -45,6 +45,7 @@ namespace OpenSpeedShop { namespace Framework {
 
     class Database;
     class Experiment;
+    class ExperimentTable;
     class Thread;
     class ThreadGroup;
     
@@ -77,6 +78,7 @@ namespace OpenSpeedShop { namespace Framework {
     class Collector
     {
 	friend class Experiment;
+	friend class ExperimentTable;
 	
     public:
 	

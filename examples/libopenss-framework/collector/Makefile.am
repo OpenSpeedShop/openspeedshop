@@ -45,6 +45,6 @@ example_rt_la_SOURCES = \
 SUFFIXES = .x
 CLEANFILES = blobs.h blobs.c
 
-blobs.h blobs.c: blobs.x
+blobs.h blobs.c : blobs.x
 	$(RPCGEN) -h -o $(patsubst %.x, %.h, $<) $<
 	$(RPCGEN) -c -o $(patsubst %.x, %.c, $<) $<

@@ -24,6 +24,7 @@
 
 #include "Blob.hxx"
 #include "CollectorImpl.hxx"
+#include "ExperimentTable.hxx"
 #include "Instrumentor.hxx"
 
 #include <stdexcept>
@@ -186,4 +187,29 @@ void CollectorImpl::execute(const Thread& thread,
 			    const Blob& argument) const
 {
     Instrumentor::execute(thread, library, function, argument);
+}
+
+
+
+/**
+ * Get experiment, collector, and thread (ECT) identifiers.
+ *
+ * Gets the experiment, collector, and thread (ECT) identifiers of the specified
+ * collector and thread. Called by derived classes when specifying to their
+ * runtime library(ies) the ECT for which data is to be collected.
+ * 
+ * @param collector         Collector to be identified.
+ * @param thread            Thread to be identified.
+ * @retval experiment_id    Identifier of the experiment.
+ * @retval collector_id     Identifier of the collector.
+ * @retval thread_id        Identifier of the thread.
+ */
+void CollectorImpl::getECT(const Collector& collector,
+			   const Thread& thread,
+			   int& experiment_id,
+			   int& collector_id,
+			   int& thread_id) const
+{
+    ExperimentTable::TheTable.getECT(collector, thread,
+				     experiment_id, collector_id, thread_id);
 }

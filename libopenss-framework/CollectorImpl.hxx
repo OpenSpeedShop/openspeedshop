@@ -168,13 +168,15 @@ namespace OpenSpeedShop { namespace Framework {
 	 *          we thus can't defer implementation to the plugin. Using an
 	 *          untyped pointer was, unfortunately, the best solution.
 	 *
-	 * @param metric      Unique identifier of the metric.
-	 * @param thread      Thread for which to get a value.
-	 * @param range       Address range over which to get a value.
-	 * @param interval    Time interval over which to get a value.
-	 * @retval ptr        Untyped pointer to the metric value.
+	 * @param metric       Unique identifier of the metric.
+	 * @param collector    Collector for which to get a value.
+	 * @param thread       Thread for which to get a value.
+	 * @param range        Address range over which to get a value.
+	 * @param interval     Time interval over which to get a value.
+	 * @retval ptr         Untyped pointer to the metric value.
 	 */
 	virtual void getMetricValue(const std::string& metric,
+				    const Collector& collector,
 				    const Thread& thread,
 				    const AddressRange& range,
 				    const TimeInterval& interval,
@@ -192,6 +194,7 @@ namespace OpenSpeedShop { namespace Framework {
 	void unloadLibrary(const Thread&, const std::string&) const;
 	void execute(const Thread&, const std::string&, const std::string&,
 		     const Blob&) const;
+	void getECT(const Collector&, const Thread&, int&, int&, int&) const;
 
     private:
 

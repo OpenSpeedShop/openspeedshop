@@ -20,11 +20,18 @@ SUBDIRS = @INSTRUMENTOR@
 
 noinst_LTLIBRARIES = libopenss-framework-runtime.la
 
-libopenss_framework_runtime_la_CFLAGS = \
-	-I$(top_srcdir)/libopenss-framework
-
 libopenss_framework_runtime_la_LIBADD = \
 	@INSTRUMENTOR@/libopenss-framework-runtime-@INSTRUMENTOR@.la
 
 libopenss_framework_runtime_la_SOURCES = \
+	OpenSS_DataHeader.h OpenSS_DataHeader.c OpenSS_DataHeader.x \
+	OpenSS_DecodeParameters.c \
+	OpenSS_Send.c \
 	RuntimeAPI.h
+
+SUFFIXES = .x
+CLEANFILES = OpenSS_DataHeader.h OpenSS_DataHeader.c
+
+OpenSS_DataHeader.h OpenSS_DataHeader.c : OpenSS_DataHeader.x
+	$(RPCGEN) -h -o $(patsubst %.x, %.h, $<) $<
+	$(RPCGEN) -c -o $(patsubst %.x, %.c, $<) $<

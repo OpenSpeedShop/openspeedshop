@@ -30,6 +30,7 @@
 #endif
 
 #include <rpc/rpc.h>
+#include <string>
 
 
 
@@ -72,7 +73,8 @@ namespace OpenSpeedShop { namespace Framework {
 	    return dm_contents;
 	}
 
-	void getXDRDecoding(const xdrproc_t, void*) const;	
+	unsigned getXDRDecoding(const xdrproc_t, void*) const;
+	std::string getStringEncoding() const;
 
 	bool isEmpty() const;
 

@@ -29,6 +29,7 @@
 #include "config.h"
 #endif
 
+#include "NonCopyable.hxx"
 #include "SmartPtr.hxx"
 
 #ifdef HAVE_ARRAY_SERVICES
@@ -47,6 +48,7 @@ namespace OpenSpeedShop { namespace Framework {
     class Collector;
     class CollectorGroup;
     class Database;
+    class ExperimentTable;
     class Thread;
     class ThreadGroup;
     
@@ -73,10 +75,20 @@ namespace OpenSpeedShop { namespace Framework {
      *          or collector C, is queried for its list of threads, process Q
      *          will be found in that list.
      *
+     * @todo    Need to add static member functions for renaming an existing
+     *          experiment, copying an existing experiment, and removing an 
+     *          existing experiment. All of these should be similar to create()
+     *          in that they take a string name as the experiment database name.
+     *
+     * @todo    Need to add a member function for purging a time-range subset
+     *          of performance data.
+     *
      * @ingroup ToolAPI
      */
-    class Experiment
+    class Experiment :
+	private NonCopyable
     {
+	friend class ExperimentTable;
 
     public:
 
