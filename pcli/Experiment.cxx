@@ -753,22 +753,42 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
       (exp->Status() == ExpStatus_Running)) {
 
    // Verify that there are threads.
-    ThreadGroup tgrp = exp->FW()->getThreads();
-
-    if (tgrp.empty()) {
-      cmd->Result_String ("There are no applications specified for the experiment");
-      cmd->set_Status(CMD_ERROR);
+    ThreadGroup tgrp;
+    try {
+      tgrp = exp->FW()->getThreads();
+      if (tgrp.empty()) {
+        cmd->Result_String ("There are no applications specified for the experiment");
+        cmd->set_Status(CMD_ERROR);
+        return false;
+      }
+    }
+    catch(const std::exception& error) {
+      Mark_Cmd_With_Std_Error (cmd, error);
       return false;
     }
 
    // Activate the collectors
-    CollectorGroup cgrp = exp->FW()->getCollectors();
+    CollectorGroup cgrp;
+    try {
+      cgrp = exp->FW()->getCollectors();
+    }
+    catch(const std::exception& error) {
+      Mark_Cmd_With_Std_Error (cmd, error);
+      return false;
+    }
+
     CollectorGroup::iterator ci = cgrp.begin();
     for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
       Collector c = *ci;
-      ThreadGroup tgrp = c.getThreads();
-      if (!tgrp.empty()) {
-        c.startCollecting();
+      try {
+        ThreadGroup tgrp = c.getThreads();
+        if (!tgrp.empty()) {
+          c.startCollecting();
+        }
+      }
+      catch(const std::exception& error) {
+        Mark_Cmd_With_Std_Error (cmd, error);
+        return false;
       }
     }
 
@@ -788,8 +808,16 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
       }
     }
 
-   // After changing the state of each thread, update that of the ExperimentObject
-    exp->setStatus (ExpStatus_Running);
+   // After changing the state of each thread, wait for the
+   // status of the experiment to change.  This is necessary
+   // because of the asynchronous nature of the FrameWork.
+    InputLineObject *clip = cmd->Clip();
+    CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+    while ((exp->Determine_Status() != ExpStatus_Running) &&
+           (exp->Status() != ExpStatus_Terminated) &&
+           (exp->Status() != ExpStatus_InError)) {
+      usleep (10000);
+    }
   }
 }
 
