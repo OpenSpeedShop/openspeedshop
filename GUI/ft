@@ -14,6 +14,7 @@ then
   echo "    experiment:   loads the exeriment file"
   echo "    pid:          attaches (or plans to attach) to process id"
   echo "    host:         targets processes on host machine, host"
+  echo "    -fn fontname: sets the  font."
   echo "    --help:       This help text."
   exit
 fi
