@@ -21,8 +21,8 @@ pkglib_LTLIBRARIES = posscli.la
 posscli_la_CXXFLAGS =  \
 	-c -LANG:std -fpic \
 	-I. \
+        $(PYTHON_CPPFLAGS) \
 	-I../libopenss-framework \
-	-I/perftools/ROOT/include/python2.3 \
 	-I/usr/include -I. -I../objects -I../base
 
 posscli_la_LDFLAGS = \
@@ -31,7 +31,7 @@ posscli_la_LDFLAGS = \
 	-module \
 	-avoid-version \
 	-L../libopenss-framework \
-	-Wl,/perftools/ROOT/lib/libpython2.3.so \
+        $(PYTHON_LDFLAGS) \
 	-lpthread -lutil -LANG:std -ldl
 
 posscli_la_LIBADD = $(LIBLTDL) -lopenss-framework

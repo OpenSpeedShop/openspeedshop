@@ -149,3 +149,72 @@ AC_DEFUN([AC_PKG_DYNINST], [
     AC_DEFINE(HAVE_DYNINST, 1, [Define to 1 if you have Dyninst.])
 
 ])
+
+
+################################################################################
+# Check for Python (www.python.org)
+################################################################################
+
+AC_DEFUN([AC_PKG_PYTHON], [
+
+    AC_ARG_WITH(python,
+                AC_HELP_STRING([--with-python=DIR],
+                               [PYTHON installation @<:@/usr/bin/python@:>@]),
+                python_dir=$withval, python_dir="/usr")
+
+    AC_CHECK_FILE([$python_dir/include/Python.h], [
+        PYTHON_CPPFLAGS="-I$python_dir/include"
+        PYTHON_LDFLAGS="-Wl,$python_dir/lib/libpython2.3.so"
+    ])
+
+    AC_CHECK_FILE([$python_dir/include/python2.3/Python.h], [
+        PYTHON_CPPFLAGS="-I$python_dir/include/python2.3"
+        PYTHON_LDFLAGS="-Wl,$python_dir/lib/libpython2.3.so"
+    ])
+
+    if test -d "$ROOT"; then
+        AC_CHECK_FILE([$ROOT/include/python2.3/Python.h], [
+            PYTHON_CPPFLAGS="-I$ROOT/include/python2.3"
+            PYTHON_LDFLAGS="-Wl,$ROOT/lib/libpython2.3.so"
+        ])
+    fi
+
+    case "$host" in
+        ia64-*-linux-*)
+            PYTHON_CPPFLAGS="$PYTHON_CPPFLAGS -D__64BIT__"
+            ;;
+    esac
+
+    PYTHON_LIBS=""
+
+    AC_LANG_PUSH(C++)
+
+    python_saved_CPPFLAGS=$CPPFLAGS
+    python_saved_LDFLAGS=$LDFLAGS
+
+    CPPFLAGS="$CPPFLAGS $PYTHON_CPPFLAGS"
+    LDFLAGS="$CXXFLAGS $PYTHON_LDFLAGS $PYTHON_LIBS"
+
+    AC_MSG_CHECKING([for PYTHON client library and headers])
+
+    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+        #include <Python.h>
+        ]], [[
+        PyDoc_STR("xxx");
+        ]]), AC_MSG_RESULT(yes), [ AC_MSG_RESULT(no)
+        AC_MSG_FAILURE(cannot locate PYTHON library and/or headers.) ]
+    )
+
+    CPPFLAGS=$python_saved_CPPFLAGS
+    LDFLAGS=$python_saved_LDFLAGS
+
+    AC_LANG_POP(C++)
+
+    AC_SUBST(PYTHON_CPPFLAGS)
+    AC_SUBST(PYTHON_LDFLAGS)
+    AC_SUBST(PYTHON_LIBS)
+
+    AC_DEFINE(HAVE_PYTHON, 1, [Define to 1 if you have PYTHON.])
+
+])
+
