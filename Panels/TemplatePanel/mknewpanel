@@ -12,7 +12,7 @@ export PLUGIN_GROUPING=$7
 
 usage ()
 {
-  echo "usage: mknewpanel directory panelname \"menu header\" \"menu label\" \"show immediate\" \"grouping\""
+  echo "usage: mknewpanel directory panelname \"menu header\" \"menu label\" \"menu accel\" \"show immediate\" \"grouping\""
   echo "where:"
   echo "  directory:  Is the path to the directory to put the new panel code."
   echo "  panelname:  Is the name of the new panel."
@@ -21,6 +21,15 @@ usage ()
   echo "  menu accel: Is the menu accelerator."
   echo "  show immediate: Default is 0.  Setting this to 1 will display the panel upon initialization."
   echo "  grouping: Which named panel container should this menu item drop this panel by default."
+
+  echo ""
+  echo "Example:"
+  echo "cd .../Panels/TemplatePanel"
+  echo "$ mknewpanel ../TestPanel TestPanel "TestPanel" "Test Panel" \"Cntrl B\" 1 "Performance""
+  echo "vi .../Panels/Makefile.am   << Add TestPanel to this directory list."
+  echo "vi .../../configure.ac   << Add TestPanel to this directory list. Use"
+  echo "                            use CmdPanel as an example."
+  echo "You then need to rebuild from the top level."
   exit
 }
 

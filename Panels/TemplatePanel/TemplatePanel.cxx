@@ -75,7 +75,7 @@ TemplatePanel::TemplatePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
   topPPL->topLevel = TRUE;
 */
 
-  baseWidgetFrame->setCaption("TemplatePanelBaseWidget");
+  getBaseWidgetFrame()->setCaption("TemplatePanelBaseWidget");
 }
 
 
