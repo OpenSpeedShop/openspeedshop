@@ -25,9 +25,37 @@ extern "C"
     printf("              [-a \"command line args\"]\n\n");
     printf("  -f : executable being measured\n");
     printf("  -h : host to locate target executable or process\n");
+    printf("  -x : experiement name\n");
+printf("      o pssamp   - Actual CPU time at the source line, machine instruction,\n");
+printf("                   and function levels by sampling the program counter at\n");
+printf("                   10 or 1-millisecond intervals. See “PC Sampling\n");
+printf("                   Wizard.\n");
+printf("\n");
+printf("      o usertime - Inclusive and exclusive CPU time for each function by\n");
+printf("                   sampling the callstack at 30-millisecond intervals.\n");
+printf("                   See   User Time Wizard.\n");
+printf("\n");
+printf("      o fpe      - All floating-point exceptions, with the exception type\n");
+printf("                   and the call stack at the time of the exception. See\n");
+printf("                   FPE Tracing Wizard.\n");
+printf("\n");
+printf("      o hwc      - Counts at the source line, machine instruction, and\n");
+printf("                   function levels of various hardware events, including:\n");
+printf("                   clock cycles, graduated instructions, primary\n");
+printf("                   instruction cache misses, secondary instruction cache\n");
+printf("                   misses, primary data cache misses, secondary data\n");
+printf("                   cache misses, translation lookaside buffer (TLB)\n");
+printf("                   misses, and graduated floating-point instructions.\n");
+printf("                   See HW Counter Wizard.\n");
+printf("\n");
+printf("      o io       - Traces the following I/O system calls: read, readv,\n");
+printf("                   write, writev, open, close, dup, pipe, creat.\n");
+printf("                   See IO Wizard.\n");
+printf("\n");
+printf("      o mpi      - Traces calls to various MPI routines.\n");
+printf("                   See MPI Wizard.\n");
     printf("  -p : pid of target process\n");
     printf("  -r : rank of \n");
-    printf("  -x : experiement name\n");
     printf("  -a : quoted command line arguments to be passed to executable.\n");
     printf("\n");
     printf("Examples:\n");
@@ -40,6 +68,9 @@ extern "C"
     printf("\n\n");
     printf("  To attach to a running executable:\n");
     printf("  $ openss -p 123456\n");
+    printf("\n\n");
+    printf("  To load an executable to run a simple timing (pcSampling) experiment:\n");
+    printf("  $ openss -f a.out -x pcsamp\n");
   }
   int
   event_routine()

@@ -67,6 +67,23 @@ DESCRIPTION
       Specifies the arguments to be passed to the executable that is being
       run.
 
+EXAMPLES:
+  To start Open/Speedshop simply type:
+  $ openss
+
+
+  To load an executable into Open/Speedshop
+  for eventual capturing of data:
+  $ openss -f a.out
+
+
+  To attach to a running executable:
+  $ openss -p 123456
+
+
+  To load an executable to run a simple timing (pcSampling) experiment:
+  $ openss -f a.out -x pcsamp
+
 
 COMMAND LINE:
     Currently the command line interface is unavailable.
