@@ -29,6 +29,7 @@ ftObjects_la_CXXFLAGS = \
 	-I$(QTDIR)/include \
 	-I. \
 	-I.. \
+	-I../images \
 	-I../base \
 	-I../plugin \
 	-I$(QTDIR)
@@ -37,10 +38,18 @@ ftObjects_la_LDFLAGS = --export-dynamic -module -avoid-version
 
 ftObjects_la_LIBADD = $(LIBLTDL)
 
+moc_AnimatedQPushButton.cxx: AnimatedQPushButton.hxx
+	-moc -o moc_AnimatedQPushButton.cxx AnimatedQPushButton.hxx
+
+moc_ProcessControlObject.cxx: ProcessControlObject.hxx
+	-moc -o moc_ProcessControlObject.cxx ProcessControlObject.hxx
+
 ftObjects_la_SOURCES = \
 	HighlightObject.hxx \
 	ProcessEntryClass.hxx \
 	MessageObject.hxx MessageObject.cxx \
 	SourceObject.hxx SourceObject.cxx \
 	ProcessListObject.hxx ProcessListObject.cxx \
-	OutputObject.hxx OutputObject.cxx
+	OutputObject.hxx OutputObject.cxx \
+	AnimatedQPushButton.hxx AnimatedQPushButton.cxx moc_AnimatedQPushButton.cxx \
+	ProcessControlObject.hxx ProcessControlObject.cxx moc_ProcessControlObject.cxx
