@@ -20,6 +20,7 @@ class PanelContainer;   // Do not remove
 #include <qvaluelist.h>
 #include "HighlightObject.hxx"
 
+#undef PANEL_CLASS_NAME
 #define PANEL_CLASS_NAME SourcePanel   // Change the value of the define
                                          // to the name of your new class.
 //! Source display widget.
