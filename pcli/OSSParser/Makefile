@@ -11,16 +11,17 @@ BOOST_LIBS=-L$(ROOT)/lib  -lboost_python-gcc
 
 GCXX=g++
 
-INCS= $(BOOST_INCLUDE) $(PYTHON_INCLUDE)
+INCS= $(BOOST_INCLUDE) $(PYTHON_INCLUDE) -I../include
 LIBS= $(BOOST_LIBS) $(PYTHON_LIBS)
 
 GCXX_FLAGS=-fPIC -g
 
 LINKFORSHARED=-Xlinker -export-dynamic
 
-all: clitst OSSParser.so
-clitst: describe.hxx parseresult.hxx pyinit.hxx parser.cxx
-	$(GCXX) $(GCXX_FLAGS) -o $@ $(INCS) describe.cxx  parser.cxx $(LIBS) $(LINKFORSHARED) -DSTANDALONE
-
-OSSParser.so: describe.hxx parseresult.hxx pyinit.hxx parser.cxx
+all: OSSParser.so Describe.so
+OSSParser.so: describe.hxx parser.cxx
 	$(GCXX) $(GCXX_FLAGS) -o $@ $(INCS) describe.cxx parser.cxx $(LIBS) $(LINKFORSHARED) -shared
+
+Describe.so: describe.cxx
+	$(GCXX) $(GCXX_FLAGS) -o $@ $(INCS) describe.cxx -DPYTHONMODULE $(LIBS) $(LINKFORSHARED) -shared 
+
