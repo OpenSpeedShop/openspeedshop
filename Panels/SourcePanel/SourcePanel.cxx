@@ -250,18 +250,8 @@ SourcePanel::info()
 {
   nprintf(DEBUG_PANELS) ("SourcePanel::info() called.\n");
 
-  int heightForWidth = textEdit->heightForWidth(80);
-  float lineHeight = (heightForWidth-hscrollbar->height())/(float)lineCount;
-  int scrollFactor = 0;
-  if( lastTop > 0 )
-  {
-    scrollFactor = (int)( lineHeight*(lastTop-1) );
-  }
   QPoint pos = textEdit->mapFromGlobal( QCursor::pos() );
-  if( scrollFactor > 0 )
-  {
-    pos.setY( pos.y() + scrollFactor );
-  }
+  pos.setY( pos.y() + vscrollbar->value() );
 
   int line = whatIsAtPos( pos );
   nprintf(DEBUG_PANELS) ("SourcePanel::info() line=%d\n", line);
