@@ -170,7 +170,7 @@ nprintf(DEBUG_DND) ("Drag panel=(%s)\n", p->getName() );
     TopWidget *topLevelWidget = new TopWidget( 0, "toplevel" );
     
     // Put a PanelContainer in the new toplevel 
-    targetPC = createPanelContainer(topLevelWidget, "outside PC", NULL, sourcePC->_masterPanelContainerList );
+    targetPC = createPanelContainer(topLevelWidget, "outside PC", NULL, sourcePC->getMasterPCList() );
     targetPC->setMasterPC(sourcePC->getMasterPC());
     // Mark the new PanelContainer as s topLevel.
     targetPC->topLevel = TRUE;
@@ -364,7 +364,7 @@ nprintf(DEBUG_DND) ("Drag panel=(%s)\n", p->getName() );
     TopWidget *topLevelWidget = new TopWidget( 0, "toplevel" );
     
     // Put a PanelContainer in the new toplevel 
-    targetPC = createPanelContainer(topLevelWidget, "outside PC", NULL, panelContainer->_masterPanelContainerList );
+    targetPC = createPanelContainer(topLevelWidget, "outside PC", NULL, panelContainer->getMasterPCList() );
     targetPC->setMasterPC(panelContainer->getMasterPC());
     // Mark the new PanelContainer as s topLevel.
     targetPC->topLevel = TRUE;

@@ -63,7 +63,7 @@ UserTimePanel::UserTimePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
                                         "userTimePanelContainerWidget" );
   topPC = createPanelContainer( userTimePanelContainerWidget,
                               "UserTimePanel_topPC", NULL,
-                              pc->_masterPanelContainerList );
+                              pc->getMasterPCList() );
   frameLayout->addWidget( userTimePanelContainerWidget );
 
 printf("Create an Application\n");

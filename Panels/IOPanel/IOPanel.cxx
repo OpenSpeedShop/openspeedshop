@@ -63,7 +63,7 @@ IOPanel::IOPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
                                         "ioPanelContainerWidget" );
   topPC = createPanelContainer( ioPanelContainerWidget,
                               "IOPanel_topPC", NULL,
-                              pc->_masterPanelContainerList );
+                              pc->getMasterPCList() );
   frameLayout->addWidget( ioPanelContainerWidget );
 
 printf("Create an Application\n");

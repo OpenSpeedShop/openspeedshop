@@ -339,7 +339,7 @@ if( fd )
       TopWidget *topWidget = new TopWidget( 0, "toplevel" );
       topWidget->setCaption("toplevel");
         
-      lastTopPC = createPanelContainer( topWidget, pc_name, NULL, lastTopPC->_masterPanelContainerList);
+      lastTopPC = createPanelContainer( topWidget, pc_name, NULL, lastTopPC->getMasterPCList() );
   
       lastTopPC->topLevel = TRUE;
   

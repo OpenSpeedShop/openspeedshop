@@ -63,7 +63,7 @@ FPE_TracingPanel::FPE_TracingPanel(PanelContainer *pc, const char *n) : Panel(pc
                                         "fpeTracingPanelContainerWidget" );
   topPC = createPanelContainer( fpeTracingPanelContainerWidget,
                               "PCSamplingControlPanel_topPC", NULL,
-                              pc->_masterPanelContainerList );
+                              pc->getMasterPCList() );
   frameLayout->addWidget( fpeTracingPanelContainerWidget );
 
 printf("Create an Application\n");

@@ -63,7 +63,7 @@ CreateNewExperimentPanel::CreateNewExperimentPanel(PanelContainer *pc, const cha
                                         "createNewExperimentPanelContainerWidget" );
   topPC = createPanelContainer( createNewExperimentPanelContainerWidget,
                               "CreateNewExperimentPanel_topPC", NULL,
-                              pc->_masterPanelContainerList );
+                              pc->getMasterPCList() );
   frameLayout->addWidget( createNewExperimentPanelContainerWidget );
 
 printf("Create an Application\n");

@@ -21,7 +21,7 @@ PerformancePanel::PerformancePanel(PanelContainer *pc, const char *n) : Panel(pc
   performancePanelContainerWidget = new QWidget( getBaseWidgetFrame(),
                                         "performancePanelContainerWidget" );
   topPC = createPanelContainer( performancePanelContainerWidget,
-                              "Performance", NULL, pc->_masterPanelContainerList );
+                              "Performance", NULL, pc->getMasterPCList() );
   frameLayout->addWidget( performancePanelContainerWidget );
 
 

@@ -53,8 +53,12 @@ class PanelContainer : public QWidget
     //! This routine sets the master PanelContainer.
     void setMasterPC(PanelContainer *pc) { _masterPC = pc; }
 
-    //! A list of all PanelContainers
-    PanelContainerList *_masterPanelContainerList;
+    //! This routine returns the master PanelContainer list.
+    PanelContainerList *getMasterPCList() { return _masterPanelContainerList; }
+
+    //! This routine sets the master PanelContainer list.
+    void setMasterPCList(PanelContainerList *mpcl)
+                                    { _masterPanelContainerList = mpcl; }
 
     //! Flag to enable disable event processing.
     bool _eventsEnabled;
@@ -277,6 +281,9 @@ QPopupMenu *contextMenu;
         disabling events, delete or removing other PanelContainers are to 
         be done by the master.   */
     PanelContainer *_masterPC;
+
+    //! A list of all PanelContainers
+    PanelContainerList *_masterPanelContainerList;
 
     //! The number of panel containers that have been created.
     /*! This is used to generate the internal panel container name. */

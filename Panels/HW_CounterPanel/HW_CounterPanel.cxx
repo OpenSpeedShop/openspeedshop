@@ -63,7 +63,7 @@ HW_CounterPanel::HW_CounterPanel(PanelContainer *pc, const char *n) : Panel(pc, 
                                         "hwCounterPanelContainerWidget" );
   topPC = createPanelContainer( hwCounterPanelContainerWidget,
                               "HwCounterPanel_topPC", NULL,
-                              pc->_masterPanelContainerList );
+                              pc->getMasterPCList() );
   frameLayout->addWidget( hwCounterPanelContainerWidget );
 
 printf("Create an Application\n");

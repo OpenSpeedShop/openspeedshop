@@ -64,7 +64,7 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
                                         "pcSampleControlPanelContainerWidget" );
   topPC = createPanelContainer( pcSampleControlPanelContainerWidget,
                               "PCSamplingControlPanel_topPC", NULL,
-                              pc->_masterPanelContainerList );
+                              pc->getMasterPCList() );
   frameLayout->addWidget( pcSampleControlPanelContainerWidget );
 
 printf("Create an Application\n");
