@@ -612,9 +612,8 @@ void Process::terminateNow()
  * information is created (or existing information reused) for each linked
  * object that is located.
  *
- * @todo    Since multiple calls to processSymbols() can take a good amount
- *          of time, parallelizing those calls represents a good opportunity
- *          to improve performance.
+ * @todo    DPCL provides some amount of call site information. Processing this
+ *          needs to be added once the CallSite object is properly defined.
  *
  * @todo    Currently the criteria for reusing symbol information from an
  *          existing linked object is if the path names of the linked objects
@@ -622,6 +621,10 @@ void Process::terminateNow()
  *          objects with the same name but different contents. For example, two
  *          different versions of "/lib/ld-linux.so.2". In order to address this
  *          shortcoming, a checksum (or similar) should also be compared.
+ *
+ * @todo    Since multiple calls to the processXYZ() functions can take a good
+ *          amount of time, parallelizing those calls represents an opportunity
+ *          to improve performance.
  *
  * @param thread    Thread within this process to be updated.
  * @param when      Time at which update occured.
@@ -752,8 +755,19 @@ void Process::updateAddressSpace(const Thread& thread, const Time& when)
 	    while(database->executeStatement());
 	    linked_object = database->getLastInsertedUID();
 	    
-	    // Process the symbol information
-	    processSymbols(thread, linked_object, i->first, i->second.second);
+	    // Iterate over each module in this linked object
+	    for(std::vector<SourceObj>::iterator
+		    j = i->second.second.begin(); 
+		j != i->second.second.end();
+		++j) {
+		
+		// Process the function information for this module
+		processFunctions(thread, linked_object, i->first, *j);
+		
+		// Process the statement information for this module
+		processStatements(thread, linked_object, i->first, *j);
+		
+	    }
 	    
 	}
 	
@@ -780,104 +794,195 @@ void Process::updateAddressSpace(const Thread& thread, const Time& when)
 
 
 /**
- * Process symbol information.
+ * Process function information.
  *
- * Processes symbol information for the specified executable or shared library.
- * DPCL is queried for the functions, source statements, and call sites that
- * were found within the linked object. This information is filled into the
- * database for the specified thread.
- *
- * @todo    DPCL does not currently provide complete source statement or call
- *          site information. For now we process only the function information.
- *          Source statement and call site processing needs to be added.
+ * Process function information for the specified source object. DPCL is queried
+ * for each function's address range and demangled name. This information is
+ * filled into the database for the specified thread.
  *
  * @param thread           Thread that contains the linked object.
  * @param linked_object    Entry (id) for the linked object.
  * @param range            Address range occupied.
- * @param objects          Source object list.
+ * @param object           Source object.
  */
-void Process::processSymbols(const Thread& thread,
-			     const int& linked_object,
-			     const AddressRange& range,
-			     std::vector<SourceObj>& objects)
+void Process::processFunctions(const Thread& thread,
+			       const int& linked_object,
+			       const AddressRange& range,
+			       SourceObj& object)
 {
+    // Ask DPCL to expand this (module) source object
+    MainLoop::suspend();
+    AisStatus retval = object.bexpand(*dm_process);
+    Assert(retval.status() == ASC_success);
+    MainLoop::resume();
+    
     // Begin a transaction on this thread's database
     SmartPtr<Database> database = ThreadSpy(thread).getDatabase();
     BEGIN_TRANSACTION(database);
     
-    // Iterate over each (module) source object
-    for(std::vector<SourceObj>::iterator
-	    i = objects.begin(); i != objects.end(); ++i) {
+    // Iterate over each child of this source object
+    for(int i = 0; i < object.child_count(); ++i) {
+	SourceObj child = object.child(i);
 	
-	// Ask DPCL to expand this (module) source object
-	MainLoop::suspend();
-	AisStatus retval = i->bexpand(*dm_process);
-	Assert(retval.status() == ASC_success);
-	MainLoop::resume();
-	
-	// Iterate over each child of this module
-	for(unsigned j = 0; j < i->child_count(); ++j) {
-	    SourceObj child = i->child(j);
+	// Is this child a function object?
+	if(child.src_type() == SOT_function) {
 	    
-	    // Is this child a function object?
-	    if(child.src_type() == SOT_function) {
+	    // Get the start/end address of the function
+	    Address start = Address(child.address_start()) - range.getBegin();
+	    Address end = Address(child.address_end()) - range.getBegin();
+	    
+	    // Get the demangled name of the function
+	    char name[child.get_demangled_name_length() + 1];
+	    child.get_demangled_name(name, sizeof(name));
+	    
+	    // Create a function entry for this function
+	    database->prepareStatement(
+		"INSERT INTO Functions"
+		" (linked_object, addr_begin, addr_end, name)"
+		" VALUES (?, ?, ?, ?);"
+		);
+	    database->bindArgument(1, linked_object);
+	    database->bindArgument(2, start);
+	    database->bindArgument(3, end);
+	    database->bindArgument(4, name);
+	    while(database->executeStatement());	
+	    
+	    // Is this the sleep() function? 
+	    if(strcmp(name, "__sleep") == 0) {
+		Guard guard_myself(this);
 		
-		// Get the start/end address of the function
-		Address start = 
-		    Address(child.address_start()) - range.getBegin();
-		Address end = Address(child.address_end()) - range.getBegin();
+		// Squirrel away a probe expression reference to sleep()
+		delete dm_sleep_exp;
+		dm_sleep_exp = new ProbeExp(child.reference());
 		
-		// Get the demangled name of the function
-		char name[child.get_demangled_name_length() + 1];
-		child.get_demangled_name(name, sizeof(name));
+		// Locate the entry point to sleep()
+		for(int i = 0; i < child.exclusive_point_count(); ++i) {
+		    InstPoint pt = child.exclusive_point(i);
+		    if(pt.get_type() == IPT_function_entry) {
+
+			// Squirrel away the entry point to sleep()
+			delete dm_sleep_entry;
+			dm_sleep_entry = new InstPoint(pt);
+
+		    }
+			
+		}
+
+		// Check assertions
+		Assert(dm_sleep_exp != NULL);
+		Assert(dm_sleep_entry != NULL);
+
+	    }
 		
-		// Create a function entry for this function
+	}
+	    
+    }
+
+    // End the transaction on this thread's database
+    END_TRANSACTION(database);
+}
+
+
+
+/**
+ * Process statement information.
+ *
+ * Process statement information for the specified source object. DPCL is
+ * queried for each statement's source file, line number, column number, and
+ * list of addresses. This information is filled into the database for the
+ * specified thread.
+ *
+ * @param thread           Thread that contains the linked object.
+ * @param linked_object    Entry (id) for the linked object.
+ * @param range            Address range occupied.
+ * @param object           Source object.
+ */
+void Process::processStatements(const Thread& thread,
+				const int& linked_object,
+				const AddressRange& range,
+				SourceObj& object) const
+{
+#ifdef DISABLE_PROCESSING_STATEMENT_INFORMATION
+
+    // Ask DPCL for the statements in this (module) source object
+    MainLoop::suspend();
+    AisStatus retval;
+    StatementInfoList* statements =
+	object.bget_all_statements(*dm_process, &retval);
+    Assert(statements != NULL);
+    Assert(retval.status() == ASC_success);
+    MainLoop::resume();
+
+    // Begin a transaction on this thread's database
+    SmartPtr<Database> database = ThreadSpy(thread).getDatabase();
+    BEGIN_TRANSACTION(database);
+    
+    // Iterate over each source file of this module
+    for(int i = 0; i < statements->get_count(); ++i) {
+	StatementInfo info = statements->get_entry(i);
+	
+	// Is there an existing source file in the database?
+	Optional<int> file;
+	database->prepareStatement("SELECT id FROM Files WHERE path = ?;");
+	database->bindArgument(1, info.get_filename());
+	while(database->executeStatement())
+	    file = database->getResultAsInteger(1);
+
+	// Create the file entry if it isn't present in the database
+	if(!file.hasValue()) {
+	    database->prepareStatement(
+		"INSERT INTO Files (path) VALUES (?);"
+		);
+	    database->bindArgument(1, info.get_filename());
+	    while(database->executeStatement());
+	    int file = database->getLastInsertedUID();	    
+	}
+	
+	// Iterate over each statement in this source file
+	for(int j = 0; j < info.get_line_count(); ++j) {
+	    StatementInfoLine line = info.get_line_entry(j);
+	    
+	    // Create the statement entry
+	    database->prepareStatement(
+		"INSERT INTO Statements (file, line, column) VALUES (?, ?, ?);"
+		);
+	    database->bindArgument(1, file.getValue());
+	    database->bindArgument(2, line.get_line());
+	    database->bindArgument(3, line.get_column());
+	    while(database->executeStatement());
+	    int statement = database->getLastInsertedUID();
+
+	    // Iterate over each address range in this statement
+	    for(int k = 0; k < line.get_address_count(); ++k) {
+		AddressRange statement_range(
+		    Address(line.get_address_entry(k)) - range.getBegin()
+		    );
+		
+		// Create the statement range entry
 		database->prepareStatement(
-		    "INSERT INTO Functions"
-		    " (linked_object, addr_begin, addr_end, name)"
+		    "INSERT INTO StatementRanges"
+		    " (statement, linked_object, addr_begin, addr_end)"
 		    " VALUES (?, ?, ?, ?);"
 		    );
-		database->bindArgument(1, linked_object);
-		database->bindArgument(2, start);
-		database->bindArgument(3, end);
-		database->bindArgument(4, name);
-		while(database->executeStatement());	
+		database->bindArgument(1, statement);
+		database->bindArgument(2, linked_object);
+		database->bindArgument(3, statement_range.getBegin());
+		database->bindArgument(4, statement_range.getEnd());
+		while(database->executeStatement());
 
-		// Is this the sleep() function? 
-		if(strcmp(name, "__sleep") == 0) {
-		    Guard guard_myself(this);
-		    
-		    // Squirrel away a probe expression reference to sleep()
-		    delete dm_sleep_exp;
-		    dm_sleep_exp = new ProbeExp(child.reference());
-
-		    // Locate the entry point to sleep()
-		    for(int i = 0; i < child.exclusive_point_count(); ++i) {
-			InstPoint pt = child.exclusive_point(i);
-			if(pt.get_type() == IPT_function_entry) {
-
-			    // Squirrel away the entry point to sleep()
-			    delete dm_sleep_entry;
-			    dm_sleep_entry = new InstPoint(pt);
-
-			}
-			
-		    }
-
-		    // Check assertions
-		    Assert(dm_sleep_exp != NULL);
-		    Assert(dm_sleep_entry != NULL);
-
-		}
-		
 	    }
-	    
-	}
 
+	}
+	
     }
     
-    // End the transaction on the specified database
-    END_TRANSACTION(database);
+    // End the transaction on this thread's database
+    END_TRANSACTION(database);    
+    
+    // Destroy the statement information returned by DPCL
+    delete statements;    
+
+#endif
 }
 
 

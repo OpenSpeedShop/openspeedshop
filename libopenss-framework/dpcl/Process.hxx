@@ -85,9 +85,13 @@ namespace OpenSpeedShop { namespace Framework {
 	
 	void completeStateChange();
 	void terminateNow();
+
 	void updateAddressSpace(const Thread&, const Time&);
-	void processSymbols(const Thread&, const int&, const AddressRange&,
-			    std::vector<SourceObj>&);
+	void processFunctions(const Thread&, const int&,
+			      const AddressRange&, SourceObj&);	
+	void processStatements(const Thread&, const int&,
+			       const AddressRange&, SourceObj&) const;
+	
 	void loadLibrary(const std::string&);
 	void unloadLibrary(const std::string&);
 	void execute(const std::string&, const std::string&, const Blob&);
