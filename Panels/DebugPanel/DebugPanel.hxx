@@ -24,12 +24,10 @@ class DebugPanel  : public Panel
     DebugPanel();
 
     //! DebugPanel(PanelContainer *pc, const char *name)
-    DebugPanel(PanelContainer *pc, const char *n); // Active constructor
+    DebugPanel(PanelContainer *pc, const char *n, char *argument);
 
     //! ~DebugPanel() - The default destructor.
     ~DebugPanel();  // Active destructor
-
-    PanelContainer *panelContainer;
 
     //! Adds use panel menus (if any).
     bool menu(QPopupMenu* contextMenu);

@@ -22,17 +22,13 @@ DebugPanel::DebugPanel()
 { // Unused... Here for completeness...
   fprintf(stderr, "DebugPanel::DebugPanel() should not be called.\n");
   fprintf(stderr, "see: DebugPanel::DebugPanel(PanelContainer *pc, const char *n)\n");
-
-  panelContainer = NULL;
 }
 
 
 /*! This constructor.
  */
-DebugPanel::DebugPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
+DebugPanel::DebugPanel(PanelContainer *pc, const char *n, char *argument) : Panel(pc, n)
 {
-  panelContainer = pc;
-
   setCaption("DebugPanel");
   frameLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
@@ -440,11 +436,11 @@ DebugPanel::applyButtonSelected()
 void
 DebugPanel::debugPanelContainerTreeButtonSelected()
 {
-  panelContainer->debugPanelContainerTree();
+  getPanelContainer()->getMasterPC()->debugPanelContainerTree();
 }
 
 void
 DebugPanel::debugAllWidgetsButtonSelected()
 {
-  panelContainer->debugAllWidgets();
+  getPanelContainer()->getMasterPC()->debugAllWidgets();
 }

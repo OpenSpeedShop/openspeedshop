@@ -20,7 +20,7 @@ class CmdPanel  : public Panel
   Q_OBJECT
 public:
   CmdPanel();  // Default construct
-  CmdPanel(PanelContainer *pc, const char *n); // Active constructor
+  CmdPanel(PanelContainer *pc, const char *n, char *argument);
   ~CmdPanel();  // Active destructor
 
 protected slots:

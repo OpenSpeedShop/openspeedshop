@@ -41,7 +41,7 @@ class PluginInfo {
 
     /*! This gets called on the main menu callback to create
         and add each type of panel. */
-    Panel * (*dl_create_and_add_panel)(void *, void *targetPC=NULL);
+    Panel * (*dl_create_and_add_panel)(void *, void *targetPC=NULL, void *arguments=NULL);
 
     //! This will handle the menu callback.
     SlotInfo *slotInfo;

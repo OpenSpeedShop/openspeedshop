@@ -86,7 +86,7 @@ class PanelContainer : public QWidget
 
     //! Used to launch a plugin's Panel entry.
     //    int dl_create_and_add_panel(char *panel_type);
-    Panel *dl_create_and_add_panel(char *panel_type, PanelContainer *targetPC=NULL);
+    Panel *dl_create_and_add_panel(char *panel_type, PanelContainer *targetPC=NULL, char *arguments=NULL);
 
     //! The parent PanelContainer of this pa
     PanelContainer *parentPanelContainer;
@@ -143,8 +143,8 @@ class PanelContainer : public QWidget
     //! Notify all decendants of a message.
     int notifyAllDecendants(char *msg, PanelContainer *targetPC);
 
-//! Internal routine that does the actual walking of the decendant's tree
-void _notifyAllDecendants(char *msg, PanelContainer *targetPC);
+  //! Internal routine that does the actual walking of the decendant's tree
+  void _notifyAllDecendants(char *msg, PanelContainer *targetPC);
 
     //! Notify all Panels of a particular message.
     int notifyAll(char *msg);
@@ -231,6 +231,18 @@ Panel *findNamedPanel(PanelContainer *start_pc, char *panel_name);
     //! This routine drags a the current (raised) Panel.
     void dragRaisedPanel();
 
+    //! Sets the main window (OpenSpeedshop class)
+    void setMainWindow(OpenSpeedshop *oss) { _masterPC->mainWindow = oss; };
+
+    //! Returns the main window (OpenSpeedshop class) 
+    OpenSpeedshop *getMainWindow() { return _masterPC->mainWindow; };
+
+    //! Moves give panel to targetPC.
+    void movePanel( Panel *p, QWidget *currentPage, PanelContainer *targetPC );
+
+    //! Hide the panel (remove from tabWidget)
+    void hidePanel(Panel *p);
+
     //! This routine is called (for debugging) to dump the PanelContainer tree.
     void debugPanelContainerTree();
 
@@ -250,21 +262,11 @@ Panel *findNamedPanel(PanelContainer *start_pc, char *panel_name);
     //! This routine removes the current (raised) Panel.
     void removeRaisedPanel(PanelContainer *pc=NULL);
 
+    //! This routine calls all the top level panel containers and deletes them.
+    void closeAllExternalPanelContainers();
+
     //! This routine closes the empty PanelContainer and window.
     void closeWindow(PanelContainer *pc=NULL);
-
-
-    //! Sets the main window (OpenSpeedshop class)
-    void setMainWindow(OpenSpeedshop *oss) { _masterPC->mainWindow = oss; };
-
-    //! Returns the main window (OpenSpeedshop class) 
-    OpenSpeedshop *getMainWindow() { return _masterPC->mainWindow; };
-
-    //! Moves give panel to targetPC.
-    void movePanel( Panel *p, QWidget *currentPage, PanelContainer *targetPC );
-
-    //! Hide the panel (remove from tabWidget)
-    void hidePanel(Panel *p);
 
   protected:
 

@@ -39,7 +39,7 @@ ConstructNewExperimentPanel::ConstructNewExperimentPanel()
     \param pc    The panel container the panel will initially be attached.
     \param n     The initial name of the panel container
  */
-ConstructNewExperimentPanel::ConstructNewExperimentPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
+ConstructNewExperimentPanel::ConstructNewExperimentPanel(PanelContainer *pc, const char *n, char *argument) : Panel(pc, n)
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("ConstructNewExperimentPanel::ConstructNewExperimentPanel() constructor called\n");
 

@@ -19,7 +19,7 @@ CmdPanel::CmdPanel()
 }
 
 
-CmdPanel::CmdPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
+CmdPanel::CmdPanel(PanelContainer *pc, const char *n, char *argument) : Panel(pc, n)
 {
   nprintf(DEBUG_CONST_DESTRUCT) ( "CmdPanel::CmdPanel() constructor called.\n");
   frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );

@@ -131,12 +131,12 @@ register_plugin(QWidget *pl, char *plugin_file, PanelContainer *masterPC)
   // call the entry point routine passing it a couple of void pointers (the
   // called routine will need to cast these appropriately.)
   // The first parameter is to the parent tools, parent class.   The second
-  // parameter is a PluginInfo object, which contains all the know
+  // parameter is a PluginInfo object, which contains all the known
   // information about the plugin that is being loaded.
   dprintf("\tlibdso: dynamic routine returned %d\n", i);
 
   i = (*dl_routine)((void *)pl, (void *)pluginInfo);
-  pluginInfo->dl_create_and_add_panel = (Panel * (*)(void *, void *))dlsym(dl_object, "create_and_add_panel" );
+  pluginInfo->dl_create_and_add_panel = (Panel * (*)(void *, void *, void *))dlsym(dl_object, "create_and_add_panel" );
   if( pluginInfo->dl_create_and_add_panel == NULL )
   {
 //    fprintf(stderr, "libdso: dlsym %s not found dlerror()=%s\n", pluginInfo->plugin_entry_point, dlerror() );

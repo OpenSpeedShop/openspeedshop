@@ -265,8 +265,7 @@ PanelContainer::PanelContainer( QWidget* _parent, const char* n, PanelContainer 
 */
 PanelContainer::~PanelContainer()
 {
-  nprintf(DEBUG_CONST_DESTRUCT) ("->>>>    PanelContainer::~PanelContainer(%s-%s) destructor called.\n",
-    getInternalName(), getExternalName() );
+  nprintf(DEBUG_CONST_DESTRUCT) ("->>>> 0x%x   PanelContainer::~PanelContainer(%s-%s) destructor called.\n", this, getInternalName(), getExternalName() );
 
   menuEnabled = FALSE;
 
@@ -467,7 +466,7 @@ PanelContainer::split(Orientation orientation, bool showRight, int leftSidePerce
   // and move the remaining panels to the right/bottom panel container.
   if( sourcePC->areTherePanels() )
   {
-    if( sourcePC->panelList.count() > 1 ) 
+    if( sourcePC->panelList.count() > 1 && sourcePC->tabWidget->count() > 1 ) 
     {
       rightPanelContainer->movePanelsToNewPanelContainer( sourcePC );
       leftPanelContainer->moveCurrentPanelToNewPanelContainer( rightPanelContainer );
@@ -539,19 +538,23 @@ PanelContainer::getRaisedPanel()
              ++it )
     {
       p = (Panel *)*it;
-#ifndef OLDWAY
+#ifdef OLDWAY
 int indexOf = tabWidget->indexOf(p->getBaseWidgetFrame());
 if( indexOf == -1 )
 {
   continue;
 }
-#endif  // OLDWAY
+if( indexOf == currentPageIndex )
+{
+nprintf(DEBUG_PANELCONTAINERS) ("found the raised panel (%s)\n", p->getName() );
+  return p;
+}
+#else // OLDWAY
       if( i == currentPageIndex )
       {
         nprintf(DEBUG_PANELCONTAINERS) ("found the raised panel (%s)\n", p->getName() );
         return p;
       }
-#ifdef OLDWAY
       i++;
 #endif // OLDWAY
     }
@@ -1258,7 +1261,7 @@ PanelContainer::addPanel(Panel *p, PanelContainer *panel_container, char *tab_na
 
   if( panel_container->leftPanelContainer && panel_container->rightPanelContainer )
   {
-    printf("Internal Warning: PC:addPanel() You can't add this to this panelContainer!  It's split!\n");
+    fprintf(stderr, "Internal Warning: PC:addPanel() You can't add this to this panelContainer!  It's split!\n");
     // start_pc = panel_container->findBestFitPanelContainer(start_pc);
     return NULL;
   }
@@ -1278,10 +1281,6 @@ PanelContainer::addPanel(Panel *p, PanelContainer *panel_container, char *tab_na
   // Add the panel to the iterator list.   This list (panelList) aids us
   // when cleaning up PanelContainers.  We'll just loop over this list
   // deleting all the panels.
-  // Note: This needs to work with Panel->removePanel(),
-  // i.e. Panel->removePanel(), will need to call:
-  //  PanelContainer::removePanel(int panel_index) to have the panel and
-  // it's location in the iterator list removed.
   nprintf(DEBUG_PANELCONTAINERS) ("PanelContinaer::addPanel() push_back() it!\n");
   start_pc->panelList.push_back(p);
 
@@ -2060,16 +2059,58 @@ PanelContainer::removePanelContainer(PanelContainer *targetPC)
   return;
 }
 
+/*! Exit routine to recursively delete all panel containers and their
+    associated panels. 
+ */
+void
+PanelContainer::closeAllExternalPanelContainers()
+{
+  nprintf(DEBUG_PANELCONTAINERS) ("closeAllExternalPanelContainers() entered.\n");
+  PanelContainerList topLevelPanelContainersToDeleteList;
+  topLevelPanelContainersToDeleteList.clear();
+
+  PanelContainer *pc = NULL;
+  for( PanelContainerList::Iterator it = _masterPanelContainerList->begin();
+               it != _masterPanelContainerList->end();
+               it++ )
+  {
+    pc = (PanelContainer *)*it;
+    if( pc->topLevel == TRUE )
+    {
+      // Don't close the masterPC here.  It can only be closed from
+      // OpenSpeedShop::fileExit().
+      if( strcmp(pc->getExternalName(),"masterPC") != 0 )
+      { 
+        topLevelPanelContainersToDeleteList.push_back(pc);
+      }
+    }
+  }
+
+  if( !topLevelPanelContainersToDeleteList.empty() )
+  {
+    for( PanelContainerList::Iterator it = topLevelPanelContainersToDeleteList.begin();
+               it != topLevelPanelContainersToDeleteList.end();
+               it++ )
+    {
+      pc = (PanelContainer *)*it;
+      nprintf(DEBUG_PANELCONTAINERS) ("attempt to close window %s-%s\n", pc->getInternalName(), pc->getExternalName() );
+      getMasterPC()->closeWindow(pc);
+    }
+  }
+  nprintf(DEBUG_PANELCONTAINERS) ("Finished gracefully cleaning up and closing all toplevel pc.\n");
+}
+
 /*! Delete the empty PanelContainer and close the window. */
 void
 PanelContainer::closeWindow(PanelContainer *targetPC)
 {
   if( targetPC == NULL )
   {
+    fprintf(stderr, "WARNING: PanelContainer::closeWindow() no targetPC!\n");
     targetPC = getMasterPC()->_lastPC;
   }
 
-  nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::closeWindow (%s-%s)\n", targetPC->getInternalName(), targetPC->getExternalName() );
+  nprintf(DEBUG_PANELCONTAINERS)  ("PanelContainer::closeWindow 0x%x (%s-%s)\n", targetPC, targetPC->getInternalName(), targetPC->getExternalName() );
 
   targetPC->getMasterPC()->removePanelContainer(targetPC);
 
@@ -2189,7 +2230,7 @@ PanelContainer::setExternalName( const char *n )
 */
 #include "MessageObject.hxx"
 Panel *
-PanelContainer::dl_create_and_add_panel(char *panel_type, PanelContainer *targetPC)
+PanelContainer::dl_create_and_add_panel(char *panel_type, PanelContainer *targetPC, char *arguments)
 {
   if( getMasterPC() && getMasterPC()->_pluginRegistryList )
   {
@@ -2202,8 +2243,8 @@ PanelContainer::dl_create_and_add_panel(char *panel_type, PanelContainer *target
       if( strcmp(pi->panel_type, panel_type) == 0 )
       {
         nprintf(DEBUG_PANELCONTAINERS) ("HE SHOOTS!   HE SCORES!\n");
-        Panel *p = (*(pi->dl_create_and_add_panel))((void *)pi, targetPC);
-p->show();
+        Panel *p = (*(pi->dl_create_and_add_panel))((void *)pi, targetPC, arguments);
+        p->show();
         return p;
       }
     }
@@ -2238,6 +2279,7 @@ createPanelContainer( QWidget* parent, const char* name, PanelContainer *parentP
     Given a source PanelContainer, look for Panels there and move them 
     to 'this' (targetPC) PanelContainer.
 */
+#define DELETEHIDDENPANELS 1
 void
 PanelContainer::movePanelsToNewPanelContainer( PanelContainer *sourcePC)
 {
@@ -2263,7 +2305,7 @@ PanelContainer::movePanelsToNewPanelContainer( PanelContainer *sourcePC)
   QWidget *widget_to_reparent = currentPage;
   int original_index = sourcePC->tabWidget->currentPageIndex();
 
-  nprintf(DEBUG_PANELCONTAINERS) ("I think there are %d panels to move ", sourcePC->tabWidget->count() );
+  nprintf(DEBUG_PANELCONTAINERS) ("I think there are %d panels to move original_index=%d", sourcePC->tabWidget->count(), original_index );
  
   nprintf(DEBUG_PANELCONTAINERS) ("onto targetPC=(%s)\n", targetPC->getInternalName() );
 
@@ -2290,6 +2332,10 @@ PanelContainer::movePanelsToNewPanelContainer( PanelContainer *sourcePC)
   // Just to make sure the targetPC has an empty panelList
   targetPC->panelList.clear();
 
+#ifdef DELETEHIDDENPANELS
+  PanelList panelListToDelete;
+#endif // DELETEHIDDENPANELS
+
   if( !sourcePC->panelList.empty() )
   {
     int i = 0;
@@ -2300,39 +2346,91 @@ PanelContainer::movePanelsToNewPanelContainer( PanelContainer *sourcePC)
     {
       Panel *p = (Panel *)*pit;
       nprintf(DEBUG_PANELCONTAINERS) ("  try to move p (%s)\n", p->getName() );
+#ifndef DELETEHIDDENPANELS
       widget_to_reparent = currentPage = sourcePC->tabWidget->page(i);
+#else // DELETEHIDDENPANELS
+      int indexOf = sourcePC->tabWidget->indexOf(p->getBaseWidgetFrame());
+      if( indexOf == -1 )
+      {
+        nprintf(DEBUG_PANELCONTAINERS) ("p->getName(%s) is hidden.\n", p->getName() );
+        widget_to_reparent = currentPage = NULL;
+#ifdef DELETEHIDDENPANELS
+        panelListToDelete.push_back(p);
+        continue;
+#endif // DELETEHIDDENPANELS
+      } else
+      {
+        nprintf(DEBUG_PANELCONTAINERS)("try to move p (%s)\n", p->getName() );
+        widget_to_reparent = currentPage = sourcePC->tabWidget->page(indexOf);
+      }
+#endif // DELETEHIDDENPANELS
+      nprintf(DEBUG_PANELCONTAINERS) ("widget_to_reparent=0x%x\n", widget_to_reparent );
       QWidget *panel_base = (QWidget *)p;
       p->setPanelContainer(targetPC);
       p->getBaseWidgetFrame()->setPanelContainer(targetPC);
       p->getBaseWidgetFrame()->reparent(targetPC->dropSiteLayoutParent, 0,
                                    point, TRUE);
       panel_base->reparent((QWidget *)targetPC, 0, point, TRUE);
+#ifndef DELETEHIDDENPANELS
       widget_to_reparent->reparent(targetPC->tabWidget, 0, point, TRUE);
       targetPC->tabWidget->addTab( currentPage, p->getName() );
-
       targetPC->augmentTab(currentPage);
+#else // DELETEHIDDENPANELS
+      if( widget_to_reparent )
+      { 
+        widget_to_reparent->reparent(targetPC->tabWidget, 0, point, TRUE);
+        targetPC->tabWidget->addTab( currentPage, p->getName() );
+        targetPC->augmentTab(currentPage);
+      }
+#endif // DELETEHIDDENPANELS
+
 
       {
       TabBarWidget *tbw = (TabBarWidget *)targetPC->tabWidget->tabBar();
       tbw->setPanelContainer(targetPC);
       }
       targetPC->panelList.push_back(p);
+#ifndef DELETEHIDDENPANELS
       p->getBaseWidgetFrame()->show();
       targetPC->dropSiteLayoutParent->show();
       sourcePC->tabWidget->removePage(currentPage);
+#else // DELETEHIDDENPANELS
+      targetPC->dropSiteLayoutParent->show();
+      if( widget_to_reparent )
+      { 
+        p->getBaseWidgetFrame()->show();
+        sourcePC->tabWidget->removePage(currentPage);
+      } else
+      {
+        p->getBaseWidgetFrame()->hide();
+      }
+#endif // DELETEHIDDENPANELS
     }
     sourcePC->dropSiteLayoutParent->hide();
     targetPC->handleSizeEvent(NULL);
   }
 
   int count = targetPC->tabWidget->count();
-  nprintf(DEBUG_PANELCONTAINERS) ("we've moved %d panels\n", count);
+  nprintf(DEBUG_PANELCONTAINERS) ("we've moved %d tabs and %d panels\n", count, sourcePC->panelList.count() );
   if( count > 0 )
   {
+    nprintf(DEBUG_PANELCONTAINERS) ("try to raise (and showPage?) original_index=%d\n", original_index);
     targetPC->tabWidget->setCurrentPage(original_index);
   }
 
   sourcePC->panelList.clear();
+
+#ifdef DELETEHIDDENPANELS
+  // Now delete any panels that were hidden.
+  for( PanelList::Iterator pit = panelListToDelete.begin();
+         pit != panelListToDelete.end();
+         ++pit )
+  {
+    Panel *p = (Panel *)*pit;
+    deletePanel(p, targetPC);
+  }
+  panelListToDelete.clear();
+#endif // DELETEHIDDENPANELS
 
   nprintf(DEBUG_PANELCONTAINERS) ("\n\n\n");
 }
@@ -2372,7 +2470,6 @@ PanelContainer::moveCurrentPanelToNewPanelContainer( PanelContainer *sourcePC )
   nprintf(DEBUG_PANELCONTAINERS) ("I think there are %d panels to move ", sourcePC->tabWidget->count() );
  
   nprintf(DEBUG_PANELCONTAINERS) ("onto targetPC=(%s)\n", targetPC->getInternalName() );
-printf ("onto targetPC=(%s)\n", targetPC->getInternalName() );
 
   QWidget *w = targetPC->dropSiteLayoutParent;
 
@@ -2569,14 +2666,16 @@ PanelContainer::printPanelContainer(int depth)
   if( leftPanelContainer && rightPanelContainer )
   {
     indentString(depth,indent_buffer);
-    printf("%s(%s-%s) o=%d w=%d h=%d mfd=%s menuEnabled=%d depth=%d\n",
+    printf("0x%x %s(%s-%s) o=%d w=%d h=%d mfd=%s menuEnabled=%d depth=%d\n",
+       this,
        indent_buffer, getInternalName(), getExternalName(),
        splitter->orientation(), width(), height(),
        markedForDelete ? "mfd" : "---", menuEnabled, _depth );
   } else if( !leftPanelContainer && !rightPanelContainer )
   {
     indentString(depth,indent_buffer);
-    printf("%s(%s-%s) o=%d w=%d h=%d mfd=%s menuEnabled=%d depth=%d\n",
+    printf("0x%x %s(%s-%s) o=%d w=%d h=%d mfd=%s menuEnabled=%d depth=%d\n",
+      this,
       indent_buffer, getInternalName(), getExternalName(),
       splitter->orientation(), width(), height(),
       markedForDelete ? "mfd" : "---", menuEnabled, _depth );

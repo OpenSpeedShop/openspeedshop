@@ -50,7 +50,7 @@ public:
         This is where the user would create the panel specific Qt code
         to do whatever functionality the user wanted the panel to perform.
      */
-  HW_CounterWizardPanel(PanelContainer *pc, const char *n); // Active constructor
+  HW_CounterWizardPanel(PanelContainer *pc, const char *n, char *argument);
 
   //! ~HW_CounterWizardPanel() - The default destructor.
   ~HW_CounterWizardPanel();  // Active destructor
@@ -92,7 +92,7 @@ public:
     QWidget* vDescriptionPageWidget;
     QLabel* vDescriptionPageTitleLabel;
     QTextEdit* vDescriptionPageText;
-    QPushButton* vDescriptionPageStartButton;
+    QPushButton* vDescriptionPageIntroButton;
     QPushButton* vDescriptionPageNextButton;
     QWidget* vParameterPageWidget;
     QLabel* vParameterPageDescriptionLabel;
@@ -118,7 +118,7 @@ QPushButton *vAttachOrLoadPageResetButton;
     QWidget* eDescriptionPageWidget;
     QLabel* eDescriptionPageTitleLabel;
     QLabel* eDescriptionPageText;
-    QPushButton* eDescriptionPageStartButton;
+    QPushButton* eDescriptionPageIntroButton;
     QPushButton* eDescriptionPageNextButton;
     QWidget* eParameterPageWidget;
     QLabel* eParameterPageDescriptionLabel;
@@ -146,7 +146,7 @@ QPushButton *eAttachOrLoadPageResetButton;
 
 public slots:
     virtual void eDescriptionPageNextButtonSelected();
-    virtual void eDescriptionPageStartButtonSelected();
+    virtual void eDescriptionPageIntroButtonSelected();
     virtual void eParameterPageBackButtonSelected();
     virtual void eParameterPageNextButtonSelected();
     virtual void eParameterPageResetButtonSelected();
@@ -156,7 +156,7 @@ public slots:
     virtual void eSummaryPageBackButtonSelected();
     virtual void eSummaryPageFinishButtonSelected();
     virtual void vDescriptionPageNextButtonSelected();
-    virtual void vDescriptionPageStartButtonSelected();
+    virtual void vDescriptionPageIntroButtonSelected();
     virtual void vParameterPageSampleRateTextReturnPressed();
     virtual void vParameterPageBackButtonSelected();
     virtual void vParameterPageNextButtonSelected();

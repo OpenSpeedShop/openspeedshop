@@ -34,7 +34,7 @@ SourcePanel::SourcePanel()
 
 /*! This constructor creates a title label and a QTextEdit.
 */
-SourcePanel::SourcePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
+SourcePanel::SourcePanel(PanelContainer *pc, const char *n, char *argument) : Panel(pc, n)
 {
   nprintf(DEBUG_CONST_DESTRUCT) ( "SourcePanel::SourcePanel() constructor called\n");
   frameLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );

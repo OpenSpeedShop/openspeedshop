@@ -29,7 +29,7 @@ public:
   TopPanel();
 
   //! Constructs a TopPanel consisting of a left side graph and a right side text.
-  TopPanel(PanelContainer *pc, const char *n);
+  TopPanel(PanelContainer *pc, const char *n, char *argument);
 
   //! Destructor
   ~TopPanel();  // Active destructor

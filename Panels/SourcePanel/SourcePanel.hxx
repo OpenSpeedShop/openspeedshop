@@ -34,7 +34,7 @@ public:
   SourcePanel();
 
   //! Constructor for the SourcePanel.
-  SourcePanel(PanelContainer *pc, const char *n);
+  SourcePanel(PanelContainer *pc, const char *n, char *argument);
 
   //! SourcePanel destructor.
   ~SourcePanel();

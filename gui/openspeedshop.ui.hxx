@@ -117,17 +117,23 @@ void OpenSpeedshop::fileSave()
 
 void OpenSpeedshop::fileExit()
 {
-// printf("fileExit() entered.\n");
+  dprintf("fileExit() entered.\n");
+
+ /* close all the panel containers.   Well all except the masterPC's
+    That one we need to do explicitly. (See the next line.) */
+ ((PanelContainer *)topPC)->getMasterPC()->closeAllExternalPanelContainers();
+
+ /* Now close the master pc's information. */
+ ((PanelContainer *)topPC)->closeWindow((PanelContainer *)topPC);
 
  qApp->closeAllWindows();
- qApp->exit();
+ dprintf("fileExit() called closeAllWindows.\n");
 
-#ifdef OLDWAY
- exit(EXIT_SUCCESS);
-#else // OLDWAY
-  // We're started as a thread from the cli thread.   We can't just willy-nilly
-  // exit...
-#endif // OLDWAY
+ // qApp->exit();
+ //printf("fileExit() called qApp->exit.\n");
+
+ pthread_exit(EXIT_SUCCESS);
+ dprintf("fileExit() called pthread_exit.\n");
 }
 
 #ifdef EVENTUALLY

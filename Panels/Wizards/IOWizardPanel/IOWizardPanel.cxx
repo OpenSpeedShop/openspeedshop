@@ -55,7 +55,7 @@ IOWizardPanel::IOWizardPanel()
     \param pc    The panel container the panel will initially be attached.
     \param n     The initial name of the panel container
  */
-IOWizardPanel::IOWizardPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
+IOWizardPanel::IOWizardPanel(PanelContainer *pc, const char *n, char *argument) : Panel(pc, n)
 {
   nprintf(DEBUG_CONST_DESTRUCT) ("IOWizardPanel::IOWizardPanel() constructor called\n");
 
@@ -95,9 +95,9 @@ sv->setResizePolicy( QScrollView::Manual );
 
     vDescriptionPageButtonSpacer = new QSpacerItem( 251, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
     vDescriptionPageButtonLayout->addItem( vDescriptionPageButtonSpacer );
-    vDescriptionPageStartButton = new QPushButton( vDescriptionPageWidget, "vDescriptionPageStartButton" );
-    vDescriptionPageStartButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vDescriptionPageStartButton->sizePolicy().hasHeightForWidth() ) );
-    vDescriptionPageButtonLayout->addWidget( vDescriptionPageStartButton );
+    vDescriptionPageIntroButton = new QPushButton( vDescriptionPageWidget, "vDescriptionPageIntroButton" );
+    vDescriptionPageIntroButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vDescriptionPageIntroButton->sizePolicy().hasHeightForWidth() ) );
+    vDescriptionPageButtonLayout->addWidget( vDescriptionPageIntroButton );
 
     vDescriptionPageNextButton = new QPushButton( vDescriptionPageWidget, "vDescriptionPageNextButton" );
     vDescriptionPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vDescriptionPageNextButton->sizePolicy().hasHeightForWidth() ) );
@@ -257,9 +257,9 @@ sv->setResizePolicy( QScrollView::Manual );
 
     eDescriptionPageSpacer = new QSpacerItem( 251, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
     eDescriptionPageButtonLayout->addItem( eDescriptionPageSpacer );
-    eDescriptionPageStartButton = new QPushButton( eDescriptionPageWidget, "eDescriptionPageStartButton" );
-    eDescriptionPageStartButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eDescriptionPageStartButton->sizePolicy().hasHeightForWidth() ) );
-    eDescriptionPageButtonLayout->addWidget( eDescriptionPageStartButton );
+    eDescriptionPageIntroButton = new QPushButton( eDescriptionPageWidget, "eDescriptionPageIntroButton" );
+    eDescriptionPageIntroButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eDescriptionPageIntroButton->sizePolicy().hasHeightForWidth() ) );
+    eDescriptionPageButtonLayout->addWidget( eDescriptionPageIntroButton );
 
     eDescriptionPageNextButton = new QPushButton( eDescriptionPageWidget, "eDescriptionPageNextButton" );
     eDescriptionPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eDescriptionPageNextButton->sizePolicy().hasHeightForWidth() ) );
@@ -422,7 +422,7 @@ eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageExecutableLabel
 
     // signals and slots connections
     connect( eDescriptionPageNextButton, SIGNAL( clicked() ), this, SLOT( eDescriptionPageNextButtonSelected() ) );
-    connect( eDescriptionPageStartButton, SIGNAL( clicked() ), this, SLOT( eDescriptionPageStartButtonSelected() ) );
+    connect( eDescriptionPageIntroButton, SIGNAL( clicked() ), this, SLOT( eDescriptionPageIntroButtonSelected() ) );
     connect( eParameterPageBackButton, SIGNAL( clicked() ), this, SLOT( eParameterPageBackButtonSelected() ) );
     connect( eParameterPageNextButton, SIGNAL( clicked() ), this, SLOT( eParameterPageNextButtonSelected() ) );
     connect( eParameterPageResetButton, SIGNAL( clicked() ), this, SLOT( eParameterPageResetButtonSelected() ) );
@@ -435,7 +435,7 @@ eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageExecutableLabel
     connect( eSummaryPageBackButton, SIGNAL( clicked() ), this, SLOT( eSummaryPageBackButtonSelected() ) );
     connect( eSummaryPageFinishButton, SIGNAL( clicked() ), this, SLOT( eSummaryPageFinishButtonSelected() ) );
     connect( vDescriptionPageNextButton, SIGNAL( clicked() ), this, SLOT( vDescriptionPageNextButtonSelected() ) );
-    connect( vDescriptionPageStartButton, SIGNAL( clicked() ), this, SLOT( vDescriptionPageStartButtonSelected() ) );
+    connect( vDescriptionPageIntroButton, SIGNAL( clicked() ), this, SLOT( vDescriptionPageIntroButtonSelected() ) );
     connect( vParameterPageSampleRateText, SIGNAL( returnPressed() ), this, SLOT( vParameterPageSampleRateTextReturnPressed() ) );
     connect( vParameterPageBackButton, SIGNAL( clicked() ), this, SLOT( vParameterPageBackButtonSelected() ) );
     connect( vParameterPageResetButton, SIGNAL( clicked() ), this, SLOT( vParameterPageResetButtonSelected() ) );
@@ -450,6 +450,15 @@ eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageExecutableLabel
     connect( wizardMode, SIGNAL( clicked() ), this, SLOT( wizardModeSelected() ) );
 
   sv->viewport()->setBackgroundColor(getBaseWidgetFrame()->backgroundColor() );
+
+  if( (bool)argument == FALSE )
+  {
+    // This wizard panel was brought up explicitly.   Don't
+    // enable the hook to go back to the IntroWizardPanel.
+    vDescriptionPageIntroButton->hide();
+    eDescriptionPageIntroButton->hide();
+  }
+
 }
 
 
@@ -594,9 +603,12 @@ nprintf(DEBUG_PANELS) ("eDescriptionPageNextButtonSelected() \n");
     mainWidgetStack->raiseWidget(eParameterPageWidget);
 }
 
-void IOWizardPanel::eDescriptionPageStartButtonSelected()
+void IOWizardPanel::eDescriptionPageIntroButtonSelected()
 {
-nprintf(DEBUG_PANELS) ("eDescriptionPageStartButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("eDescriptionPageIntroButtonSelected() \n");
+
+    getPanelContainer()->hidePanel((Panel *)this);
+
     Panel *p = getPanelContainer()->raiseNamedPanel("&Intro Wizard");
     if( !p )
     {
@@ -730,9 +742,12 @@ nprintf(DEBUG_PANELS) ("vDescriptionPageNextButtonSelected() \n");
     mainWidgetStack->raiseWidget(vParameterPageWidget);
 }
 
-void IOWizardPanel::vDescriptionPageStartButtonSelected()
+void IOWizardPanel::vDescriptionPageIntroButtonSelected()
 {
-nprintf(DEBUG_PANELS) ("vDescriptionPageStartButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("vDescriptionPageIntroButtonSelected() \n");
+
+    getPanelContainer()->hidePanel((Panel *)this);
+
     Panel *p = getPanelContainer()->raiseNamedPanel("&Intro Wizard");
     if( !p )
     {
@@ -902,8 +917,8 @@ IOWizardPanel::languageChange()
     setCaption( tr( "IO Wizard Panel" ) );
     vDescriptionPageTitleLabel->setText( tr( "<h1>IO Wizard</h1>" ) );
     vDescriptionPageText->setText( tr( vIODescription ) );
-    vDescriptionPageStartButton->setText( tr( "<< Start" ) );
-    QToolTip::add( vDescriptionPageStartButton, tr( "Takes you back to the Intro Wizard so you can make a different selection." ) );
+    vDescriptionPageIntroButton->setText( tr( "<< Start" ) );
+    QToolTip::add( vDescriptionPageIntroButton, tr( "Takes you back to the Intro Wizard so you can make a different selection." ) );
     vDescriptionPageNextButton->setText( tr( "> Next" ) );
     QToolTip::add( vDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
     vParameterPageDescriptionLabel->setText( tr( "The following options (paramaters) are available to adjust.   These are the options the collector has exported.<br><br>\n"
@@ -941,7 +956,7 @@ QToolTip::add( vAttachOrLoadPageResetButton, tr( "This clears all settings resto
     QToolTip::add( vSummaryPageFinishButton, tr( "Finishes loading the wizard information and brings up a \"IO\" panel" ) );
     eDescriptionPageTitleLabel->setText( tr( "<h1>IO Wizard</h1>" ) );
     eDescriptionPageText->setText( tr( eIODescription ) );
-    eDescriptionPageStartButton->setText( tr( "<< Start" ) );
+    eDescriptionPageIntroButton->setText( tr( "<< Start" ) );
     eDescriptionPageNextButton->setText( tr( "> Next" ) );
     QToolTip::add( eDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
     eParameterPageDescriptionLabel->setText( tr( "The following options (paramaters) are available to adjust.     <br>These are the options the collector has exported." ) );

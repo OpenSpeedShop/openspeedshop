@@ -39,7 +39,7 @@ MPIPanel::MPIPanel()
     \param pc    The panel container the panel will initially be attached.
     \param n     The initial name of the panel container
  */
-MPIPanel::MPIPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
+MPIPanel::MPIPanel(PanelContainer *pc, const char *n, char *argument) : Panel(pc, n)
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("MPIPanel::MPIPanel() constructor called\n");
 

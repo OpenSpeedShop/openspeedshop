@@ -39,7 +39,7 @@ pcSamplePanel::pcSamplePanel()
     \param pc    The panel container the panel will initially be attached.
     \param n     The initial name of the panel container
  */
-pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
+pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n, char *argument) : Panel(pc, n)
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("pcSamplePanel::pcSamplePanel() constructor called\n");
 

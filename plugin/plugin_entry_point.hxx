@@ -143,8 +143,8 @@ extern "C"
     {
       dprintf("This panel is a top level grouping panel.\n");
       dprintf("Initialize it right away, then continue the menu addition...\n");
-      extern Panel * create_and_add_panel(void *, void *);
-      create_and_add_panel(pluginInfoArg, (void *)pluginInfo->masterPC);
+      extern Panel * create_and_add_panel(void *, void *, void *);
+      create_and_add_panel(pluginInfoArg, (void *)pluginInfo->masterPC, (void *)NULL);
     }
 
     dprintf("panel_init(success) returning\n");
@@ -164,7 +164,7 @@ extern "C"
    */
 //  int
   Panel *
-  create_and_add_panel(void *pluginInfoArg, void *tPC)
+  create_and_add_panel(void *pluginInfoArg, void *tPC, void *argument)
   {
     PanelContainer *targetPC = (PanelContainer *)tPC;
     PluginInfo *pluginInfo = (PluginInfo *)pluginInfoArg;
@@ -173,21 +173,19 @@ extern "C"
     PanelContainer *local_masterPC = (PanelContainer *)pluginInfo->masterPC;
 
 
-{
-  dprintf("Don't forget to add a preference and check it!\n");
-  if( strcmp(name, "&Command Panel") == 0 )
-  {
-    Panel *p = local_masterPC->findNamedPanel(local_masterPC, name);
-    if( p )
+    dprintf("Don't forget to add a preference and check it!\n");
+    if( strcmp(name, "&Command Panel") == 0 )
     {
-      p = p->getPanelContainer()->raiseNamedPanel(name);
+      Panel *p = local_masterPC->findNamedPanel(local_masterPC, name);
+      if( p )
+      {
+        p = p->getPanelContainer()->raiseNamedPanel(name);
+      }
+      if( p )
+      {
+        return p;
+      }
     }
-    if( p )
-    {
-      return p;
-    }
-  }
-}
 
     // FIX:
     // This needs to be pushed to a 
@@ -229,7 +227,7 @@ extern "C"
       name = "Warning: Unamed Panel: No menu_label or panel_type.";
     }
 dprintf("name=(%s)\n", name);
-    plugin_panel = new PANEL_CLASS_NAME(targetPC, name);
+    plugin_panel = new PANEL_CLASS_NAME(targetPC, name, (char *)argument);
     targetPC->addPanel((Panel *)plugin_panel, targetPC, name);
     
     return(plugin_panel);

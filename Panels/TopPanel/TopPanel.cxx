@@ -72,7 +72,7 @@ TopPanel::TopPanel()
     contains an interactive chart (pie chart by default) and the right
     side contains an interactive list of metrics.
  */
-TopPanel::TopPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
+TopPanel::TopPanel(PanelContainer *pc, const char *n, char *argument) : Panel(pc, n)
 {
   nprintf(DEBUG_CONST_DESTRUCT) ( "TopPanel::TopPanel() constructor called\n");
 

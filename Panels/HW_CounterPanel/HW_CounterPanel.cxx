@@ -39,7 +39,7 @@ HW_CounterPanel::HW_CounterPanel()
     \param pc    The panel container the panel will initially be attached.
     \param n     The initial name of the panel container
  */
-HW_CounterPanel::HW_CounterPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
+HW_CounterPanel::HW_CounterPanel(PanelContainer *pc, const char *n, char *argument) : Panel(pc, n)
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("HW_CounterPanel::HW_CounterPanel() constructor called\n");
 

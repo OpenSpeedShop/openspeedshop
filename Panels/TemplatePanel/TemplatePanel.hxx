@@ -17,7 +17,7 @@ class TemplatePanel  : public Panel
     TemplatePanel();
 
     //! TemplatePanel(PanelContainer *pc, const char *name)
-    TemplatePanel(PanelContainer *pc, const char *n); // Active constructor
+    TemplatePanel(PanelContainer *pc, const char *n, char *argument);
 
     //! ~TemplatePanel() - The default destructor.
     ~TemplatePanel();  // Active destructor

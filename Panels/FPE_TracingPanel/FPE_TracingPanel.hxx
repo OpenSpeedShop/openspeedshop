@@ -42,7 +42,7 @@ public:
         This is where the user would create the panel specific Qt code
         to do whatever functionality the user wanted the panel to perform.
      */
-  FPE_TracingPanel(PanelContainer *pc, const char *n); // Active constructor
+  FPE_TracingPanel(PanelContainer *pc, const char *n, char *argument);
 
   //! ~FPE_TracingPanel() - The default destructor.
   ~FPE_TracingPanel();  // Active destructor
