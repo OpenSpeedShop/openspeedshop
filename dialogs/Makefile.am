@@ -42,6 +42,9 @@ moc_AttachProcessDialog.cxx: AttachProcessDialog.hxx
 moc_ManageCollectorsDialog.cxx: ManageCollectorsDialog.hxx
 	-moc -o moc_ManageCollectorsDialog.cxx ManageCollectorsDialog.hxx
 
+moc_ManageProcessesDialog.cxx: ManageProcessesDialog.hxx
+	-moc -o moc_ManageProcessesDialog.cxx ManageProcessesDialog.hxx
+
 moc_SelectExperimentDialog.cxx: SelectExperimentDialog.hxx
 	-moc -o moc_SelectExperimentDialog.cxx SelectExperimentDialog.hxx
 
@@ -51,6 +54,7 @@ moc_GenericProgressDialog.cxx: GenericProgressDialog.hxx
 libopenss_Dialogs_la_SOURCES = \
 	AttachProcessDialog.hxx AttachProcessDialog.cxx moc_AttachProcessDialog.cxx \
 	ManageCollectorsDialog.hxx ManageCollectorsDialog.cxx moc_ManageCollectorsDialog.cxx \
+	ManageProcessesDialog.hxx ManageProcessesDialog.cxx moc_ManageProcessesDialog.cxx \
 	PanelListViewItem.hxx PanelListViewItem.cxx \
 	GenericProgressDialog.hxx GenericProgressDialog.cxx moc_GenericProgressDialog.cxx \
 	SelectExperimentDialog.hxx SelectExperimentDialog.cxx moc_SelectExperimentDialog.cxx

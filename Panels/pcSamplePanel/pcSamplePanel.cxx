@@ -64,6 +64,7 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n, void *argument) 
   executableNameStr = QString::null;
   pidStr = QString::null;
   manageCollectorsDialog = NULL;
+  manageProcessesDialog = NULL;
 
   mw = getPanelContainer()->getMainWindow();
 
@@ -304,9 +305,11 @@ pcSamplePanel::menu(QPopupMenu* contextMenu)
   contextMenu->insertSeparator();
   contextMenu->insertItem("&Save As ...", this, SLOT(saveAsSelected()), CTRL+Key_S ); 
   contextMenu->insertSeparator();
+#ifdef OLDWAY
   contextMenu->insertItem(tr("Load &New Program..."), this, SLOT(loadNewProgramSelected()), CTRL+Key_N );
   contextMenu->insertItem(tr("Detach &From Program..."), this, SLOT(detachFromProgramSelected()), CTRL+Key_N );
   contextMenu->insertItem(tr("Attach To &Executable..."), this, SLOT(attachToExecutableSelected()), CTRL+Key_E );
+#endif // OLDWAY
   contextMenu->insertSeparator();
   contextMenu->insertItem(tr("&Manage Collectors..."), this, SLOT(manageCollectorsSelected()), CTRL+Key_M );
   contextMenu->insertItem(tr("Manage &Processes..."), this, SLOT(manageProcessesSelected()), CTRL+Key_P );
@@ -318,6 +321,7 @@ pcSamplePanel::menu(QPopupMenu* contextMenu)
   return( TRUE );
 }
 
+#ifdef OLDWAY
 void
 pcSamplePanel::loadNewProgramSelected()
 {
@@ -382,7 +386,9 @@ pcSamplePanel::loadNewProgramSelected()
     }
   }
 }   
+#endif // OLDWAY
 
+#ifdef OLDWAY
 bool
 pcSamplePanel::detachFromProgramSelected()
 {
@@ -423,7 +429,9 @@ pcSamplePanel::detachFromProgramSelected()
   runnableFLAG = FALSE;
   nprintf( DEBUG_PANELS ) ("WARNING: Disable this window!!!!! Until an experiment (pcsamp) is restarted.\n");
 }
+#endif // OLDWAY
 
+#ifdef OLDWAY
 void
 pcSamplePanel::attachToExecutableSelected()
 {
@@ -484,6 +492,7 @@ pcSamplePanel::attachToExecutableSelected()
 #endif // CONTINUE_BUTTON
   }
 }   
+#endif // OLDWAY
 
 void
 pcSamplePanel::manageCollectorsSelected()
@@ -492,7 +501,6 @@ pcSamplePanel::manageCollectorsSelected()
 
   if( manageCollectorsDialog == NULL )
   {
-//    manageCollectorsDialog = new ManageCollectorsDialog(this, "ManageCollectorsDialog", TRUE, 0, expID);
     manageCollectorsDialog = new ManageCollectorsDialog(mw, "ManageCollectorsDialog", TRUE, 0, expID);
   }
   if( manageCollectorsDialog->exec() == QDialog::Accepted )
@@ -506,6 +514,23 @@ void
 pcSamplePanel::manageProcessesSelected()
 {
   nprintf( DEBUG_PANELS ) ("pcSamplePanel::manageProcessesSelected()\n");
+  mw->pidStr = QString::null;
+  mw->executableName = QString::null;
+  if( manageProcessesDialog == NULL )
+  {
+    manageProcessesDialog = new ManageProcessesDialog(mw, "ManageProcessesDialog", TRUE, 0, expID);
+  }
+  if( manageProcessesDialog->exec() == QDialog::Accepted )
+  {
+    printf("QDialog::Accepted\n");
+    if( !mw->executableName.isEmpty() || !mw->pidStr.isEmpty() )
+    {
+      pco->runButton->setEnabled(TRUE);
+      pco->runButton->enabledFLAG = TRUE;
+      runnableFLAG = TRUE;
+      loadMain();
+    }
+  }
 }   
 
 void
