@@ -1,4 +1,4 @@
-bin_PROGRAMS = fred fredO2
+noinst_PROGRAMS = fred fredO2
 
 fred_CFLAGS = \
 	-g -gdwarf-2
