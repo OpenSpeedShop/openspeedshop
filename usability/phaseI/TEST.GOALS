@@ -1,13 +1,12 @@
 Estimated Time:
-   Anticipated test time; 15 minutes.   Max test time; 25 minutes.
+   Anticipated test time; 15-30 minutes.   Max test time; 30 minutes.
 
 Task 1:
   Launch Open/SpeedShop and optionally load a target application.
   (named 'fred_calls_ted').
 Reason:
   To see if the user can initiate the tool and (optionally) figure out how to 
-  load an executable from the command syntax arguments or from the 
-  main "File" menu.
+  load an executable from the command syntax arguments.
 
 Task 2:
   Figure out which experiment will show the routine in the
@@ -27,6 +26,8 @@ Task 4:
 Reason:
   To make the required association between an experiment and the executable.
 
+// This task (Task 5) not tested this round.   This note is simply left as a 
+// placeholder.
 Task 5:
   Pass/add the required command line arguments to the exectuable.
 Reason:
@@ -37,7 +38,7 @@ Task 6:
   Run the experiment/executable.  (With the correct command
   line argurments.)
 Reason: 
-  To see if it's easy to launch (run) an program under the control of 
+  To see if it's easy to launch (run) a program under the control of 
   and experiment.
 
 Task 7:
