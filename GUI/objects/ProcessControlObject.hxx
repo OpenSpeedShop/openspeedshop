@@ -25,10 +25,12 @@ public:
   ~ProcessControlObject();  // Active destructor
 
   QButtonGroup *buttonGroup;
+#ifdef OLDWAY
   AnimatedQPushButton *attachCollectorButton;
   AnimatedQPushButton *detachCollectorButton;
-  AnimatedQPushButton *attachProcessButton;
   AnimatedQPushButton *detachProcessButton;
+  AnimatedQPushButton *attachProcessButton;
+#endif // OLDWAY
   AnimatedQPushButton *runButton;
   AnimatedQPushButton *pauseButton;
   AnimatedQPushButton *continueButton;
@@ -38,11 +40,13 @@ public:
 
   Panel *panel;
 
-public slots:
+#ifdef OLDWAY  // Move this back into "public slots:" if needed.
   virtual void attachCollectorButtonSlot();
-  virtual void detachCollectorButtonSlot();
   virtual void attachProcessButtonSlot();
+  virtual void detachCollectorButtonSlot();
   virtual void detachProcessButtonSlot();
+#endif // OLDWAY
+public slots:
   virtual void runButtonSlot();
   virtual void pauseButtonSlot();
   virtual void continueButtonSlot();

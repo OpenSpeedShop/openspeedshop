@@ -11,6 +11,7 @@
 #include <qiconset.h>
 
 #include <qbitmap.h>
+#ifdef OLDWAY
 #include "attach_hand.xpm"
 #include "attach_hand2.xpm"
 #include "attach_hand3.xpm"
@@ -29,6 +30,7 @@
 #include "detach_process2.xpm"
 #include "detach_process3.xpm"
 #include "detach_process4.xpm"
+#endif // OLDWAY
 #include "run.xpm"
 #include "pause.xpm"
 #include "cont.xpm"
@@ -56,6 +58,7 @@ ProcessControlObject::ProcessControlObject(QVBoxLayout *frameLayout, QWidget *ba
 
   frameLayout->addWidget( buttonGroup );
 
+#ifdef OLDWAY
   attachProcessButton = new AnimatedQPushButton( buttonGroup, "attachProcessButton" );
   QPixmap *apm1 = new QPixmap( attach_hand_xpm );
   apm1->setMask(apm1->createHeuristicMask());
@@ -74,7 +77,6 @@ ProcessControlObject::ProcessControlObject(QVBoxLayout *frameLayout, QWidget *ba
   buttonGroupLayout->addWidget( attachProcessButton );
   attachProcessButton->setText( QString::null );
 
-//  detachProcessButton = new QPushButton( buttonGroup, "detachProcessButton" );
   detachProcessButton = new AnimatedQPushButton( buttonGroup, "detachProcessButton");
   QPixmap *dpm1 = new QPixmap( detach_hand_xpm );
   dpm1->setMask(dpm1->createHeuristicMask());
@@ -110,10 +112,10 @@ ProcessControlObject::ProcessControlObject(QVBoxLayout *frameLayout, QWidget *ba
   QPixmap *apm2 = new QPixmap( attach_process2_xpm );
   apm2->setMask(apm2->createHeuristicMask());
   attachCollectorButton->push_back(apm2);
-  QPixmap *apm3 = new QPixmap( attach_process3_xpm );
+  QPixmap *apm3 = new QPixmap( detach_process1_xpm );
   apm3->setMask(apm3->createHeuristicMask());
   attachCollectorButton->push_back(apm3);
-  QPixmap *apm4 = new QPixmap( attach_process4_xpm );
+  QPixmap *apm4 = new QPixmap( detach_process0_xpm );
   apm4->setMask(apm4->createHeuristicMask());
   attachCollectorButton->push_back(apm4);
   attachCollectorButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, attachCollectorButton->sizePolicy().hasHeightForWidth() ) );
@@ -143,6 +145,7 @@ ProcessControlObject::ProcessControlObject(QVBoxLayout *frameLayout, QWidget *ba
   buttonGroupLayout->addWidget( detachCollectorButton );
   detachCollectorButton->setText( QString::null );
 }
+#endif // OLDWAY
 
   {
   QSpacerItem *spacer = new QSpacerItem( 5, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
@@ -229,10 +232,12 @@ ProcessControlObject::ProcessControlObject(QVBoxLayout *frameLayout, QWidget *ba
   }
 
   // set button look.
+#ifdef OLDWAY
   attachProcessButton->setFlat(TRUE);
   detachProcessButton->setFlat(TRUE);
-  attachCollectorButton->setFlat(TRUE);
   detachCollectorButton->setFlat(TRUE);
+  attachCollectorButton->setFlat(TRUE);
+#endif // OLDWAY
   runButton->setFlat(TRUE);
   pauseButton->setFlat(TRUE);
   continueButton->setFlat(TRUE);
@@ -241,21 +246,25 @@ ProcessControlObject::ProcessControlObject(QVBoxLayout *frameLayout, QWidget *ba
   terminateButton->setFlat(TRUE);
 
   // set button sensitivities.
-  attachProcessButton->setEnabled(TRUE);
-  attachCollectorButton->setEnabled(TRUE);
   runButton->setEnabled(TRUE);
   pauseButton->setEnabled(FALSE);
   continueButton->setEnabled(FALSE);
   updateButton->setEnabled(FALSE);
+#ifdef OLDWAY
+  attachProcessButton->setEnabled(TRUE);
+  attachCollectorButton->setEnabled(TRUE);
   detachProcessButton->setEnabled(TRUE);
+#endif // OLDWAY
   terminateButton->setEnabled(FALSE);
 
 
 // signals and slots connections
+#ifdef OLDWAY
   connect( attachProcessButton, SIGNAL( clicked() ), this, SLOT( attachProcessButtonSlot() ) );
   connect( detachProcessButton, SIGNAL( clicked() ), this, SLOT( detachProcessButtonSlot() ) );
-  connect( attachCollectorButton, SIGNAL( clicked() ), this, SLOT( attachCollectorButtonSlot() ) );
   connect( detachCollectorButton, SIGNAL( clicked() ), this, SLOT( detachCollectorButtonSlot() ) );
+  connect( attachCollectorButton, SIGNAL( clicked() ), this, SLOT( attachCollectorButtonSlot() ) );
+#endif // OLDWAY
   connect( runButton, SIGNAL( clicked() ), this, SLOT( runButtonSlot() ) );
   connect( continueButton, SIGNAL( clicked() ), this, SLOT( continueButtonSlot() ) );
   connect( interruptButton, SIGNAL( clicked() ), this, SLOT( interruptButtonSlot() ) );
@@ -274,6 +283,7 @@ ProcessControlObject::~ProcessControlObject()
 //  delete baseWidgetFrame;
 }
 
+#ifdef OLDWAY
 void 
 ProcessControlObject::attachProcessButtonSlot()
 {
@@ -295,16 +305,6 @@ ProcessControlObject::detachProcessButtonSlot()
 }
 
 void 
-ProcessControlObject::attachCollectorButtonSlot()
-{
-  printf("PCO: Attach Collector\n");
-
-  ControlObject *co = new ControlObject(ATTACH_COLLECTOR_T);
-  panel->listener((void *)co);
-  delete co;
-}
-
-void 
 ProcessControlObject::detachCollectorButtonSlot()
 {
   printf("PCO: Detach Collector\n");
@@ -314,6 +314,16 @@ ProcessControlObject::detachCollectorButtonSlot()
   delete co;
 }
 
+void 
+ProcessControlObject::attachCollectorButtonSlot()
+{
+  printf("PCO: Attach Collector\n");
+
+  ControlObject *co = new ControlObject(ATTACH_COLLECTOR_T);
+  panel->listener((void *)co);
+  delete co;
+}
+#endif // OLDWAY
 
 void 
 ProcessControlObject::runButtonSlot()
@@ -325,8 +335,6 @@ printf("# theApplication.setStatus(Thread::Running\n");
 
 //  statusLabelText->setText( tr("Process running...") );
 
-  attachProcessButton->setEnabled(TRUE);
-  attachCollectorButton->setEnabled(TRUE);
   runButton->setEnabled(FALSE);
   runButton->enabledFLAG = FALSE;
   runButton->setFlat(TRUE);
@@ -336,8 +344,12 @@ printf("# theApplication.setStatus(Thread::Running\n");
   continueButton->enabledFLAG = FALSE;
   updateButton->setEnabled(TRUE);
   updateButton->enabledFLAG = TRUE;
+#ifdef OLDWAY
+  attachProcessButton->setEnabled(TRUE);
+  attachCollectorButton->setEnabled(TRUE);
   detachProcessButton->setEnabled(TRUE);
   detachCollectorButton->setEnabled(TRUE);
+#endif // OLDWAY
   terminateButton->setEnabled(TRUE);
   terminateButton->enabledFLAG = TRUE;
 
@@ -424,8 +436,6 @@ printf("# if( response is yes, then called theApplication.saveAs();\n");
 //  statusLabelText->setText( tr("Process terminated...") );
 
   // set button sensitivities.
-  attachProcessButton->setEnabled(TRUE);
-  attachCollectorButton->setEnabled(TRUE);
   runButton->setEnabled(TRUE);
   runButton->enabledFLAG = TRUE;
   pauseButton->setEnabled(FALSE);
@@ -436,8 +446,12 @@ printf("# if( response is yes, then called theApplication.saveAs();\n");
   updateButton->setEnabled(FALSE);
   updateButton->setEnabled(FALSE);
   updateButton->enabledFLAG = FALSE;
+#ifdef OLDWAY
+  attachProcessButton->setEnabled(TRUE);
+  attachCollectorButton->setEnabled(TRUE);
   detachProcessButton->setEnabled(TRUE);
   detachCollectorButton->setEnabled(TRUE);
+#endif // OLDWAY
   terminateButton->setEnabled(FALSE);
   terminateButton->setFlat(TRUE);
   terminateButton->setEnabled(FALSE);
@@ -456,10 +470,12 @@ void
 ProcessControlObject::languageChange()
 {
   buttonGroup->setTitle( tr( "Process Control" ) );
+#ifdef OLDWAY
   QToolTip::add( attachProcessButton, tr( "Load or attach to a process." ) );
   QToolTip::add( detachProcessButton, tr( "Detach a process from the experiment(s)." ) );
-  QToolTip::add( attachCollectorButton, tr( "Load or attach to a collector." ) );
   QToolTip::add( detachCollectorButton, tr( "Detach a collector." ) );
+  QToolTip::add( attachCollectorButton, tr( "Load or attach to a collector." ) );
+#endif // OLDWAY
   QToolTip::add( runButton, tr( "Run the experiment." ) );
   QToolTip::add( pauseButton, tr( "Temporarily pause the experiment." ) );
   QToolTip::add( continueButton, tr( "Continue the experiment from current location." ) );
