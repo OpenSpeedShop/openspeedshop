@@ -169,7 +169,7 @@ bool firstTimeShowingStatAreaFLAG;
 
 public slots:
   void clicked(int para, int offset);
-  void valueChanged(int value = -1);
+  void valueChanged(int = -1);
   void chooseFile();
   void goToLine();
   void showLineNumbers();

@@ -108,20 +108,8 @@ splitter->setHandleWidth(1);
   hscrollbar = textEdit->horizontalScrollBar();
   if( vscrollbar )
   {
-    connect( vscrollbar, SIGNAL(sliderPressed()),
-           this, SLOT(valueChanged()) );
-    connect( vscrollbar, SIGNAL(sliderMoved(int)),
-           this, SLOT(valueChanged()) );
-    connect( vscrollbar, SIGNAL(sliderReleased()),
-           this, SLOT(valueChanged()) );
-    connect( vscrollbar, SIGNAL(nextLine()),
-           this, SLOT(valueChanged()) );
-    connect( vscrollbar, SIGNAL(prevLine()),
-           this, SLOT(valueChanged()) );
-    connect( vscrollbar, SIGNAL(nextPage()),
-           this, SLOT(valueChanged()) );
-    connect( vscrollbar, SIGNAL(prevPage()),
-           this, SLOT(valueChanged()) );
+    connect( vscrollbar, SIGNAL(valueChanged(int)),
+           this, SLOT(valueChanged(int)) );
   }
 
   defaultColor = textEdit->color();
@@ -889,7 +877,7 @@ SourcePanel::valueChanged(int passed_in_value)
 {
 
 // This is not correct, but it's gets close enough for right now.  FIX
-  nprintf(DEBUG_PANELS) ("Your valueChanged.\n");
+  nprintf(DEBUG_PANELS) ("Your valueChanged - passed_in_value=%d\n", passed_in_value);
   float minValue = (float)vscrollbar->minValue();
   float maxValue = (float)vscrollbar->maxValue();
   float value = 0;
