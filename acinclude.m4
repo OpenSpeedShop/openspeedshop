@@ -32,6 +32,11 @@ AC_DEFUN([AC_PKG_DPCL], [
         DPCL_LDFLAGS="-L$dpcl_dir/lib"
     ])
 
+    AC_CHECK_FILE([$dpcl_dir/include/dpcl/dpcl.h], [
+        DPCL_CPPFLAGS="-I$dpcl_dir/include/dpcl"
+        DPCL_LDFLAGS="-L$dpcl_dir/lib"
+    ])
+
     if test -d "$ROOT"; then
         AC_CHECK_FILE([$ROOT/include/dpcl/dpcl.h], [
             DPCL_CPPFLAGS="-I$ROOT/include/dpcl"
