@@ -53,10 +53,14 @@ ManageCollectorsDialog::ManageCollectorsDialog( QWidget* parent, const char* nam
   ManageCollectorsDialogLayout->addWidget( attachHostComboBox );
 
   attachCollectorsListView = new QListView( this, "attachCollectorsListView" );
-  attachCollectorsListView->addColumn( tr( "Collectors belonging to '%s':" ) );
+  attachCollectorsListView->addColumn( 
+    tr( QString("Collectors belonging to '%1':").arg(expID) ) );
+  attachCollectorsListView->addColumn( tr( QString("Name") ) );
   attachCollectorsListView->setSelectionMode( QListView::Single );
-  attachCollectorsListView->setAllColumnsShowFocus( FALSE );
-  attachCollectorsListView->setShowSortIndicator( FALSE );
+  attachCollectorsListView->setAllColumnsShowFocus( TRUE );
+  attachCollectorsListView->setShowSortIndicator( TRUE );
+  attachCollectorsListView->setRootIsDecorated(TRUE);
+
   ManageCollectorsDialogLayout->addWidget( attachCollectorsListView );
 
 
@@ -121,12 +125,12 @@ ManageCollectorsDialog::selectedCollectors()
   QListViewItem *selectedItem = attachCollectorsListView->selectedItem();
   if( selectedItem )
   {
-//    printf("Got an ITEM!\n");
+    printf("Got an ITEM!\n");
     QString ret_value = selectedItem->text(0);
     return( ret_value );
   } else
   {
-//    printf("NO ITEMS SELECTED\n");
+    printf("NO ITEMS SELECTED\n");
     return( NULL );
   }
 }
@@ -136,35 +140,6 @@ ManageCollectorsDialog::selectedCollectors()
 void
 ManageCollectorsDialog::updateAttachedCollectorsList()
 {
-#ifdef OLDWAY
-  char *host = (char *)attachHostComboBox->currentText().ascii();
-  ProcessEntry *pe = NULL;
-  char entry_buffer[1024];
-
-  if( plo )
-  {
-    delete(plo);
-  }
-//  printf("look up processes on host=(%s)\n", host);
-  plo = new ProcessListObject(host);
-
-  attachCollectorsListView->clear();
-  QListViewItem *item_2 = new QListViewItem( attachCollectorsListView, 0 );
-  item_2->setOpen( TRUE );
-  item_2->setText( 0, tr( "hostname" ) );
-
-  ProcessEntryList::Iterator it;
-  for( it = plo->processEntryList.begin();
-       it != plo->processEntryList.end();
-       ++it )
-  {
-    pe = (ProcessEntry *)*it;
-//    printf("%-20s %-10d %-20s\n", pe->host_name, pe->pid, pe->process_name);
-    sprintf(entry_buffer, "%-20s %-10d %-20s\n", pe->host_name, pe->pid, pe->process_name);
-    QListViewItem *item = new QListViewItem( item_2, 0 );
-    item->setText( 0, tr(entry_buffer) );
-  }
-#else // OLDWAY
   CollectorEntry *ce = NULL;
   char entry_buffer[1024];
   if( clo )
@@ -172,7 +147,6 @@ ManageCollectorsDialog::updateAttachedCollectorsList()
     delete(clo);
   }
 
-  int expID = 1;
   clo = new CollectorListObject(expID);
 
   CollectorEntryList::Iterator it;
@@ -181,15 +155,12 @@ ManageCollectorsDialog::updateAttachedCollectorsList()
        ++it )
   {
     ce = (CollectorEntry *)*it;
-    sprintf(entry_buffer, "%-20s\n", ce->name );
-    QListViewItem *item = new QListViewItem( attachCollectorsListView, 0 );
-    item->setText( 0, tr(entry_buffer) );
+    QListViewItem *item = new QListViewItem( attachCollectorsListView, ce->name, ce->short_name );
+    QListViewItem *item2 = new QListViewItem( item, ce->param, ce->param_val );
   }
-#endif // OLDWAY
 }
 
 void ManageCollectorsDialog::attachHostComboBoxActivated()
 {
-//  printf("attachHostComboBoxActivated\n");
     updateAttachedCollectorsList();
 }
