@@ -62,6 +62,11 @@ public:
   //! Highlight a line in the TextEdit.
   void highlightLine(int line, char *color, bool inverse=FALSE);
 
+  //! Flag setting, indicating if we should be displaying the statistics.
+  bool statsFLAG;
+
+  //! Flag setting, indicating if we should be displaying the chart.
+  bool chartFLAG;
 
   //! The main layout manager for the panel internals.
   QHBoxLayout * frameLayout;
@@ -85,6 +90,9 @@ public slots:
 
   void zoomIn();
   void zoomOut();
+
+  void showStats();
+  void showChart();
 
 protected:
   //! prototype: dummy data.

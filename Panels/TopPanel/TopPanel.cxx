@@ -76,6 +76,7 @@ TopPanel::TopPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
 {
   nprintf(DEBUG_CONST_DESTRUCT) ( "TopPanel::TopPanel() constructor called\n");
 
+
   setCaption("TopPanel");
   frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
@@ -83,6 +84,9 @@ TopPanel::TopPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
   splitterA->setCaption("TopPanelSplitterA");
 
   splitterA->setOrientation( QSplitter::Horizontal );
+
+  chartFLAG = TRUE;
+  statsFLAG = TRUE;
 
   cf = new TPChartForm(this, splitterA, getName(), 0);
   cf->setCaption("TPChartFormIntoSplitterA");
@@ -161,7 +165,26 @@ TopPanel::menu(QPopupMenu* contextMenu)
   contextMenu->insertSeparator();
   contextMenu->insertItem("&Save As ...", this, SLOT(saveAs()), CTRL+Key_S );
   contextMenu->insertItem("&About Experiment...", this, SLOT(aboutExperiment()), CTRL+Key_A );
+  contextMenu->insertSeparator();
   contextMenu->insertItem("&Re-orientate", this, SLOT(setOrientation()), CTRL+Key_R );
+  if( chartFLAG == TRUE )
+  {
+    contextMenu->insertItem("Hide &Chart...", this,
+    SLOT(showChart()), CTRL+Key_L );
+  } else
+  {
+    contextMenu->insertItem("Show &Chart...", this,
+    SLOT(showChart()), CTRL+Key_L );
+  }
+  if( statsFLAG == TRUE )
+  {
+    contextMenu->insertItem("Hide &Statistics...", this,
+    SLOT(showStats()), CTRL+Key_L );
+  } else
+  {
+    contextMenu->insertItem("Show &Statistics...", this,
+    SLOT(showStats()), CTRL+Key_L );
+  }
 
   return( TRUE );
 }
@@ -666,4 +689,50 @@ i++;
 
   // left justify everything.
   textEdit->moveCursor(QTextEdit::MoveHome, FALSE);
+}
+
+void
+TopPanel::showStats()
+{
+  nprintf(DEBUG_PANELS) ("TopPanel::showStats() entered\n");
+  if( statsFLAG == TRUE )
+  {
+    statsFLAG = FALSE;
+    textEdit->hide();
+  } else
+  {
+    statsFLAG = TRUE;
+    textEdit->show();
+  }
+
+  // Make sure there's not a blank panel.   If the user selected to 
+  // hide the only display, show the other by default.
+  if( statsFLAG == FALSE && chartFLAG == FALSE )
+  {
+    chartFLAG = TRUE;
+    cf->show();
+  }
+}
+
+void
+TopPanel::showChart()
+{
+  nprintf(DEBUG_PANELS) ("TopPanel::showChart() entered\n");
+  if( chartFLAG == TRUE )
+  {
+    chartFLAG = FALSE;
+    cf->hide();
+  } else
+  {
+    chartFLAG = TRUE;
+    cf->show();
+  }
+
+  // Make sure there's not a blank panel.   If the user selected to 
+  // hide the only display, show the other by default.
+  if( chartFLAG == FALSE && statsFLAG == FALSE )
+  {
+    statsFLAG = TRUE;
+    textEdit->show();
+  }
 }
