@@ -65,6 +65,7 @@ static pthread_mutex_t Window_List_Lock = PTHREAD_MUTEX_INITIALIZER;
 static std::list<CommandWindowID *> CommandWindowID_list;
 static CMDWID Command_Window_ID = 0;
 static CMDWID Last_ReadWindow = 0;
+static bool Async_Inputs = false;
 
 
 // Input_Source
@@ -77,7 +78,6 @@ class Input_Source
  protected:
   Input_Source *Next_Source;
   bool Predefined;
-  bool Prompt_Required;
   std::string Name;
   FILE *Fp;
   int64_t Buffer_Size;
@@ -97,14 +97,12 @@ class Input_Source
     Predefined = (Fp != NULL);
     if (Fp == NULL) {
       Predefined = false;
-      Prompt_Required = false;
       Fp = fopen (my_name.c_str(), "r");
       if (Fp == NULL) {
         fprintf(stderr,"ERROR: Unable to open alternate command file %s\n",my_name.c_str());
       }
     } else {
       Predefined = true;
-      Prompt_Required = isatty(fileno(Fp));
     }
     Next_Line_At = 0;
     Last_Valid_Data = 0;
@@ -119,7 +117,6 @@ class Input_Source
     Name = std::string("");
     Fp = NULL;
     Predefined = false;
-    Prompt_Required = false;
     Next_Line_At = 0;
     Last_Valid_Data = buffsize-1;
     Buffer_Size = buffsize;
@@ -153,9 +150,6 @@ class Input_Source
       Buffer[Buffer_Size-1] = (char)0;
       Next_Line_At = 0;
       Last_Valid_Data = 0;
-      if (Prompt_Required) {
-        fprintf(stderr,"%s->",current_prompt);
-      }
       fgets (&Buffer[0], Buffer_Size, Fp);
       if (Buffer[Buffer_Size-1] != (char)0) {
         fprintf(stderr,"ERROR: Input line from %s is too long for buffer.\n",Name.c_str());
@@ -234,13 +228,14 @@ class CommandWindowID
   int64_t Cmd_Count_In_Trace_File;
   std::string Trace_File_Name;
   FILE *Trace_F;
+  bool Async_Input;
   Input_Source *Input;
   pthread_mutex_t Input_List_Lock;
   EXPID FocusedExp;
 
  public:
   // Constructor & Destructor
-  CommandWindowID ( std::string IAM, std::string  Host, pid_t Process, int64_t Panel)
+  CommandWindowID ( std::string IAM, std::string  Host, pid_t Process, int64_t Panel, bool async)
     {
       remote = false;
       I_Call_Myself = IAM;
@@ -252,7 +247,10 @@ class CommandWindowID
       Trace_File_Name = "";
       Trace_F = NULL;
       Input = NULL;
-      Assert(pthread_mutex_init(&Input_List_Lock, NULL) == 0); // dynamic initialization
+      Async_Input = async;
+      if (Async_Input) {
+        Assert(pthread_mutex_init(&Input_List_Lock, NULL) == 0); // dynamic initialization
+      }
       FocusedExp = 0;
 
      // Generate a unique ID and remember it
@@ -269,12 +267,15 @@ class CommandWindowID
 
      // Allocate a trace file for commands associated with this window
       char base[20];
-      snprintf(base, 20, "ss%lld.XXXXXX",id);
+      snprintf(base, 20, "sshist%lld.XXXXXX",id);
       Trace_File_Name = tempnam ("./", &base[0] );
       Trace_F  = fopen (Trace_File_Name.c_str(), "w");
     }
   ~CommandWindowID()
     {
+     // Clear the identification field in case someone trys to reference
+     // this entry again.
+      id = 0;
      // Remove the trace files
       if (Trace_F) {
         fclose (Trace_F);
@@ -290,7 +291,9 @@ class CommandWindowID
         Input = NULL;
       }
      // Remove the control structures associate with the lock
-      pthread_mutex_destroy(&Input_List_Lock);
+      if (Async_Input) {
+        pthread_mutex_destroy(&Input_List_Lock);
+      }
 
      // Unlink from the chain of windows
 
@@ -309,7 +312,9 @@ class CommandWindowID
   void Append_Input_Source (Input_Source *inp) {
    // Get exclusive access to the lock so that only one
    // read, write, add or delete is done at a time.
-    Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
+    if (Async_Input) {
+      Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
+    }
 
     if (Input == NULL) {
       Input = inp;
@@ -322,19 +327,25 @@ class CommandWindowID
     }
 
    // Release the lock.
-    Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
+    if (Async_Input) {
+      Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
+    }
   }
   void Push_Input_Source (Input_Source *inp) {
    // Get exclusive access to the lock so that only one
    // read, write, add or delete is done at a time.
-    Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
+    if (Async_Input) {
+      Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
+    }
 
     Input_Source *previous_inp = Input;
     inp->Link(previous_inp);
     Input = inp;
 
    // Release the lock.
-    Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
+    if (Async_Input) {
+      Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
+    }
   }
 private:
   void Pop_Input_Source () {
@@ -359,7 +370,9 @@ public:
 
    // Get exclusive access to the lock so that only one
    // read, write, add or delete is done at a time.
-    Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
+    if (Async_Input) {
+      Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
+    }
 
     char *next_line = NULL;
     while (Input != NULL) {
@@ -371,7 +384,9 @@ public:
     }
 
    // Release the lock.
-    Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
+    if (Async_Input) {
+      Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
+    }
 
     return next_line;
   }
@@ -601,7 +616,7 @@ void Trace_File_History (enum Trace_Entry_Type trace_type, std::string fname, FI
   fclose (cmdf);
 }
 
-// Read the trace file and echo selected entries to another file.
+// Read the trace files and echo selected entries to another file.
 void Command_Trace (enum Trace_Entry_Type trace_type, CMDWID cmdwinid, std::string tofname)
 {
   FILE *tof = predefined_filename( tofname );
@@ -660,12 +675,13 @@ fprintf(stdout,"Enter SpeedShop_Trace_OFF\n");
 // Only one thread can be executing one of these rotuines at a time,
 // so the must be protected with the use of Window_List_Lock.
 
-CMDWID Commander_Initialization (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel)
+CMDWID Commander_Initialization (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async)
 {
  // Create a new Window
   CommandWindowID *cwid = new CommandWindowID(std::string(my_name ? my_name : ""),
                                               std::string(my_host ? my_host : ""),
-                                              my_pid, my_panel);
+                                              my_pid, my_panel, Input_is_Async);
+  Async_Inputs |= Input_is_Async;
   return cwid->ID();
 }
 
@@ -680,9 +696,14 @@ void Commander_Termination (CMDWID im)
 
 
 ResultObject Append_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_ptr) {
-
-printf("Append_Input_Buffer() entered.\n");
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
+
+// DEBUG: hacks to let the gui pass information in without initializing a window.
+if (!cw) {
+issuedbywindow = Command_Window_ID;  // default to the last allocated window
+cw = Find_Command_Window (issuedbywindow);
+}
+
   Assert (cw);
   Input_Source *inp = new Input_Source (b_size, b_ptr);
   cw->Append_Input_Source (inp);
@@ -724,6 +745,39 @@ ResultObject Push_Input_File (CMDWID issuedbywindow, std::string fromfname) {
   return ResultObject(SUCCESS, "Command_File_T", NULL, "Command file read and processed");
 }
 
+// This routine continuously reads from stdin and appends the string to an input window.
+// It is intended that this routine execute in it's own thread.
+void SS_Direct_stdin_Input (void * attachtowindow) {
+  Assert ((CMDWID)attachtowindow != 0);
+  CommandWindowID *cw = Find_Command_Window ((CMDWID)attachtowindow);
+  Assert (cw);
+  int Buffer_Size= DEFAULT_INPUT_BUFFER_SIZE;
+  char Buffer[Buffer_Size];
+  Buffer[Buffer_Size-1] = *"\0";
+  while (1) {
+    sleep (1);
+    fprintf(stderr,"%s->",current_prompt);
+    Buffer[0] == *("\0");
+    char *read_result = fgets (&Buffer[0], Buffer_Size, stdin);
+    if (Buffer[Buffer_Size-1] != (char)0) {
+      fprintf(stderr,"ERROR: Input line from stdin is too long for buffer.\n");
+      exit (0); // terminate the thread
+    }
+    if (read_result == NULL) {
+      exit (0); // terminate the thread
+    }
+    if (Buffer[0] == *("\0")) {
+     /* This indicates an EOF */
+      exit (0); // terminate the thread
+    }
+    if (cw->ID() == 0) {
+      exit (0); // terminate the thread
+    }
+    Assert (cw->ID());
+    (void) Append_Input_String ((CMDWID)attachtowindow, strlen(&Buffer[0]), &Buffer[0]);
+  }
+}
+
 // The algorithm is to do a round-robin search of the defined window list
 // by starting with the last widow that was read from.  The usual choice
 // to read from the next window in the list but, if the parser indicates
@@ -738,12 +792,13 @@ static CMDWID select_input_window (int is_more) {
 
   if (is_more == 0) {
 
-    std::list<CommandWindowID *>::iterator cwi;
-    for (cwi = CommandWindowID_list.begin(); cwi != CommandWindowID_list.end(); cwi++) {
+    std::list<CommandWindowID *>::reverse_iterator cwi;
+    for (cwi = CommandWindowID_list.rbegin(); cwi != CommandWindowID_list.rend(); cwi++)
+    {
       if (selectwindow == (*cwi)->ID ()) {
-        std::list<CommandWindowID *>::iterator next_cwi = ++cwi;
-        if (next_cwi == CommandWindowID_list.end()) {
-          next_cwi = CommandWindowID_list.begin();
+        std::list<CommandWindowID *>::reverse_iterator next_cwi = ++cwi;
+        if (next_cwi == CommandWindowID_list.rend()) {
+          next_cwi = CommandWindowID_list.rbegin();
         }
         selectwindow = (*next_cwi)->ID();
         goto window_found;
@@ -752,7 +807,9 @@ static CMDWID select_input_window (int is_more) {
 
    // A fall through the loop indicates that we didn't find the Last_ReadWindow.
    // Do error recovery by choosing the first one on the list.
-    selectwindow = (*CommandWindowID_list.begin())->ID();
+    cwi = CommandWindowID_list.rbegin();
+    if ((*cwi)) selectwindow = (*cwi)->ID();
+    //selectwindow = (*CommandWindowID_list.rbegin())->ID();
 
   }
 
@@ -771,12 +828,13 @@ window_found:
 char *SpeedShop_ReadLine (int is_more)
 {
   char *save_prompt = current_prompt;
-  if (is_more) {
-    current_prompt = "....ss";
-  }
 
   CMDWID readfromwindow = select_input_window(is_more);
   CMDWID firstreadwindow = readfromwindow;
+  
+  if (is_more) {
+    current_prompt = "....ss";
+  }
 
 read_another_window:
 
@@ -788,27 +846,36 @@ read_another_window:
     s = cw->Read_Command ();
     if (s == NULL) {
      // The read failed.  Why?  Can we find something else to read?
-      if (is_more) {
-       // We MUST read from this window!
-       // This is an error situation.  How can we recover?
-      }
+
      // It might be possible to read from a different window.
-     // Try to find another one.
+     // Try all of them so we can pick up commands that are waiting.
       readfromwindow = select_input_window(is_more);
       if (readfromwindow != firstreadwindow) {
        // There is another window to read from.
         goto read_another_window;
       }
-     // Sould we attempt to read from stdin?
-     // HOW DO WE FORCE A WAIT UNTIL DATA IS READY?
+
+     // After checking all windows for waiting input,
+     // we might look for input from the gui or a terminal.
+      if (Async_Inputs) {
+       // SHOULD WE FORCE A WAIT UNTIL DATA IS READY?
+        //sleep (1);
+        goto read_another_window;
+      }
 
      // The end of all window inputs has been reached.
+      if (is_more) {
+       // We MUST read from this window!
+       // This is an error situation.  How can we recover?
+      }
+
      // Return an empty line to indicate an EOF.
       break;
     }
     int len  = strlen(s);
     if (len > 1) {
-      if (!strncasecmp ( s, "quit\n", 5)) {
+      if (!strcasecmp ( s, "quit\n") ||
+          !strcasecmp ( s, "quit")) {
 fprintf(stdout,"quit instruction encountered\n");
         s = NULL;
         break;
@@ -835,6 +902,7 @@ fprintf(stdout,"gui instruction encountered\n");
 
  // Assign a sequence number to the command.
   clip->SetSeq (++Command_Sequence_Number);
+fprintf(stdout,"command[%d]: %s\n",Command_Sequence_Number,s);
 
  // Log the command.
   cw->Trace(clip);
