@@ -70,6 +70,7 @@ extern "C"
     for(int i=0;i<argc;i++)
     {
       QString arg = argv[i];
+#ifdef OLDWAY
       if( arg == "--no_splash" ||
           arg == "-ns" ) 
       {
@@ -117,6 +118,16 @@ extern "C"
 //        usage();
         return; // Failure to complete...
       }
+#else // OLDWAY
+      if( arg == "-wid" )
+      { // You have a window id from the cli
+        for( ;i<argc;)
+        {
+          widStr += QString(argv[++i]);
+          widStr += QString(" ");
+        }
+      }
+#endif // OLDWAY
 
     }
 
