@@ -1,13 +1,51 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+//
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License as published by the Free
+// Software Foundation; either version 2.1 of the License, or (at your option)
+// any later version.
+//
+// This library is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this library; if not, write to the Free Software Foundation, Inc.,
+// 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+////////////////////////////////////////////////////////////////////////////////
+
+
+/*! \class CLIInterface
+
+    This class is the interface class to the cli.  I contains convienience
+    routines to make synchronous calls to the cli.  
+  
+    Each call has an optional timeout value that can be set.   This timeout
+    is defaulted to a reasonable expected failure time.   If the command
+    doesn't successfully complete in that time it is aborted and any
+    subsequent return value will be ignored.     This behaviour can 
+    be modified 2 ways.    There is a flag (warn_of_time) that can 
+    be set.   When set to true, a warning will be issued each time the 
+    timeout period has been hit.   The use is then prompted if they want
+    to continue with another timeout slot.    Alternately, if the timeout
+    is 0 (zero) the command will only return when it completes.
+*/
+
 #include "CLIInterface.hxx"
 
 #include "qapplication.h"
 
 #include <qinputdialog.h>
 
+bool CLIInterface::interrupt = false;
+
+/*! Given a window id create an interface to the cli. */
 CLIInterface::CLIInterface(int _wid) : QObject()
 {
   wid = _wid;
-  setInterrupt(false);
+  CLIInterface::interrupt = false;
   timer = NULL;
 }
 
@@ -15,10 +53,20 @@ CLIInterface::~CLIInterface()
 {
 }
 
+/*! Run a synchronous command.   No values from the cli are return. 
+    \param command   The command line interface (cli) command to execute.
+
+    \param mt     The maximum time to wait before command is considered
+                  failed.
+
+    \param warn_of_time  If set the user will be prompted at the timeout
+                         to see if the command should contunue.
+*/
 bool
-CLIInterface::runSynchronousCLI(char *command, int mt, bool warn_of_time )
+CLIInterface::runSynchronousCLI(char *command, int mt, bool wot )
 {
   maxTime = mt;
+  warn_of_time = wot;
 printf("runSynchronousCLI(%s)\n", command);
   InputLineObject *clip = Append_Input_String( wid, command);
   if( clip == NULL )
@@ -57,11 +105,25 @@ printf("runSynchronousCLI(%s)\n", command);
   return(true);
 }
 
+/*! Run a synchronous command and return an integer value.
+    \param command   The command line interface (cli) command to execute.
+
+    \param val    The integer value returned form the cli.
+
+    \param mark_for_delete   If true delete the values in the cli's objects.
+
+    \param mt     The maximum time to wait before command is considered
+                  failed.
+
+    \param warn_of_time  If set the user will be prompted at the timeout
+                         to see if the command should contunue.
+*/
 bool
-CLIInterface::getIntValueFromCLI(char *command, int64_t *val, bool mark_value_for_delete, int mt, bool warn_of_time )
+CLIInterface::getIntValueFromCLI(char *command, int64_t *val, bool mark_value_for_delete, int mt, bool wot )
 {
 printf("getIntValueFromCLI(%s)\n", command);
   maxTime = mt;
+  warn_of_time = wot;
 
   InputLineObject *clip = Append_Input_String( wid, command);
   if( clip == NULL )
@@ -131,11 +193,25 @@ printf("getIntValueFromCLI(%s)\n", command);
 }
 
 
+/*! Run a synchronous command and return a list of integer values.
+    \param command   The command line interface (cli) command to execute.
+
+    \param int_list    The integer values returned form the cli.
+
+    \param mark_for_delete   If true delete the values in the cli's objects.
+
+    \param mt     The maximum time to wait before command is considered
+                  failed.
+
+    \param warn_of_time  If set the user will be prompted at the timeout
+                         to see if the command should contunue.
+*/
 bool
-CLIInterface::getIntListValueFromCLI(char *command, std::list<int64_t> *int_list, bool mark_value_for_delete, int mt, bool warn_of_time )
+CLIInterface::getIntListValueFromCLI(char *command, std::list<int64_t> *int_list, bool mark_value_for_delete, int mt, bool wot )
 {
 printf("getIntListValueFromCLI(%s)\n", command);
   maxTime = mt;
+  warn_of_time = wot;
 
   InputLineObject *clip = Append_Input_String( wid, command);
 // printf("clip = 0x%x\n", clip);
@@ -214,6 +290,196 @@ std::list<CommandResult *> cmd_result = co->Result_List();
   return(true);
 }
 
+
+/*! Run a synchronous command and return a string value.
+    \param command   The command line interface (cli) command to execute.
+
+    \param str_val    The string values returned form the cli.
+
+    \param mark_for_delete   If true delete the values in the cli's objects.
+
+    \param mt     The maximum time to wait before command is considered
+                  failed.
+
+    \param warn_of_time  If set the user will be prompted at the timeout
+                         to see if the command should contunue.
+*/
+bool
+CLIInterface::getStringValueFromCLI(char *command, std::string *str_val, bool mark_value_for_delete, int mt, bool wot )
+{
+printf("getStringValueFromCLI(%s)\n", command);
+  maxTime = mt;
+  warn_of_time = wot;
+
+  InputLineObject *clip = Append_Input_String( wid, command);
+  if( clip == NULL )
+  {
+    fprintf(stderr, "FATAL ERROR: No clip returned from cli.\n");
+    return false;
+  }
+  Input_Line_Status status = ILO_UNKNOWN;
+
+  int timeout_cnt = 0;
+
+  while( status != ILO_COMPLETE )
+  {
+    status = checkStatus(clip);
+// printf("status = %d\n", status);
+    if( !status )
+    {   // An error occurred.... A message should have been posted.. return;
+      fprintf(stderr, "an error occurred processing (%s)!\n", command);
+      return false;
+    }
+
+    if( status == ILO_COMPLETE )
+    {
+// printf("status = ILO_COMPLETE!\n");
+      std::list<CommandObject *>::iterator coi;
+      if( clip->CmdObj_List().size() == 1 ) // We should only have one in this case.\n");
+      {
+// printf("We have 1 command object.   Get the data.\n");
+        coi = clip->CmdObj_List().begin();
+        CommandObject *co = (CommandObject *)(*coi);
+
+      
+        std::list<CommandResult *>::iterator crl;
+        crl = co->Result_List().begin();    
+        CommandResult_String *cr_str = (CommandResult_String *)(*crl);
+
+        cr_str->Value(str_val);
+// printf("Down here in ditch digging land.... str_val=(%s)\n", str_val.c_str() );
+
+        if( mark_value_for_delete )
+        {
+          //Allow the garbage collector to clean up the value...
+          clip->Set_Results_Used();
+        }
+      }
+      break;
+    }
+    
+    qApp->processEvents(1000);
+
+    if( !shouldWeContinue() )
+    {
+// printf("RETURN FALSE!   COMMAND FAILED!\n");
+      return false;
+    }
+
+    sleep(1);
+  } 
+
+  if( timer )
+  {
+    timer->stop();
+    delete timer;
+    timer = NULL;
+  }
+
+  return(true);
+}
+
+
+/*! Run a synchronous command and return a list of string values.
+    \param command   The command line interface (cli) command to execute.
+
+    \param int_list    The integer values returned form the cli.
+
+    \param mark_for_delete   If true delete the values in the cli's objects.
+
+    \param mt     The maximum time to wait before command is considered
+                  failed.
+
+    \param warn_of_time  If set the user will be prompted at the timeout
+                         to see if the command should contunue.
+*/
+bool
+CLIInterface::getStringListValueFromCLI(char *command, std::list<std::string> *str_list, bool mark_value_for_delete, int mt, bool wot )
+{
+printf("getStringListValueFromCLI(%s)\n", command);
+  maxTime = mt;
+  warn_of_time = wot;
+
+  InputLineObject *clip = Append_Input_String( wid, command);
+// printf("clip = 0x%x\n", clip);
+  if( clip == NULL )
+  {
+    fprintf(stderr, "FATAL ERROR: No clip returned from cli.\n");
+    return false;
+  }
+  Input_Line_Status status = ILO_UNKNOWN;
+
+  int timeout_cnt = 0;
+
+  while( status != ILO_COMPLETE )
+  {
+    status = checkStatus(clip);
+// printf("status = %d\n", status);
+    if( !status )
+    {   // An error occurred.... A message should have been posted.. return;
+      fprintf(stderr, "an error occurred processing (%s)!\n", command);
+      return false;
+    }
+
+    if( status == ILO_COMPLETE )
+    {
+// printf("status = ILO_COMPLETE!\n");
+      std::list<CommandObject *>::iterator coi;
+// printf("clip->CmdObj_List().size()=%d\n", clip->CmdObj_List().size() );
+      if( clip->CmdObj_List().size() == 1 ) // We should only have one in this case.\n");
+      {
+// printf("We have 1 command object.   Get the data.\n");
+        coi = clip->CmdObj_List().begin();
+        CommandObject *co = (CommandObject *)(*coi);
+// printf("co=0x%x\n", co);
+
+        std::list<CommandResult *>::iterator cri;
+// printf("co->Result_List().size()=%d\n", co->Result_List().size() );
+std::list<CommandResult *> cmd_result = co->Result_List();
+        for(cri = cmd_result.begin(); cri != cmd_result.end(); cri++ )
+        {
+          CommandResult_String *cr_str = (CommandResult_String *)(*cri);
+// printf("cr_str=0x%x\n", cr_str);   // This is null?
+
+          std::string str_val = 0;
+          cr_str->Value(&str_val);
+          (*str_list).push_back(str_val);
+// printf("Down here in ditch digging land.... str_val=(%s)\n", str_val.c_str() );
+        }
+
+        if( mark_value_for_delete )
+        {
+          //Allow the garbage collector to clean up the value...
+          clip->Set_Results_Used();
+        }
+      }
+      break;
+    }
+    
+    qApp->processEvents(1000);
+
+    if( !shouldWeContinue() )
+    {
+// printf("RETURN FALSE!   COMMAND FAILED!\n");
+      return false;
+    }
+
+    sleep(1);
+  } 
+
+  if( timer )
+  {
+    timer->stop();
+    delete timer;
+    timer = NULL;
+  }
+
+  return(true);
+}
+
+/*! This routine simply checks the status of the command 
+    in the cli's processing.
+*/
 Input_Line_Status
 CLIInterface::checkStatus(InputLineObject *clip)
 {
@@ -244,6 +510,10 @@ CLIInterface::checkStatus(InputLineObject *clip)
   return status;
 }
 
+/*! A simple routine to check the command status and the interrupt flag.
+  
+    If all is clear to continue it returns true.
+*/
 bool 
 CLIInterface::shouldWeContinue()
 {
@@ -257,7 +527,8 @@ CLIInterface::shouldWeContinue()
       timer->start(maxTime, TRUE);
     }
   }
-  if( getInterrupt() )
+//  if( getInterrupt() )
+  if( CLIInterface::interrupt )
   {
     // First cancel the timer..
     if( timer )
@@ -270,7 +541,8 @@ CLIInterface::shouldWeContinue()
     // Now cancel the command(s)
 
     // Also cancel the interrupt;
-    setInterrupt(false);
+//    setInterrupt(false);
+    CLIInterface::interrupt = false;
   
 // printf("stop!!!\n");
     return false;
@@ -280,6 +552,11 @@ CLIInterface::shouldWeContinue()
   return true;
 }
 
+/*! This routine is called when the timer is fired.
+
+    If the user had set the warn_of_time setting they will be prompted
+    before returning.   Otherwise the command is aborted.
+*/
 void
 CLIInterface::wakeupFromTimer()
 {
@@ -291,17 +568,26 @@ CLIInterface::wakeupFromTimer()
     timer = NULL;
   }
 
-  bool ok;
-  int res = QInputDialog::getInteger(
-            "Unable to complete command before timeout?", "Enter milleseconds before next timeout: (Hit cancel to abort command.)", maxTime, 0, 100000, 1000, &ok);
-
-  if ( ok ) 
+  if( warn_of_time )
   {
-    // user entered something and pressed OK
-    maxTime = res;
+    bool ok;
+    int res = QInputDialog::getInteger(
+              "Unable to complete command before timeout?", "Enter milleseconds before next timeout: (Hit cancel to abort command.)", maxTime, 0, 100000, 1000, &ok);
+  
+    if ( ok ) 
+    {
+      // user entered something and pressed OK
+      maxTime = res;
+    } else
+    {
+      // user entered nothing or pressed Cancel
+//      setInterrupt(true);
+      CLIInterface::interrupt = true;
+    }
   } else
   {
-    // user entered nothing or pressed Cancel
-    setInterrupt(true);
+    // No warning required.
+//    setInterrupt(true);
+    CLIInterface::interrupt = true;
   }
 }

@@ -452,7 +452,8 @@ if( !cli->runSynchronousCLI(command) )
         break;
       case  INTERRUPT_T:
         nprintf( DEBUG_MESSAGES ) ("Interrupt\n");
-cli->setInterrupt(true);
+// cli->setInterrupt(true);
+CLIInterface::interrupt = true;
         ret_val = 1;
         break;
       case  TERMINATE_T:
