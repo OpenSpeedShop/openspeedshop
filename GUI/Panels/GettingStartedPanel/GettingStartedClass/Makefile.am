@@ -22,15 +22,11 @@
 # All Rights Reserved.
 ################################################################################
 
-install: all
-
-all: gettingstartedclass.ui.h
-	-mv Makefile Makefile.tmp
-	$(QTDIR)/bin/qmake GettingStartedClass.pro; \
-	$(QTDIR)/bin/qmake; \
-	make .ui/gettingstartedclass.h; \
-	make .ui/gettingstartedclass.cpp; \
+all:
+install:
+	-$(QTDIR)/bin/qmake -o qMakefile; \
+	make -f qMakefile .ui/gettingstartedclass.h; \
+	make -f qMakefile .ui/gettingstartedclass.cpp; \
 	$(QTDIR)/bin/moc -o .ui/moc_gettingstartedclass.cpp .ui/gettingstartedclass.h; \
-	make .ui/gettingstartedclass.o; \
-	make .ui/moc_gettingstartedclass.o; \
-	cp Makefile.tmp Makefile;
+	make -f qMakefile .ui/gettingstartedclass.o; \
+	make -f qMakefile .ui/moc_gettingstartedclass.o;
