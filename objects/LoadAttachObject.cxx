@@ -19,37 +19,17 @@ LoadAttachObject::LoadAttachObject() : MessageObject("LoadAttachObject")
 
 /*! Constructor for the LoadAttachObject.   Initializes the filename to load.
     or the pid to attach to. */
-LoadAttachObject::LoadAttachObject(char *executable_name, char *pid_string, QString param_list) : MessageObject("LoadAttachObject")
+LoadAttachObject::LoadAttachObject(QString executable_name, QString pid_string, QString param_list) : MessageObject("LoadAttachObject")
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("LoadAttachObject::LoadAttachObject(entered.\n");
-  if( executable_name )
-  {
-    executableName = strdup(executable_name);
-  } else
-  {
-    executableName = NULL;
-  }
-  if( pid_string )
-  {
-    pidStr = strdup(pid_string);
-  } else
-  {
-    pidStr = NULL;
-  }
+  executableName = executable_name;
+  pidStr = pid_string;
   paramList = param_list;
 }
 
 /*! Destructor.   Releases the functionName and fileName. */
 LoadAttachObject::~LoadAttachObject()
 {
-  if( executableName )
-  {
-    free( executableName );
-  }
-  if( pidStr )
-  {
-    free( pidStr );
-  }
 }
 
 /*! Prints the objects fields.    Debug only. */
@@ -57,7 +37,7 @@ void
 LoadAttachObject::print()
 {
   printf("LoadAttachObject:\n");
-  printf("	executableName=(%s)\n", executableName);
-  printf("	pidStr=(%s)\n", pidStr);
+  printf("	executableName=(%s)\n", executableName.ascii());
+  printf("	pidStr=(%s)\n", pidStr.ascii());
   printf("	paramList=(%s)\n", paramList.ascii() );
 }

@@ -33,7 +33,7 @@ class OpenSpeedshop : public QMainWindow
     //! Q_OBJECT is needed as there are slots defined for the OpenSpeedshop
     Q_OBJECT
 
-public:
+  public:
     //! Constructor for the QMainWindow.
     OpenSpeedshop( QWidget* parent = 0, const char* name = 0, WFlags fl = WType_TopLevel );
 
@@ -46,7 +46,7 @@ public:
     QPopupMenu *editMenu;
     QPopupMenu *helpMenu;
     QAction* fileNewAction;
-QAction* fileAttachAction;
+    QAction* fileAttachAction;
     QAction* fileOpenAction;
     QAction* fileSaveAction;
 #ifdef EVENTUALLY
@@ -71,20 +71,19 @@ QAction* fileAttachAction;
     PanelContainer *topPC;
 
     //! The hinted process id string that is to be attached (eventually).
-    char *pid_str;
+    QString pidStr;
 
     //! The hinted executable_name that is to be loaded (eventually).
-    char *executable_name;
+    QString executableName;
 
     //! The hinted experiment_name that is to be intialized.. 
-    char *experiment_name;
+    QString experimentName;
 
     //! The load file dialog.
     QFileDialog *lfd;
 
     //! The save file dialog.
     QFileDialog *sfd;
-
 
 #ifdef EVENTUALLY // Move back to 'public slots:' if needed.
     virtual void editUndo();
@@ -94,7 +93,7 @@ QAction* fileAttachAction;
     virtual void editFind();
     virtual void fileSaveAs();
 #endif // EVENTUALLY
-public slots:
+  public slots:
     virtual void fileNew();
     virtual void fileAttach();
     virtual void fileOpen();

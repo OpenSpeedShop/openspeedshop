@@ -12,7 +12,7 @@ public:
     //! Unused constructor.
     LoadAttachObject();
     //! Constructor for attaching to executable
-    LoadAttachObject(char *executable_name = NULL, char *pid_string = NULL, QString param_list = NULL);
+    LoadAttachObject(QString executable_name = NULL, QString pid_string = NULL, QString param_list = NULL);
 
     //! Destructor
     ~LoadAttachObject();
@@ -21,10 +21,10 @@ public:
     void print();
 
     //! The executable to attach to...
-    char *executableName;
+    QString executableName;
 
     //! The pid to attach to..
-    char *pidStr;
+    QString pidStr;
 
     //! The list of parameters
     QString paramList;

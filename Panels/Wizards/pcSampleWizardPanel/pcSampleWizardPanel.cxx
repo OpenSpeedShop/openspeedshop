@@ -643,16 +643,8 @@ void pcSampleWizardPanel::eAttachOrLoadPageResetButtonSelected()
     OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
     if( mw )
     {
-      if( mw->executable_name )
-      {
-        free( mw->executable_name );
-        mw->executable_name = NULL;
-      }
-      if( mw->pid_str )
-      {
-        free( mw->pid_str );
-        mw->pid_str = NULL;
-      }
+      mw->executableName = QString::null;
+      mw->pidStr = QString::null;
     }
   }
   eUpdateAttachOrLoadPageWidget();
@@ -691,7 +683,7 @@ char buffer[2048];
   
   if( eAttachOrLoadPageAttachToProcessCheckBox->isChecked() )
   {
-    if( mw->pid_str == NULL )
+    if( mw->pidStr.isEmpty() )
     {
       QString result;
        AttachProcessDialog *dialog = new AttachProcessDialog(this, "AttachProcessDialog", TRUE);
@@ -703,46 +695,38 @@ char buffer[2048];
             return;
         } else
         {
-          if( mw->pid_str )
-          {
-            free( mw->pid_str );
-          }
-          mw->pid_str = strdup(result.ascii());
+          mw->pidStr = result;
         }
       }
       delete dialog;
-if( mw->pid_str == NULL ) 
+if( mw->pidStr.isEmpty() )
 {
   return;
 }
-      sprintf(buffer, "<p align=\"left\">Requesting to load process \"%s\" on host \"%s\",  sampling at \"%s\" milliseconds.<br><br></p>", mw->pid_str, "localhost", eParameterPageSampleRateText->text().ascii() );
+      sprintf(buffer, "<p align=\"left\">Requesting to load process \"%s\" on host \"%s\",  sampling at \"%s\" milliseconds.<br><br></p>", mw->pidStr.ascii(), "localhost", eParameterPageSampleRateText->text().ascii() );
     }
   }
   if( eAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
   {
-    if( mw->executable_name == NULL )
+    if( mw->executableName.isEmpty() )
     {
       nprintf(DEBUG_PANELS) ("Load the QFile \n");
       QString fn = QFileDialog::getOpenFileName( QString::null, QString::null,
                                this);
       if( !fn.isEmpty() )
       {
-        if( mw->executable_name )
-        {
-          free( mw->executable_name );
-        }
-        mw->executable_name = strdup(fn.ascii());
-        nprintf(DEBUG_PANELS) ("fn.ascii()=(%s)\n", fn.ascii() );
+        mw->executableName = fn;
+        nprintf(DEBUG_PANELS) ("mw->executableName.ascii()=(%s)\n", mw->executableName.ascii() );
       } else
       {
         return;
       }
     }
-if( mw->executable_name == NULL ) 
+if( mw->executableName.isEmpty() )
 {
   return;
 }
-    sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", sampling at \"%s\" milliseconds.<br><br></p>", mw->executable_name, "localhost", eParameterPageSampleRateText->text().ascii() );
+    sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", sampling at \"%s\" milliseconds.<br><br></p>", mw->executableName.ascii(), "localhost", eParameterPageSampleRateText->text().ascii() );
   }
 
   eSummaryPageFinishLabel->setText( tr( buffer ) );
@@ -814,16 +798,8 @@ printf ("vAttachOrLoadPageResetButtonSelected() \n");
     OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
     if( mw )
     {
-      if( mw->executable_name )
-      {
-        free( mw->executable_name );
-        mw->executable_name = NULL;
-      }
-      if( mw->pid_str )
-      {
-        free( mw->pid_str );
-        mw->pid_str = NULL;
-      }
+      mw->executableName = QString::null;
+      mw->pidStr = QString::null;
     }
   }
   vUpdateAttachOrLoadPageWidget();
@@ -860,7 +836,7 @@ char buffer[2048];
 
   if( vAttachOrLoadPageAttachToProcessCheckBox->isChecked() )
   { 
-    if( mw->pid_str == NULL )
+    if( mw->pidStr.isEmpty() )
     {
       QString result;
        AttachProcessDialog *dialog = new AttachProcessDialog(this, "AttachProcessDialog", TRUE);
@@ -872,46 +848,38 @@ char buffer[2048];
           return;
         } else
         {
-          if( mw->pid_str )
-          {
-            free( mw->pid_str );
-          }
-          mw->pid_str = strdup(result.ascii());
+          mw->pidStr = result;
         }
       }
       delete dialog;
     }
-    if( mw->pid_str == NULL )
+    if( mw->pidStr.isEmpty() )
     {
       return;
     }
-    sprintf(buffer, "<p align=\"left\">You've selected a pc Sample experiment for process \"%s\" running on host \"%s\".  Futher you've chosed a sample rate of \"%s\" milliseconds.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"pcSample\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->pid_str, "localhost", vParameterPageSampleRateText->text().ascii() );
+    sprintf(buffer, "<p align=\"left\">You've selected a pc Sample experiment for process \"%s\" running on host \"%s\".  Futher you've chosed a sample rate of \"%s\" milliseconds.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"pcSample\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->pidStr.ascii(), "localhost", vParameterPageSampleRateText->text().ascii() );
   }
   if( vAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
   {
-    if( mw->executable_name == NULL )
+    if( mw->executableName.isEmpty() )
     {
       nprintf(DEBUG_PANELS) ("Load the QFile \n");
       QString fn = QFileDialog::getOpenFileName( QString::null, QString::null,
                                this);
       if( !fn.isEmpty() )
       {
-        if( mw->executable_name )
-        {
-          free( mw->executable_name );
-        }
-        mw->executable_name = strdup(fn.ascii());
-        nprintf(DEBUG_PANELS) ("fn.ascii()=(%s)\n", fn.ascii() );
+        mw->executableName = fn;
+        nprintf(DEBUG_PANELS) ("mw->executableName.ascii()=(%s)\n", mw->executableName.ascii() );
       } else
       {
         return;
       }
     }
-    if( mw->executable_name == NULL )
+    if( mw->executableName.isEmpty() )
     {
       return;
     }
-    sprintf(buffer, "<p align=\"left\">You've selected a pc Sample experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%s\" milliseconds.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"pcSample\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executable_name, "localhost", vParameterPageSampleRateText->text().ascii() );
+    sprintf(buffer, "<p align=\"left\">You've selected a pc Sample experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%s\" milliseconds.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"pcSample\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), "localhost", vParameterPageSampleRateText->text().ascii() );
   }
 
   vSummaryPageFinishLabel->setText( tr( buffer ) );
@@ -941,12 +909,12 @@ nprintf(DEBUG_PANELS) ("vSummaryPageFinishButtonSelected() \n");
     if( mw )
     {
       LoadAttachObject *lao = NULL;
-      if( mw->executable_name != NULL )
+      if( !mw->executableName.isEmpty() )
       {
-        lao = new LoadAttachObject(mw->executable_name, (char *)NULL, sampleRate);
-      } else if( mw->pid_str != NULL )
+        lao = new LoadAttachObject(mw->executableName, (char *)NULL, sampleRate);
+      } else if( !mw->pidStr.isEmpty() )
       {
-        lao = new LoadAttachObject((char *)NULL, mw->pid_str, sampleRate);
+        lao = new LoadAttachObject((char *)NULL, mw->pidStr, sampleRate);
       } else
       {
         printf("Warning: No attach or load paramaters available.\n");
@@ -1067,28 +1035,24 @@ pcSampleWizardPanel::eUpdateAttachOrLoadPageWidget()
     printf("mw=0x%x\n", mw );
     if( mw )
     {
-      if( mw->executable_name )
+      if( !mw->executableName.isEmpty() )
       {
-        char *executable_name = mw->executable_name;
-        printf("executable_name = (%s)\n", executable_name);
         eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
         eAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
-        eAttachOrLoadPageExecutableLabel->setText( executable_name );
-      } else if( mw && mw->pid_str )
+        eAttachOrLoadPageExecutableLabel->setText( mw->executableName );
+      } else if( !mw->pidStr.isEmpty() )
       {
-        char *pid_str = getPanelContainer()->getMainWindow()->pid_str;
-        printf("pid_str=(%s)\n", pid_str);
-        eAttachOrLoadPageProcessListLabel->setText( pid_str );
+        eAttachOrLoadPageProcessListLabel->setText( mw->pidStr );
         eAttachOrLoadPageAttachToProcessCheckBox->setChecked(TRUE);
         eAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
       }
-      if( mw->executable_name == NULL || strcmp(mw->executable_name,"") == 0 )
+      if( mw->executableName.isEmpty() )
       {
         vAttachOrLoadPageExecutableLabel->setText( "" );
       }
-      if( mw->pid_str == NULL || strcmp(mw->pid_str,"") == 0 )
+      if( mw->pidStr.isEmpty() )
       {
-        vAttachOrLoadPageProcessListLabel->setText( mw->pid_str );
+        vAttachOrLoadPageProcessListLabel->setText( mw->pidStr );
       }
     }
   } 
@@ -1111,33 +1075,29 @@ pcSampleWizardPanel::vUpdateAttachOrLoadPageWidget()
     printf("mw=0x%x\n", mw );
     if( mw )
     {
-      if( mw->executable_name )
+      if( !mw->executableName.isEmpty() )
       {
-        char *executable_name = mw->executable_name;
-        printf("executable_name = (%s)\n", executable_name);
         vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
         vAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
-        vAttachOrLoadPageExecutableLabel->setText( executable_name );
+        vAttachOrLoadPageExecutableLabel->setText( mw->executableName );
         vAttachOrLoadPageExecutableLabel->show();
         eAttachOrLoadPageExecutableLabel->show();
-      } else if( mw && mw->pid_str )
+      } else if( !mw->pidStr.isEmpty() )
       {
-        char *pid_str = getPanelContainer()->getMainWindow()->pid_str;
-        printf("pid_str=(%s)\n", pid_str);
         vAttachOrLoadPageAttachToProcessCheckBox->setChecked(TRUE);
         vAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
-        vAttachOrLoadPageProcessListLabel->setText( pid_str );
+        vAttachOrLoadPageProcessListLabel->setText( mw->pidStr );
         vAttachOrLoadPageProcessListLabel->show();
         eAttachOrLoadPageProcessListLabel->show();
       }
     }
-    if( mw->executable_name == NULL || strcmp(mw->executable_name,"") == 0 )
+    if( mw->executableName.isEmpty() )
     {
       vAttachOrLoadPageExecutableLabel->setText( "" );
     }
-    if( mw->pid_str == NULL || strcmp(mw->pid_str,"") == 0 )
+    if( mw->pidStr.isEmpty() )
     {
-      vAttachOrLoadPageProcessListLabel->setText( mw->pid_str );
+      vAttachOrLoadPageProcessListLabel->setText( mw->pidStr );
     }
   }
 }

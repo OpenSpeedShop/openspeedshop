@@ -34,13 +34,6 @@ void OpenSpeedshop::fileNew()
 {
   printf("fileNew() entered\n");
 
-  char *save_executable_name = NULL;
-  if( executable_name != NULL )
-  {
-    free(executable_name);
-    executable_name = NULL;
-  }
-
   QString dirName = QString::null;
   if( lfd == NULL )
   {
@@ -66,7 +59,7 @@ void OpenSpeedshop::fileNew()
     if( !fileName.isEmpty() )
     {
       printf("fileName.ascii() = (%s)\n", fileName.ascii() );
-      executable_name = strdup( fileName.ascii() );
+      executableName = fileName;
     }
   }
 }
@@ -75,33 +68,14 @@ void OpenSpeedshop::fileAttach()
 {
   printf("fileAttach() entered\n");
 
-  QString pidString = QString::null;
   AttachProcessDialog *dialog = new AttachProcessDialog(this, "AttachProcessDialog", TRUE);
   if( dialog->exec() == QDialog::Accepted )
   {
 // printf("QDialog::Accepted\n");
-    pidString = dialog->selectedProcesses();
-    if( !pidString.isEmpty() )
-    {
-      printf("pidString.ascii()=%s\n", pidString.ascii() );
-      if( pid_str != NULL )
-      {
-        free( pid_str );
-        pid_str = NULL;
-      }
-      pid_str = strdup( pidString.ascii() );
-    } else
-    {
-printf("no pid accepted.   Clear the global.\n");
-      if( pid_str != NULL )
-      {
-        free( pid_str );
-      }
-      pid_str = NULL;
-    }
+    pidStr = dialog->selectedProcesses();
   }
 
-printf("pid_str = %s\n", pid_str == NULL ? "" : pid_str);
+printf("pidStr = %s\n", pidStr.ascii() );
   delete dialog;
 }
 

@@ -25,128 +25,129 @@
 OpenSpeedshop::OpenSpeedshop( QWidget* parent, const char* name, WFlags fl )
     : QMainWindow( parent, name, fl )
 {
-lfd = NULL;
-sfd = NULL;
-pid_str = NULL;
-executable_name = NULL;
-experiment_name = NULL;
-    (void)statusBar();
-    if ( !name )
+  lfd = NULL;
+  sfd = NULL;
+  pidStr = QString::null;
+  executableName = QString::null;
+  experimentName = QString::null;
+
+  (void)statusBar();
+
+  if ( !name )
+  {
 	setName( "OpenSpeedshop" );
-    setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)7, 0, 0, sizePolicy().hasHeightForWidth() ) );
-    setCentralWidget( new QWidget( this, "qt_central_widget" ) );
-    OpenSpeedshopLayout = new QVBoxLayout( centralWidget(), 11, 6, "OpenSpeedshopLayout"); 
+  }
+  setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)7, 0, 0, sizePolicy().hasHeightForWidth() ) );
+  setCentralWidget( new QWidget( this, "qt_central_widget" ) );
+  OpenSpeedshopLayout = new QVBoxLayout( centralWidget(), 11, 6, "OpenSpeedshopLayout"); 
 
-    // actions
-    fileNewAction = new QAction( this, "fileNewAction" );
-    fileNewAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "filenew" ) ) );
-fileAttachAction = new QAction( this, "fileAttachAction" );
-fileAttachAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "process" ) ) );
+  // actions
+  fileNewAction = new QAction( this, "fileNewAction" );
+  fileNewAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "filenew" ) ) );
 
-    fileOpenAction = new QAction( this, "fileOpenAction" );
-    fileOpenAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "fileopen" ) ) );
-    fileSaveAction = new QAction( this, "fileSaveAction" );
-    fileSaveAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "filesave" ) ) );
+  fileAttachAction = new QAction( this, "fileAttachAction" );
+  fileAttachAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "process" ) ) );
+
+  fileOpenAction = new QAction( this, "fileOpenAction" );
+  fileOpenAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "fileopen" ) ) );
+  fileSaveAction = new QAction( this, "fileSaveAction" );
+  fileSaveAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "filesave" ) ) );
 #ifdef EVENTUALLY
-    fileSaveAsAction = new QAction( this, "fileSaveAsAction" );
+  fileSaveAsAction = new QAction( this, "fileSaveAsAction" );
 #endif // EVENTUALLY
-    fileExitAction = new QAction( this, "fileExitAction" );
+  fileExitAction = new QAction( this, "fileExitAction" );
 #ifdef EVENTUALLY
-    editUndoAction = new QAction( this, "editUndoAction" );
-    editUndoAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "undo" ) ) );
-    editRedoAction = new QAction( this, "editRedoAction" );
-    editRedoAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "redo" ) ) );
-    editCutAction = new QAction( this, "editCutAction" );
-    editCutAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "editcut" ) ) );
-    editCopyAction = new QAction( this, "editCopyAction" );
-    editCopyAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "editcopy" ) ) );
-    editPasteAction = new QAction( this, "editPasteAction" );
-    editPasteAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "editpaste" ) ) );
-    editFindAction = new QAction( this, "editFindAction" );
-    editFindAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "searchfind" ) ) );
+  editUndoAction = new QAction( this, "editUndoAction" );
+  editUndoAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "undo" ) ) );
+  editRedoAction = new QAction( this, "editRedoAction" );
+  editRedoAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "redo" ) ) );
+  editCutAction = new QAction( this, "editCutAction" );
+  editCutAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "editcut" ) ) );
+  editCopyAction = new QAction( this, "editCopyAction" );
+  editCopyAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "editcopy" ) ) );
+  editPasteAction = new QAction( this, "editPasteAction" );
+  editPasteAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "editpaste" ) ) );
+  editFindAction = new QAction( this, "editFindAction" );
+  editFindAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "searchfind" ) ) );
 #endif // EVENTUALLY
-    helpContentsAction = new QAction( this, "helpContentsAction" );
-    helpIndexAction = new QAction( this, "helpIndexAction" );
-    helpAboutAction = new QAction( this, "helpAboutAction" );
+  helpContentsAction = new QAction( this, "helpContentsAction" );
+  helpIndexAction = new QAction( this, "helpIndexAction" );
+  helpAboutAction = new QAction( this, "helpAboutAction" );
 
 
-    // toolbars
+  // menubar
+  menubar = new QMenuBar( this, "menubar" );
 
-
-    // menubar
-    menubar = new QMenuBar( this, "menubar" );
-
-
-    fileMenu = new QPopupMenu( this );
-    fileNewAction->addTo( fileMenu );
-fileAttachAction->addTo( fileMenu );
-    fileOpenAction->addTo( fileMenu );
-    fileSaveAction->addTo( fileMenu );
+  fileMenu = new QPopupMenu( this );
+  fileNewAction->addTo( fileMenu );
+  fileAttachAction->addTo( fileMenu );
+  fileOpenAction->addTo( fileMenu );
+  fileSaveAction->addTo( fileMenu );
 #ifdef EVENTUALLY
-    fileSaveAsAction->addTo( fileMenu );
+  fileSaveAsAction->addTo( fileMenu );
 #endif // EVENTUALLY
-    fileMenu->insertSeparator();
-    fileMenu->insertSeparator();
-    fileExitAction->addTo( fileMenu );
-    menubar->insertItem( QString(""), fileMenu, 1 );
+  fileMenu->insertSeparator();
+  fileMenu->insertSeparator();
+  fileExitAction->addTo( fileMenu );
+  menubar->insertItem( QString(""), fileMenu, 1 );
 
-    editMenu = new QPopupMenu( this );
+  editMenu = new QPopupMenu( this );
 #ifdef EVENTUALLY
-    editUndoAction->addTo( editMenu );
-    editRedoAction->addTo( editMenu );
-    editMenu->insertSeparator();
-    editCutAction->addTo( editMenu );
-    editCopyAction->addTo( editMenu );
-    editPasteAction->addTo( editMenu );
-    editMenu->insertSeparator();
-    editFindAction->addTo( editMenu );
-    menubar->insertItem( QString(""), editMenu, 2 );
+  editUndoAction->addTo( editMenu );
+  editRedoAction->addTo( editMenu );
+  editMenu->insertSeparator();
+  editCutAction->addTo( editMenu );
+  editCopyAction->addTo( editMenu );
+  editPasteAction->addTo( editMenu );
+  editMenu->insertSeparator();
+  editFindAction->addTo( editMenu );
+  menubar->insertItem( QString(""), editMenu, 2 );
 #endif // EVENTUALLY
 
 
     // signals and slots connections
-    connect( fileNewAction, SIGNAL( activated() ), this, SLOT( fileNew() ) );
-connect( fileAttachAction, SIGNAL( activated() ), this, SLOT( fileAttach() ) );
-    connect( fileOpenAction, SIGNAL( activated() ), this, SLOT( fileOpen() ) );
-    connect( fileSaveAction, SIGNAL( activated() ), this, SLOT( fileSave() ) );
+  connect( fileNewAction, SIGNAL( activated() ), this, SLOT( fileNew() ) );
+  connect( fileAttachAction, SIGNAL( activated() ), this, SLOT( fileAttach() ) );
+  connect( fileOpenAction, SIGNAL( activated() ), this, SLOT( fileOpen() ) );
+  connect( fileSaveAction, SIGNAL( activated() ), this, SLOT( fileSave() ) );
 #ifdef EVENTUALLY
-    connect( fileSaveAsAction, SIGNAL( activated() ), this, SLOT( fileSaveAs() ) );
+  connect( fileSaveAsAction, SIGNAL( activated() ), this, SLOT( fileSaveAs() ) );
 #endif // EVENTUALLY
-    connect( fileExitAction, SIGNAL( activated() ), this, SLOT( fileExit() ) );
+  connect( fileExitAction, SIGNAL( activated() ), this, SLOT( fileExit() ) );
 #ifdef EVENTUALLY
-    connect( editUndoAction, SIGNAL( activated() ), this, SLOT( editUndo() ) );
-    connect( editRedoAction, SIGNAL( activated() ), this, SLOT( editRedo() ) );
-    connect( editCutAction, SIGNAL( activated() ), this, SLOT( editCut() ) );
-    connect( editPasteAction, SIGNAL( activated() ), this, SLOT( editPaste() ) );
-    connect( editFindAction, SIGNAL( activated() ), this, SLOT( editFind() ) );
+  connect( editUndoAction, SIGNAL( activated() ), this, SLOT( editUndo() ) );
+  connect( editRedoAction, SIGNAL( activated() ), this, SLOT( editRedo() ) );
+  connect( editCutAction, SIGNAL( activated() ), this, SLOT( editCut() ) );
+  connect( editPasteAction, SIGNAL( activated() ), this, SLOT( editPaste() ) );
+  connect( editFindAction, SIGNAL( activated() ), this, SLOT( editFind() ) );
 #endif // EVENTUALLY
-    connect( helpIndexAction, SIGNAL( activated() ), this, SLOT( helpIndex() ) );
-    connect( helpContentsAction, SIGNAL( activated() ), this, SLOT( helpContents() ) );
-    connect( helpAboutAction, SIGNAL( activated() ), this, SLOT( helpAbout() ) );
-    init();
+  connect( helpIndexAction, SIGNAL( activated() ), this, SLOT( helpIndex() ) );
+  connect( helpContentsAction, SIGNAL( activated() ), this, SLOT( helpContents() ) );
+  connect( helpAboutAction, SIGNAL( activated() ), this, SLOT( helpAbout() ) );
+  init();
 
 
-    menubar->insertSeparator();
+  menubar->insertSeparator();
 
-    helpMenu = new QPopupMenu( this );
-    helpContentsAction->addTo( helpMenu );
-    helpIndexAction->addTo( helpMenu );
-    helpMenu->insertSeparator();
-    helpAboutAction->addTo( helpMenu );
-    menubar->insertItem( tr("&Help"), helpMenu );
+  helpMenu = new QPopupMenu( this );
+  helpContentsAction->addTo( helpMenu );
+  helpIndexAction->addTo( helpMenu );
+  helpMenu->insertSeparator();
+  helpAboutAction->addTo( helpMenu );
+  menubar->insertItem( tr("&Help"), helpMenu );
 
-    assistant = new QAssistantClient(NULL);
+  assistant = new QAssistantClient(NULL);
 //    assistant->setArguments(QStringList("-hideSidebar"));
-    QStringList slist;
-    slist.append("-profile");
-    slist.append("doc/help.adp");
+  QStringList slist;
+  slist.append("-profile");
+  slist.append("doc/help.adp");
 //    slist.append("-hideSidebar");
-    assistant->setArguments(slist);
+  assistant->setArguments(slist);
 
-    languageChange();
+  languageChange();
 
-    resize( QSize(850, 620).expandedTo(minimumSizeHint()) );
-    clearWState( WState_Polished );
+  resize( QSize(850, 620).expandedTo(minimumSizeHint()) );
+  clearWState( WState_Polished );
 }
 
 /*!
@@ -164,65 +165,71 @@ OpenSpeedshop::~OpenSpeedshop()
  */
 void OpenSpeedshop::languageChange()
 {
-    setCaption( tr( "Open/SpeedShop" ) );
-    fileNewAction->setText( tr( "Load New Program " ) );
-    fileNewAction->setMenuText( tr( "Load &New Program" ) );
-    fileNewAction->setAccel( tr( "Ctrl+N" ) );
-fileAttachAction->setText( tr( "Attach To Executable " ) );
-fileAttachAction->setMenuText( tr( "&Attach To Executable" ) );
-fileAttachAction->setAccel( tr( "Ctrl+A" ) );
-    fileOpenAction->setText( tr( "Open Saved Experiment..." ) );
-    fileOpenAction->setMenuText( tr( "&Open Saved Experiment..." ) );
-    fileOpenAction->setAccel( tr( "Ctrl+O" ) );
-    fileSaveAction->setText( tr( "Save Window Setup" ) );
-    fileSaveAction->setMenuText( tr( "&Save Window Setup" ) );
-    fileSaveAction->setAccel( tr( "Ctrl+S" ) );
+  setCaption( tr( "Open/SpeedShop" ) );
+  fileNewAction->setText( tr( "Load New Program " ) );
+  fileNewAction->setMenuText( tr( "Load &New Program" ) );
+  fileNewAction->setAccel( tr( "Ctrl+N" ) );
+  fileAttachAction->setText( tr( "Attach To Executable " ) );
+  fileAttachAction->setMenuText( tr( "&Attach To Executable" ) );
+  fileAttachAction->setAccel( tr( "Ctrl+A" ) );
+  fileOpenAction->setText( tr( "Open Saved Experiment..." ) );
+  fileOpenAction->setMenuText( tr( "&Open Saved Experiment..." ) );
+  fileOpenAction->setAccel( tr( "Ctrl+O" ) );
+  fileSaveAction->setText( tr( "Save Window Setup" ) );
+  fileSaveAction->setMenuText( tr( "&Save Window Setup" ) );
+  fileSaveAction->setAccel( tr( "Ctrl+S" ) );
 #ifdef EVENTUALLY
-    fileSaveAsAction->setText( tr( "Save As" ) );
-    fileSaveAsAction->setMenuText( tr( "Save &As..." ) );
-    fileSaveAsAction->setAccel( QString::null );
+  fileSaveAsAction->setText( tr( "Save As" ) );
+  fileSaveAsAction->setMenuText( tr( "Save &As..." ) );
+  fileSaveAsAction->setAccel( QString::null );
 #endif // EVENTUALLY
-    fileExitAction->setText( tr( "Exit" ) );
-    fileExitAction->setMenuText( tr( "E&xit" ) );
-    fileExitAction->setAccel( QString::null );
+  fileExitAction->setText( tr( "Exit" ) );
+  fileExitAction->setMenuText( tr( "E&xit" ) );
+  fileExitAction->setAccel( QString::null );
 #ifdef EVENTUALLY
-    editUndoAction->setText( tr( "Undo" ) );
-    editUndoAction->setMenuText( tr( "&Undo" ) );
-    editUndoAction->setAccel( tr( "Ctrl+Z" ) );
-    editRedoAction->setText( tr( "Redo" ) );
-    editRedoAction->setMenuText( tr( "&Redo" ) );
-    editRedoAction->setAccel( tr( "Ctrl+Y" ) );
-    editCutAction->setText( tr( "Cut" ) );
-    editCutAction->setMenuText( tr( "&Cut" ) );
-    editCutAction->setAccel( tr( "Ctrl+X" ) );
-    editCopyAction->setText( tr( "Copy" ) );
-    editCopyAction->setMenuText( tr( "C&opy" ) );
-    editCopyAction->setAccel( tr( "Ctrl+C" ) );
-    editPasteAction->setText( tr( "Paste" ) );
-    editPasteAction->setMenuText( tr( "&Paste" ) );
-    editPasteAction->setAccel( tr( "Ctrl+V" ) );
-    editFindAction->setText( tr( "Find" ) );
-    editFindAction->setMenuText( tr( "&Find..." ) );
-    editFindAction->setAccel( tr( "Ctrl+F" ) );
+  editUndoAction->setText( tr( "Undo" ) );
+  editUndoAction->setMenuText( tr( "&Undo" ) );
+  editUndoAction->setAccel( tr( "Ctrl+Z" ) );
+  editRedoAction->setText( tr( "Redo" ) );
+  editRedoAction->setMenuText( tr( "&Redo" ) );
+  editRedoAction->setAccel( tr( "Ctrl+Y" ) );
+  editCutAction->setText( tr( "Cut" ) );
+  editCutAction->setMenuText( tr( "&Cut" ) );
+  editCutAction->setAccel( tr( "Ctrl+X" ) );
+  editCopyAction->setText( tr( "Copy" ) );
+  editCopyAction->setMenuText( tr( "C&opy" ) );
+  editCopyAction->setAccel( tr( "Ctrl+C" ) );
+  editPasteAction->setText( tr( "Paste" ) );
+  editPasteAction->setMenuText( tr( "&Paste" ) );
+  editPasteAction->setAccel( tr( "Ctrl+V" ) );
+  editFindAction->setText( tr( "Find" ) );
+  editFindAction->setMenuText( tr( "&Find..." ) );
+  editFindAction->setAccel( tr( "Ctrl+F" ) );
 #endif // EVENTUALLY
-    helpContentsAction->setText( tr( "Contents" ) );
-    helpContentsAction->setMenuText( tr( "&Contents..." ) );
-    helpContentsAction->setAccel( QString::null );
-    helpIndexAction->setText( tr( "Index" ) );
-    helpIndexAction->setMenuText( tr( "&Index..." ) );
-    helpIndexAction->setAccel( QString::null );
-    helpAboutAction->setText( tr( "About" ) );
-    helpAboutAction->setMenuText( tr( "&About" ) );
-    helpAboutAction->setAccel( QString::null );
-    if (menubar->findItem(1))
-        menubar->findItem(1)->setText( tr( "&File" ) );
+  helpContentsAction->setText( tr( "Contents" ) );
+  helpContentsAction->setMenuText( tr( "&Contents..." ) );
+  helpContentsAction->setAccel( QString::null );
+  helpIndexAction->setText( tr( "Index" ) );
+  helpIndexAction->setMenuText( tr( "&Index..." ) );
+  helpIndexAction->setAccel( QString::null );
+  helpAboutAction->setText( tr( "About" ) );
+  helpAboutAction->setMenuText( tr( "&About" ) );
+  helpAboutAction->setAccel( QString::null );
+  if (menubar->findItem(1))
+  {
+    menubar->findItem(1)->setText( tr( "&File" ) );
+  }
 #ifdef EVENTUALLY
-    if (menubar->findItem(2))
-        menubar->findItem(2)->setText( tr( "&Edit" ) );
+  if (menubar->findItem(2))
+  {
+    menubar->findItem(2)->setText( tr( "&Edit" ) );
+  }
 #endif // EVENTUALLY
 #ifdef HOLD
-    if (menubar->findItem(3))
-        menubar->findItem(3)->setText( tr( "&Help" ) );
+  if (menubar->findItem(3))
+  {
+    menubar->findItem(3)->setText( tr( "&Help" ) );
+  }
 #endif // HOLD
 }
 
