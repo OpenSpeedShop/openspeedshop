@@ -615,6 +615,25 @@ int
 pcSampleWizardPanel::listener(void *msg)
 {
   nprintf(DEBUG_PANELS) ("pcSampleWizardPanel::listener() requested.\n");
+
+  MessageObject *messageObject = (MessageObject *)msg;
+  nprintf(DEBUG_PANELS) ("  messageObject->msgType = %s\n", messageObject->msgType.ascii() );
+  if( messageObject->msgType == getName() )
+  {
+    return 1;
+  }
+  if( messageObject->msgType == "Wizard_Raise_First_Page" )
+  {
+    nprintf(DEBUG_PANELS) ("vDescriptionPageWidget\n");
+    if( wizardMode->isOn() )
+    {// is it verbose?
+      mainWidgetStack->raiseWidget(vDescriptionPageWidget);
+    } else
+    {
+      mainWidgetStack->raiseWidget(eDescriptionPageWidget);
+    }
+    return 1;
+  }
   return 0;  // 0 means, did not want this message and did not act on anything.
 }
 
