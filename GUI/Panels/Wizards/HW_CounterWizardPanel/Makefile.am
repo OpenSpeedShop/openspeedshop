@@ -29,11 +29,13 @@ HW_CounterWizardPanel_la_CXXFLAGS = \
     -I$(QTDIR)/include \
     -I. \
     -I../../../gui \
+    -I../../../images \
     -I../../../plugin \
+    -I../../../dialogs \
     -I../../../objects \
     -I../../../base
 
-HW_CounterWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../../base/.libs/ftBase.so  -Wl,../../../objects/.libs/ftObjects.so
+HW_CounterWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../../base/.libs/ftBase.so  -Wl,../../../objects/.libs/ftObjects.so  -Wl,../../../dialogs/.libs/ftDialogs.so
 
 HW_CounterWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
 
