@@ -25,6 +25,8 @@ LDFLAGS = -lc -ldl
 
 SUBDIRS = . libltdl libssf collectors examples base objects dialogs expr_info plugin objects chart pcli gui Panels
 
-doc: $(SUBDIRS) Panels/* Panels/*/*
+DOC_SUBDIRS = libssf Panels pcli base chart gui plugin collectors objects dialogs
+
+doc: $(DOC_SUBDIRS) 
 	-doxygen Doxyfile
 

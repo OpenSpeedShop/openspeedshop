@@ -17,7 +17,16 @@ mkdir plugin/lib/openspeedshop
 
 
 clear
-rm -fr doc/*.html;
+rm -fr doc/design_doc/libssf
+rm -fr doc/design_doc/Panels
+rm -fr doc/design_doc/pcli
+rm -fr doc/design_doc/GUIbase
+rm -fr doc/design_doc/GUIchart
+rm -fr doc/design_doc/GUIgui
+rm -fr doc/design_doc/GUIplugin
+rm -fr doc/design_doc/collectors
+rm -fr doc/design_doc/GUIobjects
+rm -fr doc/design_doc/GUIdialogs
 rm -fr ftd
 cd ftf
 make clean
