@@ -36,6 +36,12 @@ EXPID Experiment_Sequence_Number = 0;
 std::list<ExperimentObject *> ExperimentObject_list;
 static std::string tmpdb = std::string("./ssdbtmpcmd.openss");
 
+static void Mark_Cmd_With_Std_Error (CommandObject *cmd, const std::exception& error) {
+   cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+                         "Unknown runtime error." : error.what() );
+   cmd->set_Status(CMD_ERROR);
+   return;
+}
 
 // Terminate all experiments and free associated files.
 // Called from the drivers to clean up after an "Exit" command or fatal error.
@@ -179,9 +185,7 @@ static void Attach_Command (CommandObject *cmd, ExperimentObject *exp, Thread t,
     c.attachThread(t);
   }
   catch(const std::exception& error) {
-    cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-                          "Unknown runtime error." : error.what() );
-    cmd->set_Status(CMD_ERROR);
+    Mark_Cmd_With_Std_Error (cmd, error);
     return;
   }
 }
@@ -191,9 +195,7 @@ static void Detach_Command (CommandObject *cmd, ExperimentObject *exp, Thread t,
     c.detachThread(t);
   }
   catch(const std::exception& error) {
-    cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-                          "Unknown runtime error." : error.what() );
-    cmd->set_Status(CMD_ERROR);
+    Mark_Cmd_With_Std_Error (cmd, error);
     return;
   }
 }
@@ -222,9 +224,7 @@ static void Resolve_R_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
         tgrp->push_back(t);
       }
       catch(const std::exception& error) {
-        cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-                              "Unknown runtime error." : error.what() );
-        cmd->set_Status(CMD_ERROR);
+        Mark_Cmd_With_Std_Error (cmd, error);
         return;
       }
     }
@@ -256,9 +256,7 @@ static void Resolve_T_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
         tgrp->push_back(t);
       }
       catch(const std::exception& error) {
-        cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-                              "Unknown runtime error." : error.what() );
-        cmd->set_Status(CMD_ERROR);
+        Mark_Cmd_With_Std_Error (cmd, error);
         return;
       }
 #endif
@@ -310,9 +308,7 @@ static void Resolve_P_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
           }
         }
         catch(const std::exception& error) {
-          cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-                                "Unknown runtime error." : error.what() );
-          cmd->set_Status(CMD_ERROR);
+          Mark_Cmd_With_Std_Error (cmd, error);
           return;
         }
       }
@@ -343,9 +339,7 @@ static void Resolve_F_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
       tgrp->push_back(t);
       }
       catch(const std::exception& error) {
-         cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-                               "Unknown runtime error." : error.what() );
-         cmd->set_Status(CMD_ERROR);
+         Mark_Cmd_With_Std_Error (cmd, error);
          return;
       }
     }
@@ -425,23 +419,21 @@ static ThreadGroup Resolve_Target_List (CommandObject *cmd, ExperimentObject *ex
         Resolve_H_Target (cmd, exp, &tgrp, *ti);
       }
       catch(const std::exception& error) {
-         cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-                               "Unknown runtime error." : error.what() );
-         cmd->set_Status(CMD_ERROR);
-         return ThreadGroup();  // return an empty ThreadGroup
+        Mark_Cmd_With_Std_Error (cmd, error);
+        return ThreadGroup();  // return an empty ThreadGroup
       }
     }
   }
   return tgrp;
 }
 
-static void Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
+static bool Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
                               void (*cmdfunc) (CommandObject *cmd, ExperimentObject *exp,
                                            Thread t, Collector c) ) {
   if (exp->FW() == NULL) {
     cmd->Result_String ("The experiment has been disabled and can not be changed");
     cmd->set_Status(CMD_ERROR);
-    return;
+    return false;
   }
 
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
@@ -460,10 +452,8 @@ static void Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
         cgrp.push_back (c);
       }
       catch(const std::exception& error) {
-         cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-                               "Unknown runtime error." : error.what() );
-         cmd->set_Status(CMD_ERROR);
-         return;
+        Mark_Cmd_With_Std_Error (cmd, error);
+        return false;
       }
     }
   } else {
@@ -484,7 +474,7 @@ static void Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
  // Don't do anything if errors have been detected.
   if ((cmd->Status() == CMD_ERROR) ||
       (cmd->Status() == CMD_ABORTED)) {
-    return;
+    return false;
   }
 
  // For each thread and each collector, perform the desired function.
@@ -501,6 +491,7 @@ static void Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
     }
   }
 
+  return true;
 }
 
 // Experiment Building Block Commands
@@ -514,7 +505,10 @@ bool SS_expAttach (CommandObject *cmd) {
   }
 
  // Determine target and collectors and link them together.
-  Process_expTypes (cmd, exp, &Attach_Command );
+  if (!Process_expTypes (cmd, exp, &Attach_Command )) {
+   // Don't return anything more if errors have been detected.
+    return false;
+  }
 
  // There is no result returned from this command.
   cmd->set_Status(CMD_COMPLETE);
@@ -549,8 +543,6 @@ bool SS_expCreate (CommandObject *cmd) {
     cmd->set_Status(CMD_ERROR);
     return false;
   }
- // When we allocate a new experiment, set the focus to point to it.
-  (void)Experiment_Focus (WindowID, exp->ExperimentObject_ID());
 
  // Set the parsed command structure to fake a "-x" specifier.
   Assert(cmd->P_Result() != NULL);
@@ -558,8 +550,13 @@ bool SS_expCreate (CommandObject *cmd) {
 
  // Let SS_expAttach do the rest of the work for this command.
   if (!SS_expAttach(cmd)) {
+   // Something went wrong - delete the experiment.
+    delete exp;
     return false;
   }
+
+ // When we allocate a new experiment, set the focus to point to it.
+  (void)Experiment_Focus (WindowID, exp->ExperimentObject_ID());
 
  // Return the EXPID for this command.
  // Note: SS_expAttach has already done a cmd->set_Status(CMD_COMPLETE);
@@ -576,7 +573,10 @@ bool SS_expDetach (CommandObject *cmd) {
   }
 
  // Determine target and collectors and break the link between them.
-  Process_expTypes (cmd, exp, &Detach_Command );
+  if (!Process_expTypes (cmd, exp, &Detach_Command )) {
+   // Don't return anything more if errors have been detected.
+    return false;
+  }
 
  // There is no result returned from this command.
   cmd->set_Status(CMD_COMPLETE);
@@ -693,9 +693,7 @@ bool SS_expGo (CommandObject *cmd) {
           num_terminated++;
           continue;
         }
-        cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-                              "Unknown runtime error." : error.what() );
-        cmd->set_Status(CMD_ERROR);
+        Mark_Cmd_With_Std_Error (cmd, error);
         num_errored++;
         return false;
       }
@@ -754,9 +752,7 @@ bool SS_expPause (CommandObject *cmd) {
           num_terminated++;
           continue;
         }
-        cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-                              "Unknown runtime error." : error.what() );
-        cmd->set_Status(CMD_ERROR);
+        Mark_Cmd_With_Std_Error (cmd, error);
         num_errored++;
         return false;
       }
@@ -900,9 +896,7 @@ bool SS_expView (CommandObject *cmd) {
       Queries::GetMetricByFunctionInThread(c, "time", t1, data);
     }
     catch(const std::exception& error) {
-      cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-                            "Unknown runtime error." : error.what() );
-      cmd->set_Status(CMD_ERROR);
+      Mark_Cmd_With_Std_Error (cmd, error);
       return false;
     }
 
@@ -982,10 +976,8 @@ bool SS_ListMetrics (CommandObject *cmd) {
       cgrp = fw_exp->getCollectors();
     }
     catch(const std::exception& error) {
-       cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-                             "Unknown runtime error." : error.what() );
-       cmd->set_Status(CMD_ERROR);
-       return false;
+      Mark_Cmd_With_Std_Error (cmd, error);
+      return false;
     }
   } else if (cmd->P_Result()->IsExpId()) {
    // Get the list of collectors from the specified experiment.
@@ -1010,10 +1002,8 @@ bool SS_ListMetrics (CommandObject *cmd) {
       cgrp = fw_exp->getCollectors();
     }
     catch(const std::exception& error) {
-       cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-                             "Unknown runtime error." : error.what() );
-       cmd->set_Status(CMD_ERROR);
-       return false;
+      Mark_Cmd_With_Std_Error (cmd, error);
+      return false;
     }
   } else {
    // Get the list of colectors from the focused experiment.
@@ -1087,10 +1077,8 @@ bool SS_ListParams (CommandObject *cmd) {
       cgrp = fw_exp->getCollectors();
     }
     catch(const std::exception& error) {
-       cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-                             "Unknown runtime error." : error.what() );
-       cmd->set_Status(CMD_ERROR);
-       return false;
+      Mark_Cmd_With_Std_Error (cmd, error);
+      return false;
     }
   } else if (cmd->P_Result()->IsExpId()) {
    // Get the list of collectors from the specified experiment.
@@ -1115,10 +1103,8 @@ bool SS_ListParams (CommandObject *cmd) {
       cgrp = fw_exp->getCollectors();
     }
     catch(const std::exception& error) {
-       cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-                             "Unknown runtime error." : error.what() );
-       cmd->set_Status(CMD_ERROR);
-       return false;
+      Mark_Cmd_With_Std_Error (cmd, error);
+      return false;
     }
   } else {
    // Get the list of colectors from the focused experiment.
