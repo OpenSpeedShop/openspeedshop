@@ -44,6 +44,7 @@ moc_SelectExperimentDialog.cxx: SelectExperimentDialog.hxx
 
 ossDialogs_la_SOURCES = \
 	AttachProcessDialog.hxx AttachProcessDialog.cxx moc_AttachProcessDialog.cxx \
+	PanelListViewItem.hxx PanelListViewItem.cxx \
 	SelectExperimentDialog.hxx SelectExperimentDialog.cxx moc_SelectExperimentDialog.cxx
 
 CLEANFILES=moc_AttachProcessDialog.cxx moc_SelectExperimentDialog.cxx

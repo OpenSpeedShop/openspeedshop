@@ -25,6 +25,7 @@
 
 #include "openspeedshop.hxx"
 #include "CLIInterface.hxx"
+#include "PanelListViewItem.hxx"
 
 class QVBoxLayout;
 class QHBoxLayout;
@@ -53,7 +54,7 @@ public:
     QComboBox * hostComboBox;
     QListView* availableExperimentsListView;
 
-    QString selectedExperiment();
+    PanelListViewItem *selectedExperiment(int *expID);
     void updateAvailableExperimentList();
 
 protected:

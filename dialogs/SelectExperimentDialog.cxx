@@ -19,6 +19,8 @@
 
 #include "SelectExperimentDialog.hxx"
 
+#include "PanelListViewItem.hxx"
+
 #include "debug.hxx"
 
 #include <qvariant.h>
@@ -129,29 +131,39 @@ void SelectExperimentDialog::languageChange()
 #endif // LATER
 }
 
-QString
-SelectExperimentDialog::selectedExperiment()
+PanelListViewItem *
+SelectExperimentDialog::selectedExperiment(int *expID)
 {
-  QListViewItem *selectedItem = availableExperimentsListView->selectedItem();
+  PanelListViewItem *selectedItem = (PanelListViewItem *)availableExperimentsListView->selectedItem();
+
+
   if( selectedItem )
   {
+
+// First get the parent node...
+    QListViewItem *parent_node = availableExperimentsListView->selectedItem();
+    while( parent_node->parent() )
+    {
+      printf("looking for 0x%x\n", parent_node->parent() );
+      parent_node = parent_node->parent();
+    }
+printf("parent text=%s\n", parent_node->text(0).ascii() );
+    *expID = parent_node->text(0).toInt();
+
 //    printf("Got an ITEM!\n");
-#ifdef OLDWAY
-    QString ret_value = selectedItem->text(0);
-    return( ret_value );
-#else // OLDWAY
-    QListViewItem *nitem = selectedItem;
-    while( nitem->parent() )
+    // If the use selected a leaf, just return it...
+    if( selectedItem->parent() )
     {
-      printf("looking for 0x%x\n", nitem->parent() );
-      nitem = nitem->parent();
+      return selectedItem;
     }
-    if( nitem )
+    PanelListViewItem *firstChild = (PanelListViewItem *)selectedItem->firstChild();
+    if( firstChild )
     {
-      QString ret_value = nitem->text(0);
-      return( ret_value );
+      return firstChild;
+    } else
+    {
+      return NULL; // Error condition.
     }
-#endif // OLDWAY
   } else
   {
 //    printf("NO ITEMS SELECTED\n");
@@ -194,7 +206,7 @@ if( panelList )
   for( PanelList::Iterator pit = panelList->begin(); pit != panelList->end(); pit++ )
   {
     Panel *p = (Panel *)*pit;
-    (void) new QListViewItem( item, p->getName() );
+    (void) new PanelListViewItem( (QListViewItem *)item, p->getName(), p );
   }
   delete panelList;
 }

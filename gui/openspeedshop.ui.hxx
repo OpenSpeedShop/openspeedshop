@@ -132,27 +132,23 @@ void OpenSpeedshop::fileOpenExperiment()
   if( dialog->exec() == QDialog::Accepted )
   {
 // printf("QDialog::Accepted\n");
-    expStr = dialog->selectedExperiment();
-
-printf("expStr = %s\n", expStr.ascii() );
-
-// Given an expStr (the -x experiment id) look up all the data... 
-QString experimentName = QString("pc Sampling ["+expStr+"]");
-const char *name = experimentName.ascii();
-printf("Try to locate panel with name/id pair (%s)\n", experimentName.ascii() );
-// Determine if an experiment already exits for the experiment and if so 
-// raise the panel.
-    Panel *p = topPC->findNamedPanel(topPC, (char *)name);
+    int expID = 0;
+    PanelListViewItem *item = dialog->selectedExperiment(&expID);
+    Panel *p = NULL;
+    if( item )
+    {
+      p = item->panel;
+    }
     if( p )
     {
-      printf("FOUND ONE!\n");
+const char *name = p->getName();
+printf( "panel name = (%s)\n", name );
       p->getPanelContainer()->raisePanel(p);
     } else
     {
-// Otherwise, create a new pcSamplePanel (maybe passing the -x id down
-// as an argument for it to load an existing experiment rather than 
-// creating a new one.
       printf("Create a new one!\n");
+printf("expID = (%d) \n", expID );
+      QString expStr = QString("%1").arg(expID);
       topPC->dl_create_and_add_panel("pc Sampling", topPC->leftPanelContainer, (void *)&expStr);
     }
   }
@@ -194,11 +190,10 @@ void OpenSpeedshop::fileSaveExperiment()
 QString expStr;
   if( dialog->exec() == QDialog::Accepted )
   {
-// printf("QDialog::Accepted\n");
-    expStr = dialog->selectedExperiment();
+ printf("QDialog::Accepted\n");
   }
 
-printf("expStr = %s\n", expStr.ascii() );
+// printf("expStr = %s\n", expStr.ascii() );
   delete dialog;
 
 }
