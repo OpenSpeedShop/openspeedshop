@@ -218,37 +218,17 @@ if( !executableNameStr.isEmpty() || !pidStr.isEmpty() )
 
 if( expID > 0 && !executableNameStr.isEmpty() )
 {
-#ifdef OLDWAY
-  ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-  if( eo && eo->FW() )
-  {
-    experiment = eo->FW();
-  }
-  if( experiment != NULL );
-  {
-    ThreadGroup tgrp = experiment->getThreads();
-    ThreadGroup::iterator ti = tgrp.begin();
-    Thread thread = *ti;
-    Time time = Time::Now();
-    const std::string main_string = std::string("main");
-    OpenSpeedShop::Framework::Function function = thread.getFunctionByName(main_string, time);
-    Optional<Statement> statement_definition = function.getDefinition();
-    if(statement_definition.hasValue())
-    {
-        std::cout << " (" << statement_definition.getValue().getPath()
-              << ", " << statement_definition.getValue().getLine() << ")";
-    }
-
-    std::cout << std::endl;
-
-  }
-#else // OLDWAY
   loadMain();
   statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the Run button to begin the experiment.")) );
   runnableFLAG = TRUE;
   pco->runButton->setEnabled(TRUE);
   pco->runButton->enabledFLAG = TRUE;
-#endif // OLDWAY
+} else if( executableNameStr.isEmpty() )
+{
+  statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\" with the local menu.") );
+  runnableFLAG = FALSE;
+  pco->runButton->setEnabled(FALSE);
+  pco->runButton->enabledFLAG = FALSE;
 }
 
 }
@@ -966,6 +946,10 @@ printf("loadMain() entered\n");
   {
     ThreadGroup tgrp = experiment->getThreads();
     ThreadGroup::iterator ti = tgrp.begin();
+    if( tgrp.begin() == tgrp.end() )
+    {
+      return;
+    }
     Thread thread = *ti;
     Time time = Time::Now();
     const std::string main_string = std::string("main");
