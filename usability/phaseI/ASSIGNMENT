@@ -4,16 +4,18 @@
 Introduction:
 -------------
 
-For this assignment you'll be asked to do a few common
-performance tuning tasks.  There are no time constraint to "correctly"
-complete these tasks.
+For this assignment you'll be asked to do a simple
+performance tuning task.  There is no time constraint to "correctly"
+complete this task.
 
-Please try to "think aloud" as you work through these problems.   
+Please try to "think aloud" as you work through the scenario.   
 It will help us understand where our problems are.
 
-Your task is to take the simple program (fred_calls_ted) in this
-directory and by using the Open/Speedshop tool, determine which
-routine(s) are taking the most time.
+Your task is to take a simple program (fred_calls_ted) and, by
+using the Open/Speedshop tool, determine which routine(s) are
+taking the most time.    The program, fred_calls_ted, is
+provided in the current directory.
+
 
 
 Remember:  You are not being tested.    The User Interface and it's
@@ -53,7 +55,7 @@ Step 4:
 
 Step 5: 
   Determine which performance experiment will show you where the application
-  is spending most of it's time.
+  is spending it's time.   
 
 
 Step 6:
