@@ -38,7 +38,7 @@ SPListView::SPListView( StatsPanelBase *rp, QWidget *w, const char *n, int flags
      : QListView( w, n, flags )
 {
   resultsPanel = rp;
-printf ( "SPListView::SPListView( ) constructor called\n");
+  dprintf ( "SPListView::SPListView( ) constructor called\n");
 }
 
 /*! The default destructor. */
