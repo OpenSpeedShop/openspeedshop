@@ -21,6 +21,8 @@
 
 #include "ToolAPI.hxx"
 using namespace OpenSpeedShop::Framework;
+
+#include "support.h"
 #include "Commander.hxx"
 #include "Clip.hxx"
 #include "Experiment.hxx"

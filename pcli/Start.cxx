@@ -3,6 +3,7 @@
 #include <pthread.h>
 #include <time.h>
 #include <stdio.h>
+#include <list>
 #include <inttypes.h>
 #include <stdexcept>
 #include <string>
@@ -17,8 +18,15 @@
 #define PTMAX 10
 pthread_t phandle[PTMAX];
 
-#include "ArgClass.hxx"
+#include "ToolAPI.hxx"
+using namespace OpenSpeedShop::Framework;
+
+#include "support.h"
 #include "Commander.hxx"
+#include "Clip.hxx"
+#include "Experiment.hxx"
+
+#include "ArgClass.hxx"
 
 static bool need_gui;
 static bool need_tli;
@@ -243,6 +251,10 @@ extern "C"
     Py_Finalize ();
 
    // Close allocated input windows.
+    if (gui_window != 0)
+    {
+      Commander_Termination(gui_window);
+    }
     if (tli_window != 0)
     {
       Commander_Termination(tli_window);
