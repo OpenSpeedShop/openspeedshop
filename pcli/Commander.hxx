@@ -4,66 +4,6 @@ typedef int64_t EXPID;
 typedef int64_t CMDID;
 typedef int64_t CMDWID;
 
-// ResultObject
-enum RStatus { SUCCESS,
-               PARTIAL_SUCCESS,
-               FAILURE,
-               EXIT };
-class ResultObject
-{
- private:
-  RStatus status;    // Did the command complete or not...
-  std::string result_type;
-  std::string msg_string;
-  int64_t num_results;
-  void *result;      // A pointer to the data in the FrameWork.    The
-                     // gui or cli should know how to interpret the data
-                     // base on the associated commandObject and the
-                     // result_type.
-
- public:
-  void SetResultObject_StatusError (RStatus s, std::string e)
-    { status = s;
-      msg_string = e;
-    }
-  void SetResultObject_TypeValue (std::string t, void *r)
-    { result_type = t;
-      result = r;
-    }
-
-  // Constructors
-  ResultObject ()
-    { status = FAILURE;
-      result_type = std::string("");
-      result = NULL;
-      msg_string = std::string("");
-    }
-  ResultObject (enum RStatus s)
-    { *this = ResultObject ();
-      status = s;
-    }
-  ResultObject (enum RStatus s, std::string t, void *r, std::string e)
-    { *this = ResultObject ();
-      SetResultObject_StatusError (s, e);
-      SetResultObject_TypeValue (t, r);
-    }
-  ResultObject (enum RStatus s, char *t, void *r, char * e)
-    { *this = ResultObject ( s, std::string(t ? t : ""), r, std::string(e ? e : ""));
-    }
-  ResultObject (RStatus s, std::string e)
-    { *this = ResultObject ();
-      SetResultObject_StatusError (s, e);
-    }
-  ResultObject (RStatus s, char * e)
-    { *this = ResultObject ( s, std::string(e ? e : ""));
-    }
-
-  RStatus Status () { return status; }
-  std::string Type () { return result_type; }
-  void *Result () { return result; }
-  std:: string ResultMsg () { return msg_string; }
-};
-
 class CodeObjectLocator
 {
  private:
