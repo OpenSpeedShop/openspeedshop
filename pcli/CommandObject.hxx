@@ -72,7 +72,8 @@ enum Command_Status
   CMD_PARSED,
   CMD_EXECUTING,
   CMD_COMPLETE,
-  CMD_ERROR
+  CMD_ERROR,
+  CMD_ABORTED 
 };
 
 // Forward definitions
