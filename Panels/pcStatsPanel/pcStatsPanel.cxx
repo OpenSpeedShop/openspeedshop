@@ -201,7 +201,8 @@ for( ; it != orig_data->end(); ++it)
   { // No source view up...
     char *panel_type = "Source Panel";
 //Find the nearest toplevel and start placement from there...
-    Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, NULL, (void *)groupID);
+    PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(getPanelContainer());
+    Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, (void *)groupID);
     if( p != NULL ) 
     {
       p->listener((void *)spo);
