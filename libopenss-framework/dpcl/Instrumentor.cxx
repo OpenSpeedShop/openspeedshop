@@ -149,9 +149,8 @@ void Instrumentor::detachUnderlyingThread(const Thread& thread)
  * when the actual thread's state changes and when it is reflected here.
  *
  * @todo    Currently DPCL provides the ability to get the state of an entire
- *          process only - not that of a single thread. For now, in the DPCL
- *          implementation, <em>all</em> threads in a given process will have
- *          the same state.
+ *          process only - not that of a single thread. For now, <em>all</em>
+ *          threads in a given process will have the same state.
  *
  * @param thread    Thread whose state should be obtained.
  * @return          Current state of the thread.
@@ -188,9 +187,9 @@ Thread::State Instrumentor::getThreadState(const Thread& thread)
  *         for a thread that is not attached.
  *
  * @todo    Currently DPCL provides the ability to change the state of an entire
- *          process only - not that of a single thread. For now, in the DPCL
- *          implementation, if a thread's state is changed, <em>all</em> threads
- *          in the process containing that thread will have their state changed.
+ *          process only - not that of a single thread. For now, if a thread's
+ *          state if changed, <em>all</em> threads in the process containing
+ *          that thread will have their state changed.
  *
  * @param thread    Thread whose state should be changed.
  * @param state     Change the theread to this state.
@@ -297,4 +296,51 @@ void Instrumentor::unloadLibrary(const Thread& thread,
     
     // Request the library be unloaded from the process
     process->unloadLibrary(library);    
+}
+
+
+
+/**
+ * Execute a library function in a thread.
+ *
+ * Immediately execute the specified function in the specified thread. Used by
+ * collectors to execute function in their runtime library(ies).
+ *
+ * @pre    Only applies to a thread which has been attached to an underlying
+ *         thread. An exception of type std::logic_error is thrown if called
+ *         for a thread that is not attached.
+ *
+ * @todo    Currently DPCL does not provide the ability to specify the thread
+ *          within a process that will execute a probe expression. For now, the
+ *          only guarantee that can be made is that <em>some</em> thread in the
+ *          process containing the specified thread will execute the expression.
+ *
+ * @param thread      Thread in which the function should be executed.
+ * @param library     Name of library containing function to be executed.
+ * @param function    Name of function to be executed.
+ * @param argument    String argument to the function.
+ */
+void Instrumentor::execute(const Thread& thread,
+			   const std::string& library,
+			   const std::string& function,
+			   const std::string& argument)
+{
+    SmartPtr<Process> process;
+    
+    // Critical section touching the process table
+    {
+	Guard guard_process_table(ProcessTable::TheTable);
+	
+	// Get the process for this thread (if any)
+	process = ProcessTable::TheTable.getProcessByThread(thread);
+    } 
+    
+    // Check preconditions
+    if(process.isNull())
+	throw std::logic_error(
+	    "Cannot execute a function in an unattached thread."
+	    );
+
+    // Request the function be executed by the process
+    process->execute(library, function, argument);
 }

@@ -129,6 +129,8 @@ namespace OpenSpeedShop { namespace Framework {
 
 	void loadLibrary(const Thread&, const std::string&) const;
 	void unloadLibrary(const Thread&, const std::string&) const;
+	void execute(const Thread&, const std::string&, const std::string&,
+		     const std::string&) const;
 
     private:
 

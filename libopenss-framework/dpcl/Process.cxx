@@ -886,7 +886,21 @@ void Process::loadLibrary(const std::string& library)
 	entry.path = full_path;
 	entry.module = module;
 	entry.references = 1;
-	
+	entry.functions = std::map<std::string, int>();
+
+	// Iterate over each function in this library
+	for(int i = 0; i < module->get_count(); ++i) {
+	    
+	    // Obtain the function's name
+	    unsigned length = module->get_name_length(i);
+	    char* buffer = new char[length];
+	    module->get_name(i, buffer, length);
+	    
+	    // Add this function to the list of functions for this library
+	    entry.functions.insert(std::make_pair(buffer, i));
+	    
+	}
+		
 	// Add this entry to the list of libraries
 	dm_library_name_to_entry.insert(std::make_pair(library, entry));
 	
@@ -947,6 +961,69 @@ void Process::unloadLibrary(const std::string& library)
 	dm_library_name_to_entry.erase(i);
 	
     }
+}
+
+
+
+/**
+ * Execute a library function.
+ *
+ * Immediately executes the specified function in this process.
+ *
+ * @pre    A library must be loaded before a function within it can be executed.
+ *         An exception of type std::invalid_argument is thrown if the library
+ *         is not already loaded into the process.
+ *
+ * @pre    The function to be executed must be found in the specified library.
+ *         An exception of type std::invalid_argument is thrown if the function
+ *         cannot be found within the specified library.
+ *
+ * @param library     Name of library containing function to be executed.
+ * @param function    Name of function to be executed.
+ * @param argument    String argument to the function.
+ */
+void Process::execute(const std::string& library,
+		      const std::string& function,
+		      const std::string& argument)
+{    
+    Guard guard_myself(this);
+
+    // Find the library's entry
+    std::map<std::string, LibraryEntry>::const_iterator
+	i = dm_library_name_to_entry.find(library);
+    
+    // Check preconditions
+    if(i == dm_library_name_to_entry.end())
+	throw std::invalid_argument(
+	    "Cannot execute a function in the library \"" + library +
+	    "\" that was not previously loaded."
+	    );
+
+    // Find the function's entry within the library
+    std::map<std::string, int>::const_iterator
+	j = i->second.functions.find(function);
+    
+    // Check preconditions
+    if(j == i->second.functions.end())
+	throw std::invalid_argument(
+	    "Cannot find the function \"" + function +
+	    "\" within the library \"" + library + "\"."
+	    );
+    
+    // Obtain a probe expression reference for the function
+    ProbeExp function_exp = i->second.module->get_reference(j->second);
+
+    // Create a probe experssion for the argument
+    ProbeExp argument_exp(argument.c_str());
+    
+    // Create a probe expression for the function call
+    ProbeExp call_exp = function_exp.call(1, &argument_exp);
+    
+    // Ask DPCL to execute the function in this process    
+    MainLoop::suspend();
+    AisStatus retval = dm_process->bexecute(call_exp, NULL, NULL);
+    Assert(retval.status() == ASC_success);
+    MainLoop::resume();    
 }
 
 

@@ -57,6 +57,8 @@ namespace OpenSpeedShop { namespace Framework {
 	void changeThreadState(const Thread&, const Thread::State&);
 	void loadLibrary(const Thread&, const std::string&);
 	void unloadLibrary(const Thread&, const std::string&);
+	void execute(const Thread&, const std::string&, const std::string&,
+		     const std::string&);
     }
     
 } }

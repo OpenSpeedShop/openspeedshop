@@ -86,6 +86,8 @@ namespace OpenSpeedShop { namespace Framework {
 			    std::vector<SourceObj>&);
 	void loadLibrary(const std::string&);
 	void unloadLibrary(const std::string&);
+	void execute(const std::string&, const std::string&,
+		     const std::string&);
 
     private:
 	
@@ -127,7 +129,10 @@ namespace OpenSpeedShop { namespace Framework {
 	    
 	    /** Number of references to this library. */
 	    unsigned references;
-	    
+
+	    /** Map function names to their probe module indicies. */
+	    std::map<std::string, int> functions;
+
 	};
 
 	/** Map loaded library names to their entries. */

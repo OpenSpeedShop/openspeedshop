@@ -165,3 +165,24 @@ void CollectorImpl::unloadLibrary(const Thread& thread,
 {
     Instrumentor::unloadLibrary(thread, library);
 }
+
+
+
+/**
+ * Execute a library function in a thread.
+ *
+ * Immediately execute the specified function in the specified thread. Called by
+ * derived classes to execute functions in their runtime library(ies).
+ *
+ * @param thread      Thread in which the function should be executed.
+ * @param library     Name of library containing function to be executed.
+ * @param function    Name of function to be executed.
+ * @param argument    String argument to the function.
+ */
+void CollectorImpl::execute(const Thread& thread,
+			    const std::string& library,
+			    const std::string& function,
+			    const std::string& argument) const
+{
+    Instrumentor::execute(thread, library, function, argument);
+}
