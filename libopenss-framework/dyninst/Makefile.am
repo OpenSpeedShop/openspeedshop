@@ -16,13 +16,17 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-noinst_LTLIBRARIES = libssf-dyninst.la
+noinst_LTLIBRARIES = dyninst.la
 
-libssf_dyninst_la_CXXFLAGS = -I$(top_srcdir)/libssf $(DYNINST_CPPFLAGS)
+dyninst_la_CXXFLAGS = \
+	-I$(top_srcdir)/libopenss-framework \
+	$(DYNINST_CPPFLAGS)
 
-libssf_dyninst_la_LDFLAGS = $(DYNINST_LDFLAGS)
+dyninst_la_LDFLAGS = \
+	$(DYNINST_LDFLAGS)
 
-libssf_dyninst_la_LIBADD = $(DYNINST_LIBS)
+dyninst_la_LIBADD = \
+	$(DYNINST_LIBS)
 
-libssf_dyninst_la_SOURCES = \
+dyninst_la_SOURCES = \
 	Instrumentor.cxx

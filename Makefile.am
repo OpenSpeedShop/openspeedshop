@@ -16,20 +16,26 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-# bin_PROGRAMS = openspeedshop doc
+SUBDIRS = . \
+	libltdl \
+	libopenss-framework \
+	plugins \
+	examples \
+	base objects dialogs expr_info plugin objects chart pcli gui Panels
+
 bin_PROGRAMS = openspeedshop
 
 openspeedshop_la_CXXFLAGS = -I/usr/include -I.
 
 LDFLAGS = -lc -ldl
 
-SUBDIRS = . libltdl libssf collectors examples base objects dialogs expr_info plugin objects chart pcli gui Panels
-
 TEST_SUBDIRS = tests/fw/database
 
 tests: $(TEST_SUBDIRS)
 
-DOC_SUBDIRS = libssf Panels pcli base chart gui plugin collectors objects dialogs
+DOC_SUBDIRS = \
+	libopenss-framework \
+	Panels pcli base chart gui plugin objects dialogs
 
 doc: $(DOC_SUBDIRS) 
 	-doxygen Doxyfile

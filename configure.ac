@@ -143,15 +143,16 @@ AC_CHECK_HEADER(arraysvcs.h, [ AC_CHECK_LIB(array, asgeterror, [
 ################################################################################
 
 AC_CONFIG_FILES(Makefile
-		libssf/Makefile
-		libssf/dpcl/Makefile
-		libssf/dyninst/Makefile
-		collectors/Makefile
-		collectors/pcsamp/Makefile
+		libopenss-framework/Makefile
+		libopenss-framework/dpcl/Makefile
+		libopenss-framework/dyninst/Makefile
+		plugins/Makefile
+		plugins/collectors/Makefile
+		plugins/collectors/pcsamp/Makefile
 		examples/Makefile
-		examples/libssf/Makefile
-		examples/libssf/collector/Makefile
-		examples/libssf/tool/Makefile
+		examples/libopenss-framework/Makefile
+		examples/libopenss-framework/collector/Makefile
+		examples/libopenss-framework/tool/Makefile
 		base/Makefile
 		plugin/Makefile
 		expr_info/Makefile

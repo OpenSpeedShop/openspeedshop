@@ -18,19 +18,21 @@
 
 SUBDIRS = @INSTRUMENTOR@
 
-doc: $(SUBDIRS)
-	-doxygen Doxyfile
+lib_LTLIBRARIES = libopenss-framework.la
 
-lib_LTLIBRARIES = libssf.la
+libopenss_framework_la_CXXFLAGS = \
+	-DCOLLECTOR_PATH=\"$(pkglibdir)\" \
+	$(LTDLINCL)
 
-libssf_la_CXXFLAGS = $(LTDLINCL) -DCOLLECTOR_PATH=\"$(pkglibdir)\"
+libopenss_framework_la_LDFLAGS = \
+	-export-dynamic -version-info 0:0:0
 
-libssf_la_LDFLAGS = -export-dynamic -version-info 0:0:0
+libopenss_framework_la_LIBADD = \
+	@INSTRUMENTOR@/@INSTRUMENTOR@.la \
+	$(LIBLTDL) \
+	-lsqlite3 -lpthread -lrt
 
-libssf_la_LIBADD = $(LIBLTDL) -lsqlite3 -lpthread -lrt \
-	@INSTRUMENTOR@/libssf-@INSTRUMENTOR@.la
-
-libssf_la_SOURCES = \
+libopenss_framework_la_SOURCES = \
 	Address.hxx \
 	AddressRange.hxx \
 	Assert.hxx \
@@ -60,3 +62,6 @@ libssf_la_SOURCES = \
 	TimeInterval.hxx \
 	ToolAPI.hxx \
 	TotallyOrdered.hxx
+
+doc: $(SUBDIRS)
+	-doxygen Doxyfile

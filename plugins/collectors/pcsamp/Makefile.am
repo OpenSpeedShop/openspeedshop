@@ -18,11 +18,11 @@
 
 pkglib_LTLIBRARIES = pcsamp.la
 
-pcsamp_la_CXXFLAGS = -I$(top_srcdir)/libssf
+pcsamp_la_CXXFLAGS = \
+	-I$(top_srcdir)/libopenss-framework
 
-pcsamp_la_LDFLAGS = -no-undefined -module -avoid-version
-
-pcsamp_la_LIBADD = 
+pcsamp_la_LDFLAGS = \
+	-no-undefined -module -avoid-version
 
 pcsamp_la_SOURCES = \
 	PCSampCollector.hxx PCSampCollector.cxx

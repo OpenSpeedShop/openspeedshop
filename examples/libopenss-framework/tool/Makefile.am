@@ -18,16 +18,20 @@
 
 bin_PROGRAMS = tool mutatee
 
-tool_CXXFLAGS = -I$(top_srcdir)/libssf
+tool_CXXFLAGS = \
+	-I$(top_srcdir)/libopenss-framework
 
-tool_LDFLAGS = -L$(top_srcdir)/libssf
+tool_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-framework
 
-tool_LDADD = -lssf
+tool_LDADD = \
+	-lopenss-framework
 
 tool_SOURCES = \
 	tool.cxx
 
-mutatee_CFLAGS = -g -gdwarf-2
+mutatee_CFLAGS = \
+	-g -gdwarf-2
 
 mutatee_SOURCES = \
 	mutatee.c

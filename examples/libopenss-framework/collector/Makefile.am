@@ -18,11 +18,11 @@
 
 pkglib_LTLIBRARIES = example.la
 
-example_la_CXXFLAGS = -I$(top_srcdir)/libssf
+example_la_CXXFLAGS = \
+	-I$(top_srcdir)/libopenss-framework
 
-example_la_LDFLAGS = -no-undefined -module -avoid-version
-
-example_la_LIBADD = 
+example_la_LDFLAGS = \
+	-no-undefined -module -avoid-version
 
 example_la_SOURCES = \
 	ExampleCollector.hxx ExampleCollector.cxx
