@@ -29,6 +29,8 @@ class QActionGroup;
 class QToolBar;
 class QPopupMenu;
 
+class CLIInterface;
+
 typedef QValueList<QWidget *> PreferencesStackPagesList;
 
 //! The main window skeleton containing statusBar and menubar.
@@ -39,7 +41,7 @@ class OpenSpeedshop : public QMainWindow
 
   public:
     //! Constructor for the QMainWindow.
-    OpenSpeedshop( QWidget* parent = 0, const char* name = 0, WFlags fl = WType_TopLevel );
+    OpenSpeedshop( int wid=0, QWidget* parent = 0, const char* name = 0, WFlags fl = WType_TopLevel );
 
     //! Destructor for the QMainWindow.
     ~OpenSpeedshop();
@@ -65,6 +67,8 @@ class OpenSpeedshop : public QMainWindow
     QAction* helpAboutAction;
 
     QAssistantClient *assistant;
+
+    CLIInterface *cli;
 
     //! A list to all plugin panel preferences 
     PreferencesStackPagesList preferencesStackPagesList;

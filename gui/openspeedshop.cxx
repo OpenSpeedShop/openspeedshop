@@ -17,12 +17,13 @@
 #include <qpixmap.h>
 
 #include "openspeedshop.ui.hxx"
+#include "CLIInterface.hxx"
 /*!
  *  Constructs a OpenSpeedshop as a child of 'parent', with the
  *  name 'name' and widget flags set to 'f'.
  *
  */
-OpenSpeedshop::OpenSpeedshop( QWidget* parent, const char* name, WFlags fl )
+OpenSpeedshop::OpenSpeedshop( int _wid, QWidget* parent, const char* name, WFlags fl )
     : QMainWindow( parent, name, fl )
 {
   lfd = NULL;
@@ -125,6 +126,8 @@ OpenSpeedshop::OpenSpeedshop( QWidget* parent, const char* name, WFlags fl )
 
   resize( QSize(850, 620).expandedTo(minimumSizeHint()) );
   clearWState( WState_Polished );
+
+  cli = new CLIInterface(_wid);
 }
 
 /*!
