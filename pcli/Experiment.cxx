@@ -1,4 +1,5 @@
 #include "SS_Input_Manager.hxx"
+#include "Python.h"
 
 // Static Local Data
 
@@ -25,7 +26,7 @@ ExperimentObject *Find_Experiment_Object (EXPID ExperimentID)
   return NULL;
 }
 
-// Low Level Semantic Routines
+// Experiment Building Block Commands
 
 bool SS_expAttach (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
@@ -66,17 +67,36 @@ bool SS_expAttach (CommandObject *cmd) {
  // Return the EXPID for this command.
   cmd->Result_Int (exp->ExperimentObject_ID());
   cmd->set_Status(CMD_COMPLETE);
-
   return true;
 }
 
 bool SS_expClose (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+  EXPID ExperimentID = 0;
+  ExperimentObject *exp = NULL;
 
-  cmd->Result_String ("not yet implemented");
+ // Terminate the experiment and purge the data structure
+  if (ExperimentID == 0) {
+    ExperimentID = Experiment_Focus ( WindowID );
+    if (ExperimentID == 0) {
+      cmd->Result_String ("There is no focused experiment to Close");
+      cmd->set_Status(CMD_ERROR);
+      return false;
+    }
+  }
+  exp = Find_Experiment_Object (ExperimentID);
+  if (exp == NULL) {
+    cmd->Result_String ("The requested experiment ID does not exist");
+    cmd->set_Status(CMD_ERROR);
+    return false;
+  }
+
+ // Remove all trace of the experiment.
+  delete exp;
+
+ // No result returned from this command.
   cmd->set_Status(CMD_COMPLETE);
-
   return true;
 }
 
@@ -106,7 +126,6 @@ bool SS_expCreate (CommandObject *cmd) {
  // Return the EXPID for this command.
   cmd->Result_Int (exp->ExperimentObject_ID());
   cmd->set_Status(CMD_COMPLETE);
-
   return true;
 }
 
@@ -116,7 +135,6 @@ bool SS_expDetach (CommandObject *cmd) {
 
   cmd->Result_String ("not yet implemented");
   cmd->set_Status(CMD_COMPLETE);
-
   return true;
 }
 
@@ -126,7 +144,6 @@ bool SS_expDisable (CommandObject *cmd) {
 
   cmd->Result_String ("not yet implemented");
   cmd->set_Status(CMD_COMPLETE);
-
   return true;
 }
 
@@ -136,7 +153,6 @@ bool SS_expEnable (CommandObject *cmd) {
 
   cmd->Result_String ("not yet implemented");
   cmd->set_Status(CMD_COMPLETE);
-
   return true;
 }
 
@@ -157,7 +173,6 @@ bool SS_expFocus  (CommandObject *cmd) {
  // Return the EXPID for this command.
   cmd->Result_Int (ExperimentID);
   cmd->set_Status(CMD_COMPLETE);
-
   return true;
 } 
 
@@ -167,7 +182,6 @@ bool SS_expGo (CommandObject *cmd) {
 
   cmd->Result_String ("not yet implemented");
   cmd->set_Status(CMD_COMPLETE);
-
   return true;
 }
 
@@ -177,7 +191,6 @@ bool SS_expPause (CommandObject *cmd) {
 
   cmd->Result_String ("not yet implemented");
   cmd->set_Status(CMD_COMPLETE);
-
   return true;
 }
 
@@ -187,7 +200,6 @@ bool SS_expRestore (CommandObject *cmd) {
 
   cmd->Result_String ("not yet implemented");
   cmd->set_Status(CMD_COMPLETE);
-
   return true;
 }
 
@@ -197,7 +209,6 @@ bool SS_expSave (CommandObject *cmd) {
 
   cmd->Result_String ("not yet implemented");
   cmd->set_Status(CMD_COMPLETE);
-
   return true;
 }
 
@@ -207,7 +218,6 @@ bool SS_expSetParam (CommandObject *cmd) {
 
   cmd->Result_String ("not yet implemented");
   cmd->set_Status(CMD_COMPLETE);
-
   return true;
 }
 
@@ -217,7 +227,6 @@ bool SS_expView (CommandObject *cmd) {
 
   cmd->Result_String ("not yet implemented");
   cmd->set_Status(CMD_COMPLETE);
-
   return true;
 }
 
@@ -229,7 +238,6 @@ bool SS_ListBreaks (CommandObject *cmd) {
 
   cmd->Result_String ("not yet implemented");
   cmd->set_Status(CMD_COMPLETE);
-
   return true;
 }
 
@@ -251,7 +259,6 @@ bool SS_ListHosts (CommandObject *cmd) {
 
   cmd->Result_String ("not yet implemented");
   cmd->set_Status(CMD_COMPLETE);
-
   return true;
 }
 
@@ -261,7 +268,6 @@ bool SS_ListObj (CommandObject *cmd) {
 
   cmd->Result_String ("not yet implemented");
   cmd->set_Status(CMD_COMPLETE);
-
   return true;
 }
 
@@ -271,7 +277,6 @@ bool SS_ListPids (CommandObject *cmd) {
 
   cmd->Result_String ("not yet implemented");
   cmd->set_Status(CMD_COMPLETE);
-
   return true;
 }
 
@@ -281,7 +286,6 @@ bool SS_ListMetrics (CommandObject *cmd) {
 
   cmd->Result_String ("not yet implemented");
   cmd->set_Status(CMD_COMPLETE);
-
   return true;
 }
 
@@ -291,7 +295,6 @@ bool SS_ListParams (CommandObject *cmd) {
 
   cmd->Result_String ("not yet implemented");
   cmd->set_Status(CMD_COMPLETE);
-
   return true;
 }
 
@@ -301,7 +304,6 @@ bool SS_ListReports (CommandObject *cmd) {
 
   cmd->Result_String ("not yet implemented");
   cmd->set_Status(CMD_COMPLETE);
-
   return true;
 }
 
@@ -311,7 +313,6 @@ bool SS_ListSrc (CommandObject *cmd) {
 
   cmd->Result_String ("not yet implemented");
   cmd->set_Status(CMD_COMPLETE);
-
   return true;
 }
 
@@ -321,7 +322,6 @@ bool SS_ListTypes (CommandObject *cmd) {
 
   cmd->Result_String ("not yet implemented");
   cmd->set_Status(CMD_COMPLETE);
-
   return true;
 }
 
@@ -333,7 +333,6 @@ bool SS_ClearBreaks (CommandObject *cmd) {
 
   cmd->Result_String ("not yet implemented");
   cmd->set_Status(CMD_COMPLETE);
-
   return true;
 }
 
@@ -341,9 +340,11 @@ bool SS_Exit (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
-  cmd->Result_String ("not yet implemented");
-  cmd->set_Status(CMD_COMPLETE);
+ // Since Python is in control, we need to tell it to quit.
+  PyRun_SimpleString( "myparse.Do_quit ()\n");
 
+ // There is no result return fromthis command.
+  cmd->set_Status(CMD_COMPLETE);
   return true;
 }
 
@@ -353,38 +354,65 @@ bool SS_Help (CommandObject *cmd) {
 
   cmd->Result_String ("not yet implemented");
   cmd->set_Status(CMD_COMPLETE);
-
   return true;
 }
 
 bool SS_History (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+  bool R = true;;
 
- // Default action with no arguments: Dump the history file to stdout
-  bool R = Command_Trace (cmd, CMDW_TRACE_ORIGINAL_COMMANDS, WindowID, std::string(""));
+ // Default action with no arguments: Dump the history file.
+  R = Command_Trace (cmd, CMDW_TRACE_ORIGINAL_COMMANDS, WindowID, std::string(""));
 
   cmd->set_Status( R ? CMD_COMPLETE : CMD_ERROR);
-  return true;
+  return R;
 }
 
 bool SS_Log (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+  bool R = false;
 
-  cmd->Result_String ("not yet implemented");
-  cmd->set_Status(CMD_COMPLETE);
+  char *tofile = NULL;
 
-  return true;
+  if (tofile == NULL) {
+    R = Command_Log_OFF (WindowID);
+  } else {
+    R = Command_Log_ON(WindowID, tofile);
+  }
+
+ // This command does not reutrn a result.
+  cmd->set_Status(R ? CMD_COMPLETE : CMD_ERROR);
+  return R;
 }
 
+extern "C" void loadTheGUI(ArgStruct *);
 bool SS_OpenGui (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
-  cmd->Result_String ("not yet implemented");
-  cmd->set_Status(CMD_COMPLETE);
+ // Load the GUI
+ // How do we check to see if is already loaded?
+    int argc = 0;
+    char **argv = NULL;
+    ArgStruct *argStruct = new ArgStruct(argc, argv);
+    if (gui_window != 0) {
+     // The GUI was not opened before so we need to define an input control window for it.
+      struct hostent *my_host = gethostent();
+      pid_t my_pid = getpid();
+      gui_window = GUI_Window ("GUI",my_host->h_name,my_pid,0,true);
+    }
+   // Add the input window to the argument list
+    argStruct->addArg("-wid");
+    char buffer[10];
+    sprintf(buffer, "%d", gui_window);
+    argStruct->addArg(buffer);
+    loadTheGUI((ArgStruct *)argStruct);
 
+ // The GUi will be spun off into it's own process.
+ // There is no result returned from this command.
+  cmd->set_Status(CMD_COMPLETE);
   return true;
 }
 
@@ -394,7 +422,6 @@ bool SS_Playback (CommandObject *cmd) {
 
   cmd->Result_String ("not yet implemented");
   cmd->set_Status(CMD_COMPLETE);
-
   return true;
 }
 
@@ -411,7 +438,7 @@ bool SS_Record (CommandObject *cmd) {
   }
 
  // There is no result returned for this command.
-
+  cmd->set_Status(CMD_COMPLETE);
   return true;
 }
 
@@ -421,7 +448,6 @@ bool SS_SetBreak (CommandObject *cmd) {
 
   cmd->Result_String ("not yet implemented");
   cmd->set_Status(CMD_COMPLETE);
-
   return true;
 }
 
