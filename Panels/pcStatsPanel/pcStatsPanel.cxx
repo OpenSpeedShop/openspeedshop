@@ -291,7 +291,6 @@ pcStatsPanel::updateStatsPanelBaseData(void *expr, int expID, QString experiment
       lv->setSortOrder ( Qt::Ascending );
     }
 
-    bool ok;
     int numberItemsToRead = getPreferenceTopNLineEdit().toInt(&ok);
     if( !ok )
     {
