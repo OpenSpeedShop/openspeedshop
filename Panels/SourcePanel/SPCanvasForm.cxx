@@ -64,7 +64,6 @@ SPCanvasForm::setHighlights(QFont canvas_font, int lineHeight, int topLine, int 
 printf("SPCanvasForm::setHighlights()\n");
 printf("lineHeight=%d topLine=%d visibleLines=%d\n", lineHeight, topLine, visibleLines );
 
-canvasView->hide();
   int i = 0;
   char buffer[100];
   int textEdit_header_offset = 20;
@@ -81,10 +80,7 @@ printf("put out label (%s) at %dx%d\n", buffer, 10, i*lineHeight);
     canvasTextList.push_back(text);
   }
 
-canvasView->show();
-// repaint();
-// canvasView->repaint();
-// canvasArea->repaint();
+  canvasArea->update();
 }
 
 void
