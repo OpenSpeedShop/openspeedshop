@@ -36,14 +36,44 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
 
     fclose(yyin); 
 
-   // Build a CommandObject so that the semantic routiens can be called.
+   // Build a CommandObject so that the semantic routines can be called.
     cmd_args = (command_t *)malloc(sizeof(command_t));
     memcpy (cmd_args, &command, sizeof(command_t));
     cmd = new CommandObject (cmd_args);
-    Execute_Cmd (cmd);
+    SS_Execute_Cmd (cmd);
 
+   // Build Python Objects for any return results.
+    {
+      std::list<CommandResult *> cmd_result = cmd->Result_List();
+      std::list<CommandResult *>::iterator cri;
+      int cnt = 0;
+      for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++) {
+        if (cri != NULL) {
+          switch ((*cri)->Type()) {
+          case CMD_RESULT_INT:
+          {
+            int64_t I = 0;
+            ((CommandResult_Int *)(*cri))->Value(&I);
+            p_object = Py_BuildValue("L", I);
+            break;
+          }
+          case CMD_RESULT_STRING:
+          {
+            std::string C = NULL;
+            ((CommandResult_String *)(*cri))->Value(&C);
+            p_object = Py_BuildValue("S", C.c_str());
+            break;
+          }
+          default:
+           break;
+          }
+        }
+      }
+    }
 
-    p_object = Py_BuildValue("");
+    if (p_object == NULL) {
+      p_object = Py_BuildValue("");
+    }
 
     return p_object;
 }
@@ -125,29 +155,6 @@ static PyObject *SS_ReadLine (PyObject *self, PyObject *args) {
   return Prepare_Input_Line(clip);
 }
 
-static PyObject *SS_expFocus (PyObject *self, PyObject *args) {
-  EXPID exp = 0;
-  char *arg0 = NULL;
-  if ((args == NULL) || (!(PyArg_ParseTuple(args, "s", &arg0)) || (arg0 == NULL))) {
-    exp = Experiment_Focus ( 0 );
-  } else {
-    if (!PyArg_ParseTuple(args, "L", &exp)) {
-      exp = Experiment_Focus ( 0, exp);
-    }
-  }
-  return Py_BuildValue("L", exp);
-}
-
-static PyObject *SS_Record (PyObject *self, PyObject *args) {
-  char *tofile = NULL;
-  if (!PyArg_ParseTuple(args, "s", &tofile)) {
-    (void)SpeedShop_Trace_OFF ();
-  } else {
-    (void)SpeedShop_Trace_ON(tofile);
-  }
-  return Py_BuildValue("s", NULL);
-}
-
 static PyMethodDef PY_Input_Methods[] = {
 
     {"CallParser",  SS_CallParser, METH_VARARGS,
@@ -161,12 +168,6 @@ static PyMethodDef PY_Input_Methods[] = {
 
     {"ReadLine",  SS_ReadLine, METH_VARARGS,
      "Read a SpeedShop command."},
-
-    {"expFocus",  SS_expFocus, METH_VARARGS,
-     "Set the focused experiment."},
-
-    {"record",  SS_Record, METH_VARARGS,
-     "Control Command tracing."},
 
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
