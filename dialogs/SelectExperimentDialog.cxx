@@ -34,6 +34,7 @@
 #include <qlabel.h>
 #include <qcombobox.h>
 #include <qlistview.h>
+#include <qapplication.h>
 
 #include "SS_Input_Manager.hxx"
 SelectExperimentDialog::SelectExperimentDialog( QWidget* parent, const char* name, bool modal, WFlags fl )
@@ -223,18 +224,19 @@ if( eo && eo->FW() )
       expName,
       fw_experiment ? fw_experiment->getName().c_str() : "Unknown experiment name" );
 
-PanelList *panelList = mw->topPC->getPanelListByID(expID);
-if( panelList )
-{
-  for( PanelList::Iterator pit = panelList->begin(); pit != panelList->end(); pit++ )
-  {
-    Panel *p = (Panel *)*pit;
-    (void) new PanelListViewItem( (QListViewItem *)item, p->getName(), p );
-  }
-  delete panelList;
-}
+      PanelList *panelList = mw->topPC->getPanelListByID(expID);
+      if( panelList )
+      {
+        for( PanelList::Iterator pit = panelList->begin(); pit != panelList->end(); pit++ )
+        {
+          Panel *p = (Panel *)*pit;
+          (void) new PanelListViewItem( (QListViewItem *)item, p->getName(), p );
+        }
+        delete panelList;
+      }
   }
 
+  QApplication::restoreOverrideCursor();
 }
 
 void SelectExperimentDialog::attachHostComboBoxActivated()
