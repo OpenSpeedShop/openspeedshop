@@ -67,9 +67,6 @@ void SS_Execute_Cmd (CommandObject *cmd) {
     fprintf(stderr,"Command %d has not been implimented yet\n",cmd->Type());
   }
 
-  if (!cmd_successful) {
-    cmd->set_Status (CMD_ERROR);
-  }
  // For DEBUGING:
  // if (!cmd_successful) fprintf(stdout,"Command Error: ");
  // cmd->Print(stdout);
