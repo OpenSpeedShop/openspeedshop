@@ -45,8 +45,8 @@ class OpenSpeedshop : public QMainWindow
     QPopupMenu *fileMenu;
     QPopupMenu *editMenu;
     QPopupMenu *helpMenu;
-    QAction* fileNewAction;
-    QAction* fileAttachAction;
+    QAction* fileLoadNewAction;
+    QAction* fileAttachNewProcessAction;
     QAction* fileOpenAction;
     QAction* fileSaveAction;
 #ifdef EVENTUALLY
@@ -109,8 +109,8 @@ class OpenSpeedshop : public QMainWindow
     virtual void fileSaveAs();
 #endif // EVENTUALLY
   public slots:
-    virtual void fileNew();
-    virtual void fileAttach();
+    virtual void fileLoadNewProgram();
+    virtual void fileAttachNewProcess();
     virtual void fileOpen();
     virtual void fileSave();
     virtual void fileExit();
@@ -118,6 +118,8 @@ class OpenSpeedshop : public QMainWindow
     virtual void helpContents();
     virtual void helpAbout();
 
+    virtual void loadNewProgram();
+    virtual void attachNewProcess();
 protected:
     //! A vertical box to place the child widgets.
     QVBoxLayout* OpenSpeedshopLayout;
