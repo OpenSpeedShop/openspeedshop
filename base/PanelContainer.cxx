@@ -2343,7 +2343,7 @@ PanelContainer::panelContainerContextMenuEvent( PanelContainer *targetPC, bool l
   }
 
   Q_CHECK_PTR( getMasterPC()->pcMenu );
-  getMasterPC()->pcMenu->insertItem( "Remove Raised &Panel", targetPC->getMasterPC(), SLOT(removeRaisedPanel()), CTRL+Key_P );
+//  getMasterPC()->pcMenu->insertItem( "Remove Raised &Panel", targetPC->getMasterPC(), SLOT(removeRaisedPanel()), CTRL+Key_P );
   getMasterPC()->pcMenu->insertItem( "Split &Horizontal",  targetPC, SLOT(splitHorizontal()), CTRL+Key_H );
   getMasterPC()->pcMenu->insertItem( "Split &Vertical", targetPC, SLOT(splitVertical()), CTRL+Key_V );
   getMasterPC()->pcMenu->insertItem( "&Remove Container", targetPC->getMasterPC(), SLOT(removePanelContainer()), CTRL+Key_R );
