@@ -2333,12 +2333,22 @@ PanelContainer::dl_create_and_add_panel(char *panel_type, PanelContainer *target
 /*!  This static routines is the routine that actually creates a new
      PanelContainer.
  */
+#include "TopWidget.hxx"
 PanelContainer *
 createPanelContainer( QWidget* parent, const char* name, PanelContainer *parentPanelContainer, PanelContainerList *panelContainerList )
 {
-
-
   nprintf(DEBUG_PANELCONTAINERS) ("createPanelContainer(%s) entered.\n", name);
+
+  if( parent == NULL )
+  {
+    nprintf(DEBUG_PANELCONTAINERS) ("no parent create a toplevel\n");
+    TopWidget *topWidget = new TopWidget( 0, "toplevel" );
+    topWidget->setCaption("topwidget");
+    parent = (QWidget *)topWidget;
+
+    topWidget->show();
+  }
+
   PanelContainer *npc = new PanelContainer( parent, name, parentPanelContainer, panelContainerList );
 
   nprintf(DEBUG_PANELCONTAINERS) ("created npc=(%s) (%s)\n", npc->getInternalName(), npc->getExternalName() );
