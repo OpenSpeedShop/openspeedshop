@@ -24,17 +24,25 @@ Design
 Documentation</a>
     <ol>
       <li><a href="#mozTocId533182">Version
-Milestone 3 - March 14, 2005 </a></li>
-      <li><a href="#mozTocId156671">Table of Contents </a></li>
+Milestone 3 - March 14, 2005
+        </a></li>
+      <li><a href="#mozTocId156671">Table of Contents
+        </a></li>
       <li><a href="#mozTocId152427">Introduction</a>
         <ol>
-          <li><a href="#mozTocId511853">General </a></li>
-          <li><a href="#mozTocId874420">Dyninst and DPCL </a></li>
-          <li><a href="#mozTocId708292">Framework </a></li>
-          <li><a href="#mozTocId198623">SQLITE </a></li>
-          <li><a href="#mozTocId864899">PAPI </a></li>
+          <li><a href="#mozTocId511853">General
+            </a></li>
+          <li><a href="#mozTocId874420">Dyninst and DPCL
+            </a></li>
+          <li><a href="#mozTocId708292">Framework
+            </a></li>
+          <li><a href="#mozTocId198623">SQLITE
+            </a></li>
+          <li><a href="#mozTocId864899">PAPI
+            </a></li>
           <li><a href="#mozTocId824648">Graphical User
-Interface - GUI </a>
+Interface - GUI
+            </a>
             <ol>
               <li><a href="#mozTocId770242"> MainWindow -
 This is where the GUI starts.&nbsp;</a></li>
@@ -47,11 +55,13 @@ logic exists for an individual task. &nbsp; &nbsp;</a></li>
             </ol>
           </li>
           <li><a href="#mozTocId455111">Command Line
-Interface - CLI </a></li>
+Interface - CLI
+            </a></li>
           <li><a href="#mozTocId579981">Open/SpeedShop
 Scripting API</a></li>
           <li><a href="#mozTocId902967">Open/SpeedShop
-Invocation Command&nbsp; "openss" </a>
+Invocation Command&nbsp; "openss"
+            </a>
             <ol>
               <li><a href="#mozTocId970272">openss -gui </a></li>
               <li><a href="#mozTocId694560">openss -cli:</a></li>
@@ -63,7 +73,8 @@ Invocation Command&nbsp; "openss" </a>
       </li>
       <li><a href="#mozTocId286382">API's Defined In Open/SpeedShop </a>
         <ol>
-          <li><a href="#mozTocId779296">General </a></li>
+          <li><a href="#mozTocId779296">General
+            </a></li>
           <li><a href="#mozTocId927649">API between the
 Open/SpeedShop Framework component and DPCL</a></li>
           <li><a href="#mozTocId406405">API between the
@@ -135,8 +146,8 @@ will be run against create an instance of a performance experiment.<br>
  href="http://www.dyninst.org/"
  style="font-family: times new roman,times,serif;">http://www.dyninst.org/</a><span
  style="font-family: times new roman,times,serif;">) and&nbsp; DPCL (</span><a
- href="http://oss.software.ibm.com/developerworks/opensource/dpcl/"
- style="font-family: times new roman,times,serif;">http://oss.software.ibm.com/developerworks/opensource/dpcl/</a><span
+ href="http://sourceforge.net/projects/dpcl"
+ style="font-family: times new roman,times,serif;">http://sourceforge.net/projects/dpcl</a><span
  style="font-family: times new roman,times,serif;">) are key elements
 of the design.&nbsp; DPCL is the component in satisfying the
 clustering requirement.&nbsp; Dyninst allows the Open/SpeedShop
@@ -392,13 +403,13 @@ Command Line Definitions</a> </small></small></font></b><font
  face="Courier New" size="5"><small><small>document.</small></small></font></small></small></small><br>
 <small><small><small><font face="Courier New" size="5"><small><small><br>
 The major design sections of the CLI tool are the parser, the command
-processing semantic routines, the Python bridge (not implemented at
-present - 12/15/2004), and the command object interface (not
-implemented at present - 12/15/2004)<br>
+processing semantic routines, the Python bridge, and the command object
+interface.<br>
 </small></small></font></small></small></small><br>
 The
-CLI tool is still being designed and implemented.&nbsp; This space will
-be updated in
+CLI tool is still being designed and implemented, however significant
+progress has been made during Milestone 3.&nbsp; This space will
+be continue to be updated in
 future releases with the appropriate design information.&nbsp; To view
 the current design documentation for the CLI tool, see <a
  href="CLI/html/index.html">CLI design.</a><br>
@@ -409,7 +420,9 @@ There will be a scripting functionality built into the CLI tool.&nbsp;
 We are investigating the use of Python as the scripting
 language.&nbsp; Depending on&nbsp; future analysis Open/SpeedShop
 commands may or may not be allowed in the Python scripting
-API.&nbsp;&nbsp; This section will be updated in future releases.<br>
+API.&nbsp;&nbsp; This section will be updated in future
+releases.&nbsp;&nbsp; Collaborative design on the scripting API will
+start during Milestone 4.<br>
 <h3><a name="mozTocId902967" class="mozTocH3"></a><a
  name="OpenSpeedShop_Command_Definition" class="mozTocH3"></a>Open/SpeedShop
 Invocation Command&nbsp; "openss"<br>
@@ -506,7 +519,7 @@ GUI/CLI tools<br>
 Open/SpeedShop Framework component and DPCL</h3>
 The API between the Open/SpeedShop Framework component and DPCL is the
 standard DPCL API defined by the <a
- href="http://www-124.ibm.com/dpcl/doc/dpclref/dpclref.html">DPCL Class
+ href="http://dpcl.sourceforge.net/doc/dpclref/dpclref.html">DPCL Class
 Reference document</a>.&nbsp;&nbsp; Open/SpeedShop uses this previously
 defined API to support clustering performance measurement collection
 and analysis.&nbsp; The use of this API is driven by requests from the

@@ -16,7 +16,7 @@
  href="file:///D:/Documents%20and%20Settings/jeg/My%20Documents/UsabilityPlan/OpenSpeedShopUsersGuide_MS1.mht?part=1.13">
   <link rel="Edit-Time-Data"
  href="file:///C:/E530BE91/OpenSpeedShopUsersGuide_MS1_files/editdata.mso">
-  <title>Milestone 4: Open/SpeedShop User's Guide</title>
+  <title>Milestone 3: Open/SpeedShop User's Guide</title>
   <style>
 <!--
  /* Font Definitions */
@@ -1499,9 +1499,11 @@ style='mso-element:field-separator'></span></span><![endif]--></p>
 <br>
 <ol id="mozToc">
 <!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId299831">Introduction
-to Open/SpeedShop </a>
+to Open/SpeedShop
+    </a>
     <ol>
-      <li><a href="#mozTocId953753">Brief Open/SpeedShop Overview </a></li>
+      <li><a href="#mozTocId953753">Brief Open/SpeedShop Overview
+        </a></li>
       <li><a href="#mozTocId221011">Common Terminology</a></li>
       <li><a href="#mozTocId512392">Extensibility</a></li>
     </ol>
@@ -1511,20 +1513,31 @@ Installation Information</a>
     <ol>
       <li><a href="#mozTocId139249">Building Open/SpeedShop</a>
         <ol>
-          <li><a href="#mozTocId337651">Required and Open/SpeedShop
-Verified Packages</a></li>
+          <li><a href="#mozTocId337651">Required and
+Open/SpeedShop Verified Packages</a></li>
+          <li><a href="#mozTocId745843">Key Environment Variables</a>
+            <ol>
+              <li><a href="#mozTocId24750">Open/SpeedShop Developer
+Related Environment Variables
+                </a></li>
+              <li><a href="#mozTocId483988">Open/SpeedShop User
+Related Environment Variables</a></li>
+            </ol>
+          </li>
+          <li><a href="#mozTocId583397">Building Open/SpeedShop
+from Source</a></li>
+          <li><a href="#mozTocId226476">Installing
+Open/SpeedShop from Executable RPM package(s) </a></li>
+          <li><a href="#mozTocId556715">Installing DPCL</a></li>
         </ol>
       </li>
-      <li><a href="#mozTocId226476">Installing
-Open/SpeedShop</a></li>
-      <li><a href="#mozTocId556715">Installing DPCL</a></li>
     </ol>
   </li>
   <li><a href="#mozTocId744154">Open/SpeedShop
 Tools</a>
     <ol>
       <li><a href="#mozTocId154079">Open/SpeedShop
-Invocation Command&nbsp; "openss" </a>
+Invocation Command&nbsp; "openss"</a>
         <ol>
           <li><a href="#mozTocId266766">openss -gui</a></li>
           <li><a href="#mozTocId789490">openss -cli:</a></li>
@@ -1533,7 +1546,8 @@ Invocation Command&nbsp; "openss" </a>
       </li>
       <li><a href="#mozTocId263161">Using the GUI Tool</a>
         <ol>
-          <li><a href="#mozTocId217571">GUI Launch Background
+          <li><a href="#mozTocId217571">GUI Launch
+Background
 Information: </a></li>
           <li><a href="#mozTocId775083">Typical
 Open/SpeedShop GUI Wizard Usage </a></li>
@@ -1556,9 +1570,14 @@ Command Tool </a></li>
     </ol>
   </li>
   <li><a href="#mozTocId779679">Scripting
-API </a></li>
+API
+    </a></li>
   <li><a href="#mozTocId167878">Plugin
-API (Extensibility)&nbsp; Description </a></li>
+API (Extensibility)&nbsp; Description
+    </a></li>
+  <li><a href="#mozTocId10491">Appendix
+A: Command Syntax
+Description</a></li>
 </ol>
 </div>
 <span style="font-size: 11pt; font-family: &quot;Times New Roman&quot;;"></span>
@@ -1737,8 +1756,12 @@ supports clustering.&nbsp;&nbsp; The open
 source component, DPCL, is used by Open/SpeedShop to provide
 the clustering capability.&nbsp;&nbsp; The use of the Dyninst component
 allows Open/SpeedShop to insert instrumentation and also to attach to
-running processes.&nbsp;&nbsp;</span></blockquote>
-<p class="MsoBodyText"></p>
+running processes.&nbsp;&nbsp; See the </span><span
+ style="color: rgb(0, 0, 128);"><a
+ href="#Plugin_API_Extensibility_Description_">Plugin
+API (Extensibility)&nbsp; Description</a> <span
+ style="color: rgb(0, 0, 0);">section for a detailed description.</span><br>
+  </span></blockquote>
 </div>
 <span style="font-size: 11pt; font-family: &quot;Times New Roman&quot;;">
 </span>
@@ -1780,7 +1803,49 @@ components/packages that have been tested.<br>
 </ul>
 </div>
 <br>
-<h3 style="margin-left: 40px;"><a
+<h3 style="margin-left: 40px;"><a class="mozTocH3" name="mozTocId745843"></a>Key
+Environment Variables</h3>
+<h4 style="margin-left: 120px;"><a class="mozTocH4" name="mozTocId24750"></a><a
+ name="OpenSpeedShop_developer_related"></a>Open/SpeedShop Developer
+Related Environment Variables<br>
+</h4>
+<ul>
+  <ul>
+    <ul>
+      <li>OPENSPEEDSHOP_INSTALL_DIR - This environment variable
+specifies where the Open/SpeedShop binaries and libraries will be
+installed.&nbsp; Set this variable to a path, (e.g. "setenv
+OPENSPEEDSHOP_INSTALL_DIR /scratch/jeg/openss/install)</li>
+    </ul>
+  </ul>
+</ul>
+<ul>
+  <ul>
+    <ul>
+      <li>&lt;&gt;OPENSPEEDSHOP_PLUGIN_PATH - This environment variable
+specifies where the Open/SpeedShop main program looks for the
+experiment plugins.&nbsp; At Open/SpeedShop initialization, set this
+variable to a path,&nbsp; (e.g.
+"setenv OPENSPEEDSHOP_PLUGIN_PATH
+/scratch/jeg/openss/install/lib/openspeedshop)<br>
+      </li>
+&lt;&gt;&lt;&gt;<br>
+    </ul>
+  </ul>
+</ul>
+<h4 style="margin-left: 120px;"><a class="mozTocH4"
+ name="mozTocId483988"></a><a
+ name="OpenSpeedShop_User_Related_Environment"></a>Open/SpeedShop User
+Related Environment Variables</h4>
+<ul>
+  <ul>
+    <ul>
+      <li>TBD</li>
+    </ul>
+  </ul>
+</ul>
+<br>
+<h3 style="margin-left: 40px;"><a class="mozTocH3" name="mozTocId583397"></a><a
  name="Building_OpenSpeedShop_from_Source"></a>Building Open/SpeedShop
 from Source</h3>
 <br>
@@ -1832,15 +1897,17 @@ is not working is as follows:<br>
   <div style="margin-left: 40px;"><b>Step 1:&nbsp; </b><span
  style="font-weight: bold;">Build Dyninst and DPCL - Here is the script
 to build the DPCL and Dyninst</span><br>
-#################################################################<br>
-DPCL/Dyninst 2004/11/17 -<br>
-#################################################################<br>
-gunzip -c $tarball_dir/dpcl-dyninst-hybrid-20041117.tar.gz | tar xf -<br>
-setenv DYNINST_ROOT "$PWD/dpcl-dyninst-hybrid-20041117/dyninst"<br>
+##!/bin/tcsh<br>
+################################################################################<br>
+# DPCL/Dyninst (in directory $HYBRID)<br>
+################################################################################<br>
+  <br>
+setenv DYNINST_ROOT "$HYBRID/dyninst"<br>
+  <br>
 if ((`uname` == "Linux") &amp;&amp; (`uname -m` == "ia64")) then<br>
-&nbsp; setenv PLATFORM "ia64-unknown-linux2.4"<br>
+&nbsp;&nbsp;&nbsp; setenv PLATFORM "ia64-unknown-linux2.4"<br>
 else if (`uname` == "Linux") then<br>
-&nbsp; setenv PLATFORM "i386-unknown-linux2.4"<br>
+&nbsp;&nbsp;&nbsp; setenv PLATFORM "i386-unknown-linux2.4"<br>
 endif<br>
   <br>
 cd $DYNINST_ROOT<br>
@@ -1849,9 +1916,12 @@ mkdir -p ${PLATFORM}/lib<br>
 cd $DYNINST_ROOT/core<br>
 make DyninstAPI<br>
 cd $DYNINST_ROOT<br>
-install -D ${PLATFORM}/lib/libdyninstAPI_RT.so.1 <br>
-$ROOT/lib/libdyninstAPI_RT.so.1install -D <br>
-${PLATFORM}/lib/libdyninstAPI.so $ROOT/lib/libdyninstAPI.so<br>
+install -d $ROOT/include/dyninst<br>
+install -D -m u=rw,g=r,o=r core/dyninstAPI/h/BPatch*.h
+$ROOT/include/dyninst<br>
+install -D ${PLATFORM}/lib/libdyninstAPI_RT.so.1
+$ROOT/lib/libdyninstAPI_RT.so.1<br>
+install -D ${PLATFORM}/lib/libdyninstAPI.so $ROOT/lib/libdyninstAPI.so<br>
   <br>
 cd $DYNINST_ROOT/../dpcl/src<br>
 ./configure --prefix=$ROOT --includedir=$ROOT/include/dpcl
@@ -1863,8 +1933,6 @@ unsetenv DYNINST_ROOT<br>
 unsetenv PLATFORM<br>
   <br>
 cd ../../..<br>
-rm -rf dpcl-dyninst-hybrid-20041117<br>
-echo "after dyninst build the current directory is = $PWD"<br>
   <br>
   <b>Step 2: Check .rhosts file<br>
   <br>
@@ -2322,8 +2390,15 @@ loop(s) waiting for user interaction.<br>
 Open/SpeedShop CLI Usage<br>
     </h3>
     <p>Having launched the CLI via the <b>openss -cli</b>&nbsp; the
-initial window will look like this:</p>
-  </blockquote>
+initial window will look like this:<br>
+    </p>
+    <p>machine.prompt&gt;./openss -cli<br>
+openss&gt;&gt;</p>
+&lt;&gt;At this point, user's may enter one of the commands described
+in
+Appendix A: Command Syntax.&nbsp; These commands are primarily related
+to creating, running, and monitoring performance experiments.&nbsp;
+There are also information commands which give machine information.</blockquote>
 </blockquote>
 <blockquote>
   <blockquote>
@@ -2338,9 +2413,7 @@ initial window will look like this:</p>
     <blockquote> </blockquote>
   </blockquote>
 </blockquote>
-<blockquote>
-  <blockquote></blockquote>
-  <br>
+<blockquote> <br>
 </blockquote>
 <blockquote>
   <h2><a name="mozTocId630833" class="mozTocH2"></a><span style=""><span
@@ -2380,21 +2453,12 @@ API (Extensibility)&nbsp; Description</span><br
   <p class="MsoBodyText">TBD<br>
   </p>
 </blockquote>
-<p class="MsoBodyText"><!--[if gte vml 1]><v:shape id="_x0000_s7201" type="#_x0000_t75"
- style='position:absolute;margin-left:0;margin-top:129.15pt;width:265.5pt;
- height:260.25pt;z-index:6;mso-position-horizontal:left' o:allowincell="f">
- <v:imagedata src="file:///D:/Documents%20and%20Settings/jeg/My%20Documents/UsabilityPlan/OpenSpeedShopUsersGuide_MS1.mht?part=1.9"
-  o:title="cube"/>
- <w:wrap type="square"/>
-</v:shape><![endif]--><!--[if !vml]--><!--[endif]--><!--[if gte vml 1]><v:shape id="_x0000_s7202"
- type="#_x0000_t75" style='position:absolute;margin-left:0;margin-top:254.3pt;
- width:468pt;height:25.5pt;z-index:7;mso-position-horizontal:left'
- o:allowincell="f">
- <v:imagedata src="file:///D:/Documents%20and%20Settings/jeg/My%20Documents/UsabilityPlan/OpenSpeedShopUsersGuide_MS1.mht?part=1.10"
-  o:title="Silicon_graphics_tag"/>
- <w:wrap type="square"/>
-</v:shape><![endif]--><!--[if !vml]--><br>
-<!--[endif]--></p>
+<h1><a class="mozTocH1" name="mozTocId10491"></a><span
+ style="color: rgb(0, 0, 128);"><a
+ href="../../../../openss/current/doc/cli_doc/definition.html">Appendix
+A: Command Syntax
+Description</a></span></h1>
+<p class="MsoBodyText"><!--[endif]--></p>
 </div>
 </div>
 </body>
