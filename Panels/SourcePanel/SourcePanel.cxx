@@ -43,6 +43,9 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
   nprintf(DEBUG_CONST_DESTRUCT) ( "SourcePanel::SourcePanel() constructor called\n");
   frameLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
+splitter = new QSplitter(getBaseWidgetFrame(), "SourcePanel: splitter");
+splitter->setOrientation( QSplitter::Horizontal );
+
   lastTop = 0;
   last_para = -1;   // For last find command.
   last_index = -1;   // For last find command.
@@ -57,10 +60,16 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
   font.setBold(TRUE);
   label->setFont(font);
   label->setFrameStyle( QFrame::Panel | QFrame::Sunken );
+  label->setSizePolicy(QSizePolicy( (QSizePolicy::SizeType)5,
+                                    (QSizePolicy::SizeType)0, 0, 0,
+                                   label->sizePolicy().hasHeightForWidth() ) );
   QString label_text = "No source file specified.";
   label->setText(label_text);
 
-  textEdit = new SPTextEdit( this, getBaseWidgetFrame() );
+  statArea = new SPTextEdit( this, splitter );
+  statArea->setCaption("SourcePanel: Statistics");
+
+  textEdit = new SPTextEdit( this, splitter );
   textEdit->setCaption("SourcePanel: SPTextEdit");
 
   addWhatsThis(textEdit, this);
@@ -90,7 +99,17 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
            this, SLOT(clicked(int, int)) );
 
   frameLayout->addWidget(label);
-  frameLayout->addWidget(textEdit);
+  frameLayout->addWidget(splitter);
+  QValueList<int> sizeList;
+  sizeList.clear();
+  int height = pc->height();
+  int left_side_size = (int)(height*.10);
+  sizeList.push_back( left_side_size );
+  sizeList.push_back( height-left_side_size );
+  splitter->setSizes(sizeList);
+  splitter->show();
+
+  statArea->hide(); // Use statArea->show() to show the left side.
 
   textEdit->show();
   label->show();
@@ -130,6 +149,15 @@ SourcePanel::menu(QPopupMenu* contextMenu)
     contextMenu->insertItem("Show &Line Numbers...", this,
       SLOT(showLineNumbers()), CTRL+Key_L );
   }
+if( statsFLAG == TRUE )
+{
+  contextMenu->insertItem("Hide &Statistics...", this,
+  SLOT(showStats()), CTRL+Key_L );
+} else
+{
+  contextMenu->insertItem("Show &Statistics...", this,
+  SLOT(showStats()), CTRL+Key_L );
+}
   contextMenu->insertItem("&Find...", this, SLOT(findString()), CTRL+Key_F );
   contextMenu->insertSeparator();
   contextMenu->insertItem("Zoom In", this, SLOT(zoomIn()), CTRL+Key_Plus );
@@ -351,6 +379,22 @@ SourcePanel::goToLine()
   } else
   {
     // user entered nothing or pressed Cancel
+  }
+}
+
+/*! Display/Undisplay line numbers in the display. */
+void
+SourcePanel::showStats()
+{
+  nprintf(DEBUG_PANELS) ("SourcePanel::showStats() entered\n");
+  if( statsFLAG == TRUE )
+  {
+    statsFLAG = FALSE;
+    statArea->hide();
+  } else
+  {
+    statsFLAG = TRUE;
+    statArea->show();
   }
 }
 

@@ -6,6 +6,7 @@
 #include <qlabel.h>
 #include <qpopupmenu.h>
 #include <qscrollbar.h>
+#include <qsplitter.h>
 
 #include "SourceObject.hxx"
 #include "HighlightObject.hxx"
@@ -54,8 +55,14 @@ public:
   //! Layout for managing child widgets.
   QVBoxLayout * frameLayout;
 
+//! Sliter for the stat/text area.
+QSplitter *splitter;
+
   //! Label for displaying current file displayed.
   QLabel *label;
+
+//! The eventual statisics area...
+SPTextEdit *statArea;
 
   //! The QTextEdit for managing the actual text.
   SPTextEdit *textEdit;
@@ -77,6 +84,9 @@ public:
 
   //! Should line numbers be displayed flag.
   bool line_numbersFLAG;
+
+  //! Should statistics be displayed flag.
+  bool statsFLAG;
 
   //! The highlight list for this file.
   HighlightList *highlightList;
@@ -145,6 +155,7 @@ public slots:
   void chooseFile();
   void goToLine();
   void showLineNumbers();
+  void showStats();
   void findString();
   void details();
   void whoCallsMe();
