@@ -492,52 +492,8 @@ void
 pcSamplePanel::manageCollectorsSelected()
 {
   nprintf( DEBUG_PANELS ) ("pcSamplePanel::manageCollectorsSelected()\n");
-// BEGIN DEBUG
-// Just a place holder to see if we set the sampling_rate correctly.
-        unsigned int sampling_rate = 3;
-        // Set the sample_rate of the collector.
-        try
-        {
-          ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-          if( eo && eo->FW() )
-          {
-            experiment = eo->FW();
-          }
-          ThreadGroup tgrp = experiment->getThreads();
-          if( tgrp.size() == 0 )
-          {
-            fprintf(stderr, "There are no known threads for this experiment.\n");
-            return;
-          }
-          ThreadGroup::iterator ti = tgrp.begin();
-          Thread t1 = *ti; 
-          CollectorGroup cgrp = experiment->getCollectors();
-          if( cgrp.size() > 0 )
-          {
-            CollectorGroup::iterator ci = cgrp.begin();
-            Collector pcSampleCollector = *ci;
-            
-            Metadata cm = pcSampleCollector.getMetadata();
-            std::set<Metadata> md =pcSampleCollector.getParameters();
-            std::set<Metadata>::const_iterator mi;
-            for (mi = md.begin(); mi != md.end(); mi++)
-            {
-              Metadata m = *mi;
-              printf("%s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
-              printf("%s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
-              printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
-            }
 
-             pcSampleCollector.getParameterValue("sampling_rate", sampling_rate);
-          printf("sampling_rate=%u\n", sampling_rate);
-          }
-        }
-        catch(const std::exception& error)
-        {
-          return;
-        }
-// END DEBUG
-  ManageCollectorsDialog *dialog = new ManageCollectorsDialog(this, "ManageCollectorsDialog", TRUE, expID);
+  ManageCollectorsDialog *dialog = new ManageCollectorsDialog(this, "ManageCollectorsDialog", TRUE, 0, expID);
   if( dialog->exec() == QDialog::Accepted )
   {
     printf("QDialog::Accepted\n");
