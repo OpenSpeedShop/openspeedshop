@@ -303,17 +303,25 @@ SourcePanel::listener(void *msg)
   // Check the message type to make sure it's our type...
   if( msgObject->msgType == "SourceObject" )
   {
+    nprintf(DEBUG_CONST_DESTRUCT)  ("Its a SourceObject\n");
     spo = (SourceObject *)msg;
     if( !spo )
     {
       return 0;  // 0 means, did not act on message.
     }
+
+    nprintf(DEBUG_CONST_DESTRUCT)  ("load the file spo->fileName=%s\n", spo->fileName.ascii() );
+    loadFile(spo->fileName);
+
+/*
+printf ("raise the panel.\n");
     if( spo->raiseFLAG == TRUE )
     {
       getPanelContainer()->raisePanel((Panel *)this);
     }
+*/
 
-    loadFile(spo->fileName);
+    nprintf(DEBUG_CONST_DESTRUCT)  ("doFileHighlights()\n");
 
     highlightList = spo->highlightList;
     doFileHighlights();
@@ -341,6 +349,7 @@ SourcePanel::listener(void *msg)
     }
 
     nprintf(DEBUG_PANELS) ("Try to position at line %d\n", spo->line_number);
+printf ("Try to position at line %d\n", spo->line_number);
 
     positionLineAtCenter(spo->line_number);
   } else if( msgObject->msgType == "SaveAsObject" )
@@ -620,6 +629,7 @@ SourcePanel::loadFile(const QString &_fileName)
   { // Just clear the Source Panel and return.
     textEdit->clear();
     textEdit->clearScrollBar();
+    label->setText(tr("No file found."));
     return;
   }
   fileName = _fileName;
@@ -1035,6 +1045,12 @@ SourcePanel::calculateLastParameters()
   int heightForWidth = textEdit->heightForWidth(80);
   int lineHeight = heightForWidth/lineCount;
   lastLineHeight = lineHeight;
+  if( lineHeight < heightForWidth )
+  {
+    lineHeight = heightForWidth;
+  }
+  nprintf(DEBUG_CONST_DESTRUCT) ("height=%d lineHeight=%d\n", height, lineHeight );
+
   lastVisibleLines = (int)(height/lineHeight);
 
   // We always add one to last visible lines, just incase there's a partial

@@ -20,7 +20,9 @@
 
 #include "LoadAttachObject.hxx"
 
+// Begin cli includes
 #include "Commander.hxx"
+// End cli includes
 
 
 /*!  pcSamplePanel Class
@@ -74,28 +76,32 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n, char *argument) 
 
 OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
 printf("Create a new pcSample experiment.\n");
+InputLineObject *ilp = NULL;
 if( !mw->executableName.isEmpty() )
 {
 int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
 char buffer[1024];
 sprintf(buffer, "expCreate -f %s \"pcsamp\"\n", mw->executableName.ascii() );
-InputLineObject *ilp = Append_Input_String( wid, buffer);
+ilp = Append_Input_String( wid, buffer);
 } else if( !mw->pidStr.isEmpty() )
 { 
 int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
 char buffer[1024];
 sprintf(buffer, "expCreate -x %s \"pcsamp\"\n", mw->pidStr.ascii() );
-InputLineObject *ilp = Append_Input_String( wid, buffer);
+ilp = Append_Input_String( wid, buffer);
 } else
 {
 int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
 char buffer[1024];
 sprintf(buffer, "expCreate \"pcsamp\"\n" );
-InputLineObject *ilp = Append_Input_String( wid, buffer);
+ilp = Append_Input_String( wid, buffer);
 }
 
 printf("PUT THE EXPERIMENT ID HERE!\n");
 expID = 0;
+//if( ilp != NULL ilp->What() )
+//{
+//}
 
 
   pcSampleControlPanelContainerWidget->show();
@@ -184,7 +190,7 @@ pcSamplePanel::loadNewProgramSelected()
   {
     mw->executableName = QString::null;
     mw->pidStr = QString::null;
-    mw->fileLoadNewProgram();
+    mw->loadNewProgram();
   }
 }   
 
@@ -234,7 +240,7 @@ pcSamplePanel::attachToExecutableSelected()
   {
     mw->executableName = QString::null;
     mw->pidStr = QString::null;
-    mw->fileAttachNewProcess();
+    mw->attachNewProcess();
   }
 }   
 
@@ -311,27 +317,45 @@ pcSamplePanel::listener(void *msg)
 //      co->print();
 //    }
 
+int id = 0; // Look this up from somewhere!
+int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
+char buffer[1024];
+InputLineObject *ilp = NULL;
+
+
     switch( (int)co->cot )
     {
       case  ATTACH_PROCESS_T:
+sprintf(buffer, "attach a process collector %d\n", id);
+ilp = Append_Input_String( wid, buffer);
         nprintf( DEBUG_MESSAGES ) ("Attach to a process\n");
         break;
       case  DETACH_PROCESS_T:
+sprintf(buffer, "detach a process %d\n", id);
+ilp = Append_Input_String( wid, buffer);
         nprintf( DEBUG_MESSAGES ) ("Detach from a process\n");
         ret_val = 1;
         break;
       case  ATTACH_COLLECTOR_T:
+sprintf(buffer, "attach a collector %d\n", id);
+ilp = Append_Input_String( wid, buffer);
         nprintf( DEBUG_MESSAGES ) ("Attach to a collector\n");
         ret_val = 1;
         break;
       case  REMOVE_COLLECTOR_T:
+sprintf(buffer, "remove a collector %d\n", id);
+ilp = Append_Input_String( wid, buffer);
         nprintf( DEBUG_MESSAGES ) ("Remove a collector\n");
         ret_val = 1;
         break;
       case  RUN_T:
+sprintf(buffer, "expRun %d\n", id);
+ilp = Append_Input_String( wid, buffer);
         nprintf( DEBUG_MESSAGES ) ("Run\n");
         statusLabelText->setText( tr("Process running...") );
-{ // Begin demo only...
+// Begin demo only...
+if( 0 )
+{
 pco->runButton->setEnabled(FALSE);
 pco->runButton->enabledFLAG = FALSE;
 pco->runButton->setEnabled(TRUE);
@@ -352,16 +376,37 @@ PanelContainer *pc = topPC->findBestFitPanelContainer(topPC);
 
   loadStatsPanel();
   
-} // End demo only...
+} else
+{
+pco->runButton->setEnabled(TRUE);
+pco->runButton->enabledFLAG = TRUE;
+runnableFLAG = TRUE;
+pco->pauseButton->setEnabled(TRUE);
+pco->pauseButton->enabledFLAG = TRUE;
+pco->continueButton->setEnabled(TRUE);
+pco->continueButton->setEnabled(TRUE);
+pco->continueButton->enabledFLAG = TRUE;
+pco->updateButton->setEnabled(TRUE);
+pco->updateButton->setEnabled(TRUE);
+pco->updateButton->enabledFLAG = TRUE;
+pco->terminateButton->setEnabled(TRUE);
+pco->terminateButton->setFlat(TRUE);
+pco->terminateButton->setEnabled(TRUE);
+}
+ // End demo only...
         ret_val = 1;
         break;
       case  PAUSE_T:
         nprintf( DEBUG_MESSAGES ) ("Pause\n");
+sprintf(buffer, "expPause %d\n", id);
+ilp = Append_Input_String( wid, buffer);
         statusLabelText->setText( tr("Process suspended...") );
         ret_val = 1;
         break;
       case  CONT_T:
         nprintf( DEBUG_MESSAGES ) ("Continue\n");
+sprintf(buffer, "expCont %d\n", id);
+ilp = Append_Input_String( wid, buffer);
           statusLabelText->setText( tr("Process continued...") );
           sleep(1);
           statusLabelText->setText( tr("Process running...") );
@@ -369,14 +414,20 @@ PanelContainer *pc = topPC->findBestFitPanelContainer(topPC);
         break;
       case  UPDATE_T:
         nprintf( DEBUG_MESSAGES ) ("Update\n");
+sprintf(buffer, "expView %d\n", id); // Get the new data..
+ilp = Append_Input_String( wid, buffer);
         ret_val = 1;
         break;
       case  INTERRUPT_T:
         nprintf( DEBUG_MESSAGES ) ("Interrupt\n");
+sprintf(buffer, "expPause %d\n", id); // Well not really but do this for now.\n");
+ilp = Append_Input_String( wid, buffer);
         ret_val = 1;
         break;
       case  TERMINATE_T:
         statusLabelText->setText( tr("Process terminated...") );
+sprintf(buffer, "expStop %d\n", id);
+ilp = Append_Input_String( wid, buffer);
         ret_val = 1;
  //       nprintf( DEBUG_MESSAGES ) ("Terminate\n");
         break;
