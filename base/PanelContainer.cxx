@@ -1695,11 +1695,11 @@ PanelContainer::removePanelContainer(PanelContainer *targetPC)
     } else
     {
       // disable the enter leave events
-      pcToReparent->leftPanelContainer->leftFrame->panelContainer = NULL;
-      pcToReparent->leftPanelContainer->rightFrame->panelContainer = NULL;
+      pcToReparent->leftPanelContainer->leftFrame->setPanelContainer(NULL);
+      pcToReparent->leftPanelContainer->rightFrame->setPanelContainer(NULL);
       pcToReparent->leftPanelContainer->menuEnabled = FALSE;
-      pcToReparent->rightPanelContainer->leftFrame->panelContainer = NULL;
-      pcToReparent->rightPanelContainer->rightFrame->panelContainer = NULL;
+      pcToReparent->rightPanelContainer->leftFrame->setPanelContainer(NULL);
+      pcToReparent->rightPanelContainer->rightFrame->setPanelContainer(NULL);
       pcToReparent->rightPanelContainer->menuEnabled = FALSE;
 
       // Begin I'm confused, why I need to do this...
@@ -1780,11 +1780,11 @@ PanelContainer::removePanelContainer(PanelContainer *targetPC)
   } else
   {
     // disable the enter leave events
-    targetPC->leftFrame->panelContainer = NULL;
-    targetPC->rightFrame->panelContainer = NULL;
+    targetPC->leftFrame->setPanelContainer(NULL);
+    targetPC->rightFrame->setPanelContainer(NULL);
     targetPC->menuEnabled = FALSE;
-    pcToReparent->leftFrame->panelContainer = NULL;
-    pcToReparent->rightFrame->panelContainer = NULL;
+    pcToReparent->leftFrame->setPanelContainer(NULL);
+    pcToReparent->rightFrame->setPanelContainer(NULL);
     pcToReparent->menuEnabled = FALSE;
 
     nprintf(DEBUG_PANELCONTAINERS) ("NO NEED TO COLLAPSE, just reparent.\n");
@@ -2112,7 +2112,7 @@ PanelContainer::movePanelsToNewPanelContainer( PanelContainer *sourcePC)
       widget_to_reparent = currentPage = sourcePC->tabWidget->page(i);
       QWidget *panel_base = (QWidget *)p;
       p->setPanelContainer(targetPC);
-      p->getBaseWidgetFrame()->panelContainer = targetPC;
+      p->getBaseWidgetFrame()->setPanelContainer(targetPC);
       p->getBaseWidgetFrame()->reparent(targetPC->dropSiteLayoutParent, 0,
                                    point, TRUE);
       panel_base->reparent((QWidget *)targetPC, 0, point, TRUE);

@@ -32,10 +32,9 @@ public:
     bool dropEnabled;
 
     //! Convienience member function to return the name of this Frame.
-    char *getName() { return name; }
-
-    //! The parent PanelContainer of this Frame.
-    PanelContainer *panelContainer;
+    PanelContainer *getPanelContainer() { return _panelContainer; }
+    PanelContainer *setPanelContainer(PanelContainer *pc) { _panelContainer = pc; }
+    const char *getName() { return name; }
 
     //! A static flag indicating that a drag is taking place.
     static bool dragging;
@@ -70,6 +69,10 @@ public:
     //! The event called when Qt Drag-and-Drop drop event is fired. 
     void dropEvent(QDropEvent* event);
 #endif // OLD_DRAG_AND_DROP
+
+    //! The parent PanelContainer of this Frame.
+    PanelContainer *_panelContainer;
+
 
     //! The name of this Frame.
     char *name;
