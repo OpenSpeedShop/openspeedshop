@@ -35,6 +35,10 @@ void SS_Execute_Cmd (CommandObject *cmd) {
     return;
   }
 
+ // Move this command to the EXECUTING state.
+  cmd->set_Status (CMD_EXECUTING);
+
+ // ANd now go and execute it!
   switch (cmd->Type()) {
 
 // Experiment Building BLock Commands
