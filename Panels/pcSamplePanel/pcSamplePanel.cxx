@@ -348,7 +348,20 @@ pco->terminateButton->setFlat(TRUE);
 pco->terminateButton->setEnabled(FALSE);
 
 PanelContainer *pc = topPC->findBestFitPanelContainer(topPC);
+
+#ifdef OLDWAY
 getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Top Panel", pc);
+#endif // OLDWAY
+
+  
+  Panel *p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Stats Panel", pc);
+
+  if( p )
+  {
+    printf("call p(%s)'s listener routine.\n", p->getName() );
+    MessageObject *msg = new MessageObject("UpdateAllObject");
+    p->listener( (void *)msg );  // Kludge to simple put out some data... 
+  }
 } // End demo only...
         ret_val = 1;
         break;

@@ -67,7 +67,7 @@ TemplatePanel::TemplatePanel(PanelContainer *pc, const char *n, char *argument) 
 // panel.
   QWidget *namedPanelContainerWidget = new QWidget( getBaseWidgetFrame(),
                                         "namedPanelContainerWidget" );
-  PanelContainer *topPPL = createPanelContainer( namedPanelContainerWidget, "PLUGIN_GROUPING", NULL );
+  PanelContainer *topPPL = createPanelContainer( namedPanelContainerWidget, "PLUGIN_GROUPING", NULL, pc->getMasterPCList() );
   frameLayout->addWidget( namedPanelContainerWidget );
   
   namedPanelContainerWidget->show();

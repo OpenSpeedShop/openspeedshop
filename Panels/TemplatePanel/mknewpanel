@@ -25,7 +25,7 @@ usage ()
   echo ""
   echo "Example:"
   echo "cd .../Panels/TemplatePanel"
-  echo "$ mknewpanel ../TestPanel TestPanel "TestPanel" "Test Panel" \"Cntrl B\" 1 "Performance""
+  echo "$ mknewpanel ../TestPanel TestPanel "TestPanel" \"Test Panel\" \"Cntrl B\" 1 "Performance""
   echo "vi .../Panels/Makefile.am   << Add TestPanel to this directory list."
   echo "vi .../../configure.ac   << Add TestPanel to this directory list. Use"
   echo "                            use CmdPanel as an example."

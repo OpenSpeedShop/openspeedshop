@@ -22,4 +22,32 @@
 # All Rights Reserved.
 ################################################################################
 
-SUBDIRS = SourcePanel CmdPanel TopPanel StatsPanel pcSamplePanel UserTimePanel HW_CounterPanel IOPanel FPE_TracingPanel MPIPanel ConstructNewExperimentPanel Wizards
+pkglib_LTLIBRARIES = StatsPanel.la
+
+StatsPanel_la_CXXFLAGS = \
+    -I/usr/include \
+    -I$(QTDIR)/include \
+    -I. \
+    -I../../objects \
+    -I../../gui \
+    -I../../expr_info \
+    -I../../plugin \
+    -I../../base
+
+StatsPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../objects/.libs/ossObjects.so -Wl,../../expr_info/.libs/ossExprInfo.so -Wl,../../base/.libs/ossBase.so
+
+StatsPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
+
+moc_StatsPanel.cxx: StatsPanel.hxx
+	-moc -o moc_StatsPanel.cxx StatsPanel.hxx
+
+moc_SPListView.cxx: SPListView.hxx
+	-moc -o moc_SPListView.cxx SPListView.hxx
+
+StatsPanel_la_SOURCES = \
+	StatsPanel.hxx StatsPanel.cxx moc_StatsPanel.cxx \
+	SPListView.hxx SPListView.cxx moc_SPListView.cxx \
+	plugin_entry_point.hxx Panel.hxx \
+	PanelContainer.hxx local_plugin_info.hxx debug.hxx
+
+CLEANFILES=moc_SPListView.cxx moc_StatsPanel.cxx
