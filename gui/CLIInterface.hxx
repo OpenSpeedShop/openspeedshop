@@ -58,16 +58,8 @@ class CLIInterface : QObject
     bool getIntValueFromCLI(char *command, int64_t *val, bool mark_value_for_delete = true , int maxTime = MAXTIME, bool warn_of_time = true  );
 
     //! Run a command and return a success or failure result.
-    bool runSynchronousCLI(char *command, int maxTime = MAXTIME, bool warn_of_time = true );
+    bool runSynchronousCLI(char *command, int maxTime = MAXTIME, bool warn_of_time = false );
 
-#ifdef PULL
-    //! A routine to set the interrupt flag.
-    void setInterrupt(bool val) { interrupt = val; };
-
-    //! A routine to get the interrupt flag.
-    bool getInterrupt() { return interrupt; };
-#endif // PULL
-   
     //! The flag set when a command has been interrupted.
     static bool interrupt;
 
