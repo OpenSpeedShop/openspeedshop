@@ -1342,15 +1342,20 @@ PanelContainer::raiseNamedPanel(char *panel_name)
       int indexOf = tabWidget->indexOf(p->getBaseWidgetFrame());
       if( indexOf == -1 )
       {
-        nprintf(DEBUG_PANELCONTAINERS)("We have an hidden index of!!!\n");
+        nprintf(DEBUG_PANELCONTAINERS) ("We have an hidden index of!!!\n");
         tabWidget->insertTab(p->getBaseWidgetFrame(), p->getName(), count );
         tabWidget->showPage(p->getBaseWidgetFrame());
       }
       tabWidget->setCurrentPage(count);
-p->getPanelContainer()->handleSizeEvent(NULL);
+      nprintf(DEBUG_PANELCONTAINERS) ("setCurrentPage(%d)\n", count);
+      p->getPanelContainer()->handleSizeEvent(NULL);
       return(p);
     }
-    count++;
+    int isHidden = tabWidget->indexOf(p->getBaseWidgetFrame());
+    if( isHidden != -1 )
+    {
+      count++;
+    }
   }
 
   return(NULL);
@@ -1372,18 +1377,24 @@ PanelContainer::raisePanel(Panel *panel)
     p = (Panel *)*it;
     if( p == panel )
     {
+      nprintf(DEBUG_PANELCONTAINERS) ("raisePanel the panel to raise. count=%d\n", count );
       int indexOf = tabWidget->indexOf(p->getBaseWidgetFrame());
       if( indexOf == -1 )
       {
-        nprintf(DEBUG_PANELCONTAINERS)("We have an hidden index of!!!\n");
+        nprintf(DEBUG_PANELCONTAINERS) ("We have an hidden index of!!!\n");
         tabWidget->insertTab(p->getBaseWidgetFrame(), p->getName(), count );
         tabWidget->showPage(p->getBaseWidgetFrame());
       }
+      nprintf(DEBUG_PANELCONTAINERS) ("setCurrentPage(%d)\n", count);
       tabWidget->setCurrentPage(count);
-p->getPanelContainer()->handleSizeEvent(NULL);
+      p->getPanelContainer()->handleSizeEvent(NULL);
       return(p);
     }
-    count++;
+    int isHidden = tabWidget->indexOf(p->getBaseWidgetFrame());
+    if( isHidden != -1 )
+    {
+      count++;
+    }
   }
 
   return(NULL);
