@@ -22,7 +22,10 @@
 enum cmd_result_type_enum {
   CMD_RESULT_NULL,
   CMD_RESULT_INT,
+  CMD_RESULT_FLOAT,
   CMD_RESULT_STRING,
+  CMD_RESULT_COLUMN_HEADER,
+  CMD_RESULT_COLUMN_VALUES,
 };
 
 class CommandResult {
@@ -41,7 +44,7 @@ class CommandResult {
     *C = NULL;
   }
   virtual void Print (FILE *TFile) {
-    fprintf(TFile,"(none)");
+    fprintf(TFile,"               (none)");
   }
 };
 
@@ -59,7 +62,25 @@ class CommandResult_Int : public CommandResult {
     *I = int_value;
   };
   virtual void Print (FILE *TFile) {
-    fprintf(TFile,"%lld",int_value);
+    fprintf(TFile,"%20lld",int_value);
+  }
+};
+
+class CommandResult_Float : public CommandResult {
+  double float_value;
+
+ public:
+  CommandResult_Float (double f) {
+    Set_Type (CMD_RESULT_FLOAT);
+    float_value = f;
+  }
+
+
+  virtual void Value (double *F) {
+    *F = float_value;
+  };
+  virtual void Print (FILE *TFile) {
+    fprintf(TFile,"%20f",float_value);
   }
 };
 
@@ -80,7 +101,70 @@ class CommandResult_String : public CommandResult {
     *S = string_value;
   }
   virtual void Print (FILE *TFile) {
-    fprintf(TFile,"%s",string_value.c_str());
+    fprintf(TFile,"%20s",string_value.c_str());
+  }
+};
+
+class CommandResult_Headers : public CommandResult {
+    std::string string_value;
+
+ int64_t number_of_columns;
+ std::list<CommandResult *> Headers;
+
+ public:
+  CommandResult_Headers () {
+    Set_Type (CMD_RESULT_COLUMN_HEADER);
+    number_of_columns = 0;
+  }
+  void Add_Header (CommandResult *R) {
+    number_of_columns++;
+    Headers.push_back(R);
+  }
+
+  virtual void Value (int64_t *C) {
+    *C = number_of_columns;
+  }
+  virtual void Print (FILE *TFile) {
+    
+    std::list<CommandResult *> cmd_object = Headers;
+    std::list<CommandResult *>::iterator coi;
+    int num_results = 0;
+    for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
+      if (num_results++ != 0) fprintf(TFile,"  ");
+      (*coi)->Print (TFile);
+    }
+
+  }
+};
+
+class CommandResult_Columns : public CommandResult {
+    std::string string_value;
+
+ int64_t number_of_columns;
+ std::list<CommandResult *> Columns;
+
+ public:
+  CommandResult_Columns (int64_t C) {
+    Set_Type (CMD_RESULT_COLUMN_HEADER);
+    number_of_columns = C;
+  }
+  void Add_Column (CommandResult *R) {
+    Columns.push_back(R);
+  }
+
+  virtual void Value (CommandResult *R) {
+    *R = *this;
+  }
+  virtual void Print (FILE *TFile) {
+    
+    std::list<CommandResult *> cmd_object = Columns;
+    std::list<CommandResult *>::iterator coi;
+    int num_results = 0;
+    for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
+      if (num_results++ != 0) fprintf(TFile,"  ");
+      (*coi)->Print (TFile);
+    }
+
   }
 };
 
@@ -155,11 +239,17 @@ public:
   void Result_Int (int64_t I) {
     Add_Result (new CommandResult_Int(I));
   }
+  void Result_Float (double F) {
+    Add_Result (new CommandResult_Float(F));
+  }
   void Result_String (std::string S) {
     Add_Result (new CommandResult_String (S));
   }
   void Result_String (char *C) {
     Add_Result (new CommandResult_String (C));
+  }
+  void Result_Predefined (CommandResult *C) {
+    Add_Result (C);
   }
 
   std::list<CommandResult *> Result_List () {
