@@ -228,7 +228,6 @@ extern "C"
 
     if (need_gui)
     {
-fprintf(stdout,"open gui: %s need_tli %s read_stdin_file \n",need_tli?"":"NOT",read_stdin_file?"":"NOT");
      // The gui will be started in a pthread and do it's own itinialization.
       extern void loadTheGUI(ArgStruct *);
       loadTheGUI((ArgStruct *)NULL); // argStruct);
