@@ -97,6 +97,7 @@ AC_CONFIG_FILES(Makefile
 		expr_info/Makefile
 		objects/Makefile
 		ladDialog/Makefile
+		dialogs/Makefile
 		chart/Makefile
 		cli/Makefile
 		gui/Makefile

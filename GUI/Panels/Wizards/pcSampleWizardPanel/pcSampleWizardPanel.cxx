@@ -1,6 +1,7 @@
 #include "pcSampleWizardPanel.hxx"   // Change this to your new class header file name
 #include "PanelContainer.hxx"   // Do not remove
 #include "plugin_entry_point.hxx"   // Do not remove
+#include "AttachProcessDialog.hxx"
 
 #include <qvariant.h>
 #include <qpushbutton.h>
@@ -171,8 +172,8 @@ pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n) : Pa
 
      vAttachOrLoadPageAttachToProcessCheckBox = new QCheckBox( vAttachOrLoadPageWidget, "vAttachOrLoadPageAttachToProcessCheckBox" );
     vAttachOrLoadPageAttachOrLoadLayout->addWidget( vAttachOrLoadPageAttachToProcessCheckBox );
-vAttachOrLoadPageLoadProcessCheckBox = new QCheckBox( vAttachOrLoadPageWidget, "vAttachOrLoadPageLoadProcessCheckBox" );
-vAttachOrLoadPageAttachOrLoadLayout->addWidget( vAttachOrLoadPageLoadProcessCheckBox );
+    vAttachOrLoadPageLoadProcessCheckBox = new QCheckBox( vAttachOrLoadPageWidget, "vAttachOrLoadPageLoadProcessCheckBox" );
+    vAttachOrLoadPageAttachOrLoadLayout->addWidget( vAttachOrLoadPageLoadProcessCheckBox );
 
     vAttachOrLoadPageSampleRateLayout = new QHBoxLayout( 0, 0, 6, "vAttachOrLoadPageSampleRateLayout"); 
 
@@ -698,7 +699,6 @@ void pcSampleWizardPanel::eHideWizardCheckBoxSelected()
 {
 }
 
-#include "ladDialog.hxx"
 void pcSampleWizardPanel::eDescriptionPageNextButtonSelected()
 {
 printf("eDescriptionPageNextButtonSelected() \n");
@@ -725,13 +725,6 @@ void pcSampleWizardPanel::eParameterPageNextButtonSelected()
 {
 printf("eParameterPageNextButtonSelected() \n");
 
-/*
- MyDialog1 *w = new MyDialog1(this, "ladDialog", TRUE);
- w->updateAttachableProcessList();
- w->show();
-*/
-
-//    pcSampleWizardPanelStack->raiseWidget(eSummaryPageWidget);
     pcSampleWizardPanelStack->raiseWidget(eAttachOrLoadPageWidget);
 }
 
@@ -814,13 +807,6 @@ void pcSampleWizardPanel::vParameterPageNextButtonSelected()
 {
 printf("vParameterPageNextButtonSelected() \n");
 
-/*
- MyDialog1 *w = new MyDialog1(this, "ladDialog", TRUE);
- w->updateAttachableProcessList();
- w->show();
-*/
-
-//    pcSampleWizardPanelStack->raiseWidget(vSummaryPageWidget);
     pcSampleWizardPanelStack->raiseWidget(vAttachOrLoadPageWidget);
 }
 
@@ -838,6 +824,45 @@ printf("vAttachOrLoadPageBackButtonSelected() \n");
 void pcSampleWizardPanel::vAttachOrLoadPageNextButtonSelected()
 {
 printf("vAttachOrLoadPageNextButtonSelected() \n");
+
+char buffer[2048];
+  if( !vAttachOrLoadPageAttachToProcessCheckBox->isChecked() &&
+      !vAttachOrLoadPageLoadProcessCheckBox->isChecked() )
+  {
+    QString msg = QString("You must either select the option to attach to an \nexisting process or load an executable.  Please select one.\n");
+    QMessageBox::information( (QWidget *)this, "Process or executable needed...",
+                               msg, QMessageBox::Ok );
+    
+    return;
+  }
+  
+  if( vAttachOrLoadPageAttachToProcessCheckBox->isChecked() )
+  {
+    QString result;
+     AttachProcessDialog *dialog = new AttachProcessDialog(this, "AttachProcessDialog", TRUE);
+    if( dialog->exec() == QDialog::Accepted )
+    {
+      result = dialog->selectedProcesses();
+sprintf(buffer, "<p align=\"left\">You've selected a pc Sampling experiment for process \"%s\" running on host \"%s\".  Futher you've chosed a sample rate of \"%s\" milliseconds.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"pcSample\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", result.ascii(), "localhost", vParameterPageSampleRateText->text().ascii() );
+    }
+    delete dialog;
+  
+    printf("result.acsii()=(%s)\n", result.ascii() );
+  }
+  if( vAttachOrLoadPageLoadProcessCheckBox->isChecked() )
+  {
+    printf("Load the QFile \n");
+    QString fn = QFileDialog::getOpenFileName( QString::null, QString::null,
+                             this);
+    if( !fn.isEmpty() )
+    {
+      printf("fn.ascii()=(%s)\n", fn.ascii() );
+sprintf(buffer, "<p align=\"left\">You've selected a pc Sampling experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%s\" milliseconds.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"pcSample\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", fn.ascii(), "localhost", vParameterPageSampleRateText->text().ascii() );
+    }
+  }
+
+  vSummaryPageFinishLabel->setText( tr( buffer ) );
+  pcSampleWizardPanelStack->raiseWidget(2);
 
     pcSampleWizardPanelStack->raiseWidget(vSummaryPageWidget);
 }

@@ -22,27 +22,25 @@
 # All Rights Reserved.
 ################################################################################
 
-pkglib_LTLIBRARIES = pcSampleWizardPanel.la
+pkglib_LTLIBRARIES = ftDialogs.la
 
-pcSampleWizardPanel_la_CXXFLAGS = \
-    -I/usr/include \
-    -I$(QTDIR)/include \
-    -I. \
-    -I../../../gui \
-    -I../../../images \
-    -I../../../objects \
-    -I../../../dialogs \
-    -I../../../plugin \
-    -I../../../base
+ftDialogs_la_CXXFLAGS = \
+	-I/usr/include \
+	-I$(QTDIR)/include \
+	-I. \
+	-I.. \
+	-I../images \
+	-I../base \
+	-I../plugin \
+    -I../objects \
+	-I$(QTDIR)
 
-pcSampleWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../../base/.libs/ftBase.so  -Wl,../../../objects/.libs/ftObjects.so -Wl,../../../dialogs/.libs/ftDialogs.so 
+ftDialogs_la_LDFLAGS = --export-dynamic -module -avoid-version -Wl,../objects/.libs/ftObjects.so
 
-pcSampleWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
+ftDialogs_la_LIBADD = $(LIBLTDL)
 
-moc_pcSampleWizardPanel.cxx: pcSampleWizardPanel.hxx
-	-moc -o moc_pcSampleWizardPanel.cxx pcSampleWizardPanel.hxx
+moc_AttachProcessDialog.cxx: AttachProcessDialog.hxx
+	-moc -o moc_AttachProcessDialog.cxx AttachProcessDialog.hxx
 
-pcSampleWizardPanel_la_SOURCES = \
-	pcSampleWizardPanel.hxx pcSampleWizardPanel.cxx moc_pcSampleWizardPanel.cxx \
-	plugin_entry_point.hxx Panel.hxx \
-	PanelContainer.hxx local_plugin_info.hxx debug.hxx
+ftDialogs_la_SOURCES = \
+	AttachProcessDialog.hxx AttachProcessDialog.cxx moc_AttachProcessDialog.cxx
