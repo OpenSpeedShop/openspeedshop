@@ -90,7 +90,9 @@ pcStatsPanel::listener(void *msg)
   {
     UpdateObject *msg = (UpdateObject *)msgObject;
 msg->print();
+#ifdef PRINT_DEBUG
 PrintView(msg->expID);
+#endif // PRINT_DEBUG
     updateStatsPanelBaseData(msg->fw_expr, msg->expID, msg->experiment_name);
     if( msg->raiseFLAG )
     {
@@ -238,6 +240,111 @@ pcStatsPanel::matchSelectedItem(int element)
 #endif // OLDWAY
 }
 
+typedef std::pair<std::string, double> item_type;
+template <class T>
+struct sort_ascending : public std::binary_function<T,T,bool> {
+    bool operator()(const T& x, const T& y) const {
+        return x.second < y.second
+            || (!(y.second < x.second) && x.first < y.first);
+    }
+};
+template <class T>
+struct sort_decending : public std::binary_function<T,T,bool> {
+    bool operator()(const T& x, const T& y) const {
+        return x.second > y.second
+            || (!(y.second > x.second) && x.first > y.first);
+    }
+};
+
+
+#include "SS_Input_Manager.hxx"
+void
+pcStatsPanel::updateStatsPanelBaseData(void *expr, int expID, QString experiment_name)
+{
+  printf("pcStatsPanel::updateStatsPanelBaseData() entered.\n");
+
+  StatsPanelBase::updateStatsPanelBaseData(expr, expID, experiment_name);
+
+  
+  SPListViewItem *lvi;
+  columnList.clear();
+printf("This should be overloaded in pcStatsPanel....\n");
+
+ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+if( eo && eo->FW() )
+{
+  Experiment *fw_experiment = eo->FW();
+// Evaluate the collector's time metric for all functions in the thread
+SmartPtr<std::map<Function, double> > data;
+ThreadGroup tgrp = fw_experiment->getThreads();
+ThreadGroup::iterator ti = tgrp.begin();
+Thread t1 = *ti;
+CollectorGroup cgrp = fw_experiment->getCollectors();
+CollectorGroup::iterator ci = cgrp.begin();
+Collector c1 = *ci;
+
+Queries::GetMetricByFunctionInThread(c1, "time", t1, data);
+
+// Display the results
+  MetricHeaderInfoList metricHeaderInfoList;
+  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Time"), FLOAT_T));
+  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Function"), CHAR_T));
+  if( metricHeaderTypeArray != NULL )
+  {
+    delete []metricHeaderTypeArray;
+  }
+  int header_count = metricHeaderInfoList.count();
+  metricHeaderTypeArray = new int[header_count];
+
+  int i=0;
+  for( MetricHeaderInfoList::Iterator pit = metricHeaderInfoList.begin(); pit != metricHeaderInfoList.end(); ++pit )
+  { 
+    MetricHeaderInfo *mhi = (MetricHeaderInfo *)*pit;
+    QString s = mhi->label;
+    lv->addColumn( s );
+    metricHeaderTypeArray[i] = mhi->type;
+  
+    columnList.push_back( s );
+    i++;
+  }
+
+
+{
+typedef std::pair<std::string, double> item_type;
+std::vector<item_type> items;
+for(std::map<Function, double>::const_iterator
+        item = data->begin(); item != data->end(); ++item)
+{
+  items.push_back( std::pair<std::string, double>(item->first.getName(), item->second ) );
+}
+
+// std::sort(items.begin(), items.end(), sort_ascending<item_type>());
+std::sort(items.begin(), items.end(), sort_decending<item_type>());
+
+std::vector<item_type>::const_iterator it = items.begin();
+char timestr[50];
+for( ; it != items.end(); it++ )
+{
+//  printf("%s %f\n", it->first.c_str(), it->second );
+  sprintf(timestr, "%f", it->second);
+  lvi =  new SPListViewItem( this, lv, timestr,  it->first.c_str() );
+}
+
+}
+
+#ifdef OLDDWAY
+  char timestr[50];
+  for(std::map<Function, double>::const_iterator
+        item = data->begin(); item != data->end(); ++item)
+  {
+    sprintf(timestr, "%f", item->second);
+    lvi =  new SPListViewItem( this, lv, timestr,  item->first.getName() );
+  }
+#endif // OLDDWAY
+}
+}
+
+#ifdef PRINT_DEBUG
 #include "SS_Input_Manager.hxx"
 void
 pcStatsPanel::PrintView(int expID)
@@ -270,3 +377,4 @@ printf("pcStatsPanel::PrintView(%d) finished\n", expID );
 }
 
 
+#endif // PRINT_DEBUG

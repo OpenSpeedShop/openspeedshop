@@ -67,6 +67,10 @@ class pcStatsPanel  : public StatsPanelBase
   private:
     void matchSelectedItem( int );
 
+    void updateStatsPanelBaseData(void *expr = 0, int expID = 0, QString experiment_name = NULL);
+
+#ifdef PRINT_DEBUG
     void PrintView(int);
+#endif // PRINT_DEBUG
 };
 #endif // PCSTATSPANEL_H
