@@ -65,8 +65,6 @@ ParseRange(char * name)
 ParseRange::
 ParseRange(char * name, int num)
 {
-        printf("in ParseRange(char * name, int name)\n");
-
     dm_range.start_range.tag = VAL_STRING;
     dm_range.start_range.name = name;
 	    
@@ -88,8 +86,6 @@ ParseRange(char * name, int num)
 ParseRange::
 ParseRange(char * name1, char * name2)
 {
-    printf("in ParseRange(char * name, char * name2)\n");
-
     dm_range.start_range.tag = VAL_STRING;
     dm_range.start_range.name = name1;
 	    
