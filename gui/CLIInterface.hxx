@@ -43,19 +43,19 @@ class CLIInterface : QObject
     int wid;
 
     //! Return a list of string values from a given cli command.
-    bool getStringListValueFromCLI(char *command, std::list<std::string> *string_list, bool mark_value_for_delete=true, int mt=MAXTIME, bool warn_of_time=false );
+    bool getStringListValueFromCLI(const char *command, std::list<std::string> *string_list, bool mark_value_for_delete=true, int mt=MAXTIME, bool warn_of_time=false );
 
     //! Return string value from a given cli command.
-    bool getStringValueFromCLI(char *command, std::string *val_string, bool mark_value_for_delete = true , int maxTime = MAXTIME, bool warn_of_time = true  );
+    bool getStringValueFromCLI(const char *command, std::string *val_string, bool mark_value_for_delete = true , int maxTime = MAXTIME, bool warn_of_time = true  );
 
     //! Return a list of int values from a given cli command.
-    bool getIntListValueFromCLI(char *command, std::list<int64_t> *int_list, bool mark_value_for_delete=true, int mt=MAXTIME, bool warn_of_time=false );
+    bool getIntListValueFromCLI(const char *command, std::list<int64_t> *int_list, bool mark_value_for_delete=true, int mt=MAXTIME, bool warn_of_time=false );
 
     //! Return an int value from a given cli command.
-    bool getIntValueFromCLI(char *command, int64_t *val, bool mark_value_for_delete = true , int maxTime = MAXTIME, bool warn_of_time = true  );
+    bool getIntValueFromCLI(const char *command, int64_t *val, bool mark_value_for_delete = true , int maxTime = MAXTIME, bool warn_of_time = true  );
 
     //! Run a command and return a success or failure result.
-    bool runSynchronousCLI(char *command, int maxTime = MAXTIME, bool warn_of_time = false );
+    bool runSynchronousCLI(const char *command, int maxTime = MAXTIME, bool warn_of_time = false );
 
     //! The flag set when a command has been interrupted.
     static bool interrupt;

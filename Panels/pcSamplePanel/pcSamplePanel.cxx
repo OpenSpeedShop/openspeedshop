@@ -303,7 +303,8 @@ pcSamplePanel::menu(QPopupMenu* contextMenu)
   nprintf( DEBUG_PANELS ) ("pcSamplePanel::menu() requested.\n");
 
   contextMenu->insertSeparator();
-  contextMenu->insertItem("&Save As ...", this, SLOT(saveAsSelected()), CTRL+Key_S ); 
+  contextMenu->insertItem(tr("pc S&tats Panel..."), this, SLOT(loadStatsPanel()), CTRL+Key_T );
+  contextMenu->insertItem(tr("S&ource Panel..."), this, SLOT(loadSourcePanel()), CTRL+Key_O );
   contextMenu->insertSeparator();
 #ifdef OLDWAY
   contextMenu->insertItem(tr("Load &New Program..."), this, SLOT(loadNewProgramSelected()), CTRL+Key_N );
@@ -315,8 +316,7 @@ pcSamplePanel::menu(QPopupMenu* contextMenu)
   contextMenu->insertItem(tr("Manage &Processes..."), this, SLOT(manageProcessesSelected()), CTRL+Key_P );
   contextMenu->insertItem(tr("&Manage &Data Sets..."), this, SLOT(manageDataSetsSelected()), CTRL+Key_D );
   contextMenu->insertSeparator();
-  contextMenu->insertItem(tr("S&ource Panel..."), this, SLOT(loadSourcePanel()), CTRL+Key_O );
-  contextMenu->insertItem(tr("pc S&tats Panel..."), this, SLOT(loadStatsPanel()), CTRL+Key_T );
+  contextMenu->insertItem("&Save As ...", this, SLOT(saveAsSelected()), CTRL+Key_S ); 
 
   return( TRUE );
 }

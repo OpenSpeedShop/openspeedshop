@@ -30,6 +30,8 @@
 #include "CollectorListObject.hxx"  // For getting pid list off a host...
 #include "CollectorEntryClass.hxx"
 
+#include "GenericProgressDialog.hxx"
+
 class QVBoxLayout;
 class QHBoxLayout;
 class QGridLayout;
@@ -37,6 +39,7 @@ class QSpacerItem;
 class QFrame;
 class QPushButton;
 class QLabel;
+class QPopupMenu;
 class QComboBox;
 class QListView;
 class QListViewItem;
@@ -53,6 +56,8 @@ public:
     QPushButton* buttonOk;
     QPushButton* buttonCancel;
 
+    QPushButton* addOk;
+
     QLabel* availableCollectorsLabel;
     QComboBox * availableCollectorsComboBox;
     QListView* attachCollectorsListView;
@@ -64,12 +69,19 @@ public:
 
 protected:
     QVBoxLayout* ManageCollectorsDialogLayout;
+    QHBoxLayout* AddCollectorLayout;
     QHBoxLayout* Layout1;
     QSpacerItem* Horizontal_Spacing2;
 
     CLIInterface *cli;
     OpenSpeedshop *mw;
 
+    int steps;
+    QTimer *loadTimer;
+    GenericProgressDialog *pd;
+
+    QPopupMenu *popupMenu;
+    QPopupMenu *paramMenu;
 protected slots:
     virtual void languageChange();
 
@@ -81,8 +93,15 @@ public slots:
 private slots:
     void detachSelected();
     void disableSelected();
-    void modifySelected();
+    void attachProcessSelected();
+    void attachProgramSelected();
+
+    void progressUpdate();
+
+    void paramSelected(int);
     void nothingSelected();
+
+    void addCollectorSelected();
 
 private:
     int expID;

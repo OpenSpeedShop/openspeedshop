@@ -66,13 +66,13 @@ CLIInterface::~CLIInterface()
                          to see if the command should contunue.
 */
 bool
-CLIInterface::runSynchronousCLI(char *command, int mt, bool wot )
+CLIInterface::runSynchronousCLI(const char *command, int mt, bool wot )
 {
   maxTime = mt;
   warn_of_time = wot;
 //  printf("runSynchronousCLI(%s)\n", command);
   QApplication::setOverrideCursor(QCursor::WaitCursor);
-  InputLineObject *clip = Append_Input_String( wid, command);
+  InputLineObject *clip = Append_Input_String( wid, (char *)command);
   if( clip == NULL )
   {
     fprintf(stderr, "FATAL ERROR: No clip returned from cli.\n");
@@ -123,14 +123,14 @@ CLIInterface::runSynchronousCLI(char *command, int mt, bool wot )
                          to see if the command should contunue.
 */
 bool
-CLIInterface::getIntValueFromCLI(char *command, int64_t *val, bool mark_value_for_delete, int mt, bool wot )
+CLIInterface::getIntValueFromCLI(const char *command, int64_t *val, bool mark_value_for_delete, int mt, bool wot )
 {
 //  printf("getIntValueFromCLI(%s)\n", command);
   maxTime = mt;
   warn_of_time = wot;
 
   QApplication::setOverrideCursor(QCursor::WaitCursor);
-  InputLineObject *clip = Append_Input_String( wid, command);
+  InputLineObject *clip = Append_Input_String( wid, (char *)command);
   if( clip == NULL )
   {
     fprintf(stderr, "FATAL ERROR: No clip returned from cli.\n");
@@ -212,14 +212,14 @@ CLIInterface::getIntValueFromCLI(char *command, int64_t *val, bool mark_value_fo
                          to see if the command should contunue.
 */
 bool
-CLIInterface::getIntListValueFromCLI(char *command, std::list<int64_t> *int_list, bool mark_value_for_delete, int mt, bool wot )
+CLIInterface::getIntListValueFromCLI(const char *command, std::list<int64_t> *int_list, bool mark_value_for_delete, int mt, bool wot )
 {
 //  printf("getIntListValueFromCLI(%s)\n", command);
   maxTime = mt;
   warn_of_time = wot;
 
   QApplication::setOverrideCursor(QCursor::WaitCursor);
-  InputLineObject *clip = Append_Input_String( wid, command);
+  InputLineObject *clip = Append_Input_String( wid, (char *)command);
 //printf("clip = 0x%x\n", clip);
   if( clip == NULL )
   {
@@ -310,14 +310,14 @@ std::list<CommandResult *> cmd_result = co->Result_List();
                          to see if the command should contunue.
 */
 bool
-CLIInterface::getStringValueFromCLI(char *command, std::string *str_val, bool mark_value_for_delete, int mt, bool wot )
+CLIInterface::getStringValueFromCLI(const char *command, std::string *str_val, bool mark_value_for_delete, int mt, bool wot )
 {
 //  printf("getStringValueFromCLI(%s)\n", command);
   maxTime = mt;
   warn_of_time = wot;
 
   QApplication::setOverrideCursor(QCursor::WaitCursor);
-  InputLineObject *clip = Append_Input_String( wid, command);
+  InputLineObject *clip = Append_Input_String( wid, (char *)command);
   if( clip == NULL )
   {
     fprintf(stderr, "FATAL ERROR: No clip returned from cli.\n");
@@ -399,14 +399,14 @@ CLIInterface::getStringValueFromCLI(char *command, std::string *str_val, bool ma
                          to see if the command should contunue.
 */
 bool
-CLIInterface::getStringListValueFromCLI(char *command, std::list<std::string> *str_list, bool mark_value_for_delete, int mt, bool wot )
+CLIInterface::getStringListValueFromCLI(const char *command, std::list<std::string> *str_list, bool mark_value_for_delete, int mt, bool wot )
 {
 //  printf("getStringListValueFromCLI(%s)\n", command);
   maxTime = mt;
   warn_of_time = wot;
 
   QApplication::setOverrideCursor(QCursor::WaitCursor);
-  InputLineObject *clip = Append_Input_String( wid, command);
+  InputLineObject *clip = Append_Input_String( wid, (char *)command);
   if( clip == NULL )
   {
     fprintf(stderr, "FATAL ERROR: No clip returned from cli.\n");
@@ -577,8 +577,7 @@ CLIInterface::wakeupFromTimer()
     bool ok;
     int res = QInputDialog::getInteger(
               "Unable to complete command before timeout?", "Enter milleseconds before next timeout: (Hit cancel to abort command.)", maxTime, 0, 100000, 1000, &ok);
-  
-    if ( ok ) 
+  if ( ok ) 
     {
       // user entered something and pressed OK
       maxTime = res;

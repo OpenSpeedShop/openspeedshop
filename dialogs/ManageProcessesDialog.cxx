@@ -212,8 +212,10 @@ ManageProcessesDialog::addProcessSelected()
   if( !mw->pidStr.isEmpty() )
   {
 
-    char command[1024];
-    sprintf(command, "expAttach -p %d\n", mw->pidStr.toInt() );
+//    char command[1024];
+//    sprintf(command, "expAttach -p %d\n", mw->pidStr.toInt() );
+
+    QString command = QString("expAttach -x %1 -p %2").arg(expID).arg(mw->pidStr);
 
     steps = 0;
     pd = new GenericProgressDialog(this, "Loading process...", TRUE);
@@ -222,7 +224,7 @@ ManageProcessesDialog::addProcessSelected()
     loadTimer->start( 0 );
     pd->show();
 
-    if( !cli->runSynchronousCLI(command) )
+    if( !cli->runSynchronousCLI(command.ascii()) )
     {
       fprintf(stderr, "Error retreiving experiment id. \n");
   //    return;
@@ -253,8 +255,9 @@ ManageProcessesDialog::addProgramSelected()
   {
     executableNameStr = mw->executableName;
 
-    char command[1024];
-    sprintf(command, "expAttach -f %s\n", executableNameStr.ascii() );
+//    char command[1024];
+//    sprintf(command, "expAttach -f %s\n", executableNameStr.ascii() );
+    QString command = QString("expAttach -x %1 -f %2").arg(expID).arg(executableNameStr);
 
     steps = 0;
     pd = new GenericProgressDialog(this, "Loading process...", TRUE);
@@ -263,7 +266,7 @@ ManageProcessesDialog::addProgramSelected()
     loadTimer->start( 0 );
     pd->show();
 
-    if( !cli->runSynchronousCLI(command) )
+    if( !cli->runSynchronousCLI(command.ascii() ) )
     {
       fprintf(stderr, "Error retreiving experiment id. \n");
   //    return;

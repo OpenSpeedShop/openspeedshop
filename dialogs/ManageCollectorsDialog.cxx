@@ -41,6 +41,8 @@ ManageCollectorsDialog::ManageCollectorsDialog( QWidget* parent, const char* nam
 {
   nprintf(DEBUG_CONST_DESTRUCT) ("ManageCollectorsDialog::ManageCollectorsDialog() constructor called.\n");
   
+  popupMenu = NULL;
+  paramMenu = NULL;
   mw = (OpenSpeedshop *)parent;
   cli = mw->cli;
   clo = NULL;
@@ -50,16 +52,10 @@ ManageCollectorsDialog::ManageCollectorsDialog( QWidget* parent, const char* nam
   setSizeGripEnabled( TRUE );
   ManageCollectorsDialogLayout = new QVBoxLayout( this, 11, 6, "ManageCollectorsDialogLayout"); 
 
-  availableCollectorsLabel = new QLabel( this, "availableCollectorsLabel" );
-  ManageCollectorsDialogLayout->addWidget( availableCollectorsLabel );
-  availableCollectorsComboBox = new QComboBox( this, "availableCollectorsComboBox");
-  availableCollectorsComboBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)2, (QSizePolicy::SizeType)0, 0, 0, availableCollectorsComboBox->sizePolicy().hasHeightForWidth() ) );
-  availableCollectorsComboBox->setEditable(TRUE);
-  ManageCollectorsDialogLayout->addWidget( availableCollectorsComboBox );
 
   attachCollectorsListView = new QListView( this, "attachCollectorsListView" );
   attachCollectorsListView->addColumn( 
-    tr( QString("Collectors belonging to experiment: '%1':").arg(expID) ) );
+    tr( QString("Collectors attached to experiment: '%1':").arg(expID) ) );
   attachCollectorsListView->addColumn( tr( QString("Name") ) );
   attachCollectorsListView->setSelectionMode( QListView::Single );
   attachCollectorsListView->setAllColumnsShowFocus( TRUE );
@@ -68,6 +64,22 @@ ManageCollectorsDialog::ManageCollectorsDialog( QWidget* parent, const char* nam
 
   ManageCollectorsDialogLayout->addWidget( attachCollectorsListView );
 
+//  AddCollectorLayout = new QHBoxLayout( this, 11, 6, "AddCollectorLayout"); 
+  AddCollectorLayout = new QHBoxLayout( 0, 0, 6, "AddCollectorLayout"); 
+
+  availableCollectorsLabel = new QLabel( this, "availableCollectorsLabel" );
+  AddCollectorLayout->addWidget( availableCollectorsLabel );
+  availableCollectorsComboBox = new QComboBox( this, "availableCollectorsComboBox");
+  availableCollectorsComboBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)2, (QSizePolicy::SizeType)0, 0, 0, availableCollectorsComboBox->sizePolicy().hasHeightForWidth() ) );
+  availableCollectorsComboBox->setEditable(TRUE);
+
+  AddCollectorLayout->addWidget( availableCollectorsComboBox );
+
+  addOk = new QPushButton( this, "addOk" );
+  addOk->setAutoDefault( TRUE );
+  AddCollectorLayout->addWidget( addOk );
+  
+  ManageCollectorsDialogLayout->addLayout( AddCollectorLayout );
 
   Layout1 = new QHBoxLayout( 0, 0, 6, "Layout1"); 
 
@@ -94,6 +106,8 @@ ManageCollectorsDialog::ManageCollectorsDialog( QWidget* parent, const char* nam
   connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
   connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
   connect( availableCollectorsComboBox, SIGNAL( activated(const QString &) ), this, SLOT( availableCollectorsComboBoxActivated() ) );
+
+  connect( addOk, SIGNAL( clicked() ), this, SLOT( addCollectorSelected() ) );
 
   connect(attachCollectorsListView, SIGNAL( contextMenuRequested( QListViewItem *, const QPoint& , int ) ), this, SLOT( contextMenuRequested( QListViewItem *, const QPoint &, int ) ) );
 
@@ -123,6 +137,8 @@ void ManageCollectorsDialog::languageChange()
   buttonCancel->setText( tr( "&Cancel" ) );
   buttonCancel->setAccel( QKeySequence( QString::null ) );
   availableCollectorsLabel->setText( tr("Available Collectors:") );
+  addOk->setText( tr( "&Add" ) );
+  addOk->setAccel( QKeySequence( QString::null ) );
   QString command;
   command = QString("listTypes all");
 // printf("command=(%s)\n", command.ascii() );
@@ -192,7 +208,7 @@ ManageCollectorsDialog::updateAttachedCollectorsList()
 
 void ManageCollectorsDialog::availableCollectorsComboBoxActivated()
 {
-    updateAttachedCollectorsList();
+//    updateAttachedCollectorsList();
 }
 
 void
@@ -200,7 +216,17 @@ ManageCollectorsDialog::contextMenuRequested( QListViewItem *item, const QPoint 
 {
 //  printf("ManagerCollectorsDialog::createPopupMenu() entered.\n");
 
-  QPopupMenu *popupMenu = new QPopupMenu(this);
+if( popupMenu != NULL )
+{
+  delete popupMenu;
+} 
+  popupMenu = new QPopupMenu(this);
+
+if( paramMenu != NULL )
+{
+  delete paramMenu;
+}
+paramMenu = NULL;
  
   if( attachCollectorsListView->selectedItem() )
   {
@@ -208,9 +234,43 @@ ManageCollectorsDialog::contextMenuRequested( QListViewItem *item, const QPoint 
     {
       popupMenu->insertItem("Detach...", this, SLOT(detachSelected()) );
       popupMenu->insertItem("Disable...", this, SLOT(disableSelected()) );
+      popupMenu->insertItem("Attach Process...", this, SLOT(attachProcessSelected()) );
+      popupMenu->insertItem("Attach Program...", this, SLOT(attachProgramSelected()) );
+      CollectorEntry *ce = NULL;
+      CollectorEntryList::Iterator it;
+      for( it = clo->collectorEntryList.begin();
+           it != clo->collectorEntryList.end();
+           ++it )
+      {
+        ce = (CollectorEntry *)*it;
+        if( item->text(0) == ce->name )
+        {
+// printf("(%s): parameters are\n", ce->name.ascii() );
+          CollectorParameterEntryList::Iterator pit = ce->paramList.begin();
+          if( ce->paramList.size() == 1 )
+          {
+            CollectorParameterEntry *cpe = (CollectorParameterEntry *)*pit;
+            popupMenu->insertItem( QString("Modify Parameter ... (%1::%2)").arg(cpe->name.ascii()).arg(cpe->param_value.ascii()), this, SLOT(paramSelected(int)) );
+          } else
+          {
+            paramMenu = new QPopupMenu(this);
+            connect( paramMenu, SIGNAL( activated( int ) ),
+                       this, SLOT( paramSelected( int ) ) );
+            popupMenu->insertItem("Modify Parameter", paramMenu);
+            int i = 0;
+            for( ;pit != ce->paramList.end();  pit++)
+            {
+              CollectorParameterEntry *cpe = (CollectorParameterEntry *)*pit;
+// printf("\t%s   %s\n", cpe->name.ascii(), cpe->param_value.ascii() );
+              int id = paramMenu->insertItem(QString("%1::%2").arg(cpe->name.ascii()).arg(cpe->param_value.ascii()) );
+              i++;
+            }
+          }
+          break;
+        }
+      }
     } else
     {
-      popupMenu->insertItem("Modify Parameter..", this, SLOT(modifySelected()) );
     }
   } else
   {
@@ -225,18 +285,17 @@ ManageCollectorsDialog::contextMenuRequested( QListViewItem *item, const QPoint 
 void
 ManageCollectorsDialog::detachSelected()
 {
-  printf("detachSelected\n");
+// printf("detachSelected\n");
   QListViewItem *selectedItem = attachCollectorsListView->selectedItem();
   if( selectedItem )
   {
-    printf("Got an ITEM!\n");
     QString ret_value = selectedItem->text(0);
-    printf("detach = (%s)\n", ret_value.ascii() );
+// printf("detach = (%s)\n", ret_value.ascii() );
 
     QString collector_name = selectedItem->text(0);
     QString command;
     command = QString("expDetach -x %1 %2").arg(expID).arg(collector_name);
-printf("command=(%s)\n", command.ascii() );
+// printf("command=(%s)\n", command.ascii() );
     if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
     {
       printf("Unable to run %s command.\n", command.ascii() );
@@ -248,18 +307,18 @@ printf("command=(%s)\n", command.ascii() );
 void
 ManageCollectorsDialog::disableSelected()
 {
-  printf("disableSelected\n");
+// printf("disableSelected\n");
   QListViewItem *selectedItem = attachCollectorsListView->selectedItem();
   if( selectedItem )
   {
-    printf("Got an ITEM!\n");
     QString ret_value = selectedItem->text(0);
-    printf("disable = (%s)\n", ret_value.ascii() );
+// printf("disable = (%s)\n", ret_value.ascii() );
+
 
     QString collector_name = selectedItem->text(0);
     QString command;
     command = QString("expDisable -x %1 %2").arg(expID).arg(collector_name);
-printf("command=(%s)\n", command.ascii() );
+// printf("command=(%s)\n", command.ascii() );
     if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
     {
       printf("Unable to run %s command.\n", command.ascii() );
@@ -270,29 +329,124 @@ printf("command=(%s)\n", command.ascii() );
 }
 
 void
-ManageCollectorsDialog::modifySelected()
+ManageCollectorsDialog::attachProcessSelected()
 {
-  printf("modifySelected\n");
+// printf("addProcessSelected\n");
+  mw->executableName = QString::null;
+  mw->pidStr = QString::null;
+  mw->attachNewProcess();
+
+
+  if( !mw->pidStr.isEmpty() )
+  {
+    QString command = QString("expAttach -x %1 -p %2").arg(expID).arg(mw->pidStr);
+
+    steps = 0;
+    pd = new GenericProgressDialog(this, "Loading process...", TRUE);
+    loadTimer = new QTimer( this, "progressTimer" );
+    connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
+    loadTimer->start( 0 );
+    pd->show();
+
+    if( !cli->runSynchronousCLI(command.ascii()) )
+    {
+      fprintf(stderr, "Error retreiving experiment id. \n");
+  //    return;
+    }
+
+    loadTimer->stop();
+    pd->hide();
+  }
+
+  updateAttachedCollectorsList();
+}
+
+void
+ManageCollectorsDialog::attachProgramSelected()
+{
+//  printf("addProgramSelected\n");
+  mw->executableName = QString::null;
+  mw->loadNewProgram();
+  QString executableNameStr = mw->executableName;
+  if( !mw->executableName.isEmpty() )
+  {
+    executableNameStr = mw->executableName;
+    QString command = QString("expAttach -x %1 -f %2").arg(expID).arg(executableNameStr);
+
+    steps = 0;
+    pd = new GenericProgressDialog(this, "Loading process...", TRUE);
+    loadTimer = new QTimer( this, "progressTimer" );
+    connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
+    loadTimer->start( 0 );
+    pd->show();
+
+    if( !cli->runSynchronousCLI(command.ascii() ) )
+    {
+      fprintf(stderr, "Error retreiving experiment id. \n");
+  //    return;
+  }
+
+  loadTimer->stop();
+  pd->hide();
+  delete(pd);
+
+  }
+  updateAttachedCollectorsList();
+}
+
+void
+ManageCollectorsDialog::paramSelected(int val)
+{
+//  printf("paramSelected\n");
   QListViewItem *selectedItem = attachCollectorsListView->selectedItem();
+  QString param_text = QString::null;
   if( selectedItem )
   {
-//    printf("Got an ITEM!\n");
-    QString collector_name = selectedItem->parent()->text(0);
-    QString param_name = selectedItem->text(0);
-    QString param_value = selectedItem->text(1);
-//printf("modify = parent()->text(0)=(%s)\n", collector_name.ascii());
-//printf("modify = text(0)=(%s)\n", param_name.ascii());
-//printf("modify = text(1)=(%s)\n", param_value.ascii());
+    QString collector_name = QString::null;
+    if( selectedItem->parent() )
+    {
+      collector_name = selectedItem->parent()->text(0);
+    } else
+    {
+      collector_name = selectedItem->text(0);
+    }
+    QString param_name = QString::null;
+    int loc = -1;
+    QString param_value = QString::null;
+    if( paramMenu )
+    {
+      param_text = paramMenu->text(val);
+      loc = param_text.find(":");
+      param_name = param_text.left(loc);
+      loc++;
+      loc++;
+      param_value = param_text.right(param_text.length()-loc);
+    } else
+    {
+       // other menu...
+      QString pt = popupMenu->text(val);
+      int loc_1 = pt.find("(");
+      loc_1++;
+      param_text = pt.right(pt.length()-loc_1);
+      loc = param_text.find(":");
+      param_name = param_text.left(loc);
+      loc++;
+      loc++;
+      pt = param_text.right(param_text.length()-loc);
+      param_value = pt.left(pt.find(")") );
+    }
+// printf("paramSelected collector_name=(%s)\n", collector_name.ascii());
+// printf("paramSelected param_name=(%s)\n", param_name.ascii());
+// printf("paramSelected param_value=(%s)\n", param_value.ascii());
+// printf("paramSelected param_value=(%u)\n", param_value.toUInt() );
 // Modify the parameter....
     bool ok;
     int res = QInputDialog::getInteger(QString("Set %1 : %2").arg(collector_name).arg(param_name), QString("New Value:"), param_value.toUInt(), 0, 9999999, 10, &ok, this);
-printf("res = %d\n", res);
     if( ok )
     {
-      printf("user entered a value and pressed OK\n");
       QString command;
       command = QString("expSetParam -x %1 %2::%3=%4").arg(expID).arg(collector_name).arg(param_name).arg(res);
-printf("command=(%s)\n", command.ascii() );
+// printf("command=(%s)\n", command.ascii() );
       if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
       {
         printf("Unable to run %s command.\n", command.ascii() );
@@ -309,5 +463,44 @@ printf("command=(%s)\n", command.ascii() );
 void
 ManageCollectorsDialog::nothingSelected()
 {
-  printf("nothingSelected\n");
+//  printf("nothingSelected\n");
+}
+
+void
+ManageCollectorsDialog::addCollectorSelected()
+{
+//  printf("addCollectorSelected()\n");
+  QString collector_name = availableCollectorsComboBox->currentText();
+//  printf("collector_name=(%s)\n", collector_name.ascii() );
+
+  QString command;
+  command = QString("expAttach -x %1 %2").arg(expID).arg(collector_name);
+// printf("command=(%s)\n", command.ascii() );
+  if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
+  {
+    printf("Unable to run %s command.\n", command.ascii() );
+  }
+
+  updateAttachedCollectorsList();
+}
+
+static bool step_forward = TRUE;
+void
+ManageCollectorsDialog::progressUpdate()
+{
+  pd->qs->setValue( steps );
+  if( step_forward )
+  {
+    steps++;
+  } else
+  {
+    steps--;
+  }
+  if( steps == 10 )
+  {
+    step_forward = FALSE;
+  } else if( steps == 0 )
+  {
+    step_forward = TRUE;
+  }
 }
