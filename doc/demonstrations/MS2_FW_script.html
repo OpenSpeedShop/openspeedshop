@@ -1,0 +1,221 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"><html><head>
+	<meta http-equiv="CONTENT-TYPE" content="text/html; charset=utf-8"><title></title>
+	
+	<meta name="GENERATOR" content="OpenOffice.org 1.1.1  (Linux)">
+	<meta name="CREATED" content="20041209;11383600">
+	<meta name="CHANGED" content="20041209;13045300"></head>
+
+<body lang="en-US" dir="ltr">
+<p align="center"><font size="6"><b><i>Open</i>/SpeedShop Milestone #2</b></font></p>
+<p align="center"><b><font size="6">Framework Demonstration Script</font></b></p>
+<p align="left"><br><br>
+</p>
+<p align="left">It is assumed that “<font face="Courier, monospace">source
+/perftools/ROOT/setenv.csh</font>” or similar has already been
+executed and that the <i>Open</i>/SpeedShop source has already been
+built. In the command text that follows, substitute your top-level
+source directory (e.g. something like “~/OpenSpeedShop/current”)
+for the text symbol <b><font face="Courier, monospace">[TOP]</font></b>.</p>
+<p align="left"><br><br>
+</p>
+<ol>
+	<li><p>Move into the “examples/libssf/collector” directory and
+	show the source file “ExampleCollector.cxx”:</p>
+</li></ol>
+<p style="margin-left: 0.79in;"><font face="Courier, monospace">% cd
+<b>[TOP]</b>/examples/libssf/collector</font></p>
+<p style="margin-left: 0.79in;"><font face="Courier, monospace">% less
+ExampleCollector.cxx</font></p>
+<ol start="2">
+	<p>Discuss the following key points regarding the example collector:</p>
+</ol>
+<ul>
+	<li><p>Is an example of the mechanism to-date for creating
+	performance data collectors.</p>
+	</li><li><p>Code is compiled into a dynamic library that is located and
+	loaded by the framework.</p>
+	</li><li><p>Highlight the constructor source and note how a data
+	collector declares its parameters (one in this case) and metrics
+	(one in this case). In each case a unique name, short descriptive
+	name, long description, and type ID is given. This information is
+	also provided for the collector itself.</p>
+	</li><li><p>Highlight the startCollecting() and stopCollecting() member
+	functions. These will be called by the framework each time the
+	framework wishes to start or stop data collection for a given thread
+	and will use DPCL/Dyninst to insert/remove instrumentation from the
+	specified thread. Right now they simply print a message.</p>
+	</li><li><p>Highlight the getMetricValue() member function. The function
+	is called by the framework when it wants to calculate a metric
+	value. It will use framework calls to obtain the relevant raw data
+	from the experiment database file, calculate the metric value, and
+	return it to the framework (who returns it to the tool).</p>
+</li></ul>
+<ol start="2">
+	<li><p>Move into the “examples/libssf/tool” directory and show
+	the source file “tool.cxx”:</p>
+</li></ol>
+<p style="margin-left: 0.79in;"><font face="Courier, monospace">% cd
+<b>[TOP]</b>/examples/libssf/tool</font></p>
+<p style="margin-left: 0.79in;"><font face="Courier, monospace">% less
+tool.cxx</font></p>
+<ol start="3">
+	<p>Discussion:</p>
+</ol>
+<ul>
+	<li><p>Includes “ToolAPI.hxx” to access the framework library
+	headers.</p>
+	</li><li><p>Creates and opens an experiment (along with its respective
+	database).</p>
+	</li><li><p>Creates a process for executing the command. This process is
+	created by the framework (Dyninst in actuality) in the suspended
+	state. Symbol information for the process is transferred to the
+	experiment database at this point.</p>
+	</li><li><p>Finds the requested function name within the thread and
+	throws an error if it cannot find the function.</p>
+	</li><li><p>Creates an instantiation of the example collector we just
+	looked at.</p>
+	</li><li><p>Passes the found function as a parameter to the collector.
+	Note that we can pass complex types (in this case a Function object)
+	from the tool to the collector – not just strings, integers,
+	doubles.</p>
+	</li><li><p>Attaches the created thread to the collector and instructs
+	the collector to start data collection.</p>
+	</li><li><p>Starts the thread running and waits for it to complete. Note
+	here that the framework creates its own threads to monitor the
+	incoming DPCL data. The tool itself is free to wait for process
+	completion or do whatever else it might want.</p>
+	</li><li><p>Evaluates and displays the “time” metric value for the
+	requested function over the entire available time interval (from
+	Time::TheBeginning to Time::TheEnd). 
+	</p>
+</li></ul>
+<ol start="3">
+	<li><p>Show the source file “mutatee.c” - the “victim app”
+	being used here:</p>
+</li></ol>
+<p style="margin-left: 0.79in;"><font face="Courier, monospace">% less
+mutatee.c</font></p>
+<ol start="4">
+	<li><p>Run the demo, first setting the collector search path:</p>
+</li></ol>
+<p style="margin-left: 0.79in;"><font face="Courier, monospace">%
+setenv OPENSPEEDSHOP_COLLECTOR_PATH “$cwd/../collector”</font></p>
+<p style="margin-left: 0.79in;"><font face="Courier, monospace">%
+$cwd/tool mysleep $cwd/mutatee 60</font></p>
+<ol start="5">
+	<p>Discussion:</p>
+</ol>
+<ul>
+	<li><p>DPCL debugging is turned on for the purposes of this demo.
+	The real tool(s) will not be so “chatty”.</p>
+	</li><li><p>DPCL daemon is started (will see a “AIS_AUTHENTICATION_ACK”
+	message).</p>
+	</li><li><p>DPCL/Dyninst starts the process (will see a “AIS_CREATE_MSG”
+	message) and parses the symbol table information (will see many
+	“AIS_SRCEXPAND_MSG” messages). That information is placed into
+	the experiment database.</p>
+</li></ul>
+<ul>
+	<li><p>Collector is instructed to instrument the process. Will see a
+	message similar to:</p>
+</li></ul>
+<p style="margin-left: 1.58in;"><font face="Courier, monospace">ExampleCollector::startCollecting()
+for hope.americas.sgi.com:32098</font></p>
+<ul>
+	<li><p>Process is resumed (will see a “AIS_RESUME_MSG” message).</p>
+	</li><li><p>Process runs for a while (there will be a 10-30 second pause)
+	and then a “AIS_PROC_TERMINATE_MSG” message is received.</p>
+	</li><li><p>Metric is evaluated and displayed:</p>
+</li></ul>
+<p style="margin-left: 1.58in;"><font face="Courier, monospace">Spent
+123.456 seconds executing mysleep().</font></p>
+<ul>
+	<li><p>Of course the “123.456” is a dummy value at the moment,
+	but it can be seen that the value was reported via the collector.</p>
+	</li><li><p>Collector is instructed to uninstrument the process. Will see
+	a message similar to:</p>
+</li></ul>
+<p style="margin-left: 1.58in;"><font face="Courier, monospace">ExampleCollector::stopCollecting()
+for hope.americas.sgi.com:32098</font></p>
+<ol start="5">
+	<li><p>Start the SQLite command-line interface on our experiment
+	database, show the list of tables, and show how SQLite databases are
+	self-describing to an extent:</p>
+</li></ol>
+<p style="margin-left: 0.79in;"><font face="Courier, monospace">%
+sqlite3 mutatee.openss</font></p>
+<p style="margin-left: 0.79in;"><font face="Courier, monospace">sqlite&gt;
+.tables</font></p>
+<p style="margin-left: 0.79in;"><font face="Courier, monospace">AddressSpaces
+   Data             LinkedObjects    StatementRanges</font></p>
+<p style="margin-left: 0.79in;"><font face="Courier, monospace">Attachments
+     Files            Open/SpeedShop   Statements</font></p>
+<p style="margin-left: 0.79in;"><font face="Courier, monospace">Collectors
+      Functions        Parameters       Threads</font></p>
+<p style="margin-left: 0.79in;"><font face="Courier, monospace">sqlite&gt;
+.schema Threads</font></p>
+<p style="margin-left: 0.79in;"><font face="Courier, monospace">CREATE
+TABLE Threads (    id INTEGER PRIMARY KEY,    host TEXT,    pid
+INTEGER DEFAULT NULL,    posix_tid INTEGER DEFAULT NULL,    omp_tid
+INTEGER DEFAULT NULL,    mpi_rank INTEGER DEFAULT NULL,    ash
+INTEGER DEFAULT NULL);</font></p>
+<p style="margin-left: 0.79in;"><font face="Courier, monospace">...</font></p>
+<ol start="6">
+	<p>Discussion:</p>
+</ol>
+<ul>
+	<li><p>Tables are all created when the experiment is created and
+	then table entries are added as the experiment progresses.</p>
+	</li><li><p>SQLite is being used now, but the database interface has been
+	abstracted so that pretty much any SQL database package (MySQL,
+	Oracle, etc.) could be used in the future. SQLite is nice in that it
+	is a single library that links into the framework (no daemons),
+	creates its databases as a single file, and is relatively fast.</p>
+	</li><li><p>SQLite command-line interface provides a nice debugging tool.
+	Also might be used by others to extract data from <i>Open</i>/SpeedShop
+	experiments.</p>
+</li></ul>
+<ol start="6">
+	<li><p>Show the threads recorded:</p>
+</li></ol>
+<p style="margin-left: 0.79in;"><font face="Courier, monospace">sqlite&gt;
+select * from Threads;</font></p>
+<p style="margin-left: 0.79in;"><font face="Courier, monospace">1|hope.americas.sgi.com|32098||||</font></p>
+<ol start="7">
+	<p>Discussion:</p>
+</ol>
+<ul>
+	<li><p>First field is unique id, second field is host name, third
+	field is PID, subsequent, blank, fields are thread ids, etc. that
+	haven't been filed in.</p>
+	</li><li><p>Enough information is stored that we can go back and reattach
+	to the threads later if we'd like.</p>
+</li></ul>
+<ol start="7">
+	<li><p>Show the number of functions in the database and find the
+	table entry for mysleep():</p>
+</li></ol>
+<p style="margin-left: 0.79in;"><font face="Courier, monospace">sqlite&gt;
+select count(*) from Functions;</font></p>
+<p style="margin-left: 0.79in;"><font face="Courier, monospace">6151</font></p>
+<p style="margin-left: 0.79in;"><font face="Courier, monospace">sqlite&gt;
+select * from Functions where name = “mysleep”;</font></p>
+<p style="margin-left: 0.79in;"><font face="Courier, monospace">6142|11|-9223372036854773984|-9223372036854773904|mysleep</font></p>
+<ol start="8">
+	<p>Discussion:</p>
+</ol>
+<ul>
+	<li><p>There were 6,151 functions (mostly in the libraries).</p>
+	</li><li><p>mysleep() was function #6142, in linked object #11</p>
+	</li><li><p>Address ranges are stored in a shifted, signed, format
+	because SQLite doesn't support an unsigned 64-bit data type.</p>
+	</li><li><p>Symbol information is stored in the database in order to
+	allow post-mortem analysis. DPCL/Dyninst don't support directly
+	querying symbol tables from executables without an in-memory process
+	image. So we save enough of the symbol data that we don't need the
+	executable later.</p>
+</li></ul>
+<ol start="8">
+	<li><p>The End!</p>
+</li></ol>
+</body></html>
