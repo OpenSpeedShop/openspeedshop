@@ -1,18 +1,22 @@
-p_tupdate this tree....
 
-From the .../current directory type:
+The interesting environment variables are:
+. /perftools/ROOT/setenv.sh
+export OPENSPEEDSHOP_INSTALL_DIR=/tmp/OpenSpeedshop
+export OPENSPEEDSHOP_PLUGIN_PATH=$OPENSPEEDSHOP_INSTALL_DIR/lib/openspeedshop
+export OPENSPEEDSHOP_GUI_ENTRY_POINT=gui_init
+export OPENSPEEDSHOP_CLI_ENTRY_POINT=cli_init
+export OPENSPEEDSHOP_GUI_RELOCATABLE_NAME=ossgui.so
+export OPENSPEEDSHOP_CLI_RELOCATABLE_NAME=posscli.so
+PATH=$PATH:.:$OPENSPEEDSHOP_INSTALL_DIR/bin
+
+
+Set up your .workarea and from the directory named "current" directory type:
+$ p_tupdate
 $ ./mc
-This will configure and build the GUI portion of OpenSpeedShop.
+This will configure and build the GUI and framework portion of OpenSpeedShop.
 When the build completes you should be able to run.  The script to 
-launch the tool is openss.  (Also located in the .../current directory.)
+launch the tool is openss. 
 $ openss
-If openss fails to execute, check to make sure the OPENSPEEDSHOP_PLUGIN_DIR
-is set to the install location.  The default setting for
-OPENSPEEDSHOP_PLUGIN_DIR is usually: .../current/plugin/lib/openspeedshop
-
-On hope.americas.sgi.com, mine is set to:
-$ set | grep OPENS
-OPENSPEEDSHOP_PLUGIN_DIR=/home/tulip22/stipek/OpenSpeedShop/current/current/plugin/lib/openspeedshop
 
 $ openss --help 
 Gives a simple usage command.
@@ -22,10 +26,3 @@ To make the doxygen documentation: (again from the .../current directory)
 # make doc
 
 
-The interesting GUI environment variables are:
-export OPENSPEEDSHOP_INSTALL_DIR=~/oss/install
-export OPENSPEEDSHOP_PLUGIN_PATH=$OPENSPEEDSHOP_INSTALL_DIR/lib/openspeedshop
-export LD_LIBRARY_PATH=$OPENSPEEDSHOP_PLUGIN_PATH
-export OPENSPEEDSHOP_ENTRY_POINT=gui_init
-export OPENSPEEDSHOP_RELOCATABLE_NAME=ossgui.so
-PATH=.:/usr/local/bin:/usr/bin:/bin:/usr/X11R6/bin:$OPENSPEEDSHOP_INSTALL_DIR/bin:$OPENSPEEDSHOP_INSTALL_DIR:$PATH
