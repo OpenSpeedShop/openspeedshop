@@ -1,0 +1,119 @@
+This report summarizes an informal usability conducted on 10/27/04.    
+
+There were 2 candidates.  
+Candidate one was familiar with the Open/Speedshop tool and his main purpose
+was to validate the assignment.   However several issues were discovered
+during the assignment that are worth noting.
+
+The second candidate is an avid user of GUI tools and is a SGI C++ developer
+of the Bugworks system.  
+
+Candidate one results:
+  This candidate completed the assignment in 5 minutes.   However, being
+familiar with the tool surely helped.    Here are some notes from session.
+
+  - When trying to load the executable the candidate tried without
+    using the -f option.  However, he quickly did a man and used
+    the correct command arguments.
+    (Suggestion:   Wait to see if more users have the same problem.)
+
+  - The user commented that they liked the "info" in the pcSamplePanel's
+    status field.
+
+  - The user attempted to click on the headers in the TopPanel.   He
+    was trying to sort the TopFive.
+    (Suggestion: This should be an feature at some point.)
+
+  - BUG: The help text in the Command Panel had garbage in it.
+
+  - The use repeatedly tried to change/add a new executable with the
+    File->Load New option.
+    (Suggestion: This must be made more clear....)
+
+  - The user repeatedly tried to use the pcSamplePanel terminate
+    button (X) to close the panel.
+
+   - The pcSamplePanel 'X' button is a major souce of confusion.
+     (Suggestion: Put an 'x' button on the PanelContainer and change
+      the 'X' button in the pcSamplePanel to something else.)
+
+
+
+Candidate two results:
+  This candidate completed the assignment in 28 minutes.    Several aborts
+occured while the user attempted to remove panel containrs.
+
+  - He was confused by fred_calls_ted, that it didn't output any values
+    when testing the run.
+    (Suggestion: Wait and see if this confuses others.   If more confusion
+     arises then maybe output some simple ascii text to reassure the user.)
+
+  - Repeated clicked on "Other" in the IntroWizardPanel.
+    (Suggestion:BUG: Remove this option until "Other" really exists...)
+
+  - NOTE: Took 3 minutes to get to the pcSampleWizard.
+
+  - User makes note of bad grammar and spelling errors in the wizard.  
+    Metric screen and Finished screen.
+
+  - User comments that long status line should scroll and be left justified.
+    (Suggestion: left justify text and truncate long executable names.   
+    i.e. stripping path)
+
+  - The user answers top routine 13 minutes after start.
+
+  - The user was confused as to how to go back, from pcSamplePanel, to
+    the pcSampleWizard to change a metric value.
+    (Suggestion: Wait to see if others have the same issue.  Also, this
+    may not have been a problem if the user had access to the metrics
+    (yet to be provided) from the pcSamplePanel.)
+
+  - User repeated clicked on the pcSamplePanel 'X' button (Terminate
+    button) to delete the panel.
+    (Suggestion: This is a problem that will happen again and again.
+     Change the icon and add an 'x' button to the PanelContainer area.)
+
+  - Abort occured when user tried to clear a PanelContainer.
+
+  - The user was confused with "Create New Panel" as they thought they'd
+    be creating a new experiment to run.
+    (Suggestion: User suggest changing the wording.    i.e. "Build New
+    Experiment... )
+
+  - Abort occured again removing the PanelContainer.
+
+  - The user knows they want to do pcSample, but now they're irritated
+    with the IntroWizardPanel and want to go directly to the pcSamplePanel.
+    They don't yet know how to remove panels.
+   (Suggestion: There needs to be a preference added to disable the
+    initial IntroWizardPanel.)
+
+  - The user finds foo and init 23 minutes after start.
+
+  - User splits panels, first vertical rather than horizontal.   The user
+    expected the existing 2 panels be split amoung the now divided
+    PanelContainer.
+    (Suggestion: Wait to see if others find this problematic.)
+
+  - The user doesn't realize they can click in the TopPanel.
+    (Suggestions: We're currently using a QTextWidget.   Eventually
+    we'll be using a tree widget and that may appear more interactive.)
+
+  - The user asks,"Why is the panel called "TopPanel"? "
+    (Suggestion: No wording suggestions given.    Possible ask next candidate.)
+
+  - User navigates to source locations with "Load New" and scrolling. 
+    Comments that they'd like to use a "back" button.
+    (Suggestion: The SourcePanel should have a back button and history.)
+
+  - User asks, "Are all reports saved as html."
+
+  - File->Load New is confusing.       
+    (Suggestion: User suggests prompting for experiment type after loading
+    executable name/attaching.)
+    (My additional suggestion is to add the option of going directly
+    to a wizard panel for further aid.)
+
+  - User is confused over split vertical and split horizontal.
+    (Suggestion: add pixmaps to menu items.) 
+
