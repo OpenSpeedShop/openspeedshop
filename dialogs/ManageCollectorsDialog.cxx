@@ -155,6 +155,7 @@ ManageCollectorsDialog::updateAttachedCollectorsList()
 
   clo = new CollectorListObject(expID);
 
+  attachCollectorsListView->clear();
   CollectorEntryList::Iterator it;
   for( it = clo->collectorEntryList.begin();
        it != clo->collectorEntryList.end();
