@@ -20,6 +20,9 @@
 bin_PROGRAMS = openspeedshop
 
 bin_SCRIPTS = openss
+# without a rule to build openss (likely from openss.sh for bin_SCRIPTS)
+# we need to add openss to EXTRA_DIST to include it in the tarball
+EXTRA_DIST = openss
 
 openspeedshop_CFLAGS = \
 	-DPLUGIN_PATH=\"$(pkglibdir)\"
