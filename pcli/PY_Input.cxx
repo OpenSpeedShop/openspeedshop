@@ -8,6 +8,7 @@
 
 extern FILE *yyin;
 extern int yyparse (void);
+void reset_command();
 
 /* Global Data for tracking the current command line. */
 InputLineObject *Current_ILO = NULL;
@@ -41,6 +42,9 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     memcpy (cmd_args, &command, sizeof(command_t));
     cmd = new CommandObject (cmd_args);
     SS_Execute_Cmd (cmd);
+    
+   // Free up and cleanup any parser generated structures
+     reset_command();
 
    // Build Python Objects for any return results.
     {
@@ -61,7 +65,8 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
           {
             std::string C;
             ((CommandResult_String *)(*cri))->Value(&C);
-            p_object = Py_BuildValue("S", C.c_str());
+//            p_object = Py_BuildValue("S", C.c_str());
+    	      p_object = Py_BuildValue("s",C.c_str());
             break;
           }
           default:
