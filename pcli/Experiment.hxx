@@ -101,11 +101,36 @@ class ExperimentObject
     } else {
       ThreadGroup tgrp = FW()->getThreads();
       int A = ExpStatus_NonExistent;
-      if (tgrp.empty()) A = ExpStatus_Paused;
-      else if (tgrp.isAnyState(Thread::Running)) A = ExpStatus_Running;
-      else if (tgrp.isAnyState(Thread::Suspended)) A = ExpStatus_Paused;
-      else if (tgrp.areAllState(Thread::Terminated)) A = ExpStatus_Terminated;
-      else A = ExpStatus_InError;
+      if (tgrp.empty()) {
+        A = ExpStatus_Paused;
+      } else {
+        ThreadGroup::iterator ti;
+        for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+          Thread t = *ti;
+          try {
+            if (t.getState() == Thread::Running) {
+             // if any thread is Running, the experiment is also.
+              A = ExpStatus_Running;
+              break;
+            } else if (t.getState() == Thread::Suspended) {
+             // Paused can override Terminated
+              A = ExpStatus_Paused;
+            } else if (t.getState() == Thread::Terminated) {
+             // The experiment is terminated only if all the threads are.
+              if (A != ExpStatus_Paused) {
+                A = ExpStatus_Terminated;
+              }
+            } else {
+              A = ExpStatus_InError;
+              break;
+            }
+          }
+          catch(const std::exception& error) {
+            A = ExpStatus_InError;
+            break;
+          }
+        }
+      }
       ExpStatus = A;
     }
     return ExpStatus;
