@@ -16,9 +16,9 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-pkglib_LTLIBRARIES = posscli.la
+pkglib_LTLIBRARIES = libopenss-cli.la
 
-posscli_la_CXXFLAGS =  \
+libopenss_cli_la_CXXFLAGS =  \
 	-c -LANG:std -fpic \
 	-I. \
         $(PYTHON_CPPFLAGS) \
@@ -26,16 +26,16 @@ posscli_la_CXXFLAGS =  \
     -DPLUGIN_PATH=\"$(pkglibdir)\" \
 	-I/usr/include -I. -I../objects -I../base
 
-posscli_la_LDFLAGS = \
+libopenss_cli_la_LDFLAGS = \
     	-fpic \
 	--export-dynamic \
 	-module \
 	-avoid-version \
 	-L$(top_srcdir)/libopenss-framework \
         $(PYTHON_LDFLAGS) \
-	-lpthread -lutil -LANG:std -ldl
+	-lpthread -lutil -LANG:std
 
-posscli_la_LIBADD = $(LIBLTDL) -lopenss-framework
+libopenss_cli_la_LIBADD = $(LIBLTDL) -lopenss-framework
 
 LEXWOFF =
 YFLAGS = -d
@@ -57,7 +57,7 @@ EXTRA_DIST = test.y test.l myparse.py
 
 pcli_includes = ArgClass.hxx Clip.hxx Commander.hxx CommandObject.hxx Experiment.hxx SS_Cmd_Execution.hxx SS_Input_Manager.hxx SS_Parse_Param.hxx SS_Parse_Range.hxx SS_Parse_Result.hxx SS_Parse_Target.hxx SS_View.hxx
 
-posscli_la_SOURCES = \
+libopenss_cli_la_SOURCES = \
    	Start.cxx \
 	Start_Modes.cxx \
 	Commander.cxx \

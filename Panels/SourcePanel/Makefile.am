@@ -31,7 +31,7 @@ SourcePanel_la_CXXFLAGS = \
 
 SourcePanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
-SourcePanel_la_LIBADD = -L$(QTDIR)/lib -lqt $(top_srcdir)/pcli/.libs/posscli.so
+SourcePanel_la_LIBADD = -L$(QTDIR)/lib -lqt
 
 moc_SPTextEdit.cxx: SPTextEdit.hxx
 	-moc -o moc_SPTextEdit.cxx SPTextEdit.hxx

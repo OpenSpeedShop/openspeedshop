@@ -7,7 +7,7 @@ database_la_CXXFLAGS =  \
 	-DPLUGIN_PATH=\"$(pkglibdir)\"
 
 database_la_LDFLAGS = \
-	$(PLUGIN_PATH)/posscli.so
+	$(PLUGIN_PATH)/libopenss-cli.so
 
 filelist = \
 	pt1 \

@@ -27,7 +27,7 @@ main( int argc, char ** argv ) {
 
   char *cli_dl_name = getenv("OPENSS_CLI_RELOCATABLE_NAME");
   char *cli_entry_point = getenv("OPENSS_CLI_ENTRY_POINT");
-  if( !cli_dl_name ) cli_dl_name = "posscli";
+  if( !cli_dl_name ) cli_dl_name = "libopenss-cli";
   if( !cli_entry_point ) cli_entry_point = "cli_init";
 
   assert(lt_dlinit() == 0);
