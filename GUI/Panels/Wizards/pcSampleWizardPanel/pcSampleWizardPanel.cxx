@@ -240,8 +240,8 @@ pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n) : Pa
     eParameterPageSampleRateLabel = new QLabel( eParameterPageWidget, "eParameterPageSampleRateLabel" );
     eParameterPageSampleRateLayout->addWidget( eParameterPageSampleRateLabel );
 
-    epage1pcSampleRateText = new QLineEdit( eParameterPageWidget, "epage1pcSampleRateText" );
-    eParameterPageSampleRateLayout->addWidget( epage1pcSampleRateText );
+    eParameterPageSampleRateText = new QLineEdit( eParameterPageWidget, "eParameterPageSampleRateText" );
+    eParameterPageSampleRateLayout->addWidget( eParameterPageSampleRateText );
     eParameterPageParameterLayout->addLayout( eParameterPageSampleRateLayout );
     eParameterPageLayout->addLayout( eParameterPageParameterLayout );
     spacer7_2 = new QSpacerItem( 20, 70, QSizePolicy::Minimum, QSizePolicy::Expanding );
@@ -327,7 +327,7 @@ pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n) : Pa
     connect( vSummaryPageBackButton, SIGNAL( clicked() ), this, SLOT( vSummaryPageBackButtonSelected() ) );
     connect( vSummaryPageFinishButton, SIGNAL( clicked() ), this, SLOT( vSummaryPageFinishButtonSelected() ) );
     connect( wizardMode, SIGNAL( clicked() ), this, SLOT( wizardModeSelected() ) );
-    connect( epage1pcSampleRateText, SIGNAL( returnPressed() ), this, SLOT( epage1pcSampleRateTextReturnPressed() ) );
+    connect( eParameterPageSampleRateText, SIGNAL( returnPressed() ), this, SLOT( eParameterPageSampleRateTextReturnPressed() ) );
 
   // This next line makes it all magically appear and resize correctly.
   panelLayout->addWidget(topWidget);
@@ -688,9 +688,9 @@ void pcSampleWizardPanel::vParameterPageSempleRateTextReturnPressed()
 printf("vParameterPageSempleRateTextReturnPressed() \n");
 }
 
-void pcSampleWizardPanel::epage1pcSampleRateTextReturnPressed()
+void pcSampleWizardPanel::eParameterPageSampleRateTextReturnPressed()
 {
-printf("epage1pcSampleRateTextReturnPressed() \n");
+printf("eParameterPageSampleRateTextReturnPressed() \n");
 }
 
 void pcSampleWizardPanel::vParameterPageBackButtonSelected()
@@ -793,8 +793,8 @@ pcSampleWizardPanel::languageChange()
     eParameterPageDescriptionLabel->setText( tr( "The following options (paramaters) are available to adjust.     <br>These are the options the collector has exported." ) );
     eParameterPageSampleRateHeaderLabel->setText( tr( "You can set the following option(s):" ) );
     eParameterPageSampleRateLabel->setText( tr( "pc Sampling rate:" ) );
-    epage1pcSampleRateText->setText( tr( "10" ) );
-    QToolTip::add( epage1pcSampleRateText, tr( "The rate to sample.   (Default 10 milliseconds.)" ) );
+    eParameterPageSampleRateText->setText( tr( "10" ) );
+    QToolTip::add( eParameterPageSampleRateText, tr( "The rate to sample.   (Default 10 milliseconds.)" ) );
     eParameterPageBackButton->setText( tr( "Back <" ) );
     QToolTip::add( eParameterPageBackButton, tr( "Takes you back one page." ) );
     eParameterPageResetButton->setText( tr( "Reset" ) );

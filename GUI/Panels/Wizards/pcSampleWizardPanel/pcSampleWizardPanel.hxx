@@ -119,7 +119,7 @@ public:
     QFrame* eParameterPageLine;
     QLabel* eParameterPageSampleRateHeaderLabel;
     QLabel* eParameterPageSampleRateLabel;
-    QLineEdit* epage1pcSampleRateText;
+    QLineEdit* eParameterPageSampleRateText;
     QPushButton* eParameterPageBackButton;
     QPushButton* eParameterPageResetButton;
     QPushButton* eParameterPageNextButton;
@@ -148,7 +148,7 @@ public slots:
     virtual void vParameterPageResetButtonSelected();
     virtual void vSummaryPageBackButtonSelected();
     virtual void vSummaryPageFinishButtonSelected();
-    virtual void epage1pcSampleRateTextReturnPressed();
+    virtual void eParameterPageSampleRateTextReturnPressed();
     virtual void wizardModeSelected();
 
 protected:
