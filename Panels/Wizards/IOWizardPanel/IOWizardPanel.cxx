@@ -23,10 +23,13 @@
 #include <qfile.h>   // For the file dialog box.
 #include <qfiledialog.h>  // For the file dialog box.
 #include <qmessagebox.h>
+#include <qscrollview.h>
 
 #include <qbitmap.h>
 #include "rightarrow.xpm"
 #include "leftarrow.xpm"
+
+#include "LoadAttachObject.hxx"
 
 
 /*!  IOWizardPanel Class
@@ -41,6 +44,7 @@
 /*! The default constructor.   Unused. */
 IOWizardPanel::IOWizardPanel()
 { // Unused... Here for completeness...
+  nprintf(DEBUG_CONST_DESTRUCT) ("IOWizardPanel::IOWizardPanel() default constructor called\n");
 }
 
 
@@ -51,13 +55,23 @@ IOWizardPanel::IOWizardPanel()
  */
 IOWizardPanel::IOWizardPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
 {
-  printf("IOWizardPanel::IOWizardPanel() constructor called\n");
-  QHBoxLayout * panelLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
+  nprintf(DEBUG_CONST_DESTRUCT) ("IOWizardPanel::IOWizardPanel() constructor called\n");
+sv = new QScrollView(getBaseWidgetFrame(), "scrollview");
+sv->setResizePolicy( QScrollView::Manual );
+
+  panelLayout = new QHBoxLayout( sv->viewport(), 1, 2, getName() );
 
     if ( !getName() )
-	setName( "IO Experiment" );
+	setName( "IO" );
 
-    QWidget* topWidget = new QWidget( getBaseWidgetFrame(), "topWidget" );
+    // I'm not calculating this, but rather just setting a "reasonable"
+    // size.   Eventually this should be calculated.
+    sv->resize(700,400);
+    sv->resizeContents(750,450);
+
+
+
+    topWidget = new QWidget( sv->viewport(), "topWidget" );
     topLayout = new QVBoxLayout( topWidget, 11, 6, "topLayout"); 
 
     topFrame = new QFrame( topWidget, "topFrame" );
@@ -79,16 +93,6 @@ IOWizardPanel::IOWizardPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
     vDescriptionPageText = new QTextEdit( vDescriptionPageWidget, "vDescriptionPageText" );
     vDescriptionPageText->setWordWrap( QTextEdit::WidgetWidth );
     vDescriptionPageLayout->addWidget( vDescriptionPageText );
-
-    vHideWizardLayout = new QHBoxLayout( 0, 0, 6, "vHideWizardLayout"); 
-    vHideWizardSpacer1 = new QSpacerItem( 20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
-    vHideWizardLayout->addItem( vHideWizardSpacer1 );
-
-    vHideWizardCheckBox = new QCheckBox( vDescriptionPageWidget, "vHideWizardCheckBox" );
-    vHideWizardLayout->addWidget( vHideWizardCheckBox );
-    vHideWizardSpacer2 = new QSpacerItem( 20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
-    vHideWizardLayout->addItem( vHideWizardSpacer2 );
-    vDescriptionPageLayout->addLayout( vHideWizardLayout );
 
     vDescriptionPageButtonLayout = new QHBoxLayout( 0, 0, 6, "vDescriptionPageButtonLayout"); 
 
@@ -174,8 +178,17 @@ IOWizardPanel::IOWizardPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
 
      vAttachOrLoadPageAttachToProcessCheckBox = new QCheckBox( vAttachOrLoadPageWidget, "vAttachOrLoadPageAttachToProcessCheckBox" );
     vAttachOrLoadPageAttachOrLoadLayout->addWidget( vAttachOrLoadPageAttachToProcessCheckBox );
-    vAttachOrLoadPageLoadProcessCheckBox = new QCheckBox( vAttachOrLoadPageWidget, "vAttachOrLoadPageLoadProcessCheckBox" );
-    vAttachOrLoadPageAttachOrLoadLayout->addWidget( vAttachOrLoadPageLoadProcessCheckBox );
+
+    vAttachOrLoadPageProcessListLabel = new QLabel( vAttachOrLoadPageWidget, "vAttachOrLoadPageProcessListLabel" );
+    vAttachOrLoadPageProcessListLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageProcessListLabel ) );
+    vAttachOrLoadPageAttachOrLoadLayout->addWidget( vAttachOrLoadPageProcessListLabel );
+
+    vAttachOrLoadPageLoadExecutableCheckBox = new QCheckBox( vAttachOrLoadPageWidget, "vAttachOrLoadPageLoadExecutableCheckBox" );
+    vAttachOrLoadPageAttachOrLoadLayout->addWidget( vAttachOrLoadPageLoadExecutableCheckBox );
+
+    vAttachOrLoadPageExecutableLabel = new QLabel( vAttachOrLoadPageWidget, "vAttachOrLoadPageExecutableLabel" );
+    vAttachOrLoadPageExecutableLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageExecutableLabel ) );
+    vAttachOrLoadPageAttachOrLoadLayout->addWidget( vAttachOrLoadPageExecutableLabel );
 
     vAttachOrLoadPageSampleRateLayout = new QHBoxLayout( 0, 0, 6, "vAttachOrLoadPageSampleRateLayout"); 
 
@@ -190,6 +203,10 @@ IOWizardPanel::IOWizardPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
     vAttachOrLoadPageBackButton = new QPushButton( vAttachOrLoadPageWidget, "vAttachOrLoadPageBackButton" );
     vAttachOrLoadPageBackButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageBackButton->sizePolicy().hasHeightForWidth() ) );
     vAttachOrLoadPageButtonLayout->addWidget( vAttachOrLoadPageBackButton );
+
+    vAttachOrLoadPageResetButton = new QPushButton( vAttachOrLoadPageWidget, "vAttachOrLoadPageResetButton" );
+    vAttachOrLoadPageResetButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageResetButton->sizePolicy().hasHeightForWidth() ) );
+    vAttachOrLoadPageButtonLayout->addWidget( vAttachOrLoadPageResetButton );
 
     vAttachOrLoadPageNextButton = new QPushButton( vAttachOrLoadPageWidget, "vAttachOrLoadPageNextButton" );
     vAttachOrLoadPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageNextButton->sizePolicy().hasHeightForWidth() ) );
@@ -213,7 +230,7 @@ IOWizardPanel::IOWizardPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
 
     vSummaryPageButtonLayout = new QHBoxLayout( 0, 0, 6, "vSummaryPageButtonLayout"); 
 
-    vSummaryPageButtonSpacer = new QSpacerItem( 251, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
+    vSummaryPageButtonSpacer = new QSpacerItem( 200, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
     vSummaryPageButtonLayout->addItem( vSummaryPageButtonSpacer );
     vSummaryPageBackButton = new QPushButton( vSummaryPageWidget, "vSummaryPageBackButton" );
     vSummaryPageBackButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vSummaryPageBackButton->sizePolicy().hasHeightForWidth() ) );
@@ -238,14 +255,6 @@ IOWizardPanel::IOWizardPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
 
     eDescriptionPageText = new QLabel( eDescriptionPageWidget, "eDescriptionPageText" );
     eDescriptionPageLayout->addWidget( eDescriptionPageText );
-
-    eHideWizardLayout = new QHBoxLayout( 0, 0, 6, "eHideWizardLayout"); 
-    eHideWizardSpacer = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
-    eHideWizardLayout->addItem( eHideWizardSpacer );
-
-    eHideWizardCheckBox = new QCheckBox( eDescriptionPageWidget, "eHideWizardCheckBox" );
-    eHideWizardLayout->addWidget( eHideWizardCheckBox );
-    eDescriptionPageLayout->addLayout( eHideWizardLayout );
 
     eDescriptionPageButtonLayout = new QHBoxLayout( 0, 0, 6, "eDescriptionPageButtonLayout"); 
 
@@ -332,11 +341,22 @@ IOWizardPanel::IOWizardPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
 
      eAttachOrLoadPageAttachToProcessCheckBox = new QCheckBox( eAttachOrLoadPageWidget, "eAttachOrLoadPageAttachToProcessCheckBox" );
     eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageAttachToProcessCheckBox );
-eAttachOrLoadPageLoadProcessCheckBox = new QCheckBox( eAttachOrLoadPageWidget, "eAttachOrLoadPageLoadProcessCheckBox" );
-eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageLoadProcessCheckBox );
+
+eAttachOrLoadPageProcessListLabel = new QLabel( eAttachOrLoadPageWidget, "eAttachOrLoadPageProcessListLabel" );
+eAttachOrLoadPageProcessListLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, eAttachOrLoadPageProcessListLabel ) );
+eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageProcessListLabel );
+
+    eAttachOrLoadPageLoadExecutableCheckBox = new QCheckBox( eAttachOrLoadPageWidget, "eAttachOrLoadPageLoadExecutableCheckBox" );
+    eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageLoadExecutableCheckBox );
+
+eAttachOrLoadPageExecutableLabel = new QLabel( eAttachOrLoadPageWidget, "eAttachOrLoadPageExecutableLabel" );
+eAttachOrLoadPageExecutableLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, eAttachOrLoadPageExecutableLabel ) );
+eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageExecutableLabel );
+
     eAttachOrLoadPageLayout->addLayout( eAttachOrLoadPageAttachOrLoadLayout );
     eAttachOrLoadPageSpacer = new QSpacerItem( 20, 70, QSizePolicy::Minimum, QSizePolicy::Expanding );
     eAttachOrLoadPageLayout->addItem( eAttachOrLoadPageSpacer );
+
 
     eAttachOrLoadPageButtonLayout = new QHBoxLayout( 0, 0, 6, "eAttachOrLoadPageButtonLayout"); 
 
@@ -345,6 +365,10 @@ eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageLoadProcessChec
     eAttachOrLoadPageBackButton = new QPushButton( eAttachOrLoadPageWidget, "eAttachOrLoadPageBackButton" );
     eAttachOrLoadPageBackButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eAttachOrLoadPageBackButton->sizePolicy().hasHeightForWidth() ) );
     eAttachOrLoadPageButtonLayout->addWidget( eAttachOrLoadPageBackButton );
+
+    eAttachOrLoadPageResetButton = new QPushButton( eAttachOrLoadPageWidget, "eAttachOrLoadPageResetButton" );
+    eAttachOrLoadPageResetButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eAttachOrLoadPageResetButton->sizePolicy().hasHeightForWidth() ) );
+    eAttachOrLoadPageButtonLayout->addWidget( eAttachOrLoadPageResetButton );
 
     eAttachOrLoadPageNextButton = new QPushButton( eAttachOrLoadPageWidget, "eAttachOrLoadPageNextButton" );
     eAttachOrLoadPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eAttachOrLoadPageNextButton->sizePolicy().hasHeightForWidth() ) );
@@ -363,7 +387,7 @@ eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageLoadProcessChec
 
     eSummaryPageButtonLayout = new QHBoxLayout( 0, 0, 6, "eSummaryPageButtonLayout"); 
 
-    eSummaryPageButtonSpacer = new QSpacerItem( 251, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
+    eSummaryPageButtonSpacer = new QSpacerItem( 200, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
     eSummaryPageButtonLayout->addItem( eSummaryPageButtonSpacer );
     eSummaryPageBackButton = new QPushButton( eSummaryPageWidget, "eSummaryPageBackButton" );
     eSummaryPageBackButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eSummaryPageBackButton->sizePolicy().hasHeightForWidth() ) );
@@ -400,7 +424,6 @@ eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageLoadProcessChec
     clearWState( WState_Polished );
 
     // signals and slots connections
-    connect( eHideWizardCheckBox, SIGNAL( clicked() ), this, SLOT( eHideWizardCheckBoxSelected() ) );
     connect( eDescriptionPageNextButton, SIGNAL( clicked() ), this, SLOT( eDescriptionPageNextButtonSelected() ) );
     connect( eDescriptionPageStartButton, SIGNAL( clicked() ), this, SLOT( eDescriptionPageStartButtonSelected() ) );
     connect( eParameterPageBackButton, SIGNAL( clicked() ), this, SLOT( eParameterPageBackButtonSelected() ) );
@@ -408,12 +431,12 @@ eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageLoadProcessChec
     connect( eParameterPageResetButton, SIGNAL( clicked() ), this, SLOT( eParameterPageResetButtonSelected() ) );
     connect( eParameterPageSampleRateText, SIGNAL( returnPressed() ), this, SLOT( eParameterPageSampleRateTextReturnPressed() ) );
 
-connect( eAttachOrLoadPageBackButton, SIGNAL( clicked() ), this, SLOT( eAttachOrLoadPageBackButtonSelected() ) );
-connect( eAttachOrLoadPageNextButton, SIGNAL( clicked() ), this, SLOT( eAttachOrLoadPageNextButtonSelected() ) );
+    connect( eAttachOrLoadPageBackButton, SIGNAL( clicked() ), this, SLOT( eAttachOrLoadPageBackButtonSelected() ) );
+    connect( eAttachOrLoadPageNextButton, SIGNAL( clicked() ), this, SLOT( eAttachOrLoadPageNextButtonSelected() ) );
+    connect( eAttachOrLoadPageNextButton, SIGNAL( clicked() ), this, SLOT( eAttachOrLoadPageNextButtonSelected() ) );
 
     connect( eSummaryPageBackButton, SIGNAL( clicked() ), this, SLOT( eSummaryPageBackButtonSelected() ) );
     connect( eSummaryPageFinishButton, SIGNAL( clicked() ), this, SLOT( eSummaryPageFinishButtonSelected() ) );
-    connect( vHideWizardCheckBox, SIGNAL( clicked() ), this, SLOT( vHideWizardCheckBoxSelected() ) );
     connect( vDescriptionPageNextButton, SIGNAL( clicked() ), this, SLOT( vDescriptionPageNextButtonSelected() ) );
     connect( vDescriptionPageStartButton, SIGNAL( clicked() ), this, SLOT( vDescriptionPageStartButtonSelected() ) );
     connect( vParameterPageSampleRateText, SIGNAL( returnPressed() ), this, SLOT( vParameterPageSampleRateTextReturnPressed() ) );
@@ -421,8 +444,9 @@ connect( eAttachOrLoadPageNextButton, SIGNAL( clicked() ), this, SLOT( eAttachOr
     connect( vParameterPageResetButton, SIGNAL( clicked() ), this, SLOT( vParameterPageResetButtonSelected() ) );
     connect( vParameterPageNextButton, SIGNAL( clicked() ), this, SLOT( vParameterPageNextButtonSelected() ) );
 
-connect( vAttachOrLoadPageBackButton, SIGNAL( clicked() ), this, SLOT( vAttachOrLoadPageBackButtonSelected() ) );
-connect( vAttachOrLoadPageNextButton, SIGNAL( clicked() ), this, SLOT( vAttachOrLoadPageNextButtonSelected() ) );
+    connect( vAttachOrLoadPageBackButton, SIGNAL( clicked() ), this, SLOT( vAttachOrLoadPageBackButtonSelected() ) );
+    connect( vAttachOrLoadPageResetButton, SIGNAL( clicked() ), this, SLOT( vAttachOrLoadPageResetButtonSelected() ) );
+    connect( vAttachOrLoadPageNextButton, SIGNAL( clicked() ), this, SLOT( vAttachOrLoadPageNextButtonSelected() ) );
 
     connect( vSummaryPageBackButton, SIGNAL( clicked() ), this, SLOT( vSummaryPageBackButtonSelected() ) );
     connect( vSummaryPageFinishButton, SIGNAL( clicked() ), this, SLOT( vSummaryPageFinishButtonSelected() ) );
@@ -430,6 +454,8 @@ connect( vAttachOrLoadPageNextButton, SIGNAL( clicked() ), this, SLOT( vAttachOr
 
   // This next line makes it all magically appear and resize correctly.
   panelLayout->addWidget(topWidget);
+
+  sv->viewport()->setBackgroundColor(getBaseWidgetFrame()->backgroundColor() );
 }
 
 
@@ -438,14 +464,14 @@ connect( vAttachOrLoadPageNextButton, SIGNAL( clicked() ), this, SLOT( vAttachOr
  */
 IOWizardPanel::~IOWizardPanel()
 {
-  printf("  IOWizardPanel::~IOWizardPanel() destructor called\n");
+  nprintf(DEBUG_CONST_DESTRUCT) ("  IOWizardPanel::~IOWizardPanel() destructor called\n");
 }
 
 //! Add user panel specific menu items if they have any.
 bool
 IOWizardPanel::menu(QPopupMenu* contextMenu)
 {
-  dprintf("IOWizardPanel::menu() requested.\n");
+  nprintf(DEBUG_PANELS) ("IOWizardPanel::menu() requested.\n");
 
   return( FALSE );
 }
@@ -457,7 +483,7 @@ IOWizardPanel::menu(QPopupMenu* contextMenu)
 void 
 IOWizardPanel::save()
 {
-  dprintf("IOWizardPanel::save() requested.\n");
+  nprintf(DEBUG_PANELS) ("IOWizardPanel::save() requested.\n");
 }
 
 //! Save ascii version of this panel (to a file).
@@ -468,14 +494,14 @@ IOWizardPanel::save()
 void 
 IOWizardPanel::saveAs()
 {
-  dprintf("IOWizardPanel::saveAs() requested.\n");
+  nprintf(DEBUG_PANELS) ("IOWizardPanel::saveAs() requested.\n");
 }
 
 //! This function listens for messages.
 int 
 IOWizardPanel::listener(char *msg)
 {
-  dprintf("IOWizardPanel::listener() requested.\n");
+  nprintf(DEBUG_PANELS) ("IOWizardPanel::listener() requested.\n");
   return 0;  // 0 means, did not want this message and did not act on anything.
 }
 
@@ -484,7 +510,7 @@ IOWizardPanel::listener(char *msg)
 int 
 IOWizardPanel::broadcast(char *msg)
 {
-  dprintf("IOWizardPanel::broadcast() requested.\n");
+  nprintf(DEBUG_PANELS) ("IOWizardPanel::broadcast() requested.\n");
   return 0;
 }
 
@@ -493,85 +519,90 @@ void IOWizardPanel::wizardModeSelected()
   QWidget *raisedWidget = IOWizardPanelStack->visibleWidget();
 if( raisedWidget == vDescriptionPageWidget )
 {
-    printf("vDescriptionPageWidget\n");
+    nprintf(DEBUG_PANELS) ("vDescriptionPageWidget\n");
 } else if( raisedWidget ==  vParameterPageWidget )
 {
-    printf("vParameterPageWidget\n");
+    nprintf(DEBUG_PANELS) ("vParameterPageWidget\n");
 } else if( raisedWidget == vSummaryPageWidget )
 {
-    printf("vSummaryPageWidget\n");
+    nprintf(DEBUG_PANELS) ("vSummaryPageWidget\n");
 } else if( raisedWidget  == eDescriptionPageWidget )
 {
-    printf("eDescriptionPageWidget\n");
+    nprintf(DEBUG_PANELS) ("eDescriptionPageWidget\n");
 } else if( raisedWidget == eParameterPageWidget )
 {
-    printf("eParameterPageWidget\n");
+    nprintf(DEBUG_PANELS) ("eParameterPageWidget\n");
 } else if( raisedWidget == eSummaryPageWidget )
 {
-    printf("eSummaryPageWidget\n");
+    nprintf(DEBUG_PANELS) ("eSummaryPageWidget\n");
 }
 
   if( wizardMode->isOn() )
   {
+    vUpdateAttachOrLoadPageWidget();
     if( raisedWidget  == eDescriptionPageWidget )
     {
-        printf("eDescriptionPageWidget\n");
+        nprintf(DEBUG_PANELS) ("eDescriptionPageWidget\n");
         IOWizardPanelStack->raiseWidget(vDescriptionPageWidget);
     } else if( raisedWidget == eParameterPageWidget )
     {
-        printf("eParameterPageWidget\n");
+        nprintf(DEBUG_PANELS) ("eParameterPageWidget\n");
         IOWizardPanelStack->raiseWidget(vParameterPageWidget);
     } else if( raisedWidget == eAttachOrLoadPageWidget )
     {
-        printf("eAttachOrLoadPageWidget\n");
+        nprintf(DEBUG_PANELS) ("eAttachOrLoadPageWidget\n");
         IOWizardPanelStack->raiseWidget(vAttachOrLoadPageWidget);
     } else if( raisedWidget == eSummaryPageWidget )
     {
-        printf("eSummaryPageWidget\n");
+        nprintf(DEBUG_PANELS) ("eSummaryPageWidget\n");
         IOWizardPanelStack->raiseWidget(vSummaryPageWidget);
     } else
     {
-        printf("Verbose to Expert: unknown WStackPage\n");
+        nprintf(DEBUG_PANELS) ("Verbose to Expert: unknown WStackPage\n");
     }
   } else
   {
+    eUpdateAttachOrLoadPageWidget();
     if( raisedWidget == vDescriptionPageWidget )
     {
-        printf("vDescriptionPageWidget\n");
+        nprintf(DEBUG_PANELS) ("vDescriptionPageWidget\n");
         IOWizardPanelStack->raiseWidget(eDescriptionPageWidget);
     } else if( raisedWidget ==  vParameterPageWidget )
     {
-        printf("vParameterPageWidget\n");
+        nprintf(DEBUG_PANELS) ("vParameterPageWidget\n");
         IOWizardPanelStack->raiseWidget(eParameterPageWidget);
     } else if( raisedWidget ==  vAttachOrLoadPageWidget )
     {
-        printf("vAttachOrLoadPageWidget\n");
+        nprintf(DEBUG_PANELS) ("vAttachOrLoadPageWidget\n");
         IOWizardPanelStack->raiseWidget(eAttachOrLoadPageWidget);
     } else if( raisedWidget == vSummaryPageWidget )
     {
-        printf("vSummaryPageWidget\n");
+        nprintf(DEBUG_PANELS) ("vSummaryPageWidget\n");
         IOWizardPanelStack->raiseWidget(eSummaryPageWidget);
     } else
     {
-        printf("Expert to Verbose: unknown WStackPage\n");
+        nprintf(DEBUG_PANELS) ("Expert to Verbose: unknown WStackPage\n");
     }
   }
+
+  // Before we swith reposition to top...
+  sv->verticalScrollBar()->setValue(0);
+  sv->horizontalScrollBar()->setValue(0);
+
+  handleSizeEvent(NULL);  
+
 }
 
-
-void IOWizardPanel::eHideWizardCheckBoxSelected()
-{
-}
 
 void IOWizardPanel::eDescriptionPageNextButtonSelected()
 {
-printf("eDescriptionPageNextButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("eDescriptionPageNextButtonSelected() \n");
     IOWizardPanelStack->raiseWidget(eParameterPageWidget);
 }
 
 void IOWizardPanel::eDescriptionPageStartButtonSelected()
 {
-printf("eDescriptionPageStartButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("eDescriptionPageStartButtonSelected() \n");
     Panel *p = getPanelContainer()->raiseNamedPanel("&Intro Wizard");
     if( !p )
     {
@@ -581,51 +612,68 @@ printf("eDescriptionPageStartButtonSelected() \n");
 
 void IOWizardPanel::eParameterPageBackButtonSelected()
 {
-printf("eParameterPageBackButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("eParameterPageBackButtonSelected() \n");
     IOWizardPanelStack->raiseWidget(eDescriptionPageWidget);
 }
 
 void IOWizardPanel::eParameterPageNextButtonSelected()
 {
-printf("eParameterPageNextButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("eParameterPageNextButtonSelected() \n");
+  sampleRate = eParameterPageSampleRateText->text();
 
-    IOWizardPanelStack->raiseWidget(eAttachOrLoadPageWidget);
+  eUpdateAttachOrLoadPageWidget();
+
+  IOWizardPanelStack->raiseWidget(eAttachOrLoadPageWidget);
 }
 
 void IOWizardPanel::eParameterPageResetButtonSelected()
 {
-printf("eParameterPageResetButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("eParameterPageResetButtonSelected() \n");
 }
 
 void IOWizardPanel::eSummaryPageBackButtonSelected()
 {
-printf("eSummaryPageBackButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("eSummaryPageBackButtonSelected() \n");
     IOWizardPanelStack->raiseWidget(eAttachOrLoadPageWidget);
 }
 
 void IOWizardPanel::eSummaryPageFinishButtonSelected()
 {
-printf("eSummaryPageFinishButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("eSummaryPageFinishButtonSelected() \n");
 
-  {
-    getPanelContainer()->getMasterPC()->dl_create_and_add_panel("IO", getPanelContainer());
-  }
+  vSummaryPageFinishButtonSelected();
 }
 
 // Begin advanced (expert) AttachOrLoad callbacks
 void IOWizardPanel::eAttachOrLoadPageBackButtonSelected()
 {
-printf("eAttachOrLoadPageBackButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("eAttachOrLoadPageBackButtonSelected() \n");
     IOWizardPanelStack->raiseWidget(eParameterPageWidget);
 }
 
+void IOWizardPanel::eAttachOrLoadPageResetButtonSelected()
+{
+  nprintf(DEBUG_PANELS) ("eAttachOrLoadPageResetButtonSelected() \n");
+  if( getPanelContainer()->getMainWindow() )
+  { 
+    OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
+    if( mw )
+    {
+      mw->executableName = QString::null;
+      mw->pidStr = QString::null;
+    }
+  }
+  eUpdateAttachOrLoadPageWidget();
+}
+
+
 void IOWizardPanel::eAttachOrLoadPageNextButtonSelected()
 {
-printf("eAttachOrLoadPageNextButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("eAttachOrLoadPageNextButtonSelected() \n");
 
 char buffer[2048];
   if( !eAttachOrLoadPageAttachToProcessCheckBox->isChecked() &&
-      !eAttachOrLoadPageLoadProcessCheckBox->isChecked() )
+      !eAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
   {
     QString msg = QString("You must either select the option to attach to an \nexisting process or load an executable.  Please select one.\n");
     QMessageBox::information( (QWidget *)this, "Process or executable needed...",
@@ -633,53 +681,64 @@ char buffer[2048];
     
     return;
   }
+  if( eAttachOrLoadPageAttachToProcessCheckBox->isChecked() &&
+      eAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
+  {
+    QString msg = QString("From this wizard you can only select to either attach or load.  Please select only one.\n");
+    QMessageBox::information( (QWidget *)this, "Process or executable needed...",
+                               msg, QMessageBox::Ok );
+    
+    return;
+  }
+
+  OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
+  if( !mw )
+  {
+    return;
+  } 
   
   if( eAttachOrLoadPageAttachToProcessCheckBox->isChecked() )
   {
-    QString result;
-     AttachProcessDialog *dialog = new AttachProcessDialog(this, "AttachProcessDialog", TRUE);
-    if( dialog->exec() == QDialog::Accepted )
+    if( mw->pidStr.isEmpty() )
     {
-      result = dialog->selectedProcesses();
-sprintf(buffer, "<p align=\"left\">Requesting to load process \"%s\" on host \"%s\",  sampling at \"%s\" milliseconds.<br><br></p>", result.ascii(), "localhost", vParameterPageSampleRateText->text().ascii() );
+      mw->attachNewProcess();
+      if( mw->pidStr.isEmpty() )
+      {
+        return;
+      }
+      sprintf(buffer, "<p align=\"left\">Requesting to load process \"%s\" on host \"%s\",  sampling at \"%s\" milliseconds.<br><br></p>", mw->pidStr.ascii(), "localhost", eParameterPageSampleRateText->text().ascii() );
     }
-    delete dialog;
-  
-    printf("result.acsii()=(%s)\n", result.ascii() );
   }
-  if( eAttachOrLoadPageLoadProcessCheckBox->isChecked() )
+  if( eAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
   {
-    printf("Load the QFile \n");
-    QString fn = QFileDialog::getOpenFileName( QString::null, QString::null,
-                             this);
-    if( !fn.isEmpty() )
+    if( mw->executableName.isEmpty() )
     {
-      printf("fn.ascii()=(%s)\n", fn.ascii() );
-sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", sampling at \"%s\" milliseconds.<br><br></p>", fn.ascii(), "localhost", eParameterPageSampleRateText->text().ascii() );
+      nprintf(DEBUG_PANELS) ("Load the QFile \n");
+      mw->fileLoadNewProgram();
     }
+    if( mw->executableName.isEmpty() )
+    {
+      return;
+    }
+    sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", sampling at \"%s\" milliseconds.<br><br></p>", mw->executableName.ascii(), "localhost", eParameterPageSampleRateText->text().ascii() );
   }
 
   eSummaryPageFinishLabel->setText( tr( buffer ) );
 
-    IOWizardPanelStack->raiseWidget(eSummaryPageWidget);
+  IOWizardPanelStack->raiseWidget(eSummaryPageWidget);
 }
 // End  advanced (expert) AttachOrLoad callbacks
 
-void IOWizardPanel::vHideWizardCheckBoxSelected()
-{
-printf("vHideWizardCheckBoxSelected() \n");
-}
-
 void IOWizardPanel::vDescriptionPageNextButtonSelected()
 {
-printf("vDescriptionPageNextButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("vDescriptionPageNextButtonSelected() \n");
 
     IOWizardPanelStack->raiseWidget(vParameterPageWidget);
 }
 
 void IOWizardPanel::vDescriptionPageStartButtonSelected()
 {
-printf("vDescriptionPageStartButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("vDescriptionPageStartButtonSelected() \n");
     Panel *p = getPanelContainer()->raiseNamedPanel("&Intro Wizard");
     if( !p )
     {
@@ -689,45 +748,64 @@ printf("vDescriptionPageStartButtonSelected() \n");
 
 void IOWizardPanel::vParameterPageSampleRateTextReturnPressed()
 {
-printf("vParameterPageSampleRateTextReturnPressed() \n");
+nprintf(DEBUG_PANELS) ("vParameterPageSampleRateTextReturnPressed() \n");
 }
 
 void IOWizardPanel::eParameterPageSampleRateTextReturnPressed()
 {
-printf("eParameterPageSampleRateTextReturnPressed() \n");
+nprintf(DEBUG_PANELS) ("eParameterPageSampleRateTextReturnPressed() \n");
 }
 
 void IOWizardPanel::vParameterPageBackButtonSelected()
 {
-printf("vParameterPageBackButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("vParameterPageBackButtonSelected() \n");
     IOWizardPanelStack->raiseWidget(vDescriptionPageWidget);
 }
 
 void IOWizardPanel::vParameterPageNextButtonSelected()
 {
-printf("vParameterPageNextButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("vParameterPageNextButtonSelected() \n");
+  sampleRate = vParameterPageSampleRateText->text();
 
-    IOWizardPanelStack->raiseWidget(vAttachOrLoadPageWidget);
+  vUpdateAttachOrLoadPageWidget();
+
+  IOWizardPanelStack->raiseWidget(vAttachOrLoadPageWidget);
 }
 
 void IOWizardPanel::vParameterPageResetButtonSelected()
 {
-printf("vParameterPageResetButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("vParameterPageResetButtonSelected() \n");
 }
 
 void IOWizardPanel::vAttachOrLoadPageBackButtonSelected()
 {
-printf("vAttachOrLoadPageBackButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("vAttachOrLoadPageBackButtonSelected() \n");
     IOWizardPanelStack->raiseWidget(vParameterPageWidget);
+}
+
+void IOWizardPanel::vAttachOrLoadPageResetButtonSelected()
+{
+  nprintf(DEBUG_PANELS) ("vAttachOrLoadPageResetButtonSelected() \n");
+printf ("vAttachOrLoadPageResetButtonSelected() \n");
+  if( getPanelContainer()->getMainWindow() )
+  { 
+    OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
+    if( mw )
+    {
+      mw->executableName = QString::null;
+      mw->pidStr = QString::null;
+    }
+  }
+  vUpdateAttachOrLoadPageWidget();
 }
 
 void IOWizardPanel::vAttachOrLoadPageNextButtonSelected()
 {
-printf("vAttachOrLoadPageNextButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("vAttachOrLoadPageNextButtonSelected() \n");
 
 char buffer[2048];
   if( !vAttachOrLoadPageAttachToProcessCheckBox->isChecked() &&
-      !vAttachOrLoadPageLoadProcessCheckBox->isChecked() )
+      !vAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
   {
     QString msg = QString("You must either select the option to attach to an \nexisting process or load an executable.  Please select one.\n");
     QMessageBox::information( (QWidget *)this, "Process or executable needed...",
@@ -735,30 +813,45 @@ char buffer[2048];
     
     return;
   }
-  
-  if( vAttachOrLoadPageAttachToProcessCheckBox->isChecked() )
+  if( vAttachOrLoadPageAttachToProcessCheckBox->isChecked() &&
+      vAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
   {
-    QString result;
-     AttachProcessDialog *dialog = new AttachProcessDialog(this, "AttachProcessDialog", TRUE);
-    if( dialog->exec() == QDialog::Accepted )
-    {
-      result = dialog->selectedProcesses();
-sprintf(buffer, "<p align=\"left\">You've selected a IO Wizard experiment for process \"%s\" running on host \"%s\".  Futher you've chosed a sample rate of \"%s\" milliseconds.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"IOWizard\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", result.ascii(), "localhost", vParameterPageSampleRateText->text().ascii() );
-    }
-    delete dialog;
-  
-    printf("result.acsii()=(%s)\n", result.ascii() );
+    QString msg = QString("From this wizard you can only select to either attach or load.  Please select only one.\n");
+    QMessageBox::information( (QWidget *)this, "Process or executable needed...",
+                               msg, QMessageBox::Ok );
+    
+    return;
   }
-  if( vAttachOrLoadPageLoadProcessCheckBox->isChecked() )
+  OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
+  if( !mw )
   {
-    printf("Load the QFile \n");
-    QString fn = QFileDialog::getOpenFileName( QString::null, QString::null,
-                             this);
-    if( !fn.isEmpty() )
+    return;
+  } 
+
+  if( vAttachOrLoadPageAttachToProcessCheckBox->isChecked() )
+  { 
+    if( mw->pidStr.isEmpty() )
     {
-      printf("fn.ascii()=(%s)\n", fn.ascii() );
-sprintf(buffer, "<p align=\"left\">You've selected a IO Wizard experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%s\" milliseconds.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"IOWizard\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", fn.ascii(), "localhost", vParameterPageSampleRateText->text().ascii() );
+      mw->attachNewProcess();
     }
+    if( mw->pidStr.isEmpty() )
+    {
+      return;
+    }
+    sprintf(buffer, "<p align=\"left\">You've selected a IO experiment for process \"%s\" running on host \"%s\".  Futher you've chosed a sample rate of \"%s\" milliseconds.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"IO\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->pidStr.ascii(), "localhost", vParameterPageSampleRateText->text().ascii() );
+  }
+  if( vAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
+  {
+    if( mw->executableName.isEmpty() )
+    {
+      nprintf(DEBUG_PANELS) ("Load the QFile \n");
+      mw->loadNewProgram();
+    }
+    if( mw->executableName.isEmpty() )
+    {
+      return;
+    }
+    sprintf(buffer, "<p align=\"left\">You've selected a IO experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%s\" milliseconds.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"IO\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), "localhost", vParameterPageSampleRateText->text().ascii() );
   }
 
   vSummaryPageFinishLabel->setText( tr( buffer ) );
@@ -771,16 +864,35 @@ sprintf(buffer, "<p align=\"left\">You've selected a IO Wizard experiment for ex
 
 void IOWizardPanel::vSummaryPageBackButtonSelected()
 {
-printf("vSummaryPageBackButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("vSummaryPageBackButtonSelected() \n");
     IOWizardPanelStack->raiseWidget(vAttachOrLoadPageWidget);
 }
 
 void IOWizardPanel::vSummaryPageFinishButtonSelected()
 {
-printf("vSummaryPageFinishButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("vSummaryPageFinishButtonSelected() \n");
 
-  {
-    getPanelContainer()->getMasterPC()->dl_create_and_add_panel("IO", getPanelContainer());
+  Panel *p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("IO", getPanelContainer());
+
+  if( getPanelContainer()->getMainWindow() )
+  { 
+    OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
+//    printf("mw=0x%x\n", mw );
+    if( mw )
+    {
+      LoadAttachObject *lao = NULL;
+      if( !mw->executableName.isEmpty() )
+      {
+        lao = new LoadAttachObject(mw->executableName, (char *)NULL, sampleRate, TRUE);
+      } else if( !mw->pidStr.isEmpty() )
+      {
+        lao = new LoadAttachObject((char *)NULL, mw->pidStr, sampleRate, TRUE);
+      } else
+      {
+        printf("Warning: No attach or load paramaters available.\n");
+      }
+      p->listener((void *)lao);
+    }
   }
 }
 
@@ -791,30 +903,28 @@ printf("vSummaryPageFinishButtonSelected() \n");
 void
 IOWizardPanel::languageChange()
 {
-    setCaption( tr( "IOWizard Wizard Panel" ) );
+    setCaption( tr( "IO Wizard Panel" ) );
     vDescriptionPageTitleLabel->setText( tr( "<h1>IO Wizard</h1>" ) );
-    vDescriptionPageText->setText( tr( "The IO experiment estimates the actual CPU time for each source code line, machine code line, and function in your program. The report listing of this experiment shows exclusive PC sampling time. This experiment is a lightweight, high-speed operation that makes use of the operating system.\n"
+    vDescriptionPageText->setText( tr( "The IO experiment estimates the actual CPU time for each source code line, machine code line, and function in your program. The report listing of this experiment shows exclusive IO time. This experiment is a lightweight, high-speed operation that makes use of the operating system.\n"
 "\n"
 "CPU time is calculated by multiplying the number of times an instruction or function appears in the PC by the interval specified for the experiment (either 1 or 10 milliseconds).\n"
 "\n"
 "To collect the data, the operating system regularly stops the process, increments a counter corresponding to the current value of the PC, and resumes the process. The default sample interval is 10 millisecond.\n"
 "\n"
-"PC sampling runs should slow the execution time of the program down no more than 5 percent. The measurements are statistical in nature, meaning they exhibit variance inversely proportional to the running time." ) );
-    vHideWizardCheckBox->setText( tr( "Hide IO Wizard next time IO Experiment is selected.\n"
-"(Note: You can change this back by going to the IO Wizard local menu.)" ) );
+"IO runs should slow the execution time of the program down no more than 5 percent. The measurements are statistical in nature, meaning they exhibit variance inversely proportional to the running time." ) );
     vDescriptionPageStartButton->setText( tr( "<< Start" ) );
     QToolTip::add( vDescriptionPageStartButton, tr( "Takes you back to the Intro Wizard so you can make a different selection." ) );
     vDescriptionPageNextButton->setText( tr( "> Next" ) );
     QToolTip::add( vDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
     vParameterPageDescriptionLabel->setText( tr( "The following options (paramaters) are available to adjust.   These are the options the collector has exported.<br><br>\n"
-"The smaller the number used for the sampling rate, the more\n"
-"IO Experiment detail will be show.   However, the trade off will be slower\n"
+"The smaller the number used for the sample rate, the more\n"
+"IO detail will be show.   However, the trade off will be slower\n"
 "performance and a larger data file.<br><br>\n"
 "It may take a little expermenting to find the right setting for your \n"
 "particular executable.   We suggest starting with the default setting\n"
 "of 10." ) );
     vParameterPageSampleRateHeaderLabel->setText( tr( "You can set the following option(s):" ) );
-    vParameterPageSampleRateLabel->setText( tr( "IO Wizard rate:" ) );
+    vParameterPageSampleRateLabel->setText( tr( "IO rate:" ) );
     vParameterPageSampleRateText->setText( tr( "10" ) );
     QToolTip::add( vParameterPageSampleRateText, tr( "The rate to sample.   (Default 10 milliseconds.)" ) );
     vParameterPageBackButton->setText( tr( "< Back" ) );
@@ -826,32 +936,32 @@ IOWizardPanel::languageChange()
 
     vAttachOrLoadPageDescriptionLabel->setText( tr( "We can attach to an existing process (or processes) or load an executable from disk (or both).  Please select the required actions.<br><br>Note: A dialog will be posted prompting for the information.</p>") );
     vAttachOrLoadPageAttachToProcessCheckBox->setText( tr( "Attach to one or more processes." ) );
-    vAttachOrLoadPageLoadProcessCheckBox->setText( tr( "Load an executable from disk." ) );
+    vAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load an executable from disk." ) );
     vAttachOrLoadPageBackButton->setText( tr( "< Back" ) );
     QToolTip::add( vAttachOrLoadPageBackButton, tr( "Takes you back one page." ) );
+vAttachOrLoadPageResetButton->setText( tr( "Reset" ) );
+QToolTip::add( vAttachOrLoadPageResetButton, tr( "This clears all settings restoring them to system defaults." ) );
     vAttachOrLoadPageNextButton->setText( tr( "> Next" ) );
     QToolTip::add( vAttachOrLoadPageNextButton, tr( "Advance to the next wizard page." ) );
     vSummaryPageFinishLabel->setText( tr( "<p align=\"left\">\n"
-"You've selected a IO Wizard experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%d\" milliseconds.<br><br>To complete the exeriment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"IOWizard\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>" ) );
+"You've selected a IO experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%d\" milliseconds.<br><br>To complete the exeriment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"IO\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>" ) );
     vSummaryPageBackButton->setText( tr( "< Back" ) );
     QToolTip::add( vSummaryPageBackButton, tr( "Takes you back one page." ) );
     vSummaryPageFinishButton->setText( tr( "Finish..." ) );
-    QToolTip::add( vSummaryPageFinishButton, tr( "Finishes loading the wizard information and brings up a \"IOWizard\" panel" ) );
+    QToolTip::add( vSummaryPageFinishButton, tr( "Finishes loading the wizard information and brings up a \"IO\" panel" ) );
     eDescriptionPageTitleLabel->setText( tr( "<h1>IO Wizard</h1>" ) );
     eDescriptionPageText->setText( tr( "<p align=\"center\"><p align=\"left\">\n"
-"THe IO Experiment reveals the amount of execution time \n"
+"Program counter (IO) reveals the amount of execution time \n"
 "spent in various parts of a program. The count includes:  <br>\n"
 " * CPU time and memory access time <br>\n"
 " * Time spent in user routines<br><br>\n"
-"The IO Experiment does not count time spent swapping or time spent accessing external resources.</p></p>" ) );
-    eHideWizardCheckBox->setText( tr( "Hide IO Wizard next time IO Experiment is selected.\n"
-"(Note: You can change this back by going to the IO Wizard local menu.)" ) );
+"The IO does not count time spent swapping or time spent accessing external resources.</p></p>" ) );
     eDescriptionPageStartButton->setText( tr( "<< Start" ) );
     eDescriptionPageNextButton->setText( tr( "> Next" ) );
     QToolTip::add( eDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
     eParameterPageDescriptionLabel->setText( tr( "The following options (paramaters) are available to adjust.     <br>These are the options the collector has exported." ) );
     eParameterPageSampleRateHeaderLabel->setText( tr( "You can set the following option(s):" ) );
-    eParameterPageSampleRateLabel->setText( tr( "IO Wizard rate:" ) );
+    eParameterPageSampleRateLabel->setText( tr( "IO rate:" ) );
     eParameterPageSampleRateText->setText( tr( "10" ) );
     QToolTip::add( eParameterPageSampleRateText, tr( "The rate to sample.   (Default 10 milliseconds.)" ) );
     eParameterPageBackButton->setText( tr( "< Back" ) );
@@ -862,18 +972,121 @@ IOWizardPanel::languageChange()
     QToolTip::add( eParameterPageNextButton, tr( "Advance to the next wizard page." ) );
     eAttachOrLoadPageDescriptionLabel->setText( tr( "Select one of the following:" ) );
     eAttachOrLoadPageAttachToProcessCheckBox->setText( tr( "Attach to one or more processes." ) );
-    eAttachOrLoadPageLoadProcessCheckBox->setText( tr( "Load an executable from disk." ) );
+    eAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load an executable from disk." ) );
     eAttachOrLoadPageBackButton->setText( tr( "< Back" ) );
     QToolTip::add( eAttachOrLoadPageBackButton, tr( "Takes you back one page." ) );
+eAttachOrLoadPageResetButton->setText( tr( "Reset" ) );
+QToolTip::add( eAttachOrLoadPageResetButton, tr( "This clears all settings restoring them to system defaults." ) );
     eAttachOrLoadPageNextButton->setText( tr( "> Next" ) );
     QToolTip::add( eAttachOrLoadPageNextButton, tr( "Advance to the next wizard page." ) );
 
     eSummaryPageFinishLabel->setText( tr( "<p align=\"left\">\n"
-"You've selected a IO Wizard experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%d\" milliseconds.<br><br></p>" ) );
+"You've selected a IO experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%d\" milliseconds.<br><br></p>" ) );
     eSummaryPageBackButton->setText( tr( "< Back" ) );
     QToolTip::add( eSummaryPageBackButton, tr( "Takes you back one page." ) );
     eSummaryPageFinishButton->setText( tr( "Finish..." ) );
-    QToolTip::add( eSummaryPageFinishButton, tr( "Finishes loading the wizard information and brings up a \"IOWizard\" panel" ) );
+    QToolTip::add( eSummaryPageFinishButton, tr( "Finishes loading the wizard information and brings up a \"IO\" panel" ) );
     wizardMode->setText( tr( "Verbose Wizard Mode" ) );
     broughtToYouByLabel->setText( tr( "Brought to you by SGI (SiliconGraphics)" ) );
 }
+
+void
+IOWizardPanel::eUpdateAttachOrLoadPageWidget()
+{
+  vAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
+  vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+  eAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
+  eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+  vAttachOrLoadPageProcessListLabel->hide();
+  eAttachOrLoadPageProcessListLabel->hide();
+  vAttachOrLoadPageExecutableLabel->hide();
+  eAttachOrLoadPageExecutableLabel->hide();
+  if( getPanelContainer()->getMainWindow() )
+  { 
+    OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
+//    printf("mw=0x%x\n", mw );
+    if( mw )
+    {
+      if( !mw->executableName.isEmpty() )
+      {
+        eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+        eAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
+        eAttachOrLoadPageExecutableLabel->setText( mw->executableName );
+      } else if( !mw->pidStr.isEmpty() )
+      {
+        eAttachOrLoadPageProcessListLabel->setText( mw->pidStr );
+        eAttachOrLoadPageAttachToProcessCheckBox->setChecked(TRUE);
+        eAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
+      }
+      if( mw->executableName.isEmpty() )
+      {
+        vAttachOrLoadPageExecutableLabel->setText( "" );
+      }
+      if( mw->pidStr.isEmpty() )
+      {
+        vAttachOrLoadPageProcessListLabel->setText( mw->pidStr );
+      }
+    }
+  } 
+}
+
+void
+IOWizardPanel::vUpdateAttachOrLoadPageWidget()
+{
+  vAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
+  vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+  eAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
+  eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+  vAttachOrLoadPageProcessListLabel->hide();
+  eAttachOrLoadPageProcessListLabel->hide();
+  vAttachOrLoadPageExecutableLabel->hide();
+  eAttachOrLoadPageExecutableLabel->hide();
+  if( getPanelContainer()->getMainWindow() )
+  {
+    OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
+//    printf("mw=0x%x\n", mw );
+    if( mw )
+    {
+      if( !mw->executableName.isEmpty() )
+      {
+        vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+        vAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
+        vAttachOrLoadPageExecutableLabel->setText( mw->executableName );
+        vAttachOrLoadPageExecutableLabel->show();
+        eAttachOrLoadPageExecutableLabel->show();
+      } else if( !mw->pidStr.isEmpty() )
+      {
+        vAttachOrLoadPageAttachToProcessCheckBox->setChecked(TRUE);
+        vAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
+        vAttachOrLoadPageProcessListLabel->setText( mw->pidStr );
+        vAttachOrLoadPageProcessListLabel->show();
+        eAttachOrLoadPageProcessListLabel->show();
+      }
+    }
+    if( mw->executableName.isEmpty() )
+    {
+      vAttachOrLoadPageExecutableLabel->setText( "" );
+    }
+    if( mw->pidStr.isEmpty() )
+    {
+      vAttachOrLoadPageProcessListLabel->setText( mw->pidStr );
+    }
+  }
+}
+
+void
+IOWizardPanel::handleSizeEvent( QResizeEvent *e )
+{
+
+  int width=100;
+  int height=100;
+
+
+
+  width=getBaseWidgetFrame()->width();
+  height=getBaseWidgetFrame()->height();
+
+
+  sv->resize(width, height);
+}
+
