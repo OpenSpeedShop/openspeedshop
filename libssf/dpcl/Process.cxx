@@ -269,8 +269,6 @@ Process::Process(const std::string& host, const std::string& command) :
  *
  * Attaches to an existing process. The process is assumed to be in the running
  * state.
- *
- * @todo    Throw std::runtime_error() if process doesn't exist.
  * 
  * @todo    Explore using asynchronous connect/attach.
  *
