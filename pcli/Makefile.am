@@ -46,6 +46,11 @@ YFLAGS = -d
 LFILES = test.l
 YFILES = test.y
 
+CLEANFILES = \
+    	lex.yy.cxx \
+	y.tab.cxx \
+	y.tab.h
+
 test_SOURCES = \
 	$(LFILES) $(YFILES)
 	
