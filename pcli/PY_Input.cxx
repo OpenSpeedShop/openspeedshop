@@ -13,9 +13,6 @@ using namespace OpenSpeedShop::Framework;
 extern FILE *yyin;
 extern int yyparse (void);
 
-void  SpeedShop_Trace_ON (char *tofile);
-void  SpeedShop_Trace_OFF(void);
-
 static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     char *input_line = NULL;
     PyObject *p_object;
@@ -68,6 +65,19 @@ static PyObject *SS_ReadLine (PyObject *self, PyObject *args) {
   return Py_BuildValue("s", sbuf);
 }
 
+static PyObject *SS_expFocus (PyObject *self, PyObject *args) {
+  EXPID exp = 0;
+  char *arg0 = NULL;
+  if ((args == NULL) || (!(PyArg_ParseTuple(args, "s", &arg0)) || (arg0 == NULL))) {
+    exp = Experiment_Focus ( 0 );
+  } else {
+    if (!PyArg_ParseTuple(args, "L", &exp)) {
+      exp = Experiment_Focus ( 0, exp);
+    }
+  }
+  return Py_BuildValue("L", exp);
+}
+
 static PyObject *SS_Record (PyObject *self, PyObject *args) {
   char *tofile = NULL;
   if (!PyArg_ParseTuple(args, "s", &tofile)) {
@@ -85,6 +95,9 @@ static PyMethodDef PY_Input_Methods[] = {
 	
     {"ReadLine",  SS_ReadLine, METH_VARARGS,
      "Read a SpeedShop command."},
+
+    {"expFocus",  SS_expFocus, METH_VARARGS,
+     "Set the focused experiment."},
 
     {"record",  SS_Record, METH_VARARGS,
      "Control Command tracing."},
