@@ -54,6 +54,7 @@ posscli_la_SOURCES = \
 	Commander.cxx \
 	CommandObject.cxx \
 	SS_Cmd_Execution.cxx \
+	SS_Parse_Result.cxx \
 	Experiment.cxx \
 	support.cxx \
 	help.cxx \
