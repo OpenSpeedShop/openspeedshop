@@ -29,6 +29,7 @@
 #include <qlistview.h>
 #include "PluginInfo.hxx"
 
+
 #include "preferencesdialog.hxx"
 
 #include <qapplication.h>
@@ -43,8 +44,8 @@ extern QApplication *qapplication;
 #include "SelectExperimentDialog.hxx"
 
 /*! Here are the needed globals for this application... */
-#include "PanelContainer.hxx"
 #include "openspeedshop.hxx"
+#include "DebugPanel.hxx"
 
 #include "LoadAttachObject.hxx"
 
@@ -482,6 +483,26 @@ AppEventFilter::eventFilter( QObject *obj, QEvent *e )
       }
       break;
   } 
+
+  // Begin For catching the debug key sequence.
+  if( e->type() == QEvent::KeyPress )
+  {
+    QKeyEvent *key_event = (QKeyEvent *)e;
+    if( key_event->state() ==
+        (Qt::ControlButton + Qt::ShiftButton + Qt::AltButton) )
+    {
+      if( key_event->key() == Qt::Key_D )
+      {
+        if( masterPC != NULL )
+        {
+          PanelContainer *bestFitPC = masterPC->findBestFitPanelContainer(masterPC);
+          DebugPanel *debugPanel = new DebugPanel(bestFitPC, "Debug Panel", NULL);
+          bestFitPC->addPanel((Panel *)debugPanel, bestFitPC, "Debug Panel");
+        }
+      }
+    }
+  }
+  // End - For catching the debug key sequence.
 
   if( masterPC->_eventsEnabled == TRUE )
   {

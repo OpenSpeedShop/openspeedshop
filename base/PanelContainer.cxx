@@ -3210,7 +3210,7 @@ PanelContainer::augmentTab( QWidget *targetWidget, Panel *p, QIconSet *iconset )
   int index_of = tabWidget->indexOf( targetWidget );
   tabWidget->setCurrentPage(index_of);
   QWidget *cp = tabWidget->currentPage();
-  if( p && p->pluginInfo->plugin_short_description )
+  if( p && p->pluginInfo && p->pluginInfo->plugin_short_description )
   {
     tabWidget->setTabToolTip( cp, tr(p->pluginInfo->plugin_short_description));
   } else

@@ -66,6 +66,8 @@ Panel::Panel(PanelContainer *pc, const char *n) : QWidget(pc, n)
 {
   nprintf(DEBUG_PANELS) ("Panel::Panel(...) entered.\n");
 
+  pluginInfo = NULL;
+
   groupID = 0;
 
   topLevel = FALSE;   // 99.9 % of the time this is FALSE
@@ -97,12 +99,12 @@ Panel::Panel(PanelContainer *pc, const char *n) : QWidget(pc, n)
   baseWidgetFrame->resize(width,height);
 
 
-if( getPanelContainer()->getMasterPC()->sleepTimer )
-{
-}
-  getPanelContainer()->getMasterPC()->sleepTimer = NULL;
-  getPanelContainer()->getMasterPC()->popupTimer = NULL;
-}
+  if( getPanelContainer()->getMasterPC()->sleepTimer )
+  {
+  }
+    getPanelContainer()->getMasterPC()->sleepTimer = NULL;
+    getPanelContainer()->getMasterPC()->popupTimer = NULL;
+  }
 
 /*!  Constructs a new Panel object.   (unused)
  */
