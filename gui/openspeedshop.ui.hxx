@@ -254,12 +254,20 @@ void OpenSpeedshop::helpIndex()
 void OpenSpeedshop::helpContents()
 {
 // printf("helpContents() entered.\n");
+ char *plugin_directory = NULL;
+  
+ plugin_directory = getenv("OPENSPEEDSHOP_DOC_DIR");
+ if( plugin_directory )
+ {
+   assistant->showPage( QString("%1/index.html").arg(plugin_directory) );
 
- char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
+   return;
+ }
+ plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
 
  QString base_dir(plugin_directory);
  QString relative_dir("/../../../OpenSpeedShop/current/doc");
- 
+
  QString docsPath = QDir(base_dir+relative_dir).absPath();
  assistant->showPage( QString("%1/index.html").arg(docsPath) );
 }
