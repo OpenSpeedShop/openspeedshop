@@ -2259,14 +2259,24 @@ The File menu contains the menu items shown below:<br>
     <br>
     <h5><a class="mozTocH5" name="mozTocId629620"></a><a
  name="Open_Experiment"></a>Open Experiment</h5>
+TBD<br>
+    <br>
     <h5><a class="mozTocH5" name="mozTocId499924"></a><a
  name="Open_Saved_Experiment"></a>Open Saved Experiment</h5>
+TBD<br>
+    <br>
     <h5><a class="mozTocH5" name="mozTocId354538"></a><a
  name="Save_Experiment_Data"></a>Save Experiment Data</h5>
+TBD<br>
+    <br>
     <h5><a class="mozTocH5" name="mozTocId888583"></a><a
  name="Export_Experiment_Data"></a>Export Experiment Data</h5>
+TBD<br>
+    <br>
     <h5><a class="mozTocH5" name="mozTocId275115"></a><a
  name="Save_Window_Setup"></a>Save Window Setup</h5>
+TBD<br>
+    <br>
     <h5><a class="mozTocH5" name="mozTocId980821"></a><a
  name="Preferences_Menu_Item"></a>Preferences Menu Item <br>
     </h5>
@@ -2303,8 +2313,18 @@ on the corresponding menu items.<br>
   <blockquote>
     <h5><a class="mozTocH5" name="mozTocId445188"></a><a
  name="Command_Panel"></a>Command Panel</h5>
+The command panel is the panel that supports input of the same set of
+interactive command line interface (CLI) commands.&nbsp; These are the
+commands that that may be entered when the Open/SpeedShop tool is
+invoked via "openss -gui".&nbsp;&nbsp; See the <a
+ href="../cli_doc/command_definition.html">CLI command section</a> for
+more information.<br>
+    <br>
     <h5><a class="mozTocH5" name="mozTocId497209"></a>Source Panel</h5>
+TBD<br>
+    <br>
     <h5><a class="mozTocH5" name="mozTocId598585"></a>Top Panel</h5>
+TBD<br>
     <br>
     <h4><a class="mozTocH4" name="mozTocId129835"></a><a
  name="Experiments_Menu"></a>Experiments Menu</h4>
@@ -2703,9 +2723,46 @@ initial window will look like this:<br>
 openss&gt;&gt;</p>
 At this point, user's may enter one of the commands described
 in
-Appendix A: Command Syntax.&nbsp; These commands are primarily related
+    <a href="#mozTocId10491">Appendix A: Command Syntax</a>.&nbsp;
+These commands are primarily related
 to creating, running, and monitoring performance experiments.&nbsp;
-There are also information commands which give machine information.</blockquote>
+There are also information commands which give machine
+information.&nbsp;&nbsp; An typical usage example of a, Milestone 3
+development phase, PC Sampling Experiment follows:<br>
+[prompt] :<span style="font-weight: bold;"> openss -cli</span><br>
+# The first user command is to create an experiment.&nbsp; In this
+example<br>
+# it is a PC Sampling experiment (pcsamp) and it will be run on the<br>
+# mutatee executable.&nbsp; <br>
+openss&gt;&gt;<span style="font-weight: bold;">expcreate -f
+/home/openss/demo/Simple/mutatee pcsamp</span><br>
+# Below a "1" is returned to indicate the experiment number<br>
+openss&gt;&gt;&nbsp;&nbsp; 1<br>
+# The next user command is "expGo" which runs the experiment<br>
+openss&gt;&gt;<span style="font-weight: bold;">expGo</span><br>
+openss&gt;&gt;<br>
+# The next three lines are output from the executable's execution<br>
+Usage: /home/openss/demo/Simple/mutatee &lt;size&gt;<br>
+No size argument given.&nbsp;&nbsp; Defaulting to 250.<br>
+/home/openss/demo/Simple/mutatee: succesfully competed.<br>
+# The next user command tells Open/SpeedShop to print the results of
+the experiment<br>
+openss&gt;&gt;<span style="font-weight: bold;">expView vtop5<br>
+    </span># The next four lines are the output of the experiment due
+to the expView command<span style="font-weight: bold;"><br>
+    </span>&nbsp; <span style="font-weight: bold;">CPU Time
+(Seconds)&nbsp; Function</span><br style="font-weight: bold;">
+    <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+2.090000&nbsp; f3</span><br style="font-weight: bold;">
+    <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1.320000&nbsp; f2</span><br style="font-weight: bold;">
+    <span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.650000&nbsp; f1<br>
+    </span># Open/SpeedShop prompt for additional command input<span
+ style="font-weight: bold;"><br>
+    </span>openss&gt;&gt;<br>
+    <br>
+  </blockquote>
 </blockquote>
 <blockquote>
   <blockquote>
@@ -2719,8 +2776,6 @@ There are also information commands which give machine information.</blockquote>
   <blockquote>
     <blockquote> </blockquote>
   </blockquote>
-</blockquote>
-<blockquote> <br>
 </blockquote>
 <blockquote>
   <h2><a name="mozTocId630833" class="mozTocH2"></a><span style=""><span
@@ -2729,10 +2784,35 @@ There are also information commands which give machine information.</blockquote>
 Command Tool <br>
   </span></span></span></span></span></span></h2>
 </blockquote>
-<p class="MsoBodyText" style="margin-left: 0.5in;"><span style=""><span
- style=""><span style=""><span style="">TBD<br>
+<p class="MsoBodyText" style="margin-left: 0.5in;">[machine prompt]:
+cat batch.input<br>
+<span style="font-weight: bold;">expcreate -f
+/home/openss/demo/Simple/mutatee pcsamp</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">expGo</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">expView vtop5</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">exit</span><br>
+[machine prompt]: <span style="font-weight: bold;">openss -batch &lt;
+batch.input</span><br>
+# Experiment id "1" returned from the experiment create command<br>
+<span style="font-weight: bold;">1</span><br>
+# The next three lines are mutatee executable output<br>
+Usage: /home/openss/demo/Simple/mutatee &lt;size&gt;<br>
+No size argument given.&nbsp;&nbsp; Defaulting to 250.<br>
+/home/openss/demo/Simple/mutatee: succesfully competed.<br>
+# The next four lines are output due to the expView vtop5 command<br>
+<span style="font-weight: bold;">&nbsp; CPU Time (Seconds)&nbsp;
+Function</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+2.250000&nbsp; f3</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1.150000&nbsp; f2</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.610000&nbsp; f1</span><br>
 <br>
-</span></span></span></span></p>
+</p>
 </div>
 <span style="font-size: 11pt; font-family: &quot;Times New Roman&quot;;">
 </span>
@@ -2741,10 +2821,8 @@ Command Tool <br>
  name="Scripting_API"></a><span style="color: rgb(0, 0, 128);">Scripting
 API</span><br>
 </h1>
-<blockquote>
-  <p class="MsoBodyText">TBD.<br>
-  </p>
-</blockquote>
+<blockquote> <>TBD<br>
+  </></blockquote>
 <p class="MsoBodyText"><o:p>&nbsp;</o:p></p>
 </div>
 <div class="Section12">
@@ -2761,8 +2839,7 @@ API (Extensibility)&nbsp; Description</span><br
   </p>
 </blockquote>
 <h1><a class="mozTocH1" name="mozTocId10491"></a><span
- style="color: rgb(0, 0, 128);"><a
- href="../../../../openss/current/doc/cli_doc/definition.html">Appendix
+ style="color: rgb(0, 0, 128);"><a href="../cli_doc/definition.html">Appendix
 A: Command Syntax
 Description</a></span></h1>
 <p class="MsoBodyText"><!--[endif]--></p>
