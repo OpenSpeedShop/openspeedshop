@@ -163,7 +163,7 @@ pco->runButton->enabledFLAG = FALSE;
 nprintf( DEBUG_PANELS ) ("Attempting to do an (%s)\n", command );
 
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-  if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete, 60000 ) )
+  if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete, 120000 ) )
   {
     fprintf(stderr, "Error retreiving experiment id. \n");
 //    return;
@@ -388,7 +388,7 @@ pcSamplePanel::detachFromProgramSelected()
 #ifdef OLDWAY
   int64_t val = 0;  // unused
   bool mark_value_for_delete = true; 
-  if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete, 60000 ) )
+  if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete, 120000 ) )
   {
     fprintf(stderr, "Error detaching (expClose) for id=%d . \n", expID);
 //    return;
@@ -450,7 +450,7 @@ pcSamplePanel::attachToExecutableSelected()
 
     int64_t val = 0;  // unused
     bool mark_value_for_delete = true;
-    if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete, 60000 ) )
+    if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete, 120000 ) )
     {
       fprintf(stderr, "Error retreiving experiment id. \n");
   //    return;
