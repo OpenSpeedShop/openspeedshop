@@ -384,7 +384,14 @@ if( fd )
           pc->splitter->setSizes(sizeList);
         }
         dprintf("split (%s) %s\n", pc->getInternalName(), orientation == 0 ? "HORIZONTAL" : "VERTICAL" );
-        pc->split((Qt::Orientation)orientation, split);
+//          pc->split((Qt::Orientation)orientation, split);
+        if( orientation == QSplitter::Vertical )
+        {
+          pc->splitVertical();
+        } else
+        {
+          pc->splitHorizontal();
+        }
       } else
       {
         dprintf("Did not find a PC\n");

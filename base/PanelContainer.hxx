@@ -251,9 +251,6 @@ QPopupMenu *contextMenu;
     //! This is a convienience routine that splits PanelContainers vertically.
     void splitVertical(int leftSidePercent=-1);
 
-    //! This is the routine that does the actual split.
-    void split(Orientation orientation, bool showRight=TRUE, int leftSidePercent=-1);
-
     //! This routine removes a PanelContainer.
     void removePanelContainer(PanelContainer *pc=NULL);
 
@@ -265,6 +262,10 @@ QPopupMenu *contextMenu;
 
   protected:
 
+
+  private slots:
+    //! This is the routine that does the actual split.
+    void split(Orientation orientation, bool showRight=TRUE, int leftSidePercent=-1);
 
   protected slots:
     //! The standard Qt slot to change language information.
