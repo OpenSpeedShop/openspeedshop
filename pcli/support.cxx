@@ -42,6 +42,42 @@ char *cmd_strtab[CMD_MAX] = {
     "CMD_SETBREAK"
 };
 
+bool command_list[CMD_MAX] = {
+    false, // COMAND ERROR
+    false, // CMD_EXP_ATTACH
+    false, // CMD_EXP_CLOSE
+    false, // CMD_EXP_CREATE
+    false, // CMD_EXP_DETACH
+    false, // CMD_EXP_DISABLE
+    false, // CMD_EXP_ENABLE
+    false, // CMD_EXP_FOCUS
+    false, // CMD_EXP_PAUSE
+    false, // CMD_EXP_RESTORE
+    false, // CMD_EXP_GO
+    false, // CMD_EXP_SAVE
+    false, // CMD_EXP_SETPARAM
+    false, // CMD_EXP_VIEW
+    true,  // CMD_LIST_EXP
+    true,  // CMD_LIST_HOSTS
+    true,  // CMD_LIST_OBJ
+    true,  // CMD_LIST_PIDS
+    true,  // CMD_LIST_SRC
+    true,  // CMD_LIST_METRICS
+    true,  // CMD_LIST_PARAMS
+    true,  // CMD_LIST_REPORTS
+    true,  // CMD_LIST_BREAKS
+    true,  // CMD_LIST_TYPES
+    false, // CMD_CLEAR_BREAK
+    false, // CMD_EXIT
+    false, // CMD_OPEN_GUI
+    false, // CMD_HELP
+    false, // CMD_HISTORY
+    false, // CMD_LOG
+    false, // CMD_PLAYBACK
+    false, // CMD_RECORD
+    false  // CMD_SETBREAK
+};
+
 static void  reset_command(void);
 
 /**
