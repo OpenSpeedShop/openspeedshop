@@ -33,6 +33,9 @@ class TabBarWidget : public QTabBar
     //! Fields the mousePressEvent for drag and drop.
     void mousePressEvent(QMouseEvent *e=NULL);
 
+    //! Fields the mousePressEvent for drag and drop.
+    void mouseDoubleClickEvent(QMouseEvent *e=NULL);
+
     //! A pointer to the parent panelContainer.
     PanelContainer *_panelContainer;
 };

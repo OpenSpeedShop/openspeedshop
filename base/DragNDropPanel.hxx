@@ -32,7 +32,7 @@ public:
     PanelContainer *panelContainer;
 
     //! The drop panel callback routine when Qt drag-n-drop fails.
-    void DropPanel(PanelContainer *sourcePC);
+    void DropPanel(PanelContainer *sourcePC, bool doubleClickedFLAG=FALSE);
 
 #ifndef OLD_DRAG_AND_DROP
     //! The drop panel callback routine called when Qt drag-n-drop succeeds

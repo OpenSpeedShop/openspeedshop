@@ -7,6 +7,8 @@
 
 #include "PanelContainer.hxx"
 
+#include "DragNDropPanel.hxx"
+
 #include "debug.hxx"  // This includes the definition of nprintf(DEBUG_PANELCONTAINERS) 
 
 /*! Unused. */
@@ -35,6 +37,27 @@ TabBarWidget::~TabBarWidget( )
 {
   // default destructor.
   nprintf(DEBUG_PANELCONTAINERS) ("TabBarWidget Destructor called.\n");
+}
+
+/*! This is how a tab is placed into it's own panel container.   It's another
+    shortcut for dragging and dropping onto the desktop. */
+void
+TabBarWidget::mouseDoubleClickEvent(QMouseEvent *e)
+{
+  nprintf(DEBUG_PANELCONTAINERS) ("you double clicked.\n");
+
+  // First find the associated Frame.
+  Frame::dragging = TRUE;
+
+  DragNDropPanel::sourceDragNDropObject = new DragNDropPanel(getPanelContainer(), getPanelContainer()->leftFrame);
+  if( DragNDropPanel::sourceDragNDropObject == NULL )
+  {
+    Frame::dragging = FALSE;
+  }
+
+  DragNDropPanel::sourceDragNDropObject->DropPanel(getPanelContainer(), TRUE);
+
+  Frame::dragging = FALSE;
 }
 
 /*! This is how drag is enabled for a panel.  (if the dragEnable flag is set.)

@@ -122,13 +122,18 @@ DragNDropPanel::~DragNDropPanel( )
     This call results from a drag off the tool onto the desktop.
  */
 void
-DragNDropPanel::DropPanel( PanelContainer *sourcePC )
+DragNDropPanel::DropPanel( PanelContainer *sourcePC, bool doubleClickedFLAG )
 {
   nprintf(DEBUG_DND) ("DropPanel  sourcePC=(%s)\n", sourcePC->getInternalName() );
 
   // Now, get the location of the mouse and return a PanelContainer given 
   // current mouse location.
-  PanelContainer *targetPC = sourcePC->findPanelContainerByMouseLocation();
+  PanelContainer *targetPC = NULL;
+ 
+  if( doubleClickedFLAG == FALSE )
+  {
+    sourcePC->findPanelContainerByMouseLocation();
+  }
 
 #ifndef OLD_DRAG_AND_DROP
   // We only care about this value if we've tried to drop on ourself.
