@@ -17,29 +17,19 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef COLLECTORENTRYCLASS_H
-#define COLLECTORENTRYCLASS_H
-#include "CollectorParameterEntryClass.hxx"
-#include <qvaluelist.h>
-
-typedef QValueList<CollectorParameterEntry *> CollectorParameterEntryList;
-class CollectorEntry
+#ifndef COLLECTORPARAMETERENTRYCLASS_H
+#define COLLECTORPARAMETERENTRYCLASS_H
+class CollectorParameterEntry
 {
   public:
-    CollectorEntry();
-    CollectorEntry(QString n=QString::null, QString sn=QString::null, QString d=QString::null )
+    CollectorParameterEntry();
+    CollectorParameterEntry(QString n)
     {
       name = n;
-      short_name = sn;
-      description = d;
     }
-    ~CollectorEntry()
+    ~CollectorParameterEntry()
     {
     }
     QString name;
-    QString short_name;
-    QString description;
-    CollectorParameterEntryList paramList;
-//    QString param_val;  // (Really needs to and will be a list...)
 };
-#endif // COLLECTORENTRYCLASS_H
+#endif // COLLECTORPARAMETERENTRYCLASS_H

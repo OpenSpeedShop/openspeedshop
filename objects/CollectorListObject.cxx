@@ -83,31 +83,45 @@ CollectorListObject::createCollectorList(int expID)
     CollectorGroup cgrp = experiment->getCollectors();
     if( cgrp.size() > 0 )
     {
-      CollectorGroup::iterator ci = cgrp.begin();
-      Collector pcSampleCollector = *ci;
-            
-      Metadata cm = pcSampleCollector.getMetadata();
-      Metadata m;
-      std::set<Metadata> md =pcSampleCollector.getParameters();
-      std::set<Metadata>::const_iterator mi;
-      for (mi = md.begin(); mi != md.end(); mi++)
+      for(CollectorGroup::iterator ci = cgrp.begin();ci != cgrp.end();ci++)
       {
-        m = *mi;
-//        printf("%s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
-//        printf("%s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
-//        printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
-      }
+        Collector pcSampleCollector = *ci;
+            
+        Metadata cm = pcSampleCollector.getMetadata();
 
-      pcSampleCollector.getParameterValue("sampling_rate", sampling_rate);
+        QString name = QString(cm.getUniqueId().c_str());
+        QString short_name = QString(cm.getShortName().c_str());
+        QString description = QString(cm.getDescription().c_str());
+        CollectorEntry *ce = new CollectorEntry(name, short_name, description);
 
-QString name = QString(cm.getUniqueId().c_str());
-QString short_name = QString(cm.getShortName().c_str());
-QString description = QString(cm.getDescription().c_str());
-QString param = QString("sampling_rate");
-QString param_val = QString("%1").arg(sampling_rate);
-CollectorEntry *ce = new CollectorEntry(name, short_name, description, param, param_val);
-collectorEntryList.push_back(ce);
+        Metadata m;
+        std::set<Metadata> md =pcSampleCollector.getParameters();
+        std::set<Metadata>::const_iterator mi;
+        for (mi = md.begin(); mi != md.end(); mi++)
+        {
+          m = *mi;
+          printf("%s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
+          printf("%s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
+          printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
+QString param = QString(m.getUniqueId().c_str());
+QString param_val = QString::null;
+if( param == "sampling_rate" )
+{
+  pcSampleCollector.getParameterValue(param.ascii(), sampling_rate);
+  param_val = QString("%1").arg(sampling_rate);
+} else
+{
+// Just give is some default for now...
+  param_val = QString("1");
+}
+CollectorParameterEntry *cpe = new CollectorParameterEntry(param);
+ce->paramList.push_back(cpe);
+        }
+
+
+        collectorEntryList.push_back(ce);
 //      printf("sampling_rate=%u\n", sampling_rate);
+      }
     }
   }
   catch(const std::exception& error)

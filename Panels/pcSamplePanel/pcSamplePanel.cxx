@@ -508,6 +508,8 @@ pcSamplePanel::manageCollectorsSelected()
     printf("QDialog::Accepted\n");
 //    pidStr = dialog->selectedProcesses();
   }
+  delete manageCollectorsDialog;
+  manageCollectorsDialog = NULL;
 }   
 
 void
@@ -531,6 +533,8 @@ pcSamplePanel::manageProcessesSelected()
       loadMain();
     }
   }
+  delete manageProcessesDialog;
+  manageProcessesDialog = NULL;
 }   
 
 void

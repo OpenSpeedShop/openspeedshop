@@ -165,7 +165,13 @@ ManageProcessesDialog::updateAttachedCollectorsList()
   {
     ce = (CollectorEntry *)*it;
     QListViewItem *item = new QListViewItem( attachCollectorsListView, ce->name, ce->short_name );
-    QListViewItem *item2 = new QListViewItem( item, ce->param, ce->param_val );
+    for( CollectorParameterEntryList::Iterator pit = ce->paramList.begin();
+         pit != ce->paramList.end();  pit++)
+    {
+      CollectorParameterEntry *cpe = (CollectorParameterEntry *)*pit;
+      QListViewItem *item2 = new QListViewItem( item, cpe->name, cpe->name );
+    }
+
   }
 }
 
