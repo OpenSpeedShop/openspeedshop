@@ -60,8 +60,6 @@ posscli_la_SOURCES = \
 	SS_Parse_Result.cxx \
 	SS_Parse_Target.cxx \
 	Experiment.cxx \
-	support.cxx \
-	help.cxx \
 	SS_Parse_Yacc.cxx \
 	SS_Parse_Lex.cxx \
 	PY_Input.cxx
@@ -71,7 +69,12 @@ SS_Parse_Yacc.cxx: $(YFILES) SS_Parse_Result.hxx
 	-yacc $(YFLAGS) $(YFILES);
 	-mv y.tab.c SS_Parse_Yacc.cxx
 
-SS_Parse_Lex.cxx: $(LFILES)
+y.tab.h: $(YFILES)
+	-rm -f SS_Parse_Yacc.cxx
+	-yacc $(YFLAGS) $(YFILES);
+	-mv y.tab.c SS_Parse_Yacc.cxx
+
+SS_Parse_Lex.cxx: $(LFILES) y.tab.h
 	-rm -f SS_Parse_Lex.cxx
 	-lex $(LFILES);
 	-mv lex.yy.c SS_Parse_Lex.cxx
