@@ -246,7 +246,6 @@ class CLI(code.InteractiveConsole):
         "expgo"         : "return_none",
         "expsave"       : "return_none",
         "expsetparam"   : "return_none",
-        "expstop"       : "return_none",
         "expview"       : "return_none",
         "listexp"       : "return_string_list",
         "listhosts"     : "return_string_list",

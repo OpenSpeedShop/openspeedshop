@@ -48,7 +48,6 @@
 "expgo"    	{ return GO_HEAD; }
 "expsave"	{ return SAVE_HEAD; }
 "expsetparm"	{ return SETPARAM_HEAD; }
-"expstop"   	{ return STOP_HEAD; }
 "expview"   	{ return VIEW_HEAD; }
 
 "listexp"   	{ return LIST_EXP_HEAD; }

@@ -52,6 +52,7 @@ typedef enum {
     H_GEN_COPY,
     H_GEN_KILL,
     H_GEN_GUI,
+    H_GEN_MPI,
     H_GEN_MAX,
 } help_gen_enum;
 
@@ -69,7 +70,6 @@ typedef enum {
     CMD_EXP_GO,
     CMD_EXP_SAVE,
     CMD_EXP_SETPARAM,
-    CMD_EXP_STOP,
     CMD_EXP_VIEW,
     CMD_LIST_EXP,
     CMD_LIST_HOSTS,

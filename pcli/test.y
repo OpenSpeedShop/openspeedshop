@@ -32,7 +32,7 @@ char *string;
 %token ATTACH_HEAD CLOSE_HEAD CREATE_HEAD DETACH_HEAD 
 %token DISABLE_HEAD ENABLE_HEAD 
 %token FOCUS_HEAD PAUSE_HEAD RESTORE_HEAD GO_HEAD SAVE_HEAD
-%token SETPARAM_HEAD STOP_HEAD VIEW_HEAD 
+%token SETPARAM_HEAD VIEW_HEAD 
 
 %token LIST_EXP_HEAD LIST_HOSTS_HEAD LIST_OBJ_HEAD LIST_PIDS_HEAD
 %token LIST_SRC_HEAD LIST_METRICS_HEAD LIST_PARAMS_HEAD LIST_REPORTS_HEAD
@@ -81,7 +81,6 @@ command_desc: exp_attach_com 	{set_command_type(CMD_EXP_ATTACH);}
 	    | exp_go_com   	{set_command_type(CMD_EXP_GO);}
 	    | exp_save_com  	{set_command_type(CMD_EXP_SAVE);}
 	    | exp_setparam_com  {set_command_type(CMD_EXP_SETPARAM);}
-	    | exp_stop_com  	{set_command_type(CMD_EXP_STOP);}
 	    | exp_view_com  	{set_command_type(CMD_EXP_VIEW);}
 	    | list_exp_com  	{set_command_type(CMD_LIST_EXP);}
 	    | list_hosts_com 	{set_command_type(CMD_LIST_HOSTS);}
@@ -131,15 +130,19 @@ exp_close_args:     exp_close_arg
     	    	;
 exp_close_arg:	    /* empty */
     	    	|   expId_spec
-		|   ALL
-		|   FOCUS
-    	    	|   KILL expId_spec
-		|   KILL ALL
-		|   KILL FOCUS
-    	    	|   expId_spec KILL
-		|   ALL KILL
-		|   FOCUS KILL
- 		|   KILL
+		|   ALL     	    	{push_string(general_name[H_GEN_ALL],NAME_DUNNO);}
+		|   FOCUS	    	{push_string(general_name[H_GEN_FOCUS],NAME_DUNNO);}
+    	    	|   KILL expId_spec 	{push_string(general_name[H_GEN_KILL],NAME_DUNNO);}
+		|   KILL ALL	    	{push_string(general_name[H_GEN_KILL],NAME_DUNNO);
+		    	    	    	 push_string(general_name[H_GEN_ALL],NAME_DUNNO);}
+		|   KILL FOCUS	    	{push_string(general_name[H_GEN_KILL],NAME_DUNNO);
+		    	    	    	 push_string(general_name[H_GEN_FOCUS],NAME_DUNNO);}
+    	    	|   expId_spec KILL 	{push_string(general_name[H_GEN_KILL],NAME_DUNNO);}
+		|   ALL KILL	    	{push_string(general_name[H_GEN_ALL],NAME_DUNNO);
+		    	    	    	 push_string(general_name[H_GEN_KILL],NAME_DUNNO);}
+		|   FOCUS KILL	    	{push_string(general_name[H_GEN_FOCUS],NAME_DUNNO);
+		    	    	    	 push_string(general_name[H_GEN_KILL],NAME_DUNNO);}
+ 		|   KILL	    	{push_string(general_name[H_GEN_KILL],NAME_DUNNO);}
    	    	;
 
     	    /** EXP_CREATE **/
@@ -180,7 +183,7 @@ exp_disable_args:   exp_disable_arg
     	    	;
 exp_disable_arg:    /* empty */
     	    	|   expId_spec
-		|   ALL
+		|   ALL     	    	{push_string(general_name[H_GEN_ALL],NAME_DUNNO);}
     	    	;
 
     	    /** EXP_ENABLE **/
@@ -194,7 +197,7 @@ exp_enable_args:    exp_enable_arg
     	    	;
 exp_enable_arg:	    /* empty */
     	    	|   expId_spec
-		|   ALL
+		|   ALL     	    	{push_string(general_name[H_GEN_ALL],NAME_DUNNO);}
     	    	;
 
     	    /** EXP_FOCUS **/
@@ -221,7 +224,7 @@ exp_pause_args:     exp_pause_arg
     	    	;
 exp_pause_arg:	    /* empty */
     	    	|   expId_spec
-		|   ALL
+		|   ALL     	    	{push_string(general_name[H_GEN_ALL],NAME_DUNNO);}
     	    	;
 
     	    /** EXP_RESTORE **/
@@ -244,7 +247,7 @@ exp_go_args:	    exp_go_arg
     	    	;
 exp_go_arg:	    /* empty */
     	    	|   expId_spec
-		|   ALL
+		|   ALL     	    	{push_string(general_name[H_GEN_ALL],NAME_DUNNO);}
     	    	;
 
     	    /** EXP_SAVE **/
@@ -254,9 +257,9 @@ exp_save_com:   exp_save_head   exp_save_arg
 exp_save_head:  SAVE_HEAD   
     	    	;
 exp_save_arg:	    /* empty */
-    	    	|   expId_spec COPY host_file
+    	    	|   expId_spec COPY host_file {push_string(general_name[H_GEN_COPY],NAME_DUNNO);}
     	    	|   expId_spec host_file
-		|   COPY host_file
+		|   COPY host_file {push_string(general_name[H_GEN_COPY],NAME_DUNNO);}
 		|   host_file
     	    	;
 
@@ -271,17 +274,6 @@ exp_setparam_arg:   /* empty */
     	    	|   param_list
     	    	;
 
-    	    /** EXP_STOP **/
-exp_stop_com:	    exp_stop_head   exp_stop_arg
-  	    	|   exp_stop_head error {set_error(yylval.string,command_name[CMD_EXP_STOP]);} 
-      	    	;
-exp_stop_head:	    STOP_HEAD   
-    	    	;
-exp_stop_arg:	    /* empty */
-    	    	|   expId_spec
-		|   ALL
-    	    	;
-
     	    /** EXP_VIEW **/
 exp_view_com:	    exp_view_head   exp_view_arg
   	    	|   exp_view_head error {set_error(yylval.string,command_name[CMD_EXP_VIEW]);} 
@@ -289,8 +281,8 @@ exp_view_com:	    exp_view_head   exp_view_arg
 exp_view_head:	    VIEW_HEAD
     	    	;
 exp_view_arg:	    /* empty */
-    	    	|   expId_spec GUI viewType
-    	    	|   GUI viewType
+    	    	|   expId_spec GUI viewType {push_string(general_name[H_GEN_GUI],NAME_DUNNO);}
+    	    	|   GUI viewType {push_string(general_name[H_GEN_GUI],NAME_DUNNO);}
     	    	|   expId_spec viewType
     	    	|   viewType
     	    	;
@@ -303,7 +295,7 @@ list_exp_head:    LIST_EXP_HEAD
     	    	;
 list_exp_arg:	    /* empty */
     	    	|   expId_spec
-		|   ALL
+		|   ALL     	    	{push_string(general_name[H_GEN_ALL],NAME_DUNNO);}
     	    	;
 
     	    /** LIST_HOSTS **/
@@ -336,7 +328,7 @@ list_pids_head:     LIST_PIDS_HEAD
 list_pids_arg:	    /* empty */
     	    	|   host_file
 		|   host_file MPI
-		|   MPI
+		|   MPI     	    	{push_string(general_name[H_GEN_MPI],NAME_DUNNO);}
     	    	;
 
     	    /** LIST_SRC **/
@@ -363,7 +355,7 @@ list_metrics_head:  LIST_METRICS_HEAD
     	    	;
 list_metrics_arg:   /* empty */
 		|   expId_spec
-		|   ALL
+		|   ALL     	    	{push_string(general_name[H_GEN_ALL],NAME_DUNNO);}
     	    	;
 
     	    /** LIST_PARAMS **/
@@ -374,7 +366,7 @@ list_params_head:   LIST_PARAMS_HEAD
     	    	;
 list_params_arg:    /* empty */
 		|   expId_spec
-		|   ALL
+		|   ALL     	    	{push_string(general_name[H_GEN_ALL],NAME_DUNNO);}
     	    	;
 
     	    /** LIST_REPORTS **/
@@ -385,7 +377,7 @@ list_reports_head:  LIST_REPORTS_HEAD
     	    	;
 list_reports_arg:   /* empty */
 		|   expId_spec
-		|   ALL
+		|   ALL     	    	{push_string(general_name[H_GEN_ALL],NAME_DUNNO);}
     	    	;
 
     	    /** LIST_BREAKS **/
@@ -396,7 +388,7 @@ list_breaks_head:   LIST_BREAKS_HEAD
     	    	;
 list_breaks_arg:    /* empty */
 		|   expId_spec
-		|   ALL
+		|   ALL     	    	{push_string(general_name[H_GEN_ALL],NAME_DUNNO);}
     	    	;
 
     	    /** LIST_TYPES **/
@@ -459,7 +451,6 @@ gen_help_arg:	    NAME {push_help($1);}
     	    	|   GO_HEAD	    	    {push_help(command_name[CMD_EXP_GO]);}
     	    	|   SAVE_HEAD   	    {push_help(command_name[CMD_EXP_SAVE]);}
    	    	|   SETPARAM_HEAD   	    {push_help(command_name[CMD_EXP_SETPARAM]);}
-    	    	|   STOP_HEAD	    	    {push_help(command_name[CMD_EXP_STOP]);}
     	    	|   VIEW_HEAD	    	    {push_help(command_name[CMD_EXP_VIEW]);}
     	    	|   LIST_EXP_HEAD   	    {push_help(command_name[CMD_LIST_EXP]);}
     	    	|   LIST_HOSTS_HEAD 	    {push_help(command_name[CMD_LIST_HOSTS]);}

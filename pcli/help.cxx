@@ -34,7 +34,6 @@ char *command_name[CMD_MAX] = {
     "expGo",
     "expSave",
     "expSetparm",
-    "expStop",
     "expView",
     "listExp",
     "listHosts",
@@ -91,7 +90,8 @@ char *general_name[H_GEN_MAX] = {
     "all",
     "copy",
     "kill",
-    "gui"
+    "gui",
+    "mpi"
 };
 
 static void help_exptype(int indent_ndx);
@@ -754,7 +754,6 @@ dump_help_cmd(help_desc_t *p_help, int indent_ndx)
    	case CMD_EXP_ENABLE:
     	case CMD_EXP_PAUSE:
     	case CMD_EXP_GO:
-    	case CMD_EXP_STOP:
     	    printf("%s  [<expId_spec>] || all \n",
     	    	    command_name[p_help->u.cmd_ndx]);
     	    printf("%sWhere:\n", indent_table[indent_ndx]);

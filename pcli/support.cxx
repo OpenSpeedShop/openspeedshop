@@ -20,7 +20,6 @@ char *cmd_strtab[CMD_MAX] = {
     "CMD_EXP_GO",
     "CMD_EXP_SAVE",
     "CMD_EXP_SETPARAM",
-    "CMD_EXP_STOP",
     "CMD_EXP_VIEW",
     "CMD_LIST_EXP",
     "CMD_LIST_HOSTS",
@@ -681,6 +680,7 @@ dump_command()
 		    printf("(A)");
 		    break;
 		default:
+		    printf("(D)");
 		    break;
 	    }
 
