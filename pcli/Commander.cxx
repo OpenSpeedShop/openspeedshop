@@ -902,10 +902,6 @@ InputLineObject *SpeedShop_ReadLine (int is_more)
 {
   char *save_prompt = current_prompt;
 
-static int cnt = 0;
-if (cnt++ > 3) is_more = true;
-if (cnt > 8) is_more = false;
-
   CMDWID readfromwindow = select_input_window(is_more);
   CMDWID firstreadwindow = readfromwindow;
   bool I_HAVE_ASYNC_INPUT_LOCK = false;
