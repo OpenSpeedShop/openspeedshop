@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+  <title>GUI_Usability_Phase1_Results</title>
+</head>
+<body>
+<div style="text-align: left;">
+<pre><big style="font-weight: bold;"><big>GUI Phase I Usability Study Conducted  11/17/04</big></big><br></pre>
+</div>
+<div style="text-align: left;"> <big style="font-weight: bold;">Conducted
+by Martin Shulz, Helen Stepanov, and Al Stipek<br>
+Milestone 2 : December 15, 2004<br>
+<small><br>
+</small><big><small>Table of Contents<br>
+</small></big></big>
+<ul id="mozToc">
+<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId991599">General
+Comments</a>
+    <ul>
+      <li><a href="#mozTocId766396"> - Save As...</a></li>
+      <li><a href="#mozTocId457936"> - Load Experiment</a></li>
+      <li><a href="#mozTocId429965"> - Make the CommandPanel optional</a></li>
+      <li><a href="#mozTocId294687"> - Drag-n-Drop of Panels</a></li>
+      <li><a href="#mozTocId179725"> - Panel menus</a></li>
+      <li><a href="#mozTocId221137"> - Panel Container menus</a></li>
+      <li><a href="#mozTocId226700"> - Expand tab names</a></li>
+      <li><a href="#mozTocId160643"> - Splitting of Panels</a></li>
+      <li><a href="#mozTocId565489"> - Fonts, fonts, fonts</a></li>
+      <li><a href="#mozTocId181371"> - Diving clues</a></li>
+      <li><a href="#mozTocId548491"> - Accidental Deletion of Panel
+Container</a></li>
+      <li><a href="#mozTocId90222"> - Graphics/No Graphics</a></li>
+      <li><a href="#mozTocId647749"> - Empty Panel Containers</a></li>
+      <li><a href="#mozTocId255016"> - File Dialog color annotation</a></li>
+      <li><a href="#mozTocId528608"> - Call graph - Source Navigation
+(cont)</a></li>
+      <li><a href="#mozTocId143159"> - Report Features</a></li>
+      <li><a href="#mozTocId984246"> - Wizard navigation.</a></li>
+      <li><a href="#mozTocId301617"> - Wizard Confusion</a></li>
+      <li><a href="#mozTocId958711"> - Statistics on by default</a></li>
+      <li><a href="#mozTocId911908"> - Buttons</a></li>
+      <li><a href="#mozTocId424833"> - Preference file needed</a></li>
+      <li><a href="#mozTocId811543"> - BUGS</a></li>
+      <li><a href="#mozTocId341866"> - Additional comments:</a></li>
+      <li><a href="#mozTocId734971"> - Additional Comments (Wish list
+items)</a></li>
+      <li><a href="#mozTocId58661">Follow up comments:</a>
+        <ul>
+          <li><a href="#mozTocId75497"> - Reports (A follow up to "Save
+As....")</a></li>
+          <li><a href="#mozTocId67296"> - Diving (A follow up to
+"Diving clues")</a></li>
+          <li><a href="#mozTocId366015"> - Window-itis/Too Many Panels</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+<big style="font-weight: bold;"><big><small><br>
+</small></big></big><big style="font-weight: bold;"><small></small></big></div>
+<pre><br><a name="General_Comments"></a></pre>
+<h2><a name="mozTocId991599" class="mozTocH2"></a><small>General
+Comments</small></h2>
+<pre>          As always, there's definitely room for improvement...<br><br><br>Martin picked some very good candidates and I'd like to thank him and all the candidates for their time.  Martin's set the bar for future<br>studies.<br><br>Four candidates were chosen for the study conducted on 11/17/04.   Two were tool users/developers and two were application engineers.   A fifth<br>candidate was studied after 11/17/04 and those results are also included in this summary.<br><br><br>Following is a summary of comments and observations.<br><br></pre>
+<h2><a name="mozTocId766396" class="mozTocH2"></a><small><a
+ name="-_Save_As..."></a> - Save As...</small></h2>
+<pre><br>   This was definitely a problem.  Users are drawn to the top level<br>   main window's "File" entry to do a save.   This was repeated<br>   by 4 candidates.     There were many suggestions regarding what<br>   format should be save, but there was uniform agreement that this<br>   functionality should hang off the main window's File (menu) entry.<br><br>   Additionally there seems to be several formats the users<br>   want to save the data.   First, they want the actual performance<br>   data saved to a file so they can come back later and do more<br>   interrogation with openss.  Open/SpeedShop will save the data by default,<br>   but there should be a way for the user to interface and rename the file.<br>   Also wanted is the ability to save the data in an easily readable format<br>   that could be parsed with a script.  i.e. ASCII.    One individual<br>   politely requested the ability to export data in a tab deliminated list<br>   to input to a spreadsheet application.<br><br>   Only one individual commented they'd like to see the graphical<br>   data saved to a file so it could be shown later in a report.  Another<br>   commented that they'd rather be able to drag-n-drop the<br>   graphics into a presentation such as PowerPoint, rather than<br>   be required to save away the file names.<br><br>   There will be some usability issues that will result from moving<br>   this functionality to the top level.   The question of "What"<br>   is actually being saved will be a problem.    To alleviate this<br>   the candidates and observers discussed the possibility of having<br>   the File-&gt;Save As menu be more robust.   That is, there will be<br>   a need for the menu to allow the user to easily select which<br>   experiment (they may have more than one on the screen) should be<br>   saved to a file.   AND... What format to save the data.<br>   i.e. ASCII text, performance information file, graphical.<br><br>   It still will be important to have this feature pushed down to<br>   each panel type.   That will allow for each panel to be saved if<br>   the user doesn't want to save the entire session's output.   This may<br>   be accomplished with a local menu accessing the same dialog interface<br>   to save the panels contents.<br><br></pre>
+<h2><a name="mozTocId457936" class="mozTocH2"></a><small><a
+ name="-_Load_Experiment"></a> - Load Experiment</small></h2>
+<pre>   While this feature wasn't enabled for the usability test, one user<br>   made a very good suggestion.  They suggested to have a list of available<br>   experiments to open, via the File-&gt;Load Experiment menu.<br>   i.e. File-&gt;Load Experiment-&gt;Expr 1 (pcsamp)<br>                                                   Columbia (MPI)<br>                                                   New ...<br></pre>
+<h2><a name="mozTocId429965" class="mozTocH2"></a><a
+ name="-_Make_the_CommandPanel_optional"></a> <small>- Make the
+CommandPanel optional</small></h2>
+<pre>   Since there's a default command line interface (cli) terminal, make the<br>   CommandPanel optional.<br><br></pre>
+<h2><a name="mozTocId294687" class="mozTocH2"></a><small><a
+ name="-_Drag-n-Drop_of_Panels"></a> - Drag-n-Drop of Panels</small></h2>
+<pre>   Targets icon needs to be defined better.   Also there may be a<br>   need to put some menu entry out to help the user move panels<br>   around.  i.e. Drag Panel, Move Panel Up, Move Panel Over ???<br><br>   When drag-n-drop is happening, the drop locations need to be better<br>   indicated to the user. It was unclear that the drop zone was in the tab<br>   area.   The drop zone should be the entire panel container area.<br><br>   Additionally is seems that double-clicking may be a good metaphor<br>   for peeling off panels into their own windows.<br>FIX: current:OpenSpeedShop:184212a<br>     Allow double click to equate to peeling off a window.<br><br></pre>
+<h2><a name="mozTocId179725" class="mozTocH2"></a><small><a
+ name="-_Panel_menus"></a> - Panel menus</small></h2>
+<pre>   The panel menus are not obvious.   There should be an indicator<br>   possibly a 'v'  (Upside down triangle.), located on the panels tab,<br>   to indicate there's something there to menu.<br><br>   Overall, users found all the menus they need (fairly quickly)<br>   for the tasks requested.<br><br></pre>
+<h2><a name="mozTocId221137" class="mozTocH2"></a><small><a
+ name="-_Panel_Container_menus"></a> - Panel Container menus</small></h2>
+<pre>   One user suggested additional entries when bringing up the menu<br>   over a blank panel container.   One that helps the user (with possible<br>   suggestions) about what they can do with the screen area.<br><br></pre>
+<h2><a name="mozTocId226700" class="mozTocH2"></a><small><a
+ name="-_Expand_tab_names"></a> - Expand tab names</small></h2>
+<pre>   There's a need for a more expressive naming of tabs.   This could<br>   possibly be accomplished with a pop up help like expansion or with<br>   color coding and pattern coding.  i.e. as in TotalView.<br><br></pre>
+<h2><a name="mozTocId160643" class="mozTocH2"></a><a
+ name="-_Splitting_of_Panels"></a><small><small><span
+ style="font-weight: bold;"> </span></small>- Splitting of Panels</small></h2>
+<pre>   Divide up the panels between the panels.<br><br>   When splitting panel containers, all/most users suggested<br>   we move one of the panels to the new panel.   I'm not sure we decided<br>   how to do this exactly, so I'll submit this for feedback.  When more than<br>   one panel is in a panel container and the use splits the panel container,<br>   the top panel (visible panel) should stay in the current panel and all<br>   others should be moved to the new panel container.<br><br>   FIXED: Modid:  current:OpenSpeedShop:184185a<br>               current:OpenSpeedShop:184186a<br>      During the usability study it was suggested by several <br>      candidates that when splitting panel containers that had multiply <br>      panels in them that the panels should be divided between the new <br>      panel containers.<br><br>      This mod fulfills the request.  When more than one panel is in the <br>      panel container, and a request to split the panel container is made, <br>      the current panel stays in the current panel container and all other <br>      panels are moved to the new panel container.<br><br></pre>
+<h2><a name="mozTocId565489" class="mozTocH2"></a><small><a
+ name="-_Fonts_fonts_fonts"></a> - Fonts, fonts, fonts</small></h2>
+<pre>   The default font selected not the best.   Additionally it wasn't obvious<br>   how to set the font.<br>   First, we should select a better default (more universal font).   Second,<br>   we should add an entry in the man page to allow the user to change the<br>   global font (i.e. Simply document the -fn option.), Finally, we should<br>   have a top-level font entry (likely in the preference panel) that will<br>   change the global font.  (This feature is supported in Qt.)<br>FIX: I pulled all font specifying.  I now go with whatever the user specifies.<br>     Further I have the -fn option explicitly documented in the online-cli-help<br>     and the command line help.<br><br><br></pre>
+<h2><a name="mozTocId181371" class="mozTocH2"></a><small><a
+ name="-_Diving_clues"></a> - Diving clues</small></h2>
+<pre>   Discussion during a summary interview led to a comment that when one<br>   hovers over a line in the source, and there's something that can be<br>   done (diving/menu) a visual clue like highlighting or underlining should<br>   be done to emphasize the functionality.<br><br></pre>
+<h2><a name="mozTocId548491" class="mozTocH2"></a><small><a
+ name="-_Accidental_Deletion_of_Panel_Container"></a> - Accidental
+Deletion of Panel Container</small></h2>
+<pre>   When a user removes a Panel Container (or a Panel for that matter) that<br>   cannot be easily reproduce they should be prompted before the action<br>   occurs.   i.e. "Do you really want to delete this Panel? Y/N"<br>   Possibly, as a more robust feature, add an "Undo" feature.  <br>   The problem that occurred in the study, will not (should not) be<br>   a problem when the full-featured tool is available.   In the shipped<br>   version, there would be panel specific (in this case pcSample Panel)<br>   menu that would have allowed the user to bring back the reports.<br><br>   The other (bigger) problem is if the user accidentally deletes the<br>   experiment panel.   There likely should be a prompt for this (if an<br>   experiment has actually been defined) delete.   Otherwise, to compliment<br>   this, there should be some management function that lists all the<br>   current experiments.   <br>   It should be noted that the command line interface (cli) is the keeper of<br>   all experiments.   So it's (should be) possible for the user to<br>   close an experiment panel (pcSample) but not delete the experiment (i.e<br>   the cli still can manage it).   There will likely need to be a dialog<br>   prompt, when a gui delete of an experiment occurs.  The dialog may<br>   have three choices.    "Whoops!", "Terminate and delete experiment",<br>   or simply "Close the gui's experiment panel".<br><br>   A side problem recognized, while typing up this summary, is that I now<br>   realize the user can delete the experiment in the cli while running in<br>   gui mode.    This action needs to alert the gui that any associated<br>   panels must be disabled or deleted.<br><br></pre>
+<h2><a name="mozTocId90222" class="mozTocH2"></a><small><a
+ name="-_GraphicsNo_Graphics"></a> - Graphics/No Graphics</small></h2>
+<pre>   Displaying graphics (i.e. pie chart) on top 'n' panel by default<br>   may not be the best approach.   A report may be all that's needed.<br>   One user commented that they'd like the colors nixed as well.<br><br>   The follow up discussions were regarding; Is a pie chart that useful?<br>   If we don't show the graphics by default, will the user find them<br>   when they need them?   If the graphics are really valuable, possibly<br>   shrink them up to a thumbnail that can be expanded.   Also, the graphics<br>   should have labels on them.  (At least when the size is large enough<br>   to accommodate text.)<br><br>   The panel's function is to show the top 'n' routines.  Where 'n' is user<br>   definable. <br></pre>
+<h2><a name="mozTocId647749" class="mozTocH2"></a><small><a
+ name="-_Empty_Panel_Containers"></a> - Empty Panel Containers</small></h2>
+<pre>   Some users commented there never should be an empty panel container<br>   left on the screen.   I'm not sure I agree, but am open to being<br>   convinced.   My argument against this would be the user can take<br>   an empty panel container, split it the way they like, then drag<br>   the panels they want organized into the newly divided interface.<br><br>   While I agree we should have a blank screen... but I'm not sure what<br>   to place (in the background?) by default.<br><br></pre>
+<h2><a name="mozTocId255016" class="mozTocH2"></a><a
+ name="-_File_Dialog_color_annotation"></a> <small>- File Dialog color
+annotation</small></h2>
+<pre>   One user commented that the File Dialog should use some color to<br>   distinguish file types.   Highlighting executable files.<br><br> - Source Navigation vs Result (data) navigation.<br>   There needs to be a Source Browsing/Source Navigation added and<br>   integrated with openss.   Toolgear may be a very good place to start.<br><br>   Apparently, its common to have many disjoint directories contain<br>   multiple levels of directories with source files.  There's a need to<br>   have a way to find and manipulate the searching of these directory<br>   structures.   There needs to be a way of rearranging the searching.<br>   When doing this loop detection needs to be implemented.  The searching<br>   also needs to be able to be interrupted.  One also needs to be able to<br>   save away the modifications as well.<br>                                                                              <br>   Further the user comments that path names can be at least 128 characters.<br>   The toolgear approach is to truncate the filenames, then use pop up help<br>   technology to volunteer the specific file information.<br><br>   Regarding source navigation there needs to be Forward and Back<br>   functionality.   Additionally, a user suggested having a recently opened<br>   file list.    All good ideas.<br><br>   One user (a TotalView user?) wanted to navigate the source via diving<br>   on functions.   Obviously a good suggestion.<br><br></pre>
+<h2><a name="mozTocId528608" class="mozTocH2"></a> <a
+ name="-_Call_graph_-_Source_Navigation_cont"></a><small>- Call graph -
+Source Navigation (cont)</small></h2>
+<pre><br>   Several users wanted to quickly go to call graph from either the source<br>   or the report.   One suggested hooking into this via the dynamic menus<br>   created in the source panel and in the Top Panel report.    If available,<br>   this feature would also be accessible via a top level menu entry as<br>   well.  i.e. View-&gt;Call Graph...<br><br></pre>
+<h2><a name="mozTocId143159" class="mozTocH2"></a><small><a
+ name="-_Report_Features"></a> - Report Features</small></h2>
+<pre>   - Sort columns<br>   - Reorder columns<br>   - Search<br>   - There also needs to be able to interact with the report to toggle<br>     date.  i.e. exclusive time to inclusive times.<br><br><br></pre>
+<h2><a name="mozTocId984246" class="mozTocH2"></a> <a
+ name="-_Wizard_navigation."></a><small>- Wizard navigation.</small></h2>
+<pre>   Users in general seemed to like the wizard navigation.   There was a<br>   comment about the (wording) style that should be address.   But there<br>   seemed to be an agreement that the wizard panels, when navigating from<br>   the general Intro Wizard, to a experiment specific wizard, then finally<br>   to the experiment the previous (wizard panel) should be 'replaced' with<br>   the new one. <br>   When we implement this, each sub-panel will need a "Start Over" button<br>   and a "Finish" button added.<br><br>   Upon completion of the wizard, only the experiment panel should be<br>   showing.  In the follow up discussion, it seemed that the Intro Wizard,<br>   as well as the others, could easily be found and brought back up.<br><br>   Additionally, there should be a "Finish" button on all the panels leading<br>   up to the final summary panel.   That "Finish" button would simply take<br>   all the remaining "suggested defaults" and advance to the Summary wizard.<br><br><a
+ name="-_Wizard_Confusion"></a></pre>
+<h2><a name="mozTocId301617" class="mozTocH2"></a><small> - Wizard
+Confusion</small></h2>
+<pre>   There was confusion by the user when they got to the screen to load<br>   a new executable from disk... for the second time.   The tool remembered<br>   their first selection and didn't prompt them the second time... .to the<br>   user's surprise.   There was(is) a "Reset" button, but it was obvious<br>   enough and the consensus seemed to be we could do better.<br>      The suggestion was to possibly offer 3 options.   The 2 that are there<br>   (but add the current file name to the existing selection), but add a<br>   third that would be an explicit "Select a new program from disk".<br><br> - The wording describing pcsampling should be made more clear.<br><br> - There should be a "Unit" for the pcsampling argument. (And all other<br>   experiment arguments.)<br><br><a
+ name="-_Statistics_on_by_default"></a></pre>
+<h2><a name="mozTocId958711" class="mozTocH2"></a><small> - Statistics
+on by default</small></h2>
+<pre>   This functionality wasn't ready for the study, but the menu item<br>   was lying around.   Of course, users found it.    One user thought<br>   that the statistics (source panel) should be displayed by default.<br>   We'll need to support and test this during the next study, but I wanted<br>   to make note of it for this round.<br><br></pre>
+<h2><a name="mozTocId911908" class="mozTocH2"></a><small><a
+ name="-_Buttons"></a> - Buttons</small></h2>
+<pre>   Not all the buttons were meaningful.  The Interrupt and the Update<br>   were two examples. <br>   Regarding the Update button.   This buttons icon should be change.  A<br>   good suggest was presented that it should be "Circular arrows" or a<br>   looping arrow.  It should also be move (or visually) separated from the<br>   process control buttons.<br><br>   Regarding the Interrupt button.  This button too, should be move or<br>   visually separated from the process control buttons.   Additionally<br>   its meaning isn't exactly clear to the users.  Maybe clearer pop up<br>   help, a new name, and/or a new icon would be helpful.<br><br></pre>
+<h2><a name="mozTocId424833" class="mozTocH2"></a><small><a
+ name="-_Preference_file_needed"></a> - Preference file needed</small></h2>
+<pre>   There needs to be a preference file added for user preferences such<br>   as: line numbers on source, graphics displayed by default, where to<br>   place/split windows, default font, ...<br><br></pre>
+<h2><a name="mozTocId811543" class="mozTocH2"></a><small><a
+ name="-_BUGS"></a> - BUGS</small></h2>
+<pre>   Double pop up when selecting Top Panel "other".<br><br>   Segfault.   This resulted several times, but it was not obvious what<br>   the cause was.   Running this under gdb while doing an extended run<br>   should catch this seemingly elusive bug.<br>   FIXED: When explicitly adding a panel to a panel container that was<br>          already split, openss would attempt to gracefully place the <br>          panel in the best place possible.   Rather and error should<br>          have been printed to warn the gui writer. <br>          An error is now generated and a partial placement is no longer<br>          attempted.   (In this case we simply need to find the best <br>          fit panel container first, then place the pane in it.)<br><br>   CmdPanels prompt was removed.   The command panel used in the study<br>   was incomplete to say the least.   However this is worth noting for<br>   the eventual CmdPanel.<br><br>   The heuristics for the find best panel container logic is still being<br>   being worked on.   This was seen during the testing when some panels<br>   where placed in sub-marvelous locations.  Reasonable, I might say,<br>   but unexpected by the user.<br>   When the use had multiple experiments up, with multiple source panels,<br>   then they selected a routine from the TopPanel, the visible source<br>   didn't update to the new location.   Rather, the source panel that was<br>   hidden was updated.<br><br></pre>
+<h2><a name="mozTocId341866" class="mozTocH2"></a><small><a
+ name="-_Additional_comments:"></a> - Additional comments:</small></h2>
+<pre>   One user discussed the fact that they work with long running jobs.<br>   "Very common."  There's a need to dump info to a file for later viewing.<br>   This is related to the save as feature.<br>                                                                              <br>   Users want checks for executable/data file correctness.<br>   One reason: To prevent a modified executable from being matched up<br>   with old data.<br><br>   Further the user comments that path names can be at least 128 characters.<br>   The toolgear approach is to truncate the filenames, then use pop up help<br>   technology to volunteer the specific file information.<br><br>   There was a comment that the -f command line option wasn't intuitively<br>   obvious.  The user suggested that $ openss a.out is more natural.<br>   That may indeed be the case.<br><br>   Reports, such as the Top Panel, should be cut-n-paste enabled.   User<br>   commented they'd simply like to be able to cut-n-paste the list into<br>   a file.<br><br></pre>
+<h2><a name="mozTocId734971" class="mozTocH2"></a><small><a
+ name="-_Additional_Comments_Wish_list_items"></a> - Additional
+Comments (Wish list items)</small></h2>
+<pre>   One user mentioned an expert system that not only shows them the<br>   performance issue, but one that gives suggestions to remedy the issue.<br>                                                                              <br>   A request was made to predict results for a different system.  i.e.  run<br>   this on one vendors box and predict what it would perform like on a<br>   different vendors box.  (It was later noted that a user could potentially<br>   comparatively debug one architecture against another.)<br><br><br><br><br>* Interestingly, not a single user went to the CmdPanel for this study.<br>It's the first time I've seen that happen in all my studies I've done.<br><br><br></pre>
+<h2><a name="mozTocId58661" class="mozTocH2"></a><small><a
+ name="Follow_up_comments:"></a>Follow up comments:</small></h2>
+<pre>After the (above) summary was sent out there were additional comments<br>volunteered.  Following is a summary of those comments:<br><br></pre>
+<h3><a name="mozTocId75497" class="mozTocH3"></a> <a
+ name="-_Reports_A_follow_up_to_Save_As...."></a><small>- Reports (A
+follow up to "Save As....")</small></h3>
+<pre>   Its been suggested that one possibility to solve the formatting of data<br>   to a file is to provide a Report Panel.  This Report Panel would<br>   describe the format saved data should be stored.   This would allow the<br>   user to specify that exported graphics should be saved as images, tables,<br>   ascii, or raw data.   Likewise, table data could be described to be saved<br>   as tables, ascii, or tab deliminated lists.<br><br></pre>
+<h3><a name="mozTocId67296" class="mozTocH3"></a><a
+ name="-_Diving_A_follow_up_to_Diving_clues"></a> <small>- Diving (A
+follow up to "Diving clues")</small></h3>
+<pre>   Diving also implies there needs to be Forward/Back functionality.    <br>   When diving into a function, the user will want to be able to easily<br>   Back out.<br><br>   When implementing the Forward/Back functionality make sure there's a<br>   stack history that is represented by a menu that the user can jump<br>   forward or back.<br><br></pre>
+<h3><a name="mozTocId366015" class="mozTocH3"></a> <a
+ name="-_Window-itisToo_Many_Panels"></a><small>- Window-itis/Too Many
+Panels</small></h3>
+<pre>   Avoid too many panels/windows.    Provide a kde-like menu of all<br>   panels that are currently opened. </pre>
+</body>
+</html>
