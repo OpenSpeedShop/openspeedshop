@@ -42,6 +42,8 @@ TabWidget::TabWidget( PanelContainer *pc, QWidget *parent, const char *n )
   cw->setEnabled(TRUE);
   QToolTip::add( cw, tr( "Remove the current tab (Panel)." ) );
 
+cw->resize(16,16);
+
   setCornerWidget( cw );
 
   cw->show();
