@@ -114,7 +114,13 @@ void Command_Trace (enum Trace_Entry_Type trace_type, CMDWID cmdwinid, std::stri
 ResultObject Command_Trace_OFF (CMDWID WindowID);
 ResultObject Command_Trace_ON (CMDWID WindowID, std::string tofname);
 
-ResultObject Attach_Input_File (CMDWID issuedbywindow, std::string fromfname);
-ResultObject Attach_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_ptr);
+// Attach a new input source that will be read AFTER all the previous ones
+ResultObject Append_Input_File (CMDWID issuedbywindow, std::string fromfname);
+ResultObject Append_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_ptr);
+ResultObject Append_Input_String (CMDWID issuedbywindow, int64_t b_size, char *b_ptr);
+
+// Attach a new input source that will be read BEFORE all the previous ones
+ResultObject Push_Input_File (CMDWID issuedbywindow, std::string fromfname);
+ResultObject Push_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_ptr);
 
 void List_CommandWindows ( FILE *TFile );
