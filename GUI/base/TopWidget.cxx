@@ -38,7 +38,14 @@ TopWidget::closeEvent( QCloseEvent *e )
 
   panelContainer->_masterPC->removePanelContainer(panelContainer);
 
+#ifdef ABORTS
+  // Peel off
+  // SH
+  // 'x' the peeled off window.
   delete this;
+#else // ABORTS
+  hide();
+#endif // ABORTS
 }
 
 /*
