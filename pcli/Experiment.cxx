@@ -1013,6 +1013,88 @@ bool SS_expSave (CommandObject *cmd) {
   return cmd_success;
 }
 
+static bool setparam (Collector C, std::string pname, ParseParam pvalue) {
+  try {
+    Metadata cm = C.getMetadata();
+    std::set<Metadata> md = C.getParameters();
+    std::set<Metadata>::const_iterator mi;
+    for (mi = md.begin(); mi != md.end(); mi++) {
+      Metadata m = *mi;
+      if (m.getUniqueId() != pname) {
+       // Not the one we want - keep looking.
+        continue;
+      }
+
+      if( m.isType(typeid(int)) ) {
+        int ival;
+        if (pvalue.isValString()) {
+          sscanf ( pvalue.getStingVal(), "%d", &ival);
+        } else {
+          ival = (int)(pvalue.getnumVal());
+        }
+        C.setParameterValue(pname,(int)ival);
+      } else if( m.isType(typeid(int64_t)) ) {
+        int64_t i64val;
+        if (pvalue.isValString()) {
+          sscanf ( pvalue.getStingVal(), "%lld", &i64val);
+        } else {
+          i64val = (int64_t)(pvalue.getnumVal());
+        }
+        C.setParameterValue(pname,(int64_t)i64val);
+      } else if( m.isType(typeid(uint)) ) {
+        uint uval;
+        if (pvalue.isValString()) {
+          sscanf ( pvalue.getStingVal(), "%d", &uval);
+        } else {
+          uval = (uint)(pvalue.getnumVal());
+        }
+        C.setParameterValue(pname,(uint)uval);
+      } else if( m.isType(typeid(uint64_t)) ) {
+        uint64_t u64val;
+        if (pvalue.isValString()) {
+          sscanf ( pvalue.getStingVal(), "%lld", &u64val);
+        } else {
+          u64val = (uint64_t)(pvalue.getnumVal());
+        }
+        C.setParameterValue(pname,(uint64_t)u64val);
+      } else if( m.isType(typeid(float)) ) {
+        float fval;
+        if (pvalue.isValString()) {
+          sscanf ( pvalue.getStingVal(), "%f", &fval);
+        } else {
+          fval = (float)(pvalue.getnumVal());
+        }
+        C.setParameterValue(pname,(float)fval);
+      } else if( m.isType(typeid(double)) ) {
+        double dval;
+        if (pvalue.isValString()) {
+          sscanf ( pvalue.getStingVal(), "%llf", &dval);
+        } else {
+          dval = (double)(pvalue.getnumVal());
+        }
+        C.setParameterValue(pname,(double)dval);
+      } else if( m.isType(typeid(string)) ) {
+        std::string sval;
+        if (pvalue.isValString()) {
+          sval = std::string(pvalue.getStingVal());
+        } else {
+          char cval[20];
+          sprintf( cval, "%d", pvalue.getnumVal());
+          sval = std::string(&cval[0]);
+        }
+        C.setParameterValue(pname,(std::string)sval);
+      }
+      return true;
+    }
+  }
+  catch(const std::exception& error) {
+   // Ignore problems - the calling routine can figure something out.
+  }
+
+ // We didn't find the named parameter in this collector.
+  return false;
+}
+
 bool SS_expSetParam (CommandObject *cmd) {
   ExperimentObject *exp = Find_Specified_Experiment (cmd);
   if (exp == NULL) {
@@ -1036,13 +1118,7 @@ bool SS_expSetParam (CommandObject *cmd) {
         continue;
       }
       Collector C = Get_Collector (exp->FW(), C_name);
-      try {
-        if (iter->isValString())
-          C.setParameterValue(param_name,iter->isValString());
-        else
-          C.setParameterValue(param_name,iter->getnumVal());
-      }
-      catch(const std::exception& error) {
+      if (!setparam(C, param_name, *iter)) {
        // Report a failure.
         cmd->Result_String ("The specified parameter, " + param_name + ", could not be set.");
         cmd->set_Status(CMD_ERROR);
@@ -1050,25 +1126,24 @@ bool SS_expSetParam (CommandObject *cmd) {
     } else {
      // Get the list of collectors used in the specified experiment.
      // Set the paramater for every collector that is part of the experiment.
+      bool param_was_set = false;
       CollectorGroup cgrp = exp->FW()->getCollectors();
       CollectorGroup::iterator ci;
       for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
-        Collector C = *ci;
-        try {
-          if (iter->isValString())
-            C.setParameterValue(param_name,iter->isValString());
-          else
-            C.setParameterValue(param_name,iter->getnumVal());
-        }
-        catch(const std::exception& error) {
-         // Ignore problems.
-         // We are doing this because we can not determine if the specified paramater
-         // is part of a random collector.  It would be good to issue a message if
-         // the paramater was not part of any collector.
-          continue;
-        }
+        param_was_set |= setparam(*ci, param_name, *iter);
+      }
+
+      if (!param_was_set) {
+       // Record the error but continue to try to set other parameters.
+        cmd->Result_String ("The specified parameter, " + param_name + ", was not set for any collector.");
+        cmd->set_Status(CMD_ERROR);
       }
     }
+  }
+
+  if ((cmd->Status() == CMD_ERROR) ||
+      (cmd->Status() == CMD_ABORTED)) {
+    return false;
   }
 
   cmd->set_Status(CMD_COMPLETE);
@@ -1076,32 +1151,30 @@ bool SS_expSetParam (CommandObject *cmd) {
 }
 
 bool SS_expView (CommandObject *cmd) {
+  InputLineObject *clip = cmd->Clip();
+  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
-  ExperimentObject *exp = Find_Specified_Experiment (cmd);
-  if (exp == NULL) {
-    return false;
-  }
+ // Some views do not need depend on an ExperimentObject.
+ // Examine the parsed command for a "-x" specifier.
+  Assert(cmd->P_Result() != NULL);
+  EXPID ExperimentID = (cmd->P_Result()->IsExpId()) ? cmd->P_Result()->GetExpId() : Experiment_Focus ( WindowID );
+  ExperimentObject *exp = (ExperimentID != 0) ? Find_Experiment_Object (ExperimentID) : NULL;
 
-  Experiment *fw_experiment = exp->FW();
-  if (exp->FW() == NULL) {
+  if ((exp != NULL) &&
+      (exp->FW() == NULL)) {
     cmd->Result_String ("The experiment has been disabled");
     cmd->set_Status(CMD_ERROR);
     return false;
   }
 
  // For batch processing, wait for completion before generating a report.
-  InputLineObject *clip = cmd->Clip();
-  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
   if (!Window_Is_Async(WindowID)) {
     while (exp->Determine_Status() == ExpStatus_Running) {
       usleep (10000);
     }
   }
 
-
  // Pick up the <viewType> from the comand.
-  Assert(cmd->P_Result() != NULL);
-
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<string> *p_slist = p_result->getViewList();
   vector<string>::iterator si;
