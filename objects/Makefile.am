@@ -60,3 +60,6 @@ ossObjects_la_SOURCES = \
 	AnimatedQPushButton.hxx AnimatedQPushButton.cxx moc_AnimatedQPushButton.cxx \
 	InfoEventFilter.hxx InfoEventFilter.cxx moc_InfoEventFilter.cxx \
 	ProcessControlObject.hxx ProcessControlObject.cxx moc_ProcessControlObject.cxx
+
+doc:
+	-doxygen Doxyfile
