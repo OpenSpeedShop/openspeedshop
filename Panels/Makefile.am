@@ -23,3 +23,7 @@
 ################################################################################
 
 SUBDIRS = SourcePanel CmdPanel TopPanel pcSamplePanel UserTimePanel HW_CounterPanel IOPanel FPE_TracingPanel MPIPanel ConstructNewExperimentPanel Wizards
+
+doc: $(SUBDIRS)
+	-doxygen Doxyfile
+

@@ -18,6 +18,9 @@
 
 SUBDIRS = @INSTRUMENTOR@
 
+doc: $(SUBDIRS)
+	-doxygen Doxyfile
+
 lib_LTLIBRARIES = libssf.la
 
 libssf_la_CXXFLAGS = $(LTDLINCL) -DCOLLECTOR_PATH=\"$(pkglibdir)\"

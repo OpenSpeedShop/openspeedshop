@@ -20,9 +20,9 @@
 #---------------------------------------------------------------------------
 # Project related configuration options
 #---------------------------------------------------------------------------
-PROJECT_NAME           = "Open/SpeedShop Framework Library"
+PROJECT_NAME           = "Open/SpeedShop GUI Panels"
 PROJECT_NUMBER         = "Version 1.0"
-OUTPUT_DIRECTORY       = ../doc/libssf
+OUTPUT_DIRECTORY       = ../doc/Panels
 OUTPUT_LANGUAGE        = English
 USE_WINDOWS_ENCODING   = NO
 BRIEF_MEMBER_DESC      = YES
