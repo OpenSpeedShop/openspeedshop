@@ -61,6 +61,12 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n, void *argument) 
   nprintf( DEBUG_CONST_DESTRUCT ) ("pcSamplePanel::pcSamplePanel() constructor called\n");
 
   expID = -1;
+  if( argument )
+  {
+    QString *expIDString = (QString *)argument;
+    expID = expIDString->toInt();
+    printf("pcSamplePanel look up expID=%d\n", expID);
+  }
 
   mw = getPanelContainer()->getMainWindow();
 
@@ -99,6 +105,9 @@ printf("Create a new pcSample experiment.\n");
 
 
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+
+if( expID == -1 )
+{
   char command[1024];
   if( !mw->executableName.isEmpty() )
   {
@@ -120,6 +129,8 @@ printf("Create a new pcSample experiment.\n");
 
   expID = val;
   fprintf(stdout, "A: MY VALUE! = (%d)\n", val);
+}
+
   char name_buffer[100];
   sprintf(name_buffer, "%s [%d]", getName(), expID);
   setName(name_buffer);
@@ -133,21 +144,24 @@ printf("Create a new pcSample experiment.\n");
 
 // Begin demo position at dummy file... For the real stuff we'll need to 
 // look up the main()... and position at it...
-if( mw && !mw->executableName.isEmpty() && mw->executableName.endsWith("fred_calls_ted") )
+if( expID == -1 )
 {
-  char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
-  char buffer[200];
-  strcpy(buffer, plugin_directory);
-  strcat(buffer, "/../../../usability/phaseI/fred_calls_ted.c");
-printf("load (%s)\n", buffer);
-  SourceObject *spo = new SourceObject("main", buffer, 22, TRUE, NULL);
-
-  if( !sp->listener((void *)spo) )
+  if( mw && !mw->executableName.isEmpty() && mw->executableName.endsWith("fred_calls_ted") )
   {
-    fprintf(stderr, "Unable to position at main in %s\n", buffer);
-  } else
-  {
-nprintf( DEBUG_CONST_DESTRUCT ) ("Positioned at main in %s ????? \n", buffer);
+    char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
+    char buffer[200];
+    strcpy(buffer, plugin_directory);
+    strcat(buffer, "/../../../usability/phaseI/fred_calls_ted.c");
+  printf("load (%s)\n", buffer);
+    SourceObject *spo = new SourceObject("main", buffer, 22, TRUE, NULL);
+  
+    if( !sp->listener((void *)spo) )
+    {
+      fprintf(stderr, "Unable to position at main in %s\n", buffer);
+    } else
+    {
+  nprintf( DEBUG_CONST_DESTRUCT ) ("Positioned at main in %s ????? \n", buffer);
+    }
   }
 }
 // End demo.
@@ -155,20 +169,54 @@ nprintf( DEBUG_CONST_DESTRUCT ) ("Positioned at main in %s ????? \n", buffer);
 
 
 // Begin direct connect to framework
-if( !mw->executableName.isEmpty() )
+if( expID == -1 )
 {
-  QFileInfo fileInfo = QFileInfo(mw->executableName.ascii());
-  if( !fileInfo.exists() )
+  if( !mw->executableName.isEmpty() )
   {
-    fprintf(stderr, "Unable to open file.  File (%s) does not exist.\n", mw->executableName.ascii() );
-  }
-  QString basename = fileInfo.baseName().ascii();
-  std::string name = std::string("./") + basename.ascii() + ".openss";
-printf("name = (%s)\n", name.c_str() );
+    QFileInfo fileInfo = QFileInfo(mw->executableName.ascii());
+    if( !fileInfo.exists() )
+    {
+      fprintf(stderr, "Unable to open file.  File (%s) does not exist.\n", mw->executableName.ascii() );
+    }
+    QString basename = fileInfo.baseName().ascii();
+    std::string name = std::string("./") + basename.ascii() + ".openss";
+  printf("name = (%s)\n", name.c_str() );
+  
+    try
+    {
+  //  Experiment::create(mw->executableName.ascii());
+      Experiment::create(name);
+      Experiment experiment(name);
+  
+      // Create a process for the command in the suspended state
+      std::string command = std::string(mw->executableName.ascii());
+  
+// Currently this hangs...
+  //printf("call experiment.createProcess(%s)\n", command.c_str() );
+  //   Thread thread = experiment.createProcess(command);
+  
+      // Create the example collector and set its sampling rate
+  printf("call the createCollector...(pcsamp)\n");
+      Collector collector = experiment.createCollector("example");
+  printf("call the setParameterValue...(sampling_rate, 10)\n");
+      collector.setParameterValue("sampling_rate", (unsigned)10);
+    }
+  
+    catch( const std::exception& error) {
+      std::cerr
+          << std::endl
+          << "Error: "
+          << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+          "Unknown runtime error." : error.what()) << std::endl
+          << std::endl;
+  //    return 1;
+      return;
+    }
+} else 
+{ // Look up all the info and display it... 
+  printf("Look up all the info and display it...for exprId (%d) \n", expID );
+}
 
-//  Experiment::create(mw->executableName.ascii());
-  Experiment::create(name);
-  Experiment experiment(name);
 
   // Create a process for the command in the suspended state
 //  Thread thread = experiment.createProcess(mw->executableName.ascii());
@@ -345,6 +393,15 @@ pcSamplePanel::listener(void *msg)
   LoadAttachObject *lao = NULL;
 
   MessageObject *mo = (MessageObject *)msg;
+
+printf("pcSamplePanel::listener() getName(%s)\n", getName() );
+  if( mo->msgType == getName() )
+  {
+    nprintf(DEBUG_MESSAGES) ("pcSamplePanel::listener() interested!\n");
+    getPanelContainer()->raisePanel(this);
+    return 1;
+  }
+
 
   if( mo->msgType  == "ControlObject" )
   {
