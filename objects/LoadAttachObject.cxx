@@ -19,12 +19,13 @@ LoadAttachObject::LoadAttachObject() : MessageObject("LoadAttachObject")
 
 /*! Constructor for the LoadAttachObject.   Initializes the filename to load.
     or the pid to attach to. */
-LoadAttachObject::LoadAttachObject(QString executable_name, QString pid_string, QString param_list) : MessageObject("LoadAttachObject")
+LoadAttachObject::LoadAttachObject(QString executable_name, QString pid_string, QString param_list, bool lnh) : MessageObject("LoadAttachObject")
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("LoadAttachObject::LoadAttachObject(entered.\n");
   executableName = executable_name;
   pidStr = pid_string;
   paramList = param_list;
+  loadNowHint = lnh;
 }
 
 /*! Destructor.   Releases the functionName and fileName. */

@@ -12,7 +12,7 @@ public:
     //! Unused constructor.
     LoadAttachObject();
     //! Constructor for attaching to executable
-    LoadAttachObject(QString executable_name = NULL, QString pid_string = NULL, QString param_list = NULL);
+    LoadAttachObject(QString executable_name = NULL, QString pid_string = NULL, QString param_list = NULL, bool loadNowHint = FALSE);
 
     //! Destructor
     ~LoadAttachObject();
@@ -28,5 +28,9 @@ public:
 
     //! The list of parameters
     QString paramList;
+
+
+    //! Load now!
+    bool loadNowHint;
 };
 #endif // LOADATTACHOBJECT_H
