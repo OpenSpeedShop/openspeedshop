@@ -1130,7 +1130,23 @@ read_another_window:
     }
     if (len > 1) {
       if (!strcasecmp ( s, "gui\n")) {
-        loadTheGUI((ArgStruct *)NULL);
+        int argc = 0;
+        char **argv = NULL;
+        ArgStruct *argStruct = new ArgStruct(argc, argv);
+        struct hostent *my_host = gethostent();
+        pid_t my_pid = getpid();
+        // The following is a timing hack -
+        // if the TLI window hasn't been opened or didn't specify async input,
+        // the input routines may think they are at the end of file before
+        // the GUI can open and define an async input window.
+        // The hack is to define a dummy async window before python starts.
+        // We will need to sort this out at some point in the future.
+        gui_window = GUI_Window ("GUI",my_host->h_name,my_pid,0,true);
+        argStruct->addArg("-wid");
+        char buffer[10];
+        sprintf(buffer, "%d", gui_window);
+        argStruct->addArg(buffer);
+        loadTheGUI((ArgStruct *)argStruct);
         clip = NULL;
       }
     }
