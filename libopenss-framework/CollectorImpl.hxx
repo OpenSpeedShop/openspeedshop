@@ -35,6 +35,7 @@
 
 #include <set>
 #include <string>
+#include <vector>
 
 
 
@@ -195,6 +196,11 @@ namespace OpenSpeedShop { namespace Framework {
 	void execute(const Thread&, const std::string&, const std::string&,
 		     const Blob&) const;
 	void getECT(const Collector&, const Thread&, int&, int&, int&) const;
+
+	std::vector<Blob> getData(const Collector&,
+				  const Thread&,
+				  const AddressRange&,
+				  const TimeInterval&) const;
 
     private:
 

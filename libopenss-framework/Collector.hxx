@@ -45,7 +45,6 @@ namespace OpenSpeedShop { namespace Framework {
 
     class Database;
     class Experiment;
-    class ExperimentTable;
     class Thread;
     class ThreadGroup;
     
@@ -77,8 +76,8 @@ namespace OpenSpeedShop { namespace Framework {
      */
     class Collector
     {
+	friend class CollectorImpl;
 	friend class Experiment;
-	friend class ExperimentTable;
 	
     public:
 	
@@ -123,7 +122,7 @@ namespace OpenSpeedShop { namespace Framework {
 	void validateEntry() const;
 
 	Blob getParameterData() const;
-	void setParameterData(const Blob&) const;	
+	void setParameterData(const Blob&) const;
 	
 	/** Database containing this collector. */
         SmartPtr<Database> dm_database;

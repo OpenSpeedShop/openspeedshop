@@ -23,9 +23,13 @@
  */
 
 #include "Blob.hxx"
+#include "Collector.hxx"
 #include "CollectorImpl.hxx"
+#include "Database.hxx"
 #include "ExperimentTable.hxx"
 #include "Instrumentor.hxx"
+#include "Thread.hxx"
+#include "ThreadSpy.hxx"
 
 #include <stdexcept>
 
@@ -210,6 +214,62 @@ void CollectorImpl::getECT(const Collector& collector,
 			   int& collector_id,
 			   int& thread_id) const
 {
-    ExperimentTable::TheTable.getECT(collector, thread,
-				     experiment_id, collector_id, thread_id);
+    // Check assertions
+    Assert(collector.dm_database == ThreadSpy(thread).getDatabase());
+
+    // Get and set the experiment identifier
+    experiment_id =
+	ExperimentTable::TheTable.getIdentifier(collector.dm_database);
+    
+    // Set the collector and thread identifiers
+    collector_id = collector.dm_entry;
+    thread_id = ThreadSpy(thread).getEntry();
+}
+
+
+
+/**
+ * Get performance data.
+ *
+ * Returns the set of performance data applicable to the specified collector,
+ * thread, address range, and time interval. Called by derived classes to obtain
+ * raw performance data for calculating metric values.
+ *
+ * @todo    Returning a list of blobs may be very inefficient if the list size
+ *          is large due to the number of times the blob's contenst will be
+ *          copied. Using a custom iterator here might be a much better option.
+ *
+ * @param collector    Collector for which to get data.
+ * @param thread       Thread for which to get data.
+ * @param range        Address range over which to get data.
+ * @param interval     Time interval over which to get data.
+ * @return             Applicable performance data.
+ */
+std::vector<Blob> CollectorImpl::getData(const Collector& collector, 
+					 const Thread& thread,
+					 const AddressRange& range,
+					 const TimeInterval& interval) const
+{
+    std::vector<Blob> data;
+    
+    // Find the data matching the specified criteria
+    BEGIN_TRANSACTION(collector.dm_database);
+    collector.dm_database->prepareStatement(
+	"SELECT data FROM Data"
+	" WHERE collector = ? AND thread = ?"
+	"   AND ? >= time_begin AND ? < time_end"
+        "   AND ? >= addr_begin AND ? < addr_end;"
+        );
+    collector.dm_database->bindArgument(1, collector.dm_entry);
+    collector.dm_database->bindArgument(2, ThreadSpy(thread).getEntry());
+    collector.dm_database->bindArgument(3, interval.getEnd());
+    collector.dm_database->bindArgument(4, interval.getBegin());
+    collector.dm_database->bindArgument(5, range.getEnd());
+    collector.dm_database->bindArgument(6, range.getBegin());
+    while(collector.dm_database->executeStatement())
+	data.push_back(collector.dm_database->getResultAsBlob(1));
+    END_TRANSACTION(collector.dm_database);
+
+    // Return the data to the caller
+    return data;
 }

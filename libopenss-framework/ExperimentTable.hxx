@@ -30,6 +30,7 @@
 #endif
 
 #include "Lockable.hxx"
+#include "SmartPtr.hxx"
 
 #include <map>
 
@@ -39,6 +40,7 @@ namespace OpenSpeedShop { namespace Framework {
 
     class Blob;
     class Collector;
+    class Database;
     class Experiment;
     class Thread;
 
@@ -69,8 +71,7 @@ namespace OpenSpeedShop { namespace Framework {
 	void addExperiment(const Experiment*);
 	void removeExperiment(const Experiment*);
 
-	void getECT(const Collector&, const Thread&,
-		    int&, int&, int&) const;
+	int getIdentifier(const SmartPtr<Database>&) const;
 	void storePerformanceData(const Blob&) const;
 	
     private:

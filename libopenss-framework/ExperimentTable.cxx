@@ -98,36 +98,20 @@ void ExperimentTable::removeExperiment(const Experiment* experiment)
 
 
 /**
- * Get experiment, collector, and thread (ECT) identifiers.
+ * Get experiment identifier.
  *
- * Returns the experiment, collector, and thread (ECT) identifiers of the
- * specified collector and thread. Used by collectors to specify for which ECT
- * data is to be collected.
- * 
- * @note    An assertion failure occurs if the specified collector and thread
- *          are not in the same experiment database or if there is no experiment
- *          with that database in the experiment table.
+ * Returns the experiment identifier of the experiment associated with the
+ * specified database. An invalid identifier is returned if no such experiment
+ * can be found. Used by collectors to specify for which experiment data is to
+ * be collected.
  *
- * @param collector         Collector to be identified.
- * @param thread            Thread to be identified.
- * @retval experiment_id    Identifier of the experiment.
- * @retval collector_id     Identifier of the collector.
- * @retval thread_id        Identifier of the thread.
+ * @param database    Database to be identified.
+ * @return            Identifier of the experiment associated with that database
+ *                    or an invalid identifier if no such experiment is found.
  */
-void ExperimentTable::getECT(const Collector& collector, const Thread& thread,
-			     int& experiment_id,
-			     int& collector_id,
-			     int& thread_id) const
+int ExperimentTable::getIdentifier(const SmartPtr<Database>& database) const
 {
     Guard guard_myself(this);
-
-    // Set the identifiers (using an "undefined" value for the experiment)
-    experiment_id = -1;
-    collector_id = collector.dm_entry;
-    thread_id = thread.dm_entry;
-    
-    // Check assertions
-    Assert(collector.dm_database == thread.dm_database);
     
     // Iterate over every experiment in the experiment table
     for(std::map<const Experiment*, int>::const_iterator
@@ -135,17 +119,12 @@ void ExperimentTable::getECT(const Collector& collector, const Thread& thread,
 	i != dm_experiment_to_identifier.end();
 	++i)
 	
-	// Is this the experiment containing the specified collector/thread?
-	if(collector.dm_database == i->first->dm_database) {
-
-	    // Set the real experiment identifier
-	    experiment_id = i->second;
-
-	    break;
-	}
+	// Is this the experiment associated with the specified database?
+	if(i->first->dm_database == database)
+	    return i->second;
     
-    // Check assertions
-    Assert(experiment_id >= 0);
+    // Otherwise return an invalid identifier (-1 is always invalid)
+    return -1;    
 }
 
 
@@ -176,20 +155,23 @@ void ExperimentTable::storePerformanceData(const Blob& blob) const
     unsigned header_size =
 	blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_OpenSS_DataHeader),
 			    &header);
-    
-    // Calculate the size and location of the actual data
-    unsigned data_size = blob.getSize() - header_size;
-    const void* data_ptr =
-	&(reinterpret_cast<const char*>(blob.getContents())[header_size]);
 
-    // Look for the experiment object to contain this data
+    // Silently ignore the data if the address range is invalid
+    if(header.addr_begin >= header.addr_end)
+	return;
+
+    // Silently ignore the data if the time interval is invalid
+    if(header.time_begin >= header.time_end)
+	return;
+
+    // Find the experiment to contain this data
     std::map<int, const Experiment*>::const_iterator
 	i = dm_identifier_to_experiment.find(header.experiment);
     
-    // Ignore the data if the specified experiment cannot be found
+    // Silently ignore the data if the experiment cannot be found
     if(i == dm_identifier_to_experiment.end())
 	return;
-
+    
     // Find the database for this experiment
     SmartPtr<Database> database = i->second->dm_database;
     
@@ -200,12 +182,39 @@ void ExperimentTable::storePerformanceData(const Blob& blob) const
 	BEGIN_TRANSACTION(database);
 
 	// Validate that the specified collector exists
-	Collector collector(database, header.collector);
-	collector.validateEntry();
-
+	database->prepareStatement(
+	    "SELECT COUNT(*) FROM Collectors WHERE id = ?;"
+	    );
+	database->bindArgument(1, header.collector);
+	while(database->executeStatement()) {
+	    int rows = database->getResultAsInteger(1);
+	    if(rows == 0)
+		throw Database::Corrupted(*database,
+					  "collector entry no longer exists");
+	    else if(rows > 1)
+		throw Database::Corrupted(*database,
+					  "collector entry is not unique");
+	}
+	
 	// Validate that the specified thread exists
-	Thread thread(database, header.thread);
-	thread.validateEntry();
+	database->prepareStatement(
+	    "SELECT COUNT(*) FROM Threads WHERE id = ?;"
+	    );
+	database->bindArgument(1, header.thread);
+	while(database->executeStatement()) {
+	    int rows = database->getResultAsInteger(1);
+	    if(rows == 0)
+		throw Database::Corrupted(*database,
+					  "thread entry no longer exists");
+	    else if(rows > 1)
+		throw Database::Corrupted(*database,
+					  "thread entry is not unique");
+	}
+
+	// Calculate the size and location of the actual data
+	unsigned data_size = blob.getSize() - header_size;
+	const void* data_ptr =
+	    &(reinterpret_cast<const char*>(blob.getContents())[header_size]);
 
 	// Create an entry for this data
 	database->prepareStatement(
@@ -226,7 +235,7 @@ void ExperimentTable::storePerformanceData(const Blob& blob) const
 	
     }
     
-    // Ignore the data if any exceptions were thrown
+    // Silently ignore the data if any exceptions were thrown
     catch(...) {	
     }
 }
