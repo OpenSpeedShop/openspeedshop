@@ -13,6 +13,7 @@
 #include <qvariant.h>
 #include <qmainwindow.h>
 #include "PanelContainer.hxx"
+#include <qassistantclient.h>
 
 class QVBoxLayout;
 class QHBoxLayout;
@@ -55,6 +56,8 @@ public:
     QAction* helpContentsAction;
     QAction* helpIndexAction;
     QAction* helpAboutAction;
+
+    QAssistantClient *assistant;
 
     //! A pointer to the top PanelContainer that is parented to this mainwindow.
     PanelContainer *topPC;

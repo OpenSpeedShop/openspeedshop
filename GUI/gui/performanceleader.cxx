@@ -100,7 +100,11 @@ PerformanceLeader::PerformanceLeader( QWidget* parent, const char* name, WFlags 
     connect( editFindAction, SIGNAL( activated() ), this, SLOT( editFind() ) );
     connect( helpIndexAction, SIGNAL( activated() ), this, SLOT( helpIndex() ) );
     connect( helpContentsAction, SIGNAL( activated() ), this, SLOT( helpContents() ) );
+    connect( helpAboutAction, SIGNAL( activated() ), this, SLOT( helpAbout() ) );
     init();
+
+
+    menubar->insertSeparator();
 
     helpMenu = new QPopupMenu( this );
     helpContentsAction->addTo( helpMenu );
@@ -108,6 +112,9 @@ PerformanceLeader::PerformanceLeader( QWidget* parent, const char* name, WFlags 
     helpMenu->insertSeparator();
     helpAboutAction->addTo( helpMenu );
     menubar->insertItem( tr("&Help"), helpMenu );
+
+//    assistant = new QAssistantClient( QDir("doc").absPath(), this );
+    assistant = new QAssistantClient(NULL);
 
     languageChange();
 

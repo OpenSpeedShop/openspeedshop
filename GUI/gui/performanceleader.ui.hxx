@@ -12,6 +12,11 @@
 #include "TopWidget.hxx"
 #include <qvbox.h>
 #include <qframe.h>
+#include <qmessagebox.h>
+#include <qassistantclient.h>
+// #include <qfiledialog.h>
+//#include <qfileinfo.h>
+#include <qdir.h>
 #include "PluginInfo.hxx"
 
 #include <qapplication.h>
@@ -97,19 +102,26 @@ void PerformanceLeader::editFind()
 void PerformanceLeader::helpIndex()
 {
  printf("helpIndex() entered.\n");
-
 }
 
 void PerformanceLeader::helpContents()
 {
  printf("helpContents() entered.\n");
 
+ char *plugin_directory = getenv("FUTURE_TOOL_PLUGIN_DIR");
+
+ QString base_dir(plugin_directory);
+ QString relative_dir("/../../../doc");
+ 
+ QString docsPath = QDir(base_dir+relative_dir).absPath();
+ assistant->showPage( QString("%1/index.html").arg(docsPath) );
 }
 
 void PerformanceLeader::helpAbout()
 {
  printf("helpAbout() entered.\n");
 
+ QMessageBox::about(this, "OpenSpeedShop", "OpenSpeedShop about example....");
 }
 
 
