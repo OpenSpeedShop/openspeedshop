@@ -291,7 +291,7 @@ printf("res = %d\n", res);
     {
       printf("user entered a value and pressed OK\n");
       QString command;
-      command = QString("expSetParam -x %1 %2 %3=%4").arg(expID).arg(collector_name).arg(param_name).arg(res);
+      command = QString("expSetParam -x %1 %2::%3=%4").arg(expID).arg(collector_name).arg(param_name).arg(res);
 printf("command=(%s)\n", command.ascii() );
       if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
       {
