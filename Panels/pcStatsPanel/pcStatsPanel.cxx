@@ -193,8 +193,7 @@ for( ; it != data_items.end(); it++ )
   }
 }
 
-//  SourceObject *spo = new SourceObject(it->first.getName().c_str(), it->first.getDefinition().getValue().getPath(), it->first.getDefinition().getValue().getLine(), TRUE, highlightList);
-  SourceObject *spo = new SourceObject(it->first.getName().c_str(), it->first.getDefinition().getValue().getPath(), it->first.getDefinition().getValue().getLine(), TRUE, NULL);
+  SourceObject *spo = new SourceObject(it->first.getName().c_str(), it->first.getDefinition().getValue().getPath(), it->first.getDefinition().getValue().getLine()-1, TRUE, NULL);
 
 
 
