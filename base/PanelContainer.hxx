@@ -241,7 +241,7 @@ class PanelContainer : public QWidget
 //! Sets the main window (OpenSpeedshop class)
 void setMainWindow(OpenSpeedshop *oss) { _masterPC->mainWindow = oss; };
 //! Returns the main window (OpenSpeedshop class) 
-OpenSpeedshop *getMainWindow() { printf("A: _masterPC=0x%x \n", _masterPC ); printf("_masterPC->mainWindow=0x%x\n", _masterPC->mainWindow ); return _masterPC->mainWindow; };
+OpenSpeedshop *getMainWindow() { return _masterPC->mainWindow; };
 
   protected:
 
