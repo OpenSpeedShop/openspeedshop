@@ -47,7 +47,7 @@ HW_CounterPanel_la_LDFLAGS = \
 	-lqt \
 	-ldl
 
-HW_CounterPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-Base -lopenss-GUI -lopenss-Objects
+HW_CounterPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework
 
 moc_HW_CounterPanel.cxx: HW_CounterPanel.hxx
 	-moc -o moc_HW_CounterPanel.cxx HW_CounterPanel.hxx

@@ -47,7 +47,7 @@ FPE_TracingPanel_la_LDFLAGS = \
 	-lqt \
 	-ldl
 
-FPE_TracingPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-Base -lopenss-GUI -lopenss-Objects
+FPE_TracingPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework
 
 moc_FPE_TracingPanel.cxx: FPE_TracingPanel.hxx
 	-moc -o moc_FPE_TracingPanel.cxx FPE_TracingPanel.hxx

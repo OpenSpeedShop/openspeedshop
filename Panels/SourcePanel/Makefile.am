@@ -29,7 +29,7 @@ SourcePanel_la_CXXFLAGS = \
 
 SourcePanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
-SourcePanel_la_LIBADD = -lopenss-Objects -L$(QTDIR)/lib -lqt -lopenss-Base
+SourcePanel_la_LIBADD = -L$(QTDIR)/lib -lqt
 
 moc_SPTextEdit.cxx: SPTextEdit.hxx
 	-moc -o moc_SPTextEdit.cxx SPTextEdit.hxx

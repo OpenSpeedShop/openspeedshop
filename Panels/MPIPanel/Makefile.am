@@ -47,7 +47,7 @@ MPIPanel_la_LDFLAGS = \
 	-lqt \
 	-ldl
 
-MPIPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-Base -lopenss-GUI  -lopenss-Objects
+MPIPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework
 
 moc_MPIPanel.cxx: MPIPanel.hxx
 	-moc -o moc_MPIPanel.cxx MPIPanel.hxx

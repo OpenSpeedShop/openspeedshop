@@ -47,7 +47,7 @@ ConstructNewExperimentPanel_la_LDFLAGS = \
 	-lqt \
 	-ldl
 
-ConstructNewExperimentPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-Base -lopenss-GUI -lopenss-Objects
+ConstructNewExperimentPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework
 
 moc_ConstructNewExperimentPanel.cxx: ConstructNewExperimentPanel.hxx
 	-moc -o moc_ConstructNewExperimentPanel.cxx ConstructNewExperimentPanel.hxx

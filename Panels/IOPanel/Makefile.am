@@ -47,7 +47,7 @@ IOPanel_la_LDFLAGS = \
 	-lqt \
 	-ldl
 
-IOPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-Base -lopenss-GUI  -lopenss-Objects
+IOPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework
 
 
 moc_IOPanel.cxx: IOPanel.hxx

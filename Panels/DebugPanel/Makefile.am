@@ -28,7 +28,7 @@ DebugPanel_la_CXXFLAGS = \
 
 DebugPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
-DebugPanel_la_LIBADD = -L$(QTDIR)/lib -lqt -lopenss-Base
+DebugPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
 
 moc_DebugPanel.cxx: DebugPanel.hxx
 	-moc -o moc_DebugPanel.cxx DebugPanel.hxx

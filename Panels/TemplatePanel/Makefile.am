@@ -28,7 +28,7 @@ TemplatePanel_la_CXXFLAGS = \
 
 TemplatePanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
-TemplatePanel_la_LIBADD = -L$(QTDIR)/lib -lqt -lopenss-Base
+TemplatePanel_la_LIBADD = -L$(QTDIR)/lib -lqt
 
 moc_TemplatePanel.cxx: TemplatePanel.hxx
 	-moc -o moc_TemplatePanel.cxx TemplatePanel.hxx

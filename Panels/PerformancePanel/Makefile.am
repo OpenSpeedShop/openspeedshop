@@ -28,7 +28,7 @@ PerformancePanel_la_CXXFLAGS = \
 
 PerformancePanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
-PerformancePanel_la_LIBADD = -L$(QTDIR)/lib -lqt -lopenss-Base
+PerformancePanel_la_LIBADD = -L$(QTDIR)/lib -lqt
 
 PerformancePanel_la_SOURCES = \
 	PerformancePanel.hxx PerformancePanel.cxx \

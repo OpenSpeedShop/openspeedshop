@@ -47,7 +47,7 @@ UserTimePanel_la_LDFLAGS = \
 	-lqt \
 	-ldl
 
-UserTimePanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-Base -lopenss-GUI -lopenss-Objects
+UserTimePanel_la_LIBADD = $(LIBLTDL) -lopenss-framework
 
 moc_UserTimePanel.cxx: UserTimePanel.hxx
 	-moc -o moc_UserTimePanel.cxx UserTimePanel.hxx
