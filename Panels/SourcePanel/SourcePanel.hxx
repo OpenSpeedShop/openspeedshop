@@ -99,7 +99,7 @@ public:
   int lastScrollBarValue;
 
   //! The last line height
-  float lastLineHeight;
+  int lastLineHeight;
   
   //! The last calculated visible lines...
   int lastVisibleLines;

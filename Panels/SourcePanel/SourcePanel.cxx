@@ -47,7 +47,7 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
 splitter->setHandleWidth(1);
 
   lastTop = 0;
-  lastLineHeight = 0;
+  lastLineHeight = 1;
   lastVisibleLines = 0;
   last_para = -1;   // For last find command.
   last_index = -1;   // For last find command.
@@ -596,7 +596,7 @@ SourcePanel::loadFile(const QString &_fileName)
   if( sameFile == FALSE )
   {
     canvasForm->clearAllItems();
-    canvasForm->setHighlights(textEdit->font(), lastLineHeight, lastTop, lastVisibleLines);
+    canvasForm->setHighlights(textEdit->font(), lastLineHeight, lastTop, lineCount, lastVisibleLines);
   }
 }
 
@@ -841,8 +841,7 @@ SourcePanel::valueChanged(int passed_in_value)
 
 // This is not correct, but it's gets close enough for right now.  FIX
   nprintf(DEBUG_PANELS) ("Your valueChanged - passed_in_value=%d\n", passed_in_value);
-//  float minValue = (float)vscrollbar->minValue();
-float maxValue = (float)vscrollbar->maxValue();
+int max_value = vscrollbar->maxValue();
   int value = 0;
  
   if( passed_in_value >= 0 )
@@ -855,28 +854,18 @@ float maxValue = (float)vscrollbar->maxValue();
   nprintf(DEBUG_PANELS) ("valueChanged:: (%d)\n", value );
   nprintf(DEBUG_PANELS) ("passed in value=%d\n", passed_in_value );
 
-printf("value=%d lastLineHeight=%f maxValue=%f\n", value, lastLineHeight, maxValue);
+  nprintf(DEBUG_CONST_DESTRUCT) ("value=%d lastLineHeight=%d max_value=%d\n", value, lastLineHeight, max_value);
   int top_line = (int)(value/lastLineHeight);
-float remainder = value-(top_line*lastLineHeight);
-printf("remainder = %f\n", remainder );
-float residual = remainder-(int)remainder;
-printf("residual = %f\n", residual);
-#ifdef OLDWAY
-if( residual >= .5 )
-{
-  remainder++;
-}
-remainder-=2;
-#else // OLDWAY
-remainder-=3; // For the textEdit margin.
-#endif // OLDWAY
-printf("new remainder = %f\n", remainder );
+  int remainder = value-(top_line*lastLineHeight);
+  nprintf(DEBUG_CONST_DESTRUCT) ("remainder = %d\n", remainder );
+  remainder-=3; // For the textEdit margin.
+  nprintf(DEBUG_CONST_DESTRUCT) ("new remainder = %d\n", remainder );
   top_line++;
   lastTop = top_line;
 
   nprintf(DEBUG_PANELS) ("top_line =%d\n", top_line);
   canvasForm->clearAllItems();
-  canvasForm->setHighlights(textEdit->font(), lastLineHeight, lastTop, lastVisibleLines, (int)remainder);
+  canvasForm->setHighlights(textEdit->font(), lastLineHeight, lastTop, lastVisibleLines, lineCount, (int)remainder);
 }
 
 /*! If there's a highlight list.... highlight the lines. */
@@ -941,17 +930,23 @@ SourcePanel::calculateLastParameters()
 {
   if( lineCount == 0 )
   {
-    lastLineHeight = 0;
+    lastLineHeight = 1;
     lastVisibleLines = 0;
     return;
   }
   int height = textEdit->height();
   int heightForWidth = textEdit->heightForWidth(80);
-  int pointSize = textEdit->pointSize();
-//  float lineHeight = (heightForWidth-vscrollbar->width())/(float)lineCount;
-  float lineHeight = heightForWidth/lineCount;
+  int lineHeight = heightForWidth/lineCount;
   lastLineHeight = lineHeight;
   lastVisibleLines = (int)(height/lineHeight);
-printf("calculate: maxValue=%d lineHeight=%f lineCount=%d\n", vscrollbar->maxValue(), lineHeight, lineCount );
-printf("calculate: heightForWidth=%d\n", heightForWidth);
-}
+
+  // We always add one to last visible lines, just incase there's a partial
+  // line on the top paired with a partial line on the bottom.    Otherwise
+  // a dynamic calculation needs to be done on each valueChange.... which may
+  // be the way to go if this causes problems.
+  lastVisibleLines++;
+
+  nprintf(DEBUG_CONST_DESTRUCT) ("calculate: maxValue=%d lineHeight=%d lineCount=%d\n", vscrollbar->maxValue(), lineHeight, lineCount );
+  nprintf(DEBUG_CONST_DESTRUCT) ("calculate: heightForWidth=%d\n", heightForWidth);
+  nprintf(DEBUG_CONST_DESTRUCT) ("calculate: lastLineHeight=%d lastVisibleLines=%d\n", lastLineHeight, lastVisibleLines );
+  }

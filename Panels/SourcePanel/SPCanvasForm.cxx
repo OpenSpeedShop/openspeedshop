@@ -51,7 +51,7 @@ SPCanvasForm::~SPCanvasForm( )
 }
 
 void
-SPCanvasForm::setHighlights(QFont canvas_font, float lineHeight, int topLine, int visibleLines, int top_offset)
+SPCanvasForm::setHighlights(QFont canvas_font, int lineHeight, int topLine, int visibleLines, int line_count, int top_offset)
 {
   nprintf(DEBUG_CONST_DESTRUCT) ("SPCanvasForm::setHighlights()\n");
   nprintf(DEBUG_CONST_DESTRUCT) ("lineHeight=%f topLine=%d visibleLines=%d\n", lineHeight, topLine, visibleLines );
@@ -60,13 +60,18 @@ SPCanvasForm::setHighlights(QFont canvas_font, float lineHeight, int topLine, in
   char buffer[100];
   for(i=0;i<visibleLines;i++)
   {
+    // Don't allow us to print past the number of lines in the file...
+    if( (topLine+i)-1 > line_count )
+    {
+      nprintf(DEBUG_CONST_DESTRUCT) ("line_count=%d topLine=%d i=%d == %d\n", line_count, topLine, i, topLine+i );
+      break;
+    }
     sprintf(buffer, "%d", topLine+i);
     QCanvasText *text = new QCanvasText( buffer, canvas_font, canvasArea);
     text->setColor("black");
     text->setX(10);
-//    text->setY(i*lineHeight);
     text->setY( (i*lineHeight)-top_offset );
-// printf("put out label (%s) at %dx%f\n", buffer, 10, i*lineHeight);
+// printf("put out label (%s) at %dx%d\n", buffer, 10, i*lineHeight);
     text->setZ(1);
     text->show();
     canvasTextList.push_back(text);

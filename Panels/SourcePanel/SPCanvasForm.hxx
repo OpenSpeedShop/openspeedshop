@@ -30,8 +30,8 @@ public:
     QCanvasItemList canvasItemList; // Not used anymore...
     CanvasTextList canvasTextList;
     void clearAllItems();
-    void setHighlights(QFont font, float lineHeight,
-                       int lastTop, int visibleLines, int top_offset=-2);
+    void setHighlights(QFont font, int lineHeight,
+                       int lastTop, int visibleLines, int line_count = 0, int top_offset=-2);
 protected: 
 
 public slots:
