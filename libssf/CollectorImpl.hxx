@@ -40,6 +40,7 @@
 
 namespace OpenSpeedShop { namespace Framework {
 
+    class Collector;
     class Thread;
     
     /**
@@ -61,6 +62,32 @@ namespace OpenSpeedShop { namespace Framework {
 	const std::set<Metadata>& getParameters() const;
 	const std::set<Metadata>& getMetrics() const;
 
+	/**
+	 * Start data collection.
+	 *
+	 * Pure virtual member function that defines the interface by which a
+	 * collector plugin starts data collection. Instruments the specified
+	 * thread as necessary.
+	 *
+	 * @param collector    Collector starting data collection.
+	 * @param thread       Thread for which to start collecting data.
+	 */
+	virtual void startCollecting(const Collector& collector,
+				     const Thread& thread) const = 0;	
+
+	/**
+	 * Stops data collection.
+	 *
+	 * Pure virtual member function that defines the interface by which a
+	 * collector plugin stops data collection. Removes any instrumentation
+	 * from the specified thread.
+	 *
+	 * @param collector    Collector stopping data collection.
+	 * @param thread       Thread for which to stop collecting data.
+	 */
+	virtual void stopCollecting(const Collector& collector,
+				    const Thread& thread) const = 0;
+	
 	/**
 	 * Get a metric value.
 	 *

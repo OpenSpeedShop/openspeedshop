@@ -65,10 +65,40 @@ ExampleCollector::ExampleCollector() :
 
 
 /**
+ * Start data collection.
+ *
+ * Implement starting data collection for a particular thread. ...
+ *
+ * @param collector    Collector starting data collection.
+ * @param thread       Thread for which to start collecting data.
+ */
+void ExampleCollector::startCollecting(const Collector& collector,
+				       const Thread& thread) const
+{
+}
+
+
+
+/**
+ * Stops data collection.
+ *
+ * Implement stopping data collection for a particular thread. ...
+ *
+ * @param collector    Collector stopping data collection.
+ * @param thread       Thread for which to stop collecting data.
+ */
+void ExampleCollector::stopCollecting(const Collector& collector,
+				      const Thread& thread) const
+{
+}
+
+
+
+/**
  * Get a metric value.
  *
  * Implement getting one of our metric values for a particular thread, over a
- * specific address range and time interval.
+ * specific address range and time interval. ...
  *
  * @param metric      Unique identifier of the metric.
  * @param thread      Thread for which to get a value.

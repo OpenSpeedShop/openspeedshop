@@ -27,12 +27,14 @@
 #include "Database.hxx"
 #include "Time.hxx"
 
+#include <fcntl.h>
 #ifdef HAVE_INTTYPES_H
 #include <inttypes.h>
 #endif
 #include <pthread.h>
 #include <sqlite3.h>
 #include <time.h>
+#include <unistd.h>
 
 using namespace OpenSpeedShop::Framework;
 
@@ -69,14 +71,94 @@ namespace {
 
 
 /**
- * Constructor from database name.
+ * Test accessibility of a database.
  *
- * Constructs an object for accessing a named database. If a database with the
- * specified name does not exist, it is first created. The database (existing or
- * new) is then opened for read/write access.
+ * Returns a boolean value indicating if the specified database is accessible.
+ * Simply confirms that the database exists and is accessible by the database
+ * engine. It does not examine or check the actual contents of the database.
+ *
+ * @param name    Name of the database to be tested.
+ * @return        Boolean "true" if the database is accessible,
+ *                "false" otherwise.
+ */
+bool Database::isAccessible(const std::string& name)
+{
+    // Verify a file with this name exists
+    int fd;
+    if((fd = open(name.c_str(), O_RDONLY)) == -1)
+	return false;
+    Assert(close(fd) == 0);
+    
+    // Open this file as a database
+    sqlite3* handle = NULL;
+    int retval = sqlite3_open(name.c_str(), &handle);
+    if(retval == SQLITE_CANTOPEN)
+	return false;
+    Assert(retval == SQLITE_OK);
+    Assert(handle != NULL);
+    
+    // Check that we reallly have a database
+    retval = sqlite3_exec(handle,
+			  "SELECT * FROM sqlite_master WHERE type='table';",
+			  NULL, NULL, NULL);
+    if(retval == SQLITE_NOTADB) {
+	Assert(sqlite3_close(handle) == SQLITE_OK); 
+	return false;
+    }
+    Assert(retval == SQLITE_OK);
+    
+    // Close the database
+    Assert(sqlite3_close(handle) == SQLITE_OK); 
+    
+    // Return that the database is accessible
+    return true;
+}
+
+
+
+/**
+ * Create a database.
+ *
+ * Creates a new, empty, database with the specified name. Operations can
+ * be performed on the new database by creating a Database object with this
+ * database's name and then executing SQL statements.
  *
  * @note    An exception of type std::runtime_error is thrown if the database
- *          cannot be opened or created for any reason.
+ *          cannot be created for any reason (including the pre-existence of
+ *          the named database).
+ *
+ * @param name    Name of the database to be created.
+ */
+void Database::create(const std::string& name)
+{
+    // Verify the database is not already accessible
+    if(isAccessible(name))
+	throw std::runtime_error("Database \"" + name + "\" already exists.");
+
+    // Open this file as a database
+    sqlite3* handle = NULL;
+    int retval = sqlite3_open(name.c_str(), &handle);
+    if(retval == SQLITE_CANTOPEN)
+	throw std::runtime_error("Database \"" + name + 
+				 "\" cannot be created.");
+    Assert(retval == SQLITE_OK);
+    Assert(handle != NULL);
+
+    // Close the database
+    Assert(sqlite3_close(handle) == SQLITE_OK); 
+}
+
+
+
+/**
+ * Constructor from database name.
+ *
+ * Constructs an object for accessing the existing named database. Operations
+ * can then be performed on this database by executing SQL statements using the
+ * member functions of this class.
+ *
+ * @note    An exception of type std::runtime_error is thrown if the database
+ *          cannot be opened for any reason.
  *
  * @todo    Currently the SQLite cache size for the database is set to 100,000
  *          pages (about 150Mb). Having this specified by the caller or by an
@@ -101,31 +183,20 @@ Database::Database(const std::string& name) :
     Assert(pthread_mutex_init(&dm_lock, &attr) == 0);
     Assert(pthread_mutexattr_destroy(&attr) == 0);
     
-    // Open (creating if necessary) the database
-    int retval = sqlite3_open(name.c_str(), &dm_handle);
-    if(retval == SQLITE_CANTOPEN)
-	throw std::runtime_error("Database \"" + name +
-				 "\" can't be created and/or opened.");
-    Assert(retval == SQLITE_OK);
+    // Verify the database is accessible
+    if(!isAccessible(name))
+	throw std::runtime_error("Database \"" + name + "\" can't be opened.");
+    
+    // Open the database
+    Assert(sqlite3_open(name.c_str(), &dm_handle) == SQLITE_OK);
     Assert(dm_handle != NULL);
     
     // Specify our busy handler
     Assert(sqlite3_busy_handler(dm_handle, busyHandler, this) == SQLITE_OK);
     
-    // Check if the file is really a database
-    retval = sqlite3_exec(dm_handle,
-			  "SELECT * FROM sqlite_master WHERE type='table';",
-			  NULL, NULL, NULL);
-    if(retval == SQLITE_NOTADB) {
-	Assert(sqlite3_close(dm_handle) == SQLITE_OK); 
-	throw std::runtime_error("File \"" + name + "\" isn't a database.");
-    }
-    Assert(retval == SQLITE_OK);
-
     // Change the SQLite cache size to 100,000 pages (about 150Mb)
-    retval = sqlite3_exec(dm_handle, "PRAGMA cache_size = 100000;",
-			  NULL, NULL, NULL);
-    Assert(retval == SQLITE_OK);    
+    Assert(sqlite3_exec(dm_handle, "PRAGMA cache_size = 100000;",
+			NULL, NULL, NULL) == SQLITE_OK);
 }
 
 

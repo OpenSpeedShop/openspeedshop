@@ -50,10 +50,10 @@ namespace OpenSpeedShop { namespace Framework {
     /**
      * SQL database.
      *
-     * Class abstracting access to an SQL database. The database is opened or
-     * created with read/write access upon object construction and closed upon
-     * object destruction. Actual database access is accomplished via one or
-     * more SQL statements executed within atomic transactions.
+     * Class abstracting access to an SQL database. The database is opened
+     * for read/write access upon object construction and closed upon object
+     * destruction. Actual database access is accomplished via one or more
+     * SQL statements executed within atomic transactions.
      *
      * @note    The interface of this class is designed to be independent of the
      *          particular SQL implementation that is used. Currently this class
@@ -99,6 +99,11 @@ namespace OpenSpeedShop { namespace Framework {
   
 	};
 
+    public:
+
+	static bool isAccessible(const std::string&);
+	static void create(const std::string&);
+	
     public:
 	
 	explicit Database(const std::string&);

@@ -44,21 +44,22 @@ int main(int argc, char* argv[])
     }
     
     try {
-
-	// Create an experiment
+	
+	// Create and open an experiment
 	std::string name = std::string(argv[1]) + ".openss";
+	Experiment::create(name);
 	Experiment experiment(name);
-
+	
 	// Create a process for the command in the suspended state
 	Thread thread = experiment.createProcess(command);
-
+	
 	// Create the example collector
 	Collector collector = experiment.createCollector("example");
-
+	
 	// Attach this process to the collector and start collecting data
 	collector.attachThread(thread);
 	collector.startCollecting();
-
+	
 	// Resume the suspended threads
 	experiment.getThreads().changeState(Thread::Running);
 	

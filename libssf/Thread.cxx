@@ -418,6 +418,7 @@ Optional<Function> Thread::getFunctionAt(const Address& address,
 {
     Optional<Function> function;
     
+    // Begin a multi-statement transaction
     BEGIN_TRANSACTION(dm_database);
     validateEntry();
 
@@ -466,6 +467,7 @@ Optional<Function> Thread::getFunctionAt(const Address& address,
 	
     }
 
+    // End this multi-statement transaction
     END_TRANSACTION(dm_database);    
     
     // Return the function to the caller
@@ -490,6 +492,7 @@ Optional<Statement> Thread::getStatementAt(const Address& address,
 {
     Optional<Statement> statement;
     
+    // Begin a multi-statement transaction
     BEGIN_TRANSACTION(dm_database);
     validateEntry();
     
@@ -537,7 +540,8 @@ Optional<Statement> Thread::getStatementAt(const Address& address,
 	}
 	
     }
-    
+
+    // End this multi-statement transaction
     END_TRANSACTION(dm_database);    
 
     // Return the statement to the caller

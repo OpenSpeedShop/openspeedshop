@@ -51,11 +51,12 @@ namespace OpenSpeedShop { namespace Framework {
     public:
 	
 	PCSampCollector();    
-	
-	virtual void getMetricValue(const std::string&,
-				    const Thread&,
-				    const AddressRange&,
-				    const TimeInterval&,
+
+	virtual void startCollecting(const Collector&, const Thread&) const;
+	virtual void stopCollecting(const Collector&, const Thread&) const;
+
+	virtual void getMetricValue(const std::string&, const Thread&,
+				    const AddressRange&, const TimeInterval&,
 				    void*) const;
 	
     };

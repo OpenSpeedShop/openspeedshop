@@ -643,7 +643,7 @@ ThreadGroup Collector::getThreads() const
     BEGIN_TRANSACTION(dm_database);
     validateEntry();
     dm_database->prepareStatement(
-        "SELECT thread FROM Attachments WHERE thread = ?;"
+        "SELECT thread FROM Attachments WHERE collector = ?;"
         );
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement())
@@ -660,18 +660,81 @@ ThreadGroup Collector::getThreads() const
 /**
  * Attach to a thread.
  *
- * Attaches the specified thread to this collector.  ...
+ * Attaches the specified thread to this collector. If the collector is
+ * currently collecting performance data, collection is automatically started
+ * for the newly attached thread.
  *
  * @pre    The thread must be in the same experiment as the collector. An
- *         exception of type std::invalid_arugment is thrown if the thread is
- *         in a different experiment than the collector.
+ *         exception of type std::invalid_arugment or Database::Corrupted is
+ *         thrown if the thread is in a different experiment than the collector.
  *
- * @todo    Needs to be implemented.
+ * @pre    A thread that is already attached to this collector cannot be
+ *         attached again without first being detached. An exception of type
+ *         std::logic_error is thrown if multiple attachments are attempted.
  *
  * @param thread    Thread to be attached.
  */
 void Collector::attachThread(const Thread& thread) const
 {
+    // Check assertions
+    Assert(!dm_database.isNull());
+
+    // Check preconditions
+    if(thread.dm_database != dm_database)
+	throw std::invalid_argument("Cannot attach to a thread that isn't in "
+				    "the same experiment as the collector.");
+    
+    // Begin a multi-statement transaction
+    BEGIN_TRANSACTION(dm_database);
+    validateEntry();
+    thread.validateEntry();
+
+    // Is this attachment already present?
+    bool is_attached = false;
+    dm_database->prepareStatement(
+	"SELECT COUNT(*) FROM Attachments WHERE collector = ? AND thread = ?;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    dm_database->bindArgument(2, thread.dm_entry);
+    while(dm_database->executeStatement())
+	is_attached = dm_database->getResultAsInteger(1) != 0;
+    
+    // Check preconditions
+    if(is_attached)
+	throw std::logic_error("Cannot attach a thread to a collector "
+			       "more than once.");
+    
+    // Create the attachment
+    dm_database->prepareStatement(
+	"INSERT INTO Attachments (collector, thread) VALUES (?, ?);"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    dm_database->bindArgument(2, thread.dm_entry);
+    while(dm_database->executeStatement());
+    
+    // Are we collecting?
+    bool is_collecting = false;
+    dm_database->prepareStatement(
+	"SELECT is_collecting FROM Collectors WHERE id = ?;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement())
+	is_collecting = 
+	    (dm_database->getResultAsInteger(1) != 0) ? true : false;
+    
+    // Start data collection for this thread if we are collecting
+    if(is_collecting) {
+	
+	// Check assertions
+	Assert(dm_impl != NULL);
+
+	// Defer to our implementation
+	dm_impl->startCollecting(*this, thread);
+	
+    }
+    
+    // End this multi-statement transaction
+    END_TRANSACTION(dm_database);
 }
 
 
@@ -679,18 +742,81 @@ void Collector::attachThread(const Thread& thread) const
 /**
  * Detach a thread.
  *
- * Detaches the specified thread from this collector. ...
+ * Detaches the specified thread from this collector. If the collector is
+ * currently collecting performance data, collection is automatically stopped
+ * for the thread being detached.
  *
  * @pre    The thread must be in the same experiment as the collector. An
- *         exception of type std::invalid_arugment is thrown if the thread is
- *         in a different experiment than the collector.
+ *         exception of type std::invalid_argument Database::Corrupted is
+ *         thrown if the thread is in a different experiment than the collector.
  *
- * @todo    Needs to be implemented.
+ * @pre    A thread cannot be detached before it was attached. An exception of
+ *         type std::logic_error is thrown if the thread is not attached to this
+ *         collector.
  *
  * @param thread    Thread to be detached.
  */
 void Collector::detachThread(const Thread& thread) const
 {
+    // Check assertions
+    Assert(!dm_database.isNull());
+    
+    // Check preconditions
+    if(thread.dm_database != dm_database)
+	throw std::invalid_argument("Cannot detach a thread that isn't in "
+				    "the same experiment as the collector.");
+    
+    // Begin a multi-statement transaction
+    BEGIN_TRANSACTION(dm_database);
+    validateEntry();
+    thread.validateEntry();
+    
+    // Is this attachment already present?
+    bool is_attached = false;
+    dm_database->prepareStatement(
+	"SELECT COUNT(*) FROM Attachments WHERE collector = ? AND thread = ?;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    dm_database->bindArgument(2, thread.dm_entry);
+    while(dm_database->executeStatement())
+	is_attached = dm_database->getResultAsInteger(1) != 0;
+    
+    // Check preconditions
+    if(!is_attached)
+	throw std::logic_error("Cannot detach a thread from a collector "
+			       "that wasn't previously attached.");
+
+    // Are we collecting?
+    bool is_collecting = false;
+    dm_database->prepareStatement(
+	"SELECT is_collecting FROM Collectors WHERE id = ?;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement())
+	is_collecting = 
+	    (dm_database->getResultAsInteger(1) != 0) ? true : false;
+    
+    // Stop data collection for this thread if we are collecting
+    if(is_collecting) {
+	
+	// Check assertions
+	Assert(dm_impl != NULL);
+
+	// Defer to our implementation
+	dm_impl->stopCollecting(*this, thread);
+	
+    }
+
+    // Remove the attachment
+    dm_database->prepareStatement(
+	"DELETE FROM Attachments WHERE collector = ? AND thread = ?;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    dm_database->bindArgument(2, thread.dm_entry);
+    while(dm_database->executeStatement());
+    
+    // End this multi-statement transaction
+    END_TRANSACTION(dm_database);
 }
 
 
@@ -701,14 +827,30 @@ void Collector::detachThread(const Thread& thread) const
  * Returns a boolean value indicating if the collector is currently collecting
  * performance data.
  *
- * @todo    Needs to be implemented.
- *
  * @return    Boolean "true" if the collector is currently collecting data,
  *            "false" otherwise.
  */
 bool Collector::isCollecting() const
 {
-    return false;
+    bool is_collecting = false;
+
+    // Check assertions
+    Assert(!dm_database.isNull());
+    
+    // Are we collecting?
+    BEGIN_TRANSACTION(dm_database);
+    validateEntry();
+    dm_database->prepareStatement(
+        "SELECT is_collecting FROM Collectors WHERE id = ?;"
+        );
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement())
+	is_collecting = 
+	    (dm_database->getResultAsInteger(1) != 0) ? true : false;
+    END_TRANSACTION(dm_database);
+    
+    // Return the state to the caller
+    return is_collecting;
 }
 
 
@@ -716,23 +858,59 @@ bool Collector::isCollecting() const
 /**
  * Start data collection.
  *
- * Starts data collection for this collector. Data collection can be stopped
- * temporarily or permanently by calling stopCollecting(). All data that is
- * collected is available via the collector's metrics. If the collector is
- * already collecting data, the request is silently ignored.
+ * Starts performance data collection for this collector. Data collection can
+ * be stopped temporarily or permanently by calling stopCollecting(). All data
+ * that is collected is available via the collector's metrics.
+ *
+ * @pre    Collectors cannot start data collection if they are currently
+ *         collecting data. An exception of type std::logic_error is thrown if
+ *         an attempt is made to start a collector that is already collecting. 
  *
  * @pre    Only applies to a collector for which an implementation was found.
  *         An exception of type std::logic_error is thrown if called for a
  *         collector that has no implementation.
- *
- * @pre    Collectors cannot start data collection until they have been attached
- *         to at least one thread. An exception of type std::logic_error is
- *         thrown if an attempt is made to start an unattached collector.
- *
- * @todo    Needs to be implemented.
  */
 void Collector::startCollecting() const
 {
+    // Check assertions
+    Assert(!dm_database.isNull());
+    
+    // Begin a multi-statement transaction
+    BEGIN_TRANSACTION(dm_database);
+    validateEntry();
+    
+    // Are we collecting?
+    bool is_collecting = false;
+    dm_database->prepareStatement(
+	"SELECT is_collecting FROM Collectors WHERE id = ?;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement())
+	is_collecting = 
+	    (dm_database->getResultAsInteger(1) != 0) ? true : false;
+    
+    // Check preconditions
+    if(is_collecting)
+	throw std::logic_error("Cannot start a collector that is "
+			       "already collecting.");
+    if(dm_impl == NULL)
+        throw std::logic_error("Collector has no implementation.");
+    
+    // Defer to our implementation for each attached thread
+    ThreadGroup threads = getThreads();
+    for(ThreadGroup::const_iterator 
+	    i = threads.begin(); i != threads.end(); ++i)
+	dm_impl->startCollecting(*this, *i);
+    
+    // Indicate we are collecting
+    dm_database->prepareStatement(
+	"UPDATE Collectors SET is_collecting = 1 WHERE id = ?;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement());
+    
+    // End this multi-statement transaction
+    END_TRANSACTION(dm_database);
 }
 
 
@@ -740,19 +918,56 @@ void Collector::startCollecting() const
 /**
  * Stop data collection.
  *
- * Stops data collection for this collector. Data collection can be resumed by
- * calling startCollecting() again. All data that was collected is available via
- * the collector's metrics. If the collector is not currently collecting data,
- * the request is silently ignored.
+ * Stops performance data collection for this collector. Data collection can 
+ * be resumed by calling startCollecting() again. All data that was collected
+ * is available via the collector's metrics.
  *
- * @pre    Only applies to a collector for which an implementation was found.
- *         An exception of type std::logic_error is thrown if called for a
- *         collector that has no implementation.
- *
- * @todo    Needs to be implemented.
+ * @pre    Collectors cannot stop data collection unless they are currently
+ *         collecting data. An exception of type std::logic_error is thrown
+ *         if an attempt is made to stop a collector that isn't collecting.
  */
 void Collector::stopCollecting() const
 {
+    // Check assertions
+    Assert(!dm_database.isNull());
+    
+    // Begin a multi-statement transaction
+    BEGIN_TRANSACTION(dm_database);
+    validateEntry();
+    
+    // Are we collecting?
+    bool is_collecting = false;
+    dm_database->prepareStatement(
+	"SELECT is_collecting FROM Collectors WHERE id = ?;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement())
+	is_collecting = 
+	    (dm_database->getResultAsInteger(1) != 0) ? true : false;
+
+    // Check preconditions
+    if(!is_collecting)
+	throw std::logic_error("Cannot stop a collector that is "
+                               "not currently collecting.");
+	
+    // Check assertions
+    Assert(dm_impl != NULL);
+	
+    // Defer to our implementation for each attached thread
+    ThreadGroup threads = getThreads();
+    for(ThreadGroup::const_iterator 
+	    i = threads.begin(); i != threads.end(); ++i)
+	dm_impl->stopCollecting(*this, *i);
+    
+    // Indicate we are no longer collecting
+    dm_database->prepareStatement(
+	"UPDATE Collectors SET is_collecting = 0 WHERE id = ?;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement());
+    
+    // End this multi-statement transaction
+    END_TRANSACTION(dm_database);
 }
 
 

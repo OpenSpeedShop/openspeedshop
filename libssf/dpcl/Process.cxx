@@ -174,8 +174,6 @@ std::string Process::formUniqueName(const std::string& host, const pid_t& pid)
  * environment variables, etc.) as when the tool was started. The process
  * is created in a suspended state.
  *
- * @todo    Throw std::runtime_error() if command doesn't exist.
- *
  * @todo    Should probably try to find a full pathname for argv[0].
  *
  * @todo    The stdout and stderr callbacks don't appear to be working.
@@ -245,7 +243,12 @@ Process::Process(const std::string& host, const std::string& command) :
     MainLoop::suspend();    
     AisStatus retval = dm_process->bcreate(dm_host.c_str(),
 					   argv[0], argv, ::environ,
-					   stdoutCB, NULL, stderrCB, NULL);    
+					   stdoutCB, NULL, stderrCB, NULL);
+    if(retval.status() == ASC_failure) {
+	MainLoop::resume();
+	throw std::runtime_error("Cannot create process to execute the "
+				 "command \"" + command + "\".");
+    }
     Assert(retval.status() == ASC_success);
     retval = dm_process->battach();
     Assert(retval.status() == ASC_success);
@@ -307,13 +310,20 @@ Process::Process(const std::string& host, const pid_t& pid) :
     // Ask DPCL to connect and attach to the process
     MainLoop::suspend();    
     AisStatus retval = dm_process->bconnect();
+    if(retval.status() == ASC_failure) {
+	MainLoop::resume();
+	char pid[16];
+	sprintf(pid, "%d", static_cast<int>(pid_));
+	throw std::runtime_error("Cannot connect to PID " + pid + 
+				 " on host \"" + host + "\".");
+    }
     Assert(retval.status() == ASC_success);
     retval = dm_process->battach();
     Assert(retval.status() == ASC_success);
     MainLoop::resume();	
 }
-
-
+    
+    
     
 /**
  * Destructor.

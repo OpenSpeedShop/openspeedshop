@@ -142,8 +142,8 @@ namespace {
 
 	// Attachments Table
 	"CREATE TABLE Attachments ("
-	"    thread INTEGER," // From Threads.id
-	"    collector INTEGER" // From Collectors.id
+	"    collector INTEGER," // From Collectors.id
+	"    thread INTEGER" // From Threads.id
 	");",
 	
 	// Data Table
@@ -223,34 +223,93 @@ namespace {
 
 
 /**
+ * Test accessibility of an experiment database.
+ *
+ * Returns a boolean value indicating if the specified experiment database is
+ * accessible. Simply confirms that the database exists, is accessible by the
+ * database engine, and contains a "Open/SpeedShop" table with a single row.
+ * It does not check that any of the other tables match the experiment database
+ * schema or that the tablesare internally consistent.
+ *
+ * @param name    Name of the experiment database to be tested.
+ * @return        Boolean "true" if the experiment database is accessible,
+ *                "false" otherwise.
+ */
+bool Experiment::isAccessible(const std::string& name)
+{
+    bool is_accessible = true;
+
+    try {
+
+	// Open the experiment database
+	SmartPtr<Database> database = SmartPtr<Database>(new Database(name));
+
+	// Verify there is a "Open/SpeedShop" table containing a single row
+	BEGIN_TRANSACTION(database);
+	database->prepareStatement("SELECT COUNT(*) FROM 'Open/SpeedShop';");
+	while(database->executeStatement())
+	    is_accessible = (database->getResultAsInteger(1) == 1);
+	END_TRANSACTION(database);
+	
+    }
+    catch(...) {
+	is_accessible = false;
+    }
+    
+    // Return the experiment database's accessibility to the caller
+    return is_accessible;
+}
+
+
+
+/**
+ * Create an experiment database.
+ *
+ * Creates a new, empty, experiment database with the specified name.
+ *
+ * @note    An exception of type std::runtime_error is thrown if the
+ *          experiment database cannot be created for any reason (including
+ *          the pre-existence of the named database).
+ *
+ * @param name    Name of the database to be created.
+ */
+void Experiment::create(const std::string& name)
+{
+    // Create an open the database
+    Database::create(name);
+    SmartPtr<Database> database = SmartPtr<Database>(new Database(name));
+
+    // Apply the experiment database schema
+    BEGIN_TRANSACTION(database);
+    for(int i = 0; DatabaseSchema[i] != NULL; ++i) {
+	database->prepareStatement(DatabaseSchema[i]);
+	while(database->executeStatement());
+    }
+    END_TRANSACTION(database);
+}
+
+
+
+/**
  * Constructor from an experiment database name.
  *
- * Constructs an object for accessing the specified experiment database. If a
- * database with this name does not exist, an empty database is first created.
- * The database (pre-existing or new) is then opened for access. Any threads
- * in this experiment that correspond to an underlying thread are automatically
- * reattached.
+ * Constructs an object for accessing the specified experiment database.
+ * Any threads in this experiment that correspond to an underlying thread
+ * are automatically reattached.
  *
  * @note    An exception of type std::runtime_error is thrown if the experiment
- *          database cannot be opened or created for any reason.
+ *          database cannot be opened for any reason.
  *
- * @param name    Name of the experiment database to be used.
+ * @param name    Name of the experiment database to be accessed.
  */
 Experiment::Experiment(const std::string& name) :
     dm_database(SmartPtr<Database>(new Database(name)))
 {
-    // Is this database accessible?
-    if(!isAccessible()) {
-
-	// Assume a new database and apply the experiment database schema
-	applySchema();
-	
-	// Is this database accessible now?
-	if(!isAccessible())
-	    throw std::runtime_error("Experiment database \"" +
-				     dm_database->getName() +
-				     "\" can't be created and/or opened.");
-    }
+    // Verify the experiment database is accessible
+    if(!isAccessible(name))
+	throw std::runtime_error("Experiment database \"" +
+				 dm_database->getName() +
+				 "\" can't be opened.");
     
     // Find our threads
     ThreadGroup threads = getThreads();
@@ -279,14 +338,24 @@ Experiment::Experiment(const std::string& name) :
  */
 Experiment::~Experiment()
 {
+    // Begin a multi-statement transaction
+    BEGIN_TRANSACTION(dm_database);
+
     // Stop data collection for all collectors
-    getCollectors().stopCollecting();
+    CollectorGroup collectors = getCollectors();
+    for(CollectorGroup::const_iterator
+	    i = collectors.begin(); i != collectors.end(); ++i)
+	if(i->isCollecting())
+	    i->stopCollecting();
     
     // Detach from all of the underlying threads
     ThreadGroup threads = getThreads();
     for(ThreadGroup::const_iterator 
 	    i = threads.begin(); i != threads.end(); ++i)
 	Instrumentor::detachUnderlyingThread(*i);
+
+    // End this multi-statement transaction
+    END_TRANSACTION(dm_database); 
 }
 
 
@@ -505,8 +574,8 @@ ThreadGroup Experiment::attachArraySession(const ash_t& ash,
  * suspended state, it is put into the running state before being removed.
  *
  * @pre    Threads must be in the experiment to be removed. An exception
- *         of type std::invalid_argument is thrown if the thread is not in the
- *         experiment.
+ *         of type std::invalid_argument or Database::Corrupted is thrown if
+ *         the thread is not in the experiment.
  *
  * @param thread    Thread to be removed.
  */
@@ -521,7 +590,8 @@ void Experiment::removeThread(const Thread& thread) const
     Instrumentor::detachUnderlyingThread(thread);
     
     // Remove this thread
-    BEGIN_TRANSACTION(dm_database);    
+    BEGIN_TRANSACTION(dm_database);
+    thread.validateEntry();
     dm_database->prepareStatement("DELETE FROM Threads WHERE id = ?;");
     dm_database->bindArgument(1, thread.dm_entry);
     while(dm_database->executeStatement());    
@@ -616,8 +686,8 @@ Collector Experiment::createCollector(const std::string& unique_id) const
  * destroyed.
  *
  * @pre    Collectors must be in the experiment to be removed. An exception
- *         of type std::invalid_argument is thrown if the collector is not in
- *         the experiment.
+ *         of type std::invalid_argument or Database::Corrupted is thrown if
+ *         the collector is not in the experiment.
  *
  * @param collector    Collector to be removed.
  */
@@ -633,6 +703,7 @@ void Experiment::removeCollector(const Collector& collector) const
     
     // Remove this collector
     BEGIN_TRANSACTION(dm_database);    
+    collector.validateEntry();
     dm_database->prepareStatement("DELETE FROM Collectors WHERE id = ?;");
     dm_database->bindArgument(1, collector.dm_entry);
     while(dm_database->executeStatement());    
@@ -668,69 +739,4 @@ std::string Experiment::getLocalHost()
     
     // Return the local host name to the caller
     return buffer;
-}
-
-
-
-/**
- * Apply the database schema.
- *
- * Insures this database is a proper experiment database by applying the
- * experiment database schema. It is assumed that the database has already
- * been specified and created/opened by the caller. Here we simply create
- * the initial tables, indicies, records, etc. described by the schema. No
- * actual data is placed in the database.
- *
- * @note    An exception of type std::runtime_error is thrown if the schema
- *          cannot be applied for any reason.
- */
-void Experiment::applySchema() const
-{
-    // Apply the database schema
-    try {
-	dm_database->beginTransaction();
-	for(int i = 0; DatabaseSchema[i] != NULL; ++i) {
-	    dm_database->prepareStatement(DatabaseSchema[i]);
-	    while(dm_database->executeStatement());
-	}
-	dm_database->commitTransaction();    	
-    }
-    catch(const std::runtime_error& error) {	
-	dm_database->rollbackTransaction();
-	throw std::runtime_error("Experiment database \"" +
-				 dm_database->getName() +
-				 "\" can't be created and/or opened.");	
-    }
-}
-
-
-
-/**
- * Test accessibility of our database.
- *
- * Returns a boolean value indicating if this database is accessible. Simply
- * confirms that the database contains an "Open/SpeedShop" table with a single
- * entry. It does not check that any of the other tables match the experiment
- * database schema or that the tables are internally consistent.
- *
- * @return    Boolean "true" if the database is accessible, "false" otherwise.
- */
-bool Experiment::isAccessible() const
-{
-    bool is_accessible = false;
-
-    // Verify there is a single entry in the "Open/SpeedShop" table
-    try {
-	dm_database->beginTransaction();
-	dm_database->prepareStatement("SELECT COUNT(*) FROM 'Open/SpeedShop';");
-	while(dm_database->executeStatement())
-	    is_accessible = (dm_database->getResultAsInteger(1) == 1);
-	dm_database->commitTransaction();	
-    }
-    catch(const std::runtime_error& error) {
-	dm_database->rollbackTransaction();	
-    }
-    
-    // Return the database's accessibility to the caller
-    return is_accessible;
 }

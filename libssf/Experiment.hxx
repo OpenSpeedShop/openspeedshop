@@ -79,6 +79,11 @@ namespace OpenSpeedShop { namespace Framework {
     {
 
     public:
+
+	static bool isAccessible(const std::string&);
+	static void create(const std::string&);
+
+    public:
 	
 	explicit Experiment(const std::string&);
 	~Experiment();
@@ -115,9 +120,6 @@ namespace OpenSpeedShop { namespace Framework {
 	static std::string getLocalHost();
 
     private:
-	
-	void applySchema() const;
-	bool isAccessible() const;
 	
 	/** Experiment database. */
 	SmartPtr<Database> dm_database;
