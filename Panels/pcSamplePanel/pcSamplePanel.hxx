@@ -100,6 +100,7 @@ public slots:
   void manageCollectorsSelected();
   void manageProcessesSelected();
   void manageDataSetsSelected();
+  void loadSourcePanel();
 
 protected slots:
   virtual void languageChange();
