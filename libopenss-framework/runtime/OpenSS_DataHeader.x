@@ -22,7 +22,7 @@
  *
  */
 
-// Performance data header. - jeg leave for comparator
+/* Performance data header. - jeg leave for comparator */
 
 /**
  * Performance data header.
