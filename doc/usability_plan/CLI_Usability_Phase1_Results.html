@@ -41,54 +41,45 @@ Table of Contents</a></li>
 2004 Meeting Comments and Questions</a>
     <ul>
       <li><a href="#mozTocId335773">C1: MPI
-Considered
-        </a>
+Considered </a>
         <ul>
           <li><a href="#mozTocId653856">R1: MPI
-Considered
-            </a></li>
+Considered </a></li>
           <li><a href="#mozTocId223276">F1:
 MPI Follow-Up:</a></li>
         </ul>
       </li>
       <li><a href="#mozTocId122429">C2: Comparison
-Question
-        </a>
+Question </a>
         <ul>
           <li><a href="#mozTocId737898">R2: Comparison
 Question</a></li>
         </ul>
       </li>
       <li><a href="#mozTocId740862">C3:
-Asynchronous Run Question
-        </a>
+Asynchronous Run Question </a>
         <ul>
           <li><a href="#mozTocId316275">R3:
-Asynchronous Run Question
-            </a></li>
+Asynchronous Run Question </a></li>
         </ul>
       </li>
       <li><a href="#mozTocId80071">C4: expFocus
-Question
-        </a>
+Question </a>
         <ul>
           <li><a href="#mozTocId928185">R4:
 expFocus
-Question
-            </a></li>
+Question </a></li>
         </ul>
       </li>
       <li><a href="#mozTocId795664">C5: "::" will
-cause Python Problems
-        </a>
+cause Python Problems </a>
         <ul>
           <li><a href="#mozTocId733533">R5: "::" will
 cause Python Problems</a></li>
         </ul>
       </li>
       <li><a href="#mozTocId587386">C6: listExp
-dual uses and listTypes suggestion
-        </a>
+dual uses and listTypes suggestion </a>
         <ul>
           <li><a href="#mozTocId602913">R6: listExp
 dual uses and listTypes suggestion</a></li>
@@ -97,40 +88,35 @@ dual uses and listTypes suggestion</a></li>
         </ul>
       </li>
       <li><a href="#mozTocId637355">C7: What
-happens to the CLI window when launching the GUI?
-        </a>
+happens to the CLI window when launching the GUI? </a>
         <ul>
           <li><a href="#mozTocId724970">R7: What
 happens to the CLI window when launching the GUI?</a></li>
         </ul>
       </li>
       <li><a href="#mozTocId865448">C8: Saving and
-Restoring the Experiment
-        </a>
+Restoring the Experiment </a>
         <ul>
           <li><a href="#mozTocId623478">R8: Saving
 and Restoring the Experiment</a></li>
         </ul>
       </li>
       <li><a href="#mozTocId534409">C9:&nbsp; How
-do you stop gathering data for a period of time?
-        </a>
+do you stop gathering data for a period of time? </a>
         <ul>
           <li><a href="#mozTocId411470">R9: How
 do you stop gathering data for a period of time?</a></li>
         </ul>
       </li>
       <li><a href="#mozTocId556590">C10: CLI
-Command naming questions
-        </a>
+Command naming questions </a>
         <ul>
           <li><a href="#mozTocId609518">R10: CLI
 Command naming questions</a></li>
         </ul>
       </li>
       <li><a href="#mozTocId754417">C11: "record"
-command feature enhancement
-        </a>
+command feature enhancement </a>
         <ul>
           <li><a href="#mozTocId877836">R11: "record"
 command feature enhancement</a></li>
@@ -142,8 +128,7 @@ command feature enhancement</a></li>
 review follow up questions</a>
     <ul>
       <li><a href="#mozTocId165661">C12:&nbsp; Follow up question to
-C3/R3
-        </a>
+C3/R3 </a>
         <ul>
           <li><a href="#mozTocId688166">R12: Follow up question to C3/R3</a></li>
         </ul>
@@ -177,7 +162,32 @@ tool via the -f option (See <a
  style="font-weight: bold;">host_file_rpt</span> section of
 the Open/SpeedShop Types and Definition Document.</a>)&nbsp;&nbsp; This
 way the tool does not have to know about the syntax of all the
-variations of mpi.<br>
+variations of mpi.&nbsp;&nbsp; <br>
+<br>
+For example: <br>
+In the <span style="font-weight: bold;">-f </span>syntax you can have
+a <span style="font-weight: bold;">&lt;filename&gt;</span>
+specification which can include MPI commands to run MPI jobs such as
+"mpirun -np 512 a.out".&nbsp; So, the expAttach command might look like
+this:&nbsp;&nbsp; expAttach -f "mpirun -np 512 a.out".<br>
+<br>
+Additionally, there needs to be a software interface that will provide
+Open/SpeedShop this functionality in order to attach to all the
+processes/ranks of an MPI job:<br>
+<ul>
+  <li>Given a process identifier, return the job identifier</li>
+  <li>Given the job identifier, return all the processes and hosts
+associated with that job identifier</li>
+</ul>
+With this information Open/SpeedShop can attach to a running MPI
+job.&nbsp;&nbsp; On the SGI Altix platform, the array services
+functionality provides this information.&nbsp; On other platforms,
+whatever a similar type job monitoring service will be
+needed.&nbsp;&nbsp; The new API that asks the questions mentioned
+above, will interface with the platform specific software that provides
+the needed information.&nbsp; The new API will provide Open/SpeedShop
+with a common interface to the various multiprocessing job monitoring
+solutions that are platform specific.<br>
 <br>
 ---
 <br>
@@ -324,7 +334,8 @@ Yes - we will look into doing this.
 dual uses and listTypes suggestion</h3>
 We have added the listTypes command and changed the meaning of listExp
 as requested.<br>
-However, it may make more sense to integrate this capability into the <b>help</b> command.
+However, it may make more sense to integrate this capability into the <b>help</b>
+command.
 We hope to look at doing this, in the near future.<br>
 See <a href="../cli_doc/definition.html#mozTocId613827">The detailed
 command definitions for listTypes and listExp.</a><br>
@@ -476,7 +487,8 @@ unload the probe module(s).
 <br>
 <h2><small><a name="F9:_listExp_dual_uses_and_listTypes"></a>F9: </small>
 <small>How do you stop gathering data for a period of time?</small></h2>
-We have added <b>expDisable</b> and <b>expEnable</b> commands to support
+We have added <b>expDisable</b> and <b>expEnable</b> commands to
+support
 the requested capability.<br>
 See <a href="../cli_doc/definition.html#mozTocId526141">The detailed
 command definitions for expDisable and expEnable.</a><br>

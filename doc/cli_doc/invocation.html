@@ -8,7 +8,7 @@
 <body>
 <br>
 <br>
-<h1><small><i><a name="OpenSS_Invocation"></a>Open/SS</i> Invocation</small></h1>
+<h1><small><i><a name="OpenSS_Invocation"></a></i>Open/SS Invocation</small></h1>
 <br>
 <b>openss</b> [ <b>-batch</b> || <b>-gui</b> || <b>-cli</b> ]<br>
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
@@ -41,16 +41,22 @@ quoted for clarity,<br>
 NOTE: Quotes are not part of the specification.<br>
 <br>
 <br>
-&lt;command_file&gt; = file containing Open/SpeedShop commands<br>
-to be executed<br>
+&lt;command_file&gt; = file containing Open/SpeedShop commands to be
+executed<br>
 <br>
-NOTE: The command file redirection will occur after the<br>
-arguments have been evaluated and processed.<br>
+NOTE: The command file redirection will occur after the arguments have
+been evaluated and processed.<br>
 <br>
 <br>
-NOTE: &lt;filename&gt; can include commands to run mpi jobs<br>
-such as "mpirun -np 512 a.out"<br>
+NOTE: &lt;filename&gt; can include commands to run mpi jobs such as
+"mpirun -np 512 a.out"<br>
 <br>
+For example: <br>
+In the <span style="font-weight: bold;">-f </span>syntax you can have
+a <span style="font-weight: bold;">&lt;filename&gt;</span>
+specification which can include MPI commands to run MPI jobs such as
+"mpirun -np 512 a.out".&nbsp; So, the expAttach command might look like
+this:&nbsp;&nbsp; expAttach -f "mpirun -np 512 a.out".<br>
 <dir>
 <dir>&lt;<b>filename</b>&gt; = &lt;string&gt; || <b>"</b>&lt;string&gt;<b>"</b><br>
 &lt;<b>file_list</b>&gt; = &lt;filename&gt; [ <b>,</b>
