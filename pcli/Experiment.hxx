@@ -62,16 +62,52 @@ class ExperimentObject
 {
  private:
   EXPID Exp_ID;
+  bool Data_File_Has_A_Generated_Name;
+  OpenSpeedShop::Framework::Experiment *FW_Experiment;
+
   std::list<ApplicationGroupObject *> ApplicationObjectList;
   std::list<Collector *> CollectorList;
 
  public:
-  ExperimentObject () {
+  ExperimentObject (std::string data_base_name = std::string("")) {
     Exp_ID = ++Experiment_Sequence_Number;
-    ExperimentObject_list.push_front(this);
+
+   // Allocate a data base file for the information connected with the experiment.
+    std::string Data_File_Name;
+    if (data_base_name.length() == 0) {
+      char base[20];
+      snprintf(base, 20, "ssdb%lld.XXXXXX",Exp_ID);
+      Data_File_Name = std::string(tempnam ("./", &base[0] ) ) + ".openss";
+      Data_File_Has_A_Generated_Name = true;
+      OpenSpeedShop::Framework::Experiment::create (Data_File_Name);
+    } else {
+      Data_File_Name = data_base_name;
+      Data_File_Has_A_Generated_Name = false;
+    }
+
+   // Create and open an experiment
+    try {
+      FW_Experiment = new OpenSpeedShop::Framework::Experiment (Data_File_Name);
+      ExperimentObject_list.push_front(this);
+    }
+    catch(const std::exception& error) {
+      Exp_ID = 0;
+      Data_File_Has_A_Generated_Name = false;
+      FW_Experiment = NULL;
+    }
+
   }
   ~ExperimentObject () {
     ExperimentObject_list.remove (this);
+    if (Data_File_Has_A_Generated_Name) {
+      int err = remove (FW_Experiment->getName().c_str());
+      Data_File_Has_A_Generated_Name = false;
+    }
+    if (FW_Experiment != NULL) {
+      delete FW_Experiment;
+      FW_Experiment = NULL;
+    }
+    Exp_ID = 0;
   }
   void ExperimentObject_Merge_Application(std::list<ApplicationGroupObject *> App_List)
     {
@@ -90,8 +126,10 @@ class ExperimentObject
       CollectorList.push_front(Inst);
     }
   EXPID ExperimentObject_ID() {return Exp_ID;}
+  Experiment *FW() {return FW_Experiment;}
   void Print(FILE *TFile)
-    { fprintf(TFile,"Experiment %lld:\n",ExperimentObject_ID());
+    { fprintf(TFile,"Experiment %lld data->%s:\n",ExperimentObject_ID(),
+              FW_Experiment->getName().c_str());
       std::list<ApplicationGroupObject *>::iterator AppObji = ApplicationObjectList.begin();
       if (AppObji != ApplicationObjectList.end()) {
         fprintf(TFile,"  ");
@@ -118,6 +156,10 @@ class ExperimentObject
     }
 };
 
+// Make sure all experiments are closed and associated files freed.
+void Experiment_Termination ();
+
+// Experiment Utilities
 ExperimentObject *Find_Experiment_Object (EXPID ExperimentID);
 
 // Experiment level commands
