@@ -875,6 +875,10 @@ SourcePanel::clicked(int para, int offset)
 void
 SourcePanel::valueChanged(int passed_in_value)
 {
+  if( textEdit->isUpdatesEnabled( FALSE ) )
+  {
+    return;
+  }
 
 // This is not correct, but it's gets close enough for right now.  FIX
   nprintf(DEBUG_PANELS) ("Your valueChanged - passed_in_value=%d\n", passed_in_value);
