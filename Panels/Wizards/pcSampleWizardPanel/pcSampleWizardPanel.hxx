@@ -222,5 +222,8 @@ protected:
 protected slots:
     virtual void languageChange();
 
+private:
+    QString sampleRate;
+
 };
 #endif // PCSAMPLEWIZARDPANEL_H

@@ -599,6 +599,7 @@ nprintf(DEBUG_PANELS) ("eParameterPageBackButtonSelected() \n");
 void pcSampleWizardPanel::eParameterPageNextButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("eParameterPageNextButtonSelected() \n");
+  sampleRate = eParameterPageSampleRateText->text();
 
   eUpdateAttachOrLoadPageWidget();
 
@@ -786,6 +787,8 @@ nprintf(DEBUG_PANELS) ("vParameterPageBackButtonSelected() \n");
 void pcSampleWizardPanel::vParameterPageNextButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("vParameterPageNextButtonSelected() \n");
+  sampleRate = vParameterPageSampleRateText->text();
+
   vUpdateAttachOrLoadPageWidget();
 
   pcSampleWizardPanelStack->raiseWidget(vAttachOrLoadPageWidget);
@@ -940,10 +943,10 @@ nprintf(DEBUG_PANELS) ("vSummaryPageFinishButtonSelected() \n");
       LoadAttachObject *lao = NULL;
       if( mw->executable_name != NULL )
       {
-        lao = new LoadAttachObject(mw->executable_name, (char *)NULL);
+        lao = new LoadAttachObject(mw->executable_name, (char *)NULL, sampleRate);
       } else if( mw->pid_str != NULL )
       {
-        lao = new LoadAttachObject((char *)NULL, mw->pid_str);
+        lao = new LoadAttachObject((char *)NULL, mw->pid_str, sampleRate);
       } else
       {
         printf("Warning: No attach or load paramaters available.\n");
