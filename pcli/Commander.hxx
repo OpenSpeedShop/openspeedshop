@@ -123,7 +123,7 @@ void  SpeedShop_Trace_OFF(void);
 // Attach a new input source that will be read AFTER all the previous ones
 ResultObject Append_Input_File (CMDWID issuedbywindow, std::string fromfname);
 ResultObject Append_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_ptr);
-ResultObject Append_Input_String (CMDWID issuedbywindow, int64_t b_size, char *b_ptr);
+InputLineObject *Append_Input_String (CMDWID issuedbywindow, char *b_ptr);
 
 // Attach a new input source that will be read BEFORE all the previous ones
 ResultObject Push_Input_File (CMDWID issuedbywindow, std::string fromfname);
