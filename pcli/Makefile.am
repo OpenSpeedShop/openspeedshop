@@ -61,7 +61,9 @@ posscli_la_SOURCES = \
 	Start_Modes.cxx \
 	Commander.cxx \
 	SS_Cmd_Execution.cxx \
-	SS_Select_View.cxx \
+	SS_View.cxx \
+	SS_View_exp.cxx \
+	SS_View_pcfunc.cxx \
 	SS_Parse_Param.cxx \
 	SS_Parse_Range.cxx \
 	SS_Parse_Result.cxx \
