@@ -50,7 +50,7 @@ class ExperimentObject
     if (data_base_name.length() == 0) {
       char base[20];
       snprintf(base, 20, "ssdb%lld.XXXXXX",Exp_ID);
-      Data_File_Name = std::string(tempnam ("./", &base[0] ) ) + ".openss";
+      Data_File_Name = std::string(tempnam ("/tmp/", &base[0] ) ) + ".openss";
       Data_File_Has_A_Generated_Name = true;
       try {
         OpenSpeedShop::Framework::Experiment::create (Data_File_Name);
@@ -278,6 +278,13 @@ void Experiment_Termination ();
 
 // Experiment Utilities
 ExperimentObject *Find_Experiment_Object (EXPID ExperimentID);
+
+inline void Mark_Cmd_With_Std_Error (CommandObject *cmd, const std::exception& error) {
+   cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+                         "Unknown runtime error." : error.what() );
+   cmd->set_Status(CMD_ERROR);
+   return;
+}
 
 // Experiment level commands
 bool SS_expAttach (CommandObject *cmd);
