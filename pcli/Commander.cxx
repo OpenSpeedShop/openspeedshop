@@ -549,6 +549,7 @@ public:
   CMDWID  ID () { return id; }
   EXPID   Focus () { return FocusedExp; }
   void    Set_Focus (EXPID exp) { FocusedExp = exp; }
+  bool    Async() {return Input_Is_Async;}
   int64_t Input_Level () { return Current_Input_Level; }
   void    Increment_Level () { Current_Input_Level++; }
   void    Decrement_Level () { Current_Input_Level--; }
@@ -813,6 +814,13 @@ int64_t Find_Command_Level (CMDWID WindowID)
 {
   CommandWindowID *cwi = Find_Command_Window (WindowID);
   return (cwi != NULL) ? cwi->Input_Level() : 0;
+}
+
+// Semantic Utilities
+bool Window_Is_Async (CMDWID WindowID)
+{
+  CommandWindowID *cwi = Find_Command_Window (WindowID);
+  return (cwi != NULL) ? cwi->Async() : false;
 }
 
 // Low Level Semantic Routines
@@ -1212,11 +1220,10 @@ void Default_TLI_Command_Output (CommandObject *C) {
     FILE *outfile = (ttyout != NULL) ? ttyout : stdout;
 
    // Print the ResultdObject list
-    C->Print_Results (outfile, "\n", "");
+    C->Print_Results (outfile, "\n", "\n");
     C->set_Results_Used (); // Everything is where it belongs.
     if (ttyout != NULL) {
      // Re-issue the prompt
-      fprintf(ttyout,"\n");
       SS_Issue_Prompt (ttyout);
     }
   }
