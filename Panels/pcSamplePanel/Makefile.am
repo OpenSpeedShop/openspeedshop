@@ -47,10 +47,7 @@ pcSamplePanel_la_LDFLAGS = \
 	-ldl
 
 pcSamplePanel_la_LIBADD = $(LIBLTDL) -lopenss-framework \
-	-lopenss-Base \
-	-lopenss-Objects \
-	../../pcli/.libs/posscli.so \
-	-lopenss-GUI
+	../../pcli/.libs/posscli.so
 
 moc_pcSamplePanel.cxx: pcSamplePanel.hxx
 	-moc -o moc_pcSamplePanel.cxx pcSamplePanel.hxx
