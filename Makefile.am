@@ -22,14 +22,14 @@ SUBDIRS = . \
 	plugins \
 	examples \
 	base \
+	objects \
 	dialogs \
 	expr_info \
 	plugin \
 	chart \
 	pcli \
 	gui \
-	Panels \
-	objects
+	Panels
 
 bin_PROGRAMS = openspeedshop
 
