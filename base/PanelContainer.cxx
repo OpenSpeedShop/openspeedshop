@@ -688,7 +688,7 @@ PanelContainer::findInternalNamedPanelContainer(char *panel_container_name)
 PanelContainer *
 PanelContainer::findBestFitPanelContainer(PanelContainer *start_pc)
 {
-printf("findBestFitPanelContainer() entered\n");
+  nprintf(DEBUG_PANELCONTAINERS) ("findBestFitPanelContainer() entered\n");
   PanelContainer *pc = start_pc;
   if( pc == NULL )
   {
@@ -700,10 +700,10 @@ printf("findBestFitPanelContainer() entered\n");
     start_pc = getMasterPC();
   }
 
-if( start_pc->leftPanelContainer && start_pc->rightPanelContainer )
-{
-  printf("WARNING! You can't add this to this panelContainer!  It's split!\n");
-}
+  if( start_pc->leftPanelContainer && start_pc->rightPanelContainer )
+  {
+    nprintf(DEBUG_PANELCONTAINERS) ("WARNING! You can't add this to this panelContainer!  It's split!\n");
+  }
 
   nprintf(DEBUG_PANELCONTAINERS) ("findBestFitPanelContainer() from %s %s\n", start_pc->getInternalName(), start_pc->getExternalName() );
 
