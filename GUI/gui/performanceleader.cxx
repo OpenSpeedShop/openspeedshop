@@ -86,16 +86,6 @@ PerformanceLeader::PerformanceLeader( QWidget* parent, const char* name, WFlags 
     editFindAction->addTo( editMenu );
     menubar->insertItem( QString(""), editMenu, 2 );
 
-    helpMenu = new QPopupMenu( this );
-    helpContentsAction->addTo( helpMenu );
-    helpIndexAction->addTo( helpMenu );
-    helpMenu->insertSeparator();
-    helpAboutAction->addTo( helpMenu );
-    menubar->insertItem( QString(""), helpMenu, 3 );
-
-    languageChange();
-    resize( QSize(850, 520).expandedTo(minimumSizeHint()) );
-    clearWState( WState_Polished );
 
     // signals and slots connections
     connect( fileNewAction, SIGNAL( activated() ), this, SLOT( fileNew() ) );
@@ -111,6 +101,18 @@ PerformanceLeader::PerformanceLeader( QWidget* parent, const char* name, WFlags 
     connect( helpIndexAction, SIGNAL( activated() ), this, SLOT( helpIndex() ) );
     connect( helpContentsAction, SIGNAL( activated() ), this, SLOT( helpContents() ) );
     init();
+
+    helpMenu = new QPopupMenu( this );
+    helpContentsAction->addTo( helpMenu );
+    helpIndexAction->addTo( helpMenu );
+    helpMenu->insertSeparator();
+    helpAboutAction->addTo( helpMenu );
+    menubar->insertItem( tr("&Help"), helpMenu );
+
+    languageChange();
+
+    resize( QSize(850, 520).expandedTo(minimumSizeHint()) );
+    clearWState( WState_Polished );
 }
 
 /*!
@@ -175,7 +177,9 @@ void PerformanceLeader::languageChange()
         menubar->findItem(1)->setText( tr( "&File" ) );
     if (menubar->findItem(2))
         menubar->findItem(2)->setText( tr( "&Edit" ) );
+#ifdef HOLD
     if (menubar->findItem(3))
         menubar->findItem(3)->setText( tr( "&Help" ) );
+#endif // HOLD
 }
 
