@@ -48,11 +48,13 @@ class ExperimentObject
   std::list<Collector *> CollectorList;
 
  public:
-  ExperimentObject ()
-    { Exp_ID = ++Experiment_Sequence_Number;
-      ExperimentObject_list.push_front(this);
-    }
-  ~ExperimentObject () {}
+  ExperimentObject () {
+    Exp_ID = ++Experiment_Sequence_Number;
+    ExperimentObject_list.push_front(this);
+  }
+  ~ExperimentObject () {
+    ExperimentObject_list.remove (this);
+  }
   void ExperimentObject_Merge_Application(std::list<ApplicationGroupObject *> App_List)
     {
       ApplicationObjectList.merge(App_List);

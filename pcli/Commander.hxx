@@ -99,6 +99,8 @@ bool Command_Trace (CommandObject *cmd, enum Trace_Entry_Type trace_type,
                     CMDWID cmdwinid, std::string tofname);
 bool Command_Trace_OFF (CMDWID WindowID);
 bool Command_Trace_ON (CMDWID WindowID, std::string tofname);
+bool Command_Log_OFF (CMDWID WindowID);
+bool Command_Log_ON (CMDWID WindowID, std::string tofname);
 
 // Focus is a property of the Command Window that issued the command.
 EXPID Experiment_Focus (CMDWID WindowID);
