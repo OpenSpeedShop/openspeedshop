@@ -30,7 +30,7 @@
 #include <qlayout.h>
 #include <qhbox.h>
 #include <qtimer.h>
-#include <qprogressdialog.h>
+#include "GenericProgressDialog.hxx"
 
 #include "SS_Input_Manager.hxx"
 
@@ -157,7 +157,7 @@ private:
   void updateStatus();
 
   void loadMain();
-  QProgressDialog *pd;
+  GenericProgressDialog *pd;
   int steps;
 };
 #endif // PCSAMPLEPANEL_H

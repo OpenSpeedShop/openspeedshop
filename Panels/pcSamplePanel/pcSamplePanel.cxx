@@ -177,8 +177,7 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n, void *argument) 
     int64_t val = 0;
 
     steps = 0;
-    pd = new QProgressDialog("Loading process in progress.",
-                             NULL, 1000, this, NULL, TRUE);
+	pd = new GenericProgressDialog(this, "Loading process...", TRUE);
     loadTimer = new QTimer( this, "progressTimer" );
     connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
     loadTimer->start( 0 );
@@ -206,7 +205,6 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n, void *argument) 
 //  fprintf(stdout, "A: MY VALUE! = (%d)\n", val);
     statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the \"Run\" button to begin the experiment.")) );
     loadTimer->stop();
-    pd->cancel();
     pd->hide();
 
     if( !executableNameStr.isEmpty() || !pidStr.isEmpty() )
@@ -348,8 +346,7 @@ pcSamplePanel::loadNewProgramSelected()
     sprintf(command, "expAttach -f %s\n", executableNameStr.ascii() );
 
     steps = 0;
-    pd = new QProgressDialog("Loading process in progress.", NULL, 1000,
-                             this, NULL, TRUE);
+    pd = new GenericProgressDialog(this, "Loading process...", TRUE);
     loadTimer = new QTimer( this, "progressTimer" );
     connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
     loadTimer->start( 0 );
@@ -369,7 +366,6 @@ pcSamplePanel::loadNewProgramSelected()
 
     statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the \"Run\" button to begin the experiment.")) );
     loadTimer->stop();
-    pd->cancel();
     pd->hide();
 
     runnableFLAG = TRUE;
@@ -455,7 +451,7 @@ pcSamplePanel::attachToExecutableSelected()
     sprintf(command, "expAttach -p %d\n", pidStr.toInt() );
 
     steps = 0;
-    pd = new QProgressDialog("Loading process in progress.", NULL, 1000, this, NULL, TRUE);
+    pd = new GenericProgressDialog(this, "Loading process...", TRUE);
     loadTimer = new QTimer( this, "progressTimer" );
     connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
     loadTimer->start( 0 );
@@ -477,7 +473,6 @@ pcSamplePanel::attachToExecutableSelected()
 
     statusLabelText->setText( tr(QString("Attached:  "))+mw->pidStr+tr(QString("  Click on the Continu button to continue with the experiment.")) );
     loadTimer->stop();
-    pd->cancel();
     pd->hide();
 
     runnableFLAG = TRUE;
@@ -1044,13 +1039,25 @@ pcSamplePanel::statusUpdateTimerSlot()
 //  statusTimer->stop();
   updateStatus();
 }
+
+static bool step_forward = TRUE;
 void
 pcSamplePanel::progressUpdate()
 {
-  pd->setProgress( steps );
-  steps++;
-  if( steps > 100 )
+  pd->qs->setValue( steps );
+  if( step_forward )
   {
-    loadTimer->stop();
+    steps++;
+  } else
+  {
+    steps--;
+  }
+  if( steps == 10 )
+  {
+    step_forward = FALSE;
+  } else if( steps == 0 )
+  {
+    step_forward = TRUE;
   }
 }
+
