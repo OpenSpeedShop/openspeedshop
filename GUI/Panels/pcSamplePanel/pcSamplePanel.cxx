@@ -27,6 +27,7 @@
 #include "attach_process2.xpm"
 #include "attach_process3.xpm"
 #include "attach_process4.xpm"
+#include "detach_process0.xpm"
 #include "detach_process1.xpm"
 #include "detach_process2.xpm"
 #include "detach_process3.xpm"
@@ -154,6 +155,9 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
   QPixmap *apm4 = new QPixmap( detach_process1_xpm );
   apm4->setMask(apm4->createHeuristicMask());
   detachCollectorButton->push_back(apm4);
+  QPixmap *apm5 = new QPixmap( detach_process0_xpm );
+  apm5->setMask(apm5->createHeuristicMask());
+  detachCollectorButton->push_back(apm5);
   detachCollectorButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, detachCollectorButton->sizePolicy().hasHeightForWidth() ) );
   buttonGroupLayout->addWidget( detachCollectorButton );
   detachCollectorButton->setText( QString::null );
