@@ -194,26 +194,23 @@ void initialize_plugins()
     dprintf("OPENSS_INSTALL_DIR set\n");
     QString install_path = QString(getenv("OPENSS_INSTALL_DIR")) +
             QString("/lib/openspeedshop");
-    assert(lt_dladdsearchdir(install_path.ascii()) == 0);
+    const char *currrent_search_path = lt_dlgetsearchpath();
+    if( QString(currrent_search_path).contains(install_path) == 0 )
+    {
+      assert(lt_dladdsearchdir(install_path.ascii()) == 0);
+    }
   }
-
-// Add the install plugin path
-// THIS IS ONLY FOR THE TRANSITION PERIOD!
-if(getenv("OPENSPEEDSHOP_INSTALL_DIR") != NULL)
-{
-  dprintf("OPENSS_INSTALL_DIR set\n");
-  QString install_path = QString(getenv("OPENSS_INSTALL_DIR")) +
-            QString("/lib/openspeedshop");
-  assert(lt_dladdsearchdir(install_path.ascii()) == 0);
-}
-
 
   // Add the user-specified plugin path
   if(getenv("OPENSS_PLUGIN_PATH") != NULL)
   {
     dprintf("OPENSS_PLUGIN_PATH set\n");
     QString user_specified_path = QString(getenv("OPENSS_PLUGIN_PATH"));
-    assert(lt_dladdsearchdir(user_specified_path.ascii()) == 0);
+    const char *currrent_search_path = lt_dlgetsearchpath();
+    if( QString(currrent_search_path).contains(user_specified_path) == 0 )
+    {
+      assert(lt_dladdsearchdir(user_specified_path.ascii()) == 0);
+    }
   }
 
   // Now search for collector plugins in all these paths
