@@ -32,7 +32,7 @@ then
 fi
 if test -d Panels
 then
-  bootstrap --clean;bootstrap;configure --prefix=$OPENSPEEDSHOP_INSTALL_DIR;make uninstall;make install;
+  bootstrap --clean;bootstrap;configure --prefix=$OPENSPEEDSHOP_INSTALL_DIR;make uninstall;make install;make dist;
 else
   echo NOTE: This must be run from the GUI directory...
 fi
