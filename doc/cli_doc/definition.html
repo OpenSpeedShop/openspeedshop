@@ -39,15 +39,18 @@ Building Block Commands
       </li>
       <li><a href="#mozTocId688201">Information Commands </a>
         <ul>
-          <li><a href="#mozTocId332313">listExp</a></li>
           <li><a href="#mozTocId842989">listBreaks</a></li>
+          <li><a href="#mozTocId332313">listExp</a></li>
           <li><a href="#mozTocId760516">listHosts</a></li>
           <li><a href="#mozTocId685141">listObj</a></li>
           <li><a href="#mozTocId629516">listPids</a></li>
+          <li><a href="#mozTocId924409">listRanks</a></li>
           <li><a href="#mozTocId924408">listSrc</a></li>
           <li><a href="#mozTocId965893">listMetrics</a></li>
           <li><a href="#mozTocId362324">listParams</a></li>
           <li><a href="#mozTocId460796">listReports</a></li>
+          <li><a href="#mozTocId613828">listStatus</a></li>
+          <li><a href="#mozTocId613829">listThreads</a></li>
           <li><a href="#mozTocId613827">listTypes</a></li>
         </ul>
       </li>
@@ -79,8 +82,7 @@ Building Block Commands</big></font></font>
  name="expAttach"></a><li>expAttach</li>
 </b></font></h3>
 <ul>
-  <font size="-1">- Attach application information or collectors to
-an experiment.
+  <font size="-1">- Attach applications or collectors to an experiment.
   <dir><li>The attached applications will not execute until an <b>expGo</b>
 command is issued.</li>
   </dir>
@@ -94,11 +96,11 @@ experiment or data collection to certain portions of an appliaction. <br>
   <dir><li>The <b>-f</b> option implies that an executable is to be
 loaded into the <b>OpenSS</b> tool from a file.</li>
   <li>The use of <b>-p</b> option implies that the <b>OpenSS</b>
-tool is to attach to a progtram that is already executing.</li>
+tool is to attach to a program that is already executing.</li>
   </dir>
-- If &lt;host_file_rpt_list&gt; is provided without
-&lt;expType_list&gt;,
-those applications are attached to the experiment. <br>
+- If &lt;host_file_rpt_list&gt; is provided without &lt;expType_list&gt;,
+those applications are attached to all the &lt;expType&gt;s that are already
+attached of the experiment. <br>
 - If &lt;expType_list&gt; is provided without
 &lt;host_file_rpt_list&gt;,
 the specified data collectors are used to instrument all the executable
@@ -180,31 +182,24 @@ new
  size="+0"><b><li>expDetach</li>
 </b>&nbsp;</font></h3>
 <ul>
-  <font size="-1">- Detach application information or collectors from
-an
-experiment.
+  <font size="-1">- Detach applications from collectors for an experiment.
   <dir><li>The remaining applications will not execute until an <b>expGo</b>
-command is issued.</li>
+      command is issued.</li>
+  <li>The experiment retains knowledge of both the applications and the
+      collectors and they can be referenced on later commands.</li>
+  <li>All previously collected data samples will be retained.</li>
+  <li>No new data, of the specified type,  will be collected for the
+      specified application.</li>
   </dir>
-- If there is no &lt;expId_spec&gt; provided, information is detached
-from
-the focused experiment. <br>
-- The &lt;host_file_rpt_list&gt; is used to remove knowledge of parts
-of an
-application from the data collectors or experimant. <br>
-- If &lt;host_file_rpt_list&gt; is provided without
-&lt;expType_list&gt;,
-those applications are removed from the experiment. <br>
-- If &lt;expType_list&gt; is provided without
-&lt;host_file_rpt_list&gt;,
-the specified data collectors are fremoved from all the executable
+- If there is no &lt;expId_spec&gt; provided, the focused experiment is used.<br>
+- If &lt;host_file_rpt_list&gt; is provided without &lt;expType_list&gt;,
+all collectors are detached for those applications. <br>
+- If &lt;expType_list&gt; is provided without &lt;host_file_rpt_list&gt;,
+the specified data collectors are detached from all the executable
 routines that are ttached to the indicated experiment. <br>
--If both &lt;host_file_rpt_list&gt; and &lt;expType_list&gt; are
-provided,
-only the specified collectores in &lt;expType_list&gt; are removed from
-just
-the portions of the application described in
-&lt;host_file_rpt_list&gt;. <br>
+-If both &lt;host_file_rpt_list&gt; and &lt;expType_list&gt; are provided,
+only the specified collectores in &lt;expType_list&gt; are detached from
+just those applications described in &lt;host_file_rpt_list&gt;. <br>
 - If neither &lt;host_file_rpt_list&gt; nor &lt;expType_list&gt; is
 provided,
 the command does nothing. </font><br>
@@ -220,12 +215,12 @@ the command does nothing. </font><br>
   <font size="-1">- Turn off data collection.
   <dir><li>The experiment remains defined.</li>
   <li>Data collection is "turned off" and no new information is saved.</li>
-  <li>Instrumentation is disabled but is not removed from the
-application.</li>
+  <li>Instrumentation is disabled but may not removed from the
+      application.</li>
   <li>Previously collected data is still available and can be viewed
-or saved.</li>
+      or saved.</li>
   <li>The attached applications will not continue executing until an <b>expGo</b>
-command is issued.</li>
+      command is issued.</li>
   </dir>
 - See related commands:
   <dir><li><b>expEnable</b> can be used to restart data collection.</li>
@@ -310,16 +305,14 @@ and
 the collection of performance data does not, automatically, prevent
 other
 commands from being issued
-  <dir><li>A following command that depends on the result of this
-experiment may not be
-able to execute and may block further commands from being issued.</li>
+  <dir><li>A following command that depends on the result of this experiment may
+      not be able to execute and may block further commands from being issued.</li>
   <li>Independent commands may be issued and completed before this
-experiment completes.</li>
-  <li>The status of any experiment can be determined through the <b>expList</b>
-command.</li>
-  <li>Depending on the type of data collection that is taking place,
-it may be
-possible to view the results before the application completes.</li>
+      experiment completes.</li>
+  <li>The status of any experiment can be determined through the
+      <b>listStatus</b> command.</li>
+  <li>Depending on the type of data collection that is taking place, it may be
+      possible to view the results before the application completes.</li>
   </dir>
 - The absence of the &lt;expId_spec&gt; and <b>all</b> keyword will
 result in
@@ -360,24 +353,21 @@ Identifier.</li>
   <li>Previously collected data can be looked at with the <b>expView</b>
 command.</li>
   <li>If the original applications are still running, the <b>OpenSS</b>
-tool the
-user may perform a simple <b>expAttach</b> command to attach to the
-application
-and reinsert instrumentation into the application. If this is done, the
-applications
-are placed in a suspended state and will not resume execution until an <b>expGo</b>
-command is issued.</li>
+tool will attempt to attach to the application and reinsert instrumentation
+into the application. If this is successful, the execution of the applications
+are not interrupted although the user may issue an <b>expPause</b>
+command, if that behaviour is desired.</li>
   <li>The new experiment can be modified with the use of <b>expAttach</b>
 or <b>expDetach</b> commands.</li>
   <li>If an <b>expGo</b> command is issued, new data samples will be
 placed into the
-data base specified by &lt;host_file&gt;. A different data base can be
+data base specified by &lt;file_spec&gt;. A different data base can be
 specified
 with the <b>expSave</b> command.</li>
   </dir>
-  </font> <br>
+</font>
   <br>
-  <font size="-1">&lt;exp_Id&gt;<b> = expRestore </b>&lt;host_file&gt;</font>
+  <font size="-1">&lt;exp_Id&gt;<b> = expRestore </b>&lt;file_spec&gt;</font>
 </ul>
 <h3><a name="mozTocId916219" class="mozTocH3"></a><font size="+0"><b><a
  name="expSave"></a><li>expSave</li>
@@ -385,11 +375,9 @@ with the <b>expSave</b> command.</li>
 <ul>
   <font size="-1">- Save the experiment information for further
 analysis.<br>
-  <dir> <li>For each experiment, information about the executable
-programs
-that are
-instrumented, information about the instrumentation that is used, and
-any performance data that is collected are saved in a data base.</li>
+  <dir> <li>For each experiment, information about the executable programs
+that are instrumented, information about the instrumentation that is used
+and any performance data that is collected are saved in a data base.</li>
   <li>The data base is created by the <b>OpenSS</b> tool in a
 temporary location and will
 be deleted when an <b>expClose</b> command is issued for the
@@ -400,7 +388,7 @@ tool.</li>
 command
 and can be reloaded into the <b>OpenSS</b> tool with the <b>expRestore</b>
 command.</li>
-  <li>The data base is in a special format that supprots the
+  <li>The data base is in a special format that supports the
 opertaions that
 the <b>OpenSS</b> tool must perform.</li>
   </dir>
@@ -440,7 +428,7 @@ executed. </font><br>
   <br>
   <font size="-1"><b>expSave </b>[ &lt;expId_spec&gt; ] [ <b>copy</b>
 ]
-&lt;host_file&gt;</font>
+&lt;file_spec&gt;</font>
 </ul>
 <h3><a name="mozTocId563762" class="mozTocH3"></a><font size="+0"><b><a
  name="expSetParam"></a><li>expSetParam</li>
@@ -479,62 +467,54 @@ before the information can be provided. </font><br>
 ] &lt;viewType&gt;</font>
 </ul>
 <br>
-&nbsp; <br>
 <font size="+0"></font>
 <h2><a name="mozTocId688201" class="mozTocH2"></a><font face="Arial"><font
  size="+0"><a name="INFORMATION_COMMANDS"></a><big>Information Commands</big><br>
 </font></font></h2>
 <p></p>
 <p></p>
-<h3><a name="mozTocId332313" class="mozTocH3"></a><a name="listExp"></a><b><font
- size="+0"><li>listExp</li>
-</font></b></h3>
-<ul>
-  <font size="-1">- List the experiments that can be run, along
-with detailed information about the data measurement utilities and
-applications
-that may have been attached to the experiment. <br>
-- The absence of any experiment specification will cause information
-for
-the focused experiment to be listed. <br>
-- The &lt;expId_spec&gt; option will cause the selected experiment to
-be listed. <br>
-- The "<b>all</b>" option will cause all the defined experiments to be
-listed. <br>
-- The output will be similar to that of the listing of
-breakpoints in gdb, dbx, cvd, or totalview.</font> <br>
-  <br>
-  <font size="-1"><b>&lt;</b>ListOf_string&gt;<b>
-= listExp </b>[ &lt;expId_spec&gt; || <b>all</b> ]</font>
-</ul>
 <h3><a name="mozTocId842989" class="mozTocH3"></a><a name="listBreaks"></a><b><font
  size="+0"><li>listBreaks</li>
 </font></b></h3>
 <ul>
   <font size="-1">- List the breakpoints that have been set by the
 user. <br>
-- The absence of any option will cause all the breakpoints for the
-focused experiment to be listed. <br>
-- The use of &lt;expId_spec&gt; will cause all the breakpoints for
-the specified experiment to be listed. <br>
-- The use of <b>all</b> will cause all the known breakpoints, for all
-of
-the experiments defined by the user, to be listed. </font><br>
-  <br>
+  <dir><li>The absence of any option will cause all the breakpoints for the
+      focused experiment to be listed. </li>
+  <li>The use of &lt;expId_spec&gt; will cause all the breakpoints for
+      the specified experiment to be listed. </li>
+  <li>The use of <b>all</b> will cause all the known breakpoints, for all
+      of the experiments defined by the user, to be listed. </li>
+  </dir>
+</font><br>
   <font size="-1"><b>&lt;</b>ListOf_breakId&gt; <b>= listBreaks </b>[
 &lt;expId_spec&gt; || <b>all</b> ]</font>
+</ul>
+<h3><a name="mozTocId332313" class="mozTocH3"></a><a name="listExp"></a><b><font
+ size="+0"><li>listExp</li>
+</font></b></h3>
+<ul>
+  <font size="-1">- List the experiments that have been defined. <br>
+  <br>
+  <font size="-1"><b>&lt;</b>ListOf_expId&gt;<b>
+= listExp </b></font>
 </ul>
 <h3><a name="mozTocId760516" class="mozTocH3"></a><a name="listHosts"></a><b><font
  size="+0"><li>listHosts</li>
 </font></b></h3>
 <ul>
   <font size="-1">- Lists the hosts that define the specified cluster. <br>
-- If &lt;cluster_spec&gt; is not provided, the default cluster is
-listed. <br>
-- The default cluster contains only localhost. </font><br>
+  <dir><li>The absence of any options will cause all the hosts
+      that have been included in the focused experiment to be listed. </li>
+  <li>The &lt;expId_spec&gt; option will cause all the hosts that have been
+      included in the selected experiment to be listed. </li>
+  <li>The "<b>all</b>" option will cause all the known hosts to be listed. </li>
+  <li>The "&lt;cluster_spec&gt;" option will cause all the hosts that are part
+      of the named cluster to be listed. </li>
+  </dir>
   <br>
   <font size="-1"><b>&lt;</b>ListOf_hostname&gt; <b>= listHosts</b> [
-&lt;cluster_spec&gt; ]</font>
+&lt;expId_spec&gt; || <b>all</b> || &lt;cluster_spec&gt; ]</font>
 </ul>
 <h3><a name="mozTocId685141" class="mozTocH3"></a><b><font size="+0"><a
  name="listObj"></a><li>listObj</li>
@@ -543,8 +523,8 @@ listed. <br>
   <font size="-1">- List the objects of the applications that are part
 of the
 specified experiment. <br>
-- If &lt;expId_spec&gt; is not provided, the focused experiment is
-used. <br>
+  <dir><li>If &lt;expId_spec&gt; is not provided, the focused experiment is
+      used. </li></dir>
 - The listing can be restricted with the use of a &lt;host_file_rpt&gt;
 specification. <br>
 - Any component described in the &lt;host_file_rpt&gt; specification
@@ -561,33 +541,129 @@ all portions of all applications that are attached to the experiment. </font><br
  size="+0"><li>listPids</li>
 </font></b></h3>
 <ul>
-  <font size="-1">- List running processes info on a specific machine
-or on
-a specific cluster. <br>
-- The absence of any <b>-h</b> &lt;hostname&gt; specification will
-cause
-all pids on all systems in the cluster to be listed. <br>
-- The default cluster contains only localhost and must be specified by
-using <b>-h localhost</b>. <br>
-- Use of the <b>-f</b> &lt;filename&gt; option will result in only the
-pids
-associated with that &lt;filename&gt; being listed for the selected
-hosts. <br>
-- Mostly as <b>ps(1)</b>, but output will have filename
-indication and/or rank, process, or thread form. <br>
-- If <b>-mpi</b> is specified, the output will take the
-MPI rank format. </font><br>
+  <font size="-1">- List running processes associated with a specific
+experiment, on a specific machine or on a specific cluster.
+  <dir><li>If no options are supplied, the Pids that are referenced in the
+      focused experiment are listed.</li>
+  <li>If the "&lt;expId_spec&gt;" option is supplied, all the Pids that
+      are part of the specified experiment are listed.</li>
+  <li>If the <b>all</b> option is supplied, all Pids that are active on the
+      specified system are listed.</li>
+  </dir>
+- The use of the "&lt;host_file&gt;" option acts like a filter on the output.
+  <dir><li>The absence of any "<b>-h</b> &lt;hostname&gt;" specification will
+      cause all pids on all systems in the cluster to be listed. </li>
+  <li>The default cluster contains only localhost and must be specified by
+      using <b>-h localhost</b>. </li>
+  <li>Use of the <b>-f</b> &lt;filename&gt; option will result in only the
+      pids associated with that &lt;filename&gt; being listed for the
+      selected hosts. </li>
+  </dir>
+</font>
   <br>
   <font size="-1"><b>&lt;</b>ListOf_pidname&gt; <b>= listPids</b> [
-&lt;host_file&gt; ] [ <b>-mpi</b> ]</font>
+&lt;expId_spec&gt; || <b>all</b> ] [ &lt;host_file&gt; ]</font>
+</ul>
+<h3><a name="mozTocId965893" class="mozTocH3"></a><a name="listMetrics"></a><b><font
+ size="+0"><li>listMetrics</li>
+</font></b></h3>
+<ul>
+  <font size="-1">- Retrieve the metrics that are associated with a particular
+&lt;viewType&gt; or set of &lt;viewType&gt;s.
+  <dir><li>If no options are selected, metrics for only the data collectors that
+      are part of the focused experiment will be listed. </li>
+  <li>The use of &lt;expId_spec&gt; will cause the metrics that are associated
+      with the set of data collectors that are part of the specified  experiment
+      to be listed. </li>
+  <li>The use of the keyword <b>all</b> will cause all the metrics for all
+      available collectors to be listed. </li>
+  <li>The use of the "&lt;viewType&gt;" option will result in a listing of only
+      those metrics associated with that specific data collector.</li>
+  </dir>
+</font>
+  <br>
+  <font size="-1">&lt;ListOf_expMetric&gt; <b>= listMetrics </b>[
+&lt;expId_spec&gt; || <b>all</b> || &lt;viewType&gt; ]</font>
+</ul>
+<h3><a name="mozTocId362324" class="mozTocH3"></a><a name="listParams"></a><b><font
+ size="+0"><li>listParams</li>
+</font></b></h3>
+<ul>
+  <font size="-1">- Retrieve the parameters that are associated with a particular
+&lt;viewType&gt; or set of &lt;viewType&gt;s.
+  <dir><li>If no options are selected, parameters for only the data collectors that
+      are part of the focused experiment will be listed. </li>
+  <li>The use of &lt;expId_spec&gt; will cause the parameters that are associated
+      with the set of data collectors that are part of the specified  experiment
+      to be listed. </li>
+  <li>The use of the keyword <b>all</b> will cause all the parameters for all
+      available collectors to be listed. </li>
+  <li>The use of the "&lt;viewType&gt;" option will result in a listing of only
+      those parameters associated with that specific data collector.</li>
+  </dir>
+</font>
+  <br>
+  <font size="-1">&lt;ListOf_expParam&gt; <b>= listParams </b>[
+&lt;expId_spec&gt; || <b>all</b> || &lt;viewType&gt; ]</font>
+</ul>
+<h3><a name="mozTocId924409" class="mozTocH3"></a><a name="listRanks"></a><b><font
+ size="+0"><li>listRanks</li>
+</font></b></h3>
+<ul>
+  <font size="-1">- List the mpi ranks associated with a specific
+experiment, a specific Pid or on a specific machine.
+  <dir><li>If no options are supplied, all the Ranks that are referenced in the
+      focused experiment are listed.</li>
+  <li>If the "&lt;expId_spec&gt;" option is supplied, all the Ranks that
+      are part of the specified experiment are listed.</li>
+  <li>If the <b>all</b> option is supplied, all Ranks that are active on the
+      specified system are listed.</li>
+  </dir>
+- The use of the "&lt;host_file_rpt&gt;" option acts like a filter on the output.
+  <dir><li>The use of the <b>all</b> option and the absence of any
+       "<b>-h</b> &lt;hostname&gt;" specification will
+      cause all Ranks on all systems in the cluster to be listed. </li>
+  <li>The default cluster contains only localhost and must be specified by
+      using <b>-h localhost</b>. </li>
+  <li>Use of the <b>-f</b> option will result in only the Ranks associated
+      with that &lt;filename&gt; being listed for the selected hosts. </li>
+  <li>Use of the <b>-p</b> option will result in only the Ranks associated
+      with that Pid being listed for the selected hosts. </li>
+  <li>Use of the <b>-r</b> option will result in only that specific Rank
+      being listed, if it exists on the selected hosts. </li>
+  </dir>
+</font>
+  <br>
+  <font size="-1"><b>&lt;</b>ListOf_Ranks&gt; <b>= listRanks</b> [
+&lt;expId_spec&gt; || <b>all</b> ] [ &lt;host_file_rpt&gt; ]</font>
+</ul>
+<h3><a name="mozTocId460796" class="mozTocH3"></a><b><font size="+0"><a
+ name="listReports"></a><li>listReports</li>
+</font></b></h3>
+<ul>
+  <font size="-1">- Retrieve the reports that are associated with a particular
+&lt;viewType&gt; or set of &lt;viewType&gt;s.
+  <dir><li>If no options are selected, the reports for only the data collectors that
+      are part of the focused experiment will be listed. </li>
+  <li>The use of &lt;expId_spec&gt; will cause the the reports that are associated
+      with the set of data collectors that are part of the specified  experiment
+      to be listed. </li>
+  <li>The use of the keyword <b>all</b> will cause all the the reports for all
+      available collectors to be listed. </li>
+  <li>The use of the "&lt;viewType&gt;" option will result in a listing of only
+      those the reports associated with that specific data collector.</li>
+  </dir>
+</font>
+  <br>
+  <font size="-1"><b>&lt;</b>ListOf_viewType&gt; <b>= listReports </b>[
+&lt;expId_spec&gt; || <b>all</b> || &lt;viewType&gt; ]</font>
 </ul>
 <h3><a name="mozTocId924408" class="mozTocH3"></a><a name="listSrc"></a><b><font
  size="+0"><li>listSrc</li>
 </font></b></h3>
 <ul>
   <font size="-1">- List the source that was used to create the
-applications that are part of the
-specified, or focused, experiment. <br>
+applications that are part of the specified, or focused, experiment. <br>
 - If &lt;expId_spec&gt; is not provided, the focused experiment is
 used. <br>
 - The listing can be restricted with the use of a &lt;host_file_rpt&gt;
@@ -608,79 +684,68 @@ for all portions of any application that has been selected. </font><br>
 &lt;expId_spec&gt; ] [ &lt;host_file_rpt&gt; ] [
 &lt;linenumber_spec&gt; ]</font>
 </ul>
-<h3><a name="mozTocId965893" class="mozTocH3"></a><a name="listMetrics"></a><b><font
- size="+0"><li>listMetrics</li>
+<h3><a name="mozTocId613828" class="mozTocH3"></a><b><font size="+0"><a
+ name="listTypes"></a><li>listStatus</li>
 </font></b></h3>
 <ul>
-  <font size="-1">- Retrieve the metrics that can be produced by an
-experiment.
-This is a list of the types of information that an experiment can
-gather. <br>
-- If no options are selected, metrics for only the focused experiment
-will be listed. <br>
-- The use of &lt;expId_spec&gt; will cause the metrics for only that
-experiment to be listed. <br>
-- The use of the keyword <b>all</b> will cause all the metrics for all
-the experiments
-that have been defined by the user, through the use of <b>expCreate</b>
-commands,
-to be listed. </font><br>
-  <br>
-  <font size="-1">&lt;ListOf_expMetric&gt; <b>= listMetrics </b>[
+ <font size="-1">- List the status of experiments. <br>
+  <dir><li>If no option is selected, return the status of the focused experiment. </li>
+  <li>The use of &lt;expId_spec&gt; will cause the status of 
+      the specified experiment to be returned. </li>
+  <li>The use of the <b>all</b> keyword will cause the status of all the defined
+       experiments to be returned. </li>
+  </dir>
+</font><br>
+  <font size="-1"><b>&lt;</b>ListOf_statusType&gt;<b> = listSatus </b>[
 &lt;expId_spec&gt; || <b>all</b> ]</font>
 </ul>
-<h3><a name="mozTocId362324" class="mozTocH3"></a><a name="listParams"></a><b><font
- size="+0"><li>listParams</li>
+<h3><a name="mozTocId613829" class="mozTocH3"></a><a name="listThreads"></a><b><font
+ size="+0"><li>listThreads</li>
 </font></b></h3>
 <ul>
-  <font size="-1">- Retrieve the parameters, to a specified experiment,
-that can be changed by the user. <br>
-- If no option is selected, parameters for only the focused experiment
-will be listed. <br>
-- The use of &lt;expId_spec&gt; will cause the parameters for only that
-experiment to be listed. <br>
-- The use of the keyword <b>all</b> will cause all the parameters of
-all the experiments
-that have been defined by the user, through the use of <b>expCreate</b>
-commands,
-to be listed. </font><br>
+  <font size="-1">- List the Threads associated with a specific
+experiment, a specific Pid or on a specific machine.
+  <dir><li>If no options are supplied, the Threads that are referenced in the
+      focused experiment are listed.</li>
+  <li>If the "&lt;expId_spec&gt;" option is supplied, all the Threads that
+      are part of the specified experiment are listed.</li>
+  <li>If the <b>all</b> option is supplied, all Threads that are active on the
+      specified system are listed.</li>
+  </dir>
+- The use of the "&lt;host_file_rpt&gt;" option acts like a filter on the output.
+  <dir><li>The absence of any "<b>-h</b> &lt;hostname&gt;" specification will
+      cause all pids on all systems in the cluster to be listed. </li>
+  <li>The default cluster contains only localhost and must be specified by
+      using <b>-h localhost</b>. </li>
+  <li>Use of the <b>-f</b> option will result in only the Threads associated
+      with that &lt;filename&gt; being listed for the selected hosts. </li>
+  <li>Use of the <b>-p</b> option will result in only the Threads associated
+      with that Pid being listed for the selected hosts. </li>
+  <li>Use of the <b>-t</b> option will result in only that specific Thread
+      being listed, if it exists on the selected hosts. </li>
+  </dir>
+</font>
   <br>
-  <font size="-1">&lt;ListOf_expParam&gt; <b>= listParams </b>[
-&lt;expId_spec&gt; || <b>all</b> ]</font>
+  <font size="-1"><b>&lt;</b>ListOf_Threads&gt; <b>= listThreads</b> [
+&lt;expId_spec&gt; || <b>all</b> ] [ &lt;host_file_rpt&gt; ]</font>
 </ul>
-<h3><a name="mozTocId460796" class="mozTocH3"></a><b><font size="+0"><a
- name="listReports"></a><li>listReports</li>
-</font></b></h3>
-<ul>
-  <font size="-1">- Retrieve the reports that can be produced by an
-experiment. <br>
-- If no option is selected, reports for only the focused experiment
-to be listed. <br>
-- The use of &lt;expId_spec&gt; will cause the reports for only that
-experiment to be listed. <br>
-- The use of the <b>all</b> keyword will cause all the possible
-reports
-for all the experiments that have been defined by the user, through the
-use of <b>expCreate</b> commands, to be listed. </font><br>
-  <br>
-  <font size="-1"><b>&lt;</b>ListOf_viewType&gt; <b>= listReports </b>[
-&lt;expId_spec&gt; || <b>all</b> ]</font>
-</ul>
-<p>
-</p>
 <h3><a name="mozTocId613827" class="mozTocH3"></a><b><font size="+0"><a
  name="listTypes"></a><li>listTypes</li>
 </font></b></h3>
 <ul>
-  <font size="-1">- List all the available performance measurement
-utilities, that can be used to collect data in an experiment.
-  <dir><li>List all the metrics that are available.</li>
-  <li>List all the parameters and their default values.</li>
-  <li>List all the reports that can be provided.</li>
+ <font size="-1">- List the available performance measurement utilities
+that can be used to collect data in an  experiment. <br>
+  <dir><li>If no option is selected, list the utilities that are attached to
+       the focused experiment. </li>
+  <li>The use of &lt;expId_spec&gt; will cause the utilities that are attached
+       to the specified experiment to be listed. </li>
+  <li>The use of the <b>all</b> keyword will cause all the possible
+       performance measurement utilities that can be used in experiments
+       to be listed. </li>
   </dir>
-  </font> <br>
-  <br>
-  <font size="-1"><b>&lt;</b>ListOf_string&gt;<b> = listTypes </b></font>
+</font><br>
+  <font size="-1"><b>&lt;</b>ListOf_viewType&gt;<b> = listTypes </b>[
+&lt;expId_spec&gt; || <b>all</b> ]</font>
 </ul>
 <br>
 <font size="+0"></font>
@@ -732,9 +797,9 @@ command. </font><br>
 </font></b></h3>
 <ul>
   <font size="-1">- Print a list of previously executed commands. <br>
-- If no &lt;host_file&gt; is provided, send the list to <b>stdout</b> </font><br>
+- If no &lt;file_spec&gt; is provided, send the list to <b>stdout</b> </font><br>
   <br>
-  <font size="-1"><b>history </b>[ &lt;host_file&gt; ]</font>
+  <font size="-1"><b>history </b>[ &lt;file_spec&gt; ]</font>
 </ul>
 <h3><a name="mozTocId487321" class="mozTocH3"></a><a name="log"></a><b><font
  size="+0"><li>log</li>
@@ -747,7 +812,7 @@ to a file. <br>
 tool
 developer since the generated files can quickly become huge. </font><br>
   <br>
-  <font size="-1"><b>log </b>[ &lt;host_file&gt; ]</font>
+  <font size="-1"><b>log </b>[ &lt;file_spec&gt; ]</font>
 </ul>
 <h3><a name="mozTocId753973" class="mozTocH3"></a><a name="openGui"></a><b><font
  size="+0"><li>openGui</li>
@@ -764,7 +829,7 @@ already open.</font> <br>
 <ul>
   <font size="-1">- Read and execute commands from a file. </font><br>
   <br>
-  <font size="-1"><b>playback</b> &lt;host_file&gt;</font>
+  <font size="-1"><b>playback</b> &lt;file_spec&gt;</font>
 </ul>
 <h3><a name="mozTocId407391" class="mozTocH3"></a><b><font size="+0"><a
  name="record"></a><li>record</li>
@@ -783,7 +848,7 @@ command will not be echoed. <br>
 - Stop echoing if the end of the input file containing the original <b>record</b>
 command is encoutnered. </font><br>
   <br>
-  <font size="-1"><b>record</b> [ &lt;host_file&gt; ]</font>
+  <font size="-1"><b>record</b> [ &lt;file_spec&gt; ]</font>
 </ul>
 <h3><a name="mozTocId471161" class="mozTocH3"></a><a name="setbreak"></a><b><font
  size="+0"><li>setbreak</li>
