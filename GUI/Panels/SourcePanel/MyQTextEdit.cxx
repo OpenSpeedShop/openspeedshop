@@ -1,3 +1,7 @@
+/*! \class MyQTextEdit
+  This is simple a reimplementation of the QTextEdit widget so we can
+  popup a context sensitive menu.
+*/
 #include "MyQTextEdit.hxx"
 
 #include <qpopupmenu.h>
@@ -40,7 +44,7 @@ MyQTextEdit::createPopupMenu( const QPoint & pos )
   // Now create the panel specific menu... and add it to the popup as
   // a cascading menu.
   QPopupMenu *panelMenu = new QPopupMenu(this);
-panelMenu->setCaption("SourcePanel menu");
+  panelMenu->setCaption("SourcePanel menu");
   sourcePanel->menu(panelMenu);
   popupMenu->insertSeparator();
   popupMenu->insertItem("&Panel Menu", panelMenu, CTRL+Key_P );

@@ -1,3 +1,10 @@
+/*! \class OutputObject
+  This routine simply contains the buffer returned from
+  a command that was passed to the cli factory.
+  
+  The output should simple be displayed to the CmdPanel's
+  output window.
+*/
 #include "OutputObject.hxx"
 #include <stdio.h>
 #include <string.h>

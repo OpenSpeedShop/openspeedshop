@@ -6,6 +6,7 @@ class SourcePanel;
 #include <qwidget.h>
 #include <qtextedit.h>
 
+//! Simply overloads the QTextEdit so we can detect the context menu event.
 class MyQTextEdit : public QTextEdit
 {
 public:

@@ -1,6 +1,7 @@
 #ifndef OUTPUTOBJECT_H
 #define OUTPUTOBJECT_H
 
+//! This is the return object from a cli command.  -prototype
 class OutputObject
 {
 public:
