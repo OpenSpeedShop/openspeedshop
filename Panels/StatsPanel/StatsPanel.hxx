@@ -8,7 +8,7 @@ class QVBoxLayout;
 #include <qlistview.h>
 #include <qinputdialog.h>
 
-#include "ExprInfo.hxx"   // For dummied up data...
+#include "CollectorInfo.hxx"   // For dummied up data...
 
 #include <qvaluelist.h>
 typedef QValueList<QString> ColumnList;
@@ -54,9 +54,9 @@ class StatsPanel  : public Panel
 private:
 int numberItemsToRead;
     ColumnList columnList;
-ExprInfo *experimentData;
+CollectorInfo *collectorData;
     int getUpdatedData(int num_entries_to_read);
-    int getValues(int values[], char *colors[], char *strings[], int n);
+    int getMetrics(int number_entries_to_read);
 void matchSelectedItem( int );
 
 //    void selectionChanged();

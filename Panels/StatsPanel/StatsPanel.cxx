@@ -7,7 +7,7 @@
 #include "SourceObject.hxx"
 
 
-#include "FuncInfo.hxx" // dummy data only...
+#include "MetricInfo.hxx" // dummy data only...
 // This is only hear for the debugging tables....
 static char *color_name_table[10] =
   { "red", "orange", "yellow", "skyblue", "green" };
@@ -73,15 +73,15 @@ StatsPanel::matchSelectedItem(int element)
   highlightList->clear();
   HighlightObject *hlo = NULL;
 
-  FuncInfo *fi = NULL;
-  FuncInfoList::Iterator it = NULL;
+  MetricInfo *fi = NULL;
+  MetricInfoList::Iterator it = NULL;
 
   i = 0;
-  for( it = experimentData->funcInfoList.begin();
-       it != experimentData->funcInfoList.end();
+  for( it = collectorData->metricInfoList.begin();
+       it != collectorData->metricInfoList.end();
        it++ )
   {
-    fi = (FuncInfo *)*it;
+    fi = (MetricInfo *)*it;
     for( int line=fi->start; line <= fi->end; line++)
     {
       if( i >= 5 )
@@ -99,11 +99,11 @@ StatsPanel::matchSelectedItem(int element)
 
 
   i = 0;
-  for( it = experimentData->funcInfoList.begin();
-       it != experimentData->funcInfoList.end();
+  for( it = collectorData->metricInfoList.begin();
+       it != collectorData->metricInfoList.end();
        it++ )
   {
-     fi = (FuncInfo *)*it;
+     fi = (MetricInfo *)*it;
      if( i == element )
      {
        break;
@@ -170,21 +170,21 @@ int number_entries = getUpdatedData(numberItemsToRead);
     columnList.push_back( QString(header_strings[i]) );
   }
 
-  FuncInfo *fi;
+  MetricInfo *fi;
   char buffer[1024];
   char rankstr[10];
   char filestr[21];
   char funcstr[21];
   int i = 0;
-  for( FuncInfoList::Iterator it = experimentData->funcInfoList.begin();
-       it != experimentData->funcInfoList.end();
+  for( MetricInfoList::Iterator it = collectorData->metricInfoList.begin();
+       it != collectorData->metricInfoList.end();
        it++ )
   {
     if( i >= numberItemsToRead )
     {
       break;
     }
-    fi = (FuncInfo *)*it;
+    fi = (MetricInfo *)*it;
 
     dprintf("fi->functionName=(%s)\n", fi->functionName );
     char *ptr = NULL;
@@ -403,13 +403,9 @@ StatsPanel::truncateCharString(char *str, int length)
 int
 StatsPanel::getUpdatedData(int num_entries_to_read)
 {
-  int values[1024];
-  char *color_names[1024];
-  char *strings[1024];
+  collectorData = new CollectorInfo();
 
-  experimentData = new ExprInfo();
-
-  int number_returned = getValues(values, color_names, strings, num_entries_to_read);
+  int number_returned = getMetrics(num_entries_to_read);
   if( number_returned == 0 )
   {
     return 0;
@@ -420,33 +416,35 @@ StatsPanel::getUpdatedData(int num_entries_to_read)
 
 // This routine will either go away or be rewritten.
 
+/*! Get the values from the collectorData. */
 enum LABEL_TYPE  { PERCENT_T, FUNCTION_NAME_T, RANK_T, NONE_T };
-/*! Get the values from the experimentData. */
 int
-StatsPanel::getValues(int values[], char *color_names[], char *strings[], int n)
+StatsPanel::getMetrics(int number_entries_to_read)
 {
-// LABEL_TYPE lt = PERCENT_T;
-LABEL_TYPE lt = NONE_T;
+  int values[1024];
+  char *color_names[1024];
+  char *strings[1024];
 
   int i=0;
   float sum = 0.0;
 
-  FuncInfo *fi = NULL;
+LABEL_TYPE lt = NONE_T;
 
-  if( !experimentData )
+  MetricInfo *fi = NULL;
+
+  if( !collectorData )
   {
     return 0;
   }
 
-  for( FuncInfoList::Iterator it = experimentData->funcInfoList.begin();
-       it != experimentData->funcInfoList.end();
+  for( MetricInfoList::Iterator it = collectorData->metricInfoList.begin();
+       it != collectorData->metricInfoList.end();
        it++ )
   {
-values[i] = 0;
-color_names[i] = "";
-strings[i] = "";
-    if( i == n-1 )
-//    if( i == n )
+    values[i] = 0;
+    color_names[i] = "";
+    strings[i] = "";
+    if( i == number_entries_to_read-1 )
     {
       break;
     }
@@ -457,7 +455,7 @@ strings[i] = "";
     {
       color_names[i] = color_name_table[i];
     }
-    fi = (FuncInfo *)*it;
+    fi = (MetricInfo *)*it;
     values[i] = (int)fi->percent;
 
     if( lt == FUNCTION_NAME_T )

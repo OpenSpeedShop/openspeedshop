@@ -35,5 +35,5 @@ ossExprInfo_la_LDFLAGS = --export-dynamic -module -avoid-version
 ossExprInfo_la_LIBADD = $(LIBLTDL)
 
 ossExprInfo_la_SOURCES = \
-	FuncInfo.h FuncInfo.cxx \
-	ExprInfo.h ExprInfo.cxx 
+	MetricInfo.h MetricInfo.cxx \
+	CollectorInfo.h CollectorInfo.cxx 
