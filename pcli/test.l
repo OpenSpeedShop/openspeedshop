@@ -66,11 +66,11 @@ extern char * copy_string(char *);
 "listparams"	{ return LIST_PARAMS_HEAD; }
 "listpids"  	{ return LIST_PIDS_HEAD; }
 "listranks"	{ return LIST_RANKS_HEAD; }
-"listreports"	{ return LIST_REPORTS_HEAD; }
 "listsrc"   	{ return LIST_SRC_HEAD; }
 "liststatus"   	{ return LIST_STATUS_HEAD; }
 "listthreads"	{ return LIST_THREADS_HEAD; }
 "listtypes"	{ return LIST_TYPES_HEAD; }
+"listviews"	{ return LIST_VIEWS_HEAD; }
 
 "clearbreak"	{ return GEN_CLEAR_BREAK_HEAD; }
 "exit"	    	{ return GEN_EXIT_HEAD; }

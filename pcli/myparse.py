@@ -391,11 +391,11 @@ class CLI(code.InteractiveConsole):
         "listparams"    : "return_string_list",
         "listpids"      : "return_int_list",
         "listranks" 	: "return_int_list",
-        "listreports"   : "return_string_list",
         "listsrc"       : "return_string",
         "liststatus"	: "return_int_list",
         "listthreads" 	: "return_int_list",
         "listtypes" 	: "return_string_list",
+        "listviews" 	: "return_string_list",
 
         "clearbreak"    : "return_none",
         "exit"          : "return_none",

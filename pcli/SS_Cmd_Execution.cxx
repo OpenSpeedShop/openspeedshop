@@ -106,13 +106,16 @@ void SS_Execute_Cmd (CommandObject *cmd) {
   case CMD_LIST_STATUS:
     cmd_successful = SS_ListStatus (cmd);
     break;
+  case CMD_LIST_RANKS:
+    cmd_successful = SS_ListRanks (cmd);
+    break;
   case CMD_LIST_THREADS:
     cmd_successful = SS_ListThreads (cmd);
     break;
   case CMD_LIST_TYPES:
     cmd_successful = SS_ListTypes (cmd);
     break;
-  case CMD_LIST_REPORTS:  // needs to be changed to LIST_VIEWS
+  case CMD_LIST_VIEWS:
     cmd_successful = SS_ListViews (cmd);
     break;
 
