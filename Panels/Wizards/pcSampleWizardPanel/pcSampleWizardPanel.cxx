@@ -622,14 +622,18 @@ pcSampleWizardPanel::listener(void *msg)
   if( messageObject->msgType == getName() )
   {
     vSummaryPageFinishButton->setEnabled(TRUE);
-    vSummaryPageFinishButton->setEnabled(TRUE);
+    eSummaryPageFinishButton->setEnabled(TRUE);
+    vSummaryPageBackButton->setEnabled(TRUE);
+    eSummaryPageBackButton->setEnabled(TRUE);
     qApp->flushX();
     return 1;
   }
   if( messageObject->msgType == "Wizard_Raise_First_Page" )
   {
     vSummaryPageFinishButton->setEnabled(TRUE);
-    vSummaryPageFinishButton->setEnabled(TRUE);
+    eSummaryPageFinishButton->setEnabled(TRUE);
+    vSummaryPageBackButton->setEnabled(TRUE);
+    eSummaryPageBackButton->setEnabled(TRUE);
     qApp->flushX();
     nprintf(DEBUG_PANELS) ("vDescriptionPageWidget\n");
     if( wizardMode->isOn() )
@@ -1123,6 +1127,8 @@ void pcSampleWizardPanel::vSummaryPageFinishButtonSelected()
 
   vSummaryPageFinishButton->setEnabled(FALSE);
   eSummaryPageFinishButton->setEnabled(FALSE);
+  vSummaryPageBackButton->setEnabled(FALSE);
+  eSummaryPageBackButton->setEnabled(FALSE);
   qApp->flushX();
 
   getPanelContainer()->hidePanel((Panel *)this);
