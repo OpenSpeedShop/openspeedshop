@@ -29,12 +29,12 @@ CmdPanel_la_CXXFLAGS = \
     -I$(QTDIR)/include \
     -I. \
 	-I../../objects \
-	-I../../cli \
+	-I../../pcli \
     -I../../gui \
     -I../../plugin \
     -I../../base
 
-CmdPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../base/.libs/ossBase.so -Wl,../../objects/.libs/ossObjects.so
+CmdPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../base/.libs/ossBase.so -Wl,../../objects/.libs/ossObjects.so -Wl,../../pcli/.libs/posscli.so
 
 CmdPanel_la_LIBADD =  -L$(QTDIR)/lib -lqt
 

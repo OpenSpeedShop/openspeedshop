@@ -661,6 +661,8 @@ void Commander_Termination (CMDWID im)
 
 
 ResultObject Append_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_ptr) {
+
+printf("Append_Input_Buffer() entered.\n");
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
   Assert (cw);
   Input_Source *inp = new Input_Source (b_size, b_ptr);

@@ -74,6 +74,10 @@ CmdPanel::returnPressed()
   {
     output->append( oo->outputBuffer );
   }
+#else  // OLDWAY
+  char *buffer = strdup(text.stripWhiteSpace().ascii());
+  ResultObject ro = Append_Input_Buffer( 0, text.length(), buffer);
+  free( buffer );
 #endif // OLDWAY
 
   output->append( prompt );

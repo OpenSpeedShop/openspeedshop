@@ -9,6 +9,8 @@
 
 class PanelContainer;   // Do not remove
 
+#include "Commander.hxx"   // Contains the ResultObject definition.
+
 #define PANEL_CLASS_NAME CmdPanel   // Change the value of the define
                                          // to the name of your new class.
 
