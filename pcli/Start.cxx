@@ -1,41 +1,18 @@
-#include <unistd.h>
-#include <sys/types.h>
-#include <pthread.h>
-#include <time.h>
-#include <stdio.h>
-#include <list>
-#include <inttypes.h>
-#include <stdexcept>
-#include <string>
-#include <sys/stat.h>               /* for fstat() */
-#include <sys/mman.h>               /* for mmap() */
+#include "SS_Input_Manager.hxx"
 #include <signal.h>
 
-// for host name description
-     #include <sys/socket.h>
-     #include <netinet/in.h>
-     #include <netdb.h>
+// Global links to some windows.
+CMDWID gui_window = 0;
+CMDWID tli_window = 0;
+CMDWID command_line_window = 0;
 
 #define PTMAX 10
 pthread_t phandle[PTMAX];
-
-#include "ToolAPI.hxx"
-using namespace OpenSpeedShop::Framework;
-
-#include "support.h"
-#include "Commander.hxx"
-#include "Clip.hxx"
-#include "Experiment.hxx"
-
-#include "ArgClass.hxx"
 
 static bool need_gui;
 static bool need_tli;
 static bool need_batch;
 static bool need_command_line;
-static CMDWID gui_window;
-static CMDWID tli_window;
-static CMDWID command_line_window;
 
 static int initiate_command_at;
 static bool executable_encountered;
@@ -195,6 +172,7 @@ extern "C"
     if (gui_window != 0)
     {
       Commander_Termination(gui_window);
+      gui_window = 0;
     }
     if (tli_window != 0)
     {
@@ -202,10 +180,12 @@ extern "C"
       pthread_cancel (phandle[0]);
 
       Commander_Termination(tli_window);
+      tli_window = 0;
     }
     if (command_line_window != 0)
     {
       Commander_Termination(command_line_window);
+      command_line_window = 0;
     }
   }
 
@@ -269,7 +249,7 @@ setup_signal_handler (int s)
     if (need_command_line || read_stdin_file)
     {
      // Move the command line options to an input control window.
-      command_line_window = Commander_Initialization ("COMMAND_LINE",my_host->h_name,my_pid,0,false);
+      command_line_window = Default_Window ("COMMAND_LINE",my_host->h_name,my_pid,0,false);
       Start_COMMAND_LINE_Mode( command_line_window, argc-1, &argv[1], initiate_command_at-1,
                                need_batch, read_stdin_file);
     } else if (need_batch && (argc <= 2) && !read_stdin_file) {
@@ -280,7 +260,7 @@ setup_signal_handler (int s)
     if (need_tli)
     {
      // Start up the Text Line Interface to read from the keyboard.
-      tli_window = Commander_Initialization ("TLI",my_host->h_name,my_pid,0,true);
+      tli_window = TLI_Window ("TLI",my_host->h_name,my_pid,0,true);
       int stat = pthread_create(&phandle[0], 0, (void *(*)(void *))SS_Direct_stdin_Input,(void *)tli_window);
     }
 
@@ -293,12 +273,12 @@ setup_signal_handler (int s)
 // the GUI can open and define an async input window.
 // The hack is to define a dummy async window before python starts.
 // We will need to sort this out at some point in the future.
-      gui_window = Commander_Initialization ("GUI",my_host->h_name,my_pid,0,true);
+      gui_window = GUI_Window ("GUI",my_host->h_name,my_pid,0,true);
       argStruct->addArg("-wid");
       char buffer[10];
       sprintf(buffer, "%d", gui_window);
       argStruct->addArg(buffer);
-     // The gui will be started in a pthread and do it's own itinialization.
+     // The gui will be started in a pthread and do it's own initialization.
       extern void loadTheGUI(ArgStruct *);
 //      loadTheGUI((ArgStruct *)NULL); // argStruct);
       loadTheGUI((ArgStruct *)argStruct); // NULL);
