@@ -77,6 +77,13 @@ static bool VIEWN_vtop (CommandObject *cmd, ExperimentObject *exp, int64_t topn)
       return false;
     }
 
+   // If there is no data, return.
+    if (data->begin() == data->end()) {
+      cmd->Result_String ( "(no data available)" );
+      cmd->set_Status(CMD_ERROR);
+      return false;
+    }
+
    // Now we can sort the data.
     typedef std::pair<std::string, double> item_type;
     std::vector<item_type> items;
@@ -89,9 +96,8 @@ static bool VIEWN_vtop (CommandObject *cmd, ExperimentObject *exp, int64_t topn)
    // std::sort(items.begin(), items.end(), sort_ascending<item_type>());
     std::sort(items.begin(), items.end(), sort_decending<item_type>());
 
-   // Extract teh top "n" items fromt he sorted list.
+   // Extract the top "n" items fromt he sorted list.
     std::vector<item_type>::const_iterator it = items.begin();
-    char timestr[50];
     int64_t foundn = 0;
     for( ; it != items.end(); it++ ) {
       if (foundn++ >= topn) {
@@ -106,8 +112,6 @@ static bool VIEWN_vtop (CommandObject *cmd, ExperimentObject *exp, int64_t topn)
       cmd->Result_Predefined (C);
 
 //  printf("%s %f\n", it->first.c_str(), it->second );
-//  sprintf(timestr, "%f", it->second);
-//  lvi =  new SPListViewItem( this, lv, timestr,  it->first.c_str() );
     }
 
 return true;
