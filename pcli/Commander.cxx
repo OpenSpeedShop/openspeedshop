@@ -43,8 +43,10 @@ static pthread_cond_t  Async_Input_Available = PTHREAD_COND_INITIALIZER;
 #define DEFAULT_INPUT_BUFFER_SIZE 4096
 
 char *Current_OpenSpeedShop_Prompt = "openss";
+char *Alternate_Current_OpenSpeedShop_Prompt = "....ss";
 static FILE *ttyin;  // Read directly from this xterm window.
 static FILE *ttyout; // Write directly to this xterm window.
+void Default_TLI_Command_Output (CommandObject *C);
 
 class Input_Source
 {
@@ -385,7 +387,11 @@ class CommandWindowID
     }
   }
   void Clip_Is_Complete (InputLineObject *Clip) {
-    Complete_Cmds.push_back (Clip);
+    if (Clip->Results_Used()) {
+      delete Clip;
+    } else {
+      Complete_Cmds.push_back (Clip);
+    }
   }
 private:
   void Pop_Input_Source () {
@@ -513,7 +519,6 @@ public:
         inp->Dump(TFile );
       }
     }
-/* TEST */
    // Print the list of completed commands
     std::list<InputLineObject *> cmd_object = Complete_Cmds;
     std::list<InputLineObject *>::iterator cmi;
@@ -634,27 +639,28 @@ void Link_Cmd_Obj_to_Input (InputLineObject *I, CommandObject *C)
 
 void Clip_Complete (InputLineObject *clip) {
   CommandWindowID *win = Find_Command_Window (clip->Who());
+  if(!(clip->CallBackL ())) {
+
+   // DEBUG: the output should go somewhere.  Until we finish the implementation,
+   // process the CommandObject list and produce the output here.
+    std::list<CommandObject *> cmd_object = clip->CmdObj_List();
+    std::list<CommandObject *>::iterator coi;
+    for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
+      if (!((*coi)->Results_Used())) {
+        Default_TLI_Command_Output ( (*coi) );
+      }
+    }
+  }
+
+ // Record the InputObject and decide if it can be deleted
   win->Clip_Is_Complete(clip);
-  clip->CallBackL ();
 }
 
 void Cmd_Obj_Complete (CommandObject *C) {
   InputLineObject *lin = C->Clip();
-  Clip_Complete (lin);
   if (!(lin->CallBackC (C))) {
-   // Print the CommandObject list
-    std::list<CommandResult *> cmd_object = C->Result_List();
-    std::list<CommandResult *>::iterator coi;
-    int num_results = 0;
-    for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
-      if (num_results++ != 0) fprintf(ttyout,"\n");
-      (*coi)->Print (ttyout);
-    }
-    if (num_results != 0) {
-      fprintf(ttyout,"\n");
-      SS_Issue_Prompt (ttyout);
-    }
   }
+  Clip_Complete (lin);
 }
 
 int64_t Find_Command_Level (CMDWID WindowID)
@@ -875,7 +881,7 @@ void Commander_Termination (CMDWID im)
 }
 
 
-bool Isa_SS_Command (CMDWID issuedbywindow, const char *b_ptr) {
+static bool Isa_SS_Command (CMDWID issuedbywindow, const char *b_ptr) {
   int fc;
   for (fc = 0; fc < strlen(b_ptr); fc++) {
     if (b_ptr[fc] != *(" ")) break;
@@ -910,7 +916,7 @@ bool Isa_SS_Command (CMDWID issuedbywindow, const char *b_ptr) {
   return true;
 }
 
-InputLineObject *Append_Input_String (CMDWID issuedbywindow, InputLineObject *clip) {
+static InputLineObject *Append_Input_String (CMDWID issuedbywindow, InputLineObject *clip) {
   if (clip != NULL) {
     if (Isa_SS_Command(issuedbywindow,clip->Command().c_str())) {
       CommandWindowID *cw = Find_Command_Window (issuedbywindow);
@@ -939,16 +945,16 @@ InputLineObject *Append_Input_String (CMDWID issuedbywindow, char *b_ptr,
     clip = cw->New_InputLineObject(issuedbywindow, std::string(b_ptr));
     clip->Set_Trace (cw->Trace_File());
     Input_Source *inp = new Input_Source (clip);
-    clip->SetStatus (ILO_QUEUED_INPUT);
     clip->Set_CallBackId (LocalCmdId);
     clip->Set_CallBackL (CallBackLine);
     clip->Set_CallBackC (CallBackCmd);
+    clip->SetStatus (ILO_QUEUED_INPUT);
     cw->Append_Input_Source (inp);
   }
   return clip;
 }
 
-bool Append_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_ptr) {
+static bool Append_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_ptr) {
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
 
 // DEBUG: hacks to let the gui pass information in without initializing a window.
@@ -972,7 +978,7 @@ bool Append_Input_File (CMDWID issuedbywindow, std::string fromfname) {
   return true;
 }
 
-bool Push_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_ptr) {
+static bool Push_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_ptr) {
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
   Assert (cw);
   Input_Source *inp = new Input_Source (b_size, b_ptr);
@@ -986,6 +992,28 @@ bool Push_Input_File (CMDWID issuedbywindow, std::string fromfname) {
   Input_Source *inp = new Input_Source (fromfname);
   cw->Push_Input_Source (inp);
   return true;
+}
+
+void Default_TLI_Command_Output (CommandObject *C) {
+  if (!(C->Results_Used())) {
+   // Print the ResultdObject list
+    std::list<CommandResult *> cmd_object = C->Result_List();
+    std::list<CommandResult *>::iterator coi;
+    int num_results = 0;
+    for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
+      if (num_results++ != 0) fprintf(ttyout,"\n");
+      (*coi)->Print (ttyout);
+    }
+    C->set_Results_Used ();
+    if (num_results != 0) {
+     // Re-issue the prompt
+      fprintf(ttyout,"\n");
+      SS_Issue_Prompt (ttyout);
+    }
+  }
+/* TEST - for the moment, assume 1 Result per line */
+  InputLineObject *lin = C->Clip();
+  lin->Set_Results_Used();
 }
 
 // This routine continuously reads from /dev/tty and appends the string to an input window.
@@ -1020,7 +1048,8 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
      // This indicates that someone freed the input window
       exit (0); // terminate the thread
     }
-    (void) Append_Input_String ((CMDWID)attachtowindow, &Buffer[0]);
+    (void) Append_Input_String ((CMDWID)attachtowindow, &Buffer[0], 
+                                 NULL, NULL, &Default_TLI_Command_Output);
   }
 }
 
@@ -1087,7 +1116,7 @@ InputLineObject *SpeedShop_ReadLine (int is_more)
   bool I_HAVE_ASYNC_INPUT_LOCK = false;
   
   if (is_more) {
-    Current_OpenSpeedShop_Prompt = "....ss";
+    Current_OpenSpeedShop_Prompt = Alternate_Current_OpenSpeedShop_Prompt;
   }
 
 read_another_window:
