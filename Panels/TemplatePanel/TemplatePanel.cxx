@@ -54,14 +54,6 @@
 */
 
 
-/*! The default constructor.   Unused. */
-TemplatePanel::TemplatePanel()
-{ // Unused... Here for completeness...
-  fprintf(stderr, "TemplatePanel::TemplatePanel() should not be called.\n");
-  fprintf(stderr, "see: TemplatePanel::TemplatePanel(PanelContainer *pc, const char *n)\n");
-}
-
-
 /*! This constructor is the work constructor.   It is called to
     create the new Panel and attach it to a PanelContainer.
     \param pc is a pointer to PanelContainer
@@ -70,7 +62,7 @@ TemplatePanel::TemplatePanel()
       This is where the user would create the panel specific Qt code
       to do whatever functionality the user wanted the panel to perform.
  */
-TemplatePanel::TemplatePanel(PanelContainer *pc, const char *n, char *argument) : Panel(pc, n)
+TemplatePanel::TemplatePanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
 {
   setCaption("TemplatePanel");
   frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
