@@ -243,6 +243,8 @@ pcStatsPanel::matchSelectedItem(int element)
 void
 pcStatsPanel::PrintView(int expID)
 {
+
+printf("pcStatsPanel::PrintView(%d) entered\n", expID );
   ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
   if( eo && eo->FW() )
   {
@@ -265,6 +267,7 @@ pcStatsPanel::PrintView(int expID)
     }
   }
 
+printf("pcStatsPanel::PrintView(%d) finished\n", expID );
 }
 
 
