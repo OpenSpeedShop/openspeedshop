@@ -42,4 +42,4 @@ ftd_SOURCES = main.cxx
 doc:
 	-doxygen Doxyfile
 
-SUBDIRS = . base objects ladDialog expr_info plugin ftf objects chart cli gui Panels
+SUBDIRS = . base ftf objects ladDialog expr_info plugin objects chart cli gui Panels

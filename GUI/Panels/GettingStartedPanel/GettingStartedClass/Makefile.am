@@ -22,6 +22,8 @@
 # All Rights Reserved.
 ################################################################################
 
+install: all
+
 all: gettingstartedclass.ui.h
 	-mv Makefile Makefile.tmp
 	$(QTDIR)/bin/qmake GettingStartedClass.pro; \
