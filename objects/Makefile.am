@@ -63,6 +63,9 @@ libopenss_Objects_la_SOURCES = \
 	ProcessControlObject.hxx ProcessControlObject.cxx \
 	CollectorParameterEntryClass.hxx
 
+nodist_libopenss_Objects_la_SOURCES = \
+	moc_AnimatedQPushButton.cxx \
+	moc_ProcessControlObject.cxx \
+	moc_InfoEventFilter.cxx
 
-#CLEANFILES=moc_AnimatedQPushButton.cxx moc_ProcessControlObject.cxx moc_InfoEventFilter.cxx
-CLEANFILES=moc_*.cxx
+CLEANFILES=$(nodist_libopenss_Objects_la_SOURCES)
