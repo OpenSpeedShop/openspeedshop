@@ -2593,6 +2593,61 @@ PanelContainer::notifyGroup(char *msg)
   return(return_value);
 }
 
+/*! Notify all decendents of this panel container of the message.
+ */
+int
+PanelContainer::notifyAllDecendants(char *msg, PanelContainer *startPC)
+{
+  nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::notifyAllDecendents(%s-%s)\n", startPC->getInternalName(), startPC->getExternalName() );
+  int return_value = 0;
+   
+  _notifyAllDecendants(msg, startPC);
+
+  return(return_value);
+}
+
+
+/*! Recursively, traverse the PanelContainer tree passing all decendands
+    the message.
+*/
+void
+PanelContainer::_notifyAllDecendants(char *msg, PanelContainer *pc)
+{
+  nprintf(DEBUG_PANELCONTAINERS) ("_notifyAllDecendants: entered\n");
+
+  if( !pc->leftPanelContainer && !pc->rightPanelContainer )
+  {
+    nprintf(DEBUG_PANELCONTAINERS) ("notify all panels in %s-%s\n", pc->getInternalName(), pc->getExternalName() );
+    for( PanelList::Iterator pit = pc->panelList.begin();
+             pit != pc->panelList.end();
+             ++pit )
+    {
+      Panel *p = (Panel *)*pit;
+      nprintf(DEBUG_PANELCONTAINERS) ("p->getName() = %s\n", p->getName() );
+      if( p->topLevel == TRUE )
+      {
+        _notifyAllDecendants(msg, p->topPC);
+      } else
+      {
+printf("contact %s listener...\n", p->getName() );
+        p->listener(msg);
+      }
+    }
+  }
+
+  depth++;
+  if( pc->leftPanelContainer )
+  {
+    _notifyAllDecendants(msg, pc->leftPanelContainer);
+    depth--;
+  } 
+  if( pc->rightPanelContainer )
+  {
+    _notifyAllDecendants(msg, pc->rightPanelContainer);
+    depth--;
+  }
+}
+
 /*! This routine simple iterates over all the Panel in the master PanelContainer
     list passing the message to each.   It doesn't stop when any Panel
     handles the message, but rather makes sure \e every panel gets the message.

@@ -136,6 +136,12 @@ class PanelContainer : public QWidget
     //! Notify a group of panels of a message.
     int notifyGroup(char *msg);
 
+    //! Notify all decendants of a message.
+    int notifyAllDecendants(char *msg, PanelContainer *targetPC);
+
+//! Internal routine that does the actual walking of the decendant's tree
+void _notifyAllDecendants(char *msg, PanelContainer *targetPC);
+
     //! Notify all Panels of a particular message.
     int notifyAll(char *msg);
 
