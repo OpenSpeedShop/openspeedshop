@@ -18,9 +18,11 @@
   
 
 #include <stdio.h> 
+#include <unistd.h>
 
 #include <qapplication.h>
 #include "openspeedshop.hxx"
+
 #include <qvaluelist.h>
 
 #include "PanelContainer.hxx"
