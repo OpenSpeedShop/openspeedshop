@@ -9,6 +9,7 @@ class TopPanel;
 #include <qtextedit.h>
 #include <qsplitter.h>
 
+//! Overrides the Chart implementation to allow context menu event.
 class MyChartForm : public ChartForm
 {
 public:

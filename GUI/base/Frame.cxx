@@ -1,5 +1,5 @@
 /*! \class Frame
-    Frame Class is the container class for all user PanelContainers.   
+    The Frame class is the container class for all user PanelContainers.   
     The events handled are:
     - contextMenuEvent
       QContextMenuEvent is passed both to the PanelContainer to create

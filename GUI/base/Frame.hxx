@@ -9,7 +9,7 @@ class PanelContainer;
 
 #include "debug.hxx"
 
-//! The Frame class contains a PanelContainer.
+//! This is the container for a PanelContainer.
 class Frame : public QFrame
 {
     //! Q_OBJECT is needed as there are slots defined for the Frame Class

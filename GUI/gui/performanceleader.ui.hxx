@@ -115,11 +115,12 @@ void PerformanceLeader::helpAbout()
 
 #include <dlfcn.h>
 
-//! Class MyEventFilter
-/*! The MyEventFilter class catches all the events.   All events are caught to 
+/*! \class MyEventFilter
+    MyEventFilter catches all the events.   All events are caught to 
     to prevent events from, soon to be deleted, PanelContainers from being
     called after the PanelContainer has been deleted.
 */
+//! Catches all events and process them when flagged to do so.
 class MyEventFilter : public QObject
 {
   public:

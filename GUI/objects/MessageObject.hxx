@@ -3,6 +3,7 @@
 
 #include <qstring.h>
 
+//! The base message class that contains a simple QString type of the message.
 class MessageObject
 {
 public:

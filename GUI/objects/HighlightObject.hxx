@@ -8,6 +8,10 @@ typedef QValueList<HighlightObject *>HighlightList;
 
 
 //! A simple object to describe which lines to highlight and in what color.
+/*! \class HighlightObject
+    This class is used by SourcePanel to highlight particular lines with 
+    a specific color.
+ */
 class HighlightObject
 {
 public:

@@ -1,3 +1,7 @@
+/*! \class MyChartForm
+    This class overloads the chart widget to allow the contents menu event
+    to be recognized.
+ */
 #include "MyChartForm.hxx"
 
 #include <qpopupmenu.h>
@@ -60,8 +64,9 @@ MyChartForm::createPopupMenu( const QPoint & pos )
   topFivePanel->createChartPopupMenu(popupMenu, pos);
 #endif // ANOTHER_WAY
 
-popupMenu->exec( pos );
+  popupMenu->exec( pos );
 
-delete (panelMenu);
+  delete (panelMenu);
+
   return popupMenu;
 }

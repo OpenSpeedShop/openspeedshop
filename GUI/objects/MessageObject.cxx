@@ -5,6 +5,11 @@
 #include "debug.hxx"
 #include "MessageObject.hxx"
 
+/*! \class MessageObject
+  This is the base class for all messages being passed around to panels.
+  It contains a simple QString type that is used by the ::listener() routine
+  to determine if it's a message type it cares to field.
+*/
 MessageObject::MessageObject()
 {
   nprintf(DEBUG_MESSAGES) ("MessageObject::MessageObject(entered)\n");
