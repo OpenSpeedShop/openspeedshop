@@ -90,7 +90,14 @@ class ExperimentObject
       snprintf(base, 20, "ssdb%lld.XXXXXX",Exp_ID);
       Data_File_Name = std::string(tempnam ("./", &base[0] ) ) + ".openss";
       Data_File_Has_A_Generated_Name = true;
-      OpenSpeedShop::Framework::Experiment::create (Data_File_Name);
+      try {
+        OpenSpeedShop::Framework::Experiment::create (Data_File_Name);
+      }
+      catch(const std::exception& error) {
+        Exp_ID = 0;
+        Data_File_Has_A_Generated_Name = false;
+        FW_Experiment = NULL;
+      }
     } else {
       Data_File_Name = data_base_name;
       Data_File_Has_A_Generated_Name = false;
@@ -139,20 +146,35 @@ class ExperimentObject
     }
 
   EXPID ExperimentObject_ID() {return Exp_ID;}
-  int Status() {return ExpStatus;}
   Experiment *FW() {return FW_Experiment;}
+  int Status() {return ExpStatus;}
+  void Determine_Status() {
+    int S = ExpStatus;
+    if (FW() == NULL) {
+      if (ExpStatus != ExpStatus_Suspended) ExpStatus = ExpStatus_NonExistant;
+    } else {
+      ThreadGroup tgrp = FW()->getThreads();
+      int A = ExpStatus_NonExistant;
+      if (tgrp.empty()) A = ExpStatus_Paused;
+      else if (tgrp.isAnyState(Thread::Running)) A = ExpStatus_Running;
+      else if (tgrp.isAnyState(Thread::Suspended)) A = ExpStatus_Paused;
+      else if (tgrp.areAllState(Thread::Terminated)) A = ExpStatus_Terminated;
+      else A = ExpStatus_InError;
+      ExpStatus = A;
+    }
+  }
 
   void setStatus (int S) {ExpStatus = S;}
   void ReStart () {
     if (ExpStatus == ExpStatus_Suspended) {
       try {
         FW_Experiment = new OpenSpeedShop::Framework::Experiment (Suspended_Data_File_Name);
-        setStatus (ExpStatus_Paused);
+        Determine_Status();
       }
       catch(const std::exception& error) {
         Exp_ID = 0;
         setStatus (ExpStatus_InError);
-        Data_File_Has_A_Generated_Name = false;
+        Data_File_Has_A_Generated_Name = false;  // Save for later analysis
         FW_Experiment = NULL;
       }
     }
@@ -195,7 +217,7 @@ class ExperimentObject
   }
 
   std::string ExpStatus_Name () {
-    if (ExpStatus == ExpStatus_NonExistant) return std::string("NonExistant");
+    if ((this == NULL) || (ExpStatus == ExpStatus_NonExistant)) return std::string("NonExistant");
     if (ExpStatus == ExpStatus_Paused) return std::string("Paused");
     if (ExpStatus == ExpStatus_Suspended) return std::string("Disabled");
     if (ExpStatus == ExpStatus_Running) return std::string("Running");
@@ -205,7 +227,7 @@ class ExperimentObject
   }
 
   void Print(FILE *TFile)
-    { fprintf(TFile,"Experiment %lld %s data->%s:\n",ExperimentObject_ID(), ExpStatus_Name().c_str(),
+    { fprintf(TFile,"Experiment %lld %s data->%s\n",ExperimentObject_ID(), ExpStatus_Name().c_str(),
               (FW_Experiment != NULL) ? FW_Experiment->getName().c_str() :
                  (ExpStatus == ExpStatus_Suspended) ? Suspended_Data_File_Name.c_str() : "(null)");
       if (FW_Experiment != NULL) {
@@ -217,7 +239,6 @@ class ExperimentObject
           std::string host = t.getHost();
           pid_t pid = t.getProcessId();
           if (!atleastone) {
-            fprintf(TFile,"  Applications:\n");
             atleastone = true;
           }
           fprintf(TFile,"    -h %s -p %lld",host.c_str(),pid);
@@ -231,6 +252,20 @@ class ExperimentObject
             fprintf(TFile," -r %lld",rank.getValue());
           }
 #endif
+          CollectorGroup cgrp = t.getCollectors();
+          CollectorGroup::iterator ci;
+          int collector_count = 0;
+          for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
+            Collector c = *ci;
+            Metadata m = c.getMetadata();
+            if (collector_count) {
+              fprintf(TFile,",");
+            } else {
+              fprintf(TFile," ");
+              collector_count = 1;
+            }
+            fprintf(TFile," %s", m.getUniqueId().c_str() );
+          }
           fprintf(TFile,"\n");
         }
 
@@ -239,26 +274,21 @@ class ExperimentObject
         atleastone = false;
         for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
           Collector c = *ci;
-          Metadata m = c.getMetadata();
-          if (atleastone) {
-            fprintf(TFile,",");
-          } else {
-            fprintf(TFile,"  Collectors:");
-            atleastone = true;
+          ThreadGroup tgrp = c.getThreads();
+          if (tgrp.empty()) {
+            Metadata m = c.getMetadata();
+            if (atleastone) {
+              fprintf(TFile,",");
+            } else {
+              fprintf(TFile,"   ");
+              atleastone = true;
+            }
+            fprintf(TFile," %s", m.getUniqueId().c_str() );
           }
-          fprintf(TFile," %s", m.getUniqueId().c_str() );
         }
         if (atleastone) {
           fprintf(TFile,"\n");
         }
-      }
-      std::list<Collector *>::iterator  Ci = CollectorList.begin();
-      if (Ci != CollectorList.end()) {
-        fprintf(TFile," ");
-        for (Ci = CollectorList.begin(); Ci != CollectorList.end(); Ci++) {
-          fprintf(TFile," %s",(*Ci)->getMetadata().getShortName().c_str());
-        }
-        fprintf(TFile,"\n");
       }
     }
   void Dump(FILE *TFile)
