@@ -145,12 +145,12 @@ exp_attach_com:     ATTACH_HEAD   exp_attach_args
     	    	;
 exp_attach_args:    /* empty */
     	    	|   expId_spec
-    	    	|   host_file_rpt_list
+    	    	|   target_list
     	    	|   expType_list
-    	    	|   expId_spec host_file_rpt_list
-    	    	|   expId_spec host_file_rpt_list expType_list
+    	    	|   expId_spec target_list
+    	    	|   expId_spec target_list expType_list
     	    	|   expId_spec expType_list
-    	    	|   host_file_rpt_list expType_list
+    	    	|   target_list expType_list
     	    	;
 
     	    /** EXP_CLOSE **/
@@ -181,9 +181,9 @@ exp_create_com:     CREATE_HEAD   exp_create_args
     	    	|   CREATE_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_EXP_CREATE].name);} 
     	    	;
 exp_create_args:    /* empty */
-    	    	|   host_file_rpt_list
-    	    	|   expType_list host_file_rpt_list
-    	    	|   host_file_rpt_list expType_list
+    	    	|   target_list
+    	    	|   expType_list target_list
+    	    	|   target_list expType_list
     	    	|   expType_list
     	    	;
 
@@ -193,12 +193,12 @@ exp_detach_com:     DETACH_HEAD   exp_detach_args
       	    	;
 exp_detach_args:    /* empty */
     	    	|   expId_spec
-    	    	|   host_file_rpt_list
+    	    	|   target_list
     	    	|   expType_list
-    	    	|   expId_spec host_file_rpt_list
-    	    	|   expId_spec host_file_rpt_list expType_list
+    	    	|   expId_spec target_list
+    	    	|   expId_spec target_list expType_list
     	    	|   expId_spec expType_list
-    	    	|   host_file_rpt_list expType_list
+    	    	|   target_list expType_list
     	    	;    	    	;
 
     	    /** EXP_DISABLE **/
@@ -322,8 +322,8 @@ list_obj_com:	    LIST_OBJ_HEAD   list_obj_arg
       	    	;
 list_obj_arg:	    /* empty */
     	    	|   expId_spec
-		|   host_file_rpt
- 		|   expId_spec host_file_rpt
+		|   target
+ 		|   expId_spec target
     	    	;
 
     	    /** LIST_PARAMS **/
@@ -355,8 +355,8 @@ list_ranks_com:    LIST_RANKS_HEAD   list_ranks_arg
 list_ranks_arg:    /* empty */
 		|   expId_spec
 		|   ALL     	    	{p_parse_result->push_modifiers(general_name[H_GEN_ALL]);}
-		|   expId_spec host_file_rpt
-		|   ALL host_file_rpt	{p_parse_result->push_modifiers(general_name[H_GEN_ALL]);}
+		|   expId_spec target
+		|   ALL target	{p_parse_result->push_modifiers(general_name[H_GEN_ALL]);}
     	    	;
 
     	    /** LIST_SRC **/
@@ -365,11 +365,11 @@ list_src_com:	    LIST_SRC_HEAD   list_src_arg
       	    	;
 list_src_arg:	    /* empty */
     	    	|   expId_spec 
-    	    	|   expId_spec host_file_rpt_list
+    	    	|   expId_spec target_list
     	    	|   expId_spec lineno_spec
-    	    	|   expId_spec host_file_rpt_list  lineno_spec
-		|   host_file_rpt_list
-		|   host_file_rpt_list lineno_spec
+    	    	|   expId_spec target_list  lineno_spec
+		|   target_list
+		|   target_list lineno_spec
  		|   lineno_spec
     	    	;
 
@@ -399,8 +399,8 @@ list_types_com:     LIST_TYPES_HEAD list_types_arg
 list_types_arg:    /* empty */
 		|   expId_spec
 		|   ALL     	    	{p_parse_result->push_modifiers(general_name[H_GEN_ALL]);}
-		|   expId_spec host_file_rpt
-		|   ALL host_file_rpt	{p_parse_result->push_modifiers(general_name[H_GEN_ALL]);}
+		|   expId_spec target
+		|   ALL target	{p_parse_result->push_modifiers(general_name[H_GEN_ALL]);}
     	    	;
 
     	    /** LIST_VIEWS **/
@@ -539,8 +539,8 @@ gen_setbreak_com:   GEN_SETBREAK_HEAD   gen_setbreak_arg
   	    	|   GEN_SETBREAK_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_SETBREAK].name);} 
       	    	;
 gen_setbreak_arg:   expId_spec address_description 
-    	    	|   host_file_rpt address_description 
- 		|   expId_spec host_file_rpt address_description 
+    	    	|   target address_description 
+ 		|   expId_spec target address_description 
  		|   address_description
     	    	;
 
@@ -559,15 +559,15 @@ address_description: NUMBER {p_parse_result->pushAddressPoint($1);}
 expId_spec:	    EXP_ID  NUMBER {p_parse_result->SetExpId($2);}
     	    	;
 
-host_file_rpt_list: host_file_rpt
-    	    	|   host_file_rpt_list SEMICOLON {p_parse_result->PushParseTarget();} host_file_rpt
+target_list:	    target
+    	    	|   target_list SEMICOLON {p_parse_result->PushParseTarget();} target
     	    	;
 
-host_file_rpt:	    host_file_rpt_element
-    	    	|   host_file_rpt host_file_rpt_element
+target:     	    target_element
+    	    	|   target target_element
     	    	;
 
-host_file_rpt_element:	    host_list_spec
+target_element:	    host_list_spec
     	    	|   file_list_spec
 		|   pid_list_spec
 		|   thread_list_spec
