@@ -12,48 +12,8 @@
 #include <qlabel.h>
 
 /*! \class DebugPanel
-    This class is intended to be used as a starting point to create
-    user defined panels.   There's a script: mknewpanel that takes this
-    template panel and creates a panel for the user to work with.    (See:
-    mknewpanel in this directory.  i.e. type: mknewpanel --help)
-
-    \par $ mknewpanel
-    \b usage: mknewpanel directory panelname "menu header" "menu label" "menu accel" "show immediate" "grouping"
-    \par where:
-    \par directory:
-    Is the path to the directory to put the new panel code.
-    \par panelname:
-    Is the name of the new panel.
-    \par menu header:
-    Is the Menu named to be put on the menu bar.
-    \par menu label:
-    Is the menu label under the menu header.
-    \par menu accel:
-    Is the menu accelerator to be used.   
-    \par
-    <b>   Note:</b> It's the panel developer's reponsiblity to resolve any conflicts.
-    \par show immediate:
-    Default is 0.  Setting this to 1 will display the panel upon initialization.
-    \par grouping:
-    Which named panel container should this menu item drop this panel by default.
-
-
-    \par
-    An exmple would be to cd to this DebugPanel directory and issue the
-    following command:
-    \par
-    mknewpanel ../NewPanelName "NewPanelName" "New Panel Menu Heading" "New Panel Label" 0 "Performance"
-    \par
-
-    That command would create a new panel directory, with the necessary
-    structure for the user to create a new panel.   The user's new panel would
-    be in the NewPanelName directory.   The future panel would be called,
-    "NewPanelName".   A toplevel menu heading will be created called "New 
-    Panel Menu Heading".   An entry under that topleve menu would read "New
-    Panel Label".    The panel would not be displayed upon initialization of
-    the tool, but only upon menu selection.    The final argument hints to the 
-    tool that this panel belongs to the group of other Performance related 
-    panels.
+  This is a internal Panel.   It's sole purpose is to turn on/off debug
+  flags.
 */
 
 
@@ -67,13 +27,7 @@ DebugPanel::DebugPanel()
 }
 
 
-/*! This constructor is the work constructor.   It is called to
-    create the new Panel and attach it to a PanelContainer.
-    \param pc is a pointer to PanelContainer
-      the Panel will be initially attached.
-    \param name is the name give to the Panel.
-      This is where the user would create the panel specific Qt code
-      to do whatever functionality the user wanted the panel to perform.
+/*! This constructor.
  */
 DebugPanel::DebugPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
 {
