@@ -592,48 +592,47 @@ if( status == ExpStatus_Terminated )
 {
   statusLabelText->setText( tr("Process finished...") );
 }
-}
 
-if( 1 )
+if( status == ExpStatus_Terminated || status == ExpStatus_InError )
 {
-pco->runButton->setEnabled(FALSE);
-pco->runButton->enabledFLAG = FALSE;
-runnableFLAG = FALSE;
-pco->pauseButton->setEnabled(FALSE);
-pco->pauseButton->enabledFLAG = FALSE;
-pco->continueButton->setEnabled(FALSE);
-pco->continueButton->setEnabled(FALSE);
-pco->continueButton->enabledFLAG = FALSE;
-pco->updateButton->setEnabled(FALSE);
-pco->updateButton->setEnabled(FALSE);
-pco->updateButton->enabledFLAG = FALSE;
-pco->terminateButton->setEnabled(FALSE);
-pco->terminateButton->setFlat(TRUE);
-pco->terminateButton->setEnabled(FALSE);
+  pco->runButton->setEnabled(TRUE);
+  pco->runButton->enabledFLAG = TRUE;
+  runnableFLAG = TRUE;
+  pco->pauseButton->setEnabled(FALSE);
+  pco->pauseButton->enabledFLAG = FALSE;
+  pco->continueButton->setEnabled(FALSE);
+  pco->continueButton->setEnabled(FALSE);
+  pco->continueButton->enabledFLAG = FALSE;
+  pco->updateButton->setEnabled(TRUE);
+  pco->updateButton->setEnabled(TRUE);
+  pco->updateButton->enabledFLAG = TRUE;
+  pco->terminateButton->setEnabled(FALSE);
+  pco->terminateButton->setFlat(TRUE);
+  pco->terminateButton->setEnabled(FALSE);
+} else
+{
+  pco->runButton->setEnabled(FALSE);
+  pco->runButton->enabledFLAG = FALSE;
+  runnableFLAG = FALSE;
+  pco->pauseButton->setEnabled(TRUE);
+  pco->pauseButton->enabledFLAG = TRUE;
+  pco->continueButton->setEnabled(FALSE);
+  pco->continueButton->setEnabled(FALSE);
+  pco->continueButton->enabledFLAG = FALSE;
+  pco->updateButton->setEnabled(TRUE);
+  pco->updateButton->setEnabled(TRUE);
+  pco->updateButton->enabledFLAG = TRUE;
+  pco->terminateButton->setEnabled(TRUE);
+  pco->terminateButton->setFlat(TRUE);
+  pco->terminateButton->setEnabled(TRUE);
+}
 
 PanelContainer *pc = topPC->findBestFitPanelContainer(topPC);
 
   loadStatsPanel();
   
-} else
-{
-pco->runButton->setEnabled(TRUE);
-pco->runButton->enabledFLAG = TRUE;
-runnableFLAG = TRUE;
-pco->pauseButton->setEnabled(TRUE);
-pco->pauseButton->enabledFLAG = TRUE;
-pco->continueButton->setEnabled(TRUE);
-pco->continueButton->setEnabled(TRUE);
-pco->continueButton->enabledFLAG = TRUE;
-pco->updateButton->setEnabled(TRUE);
-pco->updateButton->setEnabled(TRUE);
-pco->updateButton->enabledFLAG = TRUE;
-pco->terminateButton->setEnabled(TRUE);
-pco->terminateButton->setFlat(TRUE);
-pco->terminateButton->setEnabled(TRUE);
-}
- // End demo only...
         ret_val = 1;
+}
         break;
       case  PAUSE_T:
         nprintf( DEBUG_MESSAGES ) ("Pause\n");

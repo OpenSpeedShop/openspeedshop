@@ -35,6 +35,7 @@
 #include <qcombobox.h>
 #include <qlistview.h>
 
+#include "SS_Input_Manager.hxx"
 SelectExperimentDialog::SelectExperimentDialog( QWidget* parent, const char* name, bool modal, WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
@@ -150,28 +151,29 @@ SelectExperimentDialog::selectedExperiment(int *expID)
 printf("parent text=%s\n", parent_node->text(0).ascii() );
     *expID = parent_node->text(0).toInt();
 
-//    printf("Got an ITEM!\n");
-    // If the use selected a leaf, just return it...
+    // If the user selected a leaf, just return it...
     if( selectedItem->parent() )
     {
+printf("return A:\n");
       return selectedItem;
     }
     PanelListViewItem *firstChild = (PanelListViewItem *)selectedItem->firstChild();
     if( firstChild )
     {
+printf("return B:\n");
       return firstChild;
     } else
     {
-      return NULL; // Error condition.
+printf("return C:\n");
+      return selectedItem; // Error condition.
     }
   } else
   {
 //    printf("NO ITEMS SELECTED\n");
+printf("return D:\n");
     return( NULL );
   }
 }
-
-
 
 #include "PanelContainer.hxx"
 void
@@ -179,7 +181,6 @@ SelectExperimentDialog::updateAvailableExperimentList()
 {
   char *host = (char *)hostComboBox->currentText().ascii();
   availableExperimentsListView->clear();
-  char entry_buffer[1024];
 
   QString command("listExp");
   std::list<int64_t> int_list;
@@ -194,13 +195,34 @@ SelectExperimentDialog::updateAvailableExperimentList()
 // printf("int_list.size() =%d\n", int_list.size() );
   for(it = int_list.begin(); it != int_list.end(); it++ )
   {
-    int64_t cr_int = (int64_t)(*it);
+    int64_t expID = (int64_t)(*it);
 
-    printf("Here are the experiment ids that can be saved (%d)\n", cr_int);
-    sprintf(entry_buffer, "%4d %-20s %-20s\n", cr_int, "Experiment Name", "other info..." );
-    QListViewItem *item = new QListViewItem( availableExperimentsListView, QString("%1").arg(cr_int), "Name", "Description" );
-//    item->setText( 0, entry_buffer );
-PanelList *panelList = mw->topPC->getPanelListByID(cr_int);
+    printf("Here are the experiment ids that can be saved (%d)\n", expID);
+QString expName = QString::null;
+ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+Experiment *fw_experiment = NULL;
+if( eo && eo->FW() )
+{
+  fw_experiment = eo->FW();
+  CollectorGroup cgrp = fw_experiment->getCollectors();
+  CollectorGroup::iterator ci;
+  for (ci = cgrp.begin(); ci != cgrp.end(); ci++)
+  {
+    Collector collector = *ci;
+    std::string name = collector.getMetadata().getUniqueId();
+    if( !expName.isEmpty() )
+    {
+      expName += QString(" ,");
+    }
+    expName += QString(name.c_str());
+  }
+}
+    QListViewItem *item = new QListViewItem( availableExperimentsListView,
+      QString("%1").arg(expID),
+      expName,
+      fw_experiment ? fw_experiment->getName().c_str() : "Unknown experiment name" );
+
+PanelList *panelList = mw->topPC->getPanelListByID(expID);
 if( panelList )
 {
   for( PanelList::Iterator pit = panelList->begin(); pit != panelList->end(); pit++ )

@@ -131,25 +131,65 @@ void OpenSpeedshop::fileOpenExperiment()
   QString expStr;
   if( dialog->exec() == QDialog::Accepted )
   {
+    PanelListViewItem *data_item = NULL;
 // printf("QDialog::Accepted\n");
     int expID = 0;
     PanelListViewItem *item = dialog->selectedExperiment(&expID);
     Panel *p = NULL;
     if( item )
     {
-      p = item->panel;
+QListViewItem *parent_node = item;
+while( parent_node->parent() )
+{
+  printf("looking for 0x%x\n", parent_node->parent() );
+  parent_node = parent_node->parent();
+}
+if( parent_node )
+{
+  data_item = (PanelListViewItem*)parent_node;
+} else
+{
+  data_item = item;
+}
+  
+printf("There is a data_item!\n");
+if( data_item->text(1).isEmpty() )
+{
+  printf("text(1) is empty.\n");
+  data_item = NULL;
+} else
+{
+  printf("text(1) is not empty (%s)\n", data_item->text(1).ascii() );
+  p = item->panel;
+}
     }
+printf("Here!\n");
     if( p )
     {
+printf("How!\n");
 const char *name = p->getName();
 printf( "panel name = (%s)\n", name );
       p->getPanelContainer()->raisePanel(p);
     } else
     {
+printf("A: Here!\n");
+if( data_item == NULL )
+{
       printf("Create a new one!\n");
 printf("expID = (%d) \n", expID );
       QString expStr = QString("%1").arg(expID);
+      topPC->dl_create_and_add_panel("Construct New Experiment", topPC->leftPanelContainer, (void *)&expStr);
+} else if( data_item != NULL && data_item->text(1) == "example" )
+{
+      printf("Create a new pcsample (example)!\n");
+printf("expID = (%d) \n", expID );
+      QString expStr = QString("%1").arg(expID);
       topPC->dl_create_and_add_panel("pc Sampling", topPC->leftPanelContainer, (void *)&expStr);
+} else
+{
+printf("blah!\n");
+  printf("Add another type for experiment type(%s)\n", data_item->text(1).ascii() );
+}
     }
   }
 
