@@ -38,9 +38,14 @@ pcSamplePanel::pcSamplePanel()
 pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("pcSamplePanel::pcSamplePanel() constructor called\n");
+
+  mw = getPanelContainer()->getMainWindow();
+
   frameLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
   pco = new ProcessControlObject(frameLayout, getBaseWidgetFrame(), (Panel *)this );
+  pco->runButton->setEnabled(FALSE);
+  pco->runButton->enabledFLAG = FALSE;
 
   statusLayout = new QHBoxLayout( 0, 10, 0, "statusLayout" );
   
@@ -87,8 +92,8 @@ printf("# theApplication.attachCollector(theCollector.getValue());\n");
 
   SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", topPC);
 
-
-OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
+// Begin demo position at dummy file... For the real stuff we'll need to 
+// look up the main()... and position at it...
 if( mw && !mw->executableName.isEmpty() )
 {
   char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
@@ -106,6 +111,7 @@ printf("load (%s)\n", buffer);
 nprintf( DEBUG_CONST_DESTRUCT ) ("Positioned at main in %s ????? \n", buffer);
   }
 }
+// End demo.
   
 }
 
@@ -142,9 +148,10 @@ void
 pcSamplePanel::loadNewProgramSelected()
 {
   nprintf( DEBUG_PANELS ) ("pcSamplePanel::loadNewProgramSelected()\n");
-  OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
   if( mw )
   {
+    mw->executableName = QString::null;
+    mw->pidStr = QString::null;
     mw->fileNew();
   }
   if( !mw->executableName.isEmpty() )
@@ -155,15 +162,17 @@ pcSamplePanel::loadNewProgramSelected()
       printf("Disconnect First?\n"); 
     }
   }
+  updateInitialStatus();
 }   
 
 void
 pcSamplePanel::attachToExecutableSelected()
 {
   nprintf( DEBUG_PANELS ) ("pcSamplePanel::attachToExecutableSelected()\n");
-  OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
   if( mw )
   {
+    mw->executableName = QString::null;
+    mw->pidStr = QString::null;
     mw->fileAttach();
   }
   if( !mw->pidStr.isEmpty() )
@@ -174,6 +183,7 @@ pcSamplePanel::attachToExecutableSelected()
       printf("Disconnect First?\n"); 
     }
   }
+  updateInitialStatus();
 }   
 
 void
@@ -335,18 +345,68 @@ TopPanel *tp = (TopPanel *)topPC->dl_create_and_add_panel("Top Panel", topPC);
  {
    printf("we've got a LoadAttachObject message\n");
    lao->print();
-   if( !lao->executableName.isEmpty() )
-   {
-     statusLabelText->setText( tr(QString("Loaded:  "))+lao->executableName+tr(QString("  Click on the Run button to begin the experiment.")) );
-   } else if( !lao->pidStr.isEmpty() )
-   {
-     statusLabelText->setText( tr(QString("Attached to:  "))+lao->pidStr+tr(QString("  Click on the Run button to begin collecting data.")) );
-   }
+
+   mw->executableName = lao->executableName;
+   mw->pidStr = lao->pidStr;
+   updateInitialStatus();
  
    ret_val = 1;
  }
 
   return ret_val;  // 0 means, did not want this message and did not act on anything.
+}
+
+void
+pcSamplePanel::updateInitialStatus()
+{
+  pco->runButton->setEnabled(TRUE);
+  pco->runButton->enabledFLAG = TRUE;
+
+  if( !mw->executableName.isEmpty() )
+  {
+    statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the Run button to begin the experiment.")) );
+
+printf("Position at main!\n");
+
+// Begin demo position at dummy file... For the real stuff we'll need to 
+// look up the main()... and position at it...
+{
+char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
+  char buffer[200];
+  strcpy(buffer, plugin_directory);
+  strcat(buffer, "/../../../Example.cpp");
+printf("load (%s)\n", buffer);
+  SourceObject *spo = new SourceObject("main", buffer, 1556, TRUE, NULL);
+
+  if( broadcast((char *)spo, NEAREST_T) == 0 )
+  { // No source view up...
+    char *panel_type = "Source Panel";
+    Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, topPC);
+    if( p != NULL )
+    {
+      if( !p->listener((void *)spo) )
+      {
+        fprintf(stderr, "Unable to position at main in %s\n", buffer);
+      } else
+      {
+        nprintf( DEBUG_CONST_DESTRUCT ) ("Positioned at main in %s ????? \n", buffer);
+      }
+    }
+  }
+}
+// End demo.
+
+  } else if( !mw->pidStr.isEmpty() )
+  {
+    statusLabelText->setText( tr(QString("Attached to:  "))+mw->pidStr+tr(QString("  Click on the Run button to begin collecting data.")) );
+  } else
+  {
+
+printf("Position at callstack!\n");
+
+    pco->runButton->setEnabled(FALSE);
+    pco->runButton->enabledFLAG = FALSE;
+ }
 }
 
 /*
