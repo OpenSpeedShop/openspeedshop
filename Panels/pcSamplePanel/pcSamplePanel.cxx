@@ -563,6 +563,20 @@ if( !cli->runSynchronousCLI(command) )
         ret_val = 1;
         break;
       case  RUN_T:
+{
+  ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+  if( eo && eo->FW() )
+  {
+    Experiment *experiment = eo->FW();
+    ThreadGroup tgrp = experiment->getThreads();
+    ThreadGroup::iterator ti = tgrp.begin();
+    Thread thread = *ti;
+    CollectorGroup cgrp = experiment->getCollectors();
+    CollectorGroup::iterator ci = cgrp.begin();
+    Collector collector =  *ci;
+    collector.startCollecting();
+  }
+}
 sprintf(command, "expGo -x %d\n", expID);
 {
 int status = -1;
@@ -720,6 +734,18 @@ pcSamplePanel::updateInitialStatus()
       runnableFLAG = FALSE;
       pco->runButton->setEnabled(FALSE);
       pco->runButton->enabledFLAG = FALSE;
+
+// DEMO PULL FIX  HARDCODE TO TRUE FOR NOW!
+runnableFLAG = TRUE;
+pco->runButton->setEnabled(TRUE);
+pco->runButton->enabledFLAG = TRUE;
+pco->continueButton->setEnabled(TRUE);
+pco->continueButton->enabledFLAG = TRUE;
+pco->updateButton->setEnabled(TRUE);
+pco->updateButton->enabledFLAG = TRUE;
+// PULL - FOR TESTING ONLY
+// DEMO PULL FIX  HARDCODE TO TRUE FOR NOW!
+
       return;
     }
 // End demo.
