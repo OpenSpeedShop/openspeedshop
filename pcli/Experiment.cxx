@@ -1,31 +1,28 @@
-#include <unistd.h>
-#include <sys/types.h>
-#include <pthread.h>
-#include <sys/stat.h>               /* for fstat() */
-#include <sys/mman.h>               /* for mmap() */
-#include <time.h>
-#include <stdio.h>
-#include <list>
-#include <inttypes.h>
-#include <stdexcept>
-#include <string>
+// include <unistd.h>
+// include <sys/types.h>
+// include <pthread.h>
+// include <sys/stat.h>               /* for fstat() */
+// include <sys/mman.h>               /* for mmap() */
+// include <time.h>
+// include <stdio.h>
+// include <list>
+// include <inttypes.h>
+// include <stdexcept>
+// include <string>
 
 // for host name description
      #include <sys/socket.h>
      #include <netinet/in.h>
      #include <netdb.h>
 
-#ifndef PTHREAD_MUTEX_RECURSIVE_NP
-#define PTHREAD_MUTEX_RECURSIVE_NP 0
-#endif
+// include "ToolAPI.hxx"
+// using namespace OpenSpeedShop::Framework;
 
-#include "ToolAPI.hxx"
-using namespace OpenSpeedShop::Framework;
-
-#include "support.h"
-#include "Commander.hxx"
-#include "Clip.hxx"
-#include "Experiment.hxx"
+// include "support.h"
+// include "Commander.hxx"
+// include "Clip.hxx"
+// include "Experiment.hxx"
+#include "SS_Input_Manager.hxx"
 
 // Static Local Data
 
