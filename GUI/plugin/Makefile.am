@@ -34,7 +34,7 @@ moc_SlotInfo.cxx: SlotInfo.hxx
 	-moc -o moc_SlotInfo.cxx SlotInfo.hxx
 
 ftPlugin_la_SOURCES = \
-    ../gui/performanceleader.hxx \
+    ../gui/openspeedshop.hxx \
 	plugin_handler.hxx plugin_handler.cxx \
 	PluginInfo.hxx PluginInfo.cxx \
 	SlotInfo.hxx SlotInfo.cxx moc_SlotInfo.cxx \

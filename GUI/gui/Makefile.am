@@ -37,10 +37,10 @@ ftgui_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version 
 
 ftgui_la_LIBADD = -L$(QTDIR)/lib -lqt -lqassistantclient -L/usr/X11R6/lib -lXext -lX11 -lm
 
-moc_performanceleader.cxx: performanceleader.hxx
-	-moc -o moc_performanceleader.cxx performanceleader.hxx
+moc_openspeedshop.cxx: openspeedshop.hxx
+	-moc -o moc_openspeedshop.cxx openspeedshop.hxx
 
 ftgui_la_SOURCES = \
 	gui.hxx gui.cxx \
-    performanceleader.hxx performanceleader.cxx moc_performanceleader.cxx qmake_image_collection.cxx performanceleader.ui.hxx \
+    openspeedshop.hxx openspeedshop.cxx moc_openspeedshop.cxx qmake_image_collection.cxx openspeedshop.ui.hxx \
 	Panel.hxx PanelContainer.hxx debug.hxx

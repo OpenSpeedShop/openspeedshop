@@ -1,4 +1,4 @@
-#include "performanceleader.hxx"
+#include "openspeedshop.hxx"
 #include "PluginInfo.hxx"
 #include <qaction.h>
 
@@ -48,7 +48,7 @@ extern "C"
       information to build a menu structure, hook up a SIGNAL/SLOT
       callback, and shows the panel if the plugin info is show immediate.
       \param pl_arg   This void pointer is immediately cast to type
-                      PerformanceLeader * which is the pointer to the 
+                      OpenSpeedshop * which is the pointer to the 
                       main window information.
       \param pluginInfoArg is a void * that is immediately cast to type
                           PluginInfo *, which contains the header information
@@ -58,7 +58,7 @@ extern "C"
   panel_init(void *pl_arg, void *pluginInfoArg)
   {
     QPopupMenu *menu = NULL;
-    PerformanceLeader *pl = (PerformanceLeader *)pl_arg;
+    OpenSpeedshop *pl = (OpenSpeedshop *)pl_arg;
     QMenuBar *menubar = pl->menubar;
 
     dprintf("Hello from panel_init()\n");
