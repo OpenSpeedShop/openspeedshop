@@ -189,86 +189,79 @@ a.out</font>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><font size="2"><b>expAttach pcsamp</b></font></font></p>
-<p><font size="2"><b><font size="2"><b>expAttach -t</b> 0:298, 300:398
-user1</font></b></font></p>
-<p><font size="2"><b><font size="2"><b>expAttach -h</b> host2 <b>-t</b>
-299 pcsamp</font></b></font></p>
-<p><font size="2"><b><font size="2"><b>expDetach -h</b> host2 <b>-p</b>
-6718917 <b>-t</b> 12:96 pcsamp</font></b></font></p>
-<p><font size="2"><b><font size="2"><b>SetBreak -h</b> host1 <b>-t</b>
-128 flyingRT</font>
-</b></font></p>
+<p><font size="2"><b>expAttach</b> pcsamp</font></p>
+<p><font size="2"><b>expAttach -t</b> 0:298, 300:398 user1</font></p>
+<p><font size="2"><b>expAttach -h</b> host2 <b>-t</b> 299 pcsamp</font></p>
+<p><font size="2"><b>expDetach -h</b> host2 <b>-p</b> 6718917 <b>-t</b> 12:96 pcsamp</font></p>
+<p><font size="2"><b>SetBreak -h</b> host1 <b>-t</b> 128 flyingRT</font></p>
 </dir>
 </dir>
 </dir>
 </dir>
 </dir>
 <dir>
-<div><font size="2"><b><font size="2"><b>Breakpoint #2 defined</b></font></b></font></div>
+<div><font size="2"><b>Breakpoint #2 defined</b></font></div>
 </dir>
 <dir>
 <dir>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><font size="2"><b>expGo</b></font></b></font></p>
+<p><font size="2"><b>expGo</b></font></p>
 </dir>
 </dir>
 </dir>
 </dir>
 </dir>
 <dir>
-<div><font size="2"><b><font size="2"><b>Breakpoint #1 encountered</b></font></b></font></div>
+<div><font size="2"><b>Breakpoint #1 encountered</b></font></div>
 </dir>
 <dir>
 <dir>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><font size="2"><b>clearbreak</b> 1</font>
-</b></font></p>
-<p><font size="2"><b><font size="2"><b>expGo</b></font></b></font></p>
+<p><font size="2"><b>clearbreak</b> 1</font></p>
+<p><font size="2"><b>expGo</b></font></p>
 </dir>
 </dir>
 </dir>
 </dir>
 </dir>
 <dir>
-<div><font size="2"><b><font size="2"><b>Breakpoint #2 encountered</b></font></b></font></div>
+<div><font size="2"><b>Breakpoint #2 encountered</b></font></div>
 </dir>
 <dir>
 <dir>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><font size="2"><b>clearbreak</b> 2</font>
-</b></font></p>
-<p><font size="2"><b><font size="2"><b>SetBreak -h</b> host2 <b>-t</b>
+<p><font size="2"><b>clearbreak</b> 2 </font></p>
+<p><font size="2"><font size="2"><b>SetBreak -h</b> host2 <b>-t</b>
 78 flyingST</font>
-</b></font></p>
+</font></p>
 </dir>
 </dir>
 </dir>
 </dir>
 </dir>
 <dir>
-<div><font size="2"><b><font size="2"><b>Breakpoint #3 defined</b></font></b></font></div>
+<div><font size="2"><font size="2"><b>Breakpoint #3 defined</b></font></font></div>
 </dir>
 <dir>
 <dir>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><font size="2"><b>expDetach</b> pcsamp</font></b></font></p>
-<p><font size="2"><b><font size="2"><b>expAttach -h</b> host1 <b>-t</b>
-299 io</font></b></font></p>
-<p><font size="2"><b><font size="2"><b>expAttach -h</b> host2 <b>-t</b>
-399 io</font></b></font></p>
-<p><font size="2"><b><font size="2"><b>playback -h</b> host3 <b>-f</b>
+<p><font size="2"><font size="2"><b>expDetach</b> pcsamp</font></font></p>
+<p><font size="2"><font size="2"><b>expAttach -h</b> host1 <b>-t</b>
+299 io</font></font></p>
+<p><font size="2"><font size="2"><b>expAttach -h</b> host2 <b>-t</b>
+399 io</font></font></p>
+<p><font size="2"><font size="2"><b>playback -h</b> host3 <b>-f</b>
 /silk/sows/ears/fe-fi&amp;fo.script</font>
-</b></font></p>
-<p><font size="2"><b><font size="2"><b>expGo</b></font></b></font></p>
+</font></p>
+<p><font size="2"><font size="2"><b>expGo</b></font></font></p>
 </dir>
 </dir>
 </dir>
@@ -296,21 +289,20 @@ user1</font></b></font></p>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><font size="2"><b>expView -gui</b> user1View</font></b></font></p>
-<p><font size="2"><b><font size="2"><b>expDetach</b> io</font></b></font></p>
-<p><font size="2"><b><font size="2"><b>expAttach</b> pcsamp</font></b></font></p>
-<p><font size="2"><b><font size="2"><b>expGo</b></font></b></font></p>
-<p><font size="2"><b><font size="2"><b>expPause</b></font>
-</b></font></p>
-<p><font size="2"><b><font size="2"><b>expView</b> vIO</font></b></font></p>
-<p><font size="2"><b><font size="2"><b>expSave copy -h</b>host1 <b>-f</b>
-my.data</font></b></font></p>
-<p><font size="2"><b><font size="2"><b>expDetach -h</b> host1</font></b></font></p>
-<p><font size="2"><b><font size="2"><b>expDetach -h</b> host2 pcsamp</font></b></font></p>
-<p><font size="2"><b><font size="2"><b>expAttach -h</b> host2 <b>-p</b>
-6718917 <b>-t</b> 12:96 user2</font></b></font></p>
-<p><font size="2"><b><font size="2"><b>expView -gui</b> user2View</font></b></font></p>
-<p><font size="2"><b><font size="2"><b>expGo</b></font></b></font></p>
+<p><font size="2"><font size="2"><b>expView -gui</b> user1View</font></font></p>
+<p><font size="2"><font size="2"><b>expDetach</b> io</font></font></p>
+<p><font size="2"><font size="2"><b>expAttach</b> pcsamp</font></font></p>
+<p><font size="2"><font size="2"><b>expGo</b></font></font></p>
+<p><font size="2"><font size="2"><b>expPause</b></font></font></p>
+<p><font size="2"><font size="2"><b>expView</b> vIO</font></font></p>
+<p><font size="2"><font size="2"><b>expSave copy -h</b>host1 <b>-f</b>
+my.data</font></font></p>
+<p><font size="2"><font size="2"><b>expDetach -h</b> host1</font></font></p>
+<p><font size="2"><font size="2"><b>expDetach -h</b> host2 pcsamp</font></font></p>
+<p><font size="2"><font size="2"><b>expAttach -h</b> host2 <b>-p</b>
+6718917 <b>-t</b> 12:96 user2</font></font></p>
+<p><font size="2"><font size="2"><b>expView -gui</b> user2View</font></font></p>
+<p><font size="2"><font size="2"><b>expGo</b></font></font></p>
 </dir>
 </dir>
 </dir>
@@ -324,27 +316,23 @@ my.data</font></b></font></p>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><font size="2"><b>expDetach</b></font></b></font></p>
-<p><font size="2"><b><font size="2"><b>exit</b></font></b></font></p>
+<p><font size="2"><font size="2"><b>expDetach</b></font></font></p>
+<p><font size="2"><font size="2"><b>exit</b></font></font></p>
 </dir>
 </dir>
 </dir>
 </dir>
 </dir>
-<font size="2"><b><br>
 <br>
-</b></font>
-<h2><a name="mozTocId878377" class="mozTocH2"></a><font size="2"><b><b><font
- face="Arial" size="3"><a
- name="More_detailed_example_scenario_3_to_show"></a><big>More detailed
-example scenario 3 to show command usage</big></font></b></b></font></h2>
+<br>
+<h2><a name="mozTocId878377" class="mozTocH2"></a><font face="Arial" size="3">
+<a name="More_detailed_example_scenario_3_to_show"></a><big>More detailed
+example scenario 3 to show command usage</big></font></h2>
 <ul>
-  <font size="2"><b> <font size="2"><li>An annotated list of the
-commands for the scenario that
-will create an experiment that inserts instrumentation into a running
-application
-that consists of 2 pids running on 2 separate host machines. </li>
-  </font></b></font>
+  <font size="2"><b><li>An annotated list of the commands for the
+scenario that will create an experiment that inserts instrumentation
+into a running application that consists of 2 pids running on 2
+separate host machines.</li></b></font>
 </ul>
 <p><font size="2"><b><font size="2"># Find the <i>pids</i> associated
 with the running execution of
@@ -355,24 +343,21 @@ with the running execution of
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><font size="2"><b>listPids -h</b> host1, host2 <b>-f</b>
-a.out</font>
-</b></font></p>
+<p><font size="2"><b>listPids -h</b> host1, host2 <b>-f</b> a.out</font></p>
 </dir>
 </dir>
 </dir>
 </dir>
 </dir>
 <dir>
-<div><font size="2"><b><font size="2"><b>HOST&nbsp;&nbsp;&nbsp;PID&nbsp;&nbsp;&nbsp;CMD</b></font></b></font></div>
-<div><font size="2"><b><font size="2"><b>------------------------</b></font></b></font></div>
-<div><font size="2"><b><font size="2"><b>host1 8671120 a.out</b></font></b></font></div>
-<div><font size="2"><b><font size="2"><b>host2 6718917 a.out</b></font></b></font></div>
+<div><font size="2"><b>HOST&nbsp;&nbsp;&nbsp;PID&nbsp;&nbsp;&nbsp;CMD</b></font></div>
+<div><font size="2"><b>------------------------</b></font></div>
+<div><font size="2"><b>host1 8671120 a.out</b></font></div>
+<div><font size="2"><b>host2 6718917 a.out</b></font></div>
 </dir>
 <p><font size="2"><b><font size="2"># Define an experiment with these
 pids.
-This application is known to have 300 threads on <i>host1</i> and 400
-on
+This application is known to have 300 threads on <i>host1</i> and 400 on
 <i>host2</i>.
 </font></b></font></p>
 <dir>
@@ -380,37 +365,31 @@ on
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><font size="2"><b>expCreate -h</b> host1 <b>-p</b>
-8671120, <b>-h</b> host2 <b>-p</b> 6718917</font>
-</b></font></p>
+<p><font size="2"><b>expCreate -h</b> host1 <b>-p</b>
+8671120, <b>-h</b> host2 <b>-p</b> 6718917</font></p>
 </dir>
 </dir>
 </dir>
 </dir>
 </dir>
 <dir>
-<div><font size="2"><b><font size="2"><b>1</b></font></b></font></div>
+<div><font size="2"><b>1</b></font></div>
 </dir>
 <p><font size="2"><b><font size="2"># Set a breakpoint that is known to
-be associated with the start
-of a processing step that is of interest for performance analysis. Then
-run the
+be associated with the start of a processing step that is of interest
+for performance analysis. Then run the
 application until the next time that the breakpoint is reached.
 <br>
 # Since the application was already executing, the <b>expGo</b>
-command does not
-restart the application but, from the application viewpoint, acts like
-an <b>expGo</b>
-command would. These two commands are, mostly, interchangable.
+command will restart the application.
 </font></b></font></p>
 <dir>
 <dir>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><font size="2"><b>SetBreak -h</b> host2 <b>-p</b>
-6718917 <b>-t</b> 1 startxyz</font>
-</b></font></p>
+<p><font size="2"><b>SetBreak -h</b> host2 <b>-p</b>
+6718917 <b>-t</b> 1 startxyz</font></p>
 </dir>
 </dir>
 </dir>
@@ -432,8 +411,7 @@ command would. These two commands are, mostly, interchangable.
 </dir>
 </dir>
 <p><font size="2"><b><font size="2"># After some period of time, the
-breakpoint is reached and the
-entire running application is stopped.
+breakpoint is reached and the entire running application is stopped.
 </font></b></font></p>
 <dir>
 <div><font size="2"><b><font size="2"><b>Breakpoint #1 encountered</b></font></b></font></div>
@@ -468,43 +446,37 @@ to all the threads on both hosts.
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><font size="2"><b>expAttach pcsamp</b></font></b></font></p>
+<p><font size="2"><b>expAttach</b> pcsamp</font></p>
 </dir>
 </dir>
 </dir>
 </dir>
 </dir>
-<p><font size="2"><b><b><font size="2"># Add the <i>user1</i>
-collector to all the threads except
-#299 and #399. Note that threads 300:399 don't exist on <i>host1</i>,
-but do on
+<p><font size="2"><b># Add the <i>user1</i> collector to all the threads except
+#299 and #399. Note that threads 300:399 don't exist on <i>host1</i>, but do on
 <i>host2</i>.
-</font></b></b></font></p>
+</b></font></p>
 <dir>
 <dir>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><b><font size="2"><b>expAttach -t</b> 0:298,
-300:398 user1</font></b></b></font></p>
+<p><font size="2"><b>expAttach -t</b> 0:298, 300:398 user1</font></p>
 </dir>
 </dir>
 </dir>
 </dir>
 </dir>
-<p><font size="2"><b><b><font size="2"># Oops! It's only the last
-thread on each host where we don't
-want <i>pcsamp</i> to be collecting performance data, The previous
-command
-skipped a thread on <i>host2</i> that we need to include.
-</font></b></b></font></p>
+<p><font size="2"><b># Oops! It's only the last thread on each host
+where we don't want <i>pcsamp</i> to be collecting performance data,
+The previous command skipped a thread on <i>host2</i> that we need
+to include.</b></font></p>
 <dir>
 <dir>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><b><font size="2"><b>expAttach -h</b> host2 <b>-t</b>
-299 pcsamp</font></b></b></font></p>
+<p><font size="2"><<b>expAttach -h</b> host2 <b>-t</b> 299 pcsamp</font></p>
 </dir>
 </dir>
 </dir>
@@ -519,8 +491,8 @@ want to collect <i>pcasmp</i> data for. Exclude them.
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><b><font size="2"><b>expDetach -h</b> host2 <b>-p</b>
-6718917 <b>-t</b> 12:96 pcsamp</font></b></b></font></p>
+<p><font size="2"><b>expDetach -h</b> host2 <b>-p</b>
+6718917 <b>-t</b> 12:96 pcsamp</font></font></p>
 </dir>
 </dir>
 </dir>
@@ -536,16 +508,15 @@ instrumentation.
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><b><font size="2"><b>SetBreak -h</b> host1 <b>-t</b>
-128 flyingRT</font>
-</b></b></font></p>
+<p><font size="2"><b>SetBreak -h</b> host1 <b>-t</b>
+128 flyingRT</font></p>
 </dir>
 </dir>
 </dir>
 </dir>
 </dir>
 <dir>
-<div><font size="2"><b><b><font size="2"><b>Breakpoint #2 defined</b></font></b></b></font></div>
+<div><font size="2"><b>Breakpoint #2 defined</b></font></div>
 </dir>
 <p><font size="2"><b><b><font size="2"># We're off to the races!!
 </font></b></b></font></p>
@@ -554,365 +525,320 @@ instrumentation.
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><b><font size="2"><b>expGo</b></font></b></b></font></p>
+<p><font size="2"><b>expGo</b></font></p>
 </dir>
 </dir>
 </dir>
 </dir>
 </dir>
 <dir>
-<div><font size="2"><b><b><font size="2"><b>Breakpoint #1 encountered</b></font></b></b></font></div>
+<div><font size="2"><b>Breakpoint #1 encountered</b></font></div>
 </dir>
-<p><font size="2"><b><b><font size="2"># Dang! We don't care about
-breakpoint #1 anymore.
-Get rid of it and get going!
-</font></b></b></font></p>
+<p><font size="2"><b># Dang! We don't care about
+breakpoint #1 anymore.  Get rid of it and get going!
+</b></font></p>
 <dir>
 <dir>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><b><font size="2"><b>clearbreak</b> 1</font>
-</b></b></font></p>
-<p><font size="2"><b><b><font size="2"><b>expGo</b></font></b></b></font></p>
+<p><font size="2"><b>clearbreak</b> 1</font></p>
+<p><font size="2"><b>expGo</b></font></p>
 </dir>
 </dir>
 </dir>
 </dir>
 </dir>
-<p><font size="2"><b><b><font size="2"># After a while, we (finally)
-get to breakpoint #2.
-</font></b></b></font></p>
+<p><font size="2"><b># After a while, we (finally)
+get to breakpoint #2.  </b></font></p>
 <dir>
-<div><font size="2"><b><b><font size="2"><b>Breakpoint #2 encountered</b></font></b></b></font></div>
+<div><font size="2"><b>Breakpoint #2 encountered</b></font></div>
 </dir>
-<p><font size="2"><b><b><font size="2"># Get rid of breakpoint #2 and
-set another one of interest.
-</font></b></b></font></p>
+<p><font size="2"><b># Get rid of breakpoint #2 and
+set another one of interest.  </b></font></p>
 <dir>
 <dir>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><b><font size="2"><b>clearbreak</b> 2</font>
-</b></b></font></p>
-<p><font size="2"><b><b><font size="2"><b>SetBreak -h</b> host2 <b>-t</b>
-78 flyingST</font>
-</b></b></font></p>
+<p><font size="2"><b>clearbreak</b> 2</font></p>
+<p><font size="2"><b>SetBreak -h</b> host2 <b>-t</b> 78 flyingST</font></p>
 </dir>
 </dir>
 </dir>
 </dir>
 </dir>
 <dir>
-<div><font size="2"><b><b><font size="2"><b>Breakpoint #3 defined</b></font></b></b></font></div>
+<div><font size="2"><b>Breakpoint #3 defined</b></font></div>
 </dir>
-<p><font size="2"><b><b><font size="2"># Stop collection of <i>pcsamp</i>
-data for all threads
-on both hosts. Note that previously collected data samples will be
-preserved
-and that the <i>user1</i> collector remains active.
-</font></b></b></font></p>
+<p><font size="2"><b># Stop collection of <i>pcsamp</i> data for all threads
+on both hosts. Note that previously collected data samples will be preserved
+and that the <i>user1</i> collector remains active.  </b></font></p>
 <dir>
 <dir>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><b><font size="2"><b>expDetach</b> pcsamp</font></b></b></font></p>
+<p><font size="2"><b>expDetach</b> pcsamp</b></font></p>
 </dir>
 </dir>
 </dir>
 </dir>
 </dir>
-<p><font size="2"><b><b><font size="2"># Collect <i>io</i> data about
-the only 2 threads that
-are known to handle intermediate files for the application.
-</font></b></b></font></p>
+<p><font size="2"><b># Collect <i>io</i> data about the only 2 threads that
+are known to handle intermediate files for the application. </b></font></p>
 <dir>
 <dir>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><b><font size="2"><b>expAttach -h</b> host1 <b>-t</b>
-299 io</font></b></b></font></p>
-<p><font size="2"><b><b><font size="2"><b>expAttach -h</b> host2 <b>-t</b>
-399 io</font></b></b></font></p>
+<p><font size="2"><b>expAttach -h</b> host1 <b>-t</b> 299 io</b></font></p>
+<p><font size="2"><b>expAttach -h</b> host2 <b>-t</b> 399 io</b></font></p>
 </dir>
 </dir>
 </dir>
 </dir>
 </dir>
-<p><font size="2"><b><b><font size="2"># Now run a script that does
-some special anaylsis and
+<p><font size="2"><b># Now run a script that does some special anaylsis and
 generates a repoort that is of interest. Access to this script may be
 implementation dependant, since it is on another host. We may only be
-able to read cross-mounted files systems.
-</font></b></b></font></p>
+able to read cross-mounted files systems.  </b></font></p>
 <dir>
 <dir>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><b><font size="2"><b>playback -h</b> host3 <b>-f</b>
-/silk/sows/ears/fe-fi&amp;fo.script</font>
-</b></b></font></p>
+<p><font size="2"><b>playback -h</b> host3 <b>-f</b>
+/silk/sows/ears/fe-fi&amp;fo.script</font></p>
 </dir>
 </dir>
 </dir>
 </dir>
 </dir>
-<p><font size="2"><b><b><font size="2"># Get back to the business of
-running the application. </font></b></b></font></p>
+<p><font size="2"><b># Get back to the business of
+running the application. </b></font></p>
 <dir>
 <dir>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><b><font size="2"><b>expGo</b></font></b></b></font></p>
-</dir>
-</dir>
-</dir>
-</dir>
-</dir>
-<dir>
-<div><font size="2"><b><b><font size="2"><b>Breakpoint #3 encountered</b></font></b></b></font></div>
-</dir>
-<p><font size="2"><b><b><font size="2"># At this point we need to
-examine what is going on.
-</font></b></b></font></p>
-<dir>
-<dir>
-<dir>
-<dir>
-<dir>
-<p><font size="2"><b><b><font size="2"><b>expGetMetrics</b></font></b></b></font></p>
+<p><font size="2"><b>expGo</b></font></p>
 </dir>
 </dir>
 </dir>
 </dir>
 </dir>
 <dir>
-<div><font size="2"><b><b><font size="2"><b>vTopN, vIO, vFpe, user1View</b></font></b></b></font></div>
+<div><font size="2"><b>Breakpoint #3 encountered</b></font></div>
 </dir>
-<p><font size="2"><b><b><font size="2"># At this point we need to
-examine the collected data
+<p><font size="2"><b># At this point we need to examine what is going on.
+</b></font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="2"><b>expGetMetrics</b></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<div><font size="2"><b>vTopN, vIO, vFpe, user1View</b></font></div>
+</dir>
+<p><font size="2"><b># At this point we need to examine the collected data
 and decide what to do. Open a <b>GUI</b> window to examine the data
-collected by <i>user1</i>.
-</font></b></b></font></p>
+collected by <i>user1</i>.  </b></font></p>
 <dir>
 <dir>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><b><font size="2"><b>expView -gui</b> user1View</font></b></b></font></p>
+<p><font size="2"><b>expView -gui</b> user1View</font></p>
 </dir>
 </dir>
 </dir>
 </dir>
 </dir>
-<p><font size="2"><b><b><font size="2"># It is clear from the data that
-all the intermediate
-IO is complete. Remove the <i>io</i> collector from all threads, since
-it
+<p><font size="2"><b># It is clear from the data that all the intermediate
+IO is complete. Remove the <i>io</i> collector from all threads, since it
 is no longer of interest. Note that the data accumulated by the <i>io</i>
 collector is not discarded and can be examined later.
-</font></b></b></font></p>
+</b></font></p>
 <dir>
 <dir>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><b><font size="2"><b>expDetach</b> io</font></b></b></font></p>
+<p><font size="2"><b>expDetach</b> io</font></p>
 </dir>
 </dir>
 </dir>
 </dir>
 </dir>
-<p><font size="2"><b><b><font size="2"># We will restart the <i>pcsamp</i>
-collector on all
+<p><font size="2"><b># We will restart the <i>pcsamp</i> collector on all
 threads. New data will be added to the previosuly collected samples
 although there will be a gap in time where there are no samples
 about the program.
-</font></b></b></font></p>
+</b></font></p>
 <dir>
 <dir>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><b><font size="2"><b>expAttach</b> pcsamp</font></b></b></font></p>
-<p><font size="2"><b><b><font size="2"><b>expGo</b></font></b></b></font></p>
+<p><font size="2"><b>expAttach</b> pcsamp</font></p>
+<p><font size="2"><b>expGo</b></font></p>
 </dir>
 </dir>
 </dir>
 </dir>
 </dir>
-<p><font size="2"><b><b><font size="2"># Let the program run for an
-hour or two and then stop
+<p><font size="2"><b># Let the program run for an hour or two and then stop
 it to examine it's behavior.
-</font></b></b></font></p>
+</b></font></p>
 <dir>
 <dir>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><b><font size="2"><b>expPause</b></font>
-</b></b></font></p>
+<p><font size="2"><b>expPause</b></font></p>
 </dir>
 </dir>
 </dir>
 </dir>
 </dir>
-<p><font size="2"><b><b><font size="2"># First, we take a look at the
-old <i>io</i> samples
+<p><font size="2"><b># First, we take a look at the old <i>io</i> samples
 that were generated. This is not current information, but the realtime
 display for <i>user1View</i> suggests that there may be an anomoly
-that
-should be checked out.
-</font></b></b></font></p>
+that should be checked out.
+</b></font></p>
 <dir>
 <dir>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><b><font size="2"><b>expView</b> vIO</font></b></b></font></p>
+<p><font size="2"><b>expView</b> vIO</font></p>
 </dir>
 </dir>
 </dir>
 </dir>
 </dir>
-<p><font size="2"><b><b><font size="2"># Hummm.... Something strange <i>is</i>
-going on.
+<p><font size="2"><b># Hummm.... Something strange <i>is</i> going on.
 We don't want to get diverted from what we set out to do today, but
 we better save all the data that's been collected and we will look at
 it later. We will save it in a file on <i>host1</i>.
-</font></b></b></font></p>
+</b></font></p>
 <dir>
 <dir>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><b><font size="2"><b>expSave copy -h</b>host1 <b>-f</b>
-my.data</font></b></b></font></p>
+<p><font size="2"><b>expSave copy -h</b>host1 <b>-f</b> my.data</b></font></p>
 </dir>
 </dir>
 </dir>
 </dir>
 </dir>
-<p><font size="2"><b><b><font size="2"># What is happening on <i>host1</i>
-is no longer of interest.
-Get rid of the <i>pcsamp</i> and <i>user1</i> collectors that are
-still active
-on the host.
-</font></b></b></font></p>
+<p><font size="2"><b># What is happening on <i>host1</i> is no longer of
+interest.  Get rid of the <i>pcsamp</i> and <i>user1</i> collectors that
+are still active on the host.
+</b></font></p>
 <dir>
 <dir>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><b><font size="2"><b>expDetach -h</b> host1</font></b></b></font></p>
+<p><font size="2"><b>expDetach -h</b> host1</font></p>
 </dir>
 </dir>
 </dir>
 </dir>
 </dir>
-<p><font size="2"><b><b><font size="2"># Further more, we don't want to
-collect any more <i>pcsamp</i>
-data for <i>host2</i>, but keep the <i>user1</i> collector.
-</font></b></b></font></p>
+<p><font size="2"><b># Further more, we don't want to collect any more
+<i>pcsamp</i> data for <i>host2</i>, but keep the <i>user1</i> collector.
+</b></font></p>
 <dir>
 <dir>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><b><font size="2"><b>expDetach -h</b> host2 pcsamp</font></b></b></font></p>
+<p><font size="2"><b>expDetach -h</b> host2 pcsamp</font></p>
 </dir>
 </dir>
 </dir>
 </dir>
 </dir>
-<p><font size="2"><b><b><font size="2"># Information on the <i>user1View</i>
-display, indicate
+<p><font size="2"><b># Information on the <i>user1View</i> display, indicate
 that this is the time to turn on our special <i>user2</i>
 collector. It will be restricted to a subset of threads on <i>host2</i>.
-</font></b></b></font></p>
+</b></font></p>
 <dir>
 <dir>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><b><font size="2"><b>expAttach -h</b> host2 <b>-p</b>
-6718917 <b>-t</b> 12:96 user2</font></b></b></font></p>
+<p><font size="2"><b>expAttach -h</b> host2 <b>-p</b>
+6718917 <b>-t</b> 12:96 user2</font></p>
 </dir>
 </dir>
 </dir>
 </dir>
 </dir>
-<p><font size="2"><b><b><font size="2"># The <i>user2</i> collector
-can generate a realtime display,
-so let's open it up and watch how the application is performing while
-it is
-executing.
-</font></b></b></font></p>
+<p><font size="2"><b># The <i>user2</i> collector can generate a realtime
+display, so let's open it up and watch how the application is performing
+while it is executing.
+</b></font></p>
 <dir>
 <dir>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><b><font size="2"><b>expView -gui</b> user2View</font></b></b></font></p>
-<p><font size="2"><b><b><font size="2"><b>expGo</b></font></b></b></font></p>
+<p><font size="2"><b>expView -gui</b> user2View</font></p>
+<p><font size="2"><b>expGo</b></font></p>
 </dir>
 </dir>
 </dir>
 </dir>
 </dir>
-<p><font size="2"><b><b><font size="2"># The <i>user2</i> collector
-can generate a realtime display,
-so let's open it up and watch how the application is performing while
-it is
-executing.
-</font></b></b></font></p>
+<p><font size="2"><b># The <i>user2</i> collector
+can generate a realtime display, so let's open it up and watch how
+the application is performing while it is executing.
+</b></font></p>
 <dir>
-<div><font size="2"><b><b><font size="2"><b>Breakpoint #3 encountered</b></font></b></b></font></div>
+<div><font size="2"><b>Breakpoint #3 encountered</b></font></div>
 </dir>
-<p><font size="2"><b><b><font size="2"># At some point, we reach the
-breakpoint that marks the
+<p><font size="2"><b># At some point, we reach the breakpoint that marks the
 end of an iteration in the application. We have collected data for a
-complete cycle and no longer need to instrument the program. The
-following
+complete cycle and no longer need to instrument the program. The following
 <b>expDetach</b> command stops all data collection and disconnects the
-application from the performance analysis tool. It does <i>not</i>
-throw
+application from the performance analysis tool. It does <i>not</i> throw
 away the data that has been collected, although there is no way to <i>View</i>
-it unless a collector is re-attached to the experiment. Since the
-application
-is no longer controlled by the performance tool, it can continue to
-run.
-</font></b></b></font></p>
+it unless a collector is re-attached to the experiment. Since the application
+is no longer controlled by the performance tool, it can continue to run.
+</b></font></p>
 <dir>
 <dir>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><b><font size="2"><b>expDetach</b></font></b></b></font></p>
+<p><font size="2"><b>expDetach</b></font></p>
 </dir>
 </dir>
 </dir>
 </dir>
 </dir>
-<p><font size="2"><b><b><font size="2"># The <b>exit</b> command
-closes the performance analysis
-tool. All performance data is discarded and all related displays are
-closed.
+<p><font size="2"><b># The <b>exit</b> command closes the performance analysis
+tool. All performance data is discarded and all related displays are closed.
 Since the application has already been disconnected, it continues to
-run to
-completion.
-</font></b></b></font></p>
+run to completion.
+</b></font></p>
 <dir>
 <dir>
 <dir>
 <dir>
 <dir>
-<p><font size="2"><b><b><font size="2"><b>exit</b></font></b></b></font></p>
+<p><font size="2"><b>exit</b></font></p>
 </dir>
 </dir>
 </dir>
