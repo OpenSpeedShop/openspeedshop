@@ -6,7 +6,7 @@ database_la_CXXFLAGS =  \
 	-I/usr/include -I. -I../../../objects -I../../../base
 
 database_la_LDFLAGS = \
-	/home/daisy61/helens/openss/install/lib/openspeedshop/posscli.so
+	$(OPENSPEEDSHOP_PLUGIN_PATH)/posscli.so
 
 filelist = \
 	pt1 \
