@@ -49,7 +49,7 @@ def cmd_parse(args):
     if count > 0:
     	blank_delim = " "
     	zusamen = blank_delim.join(args[:count])
-	print "zusamen=" , zusamen
+	#print "zusamen=" , zusamen
     	return PY_Input.CallParser (zusamen)
 
     pass
@@ -65,7 +65,7 @@ def cmd_parse(args):
 ################################################################################
 def cloak_list_range(arg, is_name):
 
-    print 'in cloak_list(',arg,')'
+    #print 'in cloak_list(',arg,')'
 
     # Check for prequoated symbols.
     if arg[0] == '"':
