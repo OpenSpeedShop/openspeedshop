@@ -57,8 +57,9 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
 
   statArea = new QListView( splitter );
   statArea->header()->setClickEnabled( FALSE );
-  statArea->setVScrollBarMode( QScrollView::AlwaysOff );
-  statArea->setHScrollBarMode( QScrollView::AlwaysOff );
+//  statArea->setVScrollBarMode( QScrollView::AlwaysOff );
+//  statArea->setHScrollBarMode( QScrollView::AlwaysOff );
+statArea->setSorting(-1);
   statArea->addColumn( "Expr 1" );
   statArea->addColumn( "Expr 2" );
   statArea->addColumn( "Expr 3" );
@@ -524,12 +525,13 @@ SourcePanel::loadFile(const QString &_fileName)
   QString line;
   QString new_line("\n");
   QTextStream ts( &f );
+  QString line_number;
+  char line_number_buffer[10];
   textEdit->clear();
 statArea->clear();
+QListViewItem *last_item = NULL;
   if( line_numbersFLAG )
   {
-    char line_number_buffer[10];
-    QString line_number;
     lineCount = 1;
     while( !ts.atEnd() )
     {
@@ -537,10 +539,13 @@ statArea->clear();
       sprintf(line_number_buffer, "%6d ", lineCount);
       line_number = QString(line_number_buffer);
       textEdit->append(line_number+line+new_line);
-QListViewItem *item = new QListViewItem( statArea );
-item->setText( 0, "0blah");
-item->setText( 1, "1blah");
+// (void ) new QListViewItem( statArea, line_number, line_number);
+//QListViewItem *item = new QListViewItem( statArea );
+//item->setText( 0, line_number+"0blah");
+//item->setText( 1, line_number+"1blah");
+QListViewItem *item = new QListViewItem( statArea, last_item, "0:"+line_number, "1:"+line_number);
       lineCount++;
+last_item = item;
     }
   } else
   {
@@ -552,9 +557,15 @@ item->setText( 1, "1blah");
     {
       line = ts.readLine();  // line of text excluding '\n'
       textEdit->append(line+new_line);
-QListViewItem *item = new QListViewItem( statArea );
-item->setText( 0, "0blah");
-item->setText( 1, "1blah");
+lineCount++;
+sprintf(line_number_buffer, "%6d ", lineCount);
+line_number = QString(line_number_buffer);
+//(void ) new QListViewItem( statArea, line_number+"1blah", line_number+"2blah");
+// QListViewItem *item = new QListViewItem( statArea );
+// item->setText( 0, line_number+"0blah");
+// item->setText( 1, line_number+"1blah");
+QListViewItem *item = new QListViewItem( statArea, last_item, "0:"+line_number, "1:"+line_number);
+last_item = item;
     }
 #endif //  OLDWAY
     // Need to set cursor position so subsequent position requests are fielded.
