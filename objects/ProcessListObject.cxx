@@ -26,7 +26,9 @@
 
 class ProcessEntry;
 #include "ProcessEntryClass.hxx"
+
 #include <sys/types.h>
+// leave for comparator - jeg
 #include <sys/wait.h>
 #include <unistd.h>
 
