@@ -1233,8 +1233,9 @@ PanelContainer::addPanel(Panel *p, PanelContainer *panel_container, char *tab_na
 
   if( panel_container->leftPanelContainer && panel_container->rightPanelContainer )
   {
-//    printf("PC:addPanel() WARNING! You can't add this to this panelContainer!  It's split!\n");
-    start_pc = panel_container->findBestFitPanelContainer(start_pc);
+    printf("Internal Warning: PC:addPanel() You can't add this to this panelContainer!  It's split!\n");
+    // start_pc = panel_container->findBestFitPanelContainer(start_pc);
+    return NULL;
   }
 
   nprintf(DEBUG_PANELCONTAINERS) ("PanelContinaer::addPanel(%s, %s) in (%s)\n", tab_name, p->getName(), start_pc->getInternalName() );
