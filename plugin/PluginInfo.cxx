@@ -43,6 +43,10 @@ PluginInfo::initialize()
   menu_accel=NULL;
   panel_type=NULL;
   slotInfo = NULL;
+
+  preference_category=NULL;
+  initialize_preferences_entry_point=NULL;
+
   dl_create_and_add_panel = NULL;
 }
 
@@ -76,6 +80,8 @@ PluginInfo::~PluginInfo()
   if( menu_label ) free( menu_label );
   if( menu_accel ) free( menu_accel );
   if( panel_type ) free( panel_type );
+  if( preference_category ) free( preference_category );
+  if( initialize_preferences_entry_point ) free( initialize_preferences_entry_point );
 */
 }
 
@@ -92,4 +98,6 @@ PluginInfo::Print()
   printf("menu_label=%s\n", menu_label );
   printf("menu_accel=%s\n", menu_accel );
   printf("panel_type=%s\n", panel_type );
+  printf("preference_category=%s\n", preference_category );
+  printf("initialize_preferences_entry_point=%s\n", initialize_preferences_entry_point );
 }

@@ -141,6 +141,7 @@ echo "s/MENU_LABEL/$MENU_LABEL/g" >>sed.script
 echo "s/MENU_ACCEL/$MENU_ACCEL/g" >>sed.script
 echo "s/PLUGIN_GROUPING/$PLUGIN_GROUP/g" >>sed.script
 cat local_plugin_info.hxx | sed -f sed.script >$PANEL_DIR/local_plugin_info.hxx
+cp preferences_plugin_info.hxx $PANEL_DIR
 
 rm -fr sed.script
 

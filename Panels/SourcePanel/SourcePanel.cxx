@@ -9,6 +9,8 @@
 #include "SourcePanel.hxx"   // Change this to your new class header file name
 #include "PanelContainer.hxx"   // Do not remove
 #include "plugin_entry_point.hxx"   // Do not remove
+#include "preference_plugin_info.hxx"
+
 
 #include <stdlib.h>  // for atoi()
 

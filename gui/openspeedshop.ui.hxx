@@ -371,10 +371,6 @@ void OpenSpeedshop::init()
   masterPC->setMainWindow(this);
   topPC = masterPC;
 
-// Create the master preferences dialog so we can set the defaults and 
-// so everyone else can reference them....
-  preferencesDialog = new PreferencesDialog(masterPC);
-
   char ph_file[2048];
   char *ph_dl_name = "/ossPlugin.so";
   sprintf(ph_file, "%s%s", plugin_directory, ph_dl_name);
@@ -391,6 +387,7 @@ void OpenSpeedshop::init()
     fprintf(stderr, "libdso: dlsym %s not found in %s dlerror()=%s\n", "pc_init", ph_file, dlerror() );
   }
 
+
 // Load the GUI plugins...
 #ifdef VERBOSE
 printf("# http://sahara.engr.sgi.com/Tools/WDH/ASCI/Framework-API-V3/P1.html\n");
@@ -398,12 +395,40 @@ printf("GUI Action: Load the GUI plugins.\n");
 #endif // VERBOSE
   (*dl_ph_init_routine)( (QWidget *)this, masterPC);
 
-#ifdef VERBOSE
-printf("NOTE: Check the GUI plugins against known Collectors.\n");
-printf("CLI Action: Get a list of all the Collectors.\n");
-printf("#    Collector *collectorSet = Collector::getAllCollectors();\n");
-printf("GUI Action: Match the Collectors up to the GUI panels.... Set the menu sensitivities.\n");
-#endif // VERBOSE
+// Create the master preferences dialog so we can set the defaults and 
+// so everyone else can reference them....
+  preferencesDialog = new PreferencesDialog(masterPC);
+// Begin try to load preferences
+//This is the base plugin directory.   In this directory there should
+// be a list of dso (.so) which are the plugins.
+char plugin_file[1024];
+if( masterPC && masterPC->_pluginRegistryList )
+{
+  PluginInfo *pi = NULL;
+  for( PluginRegistryList::Iterator it = masterPC->_pluginRegistryList->begin();
+       it != masterPC->_pluginRegistryList->end();
+       it++ )
+  {
+    pi = (PluginInfo *)*it;
+    sprintf(plugin_file, "%s/%s", plugin_directory, pi->plugin_name );
+// printf("about to open(%s).\n", plugin_file);
+    void *dl_object = dlopen((const char *)plugin_file, (int)RTLD_LAZY );
+
+    if( dl_object )
+    {
+// printf("about to lookup(%s).\n", "preference_info_init");
+      int (*dl_plugin_info_init_preferences_routine)(QWidgetStack*, char *) =
+        (int (*)(QWidgetStack*, char *))dlsym(dl_object, "preference_info_init" );
+       if( dl_plugin_info_init_preferences_routine )
+       {
+// printf("about to call the routine.\n");
+         (*dl_plugin_info_init_preferences_routine)(preferencesDialog->preferenceDialogWidgetStack, pi->preference_category);
+       }
+       dlclose(dl_object);
+    }
+  }
+}
+// End try to load preferences
 
 // Begin: Set up a saved session geometry.
 const int BUFSIZE=100;

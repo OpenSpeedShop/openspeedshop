@@ -43,6 +43,12 @@ class PluginInfo {
         and add each type of panel. */
     Panel * (*dl_create_and_add_panel)(void *, void *targetPC=NULL, void *arguments=NULL);
 
+    //! The plugin preference category listing.
+    char *preference_category;
+
+    //! The plugin preferences entry point.
+    char *initialize_preferences_entry_point;
+
     //! This will handle the menu callback.
     SlotInfo *slotInfo;
 
