@@ -72,10 +72,13 @@ Following is a summary of comments and observations.
    Targets icon needs to be defined better.   Also there may be a
    need to put some menu entry out to help the user move panels
    around.  i.e. Drag Panel, Move Panel Up, Move Panel Over ???
+   Fixed: I defined a new MIME type for a panel drag-n-drop.   This
+   allows the drag-n-drop to targets to be define more accurately.
 
    When drag-n-drop is happening, the drop locations need to be better
    indicated to the user. It was unclear that the drop zone was in the tab
    area.   The drop zone should be the entire panel container area.
+   Fixed: See fix from paragraph above...
 
    Additionally is seems that double-clicking may be a good metaphor
    for peeling off panels into their own windows.
