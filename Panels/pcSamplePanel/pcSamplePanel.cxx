@@ -38,6 +38,7 @@
 #include "TopPanel.hxx"
 
 #include "LoadAttachObject.hxx"
+#include "ManageCollectorsDialog.hxx"
 
 #include "CLIInterface.hxx"
 
@@ -514,7 +515,19 @@ pcSamplePanel::manageCollectorsSelected()
           if( cgrp.size() > 0 )
           {
             CollectorGroup::iterator ci = cgrp.begin();
-             Collector pcSampleCollector = *ci;
+            Collector pcSampleCollector = *ci;
+            
+            Metadata cm = pcSampleCollector.getMetadata();
+            std::set<Metadata> md =pcSampleCollector.getParameters();
+            std::set<Metadata>::const_iterator mi;
+            for (mi = md.begin(); mi != md.end(); mi++)
+            {
+              Metadata m = *mi;
+              printf("%s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
+              printf("%s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
+              printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
+            }
+
              pcSampleCollector.getParameterValue("sampling_rate", sampling_rate);
           printf("sampling_rate=%u\n", sampling_rate);
           }
@@ -524,6 +537,15 @@ pcSamplePanel::manageCollectorsSelected()
           return;
         }
 // END DEBUG
+  ManageCollectorsDialog *dialog = new ManageCollectorsDialog(this, "ManageCollectorsDialog", TRUE);
+  if( dialog->exec() == QDialog::Accepted )
+  {
+    printf("QDialog::Accepted\n");
+//    pidStr = dialog->selectedProcesses();
+  }
+
+  //printf("pidStr = %s\n", pidStr.ascii() );
+  delete dialog;
 }   
 
 void
