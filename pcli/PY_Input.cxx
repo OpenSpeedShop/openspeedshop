@@ -15,7 +15,7 @@ CommandObject   *Current_CO  = NULL;
 
 static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     char *input_line = NULL;
-    PyObject *p_object;
+    PyObject *p_object = NULL;
     int ret;
     CommandObject *cmd = NULL;
     command_t *cmd_args = NULL;
