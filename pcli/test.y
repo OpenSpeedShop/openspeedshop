@@ -689,6 +689,7 @@ viewType:   	    VIEW_TOPN	    	    	{push_string($1,NAME_VIEW_TYPE);}
     	    	|   VIEW_IO 	    	    	{push_string($1,NAME_VIEW_TYPE);}
     	    	|   VIEW_FPE	    	    	{push_string($1,NAME_VIEW_TYPE);}
     	    	|   VIEW_HWC	    	    	{push_string($1,NAME_VIEW_TYPE);}
+    	    	|   NAME	    	    	{push_string($1,NAME_VIEW_TYPE);}
 		;
 
 param_list: 	    expParam EQUAL NUMBER

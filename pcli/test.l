@@ -13,7 +13,7 @@
 "focus"     	{ return FOCUS;}
 "all"	    	{ return ALL;}
 "copy"	    	{ return COPY;}
-"gui"	    	{ return GUI;}
+"-gui"	    	{ return GUI;}
 "kill"	    	{ return KILL;}
 "-mpi"	    	{ return MPI;}
 
