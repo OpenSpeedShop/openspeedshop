@@ -126,6 +126,9 @@ EXPID Experiment_Focus (CMDWID WindowID);                        // What is the 
 EXPID Experiment_Focus (CMDWID WindowID, EXPID ExperimentID);    // Set the focus.
 void List_CommandWindows ( FILE *TFile );
 
+// Batch processing input is not Async.  Command execution should be serial.
+bool Window_Is_Async (CMDWID WindowID);
+
 // Communicate command information the window manager
 extern void Link_Cmd_Obj_to_Input (InputLineObject *I, CommandObject *);
 extern void Clip_Complete (InputLineObject *clip);
