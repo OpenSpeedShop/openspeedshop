@@ -97,10 +97,18 @@ CmdPanel::returnPressed()
   {
     QString text = output->text(i);
     char *buffer = strdup(text.stripWhiteSpace().ascii());
+    if( text.stripWhiteSpace() == "" || text.stripWhiteSpace() == "cli>" )
+    {
+      free(buffer);
+      return;
+    }
     char *start_ptr = buffer;
-    if( text.startsWith("cli>") )
+    if( text.startsWith("cli> ") )
     {
       start_ptr += 5;
+    } else if( text.startsWith("cli>") )
+    {
+      start_ptr += 4;
     }
 //    printf("Send down (%s)\n", start_ptr);
     int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
@@ -127,9 +135,29 @@ CmdPanel::textChanged()
 
   output->scrollToBottom();
 
+  output->getCursorPosition(&current_para, &current_index);
+
+// printf("last_para=%d current_para=%d last_index=%d current_index=%d\n", last_para, current_para, last_index, current_index );
+
+  if( current_para == last_para && current_index < last_index )
+  {
+//    printf("They're back spacing!!!!  Undo the backspace!\n");
+    output->undo();
+    output->moveCursor(QTextEdit::MoveEnd, FALSE);
+    return;
+  }
+
+
+  if( current_para < last_para )
+  {
+//   printf("They're wacking a previous line!\n");
+    output->undo();
+    output->moveCursor(QTextEdit::MoveEnd, FALSE);
+    return;
+  }
+
   output->moveCursor(QTextEdit::MoveEnd, FALSE);
 
-  output->getCursorPosition(&current_para, &current_index);
 
 // printf("current_para=%d last_para=%d\n", current_para, last_para );
   if( last_para > -1 && current_para != last_para )
