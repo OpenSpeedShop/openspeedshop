@@ -24,6 +24,7 @@
 
 #include "SPListView.hxx"   // Change this to your new class header file name
 #include "SPListViewItem.hxx"   // Change this to your new class header file name
+#include "UpdateObject.hxx"
 #include "SourceObject.hxx"
 #include "PreferencesChangedObject.hxx"
 
@@ -172,13 +173,14 @@ StatsPanel::matchSelectedItem(int element)
 
 
 void
-StatsPanel::updateStatsPanelData()
+StatsPanel::updateStatsPanelData(int expID, QString experiment_name)
 {
    // Read the new data, destroy the old data, and update the StatsPanel with
    // the new data.
 
 
   dprintf("updateStatsPanelData() enterd.\n");
+printf("updateStatsPanelData(%d, %s) enterd.\n", expID, experiment_name.ascii() );
 
   if( lv != NULL )
   {
@@ -436,9 +438,15 @@ StatsPanel::listener(void *msg)
 
 // BUG - BIG TIME KLUDGE.   This should have a message type.
   MessageObject *msgObject = (MessageObject *)msg;
-  if(  msgObject->msgType  == "UpdateAllObject" )
+  if(  msgObject->msgType  == "UpdateExperimentDataObject" )
   {
-    updateStatsPanelData();
+    UpdateObject *msg = (UpdateObject *)msgObject;
+msg->print();
+    updateStatsPanelData(msg->expID, msg->experiment_name);
+if( msg->raiseFLAG )
+{
+  getPanelContainer()->raisePanel((Panel *)this);
+}
   } else if( msgObject->msgType == "PreferencesChangedObject" )
   {
 //    printf("StatsPanel:  The preferences changed.\n");

@@ -71,7 +71,7 @@ class StatsPanel  : public Panel
 
     bool createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos );
 
-    void updateStatsPanelData();
+    void updateStatsPanelData(int expID = 0, QString experiment_name = NULL);
 
     //! truncate the character string.
     char *truncateCharString(char *str, int length);

@@ -33,7 +33,7 @@
 #include <qmessagebox.h>
 
 #include "SourcePanel.hxx"
-#include "SourceObject.hxx"
+#include "UpdateObject.hxx"
 #include "SourceObject.hxx"
 #include "TopPanel.hxx"
 
@@ -803,8 +803,8 @@ pcSamplePanel::loadStatsPanel()
   if( p )
   {
     nprintf( DEBUG_PANELS ) ("call p(%s)'s listener routine.\n", p->getName() );
-    MessageObject *msg = new MessageObject("UpdateAllObject");
-    p->listener( (void *)msg );  // Kludge to simple put out some data... 
+    UpdateObject *msg = new UpdateObject(expID, "example", 1);
+    p->listener( (void *)msg );
   }
 if( fw_experiment() )
 {
