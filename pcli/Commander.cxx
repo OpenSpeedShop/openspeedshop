@@ -82,9 +82,9 @@ class Input_Source
   int64_t Last_Valid_Data;
   char *Buffer;
   InputLineObject *Input_Object;
-  bool Trace_To_A_Predefined_File;
-  std::string Trace_Name;
-  FILE *Trace_F;
+  bool Record_To_A_Predefined_File;
+  std::string Record_Name;
+  FILE *Record_F;
 
  // Used if files are to be read
  // These pointers are copied to the InputLineObject generated for each line from the file.
@@ -112,9 +112,9 @@ class Input_Source
     Buffer_Size = DEFAULT_INPUT_BUFFER_SIZE;
     Buffer = (char *)malloc(Buffer_Size);
     Input_Object = NULL;
-    Trace_To_A_Predefined_File = false;
-    Trace_Name = std::string("");
-    Trace_F = NULL;
+    Record_To_A_Predefined_File = false;
+    Record_Name = std::string("");
+    Record_F = NULL;
     CallBackLine = NULL;
     CallBackCmd = NULL;
   }
@@ -128,9 +128,9 @@ class Input_Source
     Buffer_Size = 0;
     Buffer = NULL;
     Input_Object = clip;
-    Trace_To_A_Predefined_File = false;
-    Trace_Name = std::string("");
-    Trace_F = NULL;
+    Record_To_A_Predefined_File = false;
+    Record_Name = std::string("");
+    Record_F = NULL;
     CallBackLine = NULL;
     CallBackCmd = NULL;
   }
@@ -144,9 +144,9 @@ class Input_Source
     Buffer_Size = buffsize;
     Buffer = buffer;
     Input_Object = NULL;
-    Trace_To_A_Predefined_File = false;
-    Trace_Name = std::string("");
-    Trace_F = NULL;
+    Record_To_A_Predefined_File = false;
+    Record_Name = std::string("");
+    Record_F = NULL;
     CallBackLine = NULL;
     CallBackCmd = NULL;
   }
@@ -159,9 +159,9 @@ class Input_Source
     if (Fp) {
       fclose (Fp);
     }
-   /* Close trace files. */
-    if (Trace_F && !Trace_To_A_Predefined_File) {
-      fclose (Trace_F);
+   /* Close Record files. */
+    if (Record_F && !Record_To_A_Predefined_File) {
+      fclose (Record_F);
     }
   }
 
@@ -209,28 +209,28 @@ class Input_Source
     return next_line;
   }
 
-  void Set_Trace ( std::string tofname) {
-    if (Trace_F && !Trace_To_A_Predefined_File) {
-      fclose (Trace_F);
+  void Set_Record ( std::string tofname) {
+    if (Record_F && !Record_To_A_Predefined_File) {
+      fclose (Record_F);
     }
     FILE *tof = predefined_filename( tofname );
     bool is_predefined = (tof != NULL);
     if (tof == NULL) tof = fopen (tofname.c_str(), "a");
-    Trace_To_A_Predefined_File = is_predefined;
-    Trace_Name = tofname;
-    Trace_F = tof;
+    Record_To_A_Predefined_File = is_predefined;
+    Record_Name = tofname;
+    Record_F = tof;
   }
-  void Remove_Trace () {
-    if (Trace_F && !Trace_To_A_Predefined_File) {
-      fclose (Trace_F);
+  void Remove_Record () {
+    if (Record_F && !Record_To_A_Predefined_File) {
+      fclose (Record_F);
     }
-    Trace_To_A_Predefined_File = false;
-    Trace_Name = std::string("");
-    Trace_F = NULL;
+    Record_To_A_Predefined_File = false;
+    Record_Name = std::string("");
+    Record_F = NULL;
   }
-  bool Trace_File_Is_Predefined () { return Trace_To_A_Predefined_File; }
-  std::string Trace_File_Name () { return Trace_Name; }
-  FILE *Trace_File () { return Trace_F; }
+  bool Record_File_Is_Predefined () { return Record_To_A_Predefined_File; }
+  std::string Record_File_Name () { return Record_Name; }
+  FILE *Record_File () { return Record_F; }
 
   // Debug aids
   void Dump(FILE *TFile) {
@@ -255,8 +255,8 @@ class Input_Source
       if (!nl_at_eol) {
         fprintf(TFile,"\n");
       }
-      if (Trace_F) {
-        fprintf(TFile,"     trace to: %s\n",Trace_Name.c_str());
+      if (Record_F) {
+        fprintf(TFile,"     record to: %s\n",Record_Name.c_str());
       }
   }
 };
@@ -273,10 +273,10 @@ class CommandWindowID
   int64_t Panel_ID;
   int64_t *MsgWaitingFlag;
   int64_t Current_Input_Level;
-  int64_t Cmd_Count_In_Trace_File;
-  std::string Trace_File_Name;
-  FILE *Trace_F;
-  bool Trace_File_Is_A_Temporary_File;
+  int64_t Cmd_Count_In_Log_File;
+  std::string Log_File_Name;
+  FILE *Log_F;
+  bool Log_File_Is_A_Temporary_File;
   std::string Record_File_Name;
   FILE *Record_F;
   bool Record_File_Is_A_Temporary_File;
@@ -312,10 +312,10 @@ class CommandWindowID
       Process_ID = Process;
       Panel_ID = Panel;
       Current_Input_Level = 0;
-      Cmd_Count_In_Trace_File = 0;
-      Trace_File_Name = "";
-      Trace_F = NULL;
-      Trace_File_Is_A_Temporary_File = false;
+      Cmd_Count_In_Log_File = 0;
+      Log_File_Name = "";
+      Log_F = NULL;
+      Log_File_Is_A_Temporary_File = false;
       Record_File_Name = "";
       Record_F = NULL;
       Record_File_Is_A_Temporary_File = false;
@@ -338,12 +338,12 @@ class CommandWindowID
      // Release the lock.
       Assert(pthread_mutex_unlock(&Window_List_Lock) == 0);
 
-     // Allocate a trace file for commands associated with this window
+     // Allocate a log file for commands associated with this window
       char base[20];
       snprintf(base, 20, "sstr%lld.XXXXXX",id);
-      Trace_File_Name = std::string(tempnam ("./", &base[0] )) + ".openss";
-      Trace_F  = fopen (Trace_File_Name.c_str(), "w");
-      Trace_File_Is_A_Temporary_File = true;
+      Log_File_Name = std::string(tempnam ("./", &base[0] )) + ".openss";
+      Log_F  = fopen (Log_File_Name.c_str(), "w");
+      Log_File_Is_A_Temporary_File = true;
       Record_File_Name = "";
       Record_F = NULL;
       Record_File_Is_A_Temporary_File = false;
@@ -353,12 +353,12 @@ class CommandWindowID
      // Clear the identification field in case someone trys to reference
      // this entry again.
       id = 0;
-     // Remove the trace files
-      if ((Trace_F != NULL) &&
-          (predefined_filename (Trace_File_Name) == NULL)) {
-        fclose (Trace_F);
-        if (Trace_File_Is_A_Temporary_File) {
-          int err = remove (Trace_File_Name.c_str());
+     // Remove the log files
+      if ((Log_F != NULL) &&
+          (predefined_filename (Log_File_Name) == NULL)) {
+        fclose (Log_F);
+        if (Log_File_Is_A_Temporary_File) {
+          int err = remove (Log_File_Name.c_str());
         }
       }
      // Remove the record files
@@ -531,11 +531,6 @@ public:
       Input->Copy_CallBack (clip);
     }
 
-   // For internal debugging, the trace file is used to record activity of the command
-    if (Trace_F != NULL) {
-      clip->Set_Trace (Trace_F);
-    }
-
     return clip;
   }
 
@@ -544,8 +539,8 @@ public:
   }
 
   // Field access
-  std::string Trace_Name() { return Trace_File_Name.c_str(); }
-  FILE   *Trace_File() { return Trace_F; }
+  std::string Log_Name() { return Log_File_Name.c_str(); }
+  FILE   *Log_File() { return Log_F; }
   CMDWID  ID () { return id; }
   EXPID   Focus () { return FocusedExp; }
   void    Set_Focus (EXPID exp) { FocusedExp = exp; }
@@ -558,46 +553,46 @@ public:
  // are associate with a particular input stream to a user defined file.
   bool   Set_Log_File ( std::string tofname ) {
     FILE *tof = predefined_filename (tofname);
-    if ((Trace_F != NULL) &&
-        (predefined_filename (Trace_File_Name) == NULL)) {
+    if ((Log_F != NULL) &&
+        (predefined_filename (Log_File_Name) == NULL)) {
      // Copy the old file to the new file.
-      fclose (Trace_F);
+      fclose (Log_F);
       if (tof == NULL) {
-        int len1 = Trace_File_Name.length();
+        int len1 = Log_File_Name.length();
         int len2 = tofname.length();
         char *scmd = (char *)malloc(6 + len1 + len2);
-        sprintf(scmd,"mv %s %s\n\0",Trace_File_Name.c_str(),tofname.c_str());
+        sprintf(scmd,"mv %s %s\n\0",Log_File_Name.c_str(),tofname.c_str());
         int ret = system(scmd);
         free (scmd);
         if (ret != 0) return false;
-        Trace_File_Is_A_Temporary_File = false;
+        Log_File_Is_A_Temporary_File = false;
       }
     }
-    if (Trace_File_Is_A_Temporary_File) {
-      (void) remove (Trace_File_Name.c_str());
+    if (Log_File_Is_A_Temporary_File) {
+      (void) remove (Log_File_Name.c_str());
     }
     if (tof == NULL) {
       tof = fopen (tofname.c_str(), "a");
     }
-    Trace_File_Name = tofname;
-    Trace_F  = tof;
-    Trace_File_Is_A_Temporary_File = false;
-    return (Trace_F != NULL);
+    Log_File_Name = tofname;
+    Log_F  = tof;
+    Log_File_Is_A_Temporary_File = false;
+    return (Log_F != NULL);
   }
   void   Remove_Log_File () {
-    if ((Trace_F != NULL)  &&
-        (predefined_filename (Trace_File_Name) == NULL)) {
-      fclose (Trace_F);
+    if ((Log_F != NULL)  &&
+        (predefined_filename (Log_File_Name) == NULL)) {
+      fclose (Log_F);
     }
-    Trace_File_Name = std::string("");
-    Trace_F = NULL;
+    Log_File_Name = std::string("");
+    Log_F = NULL;
   }
 
  // The "Record" command will causes us to echo statements that
  // come from a particular input stream to a user defined file.
   void   Set_Record_File ( std::string tofname ) {
     if (Input) {
-      Input->Set_Trace ( tofname );
+      Input->Set_Record ( tofname );
     } else {
       if (Record_F && !Record_File_Is_A_Temporary_File) {
         fclose (Record_F);
@@ -612,7 +607,7 @@ public:
   }
   void   Remove_Record_File () {
     if (Input) {
-      Input->Remove_Trace ();
+      Input->Remove_Record ();
     } else {
       if (Record_F && !Record_File_Is_A_Temporary_File) {
         fclose (Record_F);
@@ -626,8 +621,8 @@ public:
     FILE *rf = NULL;
     bool is_predefined = false;
     if (Input) {
-      rf = Input->Trace_File();
-      is_predefined = Input->Trace_File_Is_Predefined();
+      rf = Input->Record_File();
+      is_predefined = Input->Record_File_Is_Predefined();
     } else {
       rf = Record_F;
       is_predefined = Record_File_Is_A_Temporary_File;
@@ -635,7 +630,7 @@ public:
     if (rf) {
       fprintf(rf,"%s", clip->Command().c_str());  // Commands have a "\n" at the end.
       if (is_predefined) {
-       // Trace_File is something like stdout, so push the message out to user.
+       // Log_File is something like stdout, so push the message out to user.
         fflush (rf);
       }
     }
@@ -651,7 +646,7 @@ public:
        "W %lld: %s %s IAM:%s %s %lld %lld, focus at %lld, log->%s\n",
         id,Input_Is_Async?"async":" sync",remote?"remote":"local",
         I_Call_Myself.c_str(),Host_ID.c_str(),(int64_t)Process_ID,Panel_ID,
-        Focus(),Trace_File_Name.c_str());
+        Focus(),Log_File_Name.c_str());
     if (Input) {
       fprintf(TFile,"  Active Input Source Stack:\n");
       for (Input_Source *inp = Input; inp != NULL; inp = inp->Next()) {
@@ -663,12 +658,6 @@ public:
     std::list<InputLineObject *>::iterator cmi;
     for (cmi = cmd_object.begin(); cmi != cmd_object.end(); cmi++) {
       (*cmi)->Print (TFile);
-    }
-  }
-  void Trace (InputLineObject *clip) {
-    if (Trace_File()) {
-      FILE *TFile = Trace_File();
-      clip->Print (TFile);
     }
   }
   void Dump(FILE *TFile)
@@ -816,6 +805,12 @@ int64_t Find_Command_Level (CMDWID WindowID)
   return (cwi != NULL) ? cwi->Input_Level() : 0;
 }
 
+FILE *Log_File (CMDWID WindowID)
+{
+  CommandWindowID *cwi = Find_Command_Window (WindowID);
+  return (cwi != NULL) ? cwi->Log_File() : NULL;
+}
+
 // Semantic Utilities
 bool Window_Is_Async (CMDWID WindowID)
 {
@@ -867,13 +862,13 @@ void List_CommandWindows ( FILE *TFile )
   }
 }
 
-static void Trace_File_History (CommandObject *cmd, enum Trace_Entry_Type
-                                trace_type, std::string fname, FILE *TFile)
+static void Read_Log_File_History (CommandObject *cmd, enum Log_Entry_Type log_type,
+                                   std::string fname, FILE *TFile)
 {
   FILE *cmdf = fopen (fname.c_str(), "r");
   struct stat stat_buf;
   if (!cmdf) {
-    fprintf(stderr,"ERROR: Unable to open trace file %s\n",fname.c_str());
+    fprintf(stderr,"ERROR: Unable to read from the log file %s\n",fname.c_str());
     return;
   }
   if (stat (fname.c_str(), &stat_buf) != 0) {
@@ -887,7 +882,7 @@ static void Trace_File_History (CommandObject *cmd, enum Trace_Entry_Type
     if (len > 2) {
       bool dump_this_record = false;
       char *t = s;
-      switch (trace_type)
+      switch (log_type)
       {
         case CMDW_TRACE_ALL :
          // Dump raw data - i.e. all of every record.
@@ -938,9 +933,9 @@ static void Trace_File_History (CommandObject *cmd, enum Trace_Entry_Type
   fclose (cmdf);
 }
 
-// Read the trace files and echo selected entries to another file.
-bool Command_Trace (CommandObject *cmd, enum Trace_Entry_Type trace_type,
-                    CMDWID cmdwinid, std::string tofname)
+// Read the log files and echo selected entries to another file.
+bool Command_History (CommandObject *cmd, enum Log_Entry_Type log_type,
+                      CMDWID cmdwinid, std::string tofname)
 {
   FILE *tof = predefined_filename( tofname );
   bool tof_predefined = (tof != NULL);
@@ -959,8 +954,8 @@ bool Command_Trace (CommandObject *cmd, enum Trace_Entry_Type trace_type,
   {
     if ((cmdwinid == 0) ||
         (cmdwinid == (*cwi)->ID ())) {
-      std::string cmwtrn = (*cwi)->Trace_Name();
-      FILE *cmwtrf = (*cwi)->Trace_File();
+      std::string cmwtrn = (*cwi)->Log_Name();
+      FILE *cmwtrf = (*cwi)->Log_File();
       if (!cmwtrf) {
         char *S;
         sprintf(S,"ERROR: missing history file %s\n",cmwtrn.c_str());
@@ -973,7 +968,7 @@ bool Command_Trace (CommandObject *cmd, enum Trace_Entry_Type trace_type,
       }
       if (fflush (cmwtrf)) {
         char *S;
-        sprintf(S,"ERROR: can not flush trace file %s\n",cmwtrn.c_str());
+        sprintf(S,"ERROR: can not flush log file %s\n",cmwtrn.c_str());
         if (cmd != NULL) {
           cmd->Result_String (S);
         } else {
@@ -981,7 +976,7 @@ bool Command_Trace (CommandObject *cmd, enum Trace_Entry_Type trace_type,
         }
         return false;
       }
-      Trace_File_History (cmd, trace_type, cmwtrn, tof);
+      Read_Log_File_History (cmd, log_type, cmwtrn, tof);
     }
   }
   if (tof) {
@@ -1006,14 +1001,15 @@ bool Command_Log_OFF (CMDWID WindowID)
   return true;
 }
 
-// Set up an alternative trace file at user request.
-bool Command_Trace_ON (CMDWID WindowID, std::string tofname)
+// Set up an alternative record file at user request.
+bool Command_Record_ON (CMDWID WindowID, std::string tofname)
 {
   CommandWindowID *cmdw = Find_Command_Window (WindowID);
   cmdw->Set_Record_File (tofname);
   return true;
 }
-bool Command_Trace_OFF (CMDWID WindowID)
+
+bool Command_Record_OFF (CMDWID WindowID)
 {
   CommandWindowID *cmdw = Find_Command_Window (WindowID);
   cmdw->Remove_Record_File ();
@@ -1126,7 +1122,6 @@ static InputLineObject *Append_Input_String (CMDWID issuedbywindow, InputLineObj
       CommandWindowID *cw = Find_Command_Window (issuedbywindow);
       Assert (cw);
 
-      clip->Set_Trace (cw->Trace_File());
       Input_Source *inp = new Input_Source (clip);
       clip->SetStatus (ILO_QUEUED_INPUT);
       cw->Append_Input_Source (inp);
@@ -1147,7 +1142,6 @@ InputLineObject *Append_Input_String (CMDWID issuedbywindow, char *b_ptr,
     CommandWindowID *cw = Find_Command_Window (issuedbywindow);
     Assert (cw);
     clip = cw->New_InputLineObject(issuedbywindow, std::string(b_ptr));
-    clip->Set_Trace (cw->Trace_File());
     Input_Source *inp = new Input_Source (clip);
     clip->Set_CallBackId (LocalCmdId);
     clip->Set_CallBackL (CallBackLine);
@@ -1411,7 +1405,7 @@ read_another_window:
 // Initialize fields in the Clip:
  // Assign a sequence number to the command.
   clip->SetSeq (++Command_Sequence_Number);
- // Reflect internal state in the command and log it to the trace file
+ // Reflect internal state in the command and log it to the log file.
   clip->SetStatus (ILO_IN_PARSER);
  // Mark nested commands
   if (is_more)   clip-> Set_Complex_Exp ();
@@ -1419,7 +1413,7 @@ read_another_window:
  // Track it until completion
   cw->TrackCmd(clip);
 
- // Log the command to any user defined trace file.
+ // Log the command to any user defined record file.
   cw->Record(clip);
 
   return clip;
