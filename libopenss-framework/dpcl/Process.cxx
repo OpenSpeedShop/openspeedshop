@@ -38,27 +38,6 @@
 #include <ltdl.h>
 #include <sstream>
 #include <stdexcept>
-#include <vector>
-
-
-
-/** TEMPORARY HACK. */
-static void stdoutCB(GCBSysType sys, GCBTagType, GCBObjType, GCBMsgType msg)
-{
-    char* ptr = (char*)msg;
-    for(int i = 0; i < sys.msg_size; ++i, ++ptr)
-	fputc(*ptr, stdout);
-}
-
-
-
-/** TEMPORARY HACK. */
-static void stderrCB(GCBSysType sys, GCBTagType, GCBObjType, GCBMsgType msg)
-{
-    char* ptr = (char*)msg;
-    for(int i = 0; i < sys.msg_size; ++i, ++ptr)
-	fputc(*ptr, stdout);
-}
 
 
 
@@ -161,6 +140,38 @@ namespace {
 
 
 
+    /**
+     * Standard error callback.
+     *
+     * Callback function called by the DPCL main loop when a created process
+     * sends data to its standard error stream. Simply redirect the output to
+     * the tool's standard error stream.
+     */
+    void stderrCB(GCBSysType sys, GCBTagType, GCBObjType, GCBMsgType msg)
+    {
+	char* ptr = (char*)msg;
+	for(int i = 0; i < sys.msg_size; ++i, ++ptr)
+	    fputc(*ptr, stdout);
+    }
+    
+
+
+    /**
+     * Standard out callback.
+     *
+     * Callback function called by the DPCL main loop when a created process
+     * sends data to its standard out stream. Simply redirect the output to the
+     * tool's standard out stream.
+     */
+    void stdoutCB(GCBSysType sys, GCBTagType, GCBObjType, GCBMsgType msg)
+    {
+	char* ptr = (char*)msg;
+	for(int i = 0; i < sys.msg_size; ++i, ++ptr)
+	    fputc(*ptr, stdout);
+    }
+
+
+
 }
 
 
@@ -208,8 +219,6 @@ std::string Process::formUniqueName(const std::string& host, const pid_t& pid)
  */
 Process::Process(const std::string& host, const std::string& command) :
     dm_process(NULL),
-    dm_sleep_exp(NULL),
-    dm_sleep_entry(NULL),
     dm_host(host),
     dm_pid(0),
     dm_current_state(Thread::Suspended),
@@ -308,8 +317,6 @@ Process::Process(const std::string& host, const std::string& command) :
  */
 Process::Process(const std::string& host, const pid_t& pid) :
     dm_process(NULL),
-    dm_sleep_exp(NULL),
-    dm_sleep_entry(NULL),
     dm_host(host),
     dm_pid(pid),
     dm_current_state(Thread::Running),
@@ -405,10 +412,6 @@ Process::~Process()
 	
     }
 
-    // Destroy the cached DPCL information for sleep()
-    delete dm_sleep_entry;
-    delete dm_sleep_exp;
-    
     // Destroy the actual DPCL process handle
     delete dm_process;
     
@@ -764,20 +767,14 @@ void Process::updateAddressSpace(const Thread& thread, const Time& when)
 	    database->bindArgument(2, file);	    
 	    while(database->executeStatement());
 	    linked_object = database->getLastInsertedUID();
-	    
-	    // Iterate over each module in this linked object
-	    for(std::vector<SourceObj>::iterator
-		    j = i->second.second.begin(); 
-		j != i->second.second.end();
-		++j) {
-		
-		// Process the function information for this module
-		processFunctions(thread, linked_object, i->first, *j);
 
-		// Process the statement information for this module
-		processStatements(thread, linked_object, i->first, *j);
-		
-	    }
+	    // Process the function information for this module
+	    processFunctions(thread, linked_object,
+			     i->first, i->second.second);
+	    
+	    // Process the statement information for this module
+	    processStatements(thread, linked_object,
+			      i->first, i->second.second);
 	    
 	}
 	
@@ -806,99 +803,76 @@ void Process::updateAddressSpace(const Thread& thread, const Time& when)
 /**
  * Process function information.
  *
- * Process function information for the specified source object. DPCL is queried
- * for each function's address range and demangled name. This information is
- * filled into the database for the specified thread.
+ * Process function information for the specified source objects. DPCL
+ * is queried for each function's address range and demangled name. This
+ * information is filled into the database for the specified thread.
  *
  * @param thread           Thread that contains the linked object.
- * @param linked_object    Entry (id) for the linked object.
+ * @param linked_object    Entry identifier for the linked object.
  * @param range            Address range occupied.
- * @param object           Source object.
+ * @param objects          List of source objects in this linked object.
  */
 void Process::processFunctions(const Thread& thread,
 			       const int& linked_object,
 			       const AddressRange& range,
-			       SourceObj& object)
+			       std::vector<SourceObj>& objects) const
 {
-    // Ask DPCL to expand this (module) source object
-    MainLoop::suspend();
-    AisStatus retval = object.bexpand(*dm_process);
-    Assert(retval.status() == ASC_success);
-    MainLoop::resume();
-    
     // Begin a transaction on this thread's database
     SmartPtr<Database> database = EntrySpy(thread).getDatabase();
     BEGIN_TRANSACTION(database);
     
-    // Iterate over each child of this source object
-    for(int i = 0; i < object.child_count(); ++i) {
-	SourceObj child = object.child(i);
+    // Iterate over each source object in this linked object
+    for(std::vector<SourceObj>::iterator
+	    o = objects.begin(); o != objects.end(); ++o) {
 	
-	// Is this child a function object?
-	if(child.src_type() == SOT_function) {
-	    
-	    // Get the start/end address of the function
-	    Address start = Address(child.address_start()) - range.getBegin();
-	    Address end = Address(child.address_end()) - range.getBegin();
-
-	    // NOTE: There are times when DPCL returns us functions where the
-	    //       start and end addresses are the same (zero length). For
-	    //       example, there are a bunch of functions in "libc.so.6" of
-	    //       the form "__*_nocancel" that have zero length. These play
-	    //       havoc with our code because AddressRange enforces the
-	    //       restriction (end > begin). For now we are going to throw
-	    //       out these zero-length functions because we shouldn't be
-	    //       able to gather data for them anyway.
-	    if(end == start)
-		continue;
-    
-	    // Get the demangled name of the function
-	    char name[child.get_demangled_name_length() + 1];
-	    child.get_demangled_name(name, sizeof(name));
-	    
-	    // Create a function entry for this function
-	    database->prepareStatement(
-		"INSERT INTO Functions"
-		" (linked_object, addr_begin, addr_end, name)"
-		" VALUES (?, ?, ?, ?);"
-		);
-	    database->bindArgument(1, linked_object);
-	    database->bindArgument(2, start);
-	    database->bindArgument(3, end);
-	    database->bindArgument(4, name);
-	    while(database->executeStatement());	
-	    
-	    // Is this the sleep() function? 
-	    if(strcmp(name, "__sleep") == 0) {
-		Guard guard_myself(this);
+	// Ask DPCL to expand this (module) source object
+	MainLoop::suspend();
+	AisStatus retval = o->bexpand(*dm_process);
+	Assert(retval.status() == ASC_success);
+	MainLoop::resume();
+	
+	// Iterate over each function in this source object
+	for(int f = 0; f < o->child_count(); ++f)
+	    if(o->child(f).src_type() == SOT_function) {
+		SourceObj function = o->child(f);
 		
-		// Squirrel away a probe expression reference to sleep()
-		delete dm_sleep_exp;
-		dm_sleep_exp = new ProbeExp(child.reference());
+		// Get the start/end address of the function
+		Address start =
+		    Address(function.address_start()) - range.getBegin();
+		Address end =
+		    Address(function.address_end()) - range.getBegin();
 		
-		// Locate the entry point to sleep()
-		for(int i = 0; i < child.exclusive_point_count(); ++i) {
-		    InstPoint pt = child.exclusive_point(i);
-		    if(pt.get_type() == IPT_function_entry) {
-
-			// Squirrel away the entry point to sleep()
-			delete dm_sleep_entry;
-			dm_sleep_entry = new InstPoint(pt);
-
-		    }
-			
-		}
-
-		// Check assertions
-		Assert(dm_sleep_exp != NULL);
-		Assert(dm_sleep_entry != NULL);
-
+		// Note: There are cases where DPCL returns us functions whose
+		//       start and end addresses are the same (zero length). For
+		//       example, there are a bunch of functions in "libc.so.6"
+		//       of the form "__*_nocancel" that are zero length. These
+		//       cause havoc because AddressRange enforces the invariant
+		//       (end < begin). For now we are going to throw out these
+		//       zero-length functions because we shouldn't be able to
+		//       gather data for them anyway.
+		if(end == start)
+		    continue;
+		
+		// Get the demangled name of the function
+		char name[function.get_demangled_name_length() + 1];
+		function.get_demangled_name(name, sizeof(name));
+		
+		// Create the function entry
+		database->prepareStatement(
+		    "INSERT INTO Functions"
+		    " (linked_object, addr_begin, addr_end, name)"
+		    " VALUES (?, ?, ?, ?);"
+		    );
+		database->bindArgument(1, linked_object);
+		database->bindArgument(2, start);
+		database->bindArgument(3, end);
+		database->bindArgument(4, name);
+		while(database->executeStatement());	
+		
 	    }
-		
-	}
-	    
-    }
-
+	
+    }    
+    
     // End the transaction on this thread's database
     END_TRANSACTION(database);
 }
@@ -908,103 +882,111 @@ void Process::processFunctions(const Thread& thread,
 /**
  * Process statement information.
  *
- * Process statement information for the specified source object. DPCL is
+ * Process statement information for the specified source objects. DPCL is
  * queried for each statement's source file, line number, column number, and
  * list of addresses. This information is filled into the database for the
  * specified thread.
  *
  * @param thread           Thread that contains the linked object.
- * @param linked_object    Entry (id) for the linked object.
+ * @param linked_object    Entry identifier for the linked object.
  * @param range            Address range occupied.
- * @param object           Source object.
+ * @param objects          List of source objects in this linked object.
  */
 void Process::processStatements(const Thread& thread,
 				const int& linked_object,
 				const AddressRange& range,
-				SourceObj& object) const
+				std::vector<SourceObj>& objects) const
 {
     // Begin a transaction on this thread's database
     SmartPtr<Database> database = EntrySpy(thread).getDatabase();
     BEGIN_TRANSACTION(database);
-    
-    // Iterate over each child of this source object
-    for(int i = 0; i < object.child_count(); ++i) {
-	SourceObj child = object.child(i);
+
+    // Iterate over each source object in this linked object
+    for(std::vector<SourceObj>::iterator
+	    o = objects.begin(); o != objects.end(); ++o) {
 	
-	// Is this child a function object?
-	if(child.src_type() == SOT_function) {
+	// Iterate over each function in this source object
+	for(int f = 0; f < o->child_count(); ++f)
+	    if(o->child(f).src_type() == SOT_function) {
+		SourceObj function = o->child(f);
+		
+		// Get the start/end address of the function
+		Address start =
+		    Address(function.address_start()) - range.getBegin();
+		Address end =
+		    Address(function.address_end()) - range.getBegin();
+		
+		// Note: There are cases where DPCL returns us functions whose
+		//       start and end addresses are the same (zero length). For
+		//       example, there are a bunch of functions in "libc.so.6"
+		//       of the form "__*_nocancel" that are zero length. These
+		//       cause havoc because AddressRange enforces the invariant
+		//       (end < begin). For now we are going to throw out these
+		//       zero-length functions because we shouldn't be able to
+		//       gather data for them anyway.
+		if(end == start)
+		    continue;
+		
+		// Get the path of the source file containing this function
+		std::string path = "";
+		if(function.module_name_length() > 0) {
+		    char buffer[function.module_name_length() + 1];
+		    function.module_name(buffer,
+					 function.module_name_length() + 1);
+		    path = buffer;
+		}
 	    
-	    // Get the start/end address of the function
-	    Address start = Address(child.address_start()) - range.getBegin();
-	    Address end = Address(child.address_end()) - range.getBegin();
+		// Get the source line of this function's definition
+		int line = function.line_start();
 
-	    // NOTE: There are times when DPCL returns us functions where the
-	    //       start and end addresses are the same (zero length). For
-	    //       example, there are a bunch of functions in "libc.so.6" of
-	    //       the form "__*_nocancel" that have zero length. These play
-	    //       havoc with our code because AddressRange enforces the
-	    //       restriction (end > begin). For now we are going to throw
-	    //       out these zero-length functions because we shouldn't be
-	    //       able to gather data for them anyway.
-	    if(end == start)
-		continue;
-
-	    // Get the path of the source file containing this function
-	    std::string path = "";
-	    if(child.module_name_length() > 0) {
-		char buffer[child.module_name_length() + 1];
-		child.module_name(buffer, child.module_name_length() + 1);
-		path = buffer;
-	    }
-	    
-	    // Get the source line of this function's definition
-	    int line = child.line_start();
-
-	    // Ignore functions with empty source file name or source lines < 1
-	    if((path.size() == 0) || (line < 1))
-		continue;
-	    
-	    // Is there an existing source file in the database?
-	    Optional<int> file;
-	    database->prepareStatement("SELECT id FROM Files WHERE path = ?;");
-	    database->bindArgument(1, path);
-	    while(database->executeStatement())
-		file = database->getResultAsInteger(1);
-	    
-	    // Create the file entry if it isn't present in the database
-	    if(!file.hasValue()) {
+		// Ignore functiosn with no source file name or source lines < 1
+		if((path.size() == 0) || (line < 1))
+		    continue;
+		
+		// Is there an existing source file in the database?
+		Optional<int> file;
 		database->prepareStatement(
-		    "INSERT INTO Files (path) VALUES (?);"
+		    "SELECT id FROM Files WHERE path = ?;"
 		    );
 		database->bindArgument(1, path);
+		while(database->executeStatement())
+		    file = database->getResultAsInteger(1);
+		
+		// Create the file entry if it isn't present in the database
+		if(!file.hasValue()) {
+		    database->prepareStatement(
+			"INSERT INTO Files (path) VALUES (?);"
+			);
+		    database->bindArgument(1, path);
+		    while(database->executeStatement());
+		    file = database->getLastInsertedUID();	    
+		}
+		
+		// Create the statement entry
+		database->prepareStatement(
+		    "INSERT INTO Statements (file, line, column)"
+		    " VALUES (?, ?, ?);"
+		    );
+		database->bindArgument(1, file);
+		database->bindArgument(2, line);
+		database->bindArgument(3, 0);
 		while(database->executeStatement());
-		file = database->getLastInsertedUID();	    
+		int statement = database->getLastInsertedUID();
+	    
+		// Create the statement range entry
+		database->prepareStatement(
+		    "INSERT INTO StatementRanges"
+		    " (statement, linked_object, addr_begin, addr_end)"
+		    " VALUES (?, ?, ?, ?);"
+		    );
+		database->bindArgument(1, statement);
+		database->bindArgument(2, linked_object);
+		database->bindArgument(3, start);
+		database->bindArgument(4, end);
+		while(database->executeStatement());
+
 	    }
-
-	    // Create the statement entry
-	    database->prepareStatement(
-		"INSERT INTO Statements (file, line, column) VALUES (?, ?, ?);"
-		);
-	    database->bindArgument(1, file);
-	    database->bindArgument(2, line);
-	    database->bindArgument(3, 0);
-	    while(database->executeStatement());
-	    int statement = database->getLastInsertedUID();
-	    
-	    // Create the statement range entry
-	    database->prepareStatement(
-		"INSERT INTO StatementRanges"
-		" (statement, linked_object, addr_begin, addr_end)"
-		" VALUES (?, ?, ?, ?);"
-		);
-	    database->bindArgument(1, statement);
-	    database->bindArgument(2, linked_object);
-	    database->bindArgument(3, start);
-	    database->bindArgument(4, end);
-	    while(database->executeStatement());
-
-	}
-	    
+	
     }
 
     // End the transaction on this thread's database
@@ -1030,120 +1012,70 @@ void Process::processStatements(const Thread& thread,
 void Process::loadLibrary(const std::string& library)
 {
     Guard guard_myself(this);
-    
-    // Has this library been previously loaded?
+
+    // Find the entry for this library
     std::map<std::string, LibraryEntry>::iterator
 	i = dm_library_name_to_entry.find(library);
-    if(i != dm_library_name_to_entry.end()) {
-	
-	// Increment the library's reference count
+
+    // Simply increment the library's reference count if its already loaded
+    if(i != dm_library_name_to_entry.end()) {	
 	i->second.references++;
+	return;
+    }
+    
+    // Can we open this library as a libltdl module?
+    lt_dlhandle handle = lt_dlopenext(library.c_str());
+    if(handle == NULL)
+	throw std::invalid_argument(
+	    "Cannot locate the library \"" + library + 
+	    "\" that was to be loaded."
+	    );
+    
+    // Get the full path of the library
+    const lt_dlinfo* info = lt_dlgetinfo(handle);
+    Assert(info != NULL);
+    Path full_path = info->filename;
+    
+    // Close the module handle
+    Assert(lt_dlclose(handle) == 0);
+    
+    // Ask DPCL to load the library
+    ProbeModule* module = new ProbeModule(full_path.c_str());
+    MainLoop::suspend();
+    AisStatus retval = dm_process->bload_module(module);
+    Assert(retval.status() == ASC_success);
+    MainLoop::resume();	
+    
+    // Create an entry for this library
+    LibraryEntry entry;
+    entry.name = library;
+    entry.path = full_path;
+    entry.module = module;
+    entry.references = 1;
+    entry.functions = std::map<std::string, int>();
+    entry.messaging = NULL;
+    
+    // Iterate over each function in this library
+    for(int i = 0; i < module->get_count(); ++i) {
+	
+	// Obtain the function's name
+	unsigned length = module->get_name_length(i);
+	char* buffer = new char[length];
+	module->get_name(i, buffer, length);
+	
+	// Add this function to the list of functions for this library
+	entry.functions.insert(std::make_pair(buffer, i));
+	
+	// Destroy the allocate function name
+	delete [] buffer;
 	
     }
-    else {
-	
-	// Can we open this library as a libltdl module?
-	lt_dlhandle handle = lt_dlopenext(library.c_str());
-	if(handle == NULL)
-	    throw std::invalid_argument(
-		"Cannot locate the library \"" + library + 
-		"\" that was to be loaded."
-		);
-	
-	// Get the full path of the library
-	const lt_dlinfo* info = lt_dlgetinfo(handle);
-	Assert(info != NULL);
-	Path full_path = info->filename;
-	
-	// Close the module handle
-	Assert(lt_dlclose(handle) == 0);
-
-	// Ask DPCL to load the library
-	ProbeModule* module = new ProbeModule(full_path.c_str());
-	MainLoop::suspend();
-	AisStatus retval = dm_process->bload_module(module);
-	Assert(retval.status() == ASC_success);
-	MainLoop::resume();	
-	
-	// Create an entry for this library
-	LibraryEntry entry;
-	entry.name = library;
-	entry.path = full_path;
-	entry.module = module;
-	entry.references = 1;
-	entry.functions = std::map<std::string, int>();
-	entry.messaging = NULL;
-
-	// Probe expression referencing openss_set_msg_handle()
-	ProbeExp openss_set_msg_handle_exp;
-	
-	// Iterate over each function in this library
-	for(int i = 0; i < module->get_count(); ++i) {
-	    
-	    // Obtain the function's name
-	    unsigned length = module->get_name_length(i);
-	    char* buffer = new char[length];
-	    module->get_name(i, buffer, length);
-
-	    // Add this function to the list of functions for this library
-	    entry.functions.insert(std::make_pair(buffer, i));
-
-	    // Is this openss_set_msg_handle()?
-	    if(strcmp(buffer, "openss_set_msg_handle") == 0)
-		openss_set_msg_handle_exp = module->get_reference(i);
-	    
-	    // Destroy the allocate function name
-	    delete [] buffer;
-	    
-	}
-
-	// Did we find openss_set_msg_handle()?
-	if(openss_set_msg_handle_exp.get_node_type() == CEN_function_ref ) {
-
-	    // Check assertions
-	    Assert(dm_sleep_exp != NULL);
-	    Assert(dm_sleep_entry != NULL);
-
-	    // Note: In theory Ais_msg_handle should be the only parameter to
-	    //       openss_set_msg_handle(). But a bug in DPCL seems to cause
-	    //       the probe activation to fail if only one parameter is
-	    //       passed. The extra, zero, parameter causes a different
-	    //       code path to be executed which seems to work fine. The
-	    //       offending DPCL code is in "dpcl/src/daemon/src/PEtoBP.C"
-	    //       around line #475.
-	    
-	    // Ask DPCL to install and activate the messaging probe
-	    ProbeExp args_exp[2] = { Ais_msg_handle, ProbeExp(0) };
-	    ProbeExp call_exp = openss_set_msg_handle_exp.call(2, args_exp);
-	    GCBFuncType callback = performanceDataCB;
-	    GCBTagType tag = 0;
-	    ProbeHandle handle;
-	    MainLoop::suspend();
-	    AisStatus retval =
-		dm_process->binstall_probe(1, &call_exp, dm_sleep_entry,
-					   &callback, &tag, &handle);	
-	    Assert(retval.status() == ASC_success);
-	    retval = dm_process->bactivate_probe(1, &handle);
-	    Assert(retval.status() == ASC_success);
-	    MainLoop::resume();
-	    
-	    // Squirrel away a copy of the messaging probe's handle
-	    entry.messaging = new ProbeHandle(handle);
-	    
-	    // Ask DPCL to execute sleep(0) in this process
-	    ProbeExp sleep_args_exp[1] = { ProbeExp(0) };
-	    ProbeExp sleep_call_exp = dm_sleep_exp->call(1, sleep_args_exp);
-	    MainLoop::suspend();
-	    retval = dm_process->bexecute(sleep_call_exp, NULL, NULL);
-	    Assert(retval.status() == ASC_success);
-	    MainLoop::resume();        
-	    
-	}
-	
-	// Add this entry to the list of libraries
-	dm_library_name_to_entry.insert(std::make_pair(library, entry));
-	
-    }
+    
+    // Initialize messaging for this library
+    initializeMessaging(entry);
+    
+    // Add this entry to the list of libraries
+    dm_library_name_to_entry.insert(std::make_pair(library, entry));    
 }
     
     
@@ -1179,41 +1111,26 @@ void Process::unloadLibrary(const std::string& library)
     
     // Decrement the library's reference count
     i->second.references--;
+
+    // Return if there are still references to this library
+    if(i->second.references > 0)
+	return;
     
-    // Was this the last reference to this library?
-    if(i->second.references == 0) {
-
-	// Was a messaging probe installed for this library?
-	if(i->second.messaging != NULL) {
-
-	    // Ask DPCL to deactivate and remove the messaging probe
-	    MainLoop::suspend();
-	    AisStatus retval = 
-		dm_process->bdeactivate_probe(1, i->second.messaging);
-	    Assert(retval.status() == ASC_success);
-	    retval = dm_process->bremove_probe(1, i->second.messaging);
-	    Assert(retval.status() == ASC_success);
-	    MainLoop::resume();
-	    
-	    // Destroy the handle to the messaging probe
-	    delete i->second.messaging;
-	    
-	}
-	
-	// Ask DPCL to unload the library
-	MainLoop::suspend();
-	AisStatus retval = dm_process->bunload_module(i->second.module);
-	Assert(retval.status() == ASC_success);
-	MainLoop::resume();
-	delete i->second.module;
-	
-	// Remove this entry from the list of libraries
-	dm_library_name_to_entry.erase(i);
-	
-    }
+    // Finalize messaging for this library
+    finalizeMessaging(i->second);
+    
+    // Ask DPCL to unload the library
+    MainLoop::suspend();
+    AisStatus retval = dm_process->bunload_module(i->second.module);
+    Assert(retval.status() == ASC_success);
+    MainLoop::resume();
+    delete i->second.module;
+    
+    // Remove this entry from the list of libraries
+    dm_library_name_to_entry.erase(i);    
 }
-
-
+    
+    
 
 /**
  * Execute a library function.
@@ -1274,6 +1191,145 @@ void Process::execute(const std::string& library,
     AisStatus retval = dm_process->bexecute(call_exp, NULL, NULL);
     Assert(retval.status() == ASC_success);
     MainLoop::resume();    
+}
+
+
+
+/**
+ * Initialize messaging.
+ *
+ * Initialize messaging for the specified library within this process. Inserts
+ * a probe at the entry point of sleep() to call a known function within the
+ * library. That function, when called, squirrels away the message handle that
+ * is passed into it for future use by the library. Once the probe has been
+ * inserted, sleep(0) is called to force that initialization process to occur.
+ *
+ * @note    All of this is necessary because DPCL is designed to only provide a
+ *          communication mechanism from the process to the tool in the context
+ *          of a DPCL probe. Since collectors need to be able to send data at
+ *          <em>any</em> time, we need to setup an otherwise-unnecessary "fake"
+ *          probe to establish a usable message handle for the library.
+ *
+ * @param library    Library entry for which messaging is to be initialized.
+ */
+void Process::initializeMessaging(LibraryEntry& library)
+{
+    Guard guard_myself(this);
+
+    // Find openss_set_msg_handle() within this library
+    std::map<std::string, int>::const_iterator
+	i = library.functions.find("openss_set_msg_handle");
+    
+    // Was openss_set_msg_handle() found?
+    if(i == library.functions.end())
+	return;
+    
+    // Obtain a probe expression reference to openss_set_msg_handle()
+    ProbeExp openss_set_msg_handle_exp =
+	library.module->get_reference(i->second);
+    Assert(openss_set_msg_handle_exp.get_node_type() == CEN_function_ref);
+    
+    // Iterate over each module associated with this process
+    SourceObj program = dm_process->get_program_object();
+    for(int m = 0; m < program.child_count(); ++m) {
+	SourceObj module = program.child(m);
+	
+	// Iterate over each function of this module
+	for(int f = 0; f < module.child_count(); ++f)
+	    if(module.child(f).src_type() == SOT_function) {
+		SourceObj function = module.child(f);
+		
+		// Get the demangled name of the function
+		char name[function.get_demangled_name_length() + 1];
+		function.get_demangled_name(name, sizeof(name));
+
+		// Was this function sleep()?
+		if(strcmp(name, "__sleep") != 0)
+		    continue;
+
+		// Obtain a probe expression reference to sleep()
+		ProbeExp sleep_exp = function.reference();
+		Assert(sleep_exp.get_node_type() == CEN_function_ref);
+		
+		// Obtaint the entry point to sleep()
+		InstPoint sleep_entry;
+		for(int p = 0; p < function.exclusive_point_count(); ++p)
+		    if(function.exclusive_point(p).get_type() ==
+		       IPT_function_entry)
+			sleep_entry = function.exclusive_point(p);
+		Assert(sleep_entry.get_type() == IPT_function_entry);
+
+		// Note: In theory Ais_msg_handle should be the only parameter
+		//       to openss_set_msg_handle(). But a bug in DPCL seems to
+		//       cause probe activation to fail if exactly one parameter
+		//       is passed. An extra, zero, parameter causes a different
+		//       code path to be executed which seems to work fine. The
+		//       offending DPCL code is "dpcl/src/daemon/src/PEtoBP.C"
+		//       around line #475.
+		
+		// Ask DPCL to install and activate the messaging probe
+		ProbeExp args_exp[2] = { Ais_msg_handle, ProbeExp(0) };
+		ProbeExp call_exp = openss_set_msg_handle_exp.call(2, args_exp);
+		GCBFuncType callback = performanceDataCB;
+		GCBTagType tag = 0;
+		ProbeHandle handle;
+		MainLoop::suspend();
+		AisStatus retval = 
+		    dm_process->binstall_probe(1, &call_exp, &sleep_entry,
+					       &callback, &tag, &handle);	
+		Assert(retval.status() == ASC_success);
+		retval = dm_process->bactivate_probe(1, &handle);
+		Assert(retval.status() == ASC_success);
+		MainLoop::resume();
+		
+		// Ask DPCL to execute sleep(0) in this process
+		ProbeExp sleep_args_exp[1] = { ProbeExp(0) };
+		ProbeExp sleep_call_exp = sleep_exp.call(1, sleep_args_exp);
+		MainLoop::suspend();
+		retval = dm_process->bexecute(sleep_call_exp, NULL, NULL);
+		Assert(retval.status() == ASC_success);
+		MainLoop::resume();        
+		
+		// Save a copy of the messaging probe's handle for this library
+		library.messaging = new ProbeHandle(handle);		
+
+		// Return now that messaging is initialized
+		return;
+		
+	    }
+	
+    }
+}
+
+
+
+/**
+ * Finalize messaging.
+ *
+ * Finalize messaging for the specified library within this process. Removes the
+ * probe previously inserted at the entry point of sleep().
+ *
+ * @param library    Library entry for which messaging is to be finalized.
+ */
+void Process::finalizeMessaging(LibraryEntry& library)
+{
+    Guard guard_myself(this);
+    
+    // Was a messaing probe installed for this library?
+    if(library.messaging == NULL)
+	return;
+    
+    // Ask DPCL to deactivate and remove the messaging probe
+    MainLoop::suspend();
+    AisStatus retval = dm_process->bdeactivate_probe(1, library.messaging);
+    Assert(retval.status() == ASC_success);
+    retval = dm_process->bremove_probe(1, library.messaging);
+    Assert(retval.status() == ASC_success);
+    MainLoop::resume();
+    
+    // Destroy the handle to the messaging probe
+    delete library.messaging;
+    library.messaging = NULL;
 }
 
 

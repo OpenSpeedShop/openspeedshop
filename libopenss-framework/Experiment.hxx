@@ -92,6 +92,8 @@ namespace OpenSpeedShop { namespace Framework {
 
     public:
 
+	static std::string getLocalHost();
+
 	static bool isAccessible(const std::string&);
 	static void create(const std::string&);
 
@@ -126,10 +128,6 @@ namespace OpenSpeedShop { namespace Framework {
 	CollectorGroup getCollectors() const;
 	Collector createCollector(const std::string&) const;
 	void removeCollector(const Collector&) const;
-	
-    private:
-	
-	static std::string getLocalHost();
 
     private:
 	

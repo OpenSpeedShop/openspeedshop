@@ -213,6 +213,35 @@ namespace {
 
 
 
+//
+// Maximum length of a host name. According to the Linux manual page for the
+// gethostname() function, this should be available in a header somewhere. But
+// it isn't found on all systems, so define it directly if necessary.
+//
+#ifndef HOST_NAME_MAX
+#define HOST_NAME_MAX (256)
+#endif
+
+/**
+ * Get the local host name.
+ *
+ * Returns the name of the host on which we are executing. This information is
+ * obtained directly from the operating system.
+ *
+ * @return    Name of the local host.
+ */
+std::string Experiment::getLocalHost()
+{
+    // Obtain the local host name from the operating system
+    char buffer[HOST_NAME_MAX];
+    Assert(gethostname(buffer, sizeof(buffer)) == 0);
+    
+    // Return the local host name to the caller
+    return buffer;
+}
+
+
+
 /**
  * Test accessibility of an experiment database.
  *
@@ -695,35 +724,4 @@ void Experiment::removeCollector(const Collector& collector) const
     dm_database->bindArgument(1, EntrySpy(collector).getEntry());
     while(dm_database->executeStatement());    
     END_TRANSACTION(dm_database);    
-}
-
-
-
-//
-// Maximum length of a host name. According to the Linux manual page for the
-// gethostname() function, this should be available in a header somewhere. But
-// we haven't found it, so define it directly for now.
-//
-#ifndef HOST_NAME_MAX
-#define HOST_NAME_MAX (256)
-#endif
-
-
-
-/**
- * Get the local host name.
- *
- * Returns the name of the host on which we are executing. This information is
- * obtained directly from the operating system.
- *
- * @return    Name of the local host.
- */
-std::string Experiment::getLocalHost()
-{
-    // Obtain the local host name from the operating system
-    char buffer[HOST_NAME_MAX];
-    Assert(gethostname(buffer, sizeof(buffer)) == 0);
-    
-    // Return the local host name to the caller
-    return buffer;
 }

@@ -39,9 +39,8 @@
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
+#include <vector>
 
-class InstPoint;
-class ProbeExp;
 class ProbeHandle;
 class ProbeModule;
 class Process;
@@ -87,11 +86,11 @@ namespace OpenSpeedShop { namespace Framework {
 	void terminateNow();
 
 	void updateAddressSpace(const Thread&, const Time&);
-	void processFunctions(const Thread&, const int&,
-			      const AddressRange&, SourceObj&);	
-	void processStatements(const Thread&, const int&,
-			       const AddressRange&, SourceObj&) const;
-	
+	void processFunctions(const Thread&, const int&, const AddressRange&,
+			      std::vector<SourceObj>&) const;	
+	void processStatements(const Thread&, const int&, const AddressRange&, 
+			       std::vector<SourceObj>&) const;
+
 	void loadLibrary(const std::string&);
 	void unloadLibrary(const std::string&);
 	void execute(const std::string&, const std::string&, const Blob&);
@@ -101,12 +100,6 @@ namespace OpenSpeedShop { namespace Framework {
 	/** DPCL process handle. */
 	::Process* dm_process;
 
-	/** Probe expression referencing sleep(). */
-	ProbeExp* dm_sleep_exp;
-	
-	/** Instrumentation point at entry of sleep(). */
-	InstPoint* dm_sleep_entry;
-	
 	/** Name of host on which this process is located. */
         std::string dm_host;
 	
@@ -153,6 +146,9 @@ namespace OpenSpeedShop { namespace Framework {
 
 	/** Map loaded library names to their entries. */
 	std::map<std::string, LibraryEntry> dm_library_name_to_entry;
+	
+	void initializeMessaging(LibraryEntry&);
+	void finalizeMessaging(LibraryEntry&);
 	
     };
     

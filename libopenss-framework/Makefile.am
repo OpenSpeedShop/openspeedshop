@@ -21,7 +21,7 @@ SUBDIRS = @INSTRUMENTOR@ runtime
 lib_LTLIBRARIES = libopenss-framework.la
 
 libopenss_framework_la_CXXFLAGS = \
-	-DCOLLECTOR_PATH=\"$(pkglibdir)\" \
+	-DPLUGIN_PATH=\"$(pkglibdir)\" \
 	$(LTDLINCL)
 
 libopenss_framework_la_LDFLAGS = \

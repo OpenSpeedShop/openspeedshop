@@ -80,11 +80,10 @@ namespace {
 	 * Default constructor.
 	 *
 	 * Builds the table of available collector plugins by searching three
-	 * different directories: the compile-time collector plugin path as
-	 * passed via a macro from the build system; the home-relative collector
-	 * plugin path defined by the environment variable OPENSPEEDSHOP_HOME;
-	 * and a user-specified collector plugin path defined by the environment
-	 * variable OPENSPEEDSHOP_COLLECTOR_PATH.
+	 * different locations: the compile-time plugin path as passed via a
+	 * macro from the build system; the install plugin path defined by the
+	 * environment variable OPENSS_INSTALL_DIR; and user-specified plugin
+	 * path(s) defined by the environment variable OPENSS_PLUGIN_PATH.
 	 */
 	CollectorPluginTable::CollectorPluginTable()
 	{
@@ -94,25 +93,23 @@ namespace {
 	    // Start with an empty user-defined search path
 	    Assert(lt_dlsetsearchpath("") == 0);
 	    
-	    // Add the compile-time collector plugin path
-	    Assert(lt_dladdsearchdir(COLLECTOR_PATH) == 0);
+	    // Add the compile-time plugin path
+	    Assert(lt_dladdsearchdir(PLUGIN_PATH) == 0);
 	    
-	    // Add the home-relative collector plugin path
-	    if(getenv("OPENSPEEDSHOP_HOME") != NULL) {
-		Path home_relative_path =
-		    Path(getenv("OPENSPEEDSHOP_HOME")) +
+	    // Add the install plugin path
+	    if(getenv("OPENSS_INSTALL_DIR") != NULL) {
+		Path install_path = Path(getenv("OPENSS_INSTALL_DIR")) +
 		    Path("/lib/openspeedshop");
-		Assert(lt_dladdsearchdir(home_relative_path.c_str()) == 0);
+		Assert(lt_dladdsearchdir(install_path.c_str()) == 0);
 	    }
 	    
-	    // Add the user-specified collector plugin path
-	    if(getenv("OPENSPEEDSHOP_COLLECTOR_PATH") != NULL) {
-		Path user_specified_path = 
-		    Path(getenv("OPENSPEEDSHOP_COLLECTOR_PATH"));
+	    // Add the user-specified plugin path
+	    if(getenv("OPENSS_PLUGIN_PATH") != NULL) {
+		Path user_specified_path = Path(getenv("OPENSS_PLUGIN_PATH"));
 		Assert(lt_dladdsearchdir(user_specified_path.c_str()) == 0);
 	    }
 
-	    // Now search for plugins in all these paths
+	    // Now search for collector plugins in all these paths
 	    lt_dlforeachfile(lt_dlgetsearchpath(), ::foreachCallback, this);
 	}
 
