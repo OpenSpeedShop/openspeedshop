@@ -1,4 +1,4 @@
-/*//////////////////////////////////////////////////////////////////////////////
+/* //////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
@@ -14,18 +14,30 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this library; if not, write to the Free Software Foundation, Inc.,
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-//////////////////////////////////////////////////////////////////////////////*/
+////////////////////////////////////////////////////////////////////////////// */
 
 %{
 #include <stdio.h>
+#include <stdlib.h>
 #include <ctype.h>
 #include "support.h"
+
+#include <vector>
+#include <iostream>
+
+using namespace std;
+
+#include "SS_Parse_Range.hxx"
+#include "SS_Parse_Target.hxx"
+#include "SS_Parse_Result.hxx"
+
+using namespace OpenSpeedShop::cli;
 
 void yyerror(const char *);
 extern char *yytext;
 extern int yylex();
 extern int yywrap();
-extern void exit(int);
+extern ParseResult *p_parse_result;
 
 %}
 
@@ -84,7 +96,7 @@ ss_line:    /* empty */
 	;
 
 command_line:  END_LINE {/* printf("OSS > "); */ }
-    	|   command_desc END_LINE {/*dump_command(); printf("OSS > "); */ }
+    	|   command_desc END_LINE {p_parse_result->PushParseTarget(); }
     	;
 
 command_desc: exp_attach_com 	{set_command_type(CMD_EXP_ATTACH);}
