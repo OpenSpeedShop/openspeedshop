@@ -5,6 +5,7 @@ import sys
 import types
 
 import PY_Input
+global terminate_SS
 
 ################################################################################
 #
@@ -65,7 +66,9 @@ def cloak_list_range(arg):
 def Do_quit(args):
 
     #print "Exit Python"
-    raise SystemExit
+    #raise SystemExit
+    # signal the main read loop to do a normal return out of Python
+    myparse.terminate_SS = 1
 
 ##################################################################
 #
@@ -296,6 +299,7 @@ class CLI(code.InteractiveConsole):
     #
     ##################################################################
     def interact(self):
+        myparse.terminate_SS = 0
 
         # Set the primary and secondary prompts
         sys.ps1 = ">>> "
@@ -306,6 +310,10 @@ class CLI(code.InteractiveConsole):
 
         while 1:
             try :
+                if myparse.terminate_SS:
+                  self.write("\n")
+                  self.resetbuffer()
+                  return
                 # Display the appropriate prompt
                 if not sys.stdin.isatty():
                     prompt = ""
@@ -341,10 +349,9 @@ class CLI(code.InteractiveConsole):
             except EOFError:
                 #print "eof or error", line
                 self.write("\n")
-                is_more = 0
                 self.resetbuffer()
                 return
-                raise SystemExit
+                #raise SystemExit
 
 
     ##################################################################
