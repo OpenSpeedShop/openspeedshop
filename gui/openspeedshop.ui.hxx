@@ -64,6 +64,12 @@ void OpenSpeedshop::fileNew()
   }
 }
 
+void OpenSpeedshop::fileAttach()
+{
+  printf("fileAttach() entered\n");
+}
+
+
 void OpenSpeedshop::fileOpen()
 {
   printf("fileOpen() entered\n");

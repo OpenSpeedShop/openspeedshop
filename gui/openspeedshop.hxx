@@ -46,6 +46,7 @@ public:
     QPopupMenu *editMenu;
     QPopupMenu *helpMenu;
     QAction* fileNewAction;
+QAction* fileAttachAction;
     QAction* fileOpenAction;
     QAction* fileSaveAction;
 #ifdef EVENTUALLY
@@ -68,6 +69,9 @@ public:
 
     //! A pointer to the top PanelContainer that is parented to this mainwindow.
     PanelContainer *topPC;
+
+    //! The hinted process id string that is to be attached (eventually).
+    char *pid_str;
 
     //! The hinted executable_name that is to be loaded (eventually).
     char *executable_name;
@@ -92,6 +96,7 @@ public:
 #endif // EVENTUALLY
 public slots:
     virtual void fileNew();
+    virtual void fileAttach();
     virtual void fileOpen();
     virtual void fileSave();
     virtual void fileExit();

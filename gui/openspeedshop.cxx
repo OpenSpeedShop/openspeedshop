@@ -27,6 +27,7 @@ OpenSpeedshop::OpenSpeedshop( QWidget* parent, const char* name, WFlags fl )
 {
 lfd = NULL;
 sfd = NULL;
+pid_str = NULL;
 executable_name = NULL;
 experiment_name = NULL;
     (void)statusBar();
@@ -39,6 +40,9 @@ experiment_name = NULL;
     // actions
     fileNewAction = new QAction( this, "fileNewAction" );
     fileNewAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "filenew" ) ) );
+fileAttachAction = new QAction( this, "fileAttachAction" );
+fileAttachAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "process" ) ) );
+
     fileOpenAction = new QAction( this, "fileOpenAction" );
     fileOpenAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "fileopen" ) ) );
     fileSaveAction = new QAction( this, "fileSaveAction" );
@@ -75,6 +79,7 @@ experiment_name = NULL;
 
     fileMenu = new QPopupMenu( this );
     fileNewAction->addTo( fileMenu );
+fileAttachAction->addTo( fileMenu );
     fileOpenAction->addTo( fileMenu );
     fileSaveAction->addTo( fileMenu );
 #ifdef EVENTUALLY
@@ -101,6 +106,7 @@ experiment_name = NULL;
 
     // signals and slots connections
     connect( fileNewAction, SIGNAL( activated() ), this, SLOT( fileNew() ) );
+connect( fileAttachAction, SIGNAL( activated() ), this, SLOT( fileAttach() ) );
     connect( fileOpenAction, SIGNAL( activated() ), this, SLOT( fileOpen() ) );
     connect( fileSaveAction, SIGNAL( activated() ), this, SLOT( fileSave() ) );
 #ifdef EVENTUALLY
@@ -159,14 +165,17 @@ OpenSpeedshop::~OpenSpeedshop()
 void OpenSpeedshop::languageChange()
 {
     setCaption( tr( "Open/SpeedShop" ) );
-    fileNewAction->setText( tr( "New" ) );
-    fileNewAction->setMenuText( tr( "&New" ) );
+    fileNewAction->setText( tr( "Load New Program " ) );
+    fileNewAction->setMenuText( tr( "Load &New Program" ) );
     fileNewAction->setAccel( tr( "Ctrl+N" ) );
-    fileOpenAction->setText( tr( "Open" ) );
-    fileOpenAction->setMenuText( tr( "&Open..." ) );
+fileAttachAction->setText( tr( "Attach To Executable " ) );
+fileAttachAction->setMenuText( tr( "&Attach To Executable" ) );
+fileAttachAction->setAccel( tr( "Ctrl+A" ) );
+    fileOpenAction->setText( tr( "Open Saved Experiment..." ) );
+    fileOpenAction->setMenuText( tr( "&Open Saved Experiment..." ) );
     fileOpenAction->setAccel( tr( "Ctrl+O" ) );
-    fileSaveAction->setText( tr( "Save" ) );
-    fileSaveAction->setMenuText( tr( "&Save" ) );
+    fileSaveAction->setText( tr( "Save Window Setup" ) );
+    fileSaveAction->setMenuText( tr( "&Save Window Setup" ) );
     fileSaveAction->setAccel( tr( "Ctrl+S" ) );
 #ifdef EVENTUALLY
     fileSaveAsAction->setText( tr( "Save As" ) );
