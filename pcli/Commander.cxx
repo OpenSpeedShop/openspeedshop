@@ -85,6 +85,7 @@ class Input_Source
   int64_t Next_Line_At;
   int64_t Last_Valid_Data;
   char *Buffer;
+  InputLineObject *Input_Object;
   bool Trace_To_A_Predefined_File;
   std::string Trace_Name;
   FILE *Trace_F;
@@ -108,6 +109,21 @@ class Input_Source
     Last_Valid_Data = 0;
     Buffer_Size = DEFAULT_INPUT_BUFFER_SIZE;
     Buffer = (char *)malloc(Buffer_Size);
+    Input_Object = NULL;
+    Trace_To_A_Predefined_File = false;
+    Trace_Name = std::string("");
+    Trace_F = NULL;
+  }
+  Input_Source (InputLineObject *clip) {
+    Next_Source = NULL;
+    Name = std::string("");
+    Fp = NULL;
+    Predefined = false;
+    Next_Line_At = 0;
+    Last_Valid_Data = 0;
+    Buffer_Size = 0;
+    Buffer = NULL;
+    Input_Object = clip;
     Trace_To_A_Predefined_File = false;
     Trace_Name = std::string("");
     Trace_F = NULL;
@@ -121,13 +137,16 @@ class Input_Source
     Last_Valid_Data = buffsize-1;
     Buffer_Size = buffsize;
     Buffer = buffer;
+    Input_Object = NULL;
     Trace_To_A_Predefined_File = false;
     Trace_Name = std::string("");
     Trace_F = NULL;
   }
   ~Input_Source () {
    /* Assume that this routine has ownership of any buffer it was given. */
-    free (Buffer);
+    if (Buffer) {
+      free (Buffer);
+    }
    /* Close input files. */
     if (Fp) {
       fclose (Fp);
@@ -140,6 +159,7 @@ class Input_Source
 
   void Link (Input_Source *inp) { Next_Source = inp; }
   Input_Source *Next () { return Next_Source; }
+  InputLineObject *InObj () { return Input_Object; }
 
   char *Get_Next_Line () {
     if (Next_Line_At >= Last_Valid_Data) {
@@ -199,17 +219,20 @@ class Input_Source
 
   // Debug aids
   void Dump(FILE *TFile) {
-    fprintf(TFile,"  Active Input Source Stack:\n");
-    for (Input_Source *inp = this; inp != NULL; inp = inp->Next()) {
       bool nl_at_eol = false;
-      fprintf(TFile,"    Read from: %s",(inp->Fp) ? inp->Name.c_str() : "buffer");
-      if (!inp->Fp) {
-        fprintf(TFile," len=%d, next=%d",inp->Buffer_Size,inp->Next_Line_At);
-        if (inp->Buffer_Size > inp->Next_Line_At) {
-          int nline = strlen (&(inp->Buffer[inp->Next_Line_At]));
-          nl_at_eol = (inp->Buffer[inp->Next_Line_At+nline] == *("\n"));
+      fprintf(TFile,"    Read from: %s",
+                    (Fp) ? Name.c_str() : 
+                    (Input_Object) ? "image " : "buffer ");
+      if (Input_Object != NULL) {
+        Input_Object->Print (TFile);
+        nl_at_eol = true;
+      } else if (!Fp) {
+        fprintf(TFile,"len=%d, next=%d",Buffer_Size,Next_Line_At);
+        if (Buffer_Size > Next_Line_At) {
+          int nline = strlen (&(Buffer[Next_Line_At]));
+          nl_at_eol = (Buffer[Next_Line_At+nline] == *("\n"));
           if (nline > 2) {
-            fprintf(TFile,": %.20s", &(inp->Buffer[inp->Next_Line_At]));
+            fprintf(TFile,": %.20s", &(Buffer[Next_Line_At]));
             if (nline > 20) fprintf(TFile,"...");
           }
         }
@@ -217,16 +240,13 @@ class Input_Source
       if (!nl_at_eol) {
         fprintf(TFile,"\n");
       }
-      if (inp->Trace_F) {
-        fprintf(TFile,"     trace to: %s\n",inp->Trace_Name.c_str());
+      if (Trace_F) {
+        fprintf(TFile,"     trace to: %s\n",Trace_Name.c_str());
       }
-    }
   }
 };
 
 // CommandWindowID
-class CommandWindowID;
-
 class CommandWindowID
 {
  protected:
@@ -281,7 +301,8 @@ class CommandWindowID
      // Allocate a trace file for commands associated with this window
       char base[20];
       snprintf(base, 20, "sshist%lld.XXXXXX",id);
-      Trace_File_Name = tempnam ("./", &base[0] );
+      Trace_File_Name = std::string(tempnam ("./", &base[0] ));
+      //Trace_File_Name = tempnam ("./", &base[0] );
       Trace_F  = fopen (Trace_File_Name.c_str(), "w");
     }
   ~CommandWindowID()
@@ -292,7 +313,7 @@ class CommandWindowID
      // Remove the trace files
       if (Trace_F) {
         fclose (Trace_F);
-        remove (Trace_File_Name.c_str());
+        int err = remove (Trace_File_Name.c_str());
       }
      // Remove the input specifiers
       if (Input) {
@@ -386,9 +407,13 @@ private:
     delete old;
   }
 public:
-  char *Read_Command () {
+  InputLineObject *Read_Command () {
+   // Is there a good chance of finding something to read?
+   // We aren't going to go to the trouble of getting the lock
+   // unless there is something waiting to be processed.
     if (Input == NULL) {
-     // Is there a good chance of finding something to read?
+     // We don't think there is anything to read.
+     //
      // Yes, there is a race condiiton here, but the worst that
      // can happen is that we miss reading a line of input as
      // soon as we could.  Since this read is in a loop, we will
@@ -402,13 +427,23 @@ public:
       Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
     }
 
+    InputLineObject *clip;
     char *next_line = NULL;
+
     while (Input != NULL) {
-      next_line = Input->Get_Next_Line ();
-      if (next_line != NULL) {
+      clip = Input->InObj ();
+      if (clip != NULL) {
+       // Return this line and remove it from the input stack
+        Pop_Input_Source();
         break;
+      } else {
+       // Read file or buffer to get input.
+        next_line = Input->Get_Next_Line ();
+        if (next_line != NULL) {
+          break;
+        }
+        Pop_Input_Source();
       }
-      Pop_Input_Source();
     }
 
    // Release the lock.
@@ -416,7 +451,14 @@ public:
       Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
     }
 
-    return next_line;
+    if (clip == NULL) {
+      if (next_line == NULL) {
+        return NULL;
+      }
+      clip = new InputLineObject(ID(), next_line);
+    }
+
+    return clip;
   }
 
   bool Input_Available () {
@@ -456,24 +498,16 @@ public:
         I_Call_Myself.c_str(),Host_ID.c_str(),(int64_t)Process_ID,Panel_ID,
         Trace_File_Name.c_str());
     if (Input) {
-      Input->Dump(TFile );
+      fprintf(TFile,"  Active Input Source Stack:\n");
+      for (Input_Source *inp = Input; inp != NULL; inp = inp->Next()) {
+        inp->Dump(TFile );
+      }
     }
   }
   void Trace (InputLineObject *clip) {
     if (Trace_File()) {
-      { // if (clip->Action() == CMD_PARSE) {
-        FILE *TFile = Trace_File();
-        CMDID seq_num = clip->Seq();
-        CMDWID who = clip->Who();
-        time_t cmd_time = clip->When();
-        std::string command = clip->Command();
-        fprintf(TFile,"C %lld (W%lld.L%lld@%.24s): ",
-                      seq_num,who,Input_Level(),ctime(&cmd_time));
-        if (command.length() != 0) {
-          fprintf(TFile,"%s\n", command.c_str());
-        }  
-
-      }
+      FILE *TFile = Trace_File();
+      clip->Print (TFile);
     }
     if (Input) {
       FILE *ct = Input->Trace_File();
@@ -562,7 +596,6 @@ EXPID Experiment_Focus (CMDWID WindowID, EXPID ExperimentID)
   CommandWindowID *my_window = Find_Command_Window (WindowID);
   if (my_window) {
     ExperimentObject *Experiment = (ExperimentID) ? Find_Experiment_Object (ExperimentID) : NULL;
-fprintf(stdout,"set focus W:%d to %d\n",WindowID,ExperimentID);
     my_window->Set_Focus(ExperimentID);
     return ExperimentID;
   }
@@ -687,12 +720,10 @@ ResultObject Command_Trace_OFF (CMDWID WindowID)
 }
 
 void  SpeedShop_Trace_ON (char *tofile) {
-fprintf(stdout,"Enter SpeedShop_Trace_ON %s\n",tofile);
   (void)Command_Trace_ON (Last_ReadWindow, std::string(tofile));
 }
 
 void  SpeedShop_Trace_OFF(void) {
-fprintf(stdout,"Enter SpeedShop_Trace_OFF\n");
   (void)Command_Trace_OFF (Last_ReadWindow);
 }
 
@@ -720,9 +751,9 @@ void Commander_Termination (CMDWID im)
 }
 
 
-bool Isa_SS_Command (CMDWID issuedbywindow, int64_t b_size, char *b_ptr) {
+bool Isa_SS_Command (CMDWID issuedbywindow, const char *b_ptr) {
   int fc;
-  for (fc = 0; fc < b_size; fc++) {
+  for (fc = 0; fc < strlen(b_ptr); fc++) {
     if (b_ptr[fc] != *(" ")) break;
   }
   if (b_ptr[fc] == *("\?")) {
@@ -755,17 +786,16 @@ bool Isa_SS_Command (CMDWID issuedbywindow, int64_t b_size, char *b_ptr) {
   return true;
 }
 
-ResultObject Append_Input_String (CMDWID issuedbywindow, int64_t b_size, char *b_ptr) {
-  CommandWindowID *cw = Find_Command_Window (issuedbywindow);
-  Assert (cw);
-  if (Isa_SS_Command(issuedbywindow,b_size,b_ptr)) {
-    int64_t buffer_size = b_size+1;
-    char *buffer = (char *)malloc(buffer_size);
-    strncpy (buffer, b_ptr, buffer_size);
-    Input_Source *inp = new Input_Source (buffer_size, buffer);
+InputLineObject *Append_Input_String (CMDWID issuedbywindow, char *b_ptr) {
+  InputLineObject *clip = NULL;;
+  if (Isa_SS_Command(issuedbywindow,b_ptr)) {
+    CommandWindowID *cw = Find_Command_Window (issuedbywindow);
+    Assert (cw);
+    clip = new InputLineObject(issuedbywindow, std::string(b_ptr));
+    Input_Source *inp = new Input_Source (clip);
     cw->Append_Input_Source (inp);
   }
-  return ResultObject(SUCCESS, "Command_File_T", NULL, "Command file read and processed");
+  return clip;
 }
 
 ResultObject Append_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_ptr) {
@@ -774,7 +804,7 @@ ResultObject Append_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b
 // DEBUG: hacks to let the gui pass information in without initializing a window.
 if (!cw) {
   issuedbywindow = Command_Window_ID;  // default to the last allocated window
-  Append_Input_String (issuedbywindow, b_size, b_ptr);
+  Append_Input_String (issuedbywindow, b_ptr);
 } else {
 
   Assert (cw);
@@ -841,7 +871,7 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
      // This indicates that someone freed the input window
       exit (0); // terminate the thread
     }
-    (void) Append_Input_String ((CMDWID)attachtowindow, strlen(&Buffer[0]), &Buffer[0]);
+    (void) Append_Input_String ((CMDWID)attachtowindow, &Buffer[0]);
   }
 }
 
@@ -892,7 +922,7 @@ window_found:
 
 static void There_Must_Be_More_Input (CommandWindowID *cw) {
   if ((cw == NULL) || (!cw->Input_Available())) {
-    fprintf(stdout,"ERROR: The input source that started a complex statement"
+    fprintf(stderr,"ERROR: The input source that started a complex statement"
                    " failed to complete the expression.\n");
     Assert (cw->Input_Available());
   }
@@ -914,11 +944,11 @@ read_another_window:
 
   CommandWindowID *cw = Find_Command_Window (readfromwindow);
   Assert (cw);
-  char *s;
+  InputLineObject *clip;
 
   do {
-    s = cw->Read_Command ();
-    if (s == NULL) {
+    clip = cw->Read_Command ();
+    if (clip == NULL) {
      // The read failed.  Why?  Can we find something else to read?
 
      // It might be possible to read from a different window.
@@ -964,27 +994,26 @@ read_another_window:
      // Return an empty line to indicate an EOF.
       break;
     }
+    const char *s = clip->Command().c_str();
     int len  = strlen(s);
-    if (!Isa_SS_Command(readfromwindow, len, s)) {
-      s = NULL;
+    if (!Isa_SS_Command(readfromwindow, s)) {
+      clip = NULL;
       continue;
     }
     if (len > 1) {
       if (!strcasecmp ( s, "quit\n") ||
           !strcasecmp ( s, "quit")) {
-fprintf(stdout,"quit instruction encountered\n");
-        s = NULL;
+        clip = NULL;
         break;
       }
     }
     if (len > 1) {
       if (!strcasecmp ( s, "gui\n")) {
-fprintf(stdout,"gui instruction encountered\n");
         loadTheGUI((ArgStruct *)NULL);
-        s = NULL;
+        clip = NULL;
       }
     }
-  } while (s == NULL);
+  } while (clip == NULL);
 
   if (I_HAVE_ASYNC_INPUT_LOCK) {
     I_HAVE_ASYNC_INPUT_LOCK = false;
@@ -993,14 +1022,13 @@ fprintf(stdout,"gui instruction encountered\n");
   }
 
   current_prompt = save_prompt;
-  if (s == NULL) {
+  if (clip == NULL) {
     return NULL;
   }
 
-  InputLineObject *clip = new InputLineObject(readfromwindow,s);
-
  // Assign a sequence number to the command.
   clip->SetSeq (++Command_Sequence_Number);
+  clip->SetStatus (ILO_IN_PARSER);
 
  // Log the command.
   cw->Trace(clip);
