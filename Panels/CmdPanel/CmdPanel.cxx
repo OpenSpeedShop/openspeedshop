@@ -145,7 +145,18 @@ CmdPanel::returnPressed()
     output->moveCursor(QTextEdit::MoveEnd, FALSE);
 
     // Try to check the status an print some 'bogus, but real' cli text.
-    Input_Line_Status status = clip->What();
+    Input_Line_Status status = ILO_UNKNOWN;
+    if( clip )
+    {
+      status = clip->What();
+    } else
+    {
+      // We treat a null clip as a complete.   It was a special
+      // command handled only by the cli.  (i.e. It wasn't passed
+      // to the parser.    The cli handled it, cleaned up, and 
+      // returned NULL.
+      status = ILO_COMPLETE;
+    }
     int rough_second_count = 0;
     while( status != ILO_COMPLETE )
     {
@@ -167,7 +178,7 @@ CmdPanel::returnPressed()
       }
     }
     // This in only a cludge for now!!! FIX
-    if( status == ILO_COMPLETE )
+    if( clip && status == ILO_COMPLETE )
     {
       fprintf(stderr, "ILO_COMPLETE!\n");
       char *fname = tempnam("/tmp", "__oss");
