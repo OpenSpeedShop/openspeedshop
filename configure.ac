@@ -197,6 +197,9 @@ AC_CONFIG_FILES(Makefile
 		Panels/Wizards/IOWizardPanel/Makefile
 		Panels/Wizards/MPIWizardPanel/Makefile
 		tests/fw/database/Makefile
+		tests/fw/database/Makefile
+		tests/pcli/parse_result/Makefile
+		tests/pcli/parse_target/Makfile
 )
 
 AC_OUTPUT
