@@ -331,12 +331,14 @@ SourcePanel::findString()
   }
 }
 
+/*! If font has a larger  pointSize, bump up one size. */
 void
 SourcePanel::zoomIn()
 {
   textEdit->zoomIn();
 }
 
+/*! If font has a maller  pointSize, bump down one size. */
 void
 SourcePanel::zoomOut()
 {
