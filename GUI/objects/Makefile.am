@@ -40,6 +40,7 @@ ftObjects_la_LIBADD = $(LIBLTDL)
 ftObjects_la_SOURCES = \
 	HighlightObject.hxx \
 	ProcessEntryClass.hxx \
+	MessageObject.hxx MessageObject.cxx \
 	SourceObject.hxx SourceObject.cxx \
 	ProcessListObject.hxx ProcessListObject.cxx \
 	OutputObject.hxx OutputObject.cxx
