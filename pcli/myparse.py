@@ -80,16 +80,14 @@ def cloak_list_range(arg, is_name):
 ################################################################################
 def return_none(args):
     cmd_parse(args)
+    return
 
 def return_int(args):
     ret = cmd_parse(args)
     return ret
 
 def return_string(args):
-    #cmd_parse(args)
-
     ret = cmd_parse(args)
-    #ret = "broken"
     return ret
 
 def return_int_list(args):
@@ -210,7 +208,9 @@ def preParseArgs(line, command_dict, arg_dict, str_opts_dict, num_opts_dict):
         if function is not None:
 	    parts[ndx] = t_part
             func_ndx = ndx
-            for i in range(ndx+1,count):
+            #for i in range(ndx+1,count):
+	    i = ndx+1
+	    while i < count:
 
                 # Yes, I know the following is stupid and should
                 # be done in one or 2 elegant python statements
@@ -220,6 +220,7 @@ def preParseArgs(line, command_dict, arg_dict, str_opts_dict, num_opts_dict):
                 # live with this.
 		t_part = string.lower(parts[i])
                 t_arg = arg_dict.get(t_part)
+		print parts[i],i
                 if t_arg is not None:
                     #print t_arg
 		    parts[i] = t_part
@@ -249,8 +250,12 @@ def preParseArgs(line, command_dict, arg_dict, str_opts_dict, num_opts_dict):
 			    	    # cloak sensitive characters and strings
     	    	    	    	    parts[i+1] = cloak_list_range(parts[i+1],0)
 				    i = i+1
-			    	
-                            
+			    else:
+			    	# oh well, just cloak it for now
+				# this is because of experiment type lists
+				# don't have an associated dash option
+    	    	    	    	parts[i] = '"' + parts[i] + '"'			    	
+
                 i = i+1
 
             # line = makePythonCall("myparse." + function, parts[func_ndx+1:])
@@ -315,6 +320,17 @@ def Delay_ILO_Processing(pad):
 ##################################################################
 class CLI(code.InteractiveConsole):
     """Simple test of a Python interpreter augmented with custom commands."""
+
+    ################################################################################
+    #
+    # Do_quit
+    #
+    # Quit python 
+    #
+    ################################################################################
+    def Do_quit(args):
+
+    	myparse.terminate_SS = 1
 
     ##################################################################
     #
@@ -401,8 +417,7 @@ class CLI(code.InteractiveConsole):
     ##################################################################
     o_ss_str_subopts = { \
         "-h"             : "suboption:host_list",
-        "-f"             : "suboption:file_list",
-        "-e"             : "suboption:experiment_name", \
+        "-f"             : "suboption:file_list", \
         }
 
     ##################################################################
