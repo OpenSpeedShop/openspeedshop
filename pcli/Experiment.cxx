@@ -36,13 +36,6 @@ EXPID Experiment_Sequence_Number = 0;
 std::list<ExperimentObject *> ExperimentObject_list;
 static std::string tmpdb = std::string("./ssdbtmpcmd.openss");
 
-static void Mark_Cmd_With_Std_Error (CommandObject *cmd, const std::exception& error) {
-   cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-                         "Unknown runtime error." : error.what() );
-   cmd->set_Status(CMD_ERROR);
-   return;
-}
-
 // Terminate all experiments and free associated files.
 // Called from the drivers to clean up after an "Exit" command or fatal error.
 void Experiment_Termination () {
@@ -515,17 +508,51 @@ bool SS_expAttach (CommandObject *cmd) {
   return true;
 }
 
-bool SS_expClose (CommandObject *cmd) {
-  ExperimentObject *exp = Find_Specified_Experiment (cmd);
-
- // Terminate the experiment and purge the data structure
-  if (exp == NULL) {
-    return false;
+static bool Destroy_Experiment (CommandObject *cmd, ExperimentObject *exp, bool Kill_KeyWord) {
+  if (Kill_KeyWord &&
+   // Terminate all threads so the application can not continue
+   // executing when we release it from control of OpenSpeedShop.
+      (exp->FW() != NULL)) {
+    ThreadGroup tgrp = exp->FW()->getThreads();
+    try {
+      tgrp.changeState (Thread::Terminated );
+    }
+    catch(const std::exception& error) {
+      Mark_Cmd_With_Std_Error (cmd, error);
+      return false;
+    }
   }
 
  // Remove all trace of the experiment from the Command Windows.
   Experiment_Purge_Focus  (exp->ExperimentObject_ID()); // remove any Focus on this experiment
   delete exp;
+  return true;
+}
+
+bool SS_expClose (CommandObject *cmd) {
+ // Terminate the experiment and purge the data structure
+  bool All_KeyWord = Look_For_KeyWord (cmd, "all");
+  bool Kill_KeyWord = Look_For_KeyWord (cmd, "kill");
+
+  if (All_KeyWord) {
+    std::list<ExperimentObject *>::iterator expi;
+    for (expi = ExperimentObject_list.begin(); expi != ExperimentObject_list.end(); ) {
+      ExperimentObject *exp = *expi;
+      expi++;
+      if (!Destroy_Experiment (cmd, exp, Kill_KeyWord)) {
+        return false;
+      }
+    }
+  } else {
+    ExperimentObject *exp = Find_Specified_Experiment (cmd);
+    if (exp == NULL) {
+      return false;
+    }
+    if (!Destroy_Experiment (cmd, exp, Kill_KeyWord)) {
+      return false;
+    }
+  }
+
 
  // No result returned from this command.
   cmd->set_Status(CMD_COMPLETE);
@@ -583,13 +610,8 @@ bool SS_expDetach (CommandObject *cmd) {
   return true;
 }
 
-bool SS_expDisable (CommandObject *cmd) {
-  ExperimentObject *exp = Find_Specified_Experiment (cmd);
-
-  if (exp == NULL) {
-    return false;
-  }
-
+static bool Disable_Experiment (CommandObject *cmd, ExperimentObject *exp) {
+  exp->Determine_Status();
   if ((exp->Status() != ExpStatus_Paused) &&
       (exp->Status() != ExpStatus_Running)) {
    // These are the only states that can be changed.
@@ -601,18 +623,35 @@ bool SS_expDisable (CommandObject *cmd) {
 
  // Disconnect the FrameWork from the experiment
   exp->Suspend();
+  return true;
+}
+
+bool SS_expDisable (CommandObject *cmd) {
+  bool All_KeyWord = Look_For_KeyWord (cmd, "all");
+
+  if (All_KeyWord) {
+    std::list<ExperimentObject *>::iterator expi;
+    for (expi = ExperimentObject_list.begin(); expi != ExperimentObject_list.end(); expi++) {
+      ExperimentObject *exp = *expi;
+      if (!Disable_Experiment (cmd, exp)) {
+        return false;
+      }
+    }
+  } else {
+    ExperimentObject *exp = Find_Specified_Experiment (cmd);
+    if (exp == NULL) {
+      return false;
+    }
+    if (!Disable_Experiment (cmd, exp)) {
+      return false;
+    }
+  }
 
   cmd->set_Status(CMD_COMPLETE);
   return true;
 }
 
-bool SS_expEnable (CommandObject *cmd) {
-  ExperimentObject *exp = Find_Specified_Experiment (cmd);
-
-  if (exp == NULL) {
-    return false;
-  }
-
+static bool Enable_Experiment (CommandObject *cmd, ExperimentObject *exp) {
   if (exp->Status() != ExpStatus_Suspended) {
    // This is the only state that can be enabled.
     cmd->Result_String ("The experiment can not be Enabled because it is in the "
@@ -628,6 +667,28 @@ bool SS_expEnable (CommandObject *cmd) {
     cmd->Result_String ("The experiment could not be successfully restarted.");
     cmd->set_Status(CMD_ERROR);
     return false;
+  }
+}
+
+bool SS_expEnable (CommandObject *cmd) {
+  bool All_KeyWord = Look_For_KeyWord (cmd, "all");
+
+  if (All_KeyWord) {
+    std::list<ExperimentObject *>::iterator expi;
+    for (expi = ExperimentObject_list.begin(); expi != ExperimentObject_list.end(); expi++) {
+      ExperimentObject *exp = *expi;
+      if (!Enable_Experiment (cmd, exp)) {
+        return false;
+      }
+    }
+  } else {
+    ExperimentObject *exp = Find_Specified_Experiment (cmd);
+    if (exp == NULL) {
+      return false;
+    }
+    if (!Enable_Experiment (cmd, exp)) {
+      return false;
+    }
   }
 
   cmd->set_Status(CMD_COMPLETE);
@@ -660,13 +721,8 @@ bool SS_expFocus  (CommandObject *cmd) {
   return true;
 } 
 
-bool SS_expGo (CommandObject *cmd) {
-  ExperimentObject *exp = Find_Specified_Experiment (cmd);
-
-  if (exp == NULL) {
-    return false;
-  }
-
+static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
+  exp->Determine_Status();
   if ((exp->FW() != NULL) &&
       ((exp->Status() == ExpStatus_Paused) ||
        (exp->Status() == ExpStatus_Running))) {
@@ -678,57 +734,64 @@ bool SS_expGo (CommandObject *cmd) {
       return false;
     }
 
-    int64_t num_running = 0;
-    int64_t num_terminated = 0;
-    int64_t num_errored = 0;
+   // Go through the ThreadGroup to handle "don't care" errors.
     for(ThreadGroup::const_iterator tgi = tgrp.begin(); tgi != tgrp.end(); ++tgi) {
       Thread t = *tgi;
       try {
-        t.changeState (Thread::Running );
-        num_running++;
+        t.changeState (Thread::Running);
       }
       catch(const std::exception& error) {
         if (t.getState() == Thread::Terminated) {
          // This state causes an error, but we can ignore it.
-          num_terminated++;
           continue;
         }
         Mark_Cmd_With_Std_Error (cmd, error);
-        num_errored++;
         return false;
       }
     }
 
-   // After chenging the state of each thread, cheange that of the ExperimentObject
-    if ((num_running == 0) &&
-        (num_terminated != 0)) {
-      exp->setStatus (ExpStatus_Terminated);
-    } else {
-      exp->setStatus (ExpStatus_Running);
-    }
+   // After changing the state of each thread, update that of the ExperimentObject
+    exp->Determine_Status();
   } else {
    // Can not run if ExpStatus_Terminated or ExpStatus_Suspended.
-    cmd->Result_String ("The experiment can not Go because it is in the "
+    cmd->Result_String ("The experiment can not be run because it is in the "
                          + exp->ExpStatus_Name() + " state.");
     cmd->set_Status(CMD_ERROR);
     return false;
+  }
+}
+
+bool SS_expGo (CommandObject *cmd) {
+  bool All_KeyWord = Look_For_KeyWord (cmd, "all");
+
+  if (All_KeyWord) {
+    std::list<ExperimentObject *>::iterator expi;
+    for (expi = ExperimentObject_list.begin(); expi != ExperimentObject_list.end(); expi++) {
+      ExperimentObject *exp = *expi;
+      if (!Execute_Experiment (cmd, exp)) {
+        return false;
+      }
+    }
+  } else {
+    ExperimentObject *exp = Find_Specified_Experiment (cmd);
+    if (exp == NULL) {
+      return false;
+    }
+    if (!Execute_Experiment (cmd, exp)) {
+      return false;
+    }
   }
 
   cmd->set_Status(CMD_COMPLETE);
   return true;
 }
 
-bool SS_expPause (CommandObject *cmd) {
-  ExperimentObject *exp = Find_Specified_Experiment (cmd);
-
-  if (exp == NULL) {
-    return false;
-  }
-
+static bool Pause_Experiment (CommandObject *cmd, ExperimentObject *exp) {
+  exp->Determine_Status();
   if ((exp->Status() != ExpStatus_Paused) &&
       (exp->Status() != ExpStatus_Running)) {
    // These are the only states that can be changed.
-    cmd->Result_String ("The experiment can not Paus because it is in the "
+    cmd->Result_String ("The experiment can not Pause because it is in the "
                          + exp->ExpStatus_Name() + " state.");
     cmd->set_Status(CMD_ERROR);
     return false;
@@ -737,33 +800,46 @@ bool SS_expPause (CommandObject *cmd) {
   if ((exp->FW() != NULL) &&
       (exp->Status() == ExpStatus_Running)) {
     ThreadGroup tgrp = exp->FW()->getThreads();
-    int64_t num_suspended = 0;
-    int64_t num_terminated = 0;
-    int64_t num_errored = 0;
+
+   // Go through the ThreadGroup to handle "don't care" errors.
     for(ThreadGroup::const_iterator tgi = tgrp.begin(); tgi != tgrp.end(); ++tgi) {
       Thread t = *tgi;
       try {
         t.changeState (Thread::Suspended);
-        num_suspended++;
       }
       catch(const std::exception& error) {
         if (t.getState() == Thread::Terminated) {
          // This state causes an error, but we can ignore it.
-          num_terminated++;
           continue;
         }
         Mark_Cmd_With_Std_Error (cmd, error);
-        num_errored++;
         return false;
       }
     }
 
-   // After changing the state of each thread, cheange that of the ExperimentObject
-    if ((num_suspended == 0) &&
-        (num_terminated != 0)) {
-      exp->setStatus (ExpStatus_Terminated);
-    } else {
-      exp->setStatus (ExpStatus_Paused);
+   // After changing the state of each thread, update that of the ExperimentObject
+    exp->Determine_Status();
+  }
+}
+
+bool SS_expPause (CommandObject *cmd) {
+  bool All_KeyWord = Look_For_KeyWord (cmd, "all");
+
+  if (All_KeyWord) {
+    std::list<ExperimentObject *>::iterator expi;
+    for (expi = ExperimentObject_list.begin(); expi != ExperimentObject_list.end(); expi++) {
+      ExperimentObject *exp = *expi;
+      if (!Pause_Experiment (cmd, exp)) {
+        return false;
+      }
+    }
+  } else {
+    ExperimentObject *exp = Find_Specified_Experiment (cmd);
+    if (exp == NULL) {
+      return false;
+    }
+    if (!Pause_Experiment (cmd, exp)) {
+      return false;
     }
   }
 
@@ -866,51 +942,11 @@ bool SS_expView (CommandObject *cmd) {
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<string> *p_slist = p_result->getViewList();
   vector<string>::iterator si;
-  CommandResult_Headers *H = new CommandResult_Headers ();
   for (si = p_slist->begin(); si != p_slist->end(); si++) {
     std::string view = *si;
-    CommandResult *T = new CommandResult_String ( view );
-    H->CommandResult_Headers::Add_Header (T);
-  }
-  CommandResult *T = new CommandResult_String ( "function" );
-  H->CommandResult_Headers::Add_Header (T);
-  cmd->Result_Predefined (H);
-
- // For each requested metric, try to pick up the associated data.
-  CollectorGroup cgrp = exp->FW()->getCollectors();
-  CollectorGroup::iterator ci;
-  for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
-    Collector c = *ci;
-
-   // Evaluate the collector's time metric for all functions in the thread
-    SmartPtr<std::map<Function, double> > data;
-    ThreadGroup tgrp = fw_experiment->getThreads();
-    if (tgrp.begin() == tgrp.end()) {
-      break;
-    }
-    ThreadGroup::iterator ti = tgrp.begin();
-// TODO: extend beyond the limited demo requirements.
-    Thread t1 = *ti;
-
-    try {
-      Queries::GetMetricByFunctionInThread(c, "time", t1, data);
-    }
-    catch(const std::exception& error) {
-      Mark_Cmd_With_Std_Error (cmd, error);
+    if (!SS_Determine_View (cmd, exp, view)) {
       return false;
     }
-
-    for(std::map<Function, double>::const_iterator
-          item = data->begin(); item != data->end(); ++item)
-    {
-      CommandResult_Columns *C = new CommandResult_Columns (2);
-      CommandResult *F = new CommandResult_Float (item->second);
-      CommandResult *S = new CommandResult_String (item->first.getName());
-      C->CommandResult_Columns::Add_Column (F);
-      C->CommandResult_Columns::Add_Column (S);
-      cmd->Result_Predefined (C);
-    }
-
   }
 
   cmd->set_Status(CMD_COMPLETE);
