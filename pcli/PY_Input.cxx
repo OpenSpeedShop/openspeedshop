@@ -75,13 +75,14 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     fclose(yyin); 
     
     // testing code
-    parse_result.dumpInfo();
+    // parse_result.dumpInfo();
     // dump_command(); /* old command structure in support.cxx */
 
    // Build a CommandObject so that the semantic routines can be called.
-    cmd_args = (command_t *)malloc(sizeof(command_t));
-    memcpy (cmd_args, &command, sizeof(command_t));
-    cmd = new CommandObject (cmd_args);
+    //cmd_args = (command_t *)malloc(sizeof(command_t));
+    //memcpy (cmd_args, &command, sizeof(command_t));
+    //cmd = new CommandObject (cmd_args);
+    cmd = new CommandObject (&parse_result);
     SS_Execute_Cmd (cmd);
     
    // Build Python Objects for any return results.
