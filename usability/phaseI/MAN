@@ -1,0 +1,43 @@
+openss(1)                                                openss(1)
+
+
+NAME
+  openss - Collects Open/Speedshop performance data
+
+SYNOPSIS
+  openss [-f executable] [-h host] [-x experiment_name]
+              [-p process_ID [-r thread_rank] ]
+              [-a "command line args"]
+
+
+DESCRIPTION
+  Open/Speedshop is a performance tool designed to capture performance data
+  for an executable(s).
+
+  When collecting the performance data, openss either writes the data to 
+  a file or makes it available to be displayed by the command line interface
+  or the graphical user interface.
+ 
+  You can specify the following options on the command line:
+    -f executable
+      Specifies the executable to run the performance experiment on.
+
+    -h host
+      Specifies the target host.
+
+    -x experiment_name
+      Specifies the experiment to be run on the executable or process.
+
+    -p process_ID
+      Specifies the running process to attach to for performance gathering.
+
+    -r thread_rank
+      Specifies which thread of a process to gather data.
+
+    -a "command line arguments"
+      Specifies the arguments to be passed to the executable that is being
+      run.
+
+
+COMMAND LINE:
+    Currently the command line interface is unavailable.
