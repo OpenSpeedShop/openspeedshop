@@ -8,7 +8,7 @@ export MENU_HEADING=$3
 export MENU_LABEL=$4
 export MENU_ACCEL=$5
 export SHOW_IMMEDIATE=$6
-export GROUPING=$7
+export PLUGIN_GROUPING=$7
 
 usage ()
 {
@@ -86,7 +86,7 @@ then
   usage
 fi
 
-if [ "$GROUPING" = "" ]
+if [ "$PLUGIN_GROUPING" = "" ]
 then
   echo "no grouping"
 #  usage
@@ -96,8 +96,9 @@ echo "PANEL_DIR=$PANEL_DIR"
 echo "PANEL_NAME=$PANEL_NAME"
 echo "MENU_HEADING=$MENU_HEADING"
 echo "MENU_LABEL=$MENU_LABEL"
-echo "SHOW_IMMEDIATE=$GROUPING"
-echo "GROUPING=$GROUPING"
+echo "MENU_ACCEL=$MENU_ACCEL"
+echo "SHOW_IMMEDIATE=$PLUGIN_GROUPING"
+echo "PLUGIN_GROUPING=$PLUGIN_GROUPING"
 
 
 # mkdir
@@ -122,14 +123,14 @@ cat Makefile.am | sed -f sed.script >$PANEL_DIR/Makefile.am
 
 
 cat TemplatePanel.hxx | sed -f sed.script >$PANEL_DIR/$PANEL_NAME.hxx
-echo "s/PLUGIN_GROUPING/$GROUP/g" >>sed.script
+echo "s/PLUGIN_GROUPING/$PLUGIN_GROUP/g" >>sed.script
 cat TemplatePanel.cxx | sed -f sed.script >$PANEL_DIR/$PANEL_NAME.cxx
 
 echo "s/SHOW_IMMEDIATE/$SHOW_IMMEDIATE/g" >>sed.script
 echo "s/MENU_HEADING/$MENU_HEADING/g" >>sed.script
 echo "s/MENU_LABEL/$MENU_LABEL/g" >>sed.script
 echo "s/MENU_ACCEL/$MENU_ACCEL/g" >>sed.script
-echo "s/PLUGIN_GROUPING/$GROUP/g" >>sed.script
+echo "s/PLUGIN_GROUPING/$PLUGIN_GROUP/g" >>sed.script
 cat local_plugin_info.hxx | sed -f sed.script >$PANEL_DIR/local_plugin_info.hxx
 
 rm -fr sed.script
