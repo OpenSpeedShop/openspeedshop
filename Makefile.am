@@ -21,6 +21,11 @@ TEST_SUBDIRS = tests/fw/database \
 		tests/pcli/parse_target \
 		tests/pcli/parse_result
 
+DIST_TEST_SUBDIRS = tests/fw/database/* \
+        tests/fw/interval/* \
+        tests/pcli/parse_target/* \
+        tests/pcli/parse_result/*
+
 SUBDIRS = . \
 	libltdl \
 	libopenss-framework \
@@ -38,7 +43,8 @@ SUBDIRS = . \
 	Panels
 
 DIST_SUBDIRS = $(SUBDIRS)
-EXTRA_DIST = images $(TEST_SUBDIRS)
+# need the images files and the tests files in tarball.
+EXTRA_DIST = images/* $(DIST_TEST_SUBDIRS)
 
 openspeedshop_la_CXXFLAGS = -I/usr/include -I.
 
