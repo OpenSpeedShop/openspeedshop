@@ -367,7 +367,7 @@ IntroWizardPanel::languageChange()
 "hardware to measure certain attributes of program execution.)" ) );
     vpage1FloatingPointRB->setText( tr( "I need to measure how many times I am causing Floating Point Exceptions." ) );
     vpage1InputOutputRB->setText( tr( "My program does a lot of Input and Output and I'd like to trace that work." ) );
-    vpage1MPIRB->setText( tr( "I have and MPI program and I'd like trace the mpi calls." ) );
+    vpage1MPIRB->setText( tr( "I have an MPI program and I'd like trace the mpi calls." ) );
     vpage1NextButton->setText( tr( "> Next" ) );
     eWelcomeHeader->setText( tr( "<h2>Welcome to Open/SpeedShop(tm)</h2>" ) );
     eHelpfulLabel->setText( tr( "Please select which of the following are true for your application:" ) );
