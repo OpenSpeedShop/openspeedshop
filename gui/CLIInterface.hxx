@@ -26,10 +26,7 @@
 
 #include "SS_Input_Manager.hxx"
 
-// This will need to be larger for a shipped product... something like 30-60
-// seconds.    However, for our current testing purposes. 5 seconds seems
-// like a number that doesn't irrirtate too much.
-#define MAXTIME 5000
+#define MAXTIME 0
 
 class CLIInterface : QObject
 {
