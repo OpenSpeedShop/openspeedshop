@@ -46,14 +46,20 @@ CLEANFILES = \
 	y.tab.cxx \
 	y.tab.h
 
+pcli_SOURCES =
+
+
 test_SOURCES = \
 	$(LFILES) $(YFILES)
 	
+EXTRA_DIST = test.y test.l myparse.py
+
+pcli_includes = ArgClass.hxx Clip.hxx Commander.hxx CommandObject.hxx Experiment.hxx SS_Cmd_Execution.hxx SS_Input_Manager.hxx SS_Parse_Param.hxx SS_Parse_Range.hxx SS_Parse_Result.hxx SS_Parse_Target.hxx SS_Select_View.hxx
+
 posscli_la_SOURCES = \
-    	Start.cxx \
+   	Start.cxx \
 	Start_Modes.cxx \
 	Commander.cxx \
-	CommandObject.cxx \
 	SS_Cmd_Execution.cxx \
 	SS_Select_View.cxx \
 	SS_Parse_Param.cxx \
@@ -63,7 +69,8 @@ posscli_la_SOURCES = \
 	Experiment.cxx \
 	SS_Parse_Yacc.cxx \
 	SS_Parse_Lex.cxx \
-	PY_Input.cxx
+	PY_Input.cxx \
+    $(pcli_includes)
 
 SS_Parse_Yacc.cxx: $(YFILES) SS_Parse_Result.hxx
 	-rm -f SS_Parse_Yacc.cxx
@@ -89,6 +96,8 @@ clobber:
 	SS_Parse_Yacc.cxx
 
 bin_PROGRAMS = pcli
+
+OPENSPEEDSHOP_PLUGIN_PATH = ${prefix}/lib/openspeedshop
 
 pcli:
 	-rm -f $(OPENSPEEDSHOP_PLUGIN_PATH)/myparse.py;
