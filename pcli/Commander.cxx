@@ -1,7 +1,8 @@
 #include <unistd.h>
-#include <sys/types.h>
 #include <pthread.h>
+#include <sys/types.h>
 #include <sys/stat.h>               /* for fstat() */
+#include <fcntl.h>
 #include <sys/mman.h>               /* for mmap() */
 #include <time.h>
 #include <stdio.h>
@@ -97,7 +98,6 @@ class Input_Source
     Next_Source = NULL;
     Name = my_name;
     Fp = predefined_filename (my_name);
-    Predefined = (Fp != NULL);
     if (Fp == NULL) {
       Predefined = false;
       Fp = fopen (my_name.c_str(), "r");
@@ -132,7 +132,7 @@ class Input_Source
    /* Assume that this routine has ownership of any buffer it was given. */
     free (Buffer);
    /* Close input files. */
-    if (Fp && !Predefined) {
+    if (Fp) {
       fclose (Fp);
     }
    /* Close trace files. */
@@ -714,14 +714,29 @@ void Commander_Termination (CMDWID im)
 }
 
 
-ResultObject Append_Input_String (CMDWID issuedbywindow, int64_t b_size, char *b_ptr) {
+bool Isa_SS_Command (CMDWID issuedbywindow, int64_t b_size, char *b_ptr) {
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
   Assert (cw);
-  if (b_ptr[0] == *("\?")) {
+  int fc;
+  for (fc = 0; fc < b_size; fc++) {
+    if (b_ptr[fc] != *(" ")) break;
+  }
+  if (b_ptr[fc] == *("\?")) {
     fprintf(stdout,"SpeedShop Status:\n");
     fprintf(stdout,"  %s Waiting for Async input\n",Looking_for_Async_Inputs?"":"Not");
     List_CommandWindows(stdout);
-  } else {
+    return false;
+  } else if (b_ptr[fc] == *("!")) {
+    int ret = system(&b_ptr[fc+1]);
+    return false;
+  }
+  return true;
+}
+
+ResultObject Append_Input_String (CMDWID issuedbywindow, int64_t b_size, char *b_ptr) {
+  CommandWindowID *cw = Find_Command_Window (issuedbywindow);
+  Assert (cw);
+  if (Isa_SS_Command(issuedbywindow,b_size,b_ptr)) {
     int64_t buffer_size = b_size+1;
     char *buffer = (char *)malloc(buffer_size);
     strncpy (buffer, b_ptr, buffer_size);
@@ -736,14 +751,14 @@ ResultObject Append_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b
 
 // DEBUG: hacks to let the gui pass information in without initializing a window.
 if (!cw) {
-issuedbywindow = Command_Window_ID;  // default to the last allocated window
-Append_Input_String (issuedbywindow, b_size, b_ptr);
-return ResultObject(SUCCESS, "Command_File_T", NULL, "Command file read and processed");
-}
+  issuedbywindow = Command_Window_ID;  // default to the last allocated window
+  Append_Input_String (issuedbywindow, b_size, b_ptr);
+} else {
 
   Assert (cw);
   Input_Source *inp = new Input_Source (b_size, b_ptr);
   cw->Append_Input_Source (inp);
+}
   return ResultObject(SUCCESS, "Command_File_T", NULL, "Command file read and processed");
 }
 
@@ -780,11 +795,13 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
   int Buffer_Size= DEFAULT_INPUT_BUFFER_SIZE;
   char Buffer[Buffer_Size];
   Buffer[Buffer_Size-1] = *"\0";
-  while (1) {
+  FILE *fdin = fopen ( "/dev/tty", "rw" );  // Read directly from the xterm window
+  for(;;) {
     sleep (1); // DEBUG - give testing code time to react before splashing screen with prompt
     fprintf(stdout,"%s->",current_prompt);
     Buffer[0] == *("\0");
-    char *read_result = fgets (&Buffer[0], Buffer_Size, stdin);
+    // char *read_result = fgets (&Buffer[0], Buffer_Size, stdin);
+    char *read_result = fgets (&Buffer[0], Buffer_Size, fdin);
     if (Buffer[Buffer_Size-1] != (char)0) {
       fprintf(stderr,"ERROR: Input line from stdin is too long for buffer.\n");
       exit (0); // terminate the thread
@@ -906,12 +923,17 @@ read_another_window:
       if (is_more) {
        // We MUST read from this window!
        // This is an error situation.  How can we recover?
+        Assert (!is_more);
       }
 
      // Return an empty line to indicate an EOF.
       break;
     }
     int len  = strlen(s);
+    if (!Isa_SS_Command(readfromwindow, len, s)) {
+      s = NULL;
+      continue;
+    }
     if (len > 1) {
       if (!strcasecmp ( s, "quit\n") ||
           !strcasecmp ( s, "quit")) {
@@ -920,9 +942,8 @@ fprintf(stdout,"quit instruction encountered\n");
         break;
       }
     }
-    len  = strlen(s);
     if (len > 1) {
-      if (!strncasecmp ( s, "gui\n", 4)) {
+      if (!strcasecmp ( s, "gui\n")) {
 fprintf(stdout,"gui instruction encountered\n");
         loadTheGUI((ArgStruct *)NULL);
         s = NULL;
