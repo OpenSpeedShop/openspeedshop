@@ -26,6 +26,8 @@ libopenss_Objects_la_CXXFLAGS = \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/images \
 	-I$(top_srcdir)/base \
+	-I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/pcli \
 	-I$(top_srcdir)/plugin \
 	-I$(QTDIR)
 
@@ -45,6 +47,7 @@ moc_InfoEventFilter.cxx: InfoEventFilter.hxx
 libopenss_Objects_la_SOURCES = \
 	HighlightObject.hxx \
 	ProcessEntryClass.hxx \
+	CollectorEntryClass.hxx \
 	MessageObject.hxx MessageObject.cxx \
 	SourceObject.hxx SourceObject.cxx \
 	UpdateObject.hxx UpdateObject.cxx \
@@ -53,6 +56,7 @@ libopenss_Objects_la_SOURCES = \
 	SaveAsObject.hxx SaveAsObject.cxx \
 	ControlObject.hxx ControlObject.cxx \
 	ProcessListObject.hxx ProcessListObject.cxx \
+	CollectorListObject.hxx CollectorListObject.cxx \
 	OutputObject.hxx OutputObject.cxx \
 	AnimatedQPushButton.hxx AnimatedQPushButton.cxx moc_AnimatedQPushButton.cxx \
 	InfoEventFilter.hxx InfoEventFilter.cxx moc_InfoEventFilter.cxx \

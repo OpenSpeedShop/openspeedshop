@@ -17,14 +17,14 @@
 ////////////////////////////////////////////////////////////////////////////////
   
 
-#ifndef ATTACHPROCESSDIALOG_H
-#define ATTACHPROCESSDIALOG_H
+#ifndef ATTACHCOLLECTORDIALOG_H
+#define ATTACHCOLLECTORDIALOG_H
 
 #include <qvariant.h>
 #include <qdialog.h>
 
-#include "ProcessListObject.hxx"  // For getting pid list off a host...
-#include "ProcessEntryClass.hxx"
+#include "CollectorListObject.hxx"  // For getting pid list off a host...
+#include "CollectorEntryClass.hxx"
 
 class QVBoxLayout;
 class QHBoxLayout;
@@ -42,7 +42,7 @@ class ManageCollectorsDialog : public QDialog
     Q_OBJECT
 
 public:
-    ManageCollectorsDialog( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0 );
+    ManageCollectorsDialog( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0, int exp_id = -1 );
     ~ManageCollectorsDialog();
 
     QPushButton* buttonHelp;
@@ -51,12 +51,12 @@ public:
 
     QLabel* attachHostLabel;
     QComboBox * attachHostComboBox;
-    QListView* availableProcessListView;
+    QListView* attachCollectorsListView;
 
-    QString selectedProcesses();
-    void updateAttachableProcessList();
+    QString selectedCollectors();
+    void updateAttachedCollectorsList();
 
-    ProcessListObject *plo;
+    CollectorListObject *clo;
 
 protected:
     QVBoxLayout* ManageCollectorsDialogLayout;
@@ -69,6 +69,9 @@ protected slots:
 public slots:
     virtual void attachHostComboBoxActivated();
 
+private:
+    int expID;
+
 };
 
-#endif // ATTACHPROCESSDIALOG_H
+#endif // ATTACHCOLLECTORDIALOG_H

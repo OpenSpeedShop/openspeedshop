@@ -537,7 +537,7 @@ pcSamplePanel::manageCollectorsSelected()
           return;
         }
 // END DEBUG
-  ManageCollectorsDialog *dialog = new ManageCollectorsDialog(this, "ManageCollectorsDialog", TRUE);
+  ManageCollectorsDialog *dialog = new ManageCollectorsDialog(this, "ManageCollectorsDialog", TRUE, expID);
   if( dialog->exec() == QDialog::Accepted )
   {
     printf("QDialog::Accepted\n");

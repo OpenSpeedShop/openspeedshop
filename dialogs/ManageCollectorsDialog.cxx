@@ -33,12 +33,13 @@
 #include <qcombobox.h>
 #include <qlistview.h>
 
-ManageCollectorsDialog::ManageCollectorsDialog( QWidget* parent, const char* name, bool modal, WFlags fl )
+ManageCollectorsDialog::ManageCollectorsDialog( QWidget* parent, const char* name, bool modal, WFlags fl, int exp_id )
     : QDialog( parent, name, modal, fl )
 {
   nprintf(DEBUG_CONST_DESTRUCT) ("ManageCollectorsDialog::ManageCollectorsDialog() constructor called.\n");
   
-  plo = NULL;
+  clo = NULL;
+  expID = exp_id;
   if ( !name ) setName( "ManageCollectorsDialog" );
 
   setSizeGripEnabled( TRUE );
@@ -51,12 +52,12 @@ ManageCollectorsDialog::ManageCollectorsDialog( QWidget* parent, const char* nam
   attachHostComboBox->setEditable(TRUE);
   ManageCollectorsDialogLayout->addWidget( attachHostComboBox );
 
-  availableProcessListView = new QListView( this, "availableProcessListView" );
-  availableProcessListView->addColumn( tr( "Processes belonging to '%s':" ) );
-  availableProcessListView->setSelectionMode( QListView::Single );
-  availableProcessListView->setAllColumnsShowFocus( FALSE );
-  availableProcessListView->setShowSortIndicator( FALSE );
-  ManageCollectorsDialogLayout->addWidget( availableProcessListView );
+  attachCollectorsListView = new QListView( this, "attachCollectorsListView" );
+  attachCollectorsListView->addColumn( tr( "Collectors belonging to '%s':" ) );
+  attachCollectorsListView->setSelectionMode( QListView::Single );
+  attachCollectorsListView->setAllColumnsShowFocus( FALSE );
+  attachCollectorsListView->setShowSortIndicator( FALSE );
+  ManageCollectorsDialogLayout->addWidget( attachCollectorsListView );
 
 
   Layout1 = new QHBoxLayout( 0, 0, 6, "Layout1"); 
@@ -85,7 +86,7 @@ ManageCollectorsDialog::ManageCollectorsDialog( QWidget* parent, const char* nam
   connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
   connect( attachHostComboBox, SIGNAL( activated(const QString &) ), this, SLOT( attachHostComboBoxActivated() ) );
 
-  updateAttachableProcessList();
+  updateAttachedCollectorsList();
 }
 
 /*
@@ -112,20 +113,12 @@ void ManageCollectorsDialog::languageChange()
   buttonCancel->setAccel( QKeySequence( QString::null ) );
   attachHostLabel->setText( tr("Host:") );
   attachHostComboBox->insertItem( "localhost" );
-#ifdef LATER
-  attachHostComboBox->insertItem( "clink.americas.sgi.com" );
-  attachHostComboBox->insertItem( "hope.americas.sgi.com" );
-  attachHostComboBox->insertItem( "hope1.americas.sgi.com" );
-  attachHostComboBox->insertItem( "hope2.americas.sgi.com" );
-#endif // LATER
 }
 
 QString
-ManageCollectorsDialog::selectedProcesses()
+ManageCollectorsDialog::selectedCollectors()
 {
-//  QString ret_value = attachHostComboBox->currentText();
-
-  QListViewItem *selectedItem = availableProcessListView->selectedItem();
+  QListViewItem *selectedItem = attachCollectorsListView->selectedItem();
   if( selectedItem )
   {
 //    printf("Got an ITEM!\n");
@@ -141,8 +134,9 @@ ManageCollectorsDialog::selectedProcesses()
 
 
 void
-ManageCollectorsDialog::updateAttachableProcessList()
+ManageCollectorsDialog::updateAttachedCollectorsList()
 {
+#ifdef OLDWAY
   char *host = (char *)attachHostComboBox->currentText().ascii();
   ProcessEntry *pe = NULL;
   char entry_buffer[1024];
@@ -154,8 +148,8 @@ ManageCollectorsDialog::updateAttachableProcessList()
 //  printf("look up processes on host=(%s)\n", host);
   plo = new ProcessListObject(host);
 
-  availableProcessListView->clear();
-  QListViewItem *item_2 = new QListViewItem( availableProcessListView, 0 );
+  attachCollectorsListView->clear();
+  QListViewItem *item_2 = new QListViewItem( attachCollectorsListView, 0 );
   item_2->setOpen( TRUE );
   item_2->setText( 0, tr( "hostname" ) );
 
@@ -170,10 +164,32 @@ ManageCollectorsDialog::updateAttachableProcessList()
     QListViewItem *item = new QListViewItem( item_2, 0 );
     item->setText( 0, tr(entry_buffer) );
   }
+#else // OLDWAY
+  CollectorEntry *ce = NULL;
+  char entry_buffer[1024];
+  if( clo )
+  {
+    delete(clo);
+  }
+
+  int expID = 1;
+  clo = new CollectorListObject(expID);
+
+  CollectorEntryList::Iterator it;
+  for( it = clo->collectorEntryList.begin();
+       it != clo->collectorEntryList.end();
+       ++it )
+  {
+    ce = (CollectorEntry *)*it;
+    sprintf(entry_buffer, "%-20s\n", ce->name );
+    QListViewItem *item = new QListViewItem( attachCollectorsListView, 0 );
+    item->setText( 0, tr(entry_buffer) );
+  }
+#endif // OLDWAY
 }
 
 void ManageCollectorsDialog::attachHostComboBoxActivated()
 {
 //  printf("attachHostComboBoxActivated\n");
-    updateAttachableProcessList();
+    updateAttachedCollectorsList();
 }
