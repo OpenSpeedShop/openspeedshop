@@ -159,7 +159,7 @@ pcStatsPanel::itemSelected(QListViewItem *item)
     {
 //      printf("here's the parent! 0x%x\n", nitem);
 //      printf("  here's the rank of that parent: function name = %s\n",
-        nitem->text(1).ascii() );
+//        nitem->text(1).ascii() );
 //      matchSelectedItem( atoi( nitem->text(1).ascii() ) );
       matchSelectedItem( std::string(nitem->text(1).ascii()) );
     }
