@@ -65,17 +65,26 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     fprintf(yyin,"%s\n", input_line);
     rewind(yyin);
 
-//    printf("one %s\n", input_line);
     ret = yyparse();
-//    printf("two %s\n", input_line);
 
     fclose(yyin); 
     
     // testing code
     //parse_result.dumpInfo();
 
-   // Build a CommandObject so that the semantic routines can be called.
+  // Build a CommandObject so that the semantic routines can be called.
     cmd = new CommandObject (&parse_result);
+
+    // See if the parse went alright.
+    if (p_parse_result->syntax_error()) {
+        cmd->Result_String ("Parsing failed");
+        cmd->set_Status(CMD_ERROR);
+
+    	// I should be reporting exactly what went wrong here.
+    	p_object = Py_BuildValue("");
+    	return p_object;
+    }
+
     SS_Execute_Cmd (cmd);
 
     if ((cmd->Status() == CMD_ERROR) ||
