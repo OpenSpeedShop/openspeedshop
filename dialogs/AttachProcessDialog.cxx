@@ -91,12 +91,14 @@ void AttachProcessDialog::languageChange()
   buttonOk->setAccel( QKeySequence( QString::null ) );
   buttonCancel->setText( tr( "&Cancel" ) );
   buttonCancel->setAccel( QKeySequence( QString::null ) );
-  attachHostLabel->setText( tr("What be your host?") );
+  attachHostLabel->setText( tr("Host:") );
   attachHostComboBox->insertItem( "localhost" );
+#ifdef LATER
   attachHostComboBox->insertItem( "clink.americas.sgi.com" );
   attachHostComboBox->insertItem( "hope.americas.sgi.com" );
   attachHostComboBox->insertItem( "hope1.americas.sgi.com" );
   attachHostComboBox->insertItem( "hope2.americas.sgi.com" );
+#endif // LATER
 }
 
 QString

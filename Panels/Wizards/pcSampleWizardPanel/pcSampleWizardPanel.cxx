@@ -165,8 +165,17 @@ pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n) : Pa
 
      vAttachOrLoadPageAttachToProcessCheckBox = new QCheckBox( vAttachOrLoadPageWidget, "vAttachOrLoadPageAttachToProcessCheckBox" );
     vAttachOrLoadPageAttachOrLoadLayout->addWidget( vAttachOrLoadPageAttachToProcessCheckBox );
-    vAttachOrLoadPageLoadProcessCheckBox = new QCheckBox( vAttachOrLoadPageWidget, "vAttachOrLoadPageLoadProcessCheckBox" );
-    vAttachOrLoadPageAttachOrLoadLayout->addWidget( vAttachOrLoadPageLoadProcessCheckBox );
+
+vAttachOrLoadPageProcessListLabel = new QLabel( vAttachOrLoadPageWidget, "vAttachOrLoadPageProcessListLabel" );
+vAttachOrLoadPageProcessListLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageProcessListLabel ) );
+vAttachOrLoadPageAttachOrLoadLayout->addWidget( vAttachOrLoadPageProcessListLabel );
+
+    vAttachOrLoadPageLoadExecutableCheckBox = new QCheckBox( vAttachOrLoadPageWidget, "vAttachOrLoadPageLoadExecutableCheckBox" );
+    vAttachOrLoadPageAttachOrLoadLayout->addWidget( vAttachOrLoadPageLoadExecutableCheckBox );
+
+    vAttachOrLoadPageExecutableLabel = new QLabel( vAttachOrLoadPageWidget, "vAttachOrLoadPageExecutableLabel" );
+    vAttachOrLoadPageExecutableLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageExecutableLabel ) );
+    vAttachOrLoadPageAttachOrLoadLayout->addWidget( vAttachOrLoadPageExecutableLabel );
 
     vAttachOrLoadPageSampleRateLayout = new QHBoxLayout( 0, 0, 6, "vAttachOrLoadPageSampleRateLayout"); 
 
@@ -315,11 +324,22 @@ pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n) : Pa
 
      eAttachOrLoadPageAttachToProcessCheckBox = new QCheckBox( eAttachOrLoadPageWidget, "eAttachOrLoadPageAttachToProcessCheckBox" );
     eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageAttachToProcessCheckBox );
-eAttachOrLoadPageLoadProcessCheckBox = new QCheckBox( eAttachOrLoadPageWidget, "eAttachOrLoadPageLoadProcessCheckBox" );
-eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageLoadProcessCheckBox );
+
+eAttachOrLoadPageProcessListLabel = new QLabel( eAttachOrLoadPageWidget, "eAttachOrLoadPageProcessListLabel" );
+eAttachOrLoadPageProcessListLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, eAttachOrLoadPageProcessListLabel ) );
+eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageProcessListLabel );
+
+    eAttachOrLoadPageLoadExecutableCheckBox = new QCheckBox( eAttachOrLoadPageWidget, "eAttachOrLoadPageLoadExecutableCheckBox" );
+    eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageLoadExecutableCheckBox );
+
+eAttachOrLoadPageExecutableLabel = new QLabel( eAttachOrLoadPageWidget, "eAttachOrLoadPageExecutableLabel" );
+eAttachOrLoadPageExecutableLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, eAttachOrLoadPageExecutableLabel ) );
+eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageExecutableLabel );
+
     eAttachOrLoadPageLayout->addLayout( eAttachOrLoadPageAttachOrLoadLayout );
     eAttachOrLoadPageSpacer = new QSpacerItem( 20, 70, QSizePolicy::Minimum, QSizePolicy::Expanding );
     eAttachOrLoadPageLayout->addItem( eAttachOrLoadPageSpacer );
+
 
     eAttachOrLoadPageButtonLayout = new QHBoxLayout( 0, 0, 6, "eAttachOrLoadPageButtonLayout"); 
 
@@ -494,6 +514,7 @@ if( raisedWidget == vDescriptionPageWidget )
 
   if( wizardMode->isOn() )
   {
+    vUpdateAttachOrLoadPageWidget();
     if( raisedWidget  == eDescriptionPageWidget )
     {
         nprintf(DEBUG_PANELS) ("eDescriptionPageWidget\n");
@@ -516,6 +537,7 @@ if( raisedWidget == vDescriptionPageWidget )
     }
   } else
   {
+    eUpdateAttachOrLoadPageWidget();
     if( raisedWidget == vDescriptionPageWidget )
     {
         nprintf(DEBUG_PANELS) ("vDescriptionPageWidget\n");
@@ -566,7 +588,9 @@ void pcSampleWizardPanel::eParameterPageNextButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("eParameterPageNextButtonSelected() \n");
 
-    pcSampleWizardPanelStack->raiseWidget(eAttachOrLoadPageWidget);
+  eUpdateAttachOrLoadPageWidget();
+
+  pcSampleWizardPanelStack->raiseWidget(eAttachOrLoadPageWidget);
 }
 
 void pcSampleWizardPanel::eParameterPageResetButtonSelected()
@@ -600,9 +624,18 @@ nprintf(DEBUG_PANELS) ("eAttachOrLoadPageNextButtonSelected() \n");
 
 char buffer[2048];
   if( !eAttachOrLoadPageAttachToProcessCheckBox->isChecked() &&
-      !eAttachOrLoadPageLoadProcessCheckBox->isChecked() )
+      !eAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
   {
     QString msg = QString("You must either select the option to attach to an \nexisting process or load an executable.  Please select one.\n");
+    QMessageBox::information( (QWidget *)this, "Process or executable needed...",
+                               msg, QMessageBox::Ok );
+    
+    return;
+  }
+  if( eAttachOrLoadPageAttachToProcessCheckBox->isChecked() &&
+      eAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
+  {
+    QString msg = QString("From this wizard you can only select to either attach or load.  Please select only one.\n");
     QMessageBox::information( (QWidget *)this, "Process or executable needed...",
                                msg, QMessageBox::Ok );
     
@@ -622,7 +655,7 @@ sprintf(buffer, "<p align=\"left\">Requesting to load process \"%s\" on host \"%
   
     nprintf(DEBUG_PANELS) ("result.acsii()=(%s)\n", result.ascii() );
   }
-  if( eAttachOrLoadPageLoadProcessCheckBox->isChecked() )
+  if( eAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
   {
     nprintf(DEBUG_PANELS) ("Load the QFile \n");
     QString fn = QFileDialog::getOpenFileName( QString::null, QString::null,
@@ -676,8 +709,9 @@ nprintf(DEBUG_PANELS) ("vParameterPageBackButtonSelected() \n");
 void pcSampleWizardPanel::vParameterPageNextButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("vParameterPageNextButtonSelected() \n");
+  vUpdateAttachOrLoadPageWidget();
 
-    pcSampleWizardPanelStack->raiseWidget(vAttachOrLoadPageWidget);
+  pcSampleWizardPanelStack->raiseWidget(vAttachOrLoadPageWidget);
 }
 
 void pcSampleWizardPanel::vParameterPageResetButtonSelected()
@@ -697,9 +731,18 @@ nprintf(DEBUG_PANELS) ("vAttachOrLoadPageNextButtonSelected() \n");
 
 char buffer[2048];
   if( !vAttachOrLoadPageAttachToProcessCheckBox->isChecked() &&
-      !vAttachOrLoadPageLoadProcessCheckBox->isChecked() )
+      !vAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
   {
     QString msg = QString("You must either select the option to attach to an \nexisting process or load an executable.  Please select one.\n");
+    QMessageBox::information( (QWidget *)this, "Process or executable needed...",
+                               msg, QMessageBox::Ok );
+    
+    return;
+  }
+  if( vAttachOrLoadPageAttachToProcessCheckBox->isChecked() &&
+      vAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
+  {
+    QString msg = QString("From this wizard you can only select to either attach or load.  Please select only one.\n");
     QMessageBox::information( (QWidget *)this, "Process or executable needed...",
                                msg, QMessageBox::Ok );
     
@@ -719,7 +762,7 @@ sprintf(buffer, "<p align=\"left\">You've selected a pc Sample experiment for pr
   
     nprintf(DEBUG_PANELS) ("result.acsii()=(%s)\n", result.ascii() );
   }
-  if( vAttachOrLoadPageLoadProcessCheckBox->isChecked() )
+  if( vAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
   {
     nprintf(DEBUG_PANELS) ("Load the QFile \n");
     QString fn = QFileDialog::getOpenFileName( QString::null, QString::null,
@@ -792,7 +835,7 @@ pcSampleWizardPanel::languageChange()
 
     vAttachOrLoadPageDescriptionLabel->setText( tr( "We can attach to an existing process (or processes) or load an executable from disk (or both).  Please select the required actions.<br><br>Note: A dialog will be posted prompting for the information.</p>") );
     vAttachOrLoadPageAttachToProcessCheckBox->setText( tr( "Attach to one or more processes." ) );
-    vAttachOrLoadPageLoadProcessCheckBox->setText( tr( "Load an executable from disk." ) );
+    vAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load an executable from disk." ) );
     vAttachOrLoadPageBackButton->setText( tr( "< Back" ) );
     QToolTip::add( vAttachOrLoadPageBackButton, tr( "Takes you back one page." ) );
     vAttachOrLoadPageNextButton->setText( tr( "> Next" ) );
@@ -826,7 +869,7 @@ pcSampleWizardPanel::languageChange()
     QToolTip::add( eParameterPageNextButton, tr( "Advance to the next wizard page." ) );
     eAttachOrLoadPageDescriptionLabel->setText( tr( "Select one of the following:" ) );
     eAttachOrLoadPageAttachToProcessCheckBox->setText( tr( "Attach to one or more processes." ) );
-    eAttachOrLoadPageLoadProcessCheckBox->setText( tr( "Load an executable from disk." ) );
+    eAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load an executable from disk." ) );
     eAttachOrLoadPageBackButton->setText( tr( "< Back" ) );
     QToolTip::add( eAttachOrLoadPageBackButton, tr( "Takes you back one page." ) );
     eAttachOrLoadPageNextButton->setText( tr( "> Next" ) );
@@ -840,4 +883,94 @@ pcSampleWizardPanel::languageChange()
     QToolTip::add( eSummaryPageFinishButton, tr( "Finishes loading the wizard information and brings up a \"pc Sample\" panel" ) );
     wizardMode->setText( tr( "Verbose Wizard Mode" ) );
     broughtToYouByLabel->setText( tr( "Brought to you by SGI (SiliconGraphics)" ) );
+}
+
+void
+pcSampleWizardPanel::eUpdateAttachOrLoadPageWidget()
+{
+  eAttachOrLoadPageAttachToProcessCheckBox->setChecked(TRUE);
+  eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+  vAttachOrLoadPageProcessListLabel->hide();
+  eAttachOrLoadPageProcessListLabel->hide();
+  vAttachOrLoadPageExecutableLabel->hide();
+  eAttachOrLoadPageExecutableLabel->hide();
+  if( getPanelContainer()->getMainWindow() )
+  { 
+    OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
+    printf("mw=0x%x\n", mw );
+    if( mw )
+    {
+      if( mw->executable_name || (mw->executable_name && mw->pid_str) )
+      {
+        char *executable_name = mw->executable_name;
+        printf("executable_name = (%s)\n", executable_name);
+        eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+        eAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
+        eAttachOrLoadPageExecutableLabel->setText( executable_name );
+      } else if( mw && mw->pid_str )
+      {
+        char *pid_str = getPanelContainer()->getMainWindow()->pid_str;
+        printf("pid_str=(%s)\n", pid_str);
+        eAttachOrLoadPageProcessListLabel->setText( pid_str );
+        eAttachOrLoadPageAttachToProcessCheckBox->setChecked(TRUE);
+        eAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
+      }
+      if( mw->executable_name == NULL || strcmp(mw->executable_name,"") == 0 )
+      {
+        vAttachOrLoadPageExecutableLabel->setText( "" );
+      }
+      if( mw->pid_str == NULL || strcmp(mw->pid_str,"") == 0 )
+      {
+        vAttachOrLoadPageProcessListLabel->setText( mw->pid_str );
+      }
+    }
+  } 
+}
+
+void
+pcSampleWizardPanel::vUpdateAttachOrLoadPageWidget()
+{
+  vAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
+  vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+  eAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
+  eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+  vAttachOrLoadPageProcessListLabel->hide();
+  eAttachOrLoadPageProcessListLabel->hide();
+  vAttachOrLoadPageExecutableLabel->hide();
+  eAttachOrLoadPageExecutableLabel->hide();
+  if( getPanelContainer()->getMainWindow() )
+  {
+    OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
+    printf("mw=0x%x\n", mw );
+    if( mw )
+    {
+      if( mw->executable_name || (mw->executable_name && mw->pid_str) )
+      {
+        char *executable_name = mw->executable_name;
+        printf("executable_name = (%s)\n", executable_name);
+        vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+        vAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
+        vAttachOrLoadPageExecutableLabel->setText( executable_name );
+        vAttachOrLoadPageExecutableLabel->show();
+        eAttachOrLoadPageExecutableLabel->show();
+      } else if( mw && mw->pid_str )
+      {
+        char *pid_str = getPanelContainer()->getMainWindow()->pid_str;
+        printf("pid_str=(%s)\n", pid_str);
+        vAttachOrLoadPageAttachToProcessCheckBox->setChecked(TRUE);
+        vAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
+        vAttachOrLoadPageProcessListLabel->setText( pid_str );
+        vAttachOrLoadPageProcessListLabel->show();
+        eAttachOrLoadPageProcessListLabel->show();
+      }
+    }
+if( mw->executable_name == NULL || strcmp(mw->executable_name,"") == 0 )
+{
+  vAttachOrLoadPageExecutableLabel->setText( "" );
+}
+if( mw->pid_str == NULL || strcmp(mw->pid_str,"") == 0 )
+{
+  vAttachOrLoadPageProcessListLabel->setText( mw->pid_str );
+}
+  }
 }

@@ -28,6 +28,9 @@
 
 #include "WhatsThis.hxx"
 
+// #include "openspeedshop.hxx"
+class OpenSpeedshop;
+
 #define MENU_ACTIVE_HEIGHT 5
 
 class QVBoxLayout;
@@ -234,6 +237,12 @@ class PanelContainer : public QWidget
     //! This routine closes the empty PanelContainer and window.
     void closeWindow(PanelContainer *pc=NULL);
 
+
+//! Sets the main window (OpenSpeedshop class)
+void setMainWindow(OpenSpeedshop *oss) { _masterPC->mainWindow = oss; };
+//! Returns the main window (OpenSpeedshop class) 
+OpenSpeedshop *getMainWindow() { printf("A: _masterPC=0x%x \n", _masterPC ); printf("_masterPC->mainWindow=0x%x\n", _masterPC->mainWindow ); return _masterPC->mainWindow; };
+
   protected:
 
 
@@ -285,6 +294,9 @@ class PanelContainer : public QWidget
 
     //! This is a handle to the sourcePC for reparenting.
     PanelContainer *sourcePC;
+
+//! A pointer back to the mainwindow and the initial launch information.
+OpenSpeedshop *mainWindow;
 
     //! Recovers any hidden (markedForDelete) PanelContainers.
     void recover(PanelContainer *pc);

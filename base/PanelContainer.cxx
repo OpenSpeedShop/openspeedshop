@@ -115,6 +115,7 @@ PanelContainer::PanelContainer( QWidget* _parent, const char* n, PanelContainer 
     nprintf(DEBUG_PANELCONTAINERS) ("This is the first PC created.   set the count == 0 \n");
     _doingMenuFLAG = FALSE;
     setMasterPC( this );
+    setMainWindow( NULL );
     _pluginRegistryList = NULL;
     _panel_container_count = 0;
     _eventsEnabled = TRUE;
@@ -970,7 +971,6 @@ PanelContainer::findFirstEmptyPanelContainer(PanelContainer *pc)
 void
 PanelContainer::savePanelContainerTree(char *fn)
 {
-//  char *fn = ".openss.geometry";
   if( fn == NULL )
   {
     fn = ".openss.geometry";

@@ -28,12 +28,18 @@ extern QApplication *qapplication;
 /*! Here are the needed globals for this application... */
 #include "PanelContainer.hxx"
 #include "openspeedshop.hxx"
-OpenSpeedshop *topPL = NULL;
+// OpenSpeedshop *topPL = NULL;
 
 void OpenSpeedshop::fileNew()
 {
   printf("fileNew() entered\n");
 
+  char *save_executable_name = NULL;
+  if( executable_name != NULL )
+  {
+    free(executable_name);
+    executable_name = NULL;
+  }
 
   QString dirName = QString::null;
   if( lfd == NULL )
@@ -51,34 +57,51 @@ void OpenSpeedshop::fileNew()
 //    lfd->setViewMode( QFileDialog::Detail );
     lfd->setDir(dirName);
   }
+  lfd->setSelection(QString::null);
 
+  QString fileName = QString::null;
   if( lfd->exec() == QDialog::Accepted )
   {
-    QString fileName = lfd->selectedFile();
+    fileName = lfd->selectedFile();
     if( !fileName.isEmpty() )
     {
       printf("fileName.ascii() = (%s)\n", fileName.ascii() );
       executable_name = strdup( fileName.ascii() );
-    } 
+    }
   }
-
 }
 
 void OpenSpeedshop::fileAttach()
 {
   printf("fileAttach() entered\n");
 
-  QString pidString;
+  QString pidString = QString::null;
   AttachProcessDialog *dialog = new AttachProcessDialog(this, "AttachProcessDialog", TRUE);
   if( dialog->exec() == QDialog::Accepted )
   {
+// printf("QDialog::Accepted\n");
     pidString = dialog->selectedProcesses();
     if( !pidString.isEmpty() )
     {
       printf("pidString.ascii()=%s\n", pidString.ascii() );
+      if( pid_str != NULL )
+      {
+        free( pid_str );
+        pid_str = NULL;
+      }
       pid_str = strdup( pidString.ascii() );
+    } else
+    {
+printf("no pid accepted.   Clear the global.\n");
+      if( pid_str != NULL )
+      {
+        free( pid_str );
+      }
+      pid_str = NULL;
     }
   }
+
+printf("pid_str = %s\n", pid_str == NULL ? "" : pid_str);
   delete dialog;
 }
 
@@ -350,9 +373,8 @@ AppEventFilter::eventFilter( QObject *obj, QEvent *e )
 
 void OpenSpeedshop::init()
 {
-  topPL = this;
+//  topPL = this;
 // dprintf(stderr, "OpenSpeedshop::init() entered\n");
-
 
   char pc_plugin_file[2048];
   char *pc_dl_name="/ossBase.so";
@@ -376,10 +398,12 @@ void OpenSpeedshop::init()
     fprintf(stderr, "libdso: dlsym %s not found in %s dlerror()=%s\n", "pc_init", pc_plugin_file, dlerror() );
   }
   PanelContainer *masterPC = (*dl_pc_init_routine)( centralWidget(), OpenSpeedshopLayout);
+
+  masterPC->setMainWindow(this);
   topPC = masterPC;
   
 
-// fprintf(stderr, "OpenSpeedshop::init(A)\n");
+fprintf(stderr, "OpenSpeedshop::init(A)\n");
   char ph_file[2048];
   char *ph_dl_name = "/ossPlugin.so";
   sprintf(ph_file, "%s%s", plugin_directory, ph_dl_name);

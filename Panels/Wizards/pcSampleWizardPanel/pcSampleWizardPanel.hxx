@@ -105,7 +105,7 @@ public:
     QLabel* vAttachOrLoadPageDescriptionLabel;
     QFrame* vAttachOrLoadPageLine;
     QCheckBox* vAttachOrLoadPageAttachToProcessCheckBox;
-    QCheckBox* vAttachOrLoadPageLoadProcessCheckBox;
+    QCheckBox* vAttachOrLoadPageLoadExecutableCheckBox;
     QPushButton* vAttachOrLoadPageBackButton;
     QPushButton* vAttachOrLoadPageNextButton;
     QWidget* vSummaryPageWidget;
@@ -130,7 +130,7 @@ public:
     QLabel* eAttachOrLoadPageDescriptionLabel;
     QFrame* eAttachOrLoadPageLine;
     QCheckBox* eAttachOrLoadPageAttachToProcessCheckBox;
-    QCheckBox* eAttachOrLoadPageLoadProcessCheckBox;
+    QCheckBox* eAttachOrLoadPageLoadExecutableCheckBox;
     QPushButton* eAttachOrLoadPageBackButton;
     QPushButton* eAttachOrLoadPageNextButton;
     QWidget* eSummaryPageWidget;
@@ -178,6 +178,8 @@ protected:
     QVBoxLayout* vParameterPageParameterLayout;
     QHBoxLayout* vParameterPageSampleRateLayout;
     QHBoxLayout* vParameterPageButtonLayout;
+QLabel *vAttachOrLoadPageProcessListLabel;
+QLabel *vAttachOrLoadPageExecutableLabel;
     QSpacerItem* eParameterPageSpacer;
     QVBoxLayout* vAttachOrLoadPageAttachOrLoadLayout;
     QHBoxLayout* vAttachOrLoadPageSampleRateLayout;
@@ -198,6 +200,8 @@ protected:
     QHBoxLayout* eParameterPageSampleRateLayout;
     QHBoxLayout* eParameterPageButtonLayout;
     QSpacerItem* eParameterPageButtonSpacer;
+QLabel *eAttachOrLoadPageExecutableLabel;
+QLabel *eAttachOrLoadPageProcessListLabel;
     QVBoxLayout* eAttachOrLoadPageAttachOrLoadLayout;
     QHBoxLayout* eAttachOrLoadPageSampleRateLayout;
     QHBoxLayout* eAttachOrLoadPageButtonLayout;
@@ -207,6 +211,9 @@ protected:
     QHBoxLayout* eSummaryPageButtonLayout;
     QHBoxLayout* bottomLayout;
     QSpacerItem* bottomSpacer;
+
+void eUpdateAttachOrLoadPageWidget();
+void vUpdateAttachOrLoadPageWidget();
 
 protected slots:
     virtual void languageChange();
