@@ -86,7 +86,7 @@ char *string;
 
 %type <val> lineno
 %type <val> ip_address
-%type <string> file_name gen_help_arg param_name viewType expType
+%type <string>  param_name expType
 
 %%
 
@@ -193,11 +193,25 @@ exp_detach_args:    /* empty */
     	    	|   expId_spec
     	    	|   target_list
     	    	|   expType_list
+
     	    	|   expId_spec target_list
-    	    	|   expId_spec target_list expType_list
+    	    	|   target_list expId_spec
+
     	    	|   expId_spec expType_list
+    	    	|   expType_list expId_spec
+
     	    	|   target_list expType_list
-    	    	;    	    	;
+    	    	|   expType_list target_list
+
+    	    	|   expId_spec target_list expType_list
+    	    	|   expType_list target_list expId_spec
+
+    	    	|   target_list expId_spec expType_list
+    	    	|   expType_list expId_spec target_list
+
+    	    	|   expId_spec expType_list target_list
+    	    	|   target_list expType_list expId_spec
+    	    	;
 
     	    /** EXP_DISABLE **/
 exp_disable_com:    DISABLE_HEAD   exp_disable_arg
@@ -242,39 +256,45 @@ exp_pause_arg:	    /* empty */
     	    	;
 
     	    /** EXP_RESTORE **/
-exp_restore_com:    RESTORE_HEAD   exp_restore_arg
+exp_restore_com:    RESTORE_HEAD   file_spec
   	    	|   RESTORE_HEAD error END_LINE {p_parse_result->set_error(cmd_desc[CMD_EXP_RESTORE].name);} 
       	    	;
-exp_restore_arg:    file_spec
-    	    	;
 
     	    /** EXP_SAVE **/
 exp_save_com:	    SAVE_HEAD   exp_save_arg
   	    	|   SAVE_HEAD error END_LINE {p_parse_result->set_error(cmd_desc[CMD_EXP_SAVE].name);} 
       	    	;
 exp_save_arg:	    file_spec
-    	    	|   expId_spec COPY file_spec {p_parse_result->push_modifiers(general_name[H_GEN_COPY]);}
     	    	|   expId_spec file_spec
+    	    	|   file_spec expId_spec
 		|   COPY file_spec {p_parse_result->push_modifiers(general_name[H_GEN_COPY]);}
+		|   file_spec COPY {p_parse_result->push_modifiers(general_name[H_GEN_COPY]);}
+    	    	|   expId_spec COPY file_spec {p_parse_result->push_modifiers(general_name[H_GEN_COPY]);}
+    	    	|   file_spec COPY expId_spec {p_parse_result->push_modifiers(general_name[H_GEN_COPY]);}
+    	    	|   COPY expId_spec file_spec {p_parse_result->push_modifiers(general_name[H_GEN_COPY]);}
+    	    	|   file_spec expId_spec COPY {p_parse_result->push_modifiers(general_name[H_GEN_COPY]);}
+    	    	|   expId_spec file_spec COPY {p_parse_result->push_modifiers(general_name[H_GEN_COPY]);}
+    	    	|   COPY file_spec expId_spec {p_parse_result->push_modifiers(general_name[H_GEN_COPY]);}
+
     	    	;
 
     	    /** EXP_SETPARAM **/
 exp_setparam_com:   SETPARAM_HEAD   exp_setparam_arg
   	    	|   SETPARAM_HEAD error END_LINE {p_parse_result->set_error(cmd_desc[CMD_EXP_SETPARAM].name);} 
       	    	;
-exp_setparam_arg:   /* empty */
+exp_setparam_arg:   param_list
     	    	|   expId_spec param_list
-    	    	|   param_list
     	    	;
 
     	    /** EXP_VIEW **/
 exp_view_com:	    VIEW_HEAD   exp_view_arg
   	    	|   VIEW_HEAD error END_LINE {p_parse_result->set_error(cmd_desc[CMD_EXP_VIEW].name);} 
       	    	;
-exp_view_arg:	    expId_spec GUI viewType {p_parse_result->push_modifiers(general_name[H_GEN_GUI]);}
-    	    	|   GUI viewType {p_parse_result->push_modifiers(general_name[H_GEN_GUI]);}
+exp_view_arg:	    viewType
     	    	|   expId_spec viewType
-    	    	|   viewType 
+    	    	|   viewType expId_spec
+    	    	|   GUI viewType {p_parse_result->push_modifiers(general_name[H_GEN_GUI]);}
+    	    	|   expId_spec GUI viewType {p_parse_result->push_modifiers(general_name[H_GEN_GUI]);} 
     	    	;
 
     	    /** LIST_BREAKS **/
@@ -287,11 +307,9 @@ list_breaks_arg:    /* empty */
     	    	;
 
     	    /** LIST_EXP **/
-list_exp_com:	    LIST_EXP_HEAD   list_exp_arg 
+list_exp_com:	    LIST_EXP_HEAD 
   	    	|   LIST_EXP_HEAD error END_LINE {p_parse_result->set_error(cmd_desc[CMD_LIST_EXP].name);} 
       	    	;
-list_exp_arg:	    /* empty */
-    	    	;
 
     	    /** LIST_HOSTS **/
 list_hosts_com:     LIST_HOSTS_HEAD   list_hosts_arg
@@ -300,7 +318,7 @@ list_hosts_com:     LIST_HOSTS_HEAD   list_hosts_arg
 list_hosts_arg:  
     	    	    expId_spec
 		|   ALL     	    	{p_parse_result->push_modifiers(general_name[H_GEN_ALL]);}
-    	    	|   cluster_list_spec
+    	    	|   cluster_spec
     	    	|   error END_LINE {p_parse_result->set_error("<list_hosts_arg>");} 
     	    	;
 
@@ -322,6 +340,7 @@ list_obj_arg:	    /* empty */
     	    	|   expId_spec
 		|   target
  		|   expId_spec target
+ 		|   target expId_spec
     	    	;
 
     	    /** LIST_PARAMS **/
@@ -355,7 +374,9 @@ list_ranks_arg:    /* empty */
 		|   ALL     	    	{p_parse_result->push_modifiers(general_name[H_GEN_ALL]);}
 		|   target
 		|   expId_spec target
+		|   target expId_spec
 		|   ALL target	{p_parse_result->push_modifiers(general_name[H_GEN_ALL]);}
+		|   target ALL	{p_parse_result->push_modifiers(general_name[H_GEN_ALL]);}
     	    	;
 
     	    /** LIST_SRC **/
@@ -364,12 +385,20 @@ list_src_com:	    LIST_SRC_HEAD   list_src_arg
       	    	;
 list_src_arg:	    /* empty */
     	    	|   expId_spec 
-    	    	|   expId_spec target_list
-    	    	|   expId_spec lineno_range_spec
-    	    	|   expId_spec target_list  lineno_range_spec
 		|   target_list
-		|   target_list lineno_range_spec
  		|   lineno_range_spec
+    	    	|   expId_spec target_list
+    	    	|   target_list expId_spec
+    	    	|   expId_spec lineno_range_spec
+    	    	|   lineno_range_spec expId_spec
+		|   target_list lineno_range_spec
+		|   lineno_range_spec target_list
+    	    	|   expId_spec target_list  lineno_range_spec
+    	    	|   lineno_range_spec target_list  expId_spec
+    	    	|   target_list expId_spec  lineno_range_spec
+    	    	|   lineno_range_spec expId_spec  target_list
+    	    	|   expId_spec lineno_range_spec  target_list
+    	    	|   target_list lineno_range_spec  expId_spec
     	    	;
 
     	    /** LIST_STATUS **/
@@ -387,10 +416,12 @@ list_threads_com:    LIST_THREADS_HEAD   list_threads_arg
       	    	;
 list_threads_arg:    /* empty */
 		|   expId_spec
-		|   ALL     	    	{p_parse_result->push_modifiers(general_name[H_GEN_ALL]);}
+		|   ALL     	{p_parse_result->push_modifiers(general_name[H_GEN_ALL]);}
 		|   target
 		|   expId_spec target
+		|   target expId_spec
 		|   ALL target	{p_parse_result->push_modifiers(general_name[H_GEN_ALL]);}
+		|   target ALL	{p_parse_result->push_modifiers(general_name[H_GEN_ALL]);}
     	    	;
 
     	    /** LIST_TYPES **/
@@ -539,10 +570,11 @@ gen_record_arg:     /* empty */
 gen_setbreak_com:   GEN_SETBREAK_HEAD   gen_setbreak_arg
   	    	|   GEN_SETBREAK_HEAD error END_LINE {p_parse_result->set_error(cmd_desc[CMD_SETBREAK].name);} 
       	    	;
-gen_setbreak_arg:   expId_spec address_description 
+gen_setbreak_arg:   address_description 
     	    	|   target address_description 
+ 		|   expId_spec address_description
  		|   expId_spec target address_description 
- 		|   address_description
+ 		|   target expId_spec address_description 
     	    	;
 
     	    /** JUST_QUIT **/
@@ -591,6 +623,7 @@ host_name:  	    NAME {p_parse_result->CurrentTarget()->pushHostPoint($1);}
 
 host_file:  	    host_spec file_spec
     	    	|   file_spec
+		;
 
 host_spec:  	    HOST_ID host_list
     	    	;
@@ -607,6 +640,7 @@ file_list:  	    file_name
 		;
 
 file_name:  	    NAME {p_parse_result->CurrentTarget()->pushFilePoint($1);}
+    	    	;
 
 cluster_list_spec:  CLUSTER_ID cluster_list
 		|   CLUSTER_ID {p_parse_result->set_error("Bad cluster list entry.");} error  
@@ -616,7 +650,12 @@ cluster_list:  	    cluster_name
     	    	|   cluster_list COMMA cluster_name 
 		;
 
+cluster_spec:	    CLUSTER_ID cluster_name
+		|   CLUSTER_ID {p_parse_result->set_error("Bad cluster spec entry.");} error  
+		;
+
 cluster_name:  	    NAME {p_parse_result->CurrentTarget()->pushClusterPoint($1);}
+    	    	;
 
 pid_list_spec:	    PROCESS_ID pid_list
 		|   PROCESS_ID {p_parse_result->set_error("Bad pid list entry.");} error  
