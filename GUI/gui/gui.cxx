@@ -1,7 +1,7 @@
 #include <stdio.h> 
 
 #include <qapplication.h>
-#include "performanceleader.hxx"
+#include "openspeedshop.hxx"
 #include <qvaluelist.h>
 
 #include "PanelContainer.hxx"
@@ -70,17 +70,18 @@ extern "C"
 #endif // FONT_CHANGE
 //    printf("create QApplication(A)\n");
 
-    PerformanceLeader *w;
-// fprintf(stderr, "gui_init() entered.  call new PerformanceLeader()\n");
-    w = new PerformanceLeader();
-//    printf("create Performanceleader()\n");
+    OpenSpeedshop *w;
+// fprintf(stderr, "gui_init() entered.  call new OpenSpeedshop()\n");
+    w = new OpenSpeedshop();
+//    printf("create OpenSpeedshop()\n");
 
     w->show();
-//    printf("show Performanceleader()\n");
+//    printf("show OpenSpeedshop()\n");
 
     qapplication->connect( qapplication, SIGNAL( lastWindowClosed() ), qapplication, SLOT( quit() ) );
 //    printf("connect this up.\n");
 
+#ifdef SPLASH_MESSAGES
     if( SPLASH )
     {
       sleep(1);
@@ -120,6 +121,26 @@ extern "C"
       delete splash;
       delete splash_pixmap;
     }
+#else // SPLASH_MESSAGES
+    if( SPLASH )
+    {
+      splash->raise();
+      event_routine();
+      sleep(1);
+      splash->raise();
+      splash->message( "Plugins loaded..." );
+      event_routine();
+      sleep(1);
+      splash->raise();
+      event_routine();
+      sleep(1);
+      splash->raise();
+      event_routine();
+      splash->finish(w);
+      delete splash;
+      delete splash_pixmap;
+  }
+#endif // SPLASH_MESSAGES
 
 printf("argc=%d\n", argc);
 if( SPLASH )
