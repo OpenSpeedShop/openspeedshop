@@ -31,7 +31,8 @@ libopenss_GUI_la_CXXFLAGS =  \
 	-I../objects \
 	-I../base
 
-libopenss_GUI_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../pcli/.libs/posscli.so
+# libopenss_GUI_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../pcli/.libs/posscli.so
+libopenss_GUI_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
 libopenss_GUI_la_LIBADD = -L$(QTDIR)/lib -lqt -lqassistantclient -L/usr/X11R6/lib -lXext -lX11 -lm -lpthread -lopenss-Base -lopenss-Dialogs -lopenss-Plugin -lopenss-Objects
 
