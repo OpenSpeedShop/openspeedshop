@@ -23,6 +23,7 @@
 ################################################################################
 
 all:
+install:
 	-$(QTDIR)/bin/qmake -o qMakefile; \
 	make -f qMakefile
 
