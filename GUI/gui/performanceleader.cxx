@@ -98,7 +98,7 @@ PerformanceLeader::PerformanceLeader( QWidget* parent, const char* name, WFlags 
     menubar->insertItem( QString(""), helpMenu, 3 );
 
     languageChange();
-    resize( QSize(850, 500).expandedTo(minimumSizeHint()) );
+    resize( QSize(850, 520).expandedTo(minimumSizeHint()) );
     clearWState( WState_Polished );
 
     // signals and slots connections
