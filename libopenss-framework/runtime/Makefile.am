@@ -17,6 +17,7 @@
 ################################################################################
 
 SUBDIRS = @INSTRUMENTOR@
+DIST_SUBDIRS = dpcl dyninst
 
 noinst_LTLIBRARIES = libopenss-framework-runtime.la
 
