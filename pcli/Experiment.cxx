@@ -28,16 +28,19 @@ using namespace std;
 
 using namespace OpenSpeedShop::cli;
 
-// Static Local Data
+// Private Data
 
 // Allow only one thread at a time through the Command processor.
 // Doing this allows only one thread at a time to allocate sequence numbers.
 EXPID Experiment_Sequence_Number = 0;
 std::list<ExperimentObject *> ExperimentObject_list;
+static std::string tmpdb = std::string("./ssdbtmpcmd.openss");
+
 
 // Terminate all experiments and free associated files.
 // Called from the drivers to clean up after an "Exit" command or fatal error.
 void Experiment_Termination () {
+  (void) remove (tmpdb.c_str());
   ExperimentObject *exp = NULL;
   std::list<ExperimentObject *>::iterator expi;
   for (expi = ExperimentObject_list.begin(); expi != ExperimentObject_list.end(); ) {
@@ -100,14 +103,23 @@ parse_val_t *Get_Simple_File_Name (CommandObject *cmd) {
   if (p_tlist == NULL) {
     return NULL;
   }
+  if (p_tlist->begin() == p_tlist->end()) {
+    return NULL;
+  }
   vector<ParseTarget>::iterator pi = p_tlist->begin();
   vector<ParseRange> *f_list = (*pi).getFileList();
   if (f_list == NULL) {
     return NULL;
   }
+  if (f_list->begin() == f_list->end()) {
+    return NULL;
+  }
   vector<ParseRange>::iterator fi = f_list->begin();
   parse_range_t *f_range = (*fi).getRange();
-  return (f_range != NULL) ? &f_range->start_range : NULL;
+  if (f_range == NULL) {
+    return NULL;
+  }
+  return &f_range->start_range;
 }
 
 bool Look_For_KeyWord (CommandObject *cmd, std::string Key) {
@@ -877,6 +889,9 @@ bool SS_expView (CommandObject *cmd) {
    // Evaluate the collector's time metric for all functions in the thread
     SmartPtr<std::map<Function, double> > data;
     ThreadGroup tgrp = fw_experiment->getThreads();
+    if (tgrp.begin() == tgrp.end()) {
+      break;
+    }
     ThreadGroup::iterator ti = tgrp.begin();
 // TODO: extend beyond the limited demo requirements.
     Thread t1 = *ti;
@@ -940,41 +955,38 @@ bool SS_ListHosts (CommandObject *cmd) {
   return true;
 }
 
-bool SS_ListObj (CommandObject *cmd) {
-  InputLineObject *clip = cmd->Clip();
-  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
-  ExperimentObject *exp = Find_Specified_Experiment (cmd);
-
-  cmd->Result_String ("not yet implemented");
-  cmd->set_Status(CMD_COMPLETE);
-  return true;
-}
-
-bool SS_ListPids (CommandObject *cmd) {
-  InputLineObject *clip = cmd->Clip();
-  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
-
-  cmd->Result_String ("not yet implemented");
-  cmd->set_Status(CMD_COMPLETE);
-  return true;
-}
-
 bool SS_ListMetrics (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
- // The experiment specifier is optional.
-  Assert(cmd->P_Result() != NULL);
-
  // Look at general modifier types for "all" option.
+  Assert(cmd->P_Result() != NULL);
   bool All_KeyWord = Look_For_KeyWord (cmd, "all");
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<string> *p_slist = p_result->getExpList();
 
+  OpenSpeedShop::Framework::Experiment *fw_exp = NULL;
   CollectorGroup cgrp;
 
   if (All_KeyWord) {
    // Get list of all the collectors from the FrameWork.
+   // To do this, we need to create a dummy experiment.
+    try {
+      OpenSpeedShop::Framework::Experiment::create (tmpdb);
+      fw_exp = new OpenSpeedShop::Framework::Experiment (tmpdb);
+      std::set<Metadata> collectortypes = Collector::getAvailable();
+      for (std::set<Metadata>::const_iterator mi = collectortypes.begin();
+                mi != collectortypes.end(); mi++) {
+        fw_exp->createCollector ( mi->getUniqueId() );
+      }
+      cgrp = fw_exp->getCollectors();
+    }
+    catch(const std::exception& error) {
+       cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+                             "Unknown runtime error." : error.what() );
+       cmd->set_Status(CMD_ERROR);
+       return false;
+    }
   } else if (cmd->P_Result()->IsExpId()) {
    // Get the list of collectors from the specified experiment.
     ExperimentObject *exp = Find_Specified_Experiment (cmd);
@@ -983,24 +995,25 @@ bool SS_ListMetrics (CommandObject *cmd) {
       cmd->set_Status(CMD_ERROR);
       return false;
     }
-    Assert (exp->FW() != NULL);
     cgrp = exp->FW()->getCollectors();
   } else if (p_slist->begin() != p_slist->end()) {
    // Get the list of collectors from the command.
+    try {
+      OpenSpeedShop::Framework::Experiment::create (tmpdb);
+      fw_exp = new OpenSpeedShop::Framework::Experiment (tmpdb);
 
-    vector<string>::iterator si;
-    for (si = p_slist->begin(); si != p_slist->end(); si++) {
-// TODO:  need to get a collector object form the framework without attaching it to an experiment.
-      try {
-        // Collector c = Get_Collector (exp, *si);
-        // cgrp.push_back (c);
+      vector<string>::iterator si;
+      for (si = p_slist->begin(); si != p_slist->end(); si++) {
+       //  Get a collector object from the framework.
+        fw_exp->createCollector ( *si );
       }
-      catch(const std::exception& error) {
-         cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-                               "Unknown runtime error." : error.what() );
-         cmd->set_Status(CMD_ERROR);
-         return false;
-      }
+      cgrp = fw_exp->getCollectors();
+    }
+    catch(const std::exception& error) {
+       cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+                             "Unknown runtime error." : error.what() );
+       cmd->set_Status(CMD_ERROR);
+       return false;
     }
   } else {
    // Get the list of colectors from the focused experiment.
@@ -1019,14 +1032,30 @@ bool SS_ListMetrics (CommandObject *cmd) {
   CollectorGroup::iterator ci;
   for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
     Collector c = *ci;
+    Metadata cm = c.getMetadata();
     std::set<Metadata> md = c.getMetrics();
     std::set<Metadata>::const_iterator mi;
     for (mi = md.begin(); mi != md.end(); mi++) {
       Metadata m = *mi;
-      cmd->Result_String ( m.getUniqueId() );
+      cmd->Result_String ( cm.getUniqueId() + "::" +  m.getUniqueId() );
     }
   }
 
+  if (fw_exp != NULL) {
+    (void) remove (tmpdb.c_str());
+    delete fw_exp;
+  }
+
+  cmd->set_Status(CMD_COMPLETE);
+  return true;
+}
+
+bool SS_ListObj (CommandObject *cmd) {
+  InputLineObject *clip = cmd->Clip();
+  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+  ExperimentObject *exp = Find_Specified_Experiment (cmd);
+
+  cmd->Result_String ("not yet implemented");
   cmd->set_Status(CMD_COMPLETE);
   return true;
 }
@@ -1034,9 +1063,132 @@ bool SS_ListMetrics (CommandObject *cmd) {
 bool SS_ListParams (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
-  ExperimentObject *exp = Find_Specified_Experiment (cmd);
 
-  cmd->Result_String ("not yet implemented");
+ // Look at general modifier types for "all" option.
+  Assert(cmd->P_Result() != NULL);
+  bool All_KeyWord = Look_For_KeyWord (cmd, "all");
+  OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
+  vector<string> *p_slist = p_result->getExpList();
+
+  OpenSpeedShop::Framework::Experiment *fw_exp = NULL;
+  CollectorGroup cgrp;
+
+  if (All_KeyWord) {
+   // Get list of all the collectors from the FrameWork.
+   // To do this, we need to create a dummy experiment.
+    try {
+      OpenSpeedShop::Framework::Experiment::create (tmpdb);
+      fw_exp = new OpenSpeedShop::Framework::Experiment (tmpdb);
+      std::set<Metadata> collectortypes = Collector::getAvailable();
+      for (std::set<Metadata>::const_iterator mi = collectortypes.begin();
+                mi != collectortypes.end(); mi++) {
+        fw_exp->createCollector ( mi->getUniqueId() );
+      }
+      cgrp = fw_exp->getCollectors();
+    }
+    catch(const std::exception& error) {
+       cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+                             "Unknown runtime error." : error.what() );
+       cmd->set_Status(CMD_ERROR);
+       return false;
+    }
+  } else if (cmd->P_Result()->IsExpId()) {
+   // Get the list of collectors from the specified experiment.
+    ExperimentObject *exp = Find_Specified_Experiment (cmd);
+    if (exp->FW() == NULL) {
+      cmd->Result_String ("The experiment has been disabled");
+      cmd->set_Status(CMD_ERROR);
+      return false;
+    }
+    cgrp = exp->FW()->getCollectors();
+  } else if (p_slist->begin() != p_slist->end()) {
+   // Get the list of collectors from the command.
+    try {
+      OpenSpeedShop::Framework::Experiment::create (tmpdb);
+      fw_exp = new OpenSpeedShop::Framework::Experiment (tmpdb);
+
+      vector<string>::iterator si;
+      for (si = p_slist->begin(); si != p_slist->end(); si++) {
+       //  Get a collector object from the framework.
+        fw_exp->createCollector ( *si );
+      }
+      cgrp = fw_exp->getCollectors();
+    }
+    catch(const std::exception& error) {
+       cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+                             "Unknown runtime error." : error.what() );
+       cmd->set_Status(CMD_ERROR);
+       return false;
+    }
+  } else {
+   // Get the list of colectors from the focused experiment.
+    ExperimentObject *exp = Find_Specified_Experiment (cmd);
+    if (exp == NULL) {
+      return false;
+    }
+    if (exp->FW() == NULL) {
+      cmd->Result_String ("The experiment has been disabled");
+      cmd->set_Status(CMD_ERROR);
+      return false;
+    }
+    cgrp = exp->FW()->getCollectors();
+  }
+
+  CollectorGroup::iterator ci;
+  for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
+    Collector c = *ci;
+    Metadata cm = c.getMetadata();
+    std::set<Metadata> md = c.getParameters();
+    std::set<Metadata>::const_iterator mi;
+    for (mi = md.begin(); mi != md.end(); mi++) {
+      Metadata m = *mi;
+      cmd->Result_String ( cm.getUniqueId() + "::" +  m.getUniqueId() );
+    }
+  }
+
+  if (fw_exp != NULL) {
+    (void) remove (tmpdb.c_str());
+    delete fw_exp;
+  }
+
+  cmd->set_Status(CMD_COMPLETE);
+  return true;
+}
+
+bool SS_ListPids (CommandObject *cmd) {
+  InputLineObject *clip = cmd->Clip();
+  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+
+ // Look at general modifier types for "all" option.
+  Assert(cmd->P_Result() != NULL);
+  bool All_KeyWord = Look_For_KeyWord (cmd, "all");
+
+  if (All_KeyWord) {
+// TODO:  List all the PIDs on the system.
+    cmd->Result_String ("not yet implemented");
+  } else {
+   // Get the Pids for a specified Experiment or the focused Experiment.
+    ExperimentObject *exp = Find_Specified_Experiment (cmd);
+    if (exp == NULL) {
+      return false;
+    }
+
+   // Is there an FrameWork Experiment to look at?
+    if (exp->FW() == NULL) {
+      cmd->Result_String ("The experiment has been disabled");
+      cmd->set_Status(CMD_ERROR);
+      return false;
+    }
+   // Get the list of threads used in the specified experiment.
+    ThreadGroup cgrp = exp->FW()->getThreads();
+    ThreadGroup::iterator ci;
+    for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
+      Thread c = *ci;
+      pid_t Pid = c.getProcessId();
+      cmd->Result_Int ( (int64_t)c.getProcessId() );
+    }
+  }
+
   cmd->set_Status(CMD_COMPLETE);
   return true;
 }
@@ -1051,20 +1203,44 @@ bool SS_ListRanks (CommandObject *cmd) {
   return true;
 }
 
+bool SS_ListSrc (CommandObject *cmd) {
+  InputLineObject *clip = cmd->Clip();
+  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+  ExperimentObject *exp = Find_Specified_Experiment (cmd);
+
+  cmd->Result_String ("not yet implemented");
+  cmd->set_Status(CMD_COMPLETE);
+  return true;
+}
+
 bool SS_ListStatus (CommandObject *cmd) {
- // List all the allocated experiments
-  std::list<ExperimentObject *>::reverse_iterator expi;
-  for (expi = ExperimentObject_list.rbegin(); expi != ExperimentObject_list.rend(); expi++)
-  {
-   // Return the EXPID for every known experiment
-    cmd->Result_String ((*expi)->ExpStatus_Name());
+
+ // Look at general modifier types for "all" option.
+  Assert(cmd->P_Result() != NULL);
+  bool All_KeyWord = Look_For_KeyWord (cmd, "all");
+
+  if (All_KeyWord) {
+   // List the status all the allocated experiments
+    std::list<ExperimentObject *>::reverse_iterator expi;
+    for (expi = ExperimentObject_list.rbegin(); expi != ExperimentObject_list.rend(); expi++)
+    {
+     // Return the EXPID for every known experiment
+      cmd->Result_String ((*expi)->ExpStatus_Name());
+    }
+  } else {
+   // Get the status of a specific Experiment or the focused Experiment.
+    ExperimentObject *exp = Find_Specified_Experiment (cmd);
+    if (exp == NULL) {
+      return false;
+    }
+    cmd->Result_String (exp->ExpStatus_Name());
   }
 
   cmd->set_Status(CMD_COMPLETE);
   return true;
 }
 
-bool SS_ListSrc (CommandObject *cmd) {
+bool SS_ListThreads (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
   ExperimentObject *exp = Find_Specified_Experiment (cmd);
@@ -1077,23 +1253,31 @@ bool SS_ListSrc (CommandObject *cmd) {
 bool SS_ListTypes (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
-  // ExperimentObject *exp = Find_Specified_Experiment (cmd);
 
- // The experiment specifier is optional and does not deafult to the focused experiment
+ // Look at general modifier types for "all" option.
   Assert(cmd->P_Result() != NULL);
-  EXPID ExperimentID = (cmd->P_Result()->IsExpId()) ? cmd->P_Result()->GetExpId() : 0;
+  bool All_KeyWord = Look_For_KeyWord (cmd, "all");
 
-  if (ExperimentID > 0) {
-   // Get the list of collectors used in the specified experiment.
+  if (All_KeyWord) {
+   // List all the avaialble experiment types.
+    std::set<Metadata> collectortypes = Collector::getAvailable();
+    for (std::set<Metadata>::const_iterator mi = collectortypes.begin(); mi != collectortypes.end(); mi++) {
+      cmd->Result_String ( mi->getUniqueId() );
+    }
+  } else {
+   // Get the types for a specified Experiment or the focused Experiment.
     ExperimentObject *exp = Find_Specified_Experiment (cmd);
     if (exp == NULL) {
       return false;
     }
+
+   // Is there an FrameWork Experiment to look at?
     if (exp->FW() == NULL) {
       cmd->Result_String ("The experiment has been disabled");
       cmd->set_Status(CMD_ERROR);
       return false;
     }
+   // Get the list of collectors used in the specified experiment.
     CollectorGroup cgrp = exp->FW()->getCollectors();
     CollectorGroup::iterator ci;
     for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
@@ -1101,13 +1285,6 @@ bool SS_ListTypes (CommandObject *cmd) {
       Metadata m = c.getMetadata();
       cmd->Result_String ( m.getUniqueId() );
     }
-  } else {
-   // List all the avaialble experiment types.
-    std::set<Metadata> collectortypes = Collector::getAvailable();
-    for (std::set<Metadata>::const_iterator mi = collectortypes.begin(); mi != collectortypes.end(); mi++) {
-      cmd->Result_String ( mi->getUniqueId() );
-    }
-
   }
   
   cmd->set_Status(CMD_COMPLETE);
@@ -1157,9 +1334,11 @@ bool SS_History (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
   bool R = true;;
+  parse_val_t *f_val = Get_Simple_File_Name (cmd);
 
  // Default action with no arguments: Dump the history file.
-  R = Command_Trace (cmd, CMDW_TRACE_ORIGINAL_COMMANDS, WindowID, std::string(""));
+  R = Command_Trace (cmd, CMDW_TRACE_ORIGINAL_COMMANDS, WindowID,
+                     (f_val != NULL) ? f_val->name : std::string(""));
 
   cmd->set_Status( R ? CMD_COMPLETE : CMD_ERROR);
   return R;
@@ -1169,13 +1348,12 @@ bool SS_Log (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
   bool R = false;
+  parse_val_t *f_val = Get_Simple_File_Name (cmd);
 
-  char *tofile = NULL;
-
-  if (tofile == NULL) {
+  if (f_val == NULL) {
     R = Command_Log_OFF (WindowID);
   } else {
-    R = Command_Log_ON(WindowID, tofile);
+    R = Command_Log_ON(WindowID, f_val->name );
   }
 
  // This command does not reutrn a result.
@@ -1220,6 +1398,16 @@ bool SS_OpenGui (CommandObject *cmd) {
 bool SS_Playback (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+  parse_val_t *f_val = Get_Simple_File_Name (cmd);
+
+  if (f_val == NULL) {
+    cmd->Result_String ("can not determine file name");
+    cmd->set_Status(CMD_ERROR);
+    return false;
+  }
+
+  Push_Input_File (WindowID, f_val->name,
+                   &Default_TLI_Line_Output, &Default_TLI_Command_Output);
 
   cmd->Result_String ("not yet implemented");
   cmd->set_Status(CMD_COMPLETE);
@@ -1229,16 +1417,14 @@ bool SS_Playback (CommandObject *cmd) {
 bool SS_Record (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+  parse_val_t *f_val = Get_Simple_File_Name (cmd);
 
-  char *tofile = NULL;
-
-  if (tofile == NULL) {
+  if (f_val == NULL) {
    (void)Command_Trace_OFF (WindowID);
   } else {
-    (void)Command_Trace_ON(WindowID, tofile);
+    (void)Command_Trace_ON(WindowID, f_val->name);
   }
 
- // There is no result returned for this command.
   cmd->set_Status(CMD_COMPLETE);
   return true;
 }
