@@ -1,0 +1,374 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2004 Silicon Graphics, Inc. All Rights Reserved.
+//
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License as published by the Free
+// Software Foundation; either version 2.1 of the License, or (at your option)
+// any later version.
+//
+// This library is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this library; if not, write to the Free Software Foundation, Inc.,
+// 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+////////////////////////////////////////////////////////////////////////////////
+
+/** @namespace OpenSpeedShop
+
+Enclosing namespace for all OpenSpeedShop libraries.
+
+*/
+
+/** @namespace OpenSpeedShop::Framework
+
+Enclosing namespace for the OpenSpeedShop framework library.
+
+*/
+
+
+
+
+
+/** @mainpage
+
+Open SpeedShop comes with fully featured text-based and graphical user
+interfaces, but it is certainly possible that some users will find them
+inadequate or simply not to their liking. Hooks are provided in the standard
+user interfaces to allow for customization and their use is encouraged. But,
+for whatever reason, some adventurous users may wish to take the road less
+traveled and create their own tool.
+
+Creating an application performance tool completely from scratch, however, is
+an arduous task. In addition to designing and implementing the user interface
+itself, one must deal with complex issues such as asynchronous process control,
+executable debugging and symbol table formats, application instrumentation,
+data collection, and management of large-scale data sets. Several past and
+current projects have provided pieces of the necessary infrastructure.
+
+The Open SpeedShop Framework Library, elsewhere simply "the framework", provides
+a unified application program interface (API) to the various components required
+for building a complete application performance tool. This framework has helped
+facilitate the creation of Open SpeedShop's user interfaces. One of the common
+goals of most open source projects is to encourage innovation. It is hoped that
+this framework will do precisely that.
+
+@section MainPage_S1 How to Use This Documentation
+
+These pages have been generated directly from the framework's source code. As
+such they are <em>the</em> definitive guide to the framework. However since the
+size of the framework is large, and thus its documentation is also, simply
+jumping to the individual class descriptions may be overwhelming. As a result,
+the various entity's have been categorized into four "modules" - each of which
+has its own overview page that describes that aspect of the framework.
+
+If you are interested in information about a particular class, file, etc., it is
+best to use the links at the top of this page to quickly jump to that entity's
+documentation.
+
+If you are writing an application performance tool that will use the framework,
+the best place to start is with the module @ref ToolAPI "Performance Tool API".
+
+If you are writing a new performance data collector plugin for the framework,
+start with the module @ref CollectorAPI "Collector Plugin API".
+
+Finally, if you will be working on the framework itself, start by perusing both
+of the above pages, then read the modules @ref Utility "Utility Classes" and
+@ref Implementation "Implementation Details". Then jump to documentation for the
+particular sections of code you'll be working on.
+
+*/
+
+
+
+
+
+/** @defgroup ToolAPI Performance Tool API
+
+API for gathering and analyzing application performance data.
+
+This API provides the means by which a tool can gather and analyze application
+performance data. The primary goal of this API is to allow the tool developer to
+focus on how the data is presented to the end user rather than the details of
+how it is gathered and analyzed.
+
+Traditionally application performance tools contain large amounts of platform
+dependent code. Processes must be started, stopped, and otherwise controlled.
+Some UNIX systems, such as Linux, do this via a
+<a href="http://www.die.net/doc/linux/man/man2/ptrace.2.html">ptrace</a>
+interface. Others, such as Solaris and IRIX, do this via a
+<a href="http://techpubs.sgi.com/library/tpl/cgi-bin/getdoc.cgi?
+coll=0650&db=man&fname=/usr/share/catman/p_man/cat4/proc.z&srch=/proc">/proc</a>
+interface. Data must be gathered from these processes. Frequently that involves
+accessing high-resolution timers and call stack unwinding - both platform
+dependent activities. Once gathered, the data must be mapped back to the
+original source. Doing so involves processing executable symbol table and
+debugging formats (
+<a href="http://sources.redhat.com/gdb/current/onlinedocs/stabs_toc.html">
+STABS</a>
+,
+<a href="http://www.eagercon.com/dwarf/dwarf3std.htm">DWARF</a>
+, etc.) that vary from platform to platform. This API is designed to factor out
+most of these platform dependent elements so that that tool developer can focus
+on presenting the data in an insightful manner.
+
+Many aspects of this API are similar (or even identical) to concepts found in
+<a href="http://oss.software.ibm.com/developerworks/opensource/dpcl/">DPCL</a>
+and
+<a href="http://www.dyninst.org/">Dyninst</a>
+. That should not be suprising considering they are fundamental components used
+by Open SpeedShop. Much as DPCL extends Dyninst with additional concepts for
+working in a cluster environment, this framework extends DPCL with additional
+concepts to ease the creation of application performance tools.
+
+@section ToolAPI_S1 Getting Started
+
+To begin using this API, one starts by including ToolAPI.hxx and creating
+one or more instances of @link
+OpenSpeedShop::Framework::Application Application
+@endlink. This class provides a container for storing a related list of threads
+that are being monitored by the tool. Initially that container is empty. By
+calling member functions such as @link
+OpenSpeedShop::Framework::Application::createProcess createProcess()
+@endlink the tool can create a new process to be monitored. If, instead, the
+tool needs to attach to existing jobs, processes, or threads, member functions
+such as @link
+OpenSpeedShop::Framework::Application::attachToArraySession attachToArraySession()
+@endlink, @link
+OpenSpeedShop::Framework::Application::attachToProcess attachToProcess()
+@endlink, or @link
+OpenSpeedShop::Framework::Application::attachToPosixThread attachToPosixThread()
+@endlink, can be used.
+
+Not only does this class hide the ugly details involved in attaching to an
+existing process, it also provides some niceties. One of them is that it will
+monitor all threads in the application and watching for them to create
+additional threads via fork(), pthread_create(), etc. When they do, the
+resulting thread is also added to the application.
+
+Once attached to a particular application (one or more threads), tools generally
+need to perform three types of operations: @ref ToolAPI_S2 "thread control",
+@ref ToolAPI_S3 "data collection", and @ref ToolAPI_S4 "data analysis". Each is outlined
+below.
+
+@section ToolAPI_S2 Thread Control
+
+Threads (and processes that contain a single thread) are controlled primarily
+through the @link
+OpenSpeedShop::Framework::Thread Thread
+@endlink and @link
+OpenSpeedShop::Framework::ThreadGroup ThreadGroup
+@endlink classes. Note that an @link
+OpenSpeedShop::Framework::Application Application
+@endlink is a @link
+OpenSpeedShop::Framework::ThreadGroup ThreadGroup
+@endlink by inheritance so anything that applies to the later also applies to
+the former.
+
+Each thread is defined as having a particular @link
+OpenSpeedShop::Framework::Thread::Status Status
+@endlink that describes the execution state of the thread (running, suspended,
+terminated, etc.) Member functions @link
+OpenSpeedShop::Framework::Thread::getStatus getStatus()
+@endlink and @link
+OpenSpeedShop::Framework::Thread::isStatus isStatus()
+@endlink are provided for querying the state of a given thread. Importantly, the
+tool can also change the status of a thread. For example, a tool can suspend a
+thread by performing @link
+OpenSpeedShop::Framework::Thread::changeStatus
+changeStatus(Thread::Suspended)
+@endlink.
+
+Note that instances of @link
+OpenSpeedShop::Framework::Thread Thread
+@endlink are meant to act only as proxy objects that allow the tool to modify
+the behavior of the actual underlying thread. Their existence and/or destruction
+does not mirror that of the underlying thread and consequently more than one
+@link
+OpenSpeedShop::Framework::Thread Thread
+@endlink may exist for a single underlying thread.
+
+A @link
+OpenSpeedShop::Framework::ThreadGroup ThreadGroup
+@endlink is simply an arbitrary group of threads, containing zero or more @link
+OpenSpeedShop::Framework::Thread Thread
+@endlink instances. Each thread may be part of more than one thread group. This
+class provides the means to apply operations to a group of threads as a whole
+rather than to each thread individually. For example, if the tool needed to
+determine the list of threads currently in the suspended state, it could use
+@link
+OpenSpeedShop::Framework::ThreadGroup::getSubsetWithStatus
+Application::getSubsetWithStatus(Thread::Suspended)
+@endlink.
+
+@section ToolAPI_S3 Data Collection
+
+The framework implements application performance data collection via the concept
+of "collectors". Collectors are individually implemented plugin modules that
+each gather one particular type of performance data. The reasons behind
+introducing the collector concept are three-fold:
+
+-# <b>Abstraction</b>. The author of the next, newfangled, tool may not be
+interested in the details of how data is <em>collected</em>, just how it is
+<em>presented</em> to the end user.
+-# <b>Reusability</b>. Different tools have different ways of presenting
+performance data. A GUI based tool might show a particular type of data in a
+pie chart while a CLI based tool might show the same data in sorted columns.
+It is beneficial if these tools can share the exact same data collection
+components.
+-# <b>Extensibility</b>. The type of performance data to be collected can change
+over time. New software or hardware platforms are introduced that require new
+types of data be collected. By moving the collection mechanisms into plugins,
+new types of data can be acoomodated by creating additional plugins.
+
+Upon tool startup the framework library is loaded and searches for collector
+plugins in several predefined locations. The tool can access the list of
+available collectors at run-time by calling @link
+OpenSpeedShop::Framework::Collector::getAllCollectors getAllCollectors()
+@endlink which returns an STL set of @link
+OpenSpeedShop::Framework::Collector Collector
+@endlink objects, one per collector plugin found by the framework. Each
+collector object can then be queried for further information.
+
+Collector plugins can specify zero or more parameters that control how that
+collector gathers performance data. An example of this would be allowing a tool
+to specify the sampling rate (a parameter) for a PC sampling collector. Tools
+can determine the parameters for a collector via @link
+OpenSpeedShop::Framework::Collector::getParameters getParameters()
+@endlink which returns an STL set of @link
+OpenSpeedShop::Framework::Parameter Parameter
+@endlink objects. Each parameter can be queried to determine its name,
+description, and type. Parameters can have <em>any</em> type. The sampling
+rate parameter would likely be an integer (<dfn>int</dfn>). However this same
+collector might also provide a parameter that allows the tool to specify a
+list of functions (<dfn>std::list<Function></dfn>) to which sampling should be
+restricted.
+
+@par Aside:
+The @link
+OpenSpeedShop::Framework::Collector Collector
+@endlink and @link
+OpenSpeedShop::Framework::Parameter Parameter
+@endlink classes, along with @link
+OpenSpeedShop::Framework::Metric Metric
+@endlink class discussed later are defined as being @link
+OpenSpeedShop::Framework::Named named
+@endlink objects. All this really means is that these objects have member
+functions for returning their unique identifier, a short name, and a more
+verbose description of themselves.
+@par
+Why use a relatively complex system for querying object names and types? Tools
+have no direct knowledge of the available collectors at compile-time because the
+collector plugins don't have an associated header file that could relay this
+information. That implies the tools need a mechanism for discovering the
+information at run-time instead. Unfortunately, ISO C++ doesn't have extensive
+reflection capabilities built into the language like
+<a href="http://msdn.microsoft.com/library/default.asp?
+url=/library/en-us/cpguide/html/cpcondiscoveringtypeinformationatruntime.asp">
+.NET</a>
+or
+<a href="http://java.sun.com/j2se/1.4.2/docs/api/
+java/lang/reflect/package-summary.html">Java</a>
+that would provide this directly.
+@par
+Then why not just make every parameter a string to simplify things? This would
+simplify the tool API. But this would also complicated the collector plugins
+quite a bit. Consider the "list of functions" parameter above. If the tool can
+only pass a string to the collector, the collector plugin must now contain code
+for parsing that string into a list of functions. Not only does the plugin have
+to parse the list, it must validate the individual entries as well. When the
+plugin can specify a parameter is type <dfn>std::list<Function></dfn> it is
+assured that each entry in the list is actually a function. When all parameters
+are <dfn>std::string</dfn> it must extensively check the validity of the input.
+
+Every parameter has a default value and each parameter is set to its default
+whenever a new @link
+OpenSpeedShop::Framework::Collector Collector
+@endlink is instantiated. The tool can query the value of each parameter and,
+of course, set a parameter to a new value using @link
+OpenSpeedShop::Framework::Collector::setParameter setParameter()
+@endlink.
+
+Collectors cannot actually <em>do</em> anything until they are attached to a
+particular thread. This is accomplished by passing the collector
+to either @link
+OpenSpeedShop::Framework::Thread::attachCollector Thread::attachCollector()
+@endlink, or @link
+OpenSpeedShop::Framework::ThreadGroup::attachCollector
+ThreadGroup::attachCollector()
+@endlink. In actuality the framework makes a copy of the passed object and
+attaches that copy to the thread. One for each thread when attaching to a thread
+group.
+
+Each collector can be attached to either zero or one thread, but never more than
+one thread. Once a collector is attached to a thread it cannot be unattached.
+And once attached, a collector's parameters can no longer be modified. These
+limitations may seem excessive. They are necessary to remove ambiguity that
+would be present if collectors could be moved from thread to thread, or their
+parameters changed, arbitrarily. And, in reality, they really aren't all that
+limiting because collectors can be copied very easily and any arbitrary number
+of collectors can be attached to a single thread.
+
+Once attached to a thread a collector may begin gathering performance data. This
+is accomplished by calling @link
+OpenSpeedShop::Framework::Collector::startCollecting startCollecting()
+@endlink and the converse @link
+OpenSpeedShop::Framework::Collector::stopCollecting stopCollecting()
+@endlink which can be used to stop data collection. Note that data collection
+for a particular collector can be started and stopped any number of times. All
+collected data is tagged with time stamps and multiple start/stops simply
+result in gaps in the collected data.
+
+@section ToolAPI_S4 Data Analysis
+
+...
+
+
+
+@section ToolAPI_S5 Complete Example
+
+The following C++ source code provides a complete example of how this API can
+be used to build a working application performance tool:
+
+<pre>
+
+... Pull example source code from "../examples/libftf/tool/main.cxx" ...
+
+</pre>
+
+Obviously real tools will be more complex than this. But the basics of using
+the API are illustrated by the above example.
+
+*/
+
+
+
+
+
+/** @defgroup CollectorAPI Collector Plugin API
+
+...
+
+*/
+
+
+
+
+
+/** @defgroup Implementation Implementation Details
+
+...
+
+*/
+
+
+
+
+
+/** @defgroup Utility Utility Classes
+
+...
+
+*/
