@@ -158,7 +158,7 @@ PanelContainer::PanelContainer( QWidget* _parent, const char* n, PanelContainer 
   if( _masterPC->_panel_container_count == 0 )
   {
     // Make sure the panelContainerList interator list is empty.
-fprintf(stderr, "MAKE SURE _masterPanelContainerList empty!!!!\n");
+    nprintf(DEBUG_PANELCONTAINERS) ("MAKE SURE _masterPanelContainerList empty!!!!\n");
     _masterPanelContainerList->clear();
   }
   // Add this panel container to the global list.

@@ -24,7 +24,7 @@ extern "C"
 {
   PanelContainer * pc_init(QWidget *w, QVBoxLayout *layout)
   {
-    printf("hello from pc_init(QWidget *w) oooboy\n");
+//    printf("hello from pc_init(QWidget *w) oooboy\n");
 
     PanelContainer *topPC = NULL;
 
