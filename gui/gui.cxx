@@ -157,30 +157,6 @@ if( cliFLAG )
   }
 #endif // SPLASH_MESSAGES
 
-// printf("argc=%d\n", argc);
-if( SPLASH )
-{
-  if( argc == 1 )
-  { // Pretend absolutely no clues are there for us...
-// printf("Pretend absolutely no clues are there for us...\n");
-    w->topPC->dl_create_and_add_panel("Intro Wizard", w->topPC);
-  } else if( argc == 2 )
-  {
-  // Pretend there is an a.out and/or experiment file in the directory.
-// printf("Pretend there is an a.out and/or experiment file in the directory.\n");
-    w->topPC->dl_create_and_add_panel("Intro Wizard", w->topPC);
-    w->topPC->dl_create_and_add_panel("Getting Started", w->topPC);
-  } else if( argc == 3 )
-  { // Pretend there was an executable file given...
-// printf("Pretend there was an executable file given...\n");
-    w->topPC->dl_create_and_add_panel("Getting Started", w->topPC);
-  } else if( argc == 4 )
-  {  // Pretend there was an experiment file given...
-// printf("Pretend there was an experiment file given...\n");
-    w->topPC->dl_create_and_add_panel("pcSample Panel", w->topPC);
-  }
-}
-    
     if( cliFLAG == 1 )
     { // If this was launch from cli mode...
       // It calls the qt event loop from within the cli event loop

@@ -488,6 +488,12 @@ height+=50;   // FIX
   
     done = fread(line_buffer, sizeof(char), BUFSIZE, fd);
   }
+} else
+{
+  topPC->splitVertical(80);
+  topPC->dl_create_and_add_panel("Intro Wizard", topPC->leftPanelContainer);
+  topPC->dl_create_and_add_panel("Command Panel", topPC->rightPanelContainer);
+  
 }
 
 // End: Set up a saved session geometry.

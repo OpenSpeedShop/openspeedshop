@@ -84,8 +84,7 @@ printf("# theApplication.attachCollector(theCollector.getValue());\n");
 
 
 
-  topPC->splitVertical(75);
-//  topPC->rightPanelContainer->splitVertical();
+//  topPC->splitVertical(20);
 
   pcSampleControlPanelContainerWidget->show();
   topPC->show();
@@ -99,7 +98,7 @@ printf("# theApplication.attachCollector(theCollector.getValue());\n");
 #else // DEMO
   topPC->dl_create_and_add_panel("Source Panel", topPC->leftPanelContainer);
 #endif // DEMO
-  topPC->dl_create_and_add_panel("Command Panel", topPC->rightPanelContainer);
+//  topPC->dl_create_and_add_panel("Command Panel", topPC->rightPanelContainer);
 
 
 #ifdef DEMO

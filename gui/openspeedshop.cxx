@@ -123,7 +123,7 @@ OpenSpeedshop::OpenSpeedshop( QWidget* parent, const char* name, WFlags fl )
 
     languageChange();
 
-    resize( QSize(850, 520).expandedTo(minimumSizeHint()) );
+    resize( QSize(850, 620).expandedTo(minimumSizeHint()) );
     clearWState( WState_Polished );
 }
 
