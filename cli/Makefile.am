@@ -49,3 +49,4 @@ cli:
 	-g++ $(osscli_la_CXXFLAGS) -fpic -c main.cxx;
 	-g++ $(osscli_la_CXXFLAGS) -fpic -c ../objects/OutputObject.cxx;
 	-g++ -dynamic -fpic -o cli main.o cli.o OutputObject.o -lc -ldl;
+	-cp ../openss $(OPENSPEEDSHOP_INSTALL_DIR)/bin
