@@ -42,13 +42,13 @@ IOPanel_la_LDFLAGS = \
 	-module \
 	-avoid-version \
 	-L../../libopenss-framework \
-	-Wl,../../objects/.libs/ossObjects.so \
 	-Wl,../../pcli/.libs/posscli.so \
 	-L$(QTDIR)/lib \
 	-lqt \
 	-ldl
 
-IOPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-Base -lopenss-GUI
+IOPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-Base -lopenss-GUI  -lopenss-Objects
+
 
 moc_IOPanel.cxx: IOPanel.hxx
 	-moc -o moc_IOPanel.cxx IOPanel.hxx

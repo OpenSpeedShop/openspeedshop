@@ -48,7 +48,7 @@ pcSamplePanel_la_LDFLAGS = \
 
 pcSamplePanel_la_LIBADD = $(LIBLTDL) -lopenss-framework \
 	-lopenss-Base \
-	../../objects/.libs/ossObjects.so \
+	-lopenss-Objects \
 	../../pcli/.libs/posscli.so \
 	-lopenss-GUI
 

@@ -42,13 +42,12 @@ HW_CounterPanel_la_LDFLAGS = \
 	-module \
 	-avoid-version \
 	-L../../libopenss-framework \
-	-Wl,../../objects/.libs/ossObjects.so \
 	-Wl,../../pcli/.libs/posscli.so \
 	-L$(QTDIR)/lib \
 	-lqt \
 	-ldl
 
-HW_CounterPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-Base -lopenss-GUI
+HW_CounterPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-Base -lopenss-GUI -lopenss-Objects
 
 moc_HW_CounterPanel.cxx: HW_CounterPanel.hxx
 	-moc -o moc_HW_CounterPanel.cxx HW_CounterPanel.hxx

@@ -42,13 +42,12 @@ FPE_TracingPanel_la_LDFLAGS = \
 	-module \
 	-avoid-version \
 	-L../../libopenss-framework \
-	-Wl,../../objects/.libs/ossObjects.so \
 	-Wl,../../pcli/.libs/posscli.so \
 	-L$(QTDIR)/lib \
 	-lqt \
 	-ldl
 
-FPE_TracingPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-Base -lopenss-GUI
+FPE_TracingPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-Base -lopenss-GUI -lopenss-Objects
 
 moc_FPE_TracingPanel.cxx: FPE_TracingPanel.hxx
 	-moc -o moc_FPE_TracingPanel.cxx FPE_TracingPanel.hxx

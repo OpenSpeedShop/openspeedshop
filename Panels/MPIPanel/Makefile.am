@@ -42,13 +42,12 @@ MPIPanel_la_LDFLAGS = \
 	-module \
 	-avoid-version \
 	-L../../libopenss-framework \
-	-Wl,../../objects/.libs/ossObjects.so \
 	-Wl,../../pcli/.libs/posscli.so \
 	-L$(QTDIR)/lib \
 	-lqt \
 	-ldl
 
-MPIPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-Base -lopenss-GUI
+MPIPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-Base -lopenss-GUI  -lopenss-Objects
 
 moc_MPIPanel.cxx: MPIPanel.hxx
 	-moc -o moc_MPIPanel.cxx MPIPanel.hxx

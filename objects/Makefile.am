@@ -17,9 +17,9 @@
 ################################################################################
 
 
-pkglib_LTLIBRARIES = ossObjects.la
+pkglib_LTLIBRARIES = libopenss-Objects.la
 
-ossObjects_la_CXXFLAGS = \
+libopenss_Objects_la_CXXFLAGS = \
 	-I/usr/include \
 	-I$(QTDIR)/include \
 	-I. \
@@ -29,9 +29,9 @@ ossObjects_la_CXXFLAGS = \
 	-I../plugin \
 	-I$(QTDIR)
 
-ossObjects_la_LDFLAGS = --export-dynamic -module -avoid-version
+libopenss_Objects_la_LDFLAGS = --export-dynamic -module -avoid-version
 
-ossObjects_la_LIBADD = $(LIBLTDL)
+libopenss_Objects_la_LIBADD = $(LIBLTDL)
 
 moc_AnimatedQPushButton.cxx: AnimatedQPushButton.hxx
 	-moc -o moc_AnimatedQPushButton.cxx AnimatedQPushButton.hxx
@@ -42,7 +42,7 @@ moc_ProcessControlObject.cxx: ProcessControlObject.hxx
 moc_InfoEventFilter.cxx: InfoEventFilter.hxx
 	-moc -o moc_InfoEventFilter.cxx InfoEventFilter.hxx
 
-ossObjects_la_SOURCES = \
+libopenss_Objects_la_SOURCES = \
 	HighlightObject.hxx \
 	ProcessEntryClass.hxx \
 	MessageObject.hxx MessageObject.cxx \
