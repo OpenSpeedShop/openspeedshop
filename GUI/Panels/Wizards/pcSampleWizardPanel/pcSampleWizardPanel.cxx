@@ -55,7 +55,7 @@ pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n) : Pa
   QHBoxLayout * panelLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
     if ( !name )
-	setName( "pcsample" );
+	setName( "pc Sample" );
 
     QWidget* topWidget = new QWidget( getBaseWidgetFrame(), "topWidget" );
     topLayout = new QVBoxLayout( topWidget, 11, 6, "topLayout"); 
@@ -609,8 +609,6 @@ void pcSampleWizardPanel::eSummaryPageFinishButtonSelected()
 {
 printf("eSummaryPageFinishButtonSelected() \n");
 
-//  Panel *p = panelContainer->raiseNamedPanel("pc Sample Panel");
-//  if( !p )
   {
     panelContainer->_masterPC->dl_create_and_add_panel("pc Sampling", panelContainer);
   }
@@ -783,11 +781,7 @@ void pcSampleWizardPanel::vSummaryPageFinishButtonSelected()
 {
 printf("vSummaryPageFinishButtonSelected() \n");
 
-//  Panel *p = panelContainer->raiseNamedPanel("pc Sample Panel");
-//  if( !p )
-  {
-    panelContainer->_masterPC->dl_create_and_add_panel("pc Sampling", panelContainer);
-  }
+  panelContainer->_masterPC->dl_create_and_add_panel("pc Sampling", panelContainer);
 }
 
 /*
@@ -797,15 +791,15 @@ printf("vSummaryPageFinishButtonSelected() \n");
 void
 pcSampleWizardPanel::languageChange()
 {
-    setCaption( tr( "pcSample Wizard Panel" ) );
+    setCaption( tr( "pc Sample Wizard Panel" ) );
     vDescriptionPageTitleLabel->setText( tr( "<h1>pc Sampling Wizard</h1>" ) );
-    vDescriptionPageText->setText( tr( "The pcsamp experiment estimates the actual CPU time for each source code line, machine code line, and function in your program. The report listing of this experiment shows exclusive PC sampling time. This experiment is a lightweight, high-speed operation that makes use of the operating system.\n"
+    vDescriptionPageText->setText( tr( "The pc Sample experiment estimates the actual CPU time for each source code line, machine code line, and function in your program. The report listing of this experiment shows exclusive pc Sample time. This experiment is a lightweight, high-speed operation that makes use of the operating system.\n"
 "\n"
 "CPU time is calculated by multiplying the number of times an instruction or function appears in the PC by the interval specified for the experiment (either 1 or 10 milliseconds).\n"
 "\n"
 "To collect the data, the operating system regularly stops the process, increments a counter corresponding to the current value of the PC, and resumes the process. The default sample interval is 10 millisecond.\n"
 "\n"
-"PC sampling runs should slow the execution time of the program down no more than 5 percent. The measurements are statistical in nature, meaning they exhibit variance inversely proportional to the running time." ) );
+"pc Sample runs should slow the execution time of the program down no more than 5 percent. The measurements are statistical in nature, meaning they exhibit variance inversely proportional to the running time." ) );
     vHideWizardCheckBox->setText( tr( "Hide pc Sample Wizard next time pc Sample Experiment is selected.\n"
 "(Note: You can change this back by going to the pc Sampling local menu.)" ) );
     vDescriptionPageStartButton->setText( tr( "<< Start" ) );
@@ -813,7 +807,7 @@ pcSampleWizardPanel::languageChange()
     vDescriptionPageNextButton->setText( tr( "> Next" ) );
     QToolTip::add( vDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
     vParameterPageDescriptionLabel->setText( tr( "The following options (paramaters) are available to adjust.   These are the options the collector has exported.<br><br>\n"
-"The smaller the number used for the sampling rate, the more\n"
+"The smaller the number used for the sample rate, the more\n"
 "pcSampling detail will be show.   However, the trade off will be slower\n"
 "performance and a larger data file.<br><br>\n"
 "It may take a little expermenting to find the right setting for your \n"
@@ -845,11 +839,11 @@ pcSampleWizardPanel::languageChange()
     QToolTip::add( vSummaryPageFinishButton, tr( "Finishes loading the wizard information and brings up a \"pcSample\" panel" ) );
     eDescriptionPageTitleLabel->setText( tr( "<h1>pc Sampling Wizard</h1>" ) );
     eDescriptionPageText->setText( tr( "<p align=\"center\"><p align=\"left\">\n"
-"Program counter (pc) sampling reveals the amount of execution time \n"
+"Program counter (pc Sample) reveals the amount of execution time \n"
 "spent in various parts of a program. The count includes:  <br>\n"
 " * CPU time and memory access time <br>\n"
 " * Time spent in user routines<br><br>\n"
-"The pc sampling does not count time spent swapping or time spent accessing external resources.</p></p>" ) );
+"The pc Sample does not count time spent swapping or time spent accessing external resources.</p></p>" ) );
     eHideWizardCheckBox->setText( tr( "Hide pc Sample Wizard next time pc Sample Experiment is selected.\n"
 "(Note: You can change this back by going to the pc Sampling local menu.)" ) );
     eDescriptionPageStartButton->setText( tr( "<< Start" ) );
@@ -879,7 +873,7 @@ pcSampleWizardPanel::languageChange()
     eSummaryPageBackButton->setText( tr( "< Back" ) );
     QToolTip::add( eSummaryPageBackButton, tr( "Takes you back one page." ) );
     eSummaryPageFinishButton->setText( tr( "Finish..." ) );
-    QToolTip::add( eSummaryPageFinishButton, tr( "Finishes loading the wizard information and brings up a \"pcSample\" panel" ) );
+    QToolTip::add( eSummaryPageFinishButton, tr( "Finishes loading the wizard information and brings up a \"pc Sample\" panel" ) );
     wizardMode->setText( tr( "Verbose Wizard Mode" ) );
     broughtToYouByLabel->setText( tr( "Brought to you by SGI (SiliconGraphics)" ) );
 }
