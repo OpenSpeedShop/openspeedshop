@@ -69,7 +69,6 @@ static bool Async_Inputs = false;
 static bool Looking_for_Async_Inputs = false;
 static pthread_mutex_t Async_Input_Lock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t  Async_Input_Available = PTHREAD_COND_INITIALIZER;
-static int64_t cnt = 0;
 
 
 // Input_Source
@@ -337,12 +336,18 @@ class CommandWindowID
 
    // After a new comand is placed in the input window,
    // wake up a sleeping input reader.
-    Assert(pthread_mutex_lock(&Async_Input_Lock) == 0);
     if (Looking_for_Async_Inputs) {
-      Looking_for_Async_Inputs = false;
-      Assert(pthread_cond_signal(&Async_Input_Available) == 0);
+      Assert(pthread_mutex_lock(&Async_Input_Lock) == 0);
+     // After we get the lock, be sure that the reader
+     // is still waiting for input. No need to send a
+     // signal if it grabbed the last line before we
+     // got ahold of the lock.
+      if (Looking_for_Async_Inputs) {
+        Looking_for_Async_Inputs = false;
+        Assert(pthread_cond_signal(&Async_Input_Available) == 0);
+      }
+      Assert(pthread_mutex_unlock(&Async_Input_Lock) == 0);
     }
-    Assert(pthread_mutex_unlock(&Async_Input_Lock) == 0);
   }
   void Push_Input_Source (Input_Source *inp) {
    // Get exclusive access to the lock so that only one
@@ -712,17 +717,17 @@ void Commander_Termination (CMDWID im)
 ResultObject Append_Input_String (CMDWID issuedbywindow, int64_t b_size, char *b_ptr) {
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
   Assert (cw);
-if (b_ptr[0] == *("\?")) {
-  fprintf(stdout,"Encounter help request\n");
-  fprintf(stdout,"  %s %s cnt: %lld\n",Async_Inputs?"T":"F",Looking_for_Async_Inputs?"T":"F",cnt);
-  List_CommandWindows(stdout);
-} else {
-  int64_t buffer_size = b_size+1;
-  char *buffer = (char *)malloc(buffer_size);
-  strncpy (buffer, b_ptr, buffer_size);
-  Input_Source *inp = new Input_Source (buffer_size, buffer);
-  cw->Append_Input_Source (inp);
-}
+  if (b_ptr[0] == *("\?")) {
+    fprintf(stdout,"SpeedShop Status:\n");
+    fprintf(stdout,"  %s Waiting for Async input\n",Looking_for_Async_Inputs?"":"Not");
+    List_CommandWindows(stdout);
+  } else {
+    int64_t buffer_size = b_size+1;
+    char *buffer = (char *)malloc(buffer_size);
+    strncpy (buffer, b_ptr, buffer_size);
+    Input_Source *inp = new Input_Source (buffer_size, buffer);
+    cw->Append_Input_Source (inp);
+  }
   return ResultObject(SUCCESS, "Command_File_T", NULL, "Command file read and processed");
 }
 
@@ -732,16 +737,6 @@ ResultObject Append_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b
 // DEBUG: hacks to let the gui pass information in without initializing a window.
 if (!cw) {
 issuedbywindow = Command_Window_ID;  // default to the last allocated window
-if (b_ptr[strlen(b_ptr)] != *("\n")) {
-  int64_t buffer_size = b_size+1;
-  char *buffer = (char *)malloc(buffer_size);
-  strncpy (buffer, b_ptr, buffer_size);
-  buffer[strlen(b_ptr)] = *("\n");
-  buffer[strlen(b_ptr)+1] = *("\0");
-  Append_Input_String (issuedbywindow, buffer_size, buffer);
-  free (buffer);
-  return ResultObject(SUCCESS, "Command_File_T", NULL, "Command file read and processed");
-}
 Append_Input_String (issuedbywindow, b_size, b_ptr);
 return ResultObject(SUCCESS, "Command_File_T", NULL, "Command file read and processed");
 }
@@ -786,7 +781,7 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
   char Buffer[Buffer_Size];
   Buffer[Buffer_Size-1] = *"\0";
   while (1) {
-    sleep (1);
+    sleep (1); // DEBUG - give testing code time to react before splashing screen with prompt
     fprintf(stdout,"%s->",current_prompt);
     Buffer[0] == *("\0");
     char *read_result = fgets (&Buffer[0], Buffer_Size, stdin);
@@ -795,16 +790,17 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
       exit (0); // terminate the thread
     }
     if (read_result == NULL) {
+     // This indicates an EOF or error
       exit (0); // terminate the thread
     }
     if (Buffer[0] == *("\0")) {
-     /* This indicates an EOF */
+     // This indicates an EOF
       exit (0); // terminate the thread
     }
     if (cw->ID() == 0) {
+     // This indicates that someone freed the input window
       exit (0); // terminate the thread
     }
-    Assert (cw->ID());
     (void) Append_Input_String ((CMDWID)attachtowindow, strlen(&Buffer[0]), &Buffer[0]);
   }
 }
@@ -875,7 +871,6 @@ read_another_window:
   char *s;
 
   do {
-cnt++;
     s = cw->Read_Command ();
     if (s == NULL) {
      // The read failed.  Why?  Can we find something else to read?
@@ -946,13 +941,23 @@ fprintf(stdout,"gui instruction encountered\n");
     return NULL;
   }
 
-  char *sbuf = (char *)PyMem_Malloc(strlen(s) + 1);
+  int64_t buffer_size = strlen(s)+1;
+  bool need_newline = false;
+  if (s[buffer_size-2] != *("\n")) {
+    buffer_size++;
+    need_newline = true;
+  }
+  char *sbuf = (char *)PyMem_Malloc(buffer_size);
   strcpy (sbuf, s);
+  if (need_newline) {
+    sbuf[buffer_size-2] = *("\n");
+    sbuf[buffer_size-1] = *("\0");
+  }
   CommandObject *clip = new CommandObject(readfromwindow,sbuf);
 
  // Assign a sequence number to the command.
   clip->SetSeq (++Command_Sequence_Number);
-// fprintf(stdout,"command[%d] from w%d: %s\n",Command_Sequence_Number,readfromwindow,s);
+//fprintf(stdout,"command[%d] from w%d: %s\n",Command_Sequence_Number,readfromwindow,sbuf);
 
  // Log the command.
   cw->Trace(clip);
