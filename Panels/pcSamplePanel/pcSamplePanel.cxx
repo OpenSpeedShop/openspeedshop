@@ -150,6 +150,7 @@ pcSamplePanel::menu(QPopupMenu* contextMenu)
   contextMenu->insertItem(tr("&Manage &Data Sets..."), this, SLOT(manageDataSetsSelected()), CTRL+Key_D );
   contextMenu->insertSeparator();
   contextMenu->insertItem(tr("S&ource Panel..."), this, SLOT(loadSourcePanel()), CTRL+Key_O );
+  contextMenu->insertItem(tr("S&tats Panel..."), this, SLOT(loadStatsPanel()), CTRL+Key_T );
 
   return( TRUE );
 }
@@ -353,15 +354,8 @@ PanelContainer *pc = topPC->findBestFitPanelContainer(topPC);
 getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Top Panel", pc);
 #endif // OLDWAY
 
+  loadStatsPanel();
   
-  Panel *p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Stats Panel", pc);
-
-  if( p )
-  {
-    printf("call p(%s)'s listener routine.\n", p->getName() );
-    MessageObject *msg = new MessageObject("UpdateAllObject");
-    p->listener( (void *)msg );  // Kludge to simple put out some data... 
-  }
 } // End demo only...
         ret_val = 1;
         break;
@@ -546,4 +540,21 @@ pcSamplePanel::loadSourcePanel()
 {
   printf("From this pc on down, send out a saveAs message and put it to a file.\n");
   SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", topPC);
+}
+
+void
+pcSamplePanel::loadStatsPanel()
+{
+  printf("load the stats panel.\n");
+
+  PanelContainer *pc = topPC->findBestFitPanelContainer(topPC);
+
+  Panel *p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Stats Panel", pc);
+
+  if( p )
+  {
+    printf("call p(%s)'s listener routine.\n", p->getName() );
+    MessageObject *msg = new MessageObject("UpdateAllObject");
+    p->listener( (void *)msg );  // Kludge to simple put out some data... 
+  }
 }

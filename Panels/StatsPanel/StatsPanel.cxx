@@ -145,7 +145,6 @@ StatsPanel::updateStatsPanelData()
 
 
   dprintf("updateStatsPanelData() enterd.\n");
-  int number_entries = getUpdatedData(numberItemsToRead);
 
   if( lv != NULL )
   {
@@ -166,10 +165,15 @@ StatsPanel::updateStatsPanelData()
 
     // If there should be sort indicators in the header, show them here.
     lv->setShowSortIndicator(TRUE);
+
+    // Sort in decending order
+    int columnToSort = 0;
+    lv->setSorting ( columnToSort, FALSE );
   }
 
   lv->clear();
 
+  int number_entries = getUpdatedData(numberItemsToRead);
 
   SPListViewItem *lvi;
 
@@ -354,9 +358,10 @@ StatsPanel::setNumberVisibleEntries()
   dprintf("setNumberVisibleEntries()\n");
 {
   bool ok;
+  QString s = QString("%1").arg(numberItemsToRead);
   QString text = QInputDialog::getText(
           "Visible Lines", "Enter number visible lines:", QLineEdit::Normal,
-          QString::null, &ok, this );
+          s, &ok, this );
   if( ok && !text.isEmpty() )
   {
     // user entered something and pressed OK

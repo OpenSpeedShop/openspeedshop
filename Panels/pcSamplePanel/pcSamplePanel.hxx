@@ -103,6 +103,7 @@ public slots:
   void manageProcessesSelected();
   void manageDataSetsSelected();
   void loadSourcePanel();
+  void loadStatsPanel();
 
 protected slots:
   virtual void languageChange();
