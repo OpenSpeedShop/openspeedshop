@@ -79,8 +79,8 @@ Following is a summary of comments and observations.
 
    Additionally is seems that double-clicking may be a good metaphor
    for peeling off panels into their own windows.
-FIX: current:OpenSpeedShop:184212a
-     Allow double click to equate to peeling off a window.
+   FIXED: current:OpenSpeedShop:184212a
+          Allow double click to equate to peeling off a window.
 
  - Panel menus
    The panel menus are not obvious.   There should be an indicator
@@ -112,15 +112,15 @@ FIX: current:OpenSpeedShop:184212a
 
    FIXED: Modid:  current:OpenSpeedShop:184185a
                current:OpenSpeedShop:184186a
-      During the usability study it was suggested by several 
-      candidates that when splitting panel containers that had multiply 
-      panels in them that the panels should be divided between the new 
-      panel containers.
+          During the usability study it was suggested by several 
+          candidates that when splitting panel containers that had multiply 
+          panels in them that the panels should be divided between the new 
+          panel containers.
 
-      This mod fulfills the request.  When more than one panel is in the 
-      panel container, and a request to split the panel container is made, 
-      the current panel stays in the current panel container and all other 
-      panels are moved to the new panel container.
+          This mod fulfills the request.  When more than one panel is in the 
+          panel container, and a request to split the panel container is made, 
+          the current panel stays in the current panel container and all other 
+          panels are moved to the new panel container.
 
  - Fonts, fonts, fonts
    The default font selected not the best.   Additionally it wasn't obvious
@@ -130,9 +130,9 @@ FIX: current:OpenSpeedShop:184212a
    global font (i.e. Simply document the -fn option.), Finally, we should
    have a top-level font entry (likely in the preference panel) that will
    change the global font.  (This feature is supported in Qt.)
-FIX: I pulled all font specifying.  I now go with whatever the user specifies.
-     Further I have the -fn option explicitly documented in the online-cli-help
-     and the command line help.
+   FIXED: I pulled all font specifying.  I now go with whatever the user
+          specifies.  Further I have the -fn option explicitly documented in
+          the online-cli-help and the command line help.
 
 
  - Diving clues
@@ -242,9 +242,8 @@ FIX: I pulled all font specifying.  I now go with whatever the user specifies.
    seemed to be an agreement that the wizard panels, when navigating from
    the general Intro Wizard, to a experiment specific wizard, then finally
    to the experiment the previous (wizard panel) should be 'replaced' with
-   the new one. 
-   When we implement this, each sub-panel will need a "Start Over" button
-   and a "Finish" button added.
+   the new one.  When we implement this, each sub-panel will need a
+   "Start Over" button and a "Finish" button added.
 
    Upon completion of the wizard, only the experiment panel should be
    showing.  In the follow up discussion, it seemed that the Intro Wizard,
@@ -253,6 +252,9 @@ FIX: I pulled all font specifying.  I now go with whatever the user specifies.
    Additionally, there should be a "Finish" button on all the panels leading
    up to the final summary panel.   That "Finish" button would simply take
    all the remaining "suggested defaults" and advance to the Summary wizard.
+   FIXED: For pcSampling, this is completed.   I haven't yet changed the 
+          wording but will base it on what is used in the pcSampling
+          collector description.
 
  - Wizard Confusion
    There was confusion by the user when they got to the screen to load
