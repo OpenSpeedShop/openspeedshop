@@ -611,8 +611,6 @@ void pcSampleWizardPanel::eSummaryPageFinishButtonSelected()
 nprintf(DEBUG_PANELS) ("eSummaryPageFinishButtonSelected() \n");
 
   Panel *p = panelContainer->_masterPC->dl_create_and_add_panel("pc Sampling", panelContainer);
-
-  delete this;
 }
 
 // Begin advanced (expert) AttachOrLoad callbacks
@@ -783,8 +781,6 @@ void pcSampleWizardPanel::vSummaryPageFinishButtonSelected()
 nprintf(DEBUG_PANELS) ("vSummaryPageFinishButtonSelected() \n");
 
   Panel *p = panelContainer->_masterPC->dl_create_and_add_panel("pc Sampling", panelContainer);
-
-  delete this;
 }
 
 /*
