@@ -269,6 +269,26 @@ push_string(char *name, oss_name_enum tag)
 }
 
 /**
+ * Function: push_cluster
+ * 
+ * @param   char *    	name.
+ *
+ * @return  void.
+ *
+ */
+void
+push_cluster(char *name)
+{
+
+    char *tname = (char *)malloc(strlen(name)+1);
+    name_tab_t *name_tab;
+    
+    strcpy(tname,name);
+    
+    //p_parse_result->push_clusters(tname);
+}
+
+/**
  * Function: push_address
  * 
  * 
