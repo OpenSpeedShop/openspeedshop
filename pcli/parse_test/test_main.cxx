@@ -28,7 +28,7 @@ ParseResult *p_parse_result;
  *
  */
 static void 
-s_dumpRange(vector<ParseRange> *p_list, char *label, bool is_hex)
+s_dumpRange(vector<ParseRange> *p_list, char *label, bool is_hex, bool newline)
 {
     vector<ParseRange>::iterator iter;
     
@@ -42,9 +42,14 @@ s_dumpRange(vector<ParseRange> *p_list, char *label, bool is_hex)
     }
     
     if (p_list->begin() != p_list->end())
-    	    cout << "\t\t" << label << ": " ;
+    	    cout << "\t" << label << ": " ;
+    if (newline)
+    	cout << endl;
 
     for (iter=p_list->begin();iter != p_list->end(); iter++) {
+    	
+	if (newline)
+	    cout << "\t\t";
     	parse_range_t *p_range = iter->getRange();
     	if (p_range->is_range) {
     	    parse_val_t *p_val1 = &p_range->start_range;
@@ -71,6 +76,10 @@ s_dumpRange(vector<ParseRange> *p_list, char *label, bool is_hex)
     	    	cout << p_val1->num << " ";
     	    }
     	}
+	
+	if (newline)
+    	    cout << endl ;
+
     }
     if (p_list->begin() != p_list->end())
     	    cout << endl ;
@@ -113,8 +122,16 @@ int ret;
     	p_parse_result->dumpInfo();
     // Syntax error.
     else {
-    	cout << "SYNTAX ERROR!!!" << endl;
-    	s_dumpRange(p_parse_result->getErrorList(), "ERROR", false /* is_hex */);
+    	char *cmd_name = p_parse_result->GetCommandname();
+	
+//    	cout << "SYNTAX ERROR!!!" << endl;
+//	if (cmd_name)
+//	    cout << "Command: " << cmd_name << endl;
+
+    	s_dumpRange(p_parse_result->getErrorList(), 
+	    	    cmd_name, 
+		    false /* is_hex */,
+		    true /* newline */);
     }
     
     fclose(yyin); 
