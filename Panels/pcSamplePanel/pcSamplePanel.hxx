@@ -93,9 +93,11 @@ public:
   QVBoxLayout * frameLayout;
   ProcessControlObject *pco;
 
+  bool runnableFLAG;
 public slots:
   void saveAsSelected();
   void loadNewProgramSelected();
+  bool detachFromProgramSelected();
   void attachToExecutableSelected();
   void manageCollectorsSelected();
   void manageProcessesSelected();
