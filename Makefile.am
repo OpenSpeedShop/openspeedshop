@@ -21,7 +21,7 @@ SUBDIRS = . \
 	libopenss-framework \
 	plugins \
 	examples \
-	open_speed_shop \
+	openspeedshop \
 	base \
 	objects \
 	dialogs \
@@ -41,7 +41,7 @@ tests: $(TEST_SUBDIRS)
 
 DOC_SUBDIRS = \
 	libopenss-framework \
-	Panels pcli open_speed_shop base chart gui plugin objects dialogs
+	Panels pcli openspeedshop base chart gui plugin objects dialogs
 
 doc: $(DOC_SUBDIRS) 
 	-doxygen Doxyfile
