@@ -526,9 +526,14 @@ bool SS_expAttach (CommandObject *cmd) {
 
 static bool Destroy_Experiment (CommandObject *cmd, ExperimentObject *exp, bool Kill_KeyWord) {
   if (Kill_KeyWord &&
+      (exp->FW() != NULL) &&
+       ((exp->Determine_Status() == ExpStatus_Paused) ||
+        (exp->Status() == ExpStatus_Running))) {
+   // These are the only states that can be changed.
+
    // Terminate all threads so the application can not continue
    // executing when we release it from control of OpenSpeedShop.
-      (exp->FW() != NULL)) {
+
     ThreadGroup tgrp = exp->FW()->getThreads();
     ThreadGroup::iterator ti;
     for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
@@ -544,6 +549,16 @@ static bool Destroy_Experiment (CommandObject *cmd, ExperimentObject *exp, bool 
         Mark_Cmd_With_Std_Error (cmd, error);
         return false;
       }
+    }
+
+   // After changing the state of each thread, wait for the
+   // status of the experiment to change.  This is necessary
+   // because of the asynchronous nature of the FrameWork.
+    InputLineObject *clip = cmd->Clip();
+    CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+    while ((exp->Determine_Status() != ExpStatus_Terminated) &&
+           (exp->Status() != ExpStatus_InError)) {
+      usleep (10000);
     }
   }
 
@@ -896,9 +911,19 @@ static bool Pause_Experiment (CommandObject *cmd, ExperimentObject *exp) {
       }
     }
 
-   // After changing the state of each thread, update that of the ExperimentObject
-    exp->setStatus (ExpStatus_Paused);
+   // After changing the state of each thread, wait for the
+   // status of the experiment to change.  This is necessary
+   // because of the asynchronous nature of the FrameWork.
+    InputLineObject *clip = cmd->Clip();
+    CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+    while ((exp->Determine_Status() != ExpStatus_Paused) &&
+           (exp->Status() != ExpStatus_Terminated) &&
+           (exp->Status() != ExpStatus_InError)) {
+      usleep (10000);
+    }
+
   }
+  return true;
 }
 
 bool SS_expPause (CommandObject *cmd) {
@@ -1561,7 +1586,6 @@ bool SS_Playback (CommandObject *cmd) {
   Push_Input_File (WindowID, f_val->name,
                    &Default_TLI_Line_Output, &Default_TLI_Command_Output);
 
-  cmd->Result_String ("not yet implemented");
   cmd->set_Status(CMD_COMPLETE);
   return true;
 }
