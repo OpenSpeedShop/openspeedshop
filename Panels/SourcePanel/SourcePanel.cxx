@@ -342,10 +342,14 @@ SourcePanel::info(QPoint p, QObject *target)
     return;
   }
 
+#ifdef OLDWAY
   char *desc = getDescription( line );
 
   QString msg;
   msg = QString(tr("Details?\nDescription for line %1: %2")).arg(line).arg(desc);
+#else // OLDWAY
+  QString msg = getDescription( line );
+#endif // OLDWAY
   displayWhatsThis(msg);
 }
 
@@ -613,12 +617,18 @@ SourcePanel::details()
   textEdit->getCursorPosition(&line, &index);
   line++;
 
+#ifdef OLDWAY
   char *desc = getDescription(line);
 
   QString msg;
   msg = QString("Details?\nDescription for line %1: %2").arg(line).arg(desc);
   QMessageBox::information( (QWidget *)this, tr("Details..."),
     msg, QMessageBox::Ok );
+#else // OLDWAY
+  QString msg = getDescription(line);
+  QMessageBox::information( (QWidget *)this, tr("Details..."),
+    msg, QMessageBox::Ok );
+#endif // OLDWAY
 
 }
 
@@ -633,12 +643,18 @@ SourcePanel::whoCallsMe()
   textEdit->getCursorPosition(&para, &index);
   para++;
 
+#ifdef OLDWAY
   char *desc = getDescription(para);
 
   QString msg;
   msg = QString("Who Calls Me?\nDescription for line %1: %2").arg(para).arg(desc);
   QMessageBox::information( (QWidget *)this, "Who Calls Me...",
     msg, QMessageBox::Ok );
+#else // OLDWAY
+  QString msg = getDescription(para);
+  QMessageBox::information( (QWidget *)this, "Who Calls Me...",
+    msg, QMessageBox::Ok );
+#endif // OLDWAY
 }
 
 /*! prototype: Display the who do I call information. */
@@ -652,12 +668,19 @@ SourcePanel::whoDoICall()
   textEdit->getCursorPosition(&para, &index);
   para++;
 
+#ifdef OLDWAY
   char *desc = getDescription(para);
 
   QString msg;
   msg = QString("Who Do I Call?\nDescription for line %1: %2").arg(para).arg(desc);
   QMessageBox::information( (QWidget *)this, "Who Do I Call...",
     msg, QMessageBox::Ok );
+#else // OLDWAY
+  QString msg = getDescription(para);
+
+  QMessageBox::information( (QWidget *)this, "Who Do I Call...",
+    msg, QMessageBox::Ok );
+#endif // OLDWAY
 }
 
 
@@ -896,18 +919,22 @@ SourcePanel::doFileHighlights()
 }
 
 /*! If theres a description field, return it. */
-char *
+QString
 SourcePanel::getDescription(int line)
 {
   HighlightObject *hlo = NULL;
   for( HighlightList::Iterator it = highlightList->begin();
        it != highlightList->end();
-       ++it)
-  {
+       ++it) {
     hlo = (HighlightObject *)*it;
     if( hlo->line == line )
     {
-      return( hlo->description );
+      return( hlo->fileName+
+              ":"+
+              QString::number(hlo->line)+
+              "\n"+
+              QString(hlo->description)
+              );
     }
   }
 

@@ -158,7 +158,7 @@ bool firstTimeShowingStatAreaFLAG;
   int whatIsAtPos(const QPoint &pos);
 
   //! If the line is highlighted, return its' description.
-  char *getDescription(int line);
+  QString getDescription(int line);
 
   //! Holds the last line for the find command.
   int last_para;
