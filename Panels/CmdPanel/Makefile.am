@@ -22,16 +22,16 @@ CmdPanel_la_CXXFLAGS = \
     -I/usr/include \
     -I$(QTDIR)/include \
     -I. \
-	-I../../objects \
-	-I../../libopenss-framework \
-	-I../../pcli \
-    -I../../gui \
-    -I../../plugin \
-    -I../../base
+	-I$(top_srcdir)/objects \
+	-I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/pcli \
+    -I$(top_srcdir)/gui \
+    -I$(top_srcdir)/plugin \
+    -I$(top_srcdir)/base
 
 CmdPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version 
 
-CmdPanel_la_LIBADD =  -L$(QTDIR)/lib -lqt ../../pcli/.libs/posscli.so
+CmdPanel_la_LIBADD =  -L$(QTDIR)/lib -lqt $(top_srcdir)/pcli/.libs/posscli.so
 
 moc_CmdPanel.cxx: CmdPanel.hxx
 	-moc -o moc_CmdPanel.cxx CmdPanel.hxx

@@ -22,12 +22,12 @@ UserTimeWizardPanel_la_CXXFLAGS = \
     -I/usr/include \
     -I$(QTDIR)/include \
     -I. \
-    -I../../../gui \
-    -I../../../images \
-    -I../../../plugin \
-    -I../../../objects \
-    -I../../../dialogs \
-    -I../../../base
+    -I$(top_srcdir)/gui \
+    -I$(top_srcdir)/images \
+    -I$(top_srcdir)/plugin \
+    -I$(top_srcdir)/objects \
+    -I$(top_srcdir)/dialogs \
+    -I$(top_srcdir)/base
 
 UserTimeWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 

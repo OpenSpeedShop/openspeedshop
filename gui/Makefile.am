@@ -23,19 +23,19 @@ libopenss_GUI_la_CXXFLAGS =  \
 	-I/usr/include \
 	-I$(QTDIR)/include \
 	-I. \
-	-I../libopenss-framework \
-	-I../pcli \
-	-I../plugin \
-	-I../images \
-	-I../dialogs \
-	-I../Panels/DebugPanel \
-	-I../objects \
+	-I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/pcli \
+	-I$(top_srcdir)/plugin \
+	-I$(top_srcdir)/images \
+	-I$(top_srcdir)/dialogs \
+	-I$(top_srcdir)/Panels/DebugPanel \
+	-I$(top_srcdir)/objects \
 	-DPLUGIN_PATH=\"$(pkglibdir)\" \
-	-I../base
+	-I$(top_srcdir)/base
 
 libopenss_GUI_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
-libopenss_GUI_la_LIBADD = $(LIBLTDL) -L$(QTDIR)/lib -lqt -lqassistantclient -L/usr/X11R6/lib -lXext -lX11 -lm -lpthread -L../base -lopenss-Base -L../dialogs -lopenss-Dialogs -L../plugin -lopenss-Plugin -lopenss-Objects
+libopenss_GUI_la_LIBADD = $(LIBLTDL) -L$(QTDIR)/lib -lqt -lqassistantclient -L/usr/X11R6/lib -lXext -lX11 -lm -lpthread -L$(top_srcdir)/base -lopenss-Base -L$(top_srcdir)/dialogs -lopenss-Dialogs -L$(top_srcdir)/plugin -lopenss-Plugin -lopenss-Objects
 
 moc_CLIInterface.cxx: CLIInterface.hxx
 	-moc -o moc_CLIInterface.cxx CLIInterface.hxx

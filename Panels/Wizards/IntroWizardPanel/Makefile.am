@@ -23,10 +23,10 @@ IntroWizardPanel_la_CXXFLAGS = \
     -I/usr/include \
     -I$(QTDIR)/include \
     -I. \
-    -I../../../gui \
-    -I../../../objects \
-    -I../../../plugin \
-    -I../../../base
+    -I$(top_srcdir)/gui \
+    -I$(top_srcdir)/objects \
+    -I$(top_srcdir)/plugin \
+    -I$(top_srcdir)/base
 
 IntroWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 

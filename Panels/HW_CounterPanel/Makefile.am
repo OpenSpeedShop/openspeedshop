@@ -18,22 +18,20 @@
 
 pkglib_LTLIBRARIES = HW_CounterPanel.la
 
-# NOTE 1: The -I../SourcePanel is only here for #define DEMO 1
-# NOTE 2: The -I../TopPanel is only here for #define DEMO 1
 HW_CounterPanel_la_CXXFLAGS = \
 	-c -LANG:std -fpic \
     -I/usr/include \
     -I$(QTDIR)/include \
     -I. \
-	-I../../libopenss-framework \
-    -I../../pcli \
-    -I../../gui \
-    -I../../images \
-    -I../../plugin \
-    -I../../objects \
-    -I../SourcePanel \
-    -I../TopPanel \
-    -I../../base
+	-I$(top_srcdir)/libopenss-framework \
+    -I$(top_srcdir)/pcli \
+    -I$(top_srcdir)/gui \
+    -I$(top_srcdir)/images \
+    -I$(top_srcdir)/plugin \
+    -I$(top_srcdir)/objects \
+    -I$(top_srcdir)/Panels/SourcePanel \
+    -I$(top_srcdir)/Panels/TopPanel \
+    -I$(top_srcdir)/base
 
 HW_CounterPanel_la_LDFLAGS = \
 	-fpic \
@@ -41,7 +39,7 @@ HW_CounterPanel_la_LDFLAGS = \
 	--export-all-symbols \
 	-module \
 	-avoid-version \
-	-L../../libopenss-framework \
+	-L$(top_srcdir)/libopenss-framework \
 	-L$(QTDIR)/lib \
 	-lqt \
 	-ldl
