@@ -1,3 +1,29 @@
+First you need to pull down and build a $ROOT.    (On hope there's one
+already
+built in /perftools/ROOT .
+
+hope.americas.sgi.com$ pwd
+/data/clink/tools/builds/perftools
+hope.americas.sgi.com$ ls
+autoconf-2.59.tgz    dpcl-dyninst-hybrid-20040617.tgz  qt-3.3.1.tgz
+automake-1.7.9.tgz   gcc-3.3.3.tgz                     setenv.csh
+binutils-2.14.tgz    libdwarf-20040203.tgz             setenv.sh
+boost_1_31_0.tar.gz  libelf-0.8.5.tgz                  tmake-1.11.tgz
+Build-Hybrid         libtool-1.5.2.tgz                 xxdiff-3.0.2.tgz
+Build-ROOT           libunwind-0.96-uwmadison.tgz
+doxygen-1.3.6.tgz    Python-2.3.4.tgz
+
+$ su
+Password: xxxxxxxxxx
+# cd /
+# mkdir /perftools
+# chmod 777 /perftools
+exit
+$ cd /perftools
+$ rcp clink.americas.sgi.com:/data/clink/tools/builds/perftools/* .
+$ ./Build-ROOT /perftools/ROOT /perftools
+(Wait a very long time...)
+$ cd
 
 The interesting environment variables are:
 . /perftools/ROOT/setenv.sh
