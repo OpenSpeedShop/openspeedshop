@@ -6,5 +6,5 @@
   plugin_entry->plugin_entry_point = "panel_init";
   plugin_entry->menu_heading =  "&Tools";
   plugin_entry->menu_label =  "&Source Panel";
-  plugin_entry->menu_accel =  "Ctrl+S";
+  plugin_entry->menu_accel =  "Ctrl+J";
   plugin_entry->panel_type =  "Source Panel";

@@ -6,5 +6,5 @@
   plugin_entry->plugin_entry_point = "panel_init";
   plugin_entry->menu_heading =  "E&xperiments";
   plugin_entry->menu_label =  "&Create New";
-  plugin_entry->menu_accel =  "Ctrl+Z";
+  plugin_entry->menu_accel =  "Ctrl+L";
   plugin_entry->panel_type =  "&Create New";

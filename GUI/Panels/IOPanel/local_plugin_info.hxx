@@ -6,5 +6,5 @@
   plugin_entry->plugin_entry_point = "panel_init";
   plugin_entry->menu_heading =  "E&xperiments";
   plugin_entry->menu_label =  "I&O";
-  plugin_entry->menu_accel =  "Ctrl+O";
+  plugin_entry->menu_accel =  "Ctrl+Q";
   plugin_entry->panel_type =  "IO";
