@@ -16,18 +16,18 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-pkglib_LTLIBRARIES = ossChart.la
+pkglib_LTLIBRARIES = libopenss_Chart.la
 
-ossChart_la_CXXFLAGS = \
+libopenss_Chart_la_CXXFLAGS = \
 	-I/usr/include \
 	-I$(QTDIR)/include \
 	-I. \
 	-I../plugin \
 	-I../base
 
-ossChart_la_LDFLAGS = --export-dynamic -module -avoid-version
+libopenss_Chart_la_LDFLAGS = --export-dynamic -module -avoid-version
 
-ossChart_la_LIBADD = $(LIBLTDL)
+libopenss_Chart_la_LIBADD = $(LIBLTDL)
 
 moc_canvasview.cxx: canvasview.hxx
 	-moc -o moc_canvasview.cxx canvasview.hxx
@@ -41,7 +41,7 @@ moc_optionsform.cxx: optionsform.hxx
 moc_setdataform.cxx: setdataform.hxx
 	-moc -o moc_setdataform.cxx setdataform.hxx
 
-ossChart_la_SOURCES = \
+libopenss_Chart_la_SOURCES = \
 	canvasellipse.hxx        canvastext.hxx  chartform.hxx  optionsform.hxx \
 	canvasshadowellipse.hxx  canvasview.hxx  element.hxx    setdataform.hxx \
 	canvasview.cxx        element.cxx          moc_setdataform.cxx \
