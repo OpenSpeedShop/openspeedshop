@@ -219,7 +219,7 @@ void OpenSpeedshop::fileExit()
 
   int wid = ((PanelContainer *)topPC)->getMainWindow()->widStr.toInt();
   InputLineObject *ilp = Append_Input_String( wid, "quit");
-  if( clip == NULL )
+  if( ilp == NULL )
   {
     fprintf(stderr, "FATAL ERROR: No clip returned from cli for exit attempting exit regardless.\n");
   }

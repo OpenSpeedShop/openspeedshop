@@ -183,7 +183,7 @@ CmdPanel::returnPressed()
       fprintf(stderr, "ILO_COMPLETE!\n");
       char *fname = tempnam("/tmp", "__oss");
       FILE *fp = fopen(fname, "w+");
-      clip->Print(fp);
+      clip->Print_Results(fp, "\n", "");
       fclose(fp);
       QFile f( fname );
       QString line = NULL;
