@@ -122,9 +122,9 @@ OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
 
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
 
-// We're coming in cold, or we're coming in from the pcSampleWizardPanel.
 if( expID == -1 )
 {
+// We're coming in cold, or we're coming in from the pcSampleWizardPanel.
   char command[1024];
 // NOTE: "example" is used in place of "pcsamp" because it works for the
 //       test case.   "example" will eventually be replaced again with "pcsamp."
@@ -140,11 +140,23 @@ if( expID == -1 )
   }
   bool mark_value_for_delete = true;
   int64_t val = 0;
-printf("Attempting to do an (%s)\n", command );
-// For the demo only.... override this... 
-sprintf(command, "expCreate\n");
 
-  if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete) )
+
+steps = 0;
+pd = new QProgressDialog("Loading process in progress.", NULL, 100, this, NULL, TRUE);
+loadTimer = new QTimer( this, "progressTimer" );
+connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
+loadTimer->start( 0 );
+pd->show();
+statusLabelText->setText( tr(QString("Loading ...  "))+mw->executableName);
+
+runnableFLAG = FALSE;
+pco->runButton->setEnabled(FALSE);
+pco->runButton->enabledFLAG = FALSE;
+printf("Attempting to do an (%s)\n", command );
+
+  CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+  if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete, 60000 ) )
   {
     fprintf(stderr, "Error retreiving experiment id. \n");
     return;
@@ -152,12 +164,21 @@ sprintf(command, "expCreate\n");
   expID = val;
 
 //  fprintf(stdout, "A: MY VALUE! = (%d)\n", val);
+  statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the Run button to begin the experiment.")) );
+loadTimer->stop();
+pd->cancel();
+pd->hide();
+
+runnableFLAG = TRUE;
+pco->runButton->setEnabled(TRUE);
+pco->runButton->enabledFLAG = TRUE;
 }
 
   char name_buffer[100];
   sprintf(name_buffer, "%s [%d]", getName(), expID);
   setName(name_buffer);
   groupID = expID;
+
 
   pcSampleControlPanelContainerWidget->show();
   topPC->show();
@@ -189,7 +210,7 @@ if( expID == -1 )
     }
   }
 }
-// End demo.
+
 
 }
 
@@ -461,21 +482,8 @@ if( !cli->runSynchronousCLI(command) )
 }
         nprintf( DEBUG_MESSAGES ) ("Run\n");
         statusLabelText->setText( tr("Process running...") );
-// Begin demo only...
 
-if( fw_experiment() )
-{
-fw_experiment()->getThreads().changeState(Thread::Running);
-while(!fw_experiment()->getThreads().areAllState(Thread::Terminated))
-{
-// printf("sleep(1)\n");
-//  sleep(1);
-  qApp->processEvents(1000);
-}
 statusLabelText->setText( tr("Process finished...") );
-
-
-}
 
 if( 1 )
 {
@@ -628,11 +636,6 @@ pcSamplePanel::updateInitialStatus()
     pco->runButton->enabledFLAG = FALSE;
     return;
   }
-/*
-  runnableFLAG = TRUE;
-  pco->runButton->setEnabled(TRUE);
-  pco->runButton->enabledFLAG = TRUE;
-*/
 }
 
 /*
@@ -717,44 +720,12 @@ pcSamplePanel::loadStatsPanel()
     UpdateObject *msg = new UpdateObject((void *)fw_experiment(), expID, "example", 1);
     p->listener( (void *)msg );
   }
-#ifdef MOVE_TO_STATSPANEL
-if( fw_experiment() )
-{
-// Evaluate the collector's time metric for all functions in the thread
-SmartPtr<std::map<Function, double> > data;
-ThreadGroup tgrp = fw_experiment()->getThreads();
-ThreadGroup::iterator ti = tgrp.begin();
-Thread t1 = *ti;
-CollectorGroup cgrp = fw_experiment()->getCollectors();
-CollectorGroup::iterator ci = cgrp.begin();
-Collector c1 = *ci;
-
-Queries::GetMetricByFunctionInThread(c1, "time", t1, data);
-
-// Display the results
-std::cout << std::endl << std::endl << std::endl
-		  << std::setw(10) << "Time"
-		  << "    "
-		  << "Function" << std::endl
-		  << std::endl;
-	
-for(std::map<Function, double>::const_iterator
-		i = data->begin(); i != data->end(); ++i)
-{
-	    std::cout << std::setw(10) << std::fixed << std::setprecision(3)
-		      << i->second
-		      << "    "
-		      << i->first.getName() << std::endl;
-}
-std::cout << std::endl << std::endl << std::endl;
-}
-#endif // MOVE_TO_STATSPANEL
 }
 
 void
 pcSamplePanel::__demoWakeUpToLoadExperiment()
 {
-
+#ifdef OLDWAY
   // Begin direct connect to framework
   printf("Begin direct connect to framework\n");
   if( expID != -1 )
@@ -813,6 +784,8 @@ pcSamplePanel::__demoWakeUpToLoadExperiment()
     }
   }
   // End  direct connect to framework
+#endif // OLDWAY
+
 
   statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the Run button to begin the experiment.")) );
 loadTimer->stop();
@@ -829,12 +802,14 @@ void
 pcSamplePanel::loadMain()
 {
 printf("loadMain() entered\n");
+#ifdef OLDWAY
 steps = 0;
 pd = new QProgressDialog("Loading process in progress.", NULL, 100, this, NULL, TRUE);
 loadTimer = new QTimer( this, "__demoOnlyLoadTimer" );
 connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
 loadTimer->start( 0 );
 pd->show();
+#endif // OLDWAY
 
 // Begin Demo (direct connect to framework) only...
   if( !executableNameStr.isEmpty() || !pidStr.isEmpty() )
@@ -876,9 +851,12 @@ pd->show();
 void
 pcSamplePanel::progressUpdate()
 {
+#ifdef ABORTS
   pd->setProgress( steps++ );
-  if( steps > 10 )
+  if( steps > 100 )
   {
     loadTimer->stop();
   }
+  sleep(1);
+#endif // ABORTS
 }
