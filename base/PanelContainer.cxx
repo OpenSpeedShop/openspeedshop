@@ -734,7 +734,7 @@ PanelContainer::findNamedPanel(PanelContainer *start_pc, char *panel_name)
 PanelList *
 PanelContainer::getPanelListByID(int id)
 {
-  printf("PanelContainer::getPanelListByID(%d) entered\n", id);
+  nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::getPanelListByID(%d) entered\n", id);
 
   PanelList *panelList = new PanelList();
   panelList->clear();
@@ -2246,7 +2246,7 @@ PanelContainer::handleSizeEvent(QResizeEvent *e)
   Panel *p = getRaisedPanel();
   if( p != NULL )
   {
-// printf("p->getName(%s) resize!\n", p->getName() );
+// nprintf(DEBUG_PANELCONTAINERS) ("p->getName(%s) resize!\n", p->getName() );
     p->handleSizeEvent(e);
   }
 
@@ -2305,7 +2305,7 @@ PanelContainer::dl_create_and_add_panel(char *panel_type, PanelContainer *target
     }
     if( pc )
     {
-      printf("Nearest toplevel=(%s:%s)\n", pc->getInternalName(), pc->getExternalName() );
+      nprintf(DEBUG_PANELCONTAINERS) ("Nearest toplevel=(%s:%s)\n", pc->getInternalName(), pc->getExternalName() );
       targetPC = pc;
     }
   }
