@@ -39,3 +39,6 @@ ossPlugin_la_SOURCES = \
 	PluginInfo.hxx PluginInfo.cxx \
 	SlotInfo.hxx SlotInfo.cxx moc_SlotInfo.cxx \
 	plugin_entry_point.hxx
+
+doc:
+	-doxygen Doxyfile
