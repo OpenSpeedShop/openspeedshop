@@ -219,12 +219,15 @@ def return_string(args):
     return ret
 
 def return_int_list(args):
-    cmd_parse(args)
-    return [4,5,6,7,8]
+    ret = cmd_parse(args)
+    return ret
+    #return [4,5,6,7,8]
 
 def return_string_list(args):
-    cmd_parse(args)
-    return ["jack","and","jill","went","up","the","hill"]
+    ret = cmd_parse(args)
+    return ret
+    #cmd_parse(args)
+    #return ["jack","and","jill","went","up","the","hill"]
 
 ################################################################################
 #

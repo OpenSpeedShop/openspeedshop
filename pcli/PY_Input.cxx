@@ -48,6 +48,9 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     int ret;
     CommandObject *cmd = NULL;
     ParseResult parse_result = ParseResult();
+    int i;
+    bool list_returned = false;
+    PyObject *py_list = NULL;
     
     // Give yacc access to ParseResult object.
     p_parse_result = &parse_result;
@@ -86,29 +89,55 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     {
       std::list<CommandResult *> cmd_result = cmd->Result_List();
       std::list<CommandResult *>::iterator cri;
-      bool list_returned = cmd_desc[cmd->Type()].ret_list;
 
+      list_returned = cmd_desc[cmd->Type()].ret_list;
       if (!list_returned && (cmd_result.size() > 1)) {
         cmd->Result_String ("Too many results were generated for the command");
         cmd->set_Status(CMD_ERROR);
       }
 
-      for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++) {
+    	// Start building python list object
+      if (list_returned) {
+      	py_list = PyList_New(0);
+      }
+
+      for (cri = cmd_result.begin(), i=0; cri != cmd_result.end(); cri++,++i) {
         if (cri != NULL) {
+	  int ret = 0; // python conversion routine error flag
+
           switch ((*cri)->Type()) {
           case CMD_RESULT_INT:
           {
             int64_t I = 0;
+
             ((CommandResult_Int *)(*cri))->Value(&I);
             p_object = Py_BuildValue("l", I);
+
+	    if (list_returned) {
+            	ret = PyList_Append(py_list,p_object);
+		if (ret != 0) {
+            	    cmd->Result_String ("PyList_Append() failed for int");
+            	    cmd->set_Status(CMD_ERROR);
+		}
+	    }
+	    
             break;
           }
           case CMD_RESULT_STRING:
           {
             std::string C;
+
             ((CommandResult_String *)(*cri))->Value(&C);
-//            p_object = Py_BuildValue("S", C.c_str());
     	      p_object = Py_BuildValue("s",C.c_str());
+
+	    if (list_returned) {
+            	ret = PyList_Append(py_list,p_object);
+		if (ret != 0) {
+            	    cmd->Result_String ("PyList_Append() failed for string");
+            	    cmd->set_Status(CMD_ERROR);
+		}
+	    }
+
             break;
           }
           default:
@@ -122,7 +151,10 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
       p_object = Py_BuildValue("");
     }
 
-    return p_object;
+    if (list_returned)
+    	return py_list;
+    else
+    	return p_object;
 }
 
 // Save a pointer to the most recent Input_Line_Object.
