@@ -66,6 +66,10 @@ static std::list<CommandWindowID *> CommandWindowID_list;
 static CMDWID Command_Window_ID = 0;
 static CMDWID Last_ReadWindow = 0;
 static bool Async_Inputs = false;
+static bool Looking_for_Async_Inputs = false;
+static pthread_mutex_t Async_Input_Lock = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t  Async_Input_Available = PTHREAD_COND_INITIALIZER;
+static int64_t cnt = 0;
 
 
 // Input_Source
@@ -228,7 +232,7 @@ class CommandWindowID
   int64_t Cmd_Count_In_Trace_File;
   std::string Trace_File_Name;
   FILE *Trace_F;
-  bool Async_Input;
+  bool Input_Is_Async;
   Input_Source *Input;
   pthread_mutex_t Input_List_Lock;
   EXPID FocusedExp;
@@ -247,8 +251,8 @@ class CommandWindowID
       Trace_File_Name = "";
       Trace_F = NULL;
       Input = NULL;
-      Async_Input = async;
-      if (Async_Input) {
+      Input_Is_Async = async;
+      if (Input_Is_Async) {
         Assert(pthread_mutex_init(&Input_List_Lock, NULL) == 0); // dynamic initialization
       }
       FocusedExp = 0;
@@ -291,7 +295,7 @@ class CommandWindowID
         Input = NULL;
       }
      // Remove the control structures associate with the lock
-      if (Async_Input) {
+      if (Input_Is_Async) {
         pthread_mutex_destroy(&Input_List_Lock);
       }
 
@@ -312,7 +316,7 @@ class CommandWindowID
   void Append_Input_Source (Input_Source *inp) {
    // Get exclusive access to the lock so that only one
    // read, write, add or delete is done at a time.
-    if (Async_Input) {
+    if (Input_Is_Async) {
       Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
     }
 
@@ -327,14 +331,23 @@ class CommandWindowID
     }
 
    // Release the lock.
-    if (Async_Input) {
+    if (Input_Is_Async) {
       Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
     }
+
+   // After a new comand is placed in the input window,
+   // wake up a sleeping input reader.
+    Assert(pthread_mutex_lock(&Async_Input_Lock) == 0);
+    if (Looking_for_Async_Inputs) {
+      Looking_for_Async_Inputs = false;
+      Assert(pthread_cond_signal(&Async_Input_Available) == 0);
+    }
+    Assert(pthread_mutex_unlock(&Async_Input_Lock) == 0);
   }
   void Push_Input_Source (Input_Source *inp) {
    // Get exclusive access to the lock so that only one
    // read, write, add or delete is done at a time.
-    if (Async_Input) {
+    if (Input_Is_Async) {
       Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
     }
 
@@ -343,7 +356,7 @@ class CommandWindowID
     Input = inp;
 
    // Release the lock.
-    if (Async_Input) {
+    if (Input_Is_Async) {
       Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
     }
   }
@@ -370,7 +383,7 @@ public:
 
    // Get exclusive access to the lock so that only one
    // read, write, add or delete is done at a time.
-    if (Async_Input) {
+    if (Input_Is_Async) {
       Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
     }
 
@@ -384,7 +397,7 @@ public:
     }
 
    // Release the lock.
-    if (Async_Input) {
+    if (Input_Is_Async) {
       Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
     }
 
@@ -423,8 +436,9 @@ public:
   // Debug aids
   void Print(FILE *TFile) {
     fprintf(TFile,
-       "W %lld: remote:%s IAM:%s %s %lld %lld, history->%s\n",
-        id,remote?"T":"F",I_Call_Myself.c_str(),Host_ID.c_str(),(int64_t)Process_ID,Panel_ID,
+       "W %lld: async:%s remote:%s IAM:%s %s %lld %lld, history->%s\n",
+        id,Input_Is_Async?"T":"F",remote?"T":"F",
+        I_Call_Myself.c_str(),Host_ID.c_str(),(int64_t)Process_ID,Panel_ID,
         Trace_File_Name.c_str());
     if (Input) {
       Input->Dump(TFile );
@@ -695,28 +709,45 @@ void Commander_Termination (CMDWID im)
 }
 
 
+ResultObject Append_Input_String (CMDWID issuedbywindow, int64_t b_size, char *b_ptr) {
+  CommandWindowID *cw = Find_Command_Window (issuedbywindow);
+  Assert (cw);
+if (b_ptr[0] == *("\?")) {
+  fprintf(stdout,"Encounter help request\n");
+  fprintf(stdout,"  %s %s cnt: %lld\n",Async_Inputs?"T":"F",Looking_for_Async_Inputs?"T":"F",cnt);
+  List_CommandWindows(stdout);
+} else {
+  int64_t buffer_size = b_size+1;
+  char *buffer = (char *)malloc(buffer_size);
+  strncpy (buffer, b_ptr, buffer_size);
+  Input_Source *inp = new Input_Source (buffer_size, buffer);
+  cw->Append_Input_Source (inp);
+}
+  return ResultObject(SUCCESS, "Command_File_T", NULL, "Command file read and processed");
+}
+
 ResultObject Append_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_ptr) {
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
 
 // DEBUG: hacks to let the gui pass information in without initializing a window.
 if (!cw) {
 issuedbywindow = Command_Window_ID;  // default to the last allocated window
-cw = Find_Command_Window (issuedbywindow);
+if (b_ptr[strlen(b_ptr)] != *("\n")) {
+  int64_t buffer_size = b_size+1;
+  char *buffer = (char *)malloc(buffer_size);
+  strncpy (buffer, b_ptr, buffer_size);
+  buffer[strlen(b_ptr)] = *("\n");
+  buffer[strlen(b_ptr)+1] = *("\0");
+  Append_Input_String (issuedbywindow, buffer_size, buffer);
+  free (buffer);
+  return ResultObject(SUCCESS, "Command_File_T", NULL, "Command file read and processed");
+}
+Append_Input_String (issuedbywindow, b_size, b_ptr);
+return ResultObject(SUCCESS, "Command_File_T", NULL, "Command file read and processed");
 }
 
   Assert (cw);
   Input_Source *inp = new Input_Source (b_size, b_ptr);
-  cw->Append_Input_Source (inp);
-  return ResultObject(SUCCESS, "Command_File_T", NULL, "Command file read and processed");
-}
-
-ResultObject Append_Input_String (CMDWID issuedbywindow, int64_t b_size, char *b_ptr) {
-  CommandWindowID *cw = Find_Command_Window (issuedbywindow);
-  Assert (cw);
-  int64_t buffer_size = b_size+1;
-  char *buffer = (char *)malloc(buffer_size);
-  strncpy (buffer, b_ptr, buffer_size);
-  Input_Source *inp = new Input_Source (buffer_size, buffer);
   cw->Append_Input_Source (inp);
   return ResultObject(SUCCESS, "Command_File_T", NULL, "Command file read and processed");
 }
@@ -756,7 +787,7 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
   Buffer[Buffer_Size-1] = *"\0";
   while (1) {
     sleep (1);
-    fprintf(stderr,"%s->",current_prompt);
+    fprintf(stdout,"%s->",current_prompt);
     Buffer[0] == *("\0");
     char *read_result = fgets (&Buffer[0], Buffer_Size, stdin);
     if (Buffer[Buffer_Size-1] != (char)0) {
@@ -831,6 +862,7 @@ char *SpeedShop_ReadLine (int is_more)
 
   CMDWID readfromwindow = select_input_window(is_more);
   CMDWID firstreadwindow = readfromwindow;
+  bool I_HAVE_ASYNC_INPUT_LOCK = false;
   
   if (is_more) {
     current_prompt = "....ss";
@@ -843,6 +875,7 @@ read_another_window:
   char *s;
 
   do {
+cnt++;
     s = cw->Read_Command ();
     if (s == NULL) {
      // The read failed.  Why?  Can we find something else to read?
@@ -858,8 +891,19 @@ read_another_window:
      // After checking all windows for waiting input,
      // we might look for input from the gui or a terminal.
       if (Async_Inputs) {
-       // SHOULD WE FORCE A WAIT UNTIL DATA IS READY?
-        //sleep (1);
+        if (I_HAVE_ASYNC_INPUT_LOCK) {
+         // Force a wait until data is ready.
+          Assert(pthread_cond_wait(&Async_Input_Available,&Async_Input_Lock) == 0);
+          I_HAVE_ASYNC_INPUT_LOCK = false;
+          Assert(pthread_mutex_unlock(&Async_Input_Lock) == 0);
+        } else {
+         // Get the lock and try again to read from each of the input windows
+         // because something might have arrived after our first check of the
+         // window.
+          Assert(pthread_mutex_lock(&Async_Input_Lock) == 0);
+          Looking_for_Async_Inputs = true;
+          I_HAVE_ASYNC_INPUT_LOCK = true;
+        }
         goto read_another_window;
       }
 
@@ -891,6 +935,12 @@ fprintf(stdout,"gui instruction encountered\n");
     }
   } while (s == NULL);
 
+  if (I_HAVE_ASYNC_INPUT_LOCK) {
+    I_HAVE_ASYNC_INPUT_LOCK = false;
+    Looking_for_Async_Inputs = false;
+    Assert(pthread_mutex_unlock(&Async_Input_Lock) == 0);
+  }
+
   current_prompt = save_prompt;
   if (s == NULL) {
     return NULL;
@@ -902,7 +952,7 @@ fprintf(stdout,"gui instruction encountered\n");
 
  // Assign a sequence number to the command.
   clip->SetSeq (++Command_Sequence_Number);
-fprintf(stdout,"command[%d]: %s\n",Command_Sequence_Number,s);
+// fprintf(stdout,"command[%d] from w%d: %s\n",Command_Sequence_Number,readfromwindow,s);
 
  // Log the command.
   cw->Trace(clip);
