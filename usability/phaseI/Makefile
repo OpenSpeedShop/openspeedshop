@@ -16,16 +16,26 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-LCDEFS= -g
-LLDLIBS=
+LCDEFS64 = -I$ROOT/include/dpcl -pg -g -gdwarf_2 -D__64BIT__
+LLDLIBS64 = -L $ROOT/lib -ldpcl -lelf
+LCDEFS32 = -g
+LLDLIBS32 = 
 
-TARGETS= clobber fred_calls_ted 
+TARGETS= fred_calls_ted 
 
 default all: fred_calls_ted
 	@$(MAKE) $(TARGETS)
 
 fred_calls_ted: fred_calls_ted.c foo.c fred.c ted.c
-	cc $(LCDEFS) -o fred_calls_ted fred_calls_ted.c foo.c fred.c ted.c $(LLDLIBS)
+	echo ROOT=$(ROOT) ; \
+    ls -ld $(ROOT)/ia64-unknown-linux-gnu ; \
+	if test -d $(ROOT)/ia64-unknown-linux-gnu ; then \
+		echo IA64; \
+	    cc $(LCDEFS64) -o fred_calls_ted fred_calls_ted.c foo.c fred.c ted.c $(LLDLIBS64) ; \
+	else \
+		echo IA32; \
+	    cc $(LCDEFS32) -o fred_calls_ted fred_calls_ted.c foo.c fred.c ted.c $(LLDLIBS32) ; \
+	fi; \
 	rm -fr $(OPENSPEEDSHOP_PLUGIN_PATH)/../../../usability;
 	mkdir $(OPENSPEEDSHOP_PLUGIN_PATH)/../../../usability;
 	mkdir $(OPENSPEEDSHOP_PLUGIN_PATH)/../../../usability/phaseI;
