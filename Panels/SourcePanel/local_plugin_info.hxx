@@ -7,5 +7,6 @@
   plugin_entry->menu_heading =  "&Tools";
   plugin_entry->menu_label =  "&Source Panel";
   plugin_entry->menu_accel =  "Ctrl+J";
+  plugin_entry->panel_type =  "Source Panel";
   plugin_entry->preference_category =  "Source Panel";
   plugin_entry->initialize_preferences_entry_point =  "preference_info_init";
