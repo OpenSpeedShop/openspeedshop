@@ -36,6 +36,8 @@ EXPID Experiment_Sequence_Number = 0;
 std::list<ExperimentObject *> ExperimentObject_list;
 static std::string tmpdb = std::string("./ssdbtmpcmd.openss");
 
+// Global Termination Call -
+
 // Terminate all experiments and free associated files.
 // Called from the drivers to clean up after an "Exit" command or fatal error.
 void Experiment_Termination () {
@@ -160,8 +162,21 @@ bool Thread_Already_Exists (Thread **returnThread, ExperimentObject *exp, std::s
   return false;
 }
 
-Collector Get_Collector (ExperimentObject *exp, std::string myname) {
-  CollectorGroup current_cgrp = exp->FW()->getCollectors();
+bool Collector_Used_In_Experiment (OpenSpeedShop::Framework::Experiment *fexp, std::string myname) {
+  CollectorGroup current_cgrp = fexp->getCollectors();
+  CollectorGroup::iterator ci;
+  for (ci = current_cgrp.begin(); ci != current_cgrp.end(); ci++) {
+    Collector C = *ci;
+    std::string name = C.getMetadata().getUniqueId();
+    if (!strcmp(name.c_str(), myname.c_str())) {
+      return true;
+    }
+  }
+  return false;
+}
+
+Collector Get_Collector (OpenSpeedShop::Framework::Experiment *fexp, std::string myname) {
+  CollectorGroup current_cgrp = fexp->getCollectors();
   CollectorGroup::iterator ci;
   for (ci = current_cgrp.begin(); ci != current_cgrp.end(); ci++) {
     Collector C = *ci;
@@ -170,7 +185,7 @@ Collector Get_Collector (ExperimentObject *exp, std::string myname) {
       return C;
     }
   }
-  return exp->FW()->createCollector(myname);
+  return fexp->createCollector(myname);
 }
 
 static void Attach_Command (CommandObject *cmd, ExperimentObject *exp, Thread t, Collector c) {
@@ -442,8 +457,8 @@ static bool Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
     vector<string>::iterator si;
     for (si = p_slist->begin(); si != p_slist->end(); si++) {
       try {
-        Collector c = Get_Collector (exp, *si);
-        cgrp.push_back (c);
+        Collector C = Get_Collector (exp->FW(), *si);
+        cgrp.push_back (C);
       }
       catch(const std::exception& error) {
         Mark_Cmd_With_Std_Error (cmd, error);
@@ -710,19 +725,22 @@ bool SS_expFocus  (CommandObject *cmd) {
 
  // The experiment specifier is optional and does not deafult to the focused experiment
   Assert(cmd->P_Result() != NULL);
-  EXPID ExperimentID = (cmd->P_Result()->IsExpId()) ? cmd->P_Result()->GetExpId() : 0;
+  EXPID ExperimentID = 0;
 
-  if (ExperimentID == 0) {
+  if (cmd->P_Result()->IsExpId()) {
+    ExperimentID = cmd->P_Result()->GetExpId();
+  } else {
    // Get the Focused experiment - if it doesn't exist, return the default "0".
     ExperimentID = Experiment_Focus ( WindowID );
-  } else {
+  }
+  if (ExperimentID != 0) {
    // Be sure the requested experiment exists.
     if (Find_Specified_Experiment (cmd) == NULL) {
       return false;
     }
-   // Set the Focus to the given experiment ID.
-    ExperimentID = Experiment_Focus ( WindowID, ExperimentID);
   }
+ // Set the Focus to the given experiment ID.
+  ExperimentID = Experiment_Focus ( WindowID, ExperimentID);
 
  // Return the EXPID for this command.
   cmd->Result_Int (ExperimentID);
@@ -787,8 +805,9 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
         }
       }
       catch(const std::exception& error) {
-        Mark_Cmd_With_Std_Error (cmd, error);
-        return false;
+//        Mark_Cmd_With_Std_Error (cmd, error);
+//        return false;
+        continue;
       }
     }
 
@@ -819,6 +838,7 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
       usleep (10000);
     }
   }
+  return true;
 }
 
 bool SS_expGo (CommandObject *cmd) {
@@ -913,7 +933,7 @@ bool SS_expRestore (CommandObject *cmd) {
  // Extract the savefile name.
   parse_val_t *file_name_value = Get_Simple_File_Name (cmd);
   if (file_name_value == NULL) {
-    cmd->Result_String ("need a file name for the Data Base.");
+    cmd->Result_String ("A file name for the Data Base is required.");
     cmd->set_Status(CMD_ERROR);
     return false;
   }
@@ -925,18 +945,19 @@ bool SS_expRestore (CommandObject *cmd) {
   EXPID ExperimentID = 0;
 
   if (exp != NULL) {
-   // When we allocate a new experiment, set the focus to point to it.
+   // Pick up the ID for an allocated experiment.
     ExperimentID = exp->ExperimentObject_ID();
-    (void)Experiment_Focus (WindowID, ExperimentID);
   }
 
  // Return the EXPID for this command.
   if (ExperimentID > 0) {
-    cmd->Result_Int (exp->ExperimentObject_ID());
+   // When we allocate a new experiment, set the focus to point to it.
+    (void)Experiment_Focus (WindowID, ExperimentID);
+    cmd->Result_Int (ExperimentID);
     cmd->set_Status(CMD_COMPLETE);
     return true;
   } else {
-    cmd->Result_String ("file name is not legal");
+    cmd->Result_String ("The specified file name is not a legal data base.");
     cmd->set_Status(CMD_ERROR);
     return false;
   }
@@ -1013,7 +1034,7 @@ bool SS_expView (CommandObject *cmd) {
   vector<string>::iterator si;
   for (si = p_slist->begin(); si != p_slist->end(); si++) {
     std::string view = *si;
-    if (!SS_Determine_View (cmd, exp, view)) {
+    if (!SS_Generate_View (cmd, exp, view)) {
       return false;
     }
   }
@@ -1076,9 +1097,9 @@ bool SS_ListMetrics (CommandObject *cmd) {
       std::set<Metadata> collectortypes = Collector::getAvailable();
       for (std::set<Metadata>::const_iterator mi = collectortypes.begin();
                 mi != collectortypes.end(); mi++) {
-        fw_exp->createCollector ( mi->getUniqueId() );
+        Collector C = Get_Collector (fw_exp, mi->getUniqueId());
+        cgrp.push_back (C);
       }
-      cgrp = fw_exp->getCollectors();
     }
     catch(const std::exception& error) {
       Mark_Cmd_With_Std_Error (cmd, error);
@@ -1102,9 +1123,9 @@ bool SS_ListMetrics (CommandObject *cmd) {
       vector<string>::iterator si;
       for (si = p_slist->begin(); si != p_slist->end(); si++) {
        //  Get a collector object from the framework.
-        fw_exp->createCollector ( *si );
+        Collector C = Get_Collector (fw_exp, *si);
+        cgrp.push_back (C);
       }
-      cgrp = fw_exp->getCollectors();
     }
     catch(const std::exception& error) {
       Mark_Cmd_With_Std_Error (cmd, error);
@@ -1177,9 +1198,9 @@ bool SS_ListParams (CommandObject *cmd) {
       std::set<Metadata> collectortypes = Collector::getAvailable();
       for (std::set<Metadata>::const_iterator mi = collectortypes.begin();
                 mi != collectortypes.end(); mi++) {
-        fw_exp->createCollector ( mi->getUniqueId() );
+        Collector C = Get_Collector (fw_exp, mi->getUniqueId() );
+        cgrp.push_back (C);
       }
-      cgrp = fw_exp->getCollectors();
     }
     catch(const std::exception& error) {
       Mark_Cmd_With_Std_Error (cmd, error);
@@ -1203,9 +1224,9 @@ bool SS_ListParams (CommandObject *cmd) {
       vector<string>::iterator si;
       for (si = p_slist->begin(); si != p_slist->end(); si++) {
        //  Get a collector object from the framework.
-        fw_exp->createCollector ( *si );
+        Collector C = Get_Collector (fw_exp, *si);
+        cgrp.push_back (C);
       }
-      cgrp = fw_exp->getCollectors();
     }
     catch(const std::exception& error) {
       Mark_Cmd_With_Std_Error (cmd, error);
@@ -1385,9 +1406,49 @@ bool SS_ListTypes (CommandObject *cmd) {
 bool SS_ListViews (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
-  ExperimentObject *exp = Find_Specified_Experiment (cmd);
 
-  cmd->Result_String ("not yet implemented");
+ // Look at general modifier types for "all" option.
+  Assert(cmd->P_Result() != NULL);
+  bool All_KeyWord = Look_For_KeyWord (cmd, "all");
+  OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
+  vector<string> *p_slist = p_result->getExpList();
+  CollectorGroup cgrp;
+
+  if (All_KeyWord) {
+   // What are all the known views that can be generated?
+    SS_Get_Views (cmd);
+  } else if (cmd->P_Result()->IsExpId()) {
+   // What views can be genrated from the information collected in this experiment?
+    ExperimentObject *exp = Find_Specified_Experiment (cmd);
+    if (exp == NULL) {
+      return false;
+    }
+    if (exp->FW() == NULL) {
+      cmd->Result_String ("The specified experiment has been disabled");
+      cmd->set_Status(CMD_ERROR);
+      return false;
+    }
+    SS_Get_Views (cmd, exp->FW());
+  } else if (p_slist->begin() != p_slist->end()) {
+   // What views depend on a specific collector?
+    vector<string>::iterator si;
+    for (si = p_slist->begin(); si != p_slist->end(); si++) {
+      SS_Get_Views (cmd, *si );
+    }
+  } else {
+   // What views can be generated for the information collected in the focused experiment?
+    ExperimentObject *exp = Find_Specified_Experiment (cmd);
+    if (exp == NULL) {
+      return false;
+    }
+    if (exp->FW() == NULL) {
+      cmd->Result_String ("The focused experiment has been disabled");
+      cmd->set_Status(CMD_ERROR);
+      return false;
+    }
+    SS_Get_Views (cmd, exp->FW());
+  }
+
   cmd->set_Status(CMD_COMPLETE);
   return true;
 }
