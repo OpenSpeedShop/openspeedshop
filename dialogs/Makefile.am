@@ -45,6 +45,4 @@ moc_AttachProcessDialog.cxx: AttachProcessDialog.hxx
 ossDialogs_la_SOURCES = \
 	AttachProcessDialog.hxx AttachProcessDialog.cxx moc_AttachProcessDialog.cxx
 
-clean:
-	-rm moc_*
-
+CLEANFILES=moc_AttachProcessDialog.cxx

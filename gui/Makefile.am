@@ -51,5 +51,4 @@ ossgui_la_SOURCES = \
 doc:
 	-doxygen Doxyfile
 
-clean:
-	-rm moc_*
+CLEANFILES=moc_openspeedshop.cxx

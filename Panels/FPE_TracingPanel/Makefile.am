@@ -50,5 +50,4 @@ FPE_TracingPanel_la_SOURCES = \
 	plugin_entry_point.hxx Panel.hxx \
 	PanelContainer.hxx local_plugin_info.hxx debug.hxx
 
-clean:
-	-rm moc_*
+CLEANFILES=moc_FPE_TracingPanel.cxx

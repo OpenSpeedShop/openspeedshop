@@ -62,5 +62,4 @@ ossObjects_la_SOURCES = \
 	ProcessControlObject.hxx ProcessControlObject.cxx moc_ProcessControlObject.cxx
 
 
-clean:
-	-rm moc_*
+CLEANFILES=moc_AnimatedQPushButton.cxx moc_ProcessControlObject.cxx moc_InfoEventFilter.cxx

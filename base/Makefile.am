@@ -70,5 +70,4 @@ ossBase_la_SOURCES = \
 	debug.hxx
 
 
-clean:
-	-rm moc_*
+CLEANFILES=moc_TopWidget.cxx moc_TabWidget.cxx moc_TabBarWidget.cxx moc_Frame.cxx moc_PanelContainer.cxx moc_Panel.cxx

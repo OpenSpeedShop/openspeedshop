@@ -49,5 +49,4 @@ TopPanel_la_SOURCES = \
 	TPTextEdit.hxx TPTextEdit.cxx \
 	TPChartForm.hxx TPChartForm.cxx
 
-clean:
-	-rm moc_*
+CLEANFILES=moc_TopPanel.cxx

@@ -56,5 +56,4 @@ ossChart_la_SOURCES = \
 	chartform_files.cxx   moc_optionsform.cxx
 
 
-clean:
-	-rm moc_*
+CLEANFILES=moc_canvasview.cxx moc_chartform.cxx moc_optionsform.cxx moc_setdataform.cxx

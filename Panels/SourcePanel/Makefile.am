@@ -57,5 +57,4 @@ SourcePanel_la_SOURCES = \
 	PanelContainer.hxx local_plugin_info.hxx debug.hxx \
 	plugin_entry_point.hxx Panel.hxx HighlightObject.hxx
 
-clean:
-	-rm moc_*
+CLEANFILES=moc_SPTextEdit.cxx moc_SourcePanel.cxx moc_SPCanvasView.cxx moc_SPCanvasForm.cxx

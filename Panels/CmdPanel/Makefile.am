@@ -46,5 +46,4 @@ CmdPanel_la_SOURCES = \
 	PanelContainer.h local_plugin_info.h debug.h \
 	plugin_entry_point.h Panel.h
 
-clean:
-	-rm moc_*
+CLEANFILES=moc_CmdPanel.cxx
