@@ -28,7 +28,7 @@ libopenss_framework_la_LDFLAGS = \
 	-export-dynamic -version-info 0:0:0
 
 libopenss_framework_la_LIBADD = \
-	@INSTRUMENTOR@/@INSTRUMENTOR@.la \
+	@INSTRUMENTOR@/libopenss-framework-@INSTRUMENTOR@.la \
 	$(LIBLTDL) \
 	-lsqlite3 -lpthread -lrt
 

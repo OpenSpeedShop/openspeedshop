@@ -16,20 +16,20 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-noinst_LTLIBRARIES = dpcl.la
+noinst_LTLIBRARIES = libopenss-framework-dpcl.la
 
-dpcl_la_CXXFLAGS = \
+libopenss_framework_dpcl_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework \
 	$(DPCL_CPPFLAGS)
 
-dpcl_la_LDFLAGS = \
+libopenss_framework_dpcl_la_LDFLAGS = \
 	$(DPCL_LDFLAGS)
 
-dpcl_la_LIBADD = \
+libopenss_framework_dpcl_la_LIBADD = \
 	$(DPCL_LIBS) \
 	-lpthread
 
-dpcl_la_SOURCES = \
+libopenss_framework_dpcl_la_SOURCES = \
 	Instrumentor.cxx \
 	MainLoop.hxx MainLoop.cxx \
 	Process.hxx Process.cxx \
