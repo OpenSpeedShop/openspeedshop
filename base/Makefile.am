@@ -69,5 +69,3 @@ ossBase_la_SOURCES = \
 	PanelContainer.hxx PanelContainer.cxx moc_PanelContainer.cxx \
 	debug.hxx
 
-doc:
-	-doxygen Doxyfile

@@ -61,5 +61,3 @@ ossObjects_la_SOURCES = \
 	InfoEventFilter.hxx InfoEventFilter.cxx moc_InfoEventFilter.cxx \
 	ProcessControlObject.hxx ProcessControlObject.cxx moc_ProcessControlObject.cxx
 
-doc:
-	-doxygen Doxyfile
