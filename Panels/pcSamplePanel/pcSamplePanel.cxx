@@ -959,9 +959,9 @@ pcSamplePanel::updateStatus()
       case 1:
 //        statusLabelText->setText( "1: ExpStatus_Paused" );
         statusLabelText->setText( tr("Experiment is Paused:  Hit the \"Run\" button to continue execution.") );
-        pco->runButton->setEnabled(FALSE);
-        pco->runButton->enabledFLAG = FALSE;
-        runnableFLAG = FALSE;
+        pco->runButton->setEnabled(TRUE);
+        pco->runButton->enabledFLAG = TRUE;
+        runnableFLAG = TRUE;
         pco->pauseButton->setEnabled(FALSE);
         pco->pauseButton->enabledFLAG = FALSE;
 #ifdef CONTINUE_BUTTON

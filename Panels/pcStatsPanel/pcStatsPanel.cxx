@@ -114,12 +114,10 @@ pcStatsPanel::listener(void *msg)
 bool
 pcStatsPanel::menu( QPopupMenu* contextMenu)
 {
-  printf("pcStatsPanel::menu() entered.\n");
+//  printf("pcStatsPanel::menu() entered.\n");
 
 
   contextMenu->insertSeparator();
-
-  contextMenu->insertItem("Number visible entries...", this, SLOT(setNumberVisibleEntries()));
 
   contextMenu->insertSeparator();
 
@@ -359,11 +357,15 @@ metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Cumulative %"), FLO
     }
 
     // How many rows should we display?
-    int numberItemsToRead = getPreferenceTopNLineEdit().toInt(&ok);
-    if( !ok )
+    int numberItemsToRead = -1;
+    if( !getPreferenceTopNLineEdit().isEmpty() )
     {
-      numberItemsToRead = 5; // Default to top5.
-    }
+      numberItemsToRead = getPreferenceTopNLineEdit().toInt(&ok);
+      if( !ok )
+      {
+        numberItemsToRead = 5; // Default to top5.
+      }
+   }
 
 
     nprintf( DEBUG_PANELS) ("Put the data out...\n");
@@ -388,11 +390,14 @@ c_percent = it->second*percent_factor;  // current item's percent of total time
 //      lvi =  new SPListViewItem( this, lv, cputimestr,  it->first.getName().c_str() );
       lvi =  new SPListViewItem( this, lv, cputimestr,  a_percent_str, c_percent_str, it->first.getName().c_str() );
 
-      numberItemsToRead--;
-      if( numberItemsToRead == 0)
+      if(numberItemsToRead >= 0 )
       {
-        // That's all the user requested...
-        break;  
+        numberItemsToRead--;
+        if( numberItemsToRead == 0)
+        {
+          // That's all the user requested...
+          break;  
+        }
       }
     }
     
