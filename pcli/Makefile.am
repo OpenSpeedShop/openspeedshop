@@ -35,7 +35,7 @@ posscli_la_LDFLAGS = --export-dynamic -module -avoid-version -Wl,/perftools/ROOT
 
 posscli_la_LIBADD = $(LIBLTDL)
 
-posscli_la_SOURCES = Start_Modes.cxx Commander.cxx Experiment.cxx SS_Util.cxx
+posscli_la_SOURCES = Start_Modes.cxx Commander.cxx Experiment.cxx PY_Input.cxx
 
 
 
@@ -56,7 +56,7 @@ pcli:
 		g++ $(pcli_la_CXXFLAGS) -fpic -c Start_Modes.cxx; \
 		g++ $(pcli_la_CXXFLAGS) -fpic -c Commander.cxx; \
 		g++ $(pcli_la_CXXFLAGS) -fpic -c Experiment.cxx; \
-		g++ $(pcli_la_CXXFLAGS) -fpic -c SS_Util.cxx; \
-		g++ -dynamic -fpic -o pcli Start.o Start_Modes.o Commander.o Experiment.o SS_Util.o $(LDFLAGS); \
+		g++ $(pcli_la_CXXFLAGS) -fpic -c PY_Input.cxx; \
+		g++ -dynamic -fpic -o pcli Start.o Start_Modes.o Commander.o Experiment.o PY_Input.o $(LDFLAGS); \
 	 fi;
 
