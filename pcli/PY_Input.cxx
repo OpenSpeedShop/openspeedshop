@@ -56,7 +56,8 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     	;
     }
 
-    yyin = fopen("/usr/tmp/jack.tmp","w+");
+//    yyin = fopen("/usr/tmp/jack.tmp","w+");
+    yyin = fopen("./jack.tmp","w+");
 
     fprintf(yyin,"%s\n", input_line);
     rewind(yyin);
