@@ -30,6 +30,10 @@ OpenSpeedshop::OpenSpeedshop( QWidget* parent, const char* name, WFlags fl )
   pidStr = QString::null;
   executableName = QString::null;
   experimentName = QString::null;
+  argsStr = QString::null;
+  rankStr = QString::null;
+  hostStr = QString::null;
+  expStr = QString::null;
 
   (void)statusBar();
 
@@ -233,3 +237,13 @@ void OpenSpeedshop::languageChange()
 #endif // HOLD
 }
 
+void
+OpenSpeedshop::print()
+{
+  printf("pidStr = %s\n",  pidStr.ascii() );
+  printf("executableName = %s\n",  executableName.ascii() );
+  printf("argsStr = %s\n",  argsStr.ascii() );
+  printf("rankStr = %s\n",  rankStr.ascii() );
+  printf("hostStr = %s\n",  hostStr.ascii() );
+  printf("expStr = %s\n",  expStr.ascii() );
+}

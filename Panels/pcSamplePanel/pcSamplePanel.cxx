@@ -359,6 +359,15 @@ TopPanel *tp = (TopPanel *)topPC->dl_create_and_add_panel("Top Panel", topPC);
 void
 pcSamplePanel::updateInitialStatus()
 {
+printf("begin arguments.\n");
+printf("pidStr = %s\n",  mw->pidStr.ascii() );
+printf("executableName = %s\n",  mw->executableName.ascii() );
+printf("argsStr = %s\n",  mw->argsStr.ascii() );
+printf("rankStr = %s\n",  mw->rankStr.ascii() );
+printf("hostStr = %s\n",  mw->hostStr.ascii() );
+printf("expStr = %s\n",  mw->expStr.ascii() );
+printf("end arguments.\n");
+
   pco->runButton->setEnabled(TRUE);
   pco->runButton->enabledFLAG = TRUE;
 

@@ -73,8 +73,20 @@ class OpenSpeedshop : public QMainWindow
     //! The hinted process id string that is to be attached (eventually).
     QString pidStr;
 
+    //! The host to the peruse.
+    QString hostStr;
+
     //! The hinted executable_name that is to be loaded (eventually).
     QString executableName;
+
+    //! The args to the executable that is to be loaded (eventually).
+    QString argsStr;
+
+    //! The experiment to attach to
+    QString expStr;
+
+    //! The thread/rank to attach to
+    QString rankStr;
 
     //! The hinted experiment_name that is to be intialized.. 
     QString experimentName;
@@ -84,6 +96,9 @@ class OpenSpeedshop : public QMainWindow
 
     //! The save file dialog.
     QFileDialog *sfd;
+
+    //! print out some internal debug information about this class.
+    void print();
 
 #ifdef EVENTUALLY // Move back to 'public slots:' if needed.
     virtual void editUndo();

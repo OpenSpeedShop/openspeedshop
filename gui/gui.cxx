@@ -16,6 +16,21 @@ QEventLoop *qeventloop;
 
 extern "C" 
 {
+  void usage()
+  {
+    printf("openss, version - prepreprepreRelease 0.01\n");
+    printf("usage: openss [-f executable] [-h host] [-x experiment_name]\n");
+    printf("              [-p process_ID [-r thread_rank] ]\n");
+    printf("              [-a \"command line args\"]\n\n");
+    printf("  -f : executable being measured\n");
+    printf("  -h : host to locate target executable or process\n");
+    printf("  -p : pid of target process\n");
+    printf("  -r : rank of \n");
+    printf("  -a : quoted command line arguments to be passed to executable.\n");
+    printf("\n");
+    printf("Example:  openss\n");
+    printf("   >insert example here.<\n");
+  }
   int
   event_routine()
   {
@@ -30,28 +45,67 @@ extern "C"
   int
   gui_init(int argc, char **argv, int cliFLAG)
   {
-    bool SPLASH=TRUE;
+    bool splashFLAG=TRUE;
 // printf("gui.so gui_init(cliFLAG=%d) entered\n", cliFLAG);
   
     qeventloop = new QEventLoop();
     qapplication = new QApplication( argc, argv );
 
+    QString hostStr = QString::null;
+    QString executableStr = QString::null;
+    QString argsStr = QString::null;
+    QString pidStr = QString::null;
+    QString rankStr = QString::null;
+    QString expStr = QString::null;
     for(int i=0;i<argc;i++)
     {
-      if(strcmp(argv[i],"--no_splash") == 0 || 
-         strcmp(argv[i],"-ns") == 0 )
+      QString arg = argv[i];
+      if( arg == "--no_splash" ||
+          arg == "-ns" ) 
       {
-        SPLASH = FALSE;
+        splashFLAG = FALSE;
+      } else if( arg == "-f" )
+      {  // Get the target executableName.
+        executableStr = QString(argv[++i]);
+      } else if( arg == "-h" )
+      { // Get the target host (or host list)
+        hostStr = QString(argv[++i]);
+      } else if( arg == "-r" )
+      { // attach to the rank (list) specified
+        rankStr = QString(argv[++i]);
+      } else if( arg == "-p" )
+      { // attach to the proces (list) specified )
+        pidStr = QString(argv[++i]);
+      } else if( arg == "-x" )
+      { // load the collector (experiment) 
+        expStr = QString(argv[++i]);
+      } else if( arg == "-a" )
+      { // load the command line arguments (to the exectuable)
+        for( ;i<argc;)
+        {
+          argsStr += QString(argv[++i]);
+          argsStr += QString(" ");
+        }
+      } else if( arg == "-help" || arg == "--help" )
+      {
+        usage();
+        return 0; // Failure to complete...
+      } else if( !arg.contains("openspeedshop") )
+      {
+        printf("Unknown argument syntax: argument in question: (%s)\n", arg.ascii() );
+        usage();
+        return 0; // Failure to complete...
       }
+
     }
-if( cliFLAG )
-{
-  SPLASH = FALSE;
-}
+    if( cliFLAG )
+    {
+      splashFLAG = FALSE;
+    }
 
     QPixmap *splash_pixmap = NULL;
     QSplashScreen *splash = NULL;
-    if( SPLASH )
+    if( splashFLAG )
     {
       splash_pixmap = new QPixmap( splash_xpm );
       splash = new QSplashScreen( *splash_pixmap );
@@ -88,6 +142,12 @@ if( cliFLAG )
     OpenSpeedshop *w;
 // fprintf(stderr, "gui_init() entered.  call new OpenSpeedshop()\n");
     w = new OpenSpeedshop();
+    w->executableName = executableStr;
+    w->pidStr = pidStr;
+    w->rankStr = rankStr;
+    w->expStr = expStr;
+    w->hostStr = hostStr;
+    w->argsStr = argsStr;
 //    printf("create OpenSpeedshop()\n");
 
     w->show();
@@ -96,7 +156,7 @@ if( cliFLAG )
     qapplication->connect( qapplication, SIGNAL( lastWindowClosed() ), qapplication, SLOT( quit() ) );
 //    printf("connect this up.\n");
 
-    if( SPLASH )
+    if( splashFLAG )
     {
       splash->raise();
       event_routine();
