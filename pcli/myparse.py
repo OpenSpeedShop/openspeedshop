@@ -17,8 +17,6 @@ global terminate_SS
 ################################################################################
 def cmd_parse(args):
 
-    #print args
-
     # Convert numeric values into strings
     count = len(args)
     for ndx in range(count):
@@ -27,16 +25,15 @@ def cmd_parse(args):
 	if type(args[ndx]) is types.LongType:
 	    args[ndx] = str(args[ndx])
 
-    #print args
-
     # combine all the argument strings into a
     # single space delimitted string to pass
     # down to the yacc parser.
     if count > 0:
     	blank_delim = " "
     	zusamen = blank_delim.join(args[:count])
-	#print zusamen
     	PY_Input.CallParser (zusamen)
+
+    return 4
     pass
 
 ################################################################################
@@ -48,13 +45,58 @@ def cmd_parse(args):
 # throw out the commas and colons. 
 #
 ################################################################################
-def cloak_list_range(arg):
+def cloak_list_range(arg, is_name):
 
     #print 'in cloak_list(',arg,')'
     if type(arg) is types.StringType:
-    	arg = '"' + arg + '"'
+    	# Check to see if operand is name and cloak everything.
+    	if is_name is 1:
+    	    arg = '"' + arg + '"'
+	# Must be numerical. Only cloak delimeters.
+	else:
+	    # The assumption here is that the first character is always kosher
+	    t_arg = arg[0]
+	    arg_len = len(arg)
+	    #print arg_len
+	    i = 1
+	    while i < arg_len:
+	    	c = arg[i]
+		i=i+1
 
+	    	if c == ',' or c == ':':
+		    t_arg = t_arg + ',' + '"' + c + '"' + ',' 
+		else:
+		    t_arg = t_arg + c
+
+    	    arg = t_arg
+
+    #print arg
     return arg
+
+################################################################################
+#
+# dummy fronts for parser call so we can return information
+# however made up until we get the real command object running.
+#
+################################################################################
+def return_none(args):
+    cmd_parse(args)
+
+def return_int(args):
+    cmd_parse(args)
+    return 4
+
+def return_string(args):
+    cmd_parse(args)
+    return "BALOOY!"
+
+def return_int_list(args):
+    cmd_parse(args)
+    return [4,5,6,7,8]
+
+def return_string_list(args):
+    cmd_parse(args)
+    return ["jack","and","jill","went","up","the","hill"]
 
 ################################################################################
 #
@@ -65,9 +107,6 @@ def cloak_list_range(arg):
 ################################################################################
 def Do_quit(args):
 
-    #print "Exit Python"
-    #raise SystemExit
-    # signal the main read loop to do a normal return out of Python
     myparse.terminate_SS = 1
 
 ##################################################################
@@ -86,7 +125,7 @@ def Do_quit(args):
 # uncloak all quoted strings later down the pipe.
 #
 ##################################################################
-def preParseArgs(line, command_dict, arg_dict):
+def preParseArgs(line, command_dict, arg_dict, str_opts_dict, num_opts_dict):
     
     parts = line.split()
     count = len(parts)
@@ -123,17 +162,24 @@ def preParseArgs(line, command_dict, arg_dict):
                     	parts[i] = '"' + parts[i] + '"'
                     else:
 		    	# Look for dash arguments
-                    	t_str = parts[i]
-                    	if len(t_str) is 2:
-                            if t_str[0] is '-':
-                            	# This could be done more effiecently
-                            	for t_char in ['r','h','f','p','t','x']:
-                                    if t_char is t_str[1]:
-                                    	parts[i] = '"' + parts[i] + '"'
-					# Don't crash if no argument
-					if i < count-1:
-				    	    parts[i+1] = cloak_list_range(parts[i+1])
-                                    	break
+			t_arg = str_opts_dict.get(parts[i])
+			if t_arg is not None:
+    	    	    	    parts[i] = '"' + parts[i] + '"'
+    	    	    	    # Don't crash if no argument
+    	    	    	    if i < count-1:
+			    	# cloak sensitive characters and strings
+    	    	    	    	parts[i+1] = cloak_list_range(parts[i+1],1)
+				i = i+1
+			else:
+			    t_arg = num_opts_dict.get(parts[i])
+			    if t_arg is not None:
+    	    	    	    	parts[i] = '"' + parts[i] + '"'
+    	    	    	    	# Don't crash if no argument
+    	    	    	    	if i < count-1:
+			    	    # cloak sensitive characters and strings
+    	    	    	    	    parts[i+1] = cloak_list_range(parts[i+1],0)
+				    i = i+1
+			    	
                             
                 i = i+1
 
@@ -188,40 +234,39 @@ class CLI(code.InteractiveConsole):
     #
     ##################################################################
     commands = { \
-        "expattach"     : "cmd_parse",
-        "expclose"      : "cmd_parse",
-        "expclose"      : "cmd_parse",
-        "expcreate"     : "cmd_parse",
-        "expdetach"     : "cmd_parse",
-        "expdisable"    : "cmd_parse",
-        "expenable"     : "cmd_parse",
-        "expfocus"      : "cmd_parse",
-        "exppause"      : "cmd_parse",
-        "exprestore"    : "cmd_parse",
-        "expgo"         : "cmd_parse",
-        "expsave"       : "cmd_parse",
-        "expsetparam"   : "cmd_parse",
-        "expstop"       : "cmd_parse",
-        "expview"       : "cmd_parse",
-        "listexp"       : "cmd_parse",
-        "listhosts"     : "cmd_parse",
-        "listobj"       : "cmd_parse",
-        "listpids"      : "cmd_parse",
-        "listsrc"       : "cmd_parse",
-        "listmetrics"   : "cmd_parse",
-        "listparams"    : "cmd_parse",
-        "listreports"   : "cmd_parse",
-        "listbreaks"    : "cmd_parse",
-        "listtypes"    : "cmd_parse",
-        "clearbreak"    : "cmd_parse",
-        "exit"          : "Do_quit",
-        "opengui"       : "cmd_parse",
-        "help"          : "cmd_parse",
-        "history"       : "cmd_parse",
-        "log"           : "cmd_parse",
-        "playback"      : "cmd_parse",
-        "record"        : "cmd_parse",
-        "setbreak"      : "cmd_parse",
+        "expattach"     : "return_none",
+        "expclose"      : "return_none",
+        "expcreate"     : "return_int",
+        "expdetach"     : "return_none",
+        "expdisable"    : "return_none",
+        "expenable"     : "return_none",
+        "expfocus"      : "return_int",
+        "exppause"      : "return_none",
+        "exprestore"    : "return_int",
+        "expgo"         : "return_none",
+        "expsave"       : "return_none",
+        "expsetparam"   : "return_none",
+        "expstop"       : "return_none",
+        "expview"       : "return_none",
+        "listexp"       : "return_string_list",
+        "listhosts"     : "return_string_list",
+        "listobj"       : "return_string_list",
+        "listpids"      : "return_int_list",
+        "listsrc"       : "return_string_list",
+        "listmetrics"   : "return_string_list",
+        "listparams"    : "return_string_list",
+        "listreports"   : "return_string_list",
+        "listbreaks"    : "return_int_list",
+        "listtypes" 	: "return_string_list",
+        "clearbreak"    : "return_none",
+        "exit"          : "return_none",
+        "opengui"       : "return_none",
+        "help"          : "return_string",
+        "history"       : "return_none",
+        "log"           : "return_none",
+        "playback"      : "return_none",
+        "record"        : "return_none",
+        "setbreak"      : "return_int",
         "quit"          : "Do_quit" \
         }
     
@@ -262,17 +307,28 @@ class CLI(code.InteractiveConsole):
     #
     # o_ss_subopts
     #
-    # The single letter options for O/SS.
+    # The single letter string options for O/SS.
     #
     ##################################################################
-    o_ss_subopts = { \
-        "r"             : "suboption:rank",
-        "h"             : "suboption:host_list",
-        "f"             : "suboption:file_list",
-        "p"             : "suboption:pid_list",
-        "t"             : "suboption:thread_list",
-        "l"             : "suboption:line_number",
-        "x"             : "suboption:experiment_id", \
+    o_ss_str_subopts = { \
+        "-h"             : "suboption:host_list",
+        "-f"             : "suboption:file_list",
+        "-e"             : "suboption:experiment_name", \
+        }
+
+    ##################################################################
+    #
+    # o_ss_subopts
+    #
+    # The single letter numerical options for O/SS.
+    #
+    ##################################################################
+    o_ss_num_subopts = { \
+        "-r"             : "suboption:rank",
+        "-p"             : "suboption:pid_list",
+        "-t"             : "suboption:thread_list",
+        "-l"             : "suboption:line_number",
+        "-x"             : "suboption:experiment_id", \
         }
 
     ##################################################################
@@ -389,7 +445,11 @@ class CLI(code.InteractiveConsole):
         if white_spaces:
             front_padding = line[0:white_spaces]
 
-        t_line = preParseArgs(temp_line,self.commands,self.o_ss_reserved)
+        t_line = preParseArgs(temp_line,
+	    	    	      self.commands,
+			      self.o_ss_reserved,
+			      self.o_ss_str_subopts,
+			      self.o_ss_num_subopts)
         
         if t_line is not temp_line:
             line = t_line
