@@ -31,6 +31,8 @@ class QTabWidget;
 
 #include <qsplitter.h>
 
+#include <qtimer.h>
+
 #include <qpushbutton.h>  // For debug only ... 
  
 #include "debug.hxx"  // This includes the definition of nprintf(DEBUG_PANELS) 
@@ -52,7 +54,7 @@ Panel::Panel(PanelContainer *pc, const char *n) : QWidget(pc, n)
 
   setName(n);
 
-setCaption(n);
+  setCaption(n);
 
   panelContainer = pc;
 
@@ -72,6 +74,13 @@ setCaption(n);
   w->resize(width,height);
 
   baseWidgetFrame->resize(width,height);
+
+
+if( panelContainer->_masterPC->sleepTimer )
+{
+}
+  panelContainer->_masterPC->sleepTimer = NULL;
+  panelContainer->_masterPC->popupTimer = NULL;
 }
 
 /*!  Constructs a new Panel object.   (unused)
@@ -200,3 +209,77 @@ Panel::broadcast(char *msg, BROADCAST_TYPE bt)
       return( panelContainer->notifyAll(msg) );
   }
 }
+
+/*! Called when mouse hover in panel.   The panel developers can overload
+    this virtual function if they're interested in field the event.
+ */
+void
+Panel::info( )
+{
+  nprintf(DEBUG_PANELS) ("Panel::info() entered\n");
+}
+
+void
+Panel::armPanelsWhatsThis()
+{
+  printf("Panel::armPanelsWhatsThis() entered\n");
+
+  if( panelContainer->_masterPC->sleepTimer && panelContainer->_masterPC->sleepTimer->isActive() )
+  { // If we're sleeping, just ignore this...
+//    printf("we're sleeping, just return.\n");
+    panelContainer->_masterPC->sleepTimer->start(1000, TRUE);
+    return;
+  } else
+  { // Otherwise, check to see if there's a timer set.   If it is set
+    // just go to sleep for a whil and return.   Otherwise, set a new one.
+    if( panelContainer->_masterPC->popupTimer && panelContainer->_masterPC->popupTimer->isActive() )
+    {
+//      printf("popupTimer is already active... start sleeping...\n");
+      if( panelContainer->_masterPC->sleepTimer == NULL )
+      {
+        panelContainer->_masterPC->sleepTimer = new QTimer(this, "sleepTimer");
+        connect( panelContainer->_masterPC->sleepTimer, SIGNAL(timeout()), this, SLOT(wakeupFromSleep()) );
+      }
+      panelContainer->_masterPC->sleepTimer->start(1000, TRUE);
+      panelContainer->_masterPC->popupTimer->stop();
+    } else
+    {
+//      printf("start the popup timer...\n");
+      if( panelContainer->_masterPC->popupTimer == NULL )
+      {
+        panelContainer->_masterPC->popupTimer = new QTimer(this, "popupTimer");
+        connect( panelContainer->_masterPC->popupTimer, SIGNAL(timeout()), this, SLOT(popupInfoAtLine()) );
+      }
+      if( panelContainer->_masterPC->sleepTimer )
+      {
+        panelContainer->_masterPC->sleepTimer->stop();
+      }
+      panelContainer->_masterPC->popupTimer->start(1000, TRUE);
+    }
+  }
+}
+
+void
+Panel::wakeupFromSleep()
+{
+  printf("wakeupFromSleep() called\n");
+  panelContainer->_masterPC->popupTimer->start(250, TRUE);
+}
+
+void
+Panel::popupInfoAtLine()
+{
+  printf("popupInfoAtLine() called\n");
+  info();
+}
+
+void
+Panel::displayWhatsThis(QString msg)
+{
+  printf("Panel::displayWhatsThis() called.  Put the wit here.\n");
+ 
+//  _masterPC->whatIsThisActive = TRUE;
+  panelContainer->_masterPC->whatsThis = new QWhatsThis( this );
+  panelContainer->_masterPC->whatsThis->display( msg, QCursor::pos() );
+}
+

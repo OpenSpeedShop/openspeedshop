@@ -8,10 +8,6 @@ class SourcePanel;
 #include <qwidget.h>
 #include <qtextedit.h>
 
-#ifdef FINGERLINGER
-#include "qtimer.h"
-#endif // FINGERLINGER
-
 //! Simply overloads the QTextEdit so we can detect the context menu event.
 class MyQTextEdit : public QTextEdit
 {
@@ -34,16 +30,10 @@ public:
     QPoint lastPos;
 protected: 
 #ifdef FINGERLINGER
-    QTimer *popupTimer;
-    QTimer *sleepTimer;
     void contentsMouseMoveEvent( QMouseEvent *e );
-
-    void leaveEvent( QEvent * );
 #endif // FINGERLINGER
 
 public slots:
-    virtual void wakeupFromSleep();
-    virtual void popupInfoAtLine();
 
 private:
 };

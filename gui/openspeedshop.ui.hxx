@@ -180,6 +180,34 @@ MyEventFilter::eventFilter( QObject *, QEvent *e )
     return TRUE;
   }
 
+// Begin: This is for WhatsThis stuff...
+    switch( e->type() )
+    {
+      case QEvent::MouseMove:
+//         if( masterPC->whatsThis )
+//         {
+//           masterPC->whatsThis->hide();
+//         }
+      case QEvent::MouseButtonPress:
+      case QEvent::MouseButtonRelease:
+      case QEvent::MouseButtonDblClick:
+      case QEvent::Enter:
+      case QEvent::Leave:
+        if( masterPC->sleepTimer )
+        {
+          masterPC->sleepTimer->stop();
+          delete masterPC->sleepTimer;
+          masterPC->sleepTimer = NULL;
+        }
+        if( masterPC->popupTimer )
+        {
+          masterPC->popupTimer->stop();
+          delete masterPC->popupTimer;
+          masterPC->popupTimer = NULL;
+        }
+    } 
+// End: This is for WhatsThis stuff...
+
   if( masterPC->_eventsEnabled == TRUE )
   {
 //    dprintf("Handle it!\n");

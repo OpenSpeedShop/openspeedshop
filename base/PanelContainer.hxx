@@ -23,6 +23,9 @@
 #include <qvaluelist.h>
 #include <debug.hxx>
 
+#include <qtimer.h>
+#include <qwhatsthis.h>
+
 #define MENU_ACTIVE_HEIGHT 5
 
 class QVBoxLayout;
@@ -56,6 +59,10 @@ class PanelContainer : public QWidget
     //! Flag to enable disable event processing.
     bool _eventsEnabled;
     bool _resizeEventsEnabled;
+
+QTimer *popupTimer;
+QTimer *sleepTimer;
+QWhatsThis *whatsThis;
 
     //! This is the registry of all known gui plugins.
     /*! At runtime this registry is created by doing dlopens on all the

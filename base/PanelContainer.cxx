@@ -116,6 +116,9 @@ PanelContainer::PanelContainer( QWidget* _parent, const char* n, PanelContainer 
     _eventsEnabled = TRUE;
     _resizeEventsEnabled = TRUE;
     _lastPC = this;
+    sleepTimer = NULL;
+    popupTimer = NULL;
+    whatsThis = NULL;
   } else
   {
     if( _parentPanelContainer )

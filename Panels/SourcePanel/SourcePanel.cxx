@@ -19,6 +19,8 @@
 
 #include <qmessagebox.h>
 
+#include <qcursor.h>
+
 #include "SourceObject.hxx"
 
 #include "debug.hxx"
@@ -243,6 +245,26 @@ SourcePanel::broadcast(char *msg, BROADCAST_TYPE bt)
   return 0;
 }
 
+void
+SourcePanel::info()
+{
+  printf("SourcePanel::info() called.\n");
+
+  // This is a redundant check when called from the menus.  But when called
+  // from other places it simplfies the coding.
+  int line = whatIsAtPos(textEdit->lastPos);
+  if( line <= 0 )
+  {
+    return;
+  }
+
+  char *desc = getDescription(textEdit->paragraphAt(textEdit->lastPos));
+
+  QString msg;
+  msg = QString(tr("Details?\nDescription for line %1: %2")).arg(line).arg(desc);
+  displayWhatsThis(msg);
+}
+
 /*! This routine pops up a dialog box to select a file to be loaded. */
 void
 SourcePanel::chooseFile()
@@ -441,6 +463,8 @@ void
 SourcePanel::details()
 {
   nprintf(DEBUG_PANELS) ("SourcePanel::details() entered\n");
+
+  printf ("SourcePanel::details() entered\n");
 
 
 #ifdef ONEWAY

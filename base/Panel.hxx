@@ -55,6 +55,8 @@ public:
     //! Handles the resize event.
     void handleSizeEvent(QResizeEvent *e=NULL);
 
+void armPanelsWhatsThis( );
+
     //! Adds use panel menus (if any).
     virtual bool menu(QPopupMenu* contextMenu);
 
@@ -70,6 +72,11 @@ public:
     //! Calls the panel function broadcast() message request.
     virtual int broadcast(char *msg, BROADCAST_TYPE bt=ALL_T);
 
+    //! Calls the panel function info() if provided.
+    virtual void info( );
+
+void displayWhatsThis(QString msg);
+
 protected:
     //! Sets the Panel name.
     void setName(const char *);
@@ -78,5 +85,9 @@ protected:
     virtual void languageChange();
 
 private: 
+
+public slots:
+    virtual void wakeupFromSleep();
+    virtual void popupInfoAtLine();
 };
 #endif // PANEL_H
