@@ -78,6 +78,19 @@ namespace {
 
 
     /**
+     * Performance data callback.
+     *
+     * Callback function called by the DPCL main loop when performance data is
+     * sent to the tool ...
+     */
+    void performanceDataCB(GCBSysType, GCBTagType, GCBObjType, GCBMsgType)
+    {
+	// TODO: implement!
+    }
+
+
+
+    /**
      * Process termination callback.
      *
      * Callback function called by the DPCL main loop when a process terminates.
@@ -189,6 +202,8 @@ std::string Process::formUniqueName(const std::string& host, const pid_t& pid)
  */
 Process::Process(const std::string& host, const std::string& command) :
     dm_process(NULL),
+    dm_sleep_exp(NULL),
+    dm_sleep_entry(NULL),
     dm_host(host),
     dm_pid(0),
     dm_current_state(Thread::Suspended),
@@ -286,7 +301,9 @@ Process::Process(const std::string& host, const std::string& command) :
  * @param pid     Process identifier for the process.
  */
 Process::Process(const std::string& host, const pid_t& pid) :
-    dm_process(),
+    dm_process(NULL),
+    dm_sleep_exp(NULL),
+    dm_sleep_entry(NULL),
     dm_host(host),
     dm_pid(pid),
     dm_current_state(Thread::Running),
@@ -343,6 +360,9 @@ Process::Process(const std::string& host, const pid_t& pid) :
  */
 Process::~Process()
 {
+
+    // TODO: unload all libraries?
+
     // Handle Running --> Disconnected
     if(dm_current_state == Thread::Running) {
 	
@@ -370,6 +390,10 @@ Process::~Process()
 	MainLoop::resume();
 	
     }
+
+    // Destroy the cached DPCL information for sleep()
+    delete dm_sleep_entry;
+    delete dm_sleep_exp;
     
     // Destroy the actual DPCL process handle
     delete dm_process;
@@ -600,8 +624,6 @@ void Process::terminateNow()
  */
 void Process::updateAddressSpace(const Thread& thread, const Time& when)
 {
-    Guard guard_myself(this);
-    
     // Define a type pairing a linked object name with its source object list
     typedef std::pair<Path, std::vector<SourceObj> > table_entry_t;    
     
@@ -816,11 +838,38 @@ void Process::processSymbols(const Thread& thread,
 		database->bindArgument(3, end);
 		database->bindArgument(4, name);
 		while(database->executeStatement());	
+
+		// Is this the sleep() function? 
+		if(strcmp(name, "__sleep") == 0) {
+		    Guard guard_myself(this);
+		    
+		    // Squirrel away a probe expression reference to sleep()
+		    delete dm_sleep_exp;
+		    dm_sleep_exp = new ProbeExp(child.reference());
+
+		    // Locate the entry point to sleep()
+		    for(int i = 0; i < child.exclusive_point_count(); ++i) {
+			InstPoint pt = child.exclusive_point(i);
+			if(pt.get_type() == IPT_function_entry) {
+
+			    // Squirrel away the entry point to sleep()
+			    delete dm_sleep_entry;
+			    dm_sleep_entry = new InstPoint(pt);
+
+			}
+			
+		    }
+
+		    // Check assertions
+		    Assert(dm_sleep_exp != NULL);
+		    Assert(dm_sleep_entry != NULL);
+
+		}
 		
 	    }
 	    
 	}
-	
+
     }
     
     // End the transaction on the specified database
@@ -888,7 +937,11 @@ void Process::loadLibrary(const std::string& library)
 	entry.module = module;
 	entry.references = 1;
 	entry.functions = std::map<std::string, int>();
+	entry.messaging = NULL;
 
+	// Probe expression referencing openss_set_msg_handle()
+	ProbeExp openss_set_msg_handle_exp;
+	
 	// Iterate over each function in this library
 	for(int i = 0; i < module->get_count(); ++i) {
 	    
@@ -896,19 +949,69 @@ void Process::loadLibrary(const std::string& library)
 	    unsigned length = module->get_name_length(i);
 	    char* buffer = new char[length];
 	    module->get_name(i, buffer, length);
-	    
+
 	    // Add this function to the list of functions for this library
 	    entry.functions.insert(std::make_pair(buffer, i));
+
+	    // Is this openss_set_msg_handle()?
+	    if(strcmp(buffer, "openss_set_msg_handle") == 0)
+		openss_set_msg_handle_exp = module->get_reference(i);
+	    
+	    // Destroy the allocate function name
+	    delete [] buffer;
 	    
 	}
-		
+
+	// Did we find openss_set_msg_handle()?
+	if(openss_set_msg_handle_exp.get_node_type() == CEN_function_ref ) {
+
+	    // Check assertions
+	    Assert(dm_sleep_exp != NULL);
+	    Assert(dm_sleep_entry != NULL);
+
+	    // Note: In theory Ais_msg_handle should be the only parameter to
+	    //       openss_set_msg_handle(). But a bug in DPCL seems to cause
+	    //       the probe activation to fail if only one parameter is
+	    //       passed. The extra, zero, parameter causes a different
+	    //       code path to be executed which seems to work fine. The
+	    //       offending DPCL code is in "dpcl/src/daemon/src/PEtoBP.C"
+	    //       around line #475.
+	    
+	    // Ask DPCL to install and activate the messaging probe
+	    ProbeExp args_exp[2] = { Ais_msg_handle, ProbeExp(0) };
+	    ProbeExp call_exp = openss_set_msg_handle_exp.call(2, args_exp);
+	    GCBFuncType callback = performanceDataCB;
+	    GCBTagType tag = 0;
+	    ProbeHandle handle;
+	    MainLoop::suspend();
+	    AisStatus retval =
+		dm_process->binstall_probe(1, &call_exp, dm_sleep_entry,
+					   &callback, &tag, &handle);	
+	    Assert(retval.status() == ASC_success);
+	    retval = dm_process->bactivate_probe(1, &handle);
+	    Assert(retval.status() == ASC_success);
+	    MainLoop::resume();
+	    
+	    // Squirrel away a copy of the messaging probe's handle
+	    entry.messaging = new ProbeHandle(handle);
+	    
+	    // Ask DPCL to execute sleep(0) in this process
+	    ProbeExp sleep_args_exp[1] = { ProbeExp(0) };
+	    ProbeExp sleep_call_exp = dm_sleep_exp->call(1, sleep_args_exp);
+	    MainLoop::suspend();
+	    retval = dm_process->bexecute(sleep_call_exp, NULL, NULL);
+	    Assert(retval.status() == ASC_success);
+	    MainLoop::resume();        
+	    
+	}
+	
 	// Add this entry to the list of libraries
 	dm_library_name_to_entry.insert(std::make_pair(library, entry));
 	
     }
 }
-
-
+    
+    
 
 /**
  * Unload a library.
@@ -950,6 +1053,25 @@ void Process::unloadLibrary(const std::string& library)
 	//       to unload their runtime libraries after the processes being
 	//       monitored have already terminated.
 	
+	// Was a messaging probe installed for this library?
+	if(i->second.messaging != NULL) {
+
+	    // Ask DPCL to deactivate and remove the messaging probe
+	    MainLoop::suspend();
+	    AisStatus retval = 
+		dm_process->bdeactivate_probe(1, i->second.messaging);
+	    Assert((retval.status() == ASC_success) ||
+		   (retval.status() == ASC_terminated_pid));
+	    retval = dm_process->bremove_probe(1, i->second.messaging);
+	    Assert((retval.status() == ASC_success) ||
+		   (retval.status() == ASC_terminated_pid));
+	    MainLoop::resume();
+
+	    // Destroy the handle to the messaging probe
+	    delete i->second.messaging;
+	    
+	}
+	
 	// Ask DPCL to unload the library
 	MainLoop::suspend();
 	AisStatus retval = dm_process->bunload_module(i->second.module);
@@ -963,7 +1085,7 @@ void Process::unloadLibrary(const std::string& library)
 	
     }
 }
-
+    
 
 
 /**
@@ -1015,10 +1137,10 @@ void Process::execute(const std::string& library,
     ProbeExp function_exp = i->second.module->get_reference(j->second);
 
     // Create a probe experssion for the argument (first encoded as a string)
-    ProbeExp argument_exp(encodeBlobAsString(argument).c_str());
+    ProbeExp args_exp[1] = { ProbeExp(encodeBlobAsString(argument).c_str()) };
     
     // Create a probe expression for the function call
-    ProbeExp call_exp = function_exp.call(1, &argument_exp);
+    ProbeExp call_exp = function_exp.call(1, args_exp);
     
     // Ask DPCL to execute the function in this process    
     MainLoop::suspend();
@@ -1026,7 +1148,7 @@ void Process::execute(const std::string& library,
     Assert(retval.status() == ASC_success);
     MainLoop::resume();    
 }
-
+    
 
 
 /**
@@ -1060,8 +1182,7 @@ std::string Process::encodeBlobAsString(const Blob& blob)
 {
     std::string encoding;
     
-    // Constants used in encoding
-    const char ZeroValue = 0x00;
+    // Constant used in encoding
     const char SafeValue = 0xBA;
     
     // Iterate over each byte in the blob
@@ -1069,7 +1190,7 @@ std::string Process::encodeBlobAsString(const Blob& blob)
 	char byte = reinterpret_cast<const char*>(blob.getContents())[i];
 	
 	// Replace zero values with the safe value
-	if(byte == ZeroValue)
+	if(byte == 0x00)
 	    encoding.append(1, SafeValue);
 	
 	// Double-up occurences of the safe value
@@ -1086,6 +1207,6 @@ std::string Process::encodeBlobAsString(const Blob& blob)
     return encoding;
 }
 
-
+    
     
 } }  // OpenSpeedShop::Framework

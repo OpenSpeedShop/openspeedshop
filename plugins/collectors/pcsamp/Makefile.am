@@ -27,10 +27,14 @@ pcsamp_la_LDFLAGS = \
 pcsamp_la_SOURCES =
 
 pcsamp_rt_la_CFLAGS = \
-	-I$(top_srcdir)/libopenss-frameworkrt
+	-I$(top_srcdir)/libopenss-framework/runtime
 
 pcsamp_rt_la_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-framework/runtime \
 	-no-undefined -module -avoid-version
+
+pcsamp_rt_la_LIBADD = \
+	-lopenss-framework-runtime
 
 pcsamp_rt_la_SOURCES =
 

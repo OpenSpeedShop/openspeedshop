@@ -18,19 +18,49 @@
 
 /** @file
  *
- * Convenience header for including all the other headers in the framework
- * runtime API.
+ * Definition of the runtime library's API.
  *
  */
 
-#ifndef _OpenSpeedShop_FrameworkRT_RuntimeAPI_
-#define _OpenSpeedShop_FrameworkRT_RuntimeAPI_
+#ifndef _OpenSpeedShop_Framework_RuntimeAPI_
+#define _OpenSpeedShop_Framework_RuntimeAPI_
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include "Message.h"
+#ifdef HAVE_INTTYPES_H
+#include <inttypes.h>
+#endif
+#include <rpc/rpc.h>
+
+
+
+/**
+ * Performance data header.
+ *
+ * Header which is prepended to all performance data sent between a collector's
+ * runtime and the framework. Contains enough information to allow the framework
+ * to store and index the data within the proper experiment database.
+ */
+typedef struct {
+
+    uint32_t experiment;  /**< Identifier of experiment containing data. */
+    uint32_t thread;      /**< Identifier of gathered data's thread. */
+    uint32_t collector;   /**< Identifier of collector gathering data. */
+    
+    uint64_t time_begin;  /**< Beginning of gathered data's time interval. */
+    uint64_t time_end;    /**< End of gathered data's time interval. */
+    
+    uint64_t addr_begin;  /**< Beginning of gathered data's address range. */
+    uint64_t addr_end;    /**< End of gathered data's address range. */
+    
+} OpenSS_DataHeader;
+
+
+
+int OpenSS_DecodeParameters(const char*, const xdrproc_t, void*);
+int OpenSS_Send(const OpenSS_DataHeader*, const xdrproc_t, const void*);
 
 
 

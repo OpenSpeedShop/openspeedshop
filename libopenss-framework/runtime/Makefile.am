@@ -18,16 +18,13 @@
 
 SUBDIRS = @INSTRUMENTOR@
 
-lib_LTLIBRARIES = libopenss-frameworkrt.la
+noinst_LTLIBRARIES = libopenss-framework-runtime.la
 
-libopenss_frameworkrt_la_CFLAGS =
+libopenss_framework_runtime_la_CFLAGS = \
+	-I$(top_srcdir)/libopenss-framework
 
-libopenss_frameworkrt_la_LDFLAGS = \
-	-export-dynamic -version-info 0:0:0
+libopenss_framework_runtime_la_LIBADD = \
+	@INSTRUMENTOR@/libopenss-framework-runtime-@INSTRUMENTOR@.la
 
-libopenss_frameworkrt_la_LIBADD = \
-	@INSTRUMENTOR@/libopenss-frameworkrt-@INSTRUMENTOR@.la
-
-libopenss_frameworkrt_la_SOURCES = \
-	Message.h \
+libopenss_framework_runtime_la_SOURCES = \
 	RuntimeAPI.h

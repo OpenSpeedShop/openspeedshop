@@ -41,8 +41,6 @@ cd ../plugins/collectors
 make doc
 cd ../../libopenss-framework
 make doc
-cd ../libopenss-frameworkrt
-make doc
 #cd ../Panels
 #make doc
 cd ../pcli

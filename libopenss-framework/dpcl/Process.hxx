@@ -40,6 +40,9 @@
 #include <sys/types.h>
 #endif
 
+class InstPoint;
+class ProbeExp;
+class ProbeHandle;
 class ProbeModule;
 class Process;
 class SourceObj;
@@ -95,6 +98,12 @@ namespace OpenSpeedShop { namespace Framework {
 
 	/** DPCL process handle. */
 	::Process* dm_process;
+
+	/** Probe expression referencing sleep(). */
+	ProbeExp* dm_sleep_exp;
+	
+	/** Instrumentation point at entry of sleep(). */
+	InstPoint* dm_sleep_entry;
 	
 	/** Name of host on which this process is located. */
         std::string dm_host;
@@ -135,6 +144,9 @@ namespace OpenSpeedShop { namespace Framework {
 	    /** Map function names to their probe module indicies. */
 	    std::map<std::string, int> functions;
 
+	    /** Handle of the messaing probe for this library. */
+	    ProbeHandle* messaging;
+	    
 	};
 
 	/** Map loaded library names to their entries. */

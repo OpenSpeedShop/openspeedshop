@@ -16,7 +16,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = @INSTRUMENTOR@
+SUBDIRS = @INSTRUMENTOR@ runtime
 
 lib_LTLIBRARIES = libopenss-framework.la
 

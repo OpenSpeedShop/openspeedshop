@@ -82,7 +82,7 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 # configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = . dpcl ../libopenss-frameworkrt ../libopenss-frameworkrt/dpcl
+INPUT                  = . dpcl runtime runtime/dpcl
 FILE_PATTERNS          = *.doc *.hxx *.cxx
 RECURSIVE              = NO
 EXCLUDE                = 

@@ -234,7 +234,7 @@ void Blob::getXDRDecoding(const xdrproc_t xdrproc, void* data) const
 		  dm_size, XDR_DECODE);
     
     // Attempt to decode the data structure from this stream
-    if((*xdrproc)(&xdrs, const_cast<void*>(data)) == FALSE)
+    if((*xdrproc)(&xdrs, data) == FALSE)
 	throw std::runtime_error("Cannot decode this blob's contents into "
 				 "the specified data structure.");
     
