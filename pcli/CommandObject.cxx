@@ -23,6 +23,9 @@ void CommandObject::set_Status (Command_Status S) {
  // Furthermore, propagate these states to the Clip only once.
   if ((Cmd_Status != CMD_ERROR) &&
       (Cmd_Status != CMD_ABORTED)) {
+    if (Cmd_Status == S) {
+      fprintf(stdout,"Resetting CommandObject Status to same value %d\n",S);
+    }
     Cmd_Status = S;
     InputLineObject *clip = Clip();
     if (S == CMD_COMPLETE) {
