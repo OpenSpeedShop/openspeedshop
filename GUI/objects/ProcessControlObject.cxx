@@ -49,6 +49,8 @@ ProcessControlObject::ProcessControlObject(QVBoxLayout *frameLayout, QWidget *ba
   buttonGroup->setColumnLayout(0, Qt::Vertical );
   buttonGroup->layout()->setSpacing( 6 );
   buttonGroup->layout()->setMargin( 11 );
+  // We want to keep the buttonGroup from resizing vertically.
+  buttonGroup->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)2, (QSizePolicy::SizeType)0, 0, 0, buttonGroup->sizePolicy().hasHeightForWidth() ) );
   QHBoxLayout *buttonGroupLayout = new QHBoxLayout( buttonGroup->layout() );
   buttonGroupLayout->setAlignment( Qt::AlignTop );
 
