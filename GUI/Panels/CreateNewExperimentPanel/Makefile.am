@@ -22,4 +22,24 @@
 # All Rights Reserved.
 ################################################################################
 
-SUBDIRS = ToolbarPanel SourcePanel CmdPanel TopPanel pcSamplePanel PerformancePanel DebugPanel UserTimePanel GettingStartedPanel HW_CounterPanel IOPanel FPE_TracingPanel CreateNewExperimentPanel Wizards
+pkglib_LTLIBRARIES = CreateNewExperimentPanel.la
+
+CreateNewExperimentPanel_la_CXXFLAGS = \
+    -I/usr/include \
+    -I$(QTDIR)/include \
+    -I. \
+    -I../../gui \
+    -I../../plugin \
+    -I../../base
+
+CreateNewExperimentPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../base/.libs/ftBase.so
+
+CreateNewExperimentPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
+
+moc_CreateNewExperimentPanel.cxx: CreateNewExperimentPanel.hxx
+	-moc -o moc_CreateNewExperimentPanel.cxx CreateNewExperimentPanel.hxx
+
+CreateNewExperimentPanel_la_SOURCES = \
+	CreateNewExperimentPanel.hxx CreateNewExperimentPanel.cxx moc_CreateNewExperimentPanel.cxx \
+	plugin_entry_point.hxx Panel.hxx \
+	PanelContainer.hxx local_plugin_info.hxx debug.hxx
