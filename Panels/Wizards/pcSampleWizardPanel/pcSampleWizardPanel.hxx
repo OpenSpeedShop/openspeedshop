@@ -86,10 +86,9 @@ public:
   int broadcast(char *msg);
 
 
-  QHBoxLayout * panelLayout;
-  QWidget* topWidget;
-    QFrame* topFrame;
-    QWidgetStack* pcSampleWizardPanelStack;
+  QVBoxLayout * pcSampleFormLayout;
+    QFrame* mainFrame;
+    QWidgetStack* mainWidgetStack;
     QWidget* vDescriptionPageWidget;
     QLabel* vDescriptionPageTitleLabel;
     QTextEdit* vDescriptionPageText;
@@ -171,8 +170,7 @@ public slots:
     virtual void wizardModeSelected();
 
 protected:
-    QVBoxLayout* topLayout;
-    QVBoxLayout* topFrameLayout;
+    QVBoxLayout* mainFrameLayout;
     QVBoxLayout* vDescriptionPageLayout;
     QHBoxLayout* vDescriptionPageButtonLayout;
     QSpacerItem* vDescriptionPageButtonSpacer;
