@@ -95,9 +95,12 @@ class CodeObjectLocator
   }
 };
 
-// Command WIndows provide a way to get textual commands into the OpendSpeedShop tool.
-class CommandWindowID;
+// Forward class definitions:
+class CommandObject; // defined in CommandObject.hxx
+class InputLineObject; // defined in Clip.hxx
+class CommandWindowID; // defined in Commander.cxx
 
+// Command WIndows provide a way to get textual commands into the OpendSpeedShop tool.
 CMDWID Commander_Initialization (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
 CMDWID Default_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
 CMDWID TLI_Window     (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
@@ -119,10 +122,6 @@ enum Trace_Entry_Type
     CMDW_TRACE_RESULTS               // Dump result records  - "R "
   };
 
-// Forward class definitions:
-class CommandObject; // defined in CommandObject.hxx
-class InputLineObject; // defined in Clip.hxx
-
 // Main readline interface
 InputLineObject *SpeedShop_ReadLine (int is_more);
 
@@ -133,7 +132,11 @@ extern CommandObject   *Current_CO;
 // Attach a new input source that will be read AFTER all the previous ones
 bool Append_Input_File (CMDWID issuedbywindow, std::string fromfname);
 // bool Append_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_ptr);
-InputLineObject *Append_Input_String (CMDWID issuedbywindow, char *b_ptr);
+// InputLineObject *Append_Input_String (CMDWID issuedbywindow, char *b_ptr);
+InputLineObject *Append_Input_String (CMDWID issuedbywindow, char *b_ptr,
+                                      void *LocalCmdId = NULL,
+                                      void (*CallBackLine) (InputLineObject *b) = NULL,
+                                      void (*CallBackCmd) (CommandObject *b) = NULL);
 
 // Attach a new input source that will be read BEFORE all the previous ones
 bool Push_Input_File (CMDWID issuedbywindow, std::string fromfname);
@@ -150,3 +153,8 @@ void  SpeedShop_Trace_OFF(void);
 EXPID Experiment_Focus (CMDWID WindowID);
 EXPID Experiment_Focus (CMDWID WindowID, EXPID ExperimentID);
 void List_CommandWindows ( FILE *TFile );
+
+// Communicate command information the window manager
+extern void Link_Cmd_Obj_to_Input (InputLineObject *I, CommandObject *);
+extern void Clip_Complete (InputLineObject *clip);
+extern void Cmd_Obj_Complete (CommandObject *C);
