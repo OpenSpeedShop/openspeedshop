@@ -39,6 +39,7 @@
 
 #include "LoadAttachObject.hxx"
 
+#include "SS_Input_Manager.hxx"
 #include "CLIInterface.hxx"
 
 using namespace OpenSpeedShop::Framework;
@@ -477,11 +478,6 @@ if( !cli->runSynchronousCLI(command) )
 sprintf(command, "expGo -x %d\n", expID);
 // sprintf(command, "expCreate\n");
 #ifdef OLDWAY
-if( !cli->runSynchronousCLI(command) )
-{
-  fprintf(stderr, "Error (%s).\n", command);
-}
-#else // OLDWAY
 {
 int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
 InputLineObject *clip = Append_Input_String( wid, command);
@@ -498,13 +494,37 @@ if( eo && eo->FW() )
   }
 }
 }
+#else // OLDWAY
+{
+int status = -1;
+nprintf( DEBUG_MESSAGES ) ("Run\n");
+statusLabelText->setText( tr("Process running...") );
+
+int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
+InputLineObject *clip = Append_Input_String( wid, command);
+ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+if( eo && eo->FW() )
+{
+  status = eo->Determine_Status();
+  while( status != ExpStatus_Terminated )
+  {
+    printf("sleep(1)\n");
+    sleep(1);
+    qApp->processEvents(1000);
+    if( status == ExpStatus_InError )
+    {
+      printf("Process errored.\n");
+      statusLabelText->setText( tr("Process errored...") );
+    }
+    status = eo->Determine_Status();
+  }
+}
+if( status == ExpStatus_Terminated )
+{
+  statusLabelText->setText( tr("Process finished...") );
+}
+}
 #endif // OLDWAY
-statusLabelText->setText( tr("Process finished...") );
-
-        nprintf( DEBUG_MESSAGES ) ("Run\n");
-        statusLabelText->setText( tr("Process running...") );
-
-statusLabelText->setText( tr("Process finished...") );
 
 if( 1 )
 {
