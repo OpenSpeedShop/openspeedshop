@@ -137,6 +137,8 @@ pcSamplePanel::menu(QPopupMenu* contextMenu)
   nprintf( DEBUG_PANELS ) ("pcSamplePanel::menu() requested.\n");
 
   contextMenu->insertSeparator();
+  contextMenu->insertItem("&Save As ...", this, SLOT(saveAsSelected()), CTRL+Key_S ); 
+  contextMenu->insertSeparator();
   contextMenu->insertItem(tr("Load &New Program..."), this, SLOT(loadNewProgramSelected()), CTRL+Key_N );
   contextMenu->insertItem(tr("Detach &From Program..."), this, SLOT(detachFromProgramSelected()), CTRL+Key_N );
   contextMenu->insertItem(tr("Attach To &Executable..."), this, SLOT(attachToExecutableSelected()), CTRL+Key_E );
@@ -146,8 +148,6 @@ pcSamplePanel::menu(QPopupMenu* contextMenu)
   contextMenu->insertItem(tr("&Manage &Data Sets..."), this, SLOT(manageDataSetsSelected()), CTRL+Key_D );
   contextMenu->insertSeparator();
   contextMenu->insertItem(tr("S&ource Panel..."), this, SLOT(loadSourcePanel()), CTRL+Key_O );
-  contextMenu->insertSeparator();
-  contextMenu->insertItem("&Save As ...", this, SLOT(saveAsSelected()), CTRL+Key_S ); 
 
   return( TRUE );
 }
@@ -477,7 +477,7 @@ pcSamplePanel::languageChange()
 void
 pcSamplePanel::saveAsSelected()
 {
-  printf("From this pc on down, send out a saveAs message and put it to a file.\n");
+  nprintf( DEBUG_CONST_DESTRUCT ) ("From this pc on down, send out a saveAs message and put it to a file.\n");
 
   QFileDialog *sfd = NULL;
   QString dirName = QString::null;
