@@ -173,9 +173,9 @@ pcStatsPanel::matchSelectedItem(std::string selected_function )
   bool foundFLAG = FALSE;
 //  printf ("pcStatsPanel::matchSelectedItem() = %s\n", selected_function.c_str() );
 
-std::vector<item_type>::const_iterator it = data_items.begin();
 char timestr[50];
-for( ; it != data_items.end(); it++ )
+std::map<Function, double>::const_iterator it = orig_data->begin();
+for( ; it != orig_data->end(); ++it)
 {
 //  printf("%s %f\n", it->first.c_str(), it->second );
   if( selected_function == it->first.getName()  )
@@ -209,20 +209,6 @@ for( ; it != data_items.end(); it++ )
   }
 }
 
-template <class T>
-struct sort_ascending : public std::binary_function<T,T,bool> {
-    bool operator()(const T& x, const T& y) const {
-        return x.second < y.second;
-    }
-};
-template <class T>
-struct sort_decending : public std::binary_function<T,T,bool> {
-    bool operator()(const T& x, const T& y) const {
-        return x.second > y.second;
-    }
-};
-
-
 void
 pcStatsPanel::updateStatsPanelBaseData(void *expr, int expID, QString experiment_name)
 {
@@ -240,7 +226,6 @@ if( eo && eo->FW() )
 {
   Experiment *fw_experiment = eo->FW();
 // Evaluate the collector's time metric for all functions in the thread
-SmartPtr<std::map<Function, double> > data;
 ThreadGroup tgrp = fw_experiment->getThreads();
 ThreadGroup::iterator ti = tgrp.begin();
 Thread t1 = *ti;
@@ -248,7 +233,7 @@ CollectorGroup cgrp = fw_experiment->getCollectors();
 CollectorGroup::iterator ci = cgrp.begin();
 Collector c1 = *ci;
 
-Queries::GetMetricByFunctionInThread(c1, "time", t1, data);
+Queries::GetMetricByFunctionInThread(c1, "time", t1, orig_data);
 
 // Display the results
   MetricHeaderInfoList metricHeaderInfoList;
@@ -273,59 +258,18 @@ Queries::GetMetricByFunctionInThread(c1, "time", t1, data);
     i++;
   }
 
+// Hardcode this until you figure out the preferences.
+lv->setSortOrder ( Qt::Descending );
 
-for(std::map<Function, double>::const_iterator
-        item = data->begin(); item != data->end(); ++item)
-{
-  data_items.push_back( std::pair<Function, double>(item->first, item->second ) );
-}
-
-// std::sort(data_items.begin(), data_items.end(), sort_ascending<item_type>());
-std::sort(data_items.begin(), data_items.end(), sort_decending<item_type>());
-
-std::vector<item_type>::const_iterator it = data_items.begin();
 char timestr[50];
-for( ; it != data_items.end(); it++ )
+for(std::map<Function, double>::const_iterator
+        it = orig_data->begin(); it != orig_data->end(); ++it)
 {
-//  printf("%s %f\n", it->first.c_str(), it->second );
   sprintf(timestr, "%f", it->second);
-    lvi =  new SPListViewItem( this, lv, timestr,  it->first.getName().c_str() );
+  lvi =  new SPListViewItem( this, lv, timestr,  it->first.getName().c_str() );
 }
 
+lv->sort();
+
 }
 }
-
-#ifdef PRINT_DEBUG
-#include "SS_Input_Manager.hxx"
-void
-pcStatsPanel::PrintView(int expID)
-{
-
-printf("pcStatsPanel::PrintView(%d) entered\n", expID );
-  ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-  if( eo && eo->FW() )
-  {
-    Experiment *fw_experiment = eo->FW();
-    // Evaluate the collector's time metric for all functions in the thread
-    SmartPtr<std::map<Function, double> > data;
-    ThreadGroup tgrp = fw_experiment->getThreads();
-    ThreadGroup::iterator ti = tgrp.begin();
-    Thread t1 = *ti;
-    CollectorGroup cgrp = fw_experiment->getCollectors();
-    CollectorGroup::iterator ci = cgrp.begin();
-    Collector c1 = *ci;
-  
-    Queries::GetMetricByFunctionInThread(c1, "time", t1, data);
-  
-    for(std::map<Function, double>::const_iterator
-          item = data->begin(); item != data->end(); ++item)
-    {
-      printf("%20f %20s \n", item->second,  item->first.getName().c_str() );
-    }
-  }
-
-printf("pcStatsPanel::PrintView(%d) finished\n", expID );
-}
-
-
-#endif // PRINT_DEBUG

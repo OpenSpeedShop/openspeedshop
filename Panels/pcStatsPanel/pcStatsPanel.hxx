@@ -37,7 +37,7 @@ class QVBoxLayout;
 #include <qvaluelist.h>
 typedef QValueList<QString> ColumnList;
 
-typedef std::pair<Function, double> item_type;
+typedef std::pair<std::string, double> item_type;
 
 #include <qsettings.h>
 
@@ -73,9 +73,6 @@ class pcStatsPanel  : public StatsPanelBase
 
     void updateStatsPanelBaseData(void *expr = 0, int expID = 0, QString experiment_name = NULL);
 
-    std::vector<item_type> data_items;
-#ifdef PRINT_DEBUG
-    void PrintView(int);
-#endif // PRINT_DEBUG
+    SmartPtr<std::map<Function, double> > orig_data;
 };
 #endif // PCSTATSPANEL_H
