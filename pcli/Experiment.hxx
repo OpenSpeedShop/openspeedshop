@@ -6,7 +6,7 @@ class ApplicationGroupObject
   CommandWindowID *RemoteFW;
   EXPID RemoteExp;
   std::string App_Name;
-  Application  *App;
+  Experiment   *App;
 
  public:
   ApplicationGroupObject ()
@@ -15,7 +15,7 @@ class ApplicationGroupObject
       RemoteExp = 0;
       App = NULL;
     }
-  ApplicationGroupObject (std::string name, Application *Local_App)
+  ApplicationGroupObject (std::string name, Experiment  *Local_App)
     { *this = ApplicationGroupObject ();
       App_Name = name;
       App = Local_App;
@@ -27,7 +27,7 @@ class ApplicationGroupObject
       RemoteExp = Rexp;
     }
   bool Application_Is_Remote() {return remote;}
-  Application  *Application_App() {return App;}
+  Experiment   *Application_App() {return App;}
   void Print(FILE *TFile) {
       fprintf(TFile," %s",App_Name.c_str());
     }
@@ -84,7 +84,7 @@ class ExperimentObject
       if (Ci != CollectorList.end()) {
         fprintf(TFile," ");
         for (Ci = CollectorList.begin(); Ci != CollectorList.end(); Ci++) {
-          fprintf(TFile," %s",(*Ci)->getShortName().c_str());
+          fprintf(TFile," %s",(*Ci)->getMetadata().getShortName().c_str());
         }
         fprintf(TFile,"\n");
       }
