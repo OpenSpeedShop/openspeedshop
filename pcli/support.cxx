@@ -22,7 +22,18 @@
 #include <ctype.h>
 #include "support.h"
 
+#include <vector>
+#include <iostream>
+
+using namespace std;
+
+#include "SS_Parse_Result.hxx"
+#include "SS_Parse_Target.hxx"
+
+using namespace OpenSpeedShop::cli;
+
 command_t command;
+ParseResult *p_parse_result; /* initialized in SS_CallParser() */
 
 char *cmd_strtab[CMD_MAX] = {
     "COMAND ERROR",
@@ -206,6 +217,7 @@ void
 set_command_type(oss_cmd_enum type)
 {
     command.type = type;
+    p_parse_result->SetCommandType(type);
 }
 
 /**
@@ -222,6 +234,7 @@ void
 set_exp_id(int exp_id)
 {
     command.exp_id = exp_id;
+    p_parse_result->SetExpId(exp_id);
 }
 
 /**
@@ -251,6 +264,8 @@ push_string(char *name, oss_name_enum tag)
     name_tab[command.name_table.cur_node].name = tname;
     name_tab[command.name_table.cur_node].tag = tag;
     command.name_table.cur_node++;
+    
+    p_parse_result->push_modifiers(tname);
 }
 
 /**
@@ -492,6 +507,8 @@ push_experiment(char *name)
     strtab = (char **)command.experiment_table.table;
     strtab[command.experiment_table.cur_node] = tname;
     command.experiment_table.cur_node++;
+    
+    p_parse_result->pushExpType(tname);
 }
 
 /**
@@ -534,12 +551,16 @@ push_view_type(char *name)
     char *tname = (char *)malloc(strlen(name)+1);
     char **strtab;
     
+//    printf("in push_view_type(%s)\n",name);
+    
     strcpy(tname,name);
     
     cmd_check_array(&command.view_table);
     strtab = (char **)command.view_table.table;
     strtab[command.view_table.cur_node] = tname;
     command.view_table.cur_node++;
+    
+    p_parse_result->pushViewType(tname);
 }
 
 /**
@@ -912,6 +933,8 @@ cmd_init()
     command.name_table.entry_size	= sizeof(name_tab_t);	/*  */
     command.host_table.entry_size   	= sizeof(host_id_t);	/*  */
     command.help_table.entry_size   	= sizeof(help_desc_t);
+    command.param_table.entry_size   	= sizeof(arg_desc_t);
+    command.view_table.entry_size   	= sizeof(arg_desc_t);
 
 }
 
