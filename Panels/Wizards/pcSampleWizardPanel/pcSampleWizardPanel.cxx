@@ -1115,8 +1115,14 @@ void pcSampleWizardPanel::finishButtonSelected()
     }
   } else
   {
-    mainWidgetStack->raiseWidget(vSummaryPageWidget);
-    vSummaryPageFinishButtonSelected();
+    if( wizardMode->isOn() )
+    {
+      mainWidgetStack->raiseWidget(vSummaryPageWidget);
+    } else
+    {
+      mainWidgetStack->raiseWidget(eSummaryPageWidget);
+    }
+//    vSummaryPageFinishButtonSelected();
   }
 }
 
