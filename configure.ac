@@ -58,6 +58,8 @@ AC_LIBLTDL_INSTALLABLE
 AC_SUBST(LTDLINCL)
 AC_SUBST(LIBLTDL)
 AC_LIBTOOL_DLOPEN
+AC_PROG_LEX
+AC_PROG_YACC
 AC_PROG_LIBTOOL
 AC_CONFIG_SUBDIRS(libltdl)
 
@@ -182,8 +184,6 @@ AC_CONFIG_FILES(Makefile
 		Panels/TopPanel/Makefile
 		Panels/StatsPanel/Makefile
 		Panels/pcStatsPanel/Makefile
-		Panels/PerformancePanel/Makefile
-		Panels/DebugPanel/Makefile
 		Panels/HW_CounterPanel/Makefile
 		Panels/IOPanel/Makefile
 		Panels/MPIPanel/Makefile
@@ -197,7 +197,6 @@ AC_CONFIG_FILES(Makefile
 		Panels/Wizards/HW_CounterWizardPanel/Makefile
 		Panels/Wizards/IOWizardPanel/Makefile
 		Panels/Wizards/MPIWizardPanel/Makefile
-		tests/fw/database/Makefile
 )
 
 AC_OUTPUT
