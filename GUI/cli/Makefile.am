@@ -28,9 +28,9 @@ ftcli_la_CXXFLAGS =  -I/usr/include -I. -I../objects -I../base
 
 ftcli_la_LDFLAGS = --export-dynamic -module -avoid-version
 
-ftcli_la_LIBADD = $(LIBLTDL) ../objects/.libs/ftObjects.so
+ftcli_la_LIBADD = $(LIBLTDL)
 
-ftcli_la_SOURCES = cli.cxx
+ftcli_la_SOURCES = cli.cxx ../objects/OutputObject.cxx
 
 
 
@@ -42,9 +42,10 @@ cli_la_CXXFLAGS =  -I/usr/include -I. -I../objects -I../base
 
 LDFLAGS = -lc -ldl
 
-cli_SOURCES =  main.cxx cli.cxx
+cli_SOURCES =  main.cxx cli.cxx ../objects/OutputObject.cxx
 
 cli:
 	-g++ $(ftcli_la_CXXFLAGS) -fpic -c cli.cxx;
 	-g++ $(ftcli_la_CXXFLAGS) -fpic -c main.cxx;
-	-g++ -dynamic -fpic -o cli ../objects/.libs/ftObjects.so main.o cli.o -lc -ldl;
+	-g++ $(ftcli_la_CXXFLAGS) -fpic -c ../objects/OutputObject.cxx;
+	-g++ -dynamic -fpic -o cli main.o cli.o OutputObject.o -lc -ldl;
