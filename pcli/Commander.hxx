@@ -98,7 +98,7 @@ class CodeObjectLocator
 class CommandWindowID;
 class CommandObject;
 
-CMDWID Commander_Initialization (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel);
+CMDWID Commander_Initialization (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
 void Commander_Termination (CMDWID my_window);
 
 // Selection of items in the trace file are controlled throught his enum.
