@@ -29,9 +29,9 @@ FPE_TracingWizardPanel_la_CXXFLAGS = \
     -I../../../objects \
     -I../../../base
 
-FPE_TracingWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../../base/.libs/ossBase.so  -Wl,../../../objects/.libs/ossObjects.so -Wl,../../../dialogs/.libs/ossDialogs.so
+FPE_TracingWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
-FPE_TracingWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
+FPE_TracingWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt ../../../base/.libs/ossBase.so  ../../../objects/.libs/ossObjects.so ../../../dialogs/.libs/ossDialogs.so
 
 moc_FPE_TracingWizardPanel.cxx: FPE_TracingWizardPanel.hxx
 	-moc -o moc_FPE_TracingWizardPanel.cxx FPE_TracingWizardPanel.hxx

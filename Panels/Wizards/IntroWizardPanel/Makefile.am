@@ -28,9 +28,9 @@ IntroWizardPanel_la_CXXFLAGS = \
     -I../../../plugin \
     -I../../../base
 
-IntroWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../../base/.libs/ossBase.so
+IntroWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
-IntroWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
+IntroWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt ../../../base/.libs/ossBase.so
 
 moc_IntroWizardPanel.cxx: IntroWizardPanel.hxx
 	-moc -o moc_IntroWizardPanel.cxx IntroWizardPanel.hxx

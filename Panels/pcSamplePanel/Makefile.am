@@ -42,15 +42,15 @@ pcSamplePanel_la_LDFLAGS = \
 	-module \
 	-avoid-version \
 	-L../../libopenss-framework \
-	-Wl,../../base/.libs/ossBase.so \
-	-Wl,../../objects/.libs/ossObjects.so \
-	-Wl,../../pcli/.libs/posscli.so \
-	-Wl,../../gui/.libs/ossgui.so \
 	-L$(QTDIR)/lib \
 	-lqt \
 	-ldl
 
-pcSamplePanel_la_LIBADD = $(LIBLTDL) -lopenss-framework
+pcSamplePanel_la_LIBADD = $(LIBLTDL) -lopenss-framework \
+	../../base/.libs/ossBase.so \
+	../../objects/.libs/ossObjects.so \
+	../../pcli/.libs/posscli.so \
+	../../gui/.libs/ossgui.so
 
 moc_pcSamplePanel.cxx: pcSamplePanel.hxx
 	-moc -o moc_pcSamplePanel.cxx pcSamplePanel.hxx

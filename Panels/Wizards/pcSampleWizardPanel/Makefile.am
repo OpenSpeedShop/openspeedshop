@@ -29,9 +29,9 @@ pcSampleWizardPanel_la_CXXFLAGS = \
     -I../../../plugin \
     -I../../../base
 
-pcSampleWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../../base/.libs/ossBase.so  -Wl,../../../objects/.libs/ossObjects.so -Wl,../../../dialogs/.libs/ossDialogs.so 
+pcSampleWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
-pcSampleWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
+pcSampleWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt ../../../base/.libs/ossBase.so  ../../../objects/.libs/ossObjects.so ../../../dialogs/.libs/ossDialogs.so 
 
 moc_pcSampleWizardPanel.cxx: pcSampleWizardPanel.hxx
 	-moc -o moc_pcSampleWizardPanel.cxx pcSampleWizardPanel.hxx

@@ -29,9 +29,9 @@ UserTimeWizardPanel_la_CXXFLAGS = \
     -I../../../dialogs \
     -I../../../base
 
-UserTimeWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../../base/.libs/ossBase.so  -Wl,../../../objects/.libs/ossObjects.so  -Wl,../../../dialogs/.libs/ossDialogs.so
+UserTimeWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
-UserTimeWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
+UserTimeWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt ../../../base/.libs/ossBase.so  ../../../objects/.libs/ossObjects.so  ../../../dialogs/.libs/ossDialogs.so
 
 moc_UserTimeWizardPanel.cxx: UserTimeWizardPanel.hxx
 	-moc -o moc_UserTimeWizardPanel.cxx UserTimeWizardPanel.hxx

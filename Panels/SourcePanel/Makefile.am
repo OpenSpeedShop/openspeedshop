@@ -27,9 +27,9 @@ SourcePanel_la_CXXFLAGS = \
     -I../../plugin \
     -I../../base
 
-SourcePanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../base/.libs/ossBase.so
+SourcePanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
-SourcePanel_la_LIBADD = ../../objects/.libs/ossObjects.so -L$(QTDIR)/lib -lqt
+SourcePanel_la_LIBADD = ../../objects/.libs/ossObjects.so -L$(QTDIR)/lib -lqt ../../base/.libs/ossBase.so
 
 moc_SPTextEdit.cxx: SPTextEdit.hxx
 	-moc -o moc_SPTextEdit.cxx SPTextEdit.hxx

@@ -30,9 +30,9 @@ StatsPanel_la_CXXFLAGS = \
     -I../../plugin \
     -I../../base
 
-StatsPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../objects/.libs/ossObjects.so -Wl,../../expr_info/.libs/ossExprInfo.so -Wl,../../base/.libs/ossBase.so  -Wl,../../libopenss-framework/.libs/libopenss-framework.so 
+StatsPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
-StatsPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
+StatsPanel_la_LIBADD = -L$(QTDIR)/lib -lqt ../../objects/.libs/ossObjects.so ../../expr_info/.libs/ossExprInfo.so ../../base/.libs/ossBase.so  ../../libopenss-framework/.libs/libopenss-framework.so 
 
 moc_StatsPanel.cxx: StatsPanel.hxx
 	-moc -o moc_StatsPanel.cxx StatsPanel.hxx

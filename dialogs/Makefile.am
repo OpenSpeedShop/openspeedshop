@@ -32,9 +32,9 @@ ossDialogs_la_CXXFLAGS = \
     -I../objects \
 	-I$(QTDIR)
 
-ossDialogs_la_LDFLAGS = --export-dynamic -module -avoid-version -Wl,../objects/.libs/ossObjects.so
+ossDialogs_la_LDFLAGS = --export-dynamic -module -avoid-version
 
-ossDialogs_la_LIBADD = $(LIBLTDL)
+ossDialogs_la_LIBADD = $(LIBLTDL) ../objects/.libs/ossObjects.so
 
 moc_AttachProcessDialog.cxx: AttachProcessDialog.hxx
 	-moc -o moc_AttachProcessDialog.cxx AttachProcessDialog.hxx
