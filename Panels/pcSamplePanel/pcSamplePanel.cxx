@@ -563,6 +563,7 @@ if( !cli->runSynchronousCLI(command) )
         ret_val = 1;
         break;
       case  RUN_T:
+#ifdef OLDWAY
 {
   ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
   if( eo && eo->FW() )
@@ -577,6 +578,7 @@ if( !cli->runSynchronousCLI(command) )
     collector.startCollecting();
   }
 }
+#endif // OLDWAY
 sprintf(command, "expGo -x %d\n", expID);
 {
 int status = -1;
