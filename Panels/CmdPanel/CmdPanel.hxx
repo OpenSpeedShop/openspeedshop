@@ -7,7 +7,7 @@
 
 #include "Panel.hxx"           // Do not remove
 
-#include "SPTextEdit.hxx"
+#include "KeyEventFilter.hxx"
 
 class PanelContainer;   // Do not remove
 
@@ -15,6 +15,11 @@ class PanelContainer;   // Do not remove
 
 #define PANEL_CLASS_NAME CmdPanel   // Change the value of the define
                                          // to the name of your new class.
+
+#include <qstring.h>
+#include <qvaluelist.h>
+
+typedef QValueList<QString> CmdHistoryList;
 
 //! The command panel that fields input from the user.
 class CmdPanel  : public Panel
@@ -24,6 +29,11 @@ public:
   CmdPanel(PanelContainer *pc, const char *n, char *argument);
   ~CmdPanel();  // Active destructor
 
+  void upKey();
+  void downKey();
+
+void positionToEndForReturn();
+
 #ifdef PULL
   void clicked(int, int);
   void selectionChanged();
@@ -31,27 +41,32 @@ public:
 protected slots:
   void menu1callback();
   void menu2callback();
-  void returnPressed();
   void textChanged();
+  void returnPressed();
 
 protected:
 
 
 private:
   QHBoxLayout * frameLayout;
-#ifdef SPTEXTEDIT
-  SPTextEdit *output;
-#else // SPTEXTEDIT
   QTextEdit *output;
-#endif // SPTEXTEDIT
   int last_para;   // The from portion of the last cursor position.
   int last_index;  // The from portion of the last cursor position.
+
+int history_start_para;
+int history_start_index;
 
   bool menu(QPopupMenu* contextMenu);
   void save();
   void saveAs();
   int listener(void *msg);
   int broadcast(char *msg, BROADCAST_TYPE bt);
+
+  CmdHistoryList::Iterator cmdHistoryListIterator;
+  CmdHistoryList cmdHistoryList;
+
+  void appendHistory(QString str);
+  
 
   bool textDisabled;
 };

@@ -2,7 +2,8 @@
 #include "PanelContainer.hxx"   // Do not remove
 #include "plugin_entry_point.hxx"   // Do not remove
 
-QString prompt = QString("cli> ");
+QString prompt = QString("oss> ");
+
 
 /*! \class CmdPanel
   The CmdPanel class is designed to accept command line input from the user.
@@ -19,22 +20,12 @@ CmdPanel::CmdPanel(PanelContainer *pc, const char *n, char *argument) : Panel(pc
 
   frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
-#ifdef SPTEXTEDIT
-  output = new SPTextEdit( this, getBaseWidgetFrame() );
-#else // SPTEXTEDIT
   output = new QTextEdit( getBaseWidgetFrame() );
-#endif // SPTEXTEDIT
   output->setTextFormat(PlainText);
   connect( output, SIGNAL(returnPressed()),
                 this, SLOT(returnPressed()) );
   connect( output, SIGNAL(textChanged()),
                 this, SLOT(textChanged()) );
-#ifdef PULL
-  connect( output, SIGNAL(selectionChanged()),
-                this, SLOT(selectionChanged()) );
-  connect( output, SIGNAL(clicked(int, int)),
-                this, SLOT(clicked(int, int)) );
-#endif // PULL
 
   frameLayout->addWidget(output);
 
@@ -45,6 +36,13 @@ CmdPanel::CmdPanel(PanelContainer *pc, const char *n, char *argument) : Panel(pc
   output->getCursorPosition(&last_para, &last_index);
   output->moveCursor(QTextEdit::MoveEnd, FALSE);
   output->setFocus();
+  history_start_para = last_para;
+  history_start_index = prompt.length();
+
+  KeyEventFilter *keyEventFilter = new KeyEventFilter(output, this);
+  output->installEventFilter( keyEventFilter );
+
+  cmdHistoryListIterator = cmdHistoryList.begin();
 }
 
 
@@ -54,30 +52,7 @@ CmdPanel::CmdPanel(PanelContainer *pc, const char *n, char *argument) : Panel(pc
 CmdPanel::~CmdPanel()
 {
   nprintf(DEBUG_CONST_DESTRUCT) ( "  CmdPanel::~CmdPanel() destructor called.\n");
-
-//  delete frameLayout;
-//  delete output;
 }
-
-#ifdef PULL
-void
-CmdPanel::selectionChanged()
-{
-printf("selectionChanged\n");
-//  output->moveCursor(QTextEdit::MoveEnd, FALSE);
-//  output->getCursorPosition(&last_para, &last_index);
-}
-
-void
-CmdPanel::clicked(int, int)
-{
-printf("clicked\n");
-/*
-  output->moveCursor(QTextEdit::MoveEnd, FALSE);
-  output->getCursorPosition(&last_para, &last_index);
-*/
-}
-#endif // PULL
 
 void
 CmdPanel::returnPressed()
@@ -94,27 +69,36 @@ CmdPanel::returnPressed()
 
   int i = 0;
   for( i = last_para;i<=current_para;i++ )
+  for( i = last_para;i<current_para;i++ )
   {
     QString text = output->text(i);
     char *buffer = strdup(text.stripWhiteSpace().ascii());
-    if( text.stripWhiteSpace() == "" || text.stripWhiteSpace() == "cli>" )
+    if( text.stripWhiteSpace() == "" || text.stripWhiteSpace() == "oss>" )
     {
       free(buffer);
       return;
     }
     char *start_ptr = buffer;
-    if( text.startsWith("cli> ") )
+    if( text.startsWith("oss> ") )
     {
-      start_ptr += 5;
-    } else if( text.startsWith("cli>") )
+      start_ptr += prompt.length();
+    } else if( text.startsWith("oss>") )
     {
-      start_ptr += 4;
+      start_ptr += prompt.length()-1;
     }
 //    printf("Send down (%s)\n", start_ptr);
     int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
     InputLineObject *ilp = Append_Input_String( wid, start_ptr);
+
+    // Push the command onto the history list.
+    cmdHistoryListIterator = cmdHistoryList.end();
+    cmdHistoryList.push_back(start_ptr);
+
     free( buffer );
     output->moveCursor(QTextEdit::MoveEnd, FALSE);
+    output->getCursorPosition(&history_start_para, &history_start_index);
+    // It's always strlen(prompt)+1
+    history_start_index = prompt.length();
   } 
   output->moveCursor(QTextEdit::MoveEnd, FALSE);
   output->getCursorPosition(&last_para, &last_index);
@@ -150,13 +134,19 @@ CmdPanel::textChanged()
 
   if( current_para < last_para )
   {
-//   printf("They're wacking a previous line!\n");
+//    printf("They're wacking a previous line!\n");
     output->undo();
     output->moveCursor(QTextEdit::MoveEnd, FALSE);
     return;
   }
 
-  output->moveCursor(QTextEdit::MoveEnd, FALSE);
+  // If we're editting a line of history, don't move to the end..
+  if( current_para != history_start_para ||
+      current_index < history_start_index )
+  {
+//    printf("Right, or wrong.  Move cursor to the end.\n");
+    output->moveCursor(QTextEdit::MoveEnd, FALSE);
+  }
 
 
 // printf("current_para=%d last_para=%d\n", current_para, last_para );
@@ -172,6 +162,68 @@ CmdPanel::textChanged()
     textDisabled = FALSE;
   }
 
+}
+
+void
+CmdPanel::upKey()
+{
+//  printf("CmdPanel::upKey()\n");
+
+  if( cmdHistoryListIterator != cmdHistoryList.begin() ) 
+  {
+    cmdHistoryListIterator--;
+  }
+  QString str = (QString)*cmdHistoryListIterator;
+
+  if( str )
+  {
+//    printf("upKey() str=(%s)\n", str.ascii() );
+
+    appendHistory(str);
+  }
+}
+
+void
+CmdPanel::downKey()
+{
+//  printf("CmdPanel::downKey()\n");
+  if( cmdHistoryListIterator != cmdHistoryList.end() ) 
+  {
+    cmdHistoryListIterator++;
+  }
+  
+  QString str = (QString)*cmdHistoryListIterator;
+
+  if( str )
+  {
+//    printf("downKey() str=(%s)\n", str.ascii() );
+    appendHistory(str);
+  }
+}
+
+void
+CmdPanel::positionToEndForReturn()
+{
+//  printf("CmdPanel::positionToEndForReturn()\n");
+  output->moveCursor(QTextEdit::MoveEnd, FALSE);
+}
+
+void
+CmdPanel::appendHistory(QString str)
+{
+  int para;
+  int index;
+
+  output->moveCursor(QTextEdit::MoveEnd, FALSE);
+  output->getCursorPosition(&para, &index);
+  output->setSelection(history_start_para, history_start_index, para, index);
+  output->removeSelectedText();
+  // printf("history_start_para=%d history_start_index=%d para=%d index=%d\n", history_start_para, history_start_index, para, index);
+
+  output->insertAt(str, history_start_para, history_start_index);
+
+  // Now position the cursor...
+  output->moveCursor(QTextEdit::MoveEnd, FALSE);
 }
 
 /*
