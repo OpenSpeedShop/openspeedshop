@@ -19,7 +19,7 @@
 
 /*! 
     This file is responsible for loading all plugins at initialization time.
-    A directory pointed at the environment vairiable OPENSPEEDSHOP_PLUGIN_PATH
+    A directory pointed at the environment vairiable OPENSS_PLUGIN_PATH
     is interrogated to load plugins (from this file).   Each plugin file
     is openned to get information about it.   Information such as what
     group function does it belong to, what menu (if any) does it need
@@ -35,13 +35,12 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <dlfcn.h>
+// #include <dlfcn.h>
 #include <errno.h>
 #include <time.h>
 
-#ifdef LTDL_H
+#include <assert.h>
 #include <ltdl.h>
-#endif // LTDL_H
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -60,6 +59,18 @@
 #define PLUGIN_INFO_ENTRY_POINT "plugin_info_init"
 static char *plugin_directory = NULL;
 
+#include <stdlib.h>
+
+#include "PanelContainer.hxx"
+
+#include <qwidget.h>
+#include <qlayout.h>
+
+class PanelContainer;
+PanelContainerList *panelContainerList;
+static PanelContainer *masterPC;
+static QWidget *pl;
+
 #include "PanelContainer.hxx"
 /*! This routine opens each plugin and looks for a predefined entry point.
     If the entry point exists, then the plugin information is loaded that 
@@ -67,23 +78,18 @@ static char *plugin_directory = NULL;
 */
   
 int
-register_plugin(QWidget *pl, char *plugin_file, PanelContainer *masterPC)
+register_plugin(const char *plugin_file)
 {
-  dprintf("Attempting to open %s\n", plugin_file );
+  printf("Attempting to open %s\n", plugin_file );
 
   // We got a plugin location directory and an absoluted path to a plugin.
   // Let's try to load the PluginInfo information.
 
-#ifdef LTDL_H
-  lt_dlhandle *dl_object = lt_dlopen((const char *)plugin_file, (int)RTLD_LAZY );
-#else // LTDL_H
-  void *dl_object = dlopen((const char *)plugin_file, (int)RTLD_LAZY );
-#endif // LTDL_H
-
-  if( !dl_object )
+  lt_dlhandle dl_object = lt_dlopenext((const char *)plugin_file);
+  if( dl_object == NULL )
   {
 //NOTE: THIS IS THE IMPORTANT DEBUG PRINT
-//    fprintf(stderr, "(%s): dlerror()=%s\n", plugin_file, dlerror() );
+//    fprintf(stderr, "(%s): lt_dlerror()=%s\n", plugin_file, lt_dlerror() );
     return(0);
   }
 
@@ -92,20 +98,14 @@ register_plugin(QWidget *pl, char *plugin_file, PanelContainer *masterPC)
   dprintf("Try to lookup the entry_point (%s)\n", plugin_file);
 
   // We've managed to open the dso.  Can we the PluginInfo entry point?
-#ifdef LTDL_H
   lt_ptr (*dl_plugin_info_init_routine)(void *, void *);
 
-  dl_plugin_info_init_routine = (int (*)(void *, void *))lt_dlsym(dl_object, PLUGIN_INFO_ENTRY_POINT);
-#else // LTDL_H
-  int (*dl_plugin_info_init_routine)(void *, void *);
-
-  dl_plugin_info_init_routine = (int (*)(void *, void *))dlsym(dl_object, PLUGIN_INFO_ENTRY_POINT);
-#endif // LTDL_H
+  dl_plugin_info_init_routine = (lt_ptr (*)(void *, void *))lt_dlsym(dl_object, PLUGIN_INFO_ENTRY_POINT);
   if( dl_plugin_info_init_routine == NULL )
   {
-//    fprintf(stderr, "libdso: dlsym %s not found in %s dlerror()=%s\n", PLUGIN_INFO_ENTRY_POINT, plugin_file, dlerror() );
-//fprintf(stderr, "This is not a gui panel plugin... ignore it.\n");
-    dlclose(dl_object);
+//    fprintf(stderr, "libdso: dlsym %s not found in %s dlerror()=%s\n", PLUGIN_INFO_ENTRY_POINT, plugin_file, lt_dlerror() );
+//    fprintf(stderr, "This is not a gui panel plugin... ignore it.\n");
+    lt_dlclose(dl_object);
     return(0);
   }
 
@@ -113,12 +113,7 @@ register_plugin(QWidget *pl, char *plugin_file, PanelContainer *masterPC)
   // Well, we found the plugin entry point, which is suppose to contain
   // information about this plugin.   Let's call it and fill up our 
   // PluginInfo structure with the pertinent information.
-#ifdef LTDL_H
   lt_ptr i = (*dl_plugin_info_init_routine)((void *)pluginInfo, (void *)masterPC);
-#else // LTDL_H
-  int i = (*dl_plugin_info_init_routine)((void *)pluginInfo, (void *)masterPC);
-#endif // LTDL_H
-
   dprintf("%s returned %d\n", PLUGIN_INFO_ENTRY_POINT, i);
 
 
@@ -129,19 +124,13 @@ register_plugin(QWidget *pl, char *plugin_file, PanelContainer *masterPC)
   // find the defined entry point?
   dprintf("Try to lookup the entry_point (%s)\n", pluginInfo->plugin_entry_point);
 
-#ifdef LTDL_H
   lt_ptr (*dl_routine)(void *, void *);
 
-  dl_routine = (int (*)(void *, void *))lt_dlsym(dl_object, pluginInfo->plugin_entry_point);
-#else // LTDL_H
-  int (*dl_routine)(void *, void *);
-
-  dl_routine = (int (*)(void *, void *))dlsym(dl_object, pluginInfo->plugin_entry_point);
-#endif // LTDL_H
+  dl_routine = (lt_ptr (*)(void *, void *))lt_dlsym(dl_object, pluginInfo->plugin_entry_point);
 
   if( dl_routine == NULL )
   {
-//    fprintf(stderr, "libdso: dlsym %s not found dlerror()=%s\n", pluginInfo->plugin_entry_point, dlerror() );
+//    fprintf(stderr, "libdso: dlsym %s not found dlerror()=%s\n", pluginInfo->plugin_entry_point, lt_dlerror() );
     delete pluginInfo;   // Don't forget to delete this on an early return.
     return 0;
   }
@@ -155,108 +144,82 @@ register_plugin(QWidget *pl, char *plugin_file, PanelContainer *masterPC)
   dprintf("\tlibdso: dynamic routine returned %d\n", i);
 
   i = (*dl_routine)((void *)pl, (void *)pluginInfo);
-  pluginInfo->dl_create_and_add_panel = (Panel * (*)(void *, void *, void *))dlsym(dl_object, "create_and_add_panel" );
+  pluginInfo->dl_create_and_add_panel = (Panel * (*)(void *, void *, void *))lt_dlsym(dl_object, "create_and_add_panel" );
   if( pluginInfo->dl_create_and_add_panel == NULL )
   {
-//    fprintf(stderr, "libdso: dlsym %s not found dlerror()=%s\n", pluginInfo->plugin_entry_point, dlerror() );
-    fprintf(stderr, "Will not be able to create_and_add_panel() for:\n");
+//    fprintf(stderr, "libdso: dlsym %s not found dlerror()=%s\n", pluginInfo->plugin_entry_point, lt_dlerror() );
+//    fprintf(stderr, "Will not be able to create_and_add_panel() for:\n");
     pluginInfo->Print();
-    i = -1;
+    return(-1);
   }
 
-  if( i == -1 )
+  if( masterPC->_pluginRegistryList == NULL )
   {
-    return(-1);
-  } else
-  {
-    if( masterPC->_pluginRegistryList == NULL )
-    {
-      masterPC->_pluginRegistryList = new PluginRegistryList;
-      masterPC->_pluginRegistryList->clear();
-    }
-    masterPC->_pluginRegistryList->push_back(pluginInfo);
-    return(0);
+    masterPC->_pluginRegistryList = new PluginRegistryList;
+    masterPC->_pluginRegistryList->clear();
   }
+  masterPC->_pluginRegistryList->push_back(pluginInfo);
+  return(0);
 }
 
-struct stat Statbuf;
-#define exists(file)           (stat(file,&Statbuf)<0 ? 0:Statbuf.st_mode)
-/*! This routine checks the plugin directory ($OPENSPEEDSHOP_PLUGIN_PATH) for
+int
+foreachCallback(const char *filename, lt_ptr data)
+{
+  dprintf("foreachCallback() called for (%s)\n", filename );
+
+  register_plugin(filename);
+
+  // Always return zero to insure we keep searching
+  return 0;
+}
+
+/*! This routine checks the plugin directories for
     plugin files.   It loops over and shovels each file to a routine that
     determines if the file is a valid plugin.
 */
-void initialize_plugins(QWidget *pl, PanelContainer *masterPC)
+void initialize_plugins()
 {
-  //This is the base plugin directory.   In this directory there should
-  // be a list of dso (.so) which are the plugins.
-  plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
-  
-  // Check for a plugin environment variable
-  if( !plugin_directory )
+  // Initialize libltdl
+  assert(lt_dlinit() == 0);
+
+  // Start with an empty user-defined search path
+  assert(lt_dlsetsearchpath("") == 0);
+
+  // Add the compile-time plugin path
+  assert(lt_dladdsearchdir(PLUGIN_PATH) == 0);
+
+  // Add the install plugin path
+  if(getenv("OPENSS_INSTALL_DIR") != NULL)
   {
-    fprintf(stderr, "There are no plug-ins.   $OPENSPEEDSHOP_PLUGIN_PATH not set.\n");
-    exit(1);
+    dprintf("OPENSS_INSTALL_DIR set\n");
+    QString install_path = QString(getenv("OPENSS_INSTALL_DIR")) +
+            QString("/lib/openspeedshop");
+    assert(lt_dladdsearchdir(install_path.ascii()) == 0);
   }
 
-  // If no plugin list directory is available, return after printing error.
-  if( !exists(plugin_directory) )
-  {
-    fprintf(stderr, "Plugin directory does not exist.  Check $OPENSPEEDSHOP_PLUGIN_PATH variable.\n");
-//    exit(1);
-    return;
-  }
-
-  // Go and get a list of all the plugin files.
-  int glob_ret_value = 0;
-  char target[1024];
-  char *pattern = "**.so";
-  sprintf(target, "%s/%s", plugin_directory, pattern);
-//  int flags = GLOB_NOSORT | GLOB_ERR | GLOB_MARK | GLOB_TILDE;
-  int flags = GLOB_ERR | GLOB_MARK | GLOB_TILDE;
-  glob_t *pglob = new glob_t;
-
-  // These are the plugin files...
-  glob_ret_value = glob(target, flags, 0, pglob);
-  if( glob_ret_value != 0 )
-  {
-    fprintf(stderr, "Error: reading list of plugins in %s\n", target);
-//    exit(1);
-    return;
-  }
-
-  // If no plugin files are located in the path, return after printing error.
-  if( pglob->gl_pathc == 0 )
-  {
-    fprintf(stderr, "Error: there are no plugins available in $OPENSPEEDSHOP_PLUGIN_PATH.\n");
-//    exit(1);
-    return;
-  }
-
-  // here's your list of plugins.... 
-  unsigned int i = 0;
-  for(i=0;i<pglob->gl_pathc;i++)
-  {
-//    printf("processing plugin record (%s)\n", pglob->gl_pathv[i] );
-    if( register_plugin(pl, pglob->gl_pathv[i], masterPC) == -1 )
-    {
-      fprintf(stderr, "Error processing the plugin record (%s)\n", pglob->gl_pathv[i] );
-      fprintf(stderr, "Plugin record: \n");
-    }
-  }
-  globfree(pglob);
+// Add the install plugin path
+// THIS IS ONLY FOR THE TRANSITION PERIOD!
+if(getenv("OPENSPEEDSHOP_INSTALL_DIR") != NULL)
+{
+  dprintf("OPENSS_INSTALL_DIR set\n");
+  QString install_path = QString(getenv("OPENSS_INSTALL_DIR")) +
+            QString("/lib/openspeedshop");
+  assert(lt_dladdsearchdir(install_path.ascii()) == 0);
 }
 
 
-#include <stdlib.h>
-#include <stdio.h>
+  // Add the user-specified plugin path
+  if(getenv("OPENSS_PLUGIN_PATH") != NULL)
+  {
+    dprintf("OPENSS_PLUGIN_PATH set\n");
+    QString user_specified_path = QString(getenv("OPENSS_PLUGIN_PATH"));
+    assert(lt_dladdsearchdir(user_specified_path.ascii()) == 0);
+  }
 
-#include "PanelContainer.hxx"
+  // Now search for collector plugins in all these paths
+  lt_dlforeachfile(lt_dlgetsearchpath(), foreachCallback, 0);
+}
 
-#include <qwidget.h>
-#include <qlayout.h>
-
-class PanelContainer;
-PanelContainerList *panelContainerList;
 
 int
 _init()
@@ -268,11 +231,13 @@ _init()
 
 extern "C"
 {
-  int ph_init(QWidget *w, PanelContainer *masterPC)
+  int ph_init(QWidget *w, PanelContainer *mPC)
   {
-//    printf("hello from ph_init(QWidget *w, PanelContainer *masterPC) oooboy\n");
+    pl = w;
+    masterPC = mPC;
+    dprintf("hello from ph_init(QWidget *w, PanelContainer *masterPC) oooboy\n");
 
-    initialize_plugins(w, masterPC);
+    initialize_plugins();
 
     return 1;
   }
