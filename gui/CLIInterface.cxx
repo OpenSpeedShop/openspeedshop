@@ -35,11 +35,14 @@
 
 #include "CLIInterface.hxx"
 
+#include "qcursor.h"
 #include "qapplication.h"
 
 #include <qinputdialog.h>
 
 bool CLIInterface::interrupt = false;
+#define RETURN_FALSE QApplication::restoreOverrideCursor();return false;
+#define RETURN_TRUE QApplication::restoreOverrideCursor();return true;
 
 /*! Given a window id create an interface to the cli. */
 CLIInterface::CLIInterface(int _wid) : QObject()
@@ -67,12 +70,13 @@ CLIInterface::runSynchronousCLI(char *command, int mt, bool wot )
 {
   maxTime = mt;
   warn_of_time = wot;
-  //printf("runSynchronousCLI(%s)\n", command);
+//  printf("runSynchronousCLI(%s)\n", command);
+  QApplication::setOverrideCursor(QCursor::WaitCursor);
   InputLineObject *clip = Append_Input_String( wid, command);
   if( clip == NULL )
   {
     fprintf(stderr, "FATAL ERROR: No clip returned from cli.\n");
-    return false;
+    RETURN_FALSE;
   }
   Input_Line_Status status = ILO_UNKNOWN;
 
@@ -81,7 +85,7 @@ CLIInterface::runSynchronousCLI(char *command, int mt, bool wot )
     status = checkStatus(clip);
     if( !status || status == ILO_ERROR )
     { // An error occurred.... A message should have been posted.. return;
-       return false;
+       RETURN_FALSE;
     }
 
     qApp->processEvents(1000);
@@ -89,7 +93,7 @@ CLIInterface::runSynchronousCLI(char *command, int mt, bool wot )
     if( !shouldWeContinue() )
     {
 //printf("RETURN FALSE!   COMMAND FAILED!\n");
-      return false;
+      RETURN_FALSE;
     }
 
     sleep(1);
@@ -102,7 +106,7 @@ CLIInterface::runSynchronousCLI(char *command, int mt, bool wot )
     timer = NULL;
   }
 
-  return(true);
+  RETURN_TRUE;
 }
 
 /*! Run a synchronous command and return an integer value.
@@ -121,15 +125,16 @@ CLIInterface::runSynchronousCLI(char *command, int mt, bool wot )
 bool
 CLIInterface::getIntValueFromCLI(char *command, int64_t *val, bool mark_value_for_delete, int mt, bool wot )
 {
-//printf("getIntValueFromCLI(%s)\n", command);
+//  printf("getIntValueFromCLI(%s)\n", command);
   maxTime = mt;
   warn_of_time = wot;
 
+  QApplication::setOverrideCursor(QCursor::WaitCursor);
   InputLineObject *clip = Append_Input_String( wid, command);
   if( clip == NULL )
   {
     fprintf(stderr, "FATAL ERROR: No clip returned from cli.\n");
-    return false;
+    RETURN_FALSE;
   }
   Input_Line_Status status = ILO_UNKNOWN;
 
@@ -142,7 +147,7 @@ CLIInterface::getIntValueFromCLI(char *command, int64_t *val, bool mark_value_fo
     if( !status || status == ILO_ERROR )
     {   // An error occurred.... A message should have been posted.. return;
       fprintf(stderr, "an error occurred processing (%s)!\n", command);
-      return false;
+      RETURN_FALSE;
     }
 
     if( status == ILO_COMPLETE )
@@ -176,7 +181,7 @@ CLIInterface::getIntValueFromCLI(char *command, int64_t *val, bool mark_value_fo
     if( !shouldWeContinue() )
     {
       //printf("RETURN FALSE!   COMMAND FAILED!\n");
-      return false;
+      RETURN_FALSE;
     }
 
     sleep(1);
@@ -189,7 +194,7 @@ CLIInterface::getIntValueFromCLI(char *command, int64_t *val, bool mark_value_fo
     timer = NULL;
   }
 
-  return(true);
+  RETURN_TRUE;
 }
 
 
@@ -209,16 +214,17 @@ CLIInterface::getIntValueFromCLI(char *command, int64_t *val, bool mark_value_fo
 bool
 CLIInterface::getIntListValueFromCLI(char *command, std::list<int64_t> *int_list, bool mark_value_for_delete, int mt, bool wot )
 {
-  //printf("getIntListValueFromCLI(%s)\n", command);
+//  printf("getIntListValueFromCLI(%s)\n", command);
   maxTime = mt;
   warn_of_time = wot;
 
+  QApplication::setOverrideCursor(QCursor::WaitCursor);
   InputLineObject *clip = Append_Input_String( wid, command);
 //printf("clip = 0x%x\n", clip);
   if( clip == NULL )
   {
     fprintf(stderr, "FATAL ERROR: No clip returned from cli.\n");
-    return false;
+    RETURN_FALSE;
   }
   Input_Line_Status status = ILO_UNKNOWN;
 
@@ -231,7 +237,7 @@ CLIInterface::getIntListValueFromCLI(char *command, std::list<int64_t> *int_list
     if( !status || status == ILO_ERROR )
     {   // An error occurred.... A message should have been posted.. return;
       fprintf(stderr, "an error occurred processing (%s)!\n", command);
-      return false;
+      RETURN_FALSE;
     }
 
     if( status == ILO_COMPLETE )
@@ -273,7 +279,7 @@ std::list<CommandResult *> cmd_result = co->Result_List();
     if( !shouldWeContinue() )
     {
 //printf("RETURN FALSE!   COMMAND FAILED!\n");
-      return false;
+      RETURN_FALSE;
     }
 
     sleep(1);
@@ -286,7 +292,7 @@ std::list<CommandResult *> cmd_result = co->Result_List();
     timer = NULL;
   }
 
-  return(true);
+  RETURN_TRUE;
 }
 
 
@@ -306,15 +312,16 @@ std::list<CommandResult *> cmd_result = co->Result_List();
 bool
 CLIInterface::getStringValueFromCLI(char *command, std::string *str_val, bool mark_value_for_delete, int mt, bool wot )
 {
-  //printf("getStringValueFromCLI(%s)\n", command);
+//  printf("getStringValueFromCLI(%s)\n", command);
   maxTime = mt;
   warn_of_time = wot;
 
+  QApplication::setOverrideCursor(QCursor::WaitCursor);
   InputLineObject *clip = Append_Input_String( wid, command);
   if( clip == NULL )
   {
     fprintf(stderr, "FATAL ERROR: No clip returned from cli.\n");
-    return false;
+    RETURN_FALSE;
   }
   Input_Line_Status status = ILO_UNKNOWN;
 
@@ -327,7 +334,7 @@ CLIInterface::getStringValueFromCLI(char *command, std::string *str_val, bool ma
     if( !status || status == ILO_ERROR )
     {   // An error occurred.... A message should have been posted.. return;
       fprintf(stderr, "an error occurred processing (%s)!\n", command);
-      return false;
+      RETURN_FALSE;
     }
 
     if( status == ILO_COMPLETE )
@@ -361,7 +368,7 @@ CLIInterface::getStringValueFromCLI(char *command, std::string *str_val, bool ma
     if( !shouldWeContinue() )
     {
 //printf("RETURN FALSE!   COMMAND FAILED!\n");
-      return false;
+      RETURN_FALSE;
     }
 
     sleep(1);
@@ -374,7 +381,7 @@ CLIInterface::getStringValueFromCLI(char *command, std::string *str_val, bool ma
     timer = NULL;
   }
 
-  return(true);
+  RETURN_TRUE;
 }
 
 
@@ -394,16 +401,17 @@ CLIInterface::getStringValueFromCLI(char *command, std::string *str_val, bool ma
 bool
 CLIInterface::getStringListValueFromCLI(char *command, std::list<std::string> *str_list, bool mark_value_for_delete, int mt, bool wot )
 {
-  //printf("getStringListValueFromCLI(%s)\n", command);
+//  printf("getStringListValueFromCLI(%s)\n", command);
   maxTime = mt;
   warn_of_time = wot;
 
+  QApplication::setOverrideCursor(QCursor::WaitCursor);
   InputLineObject *clip = Append_Input_String( wid, command);
 //printf("clip = 0x%x\n", clip);
   if( clip == NULL )
   {
     fprintf(stderr, "FATAL ERROR: No clip returned from cli.\n");
-    return false;
+    RETURN_FALSE;
   }
   Input_Line_Status status = ILO_UNKNOWN;
 
@@ -416,7 +424,7 @@ CLIInterface::getStringListValueFromCLI(char *command, std::list<std::string> *s
     if( !status || status == ILO_ERROR )
     {   // An error occurred.... A message should have been posted.. return;
       fprintf(stderr, "an error occurred processing (%s)!\n", command);
-      return false;
+      RETURN_FALSE;
     }
 
     if( status == ILO_COMPLETE )
@@ -458,7 +466,7 @@ std::list<CommandResult *> cmd_result = co->Result_List();
     if( !shouldWeContinue() )
     {
 //printf("RETURN FALSE!   COMMAND FAILED!\n");
-      return false;
+      RETURN_FALSE;
     }
 
     sleep(1);
@@ -471,7 +479,7 @@ std::list<CommandResult *> cmd_result = co->Result_List();
     timer = NULL;
   }
 
-  return(true);
+  RETURN_TRUE;
 }
 
 /*! This routine simply checks the status of the command 
