@@ -1269,7 +1269,8 @@ PanelContainer::addPanel(Panel *p, PanelContainer *panel_container, char *tab_na
   }
 
   nprintf(DEBUG_PANELCONTAINERS) ("PanelContinaer::addPanel() add the tab\n");
-  start_pc->tabWidget->addTab( p->getBaseWidgetFrame(), tab_name );
+//  start_pc->tabWidget->addTab( p->getBaseWidgetFrame(), tab_name );
+  start_pc->tabWidget->addTab( p->getBaseWidgetFrame(), p->getName() );
 
   start_pc->augmentTab( p->getBaseWidgetFrame() );
 

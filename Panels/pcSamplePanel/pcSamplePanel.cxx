@@ -145,6 +145,11 @@ while( TRUE )
       cri->Value(&val);
 fprintf(stdout, "MY VALUE! = (%d)\n", 1);
 expID = val;
+char name_buffer[100];
+sprintf(name_buffer, "%s [%d]", getName(), expID);
+setName(name_buffer);
+
+
 
     }
     break;

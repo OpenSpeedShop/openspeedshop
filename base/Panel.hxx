@@ -62,6 +62,9 @@ public:
     //! Displays a popup like help with message... (msg)
     void displayWhatsThis(QString msg);
 
+    //! Sets the Panel name.
+    void setName(const char *);
+
     //! Returns the Panel name.
     const char *getName() { return name; }
 
@@ -77,9 +80,6 @@ public:
     virtual void addWhatsThis(QObject *o, Panel *p);
 
 protected:
-    //! Sets the Panel name.
-    void setName(const char *);
-
     //! Sets the Panel specific strings.
     virtual void languageChange();
 
