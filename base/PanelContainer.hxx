@@ -31,6 +31,9 @@
 // #include "openspeedshop.hxx"
 class OpenSpeedshop;
 
+#include <qbitmap.h>
+#include <qiconset.h>
+
 #define MENU_ACTIVE_HEIGHT 5
 
 class QVBoxLayout;
@@ -180,6 +183,9 @@ void _notifyAllDecendants(char *msg, PanelContainer *targetPC);
     //! This is the tabWidget that holds all Panels.
     TabWidget *tabWidget;
     TabBarWidget *tabBarWidget;
+
+    //! The routine that puts the icon to the tab.
+    void augmentTab( QWidget *targetWidget,  QIconSet *iconset = NULL);
 
     //! Callback to notify to display the PanelContainer menu.
     void panelContainerContextMenuEvent( PanelContainer *targetPC,

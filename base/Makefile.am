@@ -30,6 +30,7 @@ ossBase_la_CXXFLAGS = \
     -I$(QTDIR)/include \
     -I. \
     -I../plugin \
+    -I../images \
     -I../gui \
     -I../base
 

@@ -82,6 +82,10 @@ extern QEventLoop *qeventloop;
 
 #include "PluginInfo.hxx"
 
+#ifndef PULLDOWN
+#include "menu_arrow.xpm"
+#endif // PULLDOWN
+
 /*! It should never be called and is only here for completeness.
  */
 PanelContainer::PanelContainer( )
@@ -1205,6 +1209,8 @@ PanelContainer::addPanel(Panel *p, PanelContainer *panel_container, char *tab_na
   nprintf(DEBUG_PANELCONTAINERS) ("PanelContinaer::addPanel() add the tab\n");
   start_pc->tabWidget->addTab( p->getBaseWidgetFrame(), tab_name );
 
+  start_pc->augmentTab( p->getBaseWidgetFrame() );
+
   // Add the panel to the iterator list.   This list (panelList) aids us
   // when cleaning up PanelContainers.  We'll just loop over this list
   // deleting all the panels.
@@ -2142,6 +2148,9 @@ PanelContainer::movePanelsToNewPanelContainer( PanelContainer *sourcePC)
       panel_base->reparent((QWidget *)targetPC, 0, point, TRUE);
       widget_to_reparent->reparent(targetPC->tabWidget, 0, point, TRUE);
       targetPC->tabWidget->addTab( currentPage, p->getName() );
+
+      targetPC->augmentTab(currentPage);
+
       {
       TabBarWidget *tbw = (TabBarWidget *)targetPC->tabWidget->tabBar();
       tbw->setPanelContainer(targetPC);
@@ -2682,3 +2691,26 @@ PanelContainer::notifyAll(char *msg)
   return return_value;
 }
 
+
+void
+PanelContainer::augmentTab( QWidget *targetWidget, QIconSet *iconset )
+{
+  int index_of = tabWidget->indexOf( targetWidget );
+  tabWidget->setCurrentPage(index_of);
+  QWidget *cp = tabWidget->currentPage();
+  tabWidget->setTabToolTip( cp, tr("Use right mouse to get a  menu,\nleft mouse to drag."));
+
+  if( iconset != NULL )
+  {
+    tabWidget->setTabIconSet( cp, *iconset );
+  } else
+  {
+// define PULLDOWN if a default tab icon is wanted.
+#ifdef PULLDOWN
+    QPixmap *apm = new QPixmap( menu_arrow );
+    apm->setMask( apm->createHeuristicMask());
+    printf("D: create the pulldown widget.\n");
+    tabWidget->setTabIconSet( cp, QIconSet( *apm ));
+#endif // PULLDOWN
+  }
+}

@@ -57,7 +57,6 @@ static unsigned char panel_dragmask_bits[] = {
 
 DragNDropPanel *DragNDropPanel::sourceDragNDropObject = NULL;
 
-
 #include <qapplication.h>
 
 /*! This constructor is not called.   It is here for completeness.
@@ -269,6 +268,8 @@ targetPC->tabWidget->setTabBar(targetPC->tabBarWidget);
   // Now add the actual tab to the tabWidget in the new PanelContainer.
   p->getPanelContainer()->tabWidget->addTab( currentPage, p->getName() );
 
+  p->getPanelContainer()->augmentTab( currentPage );
+
   // Add the move Panel to the new PanelContainers panelList.
   p->getPanelContainer()->panelList.push_back(p);
 
@@ -459,6 +460,8 @@ targetPC->tabWidget->setTabBar(targetPC->tabBarWidget);
 
   // Now add the actual tab to the tabWidget in the new PanelContainer.
   p->getPanelContainer()->tabWidget->addTab( currentPage, p->getName() );
+
+  p->getPanelContainer()->augmentTab( currentPage );
 
   // Add the move Panel to the new PanelContainers panelList.
   p->getPanelContainer()->panelList.push_back(p);
