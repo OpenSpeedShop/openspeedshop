@@ -31,9 +31,6 @@ typedef QValueList<MetricHeaderInfo *> MetricHeaderInfoList;
 #include "UpdateObject.hxx"
 #include "SourceObject.hxx"
 #include "PreferencesChangedObject.hxx"
-#ifdef OLDWAY
-#include "preference_plugin_info.hxx" // Do not remove
-#endif // OLDWAY
 
 
 #include "MetricInfo.hxx" // dummy data only...
@@ -50,14 +47,6 @@ StatsPanelBase::StatsPanelBase(PanelContainer *pc, const char *n, void *argument
 
   metricHeaderTypeArray = NULL;
 
-#ifdef OLDWAY
-  bool ok;
-  numberItemsToRead = getPreferenceTopNLineEdit().toInt(&ok);
-  if( !ok )
-  {
-    numberItemsToRead = 5;
-  }
-#endif // OLDWAY
 
   frameLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
@@ -139,43 +128,8 @@ StatsPanelBase::languageChange()
 bool
 StatsPanelBase::menu(QPopupMenu* contextMenu)
 {
-  contextMenu->insertSeparator();
-
-//  contextMenu->insertItem("Number visible entries...", this, SLOT(setNumberVisibleEntries()), CTRL+Key_1, 0, -1);
-  contextMenu->insertItem("Number visible entries...", this, SLOT(setNumberVisibleEntries()));
-
-  contextMenu->insertSeparator();
-
-//  contextMenu->insertItem("Compare...", this, SLOT(compareSelected()), CTRL+Key_1, 0, -1);
-  contextMenu->insertItem("Compare...", this, SLOT(compareSelected()) );
-
-  contextMenu->insertSeparator();
-
-  int id = 0;
-  QPopupMenu *columnsMenu = new QPopupMenu(this);
-  columnsMenu->setCaption("Columns Menu");
-  contextMenu->insertItem("&Columns Menu", columnsMenu, CTRL+Key_C);
-
-  for( ColumnList::Iterator pit = columnList.begin();
-           pit != columnList.end();
-           ++pit )
-  { 
-    QString s = (QString)*pit;
-    columnsMenu->insertItem(s, this, SLOT(doOption(int)), CTRL+Key_1, id, -1);
-    if( lv->columnWidth(id) )
-    {
-      columnsMenu->setItemChecked(id, TRUE);
-    } else
-    {
-      columnsMenu->setItemChecked(id, FALSE);
-    }
-    id++;
-  }
-
-//  contextMenu->insertItem("Export Report Data...", this, NULL, NULL);
-  contextMenu->insertItem("Export Report Data...");
-
-  return( TRUE );
+  dprintf("StatsPanelBase::menu() entered.\n");
+  return( FALSE );
 }
 
 /*! If the user panel save functionality, their function

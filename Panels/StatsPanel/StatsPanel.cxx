@@ -105,19 +105,7 @@ StatsPanel::listener(void *msg)
 bool
 StatsPanel::createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos )
 {
-  QPopupMenu *panelMenu = new QPopupMenu(this);
-  panelMenu->setCaption("Panel Menu");
-  contextMenu->insertItem("&Panel Menu", panelMenu, CTRL+Key_C);
-  panelMenu->insertSeparator();
-  menu(panelMenu);
-
-  if( lv->selectedItem() )
-  {
-  //  contextMenu->insertItem("Tell Me MORE about %d!!!", this, SLOT(details()), CTRL+Key_1 );
-    contextMenu->insertItem("Go to source location...", this, SLOT(gotoSource()), CTRL+Key_1 );
-    return( TRUE );
-  }
-
+  dprintf("StatsPanel::createPopupMenu()\n");
   return( FALSE );
 }
 
