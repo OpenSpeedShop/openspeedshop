@@ -13,7 +13,7 @@ class InfoEventFilter;
 class PanelContainer;
 #define MAX_TAB_NAME_LENGTH 30
 
-enum BROADCAST_TYPE { PC_T, NEAREST_T, GROUP_T, ALL_T };
+enum BROADCAST_TYPE { PC_T, NEAREST_T, GROUP_T, ALL_DECENDANTS_T, ALL_T };
 
 //! This defines the base class for all Panels.
 class Panel : public QWidget
@@ -54,7 +54,7 @@ public:
     virtual int listener(void *msg);
 
     //! Calls the panel function broadcast() message request.
-    virtual int broadcast(char *msg, BROADCAST_TYPE bt=ALL_T);
+    virtual int broadcast(char *msg, BROADCAST_TYPE bt=ALL_T, PanelContainer *startPC = NULL);
 
     //! Handles the resize event.
     virtual void handleSizeEvent(QResizeEvent *e=NULL);

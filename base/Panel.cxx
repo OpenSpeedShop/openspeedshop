@@ -187,7 +187,7 @@ int Panel::listener(void *msg)
 /*! Based on the broadcast type, send out the message.
  */
 int
-Panel::broadcast(char *msg, BROADCAST_TYPE bt)
+Panel::broadcast(char *msg, BROADCAST_TYPE bt, PanelContainer *startPC)
 {
   // Set a global flag that we're broadcasting.... 
   // Warn and do not allow anothe message to be sent until this message 
@@ -202,6 +202,8 @@ Panel::broadcast(char *msg, BROADCAST_TYPE bt)
       return( getPanelContainer()->notifyPC(msg) );
     case NEAREST_T:
       return( getPanelContainer()->notifyNearest(msg) );
+    case ALL_DECENDANTS_T:
+      return( getPanelContainer()->notifyAllDecendants(msg, startPC) );
     case GROUP_T:
       return( getPanelContainer()->notifyGroup(msg) );
     case ALL_T:
