@@ -84,7 +84,7 @@ extern "C"
     if( SPLASH )
     {
       sleep(1);
-      splash->message( "OpenSpeedShop is brought to you by:");
+      splash->message( "Open/SpeedShop is brought to you by:");
       splash->raise();
       event_routine();
       sleep(1);

@@ -6,7 +6,7 @@
 #include "debug.hxx"
 
 //! The default entry point for the dynamic library.
-/*! This routine is called before the 'OpenSpeedShop' entry point, panel_init().
+/*! This routine is called before the 'Open/SpeedShop' entry point, panel_init().
  */
 int
 _init()
@@ -18,7 +18,7 @@ _init()
 
 extern "C" 
 {
-  //! The OpenSpeedShop entry point for the dynamic library.
+  //! The Open/SpeedShop entry point for the dynamic library.
   /*! This routine is called to initialize the plugin information.
       It loads a structure (PlugingInfo) that contains information 
       about the specific plugin.

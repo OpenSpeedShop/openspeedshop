@@ -188,7 +188,7 @@ nprintf(DEBUG_DND) ("Drag panel=(%s)\n", p->getName() );
     int height = sourcePC->parent->height();
     nprintf(DEBUG_DND) ("Try to resize the new window to w=%d h=%d\n", width, height);
     topLevelWidget->resize(width, height);
-    topLevelWidget->setCaption( "OpenSpeedShop" );
+    topLevelWidget->setCaption( "Open/SpeedShop" );
 
     // Move the new window to the drop mouse location.
     topLevelWidget->move(mouse_pos.x(), mouse_pos.y() );
@@ -382,7 +382,7 @@ nprintf(DEBUG_DND) ("Drag panel=(%s)\n", p->getName() );
     int height = panelContainer->parent->height();
     nprintf(DEBUG_DND) ("Try to resize the new window to w=%d h=%d\n", width, height);
     topLevelWidget->resize(width, height);
-    topLevelWidget->setCaption( "OpenSpeedShop" );
+    topLevelWidget->setCaption( "Open/SpeedShop" );
 
     // Move the new window to the drop mouse location.
     topLevelWidget->move(mouse_pos.x(), mouse_pos.y() );

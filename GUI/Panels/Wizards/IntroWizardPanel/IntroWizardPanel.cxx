@@ -341,7 +341,7 @@ void
 IntroWizardPanel::languageChange()
 {
     setCaption( tr( "IntroWizardForm" ) );
-    epage1Header_2->setText( tr( "<h2>Welcome to OpenSpeedShop(tm)</h2>" ) );
+    epage1Header_2->setText( tr( "<h2>Welcome to Open/SpeedShop(tm)</h2>" ) );
     vpage1Label->setText( tr( "Please select which of the following are true for your application:" ) );
     vpage1LoadExperimentCheckBox->setText( tr( "I already have experiment data and would like to analyze it." ) );
     vpage1pcSampleRB->setText( tr( "I'm trying to find where my program is spending most of it's time." ) );
@@ -353,7 +353,7 @@ IntroWizardPanel::languageChange()
     vpage1InputOutputRB->setText( tr( "My program does a lot of Input and Output and I'd like to trace that work." ) );
     vpage1OtherRB->setText( tr( "I'm looking for something else.  Show me more options." ) );
     vpage1NextButton->setText( tr( "> Next" ) );
-    epage1Header->setText( tr( "<h2>Welcome to OpenSpeedShop(tm)</h2>" ) );
+    epage1Header->setText( tr( "<h2>Welcome to Open/SpeedShop(tm)</h2>" ) );
     epage1Label->setText( tr( "Please select which of the following are true for your application:" ) );
     epage1LoadExperimentCheckBox->setText( tr( "Load experiment data" ) );
     epage1pcSampleRB->setText( tr( "pcSampling (profiling)" ) );

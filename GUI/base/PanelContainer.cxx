@@ -581,7 +581,7 @@ PanelContainer::dragRaisedPanel()
 
   DragNDropPanel::sourceDragNDropObject = new DragNDropPanel(this, leftFrame);
 
-  QString s = "OpenSpeedShop-QDragString";
+  QString s = "Open/SpeedShop-QDragString";
   QWidget *w = new QWidget(this, "dragNDropWidget");
   QDragObject *d = new QTextDrag(s, w, "QDragObject");
   QPixmap drag_pm(drag_xpm);

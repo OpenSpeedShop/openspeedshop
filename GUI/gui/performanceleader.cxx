@@ -142,7 +142,7 @@ PerformanceLeader::~PerformanceLeader()
  */
 void PerformanceLeader::languageChange()
 {
-    setCaption( tr( "OpenSpeedShop" ) );
+    setCaption( tr( "Open/SpeedShop" ) );
     fileNewAction->setText( tr( "New" ) );
     fileNewAction->setMenuText( tr( "&New" ) );
     fileNewAction->setAccel( tr( "Ctrl+N" ) );

@@ -154,7 +154,7 @@ void Frame::dragEnterEvent(QDragEnterEvent* event)
     if( QTextDrag::decode(event, text) )
     {
       nprintf(DEBUG_FRAMES) ("text=(%s)\n", text.ascii() );
-      if( strcmp(text.ascii(), "OpenSpeedShop-QDragString") == 0 )
+      if( strcmp(text.ascii(), "Open/SpeedShop-QDragString") == 0 )
       {
         event->accept( QTextDrag::canDecode(event) );
       }

@@ -121,7 +121,7 @@ void PerformanceLeader::helpAbout()
 {
  printf("helpAbout() entered.\n");
 
- QMessageBox::about(this, "OpenSpeedShop", "OpenSpeedShop about example....");
+ QMessageBox::about(this, "Open/SpeedShop", "Open/SpeedShop about example....");
 }
 
 
