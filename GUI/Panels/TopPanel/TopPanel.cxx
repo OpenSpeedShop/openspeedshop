@@ -447,6 +447,10 @@ TopPanel::createTextEditPopupMenu( QPopupMenu* contextMenu, const QPoint &pos )
 oDoICall()), CTRL+Key_2 );
   }
 #endif // LATER
+
+  contextMenu->insertSeparator();
+  contextMenu->insertItem("Zoom In", this, SLOT(zoomIn()), CTRL+Key_Plus);
+  contextMenu->insertItem("Zoom Out", this, SLOT(zoomOut()), CTRL+Key_Minus);
 }
 
 /*! There have been details requested.   Put the details out to the 
@@ -464,6 +468,22 @@ TopPanel::details()
   msg = QString("Details?\nDescription for line %1: %2").arg(para).arg("Tell them some more!");
   QMessageBox::information( (QWidget *)this, "Details...",
     msg, QMessageBox::Ok );
+}
+
+/*! If font has a larger  pointSize, bump up one size. */
+void
+TopPanel::zoomIn()
+{
+  dprintf("TopPanel::zoomIn() entered\n");
+  textEdit->zoomIn();
+}
+
+/*! If font has a smaller pointSize, bump down one size. */
+void
+TopPanel::zoomOut()
+{
+  dprintf("TopPanel::zoomOut() entered\n");
+  textEdit->zoomOut();
 }
 
 /*! The list was selected.   Figure out the line then 

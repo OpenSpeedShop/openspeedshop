@@ -84,6 +84,9 @@ public slots:
   void listClicked(int para, int offset);
   void details();
 
+  void zoomIn();
+  void zoomOut();
+
 protected:
   //! prototype: dummy data.
   ExprInfo *topFiveObject;
