@@ -1,148 +1,207 @@
-#include <boost/python.hpp>
-#include <boost/python/return_internal_reference.hpp>
 #include "pyAPI.hxx"
+#include "outputobj.hxx"
+#include <vector>
+#include <string>
 
 
-// static pHost pLocalHost("localhost" );
-
-
-#ifdef NOPYTHON
-
-main()
-{
-    pHost localhost("localhost");
-    pFile f( "a.out", localhost );
-}
-
-#else
+using namespace OpenSpeedShop::cli;
 using namespace boost::python;
 
-// template <class T>
-// struct describe
-// {
-//     static PyObject* convert(const T& x)
-//     {
-//         return boost::python::incref(x.describe().ptr());
-//     }
-// };
-
-list listPidsOnHost( pHost host )
+list pProcess::listThreads() const
 {
-    return pFrameWork::listPidsOnHost( host );
+    return pFrameWork::listThreadsInProcess( *this );
 }
 
 
-BOOST_PYTHON_MODULE(pySS)
+pExperiment::pExperiment(std::string type)
+    : _file(pFile("<None>", pHost("<None>"))), 
+      _type( type ), _name("<None>")
 {
-    def("listPidsOnHost", &pFrameWork::listPidsOnHost);
-    
-    class_<pHost>("Host", init<std::string>())
-        .def("hostname", &pHost::hostname)
-        .def("describe", &pHost::describe)
-        .def("__repr__", &pHost::repr)
-    ;
-    
-    class_<pFile>("File", init<std::string, pHost>())
-        .def("filename", &pFile::filename)
-        .def("hostname", &pFile::hostname)
-        .def("host", &pFile::getHost, return_internal_reference<>())
-        .def("describe", &pFile::describe)
-        .def("__repr__", &pFile::repr)
-    ;
-    
-    class_<pProcess>( "Process", init< unsigned long, pHost>() )
-        .def("listThreads", &pProcess::listThreads)
-        .def("host", &pThread::getHost,   return_internal_reference<>())
-        .def("file", &pThread::getFile, return_internal_reference<>())
-        .def("pid",  &pThread::getPid)
-        
-        // Description and overloaded python methods
-        .def("describe", &pProcess::describe)
-        .def("__repr__", &pProcess::repr)
-    ;
-    
-    class_<pRank>( "Rank", init< pFile, unsigned long>() )
-        .def("host", &pThread::getHost,   return_internal_reference<>())
-        .def("file", &pThread::getFile, return_internal_reference<>())
-        .def("rank",  &pThread::getRank)
-
-        // Description and overloaded python methods
-        .def("describe", &pRank::describe)
-        .def("__repr__", &pRank::repr)
-    ;
-    
-    class_<pPosixThread>( "PosixThread", 
-        init< unsigned long, unsigned long, pHost>() )
-        .def("host", &pThread::getHost,   return_internal_reference<>())
-        .def("file", &pThread::getFile, return_internal_reference<>())
-        .def("pid", &pThread::getPid)
-        .def("tid", &pThread::getPosixThreadId)
-        .def("describe", &pPosixThread::describe)
-        .def("__repr__", &pPosixThread::repr)
-    ;
-    
-    class_<pExperiment>( "Experiment", init<pFile, std::string>())
-        .def(init<std::string>())
-        .def("file", &pExperiment::getFile, return_internal_reference<>())
-
-        // expAtatch command
-        .def("attachToProcess", &pExperiment::attachToProcess)
-        .def("attachToPosixThread", &pExperiment::attachToPosixThread)
-        .def("attachToMPIRank", &pExperiment::attachToMPIRank)
-
-        // expDetach command
-        .def("detachProcess", &pExperiment::detachProcess)
-        .def("detachMPIRank", &pExperiment::detachMPIRank)
-        .def("detachPosixThread", &pExperiment::detachPosixThread)
-
-        .def("detachAll",  &pExperiment::detachPosixThread)
-
-        // expClose command
-        .def("close", &pExperiment::close )
-        
-        // expContinue command
-        .def("continue", &pExperiment::restart)
-
-        // expStop command
-        .def("stop", &pExperiment::suspend)
-
-        // expSaveFile command
-        .def("saveFile", &pExperiment::saveToFile)
-        
-        // expSetParam command
-        .def("setParam", &pExperiment::setParam)
-        
-        // expView
-        .def("extractResults", &pExperiment::extractResults)
-
-        // Description and overloaded python methods
-        .def("describe", &pExperiment::describe)
-        .def("__repr__", &pExperiment::repr)
-    ;
-    
-    class_<pFrameWork>("FrameWork", init<>())
-        .def("listDefinedExperiments", &pFrameWork::listDefinedExperiments)    
-
-        .def("listHostsInCluster", &pFrameWork::listHostsInCluster)    
-    ;
-
-//    to_python_converter< pPosixThread, describe<pPosixThread> >();
-//    to_python_converter< pProcess, describe<pProcess> > ();
+    pFrameWork::createExperiment( *this );
 }
 
-/* Python code
-import pySS
-h=pySS.Host("localhost")
-f=pySS.File("./a.out", h)
-h.describe()
-f.describe()
-exp=pySS.Experiment(pySS.File("./a.out",pySS.Host("localhost")),"pcsamp")
-exp.describe()
-p=pySS.Process(1234, pySS.Host("localhost"))
-rid=pySS.Rank( pySS.File("./a.out", pySS.Host("localhost")), 1)
-exp.attachToMPIRank( rid )
-l=p.listThreads()
-exp.attachToPosixThread( l[0] )
-*/
+pExperiment::pExperiment( pFile file, std::string type)
+    : _file(file), _type( type ), _name( type )
+{
+    pFrameWork::createExperiment( *this );
+}
 
-#endif
+void pExperiment::attachToProcess( const pProcess p )
+{
+    pFrameWork::attachExpToProcess( *this, p );
+}
+
+void pExperiment::attachToMPIRank( const pRank r )
+{
+
+    pFrameWork::attachExpToMPIRank( *this, r );
+}
+
+void pExperiment::attachToPosixThread( const pPosixThread t )
+{
+    pFrameWork::attachExpToPosixThread( *this, t );
+}
+    
+void pExperiment::detachProcess( const pProcess p )
+{}
+
+void pExperiment::detachMPIRank( const pRank r )
+{}
+
+void pExperiment::detachPosixThread( const pPosixThread t )
+{}
+
+    
+void pExperiment::detachAll()
+{}
+
+void pExperiment::close() 
+{}
+
+    
+void pExperiment::restart()
+{}
+
+void pExperiment::suspend()
+{}
+
+list pExperiment::extractResults(pMetric metric)
+{
+    return pFrameWork::extractExpResults( *this, metric );
+}
+
+
+
+// Basically the implementation of the API.
+// This is the bridge to the FrameWork and here we have the
+// knowledge of the Command Object, but has a cloaked 
+// pointer, because of Pyhthon's total ignorance of
+// the notion of uninstanciated template.
+// Most of those functions will not be exported to Python
+
+
+// listExps command
+list pFrameWork::listDefinedExperiments()
+{
+    std::cout << "Unimplemented call to "
+            << "pFrameWork::listDefinedExperiments" 
+            << std::endl;
+
+    boost::python::list l;
+    l.append( pExperiment( pFile("/home/nobody/whatever/bin/myApp", 
+                                 pHost("localhost" )),
+                           "pcsamp" ));
+                               
+    l.append( pExperiment( pFile("/home/nobody/whatever/bin/myApp", 
+                                 pHost("localhost" )),
+                           "usertime" ));
+    return l;
+
+}
+
+
+// listPids command
+list pFrameWork::listPidsOnHost( pHost host)
+{
+    std::cout << "Unimplemented call to "
+            << "pFrameWork::listPidsOnHost" 
+            << "(" << host.repr() << ")"
+            << std::endl;
+
+    boost::python::list l;
+    l.append( pProcess( 1234, host ) );
+    l.append( pProcess( 456, host ) );
+    return l;
+
+}
+
+// listHosts command
+list pFrameWork::listHostsInCluster()
+{
+    std::cout << "Unimplemented call to "
+            << "pFrameWork::listHostsInCluster" 
+            << std::endl;
+
+    boost::python::list l;
+    l.append( pHost( "baguette.engr.sgi.com" ) );
+    l.append( pHost( "bastille2.engr.sgi.com" ) );
+    l.append( pHost( "hope.americas.sgi.com" ) );
+    l.append( pHost( "hope2.americas.sgi.com" ) );
+    return l;
+}
+
+
+void pFrameWork::attachExpToProcess( pExperiment const& exp, 
+                                     pProcess const& proc )
+{
+    std::cout << "Unimplemented call to "
+            << "pFrameWork::attachExpToProcess" 
+            << "(" << exp.repr() << "," << proc.repr() << ")"
+            << std::endl;
+
+}
+
+void pFrameWork::attachExpToMPIRank( pExperiment const& exp, 
+                                     pRank const& rank )
+{
+    std::cout << "Unimplemented call to "
+            << "pFrameWork::attachExpToProcess" 
+            << "(" << exp.repr() << "," << rank.repr() << ")"
+            << std::endl;
+
+}
+
+void pFrameWork::attachExpToPosixThread( pExperiment const& exp, 
+                                         pPosixThread const& pthread )
+{
+    std::cout << "Unimplemented call to "
+            << "pFrameWork::attachExpToProcess" 
+            << "(" << exp.repr() << "," << pthread.repr() << ")"
+            << std::endl;
+}
+
+
+list pFrameWork::listThreadsInProcess( pProcess const& proc )
+{
+    std::cout << "Unimplemented call to "
+            << "pFrameWork::listThreadsInProcess" 
+            << "(" << proc.repr() << ")"
+            << std::endl;
+
+    list l;
+    l.append( pPosixThread( proc, 1234 ));
+    l.append( pPosixThread( proc, 2345 ));
+    l.append( pPosixThread( proc, 4567 ));
+    return l;
+
+}
+
+pProcess pFrameWork::createProcess( pFile const& file )
+{
+    std::cout << "Unimplemented call to "
+            << "pFrameWork::createProcess" 
+            << "(" << file.repr() << ")"
+            << std::endl;
+    return pProcess( 1234, file.getHost());
+}
+
+pExperiment pFrameWork::createExperiment( pExperiment const& exp )
+{
+    std::cout << "Unimplemented call to "
+            << "pFrameWork::createExperiment" 
+            << "(" << exp.repr() << ")"
+            << std::endl;
+    return exp;
+}
+
+list pFrameWork::extractExpResults( pExperiment const& exp, 
+                                    pMetric const& metric )
+{
+    std::cout << "Unimplemented call to "
+            << "pFrameWork::extractExpResults" 
+            << "(" << exp.repr() << "," << metric.repr() << ")"
+            << std::endl;
+}
+
+
+
