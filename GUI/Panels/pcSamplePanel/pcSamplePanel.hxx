@@ -106,12 +106,12 @@ public:
   AnimatedQPushButton *detachCollectorButton;
   AnimatedQPushButton *attachProcessButton;
   AnimatedQPushButton *detachProcessButton;
-  QPushButton *runButton;
-  QPushButton *pauseButton;
-  QPushButton *continueButton;
-  QPushButton *updateButton;
-  QPushButton *interruptButton;
-  QPushButton *terminateButton;
+  AnimatedQPushButton *runButton;
+  AnimatedQPushButton *pauseButton;
+  AnimatedQPushButton *continueButton;
+  AnimatedQPushButton *updateButton;
+  AnimatedQPushButton *interruptButton;
+  AnimatedQPushButton *terminateButton;
 
   QHBoxLayout *statusLayout;
   QLabel *statusLabel; 

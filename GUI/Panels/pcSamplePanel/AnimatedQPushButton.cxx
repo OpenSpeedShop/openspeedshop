@@ -2,9 +2,10 @@
 #include <qbitmap.h>
 #include "AnimatedQPushButton.hxx"
 
-AnimatedQPushButton::AnimatedQPushButton(QWidget *p, const char *n) : QPushButton( p, n)
+AnimatedQPushButton::AnimatedQPushButton(QWidget *p, const char *n, bool f) : QPushButton( p, n)
 {
   printf("AnimatedQPushButton::AnimatedQPushButton() constructor called\n");
+  enabledFLAG = f;
   imageList.clear();
 }
 
@@ -36,6 +37,12 @@ AnimatedQPushButton::enterEvent ( QEvent *e )
     return;
   }
 
+  if( enabledFLAG == TRUE )
+  {
+printf("setFLAT(FALSE);\n");
+    setFlat(FALSE);
+  }
+
   QPixmap *pm;
 
   for( ImageList::Iterator it = imageList.begin();
@@ -56,6 +63,12 @@ AnimatedQPushButton::leaveEvent ( QEvent *e )
   {
     return;
   }
+
+if( enabledFLAG == TRUE )
+{
+printf("setFLAT(TRUE)\n");
+  setFlat(TRUE);
+}
 
 
   ImageList::Iterator it = imageList.begin();

@@ -9,7 +9,7 @@ typedef QValueList<QPixmap *>ImageList;
 class AnimatedQPushButton : public QPushButton
 {
   public:
-    AnimatedQPushButton(QWidget *, const char *);
+    AnimatedQPushButton(QWidget *, const char *, bool f=TRUE);
 
     ~AnimatedQPushButton();
 
@@ -20,6 +20,8 @@ class AnimatedQPushButton : public QPushButton
 
     void enterEvent ( QEvent * ); 
     void leaveEvent ( QEvent * );
+
+    bool enabledFLAG;
   public slots:
 
   private:

@@ -168,13 +168,12 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
   buttonGroupLayout->addItem(spacer);
   }
 
-  runButton = new QPushButton( buttonGroup, "runButton" );
+  runButton = new AnimatedQPushButton( buttonGroup, "runButton" );
+  QPixmap *pm = new QPixmap( run_xpm );
+  pm->setMask(pm->createHeuristicMask());
+  runButton->setPixmap( *pm );
+  runButton->push_back( pm );
   runButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, runButton->sizePolicy().hasHeightForWidth() ) );
-  {
-  QPixmap pm(run_xpm);
-  pm.setMask(pm.createHeuristicMask());
-  runButton->setPixmap( pm );
-  }
   buttonGroupLayout->addWidget( runButton );
   runButton->setText( QString::null );
   {
@@ -183,41 +182,45 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
   }
 
 
-  pauseButton = new QPushButton( buttonGroup, "pauseButton" );
-  pauseButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, pauseButton->sizePolicy().hasHeightForWidth() ) );
   {
-  QPixmap pm(pause_xpm);
-  pm.setMask(pm.createHeuristicMask());
-  pauseButton->setPixmap( pm );
-  }
+  pauseButton = new AnimatedQPushButton( buttonGroup, "pauseButton", FALSE );
+  QPixmap *pm = new QPixmap( pause_xpm );
+  pm->setMask(pm->createHeuristicMask());
+  pauseButton->setPixmap( *pm );
+  pauseButton->push_back( pm );
+  pauseButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, pauseButton->sizePolicy().hasHeightForWidth() ) );
   buttonGroupLayout->addWidget( pauseButton );
   pauseButton->setText( QString::null );
-
-  continueButton = new QPushButton( buttonGroup, "continueButton" );
-  continueButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, continueButton->sizePolicy().hasHeightForWidth() ) );
-  {
-  QPixmap pm(cont_xpm);
-  pm.setMask(pm.createHeuristicMask());
-  continueButton->setPixmap( pm );
   }
+
+  {
+  continueButton = new AnimatedQPushButton( buttonGroup, "continueButton", FALSE );
+  QPixmap *pm = new QPixmap( cont_xpm );
+  pm->setMask(pm->createHeuristicMask());
+  continueButton->setPixmap( *pm );
+  continueButton->push_back( pm );
+  continueButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, continueButton->sizePolicy().hasHeightForWidth() ) );
   buttonGroupLayout->addWidget( continueButton );
   continueButton->setText( QString::null );
-
-  updateButton = new QPushButton( buttonGroup, "updateButton" );
-  updateButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, updateButton->sizePolicy().hasHeightForWidth() ) );
-  {
-  QPixmap pm(update_xpm);
-  pm.setMask(pm.createHeuristicMask());
-  updateButton->setPixmap( pm );
   }
+
+  {
+  updateButton = new AnimatedQPushButton( buttonGroup, "updateButton", FALSE );
+  QPixmap *pm = new QPixmap( update_xpm );
+  pm->setMask(pm->createHeuristicMask());
+  updateButton->setPixmap( *pm );
+  updateButton->push_back( pm );
+  updateButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, updateButton->sizePolicy().hasHeightForWidth() ) );
   buttonGroupLayout->addWidget( updateButton );
   updateButton->setText( QString::null );
+  }
 
   {
   QSpacerItem *spacer = new QSpacerItem( 10, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
   buttonGroupLayout->addItem(spacer);
   }
 
+#ifdef OLDWAY
   interruptButton = new QPushButton( buttonGroup, "interruptButton" );
   interruptButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, interruptButton->sizePolicy().hasHeightForWidth() ) );
   {
@@ -227,11 +230,26 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
   }
   buttonGroupLayout->addWidget( interruptButton );
   interruptButton->setText( QString::null );
+#else // OLDWAY
+  {
+  interruptButton = new AnimatedQPushButton( buttonGroup, "interruptButton", TRUE );
+  QPixmap *pm = new QPixmap( interrupt_xpm );
+  pm->setMask(pm->createHeuristicMask());
+  interruptButton->setPixmap( *pm );
+  interruptButton->push_back( pm );
+  interruptButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, interruptButton->sizePolicy().hasHeightForWidth() ) );
+  buttonGroupLayout->addWidget( interruptButton );
+  interruptButton->setText( QString::null );
+  }
+#endif // OLDWAY
+
+
   {
   QSpacerItem *spacer = new QSpacerItem( 20, 20, QSizePolicy::Preferred, QSizePolicy::Minimum );
   buttonGroupLayout->addItem(spacer);
   }
 
+#ifdef OLDWAY
   terminateButton = new QPushButton( buttonGroup, "terminateButton" );
   terminateButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, terminateButton->sizePolicy().hasHeightForWidth() ) );
   {
@@ -241,6 +259,18 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
   }
   buttonGroupLayout->addWidget( terminateButton );
   terminateButton->setText( QString::null );
+#else //OLDWAY
+  {
+  terminateButton = new AnimatedQPushButton( buttonGroup, "terminateButton", FALSE );
+  QPixmap *pm = new QPixmap( terminate_xpm );
+  pm->setMask(pm->createHeuristicMask());
+  terminateButton->setPixmap( *pm );
+  terminateButton->push_back( pm );
+  terminateButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, terminateButton->sizePolicy().hasHeightForWidth() ) );
+  buttonGroupLayout->addWidget( terminateButton );
+  terminateButton->setText( QString::null );
+  }
+#endif //OLDWAY
 
   statusLayout = new QHBoxLayout( 0, 10, 0, "statusLayout" );
   
@@ -461,12 +491,18 @@ printf("# theApplication.setStatus(Thread::Running\n");
   attachProcessButton->setEnabled(TRUE);
   attachCollectorButton->setEnabled(TRUE);
   runButton->setEnabled(FALSE);
+  runButton->enabledFLAG = FALSE;
+  runButton->setFlat(TRUE);
   pauseButton->setEnabled(TRUE);
+pauseButton->enabledFLAG = TRUE;
   continueButton->setEnabled(FALSE);
+continueButton->enabledFLAG = FALSE;
   updateButton->setEnabled(TRUE);
+updateButton->enabledFLAG = TRUE;
   detachProcessButton->setEnabled(TRUE);
   detachCollectorButton->setEnabled(TRUE);
   terminateButton->setEnabled(TRUE);
+terminateButton->enabledFLAG = TRUE;
 }
 
 
@@ -479,7 +515,11 @@ printf("# theApplication.setStatus(Thread::Suspended)\n");;
   statusLabelText->setText( tr("Process suspended...") );
 
   pauseButton->setEnabled(FALSE);
+pauseButton->enabledFLAG = TRUE;
+pauseButton->setFlat(TRUE);
   continueButton->setEnabled(TRUE);
+continueButton->enabledFLAG = TRUE;
+continueButton->setFlat(TRUE);
 }
 
 
@@ -492,7 +532,11 @@ printf("# theApplication.setStatus(Thread::Running\n");
   statusLabelText->setText( tr("Process running...") );
 
   pauseButton->setEnabled(TRUE);
+pauseButton->enabledFLAG = TRUE;
+pauseButton->setFlat(TRUE);
   continueButton->setEnabled(FALSE);
+continueButton->enabledFLAG = TRUE;
+continueButton->setFlat(TRUE);
 }
 
 
@@ -526,12 +570,21 @@ printf("# if( response is yes, then called theApplication.saveAs();\n");
   attachProcessButton->setEnabled(TRUE);
   attachCollectorButton->setEnabled(TRUE);
   runButton->setEnabled(TRUE);
-  pauseButton->setEnabled(FALSE);
+  runButton->enabledFLAG = TRUE;
+pauseButton->setEnabled(FALSE);
+pauseButton->enabledFLAG = FALSE;
   continueButton->setEnabled(FALSE);
+continueButton->setEnabled(FALSE);
+continueButton->enabledFLAG = FALSE;
   updateButton->setEnabled(FALSE);
+updateButton->setEnabled(FALSE);
+updateButton->enabledFLAG = FALSE;
   detachProcessButton->setEnabled(TRUE);
   detachCollectorButton->setEnabled(TRUE);
   terminateButton->setEnabled(FALSE);
+terminateButton->setFlat(TRUE);
+terminateButton->setEnabled(FALSE);
+terminateButton->enabledFLAG = FALSE;
 }
 
 /*
