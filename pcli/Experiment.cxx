@@ -94,163 +94,297 @@ static ExperimentObject *Find_Specified_Experiment (CommandObject *cmd) {
   return exp;
 }
 
-static void Attach_Command (CommandObject *cmd, ExperimentObject *exp, Thread t, Collector c) {
-  c.attachThread(t);
-}
-
-/* TEST - process old "command" structure to pick out information that will soon be in the new "Target" structure. */
-bool Command_Has_Target_Info () {
-  if (command.host_table.cur_node ||
-      command.file_table.cur_node ||
-      command.pid_table.cur_node ||
-      command.thread_table.cur_node ||
-      command.rank_table.cur_node) {
-    return true;
+bool Thread_Already_Exists (Thread **returnThread, ExperimentObject *exp, std::string myhost, pid_t mypid) {
+  ThreadGroup current_tgrp = exp->FW()->getThreads();
+  ThreadGroup::iterator ti;
+  for (ti = current_tgrp.begin(); ti != current_tgrp.end(); ti++) {
+    Thread T = *ti;
+    std::string host = T.getHost();
+    pid_t pid = T.getProcessId();
+    if (!strcmp(host.c_str(), myhost.c_str()) &&
+        (pid = mypid) &&
+        !T.getPosixThreadId().hasValue() &&
+        !T.getMpiRank().hasValue()) {
+      *returnThread = &T;
+      return true;
+    }
   }
   return false;
 }
 
-// Temporary code to look through the old parse results objects
-static ThreadGroup Resolve_Command_Targets (CommandObject *cmd, ExperimentObject *exp) {
-  ThreadGroup tgrp;
+Collector Get_Collector (ExperimentObject *exp, std::string myname) {
+  CollectorGroup current_cgrp = exp->FW()->getCollectors();
+  CollectorGroup::iterator ci;
+  for (ci = current_cgrp.begin(); ci != current_cgrp.end(); ci++) {
+    Collector C = *ci;
+    std::string name = C.getMetadata().getUniqueId();
+    if (!strcmp(name.c_str(), myname.c_str())) {
+      return C;
+    }
+  }
+  return exp->FW()->createCollector(myname);
+}
 
-  if (command.host_table.cur_node == 0) {
-      char HostName[MAXHOSTNAMELEN+1];
-      if (gethostname ( &HostName[0], MAXHOSTNAMELEN)) {
-        cmd->Result_String ("can not retreive host name");
-        cmd->set_Status(CMD_ERROR);
-        return ThreadGroup();  // return an empty ThreadGroup
+static void Attach_Command (CommandObject *cmd, ExperimentObject *exp, Thread t, Collector c) {
+  try {
+    c.attachThread(t);
+  }
+  catch(const std::exception& error) {
+    cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+                          "Unknown runtime error." : error.what() );
+    cmd->set_Status(CMD_ERROR);
+    return;
+  }
+}
+
+static void Detach_Command (CommandObject *cmd, ExperimentObject *exp, Thread t, Collector c) {
+  try {
+    c.detachThread(t);
+  }
+  catch(const std::exception& error) {
+    cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+                          "Unknown runtime error." : error.what() );
+    cmd->set_Status(CMD_ERROR);
+    return;
+  }
+}
+
+// Look through the parse results objects and figure out the rank specification.
+static void Resolve_R_Target (CommandObject *cmd, ExperimentObject *exp, ThreadGroup *tgrp,
+                              ParseTarget pt, std::string host_name, pid_t mypid) {
+
+  vector<ParseRange> *r_list = pt.getRankList();
+
+ // Okay. Process the rank specification.
+  vector<ParseRange>::iterator r_iter;
+
+  for (r_iter=r_list->begin();r_iter != r_list->end(); r_iter++) {
+    parse_range_t *r_range = r_iter->getRange();
+    parse_val_t *r_val1 = &r_range->start_range;
+    parse_val_t *r_val2 = r_val1;
+    if (r_range->is_range) {
+      r_val2 = &r_range->end_range;
+    }
+
+    int64_t myrank;
+    for ( myrank = (int64_t)r_val1->num; myrank <= (int64_t)r_val2->num; myrank++) {
+      try {
+        Thread t = exp->FW()->attachPosixThread(mypid, myrank, host_name);
+        tgrp->push_back(t);
       }
-    push_host_name (&HostName[0]);
+      catch(const std::exception& error) {
+        cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+                              "Unknown runtime error." : error.what() );
+        cmd->set_Status(CMD_ERROR);
+        return;
+      }
+    }
   }
-  host_id_t *host_tab = (host_id_t *)command.host_table.table;
-  char **f_tab = NULL;
-  char **p_tab = NULL;
-  char **t_tab = NULL;
-  char **r_tab = NULL;
-  int h_len = command.host_table.cur_node;
-  int f_len = 0;
-  int p_len = 0;
-  int t_len = 0;
-  int r_len = 0;
-  if (command.file_table.cur_node) {
-      f_tab = (char **)command.file_table.table;
-      f_len = command.file_table.cur_node;
+}
+
+// Look through the parse results objects and figure out the thread specification.
+static void Resolve_T_Target (CommandObject *cmd, ExperimentObject *exp, ThreadGroup *tgrp,
+                              ParseTarget pt, std::string host_name, pid_t mypid) {
+
+  vector<ParseRange> *t_list = pt.getThreadList();
+
+ // Okay. Process the thread specification.
+  vector<ParseRange>::iterator t_iter;
+
+  for (t_iter=t_list->begin();t_iter != t_list->end(); t_iter++) {
+    parse_range_t *t_range = t_iter->getRange();
+    parse_val_t *t_val1 = &t_range->start_range;
+    parse_val_t *t_val2 = t_val1;
+    if (t_range->is_range) {
+      t_val2 = &t_range->end_range;
+    }
+
+    int64_t mythread;
+    for ( mythread = (int64_t)t_val1->num; mythread <= (int64_t)t_val2->num; mythread++) {
+#ifdef HAVE_OPENMP
+      try {
+        Thread t = exp->FW()->attachOpenMPThread(mypid, mythread, host_name);
+        tgrp->push_back(t);
+      }
+      catch(const std::exception& error) {
+        cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+                              "Unknown runtime error." : error.what() );
+        cmd->set_Status(CMD_ERROR);
+        return;
+      }
+#endif
+    }
   }
-  if (command.pid_table.cur_node) {
-      p_tab = (char **)command.pid_table.table;
-      p_len = command.pid_table.cur_node;
+}
+
+// Look through the parse results objects and figure out the pid specification.
+// We do not need to worry about file specifiers.
+// We also know that there is not both a thread and a rank specifier.
+static void Resolve_P_Target (CommandObject *cmd, ExperimentObject *exp, ThreadGroup *tgrp,
+                              ParseTarget pt, std::string host_name) {
+
+  vector<ParseRange> *p_list = pt.getPidList();
+  vector<ParseRange> *t_list = pt.getThreadList();
+  vector<ParseRange> *r_list = pt.getRankList();
+
+  bool has_t = !((t_list == NULL) || t_list->empty());
+  bool has_r = !((r_list == NULL) || r_list->empty());
+
+ // Okay. Process the pid specification.
+  vector<ParseRange>::iterator p_iter;
+
+  for (p_iter=p_list->begin();p_iter != p_list->end(); p_iter++) {
+    parse_range_t *p_range = p_iter->getRange();
+    parse_val_t *p_val1 = &p_range->start_range;
+    parse_val_t *p_val2 = p_val1;
+    if (p_range->is_range) {
+      p_val2 = &p_range->end_range;
+    }
+
+    pid_t mypid;
+    for ( mypid = (pid_t)p_val1->num; mypid <= (pid_t)p_val2->num; mypid++) {
+      if (has_t) {
+        Resolve_T_Target ( cmd, exp, tgrp, pt, host_name, mypid);
+      } else if (has_r) {
+        Resolve_R_Target ( cmd, exp, tgrp, pt, host_name, mypid);
+      } else {
+        Thread *pt;
+        if (Thread_Already_Exists (&pt, exp, host_name, mypid)) {
+          tgrp->push_back (*pt);
+          continue;
+        }
+        try {
+          ThreadGroup ngrp = exp->FW()->attachProcess(mypid, host_name);
+          for(ThreadGroup::const_iterator tgi = ngrp.begin(); tgi != ngrp.end(); ++tgi) {
+            Thread t = *tgi;
+            tgrp->push_back(t);
+          }
+        }
+        catch(const std::exception& error) {
+          cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+                                "Unknown runtime error." : error.what() );
+          cmd->set_Status(CMD_ERROR);
+          return;
+        }
+      }
+    }
   }
-  if (command.thread_table.cur_node) {
-      t_tab = (char **)command.thread_table.table;
-      t_len = command.thread_table.cur_node;
+}
+
+// Look through the parse results objects and figure out the file specification.
+// This routine is called because there is a file specification.
+// We also know that there is no thread or rank specification.
+static void Resolve_F_Target (CommandObject *cmd, ExperimentObject *exp, ThreadGroup *tgrp,
+                              ParseTarget pt, std::string host_name) {
+
+  vector<ParseRange> *f_list = pt.getFileList();
+
+ // Okay. Process the file specification.
+  vector<ParseRange>::iterator f_iter;
+
+  for (f_iter=f_list->begin();f_iter != f_list->end(); f_iter++) {
+    parse_range_t *f_range = f_iter->getRange();
+    parse_val_t *f_val1 = &f_range->start_range;
+    if (f_range->is_range) {
+      parse_val_t *f_val2 = &f_range->end_range;
+// TODO:
+    } else {
+      try {
+      Thread t = exp->FW()->createProcess(f_val1->name, host_name);
+      tgrp->push_back(t);
+      }
+      catch(const std::exception& error) {
+         cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+                               "Unknown runtime error." : error.what() );
+         cmd->set_Status(CMD_ERROR);
+         return;
+      }
+    }
   }
-  if (command.rank_table.cur_node) {
-      r_tab = (char **)command.rank_table.table;
-      r_len = command.rank_table.cur_node;
+}
+
+// Look through the parse results objects and figure out the host specification.
+static void Resolve_H_Target (CommandObject *cmd, ExperimentObject *exp, ThreadGroup *tgrp, ParseTarget pt) {
+
+  vector<ParseRange> *c_list = pt.getClusterList();
+  vector<ParseRange> *h_list = pt.getHostList();
+  vector<ParseRange> *f_list = pt.getFileList();
+  vector<ParseRange> *p_list = pt.getPidList();
+  vector<ParseRange> *t_list = pt.getThreadList();
+  vector<ParseRange> *r_list = pt.getRankList();
+
+  bool has_h = !((h_list == NULL) || h_list->empty());
+  bool has_f = !((f_list == NULL) || f_list->empty());
+  bool has_p = !((p_list == NULL) || p_list->empty());
+  bool has_t = !((t_list == NULL) || t_list->empty());
+  bool has_r = !((r_list == NULL) || r_list->empty());
+
+  if (!has_h) {
+    char HostName[MAXHOSTNAMELEN+1];
+    if (gethostname ( &HostName[0], MAXHOSTNAMELEN)) {
+      cmd->Result_String ("can not retreive host name");
+      cmd->set_Status(CMD_ERROR);
+      return;
+    }
+    //pt.pushHostPoint (HostName[0]);
+    //h_list = pt.getHostList();
+    h_list->push_back (ParseRange(&HostName[0]));
+    has_h = true;
   }
 
  // Semantic check for illegal combinations.
-  if ( h_len && ((f_len + p_len) == 0) ) {
-    cmd->Result_String ("THe -h option requires a companion -f or -p option.");
-    cmd->set_Status(CMD_ERROR);
-    return ThreadGroup();  // return an empty ThreadGroup
-  }
-  if ( f_len && ((p_len + t_len + r_len) != 0) ) {
+  if ( has_f && (has_p || has_t || has_r) ) {
     cmd->Result_String ("The -f option can not be used with -p -t or -r options.");
     cmd->set_Status(CMD_ERROR);
-    return ThreadGroup();  // return an empty ThreadGroup
+    return;
   }
-  if ( t_len && r_len ) {
+  if ( has_t && has_r ) {
     cmd->Result_String ("The -t option can not be used with the -r option.");
     cmd->set_Status(CMD_ERROR);
-    return ThreadGroup();  // return an empty ThreadGroup
+    return;
   }
 
-// Disable calls to the framework until a couple of problems are resolved
-  return ThreadGroup();  // return an empty ThreadGroup
+ // Okay. Process the host specification.
+  vector<ParseRange>::iterator h_iter;
 
- // Okay. Process them.
-  for (int h = 0; h < h_len; h++) {
-    try {
-      if (f_len) {
-        for (int i = 0; i < f_len; ++i) {
-// fprintf(stdout,"Load Process(%d,%d): %s %s\n",h,i,host_tab[h].u.name,p_tab[i]);
-          if (f_len) {
-              Thread t = exp->FW()->createProcess(f_tab[i], host_tab[h].u.name);
-              tgrp.push_back(t);
-          }
-        }
-      } else if (p_len) {
-        for (int i = 0; i < p_len; ++i) {
-// fprintf(stdout,"Link Process(%d,%d): %s %s\n",h,i,host_tab[h].u.name,p_tab[i]);
-          if (t_len) {
-#ifdef HAVE_OPENMP
-            for (int j = 0; j < r_len; j++) {
-              Thread t = exp->FW()->attachOpenMPThread((pid_t)p_tab[i], (int)r_tab[r],host_tab[h].u.name);
-              tgrp.push_back(t);
-            }
-#endif
-          } else if (r_len) {
-            for (int j = 0; j < p_len; j++) {
-              Thread t = exp->FW()->attachPosixThread((pid_t)p_tab[i], (pthread_t)t_tab[j],host_tab[h].u.name);
-              tgrp.push_back(t);
-            }
-          } else {
-            ThreadGroup ngrp = exp->FW()->attachProcess((pid_t)p_tab[i], host_tab[h].u.name);
-            for(ThreadGroup::const_iterator tgi = ngrp.begin(); tgi != ngrp.end(); ++tgi) {
-              Thread t = *tgi;
-              tgrp.push_back(t);
-            }
-          }
-        }
+  for (h_iter=h_list->begin();h_iter != h_list->end(); h_iter++) {
+    parse_range_t *h_range = h_iter->getRange();
+    parse_val_t *h_val1 = &h_range->start_range;
+    if (h_range->is_range) {
+      parse_val_t *h_val2 = &h_range->end_range;
+// TODO:
+    } else {
+      if (has_f) {
+        Resolve_F_Target ( cmd, exp, tgrp, pt, h_val1->name);
+      } else if (has_p) {
+        Resolve_P_Target ( cmd, exp, tgrp, pt, h_val1->name);
+      } else {
+//TODO:
       }
-      continue;
-    }
-    catch(const std::exception& error) {
-       cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-                             "Unknown runtime error." : error.what() );
-       cmd->set_Status(CMD_ERROR);
-       return ThreadGroup();  // return an empty ThreadGroup
     }
   }
+}
 
+static ThreadGroup Resolve_Target_List (CommandObject *cmd, ExperimentObject *exp) {
+  OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
+  vector<ParseTarget> *p_tlist = p_result->GetTargetList();
+  ThreadGroup tgrp;
+  if (p_tlist->begin() != p_tlist->end()) {
+    vector<ParseTarget>::iterator ti;
+    for (ti = p_tlist->begin(); ti != p_tlist->end(); ti++) {
+      try {
+        Resolve_H_Target (cmd, exp, &tgrp, *ti);
+      }
+      catch(const std::exception& error) {
+         cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+                               "Unknown runtime error." : error.what() );
+         cmd->set_Status(CMD_ERROR);
+         return ThreadGroup();  // return an empty ThreadGroup
+      }
+    }
+  }
   return tgrp;
 }
-
-/* Not needed until new ParseResult objects are produced
-static Thread Resolve_Specified_Target (CommandObject *cmd, ExperimentObject *exp, Target *t) { 
-  fprintf(stdout,"Enter Resolve_Specified_Target: ");dump_command();
-  Thread T  = exp->FW()->createProcess("");
-  return T;
-}
-
-static void Process_RPTs (CommandObject *cmd, ExperimentObject *exp, Collector c,
-                          void (*cmdfunc) (CommandObject *cmd, ExperimentObject *exp,
-                                           Thread t, Collector c) ) {
-  OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  vector<Target *> *p_tlist = p_result->getTargList();
-
-  fprintf(stdout,"Enter Process_RPTs: ");dump_command();
-  if (p_tlist->begin() != p_tlist->end()) {
-   // Use the threads described by the user.
-    vector<Target *>::iterator ti;
-    for (ti = p_tlist->begin(); ti != p_tlist->end(); ti++) {
-      // Thread t = exp->FW()->createProcess("");
-      Thread t = Resolve_Specified_Target (cmd, exp, *ti);
-      (*cmdfunc) (cmd, exp, t, c);
-    }
-  } else {
-   // Use the threads that are already part of the experiment.
-    ThreadGroup tgrp = exp->FW()->getThreads();
-    ThreadGroup::iterator ti;
-    for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
-      (*cmdfunc) (cmd, exp, *ti, c);
-    }
-  }
-
-}
-*/
 
 static void Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
                               void (*cmdfunc) (CommandObject *cmd, ExperimentObject *exp,
@@ -263,6 +397,8 @@ static void Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
 
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<string> *p_slist = p_result->getExpList();
+
+ // Determine the specified (or implied) set of Collectors.
   CollectorGroup cgrp;
 
   if (p_slist->begin() != p_slist->end()) {
@@ -271,7 +407,7 @@ static void Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
     vector<string>::iterator si;
     for (si = p_slist->begin(); si != p_slist->end(); si++) {
       try {
-        Collector c = exp->FW()->createCollector(*si);
+        Collector c = Get_Collector (exp, *si);
         cgrp.push_back (c);
       }
       catch(const std::exception& error) {
@@ -287,29 +423,25 @@ static void Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
   }
 
 
+ // Determine the specified (or implied) set of Threads.
   ThreadGroup tgrp;
-  if (Command_Has_Target_Info ()) {
-   // The command contains a list of threads to use.
-   // Be sure they are all linked to the experiment.
-    tgrp = Resolve_Command_Targets (cmd, exp);
-/*
-  vector<Target *> *p_tlist = p_result->getTargList();
-  if (p_tlist->begin() != p_tlist->end()) {
-    vector<Target *>::iterator ti;
-    for (ti = p_tlist->begin(); ti != p_tlist->end(); ti++) {
-      // Thread t = exp->FW()->createProcess("");
-      Thread t = Resolve_Specified_Target (cmd, exp, *ti);
-      tgrp.push_back(t);
-    }
-*/
-  } else {
+
+  tgrp = Resolve_Target_List (cmd, exp);
+  if (tgrp.empty()) {
    // Use the threads that are already part of the experiment.
-    ThreadGroup tgrp = exp->FW()->getThreads();
+    tgrp = exp->FW()->getThreads();
   }
 
+ // Don't do anything if errors have been detected.
+  if ((cmd->Status() == CMD_ERROR) ||
+      (cmd->Status() == CMD_ABORTED)) {
+    return;
+  }
+
+ // For each thread and each collector, perform the desired function.
   if ((tgrp.begin() != tgrp.end()) &&
       (cgrp.begin() != cgrp.end())) {
-   // Linke a set of threads to a set of collectors.
+   // Link a set of threads to a set of collectors.
     CollectorGroup::iterator ci;
     for (ci=cgrp.begin(); ci != cgrp.end(); ci++) {
       Collector c = *ci;
@@ -325,21 +457,15 @@ static void Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
 // Experiment Building Block Commands
 
 bool SS_expAttach (CommandObject *cmd) {
-  ApplicationGroupObject *App = NULL;
-  Collector *Inst = NULL;
 
+ // Determine the specified experiment.
   ExperimentObject *exp = Find_Specified_Experiment (cmd);
-
   if (exp == NULL) {
     return false;
   }
+
+ // Determine target and collectors and link them together.
   Process_expTypes (cmd, exp, &Attach_Command );
-  // if (App != NULL) {
-  //   exp->ExperimentObject_Add_Application (App);
-  // }
-  // if (Inst != NULL) {
-  //   exp->ExperimentObject_Add_Instrumention (Inst);
-  // }
 
  // There is no result returned from this command.
   cmd->set_Status(CMD_COMPLETE);
@@ -369,6 +495,11 @@ bool SS_expCreate (CommandObject *cmd) {
 
  // There is no specified experiment.  Allocate a new Experiment.
   ExperimentObject *exp = new ExperimentObject ();
+  if (exp->FW() == NULL) {
+    cmd->Result_String ("Unable to create a new experiment in the FrameWork.");
+    cmd->set_Status(CMD_ERROR);
+    return false;
+  }
  // When we allocate a new experiment, set the focus to point to it.
   (void)Experiment_Focus (WindowID, exp->ExperimentObject_ID());
 
@@ -381,24 +512,24 @@ bool SS_expCreate (CommandObject *cmd) {
     return false;
   }
 
-//  Process_RPTs (cmd, exp, &Attach_Command );
-//  if (App != NULL) {
-//    exp->ExperimentObject_Add_Application (App);
-//  }
-//  if (Inst != NULL) {
-//    exp->ExperimentObject_Add_Instrumention (Inst);
-//  }
-
  // Return the EXPID for this command.
+ // Note: SS_expAttach has already done a cmd->set_Status(CMD_COMPLETE);
   cmd->Result_Int (exp->ExperimentObject_ID());
-  cmd->set_Status(CMD_COMPLETE);
   return true;
 }
 
 bool SS_expDetach (CommandObject *cmd) {
-  ExperimentObject *exp = Find_Specified_Experiment (cmd);
 
-  cmd->Result_String ("not yet implemented");
+ // Determine the specified experiment.
+  ExperimentObject *exp = Find_Specified_Experiment (cmd);
+  if (exp == NULL) {
+    return false;
+  }
+
+ // Determine target and collectors and break the link between them.
+  Process_expTypes (cmd, exp, &Detach_Command );
+
+ // There is no result returned from this command.
   cmd->set_Status(CMD_COMPLETE);
   return true;
 }
@@ -444,6 +575,12 @@ bool SS_expEnable (CommandObject *cmd) {
  // reconnect the FrameWork to the experiment
   exp->ReStart();
 
+  if (exp->FW() == NULL) {
+    cmd->Result_String ("The experiment could not be successfully restarted.");
+    cmd->set_Status(CMD_ERROR);
+    return false;
+  }
+
   cmd->set_Status(CMD_COMPLETE);
   return true;
 }
@@ -481,24 +618,54 @@ bool SS_expGo (CommandObject *cmd) {
     return false;
   }
 
-  if ((exp->Status() != ExpStatus_Paused) &&
-      (exp->Status() != ExpStatus_Running)) {
-   // These are the only states that can be changed.
+  if ((exp->FW() != NULL) &&
+      ((exp->Status() == ExpStatus_Paused) ||
+       (exp->Status() == ExpStatus_Running))) {
+    ThreadGroup tgrp = exp->FW()->getThreads();
+
+    if (tgrp.empty()) {
+      cmd->Result_String ("There are no applications specified for the experiment");
+      cmd->set_Status(CMD_ERROR);
+      return false;
+    }
+
+    int64_t num_running = 0;
+    int64_t num_terminated = 0;
+    int64_t num_errored = 0;
+    for(ThreadGroup::const_iterator tgi = tgrp.begin(); tgi != tgrp.end(); ++tgi) {
+      Thread t = *tgi;
+      try {
+        t.changeState (Thread::Running );
+        num_running++;
+      }
+      catch(const std::exception& error) {
+        if (t.getState() == Thread::Terminated) {
+         // This state causes an error, but we can ignore it.
+          num_terminated++;
+          continue;
+        }
+        cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+                              "Unknown runtime error." : error.what() );
+        cmd->set_Status(CMD_ERROR);
+        num_errored++;
+        return false;
+      }
+    }
+
+   // After chenging the state of each thread, cheange that of the ExperimentObject
+    if ((num_running == 0) &&
+        (num_terminated != 0)) {
+      exp->setStatus (ExpStatus_Terminated);
+    } else {
+      exp->setStatus (ExpStatus_Running);
+    }
+  } else {
+   // Can not run if ExpStatus_Terminated or ExpStatus_Suspended.
     cmd->Result_String ("The experiment can not Go because it is in the "
                          + exp->ExpStatus_Name() + " state.");
     cmd->set_Status(CMD_ERROR);
     return false;
   }
-
-  ThreadGroup trg = exp->FW()->getThreads();
-
-  if (trg.empty()) {
-    cmd->Result_String ("There are no applications specified for the experiment");
-    cmd->set_Status(CMD_ERROR);
-    return false;
-  }
-  trg.changeState (Thread::Running);
-  exp->setStatus (ExpStatus_Running);
 
   cmd->set_Status(CMD_COMPLETE);
   return true;
@@ -520,11 +687,39 @@ bool SS_expPause (CommandObject *cmd) {
     return false;
   }
 
-  ThreadGroup trg = exp->FW()->getThreads();
+  if ((exp->FW() != NULL) &&
+      (exp->Status() == ExpStatus_Running)) {
+    ThreadGroup tgrp = exp->FW()->getThreads();
+    int64_t num_suspended = 0;
+    int64_t num_terminated = 0;
+    int64_t num_errored = 0;
+    for(ThreadGroup::const_iterator tgi = tgrp.begin(); tgi != tgrp.end(); ++tgi) {
+      Thread t = *tgi;
+      try {
+        t.changeState (Thread::Suspended);
+        num_suspended++;
+      }
+      catch(const std::exception& error) {
+        if (t.getState() == Thread::Terminated) {
+         // This state causes an error, but we can ignore it.
+          num_terminated++;
+          continue;
+        }
+        cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+                              "Unknown runtime error." : error.what() );
+        cmd->set_Status(CMD_ERROR);
+        num_errored++;
+        return false;
+      }
+    }
 
-  if (!trg.empty()) {
-    trg.changeState (Thread::Suspended);
-    exp->setStatus (ExpStatus_Paused);
+   // After changing the state of each thread, cheange that of the ExperimentObject
+    if ((num_suspended == 0) &&
+        (num_terminated != 0)) {
+      exp->setStatus (ExpStatus_Terminated);
+    } else {
+      exp->setStatus (ExpStatus_Paused);
+    }
   }
 
   cmd->set_Status(CMD_COMPLETE);
@@ -606,12 +801,24 @@ bool SS_ListBreaks (CommandObject *cmd) {
 }
 
 bool SS_ListExp (CommandObject *cmd) {
+  vector<string> *p_slist;
+  vector<string>::iterator j;
 
- // The experiment specifier is optional and doe snot default to the focused experiment.
   Assert(cmd->P_Result() != NULL);
-  EXPID ExperimentID = (cmd->P_Result()->IsExpId()) ? cmd->P_Result()->GetExpId() : 0;
 
-  if (ExperimentID <= 0) {
+ // Look at general modifier types for "-all" option.
+  bool All_KeyWord = false;
+  p_slist = cmd->P_Result()->getModifierList();
+
+  for (j=p_slist->begin();j != p_slist->end(); j++) {
+    std::string S = *j;
+    if (!strcmp(S.c_str(),"all")) {
+      All_KeyWord = true;
+      break;
+    }
+  }
+
+  if (All_KeyWord) {
    // List all the allocated experiments
     std::list<ExperimentObject *>::reverse_iterator expi;
     for (expi = ExperimentObject_list.rbegin(); expi != ExperimentObject_list.rend(); expi++)
@@ -620,8 +827,17 @@ bool SS_ListExp (CommandObject *cmd) {
       cmd->Result_Int ((*expi)->ExperimentObject_ID());
     }
   } else {
-   // Provide detailed information about a single experiment
-    cmd->Result_Int (ExperimentID);
+   // Provide the status of a specific experiment
+    ExperimentObject *exp = Find_Specified_Experiment (cmd);
+    if (exp == NULL) {
+      return false;
+    }
+    exp->Determine_Status();
+    cmd->Result_String (exp->ExpStatus_Name());
+
+    // CollectorGroup cgrp = exp->FW()->getCollectors();
+    // ThreadGroup tgrp = exp->FW()->getThreads();
+
   }
 
   cmd->set_Status(CMD_COMPLETE);
