@@ -31,9 +31,8 @@ def cmd_parse(args):
     if count > 0:
     	blank_delim = " "
     	zusamen = blank_delim.join(args[:count])
-    	PY_Input.CallParser (zusamen)
+    	return PY_Input.CallParser (zusamen)
 
-    return 4
     pass
 
 ################################################################################
@@ -83,12 +82,13 @@ def return_none(args):
     cmd_parse(args)
 
 def return_int(args):
-    cmd_parse(args)
-    return 4
+    ret = cmd_parse(args)
+    return ret
 
 def return_string(args):
     cmd_parse(args)
-    return "BALOOY!"
+    ret = "broken"
+    return ret
 
 def return_int_list(args):
     cmd_parse(args)
@@ -195,16 +195,15 @@ def preParseArgs(line, command_dict, arg_dict, str_opts_dict, num_opts_dict):
             continue
 
         # Find the function for this command in the command dictionary
+    	function = None
 	t_part = string.lower(parts[ndx])
         x = global_dict.get(string.lower(parts[ndx]))
         if x is not None:
-          t_part = string.lower(x)
-          parts[ndx] = t_part
-          # n_part = eval(t_part)
-          # if n_part is not None:
-          #   print "replacement:",t_part,"with",n_part
-        #function = command_dict.get(parts[ndx])
-        function = command_dict.get(t_part)
+    	    if type(x) is types.StringType:
+    	    	t_part = string.lower(x)
+    	    	parts[ndx] = t_part
+
+    	function = command_dict.get(t_part)
 
         if function is not None:
 	    parts[ndx] = t_part
@@ -340,7 +339,7 @@ class CLI(code.InteractiveConsole):
         "listhosts"     : "return_string_list",
         "listobj"       : "return_string_list",
         "listpids"      : "return_int_list",
-        "listsrc"       : "return_string_list",
+        "listsrc"       : "return_string",
         "listmetrics"   : "return_string_list",
         "listparams"    : "return_string_list",
         "listreports"   : "return_string_list",
