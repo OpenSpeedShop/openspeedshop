@@ -27,6 +27,11 @@
 
 using namespace OpenSpeedShop::Framework;
 
+#ifndef WDH_MOCK_DATA_GENERATOR
+#include <stdlib.h>
+#include <time.h>
+#endif
+
 
 
 /**
@@ -162,6 +167,10 @@ void ExampleCollector::setParameterValue(const std::string& parameter,
 void ExampleCollector::startCollecting(const Collector& collector,
 				       const Thread& thread) const
 {
+#ifndef WDH_MOCK_DATA_GENERATOR
+    srandom((unsigned int)time(NULL));
+#endif
+    
     // Load our runtime library into the thread
     loadLibrary(thread, "example-rt");
 }
@@ -208,6 +217,13 @@ void ExampleCollector::getMetricValue(const std::string& metric,
     // Handle the "time" metric
     if(metric == "time") {
 	double* value = reinterpret_cast<double*>(ptr);
-	*value = 123.456;  // Dummy value for now
+	
+#ifndef WDH_MOCK_DATA_GENERATOR
+	if(((double)random() / (double)RAND_MAX) > 0.99)
+	    *value = ((double)random() / (double)RAND_MAX) * 100.0;
+	else
+	    *value = 0.0;
+#endif
+	
     }
 }

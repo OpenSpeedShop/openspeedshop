@@ -875,7 +875,7 @@ void Database::commitTransaction()
     // Check assertions
     Assert(dm_handle != NULL);
     Assert(dm_nesting_level > 0);
-    
+
     // Decrement the transaction nesting level
     dm_nesting_level--;
     
@@ -916,15 +916,26 @@ void Database::rollbackTransaction()
     Assert(dm_handle != NULL);
     Assert(dm_nesting_level > 0);
 
+    // Is there a current statement?
+    if(dm_current_statement != NULL) {
+	
+	// Reset the current statement
+	Assert(sqlite3_reset(dm_current_statement) == SQLITE_OK);	    
+	
+	// Indicate there is no longer a current statement
+	dm_current_statement = NULL;	    
+	
+    }
+
     // Decrement the transaction nesting level
     dm_nesting_level--;
     
     // Rollback for the outermost transaction?
     if(dm_nesting_level == 0) {
-    
+
 	// Execute a SQL query to rollback the transaction
-	Assert(sqlite3_exec(dm_handle, "ROLLBACK TRANSACTION;",
-			    NULL, NULL, NULL) == SQLITE_OK);
+        Assert(sqlite3_exec(dm_handle, "ROLLBACK TRANSACTION;",
+        		    NULL, NULL, NULL) == SQLITE_OK);
 	
     }
     else {

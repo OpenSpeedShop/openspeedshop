@@ -832,7 +832,18 @@ void Process::processFunctions(const Thread& thread,
 	    // Get the start/end address of the function
 	    Address start = Address(child.address_start()) - range.getBegin();
 	    Address end = Address(child.address_end()) - range.getBegin();
-	    
+
+	    // NOTE: There are times when DPCL returns us functions where the
+	    //       start and end addresses are the same (zero length). For
+	    //       example, there are a bunch of functions in "libc.so.6" of
+	    //       the form "__*_nocancel" that have zero length. These play
+	    //       havoc with our code because AddressRange enforces the
+	    //       restriction (end > begin). For now we are going to throw
+	    //       out these zero-length functions because we shouldn't be
+	    //       able to gather data for them anyway.
+	    if(end == start)
+		continue;
+    
 	    // Get the demangled name of the function
 	    char name[child.get_demangled_name_length() + 1];
 	    child.get_demangled_name(name, sizeof(name));

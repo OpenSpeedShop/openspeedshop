@@ -65,9 +65,29 @@ int main(int argc, char* argv[])
 	experiment.getThreads().changeState(Thread::Running);
 	while(!experiment.getThreads().areAllState(Thread::Terminated))
 	    sleep(1);
-	
-	// TODO: metric evaluation
 
+	// Evaluate the collector's time metric for all functions in the thread
+	SmartPtr<std::map<Function, double> > data;
+	Queries::GetMetricByFunctionInThread(collector, "time", thread, data);
+
+	// Display the results
+
+	std::cout << std::endl << std::endl << std::endl
+		  << std::setw(10) << "Time"
+		  << "    "
+		  << "Function" << std::endl
+		  << std::endl;
+	
+	for(std::map<Function, double>::const_iterator
+		i = data->begin(); i != data->end(); ++i)
+	    
+	    std::cout << std::setw(10) << std::fixed << std::setprecision(3)
+		      << i->second
+		      << "    "
+		      << i->first.getName() << std::endl;
+
+	std::cout << std::endl << std::endl << std::endl;
+	
     }
     catch(const std::exception& error) {
 	std::cerr
