@@ -159,7 +159,7 @@ printf("Attempting to do an (%s)\n", command );
   if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete, 60000 ) )
   {
     fprintf(stderr, "Error retreiving experiment id. \n");
-    return;
+//    return;
   }
   expID = val;
 
@@ -476,10 +476,31 @@ if( !cli->runSynchronousCLI(command) )
       case  RUN_T:
 sprintf(command, "expGo -x %d\n", expID);
 // sprintf(command, "expCreate\n");
+#ifdef OLDWAY
 if( !cli->runSynchronousCLI(command) )
 {
   fprintf(stderr, "Error (%s).\n", command);
 }
+#else // OLDWAY
+{
+int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
+InputLineObject *clip = Append_Input_String( wid, command);
+ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+if( eo && eo->FW() )
+{
+  Experiment *fw_experiment = eo->FW();
+  fw_experiment->getThreads().changeState(Thread::Running);
+  while(!fw_experiment->getThreads().areAllState(Thread::Terminated))
+  {
+    printf("sleep(1)\n");
+    sleep(1);
+    qApp->processEvents(1000);
+  }
+}
+}
+#endif // OLDWAY
+statusLabelText->setText( tr("Process finished...") );
+
         nprintf( DEBUG_MESSAGES ) ("Run\n");
         statusLabelText->setText( tr("Process running...") );
 
@@ -709,6 +730,7 @@ void
 pcSamplePanel::loadStatsPanel()
 {
   nprintf( DEBUG_PANELS ) ("load the stats panel.\n");
+printf("load the stats panel.\n");
 
   PanelContainer *pc = topPC->findBestFitPanelContainer(topPC);
 
@@ -717,8 +739,13 @@ pcSamplePanel::loadStatsPanel()
   if( p )
   {
     nprintf( DEBUG_PANELS ) ("call p(%s)'s listener routine.\n", p->getName() );
-    UpdateObject *msg = new UpdateObject((void *)fw_experiment(), expID, "example", 1);
+ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+if( eo && eo->FW() )
+{
+  Experiment *fw_experiment = eo->FW();
+  UpdateObject *msg = new UpdateObject((void *)fw_experiment, expID, "example", 1);
     p->listener( (void *)msg );
+}
   }
 }
 
