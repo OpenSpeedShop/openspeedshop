@@ -24,12 +24,12 @@
 
 database_la_CXXFLAGS =  \
 	-I. \
-	-I../../../libssf \
+	-I../../../libopenss-framework \
 	-I/usr/include -I.
 
 database_la_LDFLAGS = \
 	-L/perftools/ROOT/lib \
-	-Wl,../../../libssf/.libs/libssf.so \
+	-Wl,../../../libopenss-framework/.libs/libopenss-framework.so \
 	-LANG:std -lsqlite3
 
 database_la_LIBADD = $(LIBLTDL)

@@ -27,7 +27,7 @@ pkglib_LTLIBRARIES = posscli.la
 posscli_la_CXXFLAGS =  \
 	-c -LANG:std -fpic \
 	-I. \
-	-I../libssf \
+	-I../libopenss-framework \
 	-I/perftools/ROOT/include/python2.3 \
 	-I/usr/include -I. -I../objects -I../base
 
