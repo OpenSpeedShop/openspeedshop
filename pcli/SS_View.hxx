@@ -18,12 +18,14 @@
 
 class ViewType
 {
+
   std::string Id;                 // Unique name of this report.
   std::string Brief_Description;  // What is the meaning of each column?
   std::string Short_Description;  // What type of report is generated?
   std::string Long_Description;   // When would I want to use this?
   std::string *Collector_Name;    // This view requires these collectors.
   std::string *Headers_Name;      // The names associated with each column.
+  bool Requires_Exp;              // This view is only meaninful with an experiment.
 
  public:
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn) {
@@ -41,13 +43,15 @@ class ViewType
             std::string ShortD,
             std::string LongD,
             std::string *Collect,
-            std::string *Head) {
+            std::string *Head,
+            bool NeedsExp = true) {
     Id = viewname;
     Brief_Description = BriefD;
     Short_Description = ShortD;
     Long_Description  = LongD;
     Collector_Name    = Collect;
     Headers_Name      = Head;
+    Requires_Exp      = NeedsExp;
   }
   std::string Unique_Name() { return Id; }
   std::string Brief_Name() { return Brief_Description; }
@@ -55,6 +59,7 @@ class ViewType
   std::string Long_Name() { return Long_Description; }
   std::string *Collectors() { return Collector_Name; }
   std::string *Headers() { return Headers_Name; }
+  bool        Need_Exp() { return Requires_Exp; }
 };
 
 extern std::list<ViewType *> Available_Views;

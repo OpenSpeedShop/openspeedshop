@@ -155,11 +155,17 @@ void SS_Get_Views (CommandObject *cmd, OpenSpeedShop::Framework::Experiment *fex
 }
 
 bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string viewname) {
-  // pcfun_view *pcf = new pcfun_view();
-  // Define_New_View (pcf);
 
   ViewType *vt = Find_View (viewname);
   if (vt != NULL) {
+    if ((exp == NULL) &&
+        vt->Need_Exp()) {
+     // The requested view requires an ExperimentObject.
+      cmd->Result_String ("An Experiment has not been specified.");
+      cmd->set_Status(CMD_ERROR);
+      return false;
+    }
+
     return vt->GenerateView (cmd, exp, Get_Traling_Int (viewname, vt->Unique_Name().length()));
   }
 
@@ -171,8 +177,10 @@ bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string vi
 // Initialize definitions of the predefined views.
 extern "C" void exp_LTX_ViewFactory ();
 extern "C" void pcfunc_LTX_ViewFactory ();
+extern "C" void params_LTX_ViewFactory ();
 
 void SS_Init_BuiltIn_Views () {
   exp_LTX_ViewFactory ();
   pcfunc_LTX_ViewFactory ();
+  params_LTX_ViewFactory ();
 }
