@@ -42,7 +42,6 @@ UserTimePanel_la_LDFLAGS = \
 	-module \
 	-avoid-version \
 	-L../../libopenss-framework \
-	-Wl,../../base/.libs/libopenss_Base.so \
 	-Wl,../../objects/.libs/ossObjects.so \
 	-Wl,../../pcli/.libs/posscli.so \
 	-Wl,../../gui/.libs/ossgui.so \
@@ -50,7 +49,7 @@ UserTimePanel_la_LDFLAGS = \
 	-lqt \
 	-ldl
 
-UserTimePanel_la_LIBADD = $(LIBLTDL) -lopenss-framework
+UserTimePanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-Base
 
 moc_UserTimePanel.cxx: UserTimePanel.hxx
 	-moc -o moc_UserTimePanel.cxx UserTimePanel.hxx

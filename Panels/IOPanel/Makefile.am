@@ -42,7 +42,6 @@ IOPanel_la_LDFLAGS = \
 	-module \
 	-avoid-version \
 	-L../../libopenss-framework \
-	-Wl,../../base/.libs/libopenss_Base.so \
 	-Wl,../../objects/.libs/ossObjects.so \
 	-Wl,../../pcli/.libs/posscli.so \
 	-Wl,../../gui/.libs/ossgui.so \
@@ -50,7 +49,7 @@ IOPanel_la_LDFLAGS = \
 	-lqt \
 	-ldl
 
-IOPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework
+IOPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-Base
 
 moc_IOPanel.cxx: IOPanel.hxx
 	-moc -o moc_IOPanel.cxx IOPanel.hxx

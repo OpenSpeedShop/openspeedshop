@@ -26,9 +26,9 @@ DebugPanel_la_CXXFLAGS = \
     -I../../plugin \
     -I../../base
 
-DebugPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../base/.libs/libopenss_Base.so
+DebugPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
-DebugPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
+DebugPanel_la_LIBADD = -L$(QTDIR)/lib -lqt -lopenss-Base
 
 moc_DebugPanel.cxx: DebugPanel.hxx
 	-moc -o moc_DebugPanel.cxx DebugPanel.hxx

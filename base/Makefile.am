@@ -17,7 +17,7 @@
 ################################################################################
 
 
-pkglib_LTLIBRARIES = libopenss_Base.la
+pkglib_LTLIBRARIES = libopenss-Base.la
 
 libopenss_Base_la_CXXFLAGS = \
     -I../objects \

@@ -42,7 +42,6 @@ ConstructNewExperimentPanel_la_LDFLAGS = \
 	-module \
 	-avoid-version \
 	-L../../libopenss-framework \
-	-Wl,../../base/.libs/libopenss_Base.so \
 	-Wl,../../objects/.libs/ossObjects.so \
 	-Wl,../../pcli/.libs/posscli.so \
 	-Wl,../../gui/.libs/ossgui.so \
@@ -50,7 +49,7 @@ ConstructNewExperimentPanel_la_LDFLAGS = \
 	-lqt \
 	-ldl
 
-ConstructNewExperimentPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework
+ConstructNewExperimentPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-Base
 
 moc_ConstructNewExperimentPanel.cxx: ConstructNewExperimentPanel.hxx
 	-moc -o moc_ConstructNewExperimentPanel.cxx ConstructNewExperimentPanel.hxx

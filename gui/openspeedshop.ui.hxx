@@ -512,7 +512,7 @@ void OpenSpeedshop::init()
 // dprintf(stderr, "OpenSpeedshop::init() entered\n");
 
   char pc_plugin_file[2048];
-  char *pc_dl_name="/libopenss_Base.so";
+  char *pc_dl_name="/libopenss-Base.so";
   char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
   if( !plugin_directory )
   {
