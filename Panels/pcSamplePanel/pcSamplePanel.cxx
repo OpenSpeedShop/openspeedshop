@@ -473,10 +473,53 @@ pcSamplePanel::languageChange()
   statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("Select a process or executable with the \"Load New *... or Attach To *...\" menu.") );
 }
 
+#include "SaveAsObject.hxx"
 void
 pcSamplePanel::saveAsSelected()
 {
   printf("From this pc on down, send out a saveAs message and put it to a file.\n");
+
+  QFileDialog *sfd = NULL;
+  QString dirName = QString::null;
+  if( sfd == NULL )
+  {
+    sfd = new QFileDialog(this, "file dialog", TRUE );
+    sfd->setCaption( QFileDialog::tr("Enter filename:") );
+    sfd->setMode( QFileDialog::AnyFile );
+    sfd->setSelection(QString("pcSamplePanel.html"));
+    QString types(
+                  "Any Files (*);;"
+                  "Image files (*.png *.xpm *.jpg);;"
+                  "Text files (*.txt);;"
+                  "(*.c *.cpp *.cxx *.C *.c++ *.f* *.F*);;"
+                  );
+    sfd->setFilters( types );
+    sfd->setDir(dirName);
+  }
+
+  QString fileName = QString::null;
+  if( sfd->exec() == QDialog::Accepted )
+  {
+    fileName = sfd->selectedFile();
+
+    if( !fileName.isEmpty() )
+    { 
+      SaveAsObject *sao = new SaveAsObject(fileName);
+
+      QTextStream stream(sao->f);
+      stream << "<html>";
+      stream << "<head>";
+      stream << "<meta content=\"text/html; charset=ISO-8859-1\" \
+                       http-equiv=\"content-type\"> ";
+      stream << "<title>pcSampleReport Title</title>";
+      stream << "</head>";
+
+  
+      broadcast((char *)sao, ALL_DECENDANTS_T, topPC);
+
+      sao->f->close();
+    }
+  }
 }
 
 void
