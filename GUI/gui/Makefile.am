@@ -35,7 +35,7 @@ ftgui_la_CXXFLAGS =  \
 
 ftgui_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../plugin/.libs/ftPlugin.so -Wl,../base/.libs/ftBase.so
 
-ftgui_la_LIBADD = -L$(QTDIR)/lib -lqt -L/usr/X11R6/lib -lXext -lX11 -lm
+ftgui_la_LIBADD = -L$(QTDIR)/lib -lqt -lqassistantclient -L/usr/X11R6/lib -lXext -lX11 -lm
 
 moc_performanceleader.cxx: performanceleader.hxx
 	-moc -o moc_performanceleader.cxx performanceleader.hxx
