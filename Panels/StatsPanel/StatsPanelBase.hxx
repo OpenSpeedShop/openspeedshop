@@ -83,7 +83,6 @@ class StatsPanelBase  : public Panel
     int *metricHeaderTypeArray;  // matches the QListView # of column entries.
 private:
     int numberItemsToRead;
-    ColumnList columnList;
 
   public slots:
     void setNumberVisibleEntries();
@@ -93,6 +92,8 @@ private:
     void itemSelected( QListViewItem * );
 
   protected:
+    ColumnList columnList;
+
     //! Sets the language specific strings.
     virtual void languageChange();
 

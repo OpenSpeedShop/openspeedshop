@@ -39,12 +39,6 @@ static char *color_name_table[10] =
   { "red", "orange", "yellow", "skyblue", "green" };
 
 
-// #include "ToolAPI.hxx"
-#include "SS_Input_Manager.hxx"
-using namespace OpenSpeedShop::Framework;
-
-
-
 StatsPanelBase::StatsPanelBase(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
 {
 printf("StatsPanelBase() entered\n");
@@ -136,58 +130,6 @@ StatsPanelBase::updateStatsPanelBaseData(void *expr, int expID, QString experime
 
 
   lv->clear();
-
-  SPListViewItem *lvi;
-  columnList.clear();
-printf("This should be overloaded in pcStatsPanel....\n");
-
-ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-if( eo && eo->FW() )
-{
-  Experiment *fw_experiment = eo->FW();
-// Evaluate the collector's time metric for all functions in the thread
-SmartPtr<std::map<Function, double> > data;
-ThreadGroup tgrp = fw_experiment->getThreads();
-ThreadGroup::iterator ti = tgrp.begin();
-Thread t1 = *ti;
-CollectorGroup cgrp = fw_experiment->getCollectors();
-CollectorGroup::iterator ci = cgrp.begin();
-Collector c1 = *ci;
-
-Queries::GetMetricByFunctionInThread(c1, "time", t1, data);
-
-// Display the results
-  MetricHeaderInfoList metricHeaderInfoList;
-  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Time"), FLOAT_T));
-  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Function"), CHAR_T));
-  if( metricHeaderTypeArray != NULL )
-  {
-    delete []metricHeaderTypeArray;
-  }
-  int header_count = metricHeaderInfoList.count();
-  metricHeaderTypeArray = new int[header_count];
-
-  int i=0;
-  for( MetricHeaderInfoList::Iterator pit = metricHeaderInfoList.begin(); pit != metricHeaderInfoList.end(); ++pit )
-  { 
-    MetricHeaderInfo *mhi = (MetricHeaderInfo *)*pit;
-    QString s = mhi->label;
-    lv->addColumn( s );
-    metricHeaderTypeArray[i] = mhi->type;
-  
-    columnList.push_back( s );
-    i++;
-  }
-
-  
-  char timestr[50];
-  for(std::map<Function, double>::const_iterator
-        item = data->begin(); item != data->end(); ++item)
-  {
-    sprintf(timestr, "%f", item->second);
-    lvi =  new SPListViewItem( this, lv, timestr,  item->first.getName() );
-  }
-}
 
   frameLayout->addWidget(lv);
 
