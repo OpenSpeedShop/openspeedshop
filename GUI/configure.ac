@@ -70,7 +70,7 @@ AC_SUBST(LTDLINCL)
 AC_SUBST(LIBLTDL)
 AC_LIBTOOL_DLOPEN
 AC_PROG_LIBTOOL
-AC_CONFIG_SUBDIRS(base objects expr_info plugin chart cli gui Panels Panels/pcSamplePanel Panels/SourcePanel Panels/CmdPanel Panels/TopPanel Panels/GettingStartedPanel/GettingStartedClass Panels/GettingStartedPanel Panels/PerformancePanel Panels/UserTimePanel Panels/HW_CounterPanel Panels/IOPanel Panels/FPE_TracingPanel Panels/CreateNewExperimentPanel Panels/Wizards/IntroWizardPanel Panels/Wizards/pcSampleWizardPanel Panels/Wizards/UserTimeWizardPanel Panels/Wizards/FPE_TracingWizardPanel Panels/Wizards/HW_CounterWizardPanel)
+AC_CONFIG_SUBDIRS(base objects expr_info plugin chart cli gui Panels Panels/pcSamplePanel Panels/SourcePanel Panels/CmdPanel Panels/TopPanel Panels/GettingStartedPanel/GettingStartedClass Panels/GettingStartedPanel Panels/PerformancePanel Panels/UserTimePanel Panels/HW_CounterPanel Panels/IOPanel Panels/FPE_TracingPanel Panels/CreateNewExperimentPanel Panels/Wizards/IntroWizardPanel Panels/Wizards/pcSampleWizardPanel Panels/Wizards/UserTimeWizardPanel Panels/Wizards/FPE_TracingWizardPanel Panels/Wizards/HW_CounterWizardPanel Panels/Wizards/IOWizardPanel )
 
 AC_PROG_INSTALL
 
@@ -120,5 +120,6 @@ AC_CONFIG_FILES(Makefile
 		Panels/Wizards/UserTimeWizardPanel/Makefile
 		Panels/Wizards/FPE_TracingWizardPanel/Makefile
 		Panels/Wizards/HW_CounterWizardPanel/Makefile
+		Panels/Wizards/IOWizardPanel/Makefile
 )
 AC_OUTPUT

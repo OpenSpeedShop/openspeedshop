@@ -22,4 +22,25 @@
 # All Rights Reserved.
 ################################################################################
 
-SUBDIRS = IntroWizardPanel pcSampleWizardPanel UserTimeWizardPanel FPE_TracingWizardPanel HW_CounterWizardPanel IOWizardPanel
+pkglib_LTLIBRARIES = IOWizardPanel.la
+
+IOWizardPanel_la_CXXFLAGS = \
+    -I/usr/include \
+    -I$(QTDIR)/include \
+    -I. \
+    -I../../../gui \
+    -I../../../plugin \
+    -I../../../objects \
+    -I../../../base
+
+IOWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../../base/.libs/ftBase.so  -Wl,../../../objects/.libs/ftObjects.so
+
+IOWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
+
+moc_IOWizardPanel.cxx: IOWizardPanel.hxx
+	-moc -o moc_IOWizardPanel.cxx IOWizardPanel.hxx
+
+IOWizardPanel_la_SOURCES = \
+	IOWizardPanel.hxx IOWizardPanel.cxx moc_IOWizardPanel.cxx \
+	plugin_entry_point.hxx Panel.hxx \
+	PanelContainer.hxx local_plugin_info.hxx debug.hxx

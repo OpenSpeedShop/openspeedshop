@@ -434,10 +434,10 @@ void IntroWizardPanel::epage1NextButtonSelected()
   }
   if( epage1InputOutputRB->isOn() )
   {
-    p = panelContainer->raiseNamedPanel("Input Output Wizard");
+    p = panelContainer->raiseNamedPanel("IO Wizard");
     if( !p )
     {
-      panelContainer->_masterPC->dl_create_and_add_panel("Input Output Wizard", panelContainer);
+      panelContainer->_masterPC->dl_create_and_add_panel("IO Wizard", panelContainer);
     }
   }
 }
@@ -496,10 +496,10 @@ void IntroWizardPanel::vpage1NextButtonSelected()
   }
   if( vpage1InputOutputRB->isOn() )
   {
-    p = panelContainer->raiseNamedPanel("Input Output Wizard");
+    p = panelContainer->raiseNamedPanel("IO Wizard");
     if( !p )
     {
-      panelContainer->_masterPC->dl_create_and_add_panel("Input Output Wizard", panelContainer);
+      panelContainer->_masterPC->dl_create_and_add_panel("IO Wizard", panelContainer);
     }
   }
 }
