@@ -453,6 +453,78 @@ push_file(char *file)
 }
 
 /**
+ * Function: push_experiment
+ * 
+ * 
+ *     
+ * @param   name    string representing experiment name to store.
+ *
+ * @return  void.
+ *
+ */
+void
+push_experiment(char *name)
+{
+    char *tname = (char *)malloc(strlen(name)+1);
+    char **strtab;
+    
+    strcpy(tname,name);
+    
+    cmd_check_array(&command.experiment_table);
+    strtab = (char **)command.experiment_table.table;
+    strtab[command.experiment_table.cur_node] = tname;
+    command.experiment_table.cur_node++;
+}
+
+/**
+ * Function: push_parameter
+ * 
+ * 
+ *     
+ * @param   name    string representing parameter name to store.
+ *
+ * @return  void.
+ *
+ */
+void
+push_parameter(char *name)
+{
+    char *tname = (char *)malloc(strlen(name)+1);
+    char **strtab;
+    
+    strcpy(tname,name);
+    
+    cmd_check_array(&command.param_table);
+    strtab = (char **)command.param_table.table;
+    strtab[command.param_table.cur_node] = tname;
+    command.param_table.cur_node++;
+}
+
+/**
+ * Function: push_view_type
+ * 
+ * 
+ *     
+ * @param   name    string representing view type name to store.
+ *
+ * @return  void.
+ *
+ */
+void
+push_view_type(char *name)
+{
+    char *tname = (char *)malloc(strlen(name)+1);
+    char **strtab;
+    
+    strcpy(tname,name);
+    
+    cmd_check_array(&command.view_table);
+    strtab = (char **)command.view_table.table;
+    strtab[command.view_table.cur_node] = tname;
+    command.view_table.cur_node++;
+}
+
+/**
  * Function: push_help
  * 
  * 
@@ -547,6 +619,39 @@ reset_command()
 	    strtab[i] = NULL;
 	}
     	free(command.file_table.table);
+    }
+    /* EXPERIMENT TABLE */
+    if (command.experiment_table.cur_node){
+    	int i;
+    	char **strtab = (char **)command.experiment_table.table;
+	
+	for (i=0;i<command.experiment_table.cur_node;++i) {
+	    free((void *)strtab[i]);
+	    strtab[i] = NULL;
+	}
+    	free(command.experiment_table.table);
+    }
+    /* PARAMETER TABLE */
+    if (command.param_table.cur_node){
+    	int i;
+    	char **strtab = (char **)command.param_table.table;
+	
+	for (i=0;i<command.param_table.cur_node;++i) {
+	    free((void *)strtab[i]);
+	    strtab[i] = NULL;
+	}
+    	free(command.param_table.table);
+    }
+    /* VIEWTYPE TABLE */
+    if (command.view_table.cur_node){
+    	int i;
+    	char **strtab = (char **)command.view_table.table;
+	
+	for (i=0;i<command.view_table.cur_node;++i) {
+	    free((void *)strtab[i]);
+	    strtab[i] = NULL;
+	}
+    	free(command.view_table.table);
     }
     /* HELP TABLE */
     if (command.help_table.cur_node){
@@ -694,6 +799,42 @@ dump_command()
 	}
 	printf("\n");
     }
+       
+    /* EXPERIMENT LIST */
+    if (command.experiment_table.cur_node) {
+    	int i;
+	char **p_name = (char **)command.experiment_table.table;
+
+	printf("\tEXPERIMENT:");
+	for (i=0;i<command.experiment_table.cur_node;++i) {
+	    printf(" %s",p_name[i]);
+	}
+	printf("\n");
+    }
+    
+    /* VIEW TYPE LIST */
+    if (command.view_table.cur_node) {
+    	int i;
+	char **p_name = (char **)command.view_table.table;
+
+	printf("\tVIEWTYPE:");
+	for (i=0;i<command.view_table.cur_node;++i) {
+	    printf(" %s",p_name[i]);
+	}
+	printf("\n");
+    }
+    
+    /* PARAMETER LIST */
+    if (command.param_table.cur_node) {
+    	int i;
+	char **p_name = (char **)command.param_table.table;
+
+	printf("\tPARAMETER:");
+	for (i=0;i<command.param_table.cur_node;++i) {
+	    printf(" %s",p_name[i]);
+	}
+	printf("\n");
+    }
     
     /* NAME LIST */
     if (command.name_table.cur_node) {
@@ -703,15 +844,6 @@ dump_command()
 	printf("\tSTRINGS:");
 	for (i=0;i<command.name_table.cur_node;++i) {
 	    switch (name_tab[i].tag) {
-	    	case NAME_PARAM:
-		    printf("(P)");
-		    break;
-	    	case NAME_EXPERIMENT:
-		    printf("(E)");
-		    break;
-	    	case NAME_VIEW_TYPE:
-		    printf("(V)");
-		    break;
 	    	case NAME_ADDR:
 		    printf("(A)");
 		    break;
@@ -758,6 +890,7 @@ cmd_init()
     command.rank_table.entry_size   	= sizeof(arg_desc_t);
     command.thread_table.entry_size 	= sizeof(arg_desc_t);
     command.file_table.entry_size   	= sizeof(arg_desc_t);
+    command.experiment_table.entry_size	= sizeof(arg_desc_t);	/*  */
     command.name_table.entry_size	= sizeof(name_tab_t);	/*  */
     command.host_table.entry_size   	= sizeof(host_id_t);	/*  */
     command.help_table.entry_size   	= sizeof(help_desc_t);

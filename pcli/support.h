@@ -134,9 +134,6 @@ typedef enum {
 typedef enum {
     NAME_DUNNO,
     NAME_HELP,
-    NAME_PARAM,
-    NAME_EXPERIMENT,
-    NAME_VIEW_TYPE,
     NAME_ADDR,
     OSS_NAME_MAX
 } oss_name_enum;
@@ -208,6 +205,9 @@ typedef struct a_command_struct {
     cmd_array_desc_t thread_table;  /**< Thread IDs */
     cmd_array_desc_t host_table;    /**< Host names */
     cmd_array_desc_t file_table;    /**< File names */
+    cmd_array_desc_t experiment_table;    /**< Experiment names */
+    cmd_array_desc_t param_table;   /**< Parameter names */
+    cmd_array_desc_t view_table;    /**< View type names */
     cmd_array_desc_t help_table;    /**< Help requests */
     cmd_array_desc_t lineno_table;  /**< Line numbers */
     
@@ -253,6 +253,15 @@ push_host_ip(unsigned ip_num);
 
 extern void
 push_file(char *file);
+
+extern void
+push_experiment(char *file);
+
+extern void
+push_parameter(char *file);
+
+extern void
+push_view_type(char *file);
 
 extern void
 push_help(char *name);
