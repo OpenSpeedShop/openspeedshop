@@ -27,7 +27,7 @@
 #include <qlayout.h>
 #include <qlineedit.h>
 #include <qiconset.h>
-
+#include <qfileinfo.h>
 #include <qbitmap.h>
 
 #include <qmessagebox.h>
@@ -41,6 +41,8 @@
 
 // #include "SS_Input_Manager.hxx"
 #include "CLIInterface.hxx"
+
+using namespace OpenSpeedShop::Framework;
 
 
 /*!  pcSamplePanel Class
@@ -149,6 +151,29 @@ nprintf( DEBUG_CONST_DESTRUCT ) ("Positioned at main in %s ????? \n", buffer);
   }
 }
 // End demo.
+
+
+
+// Begin direct connect to framework
+if( !mw->executableName.isEmpty() )
+{
+  QFileInfo fileInfo = QFileInfo(mw->executableName.ascii());
+  if( !fileInfo.exists() )
+  {
+    fprintf(stderr, "Unable to open file.  File (%s) does not exist.\n", mw->executableName.ascii() );
+  }
+  QString basename = fileInfo.baseName().ascii();
+  std::string name = std::string("./") + basename.ascii() + ".openss";
+printf("name = (%s)\n", name.c_str() );
+
+//  Experiment::create(mw->executableName.ascii());
+  Experiment::create(name);
+  Experiment experiment(name);
+
+  // Create a process for the command in the suspended state
+//  Thread thread = experiment.createProcess(mw->executableName.ascii());
+}
+// End  direct connect to framework
 
   updateInitialStatus();
   

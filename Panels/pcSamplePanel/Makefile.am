@@ -21,6 +21,7 @@ pkglib_LTLIBRARIES = pcSamplePanel.la
 # NOTE 1: The -I../SourcePanel is only here for #define DEMO 1
 # NOTE 2: The -I../TopPanel is only here for #define DEMO 1
 pcSamplePanel_la_CXXFLAGS = \
+	-c -LANG:std -fpic \
     -I/usr/include \
     -I$(QTDIR)/include \
     -I. \
@@ -34,9 +35,22 @@ pcSamplePanel_la_CXXFLAGS = \
     -I../TopPanel \
     -I../../base
 
-pcSamplePanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../base/.libs/ossBase.so -Wl,../../objects/.libs/ossObjects.so -Wl,../../pcli/.libs/posscli.so -Wl,../../gui/.libs/ossgui.so
+pcSamplePanel_la_LDFLAGS = \
+	-fpic \
+	--export-dynamic \
+	--export-all-symbols \
+	-module \
+	-avoid-version \
+	-L../../libopenss-framework \
+	-Wl,../../base/.libs/ossBase.so \
+	-Wl,../../objects/.libs/ossObjects.so \
+	-Wl,../../pcli/.libs/posscli.so \
+	-Wl,../../gui/.libs/ossgui.so \
+	-L$(QTDIR)/lib \
+	-lqt \
+	-ldl
 
-pcSamplePanel_la_LIBADD = -L$(QTDIR)/lib -lqt
+pcSamplePanel_la_LIBADD = $(LIBLTDL) -lopenss-framework
 
 moc_pcSamplePanel.cxx: pcSamplePanel.hxx
 	-moc -o moc_pcSamplePanel.cxx pcSamplePanel.hxx

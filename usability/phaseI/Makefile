@@ -41,17 +41,19 @@ fred_calls_ted: fred_calls_ted.c foo.c fred.c ted.c
 	mkdir $(OPENSPEEDSHOP_PLUGIN_PATH)/../../../usability/phaseI;
 	cp *.c $(OPENSPEEDSHOP_PLUGIN_PATH)/../../../usability/phaseI;
 
-clobber:
+clobber: clean
 	-rm -f $(TARGETS)
-	-rm -f *.a
-	-rm -f *.o
-	-rm -f core*
-	-rm -f so_loc*
 	-rm -f fred_calls_ted
-	-rm -fr test00*
-	-rm -fr *html*
 
 clean:
 	@$(MAKE) $(TARGETS)
 	-rm -f *.o
 	-rm -f core*
+	-rm -f *.a
+	-rm -f *.o
+	-rm -f core*
+	-rm -f so_loc*
+	-rm -fr test00*
+	-rm -fr ss*
+	-rm -fr *.openss
+	-rm -fr *html*
