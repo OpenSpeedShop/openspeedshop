@@ -6,7 +6,6 @@
 #include <qwidget.h>
 #include <qlayout.h>
 
-PanelContainer *topPC = NULL;
 PanelContainerList *panelContainerList;
 
 int
@@ -23,7 +22,7 @@ extern "C"
   {
     printf("hello from pc_init(QWidget *w) oooboy\n");
 
-    topPC = NULL;
+    PanelContainer *topPC = NULL;
 
     panelContainerList = new PanelContainerList;
     panelContainerList->clear();

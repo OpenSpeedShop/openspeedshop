@@ -50,7 +50,7 @@ public:
     QAction* helpIndexAction;
     QAction* helpAboutAction;
 
-    int frabulate;
+    PanelContainer *topPC;
 
 //    virtual bool eventFilter( QObject *, QEvent * e );
 

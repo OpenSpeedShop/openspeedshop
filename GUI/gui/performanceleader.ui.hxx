@@ -27,7 +27,7 @@ extern QApplication *qapplication;
 #include "performanceleader.hxx"
 PerformanceLeader *topPL = NULL;
 
-static PanelContainer *topPC = NULL;
+// static PanelContainer *topPC = NULL;
 
 
 void PerformanceLeader::fileNew()
