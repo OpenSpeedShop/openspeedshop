@@ -36,7 +36,7 @@ using namespace OpenSpeedShop::cli;
 
 extern FILE *yyin;
 extern int yyparse (void);
-extern ParseResult *p_parse_result;
+ParseResult *p_parse_result;
 
 /* Global Data for tracking the current command line. */
 InputLineObject *Current_ILO = NULL;
@@ -73,7 +73,6 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     
     // testing code
     //parse_result.dumpInfo();
-    // dump_command(); /* old command structure in support.cxx */
 
    // Build a CommandObject so that the semantic routines can be called.
     cmd = new CommandObject (&parse_result);
@@ -83,7 +82,8 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     {
       std::list<CommandResult *> cmd_result = cmd->Result_List();
       std::list<CommandResult *>::iterator cri;
-      bool list_returned = command_list[cmd->Type()];
+      //bool list_returned = command_list[cmd->Type()];
+      bool list_returned = cmd_desc[cmd->Type()].ret_list;
 
       if (!list_returned && (cmd_result.size() > 1)) {
         cmd->Result_String ("Too many results were generated for the command");
