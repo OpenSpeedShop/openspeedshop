@@ -28,7 +28,7 @@ do
   echo removing $i
   rm $i
 done
-for i in `find . -name *.so -print`
+for i in `find . -name *.so* -print`
 do
   echo removing $i
   rm $i
@@ -109,3 +109,5 @@ do
   echo removing $i
   rm $i
 done
+
+rm -fr config.status
