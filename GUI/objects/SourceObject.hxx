@@ -3,11 +3,12 @@
 
 #include <qvaluelist.h>
 
+#include "MessageObject.hxx"
 #include "HighlightObject.hxx"
 class HighlightObject;
 typedef QValueList<HighlightObject *>HighlightList;
 
-class SourceObject
+class SourceObject : public MessageObject
 {
 public:
     SourceObject();

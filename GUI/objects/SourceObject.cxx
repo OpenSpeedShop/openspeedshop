@@ -6,12 +6,12 @@
 
 #include "debug.hxx"
 
-SourceObject::SourceObject()
+SourceObject::SourceObject() : MessageObject("SourceObject")
 {
   dprintf("SourceObject::SourceObject(entered.\n");
 }
 
-SourceObject::SourceObject(char *_functionName, char *_fileName, int l, bool rF, HighlightList *hll)
+SourceObject::SourceObject(char *_functionName, char *_fileName, int l, bool rF, HighlightList *hll) : MessageObject("SourceObject")
 {
   dprintf("SourceObject::SourceObject(entered.\n");
   functionName = strdup(_functionName);
