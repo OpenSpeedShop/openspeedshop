@@ -81,16 +81,6 @@ pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n) : Pa
     vDescriptionPageText->setWordWrap( QTextEdit::WidgetWidth );
     vDescriptionPageLayout->addWidget( vDescriptionPageText );
 
-    vHideWizardLayout = new QHBoxLayout( 0, 0, 6, "vHideWizardLayout"); 
-    vHideWizardSpacer1 = new QSpacerItem( 20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
-    vHideWizardLayout->addItem( vHideWizardSpacer1 );
-
-    vHideWizardCheckBox = new QCheckBox( vDescriptionPageWidget, "vHideWizardCheckBox" );
-    vHideWizardLayout->addWidget( vHideWizardCheckBox );
-    vHideWizardSpacer2 = new QSpacerItem( 20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
-    vHideWizardLayout->addItem( vHideWizardSpacer2 );
-    vDescriptionPageLayout->addLayout( vHideWizardLayout );
-
     vDescriptionPageButtonLayout = new QHBoxLayout( 0, 0, 6, "vDescriptionPageButtonLayout"); 
 
     vDescriptionPageButtonSpacer = new QSpacerItem( 251, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
@@ -239,14 +229,6 @@ pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n) : Pa
 
     eDescriptionPageText = new QLabel( eDescriptionPageWidget, "eDescriptionPageText" );
     eDescriptionPageLayout->addWidget( eDescriptionPageText );
-
-    eHideWizardLayout = new QHBoxLayout( 0, 0, 6, "eHideWizardLayout"); 
-    eHideWizardSpacer = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
-    eHideWizardLayout->addItem( eHideWizardSpacer );
-
-    eHideWizardCheckBox = new QCheckBox( eDescriptionPageWidget, "eHideWizardCheckBox" );
-    eHideWizardLayout->addWidget( eHideWizardCheckBox );
-    eDescriptionPageLayout->addLayout( eHideWizardLayout );
 
     eDescriptionPageButtonLayout = new QHBoxLayout( 0, 0, 6, "eDescriptionPageButtonLayout"); 
 
@@ -401,7 +383,6 @@ eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageLoadProcessChec
     clearWState( WState_Polished );
 
     // signals and slots connections
-    connect( eHideWizardCheckBox, SIGNAL( clicked() ), this, SLOT( eHideWizardCheckBoxSelected() ) );
     connect( eDescriptionPageNextButton, SIGNAL( clicked() ), this, SLOT( eDescriptionPageNextButtonSelected() ) );
     connect( eDescriptionPageStartButton, SIGNAL( clicked() ), this, SLOT( eDescriptionPageStartButtonSelected() ) );
     connect( eParameterPageBackButton, SIGNAL( clicked() ), this, SLOT( eParameterPageBackButtonSelected() ) );
@@ -414,7 +395,6 @@ connect( eAttachOrLoadPageNextButton, SIGNAL( clicked() ), this, SLOT( eAttachOr
 
     connect( eSummaryPageBackButton, SIGNAL( clicked() ), this, SLOT( eSummaryPageBackButtonSelected() ) );
     connect( eSummaryPageFinishButton, SIGNAL( clicked() ), this, SLOT( eSummaryPageFinishButtonSelected() ) );
-    connect( vHideWizardCheckBox, SIGNAL( clicked() ), this, SLOT( vHideWizardCheckBoxSelected() ) );
     connect( vDescriptionPageNextButton, SIGNAL( clicked() ), this, SLOT( vDescriptionPageNextButtonSelected() ) );
     connect( vDescriptionPageStartButton, SIGNAL( clicked() ), this, SLOT( vDescriptionPageStartButtonSelected() ) );
     connect( vParameterPageSampleRateText, SIGNAL( returnPressed() ), this, SLOT( vParameterPageSampleRateTextReturnPressed() ) );
@@ -562,10 +542,6 @@ if( raisedWidget == vDescriptionPageWidget )
 }
 
 
-void pcSampleWizardPanel::eHideWizardCheckBoxSelected()
-{
-}
-
 void pcSampleWizardPanel::eDescriptionPageNextButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("eDescriptionPageNextButtonSelected() \n");
@@ -665,11 +641,6 @@ sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host 
     pcSampleWizardPanelStack->raiseWidget(eSummaryPageWidget);
 }
 // End  advanced (expert) AttachOrLoad callbacks
-
-void pcSampleWizardPanel::vHideWizardCheckBoxSelected()
-{
-nprintf(DEBUG_PANELS) ("vHideWizardCheckBoxSelected() \n");
-}
 
 void pcSampleWizardPanel::vDescriptionPageNextButtonSelected()
 {
@@ -799,8 +770,6 @@ pcSampleWizardPanel::languageChange()
 "To collect the data, the operating system regularly stops the process, increments a counter corresponding to the current value of the PC, and resumes the process. The default sample interval is 10 millisecond.\n"
 "\n"
 "pc Sample runs should slow the execution time of the program down no more than 5 percent. The measurements are statistical in nature, meaning they exhibit variance inversely proportional to the running time." ) );
-    vHideWizardCheckBox->setText( tr( "Hide pc Sample Wizard next time pc Sample Experiment is selected.\n"
-"(Note: You can change this back by going to the pc Sample local menu.)" ) );
     vDescriptionPageStartButton->setText( tr( "<< Start" ) );
     QToolTip::add( vDescriptionPageStartButton, tr( "Takes you back to the Intro Wizard so you can make a different selection." ) );
     vDescriptionPageNextButton->setText( tr( "> Next" ) );
@@ -843,8 +812,6 @@ pcSampleWizardPanel::languageChange()
 " * CPU time and memory access time <br>\n"
 " * Time spent in user routines<br><br>\n"
 "The pc Sample does not count time spent swapping or time spent accessing external resources.</p></p>" ) );
-    eHideWizardCheckBox->setText( tr( "Hide pc Sample Wizard next time pc Sample Experiment is selected.\n"
-"(Note: You can change this back by going to the pc Sample local menu.)" ) );
     eDescriptionPageStartButton->setText( tr( "<< Start" ) );
     eDescriptionPageNextButton->setText( tr( "> Next" ) );
     QToolTip::add( eDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );

@@ -90,7 +90,6 @@ public:
     QWidget* vDescriptionPageWidget;
     QLabel* vDescriptionPageTitleLabel;
     QTextEdit* vDescriptionPageText;
-    QCheckBox* vHideWizardCheckBox;
     QPushButton* vDescriptionPageStartButton;
     QPushButton* vDescriptionPageNextButton;
     QWidget* vParameterPageWidget;
@@ -116,7 +115,6 @@ public:
     QWidget* eDescriptionPageWidget;
     QLabel* eDescriptionPageTitleLabel;
     QLabel* eDescriptionPageText;
-    QCheckBox* eHideWizardCheckBox;
     QPushButton* eDescriptionPageStartButton;
     QPushButton* eDescriptionPageNextButton;
     QWidget* eParameterPageWidget;
@@ -143,7 +141,6 @@ public:
     QLabel* broughtToYouByLabel;
 
 public slots:
-    virtual void eHideWizardCheckBoxSelected();
     virtual void eDescriptionPageNextButtonSelected();
     virtual void eDescriptionPageStartButtonSelected();
     virtual void eParameterPageBackButtonSelected();
@@ -153,7 +150,6 @@ public slots:
     virtual void eAttachOrLoadPageNextButtonSelected();
     virtual void eSummaryPageBackButtonSelected();
     virtual void eSummaryPageFinishButtonSelected();
-    virtual void vHideWizardCheckBoxSelected();
     virtual void vDescriptionPageNextButtonSelected();
     virtual void vDescriptionPageStartButtonSelected();
     virtual void vParameterPageSampleRateTextReturnPressed();
@@ -171,9 +167,6 @@ protected:
     QVBoxLayout* topLayout;
     QVBoxLayout* topFrameLayout;
     QVBoxLayout* vDescriptionPageLayout;
-    QHBoxLayout* vHideWizardLayout;
-    QSpacerItem* vHideWizardSpacer1;
-    QSpacerItem* vHideWizardSpacer2;
     QHBoxLayout* vDescriptionPageButtonLayout;
     QSpacerItem* vDescriptionPageButtonSpacer;
     QVBoxLayout* vParameterPageLayout;
@@ -195,10 +188,8 @@ protected:
     QSpacerItem* vSummaryPageSpacer;
     QHBoxLayout* vSummaryPageButtonLayout;
     QVBoxLayout* eDescriptionPageLayout;
-    QHBoxLayout* eHideWizardLayout;
-    QSpacerItem* eHideWizardSpacer;
     QHBoxLayout* eDescriptionPageButtonLayout;
-QSpacerItem* eDescriptionPageButtonSpacer;
+    QSpacerItem* eDescriptionPageButtonSpacer;
     QSpacerItem* eDescriptionPageSpacer;
     QVBoxLayout* eParameterPageLayout;
     QVBoxLayout* eAttachOrLoadPageLayout;
@@ -206,13 +197,13 @@ QSpacerItem* eDescriptionPageButtonSpacer;
     QVBoxLayout* eParameterPageParameterLayout;
     QHBoxLayout* eParameterPageSampleRateLayout;
     QHBoxLayout* eParameterPageButtonLayout;
-QSpacerItem* eParameterPageButtonSpacer;
+    QSpacerItem* eParameterPageButtonSpacer;
     QVBoxLayout* eAttachOrLoadPageAttachOrLoadLayout;
     QHBoxLayout* eAttachOrLoadPageSampleRateLayout;
     QHBoxLayout* eAttachOrLoadPageButtonLayout;
-QSpacerItem* eAttachOrLoadPageButtonSpacer;
+    QSpacerItem* eAttachOrLoadPageButtonSpacer;
     QVBoxLayout* eSummaryPageLayout;
-QSpacerItem* eSummaryPageButtonSpacer;
+    QSpacerItem* eSummaryPageButtonSpacer;
     QHBoxLayout* eSummaryPageButtonLayout;
     QHBoxLayout* bottomLayout;
     QSpacerItem* bottomSpacer;
