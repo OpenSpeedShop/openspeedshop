@@ -236,62 +236,13 @@ typedef struct a_command_struct {
 
 extern command_t command;
 extern char *command_name[];
-extern bool  command_list[];        /* set to "true" if the command returns a list of values. */
 extern char *experiment_name[];
 extern char *viewtype_name[];
 extern char *paramtype_name[];
 extern char *general_name[];
 
 extern void
-dump_command(void);
-
-extern void 
-set_command_type(oss_cmd_enum type);
-
-extern void 
-set_exp_id(int exp_id);
-
-extern void
-push_string(char *name, oss_name_enum tag);
-
-extern void
-push_rank(int rank);
-
-extern void
-push_thread(int thread);
-
-extern void
-push_pid(int pid);
-
-extern void
-push_host_name(char *host);
-
-extern void
-push_host_ip(unsigned ip_num);
-
-extern void
-push_file(char *file);
-
-extern void
-push_experiment(char *file);
-
-extern void
-push_parameter(char *file);
-
-extern void
-push_view_type(char *file);
-
-extern void
 push_help(char *name);
-
-extern void
-push_param(char *);
-
-extern void
-push_exp_type(char *);
-
-extern void
-push_view_type(char *);
 
 extern void
 cmd_init(void);
@@ -299,18 +250,8 @@ cmd_init(void);
 extern void
 set_error(char *,char *);
 
-extern void
-push_32bit_value(int, oss_table_enum);
-
-void
-push_32bit_range(int, int, oss_table_enum);
-
 extern void 
 dump_help(command_t *);
-
-
-extern void push_cluster(char *);
-
 
 #endif	/* _SUPPORT_H */
 
