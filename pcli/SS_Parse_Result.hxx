@@ -9,7 +9,99 @@
 #ifndef __OpenSpeedShop_Parse_Result_HXX__
 #define __OpenSpeedShop_Parse_Result_HXX__
 
+typedef enum {
+    CMD_HEAD_ERROR,	    /* used for error processing */
+    CMD_EXP_ATTACH,
+    CMD_EXP_CLOSE,
+    CMD_EXP_CREATE,
+    CMD_EXP_DETACH,
+    CMD_EXP_DISABLE,
+    CMD_EXP_ENABLE,
+    CMD_EXP_FOCUS,
+    CMD_EXP_PAUSE,
+    CMD_EXP_RESTORE,
+    CMD_EXP_GO,
+    CMD_EXP_SAVE,
+    CMD_EXP_SETPARAM,
+    CMD_EXP_VIEW,
+    CMD_LIST_EXP,
+    CMD_LIST_HOSTS,
+    CMD_LIST_OBJ,
+    CMD_LIST_PIDS,
+    CMD_LIST_SRC,
+    CMD_LIST_METRICS,
+    CMD_LIST_PARAMS,
+    CMD_LIST_REPORTS,
+    CMD_LIST_BREAKS,
+    CMD_LIST_TYPES,
+    CMD_CLEAR_BREAK,
+    CMD_EXIT,
+    CMD_OPEN_GUI,
+    CMD_HELP,
+    CMD_HISTORY,
+    CMD_LOG,
+    CMD_PLAYBACK,
+    CMD_RECORD,
+    CMD_SETBREAK,
+    CMD_MAX
+} oss_cmd_enum;
+
 namespace OpenSpeedShop { namespace cli {
+
+
+typedef enum {
+    HOST_NAME,
+    HOST_NUM,
+    HOST_MAX
+} oss_host_enum;
+
+typedef enum {
+    HELP_DUNNO,
+    HELP_CMD,
+    HELP_PARM,
+    HELP_EXPERIMENT,
+    HELP_VIEW,
+    HELP_GENERAL,
+    HELP_MAX
+} oss_help_enum_t;
+
+typedef enum {
+    H_PARAM_DMODE,
+    H_PARAM_DMEDIA,
+    H_PARAM_DREFRESH,
+    H_PARAM_XSAVEFILE,
+    H_PARAM_SAMPRATE,
+    H_PARAM_MAX
+} help_param_enum;
+
+typedef enum {
+    H_EXP_PCSAMP,
+    H_EXP_USERTIME,
+    H_EXP_MPI,
+    H_EXP_FPE,
+    H_EXP_HWC,
+    H_EXP_IO,
+    H_EXP_MAX
+} help_exp_enum;
+
+typedef enum {
+    H_VIEW_TOPN,
+    H_VIEW_EXCLTIME,
+    H_VIEW_IO,
+    H_VIEW_FPE,
+    H_VIEW_HWC,
+    H_VIEW_MAX
+} help_view_enum;
+
+typedef enum {
+    H_GEN_FOCUS,
+    H_GEN_ALL,
+    H_GEN_COPY,
+    H_GEN_KILL,
+    H_GEN_GUI,
+    H_GEN_MPI,
+    H_GEN_MAX,
+} help_gen_enum;
 
 /** Simple static info about a command */
 typedef struct {
@@ -23,7 +115,12 @@ typedef struct {
     vector<ParseParam> parm_list;   /** List of parameters and values */
 } parm_type_t;
 
+// External references.
 extern command_type_t cmd_desc[];
+extern char *experiment_name[];
+extern char *viewtype_name[];
+extern char *paramtype_name[];
+extern char *general_name[];
 
 /**
  * Parser result class.
@@ -114,6 +211,10 @@ class ParseResult {
 
     	void push_modifiers(char * name) {
     	    dm_modifier_list.push_back(name);
+	}
+
+    	void push_modifiers(help_gen_enum ndx) {
+    	    dm_modifier_list.push_back(general_name[ndx]);
 	}
 
     	/** Handle list of help requests. */
