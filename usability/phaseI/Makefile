@@ -16,6 +16,7 @@ clobber:
 	-rm -f core*
 	-rm -f so_loc*
 	-rm -f fred_calls_ted
+	-rm -fr test00*
 
 clean:
 	@$(MAKE) $(TARGETS)
