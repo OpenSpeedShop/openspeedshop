@@ -63,7 +63,7 @@ register_plugin(QWidget *pl, char *plugin_file, PanelContainer *masterPC)
 
   if( !dl_object )
   {
-    fprintf(stderr, "(%s): dlerror()=%s\n", plugin_file, dlerror() );
+//    fprintf(stderr, "(%s): dlerror()=%s\n", plugin_file, dlerror() );
     return(0);
   }
 
@@ -84,7 +84,8 @@ register_plugin(QWidget *pl, char *plugin_file, PanelContainer *masterPC)
   if( dl_plugin_info_init_routine == NULL )
   {
 //    fprintf(stderr, "libdso: dlsym %s not found in %s dlerror()=%s\n", PLUGIN_INFO_ENTRY_POINT, plugin_file, dlerror() );
-// This is not a gui panel plugin... ignore it.
+//fprintf(stderr, "This is not a gui panel plugin... ignore it.\n");
+    dlclose(dl_object);
     return(0);
   }
 
@@ -188,13 +189,12 @@ void initialize_plugins(QWidget *pl, PanelContainer *masterPC)
   // Go and get a list of all the plugin files.
   int glob_ret_value = 0;
   char target[1024];
-  char *pattern = "*Panel.so";
+  char *pattern = "**.so";
   sprintf(target, "%s/%s", plugin_directory, pattern);
 //  int flags = GLOB_NOSORT | GLOB_ERR | GLOB_MARK | GLOB_TILDE;
   int flags = GLOB_ERR | GLOB_MARK | GLOB_TILDE;
   glob_t *pglob = new glob_t;
 
-  // Get all the Panel (plugin) files "*Panel.so".  
   // These are the plugin files...
   glob_ret_value = glob(target, flags, 0, pglob);
   if( glob_ret_value != 0 )
@@ -203,19 +203,6 @@ void initialize_plugins(QWidget *pl, PanelContainer *masterPC)
 //    exit(1);
     return;
   }
-
-  pattern = "ft*.so";
-  sprintf(target, "%s/%s", plugin_directory, pattern);
-  // Append all the internal libraries.  
-  flags = GLOB_NOSORT | GLOB_ERR | GLOB_MARK | GLOB_TILDE | GLOB_APPEND;
-  glob_ret_value = glob(target, flags, 0, pglob);
-  if( glob_ret_value != 0 )
-  {
-    fprintf(stderr, "Error: reading list of plugins in %s\n", target);
-//    exit(1);
-    return;
-  }
-
 
   // If no plugin files are located in the path, return after printing error.
   if( pglob->gl_pathc == 0 )
@@ -229,7 +216,7 @@ void initialize_plugins(QWidget *pl, PanelContainer *masterPC)
   unsigned int i = 0;
   for(i=0;i<pglob->gl_pathc;i++)
   {
-// printf("processing plugin record (%s)\n", pglob->gl_pathv[i] );
+//    printf("processing plugin record (%s)\n", pglob->gl_pathv[i] );
     if( register_plugin(pl, pglob->gl_pathv[i], masterPC) == -1 )
     {
       fprintf(stderr, "Error processing the plugin record (%s)\n", pglob->gl_pathv[i] );
