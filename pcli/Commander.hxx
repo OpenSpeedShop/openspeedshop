@@ -121,8 +121,9 @@ bool Command_Log_OFF (CMDWID WindowID);
 bool Command_Log_ON (CMDWID WindowID, std::string tofname);
 
 // Focus is a property of the Command Window that issued the command.
-EXPID Experiment_Focus (CMDWID WindowID);
-EXPID Experiment_Focus (CMDWID WindowID, EXPID ExperimentID);
+void Experiment_Purge_Focus (EXPID ExperimentID);                // Remove focus from windows
+EXPID Experiment_Focus (CMDWID WindowID);                        // What is the focus?
+EXPID Experiment_Focus (CMDWID WindowID, EXPID ExperimentID);    // Set the focus.
 void List_CommandWindows ( FILE *TFile );
 
 // Communicate command information the window manager
