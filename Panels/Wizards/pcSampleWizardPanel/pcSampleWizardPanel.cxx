@@ -166,9 +166,9 @@ pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n) : Pa
      vAttachOrLoadPageAttachToProcessCheckBox = new QCheckBox( vAttachOrLoadPageWidget, "vAttachOrLoadPageAttachToProcessCheckBox" );
     vAttachOrLoadPageAttachOrLoadLayout->addWidget( vAttachOrLoadPageAttachToProcessCheckBox );
 
-vAttachOrLoadPageProcessListLabel = new QLabel( vAttachOrLoadPageWidget, "vAttachOrLoadPageProcessListLabel" );
-vAttachOrLoadPageProcessListLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageProcessListLabel ) );
-vAttachOrLoadPageAttachOrLoadLayout->addWidget( vAttachOrLoadPageProcessListLabel );
+    vAttachOrLoadPageProcessListLabel = new QLabel( vAttachOrLoadPageWidget, "vAttachOrLoadPageProcessListLabel" );
+    vAttachOrLoadPageProcessListLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageProcessListLabel ) );
+    vAttachOrLoadPageAttachOrLoadLayout->addWidget( vAttachOrLoadPageProcessListLabel );
 
     vAttachOrLoadPageLoadExecutableCheckBox = new QCheckBox( vAttachOrLoadPageWidget, "vAttachOrLoadPageLoadExecutableCheckBox" );
     vAttachOrLoadPageAttachOrLoadLayout->addWidget( vAttachOrLoadPageLoadExecutableCheckBox );
@@ -190,6 +190,10 @@ vAttachOrLoadPageAttachOrLoadLayout->addWidget( vAttachOrLoadPageProcessListLabe
     vAttachOrLoadPageBackButton = new QPushButton( vAttachOrLoadPageWidget, "vAttachOrLoadPageBackButton" );
     vAttachOrLoadPageBackButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageBackButton->sizePolicy().hasHeightForWidth() ) );
     vAttachOrLoadPageButtonLayout->addWidget( vAttachOrLoadPageBackButton );
+
+    vAttachOrLoadPageResetButton = new QPushButton( vAttachOrLoadPageWidget, "vAttachOrLoadPageResetButton" );
+    vAttachOrLoadPageResetButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageResetButton->sizePolicy().hasHeightForWidth() ) );
+    vAttachOrLoadPageButtonLayout->addWidget( vAttachOrLoadPageResetButton );
 
     vAttachOrLoadPageNextButton = new QPushButton( vAttachOrLoadPageWidget, "vAttachOrLoadPageNextButton" );
     vAttachOrLoadPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageNextButton->sizePolicy().hasHeightForWidth() ) );
@@ -349,6 +353,10 @@ eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageExecutableLabel
     eAttachOrLoadPageBackButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eAttachOrLoadPageBackButton->sizePolicy().hasHeightForWidth() ) );
     eAttachOrLoadPageButtonLayout->addWidget( eAttachOrLoadPageBackButton );
 
+    eAttachOrLoadPageResetButton = new QPushButton( eAttachOrLoadPageWidget, "eAttachOrLoadPageResetButton" );
+    eAttachOrLoadPageResetButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eAttachOrLoadPageResetButton->sizePolicy().hasHeightForWidth() ) );
+    eAttachOrLoadPageButtonLayout->addWidget( eAttachOrLoadPageResetButton );
+
     eAttachOrLoadPageNextButton = new QPushButton( eAttachOrLoadPageWidget, "eAttachOrLoadPageNextButton" );
     eAttachOrLoadPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eAttachOrLoadPageNextButton->sizePolicy().hasHeightForWidth() ) );
     eAttachOrLoadPageButtonLayout->addWidget( eAttachOrLoadPageNextButton );
@@ -410,8 +418,9 @@ eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageExecutableLabel
     connect( eParameterPageResetButton, SIGNAL( clicked() ), this, SLOT( eParameterPageResetButtonSelected() ) );
     connect( eParameterPageSampleRateText, SIGNAL( returnPressed() ), this, SLOT( eParameterPageSampleRateTextReturnPressed() ) );
 
-connect( eAttachOrLoadPageBackButton, SIGNAL( clicked() ), this, SLOT( eAttachOrLoadPageBackButtonSelected() ) );
-connect( eAttachOrLoadPageNextButton, SIGNAL( clicked() ), this, SLOT( eAttachOrLoadPageNextButtonSelected() ) );
+    connect( eAttachOrLoadPageBackButton, SIGNAL( clicked() ), this, SLOT( eAttachOrLoadPageBackButtonSelected() ) );
+    connect( eAttachOrLoadPageNextButton, SIGNAL( clicked() ), this, SLOT( eAttachOrLoadPageNextButtonSelected() ) );
+    connect( eAttachOrLoadPageNextButton, SIGNAL( clicked() ), this, SLOT( eAttachOrLoadPageNextButtonSelected() ) );
 
     connect( eSummaryPageBackButton, SIGNAL( clicked() ), this, SLOT( eSummaryPageBackButtonSelected() ) );
     connect( eSummaryPageFinishButton, SIGNAL( clicked() ), this, SLOT( eSummaryPageFinishButtonSelected() ) );
@@ -422,8 +431,9 @@ connect( eAttachOrLoadPageNextButton, SIGNAL( clicked() ), this, SLOT( eAttachOr
     connect( vParameterPageResetButton, SIGNAL( clicked() ), this, SLOT( vParameterPageResetButtonSelected() ) );
     connect( vParameterPageNextButton, SIGNAL( clicked() ), this, SLOT( vParameterPageNextButtonSelected() ) );
 
-connect( vAttachOrLoadPageBackButton, SIGNAL( clicked() ), this, SLOT( vAttachOrLoadPageBackButtonSelected() ) );
-connect( vAttachOrLoadPageNextButton, SIGNAL( clicked() ), this, SLOT( vAttachOrLoadPageNextButtonSelected() ) );
+    connect( vAttachOrLoadPageBackButton, SIGNAL( clicked() ), this, SLOT( vAttachOrLoadPageBackButtonSelected() ) );
+    connect( vAttachOrLoadPageResetButton, SIGNAL( clicked() ), this, SLOT( vAttachOrLoadPageResetButtonSelected() ) );
+    connect( vAttachOrLoadPageNextButton, SIGNAL( clicked() ), this, SLOT( vAttachOrLoadPageNextButtonSelected() ) );
 
     connect( vSummaryPageBackButton, SIGNAL( clicked() ), this, SLOT( vSummaryPageBackButtonSelected() ) );
     connect( vSummaryPageFinishButton, SIGNAL( clicked() ), this, SLOT( vSummaryPageFinishButtonSelected() ) );
@@ -618,6 +628,30 @@ nprintf(DEBUG_PANELS) ("eAttachOrLoadPageBackButtonSelected() \n");
     pcSampleWizardPanelStack->raiseWidget(eParameterPageWidget);
 }
 
+void pcSampleWizardPanel::eAttachOrLoadPageResetButtonSelected()
+{
+  nprintf(DEBUG_PANELS) ("eAttachOrLoadPageResetButtonSelected() \n");
+  if( getPanelContainer()->getMainWindow() )
+  { 
+    OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
+    if( mw )
+    {
+      if( mw->executable_name )
+      {
+        free( mw->executable_name );
+        mw->executable_name = NULL;
+      }
+      if( mw->pid_str )
+      {
+        free( mw->pid_str );
+        mw->pid_str = NULL;
+      }
+    }
+  }
+  eUpdateAttachOrLoadPageWidget();
+}
+
+
 void pcSampleWizardPanel::eAttachOrLoadPageNextButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("eAttachOrLoadPageNextButtonSelected() \n");
@@ -723,6 +757,30 @@ void pcSampleWizardPanel::vAttachOrLoadPageBackButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("vAttachOrLoadPageBackButtonSelected() \n");
     pcSampleWizardPanelStack->raiseWidget(vParameterPageWidget);
+}
+
+void pcSampleWizardPanel::vAttachOrLoadPageResetButtonSelected()
+{
+  nprintf(DEBUG_PANELS) ("vAttachOrLoadPageResetButtonSelected() \n");
+printf ("vAttachOrLoadPageResetButtonSelected() \n");
+  if( getPanelContainer()->getMainWindow() )
+  { 
+    OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
+    if( mw )
+    {
+      if( mw->executable_name )
+      {
+        free( mw->executable_name );
+        mw->executable_name = NULL;
+      }
+      if( mw->pid_str )
+      {
+        free( mw->pid_str );
+        mw->pid_str = NULL;
+      }
+    }
+  }
+  vUpdateAttachOrLoadPageWidget();
 }
 
 void pcSampleWizardPanel::vAttachOrLoadPageNextButtonSelected()
@@ -838,6 +896,8 @@ pcSampleWizardPanel::languageChange()
     vAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load an executable from disk." ) );
     vAttachOrLoadPageBackButton->setText( tr( "< Back" ) );
     QToolTip::add( vAttachOrLoadPageBackButton, tr( "Takes you back one page." ) );
+vAttachOrLoadPageResetButton->setText( tr( "Reset" ) );
+QToolTip::add( vAttachOrLoadPageResetButton, tr( "This clears all settings restoring them to system defaults." ) );
     vAttachOrLoadPageNextButton->setText( tr( "> Next" ) );
     QToolTip::add( vAttachOrLoadPageNextButton, tr( "Advance to the next wizard page." ) );
     vSummaryPageFinishLabel->setText( tr( "<p align=\"left\">\n"
@@ -872,6 +932,8 @@ pcSampleWizardPanel::languageChange()
     eAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load an executable from disk." ) );
     eAttachOrLoadPageBackButton->setText( tr( "< Back" ) );
     QToolTip::add( eAttachOrLoadPageBackButton, tr( "Takes you back one page." ) );
+eAttachOrLoadPageResetButton->setText( tr( "Reset" ) );
+QToolTip::add( eAttachOrLoadPageResetButton, tr( "This clears all settings restoring them to system defaults." ) );
     eAttachOrLoadPageNextButton->setText( tr( "> Next" ) );
     QToolTip::add( eAttachOrLoadPageNextButton, tr( "Advance to the next wizard page." ) );
 
@@ -964,13 +1026,13 @@ pcSampleWizardPanel::vUpdateAttachOrLoadPageWidget()
         eAttachOrLoadPageProcessListLabel->show();
       }
     }
-if( mw->executable_name == NULL || strcmp(mw->executable_name,"") == 0 )
-{
-  vAttachOrLoadPageExecutableLabel->setText( "" );
-}
-if( mw->pid_str == NULL || strcmp(mw->pid_str,"") == 0 )
-{
-  vAttachOrLoadPageProcessListLabel->setText( mw->pid_str );
-}
+    if( mw->executable_name == NULL || strcmp(mw->executable_name,"") == 0 )
+    {
+      vAttachOrLoadPageExecutableLabel->setText( "" );
+    }
+    if( mw->pid_str == NULL || strcmp(mw->pid_str,"") == 0 )
+    {
+      vAttachOrLoadPageProcessListLabel->setText( mw->pid_str );
+    }
   }
 }
