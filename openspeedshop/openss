@@ -40,25 +40,18 @@ then
   exit
 fi
 
-if [ "$OPENSPEEDSHOP_PLUGIN_PATH" = "" ]
+if [ "$OPENSS_PLUGIN_PATH" = "" ]
 then
-  echo "OPENSPEEDSHOP_PLUGIN_PATH not set."
+  echo "OPENSS_PLUGIN_PATH not set."
   echo "For oss developers that's usually .../GUI/plugin/lib/openspeedshop"
   exit
 fi
 
-export OPENSPEEDSHOP_GUI_RELOCATABLE_NAME=libopenss-GUI.so
-export OPENSPEEDSHOP_GUI_ENTRY_POINT=gui_init
-export OPENSPEEDSHOP_CLI_RELOCATABLE_NAME=posscli.so
-export OPENSPEEDSHOP_CLI_ENTRY_POINT=cli_init
+export OPENSS_GUI_RELOCATABLE_NAME=libopenss-GUI.so
+export OPENSS_GUI_ENTRY_POINT=gui_init
+export OPENSS_CLI_RELOCATABLE_NAME=posscli.so
+export OPENSS_CLI_ENTRY_POINT=cli_init
 set +x
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$OPENSPEEDSHOP_PLUGIN_PATH
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$OPENSS_PLUGIN_PATH
 export LD_LIBRARYN32_PATH=$LD_LIBRARYN32_PATH:$LD_LIBRARY_PATH
-# export OPENSPEEDSHOP_FONTNAME="-adobe-utopia-regular-r-normal--10-100-75-75-p-56-iso8859-1"
-#if [[ $1 = -gui ]]
-#then
-#  $OPENSPEEDSHOP_PLUGIN_PATH/../../bin/openspeedshop -gui -fn $OPENSPEEDSHOP_FONTNAME $@
-#else
-#  $OPENSPEEDSHOP_PLUGIN_PATH/../../bin/openspeedshop $@
-#fi
-$OPENSPEEDSHOP_PLUGIN_PATH/../../bin/openspeedshop $@
+$OPENSS_PLUGIN_PATH/../../bin/openspeedshop $@

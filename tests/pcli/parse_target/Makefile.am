@@ -3,10 +3,11 @@ database_la_CXXFLAGS =  \
 	-I. \
 	-I../../../libopenss-framework \
 	-I../../../pcli \
-	-I/usr/include -I. -I../../../objects -I../../../base
+	-I/usr/include -I. -I../../../objects -I../../../base \
+	-DPLUGIN_PATH=\"$(pkglibdir)\"
 
 database_la_LDFLAGS = \
-	$(OPENSPEEDSHOP_PLUGIN_PATH)/posscli.so
+	$(PLUGIN_PATH)/posscli.so
 
 filelist = \
 	pt1 \

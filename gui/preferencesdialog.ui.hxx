@@ -94,10 +94,10 @@ void PreferencesDialog::resetPreferenceDefaults()
   char plugin_file[1024];
   if( panelContainer->getMasterPC() && panelContainer->getMasterPC()->_pluginRegistryList )
   {
-    char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
+    char *plugin_directory = getenv("OPENSS_PLUGIN_PATH");
     if( !plugin_directory )
     {
-      fprintf(stderr, "Can't find the PanelContainer plugin. $OPENSPEEDSHOP_PLUGIN_PATH not set correctly.\n");
+      fprintf(stderr, "Can't find the PanelContainer plugin. $OPENSS_PLUGIN_PATH not set correctly.\n");
         return;
     }
     PluginInfo *pi = NULL;
@@ -272,10 +272,10 @@ void PreferencesDialog::savePreferences()
   char plugin_file[1024];
   if( panelContainer->getMasterPC() && panelContainer->getMasterPC()->_pluginRegistryList )
   {
-    char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
+    char *plugin_directory = getenv("OPENSS_PLUGIN_PATH");
     if( !plugin_directory )
     {
-      fprintf(stderr, "Can't find the PanelContainer plugin. $OPENSPEEDSHOP_PLUGIN_PATH not set correctly.\n");
+      fprintf(stderr, "Can't find the PanelContainer plugin. $OPENSS_PLUGIN_PATH not set correctly.\n");
         return;
     }
     PluginInfo *pi = NULL;

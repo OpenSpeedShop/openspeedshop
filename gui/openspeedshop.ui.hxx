@@ -346,14 +346,14 @@ void OpenSpeedshop::helpContents()
 //printf("helpContents() entered.\n");
  char *plugin_directory = NULL;
   
- plugin_directory = getenv("OPENSPEEDSHOP_DOC_DIR");
+ plugin_directory = getenv("OPENSS_DOC_DIR");
  if( plugin_directory )
  {
    assistant->showPage( QString("%1/index.html").arg(plugin_directory) );
 
    return;
  }
- plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
+ plugin_directory = getenv("OPENSS_PLUGIN_PATH");
 
  QString base_dir(plugin_directory);
  QString relative_dir("/../../../OpenSpeedShop/current/doc");
@@ -513,10 +513,10 @@ void OpenSpeedshop::init()
 
   char pc_plugin_file[2048];
   char *pc_dl_name="/libopenss-Base.so";
-  char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
+  char *plugin_directory = getenv("OPENSS_PLUGIN_PATH");
   if( !plugin_directory )
   {
-    fprintf(stderr, "Can't find the PanelContainer plugin. $OPENSPEEDSHOP_PLUGIN_PATH not set correctly.\n");
+    fprintf(stderr, "Can't find the PanelContainer plugin. $OPENSS_PLUGIN_PATH not set correctly.\n");
       return;
   }
   sprintf(pc_plugin_file, "%s%s", plugin_directory, pc_dl_name);

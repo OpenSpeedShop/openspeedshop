@@ -109,7 +109,7 @@ Initial_Python ()
   Py_Initialize ();
   initPY_Input();
   char pyfile[1024];
-  char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
+  char *plugin_directory = getenv("OPENSS_PLUGIN_PATH");
   sprintf(pyfile, "%s/%s", plugin_directory, "myparse.py");
   fp = fopen (pyfile, "r");
   PyRun_SimpleFile ( fp, "myparse.py" );
@@ -333,9 +333,9 @@ setup_signal_handler (int s)
   loadTheGUI(ArgStruct *argStruct)
   {
     char gui_plugin_file[2048];
-    char *gui_dl_name = getenv("OPENSPEEDSHOP_GUI_RELOCATABLE_NAME");
-    char *gui_entry_point = getenv("OPENSPEEDSHOP_GUI_ENTRY_POINT");
-    char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
+    char *gui_dl_name = getenv("OPENSS_GUI_RELOCATABLE_NAME");
+    char *gui_entry_point = getenv("OPENSS_GUI_ENTRY_POINT");
+    char *plugin_directory = getenv("OPENSS_PLUGIN_PATH");
   
     if( !plugin_directory ) exit(EXIT_FAILURE);
 

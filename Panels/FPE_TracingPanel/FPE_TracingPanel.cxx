@@ -203,7 +203,7 @@ if( expID == -1 )
 {
   if( mw && !executableNameStr.isEmpty() && executableNameStr.endsWith("fred_calls_ted") )
   {
-    char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
+    char *plugin_directory = getenv("OPENSS_PLUGIN_PATH");
     char buffer[200];
     strcpy(buffer, plugin_directory);
     strcat(buffer, "/../../../usability/phaseI/fred_calls_ted.c");
@@ -869,7 +869,7 @@ printf("loadMain() entered\n");
 
 // End Demo (direct connect to framework) only...
 
-  char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
+  char *plugin_directory = getenv("OPENSS_PLUGIN_PATH");
   char buffer[200];
   strcpy(buffer, plugin_directory);
   strcat(buffer, "/../../../usability/phaseI/fred_calls_ted.c");

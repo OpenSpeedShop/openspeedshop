@@ -142,10 +142,10 @@ OpenSpeedshop::OpenSpeedshop( int _wid, QWidget* parent, const char* name, WFlag
   slist.append("-profile");
 
 
- char *doc_dir = getenv("OPENSPEEDSHOP_DOC_DIR");
+ char *doc_dir = getenv("OPENSS_DOC_DIR");
  if( !doc_dir ) 
  {
-   doc_dir = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
+   doc_dir = getenv("OPENSS_PLUGIN_PATH");
    QString base_dir(doc_dir);
    QString relative_dir("/../../../OpenSpeedShop/current/doc");
  }

@@ -21,7 +21,7 @@
   plugin_entry->show_immediate = 0;
   plugin_entry->plugin_description = "PLUGIN_DESCRIPTMPIN";
   plugin_entry->plugin_name =  "MPIWizardPanel.so";
-  plugin_entry->plugin_location = "$OPENSPEEDSHOP_PLUGIN_PATH";
+  plugin_entry->plugin_location = "$OPENSS_PLUGIN_PATH";
   plugin_entry->plugin_entry_point = "panel_init";
   plugin_entry->menu_heading =  "&Wizards";
   plugin_entry->menu_label =  "MPI Wizard";
