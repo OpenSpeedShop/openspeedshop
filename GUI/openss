@@ -37,6 +37,6 @@ then
 else
 # FONTNAME="-adobe-courier-medium-r-normal--14-100-75-75-m-60-iso10646-1"
 FONTNAME="-adobe-utopia-regular-r-normal--12-120-75-75-p-67-iso10646-1"
-  echo "Jack: If the font doesn't look right try changing it:  i.e. -fn fixed"
+  echo "If the font doesn't look right try changing it:  i.e. -fn fixed"
   $OPENSPEEDSHOP_PLUGIN_PATH/../../bin/openspeedshop -fn $FONTNAME $@
 fi
