@@ -60,9 +60,9 @@ SelectExperimentDialog::SelectExperimentDialog( QWidget* parent, const char* nam
   availableExperimentsListView->addColumn( tr( "Name:" ) );
   availableExperimentsListView->addColumn( tr( "Description:" ) );
   availableExperimentsListView->setSelectionMode( QListView::Single );
-  availableExperimentsListView->setAllColumnsShowFocus( FALSE );
   availableExperimentsListView->setShowSortIndicator( TRUE );
   availableExperimentsListView->setSorting( 0, FALSE );
+  availableExperimentsListView->setAllColumnsShowFocus(TRUE);
   availableExperimentsListView->setSortOrder( Qt::Ascending );
   SelectExperimentDialogLayout->addWidget( availableExperimentsListView );
 

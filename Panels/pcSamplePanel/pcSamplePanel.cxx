@@ -65,7 +65,7 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n, void *argument) 
   {
     QString *expIDString = (QString *)argument;
     expID = expIDString->toInt();
-    printf("pcSamplePanel look up expID=%d\n", expID);
+    nprintf( DEBUG_CONST_DESTRUCT ) ("pcSamplePanel look up expID=%d\n", expID);
   }
 
   mw = getPanelContainer()->getMainWindow();
@@ -152,7 +152,7 @@ if( expID == -1 )
     char buffer[200];
     strcpy(buffer, plugin_directory);
     strcat(buffer, "/../../../usability/phaseI/fred_calls_ted.c");
-  printf("load (%s)\n", buffer);
+    nprintf( DEBUG_CONST_DESTRUCT ) ("load (%s)\n", buffer);
     SourceObject *spo = new SourceObject("main", buffer, 22, TRUE, NULL);
   
     if( !sp->listener((void *)spo) )
@@ -160,7 +160,7 @@ if( expID == -1 )
       fprintf(stderr, "Unable to position at main in %s\n", buffer);
     } else
     {
-  nprintf( DEBUG_CONST_DESTRUCT ) ("Positioned at main in %s ????? \n", buffer);
+      nprintf( DEBUG_CONST_DESTRUCT ) ("Positioned at main in %s ????? \n", buffer);
     }
   }
 }
@@ -180,7 +180,7 @@ if( expID == -1 )
     }
     QString basename = fileInfo.baseName().ascii();
     std::string name = std::string("./") + basename.ascii() + ".openss";
-  printf("name = (%s)\n", name.c_str() );
+    nprintf( DEBUG_CONST_DESTRUCT ) ("name = (%s)\n", name.c_str() );
   
     try
     {
@@ -196,9 +196,9 @@ if( expID == -1 )
   //   Thread thread = experiment.createProcess(command);
   
       // Create the example collector and set its sampling rate
-  printf("call the createCollector...(pcsamp)\n");
+      nprintf( DEBUG_CONST_DESTRUCT ) ("call the createCollector...(pcsamp)\n");
       Collector collector = experiment.createCollector("example");
-  printf("call the setParameterValue...(sampling_rate, 10)\n");
+      nprintf( DEBUG_CONST_DESTRUCT ) ("call the setParameterValue...(sampling_rate, 10)\n");
       collector.setParameterValue("sampling_rate", (unsigned)10);
     }
   
@@ -214,7 +214,7 @@ if( expID == -1 )
     }
 } else 
 { // Look up all the info and display it... 
-  printf("Look up all the info and display it...for exprId (%d) \n", expID );
+  nprintf( DEBUG_CONST_DESTRUCT ) ("Look up all the info and display it...for exprId (%d) \n", expID );
 }
 
 
@@ -394,7 +394,6 @@ pcSamplePanel::listener(void *msg)
 
   MessageObject *mo = (MessageObject *)msg;
 
-printf("pcSamplePanel::listener() getName(%s)\n", getName() );
   if( mo->msgType == getName() )
   {
     nprintf(DEBUG_MESSAGES) ("pcSamplePanel::listener() interested!\n");
