@@ -82,7 +82,7 @@ def mailResults(filename, fm_add, to_add):
 		msg = MIMEText(fp.read())
 		fp.close
 				
-		msg['Subject']= 'test results'
+		msg['Subject']= 'working'
 		msg['From'] = fm_add
 		msg['To'] = to_add
 				
@@ -181,9 +181,9 @@ if __name__ == '__main__':
 
 		unitNum = determineIfSimpleUnit()
 		if unitNum == 0:
-			os.system('./rununit > testresults')
+			os.system('./rununit')
 		if unitNum == 1:
-			os.system('./rununit -cxx > testresults')
+			os.system('./rununit -cxx')
 		if unitNum == 2:
 			os.system('./rununit -c')
 		if unitNum == 3:
@@ -196,10 +196,10 @@ if __name__ == '__main__':
 	#if isTop:
 	if checkForTop or isTop:
 		if (typeofdir == unit_leaf and checkForTop):
-			resultsfilenameinput = open('testresultsfilename', 'r')
-			resultsFileName = resultsfilenameinput.readline()
+			hello = "hello"
+			#resultsfilenameinput = open('testresultsfilename', 'r')
+			#resultsFileName = resultsfilenameinput.readline()
 			#os.system('more '+resultsFileName+' >> ' + resultsFile)
-			os.system('more testresults >>'+resultsFile)
 			
 		isHere = os.path.isfile(resultsFile)
 	
@@ -223,7 +223,7 @@ if __name__ == '__main__':
 		
 			con_input.close()
 			
-			#mailResults(resultsFile, frm_addr, t_addr)
+			mailResults(resultsFile, frm_addr, t_addr)
 	
 	
 
