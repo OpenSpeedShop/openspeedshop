@@ -1,0 +1,183 @@
+#!/usr/local/bin/python
+
+from sys import *
+import sys 
+import os
+from time import *
+
+resultsfile = 'tempfile' #the file which the results of the tests are written to
+expectedfile = 'expected_output' #the expected output for the tests
+
+listname = 'test_list'
+executable_name = ''
+v_input = ''
+v_output = ''
+testResultsFile = ''
+
+def RunWithExecutable(testname, executable_name):
+	if v_input == 'NONE':
+		os.system('./'+testname + ' '+executable_name + ' >> '+ resultsfile)
+
+	else:
+		os.system('./'+testname + ' '+executable_name +' ' + v_input + ' >> ' + resultsfile)
+	
+
+def RunWithoutExecutable(testname, fileptr):
+	os.system('./'+ testname + ' >> tempresultsfile')
+	actualresultptr = open('tempresultsfile', 'r')
+	result = actualresultptr.readline()
+	if (result == "PASS\n"):
+		fileptr.write(testname + " PASSES.\n")
+	else:
+		fileptr.write(testname + " FAILS.\n")
+	os.system('rm tempresultsfile')
+
+
+def OutputCompare(testname, typeofrun, fileptr):
+
+
+	if typeofrun == 1:
+		RunWithoutExecutable(testname, fileptr)
+
+	if typeofrun == 2:
+		RunWithExecutable(testname, executable_name)
+
+	checkcore = os.system('test -e core')
+
+	if checkcore == 0:
+
+		print 'core dump'
+	
+
+
+def CreateOutput(runtype, fileptr): 
+
+	#os.system('rm ' + resultsfile)
+	#os.system('rm testresults')
+	os.system('make')
+
+	test_input = open(listname, 'r')
+
+	while 1:
+		tests_line = test_input.readline()
+	
+		if not tests_line:
+
+			break
+
+		else:
+
+			name_of_test = tests_line[0:-1]
+			OutputCompare(name_of_test, runtype, fileptr)
+		
+
+	
+
+def CreateTestList(whichLanguage):
+
+	checktemptestlist = os.system('test -e temptestlist')
+	if checktemptestlist == 0:
+		os.system('rm -f temptestlist')
+	
+		
+	os.system('ls -1 *.'+ whichLanguage +'>> temptestlist')
+	input_tests = open('temptestlist', 'r')
+	output_testlist = open(listname, 'w')
+	
+	while 1:
+		testlist_line = input_tests.readline()
+		if not testlist_line:
+			break
+		else:
+			i = 0
+			temp_char = ' '
+			while temp_char != '.':
+				temp_char = testlist_line[i]
+				i = i+1
+			test_name = testlist_line[0:i-1]
+		output_testlist.write(test_name + '\n')
+
+
+def ReadConfigFile(executable_name, v_input, v_output):
+	con_input = open('test_config', 'r')
+	counter = 0
+	while 1:
+	  	config_line = con_input.readline()
+		if not config_line:
+			break
+		if counter == 2:
+			executable_name = config_line
+		elif counter == 3:
+			v_input = config_line
+		elif counter == 4:
+			v_output = config_line
+			
+		counter = counter + 1
+	con_input.close()
+
+if __name__ == '__main__':
+
+	checkForTestResultsFile = os.path.isfile('testresultsfilename')
+	
+	if checkForTestResultsFile:
+		os.system('rm testresultsfilename')
+
+	currTime = strftime("%d_%m_%Y_%H%M%S", localtime())
+
+        testResultsFile = 'testresults_' + currTime
+	resultsfileptr = open(testResultsFile, 'w')
+
+
+	isSimple = 0
+
+	if len(argv) == 2:
+		simple_language = argv[1]
+		
+		checkfiles_test = os.system('test -e ' + listname)
+		if checkfiles_test == 0:
+			os.system('rm ' + listname)
+			
+		checkfiles_expected = os.system('test -e ' + expectedfile)
+		if checkfiles_expected == 0:
+			os.system('rm ' + expectedfile)
+		if (simple_language == '-cxx'):
+			CreateTestList('cxx')
+			isSimple = 1
+
+		if (simple_language == '-c'):
+			CreateTestList('c')
+			isSimple = 1
+
+		if (simple_language == '-f'):
+			CreateTestList('f90')
+			isSimple = 1
+
+		runtype = 1
+
+	     	if (simple_language == '-help'):
+			runtype = 3
+
+
+	else:
+		runtype = 1
+
+	if (runtype == 3):
+		print "Rununit has the following options:"
+		print "-cxx, which indicates the files checked in are C++ files"
+		print "-c, which indicates the files checked in are C files"
+		print "-f, which indicates the files checked in are Fortran files"
+		print "These options should be chosen if the developer only checked in unit tests"
+		print "If the developer checked in the test list and expected output, don't use the options."
+	else:
+	       	ReadConfigFile(executable_name, v_input, v_output)
+		
+	
+       	CreateOutput(runtype, resultsfileptr)
+	os.system('make clean')
+		
+	if isSimple:
+		os.remove('test_list')
+		 
+			
+			
+
