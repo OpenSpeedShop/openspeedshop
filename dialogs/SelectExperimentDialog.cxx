@@ -56,7 +56,7 @@ SelectExperimentDialog::SelectExperimentDialog( QWidget* parent, const char* nam
   SelectExperimentDialogLayout->addWidget( hostComboBox );
 
   availableExperimentsListView = new QListView( this, "availableExperimentsListView" );
-  availableExperimentsListView->addColumn( tr( "Processes belonging to '%s':" ) );
+  availableExperimentsListView->addColumn( tr( "Available Experiments:" ) );
   availableExperimentsListView->setSelectionMode( QListView::Single );
   availableExperimentsListView->setAllColumnsShowFocus( FALSE );
   availableExperimentsListView->setShowSortIndicator( FALSE );
@@ -87,7 +87,9 @@ SelectExperimentDialog::SelectExperimentDialog( QWidget* parent, const char* nam
   // signals and slots connections
   connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
   connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
+#ifdef LATER
   connect( hostComboBox, SIGNAL( activated(const QString &) ), this, SLOT( hostComboBox() ) );
+#endif // LATER
 
   updateAvailableExperimentList();
 }
