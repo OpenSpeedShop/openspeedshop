@@ -31,6 +31,9 @@ class ParseTarget {
 //	/** Destructor. */
 //	~ParseTarget();
 
+    	/** Does the object have any data. */
+	bool used() { return dm_used;}
+
     	/** Handle list of host names. */
     	vector<ParseRange> * getHostList()
 	{
