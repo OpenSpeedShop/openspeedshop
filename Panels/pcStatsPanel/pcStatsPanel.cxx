@@ -34,9 +34,9 @@ typedef QValueList<MetricHeaderInfo *> MetricHeaderInfoList;
 #include "SourceObject.hxx"
 #include "PreferencesChangedObject.hxx"
 
-#include "preference_plugin_info.hxx" // Do not remove
+#include "preference_plugin_info.hxx"
 
-#include "MetricInfo.hxx" // dummy data only...
+// #include "MetricInfo.hxx" // dummy data only...
 // This is only hear for the debugging tables....
 static char *color_name_table[10] =
   { "red", "orange", "yellow", "skyblue", "green" };
@@ -46,6 +46,9 @@ static char *color_name_table[10] =
 using namespace OpenSpeedShop::Framework;
 
 
+/*! Create a pc Sampling Specific Stats Panel.   This panel is derived
+    from the StatsPanelBase class.  
+*/
 pcStatsPanel::pcStatsPanel(PanelContainer *pc, const char *n, void *argument) : StatsPanelBase(pc, n, argument)
 {
 //  printf("pcStatsPanel() entered\n");
@@ -79,17 +82,9 @@ pcStatsPanel::languageChange()
 int 
 pcStatsPanel::listener(void *msg)
 {
-// printf("pcStatsPanel::listener() requested.\n");
-//  StatsPanelBase::listener(msg);
-
-
   PreferencesChangedObject *pco = NULL;
 
-// BUG - BIG TIME KLUDGE.   This should have a message type.
   MessageObject *msgObject = (MessageObject *)msg;
-
-// printf("msgObject->msgType=(%s)\n", msgObject->msgType.ascii() );
-// printf("getName=(%s)\n",  getName() );
   if( msgObject->msgType == getName() )
   {
     nprintf(DEBUG_MESSAGES) ("pcStatsPanel::listener() interested!\n");
@@ -100,10 +95,7 @@ pcStatsPanel::listener(void *msg)
   if(  msgObject->msgType  == "UpdateExperimentDataObject" )
   {
     UpdateObject *msg = (UpdateObject *)msgObject;
-// msg->print();
-#ifdef PRINT_DEBUG
-PrintView(msg->expID);
-#endif // PRINT_DEBUG
+    nprintf(DEBUG_MESSAGES) ("pcStatsPanel::listener() UpdateExperimentDataObject!\n");
     updateStatsPanelBaseData(msg->fw_expr, msg->expID, msg->experiment_name);
     if( msg->raiseFLAG )
     {
@@ -111,7 +103,7 @@ PrintView(msg->expID);
     }
   } else if( msgObject->msgType == "PreferencesChangedObject" )
   {
-//    printf("StatsPanelBase:  The preferences changed.\n");
+    nprintf(DEBUG_MESSAGES) ("pcStatsPanel::listener() PreferencesChangedObject!\n");
     pco = (PreferencesChangedObject *)msgObject;
     preferencesChanged();
   }
@@ -124,8 +116,6 @@ PrintView(msg->expID);
 bool
 pcStatsPanel::createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos )
 {
-//  printf ("pcStatsPanel: Popup the context sensitive menu here.... can you augment it with the default popupmenu?\n");
-  
   QPopupMenu *panelMenu = new QPopupMenu(this);
   panelMenu->setCaption("Panel Menu");
   contextMenu->insertItem("&Panel Menu", panelMenu, CTRL+Key_C);
@@ -228,7 +218,7 @@ for( ; it != orig_data->end(); ++it)
 void
 pcStatsPanel::updateStatsPanelBaseData(void *expr, int expID, QString experiment_name)
 {
-// printf("pcStatsPanel::updateStatsPanelBaseData() entered.\n");
+  nprintf( DEBUG_PANELS) ("pcStatsPanel::updateStatsPanelBaseData() entered.\n");
 
   StatsPanelBase::updateStatsPanelBaseData(expr, expID, experiment_name);
 
@@ -236,18 +226,30 @@ pcStatsPanel::updateStatsPanelBaseData(void *expr, int expID, QString experiment
   SPListViewItem *lvi;
   columnList.clear();
 
+  nprintf( DEBUG_PANELS) ("Find_Experiment_Object() for %d\n", expID);
   ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
   if( eo && eo->FW() )
   {
     Experiment *fw_experiment = eo->FW();
     // Evaluate the collector's time metric for all functions in the thread
     ThreadGroup tgrp = fw_experiment->getThreads();
+    if( tgrp.size() == 0 )
+    {
+      fprintf(stderr, "There are no known threads for this experiment.\n");
+      return;
+    }
     ThreadGroup::iterator ti = tgrp.begin();
     Thread t1 = *ti;
     CollectorGroup cgrp = fw_experiment->getCollectors();
+    if( cgrp.size() == 0 )
+    {
+      fprintf(stderr, "There are no known collectors for this experiment.\n");
+      return;
+    }
     CollectorGroup::iterator ci = cgrp.begin();
     Collector c1 = *ci;
 
+    nprintf( DEBUG_PANELS) ("GetMetricByFunctionInThread()\n");
     Queries::GetMetricByFunctionInThread(c1, "time", t1, orig_data);
 
     // Display the results
@@ -273,6 +275,8 @@ pcStatsPanel::updateStatsPanelBaseData(void *expr, int expID, QString experiment
       i++;
     }
 
+    // Look up the latest of the preferences and apply them...
+    // Which column should we sort?
     bool ok;
     int columnToSort = getPreferenceColumnToSortLineEdit().toInt(&ok);
     if( !ok )
@@ -291,6 +295,7 @@ pcStatsPanel::updateStatsPanelBaseData(void *expr, int expID, QString experiment
       lv->setSortOrder ( Qt::Ascending );
     }
 
+    // How many rows should we display?
     int numberItemsToRead = getPreferenceTopNLineEdit().toInt(&ok);
     if( !ok )
     {
@@ -298,6 +303,7 @@ pcStatsPanel::updateStatsPanelBaseData(void *expr, int expID, QString experiment
     }
 
 
+    nprintf( DEBUG_PANELS) ("Put the data out...\n");
     char timestr[50];
     for(std::map<Function, double>::const_iterator
             it = orig_data->begin(); it != orig_data->end(); ++it)
