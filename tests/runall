@@ -1,0 +1,66 @@
+#!/usr/bin/python
+
+from sys import *
+import sys
+import os
+
+reg_leaf = 1
+unit_leaf = 2
+not_leaf = 3
+
+def whatKindofDirectory():
+
+	checkforrununit = os.system('test -e rununit')
+	if checkforrununit == 0:
+		typeofdir = unit_leaf
+	else:
+		checkforrunone = os.system('test -e runone')
+		if checkforrunone == 0:
+			typeofdir = reg_leaf
+
+		else:
+			typeofdir = not_leaf
+
+	return typeofdir
+
+def createDirectoryList():
+
+	os.system('ls -1 >> dirlist')
+	
+
+
+
+
+
+if __name__ == '__main__':
+
+	typeofdir = whatKindofDirectory()
+
+
+
+	if (typeofdir == not_leaf):
+		print 'keep looking'
+		createDirectoryList()
+		dirListInput = open('dirlist', 'r')
+
+		while 1:
+			dirListLine = dirListInput.readline()
+
+			if not dirListLine:
+				break
+			else:
+				checkIfDir = os.system('test -d '+ dirListLine)
+
+				if checkIfDir == 0:
+					os.system('cd ' + dirListLine)
+					os.system('./runall')
+
+					
+
+       	if (typeofdir == reg_leaf):
+		print 'call runone'
+
+	if (typeofdir == unit_leaf):
+		print 'call rununit'
+	
+	
