@@ -62,7 +62,7 @@ using namespace std;
 #include "CommandObject.hxx"
 #include "Clip.hxx"
 #include "Experiment.hxx"
-#include "SS_Select_View.hxx"
+#include "SS_View.hxx"
 
 #include "ArgClass.hxx"
 #endif // SS_INPUT_MANAGER_H
