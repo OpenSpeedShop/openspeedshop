@@ -9,6 +9,7 @@ class ProcessEntry;
 #include "ProcessEntryClass.hxx"
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <unistd.h>
 
 #include <qvaluelist.h>
 
