@@ -240,13 +240,23 @@ printf("we've got a LoadAttachObject\n");
         statusLabelText->setText( tr("Process running...") );
 #ifdef DEMO
 {
-qApp->processEvents(500);
-sleep(5);
-statusLabelText->setText( tr("Performance data available.  Click update arrow for a report...") );
-qApp->processEvents(500);
-sleep(5);
+qApp->processEvents(100);
+sleep(1);
+qApp->processEvents(100);
+sleep(1);
+qApp->processEvents(100);
+sleep(1);
+qApp->processEvents(100);
+sleep(1);
 statusLabelText->setText( tr("Process completed...") );
-qApp->processEvents(500);
+qApp->processEvents(100);
+sleep(1);
+qApp->processEvents(100);
+sleep(1);
+qApp->processEvents(100);
+sleep(1);
+qApp->processEvents(100);
+sleep(1);
 #ifdef OLDWAY
 pco->attachProcessButton->setEnabled(TRUE);
 pco->attachCollectorButton->setEnabled(TRUE);
@@ -307,6 +317,14 @@ TopPanel *tp = (TopPanel *)topPC->dl_create_and_add_panel("Top Panel", topPC);
  {
    printf("we've got a LoadAttachObject message\n");
    lao->print();
+   if( !lao->executableName.isEmpty() )
+   {
+     statusLabelText->setText( tr(QString("Loaded:  "))+lao->executableName );
+   } else if( !lao->pidStr.isEmpty() )
+   {
+     statusLabelText->setText( tr(QString("Attached to:  "))+lao->pidStr);
+   }
+ 
    ret_val = 1;
  }
 
