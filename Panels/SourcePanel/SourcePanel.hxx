@@ -16,6 +16,7 @@
 
 class PanelContainer;   // Do not remove
 #include <qlayout.h>
+#include <qfile.h>
 
 #include <qvaluelist.h>
 #include "HighlightObject.hxx"
@@ -45,6 +46,9 @@ public:
 
   //! Save the source to a named file.
   void saveAs();
+
+//! Does the actual writing of the data.
+void doSaveAs(QFile *f);
 
   //! The listener routine for fielding messages.
   int listener(void *msg);

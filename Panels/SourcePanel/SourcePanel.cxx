@@ -208,64 +208,80 @@ SourcePanel::saveAs()
 /*! 
  * The listener function fields requests to load and position source files.
  */
+#include "SaveAsObject.hxx"
 int 
 SourcePanel::listener(void *msg)
 {
-  SourceObject *spo = (SourceObject *)msg;
+  SourceObject *spo = NULL;
+  SaveAsObject *sao = NULL;
   nprintf(DEBUG_PANELS) ("SourcePanel::listener() requested.\n");
+printf ("SourcePanel::listener() requested.\n");
 
-  if( !spo )
-  {
-    return 0;  // 0 means, did not act on message.
-  }
+  MessageObject *msgObject = (MessageObject *)msg;
+
 
   // Check the message type to make sure it's our type...
-  if( spo->msgType != "SourceObject" )
+  if( msgObject->msgType == "SourceObject" )
   {
-    nprintf(DEBUG_PANELS) ("SourcePanel::listener() Not a SourceObject.\n");
-    return 0; // o means, did not act on message.
-  }
-
-  if( spo->raiseFLAG == TRUE )
-  {
-    getPanelContainer()->raisePanel((Panel *)this);
-  }
-
-  loadFile(spo->fileName);
-
-  highlightList = spo->highlightList;
-  doFileHighlights();
-
-  // Try to highlight the line...
-/*
-  highlightLine(spo->line_number, "yellow", TRUE);
-*/
-  hscrollbar->setValue(0);
-
-  if( spo->raiseFLAG == TRUE )
-  {
-    int i=0;
-    Panel *p = NULL;
-    for( PanelList::Iterator it = getPanelContainer()->panelList.begin();
-             it != getPanelContainer()->panelList.end();
-             ++it )
+    spo = (SourceObject *)msg;
+    if( !spo )
     {
-      p = (Panel *)*it;
-  nprintf(DEBUG_PANELS) ("Is this it? (%s)\n", p->getName() );
-      if( p == this )
-      {
-  nprintf(DEBUG_PANELS) ("Set page %d current.\n", i );
-        getPanelContainer()->tabWidget->setCurrentPage(i);
-  //      getPanelContainer()->tabWidget->showPage(i);
-      }
-      i++;
+      return 0;  // 0 means, did not act on message.
     }
+    if( spo->raiseFLAG == TRUE )
+    {
+      getPanelContainer()->raisePanel((Panel *)this);
+    }
+
+    loadFile(spo->fileName);
+
+    highlightList = spo->highlightList;
+    doFileHighlights();
+
+    // Try to highlight the line...
+    hscrollbar->setValue(0);
+
+    if( spo->raiseFLAG == TRUE )
+    {
+      int i=0;
+      Panel *p = NULL;
+      for( PanelList::Iterator it = getPanelContainer()->panelList.begin();
+               it != getPanelContainer()->panelList.end();
+               ++it )
+      {
+        p = (Panel *)*it;
+        nprintf(DEBUG_PANELS) ("Is this it? (%s)\n", p->getName() );
+        if( p == this )
+        {
+          nprintf(DEBUG_PANELS) ("Set page %d current.\n", i );
+          getPanelContainer()->tabWidget->setCurrentPage(i);
+        }
+        i++;
+      }
+    }
+
+    nprintf(DEBUG_PANELS) ("Try to position at line %d\n", spo->line_number);
+
+    positionLineAtCenter(spo->line_number);
+  } else if( msgObject->msgType == "SaveAsObject" )
+  {
+    sao = (SaveAsObject *)msg;
+    if( !sao )
+    {
+      return 0;  // 0 means, did not act on message.
+    }
+    printf("SourcePanel::SaveAs\n");
+
+    if( sao->f != NULL )
+    {
+      doSaveAs(sao->f);
+    }
+  } else
+  {
+printf ("SourcePanel::listener() other... ignore.\n");
+    return 0; // 0 means, did not act on message.
   }
 
-  nprintf(DEBUG_PANELS) ("Try to position at line %d\n", spo->line_number);
-// textEdit->setUpdatesEnabled( TRUE );
-
-  positionLineAtCenter(spo->line_number);
   
   return 1;
 }
@@ -944,4 +960,20 @@ SourcePanel::calculateLastParameters()
   nprintf(DEBUG_CONST_DESTRUCT) ("calculate: maxValue=%d lineHeight=%d lineCount=%d\n", vscrollbar->maxValue(), lineHeight, lineCount );
   nprintf(DEBUG_CONST_DESTRUCT) ("calculate: heightForWidth=%d\n", heightForWidth);
   nprintf(DEBUG_CONST_DESTRUCT) ("calculate: lastLineHeight=%d lastVisibleLines=%d\n", lastLineHeight, lastVisibleLines );
-  }
+}
+
+void
+SourcePanel::doSaveAs(QFile *f)
+{
+// printf("doSaveAs() entered\n");
+  QTextStream stream( f );
+
+  stream << "<body>";
+  stream << "<pre>";
+
+  stream << fileName;
+  stream << "\n";
+  stream << textEdit->text();
+  stream << "</pre>";
+  stream << "</body>";
+}
