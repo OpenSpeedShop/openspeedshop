@@ -1499,11 +1499,9 @@ style='mso-element:field-separator'></span></span><![endif]--></p>
 <br>
 <ol id="mozToc">
 <!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId299831">Introduction
-to Open/SpeedShop
-    </a>
+to Open/SpeedShop </a>
     <ol>
-      <li><a href="#mozTocId953753">Brief Open/SpeedShop Overview
-        </a></li>
+      <li><a href="#mozTocId953753">Brief Open/SpeedShop Overview </a></li>
       <li><a href="#mozTocId221011">Common Terminology</a></li>
       <li><a href="#mozTocId512392">Extensibility</a></li>
     </ol>
@@ -1518,8 +1516,7 @@ Open/SpeedShop Verified Packages</a></li>
           <li><a href="#mozTocId745843">Key Environment Variables</a>
             <ol>
               <li><a href="#mozTocId24750">Open/SpeedShop Developer
-Related Environment Variables
-                </a></li>
+Related Environment Variables </a></li>
               <li><a href="#mozTocId483988">Open/SpeedShop User
 Related Environment Variables</a></li>
             </ol>
@@ -1570,11 +1567,9 @@ Command Tool </a></li>
     </ol>
   </li>
   <li><a href="#mozTocId779679">Scripting
-API
-    </a></li>
+API </a></li>
   <li><a href="#mozTocId167878">Plugin
-API (Extensibility)&nbsp; Description
-    </a></li>
+API (Extensibility)&nbsp; Description </a></li>
   <li><a href="#mozTocId10491">Appendix
 A: Command Syntax
 Description</a></li>
@@ -1782,7 +1777,10 @@ Open/SpeedShop Verified Packages</h3>
 The following items are the components that are necessary in order to
 successfully build and execute Open/SpeedShop.&nbsp; The numbers on the
 right hand side of each item correspond to the versions of the
-components/packages that have been tested.<br>
+components/packages that have been tested.&nbsp; There are certainly
+other combinations of the components below that will work with
+Open/SpeedShop, but they are not verified at this point.&nbsp; These
+components will be upgraded as the project proceeds forward.<br>
   <br>
 </blockquote>
 <div style="margin-left: 40px;">
@@ -1797,7 +1795,8 @@ components/packages that have been tested.<br>
   <li>libtool &gt;= 1.5.2</li>
   <li>python &gt;= 2.3.4</li>
   <li>doxygen &gt;= 1.3.6</li>
-  <li>libunwind &gt;= 0.96</li>
+  <li>libunwind &gt;= 0.96 and UW-UMD fixes<br>
+  </li>
   <li>dpcl &gt;= 3.3.4</li>
   <li>dyninst &gt;= 4.1.1</li>
 </ul>
@@ -1855,11 +1854,15 @@ is as follows:<br>
 <div style="margin-left: 40px;"># Go to the Open/SpeedShop top level
 source directory<br>
 cd &lt;openspeedshop source directory&gt;<br>
-# Remove files from the last build<br>
+# Optional remove files from the last build<br>
+bootstrap --clean<br>
+# Create intial build files<br>
 bootstrap<br>
 # Configure Open/SpeedShop with or without optional installation
 directory designation<br>
-configure [--prefix=$OPENSPEEDSHOP_INSTALL_DIR]<br>
+configure [--prefix=&lt;Open/SpeedShop Install Directory Path&gt;]<br>
+# optional uninstall step<br>
+make uninstall<br>
 # Make and install Open/SpeedShop<br>
 make install<br>
 <br>
@@ -2131,8 +2134,7 @@ environments.</div>
 <blockquote>The Open/SpeedShop GUI contains a main window from which
 users can choose a wizard to help choose the proper experiment based on
 input to the wizard selecting questions.&nbsp; The GUI also contains a
-source view panel, a statistics panel,<br>
-and xxx panel.<br>
+source view panel, a statistics panel, and command panel.<br>
 </blockquote>
 <blockquote>
   <blockquote>
@@ -2173,6 +2175,26 @@ any exported menus, brings up the GUI, and then drops into the main
 event
 loop waiting for user interaction.<br>
     </p>
+    <h3><a name="Basic_Menus_and_Menu_Item_Introduction"></a>Basic
+Menus and Menu Item Introduction</h3>
+This section breifly discusses the Open/SpeedShop GUI menus and their
+corresponding menu items.&nbsp;&nbsp; We will touch on the&nbsp; File
+menu, Tools menu, Experiments menu, and the Wizards menu, as shown at
+the top of the Open/SpeedShop window below.<br>
+    <br>
+    <img alt="Top Menu" src="snapshot_TopMenu.png"
+ style="width: 844px; height: 633px;"><br>
+    <br>
+    <br>
+The File menu contains the menu items shown below:<br>
+    <br>
+    <img alt="File Menu" src="snapshot_FileMenuItems.png"
+ style="width: 254px; height: 222px;"><br>
+    <br>
+Moving from bottom to top, selection of the Exit menu item will cause
+the Open/SpeedShop tool to completely stop execution and close all
+windows.<br>
+    <br>
   </blockquote>
 </blockquote>
 <blockquote>
@@ -2189,8 +2211,9 @@ or -gui options), the initial window will look like this:<br>
   </blockquote>
 </blockquote>
 <blockquote>
-  <p><img src="snapshot2.png" title=""
- alt="Initial Open/SpeedShop Start-Up Window" height="650" width="920"><br>
+  <p style="margin-left: 40px;"><img src="snapshot_pcsampWizard1.png"
+ alt="Initial Open/SpeedShop Start-Up Window"
+ style="width: 920px; height: 650px;"><br>
   </p>
 </blockquote>
 <br>
@@ -2205,8 +2228,10 @@ clicks on the Next button this is the window that appears.</p>
   </blockquote>
   <br>
   <br>
-  <img src="snapshot13.png" title=""
- alt="PC Sampling Wizard Intro Window" height="690" width="920"> <br>
+  <div style="margin-left: 40px;"><img src="snapshot_pcsampWizard2.png"
+ alt="PC Sampling Wizard Intro Window"
+ style="width: 920px; height: 690px;"><br>
+  </div>
   <br>
   <blockquote>The above panel/window is the introduction panel to the
 PC (Program
@@ -2224,11 +2249,11 @@ Next button.<br>
   </blockquote>
   <br>
 </blockquote>
-<blockquote>
-  <p><img src="snapshot14.png" title=""
- alt="PC Sampling Wizard window 2" height="690" width="920"><br>
-  </p>
-</blockquote>
+<blockquote> </blockquote>
+<p style="margin-left: 80px;"><img src="snapshot_pcsampWizard3.png"
+ alt="PC Sampling Wizard window 2" style="width: 920px; height: 690px;"><br>
+</p>
+<blockquote></blockquote>
 <p class="MsoBodyText" style="margin-left: 0.5in;">
 </p>
 <blockquote>
@@ -2255,9 +2280,10 @@ user clicked on the Next button.<br>
   </blockquote>
 </blockquote>
 <blockquote><br>
-  <img src="snapshot15.png" title=""
+  <div style="margin-left: 40px;"><img src="snapshot_pcsampWizard4.png"
  alt="PC Sampling wizard executable/application selection window"
- height="690" width="920"><br>
+ style="width: 920px; height: 690px;"><br>
+  </div>
   <br>
   <blockquote>The panel/window above allows the user to select the
 executables or
@@ -2269,10 +2295,18 @@ will gather data for.<br>
   </blockquote>
   <br>
   <br>
-  <img src="snapshot16.png" title="" alt="pc sampling wizard window"
- height="690" width="920"><br>
+  <div style="margin-left: 40px;"><img src="snapshot_pcsampWizard5.png"
+ alt="pc sampling wizard window" style="width: 920px; height: 690px;"><br>
+  </div>
 </blockquote>
-<blockquote><br>
+<blockquote>
+  <div style="margin-left: 40px;">The panel above shows the executable
+selection window which allows the user to select the executable they
+would like to load and subsequently have performance analysis done on.<br>
+  <br>
+  <img alt="PC Sampling Wizard summary window"
+ src="snapshot_pcsampWizard6.png" style="width: 1024px; height: 768px;"><br>
+  </div>
   <blockquote>The panel/window above summarizes the results of the
 user's choices and
 tells the user to complete the process of creating the PC sampling
@@ -2282,13 +2316,15 @@ will appear.<br>
   </blockquote>
   <br>
   <br>
-  <img src="snapshot17.png" title="" alt="PC Sampling Experiment Window"
- height="690" width="920"><br>
+  <div style="margin-left: 40px;"><img src="snapshot_pcsampWizard7.png"
+ alt="PC Sampling Experiment Window"
+ style="width: 920px; height: 690px;"><br>
+  </div>
 </blockquote>
 <blockquote><br>
   <blockquote>The panel/window above is the PC Sampling experiment
 window.&nbsp;&nbsp; The experiment is ready to run.&nbsp; Note that in
-the Status output output area the executable fred_calls_ted is
+the Status output output area the executable mutatee is
 loaded.&nbsp;&nbsp; <br>
     <br>
 The process control area provides icons that may be clicked on to
@@ -2311,14 +2347,55 @@ right arrow icon, which corresponds to the Run button.&nbsp;&nbsp;
 Doing this will engage Open/SpeedShop to start the application and to
 gather the PC Sampling performance data at the sampling rate chosen in
 the previous step(s).<br>
+    <br>
+    <img alt="PC Sampling Results Panel"
+ src="snapshot_pcsampWizard8.png" style="width: 860px; height: 644px;"><br>
   </blockquote>
 </blockquote>
 <br>
+<br>
+<br>
+<div style="margin-left: 40px;"><img
+ alt="Split results and source panels horizontally"
+ src="snapshot_pcsampWizard9.png" style="width: 920px; height: 690px;"><br>
+</div>
 <blockquote>
   <blockquote>
-    <h3><a name="mozTocId578318" class="mozTocH3"></a>Typical
-Open/SpeedShop GUI non-Wizard Usage</h3>
-  </blockquote>
+    <h3><br>
+    </h3>
+Holding the right mouse button down in either the Source Panel tab or
+the Stats Panel tab will show a menu of user choices for various
+actions to be taken on the panel structure, panel contents, or
+performance date.&nbsp; To split the panel container so that the source
+and performance data results (PC Stats Panel) will be side by
+side.&nbsp;&nbsp; Follow the Panel Container menu and select split
+horizontal.&nbsp; The result of that action is shown in the next figure.<br>
+    <br>
+    <h3><img alt="After splitting panels"
+ src="snapshot_pcsampWizard10.png" style="width: 920px; height: 690px;"><br>
+    </h3>
+    <h3><br>
+    </h3>
+After splitting the panels appear side by side.&nbsp;&nbsp; Clicking on
+the "f3" function results line will focus the source panel to the
+corresponding function "f3" source file and line number, if the
+application was compiled to include source debugging information such
+as dwarf.&nbsp;&nbsp; Some compilers do not include source debugging
+information when invoked at high optimization levels.&nbsp;&nbsp; In
+that case you may only have the function name but no source line
+information, so the click mentioned above will not be able to focus to
+the source for the function selected.<br>
+    <br>
+    <h3><img alt="Source correspondance"
+ src="snapshot_pcsampWizard11.png" style="width: 860px; height: 644px;"><br>
+    </h3>
+    <br>
+Clicking on the arrows to the right of the Time or Function header
+under the PC Stats Panel tab will sort the time or function list in
+ascending or descending order.<br>
+    <br>
+    <><a name="mozTocId578318" class="mozTocH3"></a><>Typical
+Open/SpeedShop GUI non-Wizard Usage</></> </blockquote>
 </blockquote>
 <br>
 <blockquote>
