@@ -248,17 +248,29 @@ SourcePanel::broadcast(char *msg, BROADCAST_TYPE bt)
 void
 SourcePanel::info()
 {
-  printf("SourcePanel::info() called.\n");
+  nprintf(DEBUG_PANELS) ("SourcePanel::info() called.\n");
 
-  // This is a redundant check when called from the menus.  But when called
-  // from other places it simplfies the coding.
-  int line = whatIsAtPos(textEdit->lastPos);
+  int heightForWidth = textEdit->heightForWidth(80);
+  float lineHeight = (heightForWidth-hscrollbar->height())/(float)lineCount;
+  int scrollFactor = 0;
+  if( lastTop > 0 )
+  {
+    scrollFactor = (int)( lineHeight*(lastTop-1) );
+  }
+  QPoint pos = textEdit->mapFromGlobal( QCursor::pos() );
+  if( scrollFactor > 0 )
+  {
+    pos.setY( pos.y() + scrollFactor );
+  }
+
+  int line = whatIsAtPos( pos );
+  nprintf(DEBUG_PANELS) ("SourcePanel::info() line=%d\n", line);
   if( line <= 0 )
   {
     return;
   }
 
-  char *desc = getDescription(textEdit->paragraphAt(textEdit->lastPos));
+  char *desc = getDescription( line );
 
   QString msg;
   msg = QString(tr("Details?\nDescription for line %1: %2")).arg(line).arg(desc);
@@ -464,37 +476,17 @@ SourcePanel::details()
 {
   nprintf(DEBUG_PANELS) ("SourcePanel::details() entered\n");
 
-  printf ("SourcePanel::details() entered\n");
-
-
-#ifdef ONEWAY
-  int para = 0;
+  int line = 0;
   int index = 0;
-  textEdit->getCursorPosition(&para, &index);
-  para++;
+  textEdit->getCursorPosition(&line, &index);
+  line++;
 
-  char *desc = getDescription(para);
-
-  QString msg;
-  msg = QString("Details?\nDescription for line %1: %2").arg(para).arg(desc);
-  QMessageBox::information( (QWidget *)this, tr("Details..."),
-    msg, QMessageBox::Ok );
-#else // ONEWAY
-  // This is a redundant check when called from the menus.  But when called
-  // from other places it simplfies the coding.
-  int line = whatIsAtPos(textEdit->lastPos);
-  if( line <= 0 )
-  {
-    return;
-  }
-
-  char *desc = getDescription(textEdit->paragraphAt(textEdit->lastPos));
+  char *desc = getDescription(line);
 
   QString msg;
   msg = QString("Details?\nDescription for line %1: %2").arg(line).arg(desc);
   QMessageBox::information( (QWidget *)this, tr("Details..."),
     msg, QMessageBox::Ok );
-#endif  // ONEWAY
 
 }
 

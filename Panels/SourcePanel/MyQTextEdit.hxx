@@ -3,8 +3,6 @@
 
 class SourcePanel;
 
-#define FINGERLINGER  1
-
 #include <qwidget.h>
 #include <qtextedit.h>
 
@@ -26,12 +24,8 @@ public:
 
     QPopupMenu* createPopupMenu( const QPoint & pos );
     QPopupMenu* createPopupMenu( ) { /* obsoleted function. */ return NULL; };
-
-    QPoint lastPos;
 protected: 
-#ifdef FINGERLINGER
     void contentsMouseMoveEvent( QMouseEvent *e );
-#endif // FINGERLINGER
 
 public slots:
 

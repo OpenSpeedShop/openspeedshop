@@ -5,6 +5,8 @@
 
 #include "debug.hxx"
 
+#include <qcursor.h> // For debugging only.  Remove.
+
 #include <stdlib.h>  // for the free() call below.
 
 /*! default constructor.   Here for completeness only. */
@@ -34,6 +36,9 @@ MyQTextEdit::createPopupMenu( const QPoint & pos )
 {
   printf("MyQTextEdit::createPopupMenu() Hello from down under the hood.\n");
 
+printf("pos->x()=%d pos->y=%d\n", pos.x(), pos.y() );
+printf("QCursor x=%d y=%d\n", QCursor::pos().x(), QCursor::pos().y() );
+
   // First create the default Qt widget menu...
   QPopupMenu *popupMenu = QTextEdit::createPopupMenu(pos);
 
@@ -48,4 +53,12 @@ MyQTextEdit::createPopupMenu( const QPoint & pos )
   popupMenu->insertSeparator();
   topFivePanel->createTextEditPopupMenu(popupMenu, pos);
   return popupMenu;
+}
+
+void
+MyQTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
+{
+  printf("MyQTextEdit::contentsMouseMoveEvent() entered\n");
+
+  topFivePanel->armPanelsWhatsThis();
 }

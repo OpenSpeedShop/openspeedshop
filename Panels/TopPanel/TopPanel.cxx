@@ -487,6 +487,20 @@ TopPanel::details()
     msg, QMessageBox::Ok );
 }
 
+void
+TopPanel::info()
+{
+  printf("TopPanel::info() called.\n");
+
+  int line = textEdit->paragraphAt( textEdit->mapFromGlobal( QCursor::pos() )  );
+printf("info() line=%d\n", line );
+
+  QString msg;
+  msg = QString("Details?\nDescription for line %1: %2").arg(line).arg("Tell them some more!");
+
+  displayWhatsThis(msg);
+}
+
 /*! If font has a larger  pointSize, bump up one size. */
 void
 TopPanel::zoomIn()

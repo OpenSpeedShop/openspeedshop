@@ -91,5 +91,6 @@ protected:
   ExprInfo *topFiveObject;
 
 private:
+  void info();
 };
 #endif // TOPPANEL_H

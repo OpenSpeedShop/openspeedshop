@@ -55,14 +55,10 @@ MyQTextEdit::createPopupMenu( const QPoint & pos )
   return popupMenu;
 }
 
-#ifdef FINGERLINGER
 void
 MyQTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
 {
   printf("MyQTextEdit::contentsMouseMoveEvent() entered\n");
 
-  lastPos = e->pos();
-
   sourcePanel->armPanelsWhatsThis();
 }
-#endif // FINGERLINGER

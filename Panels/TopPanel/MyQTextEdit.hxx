@@ -22,6 +22,9 @@ public:
   QPopupMenu* createPopupMenu( const QPoint & pos );
   QPopupMenu* createPopupMenu( ) { /* obsoleted function. */ return NULL; };
 
+protected: 
+    void contentsMouseMoveEvent( QMouseEvent *e );
+
 public slots:
 
 private:
