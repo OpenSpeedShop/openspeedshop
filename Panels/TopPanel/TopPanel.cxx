@@ -207,20 +207,44 @@ TopPanel::saveAs()
 {
   nprintf(DEBUG_PANELS) ("TopPanel::saveAs() requested.\n");
 
-  char *cwd = get_current_dir_name();
-  QString fn = QFileDialog::getSaveFileName( cwd, tr( "HTML-Files(*.htm *.html)" ), this, tr( "open executable dialog") , tr( "Choose an executable to open" ) );
-  free(cwd);
-  if( fn.isEmpty() )
+  QFileDialog *sfd = NULL;
+  QString dirName = QString::null;
+  if( sfd == NULL )
   {
-    fprintf(stderr, "No html filename provided.\n");
-  } else
+    sfd = new QFileDialog(this, "file dialog", TRUE );
+    sfd->setCaption( QFileDialog::tr("Enter filename:") );
+    sfd->setMode( QFileDialog::AnyFile );
+    sfd->setSelection(QString("topPanel.html"));
+    QString types(
+                  "Html files (*.html *.htm);;"
+                  );
+    sfd->setFilters( types );
+    sfd->setDir(dirName);
+  }
+
+  QString fileName = QString::null;
+  if( sfd->exec() == QDialog::Accepted )
   {
-    QFile file( fn.ascii() );
-    nprintf(DEBUG_PANELS) ("fn = %s\n", fn.ascii() );
-    if( file.open( IO_WriteOnly ) ) 
+    fileName = sfd->selectedFile();
+
+    if( !fileName.isEmpty() )
     {
-      doSaveAs(&file);
-      file.close();
+      QFile file(fileName);
+
+      if( file.open( IO_WriteOnly ) )
+      {
+        QTextStream stream(&file);
+        stream << "<html>";
+        stream << "<head>";
+        stream << "<meta content=\"text/html; charset=ISO-8859-1\" \
+                         http-equiv=\"content-type\"> ";
+        stream << "<title>TopPanel</title>";
+        stream << "</head>";
+  
+        doSaveAs(&file);
+  
+        file.close();
+      }
     }
   }
 
@@ -260,7 +284,6 @@ if( msg == NULL )
     {
       return 0;  // 0 means, did not act on message.
     }
-    printf("TopPanel::SaveAs\n");
     doSaveAs(sao->f);
   }
 
@@ -756,7 +779,7 @@ TopPanel::doSaveAs(QFile *f)
 
     QTextStream stream( f );
     stream << "<body>";
-    stream << "<h2>pcSample Report Header Line</h2><br><br>\n";
+    stream << "<h2>Report Header Line</h2><br><br>\n";
 
     stream << "<img style=\"width: 130px; height: 165px;\" alt=\"pie chart diagram.\" src=\"";
     stream << filename;
@@ -774,7 +797,7 @@ TopPanel::doSaveAs(QFile *f)
     stream << "<br>\n";
     stream << "<br>\n";
     stream << "</pre>\n";
-    stream << "End of pcSample report\n";
+    stream << "End of report\n";
     stream << "</body>";
     stream << "</html>";
 }
