@@ -23,14 +23,21 @@ class CollectorEntry
 {
   public:
     CollectorEntry();
-    CollectorEntry(const char *n)
+    CollectorEntry(QString n, QString sn, QString d, QString p, QString pv)
     {
-      name = strdup(n);
+      name = n;
+      short_name = sn;
+      description = d;
+      param = p;
+      param_val = pv;
     }
     ~CollectorEntry()
     {
-      if( name ) free(name);
     }
-    char *name;
+    QString name;
+    QString short_name;
+    QString description;
+    QString param;  // (Really needs to and will be a list...)
+    QString param_val;  // (Really needs to and will be a list...)
 };
 #endif // COLLECTORENTRYCLASS_H

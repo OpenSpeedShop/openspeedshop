@@ -58,7 +58,6 @@ void
 CollectorListObject::createCollectorList(int expID)
 {
 // do the lookup based on expID here...
-printf("do the lookup based on expID here...\n");
   unsigned int sampling_rate = 3;
   // Set the sample_rate of the collector.
   try
@@ -94,17 +93,21 @@ printf("do the lookup based on expID here...\n");
       for (mi = md.begin(); mi != md.end(); mi++)
       {
         m = *mi;
-        printf("%s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
-        printf("%s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
-        printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
+//        printf("%s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
+//        printf("%s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
+//        printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
       }
 
       pcSampleCollector.getParameterValue("sampling_rate", sampling_rate);
 
-const char *name = cm.getShortName().c_str();
-CollectorEntry *ce = new CollectorEntry(name);
+QString name = QString(cm.getUniqueId().c_str());
+QString short_name = QString(cm.getShortName().c_str());
+QString description = QString(cm.getDescription().c_str());
+QString param = QString("sampling_rate");
+QString param_val = QString("%1").arg(sampling_rate);
+CollectorEntry *ce = new CollectorEntry(name, short_name, description, param, param_val);
 collectorEntryList.push_back(ce);
-      printf("sampling_rate=%u\n", sampling_rate);
+//      printf("sampling_rate=%u\n", sampling_rate);
     }
   }
   catch(const std::exception& error)
