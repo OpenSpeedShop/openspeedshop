@@ -196,12 +196,82 @@ ManageCollectorsDialog::updateAttachedCollectorsList()
   {
     ce = (CollectorEntry *)*it;
     QListViewItem *item = new QListViewItem( attachCollectorsListView, ce->name, ce->short_name );
+#ifdef OLDWAY
     for( CollectorParameterEntryList::Iterator pit = ce->paramList.begin();
          pit != ce->paramList.end();  pit++)
     {
       CollectorParameterEntry *cpe = (CollectorParameterEntry *)*pit;
       QListViewItem *item2 = new QListViewItem( item, cpe->name, cpe->param_value );
     }
+#else // OLDWAY
+    try {
+      ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+
+      if( eo->FW() != NULL )
+      {
+// The following bit of code was snag and modified from SS_View_exp.cxx
+        ThreadGroup tgrp = eo->FW()->getThreads();
+        ThreadGroup::iterator ti;
+        bool atleastone = false;
+        for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
+        {
+          Thread t = *ti;
+          std::string host = t.getHost();
+          pid_t pid = t.getProcessId();
+          if (!atleastone) {
+            atleastone = true;
+          }
+          QString pidstr = QString("%1").arg(pid);
+          std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
+          QString tidstr = QString::null;
+          if (pthread.first)
+          {
+            tidstr = QString("%1").arg(pthread.second);
+          }
+// #ifdef HAVE_MPI
+          std::pair<bool, int> rank = t.getMPIRank();
+          QString ridstr = QString::null;
+          if (rank.first)
+          {
+            ridstr = QString("%1").arg(rank.second);
+          }
+// #endif
+          CollectorGroup cgrp = t.getCollectors();
+          CollectorGroup::iterator ci;
+          int collector_count = 0;
+          for (ci = cgrp.begin(); ci != cgrp.end(); ci++)
+          {
+            Collector c = *ci;
+            Metadata m = c.getMetadata();
+            if (collector_count)
+            {
+            } else
+            {
+              collector_count = 1;
+            }
+            if( m.getUniqueId() == ce->name.ascii() )
+            {
+              if( !tidstr.isEmpty() )
+              {
+                QListViewItem *item2 = new QListViewItem( item, host, pidstr, tidstr );
+              } else if( !ridstr.isEmpty() )
+              {
+                QListViewItem *item2 = new QListViewItem( item, host, pidstr, ridstr );
+              } else
+              {
+                QListViewItem *item2 = new QListViewItem( item, host, pidstr );
+              }
+            }
+          }
+        }
+      }
+    }
+    catch(const std::exception& error)
+    {
+printf("Tossed an exception looking up pids.\n");
+      return;
+    }
+#endif // OLDWAY
   }
 }
 
@@ -231,8 +301,6 @@ paramMenu = NULL;
   {
     if( attachCollectorsListView->selectedItem()->parent() == NULL ) // it's a root node.
     {
-      popupMenu->insertItem("Detach...", this, SLOT(detachSelected()) );
-      popupMenu->insertItem("Disable...", this, SLOT(disableSelected()) );
       CollectorEntry *ce = NULL;
       CollectorEntryList::Iterator it;
       for( it = clo->collectorEntryList.begin();
@@ -266,10 +334,14 @@ paramMenu = NULL;
           break;
         }
       }
+      popupMenu->insertSeparator();
+      popupMenu->insertItem("Detach...", this, SLOT(detachSelected()) );
+      popupMenu->insertItem("Disable...", this, SLOT(disableSelected()) );
     } else
     {
     }
   }
+  popupMenu->insertSeparator();
   popupMenu->insertItem("Attach Process...", this, SLOT(attachProcessSelected()) );
   popupMenu->insertItem("Attach Program...", this, SLOT(attachProgramSelected()) );
 
