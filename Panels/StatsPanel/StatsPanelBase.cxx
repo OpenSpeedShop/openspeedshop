@@ -82,107 +82,6 @@ StatsPanelBase::~StatsPanelBase()
 }
 
 void
-StatsPanelBase::itemSelected(QListViewItem *item)
-{
-  dprintf("StatsPanelBase::clicked() entered\n");
-
-  if( item )
-  {
-    dprintf("  item->depth()=%d\n", item->depth() );
-  
-    SPListViewItem *nitem = (SPListViewItem *)item;
-    while( nitem->parent() )
-    {
-      dprintf("looking for 0x%x\n", nitem->parent() );
-      nitem = (SPListViewItem *)nitem->parent();
-    }
-  
-
-    if( nitem )
-    {
-      dprintf("here's the parent! 0x%x\n", nitem);
-      dprintf("  here's the rank of that parent: rank = %s\n",
-        nitem->text(1).ascii() );
-      matchSelectedItem( atoi( nitem->text(1).ascii() ) );
-    }
-  }
-}
-
-
-void
-StatsPanelBase::matchSelectedItem(int element)
-{
-  dprintf ("StatsPanelBase::matchSelectedItem() = %d\n", element );
-#ifdef OLDWAY
-
-  int i = 0;
-  HighlightList *highlightList = new HighlightList();
-  highlightList->clear();
-  HighlightObject *hlo = NULL;
-
-  MetricInfo *fi = NULL;
-  MetricInfoList::Iterator it = NULL;
-
-  i = 0;
-  for( it = collectorData->metricInfoList.begin();
-       it != collectorData->metricInfoList.end();
-       it++ )
-  {
-    fi = (MetricInfo *)*it;
-    for( int line=fi->start; line <= fi->end; line++)
-    {
-      if( i >= 5 )
-      {
-        hlo = new HighlightObject(fi->fileName, line, color_name_table[4], "exclusive time");
-      } else
-      {
-        hlo = new HighlightObject(fi->fileName, line, color_name_table[i], "exclusive time");
-      }
-// fprintf(stderr, "  pushback hlo: line=%d in color (%s)\n", line, hlo->color);
-      highlightList->push_back(hlo);
-    }
-    i++;
-  }
-
-
-  i = 0;
-  for( it = collectorData->metricInfoList.begin();
-       it != collectorData->metricInfoList.end();
-       it++ )
-  {
-     fi = (MetricInfo *)*it;
-     if( i == element )
-     {
-       break;
-     }
-     i++;
-  }
-
-  dprintf ("%d (%s) (%s) (%d)\n", element, fi->functionName, fi->fileName, fi->function_line_number );
-  
-  char msg[1024];
-  sprintf(msg, "%d (%s) (%s) (%d)\n", element, fi->functionName, fi->fileName, fi->function_line_number );
-  
-
-  SourceObject *spo = new SourceObject(fi->functionName, fi->fileName, fi->function_line_number, TRUE, highlightList);
-
-
-
-  if( broadcast((char *)spo, NEAREST_T) == 0 )
-  { // No source view up...
-    char *panel_type = "Source Panel";
-//Find the nearest toplevel and start placement from there...
-    Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, NULL, (void *)groupID);
-    if( p != NULL ) 
-    {
-      p->listener((void *)spo);
-    }
-  }
-#endif // OLDWAY
-}
-
-
-void
 StatsPanelBase::updateStatsPanelBaseData(void *expr, int expID, QString experiment_name)
 {
    // Read the new data, destroy the old data, and update the StatsPanelBase with
@@ -282,12 +181,6 @@ Queries::GetMetricByFunctionInThread(c1, "time", t1, data);
   {
     sprintf(timestr, "%f", item->second);
     lvi =  new SPListViewItem( this, lv, timestr,  item->first.getName() );
-#ifdef OLDWAY
-        std::cout << std::setw(10) << std::fixed << std::setprecision(3)
-              << item->second
-              << "    "
-              << item->first.getName() << std::endl;
-#endif // OLDWAY
   }
 }
 
@@ -310,7 +203,7 @@ StatsPanelBase::languageChange()
 bool
 StatsPanelBase::menu(QPopupMenu* contextMenu)
 {
-  dprintf("StatsPanelBase::menu() requested.\n");
+printf("StatsPanelBase::menu() requested.\n");
   contextMenu->insertSeparator();
 
 //  contextMenu->insertItem("Number visible entries...", this, SLOT(setNumberVisibleEntries()), CTRL+Key_1, 0, -1);
@@ -432,26 +325,7 @@ StatsPanelBase::preferencesChanged()
 int 
 StatsPanelBase::listener(void *msg)
 {
-  printf("StatsPanelBase::listener() requested.\n");
-  PreferencesChangedObject *pco = NULL;
-
-// BUG - BIG TIME KLUDGE.   This should have a message type.
-  MessageObject *msgObject = (MessageObject *)msg;
-  if(  msgObject->msgType  == "UpdateExperimentDataObject" )
-  {
-    UpdateObject *msg = (UpdateObject *)msgObject;
-msg->print();
-    updateStatsPanelBaseData(msg->fw_expr, msg->expID, msg->experiment_name);
-if( msg->raiseFLAG )
-{
-  getPanelContainer()->raisePanel((Panel *)this);
-}
-  } else if( msgObject->msgType == "PreferencesChangedObject" )
-  {
-//    printf("StatsPanelBase:  The preferences changed.\n");
-    pco = (PreferencesChangedObject *)msgObject;
-    preferencesChanged();
-  }
+  dprintf("StatsPanelBase::listener() requested.\n");
 
   return 0;  // 0 means, did not want this message and did not act on anything.
 }
@@ -461,43 +335,19 @@ bool
 StatsPanelBase::createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos )
 {
   dprintf ("StatsPanelBase: Popup the context sensitive menu here.... can you augment it with the default popupmenu?\n");
-  
-  dprintf("selected item = %d\n", lv->selectedItem() );
-
-  QPopupMenu *panelMenu = new QPopupMenu(this);
-  panelMenu->setCaption("Panel Menu");
-  contextMenu->insertItem("&Panel Menu", panelMenu, CTRL+Key_C);
-  panelMenu->insertSeparator();
-  menu(panelMenu);
-
-  if( lv->selectedItem() )
-  {
-  //  contextMenu->insertItem("Tell Me MORE about %d!!!", this, SLOT(details()), CTRL+Key_1 );
-    contextMenu->insertItem("Go to source location...", this, SLOT(gotoSource()), CTRL+Key_1 );
-    return( TRUE );
-  }
-  
-
   return( FALSE );
-}
-
-
-void
-StatsPanelBase::gotoSource()
-{
-  dprintf("gotoSource() menu selected.\n");
 }
 
 void
 StatsPanelBase::compareSelected()
 {
-  dprintf("compareSelected()\n");
+  printf("compareSelected()\n");
 }
 
 void
 StatsPanelBase::setNumberVisibleEntries()
 {
-  dprintf("setNumberVisibleEntries()\n");
+  printf("setNumberVisibleEntries()\n");
 {
   bool ok;
   QString s = QString("%1").arg(numberItemsToRead);
@@ -555,14 +405,3 @@ StatsPanelBase::truncateCharString(char *str, int length)
 
   return newstr;
 }
-
-#ifdef OLDWAY
-// This routine needs to be rewritten when we really get the framework 
-// round trip written.
-void
-StatsPanelBase::getUpdatedData()
-{
-  // Get the information about the collector.  
-  collectorData = new CollectorInfo();
-}
-#endif // OLDWAY

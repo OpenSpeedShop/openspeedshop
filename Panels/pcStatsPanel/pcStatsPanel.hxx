@@ -53,10 +53,18 @@ class pcStatsPanel  : public StatsPanelBase
     //! Calls the user panel function listener() request.
     int listener(void *msg);
 
+    //! Routine to popup dynamic menu.
+    bool createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos );
+
   protected:
     //! Sets the language specific strings.
     virtual void languageChange();
 
+  public slots:
+    void itemSelected( QListViewItem * );
+    void gotoSource();
+
   private:
+    void matchSelectedItem( int );
 };
 #endif // PCSTATSPANEL_H

@@ -53,9 +53,16 @@ class StatsPanel  : public StatsPanelBase
     //! Calls the user panel function listener() request.
     int listener(void *msg);
 
+    //! Create the context senstive menu for the report.
+    bool createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos );
+
   protected:
     //! Sets the language specific strings.
     virtual void languageChange();
+
+  public slots:
+    void itemSelected( QListViewItem * );
+    void gotoSource();
 
   private:
 };

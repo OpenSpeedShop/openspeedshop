@@ -84,14 +84,8 @@ class StatsPanelBase  : public Panel
 private:
     int numberItemsToRead;
     ColumnList columnList;
-#ifdef OLDWAY
-    CollectorInfo *collectorData;
-    void getUpdatedData();
-#endif // OLDWAY
-    void matchSelectedItem( int );
 
   public slots:
-    void gotoSource();
     void setNumberVisibleEntries();
     void compareSelected();
     void doOption(int id);

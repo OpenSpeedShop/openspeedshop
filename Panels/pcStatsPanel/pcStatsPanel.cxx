@@ -79,5 +79,161 @@ int
 pcStatsPanel::listener(void *msg)
 {
   printf("pcStatsPanel::listener() requested.\n");
-  StatsPanelBase::listener(msg);
+//  StatsPanelBase::listener(msg);
+
+
+  PreferencesChangedObject *pco = NULL;
+
+// BUG - BIG TIME KLUDGE.   This should have a message type.
+  MessageObject *msgObject = (MessageObject *)msg;
+  if(  msgObject->msgType  == "UpdateExperimentDataObject" )
+  {
+    UpdateObject *msg = (UpdateObject *)msgObject;
+msg->print();
+    updateStatsPanelBaseData(msg->fw_expr, msg->expID, msg->experiment_name);
+if( msg->raiseFLAG )
+{
+  getPanelContainer()->raisePanel((Panel *)this);
+}
+  } else if( msgObject->msgType == "PreferencesChangedObject" )
+  {
+//    printf("StatsPanelBase:  The preferences changed.\n");
+    pco = (PreferencesChangedObject *)msgObject;
+    preferencesChanged();
+  }
+
+  return 0;  // 0 means, did not want this message and did not act on anything.
+}
+
+
+/*! Create the context senstive menu for the report. */
+bool
+pcStatsPanel::createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos )
+{
+  printf ("pcStatsPanel: Popup the context sensitive menu here.... can you augment it with the default popupmenu?\n");
+  
+  QPopupMenu *panelMenu = new QPopupMenu(this);
+  panelMenu->setCaption("Panel Menu");
+  contextMenu->insertItem("&Panel Menu", panelMenu, CTRL+Key_C);
+  panelMenu->insertSeparator();
+  menu(panelMenu);
+
+  if( lv->selectedItem() )
+  {
+  //  contextMenu->insertItem("Tell Me MORE about %d!!!", this, SLOT(details()), CTRL+Key_1 );
+    contextMenu->insertItem("Go to source location...", this, SLOT(gotoSource()), CTRL+Key_1 );
+    return( TRUE );
+  }
+  
+
+  return( FALSE );
+}
+
+
+void
+pcStatsPanel::gotoSource()
+{
+  printf("gotoSource() menu selected.\n");
+}
+
+void
+pcStatsPanel::itemSelected(QListViewItem *item)
+{
+  printf("pcStatsPanel::itemSelected(clicked) entered\n");
+
+  if( item )
+  {
+    printf("  item->depth()=%d\n", item->depth() );
+
+    SPListViewItem *nitem = (SPListViewItem *)item;
+    while( nitem->parent() )
+    {
+      printf("looking for 0x%x\n", nitem->parent() );
+      nitem = (SPListViewItem *)nitem->parent();
+    } 
+  
+    
+    if( nitem )
+    {
+      printf("here's the parent! 0x%x\n", nitem);
+      printf("  here's the rank of that parent: rank = %s\n",
+        nitem->text(1).ascii() );
+      matchSelectedItem( atoi( nitem->text(1).ascii() ) );
+    }
+  }
+}
+
+
+void
+pcStatsPanel::matchSelectedItem(int element)
+{
+  printf ("pcStatsPanel::matchSelectedItem() = %d\n", element );
+
+
+#ifdef OLDWAY
+
+  int i = 0;
+  HighlightList *highlightList = new HighlightList();
+  highlightList->clear();
+  HighlightObject *hlo = NULL;
+
+  MetricInfo *fi = NULL;
+  MetricInfoList::Iterator it = NULL;
+
+  i = 0;
+  for( it = collectorData->metricInfoList.begin();
+       it != collectorData->metricInfoList.end();
+       it++ )
+  {
+    fi = (MetricInfo *)*it;
+    for( int line=fi->start; line <= fi->end; line++)
+    {
+      if( i >= 5 )
+      {
+        hlo = new HighlightObject(fi->fileName, line, color_name_table[4], "exclusive time");
+      } else
+      {
+        hlo = new HighlightObject(fi->fileName, line, color_name_table[i], "exclusive time");
+      }
+// fprintf(stderr, "  pushback hlo: line=%d in color (%s)\n", line, hlo->color);
+      highlightList->push_back(hlo);
+    }
+    i++;
+  }
+
+
+  i = 0;
+  for( it = collectorData->metricInfoList.begin();
+       it != collectorData->metricInfoList.end();
+       it++ )
+  {
+     fi = (MetricInfo *)*it;
+     if( i == element )
+     {
+       break;
+     }
+     i++;
+  }
+
+  dprintf ("%d (%s) (%s) (%d)\n", element, fi->functionName, fi->fileName, fi->function_line_number );
+  
+  char msg[1024];
+  sprintf(msg, "%d (%s) (%s) (%d)\n", element, fi->functionName, fi->fileName, fi->function_line_number );
+  
+
+  SourceObject *spo = new SourceObject(fi->functionName, fi->fileName, fi->function_line_number, TRUE, highlightList);
+
+
+
+  if( broadcast((char *)spo, NEAREST_T) == 0 )
+  { // No source view up...
+    char *panel_type = "Source Panel";
+//Find the nearest toplevel and start placement from there...
+    Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, NULL, (void *)groupID);
+    if( p != NULL ) 
+    {
+      p->listener((void *)spo);
+    }
+  }
+#endif // OLDWAY
 }

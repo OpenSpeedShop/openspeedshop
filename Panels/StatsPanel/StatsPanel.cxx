@@ -79,5 +79,64 @@ int
 StatsPanel::listener(void *msg)
 {
   printf("StatsPanel::listener() requested.\n");
-  StatsPanelBase::listener(msg);
+//  StatsPanelBase::listener(msg);
+
+  PreferencesChangedObject *pco = NULL;
+
+// BUG - BIG TIME KLUDGE.   This should have a message type.
+  MessageObject *msgObject = (MessageObject *)msg;
+  if(  msgObject->msgType  == "UpdateExperimentDataObject" )
+  {
+    UpdateObject *msg = (UpdateObject *)msgObject;
+msg->print();
+    updateStatsPanelBaseData(msg->fw_expr, msg->expID, msg->experiment_name);
+    if( msg->raiseFLAG )
+    {
+      getPanelContainer()->raisePanel((Panel *)this);
+    }
+  } else if( msgObject->msgType == "PreferencesChangedObject" )
+  {
+//    printf("StatsPanelBase:  The preferences changed.\n");
+    pco = (PreferencesChangedObject *)msgObject;
+    preferencesChanged();
+  }
+
+  return 0;  // 0 means, did not want this message and did not act on anything.
+}
+
+/*! Create the context senstive menu for the report. */
+bool
+StatsPanel::createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos )
+{
+  printf ("StatsPanel: Popup the context sensitive menu here.... can you augment it with the default popupmenu?\n");
+
+  QPopupMenu *panelMenu = new QPopupMenu(this);
+  panelMenu->setCaption("Panel Menu");
+  contextMenu->insertItem("&Panel Menu", panelMenu, CTRL+Key_C);
+  panelMenu->insertSeparator();
+  menu(panelMenu);
+
+  if( lv->selectedItem() )
+  {
+  //  contextMenu->insertItem("Tell Me MORE about %d!!!", this, SLOT(details()), CTRL+Key_1 );
+    contextMenu->insertItem("Go to source location...", this, SLOT(gotoSource()), CTRL+Key_1 );
+    return( TRUE );
+  }
+
+
+  return( FALSE );
+}
+
+
+void
+StatsPanel::gotoSource()
+{
+  printf("gotoSource() menu selected.\n");
+}
+
+
+void
+StatsPanel::itemSelected(QListViewItem *item)
+{
+  printf("StatsPanel::itemSelected(clicked) entered\n");
 }
