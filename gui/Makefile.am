@@ -41,6 +41,9 @@ ossgui_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
 ossgui_la_LIBADD = -L$(QTDIR)/lib -lqt -lqassistantclient -L/usr/X11R6/lib -lXext -lX11 -lm -lpthread
 
+moc_CLIInterface.cxx: CLIInterface.hxx
+	-moc -o moc_CLIInterface.cxx CLIInterface.hxx
+
 moc_openspeedshop.cxx: openspeedshop.hxx
 	-moc -o moc_openspeedshop.cxx openspeedshop.hxx
 
@@ -49,7 +52,7 @@ moc_preferencesdialog.cxx: preferencesdialog.hxx
 
 ossgui_la_SOURCES = \
 	gui.hxx gui.cxx \
-	CLIInterface.hxx CLIInterface.cxx \
+	CLIInterface.hxx CLIInterface.cxx moc_CLIInterface.cxx \
     openspeedshop.hxx openspeedshop.cxx moc_openspeedshop.cxx \
     qmake_image_collection.cxx openspeedshop.ui.hxx \
     preferencesdialog.hxx preferencesdialog.cxx moc_preferencesdialog.cxx \

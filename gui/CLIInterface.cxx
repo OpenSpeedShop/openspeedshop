@@ -1,57 +1,95 @@
-
 #include "CLIInterface.hxx"
 
-CLIInterface::CLIInterface(int _wid)
+#include "qapplication.h"
+
+#include <qinputdialog.h>
+
+CLIInterface::CLIInterface(int _wid) : QObject()
 {
   wid = _wid;
+  setInterrupt(false);
+  timer = NULL;
 }
 
 CLIInterface::~CLIInterface()
 {
 }
 
-int
-CLIInterface::getIntValueFromCLI(char *command, int64_t *val, bool mark_value_for_delete)
+bool
+CLIInterface::runSynchronousCLI(char *command, int mt, bool warn_of_time )
 {
-printf("NEW CLIInterface!\n");
+  maxTime = mt;
+// printf("runSynchronousCLI(%s)\n", command);
   InputLineObject *clip = Append_Input_String( wid, command);
   if( clip == NULL )
   {
     fprintf(stderr, "FATAL ERROR: No clip returned from cli.\n");
     return false;
   }
-  Input_Line_Status status = clip->What();
+  Input_Line_Status status = ILO_UNKNOWN;
 
-  while( true )
+  while( status != ILO_COMPLETE )
   {
-    switch( status )
+    status = checkStatus(clip);
+    if( !status )
+    { // An error occurred.... A message should have been posted.. return;
+       return false;
+    }
+
+    qApp->processEvents(1000);
+
+    if( !shouldWeContinue() )
     {
-      case ILO_QUEUED_INPUT:
-        printf("command queued for processing.\n");
-        break;
-      case ILO_IN_PARSER:
-        printf("command queued for parsing.\n");
-        break;
-      case ILO_EXECUTING:
-        printf("command is executing.\n");
-        break;
-      case ILO_COMPLETE:
-        printf("command has sucessfully completed.\n");
-        break;
-      case ILO_ERROR:
-        fprintf(stderr, "Unable to process the clip.   Error encountered.\n");
-        return false;
-      default:
-        fprintf(stderr, "Unknown status (%d) return in clip.\n", status);
-        return false;
+// printf("RETURN FALSE!   COMMAND FAILED!\n");
+      return false;
+    }
+
+    sleep(1);
+  }
+
+  if( timer )
+  {
+    timer->stop();
+    delete timer;
+    timer = NULL;
+  }
+
+  return(true);
+}
+
+bool
+CLIInterface::getIntValueFromCLI(char *command, int64_t *val, bool mark_value_for_delete, int mt, bool warn_of_time )
+{
+// printf("getIntValueFromCLI(%s)\n", command);
+  maxTime = mt;
+
+  InputLineObject *clip = Append_Input_String( wid, command);
+  if( clip == NULL )
+  {
+    fprintf(stderr, "FATAL ERROR: No clip returned from cli.\n");
+    return false;
+  }
+  Input_Line_Status status = ILO_UNKNOWN;
+
+  int timeout_cnt = 0;
+
+  while( status != ILO_COMPLETE )
+  {
+    status = checkStatus(clip);
+// printf("status = %d\n", status);
+    if( !status )
+    {   // An error occurred.... A message should have been posted.. return;
+      fprintf(stderr, "an error occurred processing (%s)!\n", command);
+      return false;
     }
 
     if( status == ILO_COMPLETE )
     {
+// printf("status = ILO_COMPLETE!\n");
       std::list<CommandObject *>::iterator coi;
       if( clip->CmdObj_List().size() == 1 ) // We should only have one in this case.\n");
       {
-        printf("We have 1 command object.   Get the data.\n");
+// printf("We have 1 command object.   Get the data.\n");
         coi = clip->CmdObj_List().begin();
         CommandObject *co = (CommandObject *)(*coi);
 
@@ -60,7 +98,6 @@ printf("NEW CLIInterface!\n");
         crl = co->Result_List().begin();    
         CommandResult_Int *cri = (CommandResult_Int *)(*crl);
 
-//        int64_t val = -1;
         cri->Value(val);
 
         if( mark_value_for_delete )
@@ -72,9 +109,115 @@ printf("NEW CLIInterface!\n");
       break;
     }
     
+    qApp->processEvents(1000);
+
+    if( !shouldWeContinue() )
+    {
+// printf("RETURN FALSE!   COMMAND FAILED!\n");
+      return false;
+    }
+
     sleep(1);
-    status = clip->What();
+  } 
+
+  if( timer )
+  {
+    timer->stop();
+    delete timer;
+    timer = NULL;
   }
 
   return(true);
+}
+
+Input_Line_Status
+CLIInterface::checkStatus(InputLineObject *clip)
+{
+  Input_Line_Status status = clip->What();
+
+  switch( status )
+  {
+    case ILO_QUEUED_INPUT:
+//      printf("command queued for processing.\n");
+      break;
+    case ILO_IN_PARSER:
+//      printf("command queued for parsing.\n");
+      break;
+    case ILO_EXECUTING:
+//      printf("command is executing.\n");
+      break;
+    case ILO_COMPLETE:
+//      printf("command has sucessfully completed.\n");
+      break;
+    case ILO_ERROR:
+//      fprintf(stderr, "Unable to process the clip.   Error encountered.\n");
+      break;
+    default:
+//      fprintf(stderr, "Unknown status (%d) return in clip.\n", status);
+      break;
+  }
+
+  return status;
+}
+
+bool 
+CLIInterface::shouldWeContinue()
+{
+  if( maxTime > 0 )
+  {
+    if( timer == NULL )
+    {
+// printf("shouldWeContinue() set the timer!\n");
+      timer = new QTimer(this, "runSynchronousCLITimer");
+      connect( timer, SIGNAL(timeout()), this, SLOT(wakeupFromTimer()) );
+      timer->start(maxTime, TRUE);
+    }
+  }
+  if( getInterrupt() )
+  {
+    // First cancel the timer..
+    if( timer )
+    {
+      timer->stop();
+      delete timer;
+      timer = NULL;
+    }
+
+    // Now cancel the command(s)
+
+    // Also cancel the interrupt;
+    setInterrupt(false);
+  
+// printf("stop!!!\n");
+    return false;
+  }
+
+// printf("continue!!!\n");
+  return true;
+}
+
+void
+CLIInterface::wakeupFromTimer()
+{
+// printf("wakeupFromTimer() entered  \n");
+  if( timer )
+  {
+    timer->stop();
+    delete timer;
+    timer = NULL;
+  }
+
+  bool ok;
+  int res = QInputDialog::getInteger(
+            "Unable to complete command before timeout?", "Enter milleseconds before next timeout: (Hit cancel to abort command.)", maxTime, 0, 100000, 1000, &ok);
+
+  if ( ok ) 
+  {
+    // user entered something and pressed OK
+    maxTime = res;
+  } else
+  {
+    // user entered nothing or pressed Cancel
+    setInterrupt(true);
+  }
 }

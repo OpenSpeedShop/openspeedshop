@@ -81,13 +81,13 @@ printf("Create a new pcSample experiment.\n");
   char command[1024];
   if( !mw->executableName.isEmpty() )
   {
-    sprintf(command, "expCreate -f %s \"pcsamp\"\n", mw->executableName.ascii() );
+    sprintf(command, "expCreate -f %s pcsamp\n", mw->executableName.ascii() );
   } else if( !mw->pidStr.isEmpty() )
   { 
-    sprintf(command, "expCreate -x %s \"pcsamp\"\n", mw->pidStr.ascii() );
+    sprintf(command, "expCreate -x %s pcsamp\n", mw->pidStr.ascii() );
   } else
   {
-    sprintf(command, "expCreate \"pcsamp\"\n" );
+    sprintf(command, "expCreate pcsamp\n" );
   }
   bool mark_value_for_delete = true;
   int64_t val = 0;
@@ -142,13 +142,13 @@ nprintf( DEBUG_CONST_DESTRUCT ) ("Positioned at main in %s ????? \n", buffer);
 pcSamplePanel::~pcSamplePanel()
 {
   char command[1024];
-  sprintf(command, "expClose %d", expID );
+  sprintf(command, "expClose -x %d", expID );
 
 printf("NOTE: This does not need to be a syncronous call.\n");
   bool mark_value_for_delete = true;
   int64_t val = 0;
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-  if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete) )
+  if( !cli->runSynchronousCLI(command) )
   {
     fprintf(stderr, "Error retreiving experiment id. \n");
     return;
@@ -334,7 +334,7 @@ CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
     {
       case  ATTACH_PROCESS_T:
 sprintf(command, "attach a process collector %d\n", expID);
-if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete) )
+if( !cli->runSynchronousCLI(command) )
 {
   fprintf(stderr, "Error (%s).\n", command);
 }
@@ -342,7 +342,7 @@ if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete) )
         break;
       case  DETACH_PROCESS_T:
 sprintf(command, "detach a process %d\n", expID);
-if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete) )
+if( !cli->runSynchronousCLI(command) )
 {
   fprintf(stderr, "Error (%s).\n", command);
 }
@@ -351,7 +351,7 @@ if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete) )
         break;
       case  ATTACH_COLLECTOR_T:
 sprintf(command, "attach a collector %d\n", expID);
-if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete) )
+if( !cli->runSynchronousCLI(command) )
 {
   fprintf(stderr, "Error (%s).\n", command);
 }
@@ -360,7 +360,7 @@ if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete) )
         break;
       case  REMOVE_COLLECTOR_T:
 sprintf(command, "remove a collector %d\n", expID);
-if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete) )
+if( !cli->runSynchronousCLI(command) )
 {
   fprintf(stderr, "Error (%s).\n", command);
 }
@@ -368,9 +368,9 @@ if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete) )
         ret_val = 1;
         break;
       case  RUN_T:
-// sprintf(command, "expRun -x %d\n", expID);
-sprintf(command, "expCreate\n");
-if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete) )
+sprintf(command, "expRun -x %d\n", expID);
+// sprintf(command, "expCreate\n");
+if( !cli->runSynchronousCLI(command) )
 {
   fprintf(stderr, "Error (%s).\n", command);
 }
@@ -422,7 +422,7 @@ pco->terminateButton->setEnabled(TRUE);
       case  PAUSE_T:
         nprintf( DEBUG_MESSAGES ) ("Pause\n");
 sprintf(command, "expPause %d\n", expID);
-if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete) )
+if( !cli->runSynchronousCLI(command) )
 {
   fprintf(stderr, "Error (%s).\n", command);
 }
@@ -432,7 +432,7 @@ if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete) )
       case  CONT_T:
         nprintf( DEBUG_MESSAGES ) ("Continue\n");
 sprintf(command, "expCont %d\n", expID);
-if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete) )
+if( !cli->runSynchronousCLI(command) )
 {
   fprintf(stderr, "Error (%s).\n", command);
 }
@@ -444,7 +444,7 @@ if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete) )
       case  UPDATE_T:
         nprintf( DEBUG_MESSAGES ) ("Update\n");
 sprintf(command, "expView %d\n", expID); // Get the new data..
-if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete) )
+if( !cli->runSynchronousCLI(command) )
 {
   fprintf(stderr, "Error (%s).\n", command);
 }
@@ -452,17 +452,13 @@ if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete) )
         break;
       case  INTERRUPT_T:
         nprintf( DEBUG_MESSAGES ) ("Interrupt\n");
-sprintf(command, "expPause %d\n", expID); // Well not really but do this for now.\n");
-if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete) )
-{
-  fprintf(stderr, "Error (%s).\n", command);
-}
+cli->setInterrupt(true);
         ret_val = 1;
         break;
       case  TERMINATE_T:
         statusLabelText->setText( tr("Process terminated...") );
 sprintf(command, "expStop %d\n", expID);
-if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete) )
+if( !cli->runSynchronousCLI(command) )
 {
   fprintf(stderr, "Error (%s).\n", command);
 }
