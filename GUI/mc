@@ -8,11 +8,11 @@ set +x
 if [ $SYSTYPE = "Linux" ] ; then
   if [ $SYSNAME = "hope.americas.sgi.com" ] ; then
     export FUTURE_TOOL_PLUGIN_DIR=$WORKAREA/GUI/plugin/lib/futuretool
-    clear;cd $WORKAREA/GUI;MC;bootstrap;configure --prefix=$FUTURE_TOOL_PLUGIN_DIR/../..;make;make install;
+    clear;cd $WORKAREA/GUI;./MC;bootstrap;configure --prefix=$FUTURE_TOOL_PLUGIN_DIR/../..;make;make install;
   else
 #   home linux
     export FUTURE_TOOL_PLUGIN_DIR=$WORKAREA/plugin/lib/futuretool
-    clear;cd QtPC;MC;bootstrap;configure --prefix=$FUTURE_TOOL_PLUGIN_DIR/../..;make;make install;
+    clear;cd QtPC;./MC;bootstrap;configure --prefix=$FUTURE_TOOL_PLUGIN_DIR/../..;make;make install;
   fi
 else
 # sgi irix
