@@ -16,10 +16,16 @@ extern "C"
   QVBoxLayout* generalStackPageLayout_3;
   QGroupBox* statsPanelGroupBox;
   QVBoxLayout* layout8;
+
   QCheckBox* sortDecendingCheckBox;
-  QHBoxLayout* layout7;
+
+  QHBoxLayout* layoutTopN;
   QLabel* showTopNTextLabel;
   QLineEdit* showTopNLineEdit;
+
+  QHBoxLayout* layoutColumnToSort;
+  QLabel* showColumnToSortTextLabel;
+  QLineEdit* showColumnToSortLineEdit;
 
   static char *pname = NULL;
 
@@ -27,6 +33,12 @@ extern "C"
   {
 // printf("getPreferenceSortDecending(%s)\n", pname);
     return( sortDecendingCheckBox->isChecked() );
+  }
+
+  QString getPreferenceColumnToSortLineEdit()
+  {
+// printf("getPreferenceColumnToSortLineEdit(%s)\n", pname);
+    return( showColumnToSortLineEdit->text() );
   }
 
   QString getPreferenceTopNLineEdit()
@@ -40,6 +52,7 @@ extern "C"
 // printf("initPreferenceSettings(%s)\n", pname);
     sortDecendingCheckBox->setChecked(TRUE);
     showTopNLineEdit->setText( "5" );
+    showColumnToSortLineEdit->setText( "0" );
   }
 
   QWidget *initialize_preferences_entry_point(QSettings *settings, QWidgetStack *stack, char *name)
@@ -63,23 +76,42 @@ extern "C"
       new QCheckBox( statsPanelPrivateLayout, "sortDecendingCheckBox" );
     layout8->addWidget( sortDecendingCheckBox );
 
-    layout7 = new QHBoxLayout( 0, 0, 6, "layout7");
+    layoutTopN = new QHBoxLayout( 0, 0, 6, "layoutTopN");
 
     showTopNTextLabel =
       new QLabel( statsPanelPrivateLayout, "showTopNTextLabel" );
-    layout7->addWidget( showTopNTextLabel );
+    layoutTopN->addWidget( showTopNTextLabel );
 
     showTopNLineEdit =
       new QLineEdit( statsPanelPrivateLayout, "showTopNLineEdit" );
 
-    layout7->addWidget( showTopNLineEdit );
-    layout8->addLayout( layout7 );
+    layoutTopN->addWidget( showTopNLineEdit );
+    layout8->addLayout( layoutTopN );
+
+
+
+
+    layoutColumnToSort = new QHBoxLayout( 0, 0, 6, "layoutTopN");
+
+    showColumnToSortTextLabel =
+      new QLabel( statsPanelPrivateLayout, "showColumnToSortTextLabel" );
+    layoutColumnToSort->addWidget( showColumnToSortTextLabel );
+
+    showColumnToSortLineEdit =
+      new QLineEdit( statsPanelPrivateLayout, "showColumnToSortLineEdit" );
+
+    layoutColumnToSort->addWidget( showColumnToSortLineEdit );
+    layout8->addLayout( layoutColumnToSort );
+
+
+
     generalStackPageLayout_3->addWidget( statsPanelGroupBox );
     stack->addWidget( statsPanelStackPage, 2 );
 
     statsPanelGroupBox->setTitle( "Stats Panel" );
     sortDecendingCheckBox->setText( "Sort Descending" );
     showTopNTextLabel->setText( "Show top N items:" );
+    showColumnToSortTextLabel->setText( "Column to sort:" );
 
     initPreferenceSettings();
 

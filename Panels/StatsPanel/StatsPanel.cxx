@@ -21,7 +21,14 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, char *argument) : Pane
 {
   setCaption("StatsPanel");
 
-  numberItemsToRead = 5;
+//  numberItemsToRead = 5;
+  bool ok;
+  numberItemsToRead = getPreferenceTopNLineEdit().toInt(&ok);
+  if( !ok )
+  {
+printf("Invalid \"number of items\" in preferences.   Resetting to default.\n");
+    numberItemsToRead = 5;
+  }
 
   frameLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
@@ -167,10 +174,27 @@ StatsPanel::updateStatsPanelData()
     // If there should be sort indicators in the header, show them here.
     lv->setShowSortIndicator(TRUE);
 
-    // Sort in decending order
-    int columnToSort = 0;
-    lv->setSorting ( columnToSort, FALSE );
   }
+
+  // Sort in decending order
+  bool ok;
+  int columnToSort = getPreferenceColumnToSortLineEdit().toInt(&ok);
+  if( !ok )
+  {
+    columnToSort = 0;
+  }
+  lv->setSorting ( columnToSort, FALSE );
+
+  // Figure out which way to sort
+  bool sortOrder = getPreferenceSortDecending();
+  if( sortOrder == TRUE )
+  {
+    lv->setSortOrder ( Qt::Descending );
+  } else
+  {
+    lv->setSortOrder ( Qt::Ascending );
+  }
+
 
   lv->clear();
 
@@ -256,7 +280,15 @@ StatsPanel::menu(QPopupMenu* contextMenu)
   dprintf("StatsPanel::menu() requested.\n");
   contextMenu->insertSeparator();
 
-  contextMenu->insertItem("Set number visible entries...", this, SLOT(setNumberVisibleEntries()), CTRL+Key_1, 0, -1);
+//  contextMenu->insertItem("Number visible entries...", this, SLOT(setNumberVisibleEntries()), CTRL+Key_1, 0, -1);
+  contextMenu->insertItem("Number visible entries...", this, SLOT(setNumberVisibleEntries()));
+
+  contextMenu->insertSeparator();
+
+//  contextMenu->insertItem("Compare...", this, SLOT(compareSelected()), CTRL+Key_1, 0, -1);
+  contextMenu->insertItem("Compare...", this, SLOT(compareSelected()) );
+
+  contextMenu->insertSeparator();
 
   int id = 0;
   QPopupMenu *columnsMenu = new QPopupMenu(this);
@@ -308,10 +340,51 @@ void
 StatsPanel::preferencesChanged()
 { 
 //  printf("StatsPanel::preferencesChanged\n");
-  bool sort_val = getPreferenceSortDecending();
-//printf("  sort_val=%d\n", sort_val );
-  QString val_str = getPreferenceTopNLineEdit();
-//printf("  val_str=%s\n", val_str.ascii() );
+
+  bool thereWasAChangeICareAbout = FALSE;
+
+  SortOrder old_sortOrder = lv->sortOrder();
+  bool new_sortOrder = getPreferenceSortDecending();
+
+  if( old_sortOrder != new_sortOrder )
+  {
+    if( new_sortOrder == TRUE )
+    {
+      lv->setSortOrder ( Qt::Descending );
+    } else
+    {
+      lv->setSortOrder ( Qt::Ascending );
+    }
+    thereWasAChangeICareAbout = TRUE;
+  }
+
+
+  bool ok;
+  int new_numberItemsToRead = getPreferenceTopNLineEdit().toInt(&ok);
+  if( ok )
+  {
+    if( new_numberItemsToRead != numberItemsToRead )
+    {
+      numberItemsToRead = new_numberItemsToRead;
+      thereWasAChangeICareAbout = TRUE;
+    }
+  }
+
+  int new_columnToSort = getPreferenceColumnToSortLineEdit().toInt(&ok);
+  if( ok )
+  {
+    int old_columnToSort = lv->sortColumn();
+    if( old_columnToSort != new_columnToSort )
+    {
+      thereWasAChangeICareAbout = TRUE;
+    }
+  }
+
+  if( thereWasAChangeICareAbout )
+  {
+// printf("  thereWasAChangeICareAbout!!!!\n");
+    updateStatsPanelData();
+  }
 } 
 
 
@@ -336,7 +409,7 @@ StatsPanel::listener(void *msg)
     updateStatsPanelData();
   } else if( msgObject->msgType == "PreferencesChangedObject" )
   {
-    printf("StatsPanel:  The preferences changed.\n");
+//    printf("StatsPanel:  The preferences changed.\n");
     pco = (PreferencesChangedObject *)msgObject;
     preferencesChanged();
   }
@@ -374,6 +447,12 @@ void
 StatsPanel::gotoSource()
 {
   dprintf("gotoSource() menu selected.\n");
+}
+
+void
+StatsPanel::compareSelected()
+{
+  dprintf("compareSelected()\n");
 }
 
 void

@@ -73,6 +73,7 @@ private:
   public slots:
     void gotoSource();
     void setNumberVisibleEntries();
+    void compareSelected();
     void doOption(int id);
 
     void itemSelected( QListViewItem * );
