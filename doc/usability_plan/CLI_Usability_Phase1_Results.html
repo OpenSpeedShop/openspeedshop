@@ -282,6 +282,8 @@ Yes - we will look into doing this.
 dual uses and listTypes suggestion</small></h2>
 We have added the listTypes command and changed the meaning of listExp
 as requested.<br>
+However, it may make more sense to integrate this capability into the <b>help</b> command.
+We hope to look at doing this, in the near future.<br>
 See <a href="../cli_doc/definition.html#mozTocId613827">The detailed
 command definitions for listTypes and listExp.</a><br>
 ---
@@ -378,6 +380,11 @@ Then repeat the cycle if desired.
 <br>
 This would be a follow on enhancement feature.
 <br>
+<h2><small><a name="F8:_listExp_dual_uses_and_listTypes"></a>F8: </small>
+<small>Saving and Restoring the Experiment</small></h2>
+The change to using a data base to maintain experiment information
+is a step towards supporting an easy detach/re-attach capability.
+We will continue to work towards this goal.
 <br>
 <br>
 ---
@@ -424,6 +431,13 @@ that calls into the probe module(s).
 <br>
 Have the attach operation load the probe module(s) and the detach
 unload the probe module(s).
+<br>
+<h2><small><a name="F9:_listExp_dual_uses_and_listTypes"></a>F9: </small>
+<small>How do you stop gathering data for a period of time?</small></h2>
+We have added <b>expDisable</b> and <b>expEnable</b> commands to support
+the requested capability.<br>
+See <a href="../cli_doc/definition.html#mozTocId526141">The detailed
+command definitions for expDisable and expEnable.</a><br>
 <br>
 <br>
 ---
