@@ -58,13 +58,13 @@ splitter->setHandleWidth(1);
   highlightList = NULL;
 
   statArea = new QTable( splitter );
-statArea->setVScrollBarMode( QScrollView::AlwaysOff );
-statArea->setHScrollBarMode( QScrollView::AlwaysOn );
-vbar = statArea->verticalScrollBar();
-hbar = statArea->horizontalScrollBar();
-statArea->verticalHeader()->hide();
-statArea->setLeftMargin(0);
-statArea->setShowGrid(FALSE);
+  statArea->setVScrollBarMode( QScrollView::AlwaysOff );
+  statArea->setHScrollBarMode( QScrollView::AlwaysOn );
+  vbar = statArea->verticalScrollBar();
+  hbar = statArea->horizontalScrollBar();
+  statArea->verticalHeader()->hide();
+  statArea->setLeftMargin(0);
+  statArea->setShowGrid(FALSE);
 
   textEditLayoutFrame = new QFrame( splitter );
   textEditLayout = new QVBoxLayout( textEditLayoutFrame );
@@ -84,7 +84,6 @@ statArea->setShowGrid(FALSE);
   QString label_text = "No source file specified.";
   label->setText(label_text);
 
-//  QSpacerItem *spacerItem = new QSpacerItem(1, statArea->horizontalHeader()->height()-2, QSizePolicy::Fixed, QSizePolicy::Fixed );
   QSpacerItem *spacerItem = new QSpacerItem(1, statArea->horizontalHeader()->height()-4, QSizePolicy::Fixed, QSizePolicy::Fixed );
   textEditHeaderLayout->addItem( spacerItem );
   textEditHeaderLayout->addWidget( label );
@@ -94,8 +93,8 @@ statArea->setShowGrid(FALSE);
 
   textEdit = new SPTextEdit( this, textEditLayoutFrame );
   textEdit->setCaption("SourcePanel: SPTextEdit");
+  textEdit->setHScrollBarMode( QScrollView::AlwaysOn );
   textEditLayout->addWidget( textEdit );
-textEdit->setHScrollBarMode( QScrollView::AlwaysOn );
 
   addWhatsThis(textEdit, this);
 
@@ -106,11 +105,13 @@ textEdit->setHScrollBarMode( QScrollView::AlwaysOn );
   hscrollbar = textEdit->horizontalScrollBar();
   if( vscrollbar )
   {
+    connect( vscrollbar, SIGNAL(sliderPressed()),
+           this, SLOT(valueChanged()) );
+    connect( vscrollbar, SIGNAL(sliderMoved(int)),
+           this, SLOT(valueChanged()) );
     connect( vscrollbar, SIGNAL(sliderReleased()),
            this, SLOT(valueChanged()) );
     connect( vscrollbar, SIGNAL(nextLine()),
-           this, SLOT(valueChanged()) );
-    connect( vscrollbar, SIGNAL(sliderMoved(int)),
            this, SLOT(valueChanged()) );
     connect( vscrollbar, SIGNAL(prevLine()),
            this, SLOT(valueChanged()) );
@@ -175,15 +176,15 @@ SourcePanel::menu(QPopupMenu* contextMenu)
     contextMenu->insertItem("Show &Line Numbers...", this,
       SLOT(showLineNumbers()), CTRL+Key_L );
   }
-if( statsFLAG == TRUE )
-{
-  contextMenu->insertItem("Hide &Statistics...", this,
-  SLOT(showStats()), CTRL+Key_L );
-} else
-{
-  contextMenu->insertItem("Show &Statistics...", this,
-  SLOT(showStats()), CTRL+Key_L );
-}
+  if( statsFLAG == TRUE )
+  {
+    contextMenu->insertItem("Hide &Statistics...", this,
+    SLOT(showStats()), CTRL+Key_L );
+  } else
+  {
+    contextMenu->insertItem("Show &Statistics...", this,
+    SLOT(showStats()), CTRL+Key_L );
+  }
   contextMenu->insertItem("&Find...", this, SLOT(findString()), CTRL+Key_F );
   contextMenu->insertSeparator();
   contextMenu->insertItem("Zoom In", this, SLOT(zoomIn()), CTRL+Key_Plus );
@@ -424,7 +425,7 @@ SourcePanel::showStats()
   }
 
 // Make sure the scrollbar is sync'd with everyone..
-valueChanged();
+valueChanged(-1);
 }
 
 /*! Display/Undisplay line numbers in the display. */
@@ -568,17 +569,23 @@ SourcePanel::loadFile(const QString &_fileName)
 
   statArea->setNumRows(lineCount);
   statArea->setNumCols(1);
-int heightForWidth = textEdit->heightForWidth(80);
-float lineHeight = (heightForWidth-hscrollbar->height())/(float)lineCount;
-printf("lineCount=%d lineHeight=%d\n", lineCount, lineHeight);
-for(int i=0;i<lineCount;i++)
-{
-  sprintf(line_number_buffer, "%6d ", i+1);
-  statArea->setRowHeight(i,(int)lineHeight+1);
-//  statArea->setRowHeight(i,(int)15);
-  statArea->setText(i, 0, QString(QString(line_number_buffer)));
-}
-printf("The last line was: %s\n", line_number_buffer );
+  int heightForWidth = textEdit->heightForWidth(80);
+  float lineHeight = (heightForWidth-hscrollbar->height())/(float)lineCount;
+  float remainder = (int)(heightForWidth-hscrollbar->height())%lineCount;
+//  printf("lineCount=%d lineHeight=%d\n", lineCount, lineHeight);
+  for(int i=0;i<lineCount;i++)
+  {
+    sprintf(line_number_buffer, "%6d ", i+1);
+    if( remainder > .0001 )
+    {
+      statArea->setRowHeight(i,(int)lineHeight+1);
+    } else
+    {
+      statArea->setRowHeight(i,(int)lineHeight);
+    }
+    statArea->setText(i, 0, QString(QString(line_number_buffer)));
+  }
+//  printf("The last line was: %s\n", line_number_buffer );
 
 
   nprintf(DEBUG_PANELS) ("lineCount=%d\n", lineCount);
@@ -607,8 +614,8 @@ printf("The last line was: %s\n", line_number_buffer );
     nprintf(DEBUG_PANELS) ("loadFile:: down here sameFile: lastTop=%d\n", lastTop);
   }
 
-// Make sure the scrollbar is sync'd with everyone..
-valueChanged();
+  // Make sure the scrollbar is sync'd with everyone..
+  valueChanged(-1);
 }
 
 /*! Get more information about the current posotion (if any). */
@@ -850,14 +857,25 @@ SourcePanel::clicked(int para, int offset)
 /*! The value changed... That means we've scrolled.   Recalculate the
     top line (top_line) and set the lastTop. */
 void
-SourcePanel::valueChanged()
+SourcePanel::valueChanged(int passed_in_value)
 {
+
 // This is not correct, but it's gets close enough for right now.  FIX
   nprintf(DEBUG_PANELS) ("Your valueChanged.\n");
   float minValue = (float)vscrollbar->minValue();
   float maxValue = (float)vscrollbar->maxValue();
-  float value = (float)vscrollbar->value();
+  float value = 0;
+ 
+  if( passed_in_value >= 0 )
+  {
+    value = passed_in_value;
+  } else
+  {
+    value = (float)vscrollbar->value();
+  }
 printf("valueChanged:: (%d)\n", vscrollbar->value() );
+printf("passed in value=%d\n", passed_in_value );
+
   int lineStep = vscrollbar->lineStep();
   int height = textEdit->height();
   int heightForWidth = textEdit->heightForWidth(80);
@@ -878,44 +896,40 @@ printf("valueChanged:: (%d)\n", vscrollbar->value() );
   int top_line = (int)(value/lineHeight);
   top_line++;
   lastTop = top_line;
-nprintf(DEBUG_PANELS) ("top_line =%d\n", top_line);
-if( statArea )
-{
-  nprintf(DEBUG_PANELS) ("vbar: minValue=%f vbar: maxValue=%f\n", vbar->minValue(), vbar->maxValue());
 
-int teh = textEdit->height();
-int tesbh = textEdit->vbar->height();
-int sah = statArea->height();
-int sasbh = vbar->height();
-printf("teh=%d sah=%d\n", teh, sah);
-printf("tesbh=%d sasbh=%d\n", tesbh, sasbh);
-printf ("lineHeight=%f lineCount=%d\n", lineHeight, lineCount);
-printf("vscrollbar->width()=%d\n", vscrollbar->width() );
-printf("textEdit->vbar->minValue()=%d\n", textEdit->vbar->minValue() );
-printf("textEdit->vbar->maxValue()=%d\n", textEdit->vbar->maxValue() );
-printf("vbar->minValue()=%d\n", vbar->minValue() );
-printf("vbar->maxValue()=%d\n", vbar->maxValue() );
-//  vbar->setValue((int)value-(vscrollbar->width())+25);
-// There's a difference between where the scrollbar for the statArea and
-// the textEdit are relative too.   We need to adjust the "value" return
-// from the textEdit's scrollbar to be relative to the statArea (QTable).
-// This following line does that....
-int new_value = 0;
-if( vbar && vbar->maxValue() > 0 )
-{
-//  new_value =  (int)( value*(textEdit->vbar->maxValue()/vbar->maxValue()) );
-float factor = (float)vbar->maxValue()/(float)textEdit->vbar->maxValue();
-printf("factor=%f\n", factor );
-  new_value =  (int)( value*factor );
-printf("CALCULATE NEW VALUE=new_value=%d\n", new_value);
-}
-// if( value >= textEdit->vbar->maxValue() )
-// {
-//   new_value = vbar->maxValue();
-// }
-printf("pos statArea to %d\n", new_value );
-  vbar->setValue(new_value);
-}
+  nprintf(DEBUG_PANELS) ("top_line =%d\n", top_line);
+  if( statArea )
+  {
+    nprintf(DEBUG_PANELS) ("vbar: minValue=%f vbar: maxValue=%f\n", vbar->minValue(), vbar->maxValue());
+
+    int teh = textEdit->height();
+    int tesbh = textEdit->vbar->height();
+    int sah = statArea->height();
+    int sasbh = vbar->height();
+// printf("teh=%d sah=%d\n", teh, sah);
+// printf("tesbh=%d sasbh=%d\n", tesbh, sasbh);
+// printf ("lineHeight=%f lineCount=%d\n", lineHeight, lineCount);
+// printf("vscrollbar->width()=%d\n", vscrollbar->width() );
+// printf("textEdit->vbar->minValue()=%d\n", textEdit->vbar->minValue() );
+// printf("textEdit->vbar->maxValue()=%d\n", textEdit->vbar->maxValue() );
+// printf("vbar->minValue()=%d\n", vbar->minValue() );
+// printf("vbar->maxValue()=%d\n", vbar->maxValue() );
+
+    // There's a difference between where the scrollbar for the statArea and
+    // the textEdit are relative too.   We need to adjust the "value" return
+    // from the textEdit's scrollbar to be relative to the statArea (QTable).
+    // This following line does that....
+    int new_value = 0;
+    if( vbar && vbar->maxValue() > 0 )
+    {
+      float factor = (float)vbar->maxValue()/(float)textEdit->vbar->maxValue();
+// printf("factor=%f\n", factor );
+      new_value =  (int)( value*factor );
+// printf("CALCULATE NEW VALUE=new_value=%d\n", new_value);
+    }
+// printf("pos statArea to %d\n", new_value );
+    vbar->setValue(new_value);
+  }
 }
 
 /*! If there's a highlight list.... highlight the lines. */

@@ -56,17 +56,17 @@ public:
   //! Layout for managing child widgets.
   QVBoxLayout * frameLayout;
 
-//! Layout for managing child widgets.
-QFrame *textEditLayoutFrame;
+  //! Layout for managing child widgets.
+  QFrame *textEditLayoutFrame;
 
-//! Layout for managing text header size widgets.
-QHBoxLayout * textEditHeaderLayout;
+  //! Layout for managing text header size widgets.
+  QHBoxLayout * textEditHeaderLayout;
 
-//! Layout for managing child widgets.
-QVBoxLayout * textEditLayout;
+  //! Layout for managing child widgets.
+  QVBoxLayout * textEditLayout;
 
-//! Sliter for the stat/text area.
-QSplitter *splitter;
+  //! Sliter for the stat/text area.
+  QSplitter *splitter;
 
   //! Label for displaying current file displayed.
   QLabel *label;
@@ -166,7 +166,7 @@ QSplitter *splitter;
 
 public slots:
   void clicked(int para, int offset);
-  void valueChanged();
+  void valueChanged(int value = -1);
   void chooseFile();
   void goToLine();
   void showLineNumbers();
