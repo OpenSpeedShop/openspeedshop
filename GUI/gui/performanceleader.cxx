@@ -1,11 +1,7 @@
-/****************************************************************************
-** Form implementation generated from reading ui file 'performanceleader.ui'
-**
-** Created: Fri Jul 2 06:06:24 2004
-**      by: The User Interface Compiler ($Id$)
-**
-** WARNING! All changes made in this file will be lost!
-****************************************************************************/
+/*! \class PerformanceLeader
+    This is the implementation of the MainWinwdow container for Open Speed
+    Shop.  It contains the container for the statusBar, and the menu bar.
+ */
 
 #include "performanceleader.hxx"
 
@@ -21,7 +17,7 @@
 #include <qpixmap.h>
 
 #include "performanceleader.ui.hxx"
-/*
+/*!
  *  Constructs a PerformanceLeader as a child of 'parent', with the
  *  name 'name' and widget flags set to 'f'.
  *
@@ -117,7 +113,7 @@ PerformanceLeader::PerformanceLeader( QWidget* parent, const char* name, WFlags 
     init();
 }
 
-/*
+/*!
  *  Destroys the object and frees any allocated resources
  */
 PerformanceLeader::~PerformanceLeader()
@@ -126,7 +122,7 @@ PerformanceLeader::~PerformanceLeader()
     // no need to delete child widgets, Qt does it all for us
 }
 
-/*
+/*!
  *  Sets the strings of the subwidgets using the current
  *  language.
  */

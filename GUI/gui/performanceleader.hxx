@@ -23,14 +23,20 @@ class QActionGroup;
 class QToolBar;
 class QPopupMenu;
 
+//! The main window skeleton containing statusBar and menubar.
 class PerformanceLeader : public QMainWindow
 {
+    //! Q_OBJECT is needed as there are slots defined for the PerformanceLeader
     Q_OBJECT
 
 public:
+    //! Constructor for the QMainWindow.
     PerformanceLeader( QWidget* parent = 0, const char* name = 0, WFlags fl = WType_TopLevel );
+
+    //! Destructor for the QMainWindow.
     ~PerformanceLeader();
 
+    //! The mainwindow menu bar.
     QMenuBar *menubar;
     QPopupMenu *fileMenu;
     QPopupMenu *editMenu;
@@ -50,9 +56,8 @@ public:
     QAction* helpIndexAction;
     QAction* helpAboutAction;
 
+    //! A pointer to the top PanelContainer that is parented to this mainwindow.
     PanelContainer *topPC;
-
-//    virtual bool eventFilter( QObject *, QEvent * e );
 
 public slots:
     virtual void fileNew();
@@ -70,15 +75,19 @@ public slots:
     virtual void helpAbout();
 
 protected:
+    //! A vertical box to place the child widgets.
     QVBoxLayout* PerformanceLeaderLayout;
 
 protected slots:
+    //! Change the language by calling tr().
     virtual void languageChange();
 
 private:
+    //! Routine that is call after initial setup.
     void init();
-    void destroy();
 
+    //! Routine that is call just pior to this class' destructor.
+    void destroy();
 };
 
 #endif // PERFORMANCELEADER_H

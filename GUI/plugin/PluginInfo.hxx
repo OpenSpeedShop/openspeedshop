@@ -6,7 +6,7 @@
 
 class Panel;
 
-//! PluginInfo Class
+//! Defines all the fields required for a plugin definition.
 class PluginInfo {
   public:
     //! True if panel is toplevel and is shown at initialization.
@@ -53,18 +53,13 @@ class PluginInfo {
     void *masterPC;
 
 
-    //! PluginInfo() -  A default constructor.
-    /*! This constructor is not called and is only here for completeness. */
+    //! PluginInfo() -  A default constructor - not called.
     PluginInfo();
 
-    //! PluginInfo(QObject *parent)
-    /*! This constructor is the work constructor.   It is called 
-        \param parent is the Qt Object the SlotInfo is connected to.
-               It is also the pointer to the pl (PerformanceLeader). */
+    //! The work constructor 
     PluginInfo(QObject *parent);
 
-    //! ~PluginInfo() - The default destructor.
-    /*! Destroys the object and frees any allocated resources.  */
+    //! Destructor.
     ~PluginInfo();
 
     //! When debugging, the will print out the PluginInfo information.

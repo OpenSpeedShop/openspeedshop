@@ -12,18 +12,26 @@ class PanelContainer;   // Do not remove
                                          // to the name of your new class.
 #include "PanelContainer.hxx"
 
+//! Simple example of a vertically split top level PanelContainer.
 class PerformancePanel  : public Panel
 {
 public:
-  PerformancePanel();  // Default construct
+  //! Default construct
+  PerformancePanel(); 
+  //! Work construct
   PerformancePanel(PanelContainer *pc, const char *n); // Active constructor
-  ~PerformancePanel();  // Active destructor
+  //! Desstructor
+  ~PerformancePanel();
 
+  //! The layout that controls resizing.
   QHBoxLayout * frameLayout; 
+
+  //! The child widget of frameLayout... All widgets are placed here.
   QWidget *performancePanelContainerWidget;
 protected:
 
 private: 
+  //! The list of child PanelContainer for this PanelContainer.
   PanelContainerList *lpcl;
 };
 #endif // PERFORMANCE_PANEL_H

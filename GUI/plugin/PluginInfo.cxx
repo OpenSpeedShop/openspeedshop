@@ -1,4 +1,4 @@
-/*!  Class PluginInfo
+/*!  \class PluginInfo
 
     This class is responsible for managing the plugins.   Plugins are 
     loaded and this class is populated with pertinent plugin information.
@@ -26,16 +26,6 @@
 
 #include "PluginInfo.hxx"
 
-
-#ifdef PULL
-void 
-cbf(void *)
-{
-  dprintf("cbf() entered\n");
-
-  // Do the add panel s....tuff here.
-}
-#endif // PULL
 
 /*! This routine simply initializes all the member variables. */
 void

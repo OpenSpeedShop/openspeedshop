@@ -1,3 +1,8 @@
+/*! \class PerformancePanel
+    This an example of a top level (topLevel == TRUE) Panel that is split
+    vertically (i.e. at top/bottom PanelContainer)
+ */
+
 #include "PerformancePanel.hxx"   // Change this to your new class header file name
 #include "PanelContainer.hxx"   // Do not remove
 #include "plugin_entry_point.hxx"   // Do not remove
