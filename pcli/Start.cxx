@@ -60,7 +60,6 @@ Process_Command_Line (int argc, char **argv)
       } else if (!strcasecmp( argv[i], "-batch")) {
         need_batch = true;
         read_stdin_file = (stdin && !isatty(fileno(stdin)));
-        //need_tli = read_stdin_file;
         continue;
       } else {
        // We haven't found the mode, yet.
@@ -193,7 +192,7 @@ extern "C"
     tli_window = 0;
     command_line_window = 0;
 
-    read_stdin_file = (stdin && !isatty(fileno(stdin)));;
+    read_stdin_file = (stdin && !isatty(fileno(stdin)));
     initiate_command_at = -1;
     executable_encountered = false;
     collector_encountered = false;
@@ -202,28 +201,22 @@ extern "C"
    // Open the Python interpreter.
     Initial_Python ();
 
-    if (need_command_line)
+    if (need_command_line || read_stdin_file)
     {
      // Move the command line options to an input control window.
       command_line_window = Commander_Initialization ("COMMAND_LINE",my_host->h_name,my_pid,0,false);
       Start_COMMAND_LINE_Mode( command_line_window, argc-1, &argv[1], initiate_command_at-1,
                                need_batch, read_stdin_file);
-    } else if (need_batch && (argc <= 2)) {
+    } else if (need_batch && (argc <= 2) && !read_stdin_file) {
       fprintf(stderr,"Missing command line arguments\n");
       return -1;
     }
 
     if (need_tli)
     {
-     // Start up the Text Line Interface to read from stdin.
-      tli_window = Commander_Initialization ("TLI",my_host->h_name,my_pid,0,!read_stdin_file);
-      if (read_stdin_file) {
-       // Read stdin from a piped-in file, as needed.
-        Start_TLI_Mode (tli_window);
-      } else {
-       // Create a thread to read from a terminal window.
-        int stat = pthread_create(&phandle[0], 0, (void *(*)(void *))SS_Direct_stdin_Input,(void *)tli_window);
-      }
+     // Start up the Text Line Interface to read from the keyboard.
+      tli_window = Commander_Initialization ("TLI",my_host->h_name,my_pid,0,true);
+      int stat = pthread_create(&phandle[0], 0, (void *(*)(void *))SS_Direct_stdin_Input,(void *)tli_window);
     }
 
     if (need_gui)
@@ -238,7 +231,7 @@ extern "C"
 // the GUI can open and define an async input window.
 // The hack is to define a dummy async window before python starts.
 // We will need to sort this out at some point in the future.
-if (!need_tli || read_stdin_file) gui_window = Commander_Initialization ("GUI",my_host->h_name,my_pid,0,true);
+      gui_window = Commander_Initialization ("GUI",my_host->h_name,my_pid,0,true);
     }
 
    // Fire off Python.
