@@ -140,25 +140,10 @@ void OpenSpeedshop::fileOpenExperiment()
     Panel *p = NULL;
     if( item )
     {
-if( item->parent() != NULL )
-{
- 
-      p = item->panel;
-}
-if( !p )
-{
-  if( !item->text(0).isEmpty() )
-  {
-//printf("item->text(0).ascii()=(%s)\n", item->text(0).ascii() );
-//printf("item->text(1).ascii()=(%s)\n", item->text(1).ascii() );
-  } else
-  {
-//printf("item->text(0) is empty.\n");
-  }
-}
-    } else
-    {
-//printf("no panel.\n");
+      if( item->parent() != NULL )
+      {
+        p = item->panel;
+      }
     }
     if( p )
     {
@@ -170,7 +155,63 @@ if( !p )
       //printf("Create a new one!\n");
       //printf("expID = (%d) \n", expID );
       QString expStr = QString("%1").arg(expID);
-      topPC->dl_create_and_add_panel("pc Sampling", topPC->leftPanelContainer, (void *)&expStr);
+
+  QString command;
+  command = QString("listTypes -x %1").arg(expStr);
+  std::list<std::string> list_of_collectors;
+  if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
+         &list_of_collectors, FALSE ) )
+  {
+    printf("Unable to run %s command.\n", command.ascii() );
+  }
+
+  int knownCollectorType = FALSE;
+  QString panel_type = "other";
+  if( list_of_collectors.size() > 0 )
+  {
+    for( std::list<std::string>::const_iterator it = list_of_collectors.begin();         it != list_of_collectors.end(); it++ )
+    {
+//      std::string collector_name = *it;
+      QString collector_name = (QString)*it;
+//      printf("(%s)\n", collector_name.ascii() );
+      if( collector_name == "pcsamp" )
+      {
+        knownCollectorType = TRUE;
+        panel_type = "pc Sampling";
+        break;
+      } else if( collector_name == "usertime" )
+      {
+        knownCollectorType = TRUE;
+        panel_type = "User Time";
+        break;
+      } else if( collector_name == "fpe" )
+      {
+        knownCollectorType = TRUE;
+        panel_type = "FPE Tracing";
+        break;
+      } else if( collector_name == "hw" )
+      {
+        panel_type = "HW Counter";
+        knownCollectorType = TRUE;
+        break;
+      } else if( collector_name == "io" )
+      {
+        panel_type = "IO";
+        knownCollectorType = TRUE;
+        break;
+      } else if( collector_name == "mpi" )
+      {
+        panel_type = "MPI";
+        knownCollectorType = TRUE;
+        break;
+      }
+      
+    }
+  }
+
+
+printf("pane_type.ascii() = %s\n", panel_type.ascii() );
+  topPC->dl_create_and_add_panel((char *)panel_type.ascii(), topPC->leftPanelContainer, (void *)&expStr);
     }
   }
 
