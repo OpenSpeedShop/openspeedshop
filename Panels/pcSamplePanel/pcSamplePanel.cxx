@@ -491,6 +491,39 @@ void
 pcSamplePanel::manageCollectorsSelected()
 {
   nprintf( DEBUG_PANELS ) ("pcSamplePanel::manageCollectorsSelected()\n");
+// BEGIN DEBUG
+// Just a place holder to see if we set the sampling_rate correctly.
+        unsigned int sampling_rate = 3;
+        // Set the sample_rate of the collector.
+        try
+        {
+          ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+          if( eo && eo->FW() )
+          {
+            experiment = eo->FW();
+          }
+          ThreadGroup tgrp = experiment->getThreads();
+          if( tgrp.size() == 0 )
+          {
+            fprintf(stderr, "There are no known threads for this experiment.\n");
+            return;
+          }
+          ThreadGroup::iterator ti = tgrp.begin();
+          Thread t1 = *ti; 
+          CollectorGroup cgrp = experiment->getCollectors();
+          if( cgrp.size() > 0 )
+          {
+            CollectorGroup::iterator ci = cgrp.begin();
+             Collector pcSampleCollector = *ci;
+             pcSampleCollector.getParameterValue("sampling_rate", sampling_rate);
+          printf("sampling_rate=%u\n", sampling_rate);
+          }
+        }
+        catch(const std::exception& error)
+        {
+          return;
+        }
+// END DEBUG
 }   
 
 void
@@ -694,11 +727,46 @@ CLIInterface::interrupt = true;
    {
      mw->executableName = lao->executableName;
      mw->pidStr = lao->pidStr;
-     updateInitialStatus();
+
+      if( lao->paramList ) // Really not a list yet, just one param.
+      {
+        unsigned int sampling_rate = lao->paramList.toUInt();
+        // Set the sample_rate of the collector.
+        try
+        {
+          ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+          if( eo && eo->FW() )
+          {
+            experiment = eo->FW();
+          }
+          ThreadGroup tgrp = experiment->getThreads();
+          if( tgrp.size() == 0 )
+          {
+            fprintf(stderr, "There are no known threads for this experiment.\n");
+            return 0;
+          }
+          ThreadGroup::iterator ti = tgrp.begin();
+          Thread t1 = *ti; 
+          CollectorGroup cgrp = experiment->getCollectors();
+          if( cgrp.size() > 0 )
+          {
+            CollectorGroup::iterator ci = cgrp.begin();
+            nprintf( DEBUG_MESSAGES ) ("sampling_rate=%u\n", sampling_rate);
+            Collector pcSampleCollector = *ci;
+            pcSampleCollector.setParameterValue("sampling_rate", sampling_rate);
+          }
+        }
+        catch(const std::exception& error)
+        {
+          return 0;
+        }
+      }
+
+      updateInitialStatus();
  
-     ret_val = 1;
+      ret_val = 1;
     }
- }
+  }
 
   return ret_val;  // 0 means, did not want this message and did not act on anything.
 }
