@@ -55,7 +55,8 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, int bu
     strcat(cmdstr,"\n\0");
 
    /* Put the "expCreate" command to the input stack */
-    (void)Append_Input_String (my_window, cmdstr);
+    (void)Append_Input_String (my_window, cmdstr,
+                               NULL, &Default_TLI_Line_Output, &Default_TLI_Command_Output);
   }
 
 }
@@ -65,7 +66,8 @@ int Start_TLI_Mode (CMDWID my_window)
   Assert (my_window);
 
  /* Define stdin as the main input file. */
-  (void)Append_Input_File (my_window, std::string("stdin"));
+  (void)Append_Input_File (my_window, std::string("stdin"),
+                           &Default_TLI_Line_Output, &Default_TLI_Command_Output);
 
   return 1;
 }
@@ -80,13 +82,15 @@ int Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, int butno
 
   if (read_stdin_file) {
    // Read a piped-in file.
-    (void)Append_Input_File (my_window, std::string("stdin"));
+    (void)Append_Input_File (my_window, std::string("stdin"),
+                             &Default_TLI_Line_Output, &Default_TLI_Command_Output);
   }
 
   if (batch_mode) {
    // If in "-batch" mode, end with an "expGo" command.
     char *cmdrun = "expGo\n";
-    (void)Append_Input_String (my_window, cmdrun);
+    (void)Append_Input_String (my_window, cmdrun,
+                               NULL, &Default_TLI_Line_Output, &Default_TLI_Command_Output);
   }
 
   return 1;
