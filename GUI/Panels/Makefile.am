@@ -22,4 +22,4 @@
 # All Rights Reserved.
 ################################################################################
 
-SUBDIRS = ToolbarPanel SourcePanel CmdPanel TopPanel IntroWizardPanel pcSamplePanel PerformancePanel DebugPanel UserTimePanel GettingStartedPanel
+SUBDIRS = ToolbarPanel SourcePanel CmdPanel TopPanel IntroWizardPanel pcSamplePanel PerformancePanel DebugPanel UserTimePanel GettingStartedPanel HW_CounterPanel IOPanel FPE_TracingPanel
