@@ -29,6 +29,40 @@ void SS_Execute_Cmd (CommandObject *cmd) {
   case CMD_RECORD:
     cmd_successful = SS_Record (cmd);
     break;
+  case CMD_EXP_CLOSE:
+  case CMD_EXP_DETACH:
+  case CMD_EXP_DISABLE:
+  case CMD_EXP_ENABLE:
+  case CMD_EXP_PAUSE:
+  case CMD_EXP_GO:
+  case CMD_EXP_SAVE:
+  case CMD_EXP_SETPARAM:
+  case CMD_EXP_VIEW:
+  case CMD_CLEAR_BREAK:
+  case CMD_EXIT:
+  case CMD_OPEN_GUI:
+  case CMD_HISTORY:
+  case CMD_LOG:
+  case CMD_PLAYBACK:
+    cmd_successful = SS_no_value (cmd);
+    break;
+  case CMD_EXP_RESTORE:
+  case CMD_SETBREAK:
+    cmd_successful = SS_int_value (cmd);
+    break;
+  case CMD_LIST_SRC:
+  case CMD_HELP:
+    cmd_successful = SS_string_value (cmd);
+    break;
+  case CMD_LIST_EXP:
+  case CMD_LIST_HOSTS:
+  case CMD_LIST_OBJ:
+  case CMD_LIST_PIDS:
+  case CMD_LIST_METRICS:
+  case CMD_LIST_PARAMS:
+  case CMD_LIST_REPORTS:
+  case CMD_LIST_BREAKS:
+  case CMD_LIST_TYPES:
   default:
     fprintf(stderr,"Command %d has not been implimented yet\n",cmd->Type());
   }
