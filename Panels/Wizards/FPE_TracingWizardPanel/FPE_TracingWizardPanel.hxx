@@ -16,8 +16,8 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef PCSAMPLEWIZARDPANEL_H
-#define PCSAMPLEWIZARDPANEL_H
+#ifndef FPE_TRACINGPANELWIZARDPANEL_H
+#define FPE_TRACINGPANELWIZARDPANEL_H
 #include "Panel.hxx"           // Do not remove
 
 class PanelContainer;   // Do not remove
@@ -249,4 +249,4 @@ private:
     QString sampleRate;
 
 };
-#endif // PCSAMPLEWIZARDPANEL_H
+#endif // FPE_TRACINGPANELWIZARDPANEL_H

@@ -17,8 +17,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef PCSAMPLEWIZARDPANEL_H
-#define PCSAMPLEWIZARDPANEL_H
+#ifndef USERTIMEWIZARDPANEL_H
+#define USERTIMEWIZARDPANEL_H
 #include "Panel.hxx"           // Do not remove
 
 class PanelContainer;   // Do not remove
@@ -250,4 +250,4 @@ private:
     QString sampleRate;
 
 };
-#endif // PCSAMPLEWIZARDPANEL_H
+#endif // USERTIMEWIZARDPANEL_H

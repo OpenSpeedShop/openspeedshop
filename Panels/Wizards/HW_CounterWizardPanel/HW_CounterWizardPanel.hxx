@@ -15,8 +15,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef PCSAMPLEWIZARDPANEL_H
-#define PCSAMPLEWIZARDPANEL_H
+#ifndef HW_COUNTERWIZARDPANEL_H
+#define HW_COUNTERWIZARDPANEL_H
 #include "Panel.hxx"           // Do not remove
 
 class PanelContainer;   // Do not remove
@@ -248,4 +248,4 @@ private:
     QString sampleRate;
 
 };
-#endif // PCSAMPLEWIZARDPANEL_H
+#endif // HW_COUNTERWIZARDPANEL_H
