@@ -27,8 +27,9 @@
 
 using namespace std;
 
-#include "SS_Parse_Result.hxx"
+#include "SS_Parse_Range.hxx"
 #include "SS_Parse_Target.hxx"
+#include "SS_Parse_Result.hxx"
 
 using namespace OpenSpeedShop::cli;
 
@@ -285,7 +286,7 @@ push_cluster(char *name)
     
     strcpy(tname,name);
     
-    //p_parse_result->push_clusters(tname);
+    p_parse_result->CurrentTarget()->pushClusterPoint(tname);
 }
 
 /**
@@ -309,6 +310,7 @@ push_address(int addr)
     inttab[command.address_table.cur_node] = addr;
     command.address_table.cur_node++;
     
+    p_parse_result->pushAddressPoint(addr);
 }
 
 /**
@@ -331,20 +333,26 @@ push_32bit_range(int first, int second, oss_table_enum table_type)
     switch(table_type) {
     	case TABLE_PID:
 	    p_table = &command.pid_table;
+	    p_parse_result->CurrentTarget()->pushPidRange(first,second);
 	    break;
     	case TABLE_RANK:
 	    p_table = &command.rank_table;
+	    p_parse_result->CurrentTarget()->pushRankRange(first,second);
 	    break;
     	case TABLE_THREAD:
 	    p_table = &command.thread_table;
+	    p_parse_result->CurrentTarget()->pushThreadRange(first,second);
 	    break;
     	case TABLE_BREAK:
 	    p_table = &command.break_table;
+//	    p_parse_result->pushBreakRange(first,second);
 	    break;
     	case TABLE_ADDRESS: /* this needs to be in put_64bit_range */
 	    p_table = &command.address_table;
+	    p_parse_result->pushAddressRange(first,second);
 	    break;
     	case TABLE_LINENO: /* Line numbers */
+	    p_parse_result->pushLineNoRange(first,second);
 	    p_table = &command.lineno_table;
 	    break;
     	default :
@@ -380,20 +388,26 @@ push_32bit_value(int value, oss_table_enum table_type)
     switch(table_type) {
     	case TABLE_PID:
 	    p_table = &command.pid_table;
+	    p_parse_result->CurrentTarget()->pushPidPoint(value);
 	    break;
     	case TABLE_RANK:
 	    p_table = &command.rank_table;
+	    p_parse_result->CurrentTarget()->pushRankPoint(value);
 	    break;
     	case TABLE_THREAD:
 	    p_table = &command.thread_table;
+	    p_parse_result->CurrentTarget()->pushThreadPoint(value);
 	    break;
     	case TABLE_BREAK:
 	    p_table = &command.break_table;
+	    p_parse_result->pushBreakId(value);
 	    break;
     	case TABLE_ADDRESS: /* this needs to be in put_64bit_range */
 	    p_table = &command.address_table;
+	    p_parse_result->pushAddressPoint(value);
 	    break;
     	case TABLE_LINENO: /* Line numbers */
+	    p_parse_result->pushLineNoPoint(value);
 	    p_table = &command.lineno_table;
 	    break;
     	default :
@@ -432,6 +446,8 @@ push_help_string(char *name)
     help_tab[command.help_table.cur_node].name = tname;
     help_tab[command.help_table.cur_node].tag = HELP_DUNNO;
     command.help_table.cur_node++;
+
+    p_parse_result->push_help(tname);
 }
 
 /**
@@ -457,6 +473,8 @@ push_host_name(char *host)
     host_tab[command.host_table.cur_node].u.name = tname;
     host_tab[command.host_table.cur_node].tag = HOST_NAME;
     command.host_table.cur_node++;
+
+    p_parse_result->CurrentTarget()->pushHostPoint(tname);
 }
 
 /**
@@ -479,6 +497,8 @@ push_host_ip(unsigned ip_num)
     host_tab[command.host_table.cur_node].u.ip_num = ip_num;
     host_tab[command.host_table.cur_node].tag = HOST_NUM;
     command.host_table.cur_node++;
+
+    p_parse_result->CurrentTarget()->pushHostPoint(ip_num);
 }
 
 /**
@@ -503,6 +523,8 @@ push_file(char *file)
     strtab = (char **)command.file_table.table;
     strtab[command.file_table.cur_node] = tname;
     command.file_table.cur_node++;
+
+    p_parse_result->CurrentTarget()->pushFilePoint(tname);
 }
 
 /**
@@ -605,6 +627,8 @@ push_help(char *name)
     helptab = (help_desc_t *)command.help_table.table;
     helptab[command.help_table.cur_node].name = tname;
     command.help_table.cur_node++;
+
+    p_parse_result->push_help(tname);
 }
 
 /**
