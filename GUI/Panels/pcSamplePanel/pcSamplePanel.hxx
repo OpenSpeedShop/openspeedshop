@@ -98,6 +98,7 @@ public slots:
   void saveAsSelected();
   void manageCollectorsSelected();
   void manageProcessesSelected();
+  void manageDataSetsSelected();
 
 protected slots:
   virtual void languageChange();

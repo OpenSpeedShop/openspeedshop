@@ -141,8 +141,9 @@ pcSamplePanel::menu(QPopupMenu* contextMenu)
   printf("pcSamplePanel::menu() requested.\n");
 
   contextMenu->insertSeparator();
-  contextMenu->insertItem("&Manage Collectors", this, SLOT(manageCollectorsSelected()), CTRL+Key_A );
-  contextMenu->insertItem("&Manage Processes", this, SLOT(manageProcessesSelected()), CTRL+Key_A );
+  contextMenu->insertItem("&Manage Collectors...", this, SLOT(manageCollectorsSelected()), CTRL+Key_A );
+  contextMenu->insertItem("&Manage Processes...", this, SLOT(manageProcessesSelected()), CTRL+Key_A );
+  contextMenu->insertItem("&Manage Data Sets...", this, SLOT(manageDataSetsSelected()), CTRL+Key_A );
   contextMenu->insertSeparator();
   contextMenu->insertItem("&Save As ...", this, SLOT(saveAsSelected()), CTRL+Key_S ); 
 
@@ -159,6 +160,12 @@ void
 pcSamplePanel::manageProcessesSelected()
 {
   printf("pcSamplePanel::managerProcessesSelected()\n");
+}   
+
+void
+pcSamplePanel::manageDataSetsSelected()
+{
+  printf("pcSamplePanel::managerDataSetsSelected()\n");
 }   
 
 //! Save ascii version of this panel.
@@ -234,8 +241,12 @@ qApp->processEvents(500);
 sleep(5);
 statusLabelText->setText( tr("Process completed...") );
 qApp->processEvents(500);
+#ifdef OLDWAY
 pco->attachProcessButton->setEnabled(TRUE);
 pco->attachCollectorButton->setEnabled(TRUE);
+pco->detachProcessButton->setEnabled(TRUE);
+pco->detachCollectorButton->setEnabled(TRUE);
+#endif // OLDWAY
 pco->runButton->setEnabled(TRUE);
 pco->runButton->enabledFLAG = TRUE;
 pco->pauseButton->setEnabled(FALSE);
@@ -246,8 +257,6 @@ pco->continueButton->enabledFLAG = FALSE;
 pco->updateButton->setEnabled(FALSE);
 pco->updateButton->setEnabled(FALSE);
 pco->updateButton->enabledFLAG = FALSE;
-pco->detachProcessButton->setEnabled(TRUE);
-pco->detachCollectorButton->setEnabled(TRUE);
 pco->terminateButton->setEnabled(FALSE);
 pco->terminateButton->setFlat(TRUE);
 pco->terminateButton->setEnabled(FALSE);
