@@ -39,34 +39,35 @@ StatsPanel::~StatsPanel()
 void
 StatsPanel::itemSelected(QListViewItem *item)
 {
-  printf("StatsPanel::clicked() entered\n");
+  dprintf("StatsPanel::clicked() entered\n");
 
-if( item )
-{
-  printf("  item->depth()=%d\n", item->depth() );
-
-  QListViewItem *nitem = item;
-  while( nitem->parent() )
+  if( item )
   {
-printf("looking for 0x%x\n", nitem->parent() );
-    nitem = nitem->parent();
-  }
+    dprintf("  item->depth()=%d\n", item->depth() );
+  
+    QListViewItem *nitem = item;
+    while( nitem->parent() )
+    {
+      dprintf("looking for 0x%x\n", nitem->parent() );
+      nitem = nitem->parent();
+    }
   
 
-  if( nitem )
-  {
-    printf("here's the parent! 0x%x\n", nitem);
-    printf("  here's the rank of that parent: rank = %s\n", nitem->text(1).ascii() );
-    matchSelectedItem( atoi( nitem->text(1).ascii() ) );
+    if( nitem )
+    {
+      dprintf("here's the parent! 0x%x\n", nitem);
+      dprintf("  here's the rank of that parent: rank = %s\n",
+        nitem->text(1).ascii() );
+      matchSelectedItem( atoi( nitem->text(1).ascii() ) );
+    }
   }
-}
 }
 
 
 void
 StatsPanel::matchSelectedItem(int element)
 {
-  printf ("TopPanel::matchSelectedItem() = %d\n", element );
+  dprintf ("StatsPanel::matchSelectedItem() = %d\n", element );
 
   int i = 0;
   HighlightList *highlightList = new HighlightList();
@@ -111,7 +112,7 @@ StatsPanel::matchSelectedItem(int element)
      i++;
   }
 
-  printf ("%d (%s) (%s) (%d)\n", element, fi->functionName, fi->fileName, fi->function_line_number );
+  dprintf ("%d (%s) (%s) (%d)\n", element, fi->functionName, fi->fileName, fi->function_line_number );
   
   char msg[1024];
   sprintf(msg, "%d (%s) (%s) (%d)\n", element, fi->functionName, fi->fileName, fi->function_line_number );
@@ -138,12 +139,13 @@ StatsPanel::matchSelectedItem(int element)
 void
 StatsPanel::updateStatsPanelData()
 {
-// Read the new data, destroy the old data, and update the StatsPanel with
-// the new data.
+   // Read the new data, destroy the old data, and update the StatsPanel with
+   // the new data.
 
 
-printf("updateStatsPanelData() enterd.\n");
-int number_entries = getUpdatedData(numberItemsToRead);
+  dprintf("updateStatsPanelData() enterd.\n");
+  int number_entries = getUpdatedData(numberItemsToRead);
+
   if( lv != NULL )
   {
     delete lv;
@@ -155,6 +157,11 @@ int number_entries = getUpdatedData(numberItemsToRead);
     lv = new SPListView( this, getBaseWidgetFrame(), getName(), 0 );
  
     connect( lv, SIGNAL(clicked(QListViewItem *)), this, SLOT( itemSelected( QListViewItem* )) );
+
+    lv->setAllColumnsShowFocus(TRUE);
+
+    // If there are subitems, then indicate with root decorations.
+    lv->setRootIsDecorated(TRUE);
   }
 
   lv->clear();
@@ -293,7 +300,7 @@ StatsPanel::saveAs()
 int 
 StatsPanel::listener(void *msg)
 {
-  printf("StatsPanel::listener() requested.\n");
+  dprintf("StatsPanel::listener() requested.\n");
 
 // BUG - BIG TIME KLUDGE.   This should have a message type.
   MessageObject *mo = (MessageObject *)msg;
@@ -350,7 +357,7 @@ StatsPanel::setNumberVisibleEntries()
   {
     // user entered something and pressed OK
     numberItemsToRead = atoi(text.ascii());
-    printf ("numberItemsToRead=%d\n", numberItemsToRead);
+    dprintf ("numberItemsToRead=%d\n", numberItemsToRead);
     updateStatsPanelData();
   } else
   {
@@ -403,6 +410,7 @@ StatsPanel::truncateCharString(char *str, int length)
 int
 StatsPanel::getUpdatedData(int num_entries_to_read)
 {
+  // Get the information about the collector.  
   collectorData = new CollectorInfo();
 
   int number_returned = getMetrics(num_entries_to_read);
