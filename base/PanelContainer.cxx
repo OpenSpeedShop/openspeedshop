@@ -1191,7 +1191,7 @@ PanelContainer::addPanel(Panel *p, PanelContainer *panel_container, char *tab_na
 
   if( panel_container->leftPanelContainer && panel_container->rightPanelContainer )
   {
-    printf("PC:addPanel() WARNING! You can't add this to this panelContainer!  It's split!\n");
+//    printf("PC:addPanel() WARNING! You can't add this to this panelContainer!  It's split!\n");
     start_pc = panel_container->findBestFitPanelContainer(start_pc);
   }
 
@@ -2629,7 +2629,7 @@ PanelContainer::_notifyAllDecendants(char *msg, PanelContainer *pc)
         _notifyAllDecendants(msg, p->topPC);
       } else
       {
-printf("contact %s listener...\n", p->getName() );
+// printf("contact %s listener...\n", p->getName() );
         p->listener(msg);
       }
     }
