@@ -59,6 +59,7 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n, void *argument) 
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("pcSamplePanel::pcSamplePanel() constructor called\n");
 
+  ExperimentObject *eo = NULL;
   experiment = NULL;
   executableNameStr = QString::null;
   pidStr = QString::null;
@@ -168,6 +169,11 @@ printf("Attempting to do an (%s)\n", command );
 //    return;
   }
   expID = val;
+  eo = Find_Experiment_Object((EXPID)expID);
+  if( eo && eo->FW() )
+  {
+    experiment = eo->FW();
+  }
 
 //  fprintf(stdout, "A: MY VALUE! = (%d)\n", val);
   statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the Run button to begin the experiment.")) );
@@ -184,6 +190,16 @@ if( !executableNameStr.isEmpty() || !pidStr.isEmpty() )
 } else
 {
   printf("pcSample has been requested to open an existing experiment!!!\n");
+// Look up the framework experiment and squirrel it away.
+  ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+  if( eo && eo->FW() )
+  {
+    experiment = eo->FW();
+  }
+  statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the Run button to begin the experiment.")) );
+  runnableFLAG = TRUE;
+  pco->runButton->setEnabled(TRUE);
+  pco->runButton->enabledFLAG = TRUE;
 }
 
   char name_buffer[100];
@@ -197,39 +213,12 @@ if( !executableNameStr.isEmpty() || !pidStr.isEmpty() )
   topLevel = TRUE;
   topPC->topLevel = TRUE;
 
-// Look up the framework experiment and squirrel it away.
-  ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-  if( eo && eo->FW() )
-  {
-    experiment = eo->FW();
-  }
-
   char *name = "Source Panel";
   SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel(name, (PanelContainer *)topPC, (void *)expID);
 
-// Begin demo position at dummy file... For the real stuff we'll need to 
-// look up the main()... and position at it...
-if( expID == -1 )
+if( expID > 0 && !executableNameStr.isEmpty() )
 {
-  if( mw && !executableNameStr.isEmpty() && executableNameStr.endsWith("fred_calls_ted") )
-  {
-    char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
-    char buffer[200];
-    strcpy(buffer, plugin_directory);
-    strcat(buffer, "/../../../usability/phaseI/fred_calls_ted.c");
-    nprintf( DEBUG_CONST_DESTRUCT ) ("load (%s)\n", buffer);
-    SourceObject *spo = new SourceObject("main", buffer, 22, TRUE, NULL);
-  
-    if( !sp->listener((void *)spo) )
-    {
-      fprintf(stderr, "Unable to position at main in %s\n", buffer);
-    } else
-    {
-      nprintf( DEBUG_CONST_DESTRUCT ) ("Positioned at main in %s ????? \n", buffer);
-    }
-  }
-} else
-{
+#ifdef OLDWAY
   ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
   if( eo && eo->FW() )
   {
@@ -253,6 +242,13 @@ if( expID == -1 )
     std::cout << std::endl;
 
   }
+#else // OLDWAY
+  loadMain();
+  statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the Run button to begin the experiment.")) );
+  runnableFLAG = TRUE;
+  pco->runButton->setEnabled(TRUE);
+  pco->runButton->enabledFLAG = TRUE;
+#endif // OLDWAY
 }
 
 }
@@ -277,14 +273,19 @@ pcSamplePanel::~pcSamplePanel()
             QString::null, 0, 1 ) )
   {
     printf("NOTE: This does not need to be a syncronous call.\n");
+#ifdef OLDWAY
     bool mark_value_for_delete = true;
     int64_t val = 0;
-    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+//    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
     if( !cli->runSynchronousCLI(command) )
     {
       fprintf(stderr, "Error retreiving experiment id. \n");
       return;
     }
+#else // OLDWAY
+    int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
+    InputLineObject *clip = Append_Input_String( wid, command);
+#endif  // OLDWAY
   }
 }
 
@@ -400,13 +401,33 @@ pcSamplePanel::detachFromProgramSelected()
     mw->pidStr = QString::null;
   }
 
+  CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+
+  char command[1024];
+  sprintf(command, "expClose -x %d\n", expID );
+
+#ifdef OLDWAY
+  int64_t val = 0;  // unused
+  bool mark_value_for_delete = true; 
+  if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete, 60000 ) )
+  {
+    fprintf(stderr, "Error detaching (expClose) for id=%d . \n", expID);
+//    return;
+  }
+#else // OLDWAY
+  int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
+  InputLineObject *clip = Append_Input_String( wid, command);
+#endif // OLDWAY
+
   updateInitialStatus();
+
 
   SourceObject *spo = new SourceObject(QString::null, QString::null, 0, TRUE, NULL);
 
   broadcast((char *)spo, NEAREST_T);
 
-runnableFLAG = FALSE;
+  runnableFLAG = FALSE;
+printf("WARNING: Disable this window!!!!! Until an experiment (pcsamp) is restarted.\n");
 }
 
 void
@@ -736,34 +757,7 @@ if( !cli->runSynchronousCLI(command) )
 void
 pcSamplePanel::updateInitialStatus()
 {
-  if( experiment != NULL );
-  {
-    ThreadGroup tgrp = experiment->getThreads();
-    ThreadGroup::iterator ti = tgrp.begin();
-    Thread thread = *ti;
-    Time time = Time::Now();
-    const std::string main_string = std::string("main");
-    OpenSpeedShop::Framework::Function function = thread.getFunctionByName(main_string, time);
-    Optional<Statement> statement_definition = function.getDefinition();
-    if(statement_definition.hasValue())
-    {
-      std::cout << " (" << statement_definition.getValue().getPath()
-              << ", " << statement_definition.getValue().getLine() << ")";
-      std::cout << std::endl;
-      SourceObject *spo = new SourceObject("main", statement_definition.getValue().getPath(), statement_definition.getValue().getLine()-1, TRUE, NULL);
-  
-      if( broadcast((char *)spo, NEAREST_T) == 0 )
-      { // No source view up...
-        char *panel_type = "Source Panel";
-  //Find the nearest toplevel and start placement from there...
-        Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, NULL, (void *)groupID);
-        if( p != NULL )
-        {
-          p->listener((void *)spo);
-        }
-      }
-    }
-  }
+  loadMain();
 
 #ifdef OLDWAY
   if( !mw->executableName.isEmpty() )
@@ -929,6 +923,7 @@ void
 pcSamplePanel::loadMain()
 {
 printf("loadMain() entered\n");
+#ifdef OLDWAY
 
 // Begin Demo (direct connect to framework) only...
   if( !executableNameStr.isEmpty() || !pidStr.isEmpty() )
@@ -965,6 +960,37 @@ printf("loadMain() entered\n");
       }
     }
   }
+#else // OLDWAY
+
+  if( experiment != NULL );
+  {
+    ThreadGroup tgrp = experiment->getThreads();
+    ThreadGroup::iterator ti = tgrp.begin();
+    Thread thread = *ti;
+    Time time = Time::Now();
+    const std::string main_string = std::string("main");
+    OpenSpeedShop::Framework::Function function = thread.getFunctionByName(main_string, time);
+    Optional<Statement> statement_definition = function.getDefinition();
+    if(statement_definition.hasValue())
+    {
+      std::cout << " (" << statement_definition.getValue().getPath()
+              << ", " << statement_definition.getValue().getLine() << ")";
+      std::cout << std::endl;
+      SourceObject *spo = new SourceObject("main", statement_definition.getValue().getPath(), statement_definition.getValue().getLine()-1, TRUE, NULL);
+  
+      if( broadcast((char *)spo, NEAREST_T) == 0 )
+      { // No source view up...
+        char *panel_type = "Source Panel";
+  //Find the nearest toplevel and start placement from there...
+        Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, NULL, (void *)groupID);
+        if( p != NULL )
+        {
+          p->listener((void *)spo);
+        }
+      }
+    }
+  }
+#endif // OLDWAY
 }
 
 void

@@ -169,13 +169,13 @@ CmdPanel::returnPressed()
       sleep(1);
       qApp->processEvents(3);
       status = clip->What();
-      rough_second_count++;
-      if( rough_second_count > 9 )
-      {
-        fprintf(stdout, "Fake an error!\n");
-        output->append("Unable to process command.");
-        break;
-      }
+//      rough_second_count++;
+//      if( rough_second_count > 9 )
+//      {
+//        fprintf(stdout, "Fake an error!\n");
+//        output->append("Unable to process command.");
+//        break;
+//       }
     }
     // This in only a cludge for now!!! FIX
     if( clip && status == ILO_COMPLETE )

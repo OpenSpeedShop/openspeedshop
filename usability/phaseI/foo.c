@@ -21,7 +21,7 @@ void foo(int *var)
 {
   int i=0;
   int j=0;
-  int tmp = (*var) * 1000;
+  int tmp = (*var) * 10000;
   int in=0;
 
   for(i=0;i < tmp;i++)
