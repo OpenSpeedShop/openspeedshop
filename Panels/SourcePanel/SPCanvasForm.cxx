@@ -64,6 +64,7 @@ SPCanvasForm::setHighlights(QFont canvas_font, int lineHeight, int topLine, int 
 printf("SPCanvasForm::setHighlights()\n");
 printf("lineHeight=%d topLine=%d visibleLines=%d\n", lineHeight, topLine, visibleLines );
 
+canvasView->hide();
   int i = 0;
   char buffer[100];
   int textEdit_header_offset = 20;
@@ -80,12 +81,16 @@ printf("put out label (%s) at %dx%d\n", buffer, 10, i*lineHeight);
     canvasTextList.push_back(text);
   }
 
+canvasView->show();
+// repaint();
+// canvasView->repaint();
+// canvasArea->repaint();
 }
 
 void
 SPCanvasForm::clearAllItems()
 {
-  printf("clearAllItems() entered\n");
+  printf("clearAllItems(%d) entered\n", canvasTextList.count() );
 
   if( canvasTextList.empty() )
   {
@@ -95,8 +100,13 @@ SPCanvasForm::clearAllItems()
   QCanvasText *text_item = NULL;
   for( CanvasTextList::iterator it = canvasTextList.begin(); it != canvasTextList.end(); ++it )
   {
-    text_item = *it;
+    text_item = (QCanvasText *)*it;
+// printf("hide (%s)\n", text_item->text() );
 text_item->hide();  
+if( text_item )
+{
+  delete text_item;
+}
   }
 
   canvasTextList.clear();

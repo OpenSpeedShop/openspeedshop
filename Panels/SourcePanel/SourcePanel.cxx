@@ -599,7 +599,7 @@ lastLineHeight = (int)lineHeight;
 lastVisibleLines = (int)(height/lineHeight);
 if( sameFile == FALSE )
 {
-  canvasForm->setHighlights(textEdit->font(), lastLineHeight, lastTop, lastVisibleLines);
+//  canvasForm->setHighlights(textEdit->font(), lastLineHeight, lastTop, lastVisibleLines);
 }
 }
 
