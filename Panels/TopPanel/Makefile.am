@@ -31,7 +31,7 @@ TopPanel_la_CXXFLAGS = \
 
 TopPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
-TopPanel_la_LIBADD = -L$(QTDIR)/lib -lqt -lopenss-Base ../../expr_info/.libs/ossExprInfo.so ../../objects/.libs/ossObjects.so -lopenss-Chart
+TopPanel_la_LIBADD = -L$(QTDIR)/lib -lqt -lopenss-Base -lopenss-ExprInfo ../../objects/.libs/ossObjects.so -lopenss-Chart
 
 moc_TopPanel.cxx: TopPanel.hxx
 	-moc -o moc_TopPanel.cxx TopPanel.hxx

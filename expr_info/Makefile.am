@@ -17,18 +17,18 @@
 ################################################################################
 
 
-pkglib_LTLIBRARIES = ossExprInfo.la
+pkglib_LTLIBRARIES = libopenss-ExprInfo.la
 
-ossExprInfo_la_CXXFLAGS = \
+libopenss_ExprInfo_la_CXXFLAGS = \
 	-I/usr/include\
 	 -I$(QTDIR)/include\
 	 -I.\
 	 -I../base
 
-ossExprInfo_la_LDFLAGS = --export-dynamic -module -avoid-version
+libopenss_ExprInfo_la_LDFLAGS = --export-dynamic -module -avoid-version
 
-ossExprInfo_la_LIBADD = $(LIBLTDL)
+libopenss_ExprInfo_la_LIBADD = $(LIBLTDL)
 
-ossExprInfo_la_SOURCES = \
+libopenss_ExprInfo_la_SOURCES = \
 	MetricInfo.h MetricInfo.cxx \
 	CollectorInfo.h CollectorInfo.cxx 

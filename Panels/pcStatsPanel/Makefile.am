@@ -31,9 +31,9 @@ pcStatsPanel_la_CXXFLAGS = \
     -I../../plugin \
     -I../../base
 
-pcStatsPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../objects/.libs/ossObjects.so -Wl,../../expr_info/.libs/ossExprInfo.so -Wl,../StatsPanel/.libs/StatsPanel.so -Wl,../../libopenss-framework/.libs/libopenss-framework.so 
+pcStatsPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../objects/.libs/ossObjects.so -Wl,../StatsPanel/.libs/StatsPanel.so -Wl,../../libopenss-framework/.libs/libopenss-framework.so 
 
-pcStatsPanel_la_LIBADD = -L$(QTDIR)/lib -lqt -lopenss-Base
+pcStatsPanel_la_LIBADD = -L$(QTDIR)/lib -lqt -lopenss-Base -lopenss-ExprInfo 
 
 moc_pcStatsPanel.cxx: pcStatsPanel.hxx
 	-moc -o moc_pcStatsPanel.cxx pcStatsPanel.hxx
