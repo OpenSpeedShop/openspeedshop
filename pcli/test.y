@@ -63,7 +63,7 @@ char *string;
 %token JUST_QUIT_HEAD
 
 %token RANK_ID HOST_ID RANK_PID THREAD_ID FILE_ID EXP_ID PROCESS_ID
-%token LINE_ID
+%token LINE_ID CLUSTER_ID
 
 %token COMMA SEMICOLON DOUBLE_COLON COLON END_LINE DOT EQUAL
 
@@ -84,7 +84,7 @@ ss_line:    /* empty */
 	;
 
 command_line:  END_LINE {/* printf("OSS > "); */ }
-    	|   command_desc END_LINE {dump_command(); /* printf("OSS > "); */ }
+    	|   command_desc END_LINE {/*dump_command(); printf("OSS > "); */ }
     	;
 
 command_desc: exp_attach_com 	{set_command_type(CMD_EXP_ATTACH);}
@@ -342,7 +342,7 @@ list_pids_head:     LIST_PIDS_HEAD
     	    	;
 list_pids_arg:	    /* empty */
     	    	|   host_file
-		|   host_file MPI
+		|   host_file MPI   	{push_string(general_name[H_GEN_MPI],NAME_DUNNO);}
 		|   MPI     	    	{push_string(general_name[H_GEN_MPI],NAME_DUNNO);}
     	    	;
 
@@ -626,6 +626,18 @@ file_list:  	    file_name
 		;
 
 file_name:  	    NAME {push_file($1);}
+
+cluster_spec:  	    CLUSTER_ID cluster_name
+    	    	;
+
+cluster_list_spec:  CLUSTER_ID cluster_list
+		;
+
+cluster_list:  	    cluster_name 
+    	    	|   cluster_list COMMA cluster_name 
+		;
+
+cluster_name:  	    NAME {push_cluster($1);}
 
 pid_list_spec:	    PROCESS_ID pid_list
 		;
