@@ -1,5 +1,5 @@
 Estimated Time:
-   Anticipated test time; 10 minutes.   Max test time; 20 minutes.
+   Anticipated test time; 15 minutes.   Max test time; 25 minutes.
 
 Task 1:
   Launch Open/SpeedShop and optionally load a target application.
@@ -13,14 +13,14 @@ Task 2:
   Figure out which experiment will show the routine in the
   application that is taking the most time.
 Reason:
-  To determine if the user navigate the different experiments to find out
+  To determine if the user can navigate the different experiments to find out
   where to start performance debugging.
 
 Task 3:
   Actively select the experiment determined in Task 2.
 Reason:
   To see if it's obvious that an experiment type needs to be selected before
-  anything >other than running the program< will be accomplished under openss.
+  anything >other than running the program< will be accomplished.
 
 Task 4:
   Associate the executable with the selected experiment.

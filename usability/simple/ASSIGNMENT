@@ -5,18 +5,19 @@ Introduction:
 -------------
 
 For this assignment you'll be asked to do a few common
-performance tuning tasks.  There are no time constraint, nor should you
-feel there are any.   Please try to "think out loud" as you
-work through these problems.   It will greatly help us understand
-where our problems are.
+performance tuning tasks.  There are no time constraint to "correctly"
+complete these tasks.
 
+Please try to "think aloud" as you work through these problems.   
+It will help us understand where our problems are.
 
 Your task is to take the simple program (fred_calls_ted) in this
-directory and determine which routine(s) are taking the most time.
+directory and by using the Open/Speedshop tool, determine which
+routine(s) are taking the most time.
 
 
-Remember:  You are not being tested here.    The User Interface strategy
-is being analyzed.   Your initial feedback and thoughts as you 
+Remember:  You are not being tested.    The User Interface and it's
+ease of use, is being analyzed.   Your initial feedback and thoughts as you 
 navigate through this set of tasks will enable us to see our problem
 areas.
 
@@ -66,10 +67,10 @@ Step 7:
 
   Which routine took the most time?
 
-  Which routine too the second most time?
+  Which routine took the second most time?
 
 Step 8:
-  The applications source may have been covered up by the default report.
+  The application's Source Panel may have been covered up by the default view.
   If it is, attempt to make both the Source Panel and the Top Panel visible
   on screen at the same time.
 
@@ -86,10 +87,8 @@ Step 11:
   Display line numbers in the Source Panel.
 
 
-
 Step 12:
   Save this report to a file for later viewing.
-
 
 
 Step 13:
