@@ -4,7 +4,7 @@
   plugin_entry->plugin_name =  "pcSamplePanelControl.so";
   plugin_entry->plugin_location = "$FUTURE_TOOL_PLUGIN_DIR";
   plugin_entry->plugin_entry_point = "panel_init";
-  plugin_entry->menu_heading =  "&Performance";
+  plugin_entry->menu_heading =  "&Experiments";
   plugin_entry->menu_label =  "pc Sample Panel &Control";
   plugin_entry->menu_accel =  "Ctrl+C";
   plugin_entry->panel_type =  "pc Sample Panel Control";

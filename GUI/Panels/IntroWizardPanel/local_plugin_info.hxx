@@ -6,5 +6,5 @@
   plugin_entry->plugin_entry_point = "panel_init";
   plugin_entry->menu_heading =  "&Wizards";
   plugin_entry->menu_label =  "&Intro Wizard";
-  plugin_entry->menu_accel =  "Ctrl+Intro";
+  plugin_entry->menu_accel =  "Ctrl+I";
   plugin_entry->panel_type =  "Intro Wizard";
