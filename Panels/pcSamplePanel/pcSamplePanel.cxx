@@ -123,7 +123,7 @@ while( TRUE )
       fprintf(stderr, "Unable to process the clip.   Error encountered.\n");
       return;
     default:
-      fprintf(stderr, "Unknown status return in clip.\n");
+      fprintf(stderr, "Unknown status (%d) return in clip.\n", status);
       return;
   }
 
@@ -143,6 +143,9 @@ while( TRUE )
 
       int64_t val = -1;
       cri->Value(&val);
+
+//Allow the garbage collector to clean up the value...
+clip->Set_Results_Used();
 fprintf(stdout, "MY VALUE! = (%d)\n", 1);
 expID = val;
 char name_buffer[100];
