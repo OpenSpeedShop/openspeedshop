@@ -21,11 +21,11 @@ SourceObject::SourceObject() : MessageObject("SourceObject")
 /*! Constructor for the SourceObject.   Initializes the filename to load, 
     the line to center in the SourcePanel, flags if the SourcePanel should
     be raised, and passes a list of lines to highlight. */
-SourceObject::SourceObject(char *_functionName, char *_fileName, int l, bool rF, HighlightList *hll) : MessageObject("SourceObject")
+SourceObject::SourceObject(QString _functionName, QString _fileName, int l, bool rF, HighlightList *hll) : MessageObject("SourceObject")
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("SourceObject::SourceObject(entered.\n");
-  functionName = strdup(_functionName);
-  fileName = strdup(_fileName);
+  functionName = _functionName;
+  fileName = _fileName;
   line_number = l;
   raiseFLAG = rF;
   highlightList = hll;
@@ -34,14 +34,6 @@ SourceObject::SourceObject(char *_functionName, char *_fileName, int l, bool rF,
 /*! Destructor.   Releases the functionName and fileName. */
 SourceObject::~SourceObject()
 {
-  if( functionName )
-  {
-    free( functionName );
-  }
-  if( fileName )
-  {
-    free( fileName );
-  }
 }
 
 /*! Prints the objects fields.    Debug only. */
@@ -49,8 +41,8 @@ void
 SourceObject::print()
 {
   printf("SourceObject:\n");
-  printf("	functionName=(%s)\n", functionName);
-  printf("	fileName=(%s)\n", fileName);
+  printf("	functionName=(%s)\n", functionName.ascii());
+  printf("	fileName=(%s)\n", fileName.ascii());
   printf("	line_number=(%d)\n", line_number);
   printf("	raiseFLAG=(%d)\n", raiseFLAG);
   printf("	highlightList=(0x%x)\n", highlightList);

@@ -15,7 +15,7 @@ public:
     //! Unused constructor.
     SourceObject();
     //! Constructor for creating source message.
-    SourceObject(char *_functionName, char *_fileName, int l, bool rF=1, HighlightList *hll=NULL);
+    SourceObject(QString _functionName, QString _fileName, int l, bool rF=1, HighlightList *hll=NULL);
 
     //! Destructor
     ~SourceObject();
@@ -24,10 +24,10 @@ public:
     void print();
 
     //! The function name to highlight
-    char *functionName;
+    QString functionName;
 
     //! The file name to load.
-    char *fileName;
+    QString fileName;
 
     //! The line number to focus.
     int line_number;
