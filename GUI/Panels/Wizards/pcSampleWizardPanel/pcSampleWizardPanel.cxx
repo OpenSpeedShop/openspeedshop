@@ -41,6 +41,7 @@
 /*! The default constructor.   Unused. */
 pcSampleWizardPanel::pcSampleWizardPanel()
 { // Unused... Here for completeness...
+  nprintf(DEBUG_CONST_DESTRUCT) ("pcSampleWizardPanel::pcSampleWizardPanel() default constructor called\n");
 }
 
 
@@ -51,7 +52,7 @@ pcSampleWizardPanel::pcSampleWizardPanel()
  */
 pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
 {
-  printf("pcSampleWizardPanel::pcSampleWizardPanel() constructor called\n");
+  nprintf(DEBUG_CONST_DESTRUCT) ("pcSampleWizardPanel::pcSampleWizardPanel() constructor called\n");
   QHBoxLayout * panelLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
     if ( !name )
@@ -438,7 +439,7 @@ connect( vAttachOrLoadPageNextButton, SIGNAL( clicked() ), this, SLOT( vAttachOr
  */
 pcSampleWizardPanel::~pcSampleWizardPanel()
 {
-  printf("  pcSampleWizardPanel::~pcSampleWizardPanel() destructor called\n");
+  nprintf(DEBUG_CONST_DESTRUCT) ("  pcSampleWizardPanel::~pcSampleWizardPanel() destructor called\n");
 
   delete baseWidgetFrame;
 }
@@ -447,7 +448,7 @@ pcSampleWizardPanel::~pcSampleWizardPanel()
 bool
 pcSampleWizardPanel::menu(QPopupMenu* contextMenu)
 {
-  dprintf("pcSampleWizardPanel::menu() requested.\n");
+  nprintf(DEBUG_PANELS) ("pcSampleWizardPanel::menu() requested.\n");
 
   return( FALSE );
 }
@@ -459,7 +460,7 @@ pcSampleWizardPanel::menu(QPopupMenu* contextMenu)
 void 
 pcSampleWizardPanel::save()
 {
-  dprintf("pcSampleWizardPanel::save() requested.\n");
+  nprintf(DEBUG_PANELS) ("pcSampleWizardPanel::save() requested.\n");
 }
 
 //! Save ascii version of this panel (to a file).
@@ -470,14 +471,14 @@ pcSampleWizardPanel::save()
 void 
 pcSampleWizardPanel::saveAs()
 {
-  dprintf("pcSampleWizardPanel::saveAs() requested.\n");
+  nprintf(DEBUG_PANELS) ("pcSampleWizardPanel::saveAs() requested.\n");
 }
 
 //! This function listens for messages.
 int 
 pcSampleWizardPanel::listener(char *msg)
 {
-  dprintf("pcSampleWizardPanel::listener() requested.\n");
+  nprintf(DEBUG_PANELS) ("pcSampleWizardPanel::listener() requested.\n");
   return 0;  // 0 means, did not want this message and did not act on anything.
 }
 
@@ -486,7 +487,7 @@ pcSampleWizardPanel::listener(char *msg)
 int 
 pcSampleWizardPanel::broadcast(char *msg)
 {
-  dprintf("pcSampleWizardPanel::broadcast() requested.\n");
+  nprintf(DEBUG_PANELS) ("pcSampleWizardPanel::broadcast() requested.\n");
   return 0;
 }
 
@@ -495,67 +496,67 @@ void pcSampleWizardPanel::wizardModeSelected()
   QWidget *raisedWidget = pcSampleWizardPanelStack->visibleWidget();
 if( raisedWidget == vDescriptionPageWidget )
 {
-    printf("vDescriptionPageWidget\n");
+    nprintf(DEBUG_PANELS) ("vDescriptionPageWidget\n");
 } else if( raisedWidget ==  vParameterPageWidget )
 {
-    printf("vParameterPageWidget\n");
+    nprintf(DEBUG_PANELS) ("vParameterPageWidget\n");
 } else if( raisedWidget == vSummaryPageWidget )
 {
-    printf("vSummaryPageWidget\n");
+    nprintf(DEBUG_PANELS) ("vSummaryPageWidget\n");
 } else if( raisedWidget  == eDescriptionPageWidget )
 {
-    printf("eDescriptionPageWidget\n");
+    nprintf(DEBUG_PANELS) ("eDescriptionPageWidget\n");
 } else if( raisedWidget == eParameterPageWidget )
 {
-    printf("eParameterPageWidget\n");
+    nprintf(DEBUG_PANELS) ("eParameterPageWidget\n");
 } else if( raisedWidget == eSummaryPageWidget )
 {
-    printf("eSummaryPageWidget\n");
+    nprintf(DEBUG_PANELS) ("eSummaryPageWidget\n");
 }
 
   if( wizardMode->isOn() )
   {
     if( raisedWidget  == eDescriptionPageWidget )
     {
-        printf("eDescriptionPageWidget\n");
+        nprintf(DEBUG_PANELS) ("eDescriptionPageWidget\n");
         pcSampleWizardPanelStack->raiseWidget(vDescriptionPageWidget);
     } else if( raisedWidget == eParameterPageWidget )
     {
-        printf("eParameterPageWidget\n");
+        nprintf(DEBUG_PANELS) ("eParameterPageWidget\n");
         pcSampleWizardPanelStack->raiseWidget(vParameterPageWidget);
     } else if( raisedWidget == eAttachOrLoadPageWidget )
     {
-        printf("eAttachOrLoadPageWidget\n");
+        nprintf(DEBUG_PANELS) ("eAttachOrLoadPageWidget\n");
         pcSampleWizardPanelStack->raiseWidget(vAttachOrLoadPageWidget);
     } else if( raisedWidget == eSummaryPageWidget )
     {
-        printf("eSummaryPageWidget\n");
+        nprintf(DEBUG_PANELS) ("eSummaryPageWidget\n");
         pcSampleWizardPanelStack->raiseWidget(vSummaryPageWidget);
     } else
     {
-        printf("Verbose to Expert: unknown WStackPage\n");
+        nprintf(DEBUG_PANELS) ("Verbose to Expert: unknown WStackPage\n");
     }
   } else
   {
     if( raisedWidget == vDescriptionPageWidget )
     {
-        printf("vDescriptionPageWidget\n");
+        nprintf(DEBUG_PANELS) ("vDescriptionPageWidget\n");
         pcSampleWizardPanelStack->raiseWidget(eDescriptionPageWidget);
     } else if( raisedWidget ==  vParameterPageWidget )
     {
-        printf("vParameterPageWidget\n");
+        nprintf(DEBUG_PANELS) ("vParameterPageWidget\n");
         pcSampleWizardPanelStack->raiseWidget(eParameterPageWidget);
     } else if( raisedWidget ==  vAttachOrLoadPageWidget )
     {
-        printf("vAttachOrLoadPageWidget\n");
+        nprintf(DEBUG_PANELS) ("vAttachOrLoadPageWidget\n");
         pcSampleWizardPanelStack->raiseWidget(eAttachOrLoadPageWidget);
     } else if( raisedWidget == vSummaryPageWidget )
     {
-        printf("vSummaryPageWidget\n");
+        nprintf(DEBUG_PANELS) ("vSummaryPageWidget\n");
         pcSampleWizardPanelStack->raiseWidget(eSummaryPageWidget);
     } else
     {
-        printf("Expert to Verbose: unknown WStackPage\n");
+        nprintf(DEBUG_PANELS) ("Expert to Verbose: unknown WStackPage\n");
     }
   }
 }
@@ -567,13 +568,13 @@ void pcSampleWizardPanel::eHideWizardCheckBoxSelected()
 
 void pcSampleWizardPanel::eDescriptionPageNextButtonSelected()
 {
-printf("eDescriptionPageNextButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("eDescriptionPageNextButtonSelected() \n");
     pcSampleWizardPanelStack->raiseWidget(eParameterPageWidget);
 }
 
 void pcSampleWizardPanel::eDescriptionPageStartButtonSelected()
 {
-printf("eDescriptionPageStartButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("eDescriptionPageStartButtonSelected() \n");
     Panel *p = panelContainer->raiseNamedPanel("Intro Wizard");
     if( !p )
     {
@@ -583,47 +584,47 @@ printf("eDescriptionPageStartButtonSelected() \n");
 
 void pcSampleWizardPanel::eParameterPageBackButtonSelected()
 {
-printf("eParameterPageBackButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("eParameterPageBackButtonSelected() \n");
     pcSampleWizardPanelStack->raiseWidget(eDescriptionPageWidget);
 }
 
 void pcSampleWizardPanel::eParameterPageNextButtonSelected()
 {
-printf("eParameterPageNextButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("eParameterPageNextButtonSelected() \n");
 
     pcSampleWizardPanelStack->raiseWidget(eAttachOrLoadPageWidget);
 }
 
 void pcSampleWizardPanel::eParameterPageResetButtonSelected()
 {
-printf("eParameterPageResetButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("eParameterPageResetButtonSelected() \n");
 }
 
 void pcSampleWizardPanel::eSummaryPageBackButtonSelected()
 {
-printf("eSummaryPageBackButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("eSummaryPageBackButtonSelected() \n");
     pcSampleWizardPanelStack->raiseWidget(eAttachOrLoadPageWidget);
 }
 
 void pcSampleWizardPanel::eSummaryPageFinishButtonSelected()
 {
-printf("eSummaryPageFinishButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("eSummaryPageFinishButtonSelected() \n");
 
-  {
-    panelContainer->_masterPC->dl_create_and_add_panel("pc Sampling", panelContainer);
-  }
+  Panel *p = panelContainer->_masterPC->dl_create_and_add_panel("pc Sampling", panelContainer);
+
+  delete this;
 }
 
 // Begin advanced (expert) AttachOrLoad callbacks
 void pcSampleWizardPanel::eAttachOrLoadPageBackButtonSelected()
 {
-printf("eAttachOrLoadPageBackButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("eAttachOrLoadPageBackButtonSelected() \n");
     pcSampleWizardPanelStack->raiseWidget(eParameterPageWidget);
 }
 
 void pcSampleWizardPanel::eAttachOrLoadPageNextButtonSelected()
 {
-printf("eAttachOrLoadPageNextButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("eAttachOrLoadPageNextButtonSelected() \n");
 
 char buffer[2048];
   if( !eAttachOrLoadPageAttachToProcessCheckBox->isChecked() &&
@@ -647,16 +648,16 @@ sprintf(buffer, "<p align=\"left\">Requesting to load process \"%s\" on host \"%
     }
     delete dialog;
   
-    printf("result.acsii()=(%s)\n", result.ascii() );
+    nprintf(DEBUG_PANELS) ("result.acsii()=(%s)\n", result.ascii() );
   }
   if( eAttachOrLoadPageLoadProcessCheckBox->isChecked() )
   {
-    printf("Load the QFile \n");
+    nprintf(DEBUG_PANELS) ("Load the QFile \n");
     QString fn = QFileDialog::getOpenFileName( QString::null, QString::null,
                              this);
     if( !fn.isEmpty() )
     {
-      printf("fn.ascii()=(%s)\n", fn.ascii() );
+      nprintf(DEBUG_PANELS) ("fn.ascii()=(%s)\n", fn.ascii() );
 sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", sampling at \"%s\" milliseconds.<br><br></p>", fn.ascii(), "localhost", eParameterPageSampleRateText->text().ascii() );
     }
   }
@@ -669,19 +670,19 @@ sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host 
 
 void pcSampleWizardPanel::vHideWizardCheckBoxSelected()
 {
-printf("vHideWizardCheckBoxSelected() \n");
+nprintf(DEBUG_PANELS) ("vHideWizardCheckBoxSelected() \n");
 }
 
 void pcSampleWizardPanel::vDescriptionPageNextButtonSelected()
 {
-printf("vDescriptionPageNextButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("vDescriptionPageNextButtonSelected() \n");
 
     pcSampleWizardPanelStack->raiseWidget(vParameterPageWidget);
 }
 
 void pcSampleWizardPanel::vDescriptionPageStartButtonSelected()
 {
-printf("vDescriptionPageStartButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("vDescriptionPageStartButtonSelected() \n");
     Panel *p = panelContainer->raiseNamedPanel("Intro Wizard");
     if( !p )
     {
@@ -691,41 +692,41 @@ printf("vDescriptionPageStartButtonSelected() \n");
 
 void pcSampleWizardPanel::vParameterPageSampleRateTextReturnPressed()
 {
-printf("vParameterPageSampleRateTextReturnPressed() \n");
+nprintf(DEBUG_PANELS) ("vParameterPageSampleRateTextReturnPressed() \n");
 }
 
 void pcSampleWizardPanel::eParameterPageSampleRateTextReturnPressed()
 {
-printf("eParameterPageSampleRateTextReturnPressed() \n");
+nprintf(DEBUG_PANELS) ("eParameterPageSampleRateTextReturnPressed() \n");
 }
 
 void pcSampleWizardPanel::vParameterPageBackButtonSelected()
 {
-printf("vParameterPageBackButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("vParameterPageBackButtonSelected() \n");
     pcSampleWizardPanelStack->raiseWidget(vDescriptionPageWidget);
 }
 
 void pcSampleWizardPanel::vParameterPageNextButtonSelected()
 {
-printf("vParameterPageNextButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("vParameterPageNextButtonSelected() \n");
 
     pcSampleWizardPanelStack->raiseWidget(vAttachOrLoadPageWidget);
 }
 
 void pcSampleWizardPanel::vParameterPageResetButtonSelected()
 {
-printf("vParameterPageResetButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("vParameterPageResetButtonSelected() \n");
 }
 
 void pcSampleWizardPanel::vAttachOrLoadPageBackButtonSelected()
 {
-printf("vAttachOrLoadPageBackButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("vAttachOrLoadPageBackButtonSelected() \n");
     pcSampleWizardPanelStack->raiseWidget(vParameterPageWidget);
 }
 
 void pcSampleWizardPanel::vAttachOrLoadPageNextButtonSelected()
 {
-printf("vAttachOrLoadPageNextButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("vAttachOrLoadPageNextButtonSelected() \n");
 
 char buffer[2048];
   if( !vAttachOrLoadPageAttachToProcessCheckBox->isChecked() &&
@@ -749,16 +750,16 @@ sprintf(buffer, "<p align=\"left\">You've selected a pc Sample experiment for pr
     }
     delete dialog;
   
-    printf("result.acsii()=(%s)\n", result.ascii() );
+    nprintf(DEBUG_PANELS) ("result.acsii()=(%s)\n", result.ascii() );
   }
   if( vAttachOrLoadPageLoadProcessCheckBox->isChecked() )
   {
-    printf("Load the QFile \n");
+    nprintf(DEBUG_PANELS) ("Load the QFile \n");
     QString fn = QFileDialog::getOpenFileName( QString::null, QString::null,
                              this);
     if( !fn.isEmpty() )
     {
-      printf("fn.ascii()=(%s)\n", fn.ascii() );
+      nprintf(DEBUG_PANELS) ("fn.ascii()=(%s)\n", fn.ascii() );
 sprintf(buffer, "<p align=\"left\">You've selected a pc Sample experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%s\" milliseconds.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"pcSample\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", fn.ascii(), "localhost", vParameterPageSampleRateText->text().ascii() );
     }
   }
@@ -773,15 +774,17 @@ sprintf(buffer, "<p align=\"left\">You've selected a pc Sample experiment for ex
 
 void pcSampleWizardPanel::vSummaryPageBackButtonSelected()
 {
-printf("vSummaryPageBackButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("vSummaryPageBackButtonSelected() \n");
     pcSampleWizardPanelStack->raiseWidget(vAttachOrLoadPageWidget);
 }
 
 void pcSampleWizardPanel::vSummaryPageFinishButtonSelected()
 {
-printf("vSummaryPageFinishButtonSelected() \n");
+nprintf(DEBUG_PANELS) ("vSummaryPageFinishButtonSelected() \n");
 
-  panelContainer->_masterPC->dl_create_and_add_panel("pc Sampling", panelContainer);
+  Panel *p = panelContainer->_masterPC->dl_create_and_add_panel("pc Sampling", panelContainer);
+
+  delete this;
 }
 
 /*

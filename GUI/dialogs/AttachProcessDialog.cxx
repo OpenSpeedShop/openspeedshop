@@ -1,5 +1,7 @@
 #include "AttachProcessDialog.hxx"
 
+#include "debug.hxx"
+
 #include <qvariant.h>
 #include <qframe.h>
 #include <qpushbutton.h>
@@ -15,6 +17,8 @@
 AttachProcessDialog::AttachProcessDialog( QWidget* parent, const char* name, bool modal, WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
+  nprintf(DEBUG_CONST_DESTRUCT) ("AttachProcessDialog::AttachProcessDialog() constructor called.\n");
+  
   plo = NULL;
   if ( !name ) setName( "AttachProcessDialog" );
 
@@ -71,6 +75,7 @@ AttachProcessDialog::AttachProcessDialog( QWidget* parent, const char* name, boo
 AttachProcessDialog::~AttachProcessDialog()
 {
   // no need to delete child widgets, Qt does it all for us
+  nprintf(DEBUG_CONST_DESTRUCT) ("AttachProcessDialog::AttachProcessDialog() destructor called.\n");
 }
 
 /*
@@ -102,12 +107,12 @@ AttachProcessDialog::selectedProcesses()
   QListViewItem *selectedItem = availableProcessListView->selectedItem();
   if( selectedItem )
   {
-printf("Got an ITEM!\n");
+//    printf("Got an ITEM!\n");
     QString ret_value = selectedItem->text(0);
     return( ret_value );
   } else
   {
-printf("NO ITEMS SELECTED\n");
+//    printf("NO ITEMS SELECTED\n");
     return( NULL );
   }
 }
@@ -125,7 +130,7 @@ AttachProcessDialog::updateAttachableProcessList()
   {
     delete(plo);
   }
-printf("look up processes on host=(%s)\n", host);
+//  printf("look up processes on host=(%s)\n", host);
   plo = new ProcessListObject(host);
 
   availableProcessListView->clear();
@@ -148,6 +153,6 @@ printf("look up processes on host=(%s)\n", host);
 
 void AttachProcessDialog::attachHostComboBoxActivated()
 {
-printf("attachHostComboBoxActivated\n");
+//  printf("attachHostComboBoxActivated\n");
     updateAttachableProcessList();
 }

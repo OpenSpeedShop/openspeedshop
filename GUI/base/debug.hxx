@@ -8,8 +8,8 @@
 #define DEBUG_OUTPUT_REQUESTED 1
 
 extern unsigned int __internal_debug_setting;
-#define DEBUG_ALL                0xffffffff
-#define DEBUG_OFF                0x00000000
+#define DEBUG_ALL                0xffff
+#define DEBUG_OFF                0x0000
 #define DEBUG_PANELCONTAINERS    (1<<1)
 #define DEBUG_PANELS             (1<<2)
 #define DEBUG_FRAMES             (1<<3)
@@ -17,6 +17,7 @@ extern unsigned int __internal_debug_setting;
 #define DEBUG_MESSAGES           (1<<5)
 #define DEBUG_PRINTING           (1<<6)
 #define DEBUG_SAVEAS             (1<<7)
+#define DEBUG_CONST_DESTRUCT     (1<<8)
 
 enum DebugKind { MaximumDebugKind = 31 };
 #ifdef DEBUG_OUTPUT_REQUESTED

@@ -35,7 +35,8 @@ if [[ $1 = -cli ]]
 then
   $FUTURE_TOOL_PLUGIN_DIR/../../bin/cli $@
 else
-FONTNAME="-adobe-courier-medium-r-normal--14-100-75-75-m-60-iso10646-1"
+# FONTNAME="-adobe-courier-medium-r-normal--14-100-75-75-m-60-iso10646-1"
+FONTNAME="-adobe-utopia-regular-r-normal--12-120-75-75-p-67-iso10646-1"
   echo "Jack: If the font doesn't look right try changing it:  i.e. -fn fixed"
   $FUTURE_TOOL_PLUGIN_DIR/../../bin/ftd -fn $FONTNAME $@
 fi

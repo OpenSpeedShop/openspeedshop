@@ -1978,7 +1978,18 @@ PanelContainer::setExternalName( const char *n )
   strcpy(external_name, n);
 }
 
-// int
+/*! This is the launching routine for Panels that create other panels.
+    During the initial processing of all plugins, a list of panel types 
+    was collected and registered.    When a panel requests to launch another
+    panel, this routine looks through all the registered panel types.
+    If/when it finds the panel type, it calls the actual entry point
+    into the plugin information (PluginInfo) structure stored away at
+    initialization.
+
+
+    (NOTE: See SlotInfo::dynamicMenuCallback() for the hook from the
+           main window's toolbar.)
+*/
 Panel *
 PanelContainer::dl_create_and_add_panel(char *panel_type, PanelContainer *targetPC)
 {
