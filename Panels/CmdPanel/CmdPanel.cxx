@@ -10,21 +10,31 @@ QString prompt = QString("cli> ");
 
   This is prototype code to show proof of concept.
   */
-CmdPanel::CmdPanel()
-{ // Unused... Here for completeness...
-}
-
 
 CmdPanel::CmdPanel(PanelContainer *pc, const char *n, char *argument) : Panel(pc, n)
 {
   nprintf(DEBUG_CONST_DESTRUCT) ( "CmdPanel::CmdPanel() constructor called.\n");
 
+  textDisabled = FALSE;
+
   frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
+#ifdef SPTEXTEDIT
+  output = new SPTextEdit( this, getBaseWidgetFrame() );
+#else // SPTEXTEDIT
   output = new QTextEdit( getBaseWidgetFrame() );
+#endif // SPTEXTEDIT
   output->setTextFormat(PlainText);
   connect( output, SIGNAL(returnPressed()),
                 this, SLOT(returnPressed()) );
+  connect( output, SIGNAL(textChanged()),
+                this, SLOT(textChanged()) );
+#ifdef PULL
+  connect( output, SIGNAL(selectionChanged()),
+                this, SLOT(selectionChanged()) );
+  connect( output, SIGNAL(clicked(int, int)),
+                this, SLOT(clicked(int, int)) );
+#endif // PULL
 
   frameLayout->addWidget(output);
 
@@ -49,10 +59,30 @@ CmdPanel::~CmdPanel()
 //  delete output;
 }
 
+#ifdef PULL
+void
+CmdPanel::selectionChanged()
+{
+printf("selectionChanged\n");
+//  output->moveCursor(QTextEdit::MoveEnd, FALSE);
+//  output->getCursorPosition(&last_para, &last_index);
+}
+
+void
+CmdPanel::clicked(int, int)
+{
+printf("clicked\n");
+/*
+  output->moveCursor(QTextEdit::MoveEnd, FALSE);
+  output->getCursorPosition(&last_para, &last_index);
+*/
+}
+#endif // PULL
+
 void
 CmdPanel::returnPressed()
 {
-  nprintf(DEBUG_PANELS) ("CmdPanel::returnPressed()\n");
+//  printf ("CmdPanel::returnPressed()\n");
 
   int current_para;
   int current_index;
@@ -62,18 +92,58 @@ CmdPanel::returnPressed()
   output->getCursorPosition(&current_para, &current_index);
   output->setSelection(last_para, last_index, current_para, current_index);
 
-  QString text = output->selectedText();
-  nprintf(DEBUG_PANELS) ("The user entered (%s)\n", text.ascii() );
-
-  char *buffer = strdup(text.stripWhiteSpace().ascii());
-  strcat(buffer, "\n");
-  int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
-  InputLineObject *ilp = Append_Input_String( wid, buffer);
-  free( buffer );
-
-  output->append( prompt );
+  int i = 0;
+  for( i = last_para;i<=current_para;i++ )
+  {
+    QString text = output->text(i);
+    char *buffer = strdup(text.stripWhiteSpace().ascii());
+    char *start_ptr = buffer;
+    if( text.startsWith("cli>") )
+    {
+      start_ptr += 5;
+    }
+//    printf("Send down (%s)\n", start_ptr);
+    int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
+    InputLineObject *ilp = Append_Input_String( wid, start_ptr);
+    free( buffer );
+    output->moveCursor(QTextEdit::MoveEnd, FALSE);
+  } 
   output->moveCursor(QTextEdit::MoveEnd, FALSE);
   output->getCursorPosition(&last_para, &last_index);
+}
+
+void
+CmdPanel::textChanged()
+{
+//  printf ("CmdPanel::textChanged()\n");
+  if( textDisabled == TRUE )
+  { 
+//    printf("textDisabled return\n");
+    return;
+  }
+
+  int current_para;
+  int current_index;
+
+  output->scrollToBottom();
+
+  output->moveCursor(QTextEdit::MoveEnd, FALSE);
+
+  output->getCursorPosition(&current_para, &current_index);
+
+// printf("current_para=%d last_para=%d\n", current_para, last_para );
+  if( last_para > -1 && current_para != last_para )
+  {
+    textDisabled = TRUE;
+    returnPressed();
+// printf("OUTPUT PROMPT!\n");
+    output->append( prompt );
+    output->scrollToBottom();
+    output->moveCursor(QTextEdit::MoveEnd, FALSE);
+    output->getCursorPosition(&last_para, &last_index);
+    textDisabled = FALSE;
+  }
+
 }
 
 /*

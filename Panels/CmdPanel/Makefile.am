@@ -41,9 +41,13 @@ CmdPanel_la_LIBADD =  -L$(QTDIR)/lib -lqt
 moc_CmdPanel.cxx: CmdPanel.hxx
 	-moc -o moc_CmdPanel.cxx CmdPanel.hxx
 
+moc_SPTextEdit.cxx: SPTextEdit.hxx
+	-moc -o moc_SPTextEdit.cxx SPTextEdit.hxx
+
 CmdPanel_la_SOURCES = \
 	CmdPanel.h CmdPanel.cxx moc_CmdPanel.cxx \
+	SPTextEdit.hxx SPTextEdit.cxx moc_SPTextEdit.cxx \
 	PanelContainer.h local_plugin_info.h debug.h \
 	plugin_entry_point.h Panel.h
 
-CLEANFILES=moc_CmdPanel.cxx
+CLEANFILES=moc_CmdPanel.cxx moc_SPTextEdit.cxx

@@ -7,6 +7,8 @@
 
 #include "Panel.hxx"           // Do not remove
 
+#include "SPTextEdit.hxx"
+
 class PanelContainer;   // Do not remove
 
 #include "Commander.hxx"   // Contains the ResultObject definition.
@@ -19,20 +21,29 @@ class CmdPanel  : public Panel
 {
   Q_OBJECT
 public:
-  CmdPanel();  // Default construct
   CmdPanel(PanelContainer *pc, const char *n, char *argument);
   ~CmdPanel();  // Active destructor
 
+#ifdef PULL
+  void clicked(int, int);
+  void selectionChanged();
+#endif // PULL
 protected slots:
   void menu1callback();
   void menu2callback();
   void returnPressed();
+  void textChanged();
 
 protected:
 
+
 private:
   QHBoxLayout * frameLayout;
+#ifdef SPTEXTEDIT
+  SPTextEdit *output;
+#else // SPTEXTEDIT
   QTextEdit *output;
+#endif // SPTEXTEDIT
   int last_para;   // The from portion of the last cursor position.
   int last_index;  // The from portion of the last cursor position.
 
@@ -42,5 +53,6 @@ private:
   int listener(void *msg);
   int broadcast(char *msg, BROADCAST_TYPE bt);
 
+  bool textDisabled;
 };
 #endif // CMD_PANEL_H
