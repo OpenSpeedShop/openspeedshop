@@ -1,0 +1,119 @@
+################################################################################
+# Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+#
+# This library is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this library; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+################################################################################
+
+
+                         Usability Study
+
+
+Introduction:
+-------------
+
+For this assignment you'll be asked to do a simple
+performance tuning task.  There is no time constraint to "correctly"
+complete this task.
+
+Please try to "think aloud" as you work through the scenario.   
+It will help us understand where our problems are.
+
+Your task is to take a simple program ("mutatee") and, by
+using the Open/Speedshop tool, determine which routine(s) are
+taking the most time.    The program, "mutatee", is
+provided in the current directory.
+
+
+
+Remember:  You are not being tested.    The User Interface and it's
+ease of use, is being analyzed.   Your initial feedback and thoughts as you 
+navigate through this set of tasks will enable us to see our problem
+areas.
+
+Enjoy.
+
+
+Step 1:
+  Type the following command at the prompt:
+    $ make 
+
+  This should have made the test case "mutatee".   It's a
+  very simple 'c' example that has a few straight forward function
+  calls and a few variables.
+
+
+Step 2:
+  Run the executable "mutatee".
+
+  Type:
+    $ mutatee
+    Usage: mutatee <size>
+    No size argument given.   Defaulting to 1000.
+    mutatee: succesfully competed.
+    $
+
+
+Step 3:
+  The Open/Speedshop performance tool is 'openss'.    'man openss' gives you
+  the typical 'man' description of the command.
+
+
+Step 4:
+  Launch the Open/Speedshop command so you can run performance debugging
+  on the executable named "mutatee".
+
+
+Step 5: 
+  Determine which performance experiment will show you where the application
+  is spending it's time.   
+
+
+Step 6:
+  Using the experiment you determined (in Step 5) gather the performance
+  date for it on the application "mutatee".
+
+
+Step 7:
+  Once the application has run to completion, find which routine took the
+  most time.   
+
+  Which routine took the most time?
+
+  Which routine took the second most time?
+
+Step 8:
+  The application's Source Panel may have been covered up by the default view.
+  If it is, attempt to make both the Source Panel and the pc Stats Panel
+  visible on screen at the same time.
+
+
+Step 9:
+  Position the source at the routine that took the most time.
+
+
+Step 10:
+  Position the source at the routine that took the second most time.
+
+
+Step 11:
+  Display line numbers in the Source Panel.
+
+
+Step 12:
+  Save the experment's data to a file for later viewing.
+
+
+Step 13:
+  Exit the Open/Speedshop tool.
