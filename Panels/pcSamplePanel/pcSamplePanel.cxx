@@ -233,21 +233,29 @@ if( expID == -1 )
  */
 pcSamplePanel::~pcSamplePanel()
 {
+  nprintf( DEBUG_CONST_DESTRUCT ) ("  pcSamplePanel::~pcSamplePanel() destructor called\n");
+  delete frameLayout;
+
   char command[1024];
   sprintf(command, "expClose -x %d", expID );
 
-printf("NOTE: This does not need to be a syncronous call.\n");
-  bool mark_value_for_delete = true;
-  int64_t val = 0;
-  CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-  if( !cli->runSynchronousCLI(command) )
+  if( !QMessageBox::question( this,
+            tr("Delete (expClose) the experiment?"),
+            tr("Selecting Yes will delete the experiment.\n"
+                "Selecting No will only close the window."),
+            tr("&Yes"), tr("&No"),
+            QString::null, 0, 1 ) )
   {
-    fprintf(stderr, "Error retreiving experiment id. \n");
-    return;
+    printf("NOTE: This does not need to be a syncronous call.\n");
+    bool mark_value_for_delete = true;
+    int64_t val = 0;
+    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+    if( !cli->runSynchronousCLI(command) )
+    {
+      fprintf(stderr, "Error retreiving experiment id. \n");
+      return;
+    }
   }
- 
-  nprintf( DEBUG_CONST_DESTRUCT ) ("  pcSamplePanel::~pcSamplePanel() destructor called\n");
-  delete frameLayout;
 }
 
 //! Add user panel specific menu items if they have any.
