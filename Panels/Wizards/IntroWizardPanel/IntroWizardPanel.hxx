@@ -20,6 +20,7 @@ class QLabel;
 class QRadioButton;
 class QPushButton;
 class QCheckBox;
+class QScrollView;
 
 
 //! This defines the highest level Wizard class.
@@ -77,11 +78,12 @@ public:
   int broadcast(char *msg);
 
 
-    QFrame* frame5;
+QFrame* iwpFrame;
+    QFrame* mainFrame;
     QWidgetStack* widgetStack5;
     QWidget* WStackPage;
-    QLabel* epage1Header_2;
-    QLabel* vpage1Label;
+    QLabel* vWelcomeHeader;
+    QLabel* vHelpfulLabel;
     QCheckBox* vpage1LoadExperimentCheckBox;
     QFrame* line3;
     QRadioButton* vpage1pcSampleRB;
@@ -89,11 +91,11 @@ public:
     QRadioButton* vpage1HardwareCounterRB;
     QRadioButton* vpage1FloatingPointRB;
     QRadioButton* vpage1InputOutputRB;
-    QRadioButton* vpage1OtherRB;
+    QRadioButton* vOtherRB;
     QPushButton* vpage1NextButton;
     QWidget* WStackPage_2;
-    QLabel* epage1Header;
-    QLabel* epage1Label;
+    QLabel* eWelcomeHeader;
+    QLabel* eHelpfulLabel;
     QCheckBox* epage1LoadExperimentCheckBox;
     QFrame* line2;
     QRadioButton* epage1pcSampleRB;
@@ -101,7 +103,7 @@ public:
     QRadioButton* epage1HardwareCounterRB;
     QRadioButton* epage1FloatingPointRB;
     QRadioButton* epage1InputOutputRB;
-    QRadioButton* epage1OtherRB;
+    QRadioButton* eOtherRB;
     QPushButton* epage1NextButton;
     QCheckBox* wizardMode;
     QLabel* broughtToYouByLabel;
@@ -118,20 +120,23 @@ void vpage1UserTimeRBChanged();
 void vpage1HardwareCounterRBChanged();
 void vpage1FloatingPointRBChanged();
 void vpage1InputOutputRBChanged();
-void vpage1OtherRBChanged();
+void vOtherRBChanged();
 
 void epage1pcSampleRBChanged();
 void epage1UserTimeRBChanged();
 void epage1HardwareCounterRBChanged();
 void epage1FloatingPointRBChanged();
 void epage1InputOutputRBChanged();
-void epage1OtherRBChanged();
+void eOtherRBChanged();
+
+void handleSizeEvent( QResizeEvent *e );
+QScrollView *sv;
 
 
 
 protected:
     QVBoxLayout* IntroWizardFormLayout;
-    QVBoxLayout* frame5Layout;
+    QVBoxLayout* mainFrameLayout;
     QVBoxLayout* WStackPageLayout;
     QVBoxLayout* layout21;
     QHBoxLayout* layout20;

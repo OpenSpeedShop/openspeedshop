@@ -32,6 +32,7 @@
 #include <qfile.h>   // For the file dialog box.
 #include <qfiledialog.h>  // For the file dialog box.
 #include <qmessagebox.h>
+#include "qscrollview.h"
 
 
 
@@ -52,31 +53,44 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n) : Panel(pc
 // Cut-n-paste from here...
     if ( !getName() )
 	setName( "IntroWizardForm" );
-    IntroWizardFormLayout = new QVBoxLayout( getBaseWidgetFrame(), 11, 6, "IntroWizardFormLayout"); 
 
-    frame5 = new QFrame( getBaseWidgetFrame(), "frame5" );
-    frame5->setFrameShape( QFrame::StyledPanel );
-    frame5->setFrameShadow( QFrame::Raised );
-    frame5Layout = new QVBoxLayout( frame5, 11, 6, "frame5Layout"); 
+    // Create a QScrollView to put all the widgets into.  This keeps us 
+    // from messing up the Panel resize logic.  i.e. Sometimes other 
+    // Panels in this same PanelContainer don't seem to resize properly.
+    // It's because one of the Panels, isn't behaving well and won't
+    // resize as small as the PanelContainer clip.
+    sv = new QScrollView(getBaseWidgetFrame(), "scrollview");
+    sv->setResizePolicy( QScrollView::Manual );
+iwpFrame = new QFrame(sv->viewport(), "iwpFrame");
+//    sv->setVScrollBarMode( QScrollView::AlwaysOn );
+//    sv->setHScrollBarMode( QScrollView::AlwaysOn );
 
-    widgetStack5 = new QWidgetStack( frame5, "widgetStack5" );
+    IntroWizardFormLayout = new QVBoxLayout( iwpFrame, 0, 0, "IntroWizardFormLayout"); 
+
+    mainFrame = new QFrame( iwpFrame, "mainFrame" );
+    mainFrame->setFrameShape( QFrame::StyledPanel );
+    mainFrame->setFrameShadow( QFrame::Raised );
+    mainFrameLayout = new QVBoxLayout( mainFrame, 1, 1, "mainFrameLayout"); 
+
+    widgetStack5 = new QWidgetStack( mainFrame, "widgetStack5" );
 
     WStackPage = new QWidget( widgetStack5, "WStackPage" );
     WStackPageLayout = new QVBoxLayout( WStackPage, 11, 6, "WStackPageLayout"); 
 
-    epage1Header_2 = new QLabel( WStackPage, "epage1Header_2" );
-    epage1Header_2->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)5, 0, 0, epage1Header_2->sizePolicy().hasHeightForWidth() ) );
-    epage1Header_2->setAlignment( int( QLabel::WordBreak | QLabel::AlignCenter ) );
-    WStackPageLayout->addWidget( epage1Header_2 );
+    vWelcomeHeader = new QLabel( WStackPage, "vWelcomeHeader" );
+    vWelcomeHeader->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, FALSE ) );
+    vWelcomeHeader->setAlignment( int( QLabel::WordBreak | QLabel::AlignHCenter  | QLabel::AlignTop ) );
+    WStackPageLayout->addWidget( vWelcomeHeader );
 
     layout21 = new QVBoxLayout( 0, 0, 6, "layout21"); 
 
-    vpage1Label = new QLabel( WStackPage, "vpage1Label" );
-    vpage1Label->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, vpage1Label->sizePolicy().hasHeightForWidth() ) );
-    layout21->addWidget( vpage1Label );
+    vHelpfulLabel = new QLabel( WStackPage, "vHelpfulLabel" );
+    vHelpfulLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, FALSE ) );
+    vHelpfulLabel->setAlignment( int( QLabel::WordBreak | QLabel::AlignTop ) );
+    layout21->addWidget( vHelpfulLabel );
 
     layout20 = new QHBoxLayout( 0, 0, 6, "layout20"); 
-    spacer5_3 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
+    spacer5_3 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Fixed );
     layout20->addItem( spacer5_3 );
 
     vpage1LoadExperimentCheckBox = new QCheckBox( WStackPage, "vpage1LoadExperimentCheckBox" );
@@ -90,6 +104,7 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n) : Panel(pc
     layout21->addWidget( line3 );
 
     layout9 = new QHBoxLayout( 0, 0, 6, "layout9"); 
+// Indent the toggle boxes
     spacer5 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
     layout9->addItem( spacer5 );
 
@@ -134,12 +149,13 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n) : Panel(pc
     spacer7_5 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
     layout18->addItem( spacer7_5 );
 
-    vpage1OtherRB = new QRadioButton( WStackPage, "vpage1OtherRB" );
-    layout18->addWidget( vpage1OtherRB );
+    vOtherRB = new QRadioButton( WStackPage, "vOtherRB" );
+    layout18->addWidget( vOtherRB );
     layout21->addLayout( layout18 );
     WStackPageLayout->addLayout( layout21 );
 
     layout52 = new QHBoxLayout( 0, 0, 6, "layout52"); 
+// Keep this one "Expanding so the Next button stays to the right.
     spacer44 = new QSpacerItem( 40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
     layout52->addItem( spacer44 );
 
@@ -152,16 +168,19 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n) : Panel(pc
     WStackPage_2 = new QWidget( widgetStack5, "WStackPage_2" );
     WStackPageLayout_2 = new QVBoxLayout( WStackPage_2, 11, 6, "WStackPageLayout_2"); 
 
-    epage1Header = new QLabel( WStackPage_2, "epage1Header" );
-    epage1Header->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, epage1Header->sizePolicy().hasHeightForWidth() ) );
-    epage1Header->setAlignment( int( QLabel::WordBreak | QLabel::AlignCenter ) );
-    WStackPageLayout_2->addWidget( epage1Header );
+    eWelcomeHeader = new QLabel( WStackPage_2, "eWelcomeHeader" );
+//    eWelcomeHeader->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, eWelcomeHeader->sizePolicy().hasHeightForWidth() ) );
+    eWelcomeHeader->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, FALSE ) );
+    eWelcomeHeader->setAlignment( int( QLabel::WordBreak | QLabel::AlignHCenter  | QLabel::AlignTop ) );
+    WStackPageLayout_2->addWidget( eWelcomeHeader );
 
     layout20_3 = new QVBoxLayout( 0, 0, 6, "layout20_3"); 
 
-    epage1Label = new QLabel( WStackPage_2, "epage1Label" );
-    epage1Label->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, epage1Label->sizePolicy().hasHeightForWidth() ) );
-    layout20_3->addWidget( epage1Label );
+    eHelpfulLabel = new QLabel( WStackPage_2, "eHelpfulLabel" );
+//    eHelpfulLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, eHelpfulLabel->sizePolicy().hasHeightForWidth() ) );
+    eHelpfulLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, FALSE ) );
+    eHelpfulLabel->setAlignment( int( QLabel::WordBreak | QLabel::AlignTop ) );
+    layout20_3->addWidget( eHelpfulLabel );
 
     layout19_2 = new QHBoxLayout( 0, 0, 6, "layout19_2"); 
     spacer5_2_2 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
@@ -222,12 +241,13 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n) : Panel(pc
     spacer7_5_2 = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
     layout18_2->addItem( spacer7_5_2 );
 
-    epage1OtherRB = new QRadioButton( WStackPage_2, "epage1OtherRB" );
-    layout18_2->addWidget( epage1OtherRB );
+    eOtherRB = new QRadioButton( WStackPage_2, "eOtherRB" );
+    layout18_2->addWidget( eOtherRB );
     layout20_3->addLayout( layout18_2 );
     WStackPageLayout_2->addLayout( layout20_3 );
 
     layout44 = new QHBoxLayout( 0, 0, 6, "layout44"); 
+// Keep this Expanding so the Next button stays attached to the right.
     spacer37 = new QSpacerItem( 40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
     layout44->addItem( spacer37 );
 
@@ -236,24 +256,24 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n) : Panel(pc
     layout44->addWidget( epage1NextButton );
     WStackPageLayout_2->addLayout( layout44 );
     widgetStack5->addWidget( WStackPage_2, 1 );
-    frame5Layout->addWidget( widgetStack5 );
-    IntroWizardFormLayout->addWidget( frame5 );
+    mainFrameLayout->addWidget( widgetStack5 );
+    IntroWizardFormLayout->addWidget( mainFrame );
 
     layout5 = new QHBoxLayout( 0, 0, 6, "layout5"); 
 
-    wizardMode = new QCheckBox( getBaseWidgetFrame(), "wizardMode" );
+    wizardMode = new QCheckBox( iwpFrame, "wizardMode" );
     wizardMode->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, wizardMode->sizePolicy().hasHeightForWidth() ) );
     wizardMode->setChecked( TRUE );
     layout5->addWidget( wizardMode );
     spacer1 = new QSpacerItem( 40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
     layout5->addItem( spacer1 );
 
-    broughtToYouByLabel = new QLabel( getBaseWidgetFrame(), "broughtToYouByLabel" );
+    broughtToYouByLabel = new QLabel( iwpFrame, "broughtToYouByLabel" );
     broughtToYouByLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, broughtToYouByLabel->sizePolicy().hasHeightForWidth() ) );
     layout5->addWidget( broughtToYouByLabel );
     IntroWizardFormLayout->addLayout( layout5 );
     languageChange();
-//    resize( QSize(610, 480).expandedTo(minimumSizeHint()) );
+// resize( QSize(610, 480).expandedTo(minimumSizeHint()) );
     clearWState( WState_Polished );
 
     // signals and slots connections
@@ -266,16 +286,21 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n) : Panel(pc
     connect( vpage1HardwareCounterRB, SIGNAL( clicked() ), this, SLOT(vpage1HardwareCounterRBChanged() ) );
     connect( vpage1FloatingPointRB, SIGNAL( clicked() ), this, SLOT(vpage1FloatingPointRBChanged() ) );
     connect( vpage1InputOutputRB, SIGNAL( clicked() ), this, SLOT(vpage1InputOutputRBChanged() ) );
-    connect( vpage1OtherRB, SIGNAL( clicked() ), this, SLOT(vpage1OtherRBChanged() ) );
+    connect( vOtherRB, SIGNAL( clicked() ), this, SLOT(vOtherRBChanged() ) );
 
     connect( epage1pcSampleRB, SIGNAL( clicked() ), this, SLOT(epage1pcSampleRBChanged() ) );
     connect( epage1UserTimeRB, SIGNAL( clicked() ), this, SLOT(epage1UserTimeRBChanged() ) );
     connect( epage1HardwareCounterRB, SIGNAL( clicked() ), this, SLOT(epage1HardwareCounterRBChanged() ) );
     connect( epage1FloatingPointRB, SIGNAL( clicked() ), this, SLOT(epage1FloatingPointRBChanged() ) );
     connect( epage1InputOutputRB, SIGNAL( clicked() ), this, SLOT(epage1InputOutputRBChanged() ) );
-    connect( epage1OtherRB, SIGNAL( clicked() ), this, SLOT(epage1InputOutputRBChanged() ) );
-    connect( epage1OtherRB, SIGNAL( clicked() ), this, SLOT(epage1OtherRBChanged() ) );
+    connect( eOtherRB, SIGNAL( clicked() ), this, SLOT(epage1InputOutputRBChanged() ) );
+    connect( eOtherRB, SIGNAL( clicked() ), this, SLOT(eOtherRBChanged() ) );
 // Cut-n-paste to here...
+
+// mainFrame->setPaletteBackgroundColor("orange");
+// iwpFrame->setPaletteBackgroundColor("orange");
+// sv->viewport()->setPaletteBackgroundColor("red");
+// sv->viewport()->setPaletteForegroundColor("green");
 }
 
 
@@ -339,8 +364,8 @@ void
 IntroWizardPanel::languageChange()
 {
     setCaption( tr( "IntroWizardForm" ) );
-    epage1Header_2->setText( tr( "<h2>Welcome to Open/SpeedShop(tm)</h2>" ) );
-    vpage1Label->setText( tr( "Please select which of the following are true for your application:" ) );
+    vWelcomeHeader->setText( tr( "<h2>Welcome to Open/SpeedShop(tm)</h2>" ) );
+    vHelpfulLabel->setText( tr( "Please select which of the following are true for your application:" ) );
     vpage1LoadExperimentCheckBox->setText( tr( "I already have experiment data and would like to analyze it." ) );
     vpage1pcSampleRB->setText( tr( "I'm trying to find where my program is spending most of it's time." ) );
     vpage1UserTimeRB->setText( tr( "I'd like to find out how much time is system time vs. my program's time." ) );
@@ -349,17 +374,17 @@ IntroWizardPanel::languageChange()
 "hardware to measure certain attributes of program execution.)" ) );
     vpage1FloatingPointRB->setText( tr( "I need to measure how many times I am causing Floating Point Exceptions." ) );
     vpage1InputOutputRB->setText( tr( "My program does a lot of Input and Output and I'd like to trace that work." ) );
-    vpage1OtherRB->setText( tr( "I'm looking for something else.  Show me more options." ) );
+    vOtherRB->setText( tr( "I'm looking for something else.  Show me more options." ) );
     vpage1NextButton->setText( tr( "> Next" ) );
-    epage1Header->setText( tr( "<h2>Welcome to Open/SpeedShop(tm)</h2>" ) );
-    epage1Label->setText( tr( "Please select which of the following are true for your application:" ) );
+    eWelcomeHeader->setText( tr( "<h2>Welcome to Open/SpeedShop(tm)</h2>" ) );
+    eHelpfulLabel->setText( tr( "Please select which of the following are true for your application:" ) );
     epage1LoadExperimentCheckBox->setText( tr( "Load experiment data" ) );
     epage1pcSampleRB->setText( tr( "pcSampling (profiling)" ) );
     epage1UserTimeRB->setText( tr( "User Time Experiment." ) );
     epage1HardwareCounterRB->setText( tr( "Hardware Counter Tracing." ) );
     epage1FloatingPointRB->setText( tr( "Floating Point Exceptions Tracing" ) );
     epage1InputOutputRB->setText( tr( "Input/Output Tracing" ) );
-    epage1OtherRB->setText( tr( "Other ..." ) );
+    eOtherRB->setText( tr( "Other ..." ) );
     epage1NextButton->setText( tr( "> Next" ) );
     wizardMode->setText( tr( "Verbose Wizard Mode" ) );
     broughtToYouByLabel->setText( tr( "Brought to you by SGI (SiliconGraphics)" ) );
@@ -374,6 +399,12 @@ void IntroWizardPanel::wizardModeSelected()
   {
     widgetStack5->raiseWidget(1);
   }
+
+  // Before we swith reposition to top...
+  sv->verticalScrollBar()->setValue(0);
+  sv->horizontalScrollBar()->setValue(0);
+
+  handleSizeEvent(NULL);
 }
 
 void IntroWizardPanel::epage1NextButtonSelected()
@@ -523,9 +554,9 @@ void IntroWizardPanel::vpage1InputOutputRBChanged()
   vSetStateChanged(vpage1InputOutputRB);
 }
 
-void IntroWizardPanel::vpage1OtherRBChanged()
+void IntroWizardPanel::vOtherRBChanged()
 {
-  vSetStateChanged(vpage1OtherRB);
+  vSetStateChanged(vOtherRB);
 }
 
 void IntroWizardPanel::vSetStateChanged(QRadioButton *rb)
@@ -535,7 +566,7 @@ void IntroWizardPanel::vSetStateChanged(QRadioButton *rb)
   vpage1HardwareCounterRB->setChecked( FALSE );
   vpage1FloatingPointRB->setChecked( FALSE );
   vpage1InputOutputRB->setChecked( FALSE );
-  vpage1OtherRB->setChecked( FALSE );
+  vOtherRB->setChecked( FALSE );
   rb->setChecked(TRUE);
 }
 
@@ -565,9 +596,9 @@ void IntroWizardPanel::epage1InputOutputRBChanged()
   eSetStateChanged(epage1InputOutputRB);
 }
 
-void IntroWizardPanel::epage1OtherRBChanged()
+void IntroWizardPanel::eOtherRBChanged()
 {
-  eSetStateChanged(epage1OtherRB);
+  eSetStateChanged(eOtherRB);
 }
 
 void IntroWizardPanel::eSetStateChanged(QRadioButton *rb)
@@ -577,6 +608,30 @@ void IntroWizardPanel::eSetStateChanged(QRadioButton *rb)
   epage1HardwareCounterRB->setChecked( FALSE );
   epage1FloatingPointRB->setChecked( FALSE );
   epage1InputOutputRB->setChecked( FALSE );
-  epage1OtherRB->setChecked( FALSE );
+  eOtherRB->setChecked( FALSE );
   rb->setChecked(TRUE);
+}
+
+void IntroWizardPanel::handleSizeEvent( QResizeEvent *e )
+{
+//  printf("IntroWizardPanel::viewportResizeEvent() entered\n");
+
+  int width=100;
+  int height=100;
+
+  width=getBaseWidgetFrame()->width();
+  height=getBaseWidgetFrame()->height();
+
+// This is the actual size of the realestate of the created widgets.
+// I'm not sure (yet) just how to calculate the exact size... 
+// At somepoint, we'll want to calculate this based on all widgets in 
+// the collection.
+// printf("width()=%d height()=%d\n", width, height );
+// printf("iwpFrame->width()=%d iwpFrame->height()=%d\n", iwpFrame->width(), iwpFrame->height() );
+  sv->resizeContents(iwpFrame->width(),iwpFrame->height());
+// This is the size that really needs to be the size of width/height.
+// It's the size of the view (i.e. Like a house window.) of the data
+// behind it.
+  iwpFrame->resize(width-20, 450);
+  sv->resize(width, height);
 }
