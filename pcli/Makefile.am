@@ -22,26 +22,16 @@
 # All Rights Reserved.
 ################################################################################
 
-pkglib_LTLIBRARIES = pyroot posscli.la
-
-pyroot:
-	if test -f /perftools/ROOT/include/python2.3/Python.h ; then \
-		export PYTHON_LIB=/perftools/ROOT/lib/libpython2.3.so; \
-	else \
-		export PYTHON_LIB=/home/tulip22/stipek/lib/libpython2.3.so; \
-	fi; \
-	echo $(PYTHON_LIB);
+pkglib_LTLIBRARIES = posscli.la
 
 posscli_la_CXXFLAGS =  \
 	-c -LANG:std -fpic \
 	-I. \
 	-I../libssf \
 	-I/perftools/ROOT/include/python2.3 \
-	-I/home/tulip22/stipek/include/python2.3 \
 	-I/usr/include -I. -I../objects -I../base
 
-# posscli_la_LDFLAGS = -fpic --export-dynamic -module -avoid-version -Wl,/perftools/ROOT/lib/libpython2.3.so -lpthread -lutil -LANG:std -ldl
-posscli_la_LDFLAGS = -fpic --export-dynamic -module -avoid-version -Wl,-L/perftools/ROOT/lib/,-L/home/tulip22/stipek/lib/ -lpython2.3  -lpthread -lutil -LANG:std -ldl
+posscli_la_LDFLAGS = -fpic --export-dynamic -module -avoid-version -Wl,/perftools/ROOT/lib/libpython2.3.so -lpthread -lutil -LANG:std -ldl
 
 posscli_la_LIBADD = $(LIBLTDL)
 
