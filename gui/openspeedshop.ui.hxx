@@ -35,25 +35,92 @@ OpenSpeedshop *topPL = NULL;
 void OpenSpeedshop::fileNew()
 {
   printf("fileNew() entered\n");
+
+
+  QString dirName = QString::null;
+  if( lfd == NULL )
+  {
+    lfd = new QFileDialog(this, "file dialog", TRUE );
+    lfd->setCaption( QFileDialog::tr("Enter executable or saved experiment:") );
+//    lfd->setMode( QFileDialog::AnyFile );
+    QString types(
+                  "Any Files (*);;"
+                  "Image files (*.png *.xpm *.jpg);;"
+                  "Text files (*.txt);;"
+                  "(*.c *.cpp *.cxx *.C *.c++ *.f* *.F*);;"
+                  );
+    lfd->setFilters( types );
+//    lfd->setViewMode( QFileDialog::Detail );
+    lfd->setDir(dirName);
+  }
+
+  if( lfd->exec() == QDialog::Accepted )
+  {
+    QString fileName = lfd->selectedFile();
+    if( !fileName.isEmpty() )
+    {
+      printf("fileName.ascii() = (%s)\n", fileName.ascii() );
+    } 
+  }
 }
 
 void OpenSpeedshop::fileOpen()
 {
   printf("fileOpen() entered\n");
+
+  QMessageBox::information( (QWidget *)NULL, tr("Info:"), tr("This feature currently under construction. - Unable to fulfill request."), QMessageBox::Ok );
 }
 
 void OpenSpeedshop::fileSave()
 {
   printf("OpenSpeedshop::fileSave() entered\n");
 
-  ((PanelContainer *)topPC)->savePanelContainerTree();
-}
+#ifndef DEMO
+  QMessageBox::information( (QWidget *)NULL, tr("Info:"), tr("This feature currently under construction. - Unable to fulfill request."), QMessageBox::Ok );
+#else // DEMO
+  QString dirName = QString::null;
+  if( sfd == NULL )
+  {
+    sfd = new QFileDialog(this, "file dialog", TRUE );
+    sfd->setCaption( QFileDialog::tr("Enter session name:") );
+    sfd->setMode( QFileDialog::AnyFile );
+//    sfd->setSelection(".openss.geometry");
+//    sfd->setSelection(QString("Example.cpp"));
+    sfd->setSelection(QString(".openss.geometry"));
+    QString types(
+                  "Any Files (*);;"
+                  "Image files (*.png *.xpm *.jpg);;"
+                  "Text files (*.txt);;"
+                  "(*.c *.cpp *.cxx *.C *.c++ *.f* *.F*);;"
+                  );
+    sfd->setFilters( types );
+//    sfd->setViewMode( QFileDialog::Detail );
+    sfd->setDir(dirName);
+  }
 
-void OpenSpeedshop::fileSaveAs()
-{
-  printf("fileSaveAs() entered\n");
-}
+  char *fn = NULL;
+  QString fileName = QString::null;
+  if( sfd->exec() == QDialog::Accepted )
+  {
+    fileName = sfd->selectedFile();
+    if( !fileName.isEmpty() )
+    {
+      printf("fileName.ascii() = (%s)\n", fileName.ascii() );
+      fn = strdup(fileName.ascii());
+    } else
+    {
+      return;
+    }
+  }
 
+  printf("go and save the setup...\n");
+  ((PanelContainer *)topPC)->savePanelContainerTree(fn);
+  if( !fileName.isEmpty() )
+  {
+    free(fn);
+  }
+#endif // DEMO
+}
 
 void OpenSpeedshop::fileExit()
 {

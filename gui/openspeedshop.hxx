@@ -15,6 +15,9 @@
 #include "PanelContainer.hxx"
 #include <qassistantclient.h>
 
+#include <qfile.h>   // For the file dialog box.
+#include <qfiledialog.h>  // For the file dialog box.
+
 class QVBoxLayout;
 class QHBoxLayout;
 class QGridLayout;
@@ -45,7 +48,9 @@ public:
     QAction* fileNewAction;
     QAction* fileOpenAction;
     QAction* fileSaveAction;
+#ifdef EVENTUALLY
     QAction* fileSaveAsAction;
+#endif // EVENTUALLY
     QAction* fileExitAction;
 #ifdef EVENTUALLY
     QAction* editUndoAction;
@@ -64,18 +69,31 @@ public:
     //! A pointer to the top PanelContainer that is parented to this mainwindow.
     PanelContainer *topPC;
 
+    //! The hinted executable_name that is to be loaded (eventually).
+    char *executable_name;
+
+    //! The hinted experiment_name that is to be intialized.. 
+    char *experiment_name;
+
+    //! The load file dialog.
+    QFileDialog *lfd;
+
+    //! The save file dialog.
+    QFileDialog *sfd;
+
+
 #ifdef EVENTUALLY // Move back to 'public slots:' if needed.
     virtual void editUndo();
     virtual void editRedo();
     virtual void editCut();
     virtual void editPaste();
     virtual void editFind();
+    virtual void fileSaveAs();
 #endif // EVENTUALLY
 public slots:
     virtual void fileNew();
     virtual void fileOpen();
     virtual void fileSave();
-    virtual void fileSaveAs();
     virtual void fileExit();
     virtual void helpIndex();
     virtual void helpContents();

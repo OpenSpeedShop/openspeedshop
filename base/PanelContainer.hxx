@@ -119,7 +119,7 @@ class PanelContainer : public QWidget
     const char *getExternalName() { return external_name ? external_name : (char *)"dead pc"; };
 
     //! Called to save the PanelContainer tree to a file.
-    void savePanelContainerTree();
+    void savePanelContainerTree(char *fn = NULL);
 
     //! marks the PanelContainer for deletion later.
     bool markedForDelete;

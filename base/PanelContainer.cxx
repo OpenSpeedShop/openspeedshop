@@ -968,9 +968,13 @@ PanelContainer::findFirstEmptyPanelContainer(PanelContainer *pc)
     read in and recreated.
  */
 void
-PanelContainer::savePanelContainerTree()
+PanelContainer::savePanelContainerTree(char *fn)
 {
-  char *fn = ".openss.geometry";
+//  char *fn = ".openss.geometry";
+  if( fn == NULL )
+  {
+    fn = ".openss.geometry";
+  }
   FILE *fd = fopen(fn, "w");
   if( fd == NULL ) 
   {

@@ -25,6 +25,10 @@
 OpenSpeedshop::OpenSpeedshop( QWidget* parent, const char* name, WFlags fl )
     : QMainWindow( parent, name, fl )
 {
+lfd = NULL;
+sfd = NULL;
+executable_name = NULL;
+experiment_name = NULL;
     (void)statusBar();
     if ( !name )
 	setName( "OpenSpeedshop" );
@@ -39,7 +43,9 @@ OpenSpeedshop::OpenSpeedshop( QWidget* parent, const char* name, WFlags fl )
     fileOpenAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "fileopen" ) ) );
     fileSaveAction = new QAction( this, "fileSaveAction" );
     fileSaveAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "filesave" ) ) );
+#ifdef EVENTUALLY
     fileSaveAsAction = new QAction( this, "fileSaveAsAction" );
+#endif // EVENTUALLY
     fileExitAction = new QAction( this, "fileExitAction" );
 #ifdef EVENTUALLY
     editUndoAction = new QAction( this, "editUndoAction" );
@@ -71,7 +77,9 @@ OpenSpeedshop::OpenSpeedshop( QWidget* parent, const char* name, WFlags fl )
     fileNewAction->addTo( fileMenu );
     fileOpenAction->addTo( fileMenu );
     fileSaveAction->addTo( fileMenu );
+#ifdef EVENTUALLY
     fileSaveAsAction->addTo( fileMenu );
+#endif // EVENTUALLY
     fileMenu->insertSeparator();
     fileMenu->insertSeparator();
     fileExitAction->addTo( fileMenu );
@@ -95,7 +103,9 @@ OpenSpeedshop::OpenSpeedshop( QWidget* parent, const char* name, WFlags fl )
     connect( fileNewAction, SIGNAL( activated() ), this, SLOT( fileNew() ) );
     connect( fileOpenAction, SIGNAL( activated() ), this, SLOT( fileOpen() ) );
     connect( fileSaveAction, SIGNAL( activated() ), this, SLOT( fileSave() ) );
+#ifdef EVENTUALLY
     connect( fileSaveAsAction, SIGNAL( activated() ), this, SLOT( fileSaveAs() ) );
+#endif // EVENTUALLY
     connect( fileExitAction, SIGNAL( activated() ), this, SLOT( fileExit() ) );
 #ifdef EVENTUALLY
     connect( editUndoAction, SIGNAL( activated() ), this, SLOT( editUndo() ) );
@@ -158,9 +168,11 @@ void OpenSpeedshop::languageChange()
     fileSaveAction->setText( tr( "Save" ) );
     fileSaveAction->setMenuText( tr( "&Save" ) );
     fileSaveAction->setAccel( tr( "Ctrl+S" ) );
+#ifdef EVENTUALLY
     fileSaveAsAction->setText( tr( "Save As" ) );
     fileSaveAsAction->setMenuText( tr( "Save &As..." ) );
     fileSaveAsAction->setAccel( QString::null );
+#endif // EVENTUALLY
     fileExitAction->setText( tr( "Exit" ) );
     fileExitAction->setMenuText( tr( "E&xit" ) );
     fileExitAction->setAccel( QString::null );
