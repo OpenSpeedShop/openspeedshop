@@ -30,6 +30,7 @@ pcSamplePanel_la_CXXFLAGS = \
     -I/usr/include \
     -I$(QTDIR)/include \
     -I. \
+	-I../../libopenss-framework \
     -I../../pcli \
     -I../../gui \
     -I../../images \

@@ -20,9 +20,7 @@
 
 #include "LoadAttachObject.hxx"
 
-// Begin cli includes
-#include "Commander.hxx"
-// End cli includes
+#include "SS_Input_Manager.hxx"
 
 
 /*!  pcSamplePanel Class
@@ -76,32 +74,84 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n, char *argument) 
 
 OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
 printf("Create a new pcSample experiment.\n");
-InputLineObject *ilp = NULL;
+InputLineObject *clip = NULL;
 if( !mw->executableName.isEmpty() )
 {
 int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
 char buffer[1024];
 sprintf(buffer, "expCreate -f %s \"pcsamp\"\n", mw->executableName.ascii() );
-ilp = Append_Input_String( wid, buffer);
+clip = Append_Input_String( wid, buffer);
 } else if( !mw->pidStr.isEmpty() )
 { 
 int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
 char buffer[1024];
 sprintf(buffer, "expCreate -x %s \"pcsamp\"\n", mw->pidStr.ascii() );
-ilp = Append_Input_String( wid, buffer);
+clip = Append_Input_String( wid, buffer);
 } else
 {
 int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
 char buffer[1024];
 sprintf(buffer, "expCreate \"pcsamp\"\n" );
-ilp = Append_Input_String( wid, buffer);
+clip = Append_Input_String( wid, buffer);
 }
 
 printf("PUT THE EXPERIMENT ID HERE!\n");
 expID = 0;
-//if( ilp != NULL ilp->What() )
-//{
-//}
+if( clip == NULL )
+{
+  fprintf(stderr, "FATAL ERROR: No clip returned from cli.\n");
+  return;
+}
+Input_Line_Status status = clip->What();
+while( TRUE )
+{
+  switch( status )
+  {
+    case ILO_QUEUED_INPUT:
+      printf("command queued for processing.\n");
+      break;
+    case ILO_IN_PARSER:
+      printf("command queued for parsing.\n");
+      break;
+    case ILO_EXECUTING:
+      printf("command is executing.\n");
+      break;
+    case ILO_COMPLETE:
+      printf("command has sucessfully completed.\n");
+      break;
+    case ILO_ERROR:
+      fprintf(stderr, "Unable to process the clip.   Error encountered.\n");
+      return;
+    default:
+      fprintf(stderr, "Unknown status return in clip.\n");
+      return;
+  }
+
+  if( status == ILO_COMPLETE )
+  {
+    std::list<CommandObject *>::iterator coi;
+//    if( coi->count() == 1 ) // We should only have one in this case.\n");
+    {
+      printf("We have 1 command object.   Get the data.\n");
+      coi = clip->CmdObj_List().begin();
+      CommandObject *co = (CommandObject *)(*coi);
+
+      
+      std::list<CommandResult *>::iterator crl;
+      crl = co->Result_List().begin();    
+      CommandResult_Int *cri = (CommandResult_Int *)(*crl);
+
+      int64_t val = -1;
+      cri->Value(&val);
+fprintf(stdout, "MY VALUE! = (%d)\n", 1);
+expID = val;
+
+    }
+    break;
+  }
+  sleep(1);
+  status = clip->What();
+}
 
 
   pcSampleControlPanelContainerWidget->show();
@@ -145,7 +195,7 @@ pcSamplePanel::~pcSamplePanel()
 int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
 char buffer[1024];
 sprintf(buffer, "expClose %d", expID );
-InputLineObject *ilp = Append_Input_String( wid, buffer);
+InputLineObject *clip = Append_Input_String( wid, buffer);
  
   nprintf( DEBUG_CONST_DESTRUCT ) ("  pcSamplePanel::~pcSamplePanel() destructor called\n");
   delete frameLayout;
@@ -320,37 +370,37 @@ pcSamplePanel::listener(void *msg)
 int id = 0; // Look this up from somewhere!
 int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
 char buffer[1024];
-InputLineObject *ilp = NULL;
+InputLineObject *clip = NULL;
 
 
     switch( (int)co->cot )
     {
       case  ATTACH_PROCESS_T:
-sprintf(buffer, "attach a process collector %d\n", id);
-ilp = Append_Input_String( wid, buffer);
+sprintf(buffer, "attach a process collector %d\n", expID);
+clip = Append_Input_String( wid, buffer);
         nprintf( DEBUG_MESSAGES ) ("Attach to a process\n");
         break;
       case  DETACH_PROCESS_T:
-sprintf(buffer, "detach a process %d\n", id);
-ilp = Append_Input_String( wid, buffer);
+sprintf(buffer, "detach a process %d\n", expID);
+clip = Append_Input_String( wid, buffer);
         nprintf( DEBUG_MESSAGES ) ("Detach from a process\n");
         ret_val = 1;
         break;
       case  ATTACH_COLLECTOR_T:
-sprintf(buffer, "attach a collector %d\n", id);
-ilp = Append_Input_String( wid, buffer);
+sprintf(buffer, "attach a collector %d\n", expID);
+clip = Append_Input_String( wid, buffer);
         nprintf( DEBUG_MESSAGES ) ("Attach to a collector\n");
         ret_val = 1;
         break;
       case  REMOVE_COLLECTOR_T:
-sprintf(buffer, "remove a collector %d\n", id);
-ilp = Append_Input_String( wid, buffer);
+sprintf(buffer, "remove a collector %d\n", expID);
+clip = Append_Input_String( wid, buffer);
         nprintf( DEBUG_MESSAGES ) ("Remove a collector\n");
         ret_val = 1;
         break;
       case  RUN_T:
-sprintf(buffer, "expRun %d\n", id);
-ilp = Append_Input_String( wid, buffer);
+sprintf(buffer, "expRun %d\n", expID);
+clip = Append_Input_String( wid, buffer);
         nprintf( DEBUG_MESSAGES ) ("Run\n");
         statusLabelText->setText( tr("Process running...") );
 // Begin demo only...
@@ -398,15 +448,15 @@ pco->terminateButton->setEnabled(TRUE);
         break;
       case  PAUSE_T:
         nprintf( DEBUG_MESSAGES ) ("Pause\n");
-sprintf(buffer, "expPause %d\n", id);
-ilp = Append_Input_String( wid, buffer);
+sprintf(buffer, "expPause %d\n", expID);
+clip = Append_Input_String( wid, buffer);
         statusLabelText->setText( tr("Process suspended...") );
         ret_val = 1;
         break;
       case  CONT_T:
         nprintf( DEBUG_MESSAGES ) ("Continue\n");
-sprintf(buffer, "expCont %d\n", id);
-ilp = Append_Input_String( wid, buffer);
+sprintf(buffer, "expCont %d\n", expID);
+clip = Append_Input_String( wid, buffer);
           statusLabelText->setText( tr("Process continued...") );
           sleep(1);
           statusLabelText->setText( tr("Process running...") );
@@ -414,20 +464,20 @@ ilp = Append_Input_String( wid, buffer);
         break;
       case  UPDATE_T:
         nprintf( DEBUG_MESSAGES ) ("Update\n");
-sprintf(buffer, "expView %d\n", id); // Get the new data..
-ilp = Append_Input_String( wid, buffer);
+sprintf(buffer, "expView %d\n", expID); // Get the new data..
+clip = Append_Input_String( wid, buffer);
         ret_val = 1;
         break;
       case  INTERRUPT_T:
         nprintf( DEBUG_MESSAGES ) ("Interrupt\n");
-sprintf(buffer, "expPause %d\n", id); // Well not really but do this for now.\n");
-ilp = Append_Input_String( wid, buffer);
+sprintf(buffer, "expPause %d\n", expID); // Well not really but do this for now.\n");
+clip = Append_Input_String( wid, buffer);
         ret_val = 1;
         break;
       case  TERMINATE_T:
         statusLabelText->setText( tr("Process terminated...") );
-sprintf(buffer, "expStop %d\n", id);
-ilp = Append_Input_String( wid, buffer);
+sprintf(buffer, "expStop %d\n", expID);
+clip = Append_Input_String( wid, buffer);
         ret_val = 1;
  //       nprintf( DEBUG_MESSAGES ) ("Terminate\n");
         break;
