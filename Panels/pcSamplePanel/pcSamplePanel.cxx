@@ -634,25 +634,23 @@ pcSamplePanel::listener(void *msg)
         }
         break;
       case  PAUSE_T:
+        {
         nprintf( DEBUG_MESSAGES ) ("Pause\n");
         sprintf(command, "expPause -x %d\n", expID);
-        if( !cli->runSynchronousCLI(command) )
-        {
-          fprintf(stderr, "Error (%s).\n", command);
+        int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
+        InputLineObject *clip = Append_Input_String( wid, command);
+        statusLabelText->setText( tr("Process Paused...") );
         }
-        statusLabelText->setText( tr("Process suspended...") );
         ret_val = 1;
         break;
       case  CONT_T:
+        {
         nprintf( DEBUG_MESSAGES ) ("Continue\n");
         sprintf(command, "expCont -x %d\n", expID);
-        if( !cli->runSynchronousCLI(command) )
-        {
-          fprintf(stderr, "Error (%s).\n", command);
-        }
+        int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
+        InputLineObject *clip = Append_Input_String( wid, command);
         statusLabelText->setText( tr("Process continued...") );
-        sleep(1);
-        statusLabelText->setText( tr("Process running...") );
+        }
         ret_val = 1;
         break;
       case  UPDATE_T:
