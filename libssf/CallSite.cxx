@@ -22,9 +22,6 @@
  *
  */
 
-#include "AddressSpace.hxx"
 #include "CallSite.hxx"
-#include "CallSiteEntry.hxx"
-#include "SymbolTable.hxx"
 
 using namespace OpenSpeedShop::Framework;

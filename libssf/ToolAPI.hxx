@@ -29,10 +29,10 @@
 #include "config.h"
 #endif
 
-#include "Application.hxx"
 #include "CallSite.hxx"
 #include "Collector.hxx"
 #include "CollectorGroup.hxx"
+#include "Experiment.hxx"
 #include "Function.hxx"
 #include "LinkedObject.hxx"
 #include "Statement.hxx"

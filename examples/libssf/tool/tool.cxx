@@ -17,7 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "ToolAPI.hxx"
-                                                                                
+
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -44,31 +44,45 @@ int main(int argc, char* argv[])
     }
     
     try {
-	
-	// Create an application object
-	Application theApplication;
-	
-	// Create a PC sampling collector
-	Collector* collector = theApplication.createCollector("pcsamp");
 
-	// Change the collector's sampling rate to 1mS
-	collector->setParameterValue("sampling_rate", (unsigned)1);
-	
+	// Create an experiment
+	std::string name = std::string(argv[1]) + ".openss";
+	Experiment experiment(name);
+
 	// Create a process for the command in the suspended state
-	Thread* thread = theApplication.createProcess(command);
+	Thread thread = experiment.createProcess(command);
+
+	// Create the example collector
+	Collector collector = experiment.createCollector("example");
+
+	// Attach this process to the collector and start collecting data
+	collector.attachThread(thread);
+	collector.startCollecting();
+
+	// Resume the suspended threads
+	experiment.getThreads().changeState(Thread::Running);
 	
-	// Attach this process to the PC sampling collector
-	collector->attachThread(thread);
-	
-	// Resume the suspended application
-	theApplication.getThreads().changeState(Thread::Running);
-	
-	// Wait for all application threads to terminate
-	while(!theApplication.getThreads().areAllState(Thread::Terminated))
-	    sleep(1);
-	
-	// TODO: show a data display
-	
+	// Wait for all threads to terminate
+	while(!experiment.getThreads().areAllState(Thread::Terminated)) {
+	    sleep(5);
+
+	    // Show one metric value
+	    AddressRange range = AddressRange(0, 1000);
+	    TimeInterval interval =
+		TimeInterval(Time::TheBeginning(), Time::TheEnd());	
+	    double t;
+	    collector.getMetricValue("time", thread, range, interval, t);	
+	    std::cout << std::endl
+		  << "  Metric: time" << std::endl
+		      << "    Host: " << thread.getHost() << std::endl
+		      << "     PID: " << thread.getProcessId() << std::endl
+		      << "   Range: " << range << std::endl
+		      << "Interval: " << interval << std::endl
+		      << "        = " << t << std::endl
+		      << std::endl;	
+
+	}
+
     }
     catch(const std::exception& error) {
 	std::cerr

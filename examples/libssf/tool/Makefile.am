@@ -20,7 +20,7 @@ bin_PROGRAMS = tool mutatee
 
 tool_CXXFLAGS = -I$(top_srcdir)/libssf
 
-tool_LDFLAGS = -L$(top_srcdir)/libssf -export-dynamic
+tool_LDFLAGS = -L$(top_srcdir)/libssf
 
 tool_LDADD = -lssf
 

@@ -22,10 +22,33 @@
  *
  */
 
-#include "Collector.hxx"
 #include "CollectorGroup.hxx"
+#include "Database.hxx"
 
 using namespace OpenSpeedShop::Framework;
 
 
 
+/**
+ * ...
+ *
+ * ...
+ *
+ * @todo    Needs to be implemented.
+ */
+void CollectorGroup::startCollecting()
+{
+}
+
+
+
+/**
+ * ...
+ *
+ * ...
+ *
+ * @todo    Needs to be implemented.
+ */
+void CollectorGroup::stopCollecting()
+{
+}

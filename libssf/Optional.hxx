@@ -29,7 +29,7 @@
 #include "config.h"
 #endif
 
-#include "Assert.hxx"
+#include <stdexcept>
 
 
 
@@ -89,7 +89,8 @@ namespace OpenSpeedShop { namespace Framework {
 	/** Get our stored value. */
 	const T& getValue() const
 	{
-	    Assert(dm_has_value);
+	    if(!dm_has_value)
+		throw std::logic_error("Cannot get empty optional value.");
 	    return dm_value;
 	}
 

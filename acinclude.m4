@@ -17,10 +17,10 @@
 ################################################################################
 
 ################################################################################
-# AC_PKG_DPCL
+# Check for DPCL (http://oss.software.ibm.com/developerworks/opensource/dpcl)
 ################################################################################
 
-AC_DEFUN(AC_PKG_DPCL, [
+AC_DEFUN([AC_PKG_DPCL], [
 
     AC_ARG_WITH(dpcl,
                 AC_HELP_STRING([--with-dpcl=DIR],
@@ -41,7 +41,7 @@ AC_DEFUN(AC_PKG_DPCL, [
 
     case "$host" in
         ia64-*-linux-*)
-            DPCL_CPPFLAGS="$DPCL_CPPFLAGS -D__WORDSIZE=64"
+            DPCL_CPPFLAGS="$DPCL_CPPFLAGS -D__64BIT__"
             ;;
     esac
 
@@ -74,5 +74,73 @@ AC_DEFUN(AC_PKG_DPCL, [
     AC_SUBST(DPCL_CPPFLAGS)
     AC_SUBST(DPCL_LDFLAGS)
     AC_SUBST(DPCL_LIBS)
+
+    AC_DEFINE(HAVE_DPCL, 1, [Define to 1 if you have DPCL.])
+
+])
+
+################################################################################
+# Check for Dyninst (http://www.dyninst.org)
+################################################################################
+
+AC_DEFUN([AC_PKG_DYNINST], [
+
+    AC_ARG_WITH(dyninst,
+                AC_HELP_STRING([--with-dyninst=DIR],
+                               [Dyninst installation @<:@/usr/dyninst@:>@]),
+                dyninst_dir=$withval, dyninst_dir="/usr/dyninst")
+
+    case "$host" in
+	i386-*-linux-*)
+	    dyninst_platform="i386-unknown-linux2.4"
+	    ;;
+        ia64-*-linux-*)
+	    dyninst_platform="ia64-unknown-linux2.4"
+            ;;
+    esac
+
+    AC_CHECK_FILE([$dyninst_dir/core/dyninstAPI/h/BPatch.h], [
+        DYNINST_CPPFLAGS="-I$dyninst_dir/core/dyninstAPI/h"
+        DYNINST_LDFLAGS="-L$dyninst_dir/$dyninst_platform/lib"
+    ])
+
+    if test -d "$ROOT"; then
+        AC_CHECK_FILE([$ROOT/include/dyninst/BPatch.h], [
+            DYNINST_CPPFLAGS="-I$ROOT/include/dyninst"
+            DYNINST_LDFLAGS=""
+        ])
+    fi
+
+    DYNINST_LIBS="-ldyninstAPI"
+
+    AC_LANG_PUSH(C++)
+    AC_REQUIRE_CPP
+
+    dyninst_saved_CPPFLAGS=$CPPFLAGS
+    dyninst_saved_LDFLAGS=$LDFLAGS
+
+    CPPFLAGS="$CPPFLAGS $DYNINST_CPPFLAGS"
+    LDFLAGS="$CXXFLAGS $DYNINST_LDFLAGS $DYNINST_LIBS"
+
+    AC_MSG_CHECKING([for Dyninst API library and headers])
+
+    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+	#include <BPatch.h>
+        ]], [[
+	BPatch bpatch();
+        ]]), AC_MSG_RESULT(yes), [ AC_MSG_RESULT(no)
+        AC_MSG_FAILURE(cannot locate Dyninst API library and/or headers.) ]
+    )
+
+    CPPFLAGS=$dyninst_saved_CPPFLAGS
+    LDFLAGS=$dyninst_saved_LDFLAGS
+
+    AC_LANG_POP(C++)
+
+    AC_SUBST(DYNINST_CPPFLAGS)
+    AC_SUBST(DYNINST_LDFLAGS)
+    AC_SUBST(DYNINST_LIBS)
+
+    AC_DEFINE(HAVE_DYNINST, 1, [Define to 1 if you have Dyninst.])
 
 ])

@@ -29,13 +29,13 @@
 #include "config.h"
 #endif
 
+#include "Collector.hxx"
+
 #include <vector>
 
 
 
 namespace OpenSpeedShop { namespace Framework {
-
-    class Collector;
 
     /**
      * Arbitrary group of collectors.
@@ -46,15 +46,18 @@ namespace OpenSpeedShop { namespace Framework {
      * applying operators to a group of collectors as a whole rather than each
      * individually.
      *
+     * @todo    Implement additional collective operations.
+     *
      * @ingroup ToolAPI
      */
     class CollectorGroup :
-	public std::vector<Collector*>
+	public std::vector<Collector>
     {
 	
     public:
-	
-	// TODO: collective collector operations here
+
+	void startCollecting();
+        void stopCollecting();
 	
     };
     

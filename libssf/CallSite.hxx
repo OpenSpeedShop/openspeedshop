@@ -33,35 +33,17 @@
 
 namespace OpenSpeedShop { namespace Framework {
 
-    class AddressSpace;
-    struct CallSiteEntry;
-    class SymbolTable;
-    
     /**
      * Call site.
      *
-     * Representation of a call site within the call graph. Provides ...
+     * ...
+     *
+     * @todo    Implement call site objects.
      *
      * @ingroup CollectorAPI ToolAPI
      */
     class CallSite
     {
-	
-    public:
-	
-
-
-    private:
-	
-	/** Address space containing this call site. */
-	AddressSpace* dm_address_space;
-	
-	/** Symbol table containing this call site. */
-	SymbolTable* dm_symbol_table;
-	
-	/** Call site's entry in the symbol table. */
-	CallSiteEntry* dm_entry;
-	
     };
     
 } }

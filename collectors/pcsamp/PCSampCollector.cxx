@@ -31,12 +31,12 @@ using namespace OpenSpeedShop::Framework;
 /**
  * Collector's factory method.
  *
- * Factory method for instantiating a new PC sampling collector. This is the
+ * Factory method for instantiating a collector implementation. This is the
  * only function that is externally visible from outside the collector plugin.
  *
- * @return    Collector instantiation.
+ * @return    New instance of this collector's implementation.
  */
-extern "C" Collector* pcsamp_LTX_CollectorFactory()
+extern "C" CollectorImpl* pcsamp_LTX_CollectorFactory()
 {
     return new PCSampCollector();
 }
@@ -49,25 +49,22 @@ extern "C" Collector* pcsamp_LTX_CollectorFactory()
  * Constructs a new PC sampling collector with the proper metadata.
  */
 PCSampCollector::PCSampCollector() :
-    Collector("pcsamp",
-	      "PC Sampling",
-	      "Periodically interupts the running process, obtains the "
-	      "current program counter (PC) value, increments a running "
-	      "counter associated with that value, and allows the process "
-	      "to continue execution. All of this is implemented directly "
-	      "in the kernel to allow for minimal perturbation of the "
-	      "process' behavior.")
+    CollectorImpl("pcsamp",
+		  "PC Sampling",
+		  "Periodically interupts the running process, obtains the "
+		  "current program counter (PC) value, increments a running "
+		  "counter associated with that value, and allows the process "
+		  "to continue execution. All of this is implemented directly "
+		  "in the kernel to allow for minimal perturbation of the "
+		  "process' behavior.")
 {
-    declareParameter(new TypedParameter<unsigned>(
-			 "sampling_rate",
-			 "Sampling Rate",
-			 "Sampling rate in samples/milliseconds.",
-			 10));
-    
-    declareMetric(new TypedMetric<double>(
-		      "time",
-		      "CPU Time",
-		      "Exclusive CPU time in seconds."));
+    declareParameter(Metadata("sampling_rate", "Sampling Rate",
+			      "Sampling rate in samples/milliseconds.",
+			      typeid(unsigned)));
+
+    declareMetric(Metadata("time", "CPU Time",
+			   "Exclusive CPU time in seconds.",
+			   typeid(double)));
 }
 
 
@@ -78,21 +75,20 @@ PCSampCollector::PCSampCollector() :
  * Implement getting one of our metric values for a particular thread, over a
  * specific address range and time interval.
  *
- * @param metric      Metric for which to get a value.
+ * @param metric      Unique identifier of the metric.
  * @param thread      Thread for which to get a value.
  * @param range       Address range over which to get a value.
  * @param interval    Time interval over which to get a value.
  * @param ptr         Untyped pointer to the return value.
  */
-void PCSampCollector::implGetMetricValue(const Metric& metric,
-					 const Thread& thread,
-					 const AddressRange& range,
-					 const TimeInterval& interval,
-					 void* ptr)
+void PCSampCollector::getMetricValue(const std::string& metric,
+				     const Thread& thread,
+				     const AddressRange& range,
+				     const TimeInterval& interval,
+				     void* ptr) const
 {
-    if(metric.getUniqueId() == "time") {
-	// TODO: implement
+    if(metric == "time") {
 	double* value = reinterpret_cast<double*>(ptr);
-	*value = 0.0;
+	*value = 0.0;  // Dummy value for now
     }
 }

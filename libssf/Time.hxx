@@ -46,9 +46,9 @@ namespace OpenSpeedShop { namespace Framework {
     /**
      * Time.
      *
-     * Internally all time values are represented using a single 64-bit unsigned
-     * integer. These integers are interpreted as the number of nanoseconds that
-     * have passed since midnight (00:00) Coordinated Universal Time (UTC), on
+     * All time values are represented using a single 64-bit unsigned integer.
+     * These integers are interpreted as the number of nanoseconds that have
+     * passed since midnight (00:00) Coordinated Universal Time (UTC), on
      * Janaury 1, 1970. This system gives nanosecond resolution for representing
      * times while not running out the clock until sometime in the year 2054.
      *
@@ -57,6 +57,28 @@ namespace OpenSpeedShop { namespace Framework {
     class Time :
 	public TotallyOrdered<Time>
     {
+
+    public:
+
+	/** Create the earliest possible time value. */
+	static Time TheBeginning()
+	{
+	    return Time(std::numeric_limits<value_type>::min());
+	}
+
+	/** Create the current time value. */
+	static Time Now()
+	{
+	    struct timespec now;
+	    Assert(clock_gettime(CLOCK_REALTIME, &now) == 0);
+	    return Time((now.tv_sec * 1000000000) + now.tv_nsec);
+	}
+
+	/** Create the last possible time value. */
+	static Time TheEnd()
+	{
+	    return Time(std::numeric_limits<value_type>::max());
+	}
 	
     public:
 
@@ -126,7 +148,7 @@ namespace OpenSpeedShop { namespace Framework {
 	    time_t value = object.dm_value / 1000000000;
 	    char buffer[32];
 	    Assert(ctime_r(&value, buffer) != NULL);
-	    stream << std::string(buffer);
+	    stream << std::string(buffer, strlen(buffer) - 1);
 	    return stream;
 	}
 	
@@ -134,26 +156,6 @@ namespace OpenSpeedShop { namespace Framework {
 	const value_type& getValue() const
 	{
 	    return dm_value;
-	}
-
-	/** Create the earliest possible time value. */
-	static Time TheBeginning()
-	{
-	    return Time(std::numeric_limits<value_type>::min());
-	}
-
-	/** Create the current time value. */
-	static Time Now()
-	{
-	    struct timespec now;
-	    Assert(clock_gettime(CLOCK_REALTIME, &now) == 0);
-	    return Time((now.tv_sec * 1000000000) + now.tv_nsec);
-	}
-
-	/** Create the last possible time value. */
-	static Time TheEnd()
-	{
-	    return Time(std::numeric_limits<value_type>::max());
 	}
 
     private:

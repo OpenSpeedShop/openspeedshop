@@ -29,28 +29,29 @@
 #include "config.h"
 #endif
 
+#include "AddressRange.hxx"
+#include "SmartPtr.hxx"
+
 #include <vector>
 
 
 
 namespace OpenSpeedShop { namespace Framework {
 
-    class Address;
-    class AddressSpace;
+    class Database;
     class Function;
+    class LinkedObject;
     template <typename> class Optional;
     class Path;
-    class StatementEntry;
-    class SymbolTable;
     class Thread;
     
     /**
      * Source code statement.
      *
      * Representation of a source code statement. Provides member functions for
-     * getting the full path name of the statement's source file and its line
-     * and column numbers. Additional member functions find the address list
-     * for the statement and its containing functions.
+     * getting the containing thread, linked object and functions, the full path
+     * name of the statement's source file, its line and column numbers, and its
+     * address ranges.
      *
      * @ingroup CollectorAPI ToolAPI
      */
@@ -61,28 +62,33 @@ namespace OpenSpeedShop { namespace Framework {
 	friend class Thread;
 	
     public:
+
+	Thread getThread() const;
+	LinkedObject getLinkedObject() const;
+	std::vector<Function> getFunctions() const;
 	
 	Path getPath() const;
-	unsigned getLine() const;
-	unsigned getColumn() const;
+	int getLine() const;
+	int getColumn() const;
 	
-	std::vector<Address> findAllAddresses() const;
-	std::vector<Function> findFunctions() const;
+	std::vector<AddressRange> getAddresseRanges() const;
 	
     private:
 
 	Statement();
-	Statement(const AddressSpace*, const SymbolTable*,
-		  const StatementEntry*);
+	Statement(const SmartPtr<Database>&, const int&, const int&);
 	
-	/** Address space containing this statement. */
-	const AddressSpace* dm_address_space;
+	void validateEntry() const;
+	void validateContext() const;
+	
+	/** Database containing this statement. */
+	SmartPtr<Database> dm_database;
+	
+	/** Entry (id) for this statement. */
+	int dm_entry;
 
-	/** Symbol table containing this statement. */
-	const SymbolTable* dm_symbol_table;
-	
-	/** Statement's entry in the symbol table. */
-	const StatementEntry* dm_entry;	
+	/** Address space entry (id) context for this statement. */
+	int dm_context;	
 	
     };
     

@@ -54,7 +54,7 @@ namespace OpenSpeedShop { namespace Framework {
      */
     template <typename T>
     class Interval :
-	public TotallyOrdered<Interval<T > >
+	public TotallyOrdered<Interval< T > >
     {
 
     public:
@@ -197,9 +197,8 @@ namespace OpenSpeedShop { namespace Framework {
 
 
 
-namespace std
-{
-
+namespace std {
+    
     /**
      * Less-than predicate for half-closed intervals.
      *
@@ -222,15 +221,16 @@ namespace std
      * as expected.
      */
     template <typename T>
-    struct less<OpenSpeedShop::Framework::Interval<T > > :
-	binary_function<const OpenSpeedShop::Framework::Interval<T >&,
-			const OpenSpeedShop::Framework::Interval<T >&,
+    struct less<OpenSpeedShop::Framework::Interval< T > > :
+	binary_function<const OpenSpeedShop::Framework::Interval< T >&,
+			const OpenSpeedShop::Framework::Interval< T >&,
 			bool>
     {
 
-	/** Evalutor for this predicate. */
-	bool operator()(const OpenSpeedShop::Framework::Interval<T >& lhs,
-			const OpenSpeedShop::Framework::Interval<T >& rhs) const
+	/** Evaluator for this predicate. */
+	bool
+	operator()(const OpenSpeedShop::Framework::Interval< T >& lhs,
+		   const OpenSpeedShop::Framework::Interval< T >& rhs) const
 	{
 	    if((lhs.getBegin() < rhs.getBegin()) && 
 	       (lhs.getEnd() < rhs.getEnd()))

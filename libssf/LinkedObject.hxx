@@ -30,6 +30,7 @@
 #endif
 
 #include "AddressRange.hxx"
+#include "SmartPtr.hxx"
 
 #include <vector>
 
@@ -37,21 +38,20 @@
 
 namespace OpenSpeedShop { namespace Framework {
 
-    class AddressSpace;
+    class Database;
     class Function;
-    struct LinkedObjectEntry;
     template <typename> class Optional;
     class Path;
-    class SymbolTable;
+    class Statement;
     class Thread;
     
     /**
      * Linked object.
      *
      * Representation of a single executable or library (linked object).
-     * Provides a member function for getting the full path name of the linked
-     * object. Additional member functions find the address range of the linked
-     * object and the list of functions contained within it.
+     * Provides member functions for getting the containing thread, full path
+     * name, address range, and the list of all functions contained within this
+     * linked object.
      *
      * @ingroup CollectorAPI ToolAPI
      */
@@ -59,30 +59,35 @@ namespace OpenSpeedShop { namespace Framework {
     {
 	friend class Function;
 	friend class Optional<LinkedObject>;
+	friend class Statement;
 	friend class Thread;
 	
     public:
 
+	Thread getThread() const;
+
 	Path getPath() const;
+	AddressRange getAddressRange() const;
 	
-	AddressRange findAddressRange() const;
-	std::vector<Function> findAllFunctions() const;
+	std::vector<Function> getFunctions() const;
 	
     private:
 
 	LinkedObject();
-	LinkedObject(const AddressSpace*, const SymbolTable*,
-		     const LinkedObjectEntry*);
+	LinkedObject(const SmartPtr<Database>&, const int&, const int&);
 	
-	/** Address space containing this linked object. */
-	const AddressSpace* dm_address_space;
-
-	/** Symbol table containing this linked object. */
-	const SymbolTable* dm_symbol_table;
+	void validateEntry() const;
+	void validateContext() const;
 	
-	/** Linked object's entry in the symbol table. */
-	const LinkedObjectEntry* dm_entry;
+	/** Database containing this linked object. */
+	SmartPtr<Database> dm_database;
+	
+	/** Entry (id) for this linked object. */
+	int dm_entry;
 
+	/** Address space entry (id) context for this linked object. */
+	int dm_context;
+	
     };
     
 } }

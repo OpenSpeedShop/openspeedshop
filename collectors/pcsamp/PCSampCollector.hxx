@@ -45,20 +45,18 @@ namespace OpenSpeedShop { namespace Framework {
      * the process' behavior.
      */
     class PCSampCollector :
-	public Collector
+	public CollectorImpl
     {
 	
     public:
 	
 	PCSampCollector();    
 	
-    protected:
-	
-	virtual void implGetMetricValue(const Metric&,
-					const Thread&,
-					const AddressRange&,
-					const TimeInterval&,
-					void*);
+	virtual void getMetricValue(const std::string&,
+				    const Thread&,
+				    const AddressRange&,
+				    const TimeInterval&,
+				    void*) const;
 	
     };
     

@@ -20,7 +20,7 @@
 #---------------------------------------------------------------------------
 # Project related configuration options
 #---------------------------------------------------------------------------
-PROJECT_NAME           = "Open SpeedShop Framework Library"
+PROJECT_NAME           = "Open/SpeedShop Framework Library"
 PROJECT_NUMBER         = "Version 1.0"
 OUTPUT_DIRECTORY       = 
 OUTPUT_LANGUAGE        = English
@@ -84,7 +84,7 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 INPUT                  = 
 FILE_PATTERNS          = *.doc *.hxx *.cxx
-RECURSIVE              = NO
+RECURSIVE              = YES
 EXCLUDE                = 
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       = 

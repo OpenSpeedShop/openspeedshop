@@ -31,6 +31,7 @@
 
 #include "AddressRange.hxx"
 #include "Optional.hxx"
+#include "SmartPtr.hxx"
 
 #include <string>
 #include <vector>
@@ -39,21 +40,18 @@
 
 namespace OpenSpeedShop { namespace Framework {
 
-    class AddressSpace;
     class CallSite;
-    struct FunctionEntry;
+    class Database;
     class LinkedObject;
     class Statement;
-    class SymbolTable;
     class Thread;
     
     /**
      * Source code function.
      *
-     * Representation of a source code function. Provides a member function for
-     * getting the demangled name of the function. Additional member functions
-     * find the address range of the function, its containing linked object, its
-     * statements, location of its definition, and its callers and callees.
+     * Representation of a source code function. Provides member functions for
+     * getting the containing thread and linked object, demangled name, address
+     * range, definition, callees, and callers of this function.
      *
      * @ingroup CollectorAPI ToolAPI
      */
@@ -65,29 +63,34 @@ namespace OpenSpeedShop { namespace Framework {
 	friend class Thread;
 	
     public:
-
-	std::string getName() const;
 	
-	AddressRange findAddressRange() const;
-	LinkedObject findLinkedObject() const;
-	Optional< std::vector<Statement> > findAllStatements() const;
-	Optional<Statement> findDefinition() const;
-	std::vector<CallSite> findCallees() const;
-	std::vector<CallSite> findCallers() const;
+	Thread getThread() const;
+	LinkedObject getLinkedObject() const;
+	
+	std::string getName() const;
+	AddressRange getAddressRange() const;
+	
+	Optional<Statement> getDefinition() const;
+	std::vector<Statement> getStatements() const;
+	std::vector<CallSite> getCallees() const;
+	std::vector<CallSite> getCallers() const;
 	
     private:
-
+	
 	Function();
-	Function(const AddressSpace*, const SymbolTable*, const FunctionEntry*);
+	Function(const SmartPtr<Database>&, const int&, const int&);
 	
-	/** Address space containing this function. */
-	const AddressSpace* dm_address_space;
-
-	/** Symbol table containing this function. */
-	const SymbolTable* dm_symbol_table;
+	void validateEntry() const;
+	void validateContext() const;
 	
-	/** Function's entry in the symbol table. */
-	const FunctionEntry* dm_entry;
+	/** Database containing this function. */
+	SmartPtr<Database> dm_database;
+	
+	/** Entry (id) for this function. */
+	int dm_entry;
+	
+	/** Address space entry (id) context for this function. */
+	int dm_context;	
 	
     };
     

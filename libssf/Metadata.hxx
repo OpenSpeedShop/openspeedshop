@@ -41,12 +41,12 @@ namespace OpenSpeedShop { namespace Framework {
     /**
      * Object metadata.
      *
-     * Base class for all objects that contain metadata useful in describing
-     * themselves. Each such object is assigned a unique identifier, short name,
-     * verbose description, and underlying type when the object is constructed.
-     * Member functions for querying these properties are also defined. Metadata
-     * object are defined as being equivalent when their unique identifiers are
-     * identical.
+     * Container storing object metadata consisting of a unique identifier,
+     * short name, verbose description, and underlying type. These properties
+     * are assigned when the Metadata object is created. Member functions for
+     * querying these properties are defined. Metadata objects are defined as
+     * being equivalent when their unique identifiers are identical. Used for
+     * describing collectors, their parameters, and their metrics.
      *
      * @ingroup Implementation
      */
@@ -62,8 +62,18 @@ namespace OpenSpeedShop { namespace Framework {
 	    dm_short_name(),
 	    dm_description(),
 	    dm_type()
-        {
-        }
+	{
+	}
+
+	/** Constructor from metadata. */
+	Metadata(const std::string& unique_id, const std::string& short_name,
+		 const std::string& description, const std::type_info& type) :
+	    dm_unique_id(unique_id),
+	    dm_short_name(short_name),
+	    dm_description(description),
+	    dm_type(type.name())
+	{
+	}
 		
         /** Operator "<" defined for two Metadata objects. */
         bool operator<(const Metadata& other) const
@@ -95,18 +105,6 @@ namespace OpenSpeedShop { namespace Framework {
 	    return dm_type == type.name();
 	}
 
-    protected:
-
-	/** Constructor from metadata. */
-	Metadata(const std::string& unique_id, const std::string& short_name,
-		 const std::string& description, const std::type_info& type) :
-	    dm_unique_id(unique_id),
-	    dm_short_name(short_name),
-	    dm_description(description),
-	    dm_type(type.name())
-	{
-	}
-	
     private:
 
 	/** Unique identifier. */

@@ -23,13 +23,11 @@
  */
 
 #include "Address.hxx"
-#include "Assert.hxx"
+#include "Database.hxx"
 #include "Function.hxx"
-#include "Guard.hxx"
+#include "Instrumentor.hxx"
 #include "LinkedObject.hxx"
-#include "Process.hxx"
 #include "Statement.hxx"
-#include "SymbolTable.hxx"
 #include "Thread.hxx"
 
 using namespace OpenSpeedShop::Framework;
@@ -39,21 +37,15 @@ using namespace OpenSpeedShop::Framework;
 /**
  * Get our state.
  *
- * Returns the caller the current state of the thread. Since this state changes
- * asynchronously and must be updated across a network, there is a lag between
+ * Returns the caller the current state of this thread. Since this state changes
+ * asynchronously and may be updated across a network, there is a lag between
  * when the actual thread's state changes and when that is reflected here.
  *
  * @return    Current state of this thread.
  */
 Thread::State Thread::getState() const
 {
-    Guard guard_myself(this);
-
-    // Check assertions
-    Assert(dm_process != NULL);
-
-    // Return our current state to the caller
-    return dm_process->getState();
+    return Instrumentor::getThreadState(*this);
 }
 
 
@@ -61,7 +53,7 @@ Thread::State Thread::getState() const
 /**
  * Test our state.
  *
- * Compares the thread's current state against the passed value. Returns a
+ * Compares this thread's current state against the passed value. Returns a
  * boolean value indicating if the thread was in that state or not. Really just
  * a convenience function, built directly on getState(), for use when simpler
  * conditional statements are desired.
@@ -97,22 +89,11 @@ bool Thread::isState(const State& state) const
  *          completed. An exception of type std::logic_error is thrown when
  *          multiple in-progress changes are requested.
  *
- * @todo    Currently DPCL only provides the ability to change the state of an
- *          entire process - not that of a single thread. For now, if a thread's
- *          state is changed, ALL threads in the process containing that thread
- *          will have their state changed.
- *
  * @param state    Change to this state.
  */
-void Thread::changeState(const State& state)
+void Thread::changeState(const State& state) const
 {
-    Guard guard_myself(this);
-
-    // Check assertions
-    Assert(dm_process != NULL);
-
-    // Request the underlying process perform a state change
-    dm_process->changeState(state);
+    Instrumentor::changeThreadState(*this, state);
 }
 
 
@@ -120,19 +101,25 @@ void Thread::changeState(const State& state)
 /**
  * Get our host name.
  *
- * Returns to the caller the name of the host on which the thread is located.
+ * Returns the name of the host on which this thread is located.
  *
  * @return    Name of host on which this thread is located.
  */
 std::string Thread::getHost() const
 {
-    Guard guard_myself(this);
+    std::string host;
 
-    // Check assertions
-    Assert(dm_process != NULL);
+    // Find our host name
+    BEGIN_TRANSACTION(dm_database);
+    validateEntry();
+    dm_database->prepareStatement("SELECT host FROM Threads WHERE id = ?;");
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement())
+	host = dm_database->getResultAsString(1);
+    END_TRANSACTION(dm_database);
     
     // Return the host name to the caller
-    return dm_process->getHost();
+    return host;
 }
 
 
@@ -140,19 +127,25 @@ std::string Thread::getHost() const
 /**
  * Get our process identifier.
  *
- * Returns to the caller the identifier of the process containing the thread.
+ * Returns the identifier of the process containing this thread.
  *
  * @return    Identifier of process containing this thread.
  */
 pid_t Thread::getProcessId() const
 {
-    Guard guard_myself(this);
-    
-    // Check assertions
-    Assert(dm_process != NULL);
+    pid_t pid;
+
+    // Find our process identifier
+    BEGIN_TRANSACTION(dm_database);
+    validateEntry();
+    dm_database->prepareStatement("SELECT pid FROM Threads WHERE id = ?;");
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement())
+	pid = static_cast<pid_t>(dm_database->getResultAsInteger(1));
+    END_TRANSACTION(dm_database);
     
     // Return the process identifier to the caller
-    return dm_process->getProcessId();
+    return pid;
 }
 
 
@@ -160,15 +153,30 @@ pid_t Thread::getProcessId() const
 /**
  * Get our POSIX thread identifier.
  *
- * Returns to the caller the POSIX identifier of the thread. If the thread isn't
- * a POSIX thread, the Optional returned will not have a value.
+ * Returns the POSIX identifier of this thread. If this thread isn't a POSIX
+ * thread, the Optional returned will not have a value.
  *
  * @return    Optional identifier of this thread.
  */
 Optional<pthread_t> Thread::getPosixThreadId() const
 {
-    // TODO: implement
-    return Optional<pthread_t>();
+    Optional<pthread_t> tid;
+
+    // Find our POSIX thread identifier	
+    BEGIN_TRANSACTION(dm_database);
+    validateEntry();
+    dm_database->prepareStatement(
+	"SELECT posix_tid FROM Threads WHERE id = ?;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement())
+	if(!dm_database->getResultIsNull(1))
+	    tid = static_cast<pthread_t>
+		(dm_database->getResultAsInteger(1));
+    END_TRANSACTION(dm_database);
+    
+    // Return the POSIX thread identifier to the caller
+    return tid;
 }
 
 
@@ -177,15 +185,27 @@ Optional<pthread_t> Thread::getPosixThreadId() const
 /**
  * Get our OpenMP thread identifier.
  *
- * Returns to the caller the OpenMP identifier of the thread. If the thread
- * isn't an OpenMP thread, the Optional returned will not have a value.
+ * Returns the OpenMP identifier of this thread. If this thread isn't an OpenMP
+ * thread, the Optional returned will not have a value.
  *
  * @return    Optional identifier of this thread.
  */
 Optional<int> Thread::getOmpThreadId() const
 {
-    // TODO: implement
-    return Optional<int>();
+    Optional<int> tid;
+
+    // Find our OpenMP thread identifier	
+    BEGIN_TRANSACTION(dm_database);
+    validateEntry();
+    dm_database->prepareStatement("SELECT omp_tid FROM Threads WHERE id = ?;");
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement())
+	if(!dm_database->getResultIsNull(1))
+	    tid = dm_database->getResultAsInteger(1);
+    END_TRANSACTION(dm_database);
+
+    // Return the OpenMP thread identifier to the caller
+    return tid;
 }
 #endif
 
@@ -195,16 +215,28 @@ Optional<int> Thread::getOmpThreadId() const
 /**
  * Get our MPI rank.
  *
- * Returns to the caller the MPI rank of the thread within the application's
- * world communicator. If the thread isn't part of an MPI application, the
+ * Returns the MPI rank of this thread within the application's world
+ * communicator. If this thread isn't part of an MPI application, the
  * Optional returned will not have a value.
  *
  * @return    Optional rank of this thread.
  */
 Optional<int> Thread::getMpiRank() const
 {
-    // TODO: implement
-    return Optional<int>();
+    Optional<int> rank;
+    
+    // Find our MPI rank
+    BEGIN_TRANSACTION(dm_database);
+    validateEntry();
+    dm_database->prepareStatement("SELECT mpi_rank FROM Threads WHERE id = ?;");
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement())
+	if(!dm_database->getResultIsNull(1))
+	    rank = dm_database->getResultAsInteger(1);
+    END_TRANSACTION(dm_database);
+    
+    // Return the MPI rank to the caller
+    return rank;
 }
 #endif
 
@@ -214,262 +246,367 @@ Optional<int> Thread::getMpiRank() const
 /**
  * Get our array session handle.
  *
- * Returns to the caller the array session handle containing the thread. If the
- * thread isn't part of an array session, the Optional returned will not have a
- * value.
+ * Returns the array session handle containing this thread. If this thread
+ * isn't part of an array session, the Optional returned will not have a value.
  *
  * @return    Optional array session handle containing this thread.
  */
 Optional<ash_t> Thread::getArraySessionHandle() const
 {
-    // TODO: implement
-    return Optional<ash_t>();
+    Optional<ash_t> ash;
+
+    // Find our array session handle
+    BEGIN_TRANSACTION(dm_database);
+    validateEntry();
+    dm_database->prepareStatement("SELECT ash FROM Threads WHERE id = ?;");
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement())
+	if(!dm_database->getResultIsNull(1))
+	    ash = static_cast<ash_t>(dm_database->getResultAsInteger(1));
+    END_TRANSACTION(dm_database);
+    
+    // Return the array session handle to the caller
+    return ash;
 }
 #endif
 
 
 
 /**
- * Find all linked objects.
+ * Get our linked objects.
  *
- * Finds and returns all the linked objects contained within this thread. An
- * empty list is returned if no linked objects are found within this thread
- * (unlikely).
+ * Returns the linked objects contained within this thread at a particular
+ * moment in time. If no linked objects can be found, the Optional retruned
+ * will not have a value.
  *
  * @param time    Query time.
- * @return        All linked objects in this thread.
+ * @return        Linked objects contained within this thread.
  */
-std::vector<LinkedObject> Thread::findAllLinkedObjects(const Time& time) const
+Optional<std::vector<LinkedObject> >
+Thread::getLinkedObjects(const Time& time) const
 {
-    Guard guard_myself(this);
+    std::vector<LinkedObject> linked_objects;
 
-    // Check assertions
-    Assert(dm_process != NULL);
-    
-    // Find the address space for our process at the query time
-    const AddressSpace* address_space = dm_process->findAddressSpace(time);
-    Assert(address_space != NULL);
-
-    // Find all symbol tables in that address space
-    std::vector<const SymbolTable*> symbol_tables =
-	address_space->findSymbolTables();
-
-    // Create the linked objects and return them to the caller
-    std::vector<LinkedObject> result;
-    for(std::vector<const SymbolTable*>::const_iterator
-	    i = symbol_tables.begin(); i != symbol_tables.end(); ++i)
-	result.push_back(LinkedObject(address_space, *i,
-				      (*i)->getLinkedObjectEntry()));
-    return result;
+    // Find our address space entries containing the query time
+    BEGIN_TRANSACTION(dm_database);
+    validateEntry();
+    dm_database->prepareStatement(
+	"SELECT id, linked_object FROM AddressSpaces"
+	" WHERE thread = ? AND ? >= time_begin AND ? < time_end;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    dm_database->bindArgument(2, time);
+    dm_database->bindArgument(3, time);
+    while(dm_database->executeStatement())
+	linked_objects.push_back(
+	    LinkedObject(dm_database,
+			 dm_database->getResultAsInteger(2),
+			 dm_database->getResultAsInteger(1)));        
+    END_TRANSACTION(dm_database);
+   
+    // Return the linked objects to the caller
+    return linked_objects.empty() ?
+	Optional<std::vector<LinkedObject> >() :
+	Optional<std::vector<LinkedObject> >(linked_objects);
 }
 
 
 
 /**
- * Find all functions.
+ * Get our functions.
  *
- * Finds and returns all the functions contained within this thread. An empty
- * list is returned if no functions are found within this thread (unlikely).
+ * Returns the functions contained within this thread at a particular moment
+ * in time. If no functions can be found, the Optional returned will not have
+ * a value.
  *
  * @note    This is an extremely high cost operation in terms of time and memory
  *          used. Avoid using this member function if at all possible.
  *
  * @param time    Query time.
- * @return        All functions in this thread.
+ * @return        Functions contained within this thread.
  */
-std::vector<Function> Thread::findAllFunctions(const Time& time) const
+Optional<std::vector<Function> >
+Thread::getFunctions(const Time& time) const
 {
-    Guard guard_myself(this);
-    
-    // Check assertions
-    Assert(dm_process != NULL);
-    
-    // Find the address space for our process at the query time
-    const AddressSpace* address_space = dm_process->findAddressSpace(time);
-    Assert(address_space != NULL);
+    std::vector<Function> functions;
 
-    // Find all symbol tables in that address space
-    std::vector<const SymbolTable*> symbol_tables =
-	address_space->findSymbolTables();
+    // Find our functions and their contexts containing the query time
+    BEGIN_TRANSACTION(dm_database);
+    validateEntry();
+    dm_database->prepareStatement(
+	"SELECT AddressSpaces.id, Functions.id"
+	" FROM Functions JOIN AddressSpaces"
+	" ON Functions.linked_object = AddressSpaces.linked_object"
+	" WHERE AddressSpaces.thread = ?"
+	"   AND ? >= time_begin AND ? < time_end;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    dm_database->bindArgument(2, time);
+    dm_database->bindArgument(3, time);
+    while(dm_database->executeStatement())
+	functions.push_back(Function(dm_database,
+				     dm_database->getResultAsInteger(2),
+				     dm_database->getResultAsInteger(1)));    
+    END_TRANSACTION(dm_database);
 
-    // Create the functions and return them to the caller
-    std::vector<Function> result;
-    for(std::vector<const SymbolTable*>::const_iterator
-	    i = symbol_tables.begin(); i != symbol_tables.end(); ++i) {
-	std::vector<const FunctionEntry*> functions = (*i)->findAllFunctions();
-	for(std::vector<const FunctionEntry*>::const_iterator
-		j = functions.begin(); j != functions.end(); ++j)
-	    result.push_back(Function(address_space, *i, *j));
+    // Return the functions to the caller
+    return functions.empty() ?
+	Optional<std::vector<Function> >() :
+	Optional<std::vector<Function> >(functions);
+}
+
+
+
+/**
+ * Get the linked object at an address.
+ *
+ * Returns the linked object containing the passed query address at a
+ * particular moment in time. If a linked object cannot be found, the
+ * Optional returned will not have a value.
+ *
+ * @param address    Query address.
+ * @param time       Query time.
+ * @return           Optional linked object containing the query address.
+ */
+Optional<LinkedObject> Thread::getLinkedObjectAt(const Address& address,
+						 const Time& time) const
+{
+    Optional<LinkedObject> linked_object;
+
+    // Find the address space entry containing the query time/address
+    BEGIN_TRANSACTION(dm_database);
+    validateEntry();
+    dm_database->prepareStatement(
+	"SELECT id, linked_object FROM AddressSpaces"
+	" WHERE thread = ? AND ? >= time_begin AND ? < time_end"
+	"   AND ? >= addr_begin AND ? < addr_end;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    dm_database->bindArgument(2, time);
+    dm_database->bindArgument(3, time);
+    dm_database->bindArgument(4, address);
+    dm_database->bindArgument(5, address);	
+    while(dm_database->executeStatement()) {
+	if(linked_object.hasValue())
+	    throw Database::Corrupted(*dm_database, 
+				      "overlapping address space entries");
+	linked_object = LinkedObject(dm_database,
+				     dm_database->getResultAsInteger(2),
+				     dm_database->getResultAsInteger(1));
+    }    
+    END_TRANSACTION(dm_database);
+    
+    // Return the linked object to the caller
+    return linked_object;
+}
+
+
+
+/**
+ * Get the function at an address.
+ *
+ * Returns the function containing the passed query address at a particular
+ * moment in time. If a function cannot be found, the Optional returned will
+ * not have a value.
+ *
+ * @param address    Query address.
+ * @param time       Query time.
+ * @return           Optional function containing the query address.
+ */
+Optional<Function> Thread::getFunctionAt(const Address& address,
+					 const Time& time) const
+{
+    Optional<Function> function;
+    
+    BEGIN_TRANSACTION(dm_database);
+    validateEntry();
+
+    // Find the address space entry containing the query time/address
+    Optional<int> context;
+    Optional<int> linked_object;
+    Optional<Address> base_address;
+    dm_database->beginTransaction();
+    dm_database->prepareStatement(
+	"SELECT id, linked_object, addr_begin FROM AddressSpaces"
+	" WHERE thread = ? AND ? >= time_begin AND ? < time_end"
+	"   AND ? >= addr_begin AND ? < addr_end;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    dm_database->bindArgument(2, time);
+    dm_database->bindArgument(3, time);
+    dm_database->bindArgument(4, address);
+    dm_database->bindArgument(5, address);		
+    while(dm_database->executeStatement()) {
+	if(context.hasValue())
+	    throw Database::Corrupted(*dm_database,
+				      "overlapping address space entries");
+	context = dm_database->getResultAsInteger(1);
+	linked_object = dm_database->getResultAsInteger(2);
+	base_address = dm_database->getResultAsAddress(3);
     }
-    return result;
+    
+    // Find the function containing the query address
+    if(context.hasValue() &&
+       linked_object.hasValue() &&
+       base_address.hasValue()) {
+
+	dm_database->prepareStatement(
+	    "SELECT id FROM Functions"
+	    " WHERE linked_object = ? AND ? >= addr_begin AND ? < addr_end;"
+	    );
+	dm_database->bindArgument(1, linked_object);
+	dm_database->bindArgument(2, Address(address - base_address));
+	dm_database->bindArgument(3, Address(address - base_address));
+	while(dm_database->executeStatement()) {
+	    Assert(!function.hasValue());
+	    function = Function(dm_database,
+				dm_database->getResultAsInteger(1),
+				context);
+	}
+	
+    }
+
+    END_TRANSACTION(dm_database);    
+    
+    // Return the function to the caller
+    return function;
 }
 
 
 
 /**
- * Find the linked object at an address.
+ * Get the statement at an address.
  *
- * Finds the linked object containing the instruction at the passed query
- * address and returns the corresponding LinkedObject object.  If no linked
- * object can be found that contains this instruction, the Optional returned
- * will not have a value.
+ * Returns the statement containing the passed query address at a particular
+ * moment in time. If a statement cannot be found, or if no source statement
+ * information is available, the Optional returned will not have a value.
  *
  * @param address    Query address.
  * @param time       Query time.
- * @return           Optional linked object at the query address.
+ * @return           Optional statement containing the query address.
  */
-Optional<LinkedObject> Thread::findLinkedObjectAt(const Address& address,
-						  const Time& time) const
+Optional<Statement> Thread::getStatementAt(const Address& address,
+					   const Time& time) const
 {
-    Guard guard_myself(this);
+    Optional<Statement> statement;
+    
+    BEGIN_TRANSACTION(dm_database);
+    validateEntry();
+    
+    // Find the address space entry containing the query time/address
+    Optional<int> context;
+    Optional<int> linked_object;
+    Optional<Address> base_address;
+    dm_database->beginTransaction();
+    dm_database->prepareStatement(
+	"SELECT id, linked_object, addr_begin FROM AddressSpaces"
+	" WHERE thread = ? AND ? >= time_begin AND ? < time_end"
+	"   AND ? >= addr_begin AND ? < addr_end;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    dm_database->bindArgument(2, time);
+    dm_database->bindArgument(3, time);
+    dm_database->bindArgument(4, address);
+    dm_database->bindArgument(5, address);		
+    while(dm_database->executeStatement()) {
+	if(context.hasValue())
+	    throw Database::Corrupted(*dm_database, 
+				      "overlapping address space entries");
+	context = dm_database->getResultAsInteger(1);
+	linked_object = dm_database->getResultAsInteger(2);
+	base_address = dm_database->getResultAsAddress(3);
+    }
+    
+    // Find the statement containing the query address
+    if(context.hasValue() &&
+       linked_object.hasValue() &&
+       base_address.hasValue()) {
+	
+	dm_database->prepareStatement(
+	    "SELECT statement FROM StatementRanges"
+	    " WHERE linked_object = ? AND ? >= addr_begin AND ? < addr_end;"
+	    );
+	dm_database->bindArgument(1, linked_object);
+	dm_database->bindArgument(2, Address(address - base_address));
+	dm_database->bindArgument(3, Address(address - base_address));
+	while(dm_database->executeStatement()) {
+	    Assert(!statement.hasValue());
+	    statement = Statement(dm_database,
+				  dm_database->getResultAsInteger(1),
+				  context);
+	}
+	
+    }
+    
+    END_TRANSACTION(dm_database);    
 
-    // Check assertions
-    Assert(dm_process != NULL);
-    
-    // Find the address space for our process at the query time
-    const AddressSpace* address_space = dm_process->findAddressSpace(time);
-    Assert(address_space != NULL);
-    
-    // Find the symbol table in that address space at the query address
-    const SymbolTable* symbol_table = 
-	address_space->findSymbolTableByAddress(address);
-    
-    // Return an empty optional if no symbol table was found
-    if(symbol_table == NULL)
-	return Optional<LinkedObject>();
-
-    // Create the linked object and return it to the caller
-    return Optional<LinkedObject>(LinkedObject(
-				      address_space, symbol_table,
-				      symbol_table->getLinkedObjectEntry()));
+    // Return the statement to the caller
+    return statement;
 }
 
 
 
 /**
- * Find the source function at an address.
+ * Default constructor.
  *
- * Finds the source function containing the instruction at the passed query
- * address and returns the corresponding Function object. If no function can be
- * found that contains this instruction, the Optional returned will not have a
- * value.
- *
- * @param address    Query address.
- * @param time       Query time.
- * @return           Optional function at the query address.
+ * Constructs a Thread that refers to a non-existent thread. Any use of a
+ * member function on an object constructed in this way will result in an
+ * assertion failure. The only reason this default constructor exists is to
+ * allow Optional<Thread> to create an empty optional value and to allow
+ * Experiment to temporarily create "empty" threads.
  */
-Optional<Function> Thread::findFunctionAt(const Address& address,
-					  const Time& time) const
+Thread::Thread() :
+    dm_database(NULL),
+    dm_entry(0)
 {
-    Guard guard_myself(this);
-
-    // Check assertions
-    Assert(dm_process != NULL);
-    
-    // Find the address space for our process at the query time
-    const AddressSpace* address_space = dm_process->findAddressSpace(time);
-    Assert(address_space != NULL);
-
-    // Find the symbol table in that address space at the query address
-    const SymbolTable* symbol_table = 
-	address_space->findSymbolTableByAddress(address);
-
-    // Return an empty optional if no symbol table was found
-    if(symbol_table == NULL)
-	return Optional<Function>();
-    
-    // Find the base address of this symbol table within its address space
-    Address base_address = 
-	address_space->findBaseAddressBySymbolTable(symbol_table);
-
-    // Find the function in that symbol table at the query address
-    const FunctionEntry* entry = 
-	symbol_table->findFunctionAt(address - base_address);
-    
-    // Return an empty optional if no function was found
-    if(entry == NULL)
-	return Optional<Function>();
-    
-    // Create the function and return it to the caller
-    return Optional<Function>(Function(address_space, symbol_table, entry));
 }
 
 
 
 /**
- * Find the source statement at an address.
+ * Constructor from a thread entry.
  *
- * Finds the source statement containing the instruction at the passed query
- * address and returns the corresponding Statement object. If no source
- * statement information is available, or if no statement can be found that
- * contains this instruction, the Optional returned will not have a value.
+ * Constructs a new Thread for the specified thread entry, contained within the
+ * passed database.
  *
- * @param address    Query address.
- * @param time       Query time.
- * @return           Optional statement at the query address.
+ * @param database         Database containing the thread.
+ * @param entry            Entry (id) for the thread.
  */
-Optional<Statement> Thread::findStatementAt(const Address& address,
-					    const Time& time) const
+Thread::Thread(const SmartPtr<Database>& database, const int& entry):
+    dm_database(database),
+    dm_entry(entry)
 {
-    Guard guard_myself(this);
-
-    // Check assertions
-    Assert(dm_process != NULL);
-    
-    // Find the address space for our process at the query time
-    const AddressSpace* address_space = dm_process->findAddressSpace(time);
-    Assert(address_space != NULL);
-
-    // Find the symbol table in that address space at the query address
-    const SymbolTable* symbol_table = 
-	address_space->findSymbolTableByAddress(address);
-
-    // Return an empty optional if no symbol table was found
-    if(symbol_table == NULL)
-	return Optional<Statement>();
-    
-    // Find the base address of this symbol table within its address space
-    Address base_address = 
-	address_space->findBaseAddressBySymbolTable(symbol_table);
-
-    // Find the statement in that symbol table at the query address
-    const StatementEntry* entry = 
-	symbol_table->findStatementAt(address - base_address);
-    
-    // Return an empty optional if no statement was found
-    if(entry == NULL)
-	return Optional<Statement>();
-    
-    // Create the statement and return it to the caller
-    return Optional<Statement>(Statement(address_space, symbol_table, entry));
 }
 
 
 
 /**
- * Constructor from a process pointer.
+ * Validate our entry.
  *
- * Creates a new thread within the specified process. Simply squirrels away the
- * process pointer for future use.
+ * Validates the existence and uniqueness of our entry within our database. If
+ * our entry is found and is unique, this function simply returns. Otherwise
+ * an exception of type Database::Corrupted is thrown.
  *
- * @param process    Process containing this thread.
+ * @note    Validation may only be performed within the context of an existing
+ *          transaction. Any attempt to validate before beginning a transaction
+ *          will result in an assertion failure.
  */
-Thread::Thread(Process* process) :
-    dm_process(process)
+void Thread::validateEntry() const
 {
-    // Check assertions
-    Assert(dm_process != NULL);
-}
-
-
-
-/**
- * Destructor.
- *
- * Does nothing. Defined here only so that the destructor can be made private
- * and thus prevent anyone other than Application from destroying a thread. 
- */
-Thread::~Thread()
-{  
-    Guard guard_myself(this);
+    // Find the number of rows matching our entry
+    int rows = 0;
+    dm_database->prepareStatement(
+	"SELECT COUNT(*) FROM Threads WHERE id = ?;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement())
+	rows = dm_database->getResultAsInteger(1);
+    
+    // Validate
+    if(rows == 0)
+	throw Database::Corrupted(*dm_database,
+				  "thread entry no longer exists");
+    else if(rows > 1)
+	throw Database::Corrupted(*dm_database,
+				  "thread entry is not unique");
 }

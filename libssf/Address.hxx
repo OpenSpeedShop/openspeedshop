@@ -46,10 +46,10 @@ namespace OpenSpeedShop { namespace Framework {
     /**
      * Memory address.
      *
-     * Internally all memory addresses are represented using a 64-bit unsigned
-     * integer. This allows for a unified representation of both 32-bit and 64-
-     * bit address spaces by sacrificing storage space when 32-bit addresses
-     * are processed. Various overflow and underflow conditions are checked when
+     * All memory addresses are represented using a 64-bit unsigned integer.
+     * This allows for a unified representation of both 32-bit and 64-bit
+     * address spaces by sacrificing storage space when 32-bit addresses are
+     * processed. Various overflow and underflow conditions are checked when
      * arithmetic operations are performed on these addresses.
      *
      * @ingroup Utility
@@ -127,11 +127,15 @@ namespace OpenSpeedShop { namespace Framework {
 	friend std::ostream& operator<<(std::ostream& stream,
 					const Address& object)
 	{
+	    std::ios_base::fmtflags saved_flags = stream.flags();
+	    std::streamsize saved_width = stream.width();
 	    stream << "0x"
 		   << std::hex << std::setfill('0')
 		   << std::setw((object.dm_value > 
 				 std::numeric_limits<uint32_t>::max()) ? 16 : 8)
 		   << object.dm_value;
+	    stream.flags(saved_flags);
+	    stream.width(saved_width);
 	    return stream;
 	}
 

@@ -22,154 +22,262 @@
  *
  */
 
-#include "AddressSpace.hxx"
 #include "Assert.hxx"
 #include "CallSite.hxx"
+#include "Database.hxx"
 #include "Function.hxx"
-#include "FunctionEntry.hxx"
 #include "LinkedObject.hxx"
 #include "Statement.hxx"
-#include "SymbolTable.hxx"
+#include "Thread.hxx"
 
 using namespace OpenSpeedShop::Framework;
 
 
 
 /**
+ * Get our thread.
+ *
+ * Returns the thread containing this function.
+ *
+ * @return    Thread containing this function.
+ */
+Thread Function::getThread() const
+{
+    Thread thread;
+
+    // Check assertions
+    Assert(!dm_database.isNull());
+    
+    // Find our context's thread    
+    BEGIN_TRANSACTION(dm_database);
+    validateContext();
+    dm_database->prepareStatement(
+	"SELECT thread FROM AddressSpaces WHERE id = ?;"
+	);
+    dm_database->bindArgument(1, dm_context);
+    while(dm_database->executeStatement())
+	thread = Thread(dm_database, dm_database->getResultAsInteger(1));
+    END_TRANSACTION(dm_database);
+    
+    // Return the thread to the caller
+    return thread;
+}
+
+
+
+/**
+ * Get our linked object.
+ *
+ * Returns the linked object containing this function.
+ *
+ * @return    Linked object containing this function.
+ */
+LinkedObject Function::getLinkedObject() const
+{
+    LinkedObject linked_object;
+    
+    // Check assertions
+    Assert(!dm_database.isNull());
+
+    // Find our context's linked object
+    BEGIN_TRANSACTION(dm_database);
+    validateContext();
+    dm_database->prepareStatement(
+	"SELECT linked_object FROM AddressSpaces WHERE id = ?;"
+	);
+    dm_database->bindArgument(1, dm_context);	
+    while(dm_database->executeStatement())
+	linked_object = LinkedObject(dm_database,
+				     dm_database->getResultAsInteger(1),
+				     dm_context);
+    END_TRANSACTION(dm_database);
+    
+    // Return the linked object to the caller
+    return linked_object;
+}
+
+
+
+/**
  * Get our demangled name.
  *
- * Returns to the caller the demangled name of this function.
+ * Returns the demangled name of this function.
  *
  * @return    Demangled name of this function.
  */
 std::string Function::getName() const
 {
+    std::string name;
+
     // Check assertions
-    Assert(dm_symbol_table != NULL);
-    Assert(dm_entry != NULL);
+    Assert(!dm_database.isNull());
+
+    // Find our demangled name
+    BEGIN_TRANSACTION(dm_database);
+    validateEntry();
+    dm_database->prepareStatement(
+	"SELECT name FROM Functions WHERE id = ?;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement())
+	name = dm_database->getResultAsString(1);
+    END_TRANSACTION(dm_database);
     
     // Return the demangled name to the caller
-    return dm_symbol_table->getStringTable().getString(dm_entry->name);
+    return name;
 }
 
 
 
 /**
- * Find address range.
+ * Get our address range.
  *
- * Finds and returns the address range of this function.
+ * Returns the address range of this function.
  *
  * @return    Address range of this function.
  */
-AddressRange Function::findAddressRange() const
+AddressRange Function::getAddressRange() const
 {
+    AddressRange range;
+
     // Check assertions
-    Assert(dm_address_space != NULL);
-    Assert(dm_symbol_table != NULL);
-    Assert(dm_entry != NULL);
+    Assert(!dm_database.isNull());
 
-    // Find the base address of our symbol table within our address space
-    Address base_address = 
-	dm_address_space->findBaseAddressBySymbolTable(dm_symbol_table);
-
-    // Return the address range to the caller
-    return AddressRange(base_address + dm_entry->range.getBegin().getValue(),
-			base_address + dm_entry->range.getEnd().getValue());
+    // Find our context's base address and our address range
+    BEGIN_TRANSACTION(dm_database);
+    validateEntry();
+    validateContext();
+    dm_database->prepareStatement(
+	"SELECT AddressSpaces.addr_begin,"
+	"       Functions.addr_begin, Functions.addr_end"
+	" FROM AddressSpaces JOIN Functions"
+	" ON AddressSpaces.linked_object = Functions.linked_object"
+	" WHERE Functions.id = ?"
+	"   AND AddressSpaces.id = ?"
+	);	
+    dm_database->bindArgument(1, dm_entry);	
+    dm_database->bindArgument(2, dm_context);	
+    while(dm_database->executeStatement())
+	range = AddressRange(dm_database->getResultAsAddress(1) +
+			     dm_database->getResultAsAddress(2).getValue(),
+			     dm_database->getResultAsAddress(1) +
+			     dm_database->getResultAsAddress(3).getValue());
+    END_TRANSACTION(dm_database);
+    
+    // Return the address range to the caller	
+    return range;
 }
 
 
 
 /**
- * Find linked object.
+ * Get our definition.
  *
- * Finds and returns the linked object containing this function.
- *
- * @return    Linked object containing this function.
- */
-LinkedObject Function::findLinkedObject() const
-{
-    // Check assertions
-    Assert(dm_address_space != NULL);
-    Assert(dm_symbol_table != NULL);
-    Assert(dm_entry != NULL);
-
-    // Create and return the linked object to the caller
-    return LinkedObject(dm_address_space, dm_symbol_table,
-			dm_symbol_table->getLinkedObjectEntry());
-}
-
-
-
-/**
- * Find all statements.
- *
- * Finds and returns all statements associated with this function. If no source
- * statement information is available, the Optional returned will not have a
- * value. If no statements are associated with this function (unlikely), an
- * empty list is returned.
- *
- * @return    Optional statements associated with this function.
- */
-Optional< std::vector<Statement> > Function::findAllStatements() const
-{
-    // TODO: implement
-    return Optional< std::vector<Statement> >();
-}
-
-
-
-/**
- * Find definition.
- *
- * Finds and returns the definition of this function. If no source statement
- * information is available, the Optional returned will not have a value.
+ * Returns the definition of this function. If no definition can be found
+ * for this function, or if no source information is available, the Optional
+ * returned will not have a value.
  *
  * @return    Optional definition of this function.
  */
-Optional<Statement> Function::findDefinition() const
+Optional<Statement> Function::getDefinition() const
 {
-    // Find the statement in our symbol table at the function's first address
-    const StatementEntry* entry =
-	dm_symbol_table->findStatementAt(dm_entry->range.getBegin());
+    Optional<Statement> statement;
+
+    // Check assertions
+    Assert(!dm_database.isNull());
+
+    // Find the statement containing our beginning address
+    BEGIN_TRANSACTION(dm_database);
+    validateEntry();
+    dm_database->prepareStatement(
+	"SELECT DISTINCT statement FROM StatementRanges JOIN Functions"
+	" ON StatementRanges.linked_object = Functions.linked_object"
+	" WHERE Functions.id = ?"
+	"   AND Functions.addr_begin >= StatementRanges.addr_begin"
+	"   AND Functions.addr_begin < StatementRanges.addr_end;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement())
+	if(!statement.hasValue())
+	    statement = Statement(dm_database,
+				  dm_database->getResultAsInteger(1),
+				  dm_context);
+    END_TRANSACTION(dm_database);
     
-    // Return an empty optional if no statement was found
-    if(entry == NULL)
-	return Optional<Statement>();
-    
-    // Create and return the statement to the caller
-    return Optional<Statement>(Statement(dm_address_space, dm_symbol_table,
-					 entry));
+    // Return the statement to the caller
+    return statement;
 }
 
 
 
 /**
- * Find callees.
+ * Get our statements.
  *
- * Finds and returns the known callees of this function. An empty list is
- * returned if no callees are currently known.
+ * Returns the statements associated with this function. An empty list is
+ * returned if no statements are associated with this function or if no source
+ * statement information is available.
+ *
+ * @return    Statements associated with this function.
+ */
+std::vector<Statement> Function::getStatements() const
+{
+    std::vector<Statement> statements;
+
+    // Check assertions
+    Assert(!dm_database.isNull());
+
+    // Find the statements intersecting our address range
+    BEGIN_TRANSACTION(dm_database);
+    validateEntry();
+    dm_database->prepareStatement(
+	"SELECT DISTINCT statement FROM StatementRanges JOIN Functions"
+	" ON StatementRanges.linked_object = Functions.linked_object"
+	" WHERE Functions.id = ?"
+	"   AND Functions.addr_end >= StatementRanges.addr_begin"
+	"   AND Functions.addr_begin < StatementRanges.addr_end;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement())
+	statements.push_back(Statement(dm_database,
+				       dm_database->getResultAsInteger(1),
+				       dm_context));
+    END_TRANSACTION(dm_database);
+    
+    // Return the statements to the caller
+    return statements;
+}
+
+
+
+/**
+ * Get our callees.
+ *
+ * Returns the known callees of this function. An empty list is returned if no
+ * callees are currently known.
+ *
+ * @todo    Needs to be implemented.
  *
  * @return    All known callees of this function.
  */
-std::vector<CallSite> Function::findCallees() const
+std::vector<CallSite> Function::getCallees() const
 {
-    // TODO: implement
     return std::vector<CallSite>();
 }
 
 
 
 /**
- * Find callers.
+ * Get our callers.
  *
- * Finds and returns the known callers of this function. An empty list is
- * returned if no callers are currently known.
+ * Returns the known callers of this function. An empty list is returned if no
+ * callers are currently known.
  *
+ * @todo    Needs to be implemented.
+ * 
  * @return    All known callers of this function.
  */
-std::vector<CallSite> Function::findCallers() const
+std::vector<CallSite> Function::getCallers() const
 {
-    // TODO: implement
     return std::vector<CallSite>();
 }
 
@@ -178,39 +286,99 @@ std::vector<CallSite> Function::findCallers() const
 /**
  * Default constructor.
  *
- * Constructs a Function that refers to a non-existent function entry. Any use
- * of a member function on an object constructed in this way will result in an
- * assertion failure. The only reason this default constructor exists is to
- * allow Optional<Function> to create an empty optional value.
+ * Constructs a Function that refers to a non-existent function. Any use of
+ * a member function on an object constructed in this way will result in an
+ * assertion failure.
  */
 Function::Function() :
-    dm_address_space(NULL),
-    dm_symbol_table(NULL),
-    dm_entry(NULL)
+    dm_database(NULL),
+    dm_entry(0),
+    dm_context(0)
 {
 }
 
 
 
 /**
- * Constructor from an address space, symbol table, and function entry.
+ * Constructor from a function entry.
  *
- * Constructs a new Function for the specified function entry, contained within
- * the passed symbol table and address space.
+ * Constructs a new Function for the specified function entry within the passed
+ * database, given the context of the specified address space entry.
  *
- * @param address_space    Address space containing the function.
- * @param symbol_table     Symbol table containing the function.
- * @param entry            The function's entry.
+ * @param database    Database containing the function.
+ * @param entry       Entry (id) for the function.
+ * @param context     Address space entry (id) context for the function.
  */
-Function::Function(const AddressSpace* address_space,
-		   const SymbolTable* symbol_table,
-		   const FunctionEntry* entry) :
-    dm_address_space(address_space),
-    dm_symbol_table(symbol_table),
-    dm_entry(entry)
+Function::Function(const SmartPtr<Database>& database,
+		   const int& entry, const int& context) :
+    dm_database(database),
+    dm_entry(entry),
+    dm_context(context)
 {
-    // Check assertions
-    Assert(dm_address_space != NULL);
-    Assert(dm_symbol_table != NULL);
-    Assert(dm_entry != NULL);
+}
+
+
+
+/**
+ * Validate our entry.
+ *
+ * Validates the existence and uniqueness of our entry within our database. If
+ * our entry is found and is unique, this function simply returns. Otherwise
+ * an exception of type Database::Corrupted is thrown.
+ *
+ * @note    Validation may only be performed within the context of an existing
+ *          transaction. Any attempt to validate before beginning a transaction
+ *          will result in an assertion failure.
+ */
+void Function::validateEntry() const
+{
+    // Find the number of rows matching our entry
+    int rows = 0;
+    dm_database->prepareStatement(
+	"SELECT COUNT(*) FROM Functions WHERE id = ?;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement())
+	rows = dm_database->getResultAsInteger(1);
+    
+    // Validate
+    if(rows == 0)
+	throw Database::Corrupted(*dm_database,
+				  "function entry no longer exists");
+    else if(rows > 1)
+	throw Database::Corrupted(*dm_database,
+				  "function entry is not unique");
+}
+
+
+
+/**
+ * Validate our context.
+ *
+ * Validates the existence and uniqueness of our context within the database. If
+ * our context is found and is unique, this function simply returns. Otherwise
+ * an exception of type Database::Corrupted is thrown.
+ *
+ * @note    Validation may only be performed within the context of an existing
+ *          transaction. Any attempt to validate before beginning a transaction
+ *          will result in an assertion failure.
+ */
+void Function::validateContext() const
+{
+    // Find the number of rows matching our context
+    int rows = 0;
+    dm_database->prepareStatement(
+	"SELECT COUNT(*) FROM AddressSpaces WHERE id = ?;"
+	);
+    dm_database->bindArgument(1, dm_context);
+    while(dm_database->executeStatement())
+	rows = dm_database->getResultAsInteger(1);
+    
+    // Validate
+    if(rows == 0)
+	throw Database::Corrupted(*dm_database,
+				  "address space entry no longer exists");
+    else if(rows > 1)
+	throw Database::Corrupted(*dm_database,
+				  "address space entry is not unique");
 }

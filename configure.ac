@@ -16,7 +16,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-AC_INIT(OpenSpeedShop, 1.0)
+AC_INIT(Open/SpeedShop, 1.0)
 AC_COPYRIGHT([[Copyright (c) 2004 Silicon Graphics, Inc. All Rights Reserved.]])
 AM_INIT_AUTOMAKE
 
@@ -63,10 +63,39 @@ AC_CONFIG_SUBDIRS(libltdl)
 AC_PROG_INSTALL
 
 ################################################################################
-# Check for DPCL (http://oss.software.ibm.com/developerworks/opensource/dpcl)
+# Check for Instrumentor
 ################################################################################
 
-AC_PKG_DPCL()
+AC_ARG_WITH(instrumentor,
+	    AC_HELP_STRING([--with-instrumentor=TYPE],
+			   [instrumentor (dpcl, dyninst) @<:@dpcl@:>@]),
+	    INSTRUMENTOR=$withval, INSTRUMENTOR="dpcl")
+
+case "$INSTRUMENTOR" in
+    dpcl)
+	AC_PKG_DPCL()
+	;;
+
+    dyninst)
+	AC_PKG_DYNINST()
+	;;
+
+    *)
+	AC_MSG_ERROR([invalid instrumentor "$INSTRUMENTOR".])
+	;;
+esac
+
+AC_SUBST(INSTRUMENTOR)
+
+################################################################################
+# Check for SQLite (http://www.sqlite.org/)
+################################################################################
+
+AC_CHECK_HEADER(sqlite3.h, [ AC_CHECK_LIB(sqlite3, sqlite3_open, [
+    AC_DEFINE(HAVE_SQLITE, 1, [Define to 1 if you have SQLite.])
+], [
+    AC_MSG_FAILURE([cannot locate SQLite library and/or headers.])
+]) ])
 
 ################################################################################
 # Check for POSIX Threads (ISO/IEC 9945-1:1996)
@@ -115,10 +144,13 @@ AC_CHECK_HEADER(arraysvcs.h, [ AC_CHECK_LIB(array, asgeterror, [
 
 AC_CONFIG_FILES(Makefile
 		libssf/Makefile
+		libssf/dpcl/Makefile
+		libssf/dyninst/Makefile
 		collectors/Makefile
 		collectors/pcsamp/Makefile
 		examples/Makefile
 		examples/libssf/Makefile
+		examples/libssf/collector/Makefile
 		examples/libssf/tool/Makefile
 		base/Makefile
 		plugin/Makefile

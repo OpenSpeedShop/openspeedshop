@@ -59,7 +59,7 @@ namespace OpenSpeedShop { namespace Framework {
     public:
 
 	/** Constructor from a lockable object. */
-	Guard(const Lockable& object) :
+	explicit Guard(const Lockable& object) :
 	    dm_object(&object)
 	{
 	    Assert(dm_object != NULL);
@@ -67,7 +67,7 @@ namespace OpenSpeedShop { namespace Framework {
 	}
 
 	/** Constructor from a lockable object pointer. */
-	Guard(const Lockable* object) :
+	explicit Guard(const Lockable* object) :
 	    dm_object(object)
 	{
 	    Assert(dm_object != NULL);

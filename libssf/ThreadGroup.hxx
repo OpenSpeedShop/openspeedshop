@@ -48,7 +48,7 @@ namespace OpenSpeedShop { namespace Framework {
      * @ingroup ToolAPI
      */
     class ThreadGroup :
-	public std::vector<Thread*>
+	public std::vector<Thread>
     {
 	
     public:

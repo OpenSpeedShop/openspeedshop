@@ -26,12 +26,9 @@ rm -f aclocal.m4 compile config.guess config.h.in config.sub
 rm -f configure depcomp install-sh ltmain.sh missing mkinstalldirs
 
 rm -f Makefile.in
-rm -f collectors/Makefile.in
-rm -f collectors/pcsamp/Makefile.in
-rm -f examples/Makefile.in
-rm -f examples/libssf/Makefile.in
-rm -f examples/libssf/tool/Makefile.in
-rm -f libssf/Makefile.in
+rm -f */Makefile.in
+rm -f */*/Makefile.in
+rm -f */*/*/Makefile.in
 
 if test "$1" = "--clean"; then
     exit

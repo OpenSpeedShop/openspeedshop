@@ -30,13 +30,11 @@
 #endif
 
 #include "CallSite.hxx"
-#include "Collector.hxx"
+#include "CollectorImpl.hxx"
 #include "Function.hxx"
 #include "LinkedObject.hxx"
 #include "Statement.hxx"
 #include "Thread.hxx"
-#include "TypedMetric.hxx"
-#include "TypedParameter.hxx"
 
 
 

@@ -22,90 +22,151 @@
  *
  */
 
-#include "AddressSpace.hxx"
 #include "Assert.hxx"
+#include "Database.hxx"
 #include "Function.hxx"
 #include "LinkedObject.hxx"
-#include "LinkedObjectEntry.hxx"
+#include "Optional.hxx"
 #include "Path.hxx"
-#include "SymbolTable.hxx"
+#include "Thread.hxx"
 
 using namespace OpenSpeedShop::Framework;
 
 
 
 /**
- * Get our path name.
+ * Get our thread.
  *
- * Returns to the caller the full path name of this linked object.
+ * Returns the thread containing this linked object.
+ *
+ * @return    Thread containing this linked object.
+ */
+Thread LinkedObject::getThread() const
+{
+    Thread thread;
+
+    // Check assertions
+    Assert(!dm_database.isNull());
+
+    // Find our context's thread
+    BEGIN_TRANSACTION(dm_database);
+    validateContext();
+    dm_database->prepareStatement(
+	"SELECT thread FROM AddressSpaces WHERE id = ?;"
+	);
+    dm_database->bindArgument(1, dm_context);
+    while(dm_database->executeStatement())
+	thread = Thread(dm_database, dm_database->getResultAsInteger(1));
+    END_TRANSACTION(dm_database);
+    
+    // Return the thread to the caller
+    return thread;
+}
+
+
+
+/**
+ * Get our path.
+ *
+ * Returns the full path name of this linked object.
  *
  * @return    Full path name of this linked object.
  */
 Path LinkedObject::getPath() const
 {
+    Optional<Path> path;
+
     // Check assertions
-    Assert(dm_symbol_table != NULL);
-    Assert(dm_entry != NULL);
-     
+    Assert(!dm_database.isNull());
+    
+    // Find our full path name
+    BEGIN_TRANSACTION(dm_database);
+    validateEntry();
+    dm_database->prepareStatement(
+	"SELECT Files.path FROM Files JOIN LinkedObjects"
+	" ON Files.id = LinkedObjects.file WHERE LinkedObjects.id = ?;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement()) {	
+	if(path.hasValue())
+	    throw Database::Corrupted(*dm_database, "file entry is not unique");
+	path = Path(dm_database->getResultAsString(1));
+    }
+    if(!path.hasValue())
+	throw Database::Corrupted(*dm_database, "file entry no longer exists");
+    END_TRANSACTION(dm_database);
+    
     // Return the full path name to the caller
-    return Path(dm_symbol_table->getStringTable().getString(dm_entry->path));
+    return path;
 }
 
 
 
 /**
- * Find address range.
+ * Get our address range.
  *
- * Finds and returns the address range of this linked object.
+ * Returns the address range of this linked object.
  *
  * @return    Address range of this linked object.
  */
-AddressRange LinkedObject::findAddressRange() const
+AddressRange LinkedObject::getAddressRange() const
 {
+    AddressRange range;
+
     // Check assertions
-    Assert(dm_address_space != NULL);
-    Assert(dm_symbol_table != NULL);
-    Assert(dm_entry != NULL);
+    Assert(!dm_database.isNull());
 
-    // Find the base address of our symbol table within our address space
-    Address base_address = 
-	dm_address_space->findBaseAddressBySymbolTable(dm_symbol_table);
-
+    // Find our context's address range
+    BEGIN_TRANSACTION(dm_database);
+    validateContext();
+    dm_database->prepareStatement(
+	"SELECT addr_begin, addr_end FROM AddressSpaces WHERE id = ?;"
+	);
+    dm_database->bindArgument(1, dm_context);
+    while(dm_database->executeStatement())
+	range = AddressRange(dm_database->getResultAsAddress(1),
+			     dm_database->getResultAsAddress(2));
+    END_TRANSACTION(dm_database);
+    
     // Return the address range to the caller
-    return AddressRange(base_address + dm_entry->range.getBegin().getValue(),
-			base_address + dm_entry->range.getEnd().getValue());
+    return range;
 }
 
 
 
 /**
- * Find all functions.
+ * Get our functions.
  *
- * Finds and returns all the functions contained within this linked object. An
- * empty list is returned if no functions are found within this linked object
- * (unlikely).
+ * Returns the functions contained within this linked object. An empty list is
+ * returned if no functions are found within this linked object (unlikely).
  *
  * @note    This is a relatively high cost operation in terms of time and memory
- *          used. Avoid using this member function if at all possible.
+ *          used. Avoid using this member function if possible.
  *
- * @return    All functions in this linked object.
+ * @return    Functions contained within this linked object.
  */
-std::vector<Function> LinkedObject::findAllFunctions() const
+std::vector<Function> LinkedObject::getFunctions() const
 {
+    std::vector<Function> functions;
+
     // Check assertions
-    Assert(dm_address_space != NULL);
-    Assert(dm_symbol_table != NULL);
+    Assert(!dm_database.isNull());
+
+    // Find our functions
+    BEGIN_TRANSACTION(dm_database);
+    validateEntry();
+    dm_database->prepareStatement(
+	"SELECT id FROM Functions WHERE linked_object = ?;"
+	);	
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement())
+	functions.push_back(Function(dm_database, 
+				     dm_database->getResultAsInteger(1),
+				     dm_context));    
+    END_TRANSACTION(dm_database);
     
-    // Find all functions in our symbol table
-    std::vector<const FunctionEntry*> functions =
-	dm_symbol_table->findAllFunctions();
-    
-    // Create the functions and return them to the caller
-    std::vector<Function> result;
-    for(std::vector<const FunctionEntry*>::const_iterator
-	    i = functions.begin(); i != functions.end(); ++i)
-	result.push_back(Function(dm_address_space, dm_symbol_table, *i));
-    return result;
+    // Return the functions to the caller
+    return functions;
 }
 
 
@@ -113,40 +174,99 @@ std::vector<Function> LinkedObject::findAllFunctions() const
 /**
  * Default constructor.
  *
- * Constructs a LinkedObject that refers to a non-existent linked object entry.
- * Any use of a member function on an object constructed in this way will result
- * in an assertion failure. The only reason this default constructor exists is
- * to allow Optional<LinkedObject> to create an empty optional value.
+ * Constructs a LinkedObject that refers to a non-existent linked object. Any
+ * use of a member function on an object constructed in this way will result in
+ * an assertion failure.
  */
 LinkedObject::LinkedObject() :
-    dm_address_space(NULL),
-    dm_symbol_table(NULL),
-    dm_entry(NULL)
+    dm_database(NULL),
+    dm_entry(0),
+    dm_context(0)
 {
 }
 
 
 
 /**
- * Constructor from an address space, symbol table, and linked object entry.
+ * Constructor from a linked object entry.
  *
- * Constructs a new LinkedObject for the specified linked object entry,
- * represented by the passed symbol table and contained within the passed
- * address space.
+ * Constructs a new LinkedObject for the specified linked object entry within
+ * the passed database, given the context of the specified address space entry.
  *
- * @param address_space    Address space containing the linked object.
- * @param symbol_table     Symbol table representing the linked object.
- * @param entry            The linked object's entry.
+ * @param database    Database containing the linked object.
+ * @param entry       Entry (id) for the linked object.
+ * @param context     Address space entry (id) context for the linked object.
  */
-LinkedObject::LinkedObject(const AddressSpace* address_space,
-			   const SymbolTable* symbol_table, 
-			   const LinkedObjectEntry* entry) :
-    dm_address_space(address_space),
-    dm_symbol_table(symbol_table),
-    dm_entry(entry)
+LinkedObject::LinkedObject(const SmartPtr<Database>& database,
+			   const int& entry, const int& context) :
+    dm_database(database),
+    dm_entry(entry),
+    dm_context(context)
 {
-    // Check assertions
-    Assert(dm_address_space != NULL);
-    Assert(dm_symbol_table != NULL);
-    Assert(dm_entry != NULL);
+}
+
+
+
+/**
+ * Validate our entry.
+ *
+ * Validates the existence and uniqueness of our entry within our database. If
+ * our entry is found and is unique, this function simply returns. Otherwise
+ * an exception of type Database::Corrupted is thrown.
+ *
+ * @note    Validation may only be performed within the context of an existing
+ *          transaction. Any attempt to validate before beginning a transaction
+ *          will result in an assertion failure.
+ */
+void LinkedObject::validateEntry() const
+{
+    // Find the number of rows matching our entry
+    int rows = 0;
+    dm_database->prepareStatement(
+	"SELECT COUNT(*) FROM LinkedObjects WHERE id = ?;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement())
+	rows = dm_database->getResultAsInteger(1);
+    
+    // Validate
+    if(rows == 0)
+	throw Database::Corrupted(*dm_database,
+				  "linked object entry no longer exists");
+    else if(rows > 1)
+	throw Database::Corrupted(*dm_database,
+				  "linked object entry is not unique");
+}
+
+
+
+/**
+ * Validate our context.
+ *
+ * Validates the existence and uniqueness of our context within the database. If
+ * our context is found and is unique, this function simply returns. Otherwise
+ * an exception of type Database::Corrupted is thrown.
+ *
+ * @note    Validation may only be performed within the context of an existing
+ *          transaction. Any attempt to validate before beginning a transaction
+ *          will result in an assertion failure.
+ */
+void LinkedObject::validateContext() const
+{
+    // Find the number of rows matching our context
+    int rows = 0;
+    dm_database->prepareStatement(
+	"SELECT COUNT(*) FROM AddressSpaces WHERE id = ?;"
+	);
+    dm_database->bindArgument(1, dm_context);
+    while(dm_database->executeStatement())
+	rows = dm_database->getResultAsInteger(1);
+    
+    // Validate
+    if(rows == 0)
+	throw Database::Corrupted(*dm_database,
+				  "address space entry no longer exists");
+    else if(rows > 1)
+	throw Database::Corrupted(*dm_database,
+				  "address space entry is not unique");
 }

@@ -22,6 +22,7 @@
  *
  */
 
+#include "Database.hxx"
 #include "ThreadGroup.hxx"
 
 using namespace OpenSpeedShop::Framework;
@@ -43,7 +44,7 @@ ThreadGroup ThreadGroup::getSubsetWithState(const Thread::State& state) const
 {
     ThreadGroup subset;
     for(ThreadGroup::const_iterator i = begin(); i != end(); ++i)
-	if((*i)->isState(state))
+	if(i->isState(state))
 	    subset.insert(subset.end(), *i);
     return subset;
 }
@@ -64,7 +65,7 @@ ThreadGroup ThreadGroup::getSubsetWithState(const Thread::State& state) const
 bool ThreadGroup::isAnyState(const Thread::State& state) const
 {
     for(ThreadGroup::const_iterator i = begin(); i != end(); ++i)
-	if((*i)->isState(state))
+	if(i->isState(state))
 	    return true;
     return false;
 }
@@ -85,7 +86,7 @@ bool ThreadGroup::isAnyState(const Thread::State& state) const
 bool ThreadGroup::areAllState(const Thread::State& state) const
 {
     for(ThreadGroup::const_iterator i = begin(); i != end(); ++i)
-	if(!(*i)->isState(state))
+	if(!i->isState(state))
 	    return false;
     return true;
 }
@@ -110,5 +111,5 @@ bool ThreadGroup::areAllState(const Thread::State& state) const
 void ThreadGroup::changeState(const Thread::State& state)
 {
     for(ThreadGroup::iterator i = begin(); i != end(); ++i)
-	(*i)->changeState(state);
+	i->changeState(state);
 }

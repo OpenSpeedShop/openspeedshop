@@ -29,8 +29,8 @@
 #include "config.h"
 #endif
 
-#include "Lockable.hxx"
 #include "Optional.hxx"
+#include "SmartPtr.hxx"
 #include "Time.hxx"
 
 #ifdef HAVE_ARRAY_SERVICES
@@ -48,11 +48,13 @@
 namespace OpenSpeedShop { namespace Framework {
 
     class Address;
-    class Application;
+    class Collector;
+    class Database;
+    class Experiment;
     class Function;
     class LinkedObject;
-    class Process;
     class Statement;
+    class ThreadSpy;
     
     /**
      * Single thread of code execution.
@@ -74,13 +76,18 @@ namespace OpenSpeedShop { namespace Framework {
      *
      * @ingroup CollectorAPI ToolAPI
      */
-    class Thread :
-	private Lockable
+    class Thread
     {
-	friend class Application;
+	friend class Collector;
+	friend class Experiment;
+	friend class Function;
+	friend class LinkedObject;
+	friend class Optional<Thread>;
+	friend class Statement;
+	friend class ThreadSpy;
 	
     public:
-
+	
 	/**
 	 * Thread state enumeration.
 	 *
@@ -90,14 +97,14 @@ namespace OpenSpeedShop { namespace Framework {
 	 * to a performance tool.
 	 */
 	enum State {
-	    Running,      /**< Thread is active and running. */
-	    Suspended,    /**< Thread has been temporarily suspended. */
-	    Terminated    /**< Thread has terminated. */
+	    Running,    /**< Thread is active and running. */
+	    Suspended,  /**< Thread has been temporarily suspended. */
+	    Terminated  /**< Thread has terminated. */
 	};
 	
 	State getState() const;
 	bool isState(const State&) const;
-	void changeState(const State&);
+	void changeState(const State&) const;
 	
 	std::string getHost() const;
 	pid_t getProcessId() const;
@@ -112,25 +119,30 @@ namespace OpenSpeedShop { namespace Framework {
 	Optional<ash_t> getArraySessionHandle() const;
 #endif
 	
-	std::vector<LinkedObject> findAllLinkedObjects(
+	Optional<std::vector<LinkedObject> > getLinkedObjects(
 	    const Time& = Time::Now()) const;
-	std::vector<Function> findAllFunctions(
+	Optional<std::vector<Function> > getFunctions(
 	    const Time& = Time::Now()) const;
 	
-	Optional<LinkedObject> findLinkedObjectAt(
+	Optional<LinkedObject> getLinkedObjectAt(
 	    const Address&, const Time& = Time::Now()) const;
-	Optional<Function> findFunctionAt(
+	Optional<Function> getFunctionAt(
 	    const Address&, const Time& = Time::Now()) const;
-	Optional<Statement> findStatementAt(
+	Optional<Statement> getStatementAt(
 	    const Address&, const Time& = Time::Now()) const;
-	
+
     private:
+
+	Thread();
+	Thread(const SmartPtr<Database>&, const int&);
 	
-	Thread(Process*);
-	~Thread();
+	void validateEntry() const;
 	
-	/** Process containing this thread. */
-	Process* dm_process;
+	/** Database containing this thread. */
+        SmartPtr<Database> dm_database;
+	
+	/** Entry (id) for this thread. */
+        int dm_entry;
 	
     };
     
