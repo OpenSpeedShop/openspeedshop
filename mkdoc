@@ -8,7 +8,7 @@
 
 #cd plugin
 #make doc
-cd ../gui
+cd gui
 make doc
 #cd ../base
 #make doc
