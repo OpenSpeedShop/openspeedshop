@@ -1,14 +1,14 @@
 #!/bin/sh
-if [ "$FUTURE_TOOL_PLUGIN_DIR" = "" ]
+if [ "$OPENSPEEDSHOP_PLUGIN_PATH" = "" ]
 then
-  echo "FUTURE_TOOL_PLUGIN_DIR not set."
+  echo "OPENSPEEDSHOP_PLUGIN_PATH not set."
   echo "For oss developers that's usually .../GUI/plugin/lib/futuretool"
   exit
 fi
 if test -d Panels
 then
-#  ./MC;bootstrap;configure --prefix=$FUTURE_TOOL_PLUGIN_DIR/../..;make;make install;
-  ./MC;bootstrap;configure --prefix=$FUTURE_TOOL_PLUGIN_DIR/../..;make install;
+#  ./MC;bootstrap;configure --prefix=$OPENSPEEDSHOP_PLUGIN_PATH/../..;make;make install;
+  ./MC;bootstrap;configure --prefix=$OPENSPEEDSHOP_PLUGIN_PATH/../..;make install;
 else
   echo NOTE: This must be run from the GUI directory...
 fi
