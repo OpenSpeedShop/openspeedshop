@@ -1,0 +1,94 @@
+lnx-jeg-60>/usr/people/jeg/openss/install/bin/openss -cli < MS2_CLI_Demo_input_file.txt
+    command: CMD_LIST_PIDS
+        HOSTS: host1 host2
+        FILES: a.out
+        command: CMD_EXP_CREATE
+        PID: 889988 8743198
+        HOSTS: host1 host2
+    command: CMD_LIST_PIDS
+        HOSTS: host1 host2
+        FILES: a.out
+        command: CMD_EXP_CREATE
+        PID: 8671120 6718917
+        HOSTS: host1 host2
+       command: CMD_SETBREAK
+        ADDRESS: 1074109856
+        PID: 6718917
+        THREAD: 1
+        HOSTS: host2
+        STRINGS:(A) startxyz
+command: CMD_EXP_GO
+command: CMD_LIST_TYPES
+ command: CMD_EXP_ATTACH
+        STRINGS:(E) pcsamp
+   command: CMD_EXP_ATTACH
+        THREAD: 0:298 300:398
+        STRINGS:(E) user1
+     command: CMD_EXP_ATTACH
+        THREAD: 299
+        HOSTS: host2
+        STRINGS:(E) pcsamp
+       command: CMD_EXP_DETACH
+        PID: 6718917
+        THREAD: 12:96
+        HOSTS: host2
+        STRINGS:(E) pcsamp
+     command: CMD_SETBREAK
+        ADDRESS: 1074109856
+        THREAD: 128
+        HOSTS: host1
+        STRINGS:(A) flyingRT
+command: CMD_EXP_GO
+ command: CMD_CLEAR_BREAK
+        BREAK ID: 1
+command: CMD_EXP_GO
+ command: CMD_CLEAR_BREAK
+        BREAK ID: 2
+     command: CMD_SETBREAK
+        ADDRESS: 1074109856
+        THREAD: 78
+        HOSTS: host2
+        STRINGS:(A) flyingST
+ command: CMD_EXP_DETACH
+        STRINGS:(E) pcsamp
+     command: CMD_EXP_ATTACH
+        THREAD: 299
+        HOSTS: host1
+        STRINGS:(E) io
+     command: CMD_EXP_ATTACH
+        THREAD: 399
+        HOSTS: host2
+        STRINGS:(E) io
+command: CMD_EXP_GO
+Traceback (most recent call last):
+  File "<console>", line 1, in ?
+NameError: name 'expGetMetrics' is not defined
+ - command: CMD_EXP_VIEW
+        STRINGS:(V) user1View
+ command: CMD_EXP_DETACH
+        STRINGS:(E) io
+ command: CMD_EXP_ATTACH
+        STRINGS:(E) pcsamp
+command: CMD_EXP_GO
+command: CMD_EXP_PAUSE
+ command: CMD_EXP_VIEW
+        STRINGS:(V) vio
+     command: CMD_EXP_SAVE
+        HOSTS: host1
+        FILES: my.data
+  command: CMD_EXP_DETACH
+        HOSTS: host1
+   command: CMD_EXP_DETACH
+        HOSTS: host2
+        STRINGS:(E) pcsamp
+       command: CMD_EXP_ATTACH
+        PID: 6718917
+        THREAD: 12:96
+        HOSTS: host2
+        STRINGS:(E) user2
+ - command: CMD_EXP_VIEW
+        STRINGS:(V) user2View
+command: CMD_EXP_GO
+command: CMD_EXP_DETACH
+
+

@@ -1,0 +1,11 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+  <title>CLI_Demonstration_Scenario</title>
+</head>
+<body>
+<pre wrap="">Here is the input for the CLI demonstration taking<br>place on December 15, 2004 at LLNL. It is a touched up<br>version of scenerio #3. <br><br>listpids -h host1,host2 -f a.out<br>expcreate -h host1 -p 889988 -h host2 -p 8743198<br>listPids -h host1,host2 -f a.out<br>expCreate -h host1 -p 8671120 -h host2 -p 6718917<br>SetBreak -h host2 -p 6718917 -t 1 "startxyz"<br>expGo<br>listTypes<br>expAttach pcsamp<br>expAttach -t 0:298,300:398 "user1"<br>expAttach -h host2 -t 299 pcsamp<br>expDetach -h host2 -p 6718917 -t 12:96 pcsamp<br>SetBreak -h host1 -t 128 "flyingRT"<br>expGo<br>clearbreak 1<br>expGo<br>clearbreak 2<br>SetBreak -h host2 -t 78 "flyingST"<br>expDetach pcsamp<br>expAttach -h host1 -t 299 io<br>expAttach -h host2 -t 399 io<br># This next one doesn't work yet.<br># The '/' characters confuse python<br>#playback -h host3 -f /silk/sows/ears/fe-fi&amp;fo.script<br>expGo<br>expGetMetrics<br>expView -gui "user1View"<br>expDetach io<br>expAttach pcsamp<br>expGo<br>expPause<br>expView vIO<br>expSave copy -h host1 -f my.data<br>expDetach -h host1<br>expDetach -h host2 pcsamp<br>expAttach -h host2 -p 6718917 -t 12:96 "user2"<br>expView -gui "user2View"<br>expGo<br>expDetach<br>exit<br></pre>
+</body>
+</html>

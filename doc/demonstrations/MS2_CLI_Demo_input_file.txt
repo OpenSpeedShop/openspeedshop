@@ -1,0 +1,40 @@
+listpids -h host1,host2 -f a.out
+expcreate -h host1 -p 889988 -h host2 -p 8743198
+listPids -h host1,host2 -f a.out
+expCreate -h host1 -p 8671120 -h host2 -p 6718917
+SetBreak -h host2 -p 6718917 -t 1 "startxyz"
+expGo
+listTypes
+expAttach pcsamp
+expAttach -t 0:298,300:398 "user1"
+expAttach -h host2 -t 299 pcsamp
+expDetach -h host2 -p 6718917 -t 12:96 pcsamp
+SetBreak -h host1 -t 128 "flyingRT"
+expGo
+clearbreak 1
+expGo
+clearbreak 2
+SetBreak -h host2 -t 78 "flyingST"
+expDetach pcsamp
+expAttach -h host1 -t 299 io
+expAttach -h host2 -t 399 io
+# This next one doesn't work yet.
+# The '/' characters confuse python
+#playback -h host3 -f /silk/sows/ears/fe-fi&fo.script
+expGo
+expGetMetrics
+expView -gui "user1View"
+expDetach io
+expAttach pcsamp
+expGo
+expPause
+expView vIO
+expSave copy -h host1 -f my.data
+expDetach -h host1
+expDetach -h host2 pcsamp
+expAttach -h host2 -p 6718917 -t 12:96 "user2"
+expView -gui "user2View"
+expGo
+expDetach
+exit
+

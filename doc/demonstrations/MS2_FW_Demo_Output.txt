@@ -1,0 +1,554 @@
+Script started on Tue 14 Dec 2004 12:27:26 PM PST
+in setting path code
+exit WORKAREA is: /home/jackhelen/openss
+exit ROOT is: /perftools/ROOT
+exit OPENSPEEDSHOP_INSTALL_DIR is: /home/jackhelen/openss/install
+exit OPENSPEEDSHOP_PLUGIN_PATH is: /home/jackhelen/openss/install/lib/open-speedshop
+exit .cshrc at normal end
+vespa-1>source /perftools/ROOT/setenv.csh
+vespa-2>cd examples
+vespa:/home/jackhelen/openss/current/examples
+vespa-3>ls
+./  ../  libssf/  Makefile  Makefile.am  Makefile.in
+vespa-4>cd libssf
+vespa:/home/jackhelen/openss/current/examples/libssf
+vespa-5>ls
+./  ../  collector/  Makefile  Makefile.am  Makefile.in  tool/
+vespa-6>cd tool
+vespa:/home/jackhelen/openss/current/examples/libssf/tool
+vespa-7>ls
+./   .deps/  Makefile	  Makefile.in  mutatee.c	  mutatee.openss  tool.cxx
+../  .libs/  Makefile.am  mutatee*     mutatee-mutatee.o  tool*		  tool-tool.o
+vespa-8>rm mutatee.openss
+vespa-9>setenv OPENSPEEDSHOP_COLLECTOR_PATH "$cwd/../collector"
+vespa-10>$cwd/tool mysleep $cwd/mutatee 60
+enroll key 1 (AIS_EXIT_MSG): tag = 0  fp = 20000000
+enroll key 3 (AIS_ERROR_MSG): tag = 0  fp = 20000000
+enroll key 2 (AIS_OUTPUT_MSG): tag = 0  fp = 20000000
+enroll key 0 (AIS_DEFAULT_MSG): tag = 0  fp = 20000000
+enroll key 7 (AIS_AUTH_ACK_MSG): tag = 0  fp = 20000000
+enroll key 4 (AIS_FAILED_CB_MSG): tag = 0  fp = 20000000
+enroll key 22 (AIS_REQUEST_PROBE_MSG): tag = 0  fp = 20000000
+enroll key 47 (AIS_PROC_TERMINATE_MSG): tag = 0  fp = 20000000
+enroll key 57 (AIS_SD_TERMINATE_MSG): tag = 0  fp = 20000000
+find_add_serv( vespa -> vespa.engr.sgi.com ): start new daemon
+_Daisd 'vespa.engr.sgi.com' ref_incr: count = 1
+_Daisd 'vespa.engr.sgi.com' ref_incr: count = 2
+_Daisd 'vespa.engr.sgi.com' ref_incr: count = 3
+_Daisd 'vespa.engr.sgi.com' ref_decr: count = 2
+_Daisd 'vespa.engr.sgi.com' ref_incr: count = 3
+_Daisd 'vespa.engr.sgi.com' ref_decr: count = 2
+start daemon vespa.engr.sgi.com: state is NOT_STARTED
+_Daisd::open_connection() socket = 6  hostname = vespa.engr.sgi.com
+service name = dpclSD
+enroll key 64 (USER_CB): tag = 1c9e0  fp = 20000000
+enroll key 64 (USER_CB): tag = 0  fp = 20000000
+### send message 40 (AIS_KEY_MSG) size = 24
+### recv message 64 (USER_CB) size = 60
+execute key 64 (USER_CB)
+enroll key 34 (AIS_AUTHENTICATION_ACK): tag = 1c9e0  fp = 20000000
+enroll key 34 (AIS_AUTHENTICATION_ACK): tag = 0  fp = 20000000
+000000000000000000000000280014ffffff84ffffffa0ffffffac78ffffff8d0647306effffffc95679fffffffe7a46fffffff732ffffffa5ffffffabffffffa7ffffffb7ffffffdd2376ffffffbb2effffffbdffffffcd26ffffffd2ffffff85ffffff8effffffc6311dffffffbf096b67010000000000
+The received msg is: 
+### send message 35 (AIS_AUTH_MSG) size = 200
+cleanup_cb: removing callback 64.
+remove key 64 (USER_CB)
+### recv message 34 (AIS_AUTHENTICATION_ACK) size = 12
+execute key 34 (AIS_AUTHENTICATION_ACK)
+AisStatus_cb(): the sts is 0/0
+cleanup_cb: removing callback 34.
+remove key 34 (AIS_AUTHENTICATION_ACK)
+### daemon state is now DAEMON_READY
+enroll key 64 (USER_CB): tag = 1be20  fp = 20000000
+enroll key 64 (USER_CB): tag = 0  fp = 20000000
+enroll key 65 (USER_CB): tag = 0  fp = ffffffff
+### send message 41 (AIS_LOGGING_OP_MSG) size = 20
+### recv message 64 (USER_CB) size = 34
+execute key 64 (USER_CB)
+AisStatus_cb(): the sts is 0/0
+ + data_value(0) = 'vespa:/tmp/dpcl.3054'
+cleanup_cb: removing callback 64.
+remove key 64 (USER_CB)
+enroll key 47 (AIS_PROC_TERMINATE_MSG): tag = 0  fp = 20000000
+find_serv_by_name( vespa.engr.sgi.com ): daemon found
+_Daisd 'vespa.engr.sgi.com' ref_incr: count = 3
+_Daisd 'vespa.engr.sgi.com' ref_incr: count = 4
+_Daisd 'vespa.engr.sgi.com' ref_decr: count = 3
+find_add_serv( vespa -> vespa.engr.sgi.com ): daemon already present
+_Daisd 'vespa.engr.sgi.com' ref_incr: count = 4
+_Daisd 'vespa.engr.sgi.com' ref_decr: count = 3
+_Daisd 'vespa.engr.sgi.com' ref_incr: count = 4
+_Daisd 'vespa.engr.sgi.com' ref_decr: count = 3
+start daemon vespa.engr.sgi.com: state is DAEMON_READY
+_Daisd 'vespa.engr.sgi.com' ref_incr: count = 4
+enroll key 66 (USER_CB): tag = 1bfa0  fp = 20000000
+enroll key 66 (USER_CB): tag = 0  fp = 20000000
+enroll key 67 (USER_CB): tag = 0  fp = 20000000
+enroll key 68 (USER_CB): tag = 0  fp = 20000000
+
+_Process::create: AIS_CREATE_MSG request buffer:
+0x42000000 0x43000000 0x44000000 0x01000000 
+0x01000000 0x38000000 0x02000000 0x74000000 
+0x2e000000 0xffffffb3000000 0xffffffba090000 0xffffffbb090000 
+0xffffffbc090000 0xffffffbd090000 0x2f686f6d 0x652f6a61 
+0x636b6865 0x6c656e2f 0x6f70656e 0x73732f63 
+0x75727265 0x6e742f65 0x78616d70 0x6c65732f 
+0x6c696273 0x73662f74 0x6f6f6c2f 0x6d757461 
+0x74656500 0x2f686f6d 0x652f6a61 0x636b6865 
+0x6c656e2f 0x6f70656e 0x73732f63 0x75727265 
+0x6e742f65 0x78616d70 0x6c65732f 0x6c696273 
+0x73662f74 0x6f6f6c2f 0x6d757461 0x74656500 
+0x36300044 0x50434c5f 0x54415247 0x45545f43 
+0x57443d2f 0x686f6d65 0x2f6a6163 0x6b68656c 
+0x656e2f6f 0x70656e73 0x732f6375 0x7272656e 
+0x742f6578 0x616d706c 0x65732f6c 0x69627373 
+0x662f746f 0x6f6c0052 0x454d4f54 0x45484f53 
+0x543d6561 0x67646863 0x702d3233 0x322d3135 
+0x302e616d 0x65726963 0x61732e73 0x67692e63 
+0x6f6d004d 0x414e5041 0x54483d2f 0x70657266 
+0x746f6f6c 0x732f524f 0x4f542f6d 0x616e3a2f 
+0x70657266 0x746f6f6c 0x732f524f 0x4f542f6d 
+0x616e3a00 0x42555354 0x45525f52 0x4f4f543d 
+0x2f757372 0x2f70656f 0x706c652f 0x6a65672f 
+0x42757374 0x65722f42 0x75737465 0x72323030 
+0x33005355 0x50504f52 0x5445443d 0x656e5f55 
+0x532e5554 0x462d383a 0x656e5f55 0x533a656e 
+0x00484f53 0x544e414d 0x453d7665 0x73706100 
+0x574f524b 0x41524541 0x3d2f686f 0x6d652f6a 
+0x61636b68 0x656c656e 0x2f6f7065 0x6e737300 
+0x50564d5f 0x5253483d 0x2f757372 0x2f62696e 
+0x2f727368 0x00484f53 0x543d7665 0x73706100 
+0x5445524d 0x3d787465 0x726d0053 0x48454c4c 
+0x3d2f6269 0x6e2f6373 0x68004350 0x50464c41 
+0x47533d2d 0x492f7065 0x7266746f 0x6f6c732f 
+0x524f4f54 0x2f696e63 0x6c756465 0x202d492f 
+0x70657266 0x746f6f6c 0x732f524f 0x4f542f69 
+0x6e636c75 0x64652000 0x5353485f 0x434c4945 
+0x4e543d31 0x32382e31 0x36322e32 0x33322e31 
+0x35302033 0x36343030 0x20323200 0x51544449 
+0x523d2f70 0x65726674 0x6f6f6c73 0x2f524f4f 
+0x54005353 0x485f5454 0x593d2f64 0x65762f70 
+0x74732f30 0x004c414e 0x47564152 0x3d656e5f 
+0x55532e55 0x54462d38 0x004f5045 0x4e535045 
+0x45445348 0x4f505f50 0x4c554749 0x4e5f5041 
+0x54483d2f 0x686f6d65 0x2f6a6163 0x6b68656c 
+0x656e2f6f 0x70656e73 0x732f696e 0x7374616c 
+0x6c2f6c69 0x622f6f70 0x656e2d73 0x70656564 
+0x73686f70 0x0047524f 0x55503d63 0x6f6d7069 
+0x6c657231 0x00555345 0x523d6a61 0x636b6865 
+0x6c656e00 0x4c445f4c 0x49425241 0x52595f50 
+0x4154483d 0x2f706572 0x66746f6f 0x6c732f52 
+0x4f4f542f 0x6c69623a 0x2f706572 0x66746f6f 
+0x6c732f52 0x4f4f542f 0x6c69623a 0x004c535f 
+0x434f4c4f 0x52533d6e 0x6f3d3030 0x3a66693d 
+0x30303a64 0x693d3030 0x3b33343a 0x6c6e3d30 
+0x303b3336 0x3a70693d 0x34303b33 0x333a736f 
+0x3d30303b 0x33353a62 0x643d3430 0x3b33333b 
+0x30313a63 0x643d3430 0x3b33333b 0x30313a6f 
+0x723d3031 0x3b30353b 0x33373b34 0x313a6d69 
+0x3d30313b 0x30353b33 0x373b3431 0x3a65783d 
+0x30303b33 0x323a2a2e 0x636d643d 0x30303b33 
+0x323a2a2e 0x6578653d 0x30303b33 0x323a2a2e 
+0x636f6d3d 0x30303b33 0x323a2a2e 0x62746d3d 
+0x30303b33 0x323a2a2e 0x6261743d 0x30303b33 
+0x323a2a2e 0x73683d30 0x303b3332 0x3a2a2e63 
+0x73683d30 0x303b3332 0x3a2a2e74 0x61723d30 
+0x303b3331 0x3a2a2e74 0x677a3d30 0x303b3331 
+0x3a2a2e61 0x726a3d30 0x303b3331 0x3a2a2e74 
+0x617a3d30 0x303b3331 0x3a2a2e6c 0x7a683d30 
+0x303b3331 0x3a2a2e7a 0x69703d30 0x303b3331 
+0x3a2a2e7a 0x3d30303b 0x33313a2a 0x2e5a3d30 
+0x303b3331 0x3a2a2e67 0x7a3d3030 0x3b33313a 
+0x2a2e627a 0x323d3030 0x3b33313a 0x2a2e627a 
+0x3d30303b 0x33313a2a 0x2e747a3d 0x30303b33 
+0x313a2a2e 0x72706d3d 0x30303b33 0x313a2a2e 
+0x6370696f 0x3d30303b 0x33313a2a 0x2e6a7067 
+0x3d30303b 0x33353a2a 0x2e676966 0x3d30303b 
+0x33353a2a 0x2e626d70 0x3d30303b 0x33353a2a 
+0x2e78626d 0x3d30303b 0x33353a2a 0x2e78706d 
+0x3d30303b 0x33353a2a 0x2e706e67 0x3d30303b 
+0x33353a2a 0x2e746966 0x3d30303b 0x33353a00 
+0x50564d5f 0x524f4f54 0x3d2f7573 0x722f7065 
+0x6f706c65 0x2f6a6567 0x2f70766d 0x3300484f 
+0x53545459 0x50453d75 0x6e6b6e6f 0x776e0050 
+0x564d5f41 0x5243483d 0x4c494e55 0x58363400 
+0x4d41494c 0x3d2f7661 0x722f6d61 0x696c2f6a 
+0x61636b68 0x656c656e 0x00504154 0x483d2f70 
+0x65726674 0x6f6f6c73 0x2f524f4f 0x542f6269 
+0x6e3a2e3a 0x2f776f72 0x6b2f6269 0x6e3a2f75 
+0x73722f6a 0x6176612f 0x62696e3a 0x2f757372 
+0x2f627364 0x3a2f7573 0x722f6c6f 0x63616c2f 
+0x62696e3a 0x2f62696e 0x3a2f7573 0x722f6269 
+0x6e3a2f75 0x73722f73 0x62696e3a 0x2f757372 
+0x2f676e75 0x2f62696e 0x3a2f7573 0x722f6269 
+0x6e2f5831 0x313a2f65 0x74633a2f 0x7573722f 
+0x6574633a 0x2f757372 0x2f6c6f63 0x616c2f62 
+0x696e2f70 0x746f6f6c 0x733a2f75 0x73722f66 
+0x72656577 0x6172652f 0x62696e3a 0x2f757372 
+0x2f6c6962 0x2f76736c 0x69636b2f 0x62696e3a 
+0x2f686f6d 0x652f6a61 0x636b6865 0x6c656e2f 
+0x62696e3a 0x2f6f7074 0x2f676e75 0x2f62696e 
+0x3a2f6f70 0x742f6c6f 0x63616c2f 0x62696e3a 
+0x2f6f7074 0x2f676e75 0x2f62696e 0x3a2f6f70 
+0x742f6170 0x702f7075 0x72652f70 0x75726966 
+0x793a2f6c 0x69622f63 0x70703a2f 0x776f726b 
+0x2f636d70 0x6c72732e 0x7372632f 0x6e657373 
+0x69652f31 0x2e302f73 0x65727665 0x723a2f6f 
+0x70742f58 0x31315236 0x2e312f62 0x696e3a2f 
+0x7573722f 0x62696e2f 0x5831313a 0x2f757372 
+0x2f583131 0x52362e31 0x2f62696e 0x3a2f776f 
+0x726b2f74 0x6f62612d 0x312e3163 0x2f62696e 
+0x3a2f686f 0x6d652f6a 0x61636b68 0x656c656e 
+0x2f62696e 0x3a2f686f 0x6d652f6a 0x61636b68 
+0x656c656e 0x2f6f7065 0x6e73732f 0x696e7374 
+0x616c6c2f 0x62696e3a 0x2f757372 0x2f737263 
+0x2f726564 0x6861742f 0x534f5552 0x4345532f 
+0x636f6d70 0x61726174 0x6f722d32 0x2e313a2f 
+0x686f6d65 0x2f6a6163 0x6b68656c 0x656e2f70 
+0x766d332f 0x6c69622f 0x4c494e55 0x58363400 
+0x5057443d 0x2f686f6d 0x652f6a61 0x636b6865 
+0x6c656e2f 0x6f70656e 0x73732f63 0x75727265 
+0x6e742f65 0x78616d70 0x6c65732f 0x6c696273 
+0x73662f74 0x6f6f6c00 0x45444954 0x4f523d76 
+0x69004c41 0x4e473d65 0x6e5f5553 0x2e555446 
+0x2d380052 0x4f4f543d 0x2f706572 0x66746f6f 
+0x6c732f52 0x4f4f5400 0x5353485f 0x41534b50 
+0x4153533d 0x2f757372 0x2f6c6962 0x65786563 
+0x2f6f7065 0x6e737368 0x2f676e6f 0x6d652d73 
+0x73682d61 0x736b7061 0x7373004f 0x50454e53 
+0x50454544 0x53484f50 0x5f434f4c 0x4c454354 
+0x4f525f50 0x4154483d 0x2f686f6d 0x652f6a61 
+0x636b6865 0x6c656e2f 0x6f70656e 0x73732f63 
+0x75727265 0x6e742f65 0x78616d70 0x6c65732f 
+0x6c696273 0x73662f74 0x6f6f6c2f 0x2e2e2f63 
+0x6f6c6c65 0x63746f72 0x0053484c 0x564c3d32 
+0x00484f4d 0x453d2f68 0x6f6d652f 0x6a61636b 
+0x68656c65 0x6e004f53 0x54595045 0x3d6c696e 
+0x75780056 0x454e444f 0x523d756e 0x6b6e6f77 
+0x6e004d41 0x43485459 0x50453d75 0x6e6b6e6f 
+0x776e004c 0x4f474e41 0x4d453d6a 0x61636b68 
+0x656c656e 0x00564953 0x55414c3d 0x76690050 
+0x52494e54 0x45523d65 0x61677075 0x62310053 
+0x53485f43 0x4f4e4e45 0x4354494f 0x4e3d3132 
+0x382e3136 0x322e3233 0x322e3135 0x30203336 
+0x34303020 0x3136332e 0x3135342e 0x31352e31 
+0x33302032 0x32004c45 0x53534f50 0x454e3d7c 
+0x2f757372 0x2f62696e 0x2f6c6573 0x73706970 
+0x652e7368 0x20257300 0x4c504445 0x53543d65 
+0x61677075 0x6231004f 0x50454e53 0x50454544 
+0x53484f50 0x5f494e53 0x54414c4c 0x5f444952 
+0x3d2f686f 0x6d652f6a 0x61636b68 0x656c656e 
+0x2f6f7065 0x6e73732f 0x696e7374 0x616c6c00 
+0x44495350 0x4c41593d 0x6c6e782d 0x6a65672e 
+0x616d6572 0x69636173 0x2e736769 0x2e636f6d 
+0x3a302e30 0x00475f42 0x524f4b45 0x4e5f4649 
+0x4c454e41 0x4d45533d 0x31000000 0x00766573 
+0x706100
+### send message 13 (AIS_CREATE_MSG) size = 2499
+_Daisd 'vespa.engr.sgi.com' ref_decr: count = 3
+### recv message 2 (AIS_OUTPUT_MSG) size = 47
+execute key 2 (AIS_OUTPUT_MSG)
+client: AisOutputCB: "create_cb: key=66 stdout_key=67, stderr_key=68".
+### recv message 66 (USER_CB) size = 1241
+execute key 66 (USER_CB)
+new module 'mutatee.c':  midx = 0 pid = 3056
+new module 'DEFAULT_MODULE':  midx = 1 pid = 3056
+new module 'libc.so.6.1':  midx = 2 pid = 3056
+new module 'ld-linux-ia64.so.2':  midx = 3 pid = 3056
+new module 'libdyninstAPI_RT.so.1':  midx = 4 pid = 3056
+new module 'libdl.so.2':  midx = 5 pid = 3056
+new module 'libdpclRT.so.1':  midx = 6 pid = 3056
+new module 'libelf.so.0':  midx = 7 pid = 3056
+new module 'libcrypt.so.1':  midx = 8 pid = 3056
+new module 'libstdc++.so.5':  midx = 9 pid = 3056
+new module 'libm.so.6.1':  midx = 10 pid = 3056
+new module 'libgcc_s.so.1':  midx = 11 pid = 3056
+AisStatus_cb(): the sts is 0/0
+cleanup_cb: removing callback 66.
+remove key 66 (USER_CB)
+attach: attaching to pid 3056 on vespa
+enroll key 69 (USER_CB): tag = 1bfa0  fp = 20000000
+enroll key 69 (USER_CB): tag = 0  fp = 20000000
+### send message 17 (AIS_ATTACH_MSG) size = 8
+### recv message 2 (AIS_OUTPUT_MSG) size = 27
+execute key 2 (AIS_OUTPUT_MSG)
+client: AisOutputCB: "attach_cb: pid=3056 key=69".
+### recv message 69 (USER_CB) size = 20
+execute key 69 (USER_CB)
+AisStatus_cb(): the sts is 0/0
+cleanup_cb: removing callback 69.
+remove key 69 (USER_CB)
+enroll key 69 (USER_CB): tag = 26880  fp = 20000000
+enroll key 69 (USER_CB): tag = 0  fp = 20000000
+### send message 53 (AIS_QUERY_STATE_MSG) size = 8
+### recv message 69 (USER_CB) size = 20
+execute key 69 (USER_CB)
+AisStatus_cb(): the sts is 0/0
+ + data_value(0) = '1'
+query_state_request_cb(): pstate = 1 state = 1
+cleanup_cb: removing callback 69.
+remove key 69 (USER_CB)
+enroll key 69 (USER_CB): tag = 303f0  fp = 20000000
+enroll key 69 (USER_CB): tag = 0  fp = 20000000
+### send message 43 (AIS_SRCEXPAND_MSG) size = 4104
+### recv message 2 (AIS_OUTPUT_MSG) size = 18
+execute key 2 (AIS_OUTPUT_MSG)
+client: AisOutputCB: "source obj expand".
+### recv message 69 (USER_CB) size = 87223
+execute key 69 (USER_CB)
+AisStatus_cb(): the sts is 0/0
+cleanup_cb: removing callback 69.
+remove key 69 (USER_CB)
+enroll key 69 (USER_CB): tag = 303f0  fp = 20000000
+enroll key 69 (USER_CB): tag = 0  fp = 20000000
+### send message 53 (AIS_QUERY_STATE_MSG) size = 8
+### recv message 69 (USER_CB) size = 20
+execute key 69 (USER_CB)
+AisStatus_cb(): the sts is 0/0
+ + data_value(0) = '1'
+query_state_request_cb(): pstate = 1 state = 1
+cleanup_cb: removing callback 69.
+remove key 69 (USER_CB)
+enroll key 69 (USER_CB): tag = 28540  fp = 20000000
+enroll key 69 (USER_CB): tag = 0  fp = 20000000
+### send message 43 (AIS_SRCEXPAND_MSG) size = 4104
+### recv message 2 (AIS_OUTPUT_MSG) size = 18
+execute key 2 (AIS_OUTPUT_MSG)
+client: AisOutputCB: "source obj expand".
+### recv message 69 (USER_CB) size = 1223386
+execute key 69 (USER_CB)
+AisStatus_cb(): the sts is 0/0
+cleanup_cb: removing callback 69.
+remove key 69 (USER_CB)
+enroll key 69 (USER_CB): tag = 938c0  fp = 20000000
+enroll key 69 (USER_CB): tag = 0  fp = 20000000
+### send message 53 (AIS_QUERY_STATE_MSG) size = 8
+### recv message 69 (USER_CB) size = 20
+execute key 69 (USER_CB)
+AisStatus_cb(): the sts is 0/0
+ + data_value(0) = '1'
+query_state_request_cb(): pstate = 1 state = 1
+cleanup_cb: removing callback 69.
+remove key 69 (USER_CB)
+enroll key 69 (USER_CB): tag = 28540  fp = 20000000
+enroll key 69 (USER_CB): tag = 0  fp = 20000000
+### send message 43 (AIS_SRCEXPAND_MSG) size = 4104
+### recv message 2 (AIS_OUTPUT_MSG) size = 18
+execute key 2 (AIS_OUTPUT_MSG)
+client: AisOutputCB: "source obj expand".
+### recv message 69 (USER_CB) size = 164687
+execute key 69 (USER_CB)
+AisStatus_cb(): the sts is 0/0
+cleanup_cb: removing callback 69.
+remove key 69 (USER_CB)
+enroll key 69 (USER_CB): tag = 307c0  fp = 20000000
+enroll key 69 (USER_CB): tag = 0  fp = 20000000
+### send message 53 (AIS_QUERY_STATE_MSG) size = 8
+### recv message 69 (USER_CB) size = 20
+execute key 69 (USER_CB)
+AisStatus_cb(): the sts is 0/0
+ + data_value(0) = '1'
+query_state_request_cb(): pstate = 1 state = 1
+cleanup_cb: removing callback 69.
+remove key 69 (USER_CB)
+enroll key 69 (USER_CB): tag = 1bf80  fp = 20000000
+enroll key 69 (USER_CB): tag = 0  fp = 20000000
+### send message 43 (AIS_SRCEXPAND_MSG) size = 4104
+### recv message 2 (AIS_OUTPUT_MSG) size = 18
+execute key 2 (AIS_OUTPUT_MSG)
+client: AisOutputCB: "source obj expand".
+### recv message 69 (USER_CB) size = 10882
+execute key 69 (USER_CB)
+AisStatus_cb(): the sts is 0/0
+cleanup_cb: removing callback 69.
+remove key 69 (USER_CB)
+enroll key 69 (USER_CB): tag = 307c0  fp = 20000000
+enroll key 69 (USER_CB): tag = 0  fp = 20000000
+### send message 53 (AIS_QUERY_STATE_MSG) size = 8
+### recv message 69 (USER_CB) size = 20
+execute key 69 (USER_CB)
+AisStatus_cb(): the sts is 0/0
+ + data_value(0) = '1'
+query_state_request_cb(): pstate = 1 state = 1
+cleanup_cb: removing callback 69.
+remove key 69 (USER_CB)
+enroll key 69 (USER_CB): tag = 28540  fp = 20000000
+enroll key 69 (USER_CB): tag = 0  fp = 20000000
+### send message 43 (AIS_SRCEXPAND_MSG) size = 4104
+### recv message 2 (AIS_OUTPUT_MSG) size = 18
+execute key 2 (AIS_OUTPUT_MSG)
+client: AisOutputCB: "source obj expand".
+### recv message 69 (USER_CB) size = 29849
+execute key 69 (USER_CB)
+AisStatus_cb(): the sts is 0/0
+cleanup_cb: removing callback 69.
+remove key 69 (USER_CB)
+enroll key 69 (USER_CB): tag = 307c0  fp = 20000000
+enroll key 69 (USER_CB): tag = 0  fp = 20000000
+### send message 53 (AIS_QUERY_STATE_MSG) size = 8
+### recv message 69 (USER_CB) size = 20
+execute key 69 (USER_CB)
+AisStatus_cb(): the sts is 0/0
+ + data_value(0) = '1'
+query_state_request_cb(): pstate = 1 state = 1
+cleanup_cb: removing callback 69.
+remove key 69 (USER_CB)
+enroll key 69 (USER_CB): tag = 1bf80  fp = 20000000
+enroll key 69 (USER_CB): tag = 0  fp = 20000000
+### send message 43 (AIS_SRCEXPAND_MSG) size = 4104
+### recv message 2 (AIS_OUTPUT_MSG) size = 18
+execute key 2 (AIS_OUTPUT_MSG)
+client: AisOutputCB: "source obj expand".
+### recv message 69 (USER_CB) size = 77194
+execute key 69 (USER_CB)
+AisStatus_cb(): the sts is 0/0
+cleanup_cb: removing callback 69.
+remove key 69 (USER_CB)
+enroll key 69 (USER_CB): tag = 307c0  fp = 20000000
+enroll key 69 (USER_CB): tag = 0  fp = 20000000
+### send message 53 (AIS_QUERY_STATE_MSG) size = 8
+### recv message 69 (USER_CB) size = 20
+execute key 69 (USER_CB)
+AisStatus_cb(): the sts is 0/0
+ + data_value(0) = '1'
+query_state_request_cb(): pstate = 1 state = 1
+cleanup_cb: removing callback 69.
+remove key 69 (USER_CB)
+enroll key 69 (USER_CB): tag = 28540  fp = 20000000
+enroll key 69 (USER_CB): tag = 0  fp = 20000000
+### send message 43 (AIS_SRCEXPAND_MSG) size = 4104
+### recv message 2 (AIS_OUTPUT_MSG) size = 18
+execute key 2 (AIS_OUTPUT_MSG)
+client: AisOutputCB: "source obj expand".
+### recv message 69 (USER_CB) size = 14776
+execute key 69 (USER_CB)
+AisStatus_cb(): the sts is 0/0
+cleanup_cb: removing callback 69.
+remove key 69 (USER_CB)
+enroll key 69 (USER_CB): tag = 307c0  fp = 20000000
+enroll key 69 (USER_CB): tag = 0  fp = 20000000
+### send message 53 (AIS_QUERY_STATE_MSG) size = 8
+### recv message 69 (USER_CB) size = 20
+execute key 69 (USER_CB)
+AisStatus_cb(): the sts is 0/0
+ + data_value(0) = '1'
+query_state_request_cb(): pstate = 1 state = 1
+cleanup_cb: removing callback 69.
+remove key 69 (USER_CB)
+enroll key 69 (USER_CB): tag = 1bf80  fp = 20000000
+enroll key 69 (USER_CB): tag = 0  fp = 20000000
+### send message 43 (AIS_SRCEXPAND_MSG) size = 4104
+### recv message 2 (AIS_OUTPUT_MSG) size = 18
+execute key 2 (AIS_OUTPUT_MSG)
+client: AisOutputCB: "source obj expand".
+### recv message 69 (USER_CB) size = 1601175
+execute key 69 (USER_CB)
+AisStatus_cb(): the sts is 0/0
+cleanup_cb: removing callback 69.
+remove key 69 (USER_CB)
+enroll key 69 (USER_CB): tag = 30770  fp = 20000000
+enroll key 69 (USER_CB): tag = 0  fp = 20000000
+### send message 53 (AIS_QUERY_STATE_MSG) size = 8
+### recv message 69 (USER_CB) size = 20
+execute key 69 (USER_CB)
+AisStatus_cb(): the sts is 0/0
+ + data_value(0) = '1'
+query_state_request_cb(): pstate = 1 state = 1
+cleanup_cb: removing callback 69.
+remove key 69 (USER_CB)
+enroll key 69 (USER_CB): tag = 28540  fp = 20000000
+enroll key 69 (USER_CB): tag = 0  fp = 20000000
+### send message 43 (AIS_SRCEXPAND_MSG) size = 4104
+### recv message 2 (AIS_OUTPUT_MSG) size = 18
+execute key 2 (AIS_OUTPUT_MSG)
+client: AisOutputCB: "source obj expand".
+### recv message 69 (USER_CB) size = 205128
+execute key 69 (USER_CB)
+AisStatus_cb(): the sts is 0/0
+cleanup_cb: removing callback 69.
+remove key 69 (USER_CB)
+enroll key 69 (USER_CB): tag = 307c0  fp = 20000000
+enroll key 69 (USER_CB): tag = 0  fp = 20000000
+### send message 53 (AIS_QUERY_STATE_MSG) size = 8
+### recv message 69 (USER_CB) size = 20
+execute key 69 (USER_CB)
+AisStatus_cb(): the sts is 0/0
+ + data_value(0) = '1'
+query_state_request_cb(): pstate = 1 state = 1
+cleanup_cb: removing callback 69.
+remove key 69 (USER_CB)
+enroll key 69 (USER_CB): tag = 1bf80  fp = 20000000
+enroll key 69 (USER_CB): tag = 0  fp = 20000000
+### send message 43 (AIS_SRCEXPAND_MSG) size = 4104
+### recv message 2 (AIS_OUTPUT_MSG) size = 18
+execute key 2 (AIS_OUTPUT_MSG)
+client: AisOutputCB: "source obj expand".
+### recv message 69 (USER_CB) size = 44632
+execute key 69 (USER_CB)
+AisStatus_cb(): the sts is 0/0
+cleanup_cb: removing callback 69.
+remove key 69 (USER_CB)
+enroll key 69 (USER_CB): tag = 307c0  fp = 20000000
+enroll key 69 (USER_CB): tag = 0  fp = 20000000
+### send message 53 (AIS_QUERY_STATE_MSG) size = 8
+### recv message 69 (USER_CB) size = 20
+execute key 69 (USER_CB)
+AisStatus_cb(): the sts is 0/0
+ + data_value(0) = '1'
+query_state_request_cb(): pstate = 1 state = 1
+cleanup_cb: removing callback 69.
+remove key 69 (USER_CB)
+enroll key 69 (USER_CB): tag = 28540  fp = 20000000
+enroll key 69 (USER_CB): tag = 0  fp = 20000000
+### send message 43 (AIS_SRCEXPAND_MSG) size = 4104
+### recv message 2 (AIS_OUTPUT_MSG) size = 18
+execute key 2 (AIS_OUTPUT_MSG)
+client: AisOutputCB: "source obj expand".
+### recv message 69 (USER_CB) size = 838
+execute key 69 (USER_CB)
+AisStatus_cb(): the sts is 0/0
+cleanup_cb: removing callback 69.
+remove key 69 (USER_CB)
+enroll key 69 (USER_CB): tag = 307c0  fp = 20000000
+enroll key 69 (USER_CB): tag = 0  fp = 20000000
+### send message 53 (AIS_QUERY_STATE_MSG) size = 8
+### recv message 69 (USER_CB) size = 20
+execute key 69 (USER_CB)
+AisStatus_cb(): the sts is 0/0
+ + data_value(0) = '1'
+query_state_request_cb(): pstate = 1 state = 1
+cleanup_cb: removing callback 69.
+remove key 69 (USER_CB)
+enroll key 69 (USER_CB): tag = 93900  fp = 20000000
+enroll key 69 (USER_CB): tag = 0  fp = 20000000
+### send message 43 (AIS_SRCEXPAND_MSG) size = 4104
+### recv message 2 (AIS_OUTPUT_MSG) size = 18
+execute key 2 (AIS_OUTPUT_MSG)
+client: AisOutputCB: "source obj expand".
+### recv message 69 (USER_CB) size = 2339
+execute key 69 (USER_CB)
+AisStatus_cb(): the sts is 0/0
+cleanup_cb: removing callback 69.
+remove key 69 (USER_CB)
+ExampleCollector::startCollecting() for vespa:3056
+resume: resume pid 3056 on vespa
+enroll key 69 (USER_CB): tag = 282f0  fp = 20000000
+enroll key 69 (USER_CB): tag = 0  fp = 20000000
+### send message 20 (AIS_RESUME_MSG) size = 8
+### recv message 2 (AIS_OUTPUT_MSG) size = 27
+execute key 2 (AIS_OUTPUT_MSG)
+client: AisOutputCB: "resume_cb: pid=3056 key=69".
+### recv message 69 (USER_CB) size = 20
+execute key 69 (USER_CB)
+cleanup_cb: removing callback 69.
+remove key 69 (USER_CB)
+### recv message 47 (AIS_PROC_TERMINATE_MSG) size = 11
+execute key 47 (AIS_PROC_TERMINATE_MSG)
+
+Spent 123.456 seconds executing mysleep().
+
+ExampleCollector::stopCollecting() for vespa:3056
+vespa-11>exit
+
+Script done on Tue 14 Dec 2004 12:31:35 PM PST
+
