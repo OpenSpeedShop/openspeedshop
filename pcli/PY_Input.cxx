@@ -28,8 +28,9 @@
 
 using namespace std;
 
-#include "SS_Parse_Result.hxx"
+#include "SS_Parse_Range.hxx"
 #include "SS_Parse_Target.hxx"
+#include "SS_Parse_Result.hxx"
 
 using namespace OpenSpeedShop::cli;
 
@@ -52,15 +53,11 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     // Give yacc access to ParseResult object.
     p_parse_result = &parse_result;
     
-    //printf("before parsetuple\n");
-
     if (!PyArg_ParseTuple(args, "s", &input_line)) {
     	;
     }
 
-    //printf("after parsetuple\n");
-
-     yyin = fopen("/usr/tmp/jack.tmp","w+");
+    yyin = fopen("/usr/tmp/jack.tmp","w+");
     memset(&command,0,sizeof(command_t));
 
     cmd_init();
@@ -68,20 +65,17 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     fprintf(yyin,"%s\n", input_line);
     rewind(yyin);
 
-    //printf("after rewind: %s\n",input_line);
-
+//    printf("one %s\n", input_line);
     ret = yyparse();
+//    printf("two %s\n", input_line);
 
     fclose(yyin); 
     
     // testing code
-    // parse_result.dumpInfo();
+    //parse_result.dumpInfo();
     // dump_command(); /* old command structure in support.cxx */
 
    // Build a CommandObject so that the semantic routines can be called.
-    //cmd_args = (command_t *)malloc(sizeof(command_t));
-    //memcpy (cmd_args, &command, sizeof(command_t));
-    //cmd = new CommandObject (cmd_args);
     cmd = new CommandObject (&parse_result);
     SS_Execute_Cmd (cmd);
     
