@@ -7,7 +7,13 @@ When the build completes you should be able to run.  The script to
 launch the tool is ft.  (Also located in the .../GUI directory.)
 $ ft
 If ft fails to execute, check to make sure the FUTURE_TOOL_PLUGIN_DIR
-is set to the install location.   
+is set to the install location.  The default setting for FUTURE_TOOL_PLUGIN_DIR
+is usually: .../GUI/plugin/lib/futuretool
+
+On hope.americas.sgi.com, mine is set to:
+$ set | grep FUTU
+FUTURE_TOOL_PLUGIN_DIR=/home/tulip22/stipek/OpenSpeedShop/current/GUI/plugin/lib/futuretool
+
 $ ft --help 
 Gives a simple usage command.
 
