@@ -126,7 +126,6 @@ AC_CONFIG_FILES(Makefile
 		objects/Makefile
 		dialogs/Makefile
 		chart/Makefile
-		cli/Makefile
 		pcli/Makefile
 		gui/Makefile
 		Panels/Makefile

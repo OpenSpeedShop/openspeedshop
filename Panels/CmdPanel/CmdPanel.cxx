@@ -2,20 +2,17 @@
 #include "PanelContainer.hxx"   // Do not remove
 #include "plugin_entry_point.hxx"   // Do not remove
 
+#ifdef OLDWAY
 #include "cli.hxx"
+#endif // OLDWAY
 
-QString prompt = QString("ftcli> ");
+QString prompt = QString("cli> ");
 
 /*! \class CmdPanel
   The CmdPanel class is designed to accept command line input from the user.
-  As if they were typing in commands in cli only.   It actually dlopens
-  the cli.so and pipes the user input to the cli factory and displays the 
-  formated output back to the window.
+  As if they were typing in commands in cli only.   
 
   This is prototype code to show proof of concept.
-
-  Author: stipek@sgi.com
-
   */
 CmdPanel::CmdPanel()
 { // Unused... Here for completeness...
@@ -71,11 +68,13 @@ CmdPanel::returnPressed()
   QString text = output->selectedText();
   nprintf(DEBUG_PANELS) ("The user entered (%s)\n", text.ascii() );
 
+#ifdef OLDWAY
   OutputObject *oo = process_command(text.stripWhiteSpace().ascii());
   if( oo )
   {
     output->append( oo->outputBuffer );
   }
+#endif // OLDWAY
 
   output->append( prompt );
   output->moveCursor(QTextEdit::MoveEnd, FALSE);
@@ -89,10 +88,6 @@ bool
 CmdPanel::menu(QPopupMenu* contextMenu)
 {
   nprintf(DEBUG_PANELS) ("CmdPanel::menu() requested.\n");
-
-  contextMenu->insertItem("CmdPanel Menu Item &1", this, SLOT(menu1callback()), CTRL+Key_1 );
-  contextMenu->insertItem("CmdPanel Menu Item &2", this, SLOT(menu2callback()), CTRL+Key_2 );
-
   return( TRUE );
 } /* * Add local save() functionality here.  */
 void 
