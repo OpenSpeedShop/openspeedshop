@@ -58,14 +58,21 @@ class ExperimentObject;
 extern EXPID Experiment_Sequence_Number;
 extern std::list<ExperimentObject *> ExperimentObject_list;
 
+#define ExpStatus_NonExistant 0
+#define ExpStatus_Paused      1
+#define ExpStatus_Suspended   2
+#define ExpStatus_Running     3
+#define ExpStatus_Terminated  4
+#define ExpStatus_InError     5
+
 class ExperimentObject
 {
  private:
   EXPID Exp_ID;
+  int ExpStatus;
   bool Data_File_Has_A_Generated_Name;
   OpenSpeedShop::Framework::Experiment *FW_Experiment;
 
-  bool Experiment_Is_Suspended;
   std::string Suspended_Data_File_Name;
 
   std::list<ApplicationGroupObject *> ApplicationObjectList;
@@ -74,7 +81,7 @@ class ExperimentObject
  public:
   ExperimentObject (std::string data_base_name = std::string("")) {
     Exp_ID = ++Experiment_Sequence_Number;
-    Experiment_Is_Suspended = false;
+    ExpStatus = ExpStatus_Paused;
 
    // Allocate a data base file for the information connected with the experiment.
     std::string Data_File_Name;
@@ -112,6 +119,7 @@ class ExperimentObject
       FW_Experiment = NULL;
     }
     Exp_ID = 0;
+    ExpStatus = ExpStatus_NonExistant;
   }
   void ExperimentObject_Merge_Application(std::list<ApplicationGroupObject *> App_List)
     {
@@ -131,15 +139,19 @@ class ExperimentObject
     }
 
   EXPID ExperimentObject_ID() {return Exp_ID;}
+  int Status() {return ExpStatus;}
   Experiment *FW() {return FW_Experiment;}
+
+  void setStatus (int S) {ExpStatus = S;}
   void ReStart () {
-    if (Experiment_Is_Suspended) {
+    if (ExpStatus == ExpStatus_Suspended) {
       try {
         FW_Experiment = new OpenSpeedShop::Framework::Experiment (Suspended_Data_File_Name);
-        Experiment_Is_Suspended = false;
+        setStatus (ExpStatus_Paused);
       }
       catch(const std::exception& error) {
         Exp_ID = 0;
+        setStatus (ExpStatus_InError);
         Data_File_Has_A_Generated_Name = false;
         FW_Experiment = NULL;
       }
@@ -147,30 +159,82 @@ class ExperimentObject
   }
   void Suspend () {
     if (FW_Experiment != NULL) {
-      Experiment_Is_Suspended = true;
-      Suspended_Data_File_Name = FW_Experiment->getName().c_str();
+      setStatus (ExpStatus_Suspended);
+      Suspended_Data_File_Name = FW_Experiment->getName();
       delete FW_Experiment;
       FW_Experiment = NULL;
     }
   }
 
-  void Print(FILE *TFile)
-    { fprintf(TFile,"Experiment %lld %s data->%s:\n",ExperimentObject_ID(),
-              Experiment_Is_Suspended ? "Disabled" : "Enabled",
-              (FW_Experiment != NULL) ? FW_Experiment->getName().c_str() :
-                 Experiment_Is_Suspended ? Suspended_Data_File_Name.c_str() : "(null)");
-      std::list<ApplicationGroupObject *>::iterator AppObji = ApplicationObjectList.begin();
-      if (AppObji != ApplicationObjectList.end()) {
-        fprintf(TFile,"  ");
-        for (AppObji = ApplicationObjectList.begin(); AppObji != ApplicationObjectList.end(); AppObji++) {
-          (*AppObji)->Print(TFile);
-        }
-        fprintf(TFile,"\n");
+  void RenameDB (std::string New_DB) {
+   // Determine the old DataBase Name.
+    std::string Old_DB;
+    if (Status() == ExpStatus_Suspended) {
+      Old_DB = Suspended_Data_File_Name;
+    } else {
+      Old_DB = FW_Experiment->getName();
+      delete FW_Experiment;
+      FW_Experiment = NULL;
+    }
+
+   // Rename the Old DataBase.
+    int len1 = Old_DB.length();
+    int len2 = New_DB.length();
+    char *scmd = (char *)malloc(6 + len1 + len2);
+    sprintf(scmd,"mv %s %s\n\0",Old_DB.c_str(),New_DB.c_str());
+    int ret = system(scmd);
+    free (scmd);
+    if (ret == 0) {
+      if (Status() == ExpStatus_Suspended) {
+        Suspended_Data_File_Name = New_DB;
+      } else {
+        FW_Experiment = new OpenSpeedShop::Framework::Experiment (New_DB);
+        Data_File_Has_A_Generated_Name = false;
       }
+    }
+  }
+
+  std::string ExpStatus_Name () {
+    if (ExpStatus == ExpStatus_NonExistant) return std::string("NonExistant");
+    if (ExpStatus == ExpStatus_Paused) return std::string("Paused");
+    if (ExpStatus == ExpStatus_Suspended) return std::string("Disabled");
+    if (ExpStatus == ExpStatus_Running) return std::string("Running");
+    if (ExpStatus == ExpStatus_Terminated) return std::string("Terminated");
+    if (ExpStatus == ExpStatus_InError) return std::string("Error");
+    return std::string("Unknown");
+  }
+
+  void Print(FILE *TFile)
+    { fprintf(TFile,"Experiment %lld %s data->%s:\n",ExperimentObject_ID(), ExpStatus_Name().c_str(),
+              (FW_Experiment != NULL) ? FW_Experiment->getName().c_str() :
+                 (ExpStatus == ExpStatus_Suspended) ? Suspended_Data_File_Name.c_str() : "(null)");
       if (FW_Experiment != NULL) {
+        ThreadGroup tgrp = FW_Experiment->getThreads();
+        ThreadGroup::iterator ti;
+        bool atleastone = false;
+        for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+          Thread t = *ti;
+          std::string host = t.getHost();
+          pid_t pid = t.getProcessId();
+          Optional<pthread_t> pthread = t.getPosixThreadId();
+          Optional<int> rank = t.getMpiRank();
+          if (!atleastone) {
+            fprintf(TFile,"  Applications:\n");
+            atleastone = true;
+          }
+          fprintf(TFile,"    -h %s -p %lld",host.c_str(),pid);
+          if (pthread.hasValue()) {
+            fprintf(TFile," -t %lld",pthread.getValue());
+          }
+          if (rank.hasValue()) {
+            fprintf(TFile," -r %lld",rank.getValue());
+          }
+          fprintf(TFile,"\n");
+        }
+
         CollectorGroup cgrp = FW_Experiment->getCollectors();
         CollectorGroup::iterator ci;
-        bool atleastone = false;
+        atleastone = false;
         for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
           Collector c = *ci;
           Metadata m = c.getMetadata();
