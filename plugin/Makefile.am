@@ -16,7 +16,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-pkglib_LTLIBRARIES = libopenss_Plugin.la
+pkglib_LTLIBRARIES = libopenss-Plugin.la
 
 libopenss_Plugin_la_CXXFLAGS = -I/usr/include -I$(QTDIR)/include -I. -I.. -I../base -I../gui
 
