@@ -19,7 +19,7 @@ bool
 CLIInterface::runSynchronousCLI(char *command, int mt, bool warn_of_time )
 {
   maxTime = mt;
-// printf("runSynchronousCLI(%s)\n", command);
+printf("runSynchronousCLI(%s)\n", command);
   InputLineObject *clip = Append_Input_String( wid, command);
   if( clip == NULL )
   {
@@ -60,7 +60,7 @@ CLIInterface::runSynchronousCLI(char *command, int mt, bool warn_of_time )
 bool
 CLIInterface::getIntValueFromCLI(char *command, int64_t *val, bool mark_value_for_delete, int mt, bool warn_of_time )
 {
-// printf("getIntValueFromCLI(%s)\n", command);
+printf("getIntValueFromCLI(%s)\n", command);
   maxTime = mt;
 
   InputLineObject *clip = Append_Input_String( wid, command);
@@ -96,9 +96,93 @@ CLIInterface::getIntValueFromCLI(char *command, int64_t *val, bool mark_value_fo
       
         std::list<CommandResult *>::iterator crl;
         crl = co->Result_List().begin();    
-        CommandResult_Int *cri = (CommandResult_Int *)(*crl);
+        CommandResult_Int *cr_int = (CommandResult_Int *)(*crl);
 
-        cri->Value(val);
+        cr_int->Value(val);
+
+        if( mark_value_for_delete )
+        {
+          //Allow the garbage collector to clean up the value...
+          clip->Set_Results_Used();
+        }
+      }
+      break;
+    }
+    
+    qApp->processEvents(1000);
+
+    if( !shouldWeContinue() )
+    {
+// printf("RETURN FALSE!   COMMAND FAILED!\n");
+      return false;
+    }
+
+    sleep(1);
+  } 
+
+  if( timer )
+  {
+    timer->stop();
+    delete timer;
+    timer = NULL;
+  }
+
+  return(true);
+}
+
+
+bool
+CLIInterface::getIntListValueFromCLI(char *command, std::list<int64_t> *int_list, bool mark_value_for_delete, int mt, bool warn_of_time )
+{
+printf("getIntListValueFromCLI(%s)\n", command);
+  maxTime = mt;
+
+  InputLineObject *clip = Append_Input_String( wid, command);
+// printf("clip = 0x%x\n", clip);
+  if( clip == NULL )
+  {
+    fprintf(stderr, "FATAL ERROR: No clip returned from cli.\n");
+    return false;
+  }
+  Input_Line_Status status = ILO_UNKNOWN;
+
+  int timeout_cnt = 0;
+
+  while( status != ILO_COMPLETE )
+  {
+    status = checkStatus(clip);
+// printf("status = %d\n", status);
+    if( !status )
+    {   // An error occurred.... A message should have been posted.. return;
+      fprintf(stderr, "an error occurred processing (%s)!\n", command);
+      return false;
+    }
+
+    if( status == ILO_COMPLETE )
+    {
+// printf("status = ILO_COMPLETE!\n");
+      std::list<CommandObject *>::iterator coi;
+// printf("clip->CmdObj_List().size()=%d\n", clip->CmdObj_List().size() );
+      if( clip->CmdObj_List().size() == 1 ) // We should only have one in this case.\n");
+      {
+// printf("We have 1 command object.   Get the data.\n");
+        coi = clip->CmdObj_List().begin();
+        CommandObject *co = (CommandObject *)(*coi);
+// printf("co=0x%x\n", co);
+
+        std::list<CommandResult *>::iterator cri;
+// printf("co->Result_List().size()=%d\n", co->Result_List().size() );
+std::list<CommandResult *> cmd_result = co->Result_List();
+        for(cri = cmd_result.begin(); cri != cmd_result.end(); cri++ )
+        {
+          CommandResult_Int *cr_int = (CommandResult_Int *)(*cri);
+// printf("cr_int=0x%x\n", cr_int);   // This is null?
+
+          int64_t val = 0;
+          cr_int->Value(&val);
+          (*int_list).push_back(val);
+// printf("Down here in ditch digging land.... val=(%d)\n", val);
+        }
 
         if( mark_value_for_delete )
         {

@@ -35,6 +35,8 @@ extern QApplication *qapplication;
 
 #include "LoadAttachObject.hxx"
 
+#include "CLIInterface.hxx"
+
 void OpenSpeedshop::fileLoadNewProgram()
 {
 //  printf("OpenSpeedshop::fileLoadNewProgram() entered\n");
@@ -127,6 +129,7 @@ void OpenSpeedshop::fileOpenExperiment()
 
 void OpenSpeedshop::fileSaveExperiment()
 {
+/*
   printf("OpenSpeedshop::fileSaveExperiment() entered\n");
   printf("  Get a list of all the current experiments openned.  Present\n");
   printf("  list to the user so they can chose to have the experiment data\n");
@@ -136,6 +139,26 @@ void OpenSpeedshop::fileSaveExperiment()
   printf("  well.\n");
 
   QMessageBox::information( (QWidget *)NULL, tr("Info:"), tr("This feature currently under construction. - Unable to fulfill request."), QMessageBox::Ok );
+*/
+
+  QString command("listExp");
+  std::list<int64_t> int_list;
+
+  int_list.clear();
+  if( !cli->getIntListValueFromCLI( (char *)command.ascii(), &int_list ) )
+  {
+    printf("Unable to run %s\n", command.ascii() );
+  }
+
+  std::list<int64_t>::iterator it;
+// printf("int_list.size() =%d\n", int_list.size() );
+  for(it = int_list.begin(); it != int_list.end(); it++ )
+  {
+    int64_t cr_int = (int64_t)(*it);
+
+    printf("Yippie on the (%d)\n", cr_int);
+  }
+
 }
 
 void OpenSpeedshop::fileExportExperimentData()

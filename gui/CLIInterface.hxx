@@ -23,6 +23,8 @@ class CLIInterface : QObject
 
     int wid;
 
+    bool getIntListValueFromCLI(char *command, std::list<int64_t> *int_list, bool mark_value_for_delete=true, int mt=MAXTIME, bool warn_of_time=false );
+
     bool getIntValueFromCLI(char *command, int64_t *val, bool mark_value_for_delete = true , int maxTime = MAXTIME, bool warn_of_time = true  );
 
     bool runSynchronousCLI(char *command, int maxTime = MAXTIME, bool warn_of_time = true );
