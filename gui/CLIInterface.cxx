@@ -407,7 +407,6 @@ CLIInterface::getStringListValueFromCLI(char *command, std::list<std::string> *s
 
   QApplication::setOverrideCursor(QCursor::WaitCursor);
   InputLineObject *clip = Append_Input_String( wid, command);
-//printf("clip = 0x%x\n", clip);
   if( clip == NULL )
   {
     fprintf(stderr, "FATAL ERROR: No clip returned from cli.\n");
@@ -420,7 +419,6 @@ CLIInterface::getStringListValueFromCLI(char *command, std::list<std::string> *s
   while( status != ILO_COMPLETE )
   {
     status = checkStatus(clip);
-//printf("status = %d\n", status);
     if( !status || status == ILO_ERROR )
     {   // An error occurred.... A message should have been posted.. return;
       fprintf(stderr, "an error occurred processing (%s)!\n", command);
@@ -429,25 +427,19 @@ CLIInterface::getStringListValueFromCLI(char *command, std::list<std::string> *s
 
     if( status == ILO_COMPLETE )
     {
-//printf("status = ILO_COMPLETE!\n");
       std::list<CommandObject *>::iterator coi;
-//printf("clip->CmdObj_List().size()=%d\n", clip->CmdObj_List().size() );
       if( clip->CmdObj_List().size() == 1 ) // We should only have one in this case.\n");
       {
-//printf("We have 1 command object.   Get the data.\n");
         coi = clip->CmdObj_List().begin();
         CommandObject *co = (CommandObject *)(*coi);
-//printf("co=0x%x\n", co);
 
         std::list<CommandResult *>::iterator cri;
-//printf("co->Result_List().size()=%d\n", co->Result_List().size() );
-std::list<CommandResult *> cmd_result = co->Result_List();
+        std::list<CommandResult *> cmd_result = co->Result_List();
         for(cri = cmd_result.begin(); cri != cmd_result.end(); cri++ )
         {
           CommandResult_String *cr_str = (CommandResult_String *)(*cri);
-//printf("cr_str=0x%x\n", cr_str);   // This is null?
 
-          std::string str_val = 0;
+          std::string str_val;
           cr_str->Value(&str_val);
           (*str_list).push_back(str_val);
         }
@@ -465,7 +457,7 @@ std::list<CommandResult *> cmd_result = co->Result_List();
 
     if( !shouldWeContinue() )
     {
-//printf("RETURN FALSE!   COMMAND FAILED!\n");
+printf("RETURN FALSE!   COMMAND FAILED!\n");
       RETURN_FALSE;
     }
 
