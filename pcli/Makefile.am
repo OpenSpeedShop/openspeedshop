@@ -100,11 +100,9 @@ clobber:
 
 bin_PROGRAMS = pcli
 
-OPENSS_PLUGIN_PATH = ${prefix}/lib/openspeedshop
-
 pcli:
-	-rm -f $(OPENSS_PLUGIN_PATH)/myparse.py;
-	-cp myparse.py $(OPENSS_PLUGIN_PATH);
+	-rm -f ${prefix}/lib/openspeedshop/myparse.py;
+	-cp myparse.py ${prefix}/lib/openspeedshop;
 
 doc:
 	-doxygen Doxyfile
