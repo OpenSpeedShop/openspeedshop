@@ -185,11 +185,41 @@ extern "C"
     printf("  $ openss -f a.out -x pcsamp\n");
   }
 
+  void
+  cli_terminate ()
+  {
+   // Close Python
+    Py_Finalize ();
+
+   // Close allocated input windows.
+    if (gui_window != 0)
+    {
+      Commander_Termination(gui_window);
+    }
+    if (tli_window != 0)
+    {
+     // Stop async read loop for xterm window
+      pthread_cancel (phandle[0]);
+
+      Commander_Termination(tli_window);
+    }
+    if (command_line_window != 0)
+    {
+      Commander_Termination(command_line_window);
+    }
+  }
+
 static void
 catch_signal (int sig, int error_num)
 {
-  // fprintf(stdout,"catch_signal %d\n",sig);
-  pthread_cancel (phandle[0]);
+  static bool processing_signal = false;
+  if (processing_signal) {
+fprintf(stdout,"Multiple errors - %d %d\n",sig, error_num);
+    abort();
+  }
+  processing_signal = true;
+fprintf(stdout,"catch_signal %d\n",sig);
+  cli_terminate ();
   exit (1);
 }
 inline static void
@@ -204,15 +234,15 @@ setup_signal_handler (int s)
   {
    // Set up to catch bad errors
     setup_signal_handler (SIGILL);
-    setup_signal_handler (SIGTRAP);
+    // setup_signal_handler (SIGTRAP);
     // setup_signal_handler (SIGABRT);
     setup_signal_handler (SIGFPE);
     setup_signal_handler (SIGKILL);
     setup_signal_handler (SIGBUS);
     setup_signal_handler (SIGSEGV);
     setup_signal_handler (SIGSYS);
-    setup_signal_handler (SIGPIPE);
-    setup_signal_handler (SIGCLD);
+    // setup_signal_handler (SIGPIPE);
+    // setup_signal_handler (SIGCLD);
 
     int i;
     ArgStruct *argStruct = new ArgStruct(argc, argv);
@@ -273,23 +303,7 @@ setup_signal_handler (int s)
     PyRun_SimpleString( "myparse.do_input ()\n");
 
    // When Python exits, terminate SpeedShop:
-
-   // Close Python
-    Py_Finalize ();
-
-   // Close allocated input windows.
-    if (gui_window != 0)
-    {
-      Commander_Termination(gui_window);
-    }
-    if (tli_window != 0)
-    {
-      Commander_Termination(tli_window);
-    }
-    if (command_line_window != 0)
-    {
-      Commander_Termination(command_line_window);
-    }
+    cli_terminate ();
 
     return 0;
   }
