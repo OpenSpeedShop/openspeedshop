@@ -16,7 +16,7 @@ import PY_Input
 ################################################################################
 def cmd_parse(args):
 
-    #print args
+    print args
 
     # Convert numeric values into strings
     count = len(args)
@@ -91,9 +91,12 @@ def preParseArgs(line, command_dict, arg_dict):
 
     for ndx in range(count):
         # Find the function for this command in the command dictionary
-        function = command_dict.get(parts[ndx])
+	t_part = string.lower(parts[ndx])
+        #function = command_dict.get(parts[ndx])
+        function = command_dict.get(t_part)
 
         if function is not None:
+	    parts[ndx] = t_part
             func_ndx = ndx
             for i in range(ndx+1,count):
 
@@ -103,20 +106,31 @@ def preParseArgs(line, command_dict, arg_dict):
                 # are so until it is pointed out to me what the 
                 # good and wholesome solution is, we will have to
                 # live with this.
-                t_arg = arg_dict.get(parts[i])
+		t_part = string.lower(parts[i])
+                t_arg = arg_dict.get(t_part)
                 if t_arg is not None:
                     #print t_arg
+		    parts[i] = t_part
                     parts[i] = '"' + parts[i] + '"'
-                else:
-                    t_str = parts[i]
-                    if len(t_str) is 2:
-                        if t_str[0] is '-':
-                            # This could be done more effeciently
-                            for t_char in ['r','h','f','p','t','x']:
-                                if t_char is t_str[1]:
-                                    parts[i] = '"' + parts[i] + '"'
-				    parts[i+1] = cloak_list_range(parts[i+1])
-                                    break
+		else:
+		    # Look for HELP arguments for commands
+                    t_arg = command_dict.get(t_part)
+		    if t_arg is not None:
+		    	parts[i] = t_part
+                    	parts[i] = '"' + parts[i] + '"'
+                    else:
+		    	# Look for dash arguments
+                    	t_str = parts[i]
+                    	if len(t_str) is 2:
+                            if t_str[0] is '-':
+                            	# This could be done more effiecently
+                            	for t_char in ['r','h','f','p','t','x']:
+                                    if t_char is t_str[1]:
+                                    	parts[i] = '"' + parts[i] + '"'
+					# Don't crash if no argument
+					if i < count-1:
+				    	    parts[i+1] = cloak_list_range(parts[i+1])
+                                    	break
                             
                 i = i+1
 
@@ -171,31 +185,32 @@ class CLI(code.InteractiveConsole):
     #
     ##################################################################
     commands = { \
-        "expAttach"     : "cmd_parse",
-        "expClose"      : "cmd_parse",
-        "expCont"       : "cmd_parse",
-        "expCreate"     : "cmd_parse",
-        "expDetach"     : "cmd_parse",
-        "expFocus"      : "cmd_parse",
-        "expPause"      : "cmd_parse",
-        "expRestore"    : "cmd_parse",
-        "expRun"        : "cmd_parse",
-        "expSave"       : "cmd_parse",
-        "expSetParam"   : "cmd_parse",
-        "expStop"       : "cmd_parse",
-        "expView"       : "cmd_parse",
-        "listExp"       : "cmd_parse",
-        "listHosts"     : "cmd_parse",
-        "listObj"       : "cmd_parse",
-        "listPids"      : "cmd_parse",
-        "listSrc"       : "cmd_parse",
-        "listMetrics"   : "cmd_parse",
-        "listParams"    : "cmd_parse",
-        "listReports"   : "cmd_parse",
-        "listBreaks"    : "cmd_parse",
-        "clearBreak"    : "cmd_parse",
+        "expattach"     : "cmd_parse",
+        "expclose"      : "cmd_parse",
+        "expclose"      : "cmd_parse",
+        "expcont"       : "cmd_parse",
+        "expcreate"     : "cmd_parse",
+        "expdetach"     : "cmd_parse",
+        "expfocus"      : "cmd_parse",
+        "exppause"      : "cmd_parse",
+        "exprestore"    : "cmd_parse",
+        "exprun"        : "cmd_parse",
+        "expsave"       : "cmd_parse",
+        "expsetparam"   : "cmd_parse",
+        "expstop"       : "cmd_parse",
+        "expview"       : "cmd_parse",
+        "listexp"       : "cmd_parse",
+        "listhosts"     : "cmd_parse",
+        "listobj"       : "cmd_parse",
+        "listpids"      : "cmd_parse",
+        "listsrc"       : "cmd_parse",
+        "listmetrics"   : "cmd_parse",
+        "listparams"    : "cmd_parse",
+        "listreports"   : "cmd_parse",
+        "listbreaks"    : "cmd_parse",
+        "clearbreak"    : "cmd_parse",
         "exit"          : "Do_quit",
-        "openGui"       : "cmd_parse",
+        "opengui"       : "cmd_parse",
         "help"          : "cmd_parse",
         "history"       : "cmd_parse",
         "log"           : "cmd_parse",
@@ -213,22 +228,22 @@ class CLI(code.InteractiveConsole):
     #
     ##################################################################
     o_ss_reserved = { \
-        "vTopN"         : "viewtype:top_n",
-        "vExclTime"     : "viewtype:exclusive_time",
-        "vIo"           : "viewtype:io_time",
-        "vfPe"          : "viewtype:floatingpoint_exceptions",
-        "vHwc"          : "viewtype:hardware_counters",
+        "vtopn"         : "viewtype:top_n",
+        "vexcltime"     : "viewtype:exclusive_time",
+        "vio"           : "viewtype:io_time",
+        "vfpe"          : "viewtype:floatingpoint_exceptions",
+        "vhwc"          : "viewtype:hardware_counters",
         "pcsamp"        : "exp_type:pc_sampling",
         "usertime"      : "exp_type:user_time",
         "mpi"           : "exp_type:mpi",
         "fpe"           : "exp_type:floating_point_exceptions",
         "hwc"           : "exp_type:hardware_counters",
         "io"            : "exp_type:input_output",
-        "displayMode"   : "exp_param_display_mode:",
-        "displayMedia"  : "exp_param_display_media:",
-        "displayRefreshRate"    : "exp_param_display_refresh_rate:",
-        "expSaveFile"   : "exp_param_:experiment_save_file",
-        "samplingRate"  : "exp_param_sampling_rate:" \
+        "displaymode"   : "exp_param_display_mode:",
+        "displaymedia"  : "exp_param_display_media:",
+        "displayrefreshrate"	: "exp_param_display_refresh_rate:",
+        "expsavefile"   : "exp_param_:experiment_save_file",
+        "samplingrate"  : "exp_param_sampling_rate:" \
         }
 
     ##################################################################

@@ -407,7 +407,6 @@ push_file(char *file)
     char **strtab;
     
     strcpy(tname,file);
-    printf("in push_file(%s)\n",tname);
     
     cmd_check_array(&command.file_table);
     strtab = (char **)command.file_table.table;
@@ -480,11 +479,9 @@ reset_command()
     	int i;
 	name_tab_t *name_tab = (name_tab_t *)command.name_table.table;
 
-	for (i=0;i<command.file_table.cur_node;++i) {
-	    if (name_tab[i].tag == HOST_NAME) {
+	for (i=0;i<command.name_table.cur_node;++i) {
 	    	free((void *)name_tab[i].name);
 		name_tab[i].name = NULL;
-	    }
 	}
 	
     	free(command.name_table.table);
@@ -494,7 +491,7 @@ reset_command()
     	int i;
 	host_id_t *host_tab = (host_id_t *)command.host_table.table;
 
-	for (i=0;i<command.file_table.cur_node;++i) {
+	for (i=0;i<command.host_table.cur_node;++i) {
 	    if (host_tab[i].tag == HOST_NAME) {
 	    	free((void *)host_tab[i].u.name);
 		host_tab[i].u.name = NULL;
@@ -709,15 +706,15 @@ dump_command()
 void
 cmd_init()
 {
-    command.lineno_table.entry_size	= sizeof(arg_desc_t); /*  */
-    command.address_table.entry_size	= sizeof(arg_desc_t); /*  */
+    command.lineno_table.entry_size	= sizeof(arg_desc_t);	/*  */
+    command.address_table.entry_size	= sizeof(arg_desc_t);	/*  */
     command.pid_table.entry_size    	= sizeof(arg_desc_t);
     command.break_table.entry_size  	= sizeof(arg_desc_t);
     command.rank_table.entry_size   	= sizeof(arg_desc_t);
     command.thread_table.entry_size 	= sizeof(arg_desc_t);
     command.file_table.entry_size   	= sizeof(arg_desc_t);
-    command.name_table.entry_size	= sizeof(name_tab_t); /*  */
-    command.host_table.entry_size   	= sizeof(host_id_t); /*  */
+    command.name_table.entry_size	= sizeof(name_tab_t);	/*  */
+    command.host_table.entry_size   	= sizeof(host_id_t);	/*  */
     command.help_table.entry_size   	= sizeof(help_desc_t);
 
 }
