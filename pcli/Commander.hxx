@@ -82,9 +82,9 @@ inline void SS_Issue_Prompt (FILE *TFile) {
 
 void Commander_Termination (CMDWID my_window);
 
-// Selection of items in the trace file are controlled throught his enum.
+// Selection of items in the log file are controlled throught his enum.
 // Except for raw data dumps, the record identifier is stripped from output.
-enum Trace_Entry_Type
+enum Log_Entry_Type
   { CMDW_TRACE_ALL,                  // Dump raw data
     CMDW_TRACE_COMMANDS,             // Dump command line records with added information - "C "
     CMDW_TRACE_ORIGINAL_COMMANDS,    // Dump command line recoreds as entered by user - "C "
@@ -113,12 +113,13 @@ bool Push_Input_File (CMDWID issuedbywindow, std::string fromfname,
                                       void (*CallBackCmd) (CommandObject *b) = NULL);
 
 // Manipulate tracing options
-bool Command_Trace (CommandObject *cmd, enum Trace_Entry_Type trace_type,
-                    CMDWID cmdwinid, std::string tofname);
-bool Command_Trace_OFF (CMDWID WindowID);
-bool Command_Trace_ON (CMDWID WindowID, std::string tofname);
+bool Command_History (CommandObject *cmd, enum Log_Entry_Type log_type,
+                      CMDWID cmdwinid, std::string tofname);
+bool Command_Record_OFF (CMDWID WindowID);
+bool Command_Record_ON (CMDWID WindowID, std::string tofname);
 bool Command_Log_OFF (CMDWID WindowID);
 bool Command_Log_ON (CMDWID WindowID, std::string tofname);
+FILE *Log_File (CMDWID WindowID);
 
 // Focus is a property of the Command Window that issued the command.
 void Experiment_Purge_Focus (EXPID ExperimentID);                // Remove focus from windows
@@ -129,7 +130,7 @@ void List_CommandWindows ( FILE *TFile );
 // Batch processing input is not Async.  Command execution should be serial.
 bool Window_Is_Async (CMDWID WindowID);
 
-// Communicate command information the window manager
+// Communicate command information to the window manager
 extern void Link_Cmd_Obj_to_Input (InputLineObject *I, CommandObject *);
 extern void Clip_Complete (InputLineObject *clip);
 extern void Cmd_Obj_Complete (CommandObject *C);
