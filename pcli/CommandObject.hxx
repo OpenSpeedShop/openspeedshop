@@ -152,5 +152,7 @@ public:
     return CMD_Result;
   }
 
-  void Print (FILE *TFile); // defined in CommandObject.cxx
+ // defined in CommandObject.cxx
+  void Print (FILE *TFile);
+  void Print_Results (FILE *TFile, std::string list_seperator, std::string termination_char);
 };
