@@ -407,6 +407,7 @@ push_file(char *file)
     char **strtab;
     
     strcpy(tname,file);
+    printf("in push_file(%s)\n",tname);
     
     cmd_check_array(&command.file_table);
     strtab = (char **)command.file_table.table;

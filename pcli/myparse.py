@@ -16,7 +16,7 @@ import PY_Input
 ################################################################################
 def cmd_parse(args):
 
-    print args
+    #print args
 
     # Convert numeric values into strings
     count = len(args)
@@ -26,7 +26,7 @@ def cmd_parse(args):
 	if type(args[ndx]) is types.LongType:
 	    args[ndx] = str(args[ndx])
 
-    print args
+    #print args
 
     # combine all the argument strings into a
     # single space delimitted string to pass
@@ -34,7 +34,7 @@ def cmd_parse(args):
     if count > 0:
     	blank_delim = " "
     	zusamen = blank_delim.join(args[:count])
-	print zusamen
+	#print zusamen
     	PY_Input.CallParser (zusamen)
     pass
 
@@ -47,9 +47,13 @@ def cmd_parse(args):
 # throw out the commas and colons. 
 #
 ################################################################################
-def cloak_list_range(args):
+def cloak_list_range(arg):
 
-    print args
+    #print 'in cloak_list(',arg,')'
+    if type(arg) is types.StringType:
+    	arg = '"' + arg + '"'
+
+    return arg
 
 ################################################################################
 #
@@ -60,7 +64,7 @@ def cloak_list_range(args):
 ################################################################################
 def Do_quit(args):
 
-    print "Exit Python"
+    #print "Exit Python"
     raise SystemExit
 
 ##################################################################
@@ -101,7 +105,7 @@ def preParseArgs(line, command_dict, arg_dict):
                 # live with this.
                 t_arg = arg_dict.get(parts[i])
                 if t_arg is not None:
-                    print t_arg
+                    #print t_arg
                     parts[i] = '"' + parts[i] + '"'
                 else:
                     t_str = parts[i]
@@ -111,7 +115,7 @@ def preParseArgs(line, command_dict, arg_dict):
                             for t_char in ['r','h','f','p','t','x']:
                                 if t_char is t_str[1]:
                                     parts[i] = '"' + parts[i] + '"'
-				    cloak_list_range(parts[i:])
+				    parts[i+1] = cloak_list_range(parts[i+1])
                                     break
                             
                 i = i+1
@@ -125,7 +129,7 @@ def preParseArgs(line, command_dict, arg_dict):
                 leading = blank_delim.join(parts[:func_ndx])
                 line = leading + blank_delim + line
 
-    	    print line
+    	    #print line
             return line
             
         ndx = ndx+1
@@ -240,6 +244,7 @@ class CLI(code.InteractiveConsole):
         "f"             : "suboption:file_list",
         "p"             : "suboption:pid_list",
         "t"             : "suboption:thread_list",
+        "l"             : "suboption:line_number",
         "x"             : "suboption:experiment_id", \
         }
 
@@ -310,7 +315,7 @@ class CLI(code.InteractiveConsole):
 
             # Handle CTRL-D
             except EOFError:
-                print "eof or error", line
+                #print "eof or error", line
                 self.write("\n")
                 is_more = 0
                 self.resetbuffer()

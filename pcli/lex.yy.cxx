@@ -932,32 +932,32 @@ YY_RULE_SETUP
 case 12:
 YY_RULE_SETUP
 #line 19 "test.l"
-{ return EXP_PCSAMP;}
+{ yylval.string = yytext; return EXP_PCSAMP;}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
 #line 20 "test.l"
-{ return EXP_USERTIME;}
+{ yylval.string = yytext; return EXP_USERTIME;}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
 #line 21 "test.l"
-{ return EXP_MPI;}
+{ yylval.string = yytext; return EXP_MPI;}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
 #line 22 "test.l"
-{ return EXP_FPE;}
+{ yylval.string = yytext; return EXP_FPE;}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
 #line 23 "test.l"
-{ return EXP_HWC;}
+{ yylval.string = yytext; return EXP_HWC;}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
 #line 24 "test.l"
-{ return EXP_IO;}
+{ yylval.string = yytext; return EXP_IO;}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
