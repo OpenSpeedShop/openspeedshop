@@ -50,7 +50,13 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     {
       std::list<CommandResult *> cmd_result = cmd->Result_List();
       std::list<CommandResult *>::iterator cri;
-      int cnt = 0;
+      bool list_returned = command_list[cmd->Type()];
+
+      if (!list_returned && (cmd_result.size() > 1)) {
+        cmd->Result_String ("Too many results were generated for the command");
+        cmd->set_Status(CMD_ERROR);
+      }
+
       for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++) {
         if (cri != NULL) {
           switch ((*cri)->Type()) {
