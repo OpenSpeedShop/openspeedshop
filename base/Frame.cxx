@@ -85,12 +85,14 @@ Frame::~Frame( )
  */
 void Frame::mousePressEvent(QMouseEvent *e)
 {
+#ifdef OLDWAY
   if( getPanelContainer() == NULL )
   {
     return;
   }
 
   nprintf(DEBUG_FRAMES) ("Frame::mousePressEvent(%s) pc=(%s)\n", getName(), getPanelContainer()->getInternalName() );
+printf ("HERE!!!!  Frame::mousePressEvent(%s) pc=(%s)\n", getName(), getPanelContainer()->getInternalName() );
 
   if( e->button() != LeftButton )
   {
@@ -106,12 +108,13 @@ void Frame::mousePressEvent(QMouseEvent *e)
 
   Frame::dragging = TRUE;
 
-  DragNDropPanel::sourceDragNDropObject = new DragNDropPanel(getPanelContainer(), this);
+  DragNDropPanel::sourceDragNDropObject = new DragNDropPanel("OpenSpeedShop-Drag-N-Drop-Event", getPanelContainer(), this);
 
   if( DragNDropPanel::sourceDragNDropObject == NULL )
   {
     Frame::dragging = FALSE;
   }
+#endif // OLDWAY
 }
 
 /*! Fields the mouseReleaseEvent.
@@ -148,6 +151,7 @@ void Frame::dragEnterEvent(QDragEnterEvent* event)
 {
   nprintf(DEBUG_FRAMES) ("Frame::dragEnterEvent() entered\n");
 
+#ifdef OLDWAY
   QString text;
   if( QTextDrag::canDecode(event) )
   {
@@ -160,6 +164,17 @@ void Frame::dragEnterEvent(QDragEnterEvent* event)
       }
     }
   }
+#else // OLDWAY
+  if( event->provides("OpenSpeedShop-Drag-N-Drop-Event") )
+  {
+    nprintf(DEBUG_DND)("dragEnterEvent() We think we accept the event!\n");
+
+	event->accept();
+  } else
+  {
+    nprintf(DEBUG_DND)("dragEnterEvent() NO I DON'T WANT YOU!\n");
+  }
+#endif // OLDWAY
 }
 
 /*! This callback is generated from the Qt Drag and Drop event.   Once fielded
@@ -171,11 +186,15 @@ void Frame::dropEvent(QDropEvent* event)
   nprintf(DEBUG_FRAMES) ("Frame::dropEnterEvent() entered\n");
   nprintf(DEBUG_FRAMES) ("Frame::dropEvent(%s-%s) isDropEnabled()=%d Frame::dragging=%d entered\n", getPanelContainer()->getInternalName(), getPanelContainer()->getExternalName(), isDropEnabled(), Frame::dragging );
 
-  if( !isDropEnabled() || !Frame::dragging )
-  {
-    return;
-  }
   nprintf(DEBUG_FRAMES) ("attempt to drop the panel \n");
+
+  if( event->provides("OpenSpeedShop-Drag-N-Drop-Event") )
+  {
+    nprintf(DEBUG_FRAMES) ("THINK WE'VE GOT A PROTECTED DROP!\n");
+  } else
+  {
+    nprintf(DEBUG_FRAMES) ("part doesn't accept drops.\n");
+  }
 
   // Change the cursor... back
   nprintf(DEBUG_FRAMES) (" change the cursor back\n");

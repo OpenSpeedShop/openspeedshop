@@ -615,11 +615,12 @@ static const char *drag_xpm[]={
 void
 PanelContainer::dragRaisedPanel()
 {
-  nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::dragRaisedPanel(%s) entered.\n", getInternalName() );
+  nprintf(DEBUG_DND) ("PanelContainer::dragRaisedPanel(%s) entered.\n", getInternalName() );
 
   Frame::dragging = TRUE;
 
-  DragNDropPanel::sourceDragNDropObject = new DragNDropPanel(this, leftFrame);
+#ifdef OLDWAY
+  DragNDropPanel::sourceDragNDropObject = new DragNDropPanel("OpenSpeedShop-Drag-N-Drop-Event", this, leftFrame);
 
   QString s = "Open/SpeedShop-QDragString";
   QWidget *w = new QWidget(this, "dragNDropWidget");
@@ -629,17 +630,32 @@ PanelContainer::dragRaisedPanel()
   d->setPixmap(drag_pm);
   d->dragMove();
   // do NOT delete d (?)
+#else // OLDWAY
+  DragNDropPanel::sourceDragNDropObject = new DragNDropPanel("OpenSpeedShop-Drag-N-Drop-Event", this, leftFrame);
+  QDragObject *d = (QDragObject *)DragNDropPanel::sourceDragNDropObject;
 
-  nprintf(DEBUG_PANELCONTAINERS) ("drag completed... was it successful? (0x%x)\n", d->target() );
+  QPixmap drag_pm(drag_xpm);
+  drag_pm.setMask(drag_pm.createHeuristicMask());
+  d->setPixmap(drag_pm);
+  d->dragMove();
+  // do NOT delete d (?)
+#endif // OLDWAY
+
+  nprintf(DEBUG_DND) ("drag completed... was it successful= (0x%x)\n", d->target() );
   if( d->target() == NULL )
   {
+  nprintf(DEBUG_DND) ("DragNDropPanel::sourceDragNDropObject= (0x%x)\n", DragNDropPanel::sourceDragNDropObject );
     DragNDropPanel::sourceDragNDropObject->DropPanel(this);
+  } else
+  {
+  nprintf(DEBUG_DND) ("DragNDropPanel::sourceDragNDropObject= d->target() was not null.\n");
   }
 
   if( DragNDropPanel::sourceDragNDropObject == NULL )
   {
     Frame::dragging = FALSE;
   }
+  nprintf(DEBUG_DND) ("DragNDropPanel::dragRaisedPanel() returning\n");
 }
 #else // OLD_DRAG_AND_DROP
 void
@@ -650,7 +666,7 @@ PanelContainer::dragRaisedPanel()
   // First find the associated Frame.
   Frame::dragging = TRUE;
 
-  DragNDropPanel::sourceDragNDropObject = new DragNDropPanel(this, leftFrame);
+  DragNDropPanel::sourceDragNDropObject = new DragNDropPanel("OpenSpeedShop-Drag-N-Drop-Event", this, leftFrame);
   if( DragNDropPanel::sourceDragNDropObject == NULL )
   {
     Frame::dragging = FALSE;
@@ -1253,7 +1269,7 @@ PanelContainer::addPanel(Panel *p, PanelContainer *panel_container, char *tab_na
 
   if( panel_container->leftPanelContainer && panel_container->rightPanelContainer )
   {
-    fprintf(stderr, "Internal Warning: PC:addPanel() You can't add this to this panelContainer!  It's split!\n");
+    fprintf(stderr, tr("Internal Warning: PC:addPanel() You can't add this to this panelContainer!  It's split!\n"));
     // start_pc = panel_container->findBestFitPanelContainer(start_pc);
     return NULL;
   }
@@ -1261,7 +1277,7 @@ PanelContainer::addPanel(Panel *p, PanelContainer *panel_container, char *tab_na
   nprintf(DEBUG_PANELCONTAINERS) ("PanelContinaer::addPanel(%s, %s) in (%s)\n", tab_name, p->getName(), start_pc->getInternalName() );
   if( start_pc->tabWidget == NULL )
   {
-    fprintf(stderr, "ERROR: addPanel.  No tabWidget\n");
+    fprintf(stderr, tr("Internal Warning: addPanel.  No tabWidget\n"));
     return NULL;
   }
 

@@ -8,19 +8,17 @@ class Frame;
 
 #include <qwidget.h>
 #include <qframe.h>
+#include <qdragobject.h>
 
 #include <qcursor.h>
 
 
 //! Defines drag and drop functions.
-class DragNDropPanel
+class DragNDropPanel : public QStoredDrag
 {
 public:
-    //! DragNDropPanel() - A default constructor the the DragNDropPanel Class.
-    DragNDropPanel( );
-
     //! DragNDropPanel(PanelContainer *pc, Frame *sourceFrame)
-    DragNDropPanel( PanelContainer *sourcePC, Frame *sourceFrame );
+    DragNDropPanel( const char *mimeType, PanelContainer *sourcePC, Frame *sourceFrame, char *name="DragNDropPanel" );
 
     //! ~Panel() - The default destructor.
     ~DragNDropPanel( );

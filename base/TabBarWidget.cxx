@@ -49,7 +49,7 @@ TabBarWidget::mouseDoubleClickEvent(QMouseEvent *e)
   // First find the associated Frame.
   Frame::dragging = TRUE;
 
-  DragNDropPanel::sourceDragNDropObject = new DragNDropPanel(getPanelContainer(), getPanelContainer()->leftFrame);
+  DragNDropPanel::sourceDragNDropObject = new DragNDropPanel("OpenSpeedShop-Drag-N-Drop-Event", getPanelContainer(), getPanelContainer()->leftFrame);
   if( DragNDropPanel::sourceDragNDropObject == NULL )
   {
     Frame::dragging = FALSE;

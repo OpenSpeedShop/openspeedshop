@@ -59,21 +59,14 @@ DragNDropPanel *DragNDropPanel::sourceDragNDropObject = NULL;
 
 #include <qapplication.h>
 
-/*! This constructor is not called.   It is here for completeness.
- */
-DragNDropPanel::DragNDropPanel( )
-{
-  panelContainer = NULL;
-}
-
 /*! This constructor is the work constructor.   It is called to 
     create a dragable object that will be passed to the drop site.
     \param sourcePC is a pointer to PanelContainer that initiated the drag.
     \param sourceFrame is a pointer to the frame that initiated the drag.
  */
-DragNDropPanel::DragNDropPanel( PanelContainer *pc, Frame *sourceFrame )
+DragNDropPanel::DragNDropPanel( const char *mimeType, PanelContainer *sourcePC, Frame *sourceFrame, char *name ) : QStoredDrag(mimeType, sourcePC, name)
 {
-  panelContainer = pc;
+  panelContainer = sourcePC;
   frame = sourceFrame;
 
   nprintf(DEBUG_DND) ("\n\n\nDragNDropPanel(load: %s) Frame=(%s)\n", panelContainer->getInternalName(), sourceFrame->getName() );
@@ -132,9 +125,11 @@ DragNDropPanel::DropPanel( PanelContainer *sourcePC, bool doubleClickedFLAG )
  
   if( doubleClickedFLAG == FALSE )
   {
-    sourcePC->findPanelContainerByMouseLocation();
+    nprintf(DEBUG_DND)(" DropPanel() call findPanelContainerByMouseLocation()\n");
+    targetPC = sourcePC->findPanelContainerByMouseLocation();
   }
 
+#ifdef OLDWAY
 #ifndef OLD_DRAG_AND_DROP
   // We only care about this value if we've tried to drop on ourself.
   // Otherwise, set the value to null and drop the Panel on the desktop.
@@ -143,6 +138,14 @@ DragNDropPanel::DropPanel( PanelContainer *sourcePC, bool doubleClickedFLAG )
     targetPC = NULL;
   }
 #endif // OLD_DRAG_AND_DROP
+#else // OLDWAY
+  // We only care about this value if we've tried to drop on ourself.
+  // Set the value to null and drop the Panel on the desktop.
+  if( targetPC == sourcePC )
+  {
+    targetPC = NULL;
+  }
+#endif // OLDWAY
 
   // Make sure there is a valid place to drop it.
   if( sourcePC == targetPC || sourcePC->tabWidget == NULL )
@@ -212,7 +215,7 @@ DragNDropPanel::DropPanel( PanelContainer *sourcePC, bool doubleClickedFLAG )
     targetPC->dropSiteLayout = new QVBoxLayout( w, 0, 0, "dropSiteLayout");
 //    targetPC->tabWidget = new QTabWidget( w, "tabWidget" );
     targetPC->tabWidget = new TabWidget( targetPC, w, "tabWidget" );
-fprintf(stderr, "Warning: Unexpected drop site. Trying to recover.  We may error shortly!\n");
+    fprintf(stderr, "Warning: Unexpected drop site. Trying to recover.  We may error shortly!\n");
     targetPC->tabBarWidget = new TabBarWidget( targetPC, w, "tabBarWidget");
     targetPC->tabWidget->setTabBar(targetPC->tabBarWidget);
 
@@ -252,7 +255,9 @@ fprintf(stderr, "Warning: Unexpected drop site. Trying to recover.  We may error
   sourcePC->getMasterPC()->movePanel( p, currentPage, targetPC);
 
   // Once you know this happened correctly!
+#ifdef OLDWAY
   delete( DragNDropPanel::sourceDragNDropObject );
+#endif // OLDWAY
 
   nprintf(DEBUG_DND) ("\n\n\n");
 }
@@ -298,7 +303,7 @@ DragNDropPanel::DropPanelWithQtDnD( PanelContainer *targetPC)
     delete( DragNDropPanel::sourceDragNDropObject );
     return;
   }
-nprintf(DEBUG_DND) ("Drag panel=(%s)\n", p->getName() );
+  nprintf(DEBUG_DND) ("Drag panel=(%s)\n", p->getName() );
 
   QPoint point;
   // If there's not a targetPC, then the request is to create one.
@@ -349,9 +354,11 @@ nprintf(DEBUG_DND) ("Drag panel=(%s)\n", p->getName() );
     targetPC->dropSiteLayout = new QVBoxLayout( w, 0, 0, "dropSiteLayout");
 //    targetPC->tabWidget = new QTabWidget( w, "tabWidget" );
     targetPC->tabWidget = new TabWidget( targetPC, w, "tabWidget" );
-fprintf(stderr, "WHOAOOOOO Expect to error shortly!\n");
-targetPC->tabBarWidget = new TabBarWidget( targetPC, w, "tabBarWidget");
-targetPC->tabWidget->setTabBar(targetPC->tabBarWidget);
+
+    fprintf(stderr, tr("Warning Internal Error: Unknown drop site.  Attempting to recover!\n"));
+
+    targetPC->tabBarWidget = new TabBarWidget( targetPC, w, "tabBarWidget");
+    targetPC->tabWidget->setTabBar(targetPC->tabBarWidget);
 
   
     targetPC->dropSiteLayout->addWidget( targetPC->tabWidget );
