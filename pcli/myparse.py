@@ -49,6 +49,7 @@ def cmd_parse(args):
     if count > 0:
     	blank_delim = " "
     	zusamen = blank_delim.join(args[:count])
+	#print zusamen
     	return PY_Input.CallParser (zusamen)
 
     pass
@@ -97,10 +98,12 @@ def cloak_list_range(arg, is_name):
 #
 ################################################################################
 def return_none(args):
+    #print args
     cmd_parse(args)
     return
 
 def return_int(args):
+    #print args
     ret = cmd_parse(args)
     return ret
 
@@ -435,6 +438,7 @@ class CLI(code.InteractiveConsole):
     ##################################################################
     o_ss_str_subopts = { \
         "-h"             : "suboption:host_list",
+        "-c"             : "suboption:cluster_list",
         "-f"             : "suboption:file_list", \
         }
 
