@@ -38,6 +38,17 @@ extern "C"
     }
     bool splashFLAG=TRUE;
   
+    QString fontname = QString::null;
+    for(int i=0;i<argc;i++)
+    {
+      QString arg = argv[i];
+      if( arg == "-fn" || arg == "--fn" )
+      {
+        fontname = argv[i+1];
+        break;
+      }
+    }
+
     qapplication = new QApplication( argc, argv );
 
     if( argv == NULL )
@@ -97,6 +108,17 @@ extern "C"
 
     }
 
+    if( !fontname )
+    {
+      fontname = getenv("OPENSPEEDSHOP_FONTNAME");
+    }
+    if( fontname )
+    {
+      QFont m_font = QFont(fontname);
+//      m_font.setRawName(fontname);
+      qapplication->setFont(m_font);
+    }
+
     QPixmap *splash_pixmap = NULL;
     QSplashScreen *splash = NULL;
     if( splashFLAG )
@@ -108,24 +130,6 @@ extern "C"
       splash->message( "Loading plugins" );
       splash->raise();
     }
-
-#ifdef FONT_CHANGE
-    QFont m_font = QFont("Helvetica", 9, QFont::Normal );
-    m_font.setFixedPitch(TRUE);
-    qapplication->setFont(m_font);
-#endif // FONT_CHANGE
-#ifdef FONT_CHANGE
-    QFont m_font = QFont("Courier", 10, QFont::Normal );
-    m_font.setFixedPitch(TRUE);
-    qapplication->setFont(m_font);
-#endif // FONT_CHANGE
-  char *fontname = getenv("OPENSPEEDSHOP_FONTNAME");
-  if( fontname )
-  {
-    QFont m_font = QFont(fontname);
-    m_font.setRawName(fontname);
-    qapplication->setFont(m_font);
-  }
 
     OpenSpeedshop *w;
 
