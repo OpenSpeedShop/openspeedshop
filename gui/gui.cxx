@@ -98,6 +98,10 @@ extern "C"
       {
         usage();
         return 0; // Failure to complete...
+      } else if( arg == "-cli" )
+      {
+        // Valid: though not currently documented.   Just ignore 
+        // and fall through.
       } else if( !arg.contains("openspeedshop") )
       {
         printf("Unknown argument syntax: argument in question: (%s)\n", arg.ascii() );

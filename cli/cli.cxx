@@ -182,6 +182,7 @@ process_command(const char *command_buffer)
 {
 // printf("process_command: command_buffer=(%s)\n", command_buffer);
     char return_buffer[1024];
+    memset(return_buffer, 0, 1024);
     if( strncmp(command_buffer, "quit", 4) == 0  ||
         strncmp(command_buffer, "exit", 4) == 0 )
     {

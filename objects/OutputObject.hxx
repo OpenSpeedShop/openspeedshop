@@ -6,7 +6,7 @@ class OutputObject
 {
 public:
     OutputObject();
-    OutputObject(char *output_buffer);
+    OutputObject(char *buffer);
     ~OutputObject();
 
     void print();

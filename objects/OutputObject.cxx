@@ -17,10 +17,10 @@ OutputObject::OutputObject()
 //  dprintf("OutputObject::OutputObject(entered.\n");
 }
 
-OutputObject::OutputObject(char *output_buffer)
+OutputObject::OutputObject(char *buffer)
 {
 //  dprintf("OutputObject::OutputObject(entered.\n");
-  outputBuffer = strdup(output_buffer);
+  outputBuffer = strdup(buffer);
 }
 
 OutputObject::~OutputObject()
