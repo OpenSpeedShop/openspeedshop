@@ -207,7 +207,7 @@ void Frame::resizeEvent(QResizeEvent *e)
 /*! Fields the menu event to create the PanelContainer menu, then 
     request the current (raised) Panel add it's menu entries. */
 void
-Frame::contextMenuEvent( QContextMenuEvent * )
+Frame::contextMenuEvent( QContextMenuEvent *, bool localMenu )
 {
   bool *flag = NULL;
   if( getPanelContainer() == NULL )
@@ -233,7 +233,7 @@ Frame::contextMenuEvent( QContextMenuEvent * )
   nprintf(DEBUG_FRAMES) ("Frame::contextMenuEvent(%s-%s)\n",
     getPanelContainer()->getInternalName(), getPanelContainer()->getExternalName() );
 
-  getPanelContainer()->getMasterPC()->panelContainerContextMenuEvent( getPanelContainer(), FALSE );
+  getPanelContainer()->getMasterPC()->panelContainerContextMenuEvent( getPanelContainer(), localMenu );
 
   if( flag ) *flag = FALSE;
 }

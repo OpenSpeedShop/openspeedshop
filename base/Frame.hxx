@@ -42,13 +42,13 @@ public:
     //! A static flag indicating that a drag is taking place.
     static bool dragging;
 
+    //! The event callback for the menu to be create.
+    void contextMenuEvent ( QContextMenuEvent *, bool localMenu=FALSE );
   protected slots:
     //! The standard Qt slot to change language information.
     virtual void languageChange();
 
   private:
-    //! The event callback for the menu to be create.
-    void contextMenuEvent ( QContextMenuEvent * );
 
     //! The event callback that a resize needs to be handle.
     void resizeEvent ( QResizeEvent * );
