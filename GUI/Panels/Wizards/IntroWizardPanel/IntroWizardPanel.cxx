@@ -352,7 +352,7 @@ IntroWizardPanel::languageChange()
     vpage1FloatingPointRB->setText( tr( "I need to measure how many times I am causing Floating Point Exceptions." ) );
     vpage1InputOutputRB->setText( tr( "My program does a lot of Input and Output and I'd like to trace that work." ) );
     vpage1OtherRB->setText( tr( "I'm looking for something else.  Show me more options." ) );
-    vpage1NextButton->setText( tr( "Next" ) );
+    vpage1NextButton->setText( tr( "> Next" ) );
     epage1Header->setText( tr( "<h2>Welcome to OpenSpeedShop(tm)</h2>" ) );
     epage1Label->setText( tr( "Please select which of the following are true for your application:" ) );
     epage1LoadExperimentCheckBox->setText( tr( "Load experiment data" ) );
@@ -362,7 +362,7 @@ IntroWizardPanel::languageChange()
     epage1FloatingPointRB->setText( tr( "Floating Point Exceptions Tracing" ) );
     epage1InputOutputRB->setText( tr( "Input/Output Tracing" ) );
     epage1OtherRB->setText( tr( "Other ..." ) );
-    epage1NextButton->setText( tr( "Next" ) );
+    epage1NextButton->setText( tr( "> Next" ) );
     wizardMode->setText( tr( "Verbose Wizard Mode" ) );
     broughtToYouByLabel->setText( tr( "Brought to you by SGI (SiliconGraphics)" ) );
 }

@@ -796,7 +796,8 @@ pcSampleWizardPanel::languageChange()
 "PC sampling runs should slow the execution time of the program down no more than 5 percent. The measurements are statistical in nature, meaning they exhibit variance inversely proportional to the running time." ) );
     vHideWizardCheckBox->setText( tr( "Hide pc Sample Wizard next time pc Sample Experiment is selected.\n"
 "(Note: You can change this back by going to the pc Sampling local menu.)" ) );
-    vDescriptionPageStartButton->setText( tr( "Start" ) );
+    vDescriptionPageStartButton->setText( tr( "<< Start" ) );
+    QToolTip::add( vDescriptionPageStartButton, tr( "Takes you back to the Intro Wizard so you can make a different selection." ) );
     vDescriptionPageNextButton->setText( tr( "> Next" ) );
     QToolTip::add( vDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
     vParameterPageDescriptionLabel->setText( tr( "The following options (paramaters) are available to adjust.   These are the options the collector has exported.<br><br>\n"
