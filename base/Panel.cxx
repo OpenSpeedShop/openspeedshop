@@ -216,6 +216,15 @@ Panel::info( )
   nprintf(DEBUG_PANELS) ("Panel::info() entered\n");
 }
 
+/*! This routine loads and tracks a timer on a mouse move event.   Upon
+    entering a panel, the timer is loaded continually reset as the mouse
+    is moved within the panel.   Once the mouse stops, the timer is allowed
+    to progress.    Upon successful completion (a long enough pause) the
+    timer calls the (users)Panel::info() routine.   It's then up to the
+    (users)Panel::info() routine to do something smart.  Typically that
+    involves doing a QCursor::pos() and determining which line/item
+    wants to be acted upon.
+ */
 void
 Panel::armPanelsWhatsThis()
 {
