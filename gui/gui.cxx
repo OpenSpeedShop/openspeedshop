@@ -20,12 +20,14 @@ extern "C"
   {
     printf("openss, version - prepreprepreRelease 0.01\n");
     printf("usage: openss [-f executable] [-h host] [-x experiment_name]\n");
+    printf("              [-x experiment_name]\n");
     printf("              [-p process_ID [-r thread_rank] ]\n");
     printf("              [-a \"command line args\"]\n\n");
     printf("  -f : executable being measured\n");
     printf("  -h : host to locate target executable or process\n");
     printf("  -p : pid of target process\n");
     printf("  -r : rank of \n");
+    printf("  -x : experiement name\n");
     printf("  -a : quoted command line arguments to be passed to executable.\n");
     printf("\n");
     printf("Examples:\n");
@@ -161,6 +163,33 @@ if( cliFLAG )
     w->hostStr = hostStr;
     w->argsStr = argsStr;
 //    printf("create OpenSpeedshop()\n");
+
+if( w->expStr != NULL )
+{
+    if( w->expStr == "pcsamp" )
+    {
+      w->topPC->dl_create_and_add_panel("pc Sampling");
+    } else if( w->expStr == "usertime" )
+    {
+      w->topPC->dl_create_and_add_panel("User Time");
+    } else if( w->expStr == "fpe" )
+    {
+      w->topPC->dl_create_and_add_panel("FPE Tracing");
+    } else if( w->expStr == "hwc" )
+    {
+      w->topPC->dl_create_and_add_panel("HW Counter");
+    } else if( w->expStr == "io" )
+    { 
+      w->topPC->dl_create_and_add_panel("IO");
+    } else if( w->expStr == "mpi" )
+    { 
+      w->topPC->dl_create_and_add_panel("MPI");
+    } else
+    {
+      fprintf(stderr, "Unknown experiment type.   Try using the IntroWizard.\n");
+      exit(0);
+    }
+}
 
     w->show();
 //    printf("show OpenSpeedshop()\n");
