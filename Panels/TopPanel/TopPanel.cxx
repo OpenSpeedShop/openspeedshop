@@ -526,7 +526,7 @@ if( o == textEdit )
 {
   printf("o == chartForm\n");
 
-  int item = cf->getItemFromPos( p );
+  int item = cf->getItemFromPos( QCursor::pos() );
   QString msg;
   msg = QString("get information about item = %1\n").arg(item);
   displayWhatsThis(msg);
@@ -536,9 +536,9 @@ if( o == textEdit )
 
   QScrollBar *vscrollbar = textEdit->verticalScrollBar();
 #ifdef OLDWAY
-  QPoint pos = textEdit->mapFromGlobal( QCursor::pos() );
-#else // OLDWAY
   QPoint pos = textEdit->mapFromGlobal( p );
+#else // OLDWAY
+  QPoint pos = textEdit->mapFromGlobal( QCursor::pos() );
 #endif // OLDWAY
   pos.setY( pos.y() + vscrollbar->value() );
 

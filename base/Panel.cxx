@@ -226,6 +226,7 @@ Panel::info(QPoint, QObject *  )
   nprintf(DEBUG_PANELS) ("Panel::info() entered\n");
 }
 
+#ifdef OLDWAY
 /*! This routine loads and tracks a timer on a mouse move event.   Upon
     entering a panel, the timer is loaded continually reset as the mouse
     is moved within the panel.   Once the mouse stops, the timer is allowed
@@ -274,6 +275,7 @@ Panel::armPanelsWhatsThis()
     }
   }
 }
+#endif // OLDWAY
 
 void
 Panel::wakeupFromSleep()
@@ -297,5 +299,7 @@ Panel::displayWhatsThis(QString msg)
   getPanelContainer()->getMasterPC()->whatsThisActive = TRUE;
   getPanelContainer()->getMasterPC()->whatsThis = new WhatsThis( this );
   getPanelContainer()->getMasterPC()->whatsThis->display( msg, QCursor::pos() );
+//  getPanelContainer()->getMasterPC()->whatsThis->display( msg, mapToGlobal( QCursor::pos() ) );
+//  getPanelContainer()->getMasterPC()->whatsThis->display( msg, mapFromGlobal( QCursor::pos() ) );
 }
 

@@ -62,8 +62,10 @@ public:
     //! Displays a popup like help with message... (msg)
     void displayWhatsThis(QString msg);
 
+#ifdef OLDWAY
     //! In the interested widgets, contentsMouseMoveEvent(...) call this routine to manage the trigger.
     void armPanelsWhatsThis( );
+#endif // OLDWAY
 
     //! Returns the Panel name.
     const char *getName() { return name; }

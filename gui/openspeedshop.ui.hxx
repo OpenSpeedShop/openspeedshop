@@ -187,8 +187,8 @@ AppEventFilter::eventFilter( QObject *obj, QEvent *e )
   switch( e->type() )
   {
     case QEvent::MouseMove:
-      masterPC->last_pos  = QCursor::pos();
-      masterPC->last_pos  = QCursor::pos();
+//      masterPC->last_pos  = QCursor::pos();
+//      masterPC->last_pos  = QCursor::pos();
       if( masterPC->sleepTimer && masterPC->popupTimer )
       {
 //         printf("QEvent::MouseMove: we have timers!\n");

@@ -287,7 +287,8 @@ SourcePanel::info(QPoint p, QObject *target)
   int tew = 0;
   int vbw = 0;
 
-  QPoint pos = textEdit->mapFromGlobal( p );
+//  QPoint pos = textEdit->mapFromGlobal( p );
+  QPoint pos = textEdit->mapFromGlobal( QCursor::pos() );
 
   // If we have a vertical scrollbar, see if the event was generated 
   // in the scrollbar area.
