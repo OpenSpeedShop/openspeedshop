@@ -68,6 +68,8 @@ public:
     QPushButton* buttonOk;
     QPushButton* buttonCancel;
 
+    void readPreferencesOnEntry();
+    void savePreferencesOnExit();
 public slots:
     virtual void resetPreferenceDefaults();
     virtual void setGlobalPrecision();
@@ -83,6 +85,7 @@ public slots:
     virtual void listItemSelected(QListViewItem *);
     virtual void selectGlobalFont();
     virtual void setGlobalFont();
+    virtual void buttonOkSelected();
 
 protected:
     QVBoxLayout* PreferencesDialogLayout;

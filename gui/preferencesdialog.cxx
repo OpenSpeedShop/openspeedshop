@@ -200,7 +200,8 @@ categoryListView->setSortColumn( -1 );
     clearWState( WState_Polished );
 
     // signals and slots connections
-    connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
+//    connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
+    connect( buttonOk, SIGNAL( clicked() ), this, SLOT( buttonOkSelected() ) );
     connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
     connect( setFontButton, SIGNAL( clicked() ), this, SLOT( selectGlobalFont() ) );
     connect( fontLineEdit, SIGNAL( returnPressed() ), this, SLOT( setGlobalFont() ) );
@@ -214,6 +215,8 @@ categoryListView->setSortColumn( -1 );
     connect( sortDecendingCheckBox, SIGNAL( stateChanged(int) ), this, SLOT( setSortDescending() ) );
     connect( showTopNLineEdit, SIGNAL( selectionChanged() ), this, SLOT( setShowTopN() ) );
     connect( categoryListView, SIGNAL( clicked(QListViewItem*) ), this, SLOT( listItemSelected(QListViewItem*) ) );
+
+    readPreferencesOnEntry();
 }
 
 /*

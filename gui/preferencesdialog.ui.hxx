@@ -1,3 +1,39 @@
+#include <qsettings.h>
+#include <qapplication.h>
+
+void PreferencesDialog::readPreferencesOnEntry()
+{
+
+printf("readPreferencesOnEntry() entered\n");
+
+  QSettings settings;
+//  settings.insertSearchPath( QSettings::Unix, "openspeedshop" );
+  // No search path needed for Unix; see notes further on.
+  QString ds = QString::null;
+  bool ok;
+
+
+  settings.readEntry( "/openspeedshop/general/globalFontFamily", ds, &ok);
+  if( ok == FALSE )
+  {
+    printf("Didn't find any defaults file.  Just take the defaults.\n");
+    return;
+  }
+
+  fontLineEdit->setText( settings.readEntry( "/openspeedshop/general/globalFontFamily" ));
+  precisionLineEdit->setText( settings.readEntry( "/openspeedshop/general/globalPrecision" ));
+
+  setShowSplashScreenCheckBox->setChecked(settings.readBoolEntry( "/openspeedshop/general/showSplashScreen") );
+  setShowColoredTabsCheckBox->setChecked(settings.readBoolEntry( "/openspeedshop/general/showColoredTabs") );
+  deleteEmptyPCCheckBox->setChecked(settings.readBoolEntry( "/openspeedshop/general/deleteEmptyPC") );
+  showGraphicsCheckBox->setChecked(settings.readBoolEntry( "/openspeedshop/general/showGraphics") );
+  showStatisticsCheckBox->setChecked(settings.readBoolEntry( "/openspeedshop/source panel/showStatistics") );
+  showLineNumbersCheckBox->setChecked(settings.readBoolEntry( "/openspeedshop/source panel/showLineNumber") );
+  sortDecendingCheckBox->setChecked(settings.readEntry( "/openspeedshop/stats panel/sortDecending") );
+
+  showTopNLineEdit->setText( settings.readEntry( "/openspeedshop/stats panel/showTopN" ));
+}
+
 void PreferencesDialog::resetPreferenceDefaults()
 {
     qWarning( "PreferencesDialog::resetPreferenceDefaults(): Not implemented yet" );
@@ -89,3 +125,28 @@ void PreferencesDialog::setGlobalFont()
     qWarning( "PreferencesDialog::setGlobalFont(): Not implemented yet" );
 }
 
+void PreferencesDialog::buttonOkSelected()
+{
+    qWarning( "PreferencesDialog::buttonOkSelected(): Not implemented yet" );
+
+    hide();
+}
+
+void PreferencesDialog::savePreferencesOnExit()
+{
+    qWarning( "PreferencesDialog::savePreferencesOnExit(): Not implemented yet" );
+
+  QSettings settings;
+//  settings.insertSearchPath( QSettings::Unix, "openspeedshop" );
+  // No search path needed for Unix; see notes further on.
+  settings.writeEntry( "/openspeedshop/general/globalFontFamily", qApp->font().family() );
+  settings.writeEntry( "/openspeedshop/general/globalPrecision", precisionLineEdit->text() );
+  settings.writeEntry( "/openspeedshop/general/showSplashScreen", setShowSplashScreenCheckBox->isChecked() );
+  settings.writeEntry( "/openspeedshop/general/showColoredTabs", setShowColoredTabsCheckBox->isChecked() );
+  settings.writeEntry( "/openspeedshop/general/deleteEmptyPC", deleteEmptyPCCheckBox->isChecked() );
+  settings.writeEntry( "/openspeedshop/general/showGraphics", showGraphicsCheckBox->isChecked() );
+  settings.writeEntry( "/openspeedshop/source panel/showStatistics", showStatisticsCheckBox->isChecked() );
+  settings.writeEntry( "/openspeedshop/source panel/showLineNumber", showLineNumbersCheckBox->isChecked() );
+  settings.writeEntry( "/openspeedshop/stats panel/sortDecending", sortDecendingCheckBox->isChecked() );
+  settings.writeEntry( "/openspeedshop/stats panel/showTopN", showTopNLineEdit->text() );
+}

@@ -157,6 +157,8 @@ void OpenSpeedshop::fileExit()
 {
   dprintf("fileExit() entered.\n");
 
+  topPC->getMainWindow()->preferencesDialog->savePreferencesOnExit();
+
  /* close all the panel containers.   Well all except the masterPC's
     That one we need to do explicitly. (See the next line.) */
  ((PanelContainer *)topPC)->getMasterPC()->closeAllExternalPanelContainers();
