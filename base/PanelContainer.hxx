@@ -100,7 +100,7 @@ class PanelContainer : public QWidget
 
     //! This is the registry of all known gui plugins.
     /*! At runtime this registry is created by doing dlopens on all the
-        dynamic libraries in the OPENSPEEDSHOP_PLUGIN_PATH. */
+        dynamic libraries. */
     PluginRegistryList *_pluginRegistryList;
 
     //! Used to launch a plugin's Panel entry.
