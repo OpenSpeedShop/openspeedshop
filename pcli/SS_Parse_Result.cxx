@@ -482,3 +482,24 @@ set_error(char * name1, char * name2)
     return ;
 }
  
+/**
+ * Method: ParseResult::set_error(char * name)
+ * 
+ *     
+ * @return  void.
+ *
+ * @todo    Error handling.
+ *
+ */
+void
+ParseResult::
+set_error(char * name)
+{
+    ParseRange range(name);
+
+    dm_error_set = true;
+    dm_error_list.push_back(range);
+
+    return ;
+}
+ 

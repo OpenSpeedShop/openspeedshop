@@ -234,6 +234,7 @@ class ParseResult {
 
     	/** Syntax error handling. */
     	void set_error(char * name1, char * name2);
+    	void set_error(char * name);
 	bool syntax_error( ) { return dm_error_set;}
     	vector<ParseRange> * getErrorList() {return &dm_error_list;}
 
