@@ -1,4 +1,4 @@
-#include "pcSampleWizardPanel.hxx"   // Change this to your new class header file name
+#include "pcSampleWizardPanel.hxx"
 #include "PanelContainer.hxx"   // Do not remove
 #include "plugin_entry_point.hxx"   // Do not remove
 #include "AttachProcessDialog.hxx"
@@ -201,6 +201,11 @@ pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n, char
   vAttachOrLoadPageExecutableLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageExecutableLabel ) );
   vAttachOrLoadPageAttachOrLoadLayout->addWidget( vAttachOrLoadPageExecutableLabel );
 
+  vAttachOrLoadPageLoadDifferentExecutableCheckBox = new QCheckBox( vAttachOrLoadPageWidget, "vAttachOrLoadPageLoadDifferentExecutableCheckBox" );
+  vAttachOrLoadPageAttachOrLoadLayout->addWidget( vAttachOrLoadPageLoadDifferentExecutableCheckBox );
+  vAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
+  vAttachOrLoadPageLoadDifferentExecutableCheckBox->hide();
+
   vAttachOrLoadPageSampleRateLayout = new QHBoxLayout( 0, 0, 6, "vAttachOrLoadPageSampleRateLayout"); 
 
   vAttachOrLoadPageLayout->addLayout( vAttachOrLoadPageAttachOrLoadLayout );
@@ -368,6 +373,7 @@ pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n, char
 
   eAttachOrLoadPageProcessListLabel = new QLabel( eAttachOrLoadPageWidget, "eAttachOrLoadPageProcessListLabel" );
   eAttachOrLoadPageProcessListLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, eAttachOrLoadPageProcessListLabel ) );
+
   eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageProcessListLabel );
 
   eAttachOrLoadPageLoadExecutableCheckBox = new QCheckBox( eAttachOrLoadPageWidget, "eAttachOrLoadPageLoadExecutableCheckBox" );
@@ -376,6 +382,11 @@ pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n, char
   eAttachOrLoadPageExecutableLabel = new QLabel( eAttachOrLoadPageWidget, "eAttachOrLoadPageExecutableLabel" );
   eAttachOrLoadPageExecutableLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, eAttachOrLoadPageExecutableLabel ) );
   eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageExecutableLabel );
+
+  eAttachOrLoadPageLoadDifferentExecutableCheckBox = new QCheckBox( eAttachOrLoadPageWidget, "eAttachOrLoadPageLoadDifferentExecutableCheckBox" );
+  eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageLoadDifferentExecutableCheckBox );
+  eAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
+  eAttachOrLoadPageLoadDifferentExecutableCheckBox->hide();
 
   eAttachOrLoadPageLayout->addLayout( eAttachOrLoadPageAttachOrLoadLayout );
   eAttachOrLoadPageSpacer = new QSpacerItem( 20, 70, QSizePolicy::Minimum, QSizePolicy::Expanding );
@@ -452,49 +463,90 @@ pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n, char
   clearWState( WState_Polished );
 
     // signals and slots connections
-  connect( eDescriptionPageNextButton, SIGNAL( clicked() ), this, SLOT( eDescriptionPageNextButtonSelected() ) );
-  connect( eDescriptionPageIntroButton, SIGNAL( clicked() ), this, SLOT( eDescriptionPageIntroButtonSelected() ) );
-  connect( eParameterPageBackButton, SIGNAL( clicked() ), this, SLOT( eParameterPageBackButtonSelected() ) );
-  connect( eParameterPageNextButton, SIGNAL( clicked() ), this, SLOT( eParameterPageNextButtonSelected() ) );
-  connect( eParameterPageResetButton, SIGNAL( clicked() ), this, SLOT( eParameterPageResetButtonSelected() ) );
-  connect( eParameterPageSampleRateText, SIGNAL( returnPressed() ), this, SLOT( eParameterPageSampleRateTextReturnPressed() ) );
+  connect( eDescriptionPageNextButton, SIGNAL( clicked() ), this,
+           SLOT( eDescriptionPageNextButtonSelected() ) );
+  connect( eDescriptionPageIntroButton, SIGNAL( clicked() ), this,
+           SLOT( eDescriptionPageIntroButtonSelected() ) );
+  connect( eParameterPageBackButton, SIGNAL( clicked() ), this,
+           SLOT( eParameterPageBackButtonSelected() ) );
+  connect( eParameterPageNextButton, SIGNAL( clicked() ), this,
+           SLOT( eParameterPageNextButtonSelected() ) );
+  connect( eParameterPageResetButton, SIGNAL( clicked() ), this,
+           SLOT( eParameterPageResetButtonSelected() ) );
+  connect( eParameterPageSampleRateText, SIGNAL( returnPressed() ), this,
+           SLOT( eParameterPageSampleRateTextReturnPressed() ) );
 
-  connect( eAttachOrLoadPageBackButton, SIGNAL( clicked() ), this, SLOT( eAttachOrLoadPageBackButtonSelected() ) );
-  connect( eAttachOrLoadPageNextButton, SIGNAL( clicked() ), this, SLOT( eAttachOrLoadPageNextButtonSelected() ) );
-  connect( eAttachOrLoadPageNextButton, SIGNAL( clicked() ), this, SLOT( eAttachOrLoadPageNextButtonSelected() ) );
+  connect( eAttachOrLoadPageBackButton, SIGNAL( clicked() ), this,
+           SLOT( eAttachOrLoadPageBackButtonSelected() ) );
+  connect( eAttachOrLoadPageNextButton, SIGNAL( clicked() ), this,
+           SLOT( eAttachOrLoadPageNextButtonSelected() ) );
+  connect( eAttachOrLoadPageNextButton, SIGNAL( clicked() ), this,
+           SLOT( eAttachOrLoadPageNextButtonSelected() ) );
 
-  connect( eSummaryPageBackButton, SIGNAL( clicked() ), this, SLOT( eSummaryPageBackButtonSelected() ) );
-  connect( eSummaryPageFinishButton, SIGNAL( clicked() ), this, SLOT( eSummaryPageFinishButtonSelected() ) );
-  connect( vDescriptionPageNextButton, SIGNAL( clicked() ), this, SLOT( vDescriptionPageNextButtonSelected() ) );
-  connect( vDescriptionPageIntroButton, SIGNAL( clicked() ), this, SLOT( vDescriptionPageIntroButtonSelected() ) );
-  connect( vParameterPageSampleRateText, SIGNAL( returnPressed() ), this, SLOT( vParameterPageSampleRateTextReturnPressed() ) );
-  connect( vParameterPageBackButton, SIGNAL( clicked() ), this, SLOT( vParameterPageBackButtonSelected() ) );
-  connect( vParameterPageResetButton, SIGNAL( clicked() ), this, SLOT( vParameterPageResetButtonSelected() ) );
-  connect( vParameterPageNextButton, SIGNAL( clicked() ), this, SLOT( vParameterPageNextButtonSelected() ) );
+  connect( eSummaryPageBackButton, SIGNAL( clicked() ), this,
+           SLOT( eSummaryPageBackButtonSelected() ) );
+  connect( eSummaryPageFinishButton, SIGNAL( clicked() ), this,
+           SLOT( eSummaryPageFinishButtonSelected() ) );
+  connect( vDescriptionPageNextButton, SIGNAL( clicked() ), this,
+           SLOT( vDescriptionPageNextButtonSelected() ) );
+  connect( vDescriptionPageIntroButton, SIGNAL( clicked() ), this,
+           SLOT( vDescriptionPageIntroButtonSelected() ) );
+  connect( vParameterPageSampleRateText, SIGNAL( returnPressed() ), this,
+           SLOT( vParameterPageSampleRateTextReturnPressed() ) );
+  connect( vParameterPageBackButton, SIGNAL( clicked() ), this,
+           SLOT( vParameterPageBackButtonSelected() ) );
+  connect( vParameterPageResetButton, SIGNAL( clicked() ), this,
+           SLOT( vParameterPageResetButtonSelected() ) );
+  connect( vParameterPageNextButton, SIGNAL( clicked() ), this,
+           SLOT( vParameterPageNextButtonSelected() ) );
 
-  connect( vAttachOrLoadPageBackButton, SIGNAL( clicked() ), this, SLOT( vAttachOrLoadPageBackButtonSelected() ) );
-  connect( vAttachOrLoadPageClearButton, SIGNAL( clicked() ), this, SLOT( vAttachOrLoadPageClearButtonSelected() ) );
+  connect( vAttachOrLoadPageBackButton, SIGNAL( clicked() ), this,
+           SLOT( vAttachOrLoadPageBackButtonSelected() ) );
+  connect( vAttachOrLoadPageClearButton, SIGNAL( clicked() ), this,
+           SLOT( vAttachOrLoadPageClearButtonSelected() ) );
+  connect( eAttachOrLoadPageClearButton, SIGNAL( clicked() ), this,
+           SLOT( eAttachOrLoadPageClearButtonSelected() ) );
 
 
-  connect( vAttachOrLoadPageAttachToProcessCheckBox, SIGNAL( clicked() ), this, SLOT( vAttachOrLoadPageAttachToProcessCheckBoxSelected() ) );
-  connect( eAttachOrLoadPageAttachToProcessCheckBox, SIGNAL( clicked() ), this, SLOT( eAttachOrLoadPageAttachToProcessCheckBoxSelected() ) );
-  connect( vAttachOrLoadPageLoadExecutableCheckBox, SIGNAL( clicked() ), this, SLOT( vAttachOrLoadPageLoadExecutableCheckBoxSelected() ) );
-  connect( eAttachOrLoadPageLoadExecutableCheckBox, SIGNAL( clicked() ), this, SLOT( eAttachOrLoadPageLoadExecutableCheckBoxSelected() ) );
+  connect( vAttachOrLoadPageAttachToProcessCheckBox, SIGNAL( clicked() ), this,
+           SLOT( vAttachOrLoadPageAttachToProcessCheckBoxSelected() ) );
+  connect( eAttachOrLoadPageAttachToProcessCheckBox, SIGNAL( clicked() ), this,
+           SLOT( eAttachOrLoadPageAttachToProcessCheckBoxSelected() ) );
+  connect( vAttachOrLoadPageLoadExecutableCheckBox, SIGNAL( clicked() ), this,
+           SLOT( vAttachOrLoadPageLoadExecutableCheckBoxSelected() ) );
+  connect( eAttachOrLoadPageLoadExecutableCheckBox, SIGNAL( clicked() ), this,
+           SLOT( eAttachOrLoadPageLoadExecutableCheckBoxSelected() ) );
+  connect( vAttachOrLoadPageLoadDifferentExecutableCheckBox, 
+           SIGNAL( clicked() ), this,
+           SLOT( vAttachOrLoadPageLoadDifferentExecutableCheckBoxSelected() ) );
+  connect( eAttachOrLoadPageLoadDifferentExecutableCheckBox, 
+           SIGNAL( clicked() ), this,
+           SLOT( eAttachOrLoadPageLoadDifferentExecutableCheckBoxSelected() ) );
 
+  connect( vAttachOrLoadPageNextButton, SIGNAL( clicked() ), this,
+           SLOT( vAttachOrLoadPageNextButtonSelected() ) );
 
-  connect( vAttachOrLoadPageNextButton, SIGNAL( clicked() ), this, SLOT( vAttachOrLoadPageNextButtonSelected() ) );
+  connect( vSummaryPageBackButton, SIGNAL( clicked() ), this,
+           SLOT( vSummaryPageBackButtonSelected() ) );
+  connect( vSummaryPageFinishButton, SIGNAL( clicked() ), this,
+           SLOT( vSummaryPageFinishButtonSelected() ) );
+  connect( wizardMode, SIGNAL( clicked() ), this,
+           SLOT( wizardModeSelected() ) );
 
-  connect( vSummaryPageBackButton, SIGNAL( clicked() ), this, SLOT( vSummaryPageBackButtonSelected() ) );
-  connect( vSummaryPageFinishButton, SIGNAL( clicked() ), this, SLOT( vSummaryPageFinishButtonSelected() ) );
-  connect( wizardMode, SIGNAL( clicked() ), this, SLOT( wizardModeSelected() ) );
-
-  connect( eDescriptionPageFinishButton, SIGNAL( clicked() ), this, SLOT( finishButtonSelected() ) );
-  connect( eParameterPageFinishButton, SIGNAL( clicked() ), this, SLOT( finishButtonSelected() ) );
-  connect( eAttachOrLoadPageFinishButton, SIGNAL( clicked() ), this, SLOT( finishButtonSelected() ) );
-  connect( eAttachOrLoadPageFinishButton, SIGNAL( clicked() ), this, SLOT( finishButtonSelected() ) );
-  connect( vDescriptionPageFinishButton, SIGNAL( clicked() ), this, SLOT( finishButtonSelected() ) );
-  connect( vParameterPageFinishButton, SIGNAL( clicked() ), this, SLOT( finishButtonSelected() ) );
-  connect( vAttachOrLoadPageFinishButton, SIGNAL( clicked() ), this, SLOT( finishButtonSelected() ) );
+  connect( eDescriptionPageFinishButton, SIGNAL( clicked() ), this,
+           SLOT( finishButtonSelected() ) );
+  connect( eParameterPageFinishButton, SIGNAL( clicked() ), this,
+           SLOT( finishButtonSelected() ) );
+  connect( eAttachOrLoadPageFinishButton, SIGNAL( clicked() ), this,
+           SLOT( finishButtonSelected() ) );
+  connect( eAttachOrLoadPageFinishButton, SIGNAL( clicked() ), this,
+           SLOT( finishButtonSelected() ) );
+  connect( vDescriptionPageFinishButton, SIGNAL( clicked() ), this,
+           SLOT( finishButtonSelected() ) );
+  connect( vParameterPageFinishButton, SIGNAL( clicked() ), this,
+           SLOT( finishButtonSelected() ) );
+  connect( vAttachOrLoadPageFinishButton, SIGNAL( clicked() ), this,
+           SLOT( finishButtonSelected() ) );
 
   sv->viewport()->setBackgroundColor(getBaseWidgetFrame()->backgroundColor() );
 
@@ -611,7 +663,8 @@ void pcSampleWizardPanel::wizardModeSelected()
     }
   } else
   {
-    eUpdateAttachOrLoadPageWidget();
+//    eUpdateAttachOrLoadPageWidget();
+    vUpdateAttachOrLoadPageWidget();
     if( raisedWidget == vDescriptionPageWidget )
     {
         nprintf(DEBUG_PANELS) ("vDescriptionPageWidget\n");
@@ -674,7 +727,8 @@ void pcSampleWizardPanel::eParameterPageNextButtonSelected()
 
   sampleRate = eParameterPageSampleRateText->text();
 
-  eUpdateAttachOrLoadPageWidget();
+//  eUpdateAttachOrLoadPageWidget();
+  vUpdateAttachOrLoadPageWidget();
 
   mainWidgetStack->raiseWidget(eAttachOrLoadPageWidget);
 }
@@ -717,11 +771,13 @@ void pcSampleWizardPanel::eAttachOrLoadPageClearButtonSelected()
     OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
     if( mw )
     {
+printf("Clear out the mw->executableName\n");
       mw->executableName = QString::null;
       mw->pidStr = QString::null;
     }
   }
-  eUpdateAttachOrLoadPageWidget();
+//  eUpdateAttachOrLoadPageWidget();
+  vUpdateAttachOrLoadPageWidget();
 }
 
 
@@ -731,7 +787,8 @@ void pcSampleWizardPanel::eAttachOrLoadPageNextButtonSelected()
 
   char buffer[2048];
   if( !eAttachOrLoadPageAttachToProcessCheckBox->isChecked() &&
-      !eAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
+      !eAttachOrLoadPageLoadExecutableCheckBox->isChecked() &&
+      !eAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() ) 
   {
     QString msg = QString("You must either select the option to attach to an \nexisting process or load an executable.  Please select one.\n");
     QMessageBox::information( (QWidget *)this, "Process or executable needed...",
@@ -767,9 +824,11 @@ void pcSampleWizardPanel::eAttachOrLoadPageNextButtonSelected()
       sprintf(buffer, "<p align=\"left\">Requesting to load process \"%s\" on host \"%s\",  sampling at \"%s\" milliseconds.<br><br></p>", mw->pidStr.ascii(), "localhost", eParameterPageSampleRateText->text().ascii() );
     }
   }
-  if( eAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
+  if( eAttachOrLoadPageLoadExecutableCheckBox->isChecked() ||
+      eAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() )
   {
-    if( mw->executableName.isEmpty() )
+    if( mw->executableName.isEmpty() ||
+        eAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() )
     {
       nprintf(DEBUG_PANELS) ("Load the QFile \n");
       mw->fileLoadNewProgram();
@@ -869,6 +928,7 @@ void pcSampleWizardPanel::vAttachOrLoadPageAttachToProcessCheckBoxSelected()
   if( vAttachOrLoadPageAttachToProcessCheckBox->isChecked() )
   {
     vAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
+    vAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
   }
 }
 
@@ -877,6 +937,7 @@ void pcSampleWizardPanel::eAttachOrLoadPageAttachToProcessCheckBoxSelected()
   if( eAttachOrLoadPageAttachToProcessCheckBox->isChecked() )
   {
     eAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
+    eAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
   }
 }
 
@@ -884,6 +945,16 @@ void pcSampleWizardPanel::vAttachOrLoadPageLoadExecutableCheckBoxSelected()
 {
   if( vAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
   {
+    vAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
+    vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+  }
+}
+
+void pcSampleWizardPanel::vAttachOrLoadPageLoadDifferentExecutableCheckBoxSelected()
+{
+  if( vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() )
+  {
+    vAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
     vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
   }
 }
@@ -892,10 +963,19 @@ void pcSampleWizardPanel::eAttachOrLoadPageLoadExecutableCheckBoxSelected()
 {
   if( eAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
   {
+    eAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
     eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
   }
 }
 
+void pcSampleWizardPanel::eAttachOrLoadPageLoadDifferentExecutableCheckBoxSelected()
+{
+  if( eAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() )
+  {
+    eAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
+    eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+  }
+}
 void pcSampleWizardPanel::vAttachOrLoadPageNextButtonSelected()
 {
   nprintf(DEBUG_PANELS) ("vAttachOrLoadPageNextButtonSelected() \n");
@@ -903,7 +983,8 @@ void pcSampleWizardPanel::vAttachOrLoadPageNextButtonSelected()
   char buffer[2048];
 
   if( !vAttachOrLoadPageAttachToProcessCheckBox->isChecked() &&
-      !vAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
+      !vAttachOrLoadPageLoadExecutableCheckBox->isChecked() &&
+      !vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() )
   {
     QString msg = QString("You must either select the option to attach to an \nexisting process or load an executable.  Please select one.\n");
     QMessageBox::information( (QWidget *)this, "Process or executable needed...",
@@ -938,9 +1019,11 @@ void pcSampleWizardPanel::vAttachOrLoadPageNextButtonSelected()
     }
     sprintf(buffer, "<p align=\"left\">You've selected a pc Sample experiment for process \"%s\" running on host \"%s\".  Futher you've chosed a sample rate of \"%s\" milliseconds.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"pcSample\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->pidStr.ascii(), "localhost", vParameterPageSampleRateText->text().ascii() );
   }
-  if( vAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
+  if( vAttachOrLoadPageLoadExecutableCheckBox->isChecked() ||
+      vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() )
   {
-    if( mw->executableName.isEmpty() )
+    if( mw->executableName.isEmpty() ||
+        vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() )
     {
       nprintf(DEBUG_PANELS) ("Load the QFile \n");
       mw->loadNewProgram();
@@ -984,7 +1067,8 @@ void pcSampleWizardPanel::finishButtonSelected()
     } else
     {
       mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
-      eUpdateAttachOrLoadPageWidget();
+//      eUpdateAttachOrLoadPageWidget();
+      vUpdateAttachOrLoadPageWidget();
       eAttachOrLoadPageNextButtonSelected();
     }
   } else
@@ -1065,6 +1149,7 @@ pcSampleWizardPanel::languageChange()
   vAttachOrLoadPageDescriptionLabel->setText( tr( "We can attach to an existing process (or processes) or load an executable from disk .  Please select the desired action.<br><br>Note: A dialog will be posted prompting for the information.</p>") );
   vAttachOrLoadPageAttachToProcessCheckBox->setText( tr( "Attach to one or more processes." ) );
   vAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load an executable from disk." ) );
+vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new executable from disk." ) );
   vAttachOrLoadPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( vAttachOrLoadPageBackButton, tr( "Takes you back one page." ) );
   vAttachOrLoadPageClearButton->setText( tr( "Clear" ) );
@@ -1102,6 +1187,7 @@ pcSampleWizardPanel::languageChange()
   eAttachOrLoadPageDescriptionLabel->setText( tr( "Select one of the following:" ) );
   eAttachOrLoadPageAttachToProcessCheckBox->setText( tr( "Attach to one or more processes." ) );
   eAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load an executable from disk." ) );
+  eAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new executable from disk." ) );
   eAttachOrLoadPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( eAttachOrLoadPageBackButton, tr( "Takes you back one page." ) );
   eAttachOrLoadPageClearButton->setText( tr( "Clear" ) );
@@ -1122,51 +1208,13 @@ pcSampleWizardPanel::languageChange()
 }
 
 void
-pcSampleWizardPanel::eUpdateAttachOrLoadPageWidget()
-{
-  vAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
-  vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
-  eAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
-  eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
-  vAttachOrLoadPageProcessListLabel->hide();
-  eAttachOrLoadPageProcessListLabel->hide();
-  vAttachOrLoadPageExecutableLabel->hide();
-  eAttachOrLoadPageExecutableLabel->hide();
-  if( getPanelContainer()->getMainWindow() )
-  { 
-    OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
-//    printf("mw=0x%x\n", mw );
-    if( mw )
-    {
-      if( !mw->executableName.isEmpty() )
-      {
-        eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
-        eAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
-        eAttachOrLoadPageExecutableLabel->setText( mw->executableName );
-      } else if( !mw->pidStr.isEmpty() )
-      {
-        eAttachOrLoadPageProcessListLabel->setText( mw->pidStr );
-        eAttachOrLoadPageAttachToProcessCheckBox->setChecked(TRUE);
-        eAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
-      }
-      if( mw->executableName.isEmpty() )
-      {
-        vAttachOrLoadPageExecutableLabel->setText( "" );
-      }
-      if( mw->pidStr.isEmpty() )
-      {
-        vAttachOrLoadPageProcessListLabel->setText( mw->pidStr );
-      }
-    }
-  } 
-}
-
-void
 pcSampleWizardPanel::vUpdateAttachOrLoadPageWidget()
 {
+  vAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
   vAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
   vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
   eAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
+  eAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
   eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
   vAttachOrLoadPageProcessListLabel->hide();
   eAttachOrLoadPageProcessListLabel->hide();
@@ -1175,32 +1223,47 @@ pcSampleWizardPanel::vUpdateAttachOrLoadPageWidget()
   if( getPanelContainer()->getMainWindow() )
   {
     OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
-//    printf("mw=0x%x\n", mw );
+printf("mw=0x%x\n", mw );
     if( mw )
     {
       if( !mw->executableName.isEmpty() )
       {
         vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+        eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
         vAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
+        eAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
         vAttachOrLoadPageExecutableLabel->setText( mw->executableName );
+        eAttachOrLoadPageExecutableLabel->setText( mw->executableName );
         vAttachOrLoadPageExecutableLabel->show();
         eAttachOrLoadPageExecutableLabel->show();
+        vAttachOrLoadPageLoadDifferentExecutableCheckBox->show();
+        eAttachOrLoadPageLoadDifferentExecutableCheckBox->show();
       } else if( !mw->pidStr.isEmpty() )
       {
         vAttachOrLoadPageAttachToProcessCheckBox->setChecked(TRUE);
+        eAttachOrLoadPageAttachToProcessCheckBox->setChecked(TRUE);
         vAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
+        eAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
         vAttachOrLoadPageProcessListLabel->setText( mw->pidStr );
+        eAttachOrLoadPageProcessListLabel->setText( mw->pidStr );
         vAttachOrLoadPageProcessListLabel->show();
         eAttachOrLoadPageProcessListLabel->show();
+        vAttachOrLoadPageLoadDifferentExecutableCheckBox->hide();
+        eAttachOrLoadPageLoadDifferentExecutableCheckBox->hide();
       }
     }
     if( mw->executableName.isEmpty() )
     {
       vAttachOrLoadPageExecutableLabel->setText( "" );
+      eAttachOrLoadPageExecutableLabel->setText( "" );
+printf("here!\n");
+      vAttachOrLoadPageLoadDifferentExecutableCheckBox->hide();
+      eAttachOrLoadPageLoadDifferentExecutableCheckBox->hide();
     }
     if( mw->pidStr.isEmpty() )
     {
       vAttachOrLoadPageProcessListLabel->setText( mw->pidStr );
+      eAttachOrLoadPageProcessListLabel->setText( mw->pidStr );
     }
   }
 }

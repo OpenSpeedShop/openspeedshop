@@ -110,6 +110,7 @@ public:
     QFrame* vAttachOrLoadPageLine;
     QCheckBox* vAttachOrLoadPageAttachToProcessCheckBox;
     QCheckBox* vAttachOrLoadPageLoadExecutableCheckBox;
+QCheckBox* vAttachOrLoadPageLoadDifferentExecutableCheckBox;
     QPushButton* vAttachOrLoadPageBackButton;
     QPushButton* vAttachOrLoadPageNextButton;
     QPushButton* vAttachOrLoadPageFinishButton;
@@ -139,6 +140,7 @@ public:
     QFrame* eAttachOrLoadPageLine;
     QCheckBox* eAttachOrLoadPageAttachToProcessCheckBox;
     QCheckBox* eAttachOrLoadPageLoadExecutableCheckBox;
+QCheckBox* eAttachOrLoadPageLoadDifferentExecutableCheckBox;
     QPushButton* eAttachOrLoadPageBackButton;
     QPushButton* eAttachOrLoadPageNextButton;
     QPushButton* eAttachOrLoadPageFinishButton;
@@ -177,8 +179,10 @@ public slots:
     virtual void vAttachOrLoadPageAttachToProcessCheckBoxSelected();
     virtual void eAttachOrLoadPageAttachToProcessCheckBoxSelected();
     virtual void vAttachOrLoadPageLoadExecutableCheckBoxSelected();
+virtual void vAttachOrLoadPageLoadDifferentExecutableCheckBoxSelected();
     virtual void eAttachOrLoadPageLoadExecutableCheckBoxSelected();
-virtual void finishButtonSelected();
+virtual void eAttachOrLoadPageLoadDifferentExecutableCheckBoxSelected();
+    virtual void finishButtonSelected();
 
 protected:
     QVBoxLayout* mainFrameLayout;
