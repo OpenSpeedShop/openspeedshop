@@ -272,6 +272,10 @@ Process::Process(const std::string& host, const std::string& command) :
     AisStatus retval = dm_process->bcreate(dm_host.c_str(),
 					   argv[0], argv, ::environ,
 					   stdoutCB, NULL, stderrCB, NULL);
+
+    // WDH: NEXT LINE IS DEBUGGING ONLY
+    printf("WDH: Process::bcreate() = %s\n", retval.status_name());
+
     if(retval.status() == ASC_failure) {
 	MainLoop::resume();
 	throw std::runtime_error("Cannot create process to execute the "
@@ -350,6 +354,10 @@ Process::Process(const std::string& host, const pid_t& pid) :
     // Ask DPCL to connect and attach to the process
     MainLoop::suspend();    
     AisStatus retval = dm_process->bconnect();    
+
+    // WDH: NEXT LINE IS DEBUGGING ONLY
+    printf("WDH: Process::bconnect() = %s\n", retval.status_name());
+    
     if((retval.status() == ASC_invalid_pid) ||
        (retval.status() == ASC_unknown_status)) {
 	MainLoop::resume();
