@@ -16,66 +16,128 @@ class PanelContainer;   // Do not remove
 #include <qlayout.h>
 
 #include <qvaluelist.h>
-#ifdef OLDWAY
-class HighlightObject;
-typedef QValueList<HighlightObject *>HighlightList;
-#else // OLDWAY
 #include "HighlightObject.hxx"
-#endif // OLDWAY
 
 #define PANEL_CLASS_NAME SourcePanel   // Change the value of the define
                                          // to the name of your new class.
+//! Source display widget.
 class SourcePanel  : public Panel
 {
   Q_OBJECT
 public:
-  SourcePanel();  // Default construct
-  SourcePanel(PanelContainer *pc, const char *n); // Active constructor
-  ~SourcePanel();  // Active destructor
+  //! Default constructor.  Unused.
+  SourcePanel();
 
+  //! Constructor for the SourcePanel.
+  SourcePanel(PanelContainer *pc, const char *n);
+
+  //! SourcePanel destructor.
+  ~SourcePanel();
+
+  //! Context menu for the source.
   bool menu(QPopupMenu* contextMenu);
+
+  //! Save the source to a file.
   void save();
+
+  //! Save the source to a named file.
   void saveAs();
+
+  //! The listener routine for fielding messages.
   int listener(char *msg);
+
+  //! The broadcaster for sending messages.
   int broadcast(char *msg, BROADCAST_TYPE bt);
 
   
+  //! Layout for managing child widgets.
   QVBoxLayout * frameLayout;
+
+  //! Label for displaying current file displayed.
   QLabel *label;
+
+  //! The QTextEdit for managing the actual text.
   MyQTextEdit *textEdit;
+
+  //! A pointer to the vertical scrollbar.
   QScrollBar *vscrollbar;
+
+  //! A pointer to the horizontal scrollbar.
   QScrollBar *hscrollbar;
+
+  //! The current file lineCount.
   int lineCount;
+
+  //! The last top line.
   int lastTop;
-int lastScrollBarValue;
+
+  //! The last scrollbar value.
+  int lastScrollBarValue;
+
+  //! Should line numbers be displayed flag.
   bool line_numbersFLAG;
+
+  //! The highlight list for this file.
   HighlightList *highlightList;
+
+  //! The file name being displayed.
   QString fileName;
+
+  //! Routine to load a file.
   void loadFile(const QString &fileName);
 
-  QColor defaultColor;  // Used to clear the text and set everything back to normal
+  //! Used to clear the text and set everything back to normal
+  QColor defaultColor;
+
+  //! Highlight a specific line.
   void highlightLine(int line, char *color="red", bool inverse=FALSE);
+
+  //! Clear the highlight of a specific line.
   void clearHighlightedLine(int line);
+
+  //! Highlight a segment of the display.
   void highlightSegment(int from_para, int start_index,
                         int to_para, int to_index, char *color="red");
+
+  //! Clear the Highlight of a segment of the display.
   void clearHighlightSegment(int from_para, int start_index,
                              int to_para, int to_index);
+
+  //! Clear all user highlighted selections.
   void clearAllSelections();
+
+  //! Clear all highlights.
   void clearAllHighlights();
+
+  //! Clear the high list.
   void clearHighlightList();
 
+  //! Position line at center of display.
   void positionLineAtCenter(int line);
+
+  //! Position line at top of display.
   void positionLineAtTop(int line);
+
+  //! Returns the line if the line at pos is highlighted.
   int whatIsAtPos(const QPoint &pos);
+
+  //! If the line is highlighted, return its' description.
   char *getDescription(int line);
 
-  int last_para;   // For last find command.
-  int last_index;   // For last find command.
+  //! Holds the last line for the find command.
+  int last_para;
+  //! Holds the last index for the find command.
+  int last_index;
+
+  //! Holds the last text searched for by user.
   QString lastSearchText;
 
+  //! Highlight the lines in the highlight list.
   void doFileHighlights();
 
- void createPopupMenu( QPopupMenu *popupMenu, const QPoint &pos );
+  //! Creates the context popup menu.
+  void createPopupMenu( QPopupMenu *popupMenu, const QPoint &pos );
+
 public slots:
   void clicked(int para, int offset);
   void valueChanged();

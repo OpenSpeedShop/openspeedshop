@@ -7,7 +7,7 @@
 
 class PluginInfo;
 
-//! SlotInfo Class
+//! This creates the slot for the dynamic menus.
 class SlotInfo : public QObject
 {
   Q_OBJECT

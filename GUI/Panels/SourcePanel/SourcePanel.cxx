@@ -1,3 +1,11 @@
+/*! \class SourcePanel
+ The SourcePanel is responsible for managing source files.
+
+ This class will manage all source details.  Including highlighting/clearing
+ lines, positioning source, searching the source, fielding context sensitive
+ menus, basically all functions dealing with source file manipulation.
+ 
+ */
 #include "SourcePanel.hxx"   // Change this to your new class header file name
 #include "PanelContainer.hxx"   // Do not remove
 #include "plugin_entry_point.hxx"   // Do not remove
@@ -16,11 +24,14 @@
 #include "debug.hxx"
 
 
+/*! Unused constructor. */
 SourcePanel::SourcePanel()
 { // Unused... Here for completeness...
 }
 
 
+/*! This constructor creates a title label and a QTextEdit.
+*/
 SourcePanel::SourcePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
 {
   printf( "SourcePanel::SourcePanel() constructor called\n");
@@ -79,7 +90,7 @@ textEdit->setCaption("SourcePanel: MyQTextEdit");
 }
 
 
-/*
+/*!
  *  Destroys the object and frees any allocated resources
  */
 SourcePanel::~SourcePanel()
@@ -92,7 +103,7 @@ SourcePanel::~SourcePanel()
   delete baseWidgetFrame;
 }
 
-/*
+/*!
  * Add local panel options here..
  */
 bool
@@ -117,6 +128,8 @@ SourcePanel::menu(QPopupMenu* contextMenu)
   return( TRUE );
 }
 
+/*! This routine is called to create a context sensitive dynamic menu 
+    base on where the mouse is located at the time of the request. */
 void
 SourcePanel::createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos )
 {
@@ -134,7 +147,7 @@ SourcePanel::createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos )
   }
 }
 
-/* 
+/*!
  * Add local save() functionality here.
  */
 void
@@ -143,7 +156,7 @@ SourcePanel::save()
   printf("SourcePanel::save() requested.\n");
 }
 
-/* 
+/*! 
  * Add local saveAs() functionality here.
  */
 void
@@ -152,8 +165,9 @@ SourcePanel::saveAs()
   nprintf(DEBUG_PANELS) ("SourcePanel::saveAs() requested.\n");
 }
 
-/* 
- * Add message listener() functionality here.
+/*! 
+ * The listener function fields requests (currenlty only from the 
+   TopPanel) to load and position source files.
  */
 int 
 SourcePanel::listener(char *msg)
@@ -215,7 +229,7 @@ SourcePanel::listener(char *msg)
   return 1;
 }
 
-/* 
+/*!
  * Add message broadcaster() functionality here.
  */
 int
@@ -225,6 +239,7 @@ SourcePanel::broadcast(char *msg, BROADCAST_TYPE bt)
   return 0;
 }
 
+/*! This routine pops up a dialog box to select a file to be loaded. */
 void
 SourcePanel::chooseFile()
 {
@@ -241,6 +256,7 @@ SourcePanel::chooseFile()
   }
 }
 
+/*! Go to a particalar line and position it at the center of the display. */
 void
 SourcePanel::goToLine()
 {
@@ -262,6 +278,7 @@ SourcePanel::goToLine()
   }
 }
 
+/*! Display/Undisplay line numbers in the display. */
 void
 SourcePanel::showLineNumbers()
 {
@@ -276,6 +293,8 @@ SourcePanel::showLineNumbers()
   loadFile( fileName );
 }
 
+/*! Pops up a dialog to find a particular string in the currently displayed
+    source. */
 void
 SourcePanel::findString()
 {
@@ -309,6 +328,7 @@ SourcePanel::findString()
   }
 }
 
+/* Load a given file in the display. */
 void
 SourcePanel::loadFile(const QString &_fileName)
 {
@@ -398,6 +418,7 @@ SourcePanel::loadFile(const QString &_fileName)
   }
 }
 
+/*! Get more information about the current posotion (if any). */
 void
 SourcePanel::details()
 {
@@ -416,6 +437,7 @@ SourcePanel::details()
     msg, QMessageBox::Ok );
 }
 
+/*! prototype: Display the who calls me information. */
 void
 SourcePanel::whoCallsMe()
 {
@@ -434,6 +456,7 @@ SourcePanel::whoCallsMe()
     msg, QMessageBox::Ok );
 }
 
+/*! prototype: Display the who do I call information. */
 void
 SourcePanel::whoDoICall()
 {
@@ -453,6 +476,7 @@ SourcePanel::whoDoICall()
 }
 
 
+/*! Highlight a line with the given color. */
 void
 SourcePanel::highlightLine(int line, char *color, bool inverse)
 {
@@ -469,6 +493,7 @@ SourcePanel::highlightLine(int line, char *color, bool inverse)
   }
 }
 
+/*! Clear the highlight at the give line. */
 void
 SourcePanel::clearHighlightedLine(int line)
 {
@@ -477,6 +502,7 @@ SourcePanel::clearHighlightedLine(int line)
   textEdit->setColor( defaultColor );
 }
 
+/*! Highlight a segment in a give color. */
 void
 SourcePanel::highlightSegment(int from_para, int from_index, int to_para, int to_index, char *color)
 {
@@ -486,6 +512,7 @@ to_para--;
   textEdit->setColor( color );
 }
 
+/*! Clear the highlighted segment. */
 void
 SourcePanel::clearHighlightSegment(int from_para, int from_index, int to_para, int to_index )
 {
@@ -493,6 +520,7 @@ SourcePanel::clearHighlightSegment(int from_para, int from_index, int to_para, i
   textEdit->setColor( defaultColor );
 }
 
+/*! Clears all user selections. */
 void
 SourcePanel::clearAllSelections()
 {
@@ -500,6 +528,7 @@ SourcePanel::clearAllSelections()
   textEdit->selectAll(FALSE);
 }
 
+/*! Clear all highlights. */
 void
 SourcePanel::clearAllHighlights()
 {
@@ -508,6 +537,23 @@ SourcePanel::clearAllHighlights()
   textEdit->selectAll(FALSE);
 }
 
+/*! Clear the highlight list. */
+void
+SourcePanel::clearHighlightList()
+{
+  HighlightObject *hlo = NULL;
+  for( HighlightList::Iterator it = highlightList->begin();
+       it != highlightList->end();
+       ++it)
+  {
+    hlo = (HighlightObject *)*it;
+    delete hlo;
+  }
+  delete highlightList;
+  highlightList = NULL;
+}
+
+/*! Center the line in the display. */
 void
 SourcePanel::positionLineAtCenter(int center_line)
 {
@@ -529,6 +575,7 @@ SourcePanel::positionLineAtCenter(int center_line)
    positionLineAtTop(top_line);
 }
 
+/*! Position the line at the top of the display. */
 void
 SourcePanel::positionLineAtTop(int top_line)
 {
@@ -544,6 +591,8 @@ SourcePanel::positionLineAtTop(int top_line)
   nprintf(DEBUG_PANELS) ("So I think the value is %d\n", value);
   vscrollbar->setValue(value);
 }
+
+/*! If the position is within a highlight, return true. */
 int
 SourcePanel::whatIsAtPos(const QPoint &pos)
 {
@@ -582,12 +631,15 @@ printf("SourcePanel::whatIsAtPos() length=%d\n", textEdit->length() );
   return(0);  // Return nothing highlighted.
 }
 
+/*! The user clicked.  -unused. */
 void
 SourcePanel::clicked(int para, int offset)
 {
   nprintf(DEBUG_PANELS) ("You clicked?\n");
 }
 
+/*! The value changed... That means we've scrolled.   Recalculate the
+    top line (top_line) and set the lastTop. */
 void
 SourcePanel::valueChanged()
 {
@@ -619,6 +671,7 @@ SourcePanel::valueChanged()
   nprintf(DEBUG_PANELS) ("top_line =%d\n", top_line);
 }
 
+/*! If there's a highlight list.... highlight the lines. */
 void
 SourcePanel::doFileHighlights()
 {
@@ -641,21 +694,7 @@ SourcePanel::doFileHighlights()
   // End for demos and testing (for now)...   FIX
 }
 
-void
-SourcePanel::clearHighlightList()
-{
-  HighlightObject *hlo = NULL;
-  for( HighlightList::Iterator it = highlightList->begin();
-       it != highlightList->end();
-       ++it)
-  {
-    hlo = (HighlightObject *)*it;
-    delete hlo;
-  }
-  delete highlightList;
-  highlightList = NULL;
-}
-
+/*! If theres a description field, return it. */
 char *
 SourcePanel::getDescription(int line)
 {

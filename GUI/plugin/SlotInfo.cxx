@@ -1,4 +1,4 @@
-/*!  Class SlotInfo
+/*!  \class SlotInfo
 
     This class is responsible for managing menu callbacks to create and 
     add new Panels defined by the plugins.

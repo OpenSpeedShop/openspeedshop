@@ -1,3 +1,9 @@
+/*! \class SourceObject
+    The is the message object passed around that will cause the SourcePanel
+    to load, position, and highlight source. 
+
+    Currently this is only implemented between TopPanel and SourcePanel.
+ */
 #include "SourceObject.hxx"
 #include <stdio.h>
 #include <string.h>
@@ -6,11 +12,15 @@
 
 #include "debug.hxx"
 
+/*! Unused constructor. */
 SourceObject::SourceObject() : MessageObject("SourceObject")
 {
   dprintf("SourceObject::SourceObject(entered.\n");
 }
 
+/*! Constructor for the SourceObject.   Initializes the filename to load, 
+    the line to center in the SourcePanel, flags if the SourcePanel should
+    be raised, and passes a list of lines to highlight. */
 SourceObject::SourceObject(char *_functionName, char *_fileName, int l, bool rF, HighlightList *hll) : MessageObject("SourceObject")
 {
   dprintf("SourceObject::SourceObject(entered.\n");
@@ -21,6 +31,7 @@ SourceObject::SourceObject(char *_functionName, char *_fileName, int l, bool rF,
   highlightList = hll;
 }
 
+/*! Destructor.   Releases the functionName and fileName. */
 SourceObject::~SourceObject()
 {
   if( functionName )
@@ -33,6 +44,7 @@ SourceObject::~SourceObject()
   }
 }
 
+/*! Prints the objects fields.    Debug only. */
 void
 SourceObject::print()
 {
