@@ -258,6 +258,7 @@ class CommandWindowID
   int64_t Cmd_Count_In_Trace_File;
   std::string Trace_File_Name;
   FILE *Trace_F;
+  bool Trace_File_Is_A_Temporary_File;
   bool Input_Is_Async;
   Input_Source *Input;
   pthread_mutex_t Input_List_Lock;
@@ -293,6 +294,7 @@ class CommandWindowID
       Cmd_Count_In_Trace_File = 0;
       Trace_File_Name = "";
       Trace_F = NULL;
+      Trace_File_Is_A_Temporary_File = false;
       Input = NULL;
       Input_Is_Async = async;
       if (Input_Is_Async) {
@@ -317,6 +319,7 @@ class CommandWindowID
       snprintf(base, 20, "sshist%lld.XXXXXX",id);
       Trace_File_Name = std::string(tempnam ("./", &base[0] ));
       Trace_F  = fopen (Trace_File_Name.c_str(), "w");
+      Trace_File_Is_A_Temporary_File = true;
     }
   ~CommandWindowID()
     {
@@ -324,9 +327,12 @@ class CommandWindowID
      // this entry again.
       id = 0;
      // Remove the trace files
-      if (Trace_F) {
+      if ((Trace_F != NULL) &&
+          (predefined_filename (Trace_File_Name) == NULL)) {
         fclose (Trace_F);
-        int err = remove (Trace_File_Name.c_str());
+        if (Trace_File_Is_A_Temporary_File) {
+          int err = remove (Trace_File_Name.c_str());
+        }
       }
      // Remove the input specifiers
       if (Input) {
@@ -511,6 +517,40 @@ public:
   int64_t Input_Level () { return Current_Input_Level; }
   void    Increment_Level () { Current_Input_Level++; }
   void    Decrement_Level () { Current_Input_Level--; }
+
+ // The "Log" command will causes us to echo state changes that
+ // are associate with a particular input stream to a user defined file.
+  bool   Set_Log_File ( std::string tofname ) {
+    FILE *tof = predefined_filename (tofname);
+    if ((Trace_F != NULL) &&
+        (predefined_filename (Trace_File_Name) == NULL)) {
+     // Copy the old file to the new file.
+      fclose (Trace_F);
+      if (tof == NULL) {
+        int len1 = Trace_File_Name.length();
+        int len2 = tofname.length();
+        char *scmd = (char *)malloc(6 + len1 + len2);
+        sprintf(scmd,"mv %s %s\n\0",Trace_File_Name.c_str(),tofname.c_str());
+        int ret = system(scmd);
+        free (scmd);
+        if (ret != 0) return false;
+      }
+    }
+    if (tof == NULL) {
+      tof = fopen (tofname.c_str(), "a");
+    }
+    Trace_File_Name = tofname;
+    Trace_F  = tof;
+    Trace_File_Is_A_Temporary_File = false;
+    return (Trace_F != NULL);
+  }
+  void   Remove_Log_File () {
+    if (Trace_F != NULL) {
+      fclose (Trace_F);
+    }
+    Trace_File_Name = std::string("");
+    Trace_F = NULL;
+  }
 
  // The "Record" command will causes us to echo statements that
  // come from a particular input stream to a user defined file.
@@ -865,6 +905,19 @@ bool Command_Trace (CommandObject *cmd, enum Trace_Entry_Type trace_type,
       fclose (tof);
     }
   }
+  return true;
+}
+
+// Set up an alternative log file at user request.
+bool Command_Log_ON (CMDWID WindowID, std::string tofname)
+{
+  CommandWindowID *cmdw = Find_Command_Window (WindowID);
+  return (cmdw->Set_Log_File (tofname));
+}
+bool Command_Log_OFF (CMDWID WindowID)
+{
+  CommandWindowID *cmdw = Find_Command_Window (WindowID);
+  cmdw->Remove_Log_File ();
   return true;
 }
 
