@@ -28,8 +28,16 @@ extern "C"
     printf("  -r : rank of \n");
     printf("  -a : quoted command line arguments to be passed to executable.\n");
     printf("\n");
-    printf("Example:  openss\n");
-    printf("   >insert example here.<\n");
+    printf("Examples:\n");
+    printf("  To start Open/Speedshop simply type:\n");
+    printf("  $ openss\n");
+    printf("\n\n");
+    printf("  To load an executable into Open/Speedshop\n");
+    printf("  for eventual capturing of data:\n");
+    printf("  $ openss -f a.out\n");
+    printf("\n\n");
+    printf("  To attach to a running executable:\n");
+    printf("  $ openss -p 123456\n");
   }
   int
   event_routine()
