@@ -101,7 +101,7 @@ class CommandResult_String : public CommandResult {
     *S = string_value;
   }
   virtual void Print (FILE *TFile) {
-    fprintf(TFile,"%20s",string_value.c_str());
+    fprintf(TFile,"%s",string_value.c_str());
   }
 };
 
