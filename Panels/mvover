@@ -42,31 +42,31 @@ do
   if [ $i == "ConstructNewExperimentPanel" ]
   then
     echo "mysed \"pc Sample Panel\" \"Construct New Experiment Panel\" $i/$i.cxx $i/$i.hxx $i/Makefile.am"
-#    mysed "pc Sample Panel" "Construct New Experiment Panel" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+    mysed "pc Sample Panel" "Construct New Experiment Panel" $i/$i.cxx $i/$i.hxx $i/Makefile.am
   fi
   if [ $i = "FPE_TracingPanel" ]
   then
     echo "mysed \"pc Sample Panel\" "FPE Tracing Panel" $i/$i.cxx $i/$i.hxx $i/Makefile.am"
-#   mysed "pc Sample Panel" "FPE Tracing Panel" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+   mysed "pc Sample Panel" "FPE Tracing Panel" $i/$i.cxx $i/$i.hxx $i/Makefile.am
   fi
   if [ $i = "HW_CounterPanel" ]
   then
     echo "mysed \"pc Sample Panel\" \"HW Counter Panel\" $i/$i.cxx $i/$i.hxx $i/Makefile.am"
-#   mysed "pc Sample Panel" "HW Counter Panel" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+   mysed "pc Sample Panel" "HW Counter Panel" $i/$i.cxx $i/$i.hxx $i/Makefile.am
   fi
   if [ $i = "IOPanel" ]
   then
     echo "mysed \"pc Sample Panel\" \"IO Panel\" $i/$i.cxx $i/$i.hxx $i/Makefile.am"
-#    mysed "pc Sample Panel" "IO Panel" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+    mysed "pc Sample Panel" "IO Panel" $i/$i.cxx $i/$i.hxx $i/Makefile.am
   fi
   if [ $i = "MPIPanel" ]
   then
     echo "mysed \"pc Sample Panel\" \"MPI Panel\" $i/$i.cxx $i/$i.hxx $i/Makefile.am"
-#   mysed "pc Sample Panel" "MPI Panel" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+   mysed "pc Sample Panel" "MPI Panel" $i/$i.cxx $i/$i.hxx $i/Makefile.am
   fi
   if [ $i = "UserTimePanel" ]
   then
     echo "mysed \"pc Sample Panel\" \"User Time Panel\" $i/$i.cxx $i/$i.hxx $i/Makefile.am"
-#   mysed "pc Sample Panel" "User Time Panel" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+   mysed "pc Sample Panel" "User Time Panel" $i/$i.cxx $i/$i.hxx $i/Makefile.am
   fi
 done
