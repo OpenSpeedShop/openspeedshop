@@ -157,21 +157,26 @@ void SS_Get_Views (CommandObject *cmd, OpenSpeedShop::Framework::Experiment *fex
 bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string viewname) {
 
   ViewType *vt = Find_View (viewname);
-  if (vt != NULL) {
-    if ((exp == NULL) &&
-        vt->Need_Exp()) {
+  if (vt == NULL) {
+    cmd->Result_String ("The requested view is unavailable.");
+    cmd->set_Status(CMD_ERROR);
+    return false;
+  }
+  if (vt->Need_Exp()) {
+    if (exp == NULL) {
      // The requested view requires an ExperimentObject.
       cmd->Result_String ("An Experiment has not been specified.");
       cmd->set_Status(CMD_ERROR);
       return false;
+    } else if (exp->FW() == NULL) {
+     // There should always be a link to the FrameWork.
+      cmd->Result_String ("The experiment has been disconnected from the FrameWork.");
+      cmd->set_Status(CMD_ERROR);
+      return false;
     }
-
-    return vt->GenerateView (cmd, exp, Get_Traling_Int (viewname, vt->Unique_Name().length()));
   }
 
-  cmd->Result_String ("The requested view is unavailable.");
-  cmd->set_Status(CMD_ERROR);
-  return false;
+  return vt->GenerateView (cmd, exp, Get_Traling_Int (viewname, vt->Unique_Name().length()));
 }
 
 // Initialize definitions of the predefined views.
