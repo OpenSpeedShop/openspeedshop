@@ -130,6 +130,9 @@ FIX: current:OpenSpeedShop:184212a
    global font (i.e. Simply document the -fn option.), Finally, we should
    have a top-level font entry (likely in the preference panel) that will
    change the global font.  (This feature is supported in Qt.)
+FIX: I pulled all font specifying.  I now go with whatever the user specifies.
+     Further I have the -fn option explicitly documented in the online-cli-help
+     and the command line help.
 
 
  - Diving clues
