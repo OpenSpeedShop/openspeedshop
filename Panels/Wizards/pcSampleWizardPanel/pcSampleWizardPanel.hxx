@@ -94,6 +94,7 @@ public:
     QTextEdit* vDescriptionPageText;
     QPushButton* vDescriptionPageIntroButton;
     QPushButton* vDescriptionPageNextButton;
+QPushButton* vDescriptionPageFinishButton;
     QWidget* vParameterPageWidget;
     QLabel* vParameterPageDescriptionLabel;
     QFrame* vParameterPageLine;
@@ -103,6 +104,7 @@ public:
     QPushButton* vParameterPageBackButton;
     QPushButton* vParameterPageResetButton;
     QPushButton* vParameterPageNextButton;
+QPushButton* vParameterPageFinishButton;
     QWidget* vAttachOrLoadPageWidget;
     QLabel* vAttachOrLoadPageDescriptionLabel;
     QFrame* vAttachOrLoadPageLine;
@@ -110,6 +112,7 @@ public:
     QCheckBox* vAttachOrLoadPageLoadExecutableCheckBox;
     QPushButton* vAttachOrLoadPageBackButton;
     QPushButton* vAttachOrLoadPageNextButton;
+QPushButton* vAttachOrLoadPageFinishButton;
     QPushButton *vAttachOrLoadPageResetButton;
     QWidget* vSummaryPageWidget;
     QLabel* vSummaryPageFinishLabel;
@@ -120,6 +123,7 @@ public:
     QLabel* eDescriptionPageText;
     QPushButton* eDescriptionPageIntroButton;
     QPushButton* eDescriptionPageNextButton;
+QPushButton* eDescriptionPageFinishButton;
     QWidget* eParameterPageWidget;
     QLabel* eParameterPageDescriptionLabel;
     QFrame* eParameterPageLine;
@@ -129,6 +133,7 @@ public:
     QPushButton* eParameterPageBackButton;
     QPushButton* eParameterPageResetButton;
     QPushButton* eParameterPageNextButton;
+QPushButton* eParameterPageFinishButton;
     QWidget* eAttachOrLoadPageWidget;
     QLabel* eAttachOrLoadPageDescriptionLabel;
     QFrame* eAttachOrLoadPageLine;
@@ -136,6 +141,7 @@ public:
     QCheckBox* eAttachOrLoadPageLoadExecutableCheckBox;
     QPushButton* eAttachOrLoadPageBackButton;
     QPushButton* eAttachOrLoadPageNextButton;
+QPushButton* eAttachOrLoadPageFinishButton;
     QPushButton *eAttachOrLoadPageResetButton;
     QWidget* eSummaryPageWidget;
     QLabel* eSummaryPageFinishLabel;
@@ -172,6 +178,7 @@ public slots:
     virtual void eAttachOrLoadPageAttachToProcessCheckBoxSelected();
     virtual void vAttachOrLoadPageLoadExecutableCheckBoxSelected();
     virtual void eAttachOrLoadPageLoadExecutableCheckBoxSelected();
+virtual void finishButtonSelected();
 
 protected:
     QVBoxLayout* mainFrameLayout;
