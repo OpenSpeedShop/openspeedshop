@@ -40,7 +40,7 @@ pcSamplePanel_la_CXXFLAGS = \
     -I../TopPanel \
     -I../../base
 
-pcSamplePanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../base/.libs/ossBase.so -Wl,../../objects/.libs/ossObjects.so -Wl,../../pcli/.libs/posscli.so
+pcSamplePanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../base/.libs/ossBase.so -Wl,../../objects/.libs/ossObjects.so -Wl,../../pcli/.libs/posscli.so -Wl,../../gui/.libs/ossgui.so
 
 pcSamplePanel_la_LIBADD = -L$(QTDIR)/lib -lqt
 
