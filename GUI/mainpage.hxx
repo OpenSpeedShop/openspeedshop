@@ -36,7 +36,7 @@
  *\subsection intro_to_panel_containers PanelContainers
  *
  *The PanelContainers will provide all the underlying
- *functionality for screen layout, local menu management, dive functionality,
+ *support for screen layout, local menu management, dive management,
  *drag-n-drop, and communication broker.
  *
  *A PanelContainer is an area (container) on the screen where Panels can
@@ -75,10 +75,16 @@
  *process was completed a command would be passed to the Framework for
  *action.  Upon completion the user would be notified and an appropriate
  *(default) report (Experiment Panel) would be generated for the user.  
-  \par  o User Time Panel:
-  \par  o  MPI Experiment Panel:
-  \par  o  Call Graph Panel:
+  \par  o Top Panel:
+ *The Top Panel would be responsible for displaying the top 'n' metrics
+ *from a Collector.   It would provide the implementation for fielding
+ *requests to find more information about a selected item and for sending 
+ *source position updates to a Source Panel.
   \par  o  Source Panel
+ *The Source Panel would be responsible for displaying source files to the
+ *screen.  It would provide functionality to display line numbers, search, 
+ *highlight line segments, and field dive request for more information
+ *about specific lines.
   \par  o  ...
  *
  *Panels will look like a "tabbed" view. A Panel can be moved around to
@@ -147,6 +153,10 @@
  *\par Menu Label:
  *This is the menu entry under the "Menu Heading", added to the end
  *of the list. 
+ *\li plugin_entry->menu_accel = "MENU_ACCEL";
+ *\par Menu Accel:
+ *This will set the menu accelerator for this menu item.
+ *Note: It is the panel designers responsiblity to check for conflicts.
  *\li plugin_entry->panel_type = "MENU_LABEL";
  *\par Panel Type:
  *This is a unique string describing the panel type.
