@@ -35,7 +35,7 @@ posscli_la_LDFLAGS = -fpic --export-dynamic -module -avoid-version -Wl,/perftool
 
 posscli_la_LIBADD = $(LIBLTDL)
 
-posscli_la_SOURCES = Start.cxx Start_Modes.cxx Commander.cxx Experiment.cxx SS_Util.cxx
+posscli_la_SOURCES = Start.cxx Start_Modes.cxx Commander.cxx Experiment.cxx SS_Util.cxx PY_Input.cxx
 
 
 
