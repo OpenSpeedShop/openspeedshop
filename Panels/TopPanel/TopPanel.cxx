@@ -408,7 +408,7 @@ TopPanel::itemSelected(int element)
        it++ )
   {
     fi = (FuncInfo *)*it;
-    for( int line=fi->start; line<fi->end; line++)
+    for( int line=fi->start; line <= fi->end; line++)
     {
       if( i >= 5 )
       {
@@ -507,10 +507,9 @@ TopPanel::details()
   int index = 0;
   textEdit->getCursorPosition(&para, &index);
 
-  QString msg;
-  msg = QString("Details?\nDescription for line %1: %2").arg(para).arg("Tell them some more!");
-  QMessageBox::information( (QWidget *)this, "Details...",
-    msg, QMessageBox::Ok );
+  QString msg = getDescription(para);
+
+  displayWhatsThis(msg);
 }
 
 #include <qscrollbar.h>
@@ -519,35 +518,29 @@ TopPanel::info(QPoint p, QObject *o)
 {
   nprintf(DEBUG_PANELS) ("TopPanel::info() called.\n");
 
-if( o == textEdit )
-{
-  printf("o == textEdit\n");
-} else
-{
-  printf("o == chartForm\n");
-
-  int item = cf->getItemFromPos( QCursor::pos() );
-  QString msg;
-  msg = QString("get information about item = %1\n").arg(item);
-  displayWhatsThis(msg);
-
-  return;
-}
+  if( o == textEdit )
+  {
+//    printf("o == textEdit\n");
+  } else
+  {
+//    printf("o == chartForm\n");
+  
+    int item = cf->getItemFromPos( QCursor::pos() );
+    QString msg = getDescription(item+1);
+    displayWhatsThis(msg);
+  
+    return;
+  }
 
   QScrollBar *vscrollbar = textEdit->verticalScrollBar();
-#ifdef OLDWAY
-  QPoint pos = textEdit->mapFromGlobal( p );
-#else // OLDWAY
   QPoint pos = textEdit->mapFromGlobal( QCursor::pos() );
-#endif // OLDWAY
   pos.setY( pos.y() + vscrollbar->value() );
 
   int line = textEdit->paragraphAt( pos );
 
   nprintf(DEBUG_PANELS) ("info() line=%d\n", line );
 
-  QString msg;
-  msg = QString("Details?\nDescription for line %1: %2").arg(line).arg("Tell them some more!");
+  QString msg = getDescription(line);
 
   displayWhatsThis(msg);
 }
@@ -573,7 +566,7 @@ TopPanel::zoomOut()
 void
 TopPanel::listClicked(int para, int offset)
 {
-  para-=2;
+  para-=1;
   nprintf(DEBUG_PANELS) ("You clicked? %d\n", para);
 
   if(para >= 0 && para <= 4 )
@@ -635,11 +628,9 @@ TopPanel::getTopFiveData()
   char funcstr[21];
   sprintf(buffer, "%-4s %-15s  %-7s   %-15s   %-s\n", "Rank", "Function", "Percent", "Filename", "Line #");
   textEdit->append(buffer);
-  sprintf(buffer, "%-4s %-15s  %-7s   %-15s   %-s\n", "----", "--------", "-------", "--------", "------");
-  textEdit->append(buffer);
   FuncInfo *fi;
 float sum=0;
-int line = 3;
+int line = 2;
 int i = 0;
   for( FuncInfoList::Iterator it = topFiveObject->funcInfoList.begin();
        it != topFiveObject->funcInfoList.end();
@@ -659,7 +650,7 @@ if( i >= number_returned-1 )
      strcpy(filestr, ptr);
      free(ptr);
      sprintf(rankstr, "%d", line-2);
-     sprintf(buffer, "%4s %-15s  %-2.3f    %-15s  %d\n", rankstr, funcstr, fi->percent, filestr, fi->function_line_number);
+     sprintf(buffer, "%9s %-15s  %-2.3f    %-15s  %d\n", rankstr, funcstr, fi->percent, filestr, fi->function_line_number);
 sum+= fi->percent;
      textEdit->append(buffer);
      if( i >= 5 )
@@ -667,7 +658,7 @@ sum+= fi->percent;
        highlightLine(line, color_name_table[4], FALSE);
      } else
      {
-       highlightLine(line, color_name_table[line-3], FALSE);
+       highlightLine(line, color_name_table[line-2], FALSE);
      }
      line++;
      strcpy(buffer, "");
@@ -735,4 +726,32 @@ TopPanel::showChart()
     statsFLAG = TRUE;
     textEdit->show();
   }
+}
+
+/*! If theres a description field, return it. */
+QString
+TopPanel::getDescription(int line)
+{
+  int i = 1;
+  for( FuncInfoList::Iterator it = topFiveObject->funcInfoList.begin();
+       it != topFiveObject->funcInfoList.end();
+       it++, i++ )
+  {
+    FuncInfo *fi = (FuncInfo *)*it;
+
+    if( i == line )
+    {
+      return( fi->fileName+
+              QString(":")+
+              QString::number(fi->start)+
+              "-"+
+              QString::number(fi->end)+
+              "\n"+
+              QString("Exclusive time.")
+              );
+    }
+  }
+
+  
+  return(0);  // Return nothing highlighted.
 }
