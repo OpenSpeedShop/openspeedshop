@@ -28,7 +28,7 @@ pkglib_LTLIBRARIES = GettingStartedPanel.la
 
 GettingStartedPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../base/.libs/ftBase.so
 
-INCLUDES = -I/usr/include -I$(QTDIR)/include -I. -I../../ftf/.ui -I../../plugin -I../../base
+INCLUDES = -I/usr/include -I$(QTDIR)/include -I. -I../../gui -I../../plugin -I../../base
 
 GettingStartedPanel_la_LIBADD = GettingStartedClass/.ui/gettingstartedclass.o GettingStartedClass/.ui/moc_gettingstartedclass.o -L$(QTDIR)/lib -lqt
 

@@ -33,7 +33,6 @@ ftladDialog_la_CXXFLAGS = \
 	-I../plugin \
 	-I../objects \
 	-I../images \
-	-I../ftf/.ui \
 	-I$(QTDIR)
 
 ftladDialog_la_LDFLAGS = --export-dynamic -module -avoid-version -Wl,../objects/.libs/ftObjects.so

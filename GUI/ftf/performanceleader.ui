@@ -361,8 +361,12 @@
     </connection>
 </connections>
 <includes>
+    <include location="local" impldecl="in declaration">PanelContainer.hxx</include>
     <include location="local" impldecl="in implementation">performanceleader.ui.h</include>
 </includes>
+<variables>
+    <variable access="public">int frabulate;</variable>
+</variables>
 <slots>
     <slot>fileNew()</slot>
     <slot>fileOpen()</slot>
@@ -379,6 +383,7 @@
     <slot>helpAbout()</slot>
 </slots>
 <functions>
+    <function returnType="bool">eventFilter( QObject *, QEvent * e )</function>
     <function access="private" specifier="non virtual">init()</function>
     <function access="private" specifier="non virtual">destroy()</function>
 </functions>

@@ -1,7 +1,7 @@
 #include <stdio.h> 
 
 #include <qapplication.h>
-#include "performanceleader.h"
+#include "performanceleader.hxx"
 #include <qvaluelist.h>
 
 #include "PanelContainer.hxx"

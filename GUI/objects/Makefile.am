@@ -31,7 +31,6 @@ ftObjects_la_CXXFLAGS = \
 	-I.. \
 	-I../base \
 	-I../plugin \
-	-I../ftf/.ui \
 	-I$(QTDIR)
 
 ftObjects_la_LDFLAGS = --export-dynamic -module -avoid-version

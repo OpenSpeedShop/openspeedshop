@@ -1,4 +1,4 @@
-#include "performanceleader.h"
+#include "performanceleader.hxx"
 #include "PluginInfo.hxx"
 #include <qaction.h>
 

@@ -29,7 +29,6 @@ ftWizard_la_CXXFLAGS =  \
 	-I/usr/include \
 	-I$(QTDIR)/include \
 	-I. \
-	-I../ftf/.ui \
 	-I../plugin \
 	-I../base
 

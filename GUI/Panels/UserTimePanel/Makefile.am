@@ -30,7 +30,7 @@ UserTimePanel_la_CXXFLAGS = \
     -I/usr/include \
     -I$(QTDIR)/include \
     -I. \
-    -I../../ftf/.ui \
+    -I../../gui \
     -I../../plugin \
     -I../../base
 

@@ -22,11 +22,6 @@
 # All Rights Reserved.
 ################################################################################
 
-BUILT_SOURCES = ftf/.ui/performanceleader.h
-
-ftf/.ui/performanceleader.h:
-	-$(QTDIR)/bin/uic ftf/performanceleader.ui -o ftf/.ui/performanceleader.h;
-
 # This is the future tool driver executable.   This is the driver for 
 # the future tool.   It's basically a main that starts the load of the
 # necessary dynamic libraries (.so's).
@@ -42,4 +37,4 @@ ftd_SOURCES = main.cxx
 doc:
 	-doxygen Doxyfile
 
-SUBDIRS = . base ftf objects ladDialog expr_info plugin objects chart cli gui Panels
+SUBDIRS = . base objects ladDialog expr_info plugin objects chart cli gui Panels

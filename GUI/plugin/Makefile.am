@@ -24,7 +24,7 @@
 
 pkglib_LTLIBRARIES = ftPlugin.la
 
-ftPlugin_la_CXXFLAGS = -I/usr/include -I$(QTDIR)/include -I. -I.. -I../base -I../ftf/.ui
+ftPlugin_la_CXXFLAGS = -I/usr/include -I$(QTDIR)/include -I. -I.. -I../base -I../gui
 
 ftPlugin_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
@@ -34,7 +34,7 @@ moc_SlotInfo.cxx: SlotInfo.hxx
 	-moc -o moc_SlotInfo.cxx SlotInfo.hxx
 
 ftPlugin_la_SOURCES = \
-    ../ftf/.ui/performanceleader.hxx \
+    ../gui/performanceleader.hxx \
 	plugin_handler.hxx plugin_handler.cxx \
 	PluginInfo.hxx PluginInfo.cxx \
 	SlotInfo.hxx SlotInfo.cxx moc_SlotInfo.cxx \

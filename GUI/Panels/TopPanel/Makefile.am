@@ -31,7 +31,7 @@ TopPanel_la_CXXFLAGS = \
 	-I../../objects \
 	-I../../expr_info \
 	-I../../chart \
-	-I../../ftf/.ui \
+	-I../../gui \
 	-I../../plugin \
 	-I../../base
 

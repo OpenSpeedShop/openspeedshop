@@ -29,15 +29,18 @@ ftgui_la_CXXFLAGS =  \
 	-I/usr/include \
 	-I$(QTDIR)/include \
 	-I. \
-	-I../ftf/.ui \
 	-I../plugin \
 	-I../images \
 	-I../base
 
 ftgui_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../plugin/.libs/ftPlugin.so -Wl,../base/.libs/ftBase.so
 
-ftgui_la_LIBADD = ../ftf/.obj/performanceleader.o ../ftf/.obj/qmake_image_collection.o ../ftf/.obj/moc_performanceleader.o -L$(QTDIR)/lib -lqt -L/usr/X11R6/lib -lXext -lX11 -lm
+ftgui_la_LIBADD = -L$(QTDIR)/lib -lqt -L/usr/X11R6/lib -lXext -lX11 -lm
+
+moc_performanceleader.cxx: performanceleader.hxx
+	-moc -o moc_performanceleader.cxx performanceleader.hxx
 
 ftgui_la_SOURCES = \
 	gui.hxx gui.cxx \
+    performanceleader.hxx performanceleader.cxx moc_performanceleader.cxx qmake_image_collection.cxx performanceleader.ui.hxx \
 	Panel.hxx PanelContainer.hxx debug.hxx

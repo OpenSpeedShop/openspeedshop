@@ -30,7 +30,7 @@ CmdPanel_la_CXXFLAGS = \
     -I. \
 	-I../../objects \
 	-I../../cli \
-    -I../../ftf/.ui \
+    -I../../gui \
     -I../../plugin \
     -I../../base
 
