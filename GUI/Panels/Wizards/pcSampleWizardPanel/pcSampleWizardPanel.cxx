@@ -80,13 +80,13 @@ pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n) : Pa
     vDescriptionPageLayout->addWidget( vDescriptionPageText );
 
     vHideWizardLayout = new QHBoxLayout( 0, 0, 6, "vHideWizardLayout"); 
-    vHideWizardSpacer = new QSpacerItem( 20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
-    vHideWizardLayout->addItem( vHideWizardSpacer );
+    vHideWizardSpacer1 = new QSpacerItem( 20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
+    vHideWizardLayout->addItem( vHideWizardSpacer1 );
 
     vHideWizardCheckBox = new QCheckBox( vDescriptionPageWidget, "vHideWizardCheckBox" );
     vHideWizardLayout->addWidget( vHideWizardCheckBox );
-    spacer4_2 = new QSpacerItem( 20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
-    vHideWizardLayout->addItem( spacer4_2 );
+    vHideWizardSpacer2 = new QSpacerItem( 20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
+    vHideWizardLayout->addItem( vHideWizardSpacer2 );
     vDescriptionPageLayout->addLayout( vHideWizardLayout );
 
     vDescriptionPageButtonLayout = new QHBoxLayout( 0, 0, 6, "vDescriptionPageButtonLayout"); 
@@ -129,12 +129,12 @@ pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n) : Pa
     vParameterPageSampleRateLabel = new QLabel( vParameterPageWidget, "vParameterPageSampleRateLabel" );
     vParameterPageSampleRateLayout->addWidget( vParameterPageSampleRateLabel );
 
-    vParameterPageSempleRateText = new QLineEdit( vParameterPageWidget, "vParameterPageSempleRateText" );
-    vParameterPageSampleRateLayout->addWidget( vParameterPageSempleRateText );
+    vParameterPageSampleRateText = new QLineEdit( vParameterPageWidget, "vParameterPageSampleRateText" );
+    vParameterPageSampleRateLayout->addWidget( vParameterPageSampleRateText );
     vParameterPageParameterLayout->addLayout( vParameterPageSampleRateLayout );
     vParameterPageLayout->addLayout( vParameterPageParameterLayout );
-    spacer7 = new QSpacerItem( 20, 30, QSizePolicy::Minimum, QSizePolicy::Expanding );
-    vParameterPageLayout->addItem( spacer7 );
+    vParameterPageSpacer = new QSpacerItem( 20, 30, QSizePolicy::Minimum, QSizePolicy::Expanding );
+    vParameterPageLayout->addItem( vParameterPageSpacer );
 
     vParameterPageButtonLayout = new QHBoxLayout( 0, 0, 6, "vParameterPageButtonLayout"); 
 
@@ -153,13 +153,62 @@ pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n) : Pa
     pcSampleWizardPanelStack->addWidget( vParameterPageWidget, 1 );
 // End: verbose parameter page
 
+// Begin: AttachOrLoad page
+    vAttachOrLoadPageWidget = new QWidget( pcSampleWizardPanelStack, "vAttachOrLoadPageWidget" );
+    vAttachOrLoadPageLayout = new QVBoxLayout( vAttachOrLoadPageWidget, 11, 6, "vAttachOrLoadPageLayout"); 
+
+    vAttachOrLoadPageDescriptionLabel = new QLabel( vAttachOrLoadPageWidget, "vAttachOrLoadPageDescriptionLabel" );
+    vAttachOrLoadPageDescriptionLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)5, 0, 0, vAttachOrLoadPageDescriptionLabel->sizePolicy().hasHeightForWidth() ) );
+    vAttachOrLoadPageLayout->addWidget( vAttachOrLoadPageDescriptionLabel );
+
+    vAttachOrLoadPageLine = new QFrame( vAttachOrLoadPageWidget, "vAttachOrLoadPageLine" );
+    vAttachOrLoadPageLine->setFrameShape( QFrame::HLine );
+    vAttachOrLoadPageLine->setFrameShadow( QFrame::Sunken );
+    vAttachOrLoadPageLine->setFrameShape( QFrame::HLine );
+    vAttachOrLoadPageLayout->addWidget( vAttachOrLoadPageLine );
+
+    vAttachOrLoadPageAttachOrLoadLayout = new QVBoxLayout( 0, 0, 6, "vAttachOrLoadPageAttachOrLoadLayout"); 
+
+    vAttachOrLoadPageSampleRateHeaderLabel = new QLabel( vAttachOrLoadPageWidget, "vAttachOrLoadPageSampleRateHeaderLabel" );
+    vAttachOrLoadPageSampleRateHeaderLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageSampleRateHeaderLabel->sizePolicy().hasHeightForWidth() ) );
+    vAttachOrLoadPageAttachOrLoadLayout->addWidget( vAttachOrLoadPageSampleRateHeaderLabel );
+
+    vAttachOrLoadPageSampleRateLayout = new QHBoxLayout( 0, 0, 6, "vAttachOrLoadPageSampleRateLayout"); 
+
+    vAttachOrLoadPageSampleRateLabel = new QLabel( vAttachOrLoadPageWidget, "vAttachOrLoadPageSampleRateLabel" );
+    vAttachOrLoadPageSampleRateLayout->addWidget( vAttachOrLoadPageSampleRateLabel );
+
+    vAttachOrLoadPageSampleRateText = new QLineEdit( vAttachOrLoadPageWidget, "vAttachOrLoadPageSampleRateText" );
+    vAttachOrLoadPageSampleRateLayout->addWidget( vAttachOrLoadPageSampleRateText );
+    vAttachOrLoadPageAttachOrLoadLayout->addLayout( vAttachOrLoadPageSampleRateLayout );
+    vAttachOrLoadPageLayout->addLayout( vAttachOrLoadPageAttachOrLoadLayout );
+    vAttachOrLoadPageSpacer = new QSpacerItem( 20, 30, QSizePolicy::Minimum, QSizePolicy::Expanding );
+    vAttachOrLoadPageLayout->addItem( vAttachOrLoadPageSpacer );
+
+    vAttachOrLoadPageButtonLayout = new QHBoxLayout( 0, 0, 6, "vAttachOrLoadPageButtonLayout"); 
+
+    vAttachOrLoadPageBackButton = new QPushButton( vAttachOrLoadPageWidget, "vAttachOrLoadPageBackButton" );
+    vAttachOrLoadPageBackButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageBackButton->sizePolicy().hasHeightForWidth() ) );
+    vAttachOrLoadPageButtonLayout->addWidget( vAttachOrLoadPageBackButton );
+
+    vAttachOrLoadPageResetButton = new QPushButton( vAttachOrLoadPageWidget, "vAttachOrLoadPageResetButton" );
+    vAttachOrLoadPageResetButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageResetButton->sizePolicy().hasHeightForWidth() ) );
+    vAttachOrLoadPageButtonLayout->addWidget( vAttachOrLoadPageResetButton );
+
+    vAttachOrLoadPageNextButton = new QPushButton( vAttachOrLoadPageWidget, "vAttachOrLoadPageNextButton" );
+    vAttachOrLoadPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageNextButton->sizePolicy().hasHeightForWidth() ) );
+    vAttachOrLoadPageButtonLayout->addWidget( vAttachOrLoadPageNextButton );
+    vAttachOrLoadPageLayout->addLayout( vAttachOrLoadPageButtonLayout );
+    pcSampleWizardPanelStack->addWidget( vAttachOrLoadPageWidget, 1 );
+// End: AttachOrLoad page
+
 // Begin: verbose summary page
     vSummaryPageWidget = new QWidget( pcSampleWizardPanelStack, "vSummaryPageWidget" );
     vSummaryPageLayout = new QVBoxLayout( vSummaryPageWidget, 11, 6, "vSummaryPageLayout"); 
 
     vSummaryPageLabelLayout = new QVBoxLayout( 0, 0, 6, "vSummaryPageLabelLayout"); 
-    spacer20 = new QSpacerItem( 20, 1, QSizePolicy::Minimum, QSizePolicy::Fixed );
-    vSummaryPageLabelLayout->addItem( spacer20 );
+    vSummaryPageSpacer = new QSpacerItem( 20, 1, QSizePolicy::Minimum, QSizePolicy::Fixed );
+    vSummaryPageLabelLayout->addItem( vSummaryPageSpacer );
 
     vSummaryPageFinishLabel = new QLabel( vSummaryPageWidget, "vSummaryPageFinishLabel" );
     vSummaryPageFinishLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)1, 0, 0, vSummaryPageFinishLabel->sizePolicy().hasHeightForWidth() ) );
@@ -176,7 +225,7 @@ pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n) : Pa
     vSummaryPageFinishButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vSummaryPageFinishButton->sizePolicy().hasHeightForWidth() ) );
     vSummaryPageButtonLayout->addWidget( vSummaryPageFinishButton );
     vSummaryPageLayout->addLayout( vSummaryPageButtonLayout );
-    pcSampleWizardPanelStack->addWidget( vSummaryPageWidget, 2 );
+    pcSampleWizardPanelStack->addWidget( vSummaryPageWidget, 3 );
 // End: verbose summary page
 
 // The advanced (expert) wording starts here....
@@ -205,14 +254,14 @@ pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n) : Pa
     eDescriptionPageStartButton = new QPushButton( eDescriptionPageWidget, "eDescriptionPageStartButton" );
     eDescriptionPageStartButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eDescriptionPageStartButton->sizePolicy().hasHeightForWidth() ) );
     eDescriptionPageButtonLayout->addWidget( eDescriptionPageStartButton );
-    spacer20_2_2 = new QSpacerItem( 251, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
-    eDescriptionPageButtonLayout->addItem( spacer20_2_2 );
+    eDescriptionPageSpacer = new QSpacerItem( 251, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
+    eDescriptionPageButtonLayout->addItem( eDescriptionPageSpacer );
 
     eDescriptionPageNextButton = new QPushButton( eDescriptionPageWidget, "eDescriptionPageNextButton" );
     eDescriptionPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eDescriptionPageNextButton->sizePolicy().hasHeightForWidth() ) );
     eDescriptionPageButtonLayout->addWidget( eDescriptionPageNextButton );
     eDescriptionPageLayout->addLayout( eDescriptionPageButtonLayout );
-    pcSampleWizardPanelStack->addWidget( eDescriptionPageWidget, 3 );
+    pcSampleWizardPanelStack->addWidget( eDescriptionPageWidget, 4 );
 // End: advance (expert) description page
 
 // Begin: advance (expert) parameter page
@@ -244,8 +293,8 @@ pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n) : Pa
     eParameterPageSampleRateLayout->addWidget( eParameterPageSampleRateText );
     eParameterPageParameterLayout->addLayout( eParameterPageSampleRateLayout );
     eParameterPageLayout->addLayout( eParameterPageParameterLayout );
-    spacer7_2 = new QSpacerItem( 20, 70, QSizePolicy::Minimum, QSizePolicy::Expanding );
-    eParameterPageLayout->addItem( spacer7_2 );
+    eParameterPageSpacer = new QSpacerItem( 20, 70, QSizePolicy::Minimum, QSizePolicy::Expanding );
+    eParameterPageLayout->addItem( eParameterPageSpacer );
 
     eParameterPageButtonLayout = new QHBoxLayout( 0, 0, 6, "eParameterPageButtonLayout"); 
 
@@ -261,8 +310,58 @@ pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n) : Pa
     eParameterPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eParameterPageNextButton->sizePolicy().hasHeightForWidth() ) );
     eParameterPageButtonLayout->addWidget( eParameterPageNextButton );
     eParameterPageLayout->addLayout( eParameterPageButtonLayout );
-    pcSampleWizardPanelStack->addWidget( eParameterPageWidget, 4 );
+    pcSampleWizardPanelStack->addWidget( eParameterPageWidget, 5 );
 // End: advanced (exper) parameter page
+
+
+// Begin: advance (expert) attach/load page
+    eAttachOrLoadPageWidget = new QWidget( pcSampleWizardPanelStack, "eAttachOrLoadPageWidget" );
+    eAttachOrLoadPageLayout = new QVBoxLayout( eAttachOrLoadPageWidget, 11, 6, "eAttachOrLoadPageLayout"); 
+
+    eAttachOrLoadPageDescriptionLabel = new QLabel( eAttachOrLoadPageWidget, "eAttachOrLoadPageDescriptionLabel" );
+    eAttachOrLoadPageDescriptionLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)5, 0, 0, eAttachOrLoadPageDescriptionLabel->sizePolicy().hasHeightForWidth() ) );
+    eAttachOrLoadPageLayout->addWidget( eAttachOrLoadPageDescriptionLabel );
+
+    eAttachOrLoadPageLine = new QFrame( eAttachOrLoadPageWidget, "eAttachOrLoadPageLine" );
+    eAttachOrLoadPageLine->setFrameShape( QFrame::HLine );
+    eAttachOrLoadPageLine->setFrameShadow( QFrame::Sunken );
+    eAttachOrLoadPageLine->setFrameShape( QFrame::HLine );
+    eAttachOrLoadPageLayout->addWidget( eAttachOrLoadPageLine );
+
+    eAttachOrLoadPageAttachOrLoadLayout = new QVBoxLayout( 0, 0, 6, "eAttachOrLoadPageAttachOrLoadLayout"); 
+
+    eAttachOrLoadPageSampleRateHeaderLabel = new QLabel( eAttachOrLoadPageWidget, "eAttachOrLoadPageSampleRateHeaderLabel" );
+    eAttachOrLoadPageSampleRateHeaderLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, eAttachOrLoadPageSampleRateHeaderLabel->sizePolicy().hasHeightForWidth() ) );
+    eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageSampleRateHeaderLabel );
+
+    eAttachOrLoadPageSampleRateLayout = new QHBoxLayout( 0, 0, 6, "eAttachOrLoadPageSampleRateLayout"); 
+
+    eAttachOrLoadPageSampleRateLabel = new QLabel( eAttachOrLoadPageWidget, "eAttachOrLoadPageSampleRateLabel" );
+    eAttachOrLoadPageSampleRateLayout->addWidget( eAttachOrLoadPageSampleRateLabel );
+
+    eAttachOrLoadPageSampleRateText = new QLineEdit( eAttachOrLoadPageWidget, "eAttachOrLoadPageSampleRateText" );
+    eAttachOrLoadPageSampleRateLayout->addWidget( eAttachOrLoadPageSampleRateText );
+    eAttachOrLoadPageAttachOrLoadLayout->addLayout( eAttachOrLoadPageSampleRateLayout );
+    eAttachOrLoadPageLayout->addLayout( eAttachOrLoadPageAttachOrLoadLayout );
+    eAttachOrLoadPageSpacer = new QSpacerItem( 20, 70, QSizePolicy::Minimum, QSizePolicy::Expanding );
+    eAttachOrLoadPageLayout->addItem( eAttachOrLoadPageSpacer );
+
+    eAttachOrLoadPageButtonLayout = new QHBoxLayout( 0, 0, 6, "eAttachOrLoadPageButtonLayout"); 
+
+    eAttachOrLoadPageBackButton = new QPushButton( eAttachOrLoadPageWidget, "eAttachOrLoadPageBackButton" );
+    eAttachOrLoadPageBackButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eAttachOrLoadPageBackButton->sizePolicy().hasHeightForWidth() ) );
+    eAttachOrLoadPageButtonLayout->addWidget( eAttachOrLoadPageBackButton );
+
+    eAttachOrLoadPageResetButton = new QPushButton( eAttachOrLoadPageWidget, "eAttachOrLoadPageResetButton" );
+    eAttachOrLoadPageResetButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eAttachOrLoadPageResetButton->sizePolicy().hasHeightForWidth() ) );
+    eAttachOrLoadPageButtonLayout->addWidget( eAttachOrLoadPageResetButton );
+
+    eAttachOrLoadPageNextButton = new QPushButton( eAttachOrLoadPageWidget, "eAttachOrLoadPageNextButton" );
+    eAttachOrLoadPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eAttachOrLoadPageNextButton->sizePolicy().hasHeightForWidth() ) );
+    eAttachOrLoadPageButtonLayout->addWidget( eAttachOrLoadPageNextButton );
+    eAttachOrLoadPageLayout->addLayout( eAttachOrLoadPageButtonLayout );
+    pcSampleWizardPanelStack->addWidget( eAttachOrLoadPageWidget, 5 );
+// End: advanced (expert) attach/load page
 
 // Begin: advance (expert) summary page
     eSummaryPageWidget = new QWidget( pcSampleWizardPanelStack, "eSummaryPageWidget" );
@@ -282,7 +381,7 @@ pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n) : Pa
     eSummaryPageFinishButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eSummaryPageFinishButton->sizePolicy().hasHeightForWidth() ) );
     eSummaryPageButtonLayout->addWidget( eSummaryPageFinishButton );
     eSummaryPageLayout->addLayout( eSummaryPageButtonLayout );
-    pcSampleWizardPanelStack->addWidget( eSummaryPageWidget, 5 );
+    pcSampleWizardPanelStack->addWidget( eSummaryPageWidget, 7 );
     topFrameLayout->addWidget( pcSampleWizardPanelStack );
     topLayout->addWidget( topFrame );
 // End: advance (expert) summary page
@@ -315,19 +414,31 @@ pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n) : Pa
     connect( eParameterPageBackButton, SIGNAL( clicked() ), this, SLOT( eParameterPageBackButtonSelected() ) );
     connect( eParameterPageNextButton, SIGNAL( clicked() ), this, SLOT( eParameterPageNextButtonSelected() ) );
     connect( eParameterPageResetButton, SIGNAL( clicked() ), this, SLOT( eParameterPageResetButtonSelected() ) );
+    connect( eParameterPageSampleRateText, SIGNAL( returnPressed() ), this, SLOT( eParameterPageSampleRateTextReturnPressed() ) );
+
+connect( eAttachOrLoadPageBackButton, SIGNAL( clicked() ), this, SLOT( eAttachOrLoadPageBackButtonSelected() ) );
+connect( eAttachOrLoadPageNextButton, SIGNAL( clicked() ), this, SLOT( eAttachOrLoadPageNextButtonSelected() ) );
+connect( eAttachOrLoadPageResetButton, SIGNAL( clicked() ), this, SLOT( eAttachOrLoadPageResetButtonSelected() ) );
+connect( eAttachOrLoadPageSampleRateText, SIGNAL( returnPressed() ), this, SLOT( eAttachOrLoadPageSampleRateTextReturnPressed() ) );
+
     connect( eSummaryPageBackButton, SIGNAL( clicked() ), this, SLOT( eSummaryPageBackButtonSelected() ) );
     connect( eSummaryPageFinishButton, SIGNAL( clicked() ), this, SLOT( eSummaryPageFinishButtonSelected() ) );
     connect( vHideWizardCheckBox, SIGNAL( clicked() ), this, SLOT( vHideWizardCheckBoxSelected() ) );
     connect( vDescriptionPageNextButton, SIGNAL( clicked() ), this, SLOT( vDescriptionPageNextButtonSelected() ) );
     connect( vDescriptionPageStartButton, SIGNAL( clicked() ), this, SLOT( vDescriptionPageStartButtonSelected() ) );
-    connect( vParameterPageSempleRateText, SIGNAL( returnPressed() ), this, SLOT( vParameterPageSempleRateTextReturnPressed() ) );
+    connect( vParameterPageSampleRateText, SIGNAL( returnPressed() ), this, SLOT( vParameterPageSampleRateTextReturnPressed() ) );
     connect( vParameterPageBackButton, SIGNAL( clicked() ), this, SLOT( vParameterPageBackButtonSelected() ) );
-    connect( vParameterPageNextButton, SIGNAL( clicked() ), this, SLOT( vParameterPageNextButtonSelected() ) );
     connect( vParameterPageResetButton, SIGNAL( clicked() ), this, SLOT( vParameterPageResetButtonSelected() ) );
+    connect( vParameterPageNextButton, SIGNAL( clicked() ), this, SLOT( vParameterPageNextButtonSelected() ) );
+
+connect( vAttachOrLoadPageSampleRateText, SIGNAL( returnPressed() ), this, SLOT( vAttachOrLoadPageSampleRateTextReturnPressed() ) );
+connect( vAttachOrLoadPageBackButton, SIGNAL( clicked() ), this, SLOT( vAttachOrLoadPageBackButtonSelected() ) );
+connect( vAttachOrLoadPageResetButton, SIGNAL( clicked() ), this, SLOT( vAttachOrLoadPageResetButtonSelected() ) );
+connect( vAttachOrLoadPageNextButton, SIGNAL( clicked() ), this, SLOT( vAttachOrLoadPageNextButtonSelected() ) );
+
     connect( vSummaryPageBackButton, SIGNAL( clicked() ), this, SLOT( vSummaryPageBackButtonSelected() ) );
     connect( vSummaryPageFinishButton, SIGNAL( clicked() ), this, SLOT( vSummaryPageFinishButtonSelected() ) );
     connect( wizardMode, SIGNAL( clicked() ), this, SLOT( wizardModeSelected() ) );
-    connect( eParameterPageSampleRateText, SIGNAL( returnPressed() ), this, SLOT( eParameterPageSampleRateTextReturnPressed() ) );
 
   // This next line makes it all magically appear and resize correctly.
   panelLayout->addWidget(topWidget);
@@ -570,6 +681,10 @@ if( raisedWidget == vDescriptionPageWidget )
     {
         printf("eParameterPageWidget\n");
         pcSampleWizardPanelStack->raiseWidget(vParameterPageWidget);
+    } else if( raisedWidget == eAttachOrLoadPageWidget )
+    {
+        printf("eAttachOrLoadPageWidget\n");
+        pcSampleWizardPanelStack->raiseWidget(vAttachOrLoadPageWidget);
     } else if( raisedWidget == eSummaryPageWidget )
     {
         printf("eSummaryPageWidget\n");
@@ -588,6 +703,10 @@ if( raisedWidget == vDescriptionPageWidget )
     {
         printf("vParameterPageWidget\n");
         pcSampleWizardPanelStack->raiseWidget(eParameterPageWidget);
+    } else if( raisedWidget ==  vAttachOrLoadPageWidget )
+    {
+        printf("vAttachOrLoadPageWidget\n");
+        pcSampleWizardPanelStack->raiseWidget(eAttachOrLoadPageWidget);
     } else if( raisedWidget == vSummaryPageWidget )
     {
         printf("vSummaryPageWidget\n");
@@ -631,12 +750,14 @@ void pcSampleWizardPanel::eParameterPageNextButtonSelected()
 {
 printf("eParameterPageNextButtonSelected() \n");
 
+/*
  MyDialog1 *w = new MyDialog1(this, "ladDialog", TRUE);
  w->updateAttachableProcessList();
  w->show();
+*/
 
-
-    pcSampleWizardPanelStack->raiseWidget(eSummaryPageWidget);
+//    pcSampleWizardPanelStack->raiseWidget(eSummaryPageWidget);
+    pcSampleWizardPanelStack->raiseWidget(eAttachOrLoadPageWidget);
 }
 
 void pcSampleWizardPanel::eParameterPageResetButtonSelected()
@@ -647,7 +768,7 @@ printf("eParameterPageResetButtonSelected() \n");
 void pcSampleWizardPanel::eSummaryPageBackButtonSelected()
 {
 printf("eSummaryPageBackButtonSelected() \n");
-    pcSampleWizardPanelStack->raiseWidget(eParameterPageWidget);
+    pcSampleWizardPanelStack->raiseWidget(eAttachOrLoadPageWidget);
 }
 
 void pcSampleWizardPanel::eSummaryPageFinishButtonSelected()
@@ -660,6 +781,26 @@ printf("eSummaryPageFinishButtonSelected() \n");
     panelContainer->_masterPC->dl_create_and_add_panel("pc Sampling", panelContainer);
   }
 }
+
+// Begin advanced (expert) AttachOrLoad callbacks
+void pcSampleWizardPanel::eAttachOrLoadPageBackButtonSelected()
+{
+printf("eAttachOrLoadPageBackButtonSelected() \n");
+    pcSampleWizardPanelStack->raiseWidget(eParameterPageWidget);
+}
+
+void pcSampleWizardPanel::eAttachOrLoadPageNextButtonSelected()
+{
+printf("eAttachOrLoadPageNextButtonSelected() \n");
+
+    pcSampleWizardPanelStack->raiseWidget(eSummaryPageWidget);
+}
+
+void pcSampleWizardPanel::eAttachOrLoadPageResetButtonSelected()
+{
+printf("eAttachOrLoadPageResetButtonSelected() \n");
+}
+// End  advanced (expert) AttachOrLoad callbacks
 
 void pcSampleWizardPanel::vHideWizardCheckBoxSelected()
 {
@@ -683,9 +824,9 @@ printf("vDescriptionPageStartButtonSelected() \n");
     }
 }
 
-void pcSampleWizardPanel::vParameterPageSempleRateTextReturnPressed()
+void pcSampleWizardPanel::vParameterPageSampleRateTextReturnPressed()
 {
-printf("vParameterPageSempleRateTextReturnPressed() \n");
+printf("vParameterPageSampleRateTextReturnPressed() \n");
 }
 
 void pcSampleWizardPanel::eParameterPageSampleRateTextReturnPressed()
@@ -703,11 +844,14 @@ void pcSampleWizardPanel::vParameterPageNextButtonSelected()
 {
 printf("vParameterPageNextButtonSelected() \n");
 
+/*
  MyDialog1 *w = new MyDialog1(this, "ladDialog", TRUE);
  w->updateAttachableProcessList();
  w->show();
+*/
 
-    pcSampleWizardPanelStack->raiseWidget(vSummaryPageWidget);
+//    pcSampleWizardPanelStack->raiseWidget(vSummaryPageWidget);
+    pcSampleWizardPanelStack->raiseWidget(vAttachOrLoadPageWidget);
 }
 
 void pcSampleWizardPanel::vParameterPageResetButtonSelected()
@@ -715,10 +859,41 @@ void pcSampleWizardPanel::vParameterPageResetButtonSelected()
 printf("vParameterPageResetButtonSelected() \n");
 }
 
+// Begin verbose AttachOrLoad callbacks
+void pcSampleWizardPanel::vAttachOrLoadPageSampleRateTextReturnPressed()
+{
+printf("vAttachOrLoadPageSampleRateTextReturnPressed() \n");
+}
+
+void pcSampleWizardPanel::eAttachOrLoadPageSampleRateTextReturnPressed()
+{
+printf("eAttachOrLoadPageSampleRateTextReturnPressed() \n");
+}
+
+void pcSampleWizardPanel::vAttachOrLoadPageBackButtonSelected()
+{
+printf("vAttachOrLoadPageBackButtonSelected() \n");
+    pcSampleWizardPanelStack->raiseWidget(vParameterPageWidget);
+}
+
+void pcSampleWizardPanel::vAttachOrLoadPageNextButtonSelected()
+{
+printf("vAttachOrLoadPageNextButtonSelected() \n");
+
+    pcSampleWizardPanelStack->raiseWidget(vSummaryPageWidget);
+}
+
+void pcSampleWizardPanel::vAttachOrLoadPageResetButtonSelected()
+{
+printf("vAttachOrLoadPageResetButtonSelected() \n");
+}
+// End verbose AttachOrLoad callbacks
+
+
 void pcSampleWizardPanel::vSummaryPageBackButtonSelected()
 {
 printf("vSummaryPageBackButtonSelected() \n");
-    pcSampleWizardPanelStack->raiseWidget(vParameterPageWidget);
+    pcSampleWizardPanelStack->raiseWidget(vAttachOrLoadPageWidget);
 }
 
 void pcSampleWizardPanel::vSummaryPageFinishButtonSelected()
@@ -741,7 +916,7 @@ printf("vSummaryPageFinishButtonSelected() \n");
 void
 pcSampleWizardPanel::languageChange()
 {
-    setCaption( tr( "Form1" ) );
+    setCaption( tr( "pcSample Wizard Panel" ) );
     vDescriptionPageTitleLabel->setText( tr( "<h1>pc Sampling Wizard</h1>" ) );
     vDescriptionPageText->setText( tr( "The pcsamp experiment estimates the actual CPU time for each source code line, machine code line, and function in your program. The report listing of this experiment shows exclusive PC sampling time. This experiment is a lightweight, high-speed operation that makes use of the operating system.\n"
 "\n"
@@ -764,14 +939,32 @@ pcSampleWizardPanel::languageChange()
 "of 10." ) );
     vParameterPageSampleRateHeaderLabel->setText( tr( "You can set the following option(s):" ) );
     vParameterPageSampleRateLabel->setText( tr( "pc Sampling rate:" ) );
-    vParameterPageSempleRateText->setText( tr( "10" ) );
-    QToolTip::add( vParameterPageSempleRateText, tr( "The rate to sample.   (Default 10 milliseconds.)" ) );
+    vParameterPageSampleRateText->setText( tr( "10" ) );
+    QToolTip::add( vParameterPageSampleRateText, tr( "The rate to sample.   (Default 10 milliseconds.)" ) );
     vParameterPageBackButton->setText( tr( "Back <" ) );
     QToolTip::add( vParameterPageBackButton, tr( "Takes you back one page." ) );
     vParameterPageResetButton->setText( tr( "Reset" ) );
     QToolTip::add( vParameterPageResetButton, tr( "Reset the values to the default setings." ) );
     vParameterPageNextButton->setText( tr( "> Next" ) );
     QToolTip::add( vParameterPageNextButton, tr( "Advance to the next wizard page." ) );
+
+    vAttachOrLoadPageDescriptionLabel->setText( tr( "NEW: The following options (paramaters) are available to adjust.   These are the options the collector has exported.<br><br>\n"
+"The smaller the number used for the sampling rate, the more\n"
+"pcSampling detail will be show.   However, the trade off will be slower\n"
+"performance and a larger data file.<br><br>\n"
+"It may take a little expermenting to find the right setting for your \n"
+"particular executable.   We suggest starting with the default setting\n"
+"of 10." ) );
+    vAttachOrLoadPageSampleRateHeaderLabel->setText( tr( "NEW: You can set the following option(s):" ) );
+    vAttachOrLoadPageSampleRateLabel->setText( tr( "NEW: pc Sampling rate:" ) );
+    vAttachOrLoadPageSampleRateText->setText( tr( "10" ) );
+    QToolTip::add( vAttachOrLoadPageSampleRateText, tr( "NEW: The rate to sample.   (Default 10 milliseconds.)" ) );
+    vAttachOrLoadPageBackButton->setText( tr( "NEW: Back <" ) );
+    QToolTip::add( vAttachOrLoadPageBackButton, tr( "NEW: Takes you back one page." ) );
+    vAttachOrLoadPageResetButton->setText( tr( "NEW: Reset" ) );
+    QToolTip::add( vAttachOrLoadPageResetButton, tr( "NEW: Reset the values to the default setings." ) );
+    vAttachOrLoadPageNextButton->setText( tr( "NEW: > Next" ) );
+    QToolTip::add( vAttachOrLoadPageNextButton, tr( "NEW: Advance to the next wizard page." ) );
     vSummaryPageFinishLabel->setText( tr( "<p align=\"left\">\n"
 "You've selected a pc Sampling experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%d\" milliseconds.<br><br>To complete the exeriment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"pcSample\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>" ) );
     vSummaryPageBackButton->setText( tr( "Back <" ) );
@@ -801,6 +994,18 @@ pcSampleWizardPanel::languageChange()
     QToolTip::add( eParameterPageResetButton, tr( "Reset the values to the default setings." ) );
     eParameterPageNextButton->setText( tr( "> Next" ) );
     QToolTip::add( eParameterPageNextButton, tr( "Advance to the next wizard page." ) );
+    eAttachOrLoadPageDescriptionLabel->setText( tr( "NEW: The following options (paramaters) are available to adjust.     <br>These are the options the collector has exported." ) );
+    eAttachOrLoadPageSampleRateHeaderLabel->setText( tr( "NEW: You can set the following option(s):" ) );
+    eAttachOrLoadPageSampleRateLabel->setText( tr( "NEW: pc Sampling rate:" ) );
+    eAttachOrLoadPageSampleRateText->setText( tr( "10" ) );
+    QToolTip::add( eAttachOrLoadPageSampleRateText, tr( "NEW: The rate to sample.   (Default 10 milliseconds.)" ) );
+    eAttachOrLoadPageBackButton->setText( tr( "NEW: Back <" ) );
+    QToolTip::add( eAttachOrLoadPageBackButton, tr( "NEW: Takes you back one page." ) );
+    eAttachOrLoadPageResetButton->setText( tr( "NEW: Reset" ) );
+    QToolTip::add( eAttachOrLoadPageResetButton, tr( "NEW: Reset the values to the default setings." ) );
+    eAttachOrLoadPageNextButton->setText( tr( "NEW: > Next" ) );
+    QToolTip::add( eAttachOrLoadPageNextButton, tr( "NEW: Advance to the next wizard page." ) );
+
     eSummaryPageFinishLabel->setText( tr( "<p align=\"left\">\n"
 "You've selected a pc Sampling experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%d\" milliseconds.<br><br></p>" ) );
     eSummaryPageBackButton->setText( tr( "Back <" ) );
