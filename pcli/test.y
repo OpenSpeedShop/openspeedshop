@@ -20,7 +20,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include "support.h"
 
 #include <vector>
 #include <iostream>
@@ -132,12 +131,12 @@ command_desc: exp_attach_com 	{p_parse_result->SetCommandType(CMD_EXP_ATTACH);}
 	    | gen_record_com    	{p_parse_result->SetCommandType(CMD_RECORD);}
 	    | gen_setbreak_com  	{p_parse_result->SetCommandType(CMD_SETBREAK);}
 	    | just_quit_com 	 {exit(0);}
-	    | error {/* p_parse_result->set_error(yylval.string,command_name[CMD_HEAD_ERROR]);*/} 
+	    | error {/* p_parse_result->set_error(yylval.string,cmd_desc[CMD_HEAD_ERROR].name);*/} 
     ; 
 
     	    /** EXP_ATTACH **/	    
 exp_attach_com:     ATTACH_HEAD   exp_attach_args 
-    	    	|   ATTACH_HEAD error {p_parse_result->set_error(yylval.string,command_name[CMD_EXP_ATTACH]);} 
+    	    	|   ATTACH_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_EXP_ATTACH].name);} 
     	    	;
 exp_attach_args:    /* empty */
     	    	|   host_file_rpt_list
@@ -148,7 +147,7 @@ exp_attach_args:    /* empty */
 
     	    /** EXP_CLOSE **/
 exp_close_com:	    CLOSE_HEAD   exp_close_args 
-    	    	|   CLOSE_HEAD error {p_parse_result->set_error(yylval.string,command_name[CMD_EXP_CLOSE]);} 
+    	    	|   CLOSE_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_EXP_CLOSE].name);} 
     	    	;
 exp_close_args:     exp_close_arg
     	    	;
@@ -171,7 +170,7 @@ exp_close_arg:	    /* empty */
 
     	    /** EXP_CREATE **/
 exp_create_com:     CREATE_HEAD   exp_create_args 
-    	    	|   CREATE_HEAD error {p_parse_result->set_error(yylval.string,command_name[CMD_EXP_CREATE]);} 
+    	    	|   CREATE_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_EXP_CREATE].name);} 
     	    	;
 exp_create_args:    /* empty */
     	    	|   host_file_rpt_list
@@ -182,7 +181,7 @@ exp_create_args:    /* empty */
 
     	    /** EXP_DETACH **/
 exp_detach_com:     DETACH_HEAD   exp_detach_args 
-  	    	|   DETACH_HEAD error {p_parse_result->set_error(yylval.string,command_name[CMD_EXP_DETACH]);} 
+  	    	|   DETACH_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_EXP_DETACH].name);} 
       	    	;
 exp_detach_args:    /* empty */
     	    	|   expId_spec
@@ -196,7 +195,7 @@ exp_detach_args:    /* empty */
 
     	    /** EXP_DISABLE **/
 exp_disable_com:    DISABLE_HEAD   exp_disable_arg
-  	    	|   DISABLE_HEAD error {p_parse_result->set_error(yylval.string,command_name[CMD_EXP_DISABLE]);} 
+  	    	|   DISABLE_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_EXP_DISABLE].name);} 
       	    	;
 exp_disable_arg:    /* empty */
     	    	|   expId_spec
@@ -205,7 +204,7 @@ exp_disable_arg:    /* empty */
 
     	    /** EXP_ENABLE **/
 exp_enable_com:	    ENABLE_HEAD   exp_enable_arg
-  	    	|   ENABLE_HEAD error {p_parse_result->set_error(yylval.string,command_name[CMD_EXP_ENABLE]);} 
+  	    	|   ENABLE_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_EXP_ENABLE].name);} 
       	    	;
 exp_enable_arg:	    /* empty */
     	    	|   expId_spec
@@ -214,7 +213,7 @@ exp_enable_arg:	    /* empty */
 
     	    /** EXP_FOCUS **/
 exp_focus_com:	    FOCUS_HEAD   exp_focus_arg
-  	    	|   FOCUS_HEAD error {p_parse_result->set_error(yylval.string,command_name[CMD_EXP_FOCUS]);} 
+  	    	|   FOCUS_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_EXP_FOCUS].name);} 
       	    	;
 exp_focus_arg:     /* empty */
     	    	|   expId_spec
@@ -222,7 +221,7 @@ exp_focus_arg:     /* empty */
 
     	    /** EXP_PAUSE **/
 exp_pause_com:	    PAUSE_HEAD   exp_pause_arg
-  	    	|   PAUSE_HEAD error {p_parse_result->set_error(yylval.string,command_name[CMD_EXP_PAUSE]);} 
+  	    	|   PAUSE_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_EXP_PAUSE].name);} 
       	    	;
 exp_pause_arg:	    /* empty */
     	    	|   expId_spec
@@ -231,14 +230,14 @@ exp_pause_arg:	    /* empty */
 
     	    /** EXP_RESTORE **/
 exp_restore_com:    RESTORE_HEAD   exp_restore_arg
-  	    	|   RESTORE_HEAD error {p_parse_result->set_error(yylval.string,command_name[CMD_EXP_RESTORE]);} 
+  	    	|   RESTORE_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_EXP_RESTORE].name);} 
       	    	;
 exp_restore_arg:    host_file
     	    	;
 
     	    /** EXP_GO **/
 exp_go_com:	    GO_HEAD   exp_go_arg
-  	    	|   GO_HEAD error {p_parse_result->set_error(yylval.string,command_name[CMD_EXP_GO]);} 
+  	    	|   GO_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_EXP_GO].name);} 
       	    	;
 exp_go_arg:	    /* empty */
     	    	|   expId_spec
@@ -247,7 +246,7 @@ exp_go_arg:	    /* empty */
 
     	    /** EXP_SAVE **/
 exp_save_com:	    SAVE_HEAD   exp_save_arg
-  	    	|   SAVE_HEAD error {p_parse_result->set_error(yylval.string,command_name[CMD_EXP_SAVE]);} 
+  	    	|   SAVE_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_EXP_SAVE].name);} 
       	    	;
 exp_save_arg:	    /* empty */
     	    	|   expId_spec COPY host_file {p_parse_result->push_modifiers(general_name[H_GEN_COPY]);}
@@ -258,7 +257,7 @@ exp_save_arg:	    /* empty */
 
     	    /** EXP_SETPARAM **/
 exp_setparam_com:   SETPARAM_HEAD   exp_setparam_arg
-  	    	|   SETPARAM_HEAD error {p_parse_result->set_error(yylval.string,command_name[CMD_EXP_SETPARAM]);} 
+  	    	|   SETPARAM_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_EXP_SETPARAM].name);} 
       	    	;
 exp_setparam_arg:   /* empty */
     	    	|   expId_spec param_list
@@ -267,7 +266,7 @@ exp_setparam_arg:   /* empty */
 
     	    /** EXP_VIEW **/
 exp_view_com:	    VIEW_HEAD   exp_view_arg
-  	    	|   VIEW_HEAD error {p_parse_result->set_error(yylval.string,command_name[CMD_EXP_VIEW]);} 
+  	    	|   VIEW_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_EXP_VIEW].name);} 
       	    	;
 exp_view_arg:	    expId_spec GUI viewType {p_parse_result->push_modifiers(general_name[H_GEN_GUI]);}
     	    	|   GUI viewType {p_parse_result->push_modifiers(general_name[H_GEN_GUI]);}
@@ -277,7 +276,7 @@ exp_view_arg:	    expId_spec GUI viewType {p_parse_result->push_modifiers(genera
 
     	    /** LIST_EXP **/
 list_exp_com:	    LIST_EXP_HEAD   list_exp_arg 
-  	    	|   LIST_EXP_HEAD error {p_parse_result->set_error(yylval.string,command_name[CMD_LIST_EXP]);} 
+  	    	|   LIST_EXP_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_LIST_EXP].name);} 
       	    	;
 list_exp_arg:	    /* empty */
     	    	|   expId_spec
@@ -286,7 +285,7 @@ list_exp_arg:	    /* empty */
 
     	    /** LIST_HOSTS **/
 list_hosts_com:     LIST_HOSTS_HEAD   list_hosts_arg
-  	    	|   LIST_HOSTS_HEAD error {p_parse_result->set_error(yylval.string,command_name[CMD_LIST_HOSTS]);} 
+  	    	|   LIST_HOSTS_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_LIST_HOSTS].name);} 
       	    	;
 list_hosts_arg:     /* empty */
     	    	|   host_spec
@@ -294,7 +293,7 @@ list_hosts_arg:     /* empty */
 
     	    /** LIST_OBJ **/
 list_obj_com:	    LIST_OBJ_HEAD   list_obj_arg
-  	    	|   LIST_OBJ_HEAD error {p_parse_result->set_error(yylval.string,command_name[CMD_LIST_OBJ]);} 
+  	    	|   LIST_OBJ_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_LIST_OBJ].name);} 
       	    	;
 list_obj_arg:	    /* empty */
     	    	|   expId_spec
@@ -303,7 +302,7 @@ list_obj_arg:	    /* empty */
 
     	    /** LIST_PIDS **/
 list_pids_com:	    LIST_PIDS_HEAD   list_pids_arg
-  	    	|   LIST_PIDS_HEAD error {p_parse_result->set_error(yylval.string,command_name[CMD_LIST_PIDS]);} 
+  	    	|   LIST_PIDS_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_LIST_PIDS].name);} 
       	    	;
 list_pids_arg:	    /* empty */
     	    	|   host_file
@@ -313,7 +312,7 @@ list_pids_arg:	    /* empty */
 
     	    /** LIST_SRC **/
 list_src_com:	    LIST_SRC_HEAD   list_src_arg
-  	    	|   LIST_SRC_HEAD error {p_parse_result->set_error(yylval.string,command_name[CMD_LIST_SRC]);} 
+  	    	|   LIST_SRC_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_LIST_SRC].name);} 
       	    	;
 list_src_arg:	    /* empty */
     	    	|   expId_spec 
@@ -327,7 +326,7 @@ list_src_arg:	    /* empty */
 
     	    /** LIST_METRICS **/
 list_metrics_com:   LIST_METRICS_HEAD   list_metrics_arg
-  	    	|   LIST_METRICS_HEAD error {p_parse_result->set_error(yylval.string,command_name[CMD_LIST_METRICS]);} 
+  	    	|   LIST_METRICS_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_LIST_METRICS].name);} 
       	    	;
 list_metrics_arg:   /* empty */
 		|   expId_spec
@@ -336,7 +335,7 @@ list_metrics_arg:   /* empty */
 
     	    /** LIST_PARAMS **/
 list_params_com:    LIST_PARAMS_HEAD   list_params_arg
-  	    	|   LIST_PARAMS_HEAD error {p_parse_result->set_error(yylval.string,command_name[CMD_LIST_PARAMS]);} 
+  	    	|   LIST_PARAMS_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_LIST_PARAMS].name);} 
       	    	;
 list_params_arg:    /* empty */
 		|   expId_spec
@@ -345,7 +344,7 @@ list_params_arg:    /* empty */
 
     	    /** LIST_REPORTS **/
 list_reports_com:   LIST_REPORTS_HEAD   list_reports_arg
-  	    	|   LIST_REPORTS_HEAD error {p_parse_result->set_error(yylval.string,command_name[CMD_LIST_REPORTS]);} 
+  	    	|   LIST_REPORTS_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_LIST_REPORTS].name);} 
       	    	;
 list_reports_arg:   /* empty */
 		|   expId_spec
@@ -354,7 +353,7 @@ list_reports_arg:   /* empty */
 
     	    /** LIST_BREAKS **/
 list_breaks_com:    LIST_BREAKS_HEAD   list_breaks_arg
-  	    	|   LIST_BREAKS_HEAD error {p_parse_result->set_error(yylval.string,command_name[CMD_LIST_BREAKS]);} 
+  	    	|   LIST_BREAKS_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_LIST_BREAKS].name);} 
       	    	;
 list_breaks_arg:    /* empty */
 		|   expId_spec
@@ -363,24 +362,24 @@ list_breaks_arg:    /* empty */
 
     	    /** LIST_TYPES **/
 list_types_com:     LIST_TYPES_HEAD
-  	    	|   LIST_TYPES_HEAD error {p_parse_result->set_error(yylval.string,command_name[CMD_LIST_TYPES]);} 
+  	    	|   LIST_TYPES_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_LIST_TYPES].name);} 
       	    	;
 
     	    /** GEN_CLEAR_BREAK **/
 gen_clear_break_com:	GEN_CLEAR_BREAK_HEAD   gen_clear_break_arg
-  	    	|   	GEN_CLEAR_BREAK_HEAD error {p_parse_result->set_error(yylval.string,command_name[CMD_CLEAR_BREAK]);} 
+  	    	|   	GEN_CLEAR_BREAK_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_CLEAR_BREAK].name);} 
       	    	;
 gen_clear_break_arg:	NUMBER {p_parse_result->pushBreakId($1);}
     	    	;
 
     	    /** GEN_EXIT **/
 gen_exit_com:	    GEN_EXIT_HEAD
-  	    	|   GEN_EXIT_HEAD error {p_parse_result->set_error(yylval.string,command_name[CMD_EXIT]);} 
+  	    	|   GEN_EXIT_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_EXIT].name);} 
       	    	;
 
     	    /** GEN_OPEN_GUI **/
 gen_open_gui_com:   GEN_OPEN_GUI_HEAD
-  	    	|   GEN_OPEN_GUI_HEAD error {p_parse_result->set_error(yylval.string,command_name[CMD_OPEN_GUI]);} 
+  	    	|   GEN_OPEN_GUI_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_OPEN_GUI].name);} 
       	    	;
 
     	    /** GEN_HELP **/
@@ -459,7 +458,7 @@ gen_help_arg:	    NAME {p_parse_result->push_help($1);}
 
     	    /** GEN_HISTORY **/
 gen_history_com:    GEN_HISTORY_HEAD   gen_history_arg
-  	    	|   GEN_HISTORY_HEAD error {p_parse_result->set_error(yylval.string,command_name[CMD_HISTORY]);} 
+  	    	|   GEN_HISTORY_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_HISTORY].name);} 
       	    	;
 gen_history_arg:    /* empty */
     	    	|   host_file
@@ -467,7 +466,7 @@ gen_history_arg:    /* empty */
 
     	    /** GEN_LOG **/
 gen_log_com:	    GEN_LOG_HEAD   gen_log_arg
-  	    	|   GEN_LOG_HEAD error {p_parse_result->set_error(yylval.string,command_name[CMD_LOG]);} 
+  	    	|   GEN_LOG_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_LOG].name);} 
       	    	;
 gen_log_arg:	    /* empty */
     	    	|   host_file
@@ -475,21 +474,21 @@ gen_log_arg:	    /* empty */
 
     	    /** GEN_PLAYBACK **/
 gen_playback_com:   GEN_PLAYBACK_HEAD   gen_playback_arg
-  	    	|   GEN_PLAYBACK_HEAD error {p_parse_result->set_error(yylval.string,command_name[CMD_PLAYBACK]);} 
+  	    	|   GEN_PLAYBACK_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_PLAYBACK].name);} 
       	    	;
 gen_playback_arg:   host_file
     	    	;
 
     	    /** GEN_RECORD **/
 gen_record_com:     GEN_RECORD_HEAD   gen_record_arg
-  	    	|   GEN_RECORD_HEAD error {p_parse_result->set_error(yylval.string,command_name[CMD_RECORD]);} 
+  	    	|   GEN_RECORD_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_RECORD].name);} 
       	    	;
 gen_record_arg:     host_file
     	    	;
 
     	    /** GEN_SETBREAK **/
 gen_setbreak_com:   GEN_SETBREAK_HEAD   gen_setbreak_arg
-  	    	|   GEN_SETBREAK_HEAD error {p_parse_result->set_error(yylval.string,command_name[CMD_SETBREAK]);} 
+  	    	|   GEN_SETBREAK_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_SETBREAK].name);} 
       	    	;
 gen_setbreak_arg:   expId_spec address_description 
     	    	|   host_file_rpt address_description 
@@ -690,16 +689,5 @@ copy_string(char *p_old)
 }
 /***************************************************/
 
-#if 0
-int
-main ()
-{    
-    memset(&command,0,sizeof(command_t));
-    cmd_init();
-    printf("OSS > ");
 
-    return yyparse();
-}
-
-#endif
 

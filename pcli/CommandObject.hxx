@@ -100,7 +100,7 @@ class CommandObject
   int Seq_Num; // The order this object was generated in from the input line.
   Command_Status Cmd_Status;
   oss_cmd_enum Cmd_Type; // A copy of information in the Parse_Result.
-  command_t *Parse_Result;
+  // command_t *Parse_Result;
   // command_type_t *Parse_Result;
   OpenSpeedShop::cli::ParseResult *PR;
   bool results_used; // Once used, this object can be deleted!
@@ -119,21 +119,21 @@ class CommandObject
   CommandObject() { } // Hide default constructor to catch errors at compile time
 
 public:
-  CommandObject(command_t *P)
-  {
-    this->Associate_Input ();
-    Cmd_Status = CMD_PARSED;
-    Cmd_Type =  P->type;
-    Parse_Result = P;
-    PR = NULL;
-    results_used = false;
-  }
+//  CommandObject(command_t *P)
+//  {
+//    this->Associate_Input ();
+//    Cmd_Status = CMD_PARSED;
+//    Cmd_Type =  P->type;
+//    Parse_Result = P;
+//    PR = NULL;
+//    results_used = false;
+//  }
   CommandObject(OpenSpeedShop::cli::ParseResult *pr)
   {
     this->Associate_Input ();
     Cmd_Status = CMD_PARSED;
     Cmd_Type =  pr->GetCommandType();
-    Parse_Result = NULL;
+//    Parse_Result = NULL;
     PR = pr;
     results_used = false;
   }

@@ -47,7 +47,6 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     PyObject *p_object = NULL;
     int ret;
     CommandObject *cmd = NULL;
-    command_t *cmd_args = NULL;
     ParseResult parse_result = ParseResult();
     
     // Give yacc access to ParseResult object.
@@ -58,10 +57,8 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     }
 
     yyin = fopen("/usr/tmp/jack.tmp","w+");
-    memset(&command,0,sizeof(command_t));
+//    memset(&command,0,sizeof(command_t));
 
-    cmd_init();
- 
     fprintf(yyin,"%s\n", input_line);
     rewind(yyin);
 

@@ -52,7 +52,6 @@
 using namespace OpenSpeedShop::Framework;
 
 #include "Commander.hxx"
-#include "support.h"
 
 using namespace std;
 
