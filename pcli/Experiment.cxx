@@ -726,12 +726,25 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
   if ((exp->FW() != NULL) &&
       ((exp->Status() == ExpStatus_Paused) ||
        (exp->Status() == ExpStatus_Running))) {
+
+   // Verify that there are threads.
     ThreadGroup tgrp = exp->FW()->getThreads();
 
     if (tgrp.empty()) {
       cmd->Result_String ("There are no applications specified for the experiment");
       cmd->set_Status(CMD_ERROR);
       return false;
+    }
+
+   // Activate the collectors
+    CollectorGroup cgrp = exp->FW()->getCollectors();
+    CollectorGroup::iterator ci = cgrp.begin();
+    for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
+      Collector c = *ci;
+      ThreadGroup tgrp = c.getThreads();
+      if (!tgrp.empty()) {
+        c.startCollecting();
+      }
     }
 
    // Go through the ThreadGroup to handle "don't care" errors.
