@@ -1,4 +1,5 @@
 #include "FPE_TracingWizardPanel.hxx"   // Change this to your new class header file name
+
 #include "PanelContainer.hxx"   // Do not remove
 #include "plugin_entry_point.hxx"   // Do not remove
 #include "AttachProcessDialog.hxx"
@@ -31,6 +32,7 @@
 
 #include "LoadAttachObject.hxx"
 
+#include "FPE_TraceDescription.hxx"
 
 /*!  FPE_TracingWizardPanel Class
      This class is used by the script mknewpanel to create a new work area
@@ -905,13 +907,7 @@ FPE_TracingWizardPanel::languageChange()
 {
     setCaption( tr( "Floating point tracing Wizard Panel" ) );
     vDescriptionPageTitleLabel->setText( tr( "<h1>Floating point tracing Wizard</h1>" ) );
-    vDescriptionPageText->setText( tr( "The Floating point tracing experiment estimates the actual CPU time for each source code line, machine code line, and function in your program. The report listing of this experiment shows exclusive Floating point tracing time. This experiment is a lightweight, high-speed operation that makes use of the operating system.\n"
-"\n"
-"CPU time is calculated by multiplying the number of times an instruction or function appears in the PC by the interval specified for the experiment (either 1 or 10 milliseconds).\n"
-"\n"
-"To collect the data, the operating system regularly stops the process, increments a counter corresponding to the current value of the PC, and resumes the process. The default sample interval is 10 millisecond.\n"
-"\n"
-"Floating point tracing runs should slow the execution time of the program down no more than 5 percent. The measurements are statistical in nature, meaning they exhibit variance inversely proportional to the running time." ) );
+    vDescriptionPageText->setText( tr( vFPE_TracingDescripition) );
     vDescriptionPageStartButton->setText( tr( "<< Start" ) );
     QToolTip::add( vDescriptionPageStartButton, tr( "Takes you back to the Intro Wizard so you can make a different selection." ) );
     vDescriptionPageNextButton->setText( tr( "> Next" ) );
@@ -950,12 +946,7 @@ QToolTip::add( vAttachOrLoadPageResetButton, tr( "This clears all settings resto
     vSummaryPageFinishButton->setText( tr( "Finish..." ) );
     QToolTip::add( vSummaryPageFinishButton, tr( "Finishes loading the wizard information and brings up a \"FPE_Tracing\" panel" ) );
     eDescriptionPageTitleLabel->setText( tr( "<h1>Floating point tracing Wizard</h1>" ) );
-    eDescriptionPageText->setText( tr( "<p align=\"center\"><p align=\"left\">\n"
-"Program counter (Floating point tracing) reveals the amount of execution time \n"
-"spent in various parts of a program. The count includes:  <br>\n"
-" * CPU time and memory access time <br>\n"
-" * Time spent in user routines<br><br>\n"
-"The Floating point tracing does not count time spent swapping or time spent accessing external resources.</p></p>" ) );
+    eDescriptionPageText->setText( tr( eFPE_TracingDescripition) );
     eDescriptionPageStartButton->setText( tr( "<< Start" ) );
     eDescriptionPageNextButton->setText( tr( "> Next" ) );
     QToolTip::add( eDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
