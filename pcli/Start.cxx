@@ -238,7 +238,7 @@ setup_signal_handler (int s)
     // setup_signal_handler (SIGTRAP);
     // setup_signal_handler (SIGABRT);
     setup_signal_handler (SIGFPE);
-    setup_signal_handler (SIGKILL);
+    // setup_signal_handler (SIGKILL);
     setup_signal_handler (SIGBUS);
     setup_signal_handler (SIGSEGV);
     setup_signal_handler (SIGSYS);
