@@ -182,7 +182,7 @@ s_dumpParam(vector<ParseParam> *p_list, char *label)
     	    cout << "\t\t\t";
     
     	if (iter->getParmExpType()) {
-	    cout << iter->getParmParamType() << "::";
+	    cout << iter->getParmExpType() << "::";
 	}
 	
 	cout << iter->getParmParamType() << " = ";
