@@ -102,8 +102,10 @@ public:
 
 
   QButtonGroup *buttonGroup;
-  AnimatedQPushButton *attachButton;
-  AnimatedQPushButton *detachButton;
+  AnimatedQPushButton *attachCollectorButton;
+  AnimatedQPushButton *detachCollectorButton;
+  AnimatedQPushButton *attachProcessButton;
+  AnimatedQPushButton *detachProcessButton;
   QPushButton *runButton;
   QPushButton *pauseButton;
   QPushButton *continueButton;
@@ -122,8 +124,10 @@ public:
 #endif // PULL
 
 public slots:
-  virtual void attachButtonSlot();
-  virtual void detachButtonSlot();
+  virtual void attachCollectorButtonSlot();
+  virtual void detachCollectorButtonSlot();
+  virtual void attachProcessButtonSlot();
+  virtual void detachProcessButtonSlot();
   virtual void runButtonSlot();
   virtual void pauseButtonSlot();
   virtual void continueButtonSlot();
@@ -131,7 +135,10 @@ public slots:
   virtual void interruptButtonSlot();
   virtual void terminateButtonSlot();
   void saveAsSelected();
-  void openNewSelected();
+  void addCollectorSelected();
+  void removeCollectorSelected();
+  void addProcessSelected();
+  void removeProcessSelected();
 
 protected slots:
   virtual void languageChange();

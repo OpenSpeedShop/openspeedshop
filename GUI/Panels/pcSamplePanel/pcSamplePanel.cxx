@@ -23,6 +23,14 @@
 #include "detach_hand3.xpm"
 #include "detach_hand4.xpm"
 #include "detach_hand5.xpm"
+#include "attach_process1.xpm"
+#include "attach_process2.xpm"
+#include "attach_process3.xpm"
+#include "attach_process4.xpm"
+#include "detach_process1.xpm"
+#include "detach_process2.xpm"
+#include "detach_process3.xpm"
+#include "detach_process4.xpm"
 #include "run.xpm"
 #include "pause.xpm"
 #include "cont.xpm"
@@ -66,51 +74,90 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
 
   frameLayout->addWidget( buttonGroup );
 
-  attachButton = new AnimatedQPushButton( buttonGroup, "attachButton" );
+  attachCollectorButton = new AnimatedQPushButton( buttonGroup, "attachCollectorButton" );
   QPixmap *apm1 = new QPixmap( attach_hand_xpm );
   apm1->setMask(apm1->createHeuristicMask());
-  attachButton->setPixmap( *apm1 );
-  attachButton->push_back(apm1);
+  attachCollectorButton->setPixmap( *apm1 );
+  attachCollectorButton->push_back(apm1);
   QPixmap *apm2 = new QPixmap( attach_hand2_xpm );
   apm2->setMask(apm2->createHeuristicMask());
-  attachButton->push_back(apm2);
+  attachCollectorButton->push_back(apm2);
   QPixmap *apm3 = new QPixmap( attach_hand3_xpm );
   apm3->setMask(apm3->createHeuristicMask());
-  attachButton->push_back(apm3);
+  attachCollectorButton->push_back(apm3);
   QPixmap *apm4 = new QPixmap( attach_hand4_xpm );
   apm4->setMask(apm4->createHeuristicMask());
-  attachButton->push_back(apm4);
-  attachButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, attachButton->sizePolicy().hasHeightForWidth() ) );
-  buttonGroupLayout->addWidget( attachButton );
-  attachButton->setText( QString::null );
+  attachCollectorButton->push_back(apm4);
+  attachCollectorButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, attachCollectorButton->sizePolicy().hasHeightForWidth() ) );
+  buttonGroupLayout->addWidget( attachCollectorButton );
+  attachCollectorButton->setText( QString::null );
 
-//  detachButton = new QPushButton( buttonGroup, "detachButton" );
-  detachButton = new AnimatedQPushButton( buttonGroup, "detachButton");
+//  detachCollectorButton = new QPushButton( buttonGroup, "detachCollectorButton" );
+  detachCollectorButton = new AnimatedQPushButton( buttonGroup, "detachCollectorButton");
   QPixmap *dpm1 = new QPixmap( detach_hand_xpm );
   dpm1->setMask(dpm1->createHeuristicMask());
-  detachButton->setPixmap( *dpm1 );
-  detachButton->push_back(dpm1);
+  detachCollectorButton->setPixmap( *dpm1 );
+  detachCollectorButton->push_back(dpm1);
 
   QPixmap *dpm2 = new QPixmap( detach_hand2_xpm );
   dpm2->setMask(dpm2->createHeuristicMask());
-  detachButton->push_back( dpm2);
+  detachCollectorButton->push_back( dpm2);
 
   QPixmap *dpm3 = new QPixmap( detach_hand3_xpm );
   dpm3->setMask(dpm3->createHeuristicMask());
-  detachButton->push_back( dpm3);
+  detachCollectorButton->push_back( dpm3);
 
   QPixmap *dpm4 = new QPixmap( detach_hand4_xpm );
   dpm4->setMask(dpm4->createHeuristicMask());
-  detachButton->push_back( dpm4);
+  detachCollectorButton->push_back( dpm4);
 
   QPixmap *dpm5 = new QPixmap( detach_hand5_xpm );
   dpm5->setMask(dpm5->createHeuristicMask());
-  detachButton->push_back( dpm5);
+  detachCollectorButton->push_back( dpm5);
 
-  detachButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, detachButton->sizePolicy().hasHeightForWidth() ) );
-  buttonGroupLayout->addWidget( detachButton );
-  detachButton->setText( QString::null );
+  detachCollectorButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, detachCollectorButton->sizePolicy().hasHeightForWidth() ) );
+  buttonGroupLayout->addWidget( detachCollectorButton );
+  detachCollectorButton->setText( QString::null );
 
+{
+  attachProcessButton = new AnimatedQPushButton( buttonGroup, "attachProcessButton" );
+  QPixmap *apm1 = new QPixmap( attach_process1_xpm );
+  apm1->setMask(apm1->createHeuristicMask());
+  attachProcessButton->setPixmap( *apm1 );
+  attachProcessButton->push_back(apm1);
+  QPixmap *apm2 = new QPixmap( attach_process2_xpm );
+  apm2->setMask(apm2->createHeuristicMask());
+  attachProcessButton->push_back(apm2);
+  QPixmap *apm3 = new QPixmap( attach_process3_xpm );
+  apm3->setMask(apm3->createHeuristicMask());
+  attachProcessButton->push_back(apm3);
+  QPixmap *apm4 = new QPixmap( attach_process4_xpm );
+  apm4->setMask(apm4->createHeuristicMask());
+  attachProcessButton->push_back(apm4);
+  attachProcessButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, attachProcessButton->sizePolicy().hasHeightForWidth() ) );
+  buttonGroupLayout->addWidget( attachProcessButton );
+  attachProcessButton->setText( QString::null );
+}
+
+{
+  detachProcessButton = new AnimatedQPushButton( buttonGroup, "detachProcessButton" );
+  QPixmap *apm1 = new QPixmap( detach_process1_xpm );
+  apm1->setMask(apm1->createHeuristicMask());
+  detachProcessButton->setPixmap( *apm1 );
+  detachProcessButton->push_back(apm1);
+  QPixmap *apm2 = new QPixmap( detach_process2_xpm );
+  apm2->setMask(apm2->createHeuristicMask());
+  detachProcessButton->push_back(apm2);
+  QPixmap *apm3 = new QPixmap( detach_process3_xpm );
+  apm3->setMask(apm3->createHeuristicMask());
+  detachProcessButton->push_back(apm3);
+  QPixmap *apm4 = new QPixmap( detach_process4_xpm );
+  apm4->setMask(apm4->createHeuristicMask());
+  detachProcessButton->push_back(apm4);
+  detachProcessButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, detachProcessButton->sizePolicy().hasHeightForWidth() ) );
+  buttonGroupLayout->addWidget( detachProcessButton );
+  detachProcessButton->setText( QString::null );
+}
 
   {
   QSpacerItem *spacer = new QSpacerItem( 5, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
@@ -205,8 +252,10 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
   languageChange();
 
   // set button look.
-  attachButton->setFlat(TRUE);
-  detachButton->setFlat(TRUE);
+  attachCollectorButton->setFlat(TRUE);
+  detachCollectorButton->setFlat(TRUE);
+  attachProcessButton->setFlat(TRUE);
+  detachProcessButton->setFlat(TRUE);
   runButton->setFlat(TRUE);
   pauseButton->setFlat(TRUE);
   continueButton->setFlat(TRUE);
@@ -215,18 +264,21 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
   terminateButton->setFlat(TRUE);
 
   // set button sensitivities.
-  attachButton->setEnabled(TRUE);
+  attachCollectorButton->setEnabled(TRUE);
+  attachProcessButton->setEnabled(TRUE);
   runButton->setEnabled(TRUE);
   pauseButton->setEnabled(FALSE);
   continueButton->setEnabled(FALSE);
   updateButton->setEnabled(FALSE);
-  detachButton->setEnabled(TRUE);
+  detachCollectorButton->setEnabled(TRUE);
   terminateButton->setEnabled(FALSE);
 
 
 // signals and slots connections
-  connect( attachButton, SIGNAL( clicked() ), this, SLOT( attachButtonSlot() ) );
-  connect( detachButton, SIGNAL( clicked() ), this, SLOT( detachButtonSlot() ) );
+  connect( attachCollectorButton, SIGNAL( clicked() ), this, SLOT( attachCollectorButtonSlot() ) );
+  connect( detachCollectorButton, SIGNAL( clicked() ), this, SLOT( detachCollectorButtonSlot() ) );
+  connect( attachProcessButton, SIGNAL( clicked() ), this, SLOT( attachProcessButtonSlot() ) );
+  connect( detachProcessButton, SIGNAL( clicked() ), this, SLOT( detachProcessButtonSlot() ) );
   connect( runButton, SIGNAL( clicked() ), this, SLOT( runButtonSlot() ) );
   connect( continueButton, SIGNAL( clicked() ), this, SLOT( continueButtonSlot() ) );
   connect( interruptButton, SIGNAL( clicked() ), this, SLOT( interruptButtonSlot() ) );
@@ -292,25 +344,41 @@ pcSamplePanel::menu(QPopupMenu* contextMenu)
 {
   printf("pcSamplePanel::menu() requested.\n");
 
-contextMenu->insertSeparator();
-contextMenu->insertItem("&Open New", this, SLOT(openNewSelected()), CTRL+Key_O );
-contextMenu->insertItem("&Save As ...", this, SLOT(saveAsSelected()), CTRL+Key_S ); 
+  contextMenu->insertSeparator();
+  contextMenu->insertItem("&Add Collector", this, SLOT(addCollectorSelected()), CTRL+Key_A );
+  contextMenu->insertItem("&Remove Collector", this, SLOT(removeCollectorSelected()), CTRL+Key_R );
+  contextMenu->insertSeparator();
+  contextMenu->insertItem("&Add Process", this, SLOT(addProcessSelected()), CTRL+Key_A );
+  contextMenu->insertItem("&Remove Process", this, SLOT(removeProcessSelected()), CTRL+Key_R );
+  contextMenu->insertSeparator();
+  contextMenu->insertItem("&Save As ...", this, SLOT(saveAsSelected()), CTRL+Key_S ); 
 
   return( TRUE );
 }
 
 void
-pcSamplePanel::openNewSelected()
+pcSamplePanel::addCollectorSelected()
 {
-  printf("pcSamplePanel::openNewSelected()\n");
+  printf("pcSamplePanel::addCollectorSelected()\n");
 }   
 
 void 
-pcSamplePanel::saveAsSelected()
+pcSamplePanel::removeCollectorSelected()
 {
-  printf("pcSamplePanel::saveAsSelected() requested.\n");
+  printf("pcSamplePanel::removeCollectorSelected() requested.\n");
 }
 
+void
+pcSamplePanel::addProcessSelected()
+{
+  printf("pcSamplePanel::addProcessSelected()\n");
+}   
+
+void 
+pcSamplePanel::removeProcessSelected()
+{
+  printf("pcSamplePanel::removeProcessSelected() requested.\n");
+}
     
 //! Save ascii version of this panel.
 /*! If the user panel provides save to ascii functionality, their function
@@ -352,28 +420,25 @@ pcSamplePanel::broadcast(char *msg)
 
 
 void 
-pcSamplePanel::attachButtonSlot()
+pcSamplePanel::attachCollectorButtonSlot()
 {
   printf("Attach\n");
 }
 
-#ifdef PULL
 void 
-pcSamplePanel::enterEvent(QEvent *)
+pcSamplePanel::detachCollectorButtonSlot()
 {
-  printf("detach enterEvent\n");
+  printf("Detach\n");
 }
 
 void 
-pcSamplePanel::leaveEvent(QEvent *)
+pcSamplePanel::attachProcessButtonSlot()
 {
-  printf("detach leaveEvent\n");
+  printf("Attach\n");
 }
-#endif // PULL
-
 
 void 
-pcSamplePanel::detachButtonSlot()
+pcSamplePanel::detachProcessButtonSlot()
 {
   printf("Detach\n");
 }
@@ -389,12 +454,14 @@ printf("# theApplication.setStatus(Thread::Running\n");
 
   statusLabelText->setText( tr("Process running...") );
 
-  attachButton->setEnabled(TRUE);
+  attachCollectorButton->setEnabled(TRUE);
+  attachProcessButton->setEnabled(TRUE);
   runButton->setEnabled(FALSE);
   pauseButton->setEnabled(TRUE);
   continueButton->setEnabled(FALSE);
   updateButton->setEnabled(TRUE);
-  detachButton->setEnabled(TRUE);
+  detachCollectorButton->setEnabled(TRUE);
+  detachProcessButton->setEnabled(TRUE);
   terminateButton->setEnabled(TRUE);
 }
 
@@ -452,12 +519,14 @@ printf("# if( response is yes, then called theApplication.saveAs();\n");
   statusLabelText->setText( tr("Process terminated...") );
 
   // set button sensitivities.
-  attachButton->setEnabled(TRUE);
+  attachCollectorButton->setEnabled(TRUE);
+  attachProcessButton->setEnabled(TRUE);
   runButton->setEnabled(TRUE);
   pauseButton->setEnabled(FALSE);
   continueButton->setEnabled(FALSE);
   updateButton->setEnabled(FALSE);
-  detachButton->setEnabled(TRUE);
+  detachCollectorButton->setEnabled(TRUE);
+  detachProcessButton->setEnabled(TRUE);
   terminateButton->setEnabled(FALSE);
 }
 
@@ -469,8 +538,10 @@ void
 pcSamplePanel::languageChange()
 {
   buttonGroup->setTitle( tr( "Process Control" ) );
-  QToolTip::add( attachButton, tr( "Load or attach to a process." ) );
-  QToolTip::add( detachButton, tr( "Detach the experiment from the process(es)." ) );
+  QToolTip::add( attachCollectorButton, tr( "Load or attach to a collector." ) );
+  QToolTip::add( detachCollectorButton, tr( "Detach the experiment from the collector(s)." ) );
+  QToolTip::add( attachProcessButton, tr( "Load or attach to a process." ) );
+  QToolTip::add( detachProcessButton, tr( "Load or attach to a process." ) );
   QToolTip::add( runButton, tr( "Run the experiment." ) );
   QToolTip::add( pauseButton, tr( "Temporarily pause the experiment." ) );
   QToolTip::add( continueButton, tr( "Continue the experiment from current location." ) );
