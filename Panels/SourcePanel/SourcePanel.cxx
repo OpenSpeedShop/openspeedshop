@@ -61,7 +61,6 @@ printf("label->height()=%d\n", label->height() );
 
   canvasForm = new SPCanvasForm( label->height(), splitter );
   canvasForm->hide();
-canvasForm->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)5, 0, 0, canvasForm->sizePolicy().hasHeightForWidth() ) );
 
   delete label;
 

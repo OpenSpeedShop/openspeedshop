@@ -1,4 +1,5 @@
 #include "SPCanvasForm.hxx"
+#include <qstyle.h>
 
 #include <qlabel.h> // REMOVE!
 #include "debug.hxx"
@@ -11,7 +12,9 @@ SPCanvasForm::SPCanvasForm( int label_height, QWidget *parent, const char *n, WF
 {
   nprintf(DEBUG_CONST_DESTRUCT) ( "SPCanvasForm::SPCanvasForm( ) constructor called\n");
   numColumns = 1;  // We by default create one... yet unused, but created.
-setMinimumSize( QSize(30,30) );
+
+  // This is the key to the resize (on intialization working)...
+  setMinimumSize( QSize(DEFAULT_CANVAS_MIN,DEFAULT_CANVAS_MIN) );
   canvasTextList.clear();
 
   /*! Put all this in a layout so the resize does the right thing...  */
@@ -25,21 +28,16 @@ setMinimumSize( QSize(30,30) );
 
   header = new QHeader( this, "canvas header" );
   header->setCaption("canvas header");
+  header->setStretchEnabled(TRUE, -1);
+// header->setStyle( QStyle::Style_Off );
   canvasFormHeaderLayout->addWidget( header );
   header->addLabel("LN", DEFAULT_CANVAS_WIDTH);
-//  header->show();
-  header->hide();
-setBackgroundColor("blue");
-header->setPaletteBackgroundColor("red");
+  header->show();
 
   canvas = new QCanvas( this );
-canvas->setBackgroundColor("green");
-header->setPaletteBackgroundColor("pink");
   canvas->setBackgroundColor(parent->backgroundColor());
   canvasView = new SPCanvasView(canvas, this, "SPCanvasView");
-header->setBackgroundColor("orange");
   canvasFormLayout->addWidget(canvasView);
-canvasView->setPaletteBackgroundColor("white");
   canvasView->show();
 }
 
