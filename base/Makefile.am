@@ -16,8 +16,8 @@
 # PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
 # 
 # Original Code.  The Original Code is: Open/Speedshop, Version 1.0, released
-# <MONTH>, <DAY>, 2004, developed by Silicon Graphics, Inc. The Original
-# Code is Copyright (c) 2004 Silicon Graphics, Inc. Copyright in any
+# <MONTH>, <DAY>, 2005, developed by Silicon Graphics, Inc. The Original
+# Code is Copyright (c) 2005 Silicon Graphics, Inc. Copyright in any
 # portions created by third parties is as indicated elsewhere herein.
 # All Rights Reserved.
 ################################################################################

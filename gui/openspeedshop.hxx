@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Form interface generated from reading ui file 'openspeedshop.ui'
 **
-** Created: Fri Jul 2 06:06:22 2004
+** Created: Fri Jul 2 06:06:22 2005
 **      by: The User Interface Compiler ($Id$)
 **
 ** WARNING! All changes made in this file will be lost!
