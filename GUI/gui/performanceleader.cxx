@@ -114,7 +114,12 @@ PerformanceLeader::PerformanceLeader( QWidget* parent, const char* name, WFlags 
     menubar->insertItem( tr("&Help"), helpMenu );
 
     assistant = new QAssistantClient(NULL);
-    assistant->setArguments(QStringList("-hideSidebar"));
+//    assistant->setArguments(QStringList("-hideSidebar"));
+    QStringList slist;
+    slist.append("-profile");
+    slist.append("doc/help.adp");
+//    slist.append("-hideSidebar");
+    assistant->setArguments(slist);
 
     languageChange();
 
