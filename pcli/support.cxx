@@ -16,41 +16,7 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include "support.h"
 
-command_t command;
 
-/**
- * Function: cmd_init
- * 
- * 
- *     
- * @param   void
- *
- * @return  void.
- *
- */
-void
-cmd_init()
-{
-    command.lineno_table.entry_size	= sizeof(arg_desc_t);	/*  */
-    command.address_table.entry_size	= sizeof(arg_desc_t);	/*  */
-    command.pid_table.entry_size    	= sizeof(arg_desc_t);
-    command.break_table.entry_size  	= sizeof(arg_desc_t);
-    command.rank_table.entry_size   	= sizeof(arg_desc_t);
-    command.thread_table.entry_size 	= sizeof(arg_desc_t);
-    command.file_table.entry_size   	= sizeof(arg_desc_t);
-    command.experiment_table.entry_size	= sizeof(arg_desc_t);	/*  */
-    command.name_table.entry_size	= sizeof(name_tab_t);	/*  */
-    command.host_table.entry_size   	= sizeof(host_id_t);	/*  */
-    command.help_table.entry_size   	= sizeof(help_desc_t);
-    command.param_table.entry_size   	= sizeof(arg_desc_t);
-    command.view_table.entry_size   	= sizeof(arg_desc_t);
-
-}
 
 
