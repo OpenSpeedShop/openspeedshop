@@ -23,10 +23,7 @@ class ParseTarget {
     public:
 
 	/** Constructor. */
-	ParseTarget()
-	{
-	    dm_used = false;
-	}
+	ParseTarget();
 
 //	/** Destructor. */
 //	~ParseTarget();
