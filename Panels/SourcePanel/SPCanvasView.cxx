@@ -22,10 +22,9 @@ SPCanvasView::~SPCanvasView( )
 void
 SPCanvasView::viewportResizeEvent( QResizeEvent *e )
 {
-  printf("SPCanvasView::viewportResizeEvent() entered.\n");
+  nprintf(DEBUG_PANELS) ("SPCanvasView::viewportResizeEvent() entered.\n");
 
-printf("resize to %dx%d\n", e->size().width(), e->size().height() );
+  nprintf(DEBUG_PANELS) ("resize to %dx%d\n", e->size().width(), e->size().height() );
+
   canvas->resize( e->size().width(), e->size().height() );
-
-  printf("redraw all the elements...\n");
 }

@@ -98,12 +98,12 @@ public:
   //! The last scrollbar value.
   int lastScrollBarValue;
 
-//! The last line height
-int lastLineHeight;
-
-//! The last calculated visible lines...
-int lastVisibleLines;
-
+  //! The last line height
+  float lastLineHeight;
+  
+  //! The last calculated visible lines...
+  int lastVisibleLines;
+  
   //! Should line numbers be displayed flag.
   bool line_numbersFLAG;
 
@@ -194,5 +194,9 @@ protected:
 private:
   //! Handles the resize event to redraw the scrollbar's pixmap ...
   void handleSizeEvent(QResizeEvent *e=NULL);
+
+  //! Set the lastLineHeight and lastVisibleLines variables.
+  void calculateLastParameters();
+  
 };
 #endif // SOURCE_PANEL_H

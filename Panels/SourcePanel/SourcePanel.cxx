@@ -28,10 +28,6 @@
 
 #define DEFAULT_STAT_WIDTH 50
 
-#ifdef OLDWAY
-#include "InfoEventFilter.hxx"
-#endif // OLDWAY
-
 /*! Unused constructor. */
 SourcePanel::SourcePanel()
 { // Unused... Here for completeness...
@@ -82,10 +78,6 @@ splitter->setHandleWidth(1);
   QString label_text = "No source file specified.";
   label->setText(label_text);
 
-#ifdef OLDWAY
-  QSpacerItem *spacerItem = new QSpacerItem(1, statArea->horizontalHeader()->height()-4, QSizePolicy::Fixed, QSizePolicy::Fixed );
-  textEditHeaderLayout->addItem( spacerItem );
-#endif // OLDWAY
   textEditHeaderLayout->addWidget( label );
 
 
@@ -484,6 +476,10 @@ void
 SourcePanel::zoomIn()
 {
   textEdit->zoomIn();
+
+  calculateLastParameters();
+
+  valueChanged(-1);
 }
 
 /*! If font has a maller  pointSize, bump down one size. */
@@ -491,6 +487,10 @@ void
 SourcePanel::zoomOut()
 {
   textEdit->zoomOut();
+  
+  calculateLastParameters();
+
+  valueChanged(-1);
 }
 
 /* Load a given file in the display. */
@@ -579,11 +579,8 @@ SourcePanel::loadFile(const QString &_fileName)
   textEdit->clearScrollBar();
 // #endif // SLOWS_ME_DOWN
 
-int height = textEdit->height();
-int heightForWidth = textEdit->heightForWidth(80);
-int pointSize = textEdit->pointSize();
-float lineHeight = (heightForWidth-vscrollbar->width())/(float)lineCount;
-lastLineHeight = (int)lineHeight;
+  calculateLastParameters();
+
   if( sameFile == FALSE ) // Then position at top.
   {
     textEdit->moveCursor(QTextEdit::MoveHome, FALSE);
@@ -596,11 +593,11 @@ lastLineHeight = (int)lineHeight;
     nprintf(DEBUG_PANELS) ("loadFile:: down here sameFile: lastTop=%d\n", lastTop);
   }
 
-lastVisibleLines = (int)(height/lineHeight);
-if( sameFile == FALSE )
-{
-//  canvasForm->setHighlights(textEdit->font(), lastLineHeight, lastTop, lastVisibleLines);
-}
+  if( sameFile == FALSE )
+  {
+    canvasForm->clearAllItems();
+    canvasForm->setHighlights(textEdit->font(), lastLineHeight, lastTop, lastVisibleLines);
+  }
 }
 
 /*! Get more information about the current posotion (if any). */
@@ -756,18 +753,7 @@ SourcePanel::positionLineAtCenter(int center_line)
 {
   nprintf(DEBUG_PANELS) ("positionLineAtCenter(%d)\n", center_line);
 
-#ifdef OLDWAY
-  int heightForWidth = textEdit->heightForWidth(80);
-  float lineHeight = (heightForWidth-hscrollbar->height())/(float)lineCount;
-  int height = textEdit->height();
-  nprintf(DEBUG_PANELS) ("height=%d visibleLines=%f\n", height, height/lineHeight );
-  int visibleLines = (int)(height/lineHeight);
-  nprintf(DEBUG_PANELS) ("visibleLines=%d page=%d\n", visibleLines, vscrollbar->pageStep() );
-
-   int top_line = center_line - (visibleLines/2);
-#else // OLDWAY
    int top_line = center_line - (lastVisibleLines/2);
-#endif // OLDWAY
    if( top_line < 1 )
    {
      top_line = 1;
@@ -784,14 +770,10 @@ SourcePanel::positionLineAtTop(int top_line)
   lastTop = top_line;
   nprintf(DEBUG_PANELS) ("positionLineAtTop(top_line=%d)\n", top_line);
   top_line--; // We subtract 1 as textEdit is 0 based.
+
   // Clears the black background box(es) on the screen.
-#ifdef OLDWAY
-  int heightForWidth = textEdit->heightForWidth(80);
-  float lineHeight = (heightForWidth-hscrollbar->height())/(float)lineCount;
-  int value = (int) top_line * (int)lineHeight;
-#else // OLDWAY
+
   int value = (int) top_line * (int)lastLineHeight;
-#endif // OLDWAY
  
   nprintf(DEBUG_PANELS) ("So I think the value is %d\n", value);
   vscrollbar->setValue(value);
@@ -859,34 +841,37 @@ SourcePanel::valueChanged(int passed_in_value)
 
 // This is not correct, but it's gets close enough for right now.  FIX
   nprintf(DEBUG_PANELS) ("Your valueChanged - passed_in_value=%d\n", passed_in_value);
-  float minValue = (float)vscrollbar->minValue();
-  float maxValue = (float)vscrollbar->maxValue();
-  float value = 0;
+//  float minValue = (float)vscrollbar->minValue();
+float maxValue = (float)vscrollbar->maxValue();
+  int value = 0;
  
   if( passed_in_value >= 0 )
   {
     value = passed_in_value;
   } else
   {
-    value = (float)vscrollbar->value();
+    value = vscrollbar->value();
   }
-  nprintf(DEBUG_PANELS) ("valueChanged:: (%d)\n", vscrollbar->value() );
+  nprintf(DEBUG_PANELS) ("valueChanged:: (%d)\n", value );
   nprintf(DEBUG_PANELS) ("passed in value=%d\n", passed_in_value );
 
-//   float lineHeight = lastLineHeight;
-
+printf("value=%d lastLineHeight=%f maxValue=%f\n", value, lastLineHeight, maxValue);
   int top_line = (int)(value/lastLineHeight);
+float remainder = value-(top_line*lastLineHeight);
+printf("remainder = %f\n", remainder );
+float residual = remainder-(int)remainder;
+printf("residual = %f\n", residual);
+if( residual >= .5 )
+{
+  remainder++;
+}
+remainder-=2;
   top_line++;
   lastTop = top_line;
 
   nprintf(DEBUG_PANELS) ("top_line =%d\n", top_line);
-#ifdef LATER
-canvasForm->updateHighlights(textEdit->font(), lastLineHeight, lastTop);
-#else // LATER
-canvasForm->clearAllItems();
-// canvasForm->updateHighlights(textEdit->font(), lastLineHeight, lastTop);
-canvasForm->setHighlights(textEdit->font(), lastLineHeight, lastTop, lastVisibleLines);
-#endif // LATER
+  canvasForm->clearAllItems();
+  canvasForm->setHighlights(textEdit->font(), lastLineHeight, lastTop, lastVisibleLines, (int)remainder);
 }
 
 /*! If there's a highlight list.... highlight the lines. */
@@ -937,16 +922,22 @@ SourcePanel::getDescription(int line)
 
 void SourcePanel::handleSizeEvent(QResizeEvent *e)
 {
-  nprintf(DEBUG_PANELS) ("entered\n");
-//  Panel::handleSizeEvent(e);
-int heightForWidth = textEdit->heightForWidth(80);
-float lineHeight = (heightForWidth-hscrollbar->height())/(float)lineCount;
-int height = textEdit->height();
-nprintf(DEBUG_PANELS) ("height=%d visibleLines=%f\n", height, height/lineHeight );
-lastLineHeight = (int)lineHeight;
-lastVisibleLines = (int)(height/lineHeight);
-printf ("lastVisibleLines=%d page=%d\n", lastVisibleLines, vscrollbar->pageStep() );
+  nprintf(DEBUG_PANELS) ("SourcePanel::handleSizeEvent(e) entered\n");
+
+  calculateLastParameters();
 
   textEdit->clearScrollBar();
   doFileHighlights();
+}
+
+  
+void
+SourcePanel::calculateLastParameters()
+{
+  int height = textEdit->height();
+  int heightForWidth = textEdit->heightForWidth(80);
+  int pointSize = textEdit->pointSize();
+  float lineHeight = (heightForWidth-vscrollbar->width())/(float)lineCount;
+  lastLineHeight = lineHeight;
+  lastVisibleLines = (int)(height/lineHeight);
 }
