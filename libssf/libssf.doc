@@ -543,10 +543,10 @@ the API are illustrated by the above example.
  *
  *The GUI is bundled into a dynamic library that is loaded on demand.  It's the *Command Line Interface (CLI) that launches the GUI.   By default the CLI 
  *will launch the GUI upon invocation of the OpenSpeedShop tool.   However,
- *the CLI can be started without starting the GUI ($ oss -cli) and then the 
+ *the CLI can be started without starting the GUI ($ openss -cli) and then the 
  *GUI can loaded and initialize when needed.
  *
- *Upon invoking OpenSpeedShop ($ oss) the command line is parsed, and if the
+ *Upon invoking OpenSpeedShop ($ openss) the command line is parsed, and if the
  *GUI is requested the GUI library is loaded and launched.   We then drop into
  *an event loop that parsed both command lines and GUI events.
  *
