@@ -487,12 +487,22 @@ TopPanel::details()
     msg, QMessageBox::Ok );
 }
 
+#include <qscrollbar.h>
 void
 TopPanel::info()
 {
   printf("TopPanel::info() called.\n");
 
+#ifdef OLDWAY
   int line = textEdit->paragraphAt( textEdit->mapFromGlobal( QCursor::pos() )  );
+#else // OLDWAY
+QScrollBar *vscrollbar = textEdit->verticalScrollBar();
+  QPoint pos = textEdit->mapFromGlobal( QCursor::pos() );
+  pos.setY( pos.y() + vscrollbar->value() );
+
+  int line = textEdit->paragraphAt( pos );
+#endif // OLDWAY
+
 printf("info() line=%d\n", line );
 
   QString msg;
