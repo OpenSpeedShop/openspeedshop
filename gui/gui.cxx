@@ -27,12 +27,23 @@ extern "C"
   void
   guithreadinit(void *ptr)
   {
-    ArgStruct *arg_struct = (ArgStruct *)ptr;
-    int argc = arg_struct->argc;
-    char **argv = arg_struct->argv;
+    ArgStruct *arg_struct = NULL;
+    int argc = 0;
+    char **argv = NULL;
+    if( ptr != NULL )
+    {
+      arg_struct = (ArgStruct *)ptr;
+      argc = arg_struct->argc;
+      argv = arg_struct->argv;
+    }
     bool splashFLAG=TRUE;
   
     qapplication = new QApplication( argc, argv );
+
+    if( argv == NULL )
+    {
+      argc = 0;
+    }
 
     QString hostStr = QString::null;
     QString executableStr = QString::null;

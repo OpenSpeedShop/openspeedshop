@@ -31,6 +31,10 @@ using namespace OpenSpeedShop::Framework;
 #include "Clip.hxx"
 #include "Experiment.hxx"
 
+#include "ArgClass.hxx"
+extern "C" void loadTheGUI(ArgStruct *);
+
+
 // Local Macros
 static inline
 FILE *predefined_filename (std::string filename)
@@ -787,6 +791,14 @@ read_another_window:
 fprintf(stdout,"quit instruction encountered\n");
         s = NULL;
         break;
+      }
+    }
+    len  = strlen(s);
+    if (len > 1) {
+      if (!strncasecmp ( s, "gui\n", 5)) {
+fprintf(stdout,"gui instruction encountered\n");
+        loadTheGUI((ArgStruct *)NULL);
+        s = NULL;
       }
     }
   } while (s == NULL);

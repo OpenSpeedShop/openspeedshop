@@ -122,7 +122,12 @@ void OpenSpeedshop::fileExit()
  qApp->closeAllWindows();
  qApp->exit();
 
+#ifdef OLDWAY
  exit(EXIT_SUCCESS);
+#else // OLDWAY
+  // We're started as a thread from the cli thread.   We can't just willy-nilly
+  // exit...
+#endif // OLDWAY
 }
 
 #ifdef EVENTUALLY
