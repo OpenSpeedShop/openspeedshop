@@ -7,7 +7,7 @@
 
 void PreferencesDialog::readPreferencesOnEntry()
 {
-printf("readPreferencesOnEntry() entered\n");
+// printf("readPreferencesOnEntry() entered\n");
 
 //  settings.insertSearchPath( QSettings::Unix, "openspeedshop" );
   // No search path needed for Unix; see notes further on.
@@ -52,56 +52,6 @@ void PreferencesDialog::resetPreferenceDefaults()
 {
     qWarning( "PreferencesDialog::resetPreferenceDefaults(): Not implemented yet" );
   languageChange();
-}
-
-void PreferencesDialog::setGlobalPrecision()
-{
-    qWarning( "PreferencesDialog::setGlobalPrecision(): Not implemented yet" );
-}
-
-void PreferencesDialog::setShowSplashScreen()
-{
-    qWarning( "PreferencesDialog::setShowSplashScreen(): Not implemented yet" );
-}
-
-void PreferencesDialog::setShowColoredPanelTabs()
-{
-    qWarning( "PreferencesDialog::setShowColoredPanelTabs(): Not implemented yet" );
-}
-
-void PreferencesDialog::setRemoveEmptyPC()
-{
-    qWarning( "PreferencesDialog::setRemoveEmptyPC(): Not implemented yet" );
-}
-
-void PreferencesDialog::setShowAvailableGraphics()
-{
-    qWarning( "PreferencesDialog::setShowAvailableGraphics(): Not implemented yet" );
-}
-
-void PreferencesDialog::setShoeLineNumbers()
-{
-    qWarning( "PreferencesDialog::setShoeLineNumbers(): Not implemented yet" );
-}
-
-void PreferencesDialog::setShowLineNumbers()
-{
-    qWarning( "PreferencesDialog::setShowLineNumbers(): Not implemented yet" );
-}
-
-void PreferencesDialog::setSortDescending()
-{
-    qWarning( "PreferencesDialog::setSortDescending(): Not implemented yet" );
-}
-
-void PreferencesDialog::setShowTopN()
-{
-    qWarning( "PreferencesDialog::setShowTopN(): Not implemented yet" );
-}
-
-void PreferencesDialog::setShowStats()
-{
-    qWarning( "PreferencesDialog::setShowStats(): Not implemented yet" );
 }
 
 QWidget *

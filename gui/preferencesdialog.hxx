@@ -78,16 +78,6 @@ public:
     void applyPreferences();
 public slots:
     virtual void resetPreferenceDefaults();
-    virtual void setGlobalPrecision();
-    virtual void setShowSplashScreen();
-    virtual void setShowColoredPanelTabs();
-    virtual void setRemoveEmptyPC();
-    virtual void setShowAvailableGraphics();
-    virtual void setShoeLineNumbers();
-    virtual void setShowLineNumbers();
-    virtual void setSortDescending();
-    virtual void setShowTopN();
-    virtual void setShowStats();
     virtual void listItemSelected(QListViewItem *);
     virtual void selectGlobalFont();
     virtual void buttonApplySelected();

@@ -134,16 +134,6 @@ PreferencesDialog::PreferencesDialog( QWidget* parent, const char* name, bool mo
       SLOT( reject() ) );
     connect( setFontButton, SIGNAL( clicked() ), this,
       SLOT( selectGlobalFont() ) );
-    connect( precisionLineEdit, SIGNAL( returnPressed() ), this,
-      SLOT( setGlobalPrecision() ) );
-    connect( setShowSplashScreenCheckBox, SIGNAL( stateChanged(int) ), this,
-      SLOT( setShowSplashScreen() ) );
-    connect( setShowColoredTabsCheckBox, SIGNAL( stateChanged(int) ), this,
-      SLOT( setShowColoredPanelTabs() ) );
-    connect( deleteEmptyPCCheckBox, SIGNAL( stateChanged(int) ), this,
-      SLOT( setRemoveEmptyPC() ) );
-    connect( showGraphicsCheckBox, SIGNAL( stateChanged(int) ), this,
-      SLOT( setShowAvailableGraphics() ) );
     connect( categoryListView, SIGNAL( clicked(QListViewItem*) ), this,
       SLOT( listItemSelected(QListViewItem*) ) );
 

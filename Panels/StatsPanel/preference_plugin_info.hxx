@@ -23,7 +23,7 @@ extern "C"
 
   QWidget *initialize_preferences_entry_point(QSettings *settings, QWidgetStack *stack, char *name)
   {
-    printf("initialize_preferences_entry_point(0x%x 0x%x %s) entered\n", settings, stack, name);
+//    printf("initialize_preferences_entry_point(0x%x 0x%x %s) entered\n", settings, stack, name);
 
     QWidget *statsPanelStackPage = new QWidget( stack, name );
 
@@ -87,7 +87,7 @@ extern "C"
   }
   int save_preferences_entry_point(QSettings *settings, char *name)
   {
-    printf("save_preferences_entry_point(0x%x %s) entered\n", settings, name);
+//    printf("save_preferences_entry_point(0x%x %s) entered\n", settings, name);
 
     char settings_buffer[1024];
 

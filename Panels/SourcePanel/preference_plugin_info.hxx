@@ -20,7 +20,7 @@ extern "C"
 
   QWidget *initialize_preferences_entry_point(QSettings *settings, QWidgetStack *stack, char *name)
   {
-    printf("initialize_preferences_entry_point(0x%x 0x%x %s) entered\n", settings, stack, name);
+//    printf("initialize_preferences_entry_point(0x%x 0x%x %s) entered\n", settings, stack, name);
 
     sourcePanelStackPage = new QWidget( stack, "Source Panel" );
     generalStackPageLayout_2 = new QVBoxLayout( sourcePanelStackPage, 11, 6, "generalStackPageLayout_2"); 
@@ -73,7 +73,7 @@ extern "C"
   }
   void save_preferences_entry_point(QSettings *settings, char *name)
   {
-    printf("save_preferences_entry_point(0x%x %s) entered\n", settings, name);
+//    printf("save_preferences_entry_point(0x%x %s) entered\n", settings, name);
 
     char settings_buffer[1024];
 

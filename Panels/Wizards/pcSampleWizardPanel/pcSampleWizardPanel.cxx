@@ -1223,7 +1223,7 @@ pcSampleWizardPanel::vUpdateAttachOrLoadPageWidget()
   if( getPanelContainer()->getMainWindow() )
   {
     OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
-printf("mw=0x%x\n", mw );
+// printf("mw=0x%x\n", mw );
     if( mw )
     {
       if( !mw->executableName.isEmpty() )
