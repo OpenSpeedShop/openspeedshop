@@ -44,8 +44,8 @@ static pthread_cond_t  Async_Input_Available = PTHREAD_COND_INITIALIZER;
 
 char *Current_OpenSpeedShop_Prompt = "openss";
 char *Alternate_Current_OpenSpeedShop_Prompt = "....ss";
-static FILE *ttyin;  // Read directly from this xterm window.
-static FILE *ttyout; // Write directly to this xterm window.
+static FILE *ttyin = NULL;  // Read directly from this xterm window.
+static FILE *ttyout = NULL; // Write directly to this xterm window.
 void Default_TLI_Command_Output (CommandObject *C);
 
 class Input_Source
@@ -643,6 +643,7 @@ void Clip_Complete (InputLineObject *clip) {
 
    // DEBUG: the output should go somewhere.  Until we finish the implementation,
    // process the CommandObject list and produce the output here.
+/* Remove this code so we can test the GUI -
     std::list<CommandObject *> cmd_object = clip->CmdObj_List();
     std::list<CommandObject *>::iterator coi;
     for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
@@ -650,6 +651,7 @@ void Clip_Complete (InputLineObject *clip) {
         Default_TLI_Command_Output ( (*coi) );
       }
     }
+*/
   }
 
  // Record the InputObject and decide if it can be deleted
@@ -658,8 +660,9 @@ void Clip_Complete (InputLineObject *clip) {
 
 void Cmd_Obj_Complete (CommandObject *C) {
   InputLineObject *lin = C->Clip();
-  if (!(lin->CallBackC (C))) {
-  }
+  (void)(lin->CallBackC (C));
+/* TEST - for the moment, assume 1 Result per line */
+/*  lin->Set_Results_Used(); */
   Clip_Complete (lin);
 }
 
@@ -996,24 +999,24 @@ bool Push_Input_File (CMDWID issuedbywindow, std::string fromfname) {
 
 void Default_TLI_Command_Output (CommandObject *C) {
   if (!(C->Results_Used())) {
+    FILE *outfile = (ttyout != NULL) ? ttyout : stdout;
+
    // Print the ResultdObject list
     std::list<CommandResult *> cmd_object = C->Result_List();
     std::list<CommandResult *>::iterator coi;
     int num_results = 0;
     for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
-      if (num_results++ != 0) fprintf(ttyout,"\n");
-      (*coi)->Print (ttyout);
+      if (num_results++ != 0) fprintf(outfile,"\n");
+      (*coi)->Print (outfile);
     }
-    C->set_Results_Used ();
-    if (num_results != 0) {
+    C->set_Results_Used (); // Everything is where it belongs.
+    if ((num_results != 0) &&
+        (ttyout != NULL)) {
      // Re-issue the prompt
       fprintf(ttyout,"\n");
       SS_Issue_Prompt (ttyout);
     }
   }
-/* TEST - for the moment, assume 1 Result per line */
-  InputLineObject *lin = C->Clip();
-  lin->Set_Results_Used();
 }
 
 // This routine continuously reads from /dev/tty and appends the string to an input window.
