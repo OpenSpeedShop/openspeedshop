@@ -22,74 +22,51 @@ extern QApplication *qapplication;
 
 #include "plugin_handler.hxx"
 
-#include "debug.hxx"  // This includes the definition of dprintf
+// #include "debug.hxx"  // This includes the definition of dprintf
 #include "AttachProcessDialog.hxx"
 
 /*! Here are the needed globals for this application... */
 #include "PanelContainer.hxx"
 #include "openspeedshop.hxx"
-// OpenSpeedshop *topPL = NULL;
 
-void OpenSpeedshop::fileNew()
+#include "LoadAttachObject.hxx"
+
+void OpenSpeedshop::fileLoadNewProgram()
 {
-  printf("fileNew() entered\n");
+//  printf("OpenSpeedshop::fileLoadNewProgram() entered\n");
 
-  QString dirName = QString::null;
-  if( lfd == NULL )
-  {
-    lfd = new QFileDialog(this, "file dialog", TRUE );
-    lfd->setCaption( QFileDialog::tr("Enter executable or saved experiment:") );
-//    lfd->setMode( QFileDialog::AnyFile );
-    QString types(
-                  "Any Files (*);;"
-                  "Image files (*.png *.xpm *.jpg);;"
-                  "Text files (*.txt);;"
-                  "(*.c *.cpp *.cxx *.C *.c++ *.f* *.F*);;"
-                  );
-    lfd->setFilters( types );
-//    lfd->setViewMode( QFileDialog::Detail );
-    lfd->setDir(dirName);
-  }
-  lfd->setSelection(QString::null);
+  pidStr = QString::null;
 
-  QString fileName = QString::null;
-  if( lfd->exec() == QDialog::Accepted )
-  {
-    fileName = lfd->selectedFile();
-    if( !fileName.isEmpty() )
-    {
-      printf("fileName.ascii() = (%s)\n", fileName.ascii() );
-      executableName = fileName;
-    }
-  }
+  loadNewProgram();
+
+  // Send out a message to all those that might care about this change request.
+  LoadAttachObject *lao = new LoadAttachObject(executableName, pidStr);
+  topPC->notifyNearest((char *)lao);
 }
 
-void OpenSpeedshop::fileAttach()
+void OpenSpeedshop::fileAttachNewProcess()
 {
-  printf("fileAttach() entered\n");
+//  printf("OpenSpeedshop::fileAttachNewProcess() entered\n");
+  executableName = QString::null;
 
-  AttachProcessDialog *dialog = new AttachProcessDialog(this, "AttachProcessDialog", TRUE);
-  if( dialog->exec() == QDialog::Accepted )
-  {
-// printf("QDialog::Accepted\n");
-    pidStr = dialog->selectedProcesses();
-  }
+  attachNewProcess();
 
-printf("pidStr = %s\n", pidStr.ascii() );
-  delete dialog;
+  // Send out a message to all those that might care about this change request.
+  LoadAttachObject *lao = new LoadAttachObject(executableName, pidStr);
+  topPC->notifyNearest((char *)lao);
 }
 
 
 void OpenSpeedshop::fileOpen()
 {
-  printf("fileOpen() entered\n");
+//  printf("fileOpen() entered\n");
 
   QMessageBox::information( (QWidget *)NULL, tr("Info:"), tr("This feature currently under construction. - Unable to fulfill request."), QMessageBox::Ok );
 }
 
 void OpenSpeedshop::fileSave()
 {
-  printf("OpenSpeedshop::fileSave() entered\n");
+//  printf("OpenSpeedshop::fileSave() entered\n");
 
 #ifndef DEMO
   QMessageBox::information( (QWidget *)NULL, tr("Info:"), tr("This feature currently under construction. - Unable to fulfill request."), QMessageBox::Ok );
@@ -121,7 +98,7 @@ void OpenSpeedshop::fileSave()
     fileName = sfd->selectedFile();
     if( !fileName.isEmpty() )
     {
-      printf("fileName.ascii() = (%s)\n", fileName.ascii() );
+//      printf("fileName.ascii() = (%s)\n", fileName.ascii() );
       fn = strdup(fileName.ascii());
     } else
     {
@@ -129,7 +106,7 @@ void OpenSpeedshop::fileSave()
     }
   }
 
-  printf("go and save the setup...\n");
+//  printf("go and save the setup...\n");
   ((PanelContainer *)topPC)->savePanelContainerTree(fn);
   if( !fileName.isEmpty() )
   {
@@ -140,7 +117,7 @@ void OpenSpeedshop::fileSave()
 
 void OpenSpeedshop::fileExit()
 {
- printf("fileExit() entered.\n");
+// printf("fileExit() entered.\n");
 
  qApp->closeAllWindows();
  qApp->exit();
@@ -151,31 +128,31 @@ void OpenSpeedshop::fileExit()
 #ifdef EVENTUALLY
 void OpenSpeedshop::editUndo()
 {
- printf("editUndo() entered.\n");
+// printf("editUndo() entered.\n");
 
 }
 
 void OpenSpeedshop::editRedo()
 {
- printf("editRedo() entered.\n");
+// printf("editRedo() entered.\n");
 
 }
 
 void OpenSpeedshop::editCut()
 {
- printf("editCut() entered.\n");
+// printf("editCut() entered.\n");
 
 }
 
 void OpenSpeedshop::editPaste()
 {
- printf("editPaste() entered.\n");
+// printf("editPaste() entered.\n");
 
 }
 
 void OpenSpeedshop::editFind()
 {
- printf("editFind() entered.\n");
+// printf("editFind() entered.\n");
 
 
 }
@@ -183,12 +160,12 @@ void OpenSpeedshop::editFind()
 
 void OpenSpeedshop::helpIndex()
 {
- printf("helpIndex() entered.\n");
+// printf("helpIndex() entered.\n");
 }
 
 void OpenSpeedshop::helpContents()
 {
- printf("helpContents() entered.\n");
+// printf("helpContents() entered.\n");
 
  char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
 
@@ -201,7 +178,7 @@ void OpenSpeedshop::helpContents()
 
 void OpenSpeedshop::helpAbout()
 {
- printf("helpAbout() entered.\n");
+// printf("helpAbout() entered.\n");
 
  QMessageBox::about(this, "Open/SpeedShop", "Open/SpeedShop about example....");
 }
@@ -377,7 +354,6 @@ void OpenSpeedshop::init()
   topPC = masterPC;
   
 
-fprintf(stderr, "OpenSpeedshop::init(A)\n");
   char ph_file[2048];
   char *ph_dl_name = "/ossPlugin.so";
   sprintf(ph_file, "%s%s", plugin_directory, ph_dl_name);
@@ -593,4 +569,49 @@ void OpenSpeedshop::destroy()
 {
 fprintf(stderr, "OpenSpeedshop::destroy() entered.\n");
   qApp->restoreOverrideCursor();
+}
+
+void OpenSpeedshop::loadNewProgram()
+{
+  QString dirName = QString::null;
+  if( lfd == NULL )
+  {
+    lfd = new QFileDialog(this, "file dialog", TRUE );
+    lfd->setCaption( QFileDialog::tr("Enter executable or saved experiment:") );
+//    lfd->setMode( QFileDialog::AnyFile );
+    QString types(
+                  "Any Files (*);;"
+                  "Image files (*.png *.xpm *.jpg);;"
+                  "Text files (*.txt);;"
+                  "(*.c *.cpp *.cxx *.C *.c++ *.f* *.F*);;"
+                  );
+    lfd->setFilters( types );
+//    lfd->setViewMode( QFileDialog::Detail );
+    lfd->setDir(dirName);
+  }
+  lfd->setSelection(QString::null);
+
+  QString fileName = QString::null;
+  if( lfd->exec() == QDialog::Accepted )
+  {
+    fileName = lfd->selectedFile();
+    if( !fileName.isEmpty() )
+    {
+//      printf("fileName.ascii() = (%s)\n", fileName.ascii() );
+      executableName = fileName;
+    }
+  }
+}
+
+void OpenSpeedshop::attachNewProcess()
+{
+  AttachProcessDialog *dialog = new AttachProcessDialog(this, "AttachProcessDialog", TRUE);
+  if( dialog->exec() == QDialog::Accepted )
+  {
+// printf("QDialog::Accepted\n");
+    pidStr = dialog->selectedProcesses();
+  }
+
+printf("pidStr = %s\n", pidStr.ascii() );
+  delete dialog;
 }
