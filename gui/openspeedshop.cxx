@@ -51,6 +51,9 @@ OpenSpeedshop::OpenSpeedshop( QWidget* parent, const char* name, WFlags fl )
   fileSaveExperimentAction = new QAction( this, "fileSaveExperimentAction" );
 //  fileSaveExperimentAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "filesave" ) ) );
 
+  fileExportExperimentDataAction = new QAction( this, "fileExportExperimentDataAction" );
+//  fileExportExperimentDataAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "filesave" ) ) );
+
   fileSaveSessionAction = new QAction( this, "fileSaveSessionAction" );
 //  fileSaveSessionAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "filesave" ) ) );
   fileExitAction = new QAction( this, "fileExitAction" );
@@ -66,6 +69,9 @@ OpenSpeedshop::OpenSpeedshop( QWidget* parent, const char* name, WFlags fl )
 
   fileOpenExperimentAction->addTo( fileMenu );
   fileSaveExperimentAction->addTo( fileMenu );
+  fileExportExperimentDataAction->addTo( fileMenu );
+
+  fileMenu->insertSeparator();
 
   fileSaveSessionAction->addTo( fileMenu );
   fileMenu->insertSeparator();
@@ -78,6 +84,7 @@ OpenSpeedshop::OpenSpeedshop( QWidget* parent, const char* name, WFlags fl )
     // signals and slots connections
   connect( fileOpenExperimentAction, SIGNAL( activated() ), this, SLOT( fileOpenExperiment() ) );
   connect( fileSaveExperimentAction, SIGNAL( activated() ), this, SLOT( fileSaveExperiment() ) );
+  connect( fileExportExperimentDataAction, SIGNAL( activated() ), this, SLOT( fileExportExperimentData() ) );
 
   connect( fileSaveSessionAction, SIGNAL( activated() ), this, SLOT( fileSaveSession() ) );
   connect( fileExitAction, SIGNAL( activated() ), this, SLOT( fileExit() ) );
@@ -135,9 +142,14 @@ void OpenSpeedshop::languageChange()
   fileSaveExperimentAction->setMenuText( tr( "&Save Experiment Data" ) );
   fileSaveExperimentAction->setAccel( tr( "Ctrl+S" ) );
 
+  fileExportExperimentDataAction->setText( tr( "Export Experiment Data" ) );
+  fileExportExperimentDataAction->setMenuText( tr( "&Export Experiment Data" ) );
+  fileExportExperimentDataAction->setAccel( tr( "Ctrl+E" ) );
+
   fileSaveSessionAction->setText( tr( "Save Window Setup" ) );
-  fileSaveSessionAction->setMenuText( tr( "&Save Window Setup" ) );
+  fileSaveSessionAction->setMenuText( tr( "Save &Window Setup" ) );
   fileSaveSessionAction->setAccel( tr( "Ctrl+W" ) );
+
   fileExitAction->setText( tr( "Exit" ) );
   fileExitAction->setMenuText( tr( "E&xit" ) );
   fileExitAction->setAccel( QString::null );

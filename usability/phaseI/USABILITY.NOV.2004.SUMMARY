@@ -381,13 +381,16 @@ Follow up comments:
 After the (above) summary was sent out there were additional comments
 volunteered.  Following is a summary of those comments:
 
- - Reports (A follow up to "Save As....")
+x - Reports (A follow up to "Save As....")
    Its been suggested that one possibility to solve the formatting of data
    to a file is to provide a Report Panel.  This Report Panel would
    describe the format saved data should be stored.   This would allow the
    user to specify that exported graphics should be saved as images, tables,
    ascii, or raw data.   Likewise, table data could be described to be saved
    as tables, ascii, or tab deliminated lists.
+   (Partially completed:  The Export Experiment Data entry was added to the
+                          main File menu to be a placeholder for this
+                          functionality.)
 
  - Diving  (A follow up to "Diving clues")
    Diving also implies there needs to be Forward/Back functionality.    

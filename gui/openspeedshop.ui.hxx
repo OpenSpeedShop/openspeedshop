@@ -134,6 +134,16 @@ void OpenSpeedshop::fileSaveExperiment()
   QMessageBox::information( (QWidget *)NULL, tr("Info:"), tr("This feature currently under construction. - Unable to fulfill request."), QMessageBox::Ok );
 }
 
+void OpenSpeedshop::fileExportExperimentData()
+{
+  printf("OpenSpeedshop::fileExportExperimentData() entered\n");
+  printf("  Get a list of all the current experiments openned.  Present\n");
+  printf("  list to the user so they can chose to have the experiment data\n");
+  printf("  to export.  Also prompt them for the export format type.\n\n");
+
+  QMessageBox::information( (QWidget *)NULL, tr("Info:"), tr("This feature currently under construction. - Unable to fulfill request."), QMessageBox::Ok );
+}
+
 void OpenSpeedshop::fileExit()
 {
   dprintf("fileExit() entered.\n");
