@@ -39,6 +39,7 @@ extern QApplication *qapplication;
 
 // #include "debug.hxx"  // This includes the definition of dprintf
 #include "AttachProcessDialog.hxx"
+#include "SelectExperimentDialog.hxx"
 
 /*! Here are the needed globals for this application... */
 #include "PanelContainer.hxx"
@@ -125,7 +126,23 @@ void OpenSpeedshop::fileSaveSession()
 
 void OpenSpeedshop::fileOpenExperiment()
 {
-  printf("OpenSpeedshop::fileOpenExperiment() entered\n");
+  SelectExperimentDialog *dialog = new SelectExperimentDialog(this, "SelectExperimentDialog", TRUE);
+
+   QString expStr;
+  if( dialog->exec() == QDialog::Accepted )
+  {
+// printf("QDialog::Accepted\n");
+    expStr = dialog->selectedExperiment();
+  }
+
+printf("expStr = %s\n", expStr.ascii() );
+  delete dialog;
+
+}
+
+void OpenSpeedshop::fileOpenSavedExperiment()
+{
+  printf("OpenSpeedshop::fileOpenSavedExperiment() entered\n");
   printf("  Get a list of all the experiment files in the current directory\n");
   printf("  and in the environment variable >INSERTONEHERE<.   Then create\n");
   printf("  a dynamice menu with the list...    \n\n");
@@ -152,23 +169,16 @@ void OpenSpeedshop::fileSaveExperiment()
   QMessageBox::information( (QWidget *)NULL, tr("Info:"), tr("This feature currently under construction. - Unable to fulfill request."), QMessageBox::Ok );
 */
 
-  QString command("listExp");
-  std::list<int64_t> int_list;
-
-  int_list.clear();
-  if( !cli->getIntListValueFromCLI( (char *)command.ascii(), &int_list ) )
+  SelectExperimentDialog *dialog = new SelectExperimentDialog(this, "SelectExperimentDialog", TRUE);
+QString expStr;
+  if( dialog->exec() == QDialog::Accepted )
   {
-    printf("Unable to run %s\n", command.ascii() );
+// printf("QDialog::Accepted\n");
+    expStr = dialog->selectedExperiment();
   }
 
-  std::list<int64_t>::iterator it;
-// printf("int_list.size() =%d\n", int_list.size() );
-  for(it = int_list.begin(); it != int_list.end(); it++ )
-  {
-    int64_t cr_int = (int64_t)(*it);
-
-    printf("Yippie on the (%d)\n", cr_int);
-  }
+printf("expStr = %s\n", expStr.ascii() );
+  delete dialog;
 
 }
 

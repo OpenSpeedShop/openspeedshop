@@ -69,7 +69,8 @@ OpenSpeedshop::OpenSpeedshop( int _wid, QWidget* parent, const char* name, WFlag
 
   // actions
   fileOpenExperimentAction = new QAction( this, "fileOpenExperimentAction" );
-//  fileOpenExperimentAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "fileopen" ) ) );
+  fileOpenSavedExperimentAction = new QAction( this, "fileOpenSavedExperimentAction" );
+//  fileOpenSavedExperimentAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "fileopen" ) ) );
   fileSaveExperimentAction = new QAction( this, "fileSaveExperimentAction" );
 //  fileSaveExperimentAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "filesave" ) ) );
 
@@ -92,6 +93,7 @@ OpenSpeedshop::OpenSpeedshop( int _wid, QWidget* parent, const char* name, WFlag
   fileMenu = new QPopupMenu( this );
 
   fileOpenExperimentAction->addTo( fileMenu );
+  fileOpenSavedExperimentAction->addTo( fileMenu );
   fileSaveExperimentAction->addTo( fileMenu );
   fileExportExperimentDataAction->addTo( fileMenu );
 
@@ -111,6 +113,7 @@ OpenSpeedshop::OpenSpeedshop( int _wid, QWidget* parent, const char* name, WFlag
 
     // signals and slots connections
   connect( fileOpenExperimentAction, SIGNAL( activated() ), this, SLOT( fileOpenExperiment() ) );
+  connect( fileOpenSavedExperimentAction, SIGNAL( activated() ), this, SLOT( fileOpenSavedExperiment() ) );
   connect( fileSaveExperimentAction, SIGNAL( activated() ), this, SLOT( fileSaveExperiment() ) );
   connect( fileExportExperimentDataAction, SIGNAL( activated() ), this, SLOT( fileExportExperimentData() ) );
 
@@ -166,9 +169,13 @@ void OpenSpeedshop::languageChange()
 {
   setCaption( tr( "Open/SpeedShop" ) );
 
-  fileOpenExperimentAction->setText( tr( "Open Saved Experiment..." ) );
-  fileOpenExperimentAction->setMenuText( tr( "&Open Saved Experiment..." ) );
+  fileOpenExperimentAction->setText( tr( "Open Experiment..." ) );
+  fileOpenExperimentAction->setMenuText( tr( "&Open Experiment..." ) );
   fileOpenExperimentAction->setAccel( tr( "Ctrl+O" ) );
+
+  fileOpenSavedExperimentAction->setText( tr( "Open Saved Experiment..." ) );
+  fileOpenSavedExperimentAction->setMenuText( tr( "Open S&aved Experiment..." ) );
+  fileOpenSavedExperimentAction->setAccel( tr( "Ctrl+A" ) );
 
   fileSaveExperimentAction->setText( tr( "Save Experiment Data" ) );
   fileSaveExperimentAction->setMenuText( tr( "&Save Experiment Data" ) );

@@ -23,6 +23,9 @@ ossDialogs_la_CXXFLAGS = \
 	-I$(QTDIR)/include \
 	-I. \
 	-I.. \
+	-I../libopenss-framework \
+	-I../gui \
+	-I../pcli \
 	-I../images \
 	-I../base \
 	-I../plugin \
@@ -36,7 +39,11 @@ ossDialogs_la_LIBADD = $(LIBLTDL)
 moc_AttachProcessDialog.cxx: AttachProcessDialog.hxx
 	-moc -o moc_AttachProcessDialog.cxx AttachProcessDialog.hxx
 
-ossDialogs_la_SOURCES = \
-	AttachProcessDialog.hxx AttachProcessDialog.cxx moc_AttachProcessDialog.cxx
+moc_SelectExperimentDialog.cxx: SelectExperimentDialog.hxx
+	-moc -o moc_SelectExperimentDialog.cxx SelectExperimentDialog.hxx
 
-CLEANFILES=moc_AttachProcessDialog.cxx
+ossDialogs_la_SOURCES = \
+	AttachProcessDialog.hxx AttachProcessDialog.cxx moc_AttachProcessDialog.cxx \
+	SelectExperimentDialog.hxx SelectExperimentDialog.cxx moc_SelectExperimentDialog.cxx
+
+CLEANFILES=moc_AttachProcessDialog.cxx moc_SelectExperimentDialog.cxx

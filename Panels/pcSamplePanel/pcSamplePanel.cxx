@@ -387,7 +387,7 @@ if( !cli->runSynchronousCLI(command) )
         ret_val = 1;
         break;
       case  RUN_T:
-sprintf(command, "expRun -x %d\n", expID);
+sprintf(command, "expGo -x %d\n", expID);
 // sprintf(command, "expCreate\n");
 if( !cli->runSynchronousCLI(command) )
 {

@@ -67,6 +67,7 @@ class OpenSpeedshop : public QMainWindow
     QAction* fileAttachNewProcessAction;
 
     QAction* fileOpenExperimentAction;
+    QAction* fileOpenSavedExperimentAction;
     QAction* fileSaveExperimentAction;
     QAction* fileExportExperimentDataAction;
     QAction* fileSaveSessionAction;
@@ -126,6 +127,7 @@ class OpenSpeedshop : public QMainWindow
     void fileAttachNewProcess();
   public slots:
     virtual void fileOpenExperiment();
+    virtual void fileOpenSavedExperiment();
     virtual void fileSaveExperiment();
     virtual void fileExportExperimentData();
     virtual void fileSaveSession();
