@@ -9,31 +9,12 @@
 
 namespace OpenSpeedShop { namespace cli {
 
-typedef enum {
-    VAL_STRING,
-    VAL_NUMBER
-} val_enum_t;
-
-typedef struct {
-    // union is not possible with type string
-    string name;
-    int num;
-    val_enum_t tag; /** Determines with field to be used */
-} parse_val_t;
-
-typedef struct {
-    parse_val_t start_range;
-    parse_val_t end_range;
-} parse_range_t;
-
 /** Simple static info about a command */
 typedef struct {
     char *name;     	/** formal name of the command */
     bool ret_list;  	/** does this return a list or single instance */
     oss_cmd_enum ndx;	/** for sanity checking */
 } command_type_t;
-
-class Target;
 
 /**
  * Parser result class.
@@ -51,10 +32,37 @@ class ParseResult {
 	ParseResult()
 	{
 	    dm_experiment_set = false;
+
+    	    // Create first ParseTarget object.
+    	    dm_p_cur_target = new ParseTarget();
 	}
 
-//	/** Destructor. */
-//	~ParseResult();
+	/** Destructor. */
+	~ParseResult()
+	{
+	    delete dm_p_cur_target;
+	}
+
+    	/** ParseTarget object handling */
+	void PushParseTarget()
+	{
+	    dm_target_list.push_back(*dm_p_cur_target);
+	    delete dm_p_cur_target;
+	    dm_p_cur_target = new ParseTarget();
+	    
+	}
+
+    	/** Return pointer to current ParseTarget object */
+	ParseTarget * CurrentTarget()
+	{
+	    return dm_p_cur_target;
+	}
+
+    	/** Return pointer to ParseTarget object list */
+	vector<ParseTarget> * GetTargetList()
+	{
+	    return &dm_target_list;
+	}
 
     	/** Handle command type */
 	void SetCommandType(oss_cmd_enum type)
@@ -114,6 +122,16 @@ class ParseResult {
     	    dm_modifier_list.push_back(name);
 	}
 
+    	/** Handle list of help requests. */
+    	vector<string> * getHelpList()
+	{
+	    return &dm_help_list;
+	}
+
+    	void push_help(char * name) {
+    	    dm_help_list.push_back(name);
+	}
+
     	/** Handle list of break ids. */
     	vector<int> * getBreakList()
 	{
@@ -122,6 +140,68 @@ class ParseResult {
 
     	void pushBreakId(int break_id) {
     	    dm_break_id_list.push_back(break_id);
+	}
+
+    	/** Handle list of file names. */
+    	vector<ParseRange> * getAddressList()
+	{
+	    return &dm_address_list;
+	}
+
+    	void pushAddressPoint(char * name) {
+	    ParseRange range(name);
+    	    dm_address_list.push_back(range);
+	}
+    	void pushAddressPoint(int num) {
+	    ParseRange range(num);
+    	    dm_address_list.push_back(range);
+	}
+    	void pushAddressRange(char * name, int num) {
+	    ParseRange range(name,num);
+    	    dm_address_list.push_back(range);
+	}
+    	void pushAddressRange(char * name1, char * name2) {
+	    ParseRange range(name1,name2);
+    	    dm_address_list.push_back(range);
+	}
+    	void pushAddressRange(int num, char * name) {
+	    ParseRange range(num,name);
+    	    dm_address_list.push_back(range);
+	}
+    	void pushAddressRange(int num1, int num2) {
+	    ParseRange range(num1,num2);
+    	    dm_address_list.push_back(range);
+	}
+
+    	/** Handle list of line numbers. */
+    	vector<ParseRange> * getLineNoList()
+	{
+	    return &dm_lineno_list;
+	}
+
+    	void pushLineNoPoint(char * name) {
+	    ParseRange range(name);
+    	    dm_lineno_list.push_back(range);
+	}
+    	void pushLineNoPoint(int num) {
+	    ParseRange range(num);
+    	    dm_lineno_list.push_back(range);
+	}
+    	void pushLineNoRange(char * name, int num) {
+	    ParseRange range(name,num);
+    	    dm_lineno_list.push_back(range);
+	}
+    	void pushLineNoRange(char * name1, char * name2) {
+	    ParseRange range(name1,name2);
+    	    dm_lineno_list.push_back(range);
+	}
+    	void pushLineNoRange(int num, char * name) {
+	    ParseRange range(num,name);
+    	    dm_lineno_list.push_back(range);
+	}
+    	void pushLineNoRange(int num1, int num2) {
+	    ParseRange range(num1,num2);
+    	    dm_lineno_list.push_back(range);
 	}
 
     	/** Debugging code */
@@ -143,16 +223,24 @@ class ParseResult {
     	vector<string> dm_view_type_list;
     	/** Container of general modifiers as strings */
     	vector<string> dm_modifier_list;
+    	/** Container of help requests as strings */
+    	vector<string> dm_help_list;
+    	/** Container of addresses */
+    	vector<ParseRange> dm_address_list;
+    	/** Container of addresses */
+    	vector<ParseRange> dm_lineno_list;
 //    	/** Container of parameter info as class param_tuple */
 //    	vector<param_tuple> dm_parameter_list;
+
     	/** Container of host/file/rpt as class HostFileRPT */
-    	vector<Target> dm_target_list;
+    	vector<ParseTarget> dm_target_list;
+	ParseTarget *dm_p_cur_target;
 
 
 
 //    protected:
 //    	/** Things I don't want to happen so don't define!*/
-//	Base& operator=(const Base& rhs);
+//	ParseResult& operator=(const ParseResult& rhs);
 	
 };
 

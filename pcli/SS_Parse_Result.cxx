@@ -1,6 +1,6 @@
 /** @file
  *
- * Client side class Base method definitions.
+ * Storage for the parse results of a single OpenSpeedShop command.
  *
  */
 
@@ -10,8 +10,9 @@
 using namespace std;
 
 #include "support.h"
-#include "SS_Parse_Result.hxx"
+#include "SS_Parse_Range.hxx"
 #include "SS_Parse_Target.hxx"
+#include "SS_Parse_Result.hxx"
 
 using namespace OpenSpeedShop::cli;
 
@@ -50,6 +51,56 @@ command_type_t cmd_desc[CMD_MAX] = {
     "record",	    false,  CMD_RECORD,
     "setBreak",     false,  CMD_SETBREAK
 };
+
+/**
+ * Method: s_dumpRange()
+ * 
+ * Dump range and point lists
+ * 
+ *     
+ * @return  void.
+ *
+ * @todo    Error handling.
+ *
+ */
+static void 
+s_dumpRange(vector<ParseRange> *p_range_list, char *label)
+{
+    vector<ParseRange>::iterator r_iter;
+    if (p_range_list->begin() != p_range_list->end())
+    	    cout << "\t" << label << ": " ;
+    for (r_iter=p_range_list->begin();r_iter != p_range_list->end(); r_iter++) {
+    	parse_range_t *p_range = r_iter->getRange();
+    	if (p_range->is_range) {
+    	    parse_val_t *p_val1 = &p_range->start_range;
+    	    parse_val_t *p_val2 = &p_range->end_range;
+    	    if (p_val1->tag == VAL_STRING) {
+    	    	cout << p_val1->name << ":";
+    	    }
+    	    else {
+    	    	cout << p_val1->num << ":";
+    	    }
+    	    if (p_val2->tag == VAL_STRING) {
+    	    	cout << p_val2->name << " ";
+    	    }
+    	    else {
+    	    	cout << p_val2->num << " ";
+    	    }
+    	}
+    	else {
+    	    parse_val_t *p_val1 = &p_range->start_range;
+    	    if (p_val1->tag == VAL_STRING) {
+    	    	cout << p_val1->name << " ";
+    	    }
+    	    else {
+    	    	cout << p_val1->num << " ";
+    	    }
+    	}
+    }
+    if (p_range_list->begin() != p_range_list->end())
+    	    cout << endl ;
+
+}
 
 /**
  * Method: ParseResult::dumpInfo()
@@ -120,6 +171,22 @@ dumpInfo()
     if (p_ilist->begin() != p_ilist->end())
     	cout << endl ;
 
+    // target list.
+    vector<ParseTarget>::iterator t_iter;
+    vector<ParseTarget> *p_tlist = this->GetTargetList();
+
+    int count = 0;
+    for (t_iter=p_tlist->begin() ;t_iter != p_tlist->end(); t_iter++) {
+    	cout << "\tTarget #" << count++ << " : " << endl;
+	
+	// rank list
+	s_dumpRange(t_iter->getHostList(), "HOST");
+	s_dumpRange(t_iter->getFileList(), "FILE");
+	s_dumpRange(t_iter->getRankList(), "RANK");
+	s_dumpRange(t_iter->getPidList(),  "PID");
+	s_dumpRange(t_iter->getThreadList(), "THREAD");
+	s_dumpRange(t_iter->getClusterList(), "CLUSTER");
+    }
 }
 
 /**
