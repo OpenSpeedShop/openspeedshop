@@ -529,6 +529,9 @@ SourcePanel::highlightLine(int line, char *color, bool inverse)
     textEdit->setSelection(line, 0, line, textEdit->paragraphLength(line));
     textEdit->setColor( color );
   }
+
+  // Annotate the scrollbar for this highlight....
+  textEdit->annotateLine(line, color);
 }
 
 /*! Clear the highlight at the give line. */
@@ -544,10 +547,13 @@ SourcePanel::clearHighlightedLine(int line)
 void
 SourcePanel::highlightSegment(int from_para, int from_index, int to_para, int to_index, char *color)
 {
-from_para--;
-to_para--;
+  from_para--;
+  to_para--;
   textEdit->setSelection(from_para, from_index, to_para, to_index);
   textEdit->setColor( color );
+
+  // Annotate the scrollbar for this highlight....   (from_para == the line.)
+  textEdit->annotateLine(from_para, color);
 }
 
 /*! Clear the highlighted segment. */

@@ -7,6 +7,8 @@
 #include <qpopupmenu.h>
 #include "SourcePanel.hxx"
 
+#include <qscrollbar.h>
+
 #include "debug.hxx"
 
 #include <stdlib.h>  // for the free() call below.
@@ -24,6 +26,9 @@ SPTextEdit::SPTextEdit( SourcePanel *sp, QWidget *parent, const char *n )
 {
   nprintf(DEBUG_CONST_DESTRUCT) ( "SPTextEdit::SPTextEdit( ) constructor called\n");
   sourcePanel = sp;
+  vbar = NULL;
+  hbar = NULL;
+  vannotatePixmap = NULL;
 }
 
 /*! The default destructor. */
@@ -61,4 +66,47 @@ SPTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
   nprintf(DEBUG_PANELS) ("SPTextEdit::contentsMouseMoveEvent() entered\n");
 
   sourcePanel->armPanelsWhatsThis();
+}
+
+#include <qpainter.h>
+void
+SPTextEdit::paintEvent( QPaintEvent *e )
+{
+  printf("SPTextEdit::paintEvent() entered\n");
+  vbar = verticalScrollBar();
+  hbar = horizontalScrollBar();
+
+  if( vannotatePixmap != NULL )
+  { // Delete the old one.
+    delete vannotatePixmap;
+  }
+
+  // Create a new pixmap for the background of the vertical scrollbar.
+  vannotatePixmap = new QPixmap( vbar->width(), vbar->height() );
+  printf("depth=%d\n", vannotatePixmap->depth() );
+  vannotatePixmap->fill(vbar->backgroundColor());
+}
+
+void
+SPTextEdit::annotateLine(int line, char *color)
+{
+
+printf("SPTextEdit::annotateLine() line=%d color=%s\n", line, color);
+
+  if( vbar == NULL )
+  {
+    return;
+  }
+  QPainter p( vannotatePixmap );
+
+  int lineCount = this->paragraphs();
+  int sbHeight = vbar->height();
+  int sbWidth = vbar->width();
+  int workRectangleHeight=sbHeight-(sbWidth*2);
+  float ratio = (float)((float)line/(float)lineCount);
+  int offset = (int)((workRectangleHeight*ratio)+sbWidth);
+
+  p.setPen(color);
+  p.drawLine(0,offset, sbWidth, offset );
+  vbar->setPaletteBackgroundPixmap( *vannotatePixmap );
 }

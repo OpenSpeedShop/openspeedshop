@@ -5,6 +5,8 @@ class SourcePanel;
 
 #include <qwidget.h>
 #include <qtextedit.h>
+#include <qscrollbar.h>
+#include <qpixmap.h>
 
 //! Simply overloads the QTextEdit so we can detect the context menu event.
 class SPTextEdit : public QTextEdit
@@ -21,12 +23,20 @@ public:
 
     QPopupMenu* createPopupMenu( const QPoint & pos );
     QPopupMenu* createPopupMenu( ) { /* obsoleted function. */ return NULL; };
+
+    void annotateLine( int line, char *color );
 protected: 
     void contentsMouseMoveEvent( QMouseEvent *e );
+
+    void paintEvent( QPaintEvent *e );
 
 public slots:
 
 private:
     SourcePanel *sourcePanel;
+
+    QScrollBar *vbar;
+    QScrollBar *hbar;
+    QPixmap *vannotatePixmap;
 };
 #endif // SPTEXTEDIT_H
