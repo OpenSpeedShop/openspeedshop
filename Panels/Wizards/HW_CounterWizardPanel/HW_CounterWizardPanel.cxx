@@ -572,10 +572,10 @@ printf("eDescriptionPageNextButtonSelected() \n");
 void HW_CounterWizardPanel::eDescriptionPageStartButtonSelected()
 {
 printf("eDescriptionPageStartButtonSelected() \n");
-    Panel *p = panelContainer->raiseNamedPanel("Intro Wizard");
+    Panel *p = getPanelContainer()->raiseNamedPanel("Intro Wizard");
     if( !p )
     {
-      panelContainer->_masterPC->dl_create_and_add_panel("Intro Wizard", panelContainer);
+      getPanelContainer()->_masterPC->dl_create_and_add_panel("Intro Wizard", getPanelContainer());
     }
 }
 
@@ -608,7 +608,7 @@ void HW_CounterWizardPanel::eSummaryPageFinishButtonSelected()
 printf("eSummaryPageFinishButtonSelected() \n");
 
   {
-    panelContainer->_masterPC->dl_create_and_add_panel("HW Counter", panelContainer);
+    getPanelContainer()->_masterPC->dl_create_and_add_panel("HW Counter", getPanelContainer());
   }
 }
 
@@ -680,10 +680,10 @@ printf("vDescriptionPageNextButtonSelected() \n");
 void HW_CounterWizardPanel::vDescriptionPageStartButtonSelected()
 {
 printf("vDescriptionPageStartButtonSelected() \n");
-    Panel *p = panelContainer->raiseNamedPanel("Intro Wizard");
+    Panel *p = getPanelContainer()->raiseNamedPanel("Intro Wizard");
     if( !p )
     {
-      panelContainer->_masterPC->dl_create_and_add_panel("Intro Wizard", panelContainer);
+      getPanelContainer()->_masterPC->dl_create_and_add_panel("Intro Wizard", getPanelContainer());
     }
 }
 
@@ -779,7 +779,7 @@ void HW_CounterWizardPanel::vSummaryPageFinishButtonSelected()
 {
 printf("vSummaryPageFinishButtonSelected() \n");
 
-  panelContainer->_masterPC->dl_create_and_add_panel("HW Counter", panelContainer);
+  getPanelContainer()->_masterPC->dl_create_and_add_panel("HW Counter", getPanelContainer());
 }
 
 /*

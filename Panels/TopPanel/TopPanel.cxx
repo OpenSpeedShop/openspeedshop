@@ -34,7 +34,8 @@
 
 // This is only hear for the debugging tables....
 static char *color_name_table[10] =
-  { "red", "purple", "papayawhip", "violet", "green" };
+//  { "red", "purple", "papayawhip", "violet", "green" };
+  { "red", "orange", "yellow", "skyblue", "green" };
 
 
 /*! This is just a utility routine to truncate long names. */
@@ -62,6 +63,7 @@ TopPanel::truncate(char *str, int length)
 /*! Unused constructor. */
 TopPanel::TopPanel()
 { // Unused... Here for completeness...
+  nprintf(DEBUG_CONST_DESTRUCT) ( "TopPanel::TopPanel() default constructor called\n");
 }
 
 
@@ -72,7 +74,7 @@ TopPanel::TopPanel()
  */
 TopPanel::TopPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
 {
-  printf( "TopPanel::TopPanel() constructor called\n");
+  nprintf(DEBUG_CONST_DESTRUCT) ( "TopPanel::TopPanel() constructor called\n");
 
   setCaption("TopPanel");
   frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
@@ -137,7 +139,7 @@ TopPanel::TopPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
  */
 TopPanel::~TopPanel()
 {
-  printf("  TopPanel::~TopPanel() destructor called\n");
+  nprintf(DEBUG_CONST_DESTRUCT) ("  TopPanel::~TopPanel() destructor called\n");
 
   delete textEdit;
   delete cf;
@@ -151,7 +153,7 @@ TopPanel::~TopPanel()
 bool
 TopPanel::menu(QPopupMenu* contextMenu)
 {
-  printf("TopPanel::menu() requested.\n");
+  nprintf(DEBUG_PANELS) ("TopPanel::menu() requested.\n");
 
   contextMenu->insertSeparator();
   contextMenu->insertItem("&Save As ...", this, SLOT(saveAs()), CTRL+Key_S );
@@ -167,7 +169,7 @@ TopPanel::menu(QPopupMenu* contextMenu)
 void 
 TopPanel::save()
 {
-  dprintf("TopPanel::save() requested.\n");
+  nprintf(DEBUG_PANELS) ("TopPanel::save() requested.\n");
 }
 
 /*!
@@ -177,7 +179,7 @@ TopPanel::save()
 void 
 TopPanel::saveAs()
 {
-  printf("TopPanel::saveAs() requested.\n");
+  nprintf(DEBUG_PANELS) ("TopPanel::saveAs() requested.\n");
 
   char *cwd = get_current_dir_name();
   QString fn = QFileDialog::getSaveFileName( cwd, tr( "HTML-Files(*.htm *.html)" ), this, tr( "open executable dialog") , tr( "Choose an executable to open" ) );
@@ -187,7 +189,7 @@ TopPanel::saveAs()
     fprintf(stderr, "No html filename provided.\n");
   } else
   {
-    printf("fn = %s\n", fn.ascii() );
+    nprintf(DEBUG_PANELS) ("fn = %s\n", fn.ascii() );
     QString filename = fn+ ".png";
     cf->fileSaveAsPixmap(filename);
   }
@@ -235,13 +237,13 @@ TopPanel::saveAs()
 int 
 TopPanel::listener(void *msg)
 {
-  dprintf("TopPanel::listener() requested.\n");
+  nprintf(DEBUG_MESSAGES) ("TopPanel::listener() requested.\n");
 #ifdef DEMO
 // Just force a position to the top line....  Big Kludge... for demo.
 if( msg == NULL )
 {
   int element = 0;
-  printf("attempt to position at %d\n", element );
+  nprintf(DEBUG_MESSAGES) ("attempt to position at %d\n", element );
   itemSelected( element );
 }
 #endif // DEMO
@@ -252,7 +254,7 @@ if( msg == NULL )
 void
 TopPanel::aboutExperiment()
 {
-  dprintf("TopPanel::aboutExperiment() entered\n");
+  nprintf(DEBUG_PANELS) ("TopPanel::aboutExperiment() entered\n");
 
   QString msg = QString("Target Program: %1\nExperiment Name: %2\nMarching Orders: %3\nExperiment Notes: %4").arg(topFiveObject->targetProgram).arg(topFiveObject->experimentName).arg(topFiveObject->marchingOrders).arg(topFiveObject->experimentNotes);
   QMessageBox::information( (QWidget *)this, "About The Experiment...",
@@ -263,7 +265,7 @@ TopPanel::aboutExperiment()
 void
 TopPanel::setOrientation()
 {
-  dprintf("TopPanel::setOrientation() entered\n");
+  nprintf(DEBUG_PANELS) ("TopPanel::setOrientation() entered\n");
   Orientation o = splitterA->orientation();
   if( o == QSplitter::Vertical )
   {
@@ -364,7 +366,7 @@ strings[i] = "";
 void
 TopPanel::itemSelected(int element)
 {
-  dprintf("TopPanel::itemSelected() = %d\n", element );
+  nprintf(DEBUG_PANELS) ("TopPanel::itemSelected() = %d\n", element );
 
   int i = 0;
   HighlightList *highlightList = new HighlightList();
@@ -408,13 +410,13 @@ TopPanel::itemSelected(int element)
      i++;
   }
 
-  dprintf("%d (%s) (%s) (%d)\n", element, fi->functionName, fi->fileName, fi->function_line_number );
+  nprintf(DEBUG_PANELS) ("%d (%s) (%s) (%d)\n", element, fi->functionName, fi->fileName, fi->function_line_number );
   
   char msg[1024];
   sprintf(msg, "%d (%s) (%s) (%d)\n", element, fi->functionName, fi->fileName, fi->function_line_number );
   
 
-// fprintf(stderr, "highlightList=0x%x\n", highlightList);
+  nprintf(DEBUG_PANELS) ("highlightList=0x%x\n", highlightList);
   SourceObject *spo = new SourceObject(fi->functionName, fi->fileName, fi->function_line_number, TRUE, highlightList);
 
 
@@ -422,7 +424,7 @@ TopPanel::itemSelected(int element)
   if( broadcast((char *)spo, NEAREST_T) == 0 )
   { // No source view up...
     char *panel_type = "Source Panel";
-    Panel *p = panelContainer->dl_create_and_add_panel(panel_type);
+    Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type);
 //    if( i > 0 ) 
     if( p != NULL ) 
     {
@@ -436,7 +438,7 @@ TopPanel::itemSelected(int element)
 void
 TopPanel::createChartPopupMenu( QPopupMenu* contextMenu, const QPoint &pos )
 {
-  printf("Chart: Popup the context sensitive menu here.... can you augment it with the default popupmenu?\n");
+  nprintf(DEBUG_PANELS) ("Chart: Popup the context sensitive menu here.... can you augment it with the default popupmenu?\n");
 
   contextMenu->insertItem("Tell Me MORE about Chart!!!", this, SLOT(details()), CTRL+Key_1 );
 }
@@ -445,7 +447,7 @@ TopPanel::createChartPopupMenu( QPopupMenu* contextMenu, const QPoint &pos )
 void
 TopPanel::createTextEditPopupMenu( QPopupMenu* contextMenu, const QPoint &pos )
 {
-  printf("TextEdit: Popup the context sensitive menu here.... can you augment it with the default popupmenu?\n");
+  nprintf(DEBUG_PANELS) ("TextEdit: Popup the context sensitive menu here.... can you augment it with the default popupmenu?\n");
 
   textEdit->setCursorPosition(textEdit->paragraphAt(pos), 0);
 
@@ -473,7 +475,7 @@ oDoICall()), CTRL+Key_2 );
 void
 TopPanel::details()
 {
-  dprintf("TopPanel::details() entered\n");
+  nprintf(DEBUG_PANELS) ("TopPanel::details() entered\n");
 
   int para = 0;
   int index = 0;
@@ -489,19 +491,15 @@ TopPanel::details()
 void
 TopPanel::info()
 {
-  printf("TopPanel::info() called.\n");
+  nprintf(DEBUG_PANELS) ("TopPanel::info() called.\n");
 
-#ifdef OLDWAY
-  int line = textEdit->paragraphAt( textEdit->mapFromGlobal( QCursor::pos() )  );
-#else // OLDWAY
-QScrollBar *vscrollbar = textEdit->verticalScrollBar();
+  QScrollBar *vscrollbar = textEdit->verticalScrollBar();
   QPoint pos = textEdit->mapFromGlobal( QCursor::pos() );
   pos.setY( pos.y() + vscrollbar->value() );
 
   int line = textEdit->paragraphAt( pos );
-#endif // OLDWAY
 
-printf("info() line=%d\n", line );
+  nprintf(DEBUG_PANELS) ("info() line=%d\n", line );
 
   QString msg;
   msg = QString("Details?\nDescription for line %1: %2").arg(line).arg("Tell them some more!");
@@ -513,7 +511,7 @@ printf("info() line=%d\n", line );
 void
 TopPanel::zoomIn()
 {
-  dprintf("TopPanel::zoomIn() entered\n");
+  nprintf(DEBUG_PANELS) ("TopPanel::zoomIn() entered\n");
   textEdit->zoomIn();
 }
 
@@ -521,7 +519,7 @@ TopPanel::zoomIn()
 void
 TopPanel::zoomOut()
 {
-  dprintf("TopPanel::zoomOut() entered\n");
+  nprintf(DEBUG_PANELS) ("TopPanel::zoomOut() entered\n");
   textEdit->zoomOut();
 }
 
@@ -531,7 +529,7 @@ void
 TopPanel::listClicked(int para, int offset)
 {
   para-=2;
-  dprintf("You clicked? %d\n", para);
+  nprintf(DEBUG_PANELS) ("You clicked? %d\n", para);
 
   if(para >= 0 && para <= 4 )
   {

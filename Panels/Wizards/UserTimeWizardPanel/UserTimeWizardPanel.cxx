@@ -572,10 +572,10 @@ printf("eDescriptionPageNextButtonSelected() \n");
 void UserTimeWizardPanel::eDescriptionPageStartButtonSelected()
 {
 printf("eDescriptionPageStartButtonSelected() \n");
-    Panel *p = panelContainer->raiseNamedPanel("Intro Wizard");
+    Panel *p = getPanelContainer()->raiseNamedPanel("Intro Wizard");
     if( !p )
     {
-      panelContainer->_masterPC->dl_create_and_add_panel("Intro Wizard", panelContainer);
+      getPanelContainer()->_masterPC->dl_create_and_add_panel("Intro Wizard", getPanelContainer());
     }
 }
 
@@ -608,7 +608,7 @@ void UserTimeWizardPanel::eSummaryPageFinishButtonSelected()
 printf("eSummaryPageFinishButtonSelected() \n");
 
   {
-    panelContainer->_masterPC->dl_create_and_add_panel("User Time", panelContainer);
+    getPanelContainer()->_masterPC->dl_create_and_add_panel("User Time", getPanelContainer());
   }
 }
 
@@ -680,10 +680,10 @@ printf("vDescriptionPageNextButtonSelected() \n");
 void UserTimeWizardPanel::vDescriptionPageStartButtonSelected()
 {
 printf("vDescriptionPageStartButtonSelected() \n");
-    Panel *p = panelContainer->raiseNamedPanel("Intro Wizard");
+    Panel *p = getPanelContainer()->raiseNamedPanel("Intro Wizard");
     if( !p )
     {
-      panelContainer->_masterPC->dl_create_and_add_panel("Intro Wizard", panelContainer);
+      getPanelContainer()->_masterPC->dl_create_and_add_panel("Intro Wizard", getPanelContainer());
     }
 }
 
@@ -779,7 +779,7 @@ void UserTimeWizardPanel::vSummaryPageFinishButtonSelected()
 {
 printf("vSummaryPageFinishButtonSelected() \n");
 
-  panelContainer->_masterPC->dl_create_and_add_panel("User Time", panelContainer);
+  getPanelContainer()->_masterPC->dl_create_and_add_panel("User Time", getPanelContainer());
 }
 
 /*

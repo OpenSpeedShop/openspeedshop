@@ -28,9 +28,6 @@ public:
     //! ~Panel() - The default destructor.
     ~Panel();
 
-    //! The PanelContainer that holds this Panel.
-    PanelContainer *panelContainer;
-
     //! Ugh.  This Panel Designates itself it's own top PanelContainer.
     bool topLevel;
     //! Ugh.  This Panel Designates itself it's own top PanelContainer.
@@ -39,8 +36,8 @@ public:
     //! A convience function to return the baseWidgetFrame.
     Frame *getBaseWidgetFrame() { return baseWidgetFrame; }
 
-    //! Handles the resize event.
-    void handleSizeEvent(QResizeEvent *e=NULL);
+    //! A convience function to return the baseWidgetFrame.
+    Frame *setBaseWidgetFrame(Frame *f) { baseWidgetFrame = f; }
 
     //! Adds use panel menus (if any).
     virtual bool menu(QPopupMenu* contextMenu);
@@ -64,7 +61,13 @@ public:
     void armPanelsWhatsThis( );
 
     //! Returns the Panel name.
-    char *getName() { return name; }
+    const char *getName() { return name; }
+
+    //! Returns the PanelContainer 
+    PanelContainer *getPanelContainer() { return _panelContainer; }
+
+    //! Sets the PanelContainer 
+    void setPanelContainer(PanelContainer *pc) { _panelContainer = pc; }
 
 protected:
     //! Calls the panel function info() if provided.
@@ -86,6 +89,12 @@ private:
 
     //! The QWidget object that will hold all children in the user Panel.
     Frame *baseWidgetFrame;
+
+    //! Handles the resize event.
+    void handleSizeEvent(QResizeEvent *e=NULL);
+
+    //! The PanelContainer that holds this Panel.
+    PanelContainer *_panelContainer;
 
 
 public slots:

@@ -572,10 +572,10 @@ printf("eDescriptionPageNextButtonSelected() \n");
 void IOWizardPanel::eDescriptionPageStartButtonSelected()
 {
 printf("eDescriptionPageStartButtonSelected() \n");
-    Panel *p = panelContainer->raiseNamedPanel("Intro Wizard");
+    Panel *p = getPanelContainer()->raiseNamedPanel("Intro Wizard");
     if( !p )
     {
-      panelContainer->_masterPC->dl_create_and_add_panel("Intro Wizard", panelContainer);
+      getPanelContainer()->_masterPC->dl_create_and_add_panel("Intro Wizard", getPanelContainer());
     }
 }
 
@@ -608,7 +608,7 @@ void IOWizardPanel::eSummaryPageFinishButtonSelected()
 printf("eSummaryPageFinishButtonSelected() \n");
 
   {
-    panelContainer->_masterPC->dl_create_and_add_panel("IO", panelContainer);
+    getPanelContainer()->_masterPC->dl_create_and_add_panel("IO", getPanelContainer());
   }
 }
 
@@ -680,10 +680,10 @@ printf("vDescriptionPageNextButtonSelected() \n");
 void IOWizardPanel::vDescriptionPageStartButtonSelected()
 {
 printf("vDescriptionPageStartButtonSelected() \n");
-    Panel *p = panelContainer->raiseNamedPanel("Intro Wizard");
+    Panel *p = getPanelContainer()->raiseNamedPanel("Intro Wizard");
     if( !p )
     {
-      panelContainer->_masterPC->dl_create_and_add_panel("Intro Wizard", panelContainer);
+      getPanelContainer()->_masterPC->dl_create_and_add_panel("Intro Wizard", getPanelContainer());
     }
 }
 
@@ -780,7 +780,7 @@ void IOWizardPanel::vSummaryPageFinishButtonSelected()
 printf("vSummaryPageFinishButtonSelected() \n");
 
   {
-    panelContainer->_masterPC->dl_create_and_add_panel("IO", panelContainer);
+    getPanelContainer()->_masterPC->dl_create_and_add_panel("IO", getPanelContainer());
   }
 }
 

@@ -21,23 +21,23 @@ MyQTextEdit::MyQTextEdit( TopPanel *t5p, QWidget *parent, const char *n )
     : QTextEdit( parent, n )
 {
   topFivePanel = t5p;
-  printf( "MyQTextEdit::MyQTextEdit( ) constructor called\n");
+  nprintf(DEBUG_CONST_DESTRUCT) ( "MyQTextEdit::MyQTextEdit( ) constructor called\n");
 }
 
 /*! The default destructor. */
 MyQTextEdit::~MyQTextEdit( )
 {
   // default destructor.
-  printf("  MyQTextEdit::~MyQTextEdit( ) destructor called\n");
+  nprintf(DEBUG_CONST_DESTRUCT) ("  MyQTextEdit::~MyQTextEdit( ) destructor called\n");
 }
 
 QPopupMenu*
 MyQTextEdit::createPopupMenu( const QPoint & pos )
 {
-  printf("MyQTextEdit::createPopupMenu() Hello from down under the hood.\n");
+  nprintf(DEBUG_PANELS) ("MyQTextEdit::createPopupMenu() Hello from down under the hood.\n");
 
-printf("pos->x()=%d pos->y=%d\n", pos.x(), pos.y() );
-printf("QCursor x=%d y=%d\n", QCursor::pos().x(), QCursor::pos().y() );
+  nprintf(DEBUG_PANELS) ("pos->x()=%d pos->y=%d\n", pos.x(), pos.y() );
+  nprintf(DEBUG_PANELS) ("QCursor x=%d y=%d\n", QCursor::pos().x(), QCursor::pos().y() );
 
   // First create the default Qt widget menu...
   QPopupMenu *popupMenu = QTextEdit::createPopupMenu(pos);
@@ -58,7 +58,7 @@ printf("QCursor x=%d y=%d\n", QCursor::pos().x(), QCursor::pos().y() );
 void
 MyQTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
 {
-  printf("MyQTextEdit::contentsMouseMoveEvent() entered\n");
+  nprintf(DEBUG_PANELS) ("MyQTextEdit::contentsMouseMoveEvent() entered\n");
 
   topFivePanel->armPanelsWhatsThis();
 }

@@ -549,10 +549,10 @@ nprintf(DEBUG_PANELS) ("eDescriptionPageNextButtonSelected() \n");
 void pcSampleWizardPanel::eDescriptionPageStartButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("eDescriptionPageStartButtonSelected() \n");
-    Panel *p = panelContainer->raiseNamedPanel("Intro Wizard");
+    Panel *p = getPanelContainer()->raiseNamedPanel("Intro Wizard");
     if( !p )
     {
-      panelContainer->_masterPC->dl_create_and_add_panel("Intro Wizard", panelContainer);
+      getPanelContainer()->_masterPC->dl_create_and_add_panel("Intro Wizard", getPanelContainer());
     }
 }
 
@@ -584,7 +584,7 @@ void pcSampleWizardPanel::eSummaryPageFinishButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("eSummaryPageFinishButtonSelected() \n");
 
-  Panel *p = panelContainer->_masterPC->dl_create_and_add_panel("pc Sampling", panelContainer);
+  Panel *p = getPanelContainer()->_masterPC->dl_create_and_add_panel("pc Sampling", getPanelContainer());
 }
 
 // Begin advanced (expert) AttachOrLoad callbacks
@@ -650,10 +650,10 @@ nprintf(DEBUG_PANELS) ("vDescriptionPageNextButtonSelected() \n");
 void pcSampleWizardPanel::vDescriptionPageStartButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("vDescriptionPageStartButtonSelected() \n");
-    Panel *p = panelContainer->raiseNamedPanel("Intro Wizard");
+    Panel *p = getPanelContainer()->raiseNamedPanel("Intro Wizard");
     if( !p )
     {
-      panelContainer->_masterPC->dl_create_and_add_panel("Intro Wizard", panelContainer);
+      getPanelContainer()->_masterPC->dl_create_and_add_panel("Intro Wizard", getPanelContainer());
     }
 }
 
@@ -749,7 +749,7 @@ void pcSampleWizardPanel::vSummaryPageFinishButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("vSummaryPageFinishButtonSelected() \n");
 
-  Panel *p = panelContainer->_masterPC->dl_create_and_add_panel("pc Sampling", panelContainer);
+  Panel *p = getPanelContainer()->_masterPC->dl_create_and_add_panel("pc Sampling", getPanelContainer());
 }
 
 /*

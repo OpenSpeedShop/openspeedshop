@@ -400,42 +400,42 @@ void IntroWizardPanel::epage1NextButtonSelected()
   }
   if( epage1pcSampleRB->isOn() )
   {
-    p = panelContainer->raiseNamedPanel("pc Sample Wizard");
+    p = getPanelContainer()->raiseNamedPanel("pc Sample Wizard");
     if( !p )
     {
-      panelContainer->_masterPC->dl_create_and_add_panel("pc Sample Wizard", panelContainer);
+      getPanelContainer()->_masterPC->dl_create_and_add_panel("pc Sample Wizard", getPanelContainer());
     }
   }
   if( epage1UserTimeRB->isOn() )
   {
-    p = panelContainer->raiseNamedPanel("User Time Wizard");
+    p = getPanelContainer()->raiseNamedPanel("User Time Wizard");
     if( !p )
     {
-      panelContainer->_masterPC->dl_create_and_add_panel("User Time Wizard", panelContainer);
+      getPanelContainer()->_masterPC->dl_create_and_add_panel("User Time Wizard", getPanelContainer());
     }
   }
   if( epage1HardwareCounterRB->isOn() )
   {
-    p = panelContainer->raiseNamedPanel("HW Counter Wizard");
+    p = getPanelContainer()->raiseNamedPanel("HW Counter Wizard");
     if( !p )
     {
-      panelContainer->_masterPC->dl_create_and_add_panel("HW Counter Wizard", panelContainer);
+      getPanelContainer()->_masterPC->dl_create_and_add_panel("HW Counter Wizard", getPanelContainer());
     }
   }
   if( epage1FloatingPointRB->isOn() )
   {
-    p = panelContainer->raiseNamedPanel("FPE Tracing Wizard");
+    p = getPanelContainer()->raiseNamedPanel("FPE Tracing Wizard");
     if( !p )
     {
-      panelContainer->_masterPC->dl_create_and_add_panel("FPE Tracing Wizard", panelContainer);
+      getPanelContainer()->_masterPC->dl_create_and_add_panel("FPE Tracing Wizard", getPanelContainer());
     }
   }
   if( epage1InputOutputRB->isOn() )
   {
-    p = panelContainer->raiseNamedPanel("IO Wizard");
+    p = getPanelContainer()->raiseNamedPanel("IO Wizard");
     if( !p )
     {
-      panelContainer->_masterPC->dl_create_and_add_panel("IO Wizard", panelContainer);
+      getPanelContainer()->_masterPC->dl_create_and_add_panel("IO Wizard", getPanelContainer());
     }
   }
 }
@@ -462,42 +462,42 @@ void IntroWizardPanel::vpage1NextButtonSelected()
   }
   if( vpage1pcSampleRB->isOn() )
   {
-    p = panelContainer->raiseNamedPanel("pc Sample Wizard");
+    p = getPanelContainer()->raiseNamedPanel("pc Sample Wizard");
     if( !p )
     {
-      panelContainer->_masterPC->dl_create_and_add_panel("pc Sample Wizard", panelContainer);
+      getPanelContainer()->_masterPC->dl_create_and_add_panel("pc Sample Wizard", getPanelContainer());
     }
   }
   if( vpage1UserTimeRB->isOn() )
   {
-    p = panelContainer->raiseNamedPanel("User Time Wizard");
+    p = getPanelContainer()->raiseNamedPanel("User Time Wizard");
     if( !p )
     {
-      panelContainer->_masterPC->dl_create_and_add_panel("User Time Wizard", panelContainer);
+      getPanelContainer()->_masterPC->dl_create_and_add_panel("User Time Wizard", getPanelContainer());
     }
   }
   if( vpage1HardwareCounterRB->isOn() )
   {
-    p = panelContainer->raiseNamedPanel("HW Counter Wizard");
+    p = getPanelContainer()->raiseNamedPanel("HW Counter Wizard");
     if( !p )
     {
-      panelContainer->_masterPC->dl_create_and_add_panel("HW Counter Wizard", panelContainer);
+      getPanelContainer()->_masterPC->dl_create_and_add_panel("HW Counter Wizard", getPanelContainer());
     }
   }
   if( vpage1FloatingPointRB->isOn() )
   {
-    p = panelContainer->raiseNamedPanel("FPE Tracing Wizard");
+    p = getPanelContainer()->raiseNamedPanel("FPE Tracing Wizard");
     if( !p )
     {
-      panelContainer->_masterPC->dl_create_and_add_panel("FPE Tracing Wizard", panelContainer);
+      getPanelContainer()->_masterPC->dl_create_and_add_panel("FPE Tracing Wizard", getPanelContainer());
     }
   }
   if( vpage1InputOutputRB->isOn() )
   {
-    p = panelContainer->raiseNamedPanel("IO Wizard");
+    p = getPanelContainer()->raiseNamedPanel("IO Wizard");
     if( !p )
     {
-      panelContainer->_masterPC->dl_create_and_add_panel("IO Wizard", panelContainer);
+      getPanelContainer()->_masterPC->dl_create_and_add_panel("IO Wizard", getPanelContainer());
     }
   }
 }

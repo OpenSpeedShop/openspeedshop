@@ -49,18 +49,17 @@ Panel::Panel(PanelContainer *pc, const char *n) : QWidget(pc, n)
   topLevel = FALSE;   // 99.9 % of the time this is FALSE
   topPC = NULL;   // 99.9 % of the time this is NULL
 
-  panelContainer = NULL;
   baseWidgetFrame = NULL;
 
   setName(n);
 
   setCaption(n);
 
-  panelContainer = pc;
+  setPanelContainer(pc);
 
   QWidget *w = pc->dropSiteLayoutParent;
 
-  baseWidgetFrame = new Frame(panelContainer, w, "baseWidgetFrame");
+  baseWidgetFrame = new Frame(getPanelContainer(), w, "baseWidgetFrame");
 // baseWidgetFrame->dragEnabled = TRUE;
 
   // Resize this to the right height right away...
@@ -76,11 +75,11 @@ Panel::Panel(PanelContainer *pc, const char *n) : QWidget(pc, n)
   baseWidgetFrame->resize(width,height);
 
 
-if( panelContainer->_masterPC->sleepTimer )
+if( getPanelContainer()->_masterPC->sleepTimer )
 {
 }
-  panelContainer->_masterPC->sleepTimer = NULL;
-  panelContainer->_masterPC->popupTimer = NULL;
+  getPanelContainer()->_masterPC->sleepTimer = NULL;
+  getPanelContainer()->_masterPC->popupTimer = NULL;
 }
 
 /*!  Constructs a new Panel object.   (unused)
@@ -101,7 +100,7 @@ Panel::~Panel()
   // no need to delete child widgets, Qt does it all for us
   nprintf(DEBUG_PANELS) ("Panel::~Panel(%s) destructor entered.\n", getName() );
 
-  panelContainer = NULL;
+  setPanelContainer(NULL);
 // You should not need to delete this as the tutorials explain that qt will 
 // take care of this delete.
 //  delete baseWidgetFrame;
@@ -119,8 +118,8 @@ Panel::languageChange()
 void Panel::handleSizeEvent(QResizeEvent *)
 {
   nprintf(DEBUG_PANELS) ("attempt to resize the panel baseWidgetFrame\n");
-  int width = panelContainer->width();
-  int height = panelContainer->height();
+  int width = getPanelContainer()->width();
+  int height = getPanelContainer()->height();
 
   baseWidgetFrame->resize(width, height);
 }
@@ -197,14 +196,14 @@ Panel::broadcast(char *msg, BROADCAST_TYPE bt)
   switch( bt )
   {
     case PC_T:
-      return( panelContainer->notifyPC(msg) );
+      return( getPanelContainer()->notifyPC(msg) );
     case NEAREST_T:
-      return( panelContainer->notifyNearest(msg) );
+      return( getPanelContainer()->notifyNearest(msg) );
     case GROUP_T:
-      return( panelContainer->notifyGroup(msg) );
+      return( getPanelContainer()->notifyGroup(msg) );
     case ALL_T:
     default:
-      return( panelContainer->notifyAll(msg) );
+      return( getPanelContainer()->notifyAll(msg) );
   }
 }
 
@@ -222,37 +221,37 @@ Panel::armPanelsWhatsThis()
 {
   nprintf(DEBUG_PANELS) ("Panel::armPanelsWhatsThis() entered\n");
 
-  if( panelContainer->_masterPC->sleepTimer && panelContainer->_masterPC->sleepTimer->isActive() )
+  if( getPanelContainer()->_masterPC->sleepTimer && getPanelContainer()->_masterPC->sleepTimer->isActive() )
   { // If we're sleeping, just ignore this...
    nprintf(DEBUG_PANELS) ("we're sleeping, just return.\n");
-    panelContainer->_masterPC->sleepTimer->start(1000, TRUE);
+    getPanelContainer()->_masterPC->sleepTimer->start(1000, TRUE);
     return;
   } else
   { // Otherwise, check to see if there's a timer set.   If it is set
     // just go to sleep for a whil and return.   Otherwise, set a new one.
-    if( panelContainer->_masterPC->popupTimer && panelContainer->_masterPC->popupTimer->isActive() )
+    if( getPanelContainer()->_masterPC->popupTimer && getPanelContainer()->_masterPC->popupTimer->isActive() )
     {
        nprintf(DEBUG_PANELS) ("popupTimer is already active... start sleeping...\n");
-      if( panelContainer->_masterPC->sleepTimer == NULL )
+      if( getPanelContainer()->_masterPC->sleepTimer == NULL )
       {
-        panelContainer->_masterPC->sleepTimer = new QTimer(this, "sleepTimer");
-        connect( panelContainer->_masterPC->sleepTimer, SIGNAL(timeout()), this, SLOT(wakeupFromSleep()) );
+        getPanelContainer()->_masterPC->sleepTimer = new QTimer(this, "sleepTimer");
+        connect( getPanelContainer()->_masterPC->sleepTimer, SIGNAL(timeout()), this, SLOT(wakeupFromSleep()) );
       }
-      panelContainer->_masterPC->sleepTimer->start(1000, TRUE);
-      panelContainer->_masterPC->popupTimer->stop();
+      getPanelContainer()->_masterPC->sleepTimer->start(1000, TRUE);
+      getPanelContainer()->_masterPC->popupTimer->stop();
     } else
     {
       nprintf(DEBUG_PANELS) ("start the popup timer...\n");
-      if( panelContainer->_masterPC->popupTimer == NULL )
+      if( getPanelContainer()->_masterPC->popupTimer == NULL )
       {
-        panelContainer->_masterPC->popupTimer = new QTimer(this, "popupTimer");
-        connect( panelContainer->_masterPC->popupTimer, SIGNAL(timeout()), this, SLOT(popupInfoAtLine()) );
+        getPanelContainer()->_masterPC->popupTimer = new QTimer(this, "popupTimer");
+        connect( getPanelContainer()->_masterPC->popupTimer, SIGNAL(timeout()), this, SLOT(popupInfoAtLine()) );
       }
-      if( panelContainer->_masterPC->sleepTimer )
+      if( getPanelContainer()->_masterPC->sleepTimer )
       {
-        panelContainer->_masterPC->sleepTimer->stop();
+        getPanelContainer()->_masterPC->sleepTimer->stop();
       }
-      panelContainer->_masterPC->popupTimer->start(1000, TRUE);
+      getPanelContainer()->_masterPC->popupTimer->start(1000, TRUE);
     }
   }
 }
@@ -261,7 +260,7 @@ void
 Panel::wakeupFromSleep()
 {
   nprintf(DEBUG_PANELS) ("wakeupFromSleep() called\n");
-  panelContainer->_masterPC->popupTimer->start(250, TRUE);
+  getPanelContainer()->_masterPC->popupTimer->start(250, TRUE);
 }
 
 void
@@ -276,8 +275,8 @@ Panel::displayWhatsThis(QString msg)
 {
   nprintf(DEBUG_PANELS) ("Panel::displayWhatsThis() called.  Put the wit here.\n");
  
-  panelContainer->_masterPC->whatsThisActive = TRUE;
-  panelContainer->_masterPC->whatsThis = new WhatsThis( this );
-  panelContainer->_masterPC->whatsThis->display( msg, QCursor::pos() );
+  getPanelContainer()->_masterPC->whatsThisActive = TRUE;
+  getPanelContainer()->_masterPC->whatsThis = new WhatsThis( this );
+  getPanelContainer()->_masterPC->whatsThis->display( msg, QCursor::pos() );
 }
 

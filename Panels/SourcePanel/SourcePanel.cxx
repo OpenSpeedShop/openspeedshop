@@ -188,7 +188,7 @@ SourcePanel::listener(void *msg)
 
   if( spo->raiseFLAG == TRUE )
   {
-    panelContainer->raisePanel((Panel *)this);
+    getPanelContainer()->raisePanel((Panel *)this);
   }
 
   loadFile(spo->fileName);
@@ -206,8 +206,8 @@ SourcePanel::listener(void *msg)
   {
     int i=0;
     Panel *p = NULL;
-    for( PanelList::Iterator it = panelContainer->panelList.begin();
-             it != panelContainer->panelList.end();
+    for( PanelList::Iterator it = getPanelContainer()->panelList.begin();
+             it != getPanelContainer()->panelList.end();
              ++it )
     {
       p = (Panel *)*it;
@@ -215,8 +215,8 @@ SourcePanel::listener(void *msg)
       if( p == this )
       {
   nprintf(DEBUG_PANELS) ("Set page %d current.\n", i );
-        panelContainer->tabWidget->setCurrentPage(i);
-  //      panelContainer->tabWidget->showPage(i);
+        getPanelContainer()->tabWidget->setCurrentPage(i);
+  //      getPanelContainer()->tabWidget->showPage(i);
       }
       i++;
     }

@@ -86,6 +86,7 @@ extern QEventLoop *qeventloop;
  */
 PanelContainer::PanelContainer( )
 {
+  nprintf(DEBUG_CONST_DESTRUCT) ("PanelContainer::PanelContainer() unused constructor called.\n");
 }
 
 /*! PanelContainer(QWidget *parent, const char *name,
@@ -103,6 +104,8 @@ PanelContainer::PanelContainer( )
  */
 PanelContainer::PanelContainer( QWidget* _parent, const char* n, PanelContainer *_parentPanelContainer, PanelContainerList *pcl, WFlags fl) : QWidget( _parent, n, fl )
 {
+  nprintf(DEBUG_CONST_DESTRUCT) ("PanelContainer::PanelContainer() working constructor called.\n");
+
   char cn[1024]; // Caption Name space
 
   topLevel = FALSE;
@@ -238,7 +241,6 @@ PanelContainer::PanelContainer( QWidget* _parent, const char* n, PanelContainer 
   // signals and slots connections
 
   _masterPC->_panel_container_count++;
-
 }
 
 /*! Currently those allocated resources are:
@@ -250,7 +252,7 @@ PanelContainer::PanelContainer( QWidget* _parent, const char* n, PanelContainer 
 */
 PanelContainer::~PanelContainer()
 {
-  nprintf(DEBUG_PANELCONTAINERS) ("->>>>    PanelContainer::~PanelContainer(%s-%s) destructor called.\n",
+  nprintf(DEBUG_CONST_DESTRUCT) ("->>>>    PanelContainer::~PanelContainer(%s-%s) destructor called.\n",
     getInternalName(), getExternalName() );
 
   menuEnabled = FALSE;
@@ -1318,8 +1320,8 @@ PanelContainer::removeTopLevelPanelContainer(PanelContainer *toppc, bool recursi
         Panel *p = (Panel *)*pit;
         nprintf(DEBUG_PANELCONTAINERS) ("remove the simple panel for (%s) in (%s-%s)\n",
           p->getName(),
-          p->panelContainer->getInternalName(),
-          p->panelContainer->getExternalName() );
+          p->getPanelContainer()->getInternalName(),
+          p->getPanelContainer()->getExternalName() );
         if( recursive == TRUE )
         {
           nprintf(DEBUG_PANELCONTAINERS) ("wah:C: delete (%s)\n", p->getName() );
@@ -1337,9 +1339,9 @@ PanelContainer::removeTopLevelPanelContainer(PanelContainer *toppc, bool recursi
         Panel *p = (Panel *)*pit;
         nprintf(DEBUG_PANELCONTAINERS) ("do the removal of all panels for (%s) in (%s-%s)\n",
           p->getName(),
-          p->panelContainer->getInternalName(),
-          p->panelContainer->getExternalName() );
-        _masterPC->removePanels(p->panelContainer);
+          p->getPanelContainer()->getInternalName(),
+          p->getPanelContainer()->getExternalName() );
+        _masterPC->removePanels(p->getPanelContainer());
       }
     }
   } else
@@ -2109,7 +2111,7 @@ PanelContainer::movePanelsToNewPanelContainer( PanelContainer *sourcePC)
       nprintf(DEBUG_PANELCONTAINERS) ("  try to move p (%s)\n", p->getName() );
       widget_to_reparent = currentPage = sourcePC->tabWidget->page(i);
       QWidget *panel_base = (QWidget *)p;
-      p->panelContainer = targetPC;
+      p->setPanelContainer(targetPC);
       p->getBaseWidgetFrame()->panelContainer = targetPC;
       p->getBaseWidgetFrame()->reparent(targetPC->dropSiteLayoutParent, 0,
                                    point, TRUE);
@@ -2245,7 +2247,7 @@ PanelContainer::printPanels(char *buffer)
                ++it )
   {
     Panel *p = (Panel *)*it;
-    printf("%s    Panel (%s) pc=(%s)\n", buffer, p->getName(), p->panelContainer->getInternalName() );
+    printf("%s    Panel (%s) pc=(%s)\n", buffer, p->getName(), p->getPanelContainer()->getInternalName() );
   }
 }
 
@@ -2412,7 +2414,7 @@ PanelContainer::notifyNearest(char *msg)
             Panel *p = pc->getRaisedPanel();
             if( p && p->topLevel == TRUE )
             {
-              pc = p->panelContainer->parentPanelContainer;
+              pc = p->getPanelContainer()->parentPanelContainer;
             }
           }
   

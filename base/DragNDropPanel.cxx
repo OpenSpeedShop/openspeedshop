@@ -245,10 +245,10 @@ targetPC->tabWidget->setTabBar(targetPC->tabBarWidget);
   // We're about to move the Panel.
 
   // First remove the Panel from the old PanelContainer list.
-  p->panelContainer->panelList.remove(p);
+  p->getPanelContainer()->panelList.remove(p);
 
   // Set the Panels parent PanelContainer field to the new PanelContainer.
-  p->panelContainer = targetPC;
+  p->setPanelContainer(targetPC);
 
   // Also set the Panel's base frame's pointer to the new PanelContainer.
   p->getBaseWidgetFrame()->panelContainer = targetPC;
@@ -257,7 +257,7 @@ targetPC->tabWidget->setTabBar(targetPC->tabBarWidget);
   p->getBaseWidgetFrame()->panelContainer->tabBarWidget->panelContainer = targetPC;
   
   // Reparent the tabWidget.
-  currentPage->reparent(p->panelContainer->tabWidget, 0, point, TRUE);
+  currentPage->reparent(p->getPanelContainer()->tabWidget, 0, point, TRUE);
   // Reparent the baseWidget
   p->getBaseWidgetFrame()->reparent(w, 0, point, TRUE);
 
@@ -267,22 +267,22 @@ targetPC->tabWidget->setTabBar(targetPC->tabBarWidget);
   panel_base->reparent((QWidget *)targetPC, 0, point, TRUE);
 
   // Now add the actual tab to the tabWidget in the new PanelContainer.
-  p->panelContainer->tabWidget->addTab( currentPage, p->getName() );
+  p->getPanelContainer()->tabWidget->addTab( currentPage, p->getName() );
 
   // Add the move Panel to the new PanelContainers panelList.
-  p->panelContainer->panelList.push_back(p);
+  p->getPanelContainer()->panelList.push_back(p);
 
   // Make sure we can see it, so call show....
   p->getBaseWidgetFrame()->show();
-  p->panelContainer->dropSiteLayoutParent->show();
+  p->getPanelContainer()->dropSiteLayoutParent->show();
 
-  p->panelContainer->handleSizeEvent(NULL);
+  p->getPanelContainer()->handleSizeEvent(NULL);
 
   // Now set the newest one current...
-  int count = p->panelContainer->tabWidget->count();
+  int count = p->getPanelContainer()->tabWidget->count();
   if( count > 0 )
   {
-    p->panelContainer->tabWidget->setCurrentPage(count-1);
+    p->getPanelContainer()->tabWidget->setCurrentPage(count-1);
   }
 
   // Remove the tab from the old PanelContainer.
@@ -439,16 +439,16 @@ targetPC->tabWidget->setTabBar(targetPC->tabBarWidget);
   // We're about to move the Panel.
 
   // First remove the Panel from the old PanelContainer list.
-  p->panelContainer->panelList.remove(p);
+  p->getPanelContainer()->panelList.remove(p);
 
   // Set the Panels parent PanelContainer field to the new PanelContainer.
-  p->panelContainer = targetPC;
+  p->setPanelContainer(targetPC);
 
   // Also set the Panel's base frame's pointer to the new PanelContainer.
   p->getBaseWidgetFrame()->panelContainer = targetPC;
   
   // Reparent the tabWidget.
-  currentPage->reparent(p->panelContainer->tabWidget, 0, point, TRUE);
+  currentPage->reparent(p->getPanelContainer()->tabWidget, 0, point, TRUE);
   // Reparent the baseWidget
   p->getBaseWidgetFrame()->reparent(w, 0, point, TRUE);
 
@@ -458,22 +458,22 @@ targetPC->tabWidget->setTabBar(targetPC->tabBarWidget);
   panel_base->reparent((QWidget *)targetPC, 0, point, TRUE);
 
   // Now add the actual tab to the tabWidget in the new PanelContainer.
-  p->panelContainer->tabWidget->addTab( currentPage, p->getName() );
+  p->getPanelContainer()->tabWidget->addTab( currentPage, p->getName() );
 
   // Add the move Panel to the new PanelContainers panelList.
-  p->panelContainer->panelList.push_back(p);
+  p->getPanelContainer()->panelList.push_back(p);
 
   // Make sure we can see it, so call show....
   p->getBaseWidgetFrame()->show();
-  p->panelContainer->dropSiteLayoutParent->show();
+  p->getPanelContainer()->dropSiteLayoutParent->show();
 
-  p->panelContainer->handleSizeEvent(NULL);
+  p->getPanelContainer()->handleSizeEvent(NULL);
 
   // Now set the newest one current...
-  int count = p->panelContainer->tabWidget->count();
+  int count = p->getPanelContainer()->tabWidget->count();
   if( count > 0 )
   {
-    p->panelContainer->tabWidget->setCurrentPage(count-1);
+    p->getPanelContainer()->tabWidget->setCurrentPage(count-1);
   }
 
   // Remove the tab from the old PanelContainer.

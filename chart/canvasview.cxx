@@ -13,7 +13,7 @@
 
 void CanvasView::contentsContextMenuEvent( QContextMenuEvent *e )
 {
-  printf("CanvasView::contentsContextMenuEvent() entered.\n");
+  nprintf(DEBUG_PANELS) ("CanvasView::contentsContextMenuEvent() entered.\n");
 
 
 #ifdef OLDWAY
@@ -43,7 +43,7 @@ void CanvasView::viewportResizeEvent( QResizeEvent *e )
 #define SELECTMODE 0
 void CanvasView::contentsMousePressEvent( QMouseEvent *e )
 {
-    printf("CanvasView::contentsMousePressEvent() entered.\n");
+    nprintf(DEBUG_PANELS) ("CanvasView::contentsMousePressEvent() entered.\n");
 
     if( e->button() != LeftButton )
     {

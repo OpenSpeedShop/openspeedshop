@@ -18,27 +18,27 @@ MyChartForm::MyChartForm( TopPanel *t5p, QSplitter *splitter, const char *n, int
     : ChartForm( splitter, n, flags )
 {
   topFivePanel = t5p;
-  printf( "MyChartForm::MyChartForm( ) constructor called\n");
+  nprintf(DEBUG_CONST_DESTRUCT) ( "MyChartForm::MyChartForm( ) constructor called\n");
 }
 
 /*! The default destructor. */
 MyChartForm::~MyChartForm( )
 {
   // default destructor.
-  printf("  MyChartForm::~MyChartForm( ) destructor called\n");
+  nprintf(DEBUG_CONST_DESTRUCT) ("  MyChartForm::~MyChartForm( ) destructor called\n");
 }
 
 int
 MyChartForm::mouseClicked( int item )
 {
-  printf("MyChartForm::mouseClicked(item=%d) called.\n", item);
+  nprintf(DEBUG_PANELS) ("MyChartForm::mouseClicked(item=%d) called.\n", item);
   topFivePanel->itemSelected(item);
 }
 
 void
 MyChartForm::contentsContextMenuEvent( QContextMenuEvent *e)
 {
-  printf("MyChartForm::contentsContextMenuEvent() entered\n");
+  nprintf(DEBUG_PANELS) ("MyChartForm::contentsContextMenuEvent() entered\n");
 
   createPopupMenu( e->pos() );
 }
@@ -46,7 +46,7 @@ MyChartForm::contentsContextMenuEvent( QContextMenuEvent *e)
 QPopupMenu*
 MyChartForm::createPopupMenu( const QPoint & pos )
 {
-  printf("MyChartForm: Hello from down under the hood.\n");
+  nprintf(DEBUG_PANELS) ("MyChartForm: Hello from down under the hood.\n");
 
   // First create the default Qt widget menu...
   QPopupMenu *popupMenu = ChartForm::createPopupMenu(pos);
