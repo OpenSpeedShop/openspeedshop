@@ -95,9 +95,19 @@ class CodeObjectLocator
   }
 };
 
+// Command WIndows provide a way to get textual commands into the OpendSpeedShop tool.
 class CommandWindowID;
 
 CMDWID Commander_Initialization (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
+CMDWID Default_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
+CMDWID TLI_Window     (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
+CMDWID GUI_Window     (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
+CMDWID RLI_Window     (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
+
+extern CMDWID command_line_window;
+extern CMDWID tli_window;
+extern CMDWID gui_window;
+
 void Commander_Termination (CMDWID my_window);
 
 // Selection of items in the trace file are controlled throught his enum.
@@ -109,9 +119,25 @@ enum Trace_Entry_Type
     CMDW_TRACE_RESULTS               // Dump result records  - "R "
   };
 
-// Main readline interface
+// Forward class definitions:
+class CommandObject; // defined in CommandObject.hxx
 class InputLineObject; // defined in Clip.hxx
+
+// Main readline interface
 InputLineObject *SpeedShop_ReadLine (int is_more);
+
+/* Global Data for tracking the current command line. */
+extern InputLineObject *Current_ILO;
+extern CommandObject   *Current_CO;
+
+// Attach a new input source that will be read AFTER all the previous ones
+ResultObject Append_Input_File (CMDWID issuedbywindow, std::string fromfname);
+// ResultObject Append_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_ptr);
+InputLineObject *Append_Input_String (CMDWID issuedbywindow, char *b_ptr);
+
+// Attach a new input source that will be read BEFORE all the previous ones
+ResultObject Push_Input_File (CMDWID issuedbywindow, std::string fromfname);
+// ResultObject Push_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_ptr);
 
 // Manipulate tracing options
 void Command_Trace (enum Trace_Entry_Type trace_type, CMDWID cmdwinid, std::string tofname);
@@ -119,15 +145,6 @@ ResultObject Command_Trace_OFF (CMDWID WindowID);
 ResultObject Command_Trace_ON (CMDWID WindowID, std::string tofname);
 void  SpeedShop_Trace_ON (char *tofile);
 void  SpeedShop_Trace_OFF(void);
-
-// Attach a new input source that will be read AFTER all the previous ones
-ResultObject Append_Input_File (CMDWID issuedbywindow, std::string fromfname);
-ResultObject Append_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_ptr);
-InputLineObject *Append_Input_String (CMDWID issuedbywindow, char *b_ptr);
-
-// Attach a new input source that will be read BEFORE all the previous ones
-ResultObject Push_Input_File (CMDWID issuedbywindow, std::string fromfname);
-ResultObject Push_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_ptr);
 
 // Focus is a property of the Command Window that issued the command.
 EXPID Experiment_Focus (CMDWID WindowID);
