@@ -201,7 +201,7 @@ Panel::broadcast(char *msg, BROADCAST_TYPE bt, PanelContainer *startPC)
     case PC_T:
       return( getPanelContainer()->notifyPC(msg) );
     case NEAREST_T:
-      return( getPanelContainer()->notifyNearest(msg) );
+      return( (int)getPanelContainer()->notifyNearest(msg) );
     case ALL_DECENDANTS_T:
       return( getPanelContainer()->notifyAllDecendants(msg, startPC) );
     case GROUP_T:
