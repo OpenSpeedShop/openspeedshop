@@ -76,7 +76,7 @@ Process_Command_Line (int argc, char **argv)
 
 }
 
-extern "C" void initSS_Util ();
+extern "C" void initPY_Input ();
 #include "Python.h"
 static void
 Initial_Python ()
@@ -84,7 +84,7 @@ Initial_Python ()
   FILE *fp;
   PyObject *my_dict, *my_module, cli;
   Py_Initialize ();
-  initSS_Util();
+  initPY_Input();
   fp = fopen ("myparse.py", "r");
   PyRun_SimpleFile ( fp, "myparse.py" );
   fclose (fp);
