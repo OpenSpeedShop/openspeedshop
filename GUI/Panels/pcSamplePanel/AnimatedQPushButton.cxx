@@ -39,7 +39,6 @@ AnimatedQPushButton::enterEvent ( QEvent *e )
 
   if( enabledFLAG == TRUE )
   {
-printf("setFLAT(FALSE);\n");
     setFlat(FALSE);
   }
 
@@ -64,11 +63,10 @@ AnimatedQPushButton::leaveEvent ( QEvent *e )
     return;
   }
 
-if( enabledFLAG == TRUE )
-{
-printf("setFLAT(TRUE)\n");
-  setFlat(TRUE);
-}
+  if( enabledFLAG == TRUE )
+  {
+    setFlat(TRUE);
+  }
 
 
   ImageList::Iterator it = imageList.begin();

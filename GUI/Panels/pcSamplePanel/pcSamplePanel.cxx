@@ -220,17 +220,6 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
   buttonGroupLayout->addItem(spacer);
   }
 
-#ifdef OLDWAY
-  interruptButton = new QPushButton( buttonGroup, "interruptButton" );
-  interruptButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, interruptButton->sizePolicy().hasHeightForWidth() ) );
-  {
-  QPixmap pm(interrupt_xpm);
-  pm.setMask(pm.createHeuristicMask());
-  interruptButton->setPixmap( pm );
-  }
-  buttonGroupLayout->addWidget( interruptButton );
-  interruptButton->setText( QString::null );
-#else // OLDWAY
   {
   interruptButton = new AnimatedQPushButton( buttonGroup, "interruptButton", TRUE );
   QPixmap *pm = new QPixmap( interrupt_xpm );
@@ -241,25 +230,12 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
   buttonGroupLayout->addWidget( interruptButton );
   interruptButton->setText( QString::null );
   }
-#endif // OLDWAY
-
 
   {
   QSpacerItem *spacer = new QSpacerItem( 20, 20, QSizePolicy::Preferred, QSizePolicy::Minimum );
   buttonGroupLayout->addItem(spacer);
   }
 
-#ifdef OLDWAY
-  terminateButton = new QPushButton( buttonGroup, "terminateButton" );
-  terminateButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, terminateButton->sizePolicy().hasHeightForWidth() ) );
-  {
-  QPixmap pm(terminate_xpm);
-  pm.setMask(pm.createHeuristicMask());
-  terminateButton->setPixmap( pm );
-  }
-  buttonGroupLayout->addWidget( terminateButton );
-  terminateButton->setText( QString::null );
-#else //OLDWAY
   {
   terminateButton = new AnimatedQPushButton( buttonGroup, "terminateButton", FALSE );
   QPixmap *pm = new QPixmap( terminate_xpm );
@@ -270,7 +246,6 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
   buttonGroupLayout->addWidget( terminateButton );
   terminateButton->setText( QString::null );
   }
-#endif //OLDWAY
 
   statusLayout = new QHBoxLayout( 0, 10, 0, "statusLayout" );
   
@@ -494,11 +469,11 @@ printf("# theApplication.setStatus(Thread::Running\n");
   runButton->enabledFLAG = FALSE;
   runButton->setFlat(TRUE);
   pauseButton->setEnabled(TRUE);
-pauseButton->enabledFLAG = TRUE;
+  pauseButton->enabledFLAG = TRUE;
   continueButton->setEnabled(FALSE);
-continueButton->enabledFLAG = FALSE;
+  continueButton->enabledFLAG = FALSE;
   updateButton->setEnabled(TRUE);
-updateButton->enabledFLAG = TRUE;
+  updateButton->enabledFLAG = TRUE;
   detachProcessButton->setEnabled(TRUE);
   detachCollectorButton->setEnabled(TRUE);
   terminateButton->setEnabled(TRUE);
@@ -515,11 +490,11 @@ printf("# theApplication.setStatus(Thread::Suspended)\n");;
   statusLabelText->setText( tr("Process suspended...") );
 
   pauseButton->setEnabled(FALSE);
-pauseButton->enabledFLAG = TRUE;
-pauseButton->setFlat(TRUE);
+  pauseButton->enabledFLAG = TRUE;
+  pauseButton->setFlat(TRUE);
   continueButton->setEnabled(TRUE);
-continueButton->enabledFLAG = TRUE;
-continueButton->setFlat(TRUE);
+  continueButton->enabledFLAG = TRUE;
+  continueButton->setFlat(TRUE);
 }
 
 
@@ -532,11 +507,11 @@ printf("# theApplication.setStatus(Thread::Running\n");
   statusLabelText->setText( tr("Process running...") );
 
   pauseButton->setEnabled(TRUE);
-pauseButton->enabledFLAG = TRUE;
-pauseButton->setFlat(TRUE);
+  pauseButton->enabledFLAG = TRUE;
+  pauseButton->setFlat(TRUE);
   continueButton->setEnabled(FALSE);
-continueButton->enabledFLAG = TRUE;
-continueButton->setFlat(TRUE);
+  continueButton->enabledFLAG = TRUE;
+  continueButton->setFlat(TRUE);
 }
 
 
@@ -571,20 +546,20 @@ printf("# if( response is yes, then called theApplication.saveAs();\n");
   attachCollectorButton->setEnabled(TRUE);
   runButton->setEnabled(TRUE);
   runButton->enabledFLAG = TRUE;
-pauseButton->setEnabled(FALSE);
-pauseButton->enabledFLAG = FALSE;
+  pauseButton->setEnabled(FALSE);
+  pauseButton->enabledFLAG = FALSE;
   continueButton->setEnabled(FALSE);
-continueButton->setEnabled(FALSE);
-continueButton->enabledFLAG = FALSE;
+  continueButton->setEnabled(FALSE);
+  continueButton->enabledFLAG = FALSE;
   updateButton->setEnabled(FALSE);
-updateButton->setEnabled(FALSE);
-updateButton->enabledFLAG = FALSE;
+  updateButton->setEnabled(FALSE);
+  updateButton->enabledFLAG = FALSE;
   detachProcessButton->setEnabled(TRUE);
   detachCollectorButton->setEnabled(TRUE);
   terminateButton->setEnabled(FALSE);
-terminateButton->setFlat(TRUE);
-terminateButton->setEnabled(FALSE);
-terminateButton->enabledFLAG = FALSE;
+  terminateButton->setFlat(TRUE);
+  terminateButton->setEnabled(FALSE);
+  terminateButton->enabledFLAG = FALSE;
 }
 
 /*
