@@ -61,16 +61,21 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n) : Panel(pc
     // resize as small as the PanelContainer clip.
     sv = new QScrollView(getBaseWidgetFrame(), "scrollview");
     sv->setResizePolicy( QScrollView::Manual );
-iwpFrame = new QFrame(sv->viewport(), "iwpFrame");
+
+    iwpFrame = new QFrame(sv->viewport(), "iwpFrame");
+iwpFrame->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, FALSE ) );
+
 //    sv->setVScrollBarMode( QScrollView::AlwaysOn );
 //    sv->setHScrollBarMode( QScrollView::AlwaysOn );
 
     IntroWizardFormLayout = new QVBoxLayout( iwpFrame, 0, 0, "IntroWizardFormLayout"); 
 
     mainFrame = new QFrame( iwpFrame, "mainFrame" );
+mainFrame->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)1, (QSizePolicy::SizeType)0, 0, 0, FALSE ) );
     mainFrame->setFrameShape( QFrame::StyledPanel );
     mainFrame->setFrameShadow( QFrame::Raised );
     mainFrameLayout = new QVBoxLayout( mainFrame, 1, 1, "mainFrameLayout"); 
+
 
     widgetStack5 = new QWidgetStack( mainFrame, "widgetStack5" );
 
@@ -288,10 +293,13 @@ setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 
     connect( eOtherRB, SIGNAL( clicked() ), this, SLOT(eOtherRBChanged() ) );
 // Cut-n-paste to here...
 
-// mainFrame->setPaletteBackgroundColor("orange");
-// iwpFrame->setPaletteBackgroundColor("orange");
-// sv->viewport()->setPaletteBackgroundColor("red");
-// sv->viewport()->setPaletteForegroundColor("green");
+#ifdef DEBUG_WITH_COLOR
+getBaseWidgetFrame()->setPaletteBackgroundColor("blue");
+mainFrame->setPaletteBackgroundColor("pink");
+iwpFrame->setPaletteBackgroundColor("orange");
+sv->viewport()->setPaletteBackgroundColor("red");
+sv->viewport()->setPaletteForegroundColor("green");
+#endif // DEBUG_WITH_COLOR
 }
 
 
@@ -614,7 +622,7 @@ void IntroWizardPanel::handleSizeEvent( QResizeEvent *e )
   width=getBaseWidgetFrame()->width();
   height=getBaseWidgetFrame()->height();
 
-  printf("IntroWizardPanel::viewportResizeEvent(%d,%d) entered\n", width, height);
+//  printf("IntroWizardPanel::viewportResizeEvent(%d,%d) entered\n", width, height);
 // This is the actual size of the realestate of the created widgets.
 // I'm not sure (yet) just how to calculate the exact size... 
 // At somepoint, we'll want to calculate this based on all widgets in 
