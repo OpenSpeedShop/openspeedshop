@@ -488,7 +488,7 @@ void IntroWizardPanel::vpage1NextButtonSelected()
   }
   if( vpage1pcSampleRB->isOn() )
   {
-    p = getPanelContainer()->raiseNamedPanel("pc Sample Wizard");
+    p = getPanelContainer()->raiseNamedPanel("&pc Sample Wizard");
     if( !p )
     {
       getPanelContainer()->getMasterPC()->dl_create_and_add_panel("pc Sample Wizard", getPanelContainer());
