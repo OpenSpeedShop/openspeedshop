@@ -172,8 +172,10 @@ if( expID == -1 )
 
 
 // Begin direct connect to framework
-if( expID == -1 )
+printf("Begin direct connect to framework\n");
+if( expID != -1 )
 {
+printf(" expID == -1\n");
   if( !mw->executableName.isEmpty() )
   {
     QFileInfo fileInfo = QFileInfo(mw->executableName.ascii());
@@ -195,15 +197,51 @@ if( expID == -1 )
       std::string command = std::string(mw->executableName.ascii());
   
 // Currently this hangs...
-  //printf("call experiment.createProcess(%s)\n", command.c_str() );
-  //   Thread thread = experiment.createProcess(command);
+printf("call experiment.createProcess(%s)\n", command.c_str() );
+      Thread thread = experiment.createProcess(command);
   
       // Create the example collector and set its sampling rate
       nprintf( DEBUG_CONST_DESTRUCT ) ("call the createCollector...(pcsamp)\n");
+printf("call the createCollector...(pcsamp)\n");
       Collector collector = experiment.createCollector("example");
       nprintf( DEBUG_CONST_DESTRUCT ) ("call the setParameterValue...(sampling_rate, 10)\n");
+printf("call the setParameterValue...(sampling_rate, 10)\n");
       collector.setParameterValue("sampling_rate", (unsigned)10);
+
+collector.attachThread(thread);
+collector.startCollecting();
+
+// Resume all threads and wait for them to terminate
+experiment.getThreads().changeState(Thread::Running);
+while(!experiment.getThreads().areAllState(Thread::Terminated))
+{
+  sleep(1);
+}
+
+// Evaluate the collector's time metric for all functions in the thread
+SmartPtr<std::map<Function, double> > data;
+Queries::GetMetricByFunctionInThread(collector, "time", thread, data);
+
+
+// Display the results
+std::cout << std::endl << std::endl << std::endl
+		  << std::setw(10) << "Time"
+		  << "    "
+		  << "Function" << std::endl
+		  << std::endl;
+	
+for(std::map<Function, double>::const_iterator
+		i = data->begin(); i != data->end(); ++i)
+{
+	    std::cout << std::setw(10) << std::fixed << std::setprecision(3)
+		      << i->second
+		      << "    "
+		      << i->first.getName() << std::endl;
+}
+std::cout << std::endl << std::endl << std::endl;
+	
     }
+
   
     catch( const std::exception& error) {
       std::cerr
@@ -215,10 +253,10 @@ if( expID == -1 )
   //    return 1;
       return;
     }
-} else 
-{ // Look up all the info and display it... 
-  nprintf( DEBUG_CONST_DESTRUCT ) ("Look up all the info and display it...for exprId (%d) \n", expID );
-}
+  } else 
+  { // Look up all the info and display it... 
+    nprintf( DEBUG_CONST_DESTRUCT ) ("Look up all the info and display it...for exprId (%d) \n", expID );
+  }
 
 
   // Create a process for the command in the suspended state
