@@ -139,10 +139,13 @@ exp_attach_com:     ATTACH_HEAD   exp_attach_args
     	    	|   ATTACH_HEAD error {p_parse_result->set_error(yylval.string,cmd_desc[CMD_EXP_ATTACH].name);} 
     	    	;
 exp_attach_args:    /* empty */
+    	    	|   expId_spec
     	    	|   host_file_rpt_list
-    	    	|   expType_list host_file_rpt_list
-    	    	|   host_file_rpt_list expType_list
     	    	|   expType_list
+    	    	|   expId_spec host_file_rpt_list
+    	    	|   expId_spec host_file_rpt_list expType_list
+    	    	|   expId_spec expType_list
+    	    	|   host_file_rpt_list expType_list
     	    	;
 
     	    /** EXP_CLOSE **/
