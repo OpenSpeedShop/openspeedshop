@@ -354,7 +354,7 @@ printf("# theApplication.setStatus(Thread::Suspended)\n");;
 //  statusLabelText->setText( tr("Process suspended...") );
 
   pauseButton->setEnabled(FALSE);
-  pauseButton->enabledFLAG = TRUE;
+  pauseButton->enabledFLAG = FALSE;
   pauseButton->setFlat(TRUE);
   continueButton->setEnabled(TRUE);
   continueButton->enabledFLAG = TRUE;
