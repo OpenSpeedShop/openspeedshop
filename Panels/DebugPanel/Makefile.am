@@ -26,7 +26,7 @@ DebugPanel_la_CXXFLAGS = \
     -I../../plugin \
     -I../../base
 
-DebugPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../base/.libs/ossBase.so
+DebugPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../base/.libs/libopenss_Base.so
 
 DebugPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
 

@@ -17,9 +17,9 @@
 ################################################################################
 
 
-pkglib_LTLIBRARIES = ossBase.la
+pkglib_LTLIBRARIES = libopenss_Base.la
 
-ossBase_la_CXXFLAGS = \
+libopenss_Base_la_CXXFLAGS = \
     -I../objects \
     -I/usr/include \
     -I$(QTDIR)/include \
@@ -30,9 +30,9 @@ ossBase_la_CXXFLAGS = \
     -I../base
 
 
-ossBase_la_LDFLAGS = --export-dynamic -module -avoid-version
+libopenss_Base_la_LDFLAGS = --export-dynamic -module -avoid-version
 
-ossBase_la_LIBADD = $(LIBLTDL)
+libopenss_Base_la_LIBADD = $(LIBLTDL)
 
 moc_TopWidget.cxx: TopWidget.hxx
 	-moc -o moc_TopWidget.cxx TopWidget.hxx
@@ -52,7 +52,7 @@ moc_PanelContainer.cxx: PanelContainer.hxx
 moc_Panel.cxx: Panel.hxx
 	-moc -o moc_Panel.cxx Panel.hxx
 
-ossBase_la_SOURCES = \
+libopenss_Base_la_SOURCES = \
 	pc_plugin.cxx \
 	DragNDropPanel.hxx DragNDropPanel.cxx \
 	TopWidget.hxx TopWidget.cxx moc_TopWidget.cxx \

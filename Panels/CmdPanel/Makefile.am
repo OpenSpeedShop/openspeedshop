@@ -31,7 +31,7 @@ CmdPanel_la_CXXFLAGS = \
 
 CmdPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version 
 
-CmdPanel_la_LIBADD =  -L$(QTDIR)/lib -lqt ../../base/.libs/ossBase.so ../../objects/.libs/ossObjects.so ../../pcli/.libs/posscli.so
+CmdPanel_la_LIBADD =  -L$(QTDIR)/lib -lqt ../../base/.libs/libopenss_Base.so ../../objects/.libs/ossObjects.so ../../pcli/.libs/posscli.so
 
 moc_CmdPanel.cxx: CmdPanel.hxx
 	-moc -o moc_CmdPanel.cxx CmdPanel.hxx

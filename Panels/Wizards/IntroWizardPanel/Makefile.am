@@ -30,7 +30,7 @@ IntroWizardPanel_la_CXXFLAGS = \
 
 IntroWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
-IntroWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt ../../../base/.libs/ossBase.so
+IntroWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt ../../../base/.libs/libopenss_Base.so
 
 moc_IntroWizardPanel.cxx: IntroWizardPanel.hxx
 	-moc -o moc_IntroWizardPanel.cxx IntroWizardPanel.hxx

@@ -42,7 +42,7 @@ ConstructNewExperimentPanel_la_LDFLAGS = \
 	-module \
 	-avoid-version \
 	-L../../libopenss-framework \
-	-Wl,../../base/.libs/ossBase.so \
+	-Wl,../../base/.libs/libopenss_Base.so \
 	-Wl,../../objects/.libs/ossObjects.so \
 	-Wl,../../pcli/.libs/posscli.so \
 	-Wl,../../gui/.libs/ossgui.so \

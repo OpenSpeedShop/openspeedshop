@@ -28,7 +28,7 @@ TemplatePanel_la_CXXFLAGS = \
 
 TemplatePanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
-TemplatePanel_la_LIBADD = -L$(QTDIR)/lib -lqt ../../base/.libs/ossBase.so
+TemplatePanel_la_LIBADD = -L$(QTDIR)/lib -lqt ../../base/.libs/libopenss_Base.so
 
 moc_TemplatePanel.cxx: TemplatePanel.hxx
 	-moc -o moc_TemplatePanel.cxx TemplatePanel.hxx
