@@ -14,6 +14,12 @@
 #include "ProcessControlObject.hxx"
 #include "ControlObject.hxx"
 
+#define DEMO 1
+#ifdef DEMO
+#include "SourcePanel.hxx" // For demo only....
+#include "SourceObject.hxx" // For demo only....
+#endif // DEMO
+
 
 
 /*!  pcSamplePanel Class
@@ -93,8 +99,33 @@ printf("# theApplication.attachCollector(theCollector.getValue());\n");
 
 //  topPC->dl_create_and_add_panel("Toolbar Panel", topPC->leftPanelContainer);
 //  topPC->dl_create_and_add_panel("Top Five Panel", topPC->leftPanelContainer);
+#ifdef DEMO
+  SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", topPC->leftPanelContainer);
+#else // DEMO
   topPC->dl_create_and_add_panel("Source Panel", topPC->leftPanelContainer);
+#endif // DEMO
   topPC->dl_create_and_add_panel("Command Panel", topPC->rightPanelContainer);
+
+
+#ifdef DEMO
+{ // Begin - Just for demo sake...load a file and place the user at main()
+  char *plugin_directory = getenv("FUTURE_TOOL_PLUGIN_DIR");
+  char buffer[200];
+  strcpy(buffer, plugin_directory);
+  strcat(buffer, "/../../../Example.cpp");
+printf("load (%s)\n", buffer);
+  SourceObject *spo = new SourceObject("main", buffer, 1556, TRUE, NULL);
+
+  if( !sp->listener((void *)spo) )
+  {
+    fprintf(stderr, "Unable to position at main in %s\n", buffer);
+  } else
+  {
+fprintf(stderr, "Positioned at main in %s ????? \n", buffer);
+  }
+} // End - for demo sake
+#endif // DEMO
+  
 }
 
 
@@ -161,6 +192,7 @@ int
 pcSamplePanel::listener(void *msg)
 {
   printf("pcSamplePanel::listener() requested.\n");
+  int ret_val = 0; // zero means we didn't handle the message.
 
   ControlObject *co = (ControlObject *)msg;
 
@@ -185,44 +217,44 @@ pcSamplePanel::listener(void *msg)
       break;
     case  DETACH_PROCESS_T:
       printf("Detach from a process\n");
+      ret_val = 1;
       break;
     case  ATTACH_COLLECTOR_T:
       printf("Attach to a collector\n");
+      ret_val = 1;
       break;
     case  REMOVE_COLLECTOR_T:
       printf("Remove a collector\n");
+      ret_val = 1;
       break;
     case  RUN_T:
       printf("Run\n");
+      ret_val = 1;
       break;
     case  PAUSE_T:
       printf("Pause\n");
+      ret_val = 1;
       break;
     case  CONT_T:
       printf("Continue\n");
+      ret_val = 1;
       break;
     case  UPDATE_T:
       printf("Update\n");
+      ret_val = 1;
       break;
     case  INTERRUPT_T:
       printf("Interrupt\n");
+      ret_val = 1;
       break;
     case  TERMINATE_T:
+      ret_val = 1;
       printf("Terminate\n");
       break;
     default:
       break;
   }
-  return 0;  // 0 means, did not want this message and did not act on anything.
-}
-
-
-//! This function broadcasts messages.
-int 
-pcSamplePanel::broadcast(char *msg)
-{
-  dprintf("pcSamplePanel::broadcast() requested.\n");
-  return 0;
+  return ret_val;  // 0 means, did not want this message and did not act on anything.
 }
 
 /*

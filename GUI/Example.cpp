@@ -1553,6 +1553,14 @@ PanelContainer::debugPanel()
 // End Debug routines
 
 
+main(int argc, char *argv[])
+{
+  PanelContainer *pc = new PanelContainer();
+
+  pc->show();
+}
+
+
 void
 PanelContainer::panelContainerContextMenuEvent( PanelContainer *targetPC )
 {

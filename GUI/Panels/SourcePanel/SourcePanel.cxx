@@ -169,8 +169,7 @@ SourcePanel::saveAs()
 }
 
 /*! 
- * The listener function fields requests (currenlty only from the 
-   TopPanel) to load and position source files.
+ * The listener function fields requests to load and position source files.
  */
 int 
 SourcePanel::listener(void *msg)
@@ -190,17 +189,12 @@ SourcePanel::listener(void *msg)
     return 0; // o means, did not act on message.
   }
 
-// spo->print();
-
-  // I'm not sure we really want to raise this all the time.   We may want
-  // to consider adding a flag to have the panel raised...
-  panelContainer->raisePanel((Panel *)this);
+  if( spo->raiseFLAG == TRUE )
+  {
+    panelContainer->raisePanel((Panel *)this);
+  }
 
   loadFile(spo->fileName);
-
-  nprintf(DEBUG_PANELS) ("Try to position at line %d\n", spo->line_number);
-// textEdit->setUpdatesEnabled( TRUE );
-  positionLineAtCenter(spo->line_number);
 
   highlightList = spo->highlightList;
   doFileHighlights();
@@ -228,6 +222,11 @@ SourcePanel::listener(void *msg)
       i++;
     }
   }
+
+  nprintf(DEBUG_PANELS) ("Try to position at line %d\n", spo->line_number);
+// textEdit->setUpdatesEnabled( TRUE );
+
+  positionLineAtCenter(spo->line_number);
   
   return 1;
 }
@@ -607,6 +606,10 @@ SourcePanel::positionLineAtTop(int top_line)
  
   nprintf(DEBUG_PANELS) ("So I think the value is %d\n", value);
   vscrollbar->setValue(value);
+
+  // This forces a screen position.   Otherwise, some reposition, when the 
+  // screen was not yet realized, were not being reposition at all.
+  textEdit->setCursorPosition(top_line, 0);
 }
 
 /*! If the position is within a highlight, return true. */

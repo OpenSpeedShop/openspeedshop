@@ -417,11 +417,8 @@ TopPanel::itemSelected(int element)
 //    if( i > 0 ) 
     if( p != NULL ) 
     {
-// It sure would be nice here if dl_create_and_add_panel(...) returned a
-// pointer to the newly created Panel.   Then we could p->listener(spo)
-// directly to the panel.
 //      broadcast((char *)spo);
-      p->listener((char *)spo);
+      p->listener((void *)spo);
     }
   }
 }

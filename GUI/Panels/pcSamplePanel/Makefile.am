@@ -24,6 +24,7 @@
 
 pkglib_LTLIBRARIES = pcSamplePanel.la
 
+# NOTE 1: The -I../SourcePanel is only here for #define DEMO 1
 pcSamplePanel_la_CXXFLAGS = \
     -I/usr/include \
     -I$(QTDIR)/include \
@@ -32,6 +33,7 @@ pcSamplePanel_la_CXXFLAGS = \
     -I../../images \
     -I../../plugin \
     -I../../objects \
+    -I../SourcePanel \
     -I../../base
 
 pcSamplePanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../base/.libs/ftBase.so -Wl,../../objects/.libs/ftObjects.so

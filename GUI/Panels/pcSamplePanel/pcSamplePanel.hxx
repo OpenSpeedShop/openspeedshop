@@ -68,10 +68,6 @@ public:
    */
   int listener(void *msg);
 
-  //! Calls the panel function broadcast() message request.
-  int broadcast(char *msg);
-
-
   QButtonGroup *buttonGroup;
   AnimatedQPushButton *attachCollectorButton;
   AnimatedQPushButton *detachCollectorButton;
