@@ -328,6 +328,7 @@ static void Resolve_F_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
 // TODO:
     } else {
       try {
+      //Thread t = exp->FW()->createProcess(f_val1->name + " chair.control.cook chair.camera chair.surfaces chair.cook.ppm ppm pixels_out.cook", host_name);
       Thread t = exp->FW()->createProcess(f_val1->name, host_name);
       tgrp->push_back(t);
       }
@@ -514,12 +515,20 @@ static bool Destroy_Experiment (CommandObject *cmd, ExperimentObject *exp, bool 
    // executing when we release it from control of OpenSpeedShop.
       (exp->FW() != NULL)) {
     ThreadGroup tgrp = exp->FW()->getThreads();
-    try {
-      tgrp.changeState (Thread::Terminated );
-    }
-    catch(const std::exception& error) {
-      Mark_Cmd_With_Std_Error (cmd, error);
-      return false;
+    ThreadGroup::iterator ti;
+    for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+      Thread t = *ti;
+      try {
+        t.changeState (Thread::Terminated );
+      }
+      catch(const std::exception& error) {
+        if (t.getState() == Thread::Terminated) {
+         // This state causes an error, but we can ignore it.
+          continue;
+        }
+        Mark_Cmd_With_Std_Error (cmd, error);
+        return false;
+      }
     }
   }
 
@@ -722,10 +731,26 @@ bool SS_expFocus  (CommandObject *cmd) {
 } 
 
 static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
+  if ((exp == NULL) ||
+      (exp->FW() == NULL) ||
+      (exp->Status() == ExpStatus_NonExistent)) {
+    cmd->Result_String ("The experiment can not be run because it doe snot exist.");
+    return false;
+  }
+
   exp->Determine_Status();
-  if ((exp->FW() != NULL) &&
-      ((exp->Status() == ExpStatus_Paused) ||
-       (exp->Status() == ExpStatus_Running))) {
+
+  if (exp->Status() == ExpStatus_Suspended) {
+   // Can not run if ExpStatus_Terminated or ExpStatus_Suspended.
+   // There is no way to determine when it Terminated, so ignore that error.
+    cmd->Result_String ("The experiment can not be run because it is in the "
+                         + exp->ExpStatus_Name() + " state.");
+    cmd->set_Status(CMD_ERROR);
+    return false;
+  }
+
+  if ((exp->Status() == ExpStatus_Paused) ||
+      (exp->Status() == ExpStatus_Running)) {
 
    // Verify that there are threads.
     ThreadGroup tgrp = exp->FW()->getThreads();
@@ -764,13 +789,7 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
     }
 
    // After changing the state of each thread, update that of the ExperimentObject
-    exp->Determine_Status();
-  } else {
-   // Can not run if ExpStatus_Terminated or ExpStatus_Suspended.
-    cmd->Result_String ("The experiment can not be run because it is in the "
-                         + exp->ExpStatus_Name() + " state.");
-    cmd->set_Status(CMD_ERROR);
-    return false;
+    exp->setStatus (ExpStatus_Running);
   }
 }
 
@@ -795,7 +814,6 @@ bool SS_expGo (CommandObject *cmd) {
     }
   }
 
-  cmd->set_Status(CMD_COMPLETE);
   return true;
 }
 
@@ -831,7 +849,7 @@ static bool Pause_Experiment (CommandObject *cmd, ExperimentObject *exp) {
     }
 
    // After changing the state of each thread, update that of the ExperimentObject
-    exp->Determine_Status();
+    exp->setStatus (ExpStatus_Paused);
   }
 }
 
@@ -948,6 +966,16 @@ bool SS_expView (CommandObject *cmd) {
     cmd->set_Status(CMD_ERROR);
     return false;
   }
+
+ // For batch processing, wait for completion before generating a report.
+  InputLineObject *clip = cmd->Clip();
+  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+  if (!Window_Is_Async(WindowID)) {
+    while (exp->Determine_Status() == ExpStatus_Running) {
+      usleep (10000);
+    }
+  }
+  
 
  // Pick up the <viewType> from the comand.
   Assert(cmd->P_Result() != NULL);
