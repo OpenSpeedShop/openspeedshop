@@ -73,20 +73,20 @@ SPCanvasForm::~SPCanvasForm( )
 void
 SPCanvasForm::setHighlights(QFont canvas_font, int lineHeight, int topLine, int visibleLines, int line_count, int top_offset)
 {
-  nprintf(DEBUG_CONST_DESTRUCT) ("SPCanvasForm::setHighlights()\n");
-  nprintf(DEBUG_CONST_DESTRUCT) ("lineHeight=%d topLine=%d visibleLines=%d line_count=%d\n", lineHeight, topLine, visibleLines, line_count );
+  nprintf(DEBUG_PANELS) ("SPCanvasForm::setHighlights()\n");
+  nprintf(DEBUG_PANELS) ("lineHeight=%d topLine=%d visibleLines=%d line_count=%d\n", lineHeight, topLine, visibleLines, line_count );
 
   int i = 0;
   char buffer[100];
   for(i=0;i<visibleLines;i++)
   {
     // Don't allow us to print past the number of lines in the file...
-//    if( (topLine+i)-1 > line_count )
     if( topLine+i > line_count )
     {
-      nprintf(DEBUG_CONST_DESTRUCT) ("line_count=%d topLine=%d i=%d == %d\n", line_count, topLine, i, topLine+i );
+      nprintf(DEBUG_PANELS) ("line_count=%d topLine=%d i=%d == %d\n", line_count, topLine, i, topLine+i );
       break;
     }
+    nprintf(DEBUG_PANELS) ("LOOKUP HIGHLIGHT FOR THIS LINE=%d\n", i);
     sprintf(buffer, "%d", topLine+i);
     QCanvasText *text = new QCanvasText( buffer, canvas_font, canvas);
     text->setColor("black");
@@ -103,7 +103,7 @@ SPCanvasForm::setHighlights(QFont canvas_font, int lineHeight, int topLine, int 
 void
 SPCanvasForm::clearAllItems()
 {
-    nprintf(DEBUG_CONST_DESTRUCT) ("clearAllItems(%d) entered\n", canvasTextList.count() );
+    nprintf(DEBUG_PANELS) ("clearAllItems(%d) entered\n", canvasTextList.count() );
 
   if( canvasTextList.empty() )
   {

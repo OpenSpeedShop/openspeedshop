@@ -30,7 +30,7 @@
 #include "SPCanvasForm.hxx"
 #include "SPCanvasView.hxx"
 
-#define DEFAULT_CANVAS_WIDTH 50
+#define DEFAULT_CANVAS_WIDTH 100
 #define DEFAULT_CANVAS_MIN 20
 
 typedef QValueList<QCanvasText *> CanvasTextList;

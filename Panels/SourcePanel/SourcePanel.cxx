@@ -85,11 +85,13 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n, void *argument) : Pa
   label = new QLabel( getBaseWidgetFrame(), "text label", 0 );
 // printf("label->height()=%d\n", label->height() );
 
-  canvasForm = new SPCanvasForm( label->height(), splitter, "no." );
+  canvasForm = new SPCanvasForm( label->height(), splitter, "Stats" );
   canvasForm->hide();
 
+#ifdef CANVASFORM2
   canvasForm2 = new SPCanvasForm( label->height(), splitter, "stats" );
   canvasForm2->hide();
+#endif // CANVASFORM2
 
   delete label;
 
@@ -137,14 +139,23 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n, void *argument) : Pa
   connect( textEdit, SIGNAL(clicked(int, int)),
            this, SLOT(clicked(int, int)) );
 
-  frameLayout->addWidget(splitter);
   QValueList<int> sizeList;
   sizeList.clear();
   int width = pc->width();
-  int left_side_size = (int)(width*.10);
+  int left_side_size = (int)(width/4);
+  if( DEFAULT_CANVAS_WIDTH < left_side_size )
+  {
+    left_side_size = DEFAULT_CANVAS_WIDTH;
+  }
   sizeList.push_back( left_side_size );
   sizeList.push_back( width-left_side_size );
   splitter->setSizes(sizeList);
+
+  // Note: It seems you need to resize before adding the 
+  //       splitter to the layout.   I guess that makes sense
+  //       as the layout manager needs to know the size.
+  frameLayout->addWidget(splitter);
+
   splitter->show();
 
 
@@ -336,25 +347,17 @@ SourcePanel::listener(void *msg)
   // Check the message type to make sure it's our type...
   if( msgObject->msgType == "SourceObject" )
   {
-    nprintf(DEBUG_CONST_DESTRUCT)  ("Its a SourceObject\n");
+    nprintf(DEBUG_PANELS)  ("Its a SourceObject\n");
     spo = (SourceObject *)msg;
     if( !spo )
     {
       return 0;  // 0 means, did not act on message.
     }
 
-    nprintf(DEBUG_CONST_DESTRUCT)  ("load the file spo->fileName=%s\n", spo->fileName.ascii() );
+    nprintf(DEBUG_PANELS)  ("load the file spo->fileName=%s\n", spo->fileName.ascii() );
     loadFile(spo->fileName);
 
-/*
-printf ("raise the panel.\n");
-    if( spo->raiseFLAG == TRUE )
-    {
-      getPanelContainer()->raisePanel((Panel *)this);
-    }
-*/
-
-    nprintf(DEBUG_CONST_DESTRUCT)  ("doFileHighlights()\n");
+    nprintf(DEBUG_PANELS)  ("doFileHighlights()\n");
 
     highlightList = spo->highlightList;
     doFileHighlights();
@@ -588,29 +591,16 @@ SourcePanel::showCanvasForm()
   {
     statsFLAG = FALSE;
     canvasForm->hide();
+#ifdef CANVASFORM2
     canvasForm2->hide();
+#endif // CANVASFORM2
   } else
   {
-    // I don't know why, but the splitter resizes after I've already resized it
-    // initially.   This just sets the initial size, one more time.   We only
-    // do this the first time we come through this routine.
-    if( firstTimeShowingStatAreaFLAG == TRUE )
-    {
-      QValueList<int> sizeList;
-      sizeList.clear();
-      int width = getPanelContainer()->width();
-      int left_side_size = DEFAULT_CANVAS_WIDTH;
-      nprintf(DEBUG_PANELS) ("left_side_size = (%d)\n", left_side_size );
-      sizeList.push_back( left_side_size );
-sizeList.push_back( left_side_size );
-      sizeList.push_back( width-left_side_size );
-      splitter->setSizes(sizeList);
-    }
-    firstTimeShowingStatAreaFLAG = FALSE;
-
     statsFLAG = TRUE;
     canvasForm->show();
-canvasForm2->show();
+#ifdef CANVASFORM2
+    canvasForm2->show();
+#endif // CANVASFORM2
   }
 
   // Make sure the scrollbar is sync'd with everyone..
@@ -1040,12 +1030,12 @@ int max_value = vscrollbar->maxValue();
   nprintf(DEBUG_PANELS) ("valueChanged:: (%d)\n", value );
   nprintf(DEBUG_PANELS) ("passed in value=%d\n", passed_in_value );
 
-  nprintf(DEBUG_CONST_DESTRUCT) ("value=%d lastLineHeight=%d max_value=%d\n", value, lastLineHeight, max_value);
+  nprintf(DEBUG_PANELS) ("value=%d lastLineHeight=%d max_value=%d\n", value, lastLineHeight, max_value);
   int top_line = (int)(value/lastLineHeight);
   int remainder = value-(top_line*lastLineHeight);
-  nprintf(DEBUG_CONST_DESTRUCT) ("remainder = %d\n", remainder );
+  nprintf(DEBUG_PANELS) ("remainder = %d\n", remainder );
   remainder-=3; // For the textEdit margin.
-  nprintf(DEBUG_CONST_DESTRUCT) ("new remainder = %d\n", remainder );
+  nprintf(DEBUG_PANELS) ("new remainder = %d\n", remainder );
   top_line++;
   lastTop = top_line;
 
@@ -1121,21 +1111,20 @@ void SourcePanel::handleSizeEvent(QResizeEvent *e)
 void
 SourcePanel::calculateLastParameters()
 {
+  int lineHeight = 1;
+  int height = textEdit->height();
+  int heightForWidth = textEdit->heightForWidth(80);
   if( lineCount == 0 )
   {
     lastLineHeight = 1;
     lastVisibleLines = 0;
     return;
-  }
-  int height = textEdit->height();
-  int heightForWidth = textEdit->heightForWidth(80);
-  int lineHeight = heightForWidth/lineCount;
-  lastLineHeight = lineHeight;
-  if( lineHeight < heightForWidth )
+  } else
   {
-    lineHeight = heightForWidth;
+    lineHeight = heightForWidth/lineCount;
   }
-  nprintf(DEBUG_CONST_DESTRUCT) ("height=%d lineHeight=%d\n", height, lineHeight );
+  lastLineHeight = lineHeight;
+  nprintf(DEBUG_PANELS) ("height=%d lineHeight=%d\n", height, lineHeight );
 
   lastVisibleLines = (int)(height/lineHeight);
 
@@ -1145,9 +1134,9 @@ SourcePanel::calculateLastParameters()
   // be the way to go if this causes problems.
   lastVisibleLines++;
 
-  nprintf(DEBUG_CONST_DESTRUCT) ("calculate: maxValue=%d lineHeight=%d lineCount=%d\n", vscrollbar->maxValue(), lineHeight, lineCount );
-  nprintf(DEBUG_CONST_DESTRUCT) ("calculate: heightForWidth=%d\n", heightForWidth);
-  nprintf(DEBUG_CONST_DESTRUCT) ("calculate: lastLineHeight=%d lastVisibleLines=%d\n", lastLineHeight, lastVisibleLines );
+  nprintf(DEBUG_PANELS) ("calculate: maxValue=%d lineHeight=%d lineCount=%d\n", vscrollbar->maxValue(), lineHeight, lineCount );
+  nprintf(DEBUG_PANELS) ("calculate: heightForWidth=%d\n", heightForWidth);
+  nprintf(DEBUG_PANELS) ("calculate: lastLineHeight=%d lastVisibleLines=%d\n", lastLineHeight, lastVisibleLines );
 }
 
 void
