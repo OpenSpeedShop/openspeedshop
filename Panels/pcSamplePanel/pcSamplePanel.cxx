@@ -117,6 +117,8 @@ nprintf( DEBUG_CONST_DESTRUCT ) ("Positioned at main in %s ????? \n", buffer);
   }
 }
 // End demo.
+
+  updateInitialStatus();
   
 }
 

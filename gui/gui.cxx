@@ -164,32 +164,32 @@ if( cliFLAG )
     w->argsStr = argsStr;
 //    printf("create OpenSpeedshop()\n");
 
-if( w->expStr != NULL )
-{
-    if( w->expStr == "pcsamp" )
+    if( w->expStr != NULL )
     {
-      w->topPC->dl_create_and_add_panel("pc Sampling");
-    } else if( w->expStr == "usertime" )
-    {
-      w->topPC->dl_create_and_add_panel("User Time");
-    } else if( w->expStr == "fpe" )
-    {
-      w->topPC->dl_create_and_add_panel("FPE Tracing");
-    } else if( w->expStr == "hwc" )
-    {
-      w->topPC->dl_create_and_add_panel("HW Counter");
-    } else if( w->expStr == "io" )
-    { 
-      w->topPC->dl_create_and_add_panel("IO");
-    } else if( w->expStr == "mpi" )
-    { 
-      w->topPC->dl_create_and_add_panel("MPI");
-    } else
-    {
-      fprintf(stderr, "Unknown experiment type.   Try using the IntroWizard.\n");
-      exit(0);
+      if( w->expStr == "pcsamp" )
+      {
+        w->topPC->dl_create_and_add_panel("pc Sampling");
+      } else if( w->expStr == "usertime" )
+      {
+        w->topPC->dl_create_and_add_panel("User Time");
+      } else if( w->expStr == "fpe" )
+      {
+        w->topPC->dl_create_and_add_panel("FPE Tracing");
+      } else if( w->expStr == "hwc" )
+      {
+        w->topPC->dl_create_and_add_panel("HW Counter");
+      } else if( w->expStr == "io" )
+      { 
+        w->topPC->dl_create_and_add_panel("IO");
+      } else if( w->expStr == "mpi" )
+      { 
+        w->topPC->dl_create_and_add_panel("MPI");
+      } else
+      {
+        fprintf(stderr, "Unknown experiment type.   Try using the IntroWizard.\n");
+        exit(0);
+      }
     }
-}
 
     w->show();
 //    printf("show OpenSpeedshop()\n");

@@ -1,4 +1,4 @@
-#include "IOPanel.hxx"   // Change this to your new class header file name
+#include "MPIPanel.hxx"   // Change this to your new class header file name
 #include "PanelContainer.hxx"   // Do not remove
 #include "plugin_entry_point.hxx"   // Do not remove
 
@@ -22,14 +22,14 @@
 
 
 
-/*!  IOPanel Class
+/*!  MPIPanel Class
 
      Autor: Al Stipek (stipek@sgi.com)
  */
 
 
 /*! The default constructor.   Unused. */
-IOPanel::IOPanel()
+MPIPanel::MPIPanel()
 { // Unused... Here for completeness...
 }
 
@@ -39,9 +39,9 @@ IOPanel::IOPanel()
     \param pc    The panel container the panel will initially be attached.
     \param n     The initial name of the panel container
  */
-IOPanel::IOPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
+MPIPanel::MPIPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
 {
-  nprintf( DEBUG_CONST_DESTRUCT ) ("IOPanel::IOPanel() constructor called\n");
+  nprintf( DEBUG_CONST_DESTRUCT ) ("MPIPanel::MPIPanel() constructor called\n");
 
   mw = getPanelContainer()->getMainWindow();
 
@@ -68,12 +68,12 @@ IOPanel::IOPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
   PanelContainerList *lpcl = new PanelContainerList();
   lpcl->clear();
 
-  QWidget *IOControlPanelContainerWidget = new QWidget( getBaseWidgetFrame(),
-                                        "IOControlPanelContainerWidget" );
-  topPC = createPanelContainer( IOControlPanelContainerWidget,
+  QWidget *MPIControlPanelContainerWidget = new QWidget( getBaseWidgetFrame(),
+                                        "MPIControlPanelContainerWidget" );
+  topPC = createPanelContainer( MPIControlPanelContainerWidget,
                               "PCSamplingControlPanel_topPC", NULL,
                               pc->getMasterPCList() );
-  frameLayout->addWidget( IOControlPanelContainerWidget );
+  frameLayout->addWidget( MPIControlPanelContainerWidget );
 
 printf("Create an Application\n");
 printf("# Application theApplication;\n");
@@ -90,7 +90,7 @@ printf("attach the collector to the Application.\n");
 printf("# // Attach the collector to all threads in the application\n");
 printf("# theApplication.attachCollector(theCollector.getValue());\n");
 
-  IOControlPanelContainerWidget->show();
+  MPIControlPanelContainerWidget->show();
   topPC->show();
   topLevel = TRUE;
   topPC->topLevel = TRUE;
@@ -126,17 +126,17 @@ nprintf( DEBUG_CONST_DESTRUCT ) ("Positioned at main in %s ????? \n", buffer);
 //! Destroys the object and frees any allocated resources
 /*! The only thing that needs to be cleaned up is the baseWidgetFrame.
  */
-IOPanel::~IOPanel()
+MPIPanel::~MPIPanel()
 {
-  nprintf( DEBUG_CONST_DESTRUCT ) ("  IOPanel::~IOPanel() destructor called\n");
+  nprintf( DEBUG_CONST_DESTRUCT ) ("  MPIPanel::~MPIPanel() destructor called\n");
   delete frameLayout;
 }
 
 //! Add user panel specific menu items if they have any.
 bool
-IOPanel::menu(QPopupMenu* contextMenu)
+MPIPanel::menu(QPopupMenu* contextMenu)
 {
-  nprintf( DEBUG_PANELS ) ("IOPanel::menu() requested.\n");
+  nprintf( DEBUG_PANELS ) ("MPIPanel::menu() requested.\n");
 
   contextMenu->insertSeparator();
   contextMenu->insertItem("&Save As ...", this, SLOT(saveAsSelected()), CTRL+Key_S ); 
@@ -155,9 +155,9 @@ IOPanel::menu(QPopupMenu* contextMenu)
 }
 
 void
-IOPanel::loadNewProgramSelected()
+MPIPanel::loadNewProgramSelected()
 {
-  nprintf( DEBUG_PANELS ) ("IOPanel::loadNewProgramSelected()\n");
+  nprintf( DEBUG_PANELS ) ("MPIPanel::loadNewProgramSelected()\n");
   if( runnableFLAG == TRUE )
   {
     printf("Disconnect First?\n"); 
@@ -175,9 +175,9 @@ IOPanel::loadNewProgramSelected()
 }   
 
 bool
-IOPanel::detachFromProgramSelected()
+MPIPanel::detachFromProgramSelected()
 {
-  nprintf( DEBUG_PANELS ) ("IOPanel::detachFromProgramSelected()\n");
+  nprintf( DEBUG_PANELS ) ("MPIPanel::detachFromProgramSelected()\n");
 
   
   if( QMessageBox::question(
@@ -206,9 +206,9 @@ runnableFLAG = FALSE;
 }
 
 void
-IOPanel::attachToExecutableSelected()
+MPIPanel::attachToExecutableSelected()
 {
-  nprintf( DEBUG_PANELS ) ("IOPanel::attachToExecutableSelected()\n");
+  nprintf( DEBUG_PANELS ) ("MPIPanel::attachToExecutableSelected()\n");
   if( runnableFLAG == TRUE )
   {
     if( detachFromProgramSelected() == FALSE )
@@ -225,21 +225,21 @@ IOPanel::attachToExecutableSelected()
 }   
 
 void
-IOPanel::manageCollectorsSelected()
+MPIPanel::manageCollectorsSelected()
 {
-  nprintf( DEBUG_PANELS ) ("IOPanel::manageCollectorsSelected()\n");
+  nprintf( DEBUG_PANELS ) ("MPIPanel::manageCollectorsSelected()\n");
 }   
 
 void
-IOPanel::manageProcessesSelected()
+MPIPanel::manageProcessesSelected()
 {
-  nprintf( DEBUG_PANELS ) ("IOPanel::managerProcessesSelected()\n");
+  nprintf( DEBUG_PANELS ) ("MPIPanel::managerProcessesSelected()\n");
 }   
 
 void
-IOPanel::manageDataSetsSelected()
+MPIPanel::manageDataSetsSelected()
 {
-  nprintf( DEBUG_PANELS ) ("IOPanel::managerDataSetsSelected()\n");
+  nprintf( DEBUG_PANELS ) ("MPIPanel::managerDataSetsSelected()\n");
 }   
 
 //! Save ascii version of this panel.
@@ -247,9 +247,9 @@ IOPanel::manageDataSetsSelected()
      should provide the saving.
  */
 void 
-IOPanel::save()
+MPIPanel::save()
 {
-  nprintf( DEBUG_PANELS ) ("IOPanel::save() requested.\n");
+  nprintf( DEBUG_PANELS ) ("MPIPanel::save() requested.\n");
 }
 
 //! Save ascii version of this panel (to a file).
@@ -258,16 +258,16 @@ IOPanel::save()
      for a file name.
  */
 void 
-IOPanel::saveAs()
+MPIPanel::saveAs()
 {
-  nprintf( DEBUG_SAVEAS ) ("IOPanel::saveAs() requested.\n");
+  nprintf( DEBUG_SAVEAS ) ("MPIPanel::saveAs() requested.\n");
 }
 
 //! This function listens for messages.
 int 
-IOPanel::listener(void *msg)
+MPIPanel::listener(void *msg)
 {
-  nprintf( DEBUG_MESSAGES ) ("IOPanel::listener() requested.\n");
+  nprintf( DEBUG_MESSAGES ) ("MPIPanel::listener() requested.\n");
   int ret_val = 0; // zero means we didn't handle the message.
 
   ControlObject *co = NULL;
@@ -395,7 +395,7 @@ TopPanel *tp = (TopPanel *)topPC->dl_create_and_add_panel("Top Panel", topPC);
 }
 
 void
-IOPanel::updateInitialStatus()
+MPIPanel::updateInitialStatus()
 {
   if( !mw->executableName.isEmpty() )
   {
@@ -470,14 +470,14 @@ IOPanel::updateInitialStatus()
  *  language.
  */
 void
-IOPanel::languageChange()
+MPIPanel::languageChange()
 {
   statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("Select a process or executable with the \"Load New *... or Attach To *...\" menu.") );
 }
 
 #include "SaveAsObject.hxx"
 void
-IOPanel::saveAsSelected()
+MPIPanel::saveAsSelected()
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("From this pc on down, send out a saveAs message and put it to a file.\n");
 
@@ -488,7 +488,7 @@ IOPanel::saveAsSelected()
     sfd = new QFileDialog(this, "file dialog", TRUE );
     sfd->setCaption( QFileDialog::tr("Enter filename:") );
     sfd->setMode( QFileDialog::AnyFile );
-    sfd->setSelection(QString("IOPanel.html"));
+    sfd->setSelection(QString("MPIPanel.html"));
     QString types(
                   "Any Files (*);;"
                   "Image files (*.png *.xpm *.jpg);;"
@@ -511,8 +511,8 @@ IOPanel::saveAsSelected()
       *sao->ts << "<html>";
       *sao->ts << "<head>";
       *sao->ts << "<meta content=\"text/html; charset=ISO-8859-1\" http-equiv=\"content-type\"> ";
-      *sao->ts << "<title>IOReport</title>";
-      *sao->ts << "<h2>IOReport</h2>";
+      *sao->ts << "<title>MPIReport</title>";
+      *sao->ts << "<h2>MPIReport</h2>";
       *sao->ts << "</head>";
 
 sao->f->flush();
@@ -526,7 +526,7 @@ sao->f->flush();
 }
 
 void
-IOPanel::loadSourcePanel()
+MPIPanel::loadSourcePanel()
 {
   printf("From this pc on down, send out a saveAs message and put it to a file.\n");
   SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", topPC);
