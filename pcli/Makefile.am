@@ -50,8 +50,8 @@ CLEANFILES = \
 pcli_SOURCES =
 
 
-test_SOURCES = \
-	$(LFILES) $(YFILES)
+#test_SOURCES = \
+#	$(LFILES) $(YFILES)
 	
 EXTRA_DIST = test.y test.l myparse.py
 
