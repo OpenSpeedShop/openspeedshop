@@ -30,5 +30,5 @@ libopenss_ExprInfo_la_LDFLAGS = --export-dynamic -module -avoid-version
 libopenss_ExprInfo_la_LIBADD = $(LIBLTDL)
 
 libopenss_ExprInfo_la_SOURCES = \
-	MetricInfo.h MetricInfo.cxx \
-	CollectorInfo.h CollectorInfo.cxx 
+	MetricInfo.hxx MetricInfo.cxx \
+	CollectorInfo.hxx CollectorInfo.cxx 
