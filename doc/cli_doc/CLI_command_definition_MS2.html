@@ -1,0 +1,2266 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>&lt;i&gt;Open&lt;/i&gt;/SpeedShop command line interface</title>
+  <style ="margin-left: 40px;"></style>
+  <style ="margin-left: 40px;"></style>
+  <style ="margin-left: 40px;"></style>
+  <style ="margin-left: 40px;"></style>
+  <style ="margin-left: 40px;"></style>
+  <style ="margin-left: 40px;"></style>
+  <style ="margin-left: 40px;"></style>
+  <style ="margin-left: 40px;"></style>
+  <style ="margin-left: 40px;"></style>
+  <style ="margin-left: 40px;"></style>
+  <style ="margin-left: 40px;"></style>
+  <style ="margin-left: 40px;"></style>
+  <style ="margin-left: 40px;"></style>
+  <style ="margin-left: 40px;"></style>
+  <style ="margin-left: 40px;"></style>
+  <style ="margin-left: 40px;"></style>
+  <style ="margin-left: 40px;"></style>
+  <style ="margin-left: 40px;"></style>
+  <style ="margin-left: 40px;"></style>
+  <style ="margin-left: 40px;"></style>
+  <style ="margin-left: 40px;"></style>
+  <style ="margin-left: 40px;"></style>
+</head>
+<body bgcolor="#ffffff">
+<b><font face="Courier New" size="5">
+<p>&nbsp;&nbsp;<br>
+<big><i>Open</i>/SpeedShop Command Line Definitions</big></p>
+</font></b>
+<p><b><font face="Arial">DEFINITIONS:</font></b></p>
+<ul>
+  <font size="2"><li>Experiment: A set of collectors and executables
+bound together to generate performance metrics..</li>
+  <li>Collector: Portion of the tool containing logic that is
+responsible for the gathering of the performance metric.</li>
+  <li>Metric: The entity, which the collector/experiment is gathering.
+A time, occurrence counter, or other entity, which reflects in some way
+on the applications performance and is gathered by a performance
+experiment (by the collector).</li>
+  <li>Focused experiment:&nbsp; The experiment that is in current
+active context.&nbsp; The last created experiment is usually the
+default or focused experiment, however, the <span
+ style="font-weight: bold;">expFocus</span> command will set the
+experiment specified in the <span style="font-weight: bold;">expFocus</span>
+command to be the focused or default experiment.</li>
+  <li>Framework:&nbsp; The set of API functions that allows the user
+interface to manage the creation and viewing of performance
+experiments.&nbsp; It is the interface between the&nbsp; user interface
+and the <span style="font-weight: bold;">DPCL</span> and <span
+ style="font-weight: bold;">Dyninst</span> components.<br>
+  </li>
+  </font>
+</ul>
+<b><font face="Arial"></font></b>
+<p><font face="Arial"><b>ASSUMPTIONS USED IN DEFINITION OF COMMANDS:</b></font>
+</p>
+<ol>
+  <font size="2"><li>There is a focused (default) experiment id
+available to subsequent commands.</li>
+  </font> <font size="2"> <li>Our tool will not change the focus of
+the tool
+on an experiment.
+It can only be changed or set initially by the user. The one exception
+to this is when the experiment is created via the <b>expCreate</b>
+command the focus is set to this experiment.</li>
+  <li>The user can change the focus at anytime via the <b>expFocus </b>command.</li>
+  <li>Commands with no explicit experiment id refer to the currently
+focused experiment, e.g. the default experiment.</li>
+  <li>There is no experiment context (default) until <b>expCreate </b>command
+is successfully completed.</li>
+  <li><b>expCreate&nbsp;</b><span style="font-weight: normal;"> with no
+application/collector defines an experiment and
+returns and experiment id. Collectors/precanned experiments can be
+added later. More</span> <span style="font-weight: normal;">application
+objects can also be added after the </span><span
+ style="font-weight: normal;"><span style="font-weight: bold;">expCreate</span>
+command is completed.</span></li>
+  </font>
+</ol>
+<b><font face="Arial">
+<p>QUICK SUMMARY OF BUILDING BLOCK COMMANDS:</p>
+</font></b>
+<table border="1" cellspacing="1" cellpadding="7" width="590">
+  <tbody>
+    <tr>
+      <td width="50%" valign="top"><b><font face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">EXPERIMENT BUILDING BLOCK
+COMMANDS FOLLOW:</font></b></p>
+      </td>
+      <td width="50%" valign="top">&nbsp;</td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top">&nbsp;</td>
+      <td width="50%" valign="top">&nbsp;</td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top"><b><font face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">expAttach </font></b></p>
+      </td>
+      <td width="50%" valign="top"> <b><font face="Courier New"
+ size="2"></font></b>
+      <p><b><font face="Courier New" size="2">Attach to a running rank,
+process, or thread.</font></b></p>
+      </td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top"><b><font face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">expClose </font></b></p>
+      </td>
+      <td width="50%" valign="top"> <b><font face="Courier New"
+ size="2"></font></b>
+      <p><b><font face="Courier New" size="2">Close/release the
+experiment using the input argument representing the experiment
+identifier.</font></b></p>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><b><font face="Courier New"
+ size="2">expCont</font></b></td>
+      <td style="vertical-align: top;"><b><font face="Courier New"
+ size="2">Continue the
+experiment using the input argument representing the experiment
+identifier.</font></b></td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top"><b><font face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">expCreate </font></b></p>
+      </td>
+      <td width="50%" valign="top"> <b><font face="Courier New"
+ size="2"></font></b>
+      <p><b><font face="Courier New" size="2">Start the definition of
+an experiment and return an identifier.</font></b></p>
+      </td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top"><b><font face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">expDetach</font></b></p>
+      </td>
+      <td width="50%" valign="top"> <b><font face="Courier New"
+ size="2"></font></b>
+      <p><b><font face="Courier New" size="2">Remove a rank, process or
+thread.
+      </font></b></p>
+      </td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top"><b><font face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">expFocus</font></b></p>
+      </td>
+      <td width="50%" valign="top"> <b><font face="Courier New"
+ size="2"></font></b>
+      <p><b><font face="Courier New" size="2">Focus the CLI tool on the
+specified input argument representing the experiment identifier.</font></b></p>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><b><font face="Courier New"
+ size="2">expPause</font></b></td>
+      <td style="vertical-align: top;"><b><font face="Courier New"
+ size="2">Temporarily interrupt the
+specified experiments data gathering.</font></b></td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><b><font face="Courier New"
+ size="2">expRestore</font></b></td>
+      <td style="vertical-align: top;"><b><font face="Courier New"
+ size="2">Restore an experiment's definition and the previously saved
+performance data from a file for further analysis. </font></b></td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top"><b><font face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">expRun </font></b></p>
+      </td>
+      <td width="50%" valign="top"> <b><font face="Courier New"
+ size="2"></font></b>
+      <p><b><font face="Courier New" size="2">Run an
+experiment.</font></b></p>
+      </td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top"><b><font face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">expSaveFile</font></b></p>
+      </td>
+      <td width="50%" valign="top"> <b><font face="Courier New"
+ size="2"></font></b>
+      <p><b><font face="Courier New" size="2">Save the experiment data
+to a file for later analysis.</font></b></p>
+      </td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top"><b><font face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">expSetParam</font></b></p>
+      </td>
+      <td width="50%" valign="top"> <b><font face="Courier New"
+ size="2"></font></b>
+      <p><b><font face="Courier New" size="2">Alter a value that is
+used as a parameter to a data collector.</font></b></p>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><b><font face="Courier New"
+ size="2">expStop</font></b></td>
+      <td style="vertical-align: top;"><b><font face="Courier New"
+ size="2">Stop the experiment specified by the input argument
+representing the experiment identifier.&nbsp;&nbsp; This stops the
+gathering of performance data.<br>
+      </font></b></td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top"><b><font face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">expView </font></b></p>
+      </td>
+      <td width="50%" valign="top"> <b><font face="Courier New"
+ size="2"></font></b>
+      <p><b><font face="Courier New" size="2">View the experiment?s
+output in text form.</font></b></p>
+      </td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top">&nbsp;</td>
+      <td width="50%" valign="top">&nbsp;</td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top">&nbsp;</td>
+      <td width="50%" valign="top">&nbsp;</td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top"><b><font face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">INFORMATION COMMANDS
+FOLLOW:</font></b></p>
+      </td>
+      <td width="50%" valign="top">&nbsp;</td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top">&nbsp;</td>
+      <td width="50%" valign="top" colspan="2">&nbsp;</td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top"><b><font face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">listExp</font></b></p>
+      </td>
+      <td width="50%" valign="top" colspan="2"> <b><font
+ face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">List the experiments
+that have been selected for this session.</font></b></p>
+      </td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top"><b><font face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">listHosts</font></b></p>
+      </td>
+      <td width="50%" valign="top" colspan="2"> <b><font
+ face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">List the machine hosts
+that
+are known.</font></b></p>
+      </td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top"><b><font face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">listObj</font></b></p>
+      </td>
+      <td width="50%" valign="top" colspan="2"> <b><font
+ face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">List the object files
+based on user input arguments.</font></b></p>
+      </td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top"><b><font face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">listPids</font></b></p>
+      </td>
+      <td width="50%" valign="top" colspan="2"> <b><font
+ face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">List the ranks,
+processes, and threads based on user input arguments.</font></b></p>
+      </td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top"><b><font face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">listSrc</font></b></p>
+      </td>
+      <td width="50%" valign="top" colspan="2"> <b><font
+ face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">Display the source file
+specified as the default source file in the CLI tool.</font></b></p>
+      </td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top"><b><font face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">listMetrics</font></b></p>
+      </td>
+      <td width="50%" valign="top" colspan="2"> <b><font
+ face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">List the measurements
+that an experiment is capable of making.</font></b></p>
+      </td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top"><b><font face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">listParams</font></b></p>
+      </td>
+      <td width="50%" valign="top" colspan="2"> <b><font
+ face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">List the parameters
+of an experiment that can be set by the user.</font></b></p>
+      </td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top"><b><font face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">listReports</font></b></p>
+      </td>
+      <td width="50%" valign="top" colspan="2"> <b><font
+ face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">List the reports that
+can be produced by an experiment.</font></b></p>
+      </td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top"><b><font face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">listBreaks</font></b></p>
+      </td>
+      <td width="50%" valign="top" colspan="2"> <b><font
+ face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">List the breakpoints
+that have been set by the user.</font></b></p>
+      </td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top">&nbsp;</td>
+      <td width="50%" valign="top" colspan="2">&nbsp;</td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top">&nbsp;</td>
+      <td width="50%" valign="top" colspan="2">&nbsp;</td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top"><b><font face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">SESSION COMMANDS FOLLOW:</font></b></p>
+      </td>
+      <td width="50%" valign="top" colspan="2">&nbsp;</td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top">&nbsp;</td>
+      <td width="50%" valign="top" colspan="2">&nbsp;</td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top"><b><font face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">clearBreak</font></b></p>
+      </td>
+      <td width="50%" valign="top" colspan="2"> <b><font
+ face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">Remove a breakpoint.</font></b></p>
+      </td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top"><b><font face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">exit</font></b></p>
+      </td>
+      <td width="50%" valign="top" colspan="2"> <b><font
+ face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">Terminate the session.
+      </font></b></p>
+      </td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top"><b><font face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">openGui</font></b></p>
+      </td>
+      <td width="50%" valign="top" colspan="2"> <b><font
+ face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">Open the Graphical User
+Interface.</font></b></p>
+      </td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top"><b><font face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">help</font></b></p>
+      </td>
+      <td width="50%" valign="top" colspan="2"> <b><font
+ face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">Provide help to the user
+on specific topics based on user input.</font></b></p>
+      </td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top"><b><font face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">history</font></b></p>
+      </td>
+      <td width="50%" valign="top" colspan="2"> <b><font
+ face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">Echo the commands that
+have been previously executed in the CLI interface.</font></b></p>
+      </td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top"><b><font face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">log</font></b></p>
+      </td>
+      <td width="50%" valign="top" colspan="2"> <b><font
+ face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">Echo commands and results
+to a file.</font></b></p>
+      </td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top"><b><font face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">playback</font></b></p>
+      </td>
+      <td width="50%" valign="top" colspan="2"> <b><font
+ face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">Read and execute commands
+stored in a file.</font></b></p>
+      </td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top"><b><font face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">record</font></b></p>
+      </td>
+      <td width="50%" valign="top" colspan="2"> <b><font
+ face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">Save to a user-specified
+filename the commands and output generated by the actions of the user
+and the command output.</font></b></p>
+      </td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top"><b><font face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">setbreak</font></b></p>
+      </td>
+      <td width="50%" valign="top" colspan="2"> <b><font
+ face="Courier New" size="2"></font></b>
+      <p><b><font face="Courier New" size="2">Define a breakpoint at
+which to halt the application?s running rank, process, or thread.</font></b></p>
+      </td>
+    </tr>
+    <tr>
+      <td width="50%" valign="top">&nbsp;</td>
+      <td width="50%" valign="top" colspan="2">&nbsp;</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<br>
+<br>
+<b><fon face="Courier New"><font size="3">Command detailed definition
+section</font></fon></b>
+<br>
+&nbsp;
+<br>
+&nbsp;
+<font size="+0">--------------------------------------------</font>
+<p><font face="Arial"><font size="+0">EXPERIMENT BUILDING BLOCK COMMANDS</font></font>
+<br>
+&nbsp;
+</p>
+<li><span style="font-weight: bold;"><font size="+0"><b>expAttach</b>&nbsp;</font></span>
+  <ul>
+    <font size="-1">- Attach application information or collectors to
+an experiment.</font>
+    <dir>
+    <p><font size="2">The -f filename option can be used to guarantee
+the
+rank, process, or thread given or when the rank, process, or thread
+would be ambiguous from one system to another. In that case, all
+occurrences of this filename will be attached to the current
+performance measurements.</font></p>
+    <p><font size="2">-f filename: Optional fully or partially
+qualified
+symbol name denoting the executable file corresponding to the target
+program.</font></p>
+    <p><font size="2">-r, -p, -t options: Rank/Process/Thread id to
+attach
+to the performance tool.</font></p>
+    <p><font size="2">Examples:</font></p>
+    <font size="2"><b></b></font>
+    <p><font size="2"><b>expAttach -</b>h<b> </b>baguette -p 1234
+    <br>
+- attaches
+to the pid 1234 on baguette.engr.sgi.com</font></p>
+    <font size="2"><b></b></font>
+    <p><font size="2"><b>expAttach </b>-h<b> </b>baguette -f
+/opt/SpeedShop/demos/generic/generic.exe
+    <br>
+- attaches to all occurrences
+of generic.exe running on baguette.engr.sgi.com</font></p>
+    <font size="2"><b></b></font>
+    <p><font size="2"><b>expAttach -h </b>baguette -f
+/opt/SpeedShop/demos/generic/generic.exe -r 1
+    <br>
+- attaches to rank 1 of
+generic.exe running on baguette.engr.sgi.com</font></p>
+    <font size="2"><b></b></font>
+    <p><font size="2"><b>expAttach </b>-f<b> </b>generic -p 1234
+    <br>
+- attaches
+to all threads of application generic which pid is 1234.</font></p>
+    </dir>
+    <br>
+    <br>
+    <div style="margin-left: 40px;"><font size="-1">
+    <b>expAttach </b>[ &lt;expId_spec&gt; ] [
+&lt;host_file_rpt_list&gt; ] [ &lt;expType_list&gt; ]</font></div>
+  </ul>
+</li>
+<li><span style="font-weight: bold;"><font size="+0"><b>expClose</b></font></span>
+  <ul>
+    <font size="-1">- Close/Terminate
+the experiment specified by experiment id or if none specified close
+the
+default experiment (focused experiment). expClose releases the
+experiment
+associated storage and also removes the internal experiment data files.
+expClose also takes an optional all parameter which when specified
+indicates
+the user?s intent to close all experiments.</font>
+    <br>
+    <br>
+    <div style="margin-left: 40px;"><font size="-1">
+    <b>expClose </b>[ &lt;expId_spec&gt; || <b>all</b> ]</font></div>
+  </ul>
+</li>
+<li><span style="font-weight: bold;"><font size="+0"><b>expCont</b>&nbsp;</font></span>
+  <ul>
+    <font size="-1">- Continue the experiment specified by experiment
+id
+expCont also takes an optional all parameter which when specified
+indicates
+the user?s intent to continue all experiments.</font>
+    <br>
+    <br>
+    <div style="margin-left: 40px;"><font size="-1">
+    <b>expCont</b> [ &lt;expId_spec&gt; || <b>all</b> ]</font></div>
+    <p></p>
+  </ul>
+</li>
+<li><span style="font-weight: bold;"><font size="+0"><b>expCreate</b>&nbsp;</font></span></li>
+<ul>
+  <font size="-1">- Start the process of defining an experiment:
+  </font>
+  <p></p>
+  <dir><li><font size="-1">define a new experiment identifier,</font></li>
+  <li><font size="-1">set the current focus to the new identifier and</font></li>
+  <li><font size="-1">return the experiment identification identifier.</font></li>
+  </dir>
+  <font size="-1"><br>
+- The experiment type argument
+"&lt;expType_list&gt;" can be used to specify an experiment and
+determines the default
+values that will be used in the definition of the experiment.&nbsp;
+  <br>
+-The &lt;host_file_rpt_list&gt; will associate the specified executable
+with the experiment being defined.
+  <br>
+- This command also sets the focus to the new experiment?s identifier.
+There
+can be a list of application objects and a list of collectors
+associated
+with an experiment.</font>
+  <br>
+  <br>
+  <div style="margin-left: 40px;"><font size="-1">&lt;expId&gt;<b> =
+expCreate
+  </b>[ &lt;host_file_rpt_list&gt; ] [ &lt;expType_list&gt; ]</font></div>
+  <p></p>
+</ul>
+<li>
+  <span style="font-weight: bold;"><font size="+0"><b>expDetach</b>&nbsp;</font></span>
+  <ul>
+    <font size="-1">- detach application information or collectors from
+an
+experiment.</font>
+    <br>
+    <br>
+    <div style="margin-left: 40px;"><font size="-1">
+    <b>expDetach </b>[ &lt;expId_spec&gt; ] [
+&lt;host_file_rpt_list&gt; ]
+[ &lt;expType_list&gt; ]</font></div>
+  </ul>
+</li>
+<li><span style="font-weight: bold;"><font size="+0"><b>expFocus</b>&nbsp;</font></span>
+  <ul>
+    <font size="-1">- Make
+the input experiment id the active experiment. It becomes the current
+or
+default experiment.
+    <br>
+- If no argument is present, return the focused experiment.
+    <br>
+- If the expId_spec argument has a value of zero (0), then clear the
+experiment
+focus.</font>
+    <br>
+    <br>
+    <div style="margin-left: 40px;"><font size="-1">[ &lt;expId&gt; <b>=</b>
+]
+    <b>expFocus </b>[ &lt;expId_spec&gt; ]</font></div>
+  </ul>
+</li>
+<li><span style="font-weight: bold;"><font size="+0"><b>expPause</b></font></span>
+  <ul>
+    <font size="-1">- Temporarily
+halt the experiment identified by the input experiment id.</font>
+    <br>
+    <br>
+    <div style="margin-left: 40px;"><font size="-1">
+    <b>expPause</b> [ &lt;expId_spec&gt; || <b>all</b> ]</font></div>
+  </ul>
+</li>
+<li><span style="font-weight: bold;"><font size="+0"><b>expRestore</b></font></span>
+  <ul>
+    <font size="-1">- Restore an experiment's definition and the
+previously
+saved performance data from a file for further analysis.
+    <br>
+- A new experiment is created to contain this data.
+    <br>
+- This command also sets the focus to the new experiment?s identifier.
+    </font><br>
+    <br>
+    <div style="margin-left: 40px;"><font size="-1">&lt;expId&gt;
+    <b> = expRestore </b> &lt;host_file&gt;</font></div>
+  </ul>
+</li>
+<li><span style="font-weight: bold;"><font size="+0"><b>expRun</b></font></span>
+  <ul>
+    <font size="-1">- Run
+the experiment and collect performance data.</font>
+    <br>
+    <br>
+    <div style="margin-left: 40px;"><font size="-1">
+    <b>expRun </b>[ &lt;expId_spec&gt; || <b>all</b> ]</font></div>
+  </ul>
+</li>
+<li><span style="font-weight: bold;"><font size="+0"><b>expSave</b></font></span></li>
+<ul>
+  <font size="-1">- Save
+the experiment performance data from a file for further analysis.<br>
+- The use of the <b>all</b> option
+will cause the application to be saved in the specified file, along
+with the data that
+was collected about it.<br>
+- The use of the <b>data</b> option
+will cause only the data that was collected about the application
+to be saved in the specified filed. When this data is used for
+additional analysis, the
+user will need to make the original application available.</font>
+  <br>
+  <br>
+  <div style="margin-left: 40px;"><font size="-1">
+  <b>expSave </b>[ &lt;expId_spec&gt; ] { <b>all</b> || <b>data</b>
+}
+&lt;host_file&gt;</font></div>
+</ul>
+<li>
+  <span style="font-weight: bold;"><font size="+0"><b>expSetParam</b>&nbsp;</font></span>
+  <ul>
+    <font size="+0"><font size="-1">- Add an experiment argument to the
+focused experiment. &lt;expParam&gt;
+will be unique within the experiment. The parameter names can be used
+for other
+experiments.</font>
+    <br>
+    <br>
+    </font>
+    <div style="margin-left: 40px;"><font size="+0"><font size="-1"><b>expSetParam
+    </b> [ &lt;expId_spec&gt; ] &lt;expParam&gt; <b>=</b>
+&lt;expParamValue&gt;
+[ <b>,</b> &lt;expParam&gt; <b>=</b> &lt;expParamValue&gt; ] ...</font></font></div>
+  </ul>
+</li>
+<li><span style="font-weight: bold;"><font size="+0"><font size="+0"><b>expStop</b></font></font></span>
+  <ul>
+    <font size="+0"><font size="-1">- Stop the
+experiment specified by experiment id and remove instrumentation.</font>
+    <br>
+    <br>
+    </font>
+    <div style="margin-left: 40px;"><font size="+0"><font size="-1"><b>expStop
+    </b>[ &lt;expId_spec&gt; || <b>all</b> ]</font></font></div>
+  </ul>
+</li>
+<li><font size="+0"><font size="+0"><b>expView</b></font>
+  </font>
+  <ul>
+    <font size="+0"><font size="-1">- View the data associated with a
+particular &lt;viewType&gt;
+for the experiment specified by &lt;expId_spec&gt;.
+    <br>
+- The optional <b>-gui</b> argument will cause the data to be directed
+to an appropriate window for display in a graphical format.
+    </font><br>
+    <br>
+    </font>
+    <div style="margin-left: 40px;"><font size="+0"><font size="-1"><b></b><b>expView
+    </b>[ &lt;expId_spec&gt; ] [ <b>-gui</b> ] &lt;viewType&gt;</font></font></div>
+  </ul>
+  <font size="+0"><br>
+&nbsp;
+  <br>
+&nbsp;
+  <font size="+0">--------------------------------------------</font>
+  </font>
+  <p><font size="+0"><font face="Arial"><font size="+0">INFORMATION
+COMMANDS</font></font>
+  </font></p>
+  <p></p>
+</li>
+<li><font size="+0"><b><font size="+0">listExp</font></b></font></li>
+<ul>
+  <font size="+0"><font size="-1">- List the experiments that can be
+run, along
+with detailed information about the data measurement utilities and
+applications
+that may have been attached to the experiment.
+  <br>
+- The absence of any experiment specification will cause all the
+experiments
+that have been defined by the user, through the use of <b>expCreate</b>
+commands,
+to be listed.
+  <br>
+- The "<b>focus</b>" option will cause only the focused experiment to
+be listed.
+  <br>
+- The &lt;expId_spec&gt; option will cause the selected experiment to
+be listed.
+  <br>
+- The "<b>all</b>" option will cause all the available performance
+measurement
+utilities, that can be used to define experiments, to be listed.
+  <br>
+- The output will be similar to that of the listing of
+breakpoints in gdb, dbx, cvd, or totalview.</font>
+  <br>
+  <br>
+  </font>
+  <div style="margin-left: 40px;"><font size="+0"><font size="-1"><b>&lt;</b>ListOf_string&gt;<b>
+= listExp </b>[ <b>focus</b> || &lt;expId_spec&gt; || <b>all</b> ]</font></font></div>
+</ul>
+<li>
+  <font size="+0"><b><font size="+0">listHosts</font></b></font></li>
+<ul>
+  <font size="+0"><font size="-1">- Lists the hosts that define the
+specified cluster.
+  <br>
+- The default cluster contains only localhost.
+  </font><br>
+  <br>
+  </font>
+  <div style="margin-left: 40px;"><font size="+0"><font size="-1"><b>&lt;</b>ListOf_hostname&gt;<b>
+= listHosts</b> [ &lt;host_spec&gt; ]</font></font></div>
+</ul>
+<li>
+  <font size="+0"><b><font size="+0">listObj</font></b></font></li>
+<ul>
+  <font size="+0"><font size="-1">- List the objects of the
+applications that are part of the
+specified, or focused, experiment.
+  <br>
+- The listing can be restricted with the use of a &lt;host_file_rpt&gt;
+specification.
+  <br>
+- Any component described in the &lt;host_file_rpt&gt; specification
+must be
+part of the selected experiment.
+  </font><br>
+  <br>
+  </font>
+  <div style="margin-left: 40px;"><font size="+0"><font size="-1"><b>&lt;</b>ListOf_filename&gt;<b>
+= listObj</b> [ &lt;expId_spec&gt; ] [ &lt;host_file_rpt&gt; ]</font></font></div>
+</ul>
+<li>
+  <font size="+0"><b><font size="+0">listPids</font></b></font></li>
+<ul>
+  <font size="+0"><font size="-1">- List running processes info on a
+specific machine or on
+a specific cluster.
+  <br>
+- The absence of any <b>-h</b> &lt;hostname&gt; specification will
+cause
+all pids on all systems in the cluster to be listed.
+  <br>
+- The default cluster contains only localhost and must be specified by
+using <b>-h localhost</b>.
+  <br>
+- Use of the <b>-f</b> &lt;filename&gt; option will result in only the
+pids
+associated with that &lt;filename&gt; being listed for the selected
+hosts.
+  <br>
+- Mostly as <b>ps(1)</b>, but output will have filename
+indication and/or rank, process, or thread form.
+  <br>
+- If <b>-mpi</b> is specified, the output will take the
+MPI rank format.
+  </font><br>
+  <br>
+  </font>
+  <div style="margin-left: 40px;"><font size="+0"><font size="-1"><b>&lt;</b>ListOf_pidname&gt;<b>
+= listPids</b> [ &lt;host_file&gt; ] [ <b>-mpi</b> ]</font></font></div>
+</ul>
+<li>
+  <font size="+0"><b><font size="+0">listSrc</font></b></font></li>
+<ul>
+  <font size="+0"><font size="-1">- List the source that was used to
+create the applications that are part of the
+specified, or focused, experiment.
+  <br>
+- The listing can be restricted with the use of a &lt;host_file_rpt&gt;
+specification.
+  <br>
+- Any component described in the &lt;host_file_rpt&gt; specification
+must be
+part of the selected experiment.
+  </font><br>
+  <br>
+  </font>
+  <div style="margin-left: 40px;"><font size="+0"><font size="-1"><b>&lt;</b>string&gt;<b>
+= listSrc</b> [ &lt;expId_spec&gt; ] [ &lt;host_file_rpt&gt; ] [
+&lt;linenumber_spec&gt; ]</font></font></div>
+</ul>
+<li>
+  <font size="+0"><b><font size="+0">listMetrics</font></b></font></li>
+<ul>
+  <font size="+0"><font size="-1">- Retrieve the metrics that can be
+produced by an experiment.
+This is a list of the types of information that an experiment can
+gather.
+  <br>
+- The absence of any option will cause all the metrics for all the
+experiments
+that have been defined by the user, through the use of <b>expCreate</b>
+commands,
+to be listed.
+  <br>
+- The use of "<b>focus</b>" will cause metrics for only the focused
+experiment
+to be listed.
+  <br>
+- The use of &lt;expId_spec&gt; will cause the metrics for only that
+experiment to be listed.
+  <br>
+- The use of "<b>all</b>" will cause all the metrics for all of the
+available performance measurement utilities, that can be used to define
+experiments, to be listed.
+  </font><br>
+  <br>
+  </font>
+  <div style="margin-left: 40px;"><font size="+0"><font size="-1">&lt;ListOf_expMetric&gt;<b>
+= listMetrics </b>[ <b>focus</b> || &lt;expId_spec&gt; || <b>all</b>
+]</font></font></div>
+</ul>
+<li>
+  <font size="+0"><b><font size="+0">listParams</font></b></font></li>
+<ul>
+  <font size="+0"><font size="-1">- Retrieve the parameters, to a
+specified experiment,
+that can be changed by the user.
+  <br>
+- The absence of any option will cause all the parameters of all the
+experiments
+that have been defined by the user, through the use of <b>expCreate</b>
+commands,
+to be listed.
+  <br>
+- The use of "<b>focus</b>" will cause parameters for only the focused
+experiment
+to be listed.
+  <br>
+- The use of &lt;expId_spec&gt; will cause the parameters for only that
+experiment to be listed.
+  <br>
+- The use of "<b>all</b>" will cause all the parameters for all of the
+available performance measurement utilities, that can be used to define
+experiments, to be listed.
+  </font><br>
+  <br>
+  </font>
+  <div style="margin-left: 40px;"><font size="+0"><font size="-1">&lt;ListOf_expParam&gt;<b>
+= listParams </b>[ <b>focus</b> || &lt;expId_spec&gt; || <b>all</b> ]</font></font></div>
+</ul>
+<li>
+  <font size="+0"><b><font size="+0">listReports</font></b></font></li>
+<ul>
+  <font size="+0"><font size="-1">- Retrieve the reports that can be
+produced by an experiment.
+  <br>
+- The absence of any option will cause all the possible reports for all
+the experiments that have been defined by the user, through the use of
+  <b>expCreate</b> commands, to be listed.
+  <br>
+- The use of "<b>focus</b>" will cause reports for only the focused
+experiment
+to be listed.
+  <br>
+- The use of &lt;expId_spec&gt; will cause the reports for only that
+experiment to be listed.
+  <br>
+- The use of "<b>all</b>" will cause all the reports for all of the
+available performance measurement utilities, that can be used to define
+experiments, to be listed.
+  </font><br>
+  <br>
+  </font>
+  <div style="margin-left: 40px;"><font size="+0"><font size="-1"><b>&lt;</b>ListOf_viewType&gt;<b>
+= listReports </b>[ <b>focus</b> || &lt;expId_spec&gt; || <b>all</b>
+]</font></font></div>
+</ul>
+<li>
+  <font size="+0"><b><font size="+0">listBreaks</font></b></font></li>
+<ul>
+  <font size="+0"><font size="-1">- List the breakpoints that have been
+set by the user.
+  <br>
+- The absence of any option will cause all the breakpoints for the
+focused experiment to be listed.
+  <br>
+- The use of &lt;expId_spec&gt; will cause all the breakpoints for
+the specified experiment to be listed.
+  <br>
+- The use of <b>all</b> will cause all the breakpoints for all of
+the experiments defined by the user, through the use of
+  <b>expCreate</b> commands, to be listed.
+  </font><br>
+  <br>
+  </font>
+  <div style="margin-left: 40px;"><font size="+0"><font size="-1"><b>&lt;</b>ListOf_breakId&gt;<b>
+= listBreaks </b>[ &lt;expId_spec&gt; || <b>all</b> ]</font></font></div>
+</ul>
+<font size="+0"><br>
+&nbsp;
+<br>
+&nbsp;
+<font size="+0">--------------------------------------------</font>
+</font>
+<p><font size="+0"><font face="Arial"><font size="+0">SESSION COMMANDS</font></font>
+</font></p>
+<p></p>
+<li><font size="+0"><b><font size="+0">clearbreak</font></b></font></li>
+<ul>
+  <font size="+0"><font size="-1">- Remove a breakpoint.</font>
+  <br>
+  <br>
+  </font>
+  <div style="margin-left: 40px;"><font size="+0"><font size="-1"><b>clearbreak</b>
+&lt;breakId&gt;</font></font></div>
+</ul>
+<li>
+  <font size="+0"><b><font size="+0">exit</font></b></font></li>
+<ul>
+  <font size="+0"><font size="-1">- Terminate all experiments and the
+session.</font>
+  <br>
+  <br>
+  </font>
+  <div style="margin-left: 40px;"><font size="+0"><font size="-1"><b>exit</b></font></font></div>
+</ul>
+<li>
+  <font size="+0"><b><font size="+0">openGui</font></b></font></li>
+<ul>
+  <font size="+0"><font size="-1">- Open the Graphical User Interface.</font>
+  <br>
+  <br>
+  </font>
+  <div style="margin-left: 40px;"><font size="+0"><font size="-1"><b>openGui</b></font></font></div>
+</ul>
+<li>
+  <font size="+0"><b><font size="+0">help</font></b></font></li>
+<ul>
+  <font size="+0"><font size="-1">- Request information about a topic.</font>
+  <br>
+  <br>
+  </font>
+  <div style="margin-left: 40px;"><font size="+0"><font size="-1">&lt;string&gt;<b>
+= help </b>[ &lt;string&gt; ]</font></font></div>
+</ul>
+<li>
+  <font size="+0"><b><font size="+0">history</font></b></font></li>
+<ul>
+  <font size="+0"><font size="-1">- Print a list of executed commands.</font>
+  <br>
+  <br>
+  </font>
+  <div style="margin-left: 40px;"><font size="+0"><font size="-1"><b>history
+  </b>[ &lt;host_file&gt; ]</font></font></div>
+</ul>
+<li>
+  <font size="+0"><b><font size="+0">log</font></b></font></li>
+<ul>
+  <font size="+0"><font size="-1">- Begin echoing executed commands and
+their results to a file.
+  <br>
+- Stop echoing if no file is specified on a <b>log</b> command.
+  <br>
+- This is primarly intended to be an internal debug aid for the tool
+developer since the generated files can quickly become huge.
+  </font><br>
+  <br>
+  </font>
+  <div style="margin-left: 40px;"><font size="+0"><font size="-1"><b>log
+  </b>[ &lt;host_file&gt; ]</font></font></div>
+</ul>
+<li>
+  <font size="+0"><b><font size="+0">playback</font></b></font></li>
+<ul>
+  <font size="+0"><font size="-1">- Read and execute commands from a
+file.
+  </font><br>
+  <br>
+  </font>
+  <div style="margin-left: 40px;"><font size="+0"><font size="-1"><b>playback</b>
+&lt;host_file&gt;</font></font></div>
+</ul>
+<li>
+  <font size="+0"><b><font size="+0">record </font></b></font></li>
+<ul>
+  <font size="+0"><font size="-1">- Begin echoing executed commands to
+a file.
+  <br>
+- Commands read from a file specified on a succeeding <b>playback</b>
+command will not be echoed.
+  <br>
+- Stop echoing if no file is specified on a <b>record</b> command.
+  <br>
+- Stop echoing if the end of the input file containing the original
+  <b>record</b> command is encoutnered.
+  </font><br>
+  <br>
+  </font>
+  <div style="margin-left: 40px;"><font size="+0"><font size="-1"><b>record</b>
+&lt;host_file&gt;</font></font></div>
+</ul>
+<li>
+  <font size="+0"><b><font size="+0">setbreak</font></b></font></li>
+<ul>
+  <font size="+0"><font size="-1">- Enter a breakpoint, which will halt
+the application
+when reached.
+  <br>
+- The break location is specified through the combination of the
+&lt;host_file_rpt&gt; and &lt;address_description&gt; arguments.
+  <br>
+- The break location must be a location in the specified
+(or currently focused) experiment.
+  </font><br>
+  <br>
+  </font>
+  <div style="margin-left: 40px;"><font size="+0"><font size="-1">&lt;breakId&gt;
+  <b>setbreak</b> [ &lt;expId_spec&gt; ]
+[ &lt;host_file_rpt&gt; ] [ &lt;address_description&gt; ]</font></font></div>
+</ul>
+<p><font size="+0"><font size="2">&nbsp;</font></font></p>
+<font size="+0"><b><font face="Arial"></font></b>
+</font>
+<p><font size="+0"><b><font face="Arial">Type, Status, Parameter
+Definition Section</font></b></font></p>
+<font size="+0"><br>
+<b><font size="3"><li>expMetric</li>
+</font></b><font size="2"> is a result that an experiment can return.
+It could be a full report, a value or a set of values. </font>
+</font>
+<ul>
+  <p><font size="+0"><font size="2">&lt;<b>metricname</b>&gt; =
+{ ? }</font></font></p>
+  <p><font size="+0"><font size="2">&lt;<b>expMetric</b>&gt; =
+[&lt;expType&gt;<b>::</b>]&lt;metricname&gt;</font></font></p>
+</ul>
+<font size="+0"><b><font size="3"><li>expParam</li>
+</font></b><font size="2"> is the experiment parameters correspond to
+items in the experiment class that can be changed by the user or a tool
+component.</font>
+</font>
+<ul>
+  <p><font size="+0"><font size="2">&lt;<b>paramname</b>&gt; =
+{ <b>displayMode</b> || <b>displayMedia</b> || <b>displayRefreshRate</b>
+|| <b>expSaveFile</b> || <b>samplingRate</b> ? }</font></font></p>
+  <p><font size="+0"><font size="2">&lt;<b>expParam</b>&gt; =
+[&lt;expType&gt;<b>::</b>]&lt;paramname&gt;</font></font></p>
+  <font size="+0"><font size="2">
+- If &lt;expType&gt; is specified, then only that collector's
+parameter is updated.
+  <br>
+- If &lt;expType&gt; is NOT specified, then all
+parameters matching the parameter name are updated, regardless of the
+collector name, for that experiment .
+  </font></font>
+</ul>
+<font size="+0"><font size="3"><b><li>expType </li>
+</b></font><font size="2"> is the experiment type designator. Using
+this in the expCreate
+or expAttach command fills in the default values for the experiment.</font>
+</font>
+<ul>
+  <font size="+0"><font size="2">&lt;<b>predefined_exp</b>&gt; = {
+  <b>pcsamp</b> || <b>usertime</b> || <b>mpi</b> || <b>fpe</b> || <b>hwc</b>
+|| <b>io</b> || ? }</font></font>
+  <p></p>
+  <font size="+0"><font size="2">&lt;<b>user_defined_exp</b>&gt; =
+&lt;filename&gt;</font></font>
+  <p></p>
+  <font size="+0"><font size="2">&lt;<b>expType&gt;</b>&gt; =
+[ &lt;predefined_exp&gt; || &lt;user_defined_exp&gt; ]</font></font>
+  <p></p>
+  <font size="+0"><font size="2">&lt;<b>expType_list</b>&gt; =
+  <span style="font-weight: bold;">&lt;expType&gt;</span> [ "<b> ,</b>"
+  <span style="font-weight: bold;">&lt;expType&gt; </span>] ...</font></font>
+  <p></p>
+</ul>
+<font size="+0"><font size="3"><b><li>host_file_rpt</li>
+</b></font><font size="2" style="font-weight: normal;"> represents the
+host file and machine
+along with a specific process, thread, or rank identifier.</font>
+</font>
+<ul>
+  <font size="+0"><font size="2">&lt;<b>IP_Address</b>&gt;
+= &lt;int&gt;<b>.</b>&lt;int&gt;<b>.</b>&lt;int&gt;<b>.</b>&lt;int&gt;<b>.</b></font></font>
+  <p></p>
+  <font size="+0"><font size="2">&lt;<b>rankname</b>&gt;
+= &lt;int&gt;</font></font>
+  <p></p>
+  <font size="+0"><font size="2">&lt;<b>threadname</b>&gt;
+= &lt;int&gt;</font></font>
+  <p></p>
+  <font size="+0"><font size="2">&lt;<b>pidname</b>&gt;
+= &lt;int&gt;</font></font>
+  <p></p>
+  <font size="+0"><font size="2">&lt;<b>filename</b>&gt;
+= &lt;string&gt; || <b>"</b>&nbsp;&lt;string&gt;&nbsp;<b>"</b></font></font>
+  <p></p>
+  <font size="+0"><font size="2">&lt;<b>hostname</b>&gt;
+= &lt;string&gt; || &lt;IP_Address&gt;</font></font>
+  <p></p>
+  <font size="+0"><font size="2">&lt;<b>rank_range</b>&gt;
+= &lt;rankname&gt; [ <b>:</b> &lt;rankname&gt; ]</font></font>
+  <p></p>
+  <font size="+0"><font size="2">&lt;<b>rank_list</b>&gt;
+= &lt;rank_range&gt; [ <b>,</b> &lt;rank_range&gt; ] ...</font></font>
+  <p></p>
+  <font size="+0"><font size="2">&lt;<b>thread_range</b>&gt;
+= &lt;threadname&gt; [ <b>:</b> &lt;threadname&gt; ]</font></font>
+  <p></p>
+  <font size="+0"><font size="2">&lt;<b>thread_list</b>&gt;
+= &lt;thread_range&gt; [ <b>,</b> &lt;thread_range&gt; ] ...</font></font>
+  <p></p>
+  <font size="+0"><font size="2">&lt;<b>pid_range</b>&gt;
+= &lt;pidname&gt; [ <b>:</b> &lt;pidname&gt; ]</font></font>
+  <p></p>
+  <font size="+0"><font size="2">&lt;<b>pid_list</b>&gt;
+= &lt;pid_range&gt; [ <b>,</b> &lt;pid_range&gt; ] ...</font></font>
+  <p></p>
+  <font size="+0"><font size="2">&lt;<b>host_spec</b>&gt;
+= <b>-h</b> &lt;hostname&gt;</font></font>
+  <p></p>
+  <font size="+0"><font size="2">&lt;<b>host_file</b>&gt;
+= [ &lt;host_spec&gt; ] <b>-f</b> &lt;filename&gt;</font></font>
+  <p></p>
+  <font size="+0"><font size="2">&lt;<b>file_list</b>&gt;
+= &lt;filename&gt; [ <b>,</b> &lt;filename&gt; ] ...</font></font>
+  <p></p>
+  <font size="+0"><font size="2">&lt;<b>host_list</b>&gt;
+= &lt;hostname&gt; [ <b>,</b> &lt;hostname&gt; ] ...</font></font>
+  <p></p>
+  <font size="+0"><font size="2">&lt;<b>host_file_rpt&gt;</b>
+= [ <b>-h</b> &lt;host_list&gt; ]
+[ <b>-f</b> &lt;file_list&gt; ]
+[ <b>-p</b> &lt;pid_list&gt; ] [ <b>-t</b> &lt;thread_list ] [ <b>- r</b>
+&lt;rank_list ]</font></font>
+  <p></p>
+  <font size="+0"><font size="2">&lt;<b>host_file_rpt_list</b>&gt;
+= <span style="font-weight: bold;">&lt;host_file_rpt&gt;</span> [ <b>
+,</b>
+  <span style="font-weight: bold;">&lt;host_file_rpt&gt; </span>] ...</font>
+  </font>
+</ul>
+<font size="+0"><font sixe="2"><font size="3"><b><li>ListOf_</li>
+</b></font>xxx</font>
+<font size="2">indicates a list of type xxx items.</font>
+</font>
+<p><font size="+0"><font size="3"><b><li>viewType</li>
+</b></font><font size="2">is the output view display/report type
+designator. This
+indicates the format of the output display that the performance data is
+needed for.</font>
+</font></p>
+<ul>
+  <p><font size="+0"><font size="2">&lt;<b>viewType</b>&gt; =
+{ <b>vTopN</b> || <b>vExclTime</b> || <b>vIO</b> || <b>vFpe</b> || <b>vHwc</b>
+|| ? }</font></font></p>
+</ul>
+<font size="+0"><br>
+<br>
+</font>
+<p><font size="+0"><b><font face="Arial">Example scenarios that show
+command usage and
+tool design flow</font></b></font></p>
+<font size="+0"><font size="2">
+</font></font>
+<p><font size="+0"><font size="2">This scenario will build an
+experiment that
+to run <i>a.out</i> and gather pc sampling information.
+It will then run the experiment,
+pause the experiment, change an argument to the
+experiment, continue the experiment, and finally display the results
+of the experiment.</font></font></p>
+<p><font size="+0"><font size="2">First the simple command list is
+presented, then a
+more detailed commentary with the commands is presented. Finally, an
+"under the hood" commentary is included with the commands to give the
+overall actions of the various parts of the Open/SpeedShop tool.</font></font></p>
+<font size="+0"><br>
+<br>
+</font>
+<p><font size="+0"><b><font face="Arial">Simple example scenario 1 to
+show command usage</font></b></font></p>
+<ul>
+  <font size="+0"> <font size="2"><li>Simple list of the commands for
+the scenario that
+will load an executable on host1, create a pcsampling experiment for
+ranks 2 and 5 and start the experiment running:</li>
+  </font></font>
+</ul>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><font size="2"><b>expCreate -h</b> host1 <b>-f</b>
+a.out pcsamp</font>
+</font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<div><font size="+0"><font size="2"><b>"1"</b></font></font></div>
+</dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><font size="2"><b>listPids -h</b> host1</font></font></p>
+<p><font size="+0"><font size="2"><b>expDetach -h</b> host1 <b>-r</b> *</font></font></p>
+<p><font size="+0"><font size="2"><b>expAttach -h </b>host1 <b>-r</b>
+2, 5</font></font></p>
+<p><font size="+0"><font size="2"><b>listParams</b></font></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="+0"><font size="2"><b>1 not executing
+<dir>pcsamp::samplingRate=10
+<br>
+displayMode=AtCompletion
+<br>
+displayMedia=GUI
+<br>
+displayRefreshRate=0
+<br>
+<i>&lt;other default values</i>&gt;</dir>
+</b></font></font></p>
+</dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><b><font size="2"><b>listExp</b></font></b></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="+0"><b><font size="2"><b>1 not executing
+<dir>&nbsp;-h host1 -f a.out -r 2,5 pcsamp
+</dir>
+</b></font></b></font></p>
+</dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><b><font size="2"><b>expSetParam -x</b> 1
+samplingRate=20</font></b></font></p>
+<p><font size="+0"><b><font size="2"><b>expSetParam </b>
+displayMode=realtime</font></b></font></p>
+<p><font size="+0"><b><font size="2"><b>expSetParam </b>displayMedia=GUI</font></b></font></p>
+<p><font size="+0"><b><font size="2"><b>expSetParam </b>displayRefreshRate=60</font></b></font></p>
+<p><font size="+0"><b><font size="2"><b>expRun</b></font></b></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<ul>
+  <font size="+0"><b> <li><font size="2">Now we want to stop the
+application and change the
+sampling rate</font></li>
+  </b></font>
+</ul>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><b><font size="2"><b>expPause -x</b> 1</font></b></font></p>
+<p><font size="+0"><b><font size="2"><b>expSetParam -x </b> 1
+samplingRate=50</font></b></font></p>
+<p><font size="+0"><b><font size="2"><b>expCont -x</b> 1</font></b></font></p>
+<p><font size="+0"><b><font size="2"><b>listExp</b></font></b></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="+0"><b><font size="2"><b>1 executing, data available
+<dir>&nbsp;-h host1 -f a.out -r 2,5 pcsamp
+</dir>
+</b></font></b></font></p>
+</dir>
+<ul>
+  <font size="+0"><b> <li><font size="2">Now stop the experiment and
+view the results</font></li>
+  </b></font>
+</ul>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><b><font size="2"><b>expPause</b></font></b></font></p>
+<p><font size="+0"><b><font size="2"><b>expGetMetrics</b></font></b></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<div><font size="+0"><b><font size="2"><b>"vTopN, vExclTime, vIO, vFpe,
+vHwc"</b></font></b></font></div>
+</dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><b><font size="2"><b>expView -x</b> 1 <b>-gui</b>
+vTopN</font></b></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<ul>
+  <font size="+0"><b> <li><font size="2">Terminate the performance
+analysis session.</font></li>
+  </b></font>
+</ul>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><b><font size="2"><b>exit</b></font></b></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<font size="+0"><br>
+<br>
+</font>
+<p><font size="+0"><font face="Arial"><b>Simple example scenario 2 to
+show command usage</b></font></font></p>
+<ul>
+  <font size="+0"> <font size="2"><li>Simple list of the commands for
+scenario 2 that
+will intermingle the creation of experiments and loading of executables
+on host1, create several experiments for all executables and start the
+experiment running:</li>
+  </font></font>
+</ul>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><font size="2"><b>expCreate</b> pcsamp</font></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="+0"><font size="2"><b>"1"</b></font></font></p>
+</dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><font size="2"><b>expCreate</b> io</font></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="+0"><font size="2"><b>"2"</b></font></font></p>
+</dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><font size="2"><b>expCreate</b> fpe</font></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="+0"><font size="2"><b>"3"</b></font></font></p>
+</dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><font size="2"><b>expAttach -x</b> 1 <b>-h</b>
+host1 <b>-f</b> a.out, b.out, c.out</font></font></p>
+<p><font size="+0"><font size="2"><b>expAttach -x</b> 2 <b>-h</b>
+host1 <b>-f</b> a.out, c.out</font></font></p>
+<p><font size="+0"><font size="2"><b>expAttach -h</b> host1 <b>-f</b>
+b.out, c.out</font></font></p>
+<p><font size="+0"><font size="2"><b>expAttach -x</b> 3 malloc</font></font></p>
+<p><font size="+0"><font size="2"><b>listParams</b></font></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="+0"><font size="2"><b>1 not executing</b></font></font></p>
+<dir><font size="+0"><font size="2"><b>pcsamp::samplingRate=10
+<br>
+displayMode=AtCompletion
+<br>
+displayMedia=GUI
+<br>
+displayRefreshRate=0
+<br>
+<i>&lt;other default values</i>&gt;</b></font></font></dir>
+<p></p>
+</dir>
+<dir>
+<p><font size="+0"><font size="2"><b>2 not executing</b></font></font></p>
+<dir><font size="+0"><font size="2"><b>displayMode=AtCompletion
+<br>
+displayMedia=GUI
+<br>
+displayRefreshRate=0
+<br>
+<i>&lt;other default values</i>&gt;</b></font></font></dir>
+<p></p>
+</dir>
+<dir>
+<p><font size="+0"><font size="2"><b>3 not executing</b></font></font></p>
+<dir><font size="+0"><font size="2"><b>displayMode=AtCompletion
+<br>
+displayMedia=GUI
+<br>
+displayRefreshRate=0
+<br>
+<i>&lt;other default values</i>&gt;</b></font></font></dir>
+<p></p>
+</dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><font size="2"><b>expSetParam -x</b> 1
+samplingRate=20</font></font></p>
+<p><font size="+0"><font size="2"><b>expSetParam -x</b> 3
+displayMode=realtime</font></font></p>
+<p><font size="+0"><font size="2"><b>expSetParam -x</b> 3
+displayMedia=GUI</font></font></p>
+<p><font size="+0"><font size="2"><b>expSetParam -x</b> 3
+displayRefreshRate=60</font></font></p>
+<p><font size="+0"><font size="2"><b>expRun all</b></font></font></p>
+<p><font size="+0"><font size="2"><b>explist</b></font></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="+0"><font size="2"><b>1 executing, data available
+<dir>&nbsp;-h host1 -f a.out, b.out, c.out pcsamp
+</dir>
+</b></font></font></p>
+</dir>
+<dir>
+<p><font size="+0"><font size="2"><b>2 complete, data available,
+realtime display
+<dir>&nbsp;-h host1 -f a.out, c.out io
+</dir>
+</b></font></font></p>
+</dir>
+<dir>
+<p><font size="+0"><font size="2"><b>3 executing, data available,
+realtime display
+<dir>&nbsp;-h host1 -f b.out, c.out fpe, malloc
+</dir>
+</b></font></font></p>
+</dir>
+<ul>
+  <font size="+0"> <li><font size="2">Remove the executing experiment
+and the data</font></li>
+  </font>
+</ul>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><font size="2"><b>expClose -x</b> 3</font></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<ul>
+  <font size="+0"> <li><font size="2">Terminate the performance
+analysis session.</font></li>
+  </font>
+</ul>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><font size="2"><b>exit</b></font></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<font size="+0"><br>
+<br>
+</font>
+<p><font size="+0"><b><font face="Arial">More detailed example scenario
+1 to show
+command usage</font></b></font></p>
+<font size="+0"><font size="2"></font>
+</font>
+<p><font size="+0"><font size="2">This scenario is the same as the
+simple scenario 1
+above but this one has more comments interspersed between the commands.
+It has a bit more information about what is going on under the hood.</font></font></p>
+<p><font size="+0"><font size="2">#User launches Open/SpeedShop tool
+from a window. The CLI
+tool will come up first and then if the GUI option is not turned off
+the GUI will launch.<br>
+#The GUI will send low level commands such as:</font></font></p>
+<p><font size="+0"><font size="2"># create an experiment to do
+pcsampling of the executable named
+<i>a.out</i> on <i>host1</i></font></font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><font size="2"><b>expCreate -h </b>host1<b>
+-f </b>a.out pcsamp</font></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="+0"><font size="2"><b>"1"</b></font></font></p>
+</dir>
+<p><font size="+0"><font size="2"># <b>expCreate </b>will cause the
+initial default
+values of the specified experiment to be instantiated and the proper
+collector to be associated with the newly created experiment. The <b>"1"</b>
+below the command is the &lt;expId&gt; for the new pcsamp experiment.</font></font></p>
+<p><font size="+0"><font size="2"># <b>expCreate</b> also will "under
+the hood" poll the
+Framework to give us a list of the ranks, processes, and threads
+associated with <i>a.out</i> that
+are currently known to the FrameWork. <b>expCreate </b>will create a
+thread group including all the ranks, processes, and/or threads from
+the Application Object and associate the new thread group with the
+experiment that has just been created.</font></font></p>
+<p><font size="+0"><font size="2"># <b>listPids</b> will list the
+ranks, processes, and threads
+on the specified list of hosts.</font></font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><font size="2"><b>listPids -h</b> host1</font></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<p><font size="+0"><font size="2"># The GUI presents the user a panel
+from which he/she
+chooses which ranks, processes, and/or threads he/she wants included in
+the experiment. The GUI sends down <b>expAttach</b> commands to
+add them to the thread group or <b>expDetach</b> to subtract
+them from the thread group that will be operated on by the experiment.
+Naturally if the user wants to operate on all the ranks, processes,
+and/or threads no additional commands to select or deselect are
+necessary.</font></font></p>
+<font size="+0"><font size="2"><b>
+</b></font></font>
+<p><font size="+0"><font size="2"><b># </b>In this example scenario we
+only want to
+look at ranks 2 and 5, so we can use the <b>expDetach</b> command to
+remove all the ranks in the thread group associated with this
+experiment.</font></font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><font size="2"><b>expDetach -h</b> host1
+<b>-r</b> *</font></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<p><font size="+0"><font size="2"><b># </b>Now we use the <b>expAttach</b>
+command to add
+the ranks 2 and 5 into the thread group.</font></font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><font size="2"><b>expAttach -h </b>host1
+<b>-r</b> 2, 5</font></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<p><font size="+0"><font size="2"><b># </b>An alternative would have
+been to specify the
+ranks on the original <b>expCreate</b> command:</font></font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><font size="2"><b>expCreate -h </b>host1
+<b>-f</b> a.out <b>-r</b> 2, 5 pcsamp</font></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<p><font size="+0"><font size="2"># <b>listParams</b> retrieves the
+list of parameters that
+may be changed by the user. The GUI and CLI tools need to display this
+to the user in order for the user to have the option of tuning the
+experiment to their specific needs.</font></font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><font size="2"><b>listParams</b></font></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="+0"><font size="2"><b>1 not executing</b></font></font></p>
+<dir><font size="+0"><font size="2"><b>pcsamp::samplingRate=10
+<br>
+displayMode=AtCompletion
+<br>
+displayMedia=GUI
+<br>
+displayRefreshRate=0
+<br>
+<i>&lt;other default values&gt;</i></b></font></font></dir>
+<p></p>
+</dir>
+<p><font size="+0"><font size="2"># We assume the user did not change
+the parameters in
+this part of the scenario because no expSetParam command is created.</font></font></p>
+<p><font size="+0"><font size="2"><b># listExp </b>lists the active
+experiments to the
+screen</font></font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><font size="2"><b>listExp</b></font></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="+0"><font size="2"><b>1 not executing</b></font></font></p>
+<dir><font size="+0"><font size="2"><b>&nbsp;-h host1 -f a.out -r 2,5
+pcsamp
+</b></font></font></dir>
+<p></p>
+</dir>
+<p><font size="+0"><font size="2"># <b>expSetParam</b> defines
+arguments for the specified
+experiment. Here the "-x 1"" indicates the experiment identifier,
+however
+we can omit this argument as the tool will have a concept of default
+experiment. The experiment identifier is created by <b>expCreate</b>.
+The identifier created becomes the default current experiment. So
+commands following the <b>expCreate </b>will default to using the
+current experiment identifier as their experiment.</font></font></p>
+<p><font size="+0"><font size="2"># For the <b>expSetParam</b> the
+expId is optional
+because the default focused experiment was set to "-x 1" by the <b>expCreate</b>
+command.<br>
+</font></font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><font size="2"><b>expSetParam </b>samplingRate=20</font></font></p>
+<p><font size="+0"><font size="2"><b>expSetParam </b>displayMode=realtime</font></font></p>
+<p><font size="+0"><font size="2"><b>expSetParam </b>displayMedia=GUI</font></font></p>
+<p><font size="+0"><font size="2"><b>expSetParam </b>displayRefreshRate=60</font></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<p><font size="+0"><font size="2"><b># </b>Run the application and the
+performance data
+collection utilities.
+experiment was created this command will also cause the instrumentation
+to be inserted into the application e.g. instruments the thread group.
+(the set of ranks, processes, and/or threads that are associated with
+the experiment). The experiment is starts the gathering of performance
+data as the application is started running. </font></font></p>
+<font size="+0"><b><font face="Courier New" size="2"></font></b>
+</font>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><b><font face="Courier New" size="2">expRun</font></b></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<ul>
+  <font size="+0"> <font size="2"><li>Now we want to stop the
+application and change the
+sampling rate</li>
+  </font></font>
+</ul>
+<p><font size="+0"><font size="2"># We use the <b>expPause</b> command
+we halt/pause
+the performance data collection and the application.</font></font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><font size="2"><b>expPause -x</b> 1</font></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<font size="+0"><font size="2"><b></b></font>
+</font>
+<p><font size="+0"><font size="2"><b># </b>Here we use <b>expSetParam</b>
+to replace the
+existing sampling rate for experiment "-x 1" with the new value.</font></font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><font size="2"><b>expSetParam -x</b> 1
+samplingRate=50</font></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<p><font size="+0"><font size="2"># If we used <b>expPause </b>above
+we must do an <b>expCont</b>
+here to restart the application and to reengage the gathering of
+performance data.
+</font></font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><font size="2"><b>expCont -x</b> 1</font></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<p><font size="+0"><font size="2"># The <b>listExp</b> command is
+presented here, only
+to show the it can be used at any point in a sequence to give
+experiment data back to the GUI or the CLI tools.</font></font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><font size="2"><b>listExp -x</b> 1</font></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="+0"><font size="2"><b>1 executing, data available</b></font></font></p>
+<dir><font size="+0"><font size="2"><b>&nbsp;-h host1 -f a.out -r 2,5
+pcsamp
+<br>
+pcsamp::samplingRate=50
+<br>
+displayMode=realtime
+<br>
+displayMedia=GUI
+<br>
+displayRefreshRate=60
+<br>
+<i>&lt;other default values&gt;</i></b></font></font></dir>
+<p></p>
+</dir>
+<ul>
+  <font size="+0"> <li><font size="2">Now stop the experiment and view
+the results.</font></li>
+  </font>
+</ul>
+<p><font size="+0"><font size="2"># We use the <b>expPause</b> command
+to stop the application.
+The <b>focused</b> experiemnt is "-x 1", so it does not need to
+specified in
+the command.</font></font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><font size="2"><b>expPause</b></font></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<p><font size="+0"><font size="2"># The possible report types for this
+experiment are
+obtained. The GUI may want to present the user with a list of available
+views for this experiment (.e.g. in a menu item list. ).</font></font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><font size="2"><b>expGetMetrics</b></font></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<div><font size="+0"><font size="2"><b>"vTopN, vExclTime, vIO, vFpe,
+vHwc"</b></font></font></div>
+<p><font size="+0"><font size="2"># <b>expView </b>causes much
+processing behind the
+scenes. This command is asking for the data to create a top "n"
+display and will open a <b>gui</b> window to display the result.</font></font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><font size="2"><b>expView -x</b> 1 <b>-gui</b> vTopN</font></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<ul>
+  <font size="+0"> <li><font size="2">Terminate the performance
+analysis session.</font>
+  </li>
+  </font>
+</ul>
+<p><font size="+0"><font size="2"># Close <i>Open</i>/SpeedShop. The
+data that was collected
+for the experiment is discarded, the executable modules that were
+attached
+to the experiment are terminated and all memory is reclaimed by the
+system.</font></font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><font size="2"><b>exit</b></font></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<font size="+0"><br>
+<br>
+</font>
+<p><font size="+0"><b><font face="Arial">More detailed example scenario
+2 to show
+command usage</font></b></font></p>
+<font size="+0"><font size="2"></font>
+</font>
+<p><font size="+0"><font size="2">This scenario is the same as the
+simple scenario 2
+above but this one has more comments interspersed between the commands.
+It has a bit more information about what is going on under the hood.</font></font></p>
+<p><font size="+0"><font size="2">#User launches Open/SpeedShop tool
+from a window. The CLI
+tool will come up first and then if the GUI option is not turned off
+the GUI will launch.</font></font></p>
+<p><font size="+0"><font size="2"># <b>expCreate </b>will cause the
+initial default
+values of the specified experiment to be instantiated and the proper
+collector to be associated with the newly created experiment. The "1"
+below is the &lt;expId&gt; for the new pcsamp experiment.</font></font></p>
+<p><font size="+0"><font size="2"># Since there is no executable
+specified on the<b>
+expCreate</b>, the experiment can not be <b>Run</b> but will act
+as a place holder for further commands.</font></font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><font size="2"><b>expCreate</b> pcsamp</font></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="+0"><font size="2"><b>"1"</b></font></font></p>
+</dir>
+<p><font size="+0"><b><font size="2"># <b>expCreate </b>creates a
+second experiment,
+this one for <i>io</i> performance anlysis. The default experiment is
+now "2".</font></b></font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><b><font size="2"><b>expCreate</b> io</font></b></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="+0"><b><font size="2"><b>"2"</b></font></b></font></p>
+</dir>
+<p><font size="+0"><b><font size="2"># <b>expCreate </b>creates a
+third experiment, this
+one for <i>fpe</i>. The default experiment is now "3".</font></b></font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><b><font size="2"><b>expCreate</b> fpe</font></b></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="+0"><b><font size="2"><b>"3</b>"</font></b></font></p>
+</dir>
+<p><font size="+0"><b><font size="2"># This <b>expAttach</b> command
+will associate the a.out, b.out,
+and c.out on host1 with experiment 1 as specified by the "-x 1"
+annotation.</font></b></font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><b><font size="2"><b>expAttach -x</b> 1 <b>-h</b>
+host1
+<b>-f</b> a.out, b.out, c.out</font></b></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<p><font size="+0"><b><font size="2"># This <b>expAttach</b> command
+will associate the a.out and
+c.out on host1 with experiment 2 as specified by the "-x 2" annotation.</font></b></font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><b><font size="2"><b>expAttach -x</b> 2 <b>-h</b>
+host1
+<b>-f</b> a.out, c.out</font></b></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<p><font size="+0"><b><font size="2"># This <b>expAttach</b> command
+will associate the b.out and
+c.out on host1 with experiment 3. This is not specifically called out
+via the "-x 3" annotation because experiment "3" is the default
+experiment. </font></b></font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><b><font size="2"><b>expCreate -h</b> host1 <b>-f</b>
+b.out, c.out</font></b></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<p><font size="+0"><b><font size="2"># <b>expCreate </b>adds a
+collector to the third
+experiment, specifically this command adds a collector for <i>malloc</i>
+performance analysis in addition to
+the fpe collector. The default experiment is still "3".</font></b></font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><b><font size="2"><b>expCreate -x</b> 3 </font></b><font
+ size="2">malloc</font></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<p><font size="+0"><font size="2"># <b>listParams</b> retrieves the
+list of parameters that
+may be changed by the user. The GUI and CLI tools need to display this
+to the user in order for the user to have the option of tuning the
+experiment to their specific needs. This command gets the parameters
+for experiment "1" which is the pc sampling experiment.</font></font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><font size="2"><b>listParams -x</b> 1</font></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="+0"><font size="2"><b>1 not executing</b></font></font></p>
+<dir><font size="+0"><font size="2"><b>pcsamp::samplingRate=10
+<br>
+displayMode=AtCompletion
+<br>
+displayMedia=GUI
+<br>
+displayRefreshRate=0
+<br>
+<i>&lt;other default values&amp;glt;</i></b></font></font></dir>
+<p></p>
+</dir>
+<p><font size="+0"><font size="2"># <b>expSetParam</b> defines
+arguments for the specified
+experiment. Here the "-x 1" indicates the experiment identifier.</font></font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><font size="2"><b>expSetParam -x</b> 1
+pcsamp::samplingRate=10</font></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<p><font size="+0"><font size="2"># <b>expSetParam</b> defines
+arguments for the specified
+experiment. Here the "-x 3" indicates the experiment identifier,. These
+commands change the argument values for the fpe and malloc collectors
+comprising experiment "3".</font></font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><font size="2"><b>expSetParam -x</b> 3
+displayMode=realtime</font></font></p>
+<p><font size="+0"><font size="2"><b>expSetParam -x</b> 3
+displayMedia=GUI</font></font></p>
+<p><font size="+0"><font size="2"><b>expSetParam -x</b> 3
+displayRefreshRate=60</font></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<p><font size="+0"><font size="2"># <b>expRun all</b> causes all 3
+experiments to be started.
+Data is collected for all experiments an displayed in a GUI window for
+experiment 3, since the <i>displayMode</i> parameter has been set to <i>realtime</i>.
+</font></font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><font size="2"><b>expRun all</b></font></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<p><font size="+0"><font size="2"># <b>listExp</b> causes the
+information about all 3 experiments
+to be listed. In this example, experiments "1" and "2" have completed
+execution.
+Data is still being collected and displayed for experiment "3".
+</font></font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><font size="2"><b>explist</b></font></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<dir>
+<p><font size="+0"><font size="2"><b>1 executing, data available
+<dir>&nbsp;-h host1 -f a.out, b.out, c.out pcsamp
+</dir>
+</b></font></font></p>
+</dir>
+<dir>
+<p><font size="+0"><font size="2"><b>2 complete, data available,
+realtime display
+<dir>&nbsp;-h host1 -f a.out, c.out io
+</dir>
+</b></font></font></p>
+</dir>
+<dir>
+<p><font size="+0"><font size="2"><b>3 executing, data available,
+realtime display
+<dir>&nbsp;-h host1 -f b.out, c.out fpe, malloc
+</dir>
+</b></font></font></p>
+</dir>
+<ul>
+  <font size="+0"> <li><font size="2">Remove the executing experiment
+and the data</font></li>
+  </font>
+</ul>
+<p><font size="+0"><font size="2"># Stop experiment "3" and remove the
+experiment and the data. The processing
+that implements an experiment close operation includes </font></font></p>
+<div>
+<ul>
+  <font size="+0"> </font>
+  <ul>
+    <font size="+0"> <li><font size="2">disconnecting the framework
+from DPCL</font></li>
+    <li><font size="2">extracting the instrumentation from the
+application</font></li>
+    <li><font size="2">removing the application object,</font></li>
+    <li><font size="2">removing the thread group associated with the
+experiment</font></li>
+    <li><font size="2">allowing the system to continue executing the
+attached module, <i>b.out</i>, as an independant process. Note that <i>c.out</i>
+has finished executing, since experiment "2" is "complete".
+      </font></li>
+    </font>
+  </ul>
+</ul>
+</div>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><font size="2"><b>expClose -x</b> 3</font></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+<ul>
+  <font size="+0"> <li><font size="2">Terminate the performance
+analysis session.</font></li>
+  </font>
+</ul>
+<p><font size="+0"><font size="2"># Close <i>Open</i>/SpeedShop. The
+data that was collected
+for the all experiments is discarded and all GUI windows are closed.
+Since executables <i>a.out</i> and <i>c.out</i>
+are known to have terminated, all memory associated with them is
+reclaimed by
+the system. <i>b.out</i> is allowed to continue executing until it
+completes.
+</font></font></p>
+<dir>
+<dir>
+<dir>
+<dir>
+<dir>
+<p><font size="+0"><font size="2"><b>exit</b></font></font></p>
+</dir>
+</dir>
+</dir>
+</dir>
+</dir>
+</body>
+</html>
