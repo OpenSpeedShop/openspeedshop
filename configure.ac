@@ -140,7 +140,7 @@ AC_CONFIG_FILES(Makefile
 		Panels/IOPanel/Makefile
 		Panels/MPIPanel/Makefile
 		Panels/FPE_TracingPanel/Makefile
-		Panels/CreateNewExperimentPanel/Makefile
+		Panels/ConstructNewExperimentPanel/Makefile
 		Panels/Wizards/Makefile
 		Panels/Wizards/IntroWizardPanel/Makefile
 		Panels/Wizards/pcSampleWizardPanel/Makefile

@@ -22,4 +22,30 @@
 # All Rights Reserved.
 ################################################################################
 
-SUBDIRS = SourcePanel CmdPanel TopPanel pcSamplePanel UserTimePanel HW_CounterPanel IOPanel FPE_TracingPanel MPIPanel ConstructNewExperimentPanel Wizards
+pkglib_LTLIBRARIES = CreateNewExperimentPanel.la
+
+# NOTE 1: The -I../SourcePanel is only here for #define DEMO 1
+# NOTE 2: The -I../TopPanel is only here for #define DEMO 1
+CreateNewExperimentPanel_la_CXXFLAGS = \
+    -I/usr/include \
+    -I$(QTDIR)/include \
+    -I. \
+    -I../../gui \
+    -I../../images \
+    -I../../plugin \
+    -I../../objects \
+    -I../SourcePanel \
+    -I../TopPanel \
+    -I../../base
+
+CreateNewExperimentPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../base/.libs/ossBase.so -Wl,../../objects/.libs/ossObjects.so
+
+CreateNewExperimentPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
+
+moc_CreateNewExperimentPanel.cxx: CreateNewExperimentPanel.hxx
+	-moc -o moc_CreateNewExperimentPanel.cxx CreateNewExperimentPanel.hxx
+
+CreateNewExperimentPanel_la_SOURCES = \
+	CreateNewExperimentPanel.hxx CreateNewExperimentPanel.cxx moc_CreateNewExperimentPanel.cxx \
+	plugin_entry_point.hxx Panel.hxx \
+	PanelContainer.hxx local_plugin_info.hxx debug.hxx
