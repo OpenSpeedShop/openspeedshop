@@ -1,25 +1,19 @@
 ################################################################################
-# License Applicability.  Except to the extent portions of this file are
-# made subject to an alternative license as permitted in the SGI Free
-# Software License B, Version 1.1 (the "License"), the contents of this
-# file are subject only to the provisions of the License. You may not use
-# this file except in compliance with the License. You may obtain a copy
-# of the License at Silicon Graphics, Inc., attn: Legal Services, 1500
-# Crittenden Lane, Moutain View, CA 94043, or at:
-# 
-#      http://oss.sgi.com/projects/FreeB
-# 
-# Note that, as provided in the License, the Software is distributed on
-# on "AS IS" basis, with ALL EXPRESS AND IMPLIED WARRANTIES AND CONDITIONS
-# DISCLAIMED, INCLUDING, WITHOUT LIMITATION, ANY IMPLIED WARRANTIES AND
-# CONDITIONS OF MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A
-# PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
-# 
-# Original Code.  The Original Code is: Open/Speedshop, Version 1.0, released
-# <MONTH>, <DAY>, 2005, developed by Silicon Graphics, Inc. The Original
-# Code is Copyright (c) 2005 Silicon Graphics, Inc. Copyright in any
-# portions created by third parties is as indicated elsewhere herein.
-# All Rights Reserved.
+# Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+#
+# This library is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this library; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
 pkglib_LTLIBRARIES = TemplatePanel.la
