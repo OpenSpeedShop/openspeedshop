@@ -51,7 +51,10 @@ extern "C" CollectorImpl* example_LTX_CollectorFactory()
 ExampleCollector::ExampleCollector() :
     CollectorImpl("example",
 		  "Example",
-		  "Gather ...")
+		  "Gather the amount of inclusive time spent in a single "
+		  "function by inserting instrumentation at the entry and "
+		  "exit of that function and saving the elapsed time for "
+		  "each call.")
 {
     declareParameter(Metadata("function", "Function",
 			      "Function whose execution should be timed.",
@@ -75,6 +78,9 @@ ExampleCollector::ExampleCollector() :
 void ExampleCollector::startCollecting(const Collector& collector,
 				       const Thread& thread) const
 {
+    std::cout << "ExampleCollector::startCollecting() for "
+	      << thread.getHost() << ":" << thread.getProcessId()
+	      << std::endl;
 }
 
 
@@ -90,6 +96,9 @@ void ExampleCollector::startCollecting(const Collector& collector,
 void ExampleCollector::stopCollecting(const Collector& collector,
 				      const Thread& thread) const
 {
+    std::cout << "ExampleCollector::stopCollecting() for "
+	      << thread.getHost() << ":" << thread.getProcessId()
+	      << std::endl;
 }
 
 
