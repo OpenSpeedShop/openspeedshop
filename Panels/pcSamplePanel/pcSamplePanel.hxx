@@ -136,7 +136,7 @@ public slots:
   void progressUpdate();
 
 private slots:
-  void statusUpdate();
+  void statusUpdateTimerSlot();
 
 protected slots:
   virtual void languageChange();

@@ -258,6 +258,9 @@ printf("AAAA\n");
     pco->runButton->enabledFLAG = FALSE;
   }
 
+  // Set up the timer that will monitor the progress of the experiment.
+  statusTimer = new QTimer( this, "statusTimer" );
+  connect( statusTimer, SIGNAL(timeout()), this, SLOT(statusUpdateTimerSlot()) );
 }
 
 
@@ -657,10 +660,6 @@ pcSamplePanel::listener(void *msg)
         
         loadStatsPanel();
 #endif // OLDWAY
-        statusTimer = new QTimer( this, "statusTimer" );
-        connect( statusTimer, SIGNAL(timeout()), this, SLOT(statusUpdate()) );
-        statusTimer->start( 1000 );
-        updateStatus();
   
         ret_val = 1;
         }
@@ -713,6 +712,7 @@ CLIInterface::interrupt = true;
       default:
         break;
     }
+updateStatus();
  } else if( lao )
  {
    nprintf( DEBUG_MESSAGES ) ("we've got a LoadAttachObject message\n");
@@ -906,6 +906,7 @@ pcSamplePanel::updateStatus()
   if( expID <= 0 )
   {
     statusLabelText->setText( "No expid" );
+    statusTimer->stop();
     return;
   } 
   ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
@@ -932,6 +933,7 @@ printf("status=%d\n", status);
         pco->terminateButton->setEnabled(FALSE);
         pco->terminateButton->setFlat(TRUE);
         pco->terminateButton->setEnabled(FALSE);
+        statusTimer->stop();
         break;
       case 1:
       case 2:
@@ -960,6 +962,7 @@ printf("status=%d\n", status);
         pco->terminateButton->setEnabled(TRUE);
         pco->terminateButton->setFlat(TRUE);
         pco->terminateButton->setEnabled(TRUE);
+        statusTimer->start(2000);
         break;
       case 4:
       case 5:
@@ -985,11 +988,14 @@ printf("status=%d\n", status);
           pco->terminateButton->setEnabled(FALSE);
           pco->terminateButton->setFlat(TRUE);
           pco->terminateButton->setEnabled(FALSE);
+          statusTimer->stop();
         break;
       default:
         statusLabelText->setText( QString("%1: Unknown status").arg(status) );
+          statusTimer->stop();
         break;
     }
+    
   } else
   {
     statusLabelText->setText( "Cannot find experiment for expID" );
@@ -998,12 +1004,11 @@ printf("status=%d\n", status);
 }
 
 void
-pcSamplePanel::statusUpdate()
+pcSamplePanel::statusUpdateTimerSlot()
 {
 //  statusTimer->stop();
-printf("pcSamplePanel::statusUpdate() entered\n");
+printf("pcSamplePanel::statusUpdateTimerSlot() entered\n");
   updateStatus();
-  statusTimer->start( 2000 );
 }
 void
 pcSamplePanel::progressUpdate()
