@@ -61,6 +61,7 @@ ossBase_la_SOURCES = \
 	TopWidget.hxx TopWidget.cxx moc_TopWidget.cxx \
 	TabWidget.hxx TabWidget.cxx moc_TabWidget.cxx \
 	TabBarWidget.hxx TabBarWidget.cxx moc_TabBarWidget.cxx \
+	WhatsThis.hxx WhatsThis.cxx  \
 	Frame.hxx Frame.cxx moc_Frame.cxx \
 	Panel.hxx Panel.cxx moc_Panel.cxx \
 	PanelContainer.hxx PanelContainer.cxx moc_PanelContainer.cxx \

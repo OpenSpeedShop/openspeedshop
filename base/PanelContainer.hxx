@@ -24,7 +24,8 @@
 #include <debug.hxx>
 
 #include <qtimer.h>
-#include <qwhatsthis.h>
+
+#include "WhatsThis.hxx"
 
 #define MENU_ACTIVE_HEIGHT 5
 
@@ -62,7 +63,8 @@ class PanelContainer : public QWidget
 
 QTimer *popupTimer;
 QTimer *sleepTimer;
-QWhatsThis *whatsThis;
+WhatsThis *whatsThis;
+bool whatsThisActive;
 
     //! This is the registry of all known gui plugins.
     /*! At runtime this registry is created by doing dlopens on all the

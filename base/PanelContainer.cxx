@@ -53,7 +53,6 @@
 #include <qwidget.h>
 #include <qlayout.h>
 #include <qtooltip.h>
-#include <qwhatsthis.h>
 #include <qimage.h>
 #include <qpixmap.h>
 #include <TabBarWidget.hxx>
@@ -62,6 +61,8 @@
 #include <qsizegrip.h>  // Debuggging only.
 
 #include <qcursor.h>
+
+#include "WhatsThis.hxx"
 
 unsigned int __internal_debug_setting = 0x0000;  // Referenced in debug.hxx, define here.
 #include "debug.hxx"  // This includes the definition of nprintf(DEBUG_PANELCONTAINERS) 
@@ -119,6 +120,7 @@ PanelContainer::PanelContainer( QWidget* _parent, const char* n, PanelContainer 
     sleepTimer = NULL;
     popupTimer = NULL;
     whatsThis = NULL;
+    whatsThisActive = FALSE;
   } else
   {
     if( _parentPanelContainer )

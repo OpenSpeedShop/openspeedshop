@@ -278,8 +278,8 @@ Panel::displayWhatsThis(QString msg)
 {
   printf("Panel::displayWhatsThis() called.  Put the wit here.\n");
  
-//  _masterPC->whatIsThisActive = TRUE;
-  panelContainer->_masterPC->whatsThis = new QWhatsThis( this );
+  panelContainer->_masterPC->whatsThisActive = TRUE;
+  panelContainer->_masterPC->whatsThis = new WhatsThis( this );
   panelContainer->_masterPC->whatsThis->display( msg, QCursor::pos() );
 }
 

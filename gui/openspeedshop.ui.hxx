@@ -171,7 +171,7 @@ MyEventFilter::MyEventFilter(QObject *t, PanelContainer *pc) : QObject(t)
 } 
 
 bool 
-MyEventFilter::eventFilter( QObject *, QEvent *e )
+MyEventFilter::eventFilter( QObject *obj, QEvent *e )
 {
 //  dprintf("MyEventFilter::eventFilter(%d) entered.\n", e->type() );
   if( masterPC->_resizeEventsEnabled == FALSE && e->type() == QEvent::Resize )
@@ -180,33 +180,36 @@ MyEventFilter::eventFilter( QObject *, QEvent *e )
     return TRUE;
   }
 
-// Begin: This is for WhatsThis stuff...
-    switch( e->type() )
-    {
-      case QEvent::MouseMove:
-//         if( masterPC->whatsThis )
-//         {
-//           masterPC->whatsThis->hide();
-//         }
-      case QEvent::MouseButtonPress:
-      case QEvent::MouseButtonRelease:
-      case QEvent::MouseButtonDblClick:
-      case QEvent::Enter:
-      case QEvent::Leave:
-        if( masterPC->sleepTimer )
-        {
-          masterPC->sleepTimer->stop();
-          delete masterPC->sleepTimer;
-          masterPC->sleepTimer = NULL;
-        }
-        if( masterPC->popupTimer )
-        {
-          masterPC->popupTimer->stop();
-          delete masterPC->popupTimer;
-          masterPC->popupTimer = NULL;
-        }
-    } 
-// End: This is for WhatsThis stuff...
+  // This is for WhatsThis actions.   If the whatsThis box needs to be
+  // remove, remove it, mark it disabled, remove the timers and 
+  // return.
+  // The hide is automatic for button clicks, but not on the move.
+  // When we get a MouseMove we call hide(), which constructs a click
+  // event which gets sent to drop the WhatsThis box.
+  switch( e->type() )
+  {
+    case QEvent::MouseMove:
+       if( masterPC->whatsThisActive == TRUE && masterPC->whatsThis )
+       {
+         masterPC->whatsThis->hide( obj );
+       }
+    case QEvent::MouseButtonPress:
+    case QEvent::MouseButtonRelease:
+    case QEvent::MouseButtonDblClick:
+      masterPC->whatsThisActive = FALSE;
+      if( masterPC->sleepTimer )
+      {
+        masterPC->sleepTimer->stop();
+        delete masterPC->sleepTimer;
+        masterPC->sleepTimer = NULL;
+      }
+      if( masterPC->popupTimer )
+      {
+        masterPC->popupTimer->stop();
+        delete masterPC->popupTimer;
+        masterPC->popupTimer = NULL;
+      }
+  } 
 
   if( masterPC->_eventsEnabled == TRUE )
   {
