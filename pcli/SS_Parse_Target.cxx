@@ -17,7 +17,7 @@ using namespace std;
 using namespace OpenSpeedShop::cli;
 
 /**
- * Method: ParseTarget::XXX()
+ * Constructor: ParseTarget::ParseTarget()
  * 
  *     
  * @return  .
@@ -25,12 +25,12 @@ using namespace OpenSpeedShop::cli;
  * @todo    Error handling.
  *
  */
-//void
-//ParseTarget::
-//XXX()
-//{
-//    return ;
-//}
+ParseTarget::
+ParseTarget() :
+    dm_used(false)
+{
+    return ;
+}
  
 /**
  * Method: ParseTarget::pushHostPoint(char * name)
