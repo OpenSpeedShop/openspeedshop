@@ -27,7 +27,18 @@
 EXPID Experiment_Sequence_Number = 0;
 std::list<ExperimentObject *> ExperimentObject_list;
 
-// Experiment Building Block Commands
+// Terminate all experiments and free associated files.
+void Experiment_Termination () {
+  ExperimentObject *exp = NULL;
+  std::list<ExperimentObject *>::iterator expi;
+  for (expi = ExperimentObject_list.begin(); expi != ExperimentObject_list.end(); ) {
+    ExperimentObject *exp = (*expi);
+    expi++;
+    delete exp;
+  }
+}
+
+// Experiment Utilities.
 
 ExperimentObject *Find_Experiment_Object (EXPID ExperimentID)
 {
@@ -62,9 +73,7 @@ bool SS_expAttach (CommandObject *cmd) {
    // Use the current focused experiment.
     ExperimentID =  Experiment_Focus (WindowID);
   }
-  if (ExperimentID > 0) {
-    exp = Find_Experiment_Object (ExperimentID);
-  }
+  exp = Find_Experiment_Object (ExperimentID);
   if (!exp) {
    // There is no existing experiment or something went wrong.  Allocate a new Experiment.
     exp = new ExperimentObject ();
@@ -72,7 +81,7 @@ bool SS_expAttach (CommandObject *cmd) {
     (void)Experiment_Focus (WindowID, exp->ExperimentObject_ID());
   }
   if (exp == NULL) {
-    cmd->Result_String ("The requested experiment could not be found");
+    cmd->Result_String ("The requested experiment ID does not exist");
     cmd->set_Status(CMD_ERROR);
     return false;
   }
@@ -99,7 +108,7 @@ bool SS_expClose (CommandObject *cmd) {
   if (ExperimentID == 0) {
     ExperimentID = Experiment_Focus ( WindowID );
     if (ExperimentID == 0) {
-      cmd->Result_String ("There is no focused experiment to Close");
+      cmd->Result_String ("There is no focused experiment");
       cmd->set_Status(CMD_ERROR);
       return false;
     }
@@ -111,7 +120,8 @@ bool SS_expClose (CommandObject *cmd) {
     return false;
   }
 
- // Remove all trace of the experiment.
+ // Remove all trace of the experiment from the Command Windows.
+  Experiment_Purge_Focus  (ExperimentID); // remove any Focus on this experiment
   delete exp;
 
  // No result returned from this command.
@@ -161,7 +171,25 @@ bool SS_expDisable (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
-  cmd->Result_String ("not yet implemented");
+  CommandResult *cmr = NULL;
+  ExperimentObject *exp = NULL;
+  EXPID ExperimentID = 0;
+
+  if (ExperimentID == 0) {
+    ExperimentID = Experiment_Focus ( WindowID );
+    if (ExperimentID == 0) {
+      cmd->Result_String ("There is no focused experiment");
+      cmd->set_Status(CMD_ERROR);
+      return false;
+    }
+  }
+  exp = Find_Experiment_Object (ExperimentID);
+  if (exp == NULL) {
+    cmd->Result_String ("The requested experiment ID does not exist");
+    cmd->set_Status(CMD_ERROR);
+    return false;
+  }
+
   cmd->set_Status(CMD_COMPLETE);
   return true;
 }
@@ -170,7 +198,25 @@ bool SS_expEnable (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
-  cmd->Result_String ("not yet implemented");
+  CommandResult *cmr = NULL;
+  ExperimentObject *exp = NULL;
+  EXPID ExperimentID = 0;
+
+  if (ExperimentID == 0) {
+    ExperimentID = Experiment_Focus ( WindowID );
+    if (ExperimentID == 0) {
+      cmd->Result_String ("There is no focused experiment");
+      cmd->set_Status(CMD_ERROR);
+      return false;
+    }
+  }
+  exp = Find_Experiment_Object (ExperimentID);
+  if (exp == NULL) {
+    cmd->Result_String ("The requested experiment ID does not exist");
+    cmd->set_Status(CMD_ERROR);
+    return false;
+  }
+
   cmd->set_Status(CMD_COMPLETE);
   return true;
 }
@@ -185,6 +231,11 @@ bool SS_expFocus  (CommandObject *cmd) {
 
   if (ExperimentID == 0) {
     ExperimentID = Experiment_Focus ( WindowID );
+    if (ExperimentID == 0) {
+      cmd->Result_String ("There is no focused experiment");
+      cmd->set_Status(CMD_ERROR);
+      return false;
+    }
   } else {
     ExperimentID = Experiment_Focus ( WindowID, ExperimentID);
   }
@@ -199,7 +250,34 @@ bool SS_expGo (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
-  cmd->Result_String ("not yet implemented");
+  CommandResult *cmr = NULL;
+  ExperimentObject *exp = NULL;
+  EXPID ExperimentID = 0;
+
+  if (ExperimentID == 0) {
+    ExperimentID = Experiment_Focus ( WindowID );
+    if (ExperimentID == 0) {
+      cmd->Result_String ("There is no focused experiment");
+      cmd->set_Status(CMD_ERROR);
+      return false;
+    }
+  }
+  exp = Find_Experiment_Object (ExperimentID);
+  if (exp == NULL) {
+    cmd->Result_String ("The requested experiment ID does not exist");
+    cmd->set_Status(CMD_ERROR);
+    return false;
+  }
+
+  ThreadGroup trg = exp->FW()->getThreads();
+
+  if (trg.empty()) {
+    cmd->Result_String ("There are no applications specified for the experiment");
+    cmd->set_Status(CMD_ERROR);
+    return false;
+  }
+  trg.changeState (Thread::Running);
+
   cmd->set_Status(CMD_COMPLETE);
   return true;
 }
@@ -208,7 +286,34 @@ bool SS_expPause (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
-  cmd->Result_String ("not yet implemented");
+  CommandResult *cmr = NULL;
+  ExperimentObject *exp = NULL;
+  EXPID ExperimentID = 0;
+
+  if (ExperimentID == 0) {
+    ExperimentID = Experiment_Focus ( WindowID );
+    if (ExperimentID == 0) {
+      cmd->Result_String ("There is no focused experiment");
+      cmd->set_Status(CMD_ERROR);
+      return false;
+    }
+  }
+  exp = Find_Experiment_Object (ExperimentID);
+  if (exp == NULL) {
+    cmd->Result_String ("The requested experiment ID does not exist");
+    cmd->set_Status(CMD_ERROR);
+    return false;
+  }
+
+  ThreadGroup trg = exp->FW()->getThreads();
+
+  if (trg.empty()) {
+    cmd->Result_String ("There are no applications specified for the experiment");
+    cmd->set_Status(CMD_ERROR);
+    return false;
+  }
+  trg.changeState (Thread::Suspended);
+
   cmd->set_Status(CMD_COMPLETE);
   return true;
 }
@@ -217,9 +322,27 @@ bool SS_expRestore (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
-  cmd->Result_String ("not yet implemented");
-  cmd->set_Status(CMD_COMPLETE);
-  return true;
+  CommandResult *cmr = NULL;
+  std::string data_base_name = std::string("ssdb.openss");;
+  ExperimentObject *exp = new ExperimentObject (data_base_name);
+  EXPID ExperimentID = 0;
+
+  if (exp != NULL) {
+   // When we allocate a new experiment, set the focus to point to it.
+    ExperimentID = exp->ExperimentObject_ID();
+    (void)Experiment_Focus (WindowID, ExperimentID);
+  }
+
+ // Return the EXPID for this command.
+  if (ExperimentID > 0) {
+    cmd->Result_Int (exp->ExperimentObject_ID());
+    cmd->set_Status(CMD_COMPLETE);
+    return true;
+  } else {
+    cmd->Result_String ("file name is not legal");
+    cmd->set_Status(CMD_ERROR);
+    return false;
+  }
 }
 
 bool SS_expSave (CommandObject *cmd) {
@@ -362,7 +485,7 @@ bool SS_Exit (CommandObject *cmd) {
  // Since Python is in control, we need to tell it to quit.
   PyRun_SimpleString( "myparse.Do_quit ()\n");
 
- // There is no result return fromthis command.
+ // There is no result returned from this command.
   cmd->set_Status(CMD_COMPLETE);
   return true;
 }
@@ -420,7 +543,7 @@ bool SS_OpenGui (CommandObject *cmd) {
      // The GUI was not opened before so we need to define an input control window for it.
       char HostName[MAXHOSTNAMELEN+1];
       if (gethostname ( &HostName[0], MAXHOSTNAMELEN)) {
-        cmd->Result_String ("ERROR: can not retreive host name");
+        cmd->Result_String ("can not retreive host name");
         cmd->set_Status(CMD_ERROR);
         return false;
       }
