@@ -205,8 +205,9 @@ void initialize_plugins(QWidget *pl, PanelContainer *masterPC)
   }
 
   pattern = "ft*.so";
+  sprintf(target, "%s/%s", plugin_directory, pattern);
   // Append all the internal libraries.  
-  flags = GLOB_ERR | GLOB_MARK | GLOB_TILDE | GLOB_APPEND;
+  flags = GLOB_NOSORT | GLOB_ERR | GLOB_MARK | GLOB_TILDE | GLOB_APPEND;
   glob_ret_value = glob(target, flags, 0, pglob);
   if( glob_ret_value != 0 )
   {
