@@ -37,7 +37,10 @@ openspeedshop_la_CXXFLAGS = -I/usr/include -I.
 
 LDFLAGS = -lc -ldl
 
-TEST_SUBDIRS = tests/fw/database
+TEST_SUBDIRS = tests/fw/database \
+		tests/fw/interval \
+		tests/pcli/parse_target \
+		tests/pcli/parse_result
 
 tests: $(TEST_SUBDIRS)
 
