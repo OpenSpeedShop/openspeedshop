@@ -50,7 +50,7 @@ pcSamplePanel_la_LIBADD = $(LIBLTDL) -lopenss-framework \
 	-lopenss-Base \
 	../../objects/.libs/ossObjects.so \
 	../../pcli/.libs/posscli.so \
-	../../gui/.libs/ossgui.so
+	-lopenss-GUI
 
 moc_pcSamplePanel.cxx: pcSamplePanel.hxx
 	-moc -o moc_pcSamplePanel.cxx pcSamplePanel.hxx

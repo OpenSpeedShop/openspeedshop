@@ -16,9 +16,9 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-pkglib_LTLIBRARIES = ossgui.la
+pkglib_LTLIBRARIES = libopenss-GUI.la
 
-ossgui_la_CXXFLAGS =  \
+libopenss_GUI_la_CXXFLAGS =  \
 	-g \
 	-I/usr/include \
 	-I$(QTDIR)/include \
@@ -31,9 +31,9 @@ ossgui_la_CXXFLAGS =  \
 	-I../objects \
 	-I../base
 
-ossgui_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../objects/.libs/ossObjects.so -Wl,../pcli/.libs/posscli.so
+libopenss_GUI_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../objects/.libs/ossObjects.so -Wl,../pcli/.libs/posscli.so
 
-ossgui_la_LIBADD = -L$(QTDIR)/lib -lqt -lqassistantclient -L/usr/X11R6/lib -lXext -lX11 -lm -lpthread -lopenss-Base -lopenss-Dialogs -lopenss-Plugin
+libopenss_GUI_la_LIBADD = -L$(QTDIR)/lib -lqt -lqassistantclient -L/usr/X11R6/lib -lXext -lX11 -lm -lpthread -lopenss-Base -lopenss-Dialogs -lopenss-Plugin
 
 moc_CLIInterface.cxx: CLIInterface.hxx
 	-moc -o moc_CLIInterface.cxx CLIInterface.hxx
@@ -44,7 +44,7 @@ moc_openspeedshop.cxx: openspeedshop.hxx
 moc_preferencesdialog.cxx: preferencesdialog.hxx
 	-moc -o moc_preferencesdialog.cxx preferencesdialog.hxx
 
-ossgui_la_SOURCES = \
+libopenss_GUI_la_SOURCES = \
 	gui.hxx gui.cxx \
 	CLIInterface.hxx CLIInterface.cxx moc_CLIInterface.cxx \
     openspeedshop.hxx openspeedshop.cxx moc_openspeedshop.cxx \

@@ -336,7 +336,7 @@ setup_signal_handler (int s)
   
     if( !plugin_directory ) exit(EXIT_FAILURE);
 
-    if( !gui_dl_name ) gui_dl_name = "ossgui.so";
+    if( !gui_dl_name ) gui_dl_name = "libopenss-GUI.so";
     if( !gui_entry_point ) gui_entry_point = "gui_init";
   
     sprintf(gui_plugin_file, "%s/%s", plugin_directory, gui_dl_name);
