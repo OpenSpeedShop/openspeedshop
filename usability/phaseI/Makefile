@@ -17,6 +17,7 @@ clobber:
 	-rm -f so_loc*
 	-rm -f fred_calls_ted
 	-rm -fr test00*
+	-rm -fr *html*
 
 clean:
 	@$(MAKE) $(TARGETS)
