@@ -226,8 +226,8 @@ fprintf(stderr,"catch_signal %d\n",sig);
 inline static void
 setup_signal_handler (int s)
 {
-    // if (signal (s, SIG_IGN) != SIG_IGN)
-        // signal (s,  reinterpret_cast <void (*)(int)> (catch_signal));
+    if (signal (s, SIG_IGN) != SIG_IGN)
+        signal (s,  reinterpret_cast <void (*)(int)> (catch_signal));
 }
 
   int
