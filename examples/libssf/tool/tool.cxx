@@ -28,17 +28,17 @@ using namespace OpenSpeedShop::Framework;
 int main(int argc, char* argv[])
 {
     // Display usage information when necessary
-    if(argc < 2) {
+    if(argc < 3) {
         std::cout << "Usage: "
                   << ((argc > 0) ? argv[0] : "???")
-                  << " <a.out> <args>" << std::endl;
+                  << " <function> <a.out> <args>" << std::endl;
 	return 1;
     }
     
     // Build a command string from the passed arguments
     std::string command;
-    for(int i = 1; i < argc; ++i) {
-        if(i > 1)
+    for(int i = 2; i < argc; ++i) {
+        if(i > 2)
             command += " ";
         command += argv[i];
     }
@@ -46,51 +46,54 @@ int main(int argc, char* argv[])
     try {
 	
 	// Create and open an experiment
-	std::string name = std::string(argv[1]) + ".openss";
+	std::string name = std::string(argv[2]) + ".openss";
 	Experiment::create(name);
 	Experiment experiment(name);
 	
 	// Create a process for the command in the suspended state
 	Thread thread = experiment.createProcess(command);
+
+	// Find the requested function within this thread
+	Optional<Function> function = thread.getFunctionByName(argv[1]);
+	if(!function.hasValue())
+	    throw std::runtime_error("Cannot find function " + 
+				     std::string(argv[1]) +
+				     "() in this process.");
 	
-	// Create the example collector
+	// Create the example collector and set its parameter
 	Collector collector = experiment.createCollector("example");
+	collector.setParameterValue("function", function.getValue());
 	
 	// Attach this process to the collector and start collecting data
 	collector.attachThread(thread);
 	collector.startCollecting();
 	
-	// Resume the suspended threads
+	// Resume all threads and wait for them to terminate
 	experiment.getThreads().changeState(Thread::Running);
+	while(!experiment.getThreads().areAllState(Thread::Terminated))
+	    sleep(1);
 	
-	// Wait for all threads to terminate
-	while(!experiment.getThreads().areAllState(Thread::Terminated)) {
-	    sleep(5);
-
-	    // Show one metric value
-	    AddressRange range = AddressRange(0, 1000);
-	    TimeInterval interval =
-		TimeInterval(Time::TheBeginning(), Time::TheEnd());	
-	    double t;
-	    collector.getMetricValue("time", thread, range, interval, t);	
-	    std::cout << std::endl
-		  << "  Metric: time" << std::endl
-		      << "    Host: " << thread.getHost() << std::endl
-		      << "     PID: " << thread.getProcessId() << std::endl
-		      << "   Range: " << range << std::endl
-		      << "Interval: " << interval << std::endl
-		      << "        = " << t << std::endl
-		      << std::endl;	
-
-	}
-
+	// Evaluate the time metric for this function
+	double t;
+	collector.getMetricValue("time", thread,
+				 function.getValue().getAddressRange(),
+				 TimeInterval(Time::TheBeginning(),
+					      Time::TheEnd()),
+				 t);
+	
+	// Show the amount of time spent in this function
+	std::cout << std::endl
+		  << "Spent " << t << " seconds executing "
+		  << function.getValue().getName() << "()." << std::endl
+		  << std::endl;
+	
     }
     catch(const std::exception& error) {
 	std::cerr
 	    << std::endl
 	    << "Error: "
 	    << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-		"Unknown runtime error." : error.what())
+		"Unknown runtime error." : error.what()) << std::endl
 	    << std::endl;
 	return 1;
     }

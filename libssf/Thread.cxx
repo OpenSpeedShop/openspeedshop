@@ -334,19 +334,19 @@ Thread::getFunctions(const Time& time) const
     BEGIN_TRANSACTION(dm_database);
     validateEntry();
     dm_database->prepareStatement(
-	"SELECT AddressSpaces.id, Functions.id"
+	"SELECT Functions.id, AddressSpaces.id"
 	" FROM Functions JOIN AddressSpaces"
 	" ON Functions.linked_object = AddressSpaces.linked_object"
 	" WHERE AddressSpaces.thread = ?"
-	"   AND ? >= time_begin AND ? < time_end;"
+	"   AND ? >= AddressSpaces.time_begin AND ? < AddressSpaces.time_end;"
 	);
     dm_database->bindArgument(1, dm_entry);
     dm_database->bindArgument(2, time);
     dm_database->bindArgument(3, time);
     while(dm_database->executeStatement())
 	functions.push_back(Function(dm_database,
-				     dm_database->getResultAsInteger(2),
-				     dm_database->getResultAsInteger(1)));    
+				     dm_database->getResultAsInteger(1),
+				     dm_database->getResultAsInteger(2)));    
     END_TRANSACTION(dm_database);
 
     // Return the functions to the caller
@@ -546,6 +546,51 @@ Optional<Statement> Thread::getStatementAt(const Address& address,
 
     // Return the statement to the caller
     return statement;
+}
+
+
+
+/**
+ * Get a function by name.
+ *
+ * Returns the function with the passed query name at a particular moment in
+ * time. If the function cannot be found, the Optional returned will not have
+ * a value. If more than one function is found, the first function found is
+ * returned.
+ *
+ * @param name    Query name.
+ * @param time    Query time.
+ * @return        Optional function with the query name.
+ */
+Optional<Function> Thread::getFunctionByName(const std::string& name,
+					     const Time& time) const
+{
+    Optional<Function> function;
+
+    // Find the function and its context containing the query time
+    BEGIN_TRANSACTION(dm_database);
+    validateEntry();
+    dm_database->prepareStatement(
+	"SELECT Functions.id, AddressSpaces.id"
+	" FROM Functions JOIN AddressSpaces"
+	" ON Functions.linked_object = AddressSpaces.linked_object"
+	" WHERE AddressSpaces.thread = ?"
+	"   AND ? >= AddressSpaces.time_begin AND ? < AddressSpaces.time_end"
+	"   AND Functions.name = ?;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    dm_database->bindArgument(2, time);
+    dm_database->bindArgument(3, time);
+    dm_database->bindArgument(4, name);
+    while(dm_database->executeStatement())
+	if(!function.hasValue())
+	    function = Function(dm_database,
+				dm_database->getResultAsInteger(1),
+				dm_database->getResultAsInteger(2));    
+    END_TRANSACTION(dm_database);
+    
+    // Return the function to the caller
+    return function;
 }
 
 

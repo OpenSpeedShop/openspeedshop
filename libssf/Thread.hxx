@@ -131,6 +131,9 @@ namespace OpenSpeedShop { namespace Framework {
 	Optional<Statement> getStatementAt(
 	    const Address&, const Time& = Time::Now()) const;
 
+	Optional<Function> getFunctionByName(
+	    const std::string&, const Time& = Time::Now()) const;
+	
     private:
 
 	Thread();
