@@ -20,7 +20,7 @@ make doc
 #make doc
 cd ../collectors
 make doc
-cd ../libssf
+cd ../libopenss-framework
 make doc
 #cd ../Panels
 #make doc
