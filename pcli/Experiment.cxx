@@ -1033,7 +1033,6 @@ bool SS_expView (CommandObject *cmd) {
     return false;
   }
 
-
   Experiment *fw_experiment = exp->FW();
   if (exp->FW() == NULL) {
     cmd->Result_String ("The experiment has been disabled");
@@ -1049,7 +1048,7 @@ bool SS_expView (CommandObject *cmd) {
       usleep (10000);
     }
   }
-  
+
 
  // Pick up the <viewType> from the comand.
   Assert(cmd->P_Result() != NULL);
@@ -1514,8 +1513,8 @@ bool SS_History (CommandObject *cmd) {
   parse_val_t *f_val = Get_Simple_File_Name (cmd);
 
  // Default action with no arguments: Dump the history file.
-  R = Command_Trace (cmd, CMDW_TRACE_ORIGINAL_COMMANDS, WindowID,
-                     (f_val != NULL) ? f_val->name : std::string(""));
+  R = Command_History (cmd, CMDW_TRACE_ORIGINAL_COMMANDS, WindowID,
+                       (f_val != NULL) ? f_val->name : std::string(""));
 
   cmd->set_Status( R ? CMD_COMPLETE : CMD_ERROR);
   return R;
@@ -1596,9 +1595,9 @@ bool SS_Record (CommandObject *cmd) {
   parse_val_t *f_val = Get_Simple_File_Name (cmd);
 
   if (f_val == NULL) {
-   (void)Command_Trace_OFF (WindowID);
+   (void)Command_Record_OFF (WindowID);
   } else {
-    (void)Command_Trace_ON(WindowID, f_val->name);
+    (void)Command_Record_ON(WindowID, f_val->name);
   }
 
   cmd->set_Status(CMD_COMPLETE);
