@@ -22,9 +22,9 @@
 # All Rights Reserved.
 ################################################################################
 
-pkglib_LTLIBRARIES = pcSampleWizard.la
+pkglib_LTLIBRARIES = pcSampleWizardPanel.la
 
-pcSampleWizard_la_CXXFLAGS = \
+pcSampleWizardPanel_la_CXXFLAGS = \
     -I/usr/include \
     -I$(QTDIR)/include \
     -I. \
@@ -35,14 +35,14 @@ pcSampleWizard_la_CXXFLAGS = \
     -I../../../plugin \
     -I../../../base
 
-pcSampleWizard_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../../base/.libs/ftBase.so  -Wl,../../../objects/.libs/ftObjects.so -Wl,../../../ladDialog/.libs/ftladDialog.so 
+pcSampleWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../../base/.libs/ftBase.so  -Wl,../../../objects/.libs/ftObjects.so -Wl,../../../ladDialog/.libs/ftladDialog.so 
 
-pcSampleWizard_la_LIBADD = -L$(QTDIR)/lib -lqt
+pcSampleWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
 
-moc_pcSampleWizard.cxx: pcSampleWizard.hxx
-	-moc -o moc_pcSampleWizard.cxx pcSampleWizard.hxx
+moc_pcSampleWizardPanel.cxx: pcSampleWizardPanel.hxx
+	-moc -o moc_pcSampleWizardPanel.cxx pcSampleWizardPanel.hxx
 
-pcSampleWizard_la_SOURCES = \
-	pcSampleWizard.hxx pcSampleWizard.cxx moc_pcSampleWizard.cxx \
+pcSampleWizardPanel_la_SOURCES = \
+	pcSampleWizardPanel.hxx pcSampleWizardPanel.cxx moc_pcSampleWizardPanel.cxx \
 	plugin_entry_point.hxx Panel.hxx \
 	PanelContainer.hxx local_plugin_info.hxx debug.hxx
