@@ -56,21 +56,12 @@ void OpenSpeedshop::fileAttachNewProcess()
   topPC->notifyNearest((char *)lao);
 }
 
-
-void OpenSpeedshop::fileOpen()
+void OpenSpeedshop::fileSaveSession()
 {
-//  printf("fileOpen() entered\n");
+printf("OpenSpeedshop::fileSaveSession() entered\n");
 
-  QMessageBox::information( (QWidget *)NULL, tr("Info:"), tr("This feature currently under construction. - Unable to fulfill request."), QMessageBox::Ok );
-}
+  QMessageBox::information( (QWidget *)NULL, tr("Info:"), tr("This feature currently under construction."), QMessageBox::Ok );
 
-void OpenSpeedshop::fileSave()
-{
-//  printf("OpenSpeedshop::fileSave() entered\n");
-
-#ifndef DEMO
-  QMessageBox::information( (QWidget *)NULL, tr("Info:"), tr("This feature currently under construction. - Unable to fulfill request."), QMessageBox::Ok );
-#else // DEMO
   QString dirName = QString::null;
   if( sfd == NULL )
   {
@@ -107,12 +98,40 @@ void OpenSpeedshop::fileSave()
   }
 
 //  printf("go and save the setup...\n");
-  ((PanelContainer *)topPC)->savePanelContainerTree(fn);
   if( !fileName.isEmpty() )
   {
+    ((PanelContainer *)topPC)->savePanelContainerTree(fn);
     free(fn);
   }
-#endif // DEMO
+}
+
+
+void OpenSpeedshop::fileOpenExperiment()
+{
+  printf("OpenSpeedshop::fileOpenExperiment() entered\n");
+  printf("  Get a list of all the experiment files in the current directory\n");
+  printf("  and in the environment variable >INSERTONEHERE<.   Then create\n");
+  printf("  a dynamice menu with the list...    \n\n");
+  printf("  When the list is selected, examine it for the type, then bring\n");
+  printf("  up the associated experiment.    It would be nice, if the save\n");
+  printf("  session information could be read to bring that experiment up\n");
+  printf("  with the same layout as what it was left in during the prior\n");
+  printf("  save.\n");
+
+  QMessageBox::information( (QWidget *)NULL, tr("Info:"), tr("This feature currently under construction. - Unable to fulfill request."), QMessageBox::Ok );
+}
+
+void OpenSpeedshop::fileSaveExperiment()
+{
+  printf("OpenSpeedshop::fileSaveExperiment() entered\n");
+  printf("  Get a list of all the current experiments openned.  Present\n");
+  printf("  list to the user so they can chose to have the experiment data\n");
+  printf("  saved away to a file.\n\n");
+  printf("  Additionally, at this point, it might be nice to prompt the\n");
+  printf("  user to save the session (window layout) information away as\n");
+  printf("  well.\n");
+
+  QMessageBox::information( (QWidget *)NULL, tr("Info:"), tr("This feature currently under construction. - Unable to fulfill request."), QMessageBox::Ok );
 }
 
 void OpenSpeedshop::fileExit()
@@ -136,39 +155,6 @@ void OpenSpeedshop::fileExit()
  dprintf("fileExit() called pthread_exit.\n");
 }
 
-#ifdef EVENTUALLY
-void OpenSpeedshop::editUndo()
-{
-// printf("editUndo() entered.\n");
-
-}
-
-void OpenSpeedshop::editRedo()
-{
-// printf("editRedo() entered.\n");
-
-}
-
-void OpenSpeedshop::editCut()
-{
-// printf("editCut() entered.\n");
-
-}
-
-void OpenSpeedshop::editPaste()
-{
-// printf("editPaste() entered.\n");
-
-}
-
-void OpenSpeedshop::editFind()
-{
-// printf("editFind() entered.\n");
-
-
-}
-#endif // EVENTUALLY
-
 void OpenSpeedshop::helpIndex()
 {
 // printf("helpIndex() entered.\n");
@@ -181,7 +167,7 @@ void OpenSpeedshop::helpContents()
  char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
 
  QString base_dir(plugin_directory);
- QString relative_dir("/../../../doc");
+ QString relative_dir("/../../../OpenSpeedShop/current/doc");
  
  QString docsPath = QDir(base_dir+relative_dir).absPath();
  assistant->showPage( QString("%1/index.html").arg(docsPath) );

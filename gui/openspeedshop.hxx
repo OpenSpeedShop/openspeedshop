@@ -45,24 +45,14 @@ class OpenSpeedshop : public QMainWindow
     QPopupMenu *fileMenu;
     QPopupMenu *editMenu;
     QPopupMenu *helpMenu;
-#ifdef MOVE_FILE_ATTACH_ACTIONS
+
     QAction* fileLoadNewAction;
     QAction* fileAttachNewProcessAction;
-#endif // MOVE_FILE_ATTACH_ACTIONS
-    QAction* fileOpenAction;
-    QAction* fileSaveAction;
-#ifdef EVENTUALLY
-    QAction* fileSaveAsAction;
-#endif // EVENTUALLY
+
+    QAction* fileOpenExperimentAction;
+    QAction* fileSaveExperimentAction;
+    QAction* fileSaveSessionAction;
     QAction* fileExitAction;
-#ifdef EVENTUALLY
-    QAction* editUndoAction;
-    QAction* editRedoAction;
-    QAction* editCutAction;
-    QAction* editCopyAction;
-    QAction* editPasteAction;
-    QAction* editFindAction;
-#endif // EVENTUALLY
     QAction* helpContentsAction;
     QAction* helpIndexAction;
     QAction* helpAboutAction;
@@ -102,19 +92,13 @@ class OpenSpeedshop : public QMainWindow
     //! print out some internal debug information about this class.
     void print();
 
-#ifdef EVENTUALLY // Move back to 'public slots:' if needed.
-    virtual void editUndo();
-    virtual void editRedo();
-    virtual void editCut();
-    virtual void editPaste();
-    virtual void editFind();
-    virtual void fileSaveAs();
-#endif // EVENTUALLY
+
+    void fileLoadNewProgram();
+    void fileAttachNewProcess();
   public slots:
-    virtual void fileLoadNewProgram();
-    virtual void fileAttachNewProcess();
-    virtual void fileOpen();
-    virtual void fileSave();
+    virtual void fileOpenExperiment();
+    virtual void fileSaveExperiment();
+    virtual void fileSaveSession();
     virtual void fileExit();
     virtual void helpIndex();
     virtual void helpContents();
