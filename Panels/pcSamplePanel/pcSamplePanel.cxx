@@ -140,13 +140,17 @@ if( expID == -1 )
   }
   bool mark_value_for_delete = true;
   int64_t val = 0;
+printf("Attempting to do an (%s)\n", command );
+// For the demo only.... override this... 
+sprintf(command, "expCreate\n");
+
   if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete) )
   {
     fprintf(stderr, "Error retreiving experiment id. \n");
     return;
   }
-
   expID = val;
+
 //  fprintf(stdout, "A: MY VALUE! = (%d)\n", val);
 }
 
