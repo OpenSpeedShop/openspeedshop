@@ -30,10 +30,11 @@ posscli_la_LDFLAGS = \
 	--export-dynamic \
 	-module \
 	-avoid-version \
+	-L../libopenss-framework \
 	-Wl,/perftools/ROOT/lib/libpython2.3.so \
 	-lpthread -lutil -LANG:std -ldl
 
-posscli_la_LIBADD = $(LIBLTDL)
+posscli_la_LIBADD = $(LIBLTDL) -lopenss-framework
 
 LEXWOFF =
 YFLAGS = -d
