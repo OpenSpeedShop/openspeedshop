@@ -247,5 +247,3 @@ class RLI_InputLineObject : public InputLineObject
     InputLineObject (From, Cmd)
     { }
 };
-
-void Link_Cmd_Obj_to_Input (InputLineObject *I, CommandObject *C);
