@@ -30,15 +30,15 @@ SUBDIRS = . \
 	libltdl \
 	libopenss-framework \
 	plugins \
-	examples \
 	openspeedshop \
+	pcli \
+	examples \
 	base \
 	objects \
 	dialogs \
 	expr_info \
 	plugin \
 	chart \
-	pcli \
 	gui \
 	Panels \
 	usability
