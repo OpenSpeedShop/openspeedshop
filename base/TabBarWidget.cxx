@@ -14,7 +14,7 @@ TabBarWidget::TabBarWidget( )
 {
   fprintf(stderr, "TabBarWidget::TabBarWidget() should not be called.\n");
   fprintf(stderr, "see: TabBarWidget::TabBarWidget( PanelContainer *pc, QWidget *parent, const char *n );\n");
-  panelContainer = NULL;
+  setPanelContainer(NULL);
 }
 
 /*! Work constructor.   Set's the name of the frame, the pointer to the
@@ -25,7 +25,7 @@ TabBarWidget::TabBarWidget( PanelContainer *pc, QWidget *parent, const char *n )
 {
   nprintf(DEBUG_PANELCONTAINERS) ("TabBarWidget constructor called.\n");
 
-  panelContainer = pc;
+  setPanelContainer(pc);
 
   languageChange();
 }
@@ -46,12 +46,12 @@ void TabBarWidget::mousePressEvent(QMouseEvent *e)
   nprintf(DEBUG_PANELCONTAINERS) ("TabBarWidget::mousePressEvent()\n");
 
   nprintf(DEBUG_PANELCONTAINERS) ("e->pos().x()=%d e->pos().y()=%d\n", e->pos().x(), e->pos().y() );
-  if( panelContainer == NULL )
+  if( getPanelContainer() == NULL )
   {
     return;
   }
  
-  nprintf(DEBUG_PANELCONTAINERS) ("  pc=(%s)(%s)\n", panelContainer->internal_name, panelContainer->external_name );
+  nprintf(DEBUG_PANELCONTAINERS) ("  pc=(%s)(%s)\n", getPanelContainer()->internal_name, getPanelContainer()->external_name );
 
   QTab *selectedTab = NULL;
   selectedTab = QTabBar::selectTab( e->pos() );
@@ -68,13 +68,13 @@ void TabBarWidget::mousePressEvent(QMouseEvent *e)
     {
       nprintf(DEBUG_PANELCONTAINERS) ("RightButton!\n");
       nprintf(DEBUG_PANELCONTAINERS) ("TabBarWidget() call the menu....\n");
-      panelContainer->panelContainerContextMenuEvent( panelContainer, TRUE );
+      getPanelContainer()->panelContainerContextMenuEvent( getPanelContainer(), TRUE );
       return;
     }
     if( e->button() == LeftButton )
     {
       nprintf(DEBUG_PANELCONTAINERS) ("LeftButton!\n");
-      panelContainer->dragRaisedPanel();
+      getPanelContainer()->dragRaisedPanel();
     }
   }
 

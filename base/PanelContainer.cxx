@@ -2120,7 +2120,7 @@ PanelContainer::movePanelsToNewPanelContainer( PanelContainer *sourcePC)
       targetPC->tabWidget->addTab( currentPage, p->getName() );
       {
       TabBarWidget *tbw = (TabBarWidget *)targetPC->tabWidget->tabBar();
-      tbw->panelContainer = targetPC;
+      tbw->setPanelContainer(targetPC);
       }
       targetPC->panelList.push_back(p);
       p->getBaseWidgetFrame()->show();

@@ -254,7 +254,7 @@ targetPC->tabWidget->setTabBar(targetPC->tabBarWidget);
   p->getBaseWidgetFrame()->setPanelContainer(targetPC);
 
   // Set the TabBarWidget to the new panel container.
-  p->getBaseWidgetFrame()->getPanelContainer()->tabBarWidget->panelContainer = targetPC;
+  p->getBaseWidgetFrame()->getPanelContainer()->tabBarWidget->setPanelContainer(targetPC);
   
   // Reparent the tabWidget.
   currentPage->reparent(p->getPanelContainer()->tabWidget, 0, point, TRUE);

@@ -20,9 +20,11 @@ class TabBarWidget : public QTabBar
     //! The default destructor.
     ~TabBarWidget( );
 
-    //! A pointer to the parent panelContainer.
-    PanelContainer *panelContainer;
+    //! Function to return the panelContainer pointer.
+    PanelContainer *getPanelContainer() { return _panelContainer; };
 
+    //! Function to set the panelContainer pointer.
+    void setPanelContainer(PanelContainer *pc)  { _panelContainer = pc; }
   protected slots:
     //! The standard Qt slot to change language information.
     virtual void languageChange();
@@ -30,5 +32,8 @@ class TabBarWidget : public QTabBar
   private:
     //! Fields the mousePressEvent for drag and drop.
     void mousePressEvent(QMouseEvent *e=NULL);
+
+    //! A pointer to the parent panelContainer.
+    PanelContainer *_panelContainer;
 };
 #endif // TABBARWIDGET_H
