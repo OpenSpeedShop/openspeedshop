@@ -5,7 +5,7 @@ then
   echo "For oss developers that's usually .../GUI/plugin/lib/openspeedshop"
   echo "- or -"
   echo "export OPENSPEEDSHOP_INSTALL_DIR=$OPENSPEEDSHOP_PLUGIN_PATH/../.."
-  if [ "$OPENSPEEDSHOP_PLUGIN_PATH" = "" ]
+  if [ "$OPENSPEEDSHOP_PLUGIN_PATH" != "" ]
   then
     export OPENSPEEDSHOP_INSTALL_DIR=$OPENSPEEDSHOP_PLUGIN_PATH/../..;
     echo "WARNING: Defaulting to developers location..."
