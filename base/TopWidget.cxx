@@ -36,7 +36,7 @@ TopWidget::closeEvent( QCloseEvent *e )
 {
   nprintf(DEBUG_PANELCONTAINERS) ("TopWidget::closeEvent() entered.\n");
 
-  panelContainer->_masterPC->removePanelContainer(panelContainer);
+  panelContainer->getMasterPC()->removePanelContainer(panelContainer);
 
 #ifdef ABORTS
   // Peel off

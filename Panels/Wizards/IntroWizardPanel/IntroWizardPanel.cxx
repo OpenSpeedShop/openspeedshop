@@ -403,7 +403,7 @@ void IntroWizardPanel::epage1NextButtonSelected()
     p = getPanelContainer()->raiseNamedPanel("pc Sample Wizard");
     if( !p )
     {
-      getPanelContainer()->_masterPC->dl_create_and_add_panel("pc Sample Wizard", getPanelContainer());
+      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("pc Sample Wizard", getPanelContainer());
     }
   }
   if( epage1UserTimeRB->isOn() )
@@ -411,7 +411,7 @@ void IntroWizardPanel::epage1NextButtonSelected()
     p = getPanelContainer()->raiseNamedPanel("User Time Wizard");
     if( !p )
     {
-      getPanelContainer()->_masterPC->dl_create_and_add_panel("User Time Wizard", getPanelContainer());
+      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("User Time Wizard", getPanelContainer());
     }
   }
   if( epage1HardwareCounterRB->isOn() )
@@ -419,7 +419,7 @@ void IntroWizardPanel::epage1NextButtonSelected()
     p = getPanelContainer()->raiseNamedPanel("HW Counter Wizard");
     if( !p )
     {
-      getPanelContainer()->_masterPC->dl_create_and_add_panel("HW Counter Wizard", getPanelContainer());
+      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("HW Counter Wizard", getPanelContainer());
     }
   }
   if( epage1FloatingPointRB->isOn() )
@@ -427,7 +427,7 @@ void IntroWizardPanel::epage1NextButtonSelected()
     p = getPanelContainer()->raiseNamedPanel("FPE Tracing Wizard");
     if( !p )
     {
-      getPanelContainer()->_masterPC->dl_create_and_add_panel("FPE Tracing Wizard", getPanelContainer());
+      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("FPE Tracing Wizard", getPanelContainer());
     }
   }
   if( epage1InputOutputRB->isOn() )
@@ -435,7 +435,7 @@ void IntroWizardPanel::epage1NextButtonSelected()
     p = getPanelContainer()->raiseNamedPanel("IO Wizard");
     if( !p )
     {
-      getPanelContainer()->_masterPC->dl_create_and_add_panel("IO Wizard", getPanelContainer());
+      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("IO Wizard", getPanelContainer());
     }
   }
 }
@@ -465,7 +465,7 @@ void IntroWizardPanel::vpage1NextButtonSelected()
     p = getPanelContainer()->raiseNamedPanel("pc Sample Wizard");
     if( !p )
     {
-      getPanelContainer()->_masterPC->dl_create_and_add_panel("pc Sample Wizard", getPanelContainer());
+      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("pc Sample Wizard", getPanelContainer());
     }
   }
   if( vpage1UserTimeRB->isOn() )
@@ -473,7 +473,7 @@ void IntroWizardPanel::vpage1NextButtonSelected()
     p = getPanelContainer()->raiseNamedPanel("User Time Wizard");
     if( !p )
     {
-      getPanelContainer()->_masterPC->dl_create_and_add_panel("User Time Wizard", getPanelContainer());
+      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("User Time Wizard", getPanelContainer());
     }
   }
   if( vpage1HardwareCounterRB->isOn() )
@@ -481,7 +481,7 @@ void IntroWizardPanel::vpage1NextButtonSelected()
     p = getPanelContainer()->raiseNamedPanel("HW Counter Wizard");
     if( !p )
     {
-      getPanelContainer()->_masterPC->dl_create_and_add_panel("HW Counter Wizard", getPanelContainer());
+      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("HW Counter Wizard", getPanelContainer());
     }
   }
   if( vpage1FloatingPointRB->isOn() )
@@ -489,7 +489,7 @@ void IntroWizardPanel::vpage1NextButtonSelected()
     p = getPanelContainer()->raiseNamedPanel("FPE Tracing Wizard");
     if( !p )
     {
-      getPanelContainer()->_masterPC->dl_create_and_add_panel("FPE Tracing Wizard", getPanelContainer());
+      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("FPE Tracing Wizard", getPanelContainer());
     }
   }
   if( vpage1InputOutputRB->isOn() )
@@ -497,7 +497,7 @@ void IntroWizardPanel::vpage1NextButtonSelected()
     p = getPanelContainer()->raiseNamedPanel("IO Wizard");
     if( !p )
     {
-      getPanelContainer()->_masterPC->dl_create_and_add_panel("IO Wizard", getPanelContainer());
+      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("IO Wizard", getPanelContainer());
     }
   }
 }

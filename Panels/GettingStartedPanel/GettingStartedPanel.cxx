@@ -41,7 +41,7 @@ GettingStartedPanel::experimentListSlot( )
 {
   printf("GettingStartedPanel::experimentListSlot() entered.\n");
 
-  panelContainer->_masterPC->dl_create_and_add_panel("Performance");
-  panelContainer->_masterPC->dl_create_and_add_panel("Top Five Panel");
-  panelContainer->_masterPC->dl_create_and_add_panel("Command Panel");
+  panelContainer->getMasterPC()->dl_create_and_add_panel("Performance");
+  panelContainer->getMasterPC()->dl_create_and_add_panel("Top Five Panel");
+  panelContainer->getMasterPC()->dl_create_and_add_panel("Command Panel");
 }

@@ -47,12 +47,11 @@ class PanelContainer : public QWidget
     //! Q_OBJECT is needed as there are slots defined for the Panel Class
     Q_OBJECT
   public:
-    //! A pointer to the top PanelContainer.
-    /*! The master PanelContainer is the root of all panel containers.
-        It is created first and deleted last.   All major actions such as 
-        disabling events, delete or removing other PanelContainers are to 
-        be done by the master.   */
-    PanelContainer *_masterPC;
+    //! This routine returns the master PanelContainer.
+    PanelContainer *getMasterPC() { return _masterPC; }
+
+    //! This routine sets the master PanelContainer.
+    void setMasterPC(PanelContainer *pc) { _masterPC = pc; }
 
     //! A list of all PanelContainers
     PanelContainerList *_masterPanelContainerList;
@@ -61,10 +60,10 @@ class PanelContainer : public QWidget
     bool _eventsEnabled;
     bool _resizeEventsEnabled;
 
-QTimer *popupTimer;
-QTimer *sleepTimer;
-WhatsThis *whatsThis;
-bool whatsThisActive;
+    QTimer *popupTimer;
+    QTimer *sleepTimer;
+    WhatsThis *whatsThis;
+    bool whatsThisActive;
 
     //! This is the registry of all known gui plugins.
     /*! At runtime this registry is created by doing dlopens on all the
@@ -272,6 +271,13 @@ QPopupMenu *contextMenu;
     virtual void languageChange();
   
   private:
+    //! A pointer to the top PanelContainer.
+    /*! The master PanelContainer is the root of all panel containers.
+        It is created first and deleted last.   All major actions such as 
+        disabling events, delete or removing other PanelContainers are to 
+        be done by the master.   */
+    PanelContainer *_masterPC;
+
     //! The number of panel containers that have been created.
     /*! This is used to generate the internal panel container name. */
     int _panel_container_count;

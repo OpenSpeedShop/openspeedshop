@@ -114,7 +114,7 @@ PanelContainer::PanelContainer( QWidget* _parent, const char* n, PanelContainer 
   { // This is the very first panel container...   The very first time in here.
     nprintf(DEBUG_PANELCONTAINERS) ("This is the first PC created.   set the count == 0 \n");
     _doingMenuFLAG = FALSE;
-    _masterPC = this;
+    setMasterPC( this );
     _pluginRegistryList = NULL;
     _panel_container_count = 0;
     _eventsEnabled = TRUE;
@@ -128,16 +128,16 @@ PanelContainer::PanelContainer( QWidget* _parent, const char* n, PanelContainer 
   {
     if( _parentPanelContainer )
     {
-      _masterPC = _parentPanelContainer->_masterPC;
+      setMasterPC( _parentPanelContainer->getMasterPC() );
     } else
     {
       PanelContainerList::Iterator it = pcl->begin();
-      _masterPC = (PanelContainer *)*it;
+      setMasterPC( (PanelContainer *)*it );
     }
   }
 
   pc_rename_count = 0;
-  sprintf(pc_name_count, "pc:%d", _masterPC->_panel_container_count);
+  sprintf(pc_name_count, "pc:%d", getMasterPC()->_panel_container_count);
   internal_name = strdup(pc_name_count);
   external_name = strdup(n);
 
@@ -163,7 +163,7 @@ PanelContainer::PanelContainer( QWidget* _parent, const char* n, PanelContainer 
   tabWidget = NULL;
   tabBarWidget = NULL;
 
-  if( _masterPC->_panel_container_count == 0 )
+  if( getMasterPC()->_panel_container_count == 0 )
   {
     // Make sure the panelContainerList interator list is empty.
     nprintf(DEBUG_PANELCONTAINERS) ("MAKE SURE _masterPanelContainerList empty!!!!\n");
@@ -240,7 +240,7 @@ PanelContainer::PanelContainer( QWidget* _parent, const char* n, PanelContainer 
 
   // signals and slots connections
 
-  _masterPC->_panel_container_count++;
+  getMasterPC()->_panel_container_count++;
 }
 
 /*! Currently those allocated resources are:
@@ -674,7 +674,7 @@ PanelContainer::findInternalNamedPanelContainer(char *panel_container_name)
   // Didn't find the named panel container.   Try to find an empty panel
   // container to put this..
   
-  pc = findFirstEmptyPanelContainer(_masterPC);
+  pc = findFirstEmptyPanelContainer(getMasterPC());
   nprintf(DEBUG_PANELCONTAINERS) ("findInternalNamedPanelContainer(%s) says drop it in %s instead.\n",
     panel_container_name, pc->getInternalName() );
 
@@ -690,12 +690,12 @@ PanelContainer::findBestFitPanelContainer(PanelContainer *start_pc)
   PanelContainer *pc = start_pc;
   if( pc == NULL )
   {
-    pc = _masterPC;
+    pc = getMasterPC();
   }
 
   if( start_pc == NULL )
   {
-    start_pc = _masterPC;
+    start_pc = getMasterPC();
   }
 
   nprintf(DEBUG_PANELCONTAINERS) ("findBestFitPanelContainer() from %s %s\n", start_pc->getInternalName(), start_pc->getExternalName() );
@@ -1282,8 +1282,8 @@ PanelContainer::removeTopLevelPanelContainer(PanelContainer *toppc, bool recursi
   nprintf(DEBUG_PANELCONTAINERS) ("Here is the panel container to delete (%s-%s):\n", toppc->getInternalName(), toppc->getExternalName() );
 
 
-  bool savedResizeEnableState = _masterPC->_resizeEventsEnabled;
-  _masterPC->_resizeEventsEnabled = FALSE;
+  bool savedResizeEnableState = getMasterPC()->_resizeEventsEnabled;
+  getMasterPC()->_resizeEventsEnabled = FALSE;
 
   // For each panel in the panel container, check for top levels inside of them.
   // If there are any toplevel panels, recursively call this routine, removing
@@ -1341,7 +1341,7 @@ PanelContainer::removeTopLevelPanelContainer(PanelContainer *toppc, bool recursi
           p->getName(),
           p->getPanelContainer()->getInternalName(),
           p->getPanelContainer()->getExternalName() );
-        _masterPC->removePanels(p->getPanelContainer());
+        getMasterPC()->removePanels(p->getPanelContainer());
       }
     }
   } else
@@ -1352,7 +1352,7 @@ PanelContainer::removeTopLevelPanelContainer(PanelContainer *toppc, bool recursi
         toppc->rightPanelContainer->getInternalName(),
         toppc->rightPanelContainer->getExternalName() );
   
-      _masterPC->removeTopLevelPanelContainer(toppc->rightPanelContainer, TRUE);
+      getMasterPC()->removeTopLevelPanelContainer(toppc->rightPanelContainer, TRUE);
     } 
   
     if( toppc->leftPanelContainer )
@@ -1361,11 +1361,11 @@ PanelContainer::removeTopLevelPanelContainer(PanelContainer *toppc, bool recursi
         toppc->leftPanelContainer->getInternalName(),
         toppc->leftPanelContainer->getExternalName() );
   
-      _masterPC->removeTopLevelPanelContainer(toppc->leftPanelContainer, TRUE);
+      getMasterPC()->removeTopLevelPanelContainer(toppc->leftPanelContainer, TRUE);
     }
   }
 
-  _masterPC->_masterPanelContainerList->remove(toppc);
+  getMasterPC()->_masterPanelContainerList->remove(toppc);
   toppc->panelList.clear(); // You should have already deleted these panels.
   toppc->leftPanelContainer = NULL;
   toppc->rightPanelContainer = NULL;
@@ -1374,7 +1374,7 @@ PanelContainer::removeTopLevelPanelContainer(PanelContainer *toppc, bool recursi
  
   delete toppc;
 
-  _masterPC->_resizeEventsEnabled = savedResizeEnableState;
+  getMasterPC()->_resizeEventsEnabled = savedResizeEnableState;
 
   return;
 }
@@ -1386,7 +1386,7 @@ PanelContainer::removeRaisedPanel(PanelContainer *targetPC)
 //   nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::removeRaisedPanel from (%s-%s) entered.\n", getInternalName(), getExternalName() );
   if( targetPC == NULL )
   {
-    targetPC = _masterPC->_lastPC;
+    targetPC = getMasterPC()->_lastPC;
   } 
   nprintf(DEBUG_PANELCONTAINERS) ("targetPC = (%s-%s)\n", targetPC->getInternalName(), targetPC->getExternalName() );
 
@@ -1443,12 +1443,12 @@ PanelContainer::removePanels(PanelContainer *targetPC)
 //   nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::removePanels (%s-%s)\n", getInternalName(), getExternalName() );
   if( targetPC == NULL )
   {
-    targetPC = _masterPC->_lastPC;
+    targetPC = getMasterPC()->_lastPC;
   }
   nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::removePanels from (%s-%s)\n", targetPC->getInternalName(), targetPC->getExternalName() );
  
-  bool savedEnableState = _masterPC->_eventsEnabled;
-  _masterPC->_eventsEnabled = FALSE;
+  bool savedEnableState = getMasterPC()->_eventsEnabled;
+  getMasterPC()->_eventsEnabled = FALSE;
 
   if( targetPC->tabWidget != NULL )
   {
@@ -1463,10 +1463,10 @@ PanelContainer::removePanels(PanelContainer *targetPC)
       QString tab_label =  targetPC->tabWidget->tabLabel(w);
       nprintf(DEBUG_PANELCONTAINERS) ("removePanels() deleting tab[%d] (%s)\n", 0, tab_label.ascii() );
       
-      _masterPC->removeRaisedPanel(targetPC);
+      getMasterPC()->removeRaisedPanel(targetPC);
     }
   }
-  _masterPC->_eventsEnabled = savedEnableState;
+  getMasterPC()->_eventsEnabled = savedEnableState;
 }
 
 /*! Remove a PanelContainer.  It will delete any Panels 
@@ -1486,15 +1486,15 @@ PanelContainer::removePanelContainer(PanelContainer *targetPC)
 {
   if( targetPC == NULL )
   {
-    targetPC = _masterPC->_lastPC;
+    targetPC = getMasterPC()->_lastPC;
   }
 
-  bool savedEnableState = _masterPC->_eventsEnabled;
-  _masterPC->_eventsEnabled = FALSE;
-  bool savedResizeEnableState = _masterPC->_resizeEventsEnabled;
-  _masterPC->_resizeEventsEnabled = FALSE;
+  bool savedEnableState = getMasterPC()->_eventsEnabled;
+  getMasterPC()->_eventsEnabled = FALSE;
+  bool savedResizeEnableState = getMasterPC()->_resizeEventsEnabled;
+  getMasterPC()->_resizeEventsEnabled = FALSE;
 
-  if( this != this->_masterPC )
+  if( this != this->getMasterPC() )
   {
     fprintf(stderr, "Warning: You should only be here when this is the master panel container.\n");
   }
@@ -1512,7 +1512,7 @@ PanelContainer::removePanelContainer(PanelContainer *targetPC)
   // First remove any panels in the panel container.
   if( targetPC->areTherePanels() )
   {
-    _masterPC->removePanels(targetPC);
+    getMasterPC()->removePanels(targetPC);
   }
 
   // If this is the master, be a bit more careful removing it.
@@ -1521,8 +1521,8 @@ PanelContainer::removePanelContainer(PanelContainer *targetPC)
   {
     if( strcmp(targetPC->getInternalName(), "pc:0") == 0 )
     {
-      _masterPC->_eventsEnabled = savedEnableState;
-      _masterPC->_resizeEventsEnabled = savedResizeEnableState;
+      getMasterPC()->_eventsEnabled = savedEnableState;
+      getMasterPC()->_resizeEventsEnabled = savedResizeEnableState;
       return;
     } else
     {
@@ -1531,11 +1531,11 @@ PanelContainer::removePanelContainer(PanelContainer *targetPC)
 // Performance
 // Delete PC with Performance
 //      nprintf(DEBUG_PANELCONTAINERS) ("We have another type of top level!  We need an explicit delete for this one.\n");
-//      _masterPC->removeTopLevelPanelContainer(targetPC, TRUE);
+//      getMasterPC()->removeTopLevelPanelContainer(targetPC, TRUE);
 #endif // CAUSE_ABORT_WITH
     }
-    _masterPC->_eventsEnabled = savedEnableState;
-    _masterPC->_resizeEventsEnabled = savedResizeEnableState;
+    getMasterPC()->_eventsEnabled = savedEnableState;
+    getMasterPC()->_resizeEventsEnabled = savedResizeEnableState;
     return;
   }
 
@@ -1559,7 +1559,7 @@ PanelContainer::removePanelContainer(PanelContainer *targetPC)
   } else
   {
     fprintf(stderr, "Warning: Unexpected error removing panel\n");
-    _masterPC->_eventsEnabled = savedEnableState;
+    getMasterPC()->_eventsEnabled = savedEnableState;
     return;
   }
   Orientation orientation = pcToReparent->splitter->orientation();
@@ -1585,7 +1585,7 @@ PanelContainer::removePanelContainer(PanelContainer *targetPC)
   pcToReparent->dropSiteLayoutParent->hide();
   // End I'm confused why I need to do this...
 
-  _masterPC->_resizeEventsEnabled = savedResizeEnableState;
+  getMasterPC()->_resizeEventsEnabled = savedResizeEnableState;
 
   if( pcToReparent->leftPanelContainer &&
       pcToReparent->rightPanelContainer )
@@ -1874,7 +1874,7 @@ PanelContainer::removePanelContainer(PanelContainer *targetPC)
   }
 
   nprintf(DEBUG_PANELCONTAINERS) ("returning from removePanelContainer...\n");
-  _masterPC->_eventsEnabled = savedEnableState;
+  getMasterPC()->_eventsEnabled = savedEnableState;
   return;
 }
 
@@ -1884,12 +1884,12 @@ PanelContainer::closeWindow(PanelContainer *targetPC)
 {
   if( targetPC == NULL )
   {
-    targetPC = _masterPC->_lastPC;
+    targetPC = getMasterPC()->_lastPC;
   }
 
   nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::closeWindow (%s-%s)\n", targetPC->getInternalName(), targetPC->getExternalName() );
 
-  targetPC->_masterPC->removePanelContainer(targetPC);
+  targetPC->getMasterPC()->removePanelContainer(targetPC);
 
   targetPC->parent->hide();
   delete targetPC;
@@ -2000,11 +2000,11 @@ PanelContainer::setExternalName( const char *n )
 Panel *
 PanelContainer::dl_create_and_add_panel(char *panel_type, PanelContainer *targetPC)
 {
-  if( _masterPC && _masterPC->_pluginRegistryList )
+  if( getMasterPC() && getMasterPC()->_pluginRegistryList )
   {
     PluginInfo *pi = NULL;
-    for( PluginRegistryList::Iterator it = _masterPC->_pluginRegistryList->begin();
-         it != _masterPC->_pluginRegistryList->end();
+    for( PluginRegistryList::Iterator it = getMasterPC()->_pluginRegistryList->begin();
+         it != getMasterPC()->_pluginRegistryList->end();
          it++ )
     {
       pi = (PluginInfo *)*it;
@@ -2259,7 +2259,7 @@ void
 PanelContainer::debugPanelContainerTree()
 {
   printf("here's the tree.\n");
-  _masterPC->traversePanelContainerTree();
+  getMasterPC()->traversePanelContainerTree();
 }
 
 /*! Dump out all the widget information for the entire application. */
@@ -2292,7 +2292,7 @@ PanelContainer::panelContainerContextMenuEvent( PanelContainer *targetPC, bool l
 {
   nprintf(DEBUG_PANELCONTAINERS) ("A: PanelContainer::panelContainerContextMenuEvent(%s-%s) targetPC=(%s-%s)\n", getInternalName(), getExternalName(), targetPC->getInternalName(), targetPC->getExternalName() );
 
-   _masterPC->_lastPC = targetPC;
+   getMasterPC()->_lastPC = targetPC;
 
   // One more check...  NOTE: This should be cleaned up as well.
   if( targetPC->leftPanelContainer && targetPC->rightPanelContainer )
@@ -2303,56 +2303,56 @@ PanelContainer::panelContainerContextMenuEvent( PanelContainer *targetPC, bool l
 
   nprintf(DEBUG_PANELCONTAINERS) ("\n\n\nPanelContainer::contextMenuEvent() acting on it!\n");
 
-  _masterPC->pcMenu = new QPopupMenu( this );
+  getMasterPC()->pcMenu = new QPopupMenu( this );
   {
   char n[1024]; strcpy(n,"pcMenu:");strcat(n, internal_name);strcat(n,"-");strcat(n,external_name);
-  _masterPC->pcMenu->setCaption(n);
+  getMasterPC()->pcMenu->setCaption(n);
   }
 
-  Q_CHECK_PTR( _masterPC->pcMenu );
-  _masterPC->pcMenu->insertItem( "Remove Raised &Panel", targetPC->_masterPC, SLOT(removeRaisedPanel()), CTRL+Key_P );
-  _masterPC->pcMenu->insertItem( "Split &Horizontal",  targetPC, SLOT(splitHorizontal()), CTRL+Key_H );
-  _masterPC->pcMenu->insertItem( "Split &Vertical", targetPC, SLOT(splitVertical()), CTRL+Key_V );
-  _masterPC->pcMenu->insertItem( "&Remove Container", targetPC->_masterPC, SLOT(removePanelContainer()), CTRL+Key_R );
+  Q_CHECK_PTR( getMasterPC()->pcMenu );
+  getMasterPC()->pcMenu->insertItem( "Remove Raised &Panel", targetPC->getMasterPC(), SLOT(removeRaisedPanel()), CTRL+Key_P );
+  getMasterPC()->pcMenu->insertItem( "Split &Horizontal",  targetPC, SLOT(splitHorizontal()), CTRL+Key_H );
+  getMasterPC()->pcMenu->insertItem( "Split &Vertical", targetPC, SLOT(splitVertical()), CTRL+Key_V );
+  getMasterPC()->pcMenu->insertItem( "&Remove Container", targetPC->getMasterPC(), SLOT(removePanelContainer()), CTRL+Key_R );
 
-  _masterPC->contextMenu = NULL;
+  getMasterPC()->contextMenu = NULL;
   if( localMenu == TRUE )
   {
-    _masterPC->contextMenu = new QPopupMenu( this );
+    getMasterPC()->contextMenu = new QPopupMenu( this );
     {
     char n[1024]; strcpy(n,"contextMenu:A:");strcat(n, internal_name);strcat(n,"-");strcat(n,external_name);
-//    _masterPC->pcMenu->setCaption(n);
-    _masterPC->contextMenu->setCaption(n);
+//    getMasterPC()->pcMenu->setCaption(n);
+    getMasterPC()->contextMenu->setCaption(n);
     }
-    _masterPC->contextMenu->insertItem("&Panel Container Menu", _masterPC->pcMenu, CTRL+Key_P );
+    getMasterPC()->contextMenu->insertItem("&Panel Container Menu", getMasterPC()->pcMenu, CTRL+Key_P );
   
     // Now call the Panel's menu() function to add it's menus (if any).
-    if( !targetPC->addPanelMenuItems(_masterPC->contextMenu) )
+    if( !targetPC->addPanelMenuItems(getMasterPC()->contextMenu) )
     {  // There were no panel menus... Show the panel Container menus
        // without cascading...
-      delete _masterPC->contextMenu;
-      _masterPC->contextMenu = _masterPC->pcMenu;
+      delete getMasterPC()->contextMenu;
+      getMasterPC()->contextMenu = getMasterPC()->pcMenu;
     }
   } else
   {
-    _masterPC->contextMenu = _masterPC->pcMenu;
+    getMasterPC()->contextMenu = getMasterPC()->pcMenu;
   }
   
-  if( targetPC->topLevel == TRUE && targetPC != _masterPC /* && 
+  if( targetPC->topLevel == TRUE && targetPC != getMasterPC() /* && 
       !targetPC->areTherePanels() */ )
   {
 if( targetPC->parent->isTopLevel() )
 {
-    _masterPC->pcMenu->insertItem( "&Close", targetPC->_masterPC, SLOT(closeWindow()), CTRL+Key_R );
+    getMasterPC()->pcMenu->insertItem( "&Close", targetPC->getMasterPC(), SLOT(closeWindow()), CTRL+Key_R );
 }
   }
 
   nprintf(DEBUG_PANELCONTAINERS) ("About to popup pc contextMenu\n");
-  _masterPC->contextMenu->exec( QCursor::pos() );
+  getMasterPC()->contextMenu->exec( QCursor::pos() );
 
   nprintf(DEBUG_PANELCONTAINERS) ("finished with the context menu...\n");
 
-  delete _masterPC->contextMenu;
+  delete getMasterPC()->contextMenu;
 }
 
 /*! Notify all the panels in a (this) PanelContainer of a message.

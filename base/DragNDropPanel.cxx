@@ -171,7 +171,7 @@ nprintf(DEBUG_DND) ("Drag panel=(%s)\n", p->getName() );
     
     // Put a PanelContainer in the new toplevel 
     targetPC = createPanelContainer(topLevelWidget, "outside PC", NULL, sourcePC->_masterPanelContainerList );
-    targetPC->_masterPC = sourcePC->_masterPC;
+    targetPC->setMasterPC(sourcePC->getMasterPC());
     // Mark the new PanelContainer as s topLevel.
     targetPC->topLevel = TRUE;
 
@@ -217,7 +217,7 @@ targetPC->tabWidget->setTabBar(targetPC->tabBarWidget);
   }
 
 // nprintf(DEBUG_DND) ("OVERRIDE THE EVENTS AND MAKE THEM ACTIVE!!!\n");
-// targetPC->_masterPC->_eventsEnabled = TRUE;
+// targetPC->getMasterPC->_eventsEnabled = TRUE;
 
   if( p->topLevel )
   {
@@ -365,7 +365,7 @@ nprintf(DEBUG_DND) ("Drag panel=(%s)\n", p->getName() );
     
     // Put a PanelContainer in the new toplevel 
     targetPC = createPanelContainer(topLevelWidget, "outside PC", NULL, panelContainer->_masterPanelContainerList );
-    targetPC->_masterPC = panelContainer->_masterPC;
+    targetPC->setMasterPC(panelContainer->getMasterPC());
     // Mark the new PanelContainer as s topLevel.
     targetPC->topLevel = TRUE;
 

@@ -575,7 +575,7 @@ printf("eDescriptionPageStartButtonSelected() \n");
     Panel *p = getPanelContainer()->raiseNamedPanel("Intro Wizard");
     if( !p )
     {
-      getPanelContainer()->_masterPC->dl_create_and_add_panel("Intro Wizard", getPanelContainer());
+      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Intro Wizard", getPanelContainer());
     }
 }
 
@@ -608,7 +608,7 @@ void FPE_TracingWizardPanel::eSummaryPageFinishButtonSelected()
 printf("eSummaryPageFinishButtonSelected() \n");
 
   {
-    getPanelContainer()->_masterPC->dl_create_and_add_panel("FPE Tracing", getPanelContainer());
+    getPanelContainer()->getMasterPC()->dl_create_and_add_panel("FPE Tracing", getPanelContainer());
   }
 }
 
@@ -683,7 +683,7 @@ printf("vDescriptionPageStartButtonSelected() \n");
     Panel *p = getPanelContainer()->raiseNamedPanel("Intro Wizard");
     if( !p )
     {
-      getPanelContainer()->_masterPC->dl_create_and_add_panel("Intro Wizard", getPanelContainer());
+      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Intro Wizard", getPanelContainer());
     }
 }
 
@@ -779,7 +779,7 @@ void FPE_TracingWizardPanel::vSummaryPageFinishButtonSelected()
 {
 printf("vSummaryPageFinishButtonSelected() \n");
 
-  getPanelContainer()->_masterPC->dl_create_and_add_panel("FPE Tracing", getPanelContainer());
+  getPanelContainer()->getMasterPC()->dl_create_and_add_panel("FPE Tracing", getPanelContainer());
 }
 
 /*

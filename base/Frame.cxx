@@ -221,19 +221,19 @@ Frame::contextMenuEvent( QContextMenuEvent * )
     nprintf(DEBUG_FRAMES) ("  There are children.  - return\n");
      return;
   }
-  if( getPanelContainer()->_masterPC->_doingMenuFLAG == TRUE )
+  if( getPanelContainer()->getMasterPC()->_doingMenuFLAG == TRUE )
   {
     nprintf(DEBUG_FRAMES) ("  already doing menu - return\n");
     return;
   }
-  getPanelContainer()->_masterPC->_doingMenuFLAG = TRUE;
-  flag = &getPanelContainer()->_masterPC->_doingMenuFLAG;
+  getPanelContainer()->getMasterPC()->_doingMenuFLAG = TRUE;
+  flag = &getPanelContainer()->getMasterPC()->_doingMenuFLAG;
 
 
   nprintf(DEBUG_FRAMES) ("Frame::contextMenuEvent(%s-%s)\n",
     getPanelContainer()->getInternalName(), getPanelContainer()->getExternalName() );
 
-  getPanelContainer()->_masterPC->panelContainerContextMenuEvent( getPanelContainer(), FALSE );
+  getPanelContainer()->getMasterPC()->panelContainerContextMenuEvent( getPanelContainer(), FALSE );
 
   if( flag ) *flag = FALSE;
 }

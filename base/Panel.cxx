@@ -75,11 +75,11 @@ Panel::Panel(PanelContainer *pc, const char *n) : QWidget(pc, n)
   baseWidgetFrame->resize(width,height);
 
 
-if( getPanelContainer()->_masterPC->sleepTimer )
+if( getPanelContainer()->getMasterPC()->sleepTimer )
 {
 }
-  getPanelContainer()->_masterPC->sleepTimer = NULL;
-  getPanelContainer()->_masterPC->popupTimer = NULL;
+  getPanelContainer()->getMasterPC()->sleepTimer = NULL;
+  getPanelContainer()->getMasterPC()->popupTimer = NULL;
 }
 
 /*!  Constructs a new Panel object.   (unused)
@@ -221,37 +221,37 @@ Panel::armPanelsWhatsThis()
 {
   nprintf(DEBUG_PANELS) ("Panel::armPanelsWhatsThis() entered\n");
 
-  if( getPanelContainer()->_masterPC->sleepTimer && getPanelContainer()->_masterPC->sleepTimer->isActive() )
+  if( getPanelContainer()->getMasterPC()->sleepTimer && getPanelContainer()->getMasterPC()->sleepTimer->isActive() )
   { // If we're sleeping, just ignore this...
    nprintf(DEBUG_PANELS) ("we're sleeping, just return.\n");
-    getPanelContainer()->_masterPC->sleepTimer->start(1000, TRUE);
+    getPanelContainer()->getMasterPC()->sleepTimer->start(1000, TRUE);
     return;
   } else
   { // Otherwise, check to see if there's a timer set.   If it is set
     // just go to sleep for a whil and return.   Otherwise, set a new one.
-    if( getPanelContainer()->_masterPC->popupTimer && getPanelContainer()->_masterPC->popupTimer->isActive() )
+    if( getPanelContainer()->getMasterPC()->popupTimer && getPanelContainer()->getMasterPC()->popupTimer->isActive() )
     {
        nprintf(DEBUG_PANELS) ("popupTimer is already active... start sleeping...\n");
-      if( getPanelContainer()->_masterPC->sleepTimer == NULL )
+      if( getPanelContainer()->getMasterPC()->sleepTimer == NULL )
       {
-        getPanelContainer()->_masterPC->sleepTimer = new QTimer(this, "sleepTimer");
-        connect( getPanelContainer()->_masterPC->sleepTimer, SIGNAL(timeout()), this, SLOT(wakeupFromSleep()) );
+        getPanelContainer()->getMasterPC()->sleepTimer = new QTimer(this, "sleepTimer");
+        connect( getPanelContainer()->getMasterPC()->sleepTimer, SIGNAL(timeout()), this, SLOT(wakeupFromSleep()) );
       }
-      getPanelContainer()->_masterPC->sleepTimer->start(1000, TRUE);
-      getPanelContainer()->_masterPC->popupTimer->stop();
+      getPanelContainer()->getMasterPC()->sleepTimer->start(1000, TRUE);
+      getPanelContainer()->getMasterPC()->popupTimer->stop();
     } else
     {
       nprintf(DEBUG_PANELS) ("start the popup timer...\n");
-      if( getPanelContainer()->_masterPC->popupTimer == NULL )
+      if( getPanelContainer()->getMasterPC()->popupTimer == NULL )
       {
-        getPanelContainer()->_masterPC->popupTimer = new QTimer(this, "popupTimer");
-        connect( getPanelContainer()->_masterPC->popupTimer, SIGNAL(timeout()), this, SLOT(popupInfoAtLine()) );
+        getPanelContainer()->getMasterPC()->popupTimer = new QTimer(this, "popupTimer");
+        connect( getPanelContainer()->getMasterPC()->popupTimer, SIGNAL(timeout()), this, SLOT(popupInfoAtLine()) );
       }
-      if( getPanelContainer()->_masterPC->sleepTimer )
+      if( getPanelContainer()->getMasterPC()->sleepTimer )
       {
-        getPanelContainer()->_masterPC->sleepTimer->stop();
+        getPanelContainer()->getMasterPC()->sleepTimer->stop();
       }
-      getPanelContainer()->_masterPC->popupTimer->start(1000, TRUE);
+      getPanelContainer()->getMasterPC()->popupTimer->start(1000, TRUE);
     }
   }
 }
@@ -260,7 +260,7 @@ void
 Panel::wakeupFromSleep()
 {
   nprintf(DEBUG_PANELS) ("wakeupFromSleep() called\n");
-  getPanelContainer()->_masterPC->popupTimer->start(250, TRUE);
+  getPanelContainer()->getMasterPC()->popupTimer->start(250, TRUE);
 }
 
 void
@@ -275,8 +275,8 @@ Panel::displayWhatsThis(QString msg)
 {
   nprintf(DEBUG_PANELS) ("Panel::displayWhatsThis() called.  Put the wit here.\n");
  
-  getPanelContainer()->_masterPC->whatsThisActive = TRUE;
-  getPanelContainer()->_masterPC->whatsThis = new WhatsThis( this );
-  getPanelContainer()->_masterPC->whatsThis->display( msg, QCursor::pos() );
+  getPanelContainer()->getMasterPC()->whatsThisActive = TRUE;
+  getPanelContainer()->getMasterPC()->whatsThis = new WhatsThis( this );
+  getPanelContainer()->getMasterPC()->whatsThis->display( msg, QCursor::pos() );
 }
 
