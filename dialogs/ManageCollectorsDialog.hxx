@@ -50,16 +50,14 @@ public:
     QPushButton* buttonOk;
     QPushButton* buttonCancel;
 
-    QLabel* attachHostLabel;
-    QComboBox * attachHostComboBox;
+    QLabel* availableCollectorsLabel;
+    QComboBox * availableCollectorsComboBox;
     QListView* attachCollectorsListView;
 
     QString selectedCollectors();
     void updateAttachedCollectorsList();
 
     CollectorListObject *clo;
-
-    void contextMenuRequested( QListViewItem *item, const QPoint &pos, int col );
 
 protected:
     QVBoxLayout* ManageCollectorsDialogLayout;
@@ -70,7 +68,11 @@ protected slots:
     virtual void languageChange();
 
 public slots:
-    virtual void attachHostComboBoxActivated();
+    virtual void availableCollectorsComboBoxActivated();
+    void contextMenuRequested( QListViewItem *item, const QPoint &pos, int col );
+
+
+private slots:
 
 private:
     int expID;

@@ -45,16 +45,16 @@ ManageCollectorsDialog::ManageCollectorsDialog( QWidget* parent, const char* nam
   setSizeGripEnabled( TRUE );
   ManageCollectorsDialogLayout = new QVBoxLayout( this, 11, 6, "ManageCollectorsDialogLayout"); 
 
-  attachHostLabel = new QLabel( this, "attachHostLabel" );
-  ManageCollectorsDialogLayout->addWidget( attachHostLabel );
-  attachHostComboBox = new QComboBox( this, "attachHostComboBox");
-  attachHostComboBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)2, (QSizePolicy::SizeType)0, 0, 0, attachHostComboBox->sizePolicy().hasHeightForWidth() ) );
-  attachHostComboBox->setEditable(TRUE);
-  ManageCollectorsDialogLayout->addWidget( attachHostComboBox );
+  availableCollectorsLabel = new QLabel( this, "availableCollectorsLabel" );
+  ManageCollectorsDialogLayout->addWidget( availableCollectorsLabel );
+  availableCollectorsComboBox = new QComboBox( this, "availableCollectorsComboBox");
+  availableCollectorsComboBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)2, (QSizePolicy::SizeType)0, 0, 0, availableCollectorsComboBox->sizePolicy().hasHeightForWidth() ) );
+  availableCollectorsComboBox->setEditable(TRUE);
+  ManageCollectorsDialogLayout->addWidget( availableCollectorsComboBox );
 
   attachCollectorsListView = new QListView( this, "attachCollectorsListView" );
   attachCollectorsListView->addColumn( 
-    tr( QString("Collectors belonging to '%1':").arg(expID) ) );
+    tr( QString("Collectors belonging to experiment: '%1':").arg(expID) ) );
   attachCollectorsListView->addColumn( tr( QString("Name") ) );
   attachCollectorsListView->setSelectionMode( QListView::Single );
   attachCollectorsListView->setAllColumnsShowFocus( TRUE );
@@ -88,7 +88,9 @@ ManageCollectorsDialog::ManageCollectorsDialog( QWidget* parent, const char* nam
   // signals and slots connections
   connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
   connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
-  connect( attachHostComboBox, SIGNAL( activated(const QString &) ), this, SLOT( attachHostComboBoxActivated() ) );
+  connect( availableCollectorsComboBox, SIGNAL( activated(const QString &) ), this, SLOT( availableCollectorsComboBoxActivated() ) );
+
+  connect(attachCollectorsListView, SIGNAL( contextMenuRequested( QListViewItem *, const QPoint& , int ) ), this, SLOT( contextMenuRequested( QListViewItem *, const QPoint &, int ) ) );
 
   updateAttachedCollectorsList();
 }
@@ -115,8 +117,8 @@ void ManageCollectorsDialog::languageChange()
   buttonOk->setAccel( QKeySequence( QString::null ) );
   buttonCancel->setText( tr( "&Cancel" ) );
   buttonCancel->setAccel( QKeySequence( QString::null ) );
-  attachHostLabel->setText( tr("Host:") );
-  attachHostComboBox->insertItem( "localhost" );
+  availableCollectorsLabel->setText( tr("Available Collectors:") );
+  availableCollectorsComboBox->insertItem( "pcsamp" );
 }
 
 QString
@@ -160,7 +162,7 @@ ManageCollectorsDialog::updateAttachedCollectorsList()
   }
 }
 
-void ManageCollectorsDialog::attachHostComboBoxActivated()
+void ManageCollectorsDialog::availableCollectorsComboBoxActivated()
 {
     updateAttachedCollectorsList();
 }

@@ -38,7 +38,6 @@
 #include "TopPanel.hxx"
 
 #include "LoadAttachObject.hxx"
-#include "ManageCollectorsDialog.hxx"
 
 #include "CLIInterface.hxx"
 
@@ -64,6 +63,7 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n, void *argument) 
   experiment = NULL;
   executableNameStr = QString::null;
   pidStr = QString::null;
+  manageCollectorsDialog = NULL;
 
   mw = getPanelContainer()->getMainWindow();
 
@@ -488,6 +488,7 @@ pcSamplePanel::manageCollectorsSelected()
 {
   nprintf( DEBUG_PANELS ) ("pcSamplePanel::manageCollectorsSelected()\n");
 
+#ifdef OLDWAY
   ManageCollectorsDialog *dialog = new ManageCollectorsDialog(this, "ManageCollectorsDialog", TRUE, 0, expID);
   if( dialog->exec() == QDialog::Accepted )
   {
@@ -497,18 +498,29 @@ pcSamplePanel::manageCollectorsSelected()
 
   //printf("pidStr = %s\n", pidStr.ascii() );
   delete dialog;
+#else // OLDWAY
+  if( manageCollectorsDialog == NULL )
+  {
+    manageCollectorsDialog = new ManageCollectorsDialog(this, "ManageCollectorsDialog", TRUE, 0, expID);
+  }
+  if( manageCollectorsDialog->exec() == QDialog::Accepted )
+  {
+    printf("QDialog::Accepted\n");
+//    pidStr = dialog->selectedProcesses();
+  }
+#endif // OLDWAY
 }   
 
 void
 pcSamplePanel::manageProcessesSelected()
 {
-  nprintf( DEBUG_PANELS ) ("pcSamplePanel::managerProcessesSelected()\n");
+  nprintf( DEBUG_PANELS ) ("pcSamplePanel::manageProcessesSelected()\n");
 }   
 
 void
 pcSamplePanel::manageDataSetsSelected()
 {
-  nprintf( DEBUG_PANELS ) ("pcSamplePanel::managerDataSetsSelected()\n");
+  nprintf( DEBUG_PANELS ) ("pcSamplePanel::manageDataSetsSelected()\n");
 }   
 
 //! Save ascii version of this panel.
@@ -1060,4 +1072,3 @@ pcSamplePanel::progressUpdate()
     step_forward = TRUE;
   }
 }
-
