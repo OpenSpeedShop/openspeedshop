@@ -16,10 +16,10 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-LCDEFS64 = -I$ROOT/include/dpcl -pg -g -gdwarf_2 -D__64BIT__
-LLDLIBS64 = -L $ROOT/lib -ldpcl -lelf
-LCDEFS32 = -g
-LLDLIBS32 = 
+LCDEFS64 = -I$ROOT/include/dpcl -pg -g -gdwarf-2 -D__64BIT__
+LLDLIBS64 = -L $ROOT/lib -ldpcl -lelf 
+LCDEFS32 = -g -gdwarf-2
+LLDLIBS32 =  -ldl
 
 TARGETS= fred_calls_ted 
 
