@@ -5,6 +5,7 @@
 #include "TPChartForm.hxx"
 
 #include <qpopupmenu.h>
+#include <qcursor.h>
 #include "TopPanel.hxx"
 
 #include "debug.hxx"
@@ -40,7 +41,11 @@ TPChartForm::contentsContextMenuEvent( QContextMenuEvent *e)
 {
   nprintf(DEBUG_PANELS) ("TPChartForm::contentsContextMenuEvent() entered\n");
 
+#ifdef OLDWAY
   createPopupMenu( e->pos() );
+#else // OLDWAY
+  createPopupMenu( QCursor::pos() );
+#endif // OLDWAY
 }
 
 QPopupMenu*
