@@ -29,6 +29,8 @@ class QLineEdit;
 class QLabel;
 class QCheckBox;
 
+class PanelContainer;
+
 class PreferencesDialog : public QDialog
 {
     Q_OBJECT
@@ -36,6 +38,8 @@ class PreferencesDialog : public QDialog
 public:
     PreferencesDialog( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0 );
     ~PreferencesDialog();
+
+    PanelContainer *panelContainer;
 
     QSplitter* mainSplitter;
     QFrame* preferenceDialogLeftFrame;
@@ -52,6 +56,7 @@ public:
     QCheckBox* setShowColoredTabsCheckBox;
     QCheckBox* deleteEmptyPCCheckBox;
     QCheckBox* showGraphicsCheckBox;
+#ifdef OLDWAY
     QWidget* sourcePanelStackPage;
     QGroupBox* sourcePanelGroupBox;
     QCheckBox* showStatisticsCheckBox;
@@ -61,15 +66,19 @@ public:
     QCheckBox* sortDecendingCheckBox;
     QLabel* showTopNTextLabel;
     QLineEdit* showTopNLineEdit;
+#endif // OLDWAY
     QPushButton* buttonHelp;
     QPushButton* buttonDefaults;
     QPushButton* buttonApply;
     QPushButton* buttonOk;
     QPushButton* buttonCancel;
 
+    QWidget *matchPreferencesToStack(QString s);
     void createGeneralStackPage(QWidgetStack* stack, char *name );
+#ifdef OLDWAY
     void createSourcePanelStackPage(QWidgetStack* stack, char *name );
     void createStatsPanelStackPage(QWidgetStack* stack, char *name );
+#endif // OLDWAY
 
     bool preferencesAvailable;
     QString globalFontFamily;
@@ -106,11 +115,13 @@ protected:
     QVBoxLayout* rightSideLayout;
     QHBoxLayout* fontLayout;
     QHBoxLayout* precisionLayout;
+#ifdef OLDWAY
     QVBoxLayout* generalStackPageLayout_2;
     QVBoxLayout* layout6;
     QVBoxLayout* generalStackPageLayout_3;
     QVBoxLayout* layout8;
     QHBoxLayout* layout7;
+#endif // OLDWAY
     QVBoxLayout* generalStackPageLayout_4;
     QHBoxLayout* preferenceDialogWidgetStackLayout;
     QSpacerItem* Horizontal_Spacing2;

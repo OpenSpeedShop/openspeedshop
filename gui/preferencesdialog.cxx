@@ -28,6 +28,7 @@
 #include <qpixmap.h>
 
 #include "preferencesdialog.ui.hxx"
+
 /*
  *  Constructs a PreferencesDialog as a child of 'parent', with the
  *  name 'name' and widget flags set to 'f'.
@@ -38,6 +39,7 @@
 PreferencesDialog::PreferencesDialog( QWidget* parent, const char* name, bool modal, WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
+   panelContainer = (PanelContainer *)parent;
 
    globalFontFamily = "Helvetica";
    globalFontPointSize = 12;
@@ -86,11 +88,18 @@ PreferencesDialog::PreferencesDialog( QWidget* parent, const char* name, bool mo
     preferenceDialogWidgetStack->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)5, 0, 0, preferenceDialogWidgetStack->sizePolicy().hasHeightForWidth() ) );
 
 
-    createGeneralStackPage(preferenceDialogWidgetStack, "generalStackPage" );
+//    createGeneralStackPage(preferenceDialogWidgetStack, "generalStackPage" );
+    createGeneralStackPage(preferenceDialogWidgetStack, "General" );
 
-    createSourcePanelStackPage( preferenceDialogWidgetStack, "sourcePanelStackPage" );
+#ifdef OLDWAY
+//    createSourcePanelStackPage( preferenceDialogWidgetStack, "sourcePanelStackPage" );
+    createSourcePanelStackPage( preferenceDialogWidgetStack, "Source Panel" );
+#endif // OLDWAY
 
-    createStatsPanelStackPage( preferenceDialogWidgetStack, "statsPanelStackPage" );
+#ifdef OLDWAY
+//    createStatsPanelStackPage( preferenceDialogWidgetStack, "statsPanelStackPage" );
+    createStatsPanelStackPage( preferenceDialogWidgetStack, "Stats Panel" );
+#endif // OLDWAY
 
     preferenceDialogRightFrameLayout->addWidget( preferenceDialogWidgetStack );
     preferenceDialogListLayout->addWidget( mainSplitter );
@@ -146,6 +155,7 @@ PreferencesDialog::PreferencesDialog( QWidget* parent, const char* name, bool mo
       SLOT( setRemoveEmptyPC() ) );
     connect( showGraphicsCheckBox, SIGNAL( stateChanged(int) ), this,
       SLOT( setShowAvailableGraphics() ) );
+#ifdef OLDWAY
     connect( showStatisticsCheckBox, SIGNAL( stateChanged(int) ), this,
       SLOT( setShowStats() ) );
     connect( showLineNumbersCheckBox, SIGNAL( stateChanged(int) ), this,
@@ -154,6 +164,7 @@ PreferencesDialog::PreferencesDialog( QWidget* parent, const char* name, bool mo
       SLOT( setSortDescending() ) );
     connect( showTopNLineEdit, SIGNAL( selectionChanged() ), this,
       SLOT( setShowTopN() ) );
+#endif // OLDWAY
     connect( categoryListView, SIGNAL( clicked(QListViewItem*) ), this,
       SLOT( listItemSelected(QListViewItem*) ) );
 
@@ -220,10 +231,11 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
 }
 
 
+#ifdef OLDWAY
 void
 PreferencesDialog::createSourcePanelStackPage(QWidgetStack* stack, char *name )
 {
-    sourcePanelStackPage = new QWidget( stack, "sourcePanelStackPage" );
+    sourcePanelStackPage = new QWidget( stack, "Source Panel" );
     generalStackPageLayout_2 = new QVBoxLayout( sourcePanelStackPage, 11, 6, "generalStackPageLayout_2"); 
 
     sourcePanelGroupBox = new QGroupBox( sourcePanelStackPage, "sourcePanelGroupBox" );
@@ -243,11 +255,13 @@ PreferencesDialog::createSourcePanelStackPage(QWidgetStack* stack, char *name )
     generalStackPageLayout_2->addWidget( sourcePanelGroupBox );
     stack->addWidget( sourcePanelStackPage, 1 );
 }
+#endif // OLDWAY
 
+#ifdef OLDWAY
 void
 PreferencesDialog::createStatsPanelStackPage(QWidgetStack* stack, char *name )
 {
-    statsPanelStackPage = new QWidget( preferenceDialogWidgetStack, "statsPanelStackPage" );
+    statsPanelStackPage = new QWidget( stack, "statsPanelStackPage" );
 
     generalStackPageLayout_3 = new QVBoxLayout( statsPanelStackPage, 11, 6, "generalStackPageLayout_3"); 
 
@@ -270,8 +284,9 @@ PreferencesDialog::createStatsPanelStackPage(QWidgetStack* stack, char *name )
     layout7->addWidget( showTopNLineEdit );
     layout8->addLayout( layout7 );
     generalStackPageLayout_3->addWidget( statsPanelGroupBox );
-    preferenceDialogWidgetStack->addWidget( statsPanelStackPage, 2 );
+    stack->addWidget( statsPanelStackPage, 2 );
 }
+#endif // OLDWAY
 
 /*
  *  Sets the strings of the subwidgets using the current
@@ -291,13 +306,16 @@ fontLineEdit->setReadOnly(TRUE);
   setShowColoredTabsCheckBox->setChecked(FALSE);
   deleteEmptyPCCheckBox->setChecked(FALSE);
   showGraphicsCheckBox->setChecked(FALSE);
+#ifdef OLDWAY
   showStatisticsCheckBox->setChecked(FALSE);
   showLineNumbersCheckBox->setChecked(FALSE);
   sortDecendingCheckBox->setChecked( TRUE );
+#endif // OLDWAY
 
     setCaption( tr( "Preferences Dialog" ) );
     categoryListView->header()->setLabel( 0, tr( "Categories" ) );
     categoryListView->clear();
+#ifdef OLDWAY
     QListViewItem * item = new QListViewItem( categoryListView, 0 );
     item->setText( 0, tr( "General" ) );
 
@@ -306,6 +324,7 @@ fontLineEdit->setReadOnly(TRUE);
 
     item = new QListViewItem( categoryListView, item );
     item->setText( 0, tr( "Stats Panel" ) );
+#endif // OLDWAY
 
     GeneralGroupBox->setTitle( tr( "General" ) );
     setFontButton->setText( tr( "Font:" ) );
@@ -315,13 +334,17 @@ fontLineEdit->setReadOnly(TRUE);
     setShowColoredTabsCheckBox->setText( tr( "Show related panel tabs in color" ) );
     deleteEmptyPCCheckBox->setText( tr( "Remove empty panel containers" ) );
     showGraphicsCheckBox->setText( tr( "Show graphics when available" ) );
+#ifdef OLDWAY
     sourcePanelGroupBox->setTitle( tr( "Source Panel" ) );
     showStatisticsCheckBox->setText( tr( "Show statistics" ) );
     showLineNumbersCheckBox->setText( tr( "Show line numbers" ) );
+#endif // OLDWAY
+#ifdef OLDWAY
     statsPanelGroupBox->setTitle( tr( "Stats Panel" ) );
     sortDecendingCheckBox->setText( tr( "Sort Descending" ) );
     showTopNTextLabel->setText( tr( "Show top N items:" ) );
     showTopNLineEdit->setText( tr( "5" ) );
+#endif // OLDWAY
     buttonHelp->setText( tr( "&Help" ) );
     buttonHelp->setAccel( QKeySequence( tr( "F1" ) ) );
     buttonDefaults->setText( tr( "&Defaults" ) );

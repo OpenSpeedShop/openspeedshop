@@ -1,6 +1,8 @@
 #include <qsettings.h>
 #include <qapplication.h>
 
+#include "openspeedshop.hxx"
+
 void PreferencesDialog::readPreferencesOnEntry()
 {
 //  printf("readPreferencesOnEntry() entered\n");
@@ -45,6 +47,7 @@ void PreferencesDialog::readPreferencesOnEntry()
     settings.readBoolEntry( "/openspeedshop/general/deleteEmptyPC") );
   showGraphicsCheckBox->setChecked(
     settings.readBoolEntry( "/openspeedshop/general/showGraphics") );
+#ifdef OLDWAY
   showStatisticsCheckBox->setChecked(
     settings.readBoolEntry( "/openspeedshop/source panel/showStatistics") );
   showLineNumbersCheckBox->setChecked(
@@ -54,6 +57,7 @@ void PreferencesDialog::readPreferencesOnEntry()
 
   showTopNLineEdit->setText( 
     settings.readEntry( "/openspeedshop/stats panel/showTopN" ));
+#endif // OLDWAY
 }
 
 void PreferencesDialog::resetPreferenceDefaults()
@@ -112,6 +116,27 @@ void PreferencesDialog::setShowStats()
     qWarning( "PreferencesDialog::setShowStats(): Not implemented yet" );
 }
 
+QWidget *
+PreferencesDialog::matchPreferencesToStack(QString s)
+{
+  OpenSpeedshop *mw = panelContainer->getMasterPC()->getMainWindow();
+
+  for( PreferencesStackPagesList::Iterator it = mw->preferencesStackPagesList.begin();
+       it != mw->preferencesStackPagesList.end();
+       it++ )
+  {
+    QWidget *w = (QWidget *)*it;
+    if( s == w->name() )
+    {
+printf("Found s->(%s)\n", s.ascii() );
+      return(w);
+    }
+  }
+
+printf("(%s) not Found\n", s.ascii() );
+  return( (QWidget *)NULL );
+}
+
 void PreferencesDialog::listItemSelected(QListViewItem*lvi)
 {
   if( lvi == NULL )
@@ -121,18 +146,13 @@ void PreferencesDialog::listItemSelected(QListViewItem*lvi)
 
   QString s = lvi->text(0);
 
-  if( s == "General" )
-  { 
-    preferenceDialogWidgetStack->raiseWidget(generalStackPage);
-  } else if( s == "Source Panel" )
+  QWidget *w = matchPreferencesToStack(s);
+  if( w )
   {
-    preferenceDialogWidgetStack->raiseWidget(sourcePanelStackPage);
-  } else if( s == "Stats Panel" )
-  {
-    preferenceDialogWidgetStack->raiseWidget(statsPanelStackPage);
+    preferenceDialogWidgetStack->raiseWidget(w);
   } else
   {
-    fprintf(stderr, "Warning: Unable to find category.\n");
+    preferenceDialogWidgetStack->raiseWidget(generalStackPage);
   }
 }
 
@@ -200,8 +220,10 @@ void PreferencesDialog::savePreferencesOnExit()
   settings.writeEntry( "/openspeedshop/general/showColoredTabs", setShowColoredTabsCheckBox->isChecked() );
   settings.writeEntry( "/openspeedshop/general/deleteEmptyPC", deleteEmptyPCCheckBox->isChecked() );
   settings.writeEntry( "/openspeedshop/general/showGraphics", showGraphicsCheckBox->isChecked() );
+#ifdef OLDWAY
   settings.writeEntry( "/openspeedshop/source panel/showStatistics", showStatisticsCheckBox->isChecked() );
   settings.writeEntry( "/openspeedshop/source panel/showLineNumber", showLineNumbersCheckBox->isChecked() );
   settings.writeEntry( "/openspeedshop/stats panel/sortDecending", sortDecendingCheckBox->isChecked() );
   settings.writeEntry( "/openspeedshop/stats panel/showTopN", showTopNLineEdit->text() );
+#endif // OLDWAY
 }

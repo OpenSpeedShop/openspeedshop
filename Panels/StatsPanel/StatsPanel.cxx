@@ -7,6 +7,7 @@
 #include "SPListViewItem.hxx"   // Change this to your new class header file name
 #include "SourceObject.hxx"
 
+#include "preference_plugin_info.hxx" // Do not remove
 
 #include "MetricInfo.hxx" // dummy data only...
 // This is only hear for the debugging tables....

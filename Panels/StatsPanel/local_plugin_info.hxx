@@ -8,3 +8,5 @@
   plugin_entry->menu_label =  "Stats Panel";
   plugin_entry->menu_accel =  "Cntrl R";
   plugin_entry->panel_type =  "Stats Panel";
+  plugin_entry->preference_category =  "Stats Panel";
+  plugin_entry->initialize_preferences_entry_point =  "preference_info_init";

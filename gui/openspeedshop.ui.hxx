@@ -15,6 +15,7 @@
 #include <qmessagebox.h>
 #include <qassistantclient.h>
 #include <qdir.h>
+#include <qlistview.h>
 #include "PluginInfo.hxx"
 
 #include "preferencesdialog.hxx"
@@ -417,17 +418,26 @@ if( masterPC && masterPC->_pluginRegistryList )
     if( dl_object )
     {
 // printf("about to lookup(%s).\n", "preference_info_init");
-      int (*dl_plugin_info_init_preferences_routine)(QWidgetStack*, char *) =
-        (int (*)(QWidgetStack*, char *))dlsym(dl_object, "preference_info_init" );
+      QWidget * (*dl_plugin_info_init_preferences_routine)(QWidgetStack*, char *) =
+        (QWidget * (*)(QWidgetStack*, char *))dlsym(dl_object, "preference_info_init" );
        if( dl_plugin_info_init_preferences_routine )
        {
 // printf("about to call the routine.\n");
-         (*dl_plugin_info_init_preferences_routine)(preferencesDialog->preferenceDialogWidgetStack, pi->preference_category);
+         QWidget *panelStackPage = (*dl_plugin_info_init_preferences_routine)(preferencesDialog->preferenceDialogWidgetStack, pi->preference_category);
+if( panelStackPage )
+{
+  preferencesStackPagesList.push_back(panelStackPage);
+  QListViewItem *item = new QListViewItem( preferencesDialog->categoryListView );
+  item->setText( 0, tr( panelStackPage->name() ) );
+}
        }
        dlclose(dl_object);
     }
   }
 }
+preferencesStackPagesList.push_back(preferencesDialog->generalStackPage);
+QListViewItem *item = new QListViewItem( preferencesDialog->categoryListView );
+item->setText( 0, tr( "General" ) );
 // End try to load preferences
 
 // Begin: Set up a saved session geometry.

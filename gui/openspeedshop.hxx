@@ -29,6 +29,8 @@ class QActionGroup;
 class QToolBar;
 class QPopupMenu;
 
+typedef QValueList<QWidget *> PreferencesStackPagesList;
+
 //! The main window skeleton containing statusBar and menubar.
 class OpenSpeedshop : public QMainWindow
 {
@@ -62,6 +64,9 @@ class OpenSpeedshop : public QMainWindow
     QAction* helpAboutAction;
 
     QAssistantClient *assistant;
+
+    //! A list to all plugin panel preferences 
+    PreferencesStackPagesList preferencesStackPagesList;
 
     //! A pointer to the top PanelContainer that is parented to this mainwindow.
     PanelContainer *topPC;
