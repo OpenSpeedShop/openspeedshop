@@ -424,3 +424,37 @@ QString ChartForm::valueLabel(
 		    + '%';
     return newLabel;
 }
+
+
+
+int
+ChartForm::getItemFromPos( QPoint p )
+{
+
+  QPoint pos = mapFromGlobal(p);
+  nprintf(DEBUG_PANELS) ("ChartForm::getItemFromPos() pos.x=%d pos.y=%d.\n", pos.x(), pos.y() );
+
+  int selected = -1;
+
+  QCanvasItemList canvas_list = m_canvas->collisions( pos );
+  
+  CanvasEllipse *item = NULL;
+  QCanvasItemList::iterator it = NULL;
+  QCanvasItem *m_movingItem = NULL;
+  for ( it = canvas_list.begin(); it != canvas_list.end(); ++it )
+  {
+    if ( (*it)->rtti() == CanvasEllipse::CANVAS_ELLIPSE )
+    {
+      nprintf(DEBUG_PANELS) ("Match CANVAS_ELLIPSE\n");
+      m_movingItem = *it;
+      item = (CanvasEllipse *)m_movingItem;
+    }
+    if( item != NULL )
+    {
+        selected = item->index();
+        break;
+    }
+  }
+
+  return( selected );
+}

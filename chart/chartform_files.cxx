@@ -10,79 +10,11 @@
 
 void ChartForm::load( const QString& filename )
 {
-#ifdef MAINWINDOW
-    QFile file( filename );
-    if ( !file.open( IO_ReadOnly ) ) {
-	statusBar()->message( QString( "Failed to load \'%1\'" ).
-				arg( filename ), 2000 );
-	return;
-    }
-
-    init(); // Make sure we have colours
-    m_filename = filename;
-    QTextStream ts( &file );
-    Element element;
-    int errors = 0;
-    int i = 0;
-    while ( !ts.eof() ) {
-	ts >> element;
-	if ( element.isValid() )
-	    m_elements[i++] = element;
-	else
-	    errors++;
-	if ( i == MAX_ELEMENTS ) {
-	    statusBar()->message(
-		QString( "Read maximum number of elements (%1)"
-		         " discarding others" ).arg( i ), 2000 );
-	    break;
-	}
-    }
-
-    file.close();
-
-    QString bad = "";
-    if ( errors ) {
-	bad = QString( "; skipped " ) + QString::number( errors ) + " bad record";
-	if ( errors > 1 )
-	    bad += "s";
-    }
-    statusBar()->message( QString( "Read %1 values from \'%2\'%3" ).
-			  arg( i ).arg( filename ).arg( bad ), 3000 );
-
-    setCaption( QString( "Chart -- %1" ).arg( filename ) );
-    updateRecentFiles( filename );
-
-    drawElements();
-    m_changed = FALSE;
-#endif // MAINWINDOW
 }
 
 
 void ChartForm::fileSave()
 {
-#ifdef MAINWINDOW
-    if ( m_filename.isEmpty() ) {
-	fileSaveAs();
-	return;
-    }
-
-    QFile file( m_filename );
-    if ( !file.open( IO_WriteOnly ) ) {
-	statusBar()->message( QString( "Failed to save \'%1\'" ).
-				arg( m_filename ), 2000 );
-	return;
-    }
-    QTextStream ts( &file );
-    for ( int i = 0; i < MAX_ELEMENTS; ++i )
-	if ( m_elements[i].isValid() )
-	    ts << m_elements[i];
-
-    file.close();
-
-    setCaption( QString( "Chart -- %1" ).arg( m_filename ) );
-    statusBar()->message( QString( "Saved \'%1\'" ).arg( m_filename ), 2000 );
-    m_changed = FALSE;
-#endif // MAINWINDOW
 }
 
 
@@ -96,15 +28,10 @@ void ChartForm::fileSaveAsPixmap()
 	    save( filename,
 		  filename.mid( filename.findRev( '.' ) + 1 ).upper() ) )
     {
-#ifdef MAINWINDOW
-	statusBar()->message( QString( "Wrote \'%1\'" ).arg( filename ), 2000 );
-#endif // MAINWINDOW
+      fprintf(stderr, "Wrote %s\n", filename );
     } else
     {
-#ifdef MAINWINDOW
-	statusBar()->message( QString( "Failed to write \'%1\'" ).
-				arg( filename ), 2000 );
-#endif // MAINWINDOW
+      fprintf(stderr, "Failed to write %s\n", filename );
     }
 }
 

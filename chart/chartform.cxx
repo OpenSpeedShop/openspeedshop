@@ -45,9 +45,7 @@ const QString APP_KEY = "/Chart/";
 
 ChartForm::ChartForm(  QWidget* parent, const char* name, WFlags fl) : QWidget( parent, name, fl )
 {
-#ifndef  MAINWINDOW
-const QString filename;
-#endif //  MAINWINDOW
+  const QString filename;
 
    /*! Put all this in a layout so the resize does the right thing...  */
    setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)7, 0, 0, sizePolicy().hasHeightForWidth() ) );
@@ -157,51 +155,13 @@ optionsBarChartActionWith3D = new QAction(
     connect( fileQuitAction, SIGNAL( activated() ), this, SLOT( fileQuit() ) );
 
 
-#ifdef MAINWINDOW
-    QToolBar* fileTools = new QToolBar( this, "file operations" );
-    fileTools->setLabel( "File Operations" );
-    fileNewAction->addTo( fileTools );
-    fileOpenAction->addTo( fileTools );
-    fileSaveAction->addTo( fileTools );
-    fileTools->addSeparator();
-    filePrintAction->addTo( fileTools );
-
-    QToolBar *optionsTools = new QToolBar( this, "options operations" );
-    optionsTools->setLabel( "Options Operations" );
-    optionsSetDataAction->addTo( optionsTools );
-    optionsTools->addSeparator();
-    optionsPieChartActionWithShadow->addTo( optionsTools );
-optionsPieChartActionWithNoShadow->addTo( optionsTools );
-optionsPieChartActionWith3D->addTo( optionsTools );
-optionsBarChartActionWith3D->addTo( optionsTools );
-    optionsHorizontalBarChartAction->addTo( optionsTools );
-    optionsVerticalBarChartAction->addTo( optionsTools );
-    optionsTools->addSeparator();
-    optionsSetFontAction->addTo( optionsTools );
-    optionsTools->addSeparator();
-    optionsSetOptionsAction->addTo( optionsTools );
-
-    fileMenu = new QPopupMenu( this );
-    menuBar()->insertItem( "&File", fileMenu );
-    fileNewAction->addTo( fileMenu );
-    fileOpenAction->addTo( fileMenu );
-    fileSaveAction->addTo( fileMenu );
-    fileSaveAsAction->addTo( fileMenu );
-    fileMenu->insertSeparator();
-    fileSaveAsPixmapAction->addTo( fileMenu );
-    fileMenu->insertSeparator();
-    filePrintAction->addTo( fileMenu );
-    fileMenu->insertSeparator();
-    fileQuitAction->addTo( fileMenu );
-#endif // MAINWINDOW
-
     optionsMenu = new QPopupMenu( this );
     optionsSetDataAction->addTo( optionsMenu );
     optionsMenu->insertSeparator();
     optionsPieChartActionWithShadow->addTo( optionsMenu );
-optionsPieChartActionWithNoShadow->addTo( optionsMenu );
-optionsPieChartActionWith3D->addTo( optionsMenu );
-optionsBarChartActionWith3D->addTo( optionsMenu );
+    optionsPieChartActionWithNoShadow->addTo( optionsMenu );
+    optionsPieChartActionWith3D->addTo( optionsMenu );
+    optionsBarChartActionWith3D->addTo( optionsMenu );
     optionsHorizontalBarChartAction->addTo( optionsMenu );
     optionsVerticalBarChartAction->addTo( optionsMenu );
     optionsMenu->insertSeparator();
@@ -209,26 +169,15 @@ optionsBarChartActionWith3D->addTo( optionsMenu );
     optionsMenu->insertSeparator();
     optionsSetOptionsAction->addTo( optionsMenu );
 
-#ifdef MAINWINDOW
-    menuBar()->insertItem( "&Options", optionsMenu );
-    menuBar()->insertSeparator();
-
-    QPopupMenu *helpMenu = new QPopupMenu( this );
-    menuBar()->insertItem( "&Help", helpMenu );
-    helpMenu->insertItem( "&Help", this, SLOT(helpHelp()), Key_F1 );
-    helpMenu->insertItem( "&About", this, SLOT(helpAbout()) );
-    helpMenu->insertItem( "About &Qt", this, SLOT(helpAboutQt()) );
-#else // MAINWINDOW
     optionsMenu->insertSeparator();
     optionsMenu->insertSeparator();
-fileNewAction->addTo( optionsMenu );
-fileOpenAction->addTo( optionsMenu );
-fileSaveAction->addTo( optionsMenu );
-fileSaveAsAction->addTo( optionsMenu );
-fileSaveAsPixmapAction->addTo( optionsMenu );
-filePrintAction->addTo( optionsMenu );
+    fileNewAction->addTo( optionsMenu );
+    fileOpenAction->addTo( optionsMenu );
+    fileSaveAction->addTo( optionsMenu );
+    fileSaveAsAction->addTo( optionsMenu );
+    fileSaveAsPixmapAction->addTo( optionsMenu );
+    filePrintAction->addTo( optionsMenu );
 // fileQuitAction->addTo( optionsMenu );
-#endif // MAINWINDOW
 
 
     m_printer = 0;
@@ -236,13 +185,8 @@ filePrintAction->addTo( optionsMenu );
 
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, WINDOWS_REGISTRY );
-#ifdef MAINWINDOW
-    int windowWidth = settings.readNumEntry( APP_KEY + "WindowWidth", 460 );
-    int windowHeight = settings.readNumEntry( APP_KEY + "WindowHeight", 530 );
-#else // MAINWINDOW
     int windowWidth = 460;
     int windowHeight = 530;
-#endif // MAINWINDOW
     int windowX = settings.readNumEntry( APP_KEY + "WindowX", -1 );
     int windowY = settings.readNumEntry( APP_KEY + "WindowY", -1 );
     setChartType( ChartType(
@@ -279,11 +223,7 @@ filePrintAction->addTo( optionsMenu );
     m_canvas->resize( width(), height() );
 #endif // NORESIZE
     m_canvasView = new CanvasView( m_canvas, &m_elements, this );
-#ifdef MAINWINDOW
-    setCentralWidget( m_canvasView );
-#else // MAINWINDOW
     localLayout->addWidget(m_canvasView);
-#endif // MAINWINDOW
     m_canvasView->show();
 
     if ( !filename.isEmpty() )
@@ -291,10 +231,6 @@ filePrintAction->addTo( optionsMenu );
     else {
 	init();
     }
-
-#ifdef MAINWINDOW
-    statusBar()->message( "Ready", 2000 );
-#endif // MAINWINDOW
 }
 
 
@@ -356,11 +292,6 @@ void ChartForm::fileOpen()
     if ( !filename.isEmpty() )
     {
 	  load( filename );
-    } else
-    {
-#ifdef MAINWINDOW
-	  statusBar()->message( "File Open abandoned", 2000 );
-#endif // MAINWINDOW
     }
 }
 
@@ -388,9 +319,6 @@ void ChartForm::fileSaveAs()
       return;
     }
   }
-#ifdef MAINWINDOW
-  statusBar()->message( "Saving abandoned", 2000 );
-#endif // MAINWINDOW
 }
 
 
@@ -405,33 +333,11 @@ void ChartForm::fileOpenRecent( int index )
 
 void ChartForm::updateRecentFiles( const QString& filename )
 {
-#ifdef MAINWINDOW
-    if ( m_recentFiles.find( filename ) != m_recentFiles.end() )
-	return;
-
-    m_recentFiles.push_back( filename );
-    if ( m_recentFiles.count() > MAX_RECENTFILES )
-	m_recentFiles.pop_front();
-
-    updateRecentFilesMenu();
-#endif // MAINWINDOW
 }
 
 
 void ChartForm::updateRecentFilesMenu()
 {
-#ifdef MAINWINDOW
-    if ( m_recentFiles.find( filename ) != m_recentFiles.end() )
-    for ( int i = 0; i < MAX_RECENTFILES; ++i ) {
-	if ( fileMenu->findItem( i ) )
-	    fileMenu->removeItem( i );
-	if ( i < int(m_recentFiles.count()) )
-	    fileMenu->insertItem( QString( "&%1 %2" ).
-				    arg( i + 1 ).arg( m_recentFiles[i] ),
-				  this, SLOT( fileOpenRecent(int) ),
-				  0, i );
-    }
-#endif // MAINWINDOW
 }
 
 
@@ -597,9 +503,6 @@ void ChartForm::optionsSetOptions()
 
 void ChartForm::helpHelp()
 {
-#ifdef MAINWINDOW
-    statusBar()->message( "Help is not implemented yet", 2000 );
-#endif // MAINWINDOW
 }
 
 

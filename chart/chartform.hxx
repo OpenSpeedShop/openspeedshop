@@ -33,8 +33,10 @@ public:
     void setChanged( bool changed = TRUE ) { m_changed = changed; }
     void drawElements();
 
+    int getItemFromPos( QPoint pos );
+
     virtual int mouseClicked(int item);
-virtual void contentsContextMenuEvent( QContextMenuEvent *e );
+    virtual void contentsContextMenuEvent( QContextMenuEvent *e );
     virtual QPopupMenu *createPopupMenu(const QPoint & pos);
     QPopupMenu *optionsMenu; // Why public? See canvasview.cpp
 
@@ -72,7 +74,7 @@ private:
     void drawPieChart( const double scales[], double total, int count );
     void drawVerticalBarChart( const double scales[], double total, int count );
     void drawHorizontalBarChart( const double scales[], double total, int count );
-void draw3DBarChart( const double scales[], double total, int count );
+    void draw3DBarChart( const double scales[], double total, int count );
 
     QString valueLabel( const QString& label, double value, double total );
     void updateRecentFiles( const QString& filename );
@@ -81,9 +83,9 @@ void draw3DBarChart( const double scales[], double total, int count );
 
     QPopupMenu *fileMenu;
     QAction *optionsPieChartActionWithShadow;
-QAction *optionsPieChartActionWithNoShadow;
-QAction *optionsPieChartActionWith3D;
-QAction *optionsBarChartActionWith3D;
+    QAction *optionsPieChartActionWithNoShadow;
+    QAction *optionsPieChartActionWith3D;
+    QAction *optionsBarChartActionWith3D;
     QAction *optionsHorizontalBarChartAction;
     QAction *optionsVerticalBarChartAction;
 

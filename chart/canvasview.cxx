@@ -40,6 +40,47 @@ void CanvasView::viewportResizeEvent( QResizeEvent *e )
 }
 
 
+
+
+#ifdef PULL
+int
+CanvasView::getItemFromPos( QPoint p )
+{
+//  nprintf(DEBUG_PANELS) ("CanvasView::getItemFromPos() entered.\n");
+  printf ("CanvasView::getItemFromPos() x=%d y=%d.\n", p.x(), p.y() );
+
+QPoint pos = mapToGlobal(p);
+  printf ("CanvasView::getItemFromPos() pos.x=%d pos.y=%d.\n", pos.x(), pos.y() );
+
+  int selected = -1;
+  QCanvasItemList list = canvas()->collisions( pos );
+  
+  CanvasEllipse *item = NULL;
+  QCanvasItemList::iterator it = NULL;
+  ChartForm *form = (ChartForm*)parent();
+  m_movingItem = NULL;
+  for ( it = list.begin(); it != list.end(); ++it )
+  {
+    if ( (*it)->rtti() == CanvasEllipse::CANVAS_ELLIPSE )
+    {
+      printf ("Match CANVAS_ELLIPSE\n");
+      m_movingItem = *it;
+      m_pos = pos;
+      printf ("m_pos.x()=%d m_pos.y()=%d\n", m_pos.x(), m_pos.y() );
+      int chartType = form->chartType();
+      item = (CanvasEllipse *)m_movingItem;
+    }
+    if( item != NULL )
+    {
+        selected = item->index();
+        break;
+    }
+  }
+
+  return( selected );
+}
+#endif // PULL
+
 #define SELECTMODE 0
 void CanvasView::contentsMousePressEvent( QMouseEvent *e )
 {

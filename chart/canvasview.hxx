@@ -22,6 +22,8 @@ public:
 		WFlags f = 0 )
 	: QCanvasView( canvas, parent, name, f ),
 	  m_elements( elements ) { }
+
+    int getItemFromPos( QPoint pos );
 protected:
     void viewportResizeEvent( QResizeEvent *e );
     virtual void contentsMousePressEvent( QMouseEvent *e );
