@@ -77,7 +77,7 @@ char *string;
 %token RANK_ID HOST_ID THREAD_ID FILE_ID EXP_ID PROCESS_ID
 %token LINE_ID CLUSTER_ID
 
-%token COMMA SEMICOLON DOUBLE_COLON COLON END_LINE EQUAL
+%token COMMA SEMICOLON COLON END_LINE EQUAL
 
 %token <val> IPNUMBER_32
 %token <val> HEXNUMBER
@@ -663,10 +663,10 @@ param_list:  	    param
     	    	|   param_list COMMA param
 		;
 
-param:	    	    expType DOUBLE_COLON param_name EQUAL NUMBER
-		     {p_parse_result->pushParm($1,$3,$5);}
-    	    	    expType DOUBLE_COLON param_name EQUAL NAME
-		     {p_parse_result->pushParm($1,$3,$5);}
+param:	    	    expType COLON COLON param_name EQUAL NUMBER
+		     {p_parse_result->pushParm($1,$4,$6);}
+    	    	|   expType COLON COLON param_name EQUAL NAME
+		     {p_parse_result->pushParm($1,$4,$6);printf("expType=%s\n",$1);}
     	    	|   param_name EQUAL NUMBER
 		     {p_parse_result->pushParm(NULL,$1,$3);}
     	    	|   param_name EQUAL NAME
@@ -681,24 +681,17 @@ param_name: 	    PARAM_DISPLAY_MODE
     	    	|   NAME	    	    	    	 
 		;
 
-expType_list:  	    expType 
-    	    	|   expType_list COMMA expType
+expType_list:  	    expType {p_parse_result->pushExpType($1);}
+    	    	|   expType_list COMMA expType {p_parse_result->pushExpType($3);}
 		;
 
-expType:	    EXP_PCSAMP
-		     {p_parse_result->pushExpType($1);}
+expType:	    EXP_PCSAMP		     
     	    	|   EXP_USERTIME
-		     {p_parse_result->pushExpType($1);}
     	    	|   EXP_MPI
-		     {p_parse_result->pushExpType($1);}
     	    	|   EXP_FPE
-		     {p_parse_result->pushExpType($1);}
     	    	|   EXP_HWC
-		     {p_parse_result->pushExpType($1);}
     	    	|   EXP_IO
-		     {p_parse_result->pushExpType($1);}
 		|   NAME
-		     {p_parse_result->pushExpType($1);}
 		;
 
 viewType:   	    VIEW_TOPN	    	    	{p_parse_result->pushViewType($1);}
