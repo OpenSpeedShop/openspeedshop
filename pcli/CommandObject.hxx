@@ -83,7 +83,7 @@ class CommandObject
   Command_Status Cmd_Status;
   oss_cmd_enum Cmd_Type; // A copy of information in the Parse_Result.
   command_t *Parse_Result;
-  bool Results_Used; // Once used, this object can be deleted!
+  bool results_used; // Once used, this object can be deleted!
   std::list<CommandResult *> CMD_Result;
 
   void Associate_Input ()
@@ -105,7 +105,7 @@ public:
     Cmd_Status = CMD_PARSED;
     Cmd_Type =  P->type;
     Parse_Result = P;
-    Results_Used = false;
+    results_used = false;
   }
   ~CommandObject() {
   }
@@ -113,12 +113,12 @@ public:
   InputLineObject *Clip () { return Associated_Clip; }
   Command_Status Status () { return Cmd_Status; }
   oss_cmd_enum Type () { return Cmd_Type; }
-  bool Results_Processed () { return Results_Used; }
+  bool Results_Used () { return results_used; }
   command_t *P_Result () { return Parse_Result; }
     
   void SetSeqNum (int a) { Seq_Num = a; }
   void set_Status (Command_Status S); // defined in CommandObject.cxx
-  void set_Results_Used () { Results_Used = true; }
+  void set_Results_Used () { results_used = true; }
 
   void Result_Int (int64_t I) {
     Add_Result (new CommandResult_Int(I));
