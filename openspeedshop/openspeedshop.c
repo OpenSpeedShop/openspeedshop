@@ -17,34 +17,63 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
+#include <ltdl.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <dlfcn.h>
+#include <assert.h>
+
 int
 main( int argc, char ** argv ) {
-  char cli_plugin_file[2048];
+
   char *cli_dl_name = getenv("OPENSS_CLI_RELOCATABLE_NAME");
   char *cli_entry_point = getenv("OPENSS_CLI_ENTRY_POINT");
-  char *plugin_directory = getenv("OPENSS_PLUGIN_PATH");
-
-  if( !plugin_directory ) exit(EXIT_FAILURE);
-  if( !cli_dl_name ) cli_dl_name = "posscli.so";
+  if( !cli_dl_name ) cli_dl_name = "posscli";
   if( !cli_entry_point ) cli_entry_point = "cli_init";
 
-  sprintf(cli_plugin_file, "%s/%s", plugin_directory, cli_dl_name);
-  void *dl_cli_object = dlopen((const char *)cli_plugin_file, (int)RTLD_LAZY );
-  if( !dl_cli_object ) {
-    fprintf(stderr, "%s\n", dlerror() );
+  assert(lt_dlinit() == 0);
+  // Start with an empty user-defined search path
+  assert(lt_dlsetsearchpath("") == 0);
+  // Add the user-specified plugin path
+  if(getenv("OPENSS_PLUGIN_PATH") != NULL)
+  {
+    char *user_specified_path = getenv("OPENSS_PLUGIN_PATH");
+    const char *currrent_search_path = lt_dlgetsearchpath();
+    assert(lt_dladdsearchdir(user_specified_path) == 0);
+  }
+
+  // Add the install plugin path
+  char *openss_install_dir = getenv("OPENSS_INSTALL_DIR");
+  if( openss_install_dir != NULL)
+  {
+    char *install_path = (char *)calloc(strlen(openss_install_dir)+
+                                        strlen("/lib/openspeedshop")+1,
+                                        sizeof(char *) );
+    strcpy(install_path, openss_install_dir);
+    strcat(install_path, "/lib/openspeedshop");
+    const char *currrent_search_path = lt_dlgetsearchpath();
+    assert(lt_dladdsearchdir(install_path) == 0);
+  }
+
+  // Add the compile-time plugin path
+  assert(lt_dladdsearchdir(PLUGIN_PATH) == 0);
+
+  // Now search for cli library in these paths
+  lt_dlhandle dl_cli_object = lt_dlopenext((const char *)cli_dl_name);
+  if( dl_cli_object == NULL ) {
+    fprintf(stderr, "cannot: access %s in %s : %s\n", cli_dl_name, lt_dlgetsearchpath(), lt_dlerror() );
     exit(EXIT_FAILURE);
   }
 
-  int (*dl_cli_init_routine)(int, char **);
-  dl_cli_init_routine = (int (*)(int, char **))dlsym(dl_cli_object, cli_entry_point);
+  lt_ptr (*dl_cli_init_routine)(int, char **);
+  dl_cli_init_routine = (lt_ptr (*)(int, char **))lt_dlsym(dl_cli_object, cli_entry_point);
   if( dl_cli_init_routine == NULL )
   {
-    fprintf(stderr, "%s\n", dlerror() );
+    fprintf(stderr, "Unable to call %s : %s\n", cli_entry_point, lt_dlerror() );
     exit(EXIT_FAILURE);
   }
 
+// printf("calling cli_entry point \n");
   (*dl_cli_init_routine)(argc, argv);
+
 }
+

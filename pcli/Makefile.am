@@ -22,7 +22,8 @@ posscli_la_CXXFLAGS =  \
 	-c -LANG:std -fpic \
 	-I. \
         $(PYTHON_CPPFLAGS) \
-	-I../libopenss-framework \
+	-I$(top_srcdir)/libopenss-framework \
+    -DPLUGIN_PATH=\"$(pkglibdir)\" \
 	-I/usr/include -I. -I../objects -I../base
 
 posscli_la_LDFLAGS = \
@@ -30,7 +31,7 @@ posscli_la_LDFLAGS = \
 	--export-dynamic \
 	-module \
 	-avoid-version \
-	-L../libopenss-framework \
+	-L$(top_srcdir)/libopenss-framework \
         $(PYTHON_LDFLAGS) \
 	-lpthread -lutil -LANG:std -ldl
 

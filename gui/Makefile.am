@@ -29,6 +29,7 @@ libopenss_GUI_la_CXXFLAGS =  \
 	-I../images \
 	-I../dialogs \
 	-I../objects \
+	-DPLUGIN_PATH=\"$(pkglibdir)\" \
 	-I../base
 
 libopenss_GUI_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version

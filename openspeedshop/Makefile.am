@@ -17,18 +17,21 @@
 ################################################################################
 
 # this is needed to pickup the openss script for the make dist target
-EXTRA_DIST = openss
-
 bin_PROGRAMS = openspeedshop
 
 bin_SCRIPTS = openss
 
-openspeedshop_la_CXXFLAGS = -I/usr/include -I.
+openspeedshop_CFLAGS = \
+	-DPLUGIN_PATH=\"$(pkglibdir)\"
 
-LDFLAGS = -lc -ldl
+openspeedshop_LDADD = \
+	-lc $(LIBLTDL)
 
-# openss:
-#	-cp openss $(prefix)/bin;
+openspeedshop_LDFLAGS = \
+	--export-dynamic --export-all-symbols -module -avoid-version
+
+openspeedshop_SOURCES = \
+	openspeedshop.c
 
 doc: $(DOC_SUBDIRS) 
 	-doxygen Doxyfile

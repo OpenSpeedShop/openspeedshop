@@ -22,13 +22,14 @@
 
 #include "openspeedshop.hxx"
 #include "PluginInfo.hxx"
-#include <dlfcn.h>
+#include <ltdl.h>
+#include <assert.h>
 
 #include "PreferencesChangedObject.hxx"
 
 void PreferencesDialog::readPreferencesOnEntry()
 {
-// printf("readPreferencesOnEntry() entered\n");
+  //printf("readPreferencesOnEntry() entered\n");
 
 //  settings->insertSearchPath( QSettings::Unix, "openspeedshop" );
   // No search path needed for Unix; see notes further on.
@@ -94,32 +95,50 @@ void PreferencesDialog::resetPreferenceDefaults()
   char plugin_file[1024];
   if( panelContainer->getMasterPC() && panelContainer->getMasterPC()->_pluginRegistryList )
   {
-    char *plugin_directory = getenv("OPENSS_PLUGIN_PATH");
-    if( !plugin_directory )
-    {
-      fprintf(stderr, "Can't find the PanelContainer plugin. $OPENSS_PLUGIN_PATH not set correctly.\n");
-        return;
-    }
+  assert(lt_dlinit() == 0);
+  // Start with an empty user-defined search path
+  assert(lt_dlsetsearchpath("") == 0);
+  // Add the user-specified plugin path
+  if(getenv("OPENSS_PLUGIN_PATH") != NULL)
+  {
+    char *user_specified_path = getenv("OPENSS_PLUGIN_PATH");
+    const char *currrent_search_path = lt_dlgetsearchpath();
+    assert(lt_dladdsearchdir(user_specified_path) == 0);
+  }
+  // Add the install plugin path
+  char *openss_install_dir = getenv("OPENSS_INSTALL_DIR");
+  if( openss_install_dir != NULL)
+  {
+    char *install_path = (char *)calloc(strlen(openss_install_dir)+
+                                        strlen("/lib/openspeedshop")+1,
+                                        sizeof(char *) );
+    strcpy(install_path, openss_install_dir);
+    strcat(install_path, "/lib/openspeedshop");
+    const char *currrent_search_path = lt_dlgetsearchpath();
+    assert(lt_dladdsearchdir(install_path) == 0);
+  }
+  // Add the compile-time plugin path
+  assert(lt_dladdsearchdir(PLUGIN_PATH) == 0);
+  // Now search for plugins preferences in all these paths
     PluginInfo *pi = NULL;
     for( PluginRegistryList::Iterator it = panelContainer->getMasterPC()->_pluginRegistryList->begin();
          it != panelContainer->getMasterPC()->_pluginRegistryList->end();
          it++ )
     {
       pi = (PluginInfo *)*it;
-      sprintf(plugin_file, "%s/%s", plugin_directory, pi->plugin_name );
-      void *dl_object = dlopen((const char *)plugin_file, (int)RTLD_LAZY );
+      lt_dlhandle dl_object = lt_dlopenext((const char *)pi->plugin_name);
   
-      if( dl_object )
+      if( dl_object != NULL )
       {
 // printf("about to lookup(%s).\n", "initPreferenceSettings");
         void (*dl_plugin_init_preferences_settings)() =
-          (void (*)())dlsym(dl_object, "initPreferenceSettings" );
+          (void (*)())lt_dlsym(dl_object, "initPreferenceSettings" );
          if( dl_plugin_init_preferences_settings )
          {
 // printf("about to call the routine.\n");
            (*dl_plugin_init_preferences_settings)();
          }
-         dlclose(dl_object);
+         lt_dlclose(dl_object);
       }
     }
   }
@@ -272,32 +291,51 @@ void PreferencesDialog::savePreferences()
   char plugin_file[1024];
   if( panelContainer->getMasterPC() && panelContainer->getMasterPC()->_pluginRegistryList )
   {
-    char *plugin_directory = getenv("OPENSS_PLUGIN_PATH");
-    if( !plugin_directory )
+    assert(lt_dlinit() == 0);
+    // Start with an empty user-defined search path
+    assert(lt_dlsetsearchpath("") == 0);
+    // Add the user-specified plugin path
+    if(getenv("OPENSS_PLUGIN_PATH") != NULL)
     {
-      fprintf(stderr, "Can't find the PanelContainer plugin. $OPENSS_PLUGIN_PATH not set correctly.\n");
-        return;
+      char *user_specified_path = getenv("OPENSS_PLUGIN_PATH");
+      const char *currrent_search_path = lt_dlgetsearchpath();
+      assert(lt_dladdsearchdir(user_specified_path) == 0);
     }
+    // Add the install plugin path
+    char *openss_install_dir = getenv("OPENSS_INSTALL_DIR");
+    if( openss_install_dir != NULL)
+    {
+      char *install_path = (char *)calloc(strlen(openss_install_dir)+
+                                        strlen("/lib/openspeedshop")+1,
+                                          sizeof(char *) );
+      strcpy(install_path, openss_install_dir);
+      strcat(install_path, "/lib/openspeedshop");
+      const char *currrent_search_path = lt_dlgetsearchpath();
+      assert(lt_dladdsearchdir(install_path) == 0);
+    }
+    // Add the compile-time plugin path
+    assert(lt_dladdsearchdir(PLUGIN_PATH) == 0);
+    // Now search for plugins in all these paths
+
     PluginInfo *pi = NULL;
     for( PluginRegistryList::Iterator it = panelContainer->getMasterPC()->_pluginRegistryList->begin();
          it != panelContainer->getMasterPC()->_pluginRegistryList->end();
          it++ )
     {
       pi = (PluginInfo *)*it;
-      sprintf(plugin_file, "%s/%s", plugin_directory, pi->plugin_name );
-      void *dl_object = dlopen((const char *)plugin_file, (int)RTLD_LAZY );
+      lt_dlhandle dl_object = lt_dlopenext((const char *)pi->plugin_name);
   
-      if( dl_object )
+      if( dl_object != NULL )
       {
 // printf("about to lookup(%s).\n", "save_preferences_entry_point");
         void (*dl_plugin_info_init_preferences_routine)(QSettings *, char *) =
-          (void (*)(QSettings *, char *))dlsym(dl_object, "save_preferences_entry_point" );
+          (void (*)(QSettings *, char *))lt_dlsym(dl_object, "save_preferences_entry_point" );
          if( dl_plugin_info_init_preferences_routine )
          {
 // printf("about to call the routine.\n");
            (*dl_plugin_info_init_preferences_routine)(settings, pi->preference_category);
          }
-         dlclose(dl_object);
+         lt_dlclose(dl_object);
       }
     }
   }

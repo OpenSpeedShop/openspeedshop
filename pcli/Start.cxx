@@ -109,7 +109,23 @@ Initial_Python ()
   Py_Initialize ();
   initPY_Input();
   char pyfile[1024];
+  // There are multiple directories this can be locate in...
+  // First look in the user defined one, then the installed,
+  // and finally the package directory.
   char *plugin_directory = getenv("OPENSS_PLUGIN_PATH");
+  if( plugin_directory == NULL )
+  {
+    plugin_directory = getenv("OPENSS_INSTALL_DIR");
+  }
+  if( plugin_directory == NULL )
+  {
+    plugin_directory = PLUGIN_PATH;
+  }
+  if( plugin_directory == NULL )
+  {
+    fprintf(stderr, "Unable to locate myparse.py to initialize python.\n");
+    exit(EXIT_FAILURE);
+  }
   sprintf(pyfile, "%s/%s", plugin_directory, "myparse.py");
   fp = fopen (pyfile, "r");
   PyRun_SimpleFile ( fp, "myparse.py" );
@@ -328,7 +344,9 @@ setup_signal_handler (int s)
   // big GUI libraries.   We load the gui as a dynamic library. 
   // The GUI will then start it's own thread and fire up a copy of the
   // gui (that will talk with the cli).
-  #include <dlfcn.h>
+//  #include <dlfcn.h>
+  #include <ltdl.h>
+  #include <assert.h>
   void
   loadTheGUI(ArgStruct *argStruct)
   {
@@ -336,24 +354,48 @@ setup_signal_handler (int s)
     char *gui_dl_name = getenv("OPENSS_GUI_RELOCATABLE_NAME");
     char *gui_entry_point = getenv("OPENSS_GUI_ENTRY_POINT");
     char *plugin_directory = getenv("OPENSS_PLUGIN_PATH");
-  
-    if( !plugin_directory ) exit(EXIT_FAILURE);
 
-    if( !gui_dl_name ) gui_dl_name = "libopenss-GUI.so";
+    assert(lt_dlinit() == 0);
+    // Start with an empty user-defined search path
+    assert(lt_dlsetsearchpath("") == 0);
+    // Add the user-specified plugin path
+    if(getenv("OPENSS_PLUGIN_PATH") != NULL)
+    {
+      char *user_specified_path = getenv("OPENSS_PLUGIN_PATH");
+      const char *currrent_search_path = lt_dlgetsearchpath();
+      assert(lt_dladdsearchdir(user_specified_path) == 0);
+    }
+    // Add the install plugin path
+    char *openss_install_dir = getenv("OPENSS_INSTALL_DIR");
+    if( openss_install_dir != NULL)
+    {
+      char *install_path = (char *)calloc(strlen(openss_install_dir)+
+                                          strlen("/lib/openspeedshop")+1,
+                                          sizeof(char *) );
+      strcpy(install_path, openss_install_dir);
+      strcat(install_path, "/lib/openspeedshop");
+      const char *currrent_search_path = lt_dlgetsearchpath();
+      assert(lt_dladdsearchdir(install_path) == 0);
+    }
+    // Add the compile-time plugin path
+    assert(lt_dladdsearchdir(PLUGIN_PATH) == 0);
+    // Now search for collector plugins in all these paths
+//    printf("lt_dlgetsearchpath()=(%s)\n", lt_dlgetsearchpath() );
+
+    if( !gui_dl_name ) gui_dl_name = "libopenss-GUI";
     if( !gui_entry_point ) gui_entry_point = "gui_init";
   
-    sprintf(gui_plugin_file, "%s/%s", plugin_directory, gui_dl_name);
-    void *dl_gui_object = dlopen((const char *)gui_plugin_file, (int)RTLD_LAZY );
-    if( !dl_gui_object ) {
-      fprintf(stderr, "%s\n", dlerror() );
+    lt_dlhandle dl_gui_object = lt_dlopenext((const char *)gui_dl_name);
+    if( dl_gui_object == NULL ) {
+      fprintf(stderr, "%s\n", lt_dlerror() );
       exit(EXIT_FAILURE);
     }
   
-    int (*dl_gui_init_routine)(void *);
-    dl_gui_init_routine = (int (*)(void *))dlsym(dl_gui_object, gui_entry_point);
+    lt_ptr (*dl_gui_init_routine)(void *);
+    dl_gui_init_routine = (lt_ptr (*)(void *))lt_dlsym(dl_gui_object, gui_entry_point);
     if( dl_gui_init_routine == NULL )
     {
-      fprintf(stderr, "%s\n", dlerror() );
+      fprintf(stderr, "%s\n", lt_dlerror() );
       exit(EXIT_FAILURE);
     }
   

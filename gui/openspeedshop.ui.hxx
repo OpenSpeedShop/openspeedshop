@@ -35,7 +35,8 @@
 extern QApplication *qapplication;
 
 #include "plugin_handler.hxx"
-#include <dlfcn.h>
+#include <ltdl.h>
+#include <assert.h>
 
 // #include "debug.hxx"  // This includes the definition of dprintf
 #include "AttachProcessDialog.hxx"
@@ -509,50 +510,65 @@ AppEventFilter::eventFilter( QObject *obj, QEvent *e )
 void OpenSpeedshop::init()
 {
 //  topPL = this;
-// dprintf(stderr, "OpenSpeedshop::init() entered\n");
-
   char pc_plugin_file[2048];
-  char *pc_dl_name="/libopenss-Base.so";
-  char *plugin_directory = getenv("OPENSS_PLUGIN_PATH");
-  if( !plugin_directory )
+  assert(lt_dlinit() == 0);
+  // Start with an empty user-defined search path
+  assert(lt_dlsetsearchpath("") == 0);
+  // Add the user-specified plugin path
+  if(getenv("OPENSS_PLUGIN_PATH") != NULL)
   {
-    fprintf(stderr, "Can't find the PanelContainer plugin. $OPENSS_PLUGIN_PATH not set correctly.\n");
-      return;
+    char *user_specified_path = getenv("OPENSS_PLUGIN_PATH");
+    const char *currrent_search_path = lt_dlgetsearchpath();
+    assert(lt_dladdsearchdir(user_specified_path) == 0);
   }
-  sprintf(pc_plugin_file, "%s%s", plugin_directory, pc_dl_name);
-  void *dl_pc_object = dlopen((const char *)pc_plugin_file, (int)RTLD_NOW );
-  if( !dl_pc_object )
+  // Add the install plugin path
+  char *openss_install_dir = getenv("OPENSS_INSTALL_DIR");
+  if( openss_install_dir != NULL)
   {
-   fprintf(stderr, "dlerror()=%s\n", dlerror() );
+    char *install_path = (char *)calloc(strlen(openss_install_dir)+
+                                        strlen("/lib/openspeedshop")+1,
+                                        sizeof(char *) );
+    strcpy(install_path, openss_install_dir);
+    strcat(install_path, "/lib/openspeedshop");
+    const char *currrent_search_path = lt_dlgetsearchpath();
+    assert(lt_dladdsearchdir(install_path) == 0);
+  }
+  // Add the compile-time plugin path
+  assert(lt_dladdsearchdir(PLUGIN_PATH) == 0);
+  // Now search for plugins in all these paths
+
+  char *pc_dl_name="libopenss-Base";
+  lt_dlhandle dl_pc_object = lt_dlopenext((const char *)pc_dl_name);
+  if( dl_pc_object == NULL )
+  {
+   fprintf(stderr, "lt_dlerror()=%s\n", lt_dlerror() );
     return;
   }
-  PanelContainer * (*dl_pc_init_routine)(QWidget *, QVBoxLayout *);
-  dl_pc_init_routine = (PanelContainer * (*)( QWidget *, QVBoxLayout * ))dlsym(dl_pc_object, "pc_init");
+  PanelContainer *(*dl_pc_init_routine)(QWidget *, QVBoxLayout *);
+  dl_pc_init_routine = (PanelContainer * (*)( QWidget *, QVBoxLayout * ))lt_dlsym(dl_pc_object, "pc_init");
   if( dl_pc_init_routine == NULL )
   {
-    fprintf(stderr, "libdso: dlsym %s not found in %s dlerror()=%s\n", "pc_init", pc_plugin_file, dlerror() );
+    fprintf(stderr, "libdso: dlsym %s not found in %s lt_dlerror()=%s\n", "pc_init", pc_plugin_file, lt_dlerror() );
   }
-  PanelContainer *masterPC = (*dl_pc_init_routine)( centralWidget(), OpenSpeedshopLayout);
+  PanelContainer *masterPC = (PanelContainer *)(*dl_pc_init_routine)( centralWidget(), OpenSpeedshopLayout);
 
   masterPC->setMainWindow(this);
   topPC = masterPC;
 
   char ph_file[2048];
-  char *ph_dl_name = "/libopenss-Plugin.so";
-  sprintf(ph_file, "%s%s", plugin_directory, ph_dl_name);
-  void *dl_ph_object = dlopen((const char *)ph_file, (int)RTLD_NOW );
-  if( !dl_ph_object )
+  char *ph_dl_name = "libopenss-Plugin";
+  lt_dlhandle dl_ph_object = lt_dlopenext((const char *)ph_dl_name);
+  if( dl_ph_object == NULL )
   {
-   fprintf(stderr, "dlerror()=%s\n", dlerror() );
+   fprintf(stderr, "lt_dlerror()=%s\n", lt_dlerror() );
     return;
   }
-  int (*dl_ph_init_routine)(QWidget *, PanelContainer *);
-  dl_ph_init_routine = (int (*)( QWidget *, PanelContainer * ))dlsym(dl_ph_object, "ph_init");
+  lt_ptr (*dl_ph_init_routine)(QWidget *, PanelContainer *);
+  dl_ph_init_routine = (lt_ptr (*)( QWidget *, PanelContainer * ))lt_dlsym(dl_ph_object, "ph_init");
   if( dl_ph_init_routine == NULL )
   {
-    fprintf(stderr, "libdso: dlsym %s not found in %s dlerror()=%s\n", "pc_init", ph_file, dlerror() );
+    fprintf(stderr, "libdso: dlsym %s not found in %s lt_dlerror()=%s\n", "pc_init", ph_file, lt_dlerror() );
   }
-
 
   // Load the GUI plugins...
   (*dl_ph_init_routine)( (QWidget *)this, masterPC);
@@ -573,30 +589,27 @@ void OpenSpeedshop::init()
          it++ )
     {
       pi = (PluginInfo *)*it;
-      sprintf(plugin_file, "%s/%s", plugin_directory, pi->plugin_name );
-//printf("about to open(%s).\n", plugin_file);
-      void *dl_object = dlopen((const char *)plugin_file, (int)RTLD_LAZY );
+//      lt_dlhandle dl_object = lt_dlopenext((const char *)pi->plugin_name);
+      lt_dlhandle dl_object = lt_dlopen((const char *)pi->plugin_name);
 
-      if( dl_object )
+      if( dl_object != NULL )
       {
-//printf("about to lookup(%s).\n", "initialize_preferences_entry_point");
         QWidget * (*dl_plugin_info_init_preferences_routine)(QSettings *, QWidgetStack*, char *) =
-          (QWidget * (*)(QSettings *, QWidgetStack*, char *))dlsym(dl_object, "initialize_preferences_entry_point" );
-          if( dl_plugin_info_init_preferences_routine )
+        (QWidget * (*)(QSettings *, QWidgetStack*, char *))lt_dlsym(dl_object, "initialize_preferences_entry_point" );
+        if( dl_plugin_info_init_preferences_routine != NULL )
+        {
+          QWidget *panelStackPage = (QWidget *)(*dl_plugin_info_init_preferences_routine)(preferencesDialog->settings, preferencesDialog->preferenceDialogWidgetStack, pi->preference_category);
+          if( panelStackPage )
           {
-//printf("about to call the routine.\n");
-            QWidget *panelStackPage = (*dl_plugin_info_init_preferences_routine)(preferencesDialog->settings, preferencesDialog->preferenceDialogWidgetStack, pi->preference_category);
-            if( panelStackPage )
-            {
-              preferencesStackPagesList.push_back(panelStackPage);
-              QListViewItem *item = new QListViewItem( preferencesDialog->categoryListView );
-              item->setText( 0, tr( panelStackPage->name() ) );
-            }
+            preferencesStackPagesList.push_back(panelStackPage);
+            QListViewItem *item = new QListViewItem( preferencesDialog->categoryListView );
+            item->setText( 0, tr( panelStackPage->name() ) );
           }
-          dlclose(dl_object);
         }
+        lt_dlclose(dl_object);
       }
     }
+  }
     preferencesStackPagesList.push_back(preferencesDialog->generalStackPage);
     QListViewItem *item = new QListViewItem( preferencesDialog->categoryListView );
     item->setText( 0, tr( "General" ) );

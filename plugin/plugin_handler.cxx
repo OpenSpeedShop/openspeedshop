@@ -80,7 +80,7 @@ static QWidget *pl;
 int
 register_plugin(const char *plugin_file)
 {
-  printf("Attempting to open %s\n", plugin_file );
+  dprintf("Attempting to open %s\n", plugin_file );
 
   // We got a plugin location directory and an absoluted path to a plugin.
   // Let's try to load the PluginInfo information.
@@ -185,22 +185,6 @@ void initialize_plugins()
   // Start with an empty user-defined search path
   assert(lt_dlsetsearchpath("") == 0);
 
-  // Add the compile-time plugin path
-  assert(lt_dladdsearchdir(PLUGIN_PATH) == 0);
-
-  // Add the install plugin path
-  if(getenv("OPENSS_INSTALL_DIR") != NULL)
-  {
-    dprintf("OPENSS_INSTALL_DIR set\n");
-    QString install_path = QString(getenv("OPENSS_INSTALL_DIR")) +
-            QString("/lib/openspeedshop");
-    const char *currrent_search_path = lt_dlgetsearchpath();
-    if( QString(currrent_search_path).contains(install_path) == 0 )
-    {
-      assert(lt_dladdsearchdir(install_path.ascii()) == 0);
-    }
-  }
-
   // Add the user-specified plugin path
   if(getenv("OPENSS_PLUGIN_PATH") != NULL)
   {
@@ -213,7 +197,24 @@ void initialize_plugins()
     }
   }
 
-  // Now search for collector plugins in all these paths
+  // Add the install plugin path
+  char *openss_install_dir = getenv("OPENSS_INSTALL_DIR");
+  if( openss_install_dir != NULL)
+  {
+    dprintf("OPENSS_INSTALL_DIR set\n");
+    QString install_path = QString(getenv(openss_install_dir)) +
+            QString("/lib/openspeedshop");
+    const char *currrent_search_path = lt_dlgetsearchpath();
+    if( QString(currrent_search_path).contains(install_path) == 0 )
+    {
+      assert(lt_dladdsearchdir(install_path.ascii()) == 0);
+    }
+  }
+
+  // Add the compile-time plugin path
+  assert(lt_dladdsearchdir(PLUGIN_PATH) == 0);
+
+  // Now search for panel plugins in all these paths
   lt_dlforeachfile(lt_dlgetsearchpath(), foreachCallback, 0);
 }
 
