@@ -27,7 +27,7 @@ DebugPanel::DebugPanel()
 
 /*! This constructor.
  */
-DebugPanel::DebugPanel(PanelContainer *pc, const char *n, char *argument) : Panel(pc, n)
+DebugPanel::DebugPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
 {
   setCaption("DebugPanel");
   frameLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
