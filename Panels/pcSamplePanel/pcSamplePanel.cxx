@@ -71,19 +71,26 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n, void *argument) 
     // We have an existing experiment, load the executable or pid if we 
     // have one associated.  (TODO)
     QString *expIDString = (QString *)argument;
-    expID = expIDString->toInt();
-    nprintf( DEBUG_CONST_DESTRUCT ) ("pcSamplePanel look up expID=%d\n", expID);
+    if( (int)argument == -1 )
+    {
+      printf("we're coming in from the pcSampleWizardPanel.\n");
+      // We're comming in cold,
+      // Check to see if there's a suggested executable or pid ...
+      if( !mw->executableName.isEmpty() )
+      {
+        executableNameStr = mw->executableName;
+      } else if( !mw->pidStr.isEmpty() )
+      {
+        pidStr = mw->pidStr;
+      }
+    } else if( expIDString->toInt() > 0 )
+    {
+      expID = expIDString->toInt();
+      printf("we're coming in with an expID=%d\n", expID);
+    }
   } else
   {
-    // We're comming in cold, or we're coming in from the pcSampleWizardPanel
-    // Check to see if there's a suggested executable or pid ...
-    if( !mw->executableName.isEmpty() )
-    {
-      executableNameStr = mw->executableName;
-    } else if( !mw->pidStr.isEmpty() )
-    {
-      pidStr = mw->pidStr;
-    }
+    printf("We're coming in cold (i.e. from main menu)\n");
   }
 
 
@@ -144,7 +151,7 @@ if( expID == -1 )
 
 
 steps = 0;
-pd = new QProgressDialog("Loading process in progress.", NULL, 100, this, NULL, TRUE);
+pd = new QProgressDialog("Loading process in progress.", NULL, 1000, this, NULL, TRUE);
 loadTimer = new QTimer( this, "progressTimer" );
 connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
 loadTimer->start( 0 );
@@ -170,9 +177,12 @@ loadTimer->stop();
 pd->cancel();
 pd->hide();
 
-runnableFLAG = TRUE;
-pco->runButton->setEnabled(TRUE);
-pco->runButton->enabledFLAG = TRUE;
+if( !executableNameStr.isEmpty() || !pidStr.isEmpty() )
+{
+  runnableFLAG = TRUE;
+  pco->runButton->setEnabled(TRUE);
+  pco->runButton->enabledFLAG = TRUE;
+}
 }
 
   char name_buffer[100];
@@ -273,6 +283,7 @@ void
 pcSamplePanel::loadNewProgramSelected()
 {
   nprintf( DEBUG_PANELS ) ("pcSamplePanel::loadNewProgramSelected()\n");
+printf("pcSamplePanel::loadNewProgramSelected()\n");
   if( runnableFLAG == TRUE )
   {
     nprintf( DEBUG_PANELS ) ("Disconnect First?\n"); 
@@ -289,6 +300,41 @@ pcSamplePanel::loadNewProgramSelected()
     if( !mw->executableName.isEmpty() )
     {
       executableNameStr = mw->executableName;
+
+ printf("Attempt to load %s\n", mw->executableName.ascii() );
+    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+
+    char command[1024];
+    sprintf(command, "expAttach -f %s\n", executableNameStr.ascii() );
+
+    steps = 0;
+    pd = new QProgressDialog("Loading process in progress.", NULL, 1000, this, NULL, TRUE);
+    loadTimer = new QTimer( this, "progressTimer" );
+    connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
+    loadTimer->start( 0 );
+    pd->show();
+    statusLabelText->setText( tr(QString("Loading ...  "))+mw->executableName);
+
+    runnableFLAG = FALSE;
+    pco->runButton->setEnabled(FALSE);
+    pco->runButton->enabledFLAG = FALSE;
+    printf("Attempting to do an (%s)\n", command );
+
+    if( !cli->runSynchronousCLI(command) )
+    {
+      fprintf(stderr, "Error retreiving experiment id. \n");
+  //    return;
+    }
+
+    statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the Run button to begin the experiment.")) );
+    loadTimer->stop();
+    pd->cancel();
+    pd->hide();
+
+    runnableFLAG = TRUE;
+    pco->runButton->setEnabled(TRUE);
+    pco->runButton->enabledFLAG = TRUE;
+
     } else if( !mw->pidStr.isEmpty() )
     {
       pidStr = mw->pidStr;
@@ -335,6 +381,7 @@ void
 pcSamplePanel::attachToExecutableSelected()
 {
   nprintf( DEBUG_PANELS ) ("pcSamplePanel::attachToExecutableSelected()\n");
+printf("pcSamplePanel::attachToExecutableSelected()\n");
   if( runnableFLAG == TRUE )
   {
     if( detachFromProgramSelected() == FALSE )
@@ -347,6 +394,47 @@ pcSamplePanel::attachToExecutableSelected()
     mw->executableName = QString::null;
     mw->pidStr = QString::null;
     mw->attachNewProcess();
+  }
+
+  if( !mw->pidStr.isEmpty() )
+  {
+ printf("Attempt to load %s\n", mw->pidStr.ascii() );
+    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+
+    char command[1024];
+    sprintf(command, "expAttach -p %d\n", pidStr.toInt() );
+
+    steps = 0;
+    pd = new QProgressDialog("Loading process in progress.", NULL, 1000, this, NULL, TRUE);
+    loadTimer = new QTimer( this, "progressTimer" );
+    connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
+    loadTimer->start( 0 );
+    pd->show();
+    statusLabelText->setText( tr(QString("Loading ...  "))+mw->pidStr);
+
+    runnableFLAG = FALSE;
+    pco->runButton->setEnabled(FALSE);
+    pco->runButton->enabledFLAG = FALSE;
+    printf("Attempting to do an (%s)\n", command );
+
+    int64_t val = 0;  // unused
+    bool mark_value_for_delete = true;
+    if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete, 60000 ) )
+    {
+      fprintf(stderr, "Error retreiving experiment id. \n");
+  //    return;
+    }
+
+    statusLabelText->setText( tr(QString("Attached:  "))+mw->pidStr+tr(QString("  Click on the Continu button to continue with the experiment.")) );
+    loadTimer->stop();
+    pd->cancel();
+    pd->hide();
+
+    runnableFLAG = TRUE;
+    pco->runButton->setEnabled(TRUE);
+    pco->runButton->enabledFLAG = TRUE;
+pco->continueButton->setEnabled(TRUE);
+pco->continueButton->enabledFLAG = TRUE;
   }
 }   
 
@@ -476,25 +564,6 @@ if( !cli->runSynchronousCLI(command) )
         break;
       case  RUN_T:
 sprintf(command, "expGo -x %d\n", expID);
-// sprintf(command, "expCreate\n");
-#ifdef OLDWAY
-{
-int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
-InputLineObject *clip = Append_Input_String( wid, command);
-ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-if( eo && eo->FW() )
-{
-  Experiment *fw_experiment = eo->FW();
-  fw_experiment->getThreads().changeState(Thread::Running);
-  while(!fw_experiment->getThreads().areAllState(Thread::Terminated))
-  {
-    printf("sleep(1)\n");
-    sleep(1);
-    qApp->processEvents(1000);
-  }
-}
-}
-#else // OLDWAY
 {
 int status = -1;
 nprintf( DEBUG_MESSAGES ) ("Run\n");
@@ -524,7 +593,6 @@ if( status == ExpStatus_Terminated )
   statusLabelText->setText( tr("Process finished...") );
 }
 }
-#endif // OLDWAY
 
 if( 1 )
 {
@@ -772,68 +840,6 @@ if( eo && eo->FW() )
 void
 pcSamplePanel::__demoWakeUpToLoadExperiment()
 {
-#ifdef OLDWAY
-  // Begin direct connect to framework
-  printf("Begin direct connect to framework\n");
-  if( expID != -1 )
-  {
-  printf(" expID == -1\n");
-    if( !mw->executableName.isEmpty() )
-    {
-      QFileInfo fileInfo = QFileInfo(mw->executableName.ascii());
-      if( !fileInfo.exists() )
-      {
-        fprintf(stderr, "Unable to open file.  File (%s) does not exist.\n", mw->executableName.ascii() );
-      }
-      QString basename = fileInfo.baseName().ascii();
-      std::string name = std::string(tempnam ("./", basename.ascii()  )) + ".openss";
-      nprintf( DEBUG_CONST_DESTRUCT ) ("name = (%s)\n", name.c_str() );
-  
-      try
-      {
-        Experiment::create(name);
-        experiment = new Experiment(name);
-  
-        // Create a process for the command in the suspended state
-        std::string command = std::string(mw->executableName.ascii());
-  
-        printf("call experiment->createProcess(%s)\n", command.c_str() );
-        Thread thread = experiment->createProcess(command);
-  
-        // Create the example collector and set its sampling rate
-        nprintf( DEBUG_CONST_DESTRUCT ) ("call the createCollector...(pcsamp)\n");
-        printf("call the createCollector...(pcsamp)\n");
-        Collector collector = experiment->createCollector("example");
-
-        nprintf( DEBUG_CONST_DESTRUCT ) ("call the setParameterValue...(sampling_rate, 10)\n");
-        printf("call the setParameterValue...(sampling_rate, 10)\n");
-        collector.setParameterValue("sampling_rate", (unsigned)10);
-
-        collector.attachThread(thread);
-        collector.startCollecting();
-
-      }
-
-  
-      catch( const std::exception& error) {
-        std::cerr
-            << std::endl
-            << "Error: "
-            << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-            "Unknown runtime error." : error.what()) << std::endl
-            << std::endl;
-    //    return 1;
-        return;
-      }
-    } else 
-    { // Look up all the info and display it... 
-      nprintf( DEBUG_CONST_DESTRUCT ) ("Look up all the info and display it...for exprId (%d) \n", expID );
-    }
-  }
-  // End  direct connect to framework
-#endif // OLDWAY
-
-
   statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the Run button to begin the experiment.")) );
 loadTimer->stop();
 pd->cancel();
@@ -849,14 +855,6 @@ void
 pcSamplePanel::loadMain()
 {
 printf("loadMain() entered\n");
-#ifdef OLDWAY
-steps = 0;
-pd = new QProgressDialog("Loading process in progress.", NULL, 100, this, NULL, TRUE);
-loadTimer = new QTimer( this, "__demoOnlyLoadTimer" );
-connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
-loadTimer->start( 0 );
-pd->show();
-#endif // OLDWAY
 
 // Begin Demo (direct connect to framework) only...
   if( !executableNameStr.isEmpty() || !pidStr.isEmpty() )
@@ -898,12 +896,14 @@ pd->show();
 void
 pcSamplePanel::progressUpdate()
 {
-#ifdef ABORTS
-  pd->setProgress( steps++ );
+// printf("progressUpdate() entered..\n");
+  pd->setProgress( steps );
+  steps++;
   if( steps > 100 )
   {
+// printf("progressUpdate() finished..\n");
     loadTimer->stop();
   }
-  sleep(1);
-#endif // ABORTS
+//printf("progressUpdate() sleep..\n");
+//  sleep(1);
 }

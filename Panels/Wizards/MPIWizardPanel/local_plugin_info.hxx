@@ -24,6 +24,6 @@
   plugin_entry->plugin_location = "$OPENSPEEDSHOP_PLUGIN_PATH";
   plugin_entry->plugin_entry_point = "panel_init";
   plugin_entry->menu_heading =  "&Wizards";
-  plugin_entry->menu_label =  "&MPI Wizard";
+  plugin_entry->menu_label =  "MPI Wizard";
   plugin_entry->menu_accel =  "Alt+M";
   plugin_entry->panel_type =  "MPI Wizard";

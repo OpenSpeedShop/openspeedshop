@@ -629,7 +629,7 @@ nprintf(DEBUG_PANELS) ("eDescriptionPageIntroButtonSelected() \n");
     Panel *p = getPanelContainer()->raiseNamedPanel("&Intro Wizard");
     if( !p )
     {
-      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Intro Wizard", getPanelContainer() );
+      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Intro Wizard", getPanelContainer(), (void *)NULL );
     }
 }
 
@@ -768,7 +768,7 @@ nprintf(DEBUG_PANELS) ("vDescriptionPageIntroButtonSelected() \n");
     Panel *p = getPanelContainer()->raiseNamedPanel("&Intro Wizard");
     if( !p )
     {
-      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Intro Wizard", getPanelContainer() );
+      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Intro Wizard", getPanelContainer(), (void *)NULL );
     }
 }
 
@@ -900,7 +900,7 @@ nprintf(DEBUG_PANELS) ("vSummaryPageFinishButtonSelected() \n");
 
   getPanelContainer()->hidePanel((Panel *)this);
 
-  Panel *p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("HW Counter", getPanelContainer() );
+  Panel *p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("HW Counter", getPanelContainer(), (void *)-1 );
 
   if( getPanelContainer()->getMainWindow() )
   { 

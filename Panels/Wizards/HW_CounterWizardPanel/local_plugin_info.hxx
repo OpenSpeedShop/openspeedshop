@@ -24,6 +24,6 @@
   plugin_entry->plugin_location = "$OPENSPEEDSHOP_PLUGIN_PATH";
   plugin_entry->plugin_entry_point = "panel_init";
   plugin_entry->menu_heading =  "&Wizards";
-  plugin_entry->menu_label =  "&HW Counter Wizard";
+  plugin_entry->menu_label =  "HW Counter Wizard";
   plugin_entry->menu_accel =  "Alt+B";
   plugin_entry->panel_type =  "HW Counter Wizard";

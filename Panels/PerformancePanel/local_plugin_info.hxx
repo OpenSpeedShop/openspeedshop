@@ -24,6 +24,6 @@
   plugin_entry->plugin_location = "$OPENSPEEDSHOP_PLUGIN_PATH";
   plugin_entry->plugin_entry_point = "panel_init";
   plugin_entry->menu_heading =  "E&xperiments";
-  plugin_entry->menu_label =  "&Performance";
+  plugin_entry->menu_label =  "Performance";
   plugin_entry->menu_accel =  "Alt+P";
   plugin_entry->panel_type =  "Performance";

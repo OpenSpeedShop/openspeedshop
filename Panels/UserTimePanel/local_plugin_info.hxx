@@ -25,6 +25,6 @@
   plugin_entry->plugin_location = "$OPENSPEEDSHOP_PLUGIN_PATH";
   plugin_entry->plugin_entry_point = "panel_init";
   plugin_entry->menu_heading =  "E&xperiments";
-  plugin_entry->menu_label =  "&User Time";
+  plugin_entry->menu_label =  "User Time";
   plugin_entry->menu_accel =  "Alt+U";
   plugin_entry->panel_type =  "User Time";
