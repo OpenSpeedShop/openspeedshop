@@ -59,15 +59,32 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n, void *argument) 
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("pcSamplePanel::pcSamplePanel() constructor called\n");
 
+  executableNameStr = QString::null;
+  pidStr = QString::null;
+
+  mw = getPanelContainer()->getMainWindow();
+
   expID = -1;
   if( argument )
   {
+    // We have an existing experiment, load the executable or pid if we 
+    // have one associated.  (TODO)
     QString *expIDString = (QString *)argument;
     expID = expIDString->toInt();
     nprintf( DEBUG_CONST_DESTRUCT ) ("pcSamplePanel look up expID=%d\n", expID);
+  } else
+  {
+    // We're comming in cold, or we're coming in from the pcSampleWizardPanel
+    // Check to see if there's a suggested executable or pid ...
+    if( !mw->executableName.isEmpty() )
+    {
+      executableNameStr = mw->executableName;
+    } else if( !mw->pidStr.isEmpty() )
+    {
+      pidStr = mw->pidStr;
+    }
   }
 
-  mw = getPanelContainer()->getMainWindow();
 
   frameLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
@@ -105,17 +122,18 @@ OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
 
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
 
+// We're coming in cold, or we're coming in from the pcSampleWizardPanel.
 if( expID == -1 )
 {
   char command[1024];
 // NOTE: "example" is used in place of "pcsamp" because it works for the
 //       test case.   "example" will eventually be replaced again with "pcsamp."
-  if( !mw->executableName.isEmpty() )
+  if( !executableNameStr.isEmpty() )
   {
-    sprintf(command, "expCreate -f %s example\n", mw->executableName.ascii() );
-  } else if( !mw->pidStr.isEmpty() )
+    sprintf(command, "expCreate -f %s example\n", executableNameStr.ascii() );
+  } else if( !pidStr.isEmpty() )
   { 
-    sprintf(command, "expCreate -x %s example\n", mw->pidStr.ascii() );
+    sprintf(command, "expCreate -x %s example\n", pidStr.ascii() );
   } else
   {
     sprintf(command, "expCreate example\n" );
@@ -142,13 +160,14 @@ if( expID == -1 )
   topLevel = TRUE;
   topPC->topLevel = TRUE;
 
+
   SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", topPC, (char *)expID);
 
 // Begin demo position at dummy file... For the real stuff we'll need to 
 // look up the main()... and position at it...
 if( expID == -1 )
 {
-  if( mw && !mw->executableName.isEmpty() && mw->executableName.endsWith("fred_calls_ted") )
+  if( mw && !executableNameStr.isEmpty() && executableNameStr.endsWith("fred_calls_ted") )
   {
     char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
     char buffer[200];
@@ -168,77 +187,6 @@ if( expID == -1 )
 }
 // End demo.
 
-
-
-// Begin direct connect to framework
-printf("Begin direct connect to framework\n");
-if( expID != -1 )
-{
-printf(" expID == -1\n");
-  if( !mw->executableName.isEmpty() )
-  {
-    QFileInfo fileInfo = QFileInfo(mw->executableName.ascii());
-    if( !fileInfo.exists() )
-    {
-      fprintf(stderr, "Unable to open file.  File (%s) does not exist.\n", mw->executableName.ascii() );
-    }
-    QString basename = fileInfo.baseName().ascii();
-    std::string name = std::string(tempnam ("./", basename.ascii()  )) + ".openss";
-    nprintf( DEBUG_CONST_DESTRUCT ) ("name = (%s)\n", name.c_str() );
-  
-    try
-    {
-  //  Experiment::create(mw->executableName.ascii());
-      Experiment::create(name);
-//      Experiment experiment(name);
-//      Experiment *experiment = new Experiment(name);
-      experiment = new Experiment(name);
-  
-      // Create a process for the command in the suspended state
-      std::string command = std::string(mw->executableName.ascii());
-  
-// Currently this hangs...
-printf("call experiment->createProcess(%s)\n", command.c_str() );
-      Thread thread = experiment->createProcess(command);
-  
-      // Create the example collector and set its sampling rate
-      nprintf( DEBUG_CONST_DESTRUCT ) ("call the createCollector...(pcsamp)\n");
-printf("call the createCollector...(pcsamp)\n");
-      Collector collector = experiment->createCollector("example");
-
-      nprintf( DEBUG_CONST_DESTRUCT ) ("call the setParameterValue...(sampling_rate, 10)\n");
-printf("call the setParameterValue...(sampling_rate, 10)\n");
-      collector.setParameterValue("sampling_rate", (unsigned)10);
-
-collector.attachThread(thread);
-collector.startCollecting();
-
-    }
-
-  
-    catch( const std::exception& error) {
-      std::cerr
-          << std::endl
-          << "Error: "
-          << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-          "Unknown runtime error." : error.what()) << std::endl
-          << std::endl;
-  //    return 1;
-      return;
-    }
-  } else 
-  { // Look up all the info and display it... 
-    nprintf( DEBUG_CONST_DESTRUCT ) ("Look up all the info and display it...for exprId (%d) \n", expID );
-  }
-
-
-  // Create a process for the command in the suspended state
-//  Thread thread = experiment->createProcess(mw->executableName.ascii());
-}
-// End  direct connect to framework
-
-  updateInitialStatus();
-  
 }
 
 
@@ -312,6 +260,17 @@ pcSamplePanel::loadNewProgramSelected()
     mw->executableName = QString::null;
     mw->pidStr = QString::null;
     mw->loadNewProgram();
+    if( !mw->executableName.isEmpty() )
+    {
+      executableNameStr = mw->executableName;
+    } else if( !mw->pidStr.isEmpty() )
+    {
+      pidStr = mw->pidStr;
+    }
+    if( !executableNameStr.isEmpty() || !pidStr.isEmpty() )
+    {
+      updateInitialStatus();
+    }
   }
 }   
 
@@ -505,9 +464,11 @@ if( fw_experiment() )
 fw_experiment()->getThreads().changeState(Thread::Running);
 while(!fw_experiment()->getThreads().areAllState(Thread::Terminated))
 {
-printf("sleep(1)\n");
-  sleep(1);
+// printf("sleep(1)\n");
+//  sleep(1);
+  qApp->processEvents(1000);
 }
+statusLabelText->setText( tr("Process finished...") );
 
 
 }
@@ -516,8 +477,7 @@ if( 1 )
 {
 pco->runButton->setEnabled(FALSE);
 pco->runButton->enabledFLAG = FALSE;
-pco->runButton->setEnabled(TRUE);
-runnableFLAG = TRUE;
+runnableFLAG = FALSE;
 pco->pauseButton->setEnabled(FALSE);
 pco->pauseButton->enabledFLAG = FALSE;
 pco->continueButton->setEnabled(FALSE);
@@ -631,31 +591,7 @@ pcSamplePanel::updateInitialStatus()
     // look up the main()... and position at it...
     if( mw && !mw->executableName.isEmpty() && mw->executableName.endsWith("fred_calls_ted") )
     {
-      statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the Run button to begin the experiment.")) );
-      char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
-      char buffer[200];
-      strcpy(buffer, plugin_directory);
-      strcat(buffer, "/../../../usability/phaseI/fred_calls_ted.c");
-      SourceObject *spo = new SourceObject("main", buffer, 22, TRUE, NULL);
-
-      if( broadcast((char *)spo, NEAREST_T) == 0 )
-      { // No source view up...
-        char *panel_type = "Source Panel";
-        Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, topPC, (char *)expID);
-        if( p != NULL )
-        {
-          if( !p->listener((void *)spo) )
-          {
-            fprintf(stderr, "Unable to position at main in %s\n", buffer);
-          } else
-          {
-            nprintf( DEBUG_CONST_DESTRUCT ) ("Positioned at main in %s ????? \n", buffer);
-          }
-        }
-        runnableFLAG = TRUE;
-        pco->runButton->setEnabled(TRUE);
-        pco->runButton->enabledFLAG = TRUE;
-      }
+      loadMain();
     } else
     {
       QString msg = QString(tr("File entered is not an executable file.  No main() entry found.\n") );
@@ -670,6 +606,7 @@ pcSamplePanel::updateInitialStatus()
 
   } else if( !mw->pidStr.isEmpty() )
   {
+    loadMain();
     if( runnableFLAG == TRUE )
     {
       if( detachFromProgramSelected() == FALSE )
@@ -680,16 +617,18 @@ pcSamplePanel::updateInitialStatus()
     statusLabelText->setText( tr(QString("Attached to:  "))+mw->pidStr+tr(QString("  Click on the Run button to begin collecting data.")) );
   } else
   {
-    statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("Select a process or executable with the \"Load New *... or Attach To *...\" menu.") );
+    statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\" with the local menu.") );
 
     runnableFLAG = FALSE;
     pco->runButton->setEnabled(FALSE);
     pco->runButton->enabledFLAG = FALSE;
     return;
   }
+/*
   runnableFLAG = TRUE;
   pco->runButton->setEnabled(TRUE);
   pco->runButton->enabledFLAG = TRUE;
+*/
 }
 
 /*
@@ -699,7 +638,7 @@ pcSamplePanel::updateInitialStatus()
 void
 pcSamplePanel::languageChange()
 {
-  statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("Select a process or executable with the \"Load New *... or Attach To *...\" menu.") );
+  statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\" with the local menu.") );
 }
 
 #include "SaveAsObject.hxx"
@@ -766,11 +705,7 @@ pcSamplePanel::loadStatsPanel()
 
   PanelContainer *pc = topPC->findBestFitPanelContainer(topPC);
 
-#ifdef OLDWAY
-  Panel *p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Stats Panel", pc, (void *)expID);
-#else // OLDWAY
   Panel *p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("pc Stats Panel", pc, (void *)expID);
-#endif // OLDWAY
 
   if( p )
   {
@@ -810,4 +745,136 @@ for(std::map<Function, double>::const_iterator
 std::cout << std::endl << std::endl << std::endl;
 }
 #endif // MOVE_TO_STATSPANEL
+}
+
+void
+pcSamplePanel::__demoWakeUpToLoadExperiment()
+{
+
+  // Begin direct connect to framework
+  printf("Begin direct connect to framework\n");
+  if( expID != -1 )
+  {
+  printf(" expID == -1\n");
+    if( !mw->executableName.isEmpty() )
+    {
+      QFileInfo fileInfo = QFileInfo(mw->executableName.ascii());
+      if( !fileInfo.exists() )
+      {
+        fprintf(stderr, "Unable to open file.  File (%s) does not exist.\n", mw->executableName.ascii() );
+      }
+      QString basename = fileInfo.baseName().ascii();
+      std::string name = std::string(tempnam ("./", basename.ascii()  )) + ".openss";
+      nprintf( DEBUG_CONST_DESTRUCT ) ("name = (%s)\n", name.c_str() );
+  
+      try
+      {
+        Experiment::create(name);
+        experiment = new Experiment(name);
+  
+        // Create a process for the command in the suspended state
+        std::string command = std::string(mw->executableName.ascii());
+  
+        printf("call experiment->createProcess(%s)\n", command.c_str() );
+        Thread thread = experiment->createProcess(command);
+  
+        // Create the example collector and set its sampling rate
+        nprintf( DEBUG_CONST_DESTRUCT ) ("call the createCollector...(pcsamp)\n");
+        printf("call the createCollector...(pcsamp)\n");
+        Collector collector = experiment->createCollector("example");
+
+        nprintf( DEBUG_CONST_DESTRUCT ) ("call the setParameterValue...(sampling_rate, 10)\n");
+        printf("call the setParameterValue...(sampling_rate, 10)\n");
+        collector.setParameterValue("sampling_rate", (unsigned)10);
+
+        collector.attachThread(thread);
+        collector.startCollecting();
+
+      }
+
+  
+      catch( const std::exception& error) {
+        std::cerr
+            << std::endl
+            << "Error: "
+            << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+            "Unknown runtime error." : error.what()) << std::endl
+            << std::endl;
+    //    return 1;
+        return;
+      }
+    } else 
+    { // Look up all the info and display it... 
+      nprintf( DEBUG_CONST_DESTRUCT ) ("Look up all the info and display it...for exprId (%d) \n", expID );
+    }
+  }
+  // End  direct connect to framework
+
+  statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the Run button to begin the experiment.")) );
+loadTimer->stop();
+pd->cancel();
+pd->hide();
+
+
+  runnableFLAG = TRUE;
+  pco->runButton->setEnabled(TRUE);
+  pco->runButton->enabledFLAG = TRUE;
+}
+
+void
+pcSamplePanel::loadMain()
+{
+printf("loadMain() entered\n");
+steps = 0;
+pd = new QProgressDialog("Loading process in progress.", NULL, 100, this, NULL, TRUE);
+loadTimer = new QTimer( this, "__demoOnlyLoadTimer" );
+connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
+loadTimer->start( 0 );
+pd->show();
+
+// Begin Demo (direct connect to framework) only...
+  if( !executableNameStr.isEmpty() || !pidStr.isEmpty() )
+  {
+    timer = new QTimer(this, "__demoOnly_OneTimeLoadExecutableTimer");
+    connect( timer, SIGNAL(timeout()), this, SLOT(__demoWakeUpToLoadExperiment() ));
+    timer->start(1000, TRUE);
+  }
+  statusLabelText->setText( tr(QString("Loading ...  "))+mw->executableName);
+
+  runnableFLAG = FALSE;
+  pco->runButton->setEnabled(FALSE);
+  pco->runButton->enabledFLAG = FALSE;
+
+// End Demo (direct connect to framework) only...
+
+  char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
+  char buffer[200];
+  strcpy(buffer, plugin_directory);
+  strcat(buffer, "/../../../usability/phaseI/fred_calls_ted.c");
+  SourceObject *spo = new SourceObject("main", buffer, 22, TRUE, NULL);
+   if( broadcast((char *)spo, NEAREST_T) == 0 )
+  { // No source view up...
+    char *panel_type = "Source Panel";
+    Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, topPC, (char *)expID);
+    if( p != NULL )
+    {
+      if( !p->listener((void *)spo) )
+      {
+        fprintf(stderr, "Unable to position at main in %s\n", buffer);
+      } else
+      {
+        nprintf( DEBUG_CONST_DESTRUCT ) ("Positioned at main in %s ????? \n", buffer);
+      }
+    }
+  }
+}
+
+void
+pcSamplePanel::progressUpdate()
+{
+  pd->setProgress( steps++ );
+  if( steps > 10 )
+  {
+    loadTimer->stop();
+  }
 }

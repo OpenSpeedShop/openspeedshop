@@ -29,6 +29,8 @@
 
 #include <qlayout.h>
 #include <qhbox.h>
+#include <qtimer.h>
+#include <qprogressdialog.h>
 
 class PanelContainer;   // Do not remove
 class QLabel;
@@ -112,6 +114,11 @@ public:
 
   bool runnableFLAG;
 
+  QString executableNameStr;
+  QString pidStr;
+  QTimer *timer;
+  QTimer *loadTimer;
+
 OpenSpeedShop::Framework::Experiment *fw_experiment() { return experiment; }
 
 public slots:
@@ -124,6 +131,8 @@ public slots:
   void manageDataSetsSelected();
   void loadSourcePanel();
   void loadStatsPanel();
+  void __demoWakeUpToLoadExperiment();
+  void progressUpdate();
 
 protected slots:
   virtual void languageChange();
@@ -137,5 +146,9 @@ private:
 OpenSpeedShop::Framework::Experiment *experiment;
 
   void updateInitialStatus();
+
+  void loadMain();
+  QProgressDialog *pd;
+  int steps;
 };
 #endif // PCSAMPLEPANEL_H
