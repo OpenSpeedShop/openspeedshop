@@ -1,0 +1,72 @@
+#/bin/sh
+
+################################################################################
+# Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+# Place, Suite 330, Boston, MA  02111-1307  USA
+################################################################################
+
+
+# This simple a utility script to merge pcSamplePanel changes to the other 
+# views.   It will be obsolted shortly.    It can be removed from the 
+# source tree without any side effects.
+
+for i in `p_list -c`
+do
+  echo $i: Is in a modified state.   Unable to continue.
+  exit
+done
+for i in `echo "ConstructNewExperimentPanel FPE_TracingPanel HW_CounterPanel IOPanel MPIPanel UserTimePanel"`
+do
+  echo Doing $i
+
+  p_modify $i/$i.cxx $i/$i.hxx $i/Makefile.am
+  cp pcSamplePanel/pcSamplePanel.cxx $i/$i.cxx
+  cp pcSamplePanel/pcSamplePanel.hxx $i/$i.hxx
+  cp pcSamplePanel/Makefile.am $i
+  mysed "PCSAMPLEPANEL" $i_H $i/$i.cxx $i/$i.hxx $i/Makefile.am
+  mysed "pcSamplePanel" $i $i/$i.cxx $i/$i.hxx $i/Makefile.am
+
+  if [ $i == "ConstructNewExperimentPanel" ]
+  then
+    echo "mysed \"pc Sample Panel\" \"Construct New Experiment Panel\" $i/$i.cxx $i/$i.hxx $i/Makefile.am"
+#    mysed "pc Sample Panel" "Construct New Experiment Panel" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+  fi
+  if [ $i = "FPE_TracingPanel" ]
+  then
+    echo "mysed \"pc Sample Panel\" "FPE Tracing Panel" $i/$i.cxx $i/$i.hxx $i/Makefile.am"
+#   mysed "pc Sample Panel" "FPE Tracing Panel" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+  fi
+  if [ $i = "HW_CounterPanel" ]
+  then
+    echo "mysed \"pc Sample Panel\" \"HW Counter Panel\" $i/$i.cxx $i/$i.hxx $i/Makefile.am"
+#   mysed "pc Sample Panel" "HW Counter Panel" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+  fi
+  if [ $i = "IOPanel" ]
+  then
+    echo "mysed \"pc Sample Panel\" \"IO Panel\" $i/$i.cxx $i/$i.hxx $i/Makefile.am"
+#    mysed "pc Sample Panel" "IO Panel" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+  fi
+  if [ $i = "MPIPanel" ]
+  then
+    echo "mysed \"pc Sample Panel\" \"MPI Panel\" $i/$i.cxx $i/$i.hxx $i/Makefile.am"
+#   mysed "pc Sample Panel" "MPI Panel" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+  fi
+  if [ $i = "UserTimePanel" ]
+  then
+    echo "mysed \"pc Sample Panel\" \"User Time Panel\" $i/$i.cxx $i/$i.hxx $i/Makefile.am"
+#   mysed "pc Sample Panel" "User Time Panel" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+  fi
+done
