@@ -113,8 +113,8 @@ PerformanceLeader::PerformanceLeader( QWidget* parent, const char* name, WFlags 
     helpAboutAction->addTo( helpMenu );
     menubar->insertItem( tr("&Help"), helpMenu );
 
-//    assistant = new QAssistantClient( QDir("doc").absPath(), this );
     assistant = new QAssistantClient(NULL);
+    assistant->setArguments(QStringList("-hideSidebar"));
 
     languageChange();
 
