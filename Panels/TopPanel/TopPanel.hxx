@@ -91,6 +91,6 @@ protected:
   ExprInfo *topFiveObject;
 
 private:
-  void info();
+  void info(QPoint, QObject *target=NULL );
 };
 #endif // TOPPANEL_H

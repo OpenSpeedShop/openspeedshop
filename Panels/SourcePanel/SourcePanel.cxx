@@ -26,6 +26,10 @@
 #include "debug.hxx"
 
 
+#ifdef OLDWAY
+#include "InfoEventFilter.hxx"
+#endif // OLDWAY
+
 /*! Unused constructor. */
 SourcePanel::SourcePanel()
 { // Unused... Here for completeness...
@@ -48,7 +52,7 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
   highlightList = NULL;
 
   label = new QLabel( getBaseWidgetFrame(), "text label", 0 );
-label->setCaption("SourcePanel: text label");
+  label->setCaption("SourcePanel: text label");
   QFont font = label->font();
   font.setBold(TRUE);
   label->setFont(font);
@@ -57,7 +61,10 @@ label->setCaption("SourcePanel: text label");
   label->setText(label_text);
 
   textEdit = new SPTextEdit( this, getBaseWidgetFrame() );
-textEdit->setCaption("SourcePanel: SPTextEdit");
+  textEdit->setCaption("SourcePanel: SPTextEdit");
+
+  addWhatsThis(textEdit, this);
+
   textEdit->setTextFormat(PlainText);  // This makes one para == 1 line.
   textEdit->setReadOnly(TRUE);
   textEdit->setWordWrap(QTextEdit::NoWrap);
@@ -241,17 +248,30 @@ SourcePanel::broadcast(char *msg, BROADCAST_TYPE bt)
 }
 
 void
-SourcePanel::info()
+SourcePanel::info(QPoint p, QObject *target)
 {
   nprintf(DEBUG_PANELS) ("SourcePanel::info() called.\n");
 
+if( /* target == NULL || */ target == textEdit )
+{
+  printf("target == textEdit\n");
+} else
+{
+  printf("target == vbar\n");
+}
+
+#ifdef OLDWAY
   QPoint pos = textEdit->mapFromGlobal( QCursor::pos() );
+#else // OLDWAY
+  QPoint pos = textEdit->mapFromGlobal( p );
+#endif // OLDWAY
   pos.setY( pos.y() + vscrollbar->value() );
 
   int line = whatIsAtPos( pos );
   nprintf(DEBUG_PANELS) ("SourcePanel::info() line=%d\n", line);
   if( line <= 0 )
   {
+//    printf("NOTHING TO DISPLAY\n");
     return;
   }
 

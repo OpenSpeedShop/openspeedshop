@@ -44,6 +44,9 @@ moc_AnimatedQPushButton.cxx: AnimatedQPushButton.hxx
 moc_ProcessControlObject.cxx: ProcessControlObject.hxx
 	-moc -o moc_ProcessControlObject.cxx ProcessControlObject.hxx
 
+moc_InfoEventFilter.cxx: InfoEventFilter.hxx
+	-moc -o moc_InfoEventFilter.cxx InfoEventFilter.hxx
+
 ossObjects_la_SOURCES = \
 	HighlightObject.hxx \
 	ProcessEntryClass.hxx \
@@ -53,4 +56,5 @@ ossObjects_la_SOURCES = \
 	ProcessListObject.hxx ProcessListObject.cxx \
 	OutputObject.hxx OutputObject.cxx \
 	AnimatedQPushButton.hxx AnimatedQPushButton.cxx moc_AnimatedQPushButton.cxx \
+	InfoEventFilter.hxx InfoEventFilter.cxx moc_InfoEventFilter.cxx \
 	ProcessControlObject.hxx ProcessControlObject.cxx moc_ProcessControlObject.cxx

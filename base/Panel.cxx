@@ -21,6 +21,7 @@
 
 #include "Panel.hxx"
 #include "PanelContainer.hxx"
+#include "InfoEventFilter.hxx"
 
 #include <qtabwidget.h>
 
@@ -207,11 +208,18 @@ Panel::broadcast(char *msg, BROADCAST_TYPE bt)
   }
 }
 
+void
+Panel::addWhatsThis(QObject *o, Panel *p)
+{
+  getPanelContainer()->getMasterPC()->whatsThisEventFilter = new InfoEventFilter(o, p);
+  o->installEventFilter( getPanelContainer()->getMasterPC()->whatsThisEventFilter );
+}
+
 /*! Called when mouse hover in panel.   The panel developers can overload
     this virtual function if they're interested in field the event.
  */
 void
-Panel::info( )
+Panel::info(QPoint, QObject *  )
 {
   nprintf(DEBUG_PANELS) ("Panel::info() entered\n");
 }
@@ -276,14 +284,14 @@ void
 Panel::popupInfoAtLine()
 {
   nprintf(DEBUG_PANELS) ("popupInfoAtLine() called\n");
-  info();
+  info(getPanelContainer()->getMasterPC()->last_pos);
 }
 
 void
 Panel::displayWhatsThis(QString msg)
 {
   nprintf(DEBUG_PANELS) ("Panel::displayWhatsThis() called.  Put the wit here.\n");
- 
+
   getPanelContainer()->getMasterPC()->whatsThisActive = TRUE;
   getPanelContainer()->getMasterPC()->whatsThis = new WhatsThis( this );
   getPanelContainer()->getMasterPC()->whatsThis->display( msg, QCursor::pos() );

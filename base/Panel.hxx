@@ -8,6 +8,8 @@
 #include <qmenubar.h>
 #include <qlabel.h> 
 
+class InfoEventFilter;
+
 class PanelContainer;
 #define MAX_TAB_NAME_LENGTH 30
 
@@ -69,10 +71,12 @@ public:
     //! Sets the PanelContainer 
     void setPanelContainer(PanelContainer *pc) { _panelContainer = pc; }
 
-protected:
     //! Calls the panel function info() if provided.
-    virtual void info( );
+    virtual void info( QPoint pos, QObject *target=NULL );
 
+    virtual void addWhatsThis(QObject *o, Panel *p);
+
+protected:
     //! Sets the Panel name.
     void setName(const char *);
 
@@ -95,7 +99,6 @@ private:
 
     //! The PanelContainer that holds this Panel.
     PanelContainer *_panelContainer;
-
 
 public slots:
     virtual void wakeupFromSleep();

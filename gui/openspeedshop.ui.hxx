@@ -32,9 +32,6 @@ extern QApplication *qapplication;
 #include "openspeedshop.hxx"
 OpenSpeedshop *topPL = NULL;
 
-// static PanelContainer *topPC = NULL;
-
-
 void OpenSpeedshop::fileNew()
 {
   printf("fileNew() entered\n");
@@ -127,28 +124,28 @@ void OpenSpeedshop::helpAbout()
 
 #include <dlfcn.h>
 
-/*! \class MyEventFilter
-    MyEventFilter catches all the events.   All events are caught to 
+/*! \class AppEventFilter
+    AppEventFilter catches all the events.   All events are caught to 
     to prevent events from, soon to be deleted, PanelContainers from being
     called after the PanelContainer has been deleted.
 */
 //! Catches all events and process them when flagged to do so.
-class MyEventFilter : public QObject
+class AppEventFilter : public QObject
 {
   public:
-    //! Default contructor for a MyEventFilter.   
+    //! Default contructor for a AppEventFilter.   
     /*! It should never be called and is only here for completeness.
      */
-    MyEventFilter() {};
-    //! The working constructor for MyEventFilter(...)
-    /*! This constructor is the work constructor for MyEventFilter.
+    AppEventFilter() {};
+    //! The working constructor for AppEventFilter(...)
+    /*! This constructor is the work constructor for AppEventFilter.
        Neither paramater is used.
      */
-    MyEventFilter(QObject *, PanelContainer *);
+    AppEventFilter(QObject *, PanelContainer *);
     //! Default destructor
     /*! Nothing extra is allocatated, nothing extra is destroyed.
      */
-    ~MyEventFilter() {};
+    ~AppEventFilter() {};
   private:
     //! Filter unwanted events based on flags in the master PanelContainer.
     /*! Ignore the mouse and enter leave events.    Not ignoring these caused
@@ -164,16 +161,17 @@ class MyEventFilter : public QObject
     PanelContainer *masterPC;
 };
 
-MyEventFilter::MyEventFilter(QObject *t, PanelContainer *pc) : QObject(t)
+AppEventFilter::AppEventFilter(QObject *obj, PanelContainer *pc) : QObject(obj)
 {
-  dprintf("MyEventFilter(...) constructor entered\n");
+  dprintf("AppEventFilter(...) constructor entered\n");
   masterPC = pc;
 } 
 
 bool 
-MyEventFilter::eventFilter( QObject *obj, QEvent *e )
+AppEventFilter::eventFilter( QObject *obj, QEvent *e )
 {
-//  dprintf("MyEventFilter::eventFilter(%d) entered.\n", e->type() );
+//  dprintf("AppEventFilter::eventFilter(%d) 0x%x entered.\n", e->type(), obj );
+//  dprintf("AppEventFilter::eventFilter(%d) entered.\n", e->type() );
   if( masterPC->_resizeEventsEnabled == FALSE && e->type() == QEvent::Resize )
   {
 //    dprintf("  ... ignore this resize event.\n");
@@ -189,26 +187,53 @@ MyEventFilter::eventFilter( QObject *obj, QEvent *e )
   switch( e->type() )
   {
     case QEvent::MouseMove:
-       if( masterPC->whatsThisActive == TRUE && masterPC->whatsThis )
-       {
-         masterPC->whatsThis->hide( obj );
-       }
+      masterPC->last_pos  = QCursor::pos();
+      masterPC->last_pos  = QCursor::pos();
+      if( masterPC->sleepTimer && masterPC->popupTimer )
+      {
+//         printf("QEvent::MouseMove: we have timers!\n");
+        if( masterPC->sleepTimer->isActive() )
+        { // If we're sleeping, just ignore this...
+//          printf ("we're sleeping, just return.\n");
+          masterPC->sleepTimer->start(1000, TRUE);
+        } else
+        { // Otherwise, check to see if there's a timer set.   If it is set
+          // just go to sleep for a whil and return.   Otherwise, set a new one.
+          if( masterPC->popupTimer->isActive() )
+          {
+//            printf ("popupTimer is already active... start sleeping...\n");
+            masterPC->sleepTimer->start(1000, TRUE);
+            masterPC->popupTimer->stop();
+          } else
+          {
+//            printf ("start the popup timer...\n");
+            masterPC->sleepTimer->stop();
+            masterPC->popupTimer->start(1000, TRUE);
+          }
+        }
+      } else
+      {
+//        printf("QEvent::MouseMove: NO timers!\n");
+      }
+      if( masterPC->whatsThisActive == TRUE && masterPC->whatsThis )
+      {
+//        printf("QEvent::MouseMove: SEND MouseButtonPress event to app!\n");
+        masterPC->whatsThis->hide( obj );
+        masterPC->whatsThisActive = FALSE;
+      }
+      break;
     case QEvent::MouseButtonPress:
     case QEvent::MouseButtonRelease:
     case QEvent::MouseButtonDblClick:
-      masterPC->whatsThisActive = FALSE;
       if( masterPC->sleepTimer )
       {
         masterPC->sleepTimer->stop();
-        delete masterPC->sleepTimer;
-        masterPC->sleepTimer = NULL;
       }
       if( masterPC->popupTimer )
       {
         masterPC->popupTimer->stop();
-        delete masterPC->popupTimer;
-        masterPC->popupTimer = NULL;
       }
+      break;
   } 
 
   if( masterPC->_eventsEnabled == TRUE )
@@ -468,7 +493,7 @@ height+=50;   // FIX
 // End: Set up a saved session geometry.
 
 
-   MyEventFilter *myEventFilter = new MyEventFilter(this, masterPC);
+   AppEventFilter *myEventFilter = new AppEventFilter(this, masterPC);
    qApp->installEventFilter( myEventFilter );
 }
 

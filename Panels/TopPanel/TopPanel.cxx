@@ -93,6 +93,8 @@ TopPanel::TopPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
   textEdit->setReadOnly(TRUE);
   textEdit->setWordWrap(QTextEdit::NoWrap);
 
+addWhatsThis(textEdit, this);
+
 #ifdef OVERRIDE_FONT
   // Set to a fixed size font so the columns line up nicely.
   QFont font = QFont("fixed");
@@ -489,12 +491,16 @@ TopPanel::details()
 
 #include <qscrollbar.h>
 void
-TopPanel::info()
+TopPanel::info(QPoint p, QObject *)
 {
   nprintf(DEBUG_PANELS) ("TopPanel::info() called.\n");
 
   QScrollBar *vscrollbar = textEdit->verticalScrollBar();
+#ifdef OLDWAY
   QPoint pos = textEdit->mapFromGlobal( QCursor::pos() );
+#else // OLDWAY
+  QPoint pos = textEdit->mapFromGlobal( p );
+#endif // OLDWAY
   pos.setY( pos.y() + vscrollbar->value() );
 
   int line = textEdit->paragraphAt( pos );

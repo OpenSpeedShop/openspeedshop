@@ -24,7 +24,8 @@ WhatsThis::~WhatsThis( )
 void
 WhatsThis::hide( QObject *obj )
 {
+  nprintf(DEBUG_PANELCONTAINERS) ("WhatsThis::hide() entered\n");
+
   QMouseEvent me( QEvent::MouseButtonPress, QCursor::pos(), 0, 0 );
-//  QApplication::sendEvent( this, &me );
   QApplication::sendEvent( obj, &me );
 }

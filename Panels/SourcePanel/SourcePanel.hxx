@@ -49,7 +49,7 @@ public:
   //! The broadcaster for sending messages.
   int broadcast(char *msg, BROADCAST_TYPE bt);
 
-void info();
+void info(QPoint pos, QObject *target = NULL);
   
   //! Layout for managing child widgets.
   QVBoxLayout * frameLayout;

@@ -24,6 +24,7 @@
 #include <debug.hxx>
 
 #include <qtimer.h>
+#include <qpoint.h>
 
 #include "WhatsThis.hxx"
 
@@ -66,8 +67,10 @@ class PanelContainer : public QWidget
 
     QTimer *popupTimer;
     QTimer *sleepTimer;
+    InfoEventFilter *whatsThisEventFilter;
     WhatsThis *whatsThis;
     bool whatsThisActive;
+    QPoint last_pos;
 
     //! This is the registry of all known gui plugins.
     /*! At runtime this registry is created by doing dlopens on all the

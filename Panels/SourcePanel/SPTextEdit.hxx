@@ -28,8 +28,9 @@ public:
     void clearScrollBarLine(int line);
     void clearScrollBar();
 protected: 
+#ifdef OLDWAY
     void contentsMouseMoveEvent( QMouseEvent *e );
-
+#endif // OLDWAY
 public slots:
 
 private:
