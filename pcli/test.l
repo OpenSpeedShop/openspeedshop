@@ -44,7 +44,6 @@ extern int ip_number(char *,int);
 
 ","     { return COMMA; }
 ";" 	{ return SEMICOLON; }
-"::" 	{ return DOUBLE_COLON; }
 ":" 	{ return COLON; }
 "=" 	{ return EQUAL; }
 
