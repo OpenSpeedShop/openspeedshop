@@ -1514,6 +1514,12 @@ to Open/SpeedShop
   <li><a href="#mozTocId75337">Open/SpeedShop
 Installation Information</a>
     <ol>
+      <li><a href="#mozTocId139249">Building Open/SpeedShop</a>
+        <ol>
+          <li><a href="#mozTocId337651">Required and Open/SpeedShop
+Verified Packages</a></li>
+        </ol>
+      </li>
       <li><a href="#mozTocId226476">Installing
 Open/SpeedShop</a></li>
       <li><a href="#mozTocId556715">Installing DPCL</a></li>
@@ -1536,14 +1542,23 @@ Invocation Command&nbsp; "openss"
           <li><a href="#mozTocId217571">GUI Launch Background
 Information:
             </a></li>
-          <li><a href="#mozTocId775083">Typical Open/SpeedShop GUI
-Wizard Usage</a></li>
-          <li><a href="#mozTocId578318">Typical Open/SpeedShop GUI
-non-Wizard Usage</a></li>
+          <li><a href="#mozTocId775083">Typical
+Open/SpeedShop GUI Wizard Usage
+            </a></li>
+          <li><a href="#mozTocId578318">Typical
+Open/SpeedShop GUI non-Wizard Usage</a></li>
         </ol>
       </li>
-      <li><a href="#mozTocId235102">Using the Interactive
-CLI Tool </a></li>
+      <li><a href="#mozTocId235102">Using
+the Interactive
+CLI Tool </a>
+        <ol>
+          <li><a href="#mozTocId952803">CLI Launch Background
+Information: </a></li>
+          <li><a href="#mozTocId456267">Typical
+Open/SpeedShop CLI Usage </a></li>
+        </ol>
+      </li>
       <li><a href="#mozTocId630833">Using the Batch
 Command Tool </a></li>
     </ol>
@@ -1579,8 +1594,7 @@ on the concepts of SGI's IRIX SpeedShop performance analysis
 tool.&nbsp;
 Open/SpeedShop is being co-funded by the Department of Energy (DOE) and
 will have the infrastructure and base components released as open
-source under the GPL and LGPL licenses.
-  <br>
+source under the GPL and LGPL licenses. <br>
   <br>
 Open/SpeedShop was designed to be modular and easily extendable.&nbsp;
 It
@@ -1595,8 +1609,7 @@ tools.&nbsp;&nbsp; The hope is that these advanced
 Open/SpeedShop features would allow SGI to
 provide differentiation that would entice buyers to purchase Altix over
 other platforms. These advanced
-features would likely be restricted to run only on SGI platforms.
-  <br>
+features would likely be restricted to run only on SGI platforms. <br>
   <br>
 Another key feature of the performance tool is its usability.&nbsp; The
 user
@@ -1604,8 +1617,7 @@ interface is designed for scientists not computer scientists.&nbsp; To
 make
 the tool usable for a greater range of users, the performance tool will
 provide novice user Wizards, easily understood language in the user
-interface components, and context sensitive help.
-  <br>
+interface components, and context sensitive help. <br>
   <br>
 SGI will release, primarily under the GPL and LGPL Open Source
 licenses, the Open/SpeedShop baseline functionality will productize an
@@ -1617,8 +1629,7 @@ point exception tracing and CPU hardware performance counter
 experiments are the key components of the baseline functionality.&nbsp;
 The
 performance tool will be designed in such a manner that will allow
-users to easily extend the tool by adding their own experiments.
-  <br>
+users to easily extend the tool by adding their own experiments. <br>
   <br>
 The performance tool will use dynamic probe class library (DPCL) as a
 building block component for cluster system support.&nbsp; The use of
@@ -1627,8 +1638,7 @@ will provide a portable means for the performance tool to supply
 cluster support for platforms supported by the Dyninst dynamic
 instruction package.&nbsp; DPCL uses the Dyninst
 application programming interface (API) to provide its instrumentation
-capability.
-  <br>
+capability. <br>
   <br>
 Availability of the new performance tool based on SpeedShop technology
 on Linux platforms will enable Fortran (77, 90, and 95), C, and C++
@@ -1662,18 +1672,19 @@ CLI component does similar functions but uses the interactive command
 line delivery method.<br>
       </font></font></li>
   </ul>
-  <font size="2"><font size="2"> </font></font><br>
+  <font size="2"><font size="2"> </font></font>
   <ul>
     <li><font size="2"><font size="2"><b><i>Collector</i></b>: The
 portion of the tool containing logic
 that is
 responsible for the gathering of the performance
 metric.&nbsp;&nbsp;&nbsp; A collector is a portion of the code that is
+included
 in the experiment plugin.<br>
       </font></font></li>
     <font size="2"><font size="2"> </font></font>
   </ul>
-  <font size="2"><font size="2"> </font></font><br>
+  <font size="2"><font size="2"> </font></font>
   <ul>
     <li><font size="2"><font size="2"><b><i>Metric</i></b>: The
 entity, which the collector/experiment
@@ -1683,21 +1694,8 @@ on the applications performance and is gathered by a performance
 experiment (by the collector).</font></font></li>
     <font size="2"><font size="2"> </font></font>
   </ul>
-  <font size="2"><font size="2"> </font></font><br>
-  <ul>
-    <li><font size="2"><font size="2"><b><i>Focused experiment</i></b>:&nbsp;
-The experiment that is in
-current
-active context.&nbsp; The last created experiment is usually the
-default or focused experiment, however, the <b>expFocus</b> command
-will set the
-experiment specified in the <b>expFocus</b>
-command to be the focused or default experiment.</font></font></li>
-    <font size="2"><font size="2"> </font></font>
-  </ul>
-  <font size="2"><font size="2"> </font></font><br>
-</blockquote>
-<ul>
+  <font size="2"><font size="2"> </font></font></blockquote>
+<blockquote>
   <ul>
     <li><font size="2"><font size="2"><b><i>Framework</i></b>:&nbsp;
 The set of API functions that
@@ -1705,25 +1703,31 @@ allows the user
 interface to manage the creation and viewing of performance
 experiments.&nbsp; It is the interface between the&nbsp; user interface
 and the <b>DPCL</b> and <b>Dyninst</b> components</font></font></li>
-    <font size="2"><font size="2"> </font></font><br>
-    <font size="2"><font size="2"><li><i><b>Plugin:</b></i>&nbsp; A
+  </ul>
+</blockquote>
+<blockquote>
+  <ul>
+    <li><font size="2"><font size="2"><li><i><b>Plugin:</b></i>&nbsp; A
 portion of the performance tool that can be loaded and included in the
 tool at tool start-up time.&nbsp; Development of the plugin uses a tool
 specific interface (API) so that the plugin, and the tool it is to be
 included in, know how to interact with each other.&nbsp;&nbsp; Plugins
 are normally placed in a specific directory so that the tool knows
 where to find the plugins.</li>
-    </font></font><font size="2"><br>
+      </font></font></li>
+  </ul>
+</blockquote>
+<ul>
+  <ul>
+    <font size="2"><font size="2"> </font></font><font size="2"><br>
     </font>
   </ul>
   <font size="2"><font size="2"> </font></font>
 </ul>
-<br>
 <p class="MsoBodyText"><span
  style="font-family: times new roman,times,serif;"></span></p>
 <h2><a name="mozTocId512392" class="mozTocH2"></a><a
  name="Extensibility"></a>Extensibility</h2>
-<br>
 <blockquote><span style="font-family: times new roman,times,serif;">The
 Open/SpeedShop
 performance tool is
@@ -1752,21 +1756,35 @@ running processes.&nbsp;&nbsp;</span></blockquote>
  name="OpenSpeedShop_Installation_Information"></a><!--[if !supportLists]--><span
  style="color: rgb(0, 0, 128);">Open/SpeedShop
 Installation Information</span></h1>
+<blockquote>The following sections describe how to build and install
+Open/SpeedShop<br>
+</blockquote>
+<h2><a name="mozTocId139249" class="mozTocH2"></a><a
+ name="Building_OpenSpeedShop"></a>Building Open/SpeedShop</h2>
+<blockquote>
+  <h3><a name="mozTocId337651" class="mozTocH3"></a><a
+ name="Required_and_OpenSpeedShop_Verified"></a>Required and
+Open/SpeedShop Verified Packages</h3>
+</blockquote>
+<br>
 </div>
-<h2><a name="mozTocId226476" class="mozTocH2"></a>Installing
+<blockquote>
+  <h2><a name="mozTocId226476" class="mozTocH2"></a>Installing
 Open/SpeedShop</h2>
+</blockquote>
 <blockquote>TBD<br>
 </blockquote>
 <br>
-<h2><a name="mozTocId556715" class="mozTocH2"></a>Installing DPCL</h2>
-<br>
+<blockquote>
+  <h2><a name="mozTocId556715" class="mozTocH2"></a>Installing DPCL</h2>
+</blockquote>
 <blockquote>DPCL is the component responsible for supporting
 performance
 measurement gathering on clusters.&nbsp; In a clustering configuration
-DPCL uses a client/server architecture.&nbsp; A DPCL "superdaemon" is
-created each time the user starts a performance tool. This superdaemon
+DPCL uses a client/server architecture.&nbsp; A DPCL "super daemon" is
+created each time the user starts a performance tool. This super daemon
 is responsible for insuring that a "communication daemon" is running on
-each of the machines in the cluster. The superdaemon distributes
+each of the machines in the cluster. The super daemon distributes
 commands from the performance tool to the various communication daemons
 and gathers data from them. TCP/IP is the transport mechanism for this
 data in DPCL.<br>
@@ -1795,15 +1813,18 @@ Open/SpeedShop
 tools that have user interfaces.&nbsp; <br>
   </span></span></span></span></p>
 </blockquote>
-<h2><a name="mozTocId154079" class="mozTocH2"></a><a
+<blockquote>
+  <h2><a name="mozTocId154079" class="mozTocH2"></a><a
  name="OpenSpeedShop_Invocation_Command_"></a>Open/SpeedShop
-Invocation Command&nbsp; "openss"<br>
-</h2>
-<blockquote>The Open/SpeedShop program will be invoked by the user
+Invocation Command&nbsp; "openss"</h2>
+  <br>
+The Open/SpeedShop program will be invoked by the user
 typing the
 "openss" command.&nbsp; When the user invokes Open/SpeedShop command
 there are
 three options for it's mode of operation:<br>
+</blockquote>
+<blockquote>
   <ul>
     <li>
       <h3><a name="mozTocId266766" class="mozTocH3"></a><span
@@ -1825,8 +1846,7 @@ entered under the "openss -cli" option.</div>
   </ul>
   <div style="margin-left: 40px;">This invocation of Open/SpeedShop
 causes the window terminal becomes the interactive
-CLI window.&nbsp;&nbsp;
-  </div>
+CLI window.&nbsp;&nbsp; </div>
   <ul>
     <li>
       <h3><a name="mozTocId825221" class="mozTocH3"></a><span
@@ -1841,20 +1861,28 @@ environments.</div>
 </blockquote>
 <p class="MsoBodyText"><span style=""><span style=""><span style=""><span
  style=""></span></span></span></span></p>
-<h2><a name="mozTocId263161" class="mozTocH2"></a><span style=""><span
+<blockquote>
+  <h2><a name="mozTocId263161" class="mozTocH2"></a><span style=""><span
  style=""><span style=""><span style=""><a name="GUI_Tool_"></a><span
  style=""><span style=""><!--[if !supportLists]-->Using the GUI Tool</span></span></span></span></span></span></h2>
+</blockquote>
 <blockquote>The Open/SpeedShop GUI contains a main window from which
 users can choose a wizard to help choose the proper experiment based on
 input to the wizard selecting questions.&nbsp; The GUI also contains a
 source view panel, a statistics panel,<br>
 and xxx panel.<br>
 </blockquote>
-<h3><a name="mozTocId217571" class="mozTocH3"></a>GUI Launch Background
-Information:<br>
-</h3>
 <blockquote>
-  <p>The GUI is bundled into a dynamic library that is loaded on
+  <blockquote>
+    <h3><a name="mozTocId217571" class="mozTocH3"></a>GUI Launch
+Background
+Information:<br>
+    </h3>
+  </blockquote>
+</blockquote>
+<blockquote>
+  <blockquote>
+    <p>The GUI is bundled into a dynamic library that is loaded on
 demand.&nbsp;&nbsp;
 It's the Command Line Interface (CLI) that launches the
 GUI.&nbsp;&nbsp; By
@@ -1862,14 +1890,17 @@ default the CLI will launch the GUI upon invocation of the
 Open/SpeedShop tool.&nbsp;&nbsp;
 However, the CLI can be started without starting the GUI ($ openss
 -cli)
-and then the GUI can loaded and initialize when needed.<br>
-  </p>
-  <p>Upon invoking Open/SpeedShop
+and then the GUI can loaded and initialized when needed via the CLI "<a
+ href="../cli_doc/definition.html#mozTocId753973"><b>OpenGui</b></a>"
+command.<br>
+    </p>
+    <p>Upon invoking Open/SpeedShop
 ($ openss) the command line is parsed, and if the GUI is requested, the
 GUI
-library is loaded and launched. We then drop into an event loop that
-parsed both command lines and GUI events.</p>
-  <p>When the GUI is loaded, the GUI looks for GUI plugins in the
+library is loaded and launched.&nbsp; Open/SpeedShop then drops into an
+event loops, one for parsing command line events and the other for
+parsing GUI events.</p>
+    <p>When the GUI is loaded, the GUI looks for GUI plugins in the
 default
 directory and in the OPENSS_TOOL_PLUGIN_DIR environment variable
 path.&nbsp;
@@ -1879,14 +1910,21 @@ point, initializes
 any exported menus, brings up the GUI, and then drops into the main
 event
 loop waiting for user interaction.<br>
-  </p>
+    </p>
+  </blockquote>
 </blockquote>
-<h3><a name="mozTocId775083" class="mozTocH3"></a>Typical
+<blockquote>
+  <blockquote>
+    <h3><a name="mozTocId775083" class="mozTocH3"></a>Typical
 Open/SpeedShop GUI Wizard Usage<br>
-</h3>
-<blockquote>Having launched the GUI via either the <b>openss -gui</b>
+    </h3>
+  </blockquote>
+</blockquote>
+<blockquote>
+  <blockquote>Having launched the GUI via either the <b>openss -gui</b>
 or by default with the <b>openss</b> default command (no -cli, -batch,
 or -gui options), the initial window will look like this:<br>
+  </blockquote>
 </blockquote>
 <blockquote>
   <p><img src="snapshot2.png" title=""
@@ -1895,18 +1933,21 @@ or -gui options), the initial window will look like this:<br>
 </blockquote>
 <br>
 <blockquote>
-  <p>Given this window the user can answer the wizard questions and
+  <blockquote>
+    <p>Given this window the user can answer the wizard questions and
 proceed by clicking on the Next button on the lower right hand side of
 the Open/SpeedShop GUI window.&nbsp; In this example the user has
 chosen the default option which is to find out where the time is spent
 in the user's yet to be defined application.&nbsp;&nbsp; When the user
 clicks on the Next button this is the window that appears.</p>
+  </blockquote>
   <br>
   <br>
   <img src="snapshot13.png" title=""
  alt="PC Sampling Wizard Intro Window" width="920" height="690"> <br>
   <br>
-The above panel/window is the introduction panel to the PC (Program
+  <blockquote>The above panel/window is the introduction panel to the
+PC (Program
 Counter) Sampling Experiment Wizard.&nbsp; This panel explains what the
 Open/SpeedShop experiment, named PC sampling does.&nbsp; The program
 counter sampling experiment takes periodic samples of the machines
@@ -1918,6 +1959,7 @@ can now click on Next to proceed with the wizard process, go back, or
 quit the wizard by clicking on the Finish button.&nbsp;&nbsp; Here is
 the next window in the wizard process assuming the user clicked on the
 Next button.<br>
+  </blockquote>
   <br>
 </blockquote>
 <blockquote>
@@ -1928,8 +1970,8 @@ Next button.<br>
 <p class="MsoBodyText" style="margin-left: 0.5in;">
 </p>
 <blockquote>
-  <p><a name="mozTocId813318" class="mozTocH2"></a><span style=""><span
- style=""><span style=""><span style=""><a name="Interactive_CLI_Tool_"></a></span></span></span></span>The
+  <blockquote>
+    <p>The
 above panel/window is the parameter selection panel for the PC (Program
 Counter) Experiment Wizard.&nbsp; This panel allows the user to set the
 sampling rate at which the PC sampling experiment will sample the
@@ -1946,68 +1988,89 @@ process, go back, or quit the wizard by clicking on the Finish
 button.&nbsp;&nbsp; The user may also click on the Reset button, which
 will reset the parameter to the default value.&nbsp; Here is the next
 window in the wizard process assuming the
-user clicked on the Next buttion.<br>
-  </p>
+user clicked on the Next button.<br>
+    </p>
+  </blockquote>
 </blockquote>
 <blockquote><br>
   <img src="snapshot15.png" title=""
  alt="PC Sampling wizard executable/application selection window"
  width="920" height="690"><br>
   <br>
-The panel/window above allows the user to select the executables or
+  <blockquote>The panel/window above allows the user to select the
+executables or
 attach to a set of running processes.&nbsp;&nbsp; By selecting the
 "Load an Executable from Disk" item the user will cause a selection
 window to appear.&nbsp; Using the selection window the user can click
 on executables to be the application that the PC sampling experiment
 will gather data for.<br>
+  </blockquote>
   <br>
   <br>
   <img src="snapshot16.png" title="" alt="pc sampling wizard window"
  width="920" height="690"><br>
 </blockquote>
 <blockquote><br>
-The panel/window above summarizes the results of the user's choices and
+  <blockquote>The panel/window above summarizes the results of the
+user's choices and
 tells the user to complete the process of creating the PC sampling
 experiment the user should click on the Finish button.&nbsp;&nbsp; Once
 the user clicks on the Finish button the PC sampling experiment window
 will appear.<br>
+  </blockquote>
   <br>
   <br>
   <img src="snapshot17.png" title="" alt="PC Sampling Experiment Window"
  width="920" height="690"><br>
 </blockquote>
 <blockquote><br>
-The panel/window above is the PC Sampling experiment
+  <blockquote>The panel/window above is the PC Sampling experiment
 window.&nbsp;&nbsp; The experiment is ready to run.&nbsp; Note that in
 the Status output output area the executable fred_calls_ted is
 loaded.&nbsp;&nbsp; <br>
-  <br>
+    <br>
 The process control area provides icons that may be clicked on to
 control the execution of the experiment.&nbsp; The icon to action&nbsp;
-transliation is as follows:<br>
-  <ul>
-    <li>=&gt;&nbsp;&nbsp;&nbsp;&nbsp; Run the experiment</li>
-    <li>=&gt;|&nbsp;&nbsp;&nbsp; Pause the experiment</li>
-    <li>|=&gt;&nbsp;&nbsp;&nbsp; Run to Next statement</li>
-    <li>\&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Step into the next statement</li>
-    <li>!&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Stop the experiment<br>
-    </li>
-  </ul>
-  <br>
+translation is as follows:<br>
+    <ul>
+      <li>=&gt;&nbsp;&nbsp;&nbsp;&nbsp; Run the experiment</li>
+      <li>=&gt;|&nbsp;&nbsp;&nbsp; Pause the experiment</li>
+      <li>|=&gt;&nbsp;&nbsp;&nbsp; Run to Next statement</li>
+      <li>\&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Step into the next
+statement</li>
+      <li>!&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Stop the
+experiment<br>
+      </li>
+    </ul>
+    <br>
 The source panel contains the source associated with the loaded
-application/executable.<br>
+application/executable.&nbsp;&nbsp; To run the experiment, click on the
+right arrow icon, which corresponds to the Run button.&nbsp;&nbsp;
+Doing this will engage Open/SpeedShop to start the application and to
+gather the PC Sampling performance data at the sampling rate chosen in
+the previous step(s).<br>
+  </blockquote>
 </blockquote>
 <br>
-<h3><a name="mozTocId578318" class="mozTocH3"></a>Typical
+<blockquote>
+  <blockquote>
+    <h3><a name="mozTocId578318" class="mozTocH3"></a>Typical
 Open/SpeedShop GUI non-Wizard Usage</h3>
+  </blockquote>
+</blockquote>
 <br>
-TBD<br>
+<blockquote>
+  <blockquote>TBD<br>
+  </blockquote>
+</blockquote>
 <br>
-<h2><a name="mozTocId235102" class="mozTocH2"></a><span style=""><span
+<blockquote>
+  <h2><a name="mozTocId235102" class="mozTocH2"></a><span style=""><span
  style=""><span style=""><span style=""><span style=""><span style="">Using
 the Interactive
 CLI Tool <br>
-</span></span></span></span></span></span></h2>
+  </span></span></span></span></span></span></h2>
+</blockquote>
 <blockquote>The interactive command line interface tool accepts a
 number of Open/SpeedShop commands.&nbsp; These commands allow the user
 to create performance measurement experiments, attach executables, run
@@ -2015,18 +2078,83 @@ the experiment to gather performance metric data, and also to display
 the data to the screen via the text view commands or to launch the GUI
 to view the performance experiment data.<br>
   <br>
-  <a href="../cli_doc/definition.html">The interactive comand syntax
+  <a href="../cli_doc/definition.html">The interactive command syntax
 document</a> contains the commands that the Interactive CLI tool
 accepts as input.&nbsp; A simple scenario to illustrate usage, both in
 command only form and command and explanation form. Click on this <a
  href="../cli_doc/s1.html">link</a> to view the scenario.<br>
+  <blockquote>
+    <h3><a name="mozTocId952803" class="mozTocH3"></a><a
+ name="CLI_Launch_Background_Information:"></a>CLI Launch Background
+Information:<br>
+    </h3>
+  </blockquote>
+  <blockquote>
+    <blockquote> </blockquote>
+  </blockquote>
 </blockquote>
-<span style=""><span style=""><span style=""><span style=""></span></span></span></span>
-<h2><a name="mozTocId630833" class="mozTocH2"></a><span style=""><span
+<blockquote>
+  <blockquote>
+    <p>The CLI is bundled into a dynamic library that is loaded on
+demand.&nbsp;&nbsp;
+It's the Open/SpeedShop main program that launches the CLI.&nbsp;&nbsp;
+By
+default the openss command will launch the GUI upon invocation of the
+Open/SpeedShop tool.&nbsp;&nbsp;
+However, the CLI can be started without starting the GUI ($ openss
+-cli).<br>
+    </p>
+    <p>Upon invoking Open/SpeedShop
+($ openss -cli) the command line is parsed, and if the CLI is
+requested, the
+CLI library is loaded and launched.&nbsp; Open/SpeedShop then drops
+into an
+event loop for parsing command line events.</p>
+    <p>When the CLI or GUI is loaded, they look for CLI and/or GUI
+plugins in the
+default
+directory and in the OPENSS_TOOL_PLUGIN_DIR environment variable
+path.&nbsp;
+Each file in the directory is opened and an internal entry point is
+queried.&nbsp;&nbsp; If found, the plugin manager calls the entry
+point, initializes
+any exported menus, brings up the CLI and/or GUI, and then drops into
+the main
+event
+loop(s) waiting for user interaction.<br>
+    </p>
+    <h3><a name="mozTocId456267" class="mozTocH3"></a><a
+ name="Typical_OpenSpeedShop_CLI_Usage"></a>Typical
+Open/SpeedShop CLI Usage<br>
+    </h3>
+    <p>Having launched the CLI via the <b>openss -cli</b>&nbsp; the
+initial window will look like this:</p>
+  </blockquote>
+</blockquote>
+<blockquote>
+  <blockquote>
+    <blockquote> </blockquote>
+  </blockquote>
+  <blockquote>
+    <blockquote> </blockquote>
+  </blockquote>
+</blockquote>
+<blockquote>
+  <blockquote>
+    <blockquote> </blockquote>
+  </blockquote>
+</blockquote>
+<blockquote>
+  <blockquote></blockquote>
+  <br>
+</blockquote>
+<blockquote>
+  <h2><a name="mozTocId630833" class="mozTocH2"></a><span style=""><span
  style=""><span style=""><span style=""><a name="Batch_Command_Tool_"></a><span
  style=""><span style=""><!--[if !supportLists]-->Using the Batch
 Command Tool <br>
-</span></span></span></span></span></span></h2>
+  </span></span></span></span></span></span></h2>
+</blockquote>
 <p class="MsoBodyText" style="margin-left: 0.5in;"><span style=""><span
  style=""><span style=""><span style="">TBD<br>
 <br>
