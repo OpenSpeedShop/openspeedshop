@@ -330,6 +330,16 @@ DragNDropPanel::DropPanelWithQtDnD( PanelContainer *targetPC)
     nprintf(DEBUG_DND) ("sourcePC and targePC are the same or there is no tabWidget to drop to.  Abort the DragNDrop\n");
     delete( DragNDropPanel::sourceDragNDropObject );
     return;
+
+  }
+
+  // Make sure the target wasn't a grab bar that was located on top
+  // of an already split PanelContainer.
+  if( targetPC->leftPanelContainer && targetPC->rightPanelContainer )
+  {
+    nprintf(DEBUG_DND) ("targetPC has a left and right PanelContainer.\n");
+    delete( DragNDropPanel::sourceDragNDropObject );
+    return;
   }
 
   // From the sourcePC, snag the currentPage and get it's Panel.
