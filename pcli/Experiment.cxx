@@ -18,14 +18,8 @@
 #ifndef PTHREAD_MUTEX_RECURSIVE_NP
 #define PTHREAD_MUTEX_RECURSIVE_NP 0
 #endif
-#include "Lockable.hxx"
-#include "Guard.hxx"
-#include "Application.hxx"
-#include "Collector.hxx"
-#include "Metric.hxx"
-#include "Parameter.hxx"
-#include "StringTable.hxx"
 
+#include "ToolAPI.hxx"
 using namespace OpenSpeedShop::Framework;
 #include "Commander.hxx"
 #include "Clip.hxx"
