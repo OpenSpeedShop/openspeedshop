@@ -311,7 +311,7 @@ ProcessListObject::extract_ps_list ( char *host, FILE *input, int *count, int /*
         strcmp (base_command_string, "csh") == 0 ||
         strcmp (base_command_string, "ksh") == 0 ||
         strcmp (base_command_string, "ps") == 0 ||
-        strcmp(base_command_string, "ftd") == 0 ||
+        strcmp(base_command_string, "openspeedshop") == 0 ||
         strcmp(base_command_string, "xterm") == 0 )
     {
       continue;

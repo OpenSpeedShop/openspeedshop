@@ -1,0 +1,42 @@
+#!/bin/sh
+
+export SYSTYPE=`uname -s`
+echo SYSTYPE=$SYSTYPE
+export SYSNAME=`uname -n`
+echo SYSNAME=$SYSNAME
+
+if [[ $1 = --help ]]
+then
+  echo "ft [-cli] [executable] [experiment] [pid] [host] [--help]"
+  echo "  where:"
+  echo "    -cli:         brings up the future in command line mode"
+  echo "    executable:   loads the executable file"
+  echo "    experiment:   loads the exeriment file"
+  echo "    pid:          attaches (or plans to attach) to process id"
+  echo "    host:         targets processes on host machine, host"
+  echo "    -fn fontname: sets the  font."
+  echo "    --help:       This help text."
+  exit
+fi
+
+if [ "$OPENSPEEDSHOP_PLUGIN_PATH" = "" ]
+then
+  echo "OPENSPEEDSHOP_PLUGIN_PATH not set."
+  echo "For oss developers that's usually .../GUI/plugin/lib/futuretool"
+  exit
+fi
+
+export OPENSPEEDSHOP_RELOCATABLE_NAME=ftgui.so
+export OPENSPEEDSHOP_ENTRY_POINT=gui_init
+set +x
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$OPENSPEEDSHOP_PLUGIN_PATH
+export LD_LIBRARYN32_PATH=$LD_LIBRARYN32_PATH:$LD_LIBRARY_PATH
+if [[ $1 = -cli ]]
+then
+  $OPENSPEEDSHOP_PLUGIN_PATH/../../bin/cli $@
+else
+# FONTNAME="-adobe-courier-medium-r-normal--14-100-75-75-m-60-iso10646-1"
+FONTNAME="-adobe-utopia-regular-r-normal--12-120-75-75-p-67-iso10646-1"
+  echo "Jack: If the font doesn't look right try changing it:  i.e. -fn fixed"
+  $OPENSPEEDSHOP_PLUGIN_PATH/../../bin/openspeedshop -fn $FONTNAME $@
+fi

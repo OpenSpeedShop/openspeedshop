@@ -108,7 +108,7 @@ void OpenSpeedshop::helpContents()
 {
  printf("helpContents() entered.\n");
 
- char *plugin_directory = getenv("FUTURE_TOOL_PLUGIN_DIR");
+ char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
 
  QString base_dir(plugin_directory);
  QString relative_dir("/../../../doc");
@@ -212,10 +212,10 @@ void OpenSpeedshop::init()
 
   char pc_plugin_file[2048];
   char *pc_dl_name="/ftBase.so";
-  char *plugin_directory = getenv("FUTURE_TOOL_PLUGIN_DIR");
+  char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
   if( !plugin_directory )
   {
-    fprintf(stderr, "Can't find the PanelContainer plugin. $FUTURE_TOOL_PLUGIN_DIR not set correctly.\n");
+    fprintf(stderr, "Can't find the PanelContainer plugin. $OPENSPEEDSHOP_PLUGIN_PATH not set correctly.\n");
       return;
   }
   sprintf(pc_plugin_file, "%s%s", plugin_directory, pc_dl_name);

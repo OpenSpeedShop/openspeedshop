@@ -1,6 +1,6 @@
 /*! 
     This file is responsible for loading all plugins at initialization time.
-    A directory pointed at the environment vairiable FUTURE_TOOL_PLUGIN_DIR
+    A directory pointed at the environment vairiable OPENSPEEDSHOP_PLUGIN_PATH
     is interrogated to load plugins (from this file).   Each plugin file
     is openned to get information about it.   Information such as what
     group function does it belong to, what menu (if any) does it need
@@ -162,7 +162,7 @@ register_plugin(QWidget *pl, char *plugin_file, PanelContainer *masterPC)
 
 struct stat Statbuf;
 #define exists(file)           (stat(file,&Statbuf)<0 ? 0:Statbuf.st_mode)
-/*! This routine checks the plugin directory ($FUTURE_TOOL_PLUGIN_DIR) for
+/*! This routine checks the plugin directory ($OPENSPEEDSHOP_PLUGIN_PATH) for
     plugin files.   It loops over and shovels each file to a routine that
     determines if the file is a valid plugin.
 */
@@ -170,19 +170,19 @@ void initialize_plugins(QWidget *pl, PanelContainer *masterPC)
 {
   //This is the base plugin directory.   In this directory there should
   // be a list of dso (.so) which are the plugins.
-  plugin_directory = getenv("FUTURE_TOOL_PLUGIN_DIR");
+  plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
   
   // Check for a plugin environment variable
   if( !plugin_directory )
   {
-    fprintf(stderr, "There are no plug-ins.   $FUTURE_TOOL_PLUGIN_DIR not set.\n");
+    fprintf(stderr, "There are no plug-ins.   $OPENSPEEDSHOP_PLUGIN_PATH not set.\n");
     exit(1);
   }
 
   // If no plugin list directory is available, return after printing error.
   if( !exists(plugin_directory) )
   {
-    fprintf(stderr, "Plugin directory does not exist.  Check $FUTURE_TOOL_PLUGIN_DIR variable.\n");
+    fprintf(stderr, "Plugin directory does not exist.  Check $OPENSPEEDSHOP_PLUGIN_PATH variable.\n");
 //    exit(1);
     return;
   }
@@ -208,7 +208,7 @@ void initialize_plugins(QWidget *pl, PanelContainer *masterPC)
   // If no plugin files are located in the path, return after printing error.
   if( pglob->gl_pathc == 0 )
   {
-    fprintf(stderr, "Error: there are no plugins available in $FUTURE_TOOL_PLUGIN_DIR.\n");
+    fprintf(stderr, "Error: there are no plugins available in $OPENSPEEDSHOP_PLUGIN_PATH.\n");
 //    exit(1);
     return;
   }

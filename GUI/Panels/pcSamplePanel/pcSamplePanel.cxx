@@ -104,7 +104,7 @@ printf("# theApplication.attachCollector(theCollector.getValue());\n");
 
 #ifdef DEMO
 { // Begin - Just for demo sake...load a file and place the user at main()
-  char *plugin_directory = getenv("FUTURE_TOOL_PLUGIN_DIR");
+  char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
   char buffer[200];
   strcpy(buffer, plugin_directory);
   strcat(buffer, "/../../../Example.cpp");

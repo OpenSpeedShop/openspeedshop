@@ -26,13 +26,13 @@
 # the future tool.   It's basically a main that starts the load of the
 # necessary dynamic libraries (.so's).
 
-bin_PROGRAMS = ftd doc
+bin_PROGRAMS = openspeedshop doc
 
-ftd_la_CXXFLAGS = -I/usr/include -I.
+openspeedshop_la_CXXFLAGS = -I/usr/include -I.
 
 LDFLAGS = -lc -ldl
 
-ftd_SOURCES = main.cxx
+openspeedshop_SOURCES = main.cxx
 
 SUBDIRS = . base objects dialogs expr_info plugin objects chart cli gui Panels
 

@@ -123,18 +123,18 @@ void do_gui(int argc, char **argv)
 
   char *gui_dl_name="/ftgui.so";
 
-  char *plugin_directory = getenv("FUTURE_TOOL_PLUGIN_DIR");
+  char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
 
   if( !plugin_directory )
   {
-    fprintf(stderr, "Can't find the GUI plugin.  $FUTURE_TOOL_PLUGIN_DIR not set.\n");
+    fprintf(stderr, "Can't find the GUI plugin.  $OPENSPEEDSHOP_PLUGIN_PATH not set.\n");
     return;
   }
 
 #ifdef REPLACE_CHECK
   if( !exists(plugin_directory) )
   {
-    fprintf(stderr, "Plugin directory does not exist.  Check $FUTURE_TOOL_PLUGIN_DIR variable.\n");
+    fprintf(stderr, "Plugin directory does not exist.  Check $OPENSPEEDSHOP_PLUGIN_PATH variable.\n");
     return;
   }
 #endif // REPLACE_CHECK

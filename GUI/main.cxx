@@ -4,9 +4,9 @@
 int
 main( int argc, char ** argv ) {
   char gui_plugin_file[2048];
-  char *gui_dl_name = getenv("FUTURE_TOOL_RELOCATABLE_NAME");
-  char *gui_entry_point = getenv("FUTURE_TOOL_ENTRY_POINT");
-  char *plugin_directory = getenv("FUTURE_TOOL_PLUGIN_DIR");
+  char *gui_dl_name = getenv("OPENSPEEDSHOP_RELOCATABLE_NAME");
+  char *gui_entry_point = getenv("OPENSPEEDSHOP_ENTRY_POINT");
+  char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
 
   if( !plugin_directory ) exit(EXIT_FAILURE);
 
