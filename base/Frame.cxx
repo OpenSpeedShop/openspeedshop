@@ -198,6 +198,11 @@ void Frame::resizeEvent(QResizeEvent *e)
 //  nprintf(DEBUG_FRAMES) ("Frame::resizeEvent()s\n");
 } 
 
+void
+Frame::contextMenuEvent( QContextMenuEvent *)
+{
+  contextMenuEvent( (QContextMenuEvent *)NULL, TRUE );
+}
 
 /*! Fields the mouseReleaseEvent.
     This is how the Panel drop is activated.   

@@ -49,6 +49,8 @@ public:
     virtual void languageChange();
 
   private:
+    //! The event callback for the menu to be create.
+    void contextMenuEvent ( QContextMenuEvent * );
 
     //! The event callback that a resize needs to be handle.
     void resizeEvent ( QResizeEvent * );
