@@ -84,7 +84,7 @@
 
 0x[0-9a-f]+	{yylval.val = atoi(yytext); return(HEXNUMBER);}
 [0-9]+   { yylval.val = atoi(yytext); return NUMBER; }
-[a-zA-Z0-9_.]+  { yylval.string = yytext; return NAME; }
+[a-zA-Z0-9_./]+  { yylval.string = yytext; return NAME; }
 
 [\n]	{ return END_LINE; }
 
