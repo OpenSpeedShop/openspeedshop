@@ -170,6 +170,9 @@ QPopupMenu *contextMenu;
     //! Raise the named panel.
     Panel *raiseNamedPanel(char *);
 
+    //! Raise the panel.
+    Panel *raisePanel(Panel *p);
+
     //! This is the parent for drop site layout.
     /*! This goes into the PanelContainer's left side */
     QWidget *dropSiteLayoutParent; 

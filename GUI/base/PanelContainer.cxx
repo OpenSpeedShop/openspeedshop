@@ -1223,6 +1223,31 @@ PanelContainer::raiseNamedPanel(char *panel_name)
   return(NULL);
 }
 
+
+// In this PanelContainer, find the passed in Panel and raise it.
+Panel *
+PanelContainer::raisePanel(Panel *panel)
+{
+  // In this panel container... raise the panel with the matching name
+  
+  int count=0;
+  Panel *p = NULL;
+  for( PanelList::Iterator it = panelList.begin();
+           it != panelList.end();
+           ++it )
+  {
+    p = (Panel *)*it;
+    if( p == panel )
+    {
+      tabWidget->setCurrentPage(count);
+      return(p);
+    }
+    count++;
+  }
+
+  return(NULL);
+}
+
 /*! This recursively called routine will clean up a PanelContainer from 
      the top down.  It will delete all panels and all child PanelContainers.
  */
