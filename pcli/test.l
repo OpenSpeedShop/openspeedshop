@@ -12,8 +12,9 @@
 
 "focus"     	{ return FOCUS;}
 "all"	    	{ return ALL;}
-"data"	    	{ return DATA;}
+"copy"	    	{ return COPY;}
 "gui"	    	{ return GUI;}
+"kill"	    	{ return KILL;}
 "-mpi"	    	{ return MPI;}
 
 "pcsamp"  	{ yylval.string = yytext; return EXP_PCSAMP;}
@@ -37,14 +38,15 @@
 
 "expattach" 	{ return ATTACH_HEAD; }
 "expclose"  	{ return CLOSE_HEAD; }
-"expcont"   	{ return CONT_HEAD; }
 "expcreate" 	{ return CREATE_HEAD; }
 "expdetach" 	{ return DETACH_HEAD; }
+"expdisable" 	{ return DISABLE_HEAD; }
+"expenable" 	{ return ENABLE_HEAD; }
 "expfocus"  	{ return FOCUS_HEAD; }
 "exppause"  	{ return PAUSE_HEAD; }
 "exprestore"	{ return RESTORE_HEAD; }
-"exprun"    	{ return RUN_HEAD; }
-"expsavefile"	{ return SAVEFILE_HEAD; }
+"expgo"    	{ return GO_HEAD; }
+"expsave"	{ return SAVE_HEAD; }
 "expsetparm"	{ return SETPARAM_HEAD; }
 "expstop"   	{ return STOP_HEAD; }
 "expview"   	{ return VIEW_HEAD; }
@@ -57,6 +59,7 @@
 "listmetrics"	{ return LIST_METRICS_HEAD; }
 "listparams"	{ return LIST_PARAMS_HEAD; }
 "listreports"	{ return LIST_REPORTS_HEAD; }
+"listtypes"	{ return LIST_TYPES_HEAD; }
 "listbreaks"	{ return LIST_BREAKS_HEAD; }
 
 "clearbreak"	{ return GEN_CLEAR_BREAK_HEAD; }

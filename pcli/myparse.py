@@ -16,7 +16,7 @@ import PY_Input
 ################################################################################
 def cmd_parse(args):
 
-    print args
+    #print args
 
     # Convert numeric values into strings
     count = len(args)
@@ -188,13 +188,14 @@ class CLI(code.InteractiveConsole):
         "expattach"     : "cmd_parse",
         "expclose"      : "cmd_parse",
         "expclose"      : "cmd_parse",
-        "expcont"       : "cmd_parse",
         "expcreate"     : "cmd_parse",
         "expdetach"     : "cmd_parse",
+        "expdisable"    : "cmd_parse",
+        "expenable"     : "cmd_parse",
         "expfocus"      : "cmd_parse",
         "exppause"      : "cmd_parse",
         "exprestore"    : "cmd_parse",
-        "exprun"        : "cmd_parse",
+        "expgo"         : "cmd_parse",
         "expsave"       : "cmd_parse",
         "expsetparam"   : "cmd_parse",
         "expstop"       : "cmd_parse",
@@ -208,6 +209,7 @@ class CLI(code.InteractiveConsole):
         "listparams"    : "cmd_parse",
         "listreports"   : "cmd_parse",
         "listbreaks"    : "cmd_parse",
+        "listtypes"    : "cmd_parse",
         "clearbreak"    : "cmd_parse",
         "exit"          : "Do_quit",
         "opengui"       : "cmd_parse",
@@ -239,6 +241,13 @@ class CLI(code.InteractiveConsole):
         "fpe"           : "exp_type:floating_point_exceptions",
         "hwc"           : "exp_type:hardware_counters",
         "io"            : "exp_type:input_output",
+	"all"	    	: "gen_type:all",
+	"copy"	    	: "gen_type:copy",
+	"-mpi"     	: "gen_type:mip",
+	"data"	    	: "gen_type:data",
+	"focus"     	: "gen_type:focus",
+	"gui"	    	: "gen_type:gui",
+	"kill"	    	: "gen_type:kill",
         "displaymode"   : "exp_param_display_mode:",
         "displaymedia"  : "exp_param_display_media:",
         "displayrefreshrate"	: "exp_param_display_refresh_rate:",

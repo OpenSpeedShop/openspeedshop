@@ -49,22 +49,25 @@ typedef enum {
 typedef enum {
     H_GEN_FOCUS,
     H_GEN_ALL,
-    H_GEN_DATA,
+    H_GEN_COPY,
+    H_GEN_KILL,
     H_GEN_GUI,
     H_GEN_MAX,
 } help_gen_enum;
 
 typedef enum {
+    CMD_ERROR,	    /* used for error processing */
     CMD_EXP_ATTACH,
     CMD_EXP_CLOSE,
-    CMD_EXP_CONT,
     CMD_EXP_CREATE,
     CMD_EXP_DETACH,
+    CMD_EXP_DISABLE,
+    CMD_EXP_ENABLE,
     CMD_EXP_FOCUS,
     CMD_EXP_PAUSE,
     CMD_EXP_RESTORE,
-    CMD_EXP_RUN,
-    CMD_EXP_SAVEFILE,
+    CMD_EXP_GO,
+    CMD_EXP_SAVE,
     CMD_EXP_SETPARAM,
     CMD_EXP_STOP,
     CMD_EXP_VIEW,
@@ -77,6 +80,7 @@ typedef enum {
     CMD_LIST_PARAMS,
     CMD_LIST_REPORTS,
     CMD_LIST_BREAKS,
+    CMD_LIST_TYPES,
     CMD_CLEAR_BREAK,
     CMD_EXIT,
     CMD_OPEN_GUI,

@@ -21,16 +21,18 @@ char *indent_table[MAX_INDENT] = {
 
 /* This must match oss_cmd_enum in support.h */
 char *command_name[CMD_MAX] = {
+    "", /* used in error reporting */
     "expAttach",
     "expClose",
-    "expCont",
     "expCreate",
     "expDetach",
+    "expEnable",
+    "expDisable",
     "expFocus",
     "expPause",
     "expRestore",
-    "expRun",
-    "expSavefile",
+    "expGo",
+    "expSave",
     "expSetparm",
     "expStop",
     "expView",
@@ -43,6 +45,7 @@ char *command_name[CMD_MAX] = {
     "listParams",
     "listReports",
     "listBreaks",
+    "listTypes",
     "clearBreak",
     "exit",
     "openGui",
@@ -86,7 +89,8 @@ char *paramtype_name[H_PARAM_MAX] = {
 char *general_name[H_GEN_MAX] = {
     "focus",
     "all",
-    "data",
+    "copy",
+    "kill",
     "gui"
 };
 
@@ -728,6 +732,7 @@ static void
 dump_help_cmd(help_desc_t *p_help, int indent_ndx)
 {
 
+    printf("\n");
     switch(p_help->u.cmd_ndx) {
     	case CMD_EXP_ATTACH:
     	case CMD_EXP_DETACH:
@@ -739,9 +744,15 @@ dump_help_cmd(help_desc_t *p_help, int indent_ndx)
     	    help_expType_list(indent_ndx+1 /* number of indents */);
     	    break;
     	case CMD_EXP_CLOSE:
-    	case CMD_EXP_CONT:
+    	    printf("%s  [focus || <expId_spec> || all] [kill] \n",
+    	    	    command_name[p_help->u.cmd_ndx]);
+    	    printf("%sWhere:\n", indent_table[indent_ndx]);
+    	    help_spec("-x","expId",     "int",indent_ndx+1);
+    	    break;
+   	case CMD_EXP_DISABLE:
+   	case CMD_EXP_ENABLE:
     	case CMD_EXP_PAUSE:
-    	case CMD_EXP_RUN:
+    	case CMD_EXP_GO:
     	case CMD_EXP_STOP:
     	    printf("%s  [<expId_spec>] || all \n",
     	    	    command_name[p_help->u.cmd_ndx]);
@@ -765,8 +776,8 @@ dump_help_cmd(help_desc_t *p_help, int indent_ndx)
     	    printf("%sWhere:\n", indent_table[indent_ndx]);
     	    help_host_file(indent_ndx+1 /* number of indents */);
      	    break;
-    	case CMD_EXP_SAVEFILE:
-    	    printf("%s  [<expId_spec>] {all || data} <host_file> \n",
+    	case CMD_EXP_SAVE:
+    	    printf("%s  [<expId_spec>] [copy] <host_file> \n",
     	    	    command_name[p_help->u.cmd_ndx]);
     	    printf("%sWhere:\n", indent_table[indent_ndx]);
     	    help_spec("-x","expId",     "int",indent_ndx+1);
@@ -787,7 +798,7 @@ dump_help_cmd(help_desc_t *p_help, int indent_ndx)
 	    help_viewtype(indent_ndx+1 /* number of indents */);
      	    break;
     	case CMD_LIST_EXP:
-    	    printf("%s  focus || <expId_spec> || all \n",
+    	    printf("%s  <expId_spec> || all \n",
     	    	    command_name[p_help->u.cmd_ndx]);
     	    printf("%sWhere:\n", indent_table[indent_ndx]);
     	    help_spec("-x","expId",     "int",indent_ndx+1);
@@ -822,7 +833,7 @@ dump_help_cmd(help_desc_t *p_help, int indent_ndx)
     	case CMD_LIST_METRICS:
     	case CMD_LIST_PARAMS:
     	case CMD_LIST_REPORTS:
-    	    printf("%s  [focus || <expId_spec> || all]\n",
+    	    printf("%s  [<expId_spec> || all]\n",
     	    	    command_name[p_help->u.cmd_ndx]);
     	    printf("%sWhere:\n", indent_table[indent_ndx]);
     	    help_spec("-x","expId",     "int",indent_ndx+1);
@@ -840,8 +851,9 @@ dump_help_cmd(help_desc_t *p_help, int indent_ndx)
     	    help_name("breakId", "int", indent_ndx+1);
     	    break;
     	case CMD_EXIT:
+	case CMD_LIST_TYPES:
     	case CMD_OPEN_GUI:
-    	    printf("%s \n",
+    	    printf("%s <no args>\n",
     	    	    command_name[p_help->u.cmd_ndx]);
     	    break;
     	case CMD_HELP:
@@ -957,11 +969,27 @@ dump_help_gen(help_desc_t *p_help, int indent_ndx)
 {
     switch(p_help->u.param_ndx) {
     	case H_GEN_FOCUS:
+    	    printf("\n%s: Alters which experiment is the default focus.\n",
+	    	    p_help->name);
+    	    break;
     	case H_GEN_ALL:
-    	case H_GEN_DATA:
+    	    printf("\n%s: Apply action to all targets.\n",
+	    	    p_help->name);
+    	    break;
+    	case H_GEN_COPY:
+    	    printf("\n%s: Copy state to database.\n",
+	    	    p_help->name);
+    	    break;
+     	case H_GEN_KILL:
+    	    printf("\n%s: Force applications to terminate.\n",
+	    	    p_help->name);
+    	    break;
     	case H_GEN_GUI:
+    	    printf("\n%s: Lauch the gui for display.\n",
+	    	    p_help->name);
+    	    break;
     	default :
-    	    printf("No help for %s\n",p_help->name);
+    	    printf("\nNo help for %s\n",p_help->name);
     	    break;
     }
 }
