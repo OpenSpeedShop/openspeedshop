@@ -427,7 +427,7 @@ void IntroWizardPanel::epage1NextButtonSelected()
   }
   if( epage1pcSampleRB->isOn() )
   {
-    p = getPanelContainer()->raiseNamedPanel("pc Sample Wizard");
+    p = getPanelContainer()->raiseNamedPanel("&pc Sample Wizard");
     if( !p )
     {
       getPanelContainer()->getMasterPC()->dl_create_and_add_panel("pc Sample Wizard", getPanelContainer());
@@ -435,7 +435,7 @@ void IntroWizardPanel::epage1NextButtonSelected()
   }
   if( epage1UserTimeRB->isOn() )
   {
-    p = getPanelContainer()->raiseNamedPanel("User Time Wizard");
+    p = getPanelContainer()->raiseNamedPanel("&User Time Wizard");
     if( !p )
     {
       getPanelContainer()->getMasterPC()->dl_create_and_add_panel("User Time Wizard", getPanelContainer());
@@ -443,7 +443,7 @@ void IntroWizardPanel::epage1NextButtonSelected()
   }
   if( epage1HardwareCounterRB->isOn() )
   {
-    p = getPanelContainer()->raiseNamedPanel("HW Counter Wizard");
+    p = getPanelContainer()->raiseNamedPanel("&HW Counter Wizard");
     if( !p )
     {
       getPanelContainer()->getMasterPC()->dl_create_and_add_panel("HW Counter Wizard", getPanelContainer());
@@ -451,7 +451,7 @@ void IntroWizardPanel::epage1NextButtonSelected()
   }
   if( epage1FloatingPointRB->isOn() )
   {
-    p = getPanelContainer()->raiseNamedPanel("FPE Tracing Wizard");
+    p = getPanelContainer()->raiseNamedPanel("&FPE Tracing Wizard");
     if( !p )
     {
       getPanelContainer()->getMasterPC()->dl_create_and_add_panel("FPE Tracing Wizard", getPanelContainer());
@@ -459,7 +459,7 @@ void IntroWizardPanel::epage1NextButtonSelected()
   }
   if( epage1InputOutputRB->isOn() )
   {
-    p = getPanelContainer()->raiseNamedPanel("IO Wizard");
+    p = getPanelContainer()->raiseNamedPanel("I&O Wizard");
     if( !p )
     {
       getPanelContainer()->getMasterPC()->dl_create_and_add_panel("IO Wizard", getPanelContainer());
@@ -496,7 +496,7 @@ void IntroWizardPanel::vpage1NextButtonSelected()
   }
   if( vpage1UserTimeRB->isOn() )
   {
-    p = getPanelContainer()->raiseNamedPanel("User Time Wizard");
+    p = getPanelContainer()->raiseNamedPanel("&User Time Wizard");
     if( !p )
     {
       getPanelContainer()->getMasterPC()->dl_create_and_add_panel("User Time Wizard", getPanelContainer());
@@ -504,7 +504,7 @@ void IntroWizardPanel::vpage1NextButtonSelected()
   }
   if( vpage1HardwareCounterRB->isOn() )
   {
-    p = getPanelContainer()->raiseNamedPanel("HW Counter Wizard");
+    p = getPanelContainer()->raiseNamedPanel("&HW Counter Wizard");
     if( !p )
     {
       getPanelContainer()->getMasterPC()->dl_create_and_add_panel("HW Counter Wizard", getPanelContainer());
@@ -512,7 +512,7 @@ void IntroWizardPanel::vpage1NextButtonSelected()
   }
   if( vpage1FloatingPointRB->isOn() )
   {
-    p = getPanelContainer()->raiseNamedPanel("FPE Tracing Wizard");
+    p = getPanelContainer()->raiseNamedPanel("&FPE Tracing Wizard");
     if( !p )
     {
       getPanelContainer()->getMasterPC()->dl_create_and_add_panel("FPE Tracing Wizard", getPanelContainer());
@@ -520,7 +520,7 @@ void IntroWizardPanel::vpage1NextButtonSelected()
   }
   if( vpage1InputOutputRB->isOn() )
   {
-    p = getPanelContainer()->raiseNamedPanel("IO Wizard");
+    p = getPanelContainer()->raiseNamedPanel("I&O Wizard");
     if( !p )
     {
       getPanelContainer()->getMasterPC()->dl_create_and_add_panel("IO Wizard", getPanelContainer());
