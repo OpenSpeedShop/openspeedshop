@@ -110,6 +110,11 @@ CMDWID RLI_Window     (char *my_name, char *my_host, pid_t my_pid, int64_t my_pa
 extern CMDWID command_line_window;
 extern CMDWID tli_window;
 extern CMDWID gui_window;
+extern char *Current_OpenSpeedShop_Prompt;
+inline void SS_Issue_Prompt (FILE *TFile) {
+  fprintf(TFile,"%s->",Current_OpenSpeedShop_Prompt);
+  fflush(TFile);
+}
 
 void Commander_Termination (CMDWID my_window);
 
