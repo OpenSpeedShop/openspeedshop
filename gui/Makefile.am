@@ -47,3 +47,6 @@ ossgui_la_SOURCES = \
 	gui.hxx gui.cxx \
     openspeedshop.hxx openspeedshop.cxx moc_openspeedshop.cxx qmake_image_collection.cxx openspeedshop.ui.hxx \
 	Panel.hxx PanelContainer.hxx debug.hxx
+
+doc:
+	-doxygen Doxyfile
