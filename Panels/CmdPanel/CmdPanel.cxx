@@ -77,23 +77,24 @@ CmdPanel::returnPressed()
   {
     QString text = output->text(i);
     char *buffer = strdup(text.stripWhiteSpace().ascii());
-    if( text.stripWhiteSpace() == "" || text.stripWhiteSpace() == "openss->" )
+    nprintf(DEBUG_PANELS) ("buffer=(%s)\n", buffer);
+    if( text.stripWhiteSpace() == "" || text.stripWhiteSpace() == prompt )
     {
       free(buffer);
       return;
     }
     char *start_ptr = buffer;
-//    if( text.startsWith("openss-> ") )
     if( text.startsWith(prompt+" ") )
     {
-      start_ptr += prompt.length();
+      start_ptr += prompt.length()+1;
     } else if( text.startsWith(prompt) )
     {
-      start_ptr += prompt.length()-1;
+      start_ptr += prompt.length();
     }
-    nprintf(DEBUG_PANELS) ("Send down (%s)\n", start_ptr);
+    QString command_string = QString(start_ptr).stripWhiteSpace();
+    nprintf(DEBUG_PANELS) ("Send down (%s)\n", command_string.ascii());
     int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
-    InputLineObject *ilp = Append_Input_String( wid, start_ptr);
+    InputLineObject *ilp = Append_Input_String( wid, (char *)command_string.ascii());
 
     // Push the command onto the history list.
     cmdHistoryListIterator = cmdHistoryList.end();
