@@ -23,7 +23,7 @@
 
 #include <stdlib.h>  // for calloc
 
-#include "ExprInfo.hxx"   // For dummied up data...
+#include "CollectorInfo.hxx"   // For dummied up data...
 #include "SourceObject.hxx"
 
 #include <qfiledialog.h>  // For the file dialog box.
@@ -329,15 +329,15 @@ LABEL_TYPE lt = NONE_T;
   int i=0;
   float sum = 0.0;
 
-  FuncInfo *fi = NULL;
+  MetricInfo *fi = NULL;
 
   if( !topFiveObject )
   {
     return 0;
   }
 
-  for( FuncInfoList::Iterator it = topFiveObject->funcInfoList.begin();
-       it != topFiveObject->funcInfoList.end();
+  for( MetricInfoList::Iterator it = topFiveObject->metricInfoList.begin();
+       it != topFiveObject->metricInfoList.end();
        it++ )
   {
 values[i] = 0;
@@ -355,7 +355,7 @@ strings[i] = "";
     {
       color_names[i] = color_name_table[i];
     }
-    fi = (FuncInfo *)*it;
+    fi = (MetricInfo *)*it;
     values[i] = (int)fi->percent;
 
     if( lt == FUNCTION_NAME_T )
@@ -415,15 +415,15 @@ TopPanel::itemSelected(int element)
   highlightList->clear();
   HighlightObject *hlo = NULL;
 
-  FuncInfo *fi = NULL;
-  FuncInfoList::Iterator it = NULL;
+  MetricInfo *fi = NULL;
+  MetricInfoList::Iterator it = NULL;
 
   i = 0;
-  for( it = topFiveObject->funcInfoList.begin();
-       it != topFiveObject->funcInfoList.end();
+  for( it = topFiveObject->metricInfoList.begin();
+       it != topFiveObject->metricInfoList.end();
        it++ )
   {
-    fi = (FuncInfo *)*it;
+    fi = (MetricInfo *)*it;
     for( int line=fi->start; line <= fi->end; line++)
     {
       if( i >= 5 )
@@ -440,11 +440,11 @@ TopPanel::itemSelected(int element)
   }
 
   i = 0;
-  for( it = topFiveObject->funcInfoList.begin();
-       it != topFiveObject->funcInfoList.end();
+  for( it = topFiveObject->metricInfoList.begin();
+       it != topFiveObject->metricInfoList.end();
        it++ )
   {
-     fi = (FuncInfo *)*it;
+     fi = (MetricInfo *)*it;
      if( i == element )
      {
        break;
@@ -629,7 +629,7 @@ TopPanel::getTopFiveData()
   char *strings[1024];
 #endif // OLDWAY
 
-  topFiveObject = new ExprInfo();
+  topFiveObject = new CollectorInfo();
 
   int number_returned = getValues(values, color_names, strings, NUMBER_ENTRIES);
   if( number_returned == 0 )
@@ -646,19 +646,19 @@ TopPanel::getTopFiveData()
   char funcstr[21];
   sprintf(buffer, "%-9s %-15s  %-6s   %-20s   %-s\n", "Rank", "Function", "Percent", "Filename", "Line #");
   textEdit->append(buffer);
-  FuncInfo *fi;
+  MetricInfo *fi;
 float sum=0;
 int line = 2;
 int i = 0;
-  for( FuncInfoList::Iterator it = topFiveObject->funcInfoList.begin();
-       it != topFiveObject->funcInfoList.end();
+  for( MetricInfoList::Iterator it = topFiveObject->metricInfoList.begin();
+       it != topFiveObject->metricInfoList.end();
        it++ )
   {
 if( i >= number_returned )
 {
   break;
 }
-     fi = (FuncInfo *)*it;
+     fi = (MetricInfo *)*it;
 
      char *ptr = NULL;
      ptr = truncate(fi->functionName, 17);
@@ -751,11 +751,11 @@ QString
 TopPanel::getDescription(int line)
 {
   int i = 1;
-  for( FuncInfoList::Iterator it = topFiveObject->funcInfoList.begin();
-       it != topFiveObject->funcInfoList.end();
+  for( MetricInfoList::Iterator it = topFiveObject->metricInfoList.begin();
+       it != topFiveObject->metricInfoList.end();
        it++, i++ )
   {
-    FuncInfo *fi = (FuncInfo *)*it;
+    MetricInfo *fi = (MetricInfo *)*it;
 
     if( i == line )
     {

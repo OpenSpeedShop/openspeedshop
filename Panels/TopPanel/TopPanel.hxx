@@ -3,7 +3,7 @@
 #include "Panel.hxx"           // Do not remove
 
 class PanelContainer;   // Do not remove
-class ExprInfo;
+class CollectorInfo;
 
 #include "TPTextEdit.hxx"
 #include <qsplitter.h>
@@ -105,7 +105,7 @@ public slots:
 
 protected:
   //! prototype: dummy data.
-  ExprInfo *topFiveObject;
+  CollectorInfo *topFiveObject;
 
 private:
   void info(QPoint, QObject *target=NULL );
