@@ -23,6 +23,7 @@ StatsPanel_la_CXXFLAGS = \
     -I$(QTDIR)/include \
     -I. \
     -I../../objects \
+    -I../../pcli \
     -I../../libopenss-framework \
     -I../../gui \
     -I../../expr_info \
