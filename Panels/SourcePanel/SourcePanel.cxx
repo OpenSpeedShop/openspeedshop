@@ -171,9 +171,11 @@ setName(name_buffer);
 SourcePanel::~SourcePanel()
 {
   nprintf(DEBUG_CONST_DESTRUCT) ("  SourcePanel::~SourcePanel() destructor called\n");
+#ifdef ABORTS
   delete textEdit;
   delete label;
   delete frameLayout;
+#endif // ABORTS
 }
 
 /*!
