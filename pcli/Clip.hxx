@@ -46,7 +46,6 @@ class InputLineObject
   time_t cmd_time;		// When the status field was set.
   CMDWID who;			// Who constructed the command.  (i.e. "gui", "cli", or "?")
   bool complex_expression;	// Is this command part of a more complex expression?
-  FILE *Trace_F;		// Echo stat changes to trace file.
 
   std::string command;		// The actual command to be executed.
 
@@ -62,8 +61,9 @@ class InputLineObject
 
  public:
   virtual void status_change () {
-      if (Trace_F != NULL) {
-        Print(Trace_F);
+      FILE *Log_F = Log_File (who);
+      if (Log_F != NULL) {
+        Print(Log_F);
       }
   }
   virtual void issue_msg (char *msg) {fprintf(stdout,"%s\n",msg);}
@@ -78,7 +78,6 @@ class InputLineObject
       cmd_time = time(0);
       who = 0;
       complex_expression = false;
-      Trace_F = NULL;
       command = std::string("");
       msg_string = std::string("");
       // cmd_type = CMD_NONE;
@@ -149,7 +148,6 @@ class InputLineObject
   }
 
   void Set_Complex_Exp () { complex_expression = true; }
-  void Set_Trace (FILE *TFile) {Trace_F = TFile;}
   void Set_Results_Used () { results_used = true; }
   void Set_CallBackId (void *cbid) { LocalCmdId = cbid; }
   void Set_CallBackL  (void (*cbf) (InputLineObject *b)) { CallBackLine = cbf; }
