@@ -16,7 +16,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-bin_PROGRAMS = tool mutatee
+noinst_PROGRAMS = tool mutatee
 
 tool_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
