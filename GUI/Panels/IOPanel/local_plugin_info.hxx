@@ -1,4 +1,4 @@
-  plugin_entry->grouping = "";
+  plugin_entry->grouping = "TOPLEVEL";
   plugin_entry->show_immediate = 0;
   plugin_entry->plugin_description = "PLUGIN_DESCRIPTION";
   plugin_entry->plugin_name =  "IOPanel.so";
