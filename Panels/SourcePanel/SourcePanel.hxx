@@ -76,6 +76,8 @@ void doSaveAs(QTextStream *ts);
 
   SPCanvasForm *canvasForm;
 
+  SPCanvasForm *canvasForm2;
+
   //! The QTextEdit for managing the actual text.
   SPTextEdit *textEdit;
 

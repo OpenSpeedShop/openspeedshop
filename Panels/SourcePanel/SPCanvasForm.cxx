@@ -31,12 +31,12 @@ SPCanvasForm::SPCanvasForm( int label_height, QWidget *parent, const char *n, WF
   header->setStretchEnabled(TRUE, -1);
 // header->setStyle( QStyle::Style_Off );
   canvasFormHeaderLayout->addWidget( header );
-  header->addLabel("LN", DEFAULT_CANVAS_WIDTH);
+  header->addLabel(n, DEFAULT_CANVAS_WIDTH);
   header->show();
 
   canvas = new QCanvas( this );
   canvas->setBackgroundColor(parent->backgroundColor());
-  canvasView = new SPCanvasView(canvas, this, "SPCanvasView");
+  canvasView = new SPCanvasView(canvas, this, n);
   canvasFormLayout->addWidget(canvasView);
   canvasView->show();
 }

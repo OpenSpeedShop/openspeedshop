@@ -59,8 +59,11 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n, char *argument) : Pa
   label = new QLabel( getBaseWidgetFrame(), "text label", 0 );
 // printf("label->height()=%d\n", label->height() );
 
-  canvasForm = new SPCanvasForm( label->height(), splitter );
+  canvasForm = new SPCanvasForm( label->height(), splitter, "no." );
   canvasForm->hide();
+
+  canvasForm2 = new SPCanvasForm( label->height(), splitter, "stats" );
+  canvasForm2->hide();
 
   delete label;
 
@@ -454,6 +457,7 @@ SourcePanel::showCanvasForm()
   {
     statsFLAG = FALSE;
     canvasForm->hide();
+canvasForm2->hide();
   } else
   {
     // I don't know why, but the splitter resizes after I've already resized it
@@ -467,6 +471,7 @@ SourcePanel::showCanvasForm()
       int left_side_size = DEFAULT_CANVAS_WIDTH;
       nprintf(DEBUG_PANELS) ("left_side_size = (%d)\n", left_side_size );
       sizeList.push_back( left_side_size );
+sizeList.push_back( left_side_size );
       sizeList.push_back( width-left_side_size );
       splitter->setSizes(sizeList);
     }
@@ -474,6 +479,7 @@ SourcePanel::showCanvasForm()
 
     statsFLAG = TRUE;
     canvasForm->show();
+canvasForm2->show();
   }
 
   // Make sure the scrollbar is sync'd with everyone..
