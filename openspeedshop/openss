@@ -18,5 +18,11 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
+
+if [ "$OPENSS_PLUGIN_PATH" != "" ]
+then
+  LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$OPENSS_PLUGIN_PATH:$OPENSS_PLUGIN_PATH/..
+fi
+
 DIR=`dirname $0`
 $DIR/openspeedshop $@
