@@ -22,6 +22,8 @@ class PanelContainer;   // Do not remove
 #include <qvaluelist.h>
 #include "HighlightObject.hxx"
 
+#include <qsettings.h>
+
 #undef PANEL_CLASS_NAME
 #define PANEL_CLASS_NAME SourcePanel   // Change the value of the define
                                          // to the name of your new class.
@@ -45,8 +47,11 @@ public:
   //! Save the source to a file.
   void save();
 
-//! Does the actual writing of the data.
-void doSaveAs(QTextStream *ts);
+  //! Does the actual writing of the data.
+  void doSaveAs(QTextStream *ts);
+
+  //! Update the preferences from file settings
+  void preferencesChanged();
 
   //! The listener routine for fielding messages.
   int listener(void *msg);

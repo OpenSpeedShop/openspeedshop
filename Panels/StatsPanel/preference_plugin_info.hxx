@@ -21,11 +21,33 @@ extern "C"
   QLabel* showTopNTextLabel;
   QLineEdit* showTopNLineEdit;
 
+  static char *pname = NULL;
+
+  bool getPreferenceSortDecending()
+  {
+// printf("getPreferenceSortDecending(%s)\n", pname);
+    return( sortDecendingCheckBox->isChecked() );
+  }
+
+  QString getPreferenceTopNLineEdit()
+  {
+// printf("getPreferenceTopNLineEdit(%s)\n", pname);
+    return( showTopNLineEdit->text() );
+  }
+
+  void initPreferenceSettings()
+  {
+// printf("initPreferenceSettings(%s)\n", pname);
+    sortDecendingCheckBox->setChecked(TRUE);
+    showTopNLineEdit->setText( "5" );
+  }
+
   QWidget *initialize_preferences_entry_point(QSettings *settings, QWidgetStack *stack, char *name)
   {
 //    printf("initialize_preferences_entry_point(0x%x 0x%x %s) entered\n", settings, stack, name);
 
     QWidget *statsPanelStackPage = new QWidget( stack, name );
+    pname = strdup(name);
 
     generalStackPageLayout_3 =
       new QVBoxLayout( statsPanelStackPage, 11, 6, "generalStackPageLayout_3");
@@ -55,19 +77,11 @@ extern "C"
     generalStackPageLayout_3->addWidget( statsPanelGroupBox );
     stack->addWidget( statsPanelStackPage, 2 );
 
-//    languageChange();
-
-    sortDecendingCheckBox->setChecked( TRUE );
-/*
-    statsPanelGroupBox->setTitle( tr( "Stats Panel" ) );
-    sortDecendingCheckBox->setText( tr( "Sort Descending" ) );
-    showTopNTextLabel->setText( tr( "Show top N items:" ) );
-    showTopNLineEdit->setText( tr( "5" ) );
-*/
     statsPanelGroupBox->setTitle( "Stats Panel" );
     sortDecendingCheckBox->setText( "Sort Descending" );
     showTopNTextLabel->setText( "Show top N items:" );
-    showTopNLineEdit->setText( "5" );
+
+    initPreferenceSettings();
 
     if( settings != NULL )
     {
@@ -75,8 +89,8 @@ extern "C"
       sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, sortDecendingCheckBox->name() );
       sortDecendingCheckBox->setChecked(
-        settings->readBoolEntry(settings_buffer, TRUE) );
-  
+        settings->readBoolEntry(settings_buffer) );
+
       sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, showTopNLineEdit->name() );
       showTopNLineEdit->setText(

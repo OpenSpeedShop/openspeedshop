@@ -25,6 +25,7 @@
 #include <qcursor.h>
 
 #include "SourceObject.hxx"
+#include "PreferencesChangedObject.hxx"
 
 #include "debug.hxx"
 
@@ -257,6 +258,16 @@ SourcePanel::saveAs()
   }
 }
 
+void
+SourcePanel::preferencesChanged()
+{
+// printf("SourcePanel::preferencesChanged()\n");
+  bool show_stats_val = getShowStatistics();
+// printf("  show_stats_val=%d\n", show_stats_val );
+  bool show_line_numbers_val = getShowLineNumbers();
+// printf("  show_line_numbers_val=%d\n", show_line_numbers_val );
+}
+
 /*! 
  * The listener function fields requests to load and position source files.
  */
@@ -266,6 +277,7 @@ SourcePanel::listener(void *msg)
 {
   SourceObject *spo = NULL;
   SaveAsObject *sao = NULL;
+  PreferencesChangedObject *pco = NULL;
   nprintf(DEBUG_PANELS) ("SourcePanel::listener() requested.\n");
 
   MessageObject *msgObject = (MessageObject *)msg;
@@ -324,8 +336,13 @@ SourcePanel::listener(void *msg)
     if( sao->f != NULL )
     {
       doSaveAs(sao->ts);
-sao->f->flush();
+      sao->f->flush();
     }
+  } else if( msgObject->msgType == "PreferencesChangedObject" )
+  {
+//    printf("SourcePanel:  The preferences changed.\n");
+    pco = (PreferencesChangedObject *)msg;
+    preferencesChanged();
   } else
   {
     return 0; // 0 means, did not act on message.

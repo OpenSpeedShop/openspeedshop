@@ -138,6 +138,11 @@ PreferencesDialog::PreferencesDialog( QWidget* parent, const char* name, bool mo
       SLOT( listItemSelected(QListViewItem*) ) );
 
     preferencesAvailable = FALSE;
+
+    settings = new QSettings();
+// printf("settings initailize to 0x%x\n", settings );
+//    settings->insertSearchPath( QSettings::Unix, "openspeedshop" );
+
     readPreferencesOnEntry();
 }
 

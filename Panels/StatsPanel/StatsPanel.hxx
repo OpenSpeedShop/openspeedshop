@@ -15,6 +15,8 @@ class QVBoxLayout;
 #include <qvaluelist.h>
 typedef QValueList<QString> ColumnList;
 
+#include <qsettings.h>
+
 #define PANEL_CLASS_NAME StatsPanel   // Change the value of the define
 //! StatsPanel Class
 class StatsPanel  : public Panel
@@ -36,6 +38,9 @@ class StatsPanel  : public Panel
 
     //! Calls the user panel function saveas() request.
     void saveAs();
+
+    //! Update the preferences from file settings
+    void preferencesChanged();
 
     //! Calls the user panel function listener() request.
     int listener(void *msg);

@@ -62,7 +62,7 @@ void OpenSpeedshop::fileAttachNewProcess()
 
 void OpenSpeedshop::fileSaveSession()
 {
-printf("OpenSpeedshop::fileSaveSession() entered\n");
+// printf("OpenSpeedshop::fileSaveSession() entered\n");
 
   QMessageBox::information( (QWidget *)NULL, tr("Info:"), tr("This feature currently under construction."), QMessageBox::Ok );
 
@@ -150,7 +150,7 @@ void OpenSpeedshop::fileExportExperimentData()
 
 void OpenSpeedshop::filePreferences()
 {
-  printf("filePreferences() entered.\n");
+//  printf("filePreferences() entered.\n");
 
   preferencesDialog->show();
 }
@@ -417,7 +417,7 @@ void OpenSpeedshop::init()
           if( dl_plugin_info_init_preferences_routine )
           {
 // printf("about to call the routine.\n");
-            QWidget *panelStackPage = (*dl_plugin_info_init_preferences_routine)(&preferencesDialog->settings, preferencesDialog->preferenceDialogWidgetStack, pi->preference_category);
+            QWidget *panelStackPage = (*dl_plugin_info_init_preferences_routine)(preferencesDialog->settings, preferencesDialog->preferenceDialogWidgetStack, pi->preference_category);
             if( panelStackPage )
             {
               preferencesStackPagesList.push_back(panelStackPage);

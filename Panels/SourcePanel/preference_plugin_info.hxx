@@ -18,11 +18,33 @@ extern "C"
   QVBoxLayout* generalStackPageLayout_2;
   QVBoxLayout* layout6;
 
+  static char *pname = NULL;
+
+  bool getShowStatistics()
+  {
+// printf("getShowStatistics(%s)\n", pname);
+    return( showStatisticsCheckBox->isChecked() );
+  }
+
+  bool getShowLineNumbers()
+  {
+// printf("getShowLineNumbers(%s)\n", pname);
+    return( showLineNumbersCheckBox->isChecked() );
+  }
+
+  void initPreferenceSettings()
+  {
+// printf("initPreferenceSettings(%s)\n", pname);
+    showStatisticsCheckBox->setChecked(FALSE);
+    showLineNumbersCheckBox->setChecked(FALSE);
+  }
+
   QWidget *initialize_preferences_entry_point(QSettings *settings, QWidgetStack *stack, char *name)
   {
 //    printf("initialize_preferences_entry_point(0x%x 0x%x %s) entered\n", settings, stack, name);
 
-    sourcePanelStackPage = new QWidget( stack, "Source Panel" );
+    sourcePanelStackPage = new QWidget( stack, name );
+    pname = strdup(name);
     generalStackPageLayout_2 = new QVBoxLayout( sourcePanelStackPage, 11, 6, "generalStackPageLayout_2"); 
 
     sourcePanelGroupBox = new QGroupBox( sourcePanelStackPage, "sourcePanelGroupBox" );
@@ -44,8 +66,6 @@ extern "C"
     stack->addWidget( sourcePanelStackPage, 1 );
 
 // languageChange();
-    showStatisticsCheckBox->setChecked(FALSE);
-    showLineNumbersCheckBox->setChecked(FALSE);
 /*
     sourcePanelGroupBox->setTitle( tr( "Source Panel" ) );
     showStatisticsCheckBox->setText( tr( "Show statistics" ) );
@@ -55,6 +75,8 @@ extern "C"
     showStatisticsCheckBox->setText( "Show statistics" );
     showLineNumbersCheckBox->setText( "Show line numbers" );
 
+    initPreferenceSettings();
+
     if( settings != NULL )
     {
       char settings_buffer[1024];
@@ -62,7 +84,7 @@ extern "C"
         "openspeedshop", name, showStatisticsCheckBox->name() );
       showStatisticsCheckBox->setChecked(
         settings->readBoolEntry(settings_buffer) );
-  
+
       sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, showLineNumbersCheckBox->name() );
       showLineNumbersCheckBox->setChecked(
@@ -79,11 +101,19 @@ extern "C"
 
     sprintf(settings_buffer, "/%s/%s/%s",
       "openspeedshop", name, showStatisticsCheckBox->name() );
-    settings->writeEntry(settings_buffer, showStatisticsCheckBox->isChecked() );
+// printf("write (%s)\n", settings_buffer );
+    if( ! settings->writeEntry(settings_buffer, showStatisticsCheckBox->isChecked() ) )
+    {
+      printf("error writting %s\n", settings_buffer);
+    }
 
     sprintf(settings_buffer, "/%s/%s/%s",
       "openspeedshop", name, showLineNumbersCheckBox->name() );
-    settings->writeEntry(settings_buffer, showLineNumbersCheckBox->isChecked());
+// printf("write (%s)\n", settings_buffer );
+    if( !settings->writeEntry(settings_buffer, showLineNumbersCheckBox->isChecked()) )
+    {
+      printf("error writting %s\n", settings_buffer);
+    }
   }
 }
 

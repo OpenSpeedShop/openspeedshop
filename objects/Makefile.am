@@ -52,6 +52,7 @@ ossObjects_la_SOURCES = \
 	ProcessEntryClass.hxx \
 	MessageObject.hxx MessageObject.cxx \
 	SourceObject.hxx SourceObject.cxx \
+	PreferencesChangedObject.hxx PreferencesChangedObject.cxx \
 	LoadAttachObject.hxx LoadAttachObject.cxx \
 	SaveAsObject.hxx SaveAsObject.cxx \
 	ControlObject.hxx ControlObject.cxx \

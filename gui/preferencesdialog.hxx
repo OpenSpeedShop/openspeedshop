@@ -72,7 +72,7 @@ public:
     int globalFontWeight;
     bool globalFontItalic;
 
-    QSettings settings;
+    QSettings *settings;
     void readPreferencesOnEntry();
     void savePreferences();
     void applyPreferences();

@@ -6,6 +6,7 @@
 #include "SPListView.hxx"   // Change this to your new class header file name
 #include "SPListViewItem.hxx"   // Change this to your new class header file name
 #include "SourceObject.hxx"
+#include "PreferencesChangedObject.hxx"
 
 #include "preference_plugin_info.hxx" // Do not remove
 
@@ -303,6 +304,16 @@ StatsPanel::saveAs()
   dprintf("StatsPanel::saveAs() requested.\n");
 }
 
+void
+StatsPanel::preferencesChanged()
+{ 
+//  printf("StatsPanel::preferencesChanged\n");
+  bool sort_val = getPreferenceSortDecending();
+//printf("  sort_val=%d\n", sort_val );
+  QString val_str = getPreferenceTopNLineEdit();
+//printf("  val_str=%s\n", val_str.ascii() );
+} 
+
 
 /*! When a message has been sent (from anyone) and the message broker is
     notifying panels that they may want to know about the message, this is the
@@ -316,12 +327,18 @@ int
 StatsPanel::listener(void *msg)
 {
   dprintf("StatsPanel::listener() requested.\n");
+  PreferencesChangedObject *pco = NULL;
 
 // BUG - BIG TIME KLUDGE.   This should have a message type.
-  MessageObject *mo = (MessageObject *)msg;
-  if(  mo->msgType  == "UpdateAllObject" )
+  MessageObject *msgObject = (MessageObject *)msg;
+  if(  msgObject->msgType  == "UpdateAllObject" )
   {
     updateStatsPanelData();
+  } else if( msgObject->msgType == "PreferencesChangedObject" )
+  {
+    printf("StatsPanel:  The preferences changed.\n");
+    pco = (PreferencesChangedObject *)msgObject;
+    preferencesChanged();
   }
 
   return 0;  // 0 means, did not want this message and did not act on anything.

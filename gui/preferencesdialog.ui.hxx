@@ -5,53 +5,105 @@
 #include "PluginInfo.hxx"
 #include <dlfcn.h>
 
+#include "PreferencesChangedObject.hxx"
+
 void PreferencesDialog::readPreferencesOnEntry()
 {
 // printf("readPreferencesOnEntry() entered\n");
 
-//  settings.insertSearchPath( QSettings::Unix, "openspeedshop" );
+//  settings->insertSearchPath( QSettings::Unix, "openspeedshop" );
   // No search path needed for Unix; see notes further on.
   QString ds = QString::null;
   bool ok;
 
-  settings.readEntry( "/openspeedshop/general/globalFontFamily", ds, &ok);
+  settings->readEntry( "/openspeedshop/general/globalFontFamily", ds, &ok);
   if( ok == FALSE )
   {
     printf("Didn't find any defaults file.  Just take the defaults.\n");
     return;
+  } else
+  {
+    // printf(" ******     found a defaults file.\n");
   }
 
   preferencesAvailable = TRUE;
 
   globalFontFamily =
-    settings.readEntry( "/openspeedshop/general/globalFontFamily" );
+    settings->readEntry( "/openspeedshop/general/globalFontFamily" );
   fontLineEdit->setText( globalFontFamily );
 
   globalFontPointSize =
-    settings.readNumEntry("/openspeedshop/general/globalFontPointSize");
+    settings->readNumEntry("/openspeedshop/general/globalFontPointSize");
   globalFontWeight =
-    settings.readNumEntry("/openspeedshop/general/globalFontWeight");
+    settings->readNumEntry("/openspeedshop/general/globalFontWeight");
   globalFontItalic =
-     settings.readBoolEntry("/openspeedshop/general/globalFontItalic");
+     settings->readBoolEntry("/openspeedshop/general/globalFontItalic");
 
 
 
   precisionLineEdit->setText(
-    settings.readEntry( "/openspeedshop/general/globalPrecision") );
+    settings->readEntry( "/openspeedshop/general/globalPrecision") );
 
   setShowSplashScreenCheckBox->setChecked(
-    settings.readBoolEntry( "/openspeedshop/general/showSplashScreen") );
-  setShowColoredTabsCheckBox->setChecked(settings.readBoolEntry( "/openspeedshop/general/showColoredTabs") );
+    settings->readBoolEntry( "/openspeedshop/general/showSplashScreen") );
+  setShowColoredTabsCheckBox->setChecked(settings->readBoolEntry( "/openspeedshop/general/showColoredTabs") );
   deleteEmptyPCCheckBox->setChecked(
-    settings.readBoolEntry( "/openspeedshop/general/deleteEmptyPC") );
+    settings->readBoolEntry( "/openspeedshop/general/deleteEmptyPC") );
   showGraphicsCheckBox->setChecked(
-    settings.readBoolEntry( "/openspeedshop/general/showGraphics") );
+    settings->readBoolEntry( "/openspeedshop/general/showGraphics") );
 }
 
 void PreferencesDialog::resetPreferenceDefaults()
 {
-    qWarning( "PreferencesDialog::resetPreferenceDefaults(): Not implemented yet" );
-  languageChange();
+//    qWarning( "PreferencesDialog::resetPreferenceDefaults(): Not implemented yet" );
+   globalFontFamily = "Helvetica";
+   globalFontPointSize = 12;
+   globalFontWeight = QFont::Normal;
+   globalFontItalic = FALSE;
+
+   fontLineEdit->setText( globalFontFamily );
+   fontLineEdit->setReadOnly(TRUE);
+   setShowSplashScreenCheckBox->setChecked( TRUE );
+   setShowColoredTabsCheckBox->setChecked(FALSE);
+   deleteEmptyPCCheckBox->setChecked(FALSE);
+   showGraphicsCheckBox->setChecked(FALSE);
+
+
+  // Begin reset all preferences to defaults
+  //This is the base plugin directory.   In this directory there should
+  // be a list of dso (.so) which are the plugins.
+  char plugin_file[1024];
+  if( panelContainer->getMasterPC() && panelContainer->getMasterPC()->_pluginRegistryList )
+  {
+    char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
+    if( !plugin_directory )
+    {
+      fprintf(stderr, "Can't find the PanelContainer plugin. $OPENSPEEDSHOP_PLUGIN_PATH not set correctly.\n");
+        return;
+    }
+    PluginInfo *pi = NULL;
+    for( PluginRegistryList::Iterator it = panelContainer->getMasterPC()->_pluginRegistryList->begin();
+         it != panelContainer->getMasterPC()->_pluginRegistryList->end();
+         it++ )
+    {
+      pi = (PluginInfo *)*it;
+      sprintf(plugin_file, "%s/%s", plugin_directory, pi->plugin_name );
+      void *dl_object = dlopen((const char *)plugin_file, (int)RTLD_LAZY );
+  
+      if( dl_object )
+      {
+// printf("about to lookup(%s).\n", "initPreferenceSettings");
+        void (*dl_plugin_init_preferences_settings)() =
+          (void (*)())dlsym(dl_object, "initPreferenceSettings" );
+         if( dl_plugin_init_preferences_settings )
+         {
+// printf("about to call the routine.\n");
+           (*dl_plugin_init_preferences_settings)();
+         }
+         dlclose(dl_object);
+      }
+    }
+  }
 }
 
 QWidget *
@@ -123,9 +175,9 @@ void PreferencesDialog::applyPreferences()
 
   delete( m_font );
 
-
   // NOTIFY EVERYONE THAT PREFERENCES HAVE CHANGED!
-  printf("NOTIFY EVERYONE THAT PREFERENCES HAVE CHANGED!\n");
+  PreferencesChangedObject msg = PreferencesChangedObject();
+  panelContainer->getMasterPC()->notifyAll((char *)&msg);
 }
 
 void PreferencesDialog::buttonApplySelected()
@@ -144,21 +196,56 @@ void PreferencesDialog::buttonOkSelected()
 
 void PreferencesDialog::savePreferences()
 {
-//  settings.insertSearchPath( QSettings::Unix, "openspeedshop" );
+//  settings->insertSearchPath( QSettings::Unix, "openspeedshop" );
   // No search path needed for Unix; see notes further on.
+//printf("********   PreferencesDialog::savePreferences() entered!\n");
+//printf("settings=0x%x\n", settings);
 
-  settings.writeEntry( "/openspeedshop/general/globalFontFamily", globalFontFamily );
+  if( !settings->writeEntry( "/openspeedshop/general/globalFontFamily", globalFontFamily ) )
+  {
+    printf("A: Unable to write globalFontFamily.\n");
+  }
 
-  settings.writeEntry("/openspeedshop/general/globalFontPointSize", globalFontPointSize );
-  settings.writeEntry("/openspeedshop/general/globalFontWeight", globalFontWeight );
-  settings.writeEntry("/openspeedshop/general/globalFontItalic", globalFontItalic );
+  if( !settings->writeEntry("/openspeedshop/general/globalFontPointSize", globalFontPointSize ) )
+  {
+    printf("B: Unable to write globalFontFamily.\n");
+  }
+
+  if( !settings->writeEntry("/openspeedshop/general/globalFontWeight", globalFontWeight ) )
+  {
+    printf("C: Unable to write globalFontFamily.\n");
+  }
+
+  if( !settings->writeEntry("/openspeedshop/general/globalFontItalic", globalFontItalic ) )
+  {
+    printf("D: Unable to write globalFontFamily.\n");
+  }
 
 
-  settings.writeEntry( "/openspeedshop/general/globalPrecision", precisionLineEdit->text() );
-  settings.writeEntry( "/openspeedshop/general/showSplashScreen", setShowSplashScreenCheckBox->isChecked() );
-  settings.writeEntry( "/openspeedshop/general/showColoredTabs", setShowColoredTabsCheckBox->isChecked() );
-  settings.writeEntry( "/openspeedshop/general/deleteEmptyPC", deleteEmptyPCCheckBox->isChecked() );
-  settings.writeEntry( "/openspeedshop/general/showGraphics", showGraphicsCheckBox->isChecked() );
+  if( !settings->writeEntry( "/openspeedshop/general/globalPrecision", precisionLineEdit->text() ) )
+  {
+    printf("E: Unable to write globalFontFamily.\n");
+  }
+
+  if( !settings->writeEntry( "/openspeedshop/general/showSplashScreen", setShowSplashScreenCheckBox->isChecked() ) )
+  {
+    printf("F: Unable to write globalFontFamily.\n");
+  }
+
+  if( !settings->writeEntry( "/openspeedshop/general/showColoredTabs", setShowColoredTabsCheckBox->isChecked() ) )
+  {
+    printf("G: Unable to write globalFontFamily.\n");
+  }
+
+  if( !settings->writeEntry( "/openspeedshop/general/deleteEmptyPC", deleteEmptyPCCheckBox->isChecked() ) )
+  {
+    printf("H: Unable to write globalFontFamily.\n");
+  }
+
+  if( !settings->writeEntry( "/openspeedshop/general/showGraphics", showGraphicsCheckBox->isChecked() ) )
+  {
+    printf("I: Unable to write globalFontFamily.\n");
+  }
 
   // Begin save all preferences
   //This is the base plugin directory.   In this directory there should
@@ -189,11 +276,14 @@ void PreferencesDialog::savePreferences()
          if( dl_plugin_info_init_preferences_routine )
          {
 // printf("about to call the routine.\n");
-           (*dl_plugin_info_init_preferences_routine)(&settings, pi->preference_category);
+           (*dl_plugin_info_init_preferences_routine)(settings, pi->preference_category);
          }
          dlclose(dl_object);
       }
     }
   }
+  settings->sync();
   // End save all preferences
+
+//   printf("FINISHED WRITING!\n");
 }
