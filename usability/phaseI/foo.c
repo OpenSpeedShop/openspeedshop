@@ -5,10 +5,10 @@ void foo(int *var)
   int tmp = (*var) * 1000;
   int in=0;
 
-  for(i=0;i<tmp;i++)
+  for(i=0;i < tmp;i++)
   {
     in = tmp*i/(i+1);
-    for(j=0;j<tmp;j++)
+    for(j=0;j < tmp;j++)
     {
       in = (tmp*i/(i+1))*j;
     }
