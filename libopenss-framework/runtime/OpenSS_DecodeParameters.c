@@ -47,14 +47,12 @@
  * @param argument  Encoded blob argument to be decoded.
  * @param xdrproc   XDR procedure for the parameter data structure.
  * @retval data     Pointer to the decoded parameter data structure.
- * @return          Boolean "TRUE" if succeeded or "FALSE" if failed.
  *
  * @ingroup RuntimeAPI
  */
-bool_t OpenSS_DecodeParameters(const char* argument,
-			       const xdrproc_t xdrproc, void* data)
+void OpenSS_DecodeParameters(const char* argument,
+			     const xdrproc_t xdrproc, void* data)
 {
-    bool_t ok = TRUE;  /* Assume success unless otherwise found below */
     unsigned i, size;
     char* buffer = NULL;
     XDR xdrs;
@@ -63,13 +61,11 @@ bool_t OpenSS_DecodeParameters(const char* argument,
     Assert(argument != NULL);
     Assert(xdrproc != NULL);
     Assert(data != NULL);
-
-    /* Length of encoded blob argument must be a multiple of two */
-    if((strlen(argument) % 2) != 0)
-	return FALSE;
     
     /* Allocate the decoding buffer */
-    buffer = alloca(strlen(argument) / 2);
+    Assert(strlen(argument) % 2 == 0);    
+    size = strlen(argument) / 2;
+    buffer = alloca(size);
     
     /* Iterate over each byte in the string-encoded blob argument */
     for(i = 0; i < strlen(argument); i += 2) {
@@ -81,16 +77,13 @@ bool_t OpenSS_DecodeParameters(const char* argument,
 	buffer[i / 2] |= argument[i + 1] - '0';
 
     }
-
+    
     /* Create an XDR stream using the decoding buffer */
     xdrmem_create(&xdrs, buffer, size, XDR_DECODE);
     
-    /* Attempt to decode the parameter data structure from this stream */
-    ok &= (*xdrproc)(&xdrs, data);
+    /* Decode the parameter data structure from this stream */
+    Assert((*xdrproc)(&xdrs, data) == TRUE);
     
     /* Close the XDR stream */
     xdr_destroy(&xdrs);
-    
-    /* Inform the caller whether we succeeded or not */
-    return ok;
 }

@@ -41,21 +41,19 @@ int openss_send(const unsigned, const void*);
  *
  * @todo    DPCL currently imposes a maximum (around 16Kb) on the length of
  *          individual messages sent using Ais_send(). In the future this limit
- *          should be removed. For now a "FALSE" value is returned if the
- *          encoded messages exceeds this limit.
+ *          should be removed. For now an assertion failure occurs if the 
+ *          encoded message exceeds this limit.
  *
  * @param header     Performance data header to apply to this data.
  * @param xdrproc    XDR procedure for the passed data structure.
  * @param data       Pointer to the data structure to be sent.
- * @return           Boolean "TRUE" if succeeded or "FALSE" if failed.
  *
  * @ingroup RuntimeAPI
  */
-bool_t OpenSS_Send(const OpenSS_DataHeader* header,
-		   const xdrproc_t xdrproc, const void* data)
+void OpenSS_Send(const OpenSS_DataHeader* header,
+		 const xdrproc_t xdrproc, const void* data)
 {
     const size_t EncodingBufferSize = 15 * 1024;
-    bool_t ok = TRUE;  /* Assume success unless otherwise found below */
     unsigned size;
     char* buffer = NULL;
     XDR xdrs;
@@ -71,11 +69,11 @@ bool_t OpenSS_Send(const OpenSS_DataHeader* header,
     /* Create an XDR stream using the encoding buffer */
     xdrmem_create(&xdrs, buffer, EncodingBufferSize, XDR_ENCODE);
 
-    /** Attempt to encode the performance data header to this stream */
-    ok &= xdr_OpenSS_DataHeader(&xdrs, (void*)header);
-    
-    /* Attempt to encode the data structure to this stream */
-    ok &= (*xdrproc)(&xdrs, (void*)data);
+    /* Encode the performance data header to this stream */
+    Assert(xdr_OpenSS_DataHeader(&xdrs, (void*)header) == TRUE);
+
+    /* Encode the data structure to this stream */
+    Assert((*xdrproc)(&xdrs, (void*)data) == TRUE);
     
     /* Get the encoded size */
     size = xdr_getpos(&xdrs);
@@ -83,10 +81,6 @@ bool_t OpenSS_Send(const OpenSS_DataHeader* header,
     /* Close the XDR stream */
     xdr_destroy(&xdrs);
     
-    /* Send the data if the encoding succeeded */
-    if(ok)
-	ok &= (openss_send(size, buffer) == 1) ? TRUE : FALSE;
-    
-    /* Inform the caller whether we succeeded or not */
-    return ok;
+    /* Send the data */
+    Assert(openss_send(size, buffer) == 1);
 }

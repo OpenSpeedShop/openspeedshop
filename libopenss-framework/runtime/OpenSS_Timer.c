@@ -29,7 +29,9 @@
 #include <signal.h>
 #include <time.h>
 
-    
+
+
+#ifdef WDH_PER_THREAD_TIMERS
 
 /** Access-controlled timer signal number. */
 static struct {
@@ -44,6 +46,13 @@ static __thread OpenSS_TimerEventHandler timer_handler = NULL;
 
 /** Thread's timer id. */
 static __thread timer_t timer_id;
+
+#else
+
+/** Thread's timer event handling function. */
+static OpenSS_TimerEventHandler timer_handler = NULL;
+
+#endif
 
 
 
@@ -83,12 +92,13 @@ static void signalHandler(int signal, siginfo_t* info, void* ptr)
  *
  * @param interval   Timer interval (in nanoseconds).
  * @param handler    Timer event handler.
- * @return           Boolean "TRUE" if succeeded or "FALSE" if failed.
  *
  * @ingroup RuntimeAPI
  */
-bool_t OpenSS_Timer(uint64_t interval, OpenSS_TimerEventHandler handler)
+void OpenSS_Timer(uint64_t interval, OpenSS_TimerEventHandler handler)
 {
+#ifdef WDH_PER_THREAD_TIMERS
+
     int i;
     struct sigaction action;
     sigevent_t delivery;
@@ -156,4 +166,28 @@ bool_t OpenSS_Timer(uint64_t interval, OpenSS_TimerEventHandler handler)
     spec.it_value.tv_sec = spec.it_interval.tv_sec;
     spec.it_value.tv_nsec = spec.it_interval.tv_nsec;
     Assert(timer_settime(timer_id, 0, &spec, NULL) == 0);
+
+#else
+
+    struct sigaction action;
+    struct itimerval spec;
+
+    /* Set this signal's action to our signal handler */
+    action.sa_sigaction = signalHandler;
+    sigfillset(&(action.sa_mask));
+    action.sa_flags = SA_SIGINFO;		
+    Assert(sigaction(SIGPROF, &action, NULL) == 0);
+    
+    /* Configure the new timer event handler for this thread */
+    timer_handler = handler;
+    
+    /* Create an interval timer for this thread */
+    spec.it_interval.tv_sec = interval / (uint64_t)(1000000000);
+    spec.it_interval.tv_usec = 
+	(interval % (uint64_t)(1000000000)) / (uint64_t)(1000);
+    spec.it_value.tv_sec = spec.it_interval.tv_sec;
+    spec.it_value.tv_usec = spec.it_interval.tv_usec;
+    Assert(setitimer(ITIMER_PROF, &spec, NULL) == 0); 
+
+#endif
 }

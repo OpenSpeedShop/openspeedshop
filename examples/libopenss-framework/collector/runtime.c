@@ -46,7 +46,11 @@
 #define HashTableSize (BufferSize + (BufferSize / 4))
 
 /** Thread-local storage. */
+#ifdef WDH_PER_THREAD_DATA_COLLECTION
 static __thread struct {
+#else
+static struct {
+#endif
 
     OpenSS_DataHeader header;  /**< Header for following data blob. */
     example_data data;         /**< Actual data blob. */
@@ -78,7 +82,7 @@ static __thread struct {
  *          case where a degree of spatial locality is present. A hash table is
  *          used to accelerate the determination of whether or not an addresss
  *          is already in the sample buffer. This concept is losely based on the
- *          technique employed by HP/Compaq's DCPI.
+ *          technique employed by Digital/Compaq/HP's DCPI.
  *
  * @sa    http://h30097.www3.hp.com/dcpi/src-tn-1997-016a.html
  * 
@@ -86,28 +90,32 @@ static __thread struct {
  */
 static void exampleTimerHandler(ucontext_t* context)
 {
+    uint64_t pc;
+    unsigned bucket, entry;
+
     /* Obtain the program counter (PC) address from the thread context */
-    uint64_t pc = OpenSS_GetPCFromContext(context);
+    pc = OpenSS_GetPCFromContext(context);
 
     /* 
      * Search the sample buffer for an existing entry corresponding to this
      * PC address. Use the hash table and a simple linear probe to accelerate
      * the search.
      */
-    unsigned bucket = (pc >> 4) % HashTableSize;
+    bucket = (pc >> 4) % HashTableSize;
     while((tls.hash_table[bucket] > 0) &&
 	  (tls.buffer.pc[tls.hash_table[bucket] - 1] != pc))
 	bucket = (bucket + 1) % HashTableSize;	
-    
+
     /* Increment count for existing entry if found and not already maxed */
-    if((tls.buffer.pc[tls.hash_table[bucket] - 1] == pc) &&
+    if((tls.hash_table[bucket] > 0) &&
+       (tls.buffer.pc[tls.hash_table[bucket] - 1] == pc) &&
        (tls.buffer.count[tls.hash_table[bucket] - 1] < UINT8_MAX)) {
 	tls.buffer.count[tls.hash_table[bucket] - 1]++;
 	return;
     }
     
     /* Otherwise add a new entry for this PC address to the sample buffer */
-    unsigned entry = tls.data.pc.pc_len;
+    entry = tls.data.pc.pc_len;
     tls.buffer.pc[entry] = pc;
     tls.buffer.count[entry] = 1;
     tls.data.pc.pc_len++;
@@ -128,7 +136,7 @@ static void exampleTimerHandler(ucontext_t* context)
 	/* Send these samples */
 	tls.header.time_end = OpenSS_GetTime();
 	OpenSS_Send(&(tls.header), (xdrproc_t)xdr_example_data, &(tls.data));
-	
+
 	/* Re-initialize the data blob's header */
 	tls.header.time_begin = tls.header.time_end;
 	tls.header.time_end = 0;
@@ -158,14 +166,14 @@ static void exampleTimerHandler(ucontext_t* context)
  */
 void example_start_sampling(const char* arguments)
 {
-    /* Decode the passed function arguments. */
     example_start_sampling_args args;
-    memset(&args, 0, sizeof(args));
-    if(OpenSS_DecodeParameters(arguments,
-			       (xdrproc_t)xdr_example_start_sampling_args,
-			       &args) == FALSE)
-	return;
 
+    /* Decode the passed function arguments. */
+    memset(&args, 0, sizeof(args));
+    OpenSS_DecodeParameters(arguments,
+			    (xdrproc_t)xdr_example_start_sampling_args,
+			    &args);
+    
     /* Initialize the data blob's header */
     tls.header.experiment = args.experiment;
     tls.header.collector = args.collector;

@@ -44,11 +44,11 @@ typedef void (*OpenSS_TimerEventHandler)(ucontext_t* context);
 
 
 
-bool_t OpenSS_DecodeParameters(const char*, const xdrproc_t, void*);
+void OpenSS_DecodeParameters(const char*, const xdrproc_t, void*);
 uint64_t OpenSS_GetPCFromContext(ucontext_t*);
 uint64_t OpenSS_GetTime();
-bool_t OpenSS_Send(const OpenSS_DataHeader*, const xdrproc_t, const void*);
-bool_t OpenSS_Timer(uint64_t, OpenSS_TimerEventHandler);
+void OpenSS_Send(const OpenSS_DataHeader*, const xdrproc_t, const void*);
+void OpenSS_Timer(uint64_t, OpenSS_TimerEventHandler);
 
 
 

@@ -781,7 +781,7 @@ void Process::updateAddressSpace(const Thread& thread, const Time& when)
 		
 		// Process the function information for this module
 		processFunctions(thread, linked_object, i->first, *j);
-		
+
 		// Process the statement information for this module
 		processStatements(thread, linked_object, i->first, *j);
 		
@@ -931,6 +931,7 @@ void Process::processStatements(const Thread& thread,
 				const AddressRange& range,
 				SourceObj& object) const
 {
+#ifdef SNARF
     // Ask DPCL for the statements in this (module) source object
     MainLoop::suspend();
     AisStatus retval;
@@ -1008,6 +1009,7 @@ void Process::processStatements(const Thread& thread,
     
     // Destroy the statement information returned by DPCL
     delete statements;    
+#endif
 }
 
 
