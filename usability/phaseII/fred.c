@@ -4,7 +4,7 @@
 int main(int argc, char* argv[])
 {
    extern int work(int);
-   int size = 450;
+   int size = 750;
 
     if(argc != 2) {
         printf("Usage: %s <size>\n", argv[0]);
