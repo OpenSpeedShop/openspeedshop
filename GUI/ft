@@ -34,5 +34,6 @@ if [[ $1 = -cli ]]
 then
   $FUTURE_TOOL_PLUGIN_DIR/../../bin/cli $@
 else
-  $FUTURE_TOOL_PLUGIN_DIR/../../bin/ftd -fn 6x13 $@
+#  $FUTURE_TOOL_PLUGIN_DIR/../../bin/ftd -fn 6x13 $@
+  $FUTURE_TOOL_PLUGIN_DIR/../../bin/ftd $@
 fi
