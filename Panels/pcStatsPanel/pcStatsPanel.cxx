@@ -34,7 +34,7 @@ typedef QValueList<MetricHeaderInfo *> MetricHeaderInfoList;
 #include "SourceObject.hxx"
 #include "PreferencesChangedObject.hxx"
 
-// #include "preference_plugin_info.hxx" // Do not remove
+#include "preference_plugin_info.hxx" // Do not remove
 
 #include "MetricInfo.hxx" // dummy data only...
 // This is only hear for the debugging tables....
@@ -228,64 +228,93 @@ for( ; it != orig_data->end(); ++it)
 void
 pcStatsPanel::updateStatsPanelBaseData(void *expr, int expID, QString experiment_name)
 {
-printf("pcStatsPanel::updateStatsPanelBaseData() entered.\n");
+// printf("pcStatsPanel::updateStatsPanelBaseData() entered.\n");
 
   StatsPanelBase::updateStatsPanelBaseData(expr, expID, experiment_name);
 
   
   SPListViewItem *lvi;
   columnList.clear();
-printf("This should be overloaded in pcStatsPanel....\n");
 
-ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-if( eo && eo->FW() )
-{
-  Experiment *fw_experiment = eo->FW();
-// Evaluate the collector's time metric for all functions in the thread
-ThreadGroup tgrp = fw_experiment->getThreads();
-ThreadGroup::iterator ti = tgrp.begin();
-Thread t1 = *ti;
-CollectorGroup cgrp = fw_experiment->getCollectors();
-CollectorGroup::iterator ci = cgrp.begin();
-Collector c1 = *ci;
-
-Queries::GetMetricByFunctionInThread(c1, "time", t1, orig_data);
-
-// Display the results
-  MetricHeaderInfoList metricHeaderInfoList;
-  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Time"), FLOAT_T));
-  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Function"), CHAR_T));
-  if( metricHeaderTypeArray != NULL )
+  ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+  if( eo && eo->FW() )
   {
-    delete []metricHeaderTypeArray;
-  }
-  int header_count = metricHeaderInfoList.count();
-  metricHeaderTypeArray = new int[header_count];
+    Experiment *fw_experiment = eo->FW();
+    // Evaluate the collector's time metric for all functions in the thread
+    ThreadGroup tgrp = fw_experiment->getThreads();
+    ThreadGroup::iterator ti = tgrp.begin();
+    Thread t1 = *ti;
+    CollectorGroup cgrp = fw_experiment->getCollectors();
+    CollectorGroup::iterator ci = cgrp.begin();
+    Collector c1 = *ci;
 
-  int i=0;
-  for( MetricHeaderInfoList::Iterator pit = metricHeaderInfoList.begin(); pit != metricHeaderInfoList.end(); ++pit )
-  { 
-    MetricHeaderInfo *mhi = (MetricHeaderInfo *)*pit;
-    QString s = mhi->label;
-    lv->addColumn( s );
-    metricHeaderTypeArray[i] = mhi->type;
+    Queries::GetMetricByFunctionInThread(c1, "time", t1, orig_data);
+
+    // Display the results
+    MetricHeaderInfoList metricHeaderInfoList;
+    metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Time"), FLOAT_T));
+    metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Function"), CHAR_T));
+    if( metricHeaderTypeArray != NULL )
+    {
+      delete []metricHeaderTypeArray;
+    }
+    int header_count = metricHeaderInfoList.count();
+    metricHeaderTypeArray = new int[header_count];
+
+    int i=0;
+    for( MetricHeaderInfoList::Iterator pit = metricHeaderInfoList.begin(); pit != metricHeaderInfoList.end(); ++pit )
+    { 
+      MetricHeaderInfo *mhi = (MetricHeaderInfo *)*pit;
+      QString s = mhi->label;
+      lv->addColumn( s );
+      metricHeaderTypeArray[i] = mhi->type;
+    
+      columnList.push_back( s );
+      i++;
+    }
+
+    bool ok;
+    int columnToSort = getPreferenceColumnToSortLineEdit().toInt(&ok);
+    if( !ok )
+    {
+      columnToSort = 0;
+    }
+    lv->setSorting ( columnToSort, FALSE );
+
+    // Figure out which way to sort
+    bool sortOrder = getPreferenceSortDecending();
+    if( sortOrder == TRUE )
+    {
+      lv->setSortOrder ( Qt::Descending );
+    } else
+    {
+      lv->setSortOrder ( Qt::Ascending );
+    }
+
+    bool ok;
+    int numberItemsToRead = getPreferenceTopNLineEdit().toInt(&ok);
+    if( !ok )
+    {
+      numberItemsToRead = 5; // Default to top5.
+    }
+
+
+    char timestr[50];
+    for(std::map<Function, double>::const_iterator
+            it = orig_data->begin(); it != orig_data->end(); ++it)
+    {
+      sprintf(timestr, "%f", it->second);
+      lvi =  new SPListViewItem( this, lv, timestr,  it->first.getName().c_str() );
+
+      numberItemsToRead--;
+      if( numberItemsToRead == 0)
+      {
+        // That's all the user requested...
+        break;  
+      }
+    }
+    
+    lv->sort();
   
-    columnList.push_back( s );
-    i++;
   }
-
-// Hardcode this until you figure out the preferences.
-lv->setSortOrder ( Qt::Descending );
-
-char timestr[50];
-for(std::map<Function, double>::const_iterator
-        it = orig_data->begin(); it != orig_data->end(); ++it)
-{
-  sprintf(timestr, "%f", it->second);
-  lvi =  new SPListViewItem( this, lv, timestr,  it->first.getName().c_str() );
-}
-
-lv->sort();
-
-}
 }
