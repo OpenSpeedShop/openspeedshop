@@ -54,3 +54,6 @@ ossChart_la_SOURCES = \
 	chartform_canvas.cxx  moc_canvasview.cxx   optionsform.cxx \
 	chartform.cxx         moc_chartform.cxx    setdataform.cxx \
 	chartform_files.cxx   moc_optionsform.cxx
+
+doc:
+	-doxygen Doxyfile
