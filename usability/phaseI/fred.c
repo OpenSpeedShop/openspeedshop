@@ -26,10 +26,10 @@ extern void init();
 void fred(int *val)
 {
   int i = 0;
-  int j = 0;
-  int k = 0;
   freddy.x = 0;
+  int j = 0;
   freddy.y = 0;
+  int k = 0;
 
 
   for(i=0; i < 10; i++ )
