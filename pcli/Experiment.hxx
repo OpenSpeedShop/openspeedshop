@@ -258,14 +258,14 @@ class ExperimentObject
             atleastone = true;
           }
           fprintf(TFile,"    -h %s -p %lld",host.c_str(),pid);
-          Optional<pthread_t> pthread = t.getPosixThreadId();
-          if (pthread.hasValue()) {
-            fprintf(TFile," -t %lld",pthread.getValue());
+          std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
+          if (pthread.first) {
+            fprintf(TFile," -t %lld",pthread.second);
           }
 #ifdef HAVE_MPI
-          Optional<int> rank = t.getMpiRank();
-          if (rank.hasValue()) {
-            fprintf(TFile," -r %lld",rank.getValue());
+          std::pair<bool, int> rank = t.getMPIRank();
+          if (rank.first) {
+            fprintf(TFile," -r %lld",rank.second);
           }
 #endif
           CollectorGroup cgrp = t.getCollectors();

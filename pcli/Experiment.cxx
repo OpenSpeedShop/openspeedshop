@@ -59,7 +59,6 @@ ExperimentObject *Find_Experiment_Object (EXPID ExperimentID)
   if (ExperimentID > 0) {
     std::list<ExperimentObject *>::iterator exp;
     for (exp = ExperimentObject_list.begin(); exp != ExperimentObject_list.end(); exp++) {
-      // if (ExperimentID == ((*exp)->Exp_ID)) {
       if (ExperimentID == (*exp)->ExperimentObject_ID()) {
         return *exp;
       }
@@ -91,6 +90,13 @@ static ExperimentObject *Find_Specified_Experiment (CommandObject *cmd) {
   exp = Find_Experiment_Object (ExperimentID);
   if (exp == NULL) {
     cmd->Result_String ("The requested experiment ID does not exist");
+    cmd->set_Status(CMD_ERROR);
+    return NULL;
+  }
+
+ // Is there an FrameWork Experiment to look at?
+  if (exp->FW() == NULL) {
+    cmd->Result_String ("The requested FrameWork experiment does not exist");
     cmd->set_Status(CMD_ERROR);
     return NULL;
   }
@@ -150,10 +156,10 @@ bool Thread_Already_Exists (Thread **returnThread, ExperimentObject *exp, std::s
     if (!strcmp(host.c_str(), myhost.c_str()) &&
         (pid = mypid) &&
 #ifdef HAVE_MPI
-        !T.getPosixThreadId().hasValue() &&
-        !T.getMpiRank().hasValue()) {
+        !T.getPosixThreadId().first &&
+        !T.getMPIRank().first) {
 #else
-        !T.getPosixThreadId().hasValue()) {
+        !T.getPosixThreadId().first) {
 #endif
       *returnThread = &T;
       return true;
@@ -231,7 +237,7 @@ static void Resolve_R_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
     for ( myrank = (int64_t)r_val1->num; myrank <= (int64_t)r_val2->num; myrank++) {
       try {
         Thread t = exp->FW()->attachPosixThread(mypid, myrank, host_name);
-        tgrp->push_back(t);
+        tgrp->insert(t);
       }
       catch(const std::exception& error) {
         Mark_Cmd_With_Std_Error (cmd, error);
@@ -263,7 +269,7 @@ static void Resolve_T_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
 #ifdef HAVE_OPENMP
       try {
         Thread t = exp->FW()->attachOpenMPThread(mypid, mythread, host_name);
-        tgrp->push_back(t);
+        tgrp->insert(t);
       }
       catch(const std::exception& error) {
         Mark_Cmd_With_Std_Error (cmd, error);
@@ -307,14 +313,14 @@ static void Resolve_P_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
       } else {
         Thread *pt;
         if (Thread_Already_Exists (&pt, exp, host_name, mypid)) {
-          tgrp->push_back (*pt);
+          tgrp->insert (*pt);
           continue;
         }
         try {
           ThreadGroup ngrp = exp->FW()->attachProcess(mypid, host_name);
           for(ThreadGroup::const_iterator tgi = ngrp.begin(); tgi != ngrp.end(); ++tgi) {
             Thread t = *tgi;
-            tgrp->push_back(t);
+            tgrp->insert(t);
           }
         }
         catch(const std::exception& error) {
@@ -347,7 +353,7 @@ static void Resolve_F_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
       try {
       //Thread t = exp->FW()->createProcess(f_val1->name + " chair.control.cook chair.camera chair.surfaces chair.cook.ppm ppm pixels_out.cook", host_name);
       Thread t = exp->FW()->createProcess(f_val1->name, host_name);
-      tgrp->push_back(t);
+      tgrp->insert(t);
       }
       catch(const std::exception& error) {
          Mark_Cmd_With_Std_Error (cmd, error);
@@ -441,11 +447,6 @@ static ThreadGroup Resolve_Target_List (CommandObject *cmd, ExperimentObject *ex
 static bool Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
                               void (*cmdfunc) (CommandObject *cmd, ExperimentObject *exp,
                                            Thread t, Collector c) ) {
-  if (exp->FW() == NULL) {
-    cmd->Result_String ("The experiment has been disabled and can not be changed");
-    cmd->set_Status(CMD_ERROR);
-    return false;
-  }
 
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<string> *p_slist = p_result->getExpList();
@@ -460,7 +461,7 @@ static bool Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
     for (si = p_slist->begin(); si != p_slist->end(); si++) {
       try {
         Collector C = Get_Collector (exp->FW(), *si);
-        cgrp.push_back (C);
+        cgrp.insert (C);
       }
       catch(const std::exception& error) {
         Mark_Cmd_With_Std_Error (cmd, error);
@@ -1160,13 +1161,6 @@ bool SS_expView (CommandObject *cmd) {
   EXPID ExperimentID = (cmd->P_Result()->IsExpId()) ? cmd->P_Result()->GetExpId() : Experiment_Focus ( WindowID );
   ExperimentObject *exp = (ExperimentID != 0) ? Find_Experiment_Object (ExperimentID) : NULL;
 
-  if ((exp != NULL) &&
-      (exp->FW() == NULL)) {
-    cmd->Result_String ("The experiment has been disabled");
-    cmd->set_Status(CMD_ERROR);
-    return false;
-  }
-
  // For batch processing, wait for completion before generating a report.
   if (!Window_Is_Async(WindowID)) {
     while (exp->Determine_Status() == ExpStatus_Running) {
@@ -1212,11 +1206,214 @@ bool SS_ListExp (CommandObject *cmd) {
   return true;
 }
 
+static bool within_range (int64_t Value, parse_range_t R) {
+  parse_val_t pval1 = R.start_range;
+  Assert (pval1.tag == VAL_NUMBER);
+  int64_t Rvalue1 = pval1.num;
+  if (R.is_range) {
+    parse_val_t pval2 = R.end_range;
+    Assert (pval2.tag == VAL_NUMBER);
+    int64_t Rvalue2 = pval2.num;
+    if ((Value >= Rvalue1) &&
+        (Value <= Rvalue2)) {
+      return true;
+    }
+  } else if (Value == Rvalue1) {
+    return true;
+  }
+  return false;
+}
+
+static bool within_range (std::string S, parse_range_t R) {
+  parse_val_t pval1 = R.start_range;
+  Assert (pval1.tag == VAL_STRING);
+  std::string Rname1 = pval1.name;
+  if (R.is_range) {
+    parse_val_t pval2 = R.end_range;
+    Assert (pval2.tag == VAL_STRING);
+    std::string Rname2 = pval2.name;
+    if ((S >= Rname1) &&
+        (S <= Rname2)) {
+      return true;
+    }
+  } else if (S == Rname1) {
+    return true;
+  }
+  return false;
+}
+
+static void Filter_ThreadGroup (CommandObject *cmd, ThreadGroup& tgrp) {
+  OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
+  vector<ParseTarget> *p_tlist = p_result->GetTargetList();
+  if (p_tlist->begin() == p_tlist->end()) {
+   // There are no filters.
+    return;
+  }
+
+  ParseTarget pt = *p_tlist->begin(); // There can only be one!
+  vector<ParseRange> *c_list = pt.getClusterList();
+  vector<ParseRange> *h_list = pt.getHostList();
+  vector<ParseRange> *f_list = pt.getFileList();
+  vector<ParseRange> *p_list = pt.getPidList();
+  vector<ParseRange> *t_list = pt.getThreadList();
+  vector<ParseRange> *r_list = pt.getRankList();
+
+  bool has_h = !((h_list == NULL) || h_list->empty());
+  bool has_f = !((f_list == NULL) || f_list->empty());
+  bool has_p = !((p_list == NULL) || p_list->empty());
+  bool has_t = !((t_list == NULL) || t_list->empty());
+  bool has_r = !((r_list == NULL) || r_list->empty());
+
+  if (has_f) {
+    cmd->Result_String ("Selection based on file name is not supported." );
+    cmd->set_Status(CMD_ERROR);
+    return;
+  }
+
+ // Remove non-matching hosts.
+  if (has_h) {
+
+    ThreadGroup::iterator ti;
+    for (ti = tgrp.begin(); ti != tgrp.end(); ) {
+      Thread t = *ti;
+      std::string hid = t.getHost();
+      bool within_list = false;
+
+      vector<ParseRange>::iterator pr_iter;
+      for (pr_iter=h_list->begin();pr_iter != h_list->end(); pr_iter++) {
+        if (within_range(hid, *pr_iter->getRange())) {
+          within_list = true;
+          break;
+        }
+      }
+
+     // Remove non-matching hosts from the ThreadGroup.
+      if (!within_list) {
+        tgrp.erase(ti);
+      } else {
+        ti++;
+      }
+    }
+
+  }
+
+ // Remove non-matching pids.
+  if (has_p) {
+
+    ThreadGroup::iterator ti;
+    for (ti = tgrp.begin(); ti != tgrp.end(); ) {
+      Thread t = *ti;
+      pid_t pid = t.getProcessId();
+      bool within_list = false;
+
+      vector<ParseRange>::iterator pr_iter;
+      for (pr_iter=h_list->begin();pr_iter != h_list->end(); pr_iter++) {
+        if (within_range(pid, *pr_iter->getRange())) {
+          within_list = true;
+          break;
+        }
+      }
+
+     // Remove non-matching hosts from the ThreadGroup.
+      if (!within_list) {
+        tgrp.erase(ti);
+      } else {
+        ti++;
+      }
+    }
+
+  }
+
+ // Remove non-matching threads.
+  if (has_t) {
+
+    ThreadGroup::iterator ti;
+    for (ti = tgrp.begin(); ti != tgrp.end(); ) {
+      Thread t = *ti;
+      std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
+      if (pthread.first) {
+        int64_t tid = pthread.second;
+        bool within_list = false;
+
+        vector<ParseRange>::iterator pr_iter;
+        for (pr_iter=h_list->begin();pr_iter != h_list->end(); pr_iter++) {
+          if (within_range(tid, *pr_iter->getRange())) {
+            within_list = true;
+            break;
+          }
+        }
+
+       // Remove non-matching hosts from the ThreadGroup.
+        if (!within_list) {
+          tgrp.erase(ti);
+          continue;
+        }
+      }
+      ti++;
+    }
+
+  }
+
+#if HAS_OPENMP
+ // Remove non-matching ranks.
+  if (has_r) {
+
+    ThreadGroup::iterator ti;
+    for (ti = tgrp.begin(); ti != tgrp.end(); ) {
+      Thread t = *ti;
+      int64_t rid = t.getOmpThreadId();
+      bool within_list = false;
+
+      vector<ParseRange>::iterator pr_iter;
+      for (pr_iter=h_list->begin();pr_iter != h_list->end(); pr_iter++) {
+        if (within_range(rid, *pr_iter->getRange())) {
+          within_list = true;
+          break;
+        }
+      }
+
+     // Remove non-matching hosts from the ThreadGroup.
+      if (!within_list) {
+        tgrp.erase(ti);
+      } else {
+        ti++;
+      }
+    }
+
+  }
+#endif
+}
+
 bool SS_ListHosts (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
-  cmd->Result_String ("not yet implemented");
+ // Look at general modifier types for "all" option.
+  Assert(cmd->P_Result() != NULL);
+  bool All_KeyWord = Look_For_KeyWord (cmd, "all");
+
+  if (All_KeyWord) {
+// TODO:  List all the Hosts on the system.
+    cmd->Result_String ("not yet implemented");
+  } else {
+   // Get the Hosts for a specified Experiment or the focused Experiment.
+    ExperimentObject *exp = Find_Specified_Experiment (cmd);
+    if (exp == NULL) {
+      return false;
+    }
+
+   // Get the list of threads used in the specified experiment.
+    ThreadGroup tgrp = exp->FW()->getThreads();
+    std::set<std::string> hset;
+    for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+      Thread t = *ti;
+      hset.insert (t.getHost());
+    }
+    for (std::set<std::string>::iterator hseti = hset.begin(); hseti != hset.end(); hseti++) {
+      cmd->Result_String ( *hseti );
+    }
+  }
+
   cmd->set_Status(CMD_COMPLETE);
   return true;
 }
@@ -1244,7 +1441,7 @@ bool SS_ListMetrics (CommandObject *cmd) {
       for (std::set<Metadata>::const_iterator mi = collectortypes.begin();
                 mi != collectortypes.end(); mi++) {
         Collector C = Get_Collector (fw_exp, mi->getUniqueId());
-        cgrp.push_back (C);
+        cgrp.insert (C);
       }
     }
     catch(const std::exception& error) {
@@ -1254,9 +1451,7 @@ bool SS_ListMetrics (CommandObject *cmd) {
   } else if (cmd->P_Result()->IsExpId()) {
    // Get the list of collectors from the specified experiment.
     ExperimentObject *exp = Find_Specified_Experiment (cmd);
-    if (exp->FW() == NULL) {
-      cmd->Result_String ("The experiment has been disabled");
-      cmd->set_Status(CMD_ERROR);
+    if (exp == NULL) {
       return false;
     }
     cgrp = exp->FW()->getCollectors();
@@ -1270,7 +1465,7 @@ bool SS_ListMetrics (CommandObject *cmd) {
       for (si = p_slist->begin(); si != p_slist->end(); si++) {
        //  Get a collector object from the framework.
         Collector C = Get_Collector (fw_exp, *si);
-        cgrp.push_back (C);
+        cgrp.insert (C);
       }
     }
     catch(const std::exception& error) {
@@ -1281,11 +1476,6 @@ bool SS_ListMetrics (CommandObject *cmd) {
    // Get the list of colectors from the focused experiment.
     ExperimentObject *exp = Find_Specified_Experiment (cmd);
     if (exp == NULL) {
-      return false;
-    }
-    if (exp->FW() == NULL) {
-      cmd->Result_String ("The experiment has been disabled");
-      cmd->set_Status(CMD_ERROR);
       return false;
     }
     cgrp = exp->FW()->getCollectors();
@@ -1345,7 +1535,7 @@ bool SS_ListParams (CommandObject *cmd) {
       for (std::set<Metadata>::const_iterator mi = collectortypes.begin();
                 mi != collectortypes.end(); mi++) {
         Collector C = Get_Collector (fw_exp, mi->getUniqueId() );
-        cgrp.push_back (C);
+        cgrp.insert (C);
       }
     }
     catch(const std::exception& error) {
@@ -1355,9 +1545,7 @@ bool SS_ListParams (CommandObject *cmd) {
   } else if (cmd->P_Result()->IsExpId()) {
    // Get the list of collectors from the specified experiment.
     ExperimentObject *exp = Find_Specified_Experiment (cmd);
-    if (exp->FW() == NULL) {
-      cmd->Result_String ("The experiment has been disabled");
-      cmd->set_Status(CMD_ERROR);
+    if (exp == NULL) {
       return false;
     }
     cgrp = exp->FW()->getCollectors();
@@ -1371,7 +1559,7 @@ bool SS_ListParams (CommandObject *cmd) {
       for (si = p_slist->begin(); si != p_slist->end(); si++) {
        //  Get a collector object from the framework.
         Collector C = Get_Collector (fw_exp, *si);
-        cgrp.push_back (C);
+        cgrp.insert (C);
       }
     }
     catch(const std::exception& error) {
@@ -1382,11 +1570,6 @@ bool SS_ListParams (CommandObject *cmd) {
    // Get the list of colectors from the focused experiment.
     ExperimentObject *exp = Find_Specified_Experiment (cmd);
     if (exp == NULL) {
-      return false;
-    }
-    if (exp->FW() == NULL) {
-      cmd->Result_String ("The experiment has been disabled");
-      cmd->set_Status(CMD_ERROR);
       return false;
     }
     cgrp = exp->FW()->getCollectors();
@@ -1431,19 +1614,16 @@ bool SS_ListPids (CommandObject *cmd) {
       return false;
     }
 
-   // Is there an FrameWork Experiment to look at?
-    if (exp->FW() == NULL) {
-      cmd->Result_String ("The experiment has been disabled");
-      cmd->set_Status(CMD_ERROR);
-      return false;
-    }
    // Get the list of threads used in the specified experiment.
-    ThreadGroup cgrp = exp->FW()->getThreads();
-    ThreadGroup::iterator ci;
-    for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
-      Thread c = *ci;
-      pid_t Pid = c.getProcessId();
-      cmd->Result_Int ( (int64_t)c.getProcessId() );
+    ThreadGroup tgrp = exp->FW()->getThreads();
+    Filter_ThreadGroup (cmd, tgrp);
+    std::set<pid_t> pset;
+    for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+      Thread t = *ti;
+      pset.insert (t.getProcessId());
+    }
+    for (std::set<pid_t>::iterator pseti = pset.begin(); pseti != pset.end(); pseti++) {
+      cmd->Result_Int ( *pseti );
     }
   }
 
@@ -1452,13 +1632,56 @@ bool SS_ListPids (CommandObject *cmd) {
 }
 
 bool SS_ListRanks (CommandObject *cmd) {
+#ifdef HAVE_MPI
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
-  ExperimentObject *exp = Find_Specified_Experiment (cmd);
 
-  cmd->Result_String ("not yet implemented");
+ // Look at general modifier types for "all" option.
+  Assert(cmd->P_Result() != NULL);
+  bool All_KeyWord = Look_For_KeyWord (cmd, "all");
+
+  if (All_KeyWord) {
+// TODO:  List all the PIDs on the system.
+    cmd->Result_String ("not yet implemented");
+  } else {
+   // Get the Rankss for a specified Experiment or the focused Experiment.
+    ExperimentObject *exp = Find_Specified_Experiment (cmd);
+    if (exp == NULL) {
+      return false;
+    }
+
+   // Get the list of threads used in the specified experiment.
+    ThreadGroup tgrp = exp->FW()->getThreads();
+    Filter_ThreadGroup (cmd, tgrp);
+    std::set<int64_t> rset;
+    for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+      Thread t = *ti;
+      int64_t rank = 0;
+#ifdef HAVE_MPI
+      if (t.getPosixThreadId().first &&
+          t.getMPIRank().first) {
+        rank = t.getMPIRank().second;
+      }
+#else
+      if (t.getPosixThreadId().first) {
+        rank = t.getPosixThreadId().second;
+      }
+#endif
+      rset.insert ( rank );
+    }
+    for (std::set<int64_t>::iterator rseti = rset.begin(); rseti != rset.end(); rseti++) {
+      cmd->Result_Int ( *rseti );
+    }
+  }
+
   cmd->set_Status(CMD_COMPLETE);
   return true;
+
+#else
+  cmd->Result_String ("The system does not support MPI Ranks.");
+  cmd->set_Status(CMD_ERROR);
+  return false;
+#endif
 }
 
 bool SS_ListSrc (CommandObject *cmd) {
@@ -1499,13 +1722,45 @@ bool SS_ListStatus (CommandObject *cmd) {
 }
 
 bool SS_ListThreads (CommandObject *cmd) {
+#ifdef HAVE_OPENMP
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
-  ExperimentObject *exp = Find_Specified_Experiment (cmd);
 
-  cmd->Result_String ("not yet implemented");
+ // Look at general modifier types for "all" option.
+  Assert(cmd->P_Result() != NULL);
+  bool All_KeyWord = Look_For_KeyWord (cmd, "all");
+
+  if (All_KeyWord) {
+// TODO:  List all the Threads on the system.
+    cmd->Result_String ("not yet implemented");
+  } else {
+   // Get the Threads for a specified Experiment or the focused Experiment.
+    ExperimentObject *exp = Find_Specified_Experiment (cmd);
+    if (exp == NULL) {
+      return false;
+    }
+
+   // Get the list of threads used in the specified experiment.
+    ThreadGroup tgrp = exp->FW()->getThreads();
+    Filter_ThreadGroup (cmd, tgrp);
+    std::set<int64_t> tset;
+    for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+      Thread t = *ti;
+      tset.insert ( (int64_t)t.getOmpThreadId() );
+    }
+    for (std::set<int64_t>::iterator tseti = tset.begin(); tseti != tset.end(); tseti++) {
+      cmd->Result_Int ( *tseti );
+    }
+  }
+
   cmd->set_Status(CMD_COMPLETE);
   return true;
+
+#else
+  cmd->Result_String ("The system does not support OpenMp Threads.");
+  cmd->set_Status(CMD_ERROR);
+  return false;
+#endif
 }
 
 bool SS_ListTypes (CommandObject *cmd) {
@@ -1529,12 +1784,6 @@ bool SS_ListTypes (CommandObject *cmd) {
       return false;
     }
 
-   // Is there an FrameWork Experiment to look at?
-    if (exp->FW() == NULL) {
-      cmd->Result_String ("The experiment has been disabled");
-      cmd->set_Status(CMD_ERROR);
-      return false;
-    }
    // Get the list of collectors used in the specified experiment.
     CollectorGroup cgrp = exp->FW()->getCollectors();
     CollectorGroup::iterator ci;
@@ -1569,11 +1818,6 @@ bool SS_ListViews (CommandObject *cmd) {
     if (exp == NULL) {
       return false;
     }
-    if (exp->FW() == NULL) {
-      cmd->Result_String ("The specified experiment has been disabled");
-      cmd->set_Status(CMD_ERROR);
-      return false;
-    }
     SS_Get_Views (cmd, exp->FW());
   } else if (p_slist->begin() != p_slist->end()) {
    // What views depend on a specific collector?
@@ -1585,11 +1829,6 @@ bool SS_ListViews (CommandObject *cmd) {
    // What views can be generated for the information collected in the focused experiment?
     ExperimentObject *exp = Find_Specified_Experiment (cmd);
     if (exp == NULL) {
-      return false;
-    }
-    if (exp->FW() == NULL) {
-      cmd->Result_String ("The focused experiment has been disabled");
-      cmd->set_Status(CMD_ERROR);
       return false;
     }
     SS_Get_Views (cmd, exp->FW());

@@ -68,15 +68,15 @@ static bool VIEW_exp (CommandObject *cmd, ExperimentObject *exp, int64_t topn) {
           }
           char spid[20]; sprintf(&spid[0],"%lld",pid);
           std::string S = "  expAttach -h " + host + " -p " + std::string(&spid[0]);
-          Optional<pthread_t> pthread = t.getPosixThreadId();
-          if (pthread.hasValue()) {
-            char tid[20]; sprintf(&tid[0],"%lld",pthread.getValue());
+          std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
+          if (pthread.first) {
+            char tid[20]; sprintf(&tid[0],"%lld",pthread.second);
             S = S + std::string(&tid[0]);
           }
 #ifdef HAVE_MPI
-          Optional<int> rank = t.getMpiRank();
-          if (rank.hasValue()) {
-            char rid[20]; sprintf(&rid[0],"%lld",rank.getValue());
+          std::pair<bool, int> rank = t.getMPIRank();
+          if (rank.first) {
+            char rid[20]; sprintf(&rid[0],"%lld",rank.second);
             S = S + std::string(&rid[0]);
           }
 #endif
