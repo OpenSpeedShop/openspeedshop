@@ -621,11 +621,7 @@ void pcSampleWizardPanel::eSummaryPageFinishButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("eSummaryPageFinishButtonSelected() \n");
 
-#ifdef OLDWAY
-  Panel *p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("pc Sampling", getPanelContainer());
-#else // OLDWAY
   vSummaryPageFinishButtonSelected();
-#endif // OLDWAY
 }
 
 // Begin advanced (expert) AttachOrLoad callbacks
@@ -685,24 +681,11 @@ char buffer[2048];
   {
     if( mw->pidStr.isEmpty() )
     {
-      QString result;
-       AttachProcessDialog *dialog = new AttachProcessDialog(this, "AttachProcessDialog", TRUE);
-      if( dialog->exec() == QDialog::Accepted )
+      mw->fileAttach();
+      if( mw->pidStr.isEmpty() )
       {
-        result = dialog->selectedProcesses();
-        if( result.isEmpty() )
-        {
-            return;
-        } else
-        {
-          mw->pidStr = result;
-        }
+        return;
       }
-      delete dialog;
-if( mw->pidStr.isEmpty() )
-{
-  return;
-}
       sprintf(buffer, "<p align=\"left\">Requesting to load process \"%s\" on host \"%s\",  sampling at \"%s\" milliseconds.<br><br></p>", mw->pidStr.ascii(), "localhost", eParameterPageSampleRateText->text().ascii() );
     }
   }
@@ -711,21 +694,12 @@ if( mw->pidStr.isEmpty() )
     if( mw->executableName.isEmpty() )
     {
       nprintf(DEBUG_PANELS) ("Load the QFile \n");
-      QString fn = QFileDialog::getOpenFileName( QString::null, QString::null,
-                               this);
-      if( !fn.isEmpty() )
-      {
-        mw->executableName = fn;
-        nprintf(DEBUG_PANELS) ("mw->executableName.ascii()=(%s)\n", mw->executableName.ascii() );
-      } else
-      {
-        return;
-      }
+      mw->fileNew();
     }
-if( mw->executableName.isEmpty() )
-{
-  return;
-}
+    if( mw->executableName.isEmpty() )
+    {
+      return;
+    }
     sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", sampling at \"%s\" milliseconds.<br><br></p>", mw->executableName.ascii(), "localhost", eParameterPageSampleRateText->text().ascii() );
   }
 
@@ -838,20 +812,7 @@ char buffer[2048];
   { 
     if( mw->pidStr.isEmpty() )
     {
-      QString result;
-       AttachProcessDialog *dialog = new AttachProcessDialog(this, "AttachProcessDialog", TRUE);
-      if( dialog->exec() == QDialog::Accepted )
-      {
-        result = dialog->selectedProcesses();
-        if( result.isEmpty() )
-        {
-          return;
-        } else
-        {
-          mw->pidStr = result;
-        }
-      }
-      delete dialog;
+      mw->fileAttach();
     }
     if( mw->pidStr.isEmpty() )
     {
@@ -864,16 +825,7 @@ char buffer[2048];
     if( mw->executableName.isEmpty() )
     {
       nprintf(DEBUG_PANELS) ("Load the QFile \n");
-      QString fn = QFileDialog::getOpenFileName( QString::null, QString::null,
-                               this);
-      if( !fn.isEmpty() )
-      {
-        mw->executableName = fn;
-        nprintf(DEBUG_PANELS) ("mw->executableName.ascii()=(%s)\n", mw->executableName.ascii() );
-      } else
-      {
-        return;
-      }
+      mw->fileNew();
     }
     if( mw->executableName.isEmpty() )
     {

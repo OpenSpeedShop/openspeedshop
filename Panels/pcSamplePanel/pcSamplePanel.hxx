@@ -89,14 +89,12 @@ public:
   QLineEdit *statusLabelText;
 
   QVBoxLayout * frameLayout;
-#ifdef PULL
-  void enterEvent(QEvent *);
-  void leaveEvent(QEvent *);
-#endif // PULL
   ProcessControlObject *pco;
 
 public slots:
   void saveAsSelected();
+  void loadNewProgramSelected();
+  void attachToExecutableSelected();
   void manageCollectorsSelected();
   void manageProcessesSelected();
   void manageDataSetsSelected();

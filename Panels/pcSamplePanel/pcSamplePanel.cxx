@@ -80,25 +80,17 @@ printf("attach the collector to the Application.\n");
 printf("# // Attach the collector to all threads in the application\n");
 printf("# theApplication.attachCollector(theCollector.getValue());\n");
 
-
-
-//  topPC->splitVertical(20);
-
   pcSampleControlPanelContainerWidget->show();
   topPC->show();
   topLevel = TRUE;
   topPC->topLevel = TRUE;
 
-#ifdef DEMO
   SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", topPC);
-#else // DEMO
-  topPC->dl_create_and_add_panel("Source Panel", topPC->leftPanelContainer);
-#endif // DEMO
-//  topPC->dl_create_and_add_panel("Command Panel", topPC->rightPanelContainer);
 
 
-#ifdef DEMO
-{ // Begin - Just for demo sake...load a file and place the user at main()
+OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
+if( mw && !mw->executableName.isEmpty() )
+{
   char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
   char buffer[200];
   strcpy(buffer, plugin_directory);
@@ -113,8 +105,7 @@ printf("load (%s)\n", buffer);
   {
 nprintf( DEBUG_CONST_DESTRUCT ) ("Positioned at main in %s ????? \n", buffer);
   }
-} // End - for demo sake
-#endif // DEMO
+}
   
 }
 
@@ -135,14 +126,55 @@ pcSamplePanel::menu(QPopupMenu* contextMenu)
   nprintf( DEBUG_PANELS ) ("pcSamplePanel::menu() requested.\n");
 
   contextMenu->insertSeparator();
-  contextMenu->insertItem("&Manage Collectors...", this, SLOT(manageCollectorsSelected()), CTRL+Key_A );
-  contextMenu->insertItem("&Manage Processes...", this, SLOT(manageProcessesSelected()), CTRL+Key_A );
-  contextMenu->insertItem("&Manage Data Sets...", this, SLOT(manageDataSetsSelected()), CTRL+Key_A );
+  contextMenu->insertItem(tr("Load &New Program..."), this, SLOT(loadNewProgramSelected()), CTRL+Key_A );
+  contextMenu->insertItem(tr("Attach To Executable..."), this, SLOT(attachToExecutableSelected()), CTRL+Key_A );
+  contextMenu->insertSeparator();
+  contextMenu->insertItem(tr("&Manage Collectors..."), this, SLOT(manageCollectorsSelected()), CTRL+Key_A );
+  contextMenu->insertItem(tr("&Manage Processes..."), this, SLOT(manageProcessesSelected()), CTRL+Key_A );
+  contextMenu->insertItem(tr("&Manage Data Sets..."), this, SLOT(manageDataSetsSelected()), CTRL+Key_A );
   contextMenu->insertSeparator();
   contextMenu->insertItem("&Save As ...", this, SLOT(saveAsSelected()), CTRL+Key_S ); 
 
   return( TRUE );
 }
+
+void
+pcSamplePanel::loadNewProgramSelected()
+{
+  nprintf( DEBUG_PANELS ) ("pcSamplePanel::loadNewProgramSelected()\n");
+  OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
+  if( mw )
+  {
+    mw->fileNew();
+  }
+  if( !mw->executableName.isEmpty() )
+  {
+    printf("mw->executableName=(%s)\n", mw->executableName.ascii() );
+    if( pco->runButton->enabledFLAG == TRUE )
+    {
+      printf("Disconnect First?\n"); 
+    }
+  }
+}   
+
+void
+pcSamplePanel::attachToExecutableSelected()
+{
+  nprintf( DEBUG_PANELS ) ("pcSamplePanel::attachToExecutableSelected()\n");
+  OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
+  if( mw )
+  {
+    mw->fileAttach();
+  }
+  if( !mw->pidStr.isEmpty() )
+  {
+    printf("mw->pidStr=(%s)\n", mw->pidStr.ascii() );
+    if( pco->runButton->enabledFLAG == TRUE )
+    {
+      printf("Disconnect First?\n"); 
+    }
+  }
+}   
 
 void
 pcSamplePanel::manageCollectorsSelected()
@@ -233,31 +265,26 @@ printf("we've got a LoadAttachObject\n");
       case  RUN_T:
         nprintf( DEBUG_MESSAGES ) ("Run\n");
         statusLabelText->setText( tr("Process running...") );
-#ifdef DEMO
-{
-qApp->processEvents(100);
+{ // Begin demo only...
+pco->runButton->setEnabled(FALSE);
+pco->runButton->enabledFLAG = FALSE;
+qApp->processEvents(1);
 sleep(1);
-qApp->processEvents(100);
+qApp->processEvents(1);
 sleep(1);
-qApp->processEvents(100);
+qApp->processEvents(1);
 sleep(1);
-qApp->processEvents(100);
+qApp->processEvents(1);
 sleep(1);
 statusLabelText->setText( tr("Process completed...") );
-qApp->processEvents(100);
+qApp->processEvents(1);
 sleep(1);
-qApp->processEvents(100);
+qApp->processEvents(1);
 sleep(1);
-qApp->processEvents(100);
+qApp->processEvents(1);
 sleep(1);
-qApp->processEvents(100);
+qApp->processEvents(1);
 sleep(1);
-#ifdef OLDWAY
-pco->attachProcessButton->setEnabled(TRUE);
-pco->attachCollectorButton->setEnabled(TRUE);
-pco->detachProcessButton->setEnabled(TRUE);
-pco->detachCollectorButton->setEnabled(TRUE);
-#endif // OLDWAY
 pco->runButton->setEnabled(TRUE);
 pco->runButton->enabledFLAG = TRUE;
 pco->pauseButton->setEnabled(FALSE);
@@ -273,11 +300,7 @@ pco->terminateButton->setFlat(TRUE);
 pco->terminateButton->setEnabled(FALSE);
 
 TopPanel *tp = (TopPanel *)topPC->dl_create_and_add_panel("Top Panel", topPC); 
-// Uncomment the next line if you want the TopPanel to position the 
-// source automatically.
-// tp->listener((void *)NULL);
-}
-#endif // DEMO
+} // End demo only...
         ret_val = 1;
         break;
       case  PAUSE_T:
@@ -314,10 +337,10 @@ TopPanel *tp = (TopPanel *)topPC->dl_create_and_add_panel("Top Panel", topPC);
    lao->print();
    if( !lao->executableName.isEmpty() )
    {
-     statusLabelText->setText( tr(QString("Loaded:  "))+lao->executableName );
+     statusLabelText->setText( tr(QString("Loaded:  "))+lao->executableName+tr(QString("  Click on the Run button to begin the experiment.")) );
    } else if( !lao->pidStr.isEmpty() )
    {
-     statusLabelText->setText( tr(QString("Attached to:  "))+lao->pidStr);
+     statusLabelText->setText( tr(QString("Attached to:  "))+lao->pidStr+tr(QString("  Click on the Run button to begin collecting data.")) );
    }
  
    ret_val = 1;
