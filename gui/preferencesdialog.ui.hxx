@@ -114,11 +114,12 @@ void PreferencesDialog::setShowStats()
 
 void PreferencesDialog::listItemSelected(QListViewItem*lvi)
 {
-    qWarning( "PreferencesDialog::listItemSelected(QListViewItem*): Not implemented yet" );
+  if( lvi == NULL )
+  {
+    return;
+  }
 
   QString s = lvi->text(0);
-
-  printf("s.ascii()=%s\n", s.ascii() );
 
   if( s == "General" )
   { 

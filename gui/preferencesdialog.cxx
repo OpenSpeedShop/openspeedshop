@@ -65,7 +65,13 @@ PreferencesDialog::PreferencesDialog( QWidget* parent, const char* name, bool mo
 
     categoryListView = new QListView( preferenceDialogLeftFrame, "categoryListView" );
     categoryListView->addColumn( tr( "Categories" ) );
-categoryListView->setSortColumn( -1 );
+    // Don't sort this list... Add the General first and the rest as they
+    // come.   If you're going to sort, then sort ascending, alphabetic, but
+    // leave the "General" category at the top of the list.
+    categoryListView->setSortColumn( -1 );
+    // There's only one column header, hide it unless its shows up as a problem
+    // during usability studies.
+    categoryListView->header()->hide();
 
     categoryListView->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)3, (QSizePolicy::SizeType)7, 0, 0, categoryListView->sizePolicy().hasHeightForWidth() ) );
     preferenceDialogLeftFrameLayout->addWidget( categoryListView );
