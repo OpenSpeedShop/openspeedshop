@@ -58,8 +58,6 @@ void
 CollectorListObject::createCollectorList(int expID)
 {
 // do the lookup based on expID here...
-  unsigned int sampling_rate = 3;
-  // Set the sample_rate of the collector.
   try
   {
     OpenSpeedShop::Framework::Experiment *experiment = NULL;
@@ -100,22 +98,37 @@ CollectorListObject::createCollectorList(int expID)
         for (mi = md.begin(); mi != md.end(); mi++)
         {
           m = *mi;
-          printf("%s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
-          printf("%s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
-          printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
-QString param = QString(m.getUniqueId().c_str());
-QString param_val = QString::null;
-if( param == "sampling_rate" )
-{
-  pcSampleCollector.getParameterValue(param.ascii(), sampling_rate);
-  param_val = QString("%1").arg(sampling_rate);
-} else
-{
-// Just give is some default for now...
-  param_val = QString("1");
-}
-CollectorParameterEntry *cpe = new CollectorParameterEntry(param);
-ce->paramList.push_back(cpe);
+//          printf("%s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
+//          printf("%s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
+//          printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
+
+// While sub-marvelous this works for now...
+            QString param = QString(m.getUniqueId().c_str());
+            QString param_val = QString::null;
+            double double_param;
+            unsigned int uint_param = 0;
+            int int_param = 0;
+            if( m.isType(typeid(int)) )
+            {
+//              printf("int\n");
+              pcSampleCollector.getParameterValue(param.ascii(), int_param);
+              param_val = QString("%1").arg(int_param);
+            } else if( m.isType(typeid(unsigned int)) )
+            {
+//              printf("unsigned int\n");
+              pcSampleCollector.getParameterValue(param.ascii(), uint_param);
+              param_val = QString("%1").arg(uint_param);
+            } else if( m.isType(typeid(double)) )
+            {
+//              printf("double\n");
+              pcSampleCollector.getParameterValue(param.ascii(), double_param);
+              param_val = QString("%1").arg(double_param);
+            } else
+            {
+              param_val = QString("Unknown type.");
+            }
+            CollectorParameterEntry *cpe = new CollectorParameterEntry(param, param_val);
+            ce->paramList.push_back(cpe);
         }
 
 
@@ -126,6 +139,13 @@ ce->paramList.push_back(cpe);
   }
   catch(const std::exception& error)
   {
+printf("You threw an exception...\n");
+    std::cerr
+      << std::endl 
+      << "Error: " 
+      << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+      "Unknown runtime error." : error.what()) << std::endl
+      << std::endl;
     return;
   }
   return;

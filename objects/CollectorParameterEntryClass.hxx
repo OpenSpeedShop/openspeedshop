@@ -23,13 +23,15 @@ class CollectorParameterEntry
 {
   public:
     CollectorParameterEntry();
-    CollectorParameterEntry(QString n)
+    CollectorParameterEntry(QString n, QString pv)
     {
       name = n;
+      param_value = pv;
     }
     ~CollectorParameterEntry()
     {
     }
     QString name;
+    QString param_value;
 };
 #endif // COLLECTORPARAMETERENTRYCLASS_H

@@ -123,6 +123,8 @@ void ManageCollectorsDialog::languageChange()
   buttonCancel->setAccel( QKeySequence( QString::null ) );
   availableCollectorsLabel->setText( tr("Available Collectors:") );
   availableCollectorsComboBox->insertItem( "pcsamp" );
+  availableCollectorsComboBox->insertItem( "usertime" );
+  availableCollectorsComboBox->insertItem( "fpe" );
 }
 
 QString
@@ -167,7 +169,7 @@ ManageCollectorsDialog::updateAttachedCollectorsList()
          pit != ce->paramList.end();  pit++)
     {
       CollectorParameterEntry *cpe = (CollectorParameterEntry *)*pit;
-      QListViewItem *item2 = new QListViewItem( item, cpe->name, cpe->name );
+      QListViewItem *item2 = new QListViewItem( item, cpe->name, cpe->param_value );
     }
   }
 }
