@@ -65,6 +65,8 @@ def CompareResults(testName, fileptr):
 	failure_reason = 0
 	while 1:
 		if (nooutput == 1):
+			failure_reason = 3
+			passing_ratio = 0
 			break
 		outputfileline = outputfileptr.readline()
 		if not outputfileline:
@@ -115,13 +117,15 @@ def CompareResults(testName, fileptr):
 		previous_actual = actual_time
 		previous_expected = expected_time
 
-	if passing_ratio :
+	if (passing_ratio== 1) :
 		fileptr.write(testName + ' has PASSED \n')
 	else:
 		fileptr.write(testName + ' has FAILED.  ')
 		if (failure_reason == 1):
 			fileptr.write('The function time ratios are incorrect.\n')
-		else:
+		if (failure_reason == 3):
+			fileptr.write('Looks like openss crashed. \n')
+		if (failure_reason == 2):
 			fileptr.write('The ordering of the functions is incorrect.\n')
 		
 
