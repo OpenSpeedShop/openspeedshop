@@ -83,9 +83,7 @@ extern QEventLoop *qeventloop;
 
 #include "PluginInfo.hxx"
 
-#ifndef PULLDOWN
 #include "menu_arrow.xpm"
-#endif // PULLDOWN
 
 #define ICONSONMENU 1
 #ifdef ICONSONMENU
@@ -3083,12 +3081,9 @@ PanelContainer::augmentTab( QWidget *targetWidget, QIconSet *iconset )
     tabWidget->setTabIconSet( cp, *iconset );
   } else
   {
-// define PULLDOWN if a default tab icon is wanted.
-#ifdef PULLDOWN
     QPixmap *apm = new QPixmap( menu_arrow );
     apm->setMask( apm->createHeuristicMask());
-    printf("D: create the pulldown widget.\n");
+    nprintf(DEBUG_PANELCONTAINERS) ("D: create the pulldown widget.\n");
     tabWidget->setTabIconSet( cp, QIconSet( *apm ));
-#endif // PULLDOWN
   }
 }

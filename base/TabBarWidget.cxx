@@ -97,11 +97,14 @@ void TabBarWidget::mousePressEvent(QMouseEvent *e)
    nprintf(DEBUG_PANELCONTAINERS) ("pos() is the answer()\n");
   
     QTabBar::setCurrentTab(selectedTab);
-  //  int id = selectedTab->currentTab();
   
-  // nprintf(DEBUG_PANELCONTAINERS) ("current id=%d\n", id);
-  
-    if( e->button() == RightButton )
+    nprintf(DEBUG_PANELCONTAINERS) ("e->pos().x()=%d e->pos().y()=%d\n", e->pos().x(), e->pos().y() );
+    nprintf(DEBUG_PANELCONTAINERS) ("height()=%d\n", height() );
+    
+    QRect rect = selectedTab->rect();
+    nprintf(DEBUG_PANELCONTAINERS) ("rect.left()=%d\n", rect.left() );
+
+    if( e->button() == RightButton || e->pos().x()-rect.left() < height() )
     {
       nprintf(DEBUG_PANELCONTAINERS) ("RightButton!\n");
       nprintf(DEBUG_PANELCONTAINERS) ("TabBarWidget() call the menu....\n");
