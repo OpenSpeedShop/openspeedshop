@@ -1,34 +1,4 @@
-#include <unistd.h>
-#include <pthread.h>
-#include <sys/types.h>
-#include <sys/stat.h>               /* for fstat() */
-#include <fcntl.h>
-#include <sys/mman.h>               /* for mmap() */
-#include <time.h>
-#include <stdio.h>
-#include <list>
-#include <inttypes.h>
-#include <stdexcept>
-#include <string>
-
-// for host name description
-     #include <sys/socket.h>
-     #include <netinet/in.h>
-     #include <netdb.h>
-
-#ifndef PTHREAD_MUTEX_RECURSIVE_NP
-#define PTHREAD_MUTEX_RECURSIVE_NP 0
-#endif
-
-#include "ToolAPI.hxx"
-using namespace OpenSpeedShop::Framework;
-
-#include "support.h"
-#include "Commander.hxx"
-#include "Clip.hxx"
-#include "Experiment.hxx"
-
-#include "ArgClass.hxx"
+#include "SS_Input_Manager.hxx"
 extern "C" void loadTheGUI(ArgStruct *);
 
 
@@ -266,8 +236,25 @@ class CommandWindowID
   pthread_mutex_t Input_List_Lock;
   EXPID FocusedExp;
 
+  std::list<InputLineObject *>Complete_Cmds;
+
  public:
+  // Virtual functions for creating InputLineObjects
+  // This is the default for the command line window
+  virtual InputLineObject *New_InputLineObject (CMDWID From, std::string Cmd)
+    {
+      return new InputLineObject (From, Cmd);
+    }
+
   // Constructor & Destructor
+ public:
+  CommandWindowID () {
+   // Disallow default constructor
+    fprintf(stderr,"ERROR: Illegal use of default CommandWindowID Constructor\n");
+    Assert (0);
+  }
+
+ public:
   CommandWindowID ( std::string IAM, std::string  Host, pid_t Process, int64_t Panel, bool async)
     {
       remote = false;
@@ -302,7 +289,6 @@ class CommandWindowID
       char base[20];
       snprintf(base, 20, "sshist%lld.XXXXXX",id);
       Trace_File_Name = std::string(tempnam ("./", &base[0] ));
-      //Trace_File_Name = tempnam ("./", &base[0] );
       Trace_F  = fopen (Trace_File_Name.c_str(), "w");
     }
   ~CommandWindowID()
@@ -396,6 +382,10 @@ class CommandWindowID
       Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
     }
   }
+  void Clip_Is_Complete (InputLineObject *Clip) {
+fprintf(stdout,"Clip_Is_Complete: ");Clip->Print(stdout);
+    Complete_Cmds.push_back (Clip);
+  }
 private:
   void Pop_Input_Source () {
    // We do not need to get exclusive access to Input_List_Lock
@@ -455,7 +445,12 @@ public:
       if (next_line == NULL) {
         return NULL;
       }
-      clip = new InputLineObject(ID(), next_line);
+      clip = New_InputLineObject(ID(), next_line);
+    }
+
+   // For internal debugging, the trace file is used to record activity of the command
+    if (Trace_F != NULL) {
+      clip->Set_Trace (Trace_F);
     }
 
     return clip;
@@ -475,14 +470,28 @@ public:
   void    Increment_Level () { Current_Input_Level++; }
   void    Decrement_Level () { Current_Input_Level--; }
 
-  void   Set_Alt_Trace_File ( std::string tofname ) {
+ // The "Record" command will causes us to echo statements that
+ // come from a particular input stream to a user defined file.
+  void   Set_Record_File ( std::string tofname ) {
     if (Input) {
       Input->Set_Trace ( tofname );
     }
   }
-  void   Remove_Alt_Trace_File () {
+  void   Remove_Record_File () {
     if (Input) {
       Input->Remove_Trace ();
+    }
+  }
+  void Record (InputLineObject *clip) {
+    if (Input) {
+      FILE *rf = Input->Trace_File();
+      if (rf) {
+        fprintf(rf,"%s\n", clip->Command().c_str());
+        if (Input->Trace_File_Is_Predefined()) {
+         // Trace_File is something like stdout, so push the message out to user.
+          fflush (rf);
+        }
+      }
     }
   }
 
@@ -508,16 +517,6 @@ public:
     if (Trace_File()) {
       FILE *TFile = Trace_File();
       clip->Print (TFile);
-    }
-    if (Input) {
-      FILE *ct = Input->Trace_File();
-      if (ct) {
-        fprintf(ct,"%s\n", clip->Command().c_str());
-        if (Input->Trace_File_Is_Predefined()) {
-         // Trace_File is something like stdout, so push the message out to user.
-          fflush (ct);
-        }
-      }
     }
   }
   void Trace (ResultObject *rslt) {
@@ -546,6 +545,69 @@ public:
     }
 };
 
+// For the Text-Line-Interface
+class TLI_CommandWindowID : public CommandWindowID
+{
+ public:
+  // Virtual functions for creating InputLineObject and CommandObjects
+  // These are the defaults for the command line window
+  virtual InputLineObject *New_InputLineObject (CMDWID From, std::string Cmd)
+    {
+      return new TLI_InputLineObject (From, Cmd);
+    }
+
+  // Constructors
+ private:
+  TLI_CommandWindowID () { }  // Hide default constructor to catch errors at compile time
+
+ public:
+  TLI_CommandWindowID (std::string IAM, std::string  Host, pid_t Process, int64_t Panel, bool async) :
+    CommandWindowID (IAM, Host, Process, Panel, async)
+    { }
+};
+
+// For the Graphacial-User-Interface
+class GUI_CommandWindowID : public CommandWindowID
+{
+ public:
+  // Virtual functions for creating InputLineObject and CommandObjects
+  // These are the defaults for the command line window
+  virtual InputLineObject *New_InputLineObject (CMDWID From, std::string Cmd)
+    {
+      return new GUI_InputLineObject (From, Cmd);
+    }
+
+  // Constructors
+ private:
+  GUI_CommandWindowID () { }  // Hide default constructor to catch errors at compile time
+
+ public:
+  GUI_CommandWindowID (std::string IAM, std::string  Host, pid_t Process, int64_t Panel, bool async) :
+    CommandWindowID (IAM, Host, Process, Panel, async)
+    { }
+};
+
+// For the Remote-Line-Interface
+class RLI_CommandWindowID : public CommandWindowID
+{
+ public:
+  // Virtual functions for creating InputLineObject and CommandObjects
+  // These are the defaults for the command line window
+  virtual InputLineObject *New_InputLineObject (CMDWID From, std::string Cmd)
+    {
+      return new RLI_InputLineObject (From, Cmd);
+    }
+
+  // Constructors
+ private:
+  RLI_CommandWindowID () { }  // Hide default constructor to catch errors at compile time
+
+ public:
+  RLI_CommandWindowID (std::string IAM, std::string  Host, pid_t Process, int64_t Panel, bool async) :
+    CommandWindowID (IAM, Host, Process, Panel, async)
+    { }
+};
+
 // Local Utilities
 
 CommandWindowID *Find_Command_Window (CMDWID WindowID)
@@ -571,6 +633,21 @@ CommandWindowID *Find_Command_Window (CMDWID WindowID)
   Assert(pthread_mutex_unlock(&Window_List_Lock) == 0);
 
   return found_window;
+}
+
+void Link_Cmd_Obj_to_Input (InputLineObject *I, CommandObject *C)
+{
+  I->Push_Cmd_Obj(C);
+}
+
+void Clip_Complete (InputLineObject *clip) {
+  CommandWindowID *win = Find_Command_Window (clip->Who());
+  win->Clip_Is_Complete(clip);
+}
+
+void Cmd_Obj_Complete (CommandObject *C) {
+  InputLineObject *lin = C->Clip();
+  Clip_Complete (lin);
 }
 
 int64_t Find_Command_Level (CMDWID WindowID)
@@ -709,13 +786,13 @@ void Command_Trace (enum Trace_Entry_Type trace_type, CMDWID cmdwinid, std::stri
 ResultObject Command_Trace_ON (CMDWID WindowID, std::string tofname)
 {
   CommandWindowID *cmdw = Find_Command_Window (WindowID);
-  cmdw->Set_Alt_Trace_File (tofname);
+  cmdw->Set_Record_File (tofname);
   return ResultObject(SUCCESS, "Command_Trace_ON", (void *)0, "");
 }
 ResultObject Command_Trace_OFF (CMDWID WindowID)
 {
   CommandWindowID *cmdw = Find_Command_Window (WindowID);
-  cmdw->Remove_Alt_Trace_File ();
+  cmdw->Remove_Record_File ();
   return ResultObject(SUCCESS, "Command_Trace_OFF", (void *)0, "");
 }
 
@@ -737,6 +814,46 @@ CMDWID Commander_Initialization (char *my_name, char *my_host, pid_t my_pid, int
   CommandWindowID *cwid = new CommandWindowID(std::string(my_name ? my_name : ""),
                                               std::string(my_host ? my_host : ""),
                                               my_pid, my_panel, Input_is_Async);
+  Async_Inputs |= Input_is_Async;
+  return cwid->ID();
+}
+
+CMDWID Default_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async)
+{
+ // Create a new Window
+  CommandWindowID *cwid = new CommandWindowID(std::string(my_name ? my_name : ""),
+                                              std::string(my_host ? my_host : ""),
+                                              my_pid, my_panel, Input_is_Async);
+  Async_Inputs |= Input_is_Async;
+  return cwid->ID();
+}
+
+CMDWID TLI_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async)
+{
+ // Create a new Window
+  CommandWindowID *cwid = new TLI_CommandWindowID(std::string(my_name ? my_name : ""),
+                                                 std::string(my_host ? my_host : ""),
+                                                 my_pid, my_panel, Input_is_Async);
+  Async_Inputs |= Input_is_Async;
+  return cwid->ID();
+}
+
+CMDWID GUI_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async)
+{
+ // Create a new Window
+  CommandWindowID *cwid = new GUI_CommandWindowID(std::string(my_name ? my_name : ""),
+                                                 std::string(my_host ? my_host : ""),
+                                                 my_pid, my_panel, Input_is_Async);
+  Async_Inputs |= Input_is_Async;
+  return cwid->ID();
+}
+
+CMDWID RLI_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async)
+{
+ // Create a new Window
+  CommandWindowID *cwid = new RLI_CommandWindowID(std::string(my_name ? my_name : ""),
+                                                 std::string(my_host ? my_host : ""),
+                                                 my_pid, my_panel, Input_is_Async);
   Async_Inputs |= Input_is_Async;
   return cwid->ID();
 }
@@ -786,12 +903,31 @@ bool Isa_SS_Command (CMDWID issuedbywindow, const char *b_ptr) {
   return true;
 }
 
+InputLineObject *Append_Input_String (CMDWID issuedbywindow, InputLineObject *clip) {
+  if (clip != NULL) {
+    if (Isa_SS_Command(issuedbywindow,clip->Command().c_str())) {
+      CommandWindowID *cw = Find_Command_Window (issuedbywindow);
+      Assert (cw);
+
+      clip->Set_Trace (cw->Trace_File());
+      Input_Source *inp = new Input_Source (clip);
+      clip->SetStatus (ILO_QUEUED_INPUT);
+      cw->Append_Input_Source (inp);
+      return clip;
+    } else {
+      delete clip;
+    }
+  }
+  return NULL;
+}
+
 InputLineObject *Append_Input_String (CMDWID issuedbywindow, char *b_ptr) {
   InputLineObject *clip = NULL;;
   if (Isa_SS_Command(issuedbywindow,b_ptr)) {
     CommandWindowID *cw = Find_Command_Window (issuedbywindow);
     Assert (cw);
-    clip = new InputLineObject(issuedbywindow, std::string(b_ptr));
+    clip = cw->New_InputLineObject(issuedbywindow, std::string(b_ptr));
+    clip->Set_Trace (cw->Trace_File());
     Input_Source *inp = new Input_Source (clip);
     clip->SetStatus (ILO_QUEUED_INPUT);
     cw->Append_Input_Source (inp);
@@ -851,7 +987,7 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
   FILE *ttyin = fopen ( "/dev/tty", "r" );  // Read directly from the xterm window
   FILE *ttyout = fopen ( "/dev/tty", "w" );  // Write prompt directly to the xterm window
   for(;;) {
-    sleep (1); /* DEBUG - give testing code time to react before splashing screen with prompt */
+    usleep (10000); /* DEBUG - give testing code time to react before splashing screen with prompt */
     fprintf(ttyout,"%s->",current_prompt);
     fflush (ttyout);
     Buffer[0] == *("\0");
@@ -1029,10 +1165,12 @@ read_another_window:
 
  // Assign a sequence number to the command.
   clip->SetSeq (++Command_Sequence_Number);
+
+// Reflect internal state in the command and log it to the trace file
   clip->SetStatus (ILO_IN_PARSER);
 
  // Log the command.
-  cw->Trace(clip);
+  cw->Record(clip);
 
   return clip;
 }
