@@ -26,6 +26,7 @@ class InputLineObject
   CMDID seq_num;		// Where in sequence that this command was parsed.
   time_t cmd_time;		// When the status field was set.
   CMDWID who;			// Who constructed the command.  (i.e. "gui", "cli", or "?")
+  bool complex_expression;	// Is this command part of a more complex expression?
   FILE *Trace_F;		// Echo stat changes to trace file.
 
   std::string command;		// The actual command to be executed.
@@ -52,6 +53,7 @@ class InputLineObject
       seq_num = 0;
       cmd_time = time(0);
       who = 0;
+      complex_expression = false;
       Trace_F = NULL;
       command = std::string("");
       msg_string = std::string("");
@@ -97,6 +99,8 @@ class InputLineObject
   Input_Line_Status What() { return status; }
   time_t When () { return cmd_time; }
   CMDID Where () { return seq_num; }
+  bool Complex_Exp () { return complex_expression; }
+  void Set_Complex_Exp () { complex_expression = true; }
   void Set_Trace (FILE *TFile) {Trace_F = TFile;}
   oss_cmd_enum Action () { return cmd_type; }
   std::string Command () {return command;}
@@ -118,16 +122,16 @@ class InputLineObject
       char *what_c;
       switch (what)
       { 
-        case ILO_UNKNOWN:      what_c = "  UNKNOWN"; break;
-        case ILO_QUEUED_INPUT: what_c = "   QUEUED"; break;
-        case ILO_IN_PARSER:    what_c = "  PARSING"; break;
+        case ILO_UNKNOWN:      what_c = "UNKNOWN"; break;
+        case ILO_QUEUED_INPUT: what_c = "QUEUED"; break;
+        case ILO_IN_PARSER:    what_c = "PARSING"; break;
         case ILO_EXECUTING:    what_c = "EXECUTING"; break;
-        case ILO_COMPLETE:     what_c = " COMPLETE"; break;
-        case ILO_ERROR:        what_c = "    ERROR"; break;
-        default:               what_c = "  ILLEGAL"; break;
+        case ILO_COMPLETE:     what_c = "COMPLETE"; break;
+        case ILO_ERROR:        what_c = "ERROR"; break;
+        default:               what_c = "ILLEGAL"; break;
       }
       fprintf(TFile,"%s",what_c);
-      fprintf(TFile,": ");
+      fprintf(TFile,": \t");
       if (command.length() != 0) {
         fprintf(TFile,"%s", command.c_str());
         int nline = strlen (command.c_str()) - 1;
