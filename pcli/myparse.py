@@ -3,7 +3,7 @@ import re
 import string
 import sys
 
-import SS_Util
+import PY_Input
 
 ################################################################################
 #
@@ -316,7 +316,7 @@ class CLI(code.InteractiveConsole):
                 # Read the next line of input
                 #self.write("interact 1\n")
                 #line = self.raw_input(prompt)
-                line = SS_Util.ReadLine (is_more)
+                line = PY_Input.ReadLine (is_more)
 
                 if not line:
                    line = 'EOF'
