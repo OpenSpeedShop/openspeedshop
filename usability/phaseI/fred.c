@@ -17,7 +17,7 @@ void fred(int *val)
   {
     for( j=0; j<10; j++ )
     {
-      for( k = 0;k<100000;k++ )
+      for( k = 0;k<10000;k++ )
       {
         small_array[i][j] = (freddy.y * freddy.x)/(j+1)+i;
       }

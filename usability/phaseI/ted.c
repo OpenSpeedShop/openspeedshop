@@ -2,7 +2,7 @@ int ted(int in)
 {
   int i=0;
   int j=0;
-  int tmp = in * 1000;
+  int tmp = in * 100;
 
   for(i=0;i<tmp;i++)
   {
