@@ -19,12 +19,9 @@
 #include <qpixmap.h>
 
 
-/*!  UserTimePanelWizard Class
-     This class is used by the script mknewpanel to create a new work area
-     for the panel creator to design a new panel.
+/*!  \class UserTimePanelWizard
 
-
-     Autor: Al Stipek (stipek@sgi.com)
+   Create a prototype user time wizard
  */
 
 
@@ -314,8 +311,7 @@ UserTimePanelWizard::UserTimePanelWizard(PanelContainer *pc, const char *n) : Pa
 }
 
 
-//! Destroys the object and frees any allocated resources
-/*! The only thing that needs to be cleaned up is the baseWidgetFrame.
+/*! Destroys the object and frees any allocated resources
  */
 UserTimePanelWizard::~UserTimePanelWizard()
 {
@@ -326,7 +322,7 @@ UserTimePanelWizard::~UserTimePanelWizard()
 }
 
 
-/*
+/*!
  *  Sets the strings of the subwidgets using the current
  *  language.
  */
@@ -404,7 +400,7 @@ eWizardDescription->setText( tr( "The usertime experiment returns CPU time for e
     broughtToYouByLabel->setText( tr( "Brought to you by SGI (SiliconGraphics)" ) );
 }
 
-//! Add user panel specific menu items if they have any.
+/*! Add user panel specific menu items if they have any. */
 bool
 UserTimePanelWizard::menu(QPopupMenu* contextMenu)
 {
@@ -413,7 +409,6 @@ UserTimePanelWizard::menu(QPopupMenu* contextMenu)
   return( FALSE );
 }
 
-//! Save ascii version of this panel.
 /*! If the user panel provides save to ascii functionality, their function
      should provide the saving.
  */
@@ -423,7 +418,6 @@ UserTimePanelWizard::save()
   dprintf("UserTimePanelWizard::save() requested.\n");
 }
 
-//! Save ascii version of this panel (to a file).
 /*! If the user panel provides save to ascii functionality, their function
      should provide the saving.  This callback will invoke a popup prompting
      for a file name.
@@ -434,7 +428,7 @@ UserTimePanelWizard::saveAs()
   dprintf("UserTimePanelWizard::saveAs() requested.\n");
 }
 
-//! This function listens for messages.
+/*! This function listens for messages. */
 int 
 UserTimePanelWizard::listener(char *msg)
 {
@@ -443,7 +437,7 @@ UserTimePanelWizard::listener(char *msg)
 }
 
 
-//! This function broadcasts messages.
+/*! This function broadcasts messages. */
 int 
 UserTimePanelWizard::broadcast(char *msg)
 {
@@ -452,11 +446,13 @@ UserTimePanelWizard::broadcast(char *msg)
 }
 
 
+/*! Unimplemented */
 void UserTimePanelWizard::epage0HideWizardCheckBoxSelected()
 {
     qWarning( "UserTimePanelWizard::epage0HideWizardCheckBoxSelected(): Not implemented yet" );
 }
 
+/*! Goes way back and raises the Intro Wizard. */
 void UserTimePanelWizard::epage0StartButtonSelected()
 {
     qWarning( "UserTimePanelWizard::epage0StartButtonSelected(): Not implemented yet" );
@@ -468,6 +464,7 @@ void UserTimePanelWizard::epage0StartButtonSelected()
     }
 }
 
+/*! Takes you to the next page. */
 void UserTimePanelWizard::epage0NextButtonSelected()
 {
     qWarning( "UserTimePanelWizard::epage0NextButtonSelected(): Not implemented yet" );
@@ -478,12 +475,14 @@ void UserTimePanelWizard::epage0NextButtonSelected()
     userTimeWizardStack->raiseWidget(WStackEPage1);
 }
 
+/*! Takes you to the previous page. */
 void UserTimePanelWizard::epage1BackButtonSelected()
 {
     qWarning( "UserTimePanelWizard::epage1BackButtonSelected(): Not implemented yet" );
     userTimeWizardStack->raiseWidget(WStackEPage0);
 }
 
+/*! Takes you to the next page. */
 void UserTimePanelWizard::epage1NextButtonSelected()
 {
     qWarning( "UserTimePanelWizard::epage1NextButtonSelected(): Not implemented yet" );
@@ -500,6 +499,7 @@ void UserTimePanelWizard::epage1SampleRateTextSelected()
     qWarning( "UserTimePanelWizard::epage1SampleRateTextSelected(): Not implemented yet" );
 }
 
+/*! Takes you to the previous page. */
 void UserTimePanelWizard::epage2BackButtonSelected()
 {
     qWarning( "UserTimePanelWizard::epage2BackButtonSelected(): Not implemented yet" );
@@ -581,6 +581,7 @@ void UserTimePanelWizard::vpage0HideWizardCheckBoxSelected()
     qWarning( "UserTimePanelWizard::vpage0HideWizardCheckBoxSelected(): Not implemented yet" );
 }
 
+/*! Takes you to the next page. */
 void UserTimePanelWizard::vpage0NextButtonSelected()
 {
     qWarning( "UserTimePanelWizard::vpage0NextButtonSelected(): Not implemented yet" );
@@ -602,12 +603,14 @@ void UserTimePanelWizard::vpage0StartButtonSelected()
     }
 }
 
+/*! Takes you to the previous page. */
 void UserTimePanelWizard::vpage1BackButtonSelected()
 {
     qWarning( "UserTimePanelWizard::vpage1BackButtonSelected(): Not implemented yet" );
     userTimeWizardStack->raiseWidget(WStackVPage0);
 }
 
+/*! Takes you to the next page. */
 void UserTimePanelWizard::vpage1NextButtonSelected()
 {
     qWarning( "UserTimePanelWizard::vpage1NextButtonSelected(): Not implemented yet" );
@@ -619,6 +622,7 @@ void UserTimePanelWizard::vpage1ResetButtonSelected()
     qWarning( "UserTimePanelWizard::vpage1ResetButtonSelected(): Not implemented yet" );
 }
 
+/*! Takes you to the previous page. */
 void UserTimePanelWizard::vpage2BackButtonSelected()
 {
     qWarning( "UserTimePanelWizard::vpage2BackButtonSelected(): Not implemented yet" );

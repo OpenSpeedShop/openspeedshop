@@ -3,12 +3,9 @@
 #include "plugin_entry_point.hxx"   // Do not remove
 
 
-/*!  UserTimePanel Class
-     This class is used by the script mknewpanel to create a new work area
-     for the panel creator to design a new panel.
+/*!  \class UserTimePanel
 
-
-     Autor: Al Stipek (stipek@sgi.com)
+    A simple prototype with nothing in it.
  */
 
 
@@ -18,7 +15,6 @@ UserTimePanel::UserTimePanel()
 }
 
 
-/*! Constructs a new UserPanel object */
 /*! This is the most often used constructor call.
     \param pc    The panel container the panel will initially be attached.
     \param n     The initial name of the panel container
@@ -30,8 +26,8 @@ UserTimePanel::UserTimePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
 }
 
 
-//! Destroys the object and frees any allocated resources
-/*! The only thing that needs to be cleaned up is the baseWidgetFrame.
+/*! Destroys the object and frees any allocated resources
+    The only thing that needs to be cleaned up is the baseWidgetFrame.
  */
 UserTimePanel::~UserTimePanel()
 {
@@ -42,7 +38,7 @@ UserTimePanel::~UserTimePanel()
   delete baseWidgetFrame;
 }
 
-//! Add user panel specific menu items if they have any.
+/*! Add user panel specific menu items if they have any. */
 bool
 UserTimePanel::menu(QPopupMenu* contextMenu)
 {
@@ -51,7 +47,6 @@ UserTimePanel::menu(QPopupMenu* contextMenu)
   return( FALSE );
 }
 
-//! Save ascii version of this panel.
 /*! If the user panel provides save to ascii functionality, their function
      should provide the saving.
  */
@@ -61,7 +56,6 @@ UserTimePanel::save()
   dprintf("UserTimePanel::save() requested.\n");
 }
 
-//! Save ascii version of this panel (to a file).
 /*! If the user panel provides save to ascii functionality, their function
      should provide the saving.  This callback will invoke a popup prompting
      for a file name.
@@ -72,7 +66,7 @@ UserTimePanel::saveAs()
   dprintf("UserTimePanel::saveAs() requested.\n");
 }
 
-//! This function listens for messages.
+/*! This function listens for messages. */
 int 
 UserTimePanel::listener(char *msg)
 {
@@ -81,7 +75,7 @@ UserTimePanel::listener(char *msg)
 }
 
 
-//! This function broadcasts messages.
+/*! This function broadcasts messages. */
 int 
 UserTimePanel::broadcast(char *msg)
 {

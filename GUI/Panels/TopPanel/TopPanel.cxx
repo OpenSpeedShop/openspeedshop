@@ -1,3 +1,13 @@
+/*! \class TopPanel
+ This class creates and manages a Panel that displays the top n metrics of
+ information.  It contains a split display with a chart (pie, by default) 
+ in the left side and a list of details on the right side.
+
+ A selection on either side will either reposition and raise an existing
+ SourcePanel or create and position one for you.  Requesting a context 
+ sensitve menu will bring up information, or possible actions, one can
+ do to each item.
+ */
 #include "TopPanel.hxx"   // Change this to your new class header file name
 #include "PanelContainer.hxx"   // Do not remove
 #include "plugin_entry_point.hxx"   // Do not remove
@@ -25,7 +35,7 @@ static char *color_name_table[10] =
   { "red", "purple", "papayawhip", "violet", "green" };
 
 
-// This is just a utility routine to truncate long names.
+/*! This is just a utility routine to truncate long names. */
 char *
 TopPanel::truncate(char *str, int length)
 {
@@ -47,12 +57,17 @@ TopPanel::truncate(char *str, int length)
   return newstr;
 }
 
+/*! Unused constructor. */
 TopPanel::TopPanel()
 { // Unused... Here for completeness...
 }
 
 
 // #define ALL_SPLIT_UP 1
+/*! Creaates a TopPanel with a left and right side.   The left side
+    contains an interactive chart (pie chart by default) and the right
+    side contains an interactive list of metrics.
+ */
 TopPanel::TopPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
 {
   printf( "TopPanel::TopPanel() constructor called\n");
@@ -115,7 +130,7 @@ TopPanel::TopPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
 // End Fill The QTextEdit with the values
 
 
-/*
+/*!
  *  Destroys the object and frees any allocated resources
  */
 TopPanel::~TopPanel()
@@ -130,7 +145,7 @@ TopPanel::~TopPanel()
   delete baseWidgetFrame;
 }
 
-/*
+/*!
  * Add local panel options here..
  */
 bool
@@ -144,7 +159,8 @@ TopPanel::menu(QPopupMenu* contextMenu)
 
   return( TRUE );
 }
-/* 
+
+/*!
  * Add local save() functionality here.
  */
 void 
@@ -153,8 +169,9 @@ TopPanel::save()
   dprintf("TopPanel::save() requested.\n");
 }
 
-/* 
- * Add local saveAs() functionality here.
+/*!
+ * Saves the data away to a give file.   The left side is displayed as
+   a png file and the right side is re-represented in html format.
  */
 void 
 TopPanel::saveAs()
@@ -211,7 +228,7 @@ TopPanel::saveAs()
   file.close();
 }
 
-/* 
+/*!
  * Add message listener() functionality here.
  */
 int 
@@ -221,6 +238,7 @@ TopPanel::listener(char *msg)
   return 0;  // 0 means, did not want this message and did not act on anything.
 }
 
+/*! Displays information about the experiment. */
 void
 TopPanel::aboutExperiment()
 {
@@ -231,6 +249,7 @@ TopPanel::aboutExperiment()
     msg, QMessageBox::Ok );
 }
 
+/*! The callback holder for menu2callback data.  - unimplemented prototype. */
 void
 TopPanel::menu2callback()
 {
@@ -238,6 +257,7 @@ TopPanel::menu2callback()
 }
 
 enum LABEL_TYPE  { PERCENT_T, FUNCTION_NAME_T, RANK_T, NONE_T };
+/*! Get the values from the topFiveObject. */
 int
 TopPanel::getValues(int values[], char *color_names[], char *strings[], int n)
 {
@@ -319,6 +339,10 @@ strings[i] = "";
   return(i+1);
 }
 
+/*! An element was selected.  Determine its associated highlight information,
+    then act upon it.   In this case create a SourceObject message and
+    call the SourcePanel's listener function with it.
+*/
 void
 TopPanel::itemSelected(int element)
 {
@@ -393,6 +417,7 @@ TopPanel::itemSelected(int element)
   }
 }
 
+/*! Create the context senstive menu for the chart. */
 void
 TopPanel::createChartPopupMenu( QPopupMenu* contextMenu, const QPoint &pos )
 {
@@ -401,6 +426,7 @@ TopPanel::createChartPopupMenu( QPopupMenu* contextMenu, const QPoint &pos )
   contextMenu->insertItem("Tell Me MORE about Chart!!!", this, SLOT(details()), CTRL+Key_1 );
 }
 
+/*! Create the context senstive menu for the TextEdit. */
 void
 TopPanel::createTextEditPopupMenu( QPopupMenu* contextMenu, const QPoint &pos )
 {
@@ -423,6 +449,8 @@ oDoICall()), CTRL+Key_2 );
 #endif // LATER
 }
 
+/*! There have been details requested.   Put the details out to the 
+    screen in the form of an information dialog. */
 void
 TopPanel::details()
 {
@@ -438,6 +466,8 @@ TopPanel::details()
     msg, QMessageBox::Ok );
 }
 
+/*! The list was selected.   Figure out the line then 
+    let itemSelected do the work. */
 void
 TopPanel::listClicked(int para, int offset)
 {
@@ -450,9 +480,10 @@ TopPanel::listClicked(int para, int offset)
   }
 }
 
-// This could likely be abstrated out to a class that is inherited by 
-// anyone using a QTextEdit.   (i.e. MyTextEdit in SourcePanel may
-// include this functionality. */
+/*! Highlight a line of text, with a color.
+ \note This could likely be abstrated out to a class that is inherited by 
+ anyone using a QTextEdit.   (i.e. MyTextEdit in SourcePanel may
+ include this functionality. */
 void
 TopPanel::highlightLine(int line, char *color, bool inverse)
 {
@@ -469,6 +500,7 @@ TopPanel::highlightLine(int line, char *color, bool inverse)
   }
 }
 
+/*! prototype: Get the top Five data. */
 void
 TopPanel::getTopFiveData()
 {
