@@ -1,0 +1,43 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>MainWizardPanel</class>
+<widget class="QWidget">
+    <property name="name">
+        <cstring>MainWizardPanel</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>599</width>
+            <height>548</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>MainWizardPanel</string>
+    </property>
+    <vbox>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+    </vbox>
+</widget>
+<slots>
+    <slot>wizardModeSelected()</slot>
+    <slot>epage1NextSelected()</slot>
+    <slot>epage1pcSampleRBSelected()</slot>
+    <slot>vpage1pcSampleRBSelected()</slot>
+    <slot>epage1UserTimeRBSelected()</slot>
+    <slot>vpage1UserTimeRBSelected()</slot>
+    <slot>vpage1HardwareCounterRBSelected()</slot>
+    <slot>epage1HardwareCounterRBSelected()</slot>
+    <slot>vpage1FloatingPointRBSelected()</slot>
+    <slot>epage1FloatingPointRBSelected()</slot>
+    <slot>vpage1MpiRBSelected()</slot>
+    <slot>epage1MpiRBSelected()</slot>
+    <slot>vpage1NextSelected()</slot>
+    <slot>epage1InputOutputRBSelected()</slot>
+    <slot>vpage1InputOutputRBSelected()</slot>
+</slots>
+<pixmapinproject/>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

@@ -1,0 +1,36 @@
+
+/*
+$Id$
+*/
+/*! \page dirview-example.html
+
+  \ingroup examples
+  \title A Directory Browser
+
+  This example program demonstrates how to use a listview and
+  listview items to build a multi-column hierarchical, memory- and
+  CPU-efficient directory browser. It also demonstrates how to use
+  Drag&Drop in a listview.
+
+  <hr>
+
+  Header file:
+
+  \include dirview/dirview.h
+
+  <hr>
+
+  And here is the main implementation file.  Note the way the program
+  scans subdirectories only when it has to.  This allows the program
+  to handle very large file systems efficiently.  The same technique
+  can be used in any other trees.
+
+  \include dirview/dirview.cpp
+
+  <hr>
+
+  Main:
+
+  \include dirview/main.cpp
+*/
+

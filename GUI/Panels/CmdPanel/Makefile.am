@@ -1,0 +1,47 @@
+################################################################################
+# License Applicability.  Except to the extent portions of this file are
+# made subject to an alternative license as permitted in the SGI Free
+# Software License B, Version 1.1 (the "License"), the contents of this
+# file are subject only to the provisions of the License. You may not use
+# this file except in compliance with the License. You may obtain a copy
+# of the License at Silicon Graphics, Inc., attn: Legal Services, 1500
+# Crittenden Lane, Moutain View, CA 94043, or at:
+# 
+#      http://oss.sgi.com/projects/FreeB
+# 
+# Note that, as provided in the License, the Software is distributed on
+# on "AS IS" basis, with ALL EXPRESS AND IMPLIED WARRANTIES AND CONDITIONS
+# DISCLAIMED, INCLUDING, WITHOUT LIMITATION, ANY IMPLIED WARRANTIES AND
+# CONDITIONS OF MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A
+# PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+# 
+# Original Code.  The Original Code is: FutureTool, Version 1.0, released
+# <MONTH>, <DAY>, 2004, developed by Silicon Graphics, Inc. The Original
+# Code is Copyright (c) 2004 Silicon Graphics, Inc. Copyright in any
+# portions created by third parties is as indicated elsewhere herein.
+# All Rights Reserved.
+################################################################################
+
+pkglib_LTLIBRARIES = CmdPanel.la
+
+CmdPanel_la_CXXFLAGS = \
+    -I/usr/include \
+    -I$(QTDIR)/include \
+    -I. \
+	-I../../objects \
+	-I../../cli \
+    -I../../ftf/.ui \
+    -I../../plugin \
+    -I../../base
+
+CmdPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../base/.libs/ftBase.so -Wl,../../cli/.libs/ftcli.so -Wl,../../objects/.libs/ftObjects.so
+
+CmdPanel_la_LIBADD =  ../../cli/.libs/ftcli.so -L$(QTDIR)/lib -lqt
+
+moc_CmdPanel.cxx: CmdPanel.hxx
+	-moc -o moc_CmdPanel.cxx CmdPanel.h.
+
+CmdPanel_la_SOURCES = \
+	CmdPanel.h CmdPanel.cxx moc_CmdPanel.cxx \
+	PanelContainer.h local_plugin_info.h debug.h \
+	plugin_entry_point.h Panel.h

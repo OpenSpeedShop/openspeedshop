@@ -1,0 +1,9 @@
+  plugin_entry->grouping = "TOPLEVEL";
+  plugin_entry->show_immediate = 0;
+  plugin_entry->plugin_description = "This is the getting started panel that relates to performance tuning.   It is designed to gather host, process, or experiment data for the user.";
+  plugin_entry->plugin_name =  "GettingStartedPanel.so";
+  plugin_entry->plugin_location = "$FUTURE_TOOL_PLUGIN_DIR";
+  plugin_entry->plugin_entry_point = "panel_init";
+  plugin_entry->menu_heading =  "Performance";
+  plugin_entry->menu_label =  "Getting Started";
+  plugin_entry->panel_type =  "Getting Started";

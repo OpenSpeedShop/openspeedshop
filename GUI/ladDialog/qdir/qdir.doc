@@ -1,0 +1,16 @@
+/*
+$Id$
+*/
+/*!   \page qdir-example.html
+
+  \ingroup examples
+  \title QDir
+
+
+  <hr>
+
+  Main:
+
+  \include qdir/qdir.cpp
+*/	
+

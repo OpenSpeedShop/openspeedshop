@@ -1,0 +1,16 @@
+TARGETS = wizard
+
+default all:
+	-$(QTDIR)/bin/qmake -o qMakefile; \
+	make -f qMakefile wizard
+
+clean:
+	-rm -fr *.o;
+
+clobber:
+	-rm -fr *.o; \
+	rm -fr wizard; \
+	rm -fr .obj; \
+	rm -fr .ui; \
+	rm -fr .libs; \
+	rm -fr *.so
