@@ -78,6 +78,8 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
 //  label->setFrameStyle( QFrame::NoFrame );
   QString label_text = "No source file specified.";
   label->setText(label_text);
+  label->setMinimumSize( QSize(0,0) );
+  label->setSizePolicy(QSizePolicy( (QSizePolicy::SizeType)2, (QSizePolicy::SizeType)5, 0, 0, FALSE ) );
 
 
   textEditHeaderLayout->addWidget( label );
@@ -115,6 +117,7 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
   sizeList.push_back( width-left_side_size );
   splitter->setSizes(sizeList);
   splitter->show();
+
 
   textEdit->show();
   label->show();
