@@ -60,14 +60,12 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, int bu
     }
     strcat(cmdstr,"\n\0");
 
-   /* Note: Push commands on the stack in reverse order of how they execute. */
+   /* First, put the "expCreate" command to the input stack */
+    (void)Append_Input_String (my_window, strlen(cmdstr), cmdstr);
 
-   /* FIrst, stack an "expRun" command. */
+   /* Second, follow it with an "expRun" command. */
     char *cmdrun = "expRun\n";
-    (void)Attach_Input_Buffer (my_window, strlen(cmdrun), cmdrun);
-
-   /* Second, push the "expCreate" command to the input stack */
-    (void)Attach_Input_Buffer (my_window, strlen(cmdstr), cmdstr);
+    (void)Append_Input_String (my_window, strlen(cmdrun), cmdrun);
   }
 
 }
@@ -83,16 +81,16 @@ int Start_BATCH_Mode (CMDWID my_window, int argc, char ** argv, int butnotarg, b
     }
   }
 
+ /* Set up buffers to read command line arguments. */
+  Input_Command_Args ( my_window, argc, argv, butnotarg);
+
  /*
     Read from stdin if one was piped into the command, otherwise
     assume that only the command line needs to be precessed.
  */
   if (read_stdin_file) {
-    (void)Attach_Input_File (my_window, std::string("stdin"));
+    (void)Append_Input_File (my_window, std::string("stdin"));
   }
-
- /* Set up buffers to read command line arguments. */
-  Input_Command_Args ( my_window, argc, argv, butnotarg);
 
  /* Fire off Python. */
   PyRun_SimpleString( "myparse.do_input ()\n");
@@ -120,11 +118,11 @@ int Start_GUI_Mode (CMDWID my_window, int argc, char ** argv, int butnotarg, boo
 
  /* NOW????  WHAT DO WE DO TO GET THE GUI UP??? */
 
- /* Define stdin as the main input file. */
- // (void)Attach_Input_File (my_window, std::string("stdin"));
-
  /* Set up buffers to read command line arguments. */
  // Input_Command_Args ( my_window, argc, argv, butnotarg);
+
+ /* Define stdin as the main input file. */
+ // (void)Append_Input_File (my_window, std::string("stdin"));
 
  /* Fire off Python. */
  // PyRun_SimpleString( "myparse.do_input ()\n");
@@ -144,11 +142,11 @@ int Start_TLI_Mode (CMDWID my_window, int argc, char ** argv, int butnotarg, boo
     }
   }
 
- /* Define stdin as the main input file. */
-  (void)Attach_Input_File (my_window, std::string("stdin"));
-
  /* Set up buffers to read command line arguments. */
   Input_Command_Args ( my_window, argc, argv, butnotarg);
+
+ /* Define stdin as the main input file. */
+  (void)Append_Input_File (my_window, std::string("stdin"));
 
  /* Fire off Python. */
   PyRun_SimpleString( "myparse.do_input ()\n");
