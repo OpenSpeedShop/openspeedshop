@@ -32,8 +32,12 @@ class InputLineObject
   std::string command;		// The actual command to be executed.
 
  // The following fields contain "result" information.
+  void *LocalCmdId;             // Optional ID to be used by the output routine.
+  void (*CallBackLine) (InputLineObject *b);  // Optional call back function to notify output routine.
+  void (*CallBackCmd) (CommandObject *b);  // Optional call back function for Command Objects.
   std::string msg_string;	// Intermediate processing or error information.
   oss_cmd_enum cmd_type;	// Filled in when the parser determines the type of command.
+  int Num_Cmd_Objs;             // Count the number of CommandObjects on the list.
   std::list<CommandObject *> Cmd_Obj;  // list of associated command objects
 
  public:
@@ -58,6 +62,10 @@ class InputLineObject
       command = std::string("");
       msg_string = std::string("");
       // cmd_type = CMD_NONE;
+      LocalCmdId = NULL;
+      CallBackLine = NULL;
+      CallBackCmd = NULL;
+      Num_Cmd_Objs = 0;
     }
 
  public:
@@ -100,13 +108,23 @@ class InputLineObject
   time_t When () { return cmd_time; }
   CMDID Where () { return seq_num; }
   bool Complex_Exp () { return complex_expression; }
+  void *CallBackId () { return LocalCmdId; }
+  //(void (*)(InputLineObject *b)) CallBackF () { return CallBack; }
+  //void ((*)(InputLineObject *b)) CallBackF() { return CallBack; }
+  void CallBackL () { if (CallBackLine) (*CallBackLine) (this); }
+  void CallBackC (CommandObject *c) { if (CallBackCmd) (*CallBackCmd) (c); }
+
   void Set_Complex_Exp () { complex_expression = true; }
   void Set_Trace (FILE *TFile) {Trace_F = TFile;}
+  void Set_CallBackId (void *cbid) { LocalCmdId = cbid; }
+  void Set_CallBackL  (void (*cbf) (InputLineObject *b)) { CallBackLine = cbf; }
+  void Set_CallBackC  (void (*cbf) (CommandObject *b)) { CallBackCmd = cbf; }
   oss_cmd_enum Action () { return cmd_type; }
   std::string Command () {return command;}
 
   void Push_Cmd_Obj (CommandObject *C)
   {
+    C->SetSeqNum(++Num_Cmd_Objs);
     Cmd_Obj.push_back(C);
   }
 
@@ -117,8 +135,8 @@ class InputLineObject
       CMDID seq_num = Where();
       time_t cmd_time = When();
       std::string command = Command();
-      fprintf(TFile,"C %lld (W%lld@%.24s) ",
-                    seq_num,who,ctime(&cmd_time));
+      fprintf(TFile,"C %lld(%d) (W%lld@%.24s) ",
+                    seq_num,Num_Cmd_Objs,who,ctime(&cmd_time));
       char *what_c;
       switch (what)
       { 
@@ -131,7 +149,7 @@ class InputLineObject
         default:               what_c = "ILLEGAL"; break;
       }
       fprintf(TFile,"%s",what_c);
-      fprintf(TFile,": \t");
+      fprintf(TFile,":\t");
       if (command.length() != 0) {
         fprintf(TFile,"%s", command.c_str());
         int nline = strlen (command.c_str()) - 1;
@@ -139,6 +157,14 @@ class InputLineObject
           fprintf(TFile,"\n");
         }
       }
+
+     // CommandObject list
+      std::list<CommandObject *> cmd_object = Cmd_Obj;
+      std::list<CommandObject *>::iterator coi;
+      for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
+        (*coi)->Print (TFile);
+      }
+
       fflush(TFile);  // So that we can look at the file while still running
     }
   }
