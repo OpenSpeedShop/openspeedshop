@@ -50,6 +50,7 @@ namespace OpenSpeedShop { namespace Framework {
 
     class Address;
     class Collector;
+    class CollectorGroup;
     class Database;
     class Experiment;
     class Function;
@@ -132,6 +133,8 @@ namespace OpenSpeedShop { namespace Framework {
 
 	Optional<Function> getFunctionByName(
 	    const std::string&, const Time& = Time::Now()) const;
+
+	CollectorGroup getCollectors() const;
 	
     private:
 

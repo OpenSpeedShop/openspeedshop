@@ -23,6 +23,8 @@
  */
 
 #include "Address.hxx"
+#include "Collector.hxx"
+#include "CollectorGroup.hxx"
 #include "Database.hxx"
 #include "Function.hxx"
 #include "Instrumentor.hxx"
@@ -573,6 +575,50 @@ Optional<Function> Thread::getFunctionByName(const std::string& name,
     
     // Return the function to the caller
     return function;
+}
+
+
+
+/**
+ * Get our collectors.
+ *
+ * Returns all the collectors currently attached to this thread. An empty
+ * collector group is returned if this thread isn't attached to any collectors.
+ *
+ * @return    Collectors to which this thread is currently attached.
+ */
+CollectorGroup Thread::getCollectors() const
+{
+    // Check assertions
+    Assert(!dm_database.isNull());
+
+    // Note: Collector's constructor uses an SQL query to find its unique
+    //       identifier so that it can instantiate a collector implementation.
+    //       Since we use an SQL query here to find the collectors, and the
+    //       Database class does not allow multiple in-flight SQL statements,
+    //       the lookup of the collector list had to be separated from the
+    //       creation of the collector objects.
+
+    // Find our collectors
+    std::vector<int> entries;
+    BEGIN_TRANSACTION(dm_database);
+    validate("Threads");    
+    dm_database->prepareStatement(
+        "SELECT collector FROM Attachments WHERE thread = ?;"
+        );
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement())
+	entries.push_back(dm_database->getResultAsInteger(1));    
+    END_TRANSACTION(dm_database);
+    
+    // Create the collectors
+    CollectorGroup collectors;
+    for(std::vector<int>::const_iterator
+	    i = entries.begin(); i != entries.end(); ++i)
+	collectors.push_back(Collector(dm_database, *i));
+    
+    // Return the collectors to the caller
+    return collectors;
 }
 
 

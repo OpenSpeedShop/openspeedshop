@@ -79,6 +79,7 @@ namespace OpenSpeedShop { namespace Framework {
 	public Entry
     {
 	friend class Experiment;
+	friend class Thread;
 	
     public:
 	
