@@ -23,7 +23,7 @@ class ExperimentObject;
 extern EXPID Experiment_Sequence_Number;
 extern std::list<ExperimentObject *> ExperimentObject_list;
 
-#define ExpStatus_NonExistant 0
+#define ExpStatus_NonExistent 0
 #define ExpStatus_Paused      1
 #define ExpStatus_Suspended   2
 #define ExpStatus_Running     3
@@ -88,7 +88,7 @@ class ExperimentObject
       FW_Experiment = NULL;
     }
     Exp_ID = 0;
-    ExpStatus = ExpStatus_NonExistant;
+    ExpStatus = ExpStatus_NonExistent;
   }
 
   EXPID ExperimentObject_ID() {return Exp_ID;}
@@ -97,10 +97,10 @@ class ExperimentObject
   int Determine_Status() {
     int S = ExpStatus;
     if (FW() == NULL) {
-      if (ExpStatus != ExpStatus_Suspended) ExpStatus = ExpStatus_NonExistant;
+      if (ExpStatus != ExpStatus_Suspended) ExpStatus = ExpStatus_NonExistent;
     } else {
       ThreadGroup tgrp = FW()->getThreads();
-      int A = ExpStatus_NonExistant;
+      int A = ExpStatus_NonExistent;
       if (tgrp.empty()) A = ExpStatus_Paused;
       else if (tgrp.isAnyState(Thread::Running)) A = ExpStatus_Running;
       else if (tgrp.isAnyState(Thread::Suspended)) A = ExpStatus_Paused;
@@ -190,7 +190,7 @@ class ExperimentObject
 
   std::string ExpStatus_Name () {
     Determine_Status();
-    if ((this == NULL) || (ExpStatus == ExpStatus_NonExistant)) return std::string("NonExistant");
+    if ((this == NULL) || (ExpStatus == ExpStatus_NonExistent)) return std::string("NonExistent");
     if (ExpStatus == ExpStatus_Paused) return std::string("Paused");
     if (ExpStatus == ExpStatus_Suspended) return std::string("Disabled");
     if (ExpStatus == ExpStatus_Running) return std::string("Running");
@@ -302,9 +302,12 @@ bool SS_ListObj (CommandObject *cmd);
 bool SS_ListPids (CommandObject *cmd);
 bool SS_ListMetrics (CommandObject *cmd);
 bool SS_ListParams (CommandObject *cmd);
-bool SS_ListReports (CommandObject *cmd);
+bool SS_ListRanks (CommandObject *cmd);
 bool SS_ListSrc (CommandObject *cmd);
+bool SS_ListStatus (CommandObject *cmd);
+bool SS_ListThreads (CommandObject *cmd);
 bool SS_ListTypes (CommandObject *cmd);
+bool SS_ListViews (CommandObject *cmd);
 
 // Session level commands
 bool SS_ClearBreaks (CommandObject *cmd);
