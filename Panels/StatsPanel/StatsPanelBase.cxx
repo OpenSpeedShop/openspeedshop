@@ -39,8 +39,10 @@ static char *color_name_table[10] =
   { "red", "orange", "yellow", "skyblue", "green" };
 
 
-#include "ToolAPI.hxx"
+// #include "ToolAPI.hxx"
+#include "SS_Input_Manager.hxx"
 using namespace OpenSpeedShop::Framework;
+
 
 
 StatsPanelBase::StatsPanelBase(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
@@ -137,9 +139,12 @@ StatsPanelBase::updateStatsPanelBaseData(void *expr, int expID, QString experime
 
   SPListViewItem *lvi;
   columnList.clear();
-if( expr )
+printf("This should be overloaded in pcStatsPanel....\n");
+
+ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+if( eo && eo->FW() )
 {
-  Experiment *fw_experiment = (Experiment *)expr;
+  Experiment *fw_experiment = eo->FW();
 // Evaluate the collector's time metric for all functions in the thread
 SmartPtr<std::map<Function, double> > data;
 ThreadGroup tgrp = fw_experiment->getThreads();
