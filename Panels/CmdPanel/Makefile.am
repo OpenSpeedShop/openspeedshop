@@ -37,9 +37,8 @@ moc_CmdPanel.cxx: CmdPanel.hxx
 	-moc -o moc_CmdPanel.cxx CmdPanel.hxx
 
 CmdPanel_la_SOURCES = \
-	CmdPanel.h CmdPanel.cxx moc_CmdPanel.cxx \
+	CmdPanel.hxx CmdPanel.cxx moc_CmdPanel.cxx \
 	KeyEventFilter.hxx KeyEventFilter.cxx \
-	PanelContainer.h local_plugin_info.h debug.h \
-	plugin_entry_point.h Panel.h
+	local_plugin_info.hxx
 
 CLEANFILES=moc_CmdPanel.cxx moc_SPTextEdit.cxx
