@@ -41,6 +41,14 @@ posscli_la_LDFLAGS = \
 
 posscli_la_LIBADD = $(LIBLTDL)
 
+LEXWOFF =
+YFLAGS = -d
+LFILES = test.l
+YFILES = test.y
+
+test_SOURCES = \
+	$(LFILES) $(YFILES)
+	
 posscli_la_SOURCES = \
     	Start.cxx \
 	Start_Modes.cxx \
@@ -48,20 +56,31 @@ posscli_la_SOURCES = \
 	Experiment.cxx \
 	support.cxx \
 	help.cxx \
-	lex.yy.cxx \
 	y.tab.cxx \
+	lex.yy.cxx \
 	PY_Input.cxx
 
+#bin_PROGRAMS = pcli
 
+#pcli:
+#	-rm -f $(OPENSPEEDSHOP_PLUGIN_PATH)/myparse.py;
+#	-cp myparse.py $(OPENSPEEDSHOP_PLUGIN_PATH);
+#	-rm -f $(OPENSPEEDSHOP_PLUGIN_PATH)/../../bin/openss;
+#	-cp ../openss $(OPENSPEEDSHOP_PLUGIN_PATH)/../../bin;
+#	-g++ -g -o main.o -c main.cxx;
+#	-g++ -g -o help.o -c help.cxx;
+#	-g++ -g -o support.o -c support.cxx;
+#	-g++ -g $(LEXWOFF) -c lex.yy.cxx;
+#	-g++ -g -o yacc.o -c y.tab.cxx;
+#	-g++ -g -o test yacc.o lex.yy.o support.o help.o main.o;
 
+y.tab.cxx:
+	-yacc $(YFLAGS) $(YFILES);
+	-mv y.tab.c y.tab.cxx
 
-bin_PROGRAMS = pcli
-
-pcli:
-	-rm -f $(OPENSPEEDSHOP_PLUGIN_PATH)/myparse.py;
-	-cp myparse.py $(OPENSPEEDSHOP_PLUGIN_PATH);
-	-rm -f $(OPENSPEEDSHOP_PLUGIN_PATH)/../../bin/openss;
-	-cp ../openss $(OPENSPEEDSHOP_PLUGIN_PATH)/../../bin;
+lex.yy.cxx: y.tab.cxx
+	-lex $(LFILES);
+	-mv lex.yy.c lex.yy.cxx
 
 doc:
 	-doxygen Doxyfile
