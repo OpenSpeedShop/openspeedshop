@@ -111,20 +111,6 @@ static double Get_Total_Time (std::vector<func_time_pair> items) {
   return TotalTime;
 }
 
-/*
-static void Add_Header (CommandObject *cmd, std::string *column_titles)
-{
-  CommandResult_Headers *H = new CommandResult_Headers ();
-  int64_t i = 0;
-  while (column_titles[i].length() != 0) {
-    CommandResult *T = new CommandResult_String ( column_titles[i] );
-    H->CommandResult_Headers::Add_Header (T);
-    i++;
-  }
-  cmd->Result_Predefined (H);
-}
-*/
-
 // pcfunc view
 
 static std::string VIEW_pcfunc_brief = "pctime : % total : % cumulative : function";
