@@ -36,5 +36,5 @@ ftd_SOURCES = main.cxx
 
 SUBDIRS = . base objects ladDialog expr_info plugin objects chart cli gui Panels
 
-doc: $(SUBDIRS)
+doc: $(SUBDIRS) Panels/* Panels/*/*
 	-doxygen Doxyfile
