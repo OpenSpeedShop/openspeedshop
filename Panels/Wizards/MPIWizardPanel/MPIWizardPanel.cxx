@@ -58,33 +58,28 @@ MPIWizardPanel::MPIWizardPanel()
 MPIWizardPanel::MPIWizardPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
 {
   nprintf(DEBUG_CONST_DESTRUCT) ("MPIWizardPanel::MPIWizardPanel() constructor called\n");
-sv = new QScrollView(getBaseWidgetFrame(), "scrollview");
-sv->setResizePolicy( QScrollView::Manual );
-
-  panelLayout = new QHBoxLayout( sv->viewport(), 1, 2, getName() );
 
     if ( !getName() )
 	setName( "MPI" );
 
+sv = new QScrollView(getBaseWidgetFrame(), "scrollview");
+sv->setResizePolicy( QScrollView::Manual );
     // I'm not calculating this, but rather just setting a "reasonable"
     // size.   Eventually this should be calculated.
     sv->resize(700,400);
-    sv->resizeContents(750,450);
+    sv->resizeContents(800,450);
 
+    MPIFormLayout = new QVBoxLayout( sv->viewport(), 1, 2, getName() );
 
+    mainFrame = new QFrame( sv->viewport(), "mainFrame" );
+    mainFrame->setFrameShape( QFrame::StyledPanel );
+    mainFrame->setFrameShadow( QFrame::Raised );
+    mainFrameLayout = new QVBoxLayout( mainFrame, 11, 6, "mainFrameLayout"); 
 
-    topWidget = new QWidget( sv->viewport(), "topWidget" );
-    topLayout = new QVBoxLayout( topWidget, 11, 6, "topLayout"); 
-
-    topFrame = new QFrame( topWidget, "topFrame" );
-    topFrame->setFrameShape( QFrame::StyledPanel );
-    topFrame->setFrameShadow( QFrame::Raised );
-    topFrameLayout = new QVBoxLayout( topFrame, 11, 6, "topFrameLayout"); 
-
-    MPIWizardPanelStack = new QWidgetStack( topFrame, "MPIWizardPanelStack" );
+    mainWidgetStack = new QWidgetStack( mainFrame, "mainWidgetStack" );
 
 // Begin: verbose description page
-    vDescriptionPageWidget = new QWidget( MPIWizardPanelStack, "vDescriptionPageWidget" );
+    vDescriptionPageWidget = new QWidget( mainWidgetStack, "vDescriptionPageWidget" );
     vDescriptionPageLayout = new QVBoxLayout( vDescriptionPageWidget, 11, 6, "vDescriptionPageLayout"); 
 
     vDescriptionPageTitleLabel = new QLabel( vDescriptionPageWidget, "vDescriptionPageTitleLabel" );
@@ -108,11 +103,11 @@ sv->setResizePolicy( QScrollView::Manual );
     vDescriptionPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vDescriptionPageNextButton->sizePolicy().hasHeightForWidth() ) );
     vDescriptionPageButtonLayout->addWidget( vDescriptionPageNextButton );
     vDescriptionPageLayout->addLayout( vDescriptionPageButtonLayout );
-    MPIWizardPanelStack->addWidget( vDescriptionPageWidget, 0 );
+    mainWidgetStack->addWidget( vDescriptionPageWidget, 0 );
 // End: verbose description page
 
 // Begin: verbose parameter page
-    vParameterPageWidget = new QWidget( MPIWizardPanelStack, "vParameterPageWidget" );
+    vParameterPageWidget = new QWidget( mainWidgetStack, "vParameterPageWidget" );
     vParameterPageLayout = new QVBoxLayout( vParameterPageWidget, 11, 6, "vParameterPageLayout"); 
 
     vParameterPageDescriptionLabel = new QLabel( vParameterPageWidget, "vParameterPageDescriptionLabel" );
@@ -159,11 +154,11 @@ sv->setResizePolicy( QScrollView::Manual );
     vParameterPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vParameterPageNextButton->sizePolicy().hasHeightForWidth() ) );
     vParameterPageButtonLayout->addWidget( vParameterPageNextButton );
     vParameterPageLayout->addLayout( vParameterPageButtonLayout );
-    MPIWizardPanelStack->addWidget( vParameterPageWidget, 1 );
+    mainWidgetStack->addWidget( vParameterPageWidget, 1 );
 // End: verbose parameter page
 
 // Begin: AttachOrLoad page
-    vAttachOrLoadPageWidget = new QWidget( MPIWizardPanelStack, "vAttachOrLoadPageWidget" );
+    vAttachOrLoadPageWidget = new QWidget( mainWidgetStack, "vAttachOrLoadPageWidget" );
     vAttachOrLoadPageLayout = new QVBoxLayout( vAttachOrLoadPageWidget, 11, 6, "vAttachOrLoadPageLayout"); 
 
     vAttachOrLoadPageDescriptionLabel = new QLabel( vAttachOrLoadPageWidget, "vAttachOrLoadPageDescriptionLabel" );
@@ -214,11 +209,11 @@ sv->setResizePolicy( QScrollView::Manual );
     vAttachOrLoadPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageNextButton->sizePolicy().hasHeightForWidth() ) );
     vAttachOrLoadPageButtonLayout->addWidget( vAttachOrLoadPageNextButton );
     vAttachOrLoadPageLayout->addLayout( vAttachOrLoadPageButtonLayout );
-    MPIWizardPanelStack->addWidget( vAttachOrLoadPageWidget, 1 );
+    mainWidgetStack->addWidget( vAttachOrLoadPageWidget, 1 );
 // End: AttachOrLoad page
 
 // Begin: verbose summary page
-    vSummaryPageWidget = new QWidget( MPIWizardPanelStack, "vSummaryPageWidget" );
+    vSummaryPageWidget = new QWidget( mainWidgetStack, "vSummaryPageWidget" );
     vSummaryPageLayout = new QVBoxLayout( vSummaryPageWidget, 11, 6, "vSummaryPageLayout"); 
 
     vSummaryPageLabelLayout = new QVBoxLayout( 0, 0, 6, "vSummaryPageLabelLayout"); 
@@ -242,12 +237,12 @@ sv->setResizePolicy( QScrollView::Manual );
     vSummaryPageFinishButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vSummaryPageFinishButton->sizePolicy().hasHeightForWidth() ) );
     vSummaryPageButtonLayout->addWidget( vSummaryPageFinishButton );
     vSummaryPageLayout->addLayout( vSummaryPageButtonLayout );
-    MPIWizardPanelStack->addWidget( vSummaryPageWidget, 3 );
+    mainWidgetStack->addWidget( vSummaryPageWidget, 3 );
 // End: verbose summary page
 
 // The advanced (expert) wording starts here....
 // Begin: advance (expert) description page
-    eDescriptionPageWidget = new QWidget( MPIWizardPanelStack, "eDescriptionPageWidget" );
+    eDescriptionPageWidget = new QWidget( mainWidgetStack, "eDescriptionPageWidget" );
     eDescriptionPageLayout = new QVBoxLayout( eDescriptionPageWidget, 11, 6, "eDescriptionPageLayout"); 
 
     eDescriptionPageTitleLabel = new QLabel( eDescriptionPageWidget, "eDescriptionPageTitleLabel" );
@@ -270,11 +265,11 @@ sv->setResizePolicy( QScrollView::Manual );
     eDescriptionPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eDescriptionPageNextButton->sizePolicy().hasHeightForWidth() ) );
     eDescriptionPageButtonLayout->addWidget( eDescriptionPageNextButton );
     eDescriptionPageLayout->addLayout( eDescriptionPageButtonLayout );
-    MPIWizardPanelStack->addWidget( eDescriptionPageWidget, 4 );
+    mainWidgetStack->addWidget( eDescriptionPageWidget, 4 );
 // End: advance (expert) description page
 
 // Begin: advance (expert) parameter page
-    eParameterPageWidget = new QWidget( MPIWizardPanelStack, "eParameterPageWidget" );
+    eParameterPageWidget = new QWidget( mainWidgetStack, "eParameterPageWidget" );
     eParameterPageLayout = new QVBoxLayout( eParameterPageWidget, 11, 6, "eParameterPageLayout"); 
 
     eParameterPageDescriptionLabel = new QLabel( eParameterPageWidget, "eParameterPageDescriptionLabel" );
@@ -321,12 +316,12 @@ sv->setResizePolicy( QScrollView::Manual );
     eParameterPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eParameterPageNextButton->sizePolicy().hasHeightForWidth() ) );
     eParameterPageButtonLayout->addWidget( eParameterPageNextButton );
     eParameterPageLayout->addLayout( eParameterPageButtonLayout );
-    MPIWizardPanelStack->addWidget( eParameterPageWidget, 5 );
+    mainWidgetStack->addWidget( eParameterPageWidget, 5 );
 // End: advanced (exper) parameter page
 
 
 // Begin: advance (expert) attach/load page
-    eAttachOrLoadPageWidget = new QWidget( MPIWizardPanelStack, "eAttachOrLoadPageWidget" );
+    eAttachOrLoadPageWidget = new QWidget( mainWidgetStack, "eAttachOrLoadPageWidget" );
     eAttachOrLoadPageLayout = new QVBoxLayout( eAttachOrLoadPageWidget, 11, 6, "eAttachOrLoadPageLayout"); 
 
     eAttachOrLoadPageDescriptionLabel = new QLabel( eAttachOrLoadPageWidget, "eAttachOrLoadPageDescriptionLabel" );
@@ -376,11 +371,11 @@ eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageExecutableLabel
     eAttachOrLoadPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eAttachOrLoadPageNextButton->sizePolicy().hasHeightForWidth() ) );
     eAttachOrLoadPageButtonLayout->addWidget( eAttachOrLoadPageNextButton );
     eAttachOrLoadPageLayout->addLayout( eAttachOrLoadPageButtonLayout );
-    MPIWizardPanelStack->addWidget( eAttachOrLoadPageWidget, 5 );
+    mainWidgetStack->addWidget( eAttachOrLoadPageWidget, 5 );
 // End: advanced (expert) attach/load page
 
 // Begin: advance (expert) summary page
-    eSummaryPageWidget = new QWidget( MPIWizardPanelStack, "eSummaryPageWidget" );
+    eSummaryPageWidget = new QWidget( mainWidgetStack, "eSummaryPageWidget" );
     eSummaryPageLayout = new QVBoxLayout( eSummaryPageWidget, 11, 6, "eSummaryPageLayout"); 
 
     eSummaryPageFinishLabel = new QLabel( eSummaryPageWidget, "eSummaryPageFinishLabel" );
@@ -399,28 +394,28 @@ eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageExecutableLabel
     eSummaryPageFinishButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eSummaryPageFinishButton->sizePolicy().hasHeightForWidth() ) );
     eSummaryPageButtonLayout->addWidget( eSummaryPageFinishButton );
     eSummaryPageLayout->addLayout( eSummaryPageButtonLayout );
-    MPIWizardPanelStack->addWidget( eSummaryPageWidget, 7 );
-    topFrameLayout->addWidget( MPIWizardPanelStack );
-    topLayout->addWidget( topFrame );
+    mainWidgetStack->addWidget( eSummaryPageWidget, 7 );
+    mainFrameLayout->addWidget( mainWidgetStack );
+    MPIFormLayout->addWidget( mainFrame );
 // End: advance (expert) summary page
 
 
 // Begin: add the bottom portion: The "wizard mode" and "brought to you by"
     bottomLayout = new QHBoxLayout( 0, 0, 6, "bottomLayout"); 
 
-    wizardMode = new QCheckBox( topWidget, "wizardMode" );
+    wizardMode = new QCheckBox( sv->viewport(), "wizardMode" );
     wizardMode->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, wizardMode->sizePolicy().hasHeightForWidth() ) );
     wizardMode->setChecked( TRUE );
     bottomLayout->addWidget( wizardMode );
     bottomSpacer = new QSpacerItem( 40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
     bottomLayout->addItem( bottomSpacer );
 
-    broughtToYouByLabel = new QLabel( topWidget, "broughtToYouByLabel" );
+    broughtToYouByLabel = new QLabel( sv->viewport(), "broughtToYouByLabel" );
     broughtToYouByLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, broughtToYouByLabel->sizePolicy().hasHeightForWidth() ) );
     bottomLayout->addWidget( broughtToYouByLabel );
 // End: add the bottom portion: The "wizard mode" and "brought to you by"
 
-    topLayout->addLayout( bottomLayout );
+   MPIFormLayout->addLayout( bottomLayout );
     languageChange();
     resize( QSize(631, 508).expandedTo(minimumSizeHint()) );
     clearWState( WState_Polished );
@@ -453,9 +448,6 @@ eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageExecutableLabel
     connect( vSummaryPageBackButton, SIGNAL( clicked() ), this, SLOT( vSummaryPageBackButtonSelected() ) );
     connect( vSummaryPageFinishButton, SIGNAL( clicked() ), this, SLOT( vSummaryPageFinishButtonSelected() ) );
     connect( wizardMode, SIGNAL( clicked() ), this, SLOT( wizardModeSelected() ) );
-
-  // This next line makes it all magically appear and resize correctly.
-  panelLayout->addWidget(topWidget);
 
   sv->viewport()->setBackgroundColor(getBaseWidgetFrame()->backgroundColor() );
 }
@@ -518,7 +510,7 @@ MPIWizardPanel::broadcast(char *msg)
 
 void MPIWizardPanel::wizardModeSelected()
 {
-  QWidget *raisedWidget = MPIWizardPanelStack->visibleWidget();
+  QWidget *raisedWidget = mainWidgetStack->visibleWidget();
 if( raisedWidget == vDescriptionPageWidget )
 {
     nprintf(DEBUG_PANELS) ("vDescriptionPageWidget\n");
@@ -545,19 +537,19 @@ if( raisedWidget == vDescriptionPageWidget )
     if( raisedWidget  == eDescriptionPageWidget )
     {
         nprintf(DEBUG_PANELS) ("eDescriptionPageWidget\n");
-        MPIWizardPanelStack->raiseWidget(vDescriptionPageWidget);
+        mainWidgetStack->raiseWidget(vDescriptionPageWidget);
     } else if( raisedWidget == eParameterPageWidget )
     {
         nprintf(DEBUG_PANELS) ("eParameterPageWidget\n");
-        MPIWizardPanelStack->raiseWidget(vParameterPageWidget);
+        mainWidgetStack->raiseWidget(vParameterPageWidget);
     } else if( raisedWidget == eAttachOrLoadPageWidget )
     {
         nprintf(DEBUG_PANELS) ("eAttachOrLoadPageWidget\n");
-        MPIWizardPanelStack->raiseWidget(vAttachOrLoadPageWidget);
+        mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
     } else if( raisedWidget == eSummaryPageWidget )
     {
         nprintf(DEBUG_PANELS) ("eSummaryPageWidget\n");
-        MPIWizardPanelStack->raiseWidget(vSummaryPageWidget);
+        mainWidgetStack->raiseWidget(vSummaryPageWidget);
     } else
     {
         nprintf(DEBUG_PANELS) ("Verbose to Expert: unknown WStackPage\n");
@@ -568,19 +560,19 @@ if( raisedWidget == vDescriptionPageWidget )
     if( raisedWidget == vDescriptionPageWidget )
     {
         nprintf(DEBUG_PANELS) ("vDescriptionPageWidget\n");
-        MPIWizardPanelStack->raiseWidget(eDescriptionPageWidget);
+        mainWidgetStack->raiseWidget(eDescriptionPageWidget);
     } else if( raisedWidget ==  vParameterPageWidget )
     {
         nprintf(DEBUG_PANELS) ("vParameterPageWidget\n");
-        MPIWizardPanelStack->raiseWidget(eParameterPageWidget);
+        mainWidgetStack->raiseWidget(eParameterPageWidget);
     } else if( raisedWidget ==  vAttachOrLoadPageWidget )
     {
         nprintf(DEBUG_PANELS) ("vAttachOrLoadPageWidget\n");
-        MPIWizardPanelStack->raiseWidget(eAttachOrLoadPageWidget);
+        mainWidgetStack->raiseWidget(eAttachOrLoadPageWidget);
     } else if( raisedWidget == vSummaryPageWidget )
     {
         nprintf(DEBUG_PANELS) ("vSummaryPageWidget\n");
-        MPIWizardPanelStack->raiseWidget(eSummaryPageWidget);
+        mainWidgetStack->raiseWidget(eSummaryPageWidget);
     } else
     {
         nprintf(DEBUG_PANELS) ("Expert to Verbose: unknown WStackPage\n");
@@ -599,7 +591,7 @@ if( raisedWidget == vDescriptionPageWidget )
 void MPIWizardPanel::eDescriptionPageNextButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("eDescriptionPageNextButtonSelected() \n");
-    MPIWizardPanelStack->raiseWidget(eParameterPageWidget);
+    mainWidgetStack->raiseWidget(eParameterPageWidget);
 }
 
 void MPIWizardPanel::eDescriptionPageStartButtonSelected()
@@ -615,7 +607,7 @@ nprintf(DEBUG_PANELS) ("eDescriptionPageStartButtonSelected() \n");
 void MPIWizardPanel::eParameterPageBackButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("eParameterPageBackButtonSelected() \n");
-    MPIWizardPanelStack->raiseWidget(eDescriptionPageWidget);
+    mainWidgetStack->raiseWidget(eDescriptionPageWidget);
 }
 
 void MPIWizardPanel::eParameterPageNextButtonSelected()
@@ -625,7 +617,7 @@ nprintf(DEBUG_PANELS) ("eParameterPageNextButtonSelected() \n");
 
   eUpdateAttachOrLoadPageWidget();
 
-  MPIWizardPanelStack->raiseWidget(eAttachOrLoadPageWidget);
+  mainWidgetStack->raiseWidget(eAttachOrLoadPageWidget);
 }
 
 void MPIWizardPanel::eParameterPageResetButtonSelected()
@@ -636,7 +628,7 @@ nprintf(DEBUG_PANELS) ("eParameterPageResetButtonSelected() \n");
 void MPIWizardPanel::eSummaryPageBackButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("eSummaryPageBackButtonSelected() \n");
-    MPIWizardPanelStack->raiseWidget(eAttachOrLoadPageWidget);
+    mainWidgetStack->raiseWidget(eAttachOrLoadPageWidget);
 }
 
 void MPIWizardPanel::eSummaryPageFinishButtonSelected()
@@ -650,7 +642,7 @@ nprintf(DEBUG_PANELS) ("eSummaryPageFinishButtonSelected() \n");
 void MPIWizardPanel::eAttachOrLoadPageBackButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("eAttachOrLoadPageBackButtonSelected() \n");
-    MPIWizardPanelStack->raiseWidget(eParameterPageWidget);
+    mainWidgetStack->raiseWidget(eParameterPageWidget);
 }
 
 void MPIWizardPanel::eAttachOrLoadPageResetButtonSelected()
@@ -727,7 +719,7 @@ char buffer[2048];
 
   eSummaryPageFinishLabel->setText( tr( buffer ) );
 
-  MPIWizardPanelStack->raiseWidget(eSummaryPageWidget);
+  mainWidgetStack->raiseWidget(eSummaryPageWidget);
 }
 // End  advanced (expert) AttachOrLoad callbacks
 
@@ -735,7 +727,7 @@ void MPIWizardPanel::vDescriptionPageNextButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("vDescriptionPageNextButtonSelected() \n");
 
-    MPIWizardPanelStack->raiseWidget(vParameterPageWidget);
+    mainWidgetStack->raiseWidget(vParameterPageWidget);
 }
 
 void MPIWizardPanel::vDescriptionPageStartButtonSelected()
@@ -761,7 +753,7 @@ nprintf(DEBUG_PANELS) ("eParameterPageSampleRateTextReturnPressed() \n");
 void MPIWizardPanel::vParameterPageBackButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("vParameterPageBackButtonSelected() \n");
-    MPIWizardPanelStack->raiseWidget(vDescriptionPageWidget);
+    mainWidgetStack->raiseWidget(vDescriptionPageWidget);
 }
 
 void MPIWizardPanel::vParameterPageNextButtonSelected()
@@ -771,7 +763,7 @@ nprintf(DEBUG_PANELS) ("vParameterPageNextButtonSelected() \n");
 
   vUpdateAttachOrLoadPageWidget();
 
-  MPIWizardPanelStack->raiseWidget(vAttachOrLoadPageWidget);
+  mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
 }
 
 void MPIWizardPanel::vParameterPageResetButtonSelected()
@@ -782,7 +774,7 @@ nprintf(DEBUG_PANELS) ("vParameterPageResetButtonSelected() \n");
 void MPIWizardPanel::vAttachOrLoadPageBackButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("vAttachOrLoadPageBackButtonSelected() \n");
-    MPIWizardPanelStack->raiseWidget(vParameterPageWidget);
+    mainWidgetStack->raiseWidget(vParameterPageWidget);
 }
 
 void MPIWizardPanel::vAttachOrLoadPageResetButtonSelected()
@@ -857,9 +849,9 @@ char buffer[2048];
   }
 
   vSummaryPageFinishLabel->setText( tr( buffer ) );
-  MPIWizardPanelStack->raiseWidget(2);
+  mainWidgetStack->raiseWidget(2);
 
-    MPIWizardPanelStack->raiseWidget(vSummaryPageWidget);
+    mainWidgetStack->raiseWidget(vSummaryPageWidget);
 }
 // End verbose AttachOrLoad callbacks
 
@@ -867,7 +859,7 @@ char buffer[2048];
 void MPIWizardPanel::vSummaryPageBackButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("vSummaryPageBackButtonSelected() \n");
-    MPIWizardPanelStack->raiseWidget(vAttachOrLoadPageWidget);
+    mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
 }
 
 void MPIWizardPanel::vSummaryPageFinishButtonSelected()
@@ -1078,6 +1070,8 @@ MPIWizardPanel::handleSizeEvent( QResizeEvent *e )
   height=getBaseWidgetFrame()->height();
 
 
-  sv->resize(width, height);
+  sv->resize(width, height);  // this line is correct..
+// sv->resizeContents(800,450); // nope.
+//  mainFrame->resize(800,400); // nope...
 }
 

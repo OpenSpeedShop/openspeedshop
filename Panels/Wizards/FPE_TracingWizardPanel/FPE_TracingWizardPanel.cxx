@@ -1,5 +1,4 @@
 #include "FPE_TracingWizardPanel.hxx"   // Change this to your new class header file name
-
 #include "PanelContainer.hxx"   // Do not remove
 #include "plugin_entry_point.hxx"   // Do not remove
 #include "AttachProcessDialog.hxx"
@@ -32,7 +31,8 @@
 
 #include "LoadAttachObject.hxx"
 
-#include "FPE_TraceDescription.hxx"
+#include "FPE_TracingDescription.hxx"
+
 
 /*!  FPE_TracingWizardPanel Class
      This class is used by the script mknewpanel to create a new work area
@@ -58,33 +58,28 @@ FPE_TracingWizardPanel::FPE_TracingWizardPanel()
 FPE_TracingWizardPanel::FPE_TracingWizardPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
 {
   nprintf(DEBUG_CONST_DESTRUCT) ("FPE_TracingWizardPanel::FPE_TracingWizardPanel() constructor called\n");
-sv = new QScrollView(getBaseWidgetFrame(), "scrollview");
-sv->setResizePolicy( QScrollView::Manual );
-
-  panelLayout = new QHBoxLayout( sv->viewport(), 1, 2, getName() );
 
     if ( !getName() )
-	setName( "Floating point tracing" );
+	setName( "FPE Tracing" );
 
+sv = new QScrollView(getBaseWidgetFrame(), "scrollview");
+sv->setResizePolicy( QScrollView::Manual );
     // I'm not calculating this, but rather just setting a "reasonable"
     // size.   Eventually this should be calculated.
     sv->resize(700,400);
-    sv->resizeContents(750,450);
+    sv->resizeContents(800,450);
 
+    FPE_TracingFormLayout = new QVBoxLayout( sv->viewport(), 1, 2, getName() );
 
+    mainFrame = new QFrame( sv->viewport(), "mainFrame" );
+    mainFrame->setFrameShape( QFrame::StyledPanel );
+    mainFrame->setFrameShadow( QFrame::Raised );
+    mainFrameLayout = new QVBoxLayout( mainFrame, 11, 6, "mainFrameLayout"); 
 
-    topWidget = new QWidget( sv->viewport(), "topWidget" );
-    topLayout = new QVBoxLayout( topWidget, 11, 6, "topLayout"); 
-
-    topFrame = new QFrame( topWidget, "topFrame" );
-    topFrame->setFrameShape( QFrame::StyledPanel );
-    topFrame->setFrameShadow( QFrame::Raised );
-    topFrameLayout = new QVBoxLayout( topFrame, 11, 6, "topFrameLayout"); 
-
-    FPE_TracingWizardPanelStack = new QWidgetStack( topFrame, "FPE_TracingWizardPanelStack" );
+    mainWidgetStack = new QWidgetStack( mainFrame, "mainWidgetStack" );
 
 // Begin: verbose description page
-    vDescriptionPageWidget = new QWidget( FPE_TracingWizardPanelStack, "vDescriptionPageWidget" );
+    vDescriptionPageWidget = new QWidget( mainWidgetStack, "vDescriptionPageWidget" );
     vDescriptionPageLayout = new QVBoxLayout( vDescriptionPageWidget, 11, 6, "vDescriptionPageLayout"); 
 
     vDescriptionPageTitleLabel = new QLabel( vDescriptionPageWidget, "vDescriptionPageTitleLabel" );
@@ -108,11 +103,11 @@ sv->setResizePolicy( QScrollView::Manual );
     vDescriptionPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vDescriptionPageNextButton->sizePolicy().hasHeightForWidth() ) );
     vDescriptionPageButtonLayout->addWidget( vDescriptionPageNextButton );
     vDescriptionPageLayout->addLayout( vDescriptionPageButtonLayout );
-    FPE_TracingWizardPanelStack->addWidget( vDescriptionPageWidget, 0 );
+    mainWidgetStack->addWidget( vDescriptionPageWidget, 0 );
 // End: verbose description page
 
 // Begin: verbose parameter page
-    vParameterPageWidget = new QWidget( FPE_TracingWizardPanelStack, "vParameterPageWidget" );
+    vParameterPageWidget = new QWidget( mainWidgetStack, "vParameterPageWidget" );
     vParameterPageLayout = new QVBoxLayout( vParameterPageWidget, 11, 6, "vParameterPageLayout"); 
 
     vParameterPageDescriptionLabel = new QLabel( vParameterPageWidget, "vParameterPageDescriptionLabel" );
@@ -159,11 +154,11 @@ sv->setResizePolicy( QScrollView::Manual );
     vParameterPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vParameterPageNextButton->sizePolicy().hasHeightForWidth() ) );
     vParameterPageButtonLayout->addWidget( vParameterPageNextButton );
     vParameterPageLayout->addLayout( vParameterPageButtonLayout );
-    FPE_TracingWizardPanelStack->addWidget( vParameterPageWidget, 1 );
+    mainWidgetStack->addWidget( vParameterPageWidget, 1 );
 // End: verbose parameter page
 
 // Begin: AttachOrLoad page
-    vAttachOrLoadPageWidget = new QWidget( FPE_TracingWizardPanelStack, "vAttachOrLoadPageWidget" );
+    vAttachOrLoadPageWidget = new QWidget( mainWidgetStack, "vAttachOrLoadPageWidget" );
     vAttachOrLoadPageLayout = new QVBoxLayout( vAttachOrLoadPageWidget, 11, 6, "vAttachOrLoadPageLayout"); 
 
     vAttachOrLoadPageDescriptionLabel = new QLabel( vAttachOrLoadPageWidget, "vAttachOrLoadPageDescriptionLabel" );
@@ -214,11 +209,11 @@ sv->setResizePolicy( QScrollView::Manual );
     vAttachOrLoadPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageNextButton->sizePolicy().hasHeightForWidth() ) );
     vAttachOrLoadPageButtonLayout->addWidget( vAttachOrLoadPageNextButton );
     vAttachOrLoadPageLayout->addLayout( vAttachOrLoadPageButtonLayout );
-    FPE_TracingWizardPanelStack->addWidget( vAttachOrLoadPageWidget, 1 );
+    mainWidgetStack->addWidget( vAttachOrLoadPageWidget, 1 );
 // End: AttachOrLoad page
 
 // Begin: verbose summary page
-    vSummaryPageWidget = new QWidget( FPE_TracingWizardPanelStack, "vSummaryPageWidget" );
+    vSummaryPageWidget = new QWidget( mainWidgetStack, "vSummaryPageWidget" );
     vSummaryPageLayout = new QVBoxLayout( vSummaryPageWidget, 11, 6, "vSummaryPageLayout"); 
 
     vSummaryPageLabelLayout = new QVBoxLayout( 0, 0, 6, "vSummaryPageLabelLayout"); 
@@ -242,12 +237,12 @@ sv->setResizePolicy( QScrollView::Manual );
     vSummaryPageFinishButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vSummaryPageFinishButton->sizePolicy().hasHeightForWidth() ) );
     vSummaryPageButtonLayout->addWidget( vSummaryPageFinishButton );
     vSummaryPageLayout->addLayout( vSummaryPageButtonLayout );
-    FPE_TracingWizardPanelStack->addWidget( vSummaryPageWidget, 3 );
+    mainWidgetStack->addWidget( vSummaryPageWidget, 3 );
 // End: verbose summary page
 
 // The advanced (expert) wording starts here....
 // Begin: advance (expert) description page
-    eDescriptionPageWidget = new QWidget( FPE_TracingWizardPanelStack, "eDescriptionPageWidget" );
+    eDescriptionPageWidget = new QWidget( mainWidgetStack, "eDescriptionPageWidget" );
     eDescriptionPageLayout = new QVBoxLayout( eDescriptionPageWidget, 11, 6, "eDescriptionPageLayout"); 
 
     eDescriptionPageTitleLabel = new QLabel( eDescriptionPageWidget, "eDescriptionPageTitleLabel" );
@@ -270,11 +265,11 @@ sv->setResizePolicy( QScrollView::Manual );
     eDescriptionPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eDescriptionPageNextButton->sizePolicy().hasHeightForWidth() ) );
     eDescriptionPageButtonLayout->addWidget( eDescriptionPageNextButton );
     eDescriptionPageLayout->addLayout( eDescriptionPageButtonLayout );
-    FPE_TracingWizardPanelStack->addWidget( eDescriptionPageWidget, 4 );
+    mainWidgetStack->addWidget( eDescriptionPageWidget, 4 );
 // End: advance (expert) description page
 
 // Begin: advance (expert) parameter page
-    eParameterPageWidget = new QWidget( FPE_TracingWizardPanelStack, "eParameterPageWidget" );
+    eParameterPageWidget = new QWidget( mainWidgetStack, "eParameterPageWidget" );
     eParameterPageLayout = new QVBoxLayout( eParameterPageWidget, 11, 6, "eParameterPageLayout"); 
 
     eParameterPageDescriptionLabel = new QLabel( eParameterPageWidget, "eParameterPageDescriptionLabel" );
@@ -321,12 +316,12 @@ sv->setResizePolicy( QScrollView::Manual );
     eParameterPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eParameterPageNextButton->sizePolicy().hasHeightForWidth() ) );
     eParameterPageButtonLayout->addWidget( eParameterPageNextButton );
     eParameterPageLayout->addLayout( eParameterPageButtonLayout );
-    FPE_TracingWizardPanelStack->addWidget( eParameterPageWidget, 5 );
+    mainWidgetStack->addWidget( eParameterPageWidget, 5 );
 // End: advanced (exper) parameter page
 
 
 // Begin: advance (expert) attach/load page
-    eAttachOrLoadPageWidget = new QWidget( FPE_TracingWizardPanelStack, "eAttachOrLoadPageWidget" );
+    eAttachOrLoadPageWidget = new QWidget( mainWidgetStack, "eAttachOrLoadPageWidget" );
     eAttachOrLoadPageLayout = new QVBoxLayout( eAttachOrLoadPageWidget, 11, 6, "eAttachOrLoadPageLayout"); 
 
     eAttachOrLoadPageDescriptionLabel = new QLabel( eAttachOrLoadPageWidget, "eAttachOrLoadPageDescriptionLabel" );
@@ -376,11 +371,11 @@ eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageExecutableLabel
     eAttachOrLoadPageNextButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eAttachOrLoadPageNextButton->sizePolicy().hasHeightForWidth() ) );
     eAttachOrLoadPageButtonLayout->addWidget( eAttachOrLoadPageNextButton );
     eAttachOrLoadPageLayout->addLayout( eAttachOrLoadPageButtonLayout );
-    FPE_TracingWizardPanelStack->addWidget( eAttachOrLoadPageWidget, 5 );
+    mainWidgetStack->addWidget( eAttachOrLoadPageWidget, 5 );
 // End: advanced (expert) attach/load page
 
 // Begin: advance (expert) summary page
-    eSummaryPageWidget = new QWidget( FPE_TracingWizardPanelStack, "eSummaryPageWidget" );
+    eSummaryPageWidget = new QWidget( mainWidgetStack, "eSummaryPageWidget" );
     eSummaryPageLayout = new QVBoxLayout( eSummaryPageWidget, 11, 6, "eSummaryPageLayout"); 
 
     eSummaryPageFinishLabel = new QLabel( eSummaryPageWidget, "eSummaryPageFinishLabel" );
@@ -399,28 +394,28 @@ eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageExecutableLabel
     eSummaryPageFinishButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eSummaryPageFinishButton->sizePolicy().hasHeightForWidth() ) );
     eSummaryPageButtonLayout->addWidget( eSummaryPageFinishButton );
     eSummaryPageLayout->addLayout( eSummaryPageButtonLayout );
-    FPE_TracingWizardPanelStack->addWidget( eSummaryPageWidget, 7 );
-    topFrameLayout->addWidget( FPE_TracingWizardPanelStack );
-    topLayout->addWidget( topFrame );
+    mainWidgetStack->addWidget( eSummaryPageWidget, 7 );
+    mainFrameLayout->addWidget( mainWidgetStack );
+    FPE_TracingFormLayout->addWidget( mainFrame );
 // End: advance (expert) summary page
 
 
 // Begin: add the bottom portion: The "wizard mode" and "brought to you by"
     bottomLayout = new QHBoxLayout( 0, 0, 6, "bottomLayout"); 
 
-    wizardMode = new QCheckBox( topWidget, "wizardMode" );
+    wizardMode = new QCheckBox( sv->viewport(), "wizardMode" );
     wizardMode->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, wizardMode->sizePolicy().hasHeightForWidth() ) );
     wizardMode->setChecked( TRUE );
     bottomLayout->addWidget( wizardMode );
     bottomSpacer = new QSpacerItem( 40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
     bottomLayout->addItem( bottomSpacer );
 
-    broughtToYouByLabel = new QLabel( topWidget, "broughtToYouByLabel" );
+    broughtToYouByLabel = new QLabel( sv->viewport(), "broughtToYouByLabel" );
     broughtToYouByLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, broughtToYouByLabel->sizePolicy().hasHeightForWidth() ) );
     bottomLayout->addWidget( broughtToYouByLabel );
 // End: add the bottom portion: The "wizard mode" and "brought to you by"
 
-    topLayout->addLayout( bottomLayout );
+   FPE_TracingFormLayout->addLayout( bottomLayout );
     languageChange();
     resize( QSize(631, 508).expandedTo(minimumSizeHint()) );
     clearWState( WState_Polished );
@@ -453,9 +448,6 @@ eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageExecutableLabel
     connect( vSummaryPageBackButton, SIGNAL( clicked() ), this, SLOT( vSummaryPageBackButtonSelected() ) );
     connect( vSummaryPageFinishButton, SIGNAL( clicked() ), this, SLOT( vSummaryPageFinishButtonSelected() ) );
     connect( wizardMode, SIGNAL( clicked() ), this, SLOT( wizardModeSelected() ) );
-
-  // This next line makes it all magically appear and resize correctly.
-  panelLayout->addWidget(topWidget);
 
   sv->viewport()->setBackgroundColor(getBaseWidgetFrame()->backgroundColor() );
 }
@@ -518,7 +510,7 @@ FPE_TracingWizardPanel::broadcast(char *msg)
 
 void FPE_TracingWizardPanel::wizardModeSelected()
 {
-  QWidget *raisedWidget = FPE_TracingWizardPanelStack->visibleWidget();
+  QWidget *raisedWidget = mainWidgetStack->visibleWidget();
 if( raisedWidget == vDescriptionPageWidget )
 {
     nprintf(DEBUG_PANELS) ("vDescriptionPageWidget\n");
@@ -545,19 +537,19 @@ if( raisedWidget == vDescriptionPageWidget )
     if( raisedWidget  == eDescriptionPageWidget )
     {
         nprintf(DEBUG_PANELS) ("eDescriptionPageWidget\n");
-        FPE_TracingWizardPanelStack->raiseWidget(vDescriptionPageWidget);
+        mainWidgetStack->raiseWidget(vDescriptionPageWidget);
     } else if( raisedWidget == eParameterPageWidget )
     {
         nprintf(DEBUG_PANELS) ("eParameterPageWidget\n");
-        FPE_TracingWizardPanelStack->raiseWidget(vParameterPageWidget);
+        mainWidgetStack->raiseWidget(vParameterPageWidget);
     } else if( raisedWidget == eAttachOrLoadPageWidget )
     {
         nprintf(DEBUG_PANELS) ("eAttachOrLoadPageWidget\n");
-        FPE_TracingWizardPanelStack->raiseWidget(vAttachOrLoadPageWidget);
+        mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
     } else if( raisedWidget == eSummaryPageWidget )
     {
         nprintf(DEBUG_PANELS) ("eSummaryPageWidget\n");
-        FPE_TracingWizardPanelStack->raiseWidget(vSummaryPageWidget);
+        mainWidgetStack->raiseWidget(vSummaryPageWidget);
     } else
     {
         nprintf(DEBUG_PANELS) ("Verbose to Expert: unknown WStackPage\n");
@@ -568,19 +560,19 @@ if( raisedWidget == vDescriptionPageWidget )
     if( raisedWidget == vDescriptionPageWidget )
     {
         nprintf(DEBUG_PANELS) ("vDescriptionPageWidget\n");
-        FPE_TracingWizardPanelStack->raiseWidget(eDescriptionPageWidget);
+        mainWidgetStack->raiseWidget(eDescriptionPageWidget);
     } else if( raisedWidget ==  vParameterPageWidget )
     {
         nprintf(DEBUG_PANELS) ("vParameterPageWidget\n");
-        FPE_TracingWizardPanelStack->raiseWidget(eParameterPageWidget);
+        mainWidgetStack->raiseWidget(eParameterPageWidget);
     } else if( raisedWidget ==  vAttachOrLoadPageWidget )
     {
         nprintf(DEBUG_PANELS) ("vAttachOrLoadPageWidget\n");
-        FPE_TracingWizardPanelStack->raiseWidget(eAttachOrLoadPageWidget);
+        mainWidgetStack->raiseWidget(eAttachOrLoadPageWidget);
     } else if( raisedWidget == vSummaryPageWidget )
     {
         nprintf(DEBUG_PANELS) ("vSummaryPageWidget\n");
-        FPE_TracingWizardPanelStack->raiseWidget(eSummaryPageWidget);
+        mainWidgetStack->raiseWidget(eSummaryPageWidget);
     } else
     {
         nprintf(DEBUG_PANELS) ("Expert to Verbose: unknown WStackPage\n");
@@ -599,7 +591,7 @@ if( raisedWidget == vDescriptionPageWidget )
 void FPE_TracingWizardPanel::eDescriptionPageNextButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("eDescriptionPageNextButtonSelected() \n");
-    FPE_TracingWizardPanelStack->raiseWidget(eParameterPageWidget);
+    mainWidgetStack->raiseWidget(eParameterPageWidget);
 }
 
 void FPE_TracingWizardPanel::eDescriptionPageStartButtonSelected()
@@ -615,7 +607,7 @@ nprintf(DEBUG_PANELS) ("eDescriptionPageStartButtonSelected() \n");
 void FPE_TracingWizardPanel::eParameterPageBackButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("eParameterPageBackButtonSelected() \n");
-    FPE_TracingWizardPanelStack->raiseWidget(eDescriptionPageWidget);
+    mainWidgetStack->raiseWidget(eDescriptionPageWidget);
 }
 
 void FPE_TracingWizardPanel::eParameterPageNextButtonSelected()
@@ -625,7 +617,7 @@ nprintf(DEBUG_PANELS) ("eParameterPageNextButtonSelected() \n");
 
   eUpdateAttachOrLoadPageWidget();
 
-  FPE_TracingWizardPanelStack->raiseWidget(eAttachOrLoadPageWidget);
+  mainWidgetStack->raiseWidget(eAttachOrLoadPageWidget);
 }
 
 void FPE_TracingWizardPanel::eParameterPageResetButtonSelected()
@@ -636,7 +628,7 @@ nprintf(DEBUG_PANELS) ("eParameterPageResetButtonSelected() \n");
 void FPE_TracingWizardPanel::eSummaryPageBackButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("eSummaryPageBackButtonSelected() \n");
-    FPE_TracingWizardPanelStack->raiseWidget(eAttachOrLoadPageWidget);
+    mainWidgetStack->raiseWidget(eAttachOrLoadPageWidget);
 }
 
 void FPE_TracingWizardPanel::eSummaryPageFinishButtonSelected()
@@ -650,7 +642,7 @@ nprintf(DEBUG_PANELS) ("eSummaryPageFinishButtonSelected() \n");
 void FPE_TracingWizardPanel::eAttachOrLoadPageBackButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("eAttachOrLoadPageBackButtonSelected() \n");
-    FPE_TracingWizardPanelStack->raiseWidget(eParameterPageWidget);
+    mainWidgetStack->raiseWidget(eParameterPageWidget);
 }
 
 void FPE_TracingWizardPanel::eAttachOrLoadPageResetButtonSelected()
@@ -727,7 +719,7 @@ char buffer[2048];
 
   eSummaryPageFinishLabel->setText( tr( buffer ) );
 
-  FPE_TracingWizardPanelStack->raiseWidget(eSummaryPageWidget);
+  mainWidgetStack->raiseWidget(eSummaryPageWidget);
 }
 // End  advanced (expert) AttachOrLoad callbacks
 
@@ -735,7 +727,7 @@ void FPE_TracingWizardPanel::vDescriptionPageNextButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("vDescriptionPageNextButtonSelected() \n");
 
-    FPE_TracingWizardPanelStack->raiseWidget(vParameterPageWidget);
+    mainWidgetStack->raiseWidget(vParameterPageWidget);
 }
 
 void FPE_TracingWizardPanel::vDescriptionPageStartButtonSelected()
@@ -761,7 +753,7 @@ nprintf(DEBUG_PANELS) ("eParameterPageSampleRateTextReturnPressed() \n");
 void FPE_TracingWizardPanel::vParameterPageBackButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("vParameterPageBackButtonSelected() \n");
-    FPE_TracingWizardPanelStack->raiseWidget(vDescriptionPageWidget);
+    mainWidgetStack->raiseWidget(vDescriptionPageWidget);
 }
 
 void FPE_TracingWizardPanel::vParameterPageNextButtonSelected()
@@ -771,7 +763,7 @@ nprintf(DEBUG_PANELS) ("vParameterPageNextButtonSelected() \n");
 
   vUpdateAttachOrLoadPageWidget();
 
-  FPE_TracingWizardPanelStack->raiseWidget(vAttachOrLoadPageWidget);
+  mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
 }
 
 void FPE_TracingWizardPanel::vParameterPageResetButtonSelected()
@@ -782,7 +774,7 @@ nprintf(DEBUG_PANELS) ("vParameterPageResetButtonSelected() \n");
 void FPE_TracingWizardPanel::vAttachOrLoadPageBackButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("vAttachOrLoadPageBackButtonSelected() \n");
-    FPE_TracingWizardPanelStack->raiseWidget(vParameterPageWidget);
+    mainWidgetStack->raiseWidget(vParameterPageWidget);
 }
 
 void FPE_TracingWizardPanel::vAttachOrLoadPageResetButtonSelected()
@@ -840,7 +832,7 @@ char buffer[2048];
     {
       return;
     }
-    sprintf(buffer, "<p align=\"left\">You've selected a Floating point tracing experiment for process \"%s\" running on host \"%s\".  Futher you've chosed a sample rate of \"%s\" milliseconds.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"FPE_Tracing\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->pidStr.ascii(), "localhost", vParameterPageSampleRateText->text().ascii() );
+    sprintf(buffer, "<p align=\"left\">You've selected a FPE Tracing experiment for process \"%s\" running on host \"%s\".  Futher you've chosed a sample rate of \"%s\" milliseconds.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"FPE_Tracing\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->pidStr.ascii(), "localhost", vParameterPageSampleRateText->text().ascii() );
   }
   if( vAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
   {
@@ -853,13 +845,13 @@ char buffer[2048];
     {
       return;
     }
-    sprintf(buffer, "<p align=\"left\">You've selected a Floating point tracing experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%s\" milliseconds.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"FPE_Tracing\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), "localhost", vParameterPageSampleRateText->text().ascii() );
+    sprintf(buffer, "<p align=\"left\">You've selected a FPE Tracing experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%s\" milliseconds.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"FPE_Tracing\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), "localhost", vParameterPageSampleRateText->text().ascii() );
   }
 
   vSummaryPageFinishLabel->setText( tr( buffer ) );
-  FPE_TracingWizardPanelStack->raiseWidget(2);
+  mainWidgetStack->raiseWidget(2);
 
-    FPE_TracingWizardPanelStack->raiseWidget(vSummaryPageWidget);
+    mainWidgetStack->raiseWidget(vSummaryPageWidget);
 }
 // End verbose AttachOrLoad callbacks
 
@@ -867,7 +859,7 @@ char buffer[2048];
 void FPE_TracingWizardPanel::vSummaryPageBackButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("vSummaryPageBackButtonSelected() \n");
-    FPE_TracingWizardPanelStack->raiseWidget(vAttachOrLoadPageWidget);
+    mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
 }
 
 void FPE_TracingWizardPanel::vSummaryPageFinishButtonSelected()
@@ -905,22 +897,22 @@ nprintf(DEBUG_PANELS) ("vSummaryPageFinishButtonSelected() \n");
 void
 FPE_TracingWizardPanel::languageChange()
 {
-    setCaption( tr( "Floating point tracing Wizard Panel" ) );
-    vDescriptionPageTitleLabel->setText( tr( "<h1>Floating point tracing Wizard</h1>" ) );
-    vDescriptionPageText->setText( tr( vFPE_TracingDescripition) );
+    setCaption( tr( "FPE Tracing Wizard Panel" ) );
+    vDescriptionPageTitleLabel->setText( tr( "<h1>FPE Tracing Wizard</h1>" ) );
+    vDescriptionPageText->setText( tr( vFPE_TracingDescripition ) );
     vDescriptionPageStartButton->setText( tr( "<< Start" ) );
     QToolTip::add( vDescriptionPageStartButton, tr( "Takes you back to the Intro Wizard so you can make a different selection." ) );
     vDescriptionPageNextButton->setText( tr( "> Next" ) );
     QToolTip::add( vDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
     vParameterPageDescriptionLabel->setText( tr( "The following options (paramaters) are available to adjust.   These are the options the collector has exported.<br><br>\n"
 "The smaller the number used for the sample rate, the more\n"
-"Floating point tracing detail will be show.   However, the trade off will be slower\n"
+"FPE Tracing detail will be show.   However, the trade off will be slower\n"
 "performance and a larger data file.<br><br>\n"
 "It may take a little expermenting to find the right setting for your \n"
 "particular executable.   We suggest starting with the default setting\n"
 "of 10." ) );
     vParameterPageSampleRateHeaderLabel->setText( tr( "You can set the following option(s):" ) );
-    vParameterPageSampleRateLabel->setText( tr( "Floating point tracing rate:" ) );
+    vParameterPageSampleRateLabel->setText( tr( "FPE Tracing rate:" ) );
     vParameterPageSampleRateText->setText( tr( "10" ) );
     QToolTip::add( vParameterPageSampleRateText, tr( "The rate to sample.   (Default 10 milliseconds.)" ) );
     vParameterPageBackButton->setText( tr( "< Back" ) );
@@ -940,19 +932,19 @@ QToolTip::add( vAttachOrLoadPageResetButton, tr( "This clears all settings resto
     vAttachOrLoadPageNextButton->setText( tr( "> Next" ) );
     QToolTip::add( vAttachOrLoadPageNextButton, tr( "Advance to the next wizard page." ) );
     vSummaryPageFinishLabel->setText( tr( "<p align=\"left\">\n"
-"You've selected a Floating point tracing experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%d\" milliseconds.<br><br>To complete the exeriment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"FPE_Tracing\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>" ) );
+"You've selected a FPE Tracing experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%d\" milliseconds.<br><br>To complete the exeriment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"FPE_Tracing\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>" ) );
     vSummaryPageBackButton->setText( tr( "< Back" ) );
     QToolTip::add( vSummaryPageBackButton, tr( "Takes you back one page." ) );
     vSummaryPageFinishButton->setText( tr( "Finish..." ) );
     QToolTip::add( vSummaryPageFinishButton, tr( "Finishes loading the wizard information and brings up a \"FPE_Tracing\" panel" ) );
-    eDescriptionPageTitleLabel->setText( tr( "<h1>Floating point tracing Wizard</h1>" ) );
-    eDescriptionPageText->setText( tr( eFPE_TracingDescripition) );
+    eDescriptionPageTitleLabel->setText( tr( "<h1>FPE Tracing Wizard</h1>" ) );
+    eDescriptionPageText->setText( tr( eFPE_TracingDescripition ) );
     eDescriptionPageStartButton->setText( tr( "<< Start" ) );
     eDescriptionPageNextButton->setText( tr( "> Next" ) );
     QToolTip::add( eDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
     eParameterPageDescriptionLabel->setText( tr( "The following options (paramaters) are available to adjust.     <br>These are the options the collector has exported." ) );
     eParameterPageSampleRateHeaderLabel->setText( tr( "You can set the following option(s):" ) );
-    eParameterPageSampleRateLabel->setText( tr( "Floating point tracing rate:" ) );
+    eParameterPageSampleRateLabel->setText( tr( "FPE Tracing rate:" ) );
     eParameterPageSampleRateText->setText( tr( "10" ) );
     QToolTip::add( eParameterPageSampleRateText, tr( "The rate to sample.   (Default 10 milliseconds.)" ) );
     eParameterPageBackButton->setText( tr( "< Back" ) );
@@ -972,11 +964,11 @@ QToolTip::add( eAttachOrLoadPageResetButton, tr( "This clears all settings resto
     QToolTip::add( eAttachOrLoadPageNextButton, tr( "Advance to the next wizard page." ) );
 
     eSummaryPageFinishLabel->setText( tr( "<p align=\"left\">\n"
-"You've selected a Floating point tracing experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%d\" milliseconds.<br><br></p>" ) );
+"You've selected a FPE Tracing experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%d\" milliseconds.<br><br></p>" ) );
     eSummaryPageBackButton->setText( tr( "< Back" ) );
     QToolTip::add( eSummaryPageBackButton, tr( "Takes you back one page." ) );
     eSummaryPageFinishButton->setText( tr( "Finish..." ) );
-    QToolTip::add( eSummaryPageFinishButton, tr( "Finishes loading the wizard information and brings up a \"Floating point tracing\" panel" ) );
+    QToolTip::add( eSummaryPageFinishButton, tr( "Finishes loading the wizard information and brings up a \"FPE Tracing\" panel" ) );
     wizardMode->setText( tr( "Verbose Wizard Mode" ) );
     broughtToYouByLabel->setText( tr( "Brought to you by SGI (SiliconGraphics)" ) );
 }
@@ -1078,6 +1070,8 @@ FPE_TracingWizardPanel::handleSizeEvent( QResizeEvent *e )
   height=getBaseWidgetFrame()->height();
 
 
-  sv->resize(width, height);
+  sv->resize(width, height);  // this line is correct..
+// sv->resizeContents(800,450); // nope.
+//  mainFrame->resize(800,400); // nope...
 }
 

@@ -1,5 +1,5 @@
-#ifndef FPETRACINGWIZARDPANEL
-#define FPETRACINGWIZARDPANEL
+#ifndef PCSAMPLEWIZARDPANEL_H
+#define PCSAMPLEWIZARDPANEL_H
 #include "Panel.hxx"           // Do not remove
 
 class PanelContainer;   // Do not remove
@@ -86,10 +86,9 @@ public:
   int broadcast(char *msg);
 
 
-  QHBoxLayout * panelLayout;
-  QWidget* topWidget;
-    QFrame* topFrame;
-    QWidgetStack* FPE_TracingWizardPanelStack;
+  QVBoxLayout * FPE_TracingFormLayout;
+    QFrame* mainFrame;
+    QWidgetStack* mainWidgetStack;
     QWidget* vDescriptionPageWidget;
     QLabel* vDescriptionPageTitleLabel;
     QTextEdit* vDescriptionPageText;
@@ -171,8 +170,7 @@ public slots:
     virtual void wizardModeSelected();
 
 protected:
-    QVBoxLayout* topLayout;
-    QVBoxLayout* topFrameLayout;
+    QVBoxLayout* mainFrameLayout;
     QVBoxLayout* vDescriptionPageLayout;
     QHBoxLayout* vDescriptionPageButtonLayout;
     QSpacerItem* vDescriptionPageButtonSpacer;
@@ -233,4 +231,4 @@ private:
     QString sampleRate;
 
 };
-#endif // FPETRACINGWIZARDPANEL
+#endif // PCSAMPLEWIZARDPANEL_H
