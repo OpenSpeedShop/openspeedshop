@@ -339,11 +339,19 @@ Process::Process(const std::string& host, const pid_t& pid) :
     // Allocate a new DPCL process handle
     dm_process = new ::Process(dm_host.c_str(), dm_pid);
     Assert(dm_process != NULL);
-    
+
+    // NOTE: It appears that either ASC_invalid_pid or ASC_unknown_status are
+    //       returned when the specified process doesn't exist. The former makes
+    //       sense, but the later not so much. It appears to be caused when the
+    //       the communication daemon sends a response to the client library
+    //       that doesn't contain the properly formatted response data. Why
+    //       would THAT occur?
+
     // Ask DPCL to connect and attach to the process
     MainLoop::suspend();    
-    AisStatus retval = dm_process->bconnect();
-    if(retval.status() == ASC_failure) {
+    AisStatus retval = dm_process->bconnect();    
+    if((retval.status() == ASC_invalid_pid) ||
+       (retval.status() == ASC_unknown_status)) {
 	MainLoop::resume();
 	std::stringstream pid_name;
 	pid_name << dm_pid;
