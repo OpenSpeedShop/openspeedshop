@@ -23,8 +23,7 @@ Documentation</h1>
 <span style="font-family: times new roman,times,serif;">Open/SpeedShop
 is a
 project to provide open source performance analysis tools for a wide
-range of platforms. One of the requirements of the Open/SpeedShop
-project is that Open/SpeedShop support clustering. The project is
+range of platforms. The project is
 designed in such a way as to enable value-added plugins for the open
 source version. These value-added plugins can be the pre-canned
 performance analysis experiments, which contain the experiment specific
@@ -34,8 +33,15 @@ line interface, and GUI software components.&nbsp; Plugins can also be
 written for advanced/enhanced versions of experiment collectors,
 command line interface and GUI analysis tools. These plugins allow the
 Open/SpeedShop performance tool to be enhanced by the open source
-community. <br>
-<br>
+community.&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">Another of the
+requirements of the Open/SpeedShop
+project is that Open/SpeedShop support clustering.&nbsp;&nbsp; The open
+source component, DPCL, is integrated into Open/SpeedShop to provide
+the clustering capability.&nbsp;&nbsp; The use of the Dyninst component
+allows Open/SpeedShop to insert instrumentation and also to attach to
+running processes.&nbsp; See more details in the paragraphs that follow.</span><br>
+<span style="font-family: times new roman,times,serif;"><br>
 <br style="font-family: times new roman,times,serif;">
 <img src="Design.png" title="Open/SpeedShop Design Diagram"
  alt="Open/SpeedShop Design Diagram"
@@ -58,8 +64,7 @@ will be run against create an instance of a performance experiment.<br>
 </span>
 <h3>Dyninst and DPCL<br>
 </h3>
-<span style="font-family: times new roman,times,serif;"></span><span
- style="font-family: times new roman,times,serif;">Dyninst (</span><a
+<span style="font-family: times new roman,times,serif;">Dyninst (</span><a
  href="http://www.dyninst.org/"
  style="font-family: times new roman,times,serif;">http://www.dyninst.org/</a><span
  style="font-family: times new roman,times,serif;">) and&nbsp; DPCL (</span><a
@@ -268,13 +273,14 @@ the future. &nbsp; It also will keep this tool very lightweight as only
 the functionality requested needs to be loaded.<br>
 <br>
 For more information and for pointers into the GUI design see:
-<a href="GUI.html">GUI Overview</a>
+<a href="Panels/html/GUI.html">GUI Overview</a>
 <br>
 <h3>Command Line Interface - CLI<br>
 </h3>
 <br>
-The interactive command line (CLI) tool also uses a similar (to the
-GUI) plugin facility to define it's experiment specific
+The interactive command line (CLI) tool also uses a plugin facility,
+similar to the
+GUI, to define it's experiment specific
 functionality.&nbsp; It will be the CLI's main component's
 responsibility to locate and configure the CLI to interact
 with whatever plugins are currently located on the system.<br>
@@ -290,7 +296,8 @@ output values.<br>
 The
 CLI tool is still being designed and this space will be updated in
 future releases with the appropriate design information.<br>
-<br>
+To view the current design documentation for the CLI tool, see <a
+ href="pcli/html/index.html">CLI design.</a><br>
 <h3>Bproc Support</h3>
 Open/SpeedShop will function on Open/SpeedShop supported Linux systems
 that are running the
@@ -342,7 +349,8 @@ developer to create a collector.&nbsp; This collector module will
 gather performance data from the application by specifying a metric or
 metrics to be collected.&nbsp; If you are writing
 a new performance data collector plugin, start with the page <a
- class="el" href="group__CollectorAPI.html"> Collector Plugin API</a>.<br>
+ class="el" href="libssf/html/group__CollectorAPI.html"> Collector
+Plugin API</a>.<br>
 <h3>API between the Open/SpeedShop Framework component and the
 GUI/CLI tools</h3>
 The API between the Open/SpeedShop Framework component and the GUI/CLI
@@ -353,7 +361,7 @@ other tasks related to controlling the gathering and execution of the
 application or applications.&nbsp; If you are writing
 an application performance tool that will use the
 framework, the best place to start is with the page <a class="el"
- href="group__ToolAPI.html"> Performance Tool API</a>.<br>
+ href="libssf/html/group__ToolAPI.html"> Performance Tool API</a>.<br>
 <h3>API between the Open/SpeedShop Framework component and PAPI</h3>
 The API between the Open/SpeedShop Framework component and PAPI .......<br>
 <h3>API between the DPCL and Dyninst components</h3>
