@@ -109,28 +109,6 @@ StatsPanelBase::updateStatsPanelBaseData(void *expr, int expID, QString experime
 
   }
 
-#ifdef OLDWAY
-  // Sort in decending order
-  bool ok;
-  int columnToSort = getPreferenceColumnToSortLineEdit().toInt(&ok);
-  if( !ok )
-  {
-    columnToSort = 0;
-  }
-  lv->setSorting ( columnToSort, FALSE );
-
-  // Figure out which way to sort
-  bool sortOrder = getPreferenceSortDecending();
-  if( sortOrder == TRUE )
-  {
-    lv->setSortOrder ( Qt::Descending );
-  } else
-  {
-    lv->setSortOrder ( Qt::Ascending );
-  }
-#endif // OLDWAY
-
-
   lv->clear();
 
   frameLayout->addWidget(lv);
@@ -214,52 +192,6 @@ void
 StatsPanelBase::preferencesChanged()
 { 
   dprintf("StatsPanelBase::preferencesChanged\n");
-
-#ifdef OLDWAY
-  bool thereWasAChangeICareAbout = FALSE;
-
-  SortOrder old_sortOrder = lv->sortOrder();
-  bool new_sortOrder = getPreferenceSortDecending();
-
-  if( old_sortOrder != new_sortOrder )
-  {
-    if( new_sortOrder == TRUE )
-    {
-      lv->setSortOrder ( Qt::Descending );
-    } else
-    {
-      lv->setSortOrder ( Qt::Ascending );
-    }
-    thereWasAChangeICareAbout = TRUE;
-  }
-
-
-  bool ok;
-  int new_numberItemsToRead = getPreferenceTopNLineEdit().toInt(&ok);
-  if( ok )
-  {
-    if( new_numberItemsToRead != numberItemsToRead )
-    {
-      numberItemsToRead = new_numberItemsToRead;
-      thereWasAChangeICareAbout = TRUE;
-    }
-  }
-
-  int new_columnToSort = getPreferenceColumnToSortLineEdit().toInt(&ok);
-  if( ok )
-  {
-    int old_columnToSort = lv->sortColumn();
-    if( old_columnToSort != new_columnToSort )
-    {
-      thereWasAChangeICareAbout = TRUE;
-    }
-  }
-
-  if( thereWasAChangeICareAbout )
-  {
-    updateStatsPanelBaseData();
-  }
-#endif // OLDWAY
 } 
 
 
@@ -297,23 +229,6 @@ void
 StatsPanelBase::setNumberVisibleEntries()
 {
   dprintf("setNumberVisibleEntries()\n");
-{
-  bool ok;
-  QString s = QString("%1").arg(numberItemsToRead);
-  QString text = QInputDialog::getText(
-          "Visible Lines", "Enter number visible lines:", QLineEdit::Normal,
-          s, &ok, this );
-  if( ok && !text.isEmpty() )
-  {
-    // user entered something and pressed OK
-    numberItemsToRead = atoi(text.ascii());
-    dprintf ("numberItemsToRead=%d\n", numberItemsToRead);
-    updateStatsPanelBaseData();
-  } else
-  {
-    // user entered nothing or pressed Cancel
-  }
-}
 }
 
 static int cwidth = 0;  // This isn't what I want to do long term.. 
