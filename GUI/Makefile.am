@@ -26,7 +26,7 @@
 # the future tool.   It's basically a main that starts the load of the
 # necessary dynamic libraries (.so's).
 
-bin_PROGRAMS = ftd
+bin_PROGRAMS = ftd doc
 
 ftd_la_CXXFLAGS = -I/usr/include -I.
 
