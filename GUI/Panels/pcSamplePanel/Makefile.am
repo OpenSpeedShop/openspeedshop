@@ -22,7 +22,7 @@
 # All Rights Reserved.
 ################################################################################
 
-SUBDIRS = pcSamplePanelWizard pcSamplePanelControl
+SUBDIRS = pcSamplePanelControl
 
 pkglib_LTLIBRARIES = pcSamplePanel.la
 
