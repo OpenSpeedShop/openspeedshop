@@ -101,9 +101,6 @@ class PanelContainer : public QWidget
      */
     bool topLevel;
                   
-    //! The name of this PanelContainer.
-    char *internal_name;
-
     //! The name of this PanelContainer given by the panel developer.
     char *external_name;
 
@@ -363,6 +360,9 @@ class PanelContainer : public QWidget
 
     QPopupMenu *pcMenu;
     QPopupMenu *contextMenu;
+
+    //! The name of this PanelContainer.
+    char *internal_name;
 
 };
 

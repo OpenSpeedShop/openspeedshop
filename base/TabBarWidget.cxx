@@ -51,7 +51,7 @@ void TabBarWidget::mousePressEvent(QMouseEvent *e)
     return;
   }
  
-  nprintf(DEBUG_PANELCONTAINERS) ("  pc=(%s)(%s)\n", getPanelContainer()->internal_name, getPanelContainer()->external_name );
+  nprintf(DEBUG_PANELCONTAINERS) ("  pc=(%s)(%s)\n", getPanelContainer()->getInternalName(), getPanelContainer()->getExternalName() );
 
   QTab *selectedTab = NULL;
   selectedTab = QTabBar::selectTab( e->pos() );
