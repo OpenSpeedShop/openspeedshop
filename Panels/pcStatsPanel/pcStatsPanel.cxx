@@ -90,11 +90,12 @@ pcStatsPanel::listener(void *msg)
   {
     UpdateObject *msg = (UpdateObject *)msgObject;
 msg->print();
+PrintView(msg->expID);
     updateStatsPanelBaseData(msg->fw_expr, msg->expID, msg->experiment_name);
-if( msg->raiseFLAG )
-{
-  getPanelContainer()->raisePanel((Panel *)this);
-}
+    if( msg->raiseFLAG )
+    {
+      getPanelContainer()->raisePanel((Panel *)this);
+    }
   } else if( msgObject->msgType == "PreferencesChangedObject" )
   {
 //    printf("StatsPanelBase:  The preferences changed.\n");
@@ -237,3 +238,33 @@ pcStatsPanel::matchSelectedItem(int element)
   }
 #endif // OLDWAY
 }
+
+#include "SS_Input_Manager.hxx"
+void
+pcStatsPanel::PrintView(int expID)
+{
+  ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+  if( eo && eo->FW() )
+  {
+    Experiment *fw_experiment = eo->FW();
+    // Evaluate the collector's time metric for all functions in the thread
+    SmartPtr<std::map<Function, double> > data;
+    ThreadGroup tgrp = fw_experiment->getThreads();
+    ThreadGroup::iterator ti = tgrp.begin();
+    Thread t1 = *ti;
+    CollectorGroup cgrp = fw_experiment->getCollectors();
+    CollectorGroup::iterator ci = cgrp.begin();
+    Collector c1 = *ci;
+  
+    Queries::GetMetricByFunctionInThread(c1, "time", t1, data);
+  
+    for(std::map<Function, double>::const_iterator
+          item = data->begin(); item != data->end(); ++item)
+    {
+      printf("%20f %20s \n", item->second,  item->first.getName().c_str() );
+    }
+  }
+
+}
+
+

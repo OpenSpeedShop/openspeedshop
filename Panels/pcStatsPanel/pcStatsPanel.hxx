@@ -66,5 +66,7 @@ class pcStatsPanel  : public StatsPanelBase
 
   private:
     void matchSelectedItem( int );
+
+    void PrintView(int);
 };
 #endif // PCSTATSPANEL_H

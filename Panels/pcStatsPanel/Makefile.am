@@ -25,6 +25,7 @@ pcStatsPanel_la_CXXFLAGS = \
     -I../../objects \
     -I../../libopenss-framework \
     -I../StatsPanel \
+    -I../../pcli \
     -I../../gui \
     -I../../expr_info \
     -I../../plugin \
