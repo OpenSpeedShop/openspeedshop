@@ -2,7 +2,7 @@
 #include "PanelContainer.hxx"   // Do not remove
 #include "plugin_entry_point.hxx"   // Do not remove
 
-QString prompt = QString("oss> ");
+QString prompt = QString("openss-> ");
 
 
 /*! \class CmdPanel
@@ -26,8 +26,6 @@ CmdPanel::CmdPanel(PanelContainer *pc, const char *n, char *argument) : Panel(pc
                 this, SLOT(returnPressed()) );
   connect( output, SIGNAL(textChanged()),
                 this, SLOT(textChanged()) );
-  connect( output, SIGNAL(clicked(int, int)),
-                this, SLOT(clicked(int, int)) );
 
   frameLayout->addWidget(output);
 
@@ -57,13 +55,6 @@ CmdPanel::~CmdPanel()
 }
 
 void
-CmdPanel::clicked(int, int)
-{
-printf("Hard set the focus to the textedit!\n");
-  output->setFocus();
-}
-
-void
 CmdPanel::returnPressed()
 {
 //  printf ("CmdPanel::returnPressed()\n");
@@ -82,16 +73,16 @@ CmdPanel::returnPressed()
   {
     QString text = output->text(i);
     char *buffer = strdup(text.stripWhiteSpace().ascii());
-    if( text.stripWhiteSpace() == "" || text.stripWhiteSpace() == "oss>" )
+    if( text.stripWhiteSpace() == "" || text.stripWhiteSpace() == "openss->" )
     {
       free(buffer);
       return;
     }
     char *start_ptr = buffer;
-    if( text.startsWith("oss> ") )
+    if( text.startsWith("openss-> ") )
     {
       start_ptr += prompt.length();
-    } else if( text.startsWith("oss>") )
+    } else if( text.startsWith("openss->") )
     {
       start_ptr += prompt.length()-1;
     }

@@ -43,7 +43,6 @@ protected slots:
   void menu2callback();
   void textChanged();
   void returnPressed();
-  void clicked(int, int);
 
 protected:
 
