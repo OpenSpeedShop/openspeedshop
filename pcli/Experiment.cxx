@@ -191,6 +191,7 @@ Collector Get_Collector (OpenSpeedShop::Framework::Experiment *fexp, std::string
 static void Attach_Command (CommandObject *cmd, ExperimentObject *exp, Thread t, Collector c) {
   try {
     c.attachThread(t);
+    c.startCollecting();  // There is no point in attaching unless we intend to use it!
   }
   catch(const std::exception& error) {
     Mark_Cmd_With_Std_Error (cmd, error);
@@ -201,6 +202,7 @@ static void Attach_Command (CommandObject *cmd, ExperimentObject *exp, Thread t,
 static void Detach_Command (CommandObject *cmd, ExperimentObject *exp, Thread t, Collector c) {
   try {
     c.detachThread(t);
+    c.stopCollecting();  // We don't want to collect any more data!
   }
   catch(const std::exception& error) {
     Mark_Cmd_With_Std_Error (cmd, error);
@@ -650,18 +652,30 @@ bool SS_expDetach (CommandObject *cmd) {
 }
 
 static bool Disable_Experiment (CommandObject *cmd, ExperimentObject *exp) {
-  exp->Determine_Status();
-  if ((exp->Status() != ExpStatus_Paused) &&
-      (exp->Status() != ExpStatus_Running)) {
-   // These are the only states that can be changed.
-    cmd->Result_String ("The experiment can not be Disabled because it is in the "
-                         + exp->ExpStatus_Name() + " state.");
-    cmd->set_Status(CMD_ERROR);
+ // Turn off all of the collectors
+  CollectorGroup cgrp;
+  try {
+    cgrp = exp->FW()->getCollectors();
+  }
+  catch(const std::exception& error) {
+    Mark_Cmd_With_Std_Error (cmd, error);
     return false;
   }
 
- // Disconnect the FrameWork from the experiment
-  exp->Suspend();
+  CollectorGroup::iterator ci = cgrp.begin();
+  for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
+    Collector c = *ci;
+    try {
+      c.stopCollecting();
+    }
+    catch(const std::exception& error) {
+     // We are ignoring any errors so that all collectors are processed.
+/* TEST */fprintf(stdout,"Disable: %s\n", ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+                         "Unknown runtime error." : error.what() );
+      continue;
+    }
+  }
+
   return true;
 }
 
@@ -691,22 +705,29 @@ bool SS_expDisable (CommandObject *cmd) {
 }
 
 static bool Enable_Experiment (CommandObject *cmd, ExperimentObject *exp) {
-  if (exp->Status() != ExpStatus_Suspended) {
-   // This is the only state that can be enabled.
-    cmd->Result_String ("The experiment can not be Enabled because it is in the "
-                         + exp->ExpStatus_Name() + " state.");
-    cmd->set_Status(CMD_ERROR);
+ // Activate all of the collectors
+  CollectorGroup cgrp;
+  try {
+    cgrp = exp->FW()->getCollectors();
+  }
+  catch(const std::exception& error) {
+    Mark_Cmd_With_Std_Error (cmd, error);
     return false;
   }
 
- // reconnect the FrameWork to the experiment
-  exp->ReStart();
-
-  if (exp->FW() == NULL) {
-    cmd->Result_String ("The experiment could not be successfully restarted.");
-    cmd->set_Status(CMD_ERROR);
-    return false;
+  CollectorGroup::iterator ci = cgrp.begin();
+  for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
+    Collector c = *ci;
+    try {
+      c.startCollecting();
+    }
+    catch(const std::exception& error) {
+/* TEST */fprintf(stdout,"Enable: %s\n", ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+                         "Unknown runtime error." : error.what() );
+      continue;
+    }
   }
+
 }
 
 bool SS_expEnable (CommandObject *cmd) {
@@ -798,32 +819,6 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
     catch(const std::exception& error) {
       Mark_Cmd_With_Std_Error (cmd, error);
       return false;
-    }
-
-   // Activate the collectors
-    CollectorGroup cgrp;
-    try {
-      cgrp = exp->FW()->getCollectors();
-    }
-    catch(const std::exception& error) {
-      Mark_Cmd_With_Std_Error (cmd, error);
-      return false;
-    }
-
-    CollectorGroup::iterator ci = cgrp.begin();
-    for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
-      Collector c = *ci;
-      try {
-        ThreadGroup tgrp = c.getThreads();
-        if (!tgrp.empty()) {
-          c.startCollecting();
-        }
-      }
-      catch(const std::exception& error) {
-//        Mark_Cmd_With_Std_Error (cmd, error);
-//        return false;
-        continue;
-      }
     }
 
    // Go through the ThreadGroup to handle "don't care" errors.
@@ -1020,8 +1015,62 @@ bool SS_expSave (CommandObject *cmd) {
 
 bool SS_expSetParam (CommandObject *cmd) {
   ExperimentObject *exp = Find_Specified_Experiment (cmd);
+  if (exp == NULL) {
+    return false;
+  }
 
-  cmd->Result_String ("not yet implemented");
+  Assert(cmd->P_Result() != NULL);
+  OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
+  vector<ParseParam> *p_list = p_result->getParmList();
+  vector<ParseParam>::iterator iter;
+
+  for (iter=p_list->begin();iter != p_list->end(); iter++) {
+    std::string param_name = iter->getParmParamType();
+    if (iter->getParmExpType()) {
+     // The user has specified a particular collector.
+     // Set the paramater for just that one collector.
+      std::string C_name = std::string(iter->getParmExpType());
+      if (!Collector_Used_In_Experiment (exp->FW(), C_name)) {
+        cmd->Result_String ("The specified collector, " + C_name + ", is not part of the experiment.");
+        cmd->set_Status(CMD_ERROR);
+        continue;
+      }
+      Collector C = Get_Collector (exp->FW(), C_name);
+      try {
+        if (iter->isValString())
+          C.setParameterValue(param_name,iter->isValString());
+        else
+          C.setParameterValue(param_name,iter->getnumVal());
+      }
+      catch(const std::exception& error) {
+       // Report a failure.
+        cmd->Result_String ("The specified parameter, " + param_name + ", could not be set.");
+        cmd->set_Status(CMD_ERROR);
+      }
+    } else {
+     // Get the list of collectors used in the specified experiment.
+     // Set the paramater for every collector that is part of the experiment.
+      CollectorGroup cgrp = exp->FW()->getCollectors();
+      CollectorGroup::iterator ci;
+      for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
+        Collector C = *ci;
+        try {
+          if (iter->isValString())
+            C.setParameterValue(param_name,iter->isValString());
+          else
+            C.setParameterValue(param_name,iter->getnumVal());
+        }
+        catch(const std::exception& error) {
+         // Ignore problems.
+         // We are doing this because we can not determine if the specified paramater
+         // is part of a random collector.  It would be good to issue a message if
+         // the paramater was not part of any collector.
+          continue;
+        }
+      }
+    }
+  }
+
   cmd->set_Status(CMD_COMPLETE);
   return true;
 }
