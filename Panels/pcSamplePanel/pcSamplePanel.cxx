@@ -88,6 +88,33 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n, void *argument) 
     {
       expID = expIDString->toInt();
       nprintf( DEBUG_PANELS ) ("we're coming in with an expID=%d\n", expID);
+      // Look to see if any collectors have already been assigned.   If not, we
+      // need to attach the pcsample collector.
+      eo = Find_Experiment_Object((EXPID)expID);
+      if( eo && eo->FW() )
+      {
+        experiment = eo->FW();
+      }
+      ThreadGroup tgrp = experiment->getThreads();
+      if( tgrp.size() == 0 )
+      {
+        fprintf(stderr, "There are no known threads for this experiment.\n");
+        return;
+      }
+      ThreadGroup::iterator ti = tgrp.begin();
+      Thread t1 = *ti; 
+      CollectorGroup cgrp = experiment->getCollectors();
+      if( cgrp.size() == 0 )
+      {
+        nprintf( DEBUG_PANELS ) ("There are no known collectors for this experiment so add one.\n");
+        QString command = QString("expAttach -x %1 pcsamp").arg(expID);
+        CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+        if( !cli->runSynchronousCLI((char *)command.ascii() ) )
+        {
+          return;
+        }
+      }
+
     }
   } else
   {
@@ -787,7 +814,6 @@ pcSamplePanel::loadSourcePanel()
   if( !sourcePanel )
   {
     PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
-printf("BBBB\n");
     SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", bestFitPC, (char *)expID);
   } else
   {
@@ -866,7 +892,6 @@ pcSamplePanel::loadMain()
         char *panel_type = "Source Panel";
         //Find the nearest toplevel and start placement from there...
         PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
-printf("CCCC\n");
         sourcePanel = getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, (void *)groupID);
       }
       if( sourcePanel != NULL )
@@ -890,7 +915,7 @@ pcSamplePanel::updateStatus()
   if( eo && eo->FW() )
   {
     int status = eo->Determine_Status();
-printf("status=%d\n", status);
+//    printf("status=%d\n", status);
     switch( status )
     {
       case 0:
@@ -984,7 +1009,6 @@ void
 pcSamplePanel::statusUpdateTimerSlot()
 {
 //  statusTimer->stop();
-printf("pcSamplePanel::statusUpdateTimerSlot() entered\n");
   updateStatus();
 }
 void
