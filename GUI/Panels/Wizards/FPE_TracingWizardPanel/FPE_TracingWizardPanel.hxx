@@ -1,5 +1,5 @@
-#ifndef USERTIMEWIZARDPANEL_H
-#define USERTIMEWIZARDPANEL_H
+#ifndef PCSAMPLEWIZARDPANEL_H
+#define PCSAMPLEWIZARDPANEL_H
 #include "Panel.hxx"           // Do not remove
 
 class PanelContainer;   // Do not remove
@@ -11,148 +11,214 @@ class QVBoxLayout;
 class QHBoxLayout;
 class QGridLayout;
 class QSpacerItem;
-class QFrame;
+class QTabWidget;
 class QWidgetStack;
 class QLabel;
 class QTextEdit;
 class QCheckBox;
+class QFrame;
+class QRadioButton;
 class QPushButton;
 class QLineEdit;
+class QListView;
+class QListViewItem;
+class QListBox;
+class QListBoxItem;
+class QButtonGroup;
+class QTextEdit;
 
 
 #define PANEL_CLASS_NAME FPE_TracingWizardPanel   // Change the value of the define
                                          // to the name of your new class.
-//! prototype of a User Time panel wizard.
+//! FPE_TracingWizardPanel Class
 class FPE_TracingWizardPanel  : public Panel
 {
   //! Q_OBJECT is needed as there are slots defined for the class
   Q_OBJECT
 public:
-  //! FPE_TracingWizardPanel() - A default constructor
-  FPE_TracingWizardPanel();
+  //! FPE_TracingWizardPanel() - A default constructor the the Panel Class.
+  FPE_TracingWizardPanel();  // Default construct
 
-  //! This constructor is the work constructor.
-  FPE_TracingWizardPanel(PanelContainer *pc, const char *n);
+  //! FPE_TracingWizardPanel(PanelContainer *pc, const char *name)
+    /*! This constructor is the work constructor.   It is called to
+        create the new Panel and attach it to a PanelContainer.
+        \param pc is a pointer to PanelContainer
+               the Panel will be initially attached.
+        \param name is the name give to the Panel.
 
-  //! ~FPE_TracingWizardPanel() - The destructor.
-  ~FPE_TracingWizardPanel();
+        This is where the user would create the panel specific Qt code
+        to do whatever functionality the user wanted the panel to perform.
+     */
+  FPE_TracingWizardPanel(PanelContainer *pc, const char *n); // Active constructor
 
-  //! Adds any context sensitive menus (if any).
+  //! ~FPE_TracingWizardPanel() - The default destructor.
+  ~FPE_TracingWizardPanel();  // Active destructor
+
+  //! Adds use panel menus (if any).
+  /*! This calls the user 'menu()' function
+      if the user provides one.   The user can attach any specific panel
+      menus to the passed argument and they will be displayed on a right
+      mouse down in the panel.
+      /param  contextMenu is the QPopupMenu * that use menus can be attached.
+  */
   bool menu(QPopupMenu* contextMenu);
 
-  //! Calls the fpe tracing panel function save() request.
+  //! Calls the user panel function save() request.
   void save();
 
-  //! Calls the fpe tracing panel function saveas() request.
+  //! Calls the user panel function saveas() request.
   void saveAs();
 
-  //! Calls the fpe tracing panel function listener() request.
+  //! Calls the user panel function listener() request.
+  /*! When a message
+      has been sent (from anyone) and the message broker is notifying
+      panels that they may want to know about the message, this is the
+      function the broker notifies.   The listener then needs to determine
+      if it wants to handle the message.
+      \param msg is the incoming message.
+      \return 0 means you didn't do anything with the message.
+      \return 1 means you handled the message.
+   */
   int listener(char *msg);
 
-  //! Calls the fpe tracing panel function broadcast() message request.
+  //! Calls the panel function broadcast() message request.
   int broadcast(char *msg);
 
 
-    QFrame* frame3;
-    QWidgetStack* userTimeWizardStack;
-    QWidget* WStackVPage0;
-    QLabel* vWizardTitleLabel;
-    QTextEdit* vWizardDescription;
-    QCheckBox* vpage0HideWizardCheckBox;
-    QPushButton* vpage0StartButton;
-    QPushButton* vpage0NextButton;
-    QWidget* WStackVPage1;
-    QLabel* vWizardOptionsLabel;
-    QFrame* line8;
-    QLabel* rateHeaderLabel;
-    QLabel* rateLabel;
-    QLineEdit* vpage1SampleRateText;
-    QPushButton* vpage1BackButton;
-    QPushButton* vpage1ResetButton;
-    QPushButton* vpage1NextButton;
-    QWidget* WStackVPage2;
-    QLabel* vFinishLabel;
-    QPushButton* vpage2BackButton;
-    QPushButton* vpage2FinishButton;
-    QWidget* WStackEPage0;
-    QLabel* eWizardTitleLabel;
-    QTextEdit* eWizardDescription;
-    QCheckBox* epage0HideWizardCheckBox;
-    QPushButton* epage0StartButton;
-    QPushButton* epage0NextButton;
-    QWidget* WStackEPage1;
-    QLabel* eWizardOptionsLabel;
-    QFrame* line8_2;
-    QLabel* rateHeaderLabel_2;
-    QLabel* rateLabel_2;
-    QLineEdit* epage1SampleRateText;
-    QPushButton* epage1BackButton;
-    QPushButton* epage1ResetButton;
-    QPushButton* epage1NextButton;
-    QWidget* WStackEPage2;
-    QLabel* eFinishLabel_2;
-    QPushButton* epage2BackButton;
-    QPushButton* epage2FinishButton;
+    QFrame* topFrame;
+    QWidgetStack* FPE_TracingWizardPanelStack;
+    QWidget* vDescriptionPageWidget;
+    QLabel* vDescriptionPageTitleLabel;
+    QTextEdit* vDescriptionPageText;
+    QCheckBox* vHideWizardCheckBox;
+    QPushButton* vDescriptionPageStartButton;
+    QPushButton* vDescriptionPageNextButton;
+    QWidget* vParameterPageWidget;
+    QLabel* vParameterPageDescriptionLabel;
+    QFrame* vParameterPageLine;
+    QLabel* vParameterPageSampleRateHeaderLabel;
+    QLabel* vParameterPageSampleRateLabel;
+    QLineEdit* vParameterPageSampleRateText;
+    QPushButton* vParameterPageBackButton;
+    QPushButton* vParameterPageResetButton;
+    QPushButton* vParameterPageNextButton;
+    QWidget* vAttachOrLoadPageWidget;
+    QLabel* vAttachOrLoadPageDescriptionLabel;
+    QFrame* vAttachOrLoadPageLine;
+    QCheckBox* vAttachOrLoadPageAttachToProcessCheckBox;
+    QCheckBox* vAttachOrLoadPageLoadProcessCheckBox;
+    QPushButton* vAttachOrLoadPageBackButton;
+    QPushButton* vAttachOrLoadPageNextButton;
+    QWidget* vSummaryPageWidget;
+    QLabel* vSummaryPageFinishLabel;
+    QPushButton* vSummaryPageBackButton;
+    QPushButton* vSummaryPageFinishButton;
+    QWidget* eDescriptionPageWidget;
+    QLabel* eDescriptionPageTitleLabel;
+    QLabel* eDescriptionPageText;
+    QCheckBox* eHideWizardCheckBox;
+    QPushButton* eDescriptionPageStartButton;
+    QPushButton* eDescriptionPageNextButton;
+    QWidget* eParameterPageWidget;
+    QLabel* eParameterPageDescriptionLabel;
+    QFrame* eParameterPageLine;
+    QLabel* eParameterPageSampleRateHeaderLabel;
+    QLabel* eParameterPageSampleRateLabel;
+    QLineEdit* eParameterPageSampleRateText;
+    QPushButton* eParameterPageBackButton;
+    QPushButton* eParameterPageResetButton;
+    QPushButton* eParameterPageNextButton;
+    QWidget* eAttachOrLoadPageWidget;
+    QLabel* eAttachOrLoadPageDescriptionLabel;
+    QFrame* eAttachOrLoadPageLine;
+    QCheckBox* eAttachOrLoadPageAttachToProcessCheckBox;
+    QCheckBox* eAttachOrLoadPageLoadProcessCheckBox;
+    QPushButton* eAttachOrLoadPageBackButton;
+    QPushButton* eAttachOrLoadPageNextButton;
+    QWidget* eSummaryPageWidget;
+    QLabel* eSummaryPageFinishLabel;
+    QPushButton* eSummaryPageBackButton;
+    QPushButton* eSummaryPageFinishButton;
     QCheckBox* wizardMode;
     QLabel* broughtToYouByLabel;
- 
-    QHBoxLayout * frameLayout;
+
 public slots:
-    virtual void epage0HideWizardCheckBoxSelected();
-    virtual void epage0StartButtonSelected();
-    virtual void epage0NextButtonSelected();
-    virtual void epage1BackButtonSelected();
-    virtual void epage1NextButtonSelected();
-    virtual void epage1ResetButtonSelected();
-    virtual void epage1SampleRateTextSelected();
-    virtual void epage2BackButtonSelected();
-    virtual void epage2FinishButtonSelected();
+    virtual void eHideWizardCheckBoxSelected();
+    virtual void eDescriptionPageNextButtonSelected();
+    virtual void eDescriptionPageStartButtonSelected();
+    virtual void eParameterPageBackButtonSelected();
+    virtual void eParameterPageNextButtonSelected();
+    virtual void eParameterPageResetButtonSelected();
+    virtual void eAttachOrLoadPageBackButtonSelected();
+    virtual void eAttachOrLoadPageNextButtonSelected();
+    virtual void eSummaryPageBackButtonSelected();
+    virtual void eSummaryPageFinishButtonSelected();
+    virtual void vHideWizardCheckBoxSelected();
+    virtual void vDescriptionPageNextButtonSelected();
+    virtual void vDescriptionPageStartButtonSelected();
+    virtual void vParameterPageSampleRateTextReturnPressed();
+    virtual void vParameterPageBackButtonSelected();
+    virtual void vParameterPageNextButtonSelected();
+    virtual void vParameterPageResetButtonSelected();
+    virtual void vAttachOrLoadPageBackButtonSelected();
+    virtual void vAttachOrLoadPageNextButtonSelected();
+    virtual void vSummaryPageBackButtonSelected();
+    virtual void vSummaryPageFinishButtonSelected();
+    virtual void eParameterPageSampleRateTextReturnPressed();
     virtual void wizardModeSelected();
-    virtual void vpage0HideWizardCheckBoxSelected();
-    virtual void vpage0NextButtonSelected();
-    virtual void vpage0StartButtonSelected();
-    virtual void vpage1BackButtonSelected();
-    virtual void vpage1NextButtonSelected();
-    virtual void vpage1ResetButtonSelected();
-    virtual void vpage2BackButtonSelected();
-    virtual void vpage2FinishButtonSelected();
-    virtual void vpage1SampleRateTextSelected();
 
 protected:
-    QVBoxLayout* layout16;
-    QVBoxLayout* frame3Layout;
-    QVBoxLayout* WStackVPage0Layout;
-    QHBoxLayout* layout7;
-    QSpacerItem* spacer4;
-    QSpacerItem* spacer4_2;
-    QHBoxLayout* layout17;
-    QSpacerItem* spacer20_2;
-    QVBoxLayout* WStackVPage1Layout;
-    QSpacerItem* spacer7;
-    QVBoxLayout* layout9;
-    QHBoxLayout* layout1_2;
-    QHBoxLayout* layout31;
-    QVBoxLayout* WStackVPage2Layout;
-    QVBoxLayout* layout25;
-    QSpacerItem* spacer20;
-    QHBoxLayout* layout7_2;
-    QVBoxLayout* WStackEPage0Layout;
-    QHBoxLayout* layout15;
-    QSpacerItem* spacer9;
-    QHBoxLayout* layout17_2;
-    QSpacerItem* spacer20_2_2;
-    QVBoxLayout* WStackEPage1Layout;
-    QSpacerItem* spacer7_2;
-    QVBoxLayout* layout9_2;
-    QHBoxLayout* layout1_2_2;
-    QHBoxLayout* layout31_2;
-    QVBoxLayout* WStackEPage2Layout;
-    QHBoxLayout* layout7_2_2;
-    QHBoxLayout* layout15_2;
-    QSpacerItem* spacer15;
+    QVBoxLayout* topLayout;
+    QVBoxLayout* topFrameLayout;
+    QVBoxLayout* vDescriptionPageLayout;
+    QHBoxLayout* vHideWizardLayout;
+    QSpacerItem* vHideWizardSpacer1;
+    QSpacerItem* vHideWizardSpacer2;
+    QHBoxLayout* vDescriptionPageButtonLayout;
+    QSpacerItem* vDescriptionPageButtonSpacer;
+    QVBoxLayout* vParameterPageLayout;
+    QSpacerItem* vParameterPageButtonSpacer;
+    QVBoxLayout* vAttachOrLoadPageLayout;
+    QSpacerItem* vAttachOrLoadPageButtonSpacer;
+    QSpacerItem* vParameterPageSpacer;
+    QSpacerItem* vAttachOrLoadPageSpacer;
+    QVBoxLayout* vParameterPageParameterLayout;
+    QHBoxLayout* vParameterPageSampleRateLayout;
+    QHBoxLayout* vParameterPageButtonLayout;
+    QSpacerItem* eParameterPageSpacer;
+    QVBoxLayout* vAttachOrLoadPageAttachOrLoadLayout;
+    QHBoxLayout* vAttachOrLoadPageSampleRateLayout;
+    QHBoxLayout* vAttachOrLoadPageButtonLayout;
+    QVBoxLayout* vSummaryPageLayout;
+    QVBoxLayout* vSummaryPageLabelLayout;
+    QSpacerItem* vSummaryPageButtonSpacer;
+    QSpacerItem* vSummaryPageSpacer;
+    QHBoxLayout* vSummaryPageButtonLayout;
+    QVBoxLayout* eDescriptionPageLayout;
+    QHBoxLayout* eHideWizardLayout;
+    QSpacerItem* eHideWizardSpacer;
+    QHBoxLayout* eDescriptionPageButtonLayout;
+QSpacerItem* eDescriptionPageButtonSpacer;
+    QSpacerItem* eDescriptionPageSpacer;
+    QVBoxLayout* eParameterPageLayout;
+    QVBoxLayout* eAttachOrLoadPageLayout;
+    QSpacerItem* eAttachOrLoadPageSpacer;
+    QVBoxLayout* eParameterPageParameterLayout;
+    QHBoxLayout* eParameterPageSampleRateLayout;
+    QHBoxLayout* eParameterPageButtonLayout;
+QSpacerItem* eParameterPageButtonSpacer;
+    QVBoxLayout* eAttachOrLoadPageAttachOrLoadLayout;
+    QHBoxLayout* eAttachOrLoadPageSampleRateLayout;
+    QHBoxLayout* eAttachOrLoadPageButtonLayout;
+QSpacerItem* eAttachOrLoadPageButtonSpacer;
+    QVBoxLayout* eSummaryPageLayout;
+QSpacerItem* eSummaryPageButtonSpacer;
+    QHBoxLayout* eSummaryPageButtonLayout;
+    QHBoxLayout* bottomLayout;
+    QSpacerItem* bottomSpacer;
 
 protected slots:
     virtual void languageChange();
 
 };
-#endif // USERTIMEWIZARDPANEL_H
+#endif // PCSAMPLEWIZARDPANEL_H

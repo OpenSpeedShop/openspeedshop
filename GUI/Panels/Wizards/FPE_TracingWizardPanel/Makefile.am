@@ -29,11 +29,13 @@ FPE_TracingWizardPanel_la_CXXFLAGS = \
     -I$(QTDIR)/include \
     -I. \
     -I../../../gui \
+    -I../../../images \
+    -I../../../dialogs \
     -I../../../plugin \
     -I../../../objects \
     -I../../../base
 
-FPE_TracingWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../../base/.libs/ftBase.so  -Wl,../../../objects/.libs/ftObjects.so
+FPE_TracingWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../../base/.libs/ftBase.so  -Wl,../../../objects/.libs/ftObjects.so -Wl,../../../dialogs/.libs/ftDialogs.so
 
 FPE_TracingWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
 
