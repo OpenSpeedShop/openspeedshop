@@ -538,7 +538,7 @@ void OpenSpeedshop::init()
   topPC = masterPC;
 
   char ph_file[2048];
-  char *ph_dl_name = "/ossPlugin.so";
+  char *ph_dl_name = "/libopenss_Plugin.so";
   sprintf(ph_file, "%s%s", plugin_directory, ph_dl_name);
   void *dl_ph_object = dlopen((const char *)ph_file, (int)RTLD_NOW );
   if( !dl_ph_object )
