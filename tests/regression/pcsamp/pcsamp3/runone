@@ -49,8 +49,12 @@ def CompareResults(testName, fileptr):
 	expectedfilename = testName + '.expected'
 	outputfileptr = open(outputfilename, 'r')
 	expectedfileptr = open(expectedfilename, 'r')
+	nooutput = 0
 	while 1:
 		tempfileline = outputfileptr.readline()
+		if not tempfileline:
+			nooutput = 1	
+			break
 		if tempfileline[0:5] == '  CPU':
 			break
 	expectedfileptr.readline()
@@ -60,11 +64,14 @@ def CompareResults(testName, fileptr):
 	passing_ratio = 1
 	failure_reason = 0
 	while 1:
-		
+		if (nooutput == 1):
+			break
 		outputfileline = outputfileptr.readline()
 		if not outputfileline:
 			break
 		expectedfileline = expectedfileptr.readline()
+		if not expectedfileline:
+			break
 		i = 0
 		while outputfileline[i] == ' ':
 			i = i+ 1
