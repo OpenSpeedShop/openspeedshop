@@ -142,6 +142,7 @@ typedef enum {
     NAME_PARAM,
     NAME_EXPERIMENT,
     NAME_VIEW_TYPE,
+    NAME_ADDR,
     OSS_NAME_MAX
 } oss_name_enum;
 
@@ -200,7 +201,7 @@ struct cmd_array_desc {
     
     int cur_node;	/**< Current available node in table. */
     int max_node;	/**< Max entry possible in table. */
-    int entry_size; /**< Size in bytes for each entry in table. */
+    int entry_size; 	/**< Size in bytes for each entry in table. */
 };
 
 typedef struct a_command_struct {

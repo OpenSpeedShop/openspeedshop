@@ -607,7 +607,7 @@ host_name:  	    NAME {push_host_name($1);}
 host_file:  	    host_spec file_spec
     	    	|   file_spec
 
-host_spec:  	    HOST_ID host_name
+host_spec:  	    HOST_ID host_list
     	    	;
 
 file_spec:  	    FILE_ID file_name
@@ -616,8 +616,8 @@ file_spec:  	    FILE_ID file_name
 file_list_spec:     FILE_ID file_list
 		;
 
-file_list:  	    file_name {/*push_file($1);*/} 
-    	    	|   file_list COMMA file_name {/*push_file($3);*/}
+file_list:  	    file_name 
+    	    	|   file_list COMMA file_name 
 		;
 
 file_name:  	    NAME {push_file($1);}
@@ -717,7 +717,8 @@ lineno_spec:	    LINE_ID lineno
 lineno: 	    NUMBER
     	    	;
 
-address_description: NUMBER 
+address_description: NUMBER {push_32bit_value($1,TABLE_ADDRESS);}
+		|   NAME {push_string($1,NAME_ADDR);}
     	    	;
 
 

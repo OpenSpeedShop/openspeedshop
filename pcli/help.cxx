@@ -95,6 +95,7 @@ char *general_name[H_GEN_MAX] = {
 };
 
 static void help_exptype(int indent_ndx);
+static void help_host_list(int indent_ndx);
 
 #if 0
 /**
@@ -439,9 +440,9 @@ help_expType_list(int indent_ndx)
 
     printf("%s<expType_list> = <expType>[,expType>]\n",
     	    indent_table[indent_ndx]);
-    help_exptype(indent_ndx);
-    help_user_defined_exp(indent_ndx);
-    help_predefined_exp(indent_ndx);
+    help_exptype(indent_ndx+1);
+    help_user_defined_exp(indent_ndx+1);
+    help_predefined_exp(indent_ndx+1);
 }
  
 /******************************************************************/
@@ -488,7 +489,7 @@ help_hostname(int indent_ndx)
 {
     printf("%s<hostname> = <string> | IP_address*\n",
     	    indent_table[indent_ndx]);
-    help_ip_address(indent_ndx);
+    help_ip_address(indent_ndx+1);
 }
  
 /**
@@ -506,7 +507,7 @@ help_file_spec(int indent_ndx)
 {
     printf("%s<file_spec> = -f <filename>\n",
     	    indent_table[indent_ndx]);
-    help_filename(indent_ndx);
+    help_filename(indent_ndx+1);
 }
  
 /**
@@ -522,9 +523,9 @@ help_file_spec(int indent_ndx)
 static void
 help_host_spec(int indent_ndx)
 {
-    printf("%s<host_spec> = -h <hostname>\n",
+    printf("%s<host_spec> = -h <host_list>\n",
     	    indent_table[indent_ndx]);
-    help_hostname(indent_ndx);
+    help_host_list(indent_ndx+1);
 }
  
 /**
@@ -540,8 +541,8 @@ help_host_file(int indent_ndx)
 {
     printf("%s<host_file> = [<host_spec>] <file_spec>\n",
     	    indent_table[indent_ndx]);
-    help_host_spec(indent_ndx);
-    help_file_spec(indent_ndx);
+    help_host_spec(indent_ndx+1);
+    help_file_spec(indent_ndx+1);
 }
 
 /**
@@ -559,7 +560,7 @@ help_file_list(int indent_ndx)
 {
     printf("%s<file_list> = <filename>[,<filename>]*\n",
     	    indent_table[indent_ndx]);
-    help_filename(indent_ndx);
+    help_filename(indent_ndx+1);
 }
  
 /**
@@ -577,7 +578,7 @@ help_host_list(int indent_ndx)
 {
     printf("%s<host_list> = <hostname>[,<hostname>]*\n",
     	    indent_table[indent_ndx]);
-    help_hostname(indent_ndx);
+    help_hostname(indent_ndx+1);
 }
  
 /**
@@ -636,7 +637,7 @@ help_host_file_rpd_list(int indent_ndx)
 static void
 help_address_description(int indent_ndx)
 {
-    printf("%s<address_description> = <64bit value>\n",
+    printf("%s<address_description> = <64bit value> || <string>\n",
     	    indent_table[indent_ndx]);
 }
 

@@ -677,6 +677,9 @@ dump_command()
 	    	case NAME_VIEW_TYPE:
 		    printf("(V)");
 		    break;
+	    	case NAME_ADDR:
+		    printf("(A)");
+		    break;
 		default:
 		    break;
 	    }
