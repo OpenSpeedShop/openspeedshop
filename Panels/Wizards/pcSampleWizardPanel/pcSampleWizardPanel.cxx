@@ -55,7 +55,7 @@ pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n) : Pa
   nprintf(DEBUG_CONST_DESTRUCT) ("pcSampleWizardPanel::pcSampleWizardPanel() constructor called\n");
   QHBoxLayout * panelLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
-    if ( !name )
+    if ( !getName() )
 	setName( "pc Sample" );
 
     QWidget* topWidget = new QWidget( getBaseWidgetFrame(), "topWidget" );

@@ -28,13 +28,6 @@ public:
     //! ~Panel() - The default destructor.
     ~Panel();
 
-    //! A simple char array for holding the Panel name.
-    /*! Note: This
-        could (should?) be managed with new/delete, but it currently is
-        not.
-     */
-    char name[MAX_TAB_NAME_LENGTH];
-
     //! The PanelContainer that holds this Panel.
     PanelContainer *panelContainer;
 
@@ -49,13 +42,8 @@ public:
     //! A convience function to return the baseWidgetFrame.
     Frame *getBaseWidgetFrame() { return baseWidgetFrame; }
 
-    //! Returns the Panel name.
-    char *getName() { return name; }
-
     //! Handles the resize event.
     void handleSizeEvent(QResizeEvent *e=NULL);
-
-void armPanelsWhatsThis( );
 
     //! Adds use panel menus (if any).
     virtual bool menu(QPopupMenu* contextMenu);
@@ -72,12 +60,19 @@ void armPanelsWhatsThis( );
     //! Calls the panel function broadcast() message request.
     virtual int broadcast(char *msg, BROADCAST_TYPE bt=ALL_T);
 
+    //! Displays a popup like help with message... (msg)
+    void displayWhatsThis(QString msg);
+
+    //! In the interested widgets, contentsMouseMoveEvent(...) call this routine to manage the trigger.
+    void armPanelsWhatsThis( );
+
+    //! Returns the Panel name.
+    char *getName() { return name; }
+
+protected:
     //! Calls the panel function info() if provided.
     virtual void info( );
 
-void displayWhatsThis(QString msg);
-
-protected:
     //! Sets the Panel name.
     void setName(const char *);
 
@@ -85,6 +80,13 @@ protected:
     virtual void languageChange();
 
 private: 
+    //! A simple char array for holding the Panel name.
+    /*! Note: This
+        could (should?) be managed with new/delete, but it currently is
+        not.
+     */
+    char name[MAX_TAB_NAME_LENGTH];
+
 
 public slots:
     virtual void wakeupFromSleep();

@@ -222,11 +222,11 @@ Panel::info( )
 void
 Panel::armPanelsWhatsThis()
 {
-  printf("Panel::armPanelsWhatsThis() entered\n");
+  nprintf(DEBUG_PANELS) ("Panel::armPanelsWhatsThis() entered\n");
 
   if( panelContainer->_masterPC->sleepTimer && panelContainer->_masterPC->sleepTimer->isActive() )
   { // If we're sleeping, just ignore this...
-//    printf("we're sleeping, just return.\n");
+   nprintf(DEBUG_PANELS) ("we're sleeping, just return.\n");
     panelContainer->_masterPC->sleepTimer->start(1000, TRUE);
     return;
   } else
@@ -234,7 +234,7 @@ Panel::armPanelsWhatsThis()
     // just go to sleep for a whil and return.   Otherwise, set a new one.
     if( panelContainer->_masterPC->popupTimer && panelContainer->_masterPC->popupTimer->isActive() )
     {
-//      printf("popupTimer is already active... start sleeping...\n");
+       nprintf(DEBUG_PANELS) ("popupTimer is already active... start sleeping...\n");
       if( panelContainer->_masterPC->sleepTimer == NULL )
       {
         panelContainer->_masterPC->sleepTimer = new QTimer(this, "sleepTimer");
@@ -244,7 +244,7 @@ Panel::armPanelsWhatsThis()
       panelContainer->_masterPC->popupTimer->stop();
     } else
     {
-//      printf("start the popup timer...\n");
+      nprintf(DEBUG_PANELS) ("start the popup timer...\n");
       if( panelContainer->_masterPC->popupTimer == NULL )
       {
         panelContainer->_masterPC->popupTimer = new QTimer(this, "popupTimer");
@@ -262,21 +262,21 @@ Panel::armPanelsWhatsThis()
 void
 Panel::wakeupFromSleep()
 {
-  printf("wakeupFromSleep() called\n");
+  nprintf(DEBUG_PANELS) ("wakeupFromSleep() called\n");
   panelContainer->_masterPC->popupTimer->start(250, TRUE);
 }
 
 void
 Panel::popupInfoAtLine()
 {
-  printf("popupInfoAtLine() called\n");
+  nprintf(DEBUG_PANELS) ("popupInfoAtLine() called\n");
   info();
 }
 
 void
 Panel::displayWhatsThis(QString msg)
 {
-  printf("Panel::displayWhatsThis() called.  Put the wit here.\n");
+  nprintf(DEBUG_PANELS) ("Panel::displayWhatsThis() called.  Put the wit here.\n");
  
   panelContainer->_masterPC->whatsThisActive = TRUE;
   panelContainer->_masterPC->whatsThis = new WhatsThis( this );

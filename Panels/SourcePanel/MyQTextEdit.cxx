@@ -22,7 +22,7 @@ MyQTextEdit::MyQTextEdit( )
 MyQTextEdit::MyQTextEdit( SourcePanel *sp, QWidget *parent, const char *n )
     : QTextEdit( parent, n )
 {
-  printf( "MyQTextEdit::MyQTextEdit( ) constructor called\n");
+  nprintf(DEBUG_CONST_DESTRUCT) ( "MyQTextEdit::MyQTextEdit( ) constructor called\n");
   sourcePanel = sp;
 }
 
@@ -30,13 +30,13 @@ MyQTextEdit::MyQTextEdit( SourcePanel *sp, QWidget *parent, const char *n )
 MyQTextEdit::~MyQTextEdit( )
 {
   // default destructor.
-  printf("  MyQTextEdit::~MyQTextEdit( ) destructor called\n");
+  nprintf(DEBUG_CONST_DESTRUCT) ("  MyQTextEdit::~MyQTextEdit( ) destructor called\n");
 }
 
 QPopupMenu*
 MyQTextEdit::createPopupMenu( const QPoint & pos )
 {
-  dprintf("Hello from down under the hood.\n");
+  nprintf(DEBUG_PANELS) ("Hello from down under the hood.\n");
 
   // First create the default Qt widget menu...
   QPopupMenu *popupMenu = QTextEdit::createPopupMenu(pos);
@@ -58,7 +58,7 @@ MyQTextEdit::createPopupMenu( const QPoint & pos )
 void
 MyQTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
 {
-  printf("MyQTextEdit::contentsMouseMoveEvent() entered\n");
+  nprintf(DEBUG_PANELS) ("MyQTextEdit::contentsMouseMoveEvent() entered\n");
 
   sourcePanel->armPanelsWhatsThis();
 }

@@ -54,7 +54,7 @@ HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n) 
   printf("HW_CounterWizardPanel::HW_CounterWizardPanel() constructor called\n");
   QHBoxLayout * panelLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
-    if ( !name )
+    if ( !getName() )
 	setName( "HW Counter" );
 
     QWidget* topWidget = new QWidget( getBaseWidgetFrame(), "topWidget" );

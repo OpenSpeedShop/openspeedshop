@@ -36,7 +36,7 @@ SourcePanel::SourcePanel()
 */
 SourcePanel::SourcePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
 {
-  printf( "SourcePanel::SourcePanel() constructor called\n");
+  nprintf(DEBUG_CONST_DESTRUCT) ( "SourcePanel::SourcePanel() constructor called\n");
   frameLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
   lastTop = 0;
@@ -97,7 +97,7 @@ textEdit->setCaption("SourcePanel: MyQTextEdit");
  */
 SourcePanel::~SourcePanel()
 {
-  printf("  SourcePanel::~SourcePanel() destructor called\n");
+  nprintf(DEBUG_CONST_DESTRUCT) ("  SourcePanel::~SourcePanel() destructor called\n");
   delete textEdit;
   delete label;
   delete frameLayout;
@@ -140,9 +140,6 @@ SourcePanel::createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos )
 {
   nprintf(DEBUG_PANELS) ("Popup the context sensitive menu here.... can you augment it with the default popupmenu?\n");
 
-// int line = textEdit->paragraphAt(pos);
-// fprintf(stderr, "createPopupMenu for line %d if there's anything there.\n", line+1);
-
   textEdit->setCursorPosition(textEdit->paragraphAt(pos), 0);
   if( whatIsAtPos(pos) )
   {
@@ -158,7 +155,7 @@ SourcePanel::createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos )
 void
 SourcePanel::save()
 {
-  printf("SourcePanel::save() requested.\n");
+  nprintf(DEBUG_PANELS) ("SourcePanel::save() requested.\n");
 }
 
 /*! 
@@ -644,7 +641,7 @@ int
 SourcePanel::whatIsAtPos(const QPoint &pos)
 {
   // remember, lines (para) and characters are 0 based.
-printf("SourcePanel::whatIsAtPos() length=%d\n", textEdit->length() );
+  nprintf(DEBUG_PANELS) ("SourcePanel::whatIsAtPos() length=%d\n", textEdit->length() );
 
   if( textEdit->length() == 0 )
   {
@@ -656,7 +653,7 @@ printf("SourcePanel::whatIsAtPos() length=%d\n", textEdit->length() );
   line++;
   int c = textEdit->charAt(pos, &para);
 
-  //  nprintf(DEBUG_PANELS) ("whatIsAtPos() line=%d para=%d c=(%d)\n", line, para, c );
+  nprintf(DEBUG_PANELS) ("whatIsAtPos() line=%d para=%d c=(%d)\n", line, para, c );
   if( !highlightList )
   {
     return(0);

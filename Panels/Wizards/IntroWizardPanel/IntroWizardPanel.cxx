@@ -50,7 +50,7 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n) : Panel(pc
 {
   printf( "IntroWizardPanel::IntroWizardPanel() constructor called.\n");
 // Cut-n-paste from here...
-    if ( !name )
+    if ( !getName() )
 	setName( "IntroWizardForm" );
     IntroWizardFormLayout = new QVBoxLayout( getBaseWidgetFrame(), 11, 6, "IntroWizardFormLayout"); 
 

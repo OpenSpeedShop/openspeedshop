@@ -54,7 +54,7 @@ UserTimeWizardPanel::UserTimeWizardPanel(PanelContainer *pc, const char *n) : Pa
   printf("UserTimeWizardPanel::UserTimeWizardPanel() constructor called\n");
   QHBoxLayout * panelLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
-    if ( !name )
+    if ( !getName() )
 	setName( "User Time" );
 
     QWidget* topWidget = new QWidget( getBaseWidgetFrame(), "topWidget" );

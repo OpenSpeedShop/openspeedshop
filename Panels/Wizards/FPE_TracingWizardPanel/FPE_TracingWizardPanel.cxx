@@ -54,7 +54,7 @@ FPE_TracingWizardPanel::FPE_TracingWizardPanel(PanelContainer *pc, const char *n
   printf("FPE_TracingWizardPanel::FPE_TracingWizardPanel() constructor called\n");
   QHBoxLayout * panelLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
-    if ( !name )
+    if ( !getName() )
 	setName( "FPE Tracing" );
 
     QWidget* topWidget = new QWidget( getBaseWidgetFrame(), "topWidget" );

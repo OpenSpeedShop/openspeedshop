@@ -54,7 +54,7 @@ IOWizardPanel::IOWizardPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
   printf("IOWizardPanel::IOWizardPanel() constructor called\n");
   QHBoxLayout * panelLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
-    if ( !name )
+    if ( !getName() )
 	setName( "IO Experiment" );
 
     QWidget* topWidget = new QWidget( getBaseWidgetFrame(), "topWidget" );
