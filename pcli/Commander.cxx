@@ -1,6 +1,13 @@
 #include "SS_Input_Manager.hxx"
 extern "C" void loadTheGUI(ArgStruct *);
 
+char *Current_OpenSpeedShop_Prompt = "openss>";
+char *Alternate_Current_OpenSpeedShop_Prompt = "....ss>";
+static FILE *ttyin = NULL;  // Read directly from this xterm window.
+static FILE *ttyout = NULL; // Write directly to this xterm window.
+
+// FOrward definitions of local functions
+void Default_TLI_Command_Output (CommandObject *C);
 bool All_Command_Objects_Are_Used (InputLineObject *clip);
 
 // Local Macros
@@ -15,6 +22,8 @@ FILE *predefined_filename (std::string filename)
     return stderr;
   } else if (!strcmp( filename.c_str(), "stdin")) {
     return stdin;
+  } else if (!strcmp( filename.c_str(), "/dev/tty")) {
+    return ttyout;
   } else {
     return NULL;
   }
@@ -43,12 +52,6 @@ static pthread_cond_t  Async_Input_Available = PTHREAD_COND_INITIALIZER;
 // Input_Source
 #define DEFAULT_INPUT_BUFFER_SIZE 4096
 
-char *Current_OpenSpeedShop_Prompt = "openss";
-char *Alternate_Current_OpenSpeedShop_Prompt = "....ss";
-static FILE *ttyin = NULL;  // Read directly from this xterm window.
-static FILE *ttyout = NULL; // Write directly to this xterm window.
-void Default_TLI_Command_Output (CommandObject *C);
-
 class Input_Source
 {
  protected:
@@ -64,6 +67,12 @@ class Input_Source
   bool Trace_To_A_Predefined_File;
   std::string Trace_Name;
   FILE *Trace_F;
+
+ // Used if files are to be read
+ // These pointers are copied to the InputLineObject generated for each line from the file.
+  void (*CallBackLine) (InputLineObject *b);  // Optional call back function to notify output routine.
+  void (*CallBackCmd) (CommandObject *b);  // Optional call back function for Command Objects.
+
 
  public:
   // Constructor & Destructor
@@ -88,6 +97,8 @@ class Input_Source
     Trace_To_A_Predefined_File = false;
     Trace_Name = std::string("");
     Trace_F = NULL;
+    CallBackLine = NULL;
+    CallBackCmd = NULL;
   }
   Input_Source (InputLineObject *clip) {
     Next_Source = NULL;
@@ -102,6 +113,8 @@ class Input_Source
     Trace_To_A_Predefined_File = false;
     Trace_Name = std::string("");
     Trace_F = NULL;
+    CallBackLine = NULL;
+    CallBackCmd = NULL;
   }
   Input_Source (int64_t buffsize, char *buffer) {
     Next_Source = NULL;
@@ -116,6 +129,8 @@ class Input_Source
     Trace_To_A_Predefined_File = false;
     Trace_Name = std::string("");
     Trace_F = NULL;
+    CallBackLine = NULL;
+    CallBackCmd = NULL;
   }
   ~Input_Source () {
    /* Assume that this routine has ownership of any buffer it was given. */
@@ -130,6 +145,13 @@ class Input_Source
     if (Trace_F && !Trace_To_A_Predefined_File) {
       fclose (Trace_F);
     }
+  }
+
+  void Set_CallBackL  (void (*cbf) (InputLineObject *b)) { CallBackLine = cbf; }
+  void Set_CallBackC  (void (*cbf) (CommandObject *b)) { CallBackCmd = cbf; }
+  void Copy_CallBack  (InputLineObject *clip) {
+    if (CallBackLine != NULL) clip->Set_CallBackL (CallBackLine);
+    if (CallBackCmd  != NULL) clip->Set_CallBackC (CallBackCmd); 
   }
 
   void Link (Input_Source *inp) { Next_Source = inp; }
@@ -464,7 +486,8 @@ public:
       if (next_line == NULL) {
         return NULL;
       }
-      clip = New_InputLineObject(ID(), next_line);
+      clip = New_InputLineObject ( ID(), next_line);
+      Input->Copy_CallBack (clip);
     }
 
    // For internal debugging, the trace file is used to record activity of the command
@@ -721,7 +744,8 @@ void List_CommandWindows ( FILE *TFile )
   }
 }
 
-void Trace_File_History (enum Trace_Entry_Type trace_type, std::string fname, FILE *TFile)
+static void Trace_File_History (CommandObject *cmd, enum Trace_Entry_Type
+                                trace_type, std::string fname, FILE *TFile)
 {
   FILE *cmdf = fopen (fname.c_str(), "r");
   struct stat stat_buf;
@@ -756,12 +780,14 @@ void Trace_File_History (enum Trace_Entry_Type trace_type, std::string fname, FI
         case CMDW_TRACE_ORIGINAL_COMMANDS:
          // Dump records with leading "C " but strip off time stamp
           if ((*s) ==  (*"C ")) {
-            for (int j = 0; j < len; t++, j++) {
-              if (!strncmp(t,")",1)) break;
-            }
-            if (strlen(t) > 2) {
-              dump_this_record = true;
-              t+=3;
+            char *S = strstr(t,"PARSING:");
+            if (S != NULL) {
+              S += 9;  // One more to get rid of blank separator.
+              if (strlen(t) > 2) {
+                dump_this_record = true;
+                t = S;
+                break;
+              }
             }
           }
           break;
@@ -774,8 +800,13 @@ void Trace_File_History (enum Trace_Entry_Type trace_type, std::string fname, FI
           break;
       }
       if (dump_this_record) {
-        *(s+len-1) = *("\n");
-        fprintf(TFile,"%s",t);
+        if (cmd != NULL) {
+          *(s+len-1) = *("\0");
+          cmd->Result_String (t);
+        } else {
+          *(s+len-1) = *("\n");
+          fprintf(TFile,"%s",t);
+        }
       }
     }
     i+=len;
@@ -785,11 +816,18 @@ void Trace_File_History (enum Trace_Entry_Type trace_type, std::string fname, FI
 }
 
 // Read the trace files and echo selected entries to another file.
-void Command_Trace (enum Trace_Entry_Type trace_type, CMDWID cmdwinid, std::string tofname)
+bool Command_Trace (CommandObject *cmd, enum Trace_Entry_Type trace_type,
+                    CMDWID cmdwinid, std::string tofname)
 {
   FILE *tof = predefined_filename( tofname );
   bool tof_predefined = (tof != NULL);
-  if (tof == NULL) tof = fopen (tofname.c_str(), "a");
+  if (tof == NULL) {
+    if (tofname.length() != 0) {
+      tof = fopen (tofname.c_str(), "a");
+    } else {
+      tof = stderr;
+    }
+  }
 
   std::list<CommandWindowID *>::reverse_iterator cwi;
   for (cwi = CommandWindowID_list.rbegin(); cwi != CommandWindowID_list.rend(); cwi++)
@@ -799,20 +837,35 @@ void Command_Trace (enum Trace_Entry_Type trace_type, CMDWID cmdwinid, std::stri
       std::string cmwtrn = (*cwi)->Trace_Name();
       FILE *cmwtrf = (*cwi)->Trace_File();
       if (!cmwtrf) {
-        fprintf(stderr,"ERROR: no trace file %s\n",cmwtrn.c_str());
-        return;
+        char *S;
+        sprintf(S,"ERROR: no trace file %s\n",cmwtrn.c_str());
+        if (cmd != NULL) {
+          cmd->Result_String (S);
+        } else {
+          fprintf((tof != NULL) ? tof : stderr,"%s\n",S);
+        }
+        return false;
       }
       if (fflush (cmwtrf)) {
-        fprintf(stderr,"ERROR: can not flush trace file %s\n",cmwtrn.c_str());
-        return; 
+        char *S;
+        sprintf(S,"ERROR: can not flush trace file %s\n",cmwtrn.c_str());
+        if (cmd != NULL) {
+          cmd->Result_String (S);
+        } else {
+          fprintf((tof != NULL) ? tof : stderr,"%s\n",S);
+        }
+        return false;
       }
-      Trace_File_History (trace_type, cmwtrn, tof);
+      Trace_File_History (cmd, trace_type, cmwtrn, tof);
     }
   }
-  fflush(tof);
-  if (!tof_predefined) {
-    fclose (tof);
+  if (tof) {
+    fflush(tof);
+    if (!tof_predefined) {
+      fclose (tof);
+    }
   }
+  return true;
 }
 
 // Set up an alternative trace file at user request.
@@ -990,10 +1043,14 @@ if (!cw) {
   return true;
 }
 
-bool Append_Input_File (CMDWID issuedbywindow, std::string fromfname) {
+bool Append_Input_File (CMDWID issuedbywindow, std::string fromfname,
+                                      void (*CallBackLine) (InputLineObject *b),
+                                      void (*CallBackCmd) (CommandObject *b)) {
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
   Assert (cw);
   Input_Source *inp = new Input_Source (fromfname);
+  inp->Set_CallBackL (CallBackLine);
+  inp->Set_CallBackC (CallBackCmd);
   cw->Append_Input_Source (inp);
   return true;
 }
@@ -1006,10 +1063,14 @@ static bool Push_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_pt
   return true;
 }
 
-bool Push_Input_File (CMDWID issuedbywindow, std::string fromfname) {
+bool Push_Input_File (CMDWID issuedbywindow, std::string fromfname,
+                                      void (*CallBackLine) (InputLineObject *b),
+                                      void (*CallBackCmd) (CommandObject *b)) {
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
   Assert (cw);
   Input_Source *inp = new Input_Source (fromfname);
+  inp->Set_CallBackL (CallBackLine);
+  inp->Set_CallBackC (CallBackCmd);
   cw->Push_Input_Source (inp);
   return true;
 }
