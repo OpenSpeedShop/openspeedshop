@@ -21,9 +21,8 @@
 void CommandObject::set_Status (Command_Status S) {
  // Once in the ERROR or ABORTED state, it must stay there.
  // Furthermore, propagate these states to the Clip only once.
-  if ((Cmd_Status != CMD_ERROR) ||
+  if ((Cmd_Status != CMD_ERROR) &&
       (Cmd_Status != CMD_ABORTED)) {
-    Assert (Cmd_Status != CMD_COMPLETE);
     Cmd_Status = S;
     InputLineObject *clip = Clip();
     if (S == CMD_COMPLETE) {
