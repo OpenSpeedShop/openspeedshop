@@ -101,7 +101,7 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n, void *argument) 
   frameLayout->addWidget( pcSampleControlPanelContainerWidget );
 
 OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
-printf("Create a new pcSample experiment.\n");
+// printf("Create a new pcSample experiment.\n");
 
 
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
@@ -109,15 +109,17 @@ printf("Create a new pcSample experiment.\n");
 if( expID == -1 )
 {
   char command[1024];
+// NOTE: "example" is used in place of "pcsamp" because it works for the
+//       test case.   "example" will eventually be replaced again with "pcsamp."
   if( !mw->executableName.isEmpty() )
   {
-    sprintf(command, "expCreate -f %s pcsamp\n", mw->executableName.ascii() );
+    sprintf(command, "expCreate -f %s example\n", mw->executableName.ascii() );
   } else if( !mw->pidStr.isEmpty() )
   { 
-    sprintf(command, "expCreate -x %s pcsamp\n", mw->pidStr.ascii() );
+    sprintf(command, "expCreate -x %s example\n", mw->pidStr.ascii() );
   } else
   {
-    sprintf(command, "expCreate pcsamp\n" );
+    sprintf(command, "expCreate example\n" );
   }
   bool mark_value_for_delete = true;
   int64_t val = 0;
@@ -128,13 +130,13 @@ if( expID == -1 )
   }
 
   expID = val;
-  fprintf(stdout, "A: MY VALUE! = (%d)\n", val);
+//  fprintf(stdout, "A: MY VALUE! = (%d)\n", val);
 }
 
   char name_buffer[100];
   sprintf(name_buffer, "%s [%d]", getName(), expID);
   setName(name_buffer);
-groupID = expID;
+  groupID = expID;
 
   pcSampleControlPanelContainerWidget->show();
   topPC->show();
@@ -288,7 +290,7 @@ pcSamplePanel::loadNewProgramSelected()
   nprintf( DEBUG_PANELS ) ("pcSamplePanel::loadNewProgramSelected()\n");
   if( runnableFLAG == TRUE )
   {
-    printf("Disconnect First?\n"); 
+    nprintf( DEBUG_PANELS ) ("Disconnect First?\n"); 
     if( detachFromProgramSelected() == FALSE )
     {
       return;
