@@ -559,8 +559,7 @@ public:
   bool   Set_Log_File ( std::string tofname ) {
     FILE *tof = predefined_filename (tofname);
     if ((Trace_F != NULL) &&
-        (predefined_filename (Trace_File_Name) == NULL) &&
-        (tof != NULL)) {
+        (predefined_filename (Trace_File_Name) == NULL)) {
      // Copy the old file to the new file.
       fclose (Trace_F);
       if (tof == NULL) {
@@ -586,7 +585,8 @@ public:
     return (Trace_F != NULL);
   }
   void   Remove_Log_File () {
-    if (Trace_F != NULL) {
+    if ((Trace_F != NULL)  &&
+        (predefined_filename (Trace_File_Name) == NULL)) {
       fclose (Trace_F);
     }
     Trace_File_Name = std::string("");
