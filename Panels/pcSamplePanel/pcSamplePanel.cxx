@@ -20,18 +20,13 @@
 
 #include "LoadAttachObject.hxx"
 
+#include "Commander.hxx"
 
 
 /*!  pcSamplePanel Class
 
      Autor: Al Stipek (stipek@sgi.com)
  */
-
-
-/*! The default constructor.   Unused. */
-pcSamplePanel::pcSamplePanel()
-{ // Unused... Here for completeness...
-}
 
 
 /*! Constructs a new UserPanel object */
@@ -42,6 +37,8 @@ pcSamplePanel::pcSamplePanel()
 pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n, char *argument) : Panel(pc, n)
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("pcSamplePanel::pcSamplePanel() constructor called\n");
+
+  expID = -1;
 
   mw = getPanelContainer()->getMainWindow();
 
@@ -75,20 +72,31 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n, char *argument) 
                               pc->getMasterPCList() );
   frameLayout->addWidget( pcSampleControlPanelContainerWidget );
 
-printf("Create an Application\n");
-printf("# Application theApplication;\n");
-printf("# //Create a process for the command in the suspended state\n");
-printf("# load the executable or attach to the process.\n");
-printf("# if( loadExecutable ) {\n");
-printf("# theApplication.createProcess(command);\n");
-printf("# } else { // attach \n");
-printf("#   theApplication.attachToPrcess(pid, hostname);\n");
-printf("# }\n");
-printf("set the parameters.\n");
-printf("# pcCollector.setParameter(param);  // obviously looping over each.\n");
-printf("attach the collector to the Application.\n");
-printf("# // Attach the collector to all threads in the application\n");
-printf("# theApplication.attachCollector(theCollector.getValue());\n");
+OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
+printf("Create a new pcSample experiment.\n");
+if( !mw->executableName.isEmpty() )
+{
+int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
+char buffer[1024];
+sprintf(buffer, "expCreate -f %s \"pcsamp\"\n", mw->executableName.ascii() );
+InputLineObject *ilp = Append_Input_String( wid, buffer);
+} else if( !mw->pidStr.isEmpty() )
+{ 
+int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
+char buffer[1024];
+sprintf(buffer, "expCreate -x %s \"pcsamp\"\n", mw->pidStr.ascii() );
+InputLineObject *ilp = Append_Input_String( wid, buffer);
+} else
+{
+int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
+char buffer[1024];
+sprintf(buffer, "expCreate \"pcsamp\"\n" );
+InputLineObject *ilp = Append_Input_String( wid, buffer);
+}
+
+printf("PUT THE EXPERIMENT ID HERE!\n");
+expID = 0;
+
 
   pcSampleControlPanelContainerWidget->show();
   topPC->show();
@@ -128,6 +136,11 @@ nprintf( DEBUG_CONST_DESTRUCT ) ("Positioned at main in %s ????? \n", buffer);
  */
 pcSamplePanel::~pcSamplePanel()
 {
+int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
+char buffer[1024];
+sprintf(buffer, "expClose %d", expID );
+InputLineObject *ilp = Append_Input_String( wid, buffer);
+ 
   nprintf( DEBUG_CONST_DESTRUCT ) ("  pcSamplePanel::~pcSamplePanel() destructor called\n");
   delete frameLayout;
 }

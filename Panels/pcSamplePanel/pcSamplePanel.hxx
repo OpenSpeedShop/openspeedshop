@@ -29,9 +29,6 @@ class pcSamplePanel  : public Panel
   //! Q_OBJECT is needed as there are slots defined for the class
   Q_OBJECT
 public:
-  //! pcSamplePanel() - A default constructor the the Panel Class.
-  pcSamplePanel();  // Default construct
-
   //! pcSamplePanel(PanelContainer *pc, const char *name)
     /*! This constructor is the work constructor.   It is called to
         create the new Panel and attach it to a PanelContainer.
@@ -112,6 +109,8 @@ protected:
 
 private:
   OpenSpeedshop *mw;
+ 
+  int expID;  // Experiment ID of the expCreate, returned from the cli
 
   void updateInitialStatus();
 };
