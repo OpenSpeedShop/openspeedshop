@@ -16,13 +16,16 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////// */
 
+/*[0-7]+.[0-7]+.[0-7]+.[0-7]+  yylval.val = ipnum(yytext); return NUMBER; } */
+
 %{
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <string.h>
 #include "y.tab.h"
 extern int yylex();
-//extern void exit(int);
+extern char * copy_string(char *);
 %}
 
 %%
@@ -40,25 +43,6 @@ extern int yylex();
 "kill"	    	{ return KILL;}
 "-mpi"	    	{ return MPI;}
 
-"pcsamp"  	{ yylval.string = yytext; return EXP_PCSAMP;}
-"usertime"  	{ yylval.string = yytext; return EXP_USERTIME;}
-"mpi"  	    	{ yylval.string = yytext; return EXP_MPI;}
-"fpe"  	    	{ yylval.string = yytext; return EXP_FPE;}
-"hwc"  	    	{ yylval.string = yytext; return EXP_HWC;}
-"io"  	    	{ yylval.string = yytext; return EXP_IO;}
-
-"vtopn"  	{ yylval.string = yytext; return VIEW_TOPN;}
-"vexcltime"  	{ yylval.string = yytext; return VIEW_EXCLTIME;}
-"vio"	    	{ yylval.string = yytext; return VIEW_IO;}
-"vfpe"  	{ yylval.string = yytext; return VIEW_FPE;}
-"vhwc"  	{ yylval.string = yytext; return VIEW_HWC;}
-
-"displaymode"  	{ yylval.string = yytext; return PARAM_DISPLAY_MODE;}
-"displaymedia"	{ yylval.string = yytext; return PARAM_DISPLAY_MEDIA;}
-"displayrefreshrate"  	{ yylval.string = yytext; return PARAM_DISPLAY_REFRESH_RATE;}
-"expsavefile"  	{ yylval.string = yytext; return PARAM_EXP_SAVE_FILE;}
-"samplingrate"	{ yylval.string = yytext; return PARAM_SAMPLING_RATE;}
-
 "expattach" 	{ return ATTACH_HEAD; }
 "expclose"  	{ return CLOSE_HEAD; }
 "expcreate" 	{ return CREATE_HEAD; }
@@ -70,7 +54,7 @@ extern int yylex();
 "exprestore"	{ return RESTORE_HEAD; }
 "expgo"    	{ return GO_HEAD; }
 "expsave"	{ return SAVE_HEAD; }
-"expsetparm"	{ return SETPARAM_HEAD; }
+"expsetparam"	{ return SETPARAM_HEAD; }
 "expview"   	{ return VIEW_HEAD; }
 
 "listexp"   	{ return LIST_EXP_HEAD; }
@@ -94,8 +78,26 @@ extern int yylex();
 "record"    	{ return GEN_RECORD_HEAD; }
 "setbreak"  	{ return GEN_SETBREAK_HEAD; }
 
+"pcsamp"  	{ yylval.string = copy_string(yytext); return EXP_PCSAMP;}
+"usertime"  	{ yylval.string = copy_string(yytext); return EXP_USERTIME;}
+"mpi"  	    	{ yylval.string = copy_string(yytext); return EXP_MPI;}
+"fpe"  	    	{ yylval.string = copy_string(yytext); return EXP_FPE;}
+"hwc"  	    	{ yylval.string = copy_string(yytext); return EXP_HWC;}
+"io"  	    	{ yylval.string = copy_string(yytext); return EXP_IO;}
+
+"vtopn"  	{ yylval.string = copy_string(yytext); return VIEW_TOPN;}
+"vexcltime"  	{ yylval.string = copy_string(yytext); return VIEW_EXCLTIME;}
+"vio"	    	{ yylval.string = copy_string(yytext); return VIEW_IO;}
+"vfpe"  	{ yylval.string = copy_string(yytext); return VIEW_FPE;}
+"vhwc"  	{ yylval.string = copy_string(yytext); return VIEW_HWC;}
+
+"displaymode"  	{ yylval.string = copy_string(yytext); return PARAM_DISPLAY_MODE;}
+"displaymedia"	{ yylval.string = copy_string(yytext); return PARAM_DISPLAY_MEDIA;}
+"displayrefreshrate"  	{ yylval.string = copy_string(yytext); return PARAM_DISPLAY_REFRESH_RATE;}
+"expsavefile"  	{ yylval.string = copy_string(yytext); return PARAM_EXP_SAVE_FILE;}
+"samplingrate"	{ yylval.string = copy_string(yytext); return PARAM_SAMPLING_RATE;}
+
 "quit"  	{ return JUST_QUIT_HEAD; }
-"q" 	    	{ return JUST_QUIT_HEAD; }
 
 "-r"	{ return RANK_ID; }
 "-h"	{ return HOST_ID; }
@@ -108,7 +110,7 @@ extern int yylex();
 
 0x[0-9a-f]+	{yylval.val = atoi(yytext); return(HEXNUMBER);}
 [0-9]+   { yylval.val = atoi(yytext); return NUMBER; }
-[a-zA-Z0-9_./]+  { yylval.string = yytext; return NAME; }
+[a-zA-Z./][a-zA-Z0-9_./]+  { yylval.string = copy_string(yytext); return NAME; }
 
 [\n]	{ return END_LINE; }
 
