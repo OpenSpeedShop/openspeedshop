@@ -63,6 +63,7 @@ register_plugin(QWidget *pl, char *plugin_file, PanelContainer *masterPC)
 
   if( !dl_object )
   {
+//NOTE: THIS IS THE IMPORTANT DEBUG PRINT
 //    fprintf(stderr, "(%s): dlerror()=%s\n", plugin_file, dlerror() );
     return(0);
   }
