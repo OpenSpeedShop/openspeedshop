@@ -104,7 +104,7 @@ command_desc: exp_attach_com 	{set_command_type(CMD_EXP_ATTACH);}
 	    | gen_record_com    	{set_command_type(CMD_RECORD);}
 	    | gen_setbreak_com  	{set_command_type(CMD_SETBREAK);}
 	    | just_quit_com 	 {exit(0);}
-	    | error {/* set_error(yylval.string,command_name[CMD_ERROR]);*/} 
+	    | error {/* set_error(yylval.string,command_name[CMD_HEAD_ERROR]);*/} 
     ; 
 
     	    /** EXP_ATTACH **/	    

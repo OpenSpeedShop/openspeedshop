@@ -56,7 +56,7 @@ typedef enum {
 } help_gen_enum;
 
 typedef enum {
-    CMD_ERROR,	    /* used for error processing */
+    CMD_HEAD_ERROR,	    /* used for error processing */
     CMD_EXP_ATTACH,
     CMD_EXP_CLOSE,
     CMD_EXP_CREATE,
