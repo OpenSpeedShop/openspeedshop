@@ -467,7 +467,6 @@ PanelContainer::split(Orientation orientation, bool showRight, int leftSidePerce
   // and move the remaining panels to the right/bottom panel container.
   if( sourcePC->areTherePanels() )
   {
-printf("There are (%d) panels\n", sourcePC->panelList.count() );
     if( sourcePC->panelList.count() > 1 ) 
     {
       rightPanelContainer->movePanelsToNewPanelContainer( sourcePC );
@@ -539,13 +538,22 @@ PanelContainer::getRaisedPanel()
              it != panelList.end();
              ++it )
     {
+      p = (Panel *)*it;
+#ifndef OLDWAY
+int indexOf = tabWidget->indexOf(p->getBaseWidgetFrame());
+if( indexOf == -1 )
+{
+  continue;
+}
+#endif  // OLDWAY
       if( i == currentPageIndex )
       {
-        p = (Panel *)*it;
         nprintf(DEBUG_PANELCONTAINERS) ("found the raised panel (%s)\n", p->getName() );
         return p;
       }
+#ifdef OLDWAY
       i++;
+#endif // OLDWAY
     }
   }
 
@@ -1316,6 +1324,14 @@ PanelContainer::raiseNamedPanel(char *panel_name)
     p = (Panel *)*it;
     if( strcmp(p->getName(), panel_name) == 0 )
     {
+      nprintf(DEBUG_PANELCONTAINERS)("Found the panel to raise. count=%d\n", count );
+      int indexOf = tabWidget->indexOf(p->getBaseWidgetFrame());
+      if( indexOf == -1 )
+      {
+        nprintf(DEBUG_PANELCONTAINERS)("We have an hidden index of!!!\n");
+        tabWidget->insertTab(p->getBaseWidgetFrame(), p->getName(), count );
+        tabWidget->showPage(p->getBaseWidgetFrame());
+      }
       tabWidget->setCurrentPage(count);
       return(p);
     }
@@ -1341,6 +1357,13 @@ PanelContainer::raisePanel(Panel *panel)
     p = (Panel *)*it;
     if( p == panel )
     {
+      int indexOf = tabWidget->indexOf(p->getBaseWidgetFrame());
+      if( indexOf == -1 )
+      {
+        nprintf(DEBUG_PANELCONTAINERS)("We have an hidden index of!!!\n");
+        tabWidget->insertTab(p->getBaseWidgetFrame(), p->getName(), count );
+        tabWidget->showPage(p->getBaseWidgetFrame());
+      }
       tabWidget->setCurrentPage(count);
       return(p);
     }
@@ -1457,22 +1480,82 @@ PanelContainer::removeTopLevelPanelContainer(PanelContainer *toppc, bool recursi
   return;
 }
 
+
+/*! This routine does the actual delete of the p from the panel 
+    container.  User's should never call it!
+ */
+void
+PanelContainer::deletePanel(Panel *p, PanelContainer *targetPC)
+{
+  if( p )
+  {
+    nprintf(DEBUG_PANELCONTAINERS) ("we've got a hidden panel to delete.  delete it (%s)\n",
+    p->getName() );
+    targetPC->panelList.remove(p);   
+    nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::removeRaisedPanel() delete %s\n", p->getName() );
+    // If the panel is a toplevel, delete any panel containers it may have.
+    if( p->topLevel == TRUE && p->topPC != NULL )
+    {
+      nprintf(DEBUG_PANELCONTAINERS) ("whoaaa! before you get too carried away, this is a toplevel panel.\n");
+      removePanelContainer(p->topPC);
+      removeTopLevelPanelContainer(p->topPC, FALSE);
+      nprintf(DEBUG_PANELCONTAINERS) ("wah:AA: delete (%s)\n", p->getName() );
+      delete p;
+    }  else
+    {
+      nprintf(DEBUG_PANELCONTAINERS) ("wah:BB: delete (%s)\n", p->getName() );
+      delete p;
+    }
+  }
+}
+
+/*! This routine looks, in 'this' panel container, for the panel
+    passed in and hides it.
+ */
+void
+PanelContainer::hidePanel(Panel *targetPanel)
+{
+  int index = 0;
+  QWidget *currentPage = NULL;
+  for( PanelList::Iterator pit = panelList.begin();
+             pit != panelList.end();
+             ++pit )
+  {
+    Panel *p = (Panel *)*pit;
+    if( p == targetPanel )
+    {
+      nprintf(DEBUG_PANELCONTAINERS)("matched a panel to remove (%s)\n", p->getName() );
+      currentPage = tabWidget->page(index);
+      tabWidget->removePage(currentPage);
+      break;
+    }
+    // Don't bump the index for hidden panels.
+    int indexOf = tabWidget->indexOf(p->getBaseWidgetFrame());
+    if( indexOf != -1 )
+    {
+      index++;
+    }
+  }
+}
+
 /*! If there is a Panel raised, remove it. */
 void
 PanelContainer::removeRaisedPanel(PanelContainer *targetPC)
 {
-//   nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::removeRaisedPanel from (%s-%s) entered.\n", getInternalName(), getExternalName() );
+   nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::removeRaisedPanel from (%s-%s) entered.\n", getInternalName(), getExternalName() );
   if( targetPC == NULL )
   {
     targetPC = getMasterPC()->_lastPC;
   } 
   nprintf(DEBUG_PANELCONTAINERS) ("targetPC = (%s-%s)\n", targetPC->getInternalName(), targetPC->getExternalName() );
+  nprintf(DEBUG_PANELCONTAINERS)("There are %d panels in this PC.\n", targetPC->panelList.count() );
 
   if( targetPC->tabWidget != NULL )
   {
     QWidget *currentPage = targetPC->tabWidget->currentPage();
     int currentPageIndex= targetPC->tabWidget->currentPageIndex();
     Panel *p = targetPC->getRaisedPanel();
+    nprintf(DEBUG_PANELCONTAINERS)("Current page (raised tab) = %d (%s) p=(%s)\n", currentPageIndex, targetPC->tabWidget->label(currentPageIndex).ascii(), p->getName() );
 
     if( currentPageIndex == -1 || p == NULL)
     {
@@ -1481,26 +1564,47 @@ PanelContainer::removeRaisedPanel(PanelContainer *targetPC)
     }
 
     targetPC->tabWidget->removePage(currentPage);
-    if( p )
+    deletePanel(p, targetPC);
+  }
+
+  // If the panelList is not empty, but all the panels are hidden.   Then
+  // remove the hidden panels and hide the internals.
+  int remainingPanelsAreHidden = TRUE;
+  for( PanelList::Iterator pit = targetPC->panelList.begin();
+             pit != targetPC->panelList.end();
+             ++pit )
+  {
+    Panel *p = (Panel *)*pit;
+    int indexOf = targetPC->tabWidget->indexOf(p->getBaseWidgetFrame());
+    nprintf(DEBUG_PANELCONTAINERS)("indexOf=%d (%s)\n", indexOf, p->getName() );
+    if( indexOf != -1 )
     {
-      nprintf(DEBUG_PANELCONTAINERS) ("we've got a raised panel to delete.  delete it (%s)\n",
-        p->getName() );
-      targetPC->panelList.remove(p);   
-      nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::removeRaisedPanel() delete %s\n", p->getName() );
-      // If the panel is a toplevel, delete any panel containers it may have.
-      if( p->topLevel == TRUE && p->topPC != NULL )
-      {
-        nprintf(DEBUG_PANELCONTAINERS) ("whoaaa! before you get too carried away, this is a toplevel panel.\n");
-        removePanelContainer(p->topPC);
-        removeTopLevelPanelContainer(p->topPC, FALSE);
-        nprintf(DEBUG_PANELCONTAINERS) ("wah:A: delete (%s)\n", p->getName() );
-        delete p;
-      }  else
-      {
-        nprintf(DEBUG_PANELCONTAINERS) ("wah:B: delete (%s)\n", p->getName() );
-        delete p;
-      }
+      remainingPanelsAreHidden = FALSE;
+      break;
     }
+  }
+  nprintf(DEBUG_PANELCONTAINERS)("remainingPanelsAreHidden=%d\n", remainingPanelsAreHidden);
+
+  PanelList panelListToDelete;
+  if( remainingPanelsAreHidden )
+  {
+    nprintf(DEBUG_PANELCONTAINERS)("There are %d panels to delete.\n", targetPC->panelList.count() );
+    for( PanelList::Iterator pit = targetPC->panelList.begin();
+             pit != targetPC->panelList.end();
+             ++pit )
+    {
+      Panel *p = (Panel *)*pit;
+      
+      panelListToDelete.push_back(p);
+    }
+    for( PanelList::Iterator pit = panelListToDelete.begin();
+             pit != panelListToDelete.end();
+             ++pit )
+    {
+      Panel *p = (Panel *)*pit;
+      deletePanel(p, targetPC);
+    }
+    panelListToDelete.clear();
   }
 
   if( targetPC->panelList.empty() )
@@ -2266,7 +2370,6 @@ PanelContainer::moveCurrentPanelToNewPanelContainer( PanelContainer *sourcePC )
   int original_index = sourcePC->tabWidget->currentPageIndex();
 
   nprintf(DEBUG_PANELCONTAINERS) ("I think there are %d panels to move ", sourcePC->tabWidget->count() );
-printf ("I think there are %d panels to move ", sourcePC->tabWidget->count() );
  
   nprintf(DEBUG_PANELCONTAINERS) ("onto targetPC=(%s)\n", targetPC->getInternalName() );
 printf ("onto targetPC=(%s)\n", targetPC->getInternalName() );
@@ -2315,7 +2418,6 @@ printf ("onto targetPC=(%s)\n", targetPC->getInternalName() );
 
   int count = targetPC->tabWidget->count();
   nprintf(DEBUG_PANELCONTAINERS) ("we've moved %d panels\n", count);
-printf ("we've moved %d panels\n", count);
   if( count > 0 )
   {
     targetPC->tabWidget->setCurrentPage(original_index);

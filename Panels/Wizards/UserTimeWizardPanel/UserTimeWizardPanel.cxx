@@ -866,6 +866,8 @@ void UserTimeWizardPanel::vSummaryPageFinishButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("vSummaryPageFinishButtonSelected() \n");
 
+  getPanelContainer()->hidePanel((Panel *)this);
+
   Panel *p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("User Time", getPanelContainer());
 
   if( getPanelContainer()->getMainWindow() )

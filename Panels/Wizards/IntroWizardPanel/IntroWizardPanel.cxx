@@ -467,6 +467,7 @@ void IntroWizardPanel::epage1NextButtonSelected()
       getPanelContainer()->getMasterPC()->dl_create_and_add_panel("MPI Wizard", getPanelContainer());
     }
   }
+  getPanelContainer()->hidePanel((Panel *)this);
 }
 
 void IntroWizardPanel::vpage1NextButtonSelected()
@@ -536,6 +537,8 @@ void IntroWizardPanel::vpage1NextButtonSelected()
       getPanelContainer()->getMasterPC()->dl_create_and_add_panel("MPI Wizard", getPanelContainer());
     }
   }
+
+  getPanelContainer()->hidePanel((Panel *)this);
 }
 
 void IntroWizardPanel::vpage1pcSampleRBChanged()

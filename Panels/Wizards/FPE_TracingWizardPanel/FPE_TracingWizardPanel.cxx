@@ -866,6 +866,8 @@ void FPE_TracingWizardPanel::vSummaryPageFinishButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("vSummaryPageFinishButtonSelected() \n");
 
+  getPanelContainer()->hidePanel((Panel *)this);
+
   Panel *p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("FPE Tracing", getPanelContainer());
 
   if( getPanelContainer()->getMainWindow() )

@@ -866,6 +866,8 @@ void HW_CounterWizardPanel::vSummaryPageFinishButtonSelected()
 {
 nprintf(DEBUG_PANELS) ("vSummaryPageFinishButtonSelected() \n");
 
+  getPanelContainer()->hidePanel((Panel *)this);
+
   Panel *p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("HW Counter", getPanelContainer());
 
   if( getPanelContainer()->getMainWindow() )

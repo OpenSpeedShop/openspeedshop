@@ -263,9 +263,10 @@ Panel *findNamedPanel(PanelContainer *start_pc, char *panel_name);
     //! Moves give panel to targetPC.
     void movePanel( Panel *p, QWidget *currentPage, PanelContainer *targetPC );
 
+    //! Hide the panel (remove from tabWidget)
+    void hidePanel(Panel *p);
 
   protected:
-
 
   private slots:
     //! This is the routine that does the actual split.
@@ -366,6 +367,9 @@ Panel *findNamedPanel(PanelContainer *start_pc, char *panel_name);
 
     //! Removes all panels from a PanelContainer.
     void removePanels(PanelContainer *pc = NULL);   // Removes all panels
+
+    //! Deletes the panels from existence.
+    void deletePanel(Panel *p, PanelContainer *targetPC);
 
     //! This is the routine that calls the Panel->menu function.
     bool addPanelMenuItems(QPopupMenu* contextMenu);
