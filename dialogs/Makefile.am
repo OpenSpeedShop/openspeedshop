@@ -16,34 +16,38 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-pkglib_LTLIBRARIES = libopenss-Dialogs.la
+lib_LTLIBRARIES = libopenss-Dialogs.la
 
 libopenss_Dialogs_la_CXXFLAGS = \
 	-I/usr/include \
 	-I$(QTDIR)/include \
 	-I. \
-	-I.. \
-	-I../libopenss-framework \
-	-I../gui \
-	-I../pcli \
-	-I../images \
-	-I../base \
-	-I../plugin \
-    -I../objects \
+	-I$(top_srcdir) \
+	-I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/gui \
+	-I$(top_srcdir)/pcli \
+	-I$(top_srcdir)/images \
+	-I$(top_srcdir)/base \
+	-I$(top_srcdir)/plugin \
+    -I$(top_srcdir)/objects \
 	-I$(QTDIR)
 
 libopenss_Dialogs_la_LDFLAGS = --export-dynamic -module -avoid-version
 
-libopenss_Dialogs_la_LIBADD = $(LIBLTDL) -L../objects -lopenss-Objects
+libopenss_Dialogs_la_LIBADD = $(LIBLTDL)  -L../objects -lopenss-Objects
 
 moc_AttachProcessDialog.cxx: AttachProcessDialog.hxx
 	-moc -o moc_AttachProcessDialog.cxx AttachProcessDialog.hxx
+
+moc_ManageCollectorsDialog.cxx: ManageCollectorsDialog.hxx
+	-moc -o moc_ManageCollectorsDialog.cxx ManageCollectorsDialog.hxx
 
 moc_SelectExperimentDialog.cxx: SelectExperimentDialog.hxx
 	-moc -o moc_SelectExperimentDialog.cxx SelectExperimentDialog.hxx
 
 libopenss_Dialogs_la_SOURCES = \
 	AttachProcessDialog.hxx AttachProcessDialog.cxx moc_AttachProcessDialog.cxx \
+	ManageCollectorsDialog.hxx ManageCollectorsDialog.cxx moc_ManageCollectorsDialog.cxx \
 	PanelListViewItem.hxx PanelListViewItem.cxx \
 	SelectExperimentDialog.hxx SelectExperimentDialog.cxx moc_SelectExperimentDialog.cxx
 
