@@ -375,9 +375,7 @@ the API are illustrated by the above example.
 
 /** @defgroup GUI GUI Introduction
 
-Enter a Detailed Description here.
-
-<a href="http://www.trolltech.com">Qt</a>
+<p>
 <p>
  *\section intro_the_goal The Goal
  *The goal of the GUI is to provide an intuitive, easy to use, portal to an
@@ -582,8 +580,10 @@ Enter a Detailed Description here.
  *\par o hardware counter experiment
  *\par o PC sampling experiment
  *\par o MPI tracing experiment
- */
 <p>
 
+<p>
+ *\section trolltech_qt_pointer For more information about Qt
+<a href="http://www.trolltech.com">Qt</a>
 <p>
 */
