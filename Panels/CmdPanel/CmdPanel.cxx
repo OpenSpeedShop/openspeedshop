@@ -372,8 +372,9 @@ CmdPanel::listener(void *msg)
 {
   nprintf(DEBUG_MESSAGES) ("CmdPanel::listener() requested.\n");
 
+  nprintf(DEBUG_MESSAGES) ("CmdPanel::listener() getName(%s)\n", getName() );
   MessageObject *messageObject = (MessageObject *)msg;
-  if( messageObject->msgType == "&Command Panel" )
+  if( messageObject->msgType == getName() )
   {
     nprintf(DEBUG_MESSAGES) ("CmdPanel::listener() interested!\n");
     getPanelContainer()->raisePanel(this);
