@@ -32,6 +32,7 @@
 #include "CallSite.hxx"
 #include "Collector.hxx"
 #include "CollectorGroup.hxx"
+#include "Database.hxx"
 #include "Experiment.hxx"
 #include "Function.hxx"
 #include "LinkedObject.hxx"
