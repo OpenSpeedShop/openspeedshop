@@ -26,8 +26,6 @@
 
 #include "debug.hxx"
 
-#define DEFAULT_STAT_WIDTH 50
-
 /*! Unused constructor. */
 SourcePanel::SourcePanel()
 { // Unused... Here for completeness...
@@ -43,8 +41,8 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
 
   splitter = new QSplitter(getBaseWidgetFrame(), "SourcePanel: splitter");
   splitter->setOrientation( QSplitter::Horizontal );
-// splitter->setHandleWidth(splitter->handleWidth()/2);
-splitter->setHandleWidth(1);
+//  splitter->setHandleWidth(1);
+  splitter->setHandleWidth(3);
 
   lastTop = 0;
   lastLineHeight = 1;
@@ -66,11 +64,11 @@ splitter->setHandleWidth(1);
   textEditHeaderLayout = new QHBoxLayout( textEditLayout, 2, "textEditHeaderLayout" );
   textEditHeaderLayout->setMargin(1);
 
+  QSpacerItem *spacerItem = new QSpacerItem(1,20, QSizePolicy::Fixed, QSizePolicy::Minimum );
+  textEditHeaderLayout->addItem( spacerItem );
+
   label = new QLabel( textEditLayoutFrame, "text label", 0 );
   label->setCaption("SourcePanel: text label");
-  QFont font = label->font();
-  font.setBold(TRUE);
-  label->setFont(font);
   label->setFrameStyle( QFrame::NoFrame );
   label->setSizePolicy(QSizePolicy( (QSizePolicy::SizeType)5,
                                     (QSizePolicy::SizeType)0, 0, 0,
@@ -396,23 +394,22 @@ SourcePanel::showCanvasForm()
     canvasForm->hide();
   } else
   {
-// I don't know why, but the splitter resizes after I've already resized it
-// initially.   This just sets the initial size, one more time.   We only
-// do this the first time we come through this routine.
-if( firstTimeShowingStatAreaFLAG == TRUE )
-{
-  QValueList<int> sizeList;
-  sizeList.clear();
-  int width = getPanelContainer()->width();
-//  int left_side_size = (int)(width*.10);
-// int left_side_size = canvasArea->verticalHeader()->width();
-  int left_side_size = DEFAULT_STAT_WIDTH;
-  nprintf(DEBUG_PANELS) ("left_side_size = (%d)\n", left_side_size );
-  sizeList.push_back( left_side_size );
-  sizeList.push_back( width-left_side_size );
-  splitter->setSizes(sizeList);
-}
-firstTimeShowingStatAreaFLAG = FALSE;
+    // I don't know why, but the splitter resizes after I've already resized it
+    // initially.   This just sets the initial size, one more time.   We only
+    // do this the first time we come through this routine.
+    if( firstTimeShowingStatAreaFLAG == TRUE )
+    {
+      QValueList<int> sizeList;
+      sizeList.clear();
+      int width = getPanelContainer()->width();
+      int left_side_size = DEFAULT_CANVAS_WIDTH;
+      nprintf(DEBUG_PANELS) ("left_side_size = (%d)\n", left_side_size );
+      sizeList.push_back( left_side_size );
+      sizeList.push_back( width-left_side_size );
+      splitter->setSizes(sizeList);
+    }
+    firstTimeShowingStatAreaFLAG = FALSE;
+
     statsFLAG = TRUE;
     canvasForm->show();
   }
@@ -550,12 +547,12 @@ SourcePanel::loadFile(const QString &_fileName)
     }
   } else
   {
+// As Qt documentation suggests, but it always adds an extra line...
     textEdit->setText( ts.read() );
-    // Need to set cursor position so subsequent position requests are fielded.
-    textEdit->setCursorPosition(0, 0);
+    lineCount = textEdit->paragraphs();
+    lineCount--;
   }
-  lineCount = textEdit->paragraphs();
-  lineCount--;
+  textEdit->setCursorPosition(0, 0);
   nprintf(DEBUG_PANELS) ("lineCount=%d paragraphs()=%d\n", lineCount, textEdit->paragraphs() );
 
 //  printf("The last line was: %s\n", line_number_buffer );
@@ -677,11 +674,6 @@ SourcePanel::highlightLine(int line, char *color, bool inverse)
 
   // Annotate the scrollbar for this highlight....
   textEdit->annotateScrollBarLine(line, QColor(color));
-
-  if( canvasForm )
-  {
-printf("Set the annotation here...\n");
-  }
 }
 
 /*! Clear the highlight at the give line. */

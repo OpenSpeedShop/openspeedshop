@@ -1,5 +1,6 @@
 #include "SPCanvasForm.hxx"
 
+#include <qlabel.h> // REMOVE!
 #include "debug.hxx"
 
 /*! Work constructor.   Set's the name of the frame, the pointer to the
@@ -9,6 +10,7 @@ SPCanvasForm::SPCanvasForm( QWidget *parent, const char *n, WFlags fl )
     : QWidget( parent, n, fl )
 {
   nprintf(DEBUG_CONST_DESTRUCT) ( "SPCanvasForm::SPCanvasForm( ) constructor called\n");
+  numColumns = 1;  // We by default create one... yet unused, but created.
 
   canvasTextList.clear();
 
@@ -18,24 +20,19 @@ SPCanvasForm::SPCanvasForm( QWidget *parent, const char *n, WFlags fl )
   canvasFormHeaderLayout = new QHBoxLayout( canvasFormLayout, 2, "canvasFormHeaderLayout" );
   canvasFormHeaderLayout->setMargin(1);
 
-  label = new QLabel( this, "canvas", 0);
-  label->setCaption("canvas label");
-  QFont font = label->font();
-  font.setBold(TRUE);
-  label->setFont(font);
-  label->setFrameStyle( QFrame::NoFrame );
-  label->setSizePolicy(QSizePolicy( (QSizePolicy::SizeType)5,
-                                    (QSizePolicy::SizeType)0, 0, 0,
-                                    label->sizePolicy().hasHeightForWidth() ) );
-  QString label_text = "No label.";
-  label->setText(label_text);
-  canvasFormHeaderLayout->addWidget( label );
+  QSpacerItem *spacerItem = new QSpacerItem(1,20, QSizePolicy::Fixed, QSizePolicy::Minimum );
+  canvasFormHeaderLayout->addItem( spacerItem );
 
-  label->show();
+  header = new QHeader( this, "canvas header" );
+  header->setCaption("canvas header");
 
-  canvasArea = new QCanvas( this );
-  canvasArea->setBackgroundColor(parent->backgroundColor());
-  canvasView = new SPCanvasView(canvasArea, this, "SPCanvasView");
+  canvasFormHeaderLayout->addWidget( header );
+  header->addLabel("LN", DEFAULT_CANVAS_WIDTH);
+  header->show();
+
+  canvas = new QCanvas( this );
+  canvas->setBackgroundColor(parent->backgroundColor());
+  canvasView = new SPCanvasView(canvas, this, "SPCanvasView");
   canvasFormLayout->addWidget(canvasView);
   canvasView->show();
 }
@@ -54,30 +51,30 @@ void
 SPCanvasForm::setHighlights(QFont canvas_font, int lineHeight, int topLine, int visibleLines, int line_count, int top_offset)
 {
   nprintf(DEBUG_CONST_DESTRUCT) ("SPCanvasForm::setHighlights()\n");
-  nprintf(DEBUG_CONST_DESTRUCT) ("lineHeight=%f topLine=%d visibleLines=%d\n", lineHeight, topLine, visibleLines );
+  nprintf(DEBUG_CONST_DESTRUCT) ("lineHeight=%d topLine=%d visibleLines=%d line_count=%d\n", lineHeight, topLine, visibleLines, line_count );
 
   int i = 0;
   char buffer[100];
   for(i=0;i<visibleLines;i++)
   {
     // Don't allow us to print past the number of lines in the file...
-    if( (topLine+i)-1 > line_count )
+//    if( (topLine+i)-1 > line_count )
+    if( topLine+i > line_count )
     {
       nprintf(DEBUG_CONST_DESTRUCT) ("line_count=%d topLine=%d i=%d == %d\n", line_count, topLine, i, topLine+i );
       break;
     }
     sprintf(buffer, "%d", topLine+i);
-    QCanvasText *text = new QCanvasText( buffer, canvas_font, canvasArea);
+    QCanvasText *text = new QCanvasText( buffer, canvas_font, canvas);
     text->setColor("black");
     text->setX(10);
     text->setY( (i*lineHeight)-top_offset );
-// printf("put out label (%s) at %dx%d\n", buffer, 10, i*lineHeight);
     text->setZ(1);
     text->show();
     canvasTextList.push_back(text);
   }
 
-  canvasArea->update();
+  canvas->update();
 }
 
 void
