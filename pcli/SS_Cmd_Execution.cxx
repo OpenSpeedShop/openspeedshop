@@ -100,14 +100,20 @@ void SS_Execute_Cmd (CommandObject *cmd) {
   case CMD_LIST_PARAMS:
     cmd_successful = SS_ListParams (cmd);
     break;
-  case CMD_LIST_REPORTS:
-    cmd_successful = SS_ListReports (cmd);
-    break;
   case CMD_LIST_SRC:
     cmd_successful = SS_ListSrc (cmd);
     break;
+  case CMD_LIST_STATUS:
+    cmd_successful = SS_ListStatus (cmd);
+    break;
+  case CMD_LIST_THREADS:
+    cmd_successful = SS_ListThreads (cmd);
+    break;
   case CMD_LIST_TYPES:
     cmd_successful = SS_ListTypes (cmd);
+    break;
+  case CMD_LIST_REPORTS:  // needs to be changed to LIST_VIEWS
+    cmd_successful = SS_ListViews (cmd);
     break;
 
 // Session Commands
