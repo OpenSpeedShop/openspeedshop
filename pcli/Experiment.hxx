@@ -99,4 +99,7 @@ class ExperimentObject
 };
 
 ExperimentObject *Find_Experiment_Object (EXPID ExperimentID);
-bool Experiment_Create (CommandObject *cmd);
+bool SS_expAttach (CommandObject *cmd);
+bool SS_expCreate (CommandObject *cmd);
+bool SS_expFocus  (CommandObject *cmd);
+bool SS_Record    (CommandObject *cmd);
