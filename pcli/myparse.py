@@ -2,95 +2,66 @@ import code
 import re
 import string
 import sys
+import types
 
 import PY_Input
 
 ################################################################################
 #
-# Do_expAttach
+# cmd_parse
 #
-# Dummy function that I will eventually use to do 
-# real stuff.
+# Dummy function that I will eventually use to call 
+# parser.
 #
 ################################################################################
-def Do_expAttach(args):
+def cmd_parse(args):
 
-    print "expAttach:", args
+    print args
+
+    # Convert numeric values into strings
+    count = len(args)
+    for ndx in range(count):
+	if type(args[ndx]) is types.IntType:
+	    args[ndx] = str(args[ndx])
+	if type(args[ndx]) is types.LongType:
+	    args[ndx] = str(args[ndx])
+
+    print args
+
+    # combine all the argument strings into a
+    # single space delimitted string to pass
+    # down to the yacc parser.
+    if count > 0:
+    	blank_delim = " "
+    	zusamen = blank_delim.join(args[:count])
+	print zusamen
+    	PY_Input.CallParser (zusamen)
     pass
 
-def Do_expClose(args):
+################################################################################
+#
+# cloak_list_range
+#
+# For options that can have lists and ranges
+# we need to make sure that python doesn't
+# throw out the commas and colons. 
+#
+################################################################################
+def cloak_list_range(args):
 
-    print "expClose:", args
-    if args[0] > 8:
-        return 200
-    else:
-        return 100 
+    print args
 
-def Do_expCont(args):
-
-    print "expCont:", args
-    pass
-
-def Do_expCreate(args):
-
-    print "expCreate:", args
-    pass
-
-def Do_expDetach(args):
-
-    print "expDetach:", args
-    pass
-
-def Do_expFocus(args):
-
-    print "expFocus:", args
-    pass
-
-def Do_expPause(args):
-
-    print "expPause:", args
-    pass
-
-def Do_expRestore(args):
-
-    print "expRestore:", args
-    pass
-
-def Do_expRun(args):
-
-    print "expRun:", args
-    pass
-
-def Do_expSave(args):
-
-    print "expSave:", args
-    pass
-
-def Do_expSetParam(args):
-
-    print "expSetParam:", args
-    pass
-
-def Do_expStop(args):
-
-    print "expStop:", args
-    pass
-
-def Do_expView(args):
-
-    print "expView:", args
-    pass
-
-def xxx(args):
-
-    print "xxx:", args
-    pass
-
+################################################################################
+#
+# Do_quit
+#
+# Quit python 
+#
+################################################################################
 def Do_quit(args):
 
     print "Exit Python"
     raise SystemExit
-
 
 ##################################################################
 #
@@ -140,18 +111,21 @@ def preParseArgs(line, command_dict, arg_dict):
                             for t_char in ['r','h','f','p','t','x']:
                                 if t_char is t_str[1]:
                                     parts[i] = '"' + parts[i] + '"'
+				    cloak_list_range(parts[i:])
                                     break
                             
                 i = i+1
 
             # line = makePythonCall("myparse." + function, parts[func_ndx+1:])
-            line = makePythonCall( function, parts[func_ndx+1:])
+	    parts[func_ndx] = '"' + parts[func_ndx] + '"'
+            line = makePythonCall( function, parts[func_ndx:])
 
             # Check for leading assignment words
             if func_ndx is not 0:
                 leading = blank_delim.join(parts[:func_ndx])
                 line = leading + blank_delim + line
 
+    	    print line
             return line
             
         ndx = ndx+1
@@ -193,39 +167,37 @@ class CLI(code.InteractiveConsole):
     #
     ##################################################################
     commands = { \
-        "attach"        : "Do_expAttach",
-        "expAttach"     : "Do_expAttach",
-        "expClose"      : "Do_expClose",
-        "expCont"       : "Do_expCont",
-        "expCreate"     : "Do_expCreate",
-        "expDetach"     : "Do_expDetach",
-        "expFocus"      : "Do_expFocus",
-        "expPause"      : "Do_expPause",
-        "expRestore"    : "Do_expRestore",
-        "expRun"        : "Do_expRun",
-        "expSave"       : "Do_expSave",
-        "expSetParam"   : "Do_expSetParam",
-        "expStop"       : "Do_expStop",
-        "expView"       : "Do_expView",
-        "expView"       : "Do_expView",
-        "listExp"       : "xxx",
-        "listHosts"     : "xxx",
-        "listObj"       : "xxx",
-        "listPids"      : "xxx",
-        "listSrc"       : "xxx",
-        "listMetrics"   : "xxx",
-        "listParams"    : "xxx",
-        "listReports"   : "xxx",
-        "listBreaks"    : "xxx",
-        "clearBreak"    : "xxx",
+        "expAttach"     : "cmd_parse",
+        "expClose"      : "cmd_parse",
+        "expCont"       : "cmd_parse",
+        "expCreate"     : "cmd_parse",
+        "expDetach"     : "cmd_parse",
+        "expFocus"      : "cmd_parse",
+        "expPause"      : "cmd_parse",
+        "expRestore"    : "cmd_parse",
+        "expRun"        : "cmd_parse",
+        "expSave"       : "cmd_parse",
+        "expSetParam"   : "cmd_parse",
+        "expStop"       : "cmd_parse",
+        "expView"       : "cmd_parse",
+        "listExp"       : "cmd_parse",
+        "listHosts"     : "cmd_parse",
+        "listObj"       : "cmd_parse",
+        "listPids"      : "cmd_parse",
+        "listSrc"       : "cmd_parse",
+        "listMetrics"   : "cmd_parse",
+        "listParams"    : "cmd_parse",
+        "listReports"   : "cmd_parse",
+        "listBreaks"    : "cmd_parse",
+        "clearBreak"    : "cmd_parse",
         "exit"          : "Do_quit",
-        "openGui"       : "xxx",
-        "help"          : "xxx",
-        "history"       : "xxx",
-        "log"           : "xxx",
-        "playback"      : "xxx",
-        "record"        : "xxx",
-        "setbreak"      : "xxx",
+        "openGui"       : "cmd_parse",
+        "help"          : "cmd_parse",
+        "history"       : "cmd_parse",
+        "log"           : "cmd_parse",
+        "playback"      : "cmd_parse",
+        "record"        : "cmd_parse",
+        "setbreak"      : "cmd_parse",
         "quit"          : "Do_quit" \
         }
     
@@ -314,8 +286,6 @@ class CLI(code.InteractiveConsole):
                     prompt = sys.ps1
 
                 # Read the next line of input
-                #self.write("interact 1\n")
-                #line = self.raw_input(prompt)
                 line = PY_Input.ReadLine (is_more)
 
                 if not line:
@@ -395,51 +365,11 @@ class CLI(code.InteractiveConsole):
         # Return the line to be processed by Python
         return line
 
-    ##################################################################
-    #
-    # pre_process
-    #
-    # Prescan arguments and determine which need to be
-    # hidden from python with embedded quotes such as O/SS
-    # reserved words.
-    #
-    ##################################################################
-    def pre_process(self, args) :
-
-        # Recursively evaluate all arguments
-        i = 0
-        while i < len(args):
-            try:
-
-                # Grab value and position of this argument
-                unevaluated, pos, i = args[i], i, i + 1
-
-                # Have Python attempt evaluation of the argument
-                evaluated = eval(unevaluated, globals(),locals())
-
-                # Did the evaluation produce a "new" result?
-                if str(evaluated) != str(unevaluated):
-                            
-                    # Place the evaluation in the argument list
-                    args =  args[:pos] + \
-                            string.split(str(evaluated)) + \
-                            args[pos + 1:]
-                            
-                    # Go back to the beginning of the argument list
-                    i = 0
-                            
-            except (SyntaxError, NameError):
-                        pass
 
 
-
-
-
-
-
-
-
-
+##################################################################
+#
+##################################################################
 myparse = CLI(globals())
 
 ##################################################################
