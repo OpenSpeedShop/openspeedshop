@@ -28,6 +28,7 @@ class QPushButton;
 class QLineEdit;
 class QLabel;
 class QCheckBox;
+#include "qsettings.h"
 
 class PanelContainer;
 
@@ -86,6 +87,7 @@ public:
     int globalFontWeight;
     bool globalFontItalic;
 
+    QSettings settings;
     void readPreferencesOnEntry();
     void savePreferences();
     void applyPreferences();

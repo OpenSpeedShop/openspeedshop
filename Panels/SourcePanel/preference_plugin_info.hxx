@@ -17,12 +17,10 @@ extern "C"
   QCheckBox* showLineNumbersCheckBox;
   QVBoxLayout* generalStackPageLayout_2;
   QVBoxLayout* layout6;
-  QSettings *settings;
 
-
-  QWidget *initialize_preferences_entry_point(QWidgetStack *stack, char *name)
+  QWidget *initialize_preferences_entry_point(QSettings *settings, QWidgetStack *stack, char *name)
   {
-    printf("initialize_preferences_entry_point(0x%x %s) entered\n", stack, name);
+    printf("initialize_preferences_entry_point(0x%x 0x%x %s) entered\n", settings, stack, name);
 
     sourcePanelStackPage = new QWidget( stack, "Source Panel" );
     generalStackPageLayout_2 = new QVBoxLayout( sourcePanelStackPage, 11, 6, "generalStackPageLayout_2"); 
@@ -34,7 +32,8 @@ extern "C"
     sourcePanelPrivateLayout->setGeometry( QRect( 10, 40, 200, 100 ) );
     layout6 = new QVBoxLayout( sourcePanelPrivateLayout, 11, 6, "layout6"); 
 
-    showStatisticsCheckBox = new QCheckBox( sourcePanelPrivateLayout, "showStatisticsCheckBox" );
+    showStatisticsCheckBox =
+      new QCheckBox( sourcePanelPrivateLayout, "showStatisticsCheckBox" );
     showStatisticsCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, showStatisticsCheckBox->sizePolicy().hasHeightForWidth() ) );
     layout6->addWidget( showStatisticsCheckBox );
 
@@ -56,11 +55,35 @@ extern "C"
     showStatisticsCheckBox->setText( "Show statistics" );
     showLineNumbersCheckBox->setText( "Show line numbers" );
 
+    if( settings != NULL )
+    {
+      char settings_buffer[1024];
+      sprintf(settings_buffer, "/%s/%s/%s",
+        "openspeedshop", name, showStatisticsCheckBox->name() );
+      showStatisticsCheckBox->setChecked(
+        settings->readBoolEntry(settings_buffer) );
+  
+      sprintf(settings_buffer, "/%s/%s/%s",
+        "openspeedshop", name, showLineNumbersCheckBox->name() );
+      showLineNumbersCheckBox->setChecked(
+        settings->readBoolEntry(settings_buffer) );
+    }
+
     return( sourcePanelStackPage );
   }
   void save_preferences_entry_point(QSettings *settings, char *name)
   {
     printf("save_preferences_entry_point(0x%x %s) entered\n", settings, name);
+
+    char settings_buffer[1024];
+
+    sprintf(settings_buffer, "/%s/%s/%s",
+      "openspeedshop", name, showStatisticsCheckBox->name() );
+    settings->writeEntry(settings_buffer, showStatisticsCheckBox->isChecked() );
+
+    sprintf(settings_buffer, "/%s/%s/%s",
+      "openspeedshop", name, showLineNumbersCheckBox->name() );
+    settings->writeEntry(settings_buffer, showLineNumbersCheckBox->isChecked());
   }
 }
 

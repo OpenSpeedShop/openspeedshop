@@ -7,14 +7,12 @@
 
 void PreferencesDialog::readPreferencesOnEntry()
 {
-//  printf("readPreferencesOnEntry() entered\n");
+printf("readPreferencesOnEntry() entered\n");
 
-  QSettings settings;
 //  settings.insertSearchPath( QSettings::Unix, "openspeedshop" );
   // No search path needed for Unix; see notes further on.
   QString ds = QString::null;
   bool ok;
-
 
   settings.readEntry( "/openspeedshop/general/globalFontFamily", ds, &ok);
   if( ok == FALSE )
@@ -43,8 +41,7 @@ void PreferencesDialog::readPreferencesOnEntry()
 
   setShowSplashScreenCheckBox->setChecked(
     settings.readBoolEntry( "/openspeedshop/general/showSplashScreen") );
-  setShowColoredTabsCheckBox->setChecked(settings
-    .readBoolEntry( "/openspeedshop/general/showColoredTabs") );
+  setShowColoredTabsCheckBox->setChecked(settings.readBoolEntry( "/openspeedshop/general/showColoredTabs") );
   deleteEmptyPCCheckBox->setChecked(
     settings.readBoolEntry( "/openspeedshop/general/deleteEmptyPC") );
   showGraphicsCheckBox->setChecked(
@@ -208,7 +205,6 @@ void PreferencesDialog::buttonOkSelected()
 
 void PreferencesDialog::savePreferences()
 {
-  QSettings settings;
 //  settings.insertSearchPath( QSettings::Unix, "openspeedshop" );
   // No search path needed for Unix; see notes further on.
 
@@ -267,5 +263,6 @@ if( panelContainer->getMasterPC() && panelContainer->getMasterPC()->_pluginRegis
   }
 }
 // End try to save all preferences
+
 #endif // OLDWAY
 }

@@ -20,16 +20,15 @@ extern "C"
   QHBoxLayout* layout7;
   QLabel* showTopNTextLabel;
   QLineEdit* showTopNLineEdit;
-  QSettings* settings;
 
-  QWidget *initialize_preferences_entry_point(QWidgetStack *stack, char *name)
+  QWidget *initialize_preferences_entry_point(QSettings *settings, QWidgetStack *stack, char *name)
   {
-    printf("initialize_preferences_entry_point(0x%x %s) entered\n", stack, name);
-//    QWidget *statsPanelStackPage = new QWidget( stack, "statsPanelStackPage" );
-//    QWidget *statsPanelStackPage = new QWidget( stack, "Stats Panel" );
+    printf("initialize_preferences_entry_point(0x%x 0x%x %s) entered\n", settings, stack, name);
+
     QWidget *statsPanelStackPage = new QWidget( stack, name );
 
-    generalStackPageLayout_3 = new QVBoxLayout( statsPanelStackPage, 11, 6, "generalStackPageLayout_3");
+    generalStackPageLayout_3 =
+      new QVBoxLayout( statsPanelStackPage, 11, 6, "generalStackPageLayout_3");
 
     statsPanelGroupBox = new QGroupBox( statsPanelStackPage, "statsPanelGroupBox" );
 
@@ -38,15 +37,19 @@ extern "C"
     statsPanelPrivateLayout->setGeometry( QRect( 20, 86, 300, 100 ) );
     layout8 = new QVBoxLayout( statsPanelPrivateLayout, 11, 6, "layout8");
 
-    sortDecendingCheckBox = new QCheckBox( statsPanelPrivateLayout, "sortDecendingCheckBox" );
+    sortDecendingCheckBox =
+      new QCheckBox( statsPanelPrivateLayout, "sortDecendingCheckBox" );
     layout8->addWidget( sortDecendingCheckBox );
 
     layout7 = new QHBoxLayout( 0, 0, 6, "layout7");
 
-    showTopNTextLabel = new QLabel( statsPanelPrivateLayout, "showTopNTextLabel" );
+    showTopNTextLabel =
+      new QLabel( statsPanelPrivateLayout, "showTopNTextLabel" );
     layout7->addWidget( showTopNTextLabel );
 
-    showTopNLineEdit = new QLineEdit( statsPanelPrivateLayout, "showTopNLineEdit" );
+    showTopNLineEdit =
+      new QLineEdit( statsPanelPrivateLayout, "showTopNLineEdit" );
+
     layout7->addWidget( showTopNLineEdit );
     layout8->addLayout( layout7 );
     generalStackPageLayout_3->addWidget( statsPanelGroupBox );
@@ -66,11 +69,35 @@ extern "C"
     showTopNTextLabel->setText( "Show top N items:" );
     showTopNLineEdit->setText( "5" );
 
+    if( settings != NULL )
+    {
+      char settings_buffer[1024];
+      sprintf(settings_buffer, "/%s/%s/%s",
+        "openspeedshop", name, sortDecendingCheckBox->name() );
+      sortDecendingCheckBox->setChecked(
+        settings->readBoolEntry(settings_buffer) );
+  
+      sprintf(settings_buffer, "/%s/%s/%s",
+        "openspeedshop", name, showTopNLineEdit->name() );
+      showTopNLineEdit->setText(
+        settings->readEntry(settings_buffer) );
+    }
+
     return statsPanelStackPage;
   }
   int save_preferences_entry_point(QSettings *settings, char *name)
   {
     printf("save_preferences_entry_point(0x%x %s) entered\n", settings, name);
+
+    char settings_buffer[1024];
+
+    sprintf(settings_buffer, "/%s/%s/%s",
+      "openspeedshop", name, sortDecendingCheckBox->name() );
+    settings->writeEntry(settings_buffer, sortDecendingCheckBox->isChecked() );
+
+    sprintf(settings_buffer, "/%s/%s/%s",
+      "openspeedshop", name, showTopNLineEdit->name() );
+    settings->writeEntry(settings_buffer, showTopNLineEdit->text() );
   }
 }
 

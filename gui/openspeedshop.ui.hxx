@@ -412,12 +412,12 @@ void OpenSpeedshop::init()
       if( dl_object )
       {
 // printf("about to lookup(%s).\n", "initialize_preferences_entry_point");
-        QWidget * (*dl_plugin_info_init_preferences_routine)(QWidgetStack*, char *) =
-          (QWidget * (*)(QWidgetStack*, char *))dlsym(dl_object, "initialize_preferences_entry_point" );
+        QWidget * (*dl_plugin_info_init_preferences_routine)(QSettings *, QWidgetStack*, char *) =
+          (QWidget * (*)(QSettings *, QWidgetStack*, char *))dlsym(dl_object, "initialize_preferences_entry_point" );
           if( dl_plugin_info_init_preferences_routine )
           {
 // printf("about to call the routine.\n");
-            QWidget *panelStackPage = (*dl_plugin_info_init_preferences_routine)(preferencesDialog->preferenceDialogWidgetStack, pi->preference_category);
+            QWidget *panelStackPage = (*dl_plugin_info_init_preferences_routine)(&preferencesDialog->settings, preferencesDialog->preferenceDialogWidgetStack, pi->preference_category);
             if( panelStackPage )
             {
               preferencesStackPagesList.push_back(panelStackPage);
