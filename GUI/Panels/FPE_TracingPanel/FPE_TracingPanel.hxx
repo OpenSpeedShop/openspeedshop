@@ -1,5 +1,5 @@
-#ifndef TEMPLATE_PANEL_H
-#define TEMPLATE_PANEL_H
+#ifndef FPE_TRACING_PANEL_H
+#define FPE_TRACING_PANEL_H
 #include "Panel.hxx"           // Do not remove
 
 class PanelContainer;   // Do not remove
@@ -48,4 +48,4 @@ class FPE_TracingPanel  : public Panel
 
   private:
 };
-#endif // TEMPLATE_PANEL_H
+#endif // FPE_TRACING_PANEL_H

@@ -1,5 +1,5 @@
-#ifndef TEMPLATE_PANEL_H
-#define TEMPLATE_PANEL_H
+#ifndef HW_COUNTER_PANEL_H
+#define HW_COUNTER_PANEL_H
 #include "Panel.hxx"           // Do not remove
 
 class PanelContainer;   // Do not remove
@@ -48,4 +48,4 @@ class HW_CounterPanel  : public Panel
 
   private:
 };
-#endif // TEMPLATE_PANEL_H
+#endif // HW_COUNTER_PANEL_H

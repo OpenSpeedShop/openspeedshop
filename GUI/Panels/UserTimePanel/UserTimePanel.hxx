@@ -1,5 +1,5 @@
-#ifndef TEMPLATE_PANEL_H
-#define TEMPLATE_PANEL_H
+#ifndef USER_TIME_PANEL_H
+#define USER_TIME_PANEL_H
 #include "Panel.hxx"           // Do not remove
 
 class PanelContainer;   // Do not remove
@@ -46,4 +46,4 @@ protected:
 
 private:
 };
-#endif // TEMPLATE_PANEL_H
+#endif // USER_TIME_PANEL_H

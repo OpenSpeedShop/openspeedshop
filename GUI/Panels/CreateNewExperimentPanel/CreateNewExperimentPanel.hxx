@@ -1,5 +1,5 @@
-#ifndef TEMPLATE_PANEL_H
-#define TEMPLATE_PANEL_H
+#ifndef CREATENEWEXPERIMENTPANEL_H
+#define CREATENEWEXPERIMENTPANEL_H
 #include "Panel.hxx"           // Do not remove
 
 class PanelContainer;   // Do not remove
@@ -48,4 +48,4 @@ class CreateNewExperimentPanel  : public Panel
 
   private:
 };
-#endif // TEMPLATE_PANEL_H
+#endif // CREATENEWEXPERIMENTPANEL_H

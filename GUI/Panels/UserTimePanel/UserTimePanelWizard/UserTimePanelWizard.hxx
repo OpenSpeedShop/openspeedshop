@@ -1,5 +1,5 @@
-#ifndef TEMPLATE_PANEL_H
-#define TEMPLATE_PANEL_H
+#ifndef USERTIMEPANEL_H
+#define USERTIMEPANEL_H
 #include "Panel.hxx"           // Do not remove
 
 class PanelContainer;   // Do not remove
@@ -155,4 +155,4 @@ protected slots:
     virtual void languageChange();
 
 };
-#endif // TEMPLATE_PANEL_H
+#endif // USERTIMEPANEL_H

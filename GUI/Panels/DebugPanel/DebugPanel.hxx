@@ -1,5 +1,5 @@
-#ifndef TEMPLATE_PANEL_H
-#define TEMPLATE_PANEL_H
+#ifndef DEBUG_PANEL_H
+#define DEBUG_PANEL_H
 #include "Panel.hxx"           // Do not remove
 
 class PanelContainer;   // Do not remove
@@ -114,4 +114,4 @@ class DebugPanel  : public Panel
 
   private:
 };
-#endif // TEMPLATE_PANEL_H
+#endif // DEBUG_PANEL_H
