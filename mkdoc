@@ -6,24 +6,24 @@
 # $ mkdoc
 #
 
-cd plugin
-make doc
+#cd plugin
+#make doc
 cd ../gui
 make doc
-cd ../base
-make doc
-cd ../objects
-make doc
-cd ../chart
-make doc
-cd ../dialogs
-make doc
+#cd ../base
+#make doc
+#cd ../objects
+#make doc
+#cd ../chart
+#make doc
+#cd ../dialogs
+#make doc
 cd ../collectors
 make doc
 cd ../libssf
 make doc
-cd ../Panels
-make doc
+#cd ../Panels
+#make doc
 cd ../pcli
 make doc
 
