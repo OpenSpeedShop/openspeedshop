@@ -31,6 +31,7 @@
 #include "y.tab.h"
 extern int yylex();
 extern char * copy_string(char *);
+extern int ip_number(char *,int);
 %}
 
 %%
@@ -116,6 +117,7 @@ extern char * copy_string(char *);
 "-l"	{ return LINE_ID;}
 "-c"	{ return CLUSTER_ID;}
 
+[0-9]+[.][0-9]+[.][0-9]+[.][0-9]+ {yylval.val = ip_number(yytext,4); return(IPNUMBER_32);}
 0x[0-9a-f]+	{yylval.val = atoi(yytext); return(HEXNUMBER);}
 [0-9]+   { yylval.val = atoi(yytext); return NUMBER; }
 [a-zA-Z./][a-zA-Z0-9_./]+  { yylval.string = copy_string(yytext); return NAME; }
