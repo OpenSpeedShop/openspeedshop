@@ -6,6 +6,7 @@
 
 typedef QValueList<QPixmap *>ImageList;
 
+//! A simple animated push button.
 class AnimatedQPushButton : public QPushButton
 {
   public:
