@@ -1017,7 +1017,7 @@ static bool Isa_SS_Command (CMDWID issuedbywindow, const char *b_ptr) {
     fprintf(stdout,"SpeedShop Status:\n");
     CommandWindowID *cw = Find_Command_Window (issuedbywindow);
     if ((cw == NULL) || (cw->ID() == 0)) {
-      fprintf(stdout,"    ERROR: the window this command came from is illegal\n");
+      fprintf(stderr,"    ERROR: the window(%lld) this command came from is illegal\n",issuedbywindow);
       Fatal_Error_Encountered = true;
     }
     fprintf(stdout,"  %s Waiting for Async input\n",Looking_for_Async_Inputs?" ":"Not");
@@ -1171,7 +1171,7 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
   ttyin = fopen ( "/dev/tty", "r" );  // Read directly from the xterm window
   ttyout = fopen ( "/dev/tty", "w" );  // Write prompt directly to the xterm window
   for(;;) {
-    usleep (10000); /* DEBUG - give testing code time to react before splashing screen with prompt */
+    // usleep (10000); /* DEBUG - give testing code time to react before splashing screen with prompt */
     SS_Issue_Prompt (ttyout);
     Buffer[0] == *("\0");
     char *read_result = fgets (&Buffer[0], Buffer_Size, ttyin);
@@ -1324,35 +1324,6 @@ read_another_window:
     if (!Isa_SS_Command(readfromwindow, s)) {
       clip = NULL;
       continue;
-    }
-    if (len > 1) {
-      if (!strcasecmp ( s, "quit\n") ||
-          !strcasecmp ( s, "quit")) {
-        clip = NULL;
-        break;
-      }
-    }
-    if (len > 1) {
-      if (!strcasecmp ( s, "gui\n")) {
-        int argc = 0;
-        char **argv = NULL;
-        ArgStruct *argStruct = new ArgStruct(argc, argv);
-        struct hostent *my_host = gethostent();
-        pid_t my_pid = getpid();
-        // The following is a timing hack -
-        // if the TLI window hasn't been opened or didn't specify async input,
-        // the input routines may think they are at the end of file before
-        // the GUI can open and define an async input window.
-        // The hack is to define a dummy async window before python starts.
-        // We will need to sort this out at some point in the future.
-        gui_window = GUI_Window ("GUI",my_host->h_name,my_pid,0,true);
-        argStruct->addArg("-wid");
-        char buffer[10];
-        sprintf(buffer, "%d", gui_window);
-        argStruct->addArg(buffer);
-        loadTheGUI((ArgStruct *)argStruct);
-        clip = NULL;
-      }
     }
   } while (clip == NULL);
 
