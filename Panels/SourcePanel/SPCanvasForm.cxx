@@ -11,13 +11,13 @@ SPCanvasForm::SPCanvasForm( int label_height, QWidget *parent, const char *n, WF
 {
   nprintf(DEBUG_CONST_DESTRUCT) ( "SPCanvasForm::SPCanvasForm( ) constructor called\n");
   numColumns = 1;  // We by default create one... yet unused, but created.
-
+setMinimumSize( QSize(30,30) );
   canvasTextList.clear();
 
   /*! Put all this in a layout so the resize does the right thing...  */
   canvasFormLayout = new QVBoxLayout( this, 0, -1, "CanvasFormLayout");
 
-  canvasFormHeaderLayout = new QHBoxLayout( canvasFormLayout, 2, "canvasFormHeaderLayout" );
+  canvasFormHeaderLayout = new QHBoxLayout( canvasFormLayout, -1, "canvasFormHeaderLayout" );
   canvasFormHeaderLayout->setMargin(1);
 
   QSpacerItem *spacerItem = new QSpacerItem(1,label_height, QSizePolicy::Fixed, QSizePolicy::Minimum );
@@ -27,12 +27,19 @@ SPCanvasForm::SPCanvasForm( int label_height, QWidget *parent, const char *n, WF
   header->setCaption("canvas header");
   canvasFormHeaderLayout->addWidget( header );
   header->addLabel("LN", DEFAULT_CANVAS_WIDTH);
-  header->show();
+//  header->show();
+  header->hide();
+setBackgroundColor("blue");
+header->setPaletteBackgroundColor("red");
 
   canvas = new QCanvas( this );
+canvas->setBackgroundColor("green");
+header->setPaletteBackgroundColor("pink");
   canvas->setBackgroundColor(parent->backgroundColor());
   canvasView = new SPCanvasView(canvas, this, "SPCanvasView");
+header->setBackgroundColor("orange");
   canvasFormLayout->addWidget(canvasView);
+canvasView->setPaletteBackgroundColor("white");
   canvasView->show();
 }
 
