@@ -72,7 +72,7 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n, void *argument) 
     // We have an existing experiment, load the executable or pid if we 
     // have one associated.  (TODO)
     QString *expIDString = (QString *)argument;
-    if( (int)argument == -1 )
+    if( expIDString->toInt() == -1 )
     {
       nprintf( DEBUG_PANELS ) ("we're coming in from the pcSampleWizardPanel.\n");
       // We're comming in cold,
@@ -118,89 +118,89 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n, void *argument) 
   PanelContainerList *lpcl = new PanelContainerList();
   lpcl->clear();
 
-  QWidget *pcSampleControlPanelContainerWidget = new QWidget( getBaseWidgetFrame(),
-                                        "pcSampleControlPanelContainerWidget" );
+  QWidget *pcSampleControlPanelContainerWidget =
+    new QWidget( getBaseWidgetFrame(), "pcSampleControlPanelContainerWidget" );
   topPC = createPanelContainer( pcSampleControlPanelContainerWidget,
                               "PCSamplingControlPanel_topPC", NULL,
                               pc->getMasterPCList() );
   frameLayout->addWidget( pcSampleControlPanelContainerWidget );
 
   OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
+
   nprintf( DEBUG_PANELS ) ("Create a new pcSample experiment.\n");
 
-
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
 
-if( expID == -1 )
-{
-// We're coming in cold, or we're coming in from the pcSampleWizardPanel.
-  char command[1024];
-  if( !executableNameStr.isEmpty() )
+  if( expID == -1 )
   {
-    sprintf(command, "expCreate -f %s pcsamp\n", executableNameStr.ascii() );
-  } else if( !pidStr.isEmpty() )
-  { 
-    sprintf(command, "expCreate -x %s pcsamp\n", pidStr.ascii() );
-  } else
-  {
-    sprintf(command, "expCreate pcsamp\n" );
-  }
-  bool mark_value_for_delete = true;
-  int64_t val = 0;
+    // We're coming in cold, or we're coming in from the pcSampleWizardPanel.
+    char command[1024];
+    if( !executableNameStr.isEmpty() )
+    {
+      sprintf(command, "expCreate -f %s pcsamp\n", executableNameStr.ascii() );
+    } else if( !pidStr.isEmpty() )
+    { 
+      sprintf(command, "expCreate -x %s pcsamp\n", pidStr.ascii() );
+    } else
+    {
+      sprintf(command, "expCreate pcsamp\n" );
+    }
+    bool mark_value_for_delete = true;
+    int64_t val = 0;
 
+    steps = 0;
+    pd = new QProgressDialog("Loading process in progress.",
+                             NULL, 1000, this, NULL, TRUE);
+    loadTimer = new QTimer( this, "progressTimer" );
+    connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
+    loadTimer->start( 0 );
+    pd->show();
+    statusLabelText->setText( tr(QString("Loading ...  "))+mw->executableName);
 
-steps = 0;
-pd = new QProgressDialog("Loading process in progress.", NULL, 1000, this, NULL, TRUE);
-loadTimer = new QTimer( this, "progressTimer" );
-connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
-loadTimer->start( 0 );
-pd->show();
-statusLabelText->setText( tr(QString("Loading ...  "))+mw->executableName);
+    runnableFLAG = FALSE;
+    pco->runButton->setEnabled(FALSE);
+    pco->runButton->enabledFLAG = FALSE;
+    nprintf( DEBUG_PANELS ) ("Attempting to do an (%s)\n", command );
 
-runnableFLAG = FALSE;
-pco->runButton->setEnabled(FALSE);
-pco->runButton->enabledFLAG = FALSE;
-nprintf( DEBUG_PANELS ) ("Attempting to do an (%s)\n", command );
-
-  CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-  if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete ) )
-  {
-    fprintf(stderr, "Error retreiving experiment id. \n");
+    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+    if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete ) )
+    {
+      fprintf(stderr, "Error retreiving experiment id. \n");
 //    return;
-  }
-  expID = val;
-  eo = Find_Experiment_Object((EXPID)expID);
-  if( eo && eo->FW() )
-  {
-    experiment = eo->FW();
-  }
+    }
+    expID = val;
+    eo = Find_Experiment_Object((EXPID)expID);
+    if( eo && eo->FW() )
+    {
+      experiment = eo->FW();
+    }
 
 //  fprintf(stdout, "A: MY VALUE! = (%d)\n", val);
-  statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the Run button to begin the experiment.")) );
-loadTimer->stop();
-pd->cancel();
-pd->hide();
+    statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the Run button to begin the experiment.")) );
+    loadTimer->stop();
+    pd->cancel();
+    pd->hide();
 
-if( !executableNameStr.isEmpty() || !pidStr.isEmpty() )
-{
-  runnableFLAG = TRUE;
-  pco->runButton->setEnabled(TRUE);
-  pco->runButton->enabledFLAG = TRUE;
-}
-} else
-{
-  nprintf( DEBUG_PANELS ) ("pcSample has been requested to open an existing experiment!!!\n");
-// Look up the framework experiment and squirrel it away.
-  ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-  if( eo && eo->FW() )
+    if( !executableNameStr.isEmpty() || !pidStr.isEmpty() )
+    {
+      runnableFLAG = TRUE;
+      pco->runButton->setEnabled(TRUE);
+      pco->runButton->enabledFLAG = TRUE;
+    }
+  } else
   {
-    experiment = eo->FW();
+    nprintf( DEBUG_PANELS ) ("pcSample has been requested to open an existing experiment!!!\n");
+    // Look up the framework experiment and squirrel it away.
+    ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+    if( eo && eo->FW() )
+    {
+      experiment = eo->FW();
+    }
+    statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the Run button to begin the experiment.")) );
+    runnableFLAG = TRUE;
+    pco->runButton->setEnabled(TRUE);
+    pco->runButton->enabledFLAG = TRUE;
   }
-  statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the Run button to begin the experiment.")) );
-  runnableFLAG = TRUE;
-  pco->runButton->setEnabled(TRUE);
-  pco->runButton->enabledFLAG = TRUE;
-}
 
   char name_buffer[100];
   sprintf(name_buffer, "%s [%d]", getName(), expID);
@@ -213,23 +213,50 @@ if( !executableNameStr.isEmpty() || !pidStr.isEmpty() )
   topLevel = TRUE;
   topPC->topLevel = TRUE;
 
-  char *name = "Source Panel";
-  SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel(name, (PanelContainer *)topPC, (void *)expID);
+#ifdef OLDWAY
+  QString name = QString("Source Panel [%1]").arg(expID);
+  Panel *sourcePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+  if( !sourcePanel )
+  {
+printf("Raise the source panel\n");
+  } else
+  {
+printf("AAAA\n");
+    SourcePanel *sp =
+      (SourcePanel *)topPC->dl_create_and_add_panel((char *)name.ascii(),
+                                                  (PanelContainer *)topPC,
+                                                  (void *)expID);
+  }
+#endif // OLDWAY
 
-if( expID > 0 && !executableNameStr.isEmpty() )
-{
-  loadMain();
-  statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the Run button to begin the experiment.")) );
-  runnableFLAG = TRUE;
-  pco->runButton->setEnabled(TRUE);
-  pco->runButton->enabledFLAG = TRUE;
-} else if( executableNameStr.isEmpty() )
-{
-  statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\" with the local menu.") );
-  runnableFLAG = FALSE;
-  pco->runButton->setEnabled(FALSE);
-  pco->runButton->enabledFLAG = FALSE;
-}
+  if( expID > 0 && !executableNameStr.isEmpty() )
+  {
+    statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the Run button to begin the experiment.")) );
+    runnableFLAG = TRUE;
+    pco->runButton->setEnabled(TRUE);
+    pco->runButton->enabledFLAG = TRUE;
+  } else if( expID > 0 )
+  {
+    ThreadGroup tgrp = experiment->getThreads();
+    ThreadGroup::iterator ti = tgrp.begin();
+#ifdef OLDWAY
+    if( tgrp.begin() == tgrp.end() )
+#else // OLDWAY
+    if( tgrp.size() == 0 )
+#endif // OLDWAY
+    {
+      statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\" with the local menu.") );
+    } else
+    {
+      statusLabelText->setText( tr(QString("Process Loaded: Click on the Run button to begin the experiment.")) );
+    }
+  } else if( executableNameStr.isEmpty() )
+  {
+    statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\" with the local menu.") );
+    runnableFLAG = FALSE;
+    pco->runButton->setEnabled(FALSE);
+    pco->runButton->enabledFLAG = FALSE;
+  }
 
 }
 
@@ -253,19 +280,8 @@ pcSamplePanel::~pcSamplePanel()
             QString::null, 0, 1 ) )
   {
    nprintf( DEBUG_PANELS ) ("NOTE: This does not need to be a syncronous call.\n");
-#ifdef OLDWAY
-    bool mark_value_for_delete = true;
-    int64_t val = 0;
-//    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-    if( !cli->runSynchronousCLI(command) )
-    {
-      fprintf(stderr, "Error retreiving experiment id. \n");
-      return;
-    }
-#else // OLDWAY
     int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
     InputLineObject *clip = Append_Input_String( wid, command);
-#endif  // OLDWAY
   }
 }
 
@@ -287,7 +303,7 @@ pcSamplePanel::menu(QPopupMenu* contextMenu)
   contextMenu->insertItem(tr("&Manage &Data Sets..."), this, SLOT(manageDataSetsSelected()), CTRL+Key_D );
   contextMenu->insertSeparator();
   contextMenu->insertItem(tr("S&ource Panel..."), this, SLOT(loadSourcePanel()), CTRL+Key_O );
-  contextMenu->insertItem(tr("S&tats Panel..."), this, SLOT(loadStatsPanel()), CTRL+Key_T );
+  contextMenu->insertItem(tr("pc S&tats Panel..."), this, SLOT(loadStatsPanel()), CTRL+Key_T );
 
   return( TRUE );
 }
@@ -320,7 +336,8 @@ pcSamplePanel::loadNewProgramSelected()
     sprintf(command, "expAttach -f %s\n", executableNameStr.ascii() );
 
     steps = 0;
-    pd = new QProgressDialog("Loading process in progress.", NULL, 1000, this, NULL, TRUE);
+    pd = new QProgressDialog("Loading process in progress.", NULL, 1000,
+                             this, NULL, TRUE);
     loadTimer = new QTimer( this, "progressTimer" );
     connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
     loadTimer->start( 0 );
@@ -385,18 +402,8 @@ pcSamplePanel::detachFromProgramSelected()
   char command[1024];
   sprintf(command, "expClose -x %d\n", expID );
 
-#ifdef OLDWAY
-  int64_t val = 0;  // unused
-  bool mark_value_for_delete = true; 
-  if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete) )
-  {
-    fprintf(stderr, "Error detaching (expClose) for id=%d . \n", expID);
-//    return;
-  }
-#else // OLDWAY
   int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
   InputLineObject *clip = Append_Input_String( wid, command);
-#endif // OLDWAY
 
   updateInitialStatus();
 
@@ -464,8 +471,8 @@ pcSamplePanel::attachToExecutableSelected()
     runnableFLAG = TRUE;
     pco->runButton->setEnabled(TRUE);
     pco->runButton->enabledFLAG = TRUE;
-pco->continueButton->setEnabled(TRUE);
-pco->continueButton->enabledFLAG = TRUE;
+    pco->continueButton->setEnabled(TRUE);
+    pco->continueButton->enabledFLAG = TRUE;
   }
 }   
 
@@ -550,166 +557,174 @@ pcSamplePanel::listener(void *msg)
 //      co->print();
 //    }
 
-char command[1024];
-bool mark_value_for_delete = true;
-int64_t val = 0;
-CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+    char command[1024];
+    bool mark_value_for_delete = true;
+    int64_t val = 0;
+    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
 
 
     switch( (int)co->cot )
     {
       case  ATTACH_PROCESS_T:
-sprintf(command, "expAttach  -x %d\n", expID);
-if( !cli->runSynchronousCLI(command) )
-{
-  fprintf(stderr, "Error (%s).\n", command);
-}
-        nprintf( DEBUG_MESSAGES ) ("Attach to a process\n");
+        sprintf(command, "expAttach  -x %d\n", expID);
+/*
+        if( !cli->runSynchronousCLI(command) )
+        {
+          fprintf(stderr, "Error (%s).\n", command);
+        }
+*/
+        nprintf( DEBUG_MESSAGES ) ("Attach to a process (%s)\n", command);
+        ret_val = 1;
         break;
       case  DETACH_PROCESS_T:
-sprintf(command, "expDetach -x %d\n", expID);
-if( !cli->runSynchronousCLI(command) )
-{
-  fprintf(stderr, "Error (%s).\n", command);
-}
-        nprintf( DEBUG_MESSAGES ) ("Detach from a process\n");
+        sprintf(command, "expDetach -x %d\n", expID);
+/*
+        if( !cli->runSynchronousCLI(command) )
+        {
+          fprintf(stderr, "Error (%s).\n", command);
+        }
+*/
+        nprintf( DEBUG_MESSAGES ) ("Detach from a process (%s)\n", command);
         ret_val = 1;
         break;
       case  ATTACH_COLLECTOR_T:
-sprintf(command, "attach a collector %d\n", expID);
-if( !cli->runSynchronousCLI(command) )
-{
-  fprintf(stderr, "Error (%s).\n", command);
-}
-        nprintf( DEBUG_MESSAGES ) ("Attach to a collector\n");
+        sprintf(command, "expAttach -x %d\n", expID);
+/*
+        if( !cli->runSynchronousCLI(command) )
+        {
+          fprintf(stderr, "Error (%s).\n", command);
+        }
+*/
+        nprintf( DEBUG_MESSAGES ) ("Attach to a collector (%s)\n", command);
         ret_val = 1;
         break;
       case  REMOVE_COLLECTOR_T:
-sprintf(command, "remove a collector %d\n", expID);
-if( !cli->runSynchronousCLI(command) )
-{
-  fprintf(stderr, "Error (%s).\n", command);
-}
-        nprintf( DEBUG_MESSAGES ) ("Remove a collector\n");
+        sprintf(command, "expDetach -x %d\n", expID);
+/*
+        if( !cli->runSynchronousCLI(command) )
+        {
+          fprintf(stderr, "Error (%s).\n", command);
+        }
+*/
+        nprintf( DEBUG_MESSAGES ) ("Remove a collector (%s)\n", command);
         ret_val = 1;
         break;
       case  RUN_T:
-sprintf(command, "expGo -x %d\n", expID);
-{
-int status = -1;
-nprintf( DEBUG_MESSAGES ) ("Run\n");
-statusLabelText->setText( tr("Process running...") );
+        sprintf(command, "expGo -x %d\n", expID);
+        {
+        int status = -1;
+        nprintf( DEBUG_MESSAGES ) ("Run\n");
+        statusLabelText->setText( tr("Process running...") );
 
-int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
-InputLineObject *clip = Append_Input_String( wid, command);
-ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-if( eo && eo->FW() )
-{
-  status = eo->Determine_Status();
-  while( status != ExpStatus_Terminated )
-  {
-    sleep(1);
-    qApp->processEvents(1000);
-    if( status == ExpStatus_InError )
-    {
-      nprintf( DEBUG_PANELS ) ("Process errored.\n");
-      statusLabelText->setText( tr("Process errored...") );
-    }
-    status = eo->Determine_Status();
-  }
-}
-if( status == ExpStatus_Terminated )
-{
-  statusLabelText->setText( tr("Process finished...") );
-}
+        int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
+        InputLineObject *clip = Append_Input_String( wid, command);
+        ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+        if( eo && eo->FW() )
+        {
+          status = eo->Determine_Status();
+          while( status != ExpStatus_Terminated )
+          {
+            sleep(1);
+            qApp->processEvents(1000);
+            if( status == ExpStatus_InError )
+            {
+              nprintf( DEBUG_PANELS ) ("Process errored.\n");
+              statusLabelText->setText( tr("Process errored...") );
+              break;
+            }
+            status = eo->Determine_Status();
+          }
+        }
+        if( status == ExpStatus_Terminated )
+        {
+          statusLabelText->setText( tr("Process finished...") );
+        }
 
-if( status == ExpStatus_Terminated || status == ExpStatus_InError )
-{
-  pco->runButton->setEnabled(TRUE);
-  pco->runButton->enabledFLAG = TRUE;
-  runnableFLAG = TRUE;
-  pco->pauseButton->setEnabled(FALSE);
-  pco->pauseButton->enabledFLAG = FALSE;
-  pco->continueButton->setEnabled(FALSE);
-  pco->continueButton->setEnabled(FALSE);
-  pco->continueButton->enabledFLAG = FALSE;
-  pco->updateButton->setEnabled(TRUE);
-  pco->updateButton->setEnabled(TRUE);
-  pco->updateButton->enabledFLAG = TRUE;
-  pco->terminateButton->setEnabled(FALSE);
-  pco->terminateButton->setFlat(TRUE);
-  pco->terminateButton->setEnabled(FALSE);
-} else
-{
-  pco->runButton->setEnabled(FALSE);
-  pco->runButton->enabledFLAG = FALSE;
-  runnableFLAG = FALSE;
-  pco->pauseButton->setEnabled(TRUE);
-  pco->pauseButton->enabledFLAG = TRUE;
-  pco->continueButton->setEnabled(FALSE);
-  pco->continueButton->setEnabled(FALSE);
-  pco->continueButton->enabledFLAG = FALSE;
-  pco->updateButton->setEnabled(TRUE);
-  pco->updateButton->setEnabled(TRUE);
-  pco->updateButton->enabledFLAG = TRUE;
-  pco->terminateButton->setEnabled(TRUE);
-  pco->terminateButton->setFlat(TRUE);
-  pco->terminateButton->setEnabled(TRUE);
-}
-
-PanelContainer *pc = topPC->findBestFitPanelContainer(topPC);
-
-  loadStatsPanel();
+        if( status == ExpStatus_Terminated || status == ExpStatus_InError )
+        {
+          pco->runButton->setEnabled(TRUE);
+          pco->runButton->enabledFLAG = TRUE;
+          runnableFLAG = TRUE;
+          pco->pauseButton->setEnabled(FALSE);
+          pco->pauseButton->enabledFLAG = FALSE;
+          pco->continueButton->setEnabled(FALSE);
+          pco->continueButton->setEnabled(FALSE);
+          pco->continueButton->enabledFLAG = FALSE;
+          pco->updateButton->setEnabled(TRUE);
+          pco->updateButton->setEnabled(TRUE);
+          pco->updateButton->enabledFLAG = TRUE;
+          pco->terminateButton->setEnabled(FALSE);
+          pco->terminateButton->setFlat(TRUE);
+          pco->terminateButton->setEnabled(FALSE);
+        } else
+        {
+          pco->runButton->setEnabled(FALSE);
+          pco->runButton->enabledFLAG = FALSE;
+          runnableFLAG = FALSE;
+          pco->pauseButton->setEnabled(TRUE);
+          pco->pauseButton->enabledFLAG = TRUE;
+          pco->continueButton->setEnabled(FALSE);
+          pco->continueButton->setEnabled(FALSE);
+          pco->continueButton->enabledFLAG = FALSE;
+          pco->updateButton->setEnabled(TRUE);
+          pco->updateButton->setEnabled(TRUE);
+          pco->updateButton->enabledFLAG = TRUE;
+          pco->terminateButton->setEnabled(TRUE);
+          pco->terminateButton->setFlat(TRUE);
+          pco->terminateButton->setEnabled(TRUE);
+        }
+        
+        PanelContainer *pc = topPC->findBestFitPanelContainer(topPC);
+        
+        loadStatsPanel();
   
         ret_val = 1;
-}
+        }
         break;
       case  PAUSE_T:
         nprintf( DEBUG_MESSAGES ) ("Pause\n");
-sprintf(command, "expPause %d\n", expID);
-if( !cli->runSynchronousCLI(command) )
-{
-  fprintf(stderr, "Error (%s).\n", command);
-}
+        sprintf(command, "expPause -x %d\n", expID);
+        if( !cli->runSynchronousCLI(command) )
+        {
+          fprintf(stderr, "Error (%s).\n", command);
+        }
         statusLabelText->setText( tr("Process suspended...") );
         ret_val = 1;
         break;
       case  CONT_T:
         nprintf( DEBUG_MESSAGES ) ("Continue\n");
-sprintf(command, "expCont %d\n", expID);
-if( !cli->runSynchronousCLI(command) )
-{
-  fprintf(stderr, "Error (%s).\n", command);
-}
-          statusLabelText->setText( tr("Process continued...") );
-          sleep(1);
-          statusLabelText->setText( tr("Process running...") );
+        sprintf(command, "expCont -x %d\n", expID);
+        if( !cli->runSynchronousCLI(command) )
+        {
+          fprintf(stderr, "Error (%s).\n", command);
+        }
+        statusLabelText->setText( tr("Process continued...") );
+        sleep(1);
+        statusLabelText->setText( tr("Process running...") );
         ret_val = 1;
         break;
       case  UPDATE_T:
         nprintf( DEBUG_MESSAGES ) ("Update\n");
-sprintf(command, "expView %d\n", expID); // Get the new data..
-if( !cli->runSynchronousCLI(command) )
-{
-  fprintf(stderr, "Error (%s).\n", command);
-}
+        loadStatsPanel();
         ret_val = 1;
         break;
       case  INTERRUPT_T:
         nprintf( DEBUG_MESSAGES ) ("Interrupt\n");
+/*
 // cli->setInterrupt(true);
 CLIInterface::interrupt = true;
+*/
         ret_val = 1;
         break;
       case  TERMINATE_T:
         statusLabelText->setText( tr("Process terminated...") );
-sprintf(command, "expStop %d\n", expID);
-if( !cli->runSynchronousCLI(command) )
-{
-  fprintf(stderr, "Error (%s).\n", command);
-}
+        sprintf(command, "expStop -x %d\n", expID);
+        if( !cli->runSynchronousCLI(command) )
+        {
+          fprintf(stderr, "Error (%s).\n", command);
+        }
         ret_val = 1;
- //       nprintf( DEBUG_MESSAGES ) ("Terminate\n");
+       nprintf( DEBUG_MESSAGES ) ("Terminate\n");
         break;
       default:
         break;
@@ -735,61 +750,6 @@ void
 pcSamplePanel::updateInitialStatus()
 {
   loadMain();
-
-#ifdef OLDWAY
-  if( !mw->executableName.isEmpty() )
-  {
-
-    // Begin demo position at dummy file... For the real stuff we'll need to 
-    // look up the main()... and position at it...
-    if( mw && !mw->executableName.isEmpty() && mw->executableName.endsWith("fred_calls_ted") )
-    {
-      loadMain();
-    } else
-    {
-      QString msg = QString(tr("File entered is not an executable file.  No main() entry found.\n") );
-      QMessageBox::information( (QWidget *)this, "Process or executable needed...",
-                                   msg, QMessageBox::Ok );
-      runnableFLAG = FALSE;
-      pco->runButton->setEnabled(FALSE);
-      pco->runButton->enabledFLAG = FALSE;
-
-// DEMO PULL FIX  HARDCODE TO TRUE FOR NOW!
-runnableFLAG = TRUE;
-pco->runButton->setEnabled(TRUE);
-pco->runButton->enabledFLAG = TRUE;
-pco->continueButton->setEnabled(TRUE);
-pco->continueButton->enabledFLAG = TRUE;
-pco->updateButton->setEnabled(TRUE);
-pco->updateButton->enabledFLAG = TRUE;
-// PULL - FOR TESTING ONLY
-// DEMO PULL FIX  HARDCODE TO TRUE FOR NOW!
-
-      return;
-    }
-// End demo.
-
-  } else if( !mw->pidStr.isEmpty() )
-  {
-    loadMain();
-    if( runnableFLAG == TRUE )
-    {
-      if( detachFromProgramSelected() == FALSE )
-      {
-        return;
-      }
-    }
-    statusLabelText->setText( tr(QString("Attached to:  "))+mw->pidStr+tr(QString("  Click on the Run button to begin collecting data.")) );
-  } else
-  {
-    statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\" with the local menu.") );
-
-    runnableFLAG = FALSE;
-    pco->runButton->setEnabled(FALSE);
-    pco->runButton->enabledFLAG = FALSE;
-    return;
-  }
-#endif // OLDWAY
 }
 
 /*
@@ -842,7 +802,7 @@ pcSamplePanel::saveAsSelected()
       *sao->ts << "<h2>pcSampleReport</h2>";
       *sao->ts << "</head>";
 
-sao->f->flush();
+      sao->f->flush();
 
   
       broadcast((char *)sao, ALL_DECENDANTS_T, topPC);
@@ -855,9 +815,19 @@ sao->f->flush();
 void
 pcSamplePanel::loadSourcePanel()
 {
-  nprintf( DEBUG_PANELS ) ("From this pc on down, send out a saveAs message and put it to a file.\n");
-PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
-  SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", bestFitPC, (char *)expID);
+  nprintf( DEBUG_PANELS ) ("pcSamplePanel::loadSourcePanel()\n");
+
+  QString name = QString("Source Panel [%1]").arg(expID);
+  Panel *sourcePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+  if( !sourcePanel )
+  {
+    PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
+printf("BBBB\n");
+    SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", bestFitPC, (char *)expID);
+  } else
+  {
+printf("Raise the source panel!\n");
+  }
 }
 
 void
@@ -865,20 +835,33 @@ pcSamplePanel::loadStatsPanel()
 {
   nprintf( DEBUG_PANELS ) ("load the stats panel.\n");
 
-  PanelContainer *pc = topPC->findBestFitPanelContainer(topPC);
+  QString name = QString("pc Stats Panel [%1]").arg(expID);
 
-  Panel *p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("pc Stats Panel", pc, (void *)expID);
 
-  if( p )
+  Panel *statsPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+
+  if( statsPanel )
+  { 
+    nprintf( DEBUG_PANELS ) ("loadStatsPanel() found pc Stats Panel found.. raise it.\n");
+    getPanelContainer()->raisePanel(statsPanel);
+  } else
   {
-    nprintf( DEBUG_PANELS ) ("call p(%s)'s listener routine.\n", p->getName() );
-ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-if( eo && eo->FW() )
-{
-  experiment = eo->FW();
-  UpdateObject *msg = new UpdateObject((void *)experiment, expID, "pcsamp", 1);
-    p->listener( (void *)msg );
-}
+    nprintf( DEBUG_PANELS ) ("loadStatsPanel() no pc Stats Panel found.. create one.\n");
+    PanelContainer *pc = topPC->findBestFitPanelContainer(topPC);
+    statsPanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("pc Stats Panel", pc, (void *)expID);
+  }
+
+  if( statsPanel )
+  {
+    nprintf( DEBUG_PANELS )("call (%s)'s listener routine.\n", statsPanel->getName());
+    ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+    if( eo && eo->FW() )
+    {
+      experiment = eo->FW();
+      UpdateObject *msg =
+        new UpdateObject((void *)experiment, expID, "pcsamp", 1);
+      statsPanel->listener( (void *)msg );
+    }
   }
 }
 
@@ -886,10 +869,9 @@ void
 pcSamplePanel::__demoWakeUpToLoadExperiment()
 {
   statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the Run button to begin the experiment.")) );
-loadTimer->stop();
-pd->cancel();
-pd->hide();
-
+  loadTimer->stop();
+  pd->cancel();
+  pd->hide();
 
   runnableFLAG = TRUE;
   pco->runButton->setEnabled(TRUE);
@@ -900,50 +882,16 @@ void
 pcSamplePanel::loadMain()
 {
   nprintf( DEBUG_PANELS ) ("loadMain() entered\n");
-#ifdef OLDWAY
-
-// Begin Demo (direct connect to framework) only...
-  if( !executableNameStr.isEmpty() || !pidStr.isEmpty() )
-  {
-    timer = new QTimer(this, "__demoOnly_OneTimeLoadExecutableTimer");
-    connect( timer, SIGNAL(timeout()), this, SLOT(__demoWakeUpToLoadExperiment() ));
-    timer->start(1000, TRUE);
-  }
-  statusLabelText->setText( tr(QString("Loading ...  "))+mw->executableName);
-
-  runnableFLAG = FALSE;
-  pco->runButton->setEnabled(FALSE);
-  pco->runButton->enabledFLAG = FALSE;
-
-// End Demo (direct connect to framework) only...
-
-  char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
-  char buffer[200];
-  strcpy(buffer, plugin_directory);
-  strcat(buffer, "/../../../usability/phaseI/fred_calls_ted.c");
-  SourceObject *spo = new SourceObject("main", buffer, 22, TRUE, NULL);
-   if( broadcast((char *)spo, NEAREST_T) == 0 )
-  { // No source view up...
-    char *panel_type = "Source Panel";
-    Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, topPC, (char *)expID);
-    if( p != NULL )
-    {
-      if( !p->listener((void *)spo) )
-      {
-        fprintf(stderr, "Unable to position at main in %s\n", buffer);
-      } else
-      {
-        nprintf( DEBUG_CONST_DESTRUCT ) ("Positioned at main in %s ????? \n", buffer);
-      }
-    }
-  }
-#else // OLDWAY
 
   if( experiment != NULL );
   {
     ThreadGroup tgrp = experiment->getThreads();
     ThreadGroup::iterator ti = tgrp.begin();
+#ifdef OLDWAY
     if( tgrp.begin() == tgrp.end() )
+#else // OLDWAY
+    if( tgrp.size() == 0 )
+#endif // OLDWAY
     {
       return;
     }
@@ -951,29 +899,28 @@ pcSamplePanel::loadMain()
     Time time = Time::Now();
     const std::string main_string = std::string("main");
     OpenSpeedShop::Framework::Function function = thread.getFunctionByName(main_string, time);
+
     Optional<Statement> statement_definition = function.getDefinition();
     if(statement_definition.hasValue())
     {
-//      std::cout << " (" << statement_definition.getValue().getPath()
-//              << ", " << statement_definition.getValue().getLine() << ")";
-//      std::cout << std::endl;
       SourceObject *spo = new SourceObject("main", statement_definition.getValue().getPath(), statement_definition.getValue().getLine()-1, TRUE, NULL);
   
-      if( broadcast((char *)spo, NEAREST_T) == 0 )
-      { // No source view up...
+      QString name = QString("Source Panel [%1]").arg(expID);
+      Panel *sourcePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+      if( !sourcePanel )
+      {
         char *panel_type = "Source Panel";
-  //Find the nearest toplevel and start placement from there...
-// PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(getPanelContainer());
-PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
-        Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, (void *)groupID);
-        if( p != NULL )
-        {
-          p->listener((void *)spo);
-        }
+        //Find the nearest toplevel and start placement from there...
+        PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
+printf("CCCC\n");
+        sourcePanel = getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, (void *)groupID);
+      }
+      if( sourcePanel != NULL )
+      {
+        sourcePanel->listener((void *)spo);
       }
     }
   }
-#endif // OLDWAY
 }
 
 void

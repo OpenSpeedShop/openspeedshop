@@ -50,25 +50,25 @@ extern "C"
 
   bool getPreferenceSortDecending()
   {
-// printf("getPreferenceSortDecending(%s)\n", pname);
+printf("getPreferenceSortDecending(%s)\n", pname);
     return( sortDecendingCheckBox->isChecked() );
   }
 
   QString getPreferenceColumnToSortLineEdit()
   {
-// printf("getPreferenceColumnToSortLineEdit(%s)\n", pname);
+printf("getPreferenceColumnToSortLineEdit(%s)\n", pname);
     return( showColumnToSortLineEdit->text() );
   }
 
   QString getPreferenceTopNLineEdit()
   {
-// printf("getPreferenceTopNLineEdit(%s)\n", pname);
+printf("getPreferenceTopNLineEdit(%s)\n", pname);
     return( showTopNLineEdit->text() );
   }
 
   void initPreferenceSettings()
   {
-// printf("initPreferenceSettings(%s)\n", pname);
+printf("initPreferenceSettings(%s)\n", pname);
     sortDecendingCheckBox->setChecked(TRUE);
     showTopNLineEdit->setText( "5" );
     showColumnToSortLineEdit->setText( "0" );
@@ -76,7 +76,7 @@ extern "C"
 
   QWidget *initialize_preferences_entry_point(QSettings *settings, QWidgetStack *stack, char *name)
   {
-//    printf("initialize_preferences_entry_point(0x%x 0x%x %s) entered\n", settings, stack, name);
+printf("initialize_preferences_entry_point(0x%x 0x%x %s) entered\n", settings, stack, name);
 
     QWidget *statsPanelStackPage = new QWidget( stack, name );
     pname = strdup(name);
@@ -152,7 +152,7 @@ extern "C"
   }
   int save_preferences_entry_point(QSettings *settings, char *name)
   {
-//    printf("save_preferences_entry_point(0x%x %s) entered\n", settings, name);
+printf("save_preferences_entry_point(0x%x %s) entered\n", settings, name);
 
     char settings_buffer[1024];
 

@@ -22,6 +22,13 @@
 #include "AnimatedQPushButton.hxx"
 #include "debug.hxx"
 
+AnimatedQPushButton::AnimatedQPushButton(QIconSet iconset, QString str, QWidget *p, bool f) : QPushButton( iconset, str, p)
+{
+  nprintf( DEBUG_CONST_DESTRUCT ) ("AnimatedQPushButton::AnimatedQPushButton() constructor called\n");
+  enabledFLAG = f;
+  imageList.clear();
+}
+
 AnimatedQPushButton::AnimatedQPushButton(QWidget *p, const char *n, bool f) : QPushButton( p, n)
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("AnimatedQPushButton::AnimatedQPushButton() constructor called\n");

@@ -23,6 +23,7 @@
 #include "plugin_entry_point.hxx"   // Do not remove
 
 #include <qvaluelist.h>
+#include <qmessagebox.h>
 class MetricHeaderInfo;
 typedef QValueList<MetricHeaderInfo *> MetricHeaderInfoList;
 
@@ -78,7 +79,7 @@ pcStatsPanel::languageChange()
 int 
 pcStatsPanel::listener(void *msg)
 {
-//  printf("pcStatsPanel::listener() requested.\n");
+// printf("pcStatsPanel::listener() requested.\n");
 //  StatsPanelBase::listener(msg);
 
 
@@ -86,6 +87,16 @@ pcStatsPanel::listener(void *msg)
 
 // BUG - BIG TIME KLUDGE.   This should have a message type.
   MessageObject *msgObject = (MessageObject *)msg;
+
+// printf("msgObject->msgType=(%s)\n", msgObject->msgType.ascii() );
+// printf("getName=(%s)\n",  getName() );
+  if( msgObject->msgType == getName() )
+  {
+    nprintf(DEBUG_MESSAGES) ("pcStatsPanel::listener() interested!\n");
+    getPanelContainer()->raisePanel(this);
+    return 1;
+  }
+
   if(  msgObject->msgType  == "UpdateExperimentDataObject" )
   {
     UpdateObject *msg = (UpdateObject *)msgObject;
@@ -188,8 +199,12 @@ for( ; it != orig_data->end(); ++it)
 //              << ", " << definition.getValue().getLine() << ")";
 //      std::cout << std::endl;
       break;
+    } else
+    {
+//      fprintf(stderr, "No function definition for this entry.   Unable to position source.\n");
+      QMessageBox::information(this, "Open|SpeedShop", "No function definition for this entry.\nUnable to position source. (No symbols.)\n", "Ok");
+      return;
     }
-    fprintf(stderr, "No function definition for this entry.   Unable to position source.\n");
   }
 }
 
@@ -213,14 +228,14 @@ for( ; it != orig_data->end(); ++it)
 void
 pcStatsPanel::updateStatsPanelBaseData(void *expr, int expID, QString experiment_name)
 {
-//  printf("pcStatsPanel::updateStatsPanelBaseData() entered.\n");
+printf("pcStatsPanel::updateStatsPanelBaseData() entered.\n");
 
   StatsPanelBase::updateStatsPanelBaseData(expr, expID, experiment_name);
 
   
   SPListViewItem *lvi;
   columnList.clear();
-//printf("This should be overloaded in pcStatsPanel....\n");
+printf("This should be overloaded in pcStatsPanel....\n");
 
 ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
 if( eo && eo->FW() )

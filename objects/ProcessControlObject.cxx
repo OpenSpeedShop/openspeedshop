@@ -64,6 +64,7 @@ ProcessControlObject::ProcessControlObject(QVBoxLayout *frameLayout, QWidget *ba
   buttonGroupLayout->addItem(spacer);
   }
 
+#ifdef OLDWAY
   runButton = new AnimatedQPushButton( buttonGroup, "runButton" );
   QPixmap *pm = new QPixmap( run_xpm );
   pm->setMask(pm->createHeuristicMask());
@@ -76,9 +77,22 @@ ProcessControlObject::ProcessControlObject(QVBoxLayout *frameLayout, QWidget *ba
   QSpacerItem *spacer = new QSpacerItem( 10, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
   buttonGroupLayout->addItem(spacer);
   }
+#else // OLDWAY
+  QPixmap *pm = new QPixmap( run_xpm );
+  pm->setMask(pm->createHeuristicMask());
+  runButton = new AnimatedQPushButton( QIconSet( *pm), QString("runButton"), buttonGroup );
+  runButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, runButton->sizePolicy().hasHeightForWidth() ) );
+  buttonGroupLayout->addWidget( runButton );
+  runButton->setText( tr("Run") );
+  {
+  QSpacerItem *spacer = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
+  buttonGroupLayout->addItem(spacer);
+  }
+#endif // OLDWAY
 
 
   {
+#ifdef OLDWAY
   pauseButton = new AnimatedQPushButton( buttonGroup, "pauseButton", FALSE );
   QPixmap *pm = new QPixmap( pause_xpm );
   pm->setMask(pm->createHeuristicMask());
@@ -87,9 +101,18 @@ ProcessControlObject::ProcessControlObject(QVBoxLayout *frameLayout, QWidget *ba
   pauseButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, pauseButton->sizePolicy().hasHeightForWidth() ) );
   buttonGroupLayout->addWidget( pauseButton );
   pauseButton->setText( QString::null );
+#else // OLDWAY
+  QPixmap *pm = new QPixmap( pause_xpm );
+  pm->setMask(pm->createHeuristicMask());
+  pauseButton = new AnimatedQPushButton( QIconSet(*pm), "pauseButton", buttonGroup, FALSE );
+  pauseButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, pauseButton->sizePolicy().hasHeightForWidth() ) );
+  buttonGroupLayout->addWidget( pauseButton );
+  pauseButton->setText( tr("Pause") );
+#endif // OLDWAY
   }
 
   {
+#ifdef OLDWAY
   continueButton = new AnimatedQPushButton( buttonGroup, "continueButton", FALSE );
   QPixmap *pm = new QPixmap( cont_xpm );
   pm->setMask(pm->createHeuristicMask());
@@ -98,9 +121,22 @@ ProcessControlObject::ProcessControlObject(QVBoxLayout *frameLayout, QWidget *ba
   continueButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, continueButton->sizePolicy().hasHeightForWidth() ) );
   buttonGroupLayout->addWidget( continueButton );
   continueButton->setText( QString::null );
+#else // OLDWAY
+  QPixmap *pm = new QPixmap( cont_xpm );
+  pm->setMask(pm->createHeuristicMask());
+  continueButton = new AnimatedQPushButton( QIconSet(*pm), "continueButton", buttonGroup, FALSE );
+  continueButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, continueButton->sizePolicy().hasHeightForWidth() ) );
+  buttonGroupLayout->addWidget( continueButton );
+  continueButton->setText( tr("Cont") );
+  {
+  QSpacerItem *spacer = new QSpacerItem( 10, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
+  buttonGroupLayout->addItem(spacer);
+  }
+#endif // OLDWAY
   }
 
   {
+#ifdef OLDWAY
   updateButton = new AnimatedQPushButton( buttonGroup, "updateButton", FALSE );
   QPixmap *pm = new QPixmap( update_xpm );
   pm->setMask(pm->createHeuristicMask());
@@ -109,14 +145,23 @@ ProcessControlObject::ProcessControlObject(QVBoxLayout *frameLayout, QWidget *ba
   updateButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, updateButton->sizePolicy().hasHeightForWidth() ) );
   buttonGroupLayout->addWidget( updateButton );
   updateButton->setText( QString::null );
+#else // OLDWAY
+  QPixmap *pm = new QPixmap( update_xpm );
+  pm->setMask(pm->createHeuristicMask());
+  updateButton = new AnimatedQPushButton( QIconSet(*pm), "updateButton", buttonGroup, FALSE );
+  updateButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, updateButton->sizePolicy().hasHeightForWidth() ) );
+  buttonGroupLayout->addWidget( updateButton );
+  updateButton->setText( tr("Update") );
+#endif // OLDWAY
   }
 
   {
-  QSpacerItem *spacer = new QSpacerItem( 10, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
+  QSpacerItem *spacer = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
   buttonGroupLayout->addItem(spacer);
   }
 
   {
+#ifdef OLDWAY
   interruptButton = new AnimatedQPushButton( buttonGroup, "interruptButton", TRUE );
   QPixmap *pm = new QPixmap( interrupt_xpm );
   pm->setMask(pm->createHeuristicMask());
@@ -125,6 +170,14 @@ ProcessControlObject::ProcessControlObject(QVBoxLayout *frameLayout, QWidget *ba
   interruptButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, interruptButton->sizePolicy().hasHeightForWidth() ) );
   buttonGroupLayout->addWidget( interruptButton );
   interruptButton->setText( QString::null );
+#else // OLDWAY
+  QPixmap *pm = new QPixmap( interrupt_xpm );
+  pm->setMask(pm->createHeuristicMask());
+  interruptButton = new AnimatedQPushButton( QIconSet(*pm), "interruptButton", buttonGroup, TRUE );
+  interruptButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, interruptButton->sizePolicy().hasHeightForWidth() ) );
+  buttonGroupLayout->addWidget( interruptButton );
+  interruptButton->setText( tr("Interrupt") );
+#endif // OLDWAY
   }
 
   {
@@ -133,6 +186,7 @@ ProcessControlObject::ProcessControlObject(QVBoxLayout *frameLayout, QWidget *ba
   }
 
   {
+#ifdef OLDWAY
   terminateButton = new AnimatedQPushButton( buttonGroup, "terminateButton", FALSE );
   QPixmap *pm = new QPixmap( terminate_xpm );
   pm->setMask(pm->createHeuristicMask());
@@ -141,6 +195,14 @@ ProcessControlObject::ProcessControlObject(QVBoxLayout *frameLayout, QWidget *ba
   terminateButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, terminateButton->sizePolicy().hasHeightForWidth() ) );
   buttonGroupLayout->addWidget( terminateButton );
   terminateButton->setText( QString::null );
+#else // OLDWAY
+  QPixmap *pm = new QPixmap( terminate_xpm );
+  pm->setMask(pm->createHeuristicMask());
+  terminateButton = new AnimatedQPushButton( QIconSet(*pm), "terminateButton", buttonGroup, FALSE );
+  terminateButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, terminateButton->sizePolicy().hasHeightForWidth() ) );
+  buttonGroupLayout->addWidget( terminateButton );
+  terminateButton->setText( tr("Terminate") );
+#endif // OLDWAY
   }
 
   // set button look.

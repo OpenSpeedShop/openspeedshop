@@ -23,9 +23,8 @@ NAME
   openss - Collects Open/Speedshop performance data
 
 SYNOPSIS
-  openss [-f executable] [-h host] [-x experiment_name]
+  openss [-f "executable arg1 arg2 arg3 ..."] [-h host] [-x experiment_name]
               [-p process_ID [-r thread_rank] ]
-              [-a "command line args"]
 
 
 DESCRIPTION
@@ -81,9 +80,6 @@ DESCRIPTION
     -r thread_rank
       Specifies which thread of a process to gather data.
 
-    -a "command line arguments"
-      Specifies the arguments to be passed to the executable that is being
-      run.
 
 EXAMPLES:
   To start Open/Speedshop simply type:
@@ -101,6 +97,9 @@ EXAMPLES:
 
   To load an executable to run a simple timing (pcSampling) experiment:
   $ openss -f a.out -x pcsamp
+
+  To load an executable that takes a command line argument:
+  $ openss -f "a.out abc"  -x pcsamp
 
 
 COMMAND LINE:

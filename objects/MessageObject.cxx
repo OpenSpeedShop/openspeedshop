@@ -51,5 +51,5 @@ void
 MessageObject::print()
 {
   printf("MessageObject:\n");
-  printf("	msgType=(%s)\n", msgType);
+  printf("	msgType=(%s)\n", msgType.ascii() );
 }

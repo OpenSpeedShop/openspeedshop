@@ -163,7 +163,16 @@ CmdPanel::returnPressed()
       nprintf(DEBUG_PANELS) ("status = %d\n", status );
       if( status == ILO_ERROR )
       {
-        fprintf(stderr, "ILO_ERROR !!!\n");
+        int64_t val = 0;
+        std::list<CommandObject *>::iterator coi;
+        coi = clip->CmdObj_List().begin();
+        CommandObject *co = (CommandObject *)(*coi);
+        std::list<CommandResult *>::iterator crl;
+        crl = co->Result_List().begin();
+        CommandResult_Int *cr_int = (CommandResult_Int *)(*crl);
+        cr_int->Value(&val);
+
+        fprintf(stderr, "ILO_ERROR val=(%d)!!!\n", val);
         break;
       }
       sleep(1);

@@ -17,8 +17,10 @@
 ################################################################################
 
 LCDEFS64 = -I$ROOT/include/dpcl -pg -g -gdwarf-2 -D__64BIT__
+LCDEFS64_O2 = -I$ROOT/include/dpcl -pg -O2 -D__64BIT__
 LLDLIBS64 = -L $ROOT/lib -ldpcl -lelf 
 LCDEFS32 = -g -gdwarf-2
+LCDEFS32_O2 = -O2
 LLDLIBS32 =  -ldl
 
 TARGETS= mutatee 
@@ -31,10 +33,10 @@ mutatee: mutatee.c f1.c f2.c f3.c work.c
     ls -ld $(ROOT)/ia64-unknown-linux-gnu ; \
 	if test -d $(ROOT)/ia64-unknown-linux-gnu ; then \
 		echo IA64; \
-	    cc $(LCDEFS64) -o mutatee mutatee.c f1.c f2.c f3.c work.c $(LLDLIBS64) ; \
+	    cc $(LCDEFS64) -o mutatee mutatee.c f1.c f2.c f3.c work.c $(LLDLIBS64) ;rm -fr *.o;cc $(LCDEFS64_O2) -o mutatee_O2 mutatee.c f1.c f2.c f3.c work.c $(LLDLIBS64) ; \
 	else \
 		echo IA32; \
-	    cc $(LCDEFS32) -o mutatee mutatee.c f1.c f2.c f3.c work.c $(LLDLIBS32) ; \
+	    cc $(LCDEFS32) -o mutatee mutatee.c f1.c f2.c f3.c work.c $(LLDLIBS32) ;rm -fr *.o;cc $(LCDEFS32_O2) -o mutatee_O2 mutatee.c f1.c f2.c f3.c work.c $(LLDLIBS32) ; \
 	fi; \
 	rm -fr $(OPENSPEEDSHOP_PLUGIN_PATH)/../../../usability;
 	mkdir $(OPENSPEEDSHOP_PLUGIN_PATH)/../../../usability;
@@ -44,6 +46,7 @@ mutatee: mutatee.c f1.c f2.c f3.c work.c
 clobber: clean
 	-rm -f $(TARGETS)
 	-rm -f mutatee
+	-rm -f mutatee_O2
 
 clean:
 	@$(MAKE) $(TARGETS)

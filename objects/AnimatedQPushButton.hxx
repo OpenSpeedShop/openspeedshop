@@ -22,12 +22,14 @@
 
 #include <qpushbutton.h>
 #include <qvaluelist.h>
+#include <qiconset.h>
 
 typedef QValueList<QPixmap *>ImageList;
 
 class AnimatedQPushButton : public QPushButton
 {
   public:
+    AnimatedQPushButton(QIconSet, QString, QWidget *, bool f=TRUE);
     AnimatedQPushButton(QWidget *, const char *, bool f=TRUE);
 
     ~AnimatedQPushButton();

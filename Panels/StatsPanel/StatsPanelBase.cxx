@@ -30,7 +30,9 @@ typedef QValueList<MetricHeaderInfo *> MetricHeaderInfoList;
 #include "UpdateObject.hxx"
 #include "SourceObject.hxx"
 #include "PreferencesChangedObject.hxx"
+#ifdef OLDWAY
 #include "preference_plugin_info.hxx" // Do not remove
+#endif // OLDWAY
 
 
 #include "MetricInfo.hxx" // dummy data only...
@@ -47,12 +49,14 @@ StatsPanelBase::StatsPanelBase(PanelContainer *pc, const char *n, void *argument
 
   metricHeaderTypeArray = NULL;
 
+#ifdef OLDWAY
   bool ok;
   numberItemsToRead = getPreferenceTopNLineEdit().toInt(&ok);
   if( !ok )
   {
     numberItemsToRead = 5;
   }
+#endif // OLDWAY
 
   frameLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
@@ -105,6 +109,7 @@ StatsPanelBase::updateStatsPanelBaseData(void *expr, int expID, QString experime
 
   }
 
+#ifdef OLDWAY
   // Sort in decending order
   bool ok;
   int columnToSort = getPreferenceColumnToSortLineEdit().toInt(&ok);
@@ -123,6 +128,7 @@ StatsPanelBase::updateStatsPanelBaseData(void *expr, int expID, QString experime
   {
     lv->setSortOrder ( Qt::Ascending );
   }
+#endif // OLDWAY
 
 
   lv->clear();
@@ -209,6 +215,7 @@ StatsPanelBase::preferencesChanged()
 { 
   dprintf("StatsPanelBase::preferencesChanged\n");
 
+#ifdef OLDWAY
   bool thereWasAChangeICareAbout = FALSE;
 
   SortOrder old_sortOrder = lv->sortOrder();
@@ -252,6 +259,7 @@ StatsPanelBase::preferencesChanged()
   {
     updateStatsPanelBaseData();
   }
+#endif // OLDWAY
 } 
 
 

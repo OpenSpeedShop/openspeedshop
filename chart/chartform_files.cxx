@@ -47,10 +47,10 @@ void ChartForm::fileSaveAsPixmap()
 	    save( filename,
 		  filename.mid( filename.findRev( '.' ) + 1 ).upper() ) )
     {
-      fprintf(stderr, "Wrote %s\n", filename );
+      fprintf(stderr, "Wrote %s\n", filename.ascii() );
     } else
     {
-      fprintf(stderr, "Failed to write %s\n", filename );
+      fprintf(stderr, "Failed to write %s\n", filename.ascii() );
     }
 }
 

@@ -902,7 +902,8 @@ nprintf(DEBUG_PANELS) ("vSummaryPageFinishButtonSelected() \n");
 
   getPanelContainer()->hidePanel((Panel *)this);
 
-  Panel *p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("FPE Tracing", getPanelContainer(), (void *)-1);
+  QString *argument = new QString("-1");
+  Panel *p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("FPE Tracing", getPanelContainer(), (void *)argument);
 
   if( getPanelContainer()->getMainWindow() )
   { 
