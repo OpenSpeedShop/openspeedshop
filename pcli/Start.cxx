@@ -9,6 +9,7 @@
 #include <string>
 #include <sys/stat.h>               /* for fstat() */
 #include <sys/mman.h>               /* for mmap() */
+#include <signal.h>
 
 // for host name description
      #include <sys/socket.h>
@@ -184,9 +185,35 @@ extern "C"
     printf("  $ openss -f a.out -x pcsamp\n");
   }
 
+static void
+catch_signal (int sig, int error_num)
+{
+  // fprintf(stdout,"catch_signal %d\n",sig);
+  pthread_cancel (phandle[0]);
+  exit (1);
+}
+inline static void
+setup_signal_handler (int s)
+{
+    if (signal (s, SIG_IGN) != SIG_IGN)
+        signal (s,  reinterpret_cast <void (*)(int)> (catch_signal));
+}
+
   int
   cli_init(int argc, char **argv)
   {
+   // Set up to catch bad errors
+    setup_signal_handler (SIGILL);
+    setup_signal_handler (SIGTRAP);
+    // setup_signal_handler (SIGABRT);
+    setup_signal_handler (SIGFPE);
+    setup_signal_handler (SIGKILL);
+    setup_signal_handler (SIGBUS);
+    setup_signal_handler (SIGSEGV);
+    setup_signal_handler (SIGSYS);
+    setup_signal_handler (SIGPIPE);
+    setup_signal_handler (SIGCLD);
+
     int i;
     ArgStruct *argStruct = new ArgStruct(argc, argv);
     struct hostent *my_host = gethostent();
