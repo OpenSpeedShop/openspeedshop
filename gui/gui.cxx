@@ -96,47 +96,6 @@ if( cliFLAG )
     qapplication->connect( qapplication, SIGNAL( lastWindowClosed() ), qapplication, SLOT( quit() ) );
 //    printf("connect this up.\n");
 
-#ifdef SPLASH_MESSAGES
-    if( SPLASH )
-    {
-      sleep(1);
-      splash->message( "Open/SpeedShop is brought to you by:");
-      splash->raise();
-      event_routine();
-      sleep(1);
-      splash->message( "Jim ... ");
-      splash->raise();
-      event_routine();
-      splash->message( "Jim ...  Steve ...");
-      splash->raise();
-      event_routine();
-      splash->message( "Jim ...  Steve ...  Jack ...  Amaury ...");
-      splash->raise();
-      event_routine();
-      sleep(1);
-      splash->message( "Al ...");
-      splash->raise();
-      event_routine();
-      splash->message( "Al ...  David ...");
-      splash->raise();
-      event_routine();
-      splash->message( "Al ...  David ...  Helen ...");
-      splash->raise();
-      event_routine();
-      sleep(1);
-      splash->message( "and Bill.");
-      splash->raise();
-      event_routine();
-      sleep(1);
-      splash->message( "... with financial help from the US Government....");
-      splash->raise();
-      event_routine();
-      sleep(1);
-      splash->finish(w);
-      delete splash;
-      delete splash_pixmap;
-    }
-#else // SPLASH_MESSAGES
     if( SPLASH )
     {
       splash->raise();
@@ -155,7 +114,6 @@ if( cliFLAG )
       delete splash;
       delete splash_pixmap;
   }
-#endif // SPLASH_MESSAGES
 
     if( cliFLAG == 1 )
     { // If this was launch from cli mode...
