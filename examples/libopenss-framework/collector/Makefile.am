@@ -34,4 +34,4 @@ example_rt_la_LDFLAGS = \
 	-no-undefined -module -avoid-version
 
 example_rt_la_SOURCES = \
-	ExampleCollectorRT.c
+	runtime.c
