@@ -1189,9 +1189,9 @@ pcSampleWizardPanel::languageChange()
       std::set<Metadata>::const_iterator mi;
       for (mi = md.begin(); mi != md.end(); mi++) {
         Metadata m = *mi;
-        printf("%s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
-        printf("%s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
-        printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
+//        printf("%s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
+//        printf("%s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
+//        printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
       }
       pcSampleCollector.getParameterValue("sampling_rate", sampling_rate);
 // printf("sampling_rate=%d\n", sampling_rate);
