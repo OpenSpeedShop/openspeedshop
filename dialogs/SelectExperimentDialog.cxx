@@ -181,7 +181,7 @@ SelectExperimentDialog::updateAvailableExperimentList()
   availableExperimentsListView->clear();
   char entry_buffer[1024];
 
-  QString command("listExp All");
+  QString command("listExp");
   std::list<int64_t> int_list;
 
   int_list.clear();
