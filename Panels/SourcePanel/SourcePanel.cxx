@@ -26,6 +26,7 @@
 
 #include "debug.hxx"
 
+#define DEFAULT_STAT_WIDTH 50
 
 #ifdef OLDWAY
 #include "InfoEventFilter.hxx"
@@ -56,6 +57,7 @@ splitter->setHandleWidth(1);
   lineCount = 0;
   line_numbersFLAG = FALSE;
   highlightList = NULL;
+  firstTimeShowingStatAreaFLAG = TRUE;
 
   statArea = new QTable( splitter );
   statArea->setVScrollBarMode( QScrollView::AlwaysOff );
@@ -65,6 +67,7 @@ splitter->setHandleWidth(1);
   statArea->verticalHeader()->hide();
   statArea->setLeftMargin(0);
   statArea->setShowGrid(FALSE);
+  statArea->setMinimumSize(3,3);
 
   textEditLayoutFrame = new QFrame( splitter, "New QFrame" );
   textEditLayout = new QVBoxLayout( textEditLayoutFrame );
@@ -129,10 +132,10 @@ splitter->setHandleWidth(1);
   frameLayout->addWidget(splitter);
   QValueList<int> sizeList;
   sizeList.clear();
-  int height = pc->height();
-  int left_side_size = (int)(height*.10);
+  int width = pc->width();
+  int left_side_size = (int)(width*.10);
   sizeList.push_back( left_side_size );
-  sizeList.push_back( height-left_side_size );
+  sizeList.push_back( width-left_side_size );
   splitter->setSizes(sizeList);
   splitter->show();
 
@@ -420,12 +423,29 @@ SourcePanel::showStats()
     statArea->hide();
   } else
   {
+// I don't know why, but the splitter resizes after I've already resized it
+// initially.   This just sets the initial size, one more time.   We only
+// do this the first time we come through this routine.
+if( firstTimeShowingStatAreaFLAG == TRUE )
+{
+  QValueList<int> sizeList;
+  sizeList.clear();
+  int width = getPanelContainer()->width();
+//  int left_side_size = (int)(width*.10);
+// int left_side_size = statArea->verticalHeader()->width();
+  int left_side_size = DEFAULT_STAT_WIDTH;
+  nprintf(DEBUG_PANELS) ("left_side_size = (%d)\n", left_side_size );
+  sizeList.push_back( left_side_size );
+  sizeList.push_back( width-left_side_size );
+  splitter->setSizes(sizeList);
+}
+firstTimeShowingStatAreaFLAG = FALSE;
     statsFLAG = TRUE;
     statArea->show();
   }
 
-// Make sure the scrollbar is sync'd with everyone..
-valueChanged(-1);
+  // Make sure the scrollbar is sync'd with everyone..
+  valueChanged(-1);
 }
 
 /*! Display/Undisplay line numbers in the display. */
@@ -531,7 +551,6 @@ SourcePanel::loadFile(const QString &_fileName)
   textEdit->setUpdatesEnabled( FALSE );
 
   QString line = NULL;
-//  QString new_line("\n");
   QString blank_line("");
   QTextStream ts( &f );
   QString line_number;
@@ -565,26 +584,35 @@ SourcePanel::loadFile(const QString &_fileName)
     textEdit->setCursorPosition(0, 0);
   }
 //   lineCount = textEdit->paragraphs();
-  printf("lineCount=%d paragraphs()=%d\n", lineCount, textEdit->paragraphs() );
+  nprintf(DEBUG_PANELS) ("lineCount=%d paragraphs()=%d\n", lineCount, textEdit->paragraphs() );
 
+// #ifdef PROTO
   statArea->setNumRows(lineCount);
   statArea->setNumCols(1);
+// #endif // PROTO
   int heightForWidth = textEdit->heightForWidth(80);
   float lineHeight = (heightForWidth-hscrollbar->height())/(float)lineCount;
   float remainder = (int)(heightForWidth-hscrollbar->height())%lineCount;
 //  printf("lineCount=%d lineHeight=%d\n", lineCount, lineHeight);
+#ifdef HEADER_LABELED
+statArea->horizontalHeader()->setLabel(0, "Metric" );
+#endif // HEADER_LABELED
+// #ifdef PROTO
   for(int i=0;i<lineCount;i++)
   {
     sprintf(line_number_buffer, "%6d ", i+1);
     if( remainder > .0001 )
     {
       statArea->setRowHeight(i,(int)lineHeight+1);
+statArea->setColumnWidth(0,DEFAULT_STAT_WIDTH-5);
     } else
     {
       statArea->setRowHeight(i,(int)lineHeight);
+statArea->setColumnWidth(0,DEFAULT_STAT_WIDTH-5);
     }
     statArea->setText(i, 0, QString(QString(line_number_buffer)));
   }
+// #endif // PROTO
 //  printf("The last line was: %s\n", line_number_buffer );
 
 
@@ -873,8 +901,8 @@ SourcePanel::valueChanged(int passed_in_value)
   {
     value = (float)vscrollbar->value();
   }
-printf("valueChanged:: (%d)\n", vscrollbar->value() );
-printf("passed in value=%d\n", passed_in_value );
+  nprintf(DEBUG_PANELS) ("valueChanged:: (%d)\n", vscrollbar->value() );
+  nprintf(DEBUG_PANELS) ("passed in value=%d\n", passed_in_value );
 
   int lineStep = vscrollbar->lineStep();
   int height = textEdit->height();
@@ -925,6 +953,11 @@ printf("passed in value=%d\n", passed_in_value );
       float factor = (float)vbar->maxValue()/(float)textEdit->vbar->maxValue();
 // printf("factor=%f\n", factor );
       new_value =  (int)( value*factor );
+#ifdef HEADER_LABELED
+// I currently don't understand why this is still 1 off when setting the
+// header label.  ???
+  new_value++;
+#endif  // HEADER_LABELED
 // printf("CALCULATE NEW VALUE=new_value=%d\n", new_value);
     }
 // printf("pos statArea to %d\n", new_value );

@@ -103,6 +103,9 @@ public:
   //! Should statistics be displayed flag.
   bool statsFLAG;
 
+//! Is this the first time displaying stats FLAG.
+bool firstTimeShowingStatAreaFLAG;
+
   //! The highlight list for this file.
   HighlightList *highlightList;
 
