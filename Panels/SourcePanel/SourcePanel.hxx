@@ -44,9 +44,6 @@ public:
   //! Save the source to a file.
   void save();
 
-  //! Save the source to a named file.
-  void saveAs();
-
 //! Does the actual writing of the data.
 void doSaveAs(QFile *f);
 
@@ -189,6 +186,7 @@ public slots:
   void details();
   void whoCallsMe();
   void whoDoICall();
+  void saveAs();
 
   void zoomIn();
   void zoomOut();

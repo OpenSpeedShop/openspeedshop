@@ -143,6 +143,8 @@ SourcePanel::menu(QPopupMenu* contextMenu)
   nprintf(DEBUG_PANELS) ("SourcePanel::menu() requested.\n");
 
   contextMenu->insertSeparator();
+contextMenu->insertItem("&Save As...", this, SLOT(saveAs()), CTRL+Key_O );
+  contextMenu->insertSeparator();
   contextMenu->insertItem("&Open New", this, SLOT(chooseFile()), CTRL+Key_O );
   contextMenu->insertItem("&Goto Line...", this, SLOT(goToLine()), CTRL+Key_G );
   if( line_numbersFLAG == TRUE )
@@ -203,6 +205,47 @@ void
 SourcePanel::saveAs()
 {
   nprintf(DEBUG_PANELS) ("SourcePanel::saveAs() requested.\n");
+
+  QFileDialog *sfd = NULL;
+  QString dirName = QString::null;
+  if( sfd == NULL )
+  {
+    sfd = new QFileDialog(this, "file dialog", TRUE );
+    sfd->setCaption( QFileDialog::tr("Enter filename:") );
+    sfd->setMode( QFileDialog::AnyFile );
+    sfd->setSelection(QString("SourcePanel.html"));
+    QString types(
+                  "Html files (*.html *.htm);;"
+                  );
+    sfd->setFilters( types );
+    sfd->setDir(dirName);
+  }
+
+  QString fileName = QString::null;
+  if( sfd->exec() == QDialog::Accepted )
+  {
+    fileName = sfd->selectedFile();
+
+    if( !fileName.isEmpty() )
+    {
+      QFile file(fileName);
+
+      if( file.open( IO_WriteOnly ) ) 
+      {
+        QTextStream stream(&file);
+        stream << "<html>";
+        stream << "<head>";
+        stream << "<meta content=\"text/html; charset=ISO-8859-1\" \
+                           http-equiv=\"content-type\"> ";
+        stream << "<title>TopPanel</title>";
+        stream << "</head>";
+
+        doSaveAs(&file);
+
+        file.close();
+      }
+    }
+  }
 }
 
 /*! 
@@ -215,7 +258,6 @@ SourcePanel::listener(void *msg)
   SourceObject *spo = NULL;
   SaveAsObject *sao = NULL;
   nprintf(DEBUG_PANELS) ("SourcePanel::listener() requested.\n");
-printf ("SourcePanel::listener() requested.\n");
 
   MessageObject *msgObject = (MessageObject *)msg;
 
@@ -270,15 +312,12 @@ printf ("SourcePanel::listener() requested.\n");
     {
       return 0;  // 0 means, did not act on message.
     }
-    printf("SourcePanel::SaveAs\n");
-
     if( sao->f != NULL )
     {
       doSaveAs(sao->f);
     }
   } else
   {
-printf ("SourcePanel::listener() other... ignore.\n");
     return 0; // 0 means, did not act on message.
   }
 
