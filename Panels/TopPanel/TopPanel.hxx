@@ -11,6 +11,7 @@ class ExprInfo;
 #include <qlistview.h>
 #include <qcolor.h>
 #include <qfile.h>
+#include <qtextstream.h>
 
 class TPChartForm;
 class QHBoxLayout;
@@ -86,7 +87,7 @@ public:
   QString getDescription(int line);
 
 //! This is underlying save functionality.
-void doSaveAs(QFile *f);
+void doSaveAs(QFile *f, QTextStream *ts);
 
 public slots:
   void setOrientation();

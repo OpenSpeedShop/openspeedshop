@@ -2,6 +2,7 @@
 #define SAVEASOBJECT_H
 
 #include <qfile.h>
+#include <qtextstream.h>
 #include "MessageObject.hxx"
 
 //! The message object for passing SaveAs file descriptor around:w
@@ -20,6 +21,9 @@ public:
 
     //! The file descriptor to write to.
     QFile *f;
+
+    //! The text stream to write...
+    QTextStream *ts;
 
     //! The filename 
     QString fileName;

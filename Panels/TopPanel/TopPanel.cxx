@@ -238,10 +238,11 @@ TopPanel::saveAs()
         stream << "<head>";
         stream << "<meta content=\"text/html; charset=ISO-8859-1\" \
                          http-equiv=\"content-type\"> ";
+        stream << "<h2>TopPanel</h2>";
         stream << "<title>TopPanel</title>";
         stream << "</head>";
   
-        doSaveAs(&file);
+        doSaveAs(&file, &stream);
   
         file.close();
       }
@@ -284,7 +285,7 @@ if( msg == NULL )
     {
       return 0;  // 0 means, did not act on message.
     }
-    doSaveAs(sao->f);
+    doSaveAs(sao->f, sao->ts);
   }
 
   
@@ -774,32 +775,32 @@ TopPanel::getDescription(int line)
 }
 
 void
-TopPanel::doSaveAs(QFile *f)
+TopPanel::doSaveAs(QFile *f, QTextStream *ts)
 {
+  *ts << "<h3>TopPanel</h3>";
     QString filename = f->name()+ ".png";
     cf->fileSaveAsPixmap(filename);
 
-    QTextStream stream( f );
-    stream << "<body>";
-//    stream << "<h2>Report Header Line</h2><br><br>\n";
+    *ts << "<body>";
+//    *ts << "<h2>Report Header Line</h2><br><br>\n";
 
-    stream << "<img style=\"width: 130px; height: 165px;\" alt=\"pie chart diagram.\" src=\"";
-    stream << filename;
-    stream << "\"><br>\n";
+    *ts << "<img style=\"width: 130px; height: 165px;\" alt=\"pie chart diagram.\" src=\"";
+    *ts << filename;
+    *ts << "\"><br>\n";
 
-    stream << "<br>\n";
-    stream << "<pre>\n";
+    *ts << "<br>\n";
+    *ts << "<pre>\n";
 
     int lineCount = textEdit->paragraphs();
     for( int i=0; i<lineCount; i++ )
     {
-        stream << textEdit->text(i);;
-        stream << "\n";
+        *ts << textEdit->text(i);;
+        *ts << "\n";
     }
-    stream << "<br>\n";
-    stream << "<br>\n";
-    stream << "</pre>\n";
-    stream << "End of report\n";
-    stream << "</body>";
-    stream << "</html>";
+    *ts << "<br>\n";
+    *ts << "<br>\n";
+    *ts << "</pre>\n";
+    *ts << "End of report\n";
+    *ts << "</body>";
+    *ts << "</html>";
 }

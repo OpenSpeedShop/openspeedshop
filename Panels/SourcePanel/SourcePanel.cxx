@@ -240,10 +240,11 @@ SourcePanel::saveAs()
         stream << "<head>";
         stream << "<meta content=\"text/html; charset=ISO-8859-1\" \
                            http-equiv=\"content-type\"> ";
-        stream << "<title>TopPanel</title>";
+        stream << "<h2>SourcePanel</h2>";
+        stream << "<title>SourcePanel</title>";
         stream << "</head>";
 
-        doSaveAs(&file);
+        doSaveAs(&stream);
 
         file.close();
       }
@@ -317,7 +318,8 @@ SourcePanel::listener(void *msg)
     }
     if( sao->f != NULL )
     {
-      doSaveAs(sao->f);
+      doSaveAs(sao->ts);
+sao->f->flush();
     }
   } else
   {
@@ -1005,17 +1007,14 @@ SourcePanel::calculateLastParameters()
 }
 
 void
-SourcePanel::doSaveAs(QFile *f)
+SourcePanel::doSaveAs(QTextStream *ts)
 {
 // printf("doSaveAs() entered\n");
-  QTextStream stream( f );
-
-  stream << "<body>";
-  stream << "<pre>";
-
-  stream << fileName;
-  stream << "\n";
-  stream << textEdit->text();
-  stream << "</pre>";
-  stream << "</body>";
+  *ts << "<h3>SourcePanel</h3>\n";
+  *ts << "<body>\n";
+  *ts << fileName;
+  *ts << "<pre>\n";
+  *ts << textEdit->text();
+  *ts << "</pre>";
+  *ts << "</body>";
 }

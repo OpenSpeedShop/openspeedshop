@@ -506,18 +506,19 @@ pcSamplePanel::saveAsSelected()
     { 
       SaveAsObject *sao = new SaveAsObject(fileName);
 
-      QTextStream stream(sao->f);
-      stream << "<html>";
-      stream << "<head>";
-      stream << "<meta content=\"text/html; charset=ISO-8859-1\" \
-                       http-equiv=\"content-type\"> ";
-      stream << "<title>pcSampleReport Title</title>";
-      stream << "</head>";
+      *sao->ts << "<html>";
+      *sao->ts << "<head>";
+      *sao->ts << "<meta content=\"text/html; charset=ISO-8859-1\" http-equiv=\"content-type\"> ";
+      *sao->ts << "<title>pcSampleReport</title>";
+      *sao->ts << "<h2>pcSampleReport</h2>";
+      *sao->ts << "</head>";
+
+sao->f->flush();
 
   
       broadcast((char *)sao, ALL_DECENDANTS_T, topPC);
 
-      sao->f->close();
+      delete( sao );
     }
   }
 }

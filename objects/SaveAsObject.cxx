@@ -19,6 +19,8 @@ SaveAsObject::SaveAsObject(QString fn) : MessageObject("SaveAsObject")
 
   fileName = fn;
 
+  ts = NULL;
+
   if( !fileName.isEmpty() )
   {
     if( f != NULL )
@@ -27,10 +29,12 @@ SaveAsObject::SaveAsObject(QString fn) : MessageObject("SaveAsObject")
       if( !f->open( IO_WriteOnly ) )
       {
         f->close();
+fprintf(stderr, "Unable to open (%s) for writing.\n", fileName.ascii() );
         f = NULL;
         return;
       }
     }
+    ts = new QTextStream(f);
   }
   return;
 }
