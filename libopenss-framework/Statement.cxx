@@ -157,7 +157,6 @@ Path Statement::getPath() const
     // Find our source file's path
     BEGIN_TRANSACTION(dm_database);
     validate("Statements");
-    dm_database->beginTransaction();
     dm_database->prepareStatement(
 	"SELECT Files.path FROM Files JOIN Statements"
 	" ON Files.id = Statements.file WHERE Statements.id = ?;"

@@ -931,7 +931,96 @@ void Process::processStatements(const Thread& thread,
 				const AddressRange& range,
 				SourceObj& object) const
 {
-#ifdef SNARF
+    // Begin a transaction on this thread's database
+    SmartPtr<Database> database = EntrySpy(thread).getDatabase();
+    BEGIN_TRANSACTION(database);
+    
+    // Iterate over each child of this source object
+    for(int i = 0; i < object.child_count(); ++i) {
+	SourceObj child = object.child(i);
+	
+	// Is this child a function object?
+	if(child.src_type() == SOT_function) {
+	    
+	    // Get the start/end address of the function
+	    Address start = Address(child.address_start()) - range.getBegin();
+	    Address end = Address(child.address_end()) - range.getBegin();
+
+	    // NOTE: There are times when DPCL returns us functions where the
+	    //       start and end addresses are the same (zero length). For
+	    //       example, there are a bunch of functions in "libc.so.6" of
+	    //       the form "__*_nocancel" that have zero length. These play
+	    //       havoc with our code because AddressRange enforces the
+	    //       restriction (end > begin). For now we are going to throw
+	    //       out these zero-length functions because we shouldn't be
+	    //       able to gather data for them anyway.
+	    if(end == start)
+		continue;
+
+	    // Get the path of the source file containing this function
+	    std::string path = "";
+	    if(child.module_name_length() > 0) {
+		char buffer[child.module_name_length() + 1];
+		child.module_name(buffer, child.module_name_length() + 1);
+		path = buffer;
+	    }
+	    
+	    // Get the source line of this function's definition
+	    int line = child.line_start();
+
+	    // Ignore functions with empty source file name or source lines < 1
+	    if((path.size() == 0) || (line < 1))
+		continue;
+	    
+	    // Is there an existing source file in the database?
+	    Optional<int> file;
+	    database->prepareStatement("SELECT id FROM Files WHERE path = ?;");
+	    database->bindArgument(1, path);
+	    while(database->executeStatement())
+		file = database->getResultAsInteger(1);
+	    
+	    // Create the file entry if it isn't present in the database
+	    if(!file.hasValue()) {
+		database->prepareStatement(
+		    "INSERT INTO Files (path) VALUES (?);"
+		    );
+		database->bindArgument(1, path);
+		while(database->executeStatement());
+		file = database->getLastInsertedUID();	    
+	    }
+
+	    // Create the statement entry
+	    database->prepareStatement(
+		"INSERT INTO Statements (file, line, column) VALUES (?, ?, ?);"
+		);
+	    database->bindArgument(1, file);
+	    database->bindArgument(2, line);
+	    database->bindArgument(3, 0);
+	    while(database->executeStatement());
+	    int statement = database->getLastInsertedUID();
+	    
+	    // Create the statement range entry
+	    database->prepareStatement(
+		"INSERT INTO StatementRanges"
+		" (statement, linked_object, addr_begin, addr_end)"
+		" VALUES (?, ?, ?, ?);"
+		);
+	    database->bindArgument(1, statement);
+	    database->bindArgument(2, linked_object);
+	    database->bindArgument(3, start);
+	    database->bindArgument(4, end);
+	    while(database->executeStatement());
+
+	}
+	    
+    }
+
+    // End the transaction on this thread's database
+    END_TRANSACTION(database);
+
+
+#ifdef WDH_REAL_STATEMENT_PROCESSING
+
     // Ask DPCL for the statements in this (module) source object
     MainLoop::suspend();
     AisStatus retval;
@@ -941,62 +1030,23 @@ void Process::processStatements(const Thread& thread,
     Assert(retval.status() == ASC_success);
     MainLoop::resume();
 
-    // Begin a transaction on this thread's database
-    SmartPtr<Database> database = EntrySpy(thread).getDatabase();
-    BEGIN_TRANSACTION(database);
-    
     // Iterate over each source file of this module
     for(int i = 0; i < statements->get_count(); ++i) {
 	StatementInfo info = statements->get_entry(i);
-	
-	// Is there an existing source file in the database?
-	Optional<int> file;
-	database->prepareStatement("SELECT id FROM Files WHERE path = ?;");
-	database->bindArgument(1, info.get_filename());
-	while(database->executeStatement())
-	    file = database->getResultAsInteger(1);
 
-	// Create the file entry if it isn't present in the database
-	if(!file.hasValue()) {
-	    database->prepareStatement(
-		"INSERT INTO Files (path) VALUES (?);"
-		);
-	    database->bindArgument(1, info.get_filename());
-	    while(database->executeStatement());
-	    file = database->getLastInsertedUID();	    
-	}
+	// info.get_filename();
 	
 	// Iterate over each statement in this source file
 	for(int j = 0; j < info.get_line_count(); ++j) {
 	    StatementInfoLine line = info.get_line_entry(j);
-	    
-	    // Create the statement entry
-	    database->prepareStatement(
-		"INSERT INTO Statements (file, line, column) VALUES (?, ?, ?);"
-		);
-	    database->bindArgument(1, file.getValue());
-	    database->bindArgument(2, line.get_line());
-	    database->bindArgument(3, line.get_column());
-	    while(database->executeStatement());
-	    int statement = database->getLastInsertedUID();
+
+	    // line.get_line();
+	    // line.get_column();
 
 	    // Iterate over each address range in this statement
 	    for(int k = 0; k < line.get_address_count(); ++k) {
-		AddressRange statement_range(
-		    Address(line.get_address_entry(k)) - range.getBegin()
-		    );
-		
-		// Create the statement range entry
-		database->prepareStatement(
-		    "INSERT INTO StatementRanges"
-		    " (statement, linked_object, addr_begin, addr_end)"
-		    " VALUES (?, ?, ?, ?);"
-		    );
-		database->bindArgument(1, statement);
-		database->bindArgument(2, linked_object);
-		database->bindArgument(3, statement_range.getBegin());
-		database->bindArgument(4, statement_range.getEnd());
-		while(database->executeStatement());
+
+		// Address(line.get_address_entry(k)) - range.getBegin()
 
 	    }
 
@@ -1004,12 +1054,12 @@ void Process::processStatements(const Thread& thread,
 	
     }
     
-    // End the transaction on this thread's database
-    END_TRANSACTION(database);    
-    
     // Destroy the statement information returned by DPCL
     delete statements;    
+
 #endif
+
+
 }
 
 
@@ -1184,11 +1234,6 @@ void Process::unloadLibrary(const std::string& library)
     // Was this the last reference to this library?
     if(i->second.references == 0) {
 
-	// Note: An error of ASC_terminated_pid is silently ignored here because
-	//       closing an experiment frequently results in colllectors trying
-	//       to unload their runtime libraries after the processes being
-	//       monitored have already terminated.
-	
 	// Was a messaging probe installed for this library?
 	if(i->second.messaging != NULL) {
 
@@ -1196,13 +1241,11 @@ void Process::unloadLibrary(const std::string& library)
 	    MainLoop::suspend();
 	    AisStatus retval = 
 		dm_process->bdeactivate_probe(1, i->second.messaging);
-	    Assert((retval.status() == ASC_success) ||
-		   (retval.status() == ASC_terminated_pid));
+	    Assert(retval.status() == ASC_success);
 	    retval = dm_process->bremove_probe(1, i->second.messaging);
-	    Assert((retval.status() == ASC_success) ||
-		   (retval.status() == ASC_terminated_pid));
+	    Assert(retval.status() == ASC_success);
 	    MainLoop::resume();
-
+	    
 	    // Destroy the handle to the messaging probe
 	    delete i->second.messaging;
 	    
@@ -1211,8 +1254,7 @@ void Process::unloadLibrary(const std::string& library)
 	// Ask DPCL to unload the library
 	MainLoop::suspend();
 	AisStatus retval = dm_process->bunload_module(i->second.module);
-	Assert((retval.status() == ASC_success) ||
-	       (retval.status() == ASC_terminated_pid));
+	Assert(retval.status() == ASC_success);
 	MainLoop::resume();
 	delete i->second.module;
 	
@@ -1221,7 +1263,7 @@ void Process::unloadLibrary(const std::string& library)
 	
     }
 }
-    
+
 
 
 /**
@@ -1281,8 +1323,7 @@ void Process::execute(const std::string& library,
     // Ask DPCL to execute the function in this process    
     MainLoop::suspend();
     AisStatus retval = dm_process->bexecute(call_exp, NULL, NULL);
-    // WDH: NEXT LINE COMMENTED OUT FOR DEBUGGING ONLY
-    // Assert(retval.status() == ASC_success);
+    Assert(retval.status() == ASC_success);
     MainLoop::resume();    
 }
 

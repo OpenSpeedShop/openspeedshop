@@ -38,9 +38,9 @@ namespace OpenSpeedShop { namespace Framework {
     /**
      * PC sampling collector.
      *
-     * Periodically interupts the running process, obtains the current program
-     * counter (PC) value, increments a running counter associated with that
-     * value, and allows the process to continue execution.
+     * Periodically interrupts the running thread, obtains the current
+     * program counter (PC) value, stores it, and allows the thread to
+     * continue execution.
      */
     class PCSampCollector :
 	public CollectorImpl
@@ -50,6 +50,20 @@ namespace OpenSpeedShop { namespace Framework {
 	
 	PCSampCollector();    
 
+	virtual Blob getDefaultParameterValues() const;
+        virtual void getParameterValue(const std::string&,
+                                       const Blob&, void*) const;
+        virtual void setParameterValue(const std::string&,
+                                       const void*, Blob&) const;
+
+        virtual void startCollecting(const Collector&, const Thread&) const;
+        virtual void stopCollecting(const Collector&, const Thread&) const;
+
+        virtual void getMetricValue(const std::string&,
+                                    const Collector&, const Thread&,
+                                    const AddressRange&, const TimeInterval&,
+                                    void*) const;
+	
     };
     
 } }

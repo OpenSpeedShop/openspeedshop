@@ -24,7 +24,9 @@ pcsamp_la_CXXFLAGS = \
 pcsamp_la_LDFLAGS = \
 	-no-undefined -module -avoid-version
 
-pcsamp_la_SOURCES =
+pcsamp_la_SOURCES = \
+	blobs.h blobs.c blobs.x \
+	PCSampCollector.hxx PCSampCollector.cxx
 
 pcsamp_rt_la_CFLAGS = \
 	-I$(top_srcdir)/libopenss-framework/runtime
@@ -34,13 +36,16 @@ pcsamp_rt_la_LDFLAGS = \
 	-no-undefined -module -avoid-version
 
 pcsamp_rt_la_LIBADD = \
-	-lopenss-framework-runtime
+	-lopenss-framework-runtime -lpthread -lrt
 
-pcsamp_rt_la_SOURCES =
+pcsamp_rt_la_SOURCES = \
+	blobs.h blobs.c blobs.x \
+	runtime.c
 
 SUFFIXES = .x
 CLEANFILES = blobs.h blobs.c
 
 blobs.h blobs.c : blobs.x
+	rm -f  $(patsubst %.x, %.h, $<) $(patsubst %.x, %.c, $<)
 	$(RPCGEN) -h -o $(patsubst %.x, %.h, $<) $<
 	$(RPCGEN) -c -o $(patsubst %.x, %.c, $<) $<

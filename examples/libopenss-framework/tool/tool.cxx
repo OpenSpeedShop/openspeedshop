@@ -60,8 +60,8 @@ int main(int argc, char* argv[])
 		  << " seconds." << std::endl
 		  << std::endl;
 	
-	// Create the example collector and set its sampling rate
-	Collector collector = experiment.createCollector("example");
+	// Create the PC sampling collector and set its sampling rate
+	Collector collector = experiment.createCollector("pcsamp");
 	collector.setParameterValue("sampling_rate", (unsigned)100);
 
 	// Attach this process to the collector and start collecting data
@@ -86,21 +86,30 @@ int main(int argc, char* argv[])
 
 	// Display the results
 
-	std::cout << std::endl << std::endl << std::endl
+	std::cout << std::endl
 		  << std::setw(10) << "Time"
 		  << "    "
 		  << "Function" << std::endl
 		  << std::endl;
 	
 	for(std::map<Function, double>::const_iterator
-		i = data->begin(); i != data->end(); ++i)
+		i = data->begin(); i != data->end(); ++i) {
 	    
 	    std::cout << std::setw(10) << std::fixed << std::setprecision(3)
 		      << i->second
 		      << "    "
-		      << i->first.getName() << std::endl;
+		      << i->first.getName();
 
-	std::cout << std::endl << std::endl << std::endl;
+	    Optional<Statement> definition = i->first.getDefinition();
+	    if(definition.hasValue())
+		std::cout << " (" << definition.getValue().getPath()
+			  << ", " << definition.getValue().getLine() << ")";
+	    
+	    std::cout << std::endl;
+
+	}
+
+	std::cout << std::endl << std::endl;
 	
     }
     catch(const std::exception& error) {

@@ -161,10 +161,6 @@ void Database::create(const std::string& name)
  * @note    An exception of type std::runtime_error is thrown if the database
  *          cannot be opened for any reason.
  *
- * @todo    Currently the SQLite cache size for the database is set to 100,000
- *          pages (about 150Mb). Having this specified by the caller or by an
- *          environment variable is probably a good idea for the future.
- *
  * @param name    Name of database to be accessed.
  */
 Database::Database(const std::string& name) :
@@ -194,10 +190,6 @@ Database::Database(const std::string& name) :
     
     // Specify our busy handler
     Assert(sqlite3_busy_handler(dm_handle, busyHandler, this) == SQLITE_OK);
-    
-    // Change the SQLite cache size to 100,000 pages (about 150Mb)
-    Assert(sqlite3_exec(dm_handle, "PRAGMA cache_size = 100000;",
-			NULL, NULL, NULL) == SQLITE_OK);
 }
 
 
@@ -319,7 +311,7 @@ void Database::prepareStatement(const std::string& statement)
     Assert(dm_handle != NULL);
     Assert(dm_nesting_level > 0);
     Assert(dm_current_statement == NULL);
-    
+
     // Determine if this statement has already been cached
     std::map<std::string, sqlite3_stmt*>::const_iterator i =
 	dm_statements.find(statement);

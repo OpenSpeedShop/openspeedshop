@@ -21,32 +21,3 @@
  * Specification of the example collector's blobs.
  *
  */
-
-
-
-/** Structure of the blob containing our parameters. */
-struct example_parameters {
-    unsigned sampling_rate;  /**< Sampling rate in samples/second. */
-};
-
-
-
-/** Structure of the blob containing our performance data. */
-struct example_data {
-    uint64_t interval;    /**< Sampling interval in nanoseconds. */
-    uint64_t pc<>;        /**< Program counter (PC) addresses. */
-    uint8_t count<>;      /**< Sample counts at those addresses. */    
-};
-
-
-
-/** Structure of the blob containing example_start_sampling()'s arguments. */
-struct example_start_sampling_args {
-
-    unsigned sampling_rate;  /**< Sampling rate in samples/second. */
-    
-    int experiment;  /**< Identifier of experiment to contain the data. */
-    int collector;   /**< Identifier of collector gathering data. */
-    int thread;      /**< Identifier of gathered data's thread. */
-    
-};
