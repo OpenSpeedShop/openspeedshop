@@ -2,7 +2,7 @@
 The interesting environment variables are:
 . /perftools/ROOT/setenv.sh
 export OPENSPEEDSHOP_INSTALL_DIR=/tmp/OpenSpeedshop
-export OPENSPEEDSHOP_PLUGIN_PATH=$OPENSPEEDSHOP_INSTALL_DIR/lib/openspeedshop
+export OPENSPEEDSHOP_PLUGIN_PATH=$OPENSPEEDSHOP_INSTALL_DIR/lib/open-speedshop
 export OPENSPEEDSHOP_GUI_ENTRY_POINT=gui_init
 export OPENSPEEDSHOP_CLI_ENTRY_POINT=cli_init
 export OPENSPEEDSHOP_GUI_RELOCATABLE_NAME=ossgui.so
