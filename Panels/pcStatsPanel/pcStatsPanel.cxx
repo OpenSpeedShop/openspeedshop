@@ -244,15 +244,13 @@ typedef std::pair<std::string, double> item_type;
 template <class T>
 struct sort_ascending : public std::binary_function<T,T,bool> {
     bool operator()(const T& x, const T& y) const {
-        return x.second < y.second
-            || (!(y.second < x.second) && x.first < y.first);
+        return x.second < y.second;
     }
 };
 template <class T>
 struct sort_decending : public std::binary_function<T,T,bool> {
     bool operator()(const T& x, const T& y) const {
-        return x.second > y.second
-            || (!(y.second > x.second) && x.first > y.first);
+        return x.second > y.second;
     }
 };
 
