@@ -49,7 +49,7 @@ def cmd_parse(args):
     if count > 0:
     	blank_delim = " "
     	zusamen = blank_delim.join(args[:count])
-	#print zusamen
+	print "zusamen=" , zusamen
     	return PY_Input.CallParser (zusamen)
 
     pass
@@ -65,7 +65,12 @@ def cmd_parse(args):
 ################################################################################
 def cloak_list_range(arg, is_name):
 
-    #print 'in cloak_list(',arg,')'
+    print 'in cloak_list(',arg,')'
+
+    # Check for prequoated symbols.
+    if arg[0] == '"':
+    	return arg
+	
     if type(arg) is types.StringType:
     	# Check to see if operand is name and cloak everything.
     	if is_name is 1:
@@ -239,8 +244,11 @@ def preParseArgs(line, command_dict, arg_dict, str_opts_dict, num_opts_dict):
                 # are so until it is pointed out to me what the 
                 # good and wholesome solution is, we will have to
                 # live with this.
-		t_part = string.lower(parts[i])
-                t_arg = arg_dict.get(t_part)
+	      t_part = string.lower(parts[i])
+	      t_arg = arg_dict.get(t_part)
+	      if t_part[0] == '"':
+		    i = i+1
+	      else:
 		#print parts[i],i
                 if t_arg is not None:
                     #print t_arg
