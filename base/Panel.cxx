@@ -47,6 +47,8 @@ Panel::Panel(PanelContainer *pc, const char *n) : QWidget(pc, n)
 {
   nprintf(DEBUG_PANELS) ("Panel::Panel(...) entered.\n");
 
+  expID = 0;
+
   topLevel = FALSE;   // 99.9 % of the time this is FALSE
   topPC = NULL;   // 99.9 % of the time this is NULL
 

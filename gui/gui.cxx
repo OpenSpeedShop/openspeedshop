@@ -177,6 +177,7 @@ extern "C"
     w->hostStr = hostStr;
     w->argsStr = argsStr;
 
+#ifdef OLDWAY
     if( w->expStr != NULL )
     {
       if( w->expStr == "pcsamp" )
@@ -203,6 +204,7 @@ extern "C"
         exit(0);
       }
     }
+#endif // OLDWAY
 
     w->show();
 

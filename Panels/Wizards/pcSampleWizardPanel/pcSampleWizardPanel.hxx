@@ -50,7 +50,7 @@ public:
         This is where the user would create the panel specific Qt code
         to do whatever functionality the user wanted the panel to perform.
      */
-  pcSampleWizardPanel(PanelContainer *pc, const char *n, char *argument);
+  pcSampleWizardPanel(PanelContainer *pc, const char *n, void *argument);
 
   //! ~pcSampleWizardPanel() - The default destructor.
   ~pcSampleWizardPanel();  // Active destructor

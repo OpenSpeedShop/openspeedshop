@@ -55,7 +55,7 @@ IOWizardPanel::IOWizardPanel()
     \param pc    The panel container the panel will initially be attached.
     \param n     The initial name of the panel container
  */
-IOWizardPanel::IOWizardPanel(PanelContainer *pc, const char *n, char *argument) : Panel(pc, n)
+IOWizardPanel::IOWizardPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
 {
   nprintf(DEBUG_CONST_DESTRUCT) ("IOWizardPanel::IOWizardPanel() constructor called\n");
 

@@ -50,7 +50,7 @@ public:
         This is where the user would create the panel specific Qt code
         to do whatever functionality the user wanted the panel to perform.
      */
-  HW_CounterWizardPanel(PanelContainer *pc, const char *n, char *argument);
+  HW_CounterWizardPanel(PanelContainer *pc, const char *n, void *argument);
 
   //! ~HW_CounterWizardPanel() - The default destructor.
   ~HW_CounterWizardPanel();  // Active destructor

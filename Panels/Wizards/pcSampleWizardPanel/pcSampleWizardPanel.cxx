@@ -43,20 +43,13 @@
  */
 
 
-/*! The default constructor.   Unused. */
-pcSampleWizardPanel::pcSampleWizardPanel()
-{ // Unused... Here for completeness...
-  nprintf(DEBUG_CONST_DESTRUCT) ("pcSampleWizardPanel::pcSampleWizardPanel() default constructor called\n");
-}
-
-
 /*! Constructs a new UserPanel object */
 /*! This is the most often used constructor call.
     \param pc         The panel container the panel will initially be attached.
     \param n          The initial name of the panel container
     \param argument   TRUE|FALSE TRUE if call invoked by IntroWizardPanel
  */
-pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n, char *argument) : Panel(pc, n)
+pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
 {
   nprintf(DEBUG_CONST_DESTRUCT) ("pcSampleWizardPanel::pcSampleWizardPanel() constructor called\n");
 

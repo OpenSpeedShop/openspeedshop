@@ -40,7 +40,7 @@ public:
   //! IOWizardPanel() - A default constructor the the Panel Class.
   IOWizardPanel();  // Default construct
 
-  //! IOWizardPanel(PanelContainer *pc, const char *name)
+  //! IOWizardPanel(PanelContainer *pc, const void *name)
     /*! This constructor is the work constructor.   It is called to
         create the new Panel and attach it to a PanelContainer.
         \param pc is a pointer to PanelContainer
@@ -50,7 +50,7 @@ public:
         This is where the user would create the panel specific Qt code
         to do whatever functionality the user wanted the panel to perform.
      */
-  IOWizardPanel(PanelContainer *pc, const char *n, char *argument);
+  IOWizardPanel(PanelContainer *pc, const char *n, void *argument);
 
   //! ~IOWizardPanel() - The default destructor.
   ~IOWizardPanel();  // Active destructor

@@ -39,9 +39,11 @@ UserTimePanel::UserTimePanel()
     \param pc    The panel container the panel will initially be attached.
     \param n     The initial name of the panel container
  */
-UserTimePanel::UserTimePanel(PanelContainer *pc, const char *n, char *argument) : Panel(pc, n)
+UserTimePanel::UserTimePanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("UserTimePanel::UserTimePanel() constructor called\n");
+
+  expID = (int)argument;
 
   mw = getPanelContainer()->getMainWindow();
 
@@ -95,7 +97,7 @@ printf("# theApplication.attachCollector(theCollector.getValue());\n");
   topLevel = TRUE;
   topPC->topLevel = TRUE;
 
-  SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", topPC);
+  SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", topPC, (void *)expID);
 
 // Begin demo position at dummy file... For the real stuff we'll need to 
 // look up the main()... and position at it...
@@ -345,7 +347,7 @@ pco->terminateButton->setEnabled(FALSE);
 pco->terminateButton->setFlat(TRUE);
 pco->terminateButton->setEnabled(FALSE);
 
-TopPanel *tp = (TopPanel *)topPC->dl_create_and_add_panel("Top Panel", topPC); 
+TopPanel *tp = (TopPanel *)topPC->dl_create_and_add_panel("Top Panel", topPC, (void *)expID); 
 } // End demo only...
         ret_val = 1;
         break;
@@ -414,7 +416,7 @@ UserTimePanel::updateInitialStatus()
       if( broadcast((char *)spo, NEAREST_T) == 0 )
       { // No source view up...
         char *panel_type = "Source Panel";
-        Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, topPC);
+        Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, topPC, (void *)expID);
         if( p != NULL )
         {
           if( !p->listener((void *)spo) )
@@ -529,5 +531,5 @@ void
 UserTimePanel::loadSourcePanel()
 {
   printf("From this pc on down, send out a saveAs message and put it to a file.\n");
-  SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", topPC);
+  SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", topPC, (void *)expID);
 }

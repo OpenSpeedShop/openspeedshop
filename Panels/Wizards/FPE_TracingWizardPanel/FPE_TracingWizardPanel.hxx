@@ -50,7 +50,7 @@ public:
         This is where the user would create the panel specific Qt code
         to do whatever functionality the user wanted the panel to perform.
      */
-  FPE_TracingWizardPanel(PanelContainer *pc, const char *n, char *argument);
+  FPE_TracingWizardPanel(PanelContainer *pc, const char *n, void *argument);
 
   //! ~FPE_TracingWizardPanel() - The default destructor.
   ~FPE_TracingWizardPanel();  // Active destructor

@@ -34,7 +34,7 @@
     \param pc    The panel container the panel will initially be attached.
     \param n     The initial name of the panel container
  */
-pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n, char *argument) : Panel(pc, n)
+pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("pcSamplePanel::pcSamplePanel() constructor called\n");
 
@@ -130,7 +130,7 @@ while( TRUE )
   if( status == ILO_COMPLETE )
   {
     std::list<CommandObject *>::iterator coi;
-//    if( coi->count() == 1 ) // We should only have one in this case.\n");
+    if( clip->CmdObj_List().size() == 1 ) // We should only have one in this case.\n");
     {
       printf("We have 1 command object.   Get the data.\n");
       coi = clip->CmdObj_List().begin();
@@ -164,7 +164,7 @@ setName(name_buffer);
   topLevel = TRUE;
   topPC->topLevel = TRUE;
 
-  SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", topPC);
+  SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", topPC, (char *)expID);
 
 // Begin demo position at dummy file... For the real stuff we'll need to 
 // look up the main()... and position at it...
@@ -409,7 +409,7 @@ clip = Append_Input_String( wid, buffer);
         nprintf( DEBUG_MESSAGES ) ("Run\n");
         statusLabelText->setText( tr("Process running...") );
 // Begin demo only...
-if( 0 )
+if( 1 )
 {
 pco->runButton->setEnabled(FALSE);
 pco->runButton->enabledFLAG = FALSE;
@@ -526,7 +526,7 @@ pcSamplePanel::updateInitialStatus()
       if( broadcast((char *)spo, NEAREST_T) == 0 )
       { // No source view up...
         char *panel_type = "Source Panel";
-        Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, topPC);
+        Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, topPC, (char *)expID);
         if( p != NULL )
         {
           if( !p->listener((void *)spo) )
@@ -641,7 +641,7 @@ void
 pcSamplePanel::loadSourcePanel()
 {
   printf("From this pc on down, send out a saveAs message and put it to a file.\n");
-  SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", topPC);
+  SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", topPC, (char *)expID);
 }
 
 void
@@ -651,7 +651,7 @@ pcSamplePanel::loadStatsPanel()
 
   PanelContainer *pc = topPC->findBestFitPanelContainer(topPC);
 
-  Panel *p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Stats Panel", pc);
+  Panel *p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Stats Panel", pc, (void *)expID);
 
   if( p )
   {

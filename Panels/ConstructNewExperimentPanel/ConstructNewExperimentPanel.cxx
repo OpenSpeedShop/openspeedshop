@@ -39,9 +39,11 @@ ConstructNewExperimentPanel::ConstructNewExperimentPanel()
     \param pc    The panel container the panel will initially be attached.
     \param n     The initial name of the panel container
  */
-ConstructNewExperimentPanel::ConstructNewExperimentPanel(PanelContainer *pc, const char *n, char *argument) : Panel(pc, n)
+ConstructNewExperimentPanel::ConstructNewExperimentPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("ConstructNewExperimentPanel::ConstructNewExperimentPanel() constructor called\n");
+
+  expID = (int)argument;
 
   mw = getPanelContainer()->getMainWindow();
 
@@ -412,7 +414,7 @@ ConstructNewExperimentPanel::updateInitialStatus()
       if( broadcast((char *)spo, NEAREST_T) == 0 )
       { // No source view up...
         char *panel_type = "Source Panel";
-        Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, topPC);
+        Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, topPC, (void *)expID);
         if( p != NULL )
         {
           if( !p->listener((void *)spo) )

@@ -13,11 +13,8 @@ class TemplatePanel  : public Panel
     //! Q_OBJECT is needed as there are slots defined for the class
     Q_OBJECT
   public:
-    //! TemplatePanel() - A default constructor the the TemplatePanel Class.
-    TemplatePanel();
-
     //! TemplatePanel(PanelContainer *pc, const char *name)
-    TemplatePanel(PanelContainer *pc, const char *n, char *argument);
+    TemplatePanel(PanelContainer *pc, const char *n, void *argument);
 
     //! ~TemplatePanel() - The default destructor.
     ~TemplatePanel();  // Active destructor

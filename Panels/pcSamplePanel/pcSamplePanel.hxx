@@ -39,7 +39,7 @@ public:
         This is where the user would create the panel specific Qt code
         to do whatever functionality the user wanted the panel to perform.
      */
-  pcSamplePanel(PanelContainer *pc, const char *n, char *argument);
+  pcSamplePanel(PanelContainer *pc, const char *n, void *argument);
 
   //! ~pcSamplePanel() - The default destructor.
   ~pcSamplePanel();  // Active destructor

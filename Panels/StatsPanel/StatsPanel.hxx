@@ -25,7 +25,7 @@ class StatsPanel  : public Panel
     Q_OBJECT
   public:
     //! StatsPanel(PanelContainer *pc, const char *name)
-    StatsPanel(PanelContainer *pc, const char *n, char *argument);
+    StatsPanel(PanelContainer *pc, const char *n, void *argument);
 
     //! ~StatsPanel() - The default destructor.
     ~StatsPanel();  // Active destructor

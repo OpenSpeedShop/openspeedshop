@@ -50,7 +50,7 @@ public:
         This is where the user would create the panel specific Qt code
         to do whatever functionality the user wanted the panel to perform.
      */
-  UserTimeWizardPanel(PanelContainer *pc, const char *n, char *argument);
+  UserTimeWizardPanel(PanelContainer *pc, const char *n, void *argument);
 
   //! ~UserTimeWizardPanel() - The default destructor.
   ~UserTimeWizardPanel();  // Active destructor

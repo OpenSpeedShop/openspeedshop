@@ -55,7 +55,7 @@ HW_CounterWizardPanel::HW_CounterWizardPanel()
     \param pc    The panel container the panel will initially be attached.
     \param n     The initial name of the panel container
  */
-HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, char *argument) : Panel(pc, n)
+HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
 {
   nprintf(DEBUG_CONST_DESTRUCT) ("HW_CounterWizardPanel::HW_CounterWizardPanel() constructor called\n");
 
@@ -612,7 +612,7 @@ nprintf(DEBUG_PANELS) ("eDescriptionPageIntroButtonSelected() \n");
     Panel *p = getPanelContainer()->raiseNamedPanel("&Intro Wizard");
     if( !p )
     {
-      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Intro Wizard", getPanelContainer());
+      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Intro Wizard", getPanelContainer() );
     }
 }
 
@@ -751,7 +751,7 @@ nprintf(DEBUG_PANELS) ("vDescriptionPageIntroButtonSelected() \n");
     Panel *p = getPanelContainer()->raiseNamedPanel("&Intro Wizard");
     if( !p )
     {
-      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Intro Wizard", getPanelContainer());
+      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Intro Wizard", getPanelContainer() );
     }
 }
 
@@ -883,7 +883,7 @@ nprintf(DEBUG_PANELS) ("vSummaryPageFinishButtonSelected() \n");
 
   getPanelContainer()->hidePanel((Panel *)this);
 
-  Panel *p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("HW Counter", getPanelContainer());
+  Panel *p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("HW Counter", getPanelContainer() );
 
   if( getPanelContainer()->getMainWindow() )
   { 

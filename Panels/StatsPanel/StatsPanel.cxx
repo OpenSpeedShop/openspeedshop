@@ -17,9 +17,11 @@ static char *color_name_table[10] =
 
 
 
-StatsPanel::StatsPanel(PanelContainer *pc, const char *n, char *argument) : Panel(pc, n)
+StatsPanel::StatsPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
 {
   setCaption("StatsPanel");
+
+  expID = (int)argument;
 
   metricHeaderTypeArray = NULL;
 
@@ -36,6 +38,10 @@ printf("Invalid \"number of items\" in preferences.   Resetting to default.\n");
   lv = NULL;
   
   getBaseWidgetFrame()->setCaption("StatsPanelBaseWidget");
+
+  char name_buffer[100];
+  sprintf(name_buffer, "%s [%d]", getName(), expID);
+  setName(name_buffer);
 }
 
 
@@ -137,7 +143,7 @@ StatsPanel::matchSelectedItem(int element)
   { // No source view up...
     char *panel_type = "Source Panel";
 //Find the nearest toplevel and start placement from there...
-    Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type);
+    Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, NULL, (void *)expID);
     if( p != NULL ) 
     {
       p->listener((void *)spo);

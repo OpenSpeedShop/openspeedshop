@@ -14,7 +14,7 @@ QString prompt = QString::null;
   This is prototype code to show proof of concept.
   */
 
-CmdPanel::CmdPanel(PanelContainer *pc, const char *n, char *argument) : Panel(pc, n)
+CmdPanel::CmdPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
 {
   nprintf(DEBUG_CONST_DESTRUCT) ( "CmdPanel::CmdPanel() constructor called.\n");
 

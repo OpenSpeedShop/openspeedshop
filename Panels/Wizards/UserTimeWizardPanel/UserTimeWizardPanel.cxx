@@ -55,7 +55,7 @@ UserTimeWizardPanel::UserTimeWizardPanel()
     \param pc    The panel container the panel will initially be attached.
     \param n     The initial name of the panel container
  */
-UserTimeWizardPanel::UserTimeWizardPanel(PanelContainer *pc, const char *n, char *argument) : Panel(pc, n)
+UserTimeWizardPanel::UserTimeWizardPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
 {
   nprintf(DEBUG_CONST_DESTRUCT) ("UserTimeWizardPanel::UserTimeWizardPanel() constructor called\n");
 

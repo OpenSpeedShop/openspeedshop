@@ -47,7 +47,7 @@ IntroWizardPanel::IntroWizardPanel()
     \param pc    The panel container the panel will initially be attached.
     \param n     The initial name of the panel container
  */
-IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, char *argument) : Panel(pc, n)
+IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
 {
   nprintf( DEBUG_CONST_DESTRUCT) ( "IntroWizardPanel::IntroWizardPanel() constructor called.\n");
 

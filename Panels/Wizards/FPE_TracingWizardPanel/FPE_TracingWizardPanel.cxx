@@ -55,28 +55,30 @@ FPE_TracingWizardPanel::FPE_TracingWizardPanel()
     \param pc    The panel container the panel will initially be attached.
     \param n     The initial name of the panel container
  */
-FPE_TracingWizardPanel::FPE_TracingWizardPanel(PanelContainer *pc, const char *n, char *argument) : Panel(pc, n)
+FPE_TracingWizardPanel::FPE_TracingWizardPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
 {
   nprintf(DEBUG_CONST_DESTRUCT) ("FPE_TracingWizardPanel::FPE_TracingWizardPanel() constructor called\n");
 
-    if ( !getName() )
+  if ( !getName() )
+  {
 	setName( "FPE Tracing" );
+  }
 
-sv = new QScrollView(getBaseWidgetFrame(), "scrollview");
-sv->setResizePolicy( QScrollView::Manual );
-    // I'm not calculating this, but rather just setting a "reasonable"
-    // size.   Eventually this should be calculated.
-    sv->resize(700,400);
-    sv->resizeContents(800,450);
+  sv = new QScrollView(getBaseWidgetFrame(), "scrollview");
+  sv->setResizePolicy( QScrollView::Manual );
 
-    FPE_TracingFormLayout = new QVBoxLayout( sv->viewport(), 1, 2, getName() );
+  // I'm not calculating this, but rather just setting a "reasonable"
+  // size.   Eventually this should be calculated.
+  sv->resize(700,400);
+  sv->resizeContents(800,450);
 
-    mainFrame = new QFrame( sv->viewport(), "mainFrame" );
-    mainFrame->setFrameShape( QFrame::StyledPanel );
-    mainFrame->setFrameShadow( QFrame::Raised );
-    mainFrameLayout = new QVBoxLayout( mainFrame, 11, 6, "mainFrameLayout"); 
+  FPE_TracingFormLayout = new QVBoxLayout( sv->viewport(), 1, 2, getName() );
+  mainFrame = new QFrame( sv->viewport(), "mainFrame" );
+  mainFrame->setFrameShape( QFrame::StyledPanel );
+  mainFrame->setFrameShadow( QFrame::Raised );
+  mainFrameLayout = new QVBoxLayout( mainFrame, 11, 6, "mainFrameLayout"); 
 
-    mainWidgetStack = new QWidgetStack( mainFrame, "mainWidgetStack" );
+  mainWidgetStack = new QWidgetStack( mainFrame, "mainWidgetStack" );
 
 // Begin: verbose description page
     vDescriptionPageWidget = new QWidget( mainWidgetStack, "vDescriptionPageWidget" );

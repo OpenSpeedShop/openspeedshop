@@ -50,7 +50,7 @@ public:
         This is where the user would create the panel specific Qt code
         to do whatever functionality the user wanted the panel to perform.
      */
-  MPIWizardPanel(PanelContainer *pc, const char *n, char *argument);
+  MPIWizardPanel(PanelContainer *pc, const char *n, void *argument);
 
   //! ~MPIWizardPanel() - The default destructor.
   ~MPIWizardPanel();  // Active destructor

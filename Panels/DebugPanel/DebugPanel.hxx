@@ -24,7 +24,7 @@ class DebugPanel  : public Panel
     DebugPanel();
 
     //! DebugPanel(PanelContainer *pc, const char *name)
-    DebugPanel(PanelContainer *pc, const char *n, char *argument);
+    DebugPanel(PanelContainer *pc, const char *n, void *argument);
 
     //! ~DebugPanel() - The default destructor.
     ~DebugPanel();  // Active destructor
