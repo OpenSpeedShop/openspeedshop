@@ -513,7 +513,7 @@ Collector::~Collector()
  */
 Collector& Collector::operator=(const Collector& other)
 {
-    // Only do an assignment if the objects differ
+    // Only do an assignment if the LHS and RHS differ
     if((dm_database != other.dm_database) || (dm_entry != other.dm_entry)) {
 	
 	// Destroy our current implementation (if any)
@@ -536,6 +536,9 @@ Collector& Collector::operator=(const Collector& other)
 	}
 	
     }
+
+    // Return ourselves to the caller
+    return *this;
 }
 
 

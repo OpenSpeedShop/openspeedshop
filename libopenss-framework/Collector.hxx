@@ -85,6 +85,7 @@ namespace OpenSpeedShop { namespace Framework {
 
 	Collector(const Collector&);
 	~Collector();
+
 	Collector& operator=(const Collector&);
 
 	Metadata getMetadata() const;
