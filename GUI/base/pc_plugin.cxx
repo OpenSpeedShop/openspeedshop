@@ -8,6 +8,10 @@
 
 PanelContainerList *panelContainerList;
 
+/*! This file contains the entry point for loading the PanelContainer
+    dynamic library.   It is called from gui.so (performanceleader.ui.h)
+ */
+
 int
 _init()
 {

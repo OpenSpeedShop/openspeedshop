@@ -6,6 +6,7 @@ class PanelContainer;
 #include <qwidget.h>
 #include <qtabwidget.h>
 
+//! Overloaded QWidget so we can trap QCloseEvent.
 class TopWidget : public QWidget
 {
     Q_OBJECT

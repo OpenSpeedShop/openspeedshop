@@ -1,4 +1,4 @@
-/*!  Class Panel
+/*! \class Panel
 
     This class is the base class of all user Panels.    It's base functionality
     is to provide support for the user Panel and to interface with the 

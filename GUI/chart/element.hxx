@@ -16,6 +16,7 @@ typedef QValueVector<Element> ElementVector;
 const double EPSILON = 0.0000001; // Must be > INVALID.
 
 
+//! Defines one element of the chart.
 class Element
 {
 public:

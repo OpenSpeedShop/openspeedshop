@@ -6,6 +6,7 @@
 class QFont;
 
 
+//! Text to be added to the charts.
 class CanvasText : public QCanvasText
 {
 public:

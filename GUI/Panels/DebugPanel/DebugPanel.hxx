@@ -14,7 +14,7 @@ class QLabel;
 
 #define PANEL_CLASS_NAME DebugPanel   // Change the value of the define
                                          // to the name of your new class.
-//! DebugPanel Class
+//! A simple interface to toggle on/off debugging hooks.
 class DebugPanel  : public Panel
 {
     //! Q_OBJECT is needed as there are slots defined for the class

@@ -12,6 +12,7 @@
 class QPoint;
 
 
+//! The qcanvasview that holds the chart.
 class CanvasView : public QCanvasView
 {
     Q_OBJECT

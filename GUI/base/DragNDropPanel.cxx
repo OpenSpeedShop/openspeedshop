@@ -1,4 +1,4 @@
-/*!  Class DragNDropPanel
+/*! \class DragNDropPanel
 
     This class is responsible for managing the drag and drop work.   It
     doesn't handle the events that cause the d-n-d (see PanelContainer.cxx and

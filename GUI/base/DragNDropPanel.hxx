@@ -11,8 +11,7 @@ class Frame;
 
 #include "debug.hxx"
 
-//!  Class DragNDropPanel
-
+//! Defines drag and drop functions.
 class DragNDropPanel
 {
 public:

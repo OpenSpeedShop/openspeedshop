@@ -7,6 +7,7 @@ class HighlightObject;
 typedef QValueList<HighlightObject *>HighlightList;
 
 
+//! A simple object to describe which lines to highlight and in what color.
 class HighlightObject
 {
 public:

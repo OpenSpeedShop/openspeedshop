@@ -1,3 +1,7 @@
+/* \class TabWidget
+   Overloads the QTabWidget so we can trap and manage mouse events.
+   Specifically menu events.
+ */  
 #include "TabWidget.hxx"
 
 #include "debug.hxx"  // This includes the definition of nprintf(DEBUG_PANELCONTAINERS) 

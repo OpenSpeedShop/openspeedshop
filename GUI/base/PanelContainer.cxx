@@ -1,4 +1,4 @@
-/*!  Class PanelContainer
+/*!  \class PanelContainer
 
     This is a very (very) key class in the overall base functionality of the
     GUI.   It is responsible for the screen management within the tool.

@@ -4,8 +4,7 @@
 #include <qwidget.h>
 #include <qtabbar.h>
 
-//! Class  TabBarWidget
-
+//! Manages the tab bar events.
 class PanelContainer;
 
 class TabBarWidget : public QTabBar

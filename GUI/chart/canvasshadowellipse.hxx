@@ -6,6 +6,7 @@
 class QFont;
 
 
+//! Defines a simple shadow for the canvas ellipse.
 class CanvasShadowEllipse : public QCanvasEllipse
 {
 public:

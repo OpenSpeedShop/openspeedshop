@@ -12,6 +12,8 @@ extern GettingStartedPanel *gettingStartedPanel;
 
 #define PANEL_CLASS_NAME GettingStartedPanel   // Change the value of the define
                                          // to the name of your new class.
+
+//! An initial prototype of a getting started panel.
 class GettingStartedPanel  : public Panel
 {
 public:

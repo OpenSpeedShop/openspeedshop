@@ -1,3 +1,15 @@
+/*! \class IntroWizardPanel
+     This defines the starting point for entry level users.
+     asks the highest level questions attempting to take 
+     the user to a more specific wizard panel (i.e. pc sampline
+     wizrard)
+
+     This is only prototype code.   It was created using
+     Qt Designer, then the code was pulled into this class.
+
+     Autor: Al Stipek (stipek@sgi.com)
+ */
+
 #include "IntroWizardPanel.hxx"   // Change this to your new class header file name
 #include "PanelContainer.hxx"   // Do not remove
 #include "plugin_entry_point.hxx"   // Do not remove
@@ -21,15 +33,6 @@
 #include <qfiledialog.h>  // For the file dialog box.
 #include <qmessagebox.h>
 
-
-
-/*!  IntroWizardPanel Class
-     This class is used by the script mknewpanel to create a new work area
-     for the panel creator to design a new panel.
-
-
-     Autor: Al Stipek (stipek@sgi.com)
- */
 
 
 /*! The default constructor.   Unused. */

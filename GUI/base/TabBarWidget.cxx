@@ -1,3 +1,7 @@
+/*! \class TabBarWidget
+    This class manages mouse events of the QTabBarWidget.
+ */
+
 #include "TabWidget.hxx"
 #include "TabBarWidget.hxx"
 

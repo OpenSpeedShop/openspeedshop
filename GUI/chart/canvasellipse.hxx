@@ -6,6 +6,7 @@
 class QFont;
 
 
+//! Defines a simple canvas ellipse used to draw a pie chart.
 class CanvasEllipse : public QCanvasEllipse
 {
 public:

@@ -12,7 +12,8 @@ class PanelContainer;
 #define MAX_TAB_NAME_LENGTH 30
 
 enum BROADCAST_TYPE { PC_T, NEAREST_T, GROUP_T, ALL_T };
-//! Panel Class
+
+//! This defines the base class for all Panels.
 class Panel : public QWidget
 {
    //! Q_OBJECT is needed as there are slots defined for the Panel Class

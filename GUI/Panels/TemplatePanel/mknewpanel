@@ -6,8 +6,9 @@ export PANEL_DIR=$1
 export PANEL_NAME=$2
 export MENU_HEADING=$3
 export MENU_LABEL=$4
-export SHOW_IMMEDIATE=$5
-export GROUPING=$6
+export MENU_ACCEL=$5
+export SHOW_IMMEDIATE=$6
+export GROUPING=$7
 
 usage ()
 {
@@ -17,6 +18,7 @@ usage ()
   echo "  panelname:  Is the name of the new panel."
   echo "  menu header: Is the Menu named to be put on the menu bar."
   echo "  menu label: Is the menu label under the menu header."
+  echo "  menu accel: Is the menu accelerator."
   echo "  show immediate: Default is 0.  Setting this to 1 will display the panel upon initialization."
   echo "  grouping: Which named panel container should this menu item drop this panel by default."
   exit
@@ -70,6 +72,14 @@ then
   usage
 fi
 
+if [ "$MENU_ACCEL" = "" ]
+then
+  MENU_ACCEL=$BASE
+  echo "warning: No menu accelerator."
+  usage
+fi
+
+
 if [ "$SHOW_IMMEDIATE" = "" ]
 then
   echo "show immediate"
@@ -108,8 +118,6 @@ fi
 
 rm -fr sed.script
 echo "s/TemplatePanel/$PANEL_NAME/g" >sed.script
-cat Makefile.LINUX | sed -f sed.script >$PANEL_DIR/Makefile.LINUX
-cat Makefile.IRIX | sed -f sed.script >$PANEL_DIR/Makefile.IRIX
 cat Makefile.am | sed -f sed.script >$PANEL_DIR/Makefile.am
 
 
@@ -120,13 +128,13 @@ cat TemplatePanel.cxx | sed -f sed.script >$PANEL_DIR/$PANEL_NAME.cxx
 echo "s/SHOW_IMMEDIATE/$SHOW_IMMEDIATE/g" >>sed.script
 echo "s/MENU_HEADING/$MENU_HEADING/g" >>sed.script
 echo "s/MENU_LABEL/$MENU_LABEL/g" >>sed.script
+echo "s/MENU_ACCEL/$MENU_ACCEL/g" >>sed.script
 echo "s/PLUGIN_GROUPING/$GROUP/g" >>sed.script
 cat local_plugin_info.hxx | sed -f sed.script >$PANEL_DIR/local_plugin_info.hxx
 
-cp m $PANEL_DIR
 rm -fr sed.script
 
-echo "Succeded: Finished creating files in $PANEL_DIR."
+echo "Succeeded: Finished creating files in $PANEL_DIR."
 echo "You'll now need to edit the Panels/Makefile.am to add this new"
 echo "directory to the build list."
 echo "You'll also need to modify the top level configure.ac file to add"

@@ -17,7 +17,7 @@ class QString;
 
 enum ChartType { PIEWITHSHADOW, PIEWITHNOSHADOW, PIEWITH3D, VERTICAL_BAR, HORIZONTAL_BAR, BARWITH3D };
 
-// class ChartForm: public QMainWindow
+//! The container class for the charts (pie and bar)
 class ChartForm: public QWidget
 {
     Q_OBJECT

@@ -11,6 +11,8 @@ class PanelContainer;   // Do not remove
 
 #define PANEL_CLASS_NAME CmdPanel   // Change the value of the define
                                          // to the name of your new class.
+
+//! The command panel that fields input from the user.
 class CmdPanel  : public Panel
 {
   Q_OBJECT

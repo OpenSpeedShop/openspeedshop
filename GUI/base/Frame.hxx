@@ -9,21 +9,7 @@ class PanelContainer;
 
 #include "debug.hxx"
 
-//! Frame Class
-/*! Frame Class is the container class for all user PanelContainers.   
-    The events handled are:
-    - contextMenuEvent
-      QContextMenuEvent is passed both to the PanelContainer to create
-      it's menu, but also to the Panel to add any additional Panel specifi
-      menu options.
-    - resizeEvent
-      This is passed trough to the Frame's parent PanelContainer for fielding.
-    - dropEnterEvent
-      Currently called but nothing happens
-    - dropEnter
-      This is the worker event for the drop event.
- */
-
+//! The Frame class contains a PanelContainer.
 class Frame : public QFrame
 {
     //! Q_OBJECT is needed as there are slots defined for the Frame Class

@@ -1,8 +1,10 @@
-#include "TopWidget.hxx"
+/*! \class TopWidget
+    Overloaded function so we can trap the closeEvent.
+ */
 
+#include "TopWidget.hxx"
 #include "PanelContainer.hxx"
 
-// #define DEBUG_OUTPUT_REQUESTED 1
 #include "debug.hxx"  // This includes the definition of nprintf(DEBUG_PANELCONTAINERS) 
 
 /*! default constructor.   Here for completeness only. */

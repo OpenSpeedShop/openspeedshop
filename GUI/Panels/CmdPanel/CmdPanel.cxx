@@ -6,6 +6,17 @@
 
 QString prompt = QString("ftcli> ");
 
+/*! \class CmdPanel
+  The CmdPanel class is designed to accept command line input from the user.
+  As if they were typing in commands in cli only.   It actually dlopens
+  the cli.so and pipes the user input to the cli factory and displays the 
+  formated output back to the window.
+
+  This is prototype code to show proof of concept.
+
+  Author: stipek@sgi.com
+
+  */
 CmdPanel::CmdPanel()
 { // Unused... Here for completeness...
 }

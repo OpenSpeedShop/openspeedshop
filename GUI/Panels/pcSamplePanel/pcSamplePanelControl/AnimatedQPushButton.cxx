@@ -2,6 +2,14 @@
 #include <qbitmap.h>
 #include "AnimatedQPushButton.hxx"
 
+/*! \class AnimatedQPushButton
+    This animated push button simple takes as input a list of images.
+    It then, upon a mouseEnterEvent, cycles though the pixmap list
+    to do the animation.
+
+    This is/was simple prototype code to demonstrate this possibility.
+
+ */
 AnimatedQPushButton::AnimatedQPushButton(QWidget *p, const char *n) : QPushButton( p, n)
 {
   printf("AnimatedQPushButton::AnimatedQPushButton() constructor called\n");

@@ -37,6 +37,7 @@ typedef QValueList<Panel *> PanelList;
 typedef QValueList<PanelContainer *> PanelContainerList;
 typedef QValueList<PluginInfo *> PluginRegistryList;
 
+//! The PanelContainer manages Panels.
 class PanelContainer : public QWidget
 {
     //! Q_OBJECT is needed as there are slots defined for the Panel Class

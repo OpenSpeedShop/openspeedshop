@@ -5,8 +5,7 @@
 #include <qtabwidget.h>
 
 
-//! class TabWidget
-
+//! Overloads the QTabWidget so we can accept menu events.
 class TabWidget : public QTabWidget
 {
     Q_OBJECT
