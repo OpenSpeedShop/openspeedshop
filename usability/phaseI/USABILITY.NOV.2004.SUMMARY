@@ -295,6 +295,13 @@ Following is a summary of comments and observations.
    Segfault.   This resulted several times, but it was not obvious what
    the cause was.   Running this under gdb while doing an extended run
    should catch this seemingly elusive bug.
+   FIXED: When explicitly adding a panel to a panel container that was
+          already split, openss would attempt to gracefully place the 
+          panel in the best place possible.   Rather and error should
+          have been printed to warn the gui writer. 
+          An error is now generated and a partial placement is no longer
+          attempted.   (In this case we simply need to find the best 
+          fit panel container first, then place the pane in it.)
 
    CmdPanels prompt was removed.   The command panel used in the study
    was incomplete to say the least.   However this is worth noting for
