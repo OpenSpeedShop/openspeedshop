@@ -40,21 +40,15 @@ libopenss_cli_la_LIBADD = $(LIBLTDL) -lopenss-framework
 
 LEXWOFF =
 YFLAGS = -d
-LFILES = test.l
-YFILES = test.y
-
-CLEANFILES = \
-    	lex.yy.cxx \
-	y.tab.cxx \
-	y.tab.h
+LFILES = SS_Parse_Lex.l
+YFILES = SS_Parse_Yacc.y
 
 pcli_SOURCES =
-
 
 #test_SOURCES = \
 #	$(LFILES) $(YFILES)
 	
-EXTRA_DIST = test.y test.l myparse.py
+EXTRA_DIST = $(LFILES) $(YFILES) myparse.py
 
 pcli_includes = ArgClass.hxx Clip.hxx Commander.hxx CommandObject.hxx Experiment.hxx SS_Cmd_Execution.hxx SS_Input_Manager.hxx SS_Parse_Param.hxx SS_Parse_Range.hxx SS_Parse_Result.hxx SS_Parse_Target.hxx SS_View.hxx
 
@@ -73,24 +67,26 @@ libopenss_cli_la_SOURCES = \
 	SS_Parse_Result.cxx \
 	SS_Parse_Target.cxx \
 	Experiment.cxx \
-	SS_Parse_Yacc.cxx \
-	SS_Parse_Lex.cxx \
 	PY_Input.cxx \
-    $(pcli_includes)
+	$(pcli_includes)
+
+nodist_libopenss_cli_la_SOURCES = \
+	SS_Parse_Yacc.cxx \
+	SS_Parse_Lex.cxx 
 
 SS_Parse_Yacc.cxx: $(YFILES) SS_Parse_Result.hxx
 	-rm -f SS_Parse_Yacc.cxx
-	-yacc $(YFLAGS) $(YFILES);
+	-$(YACC) $(YFLAGS) $(YFILES);
 	-mv y.tab.c SS_Parse_Yacc.cxx
 
 y.tab.h: $(YFILES)
 	-rm -f SS_Parse_Yacc.cxx
-	-yacc $(YFLAGS) $(YFILES);
+	-$(YACC) $(YFLAGS) $(YFILES);
 	-mv y.tab.c SS_Parse_Yacc.cxx
 
 SS_Parse_Lex.cxx: $(LFILES) y.tab.h
 	-rm -f SS_Parse_Lex.cxx
-	-lex $(LFILES);
+	-$(LEX) $(LFILES);
 	-mv lex.yy.c SS_Parse_Lex.cxx
 
 clobber:
@@ -109,3 +105,9 @@ pcli:
 
 doc:
 	-doxygen Doxyfile
+
+CLEANFILES = \
+    	lex.yy.cxx \
+	y.tab.cxx \
+	y.tab.h
+
