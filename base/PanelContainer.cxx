@@ -1929,7 +1929,7 @@ PanelContainer::recover(PanelContainer *pc)
     the event we're able to resize the internal widgets with this routine.
  */
 void
-PanelContainer::handleSizeEvent(QResizeEvent *)
+PanelContainer::handleSizeEvent(QResizeEvent *e)
 {
 //  nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::handleSizeEvent() for %s-%s\n", getInternalName(), getExternalName() );
 
@@ -1955,6 +1955,14 @@ PanelContainer::handleSizeEvent(QResizeEvent *)
   dropSiteLayoutParent->resize( width, height );
   
 //  nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::handleSizeEvent() returning.\n");
+
+  // If there's a raised panel, make sure they get notification that 
+  // the panel has been resized...
+  Panel *p = getRaisedPanel();
+  if( p != NULL )
+  {
+    p->handleSizeEvent(e);
+  }
 
   return;
 }

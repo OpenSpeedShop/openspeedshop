@@ -56,6 +56,9 @@ public:
     //! Calls the panel function broadcast() message request.
     virtual int broadcast(char *msg, BROADCAST_TYPE bt=ALL_T);
 
+    //! Handles the resize event.
+    virtual void handleSizeEvent(QResizeEvent *e=NULL);
+
     //! Displays a popup like help with message... (msg)
     void displayWhatsThis(QString msg);
 
@@ -93,9 +96,6 @@ private:
 
     //! The QWidget object that will hold all children in the user Panel.
     Frame *baseWidgetFrame;
-
-    //! Handles the resize event.
-    void handleSizeEvent(QResizeEvent *e=NULL);
 
     //! The PanelContainer that holds this Panel.
     PanelContainer *_panelContainer;

@@ -795,6 +795,10 @@ SourcePanel::doFileHighlights()
 //    highlightSegment(para, index, para, index+4, "yellow");
   }
   // End for demos and testing (for now)...   FIX
+
+
+  // Don't forget to turn the refreshing (for resize etc) back on...
+  textEdit->setUpdatesEnabled( TRUE );
 }
 
 /*! If theres a description field, return it. */
@@ -814,4 +818,12 @@ SourcePanel::getDescription(int line)
   }
 
   return(0);  // Return nothing highlighted.
+}
+
+void SourcePanel::handleSizeEvent(QResizeEvent *e)
+{
+  nprintf(DEBUG_PANELS) ("entered\n");
+//  Panel::handleSizeEvent(e);
+  textEdit->clearScrollBar();
+  doFileHighlights();
 }

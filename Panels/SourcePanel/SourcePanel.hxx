@@ -49,7 +49,7 @@ public:
   //! The broadcaster for sending messages.
   int broadcast(char *msg, BROADCAST_TYPE bt);
 
-void info(QPoint pos, QObject *target = NULL);
+  void info(QPoint pos, QObject *target = NULL);
   
   //! Layout for managing child widgets.
   QVBoxLayout * frameLayout;
@@ -156,5 +156,7 @@ public slots:
 protected:
 
 private:
+  //! Handles the resize event to redraw the scrollbar's pixmap ...
+  void handleSizeEvent(QResizeEvent *e=NULL);
 };
 #endif // SOURCE_PANEL_H

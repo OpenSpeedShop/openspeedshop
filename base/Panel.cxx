@@ -119,10 +119,12 @@ Panel::languageChange()
 void Panel::handleSizeEvent(QResizeEvent *)
 {
   nprintf(DEBUG_PANELS) ("attempt to resize the panel baseWidgetFrame\n");
+#ifdef OLDWAY
   int width = getPanelContainer()->width();
   int height = getPanelContainer()->height();
 
   baseWidgetFrame->resize(width, height);
+#endif // OLDWAY
 }
 
 //! Set the name of the Panel.
