@@ -23,7 +23,7 @@ openspeedshop_la_CXXFLAGS = -I/usr/include -I.
 
 LDFLAGS = -lc -ldl
 
-SUBDIRS = . libltdl libssf collectors examples base objects dialogs expr_info plugin objects chart cli gui Panels
+SUBDIRS = . libltdl libssf collectors examples base objects dialogs expr_info plugin objects chart cli pcli gui Panels
 
 doc: $(SUBDIRS) Panels/* Panels/*/*
 	-doxygen Doxyfile
