@@ -32,6 +32,7 @@
 #include "Time.hxx"
 
 #include <dpcl.h>
+#include <sstream>
 #include <stdexcept>
 #include <vector>
 
@@ -159,9 +160,9 @@ namespace {
  */
 std::string Process::formUniqueName(const std::string& host, const pid_t& pid)
 {
-    char name[1024];
-    sprintf(name, "%s:%d", host.c_str(), static_cast<int>(pid));
-    return name;
+    std::stringstream name;
+    name << host << ":" << pid;
+    return name.str();
 }
 
     
@@ -312,9 +313,9 @@ Process::Process(const std::string& host, const pid_t& pid) :
     AisStatus retval = dm_process->bconnect();
     if(retval.status() == ASC_failure) {
 	MainLoop::resume();
-	char pid_name[16];
-	sprintf(pid_name, "%d", static_cast<int>(dm_pid));
-	throw std::runtime_error("Cannot connect to PID " + pid_name + 
+	std::stringstream pid_name;
+	pid_name << dm_pid;
+	throw std::runtime_error("Cannot connect to PID " + pid_name.str() + 
 				 " on host \"" + host + "\".");
     }
     Assert(retval.status() == ASC_success);
