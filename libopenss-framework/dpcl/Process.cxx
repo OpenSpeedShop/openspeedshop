@@ -931,8 +931,6 @@ void Process::processStatements(const Thread& thread,
 				const AddressRange& range,
 				SourceObj& object) const
 {
-#ifdef DISABLE_PROCESSING_STATEMENT_INFORMATION
-
     // Ask DPCL for the statements in this (module) source object
     MainLoop::suspend();
     AisStatus retval;
@@ -1010,8 +1008,6 @@ void Process::processStatements(const Thread& thread,
     
     // Destroy the statement information returned by DPCL
     delete statements;    
-
-#endif
 }
 
 
