@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 // #define OLD_DRAG_AND_DROP 1 
-#define DEBUG_OUTPUT_REQUESTED 1
+// #define DEBUG_OUTPUT_REQUESTED 1
 
 extern unsigned int __internal_debug_setting;
 #define DEBUG_ALL                0xffff
