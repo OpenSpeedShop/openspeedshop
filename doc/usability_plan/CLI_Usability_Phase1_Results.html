@@ -1,0 +1,450 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+  <title>CLI_Usability_Phase1_Results</title>
+</head>
+<body>
+<h1><a name="mozTocId398589" class="mozTocH1"></a><small>CLI Usability
+Phase 1 Results</small></h1>
+<br>
+This is a summary of the ASC/SGI October 25, 2004 meeting to review the
+Open/SpeedShop
+CLI interactive commands and syntax.
+<br>
+<br>
+The entire meeting time was spent discussing general
+comments about the CLI commands and their syntax. This document
+outlines the discussion below. <br>
+<br>
+<span style="font-weight: bold;">NOTE:
+</span><br>
+<span style="font-weight: bold;">C*</span> represents "<span
+ style="font-weight: bold;">ASC Comment or Question</span>*" and
+<br>
+<span style="font-weight: bold;">R*</span> represents "<span
+ style="font-weight: bold;">SGI Reply</span> *".
+<br>
+<br>
+<h2><a name="mozTocId593280" class="mozTocH2"></a><small>Quick Access
+Table of Contents</small></h2>
+<ul id="mozToc">
+<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId398589">CLI
+Usability Phase 1 Results</a>
+    <ul>
+      <li><a href="#mozTocId593280">Quick Access Table of Contents</a></li>
+    </ul>
+  </li>
+  <li><a href="#mozTocId885503">October 25, 2004 Meeting Comments and
+Questions</a>
+    <ul>
+      <li><a href="#mozTocId335773">C1: MPI Considered
+        </a></li>
+      <li><a href="#mozTocId653856">R1: MPI Considered
+        </a></li>
+      <li><a href="#mozTocId122429">C2: Comparison Question
+        </a></li>
+      <li><a href="#mozTocId737898">R2: Comparison Question
+        </a></li>
+      <li><a href="#mozTocId740862">C3: Asynchronous Run Question
+        </a></li>
+      <li><a href="#mozTocId316275">R3: Asynchronous Run Question
+        </a></li>
+      <li><a href="#mozTocId80071">C4: expFocus Question
+        </a></li>
+      <li><a href="#mozTocId928185">R4: expFocus Question
+        </a></li>
+      <li><a href="#mozTocId795664">C5: "::" will cause Python Problems
+        </a></li>
+      <li><a href="#mozTocId733533">R5: "::" will cause Python Problems
+        </a></li>
+      <li><a href="#mozTocId587386">C6: listExp dual uses and listTypes
+suggestion
+        </a></li>
+      <li><a href="#mozTocId602913">R6: listExp dual uses and listTypes
+suggestion</a></li>
+      <li><a href="#mozTocId637355">C7: What happens to the CLI window
+when launching the GUI?
+        </a></li>
+      <li><a href="#mozTocId724970">R7: What happens to the CLI window
+when launching the GUI?</a></li>
+      <li><a href="#mozTocId865448">C8: Saving and Restoring the
+Experiment
+        </a></li>
+      <li><a href="#mozTocId623478">R8: Saving and Restoring the
+Experiment</a></li>
+      <li><a href="#mozTocId534409">C9:&nbsp; How do you stop gathering
+data for a period of time?
+        </a></li>
+      <li><a href="#mozTocId411470">R9: How do you stop gathering data
+for a period of time?</a></li>
+      <li><a href="#mozTocId556590">C10: CLI Command naming questions
+        </a></li>
+      <li><a href="#mozTocId609518">R10: CLI Command naming questions</a></li>
+      <li><a href="#mozTocId754417">C11: "record" command feature
+enhancement
+        </a></li>
+      <li><a href="#mozTocId877836">R11: "record" command feature
+enhancement</a></li>
+    </ul>
+  </li>
+  <li><a href="#mozTocId706941">Post initial review follow up questions</a>
+    <ul>
+      <li><a href="#mozTocId165661">C12:</a></li>
+      <li><a href="#mozTocId688166">R12:</a></li>
+    </ul>
+  </li>
+</ul>
+<h1><a name="mozTocId885503" class="mozTocH1"></a><small>October 25,
+2004 Meeting Comments and Questions</small></h1>
+<h2><a name="mozTocId335773" class="mozTocH2"></a><small>C1: MPI
+Considered<br>
+</small></h2>
+It wasn't clear that starting or attaching to MPI jobs
+was considered when the commands were defined. Also,
+we would like a way of specifying a cluster name. It
+appears that only hosts are allowed in the current syntax.
+<br>
+<br>
+<h2><a name="mozTocId653856" class="mozTocH2"></a><small>R1: MPI
+Considered<br>
+</small></h2>
+We will look at this and determine what is missing.
+<br>
+<br>
+---
+<br>
+<br>
+<h2><a name="mozTocId122429" class="mozTocH2"></a><small>C2: Comparison
+Question<br>
+</small></h2>
+Will there be a facility to allow comparison of different
+ranks/processes to other ranks in the same application?
+<br>
+<br>
+<h2><a name="mozTocId737898" class="mozTocH2"></a><small>R2: Comparison
+Question</small>
+</h2>
+Yes - there will be a comparison utility that will allow
+users to compare different ranks, processes, or threads to
+each other.
+<br>
+<br>
+---
+<br>
+<br>
+<h2><a name="mozTocId740862" class="mozTocH2"></a><small>C3:
+Asynchronous Run Question<br>
+</small></h2>
+a) Does expRun wait until the experiment is finished running?
+<br>
+b) If not, can you implement a wait command?
+<br>
+c) If you implement a wait command can it be interrupted?
+<br>
+d) How do you know the status of your experiment/job?
+<br>
+<br>
+<h2><a name="mozTocId316275" class="mozTocH2"></a><small>R3:
+Asynchronous Run Question<br>
+</small></h2>
+a) No, expRun and expCont are asynchronous. There may be an option
+to run synchronously. It will run synchronously in batch mode.
+<br>
+b) We could implement a wait command if necessary.
+<br>
+c) We recommend keeping the specification as is. The information
+telling us the experiment is complete will be &nbsp; available from the
+listExp command and we could provide &nbsp; a function (or additional
+command) that would force a wait.
+Perhaps we could have two expRun commands:
+<br>
+&nbsp;&nbsp;&nbsp; 1)&nbsp; expRun - synchronous
+<br>
+&nbsp;&nbsp;&nbsp; 2)&nbsp; expRunA - asynchronous
+<br>
+<br>
+Also, for batch commands, not waiting until "expRun" is done running
+won't make any sense because the script won't know when it is
+done.
+<br>
+<br>
+d) The expList command will return the status of your experiment/job.
+<br>
+<br>
+---
+<br>
+<br>
+<h2><a name="mozTocId80071" class="mozTocH2"></a><small>C4: expFocus
+Question<br>
+</small></h2>
+a) The use of the expFocus command is not clear - what does it do?
+<br>
+b) What about having an optional argument to expCreate that will
+associate a name with the experiment? This would help users
+identify their experiments easier.
+<br>
+<br>
+<h2><a name="mozTocId928185" class="mozTocH2"></a><small>R4: expFocus
+Question<br>
+</small></h2>
+a) The expFocus command will focus the command line tool
+on the experiment that corresponds to the experiment
+number used as input to the command. So, if you are creating
+multiple experiments, each expCreate command will
+create it's own unique experiment identifier. The
+expFocus command will make the experiment you specify the
+"default" or "focused" experiment.
+<br>
+b) We can look at the optional name proposal and see if that
+causes any difficulty to implement.&nbsp;&nbsp; Also mentioned, was the
+idea
+that the user could assign the result of an expCreate to a Python
+variable.
+That variable would act just like a user provided name on the command
+would and doesn't require any change to the specification. We think
+this
+would be the preferred solution.
+<br>
+<blockquote type="cite">bosco = expCreate -f my_prog -x pcsamp
+  <br>
+print bosco
+  <br>
+5
+  <br>
+</blockquote>
+<br>
+You can refer to the experiment as either "bosco" or 5.&nbsp;
+Internally "bosco" gets resolved to 5 so all is well.
+<br>
+<br>
+---
+<br>
+<br>
+<h2><a name="mozTocId795664" class="mozTocH2"></a><small>C5: "::" will
+cause Python Problems<br>
+</small></h2>
+The "::" characters in the expParam definition will cause
+Python parsing problems. &lt;expParam&gt; = &lt;expType&gt; ::
+&lt;parameter&gt;
+<br>
+<br>
+<h2><a name="mozTocId733533" class="mozTocH2"></a><small>R5: "::" will
+cause Python Problems</small>
+</h2>
+We know we will hit some of these issues. We just haven't
+gotten that far yet. Thanks for pointing this out to us.
+<br>
+<br>
+---
+<br>
+<br>
+<h2><a name="mozTocId587386" class="mozTocH2"></a><small>C6: listExp
+dual uses and listTypes suggestion<br>
+</small></h2>
+The listExp command gives both the status of the active
+experiments and the list of the inactive (unused) experiments.&nbsp;
+We would like a command that gives the available experiments
+(active and inactive). We suggest listTypes be used as the
+command name. Then only have listExp deal with active
+experiment information.
+<br>
+<br>
+<h2><a name="mozTocId602913" class="mozTocH2"></a><small>R6: </small><small>listExp
+dual uses and listTypes suggestion</small></h2>
+Yes - we will look into doing this.
+<br>
+<br>
+---
+<br>
+<br>
+<h2><a name="mozTocId637355" class="mozTocH2"></a><small>C7: What
+happens to the CLI window when launching the GUI?</small>
+</h2>
+a) What happens when you are running the CLI and then
+launch the GUI - what happens to the CLI window? Is
+it still active?
+<br>
+b) You probably wouldn't be using both windows in a session.
+<br>
+You'd use either the GUI or CLI only.
+<br>
+<br>
+<h2><a name="mozTocId724970" class="mozTocH2"></a><small>R7: </small><small>What
+happens to the CLI window when launching the GUI?</small></h2>
+a) You may not get a command window in the GUI, but the invoking
+shell would effectively become the CLI window.
+<br>
+b) There are times when you may be working remote and would
+like to use the command line for most of the session and
+then when you have complicated results to view - bring up
+the GUI for that purpose. We are still thinking about how
+the GUI and CLI interact, e.g. affect each other's focus.
+<br>
+<br>
+---
+<br>
+<br>
+<h2><a name="mozTocId865448" class="mozTocH2"></a><small>C8: Saving and
+Restoring the Experiment</small>
+</h2>
+a) I don't see a command to save the experiment.
+<br>
+b) What about restoring the experiment?
+<br>
+c) Can I restore and then continue the experiment from there?
+<br>
+<br>
+<h2><a name="mozTocId623478" class="mozTocH2"></a><small>R8: </small><small>Saving
+and Restoring the Experiment</small></h2>
+a) That is the expSave command.
+<br>
+b) The expRestore command is responsible for that.
+<br>
+c) Right now the expRestore command will only allow you to
+view the existing data. We have the symbol info, the
+names of the executable(s), and the experiment data.
+<br>
+<br>
+However, with out Linux checkpoint/restart capabilities
+we don't have any process state information, etc..
+This could be an enhancement after the first release, if
+a standard checkpoint/restart functionality exists.
+<br>
+<br>
+UPDATE from Open/SpeedShop group meeting discussion: This is different
+than the checkpoint/restart issue
+but it may be what some users will want to do. It may be possible to do
+attach and detach cycles
+of data gathering as long as the original application is still
+running.&nbsp; The user could:
+<br>
+<br>
+run-1.a) Open the Open/SpeedShop tool
+<br>
+run-1.b) Run the experiment of their choice
+<br>
+run-1.c) Save the performance data
+<br>
+run-1.d) Shutdown the Open/SpeedShop tool
+<br>
+<br>
+The user could then come back a day or a week later and if the original
+application is still running:
+<br>
+<br>
+run-2.a) Open the Open/SpeedShop tool
+<br>
+run-2.b) Restore the data files from 1st run
+<br>
+run-2.c) Attach to the application and run the experiment again
+<br>
+run-2.d) Save the performance data
+<br>
+run-2.e) Aggregate the data from the two runs run-2.f) Create a report
+or view the performance data
+<br>
+run-2.g) Shutdown the Open/SpeedShop tool <br>
+Then repeat the cycle if desired.
+<br>
+This would be a follow on enhancement feature.
+<br>
+<br>
+<br>
+---
+<br>
+<br>
+<h2><a name="mozTocId534409" class="mozTocH2"></a><small>C9:&nbsp; How
+do you stop gathering data for a period of time?<br>
+</small></h2>
+a) How do you stop gathering data for a period of time - expDetach?
+<br>
+b) Will the instrumentation be taken out of the experiment targeted
+application? Does expDetach do that?
+<br>
+<br>
+<h2><a name="mozTocId411470" class="mozTocH2"></a><small>R9: </small><small>How
+do you stop gathering data for a period of time?</small></h2>
+a) There is a parameter that can be set via the expSetParam command
+that can enable gathering and also disable gathering.&nbsp;
+Perhaps creating expEnable and expDisable commands would be
+more intuitive?
+<br>
+b) We had some discussion of this during the meeting and it seemed
+to make sense that there would be a command that would allow
+<br>
+the user to just enable/disable gathering if they user was
+going to be enabling and disabling during a short time frame
+for a long running application. If the user was gathering
+data every other day on a very long running application it would
+be nice to have a command that takes out the instrumentation
+when not gathering so the application can run at it's full
+possible speed.&nbsp;&nbsp; We would like to wait on this until we
+better understand what the framework functionality will be.
+<br>
+<br>
+UPDATE from Open/SpeedShop group meeting discussion:
+<br>
+For a given collector, it is expensive to load the probe module
+dso into the application.&nbsp; So, for start gathering and stop
+gathering
+operations, leave the probe module loaded but take out the
+instrumentation
+that calls into the probe module(s).
+<br>
+<br>
+Have the attach operation load the probe module(s) and the detach
+unload the probe module(s).
+<br>
+<br>
+---
+<br>
+<br>
+<h2><a name="mozTocId556590" class="mozTocH2"></a><small>C10: CLI
+Command naming questions<br>
+</small></h2>
+The command names with "exp" and "list" prefixes are good.&nbsp;
+All the other commands do not have a prefix. This may causes
+Python collisions. Can we use "oss" as a prefix? Or another prefix?
+<br>
+<br>
+<h2><a name="mozTocId609518" class="mozTocH2"></a><small>R10: </small><small>CLI
+Command naming questions</small></h2>
+Yes, we have thought about this too. "oss" is probably not
+a good choice because it is associated with "Open Source Software".
+<br>
+We are open to suggestions.
+<br>
+<br>
+---
+<br>
+<br>
+<h2><a name="mozTocId754417" class="mozTocH2"></a><small>C11: "record"
+command feature enhancement<br>
+</small></h2>
+The record command could have a "-python" logging option which could
+save the commands as Python API. This could then be run as a
+<br>
+script.
+<br>
+<br>
+<h2><a name="mozTocId877836" class="mozTocH2"></a><small>R11: </small><small>"record"
+command feature enhancement</small></h2>
+In the current design there isn't a singular place in the
+code where the Python API is created. This might be difficult
+to track.&nbsp; We would like to keep this as an open issue for now
+and consider it again as we get farther along in the tool's
+implementation.
+<br>
+<br>
+<h1><a name="mozTocId706941" class="mozTocH1"></a><small>Post initial
+review follow up questions</small></h1>
+<h2><a name="mozTocId165661" class="mozTocH2"></a><small><span
+ style="font-weight: bold;">C12:</span></small></h2>
+<br>
+<br>
+<h2><a name="mozTocId688166" class="mozTocH2"></a><small><span
+ style="font-weight: bold;">R12:</span></small></h2>
+</body>
+</html>
