@@ -109,6 +109,7 @@ ParseResult() :
     dm_experiment_id(-1),
     dm_experiment_set(false),
     dm_param_set(false),
+    dm_error_set(false),
     dm_p_param(NULL)
     
 {
@@ -326,7 +327,7 @@ dumpInfo()
     vector<ParseTarget>::iterator t_iter;
     vector<ParseTarget> *p_tlist = this->GetTargetList();
 
-    int count = 0;
+    int count = 1;
     for (t_iter=p_tlist->begin() ;t_iter != p_tlist->end(); t_iter++) {
     	cout << "\tTarget #" << count++ << " : " << endl;
 	
@@ -434,7 +435,7 @@ pushParm(char *etype, char * ptype, int num)
  * Method: ParseResult::pushParm(char *etype, char * ptype, char * name)
  * 
  *     
- * @return  true/false.
+ * @return  void.
  *
  * @todo    Error handling.
  *
@@ -446,6 +447,27 @@ pushParm(char *etype, char * ptype, char * name)
     ParseParam param(etype,ptype,name);
 
     dm_param_list.push_back(param);
+
+    return ;
+}
+ 
+/**
+ * Method: ParseResult::set_error(char * name1, char * name2)
+ * 
+ *     
+ * @return  void.
+ *
+ * @todo    Error handling.
+ *
+ */
+void
+ParseResult::
+set_error(char * name1, char * name2)
+{
+    ParseRange range(name1,name2);
+
+    dm_error_set = true;
+    dm_error_list.push_back(range);
 
     return ;
 }

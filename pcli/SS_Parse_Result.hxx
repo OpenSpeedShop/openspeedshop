@@ -233,10 +233,8 @@ class ParseResult {
 	}
 
     	/** Syntax error handling. */
-    	void set_error(char * name1, char * name2) {
-    	    ParseRange range(name1,name2);
-    	    dm_error_list.push_back(range);
-	}
+    	void set_error(char * name1, char * name2);
+	bool syntax_error( ) { return dm_error_set;}
     	vector<ParseRange> * getErrorList() {return &dm_error_list;}
 
     	/** Handle list of break ids. */
@@ -319,7 +317,12 @@ class ParseResult {
     	/** What command are we representing */
     	int dm_experiment_id;
     	bool dm_experiment_set;
+
+    	/** Are there any param values? */
     	bool dm_param_set;
+
+    	/** Were there any parsing errors? */
+    	bool dm_error_set;
 
 	/** Param values */
 	ParseParam *dm_p_param;
