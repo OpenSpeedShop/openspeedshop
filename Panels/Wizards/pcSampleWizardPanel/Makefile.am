@@ -37,8 +37,8 @@ moc_pcSampleWizardPanel.cxx: pcSampleWizardPanel.hxx
 	-moc -o moc_pcSampleWizardPanel.cxx pcSampleWizardPanel.hxx
 
 pcSampleWizardPanel_la_SOURCES = \
-	pcSampleWizardPanel.hxx pcSampleWizardPanel.cxx moc_pcSampleWizardPanel.cxx \
-	plugin_entry_point.hxx Panel.hxx \
-	PanelContainer.hxx local_plugin_info.hxx debug.hxx
+	pcSampleWizardPanel.hxx pcSampleWizardPanel.cxx \
+    moc_pcSampleWizardPanel.cxx pcSampleDescription.hxx \
+	local_plugin_info.hxx
 
 CLEANFILES=moc_pcSampleWizardPanel.cxx

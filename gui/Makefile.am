@@ -45,12 +45,12 @@ moc_preferencesdialog.cxx: preferencesdialog.hxx
 	-moc -o moc_preferencesdialog.cxx preferencesdialog.hxx
 
 libopenss_GUI_la_SOURCES = \
-	gui.hxx gui.cxx \
+    gui.cxx \
 	CLIInterface.hxx CLIInterface.cxx moc_CLIInterface.cxx \
     openspeedshop.hxx openspeedshop.cxx moc_openspeedshop.cxx \
     qmake_image_collection.cxx openspeedshop.ui.hxx \
     preferencesdialog.hxx preferencesdialog.cxx moc_preferencesdialog.cxx \
-	Panel.hxx PanelContainer.hxx debug.hxx preferencesdialog.ui.hxx
+	preferencesdialog.ui.hxx
 
 doc:
 	-doxygen Doxyfile

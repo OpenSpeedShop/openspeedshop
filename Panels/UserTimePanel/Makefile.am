@@ -53,7 +53,6 @@ moc_UserTimePanel.cxx: UserTimePanel.hxx
 
 UserTimePanel_la_SOURCES = \
 	UserTimePanel.hxx UserTimePanel.cxx moc_UserTimePanel.cxx \
-	plugin_entry_point.hxx Panel.hxx \
-	PanelContainer.hxx local_plugin_info.hxx debug.hxx
+	local_plugin_info.hxx
 
 CLEANFILES=moc_UserTimePanel.cxx

@@ -37,8 +37,8 @@ moc_UserTimeWizardPanel.cxx: UserTimeWizardPanel.hxx
 	-moc -o moc_UserTimeWizardPanel.cxx UserTimeWizardPanel.hxx
 
 UserTimeWizardPanel_la_SOURCES = \
-	UserTimeWizardPanel.hxx UserTimeWizardPanel.cxx moc_UserTimeWizardPanel.cxx \
-	plugin_entry_point.hxx Panel.hxx \
-	PanelContainer.hxx local_plugin_info.hxx debug.hxx
+	UserTimeWizardPanel.hxx UserTimeWizardPanel.cxx \
+    moc_UserTimeWizardPanel.cxx UserTimeDescription.hxx \
+	local_plugin_info.hxx
 
 CLEANFILES=moc_UserTimeWizardPanel.cxx

@@ -38,8 +38,7 @@ moc_TopPanel.cxx: TopPanel.hxx
 
 TopPanel_la_SOURCES = \
 	TopPanel.hxx TopPanel.cxx moc_TopPanel.cxx \
-	PanelContainer.hxx local_plugin_info.hxx debug.hxx \
-	plugin_entry_point.hxx Panel.hxx \
+	local_plugin_info.hxx \
 	TPTextEdit.hxx TPTextEdit.cxx \
 	TPChartForm.hxx TPChartForm.cxx
 

@@ -48,7 +48,6 @@ SourcePanel_la_SOURCES = \
     SPCanvasView.hxx SPCanvasView.cxx moc_SPCanvasView.cxx \
     SPTextEdit.hxx SPTextEdit.cxx moc_SPTextEdit.cxx \
 	SourcePanel.hxx SourcePanel.cxx moc_SourcePanel.cxx \
-	PanelContainer.hxx local_plugin_info.hxx debug.hxx \
-	plugin_entry_point.hxx Panel.hxx HighlightObject.hxx
+	local_plugin_info.hxx preference_plugin_info.hxx
 
 CLEANFILES=moc_SPTextEdit.cxx moc_SourcePanel.cxx moc_SPCanvasView.cxx moc_SPCanvasForm.cxx

@@ -40,7 +40,6 @@ moc_pcStatsPanel.cxx: pcStatsPanel.hxx
 
 pcStatsPanel_la_SOURCES = \
 	pcStatsPanel.hxx pcStatsPanel.cxx moc_pcStatsPanel.cxx \
-	plugin_entry_point.hxx Panel.hxx \
-	PanelContainer.hxx local_plugin_info.hxx debug.hxx
+	local_plugin_info.hxx
 
 CLEANFILES=moc_pcStatsPanel.cxx

@@ -54,7 +54,6 @@ moc_IOPanel.cxx: IOPanel.hxx
 
 IOPanel_la_SOURCES = \
 	IOPanel.hxx IOPanel.cxx moc_IOPanel.cxx \
-	plugin_entry_point.hxx Panel.hxx \
-	PanelContainer.hxx local_plugin_info.hxx debug.hxx
+	local_plugin_info.hxx
 
 CLEANFILES=moc_IOPanel.cxx

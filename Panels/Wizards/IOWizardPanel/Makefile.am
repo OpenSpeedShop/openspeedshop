@@ -38,8 +38,8 @@ moc_IOWizardPanel.cxx: IOWizardPanel.hxx
 	-moc -o moc_IOWizardPanel.cxx IOWizardPanel.hxx
 
 IOWizardPanel_la_SOURCES = \
-	IOWizardPanel.hxx IOWizardPanel.cxx moc_IOWizardPanel.cxx \
-	plugin_entry_point.hxx Panel.hxx \
-	PanelContainer.hxx local_plugin_info.hxx debug.hxx
+	IODescription.hxx IOWizardPanel.hxx IOWizardPanel.cxx \
+    moc_IOWizardPanel.cxx \
+	local_plugin_info.hxx
 
 CLEANFILES=moc_IOWizardPanel.cxx

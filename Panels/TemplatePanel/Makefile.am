@@ -35,5 +35,4 @@ moc_TemplatePanel.cxx: TemplatePanel.hxx
 
 TemplatePanel_la_SOURCES = \
 	TemplatePanel.hxx TemplatePanel.cxx moc_TemplatePanel.cxx \
-	plugin_entry_point.hxx Panel.hxx \
-	PanelContainer.hxx local_plugin_info.hxx debug.hxx
+	local_plugin_info.hxx

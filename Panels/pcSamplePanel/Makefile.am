@@ -54,7 +54,6 @@ moc_pcSamplePanel.cxx: pcSamplePanel.hxx
 
 pcSamplePanel_la_SOURCES = \
 	pcSamplePanel.hxx pcSamplePanel.cxx moc_pcSamplePanel.cxx \
-	plugin_entry_point.hxx Panel.hxx \
-	PanelContainer.hxx local_plugin_info.hxx debug.hxx
+	local_plugin_info.hxx
 
 CLEANFILES=moc_pcSamplePanel.cxx

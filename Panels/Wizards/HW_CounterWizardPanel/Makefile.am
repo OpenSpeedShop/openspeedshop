@@ -38,8 +38,8 @@ moc_HW_CounterWizardPanel.cxx: HW_CounterWizardPanel.hxx
 	-moc -o moc_HW_CounterWizardPanel.cxx HW_CounterWizardPanel.hxx
 
 HW_CounterWizardPanel_la_SOURCES = \
-	HW_CounterWizardPanel.hxx HW_CounterWizardPanel.cxx moc_HW_CounterWizardPanel.cxx \
-	plugin_entry_point.hxx Panel.hxx \
-	PanelContainer.hxx local_plugin_info.hxx debug.hxx
+	HW_CounterDescription.hxx HW_CounterWizardPanel.hxx \
+    HW_CounterWizardPanel.cxx moc_HW_CounterWizardPanel.cxx \
+	local_plugin_info.hxx
 
 CLEANFILES=moc_HW_CounterWizardPanel.cxx

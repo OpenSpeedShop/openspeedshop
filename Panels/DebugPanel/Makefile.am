@@ -35,8 +35,7 @@ moc_DebugPanel.cxx: DebugPanel.hxx
 
 DebugPanel_la_SOURCES = \
 	DebugPanel.hxx DebugPanel.cxx moc_DebugPanel.cxx \
-	plugin_entry_point.hxx Panel.hxx \
-	PanelContainer.hxx local_plugin_info.hxx debug.hxx
+	local_plugin_info.hxx
 
 clean:
 	-rm moc_*

@@ -32,5 +32,4 @@ PerformancePanel_la_LIBADD = -L$(QTDIR)/lib -lqt
 
 PerformancePanel_la_SOURCES = \
 	PerformancePanel.hxx PerformancePanel.cxx \
-	plugin_entry_point.hxx Panel.hxx \
-	PanelContainer.hxx local_plugin_info.hxx debug.hxx
+	local_plugin_info.hxx

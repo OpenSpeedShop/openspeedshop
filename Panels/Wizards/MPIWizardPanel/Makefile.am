@@ -38,8 +38,8 @@ moc_MPIWizardPanel.cxx: MPIWizardPanel.hxx
 	-moc -o moc_MPIWizardPanel.cxx MPIWizardPanel.hxx
 
 MPIWizardPanel_la_SOURCES = \
-	MPIWizardPanel.hxx MPIWizardPanel.cxx moc_MPIWizardPanel.cxx \
-	plugin_entry_point.hxx Panel.hxx \
-	PanelContainer.hxx local_plugin_info.hxx debug.hxx
+	MPIDescription.hxx MPIWizardPanel.hxx MPIWizardPanel.cxx \
+    moc_MPIWizardPanel.cxx \
+	local_plugin_info.hxx
 
 CLEANFILES=moc_MPIWizardPanel.cxx
