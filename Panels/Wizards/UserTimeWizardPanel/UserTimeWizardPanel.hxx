@@ -26,9 +26,8 @@ class QListBox;
 class QListBoxItem;
 class QButtonGroup;
 class QTextEdit;
+class QScrollView;
 
-
-// enum pcSamplingActionType { PCSAT_load, PCSAT_attach, PCSAT_view };
 
 #define PANEL_CLASS_NAME UserTimeWizardPanel   // Change the value of the define
                                          // to the name of your new class.
@@ -87,12 +86,13 @@ public:
   int broadcast(char *msg);
 
 
+  QHBoxLayout * panelLayout;
+  QWidget* topWidget;
     QFrame* topFrame;
     QWidgetStack* UserTimeWizardPanelStack;
     QWidget* vDescriptionPageWidget;
     QLabel* vDescriptionPageTitleLabel;
     QTextEdit* vDescriptionPageText;
-    QCheckBox* vHideWizardCheckBox;
     QPushButton* vDescriptionPageStartButton;
     QPushButton* vDescriptionPageNextButton;
     QWidget* vParameterPageWidget;
@@ -108,9 +108,10 @@ public:
     QLabel* vAttachOrLoadPageDescriptionLabel;
     QFrame* vAttachOrLoadPageLine;
     QCheckBox* vAttachOrLoadPageAttachToProcessCheckBox;
-    QCheckBox* vAttachOrLoadPageLoadProcessCheckBox;
+    QCheckBox* vAttachOrLoadPageLoadExecutableCheckBox;
     QPushButton* vAttachOrLoadPageBackButton;
     QPushButton* vAttachOrLoadPageNextButton;
+QPushButton *vAttachOrLoadPageResetButton;
     QWidget* vSummaryPageWidget;
     QLabel* vSummaryPageFinishLabel;
     QPushButton* vSummaryPageBackButton;
@@ -118,7 +119,6 @@ public:
     QWidget* eDescriptionPageWidget;
     QLabel* eDescriptionPageTitleLabel;
     QLabel* eDescriptionPageText;
-    QCheckBox* eHideWizardCheckBox;
     QPushButton* eDescriptionPageStartButton;
     QPushButton* eDescriptionPageNextButton;
     QWidget* eParameterPageWidget;
@@ -134,9 +134,10 @@ public:
     QLabel* eAttachOrLoadPageDescriptionLabel;
     QFrame* eAttachOrLoadPageLine;
     QCheckBox* eAttachOrLoadPageAttachToProcessCheckBox;
-    QCheckBox* eAttachOrLoadPageLoadProcessCheckBox;
+    QCheckBox* eAttachOrLoadPageLoadExecutableCheckBox;
     QPushButton* eAttachOrLoadPageBackButton;
     QPushButton* eAttachOrLoadPageNextButton;
+QPushButton *eAttachOrLoadPageResetButton;
     QWidget* eSummaryPageWidget;
     QLabel* eSummaryPageFinishLabel;
     QPushButton* eSummaryPageBackButton;
@@ -145,17 +146,16 @@ public:
     QLabel* broughtToYouByLabel;
 
 public slots:
-    virtual void eHideWizardCheckBoxSelected();
     virtual void eDescriptionPageNextButtonSelected();
     virtual void eDescriptionPageStartButtonSelected();
     virtual void eParameterPageBackButtonSelected();
     virtual void eParameterPageNextButtonSelected();
     virtual void eParameterPageResetButtonSelected();
     virtual void eAttachOrLoadPageBackButtonSelected();
+    virtual void eAttachOrLoadPageResetButtonSelected();
     virtual void eAttachOrLoadPageNextButtonSelected();
     virtual void eSummaryPageBackButtonSelected();
     virtual void eSummaryPageFinishButtonSelected();
-    virtual void vHideWizardCheckBoxSelected();
     virtual void vDescriptionPageNextButtonSelected();
     virtual void vDescriptionPageStartButtonSelected();
     virtual void vParameterPageSampleRateTextReturnPressed();
@@ -163,6 +163,7 @@ public slots:
     virtual void vParameterPageNextButtonSelected();
     virtual void vParameterPageResetButtonSelected();
     virtual void vAttachOrLoadPageBackButtonSelected();
+    virtual void vAttachOrLoadPageResetButtonSelected();
     virtual void vAttachOrLoadPageNextButtonSelected();
     virtual void vSummaryPageBackButtonSelected();
     virtual void vSummaryPageFinishButtonSelected();
@@ -173,9 +174,6 @@ protected:
     QVBoxLayout* topLayout;
     QVBoxLayout* topFrameLayout;
     QVBoxLayout* vDescriptionPageLayout;
-    QHBoxLayout* vHideWizardLayout;
-    QSpacerItem* vHideWizardSpacer1;
-    QSpacerItem* vHideWizardSpacer2;
     QHBoxLayout* vDescriptionPageButtonLayout;
     QSpacerItem* vDescriptionPageButtonSpacer;
     QVBoxLayout* vParameterPageLayout;
@@ -187,6 +185,8 @@ protected:
     QVBoxLayout* vParameterPageParameterLayout;
     QHBoxLayout* vParameterPageSampleRateLayout;
     QHBoxLayout* vParameterPageButtonLayout;
+    QLabel *vAttachOrLoadPageProcessListLabel;
+    QLabel *vAttachOrLoadPageExecutableLabel;
     QSpacerItem* eParameterPageSpacer;
     QVBoxLayout* vAttachOrLoadPageAttachOrLoadLayout;
     QHBoxLayout* vAttachOrLoadPageSampleRateLayout;
@@ -197,10 +197,8 @@ protected:
     QSpacerItem* vSummaryPageSpacer;
     QHBoxLayout* vSummaryPageButtonLayout;
     QVBoxLayout* eDescriptionPageLayout;
-    QHBoxLayout* eHideWizardLayout;
-    QSpacerItem* eHideWizardSpacer;
     QHBoxLayout* eDescriptionPageButtonLayout;
-QSpacerItem* eDescriptionPageButtonSpacer;
+    QSpacerItem* eDescriptionPageButtonSpacer;
     QSpacerItem* eDescriptionPageSpacer;
     QVBoxLayout* eParameterPageLayout;
     QVBoxLayout* eAttachOrLoadPageLayout;
@@ -208,19 +206,31 @@ QSpacerItem* eDescriptionPageButtonSpacer;
     QVBoxLayout* eParameterPageParameterLayout;
     QHBoxLayout* eParameterPageSampleRateLayout;
     QHBoxLayout* eParameterPageButtonLayout;
-QSpacerItem* eParameterPageButtonSpacer;
+    QSpacerItem* eParameterPageButtonSpacer;
+    QLabel *eAttachOrLoadPageExecutableLabel;
+    QLabel *eAttachOrLoadPageProcessListLabel;
     QVBoxLayout* eAttachOrLoadPageAttachOrLoadLayout;
     QHBoxLayout* eAttachOrLoadPageSampleRateLayout;
     QHBoxLayout* eAttachOrLoadPageButtonLayout;
-QSpacerItem* eAttachOrLoadPageButtonSpacer;
+    QSpacerItem* eAttachOrLoadPageButtonSpacer;
     QVBoxLayout* eSummaryPageLayout;
-QSpacerItem* eSummaryPageButtonSpacer;
+    QSpacerItem* eSummaryPageButtonSpacer;
     QHBoxLayout* eSummaryPageButtonLayout;
     QHBoxLayout* bottomLayout;
     QSpacerItem* bottomSpacer;
 
+    void eUpdateAttachOrLoadPageWidget();
+    void vUpdateAttachOrLoadPageWidget();
+
+
+    void handleSizeEvent( QResizeEvent *e );
+    QScrollView *sv;
+
 protected slots:
     virtual void languageChange();
+
+private:
+    QString sampleRate;
 
 };
 #endif // USERTIMEWIZARDPANEL_H
