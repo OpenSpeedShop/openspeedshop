@@ -277,6 +277,9 @@ class CommandWindowID
   std::string Trace_File_Name;
   FILE *Trace_F;
   bool Trace_File_Is_A_Temporary_File;
+  std::string Record_File_Name;
+  FILE *Record_F;
+  bool Record_File_Is_A_Temporary_File;
   bool Input_Is_Async;
   Input_Source *Input;
   pthread_mutex_t Input_List_Lock;
@@ -313,6 +316,9 @@ class CommandWindowID
       Trace_File_Name = "";
       Trace_F = NULL;
       Trace_File_Is_A_Temporary_File = false;
+      Record_File_Name = "";
+      Record_F = NULL;
+      Record_File_Is_A_Temporary_File = false;
       Input = NULL;
       Input_Is_Async = async;
       if (Input_Is_Async) {
@@ -338,6 +344,9 @@ class CommandWindowID
       Trace_File_Name = std::string(tempnam ("./", &base[0] )) + ".openss";
       Trace_F  = fopen (Trace_File_Name.c_str(), "w");
       Trace_File_Is_A_Temporary_File = true;
+      Record_File_Name = "";
+      Record_F = NULL;
+      Record_File_Is_A_Temporary_File = false;
     }
   ~CommandWindowID()
     {
@@ -350,6 +359,14 @@ class CommandWindowID
         fclose (Trace_F);
         if (Trace_File_Is_A_Temporary_File) {
           int err = remove (Trace_File_Name.c_str());
+        }
+      }
+     // Remove the record files
+      if ((Record_F != NULL) &&
+          (predefined_filename (Record_File_Name) == NULL)) {
+        fclose (Record_F);
+        if (Record_File_Is_A_Temporary_File) {
+          int err = remove (Record_File_Name.c_str());
         }
       }
      // Remove the input specifiers
@@ -541,7 +558,8 @@ public:
   bool   Set_Log_File ( std::string tofname ) {
     FILE *tof = predefined_filename (tofname);
     if ((Trace_F != NULL) &&
-        (predefined_filename (Trace_File_Name) == NULL)) {
+        (predefined_filename (Trace_File_Name) == NULL) &&
+        (tof != NULL)) {
      // Copy the old file to the new file.
       fclose (Trace_F);
       if (tof == NULL) {
@@ -552,7 +570,11 @@ public:
         int ret = system(scmd);
         free (scmd);
         if (ret != 0) return false;
+        Trace_File_Is_A_Temporary_File = false;
       }
+    }
+    if (Trace_File_Is_A_Temporary_File) {
+      (void) remove (Trace_File_Name.c_str());
     }
     if (tof == NULL) {
       tof = fopen (tofname.c_str(), "a");
@@ -575,22 +597,45 @@ public:
   void   Set_Record_File ( std::string tofname ) {
     if (Input) {
       Input->Set_Trace ( tofname );
+    } else {
+      if (Record_F && !Record_File_Is_A_Temporary_File) {
+        fclose (Record_F);
+      }
+      FILE *tof = predefined_filename( tofname );
+      bool is_predefined = (tof != NULL);
+      if (tof == NULL) tof = fopen (tofname.c_str(), "a");
+      Record_File_Is_A_Temporary_File = is_predefined;
+      Record_File_Name = tofname;
+      Record_F = tof; 
     }
   }
   void   Remove_Record_File () {
     if (Input) {
       Input->Remove_Trace ();
+    } else {
+      if (Record_F && !Record_File_Is_A_Temporary_File) {
+        fclose (Record_F);
+      }
+      Record_File_Is_A_Temporary_File = false;
+      Record_File_Name = std::string("");
+      Record_F = NULL;
     }
   }
   void Record (InputLineObject *clip) {
+    FILE *rf = NULL;
+    bool is_predefined = false;
     if (Input) {
-      FILE *rf = Input->Trace_File();
-      if (rf) {
-        fprintf(rf,"%s\n", clip->Command().c_str());
-        if (Input->Trace_File_Is_Predefined()) {
-         // Trace_File is something like stdout, so push the message out to user.
-          fflush (rf);
-        }
+      rf = Input->Trace_File();
+      is_predefined = Input->Trace_File_Is_Predefined();
+    } else {
+      rf = Record_F;
+      is_predefined = Record_File_Is_A_Temporary_File;
+    }
+    if (rf) {
+      fprintf(rf,"%s", clip->Command().c_str());  // Commands have a "\n" at the end.
+      if (is_predefined) {
+       // Trace_File is something like stdout, so push the message out to user.
+        fflush (rf);
       }
     }
   }
@@ -967,14 +1012,6 @@ bool Command_Trace_OFF (CMDWID WindowID)
   return true;
 }
 
-void  SpeedShop_Trace_ON (char *tofile) {
-  (void)Command_Trace_ON (Last_ReadWindow, std::string(tofile));
-}
-
-void  SpeedShop_Trace_OFF(void) {
-  (void)Command_Trace_OFF (Last_ReadWindow);
-}
-
 // This is the start of the Command Line Processing Routines.
 // Only one thread can be executing one of these rotuines at a time,
 // so the must be protected with the use of Window_List_Lock.
@@ -1176,15 +1213,6 @@ void Default_TLI_Command_Output (CommandObject *C) {
 
    // Print the ResultdObject list
     C->Print_Results (outfile, "\n", "");
-/*
-    std::list<CommandResult *> cmd_object = C->Result_List();
-    std::list<CommandResult *>::iterator coi;
-    int num_results = 0;
-    for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
-      if (num_results++ != 0) fprintf(outfile,"\n");
-      (*coi)->Print (outfile);
-    }
-*/
     C->set_Results_Used (); // Everything is where it belongs.
     if (ttyout != NULL) {
      // Re-issue the prompt
