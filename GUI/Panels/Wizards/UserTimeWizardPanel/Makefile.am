@@ -29,11 +29,13 @@ UserTimeWizardPanel_la_CXXFLAGS = \
     -I$(QTDIR)/include \
     -I. \
     -I../../../gui \
+    -I../../../images \
     -I../../../plugin \
     -I../../../objects \
+    -I../../../dialogs \
     -I../../../base
 
-UserTimeWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../../base/.libs/ftBase.so  -Wl,../../../objects/.libs/ftObjects.so
+UserTimeWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../../base/.libs/ftBase.so  -Wl,../../../objects/.libs/ftObjects.so  -Wl,../../../dialogs/.libs/ftDialogs.so
 
 UserTimeWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
 
