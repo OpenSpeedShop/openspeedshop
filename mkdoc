@@ -18,9 +18,11 @@ make doc
 #make doc
 #cd ../dialogs
 #make doc
-cd ../collectors
+cd ../plugins/collectors
 make doc
-cd ../libopenss-framework
+cd ../../libopenss-framework
+make doc
+cd ../libopenss-frameworkrt
 make doc
 #cd ../Panels
 #make doc
