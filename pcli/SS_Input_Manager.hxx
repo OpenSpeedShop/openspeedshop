@@ -18,6 +18,11 @@
 
 #ifndef SS_INPUT_MANAGER_H
 #define SS_INPUT_MANAGER_H
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <unistd.h>
 #include <pthread.h>
 #include <sys/types.h>
@@ -30,6 +35,9 @@
 #include <inttypes.h>
 #include <stdexcept>
 #include <string>
+
+#include <vector>
+#include <iostream>
 
 #ifndef PTHREAD_MUTEX_RECURSIVE_NP
 #define PTHREAD_MUTEX_RECURSIVE_NP 0
@@ -45,6 +53,12 @@ using namespace OpenSpeedShop::Framework;
 
 #include "Commander.hxx"
 #include "support.h"
+
+using namespace std;
+
+#include "SS_Parse_Result.hxx"
+#include "SS_Parse_Target.hxx"
+
 #include "CommandObject.hxx"
 #include "Clip.hxx"
 #include "Experiment.hxx"
