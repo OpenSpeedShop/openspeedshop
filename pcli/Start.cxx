@@ -268,6 +268,9 @@ setup_signal_handler (int s)
     collector_encountered = false;
     Process_Command_Line (argc, argv);
 
+   // Define Built-In Views
+    SS_Init_BuiltIn_Views ();
+
    // Open the Python interpreter.
     Initial_Python ();
 
