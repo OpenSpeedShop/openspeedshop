@@ -79,7 +79,7 @@ printf("runSynchronousCLI(%s)\n", command);
   while( status != ILO_COMPLETE )
   {
     status = checkStatus(clip);
-    if( !status )
+    if( !status || status == ILO_ERROR )
     { // An error occurred.... A message should have been posted.. return;
        return false;
     }
@@ -121,7 +121,7 @@ printf("runSynchronousCLI(%s)\n", command);
 bool
 CLIInterface::getIntValueFromCLI(char *command, int64_t *val, bool mark_value_for_delete, int mt, bool wot )
 {
-printf("getIntValueFromCLI(%s)\n", command);
+  // printf("getIntValueFromCLI(%s)\n", command);
   maxTime = mt;
   warn_of_time = wot;
 
@@ -139,7 +139,7 @@ printf("getIntValueFromCLI(%s)\n", command);
   {
     status = checkStatus(clip);
 // printf("status = %d\n", status);
-    if( !status )
+    if( !status || status == ILO_ERROR )
     {   // An error occurred.... A message should have been posted.. return;
       fprintf(stderr, "an error occurred processing (%s)!\n", command);
       return false;
@@ -175,7 +175,7 @@ printf("getIntValueFromCLI(%s)\n", command);
 
     if( !shouldWeContinue() )
     {
-// printf("RETURN FALSE!   COMMAND FAILED!\n");
+printf("RETURN FALSE!   COMMAND FAILED!\n");
       return false;
     }
 
@@ -228,7 +228,7 @@ printf("getIntListValueFromCLI(%s)\n", command);
   {
     status = checkStatus(clip);
 // printf("status = %d\n", status);
-    if( !status )
+    if( !status || status == ILO_ERROR )
     {   // An error occurred.... A message should have been posted.. return;
       fprintf(stderr, "an error occurred processing (%s)!\n", command);
       return false;
@@ -325,7 +325,7 @@ printf("getStringValueFromCLI(%s)\n", command);
   {
     status = checkStatus(clip);
 // printf("status = %d\n", status);
-    if( !status )
+    if( !status || status == ILO_ERROR )
     {   // An error occurred.... A message should have been posted.. return;
       fprintf(stderr, "an error occurred processing (%s)!\n", command);
       return false;
@@ -415,7 +415,7 @@ printf("getStringListValueFromCLI(%s)\n", command);
   {
     status = checkStatus(clip);
 // printf("status = %d\n", status);
-    if( !status )
+    if( !status || status == ILO_ERROR )
     {   // An error occurred.... A message should have been posted.. return;
       fprintf(stderr, "an error occurred processing (%s)!\n", command);
       return false;
@@ -500,10 +500,17 @@ CLIInterface::checkStatus(InputLineObject *clip)
 //      printf("command has sucessfully completed.\n");
       break;
     case ILO_ERROR:
-//      fprintf(stderr, "Unable to process the clip.   Error encountered.\n");
+      fprintf(stderr, "Unable to process the clip.   Error encountered.\n");
+      // Remove the timer.  This return status should abort the command...
+      if( timer )
+      {
+        timer->stop();
+        delete timer;
+        timer = NULL;
+      }
       break;
     default:
-//      fprintf(stderr, "Unknown status (%d) return in clip.\n", status);
+      fprintf(stderr, "Unknown status (%d) return in clip.\n", status);
       break;
   }
 
