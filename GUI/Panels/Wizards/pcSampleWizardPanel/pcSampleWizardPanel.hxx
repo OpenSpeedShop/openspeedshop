@@ -28,8 +28,6 @@ class QButtonGroup;
 class QTextEdit;
 
 
-// enum pcSamplingActionType { PCSAT_load, PCSAT_attach, PCSAT_view };
-
 #define PANEL_CLASS_NAME pcSampleWizardPanel   // Change the value of the define
                                          // to the name of your new class.
 //! pcSampleWizardPanel Class

@@ -745,7 +745,7 @@ char buffer[2048];
     if( dialog->exec() == QDialog::Accepted )
     {
       result = dialog->selectedProcesses();
-sprintf(buffer, "<p align=\"left\">You've selected a pc Sampling experiment for process \"%s\" running on host \"%s\".  Futher you've chosed a sample rate of \"%s\" milliseconds.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"pcSample\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", result.ascii(), "localhost", vParameterPageSampleRateText->text().ascii() );
+sprintf(buffer, "<p align=\"left\">You've selected a pc Sample experiment for process \"%s\" running on host \"%s\".  Futher you've chosed a sample rate of \"%s\" milliseconds.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"pcSample\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", result.ascii(), "localhost", vParameterPageSampleRateText->text().ascii() );
     }
     delete dialog;
   
@@ -759,7 +759,7 @@ sprintf(buffer, "<p align=\"left\">You've selected a pc Sampling experiment for 
     if( !fn.isEmpty() )
     {
       printf("fn.ascii()=(%s)\n", fn.ascii() );
-sprintf(buffer, "<p align=\"left\">You've selected a pc Sampling experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%s\" milliseconds.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"pcSample\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", fn.ascii(), "localhost", vParameterPageSampleRateText->text().ascii() );
+sprintf(buffer, "<p align=\"left\">You've selected a pc Sample experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%s\" milliseconds.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"pcSample\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", fn.ascii(), "localhost", vParameterPageSampleRateText->text().ascii() );
     }
   }
 
@@ -792,7 +792,7 @@ void
 pcSampleWizardPanel::languageChange()
 {
     setCaption( tr( "pc Sample Wizard Panel" ) );
-    vDescriptionPageTitleLabel->setText( tr( "<h1>pc Sampling Wizard</h1>" ) );
+    vDescriptionPageTitleLabel->setText( tr( "<h1>pc Sample Wizard</h1>" ) );
     vDescriptionPageText->setText( tr( "The pc Sample experiment estimates the actual CPU time for each source code line, machine code line, and function in your program. The report listing of this experiment shows exclusive pc Sample time. This experiment is a lightweight, high-speed operation that makes use of the operating system.\n"
 "\n"
 "CPU time is calculated by multiplying the number of times an instruction or function appears in the PC by the interval specified for the experiment (either 1 or 10 milliseconds).\n"
@@ -801,20 +801,20 @@ pcSampleWizardPanel::languageChange()
 "\n"
 "pc Sample runs should slow the execution time of the program down no more than 5 percent. The measurements are statistical in nature, meaning they exhibit variance inversely proportional to the running time." ) );
     vHideWizardCheckBox->setText( tr( "Hide pc Sample Wizard next time pc Sample Experiment is selected.\n"
-"(Note: You can change this back by going to the pc Sampling local menu.)" ) );
+"(Note: You can change this back by going to the pc Sample local menu.)" ) );
     vDescriptionPageStartButton->setText( tr( "<< Start" ) );
     QToolTip::add( vDescriptionPageStartButton, tr( "Takes you back to the Intro Wizard so you can make a different selection." ) );
     vDescriptionPageNextButton->setText( tr( "> Next" ) );
     QToolTip::add( vDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
     vParameterPageDescriptionLabel->setText( tr( "The following options (paramaters) are available to adjust.   These are the options the collector has exported.<br><br>\n"
 "The smaller the number used for the sample rate, the more\n"
-"pcSampling detail will be show.   However, the trade off will be slower\n"
+"pc Sample detail will be show.   However, the trade off will be slower\n"
 "performance and a larger data file.<br><br>\n"
 "It may take a little expermenting to find the right setting for your \n"
 "particular executable.   We suggest starting with the default setting\n"
 "of 10." ) );
     vParameterPageSampleRateHeaderLabel->setText( tr( "You can set the following option(s):" ) );
-    vParameterPageSampleRateLabel->setText( tr( "pc Sampling rate:" ) );
+    vParameterPageSampleRateLabel->setText( tr( "pc Sample rate:" ) );
     vParameterPageSampleRateText->setText( tr( "10" ) );
     QToolTip::add( vParameterPageSampleRateText, tr( "The rate to sample.   (Default 10 milliseconds.)" ) );
     vParameterPageBackButton->setText( tr( "< Back" ) );
@@ -832,12 +832,12 @@ pcSampleWizardPanel::languageChange()
     vAttachOrLoadPageNextButton->setText( tr( "> Next" ) );
     QToolTip::add( vAttachOrLoadPageNextButton, tr( "Advance to the next wizard page." ) );
     vSummaryPageFinishLabel->setText( tr( "<p align=\"left\">\n"
-"You've selected a pc Sampling experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%d\" milliseconds.<br><br>To complete the exeriment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"pcSample\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>" ) );
+"You've selected a pc Sample experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%d\" milliseconds.<br><br>To complete the exeriment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"pcSample\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>" ) );
     vSummaryPageBackButton->setText( tr( "< Back" ) );
     QToolTip::add( vSummaryPageBackButton, tr( "Takes you back one page." ) );
     vSummaryPageFinishButton->setText( tr( "Finish..." ) );
     QToolTip::add( vSummaryPageFinishButton, tr( "Finishes loading the wizard information and brings up a \"pcSample\" panel" ) );
-    eDescriptionPageTitleLabel->setText( tr( "<h1>pc Sampling Wizard</h1>" ) );
+    eDescriptionPageTitleLabel->setText( tr( "<h1>pc Sample Wizard</h1>" ) );
     eDescriptionPageText->setText( tr( "<p align=\"center\"><p align=\"left\">\n"
 "Program counter (pc Sample) reveals the amount of execution time \n"
 "spent in various parts of a program. The count includes:  <br>\n"
@@ -845,13 +845,13 @@ pcSampleWizardPanel::languageChange()
 " * Time spent in user routines<br><br>\n"
 "The pc Sample does not count time spent swapping or time spent accessing external resources.</p></p>" ) );
     eHideWizardCheckBox->setText( tr( "Hide pc Sample Wizard next time pc Sample Experiment is selected.\n"
-"(Note: You can change this back by going to the pc Sampling local menu.)" ) );
+"(Note: You can change this back by going to the pc Sample local menu.)" ) );
     eDescriptionPageStartButton->setText( tr( "<< Start" ) );
     eDescriptionPageNextButton->setText( tr( "> Next" ) );
     QToolTip::add( eDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
     eParameterPageDescriptionLabel->setText( tr( "The following options (paramaters) are available to adjust.     <br>These are the options the collector has exported." ) );
     eParameterPageSampleRateHeaderLabel->setText( tr( "You can set the following option(s):" ) );
-    eParameterPageSampleRateLabel->setText( tr( "pc Sampling rate:" ) );
+    eParameterPageSampleRateLabel->setText( tr( "pc Sample rate:" ) );
     eParameterPageSampleRateText->setText( tr( "10" ) );
     QToolTip::add( eParameterPageSampleRateText, tr( "The rate to sample.   (Default 10 milliseconds.)" ) );
     eParameterPageBackButton->setText( tr( "< Back" ) );
@@ -869,7 +869,7 @@ pcSampleWizardPanel::languageChange()
     QToolTip::add( eAttachOrLoadPageNextButton, tr( "Advance to the next wizard page." ) );
 
     eSummaryPageFinishLabel->setText( tr( "<p align=\"left\">\n"
-"You've selected a pc Sampling experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%d\" milliseconds.<br><br></p>" ) );
+"You've selected a pc Sample experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%d\" milliseconds.<br><br></p>" ) );
     eSummaryPageBackButton->setText( tr( "< Back" ) );
     QToolTip::add( eSummaryPageBackButton, tr( "Takes you back one page." ) );
     eSummaryPageFinishButton->setText( tr( "Finish..." ) );
