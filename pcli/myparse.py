@@ -111,6 +111,62 @@ def Do_quit(args):
 
 ##################################################################
 #
+# check_compound_stmt
+#
+# Determine if this statement is the start of a Python compound
+# statement.
+#
+##################################################################
+def check_compound_stmt (line, compound_dict):
+    
+    parts = line.split()
+    count = len(parts)
+
+    if count > 0:
+        # Look to see if this keyword is the start of a compound statement
+	t_part = compound_dict.get(parts[0])
+
+        if t_part is not None:
+	    return 1
+        else:
+            return 0
+    else:
+        return 0
+
+##################################################################
+#
+# leading_blanks
+#
+# Determine how many leading blanks there are on the statement.
+#
+##################################################################
+def leading_blanks (line):
+    
+    parts = line.split()
+    count = len(parts)
+
+    if count > 0:
+        return line.rindex(parts[0])
+    else:
+        return 0
+
+##################################################################
+#
+# Process_ILO
+#
+# Get the actual input line and execute it immediately.
+# We need to strip off leading blanks before executing it.
+#
+##################################################################
+def Process_ILO (arg):
+    d_line = PY_Input.ReadILO(arg)
+    p_line = d_line.strip()
+    r_line = myparse.process(p_line)
+    myparse.runsource(r_line, "stderr")
+    return
+
+##################################################################
+#
 # preParseArgs
 #
 # Determine if there is an O/SS command in the line and
@@ -215,7 +271,27 @@ def parseArgs(args):
 #
 ##################################################################
 def makePythonCall(func, args):
-        return "%s([%s])" % (func, ", ".join(args))
+    return "%s([%s])" % (func, ", ".join(args))
+
+##################################################################
+#
+# Delay_ILO_Processing
+#
+# Create a call to "Process_ILO" with a pointer to the ILO as
+# an argument.  This will cause the original line to be fetched
+# and executed when Python decides that it's time to execute the
+# command.
+#
+# The call to "Process_ILO" is adjusted to look like it is a
+# normal Python command in the scope of the nesting statement.
+#
+##################################################################
+def Delay_ILO_Processing(pad):
+    arg = PY_Input.Save_ILO()
+    d_line = "%s(\"%s\")" % ("Process_ILO", arg)
+    n_line = d_line.rjust(pad + len(d_line))
+    return n_line
+
 
 ##################################################################
 #
@@ -332,6 +408,28 @@ class CLI(code.InteractiveConsole):
 
     ##################################################################
     #
+    # python_compound_stmts
+    #
+    # These keywords imply delayed processing
+    #
+    # The design that supports delayed processing of statements inside
+    # nested expressions will only work if all the Python statements
+    # that can cause a scope change are detected.
+    #
+    ##################################################################
+    python_compound_stmts = { \
+        "if"             : 1,
+        "while"          : 1,
+        "for"            : 1,
+        "try"            : 1,
+        "def"            : 1,
+        "elif"           : 1,
+        "else"           : 1,
+        "except"         : 1,\
+        }
+
+    ##################################################################
+    #
     # __init__
     #
     #
@@ -355,6 +453,7 @@ class CLI(code.InteractiveConsole):
     ##################################################################
     def interact(self):
         myparse.terminate_SS = 0
+        nesting_depth = 0
 
         # Set the primary and secondary prompts
         sys.ps1 = ">>> "
@@ -383,14 +482,19 @@ class CLI(code.InteractiveConsole):
                 if not line:
                    line = 'EOF'
 
-                # TODO: add logging of input line here...
-                
-                # Process complete lines
-                if 1:
-                   # line = "myparse." + self.process(line)
+                if check_compound_stmt(line, self.python_compound_stmts):
+                   nesting_depth = nesting_depth + 1
+                elif is_more and not line.isspace():
+                   lb = leading_blanks(line)
+                   d_line = Delay_ILO_Processing(lb)
+                   line = d_line
+                else:
                    line = self.process(line)
 
-                # Push incomplete lines onto input stack
+                # Push lines onto input stack for execution.
+                # Python will decide when to execute the line
+                # but we had better be correct about when the
+                # execution will be delayed.
                 if line or is_more:
                     is_more = self.push(line)
 
@@ -406,7 +510,6 @@ class CLI(code.InteractiveConsole):
                 self.write("\n")
                 self.resetbuffer()
                 return
-                #raise SystemExit
 
 
     ##################################################################
