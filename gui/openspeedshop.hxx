@@ -58,6 +58,7 @@ class OpenSpeedshop : public QMainWindow
     QAction* fileExportExperimentDataAction;
     QAction* fileSaveSessionAction;
     QAction* filePreferencesAction;
+    QAction* fileCloseAction;
     QAction* fileExitAction;
     QAction* helpContentsAction;
     QAction* helpIndexAction;
@@ -114,6 +115,7 @@ class OpenSpeedshop : public QMainWindow
     virtual void fileExportExperimentData();
     virtual void fileSaveSession();
     virtual void filePreferences();
+    virtual void fileClose();
     virtual void fileExit();
     virtual void helpIndex();
     virtual void helpContents();

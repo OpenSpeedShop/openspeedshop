@@ -59,6 +59,7 @@ OpenSpeedshop::OpenSpeedshop( QWidget* parent, const char* name, WFlags fl )
   fileSaveSessionAction = new QAction( this, "fileSaveSessionAction" );
 //  fileSaveSessionAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "filesave" ) ) );
   filePreferencesAction = new QAction( this, "filePreferencesAction" );
+  fileCloseAction = new QAction( this, "fileCloseAction" );
   fileExitAction = new QAction( this, "fileExitAction" );
   helpContentsAction = new QAction( this, "helpContentsAction" );
   helpIndexAction = new QAction( this, "helpIndexAction" );
@@ -81,6 +82,8 @@ OpenSpeedshop::OpenSpeedshop( QWidget* parent, const char* name, WFlags fl )
   filePreferencesAction->addTo( fileMenu );
   fileMenu->insertSeparator();
   fileMenu->insertSeparator();
+  fileCloseAction->addTo( fileMenu );
+  fileMenu->insertSeparator();
   fileExitAction->addTo( fileMenu );
   menubar->insertItem( QString(""), fileMenu, 1 );
 
@@ -94,6 +97,7 @@ OpenSpeedshop::OpenSpeedshop( QWidget* parent, const char* name, WFlags fl )
   connect( fileSaveSessionAction, SIGNAL( activated() ), this, SLOT( fileSaveSession() ) );
   connect( filePreferencesAction, SIGNAL( activated() ), this, SLOT( filePreferences() ) );
   connect( fileExitAction, SIGNAL( activated() ), this, SLOT( fileExit() ) );
+  connect( fileCloseAction, SIGNAL( activated() ), this, SLOT( fileClose() ) );
   connect( helpIndexAction, SIGNAL( activated() ), this, SLOT( helpIndex() ) );
   connect( helpContentsAction, SIGNAL( activated() ), this, SLOT( helpContents() ) );
   connect( helpAboutAction, SIGNAL( activated() ), this, SLOT( helpAbout() ) );
@@ -159,6 +163,9 @@ void OpenSpeedshop::languageChange()
   filePreferencesAction->setText( tr( "Preferences" ) );
   filePreferencesAction->setMenuText( tr( "&Preferences..." ) );
   filePreferencesAction->setAccel( QString::null );
+  fileCloseAction->setText( tr( "Close" ) );
+  fileCloseAction->setMenuText( tr( "C&lose" ) );
+  fileCloseAction->setAccel( QString::null );
   fileExitAction->setText( tr( "Exit" ) );
   fileExitAction->setMenuText( tr( "E&xit" ) );
   fileExitAction->setAccel( QString::null );

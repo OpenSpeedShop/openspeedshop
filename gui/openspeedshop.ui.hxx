@@ -155,6 +155,7 @@ void OpenSpeedshop::filePreferences()
   preferencesDialog->show();
 }
 
+#include "Commander.hxx"   // Contains the InputLineObject definition.
 void OpenSpeedshop::fileExit()
 {
   dprintf("fileExit() entered.\n");
@@ -172,8 +173,33 @@ void OpenSpeedshop::fileExit()
  // qApp->exit();
  //printf("fileExit() called qApp->exit.\n");
 
+int wid = ((PanelContainer *)topPC)->getMainWindow()->widStr.toInt();
+InputLineObject *ilp = Append_Input_String( wid, "quit");
+
  pthread_exit(EXIT_SUCCESS);
  dprintf("fileExit() called pthread_exit.\n");
+}
+
+
+void OpenSpeedshop::fileClose()
+{
+  dprintf("fileClose() entered.\n");
+
+ /* close all the panel containers.   Well all except the masterPC's
+    That one we need to do explicitly. (See the next line.) */
+ ((PanelContainer *)topPC)->getMasterPC()->closeAllExternalPanelContainers();
+
+ /* Now close the master pc's information. */
+ ((PanelContainer *)topPC)->closeWindow((PanelContainer *)topPC);
+
+ qApp->closeAllWindows();
+ dprintf("fileClose() called closeAllWindows.\n");
+
+ // qApp->exit();
+ //printf("fileClose() called qApp->exit.\n");
+
+ pthread_exit(EXIT_SUCCESS);
+ dprintf("fileClose() called pthread_exit.\n");
 }
 
 void OpenSpeedshop::helpIndex()
