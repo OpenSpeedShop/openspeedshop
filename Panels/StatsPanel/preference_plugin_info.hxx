@@ -75,12 +75,12 @@ extern "C"
       sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, sortDecendingCheckBox->name() );
       sortDecendingCheckBox->setChecked(
-        settings->readBoolEntry(settings_buffer) );
+        settings->readBoolEntry(settings_buffer, TRUE) );
   
       sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, showTopNLineEdit->name() );
       showTopNLineEdit->setText(
-        settings->readEntry(settings_buffer) );
+        settings->readEntry(settings_buffer, "5") );
     }
 
     return statsPanelStackPage;

@@ -57,17 +57,6 @@ public:
     QCheckBox* setShowColoredTabsCheckBox;
     QCheckBox* deleteEmptyPCCheckBox;
     QCheckBox* showGraphicsCheckBox;
-#ifdef OLDWAY
-    QWidget* sourcePanelStackPage;
-    QGroupBox* sourcePanelGroupBox;
-    QCheckBox* showStatisticsCheckBox;
-    QCheckBox* showLineNumbersCheckBox;
-    QWidget* statsPanelStackPage;
-    QGroupBox* statsPanelGroupBox;
-    QCheckBox* sortDecendingCheckBox;
-    QLabel* showTopNTextLabel;
-    QLineEdit* showTopNLineEdit;
-#endif // OLDWAY
     QPushButton* buttonHelp;
     QPushButton* buttonDefaults;
     QPushButton* buttonApply;
@@ -76,10 +65,6 @@ public:
 
     QWidget *matchPreferencesToStack(QString s);
     void createGeneralStackPage(QWidgetStack* stack, char *name );
-#ifdef OLDWAY
-    void createSourcePanelStackPage(QWidgetStack* stack, char *name );
-    void createStatsPanelStackPage(QWidgetStack* stack, char *name );
-#endif // OLDWAY
 
     bool preferencesAvailable;
     QString globalFontFamily;
@@ -117,13 +102,6 @@ protected:
     QVBoxLayout* rightSideLayout;
     QHBoxLayout* fontLayout;
     QHBoxLayout* precisionLayout;
-#ifdef OLDWAY
-    QVBoxLayout* generalStackPageLayout_2;
-    QVBoxLayout* layout6;
-    QVBoxLayout* generalStackPageLayout_3;
-    QVBoxLayout* layout8;
-    QHBoxLayout* layout7;
-#endif // OLDWAY
     QVBoxLayout* generalStackPageLayout_4;
     QHBoxLayout* preferenceDialogWidgetStackLayout;
     QSpacerItem* Horizontal_Spacing2;

@@ -46,17 +46,6 @@ printf("readPreferencesOnEntry() entered\n");
     settings.readBoolEntry( "/openspeedshop/general/deleteEmptyPC") );
   showGraphicsCheckBox->setChecked(
     settings.readBoolEntry( "/openspeedshop/general/showGraphics") );
-#ifdef OLDWAY
-  showStatisticsCheckBox->setChecked(
-    settings.readBoolEntry( "/openspeedshop/source panel/showStatistics") );
-  showLineNumbersCheckBox->setChecked(
-    settings.readBoolEntry( "/openspeedshop/source panel/showLineNumber") );
-  sortDecendingCheckBox->setChecked(
-    settings.readEntry( "/openspeedshop/stats panel/sortDecending") );
-
-  showTopNLineEdit->setText( 
-    settings.readEntry( "/openspeedshop/stats panel/showTopN" ));
-#endif // OLDWAY
 }
 
 void PreferencesDialog::resetPreferenceDefaults()
@@ -220,49 +209,41 @@ void PreferencesDialog::savePreferences()
   settings.writeEntry( "/openspeedshop/general/showColoredTabs", setShowColoredTabsCheckBox->isChecked() );
   settings.writeEntry( "/openspeedshop/general/deleteEmptyPC", deleteEmptyPCCheckBox->isChecked() );
   settings.writeEntry( "/openspeedshop/general/showGraphics", showGraphicsCheckBox->isChecked() );
-#ifdef OLDWAY
-  settings.writeEntry( "/openspeedshop/source panel/showStatistics", showStatisticsCheckBox->isChecked() );
-  settings.writeEntry( "/openspeedshop/source panel/showLineNumber", showLineNumbersCheckBox->isChecked() );
-  settings.writeEntry( "/openspeedshop/stats panel/sortDecending", sortDecendingCheckBox->isChecked() );
-  settings.writeEntry( "/openspeedshop/stats panel/showTopN", showTopNLineEdit->text() );
-#else // OLDWAY
 
-// Begin try to save all preferences
-//This is the base plugin directory.   In this directory there should
-// be a list of dso (.so) which are the plugins.
-char plugin_file[1024];
-if( panelContainer->getMasterPC() && panelContainer->getMasterPC()->_pluginRegistryList )
-{
-  char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
-  if( !plugin_directory )
+  // Begin save all preferences
+  //This is the base plugin directory.   In this directory there should
+  // be a list of dso (.so) which are the plugins.
+  char plugin_file[1024];
+  if( panelContainer->getMasterPC() && panelContainer->getMasterPC()->_pluginRegistryList )
   {
-    fprintf(stderr, "Can't find the PanelContainer plugin. $OPENSPEEDSHOP_PLUGIN_PATH not set correctly.\n");
-      return;
-  }
-  PluginInfo *pi = NULL;
-  for( PluginRegistryList::Iterator it = panelContainer->getMasterPC()->_pluginRegistryList->begin();
-       it != panelContainer->getMasterPC()->_pluginRegistryList->end();
-       it++ )
-  {
-    pi = (PluginInfo *)*it;
-    sprintf(plugin_file, "%s/%s", plugin_directory, pi->plugin_name );
-    void *dl_object = dlopen((const char *)plugin_file, (int)RTLD_LAZY );
-
-    if( dl_object )
+    char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
+    if( !plugin_directory )
     {
+      fprintf(stderr, "Can't find the PanelContainer plugin. $OPENSPEEDSHOP_PLUGIN_PATH not set correctly.\n");
+        return;
+    }
+    PluginInfo *pi = NULL;
+    for( PluginRegistryList::Iterator it = panelContainer->getMasterPC()->_pluginRegistryList->begin();
+         it != panelContainer->getMasterPC()->_pluginRegistryList->end();
+         it++ )
+    {
+      pi = (PluginInfo *)*it;
+      sprintf(plugin_file, "%s/%s", plugin_directory, pi->plugin_name );
+      void *dl_object = dlopen((const char *)plugin_file, (int)RTLD_LAZY );
+  
+      if( dl_object )
+      {
 // printf("about to lookup(%s).\n", "save_preferences_entry_point");
-      void (*dl_plugin_info_init_preferences_routine)(QSettings *, char *) =
-        (void (*)(QSettings *, char *))dlsym(dl_object, "save_preferences_entry_point" );
-       if( dl_plugin_info_init_preferences_routine )
-       {
+        void (*dl_plugin_info_init_preferences_routine)(QSettings *, char *) =
+          (void (*)(QSettings *, char *))dlsym(dl_object, "save_preferences_entry_point" );
+         if( dl_plugin_info_init_preferences_routine )
+         {
 // printf("about to call the routine.\n");
-         (*dl_plugin_info_init_preferences_routine)(&settings, pi->preference_category);
-       }
-       dlclose(dl_object);
+           (*dl_plugin_info_init_preferences_routine)(&settings, pi->preference_category);
+         }
+         dlclose(dl_object);
+      }
     }
   }
-}
-// End try to save all preferences
-
-#endif // OLDWAY
+  // End save all preferences
 }

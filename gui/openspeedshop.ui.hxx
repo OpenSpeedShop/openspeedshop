@@ -432,6 +432,7 @@ void OpenSpeedshop::init()
     preferencesStackPagesList.push_back(preferencesDialog->generalStackPage);
     QListViewItem *item = new QListViewItem( preferencesDialog->categoryListView );
     item->setText( 0, tr( "General" ) );
+    preferencesDialog->categoryListView->setSelected(item, TRUE);
     // End load preferences
 
 // Begin: Set up a saved session geometry.
