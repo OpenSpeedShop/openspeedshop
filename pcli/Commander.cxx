@@ -584,10 +584,10 @@ public:
   // Debug aids
   void Print(FILE *TFile) {
     fprintf(TFile,
-       "W %lld: async:%s remote:%s IAM:%s %s %lld %lld, history->%s\n",
-        id,Input_Is_Async?"T":"F",remote?"T":"F",
+       "W %lld: %s remote:%s IAM:%s %s %lld %lld, focus at %lld, history->%s\n",
+        id,Input_Is_Async?"async":" sync",remote?"T":"F",
         I_Call_Myself.c_str(),Host_ID.c_str(),(int64_t)Process_ID,Panel_ID,
-        Trace_File_Name.c_str());
+        Focus(),Trace_File_Name.c_str());
     if (Input) {
       fprintf(TFile,"  Active Input Source Stack:\n");
       for (Input_Source *inp = Input; inp != NULL; inp = inp->Next()) {
@@ -864,9 +864,11 @@ bool Command_Trace (CommandObject *cmd, enum Trace_Entry_Type trace_type,
   if (tof == NULL) {
     if (tofname.length() != 0) {
       tof = fopen (tofname.c_str(), "a");
-    } else {
-      tof = stderr;
     }
+  }
+  if (tof == NULL) {
+    tof = stderr;
+    tof_predefined = true;
   }
 
   std::list<CommandWindowID *>::reverse_iterator cwi;
@@ -878,11 +880,11 @@ bool Command_Trace (CommandObject *cmd, enum Trace_Entry_Type trace_type,
       FILE *cmwtrf = (*cwi)->Trace_File();
       if (!cmwtrf) {
         char *S;
-        sprintf(S,"ERROR: no trace file %s\n",cmwtrn.c_str());
+        sprintf(S,"ERROR: missing history file %s\n",cmwtrn.c_str());
         if (cmd != NULL) {
           cmd->Result_String (S);
         } else {
-          fprintf((tof != NULL) ? tof : stderr,"%s\n",S);
+          fprintf(tof,"%s\n",S);
         }
         return false;
       }
@@ -892,7 +894,7 @@ bool Command_Trace (CommandObject *cmd, enum Trace_Entry_Type trace_type,
         if (cmd != NULL) {
           cmd->Result_String (S);
         } else {
-          fprintf((tof != NULL) ? tof : stderr,"%s\n",S);
+          fprintf(tof,"%s\n",S);
         }
         return false;
       }
