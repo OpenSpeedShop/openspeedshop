@@ -86,8 +86,10 @@ def return_int(args):
     return ret
 
 def return_string(args):
-    cmd_parse(args)
-    ret = "broken"
+    #cmd_parse(args)
+
+    ret = cmd_parse(args)
+    #ret = "broken"
     return ret
 
 def return_int_list(args):
@@ -414,8 +416,7 @@ class CLI(code.InteractiveConsole):
         "-r"             : "suboption:rank",
         "-p"             : "suboption:pid_list",
         "-t"             : "suboption:thread_list",
-        "-l"             : "suboption:line_number",
-        "-x"             : "suboption:experiment_id", \
+        "-l"             : "suboption:line_number", \
         }
 
     ##################################################################
