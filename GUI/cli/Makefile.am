@@ -28,12 +28,23 @@ ftcli_la_CXXFLAGS =  -I/usr/include -I. -I../objects -I../base
 
 ftcli_la_LDFLAGS = --export-dynamic -module -avoid-version
 
-ftcli_la_LIBADD = ../objects/.libs/ftObjects.so
+ftcli_la_LIBADD = $(LIBLTDL) ../objects/.libs/ftObjects.so
 
-# This is a big no-no, but I couldn't figure out the libtool command. - FIX
-all:
+ftcli_la_SOURCES = cli.cxx
+
+
+
+
+
+bin_PROGRAMS = cli
+
+cli_la_CXXFLAGS =  -I/usr/include -I. -I../objects -I../base
+
+LDFLAGS = -lc -ldl
+
+cli_SOURCES =  main.cxx cli.cxx
+
+cli:
 	-g++ $(ftcli_la_CXXFLAGS) -fpic -c cli.cxx;
 	-g++ $(ftcli_la_CXXFLAGS) -fpic -c main.cxx;
 	-g++ -dynamic -fpic -o cli ../objects/.libs/ftObjects.so main.o cli.o -lc -ldl;
-
-ftcli_la_SOURCES = cli.cxx

@@ -32,8 +32,7 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$FUTURE_TOOL_PLUGIN_DIR
 export LD_LIBRARYN32_PATH=$LD_LIBRARYN32_PATH:$LD_LIBRARY_PATH
 if [[ $1 = -cli ]]
 then
-  $WORKAREA/GUI/cli/cli $@
+  $FUTURE_TOOL_PLUGIN_DIR/../../bin/cli $@
 else
-#  $WORKAREA/GUI/ftd -ns -fn -misc-fixed-bold-r-normal--13-100-100-100-c-70-iso8859-1 $@
-  $WORKAREA/GUI/ftd -ns -fn 6x13 $@
+  $FUTURE_TOOL_PLUGIN_DIR/../../bin/ftd -ns -fn 6x13 $@
 fi

@@ -10,7 +10,9 @@ make distclean
 bootstrap --clean
 
 rm -fr plugin/lib
+rm -fr plugin/bin
 mkdir plugin/lib
+mkdir plugin/bin
 mkdir plugin/lib/futuretool
 
 
@@ -21,8 +23,8 @@ cd ftf
 make clean
 cd ..
 make clean
-cd splash;make clean;
-rm splash/splash
+
+
 for i in `find . -name *.o -print`
 do
   echo removing $i
