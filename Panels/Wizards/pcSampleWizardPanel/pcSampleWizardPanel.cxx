@@ -22,6 +22,7 @@
 #include "plugin_entry_point.hxx"   // Do not remove
 #include "AttachProcessDialog.hxx"
 
+#include <qapplication.h>
 #include <qvariant.h>
 #include <qpushbutton.h>
 #include <qwidgetstack.h>
@@ -620,10 +621,16 @@ pcSampleWizardPanel::listener(void *msg)
   nprintf(DEBUG_PANELS) ("  messageObject->msgType = %s\n", messageObject->msgType.ascii() );
   if( messageObject->msgType == getName() )
   {
+    vSummaryPageFinishButton->setEnabled(TRUE);
+    vSummaryPageFinishButton->setEnabled(TRUE);
+    qApp->flushX();
     return 1;
   }
   if( messageObject->msgType == "Wizard_Raise_First_Page" )
   {
+    vSummaryPageFinishButton->setEnabled(TRUE);
+    vSummaryPageFinishButton->setEnabled(TRUE);
+    qApp->flushX();
     nprintf(DEBUG_PANELS) ("vDescriptionPageWidget\n");
     if( wizardMode->isOn() )
     {// is it verbose?
@@ -1113,6 +1120,10 @@ void pcSampleWizardPanel::finishButtonSelected()
 void pcSampleWizardPanel::vSummaryPageFinishButtonSelected()
 {
   nprintf(DEBUG_PANELS) ("vSummaryPageFinishButtonSelected() \n");
+
+  vSummaryPageFinishButton->setEnabled(FALSE);
+  eSummaryPageFinishButton->setEnabled(FALSE);
+  qApp->flushX();
 
   getPanelContainer()->hidePanel((Panel *)this);
 
