@@ -164,3 +164,9 @@ void ManageCollectorsDialog::attachHostComboBoxActivated()
 {
     updateAttachedCollectorsList();
 }
+
+void
+ManageCollectorsDialog::contextMenuRequested( QListViewItem *item, const QPoint &pos, int col)
+{
+  printf("ManagerCollectorsDialog::createPopupMenu() entered.\n");
+}

@@ -22,6 +22,7 @@
 
 #include <qvariant.h>
 #include <qdialog.h>
+#include <qpopupmenu.h>
 
 #include "CollectorListObject.hxx"  // For getting pid list off a host...
 #include "CollectorEntryClass.hxx"
@@ -57,6 +58,8 @@ public:
     void updateAttachedCollectorsList();
 
     CollectorListObject *clo;
+
+    void contextMenuRequested( QListViewItem *item, const QPoint &pos, int col );
 
 protected:
     QVBoxLayout* ManageCollectorsDialogLayout;
