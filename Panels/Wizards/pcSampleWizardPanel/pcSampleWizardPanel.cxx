@@ -675,35 +675,72 @@ char buffer[2048];
     
     return;
   }
+
+  OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
+  if( !mw )
+  {
+    return;
+  } 
   
   if( eAttachOrLoadPageAttachToProcessCheckBox->isChecked() )
   {
-    QString result;
-     AttachProcessDialog *dialog = new AttachProcessDialog(this, "AttachProcessDialog", TRUE);
-    if( dialog->exec() == QDialog::Accepted )
+    if( mw->pid_str == NULL )
     {
-      result = dialog->selectedProcesses();
-sprintf(buffer, "<p align=\"left\">Requesting to load process \"%s\" on host \"%s\",  sampling at \"%s\" milliseconds.<br><br></p>", result.ascii(), "localhost", vParameterPageSampleRateText->text().ascii() );
+      QString result;
+       AttachProcessDialog *dialog = new AttachProcessDialog(this, "AttachProcessDialog", TRUE);
+      if( dialog->exec() == QDialog::Accepted )
+      {
+        result = dialog->selectedProcesses();
+        if( result.isEmpty() )
+        {
+            return;
+        } else
+        {
+          if( mw->pid_str )
+          {
+            free( mw->pid_str );
+          }
+          mw->pid_str = strdup(result.ascii());
+        }
+      }
+      delete dialog;
+if( mw->pid_str == NULL ) 
+{
+  return;
+}
+      sprintf(buffer, "<p align=\"left\">Requesting to load process \"%s\" on host \"%s\",  sampling at \"%s\" milliseconds.<br><br></p>", mw->pid_str, "localhost", eParameterPageSampleRateText->text().ascii() );
     }
-    delete dialog;
-  
-    nprintf(DEBUG_PANELS) ("result.acsii()=(%s)\n", result.ascii() );
   }
   if( eAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
   {
-    nprintf(DEBUG_PANELS) ("Load the QFile \n");
-    QString fn = QFileDialog::getOpenFileName( QString::null, QString::null,
-                             this);
-    if( !fn.isEmpty() )
+    if( mw->executable_name == NULL )
     {
-      nprintf(DEBUG_PANELS) ("fn.ascii()=(%s)\n", fn.ascii() );
-sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", sampling at \"%s\" milliseconds.<br><br></p>", fn.ascii(), "localhost", eParameterPageSampleRateText->text().ascii() );
+      nprintf(DEBUG_PANELS) ("Load the QFile \n");
+      QString fn = QFileDialog::getOpenFileName( QString::null, QString::null,
+                               this);
+      if( !fn.isEmpty() )
+      {
+        if( mw->executable_name )
+        {
+          free( mw->executable_name );
+        }
+        mw->executable_name = strdup(fn.ascii());
+        nprintf(DEBUG_PANELS) ("fn.ascii()=(%s)\n", fn.ascii() );
+      } else
+      {
+        return;
+      }
     }
+if( mw->executable_name == NULL ) 
+{
+  return;
+}
+    sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", sampling at \"%s\" milliseconds.<br><br></p>", mw->executable_name, "localhost", eParameterPageSampleRateText->text().ascii() );
   }
 
   eSummaryPageFinishLabel->setText( tr( buffer ) );
 
-    pcSampleWizardPanelStack->raiseWidget(eSummaryPageWidget);
+  pcSampleWizardPanelStack->raiseWidget(eSummaryPageWidget);
 }
 // End  advanced (expert) AttachOrLoad callbacks
 
@@ -806,30 +843,66 @@ char buffer[2048];
     
     return;
   }
-  
-  if( vAttachOrLoadPageAttachToProcessCheckBox->isChecked() )
+  OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
+  if( !mw )
   {
-    QString result;
-     AttachProcessDialog *dialog = new AttachProcessDialog(this, "AttachProcessDialog", TRUE);
-    if( dialog->exec() == QDialog::Accepted )
+    return;
+  } 
+
+  if( vAttachOrLoadPageAttachToProcessCheckBox->isChecked() )
+  { 
+    if( mw->pid_str == NULL )
     {
-      result = dialog->selectedProcesses();
-sprintf(buffer, "<p align=\"left\">You've selected a pc Sample experiment for process \"%s\" running on host \"%s\".  Futher you've chosed a sample rate of \"%s\" milliseconds.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"pcSample\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", result.ascii(), "localhost", vParameterPageSampleRateText->text().ascii() );
+      QString result;
+       AttachProcessDialog *dialog = new AttachProcessDialog(this, "AttachProcessDialog", TRUE);
+      if( dialog->exec() == QDialog::Accepted )
+      {
+        result = dialog->selectedProcesses();
+        if( result.isEmpty() )
+        {
+          return;
+        } else
+        {
+          if( mw->pid_str )
+          {
+            free( mw->pid_str );
+          }
+          mw->pid_str = strdup(result.ascii());
+        }
+      }
+      delete dialog;
     }
-    delete dialog;
-  
-    nprintf(DEBUG_PANELS) ("result.acsii()=(%s)\n", result.ascii() );
+if( mw->pid_str == NULL )
+{
+  return;
+}
+    sprintf(buffer, "<p align=\"left\">You've selected a pc Sample experiment for process \"%s\" running on host \"%s\".  Futher you've chosed a sample rate of \"%s\" milliseconds.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"pcSample\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->pid_str, "localhost", vParameterPageSampleRateText->text().ascii() );
   }
   if( vAttachOrLoadPageLoadExecutableCheckBox->isChecked() )
   {
-    nprintf(DEBUG_PANELS) ("Load the QFile \n");
-    QString fn = QFileDialog::getOpenFileName( QString::null, QString::null,
-                             this);
-    if( !fn.isEmpty() )
+    if( mw->executable_name == NULL )
     {
-      nprintf(DEBUG_PANELS) ("fn.ascii()=(%s)\n", fn.ascii() );
-sprintf(buffer, "<p align=\"left\">You've selected a pc Sample experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%s\" milliseconds.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"pcSample\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", fn.ascii(), "localhost", vParameterPageSampleRateText->text().ascii() );
+      nprintf(DEBUG_PANELS) ("Load the QFile \n");
+      QString fn = QFileDialog::getOpenFileName( QString::null, QString::null,
+                               this);
+      if( !fn.isEmpty() )
+      {
+        if( mw->executable_name )
+        {
+          free( mw->executable_name );
+        }
+        mw->executable_name = strdup(fn.ascii());
+        nprintf(DEBUG_PANELS) ("fn.ascii()=(%s)\n", fn.ascii() );
+      } else
+      {
+        return;
+      }
     }
+if( mw->executable_name == NULL )
+{
+  return;
+}
+    sprintf(buffer, "<p align=\"left\">You've selected a pc Sample experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%s\" milliseconds.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>Upon selection of the \"Finish\" button an experiment \"pcSample\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executable_name, "localhost", vParameterPageSampleRateText->text().ascii() );
   }
 
   vSummaryPageFinishLabel->setText( tr( buffer ) );
@@ -950,7 +1023,9 @@ QToolTip::add( eAttachOrLoadPageResetButton, tr( "This clears all settings resto
 void
 pcSampleWizardPanel::eUpdateAttachOrLoadPageWidget()
 {
-  eAttachOrLoadPageAttachToProcessCheckBox->setChecked(TRUE);
+  vAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
+  vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+  eAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
   eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
   vAttachOrLoadPageProcessListLabel->hide();
   eAttachOrLoadPageProcessListLabel->hide();
@@ -962,7 +1037,7 @@ pcSampleWizardPanel::eUpdateAttachOrLoadPageWidget()
     printf("mw=0x%x\n", mw );
     if( mw )
     {
-      if( mw->executable_name || (mw->executable_name && mw->pid_str) )
+      if( mw->executable_name )
       {
         char *executable_name = mw->executable_name;
         printf("executable_name = (%s)\n", executable_name);
@@ -1006,7 +1081,7 @@ pcSampleWizardPanel::vUpdateAttachOrLoadPageWidget()
     printf("mw=0x%x\n", mw );
     if( mw )
     {
-      if( mw->executable_name || (mw->executable_name && mw->pid_str) )
+      if( mw->executable_name )
       {
         char *executable_name = mw->executable_name;
         printf("executable_name = (%s)\n", executable_name);
