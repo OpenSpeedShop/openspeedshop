@@ -76,8 +76,7 @@ public:
   QTextEdit *textEdit;
 
 public slots:
-  void menu1callback();
-  void menu2callback();
+  void setOrientation();
 
   void saveAs();
   void aboutExperiment();

@@ -153,9 +153,10 @@ TopPanel::menu(QPopupMenu* contextMenu)
 {
   printf("TopPanel::menu() requested.\n");
 
+  contextMenu->insertSeparator();
   contextMenu->insertItem("&Save As ...", this, SLOT(saveAs()), CTRL+Key_S );
   contextMenu->insertItem("&About Experiment...", this, SLOT(aboutExperiment()), CTRL+Key_A );
-  contextMenu->insertItem("TopPanel Menu Item &2", this, SLOT(menu2callback()), CTRL+Key_2 );
+  contextMenu->insertItem("&Re-orientate", this, SLOT(setOrientation()), CTRL+Key_R );
 
   return( TRUE );
 }
@@ -249,11 +250,19 @@ TopPanel::aboutExperiment()
     msg, QMessageBox::Ok );
 }
 
-/*! The callback holder for menu2callback data.  - unimplemented prototype. */
+/*! Reset the orientation of the graph/text relationship with setOrientation */
 void
-TopPanel::menu2callback()
+TopPanel::setOrientation()
 {
-  dprintf("TopPanel::menu2callback() entered\n");
+  dprintf("TopPanel::setOrientation() entered\n");
+  Orientation o = splitterA->orientation();
+  if( o == QSplitter::Vertical )
+  {
+    splitterA->setOrientation(QSplitter::Horizontal);
+  } else
+  {
+    splitterA->setOrientation(QSplitter::Vertical);
+  }
 }
 
 enum LABEL_TYPE  { PERCENT_T, FUNCTION_NAME_T, RANK_T, NONE_T };
