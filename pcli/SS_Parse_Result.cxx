@@ -10,13 +10,14 @@
 using namespace std;
 
 #include "support.h"
+#include "SS_Parse_Param.hxx"
 #include "SS_Parse_Range.hxx"
 #include "SS_Parse_Target.hxx"
 #include "SS_Parse_Result.hxx"
 
 using namespace OpenSpeedShop::cli;
 
-command_type_t cmd_desc[CMD_MAX] = {
+command_type_t OpenSpeedShop::cli::cmd_desc[CMD_MAX] = {
     "",false,CMD_HEAD_ERROR, /* used in error reporting */
     "expAttach",    false,  CMD_EXP_ATTACH,
     "expClose",     false,  CMD_EXP_CLOSE,
@@ -51,6 +52,103 @@ command_type_t cmd_desc[CMD_MAX] = {
     "record",	    false,  CMD_RECORD,
     "setBreak",     false,  CMD_SETBREAK
 };
+ 
+/**
+ * Constructor: ParseResult::ParseResult()
+ * 
+ *     
+ * @param   void
+ *
+ * @todo    Error handling.
+ *
+ */
+ParseResult::
+ParseResult() :
+    dm_experiment_id(-1),
+    dm_experiment_set(false),
+    dm_param_set(false),
+    dm_p_param(NULL)
+    
+{
+    // Create first ParseTarget object.
+    this->dm_p_cur_target = new ParseTarget();
+
+}
+ 
+/**
+ * Destructor: ParseResult::~ParseResult()
+ * 
+ *     
+ * @param   void
+ *
+ * @todo    Error handling.
+ *
+ */
+ParseResult::
+~ParseResult()
+{
+    if (this->dm_p_cur_target)
+    	delete this->dm_p_cur_target;
+    if (this->dm_p_param)
+    	delete this->dm_p_param;
+}
+ 
+/**
+ * Method: ParseResult::PushParseTarget()
+ * 
+ *     
+ * @param   void
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
+void
+ParseResult::
+PushParseTarget()
+{
+    if (this->dm_p_cur_target->used()) {
+    	this->dm_target_list.push_back(*this->dm_p_cur_target);
+    	delete this->dm_p_cur_target;
+    	this->dm_p_cur_target = new ParseTarget();
+    }
+    return ;
+}
+ 
+/**
+ * Method: s_dumpParam()
+ * 
+ * Dump param information
+ * 
+ *     
+ * @return  void.
+ *
+ * @todo    Error handling.
+ *
+ */
+static void 
+s_dumpParam(vector<ParseParam> *p_list, char *label)
+{
+    vector<ParseParam>::iterator iter;
+
+    if (p_list->begin() != p_list->end())
+    	cout << "\t\t" << label << ": " << endl;
+
+    for (iter=p_list->begin();iter != p_list->end(); iter++) {
+    	    cout << "\t\t\t";
+    
+    	if (iter->getParmExpType()) {
+	    cout << iter->getParmParamType() << "::";
+	}
+	
+	cout << iter->getParmParamType() << " = ";
+	
+    	if (iter->isValString()) 
+	    cout << iter->getStingVal() << endl;
+	else
+	    cout << iter->getnumVal() << endl;
+    }
+}
 
 /**
  * Method: s_dumpRange()
@@ -64,13 +162,15 @@ command_type_t cmd_desc[CMD_MAX] = {
  *
  */
 static void 
-s_dumpRange(vector<ParseRange> *p_range_list, char *label)
+s_dumpRange(vector<ParseRange> *p_list, char *label)
 {
-    vector<ParseRange>::iterator r_iter;
-    if (p_range_list->begin() != p_range_list->end())
-    	    cout << "\t" << label << ": " ;
-    for (r_iter=p_range_list->begin();r_iter != p_range_list->end(); r_iter++) {
-    	parse_range_t *p_range = r_iter->getRange();
+    vector<ParseRange>::iterator iter;
+    
+    if (p_list->begin() != p_list->end())
+    	    cout << "\t\t" << label << ": " ;
+
+    for (iter=p_list->begin();iter != p_list->end(); iter++) {
+    	parse_range_t *p_range = iter->getRange();
     	if (p_range->is_range) {
     	    parse_val_t *p_val1 = &p_range->start_range;
     	    parse_val_t *p_val2 = &p_range->end_range;
@@ -97,7 +197,7 @@ s_dumpRange(vector<ParseRange> *p_range_list, char *label)
     	    }
     	}
     }
-    if (p_range_list->begin() != p_range_list->end())
+    if (p_list->begin() != p_list->end())
     	    cout << endl ;
 
 }
@@ -171,6 +271,15 @@ dumpInfo()
     if (p_ilist->begin() != p_ilist->end())
     	cout << endl ;
 
+    // Address list.
+    s_dumpRange(this->getAddressList(), "ADDRESSES");
+
+    // Param list.
+    s_dumpParam(this->getParmList(), "PARAMS");
+
+    // Syntax error.
+    s_dumpRange(this->getErrorList(), "ERROR");
+
     // target list.
     vector<ParseTarget>::iterator t_iter;
     vector<ParseTarget> *p_tlist = this->GetTargetList();
@@ -179,7 +288,7 @@ dumpInfo()
     for (t_iter=p_tlist->begin() ;t_iter != p_tlist->end(); t_iter++) {
     	cout << "\tTarget #" << count++ << " : " << endl;
 	
-	// rank list
+	// various lists
 	s_dumpRange(t_iter->getHostList(), "HOST");
 	s_dumpRange(t_iter->getFileList(), "FILE");
 	s_dumpRange(t_iter->getRankList(), "RANK");
@@ -225,5 +334,77 @@ ParseResult::
 isRetList()
 {
     return cmd_desc[dm_command_type].ret_list;
+}
+ 
+/**
+ * Method: ParseResult::IsParam()
+ * 
+ *     
+ * @return  true/false.
+ *
+ * @todo    Error handling.
+ *
+ */
+bool
+ParseResult::
+IsParam()
+{
+    return this->dm_param_set;
+}
+ 
+/**
+ * Method: ParseResult::getParmList()
+ * 
+ *     
+ * @return  vector<ParseParam> *
+ *
+ * @todo    Error handling.
+ *
+ */
+vector<ParseParam> *
+ParseResult::
+getParmList()
+{
+    return &this->dm_param_list;
+}
+ 
+/**
+ * Method: ParseResult::pushParm(char *etype, char * ptype, int num)
+ * 
+ *     
+ * @return  true/false.
+ *
+ * @todo    Error handling.
+ *
+ */
+void
+ParseResult::
+pushParm(char *etype, char * ptype, int num)
+{
+    ParseParam param(etype,ptype,num);
+    
+    dm_param_list.push_back(param);
+
+    return ;
+}
+ 
+/**
+ * Method: ParseResult::pushParm(char *etype, char * ptype, char * name)
+ * 
+ *     
+ * @return  true/false.
+ *
+ * @todo    Error handling.
+ *
+ */
+void
+ParseResult::
+pushParm(char *etype, char * ptype, char * name)
+{
+    ParseParam param(etype,ptype,name);
+
+    dm_param_list.push_back(param);
+
+    return ;
 }
  

@@ -4,6 +4,8 @@
  *
  */
 
+#include "SS_Parse_Param.hxx"
+
 #ifndef __OpenSpeedShop_Parse_Result_HXX__
 #define __OpenSpeedShop_Parse_Result_HXX__
 
@@ -15,6 +17,13 @@ typedef struct {
     bool ret_list;  	/** does this return a list or single instance */
     oss_cmd_enum ndx;	/** for sanity checking */
 } command_type_t;
+
+/** Decribe Parm information */
+typedef struct {
+    vector<ParseParam> parm_list;   /** List of parameters and values */
+} parm_type_t;
+
+extern command_type_t cmd_desc[];
 
 /**
  * Parser result class.
@@ -29,28 +38,13 @@ class ParseResult {
     public:
 
 	/** Constructor. */
-	ParseResult()
-	{
-	    dm_experiment_set = false;
-
-    	    // Create first ParseTarget object.
-    	    dm_p_cur_target = new ParseTarget();
-	}
+	ParseResult();
 
 	/** Destructor. */
-	~ParseResult()
-	{
-	    delete dm_p_cur_target;
-	}
+	~ParseResult();
 
     	/** ParseTarget object handling */
-	void PushParseTarget()
-	{
-	    dm_target_list.push_back(*dm_p_cur_target);
-	    delete dm_p_cur_target;
-	    dm_p_cur_target = new ParseTarget();
-	    
-	}
+	void PushParseTarget();
 
     	/** Return pointer to current ParseTarget object */
 	ParseTarget * CurrentTarget()
@@ -132,21 +126,20 @@ class ParseResult {
     	    dm_help_list.push_back(name);
 	}
 
-    	/** Handle list of break ids. */
-    	vector<int> * getBreakList()
-	{
-	    return &dm_break_id_list;
+    	/** Syntax error handling. */
+    	void set_error(char * name1, char * name2) {
+    	    ParseRange range(name1,name2);
+    	    dm_error_list.push_back(range);
 	}
+    	vector<ParseRange> * getErrorList() {return &dm_error_list;}
 
-    	void pushBreakId(int break_id) {
-    	    dm_break_id_list.push_back(break_id);
-	}
+    	/** Handle list of break ids. */
+    	vector<int> * getBreakList(){return &dm_break_id_list;}
+
+    	void pushBreakId(int break_id) {dm_break_id_list.push_back(break_id);}
 
     	/** Handle list of file names. */
-    	vector<ParseRange> * getAddressList()
-	{
-	    return &dm_address_list;
-	}
+    	vector<ParseRange> * getAddressList(){return &dm_address_list;}
 
     	void pushAddressPoint(char * name) {
 	    ParseRange range(name);
@@ -204,16 +197,26 @@ class ParseResult {
     	    dm_lineno_list.push_back(range);
 	}
 
+    	/** Handle Params. */
+	bool IsParam();
+    	vector<ParseParam> *getParmList();
+    	void pushParm(char *etype, char *ptype, int num);
+    	void pushParm(char *etype, char *ptype, char *name);
+
     	/** Debugging code */
     	void dumpInfo();
 
-    protected:
+    private:
     	/** What command are we representing */
     	oss_cmd_enum dm_command_type;
 
     	/** What command are we representing */
     	int dm_experiment_id;
     	bool dm_experiment_set;
+    	bool dm_param_set;
+
+	/** Param values */
+	ParseParam *dm_p_param;
 
     	/** Container of break Ids as integers */
     	vector<int> dm_break_id_list;
@@ -229,13 +232,15 @@ class ParseResult {
     	vector<ParseRange> dm_address_list;
     	/** Container of addresses */
     	vector<ParseRange> dm_lineno_list;
-//    	/** Container of parameter info as class param_tuple */
-//    	vector<param_tuple> dm_parameter_list;
+    	/** Container of parameter info as class param_tuple */
+    	vector<ParseParam> dm_param_list;
+    	/** Container of syntax error symbols */
+    	vector<ParseRange> dm_error_list;
 
     	/** Container of host/file/rpt as class HostFileRPT */
     	vector<ParseTarget> dm_target_list;
 	ParseTarget *dm_p_cur_target;
-
+	
 
 
 //    protected:
