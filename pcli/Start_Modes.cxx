@@ -55,7 +55,7 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, int bu
     strcat(cmdstr,"\n\0");
 
    /* Put the "expCreate" command to the input stack */
-    (void)Append_Input_String (my_window, strlen(cmdstr), cmdstr);
+    (void)Append_Input_String (my_window, cmdstr);
   }
 
 }
@@ -84,9 +84,9 @@ int Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, int butno
   }
 
   if (batch_mode) {
-   // If in "-batch" mode, end with an "expRun" command.
-    char *cmdrun = "expRun\n";
-    (void)Append_Input_String (my_window, strlen(cmdrun), cmdrun);
+   // If in "-batch" mode, end with an "expGo" command.
+    char *cmdrun = "expGo\n";
+    (void)Append_Input_String (my_window, cmdrun);
   }
 
   return 1;
