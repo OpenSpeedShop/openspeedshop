@@ -312,9 +312,9 @@ Process::Process(const std::string& host, const pid_t& pid) :
     AisStatus retval = dm_process->bconnect();
     if(retval.status() == ASC_failure) {
 	MainLoop::resume();
-	char pid[16];
-	sprintf(pid, "%d", static_cast<int>(pid_));
-	throw std::runtime_error("Cannot connect to PID " + pid + 
+	char pid_name[16];
+	sprintf(pid_name, "%d", static_cast<int>(pid));
+	throw std::runtime_error("Cannot connect to PID " + pid_name + 
 				 " on host \"" + host + "\".");
     }
     Assert(retval.status() == ASC_success);
