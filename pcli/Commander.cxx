@@ -23,6 +23,7 @@
 #include "ToolAPI.hxx"
 using namespace OpenSpeedShop::Framework;
 
+#include "support.h"
 #include "Commander.hxx"
 #include "Clip.hxx"
 #include "Experiment.hxx"
@@ -458,9 +459,9 @@ public:
       Input->Dump(TFile );
     }
   }
-  void Trace (CommandObject *clip) {
+  void Trace (InputLineObject *clip) {
     if (Trace_File()) {
-      if (clip->Action() == CMD_PARSE) {
+      { // if (clip->Action() == CMD_PARSE) {
         FILE *TFile = Trace_File();
         CMDID seq_num = clip->Seq();
         CMDWID who = clip->Who();
@@ -897,9 +898,7 @@ static void There_Must_Be_More_Input (CommandWindowID *cw) {
   }
 }
 
-#include "Python.h"
-
-char *SpeedShop_ReadLine (int is_more)
+InputLineObject *SpeedShop_ReadLine (int is_more)
 {
   char *save_prompt = current_prompt;
 
@@ -1002,19 +1001,7 @@ fprintf(stdout,"gui instruction encountered\n");
     return NULL;
   }
 
-  int64_t buffer_size = strlen(s)+1;
-  bool need_newline = false;
-  if (s[buffer_size-2] != *("\n")) {
-    buffer_size++;
-    need_newline = true;
-  }
-  char *sbuf = (char *)PyMem_Malloc(buffer_size);
-  strcpy (sbuf, s);
-  if (need_newline) {
-    sbuf[buffer_size-2] = *("\n");
-    sbuf[buffer_size-1] = *("\0");
-  }
-  CommandObject *clip = new CommandObject(readfromwindow,sbuf);
+  InputLineObject *clip = new InputLineObject(readfromwindow,s);
 
  // Assign a sequence number to the command.
   clip->SetSeq (++Command_Sequence_Number);
@@ -1022,5 +1009,5 @@ fprintf(stdout,"gui instruction encountered\n");
  // Log the command.
   cw->Trace(clip);
 
-  return sbuf;
+  return clip;
 }
