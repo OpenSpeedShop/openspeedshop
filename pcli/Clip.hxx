@@ -108,11 +108,20 @@ class InputLineObject
   time_t When () { return cmd_time; }
   CMDID Where () { return seq_num; }
   bool Complex_Exp () { return complex_expression; }
+  std::list<CommandObject *> CmdObj_List () { return Cmd_Obj; }
   void *CallBackId () { return LocalCmdId; }
-  //(void (*)(InputLineObject *b)) CallBackF () { return CallBack; }
-  //void ((*)(InputLineObject *b)) CallBackF() { return CallBack; }
-  void CallBackL () { if (CallBackLine) (*CallBackLine) (this); }
-  void CallBackC (CommandObject *c) { if (CallBackCmd) (*CallBackCmd) (c); }
+  bool CallBackL () {
+    if (CallBackLine) {
+      (*CallBackLine) (this);
+      return true;
+    } else return false;
+  }
+  bool CallBackC (CommandObject *c) {
+    if (CallBackCmd) {
+     (*CallBackCmd) (c);
+      return true;
+    } else return false;
+  }
 
   void Set_Complex_Exp () { complex_expression = true; }
   void Set_Trace (FILE *TFile) {Trace_F = TFile;}
