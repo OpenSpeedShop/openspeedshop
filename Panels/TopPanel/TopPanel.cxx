@@ -100,7 +100,7 @@ TopPanel::TopPanel(PanelContainer *pc, const char *n) : Panel(pc, n)
   addWhatsThis(textEdit, this);
 addWhatsThis(cf, this);
 
-#ifdef OVERRIDE_FONT
+#ifndef OVERRIDE_FONT
   // Set to a fixed size font so the columns line up nicely.
   QFont font = QFont("fixed");
   textEdit->setCurrentFont(font);
@@ -524,7 +524,9 @@ TopPanel::details()
 
   QString msg = getDescription(para);
 
-  displayWhatsThis(msg);
+//  displayWhatsThis(msg);
+  QMessageBox::information( (QWidget *)this, tr("Details..."),
+    msg, QMessageBox::Ok );
 }
 
 #include <qscrollbar.h>
@@ -641,7 +643,7 @@ TopPanel::getTopFiveData()
   char rankstr[10];
   char filestr[21];
   char funcstr[21];
-  sprintf(buffer, "%-4s %-15s  %-7s   %-15s   %-s\n", "Rank", "Function", "Percent", "Filename", "Line #");
+  sprintf(buffer, "%-9s %-15s  %-6s   %-20s   %-s\n", "Rank", "Function", "Percent", "Filename", "Line #");
   textEdit->append(buffer);
   FuncInfo *fi;
 float sum=0;
@@ -651,7 +653,7 @@ int i = 0;
        it != topFiveObject->funcInfoList.end();
        it++ )
   {
-if( i >= number_returned-1 )
+if( i >= number_returned )
 {
   break;
 }
@@ -664,16 +666,16 @@ if( i >= number_returned-1 )
      ptr = truncate(fi->fileName, 17);
      strcpy(filestr, ptr);
      free(ptr);
-     sprintf(rankstr, "%d", line-2);
-     sprintf(buffer, "%9s %-15s  %-2.3f    %-15s  %d\n", rankstr, funcstr, fi->percent, filestr, fi->function_line_number);
+     sprintf(rankstr, "%d", line-1);
+     sprintf(buffer, "%-9s %-15s  %3.3f   %-20s  %d\n", rankstr, funcstr, fi->percent, filestr, fi->function_line_number);
 sum+= fi->percent;
      textEdit->append(buffer);
      if( i >= 5 )
      {
-       highlightLine(line, color_name_table[4], FALSE);
+       highlightLine(line, color_name_table[4], TRUE);
      } else
      {
-       highlightLine(line, color_name_table[line-2], FALSE);
+       highlightLine(line, color_name_table[line-2], TRUE);
      }
      line++;
      strcpy(buffer, "");
@@ -686,10 +688,10 @@ i++;
      textEdit->append(buffer);
      if( i >= 5 )
      {
-       highlightLine(line, color_name_table[4], FALSE);
+       highlightLine(line, color_name_table[4], TRUE);
      } else
      {
-       highlightLine(line, color_name_table[line-3], FALSE);
+       highlightLine(line, color_name_table[line-3], TRUE);
      }
   }
 
@@ -779,7 +781,7 @@ TopPanel::doSaveAs(QFile *f)
 
     QTextStream stream( f );
     stream << "<body>";
-    stream << "<h2>Report Header Line</h2><br><br>\n";
+//    stream << "<h2>Report Header Line</h2><br><br>\n";
 
     stream << "<img style=\"width: 130px; height: 165px;\" alt=\"pie chart diagram.\" src=\"";
     stream << filename;
