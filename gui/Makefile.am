@@ -50,3 +50,6 @@ ossgui_la_SOURCES = \
 
 doc:
 	-doxygen Doxyfile
+
+clean:
+	-rm moc_*

@@ -40,3 +40,6 @@ ossPlugin_la_SOURCES = \
 	SlotInfo.hxx SlotInfo.cxx moc_SlotInfo.cxx \
 	plugin_entry_point.hxx
 
+
+clean:
+	-rm moc_*

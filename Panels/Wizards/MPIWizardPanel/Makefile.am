@@ -46,3 +46,6 @@ MPIWizardPanel_la_SOURCES = \
 	MPIWizardPanel.hxx MPIWizardPanel.cxx moc_MPIWizardPanel.cxx \
 	plugin_entry_point.hxx Panel.hxx \
 	PanelContainer.hxx local_plugin_info.hxx debug.hxx
+
+clean:
+	-rm moc_*

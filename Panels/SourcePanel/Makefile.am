@@ -56,3 +56,6 @@ SourcePanel_la_SOURCES = \
 	SourcePanel.hxx SourcePanel.cxx moc_SourcePanel.cxx \
 	PanelContainer.hxx local_plugin_info.hxx debug.hxx \
 	plugin_entry_point.hxx Panel.hxx HighlightObject.hxx
+
+clean:
+	-rm moc_*

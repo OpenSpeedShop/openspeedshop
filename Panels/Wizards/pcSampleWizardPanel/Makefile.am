@@ -46,3 +46,6 @@ pcSampleWizardPanel_la_SOURCES = \
 	pcSampleWizardPanel.hxx pcSampleWizardPanel.cxx moc_pcSampleWizardPanel.cxx \
 	plugin_entry_point.hxx Panel.hxx \
 	PanelContainer.hxx local_plugin_info.hxx debug.hxx
+
+clean:
+	-rm moc_*

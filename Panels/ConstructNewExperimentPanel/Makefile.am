@@ -49,3 +49,6 @@ ConstructNewExperimentPanel_la_SOURCES = \
 	ConstructNewExperimentPanel.hxx ConstructNewExperimentPanel.cxx moc_ConstructNewExperimentPanel.cxx \
 	plugin_entry_point.hxx Panel.hxx \
 	PanelContainer.hxx local_plugin_info.hxx debug.hxx
+
+clean:
+	-rm moc_*

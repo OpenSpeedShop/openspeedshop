@@ -49,3 +49,6 @@ MPIPanel_la_SOURCES = \
 	MPIPanel.hxx MPIPanel.cxx moc_MPIPanel.cxx \
 	plugin_entry_point.hxx Panel.hxx \
 	PanelContainer.hxx local_plugin_info.hxx debug.hxx
+
+clean:
+	-rm moc_*

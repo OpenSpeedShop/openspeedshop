@@ -48,3 +48,6 @@ TopPanel_la_SOURCES = \
 	plugin_entry_point.hxx Panel.hxx \
 	TPTextEdit.hxx TPTextEdit.cxx \
 	TPChartForm.hxx TPChartForm.cxx
+
+clean:
+	-rm moc_*

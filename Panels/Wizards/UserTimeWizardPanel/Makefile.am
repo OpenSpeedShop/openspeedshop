@@ -46,3 +46,6 @@ UserTimeWizardPanel_la_SOURCES = \
 	UserTimeWizardPanel.hxx UserTimeWizardPanel.cxx moc_UserTimeWizardPanel.cxx \
 	plugin_entry_point.hxx Panel.hxx \
 	PanelContainer.hxx local_plugin_info.hxx debug.hxx
+
+clean:
+	-rm moc_*

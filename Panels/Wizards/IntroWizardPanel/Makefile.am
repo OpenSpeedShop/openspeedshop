@@ -43,3 +43,6 @@ IntroWizardPanel_la_SOURCES = \
 	IntroWizardPanel.hxx IntroWizardPanel.cxx moc_IntroWizardPanel.cxx \
 	plugin_entry_point.hxx Panel.hxx \
 	PanelContainer.hxx local_plugin_info.hxx debug.hxx
+
+clean:
+	-rm moc_*

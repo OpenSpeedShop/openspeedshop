@@ -49,3 +49,6 @@ HW_CounterPanel_la_SOURCES = \
 	HW_CounterPanel.hxx HW_CounterPanel.cxx moc_HW_CounterPanel.cxx \
 	plugin_entry_point.hxx Panel.hxx \
 	PanelContainer.hxx local_plugin_info.hxx debug.hxx
+
+clean:
+	-rm moc_*

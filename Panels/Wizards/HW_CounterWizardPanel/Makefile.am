@@ -46,3 +46,6 @@ HW_CounterWizardPanel_la_SOURCES = \
 	HW_CounterWizardPanel.hxx HW_CounterWizardPanel.cxx moc_HW_CounterWizardPanel.cxx \
 	plugin_entry_point.hxx Panel.hxx \
 	PanelContainer.hxx local_plugin_info.hxx debug.hxx
+
+clean:
+	-rm moc_*

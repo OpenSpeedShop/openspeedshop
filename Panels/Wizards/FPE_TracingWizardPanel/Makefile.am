@@ -46,3 +46,6 @@ FPE_TracingWizardPanel_la_SOURCES = \
 	FPE_TracingWizardPanel.hxx FPE_TracingWizardPanel.cxx moc_FPE_TracingWizardPanel.cxx \
 	plugin_entry_point.hxx Panel.hxx \
 	PanelContainer.hxx local_plugin_info.hxx debug.hxx
+
+clean:
+	-rm moc_*
