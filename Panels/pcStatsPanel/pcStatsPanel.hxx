@@ -57,6 +57,9 @@ class pcStatsPanel  : public StatsPanelBase
     //! Calls the user panel function listener() request.
     int listener(void *msg);
 
+    //! Adds use panel menus (if any).
+    virtual bool menu(QPopupMenu* contextMenu);
+
     //! Routine to popup dynamic menu.
     bool createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos );
 
@@ -66,6 +69,7 @@ class pcStatsPanel  : public StatsPanelBase
 
   public slots:
     void itemSelected( QListViewItem * );
+    void details();
     void gotoSource();
 
   private slots:

@@ -111,11 +111,62 @@ pcStatsPanel::listener(void *msg)
   return 0;  // 0 means, did not want this message and did not act on anything.
 }
 
+bool
+pcStatsPanel::menu( QPopupMenu* contextMenu)
+{
+  printf("pcStatsPanel::menu() entered.\n");
+
+
+  contextMenu->insertSeparator();
+
+  contextMenu->insertItem("Number visible entries...", this, SLOT(setNumberVisibleEntries()));
+
+  contextMenu->insertSeparator();
+
+  contextMenu->insertItem("Compare...", this, SLOT(compareSelected()) );
+
+  contextMenu->insertSeparator();
+
+  int id = 0;
+  QPopupMenu *columnsMenu = new QPopupMenu(this);
+  columnsMenu->setCaption("Columns Menu");
+  contextMenu->insertItem("&Columns Menu", columnsMenu, CTRL+Key_C);
+
+  for( ColumnList::Iterator pit = columnList.begin();
+           pit != columnList.end();
+           ++pit )
+  { 
+    QString s = (QString)*pit;
+    columnsMenu->insertItem(s, this, SLOT(doOption(int)), CTRL+Key_1, id, -1);
+    if( lv->columnWidth(id) )
+    {
+      columnsMenu->setItemChecked(id, TRUE);
+    } else
+    {
+      columnsMenu->setItemChecked(id, FALSE);
+    }
+    id++;
+  }
+
+//  contextMenu->insertItem("Export Report Data...", this, NULL, NULL);
+  contextMenu->insertItem("Export Report Data...");
+
+  if( lv->selectedItem() )
+  {
+    contextMenu->insertItem("Tell Me MORE about %d!!!", this, SLOT(details()), CTRL+Key_1 );
+    contextMenu->insertItem("Go to source location...", this, SLOT(gotoSource()), CTRL+Key_1 );
+    return( TRUE );
+  }
+
+  return( TRUE );
+}
 
 /*! Create the context senstive menu for the report. */
 bool
 pcStatsPanel::createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos )
 {
+printf("pcStatsPanel::createPopupMenu(contextMenu=0x%x) entered\n", contextMenu);
+#ifdef OLDWAY
   QPopupMenu *panelMenu = new QPopupMenu(this);
   panelMenu->setCaption("Panel Menu");
   contextMenu->insertItem("&Panel Menu", panelMenu, CTRL+Key_C);
@@ -128,15 +179,26 @@ pcStatsPanel::createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos )
     contextMenu->insertItem("Go to source location...", this, SLOT(gotoSource()), CTRL+Key_1 );
     return( TRUE );
   }
+#else // OLDWAY
+  menu(contextMenu);
+  return( TRUE );
+#endif // OLDWAY
   
   return( FALSE );
 }
 
 /*! Go to source menu item was selected. */
 void
+pcStatsPanel::details()
+{
+  printf("details() menu selected.\n");
+}
+
+/*! Go to source menu item was selected. */
+void
 pcStatsPanel::gotoSource()
 {
-//  printf("gotoSource() menu selected.\n");
+  printf("gotoSource() menu selected.\n");
 }
 
 void
