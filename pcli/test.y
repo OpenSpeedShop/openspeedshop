@@ -619,7 +619,7 @@ pid_list:  	    pid_range
     	    	|   pid_list COMMA pid_range
 		;
 
-pid_range:  	    NUMBER {push_32bit_value($1,TABLE_PID);}
+pid_range:  	    NUMBER {push_32bit_range($1,$1,TABLE_PID);}
     	    	|   NUMBER COLON NUMBER {push_32bit_range($1,$3,TABLE_PID);}
 		;
 
@@ -630,7 +630,7 @@ thread_list:  	    thread_range
     	    	|   thread_list COMMA thread_range
 		;
 
-thread_range:  	    NUMBER {push_32bit_value($1,TABLE_THREAD);}
+thread_range:  	    NUMBER {push_32bit_range($1,$1,TABLE_THREAD);}
     	    	|   NUMBER COLON NUMBER {push_32bit_range($1,$3,TABLE_THREAD);}
 		;
 
@@ -641,7 +641,7 @@ rank_list:  	    rank_range
     	    	|   rank_list COMMA rank_range
 		;
 
-rank_range:  	    NUMBER {push_32bit_value($1,TABLE_RANK);}
+rank_range:  	    NUMBER {push_32bit_range($1,$1,TABLE_RANK);}
     	    	|   NUMBER COLON NUMBER {push_32bit_range($1,$3,TABLE_RANK);}
 		;
 
