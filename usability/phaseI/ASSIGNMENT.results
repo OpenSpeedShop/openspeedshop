@@ -33,6 +33,10 @@ FIX: There was a memory allocation problem that is now fixed.
   - The use repeatedly tried to change/add a new executable with the
     File->Load New option.
     (Suggestion: This must be made more clear....)
+FIX?: I pulled the File->Load New option as it seemed very unclear how
+      to manage this with multiple experiments.   I suggest more
+      feedback to see if pushing this functionality down to the 
+      experiment to be the best working solution.
 
   - The user repeatedly tried to use the pcSamplePanel terminate
     button (X) to close the panel.
@@ -63,6 +67,7 @@ FIX: Removed the "Other" selection until other is available.
 
   - User makes note of bad grammar and spelling errors in the wizard.  
     Metric screen and Finished screen.
+FIX: Cleaned up spelling and grammar in the wizards.
 
   - User comments that long status line should scroll and be left justified.
     (Suggestion: left justify text and truncate long executable names.   
@@ -98,6 +103,8 @@ FIX: The abort was reproduceable when attempting to delete the panel
     be creating a new experiment to run.
     (Suggestion: User suggest changing the wording.    i.e. "Build New
     Experiment... )
+FIX?: Changed the wording to "Construct New Experiment".   Now wait for more
+      feedback, particularly in later studies to see if this is more clear.
 
   - Abort occured again removing the PanelContainer.
 FIX: See above fix.
