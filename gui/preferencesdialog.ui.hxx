@@ -130,9 +130,6 @@ void PreferencesDialog::listItemSelected(QListViewItem*lvi)
   } else if( s == "Stats Panel" )
   {
     preferenceDialogWidgetStack->raiseWidget(statsPanelStackPage);
-  } else if( s == "Cmd Panel" )
-  {
-    preferenceDialogWidgetStack->raiseWidget(cmdPanelStackPage);
   } else
   {
     fprintf(stderr, "Warning: Unable to find category.\n");

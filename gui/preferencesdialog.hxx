@@ -61,19 +61,22 @@ public:
     QCheckBox* sortDecendingCheckBox;
     QLabel* showTopNTextLabel;
     QLineEdit* showTopNLineEdit;
-    QWidget* cmdPanelStackPage;
-    QGroupBox* cmdPanelGroupBox;
     QPushButton* buttonHelp;
     QPushButton* buttonDefaults;
     QPushButton* buttonApply;
     QPushButton* buttonOk;
     QPushButton* buttonCancel;
 
-bool preferencesAvailable;
-QString globalFontFamily;
-int globalFontPointSize;
-int globalFontWeight;
-bool globalFontItalic;
+    void createGeneralStackPage(QWidgetStack* stack, char *name );
+    void createSourcePanelStackPage(QWidgetStack* stack, char *name );
+    void createStatsPanelStackPage(QWidgetStack* stack, char *name );
+
+    bool preferencesAvailable;
+    QString globalFontFamily;
+    int globalFontPointSize;
+    int globalFontWeight;
+    bool globalFontItalic;
+
     void readPreferencesOnEntry();
     void savePreferencesOnExit();
     void applyPreferences();
