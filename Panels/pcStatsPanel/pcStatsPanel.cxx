@@ -235,14 +235,15 @@ pcStatsPanel::matchSelectedItem(std::string selected_function )
 //  printf ("pcStatsPanel::matchSelectedItem() = %s\n", selected_function.c_str() );
 
 std::map<Function, double>::const_iterator it = orig_data->begin();
+std::set<Statement> definitions = it->first.getDefinitions();
 for( ; it != orig_data->end(); ++it)
 {
 //  printf("%s %f\n", it->first.c_str(), it->second );
   if( selected_function == it->first.getName()  )
   {
 //    printf("FOUND IT!\n");
-    Optional<Statement> definition = it->first.getDefinition();
-    if(definition.hasValue())
+    definitions = it->first.getDefinitions();
+    if(definitions.size() > 0 )
     {
 //      std::cout << " (" << definition.getValue().getPath()
 //              << ", " << definition.getValue().getLine() << ")";
@@ -257,10 +258,17 @@ for( ; it != orig_data->end(); ++it)
   }
 }
 
-  SourceObject *spo = new SourceObject(it->first.getName().c_str(), it->first.getDefinition().getValue().getPath(), it->first.getDefinition().getValue().getLine()-1, TRUE, NULL);
+  SourceObject *spo = NULL;
+  if( definitions.size() > 0 )
+  {
+    std::set<Statement>::const_iterator di = definitions.begin();
+    spo = new SourceObject(it->first.getName().c_str(), di->getPath(), di->getLine()-1, TRUE, NULL);
+  }
 
 
 
+if( spo )
+{
   if( broadcast((char *)spo, NEAREST_T) == 0 )
   { // No source view up...
     char *panel_type = "Source Panel";
@@ -272,6 +280,7 @@ for( ; it != orig_data->end(); ++it)
       p->listener((void *)spo);
     }
   }
+}
 }
 
 void

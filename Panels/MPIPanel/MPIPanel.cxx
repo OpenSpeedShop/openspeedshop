@@ -889,12 +889,14 @@ MPIPanel::loadMain()
     Thread thread = *ti;
     Time time = Time::Now();
     const std::string main_string = std::string("main");
-    OpenSpeedShop::Framework::Function function = thread.getFunctionByName(main_string, time);
+    std::pair<bool, Function> function = thread.getFunctionByName(main_string, time);
+    std::set<Statement> statement_definition = function.second.getDefinitions();
 
-    Optional<Statement> statement_definition = function.getDefinition();
-    if(statement_definition.hasValue())
+    if(statement_definition.size() > 0 )
     {
-      SourceObject *spo = new SourceObject("main", statement_definition.getValue().getPath(), statement_definition.getValue().getLine()-1, TRUE, NULL);
+      std::set<Statement>::const_iterator i = statement_definition.begin();
+      SourceObject *spo = new SourceObject("main", i->getPath(), i->getLine()-1, TRUE, NULL);
+
   
       QString name = QString("Source Panel [%1]").arg(expID);
       Panel *sourcePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );

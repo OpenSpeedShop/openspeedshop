@@ -558,18 +558,16 @@ SourcePanel::goToFunction()
         Thread thread = *ti;
         Time time = Time::Now();
         const std::string func_string = std::string(text.ascii());
-        Optional<Function> function_definition = thread.getFunctionByName(func_string, time);
-        if( function_definition.hasValue() )
+        std::pair<bool, Function>  function = thread.getFunctionByName(func_string, time);
+        std::set<Statement> statement_definition = function.second.getDefinitions();
+        if( statement_definition.size() > 0 )
         {
-          Optional<Statement> statement_definition = function_definition.getValue().getDefinition();
-          if(statement_definition.hasValue())
-          {
-            std::string fileName = statement_definition.getValue().getPath();
-            int line = statement_definition.getValue().getLine()-1;
+          std::set<Statement>::const_iterator i = statement_definition.begin();
+          std::string fileName = i->getPath();
+          int line = i->getLine()-1;
       
-            loadFile( fileName.c_str() );
-            positionLineAtCenter(line);
-          }
+          loadFile( fileName.c_str() );
+          positionLineAtCenter(line);
         }
       }
     }

@@ -108,7 +108,7 @@ FPE_TracingPanel::FPE_TracingPanel(PanelContainer *pc, const char *n, void *argu
       if( cgrp.size() == 0 )
       {
         nprintf( DEBUG_PANELS ) ("There are no known collectors for this experiment so add one.\n");
-        QString command = QString("expAttach -x %1 pcsamp").arg(expID);
+        QString command = QString("expAttach -x %1 xfpe").arg(expID);
         CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
         if( !cli->runSynchronousCLI((char *)command.ascii() ) )
         {
@@ -165,13 +165,13 @@ FPE_TracingPanel::FPE_TracingPanel(PanelContainer *pc, const char *n, void *argu
     char command[1024];
     if( !executableNameStr.isEmpty() )
     {
-      sprintf(command, "expCreate -f %s pcsamp\n", executableNameStr.ascii() );
+      sprintf(command, "expCreate -f %s xfpe\n", executableNameStr.ascii() );
     } else if( !pidStr.isEmpty() )
     { 
-      sprintf(command, "expCreate -x %s pcsamp\n", pidStr.ascii() );
+      sprintf(command, "expCreate -x %s xfpe\n", pidStr.ascii() );
     } else
     {
-      sprintf(command, "expCreate pcsamp\n" );
+      sprintf(command, "expCreate xfpe\n" );
     }
     bool mark_value_for_delete = true;
     int64_t val = 0;
@@ -421,7 +421,7 @@ FPE_TracingPanel::detachFromProgramSelected()
   broadcast((char *)spo, NEAREST_T);
 
   runnableFLAG = FALSE;
-  nprintf( DEBUG_PANELS ) ("WARNING: Disable this window!!!!! Until an experiment (pcsamp) is restarted.\n");
+  nprintf( DEBUG_PANELS ) ("WARNING: Disable this window!!!!! Until an experiment (xfpe) is restarted.\n");
 }
 
 void
@@ -861,7 +861,7 @@ FPE_TracingPanel::loadStatsPanel()
     {
       experiment = eo->FW();
       UpdateObject *msg =
-        new UpdateObject((void *)experiment, expID, "pcsamp", 1);
+        new UpdateObject((void *)experiment, expID, "xfpe", 1);
       statsPanel->listener( (void *)msg );
     }
   }
@@ -889,12 +889,14 @@ FPE_TracingPanel::loadMain()
     Thread thread = *ti;
     Time time = Time::Now();
     const std::string main_string = std::string("main");
-    OpenSpeedShop::Framework::Function function = thread.getFunctionByName(main_string, time);
+    std::pair<bool, Function> function = thread.getFunctionByName(main_string, time);
+    std::set<Statement> statement_definition = function.second.getDefinitions();
 
-    Optional<Statement> statement_definition = function.getDefinition();
-    if(statement_definition.hasValue())
+    if(statement_definition.size() > 0 )
     {
-      SourceObject *spo = new SourceObject("main", statement_definition.getValue().getPath(), statement_definition.getValue().getLine()-1, TRUE, NULL);
+      std::set<Statement>::const_iterator i = statement_definition.begin();
+      SourceObject *spo = new SourceObject("main", i->getPath(), i->getLine()-1, TRUE, NULL);
+
   
       QString name = QString("Source Panel [%1]").arg(expID);
       Panel *sourcePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
