@@ -285,19 +285,46 @@ GUI, to define it's experiment specific
 functionality.&nbsp; It will be the CLI's main component's
 responsibility to locate and configure the CLI to interact
 with whatever plugins are currently located on the system.<br>
-There will be scripting functionality built into the CLI tool.&nbsp; We
-are currently investigating the use of Python as the scripting
-language.&nbsp; Open/SpeedShop commands will be built into
-Python.&nbsp; These commands will allow the creation of a performance
+<br>
+There will be a scripting functionality built into the CLI tool.&nbsp;
+We will use of Python as the scripting
+language.&nbsp; Open/SpeedShop commands may or may not be built into
+Python.&nbsp; The interactive CLI commands will allow the creation of a
+performance
 measurement experiment, the ability to control the experiment enabled
 target application and the ability to view the performance measurement
-output values.<br>
+output values.&nbsp; The interactive CLI command syntax is defined in
+the <small><small><small><b><font face="Courier New" size="5"><small><small><a
+ href="../cli_doc/CLI_command_definition_MS2.html"><i>Open</i>/SpeedShop
+Command Line Definitions</a> </small></small></font></b><font
+ face="Courier New" size="5"><small><small>document.</small></small></font></small></small></small><br>
 <br>
+When the user invokes Open/SpeedShop via the "openss" command there are
+three options for execution.&nbsp;&nbsp; If the invocation of
+Open/SpeedShop causes the GUI to be raised then a command panel is also
+created.&nbsp; This command panel window becomes the interactive CLI
+window.&nbsp; If the invocation of Open/SpeedShop uses the interactive
+command line option then the window terminal becomes the interactive
+CLI window.&nbsp; Open/SpeedShop interactive commands can be entered
+into either the GUI's command panel, when the GUI is invoked, or the
+window terminal, when the CLI is invoked.&nbsp;&nbsp;&nbsp; The
+commands that can be entered and that are recognized by the CLI are
+defined in the <small><small><small><b><font face="Courier New"
+ size="5"><small><small><a
+ href="file:///usr/people/jeg/openss/current/doc/cli_doc/CLI_command_definition_MS2.html"><i>Open</i>/SpeedShop
+Command Line Definitions</a> </small></small></font></b><font
+ face="Courier New" size="5"><small><small>document.<br>
 <br>
-The
-CLI tool is still being designed and this space will be updated in
-future releases with the appropriate design information.<br>
-To view the current design documentation for the CLI tool, see <a
+The major design sections of the CLI tool are the parser, the command
+processing semantic routines, the Python bridge (not implemented at
+present - 12/15/2004), and the command object interface (not
+implemented at present - 12/15/2004)<br>
+<br>
+</small></small></font></small></small></small>The
+CLI tool is still being designed and implemented.&nbsp; This space will
+be updated in
+future releases with the appropriate design information.&nbsp; To view
+the current design documentation for the CLI tool, see <a
  href="CLI/html/index.html">CLI design.</a><br>
 <h3>Bproc Support</h3>
 Open/SpeedShop will function on Open/SpeedShop supported Linux systems
