@@ -25,8 +25,10 @@ familiar with the tool surely helped.    Here are some notes from session.
     (Suggestion: This should be an feature at some point.)
 
   - BUG: The use brought up multiple CmdPanels.
+FIX: If an existing CmdPanel is available it is raised.
 
   - BUG: The help text in the Command Panel had garbage in it.
+FIX: There was a memory allocation problem that is now fixed.
 
   - The use repeatedly tried to change/add a new executable with the
     File->Load New option.
@@ -34,10 +36,13 @@ familiar with the tool surely helped.    Here are some notes from session.
 
   - The user repeatedly tried to use the pcSamplePanel terminate
     button (X) to close the panel.
+FIX: Change the pcSamplePanel icon to a square (from an 'X').
 
    - The pcSamplePanel 'X' button is a major souce of confusion.
      (Suggestion: Put an 'x' button on the PanelContainer and change
       the 'X' button in the pcSamplePanel to something else.)
+FIX: Implemented an 'x' button for panel deletion. (And remove the
+     menu option "Remove Raised Panel".
 
 
 
@@ -52,6 +57,7 @@ occured while the user attempted to remove panel containrs.
 
   - Repeated clicked on "Other" in the IntroWizardPanel.
     (Suggestion:BUG: Remove this option until "Other" really exists...)
+FIX: Removed the "Other" selection until other is available.
 
   - NOTE: Took 3 minutes to get to the pcSampleWizard.
 
@@ -74,8 +80,19 @@ occured while the user attempted to remove panel containrs.
     button) to delete the panel.
     (Suggestion: This is a problem that will happen again and again.
      Change the icon and add an 'x' button to the PanelContainer area.)
+FIX: Change the pcSamplePanel icon to a square (from an 'X').
+FIX: Implemented an 'x' button for panel deletion. (And remove the
+     menu option "Remove Raised Panel".
 
   - Abort occured when user tried to clear a PanelContainer.
+FIX: The abort was reproduceable when attempting to delete the panel
+     container from a panel's menu, when the panel didn't have a 
+     local menu to display.    This problem (once again) exposed 
+     a problem solved months ago that prevents deletes from being
+     called when collapings and reparenting panels from the PanelContainer
+     reduction logic.    The fix was to call the same routine 
+     that had the fix.   Now there is one less path (good news) to 
+     remove PanelContainers.
 
   - The user was confused with "Create New Panel" as they thought they'd
     be creating a new experiment to run.
@@ -83,6 +100,7 @@ occured while the user attempted to remove panel containrs.
     Experiment... )
 
   - Abort occured again removing the PanelContainer.
+FIX: See above fix.
 
   - The user knows they want to do pcSample, but now they're irritated
     with the IntroWizardPanel and want to go directly to the pcSamplePanel.
