@@ -96,7 +96,6 @@ class CodeObjectLocator
 };
 
 class CommandWindowID;
-class CommandObject;
 
 CMDWID Commander_Initialization (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
 void Commander_Termination (CMDWID my_window);
@@ -110,6 +109,11 @@ enum Trace_Entry_Type
     CMDW_TRACE_RESULTS               // Dump result records  - "R "
   };
 
+// Main readline interface
+class InputLineObject; // defined in Clip.hxx
+InputLineObject *SpeedShop_ReadLine (int is_more);
+
+// Manipulate tracing options
 void Command_Trace (enum Trace_Entry_Type trace_type, CMDWID cmdwinid, std::string tofname);
 ResultObject Command_Trace_OFF (CMDWID WindowID);
 ResultObject Command_Trace_ON (CMDWID WindowID, std::string tofname);
