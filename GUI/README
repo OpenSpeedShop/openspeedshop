@@ -1,0 +1,14 @@
+p_tupdate this tree....
+
+From the .../GUI directory type:
+$ ./mc
+This will configure and build the GUI portion of OpenSpeedShop.
+When the build completes you should be able to run.  The script to 
+launch the tool is ft.  (Also located in the .../GUI directory.)
+$ ft
+If ft fails to execute, check to make sure the FUTURE_TOOL_PLUGIN_DIR
+is set to the install location.   
+You may also need to modify ft if your WORKAREA isn't pointing to the 
+directory just above GUI.   There are currently 3 locations that must
+be modified.    I'm hoping to fix those next.
+- stipek
