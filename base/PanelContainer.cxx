@@ -619,18 +619,6 @@ PanelContainer::dragRaisedPanel()
 
   Frame::dragging = TRUE;
 
-#ifdef OLDWAY
-  DragNDropPanel::sourceDragNDropObject = new DragNDropPanel("OpenSpeedShop-Drag-N-Drop-Event", this, leftFrame);
-
-  QString s = "Open/SpeedShop-QDragString";
-  QWidget *w = new QWidget(this, "dragNDropWidget");
-  QDragObject *d = new QTextDrag(s, w, "QDragObject");
-  QPixmap drag_pm(drag_xpm);
-  drag_pm.setMask(drag_pm.createHeuristicMask());
-  d->setPixmap(drag_pm);
-  d->dragMove();
-  // do NOT delete d (?)
-#else // OLDWAY
   DragNDropPanel::sourceDragNDropObject = new DragNDropPanel("OpenSpeedShop-Drag-N-Drop-Event", this, leftFrame);
   QDragObject *d = (QDragObject *)DragNDropPanel::sourceDragNDropObject;
 
@@ -639,7 +627,6 @@ PanelContainer::dragRaisedPanel()
   d->setPixmap(drag_pm);
   d->dragMove();
   // do NOT delete d (?)
-#endif // OLDWAY
 
   nprintf(DEBUG_DND) ("drag completed... was it successful= (0x%x)\n", d->target() );
   if( d->target() == NULL )
@@ -2117,7 +2104,12 @@ PanelContainer::closeWindow(PanelContainer *targetPC)
   targetPC->getMasterPC()->removePanelContainer(targetPC);
 
   targetPC->parent->hide();
-  delete targetPC;
+  // If this is the masterPC, don't delete it.   We'll be deleting it on the
+  // way out the door.
+  if( strcmp(targetPC->getExternalName(), "masterPC") != 0 )
+  {
+    delete targetPC;
+  }
 }
 
 /*! If there are PanelContainers to recover,  (That is they were only 

@@ -27,14 +27,8 @@ void ChartForm::drawElements()
     }
 
 	// 360 * 16 for pies; Qt works with 16ths of degrees
-#ifdef OLDWAY
-    int scaleFactor = m_chartType == PIEWITHSHADOW || m_chartType == PIEWITHNOSHADOW || m_chartType == PIEWITH3D ? 5760 :
-			m_chartType == VERTICAL_BAR ? m_canvas->height() :
-			    m_canvas->width();
-#else // OLDWAY
     int scaleFactor = m_chartType == PIEWITHSHADOW || m_chartType == PIEWITHNOSHADOW || m_chartType == PIEWITH3D ? 5760 :
 			m_chartType == VERTICAL_BAR || m_chartType == BARWITH3D ? (int)(m_canvas->height()*.66) : (int)(m_canvas->width()*.66);
-#endif // OLDWAY
     double biggest = 0.0;
     int count = 0;
     double total = 0.0;

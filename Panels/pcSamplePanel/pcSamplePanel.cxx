@@ -321,19 +321,6 @@ pcSamplePanel::listener(void *msg)
 { // Begin demo only...
 pco->runButton->setEnabled(FALSE);
 pco->runButton->enabledFLAG = FALSE;
-#ifdef OLDWAY
-qApp->processEvents(1);
-sleep(1);
-qApp->processEvents(1);
-sleep(1);
-qApp->processEvents(1);
-sleep(1);
-qApp->processEvents(1);
-sleep(1);
-statusLabelText->setText( tr("Process completed...") );
-sleep(1);
-qApp->processEvents(1);
-#endif // OLDWAY
 pco->runButton->setEnabled(TRUE);
 runnableFLAG = TRUE;
 pco->pauseButton->setEnabled(FALSE);
@@ -349,10 +336,6 @@ pco->terminateButton->setFlat(TRUE);
 pco->terminateButton->setEnabled(FALSE);
 
 PanelContainer *pc = topPC->findBestFitPanelContainer(topPC);
-
-#ifdef OLDWAY
-getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Top Panel", pc);
-#endif // OLDWAY
 
   loadStatsPanel();
   

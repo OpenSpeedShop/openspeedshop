@@ -119,12 +119,6 @@ Panel::languageChange()
 void Panel::handleSizeEvent(QResizeEvent *)
 {
   nprintf(DEBUG_PANELS) ("attempt to resize the panel baseWidgetFrame\n");
-#ifdef OLDWAY
-  int width = getPanelContainer()->width();
-  int height = getPanelContainer()->height();
-
-  baseWidgetFrame->resize(width, height);
-#endif // OLDWAY
 }
 
 //! Set the name of the Panel.
@@ -227,57 +221,6 @@ Panel::info(QPoint, QObject *  )
 {
   nprintf(DEBUG_PANELS) ("Panel::info() entered\n");
 }
-
-#ifdef OLDWAY
-/*! This routine loads and tracks a timer on a mouse move event.   Upon
-    entering a panel, the timer is loaded continually reset as the mouse
-    is moved within the panel.   Once the mouse stops, the timer is allowed
-    to progress.    Upon successful completion (a long enough pause) the
-    timer calls the (users)Panel::info() routine.   It's then up to the
-    (users)Panel::info() routine to do something smart.  Typically that
-    involves doing a QCursor::pos() and determining which line/item
-    wants to be acted upon.
- */
-void
-Panel::armPanelsWhatsThis()
-{
-  nprintf(DEBUG_PANELS) ("Panel::armPanelsWhatsThis() entered\n");
-
-  if( getPanelContainer()->getMasterPC()->sleepTimer && getPanelContainer()->getMasterPC()->sleepTimer->isActive() )
-  { // If we're sleeping, just ignore this...
-   nprintf(DEBUG_PANELS) ("we're sleeping, just return.\n");
-    getPanelContainer()->getMasterPC()->sleepTimer->start(1000, TRUE);
-    return;
-  } else
-  { // Otherwise, check to see if there's a timer set.   If it is set
-    // just go to sleep for a whil and return.   Otherwise, set a new one.
-    if( getPanelContainer()->getMasterPC()->popupTimer && getPanelContainer()->getMasterPC()->popupTimer->isActive() )
-    {
-       nprintf(DEBUG_PANELS) ("popupTimer is already active... start sleeping...\n");
-      if( getPanelContainer()->getMasterPC()->sleepTimer == NULL )
-      {
-        getPanelContainer()->getMasterPC()->sleepTimer = new QTimer(this, "sleepTimer");
-        connect( getPanelContainer()->getMasterPC()->sleepTimer, SIGNAL(timeout()), this, SLOT(wakeupFromSleep()) );
-      }
-      getPanelContainer()->getMasterPC()->sleepTimer->start(1000, TRUE);
-      getPanelContainer()->getMasterPC()->popupTimer->stop();
-    } else
-    {
-      nprintf(DEBUG_PANELS) ("start the popup timer...\n");
-      if( getPanelContainer()->getMasterPC()->popupTimer == NULL )
-      {
-        getPanelContainer()->getMasterPC()->popupTimer = new QTimer(this, "popupTimer");
-        connect( getPanelContainer()->getMasterPC()->popupTimer, SIGNAL(timeout()), this, SLOT(popupInfoAtLine()) );
-      }
-      if( getPanelContainer()->getMasterPC()->sleepTimer )
-      {
-        getPanelContainer()->getMasterPC()->sleepTimer->stop();
-      }
-      getPanelContainer()->getMasterPC()->popupTimer->start(1000, TRUE);
-    }
-  }
-}
-#endif // OLDWAY
 
 void
 Panel::wakeupFromSleep()

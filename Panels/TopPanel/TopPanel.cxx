@@ -619,15 +619,9 @@ TopPanel::getTopFiveData()
 {
   int NUMBER_ENTRIES = 5;
 
-#ifdef OLDWAY
-  int values[10];
-  char *color_names[10];
-  char *strings[10];
-#else // OLDWAY
   int values[1024];
   char *color_names[1024];
   char *strings[1024];
-#endif // OLDWAY
 
   topFiveObject = new CollectorInfo();
 

@@ -540,38 +540,10 @@ int ChartForm::mouseClicked(int item)
 
 void ChartForm::setValues(int values[], char *color_names[], char *strings[], int n )
 {
-#ifndef OLDWAY
   for(int i = 0; i < n; i++ )
   {
 	m_elements[i].set( values[i],
       QColor(color_names[i]), 1, QString(strings[i]) );
   }
-#else // OLDWAY
-    int i = 0;
-    for(i = 0; i < n; i++ )
-    {
-	  m_elements[i].set( values[i],
-        QColor(color_names[i]), 1, QString(strings[i]) );
-    }
-    for(; i < MAX_ELEMENTS; i++ )
-    {
-      char *color_name = color_names[4];
-  
-      color_name = "sky blue";
-      if( i == MAX_ELEMENTS * .25  )
-      {
-        m_elements[i].set( 30,
-            QColor("red"), 1, QString(strings[0]) );
-      } else if( i == MAX_ELEMENTS * .50 )
-      {
-        m_elements[i].set( 20,
-            QColor("purple"), 1, QString(strings[0]) );
-      } else
-      {
-        m_elements[i].set( 1,
-          QColor(color_name), 1, QString(strings[0]) );
-      }
-    }
-#endif // OLDWAY
   drawElements();
 }

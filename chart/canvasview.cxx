@@ -16,12 +16,8 @@ void CanvasView::contentsContextMenuEvent( QContextMenuEvent *e )
   nprintf(DEBUG_PANELS) ("CanvasView::contentsContextMenuEvent() entered.\n");
 
 
-#ifdef OLDWAY
-  ((ChartForm*)parent())->createPopupMenu( QCursor::pos() );
-#endif  // OLDWAY
-
-ChartForm *form = (ChartForm*)parent();
-form->contentsContextMenuEvent(e);
+  ChartForm *form = (ChartForm*)parent();
+  form->contentsContextMenuEvent(e);
 
 }
 

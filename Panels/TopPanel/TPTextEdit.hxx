@@ -21,9 +21,6 @@ public:
   QPopupMenu* createPopupMenu( ) { /* obsoleted function. */ return NULL; };
 
 protected: 
-#ifdef OLDWAY
-    void contentsMouseMoveEvent( QMouseEvent *e );
-#endif // OLDWAY
 
 public slots:
 

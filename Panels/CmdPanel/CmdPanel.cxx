@@ -2,10 +2,6 @@
 #include "PanelContainer.hxx"   // Do not remove
 #include "plugin_entry_point.hxx"   // Do not remove
 
-#ifdef OLDWAY
-#include "cli.hxx"
-#endif // OLDWAY
-
 QString prompt = QString("cli> ");
 
 /*! \class CmdPanel
@@ -68,17 +64,9 @@ CmdPanel::returnPressed()
   QString text = output->selectedText();
   nprintf(DEBUG_PANELS) ("The user entered (%s)\n", text.ascii() );
 
-#ifdef OLDWAY
-  OutputObject *oo = process_command(text.stripWhiteSpace().ascii());
-  if( oo )
-  {
-    output->append( oo->outputBuffer );
-  }
-#else  // OLDWAY
   char *buffer = strdup(text.stripWhiteSpace().ascii());
   ResultObject ro = Append_Input_Buffer( 0, text.length(), buffer);
   free( buffer );
-#endif // OLDWAY
 
   output->append( prompt );
   output->moveCursor(QTextEdit::MoveEnd, FALSE);

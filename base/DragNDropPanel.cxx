@@ -129,23 +129,12 @@ DragNDropPanel::DropPanel( PanelContainer *sourcePC, bool doubleClickedFLAG )
     targetPC = sourcePC->findPanelContainerByMouseLocation();
   }
 
-#ifdef OLDWAY
-#ifndef OLD_DRAG_AND_DROP
-  // We only care about this value if we've tried to drop on ourself.
-  // Otherwise, set the value to null and drop the Panel on the desktop.
-  if( targetPC != sourcePC )
-  {
-    targetPC = NULL;
-  }
-#endif // OLD_DRAG_AND_DROP
-#else // OLDWAY
   // We only care about this value if we've tried to drop on ourself.
   // Set the value to null and drop the Panel on the desktop.
   if( targetPC == sourcePC )
   {
     targetPC = NULL;
   }
-#endif // OLDWAY
 
   // Make sure there is a valid place to drop it.
   if( sourcePC == targetPC || sourcePC->tabWidget == NULL )
@@ -253,11 +242,6 @@ DragNDropPanel::DropPanel( PanelContainer *sourcePC, bool doubleClickedFLAG )
   // Now move the panel to the new panel container (targetPC).  
   nprintf(DEBUG_DND) ("move the panel for the drag-n-drop.\n");
   sourcePC->getMasterPC()->movePanel( p, currentPage, targetPC);
-
-  // Once you know this happened correctly!
-#ifdef OLDWAY
-  delete( DragNDropPanel::sourceDragNDropObject );
-#endif // OLDWAY
 
   nprintf(DEBUG_DND) ("\n\n\n");
 }

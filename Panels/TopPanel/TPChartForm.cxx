@@ -41,11 +41,7 @@ TPChartForm::contentsContextMenuEvent( QContextMenuEvent *e)
 {
   nprintf(DEBUG_PANELS) ("TPChartForm::contentsContextMenuEvent() entered\n");
 
-#ifdef OLDWAY
-  createPopupMenu( e->pos() );
-#else // OLDWAY
   createPopupMenu( QCursor::pos() );
-#endif // OLDWAY
 }
 
 QPopupMenu*
@@ -62,12 +58,6 @@ TPChartForm::createPopupMenu( const QPoint & pos )
   topFivePanel->menu(panelMenu);
   popupMenu->insertSeparator();
   popupMenu->insertItem("&Panel Menu", panelMenu, CTRL+Key_P );
-
-#ifdef ANOTHER_WAY
-  // Now look to see if there are any dynamic menus to add.
-  popupMenu->insertSeparator();
-  topFivePanel->createChartPopupMenu(popupMenu, pos);
-#endif // ANOTHER_WAY
 
   popupMenu->exec( pos );
 

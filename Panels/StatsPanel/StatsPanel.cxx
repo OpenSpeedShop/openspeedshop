@@ -185,24 +185,7 @@ StatsPanel::updateStatsPanelData()
     MetricHeaderInfo *mhi = (MetricHeaderInfo *)*pit;
     QString s = mhi->label;
     lv->addColumn( s );
-#ifdef OLDWAY
-// This next comment out call and if-else block should be replaced with 
-// calls to the cli->frameWorks getMetricType(...) routines.   This is 
-// contrived for the demo test case.
-// getMetricType(i);
-if( i == 1 || i == 5 || i == 6 )
-{
-  headerTypeArray[i] = INT_T;
-} else if( i == 0 || i == 2 )
-{
-  headerTypeArray[i] = FLOAT_T;
-} else
-{
-  headerTypeArray[i] = CHAR_T;
-}
-#else // OLDWAY
   metricHeaderTypeArray[i] = mhi->type;
-#endif // OLDWAY
   
     columnList.push_back( s );
     i++;

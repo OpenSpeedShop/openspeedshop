@@ -54,13 +54,3 @@ TPTextEdit::createPopupMenu( const QPoint & pos )
   topFivePanel->createTextEditPopupMenu(popupMenu, pos);
   return popupMenu;
 }
-
-#ifdef OLDWAY
-void
-TPTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
-{
-  nprintf(DEBUG_PANELS) ("TPTextEdit::contentsMouseMoveEvent() entered\n");
-
-  topFivePanel->armPanelsWhatsThis();
-}
-#endif // OLDWAY
