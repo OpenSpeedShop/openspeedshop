@@ -66,11 +66,11 @@ splitter->setHandleWidth(1);
   statArea->setLeftMargin(0);
   statArea->setShowGrid(FALSE);
 
-  textEditLayoutFrame = new QFrame( splitter );
+  textEditLayoutFrame = new QFrame( splitter, "New QFrame" );
   textEditLayout = new QVBoxLayout( textEditLayoutFrame );
 
-  textEditHeaderLayout = new QHBoxLayout( textEditLayoutFrame, 1, 2, "textEditHeaderLayout" );
-  textEditLayout->addLayout( textEditHeaderLayout);
+  textEditHeaderLayout = new QHBoxLayout( textEditLayout, 2, "textEditHeaderLayout" );
+  textEditHeaderLayout->setMargin(1);
 
   label = new QLabel( textEditLayoutFrame, "text label", 0 );
   label->setCaption("SourcePanel: text label");
