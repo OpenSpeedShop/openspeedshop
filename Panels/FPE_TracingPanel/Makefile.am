@@ -51,6 +51,7 @@ moc_FPE_TracingPanel.cxx: FPE_TracingPanel.hxx
 	-moc -o moc_FPE_TracingPanel.cxx FPE_TracingPanel.hxx
 
 FPE_TracingPanel_la_SOURCES = \
-	FPE_TracingPanel.hxx
+	FPE_TracingPanel.hxx FPE_TracingPanel.cxx moc_FPE_TracingPanel.cxx \
+	local_plugin_info.hxx
 
 CLEANFILES=moc_FPE_TracingPanel.cxx
