@@ -17,7 +17,7 @@ using namespace std;
 using namespace OpenSpeedShop::cli;
 
 command_type_t OpenSpeedShop::cli::cmd_desc[CMD_MAX] = {
-    "",false,CMD_HEAD_ERROR, /* used in error reporting */
+    "ERROR",	    false,  CMD_HEAD_ERROR, /* used in error reporting */
     "expAttach",    false,  CMD_EXP_ATTACH,
     "expClose",     false,  CMD_EXP_CLOSE,
     "expCreate",    false,  CMD_EXP_CREATE,
@@ -31,22 +31,27 @@ command_type_t OpenSpeedShop::cli::cmd_desc[CMD_MAX] = {
     "expSave",	    false,  CMD_EXP_SAVE,
     "expSetparm",   false,  CMD_EXP_SETPARAM,
     "expView",	    false,  CMD_EXP_VIEW,
+
+    "listBreaks",   true,   CMD_LIST_BREAKS,
     "listExp",	    true,   CMD_LIST_EXP,
     "listHosts",    true,   CMD_LIST_HOSTS,
-    "listObj",	    true,   CMD_LIST_OBJ,
-    "listPids",     true,   CMD_LIST_PIDS,
-    "listSrc",	    true,   CMD_LIST_SRC,
     "listMetrics",  true,   CMD_LIST_METRICS,
+    "listObj",	    true,   CMD_LIST_OBJ,
     "listParams",   true,   CMD_LIST_PARAMS,
+    "listPids",     true,   CMD_LIST_PIDS,
+    "listRanks",    true,   CMD_LIST_RANKS,
     "listReports",  true,   CMD_LIST_REPORTS,
-    "listBreaks",   true,   CMD_LIST_BREAKS,
+    "listSrc",	    true,   CMD_LIST_SRC,
+    "listStatus",   true,   CMD_LIST_STATUS,
+    "listThreads",  true,   CMD_LIST_THREADS,
     "listTypes",    true,   CMD_LIST_TYPES,
+
     "clearBreak",   false,  CMD_CLEAR_BREAK,
     "exit", 	    false,  CMD_EXIT,
-    "openGui",	    false,  CMD_OPEN_GUI,
     "help", 	    false,  CMD_HELP,
     "history",	    false,  CMD_HISTORY,
     "log",  	    false,  CMD_LOG,
+    "openGui",	    false,  CMD_OPEN_GUI,
     "playback",     false,  CMD_PLAYBACK,
     "record",	    false,  CMD_RECORD,
     "setBreak",     false,  CMD_SETBREAK

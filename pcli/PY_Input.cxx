@@ -57,7 +57,6 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     }
 
     yyin = fopen("/usr/tmp/jack.tmp","w+");
-//    memset(&command,0,sizeof(command_t));
 
     fprintf(yyin,"%s\n", input_line);
     rewind(yyin);
@@ -69,7 +68,7 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     fclose(yyin); 
     
     // testing code
-    //parse_result.dumpInfo();
+    parse_result.dumpInfo();
 
    // Build a CommandObject so that the semantic routines can be called.
     cmd = new CommandObject (&parse_result);
@@ -79,7 +78,6 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     {
       std::list<CommandResult *> cmd_result = cmd->Result_List();
       std::list<CommandResult *>::iterator cri;
-      //bool list_returned = command_list[cmd->Type()];
       bool list_returned = cmd_desc[cmd->Type()].ret_list;
 
       if (!list_returned && (cmd_result.size() > 1)) {
