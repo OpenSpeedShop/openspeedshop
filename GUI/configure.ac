@@ -70,7 +70,7 @@ AC_SUBST(LTDLINCL)
 AC_SUBST(LIBLTDL)
 AC_LIBTOOL_DLOPEN
 AC_PROG_LIBTOOL
-AC_CONFIG_SUBDIRS(base objects expr_info plugin ftf chart cli Panels Panels/ToolbarPanel Panels/pcSamplePanel Panels/pcSamplePanel/pcSamplePanelWizard Panels/pcSamplePanel/pcSamplePanelControl Panels/UserTimePanelWizard Panels/SourcePanel Panels/CmdPanel Panels/TopPanel Panels/GettingStartedPanel/GettingStartedClass Panels/GettingStartedPanel Panels/PerformancePanel Panels/UserTimePanel Panels/IntroWizardPanel )  
+AC_CONFIG_SUBDIRS(base objects expr_info ftf plugin chart cli gui Panels Panels/ToolbarPanel Panels/pcSamplePanel Panels/pcSamplePanel/pcSamplePanelWizard Panels/pcSamplePanel/pcSamplePanelControl Panels/UserTimePanelWizard Panels/SourcePanel Panels/CmdPanel Panels/TopPanel Panels/GettingStartedPanel/GettingStartedClass Panels/GettingStartedPanel Panels/PerformancePanel Panels/UserTimePanel Panels/IntroWizardPanel )  
 
 AC_PROG_INSTALL
 
