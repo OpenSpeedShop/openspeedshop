@@ -129,6 +129,14 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n, char *argument) : Pa
   label->show();
 
   textEdit->setFocus();
+  if( getShowStatistics() == TRUE )
+  {
+    showCanvasForm();
+  }
+  if( getShowLineNumbers() == TRUE )
+  {
+    showLineNumbers();
+  }
 }
 
 
@@ -262,10 +270,19 @@ void
 SourcePanel::preferencesChanged()
 {
 // printf("SourcePanel::preferencesChanged()\n");
-  bool show_stats_val = getShowStatistics();
+
+  bool new_show_stats_val = getShowStatistics();
 // printf("  show_stats_val=%d\n", show_stats_val );
+  if( statsFLAG != new_show_stats_val )
+  {
+    showCanvasForm();
+  }
   bool show_line_numbers_val = getShowLineNumbers();
 // printf("  show_line_numbers_val=%d\n", show_line_numbers_val );
+  if( line_numbersFLAG != show_line_numbers_val )
+  {
+    showLineNumbers();
+  }
 }
 
 /*! 
@@ -476,7 +493,7 @@ SourcePanel::showCanvasForm()
   {
     statsFLAG = FALSE;
     canvasForm->hide();
-canvasForm2->hide();
+    canvasForm2->hide();
   } else
   {
     // I don't know why, but the splitter resizes after I've already resized it
