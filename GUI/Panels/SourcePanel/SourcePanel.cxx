@@ -373,7 +373,7 @@ SourcePanel::loadFile(const QString &_fileName)
   {
     QString msg;
     msg = QString("Unable to open file: %1").arg(fileName);
-    QMessageBox::information( (QWidget *)this, "Details...",
+    QMessageBox::information( (QWidget *)this, tr("Details..."),
                                msg, QMessageBox::Ok );
     return;
   }
@@ -440,6 +440,8 @@ SourcePanel::details()
 {
   nprintf(DEBUG_PANELS) ("SourcePanel::details() entered\n");
 
+
+#ifdef ONEWAY
   int para = 0;
   int index = 0;
   textEdit->getCursorPosition(&para, &index);
@@ -449,8 +451,25 @@ SourcePanel::details()
 
   QString msg;
   msg = QString("Details?\nDescription for line %1: %2").arg(para).arg(desc);
-  QMessageBox::information( (QWidget *)this, "Details...",
+  QMessageBox::information( (QWidget *)this, tr("Details..."),
     msg, QMessageBox::Ok );
+#else // ONEWAY
+  // This is a redundant check when called from the menus.  But when called
+  // from other places it simplfies the coding.
+  int line = whatIsAtPos(textEdit->lastPos);
+  if( line <= 0 )
+  {
+    return;
+  }
+
+  char *desc = getDescription(textEdit->paragraphAt(textEdit->lastPos));
+
+  QString msg;
+  msg = QString("Details?\nDescription for line %1: %2").arg(line).arg(desc);
+  QMessageBox::information( (QWidget *)this, tr("Details..."),
+    msg, QMessageBox::Ok );
+#endif  // ONEWAY
+
 }
 
 /*! prototype: Display the who calls me information. */

@@ -229,6 +229,9 @@ statusLabelText->setText( tr("Process running...") );
 {
 qApp->processEvents(500);
 sleep(5);
+statusLabelText->setText( tr("Performance data available.  Click update arrow for a report...") );
+qApp->processEvents(500);
+sleep(5);
 statusLabelText->setText( tr("Process completed...") );
 qApp->processEvents(500);
 pco->attachProcessButton->setEnabled(TRUE);

@@ -51,6 +51,8 @@ QPopupMenu*
 MyQTextEdit::createPopupMenu( const QPoint & pos )
 {
   dprintf("Hello from down under the hood.\n");
+  if( popupTimer ) popupTimer->stop();
+  if( sleepTimer ) sleepTimer->stop();
 
   // First create the default Qt widget menu...
   QPopupMenu *popupMenu = QTextEdit::createPopupMenu(pos);
@@ -81,11 +83,7 @@ void
 MyQTextEdit::popupInfoAtLine()
 {
   printf("Popup up some info, if any....\n");
-  if( sourcePanel->whatIsAtPos(last_pos) )
-  {
-    int line = sourcePanel->textEdit->paragraphAt(last_pos);
-    printf("What is at line %d that's so interesting?\n", line);
-  }
+  sourcePanel->details();
 }
 
 void
@@ -93,12 +91,12 @@ MyQTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
 {
 //  printf("MyQTextEdit::contentsMouseMoveEvent() entered\n");
 
-  last_pos = e->pos();
+  lastPos = e->pos();
 
   if( sleepTimer && sleepTimer->isActive() )
   { // If we're sleeping, just ignore this...
 //    printf("we're sleeping, just return.\n");
-    sleepTimer->start(2000, TRUE);
+    sleepTimer->start(1000, TRUE);
     return;
   } else
   { // Otherwise, check to see if there's a timer set.   If it is set
@@ -111,7 +109,7 @@ MyQTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
         sleepTimer = new QTimer(this, "sleepTimer");
         connect( sleepTimer, SIGNAL(timeout()), this, SLOT(wakeupFromSleep()) );
       }
-      sleepTimer->start(2000, TRUE);
+      sleepTimer->start(1000, TRUE);
       popupTimer->stop();
     } else
     {
@@ -125,7 +123,7 @@ MyQTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
       {
         sleepTimer->stop();
       }
-      popupTimer->start(2000, TRUE);
+      popupTimer->start(1000, TRUE);
     }
   }
 

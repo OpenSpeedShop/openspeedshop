@@ -31,6 +31,7 @@ public:
     QPopupMenu* createPopupMenu( const QPoint & pos );
     QPopupMenu* createPopupMenu( ) { /* obsoleted function. */ return NULL; };
 
+    QPoint lastPos;
 protected: 
 #ifdef FINGERLINGER
     QTimer *popupTimer;
@@ -43,6 +44,5 @@ public slots:
     virtual void popupInfoAtLine();
 
 private:
-    QPoint last_pos;
 };
 #endif // MYQTEXTEDIT_H
