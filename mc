@@ -1,3 +1,4 @@
+#!/bin/sh
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 #
@@ -16,7 +17,6 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-#!/bin/sh
 if [ "$OPENSPEEDSHOP_INSTALL_DIR" = "" ]
 then
   echo "OPENSPEEDSHOP_INSTALL_DIR not set."
