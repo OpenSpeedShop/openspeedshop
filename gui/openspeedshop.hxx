@@ -115,6 +115,9 @@ class OpenSpeedshop : public QMainWindow
     //! The load file dialog.
     QFileDialog *lfd;
 
+    //! The save experiment dialog.
+    QFileDialog *sed;
+
     //! The save file dialog.
     QFileDialog *sfd;
 

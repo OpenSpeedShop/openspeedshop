@@ -128,7 +128,7 @@ void OpenSpeedshop::fileOpenExperiment()
 {
   SelectExperimentDialog *dialog = new SelectExperimentDialog(this, "Select Experiment To Open Dialog", TRUE);
 
-   QString expStr;
+  QString expStr;
   if( dialog->exec() == QDialog::Accepted )
   {
 // printf("QDialog::Accepted\n");
@@ -187,10 +187,73 @@ void OpenSpeedshop::fileSaveExperiment()
 */
 
   SelectExperimentDialog *dialog = new SelectExperimentDialog(this, "Select Experiment To Save Dialog", TRUE);
-QString expStr;
+
+  QString expStr;
   if( dialog->exec() == QDialog::Accepted )
   {
- printf("QDialog::Accepted\n");
+    const char *name = NULL;
+// printf("QDialog::Accepted\n");
+    int expID = 0;
+    PanelListViewItem *item = dialog->selectedExperiment(&expID);
+    Panel *p = NULL;
+    if( item )
+    {
+      p = item->panel;
+    }
+    if( p )
+    {
+      name = p->getName();
+      printf( "save panel name = (%s)\n", name );
+//      p->getPanelContainer()->raisePanel(p);
+    } else
+    {
+      QString expStr = QString("%1").arg(expID);
+      printf("Save the expiriment.  It's not loaded in the gui... only the cli\n");
+      printf("expID = (%d) \n", expID );
+    }
+// Begin save dialog
+    QString dirName = QString::null;
+    if( sed == NULL )
+    {
+      sed = new QFileDialog(this, "file dialog", TRUE );
+      sed->setCaption( QFileDialog::tr("Enter session name:") );
+      sed->setMode( QFileDialog::AnyFile );
+      QString types(
+                  "Image files (*.png *.xpm *.jpg);;"
+                  "Text files (*.txt);;"
+                  "(*.html);;"
+                  "(*.xls);;"
+                  "(*.ps);;"
+                  );
+      sed->setFilters( types );
+//    sed->setViewMode( QFileDialog::Detail );
+      sed->setDir(dirName);
+    }
+    sed->setSelection( QString(name)+QString(".txt") );
+  
+    char *fn = NULL;
+    QString fileName = QString::null;
+    if( sed->exec() == QDialog::Accepted )
+    {
+      fileName = sed->selectedFile();
+      if( !fileName.isEmpty() )
+      {
+        printf("fileName.ascii() = (%s)\n", fileName.ascii() );
+        fn = strdup(fileName.ascii());
+      } else
+      {
+        return;
+      }
+    }
+  
+//  printf("go and save the setup...\n");
+    if( !fileName.isEmpty() )
+    {
+      printf("Based on the extension name, save away the file.\n");
+      free(fn);
+    }
+// End save dialog
+
   }
 
 // printf("expStr = %s\n", expStr.ascii() );
