@@ -288,7 +288,8 @@ setup_signal_handler (int s)
     {
      // The gui will be started in a pthread and do it's own itinialization.
       extern void loadTheGUI(ArgStruct *);
-      loadTheGUI((ArgStruct *)NULL); // argStruct);
+//      loadTheGUI((ArgStruct *)NULL); // argStruct);
+      loadTheGUI((ArgStruct *)argStruct); // NULL);
 
 // The following is a timing hack -
 // if the TLI window hasn't been opened or didn't specify async input,
@@ -325,6 +326,9 @@ setup_signal_handler (int s)
     char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
   
     if( !plugin_directory ) exit(EXIT_FAILURE);
+
+    if( !gui_dl_name ) gui_dl_name = "ossgui.so";
+    if( !gui_entry_point ) gui_entry_point = "gui_init";
   
     sprintf(gui_plugin_file, "%s/%s", plugin_directory, gui_dl_name);
     void *dl_gui_object = dlopen((const char *)gui_plugin_file, (int)RTLD_LAZY );

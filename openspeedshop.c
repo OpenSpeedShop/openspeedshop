@@ -9,6 +9,8 @@ main( int argc, char ** argv ) {
   char *plugin_directory = getenv("OPENSPEEDSHOP_PLUGIN_PATH");
 
   if( !plugin_directory ) exit(EXIT_FAILURE);
+  if( !cli_dl_name ) cli_dl_name = "posscli.so";
+  if( !cli_entry_point ) cli_entry_point = "cli_init";
 
   sprintf(cli_plugin_file, "%s/%s", plugin_directory, cli_dl_name);
   void *dl_cli_object = dlopen((const char *)cli_plugin_file, (int)RTLD_LAZY );
