@@ -24,11 +24,11 @@ public:
     QPopupMenu* createPopupMenu( const QPoint & pos );
     QPopupMenu* createPopupMenu( ) { /* obsoleted function. */ return NULL; };
 
-    void annotateLine( int line, char *color );
+    void annotateScrollBarLine( int line, QColor);
+    void clearScrollBarLine(int line);
+    void clearScrollBar();
 protected: 
     void contentsMouseMoveEvent( QMouseEvent *e );
-
-    void paintEvent( QPaintEvent *e );
 
 public slots:
 

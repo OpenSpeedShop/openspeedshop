@@ -8,6 +8,7 @@
 #include "SourcePanel.hxx"
 
 #include <qscrollbar.h>
+#include <qpainter.h>
 
 #include "debug.hxx"
 
@@ -68,30 +69,11 @@ SPTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
   sourcePanel->armPanelsWhatsThis();
 }
 
-#include <qpainter.h>
 void
-SPTextEdit::paintEvent( QPaintEvent *e )
-{
-  printf("SPTextEdit::paintEvent() entered\n");
-  vbar = verticalScrollBar();
-  hbar = horizontalScrollBar();
-
-  if( vannotatePixmap != NULL )
-  { // Delete the old one.
-    delete vannotatePixmap;
-  }
-
-  // Create a new pixmap for the background of the vertical scrollbar.
-  vannotatePixmap = new QPixmap( vbar->width(), vbar->height() );
-  printf("depth=%d\n", vannotatePixmap->depth() );
-  vannotatePixmap->fill(vbar->backgroundColor());
-}
-
-void
-SPTextEdit::annotateLine(int line, char *color)
+SPTextEdit::annotateScrollBarLine(int line, QColor(color))
 {
 
-printf("SPTextEdit::annotateLine() line=%d color=%s\n", line, color);
+  nprintf(DEBUG_PANELS) ("SPTextEdit::annotateScrollBarLine() line=%d\n", line );
 
   if( vbar == NULL )
   {
@@ -108,5 +90,36 @@ printf("SPTextEdit::annotateLine() line=%d color=%s\n", line, color);
 
   p.setPen(color);
   p.drawLine(0,offset, sbWidth, offset );
+  vbar->setPaletteBackgroundPixmap( *vannotatePixmap );
+}
+
+void
+SPTextEdit::clearScrollBarLine(int line)
+{
+ nprintf(DEBUG_PANELS) ("SPTextEdit::clearScrollBarLine(%d) entered.", line);
+  if( vbar == NULL )
+  {
+    return;
+  }
+
+  annotateScrollBarLine(line, vbar->backgroundColor());
+}
+
+void
+SPTextEdit::clearScrollBar()
+{
+  nprintf(DEBUG_PANELS) ("Currently SPTextEdit::clearScrollBar() entered.\n");
+  vbar = verticalScrollBar();
+  hbar = horizontalScrollBar();
+
+  if( vannotatePixmap != NULL )
+  { // Delete the old one.
+    delete vannotatePixmap;
+  }
+
+  // Create a new pixmap for the background of the vertical scrollbar.
+  vannotatePixmap = new QPixmap( vbar->width(), vbar->height() );
+  nprintf(DEBUG_PANELS) ("depth=%d\n", vannotatePixmap->depth() );
+  vannotatePixmap->fill(vbar->backgroundColor());
   vbar->setPaletteBackgroundPixmap( *vannotatePixmap );
 }

@@ -442,6 +442,8 @@ SourcePanel::loadFile(const QString &_fileName)
 
   textEdit->show();
 
+  textEdit->clearScrollBar();
+
   if( sameFile == FALSE ) // Then position at top.
   {
     textEdit->moveCursor(QTextEdit::MoveHome, FALSE);
@@ -531,7 +533,7 @@ SourcePanel::highlightLine(int line, char *color, bool inverse)
   }
 
   // Annotate the scrollbar for this highlight....
-  textEdit->annotateLine(line, color);
+  textEdit->annotateScrollBarLine(line, QColor(color));
 }
 
 /*! Clear the highlight at the give line. */
@@ -553,7 +555,7 @@ SourcePanel::highlightSegment(int from_para, int from_index, int to_para, int to
   textEdit->setColor( color );
 
   // Annotate the scrollbar for this highlight....   (from_para == the line.)
-  textEdit->annotateLine(from_para, color);
+  textEdit->annotateScrollBarLine(from_para, QColor(color));
 }
 
 /*! Clear the highlighted segment. */
