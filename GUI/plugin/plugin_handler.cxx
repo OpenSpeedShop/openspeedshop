@@ -190,7 +190,8 @@ void initialize_plugins(QWidget *pl, PanelContainer *masterPC)
   char target[1024];
   const char *pattern = "*.so";
   sprintf(target, "%s/%s", plugin_directory, pattern);
-  int flags = GLOB_NOSORT | GLOB_ERR | GLOB_MARK | GLOB_TILDE;
+//  int flags = GLOB_NOSORT | GLOB_ERR | GLOB_MARK | GLOB_TILDE;
+  int flags = GLOB_ERR | GLOB_MARK | GLOB_TILDE;
   glob_t *pglob = new glob_t;
 
   // Get all the files ending in ".so".   These are the plugin files...
