@@ -39,7 +39,6 @@
 
 #include "LoadAttachObject.hxx"
 
-#include "SS_Input_Manager.hxx"
 #include "CLIInterface.hxx"
 
 using namespace OpenSpeedShop::Framework;
@@ -60,6 +59,7 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n, void *argument) 
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("pcSamplePanel::pcSamplePanel() constructor called\n");
 
+  experiment = NULL;
   executableNameStr = QString::null;
   pidStr = QString::null;
 
@@ -197,8 +197,15 @@ if( !executableNameStr.isEmpty() || !pidStr.isEmpty() )
   topLevel = TRUE;
   topPC->topLevel = TRUE;
 
+// Look up the framework experiment and squirrel it away.
+  ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+  if( eo && eo->FW() )
+  {
+    experiment = eo->FW();
+  }
 
-  SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", topPC, (char *)expID);
+  char *name = "Source Panel";
+  SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel(name, (PanelContainer *)topPC, (void *)expID);
 
 // Begin demo position at dummy file... For the real stuff we'll need to 
 // look up the main()... and position at it...
@@ -221,8 +228,32 @@ if( expID == -1 )
       nprintf( DEBUG_CONST_DESTRUCT ) ("Positioned at main in %s ????? \n", buffer);
     }
   }
-}
+} else
+{
+  ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+  if( eo && eo->FW() )
+  {
+    experiment = eo->FW();
+  }
+  if( experiment != NULL );
+  {
+    ThreadGroup tgrp = experiment->getThreads();
+    ThreadGroup::iterator ti = tgrp.begin();
+    Thread thread = *ti;
+    Time time = Time::Now();
+    const std::string main_string = std::string("main");
+    OpenSpeedShop::Framework::Function function = thread.getFunctionByName(main_string, time);
+    Optional<Statement> statement_definition = function.getDefinition();
+    if(statement_definition.hasValue())
+    {
+        std::cout << " (" << statement_definition.getValue().getPath()
+              << ", " << statement_definition.getValue().getLine() << ")";
+    }
 
+    std::cout << std::endl;
+
+  }
+}
 
 }
 
@@ -705,6 +736,36 @@ if( !cli->runSynchronousCLI(command) )
 void
 pcSamplePanel::updateInitialStatus()
 {
+  if( experiment != NULL );
+  {
+    ThreadGroup tgrp = experiment->getThreads();
+    ThreadGroup::iterator ti = tgrp.begin();
+    Thread thread = *ti;
+    Time time = Time::Now();
+    const std::string main_string = std::string("main");
+    OpenSpeedShop::Framework::Function function = thread.getFunctionByName(main_string, time);
+    Optional<Statement> statement_definition = function.getDefinition();
+    if(statement_definition.hasValue())
+    {
+      std::cout << " (" << statement_definition.getValue().getPath()
+              << ", " << statement_definition.getValue().getLine() << ")";
+      std::cout << std::endl;
+      SourceObject *spo = new SourceObject("main", statement_definition.getValue().getPath(), statement_definition.getValue().getLine()-1, TRUE, NULL);
+  
+      if( broadcast((char *)spo, NEAREST_T) == 0 )
+      { // No source view up...
+        char *panel_type = "Source Panel";
+  //Find the nearest toplevel and start placement from there...
+        Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, NULL, (void *)groupID);
+        if( p != NULL )
+        {
+          p->listener((void *)spo);
+        }
+      }
+    }
+  }
+
+#ifdef OLDWAY
   if( !mw->executableName.isEmpty() )
   {
 
@@ -757,6 +818,7 @@ pco->updateButton->enabledFLAG = TRUE;
     pco->runButton->enabledFLAG = FALSE;
     return;
   }
+#endif // OLDWAY
 }
 
 /*
@@ -842,8 +904,8 @@ printf("load the stats panel.\n");
 ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
 if( eo && eo->FW() )
 {
-  Experiment *fw_experiment = eo->FW();
-  UpdateObject *msg = new UpdateObject((void *)fw_experiment, expID, "pcsamp", 1);
+  experiment = eo->FW();
+  UpdateObject *msg = new UpdateObject((void *)experiment, expID, "pcsamp", 1);
     p->listener( (void *)msg );
 }
   }

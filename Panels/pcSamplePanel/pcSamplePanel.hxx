@@ -32,6 +32,8 @@
 #include <qtimer.h>
 #include <qprogressdialog.h>
 
+#include "SS_Input_Manager.hxx"
+
 class PanelContainer;   // Do not remove
 class QLabel;
 class QLineEdit;
@@ -143,7 +145,7 @@ private:
   OpenSpeedshop *mw;
  
   int expID;  // Experiment ID of the expCreate, returned from the cli
-OpenSpeedShop::Framework::Experiment *experiment;
+  OpenSpeedShop::Framework::Experiment *experiment;
 
   void updateInitialStatus();
 
