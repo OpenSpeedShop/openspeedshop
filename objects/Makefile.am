@@ -17,19 +17,19 @@
 ################################################################################
 
 
-pkglib_LTLIBRARIES = libopenss-Objects.la
+lib_LTLIBRARIES = libopenss-Objects.la
 
 libopenss_Objects_la_CXXFLAGS = \
 	-I/usr/include \
 	-I$(QTDIR)/include \
 	-I. \
-	-I.. \
-	-I../images \
-	-I../base \
-	-I../plugin \
+	-I$(top_srcdir) \
+	-I$(top_srcdir)/images \
+	-I$(top_srcdir)/base \
+	-I$(top_srcdir)/plugin \
 	-I$(QTDIR)
 
-libopenss_Objects_la_LDFLAGS = --export-dynamic -module -avoid-version
+libopenss_Objects_la_LDFLAGS = --export-dynamic -avoid-version
 
 libopenss_Objects_la_LIBADD = $(LIBLTDL)
 

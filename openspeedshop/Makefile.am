@@ -28,7 +28,7 @@ openspeedshop_LDADD = \
 	-lc $(LIBLTDL)
 
 openspeedshop_LDFLAGS = \
-	--export-dynamic --export-all-symbols -module -avoid-version
+	--export-dynamic --export-all-symbols -avoid-version
 
 openspeedshop_SOURCES = \
 	openspeedshop.c

@@ -16,18 +16,18 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-pkglib_LTLIBRARIES = libopenss-Plugin.la
+lib_LTLIBRARIES = libopenss-Plugin.la
 
 libopenss_Plugin_la_CXXFLAGS =  \
 	-I/usr/include \
 	-I$(QTDIR)/include \
 	-I. \
-	-I.. \
-	-I../base \
-	-I../gui \
+	-I$(top_srcdir) \
+	-I$(top_srcdir)/base \
+	-I$(top_srcdir)/gui \
     -DPLUGIN_PATH=\"$(pkglibdir)\"
 
-libopenss_Plugin_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
+libopenss_Plugin_la_LDFLAGS = --export-dynamic --export-all-symbols -avoid-version
 
 libopenss_Plugin_la_LIBADD = $(LIBLTDL)
 

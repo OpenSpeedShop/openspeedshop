@@ -24,13 +24,13 @@ libopenss_Base_la_CXXFLAGS = \
     -I/usr/include \
     -I$(QTDIR)/include \
     -I. \
-    -I../plugin \
-    -I../images \
-    -I../gui \
-    -I../base
+    -I$(top_srcdir)/plugin \
+    -I$(top_srcdir)/images \
+    -I$(top_srcdir)/gui \
+    -I$(top_srcdir)/base
 
 
-libopenss_Base_la_LDFLAGS = --export-dynamic -module -avoid-version
+libopenss_Base_la_LDFLAGS = --export-dynamic -avoid-version
 
 libopenss_Base_la_LIBADD = $(LIBLTDL)
 

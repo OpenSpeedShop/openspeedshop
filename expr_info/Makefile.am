@@ -17,7 +17,7 @@
 ################################################################################
 
 
-pkglib_LTLIBRARIES = libopenss-ExprInfo.la
+lib_LTLIBRARIES = libopenss-ExprInfo.la
 
 libopenss_ExprInfo_la_CXXFLAGS = \
 	-I/usr/include\
@@ -25,7 +25,7 @@ libopenss_ExprInfo_la_CXXFLAGS = \
 	 -I.\
 	 -I$(top_srcdir)/base
 
-libopenss_ExprInfo_la_LDFLAGS = --export-dynamic -module -avoid-version
+libopenss_ExprInfo_la_LDFLAGS = --export-dynamic -avoid-version
 
 libopenss_ExprInfo_la_LIBADD = $(LIBLTDL)
 

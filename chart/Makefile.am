@@ -16,16 +16,16 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-pkglib_LTLIBRARIES = libopenss-Chart.la
+lib_LTLIBRARIES = libopenss-Chart.la
 
 libopenss_Chart_la_CXXFLAGS = \
 	-I/usr/include \
 	-I$(QTDIR)/include \
 	-I. \
-	-I../plugin \
-	-I../base
+	-I$(top_srcdir)/plugin \
+	-I$(top_srcdir)/base
 
-libopenss_Chart_la_LDFLAGS = --export-dynamic -module -avoid-version
+libopenss_Chart_la_LDFLAGS = --export-dynamic -avoid-version
 
 libopenss_Chart_la_LIBADD = $(LIBLTDL)
 

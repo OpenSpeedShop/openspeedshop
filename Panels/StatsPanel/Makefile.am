@@ -16,21 +16,21 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-pkglib_LTLIBRARIES = libopenss-StatsPanel.la
+lib_LTLIBRARIES = libopenss-StatsPanel.la
 
 libopenss_StatsPanel_la_CXXFLAGS = \
     -I/usr/include \
     -I$(QTDIR)/include \
     -I. \
-    -I../../objects \
-    -I../../pcli \
-    -I../../libopenss-framework \
-    -I../../gui \
-    -I../../expr_info \
-    -I../../plugin \
-    -I../../base
+    -I$(top_srcdir)/objects \
+    -I$(top_srcdir)/pcli \
+    -I$(top_srcdir)/libopenss-framework \
+    -I$(top_srcdir)/gui \
+    -I$(top_srcdir)/expr_info \
+    -I$(top_srcdir)/plugin \
+    -I$(top_srcdir)/base
 
-libopenss_StatsPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
+libopenss_StatsPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -avoid-version
 
 libopenss_StatsPanel_la_LIBADD = -L$(QTDIR)/lib -lqt ../../libopenss-framework/.libs/libopenss-framework.so 
 
