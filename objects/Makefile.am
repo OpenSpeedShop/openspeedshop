@@ -58,9 +58,11 @@ libopenss_Objects_la_SOURCES = \
 	ProcessListObject.hxx ProcessListObject.cxx \
 	CollectorListObject.hxx CollectorListObject.cxx \
 	OutputObject.hxx OutputObject.cxx \
-	AnimatedQPushButton.hxx AnimatedQPushButton.cxx moc_AnimatedQPushButton.cxx \
-	InfoEventFilter.hxx InfoEventFilter.cxx moc_InfoEventFilter.cxx \
-	ProcessControlObject.hxx ProcessControlObject.cxx moc_ProcessControlObject.cxx
+	AnimatedQPushButton.hxx AnimatedQPushButton.cxx \
+	InfoEventFilter.hxx InfoEventFilter.cxx \
+	ProcessControlObject.hxx ProcessControlObject.cxx \
+	CollectorParameterEntryClass.hxx
 
 
-CLEANFILES=moc_AnimatedQPushButton.cxx moc_ProcessControlObject.cxx moc_InfoEventFilter.cxx
+#CLEANFILES=moc_AnimatedQPushButton.cxx moc_ProcessControlObject.cxx moc_InfoEventFilter.cxx
+CLEANFILES=moc_*.cxx
