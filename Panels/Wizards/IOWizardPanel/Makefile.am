@@ -32,7 +32,7 @@ IOWizardPanel_la_CXXFLAGS = \
 
 IOWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
-IOWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt -lopenss-Base  ../../../objects/.libs/ossObjects.so ../../../dialogs/.libs/ossDialogs.so
+IOWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt -lopenss-Base  ../../../objects/.libs/ossObjects.so -lopenss-Dialogs
 
 moc_IOWizardPanel.cxx: IOWizardPanel.hxx
 	-moc -o moc_IOWizardPanel.cxx IOWizardPanel.hxx

@@ -16,9 +16,9 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-pkglib_LTLIBRARIES = ossDialogs.la
+pkglib_LTLIBRARIES = libopenss-Dialogs.la
 
-ossDialogs_la_CXXFLAGS = \
+libopenss_Dialogs_la_CXXFLAGS = \
 	-I/usr/include \
 	-I$(QTDIR)/include \
 	-I. \
@@ -32,9 +32,9 @@ ossDialogs_la_CXXFLAGS = \
     -I../objects \
 	-I$(QTDIR)
 
-ossDialogs_la_LDFLAGS = --export-dynamic -module -avoid-version
+libopenss_Dialogs_la_LDFLAGS = --export-dynamic -module -avoid-version
 
-ossDialogs_la_LIBADD = $(LIBLTDL) ../objects/.libs/ossObjects.so
+libopenss_Dialogs_la_LIBADD = $(LIBLTDL) ../objects/.libs/ossObjects.so
 
 moc_AttachProcessDialog.cxx: AttachProcessDialog.hxx
 	-moc -o moc_AttachProcessDialog.cxx AttachProcessDialog.hxx
@@ -42,7 +42,7 @@ moc_AttachProcessDialog.cxx: AttachProcessDialog.hxx
 moc_SelectExperimentDialog.cxx: SelectExperimentDialog.hxx
 	-moc -o moc_SelectExperimentDialog.cxx SelectExperimentDialog.hxx
 
-ossDialogs_la_SOURCES = \
+libopenss_Dialogs_la_SOURCES = \
 	AttachProcessDialog.hxx AttachProcessDialog.cxx moc_AttachProcessDialog.cxx \
 	PanelListViewItem.hxx PanelListViewItem.cxx \
 	SelectExperimentDialog.hxx SelectExperimentDialog.cxx moc_SelectExperimentDialog.cxx

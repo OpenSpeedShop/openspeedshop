@@ -31,9 +31,9 @@ ossgui_la_CXXFLAGS =  \
 	-I../objects \
 	-I../base
 
-ossgui_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../plugin/.libs/libopenss_Plugin.so -Wl,../objects/.libs/ossObjects.so -Wl,../dialogs/.libs/ossDialogs.so -Wl,../pcli/.libs/posscli.so
+ossgui_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../plugin/.libs/libopenss_Plugin.so -Wl,../objects/.libs/ossObjects.so -Wl,../pcli/.libs/posscli.so
 
-ossgui_la_LIBADD = -L$(QTDIR)/lib -lqt -lqassistantclient -L/usr/X11R6/lib -lXext -lX11 -lm -lpthread -lopenss-Base
+ossgui_la_LIBADD = -L$(QTDIR)/lib -lqt -lqassistantclient -L/usr/X11R6/lib -lXext -lX11 -lm -lpthread -lopenss-Base -lopenss-Dialogs
 
 moc_CLIInterface.cxx: CLIInterface.hxx
 	-moc -o moc_CLIInterface.cxx CLIInterface.hxx

@@ -32,7 +32,7 @@ MPIWizardPanel_la_CXXFLAGS = \
 
 MPIWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
-MPIWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt -lopenss-Base ../../../objects/.libs/ossObjects.so ../../../dialogs/.libs/ossDialogs.so
+MPIWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt -lopenss-Base ../../../objects/.libs/ossObjects.so -lopenss-Dialogs
 
 moc_MPIWizardPanel.cxx: MPIWizardPanel.hxx
 	-moc -o moc_MPIWizardPanel.cxx MPIWizardPanel.hxx
