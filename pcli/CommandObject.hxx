@@ -101,6 +101,8 @@ class CommandObject
   Command_Status Cmd_Status;
   oss_cmd_enum Cmd_Type; // A copy of information in the Parse_Result.
   command_t *Parse_Result;
+  // command_type_t *Parse_Result;
+  OpenSpeedShop::cli::ParseResult *PR;
   bool results_used; // Once used, this object can be deleted!
   std::list<CommandResult *> CMD_Result;
 
@@ -123,6 +125,16 @@ public:
     Cmd_Status = CMD_PARSED;
     Cmd_Type =  P->type;
     Parse_Result = P;
+    PR = NULL;
+    results_used = false;
+  }
+  CommandObject(OpenSpeedShop::cli::ParseResult *pr)
+  {
+    this->Associate_Input ();
+    Cmd_Status = CMD_PARSED;
+    Cmd_Type =  pr->GetCommandType();
+    Parse_Result = NULL;
+    PR = pr;
     results_used = false;
   }
   ~CommandObject() {
@@ -132,7 +144,9 @@ public:
   Command_Status Status () { return Cmd_Status; }
   oss_cmd_enum Type () { return Cmd_Type; }
   bool Results_Used () { return results_used; }
-  command_t *P_Result () { return Parse_Result; }
+  OpenSpeedShop::cli::ParseResult *P_Result () { return PR; }
+  // command_t *P_Result () { return Parse_Result; }
+  //command_type_t *P_Result () { return Parse_Result; }
     
   void SetSeqNum (int a) { Seq_Num = a; }
   void set_Status (Command_Status S); // defined in CommandObject.cxx
