@@ -181,6 +181,21 @@ StatsPanel::updateStatsPanelData()
   for( int i=0; i<COLUMNS_OF_INFO; i++ )
   {
     lv->addColumn( header_strings[i] );
+// This next comment out call and if-else block should be replaced with 
+// calls to the cli->frameWorks getMetricType(...) routines.   This is 
+// contrived for the demo test case.
+// getMetricType(i);
+if( i == 1 || i == 5 || i == 6 )
+{
+  headerTypeArray[i] = INT_T;
+} else if( i == 0 || i == 2 )
+{
+  headerTypeArray[i] = FLOAT_T;
+} else
+{
+  headerTypeArray[i] = CHAR_T;
+}
+  
     columnList.push_back( QString(header_strings[i]) );
   }
 
@@ -219,9 +234,9 @@ StatsPanel::updateStatsPanelData()
     sprintf(exclusivestr, "%f", fi->exclusive_seconds);
     sprintf(startlinenostr, "%d", fi->start);
     sprintf(endlinenostr, "%d", fi->end);
-    lvi=  new SPListViewItem( lv, percentstr, rankstr, exclusivestr, funcstr, filestr, startlinenostr, endlinenostr );
-      lvi = new SPListViewItem( lvi, "SubText", QString("Additional Text for Rank ")+QString(rankstr) );
-        (void)new SPListViewItem( lvi, "SubSubText", QString("Additional Text for Rank ")+QString(rankstr) );
+    lvi=  new SPListViewItem( this, lv, percentstr, rankstr, exclusivestr, funcstr, filestr, startlinenostr, endlinenostr );
+      lvi = new SPListViewItem( this, lvi, "SubText", QString("Additional Text for Rank ")+QString(rankstr) );
+        (void)new SPListViewItem( this, lvi, "SubSubText", QString("Additional Text for Rank ")+QString(rankstr) );
     i++;
   }
 

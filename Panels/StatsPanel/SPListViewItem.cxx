@@ -15,14 +15,16 @@
 /*! Work constructor.   Set's the name of the frame, the pointer to the
     parent panel container, and the frame shape and shadow characteristics.
 */
-SPListViewItem::SPListViewItem( QListView * parent, QString label1, QString label2, QString label3, QString label4, QString label5, QString label6, QString label7, QString label8 )
+SPListViewItem::SPListViewItem( StatsPanel *sp, QListView * parent, QString label1, QString label2, QString label3, QString label4, QString label5, QString label6, QString label7, QString label8 )
      : QListViewItem( parent, label1, label2, label3, label4, label5, label6, label7, label8 )
 {
+  statsPanel = sp;
 }
 
-SPListViewItem::SPListViewItem( SPListViewItem * parent, QString label1, QString label2, QString label3, QString label4, QString label5, QString label6, QString label7, QString label8 )
+SPListViewItem::SPListViewItem( StatsPanel *sp, SPListViewItem * parent, QString label1, QString label2, QString label3, QString label4, QString label5, QString label6, QString label7, QString label8 )
      : QListViewItem( (SPListViewItem *)parent, label1, label2, label3, label4, label5, label6, label7, label8 )
 {
+  statsPanel = sp;
 }
 
 /*! The default destructor. */
@@ -37,12 +39,12 @@ SPListViewItem::key(int c, bool b) const
 {
   dprintf("GROWL! c=%d\n", c);
   QString s;
-  if( c==1 || c==5 || c==6)
+  if( statsPanel->headerTypeArray[c] == INT_T )
   {
     /* sorting by int */
     dprintf("sort by int\n");
     s.sprintf("%08d",text(c).toInt());
-  } else if(c==0 || c==2)
+  } else if( statsPanel->headerTypeArray[c] == FLOAT_T )
   {
     dprintf("sort by float %07.2lf\n", text(c).toDouble() );
     /* sorting by float */
