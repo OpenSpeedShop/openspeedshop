@@ -43,7 +43,11 @@ int main(int argc, char **argv)
 {
   int i = 1;
 
+  printf("hello, from fred_calls_ted.\n");
+
   init();
 
   foo(&i);
+
+  printf("fred_calls_ted is now retired.\n");
 }
