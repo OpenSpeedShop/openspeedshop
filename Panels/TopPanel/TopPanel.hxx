@@ -10,6 +10,7 @@ class ExprInfo;
 #include <qtextedit.h>
 #include <qlistview.h>
 #include <qcolor.h>
+#include <qfile.h>
 
 class TPChartForm;
 class QHBoxLayout;
@@ -83,6 +84,9 @@ public:
 
   //! If the line is highlighted, return its' description.
   QString getDescription(int line);
+
+//! This is underlying save functionality.
+void doSaveAs(QFile *f);
 
 public slots:
   void setOrientation();

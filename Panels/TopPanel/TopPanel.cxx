@@ -215,55 +215,27 @@ TopPanel::saveAs()
     fprintf(stderr, "No html filename provided.\n");
   } else
   {
+    QFile file( fn.ascii() );
     nprintf(DEBUG_PANELS) ("fn = %s\n", fn.ascii() );
-    QString filename = fn+ ".png";
-    cf->fileSaveAsPixmap(filename);
-  }
-
-
-  QFile file( fn.ascii() );
-  if( file.open( IO_WriteOnly ) ) 
-  {
-    QTextStream stream( &file );
-    stream << "<html>";
-    stream << "<head>";
-    stream << "<meta content=\"text/html; charset=ISO-8859-1\" \
-                 http-equiv=\"content-type\"> ";
-    stream << "<title>pcSampleReport Title</title>";
-    stream << "</head>";
-    stream << "<body>";
-    stream << "<h2>pcSample Report Header Line</h2><br><br>\n";
-
-    stream << "<img style=\"width: 130px; height: 165px;\" alt=\"pie chart diagram.\" src=\"";
-    stream << fn+".png";
-    stream << "\"><br>\n";
-
-    stream << "<br>\n";
-    stream << "<pre>\n";
-
-    int lineCount = textEdit->paragraphs();
-    for( int i=0; i<lineCount; i++ )
+    if( file.open( IO_WriteOnly ) ) 
     {
-        stream << textEdit->text(i);;
-        stream << "\n";
+      doSaveAs(&file);
+      file.close();
     }
-    stream << "<br>\n";
-    stream << "<br>\n";
-    stream << "</pre>\n";
-    stream << "End of pcSample report\n";
-    stream << "</body>";
-    stream << "</html>";
   }
-  file.close();
+
 }
 
 /*!
  * Add message listener() functionality here.
  */
+#include "SaveAsObject.hxx"
 int 
 TopPanel::listener(void *msg)
 {
   nprintf(DEBUG_MESSAGES) ("TopPanel::listener() requested.\n");
+  SaveAsObject *sao = NULL;
+
 #ifdef DEMO
 // Just force a position to the top line....  Big Kludge... for demo.
 if( msg == NULL )
@@ -273,6 +245,26 @@ if( msg == NULL )
   itemSelected( element );
 }
 #endif // DEMO
+
+  if( msg == NULL )
+  {
+    return 0;
+  }
+
+  MessageObject *msgObject = (MessageObject *)msg;
+
+  if( msgObject->msgType == "SaveAsObject" )
+  {
+    sao = (SaveAsObject *)msg;
+    if( !sao )
+    {
+      return 0;  // 0 means, did not act on message.
+    }
+    printf("TopPanel::SaveAs\n");
+    doSaveAs(sao->f);
+  }
+
+  
   return 0;  // 0 means, did not want this message and did not act on anything.
 }
 
@@ -754,4 +746,35 @@ TopPanel::getDescription(int line)
 
   
   return(0);  // Return nothing highlighted.
+}
+
+void
+TopPanel::doSaveAs(QFile *f)
+{
+    QString filename = f->name()+ ".png";
+    cf->fileSaveAsPixmap(filename);
+
+    QTextStream stream( f );
+    stream << "<body>";
+    stream << "<h2>pcSample Report Header Line</h2><br><br>\n";
+
+    stream << "<img style=\"width: 130px; height: 165px;\" alt=\"pie chart diagram.\" src=\"";
+    stream << filename;
+    stream << "\"><br>\n";
+
+    stream << "<br>\n";
+    stream << "<pre>\n";
+
+    int lineCount = textEdit->paragraphs();
+    for( int i=0; i<lineCount; i++ )
+    {
+        stream << textEdit->text(i);;
+        stream << "\n";
+    }
+    stream << "<br>\n";
+    stream << "<br>\n";
+    stream << "</pre>\n";
+    stream << "End of pcSample report\n";
+    stream << "</body>";
+    stream << "</html>";
 }
