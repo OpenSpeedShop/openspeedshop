@@ -15,7 +15,3 @@
 ** along with this library; if not, write to the Free Software Foundation, Inc.,
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
-
-// The main switch that calls for specific views,
-// once we've figured out which one we wre being asked for.
-bool SS_Determine_View (CommandObject *cmd, ExperimentObject *exp, std::string viewname);
