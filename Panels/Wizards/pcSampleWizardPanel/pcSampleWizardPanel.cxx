@@ -1256,7 +1256,6 @@ printf("mw=0x%x\n", mw );
     {
       vAttachOrLoadPageExecutableLabel->setText( "" );
       eAttachOrLoadPageExecutableLabel->setText( "" );
-printf("here!\n");
       vAttachOrLoadPageLoadDifferentExecutableCheckBox->hide();
       eAttachOrLoadPageLoadDifferentExecutableCheckBox->hide();
     }
