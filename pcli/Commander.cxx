@@ -42,7 +42,9 @@ static pthread_cond_t  Async_Input_Available = PTHREAD_COND_INITIALIZER;
 // Input_Source
 #define DEFAULT_INPUT_BUFFER_SIZE 4096
 
-static char *current_prompt = "openss";
+char *Current_OpenSpeedShop_Prompt = "openss";
+static FILE *ttyin;  // Read directly from this xterm window.
+static FILE *ttyout; // Write directly to this xterm window.
 
 class Input_Source
 {
@@ -639,7 +641,20 @@ void Clip_Complete (InputLineObject *clip) {
 void Cmd_Obj_Complete (CommandObject *C) {
   InputLineObject *lin = C->Clip();
   Clip_Complete (lin);
-  lin->CallBackC (C);
+  if (!(lin->CallBackC (C))) {
+   // Print the CommandObject list
+    std::list<CommandResult *> cmd_object = C->Result_List();
+    std::list<CommandResult *>::iterator coi;
+    int num_results = 0;
+    for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
+      if (num_results++ != 0) fprintf(ttyout,"\n");
+      (*coi)->Print (ttyout);
+    }
+    if (num_results != 0) {
+      fprintf(ttyout,"\n");
+      SS_Issue_Prompt (ttyout);
+    }
+  }
 }
 
 int64_t Find_Command_Level (CMDWID WindowID)
@@ -973,7 +988,7 @@ bool Push_Input_File (CMDWID issuedbywindow, std::string fromfname) {
   return true;
 }
 
-// This routine continuously reads from stdin and appends the string to an input window.
+// This routine continuously reads from /dev/tty and appends the string to an input window.
 // It is intended that this routine execute in it's own thread.
 void SS_Direct_stdin_Input (void * attachtowindow) {
   Assert ((CMDWID)attachtowindow != 0);
@@ -982,12 +997,11 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
   int Buffer_Size= DEFAULT_INPUT_BUFFER_SIZE;
   char Buffer[Buffer_Size];
   Buffer[Buffer_Size-1] = *"\0";
-  FILE *ttyin = fopen ( "/dev/tty", "r" );  // Read directly from the xterm window
-  FILE *ttyout = fopen ( "/dev/tty", "w" );  // Write prompt directly to the xterm window
+  ttyin = fopen ( "/dev/tty", "r" );  // Read directly from the xterm window
+  ttyout = fopen ( "/dev/tty", "w" );  // Write prompt directly to the xterm window
   for(;;) {
     usleep (10000); /* DEBUG - give testing code time to react before splashing screen with prompt */
-    fprintf(ttyout,"%s->",current_prompt);
-    fflush (ttyout);
+    SS_Issue_Prompt (ttyout);
     Buffer[0] == *("\0");
     char *read_result = fgets (&Buffer[0], Buffer_Size, ttyin);
     if (Buffer[Buffer_Size-1] != (char)0) {
@@ -1065,7 +1079,7 @@ static void There_Must_Be_More_Input (CommandWindowID *cw) {
 
 InputLineObject *SpeedShop_ReadLine (int is_more)
 {
-  char *save_prompt = current_prompt;
+  char *save_prompt = Current_OpenSpeedShop_Prompt;
   InputLineObject *clip;
 
   CMDWID readfromwindow = select_input_window(is_more);
@@ -1073,7 +1087,7 @@ InputLineObject *SpeedShop_ReadLine (int is_more)
   bool I_HAVE_ASYNC_INPUT_LOCK = false;
   
   if (is_more) {
-    current_prompt = "....ss";
+    Current_OpenSpeedShop_Prompt = "....ss";
   }
 
 read_another_window:
@@ -1172,7 +1186,7 @@ read_another_window:
     Assert(pthread_mutex_unlock(&Async_Input_Lock) == 0);
   }
 
-  current_prompt = save_prompt;
+  Current_OpenSpeedShop_Prompt = save_prompt;
   if (clip == NULL) {
     return NULL;
   }
