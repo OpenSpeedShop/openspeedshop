@@ -30,6 +30,8 @@
 #include <qfile.h>  // For the file dialog box.
 #include <qtextstream.h>
 
+#define DEMO 1
+
 // This is only hear for the debugging tables....
 static char *color_name_table[10] =
   { "red", "purple", "papayawhip", "violet", "green" };
@@ -236,6 +238,15 @@ int
 TopPanel::listener(void *msg)
 {
   dprintf("TopPanel::listener() requested.\n");
+#ifdef DEMO
+// Just force a position to the top line....  Big Kludge... for demo.
+if( msg == NULL )
+{
+  int element = 0;
+  printf("attempt to position at %d\n", element );
+  itemSelected( element );
+}
+#endif // DEMO
   return 0;  // 0 means, did not want this message and did not act on anything.
 }
 

@@ -2,6 +2,9 @@
 #define PC_SAMPLEPANEL_H
 #include "Panel.hxx"           // Do not remove
 
+#include "ProcessControlObject.hxx"
+#include "ControlObject.hxx"
+
 #include "AnimatedQPushButton.hxx"
 #include <qpushbutton.h>
 
@@ -89,6 +92,7 @@ public:
   void enterEvent(QEvent *);
   void leaveEvent(QEvent *);
 #endif // PULL
+  ProcessControlObject *pco;
 
 public slots:
   void saveAsSelected();

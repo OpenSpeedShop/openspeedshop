@@ -11,21 +11,16 @@
 
 #include <qbitmap.h>
 
-#include "ProcessControlObject.hxx"
-#include "ControlObject.hxx"
-
 #define DEMO 1
 #ifdef DEMO
 #include "SourcePanel.hxx" // For demo only....
 #include "SourceObject.hxx" // For demo only....
+#include "TopPanel.hxx" // For demo only....
 #endif // DEMO
 
 
 
 /*!  pcSamplePanel Class
-     This class is used by the script mknewpanel to create a new work area
-     for the panel creator to design a new panel.
-
 
      Autor: Al Stipek (stipek@sgi.com)
  */
@@ -47,7 +42,7 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n) : Panel(pc, n)
   printf("pcSamplePanel::pcSamplePanel() constructor called\n");
   frameLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
-  ProcessControlObject *pco = new ProcessControlObject(frameLayout, getBaseWidgetFrame(), (Panel *)this );
+  pco = new ProcessControlObject(frameLayout, getBaseWidgetFrame(), (Panel *)this );
 
   statusLayout = new QHBoxLayout( 0, 10, 0, "statusLayout" );
   
@@ -229,14 +224,50 @@ pcSamplePanel::listener(void *msg)
       break;
     case  RUN_T:
       printf("Run\n");
+statusLabelText->setText( tr("Process running...") );
+#ifdef DEMO
+{
+qApp->processEvents(500);
+sleep(5);
+statusLabelText->setText( tr("Process completed...") );
+qApp->processEvents(500);
+pco->attachProcessButton->setEnabled(TRUE);
+pco->attachCollectorButton->setEnabled(TRUE);
+pco->runButton->setEnabled(TRUE);
+pco->runButton->enabledFLAG = TRUE;
+pco->pauseButton->setEnabled(FALSE);
+pco->pauseButton->enabledFLAG = FALSE;
+pco->continueButton->setEnabled(FALSE);
+pco->continueButton->setEnabled(FALSE);
+pco->continueButton->enabledFLAG = FALSE;
+pco->updateButton->setEnabled(FALSE);
+pco->updateButton->setEnabled(FALSE);
+pco->updateButton->enabledFLAG = FALSE;
+pco->detachProcessButton->setEnabled(TRUE);
+pco->detachCollectorButton->setEnabled(TRUE);
+pco->terminateButton->setEnabled(FALSE);
+pco->terminateButton->setFlat(TRUE);
+pco->terminateButton->setEnabled(FALSE);
+
+// TopPanel *tp = (TopPanel *)topPC->dl_create_and_add_panel("Top Panel", topPC->leftPanelContainer);
+TopPanel *tp = (TopPanel *)topPC->dl_create_and_add_panel("Top Panel", NULL); 
+// Uncomment the next line if you want the TopPanel to position the 
+// source automatically.
+// tp->listener((void *)NULL);
+}
+#endif // DEMO
       ret_val = 1;
       break;
     case  PAUSE_T:
       printf("Pause\n");
+statusLabelText->setText( tr("Process suspended...") );
       ret_val = 1;
       break;
     case  CONT_T:
       printf("Continue\n");
+statusLabelText->setText( tr("Process continued...") );
+sleep(1);
+statusLabelText->setText( tr("Process running...") );
       ret_val = 1;
       break;
     case  UPDATE_T:
@@ -248,6 +279,7 @@ pcSamplePanel::listener(void *msg)
       ret_val = 1;
       break;
     case  TERMINATE_T:
+statusLabelText->setText( tr("Process terminated...") );
       ret_val = 1;
       printf("Terminate\n");
       break;
@@ -264,6 +296,5 @@ pcSamplePanel::listener(void *msg)
 void
 pcSamplePanel::languageChange()
 {
-  statusLabel->setText( tr("Status:") );
-  statusLabelText->setText( tr("No status currently available.") );
+  statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("No status currently available.") );
 }
