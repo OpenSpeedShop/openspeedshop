@@ -61,17 +61,17 @@ ResultObject Experiment_Create (CMDWID WindowID, EXPID ExperimentID,
                                 ApplicationGroupObject *App, Collector *Inst)
 {
   ExperimentObject *exp = NULL;
-  if (ExperimentID > 0) {
-   // Use the passed in experiment number.
-    exp = Find_Experiment_Object (ExperimentID);
-  } else if (ExperimentID < 0) {
+  if (ExperimentID <= 0) {
    // Use the current focused experiment.
-    ResultObject R = Experiment_Focus (WindowID);
-    exp = (ExperimentObject *)R.Result();
+    ExperimentID =  Experiment_Focus (WindowID);
+  }
+  if (ExperimentID > 0) {
+    exp = Find_Experiment_Object (ExperimentID);
   }
   if (!exp) {
    // There is no existing experiment or something went wrong.  Allocate a new Experiment.
     exp = new ExperimentObject ();
+   // When we allocate a new experiment, set the focus to point to it.
     (void)Experiment_Focus (WindowID, exp->ExperimentObject_ID());
   }
   if (exp == NULL) {

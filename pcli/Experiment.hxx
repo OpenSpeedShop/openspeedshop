@@ -99,7 +99,7 @@ class ExperimentObject
 };
 
 ExperimentObject *Find_Experiment_Object (EXPID ExperimentID);
-ResultObject Experiment_Focus (CMDWID WindowID);
-ResultObject Experiment_Focus (CMDWID WindowID, EXPID ExperimentID);
+EXPID Experiment_Focus (CMDWID WindowID);
+EXPID Experiment_Focus (CMDWID WindowID, EXPID ExperimentID);
 ResultObject Experiment_Create (CMDWID WindowID, EXPID ExperimentID,
                                 ApplicationGroupObject *App, Collector *Inst);
