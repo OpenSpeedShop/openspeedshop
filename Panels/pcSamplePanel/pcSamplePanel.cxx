@@ -478,8 +478,10 @@ pcSamplePanel::attachToExecutableSelected()
     runnableFLAG = TRUE;
     pco->runButton->setEnabled(TRUE);
     pco->runButton->enabledFLAG = TRUE;
+#ifdef CONTINUE_BUTTON
     pco->continueButton->setEnabled(TRUE);
     pco->continueButton->enabledFLAG = TRUE;
+#endif // CONTINUE_BUTTON
   }
 }   
 
@@ -650,6 +652,7 @@ pcSamplePanel::listener(void *msg)
         }
         ret_val = 1;
         break;
+#ifdef CONTINUE_BUTTON
       case  CONT_T:
         {
         nprintf( DEBUG_MESSAGES ) ("Continue\n");
@@ -660,6 +663,7 @@ pcSamplePanel::listener(void *msg)
         }
         ret_val = 1;
         break;
+#endif // CONTINUE_BUTTON
       case  UPDATE_T:
         nprintf( DEBUG_MESSAGES ) ("Update\n");
         {
@@ -939,9 +943,11 @@ pcSamplePanel::updateStatus()
         runnableFLAG = FALSE;
         pco->pauseButton->setEnabled(FALSE);
         pco->pauseButton->enabledFLAG = FALSE;
+#ifdef CONTINUE_BUTTON
         pco->continueButton->setEnabled(FALSE);
         pco->continueButton->setEnabled(FALSE);
         pco->continueButton->enabledFLAG = FALSE;
+#endif // CONTINUE_BUTTON
         pco->updateButton->setEnabled(FALSE);
         pco->updateButton->setEnabled(FALSE);
         pco->updateButton->enabledFLAG = FALSE;
@@ -952,15 +958,17 @@ pcSamplePanel::updateStatus()
         break;
       case 1:
 //        statusLabelText->setText( "1: ExpStatus_Paused" );
-        statusLabelText->setText( tr("Experiment is Paused:  Hit the \"Cont\" button to continue execution.") );
+        statusLabelText->setText( tr("Experiment is Paused:  Hit the \"Run\" button to continue execution.") );
         pco->runButton->setEnabled(FALSE);
         pco->runButton->enabledFLAG = FALSE;
         runnableFLAG = FALSE;
         pco->pauseButton->setEnabled(FALSE);
         pco->pauseButton->enabledFLAG = FALSE;
+#ifdef CONTINUE_BUTTON
         pco->continueButton->setEnabled(TRUE);
         pco->continueButton->setEnabled(TRUE);
         pco->continueButton->enabledFLAG = TRUE;
+#endif // CONTINUE_BUTTON
         pco->updateButton->setEnabled(TRUE);
         pco->updateButton->enabledFLAG = TRUE;
         pco->terminateButton->setEnabled(TRUE);
@@ -979,9 +987,11 @@ pcSamplePanel::updateStatus()
         runnableFLAG = FALSE;
         pco->pauseButton->setEnabled(TRUE);
         pco->pauseButton->enabledFLAG = TRUE;
+#ifdef CONTINUE_BUTTON
         pco->continueButton->setEnabled(FALSE);
         pco->continueButton->setEnabled(FALSE);
         pco->continueButton->enabledFLAG = FALSE;
+#endif // CONTINUE_BUTTON
         pco->updateButton->setEnabled(TRUE);
         pco->updateButton->enabledFLAG = TRUE;
         pco->terminateButton->setEnabled(TRUE);
@@ -1011,9 +1021,11 @@ pcSamplePanel::updateStatus()
         runnableFLAG = FALSE;
         pco->pauseButton->setEnabled(FALSE);
         pco->pauseButton->enabledFLAG = FALSE;
+#ifdef CONTINUE_BUTTON
         pco->continueButton->setEnabled(FALSE);
         pco->continueButton->setEnabled(FALSE);
         pco->continueButton->enabledFLAG = FALSE;
+#endif // CONTINUE_BUTTON
         pco->updateButton->setEnabled(TRUE);
         pco->updateButton->enabledFLAG = TRUE;
         pco->terminateButton->setEnabled(FALSE);

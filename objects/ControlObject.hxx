@@ -24,7 +24,11 @@
 
 #include "MessageObject.hxx"
 
+#ifdef CONTROL_BUTTON
 enum ControlObjectType { NONE_T, ATTACH_PROCESS_T, DETACH_PROCESS_T, ATTACH_COLLECTOR_T, REMOVE_COLLECTOR_T, RUN_T, PAUSE_T, CONT_T, UPDATE_T, INTERRUPT_T, TERMINATE_T };
+#else // CONTROL_BUTTON
+enum ControlObjectType { NONE_T, ATTACH_PROCESS_T, DETACH_PROCESS_T, ATTACH_COLLECTOR_T, REMOVE_COLLECTOR_T, RUN_T, PAUSE_T, UPDATE_T, INTERRUPT_T, TERMINATE_T };
+#endif // CONTROL_BUTTON
 
 //! The message object for passing process control action selections.
 class ControlObject : public MessageObject

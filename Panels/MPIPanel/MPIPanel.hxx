@@ -17,8 +17,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef MPIPANEL_H
-#define MPIPANEL_H
+#ifndef MPIPanel_H_H
+#define MPIPanel_H_H
 #include "Panel.hxx"           // Do not remove
 
 #include "ProcessControlObject.hxx"
@@ -30,7 +30,10 @@
 #include <qlayout.h>
 #include <qhbox.h>
 #include <qtimer.h>
-#include <qprogressdialog.h>
+#include "GenericProgressDialog.hxx"
+#include "ManageCollectorsDialog.hxx"
+
+#include "SS_Input_Manager.hxx"
 
 class PanelContainer;   // Do not remove
 class QLabel;
@@ -100,7 +103,9 @@ public:
   AnimatedQPushButton *detachProcessButton;
   AnimatedQPushButton *runButton;
   AnimatedQPushButton *pauseButton;
+#ifdef CONTINUE_BUTTON
   AnimatedQPushButton *continueButton;
+#endif // CONTINUE_BUTTON
   AnimatedQPushButton *updateButton;
   AnimatedQPushButton *interruptButton;
   AnimatedQPushButton *terminateButton;
@@ -118,6 +123,7 @@ public:
   QString pidStr;
   QTimer *timer;
   QTimer *loadTimer;
+  ManageCollectorsDialog *manageCollectorsDialog;
 
 OpenSpeedShop::Framework::Experiment *fw_experiment() { return experiment; }
 
@@ -131,8 +137,10 @@ public slots:
   void manageDataSetsSelected();
   void loadSourcePanel();
   void loadStatsPanel();
-  void __demoWakeUpToLoadExperiment();
   void progressUpdate();
+
+private slots:
+  void statusUpdateTimerSlot();
 
 protected slots:
   virtual void languageChange();
@@ -141,14 +149,19 @@ protected:
 
 private:
   OpenSpeedshop *mw;
+  void wakeUpAndCheckExperimentStatus();
+
  
   int expID;  // Experiment ID of the expCreate, returned from the cli
-OpenSpeedShop::Framework::Experiment *experiment;
+  OpenSpeedShop::Framework::Experiment *experiment;
 
   void updateInitialStatus();
 
+  QTimer *statusTimer;
+  void updateStatus();
+
   void loadMain();
-  QProgressDialog *pd;
+  GenericProgressDialog *pd;
   int steps;
 };
-#endif // MPIPANEL_H
+#endif // MPIPanel_H_H
