@@ -34,7 +34,7 @@ LDFLAGS = -lc -ldl
 
 ftd_SOURCES = main.cxx
 
-doc:
+doc: all
 	-doxygen Doxyfile
 
 SUBDIRS = . base objects ladDialog expr_info plugin objects chart cli gui Panels
