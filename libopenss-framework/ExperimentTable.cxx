@@ -100,9 +100,9 @@ void ExperimentTable::removeExperiment(const Experiment* experiment)
 /**
  * Get experiment, collector, and thread (ECT) identifiers.
  *
- * Gets the experiment, collector, and thread (ECT) identifiers of the specified
- * collector and thread. Used by collectors to specify for which ECT data is to
- * be collected.
+ * Returns the experiment, collector, and thread (ECT) identifiers of the
+ * specified collector and thread. Used by collectors to specify for which ECT
+ * data is to be collected.
  * 
  * @note    An assertion failure occurs if the specified collector and thread
  *          are not in the same experiment database or if there is no experiment

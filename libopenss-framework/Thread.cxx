@@ -37,7 +37,7 @@ using namespace OpenSpeedShop::Framework;
 /**
  * Get our state.
  *
- * Returns the caller the current state of this thread. Since this state changes
+ * Returns the current state of this thread. Since this state changes
  * asynchronously and may be updated across a network, there is a lag between
  * when the actual thread's state changes and when that is reflected here.
  *
