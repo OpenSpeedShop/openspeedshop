@@ -345,7 +345,11 @@ pco->terminateButton->setEnabled(FALSE);
 pco->terminateButton->setFlat(TRUE);
 pco->terminateButton->setEnabled(FALSE);
 
-TopPanel *tp = (TopPanel *)topPC->dl_create_and_add_panel("Top Panel", topPC); 
+// TopPanel *tp = (TopPanel *)topPC->dl_create_and_add_panel("Top Panel", topPC); 
+// TopPanel *tp = (TopPanel *)getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Top Panel", topPC); 
+// TopPanel *tp = (TopPanel *)topPC->getMasterPC()->dl_create_and_add_panel("Top Panel", topPC); 
+
+        Panel *p = getPanelContainer()->dl_create_and_add_panel("Top Panel", topPC);
 } // End demo only...
         ret_val = 1;
         break;
