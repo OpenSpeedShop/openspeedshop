@@ -64,10 +64,8 @@ void SS_Execute_Cmd (CommandObject *cmd) {
   case CMD_LIST_BREAKS:
   case CMD_LIST_TYPES:
   default:
-    fprintf(stderr,"Command %d has not been implimented yet\n",cmd->Type());
+    cmd->Result_String ("This command has not been implimented yet");
+    cmd->set_Status(CMD_ERROR);
   }
 
- // For DEBUGING:
- // if (!cmd_successful) fprintf(stdout,"Command Error: ");
- // cmd->Print(stdout);
 }
