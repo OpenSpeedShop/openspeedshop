@@ -11,12 +11,9 @@
 
 #include <qbitmap.h>
 
-#define DEMO 1
-#ifdef DEMO
-#include "SourcePanel.hxx" // For demo only....
-#include "SourceObject.hxx" // For demo only....
-#include "TopPanel.hxx" // For demo only....
-#endif // DEMO
+#include "SourcePanel.hxx"
+#include "SourceObject.hxx"
+#include "TopPanel.hxx"
 
 #include "LoadAttachObject.hxx"
 
@@ -92,8 +89,6 @@ printf("# theApplication.attachCollector(theCollector.getValue());\n");
   topLevel = TRUE;
   topPC->topLevel = TRUE;
 
-//  topPC->dl_create_and_add_panel("Toolbar Panel", topPC->leftPanelContainer);
-//  topPC->dl_create_and_add_panel("Top Five Panel", topPC->leftPanelContainer);
 #ifdef DEMO
   SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", topPC);
 #else // DEMO
@@ -339,4 +334,10 @@ void
 pcSamplePanel::languageChange()
 {
   statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("No status currently available.") );
+}
+
+void
+pcSamplePanel::saveAsSelected()
+{
+  printf("From this pc on down, send out a saveAs message and put it to a file.\n");
 }
