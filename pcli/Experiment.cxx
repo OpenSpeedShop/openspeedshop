@@ -103,8 +103,12 @@ bool Thread_Already_Exists (Thread **returnThread, ExperimentObject *exp, std::s
     pid_t pid = T.getProcessId();
     if (!strcmp(host.c_str(), myhost.c_str()) &&
         (pid = mypid) &&
+#ifdef HAVE_MPI
         !T.getPosixThreadId().hasValue() &&
         !T.getMpiRank().hasValue()) {
+#else
+        !T.getPosixThreadId().hasValue()) {
+#endif
       *returnThread = &T;
       return true;
     }
