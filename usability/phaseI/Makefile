@@ -1,7 +1,7 @@
 LCDEFS= -g
 LLDLIBS=
 
-TARGETS= fred_calls_ted 
+TARGETS= clobber fred_calls_ted 
 
 default all: fred_calls_ted
 	@$(MAKE) $(TARGETS)
