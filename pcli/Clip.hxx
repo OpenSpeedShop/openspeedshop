@@ -201,6 +201,15 @@ class InputLineObject
     }
   }
 
+  void Print_Results (FILE *TFile, std::string list_seperator, std::string termination_char) {
+   // Print only the result information attached to each CommandObject
+    std::list<CommandObject *> cmd_object = Cmd_Obj;
+    std::list<CommandObject *>::iterator coi;
+    for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
+      (*coi)->Print_Results (TFile, list_seperator, termination_char);
+    }
+  }
+
 };
 
 class TLI_InputLineObject : public InputLineObject
