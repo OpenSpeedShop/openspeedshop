@@ -105,7 +105,7 @@ class PanelContainer : public QWidget
 
     //! Used to launch a plugin's Panel entry.
     //    int dl_create_and_add_panel(char *panel_type);
-    Panel *dl_create_and_add_panel(char *panel_type, PanelContainer *targetPC=NULL, void *arguments=NULL);
+    Panel *dl_create_and_add_panel(const char *panel_type, PanelContainer *targetPC=NULL, void *arguments=NULL);
 
     //! The parent PanelContainer of this pa
     PanelContainer *parentPanelContainer;
