@@ -111,6 +111,7 @@ extern CMDWID command_line_window;
 extern CMDWID tli_window;
 extern CMDWID gui_window;
 extern char *Current_OpenSpeedShop_Prompt;
+extern char *Alternate_Current_OpenSpeedShop_Prompt;
 inline void SS_Issue_Prompt (FILE *TFile) {
   fprintf(TFile,"%s->",Current_OpenSpeedShop_Prompt);
   fflush(TFile);
@@ -136,8 +137,6 @@ extern CommandObject   *Current_CO;
 
 // Attach a new input source that will be read AFTER all the previous ones
 bool Append_Input_File (CMDWID issuedbywindow, std::string fromfname);
-// bool Append_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_ptr);
-// InputLineObject *Append_Input_String (CMDWID issuedbywindow, char *b_ptr);
 InputLineObject *Append_Input_String (CMDWID issuedbywindow, char *b_ptr,
                                       void *LocalCmdId = NULL,
                                       void (*CallBackLine) (InputLineObject *b) = NULL,
@@ -145,7 +144,6 @@ InputLineObject *Append_Input_String (CMDWID issuedbywindow, char *b_ptr,
 
 // Attach a new input source that will be read BEFORE all the previous ones
 bool Push_Input_File (CMDWID issuedbywindow, std::string fromfname);
-// bool Push_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_ptr);
 
 // Manipulate tracing options
 void Command_Trace (enum Trace_Entry_Type trace_type, CMDWID cmdwinid, std::string tofname);
