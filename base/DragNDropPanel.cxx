@@ -212,9 +212,9 @@ nprintf(DEBUG_DND) ("Drag panel=(%s)\n", p->getName() );
     targetPC->dropSiteLayout = new QVBoxLayout( w, 0, 0, "dropSiteLayout");
 //    targetPC->tabWidget = new QTabWidget( w, "tabWidget" );
     targetPC->tabWidget = new TabWidget( targetPC, w, "tabWidget" );
-fprintf(stderr, "WHOAOOOOO Expect to error shortly!\n");
-targetPC->tabBarWidget = new TabBarWidget( targetPC, w, "tabBarWidget");
-targetPC->tabWidget->setTabBar(targetPC->tabBarWidget);
+fprintf(stderr, "Warning: Unexpected drop site. Trying to recover.  We may error shortly!\n");
+    targetPC->tabBarWidget = new TabBarWidget( targetPC, w, "tabBarWidget");
+    targetPC->tabWidget->setTabBar(targetPC->tabBarWidget);
 
   
     targetPC->dropSiteLayout->addWidget( targetPC->tabWidget );
@@ -246,6 +246,8 @@ targetPC->tabWidget->setTabBar(targetPC->tabBarWidget);
       upPC = upPC->parentPanelContainer;
     }
   }
+
+#ifdef OLDWAY
   // We're about to move the Panel.
 
   // First remove the Panel from the old PanelContainer list.
@@ -312,6 +314,14 @@ targetPC->tabWidget->setTabBar(targetPC->tabBarWidget);
   targetPC->dropSiteLayoutParent->show();
   targetPC->tabWidget->show();
   targetPC->splitter->show();
+#else // OLDWAY
+  
+printf("Try the new movePanel for the drag-n-drop.\n");
+  sourcePC->getMasterPC()->movePanel( p, currentPage, targetPC);
+
+  // Once you know this happened correctly!
+  delete( DragNDropPanel::sourceDragNDropObject );
+#endif // OLDWAY
 
   nprintf(DEBUG_DND) ("\n\n\n");
 }

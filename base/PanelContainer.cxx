@@ -539,6 +539,13 @@ PanelContainer::getRaisedPanel()
     {
       p = (Panel *)*it;
 #ifdef OLDWAY
+      if( i == currentPageIndex )
+      {
+        nprintf(DEBUG_PANELCONTAINERS) ("found the raised panel (%s)\n", p->getName() );
+        return p;
+      }
+      i++;
+#else // OLDWAY
 int indexOf = tabWidget->indexOf(p->getBaseWidgetFrame());
 if( indexOf == -1 )
 {
@@ -547,15 +554,9 @@ if( indexOf == -1 )
 if( indexOf == currentPageIndex )
 {
 nprintf(DEBUG_PANELCONTAINERS) ("found the raised panel (%s)\n", p->getName() );
+printf ("found the raised panel (%s)\n", p->getName() );
   return p;
 }
-#else // OLDWAY
-      if( i == currentPageIndex )
-      {
-        nprintf(DEBUG_PANELCONTAINERS) ("found the raised panel (%s)\n", p->getName() );
-        return p;
-      }
-      i++;
 #endif // OLDWAY
     }
   }
@@ -1332,6 +1333,7 @@ PanelContainer::raiseNamedPanel(char *panel_name)
         tabWidget->showPage(p->getBaseWidgetFrame());
       }
       tabWidget->setCurrentPage(count);
+p->getPanelContainer()->handleSizeEvent(NULL);
       return(p);
     }
     count++;
@@ -1364,6 +1366,7 @@ PanelContainer::raisePanel(Panel *panel)
         tabWidget->showPage(p->getBaseWidgetFrame());
       }
       tabWidget->setCurrentPage(count);
+p->getPanelContainer()->handleSizeEvent(NULL);
       return(p);
     }
     count++;
@@ -1566,6 +1569,7 @@ PanelContainer::removeRaisedPanel(PanelContainer *targetPC)
     deletePanel(p, targetPC);
   }
 
+// code duplicated in movePanel
   // If the panelList is not empty, but all the panels are hidden.   Then
   // remove the hidden panels and hide the internals.
   int remainingPanelsAreHidden = TRUE;
@@ -1605,6 +1609,7 @@ PanelContainer::removeRaisedPanel(PanelContainer *targetPC)
     }
     panelListToDelete.clear();
   }
+// code duplicated in movePanel
 
   if( targetPC->panelList.empty() )
   {
@@ -2184,6 +2189,7 @@ PanelContainer::handleSizeEvent(QResizeEvent *e)
   Panel *p = getRaisedPanel();
   if( p != NULL )
   {
+// printf("p->getName(%s) resize!\n", p->getName() );
     p->handleSizeEvent(e);
   }
 
@@ -2537,6 +2543,8 @@ PanelContainer::movePanel( Panel *p, QWidget *currentPage, PanelContainer *targe
   PanelContainer *sourcePC = p->getPanelContainer();
   QPoint point;
   QWidget *w = targetPC->dropSiteLayoutParent;
+nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::movePanel() %s From(%s-%s) to(%s-%s)\n", p->getName(), sourcePC->getInternalName(), sourcePC->getExternalName(), targetPC->getInternalName(), targetPC->getExternalName() );
+printf ("PanelContainer::movePanel() %s From(%s-%s) to(%s-%s)\n", p->getName(), sourcePC->getInternalName(), sourcePC->getExternalName(), targetPC->getInternalName(), targetPC->getExternalName() );
 
   // First remove the Panel from the old PanelContainer list.
   p->getPanelContainer()->panelList.remove(p);
@@ -2583,6 +2591,50 @@ PanelContainer::movePanel( Panel *p, QWidget *currentPage, PanelContainer *targe
   // Remove the tab from the old PanelContainer.
   sourcePC->tabWidget->removePage(currentPage);
 
+// code duplicated in movePanel
+printf("HERE'S YOUR PROBLEM AL!!!   YOU NEED TO BLOW AWAY ANY HIDDEN PANELS AS THE PC APPEARS EMPTY!\n");
+  // If the panelList is not empty, but all the panels are hidden.   Then
+  // remove the hidden panels and hide the internals.
+  int remainingPanelsAreHidden = TRUE;
+  for( PanelList::Iterator pit = sourcePC->panelList.begin();
+             pit != sourcePC->panelList.end();
+             ++pit )
+  {
+    Panel *p = (Panel *)*pit;
+    int indexOf = sourcePC->tabWidget->indexOf(p->getBaseWidgetFrame());
+printf ("indexOf=%d (%s)\n", indexOf, p->getName() );
+    if( indexOf != -1 )
+    {
+      remainingPanelsAreHidden = FALSE;
+      break;
+    }
+  }
+printf ("remainingPanelsAreHidden=%d\n", remainingPanelsAreHidden);
+if( remainingPanelsAreHidden )
+{
+  PanelList panelListToDelete;
+  {
+printf( "there are %d panels to delete.\n", sourcePC->panelList.count() );
+    for( PanelList::Iterator pit = sourcePC->panelList.begin();
+             pit != sourcePC->panelList.end();
+             ++pit )
+    {
+      Panel *p = (Panel *)*pit;
+      
+printf( "delete %s\n", p->getName() );
+      panelListToDelete.push_back(p);
+    }
+    for( PanelList::Iterator pit = panelListToDelete.begin();
+             pit != panelListToDelete.end();
+             ++pit )
+    {
+      Panel *p = (Panel *)*pit;
+      deletePanel(p, sourcePC);
+    }
+    panelListToDelete.clear();
+  }
+// code duplicated in movePanel
+}
 
   // If we just pulled off the last Panel from the old PanelContainer
   // hide the dropSiteLayoutParent (since it's only needed for the tabWidget
@@ -2592,6 +2644,7 @@ PanelContainer::movePanel( Panel *p, QWidget *currentPage, PanelContainer *targe
   {
     sourcePC->dropSiteLayoutParent->hide();
   }
+
   // Make sure the new PanelContainer has everything showing.
   targetPC->leftFrame->show();
   targetPC->dropSiteLayoutParent->show();
