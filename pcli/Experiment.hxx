@@ -65,12 +65,16 @@ class ExperimentObject
   bool Data_File_Has_A_Generated_Name;
   OpenSpeedShop::Framework::Experiment *FW_Experiment;
 
+  bool Experiment_Is_Suspended;
+  std::string Suspended_Data_File_Name;
+
   std::list<ApplicationGroupObject *> ApplicationObjectList;
   std::list<Collector *> CollectorList;
 
  public:
   ExperimentObject (std::string data_base_name = std::string("")) {
     Exp_ID = ++Experiment_Sequence_Number;
+    Experiment_Is_Suspended = false;
 
    // Allocate a data base file for the information connected with the experiment.
     std::string Data_File_Name;
@@ -99,11 +103,11 @@ class ExperimentObject
   }
   ~ExperimentObject () {
     ExperimentObject_list.remove (this);
-    if (Data_File_Has_A_Generated_Name) {
-      int err = remove (FW_Experiment->getName().c_str());
-      Data_File_Has_A_Generated_Name = false;
-    }
     if (FW_Experiment != NULL) {
+      if (Data_File_Has_A_Generated_Name) {
+        int err = remove (FW_Experiment->getName().c_str());
+        Data_File_Has_A_Generated_Name = false;
+      }
       delete FW_Experiment;
       FW_Experiment = NULL;
     }
@@ -125,11 +129,36 @@ class ExperimentObject
     {
       CollectorList.push_front(Inst);
     }
+
   EXPID ExperimentObject_ID() {return Exp_ID;}
   Experiment *FW() {return FW_Experiment;}
+  void ReStart () {
+    if (Experiment_Is_Suspended) {
+      try {
+        FW_Experiment = new OpenSpeedShop::Framework::Experiment (Suspended_Data_File_Name);
+        Experiment_Is_Suspended = false;
+      }
+      catch(const std::exception& error) {
+        Exp_ID = 0;
+        Data_File_Has_A_Generated_Name = false;
+        FW_Experiment = NULL;
+      }
+    }
+  }
+  void Suspend () {
+    if (FW_Experiment != NULL) {
+      Experiment_Is_Suspended = true;
+      Suspended_Data_File_Name = FW_Experiment->getName().c_str();
+      delete FW_Experiment;
+      FW_Experiment = NULL;
+    }
+  }
+
   void Print(FILE *TFile)
-    { fprintf(TFile,"Experiment %lld data->%s:\n",ExperimentObject_ID(),
-              FW_Experiment->getName().c_str());
+    { fprintf(TFile,"Experiment %lld %s data->%s:\n",ExperimentObject_ID(),
+              Experiment_Is_Suspended ? "Disabled" : "Enabled",
+              (FW_Experiment != NULL) ? FW_Experiment->getName().c_str() :
+                 Experiment_Is_Suspended ? Suspended_Data_File_Name.c_str() : "(null)");
       std::list<ApplicationGroupObject *>::iterator AppObji = ApplicationObjectList.begin();
       if (AppObji != ApplicationObjectList.end()) {
         fprintf(TFile,"  ");
@@ -137,6 +166,25 @@ class ExperimentObject
           (*AppObji)->Print(TFile);
         }
         fprintf(TFile,"\n");
+      }
+      if (FW_Experiment != NULL) {
+        CollectorGroup cgrp = FW_Experiment->getCollectors();
+        CollectorGroup::iterator ci;
+        bool atleastone = false;
+        for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
+          Collector c = *ci;
+          Metadata m = c.getMetadata();
+          if (atleastone) {
+            fprintf(TFile,",");
+          } else {
+            fprintf(TFile,"  Collectors:");
+            atleastone = true;
+          }
+          fprintf(TFile," %s", m.getUniqueId().c_str() );
+        }
+        if (atleastone) {
+          fprintf(TFile,"\n");
+        }
       }
       std::list<Collector *>::iterator  Ci = CollectorList.begin();
       if (Ci != CollectorList.end()) {
