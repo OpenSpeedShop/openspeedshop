@@ -44,8 +44,8 @@ Step 2:
 
 
 Step 3:
-  The Open/Speedshop performance tool is 'openss'.    'man openss' gives you
-  the typical man description of the command.
+  The Open/Speedshop performance tool is 'openss'.    'cat MAN' gives you
+  the typical 'man' description of the command.
 
 
 Step 4:
