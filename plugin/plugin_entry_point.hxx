@@ -168,10 +168,26 @@ extern "C"
   {
     PanelContainer *targetPC = (PanelContainer *)tPC;
     PluginInfo *pluginInfo = (PluginInfo *)pluginInfoArg;
+    char *name = pluginInfo->menu_label;
 
     PanelContainer *local_masterPC = (PanelContainer *)pluginInfo->masterPC;
 
-//    printf("Hello from create_and_add_panel()\n");
+
+{
+  dprintf("Don't forget to add a preference and check it!\n");
+  if( strcmp(name, "&Command Panel") == 0 )
+  {
+    Panel *p = local_masterPC->findNamedPanel(local_masterPC, name);
+    if( p )
+    {
+      p = p->getPanelContainer()->raiseNamedPanel(name);
+    }
+    if( p )
+    {
+      return p;
+    }
+  }
+}
 
     // FIX:
     // This needs to be pushed to a 
@@ -204,7 +220,6 @@ extern "C"
         targetPC = local_masterPC;
       }
     }
-    char *name = pluginInfo->menu_label;
     if( !name )
     {
       name = pluginInfo->panel_type;
