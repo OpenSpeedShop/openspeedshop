@@ -99,10 +99,46 @@ class ExperimentObject
 };
 
 ExperimentObject *Find_Experiment_Object (EXPID ExperimentID);
-bool SS_expAttach   	(CommandObject *cmd);
-bool SS_expCreate   	(CommandObject *cmd);
-bool SS_expFocus    	(CommandObject *cmd);
-bool SS_Record	    	(CommandObject *cmd);
+
+// Experiment level commands
+bool SS_expAttach (CommandObject *cmd);
+bool SS_expClose (CommandObject *cmd);
+bool SS_expCreate (CommandObject *cmd);
+bool SS_expDetach (CommandObject *cmd);
+bool SS_expDisable (CommandObject *cmd);
+bool SS_expEnable (CommandObject *cmd);
+bool SS_expFocus  (CommandObject *cmd);
+bool SS_expGo (CommandObject *cmd);
+bool SS_expPause (CommandObject *cmd);
+bool SS_expRestore (CommandObject *cmd);
+bool SS_expSave (CommandObject *cmd);
+bool SS_expSetParam (CommandObject *cmd);
+bool SS_expView (CommandObject *cmd);
+
+// Information level commands
+bool SS_ListBreaks (CommandObject *cmd);
+bool SS_ListExp (CommandObject *cmd);
+bool SS_ListHosts (CommandObject *cmd);
+bool SS_ListObj (CommandObject *cmd);
+bool SS_ListPids (CommandObject *cmd);
+bool SS_ListMetrics (CommandObject *cmd);
+bool SS_ListParams (CommandObject *cmd);
+bool SS_ListReports (CommandObject *cmd);
+bool SS_ListSrc (CommandObject *cmd);
+bool SS_ListTypes (CommandObject *cmd);
+
+// Session level commands
+bool SS_ClearBreaks (CommandObject *cmd);
+bool SS_Exit (CommandObject *cmd);
+bool SS_Help (CommandObject *cmd);
+bool SS_History (CommandObject *cmd);
+bool SS_Log (CommandObject *cmd);
+bool SS_OpenGui (CommandObject *cmd);
+bool SS_Playback (CommandObject *cmd);
+bool SS_Record (CommandObject *cmd);
+bool SS_SetBreak (CommandObject *cmd);
+
+// Place holders for comands that are not yet implemented
 bool SS_no_value    	(CommandObject *cmd);
 bool SS_string_value    (CommandObject *cmd);
 bool SS_int_value   	(CommandObject *cmd);
