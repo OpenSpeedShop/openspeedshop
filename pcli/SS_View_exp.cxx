@@ -133,11 +133,11 @@ class exp_view : public ViewType {
 
  public: 
   exp_view() : ViewType ("exp",
-                             VIEW_exp_brief,
-                             VIEW_exp_short,
-                             VIEW_exp_long,
-                            &VIEW_exp_collectors[0],
-                            &VIEW_exp_header[0]) {
+                          VIEW_exp_brief,
+                          VIEW_exp_short,
+                          VIEW_exp_long,
+                         &VIEW_exp_collectors[0],
+                         &VIEW_exp_header[0]) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn) {
     return VIEW_exp (cmd, exp, topn);
@@ -145,9 +145,9 @@ class exp_view : public ViewType {
 };
 
 
-static std::string VIEW_expall_brief = "";
-static std::string VIEW_expall_short = "Report the current state of all experiments.";
-static std::string VIEW_expall_long  = "Report the current state of all experiments and describe the"
+static std::string VIEW_allexp_brief = "";
+static std::string VIEW_allexp_short = "Report the current state of all experiments.";
+static std::string VIEW_allexp_long  = "Report the current state of all experiments and describe the"
                                        " executable segments and data collection modules that are being"
                                        " used."
                                        " Executable modules are listed, after an ""expAttach"" directive,"
@@ -155,13 +155,13 @@ static std::string VIEW_expall_long  = "Report the current state of all experime
                                        " on the same line. Data collectors that were, at one time, incldued"
                                        " in the experiment but are not currently linked to an excutable"
                                        " module are listed after an ""expDetach"" directive.";
-static std::string VIEW_expall_collectors[] =
+static std::string VIEW_allexp_collectors[] =
   { ""
   };
-static std::string VIEW_expall_header[] =
+static std::string VIEW_allexp_header[] =
   { ""
   };
-static bool VIEW_expall (CommandObject *cmd, ExperimentObject *exp, int64_t topn) {
+static bool VIEW_allexp (CommandObject *cmd, ExperimentObject *exp, int64_t topn) {
   std::list<ExperimentObject *>::reverse_iterator expi;
   for (expi = ExperimentObject_list.rbegin(); expi != ExperimentObject_list.rend(); expi++)
   {
@@ -169,18 +169,19 @@ static bool VIEW_expall (CommandObject *cmd, ExperimentObject *exp, int64_t topn
   }
   return true;
 }
-class expall_view : public ViewType {
+class allexp_view : public ViewType {
 
  public: 
-  expall_view() : ViewType ("expall",
-                             VIEW_expall_brief,
-                             VIEW_expall_short,
-                             VIEW_expall_long,
-                            &VIEW_expall_collectors[0],
-                            &VIEW_expall_header[0]) {
+  allexp_view() : ViewType ("allexp",
+                             VIEW_allexp_brief,
+                             VIEW_allexp_short,
+                             VIEW_allexp_long,
+                            &VIEW_allexp_collectors[0],
+                            &VIEW_allexp_header[0],
+                             false) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn) {
-    return VIEW_expall (cmd, exp, topn);
+    return VIEW_allexp (cmd, exp, topn);
   }
 };
 
@@ -222,7 +223,8 @@ class expstatus_view : public ViewType {
                                 VIEW_expstatus_short,
                                 VIEW_expstatus_long,
                                &VIEW_expstatus_collectors[0],
-                               &VIEW_expstatus_header[0]) {
+                               &VIEW_expstatus_header[0],
+                                false) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn) {
     return VIEW_expstatus (cmd, exp, topn);
@@ -234,6 +236,6 @@ class expstatus_view : public ViewType {
 // Calls to the VIEWs needs to be done through the ViewType class objects.
 extern "C" void exp_LTX_ViewFactory () {
   Define_New_View (new exp_view());
-  Define_New_View (new expall_view());
+  Define_New_View (new allexp_view());
   Define_New_View (new expstatus_view());
 }
