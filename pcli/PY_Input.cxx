@@ -73,6 +73,13 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
    // Build a CommandObject so that the semantic routines can be called.
     cmd = new CommandObject (&parse_result);
     SS_Execute_Cmd (cmd);
+
+    if ((cmd->Status() == CMD_ERROR) ||
+        (cmd->Status() == CMD_ABORTED)) {
+     // If somethign went wrong, return a null value to Python.
+      p_object = Py_BuildValue("");
+      return p_object;
+    }
     
    // Build Python Objects for any return results.
     {
