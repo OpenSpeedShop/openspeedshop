@@ -163,6 +163,7 @@ CmdPanel::returnPressed()
       nprintf(DEBUG_PANELS) ("status = %d\n", status );
       if( status == ILO_ERROR )
       {
+#ifdef OLDDWAY
         int64_t val = 0;
         std::list<CommandObject *>::iterator coi;
         coi = clip->CmdObj_List().begin();
@@ -173,23 +174,24 @@ CmdPanel::returnPressed()
         cr_int->Value(&val);
 
         fprintf(stderr, "ILO_ERROR val=(%d)!!!\n", val);
+#endif //  OLDDWAY
         break;
       }
       sleep(1);
       qApp->processEvents(3);
       status = clip->What();
-//      rough_second_count++;
-//      if( rough_second_count > 9 )
-//      {
-//        fprintf(stdout, "Fake an error!\n");
-//        output->append("Unable to process command.");
-//        break;
-//       }
+      rough_second_count++;
+      if( rough_second_count > 30 )
+      {
+        fprintf(stdout, "Fake an error!\n");
+        output->append("Unable to process command.");
+        break;
+       }
     }
     // This in only a cludge for now!!! FIX
     if( clip && status == ILO_COMPLETE )
     {
-      fprintf(stderr, "ILO_COMPLETE!\n");
+//      fprintf(stderr, "ILO_COMPLETE!\n");
       char *fname = tempnam("/tmp", "__oss");
       FILE *fp = fopen(fname, "w+");
       clip->Print_Results(fp, "\n", "");
