@@ -24,6 +24,8 @@ familiar with the tool surely helped.    Here are some notes from session.
     was trying to sort the TopFive.
     (Suggestion: This should be an feature at some point.)
 
+  - BUG: The use brought up multiple CmdPanels.
+
   - BUG: The help text in the Command Panel had garbage in it.
 
   - The use repeatedly tried to change/add a new executable with the
