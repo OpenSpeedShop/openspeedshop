@@ -1,6 +1,6 @@
 /** @file
  *
- * Parser result description.
+ * Parser range description.
  *
  */
 
