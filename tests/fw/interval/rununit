@@ -22,19 +22,22 @@ def RunWithExecutable(testname, executable_name):
 		os.system('./'+testname + ' '+executable_name +' ' + v_input + ' >> ' + resultsfile)
 	
 
-def RunWithoutExecutable(testname):
-	os.system('./'+ testname + ' >> '+resultsfile)
+def RunWithoutExecutable(testname, fileptr):
+	os.system('./'+ testname + ' >> tempresultsfile')
+	actualresultptr = open('tempresultsfile', 'r')
+	result = actualresultptr.readline()
+	if (result == "PASS\n"):
+		fileptr.write(testname + " PASSES.\n")
+	else:
+		fileptr.write(testname + " FAILS.\n")
+	os.system('rm tempresultsfile')
 
 
+def OutputCompare(testname, typeofrun, fileptr):
 
-def OutputCompare(testname, exp_input, typeofrun):
-
-	currTime = strftime("%d_%m_%Y_%H%M%S", localtime())
-	
-	testResultsFile = 'testresults_' + currTime 
 
 	if typeofrun == 1:
-		RunWithoutExecutable(testname)
+		RunWithoutExecutable(testname, fileptr)
 
 	if typeofrun == 2:
 		RunWithExecutable(testname, executable_name)
@@ -45,42 +48,15 @@ def OutputCompare(testname, exp_input, typeofrun):
 
 		print 'core dump'
 	
-	results_input = open(resultsfile, 'r')
-
-	report_input = open(testResultsFile, 'w')
-
-	resultsfilenameinput = open('testresultsfilename', 'w')
-	resultsfilenameinput.write(testResultsFile)
-	resultsfilenameinput.close()
-
-	while 1:
-		results_line = results_input.readline()
-		expected_line = exp_input.readline()
-
-		if not results_line:
-			break
-		if not expected_line:
-			break
-		else: 
-			results_value = results_line[0:-1]	
-			expected_value = expected_line[0:-1]
-			if results_value == expected_value:
-				report_input.write(testname + ' PASSED \n')
-
-			else:
-				report_input.write(testname + ' FAILED \n')
-				report_input.write('result was: ' + results_value + '\n')
-				report_input.write('result should have been: ' + expected_value + '\n')
 
 
-def CreateOutput(runtype): 
+def CreateOutput(runtype, fileptr): 
 
 	#os.system('rm ' + resultsfile)
 	#os.system('rm testresults')
 	os.system('make')
 
 	test_input = open(listname, 'r')
-	expected_input = open(expectedfile, 'r')
 
 	while 1:
 		tests_line = test_input.readline()
@@ -92,7 +68,7 @@ def CreateOutput(runtype):
 		else:
 
 			name_of_test = tests_line[0:-1]
-			OutputCompare(name_of_test, expected_input, runtype)
+			OutputCompare(name_of_test, runtype, fileptr)
 		
 
 	
@@ -106,7 +82,6 @@ def CreateTestList(whichLanguage):
 		
 	os.system('ls -1 *.'+ whichLanguage +'>> temptestlist')
 	input_tests = open('temptestlist', 'r')
-	output_expected = open(expectedfile, 'w')
 	output_testlist = open(listname, 'w')
 	
 	while 1:
@@ -121,7 +96,6 @@ def CreateTestList(whichLanguage):
 				i = i+1
 			test_name = testlist_line[0:i-1]
 		output_testlist.write(test_name + '\n')
-		output_expected.write('PASS' + '\n')
 
 
 def ReadConfigFile(executable_name, v_input, v_output):
@@ -147,6 +121,12 @@ if __name__ == '__main__':
 	
 	if checkForTestResultsFile:
 		os.system('rm testresultsfilename')
+
+	currTime = strftime("%d_%m_%Y_%H%M%S", localtime())
+
+        testResultsFile = 'testresults_' + currTime
+	resultsfileptr = open(testResultsFile, 'w')
+
 
 	isSimple = 0
 
@@ -191,17 +171,12 @@ if __name__ == '__main__':
 	else:
 	       	ReadConfigFile(executable_name, v_input, v_output)
 		
-		if (executable_name != 'NONE'):
-			runtype = 2
-			
 	
-       	CreateOutput(runtype)
-	os.system('make clobber')
+       	CreateOutput(runtype, resultsfileptr)
+	os.system('make clean')
 		
 	if isSimple:
 		os.remove('test_list')
-       	os.remove('tempfile')
-	os.remove('temptestlist')
 		 
 			
 			
