@@ -59,7 +59,7 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
           }
           case CMD_RESULT_STRING:
           {
-            std::string C = NULL;
+            std::string C;
             ((CommandResult_String *)(*cri))->Value(&C);
             p_object = Py_BuildValue("S", C.c_str());
             break;
