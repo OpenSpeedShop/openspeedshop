@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [ $1 = "openss" ] ; then
+  echo using 'more MAN'
+  more MAN
+  exit
+else
+  /usr/bin/man $@
+fi
+
