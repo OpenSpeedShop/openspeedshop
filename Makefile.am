@@ -21,7 +21,15 @@ SUBDIRS = . \
 	libopenss-framework \
 	plugins \
 	examples \
-	base objects dialogs expr_info plugin objects chart pcli gui Panels
+	base \
+	dialogs \
+	expr_info \
+	plugin \
+	chart \
+	pcli \
+	gui \
+	Panels \
+	objects
 
 bin_PROGRAMS = openspeedshop
 
