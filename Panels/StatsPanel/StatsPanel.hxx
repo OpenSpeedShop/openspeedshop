@@ -16,9 +16,6 @@ class QVBoxLayout;
 typedef QValueList<QString> ColumnList;
 
 #define PANEL_CLASS_NAME StatsPanel   // Change the value of the define
-
-enum HeaderType { INT_T, FLOAT_T, CHAR_T };
-                                         // to the name of your new class.
 //! StatsPanel Class
 class StatsPanel  : public Panel
 {
@@ -59,7 +56,7 @@ class StatsPanel  : public Panel
 //! Store away the header types.  This is used later by the SPListView::key(...)
 //! routine to sort the columns.  (i.e. It's used to determine the column
 //! 'type'.
-    HeaderType headerTypeArray[8];  // 8 matches the QListView column limitation.
+    MetricHeaderType metricHeaderTypeArray[8];  // 8 matches the QListView column limitation.
 private:
     int numberItemsToRead;
     ColumnList columnList;

@@ -545,7 +545,7 @@ pcSamplePanel::loadSourcePanel()
 void
 pcSamplePanel::loadStatsPanel()
 {
-  printf("load the stats panel.\n");
+  nprintf( DEBUG_PANELS ) ("load the stats panel.\n");
 
   PanelContainer *pc = topPC->findBestFitPanelContainer(topPC);
 
@@ -553,7 +553,7 @@ pcSamplePanel::loadStatsPanel()
 
   if( p )
   {
-    printf("call p(%s)'s listener routine.\n", p->getName() );
+    nprintf( DEBUG_PANELS ) ("call p(%s)'s listener routine.\n", p->getName() );
     MessageObject *msg = new MessageObject("UpdateAllObject");
     p->listener( (void *)msg );  // Kludge to simple put out some data... 
   }

@@ -178,9 +178,13 @@ StatsPanel::updateStatsPanelData()
 
 // First delete the old column list.  (also used for dynamic menus)
   columnList.clear();
-  for( int i=0; i<COLUMNS_OF_INFO; i++ )
-  {
-    lv->addColumn( header_strings[i] );
+  int i=0;
+  for( MetricHeaderInfoList::Iterator pit = collectorData->metricHeaderInfoList.begin(); pit != collectorData->metricHeaderInfoList.end(); ++pit )
+  { 
+    MetricHeaderInfo *mhi = (MetricHeaderInfo *)*pit;
+    QString s = mhi->label;
+    lv->addColumn( s );
+#ifdef OLDWAY
 // This next comment out call and if-else block should be replaced with 
 // calls to the cli->frameWorks getMetricType(...) routines.   This is 
 // contrived for the demo test case.
@@ -195,8 +199,12 @@ if( i == 1 || i == 5 || i == 6 )
 {
   headerTypeArray[i] = CHAR_T;
 }
+#else // OLDWAY
+  metricHeaderTypeArray[i] = mhi->type;
+#endif // OLDWAY
   
-    columnList.push_back( QString(header_strings[i]) );
+    columnList.push_back( s );
+    i++;
   }
 
   MetricInfo *fi;
@@ -204,7 +212,8 @@ if( i == 1 || i == 5 || i == 6 )
   char rankstr[10];
   char filestr[21];
   char funcstr[21];
-  int i = 0;
+
+  i = 0;
   for( MetricInfoList::Iterator it = collectorData->metricInfoList.begin();
        it != collectorData->metricInfoList.end();
        it++ )

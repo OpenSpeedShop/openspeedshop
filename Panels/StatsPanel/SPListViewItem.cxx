@@ -39,12 +39,12 @@ SPListViewItem::key(int c, bool b) const
 {
   dprintf("GROWL! c=%d\n", c);
   QString s;
-  if( statsPanel->headerTypeArray[c] == INT_T )
+  if( statsPanel->metricHeaderTypeArray[c] == INT_T )
   {
     /* sorting by int */
     dprintf("sort by int\n");
     s.sprintf("%08d",text(c).toInt());
-  } else if( statsPanel->headerTypeArray[c] == FLOAT_T )
+  } else if( statsPanel->metricHeaderTypeArray[c] == FLOAT_T )
   {
     dprintf("sort by float %07.2lf\n", text(c).toDouble() );
     /* sorting by float */

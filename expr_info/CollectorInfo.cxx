@@ -49,6 +49,14 @@ CollectorInfo::fudgeValues()
     experimentNotes = strdup("From file fred_calls_ted.pcsamp\n");
   }
 
+  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Percent"), FLOAT_T));
+  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Rank"), INT_T));
+  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Exclusive Time"), FLOAT_T));
+  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Function"), CHAR_T));
+  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Filename"), CHAR_T));
+  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Start Line #"), INT_T));
+  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Range"), INT_T));
+
   int i = 0;
   MetricInfo *nfi;
   nfi = new MetricInfo(i, (float)44.2, (float)0.190, "foo()", "foo.c", 11, 11, 14);

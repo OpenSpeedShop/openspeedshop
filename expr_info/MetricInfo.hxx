@@ -1,9 +1,6 @@
 #ifndef METRICINFO_H
 #define METRICINFO_H
 
-#define COLUMNS_OF_INFO 7
-static char *header_strings[] = { "Percent", "Rank", "Exclusive Time", "Function", "Filename", "Start Line #", "Range" };
-
 class MetricInfo
 {
 public:
