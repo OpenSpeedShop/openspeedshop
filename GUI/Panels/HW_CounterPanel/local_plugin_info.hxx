@@ -6,5 +6,5 @@
   plugin_entry->plugin_entry_point = "panel_init";
   plugin_entry->menu_heading =  "&Experiments";
   plugin_entry->menu_label =  "&HW Counter";
-  plugin_entry->menu_accel =  "Ctrl+HW Counter";
+  plugin_entry->menu_accel =  "Ctrl+H";
   plugin_entry->panel_type =  "HW Counter";
