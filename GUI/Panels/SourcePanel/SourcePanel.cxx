@@ -124,6 +124,9 @@ SourcePanel::menu(QPopupMenu* contextMenu)
       SLOT(showLineNumbers()), CTRL+Key_L );
   }
   contextMenu->insertItem("&Find...", this, SLOT(findString()), CTRL+Key_F );
+  contextMenu->insertSeparator();
+  contextMenu->insertItem("Zoom In", this, SLOT(zoomIn()), CTRL+Key_Plus );
+  contextMenu->insertItem("Zoom Out", this, SLOT(zoomOut()), CTRL+Key_Minus );
 
   return( TRUE );
 }
@@ -326,6 +329,18 @@ SourcePanel::findString()
   {
     // user entered nothing or pressed Cancel
   }
+}
+
+void
+SourcePanel::zoomIn()
+{
+  textEdit->zoomIn();
+}
+
+void
+SourcePanel::zoomOut()
+{
+  textEdit->zoomOut();
 }
 
 /* Load a given file in the display. */

@@ -149,6 +149,9 @@ public slots:
   void whoCallsMe();
   void whoDoICall();
 
+  void zoomIn();
+  void zoomOut();
+
 protected:
 
 private:
