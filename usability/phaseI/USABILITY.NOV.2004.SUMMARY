@@ -108,6 +108,18 @@ Following is a summary of comments and observations.
    the top panel (visible panel) should stay in the current panel and all
    others should be moved to the new panel container.
 
+   FIXED: Modid:  current:OpenSpeedShop:184185a
+               current:OpenSpeedShop:184186a
+      During the usability study it was suggested by several 
+      candidates that when splitting panel containers that had multiply 
+      panels in them that the panels should be divided between the new 
+      panel containers.
+
+      This mod fulfills the request.  When more than one panel is in the 
+      panel container, and a request to split the panel container is made, 
+      the current panel stays in the current panel container and all other 
+      panels are moved to the new panel container.
+
  - Fonts, fonts, fonts
    The default font selected not the best.   Additionally it wasn't obvious
    how to set the font.
