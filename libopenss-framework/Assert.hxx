@@ -47,7 +47,7 @@
  * @ingroup Utility
  */
 #define Assert(assertion)			    			    \
-    if(!(assertion)) {							\
+    if(!(assertion)) {							    \
 	fprintf(stderr, "Assertion \"%s\" failed in file %s at line %d.\n", \
 		# assertion, __FILE__, __LINE__);			    \
 	abort();							    \
