@@ -557,17 +557,7 @@ SourcePanel::loadFile(const QString &_fileName)
     }
   } else
   {
-
-#ifndef OLDWAY
     textEdit->setText( ts.read() );
-#else //  OLDWAY
-    while( !ts.atEnd() )
-    {
-      line = ts.readLine();  // line of text excluding '\n'
-      textEdit->append(line);
-      lineCount++;
-    }
-#endif //  OLDWAY
     // Need to set cursor position so subsequent position requests are fielded.
     textEdit->setCursorPosition(0, 0);
   }
@@ -633,9 +623,6 @@ statArea->setColumnWidth(0,DEFAULT_STAT_WIDTH-5);
     positionLineAtTop(lastTop);
     nprintf(DEBUG_PANELS) ("loadFile:: down here sameFile: lastTop=%d\n", lastTop);
   }
-
-  // Make sure the scrollbar is sync'd with everyone..
-//  valueChanged(-1);
 }
 
 /*! Get more information about the current posotion (if any). */
@@ -922,7 +909,7 @@ SourcePanel::valueChanged(int passed_in_value)
   lastTop = top_line;
 
   nprintf(DEBUG_PANELS) ("top_line =%d\n", top_line);
-  if( statArea )
+  if( statArea && line_numbersFLAG == TRUE || statsFLAG == TRUE )
   {
     nprintf(DEBUG_PANELS) ("vbar: minValue=%f vbar: maxValue=%f\n", vbar->minValue(), vbar->maxValue());
 
