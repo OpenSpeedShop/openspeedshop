@@ -200,7 +200,9 @@ SourcePanel::listener(void *msg)
   doFileHighlights();
 
   // Try to highlight the line...
+/*
   highlightLine(spo->line_number, "yellow", TRUE);
+*/
   hscrollbar->setValue(0);
 
   if( spo->raiseFLAG == TRUE )
