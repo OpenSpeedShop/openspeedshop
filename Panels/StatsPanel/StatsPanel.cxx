@@ -21,6 +21,10 @@
 #include "PanelContainer.hxx"   // Do not remove
 #include "plugin_entry_point.hxx"   // Do not remove
 
+#include <qvaluelist.h>
+class MetricHeaderInfo;
+typedef QValueList<MetricHeaderInfo *> MetricHeaderInfoList;
+
 
 #include "SPListView.hxx"   // Change this to your new class header file name
 #include "SPListViewItem.hxx"   // Change this to your new class header file name
@@ -35,6 +39,9 @@
 static char *color_name_table[10] =
   { "red", "orange", "yellow", "skyblue", "green" };
 
+
+#include "ToolAPI.hxx"
+using namespace OpenSpeedShop::Framework;
 
 
 StatsPanel::StatsPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
@@ -105,6 +112,7 @@ void
 StatsPanel::matchSelectedItem(int element)
 {
   dprintf ("StatsPanel::matchSelectedItem() = %d\n", element );
+#ifdef OLDWAY
 
   int i = 0;
   HighlightList *highlightList = new HighlightList();
@@ -169,18 +177,19 @@ StatsPanel::matchSelectedItem(int element)
       p->listener((void *)spo);
     }
   }
+#endif // OLDWAY
 }
 
 
 void
-StatsPanel::updateStatsPanelData(int expID, QString experiment_name)
+StatsPanel::updateStatsPanelData(void *expr, int expID, QString experiment_name)
 {
    // Read the new data, destroy the old data, and update the StatsPanel with
    // the new data.
 
 
   dprintf("updateStatsPanelData() enterd.\n");
-printf("updateStatsPanelData(%d, %s) enterd.\n", expID, experiment_name.ascii() );
+// printf("updateStatsPanelData(0x%x %d, %s) enterd.\n", expr, expID, experiment_name.ascii() );
 
   if( lv != NULL )
   {
@@ -226,71 +235,60 @@ printf("updateStatsPanelData(%d, %s) enterd.\n", expID, experiment_name.ascii() 
 
   lv->clear();
 
-  getUpdatedData();
-
   SPListViewItem *lvi;
-
-// First delete the old column list.  (also used for dynamic menus)
   columnList.clear();
+if( expr )
+{
+  Experiment *fw_experiment = (Experiment *)expr;
+// Evaluate the collector's time metric for all functions in the thread
+SmartPtr<std::map<Function, double> > data;
+ThreadGroup tgrp = fw_experiment->getThreads();
+ThreadGroup::iterator ti = tgrp.begin();
+Thread t1 = *ti;
+CollectorGroup cgrp = fw_experiment->getCollectors();
+CollectorGroup::iterator ci = cgrp.begin();
+Collector c1 = *ci;
+
+Queries::GetMetricByFunctionInThread(c1, "time", t1, data);
+
+// Display the results
+  MetricHeaderInfoList metricHeaderInfoList;
+  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Time"), FLOAT_T));
+  metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Function"), CHAR_T));
   if( metricHeaderTypeArray != NULL )
   {
     delete []metricHeaderTypeArray;
   }
-  int header_count = collectorData->metricHeaderInfoList.count();
+  int header_count = metricHeaderInfoList.count();
   metricHeaderTypeArray = new int[header_count];
+
   int i=0;
-  for( MetricHeaderInfoList::Iterator pit = collectorData->metricHeaderInfoList.begin(); pit != collectorData->metricHeaderInfoList.end(); ++pit )
+  for( MetricHeaderInfoList::Iterator pit = metricHeaderInfoList.begin(); pit != metricHeaderInfoList.end(); ++pit )
   { 
     MetricHeaderInfo *mhi = (MetricHeaderInfo *)*pit;
     QString s = mhi->label;
     lv->addColumn( s );
-  metricHeaderTypeArray[i] = mhi->type;
+    metricHeaderTypeArray[i] = mhi->type;
   
     columnList.push_back( s );
     i++;
   }
 
-  MetricInfo *fi;
-  char buffer[1024];
-  char rankstr[10];
-  char filestr[21];
-  char funcstr[21];
-
-  i = 0;
-  for( MetricInfoList::Iterator it = collectorData->metricInfoList.begin();
-       it != collectorData->metricInfoList.end();
-       it++ )
+  
+  char timestr[50];
+  for(std::map<Function, double>::const_iterator
+        item = data->begin(); item != data->end(); ++item)
   {
-    if( i >= numberItemsToRead )
-    {
-      break;
-    }
-    fi = (MetricInfo *)*it;
-
-    dprintf("fi->functionName=(%s)\n", fi->functionName );
-    char *ptr = NULL;
-    ptr = truncateCharString(fi->functionName, 17);
-    strcpy(funcstr, ptr);
-    free(ptr);
-    ptr = truncateCharString(fi->fileName, 17);
-    strcpy(filestr, ptr);
-    free(ptr);
-    sprintf(rankstr, "%d", fi->index);
-//     sprintf(buffer, "%-9s %-15s  %3.3f   %-20s  %d\n", rankstr, funcstr, fi->percent, filestr, fi->function_line_number);
-
-    char percentstr[10];
-    char exclusivestr[20];
-    char startlinenostr[20];
-    char endlinenostr[20];
-    sprintf(percentstr, "%f", fi->percent);
-    sprintf(exclusivestr, "%f", fi->exclusive_seconds);
-    sprintf(startlinenostr, "%d", fi->start);
-    sprintf(endlinenostr, "%d", fi->end);
-    lvi=  new SPListViewItem( this, lv, percentstr, rankstr, exclusivestr, funcstr, filestr, startlinenostr, endlinenostr );
-      lvi = new SPListViewItem( this, lvi, "SubText", QString("Additional Text for Rank ")+QString(rankstr) );
-        (void)new SPListViewItem( this, lvi, "SubSubText", QString("Additional Text for Rank ")+QString(rankstr) );
-    i++;
+    sprintf(timestr, "%f", item->second);
+    lvi =  new SPListViewItem( this, lv, timestr,  item->first.getName() );
+#ifdef OLDWAY
+        std::cout << std::setw(10) << std::fixed << std::setprecision(3)
+              << item->second
+              << "    "
+              << item->first.getName() << std::endl;
+#endif // OLDWAY
   }
+}
 
   frameLayout->addWidget(lv);
 
@@ -442,7 +440,7 @@ StatsPanel::listener(void *msg)
   {
     UpdateObject *msg = (UpdateObject *)msgObject;
 msg->print();
-    updateStatsPanelData(msg->expID, msg->experiment_name);
+    updateStatsPanelData(msg->fw_expr, msg->expID, msg->experiment_name);
 if( msg->raiseFLAG )
 {
   getPanelContainer()->raisePanel((Panel *)this);
@@ -557,6 +555,7 @@ StatsPanel::truncateCharString(char *str, int length)
   return newstr;
 }
 
+#ifdef OLDWAY
 // This routine needs to be rewritten when we really get the framework 
 // round trip written.
 void
@@ -565,3 +564,4 @@ StatsPanel::getUpdatedData()
   // Get the information about the collector.  
   collectorData = new CollectorInfo();
 }
+#endif // OLDWAY

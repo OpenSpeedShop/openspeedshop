@@ -28,9 +28,10 @@
 
 /*! Constructor for the UpdateObject.
  */
-UpdateObject::UpdateObject(int id, QString ename, bool rF) : MessageObject("UpdateExperimentDataObject")
+UpdateObject::UpdateObject(void *expr, int id, QString ename, bool rF) : MessageObject("UpdateExperimentDataObject")
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("UpdateObject::UpdateObject(entered.\n");
+  fw_expr = expr;
   expID = id;
   experiment_name = ename;
   raiseFLAG = rF;
@@ -46,6 +47,7 @@ void
 UpdateObject::print()
 {
   printf("UpdateObject:\n");
+  printf("	fw+expr=(0x%x)\n", fw_expr );
   printf("	expID=(%d)\n", expID );
   printf("	experiment_name=(%s)\n", experiment_name.ascii());
   printf("	raiseFLAG=(%d)\n", raiseFLAG);

@@ -71,7 +71,7 @@ class StatsPanel  : public Panel
 
     bool createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos );
 
-    void updateStatsPanelData(int expID = 0, QString experiment_name = NULL);
+    void updateStatsPanelData(void *expr = 0, int expID = 0, QString experiment_name = NULL);
 
     //! truncate the character string.
     char *truncateCharString(char *str, int length);
@@ -85,8 +85,10 @@ class StatsPanel  : public Panel
 private:
     int numberItemsToRead;
     ColumnList columnList;
+#ifdef OLDWAY
     CollectorInfo *collectorData;
     void getUpdatedData();
+#endif // OLDWAY
     void matchSelectedItem( int );
 
   public slots:

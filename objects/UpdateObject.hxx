@@ -27,13 +27,16 @@ class UpdateObject : public MessageObject
 {
 public:
     //! Constructor for creating source message.
-    UpdateObject(int  expID, QString experiment_name, bool raiseFLAG);
+    UpdateObject(void *expr, int  expID, QString experiment_name, bool raiseFLAG);
 
     //! Destructor
     ~UpdateObject();
 
     //! Prints debug information about this object.
     void print();
+
+    //! pointer to the framework experiment
+    void *fw_expr;
 
     //! The function name to highlight
     QString experiment_name;

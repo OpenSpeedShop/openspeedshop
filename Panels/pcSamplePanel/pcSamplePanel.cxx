@@ -213,38 +213,6 @@ printf("call the setParameterValue...(sampling_rate, 10)\n");
 collector.attachThread(thread);
 collector.startCollecting();
 
-#ifdef MOVE
-// Resume all threads and wait for them to terminate
-experiment->getThreads().changeState(Thread::Running);
-while(!experiment->getThreads().areAllState(Thread::Terminated))
-{
-  sleep(1);
-}
-
-// Evaluate the collector's time metric for all functions in the thread
-SmartPtr<std::map<Function, double> > data;
-Queries::GetMetricByFunctionInThread(collector, "time", thread, data);
-
-
-// Display the results
-std::cout << std::endl << std::endl << std::endl
-		  << std::setw(10) << "Time"
-		  << "    "
-		  << "Function" << std::endl
-		  << std::endl;
-	
-for(std::map<Function, double>::const_iterator
-		i = data->begin(); i != data->end(); ++i)
-{
-	    std::cout << std::setw(10) << std::fixed << std::setprecision(3)
-		      << i->second
-		      << "    "
-		      << i->first.getName() << std::endl;
-}
-std::cout << std::endl << std::endl << std::endl;
-#else // MOVE
-#endif // MOVE
-	
     }
 
   
@@ -803,9 +771,10 @@ pcSamplePanel::loadStatsPanel()
   if( p )
   {
     nprintf( DEBUG_PANELS ) ("call p(%s)'s listener routine.\n", p->getName() );
-    UpdateObject *msg = new UpdateObject(expID, "example", 1);
+    UpdateObject *msg = new UpdateObject((void *)fw_experiment(), expID, "example", 1);
     p->listener( (void *)msg );
   }
+#ifdef MOVE_TO_STATSPANEL
 if( fw_experiment() )
 {
 // Evaluate the collector's time metric for all functions in the thread
@@ -836,4 +805,5 @@ for(std::map<Function, double>::const_iterator
 }
 std::cout << std::endl << std::endl << std::endl;
 }
+#endif // MOVE_TO_STATSPANEL
 }

@@ -23,12 +23,13 @@ StatsPanel_la_CXXFLAGS = \
     -I$(QTDIR)/include \
     -I. \
     -I../../objects \
+    -I../../libopenss-framework \
     -I../../gui \
     -I../../expr_info \
     -I../../plugin \
     -I../../base
 
-StatsPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../objects/.libs/ossObjects.so -Wl,../../expr_info/.libs/ossExprInfo.so -Wl,../../base/.libs/ossBase.so
+StatsPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -Wl,../../objects/.libs/ossObjects.so -Wl,../../expr_info/.libs/ossExprInfo.so -Wl,../../base/.libs/ossBase.so  -Wl,../../libopenss-framework/.libs/libopenss-framework.so 
 
 StatsPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
 
