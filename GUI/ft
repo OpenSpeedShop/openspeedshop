@@ -1,7 +1,5 @@
 #!/bin/sh
 
-echo "THIS CURRENTLY ONLY WORKS FOR STIPEK. I'll modify shortly."
-
 export SYSTYPE=`uname -s`
 echo SYSTYPE=$SYSTYPE
 export SYSNAME=`uname -n`
@@ -25,26 +23,26 @@ export FUTURE_TOOL_ENTRY_POINT=gui_init
 set +x
 if [ $SYSTYPE = "Linux" ] ; then
   if [ $SYSNAME = "hope.americas.sgi.com" ] ; then
-    export FUTURE_TOOL_PLUGIN_DIR=/home/tulip22/stipek/OpenSpeedShop/GUI/plugin/lib/futuretool
+    export FUTURE_TOOL_PLUGIN_DIR=$WORKAREA/GUI/plugin/lib/futuretool
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$FUTURE_TOOL_PLUGIN_DIR
     if [[ $1 = -cli ]]
     then
-      /home/tulip22/stipek/OpenSpeedShop/GUI/cli/cli $@
+      $WORKAREA/GUI/cli/cli $@
     else
-#      /home/tulip22/stipek/OpenSpeedShop/GUI/ftd -ns -fn -misc-fixed-bold-r-normal--13-100-100-100-c-70-iso8859-1 $@
-      /home/tulip22/stipek/OpenSpeedShop/GUI/ftd -ns -fn 6x13 $@
+#      $WORKAREA/GUI/ftd -ns -fn -misc-fixed-bold-r-normal--13-100-100-100-c-70-iso8859-1 $@
+      $WORKAREA/GUI/ftd -ns -fn 6x13 $@
     fi
   else 
 #   home linux
-    export FUTURE_TOOL_PLUGIN_DIR=/home/stipek/QtPC/plugin/lib/futuretool
+    export FUTURE_TOOL_PLUGIN_DIR=$WORKAREA/GUI/plugin/lib/futuretool
     echo FUTURE_TOOL_PLUGIN_DIR=$FUTURE_TOOL_PLUGIN_DIR
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$FUTURE_TOOL_PLUGIN_DIR
     export LD_LIBRARYN32_PATH=$LD_LIBRARYN32_PATH:$LD_LIBRARY_PATH
     if [[ $1 = -cli ]]
     then
-      /home/stipek/QtPC/cli/cli $@
+      $WORKAREA/GUI/cli/cli $@
     else
-      /home/stipek/QtPC/ftd -ns -fn 6x13 $@
+      $WORKAREA/GUI/ftd -ns -fn 6x13 $@
     fi
   fi
 else
