@@ -194,11 +194,11 @@ catch_signal (int sig, int error_num)
 {
   static bool processing_signal = false;
   if (processing_signal) {
-fprintf(stdout,"Multiple errors - %d %d\n",sig, error_num);
+    fprintf(stderr,"Multiple errors - %d %d\n",sig, error_num);
     abort();
   }
   processing_signal = true;
-fprintf(stdout,"catch_signal %d\n",sig);
+fprintf(stderr,"catch_signal %d\n",sig);
   cli_terminate ();
   exit (1);
 }
@@ -226,8 +226,12 @@ setup_signal_handler (int s)
 
     int i;
     ArgStruct *argStruct = new ArgStruct(argc, argv);
-    struct hostent *my_host = gethostent();
     pid_t my_pid = getpid();
+    char HostName[MAXHOSTNAMELEN+1];
+    if (gethostname ( &HostName[0], MAXHOSTNAMELEN)) {
+      fprintf(stderr,"ERROR: can not retreive host name\n");
+      abort ();
+    }
 
     need_gui = false;
     need_tli = false;
@@ -249,7 +253,7 @@ setup_signal_handler (int s)
     if (need_command_line || read_stdin_file)
     {
      // Move the command line options to an input control window.
-      command_line_window = Default_Window ("COMMAND_LINE",my_host->h_name,my_pid,0,false);
+      command_line_window = Default_Window ("COMMAND_LINE",&HostName[0],my_pid,0,false);
       Start_COMMAND_LINE_Mode( command_line_window, argc-1, &argv[1], initiate_command_at-1,
                                need_batch, read_stdin_file);
     } else if (need_batch && (argc <= 2) && !read_stdin_file) {
@@ -260,7 +264,7 @@ setup_signal_handler (int s)
     if (need_tli)
     {
      // Start up the Text Line Interface to read from the keyboard.
-      tli_window = TLI_Window ("TLI",my_host->h_name,my_pid,0,true);
+      tli_window = TLI_Window ("TLI",&HostName[0],my_pid,0,true);
       int stat = pthread_create(&phandle[0], 0, (void *(*)(void *))SS_Direct_stdin_Input,(void *)tli_window);
     }
 
@@ -273,7 +277,7 @@ setup_signal_handler (int s)
 // the GUI can open and define an async input window.
 // The hack is to define a dummy async window before python starts.
 // We will need to sort this out at some point in the future.
-      gui_window = GUI_Window ("GUI",my_host->h_name,my_pid,0,true);
+      gui_window = GUI_Window ("GUI",&HostName[0],my_pid,0,true);
       argStruct->addArg("-wid");
       char buffer[10];
       sprintf(buffer, "%d", gui_window);

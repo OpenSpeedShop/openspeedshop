@@ -397,11 +397,16 @@ bool SS_OpenGui (CommandObject *cmd) {
     int argc = 0;
     char **argv = NULL;
     ArgStruct *argStruct = new ArgStruct(argc, argv);
-    if (gui_window != 0) {
+    if (gui_window == 0) {
      // The GUI was not opened before so we need to define an input control window for it.
-      struct hostent *my_host = gethostent();
+      char HostName[MAXHOSTNAMELEN+1];
+      if (gethostname ( &HostName[0], MAXHOSTNAMELEN)) {
+        cmd->Result_String ("ERROR: can not retreive host name");
+        cmd->set_Status(CMD_ERROR);
+        return false;
+      }
       pid_t my_pid = getpid();
-      gui_window = GUI_Window ("GUI",my_host->h_name,my_pid,0,true);
+      gui_window = GUI_Window ("GUI",&HostName[0],my_pid,0,true);
     }
    // Add the input window to the argument list
     argStruct->addArg("-wid");
