@@ -1,3 +1,5 @@
+#ifndef SS_INPUT_MANAGER_H
+#define SS_INPUT_MANAGER_H
 #include <unistd.h>
 #include <pthread.h>
 #include <sys/types.h>
@@ -30,3 +32,4 @@ using namespace OpenSpeedShop::Framework;
 #include "Experiment.hxx"
 
 #include "ArgClass.hxx"
+#endif // SS_INPUT_MANAGER_H

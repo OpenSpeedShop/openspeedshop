@@ -1,3 +1,5 @@
+#ifndef COMMANDER_H
+#define COMMANDER_H
 typedef int64_t EXPID;
 typedef int64_t CMDID;
 typedef int64_t CMDWID;
@@ -167,3 +169,4 @@ void List_CommandWindows ( FILE *TFile );
 extern void Link_Cmd_Obj_to_Input (InputLineObject *I, CommandObject *);
 extern void Clip_Complete (InputLineObject *clip);
 extern void Cmd_Obj_Complete (CommandObject *C);
+#endif // COMMANDER_H
