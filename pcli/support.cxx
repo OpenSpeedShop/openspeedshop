@@ -712,6 +712,8 @@ dump_command()
 void
 cmd_init()
 {
+extern int yydebug;
+yydebug = 1;
     command.lineno_table.entry_size	= sizeof(arg_desc_t);	/*  */
     command.address_table.entry_size	= sizeof(arg_desc_t);	/*  */
     command.pid_table.entry_size    	= sizeof(arg_desc_t);
