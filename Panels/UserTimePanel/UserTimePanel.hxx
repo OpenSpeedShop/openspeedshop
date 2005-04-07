@@ -129,15 +129,9 @@ public:
 
 OpenSpeedShop::Framework::Experiment *fw_experiment() { return experiment; }
 
-#ifdef OLDWAY // move to public slots if needed again.
-  void loadNewProgramSelected();
-  bool detachFromProgramSelected();
-  void attachToExecutableSelected();
-#endif // OLDWAY
 public slots:
   void saveAsSelected();
-  void manageCollectorsSelected();
-  void manageProcessesSelected();
+  void manageCollectorsAndProcessesSelected();
   void manageDataSetsSelected();
   void loadSourcePanel();
   void loadStatsPanel();

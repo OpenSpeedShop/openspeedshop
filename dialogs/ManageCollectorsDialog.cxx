@@ -205,6 +205,7 @@ void
 ManageCollectorsDialog::updateAttachedList()
 {
 // printf("updateAttachedList() dialogSortType=%d\n", dialogSortType);
+// printf("updateAttachedList(%d) \n", expID );
 
   attachCollectorsListView->clear();
 

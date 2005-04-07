@@ -70,14 +70,14 @@ CollectorListObject::createCollectorList(int expID)
     {
       return;
     }
-    ThreadGroup tgrp = experiment->getThreads();
-    if( tgrp.size() == 0 )
-    {
-      fprintf(stderr, "There are no known threads for this experiment.\n");
-      return;
-    }
-    ThreadGroup::iterator ti = tgrp.begin();
-    Thread t1 = *ti; 
+//    ThreadGroup tgrp = experiment->getThreads();
+//    if( tgrp.size() == 0 )
+//    {
+//      fprintf(stderr, "There are no known threads for this experiment.\n");
+//      return;
+//    }
+//    ThreadGroup::iterator ti = tgrp.begin();
+//    Thread t1 = *ti; 
     CollectorGroup cgrp = experiment->getCollectors();
     if( cgrp.size() > 0 )
     {
@@ -139,7 +139,6 @@ CollectorListObject::createCollectorList(int expID)
   }
   catch(const std::exception& error)
   {
-printf("You threw an exception...\n");
     std::cerr
       << std::endl 
       << "Error: " 

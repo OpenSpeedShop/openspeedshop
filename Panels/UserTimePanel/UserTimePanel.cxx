@@ -76,7 +76,7 @@ UserTimePanel::UserTimePanel(PanelContainer *pc, const char *n, void *argument) 
     QString *expIDString = (QString *)argument;
     if( expIDString->toInt() == -1 )
     {
-      nprintf( DEBUG_PANELS ) ("we're coming in from the pcSampleWizardPanel.\n");
+      nprintf( DEBUG_PANELS ) ("we're coming in from the usertimeWizardPanel.\n");
       // We're comming in cold,
       // Check to see if there's a suggested executable or pid ...
       if( !mw->executableName.isEmpty() )
@@ -91,25 +91,25 @@ UserTimePanel::UserTimePanel(PanelContainer *pc, const char *n, void *argument) 
       expID = expIDString->toInt();
       nprintf( DEBUG_PANELS ) ("we're coming in with an expID=%d\n", expID);
       // Look to see if any collectors have already been assigned.   If not, we
-      // need to attach the pcsample collector.
+      // need to attach the usertimele collector.
       eo = Find_Experiment_Object((EXPID)expID);
       if( eo && eo->FW() )
       {
         experiment = eo->FW();
       }
-      ThreadGroup tgrp = experiment->getThreads();
-      if( tgrp.size() == 0 )
-      {
-        fprintf(stderr, "There are no known threads for this experiment.\n");
-        return;
-      }
-      ThreadGroup::iterator ti = tgrp.begin();
-      Thread t1 = *ti; 
+//      ThreadGroup tgrp = experiment->getThreads();
+//      if( tgrp.size() == 0 )
+//      {
+//        fprintf(stderr, "There are no known threads for this experiment.\n");
+//        return;
+//      }
+//      ThreadGroup::iterator ti = tgrp.begin();
+//      Thread t1 = *ti; 
       CollectorGroup cgrp = experiment->getCollectors();
       if( cgrp.size() == 0 )
       {
         nprintf( DEBUG_PANELS ) ("There are no known collectors for this experiment so add one.\n");
-        QString command = QString("expAttach -x %1 pcsamp").arg(expID);
+        QString command = QString("expAttach -x %1 usertime").arg(expID);
         CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
         if( !cli->runSynchronousCLI((char *)command.ascii() ) )
         {
@@ -147,32 +147,32 @@ UserTimePanel::UserTimePanel(PanelContainer *pc, const char *n, void *argument) 
   PanelContainerList *lpcl = new PanelContainerList();
   lpcl->clear();
 
-  QWidget *pcSampleControlPanelContainerWidget =
-    new QWidget( getBaseWidgetFrame(), "pcSampleControlPanelContainerWidget" );
-  topPC = createPanelContainer( pcSampleControlPanelContainerWidget,
+  QWidget *usertimeControlPanelContainerWidget =
+    new QWidget( getBaseWidgetFrame(), "usertimeControlPanelContainerWidget" );
+  topPC = createPanelContainer( usertimeControlPanelContainerWidget,
                               "PCSamplingControlPanel_topPC", NULL,
                               pc->getMasterPCList() );
-  frameLayout->addWidget( pcSampleControlPanelContainerWidget );
+  frameLayout->addWidget( usertimeControlPanelContainerWidget );
 
   OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
 
-  nprintf( DEBUG_PANELS ) ("Create a new pcSample experiment.\n");
+  nprintf( DEBUG_PANELS ) ("Create a new usertime experiment.\n");
 
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
 
   if( expID == -1 )
   {
-    // We're coming in cold, or we're coming in from the pcSampleWizardPanel.
+    // We're coming in cold, or we're coming in from the usertimeWizardPanel.
     char command[1024];
     if( !executableNameStr.isEmpty() )
     {
-      sprintf(command, "expCreate -f %s pcsamp\n", executableNameStr.ascii() );
+      sprintf(command, "expCreate -f %s usertime\n", executableNameStr.ascii() );
     } else if( !pidStr.isEmpty() )
     { 
-      sprintf(command, "expCreate -x %s pcsamp\n", pidStr.ascii() );
+      sprintf(command, "expCreate -x %s usertime\n", pidStr.ascii() );
     } else
     {
-      sprintf(command, "expCreate pcsamp\n" );
+      sprintf(command, "expCreate usertime\n" );
     }
     bool mark_value_for_delete = true;
     int64_t val = 0;
@@ -216,7 +216,7 @@ UserTimePanel::UserTimePanel(PanelContainer *pc, const char *n, void *argument) 
     }
   } else
   {
-    nprintf( DEBUG_PANELS ) ("pcSample has been requested to open an existing experiment!!!\n");
+    nprintf( DEBUG_PANELS ) ("usertime has been requested to open an existing experiment!!!\n");
     // Look up the framework experiment and squirrel it away.
     ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
     if( eo && eo->FW() )
@@ -235,7 +235,7 @@ UserTimePanel::UserTimePanel(PanelContainer *pc, const char *n, void *argument) 
   groupID = expID;
 
 
-  pcSampleControlPanelContainerWidget->show();
+  usertimeControlPanelContainerWidget->show();
   topPC->show();
   topLevel = TRUE;
   topPC->topLevel = TRUE;
@@ -306,14 +306,8 @@ UserTimePanel::menu(QPopupMenu* contextMenu)
   contextMenu->insertItem(tr("pc S&tats Panel..."), this, SLOT(loadStatsPanel()), CTRL+Key_T );
   contextMenu->insertItem(tr("S&ource Panel..."), this, SLOT(loadSourcePanel()), CTRL+Key_O );
   contextMenu->insertSeparator();
-#ifdef OLDWAY
-  contextMenu->insertItem(tr("Load &New Program..."), this, SLOT(loadNewProgramSelected()), CTRL+Key_N );
-  contextMenu->insertItem(tr("Detach &From Program..."), this, SLOT(detachFromProgramSelected()), CTRL+Key_N );
-  contextMenu->insertItem(tr("Attach To &Executable..."), this, SLOT(attachToExecutableSelected()), CTRL+Key_E );
-#endif // OLDWAY
   contextMenu->insertSeparator();
-  contextMenu->insertItem(tr("&Manage Collectors..."), this, SLOT(manageCollectorsSelected()), CTRL+Key_M );
-  contextMenu->insertItem(tr("Manage &Processes..."), this, SLOT(manageProcessesSelected()), CTRL+Key_P );
+  contextMenu->insertItem(tr("&Manage Collectors and Processes..."), this, SLOT(manageCollectorsAndProcessesSelected()), CTRL+Key_M );
   contextMenu->insertItem(tr("&Manage &Data Sets..."), this, SLOT(manageDataSetsSelected()), CTRL+Key_D );
   contextMenu->insertSeparator();
   contextMenu->insertItem("&Save As ...", this, SLOT(saveAsSelected()), CTRL+Key_S ); 
@@ -321,183 +315,10 @@ UserTimePanel::menu(QPopupMenu* contextMenu)
   return( TRUE );
 }
 
-#ifdef OLDWAY
 void
-UserTimePanel::loadNewProgramSelected()
+UserTimePanel::manageCollectorsAndProcessesSelected()
 {
-  nprintf( DEBUG_PANELS ) ("UserTimePanel::loadNewProgramSelected()\n");
-  if( runnableFLAG == TRUE )
-  {
-    nprintf( DEBUG_PANELS ) ("Disconnect First?\n"); 
-    if( detachFromProgramSelected() == FALSE )
-    {
-      return;
-    }
-  }
-  if( mw )
-  {
-    mw->executableName = QString::null;
-    mw->pidStr = QString::null;
-    mw->loadNewProgram();
-    if( !mw->executableName.isEmpty() )
-    {
-      executableNameStr = mw->executableName;
-
-    nprintf( DEBUG_PANELS ) ("Attempt to load %s\n", mw->executableName.ascii() );
-    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-
-    char command[1024];
-    sprintf(command, "expAttach -f %s\n", executableNameStr.ascii() );
-
-    steps = 0;
-    pd = new GenericProgressDialog(this, "Loading process...", TRUE);
-    loadTimer = new QTimer( this, "progressTimer" );
-    connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
-    loadTimer->start( 0 );
-    pd->show();
-    statusLabelText->setText( tr(QString("Loading ...  "))+mw->executableName);
-
-    runnableFLAG = FALSE;
-    pco->runButton->setEnabled(FALSE);
-    pco->runButton->enabledFLAG = FALSE;
-    nprintf( DEBUG_PANELS ) ("Attempting to do an (%s)\n", command );
-
-    if( !cli->runSynchronousCLI(command) )
-    {
-      fprintf(stderr, "Error retreiving experiment id. \n");
-  //    return;
-    }
-
-    statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the \"Run\" button to begin the experiment.")) );
-    loadTimer->stop();
-    pd->hide();
-
-    runnableFLAG = TRUE;
-    pco->runButton->setEnabled(TRUE);
-    pco->runButton->enabledFLAG = TRUE;
-
-    } else if( !mw->pidStr.isEmpty() )
-    {
-      pidStr = mw->pidStr;
-    }
-    if( !executableNameStr.isEmpty() || !pidStr.isEmpty() )
-    {
-      updateInitialStatus();
-    }
-  }
-}   
-#endif // OLDWAY
-
-#ifdef OLDWAY
-bool
-UserTimePanel::detachFromProgramSelected()
-{
-  nprintf( DEBUG_PANELS ) ("UserTimePanel::detachFromProgramSelected()\n");
-
-  
-  if( QMessageBox::question(
-            this,
-            tr("Detach?"),
-            tr("Process or executable already attached: Do you want to detach from the exising process(es)?"),
-            tr("&Yes"), tr("&No"),
-            QString::null, 0, 1 ) )
-  {
-    return FALSE;
-  }
-
-  if( mw )
-  {
-    mw->executableName = QString::null;
-    mw->pidStr = QString::null;
-  }
-
-  CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-
-  char command[1024];
-  sprintf(command, "expClose -x %d\n", expID );
-
-  int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
-  InputLineObject *clip = Append_Input_String( wid, command);
-
-  updateInitialStatus();
-
-
-  SourceObject *spo = new SourceObject(QString::null, QString::null, 0, TRUE, NULL);
-
-  broadcast((char *)spo, NEAREST_T);
-
-  runnableFLAG = FALSE;
-  nprintf( DEBUG_PANELS ) ("WARNING: Disable this window!!!!! Until an experiment (pcsamp) is restarted.\n");
-}
-#endif // OLDWAY
-
-#ifdef OLDWAY
-void
-UserTimePanel::attachToExecutableSelected()
-{
-  nprintf( DEBUG_PANELS ) ("UserTimePanel::attachToExecutableSelected()\n");
-  if( runnableFLAG == TRUE )
-  {
-    if( detachFromProgramSelected() == FALSE )
-    {
-      return;
-    }
-  }
-  if( mw )
-  {
-    mw->executableName = QString::null;
-    mw->pidStr = QString::null;
-    mw->attachNewProcess();
-  }
-
-  if( !mw->pidStr.isEmpty() )
-  {
-    nprintf( DEBUG_PANELS ) ("Attempt to load %s\n", mw->pidStr.ascii() );
-    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-
-    char command[1024];
-    sprintf(command, "expAttach -p %d\n", pidStr.toInt() );
-
-    steps = 0;
-    pd = new GenericProgressDialog(this, "Loading process...", TRUE);
-    loadTimer = new QTimer( this, "progressTimer" );
-    connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
-    loadTimer->start( 0 );
-    pd->show();
-    statusLabelText->setText( tr(QString("Loading ...  "))+mw->pidStr);
-
-    runnableFLAG = FALSE;
-    pco->runButton->setEnabled(FALSE);
-    pco->runButton->enabledFLAG = FALSE;
-    nprintf( DEBUG_PANELS ) ("Attempting to do an (%s)\n", command );
-
-    int64_t val = 0;  // unused
-    bool mark_value_for_delete = true;
-    if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete) )
-    {
-      fprintf(stderr, "Error retreiving experiment id. \n");
-  //    return;
-    }
-
-    statusLabelText->setText( tr(QString("Attached:  "))+mw->pidStr+tr(QString("  Click on the Continu button to continue with the experiment.")) );
-    loadTimer->stop();
-    pd->hide();
-
-    runnableFLAG = TRUE;
-    pco->runButton->setEnabled(TRUE);
-    pco->runButton->enabledFLAG = TRUE;
-#ifdef CONTINUE_BUTTON
-    pco->continueButton->setEnabled(TRUE);
-    pco->continueButton->enabledFLAG = TRUE;
-#endif // CONTINUE_BUTTON
-  }
-}   
-#endif // OLDWAY
-
-void
-UserTimePanel::manageCollectorsSelected()
-{
-  nprintf( DEBUG_PANELS ) ("UserTimePanel::manageCollectorsSelected()\n");
+  nprintf( DEBUG_PANELS ) ("UserTimePanel::manageCollectorsAndProcessesSelected()\n");
 
   if( manageCollectorsDialog == NULL )
   {
@@ -505,37 +326,25 @@ UserTimePanel::manageCollectorsSelected()
   }
   if( manageCollectorsDialog->exec() == QDialog::Accepted )
   {
-    printf("QDialog::Accepted\n");
+//    printf("QDialog::Accepted\n");
 //    pidStr = dialog->selectedProcesses();
+
+ThreadGroup tgrp = experiment->getThreads();
+ThreadGroup::iterator ti = tgrp.begin();
+if( tgrp.size() > 0 )
+{
+  statusLabelText->setText( tr("Experiment is loaded:  Hit the \"Run\" button to continue execution.") );
+  pco->runButton->setEnabled(TRUE);
+  pco->runButton->enabledFLAG = TRUE;
+  runnableFLAG = TRUE;
+  pco->pauseButton->setEnabled(FALSE);
+  pco->pauseButton->enabledFLAG = FALSE;
+}
   }
   delete manageCollectorsDialog;
   manageCollectorsDialog = NULL;
 }   
 
-void
-UserTimePanel::manageProcessesSelected()
-{
-  nprintf( DEBUG_PANELS ) ("UserTimePanel::manageProcessesSelected()\n");
-  mw->pidStr = QString::null;
-  mw->executableName = QString::null;
-  if( manageProcessesDialog == NULL )
-  {
-    manageProcessesDialog = new ManageProcessesDialog(mw, "ManageProcessesDialog", TRUE, 0, expID);
-  }
-  if( manageProcessesDialog->exec() == QDialog::Accepted )
-  {
-    printf("QDialog::Accepted\n");
-    if( !mw->executableName.isEmpty() || !mw->pidStr.isEmpty() )
-    {
-      pco->runButton->setEnabled(TRUE);
-      pco->runButton->enabledFLAG = TRUE;
-      runnableFLAG = TRUE;
-      loadMain();
-    }
-  }
-  delete manageProcessesDialog;
-  manageProcessesDialog = NULL;
-}   
 
 void
 UserTimePanel::manageDataSetsSelected()
@@ -747,20 +556,20 @@ CLIInterface::interrupt = true;
             experiment = eo->FW();
           }
           ThreadGroup tgrp = experiment->getThreads();
-          if( tgrp.size() == 0 )
-          {
-            fprintf(stderr, "There are no known threads for this experiment.\n");
-            return 0;
-          }
-          ThreadGroup::iterator ti = tgrp.begin();
-          Thread t1 = *ti; 
+//          if( tgrp.size() == 0 )
+//          {
+//            fprintf(stderr, "There are no known threads for this experiment.\n");
+//            return 0;
+//          }
+//          ThreadGroup::iterator ti = tgrp.begin();
+//          Thread t1 = *ti; 
           CollectorGroup cgrp = experiment->getCollectors();
           if( cgrp.size() > 0 )
           {
             CollectorGroup::iterator ci = cgrp.begin();
             nprintf( DEBUG_MESSAGES ) ("sampling_rate=%u\n", sampling_rate);
-            Collector pcSampleCollector = *ci;
-            pcSampleCollector.setParameterValue("sampling_rate", sampling_rate);
+            Collector usertimeCollector = *ci;
+            usertimeCollector.setParameterValue("sampling_rate", sampling_rate);
           }
         }
         catch(const std::exception& error)
@@ -830,8 +639,8 @@ UserTimePanel::saveAsSelected()
       *sao->ts << "<html>";
       *sao->ts << "<head>";
       *sao->ts << "<meta content=\"text/html; charset=ISO-8859-1\" http-equiv=\"content-type\"> ";
-      *sao->ts << "<title>pcSampleReport</title>";
-      *sao->ts << "<h2>pcSampleReport</h2>";
+      *sao->ts << "<title>usertimeReport</title>";
+      *sao->ts << "<h2>usertimeReport</h2>";
       *sao->ts << "</head>";
 
       sao->f->flush();
@@ -890,7 +699,7 @@ UserTimePanel::loadStatsPanel()
     {
       experiment = eo->FW();
       UpdateObject *msg =
-        new UpdateObject((void *)experiment, expID, "pcsamp", 1);
+        new UpdateObject((void *)experiment, expID, "usertime", 1);
       statsPanel->listener( (void *)msg );
     }
   }
@@ -918,14 +727,6 @@ UserTimePanel::loadMain()
     Thread thread = *ti;
     Time time = Time::Now();
     const std::string main_string = std::string("main");
-#ifdef OLDWAY
-    OpenSpeedShop::Framework::Function function = thread.getFunctionByName(main_string, time);
-    Optional<Statement> statement_definition = function.getDefinition();
-
-    if(statement_definition.hasValue())
-    {
-      SourceObject *spo = new SourceObject("main", statement_definition.getValue().getPath(), statement_definition.getValue().getLine()-1, TRUE, NULL);
-#else // OLDWAY
     std::pair<bool, Function> function = thread.getFunctionByName(main_string, time);
     std::set<Statement> statement_definition = function.second.getDefinitions();
 
@@ -933,7 +734,6 @@ UserTimePanel::loadMain()
     {
       std::set<Statement>::const_iterator i = statement_definition.begin();
       SourceObject *spo = new SourceObject("main", i->getPath(), i->getLine()-1, TRUE, NULL);
-#endif // OLDWAY
   
       QString name = QString("Source Panel [%1]").arg(expID);
       Panel *sourcePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
@@ -949,6 +749,12 @@ UserTimePanel::loadMain()
         sourcePanel->listener((void *)spo);
       }
     }
+statusLabelText->setText( tr("Experiment is loaded:  Hit the \"Run\" button to continue execution.") );
+pco->runButton->setEnabled(TRUE);
+pco->runButton->enabledFLAG = TRUE;
+runnableFLAG = TRUE;
+pco->pauseButton->setEnabled(FALSE);
+pco->pauseButton->enabledFLAG = FALSE;
   }
 }
 

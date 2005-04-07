@@ -97,14 +97,14 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n, void *argument) 
       {
         experiment = eo->FW();
       }
-      ThreadGroup tgrp = experiment->getThreads();
-      if( tgrp.size() == 0 )
-      {
-        fprintf(stderr, "There are no known threads for this experiment.\n");
-        return;
-      }
-      ThreadGroup::iterator ti = tgrp.begin();
-      Thread t1 = *ti; 
+//      ThreadGroup tgrp = experiment->getThreads();
+//      if( tgrp.size() == 0 )
+//      {
+//        fprintf(stderr, "There are no known threads for this experiment.\n");
+//        return;
+//      }
+//      ThreadGroup::iterator ti = tgrp.begin();
+//      Thread t1 = *ti; 
       CollectorGroup cgrp = experiment->getCollectors();
       if( cgrp.size() == 0 )
       {
@@ -328,6 +328,18 @@ pcSamplePanel::manageCollectorsAndProcessesSelected()
   {
 //    printf("QDialog::Accepted\n");
 //    pidStr = dialog->selectedProcesses();
+
+ThreadGroup tgrp = experiment->getThreads();
+ThreadGroup::iterator ti = tgrp.begin();
+if( tgrp.size() > 0 )
+{
+  statusLabelText->setText( tr("Experiment is loaded:  Hit the \"Run\" button to continue execution.") );
+  pco->runButton->setEnabled(TRUE);
+  pco->runButton->enabledFLAG = TRUE;
+  runnableFLAG = TRUE;
+  pco->pauseButton->setEnabled(FALSE);
+  pco->pauseButton->enabledFLAG = FALSE;
+}
   }
   delete manageCollectorsDialog;
   manageCollectorsDialog = NULL;
@@ -544,13 +556,13 @@ CLIInterface::interrupt = true;
             experiment = eo->FW();
           }
           ThreadGroup tgrp = experiment->getThreads();
-          if( tgrp.size() == 0 )
-          {
-            fprintf(stderr, "There are no known threads for this experiment.\n");
-            return 0;
-          }
-          ThreadGroup::iterator ti = tgrp.begin();
-          Thread t1 = *ti; 
+//          if( tgrp.size() == 0 )
+//          {
+//            fprintf(stderr, "There are no known threads for this experiment.\n");
+//            return 0;
+//          }
+//          ThreadGroup::iterator ti = tgrp.begin();
+//          Thread t1 = *ti; 
           CollectorGroup cgrp = experiment->getCollectors();
           if( cgrp.size() > 0 )
           {
@@ -737,6 +749,12 @@ pcSamplePanel::loadMain()
         sourcePanel->listener((void *)spo);
       }
     }
+statusLabelText->setText( tr("Experiment is loaded:  Hit the \"Run\" button to continue execution.") );
+pco->runButton->setEnabled(TRUE);
+pco->runButton->enabledFLAG = TRUE;
+runnableFLAG = TRUE;
+pco->pauseButton->setEnabled(FALSE);
+pco->pauseButton->enabledFLAG = FALSE;
   }
 }
 
