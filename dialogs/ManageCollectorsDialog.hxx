@@ -32,6 +32,8 @@
 
 #include "GenericProgressDialog.hxx"
 
+enum DialogSortType  { COLLECTOR_T, PID_T, MPIRANK_T, HOST_T };
+
 class QVBoxLayout;
 class QHBoxLayout;
 class QGridLayout;
@@ -63,7 +65,7 @@ public:
     QListView* attachCollectorsListView;
 
     QString selectedCollectors();
-    void updateAttachedCollectorsList();
+    void updateAttachedList();
 
     CollectorListObject *clo;
 
@@ -82,6 +84,7 @@ protected:
 
     QPopupMenu *popupMenu;
     QPopupMenu *paramMenu;
+    DialogSortType dialogSortType;
 protected slots:
     virtual void languageChange();
 
@@ -95,12 +98,14 @@ private slots:
     void disableSelected();
     void attachProcessSelected();
     void attachProgramSelected();
+    void paramSelected(int);
+    void addCollectorSelected();
+    void sortByProcess();
+    void sortByCollector();
+    void sortByHost();
+    void sortByMPIRank();
 
     void progressUpdate();
-
-    void paramSelected(int);
-
-    void addCollectorSelected();
 
 private:
     int expID;

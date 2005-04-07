@@ -33,6 +33,8 @@
 #include <qcombobox.h>
 #include <qlistview.h>
 #include <qinputdialog.h>
+#include <qmenubar.h>
+#include <qvaluelist.h>
 
 #include "SS_Input_Manager.hxx"
 
@@ -41,18 +43,41 @@ ManageCollectorsDialog::ManageCollectorsDialog( QWidget* parent, const char* nam
 {
   nprintf(DEBUG_CONST_DESTRUCT) ("ManageCollectorsDialog::ManageCollectorsDialog() constructor called.\n");
   
+  dialogSortType = COLLECTOR_T;
   popupMenu = NULL;
   paramMenu = NULL;
   mw = (OpenSpeedshop *)parent;
   cli = mw->cli;
   clo = NULL;
   expID = exp_id;
-  if ( !name ) setName( "ManageCollectorsDialog" );
+  if ( !name ) setName( "ManageCollectorsAndProcessesDialog" );
 
   setSizeGripEnabled( TRUE );
-  ManageCollectorsDialogLayout = new QVBoxLayout( this, 11, 6, "ManageCollectorsDialogLayout"); 
+  ManageCollectorsDialogLayout = new QVBoxLayout( this, 1, 1, "ManageCollectorsDialogLayout"); 
+
+ QHBoxLayout *menuLayout = new QHBoxLayout( ManageCollectorsDialogLayout );
+  QPopupMenu *file = new QPopupMenu( this );
+  file->insertItem( "&Attach Program...",  this, SLOT(attachProgramSelected()), CTRL+Key_L );
+  file->insertItem( "&Attach Process", this, SLOT(attachProcessSelected()), CTRL+Key_A );
+  file->insertItem( "Add &Collector", this, SLOT(addCollectorSelected()), CTRL+Key_C );
+  file->insertItem( "&Detach Collector", this, SLOT(detachSelected()), CTRL+Key_D );
+  
+  QPopupMenu *view = new QPopupMenu( this );
+  view->insertItem( "Sort By &Process...", this, SLOT(sortByProcess()), CTRL+Key_P );
+  view->insertItem( "Sort By &Collector...", this, SLOT(sortByCollector()), CTRL+Key_C );
+  view->insertItem( "Sort By &Host...", this, SLOT(sortByHost()), CTRL+Key_H );
+  view->insertItem( "Sort By &MPI Rank...", this, SLOT(sortByMPIRank()), CTRL+Key_M );
+
+  QMenuBar *menuBar = new QMenuBar(this, "menubar");
+  menuBar->insertItem( "&File", file );
+  menuBar->insertItem( "&View", view );
 
 
+  QSpacerItem *menuSpacer = new QSpacerItem( 1, menuBar->height(), QSizePolicy::Fixed, QSizePolicy::Fixed );
+  
+  menuLayout->addItem( menuSpacer );
+  menuLayout->addWidget( menuBar );
+  
   attachCollectorsListView = new QListView( this, "attachCollectorsListView" );
   attachCollectorsListView->addColumn( 
     tr( QString("Collectors attached to experiment: '%1':").arg(expID) ) );
@@ -110,7 +135,7 @@ ManageCollectorsDialog::ManageCollectorsDialog( QWidget* parent, const char* nam
 
   connect(attachCollectorsListView, SIGNAL( contextMenuRequested( QListViewItem *, const QPoint& , int ) ), this, SLOT( contextMenuRequested( QListViewItem *, const QPoint &, int ) ) );
 
-  updateAttachedCollectorsList();
+  updateAttachedList();
 }
 
 /*
@@ -128,7 +153,7 @@ ManageCollectorsDialog::~ManageCollectorsDialog()
  */
 void ManageCollectorsDialog::languageChange()
 {
-  setCaption( tr( "ManageCollectorsDialog" ) );
+  setCaption( tr( "Manage Collectors and Processes Dialog" ) );
   buttonHelp->setText( tr( "&Help" ) );
   buttonHelp->setAccel( QKeySequence( tr( "F1" ) ) );
   buttonOk->setText( tr( "&OK" ) );
@@ -177,33 +202,107 @@ ManageCollectorsDialog::selectedCollectors()
 
 
 void
-ManageCollectorsDialog::updateAttachedCollectorsList()
+ManageCollectorsDialog::updateAttachedList()
 {
-  CollectorEntry *ce = NULL;
-  char entry_buffer[1024];
-  if( clo )
-  {
-    delete(clo);
-  }
-
-  clo = new CollectorListObject(expID);
+// printf("updateAttachedList() dialogSortType=%d\n", dialogSortType);
 
   attachCollectorsListView->clear();
-  CollectorEntryList::Iterator it;
-  for( it = clo->collectorEntryList.begin();
-       it != clo->collectorEntryList.end();
-       ++it )
+
+  switch( dialogSortType )
   {
-    ce = (CollectorEntry *)*it;
-    QListViewItem *item = new QListViewItem( attachCollectorsListView, ce->name, ce->short_name );
-#ifdef OLDWAY
-    for( CollectorParameterEntryList::Iterator pit = ce->paramList.begin();
-         pit != ce->paramList.end();  pit++)
+  case COLLECTOR_T:
     {
-      CollectorParameterEntry *cpe = (CollectorParameterEntry *)*pit;
-      QListViewItem *item2 = new QListViewItem( item, cpe->name, cpe->param_value );
+      CollectorEntry *ce = NULL;
+      if( clo )
+      {
+        delete(clo);
+      }
+
+      clo = new CollectorListObject(expID);
+      CollectorEntryList::Iterator it;
+      for( it = clo->collectorEntryList.begin();
+         it != clo->collectorEntryList.end();
+         ++it )
+      {
+        ce = (CollectorEntry *)*it;
+        QListViewItem *item = new QListViewItem( attachCollectorsListView, ce->name, ce->short_name );
+        try
+        {
+          ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+    
+          if( eo->FW() != NULL )
+          {
+// The following bit of code was snag and modified from SS_View_exp.cxx
+            ThreadGroup tgrp = eo->FW()->getThreads();
+            ThreadGroup::iterator ti;
+            bool atleastone = false;
+            for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
+            {
+              Thread t = *ti;
+              std::string host = t.getHost();
+              pid_t pid = t.getProcessId();
+              if (!atleastone) {
+                atleastone = true;
+              }
+              QString pidstr = QString("%1").arg(pid);
+              std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
+              QString tidstr = QString::null;
+              if (pthread.first)
+              {
+                tidstr = QString("%1").arg(pthread.second);
+              }
+              std::pair<bool, int> rank = t.getMPIRank();
+              QString ridstr = QString::null;
+              if (rank.first)
+              {
+                ridstr = QString("%1").arg(rank.second);
+              }
+              CollectorGroup cgrp = t.getCollectors();
+              CollectorGroup::iterator ci;
+              int collector_count = 0;
+              for (ci = cgrp.begin(); ci != cgrp.end(); ci++)
+              {
+                Collector c = *ci;
+                Metadata m = c.getMetadata();
+                if (collector_count)
+                {
+                } else
+                {
+                  collector_count = 1;
+                }
+                if( m.getUniqueId() == ce->name.ascii() )
+                {
+                  if( !tidstr.isEmpty() )
+                  {
+                    QListViewItem *item2 =
+                      new QListViewItem( item, host, pidstr, tidstr );
+                  } else if( !ridstr.isEmpty() )
+                  {
+                    QListViewItem *item2 =
+                      new QListViewItem( item, host, pidstr, ridstr );
+                  } else
+                  {
+                    QListViewItem *item2 =
+                      new QListViewItem( item, host, pidstr );
+                  }
+                }
+              }
+            }
+          }
+        }
+        catch(const std::exception& error)
+        {
+          std::cerr << std::endl << "Error: "
+            << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+            "Unknown runtime error." : error.what()) << std::endl
+            << std::endl;
+          return;
+        }
+      }
     }
-#else // OLDWAY
+      break;
+    case PID_T:
+    {
     try {
       ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
 
@@ -228,17 +327,17 @@ ManageCollectorsDialog::updateAttachedCollectorsList()
           {
             tidstr = QString("%1").arg(pthread.second);
           }
-// #ifdef HAVE_MPI
           std::pair<bool, int> rank = t.getMPIRank();
           QString ridstr = QString::null;
           if (rank.first)
           {
             ridstr = QString("%1").arg(rank.second);
           }
-// #endif
           CollectorGroup cgrp = t.getCollectors();
           CollectorGroup::iterator ci;
           int collector_count = 0;
+          QListViewItem *item =
+            new QListViewItem( attachCollectorsListView, pidstr );
           for (ci = cgrp.begin(); ci != cgrp.end(); ci++)
           {
             Collector c = *ci;
@@ -249,17 +348,104 @@ ManageCollectorsDialog::updateAttachedCollectorsList()
             {
               collector_count = 1;
             }
-            if( m.getUniqueId() == ce->name.ascii() )
+            QListViewItem *item2 = new QListViewItem( item, host, m.getUniqueId());
+          }
+        }
+      }
+    }
+    catch(const std::exception& error)
+    {
+      std::cerr << std::endl << "Error: "
+        << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+        "Unknown runtime error." : error.what()) << std::endl
+        << std::endl;
+      return;
+    }
+    }
+    break;
+  case  MPIRANK_T:
+// Does this one make sense?
+    break;
+  case  HOST_T:
+    try
+    {
+      ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+
+      if( eo->FW() != NULL )
+      {
+// The following bit of code was snag and modified from SS_View_exp.cxx
+        ThreadGroup tgrp = eo->FW()->getThreads();
+        ThreadGroup::iterator ti;
+        std::vector<std::string> v;
+        for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
+        {
+          Thread t = *ti;
+          std::string s = t.getHost();
+        
+          v.push_back(s);
+        
+        }
+        std::sort(v.begin(), v.end());
+        
+        std::vector<std::string>::iterator e 
+                        = unique(v.begin(), v.end());
+
+        for( std::vector<string>::iterator hi = v.begin(); hi != e; hi++ ) 
+        {
+          QListViewItem *item = new QListViewItem( attachCollectorsListView, *hi );
+          bool atleastone = false;
+          for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
+          {
+            Thread t = *ti;
+            std::string host = t.getHost();
+            if( host == *hi )
             {
+              pid_t pid = t.getProcessId();
+              if (!atleastone) {
+                atleastone = true;
+              }
+              QString pidstr = QString("%1").arg(pid);
+              std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
+              QString tidstr = QString::null;
+              if (pthread.first)
+              {
+                tidstr = QString("%1").arg(pthread.second);
+              }
+              std::pair<bool, int> rank = t.getMPIRank();
+              QString ridstr = QString::null;
+              if (rank.first)
+              {
+                ridstr = QString("%1").arg(rank.second);
+              }
+              CollectorGroup cgrp = t.getCollectors();
+              CollectorGroup::iterator ci;
+              std::string collectorliststring;
+              int collector_count = 0;
+              for (ci = cgrp.begin(); ci != cgrp.end(); ci++)
+              {
+                Collector c = *ci;
+                Metadata m = c.getMetadata();
+                if (collector_count)
+                {
+                  collectorliststring += "," + m.getUniqueId();
+                } else
+                {
+                  collector_count = 1;
+                  collectorliststring = m.getUniqueId();
+                }
+              }
               if( !tidstr.isEmpty() )
               {
-                QListViewItem *item2 = new QListViewItem( item, host, pidstr, tidstr );
+                QListViewItem *item2 =
+                  new QListViewItem(item, pidstr, tidstr, collectorliststring );
               } else if( !ridstr.isEmpty() )
               {
-                QListViewItem *item2 = new QListViewItem( item, host, pidstr, ridstr );
+                QListViewItem *item2 =
+                  new QListViewItem(item, pidstr, ridstr, collectorliststring );
               } else
               {
-                QListViewItem *item2 = new QListViewItem( item, host, pidstr );
+                QListViewItem *item2 = 
+                  new QListViewItem( item, pidstr, collectorliststring  );
               }
             }
           }
@@ -268,16 +454,20 @@ ManageCollectorsDialog::updateAttachedCollectorsList()
     }
     catch(const std::exception& error)
     {
-printf("Tossed an exception looking up pids.\n");
+      std::cerr << std::endl << "Error: "
+        << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+        "Unknown runtime error." : error.what()) << std::endl
+        << std::endl;
       return;
     }
-#endif // OLDWAY
+    break;
   }
+
 }
 
 void ManageCollectorsDialog::availableCollectorsComboBoxActivated()
 {
-//    updateAttachedCollectorsList();
+//    updateAttachedList();
 }
 
 void
@@ -285,61 +475,69 @@ ManageCollectorsDialog::contextMenuRequested( QListViewItem *item, const QPoint 
 {
 //  printf("ManagerCollectorsDialog::createPopupMenu() entered.\n");
 
-if( popupMenu != NULL )
-{
-  delete popupMenu;
-} 
+  if( popupMenu != NULL )
+  {
+    delete popupMenu;
+  } 
   popupMenu = new QPopupMenu(this);
 
-if( paramMenu != NULL )
-{
-  delete paramMenu;
-}
-paramMenu = NULL;
- 
-  if( attachCollectorsListView->selectedItem() )
+  if( paramMenu != NULL )
   {
-    if( attachCollectorsListView->selectedItem()->parent() == NULL ) // it's a root node.
+    delete paramMenu;
+  }
+  paramMenu = NULL;
+
+QListViewItem *selected_item = NULL;
+
+// It may make sense to allow other SortTypes to add/delete collectors... 
+// At this point only this sort type is supported.
+if( dialogSortType == COLLECTOR_T )
+{
+  if( attachCollectorsListView->selectedItem() && 
+      attachCollectorsListView->selectedItem()->parent() == NULL )
+  {
+    selected_item = item;
+  }
+}
+ 
+  if( selected_item )
+  {
+    CollectorEntry *ce = NULL;
+    CollectorEntryList::Iterator it;
+    for( it = clo->collectorEntryList.begin();
+         it != clo->collectorEntryList.end();
+         ++it )
     {
-      CollectorEntry *ce = NULL;
-      CollectorEntryList::Iterator it;
-      for( it = clo->collectorEntryList.begin();
-           it != clo->collectorEntryList.end();
-           ++it )
+      ce = (CollectorEntry *)*it;
+      if( item->text(0) == ce->name )
       {
-        ce = (CollectorEntry *)*it;
-        if( item->text(0) == ce->name )
-        {
 // printf("(%s): parameters are\n", ce->name.ascii() );
-          CollectorParameterEntryList::Iterator pit = ce->paramList.begin();
-          if( ce->paramList.size() == 1 )
+        CollectorParameterEntryList::Iterator pit = ce->paramList.begin();
+        if( ce->paramList.size() == 1 )
+        {
+          CollectorParameterEntry *cpe = (CollectorParameterEntry *)*pit;
+          popupMenu->insertItem( QString("Modify Parameter ... (%1::%2)").arg(cpe->name.ascii()).arg(cpe->param_value.ascii()), this, SLOT(paramSelected(int)) );
+        } else
+        {
+          paramMenu = new QPopupMenu(this);
+          connect( paramMenu, SIGNAL( activated( int ) ),
+                     this, SLOT( paramSelected( int ) ) );
+          popupMenu->insertItem("Modify Parameter", paramMenu);
+          int i = 0;
+          for( ;pit != ce->paramList.end();  pit++)
           {
             CollectorParameterEntry *cpe = (CollectorParameterEntry *)*pit;
-            popupMenu->insertItem( QString("Modify Parameter ... (%1::%2)").arg(cpe->name.ascii()).arg(cpe->param_value.ascii()), this, SLOT(paramSelected(int)) );
-          } else
-          {
-            paramMenu = new QPopupMenu(this);
-            connect( paramMenu, SIGNAL( activated( int ) ),
-                       this, SLOT( paramSelected( int ) ) );
-            popupMenu->insertItem("Modify Parameter", paramMenu);
-            int i = 0;
-            for( ;pit != ce->paramList.end();  pit++)
-            {
-              CollectorParameterEntry *cpe = (CollectorParameterEntry *)*pit;
 // printf("\t%s   %s\n", cpe->name.ascii(), cpe->param_value.ascii() );
-              int id = paramMenu->insertItem(QString("%1::%2").arg(cpe->name.ascii()).arg(cpe->param_value.ascii()) );
-              i++;
-            }
+            int id = paramMenu->insertItem(QString("%1::%2").arg(cpe->name.ascii()).arg(cpe->param_value.ascii()) );
+            i++;
           }
-          break;
         }
+        break;
       }
-      popupMenu->insertSeparator();
-      popupMenu->insertItem("Detach...", this, SLOT(detachSelected()) );
-      popupMenu->insertItem("Disable...", this, SLOT(disableSelected()) );
-    } else
-    {
     }
+    popupMenu->insertSeparator();
+    popupMenu->insertItem("Detach...", this, SLOT(detachSelected()) );
+    popupMenu->insertItem("Disable...", this, SLOT(disableSelected()) );
   }
   popupMenu->insertSeparator();
   popupMenu->insertItem("Attach Process...", this, SLOT(attachProcessSelected()) );
@@ -348,7 +546,6 @@ paramMenu = NULL;
 
   popupMenu->popup( pos );
 }
-
 
 void
 ManageCollectorsDialog::detachSelected()
@@ -369,7 +566,7 @@ ManageCollectorsDialog::detachSelected()
       printf("Unable to run %s command.\n", command.ascii() );
     }
   }
-  updateAttachedCollectorsList();
+  updateAttachedList();
 }
 
 void
@@ -393,7 +590,7 @@ ManageCollectorsDialog::disableSelected()
     }
 
   }
-  updateAttachedCollectorsList();
+  updateAttachedList();
 }
 
 void
@@ -426,7 +623,7 @@ ManageCollectorsDialog::attachProcessSelected()
     pd->hide();
   }
 
-  updateAttachedCollectorsList();
+  updateAttachedList();
 }
 
 void
@@ -439,7 +636,8 @@ ManageCollectorsDialog::attachProgramSelected()
   if( !mw->executableName.isEmpty() )
   {
     executableNameStr = mw->executableName;
-    QString command = QString("expAttach -x %1 -f %2").arg(expID).arg(executableNameStr);
+    QString command =
+      QString("expAttach -x %1 -f %2").arg(expID).arg(executableNameStr);
 
     steps = 0;
     pd = new GenericProgressDialog(this, "Loading process...", TRUE);
@@ -459,17 +657,19 @@ ManageCollectorsDialog::attachProgramSelected()
   delete(pd);
 
   }
-  updateAttachedCollectorsList();
+  updateAttachedList();
 }
 
 void
 ManageCollectorsDialog::paramSelected(int val)
 {
-//  printf("paramSelected\n");
+//  printf("paramSelected val=%d\n", val);
+//  printf("paramSelected val=%s\n", QString("%1").arg(val).ascii() );
   QListViewItem *selectedItem = attachCollectorsListView->selectedItem();
   QString param_text = QString::null;
   if( selectedItem )
   {
+//printf("selectedItem->text(0) =(%s)\n", selectedItem->text(0).ascii() );
     QString collector_name = QString::null;
     if( selectedItem->parent() )
     {
@@ -525,8 +725,10 @@ ManageCollectorsDialog::paramSelected(int val)
     }
     
   }
-  updateAttachedCollectorsList();
+  updateAttachedList();
 }
+
+
 
 void
 ManageCollectorsDialog::addCollectorSelected()
@@ -543,7 +745,61 @@ ManageCollectorsDialog::addCollectorSelected()
     printf("Unable to run %s command.\n", command.ascii() );
   }
 
-  updateAttachedCollectorsList();
+  updateAttachedList();
+}
+
+void
+ManageCollectorsDialog::sortByProcess()
+{
+// printf("sortByProcess\n");
+  dialogSortType = PID_T;
+
+
+printf("attachCollectorsListView->columnText(0) = (%s)\n", attachCollectorsListView->columnText(1).ascii() );
+  attachCollectorsListView->setColumnText( 0,
+    tr( QString("Processes attached to experiment: '%1':").arg(expID) ) );
+  attachCollectorsListView->setColumnText( 1, tr( QString("Name") ) );
+
+  updateAttachedList();
+}
+
+void
+ManageCollectorsDialog::sortByCollector()
+{
+// printf("sortByCollector\n");
+  dialogSortType = COLLECTOR_T;
+
+  attachCollectorsListView->setColumnText( 0,
+    tr( QString("Collectors attached to experiment: '%1':").arg(expID) ) );
+  attachCollectorsListView->setColumnText( 1, tr( QString("Name") ) );
+
+  updateAttachedList();
+}
+
+void
+ManageCollectorsDialog::sortByHost()
+{
+// printf("sortByHost\n");
+  dialogSortType = HOST_T;
+
+  attachCollectorsListView->setColumnText( 0,
+    tr( QString("Hosts associated with experiment: '%1':").arg(expID) ) );
+  attachCollectorsListView->setColumnText( 1, tr( QString("N/A") ) );
+
+  updateAttachedList();
+}
+
+void
+ManageCollectorsDialog::sortByMPIRank()
+{
+// printf("sortByMPIRank\n");
+  dialogSortType = MPIRANK_T;
+
+  attachCollectorsListView->setColumnText( 0,
+    tr( QString("MPI ranks associated with experiment: '%1':").arg(expID) ) );
+  attachCollectorsListView->setColumnText( 1, tr( QString("Process ID") ) );
+
+  updateAttachedList();
 }
 
 static bool step_forward = TRUE;
