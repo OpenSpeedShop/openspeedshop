@@ -320,6 +320,12 @@ FPE_TracingPanel::manageCollectorsAndProcessesSelected()
 {
   nprintf( DEBUG_PANELS ) ("FPE_TracingPanel::manageCollectorsAndProcessesSelected()\n");
 
+int initial_thread_count = 0;
+
+ThreadGroup tgrp = experiment->getThreads();
+ThreadGroup::iterator ti = tgrp.begin();
+initial_thread_count = tgrp.size();
+
   if( manageCollectorsDialog == NULL )
   {
     manageCollectorsDialog = new ManageCollectorsDialog(mw, "ManageCollectorsDialog", TRUE, 0, expID);
@@ -333,12 +339,18 @@ ThreadGroup tgrp = experiment->getThreads();
 ThreadGroup::iterator ti = tgrp.begin();
 if( tgrp.size() > 0 )
 {
-  statusLabelText->setText( tr("Experiment is loaded:  Hit the \"Run\" button to continue execution.") );
-  pco->runButton->setEnabled(TRUE);
-  pco->runButton->enabledFLAG = TRUE;
-  runnableFLAG = TRUE;
-  pco->pauseButton->setEnabled(FALSE);
-  pco->pauseButton->enabledFLAG = FALSE;
+  if( initial_thread_count == 0 )
+  {
+    loadMain();
+  } else
+  {
+    statusLabelText->setText( tr("Experiment is loaded:  Hit the \"Run\" button to continue execution.") );
+    pco->runButton->setEnabled(TRUE);
+    pco->runButton->enabledFLAG = TRUE;
+    runnableFLAG = TRUE;
+    pco->pauseButton->setEnabled(FALSE);
+    pco->pauseButton->enabledFLAG = FALSE;
+  }
 }
   }
   delete manageCollectorsDialog;
