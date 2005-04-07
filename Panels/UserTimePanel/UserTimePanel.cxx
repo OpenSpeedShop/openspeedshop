@@ -64,6 +64,7 @@ UserTimePanel::UserTimePanel(PanelContainer *pc, const char *n, void *argument) 
   executableNameStr = QString::null;
   pidStr = QString::null;
   manageCollectorsDialog = NULL;
+  manageProcessesDialog = NULL;
 
   mw = getPanelContainer()->getMainWindow();
 
@@ -108,7 +109,7 @@ UserTimePanel::UserTimePanel(PanelContainer *pc, const char *n, void *argument) 
       if( cgrp.size() == 0 )
       {
         nprintf( DEBUG_PANELS ) ("There are no known collectors for this experiment so add one.\n");
-        QString command = QString("expAttach -x %1 usertime").arg(expID);
+        QString command = QString("expAttach -x %1 pcsamp").arg(expID);
         CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
         if( !cli->runSynchronousCLI((char *)command.ascii() ) )
         {
@@ -165,13 +166,13 @@ UserTimePanel::UserTimePanel(PanelContainer *pc, const char *n, void *argument) 
     char command[1024];
     if( !executableNameStr.isEmpty() )
     {
-      sprintf(command, "expCreate -f %s usertime\n", executableNameStr.ascii() );
+      sprintf(command, "expCreate -f %s pcsamp\n", executableNameStr.ascii() );
     } else if( !pidStr.isEmpty() )
     { 
-      sprintf(command, "expCreate -x %s usertime\n", pidStr.ascii() );
+      sprintf(command, "expCreate -x %s pcsamp\n", pidStr.ascii() );
     } else
     {
-      sprintf(command, "expCreate usertime\n" );
+      sprintf(command, "expCreate pcsamp\n" );
     }
     bool mark_value_for_delete = true;
     int64_t val = 0;
@@ -302,22 +303,25 @@ UserTimePanel::menu(QPopupMenu* contextMenu)
   nprintf( DEBUG_PANELS ) ("UserTimePanel::menu() requested.\n");
 
   contextMenu->insertSeparator();
-  contextMenu->insertItem("&Save As ...", this, SLOT(saveAsSelected()), CTRL+Key_S ); 
+  contextMenu->insertItem(tr("pc S&tats Panel..."), this, SLOT(loadStatsPanel()), CTRL+Key_T );
+  contextMenu->insertItem(tr("S&ource Panel..."), this, SLOT(loadSourcePanel()), CTRL+Key_O );
   contextMenu->insertSeparator();
+#ifdef OLDWAY
   contextMenu->insertItem(tr("Load &New Program..."), this, SLOT(loadNewProgramSelected()), CTRL+Key_N );
   contextMenu->insertItem(tr("Detach &From Program..."), this, SLOT(detachFromProgramSelected()), CTRL+Key_N );
   contextMenu->insertItem(tr("Attach To &Executable..."), this, SLOT(attachToExecutableSelected()), CTRL+Key_E );
+#endif // OLDWAY
   contextMenu->insertSeparator();
   contextMenu->insertItem(tr("&Manage Collectors..."), this, SLOT(manageCollectorsSelected()), CTRL+Key_M );
   contextMenu->insertItem(tr("Manage &Processes..."), this, SLOT(manageProcessesSelected()), CTRL+Key_P );
   contextMenu->insertItem(tr("&Manage &Data Sets..."), this, SLOT(manageDataSetsSelected()), CTRL+Key_D );
   contextMenu->insertSeparator();
-  contextMenu->insertItem(tr("S&ource Panel..."), this, SLOT(loadSourcePanel()), CTRL+Key_O );
-  contextMenu->insertItem(tr("pc S&tats Panel..."), this, SLOT(loadStatsPanel()), CTRL+Key_T );
+  contextMenu->insertItem("&Save As ...", this, SLOT(saveAsSelected()), CTRL+Key_S ); 
 
   return( TRUE );
 }
 
+#ifdef OLDWAY
 void
 UserTimePanel::loadNewProgramSelected()
 {
@@ -382,7 +386,9 @@ UserTimePanel::loadNewProgramSelected()
     }
   }
 }   
+#endif // OLDWAY
 
+#ifdef OLDWAY
 bool
 UserTimePanel::detachFromProgramSelected()
 {
@@ -421,9 +427,11 @@ UserTimePanel::detachFromProgramSelected()
   broadcast((char *)spo, NEAREST_T);
 
   runnableFLAG = FALSE;
-  nprintf( DEBUG_PANELS ) ("WARNING: Disable this window!!!!! Until an experiment (usertime) is restarted.\n");
+  nprintf( DEBUG_PANELS ) ("WARNING: Disable this window!!!!! Until an experiment (pcsamp) is restarted.\n");
 }
+#endif // OLDWAY
 
+#ifdef OLDWAY
 void
 UserTimePanel::attachToExecutableSelected()
 {
@@ -484,6 +492,7 @@ UserTimePanel::attachToExecutableSelected()
 #endif // CONTINUE_BUTTON
   }
 }   
+#endif // OLDWAY
 
 void
 UserTimePanel::manageCollectorsSelected()
@@ -492,7 +501,6 @@ UserTimePanel::manageCollectorsSelected()
 
   if( manageCollectorsDialog == NULL )
   {
-//    manageCollectorsDialog = new ManageCollectorsDialog(this, "ManageCollectorsDialog", TRUE, 0, expID);
     manageCollectorsDialog = new ManageCollectorsDialog(mw, "ManageCollectorsDialog", TRUE, 0, expID);
   }
   if( manageCollectorsDialog->exec() == QDialog::Accepted )
@@ -500,12 +508,33 @@ UserTimePanel::manageCollectorsSelected()
     printf("QDialog::Accepted\n");
 //    pidStr = dialog->selectedProcesses();
   }
+  delete manageCollectorsDialog;
+  manageCollectorsDialog = NULL;
 }   
 
 void
 UserTimePanel::manageProcessesSelected()
 {
   nprintf( DEBUG_PANELS ) ("UserTimePanel::manageProcessesSelected()\n");
+  mw->pidStr = QString::null;
+  mw->executableName = QString::null;
+  if( manageProcessesDialog == NULL )
+  {
+    manageProcessesDialog = new ManageProcessesDialog(mw, "ManageProcessesDialog", TRUE, 0, expID);
+  }
+  if( manageProcessesDialog->exec() == QDialog::Accepted )
+  {
+    printf("QDialog::Accepted\n");
+    if( !mw->executableName.isEmpty() || !mw->pidStr.isEmpty() )
+    {
+      pco->runButton->setEnabled(TRUE);
+      pco->runButton->enabledFLAG = TRUE;
+      runnableFLAG = TRUE;
+      loadMain();
+    }
+  }
+  delete manageProcessesDialog;
+  manageProcessesDialog = NULL;
 }   
 
 void
@@ -861,7 +890,7 @@ UserTimePanel::loadStatsPanel()
     {
       experiment = eo->FW();
       UpdateObject *msg =
-        new UpdateObject((void *)experiment, expID, "usertime", 1);
+        new UpdateObject((void *)experiment, expID, "pcsamp", 1);
       statsPanel->listener( (void *)msg );
     }
   }
@@ -889,16 +918,23 @@ UserTimePanel::loadMain()
     Thread thread = *ti;
     Time time = Time::Now();
     const std::string main_string = std::string("main");
+#ifdef OLDWAY
+    OpenSpeedShop::Framework::Function function = thread.getFunctionByName(main_string, time);
+    Optional<Statement> statement_definition = function.getDefinition();
 
-        std::pair<bool, Function> function = thread.getFunctionByName(main_string, time);
+    if(statement_definition.hasValue())
+    {
+      SourceObject *spo = new SourceObject("main", statement_definition.getValue().getPath(), statement_definition.getValue().getLine()-1, TRUE, NULL);
+#else // OLDWAY
+    std::pair<bool, Function> function = thread.getFunctionByName(main_string, time);
     std::set<Statement> statement_definition = function.second.getDefinitions();
 
     if(statement_definition.size() > 0 )
     {
       std::set<Statement>::const_iterator i = statement_definition.begin();
       SourceObject *spo = new SourceObject("main", i->getPath(), i->getLine()-1, TRUE, NULL);
-
-
+#endif // OLDWAY
+  
       QString name = QString("Source Panel [%1]").arg(expID);
       Panel *sourcePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
       if( !sourcePanel )
@@ -962,9 +998,9 @@ UserTimePanel::updateStatus()
       case 1:
 //        statusLabelText->setText( "1: ExpStatus_Paused" );
         statusLabelText->setText( tr("Experiment is Paused:  Hit the \"Run\" button to continue execution.") );
-        pco->runButton->setEnabled(FALSE);
-        pco->runButton->enabledFLAG = FALSE;
-        runnableFLAG = FALSE;
+        pco->runButton->setEnabled(TRUE);
+        pco->runButton->enabledFLAG = TRUE;
+        runnableFLAG = TRUE;
         pco->pauseButton->setEnabled(FALSE);
         pco->pauseButton->enabledFLAG = FALSE;
 #ifdef CONTINUE_BUTTON

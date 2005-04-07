@@ -64,6 +64,7 @@ IOPanel::IOPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, 
   executableNameStr = QString::null;
   pidStr = QString::null;
   manageCollectorsDialog = NULL;
+  manageProcessesDialog = NULL;
 
   mw = getPanelContainer()->getMainWindow();
 
@@ -302,22 +303,25 @@ IOPanel::menu(QPopupMenu* contextMenu)
   nprintf( DEBUG_PANELS ) ("IOPanel::menu() requested.\n");
 
   contextMenu->insertSeparator();
-  contextMenu->insertItem("&Save As ...", this, SLOT(saveAsSelected()), CTRL+Key_S ); 
+  contextMenu->insertItem(tr("pc S&tats Panel..."), this, SLOT(loadStatsPanel()), CTRL+Key_T );
+  contextMenu->insertItem(tr("S&ource Panel..."), this, SLOT(loadSourcePanel()), CTRL+Key_O );
   contextMenu->insertSeparator();
+#ifdef OLDWAY
   contextMenu->insertItem(tr("Load &New Program..."), this, SLOT(loadNewProgramSelected()), CTRL+Key_N );
   contextMenu->insertItem(tr("Detach &From Program..."), this, SLOT(detachFromProgramSelected()), CTRL+Key_N );
   contextMenu->insertItem(tr("Attach To &Executable..."), this, SLOT(attachToExecutableSelected()), CTRL+Key_E );
+#endif // OLDWAY
   contextMenu->insertSeparator();
   contextMenu->insertItem(tr("&Manage Collectors..."), this, SLOT(manageCollectorsSelected()), CTRL+Key_M );
   contextMenu->insertItem(tr("Manage &Processes..."), this, SLOT(manageProcessesSelected()), CTRL+Key_P );
   contextMenu->insertItem(tr("&Manage &Data Sets..."), this, SLOT(manageDataSetsSelected()), CTRL+Key_D );
   contextMenu->insertSeparator();
-  contextMenu->insertItem(tr("S&ource Panel..."), this, SLOT(loadSourcePanel()), CTRL+Key_O );
-  contextMenu->insertItem(tr("pc S&tats Panel..."), this, SLOT(loadStatsPanel()), CTRL+Key_T );
+  contextMenu->insertItem("&Save As ...", this, SLOT(saveAsSelected()), CTRL+Key_S ); 
 
   return( TRUE );
 }
 
+#ifdef OLDWAY
 void
 IOPanel::loadNewProgramSelected()
 {
@@ -382,7 +386,9 @@ IOPanel::loadNewProgramSelected()
     }
   }
 }   
+#endif // OLDWAY
 
+#ifdef OLDWAY
 bool
 IOPanel::detachFromProgramSelected()
 {
@@ -423,7 +429,9 @@ IOPanel::detachFromProgramSelected()
   runnableFLAG = FALSE;
   nprintf( DEBUG_PANELS ) ("WARNING: Disable this window!!!!! Until an experiment (pcsamp) is restarted.\n");
 }
+#endif // OLDWAY
 
+#ifdef OLDWAY
 void
 IOPanel::attachToExecutableSelected()
 {
@@ -484,6 +492,7 @@ IOPanel::attachToExecutableSelected()
 #endif // CONTINUE_BUTTON
   }
 }   
+#endif // OLDWAY
 
 void
 IOPanel::manageCollectorsSelected()
@@ -492,7 +501,6 @@ IOPanel::manageCollectorsSelected()
 
   if( manageCollectorsDialog == NULL )
   {
-//    manageCollectorsDialog = new ManageCollectorsDialog(this, "ManageCollectorsDialog", TRUE, 0, expID);
     manageCollectorsDialog = new ManageCollectorsDialog(mw, "ManageCollectorsDialog", TRUE, 0, expID);
   }
   if( manageCollectorsDialog->exec() == QDialog::Accepted )
@@ -500,12 +508,33 @@ IOPanel::manageCollectorsSelected()
     printf("QDialog::Accepted\n");
 //    pidStr = dialog->selectedProcesses();
   }
+  delete manageCollectorsDialog;
+  manageCollectorsDialog = NULL;
 }   
 
 void
 IOPanel::manageProcessesSelected()
 {
   nprintf( DEBUG_PANELS ) ("IOPanel::manageProcessesSelected()\n");
+  mw->pidStr = QString::null;
+  mw->executableName = QString::null;
+  if( manageProcessesDialog == NULL )
+  {
+    manageProcessesDialog = new ManageProcessesDialog(mw, "ManageProcessesDialog", TRUE, 0, expID);
+  }
+  if( manageProcessesDialog->exec() == QDialog::Accepted )
+  {
+    printf("QDialog::Accepted\n");
+    if( !mw->executableName.isEmpty() || !mw->pidStr.isEmpty() )
+    {
+      pco->runButton->setEnabled(TRUE);
+      pco->runButton->enabledFLAG = TRUE;
+      runnableFLAG = TRUE;
+      loadMain();
+    }
+  }
+  delete manageProcessesDialog;
+  manageProcessesDialog = NULL;
 }   
 
 void
@@ -889,6 +918,14 @@ IOPanel::loadMain()
     Thread thread = *ti;
     Time time = Time::Now();
     const std::string main_string = std::string("main");
+#ifdef OLDWAY
+    OpenSpeedShop::Framework::Function function = thread.getFunctionByName(main_string, time);
+    Optional<Statement> statement_definition = function.getDefinition();
+
+    if(statement_definition.hasValue())
+    {
+      SourceObject *spo = new SourceObject("main", statement_definition.getValue().getPath(), statement_definition.getValue().getLine()-1, TRUE, NULL);
+#else // OLDWAY
     std::pair<bool, Function> function = thread.getFunctionByName(main_string, time);
     std::set<Statement> statement_definition = function.second.getDefinitions();
 
@@ -896,7 +933,7 @@ IOPanel::loadMain()
     {
       std::set<Statement>::const_iterator i = statement_definition.begin();
       SourceObject *spo = new SourceObject("main", i->getPath(), i->getLine()-1, TRUE, NULL);
-
+#endif // OLDWAY
   
       QString name = QString("Source Panel [%1]").arg(expID);
       Panel *sourcePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
@@ -961,9 +998,9 @@ IOPanel::updateStatus()
       case 1:
 //        statusLabelText->setText( "1: ExpStatus_Paused" );
         statusLabelText->setText( tr("Experiment is Paused:  Hit the \"Run\" button to continue execution.") );
-        pco->runButton->setEnabled(FALSE);
-        pco->runButton->enabledFLAG = FALSE;
-        runnableFLAG = FALSE;
+        pco->runButton->setEnabled(TRUE);
+        pco->runButton->enabledFLAG = TRUE;
+        runnableFLAG = TRUE;
         pco->pauseButton->setEnabled(FALSE);
         pco->pauseButton->enabledFLAG = FALSE;
 #ifdef CONTINUE_BUTTON

@@ -18,6 +18,8 @@
 
 pkglib_LTLIBRARIES = MPIPanel.la
 
+# NOTE 1: The -I../SourcePanel is only here for #define DEMO 1
+# NOTE 2: The -I../TopPanel is only here for #define DEMO 1
 MPIPanel_la_CXXFLAGS = \
 	-c -LANG:std -fpic \
     -I/usr/include \
@@ -29,7 +31,7 @@ MPIPanel_la_CXXFLAGS = \
     -I$(top_srcdir)/images \
     -I$(top_srcdir)/plugin \
     -I$(top_srcdir)/objects \
-	-I$(top_srcdir)/dialogs \
+    -I$(top_srcdir)/dialogs \
     -I$(top_srcdir)/Panels/SourcePanel \
     -I$(top_srcdir)/Panels/TopPanel \
     -I$(top_srcdir)/base

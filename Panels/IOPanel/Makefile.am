@@ -18,6 +18,8 @@
 
 pkglib_LTLIBRARIES = IOPanel.la
 
+# NOTE 1: The -I../SourcePanel is only here for #define DEMO 1
+# NOTE 2: The -I../TopPanel is only here for #define DEMO 1
 IOPanel_la_CXXFLAGS = \
 	-c -LANG:std -fpic \
     -I/usr/include \
@@ -29,7 +31,7 @@ IOPanel_la_CXXFLAGS = \
     -I$(top_srcdir)/images \
     -I$(top_srcdir)/plugin \
     -I$(top_srcdir)/objects \
-	-I$(top_srcdir)/dialogs \
+    -I$(top_srcdir)/dialogs \
     -I$(top_srcdir)/Panels/SourcePanel \
     -I$(top_srcdir)/Panels/TopPanel \
     -I$(top_srcdir)/base
@@ -46,7 +48,6 @@ IOPanel_la_LDFLAGS = \
 	-ldl
 
 IOPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework
-
 
 moc_IOPanel.cxx: IOPanel.hxx
 	-moc -o moc_IOPanel.cxx IOPanel.hxx

@@ -32,6 +32,7 @@
 #include <qtimer.h>
 #include "GenericProgressDialog.hxx"
 #include "ManageCollectorsDialog.hxx"
+#include "ManageProcessesDialog.hxx"
 
 #include "SS_Input_Manager.hxx"
 
@@ -123,15 +124,18 @@ public:
   QString pidStr;
   QTimer *timer;
   QTimer *loadTimer;
+  ManageProcessesDialog *manageProcessesDialog;
   ManageCollectorsDialog *manageCollectorsDialog;
 
 OpenSpeedShop::Framework::Experiment *fw_experiment() { return experiment; }
 
-public slots:
-  void saveAsSelected();
+#ifdef OLDWAY // move to public slots if needed again.
   void loadNewProgramSelected();
   bool detachFromProgramSelected();
   void attachToExecutableSelected();
+#endif // OLDWAY
+public slots:
+  void saveAsSelected();
   void manageCollectorsSelected();
   void manageProcessesSelected();
   void manageDataSetsSelected();
