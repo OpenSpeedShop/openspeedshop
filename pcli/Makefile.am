@@ -53,6 +53,7 @@ EXTRA_DIST = $(LFILES) $(YFILES) myparse.py
 pcli_includes = ArgClass.hxx Clip.hxx Commander.hxx CommandObject.hxx Experiment.hxx SS_Cmd_Execution.hxx SS_Input_Manager.hxx SS_Parse_Param.hxx SS_Parse_Range.hxx SS_Parse_Result.hxx SS_Parse_Target.hxx SS_View.hxx
 
 libopenss_cli_la_SOURCES = \
+    	help.cxx \
    	Start.cxx \
 	Start_Modes.cxx \
 	Commander.cxx \

@@ -37,6 +37,7 @@ extern char *yytext;
 extern int yylex();
 extern int yywrap();
 extern ParseResult *p_parse_result;
+extern void dump_help_brief(void);
 
 %}
 
@@ -457,7 +458,7 @@ gen_exit_com:	    GEN_EXIT_HEAD
       	    	;
 
     	    /** GEN_HELP **/
-gen_help_com:	    GEN_HELP_HEAD
+gen_help_com:	    GEN_HELP_HEAD   {dump_help_brief();}
     		|   GEN_HELP_HEAD   gen_help_args 
     	    	;
 gen_help_args:	    gen_help_arg 

@@ -16,6 +16,8 @@ using namespace std;
 
 using namespace OpenSpeedShop::cli;
 
+extern void dump_help_cmd(oss_cmd_enum, int, bool);
+
 command_type_t OpenSpeedShop::cli::cmd_desc[CMD_MAX] = {
     "Syntax_Error", false,  CMD_HEAD_ERROR, /* used in error reporting */
     "expAttach",    false,  CMD_EXP_ATTACH,
@@ -461,6 +463,31 @@ pushParm(char *etype, char * ptype, char * name)
     return ;
 }
  
+/**
+ * Method: ParseResult::push_help(char * name)
+ * 
+ *     
+ * @return  void.
+ *
+ * @todo    help facility.
+ *
+ */
+void
+ParseResult::
+push_help(char *name)
+{
+    dm_help_list.push_back(name);
+    
+    // This is temporary during development.
+    int i;
+    for (i=1;i<CMD_MAX;++i) {
+    	if ((strcmp(name,cmd_desc[(oss_cmd_enum)i].name)) == 0) {
+	    dump_help_cmd((oss_cmd_enum)i,0,false /* is_brief */);
+	    break;
+	}
+    }
+}
+
 /**
  * Method: ParseResult::set_error(char * name1, char * name2)
  * 
