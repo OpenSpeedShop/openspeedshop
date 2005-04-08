@@ -308,7 +308,7 @@ pcSamplePanel::menu(QPopupMenu* contextMenu)
   contextMenu->insertSeparator();
   contextMenu->insertSeparator();
   contextMenu->insertItem(tr("&Manage Collectors and Processes..."), this, SLOT(manageCollectorsAndProcessesSelected()), CTRL+Key_M );
-  contextMenu->insertItem(tr("&Manage &Data Sets..."), this, SLOT(manageDataSetsSelected()), CTRL+Key_D );
+  contextMenu->insertItem(tr("Manage &Data Sets..."), this, SLOT(manageDataSetsSelected()), CTRL+Key_D );
   contextMenu->insertSeparator();
   contextMenu->insertItem("&Save As ...", this, SLOT(saveAsSelected()), CTRL+Key_S ); 
 
@@ -362,6 +362,8 @@ void
 pcSamplePanel::manageDataSetsSelected()
 {
   nprintf( DEBUG_PANELS ) ("pcSamplePanel::manageDataSetsSelected()\n");
+  QString str(tr("This feature is currently under construction.\n") );
+  QMessageBox::information( this, "Informational", str, "Manage Data Sets not yet implemented." );
 }   
 
 //! Save ascii version of this panel.

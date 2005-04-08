@@ -78,6 +78,7 @@ void OpenSpeedshop::fileAttachNewProcess()
   topPC->notifyNearest((char *)lao);
 }
 
+#ifdef SAVESESSION
 void OpenSpeedshop::fileSaveSession()
 {
 //printf("OpenSpeedshop::fileSaveSession() entered\n");
@@ -126,6 +127,7 @@ void OpenSpeedshop::fileSaveSession()
     free(fn);
   }
 }
+#endif // SAVESESSION
 
 
 void OpenSpeedshop::fileOpenExperiment()
@@ -662,6 +664,7 @@ void OpenSpeedshop::init()
     preferencesDialog->categoryListView->setSelected(item, TRUE);
     // End load preferences
 
+#ifdef SAVESESSION
 // Begin: Set up a saved session geometry.
 const int BUFSIZE=100;
 char *fn = ".openss.geometry";
@@ -837,6 +840,11 @@ height+=50;   // FIX
   
 
 // End: Set up a saved session geometry.
+#else // SAVESESSION
+  topPC->splitVertical(80);
+  topPC->dl_create_and_add_panel("Intro Wizard", topPC->leftPanelContainer);
+  topPC->dl_create_and_add_panel("Command Panel", topPC->rightPanelContainer);
+#endif // SAVESESSION
 
 
    AppEventFilter *myEventFilter = new AppEventFilter(this, masterPC);

@@ -72,7 +72,9 @@ class OpenSpeedshop : public QMainWindow
 #ifdef EXPORT
     QAction* fileExportExperimentDataAction;
 #endif // EXPORT
+#ifdef SAVESESSION
     QAction* fileSaveSessionAction;
+#endif // SAVESESSION
     QAction* filePreferencesAction;
     QAction* fileCloseAction;
     QAction* fileExitAction;
@@ -133,11 +135,13 @@ class OpenSpeedshop : public QMainWindow
 #ifdef EXPORT // move back to 'public slots:' when needed.
     virtual void fileExportExperimentData();
 #endif // EXPORT
+#ifdef SAVESESSION // move back to 'public slots: when needed.
+    virtual void fileSaveSession();
+#endif // SAVESESSION
   public slots:
     virtual void fileOpenExperiment();
     virtual void fileOpenSavedExperiment();
     virtual void fileSaveExperiment();
-    virtual void fileSaveSession();
     virtual void filePreferences();
     virtual void fileClose();
     virtual void fileExit();

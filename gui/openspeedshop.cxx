@@ -79,8 +79,10 @@ OpenSpeedshop::OpenSpeedshop( int _wid, QWidget* parent, const char* name, WFlag
 //  fileExportExperimentDataAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "filesave" ) ) );
 #endif // EXPORT
 
+#ifdef SAVESESSION
   fileSaveSessionAction = new QAction( this, "fileSaveSessionAction" );
 //  fileSaveSessionAction->setIconSet( QIconSet( QPixmap::fromMimeSource( "filesave" ) ) );
+#endif // SAVESESSION
   filePreferencesAction = new QAction( this, "filePreferencesAction" );
   fileCloseAction = new QAction( this, "fileCloseAction" );
   fileExitAction = new QAction( this, "fileExitAction" );
@@ -101,9 +103,11 @@ OpenSpeedshop::OpenSpeedshop( int _wid, QWidget* parent, const char* name, WFlag
   fileExportExperimentDataAction->addTo( fileMenu );
 #endif // EXPORT
 
+#ifdef SAVESESSION
   fileMenu->insertSeparator();
-
   fileSaveSessionAction->addTo( fileMenu );
+#endif // SAVESESSION
+
   fileMenu->insertSeparator();
   filePreferencesAction->addTo( fileMenu );
   fileMenu->insertSeparator();
@@ -123,7 +127,9 @@ OpenSpeedshop::OpenSpeedshop( int _wid, QWidget* parent, const char* name, WFlag
   connect( fileExportExperimentDataAction, SIGNAL( activated() ), this, SLOT( fileExportExperimentData() ) );
 #endif // EXPORT
 
+#ifdef SAVESESSION
   connect( fileSaveSessionAction, SIGNAL( activated() ), this, SLOT( fileSaveSession() ) );
+#endif // SAVESESSION
   connect( filePreferencesAction, SIGNAL( activated() ), this, SLOT( filePreferences() ) );
   connect( fileExitAction, SIGNAL( activated() ), this, SLOT( fileExit() ) );
   connect( fileCloseAction, SIGNAL( activated() ), this, SLOT( fileClose() ) );
@@ -204,9 +210,11 @@ void OpenSpeedshop::languageChange()
   fileExportExperimentDataAction->setAccel( tr( "Ctrl+E" ) );
 #endif // EXPORT
 
+#ifdef SAVESESSION
   fileSaveSessionAction->setText( tr( "Save Window Setup" ) );
   fileSaveSessionAction->setMenuText( tr( "Save &Window Setup" ) );
   fileSaveSessionAction->setAccel( tr( "Ctrl+W" ) );
+#endif // SAVESESSION
 
   filePreferencesAction->setText( tr( "Preferences" ) );
   filePreferencesAction->setMenuText( tr( "&Preferences..." ) );
