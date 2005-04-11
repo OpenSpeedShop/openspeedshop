@@ -29,11 +29,12 @@
 #include "config.h"
 #endif
 
+#include "Assert.hxx"
 #include "TotallyOrdered.hxx"
 
 #include <functional>
 #include <iostream>
-#include <stdexcept>
+#include <sstream>
 
 
 
@@ -71,9 +72,7 @@ namespace OpenSpeedShop { namespace Framework {
 	    dm_begin(begin),
 	    dm_end(end)
 	{
-	    if(dm_begin >= dm_end)
-		throw std::invalid_argument("Beginning of interval must "
-					    "preceed end of interval.");
+	    Assert(dm_begin < dm_end);
 	}
 
 	/** Constructor from a value. */
@@ -133,11 +132,19 @@ namespace OpenSpeedShop { namespace Framework {
 	    return Interval(*this) |= other;
 	}
 
+	/** Type conversion operator to std::string. */
+	operator std::string() const
+	{
+	    std::ostringstream stream;
+	    stream << "[ " << dm_begin << ", " << dm_end << " )";
+	    return stream.str();
+	}
+
 	/** Operator "<<" defined for std::ostream. */
 	friend std::ostream& operator<<(std::ostream& stream,
 					const Interval& object)
 	{
-	    stream << "[ " << object.dm_begin << ", " << object.dm_end << " )";
+	    stream << static_cast<std::string>(object);
 	    return stream;
 	}
 

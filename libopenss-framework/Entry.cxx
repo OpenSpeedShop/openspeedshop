@@ -24,6 +24,7 @@
 
 #include "Database.hxx"
 #include "Entry.hxx"
+#include "Exception.hxx"
 
 using namespace OpenSpeedShop::Framework;
 
@@ -132,11 +133,11 @@ void Entry::validate(const std::string& table) const
     
     // Validate the entry
     if(rows == 0)
-	throw Database::Corrupted(*dm_database,
-				  "Entry in " + table + " no longer exists");
+	throw Exception(Exception::EntryNotFound,
+			table, Exception::toString(dm_entry));
     else if(rows > 1)
-	throw Database::Corrupted(*dm_database,
-				  "Entry in " + table + " is not unique");
+	throw Exception(Exception::EntryNotUnique,
+			table, Exception::toString(dm_entry));
     
     // Is the context identifier greater than zero?
     if(dm_context > 0) {
@@ -150,13 +151,12 @@ void Entry::validate(const std::string& table) const
 	while(dm_database->executeStatement())
 	    rows = dm_database->getResultAsInteger(1);
 	
-	// Validate
+	// Validate the context
 	if(rows == 0)
-	    throw Database::Corrupted(
-		*dm_database, "Entry in AddressSpaces no longer exists");
+	    throw Exception(Exception::EntryNotFound,
+			    table, Exception::toString(dm_context));
 	else if(rows > 1)
-	    throw Database::Corrupted(
-		*dm_database, "Entry in AddressSpaces is not unique");
-	
+	    throw Exception(Exception::EntryNotUnique,
+			    table, Exception::toString(dm_context));
     }    
 }

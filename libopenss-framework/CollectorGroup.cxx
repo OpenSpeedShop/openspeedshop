@@ -24,31 +24,38 @@
 
 #include "CollectorGroup.hxx"
 #include "Database.hxx"
+#include "Thread.hxx"
 
 using namespace OpenSpeedShop::Framework;
 
 
 
 /**
- * ...
+ * Start data collection for all collectors.
  *
- * ...
+ * Starts collection of performance data on the specified thread for all
+ * collectors in the group.
  *
- * @todo    Needs to be implemented.
+ * @param thread    Thread for which to start data collection.
  */
-void CollectorGroup::startCollecting()
+void CollectorGroup::startCollecting(const Thread& thread) const
 {
+    for(CollectorGroup::iterator i = begin(); i != end(); ++i)
+	i->startCollecting(thread);
 }
 
 
 
 /**
- * ...
+ * Stop data collection for all collectors.
  *
- * ...
+ * Stops collection of performance data on the specified thread for all
+ * collectors in the group.
  *
- * @todo    Needs to be implemented.
+ * @param thread    Thread for which to stop data collection.
  */
-void CollectorGroup::stopCollecting()
+void CollectorGroup::stopCollecting(const Thread& thread) const
 {
+    for(CollectorGroup::iterator i = begin(); i != end(); ++i)
+	i->stopCollecting(thread);
 }

@@ -48,6 +48,7 @@ libopenss_framework_la_SOURCES = \
 	Database.hxx Database.cxx \
 	Entry.hxx Entry.cxx \
 	EntrySpy.hxx \
+	Exception.hxx Exception.cxx \
 	Experiment.hxx Experiment.cxx \
 	ExperimentTable.hxx ExperimentTable.cxx \
 	Function.hxx Function.cxx \

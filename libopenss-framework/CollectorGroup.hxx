@@ -37,6 +37,8 @@
 
 namespace OpenSpeedShop { namespace Framework {
 
+    class Thread;
+
     /**
      * Arbitrary group of collectors.
      *
@@ -46,8 +48,6 @@ namespace OpenSpeedShop { namespace Framework {
      * applying operators to a group of collectors as a whole rather than each
      * individually.
      *
-     * @todo    Implement additional collective operations.
-     *
      * @ingroup ToolAPI
      */
     class CollectorGroup :
@@ -56,8 +56,8 @@ namespace OpenSpeedShop { namespace Framework {
 	
     public:
 
-	void startCollecting();
-        void stopCollecting();
+	void startCollecting(const Thread&) const;
+        void stopCollecting(const Thread&) const;
 	
     };
     

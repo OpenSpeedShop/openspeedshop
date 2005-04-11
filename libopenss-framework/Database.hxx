@@ -29,11 +29,11 @@
 #include "config.h"
 #endif
 
+#include "Exception.hxx"
 #include "NonCopyable.hxx"
 
 #include <map>
 #include <pthread.h>
-#include <stdexcept>
 #include <string>
 
 struct sqlite3;
@@ -75,29 +75,6 @@ namespace OpenSpeedShop { namespace Framework {
     class Database :
 	private NonCopyable
     {
-
-    public:
-
-	/**
-	 * Database corrupted error.
-	 *
-	 * Exception class that is thrown whenever a database file is found,
-	 * for any reason, to be corrupted.
-	 */
-	class Corrupted :
-	    public std::runtime_error
-	{
-	    
-	public:
-
-	    /** Constructor from database and details. */
-	    Corrupted(const Database& database, const std::string& what) :
-		std::runtime_error("Database \"" + database.getName() +
-				   "\" is corrupt (" + what + ").")
-	    {
-	    }
-  
-	};
 
     public:
 
@@ -184,17 +161,17 @@ namespace OpenSpeedShop { namespace Framework {
  * End a transaction.
  *
  * Convenience wrapper for ending a database transaction inside a try/catch
- * caluse. Meant to be used in conjunction with BEGIN_TRANSACTION.
+ * clause. Meant to be used in conjunction with BEGIN_TRANSACTION.
  *
  * @param db    Pointer to database being accessed.
  */
-#define END_TRANSACTION(db)	       \
-        db->commitTransaction();       \
-    }				       \
-    catch(...) {		       \
-	db->rollbackTransaction();     \
-	throw; \
-    } \
+#define END_TRANSACTION(db)	    \
+        db->commitTransaction();    \
+    }				    \
+    catch(...) {		    \
+	db->rollbackTransaction();  \
+	throw;                      \
+    }                               \
     if(0)
 
 

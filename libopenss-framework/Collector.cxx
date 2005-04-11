@@ -121,16 +121,8 @@ namespace {
 	 *
 	 * @pre    All collector implementation instances associated with
 	 *         plugins in this table must be destroyed prior to the
-	 *         destruction of the table itself. An exception of type
-	 *         std::logic_error is thrown if any such instances remain.
-	 *
-	 * @note    Normally it is real bad practice to throw an exception from
-	 *          inside a destructor. CollectorPluginTable, however, is only
-	 *          instantiated as a static object. As such, its destructor is
-	 *          only called when the tool is shutting down. And it should
-	 *          never be called during a stack unwind - which is the "real
-	 *          bad case" where a throw from a destructor actually results
-	 *          in an abort. So throwing here is relatively safe.
+	 *         destruction of the table itself. An assertion failure
+	 *         occurs if any such instances remain.
 	 */
 	CollectorPluginTable::~CollectorPluginTable()
 	{
@@ -138,12 +130,10 @@ namespace {
 	    for(std::map<std::string, Entry>::const_iterator
 		    i = dm_unique_id_to_entry.begin();
 		i != dm_unique_id_to_entry.end();
-		++i)
-		if((i->second.instances > 0) || (i->second.handle != NULL))
-		    throw std::logic_error(
-			"Cannot destroy the collector plugin table before all "
-			"its collector implementation instances are destroyed."
-			);
+		++i) {
+		Assert(i->second.instances == 0);
+		Assert(i->second.handle == NULL);
+	    }
 	    
 	    // Exit libltdl
 	    Assert(lt_dlexit() == 0);
@@ -182,25 +172,14 @@ namespace {
 	 * Instantiates a collector implementation by calling the corresponding
 	 * plugin's factory method and incrementing the corresponding plugin's
 	 * instance count. If the plugin's instance count was zero, the plugin
-	 * is automatically loaded into memory first.
-	 *
-	 * @note    Instances can only be created for collector implementations
-	 *          for which a corresonding plugin was found. An exception of
-	 *          type std::invalid_argument is thrown if a plugin was not
-	 *          found for the specified unique identifier.
-	 *
-	 * @note    It is possible that a collector plugin found during the
-	 *          search for available plugins is subsequently removed before
-	 *          it is loaded for an actual instantiation. Or that a new 
-	 *          module without a collector factory method was substituted
-	 *          in its place. Or that a new collector plugin, with different
-	 *          unique identifier, was substituted in its place. An
-	 *          exception of type std::runtime_error is throw in all of
-	 *          these unlikely situations.
+	 * is automatically loaded into memory first. A null value is returned
+	 * if the collector implementation cannot be instantiated for any reason
+	 * (plugin wasn't found, plugin was moved, plugin was changed, etc.)
 	 *
 	 * @param unique_id    Unique identifier of the collector implementation
 	 *                     to be instantiated.
-	 * @return             New instance of this collector implementation.
+	 * @return             New instance of this collector implementation or
+	 *                     null if the instantiation failed for any reason.
 	 */
 	CollectorImpl* instantiate(const std::string& unique_id)
 	{
@@ -210,10 +189,7 @@ namespace {
 	    std::map<std::string, Entry>::iterator
 		i = dm_unique_id_to_entry.find(unique_id);
 	    if(i == dm_unique_id_to_entry.end())
-		throw std::invalid_argument(
-		    "Cannot create a collector implementation instance for "
-		    "unknown unique identifier \"" + unique_id + "\"."
-		    );
+		return NULL;
 	    
 	    // Critical section touching the collector plugin's entry
 	    {
@@ -225,10 +201,7 @@ namespace {
 		    // Load the plugin into memory
 		    i->second.handle = lt_dlopenext(i->second.path.c_str());
 		    if(i->second.handle == NULL)
-			throw std::runtime_error(
-			    "Cannot load previously detected collector "
-			    "plugin \"" + i->second.path + "\"."
-			    );
+			return NULL;
 		    
 		}
 		
@@ -239,17 +212,12 @@ namespace {
 		CollectorImpl* (*factory)() = (CollectorImpl* (*)())
 		    lt_dlsym(handle, "CollectorFactory");
 		if(factory == NULL)
-		    throw std::runtime_error(
-			"Cannot locate factory method in previously detected "
-			"collector plugin \"" + i->second.path + "\""
-			);
+		    return NULL;
 		
 		// Create an instance of this collector
 		instance = (*factory)();
 		if(i->second.metadata != *instance)
-		    throw std::runtime_error(
-			"Metadata for previously detected collector "
-			"plugin \"" + i->second.path + "\" has changed.");
+		    return NULL;
 		
 		// Increment the plugin's instance count
 		i->second.instances++;    
@@ -469,15 +437,6 @@ Collector::Collector(const Collector& other) :
     Entry(other.dm_database, other.dm_entry, 0),
     dm_impl(NULL)
 {
-    // Attempt to instantiate an implementation for this collector
-    if(other.dm_impl != NULL) {
-	try {
-	    dm_impl = collector_plugin_table.
-		instantiate(other.dm_impl->getUniqueId());
-	}
-	catch(...) {
-	}	
-    }
 }
 
 
@@ -507,8 +466,8 @@ Collector::~Collector()
  */
 Collector& Collector::operator=(const Collector& other)
 {
-    // Only do an assignment if the LHS and RHS differ
-    if((dm_database != other.dm_database) || (dm_entry != other.dm_entry)) {
+    // Only do the actual assignment if the collectors differ
+    if(*this != other) {
 	
 	// Destroy our current implementation (if any)
 	if(dm_impl != NULL)
@@ -518,18 +477,8 @@ Collector& Collector::operator=(const Collector& other)
 	Entry::operator=(other);
 	dm_impl = NULL;
 	
-	// Attempt to instantiate an implementation for this collector
-	if(other.dm_impl != NULL) {
-	    try {
-		dm_impl = collector_plugin_table.
-		    instantiate(other.dm_impl->getUniqueId());
-	    }
-	    catch(...) {
-	    }	
-	}
-	
     }
-
+    
     // Return ourselves to the caller
     return *this;
 }
@@ -541,16 +490,18 @@ Collector& Collector::operator=(const Collector& other)
  *
  * Returns the metadata of this collector.
  *
+ * @note    Information will be limited to the collector's unique identiifer
+ *          when the collector's implementation cannot be instantiated.
+ *
  * @return    Metadata for this collector.
  */
 Metadata Collector::getMetadata() const
 {
     // Defer to our implementation (if any)    
+    if(dm_impl == NULL)
+	instantiateImpl();
     if(dm_impl != NULL)
         return *dm_impl;
-    
-    // Check assertions
-    Assert(!dm_database.isNull());
     
     // Find our unique identifier
     std::string unique_id;
@@ -565,7 +516,7 @@ Metadata Collector::getMetadata() const
     END_TRANSACTION(dm_database);
     
     // Return the partial metadata to the caller
-    return Metadata(unique_id, "", "", typeid(void));
+    return Metadata(unique_id, "", "", typeid(Collector));
 }
 
 
@@ -576,20 +527,21 @@ Metadata Collector::getMetadata() const
  * Returns the metadata for all parameters of this collector. An empty set is
  * returned if this collector has no parameters.
  *
- * @pre    Only applies to a collector for which an implementation was found.
- *         An exception of type std::logic_error is thrown if called for a
- *         collector that has no implementation.
+ * @pre    Can only be performed on collectors for which an implementation can
+ *         be instantiated. A CollectorUnavailable exception is thrown if the
+ *         collector's implementation cannot be instantiated.
  *
  * @return    Metadata for all parameters of this collector.
  */
 std::set<Metadata> Collector::getParameters() const
 {
-    // Check assertions
-    Assert(!dm_database.isNull());
-    
     // Check preconditions
-    if(dm_impl == NULL)
-        throw std::logic_error("Collector has no implementation.");
+    if(dm_impl == NULL) {
+	instantiateImpl();
+	if(dm_impl == NULL)
+	    throw Exception(Exception::CollectorUnavailable,
+			    getMetadata().getUniqueId());
+    } 
     
     // Defer to our implementation
     return dm_impl->getParameters();    
@@ -603,20 +555,21 @@ std::set<Metadata> Collector::getParameters() const
  * Returns the metadata for all metrics of this collector. An empty set is
  * returned if this collector has no metrics (unlikely).
  *
- * @pre    Only applies to a collector for which an implementation was found.
- *         An exception of type std::logic_error is thrown if called for a
- *         collector that has no implementation.
+ * @pre    Can only be performed on collectors for which an implementation can
+ *         be instantiated. A CollectorUnavailable exception is thrown if the
+ *         collector's implementation cannot be instantiated.
  *
  * @return    Metadata for all metrics of this collector.
  */
 std::set<Metadata> Collector::getMetrics() const
 {
-    // Check assertions
-    Assert(!dm_database.isNull());
-
     // Check preconditions
-    if(dm_impl == NULL)
-        throw std::logic_error("Collector has no implementation.");
+    if(dm_impl == NULL) {
+	instantiateImpl();
+	if(dm_impl == NULL)
+	    throw Exception(Exception::CollectorUnavailable,
+			    getMetadata().getUniqueId());
+    } 
 
     // Defer to our implementation
     return dm_impl->getMetrics();
@@ -627,23 +580,21 @@ std::set<Metadata> Collector::getMetrics() const
 /**
  * Get our threads.
  *
- * Returns all the threads currently attached to this collector. An empty thread
- * group is returned if this collector isn't attached to any threads.
+ * Returns all the threads for which this collector is currently collecting
+ * performance data. An empty thread group is returned if this collector isn't
+ * collecting performance data for any threads.
  *
- * @return    Threads to which this collector is currently attached.
+ * @return    Threads for which this collector is collecting performance data.
  */
 ThreadGroup Collector::getThreads() const
 {
     ThreadGroup threads;
 
-    // Check assertions
-    Assert(!dm_database.isNull());
-
-    // Find our attached threads
+    // Find the threads for which we are collecting
     BEGIN_TRANSACTION(dm_database);
     validate("Collectors");
     dm_database->prepareStatement(
-        "SELECT thread FROM Attachments WHERE collector = ?;"
+        "SELECT thread FROM Collecting WHERE collector = ?;"
         );
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement())
@@ -657,256 +608,67 @@ ThreadGroup Collector::getThreads() const
 
 
 /**
- * Attach to a thread.
- *
- * Attaches the specified thread to this collector. If the collector is
- * currently collecting performance data, collection is automatically started
- * for the newly attached thread.
- *
- * @pre    The thread must be in the same experiment as the collector. An
- *         exception of type std::invalid_arugment is thrown if the thread
- *         is in a different experiment than the collector.
- *
- * @pre    A thread that is already attached to this collector cannot be
- *         attached again without first being detached. An exception of type
- *         std::logic_error is thrown if multiple attachments are attempted.
- *
- * @param thread    Thread to be attached.
- */
-void Collector::attachThread(const Thread& thread) const
-{
-    // Check assertions
-    Assert(!dm_database.isNull());
-
-    // Check preconditions
-    if(thread.dm_database != dm_database)
-	throw std::invalid_argument("Cannot attach to a thread that isn't in "
-				    "the same experiment as the collector.");
-    
-    // Begin a multi-statement transaction
-    BEGIN_TRANSACTION(dm_database);
-    validate("Collectors");
-    thread.validate("Threads");
-    
-    // Is this attachment already present?
-    bool is_attached = false;
-    dm_database->prepareStatement(
-	"SELECT COUNT(*) FROM Attachments WHERE collector = ? AND thread = ?;"
-	);
-    dm_database->bindArgument(1, dm_entry);
-    dm_database->bindArgument(2, thread.dm_entry);
-    while(dm_database->executeStatement())
-	is_attached = dm_database->getResultAsInteger(1) != 0;
-    
-    // Check preconditions
-    if(is_attached)
-	throw std::logic_error("Cannot attach a thread to a collector "
-			       "more than once.");
-    
-    // Create the attachment
-    dm_database->prepareStatement(
-	"INSERT INTO Attachments (collector, thread) VALUES (?, ?);"
-	);
-    dm_database->bindArgument(1, dm_entry);
-    dm_database->bindArgument(2, thread.dm_entry);
-    while(dm_database->executeStatement());
-    
-    // Are we collecting?
-    bool is_collecting = false;
-    dm_database->prepareStatement(
-	"SELECT is_collecting FROM Collectors WHERE id = ?;"
-	);
-    dm_database->bindArgument(1, dm_entry);
-    while(dm_database->executeStatement())
-	is_collecting = 
-	    (dm_database->getResultAsInteger(1) != 0) ? true : false;
-    
-    // Start data collection for this thread if we are collecting
-    if(is_collecting) {
-	
-	// Check assertions
-	Assert(dm_impl != NULL);
-
-	// Defer to our implementation
-	dm_impl->startCollecting(*this, thread);
-	
-    }
-    
-    // End this multi-statement transaction
-    END_TRANSACTION(dm_database);
-}
-
-
-
-/**
- * Detach a thread.
- *
- * Detaches the specified thread from this collector. If the collector is
- * currently collecting performance data, collection is automatically stopped
- * for the thread being detached.
- *
- * @pre    The thread must be in the same experiment as the collector. An
- *         exception of type std::invalid_argument is thrown if the thread
- *         is in a different experiment than the collector.
- *
- * @pre    A thread cannot be detached before it was attached. An exception of
- *         type std::logic_error is thrown if the thread is not attached to this
- *         collector.
- *
- * @param thread    Thread to be detached.
- */
-void Collector::detachThread(const Thread& thread) const
-{
-    // Check assertions
-    Assert(!dm_database.isNull());
-    
-    // Check preconditions
-    if(thread.dm_database != dm_database)
-	throw std::invalid_argument("Cannot detach a thread that isn't in "
-				    "the same experiment as the collector.");
-    
-    // Begin a multi-statement transaction
-    BEGIN_TRANSACTION(dm_database);
-    validate("Collectors");
-    thread.validate("Threads");
-    
-    // Is this attachment already present?
-    bool is_attached = false;
-    dm_database->prepareStatement(
-	"SELECT COUNT(*) FROM Attachments WHERE collector = ? AND thread = ?;"
-	);
-    dm_database->bindArgument(1, dm_entry);
-    dm_database->bindArgument(2, thread.dm_entry);
-    while(dm_database->executeStatement())
-	is_attached = dm_database->getResultAsInteger(1) != 0;
-    
-    // Check preconditions
-    if(!is_attached)
-	throw std::logic_error("Cannot detach a thread from a collector "
-			       "that wasn't previously attached.");
-
-    // Are we collecting?
-    bool is_collecting = false;
-    dm_database->prepareStatement(
-	"SELECT is_collecting FROM Collectors WHERE id = ?;"
-	);
-    dm_database->bindArgument(1, dm_entry);
-    while(dm_database->executeStatement())
-	is_collecting = 
-	    (dm_database->getResultAsInteger(1) != 0) ? true : false;
-    
-    // Stop data collection for this thread if we are collecting
-    if(is_collecting) {
-	
-	// Check assertions
-	Assert(dm_impl != NULL);
-
-	// Defer to our implementation
-	dm_impl->stopCollecting(*this, thread);
-
-    }
-
-    // Remove the attachment
-    dm_database->prepareStatement(
-	"DELETE FROM Attachments WHERE collector = ? AND thread = ?;"
-	);
-    dm_database->bindArgument(1, dm_entry);
-    dm_database->bindArgument(2, thread.dm_entry);
-    while(dm_database->executeStatement());
-    
-    // End this multi-statement transaction
-    END_TRANSACTION(dm_database);
-}
-
-
-
-/**
- * Test if collecting data.
- *
- * Returns a boolean value indicating if the collector is currently collecting
- * performance data.
- *
- * @return    Boolean "true" if the collector is currently collecting data,
- *            "false" otherwise.
- */
-bool Collector::isCollecting() const
-{
-    bool is_collecting = false;
-
-    // Check assertions
-    Assert(!dm_database.isNull());
-    
-    // Are we collecting?
-    BEGIN_TRANSACTION(dm_database);
-    validate("Collectors");
-    dm_database->prepareStatement(
-        "SELECT is_collecting FROM Collectors WHERE id = ?;"
-        );
-    dm_database->bindArgument(1, dm_entry);
-    while(dm_database->executeStatement())
-	is_collecting = 
-	    (dm_database->getResultAsInteger(1) != 0) ? true : false;
-    END_TRANSACTION(dm_database);
-    
-    // Return the state to the caller
-    return is_collecting;
-}
-
-
-
-/**
  * Start data collection.
  *
- * Starts performance data collection for this collector. Data collection can
- * be stopped temporarily or permanently by calling stopCollecting(). All data
- * that is collected is available via the collector's metrics.
+ * Starts collection of performance data by this collector for the specified
+ * thread. Data collection can be stopped temporarily or permanently by calling
+ * stopCollecting() for the specified thread. All data that is collected is
+ * available via the collector's metrics.
  *
- * @pre    Collectors cannot start data collection if they are currently
- *         collecting data. An exception of type std::logic_error is thrown if
- *         an attempt is made to start a collector that is already collecting. 
+ * @pre    The thread must be in the same experiment as the collector. An
+ *         assertion failure occurs if the thread is in a different experiment
+ *         than the collector.
  *
- * @pre    Only applies to a collector for which an implementation was found.
- *         An exception of type std::logic_error is thrown if called for a
- *         collector that has no implementation.
+ * @pre    Can only be performed on collectors for which an implementation can
+ *         be instantiated. A CollectorUnavailable exception is thrown if the
+ *         collector's implementation cannot be instantiated.
+ *
+ * @note    Any attempt to start collection on a thread for which this collector
+ *          is already collecting data will be silently ignored.
+ *
+ * @param thread    Thread for which to start collecting performance data.
  */
-void Collector::startCollecting() const
+void Collector::startCollecting(const Thread& thread) const
 {
-    // Check assertions
-    Assert(!dm_database.isNull());
+    // Check preconditions
+    Assert(thread.dm_database == dm_database);
+    if(dm_impl == NULL) {
+	instantiateImpl();
+	if(dm_impl == NULL)
+	    throw Exception(Exception::CollectorUnavailable,
+			    getMetadata().getUniqueId());
+    }
     
     // Begin a multi-statement transaction
     BEGIN_TRANSACTION(dm_database);
     validate("Collectors");
+    thread.validate("Threads");
     
-    // Are we collecting?
+    // Are we collecting for this thread?
     bool is_collecting = false;
     dm_database->prepareStatement(
-	"SELECT is_collecting FROM Collectors WHERE id = ?;"
+	"SELECT COUNT(*) FROM Collecting WHERE collector = ? AND thread = ?;"
 	);
     dm_database->bindArgument(1, dm_entry);
+    dm_database->bindArgument(2, thread.dm_entry);
     while(dm_database->executeStatement())
-	is_collecting = 
-	    (dm_database->getResultAsInteger(1) != 0) ? true : false;
-    
-    // Check preconditions
-    if(is_collecting)
-	throw std::logic_error("Cannot start a collector that is "
-			       "already collecting.");
-    if(dm_impl == NULL)
-        throw std::logic_error("Collector has no implementation.");
+	is_collecting = dm_database->getResultAsInteger(1) != 0;
 
-    // Iterate over each attached thread, deferring to our implementation
-    ThreadGroup threads = getThreads();
-    for(ThreadGroup::const_iterator 
-	    i = threads.begin(); i != threads.end(); ++i)
-	dm_impl->startCollecting(*this, *i);
-    
-    // Indicate we are collecting
-    dm_database->prepareStatement(
-	"UPDATE Collectors SET is_collecting = 1 WHERE id = ?;"
-	);
-    dm_database->bindArgument(1, dm_entry);
-    while(dm_database->executeStatement());
+    // Only start collection if we aren't already collecting
+    if(!is_collecting) {
+	
+	// Defer to our implementation
+	dm_impl->startCollecting(*this, thread);
+
+	// Note in the database that we are now collecting for this thread
+	dm_database->prepareStatement(
+	    "INSERT INTO Collecting (collector, thread) VALUES (?, ?);"
+	    );
+	dm_database->bindArgument(1, dm_entry);
+	dm_database->bindArgument(2, thread.dm_entry);
+	while(dm_database->executeStatement());
+	
+    }
     
     // End this multi-statement transaction
     END_TRANSACTION(dm_database);
@@ -917,56 +679,68 @@ void Collector::startCollecting() const
 /**
  * Stop data collection.
  *
- * Stops performance data collection for this collector. Data collection can 
- * be resumed by calling startCollecting() again. All data that was collected
- * is available via the collector's metrics.
+ * Stops collection of performance data by this collector for the specified
+ * thread. Data collection can be resumed by calling startCollecting() for this
+ * thread again. All data that was collected is available via the collector's
+ * metrics.
  *
- * @pre    Collectors cannot stop data collection unless they are currently
- *         collecting data. An exception of type std::logic_error is thrown
- *         if an attempt is made to stop a collector that isn't collecting.
+ * @pre    The thread must be in the same experiment as the collector. An
+ *         assertion failure occurs if the thread is in a different experiment
+ *         than the collector.
+ *
+ * @pre    Can only be performed on collectors for which an implementation can
+ *         be instantiated. A CollectorUnavailable exception is thrown if the
+ *         collector's implementation cannot be instantiated.
+ *
+ * @note    Any attempt to stop collection on a thread for which this collector
+ *          is not collecting data will be silently ignored.
+ *
+ * @param thread    Thread for which to stop collecting performance data.
  */
-void Collector::stopCollecting() const
+void Collector::stopCollecting(const Thread& thread) const
 {
-    // Check assertions
-    Assert(!dm_database.isNull());
-    
+    // Check preconditions
+    Assert(thread.dm_database == dm_database);
+    if(dm_impl == NULL) {
+	instantiateImpl();
+	if(dm_impl == NULL)
+	    throw Exception(Exception::CollectorUnavailable,
+			    getMetadata().getUniqueId());
+    }
+
     // Begin a multi-statement transaction
     BEGIN_TRANSACTION(dm_database);
     validate("Collectors");
-    
-    // Are we collecting?
+    thread.validate("Threads");
+
+    // Are we collecting for this thread?
     bool is_collecting = false;
     dm_database->prepareStatement(
-	"SELECT is_collecting FROM Collectors WHERE id = ?;"
+	"SELECT COUNT(*) FROM Collecting WHERE collector = ? AND thread = ?;"
 	);
     dm_database->bindArgument(1, dm_entry);
+    dm_database->bindArgument(2, thread.dm_entry);
     while(dm_database->executeStatement())
-	is_collecting = 
-	    (dm_database->getResultAsInteger(1) != 0) ? true : false;
+	is_collecting = dm_database->getResultAsInteger(1) != 0;
 
-    // Check preconditions
-    if(!is_collecting)
-	throw std::logic_error("Cannot stop a collector that is "
-                               "not currently collecting.");
+    // Only stop collection if we are already collecting
+    if(is_collecting) {
+
+	// Defer to our implementation
+	dm_impl->stopCollecting(*this, thread);
+
+	// Note in the database we are no longer collecting for this thread
+	dm_database->prepareStatement(
+	    "DELETE FROM Collecting WHERE collector = ? AND thread = ?;"
+	    );
+	dm_database->bindArgument(1, dm_entry);
+	dm_database->bindArgument(2, thread.dm_entry);
+	while(dm_database->executeStatement());
 	
-    // Check assertions
-    Assert(dm_impl != NULL);
-
-    // Iterate over each attached thread, deferring to our implementation
-    ThreadGroup threads = getThreads();
-    for(ThreadGroup::const_iterator 
-	    i = threads.begin(); i != threads.end(); ++i)
-	dm_impl->stopCollecting(*this, *i);
-
-    // Indicate we are no longer collecting
-    dm_database->prepareStatement(
-	"UPDATE Collectors SET is_collecting = 0 WHERE id = ?;"
-	);
-    dm_database->bindArgument(1, dm_entry);
-    while(dm_database->executeStatement());
+    }
     
     // End this multi-statement transaction
-    END_TRANSACTION(dm_database);
+    END_TRANSACTION(dm_database); 
 }
 
 
@@ -989,8 +763,7 @@ Collector::Collector() :
 /**
  * Constructor from a collector entry.
  *
- * Constructs a new Collector for the specified collector entry. Automatically 
- * finds and uses the collector's implementation if one is available.
+ * Constructs a new Collector for the specified collector entry.
  *
  * @param database    Database containing this collector.
  * @param entry       Identifier for this collector.
@@ -999,9 +772,21 @@ Collector::Collector(const SmartPtr<Database>& database, const int& entry) :
     Entry(database, entry, 0),
     dm_impl(NULL)
 {
-    // Check assertions
-    Assert(!dm_database.isNull());
+}
 
+
+
+/**
+ * Instantiate our implementation.
+ *
+ * Instantiates an implementation for this collector. If the instantiation fails
+ * for any reason, the collector's implementation pointer will still be null.
+ */
+void Collector::instantiateImpl() const
+{
+    // Check assertions
+    Assert(dm_impl == NULL);
+    
     // Find our unique identifier
     std::string unique_id;
     BEGIN_TRANSACTION(dm_database);
@@ -1013,13 +798,9 @@ Collector::Collector(const SmartPtr<Database>& database, const int& entry) :
     while(dm_database->executeStatement())
         unique_id = dm_database->getResultAsString(1);
     END_TRANSACTION(dm_database);
-
+    
     // Attempt to instantiate an implementation for this collector
-    try {
-	dm_impl = collector_plugin_table.instantiate(unique_id);
-    }
-    catch(...) {
-    }
+    dm_impl = collector_plugin_table.instantiate(unique_id);  
 }
 
 
@@ -1033,11 +814,9 @@ Collector::Collector(const SmartPtr<Database>& database, const int& entry) :
  */
 Blob Collector::getParameterData() const
 {
-    // Check assertions
-    Assert(!dm_database.isNull());
+    Blob data;
 
     // Find our parameter data
-    Blob data;
     BEGIN_TRANSACTION(dm_database);
     validate("Collectors");
     dm_database->prepareStatement(
@@ -1063,9 +842,6 @@ Blob Collector::getParameterData() const
  */
 void Collector::setParameterData(const Blob& data) const
 {
-    // Check assertions
-    Assert(!dm_database.isNull());
-
     // Update our parameter data
     BEGIN_TRANSACTION(dm_database);
     validate("Collectors");

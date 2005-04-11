@@ -26,6 +26,7 @@
 #include "Blob.hxx"
 #include "Database.hxx"
 #include "EntrySpy.hxx"
+#include "Exception.hxx"
 #include "Guard.hxx"
 #include "Instrumentor.hxx"
 #include "Process.hxx"
@@ -184,8 +185,8 @@ Thread::State Instrumentor::getThreadState(const Thread& thread)
  * reflect the new state until the change has actually completed.
  *
  * @pre    Only applies to a thread which has been attached to an underlying
- *         thread. An exception of type std::logic_error is thrown if called
- *         for a thread that is not attached.
+ *         thread. A ThreadUnavailable exception is thrown if called for a
+ *         thread that is not attached.
  *
  * @todo    Currently DPCL provides the ability to change the state of an entire
  *          process only - not that of a single thread. For now, if a thread's
@@ -210,9 +211,8 @@ void Instrumentor::changeThreadState(const Thread& thread,
 
     // Check preconditions
     if(process.isNull())
-	throw std::logic_error(
-	    "Cannot change the state of an unattached thread."
-	    );
+	throw Exception(Exception::ThreadUnavailable, thread.getHost(),
+			Exception::toString(thread.getProcessId()));
     
     // Request a state change from the process
     process->changeState(state);    
@@ -230,8 +230,8 @@ void Instrumentor::changeThreadState(const Thread& thread,
  * be unloaded until each reference is released via unloadLibrary().
  *
  * @pre    Only applies to a thread which has been attached to an underlying
- *         thread. An exception of type std::logic_error is thrown if called
- *         for a thread that is not attached.
+ *         thread. A ThreadUnavailable exception is thrown if called for a
+ *         thread that is not attached.
  *
  * @param thread     Thread into which the library should be loaded.
  * @param library    Name of library to be loaded.
@@ -251,9 +251,8 @@ void Instrumentor::loadLibrary(const Thread& thread,
 
     // Check preconditions
     if(process.isNull())
-	throw std::logic_error(
-	    "Cannot load a library into an unattached thread."
-	    );
+	throw Exception(Exception::ThreadUnavailable, thread.getHost(),
+			Exception::toString(thread.getProcessId()));
 
     // Request the library be loaded into the process
     process->loadLibrary(library);    
@@ -270,8 +269,8 @@ void Instrumentor::loadLibrary(const Thread& thread,
  * by a corresponding call to unloadLibrary().
  *
  * @pre    Only applies to a thread which has been attached to an underlying
- *         thread. An exception of type std::logic_error is thrown if called
- *         for a thread that is not attached.
+ *         thread. A ThreadUnavailable exception is thrown if called for a
+ *         thread that is not attached.
  *
  * @param thread     Thread from which the library should be unloaded.
  * @param library    Name of library to be unloaded.
@@ -291,9 +290,8 @@ void Instrumentor::unloadLibrary(const Thread& thread,
 
     // Check preconditions
     if(process.isNull())
-	throw std::logic_error(
-	    "Cannot unload a library from an unattached thread."
-	    );
+	throw Exception(Exception::ThreadUnavailable, thread.getHost(),
+			Exception::toString(thread.getProcessId()));
     
     // Request the library be unloaded from the process
     process->unloadLibrary(library);    
@@ -308,8 +306,8 @@ void Instrumentor::unloadLibrary(const Thread& thread,
  * collectors to execute function in their runtime library(ies).
  *
  * @pre    Only applies to a thread which has been attached to an underlying
- *         thread. An exception of type std::logic_error is thrown if called
- *         for a thread that is not attached.
+ *         thread. A ThreadUnavailable exception is thrown if called for a
+ *         thread that is not attached.
  *
  * @todo    Currently DPCL does not provide the ability to specify the thread
  *          within a process that will execute a probe expression. For now, the
@@ -338,9 +336,8 @@ void Instrumentor::execute(const Thread& thread,
     
     // Check preconditions
     if(process.isNull())
-	throw std::logic_error(
-	    "Cannot execute a function in an unattached thread."
-	    );
+	throw Exception(Exception::ThreadUnavailable, thread.getHost(),
+			Exception::toString(thread.getProcessId()));
 
     // Request the function be executed by the process
     process->execute(library, function, argument);

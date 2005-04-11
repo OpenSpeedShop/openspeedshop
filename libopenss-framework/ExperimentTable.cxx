@@ -26,6 +26,7 @@
 #include "Blob.hxx"
 #include "Collector.hxx"
 #include "Database.hxx"
+#include "Exception.hxx"
 #include "Experiment.hxx"
 #include "ExperimentTable.hxx"
 #include "Guard.hxx"
@@ -189,11 +190,11 @@ void ExperimentTable::storePerformanceData(const Blob& blob) const
 	while(database->executeStatement()) {
 	    int rows = database->getResultAsInteger(1);
 	    if(rows == 0)
-		throw Database::Corrupted(*database,
-					  "collector entry no longer exists");
+		throw Exception(Exception::EntryNotFound, "Collectors",
+				Exception::toString(header.collector));
 	    else if(rows > 1)
-		throw Database::Corrupted(*database,
-					  "collector entry is not unique");
+		throw Exception(Exception::EntryNotUnique, "Collectors",
+				Exception::toString(header.collector));
 	}
 	
 	// Validate that the specified thread exists
@@ -204,11 +205,11 @@ void ExperimentTable::storePerformanceData(const Blob& blob) const
 	while(database->executeStatement()) {
 	    int rows = database->getResultAsInteger(1);
 	    if(rows == 0)
-		throw Database::Corrupted(*database,
-					  "thread entry no longer exists");
+		throw Exception(Exception::EntryNotFound, "Threads",
+				Exception::toString(header.thread));
 	    else if(rows > 1)
-		throw Database::Corrupted(*database,
-					  "thread entry is not unique");
+		throw Exception(Exception::EntryNotUnique, "Threads",
+				Exception::toString(header.thread));
 	}
 
 	// Calculate the size and location of the actual data

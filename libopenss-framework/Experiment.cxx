@@ -34,7 +34,6 @@
 #include "ThreadGroup.hxx"
 
 #include <pthread.h>
-#include <stdexcept>
 #include <unistd.h>
 
 using namespace OpenSpeedShop::Framework;
@@ -50,8 +49,7 @@ namespace {
      * tables, indicies, records, etc. making up the database, these statements
      * are directly executed by the SQL server when creating a new database.
      *
-     * @todo    CallSite table needs to be implemented. Also need to add removal
-     *          of CallSite table rows to the RemoveUnusedLinkedObjects trigger.
+     * @todo    CallSite table needs to be implemented.
      */
     const char* DatabaseSchema[] = {
 
@@ -113,7 +111,7 @@ namespace {
 	"    column INTEGER"
 	");",
 
-	// Statement Ranges Table
+	// Statement Range Table
 	"CREATE TABLE StatementRanges ("
 	"    statement INTEGER," // From Statements.id
 	"    addr_begin INTEGER,"
@@ -133,12 +131,11 @@ namespace {
 	"CREATE TABLE Collectors ("
 	"    id INTEGER PRIMARY KEY,"
 	"    unique_id TEXT,"
-	"    parameter_data BLOB DEFAULT NULL,"
-	"    is_collecting INTEGER DEFAULT 0"
+	"    parameter_data BLOB DEFAULT NULL"
 	");",
-	
-	// Attachments Table
-	"CREATE TABLE Attachments ("
+
+	// Collecting Table
+	"CREATE TABLE Collecting ("
 	"    collector INTEGER," // From Collectors.id
 	"    thread INTEGER" // From Threads.id
 	");",
@@ -154,56 +151,6 @@ namespace {
 	"    data BLOB"
 	");",
 
-	// Remove address spaces referencing removed threads
-	"CREATE TRIGGER RemoveAddressSpacesOnThreads"
-	"    AFTER DELETE ON Threads FOR EACH ROW"
-	"    BEGIN"
-        "        DELETE FROM AddressSpaces WHERE thread = OLD.id;"
-	"    END;",
-	
-	// Remove unused linked objects referencing removed address spaces
-	"CREATE TRIGGER RemoveUnusedLinkedObjects"
-	"    AFTER DELETE ON AddressSpaces FOR EACH ROW"
-	"        WHEN OLD.linked_object NOT IN"
-	"            (SELECT linked_object FROM AddressSpaces)"
-	"    BEGIN"
-	"        DELETE FROM LinkedObjects"
-	"            WHERE id = OLD.linked_object;"
-	"        DELETE FROM Functions"
-	"            WHERE linked_object = OLD.linked_object;"
-	"        DELETE FROM StatementRanges"
-	"            WHERE linked_object = OLD.linked_object;"	
-	"        DELETE FROM Statements"
-	"            WHERE id NOT IN (SELECT statement FROM StatementRanges);"
-	"        DELETE FROM Files"
-	"            WHERE id NOT IN (SELECT file FROM LinkedObjects) AND"
-	"                  id NOT IN (SELECT file FROM Statements);"
-	"    END;",
-
-	// Remove attachments referencing removed threads or collectors
-	"CREATE TRIGGER RemoveAttachmentsOnThreads"
-	"    AFTER DELETE ON Threads FOR EACH ROW"
-	"    BEGIN"
-        "        DELETE FROM Attachments WHERE thread = OLD.id;"
-	"    END;",
-	"CREATE TRIGGER RemoveAttachmentsOnCollectors"
-	"    AFTER DELETE ON Collectors FOR EACH ROW"
-	"    BEGIN"
-        "        DELETE FROM Attachments WHERE collector = OLD.id;"
-	"    END;",
-
-	// Remove data referencing removed threads or collectors
-	"CREATE TRIGGER RemoveDataOnThreads"
-	"    AFTER DELETE ON Threads FOR EACH ROW"
-	"    BEGIN"
-        "        DELETE FROM Data WHERE thread = OLD.id;"
-	"    END;",
-	"CREATE TRIGGER RemoveDataOnCollectors"
-	"    AFTER DELETE ON Collectors FOR EACH ROW"
-	"    BEGIN"
-        "        DELETE FROM Data WHERE collector = OLD.id;"
-	"    END;",
-	
 	// End Of Table Entry
 	NULL
     };
@@ -312,8 +259,9 @@ void Experiment::create(const std::string& name)
  * Any threads in this experiment that correspond to an underlying thread
  * are automatically reattached.
  *
- * @note    An exception of type std::runtime_error is thrown if the experiment
- *          database cannot be opened for any reason.
+ * @note    A DatabaseCannotOpen or DatabaseInvalid exception is thrown if the
+ *          experiment database cannot be opened for any reason (including the
+ *          database not being a valid experiment file in the later case).
  *
  * @param name    Name of the experiment database to be accessed.
  */
@@ -322,9 +270,7 @@ Experiment::Experiment(const std::string& name) :
 {
     // Verify the experiment database is accessible
     if(!isAccessible(name))
-	throw std::runtime_error("Experiment database \"" +
-				 dm_database->getName() +
-				 "\" can't be opened.");
+	throw Exception(Exception::DatabaseInvalid, dm_database->getName());
     
     // Find our threads
     ThreadGroup threads = getThreads();
@@ -362,18 +308,18 @@ Experiment::~Experiment()
     // Begin a multi-statement transaction
     BEGIN_TRANSACTION(dm_database);
 
-    // Stop data collection for all collectors
-    CollectorGroup collectors = getCollectors();
-    for(CollectorGroup::const_iterator
-	    i = collectors.begin(); i != collectors.end(); ++i)
-	if(i->isCollecting())
-	    i->stopCollecting();
-    
-    // Detach from all of the underlying threads
+    // Iterate over each thread in this experiment
     ThreadGroup threads = getThreads();
     for(ThreadGroup::const_iterator 
-	    i = threads.begin(); i != threads.end(); ++i)
+	    i = threads.begin(); i != threads.end(); ++i) {
+
+	// Stop all performance data collection for this thread
+	i->getCollectors().stopCollecting(*i);
+
+	// Detach from the underlying thread
 	Instrumentor::detachUnderlyingThread(*i);
+
+    }
 
     // End this multi-statement transaction
     END_TRANSACTION(dm_database); 
@@ -578,28 +524,84 @@ Thread Experiment::attachOpenMPThread(const pid_t& pid, const int& tid,
  * in the operating system is <em>not</em> destroyed. If the thread was in the
  * suspended state, it is put into the running state before being removed.
  *
- * @pre    Threads must be in the experiment to be removed. An exception
- *         of type std::invalid_argument is thrown if the thread is not in
- *         the experiment.
+ * @pre    Threads must have originated from this experiment to be removed. An
+ *         assertion failure occurs if the thread was never in this experiment.
  *
  * @param thread    Thread to be removed.
  */
 void Experiment::removeThread(const Thread& thread) const
 {
     // Check preconditions
-    if(EntrySpy(thread).getDatabase() != dm_database)
-	throw std::invalid_argument("Cannot remove a thread that isn't in the "
-                                    "experiment.");
+    Assert(EntrySpy(thread).getDatabase() == dm_database);
     
-    // Detach from the underlying thread
-    Instrumentor::detachUnderlyingThread(thread);
-    
-    // Remove this thread
+    // Begin a multi-statement transaction
     BEGIN_TRANSACTION(dm_database);
     EntrySpy(thread).validate("Threads");
+
+    // Stop all performance data collection for this thread
+    thread.getCollectors().stopCollecting(thread);
+
+    // Detach from the underlying thread
+    Instrumentor::detachUnderlyingThread(thread);
+
+    // Remove this thread
     dm_database->prepareStatement("DELETE FROM Threads WHERE id = ?;");
     dm_database->bindArgument(1, EntrySpy(thread).getEntry());
     while(dm_database->executeStatement());    
+
+    // Remove address spaces referencing the removed thread
+    dm_database->prepareStatement(
+	"DELETE FROM AddressSpaces WHERE thread = ?;"
+	);
+    dm_database->bindArgument(1, EntrySpy(thread).getEntry());
+    while(dm_database->executeStatement());    
+
+    // Remove any data associated with this thread
+    dm_database->prepareStatement("DELETE FROM Data WHERE thread = ?;");
+    dm_database->bindArgument(1, EntrySpy(thread).getEntry());
+    while(dm_database->executeStatement());    
+    
+    // Remove unused linked objects
+    dm_database->prepareStatement(
+	"DELETE FROM LinkedObjects "
+	"WHERE linked_object "
+	"  NOT IN (SELECT DISTINCT linked_object FROM AddressSpaces);"
+	);
+    while(dm_database->executeStatement());
+    
+    // Remove unused functions
+    dm_database->prepareStatement(
+	"DELETE FROM Functions "
+	"WHERE linked_object "
+	"  NOT IN (SELECT DISTINCT linked_object FROM AddressSpaces);"
+	);
+    while(dm_database->executeStatement());
+
+    // Remove unused statements
+    dm_database->prepareStatement(
+	"DELETE FROM Statements "
+	"WHERE linked_object "
+	"  NOT IN (SELECT DISTINCT linked_object FROM AddressSpaces);"
+	);
+    while(dm_database->executeStatement());
+
+    // Remove unused statement ranges
+    dm_database->prepareStatement(
+	"DELETE FROM StatementRanges "
+	"WHERE statement "
+	"  NOT IN (SELECT DISTINCT id FROM Statements)"
+	);
+    while(dm_database->executeStatement());
+    
+    // Remove unused files
+    dm_database->prepareStatement(
+	"DELETE FROM Files "
+	"WHERE id NOT IN (SELECT DISTINCT file FROM LinkedObjects) "
+	"  AND id NOT IN (SELECT DISTINCT file FROM Statements);"
+	);
+    while(dm_database->executeStatement());
+    
+    // End this multi-statement transaction
     END_TRANSACTION(dm_database);
 }
 
@@ -615,27 +617,16 @@ void Experiment::removeThread(const Thread& thread) const
  */
 CollectorGroup Experiment::getCollectors() const
 {
-    // Note: Collector's constructor uses an SQL query to find its unique
-    //       identifier so that it can instantiate a collector implementation.
-    //       Since we use an SQL query here to find the collectors, and the
-    //       Database class does not allow multiple in-flight SQL statements,
-    //       the lookup of the collector list had to be separated from the
-    //       creation of the collector objects.
-
+    CollectorGroup collectors;
+    
     // Find our collectors
-    std::set<int> entries;
     BEGIN_TRANSACTION(dm_database);    
     dm_database->prepareStatement("SELECT id FROM Collectors;");
     while(dm_database->executeStatement())
-	entries.insert(dm_database->getResultAsInteger(1));    
+	collectors.insert(Collector(dm_database,
+				    dm_database->getResultAsInteger(1)));    
     END_TRANSACTION(dm_database);
-    
-    // Create the collectors
-    CollectorGroup collectors;
-    for(std::set<int>::const_iterator
-	    i = entries.begin(); i != entries.end(); ++i)
-	collectors.insert(Collector(dm_database, *i));
-    
+
     // Return the collectors to the caller
     return collectors;
 }
@@ -648,11 +639,9 @@ CollectorGroup Experiment::getCollectors() const
  * Creates an instance of the collector with the specified unique identifier
  * and adds the instance to this experiment.
  *
- * @note    Instances can only be created for collectors for which a corresond-
- *          ing plugin was found. An exception of type std::invalid_argument is
- *          thrown if a plugin was not found for the unique identifier, or if
- *          any one of a number of other unlikely failures occurs, such as the
- *          plugin being found at startup but subsequently moved.
+ * @pre    Can only be performed on collectors for which an implementation can
+ *         be instantiated. A CollectorUnavailable exception is thrown if the
+ *         collector's implementation cannot be instantiated.
  *
  * @param unique_id    Unique identifier of collector to be created.
  * @return             Newly created collector.
@@ -671,10 +660,13 @@ Collector Experiment::createCollector(const std::string& unique_id) const
     dm_database->bindArgument(1, unique_id);
     while(dm_database->executeStatement());
     collector = Collector(dm_database, dm_database->getLastInsertedUID());
-    if(collector.dm_impl == NULL)
-	throw std::invalid_argument("Cannot create a collector instance for "
-				    "unknown unique identifier \"" + unique_id +
-				    "\".");
+
+    // Check preconditions
+    if(collector.dm_impl == NULL) {
+	collector.instantiateImpl();
+	if(collector.dm_impl == NULL)
+	    throw Exception(Exception::CollectorUnavailable, unique_id);
+    }   
 
     // Update collector with default parameter values
     collector.setParameterData(collector.dm_impl->getDefaultParameterValues());
@@ -691,32 +683,38 @@ Collector Experiment::createCollector(const std::string& unique_id) const
 /**
  * Remove a collector.
  *
- * Removes the specified collector from this experiment. Data collection is
- * stopped, any threads that were previously attached to the collector are
- * detached, and any performance data that was associated with the collector is
- * destroyed.
+ * Removes the specified collector from this experiment. All data collection for
+ * this collector is stopped, and any performance data that was associated with
+ * this collector is destroyed.
  *
- * @pre    Collectors must be in the experiment to be removed. An exception
- *         of type std::invalid_argument is thrown if the collector is not in
- *         the experiment.
+ * @pre    Collectors must have originated from this experiment to be removed.
+ *         An assertion failure occurs if the collector was never in this
+ *         experiment.
  *
  * @param collector    Collector to be removed.
  */
 void Experiment::removeCollector(const Collector& collector) const
 {
     // Check preconditions
-    if(EntrySpy(collector).getDatabase() != dm_database)
-	throw std::invalid_argument("Cannot remove a collector that isn't in "
-                                    "the experiment.");
+    Assert(EntrySpy(collector).getDatabase() == dm_database);
     
-    // Stop data collection for this collector
-    collector.stopCollecting();
+    // Begin a multi-statement transaction
+    BEGIN_TRANSACTION(dm_database);
+    EntrySpy(collector).validate("Collectors");
+    
+    // Stop all performance data collection for this collector
+    collector.getThreads().stopCollecting(collector);
     
     // Remove this collector
-    BEGIN_TRANSACTION(dm_database);    
-    EntrySpy(collector).validate("Collectors");
     dm_database->prepareStatement("DELETE FROM Collectors WHERE id = ?;");
     dm_database->bindArgument(1, EntrySpy(collector).getEntry());
     while(dm_database->executeStatement());    
-    END_TRANSACTION(dm_database);    
+    
+    // Remove any data associated with this collector
+    dm_database->prepareStatement("DELETE FROM Data WHERE collector = ?;");
+    dm_database->bindArgument(1, EntrySpy(collector).getEntry());
+    while(dm_database->executeStatement());    
+    
+    // End this multi-statement transaction
+    END_TRANSACTION(dm_database);
 }

@@ -26,6 +26,7 @@
 #include "Blob.hxx"
 #include "Database.hxx"
 #include "EntrySpy.hxx"
+#include "Exception.hxx"
 #include "ExperimentTable.hxx"
 #include "Guard.hxx"
 #include "MainLoop.hxx"
@@ -39,7 +40,6 @@
 #include <dpcl.h>
 #include <ltdl.h>
 #include <sstream>
-#include <stdexcept>
 
 
 
@@ -153,7 +153,8 @@ namespace {
     {
 	char* ptr = (char*)msg;
 	for(int i = 0; i < sys.msg_size; ++i, ++ptr)
-	    fputc(*ptr, stdout);
+	    fputc(*ptr, stderr);
+	fflush(stderr);
     }
     
 
@@ -170,6 +171,7 @@ namespace {
 	char* ptr = (char*)msg;
 	for(int i = 0; i < sys.msg_size; ++i, ++ptr)
 	    fputc(*ptr, stdout);
+	fflush(stdout);
     }
 
 
@@ -208,13 +210,11 @@ std::string Process::formUniqueName(const std::string& host, const pid_t& pid)
  * environment variables, etc.) as when the tool was started. The process
  * is created in a suspended state.
  *
- * @note    An exception of type std::runtime_error is thrown if the thread 
- *          cannot be created for any reason (host doesn't exist, specified
- *          command cannot be executed, etc.)
+ * @note    A CommandNotFound exception is thrown if the thread cannot be
+ *          created for any reason (host doesn't exist, specified command
+ *          couldn't be found, etc.)
  *
  * @todo    Should probably try to find a full pathname for argv[0].
- *
- * @todo    The stdout and stderr callbacks don't appear to be working.
  *
  * @param host       Name of host on which to execute the command.
  * @param command    Command to be executed.
@@ -285,8 +285,7 @@ Process::Process(const std::string& host, const std::string& command) :
 					   stdoutCB, NULL, stderrCB, NULL);
     if(retval.status() == ASC_failure) {
 	MainLoop::resume();
-	throw std::runtime_error("Cannot create process to execute the "
-				 "command \"" + command + "\".");
+	throw Exception(Exception::CommandNotFound, host, command);
     }
     Assert(retval.status() == ASC_success);
     retval = dm_process->battach();
@@ -308,9 +307,9 @@ Process::Process(const std::string& host, const std::string& command) :
  * Attaches to an existing process. The process is assumed to be in the running
  * state.
  *
- * @note    An exception of type std::runtime_error is thrown if the thread
- *          cannot be attached for any reason (host or process identifier
- *          doesn't exist, etc.) 
+ * @note    A ThreadUnavailable exception is thrown if the thread cannot be
+ *          attached for any reason (host or process identifier doesn't exist,
+ *          etc.)
  * 
  * @todo    Explore using asynchronous connect/attach.
  *
@@ -362,10 +361,8 @@ Process::Process(const std::string& host, const pid_t& pid) :
     if((retval.status() == ASC_invalid_pid) ||
        (retval.status() == ASC_unknown_status)) {
 	MainLoop::resume();
-	std::stringstream pid_name;
-	pid_name << dm_pid;
-	throw std::runtime_error("Cannot connect to PID " + pid_name.str() + 
-				 " on host \"" + host + "\".");
+	throw Exception(Exception::ThreadUnavailable,
+			host, Exception::toString(pid));
     }
     Assert(retval.status() == ASC_success);
     retval = dm_process->battach();
@@ -373,7 +370,7 @@ Process::Process(const std::string& host, const pid_t& pid) :
     MainLoop::resume();	
 }
     
-    
+
     
 /**
  * Destructor.
@@ -491,13 +488,13 @@ Thread::State Process::getState() const
  * @note    Only one in-progress state change is allowed per process at any
  *          given time. For example, if you request that a process be suspended,
  *          you cannot request that it be terminated before the suspension is
- *          completed. An exception of type std::logic_error is thrown when
- *          multiple in-progress changes are requested.
+ *          completed. A StateAlreadyChanging exception is thrown when multiple
+ *          in-progress changes are requested.
  *
  * @note    Some transitions are disallowed because they do not make sense or
  *          cannot be implemented. For example, a terminated process cannot be
- *          set to a running process. An exception of type std::logic_error is
- *          thrown when such an invalid transition is requested.
+ *          set to a running process. A StateChangeInvalid exception is thrown
+ *          when such an invalid transition is requested.
  *
  * @param state    Change to this state.
  */
@@ -515,16 +512,12 @@ void Process::changeState(const Thread::State& state)
     
     // Disallow multiple, different, in-progress state changes
     if(dm_is_state_changing)
-	throw std::logic_error(
-	    "Cannot change a process' state when a different state change "
-	    "is in-progress but hasn't completed.");
+	throw Exception(Exception::StateAlreadyChanging);
     
     // Disallow Terminated --> [ Running | Suspended ]
     if(dm_current_state == Thread::Terminated)
-	throw std::logic_error(
-	    "Cannot " + 
-	    std::string(((state == Thread::Suspended) ? "suspend" : "run")) + 
-	    " a terminated process.");
+	throw Exception(Exception::StateChangeInvalid, "terminated",
+			(state == Thread::Suspended) ? "suspend" : "run");
     
     // Cast the process' name to the proper type for use below
     std::string name = formUniqueName(dm_host, dm_pid);
@@ -986,8 +979,8 @@ void Process::processStatements(const Thread& thread,
  * library is located and loaded into the process.
  *
  * @note    Libraries are located using libltdl and the standard search path
- *          established by the CollectorPluginTable class. An exception of type
- *          std::invalid_arguemnt is thrown if the library can't be located.
+ *          established by the CollectorPluginTable class. A LibraryNotFound
+ *          exception is thrown if the library can't be located.
  *
  * @param library    Name of library to be loaded.
  */
@@ -1008,10 +1001,7 @@ void Process::loadLibrary(const std::string& library)
     // Can we open this library as a libltdl module?
     lt_dlhandle handle = lt_dlopenext(library.c_str());
     if(handle == NULL)
-	throw std::invalid_argument(
-	    "Cannot locate the library \"" + library + 
-	    "\" that was to be loaded."
-	    );
+	throw Exception(Exception::LibraryNotFound, library);
     
     // Get the full path of the library
     const lt_dlinfo* info = lt_dlgetinfo(handle);
@@ -1070,9 +1060,8 @@ void Process::loadLibrary(const std::string& library)
  * has more than one reference, its reference count is simply decremeneted.
  * Otherwise the library is actually unloaded from the process.
  *
- * @pre    A library must be loaded before it can be unloaded. An exception of
- *         type std::invalid_argument is thrown if the library is not already
- *         loaded into the process.
+ * @pre    A library must be loaded before it can be unloaded. An assertion
+ *         failure occurs if the library is not already loaded into the process.
  *
  * @param library    Name of library to be unloaded.
  */
@@ -1085,11 +1074,7 @@ void Process::unloadLibrary(const std::string& library)
 	i = dm_library_name_to_entry.find(library);
 
     // Check preconditions
-    if(i == dm_library_name_to_entry.end())
-	throw std::invalid_argument(
-	    "Cannot unload the library \"" + library + 
-	    "\" that was not previously loaded."
-	    );
+    Assert(i != dm_library_name_to_entry.end());
     
     // Decrement the library's reference count
     i->second.references--;
@@ -1111,7 +1096,7 @@ void Process::unloadLibrary(const std::string& library)
     // Remove this entry from the list of libraries
     dm_library_name_to_entry.erase(i);    
 }
-    
+
     
 
 /**
@@ -1120,12 +1105,12 @@ void Process::unloadLibrary(const std::string& library)
  * Immediately executes the specified function in this process.
  *
  * @pre    A library must be loaded before a function within it can be executed.
- *         An exception of type std::invalid_argument is thrown if the library
- *         is not already loaded into the process.
+ *         An assertion failure occurs if the library is not already loaded into
+ *         the process.
  *
  * @pre    The function to be executed must be found in the specified library.
- *         An exception of type std::invalid_argument is thrown if the function
- *         cannot be found within the specified library.
+ *         A LibraryFuncNotFound exception is thrown if the function cannot be
+ *         found within the specified library.
  *
  * @param library     Name of library containing function to be executed.
  * @param function    Name of function to be executed.
@@ -1142,11 +1127,7 @@ void Process::execute(const std::string& library,
 	i = dm_library_name_to_entry.find(library);
     
     // Check preconditions
-    if(i == dm_library_name_to_entry.end())
-	throw std::invalid_argument(
-	    "Cannot execute a function in the library \"" + library +
-	    "\" that was not previously loaded."
-	    );
+    Assert(i != dm_library_name_to_entry.end());
 
     // Find the function's entry within the library
     std::map<std::string, int>::const_iterator
@@ -1154,10 +1135,7 @@ void Process::execute(const std::string& library,
     
     // Check preconditions
     if(j == i->second.functions.end())
-	throw std::invalid_argument(
-	    "Cannot find the function \"" + function +
-	    "\" within the library \"" + library + "\"."
-	    );
+	throw Exception(Exception::LibraryFuncNotFound, library, function);
     
     // Obtain a probe expression reference for the function
     ProbeExp function_exp = i->second.module->get_reference(j->second);

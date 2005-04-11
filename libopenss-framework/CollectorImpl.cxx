@@ -31,8 +31,6 @@
 #include "Instrumentor.hxx"
 #include "Thread.hxx"
 
-#include <stdexcept>
-
 using namespace OpenSpeedShop::Framework;
 
 
@@ -96,18 +94,15 @@ CollectorImpl::CollectorImpl(const std::string& unique_id,
  * Declares a parameter by adding it to this collector implementation. Called by
  * derived classes when specifying their parameters.
  *
- * @pre    Each parameter in a collector must be unique. An exception of type
- *         std::invalid_argument is thrown if an attempt is made to redeclare
- *         a parameter.
+ * @pre    Each parameter in a collector must be unique. An assertion failure
+ *         occurs if an attempt is made to redeclare a parameter.
  *
  * @param parameter    Parameter to be declareed.
  */
 void CollectorImpl::declareParameter(const Metadata& parameter)
 {
     // Check preconditions
-    if(dm_parameters.find(parameter) != dm_parameters.end())
-	throw std::invalid_argument("Parameter \"" + parameter.getUniqueId() +
-				    "\" cannot be redeclared.");
+    Assert(dm_parameters.find(parameter) == dm_parameters.end());
     
     // Add the new parameter
     dm_parameters.insert(parameter);
@@ -121,18 +116,15 @@ void CollectorImpl::declareParameter(const Metadata& parameter)
  * Declares a metric by adding it to this collector implementation. Called by
  * derived classes when specifying their metrics.
  *
- * @pre    Each metric in a collector must be unique. An exception of type
- *         std::invalid_argument is thrown if an attempt is made to redeclare
- *         a metric.
+ * @pre    Each metric in a collector must be unique. An assertion failure
+ *         occurs if an attempt is made to redeclare a metric.
  *
  * @param metric    Metric to be declareed.
  */
 void CollectorImpl::declareMetric(const Metadata& metric)
 {
     // Check preconditions
-    if(dm_metrics.find(metric) != dm_metrics.end())
-	throw std::invalid_argument("Metric \"" + metric.getUniqueId() +
-				    "\" cannot be redeclared.");
+    Assert(dm_metrics.find(metric) == dm_metrics.end());
     
     // Add the new metric
     dm_metrics.insert(metric);
@@ -215,8 +207,7 @@ void CollectorImpl::getECT(const Collector& collector,
 			   int& thread_id) const
 {
     // Check assertions
-    Assert(EntrySpy(collector).getDatabase() ==
-	   EntrySpy(thread).getDatabase());
+    Assert(EntrySpy(collector).getDatabase() == EntrySpy(thread).getDatabase());
 
     // Get and set the experiment identifier
     experiment_id = ExperimentTable::TheTable.getIdentifier(

@@ -69,9 +69,9 @@ namespace OpenSpeedShop { namespace Framework {
      *     would appear in the metadata returned by getAvailable(). Using
      *     Experiment::createCollector("pcsamp") a tool could create an instance
      *     of this collector. Then it could set the instance's sampling rate to
-     *     10mS, attach a thread to the collector, and begin collection of PC
-     *     sampling data by calling startCollecting(). The resulting data would
-     *     then be accessed via the time metric.
+     *     10mS, and begin collection of data by calling startCollecting() for
+     *     a thread. The resulting data would then be accessed via the time
+     *     metric.
      * 
      * @ingroup CollectorAPI ToolAPI
      */
@@ -109,23 +109,20 @@ namespace OpenSpeedShop { namespace Framework {
 			    const AddressRange&, const TimeInterval&, T&) const;
 	
 	ThreadGroup getThreads() const;
-	void attachThread(const Thread&) const;
-	void detachThread(const Thread&) const;
-	
-	bool isCollecting() const;
-        void startCollecting() const;
-        void stopCollecting() const;
+        void startCollecting(const Thread&) const;
+        void stopCollecting(const Thread&) const;
 	
     private:
 
 	Collector();
 	Collector(const SmartPtr<Database>&, const int&);
 	
+	void instantiateImpl() const;
 	Blob getParameterData() const;
 	void setParameterData(const Blob&) const;
 	
 	/** Collector's implementation. */
-	CollectorImpl* dm_impl;
+	mutable CollectorImpl* dm_impl;
 	
     };
     
@@ -136,20 +133,18 @@ namespace OpenSpeedShop { namespace Framework {
      *
      * Returns one of this collector's parameter values.
      *
-     * @pre    Only applies to a collector for which an implementation was
-     *         found. An exception of type std::logic_error is thrown if called
-     *         for a collector that has no implementation.
+     * @pre    Can only be performed on collectors for which an implementation
+     *         can be instantiated. A CollectorUnavailable exception is thrown
+     *         if the collector's implementation cannot be instantiated.
      *
-     * @pre    Parameters must be declared for the collector before they can be
-     *         accessed. An exception of type std::invalid_argument is thrown if
-     *         the parameter wasn't previously declared.
+     * @pre    Parameters must be declared for the collector before they can
+     *         be accessed. An assertion failure occurs if the parameter wasn't
+     *         previously declared.
      *
      * @pre    Parameter values can only be returned in a value of the same
-     *         type as themselves. No implicit type conversion is allowed. An
-     *         exception of type std::invalid_argument is thrown if the
-     *         parameter is accessed as a type other than its own.
-     *
-     * @todo    Get the actual parameter value.
+     *         type as themselves. No implicit type conversion is allowed.
+     *         An assertion failure occurs if the parameter is accessed as a
+     *         type other than its own.
      *
      * @param unique_id    Unique identifier of the parameter to get.
      * @retval value       Current value of the parameter.
@@ -159,22 +154,20 @@ namespace OpenSpeedShop { namespace Framework {
 				      T& value) const
     {
 	// Check preconditions
-	if(dm_impl == NULL)
-	    throw std::logic_error("Collector has no implementation.");
-	
+	if(dm_impl == NULL) {
+	    instantiateImpl();
+	    if(dm_impl == NULL)
+		throw Exception(Exception::CollectorUnavailable,
+				getMetadata().getUniqueId());
+	}
+
 	// Find this parameter
 	std::set<Metadata>::const_iterator i = dm_impl->getParameters().
 	    find(Metadata(unique_id, "", "", typeid(T)));
 	
 	// Check preconditions
-	if(i == dm_impl->getParameters().end())
-            throw std::invalid_argument("Parameter \"" + unique_id +
-                                        "\" hasn't been declared for this "
-                                        "collector.");	
-        if(!i->isType(typeid(T)))
-            throw std::invalid_argument("Parameter \"" + unique_id +
-                                        "\" can't be read as a value with a "
-                                        "type other than its own.");
+	Assert(i != dm_impl->getParameters().end());
+	Assert(i->isType(typeid(T)));
 	
 	// Get our parameter data
 	Blob blob = getParameterData();
@@ -190,20 +183,18 @@ namespace OpenSpeedShop { namespace Framework {
      *
      * Sets the specified parameter to a new value.
      *
-     * @pre    Only applies to a collector for which an implementation was
-     *         found. An exception of type std::logic_error is thrown if called
-     *         for a collector that has no implementation.
+     * @pre    Can only be performed on collectors for which an implementation
+     *         can be instantiated. A CollectorUnavailable exception is thrown
+     *         if the collector's implementation cannot be instantiated.
      *
-     * @pre    Parameters must be declared for the collector before they can be
-     *         accessed. An exception of type std::invalid_argument is thrown if
-     *         the parameter wasn't previously declared.
+     * @pre    Parameters must be declared for the collector before they can
+     *         be accessed. An assertion failure occurs if the parameter wasn't
+     *         previously declared.
      *
-     * @pre    Parameter values can only be set to a value of the same type as
-     *         themselves. No implicit type conversion is allowed. An exception
-     *         of type std::invalid_argument is thrown if the parameter is set
-     *         to a type other than its own.
-     *
-     * @todo    Set the actual parameter value.
+     * @pre    Parameter values can only be set to a value of the same type
+     *         as themselves. No implicit type conversion is allowed. An
+     *         assertion failure occurs if the parameter is accessed as a type
+     *         other than its own.
      *
      * @param unique_id    Unique identifier of the parameter to set.
      * @param value        New value for the parameter.
@@ -213,23 +204,21 @@ namespace OpenSpeedShop { namespace Framework {
 				      const T& value) const
     {
 	// Check preconditions
-	if(dm_impl == NULL)
-	    throw std::logic_error("Collector has no implementation.");
+	if(dm_impl == NULL) {
+	    instantiateImpl();
+	    if(dm_impl == NULL)
+		throw Exception(Exception::CollectorUnavailable,
+				getMetadata().getUniqueId());
+	}
 	
 	// Find this parameter
 	std::set<Metadata>::const_iterator i = dm_impl->getParameters().
 	    find(Metadata(unique_id, "", "", typeid(T)));
 	
 	// Check preconditions
-	if(i == dm_impl->getParameters().end())
-            throw std::invalid_argument("Parameter \"" + unique_id +
-                                        "\" hasn't been declared for this "
-                                        "collector.");	
-        if(!i->isType(typeid(T)))
-            throw std::invalid_argument("Parameter \"" + unique_id +
-                                        "\" can't be written as a value with "
-                                        "a type other than its own.");
-		
+	Assert(i != dm_impl->getParameters().end());
+	Assert(i->isType(typeid(T)));
+	
 	// Get our parameter data
 	Blob blob = getParameterData();
 
@@ -248,18 +237,18 @@ namespace OpenSpeedShop { namespace Framework {
      * Returns one of this collector's metric values for a particular
      * thread, over a specific address range and time interval.
      *
-     * @pre    Only applies to a collector for which an implementation was
-     *         found. An exception of type std::logic_error is thrown if called
-     *         for a collector that has no implementation.
+     * @pre    Can only be performed on collectors for which an implementation
+     *         can be instantiated. A CollectorUnavailable exception is thrown
+     *         if the collector's implementation cannot be instantiated.
      *
-     * @pre    Metrics must be declared for the collector before they can be
-     *         accessed. An exception of type std::invalid_argument is thrown if
-     *         the metric wasn't previously declared.
+     * @pre    Metrics must be declared for the collector before they can
+     *         be accessed. An assertion failure occurs if the metric wasn't
+     *         previously declared.
      *
-     * @pre    Metric values can only be returned in a value of the same type as
-     *         themselves. No implicit type conversion is allowed. An exception
-     *         of type std::invalid_argument is thrown if the metric is accessed
-     *         as a type other than its own.
+     * @pre    Metric values can only be returned in a value of the same type
+     *         as themselves. No implicit type conversion is allowed. An
+     *         assertion failure occurs if the metric is accessed as a type
+     *         other than its own.
      *
      * @param unique_id   Unique identifier of the metric to get.
      * @param thread      Thread for which to get a value.
@@ -275,22 +264,20 @@ namespace OpenSpeedShop { namespace Framework {
 				   T& value) const
     {
 	// Check preconditions
-	if(dm_impl == NULL)
-	    throw std::logic_error("Collector has no implementation.");
+	if(dm_impl == NULL) {
+	    instantiateImpl();
+	    if(dm_impl == NULL)
+		throw Exception(Exception::CollectorUnavailable,
+				getMetadata().getUniqueId());
+	}
 	
 	// Find this metric
 	std::set<Metadata>::const_iterator i = dm_impl->getMetrics().
 	    find(Metadata(unique_id, "", "", typeid(T)));
 	
         // Check preconditions
-	if(i == dm_impl->getMetrics().end())
-            throw std::invalid_argument("Metric \"" + unique_id +
-                                        "\" hasn't been declared for this "
-                                        "collector.");	
-        if(!i->isType(typeid(T)))
-            throw std::invalid_argument("Metric \"" + unique_id +
-                                        "\" can't be read as a value with a "
-                                        "type other than its own.");
+	Assert(i != dm_impl->getMetrics().end());
+	Assert(i->isType(typeid(T)));
 
         // Get the metric value
         dm_impl->getMetricValue(unique_id, *this, thread,

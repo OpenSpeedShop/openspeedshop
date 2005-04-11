@@ -173,9 +173,9 @@ bool Database::isAccessible(const std::string& name)
  * be performed on the new database by creating a Database object with this
  * database's name and then executing SQL statements.
  *
- * @note    An exception of type std::runtime_error is thrown if the database
- *          cannot be created for any reason (including the pre-existence of
- *          the named database).
+ * @note    A DatabaseCannotCreate or DatabaseExists exception is thrown if the
+ *          database cannot be created for any reason (including pre-existence
+ *          of the named database in the later case).
  *
  * @param name    Name of the database to be created.
  */
@@ -183,17 +183,16 @@ void Database::create(const std::string& name)
 {
     // Verify the database is not already accessible
     if(isAccessible(name))
-	throw std::runtime_error("Database \"" + name + "\" already exists.");
-
+	throw Exception(Exception::DatabaseExists, name);
+    
     // Open this file as a database
     sqlite3* handle = NULL;
     int retval = sqlite3_open(name.c_str(), &handle);
     if(retval == SQLITE_CANTOPEN)
-	throw std::runtime_error("Database \"" + name + 
-				 "\" cannot be created.");
+	throw Exception(Exception::DatabaseCannotCreate, name);
     Assert(retval == SQLITE_OK);
     Assert(handle != NULL);
-
+    
     // Close the database
     Assert(sqlite3_close(handle) == SQLITE_OK); 
 }
@@ -207,8 +206,8 @@ void Database::create(const std::string& name)
  * can then be performed on this database by executing SQL statements using the
  * member functions of this class.
  *
- * @note    An exception of type std::runtime_error is thrown if the database
- *          cannot be opened for any reason.
+ * @note    A DatabaseCannotOpen exception is thrown if the database cannot
+ *          be opened for any reason.
  *
  * @param name    Name of database to be accessed.
  */
@@ -231,7 +230,7 @@ Database::Database(const std::string& name) :
     
     // Verify the database is accessible
     if(!isAccessible(name))
-	throw std::runtime_error("Database \"" + name + "\" can't be opened.");
+	throw Exception(Exception::DatabaseCannotOpen, name);
     
     // Open the database
     Assert(sqlite3_open(name.c_str(), &dm_handle) == SQLITE_OK);
@@ -239,7 +238,7 @@ Database::Database(const std::string& name) :
     
     // Specify our busy handler
     Assert(sqlite3_busy_handler(dm_handle, busyHandler, this) == SQLITE_OK);
-
+    
     // Specify the user-defined address addition function
     Assert(sqlite3_create_function(dm_handle, "addrAdd", 2,
 				   SQLITE_ANY, NULL, addressAdditionFunc,
@@ -353,9 +352,9 @@ void Database::beginTransaction()
  *          statements at once will result in an assertion failure.
  *
  * @note    An assertion failure occurs if the SQL statement contains a syntax
- *          error. An exception of type Database::Corrupted is thrown if the
- *          statement cannot be prepared for any other reason (e.g. a query
- *          against a table that doesn't exist).
+ *          error. A DatabaseInvalid exception is thrown if the statement cannot
+ *          be prepared for any other reason (e.g. a query against a table that
+ *          doesn't exist).
  *
  * @param statement    SQL statement to be executed.
  */
@@ -388,7 +387,7 @@ void Database::prepareStatement(const std::string& statement)
 	if(retval == SQLITE_ERROR) {
 	    std::string errmsg = sqlite3_errmsg(dm_handle);
 	    if(errmsg.find("syntax error") == std::string::npos)
-		throw Corrupted(*this, errmsg);
+		throw Exception(Exception::DatabaseInvalid, dm_name, errmsg);
 	}
 	Assert(retval == SQLITE_OK);
 	Assert((tail != NULL) && (*tail == '\0'));

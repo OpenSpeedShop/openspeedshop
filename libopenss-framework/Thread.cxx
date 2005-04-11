@@ -27,6 +27,7 @@
 #include "Collector.hxx"
 #include "CollectorGroup.hxx"
 #include "Database.hxx"
+#include "Exception.hxx"
 #include "Function.hxx"
 #include "Instrumentor.hxx"
 #include "LinkedObject.hxx"
@@ -101,9 +102,6 @@ std::string Thread::getHost() const
 {
     std::string host;
 
-    // Check assertions
-    Assert(!dm_database.isNull());
-
     // Find our host name
     BEGIN_TRANSACTION(dm_database);
     validate("Threads");
@@ -129,9 +127,6 @@ std::string Thread::getHost() const
 pid_t Thread::getProcessId() const
 {
     pid_t pid;
-
-    // Check assertions
-    Assert(!dm_database.isNull());
 
     // Find our process identifier
     BEGIN_TRANSACTION(dm_database);
@@ -160,9 +155,6 @@ std::pair<bool, pthread_t> Thread::getPosixThreadId() const
 {
     std::pair<bool, pthread_t> tid(false, 0);
     
-    // Check assertions
-    Assert(!dm_database.isNull());
-
     // Find our POSIX thread identifier	
     BEGIN_TRANSACTION(dm_database);
     validate("Threads");
@@ -195,9 +187,6 @@ std::pair<bool, pthread_t> Thread::getPosixThreadId() const
 std::pair<bool, int> Thread::getOpenMPThreadId() const
 {
     std::pair<bool, int> tid(false, 0);
-    
-    // Check assertions
-    Assert(!dm_database.isNull());
     
     // Find our OpenMP thread identifier	
     BEGIN_TRANSACTION(dm_database);
@@ -232,9 +221,6 @@ std::pair<bool, int> Thread::getMPIRank() const
 {
     std::pair<bool, int> rank(false, 0);
     
-    // Check assertions
-    Assert(!dm_database.isNull());
-    
     // Find our MPI rank
     BEGIN_TRANSACTION(dm_database);
     validate("Threads");
@@ -265,9 +251,6 @@ std::pair<bool, int> Thread::getMPIRank() const
 std::set<LinkedObject> Thread::getLinkedObjects(const Time& time) const
 {
     std::set<LinkedObject> linked_objects;
-    
-    // Check assertions
-    Assert(!dm_database.isNull());
     
     // Find our address space entries containing the query time
     BEGIN_TRANSACTION(dm_database);
@@ -310,9 +293,6 @@ std::set<LinkedObject> Thread::getLinkedObjects(const Time& time) const
 std::set<Function> Thread::getFunctions(const Time& time) const
 {
     std::set<Function> functions;
-
-    // Check assertions
-    Assert(!dm_database.isNull());
 
     // Find our functions and their contexts containing the query time
     BEGIN_TRANSACTION(dm_database);
@@ -357,9 +337,6 @@ Thread::getLinkedObjectAt(const Address& address, const Time& time) const
 {
     std::pair<bool, LinkedObject> linked_object(false, LinkedObject());
 
-    // Check assertions
-    Assert(!dm_database.isNull());
-    
     // Find the address space entry containing the query time/address
     BEGIN_TRANSACTION(dm_database);
     validate("Threads");
@@ -379,8 +356,7 @@ Thread::getLinkedObjectAt(const Address& address, const Time& time) const
     dm_database->bindArgument(5, address);	
     while(dm_database->executeStatement()) {
 	if(linked_object.first)
-	    throw Database::Corrupted(*dm_database, 
-				      "overlapping address space entries");
+	    throw Exception(Exception::EntryOverlapping, "AddressSpaces");
 	linked_object.first = true;
 	linked_object.second = LinkedObject(dm_database,
 					    dm_database->getResultAsInteger(2),
@@ -410,9 +386,6 @@ Thread::getFunctionAt(const Address& address, const Time& time) const
 {
     std::pair<bool, Function> function(false, Function());
 
-    // Check assertions
-    Assert(!dm_database.isNull());
-    
     // Find the function containing the query time/address
     BEGIN_TRANSACTION(dm_database);
     validate("Threads");
@@ -435,8 +408,7 @@ Thread::getFunctionAt(const Address& address, const Time& time) const
     dm_database->bindArgument(5, address);
     while(dm_database->executeStatement()) {
 	if(function.first)
-	    throw Database::Corrupted(*dm_database, 
-				      "overlapping function entries");
+	    throw Exception(Exception::EntryOverlapping, "Function");
 	function.first = true;
 	function.second = Function(dm_database,
 				   dm_database->getResultAsInteger(2),
@@ -464,9 +436,6 @@ std::set<Statement>
 Thread::getStatementsAt(const Address& address, const Time& time) const
 {
     std::set<Statement> statements;
-
-    // Check assertions
-    Assert(!dm_database.isNull());
 
     // Find the statements containing the query time/address
     BEGIN_TRANSACTION(dm_database);
@@ -533,9 +502,6 @@ Thread::getFunctionByName(const std::string& name, const Time& time) const
 {
     std::pair<bool, Function> function(false, Function());
     
-    // Check assertions
-    Assert(!dm_database.isNull());
-    
     // Find the function and its context containing the query time
     BEGIN_TRANSACTION(dm_database);
     validate("Threads");
@@ -571,40 +537,27 @@ Thread::getFunctionByName(const std::string& name, const Time& time) const
 /**
  * Get our collectors.
  *
- * Returns all the collectors currently attached to this thread. An empty
- * collector group is returned if this thread isn't attached to any collectors.
+ * Returns all the collectors currently collecting performance data for this
+ * thread. An empty collector group is returned if no collectors are collecting
+ * performance data for this thread.
  *
- * @return    Collectors to which this thread is currently attached.
+ * @return    Collectors which are collecting performance data for this thread.
  */
 CollectorGroup Thread::getCollectors() const
 {
-    // Check assertions
-    Assert(!dm_database.isNull());
-
-    // Note: Collector's constructor uses an SQL query to find its unique
-    //       identifier so that it can instantiate a collector implementation.
-    //       Since we use an SQL query here to find the collectors, and the
-    //       Database class does not allow multiple in-flight SQL statements,
-    //       the lookup of the collector list had to be separated from the
-    //       creation of the collector objects.
-
-    // Find our collectors
-    std::set<int> entries;
+    CollectorGroup collectors;
+    
+    // Find the collectors which are collecting performance data for us
     BEGIN_TRANSACTION(dm_database);
-    validate("Threads");    
+    validate("Threads");
     dm_database->prepareStatement(
-        "SELECT collector FROM Attachments WHERE thread = ?;"
+        "SELECT collector FROM Collecting WHERE thread = ?;"
         );
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement())
-	entries.insert(dm_database->getResultAsInteger(1));    
+        collectors.insert(Collector(dm_database,
+				    dm_database->getResultAsInteger(1)));
     END_TRANSACTION(dm_database);
-    
-    // Create the collectors
-    CollectorGroup collectors;
-    for(std::set<int>::const_iterator
-	    i = entries.begin(); i != entries.end(); ++i)
-	collectors.insert(Collector(dm_database, *i));
     
     // Return the collectors to the caller
     return collectors;

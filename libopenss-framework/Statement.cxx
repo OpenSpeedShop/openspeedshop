@@ -27,6 +27,7 @@
 #include "AddressBitmap.hxx"
 #include "Blob.hxx"
 #include "Database.hxx"
+#include "Exception.hxx"
 #include "Function.hxx"
 #include "LinkedObject.hxx"
 #include "Path.hxx"
@@ -48,9 +49,6 @@ Thread Statement::getThread() const
 {
     Thread thread;
 
-    // Check assertions
-    Assert(!dm_database.isNull());
-        
     // Find our context's thread
     BEGIN_TRANSACTION(dm_database);
     validate("Statements");
@@ -78,9 +76,6 @@ Thread Statement::getThread() const
 LinkedObject Statement::getLinkedObject() const
 {
     LinkedObject linked_object;
-
-    // Check assertions
-    Assert(!dm_database.isNull());
 
     // Find our context's linked object
     BEGIN_TRANSACTION(dm_database);
@@ -113,9 +108,6 @@ std::set<Function> Statement::getFunctions() const
 {
     std::set<Function> functions;
     
-    // Check assertions
-    Assert(!dm_database.isNull());
-  
     // Find the functions intersecting our address ranges
     BEGIN_TRANSACTION(dm_database);
     validate("Statements");
@@ -176,9 +168,6 @@ Path Statement::getPath() const
 {
     Path path;
 
-    // Check assertions
-    Assert(!dm_database.isNull());
-
     // Find our source file's path
     BEGIN_TRANSACTION(dm_database);
     validate("Statements");
@@ -192,11 +181,13 @@ Path Statement::getPath() const
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement()) {
 	if(!path.empty())
-	    throw Database::Corrupted(*dm_database, "file entry is not unique");
+	    throw Exception(Exception::EntryNotUnique, "Files",
+			    "<Statements-Referenced>");
 	path = Path(dm_database->getResultAsString(1));
     }    
     if(path.empty())
-	throw Database::Corrupted(*dm_database, "file entry no longer exists");
+	throw Exception(Exception::EntryNotFound, "Files",
+			"<Statements-Referenced>");
     END_TRANSACTION(dm_database);
     
     // Return the full path name to the caller
@@ -216,9 +207,6 @@ int Statement::getLine() const
 {
     int line;
 
-    // Check assertions
-    Assert(!dm_database.isNull());
-	
     // Find our line number
     BEGIN_TRANSACTION(dm_database);
     validate("Statements");
@@ -246,9 +234,6 @@ int Statement::getLine() const
 int Statement::getColumn() const
 {
     int column;
-
-    // Check assertions
-    Assert(!dm_database.isNull());
 
     // Find our column number
     BEGIN_TRANSACTION(dm_database);
@@ -278,9 +263,6 @@ int Statement::getColumn() const
 std::set<AddressRange> Statement::getAddressRanges() const
 {
     std::set<AddressRange> ranges;
-    
-    // Check assertions
-    Assert(!dm_database.isNull());
     
     // Find our addresses
     BEGIN_TRANSACTION(dm_database);

@@ -24,6 +24,7 @@
 
 #include "Assert.hxx"
 #include "Database.hxx"
+#include "Exception.hxx"
 #include "Function.hxx"
 #include "LinkedObject.hxx"
 #include "Path.hxx"
@@ -43,9 +44,6 @@ using namespace OpenSpeedShop::Framework;
 Thread LinkedObject::getThread() const
 {
     Thread thread;
-
-    // Check assertions
-    Assert(!dm_database.isNull());
 
     // Find our context's thread
     BEGIN_TRANSACTION(dm_database);
@@ -75,9 +73,6 @@ Path LinkedObject::getPath() const
 {
     Path path;
 
-    // Check assertions
-    Assert(!dm_database.isNull());
-    
     // Find our full path name
     BEGIN_TRANSACTION(dm_database);
     validate("LinkedObjects");
@@ -91,11 +86,13 @@ Path LinkedObject::getPath() const
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement()) {
 	if(!path.empty())
-	    throw Database::Corrupted(*dm_database, "file entry is not unique");
+	    throw Exception(Exception::EntryNotUnique, "Files",
+			    "<LinkedObjects-Referenced>");
 	path = Path(dm_database->getResultAsString(1));
     }
     if(path.empty())
-	throw Database::Corrupted(*dm_database, "file entry no longer exists");
+	throw Exception(Exception::EntryNotFound, "Files",
+			"<LinkedObjects-Referenced>");
     END_TRANSACTION(dm_database);
     
     // Return the full path name to the caller
@@ -114,9 +111,6 @@ Path LinkedObject::getPath() const
 AddressRange LinkedObject::getAddressRange() const
 {
     AddressRange range;
-
-    // Check assertions
-    Assert(!dm_database.isNull());
 
     // Find our context's address range
     BEGIN_TRANSACTION(dm_database);
@@ -150,9 +144,6 @@ AddressRange LinkedObject::getAddressRange() const
 std::set<Function> LinkedObject::getFunctions() const
 {
     std::set<Function> functions;
-
-    // Check assertions
-    Assert(!dm_database.isNull());
 
     // Find our functions
     BEGIN_TRANSACTION(dm_database);

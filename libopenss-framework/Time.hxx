@@ -36,7 +36,6 @@
 #include <inttypes.h>
 #endif
 #include <limits>
-#include <stdexcept>
 #include <time.h>
 
 
@@ -112,14 +111,8 @@ namespace OpenSpeedShop { namespace Framework {
 	Time& operator+=(const difference_type& other)
 	{
 	    value_type result = dm_value + other;
-	    if((other < 0) && (result >= dm_value))
-		throw std::range_error("Adding a negative offset to a time "
-				       "resulted in a time less than "
-				       "UINT64_MIN.");
-	    if((other > 0) && (result <= dm_value))
-		throw std::range_error("Adding a positive offset to a time "
-				       "resulted in a time greater than "
-				       "UINT64_MAX.");
+	    Assert((other > 0) || (result <= dm_value));
+            Assert((other < 0) || (result >= dm_value));
 	    dm_value = result;
 	    return *this;
 	}
@@ -134,12 +127,8 @@ namespace OpenSpeedShop { namespace Framework {
 	difference_type operator-(const Time& other) const
 	{
 	    difference_type result = dm_value - other.dm_value;
-	    if((*this < other) && (result >= 0))
-		throw std::range_error("Subtracting two times resulted in "
-				       "a time less than INT64_MIN.");
-	    if((*this > other) && (result <= 0))
-		throw std::range_error("Subtracting two times resulted in "
-				       "a time greater than INT64_MAX.");
+	    Assert((*this > other) || (result <= 0));
+            Assert((*this < other) || (result >= 0));
 	    return result;
 	}
 

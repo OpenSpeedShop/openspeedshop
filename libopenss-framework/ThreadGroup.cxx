@@ -22,6 +22,7 @@
  *
  */
 
+#include "Collector.hxx"
 #include "Database.hxx"
 #include "ThreadGroup.hxx"
 
@@ -107,4 +108,36 @@ void ThreadGroup::changeState(const Thread::State& state)
 {
     for(ThreadGroup::iterator i = begin(); i != end(); ++i)
 	i->changeState(state);
+}
+
+
+
+/**
+ * Start data collection for all threads.
+ *
+ * Starts collection of performance data by the specified collector for all
+ * threads in the group.
+ *
+ * @param collector    Collector for which to start data collection.
+ */
+void ThreadGroup::startCollecting(const Collector& collector) const
+{
+    for(ThreadGroup::iterator i = begin(); i != end(); ++i)
+	collector.startCollecting(*i);
+}
+
+
+
+/**
+ * Stop data collection for all threads.
+ *
+ * Stops collection of performance data by the specified collector for all
+ * threads in the group.
+ *
+ * @param collector    Collector for which to stop data collection.
+ */
+void ThreadGroup::stopCollecting(const Collector& collector) const
+{
+    for(ThreadGroup::iterator i = begin(); i != end(); ++i)
+	collector.stopCollecting(*i);
 }

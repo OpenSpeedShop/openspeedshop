@@ -48,9 +48,6 @@ Thread Function::getThread() const
 {
     Thread thread;
 
-    // Check assertions
-    Assert(!dm_database.isNull());
-    
     // Find our context's thread    
     BEGIN_TRANSACTION(dm_database);
     validate("Functions");
@@ -79,9 +76,6 @@ LinkedObject Function::getLinkedObject() const
 {
     LinkedObject linked_object;
     
-    // Check assertions
-    Assert(!dm_database.isNull());
-
     // Find our context's linked object
     BEGIN_TRANSACTION(dm_database);
     validate("Functions");
@@ -112,9 +106,6 @@ std::string Function::getName() const
 {
     std::string name;
 
-    // Check assertions
-    Assert(!dm_database.isNull());
-
     // Find our demangled name
     BEGIN_TRANSACTION(dm_database);
     validate("Functions");
@@ -142,9 +133,6 @@ std::string Function::getName() const
 AddressRange Function::getAddressRange() const
 {
     AddressRange range;
-
-    // Check assertions
-    Assert(!dm_database.isNull());
 
     // Find our context's base address and our address range
     BEGIN_TRANSACTION(dm_database);
@@ -185,9 +173,6 @@ AddressRange Function::getAddressRange() const
 std::set<Statement> Function::getDefinitions() const
 {
     std::set<Statement> definitions;
-
-    // Check assertions
-    Assert(!dm_database.isNull());
 
     // Find the statements containing our beginning address
     BEGIN_TRANSACTION(dm_database);
@@ -239,9 +224,6 @@ std::set<Statement> Function::getDefinitions() const
 std::set<Statement> Function::getStatements() const
 {
     std::set<Statement> statements;
-
-    // Check assertions
-    Assert(!dm_database.isNull());
 
     // Find the statements intersecting our address range
     BEGIN_TRANSACTION(dm_database);

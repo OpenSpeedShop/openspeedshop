@@ -64,14 +64,11 @@ int main(int argc, char* argv[])
 		  << static_cast<double>(t_stop - t_start) / 1000000000.0
 		  << " seconds." << std::endl;
 	std::cout << "Running the process..." << std::endl << std::endl;
-	
-	// Create the PC sampling collector and set its sampling rate
+
+	// Create and start the PC sampling collector
 	Collector collector = experiment.createCollector("pcsamp");
 	collector.setParameterValue("sampling_rate", (unsigned)100);
-	
-	// Attach this process to the collector and start collecting data
-	collector.attachThread(thread);
-	collector.startCollecting();
+	collector.startCollecting(thread);
 	
 	// Resume all threads and wait for them to terminate
 	experiment.getThreads().changeState(Thread::Running);
@@ -125,16 +122,13 @@ int main(int argc, char* argv[])
 	std::cout << std::endl << std::endl;
 
     }
-    catch(const std::exception& error) {
+    catch(const Exception& error) {
 	std::cerr
 	    << std::endl
-	    << "Error: "
-	    << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-		"Unknown runtime error." : error.what()) << std::endl
+	    << "Error: " << error.getDescription() << std::endl
 	    << std::endl;
-	return 1;
     }
-
+    
     // Indicate success to the shell
     return 0;
 }
