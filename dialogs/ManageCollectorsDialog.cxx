@@ -71,7 +71,7 @@ connect( collectorMenu, SIGNAL( aboutToShow() ),
                      this, SLOT( fileCollectorAboutToShowSelected( ) ) );
   file->insertItem("Add Collector", collectorMenu);
   file->insertItem( "&Detach Collector", this, SLOT(detachSelected()), CTRL+Key_D );
-file->insertItem( "&Enable Collector", this, SLOT(eableSelected()), CTRL+Key_D );
+file->insertItem( "&Enable Collector", this, SLOT(enableSelected()), CTRL+Key_D );
 file->insertItem( "&Disable Collector", this, SLOT(disableSelected()), CTRL+Key_D );
   
   QPopupMenu *view = new QPopupMenu( this );
