@@ -196,8 +196,7 @@ Collector Get_Collector (OpenSpeedShop::Framework::Experiment *fexp, std::string
 
 static void Attach_Command (CommandObject *cmd, ExperimentObject *exp, Thread t, Collector c) {
   try {
-    c.attachThread(t);
-    c.startCollecting();  // There is no point in attaching unless we intend to use it!
+    c.startCollecting(t);  // There is no point in attaching unless we intend to use it!
   }
   catch(const std::exception& error) {
     Mark_Cmd_With_Std_Error (cmd, error);
@@ -207,8 +206,7 @@ static void Attach_Command (CommandObject *cmd, ExperimentObject *exp, Thread t,
 
 static void Detach_Command (CommandObject *cmd, ExperimentObject *exp, Thread t, Collector c) {
   try {
-    c.detachThread(t);
-    c.stopCollecting();  // We don't want to collect any more data!
+    c.stopCollecting(t);  // We don't want to collect any more data for this thread!
   }
   catch(const std::exception& error) {
     Mark_Cmd_With_Std_Error (cmd, error);
@@ -522,8 +520,12 @@ bool SS_expAttach (CommandObject *cmd) {
     return false;
   }
 
- // There is no result returned from this command.
-  cmd->set_Status(CMD_COMPLETE);
+ // Was this really an expCreate comamnd?
+ // If so, return to SS_expCreate and let it set an argument.
+  if (cmd->Type() == CMD_EXP_ATTACH) {
+   // There is no result returned from this command.
+    cmd->set_Status(CMD_COMPLETE);
+  }
   return true;
 }
 
@@ -628,8 +630,8 @@ bool SS_expCreate (CommandObject *cmd) {
   (void)Experiment_Focus (WindowID, exp->ExperimentObject_ID());
 
  // Return the EXPID for this command.
- // Note: SS_expAttach has already done a cmd->set_Status(CMD_COMPLETE);
   cmd->Result_Int (exp->ExperimentObject_ID());
+  cmd->set_Status(CMD_COMPLETE);
   return true;
 }
 
@@ -653,6 +655,10 @@ bool SS_expDetach (CommandObject *cmd) {
 }
 
 static bool Disable_Experiment (CommandObject *cmd, ExperimentObject *exp) {
+  
+ // Determine target and collectors and break the link between them.
+  return Process_expTypes (cmd, exp, &Detach_Command );
+
  // Turn off all of the collectors
   CollectorGroup cgrp;
   try {
@@ -667,7 +673,9 @@ static bool Disable_Experiment (CommandObject *cmd, ExperimentObject *exp) {
   for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
     Collector c = *ci;
     try {
+/* TEST
       c.stopCollecting();
+TEST */
     }
     catch(const std::exception& error) {
      // We are ignoring any errors so that all collectors are processed.
@@ -706,6 +714,11 @@ bool SS_expDisable (CommandObject *cmd) {
 }
 
 static bool Enable_Experiment (CommandObject *cmd, ExperimentObject *exp) {
+
+ // Determine target and collectors and link them together.
+  return true;
+  return Process_expTypes (cmd, exp, &Attach_Command );
+
  // Activate all of the collectors
   CollectorGroup cgrp;
   try {
@@ -720,7 +733,9 @@ static bool Enable_Experiment (CommandObject *cmd, ExperimentObject *exp) {
   for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
     Collector c = *ci;
     try {
+/* TEST
       c.startCollecting();
+TEST */
     }
     catch(const std::exception& error) {
 /* TEST */fprintf(stdout,"Enable: %s\n", ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
