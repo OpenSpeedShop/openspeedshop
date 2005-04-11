@@ -63,11 +63,32 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, int bu
     cmdlen = strlen(cmdstr)-1;
     for ( i=0; i<argc; i++ ) {
       if (butnotarg == i) {
+       // This is the "-batch", "-cli" or "-gui" option.
         continue;
+      }
+      if ((strlen(argv[i]) > 0) &&
+        !strncasecmp( argv[i], "--", 2)) {
+       // This argument represents an Xwindow control option.
+        if ((strlen(argv[i+1]) > 0) &&
+            strncasecmp( argv[i+1], "-", 1)) {
+          i++;
+          continue;
+        }
       }
       if (strlen(argv[i]) > 0) {
         strcat(cmdstr," ");
         strcat(cmdstr,argv[i]);
+
+        if ((strlen(argv[i]) == 2) &&
+          !strncasecmp( argv[i], "-f", 2) &&
+          ((i+1) < argc) &&
+          strncasecmp( argv[i+1], "-", 1)) {
+         // Put quotes around the "-f" option string.
+          i++;
+          strcat(cmdstr," \"");
+          strcat(cmdstr,argv[i]);
+          strcat(cmdstr,"\"");
+        }
       }
     }
     strcat(cmdstr,"\n\0");
