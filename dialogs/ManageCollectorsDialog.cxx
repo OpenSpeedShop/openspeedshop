@@ -64,15 +64,15 @@ ManageCollectorsDialog::ManageCollectorsDialog( QWidget* parent, const char* nam
   file->insertItem( "&Attach Program...",  this, SLOT(attachProgramSelected()), CTRL+Key_L );
   file->insertItem( "&Attach Process", this, SLOT(attachProcessSelected()), CTRL+Key_A );
   collectorMenu = new QPopupMenu(this);
-  printf("HereB:\n");
+//  printf("HereB:\n");
   connect( collectorMenu, SIGNAL( activated( int ) ),
                      this, SLOT( attachCollectorSelected( int ) ) );
-connect( collectorMenu, SIGNAL( aboutToShow() ),
+  connect( collectorMenu, SIGNAL( aboutToShow() ),
                      this, SLOT( fileCollectorAboutToShowSelected( ) ) );
   file->insertItem("Add Collector", collectorMenu);
   file->insertItem( "&Detach Collector", this, SLOT(detachSelected()), CTRL+Key_D );
-file->insertItem( "&Enable Collector", this, SLOT(enableSelected()), CTRL+Key_D );
-file->insertItem( "&Disable Collector", this, SLOT(disableSelected()), CTRL+Key_D );
+  file->insertItem( "&Enable Collector", this, SLOT(enableSelected()), CTRL+Key_D );
+  file->insertItem( "&Disable Collector", this, SLOT(disableSelected()), CTRL+Key_D );
   
   QPopupMenu *view = new QPopupMenu( this );
   view->insertItem( "Sort By &Process...", this, SLOT(sortByProcess()), CTRL+Key_P );
@@ -156,11 +156,11 @@ void ManageCollectorsDialog::languageChange()
   buttonCancel->setAccel( QKeySequence( QString::null ) );
   QString command;
   command = QString("listTypes all");
-printf("command=(%s)\n", command.ascii() );
+// printf("command=(%s)\n", command.ascii() );
   if( !cli->getStringListValueFromCLI( (char *)command.ascii(), 
          &list_of_collectors, FALSE ) )
   {
-    printf("Unable to run %s command.\n", command.ascii() );
+    QMessageBox::information( this, tr("Error issuing command to cli:"), tr("Unable to run %1 command.").arg(command), QMessageBox::Ok );
   }
 
   if( list_of_collectors.size() > 0 ) 
@@ -169,10 +169,10 @@ printf("command=(%s)\n", command.ascii() );
     {
       std::string collector_name = *it;
 collectorMenu->insertItem(QString(collector_name.c_str()) );
-printf("Add item (%s)\n", collector_name.c_str() );
+// printf("Add item (%s)\n", collector_name.c_str() );
     }
   }
-printf("A: size =(%d) \n", list_of_collectors.size() );
+// printf("A: size =(%d) \n", list_of_collectors.size() );
 }
 
 QString
@@ -461,7 +461,22 @@ ManageCollectorsDialog::updateAttachedList()
 void
 ManageCollectorsDialog::contextMenuRequested( QListViewItem *item, const QPoint &pos, int col)
 {
-//  printf("ManagerCollectorsDialog::createPopupMenu() entered.\n");
+// printf("ManagerCollectorsDialog::createPopupMenu() entered.\n");
+  QString field_name = QString::null;
+  if( item )
+  {
+// printf("%s %s\n", attachCollectorsListView->selectedItem()->text(0).ascii(), attachCollectorsListView->selectedItem()->text(1).ascii()  );
+// printf("%s %s\n", item->text(0).ascii(), item->text(1).ascii()  );
+    if( dialogSortType == COLLECTOR_T )
+    {
+      field_name = item->text(0);
+    } else
+    {
+// printf("%s %s\n", item->text(0).ascii(), item->text(1).ascii() );
+// printf("%s %s\n", attachCollectorsListView->selectedItem()->text(0).ascii(), attachCollectorsListView->selectedItem()->text(1).ascii()  );
+      field_name = item->text(1);
+    }
+  }
 
   if( popupMenu != NULL )
   {
@@ -485,7 +500,8 @@ ManageCollectorsDialog::contextMenuRequested( QListViewItem *item, const QPoint 
 
 // It may make sense to allow other SortTypes to add/delete collectors... 
 // At this point only this sort type is supported.
-if( dialogSortType == COLLECTOR_T || dialogSortType == PID_T )
+if( dialogSortType == COLLECTOR_T || dialogSortType == PID_T || 
+    dialogSortType == HOST_T )
 {
   if( attachCollectorsListView->selectedItem() && 
       attachCollectorsListView->selectedItem()->parent() == NULL )
@@ -497,8 +513,12 @@ if( dialogSortType == COLLECTOR_T || dialogSortType == PID_T )
   {
     selected_item = item;
   }
-  if( selected_item )
+// printf("dialogSortType=%d selected_item=0x%x selected_item->parent()=0x%x\n", dialogSortType, selected_item, selected_item ? selected_item->parent() : NULL );
+  if( selected_item &&
+     ( dialogSortType == COLLECTOR_T && selected_item->parent() == NULL ) ||
+     ( dialogSortType == PID_T && selected_item->parent() != NULL ) )
   {
+// printf("Here field_name=(%s)\n", !field_name.isEmpty() ? field_name.ascii() : NULL );
     CollectorEntry *ce = NULL;
     CollectorEntryList::Iterator it;
     for( it = clo->collectorEntryList.begin();
@@ -506,7 +526,7 @@ if( dialogSortType == COLLECTOR_T || dialogSortType == PID_T )
          ++it )
     {
       ce = (CollectorEntry *)*it;
-      if( item->text(0) == ce->name )
+      if( field_name == ce->name )
       {
 // printf("(%s): parameters are\n", ce->name.ascii() );
         CollectorParameterEntryList::Iterator pit = ce->paramList.begin();
@@ -530,36 +550,28 @@ if( dialogSortType == COLLECTOR_T || dialogSortType == PID_T )
         break;
       }
     }
+  }
     popupMenu->insertSeparator();
     popupMenu->insertItem("Detach...", this, SLOT(detachSelected()) );
     popupMenu->insertItem("Disable...", this, SLOT(disableSelected()) );
     popupMenu->insertItem("Enable...", this, SLOT(enableSelected()) );
-//    popupMenu->insertItem("Attach Collector...", this, SLOT(attachCollectorSelected(int)) );
-    collectorPopupMenu = new QPopupMenu(this);
-    connect( collectorPopupMenu, SIGNAL( activated( int ) ),
-                     this, SLOT( attachCollectorSelected( int ) ) );
-    popupMenu->insertItem("Add Collector", collectorPopupMenu);
-    printf("HereA: size()=%d\n", list_of_collectors.size() );
-    if( list_of_collectors.size() > 0 ) 
-    {
-      for( std::list<std::string>::const_iterator it = list_of_collectors.begin();         it != list_of_collectors.end(); it++ )
-      {
-        std::string collector_name = *it;
-      collectorPopupMenu->insertItem(QString(collector_name.c_str()) );
-      }
-    }
-  }
-}
-
-if( dialogSortType == COLLECTOR_T )
+if( dialogSortType == COLLECTOR_T || dialogSortType == HOST_T )
 {
-  if( attachCollectorsListView->selectedItem() && 
-      attachCollectorsListView->selectedItem()->parent() == NULL )
+  if( selected_item->parent() == NULL )
   {
     popupMenu->insertSeparator();
     popupMenu->insertItem("Attach Process...", this, SLOT(attachProcessSelected()) );
     popupMenu->insertItem("Attach Program...", this, SLOT(attachProgramSelected()) );
   }
+} else
+{
+  if( selected_item->parent() != NULL )
+  {
+    popupMenu->insertSeparator();
+    popupMenu->insertItem("Attach Process...", this, SLOT(attachProcessSelected()) );
+    popupMenu->insertItem("Attach Program...", this, SLOT(attachProgramSelected()) );
+  }
+}
 }
 
 
@@ -580,13 +592,13 @@ ManageCollectorsDialog::detachSelected()
     QString collector_name = selectedItem->text(0);
     QString command;
     command = QString("expDetach -x %1 %2").arg(expID).arg(collector_name);
-printf("command=(%s)\n", command.ascii() );
+// printf("command=(%s)\n", command.ascii() );
 QMessageBox::information( this, tr("Under Construction:"), tr("This feature currently under construction.\nIt will eventuall do a:\n%1").arg(command), QMessageBox::Ok );
 return;
 
     if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
     {
-      printf("Unable to run %s command.\n", command.ascii() );
+      QMessageBox::information( this, tr("Error issuing command to cli:"), tr("Unable to run %1 command.").arg(command), QMessageBox::Ok );
     }
   } else
   {
@@ -603,16 +615,18 @@ ManageCollectorsDialog::disableSelected()
   if( selectedItem )
   {
     QString ret_value = selectedItem->text(0);
-printf("disable = (%s)\n", ret_value.ascii() );
+// printf("disable = (%s)\n", ret_value.ascii() );
 
 
     QString collector_name = selectedItem->text(0);
     QString command;
     command = QString("expDisable -x %1 %2").arg(expID).arg(collector_name);
-printf("command=(%s)\n", command.ascii() );
+// printf("command=(%s)\n", command.ascii() );
+QMessageBox::information( this, tr("Under Construction:"), tr("This feature currently under construction.\nIt will eventuall do a:\n%1").arg(command), QMessageBox::Ok );
+return;
     if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
     {
-      printf("Unable to run %s command.\n", command.ascii() );
+      QMessageBox::information( this, tr("Error issuing command to cli:"), tr("Unable to run %1 command.").arg(command), QMessageBox::Ok );
     }
 
   } else
@@ -626,21 +640,23 @@ printf("command=(%s)\n", command.ascii() );
 void
 ManageCollectorsDialog::enableSelected()
 {
-printf("enableSelected\n");
+// printf("enableSelected\n");
   QListViewItem *selectedItem = attachCollectorsListView->selectedItem();
   if( selectedItem )
   {
     QString ret_value = selectedItem->text(0);
-printf("enableSelected = (%s)\n", ret_value.ascii() );
+// printf("enableSelected = (%s)\n", ret_value.ascii() );
 
 
     QString collector_name = selectedItem->text(0);
     QString command;
     command = QString("expEnable -x %1 %2").arg(expID).arg(collector_name);
-printf("command=(%s)\n", command.ascii() );
+// printf("command=(%s)\n", command.ascii() );
+QMessageBox::information( this, tr("Under Construction:"), tr("This feature currently under construction.\nIt will eventuall do a:\n%1").arg(command), QMessageBox::Ok );
+return;
     if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
     {
-      printf("Unable to run %s command.\n", command.ascii() );
+      QMessageBox::information( this, tr("Error issuing command to cli:"), tr("Unable to run %1 command.").arg(command), QMessageBox::Ok );
     }
 
   } else
@@ -674,7 +690,7 @@ return;
 
     if( !cli->runSynchronousCLI(command.ascii()) )
     {
-      fprintf(stderr, "Error retreiving experiment id. \n");
+      QMessageBox::information( this, tr("Error issuing command to cli:"), tr("Unable to run %1 command.").arg(command), QMessageBox::Ok );
   //    return;
     }
 
@@ -698,7 +714,7 @@ ManageCollectorsDialog::attachProgramSelected()
     QString command =
       QString("expAttach -x %1 -f %2").arg(expID).arg(executableNameStr);
 
-printf("command=(%s)\n", command.ascii() );
+// printf("command=(%s)\n", command.ascii() );
     steps = 0;
     pd = new GenericProgressDialog(this, "Loading process...", TRUE);
     loadTimer = new QTimer( this, "progressTimer" );
@@ -708,7 +724,7 @@ printf("command=(%s)\n", command.ascii() );
 
     if( !cli->runSynchronousCLI(command.ascii() ) )
     {
-      fprintf(stderr, "Error retreiving experiment id. \n");
+      QMessageBox::information( this, tr("Error issuing command to cli:"), tr("Unable to run %1 command.").arg(command), QMessageBox::Ok );
   //    return;
   }
 
@@ -774,10 +790,10 @@ ManageCollectorsDialog::paramSelected(int val)
     {
       QString command;
       command = QString("expSetParam -x %1 %2::%3=%4").arg(expID).arg(collector_name).arg(param_name).arg(res);
-printf("command=(%s)\n", command.ascii() );
+// printf("command=(%s)\n", command.ascii() );
       if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
       {
-        printf("Unable to run %s command.\n", command.ascii() );
+        QMessageBox::information( this, tr("Error issuing command to cli:"), tr("Unable to run %1 command.").arg(command), QMessageBox::Ok );
       }
     } else
     {
@@ -793,13 +809,13 @@ printf("command=(%s)\n", command.ascii() );
 void
 ManageCollectorsDialog::attachCollectorSelected(int val)
 {
-printf("attachCollectorSelected(val=%d)\n", val);
+// printf("attachCollectorSelected(val=%d)\n", val);
   QListViewItem *selectedItem = attachCollectorsListView->selectedItem();
   QString collector_name = QString::null;
   QString target_name = QString::null;
   if( selectedItem )
   {
-printf("selectedItem->text(0) =(%s)\n", selectedItem->text(0).ascii() );
+// printf("selectedItem->text(0) =(%s)\n", selectedItem->text(0).ascii() );
     if( dialogSortType == COLLECTOR_T )
     {
       if( selectedItem->parent() )
@@ -807,7 +823,8 @@ printf("selectedItem->text(0) =(%s)\n", selectedItem->text(0).ascii() );
         target_name = selectedItem->text(1);
       } else
       {
-printf("Can't add a collector from a selected collector.\n");
+// printf("Can't add a collector from a selected collector.\n");
+        QMessageBox::information( this, tr("Error issuing command to cli:"), tr("Unable to add a collector from a selected collector.\nUnselect the highlighted selector first."), QMessageBox::Ok );
         return; }
     } else if( dialogSortType == PID_T )
     {
@@ -820,27 +837,27 @@ printf("Can't add a collector from a selected collector.\n");
       }
     }
   }
-printf("target_name =(%s)\n", target_name.isEmpty() ? "" : target_name.ascii() );
+// printf("target_name =(%s)\n", target_name.isEmpty() ? "" : target_name.ascii() );
 
   if( collectorPopupMenu != NULL )
   {
-printf("Get the collector name from the popup menu.\n");
+// printf("Get the collector name from the popup menu.\n");
     collector_name = collectorPopupMenu->text(val);
   } else
   {
-printf("Get the collector name from the file menu.\n");
+// printf("Get the collector name from the file menu.\n");
     collector_name = collectorMenu->text(val);
   }
-printf("collector_name =(%s)\n", collector_name.isEmpty() ? "" : collector_name.ascii() );
+// printf("collector_name =(%s)\n", collector_name.isEmpty() ? "" : collector_name.ascii() );
 
   QString command;
   command = QString("expAttach -x %1 %2 %3").arg(expID).arg(target_name).arg(collector_name);
 
-printf("command=(%s)\n", command.ascii() );
+// printf("command=(%s)\n", command.ascii() );
 
   if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
   {
-    printf("Unable to run %s command.\n", command.ascii() );
+    QMessageBox::information( this, tr("Error issuing command to cli:"), tr("Unable to run %1 command.").arg(command), QMessageBox::Ok );
   }
 
   updateAttachedList();
@@ -849,7 +866,7 @@ printf("command=(%s)\n", command.ascii() );
 void
 ManageCollectorsDialog::fileCollectorAboutToShowSelected()
 {
-printf("fileCollectorAboutToShowSelected()\n");
+// printf("fileCollectorAboutToShowSelected()\n");
   if( collectorPopupMenu != NULL )
   {
     delete collectorPopupMenu;
@@ -864,7 +881,7 @@ ManageCollectorsDialog::sortByProcess()
   dialogSortType = PID_T;
 
 
-printf("attachCollectorsListView->columnText(0) = (%s)\n", attachCollectorsListView->columnText(1).ascii() );
+// printf("attachCollectorsListView->columnText(0) = (%s)\n", attachCollectorsListView->columnText(1).ascii() );
   attachCollectorsListView->setColumnText( 0,
     tr( QString("Processes attached to experiment: '%1':").arg(expID) ) );
   attachCollectorsListView->setColumnText( 1, tr( QString("Name") ) );
