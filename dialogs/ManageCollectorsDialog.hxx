@@ -42,7 +42,6 @@ class QFrame;
 class QPushButton;
 class QLabel;
 class QPopupMenu;
-class QComboBox;
 class QListView;
 class QListViewItem;
 
@@ -58,10 +57,6 @@ public:
     QPushButton* buttonOk;
     QPushButton* buttonCancel;
 
-    QPushButton* addOk;
-
-    QLabel* availableCollectorsLabel;
-    QComboBox * availableCollectorsComboBox;
     QListView* attachCollectorsListView;
 
     QString selectedCollectors();
@@ -84,22 +79,26 @@ protected:
 
     QPopupMenu *popupMenu;
     QPopupMenu *paramMenu;
+    QPopupMenu *collectorMenu;
+    QPopupMenu *collectorPopupMenu;
     DialogSortType dialogSortType;
+std::list<std::string> list_of_collectors;
 protected slots:
     virtual void languageChange();
 
 public slots:
-    virtual void availableCollectorsComboBoxActivated();
     void contextMenuRequested( QListViewItem *item, const QPoint &pos, int col );
 
 
 private slots:
+    void attachCollectorSelected(int);
     void detachSelected();
     void disableSelected();
+    void enableSelected();
     void attachProcessSelected();
     void attachProgramSelected();
+    void fileCollectorAboutToShowSelected();
     void paramSelected(int);
-    void addCollectorSelected();
     void sortByProcess();
     void sortByCollector();
     void sortByHost();
