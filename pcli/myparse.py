@@ -112,10 +112,10 @@ def cloak_list_range(parts,i,count,is_name):
 	    t_arg = arg[0]
 	    arg_len = len(arg)
 	    #print arg_len
-	    i = 1
-	    while i < arg_len:
-	    	c = arg[i]
-		i=i+1
+	    j = 1
+	    while j < arg_len:
+	    	c = arg[j]
+		j=j+1
 
 	    	if c == ',' or c == ':':
 		    t_arg = t_arg + ',' + '"' + c + '"' + ',' 
