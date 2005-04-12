@@ -121,7 +121,7 @@ static bool VIEW_exp (CommandObject *cmd, ExperimentObject *exp, int64_t topn) {
       }
     cmd->Result_String ( "}");
   }
-  catch(const std::exception& error) {
+  catch(const Exception& error) {
     Mark_Cmd_With_Std_Error (cmd, error);
     cmd->Result_String ( "}");
     return false;

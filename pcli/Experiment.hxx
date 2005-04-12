@@ -325,12 +325,12 @@ ExperimentObject *Find_Experiment_Object (EXPID ExperimentID);
 bool Collector_Used_In_Experiment (OpenSpeedShop::Framework::Experiment *fexp, std::string myname);
 Collector Get_Collector (OpenSpeedShop::Framework::Experiment *fexp, std::string myname);
 
-inline void Mark_Cmd_With_Std_Error (CommandObject *cmd, const std::exception& error) {
-   cmd->Result_String ( ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-                         "Unknown runtime error." : error.what() );
+inline void Mark_Cmd_With_Std_Error (CommandObject *cmd, const Exception& error) {
+   cmd->Result_String ( error.getDescription() );
    cmd->set_Status(CMD_ERROR);
    return;
 }
+
 
 // Experiment level commands
 bool SS_expAttach (CommandObject *cmd);

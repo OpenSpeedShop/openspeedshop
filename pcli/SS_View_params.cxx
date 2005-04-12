@@ -85,7 +85,7 @@ static bool VIEW_params (CommandObject *cmd, ExperimentObject *exp, int64_t topn
   try {
     cgrp = exp->FW()->getCollectors();
   }
-  catch(const std::exception& error) {
+  catch(const Exception& error) {
     Mark_Cmd_With_Std_Error (cmd, error);
     return false;
   }

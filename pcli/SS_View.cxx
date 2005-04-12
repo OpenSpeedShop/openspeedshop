@@ -111,7 +111,7 @@ void SS_Get_Views (CommandObject *cmd, OpenSpeedShop::Framework::Experiment *fex
   try {
     cgrp = fexp->getCollectors();
   }
-  catch (const std::exception& error) {
+  catch (const Exception& error) {
     Mark_Cmd_With_Std_Error (cmd, error);
     return;
   }

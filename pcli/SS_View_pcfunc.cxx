@@ -75,7 +75,7 @@ static std::vector<func_time_pair>
     try {
       Queries::GetMetricByFunctionInThread(C, metric, T, data);
     }
-    catch(const std::exception& error) {
+    catch(const Exception& error) {
       //Mark_Cmd_With_Std_Error (cmd, error);
       //return data;
     }
@@ -168,7 +168,7 @@ static bool VIEW_pcfunc (CommandObject *cmd, ExperimentObject *exp, int64_t topn
     }
 
   }
-  catch(const std::exception& error) {
+  catch(const Exception& error) {
     Mark_Cmd_With_Std_Error (cmd, error);
     return false;
   }
@@ -230,7 +230,7 @@ static bool VIEW_vtop (CommandObject *cmd, ExperimentObject *exp, int64_t topn)
       cmd->Result_Predefined (C);
     }
   }
-  catch(const std::exception& error) {
+  catch(const Exception& error) {
     Mark_Cmd_With_Std_Error (cmd, error);
     return false;
   }
