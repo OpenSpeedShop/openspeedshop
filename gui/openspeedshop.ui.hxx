@@ -339,6 +339,7 @@ void OpenSpeedshop::fileExit()
   }
 
 
+qApp->exit();
  pthread_exit(EXIT_SUCCESS);
  dprintf("fileExit() called pthread_exit.\n");
 }
