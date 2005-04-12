@@ -198,7 +198,7 @@ static void Attach_Command (CommandObject *cmd, ExperimentObject *exp, Thread t,
   try {
     c.startCollecting(t);  // There is no point in attaching unless we intend to use it!
   }
-  catch(const std::exception& error) {
+  catch(const Exception& error) {
     Mark_Cmd_With_Std_Error (cmd, error);
     return;
   }
@@ -208,7 +208,7 @@ static void Detach_Command (CommandObject *cmd, ExperimentObject *exp, Thread t,
   try {
     c.stopCollecting(t);  // We don't want to collect any more data for this thread!
   }
-  catch(const std::exception& error) {
+  catch(const Exception& error) {
     Mark_Cmd_With_Std_Error (cmd, error);
     return;
   }
@@ -237,7 +237,7 @@ static void Resolve_R_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
         Thread t = exp->FW()->attachPosixThread(mypid, myrank, host_name);
         tgrp->insert(t);
       }
-      catch(const std::exception& error) {
+      catch(const Exception& error) {
         Mark_Cmd_With_Std_Error (cmd, error);
         return;
       }
@@ -269,7 +269,7 @@ static void Resolve_T_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
         Thread t = exp->FW()->attachOpenMPThread(mypid, mythread, host_name);
         tgrp->insert(t);
       }
-      catch(const std::exception& error) {
+      catch(const Exception& error) {
         Mark_Cmd_With_Std_Error (cmd, error);
         return;
       }
@@ -321,7 +321,7 @@ static void Resolve_P_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
             tgrp->insert(t);
           }
         }
-        catch(const std::exception& error) {
+        catch(const Exception& error) {
           Mark_Cmd_With_Std_Error (cmd, error);
           return;
         }
@@ -353,7 +353,7 @@ static void Resolve_F_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
       Thread t = exp->FW()->createProcess(f_val1->name, host_name);
       tgrp->insert(t);
       }
-      catch(const std::exception& error) {
+      catch(const Exception& error) {
          Mark_Cmd_With_Std_Error (cmd, error);
          return;
       }
@@ -433,7 +433,7 @@ static ThreadGroup Resolve_Target_List (CommandObject *cmd, ExperimentObject *ex
       try {
         Resolve_H_Target (cmd, exp, &tgrp, *ti);
       }
-      catch(const std::exception& error) {
+      catch(const Exception& error) {
         Mark_Cmd_With_Std_Error (cmd, error);
         return ThreadGroup();  // return an empty ThreadGroup
       }
@@ -461,14 +461,20 @@ static bool Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
         Collector C = Get_Collector (exp->FW(), *si);
         cgrp.insert (C);
       }
-      catch(const std::exception& error) {
+      catch(const Exception& error) {
         Mark_Cmd_With_Std_Error (cmd, error);
         return false;
       }
     }
   } else {
    // Use all the collectors that are already part of the experiment.
-    cgrp = exp->FW()->getCollectors();
+    try {
+      cgrp = exp->FW()->getCollectors();
+    }
+    catch(const Exception& error) {
+      Mark_Cmd_With_Std_Error (cmd, error);
+      return false;
+    }
   }
 
 
@@ -478,7 +484,13 @@ static bool Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
   tgrp = Resolve_Target_List (cmd, exp);
   if (tgrp.empty()) {
    // Use the threads that are already part of the experiment.
-    tgrp = exp->FW()->getThreads();
+    try {
+      tgrp = exp->FW()->getThreads();
+    }
+    catch(const Exception& error) {
+      Mark_Cmd_With_Std_Error (cmd, error);
+      return false;
+    }
   }
 
  // Don't do anything if errors have been detected.
@@ -546,7 +558,7 @@ static bool Destroy_Experiment (CommandObject *cmd, ExperimentObject *exp, bool 
       try {
         t.changeState (Thread::Terminated );
       }
-      catch(const std::exception& error) {
+      catch(const Exception& error) {
         if (t.getState() == Thread::Terminated) {
          // This state causes an error, but we can ignore it.
           continue;
@@ -664,7 +676,7 @@ static bool Disable_Experiment (CommandObject *cmd, ExperimentObject *exp) {
   try {
     cgrp = exp->FW()->getCollectors();
   }
-  catch(const std::exception& error) {
+  catch(const Exception& error) {
     Mark_Cmd_With_Std_Error (cmd, error);
     return false;
   }
@@ -677,10 +689,8 @@ static bool Disable_Experiment (CommandObject *cmd, ExperimentObject *exp) {
       c.stopCollecting();
 TEST */
     }
-    catch(const std::exception& error) {
+    catch(const Exception& error) {
      // We are ignoring any errors so that all collectors are processed.
-/* TEST */fprintf(stdout,"Disable: %s\n", ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-                         "Unknown runtime error." : error.what() );
       continue;
     }
   }
@@ -724,7 +734,7 @@ static bool Enable_Experiment (CommandObject *cmd, ExperimentObject *exp) {
   try {
     cgrp = exp->FW()->getCollectors();
   }
-  catch(const std::exception& error) {
+  catch(const Exception& error) {
     Mark_Cmd_With_Std_Error (cmd, error);
     return false;
   }
@@ -737,9 +747,7 @@ static bool Enable_Experiment (CommandObject *cmd, ExperimentObject *exp) {
       c.startCollecting();
 TEST */
     }
-    catch(const std::exception& error) {
-/* TEST */fprintf(stdout,"Enable: %s\n", ((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-                         "Unknown runtime error." : error.what() );
+    catch(const Exception& error) {
       continue;
     }
   }
@@ -832,7 +840,7 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
         return false;
       }
     }
-    catch(const std::exception& error) {
+    catch(const Exception& error) {
       Mark_Cmd_With_Std_Error (cmd, error);
       return false;
     }
@@ -843,7 +851,7 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
       try {
         t.changeState (Thread::Running);
       }
-      catch(const std::exception& error) {
+      catch(const Exception& error) {
         if (t.getState() == Thread::Terminated) {
          // This state causes an error, but we can ignore it.
           continue;
@@ -912,7 +920,7 @@ static bool Pause_Experiment (CommandObject *cmd, ExperimentObject *exp) {
       try {
         t.changeState (Thread::Suspended);
       }
-      catch(const std::exception& error) {
+      catch(const Exception& error) {
         if (t.getState() == Thread::Terminated) {
          // This state causes an error, but we can ignore it.
           continue;
@@ -1103,7 +1111,7 @@ static bool setparam (Collector C, std::string pname, ParseParam pvalue) {
       return true;
     }
   }
-  catch(const std::exception& error) {
+  catch(const Exception& error) {
    // Ignore problems - the calling routine can figure something out.
   }
 
@@ -1459,7 +1467,7 @@ bool SS_ListMetrics (CommandObject *cmd) {
         cgrp.insert (C);
       }
     }
-    catch(const std::exception& error) {
+    catch(const Exception& error) {
       Mark_Cmd_With_Std_Error (cmd, error);
       return false;
     }
@@ -1483,7 +1491,7 @@ bool SS_ListMetrics (CommandObject *cmd) {
         cgrp.insert (C);
       }
     }
-    catch(const std::exception& error) {
+    catch(const Exception& error) {
       Mark_Cmd_With_Std_Error (cmd, error);
       return false;
     }
@@ -1553,7 +1561,7 @@ bool SS_ListParams (CommandObject *cmd) {
         cgrp.insert (C);
       }
     }
-    catch(const std::exception& error) {
+    catch(const Exception& error) {
       Mark_Cmd_With_Std_Error (cmd, error);
       return false;
     }
@@ -1577,7 +1585,7 @@ bool SS_ListParams (CommandObject *cmd) {
         cgrp.insert (C);
       }
     }
-    catch(const std::exception& error) {
+    catch(const Exception& error) {
       Mark_Cmd_With_Std_Error (cmd, error);
       return false;
     }
