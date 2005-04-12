@@ -118,6 +118,8 @@ namespace {
 	"    addr_end INTEGER,"
 	"    valid_bitmap BLOB"
 	");",
+        "CREATE INDEX IndexStatementRangesByStatement "
+	"  ON StatementRanges (statement);",
 	
 	// File Table
 	"CREATE TABLE Files ("
