@@ -25,102 +25,110 @@
  
 using namespace OpenSpeedShop::Framework;
 
+
+
+static Experiment* Run(int argc, char* argv[])
+{
+    // Create and open a new experiment
+    std::string name = std::string(Path(argv[0]).getBaseName()) + ".openss";
+    Experiment::create(name);
+    Experiment experiment(name);
+    
+    // Build a command string from the passed arguments
+    std::string command;
+    for(int i = 0; i < argc; ++i) {
+	if(i > 0)
+	    command += " ";
+	command += argv[i];
+    }
+    
+    // Create a process for the command in the suspended state
+    Thread thread = experiment.createProcess(command);
+    
+    // Create and start the PC sampling collector
+    Collector collector = experiment.createCollector("pcsamp");
+    collector.setParameterValue("sampling_rate", (unsigned)100);
+    collector.startCollecting(thread);
+    
+    // Resume all threads and wait for them to terminate
+    experiment.getThreads().changeState(Thread::Running);
+    while(!experiment.getThreads().areAllState(Thread::Terminated))
+	sleep(1);
+}
+
+
+
+static void Show(const std::string& name)
+{
+    // Open the existing experiment
+    Experiment experiment(name);
+
+    // Find the first collector and thread in this experiment
+    Collector collector = *(experiment.getCollectors().begin());
+    Thread thread = *(experiment.getThreads().begin());
+
+    // Evaluate the collector's time metric for all functions in thread
+    SmartPtr<std::map<Function, double> > data;
+    Queries::GetMetricByFunctionInThread(collector, "time", thread, data);
+    
+    // Sort the results
+    std::multimap<double, Function> sorted;
+    for(std::map<Function, double>::const_iterator
+	    i = data->begin(); i != data->end(); ++i)
+	sorted.insert(std::make_pair(i->second, i->first));	
+    
+    // Display the results
+    
+    std::cout << std::endl << std::endl
+	      << std::setw(10) << "Time"
+	      << "    "
+	      << "Function" << std::endl
+	      << std::endl;
+    
+    for(std::multimap<double, Function>::reverse_iterator
+	    i = sorted.rbegin(); i != sorted.rend(); ++i) {
+	
+	std::cout << std::setw(10) << std::fixed << std::setprecision(3)
+		  << i->first
+		  << "    "
+		  << i->second.getName();
+	
+	std::set<Statement> definitions = i->second.getDefinitions();
+	for(std::set<Statement>::const_iterator
+		i = definitions.begin(); i != definitions.end(); ++i)
+	    std::cout << " (" << i->getPath().getBaseName()
+		      << ", " << i->getLine() << ")";
+	
+	std::cout << std::endl;
+	
+    }
+    
+    std::cout << std::endl << std::endl;    
+}
+
+
+
 int main(int argc, char* argv[])
 {
     // Display usage information when necessary
     if(argc < 2) {
         std::cout << "Usage: "
                   << ((argc > 0) ? argv[0] : "???")
-                  << " <a.out> <args>" << std::endl;
+                  << " [<a.out> <args>] | [<exp-dbase>]" << std::endl;
 	return 1;
     }
     
-    // Build a command string from the passed arguments
-    std::string command;
-    for(int i = 1; i < argc; ++i) {
-        if(i > 1)
-            command += " ";
-        command += argv[i];
-    }
-    
+    // Otherwise get things rolling
     try {
 	
-	// Create and open an experiment
-	std::string name = std::string(argv[1]) + ".openss";
-	Experiment::create(name);
-	Experiment experiment(name);
+	// Is argv[1] an existing experiment?
+	if((argc == 2) && Experiment::isAccessible(argv[1]))
+	    Show(argv[1]);
+
+	// Otherwise run the experiment
+	else
+	    Run(argc - 1, &(argv[1]));
 	
-	// Create a process for the command in the suspended state
-
- 	std::cout << std::endl
-		  << "Starting process for command \"" << command << "\"..."
-		  << std::endl;	
-	Time t_start = Time::Now();
-	
-	Thread thread = experiment.createProcess(command);
-	
-	Time t_stop = Time::Now();
-	std::cout << "Process creation took "
-		  << static_cast<double>(t_stop - t_start) / 1000000000.0
-		  << " seconds." << std::endl;
-	std::cout << "Running the process..." << std::endl << std::endl;
-
-	// Create and start the PC sampling collector
-	Collector collector = experiment.createCollector("pcsamp");
-	collector.setParameterValue("sampling_rate", (unsigned)100);
-	collector.startCollecting(thread);
-	
-	// Resume all threads and wait for them to terminate
-	experiment.getThreads().changeState(Thread::Running);
-	while(!experiment.getThreads().areAllState(Thread::Terminated))
-	    sleep(1);
-
-	// Evaluate the collector's time metric for all functions in the thread
-
-	std::cout << std::endl << "Calculating results..." << std::endl;
-	t_start = Time::Now();
-
-	SmartPtr<std::map<Function, double> > data;
-	Queries::GetMetricByFunctionInThread(collector, "time", thread, data);
-
-	std::multimap<double, Function> sorted;
-	for(std::map<Function, double>::const_iterator
-		i = data->begin(); i != data->end(); ++i)
-	    sorted.insert(std::make_pair(i->second, i->first));	
-
-	t_stop = Time::Now();
-	std::cout << "Results calculation took "
-		  << static_cast<double>(t_stop - t_start) / 1000000000.0
-		  << " seconds." << std::endl;
-	
-	// Display the results
-	
-	std::cout << std::endl << std::endl
-		  << std::setw(10) << "Time"
-		  << "    "
-		  << "Function" << std::endl
-		  << std::endl;
-
-	for(std::multimap<double, Function>::reverse_iterator
-		i = sorted.rbegin(); i != sorted.rend(); ++i) {
-	    
-	    std::cout << std::setw(10) << std::fixed << std::setprecision(3)
-		      << i->first
-		      << "    "
-		      << i->second.getName();
-
-	    std::set<Statement> definitions = i->second.getDefinitions();
-	    for(std::set<Statement>::const_iterator
-		    i = definitions.begin(); i != definitions.end(); ++i)
-		std::cout << " (" << i->getPath().baseName()
-			  << ", " << i->getLine() << ")";
-	    
-	    std::cout << std::endl;
-	    
-	}
-	
-	std::cout << std::endl << std::endl;
-
     }
     catch(const Exception& error) {
 	std::cerr

@@ -722,8 +722,10 @@ void Process::updateAddressSpace(const Thread& thread, const Time& when)
     
     // Update time interval of active address space entries for this thread
     database->prepareStatement(
-	"UPDATE AddressSpaces SET time_end = ?"
-	" WHERE thread = ? AND time_end = ?;"
+	"UPDATE AddressSpaces "
+	"SET time_end = ? "
+	"WHERE thread = ? "
+	"  AND time_end = ?;"
 	);
     database->bindArgument(1, when);
     database->bindArgument(2, EntrySpy(thread).getEntry());
@@ -736,8 +738,11 @@ void Process::updateAddressSpace(const Thread& thread, const Time& when)
 	// Is there an existing linked object in the database?
 	int linked_object = -1;
 	database->prepareStatement(
-	    "SELECT LinkedObjects.id FROM LinkedObjects JOIN Files"
-	    " ON LinkedObjects.file = Files.id WHERE Files.path = ?;"
+	    "SELECT LinkedObjects.id "
+	    "FROM LinkedObjects "
+	    "  JOIN Files "
+	    "ON LinkedObjects.file = Files.id "
+	    "WHERE Files.path = ?;"
 	    );
 	database->bindArgument(1, i->second.first);
 	while(database->executeStatement())
@@ -754,15 +759,17 @@ void Process::updateAddressSpace(const Thread& thread, const Time& when)
 	    
 	    // Create the linked object entry
 	    database->prepareStatement(
-		"INSERT INTO LinkedObjects (addr_begin, addr_end, file)"
-		" VALUES (0, ?, ?);"
+		"INSERT INTO LinkedObjects "
+		"  (addr_begin, addr_end, file, is_executable) "
+		"VALUES (0, ?, ?, ?);"
 		);
 	    database->bindArgument(1, Address(i->first.getEnd() - 
 					      i->first.getBegin()));
 	    database->bindArgument(2, file);	    
+	    database->bindArgument(3, ((i->second.second.size() > 1) ? 1 : 0));
 	    while(database->executeStatement());
 	    linked_object = database->getLastInsertedUID();
-
+	    
 	    // Process the function information for this module
 	    processFunctions(thread, linked_object,
 			     i->first, i->second.second);
@@ -775,8 +782,9 @@ void Process::updateAddressSpace(const Thread& thread, const Time& when)
 	
 	// Create an address space entry for this linked object
 	database->prepareStatement(
-	    "INSERT INTO AddressSpaces (thread, time_begin, time_end,"
-	    " addr_begin, addr_end, linked_object)"
+	    "INSERT INTO AddressSpaces "
+	    "  (thread, time_begin, time_end, "
+	    "   addr_begin, addr_end, linked_object) "
 	    "VALUES (?, ?, ?, ?, ?, ?);"
 	    );
 	database->bindArgument(1, EntrySpy(thread).getEntry());
@@ -862,9 +870,9 @@ void Process::processFunctions(const Thread& thread,
 		
 		// Create the function entry
 		database->prepareStatement(
-		    "INSERT INTO Functions"
-		    " (linked_object, addr_begin, addr_end, name)"
-		    " VALUES (?, ?, ?, ?);"
+		    "INSERT INTO Functions "
+		    "  (linked_object, addr_begin, addr_end, name) "
+		    "VALUES (?, ?, ?, ?);"
 		    );
 		database->bindArgument(1, linked_object);
 		database->bindArgument(2, start);

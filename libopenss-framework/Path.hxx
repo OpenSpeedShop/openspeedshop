@@ -138,7 +138,7 @@ namespace OpenSpeedShop { namespace Framework {
 	}
 
 	/** Obtain directory name portion of this path. */
-	Path dirName() const
+	Path getDirName() const
 	{
 	    size_type pos = rfind('/');
 	    return (pos != npos) ?
@@ -147,7 +147,7 @@ namespace OpenSpeedShop { namespace Framework {
 	}
 
 	/** Obtain base name portion of this path. */
-	Path baseName() const
+	Path getBaseName() const
 	{
 	    size_type pos = rfind('/');
 	    return (pos != npos) ?

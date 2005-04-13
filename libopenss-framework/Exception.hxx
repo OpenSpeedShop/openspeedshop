@@ -55,6 +55,9 @@ namespace OpenSpeedShop { namespace Framework {
 	
     public:
 
+	template <typename T>
+	static std::string toString(const T&);
+
 	/**
 	 * Exception code enumeration.
 	 *
@@ -80,25 +83,7 @@ namespace OpenSpeedShop { namespace Framework {
 	    ThreadUnavailable,     /**< Thread not available. */
 	    Unknown                /**< Catch-all for generic exceptions. */
 	};
-	
-	/**
-	 * Convert type to string.
-	 *
-	 * Converts a type to a string for the purposes of using it as an
-	 * argument to an exception. The only requirement of the type being
-	 * converted is that it be redirectable to an output stream.
-	 *
-	 * @param value    Value to convert.
-	 * @return         String conversion of that value.
-	 */
-	template <typename T>
-	static std::string Exception::toString(const T& value)
-	{
-	    std::ostringstream stream;
-	    stream << value;
-	    return stream.str();
-	}
-	
+
 	Exception(const Code&);
 	Exception(const Code&, const std::string&);
 	Exception(const Code&, const std::string&, const std::string&);
@@ -122,6 +107,26 @@ namespace OpenSpeedShop { namespace Framework {
 	std::vector<std::string> dm_arguments;
 	
     };
+
+
+
+    /**
+     * Convert type to string.
+     *
+     * Converts a type to a string for the purposes of using it as an argument
+     * to an exception. The only requirement of the type being converted is that
+     * it be redirectable to an output stream.
+     *
+     * @param value    Value to convert.
+     * @return         String conversion of that value.
+     */
+    template <typename T>
+    std::string Exception::toString(const T& value)
+    {
+	std::ostringstream stream;
+	stream << value;
+	return stream.str();
+    }
     
     
     

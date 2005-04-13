@@ -98,8 +98,13 @@ void ProcessTable::addThread(const Thread& thread,
 void ProcessTable::removeThread(const Thread& thread)
 {
     // Check assertions
-    Assert(dm_thread_to_process.find(thread) != dm_thread_to_process.end());
-    
+    // Assert(dm_thread_to_process.find(thread) != dm_thread_to_process.end());
+
+    // WDH: Simply ignore attempts to remove a non-existent thread for now.
+    //      This case should be cleaned up by MS4.
+    if(dm_thread_to_process.find(thread) == dm_thread_to_process.end())
+	return;
+        
     // Find this thread's process
     std::map<Thread, SmartPtr<Process> >::const_iterator
 	i = dm_thread_to_process.find(thread);

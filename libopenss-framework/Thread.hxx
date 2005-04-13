@@ -109,11 +109,13 @@ namespace OpenSpeedShop { namespace Framework {
 	std::pair<bool, int> getOpenMPThreadId() const;
 	std::pair<bool, int> getMPIRank() const;
 	
+	std::pair<bool, LinkedObject> getExecutable(
+	    const Time& = Time::Now()) const;
 	std::set<LinkedObject> getLinkedObjects(
 	    const Time& = Time::Now()) const;
 	std::set<Function> getFunctions(
 	    const Time& = Time::Now()) const;
-
+	
 	std::pair<bool, LinkedObject> getLinkedObjectAt(
 	    const Address&, const Time& = Time::Now()) const;
 	std::pair<bool, Function> getFunctionAt(
@@ -123,8 +125,11 @@ namespace OpenSpeedShop { namespace Framework {
 	
 	std::pair<bool, Function> getFunctionByName(
 	    const std::string&, const Time& = Time::Now()) const;
+	std::set<Statement> getStatementsBySourceFile(
+	    const std::string&) const;
 	
 	CollectorGroup getCollectors() const;
+	CollectorGroup getPostponedCollectors() const;
 	
     private:
 

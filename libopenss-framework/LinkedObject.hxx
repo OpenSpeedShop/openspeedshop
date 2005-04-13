@@ -68,6 +68,7 @@ namespace OpenSpeedShop { namespace Framework {
 
 	Path getPath() const;
 	AddressRange getAddressRange() const;
+	bool isExecutable() const;
 	
 	std::set<Function> getFunctions() const;
 	

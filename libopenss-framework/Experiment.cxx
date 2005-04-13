@@ -85,7 +85,8 @@ namespace {
 	"    id INTEGER PRIMARY KEY,"
 	"    addr_begin INTEGER,"
 	"    addr_end INTEGER,"
-	"    file INTEGER" // From Files.id
+	"    file INTEGER," // From Files.id
+	"    is_executable INTEGER"
 	");",
 	
 	// Function Table
@@ -125,8 +126,8 @@ namespace {
 	"CREATE TABLE Files ("
 	"    id INTEGER PRIMARY KEY,"
 	"    path TEXT,"
-	"    checksum BLOB,"
-	"    contents BLOB"
+	"    checksum BLOB DEFAULT NULL,"
+	"    contents BLOB DEFAULT NULL"
 	");",
 	
 	// Collector Table
@@ -139,7 +140,8 @@ namespace {
 	// Collecting Table
 	"CREATE TABLE Collecting ("
 	"    collector INTEGER," // From Collectors.id
-	"    thread INTEGER" // From Threads.id
+	"    thread INTEGER," // From Threads.id
+	"    is_postponed INTEGER"
 	");",
 	
 	// Data Table
@@ -307,24 +309,18 @@ Experiment::~Experiment()
     // Remove this experiment from the experiment table
     ExperimentTable::TheTable.removeExperiment(this);
     
-    // Begin a multi-statement transaction
-    BEGIN_TRANSACTION(dm_database);
-
+    // Postpone all performance data collection
+    getThreads().postponeCollecting(getCollectors());
+    
     // Iterate over each thread in this experiment
     ThreadGroup threads = getThreads();
     for(ThreadGroup::const_iterator 
 	    i = threads.begin(); i != threads.end(); ++i) {
-
-	// Stop all performance data collection for this thread
-	i->getCollectors().stopCollecting(*i);
-
+	
 	// Detach from the underlying thread
 	Instrumentor::detachUnderlyingThread(*i);
-
+	
     }
-
-    // End this multi-statement transaction
-    END_TRANSACTION(dm_database); 
 }
 
 
@@ -542,10 +538,11 @@ void Experiment::removeThread(const Thread& thread) const
 
     // Stop all performance data collection for this thread
     thread.getCollectors().stopCollecting(thread);
-
+    thread.getPostponedCollectors().stopCollecting(thread);
+    
     // Detach from the underlying thread
     Instrumentor::detachUnderlyingThread(thread);
-
+    
     // Remove this thread
     dm_database->prepareStatement("DELETE FROM Threads WHERE id = ?;");
     dm_database->bindArgument(1, EntrySpy(thread).getEntry());
@@ -706,6 +703,7 @@ void Experiment::removeCollector(const Collector& collector) const
     
     // Stop all performance data collection for this collector
     collector.getThreads().stopCollecting(collector);
+    collector.getPostponedThreads().stopCollecting(collector);
     
     // Remove this collector
     dm_database->prepareStatement("DELETE FROM Collectors WHERE id = ?;");

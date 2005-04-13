@@ -580,9 +580,9 @@ std::set<Metadata> Collector::getMetrics() const
 /**
  * Get our threads.
  *
- * Returns all the threads for which this collector is currently collecting
- * performance data. An empty thread group is returned if this collector isn't
- * collecting performance data for any threads.
+ * Returns all the threads for which this collector is collecting performance
+ * data. An empty thread group is returned if this collector isn't collecting
+ * performance data for any threads.
  *
  * @return    Threads for which this collector is collecting performance data.
  */
@@ -594,7 +594,10 @@ ThreadGroup Collector::getThreads() const
     BEGIN_TRANSACTION(dm_database);
     validate("Collectors");
     dm_database->prepareStatement(
-        "SELECT thread FROM Collecting WHERE collector = ?;"
+        "SELECT thread "
+	"FROM Collecting "
+	"WHERE collector = ? "
+	"  AND is_postponed = 0;"
         );
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement())
@@ -608,12 +611,46 @@ ThreadGroup Collector::getThreads() const
 
 
 /**
+ * Get our postponed threads.
+ *
+ * Returns all the threads for which this collector has postponed collection of
+ * performance data. An empty thread group is returned if this collector isn't
+ * postponing collection of performance data for any threads.
+ *
+ * @return    Threads for which this collector has postponed collection of
+ *            performance data.
+ */
+ThreadGroup Collector::getPostponedThreads() const
+{
+    ThreadGroup threads;
+
+    // Find the threads for which we are postponing collection
+    BEGIN_TRANSACTION(dm_database);
+    validate("Collectors");
+    dm_database->prepareStatement(
+        "SELECT thread "
+	"FROM Collecting "
+	"WHERE collector = ? "
+	"  AND is_postponed = 1;"
+        );
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement())
+        threads.insert(Thread(dm_database, dm_database->getResultAsInteger(1)));
+    END_TRANSACTION(dm_database);
+    
+    // Return the threads to the caller
+    return threads; 
+}
+
+
+
+/**
  * Start data collection.
  *
  * Starts collection of performance data by this collector for the specified
- * thread. Data collection can be stopped temporarily or permanently by calling
- * stopCollecting() for the specified thread. All data that is collected is
- * available via the collector's metrics.
+ * thread. Data collection can be stopped temporarily via postponeCollecting()
+ * or permanently via stopCollecting(). All data that is collected is available
+ * via the collector's metrics.
  *
  * @pre    The thread must be in the same experiment as the collector. An
  *         assertion failure occurs if the thread is in a different experiment
@@ -643,26 +680,47 @@ void Collector::startCollecting(const Thread& thread) const
     BEGIN_TRANSACTION(dm_database);
     validate("Collectors");
     thread.validate("Threads");
-    
-    // Are we collecting for this thread?
+
+    // Are we collecting and/or postponed for this thread?
     bool is_collecting = false;
+    bool is_postponed = true;
     dm_database->prepareStatement(
-	"SELECT COUNT(*) FROM Collecting WHERE collector = ? AND thread = ?;"
+	"SELECT is_postponed "
+	"FROM Collecting "
+	"WHERE collector = ? "
+	"  AND thread = ?;"
 	);
     dm_database->bindArgument(1, dm_entry);
     dm_database->bindArgument(2, thread.dm_entry);
-    while(dm_database->executeStatement())
-	is_collecting = dm_database->getResultAsInteger(1) != 0;
+    while(dm_database->executeStatement()) {
+	is_collecting = true;
+	is_postponed = dm_database->getResultAsInteger(1) != 0;
+    }
 
-    // Only start collection if we aren't already collecting
+    // Create the collecting entry if it wasn't present in the database
     if(!is_collecting) {
-	
+	dm_database->prepareStatement(
+	    "INSERT INTO Collecting "
+	    "  (collector, thread, is_postponed) "
+	    "VALUES (?, ?, 1);"
+	    );
+	dm_database->bindArgument(1, dm_entry);
+	dm_database->bindArgument(2, thread.dm_entry);
+	while(dm_database->executeStatement());
+    }
+    
+    // Only start collection if we are postponed
+    if(is_postponed) {
+
 	// Defer to our implementation
 	dm_impl->startCollecting(*this, thread);
-
-	// Note in the database that we are now collecting for this thread
+	
+	// Note in the database that we are no longer postponed
 	dm_database->prepareStatement(
-	    "INSERT INTO Collecting (collector, thread) VALUES (?, ?);"
+	    "UPDATE Collecting "
+	    "SET is_postponed = 0 "
+	    "WHERE collector = ? "
+	    "  AND thread = ?;"
 	    );
 	dm_database->bindArgument(1, dm_entry);
 	dm_database->bindArgument(2, thread.dm_entry);
@@ -677,12 +735,88 @@ void Collector::startCollecting(const Thread& thread) const
 
 
 /**
+ * Postpone data collection.
+ *
+ * Postpone collection of performance data by this collector for the specified
+ * thread. Data collection can be resumed again via startCollecting(). All data
+ * that was collected is available via the collector's metrics.
+ *
+ * @pre    The thread must be in the same experiment as the collector. An
+ *         assertion failure occurs if the thread is in a different experiment
+ *         than the collector.
+ *
+ * @pre    Can only be performed on collectors for which an implementation can
+ *         be instantiated. A CollectorUnavailable exception is thrown if the
+ *         collector's implementation cannot be instantiated.
+ *
+ * @note    Any attempt to postpone collection on a thread for which this
+ *          collector is not collecting data will be silently ignored.
+ *
+ * @param thread    Thread for which to postpone collecting performance data.
+ */
+void Collector::postponeCollecting(const Thread& thread) const
+{
+    // Check preconditions
+    Assert(thread.dm_database == dm_database);
+    if(dm_impl == NULL) {
+	instantiateImpl();
+	if(dm_impl == NULL)
+	    throw Exception(Exception::CollectorUnavailable,
+			    getMetadata().getUniqueId());
+    }
+
+    // Begin a multi-statement transaction
+    BEGIN_TRANSACTION(dm_database);
+    validate("Collectors");
+    thread.validate("Threads");
+
+    // Are we collecting and/or postponed for this thread?
+    bool is_collecting = false;
+    bool is_postponed = true;
+    dm_database->prepareStatement(
+	"SELECT is_postponed "
+	"FROM Collecting "
+	"WHERE collector = ? "
+	"  AND thread = ?;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    dm_database->bindArgument(2, thread.dm_entry);
+    while(dm_database->executeStatement()) {
+	is_collecting = true;
+	is_postponed = dm_database->getResultAsInteger(1) != 0;
+    }
+
+    // Only stop collection if we are collecting and not postponed
+    if(is_collecting && !is_postponed) {
+
+	// Defer to our implementation
+	dm_impl->stopCollecting(*this, thread);
+	
+	// Note in the database that we are now postponed
+	dm_database->prepareStatement(
+	    "UPDATE Collecting "
+	    "SET is_postponed = 1 "
+	    "WHERE collector = ? "
+	    "  AND thread = ?;"
+	    );
+	dm_database->bindArgument(1, dm_entry);
+	dm_database->bindArgument(2, thread.dm_entry);
+	while(dm_database->executeStatement());
+	
+    }
+
+    // End this multi-statement transaction
+    END_TRANSACTION(dm_database); 
+}
+
+
+
+/**
  * Stop data collection.
  *
  * Stops collection of performance data by this collector for the specified
- * thread. Data collection can be resumed by calling startCollecting() for this
- * thread again. All data that was collected is available via the collector's
- * metrics.
+ * thread. Data collection can be start again via startCollecting(). All data
+ * that was collected is available via the collector's metrics.
  *
  * @pre    The thread must be in the same experiment as the collector. An
  *         assertion failure occurs if the thread is in a different experiment
@@ -713,22 +847,33 @@ void Collector::stopCollecting(const Thread& thread) const
     validate("Collectors");
     thread.validate("Threads");
 
-    // Are we collecting for this thread?
+    // Are we collecting and/or postponed for this thread?
     bool is_collecting = false;
+    bool is_postponed = true;
     dm_database->prepareStatement(
-	"SELECT COUNT(*) FROM Collecting WHERE collector = ? AND thread = ?;"
+	"SELECT is_postponed "
+	"FROM Collecting "
+	"WHERE collector = ? "
+	"  AND thread = ?;"
 	);
     dm_database->bindArgument(1, dm_entry);
     dm_database->bindArgument(2, thread.dm_entry);
-    while(dm_database->executeStatement())
-	is_collecting = dm_database->getResultAsInteger(1) != 0;
+    while(dm_database->executeStatement()) {
+	is_collecting = true;
+	is_postponed = dm_database->getResultAsInteger(1) != 0;
+    }
 
-    // Only stop collection if we are already collecting
+    // Only proceed further if we are already collecting
     if(is_collecting) {
 
-	// Defer to our implementation
-	dm_impl->stopCollecting(*this, thread);
-
+	// Only stop collection if we aren't postponed
+	if(!is_postponed) {
+	    
+	    // Defer to our implementation
+	    dm_impl->stopCollecting(*this, thread);
+	    
+	}
+	
 	// Note in the database we are no longer collecting for this thread
 	dm_database->prepareStatement(
 	    "DELETE FROM Collecting WHERE collector = ? AND thread = ?;"

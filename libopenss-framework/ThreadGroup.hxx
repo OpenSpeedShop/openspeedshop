@@ -38,6 +38,7 @@
 namespace OpenSpeedShop { namespace Framework {
 
     class Collector;
+    class CollectorGroup;
 
     /**
      * Arbitrary group of threads.
@@ -61,7 +62,11 @@ namespace OpenSpeedShop { namespace Framework {
 	void changeState(const Thread::State&);
 
 	void startCollecting(const Collector&) const;
+	void startCollecting(const CollectorGroup&) const;
+	void postponeCollecting(const Collector&) const;
+	void postponeCollecting(const CollectorGroup&) const;
 	void stopCollecting(const Collector&) const;
+	void stopCollecting(const CollectorGroup&) const;
 	
     };
     

@@ -94,8 +94,6 @@ namespace OpenSpeedShop { namespace Framework {
 	static bool isAccessible(const std::string&);
 	static void create(const std::string&);
 
-    public:
-	
 	explicit Experiment(const std::string&);
 	~Experiment();
 	

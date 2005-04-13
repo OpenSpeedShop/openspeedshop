@@ -23,6 +23,7 @@
  */
 
 #include "Collector.hxx"
+#include "CollectorGroup.hxx"
 #include "Database.hxx"
 #include "ThreadGroup.hxx"
 
@@ -106,7 +107,7 @@ bool ThreadGroup::areAllState(const Thread::State& state) const
  */
 void ThreadGroup::changeState(const Thread::State& state)
 {
-    for(ThreadGroup::iterator i = begin(); i != end(); ++i)
+    for(ThreadGroup::const_iterator i = begin(); i != end(); ++i)
 	i->changeState(state);
 }
 
@@ -122,8 +123,60 @@ void ThreadGroup::changeState(const Thread::State& state)
  */
 void ThreadGroup::startCollecting(const Collector& collector) const
 {
-    for(ThreadGroup::iterator i = begin(); i != end(); ++i)
+    for(ThreadGroup::const_iterator i = begin(); i != end(); ++i)
 	collector.startCollecting(*i);
+}
+
+
+
+/**
+ * Start data collection for all threads.
+ *
+ * Starts collection of performance data by the specified collectors for all
+ * threads in the group.
+ *
+ * @param collectors    Collectors for which to start data collection.
+ */
+void ThreadGroup::startCollecting(const CollectorGroup& collectors) const
+{
+    for(ThreadGroup::const_iterator i = begin(); i != end(); ++i)
+	for(CollectorGroup::const_iterator
+		j = collectors.begin(); j != collectors.end(); ++j)
+	    j->startCollecting(*i);
+}
+
+
+
+/**
+ * Postpone data collection for all threads.
+ *
+ * Postpones collection of performance data by the specified collector for all
+ * threads in the group.
+ *
+ * @param collector    Collector for which to postpone data collection.
+ */
+void ThreadGroup::postponeCollecting(const Collector& collector) const
+{
+    for(ThreadGroup::const_iterator i = begin(); i != end(); ++i)
+	collector.startCollecting(*i);
+}
+
+
+
+/**
+ * Postpone data collection for all threads.
+ *
+ * Postpones collection of performance data by the specified collectors for all
+ * threads in the group.
+ *
+ * @param collectors    Collectors for which to postpone data collection.
+ */
+void ThreadGroup::postponeCollecting(const CollectorGroup& collectors) const
+{
+    for(ThreadGroup::const_iterator i = begin(); i != end(); ++i)
+	for(CollectorGroup::const_iterator
+		j = collectors.begin(); j != collectors.end(); ++j)
+	    j->postponeCollecting(*i); 
 }
 
 
@@ -138,6 +191,24 @@ void ThreadGroup::startCollecting(const Collector& collector) const
  */
 void ThreadGroup::stopCollecting(const Collector& collector) const
 {
-    for(ThreadGroup::iterator i = begin(); i != end(); ++i)
+    for(ThreadGroup::const_iterator i = begin(); i != end(); ++i)
 	collector.stopCollecting(*i);
+}
+
+
+
+/**
+ * Stop data collection for all threads.
+ *
+ * Stops collection of performance data by the specified collectors for all
+ * threads in the group.
+ *
+ * @param collectors    Collectors for which to stop data collection.
+ */
+void ThreadGroup::stopCollecting(const CollectorGroup& collectors) const
+{
+    for(ThreadGroup::const_iterator i = begin(); i != end(); ++i)
+	for(CollectorGroup::const_iterator
+		j = collectors.begin(); j != collectors.end(); ++j)
+	    j->stopCollecting(*i); 
 }

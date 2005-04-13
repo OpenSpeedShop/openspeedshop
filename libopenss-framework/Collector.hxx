@@ -85,8 +85,6 @@ namespace OpenSpeedShop { namespace Framework {
 	
 	static std::set<Metadata> getAvailable();
 	
-    public:
-
 	Collector(const Collector&);
 	~Collector();
 
@@ -109,7 +107,9 @@ namespace OpenSpeedShop { namespace Framework {
 			    const AddressRange&, const TimeInterval&, T&) const;
 	
 	ThreadGroup getThreads() const;
-        void startCollecting(const Thread&) const;
+	ThreadGroup getPostponedThreads() const;
+        void startCollecting(const Thread&) const;	
+	void postponeCollecting(const Thread&) const;
         void stopCollecting(const Thread&) const;
 	
     private:

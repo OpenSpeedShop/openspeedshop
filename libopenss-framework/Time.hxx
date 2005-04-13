@@ -81,8 +81,6 @@ namespace OpenSpeedShop { namespace Framework {
 	    return Time(std::numeric_limits<value_type>::max());
 	}
 	
-    public:
-
 	/** Type representing a time. */
 	typedef uint64_t value_type;
 	

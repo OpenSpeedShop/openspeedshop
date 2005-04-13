@@ -131,6 +131,38 @@ AddressRange LinkedObject::getAddressRange() const
 
 
 /**
+ * Test if we are an executable.
+ *
+ * Returns a boolean value indicating if this linked object is an executable or
+ * not (i.e. a shared library). This does not necessarily correlate one-to-one
+ * with the "executable" bit in the file system. It means, instead, that this
+ * linked object was the "a.out" for one of the processes in the experiment.
+ *
+ * @return    Boolean "true" if this linked object is an executable,
+ *            "false" otherwise.
+ */
+bool LinkedObject::isExecutable() const
+{
+    bool is_executable;
+
+    // Find if we are an executable
+    BEGIN_TRANSACTION(dm_database);
+    validate("LinkedObjects");
+    dm_database->prepareStatement(
+	"SELECT is_executable FROM LinkedObjects WHERE id = ?;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement())
+	is_executable = dm_database->getResultAsInteger(1) != 0;
+    END_TRANSACTION(dm_database);
+    
+    // Return the flag to the caller
+    return is_executable;
+}
+
+
+
+/**
  * Get our functions.
  *
  * Returns the functions contained within this linked object. An empty set is

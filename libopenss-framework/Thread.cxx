@@ -240,6 +240,53 @@ std::pair<bool, int> Thread::getMPIRank() const
 
 
 /**
+ * Get our executable.
+ *
+ * Returns the linked object which is this thread's executable at a particular
+ * moment in time. If the executable can't be found, the first value in the pair
+ * returned will be "false".
+ *
+ * @return    Pair containing executable of this thread.
+ */
+std::pair<bool, LinkedObject> Thread::getExecutable(const Time& time) const
+{
+    std::pair<bool, LinkedObject> executable(false, LinkedObject());
+
+    // Find our executable and its context containing the query time
+    BEGIN_TRANSACTION(dm_database);
+    validate("Threads");
+    dm_database->prepareStatement(
+	"SELECT AddressSpaces.id, "
+	"       LinkedObjects.id "
+	"FROM AddressSpaces "
+	"  JOIN LinkedObjects "
+	"ON AddressSpaces.linked_object = LinkedObjects.id "
+	"WHERE AddressSpaces.thread = ? "
+	"  AND ? >= AddressSpaces.time_begin "
+	"  AND ? < AddressSpaces.time_end "
+	"  AND LinkedObjects.is_executable = 1;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    dm_database->bindArgument(2, time);
+    dm_database->bindArgument(3, time);
+    while(dm_database->executeStatement()) {
+	if(executable.first)
+	    throw Exception(Exception::EntryNotUnique, "LinkedObjects",
+			    "<Threads-Referenced-Executable>");
+	executable.first = true;
+	executable.second = LinkedObject(dm_database,
+					 dm_database->getResultAsInteger(2),
+					 dm_database->getResultAsInteger(1));
+    }
+    END_TRANSACTION(dm_database);
+    
+    // Return the executable to the caller
+    return executable;
+}
+
+
+
+/**
  * Get our linked objects.
  *
  * Returns the linked objects contained within this thread at a particular
@@ -256,7 +303,8 @@ std::set<LinkedObject> Thread::getLinkedObjects(const Time& time) const
     BEGIN_TRANSACTION(dm_database);
     validate("Threads");
     dm_database->prepareStatement(
-	"SELECT id, linked_object "
+	"SELECT id, "
+	"       linked_object "
 	"FROM AddressSpaces "
 	"WHERE thread = ? "
 	"  AND ? >= time_begin "
@@ -298,10 +346,11 @@ std::set<Function> Thread::getFunctions(const Time& time) const
     BEGIN_TRANSACTION(dm_database);
     validate("Threads");
     dm_database->prepareStatement(
-	"SELECT Functions.id, AddressSpaces.id "
-	"FROM Functions "
-	"  JOIN AddressSpaces "
-	"ON Functions.linked_object = AddressSpaces.linked_object "
+	"SELECT AddressSpaces.id, "
+	"       Functions.id "
+	"FROM AddressSpaces "
+	"  JOIN Functions "
+	"ON AddressSpaces.linked_object = Functions.linked_object "
 	"WHERE AddressSpaces.thread = ? "
 	"  AND ? >= AddressSpaces.time_begin "
 	"  AND ? < AddressSpaces.time_end;"
@@ -311,8 +360,8 @@ std::set<Function> Thread::getFunctions(const Time& time) const
     dm_database->bindArgument(3, time);
     while(dm_database->executeStatement())
 	functions.insert(Function(dm_database,
-				  dm_database->getResultAsInteger(1),
-				  dm_database->getResultAsInteger(2)));    
+				  dm_database->getResultAsInteger(2),
+				  dm_database->getResultAsInteger(1)));    
     END_TRANSACTION(dm_database);
     
     // Return the functions to the caller
@@ -341,7 +390,8 @@ Thread::getLinkedObjectAt(const Address& address, const Time& time) const
     BEGIN_TRANSACTION(dm_database);
     validate("Threads");
     dm_database->prepareStatement(
-	"SELECT id, linked_object "
+	"SELECT id, "
+	"       linked_object "
 	"FROM AddressSpaces "
 	"WHERE thread = ? "
 	"  AND ? >= time_begin "
@@ -506,10 +556,11 @@ Thread::getFunctionByName(const std::string& name, const Time& time) const
     BEGIN_TRANSACTION(dm_database);
     validate("Threads");
     dm_database->prepareStatement(
-	"SELECT Functions.id, AddressSpaces.id "
-	"FROM Functions "
-	"  JOIN AddressSpaces "
-	"ON Functions.linked_object = AddressSpaces.linked_object "
+	"SELECT AddressSpaces.id, "
+	"       Functions.id "
+	"FROM AddressSpaces "
+	"  JOIN Functions "
+	"ON AddressSpaces.linked_object = Functions.linked_object "
 	"WHERE AddressSpaces.thread = ? "
 	"  AND ? >= AddressSpaces.time_begin "
 	"  AND ? < AddressSpaces.time_end "
@@ -523,13 +574,55 @@ Thread::getFunctionByName(const std::string& name, const Time& time) const
 	if(!function.first) {
 	    function.first = true;
 	    function.second = Function(dm_database,
-				       dm_database->getResultAsInteger(1),
-				       dm_database->getResultAsInteger(2));
+				       dm_database->getResultAsInteger(2),
+				       dm_database->getResultAsInteger(1));
 	}    
     END_TRANSACTION(dm_database);
     
     // Return the function to the caller
     return function;
+}
+
+
+
+/**
+ * Get statements by source file.
+ *
+ * Returns the statements in the passed source file over all time. An empty set
+ * is returned if the source file cannot be found.
+ *
+ * @param path    Query source file path.
+ * @return        Statements in this source file.
+ */
+std::set<Statement>
+Thread::getStatementsBySourceFile(const std::string& path) const
+{
+    std::set<Statement> statements;
+    
+    // Find the statements contained within the query source file
+    BEGIN_TRANSACTION(dm_database);
+    validate("Threads");
+    dm_database->prepareStatement(
+	"SELECT AddressSpaces.id, "
+	"       Statements.id "
+	"FROM AddressSpaces "
+	"  JOIN Statements "
+	"  JOIN Files "
+	"ON AddressSpaces.linked_object = Statements.linked_object "
+	"  AND Statements.file = Files.id "
+	"WHERE AddressSpaces.thread = ? "
+	"  AND Files.path = ?;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    dm_database->bindArgument(2, path);
+    while(dm_database->executeStatement())
+	statements.insert(Statement(dm_database,
+				    dm_database->getResultAsInteger(2),
+				    dm_database->getResultAsInteger(1)));
+    END_TRANSACTION(dm_database);
+    
+    // Return the statements to the caller
+    return statements;
 }
 
 
@@ -547,11 +640,14 @@ CollectorGroup Thread::getCollectors() const
 {
     CollectorGroup collectors;
     
-    // Find the collectors which are collecting performance data for us
+    // Find the collectors which are collecting for us
     BEGIN_TRANSACTION(dm_database);
     validate("Threads");
     dm_database->prepareStatement(
-        "SELECT collector FROM Collecting WHERE thread = ?;"
+	"SELECT collector "
+	"FROM Collecting "
+	"WHERE thread = ? "
+	"  AND is_postponed = 0;"
         );
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement())
@@ -561,6 +657,41 @@ CollectorGroup Thread::getCollectors() const
     
     // Return the collectors to the caller
     return collectors;
+}
+
+
+
+/**
+ * Get our postponed collectors.
+ *
+ * Returns all the collectors currently postponing collection of performance
+ * data for this thread. An empty collector group is returned if no collectors
+ * are postponing collection of performance data for this thread.
+ *
+ * @return    Collectors which are postponing collection of performance data
+ *            for this thread.
+ */
+CollectorGroup Thread::getPostponedCollectors() const
+{
+    CollectorGroup collectors;
+
+    // Find the collectors which are postponing collection for us
+    BEGIN_TRANSACTION(dm_database);
+    validate("Threads");
+    dm_database->prepareStatement(
+	"SELECT collector "
+	"FROM Collecting "
+	"WHERE thread = ? "
+	"  AND is_postponed = 1;"
+        );
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement())
+        collectors.insert(Collector(dm_database,
+				    dm_database->getResultAsInteger(1)));
+    END_TRANSACTION(dm_database);
+    
+    // Return the collectors to the caller
+    return collectors;   
 }
 
 

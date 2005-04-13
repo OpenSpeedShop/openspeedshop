@@ -38,6 +38,7 @@
 namespace OpenSpeedShop { namespace Framework {
 
     class Thread;
+    class ThreadGroup;
 
     /**
      * Arbitrary group of collectors.
@@ -57,7 +58,11 @@ namespace OpenSpeedShop { namespace Framework {
     public:
 
 	void startCollecting(const Thread&) const;
+	void startCollecting(const ThreadGroup&) const;
+	void postponeCollecting(const Thread&) const;
+	void postponeCollecting(const ThreadGroup&) const;
         void stopCollecting(const Thread&) const;
+        void stopCollecting(const ThreadGroup&) const;
 	
     };
     
