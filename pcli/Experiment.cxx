@@ -349,9 +349,8 @@ static void Resolve_F_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
 // TODO:
     } else {
       try {
-      //Thread t = exp->FW()->createProcess(f_val1->name + " chair.control.cook chair.camera chair.surfaces chair.cook.ppm ppm pixels_out.cook", host_name);
-      Thread t = exp->FW()->createProcess(f_val1->name, host_name);
-      tgrp->insert(t);
+        Thread t = exp->FW()->createProcess(f_val1->name, host_name);
+        tgrp->insert(t);
       }
       catch(const Exception& error) {
          Mark_Cmd_With_Std_Error (cmd, error);
@@ -1136,16 +1135,14 @@ bool SS_expSetParam (CommandObject *cmd) {
      // The user has specified a particular collector.
      // Set the paramater for just that one collector.
       std::string C_name = std::string(iter->getParmExpType());
-      if (!Collector_Used_In_Experiment (exp->FW(), C_name)) {
-        cmd->Result_String ("The specified collector, " + C_name + ", is not part of the experiment.");
-        cmd->set_Status(CMD_ERROR);
-        continue;
+      try {
+        Collector C = Get_Collector (exp->FW(), C_name);
+        setparam(C, param_name, *iter);
       }
-      Collector C = Get_Collector (exp->FW(), C_name);
-      if (!setparam(C, param_name, *iter)) {
-       // Report a failure.
-        cmd->Result_String ("The specified parameter, " + param_name + ", could not be set.");
-        cmd->set_Status(CMD_ERROR);
+      catch(const Exception& error) {
+       // Return message, but continue to process other collectors.
+        Mark_Cmd_With_Std_Error (cmd, error);
+        continue;
       }
     } else {
      // Get the list of collectors used in the specified experiment.
@@ -1442,6 +1439,7 @@ bool SS_ListHosts (CommandObject *cmd) {
 }
 
 bool SS_ListMetrics (CommandObject *cmd) {
+  bool cmd_error = false;
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
@@ -1468,8 +1466,9 @@ bool SS_ListMetrics (CommandObject *cmd) {
       }
     }
     catch(const Exception& error) {
+     // Return message, but fall through to clean up tmpdb.
       Mark_Cmd_With_Std_Error (cmd, error);
-      return false;
+      cmd_error = true;
     }
   } else if (cmd->P_Result()->IsExpId()) {
    // Get the list of collectors from the specified experiment.
@@ -1492,8 +1491,9 @@ bool SS_ListMetrics (CommandObject *cmd) {
       }
     }
     catch(const Exception& error) {
+     // Return message, but fall through to clean up tmpdb.
       Mark_Cmd_With_Std_Error (cmd, error);
-      return false;
+      cmd_error = true;
     }
   } else {
    // Get the list of colectors from the focused experiment.
@@ -1504,15 +1504,17 @@ bool SS_ListMetrics (CommandObject *cmd) {
     cgrp = exp->FW()->getCollectors();
   }
 
-  CollectorGroup::iterator ci;
-  for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
-    Collector c = *ci;
-    Metadata cm = c.getMetadata();
-    std::set<Metadata> md = c.getMetrics();
-    std::set<Metadata>::const_iterator mi;
-    for (mi = md.begin(); mi != md.end(); mi++) {
-      Metadata m = *mi;
-      cmd->Result_String ( cm.getUniqueId() + "::" +  m.getUniqueId() );
+  if (!cmd_error) {
+    CollectorGroup::iterator ci;
+    for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
+      Collector c = *ci;
+      Metadata cm = c.getMetadata();
+      std::set<Metadata> md = c.getMetrics();
+      std::set<Metadata>::const_iterator mi;
+      for (mi = md.begin(); mi != md.end(); mi++) {
+        Metadata m = *mi;
+        cmd->Result_String ( cm.getUniqueId() + "::" +  m.getUniqueId() );
+      }
     }
   }
 
@@ -1521,8 +1523,10 @@ bool SS_ListMetrics (CommandObject *cmd) {
     delete fw_exp;
   }
 
-  cmd->set_Status(CMD_COMPLETE);
-  return true;
+  if (!cmd_error) {
+    cmd->set_Status(CMD_COMPLETE);
+  }
+  return cmd_error;
 }
 
 bool SS_ListObj (CommandObject *cmd) {
@@ -1536,6 +1540,7 @@ bool SS_ListObj (CommandObject *cmd) {
 }
 
 bool SS_ListParams (CommandObject *cmd) {
+  bool cmd_error = false;
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
@@ -1562,8 +1567,9 @@ bool SS_ListParams (CommandObject *cmd) {
       }
     }
     catch(const Exception& error) {
+     // Return message, but fall through to clean up tmpdb.
       Mark_Cmd_With_Std_Error (cmd, error);
-      return false;
+      cmd_error = true;
     }
   } else if (cmd->P_Result()->IsExpId()) {
    // Get the list of collectors from the specified experiment.
@@ -1586,8 +1592,9 @@ bool SS_ListParams (CommandObject *cmd) {
       }
     }
     catch(const Exception& error) {
+     // Return message, but fall through to clean up tmpdb.
       Mark_Cmd_With_Std_Error (cmd, error);
-      return false;
+      cmd_error = true;
     }
   } else {
    // Get the list of colectors from the focused experiment.
@@ -1598,15 +1605,17 @@ bool SS_ListParams (CommandObject *cmd) {
     cgrp = exp->FW()->getCollectors();
   }
 
-  CollectorGroup::iterator ci;
-  for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
-    Collector c = *ci;
-    Metadata cm = c.getMetadata();
-    std::set<Metadata> md = c.getParameters();
-    std::set<Metadata>::const_iterator mi;
-    for (mi = md.begin(); mi != md.end(); mi++) {
-      Metadata m = *mi;
-      cmd->Result_String ( cm.getUniqueId() + "::" +  m.getUniqueId() );
+  if (!cmd_error) {
+    CollectorGroup::iterator ci;
+    for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
+      Collector c = *ci;
+      Metadata cm = c.getMetadata();
+      std::set<Metadata> md = c.getParameters();
+      std::set<Metadata>::const_iterator mi;
+      for (mi = md.begin(); mi != md.end(); mi++) {
+        Metadata m = *mi;
+        cmd->Result_String ( cm.getUniqueId() + "::" +  m.getUniqueId() );
+      }
     }
   }
 
@@ -1615,8 +1624,10 @@ bool SS_ListParams (CommandObject *cmd) {
     delete fw_exp;
   }
 
-  cmd->set_Status(CMD_COMPLETE);
-  return true;
+  if (!cmd_error) {
+    cmd->set_Status(CMD_COMPLETE);
+  }
+  return cmd_error;
 }
 
 bool SS_ListPids (CommandObject *cmd) {
