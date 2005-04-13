@@ -43,11 +43,12 @@ IOPanel_la_LDFLAGS = \
 	-module \
 	-avoid-version \
 	-L$(top_srcdir)/libopenss-framework \
+	-L$(top_srcdir)/dialogs \
 	-L$(QTDIR)/lib \
 	-lqt \
 	-ldl
 
-IOPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework
+IOPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-Dialogs
 
 moc_IOPanel.cxx: IOPanel.hxx
 	-moc -o moc_IOPanel.cxx IOPanel.hxx

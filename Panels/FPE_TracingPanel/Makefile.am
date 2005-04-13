@@ -43,11 +43,12 @@ FPE_TracingPanel_la_LDFLAGS = \
 	-module \
 	-avoid-version \
 	-L$(top_srcdir)/libopenss-framework \
+	-L$(top_srcdir)/dialogs \
 	-L$(QTDIR)/lib \
 	-lqt \
 	-ldl
 
-FPE_TracingPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework
+FPE_TracingPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-Dialogs
 
 moc_FPE_TracingPanel.cxx: FPE_TracingPanel.hxx
 	-moc -o moc_FPE_TracingPanel.cxx FPE_TracingPanel.hxx

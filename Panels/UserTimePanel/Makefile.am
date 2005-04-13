@@ -43,11 +43,12 @@ UserTimePanel_la_LDFLAGS = \
 	-module \
 	-avoid-version \
 	-L$(top_srcdir)/libopenss-framework \
+	-L$(top_srcdir)/dialogs \
 	-L$(QTDIR)/lib \
 	-lqt \
 	-ldl
 
-UserTimePanel_la_LIBADD = $(LIBLTDL) -lopenss-framework
+UserTimePanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-Dialogs
 
 moc_UserTimePanel.cxx: UserTimePanel.hxx
 	-moc -o moc_UserTimePanel.cxx UserTimePanel.hxx

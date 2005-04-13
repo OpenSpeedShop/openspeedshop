@@ -195,8 +195,13 @@ IOPanel::IOPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, 
 // printf("command=(%s)\n", command.ascii() );
     if( !cli->getIntValueFromCLI(command.ascii(), &val, mark_value_for_delete ) )
     {
-      fprintf(stderr, "Error retreiving experiment id. \n");
-//    return;
+//      fprintf(stderr, "Error retreiving experiment id. \n");
+      QMessageBox::information( this, "No collector found:", QString("Unable to issue command:\n  ")+command, QMessageBox::Ok );
+      command = QString("expCreate"); 
+      if( !cli->getIntValueFromCLI(command.ascii(), &val, mark_value_for_delete ) )
+      { // fatal errror.
+        QMessageBox::critical( this, QString("Critical error:"), QString("Command line not responding as expected:\n  ")+command, QMessageBox::Ok,  QMessageBox::NoButton );
+      }
     }
     expID = val;
     eo = Find_Experiment_Object((EXPID)expID);

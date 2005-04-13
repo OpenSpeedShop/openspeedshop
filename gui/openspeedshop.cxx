@@ -257,3 +257,23 @@ OpenSpeedshop::print()
   printf("hostStr = %s\n",  hostStr.ascii() );
   printf("expStr = %s\n",  expStr.ascii() );
 }
+
+void
+OpenSpeedshop::closeEvent(QCloseEvent *e)
+{
+//  printf("OpenSpeedshop::closeEvent() entered.\n");
+  int ret_val =  QMessageBox::question(
+            this,
+            tr("Finished?"),
+            tr("Do you really want to exit Open|SpeedShop?\n  - Yes will exit.\n  - No will close the gui windows.\n  - Cancel will do nothing."),
+            QMessageBox::Yes,  QMessageBox::No,  QMessageBox::Cancel );
+  if( ret_val ==  QMessageBox::Yes )
+  {
+    fileExit();
+  } else if( ret_val ==  QMessageBox::No )
+  {
+    fileClose();
+  } else  //  QMessageBox::Cancel
+  {
+  }
+}

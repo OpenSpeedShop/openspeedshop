@@ -43,11 +43,12 @@ MPIPanel_la_LDFLAGS = \
 	-module \
 	-avoid-version \
 	-L$(top_srcdir)/libopenss-framework \
+	-L$(top_srcdir)/dialogs \
 	-L$(QTDIR)/lib \
 	-lqt \
 	-ldl
 
-MPIPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework
+MPIPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-Dialogs
 
 moc_MPIPanel.cxx: MPIPanel.hxx
 	-moc -o moc_MPIPanel.cxx MPIPanel.hxx

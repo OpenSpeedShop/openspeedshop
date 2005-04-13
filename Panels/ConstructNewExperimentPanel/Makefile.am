@@ -43,11 +43,12 @@ ConstructNewExperimentPanel_la_LDFLAGS = \
 	-module \
 	-avoid-version \
 	-L$(top_srcdir)/libopenss-framework \
+	-L$(top_srcdir)/dialogs \
 	-L$(QTDIR)/lib \
 	-lqt \
 	-ldl
 
-ConstructNewExperimentPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework
+ConstructNewExperimentPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-Dialogs
 
 moc_ConstructNewExperimentPanel.cxx: ConstructNewExperimentPanel.hxx
 	-moc -o moc_ConstructNewExperimentPanel.cxx ConstructNewExperimentPanel.hxx

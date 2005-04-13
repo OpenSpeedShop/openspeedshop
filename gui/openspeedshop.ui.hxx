@@ -346,13 +346,6 @@ void OpenSpeedshop::fileExit()
 {
  dprintf("fileExit() entered.\n");
 
- /* close all the panel containers.   Well all except the masterPC's
-    That one we need to do explicitly. (See the next line.) */
- ((PanelContainer *)topPC)->getMasterPC()->closeAllExternalPanelContainers();
-
- /* Now close the master pc's information. */
- ((PanelContainer *)topPC)->closeWindow((PanelContainer *)topPC);
-
   int wid = ((PanelContainer *)topPC)->getMainWindow()->widStr.toInt();
 //  InputLineObject *ilp = Append_Input_String( wid, "quit");
   InputLineObject *ilp = Append_Input_String( wid, "exit\n");
@@ -361,6 +354,14 @@ void OpenSpeedshop::fileExit()
   {
     fprintf(stderr, "FATAL ERROR: No clip returned from cli for exit attempting exit regardless.\n");
   }
+
+ /* close all the panel containers.   Well all except the masterPC's
+    That one we need to do explicitly. (See the next line.) */
+ ((PanelContainer *)topPC)->getMasterPC()->closeAllExternalPanelContainers();
+
+ /* Now close the master pc's information. */
+ ((PanelContainer *)topPC)->closeWindow((PanelContainer *)topPC);
+
 
  qApp->closeAllWindows();
  dprintf("fileExit() called closeAllWindows.\n");
@@ -866,7 +867,6 @@ height+=50;   // FIX
    qApp->installEventFilter( myEventFilter );
 
   qapplication->connect( qApp, SIGNAL( lastWindowClosed() ), this, SLOT( myQuit() ) );
-// connect( fileCloseAction, SIGNAL( activated() ), this, SLOT( fileClose() ) );
 }
 
 void OpenSpeedshop::destroy()

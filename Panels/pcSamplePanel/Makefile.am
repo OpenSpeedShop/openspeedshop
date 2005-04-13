@@ -43,11 +43,12 @@ pcSamplePanel_la_LDFLAGS = \
 	-module \
 	-avoid-version \
 	-L$(top_srcdir)/libopenss-framework \
+	-L$(top_srcdir)/dialogs \
 	-L$(QTDIR)/lib \
 	-lqt \
 	-ldl
 
-pcSamplePanel_la_LIBADD = $(LIBLTDL) -lopenss-framework
+pcSamplePanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-Dialogs
 
 moc_pcSamplePanel.cxx: pcSamplePanel.hxx
 	-moc -o moc_pcSamplePanel.cxx pcSamplePanel.hxx

@@ -43,11 +43,12 @@ HW_CounterPanel_la_LDFLAGS = \
 	-module \
 	-avoid-version \
 	-L$(top_srcdir)/libopenss-framework \
+	-L$(top_srcdir)/dialogs \
 	-L$(QTDIR)/lib \
 	-lqt \
 	-ldl
 
-HW_CounterPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework
+HW_CounterPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-Dialogs
 
 moc_HW_CounterPanel.cxx: HW_CounterPanel.hxx
 	-moc -o moc_HW_CounterPanel.cxx HW_CounterPanel.hxx
