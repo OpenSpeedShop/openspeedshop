@@ -232,55 +232,70 @@ void
 pcStatsPanel::matchSelectedItem(std::string selected_function )
 {
   bool foundFLAG = FALSE;
-//  printf ("pcStatsPanel::matchSelectedItem() = %s\n", selected_function.c_str() );
+// printf ("pcStatsPanel::matchSelectedItem() = %s\n", selected_function.c_str() );
 
-std::map<Function, double>::const_iterator it = orig_data->begin();
-std::set<Statement> definitions = it->first.getDefinitions();
-for( ; it != orig_data->end(); ++it)
-{
-//  printf("%s %f\n", it->first.c_str(), it->second );
-  if( selected_function == it->first.getName()  )
+  try
   {
-//    printf("FOUND IT!\n");
-    definitions = it->first.getDefinitions();
-    if(definitions.size() > 0 )
+    std::map<Function, double>::const_iterator it = orig_data->begin();
+    std::set<Statement> definitions = it->first.getDefinitions();
+    for( ; it != orig_data->end(); ++it)
     {
-//      std::cout << " (" << definition.getValue().getPath()
-//              << ", " << definition.getValue().getLine() << ")";
-//      std::cout << std::endl;
-      break;
-    } else
+// printf("%s %f\n", it->first.getName().c_str(), it->second );
+      if( selected_function == it->first.getName()  )
+      {
+// printf("FOUND IT!\n");
+        definitions = it->first.getDefinitions();
+        if(definitions.size() > 0 )
+        {
+//        for( std::set<Statement>::const_iterator i = definitions.begin(); i != definitions.end(); ++i)
+//        {
+//          std::cout << " (" << i->getPath().baseName()
+//              << ", " << i->getLine() << ")";
+//        }
+//        std::cout << std::endl;
+          break;
+        } else
+        {
+// fprintf(stderr, "No function definition for this entry.   Unable to position source.\n");
+          QMessageBox::information(this, "Open|SpeedShop", "No function definition for this entry.\nUnable to position source. (No symbols.)\n", "Ok");
+          return;
+        }
+      }
+    }
+
+    SourceObject *spo = NULL;
+    if( definitions.size() > 0 )
     {
-//      fprintf(stderr, "No function definition for this entry.   Unable to position source.\n");
-      QMessageBox::information(this, "Open|SpeedShop", "No function definition for this entry.\nUnable to position source. (No symbols.)\n", "Ok");
-      return;
+      std::set<Statement>::const_iterator di = definitions.begin();
+      spo = new SourceObject(it->first.getName().c_str(), di->getPath(), di->getLine()-1, TRUE, NULL);
+    }
+
+
+
+    if( spo )
+    {
+      if( broadcast((char *)spo, NEAREST_T) == 0 )
+      { // No source view up...
+        char *panel_type = "Source Panel";
+  //Find the nearest toplevel and start placement from there...
+        PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(getPanelContainer());
+        Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, (void *)groupID);
+        if( p != NULL ) 
+        {
+          p->listener((void *)spo);
+        }
+      }
     }
   }
-}
-
-  SourceObject *spo = NULL;
-  if( definitions.size() > 0 )
-  {
-    std::set<Statement>::const_iterator di = definitions.begin();
-    spo = new SourceObject(it->first.getName().c_str(), di->getPath(), di->getLine()-1, TRUE, NULL);
+  catch(const std::exception& error)
+  { 
+    std::cerr << std::endl << "Error: "
+              << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+              "Unknown runtime error." : error.what()) << std::endl
+              << std::endl;
+    return;
   }
 
-
-
-if( spo )
-{
-  if( broadcast((char *)spo, NEAREST_T) == 0 )
-  { // No source view up...
-    char *panel_type = "Source Panel";
-//Find the nearest toplevel and start placement from there...
-    PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(getPanelContainer());
-    Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, (void *)groupID);
-    if( p != NULL ) 
-    {
-      p->listener((void *)spo);
-    }
-  }
-}
 }
 
 void
