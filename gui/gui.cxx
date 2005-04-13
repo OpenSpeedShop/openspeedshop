@@ -38,8 +38,8 @@ QEventLoop *qeventloop;
 #include <qcheckbox.h>
 
 #include <pthread.h>
-#define PTMAX 10
-pthread_t phandle[PTMAX];
+// #define PTMAX 10
+// pthread_t phandle[PTMAX];
 #include "ArgClass.hxx"
 
 
@@ -174,28 +174,27 @@ extern "C"
   // thread.   Called from Start.cxx, when the gui is requested at startup.
   // Otherwise, it can be called from the command line at any time to 
   // initialize the gui.
+  static bool isGUIBeenCreate = FALSE;
   int
-  gui_init( void *arg_struct )
+  gui_init( void *arg_struct, pthread_t *phandle )
   {
-      int stat = pthread_create(&phandle[0], 0, (void *(*)(void *))guithreadinit,arg_struct);
-
-      return 1;
-  }
-
-  int
-  gui_raise( int *ret_val )
-  {
-    dprintf("gui_raise: entered\n");
-    if( qapplication )
+    if( isGUIBeenCreate == TRUE )
     {
-      dprintf("we should be able to raise!\n");
-      w->raiseGUI();
-      *ret_val = 1;
+      if( !qapplication )
+      {
+        fprintf(stderr, "Unable to reattach to the gui.  No qapplication.  Returning.\n");
+      } else
+      {
+        w->raiseGUI();
+      }
     } else
     {
-      dprintf("no gui, create one...\n");
-      *ret_val = 0;
+//      gui_thread_id = pthread_create(&phandle[0], 0, (void *(*)(void *))guithreadinit,arg_struct);
+      pthread_create(phandle, 0, (void *(*)(void *))guithreadinit,arg_struct);
+      isGUIBeenCreate = TRUE;
     }
-    return(0);
+
+    return 1;
   }
+
 }
