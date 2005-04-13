@@ -50,19 +50,10 @@ SaveAsExperimentDialog::SaveAsExperimentDialog( QWidget* parent, const char* nam
   setSizeGripEnabled( TRUE );
   SaveAsExperimentDialogLayout = new QVBoxLayout( this, 11, 6, "SaveAsExperimentDialogLayout"); 
 
-#ifdef PULL
-  hostLabel = new QLabel( this, "hostLabel" );
-  SaveAsExperimentDialogLayout->addWidget( hostLabel );
-  hostComboBox = new QComboBox( this, "hostComboBox");
-  hostComboBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)2, (QSizePolicy::SizeType)0, 0, 0, hostComboBox->sizePolicy().hasHeightForWidth() ) );
-  hostComboBox->setEditable(TRUE);
-  SaveAsExperimentDialogLayout->addWidget( hostComboBox );
-#endif // PULL
-
   availableExperimentsListView = new QListView( this, "availableExperimentsListView" );
-  availableExperimentsListView->addColumn( tr( "id:" ) );
+  availableExperimentsListView->addColumn( tr( "Experiment ID:" ) );
   availableExperimentsListView->addColumn( tr( "Name:" ) );
-  availableExperimentsListView->addColumn( tr( "Description:" ) );
+  availableExperimentsListView->addColumn( tr( "Experiment File:" ) );
   availableExperimentsListView->setSelectionMode( QListView::Single );
   availableExperimentsListView->setShowSortIndicator( TRUE );
   availableExperimentsListView->setSorting( 0, FALSE );
@@ -96,9 +87,6 @@ SaveAsExperimentDialog::SaveAsExperimentDialog( QWidget* parent, const char* nam
   // signals and slots connections
   connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
   connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
-#ifdef PULL
-  connect( hostComboBox, SIGNAL( activated(const QString &) ), this, SLOT( hostComboBox() ) );
-#endif // PULL
 
   updateAvailableExperimentList();
 }
@@ -125,14 +113,6 @@ void SaveAsExperimentDialog::languageChange()
   buttonOk->setAccel( QKeySequence( QString::null ) );
   buttonCancel->setText( tr( "&Cancel" ) );
   buttonCancel->setAccel( QKeySequence( QString::null ) );
-#ifdef PULL
-  hostLabel->setText( tr("Host:") );
-  hostComboBox->insertItem( "localhost" );
-  hostComboBox->insertItem( "clink.americas.sgi.com" );
-  hostComboBox->insertItem( "hope.americas.sgi.com" );
-  hostComboBox->insertItem( "hope1.americas.sgi.com" );
-  hostComboBox->insertItem( "hope2.americas.sgi.com" );
-#endif // PULL
 }
 
 PanelListViewItem *
@@ -183,10 +163,6 @@ return selectedItem;
 void
 SaveAsExperimentDialog::updateAvailableExperimentList()
 {
-#ifdef PULL
-  char *host = (char *)hostComboBox->currentText().ascii();
-#endif // PULL
-
   availableExperimentsListView->clear();
 
   QString command("listExp");
@@ -205,50 +181,31 @@ SaveAsExperimentDialog::updateAvailableExperimentList()
     int64_t expID = (int64_t)(*it);
 
     nprintf( DEBUG_PANELS ) ("Here are the experiment ids that can be saved (%d)\n", expID);
-QString expName = QString::null;
-ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-Experiment *fw_experiment = NULL;
-if( eo && eo->FW() )
-{
-  fw_experiment = eo->FW();
-  CollectorGroup cgrp = fw_experiment->getCollectors();
-  CollectorGroup::iterator ci;
-  for (ci = cgrp.begin(); ci != cgrp.end(); ci++)
-  {
-    Collector collector = *ci;
-    std::string name = collector.getMetadata().getUniqueId();
-    if( !expName.isEmpty() )
+
+    QString expName = QString::null;
+    ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+    Experiment *fw_experiment = NULL;
+    if( eo && eo->FW() )
     {
-      expName += QString(" ,");
-    }
-    expName += QString(name.c_str());
-  }
-}
-    QListViewItem *item = new QListViewItem( availableExperimentsListView,
-      QString("%1").arg(expID),
-      expName,
-      fw_experiment ? fw_experiment->getName().c_str() : "Unknown experiment name" );
-
-#ifdef PULL
-      PanelList *panelList = mw->topPC->getPanelListByID(expID);
-      if( panelList )
+      fw_experiment = eo->FW();
+      CollectorGroup cgrp = fw_experiment->getCollectors();
+      CollectorGroup::iterator ci;
+      for (ci = cgrp.begin(); ci != cgrp.end(); ci++)
       {
-        for( PanelList::Iterator pit = panelList->begin(); pit != panelList->end(); pit++ )
+        Collector collector = *ci;
+        std::string name = collector.getMetadata().getUniqueId();
+        if( !expName.isEmpty() )
         {
-          Panel *p = (Panel *)*pit;
-          (void) new PanelListViewItem( (QListViewItem *)item, p->getName(), p );
+          expName += QString(" ,");
         }
-        delete panelList;
+        expName += QString(name.c_str());
       }
-#endif // PULL
+    }
+    QListViewItem *item = new QListViewItem( availableExperimentsListView,
+    QString("%1").arg(expID),
+    expName,
+    fw_experiment ? fw_experiment->getName().c_str() : "Unknown experiment name" );
   }
-
-  QApplication::restoreOverrideCursor();
+  
+    QApplication::restoreOverrideCursor();
 }
-
-#ifdef PULL
-void SaveAsExperimentDialog::attachHostComboBoxActivated()
-{
-    updateAvailableExperimentList();
-}
-#endif // PULL

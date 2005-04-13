@@ -50,8 +50,6 @@ public:
     QPushButton* buttonOk;
     QPushButton* buttonCancel;
 
-    QLabel* hostLabel;
-    QComboBox * hostComboBox;
     QListView* availableExperimentsListView;
 
     PanelListViewItem *selectedExperiment(int *expID);
@@ -69,7 +67,6 @@ protected slots:
     virtual void languageChange();
 
 public slots:
-    virtual void attachHostComboBoxActivated();
 
 };
 

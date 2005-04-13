@@ -34,9 +34,6 @@ class QSpacerItem;
 class QFrame;
 class QPushButton;
 class QLabel;
-#ifdef PULL
-class QComboBox;
-#endif // PULL
 class QListView;
 class QListViewItem;
 
@@ -52,10 +49,6 @@ public:
     QPushButton* buttonOk;
     QPushButton* buttonCancel;
 
-#ifdef PULL
-    QLabel* hostLabel;
-    QComboBox * hostComboBox;
-#endif // PULL
     QListView* availableExperimentsListView;
 
     PanelListViewItem *selectedExperiment(int *expID);
@@ -69,9 +62,6 @@ protected:
     CLIInterface *cli;
     OpenSpeedshop *mw;
 
-#ifdef PULL // Put back to 'public slots:' if needed.
-    virtual void attachHostComboBoxActivated();
-#endif // PULL
 protected slots:
     virtual void languageChange();
 

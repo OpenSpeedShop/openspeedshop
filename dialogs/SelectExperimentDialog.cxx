@@ -50,17 +50,10 @@ SelectExperimentDialog::SelectExperimentDialog( QWidget* parent, const char* nam
   setSizeGripEnabled( TRUE );
   SelectExperimentDialogLayout = new QVBoxLayout( this, 11, 6, "SelectExperimentDialogLayout"); 
 
-  hostLabel = new QLabel( this, "hostLabel" );
-  SelectExperimentDialogLayout->addWidget( hostLabel );
-  hostComboBox = new QComboBox( this, "hostComboBox");
-  hostComboBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)2, (QSizePolicy::SizeType)0, 0, 0, hostComboBox->sizePolicy().hasHeightForWidth() ) );
-  hostComboBox->setEditable(TRUE);
-  SelectExperimentDialogLayout->addWidget( hostComboBox );
-
   availableExperimentsListView = new QListView( this, "availableExperimentsListView" );
-  availableExperimentsListView->addColumn( tr( "id:" ) );
+  availableExperimentsListView->addColumn( tr( "Experiment ID:" ) );
   availableExperimentsListView->addColumn( tr( "Name:" ) );
-  availableExperimentsListView->addColumn( tr( "Description:" ) );
+  availableExperimentsListView->addColumn( tr( "Experiment File:" ) );
   availableExperimentsListView->setSelectionMode( QListView::Single );
   availableExperimentsListView->setShowSortIndicator( TRUE );
   availableExperimentsListView->setSorting( 0, FALSE );
@@ -94,10 +87,6 @@ SelectExperimentDialog::SelectExperimentDialog( QWidget* parent, const char* nam
   // signals and slots connections
   connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
   connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
-#ifdef LATER
-  connect( hostComboBox, SIGNAL( activated(const QString &) ), this, SLOT( hostComboBox() ) );
-#endif // LATER
-
   updateAvailableExperimentList();
 }
 
@@ -123,14 +112,6 @@ void SelectExperimentDialog::languageChange()
   buttonOk->setAccel( QKeySequence( QString::null ) );
   buttonCancel->setText( tr( "&Cancel" ) );
   buttonCancel->setAccel( QKeySequence( QString::null ) );
-  hostLabel->setText( tr("Host:") );
-  hostComboBox->insertItem( "localhost" );
-#ifdef LATER
-  hostComboBox->insertItem( "clink.americas.sgi.com" );
-  hostComboBox->insertItem( "hope.americas.sgi.com" );
-  hostComboBox->insertItem( "hope1.americas.sgi.com" );
-  hostComboBox->insertItem( "hope2.americas.sgi.com" );
-#endif // LATER
 }
 
 PanelListViewItem *
@@ -181,7 +162,6 @@ return selectedItem;
 void
 SelectExperimentDialog::updateAvailableExperimentList()
 {
-  char *host = (char *)hostComboBox->currentText().ascii();
   availableExperimentsListView->clear();
 
   QString command("listExp");
@@ -237,9 +217,4 @@ if( eo && eo->FW() )
   }
 
   QApplication::restoreOverrideCursor();
-}
-
-void SelectExperimentDialog::attachHostComboBoxActivated()
-{
-    updateAvailableExperimentList();
 }
