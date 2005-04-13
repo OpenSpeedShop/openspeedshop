@@ -55,7 +55,9 @@ class ExperimentObject
       try {
         OpenSpeedShop::Framework::Experiment::create (Data_File_Name);
       }
-      catch(const std::exception& error) {
+      catch(const Exception& error) {
+       // Don't really care why.
+       // Calling routine must handle the problem.
         Exp_ID = 0;
         Data_File_Has_A_Generated_Name = false;
         FW_Experiment = NULL;
@@ -70,7 +72,9 @@ class ExperimentObject
       FW_Experiment = new OpenSpeedShop::Framework::Experiment (Data_File_Name);
       ExperimentObject_list.push_front(this);
     }
-    catch(const std::exception& error) {
+    catch(const Exception& error) {
+     // Don't really care why.
+     // Calling routine must handle the problem.
       Exp_ID = 0;
       Data_File_Has_A_Generated_Name = false;
       FW_Experiment = NULL;
@@ -87,7 +91,8 @@ class ExperimentObject
       try {
         delete FW_Experiment;
       }
-      catch(const std::exception& error) {
+      catch(const Exception& error) {
+       // Don't really care why.
         Data_File_Has_A_Generated_Name = false;
       }
       FW_Experiment = NULL;
@@ -106,7 +111,8 @@ class ExperimentObject
       try {
         return FW()->getName();
       }
-      catch(const std::exception& error) {
+      catch(const Exception& error) {
+       // Don't really care why.
         return "(Unable to determine.)";
       }
     }
@@ -143,7 +149,9 @@ class ExperimentObject
               break;
             }
           }
-          catch(const std::exception& error) {
+          catch(const Exception& error) {
+           // Don't really care why.
+           // Mark the experiment with an error and continue on.
             A = ExpStatus_InError;
             break;
           }
@@ -161,7 +169,9 @@ class ExperimentObject
         FW_Experiment = new OpenSpeedShop::Framework::Experiment (Suspended_Data_File_Name);
         Determine_Status();
       }
-      catch(const std::exception& error) {
+      catch(const Exception& error) {
+       // Don't really care why.
+       // The calling routine will figure out what to do.
         Exp_ID = 0;
         setStatus (ExpStatus_InError);
         Data_File_Has_A_Generated_Name = false;  // Save for later analysis
@@ -204,8 +214,10 @@ class ExperimentObject
           FW_Experiment = new OpenSpeedShop::Framework::Experiment (New_DB);
           Data_File_Has_A_Generated_Name = false;
         }
-        catch(const std::exception& error) {
-          ret = -1;  // signal an error to calling routine.
+        catch(const Exception& error) {
+         // Don't really care why.
+         // Signal an error to calling routine.
+          ret = -1;
         }
       }
     }
