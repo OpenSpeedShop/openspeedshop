@@ -214,7 +214,7 @@ void OpenSpeedshop::fileOpenExperiment()
   }
 
 
-printf("pane_type.ascii() = %s\n", panel_type.ascii() );
+//printf("pane_type.ascii() = %s\n", panel_type.ascii() );
   topPC->dl_create_and_add_panel((char *)panel_type.ascii(), topPC->leftPanelContainer, (void *)&expStr);
     }
   }
@@ -236,7 +236,35 @@ void OpenSpeedshop::fileOpenSavedExperiment()
 //printf("  with the same layout as what it was left in during the prior\n");
 //printf("  save.\n");
 
-  QMessageBox::information( (QWidget *)NULL, tr("Info:"), tr("This feature currently under construction. - Unable to fulfill request."), QMessageBox::Ok );
+  QFileDialog *sed = new QFileDialog(this, "file dialog", TRUE );
+  sed->setCaption( QFileDialog::tr("Enter saved experiment name:") );
+  sed->setMode( QFileDialog::AnyFile );
+  QString types(
+                  "Open|SpeedShop files (*.openss);;"
+                  );
+  sed->setFilters( types );
+//    sed->setDir(dirName);
+
+  QString fileName = QString::null;
+  if( sed->exec() == QDialog::Accepted )
+  {
+    fileName = sed->selectedFile();
+    if( !fileName.isEmpty() )
+    {
+      QString command;
+      command = QString("expRestore %1").arg(fileName);
+QMessageBox::information( (QWidget *)NULL, tr("Info: Unable to complete command"), tr("This feature currently under construction.\nCommand to be executed:\n%1").arg(command), QMessageBox::Ok );
+return;
+      if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
+      {
+        printf("Unable to run %s command.\n", command.ascii() );
+      }
+    } else
+    {
+      return;
+    }
+  }
+
 }
 
 void OpenSpeedshop::fileSaveExperiment()
@@ -250,23 +278,22 @@ void OpenSpeedshop::fileSaveExperiment()
     int expID = 0;
     PanelListViewItem *item = dialog->selectedExperiment(&expID);
     QString expStr = QString("%1").arg(expID);
+    QString collectorName = QString("%1").arg(item->text(1));
     QString databaseName = QString("%1").arg(item->text(2));
-//printf("expStr=(%s) databaseName=(%s)\n", expStr.ascii(), databaseName.ascii() );
+//printf("expStr=(%s) collectorName=(%s) databaseName=(%s)\n", expStr.ascii(), collectorName.ascii(), databaseName.ascii() );
     QString dirName = "./";
-    if( sed == NULL )
-    {
-      sed = new QFileDialog(this, "file dialog", TRUE );
-      sed->setCaption( QFileDialog::tr("Enter session name:") );
-      sed->setMode( QFileDialog::AnyFile );
-      QString types(
+
+    QFileDialog *sed = new QFileDialog(this, "file dialog", TRUE );
+    sed->setCaption( QFileDialog::tr("Enter session name:") );
+    sed->setMode( QFileDialog::AnyFile );
+    QString types(
                   "Open|SpeedShop files (*.openss);;"
                   );
-      sed->setFilters( types );
-//    sed->setViewMode( QFileDialog::Detail );
-      sed->setDir(dirName);
-    }
-    const char *n = databaseName.ascii();
-    char *bn = basename( (char *)n );
+    sed->setFilters( types );
+    sed->setDir(dirName);
+//    const char *n = databaseName.ascii();
+//    char *bn = basename( (char *)n );
+    QString bn = collectorName+".openss";
     sed->setSelection(bn);
   
     QString fileName = QString::null;
@@ -275,10 +302,10 @@ void OpenSpeedshop::fileSaveExperiment()
       fileName = sed->selectedFile();
       if( !fileName.isEmpty() )
       {
-printf("fileName.ascii() = (%s)\n", fileName.ascii() );
+// printf("fileName.ascii() = (%s)\n", fileName.ascii() );
         QString command;
         command = QString("expSave -x %1 -f %2").arg(expID).arg(fileName);
-printf("command=(%s)\n", command.ascii() );
+// printf("command=(%s)\n", command.ascii() );
         if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
         {
           printf("Unable to run %s command.\n", command.ascii() );
@@ -316,7 +343,7 @@ void OpenSpeedshop::filePreferences()
 #include "Commander.hxx"   // Contains the InputLineObject definition.
 void OpenSpeedshop::fileExit()
 {
-  dprintf("fileExit() entered.\n");
+ dprintf("fileExit() entered.\n");
 
  /* close all the panel containers.   Well all except the masterPC's
     That one we need to do explicitly. (See the next line.) */
@@ -325,21 +352,20 @@ void OpenSpeedshop::fileExit()
  /* Now close the master pc's information. */
  ((PanelContainer *)topPC)->closeWindow((PanelContainer *)topPC);
 
- qApp->closeAllWindows();
- dprintf("fileExit() called closeAllWindows.\n");
-
- // qApp->exit();
- //printf("fileExit() called qApp->exit.\n");
-
   int wid = ((PanelContainer *)topPC)->getMainWindow()->widStr.toInt();
-  InputLineObject *ilp = Append_Input_String( wid, "quit");
+//  InputLineObject *ilp = Append_Input_String( wid, "quit");
+  InputLineObject *ilp = Append_Input_String( wid, "exit\n");
+//  Append_Input_String( wid, "exit\n");
   if( ilp == NULL )
   {
     fprintf(stderr, "FATAL ERROR: No clip returned from cli for exit attempting exit regardless.\n");
   }
 
+ qApp->closeAllWindows();
+ dprintf("fileExit() called closeAllWindows.\n");
 
-qApp->exit();
+
+ qApp->exit();
  pthread_exit(EXIT_SUCCESS);
  dprintf("fileExit() called pthread_exit.\n");
 }
@@ -348,32 +374,19 @@ qApp->exit();
 void OpenSpeedshop::fileClose()
 {
   dprintf("fileClose() entered.\n");
-
- /* close all the panel containers.   Well all except the masterPC's
-    That one we need to do explicitly. (See the next line.) */
- ((PanelContainer *)topPC)->getMasterPC()->closeAllExternalPanelContainers();
-
- /* Now close the master pc's information. */
- ((PanelContainer *)topPC)->closeWindow((PanelContainer *)topPC);
-
- qApp->closeAllWindows();
- dprintf("fileClose() called closeAllWindows.\n");
-
- // qApp->exit();
- //printf("fileClose() called qApp->exit.\n");
-
- pthread_exit(EXIT_SUCCESS);
- dprintf("fileClose() called pthread_exit.\n");
+  dprintf("Try to hide the main window!\n");
+  hide();
 }
 
 void OpenSpeedshop::helpIndex()
 {
-//printf("helpIndex() entered.\n");
+  dprintf("helpIndex() entered.\n");
 }
 
 void OpenSpeedshop::helpContents()
 {
-//printf("helpContents() entered.\n");
+ dprintf("helpContents() entered.\n");
+
  char *plugin_directory = NULL;
   
  plugin_directory = getenv("OPENSS_DOC_DIR");
@@ -394,7 +407,7 @@ void OpenSpeedshop::helpContents()
 
 void OpenSpeedshop::helpAbout()
 {
-//printf("helpAbout() entered.\n");
+ dprintf("helpAbout() entered.\n");
 
  QMessageBox::about(this, "Open/SpeedShop", "Open/SpeedShop about example....");
 }
@@ -850,6 +863,9 @@ height+=50;   // FIX
 
    AppEventFilter *myEventFilter = new AppEventFilter(this, masterPC);
    qApp->installEventFilter( myEventFilter );
+
+  qapplication->connect( qApp, SIGNAL( lastWindowClosed() ), this, SLOT( myQuit() ) );
+// connect( fileCloseAction, SIGNAL( activated() ), this, SLOT( fileClose() ) );
 }
 
 void OpenSpeedshop::destroy()
@@ -907,4 +923,27 @@ void OpenSpeedshop::attachNewProcess()
 
   //printf("pidStr = %s\n", pidStr.ascii() );
   delete dialog;
+}
+
+void OpenSpeedshop::myQuit()
+{
+  dprintf("myQuit called!   You closed the last window!!!!\n");
+
+  fileExit();
+  qapplication->flushX();
+}
+
+void OpenSpeedshop::raiseTheGUI()
+{
+  dprintf("raiseTheGUI entered.\n");
+  show();
+  qapplication->flushX();
+}
+
+
+void OpenSpeedshop::raiseGUI()
+{
+  dprintf("raiseGUI called!\n");
+
+  QTimer::singleShot( 1, this, SLOT(raiseTheGUI()) );
 }

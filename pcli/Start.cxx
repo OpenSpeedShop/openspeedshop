@@ -409,6 +409,7 @@ setup_signal_handler (int s)
     char gui_plugin_file[2048];
     char *gui_dl_name = getenv("OPENSS_GUI_RELOCATABLE_NAME");
     char *gui_entry_point = getenv("OPENSS_GUI_ENTRY_POINT");
+    char *gui_raise_entry_point = getenv("OPENSS_GUI_RAISE_ENTRY_POINT");
     char *plugin_directory = getenv("OPENSS_PLUGIN_PATH");
 
     assert(lt_dlinit() == 0);
@@ -440,11 +441,27 @@ setup_signal_handler (int s)
 
     if( !gui_dl_name ) gui_dl_name = "libopenss-GUI";
     if( !gui_entry_point ) gui_entry_point = "gui_init";
+    if( !gui_raise_entry_point ) gui_raise_entry_point = "gui_raise";
   
     lt_dlhandle dl_gui_object = lt_dlopenext((const char *)gui_dl_name);
     if( dl_gui_object == NULL ) {
       fprintf(stderr, "%s\n", lt_dlerror() );
       exit(EXIT_FAILURE);
+    }
+
+    int ret_val = 0;
+    lt_ptr (*dl_raise_routine)(int *);
+    dl_raise_routine = (lt_ptr (*)(int *))lt_dlsym(dl_gui_object, gui_raise_entry_point);
+    if( dl_raise_routine == NULL )
+    {
+      fprintf(stderr, "%s\n", lt_dlerror() );
+      exit(EXIT_FAILURE);
+    }
+    (*dl_raise_routine)(&ret_val);
+    if( ret_val )
+    {
+      printf("ret_val = (%s) raised the existing gui.\n");
+      return;
     }
   
     lt_ptr (*dl_gui_init_routine)(void *);

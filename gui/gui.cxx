@@ -45,6 +45,7 @@ pthread_t phandle[PTMAX];
 
 extern "C" 
 {
+  OpenSpeedshop *w = NULL;
   // This routine starts another QApplication gui.  It is called from 
   // gui_init to have the gui started in it's own thread.
   void
@@ -102,7 +103,6 @@ extern "C"
 
     }
 
-    OpenSpeedshop *w;
 
     w = new OpenSpeedshop(widStr.toInt());
 
@@ -150,8 +150,6 @@ extern "C"
 
     w->show();
 
-    qapplication->connect( qapplication, SIGNAL( lastWindowClosed() ), qapplication, SLOT( quit() ) );
-
     if( splashFLAG )
     {
       splash->raise();
@@ -184,4 +182,20 @@ extern "C"
       return 1;
   }
 
+  int
+  gui_raise( int *ret_val )
+  {
+    dprintf("gui_raise: entered\n");
+    if( qapplication )
+    {
+      dprintf("we should be able to raise!\n");
+      w->raiseGUI();
+      *ret_val = 1;
+    } else
+    {
+      dprintf("no gui, create one...\n");
+      *ret_val = 0;
+    }
+    return(0);
+  }
 }

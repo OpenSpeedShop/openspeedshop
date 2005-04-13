@@ -23,6 +23,7 @@
 
 #include <qvariant.h>
 #include <qmainwindow.h>
+#include <qtimer.h>
 #include "PanelContainer.hxx"
 #include <qassistantclient.h>
 
@@ -92,6 +93,9 @@ class OpenSpeedshop : public QMainWindow
     //! A pointer to the top PanelContainer that is parented to this mainwindow.
     PanelContainer *topPC;
 
+    //! Raise the gui (from the cli after hide())
+    void raiseGUI();
+
     //! The window id string associated with the cli
     QString widStr;
 
@@ -120,7 +124,7 @@ class OpenSpeedshop : public QMainWindow
     QFileDialog *lfd;
 
     //! The save experiment dialog.
-    QFileDialog *sed;
+//    QFileDialog *sed;
 
     //! The save file dialog.
     QFileDialog *sfd;
@@ -151,6 +155,9 @@ class OpenSpeedshop : public QMainWindow
 
     virtual void loadNewProgram();
     virtual void attachNewProcess();
+
+    virtual void myQuit();
+    void raiseTheGUI();
 protected:
     //! A vertical box to place the child widgets.
     QVBoxLayout* OpenSpeedshopLayout;
