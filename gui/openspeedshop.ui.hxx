@@ -42,6 +42,7 @@ extern QApplication *qapplication;
 
 // #include "debug.hxx"  // This includes the definition of dprintf
 #include "AttachProcessDialog.hxx"
+#include "AttachProgramDialog.hxx"
 #include "SelectExperimentDialog.hxx"
 #include "SaveAsExperimentDialog.hxx"
 
@@ -876,10 +877,11 @@ fprintf(stderr, "OpenSpeedshop::destroy() entered.\n");
 
 void OpenSpeedshop::loadNewProgram()
 {
+// all load programs requests come through here!
   QString dirName = QString::null;
   if( lfd == NULL )
   {
-    lfd = new QFileDialog(this, "file dialog", TRUE );
+    lfd = new AttachProgramDialog(this, "file dialog", TRUE );
     lfd->setCaption( QFileDialog::tr("Enter executable or saved experiment:") );
 //    lfd->setMode( QFileDialog::AnyFile );
     QString types(
@@ -908,6 +910,14 @@ void OpenSpeedshop::loadNewProgram()
         return;
       }
       executableName = fileName;
+      if( lfd->lineedit->text().isEmpty() )
+      {
+        argsStr = QString::null;
+      } else
+      {
+        argsStr = lfd->lineedit->text();
+// printf("argsStr=(%s)\n", argsStr.ascii() );
+      }
     }
   }
 }

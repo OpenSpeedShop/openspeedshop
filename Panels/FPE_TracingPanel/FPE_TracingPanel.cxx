@@ -62,6 +62,7 @@ FPE_TracingPanel::FPE_TracingPanel(PanelContainer *pc, const char *n, void *argu
   ExperimentObject *eo = NULL;
   experiment = NULL;
   executableNameStr = QString::null;
+  argsStr = QString::null;
   pidStr = QString::null;
   manageCollectorsDialog = NULL;
   manageProcessesDialog = NULL;
@@ -82,6 +83,7 @@ FPE_TracingPanel::FPE_TracingPanel(PanelContainer *pc, const char *n, void *argu
       if( !mw->executableName.isEmpty() )
       {
         executableNameStr = mw->executableName;
+        argsStr = mw->argsStr;
       } else if( !mw->pidStr.isEmpty() )
       {
         pidStr = mw->pidStr;
@@ -163,16 +165,16 @@ FPE_TracingPanel::FPE_TracingPanel(PanelContainer *pc, const char *n, void *argu
   if( expID == -1 )
   {
     // We're coming in cold, or we're coming in from the fpeTracingWizardPanel.
-    char command[1024];
+    QString command = QString::null;
     if( !executableNameStr.isEmpty() )
     {
-      sprintf(command, "expCreate -f %s xfpe\n", executableNameStr.ascii() );
+      command = QString("expCreate -f \"%1 %2\" xfpe\n").arg(executableNameStr).arg(argsStr);
     } else if( !pidStr.isEmpty() )
     { 
-      sprintf(command, "expCreate -x %s xfpe\n", pidStr.ascii() );
+      command = QString("expCreate -x %1 xfpe\n").arg(pidStr);
     } else
     {
-      sprintf(command, "expCreate xfpe\n" );
+      command = QString("expCreate xfpe\n");
     }
     bool mark_value_for_delete = true;
     int64_t val = 0;
@@ -188,10 +190,10 @@ FPE_TracingPanel::FPE_TracingPanel(PanelContainer *pc, const char *n, void *argu
     runnableFLAG = FALSE;
     pco->runButton->setEnabled(FALSE);
     pco->runButton->enabledFLAG = FALSE;
-    nprintf( DEBUG_PANELS ) ("Attempting to do an (%s)\n", command );
 
     CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-    if( !cli->getIntValueFromCLI(command, &val, mark_value_for_delete ) )
+// printf("command=(%s)\n", command.ascii() );
+    if( !cli->getIntValueFromCLI(command.ascii(), &val, mark_value_for_delete ) )
     {
       fprintf(stderr, "Error retreiving experiment id. \n");
 //    return;
@@ -280,8 +282,8 @@ FPE_TracingPanel::~FPE_TracingPanel()
   nprintf( DEBUG_CONST_DESTRUCT ) ("  FPE_TracingPanel::~FPE_TracingPanel() destructor called\n");
   delete frameLayout;
 
-  char command[1024];
-  sprintf(command, "expClose -x %d", expID );
+  QString command = QString::null;
+  command = QString("expClose -x %1").arg(expID);
 
   if( !QMessageBox::question( this,
             tr("Delete (expClose) the experiment?"),
@@ -292,7 +294,7 @@ FPE_TracingPanel::~FPE_TracingPanel()
   {
    nprintf( DEBUG_PANELS ) ("NOTE: This does not need to be a syncronous call.\n");
     int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
-    InputLineObject *clip = Append_Input_String( wid, command);
+    InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii());
   }
 }
 
@@ -306,9 +308,8 @@ FPE_TracingPanel::menu(QPopupMenu* contextMenu)
   contextMenu->insertItem(tr("pc S&tats Panel..."), this, SLOT(loadStatsPanel()), CTRL+Key_T );
   contextMenu->insertItem(tr("S&ource Panel..."), this, SLOT(loadSourcePanel()), CTRL+Key_O );
   contextMenu->insertSeparator();
-  contextMenu->insertSeparator();
   contextMenu->insertItem(tr("&Manage Collectors and Processes..."), this, SLOT(manageCollectorsAndProcessesSelected()), CTRL+Key_M );
-  contextMenu->insertItem(tr("&Manage &Data Sets..."), this, SLOT(manageDataSetsSelected()), CTRL+Key_D );
+  contextMenu->insertItem(tr("Manage &Data Sets..."), this, SLOT(manageDataSetsSelected()), CTRL+Key_D );
   contextMenu->insertSeparator();
   contextMenu->insertItem("&Save As ...", this, SLOT(saveAsSelected()), CTRL+Key_S ); 
 
@@ -362,6 +363,8 @@ void
 FPE_TracingPanel::manageDataSetsSelected()
 {
   nprintf( DEBUG_PANELS ) ("FPE_TracingPanel::manageDataSetsSelected()\n");
+  QString str(tr("This feature is currently under construction.\n") );
+  QMessageBox::information( this, "Informational", str, "Manage Data Sets not yet implemented." );
 }   
 
 //! Save ascii version of this panel.
@@ -427,7 +430,7 @@ FPE_TracingPanel::listener(void *msg)
 //      co->print();
 //    }
 
-    char command[1024];
+    QString command = QString::null;
     bool mark_value_for_delete = true;
     int64_t val = 0;
     CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
@@ -436,58 +439,58 @@ FPE_TracingPanel::listener(void *msg)
     switch( (int)co->cot )
     {
       case  ATTACH_PROCESS_T:
-        sprintf(command, "expAttach  -x %d\n", expID);
+        command = QString("expAttach  -x %1\n").arg(expID);
 /*
-        if( !cli->runSynchronousCLI(command) )
+        if( !cli->runSynchronousCLI(command.ascii()) )
         {
-          fprintf(stderr, "Error (%s).\n", command);
+          fprintf(stderr, "Error (%s).\n", command.ascii());
         }
 */
-        nprintf( DEBUG_MESSAGES ) ("Attach to a process (%s)\n", command);
+        nprintf( DEBUG_MESSAGES ) ("Attach to a process (%s)\n", command.ascii());
         ret_val = 1;
         break;
       case  DETACH_PROCESS_T:
-        sprintf(command, "expDetach -x %d\n", expID);
+        command = QString("expDetach -x %1\n").arg(expID);
 /*
-        if( !cli->runSynchronousCLI(command) )
+        if( !cli->runSynchronousCLI(command.ascii()) )
         {
-          fprintf(stderr, "Error (%s).\n", command);
+          fprintf(stderr, "Error (%s).\n", command.ascii());
         }
 */
-        nprintf( DEBUG_MESSAGES ) ("Detach from a process (%s)\n", command);
+        nprintf( DEBUG_MESSAGES ) ("Detach from a process (%s)\n", command.ascii());
         ret_val = 1;
         break;
       case  ATTACH_COLLECTOR_T:
-        sprintf(command, "expAttach -x %d\n", expID);
+        command = QString("expAttach -x %1\n").arg(expID);
 /*
-        if( !cli->runSynchronousCLI(command) )
+        if( !cli->runSynchronousCLI(command.ascii()) )
         {
-          fprintf(stderr, "Error (%s).\n", command);
+          fprintf(stderr, "Error (%s).\n", command.ascii() );
         }
 */
-        nprintf( DEBUG_MESSAGES ) ("Attach to a collector (%s)\n", command);
+        nprintf( DEBUG_MESSAGES ) ("Attach to a collector (%s)\n", command.ascii() );
         ret_val = 1;
         break;
       case  REMOVE_COLLECTOR_T:
-        sprintf(command, "expDetach -x %d\n", expID);
+        command = QString("expDetach -x %1\n").arg(expID);
 /*
-        if( !cli->runSynchronousCLI(command) )
+        if( !cli->runSynchronousCLI(command.ascii() ) )
         {
-          fprintf(stderr, "Error (%s).\n", command);
+          fprintf(stderr, "Error (%s).\n", command.ascii() );
         }
 */
-        nprintf( DEBUG_MESSAGES ) ("Remove a collector (%s)\n", command);
+        nprintf( DEBUG_MESSAGES ) ("Remove a collector (%s)\n", command.ascii() );
         ret_val = 1;
         break;
       case  RUN_T:
-        sprintf(command, "expGo -x %d\n", expID);
+        command = QString("expGo -x %1\n").arg(expID);
         {
         int status = -1;
         nprintf( DEBUG_MESSAGES ) ("Run\n");
         statusLabelText->setText( tr("Process running...") );
 
         int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
-        InputLineObject *clip = Append_Input_String( wid, command);
+        InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii());
   
         ret_val = 1;
         }
@@ -495,9 +498,9 @@ FPE_TracingPanel::listener(void *msg)
       case  PAUSE_T:
         {
         nprintf( DEBUG_MESSAGES ) ("Pause\n");
-        sprintf(command, "expPause -x %d\n", expID);
+        command = QString("expPause -x %1\n").arg(expID);
         int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
-        InputLineObject *clip = Append_Input_String( wid, command);
+        InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii());
         statusLabelText->setText( tr("Process Paused...") );
         }
         ret_val = 1;
@@ -506,9 +509,9 @@ FPE_TracingPanel::listener(void *msg)
       case  CONT_T:
         {
         nprintf( DEBUG_MESSAGES ) ("Continue\n");
-        sprintf(command, "expCont -x %d\n", expID);
+        command = QString("expCont -x %1\n").arg(expID);
         int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
-        InputLineObject *clip = Append_Input_String( wid, command);
+        InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii() );
         statusLabelText->setText( tr("Process continued...") );
         }
         ret_val = 1;
@@ -533,9 +536,9 @@ CLIInterface::interrupt = true;
       case  TERMINATE_T:
         {
         statusLabelText->setText( tr("Process terminated...") );
-        sprintf(command, "expStop -x %d\n", expID);
+        command = QString("expStop -x %d\n").arg(expID);
         int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
-        InputLineObject *clip = Append_Input_String( wid, command);
+        InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii() );
         ret_val = 1;
         nprintf( DEBUG_MESSAGES ) ("Terminate\n");
         }
@@ -678,7 +681,7 @@ FPE_TracingPanel::loadSourcePanel()
     SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", bestFitPC, (char *)expID);
   } else
   {
-printf("Raise the source panel!\n");
+// printf("Raise the source panel!\n");
   }
 }
 

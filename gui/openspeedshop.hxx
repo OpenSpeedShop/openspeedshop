@@ -40,6 +40,7 @@ class QAction;
 class QActionGroup;
 class QToolBar;
 class QPopupMenu;
+class AttachProgramDialog;
 
 class CLIInterface;
 
@@ -121,7 +122,7 @@ class OpenSpeedshop : public QMainWindow
     QString experimentName;
 
     //! The load file dialog.
-    QFileDialog *lfd;
+    AttachProgramDialog *lfd;
 
     //! The save experiment dialog.
 //    QFileDialog *sed;

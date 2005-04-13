@@ -70,7 +70,7 @@ extern "C"
   {
 // printf("initPreferenceSettings(%s)\n", pname);
     sortDecendingCheckBox->setChecked(TRUE);
-    showTopNLineEdit->setText( "5" );
+    showTopNLineEdit->setText( " " );
     showColumnToSortLineEdit->setText( "0" );
   }
 

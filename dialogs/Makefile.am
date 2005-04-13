@@ -39,6 +39,9 @@ libopenss_Dialogs_la_LIBADD = $(LIBLTDL)  -L../objects -lopenss-Objects
 moc_AttachProcessDialog.cxx: AttachProcessDialog.hxx
 	-moc -o moc_AttachProcessDialog.cxx AttachProcessDialog.hxx
 
+moc_AttachProgramDialog.cxx: AttachProgramDialog.hxx
+	-moc -o moc_AttachProgramDialog.cxx AttachProgramDialog.hxx
+
 moc_ManageCollectorsDialog.cxx: ManageCollectorsDialog.hxx
 	-moc -o moc_ManageCollectorsDialog.cxx ManageCollectorsDialog.hxx
 
@@ -56,6 +59,7 @@ moc_GenericProgressDialog.cxx: GenericProgressDialog.hxx
 
 libopenss_Dialogs_la_SOURCES = \
 	AttachProcessDialog.hxx AttachProcessDialog.cxx moc_AttachProcessDialog.cxx \
+	AttachProgramDialog.hxx AttachProgramDialog.cxx moc_AttachProgramDialog.cxx \
 	ManageCollectorsDialog.hxx ManageCollectorsDialog.cxx moc_ManageCollectorsDialog.cxx \
 	ManageProcessesDialog.hxx ManageProcessesDialog.cxx moc_ManageProcessesDialog.cxx \
 	PanelListViewItem.hxx PanelListViewItem.cxx \
@@ -63,4 +67,4 @@ libopenss_Dialogs_la_SOURCES = \
 	SelectExperimentDialog.hxx SelectExperimentDialog.cxx moc_SelectExperimentDialog.cxx \
 	SaveAsExperimentDialog.hxx SaveAsExperimentDialog.cxx moc_SaveAsExperimentDialog.cxx
 
-CLEANFILES=moc_AttachProcessDialog.cxx moc_SelectExperimentDialog.cxx moc_GenericProgressDialog.cxx moc_ManageCollectorsDialog.cxx
+CLEANFILES=moc_AttachProcessDialog.cxx moc_AttachProgramDialog.cxx moc_SelectExperimentDialog.cxx moc_GenericProgressDialog.cxx moc_ManageCollectorsDialog.cxx 

@@ -121,6 +121,7 @@ public:
   bool runnableFLAG;
 
   QString executableNameStr;
+  QString argsStr;
   QString pidStr;
   QTimer *timer;
   QTimer *loadTimer;

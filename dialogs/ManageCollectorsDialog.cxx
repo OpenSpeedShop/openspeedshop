@@ -706,13 +706,14 @@ ManageCollectorsDialog::attachProgramSelected()
 {
 //  printf("addProgramSelected\n");
   mw->executableName = QString::null;
+  mw->argsStr = QString::null;
   mw->loadNewProgram();
   QString executableNameStr = mw->executableName;
   if( !mw->executableName.isEmpty() )
   {
     executableNameStr = mw->executableName;
     QString command =
-      QString("expAttach -x %1 -f %2").arg(expID).arg(executableNameStr);
+      QString("expAttach -x %1 -f \"%2 %3\"").arg(expID).arg(executableNameStr).arg(mw->argsStr);
 
 // printf("command=(%s)\n", command.ascii() );
     steps = 0;
