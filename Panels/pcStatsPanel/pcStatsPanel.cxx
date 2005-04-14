@@ -119,8 +119,6 @@ pcStatsPanel::menu( QPopupMenu* contextMenu)
 
   contextMenu->insertSeparator();
 
-  contextMenu->insertSeparator();
-
   contextMenu->insertItem("Compare...", this, SLOT(compareSelected()) );
 
   contextMenu->insertSeparator();
@@ -147,7 +145,7 @@ pcStatsPanel::menu( QPopupMenu* contextMenu)
   }
 
 //  contextMenu->insertItem("Export Report Data...", this, NULL, NULL);
-  contextMenu->insertItem("Export Report Data...");
+  contextMenu->insertItem("Export Report Data...", this, SLOT(exportData()));
 
   if( lv->selectedItem() )
   {
@@ -190,6 +188,66 @@ void
 pcStatsPanel::details()
 {
   printf("details() menu selected.\n");
+}
+
+void
+pcStatsPanel::exportData()
+{
+  printf("exportData() menu selected.\n");
+  QPtrList<QListViewItem> lst;
+  QListViewItemIterator it( lv );
+  int cols =  lv->columns();
+  int i=0;
+  QString fileName = "pcStatsPanel.txt";
+  QString dirName = QString::null;
+
+  QFileDialog *fd = new QFileDialog(this, "save_pcStatsPanelData:", TRUE );
+  fd->setCaption( QFileDialog::tr("Save pcStatsPanel data:") );
+  fd->setMode( QFileDialog::AnyFile );
+  fd->setSelection(fileName);
+  QString types( "Any Files (*);;"
+                    "Text files (*.txt);;"
+                    );
+  fd->setFilters( types );
+  fd->setDir(dirName);
+
+  if( fd->exec() == QDialog::Accepted )
+  {
+    fileName = fd->selectedFile();
+  
+    if( !fileName.isEmpty() )
+    {
+      QFile f(fileName);
+      f.open(IO_WriteOnly );
+
+      // Write out the header info
+      QString line = QString("  ");
+      for(i=0;i<cols;i++)
+      {
+        for(i=0;i<cols;i++)
+        {
+          line += QString(lv->columnText(i))+" ";
+        }
+        line += QString("\n");
+      }
+      f.writeBlock( line, qstrlen(line) );
+
+      // Write out the body info
+      while( it.current() )
+      {
+        QListViewItem *item = *it;
+        line = QString("  ");
+        for(i=0;i<cols;i++)
+        {
+          line += QString(item->text(i))+" ";
+        }
+        line += QString("\n");
+        f.writeBlock( line, qstrlen(line) );
+        ++it;
+      }
+      f.close();
+    }
+  }
 }
 
 /*! Go to source menu item was selected. */

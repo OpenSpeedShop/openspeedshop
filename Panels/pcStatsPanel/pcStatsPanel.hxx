@@ -69,6 +69,7 @@ class pcStatsPanel  : public StatsPanelBase
 
   public slots:
     void itemSelected( QListViewItem * );
+    void exportData();
     void details();
     void gotoSource();
 
