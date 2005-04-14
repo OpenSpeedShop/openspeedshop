@@ -66,6 +66,7 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n, void *argument) 
   pidStr = QString::null;
   manageCollectorsDialog = NULL;
   manageProcessesDialog = NULL;
+  exitingFLAG = FALSE;
 
   mw = getPanelContainer()->getMainWindow();
 
@@ -286,22 +287,8 @@ pcSamplePanel::~pcSamplePanel()
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("  pcSamplePanel::~pcSamplePanel() destructor called\n");
   delete frameLayout;
-
-  QString command = QString::null;
-  command = QString("expClose -x %1").arg(expID);
-
-  if( !QMessageBox::question( this,
-            tr("Delete (expClose) the experiment?"),
-            tr("Selecting Yes will delete the experiment.\n"
-                "Selecting No will only close the window."),
-            tr("&Yes"), tr("&No"),
-            QString::null, 0, 1 ) )
-  {
-   nprintf( DEBUG_PANELS ) ("NOTE: This does not need to be a syncronous call.\n");
-    int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
-    InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii());
-  }
 }
+
 
 //! Add user panel specific menu items if they have any.
 bool
@@ -404,6 +391,7 @@ pcSamplePanel::listener(void *msg)
   LoadAttachObject *lao = NULL;
 
   MessageObject *mo = (MessageObject *)msg;
+// printf("pcSamplePanel::listener(%s) requested.\n", mo->msgType );
 
   if( mo->msgType == getName() )
   {
@@ -421,6 +409,26 @@ pcSamplePanel::listener(void *msg)
   {
     lao = (LoadAttachObject *)msg;
     nprintf( DEBUG_MESSAGES ) ("we've got a LoadAttachObject\n");
+  } else if( mo->msgType == "ClosingDownObject" )
+  {
+//    printf("pcSamplePanel::listener() ClosingDownObject!\n");
+    if( exitingFLAG == FALSE )
+    {
+      QString command = QString::null;
+      command = QString("expClose -x %1").arg(expID);
+
+      if( !QMessageBox::question( NULL,
+              tr("Delete (expClose) the experiment?"),
+              tr("Selecting Yes will delete the experiment.\n"
+                  "Selecting No will only close the window."),
+              tr("&Yes"), tr("&No"),
+              QString::null, 0, 1 ) )
+      {
+        int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
+        Append_Input_String( wid, (char *)command.ascii());
+      }
+      exitingFLAG = TRUE;
+    }
   } else
   {
 //    fprintf(stderr, "Unknown object type recieved.\n");

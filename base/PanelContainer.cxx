@@ -67,6 +67,8 @@
 #include "DragNDropPanel.hxx"
 #include <qdragobject.h>
 
+#include "ClosingDownObject.hxx"
+
 #include <qcolor.h>
 #include <qvariant.h>
 #include <qcombobox.h>
@@ -1671,6 +1673,13 @@ PanelContainer::removeRaisedPanel(PanelContainer *targetPC)
       return;
     }
 
+// printf("Current page (raised tab) = %d (%s) p=(%s)\n", currentPageIndex, targetPC->tabWidget->label(currentPageIndex).ascii(), p->getName() );
+    if( p )
+    {
+      ClosingDownObject *cdo = new ClosingDownObject();
+      p->listener((char *)cdo);
+    }
+
     targetPC->tabWidget->removePage(currentPage);
     deletePanel(p, targetPC);
   }
@@ -1778,13 +1787,11 @@ PanelContainer::removePanelContainer(PanelContainer *targetPC)
       return;
     } else
     {
-//      targetPC->parent->hide();
-#ifdef CAUSE_ABORT_WITH
-// Performance
-// Delete PC with Performance
-//      nprintf(DEBUG_PANELCONTAINERS) ("We have another type of top level!  We need an explicit delete for this one.\n");
-//      getMasterPC()->removeTopLevelPanelContainer(targetPC, TRUE);
-#endif // CAUSE_ABORT_WITH
+      if( targetPC->outsidePC == TRUE )
+      {
+// We only do this when this is a toplevel, "outside PC"
+        getMasterPC()->removeTopLevelPanelContainer(targetPC, TRUE);
+      }
     }
     getMasterPC()->_eventsEnabled = savedEnableState;
     getMasterPC()->_resizeEventsEnabled = savedResizeEnableState;
@@ -2175,6 +2182,7 @@ PanelContainer::closeAllExternalPanelContainers()
 void
 PanelContainer::closeWindow(PanelContainer *targetPC)
 {
+// printf("PanelContainer::closeWindow() entered\n");
   if( targetPC == NULL )
   {
     fprintf(stderr, "WARNING: PanelContainer::closeWindow() no targetPC!\n");
@@ -3145,14 +3153,13 @@ PanelContainer::_notifyAllDecendants(char *msg, PanelContainer *pc)
     {
       Panel *p = (Panel *)*pit;
       nprintf(DEBUG_PANELCONTAINERS) ("p->getName() = %s\n", p->getName() );
+// printf ("p->getName() = %s\n", p->getName() );
       if( p->topLevel == TRUE )
       {
+// printf ("p->getName() = %s was topLevel\n", p->getName() );
         _notifyAllDecendants(msg, p->topPC);
-      } else
-      {
-// printf("contact %s listener...\n", p->getName() );
-        p->listener(msg);
       }
+      p->listener(msg);
     }
   }
 

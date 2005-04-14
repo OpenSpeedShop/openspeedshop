@@ -51,6 +51,7 @@ libopenss_Objects_la_SOURCES = \
 	MessageObject.hxx MessageObject.cxx \
 	SourceObject.hxx SourceObject.cxx \
 	UpdateObject.hxx UpdateObject.cxx \
+	ClosingDownObject.hxx ClosingDownObject.cxx \
 	PreferencesChangedObject.hxx PreferencesChangedObject.cxx \
 	LoadAttachObject.hxx LoadAttachObject.cxx \
 	SaveAsObject.hxx SaveAsObject.cxx \

@@ -21,6 +21,7 @@
     Overloaded function so we can trap the closeEvent.
  */
 
+#include "ClosingDownObject.hxx"
 #include "TopWidget.hxx"
 #include "PanelContainer.hxx"
 
@@ -54,9 +55,14 @@ void
 TopWidget::closeEvent( QCloseEvent *e )
 {
   nprintf(DEBUG_PANELCONTAINERS) ("TopWidget::closeEvent() entered.\n");
+// printf("TopWidget::closeEvent() entered.\n");
 
   if( panelContainer && panelContainer->getMasterPC() )
   {
+    // before you remove the panels notify everyone that they'r going away.
+    ClosingDownObject *cdo = new ClosingDownObject();
+    panelContainer->notifyAllDecendants((char *)cdo, panelContainer);
+// printf("TopWidget::closeEvent() you actually removed %s:%s\n", panelContainer->getInternalName(), panelContainer->getExternalName() );
     panelContainer->getMasterPC()->removePanelContainer(panelContainer);
   }
 

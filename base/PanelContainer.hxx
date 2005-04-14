@@ -124,9 +124,17 @@ class PanelContainer : public QWidget
     //! Destroys the object and frees any allocated resources
     ~PanelContainer();
 
+    //! A flag to easily tell if this is a topLevel Outside PanelContainer.
+    /*! This is true if the panel is a topLevel PanelContainer
+        and if it's outside the MainWindow
+        A outsidePC is parented to the desktop.
+     */
+    bool outsidePC;
+                  
     //! A flag to easily tell if this is a topLevel PanelContainer.
     /*! This is true if the panel is a topLevel PanelContainer.
-        A topLevel PanelContainer is parented to the desktop.
+        A topLevel indicates the it's inside a panel as a container
+        by itself (with optional child panel containers (and panels)).
      */
     bool topLevel;
                   
