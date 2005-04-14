@@ -439,13 +439,13 @@ metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Cumulative %"), FLO
     }
 
     // How many rows should we display?
-    int numberItemsToRead = -1;
+    int numberItemsToDisplay = -1;
     if( !getPreferenceTopNLineEdit().isEmpty() )
     {
-      numberItemsToRead = getPreferenceTopNLineEdit().toInt(&ok);
+      numberItemsToDisplay = getPreferenceTopNLineEdit().toInt(&ok);
       if( !ok )
       {
-        numberItemsToRead = 5; // Default to top5.
+        numberItemsToDisplay = 5; // Default to top5.
       }
    }
 
@@ -455,32 +455,34 @@ metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Cumulative %"), FLO
     double TotalTime = Get_Total_Time();
 
     char cputimestr[50];
-char a_percent_str[50];
-a_percent_str[0] = '\0';
-char c_percent_str[50];
+    char a_percent_str[50];
+    a_percent_str[0] = '\0';
+    char c_percent_str[50];
     // convert time to %
     double percent_factor = 100.0 / TotalTime;
-double a_percent = 0; // accumulated percent
-double c_percent = 0.0;
+    double a_percent = 0; // accumulated percent
+    double c_percent = 0.0;
+
     for(std::map<Function, double>::const_iterator
             it = orig_data->begin(); it != orig_data->end(); ++it)
     {
-c_percent = it->second*percent_factor;  // current item's percent of total time
+      c_percent = it->second*percent_factor;  // current item's percent of total time
       sprintf(cputimestr, "%f", it->second);
       sprintf(a_percent_str, "%f", c_percent);
       sprintf(c_percent_str, "%f", a_percent);
-//      lvi =  new SPListViewItem( this, lv, cputimestr,  it->first.getName().c_str() );
       lvi =  new SPListViewItem( this, lv, cputimestr,  a_percent_str, c_percent_str, it->first.getName().c_str() );
 
-      if(numberItemsToRead >= 0 )
+#ifdef OLDWAY
+      if(numberItemsToDisplay >= 0 )
       {
-        numberItemsToRead--;
-        if( numberItemsToRead == 0)
+        numberItemsToDisplay--;
+        if( numberItemsToDisplay == 0)
         {
           // That's all the user requested...
           break;  
         }
       }
+#endif // OLDWAY
     }
     
     lv->sort();
