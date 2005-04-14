@@ -1211,15 +1211,22 @@ void Default_TLI_Line_Output (InputLineObject *clip) {
 
 void Default_TLI_Command_Output (CommandObject *C) {
   if (!(C->Results_Used())) {
-    FILE *outfile = (ttyout != NULL) ? ttyout : stdout;
+    if (C->Status() != CMD_ABORTED) {
+      FILE *outfile = (C->Status() == CMD_ERROR) ? stderr : stdout;
+      if ((ttyout != NULL)  &&
+          isatty(fileno(outfile))) {
+        outfile = ttyout;
+      }
 
-   // Print the ResultdObject list
-    C->Print_Results (outfile, "\n", "\n");
-    C->set_Results_Used (); // Everything is where it belongs.
-    if (ttyout != NULL) {
-     // Re-issue the prompt
-      SS_Issue_Prompt (ttyout);
+     // Print the ResultdObject list
+      if (C->Print_Results (outfile, "\n", "\n") &&
+          (ttyout != NULL) &&
+          (ttyout == outfile)) {
+       // Re-issue the prompt
+        SS_Issue_Prompt (ttyout);
+      }
     }
+    C->set_Results_Used (); // Everything is where it belongs.
   }
 }
 
