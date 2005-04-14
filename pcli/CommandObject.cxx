@@ -71,17 +71,21 @@ void CommandObject::Print (FILE *TFile) {
 }
 
 // For printing the results to an Xterm Window.
-void CommandObject::Print_Results (FILE *TFile, std::string list_seperator, std::string termination_char) {
+bool CommandObject::Print_Results (FILE *TFile, std::string list_seperator, std::string termination_char) {
  // Print only the result information
   std::list<CommandResult *> cmd_result = Result_List();
   std::list<CommandResult *>::iterator cri = cmd_result.begin();
-  if ((cri != cmd_result.end()) &&
-       (((*cri)->Type() == CMD_RESULT_COLUMN_HEADER) ||
-         (++cri != cmd_result.end()))) fprintf(TFile,"\n");
-  int cnt = 0;
-  for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++) {
-    if (cnt++ > 0) fprintf(TFile,"%s",list_seperator.c_str());
-    (*cri)->Print (TFile);
+  if  (cri != cmd_result.end()) {
+    if (((*cri)->Type() == CMD_RESULT_COLUMN_HEADER) ||
+         (++cri != cmd_result.end())) fprintf(TFile,"\n");
+    int cnt = 0;
+    for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++) {
+      if (cnt++ > 0) fprintf(TFile,"%s",list_seperator.c_str());
+      (*cri)->Print (TFile);
+    }
+    fprintf(TFile,"%s",termination_char.c_str());
+    return true;
+  } else {
+    return false;
   }
-  fprintf(TFile,"%s",termination_char.c_str());
 }
