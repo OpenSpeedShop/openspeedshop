@@ -40,6 +40,7 @@
 #include <dpcl.h>
 #include <ltdl.h>
 #include <sstream>
+#include <stdlib.h>
 
 
 
@@ -214,7 +215,9 @@ std::string Process::formUniqueName(const std::string& host, const pid_t& pid)
  *          created for any reason (host doesn't exist, specified command
  *          couldn't be found, etc.)
  *
- * @todo    Should probably try to find a full pathname for argv[0].
+ * @todo    Need to research a better way to handle creating commands that
+ *          will support quoted strings, evaluations, I/O redirection, etc.
+ *          Looking into what gdb does might be one avenue of research.
  *
  * @param host       Name of host on which to execute the command.
  * @param command    Command to be executed.
@@ -252,22 +255,21 @@ Process::Process(const std::string& host, const std::string& command) :
     Assert(dm_process != NULL);
     
     // Extract individual arguments from the command
-    std::vector<std::string> args;    
-    for(std::string::size_type
-	    i = 0, next = 0; i != std::string::npos; i = next) {
-	
-	// Find the next space character in the command
-	next = command.find(' ', i);
+    std::vector<std::string> args;
+    for(std::string::size_type 
+	    i = command.find_first_not_of(' ', 0), next = command.find(' ', i);
+	i != std::string::npos;
+	i = command.find_first_not_of(' ', next), next = command.find(' ', i)) {
 	
 	// Extract this argument
 	args.push_back(
 	    command.substr(i, (next == std::string::npos) ? next : next - i)
 	    );
 	
-	// Find the next non-space character in the command
-	next = command.find_first_not_of(' ', next);	
-	
     }
+
+    // Search for executable and replace with its full, normalized, path
+    args[0] = searchForExecutable(args[0]);
     
     // Translate the arguments into an argv-style argument list
     const char** argv = new const char*[args.size() + 1];
@@ -1162,6 +1164,58 @@ void Process::execute(const std::string& library,
 }
 
 
+
+/**
+ * Search for an executable.
+ *
+ * Returns the full, normalized, path name of the specified executable. This is
+ * accomplished by using the current path of the tool's environment to search
+ * for an executable. If the specified executable already has an absolyte path,
+ * or if an executable cannot be found, the originally specified path is
+ * returned unchanged.
+ *
+ * @param executable   Executable to be found.
+ * @return             Full, normalized, path of the executable if found, or
+ *                     the original executable name if not.
+ */
+Path Process::searchForExecutable(const Path& executable)
+{
+    // Return path unchanged if it is an absolute path
+    if(executable.isAbsolute())
+	return executable;
+
+    // Return normalized path if it is an executable
+    if(executable.getNormalized().isExecutable())
+	return executable.getNormalized();
+    
+    // Get the binary search path
+    if(getenv("PATH") != NULL) {
+	std::string path = getenv("PATH");
+	
+	// Iterate over individual directories in the search path
+	for(std::string::size_type 
+		i = path.find_first_not_of(':', 0), next = path.find(':', i);
+	    i != std::string::npos;
+	    i = path.find_first_not_of(':', next), next = path.find(':', i)) {
+	    
+	    // Extract this directory
+	    Path directory = 
+		path.substr(i, (next == std::string::npos) ? next : next - i);
+	    
+	    // Assmeble the candidate and check if it is an executable
+	    Path candidate = (directory + executable).getNormalized();
+	    if(candidate.isExecutable())
+		return candidate;
+	    
+	}
+	
+    }
+    
+    // Otherwise return the path unchanged
+    return executable;
+}
+    
+    
 
 /**
  * Initialize messaging.

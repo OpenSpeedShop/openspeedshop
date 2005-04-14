@@ -18,7 +18,7 @@
 
 /** @file
  *
- * Declaration and definition of the Path class.
+ * Declaration of the Path class.
  *
  */
 
@@ -29,13 +29,7 @@
 #include "config.h"
 #endif
 
-#include "Assert.hxx"
-
-#include <errno.h>
 #include <string>
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
 
 
 
@@ -45,7 +39,7 @@ namespace OpenSpeedShop { namespace Framework {
      * Directory or file path.
      *
      * Stores a file system directory or file path. Encapsulates many common
-     * path operations that would otherwise be cubersome using straight STL
+     * path operations that would otherwise be cumbersome using straight STL
      * strings.
      *
      * @note    This class inherits from std::string which is considered a
@@ -56,8 +50,8 @@ namespace OpenSpeedShop { namespace Framework {
      *
      * @ingroup Utility
      *
-     * @todo    Probably need improvements here in the portability of using the
-     *          stat() function.
+     * @todo    Probably need some improvements in the portability of this
+     *          class' use of the stat() function.
      */
     class Path :
 	public std::string
@@ -65,116 +59,29 @@ namespace OpenSpeedShop { namespace Framework {
 	
     public:
 
-	/** Default constructor. */
-	Path() :
-	    std::string("")
-	{
-	}
+	Path();
+	Path(const std::string&);
+	Path(const char*);
 
-	/** Constructor from a std::string. */
-	Path(const std::string& path) :
-	    std::string(path)
-	{
-	}
+	Path& operator+=(const Path&);
+	Path operator+(const Path&);
 
-	/** Constructor from a C character array. */
-	Path(const char* path) :
-	    std::string(path)
-	{
-	}
+	bool doesExist() const;
 
-	/* Operator "+=" defined for two Path objects. */
-	Path& operator+=(const Path& rhs)
-	{
-	    if((*(this->rbegin()) != '/') && (*(rhs.begin()) != '/'))
-		this->append("/");
-	    this->append(rhs);
-	    return *this;
-	}
-
-	/** Operator "+" defined in terms of "+=". */
-	Path operator+(const Path& rhs)
-	{
-	    return Path(*this) += rhs;
-	}
+	bool isAbsolute() const;
+	bool isDirectory() const;
+	bool isFile() const;
+	bool isExecutable() const;
 	
-	/** Test if path exists. */
-	bool doesExist() const
-	{
-	    struct stat status;
-	    if(stat(c_str(), &status) == -1) {
-		Assert(errno == ENOENT);
-		return false;
-	    }
-	    return true;
-	}
+	Path getDirName() const;
+	Path getBaseName() const;
+	Path getNormalized() const;
 
-	/** Test if this path is absolute. */
-	bool isAbsolute() const
-	{
-	    return find('/') == 0;
-	}
-
-	/** Test if this path is a directory. */
-	bool isDirectory() const
-        {
-	    struct stat status;
-	    if(stat(c_str(), &status) == -1) {
-		Assert(errno == ENOENT);
-		return false;
-	    }
-	    return S_ISDIR(status.st_mode);
-	}
-
-	/** Test if this path is a regular file. */
-	bool isFile() const
-	{
-	    struct stat status;
-	    if(stat(c_str(), &status) == -1) {
-		Assert(errno == ENOENT);
-		return false;
-	    }	    
-	    return S_ISREG(status.st_mode);
-	}
-
-	/** Obtain directory name portion of this path. */
-	Path getDirName() const
-	{
-	    size_type pos = rfind('/');
-	    return (pos != npos) ?
-		std::string(*this, 0, pos + 1) :
-		std::string(".");
-	}
-
-	/** Obtain base name portion of this path. */
-	Path getBaseName() const
-	{
-	    size_type pos = rfind('/');
-	    return (pos != npos) ?
-		std::string(*this, pos + 1) :
-		std::string(*this);
-	}
-
-	/** Obtain this path with the first path component removed. */
-	Path removeFirst() const
-	{
-	    size_type pos = find('/', 1);
-	    return (pos != npos) ?
-		std::string(*this, pos + 1) :
-		"";	
-	}
-
-	/** Obtain this path with last path component removed. */
-	Path removeLast() const
-	{
-	    size_type pos = rfind('/');
-	    return (pos != npos) ?
-		std::string(*this, 0, pos) :
-		"";
-	}
-
+	Path removeFirst() const;
+	Path removeLast() const;
+	
     };
-
+    
 } }
 
 

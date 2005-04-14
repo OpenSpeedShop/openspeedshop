@@ -96,6 +96,8 @@ namespace OpenSpeedShop { namespace Framework {
 	void execute(const std::string&, const std::string&, const Blob&);
 
     private:
+	
+	static Path searchForExecutable(const Path&);
 
 	/** DPCL process handle. */
 	::Process* dm_process;

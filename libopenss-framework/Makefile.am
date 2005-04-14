@@ -59,7 +59,7 @@ libopenss_framework_la_SOURCES = \
 	Lockable.hxx \
 	Metadata.hxx \
 	NonCopyable.hxx \
-	Path.hxx \
+	Path.hxx Path.cxx \
 	Queries.hxx Queries.cxx \
 	SmartPtr.hxx \
 	Statement.hxx Statement.cxx \
