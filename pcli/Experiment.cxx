@@ -667,31 +667,15 @@ bool SS_expDetach (CommandObject *cmd) {
 
 static bool Disable_Experiment (CommandObject *cmd, ExperimentObject *exp) {
   
- // Determine target and collectors and break the link between them.
-  return Process_expTypes (cmd, exp, &Detach_Command );
-
- // Turn off all of the collectors
-  CollectorGroup cgrp;
+ // Determine target and collectors and turn off data collection.
   try {
-    cgrp = exp->FW()->getCollectors();
+    CollectorGroup cgrp = exp->FW()->getCollectors();
+    ThreadGroup tgrp = exp->FW()->getThreads();
+    cgrp.postponeCollecting(tgrp);
   }
   catch(const Exception& error) {
     Mark_Cmd_With_Std_Error (cmd, error);
     return false;
-  }
-
-  CollectorGroup::iterator ci = cgrp.begin();
-  for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
-    Collector c = *ci;
-    try {
-/* TEST
-      c.stopCollecting();
-TEST */
-    }
-    catch(const Exception& error) {
-     // We are ignoring any errors so that all collectors are processed.
-      continue;
-    }
   }
 
   return true;
@@ -724,33 +708,18 @@ bool SS_expDisable (CommandObject *cmd) {
 
 static bool Enable_Experiment (CommandObject *cmd, ExperimentObject *exp) {
 
- // Determine target and collectors and link them together.
-  return true;
-  return Process_expTypes (cmd, exp, &Attach_Command );
-
- // Activate all of the collectors
-  CollectorGroup cgrp;
+ // Determine target and collectors and turn on data collection.
   try {
-    cgrp = exp->FW()->getCollectors();
+    CollectorGroup cgrp = exp->FW()->getCollectors();
+    ThreadGroup tgrp = exp->FW()->getThreads();
+    cgrp.startCollecting(tgrp);
   }
   catch(const Exception& error) {
     Mark_Cmd_With_Std_Error (cmd, error);
     return false;
   }
 
-  CollectorGroup::iterator ci = cgrp.begin();
-  for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
-    Collector c = *ci;
-    try {
-/* TEST
-      c.startCollecting();
-TEST */
-    }
-    catch(const Exception& error) {
-      continue;
-    }
-  }
-
+  return true;
 }
 
 bool SS_expEnable (CommandObject *cmd) {
@@ -985,25 +954,26 @@ bool SS_expRestore (CommandObject *cmd) {
 
  // Create a new experiment and connect it to the saved data base.
   ExperimentObject *exp = new ExperimentObject (data_base_name);
-  EXPID ExperimentID = 0;
-
-  if (exp != NULL) {
-   // Pick up the ID for an allocated experiment.
-    ExperimentID = exp->ExperimentObject_ID();
-  }
-
- // Return the EXPID for this command.
-  if (ExperimentID > 0) {
-   // When we allocate a new experiment, set the focus to point to it.
-    (void)Experiment_Focus (WindowID, ExperimentID);
-    cmd->Result_Int (ExperimentID);
-    cmd->set_Status(CMD_COMPLETE);
-    return true;
-  } else {
+  if (exp == NULL) {
     cmd->Result_String ("The specified file name is not a legal data base.");
     cmd->set_Status(CMD_ERROR);
     return false;
   }
+
+ // Pick up the ID for an allocated experiment.
+  EXPID ExperimentID = exp->ExperimentObject_ID();
+  Assert (ExperimentID > 0);
+
+ // Attempt to reattach to the executable and insert instrumentation.
+  (void)Enable_Experiment (cmd, exp);
+
+ // When we allocate a new experiment, set the focus to point to it.
+  (void)Experiment_Focus (WindowID, ExperimentID);
+
+ // Return the EXPID for this command.
+  cmd->Result_Int (ExperimentID);
+  cmd->set_Status(CMD_COMPLETE);
+  return true;
 }
 
 bool SS_expSave (CommandObject *cmd) {
