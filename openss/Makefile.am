@@ -16,44 +16,25 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-TEST_SUBDIRS = tests/fw/database \
-		tests/fw/interval \
-		tests/pcli/parse_target \
-		tests/pcli/parse_result
+# this is needed to pickup the openss script for the make dist target
+bin_PROGRAMS = openspeedshop
 
-DIST_TEST_SUBDIRS = tests/fw/database/* \
-        tests/fw/interval/* \
-        tests/pcli/parse_target/* \
-        tests/pcli/parse_result/*
+bin_SCRIPTS = openss
+# without a rule to build openss (likely from openss.sh for bin_SCRIPTS)
+# we need to add openss to EXTRA_DIST to include it in the tarball
+EXTRA_DIST = openss
 
-SUBDIRS = . \
-	libltdl \
-	libopenss-framework \
-	plugins \
-	openss \
-	pcli \
-	examples \
-	base \
-	objects \
-	dialogs \
-	expr_info \
-	plugin \
-	chart \
-	gui \
-	Panels \
-	usability
+openspeedshop_CFLAGS = \
+	-DPLUGIN_PATH=\"$(pkglibdir)\"
 
-DIST_SUBDIRS = $(SUBDIRS)
-# need the images files and the tests files in tarball.
-EXTRA_DIST = images/* $(DIST_TEST_SUBDIRS)
+openspeedshop_LDADD = \
+	-lc $(LIBLTDL)
 
-openspeedshop_la_CXXFLAGS = -I/usr/include -I.
+openspeedshop_LDFLAGS = \
+	--export-dynamic --export-all-symbols -avoid-version
 
-tests: $(TEST_SUBDIRS)
-
-DOC_SUBDIRS = \
-	libopenss-framework \
-	Panels pcli openspeedshop base chart gui plugin objects dialogs
+openspeedshop_SOURCES = \
+	openspeedshop.c
 
 doc: $(DOC_SUBDIRS) 
 	-doxygen Doxyfile
