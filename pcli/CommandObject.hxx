@@ -252,7 +252,11 @@ public:
     return CMD_Result;
   }
 
- // defined in CommandObject.cxx
+ // The following are defined in CommandObject.cxx
+
+ // The simple Print is for dumping information to a trace file.
   void Print (FILE *TFile);
-  void Print_Results (FILE *TFile, std::string list_seperator, std::string termination_char);
+ // The Print_Results routine is for sending results to the user.
+ // The result returned is "true" if there was information printed.
+  bool Print_Results (FILE *TFile, std::string list_seperator, std::string termination_char);
 };
