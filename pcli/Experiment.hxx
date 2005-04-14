@@ -38,8 +38,6 @@ class ExperimentObject
   bool Data_File_Has_A_Generated_Name;
   OpenSpeedShop::Framework::Experiment *FW_Experiment;
 
-  std::string Suspended_Data_File_Name;
-
  public:
   ExperimentObject (std::string data_base_name = std::string("")) {
     Exp_ID = ++Experiment_Sequence_Number;
@@ -106,7 +104,7 @@ class ExperimentObject
   bool Data_Base_Is_Tmp () {return Data_File_Has_A_Generated_Name;}
   std::string Data_Base_Name () {
     if (FW() == NULL) {
-      return Suspended_Data_File_Name;
+      return "";
     } else {
       try {
         return FW()->getName();
@@ -163,36 +161,12 @@ class ExperimentObject
   }
 
   void setStatus (int S) {ExpStatus = S;}
-  void ReStart () {
-    if (ExpStatus == ExpStatus_Suspended) {
-      try {
-        FW_Experiment = new OpenSpeedShop::Framework::Experiment (Suspended_Data_File_Name);
-        Determine_Status();
-      }
-      catch(const Exception& error) {
-       // Don't really care why.
-       // The calling routine will figure out what to do.
-        Exp_ID = 0;
-        setStatus (ExpStatus_InError);
-        Data_File_Has_A_Generated_Name = false;  // Save for later analysis
-        FW_Experiment = NULL;
-      }
-    }
-  }
-  void Suspend () {
-    if (FW_Experiment != NULL) {
-      setStatus (ExpStatus_Suspended);
-      Suspended_Data_File_Name = FW_Experiment->getName();
-      delete FW_Experiment;
-      FW_Experiment = NULL;
-    }
-  }
 
   bool RenameDB (std::string New_DB) {
    // Determine the old DataBase Name.
     std::string Old_DB;
     if (Status() == ExpStatus_Suspended) {
-      Old_DB = Suspended_Data_File_Name;
+      return false;
     } else {
       Old_DB = FW_Experiment->getName();
     }
@@ -206,19 +180,15 @@ class ExperimentObject
     free (scmd);
     if (ret == 0) {
      // Success!
-      if (Status() == ExpStatus_Suspended) {
-        Suspended_Data_File_Name = New_DB;
-      } else {
-        try {
-          delete FW_Experiment;  // Get rid of the old experiment
-          FW_Experiment = new OpenSpeedShop::Framework::Experiment (New_DB);
-          Data_File_Has_A_Generated_Name = false;
-        }
-        catch(const Exception& error) {
-         // Don't really care why.
-         // Signal an error to calling routine.
-          ret = -1;
-        }
+      try {
+        delete FW_Experiment;  // Get rid of the old experiment
+        FW_Experiment = new OpenSpeedShop::Framework::Experiment (New_DB);
+        Data_File_Has_A_Generated_Name = false;
+      }
+      catch(const Exception& error) {
+       // Don't really care why.
+       // Signal an error to calling routine.
+        ret = -1;
       }
     }
     return (ret == 0);  // "0" indicates succcess!
@@ -228,7 +198,7 @@ class ExperimentObject
    // Determine the old DataBase Name.
     std::string Old_DB;
     if (Status() == ExpStatus_Suspended) {
-      Old_DB = Suspended_Data_File_Name;
+      return false;
     } else {
       Old_DB = FW_Experiment->getName();
     }
@@ -256,8 +226,7 @@ class ExperimentObject
 
   void Print(FILE *TFile)
     { fprintf(TFile,"Experiment %lld %s data->%s\n",ExperimentObject_ID(), ExpStatus_Name().c_str(),
-              (FW_Experiment != NULL) ? FW_Experiment->getName().c_str() :
-                 (ExpStatus == ExpStatus_Suspended) ? Suspended_Data_File_Name.c_str() : "(null)");
+              (FW_Experiment != NULL) ? FW_Experiment->getName().c_str() : "(null)");
       if (FW_Experiment != NULL) {
         ThreadGroup tgrp = FW_Experiment->getThreads();
         ThreadGroup::iterator ti;
