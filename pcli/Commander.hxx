@@ -98,10 +98,7 @@ InputLineObject *SpeedShop_ReadLine (int is_more);
 extern InputLineObject *Current_ILO;
 extern CommandObject   *Current_CO;
 
-// Attach a new input source that will be read AFTER all the previous ones
-bool Append_Input_File (CMDWID issuedbywindow, std::string fromfname,
-                                      void (*CallBackLine) (InputLineObject *b) = NULL,
-                                      void (*CallBackCmd) (CommandObject *b) = NULL);
+// Attach a new input source line that will be read AFTER all the previous ones
 InputLineObject *Append_Input_String (CMDWID issuedbywindow, char *b_ptr,
                                       void *LocalCmdId = NULL,
                                       void (*CallBackLine) (InputLineObject *b) = NULL,
