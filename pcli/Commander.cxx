@@ -102,7 +102,7 @@ class Input_Source
       Predefined = false;
       Fp = fopen (my_name.c_str(), "r");
       if (Fp == NULL) {
-        fprintf(stderr,"ERROR: Unable to open alternate command file %s\n",my_name.c_str());
+       // Calling routines must use InFileError() to check for error.
       }
     } else {
       Predefined = true;
@@ -175,6 +175,7 @@ class Input_Source
   void Link (Input_Source *inp) { Next_Source = inp; }
   Input_Source *Next () { return Next_Source; }
   InputLineObject *InObj () { return Input_Object; }
+  bool InFileError () { return (Fp == NULL); }
 
   char *Get_Next_Line () {
     if (Next_Line_At >= Last_Valid_Data) {
@@ -187,7 +188,9 @@ class Input_Source
       Last_Valid_Data = 0;
       fgets (&Buffer[0], Buffer_Size, Fp);
       if (Buffer[Buffer_Size-1] != (char)0) {
-        fprintf(stderr,"ERROR: Input line from %s is too long for buffer.\n",Name.c_str());
+        FILE *ef = ((ttyout != NULL)  && isatty(fileno(stderr))) ? ttyout : stderr;
+        fprintf(ef,"ERROR: Input line from %s is too long for buffer.\n",Name.c_str());
+        if (ttyout == ef) SS_Issue_Prompt (ttyout);
         return NULL;
       }
       Last_Valid_Data = strlen(&Buffer[0]);
@@ -209,7 +212,7 @@ class Input_Source
     return next_line;
   }
 
-  void Set_Record ( std::string tofname) {
+  bool Set_Record ( std::string tofname) {
     if (Record_F && !Record_To_A_Predefined_File) {
       fclose (Record_F);
     }
@@ -219,6 +222,7 @@ class Input_Source
     Record_To_A_Predefined_File = is_predefined;
     Record_Name = tofname;
     Record_F = tof;
+    return (tof != NULL);
   }
   void Remove_Record () {
     if (Record_F && !Record_To_A_Predefined_File) {
@@ -298,9 +302,9 @@ class CommandWindowID
   // Constructor & Destructor
  public:
   CommandWindowID () {
-   // Disallow default constructor
-    fprintf(stderr,"ERROR: Illegal use of default CommandWindowID Constructor\n");
-    Assert (0);
+   // Disallow default constructor.
+   // It can not be private because of inheritance.
+   Assert(0);
   }
 
  public:
@@ -590,9 +594,9 @@ public:
 
  // The "Record" command will causes us to echo statements that
  // come from a particular input stream to a user defined file.
-  void   Set_Record_File ( std::string tofname ) {
+  bool Set_Record_File ( std::string tofname ) {
     if (Input) {
-      Input->Set_Record ( tofname );
+      return (Input->Set_Record ( tofname ));
     } else {
       if (Record_F && !Record_File_Is_A_Temporary_File) {
         fclose (Record_F);
@@ -603,6 +607,7 @@ public:
       Record_File_Is_A_Temporary_File = is_predefined;
       Record_File_Name = tofname;
       Record_F = tof; 
+      return (tof != NULL);
     }
   }
   void   Remove_Record_File () {
@@ -862,18 +867,16 @@ void List_CommandWindows ( FILE *TFile )
   }
 }
 
-static void Read_Log_File_History (CommandObject *cmd, enum Log_Entry_Type log_type,
+static bool Read_Log_File_History (CommandObject *cmd, enum Log_Entry_Type log_type,
                                    std::string fname, FILE *TFile)
 {
   FILE *cmdf = fopen (fname.c_str(), "r");
   struct stat stat_buf;
   if (!cmdf) {
-    fprintf(stderr,"ERROR: Unable to read from the log file %s\n",fname.c_str());
-    return;
+    return false;
   }
   if (stat (fname.c_str(), &stat_buf) != 0) {
-    fprintf(stderr,"ERROR: Unable to perform fstat command on %s\n",fname.c_str());
-    return;
+    return false;
   }
   char *s = (char *)malloc(stat_buf.st_size+1);
   for (int i=0; i < stat_buf.st_size; ) {
@@ -918,7 +921,7 @@ static void Read_Log_File_History (CommandObject *cmd, enum Log_Entry_Type log_t
           break;
       }
       if (dump_this_record) {
-        if (cmd != NULL) {
+        if (TFile == NULL) {
           *(s+len-1) = *("\0");
           cmd->Result_String (t);
         } else {
@@ -931,22 +934,28 @@ static void Read_Log_File_History (CommandObject *cmd, enum Log_Entry_Type log_t
   }
   free (s);
   fclose (cmdf);
+  return true;
 }
 
 // Read the log files and echo selected entries to another file.
 bool Command_History (CommandObject *cmd, enum Log_Entry_Type log_type,
                       CMDWID cmdwinid, std::string tofname)
 {
+  bool cmd_good = true;
   FILE *tof = predefined_filename( tofname );
   bool tof_predefined = (tof != NULL);
   if (tof == NULL) {
     if (tofname.length() != 0) {
       tof = fopen (tofname.c_str(), "a");
     }
+    if (tof == NULL) {
+      cmd->Result_String ("Could not open output file " + tofname);
+      return false;
+    }
   }
-  if (tof == NULL) {
-    tof = stderr;
-    tof_predefined = true;
+  if (isatty(fileno(tof))) {
+   // If printing to the Xterm window, return data through the CommandObject.
+    tof = NULL;
   }
 
   std::list<CommandWindowID *>::reverse_iterator cwi;
@@ -957,35 +966,24 @@ bool Command_History (CommandObject *cmd, enum Log_Entry_Type log_type,
       std::string cmwtrn = (*cwi)->Log_Name();
       FILE *cmwtrf = (*cwi)->Log_File();
       if (!cmwtrf) {
-        char *S;
-        sprintf(S,"ERROR: missing history file %s\n",cmwtrn.c_str());
-        if (cmd != NULL) {
-          cmd->Result_String (S);
-        } else {
-          fprintf(tof,"%s\n",S);
-        }
-        return false;
+        cmd->Result_String ("Missing history file " + cmwtrn);
+        cmd_good = false;
+      } else if (fflush (cmwtrf)) {
+        cmd->Result_String ("Could not flush log file " + cmwtrn);
+        cmd_good = false;
+      } else if (!Read_Log_File_History (cmd, log_type, cmwtrn, tof)) {
+        cmd->Result_String ("Could not flush log file " + cmwtrn);
+        cmd_good = false;
       }
-      if (fflush (cmwtrf)) {
-        char *S;
-        sprintf(S,"ERROR: can not flush log file %s\n",cmwtrn.c_str());
-        if (cmd != NULL) {
-          cmd->Result_String (S);
-        } else {
-          fprintf(tof,"%s\n",S);
-        }
-        return false;
-      }
-      Read_Log_File_History (cmd, log_type, cmwtrn, tof);
     }
   }
-  if (tof) {
+  if (tof != NULL) {
     fflush(tof);
     if (!tof_predefined) {
       fclose (tof);
     }
   }
-  return true;
+  return cmd_good;
 }
 
 // Set up an alternative log file at user request.
@@ -1005,8 +1003,7 @@ bool Command_Log_OFF (CMDWID WindowID)
 bool Command_Record_ON (CMDWID WindowID, std::string tofname)
 {
   CommandWindowID *cmdw = Find_Command_Window (WindowID);
-  cmdw->Set_Record_File (tofname);
-  return true;
+  return (cmdw->Set_Record_File (tofname));
 }
 
 bool Command_Record_OFF (CMDWID WindowID)
@@ -1090,7 +1087,7 @@ static bool Isa_SS_Command (CMDWID issuedbywindow, const char *b_ptr) {
     fprintf(stdout,"SpeedShop Status:\n");
     CommandWindowID *cw = Find_Command_Window (issuedbywindow);
     if ((cw == NULL) || (cw->ID() == 0)) {
-      fprintf(stderr,"    ERROR: the window(%lld) this command came from is illegal\n",issuedbywindow);
+      fprintf(stdout,"    ERROR: the window(%lld) this command came from is illegal\n",issuedbywindow);
       Fatal_Error_Encountered = true;
     }
     fprintf(stdout,"  %s Waiting for Async input\n",Looking_for_Async_Inputs?" ":"Not");
@@ -1106,7 +1103,8 @@ static bool Isa_SS_Command (CMDWID issuedbywindow, const char *b_ptr) {
       }
     }
     List_CommandWindows(stdout);
-    ExperimentObject *a; a->Dump(stdout);
+    // ExperimentObject *a; a->Dump(stdout);
+    ExperimentObject::Dump(stdout);
     Assert(!Fatal_Error_Encountered);
     return false;
   } else if (b_ptr[fc] == *("!")) {
@@ -1174,6 +1172,9 @@ bool Append_Input_File (CMDWID issuedbywindow, std::string fromfname,
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
   Assert (cw);
   Input_Source *inp = new Input_Source (fromfname);
+  if (inp->InFileError()) {
+    return FALSE;
+  }
   inp->Set_CallBackL (CallBackLine);
   inp->Set_CallBackC (CallBackCmd);
   cw->Append_Input_Source (inp);
@@ -1194,6 +1195,9 @@ bool Push_Input_File (CMDWID issuedbywindow, std::string fromfname,
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
   Assert (cw);
   Input_Source *inp = new Input_Source (fromfname);
+  if (inp->InFileError()) {
+    return false;
+  }
   inp->Set_CallBackL (CallBackLine);
   inp->Set_CallBackC (CallBackCmd);
   cw->Push_Input_Source (inp);
@@ -1247,8 +1251,8 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
     Buffer[0] == *("\0");
     char *read_result = fgets (&Buffer[0], Buffer_Size, ttyin);
     if (Buffer[Buffer_Size-1] != (char)0) {
-      fprintf(stderr,"ERROR: Input line from stdin is too long for buffer.\n");
-      exit (0); // terminate the thread
+      fprintf(ttyout,"ERROR: Input line is too long for buffer.\n");
+      continue; // Don't terminate the thread - allow user to retry.
     }
     if (read_result == NULL) {
      // This indicates an EOF or error
@@ -1314,8 +1318,10 @@ window_found:
 
 static void There_Must_Be_More_Input (CommandWindowID *cw) {
   if ((cw == NULL) || (!cw->Input_Available())) {
-    fprintf(stderr,"ERROR: The input source that started a complex statement"
+    FILE *ef = ((ttyout != NULL)  && isatty(fileno(stderr))) ? ttyout : stderr;
+    fprintf(ef,"ERROR: The input source that started a complex statement"
                    " failed to complete the expression.\n");
+    fflush (ef);
     Assert (cw->Input_Available());
   }
 }
