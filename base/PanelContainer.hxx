@@ -206,6 +206,9 @@ PanelList *getPanelListByID(int id);
     //! Raise the panel.
     Panel *raisePanel(Panel *p);
 
+//! Percolate the panel to the top, even if it's buried.
+Panel *raiseToTop(Panel *p);
+
     //! This is the parent for drop site layout.
     /*! This goes into the PanelContainer's left side */
     QWidget *dropSiteLayoutParent; 

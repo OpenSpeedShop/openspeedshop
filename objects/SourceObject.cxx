@@ -40,12 +40,13 @@ SourceObject::SourceObject() : MessageObject("SourceObject")
 /*! Constructor for the SourceObject.   Initializes the filename to load, 
     the line to center in the SourcePanel, flags if the SourcePanel should
     be raised, and passes a list of lines to highlight. */
-SourceObject::SourceObject(QString _functionName, QString _fileName, int l, bool rF, HighlightList *hll) : MessageObject("SourceObject")
+SourceObject::SourceObject(QString _functionName, QString _fileName, int l, int gid, bool rF, HighlightList *hll) : MessageObject("SourceObject")
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("SourceObject::SourceObject(entered.\n");
   functionName = _functionName;
   fileName = _fileName;
   line_number = l;
+  group_id = gid;
   raiseFLAG = rF;
   highlightList = hll;
 }
@@ -63,6 +64,7 @@ SourceObject::print()
   printf("	functionName=(%s)\n", functionName.ascii());
   printf("	fileName=(%s)\n", fileName.ascii());
   printf("	line_number=(%d)\n", line_number);
+  printf("	group_id=(%d)\n", group_id);
   printf("	raiseFLAG=(%d)\n", raiseFLAG);
   printf("	highlightList=(0x%x)\n", highlightList);
 }

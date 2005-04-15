@@ -354,6 +354,16 @@ SourcePanel::listener(void *msg)
     {
       return 0;  // 0 means, did not act on message.
     }
+    // If there's a specific group_id that is to be raised,
+    // only raise it....   All other source panels should
+    // ignore this request...
+    if( spo->group_id > 0 )
+    {
+      if( spo->group_id != groupID )
+      {
+        return 0; // 0 means, did not act on message.
+      }
+    }
 
     nprintf(DEBUG_PANELS)  ("load the file spo->fileName=%s\n", spo->fileName.ascii() );
     loadFile(spo->fileName);
@@ -368,21 +378,7 @@ SourcePanel::listener(void *msg)
 
     if( spo->raiseFLAG == TRUE )
     {
-      int i=0;
-      Panel *p = NULL;
-      for( PanelList::Iterator it = getPanelContainer()->panelList.begin();
-               it != getPanelContainer()->panelList.end();
-               ++it )
-      {
-        p = (Panel *)*it;
-        nprintf(DEBUG_PANELS) ("Is this it? (%s)\n", p->getName() );
-        if( p == this )
-        {
-          nprintf(DEBUG_PANELS) ("Set page %d current.\n", i );
-          getPanelContainer()->tabWidget->setCurrentPage(i);
-        }
-        i++;
-      }
+      this->getPanelContainer()->raisePanel(this);
     }
 
     nprintf(DEBUG_PANELS) ("Try to position at line %d\n", spo->line_number);

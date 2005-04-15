@@ -84,5 +84,7 @@ class pcStatsPanel  : public StatsPanelBase
     SmartPtr<std::map<Function, double> > orig_data;
 
     double Get_Total_Time();
+
+    int group_id;
 };
 #endif // PCSTATSPANEL_H

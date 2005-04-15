@@ -1367,6 +1367,7 @@ PanelContainer::addPanel(Panel *p, PanelContainer *panel_container, char *tab_na
 Panel *
 PanelContainer::raiseNamedPanel(char *panel_name)
 {
+// printf("raiseNamedPanel (%s)\n", panel_name );
   // In this panel container... raise the panel with the matching name
   
   int count=0;
@@ -1389,6 +1390,14 @@ PanelContainer::raiseNamedPanel(char *panel_name)
       tabWidget->setCurrentPage(count);
       nprintf(DEBUG_PANELCONTAINERS) ("setCurrentPage(%d)\n", count);
       p->getPanelContainer()->handleSizeEvent(NULL);
+      { // Make sure if this is a nested panel (inside a toplevel, such
+        // as an experiment panel, that the entire heirarchy is raised.
+      Panel *rp = raiseToTop(p);
+      if( rp )
+      {
+        return(rp);
+      }
+      }
       return(p);
     }
     int isHidden = tabWidget->indexOf(p->getBaseWidgetFrame());
@@ -1407,6 +1416,7 @@ Panel *
 PanelContainer::raisePanel(Panel *panel)
 {
   // In this panel container... raise the panel with the matching name
+// printf("raisePanel (%s)\n", panel->getName() );
   
   int count=0;
   Panel *p = NULL;
@@ -1419,18 +1429,6 @@ PanelContainer::raisePanel(Panel *panel)
     {
       nprintf(DEBUG_PANELCONTAINERS) ("raisePanel the panel to raise. count=%d\n", count );
 
-// Begin - try to raise the entire tree.
-/*
-printf("(%s-%s):\n", getInternalName(), getExternalName() );
-PanelContainer *ppc = p->getPanelContainer()->parentPanelContainer;
-while(ppc)
-{
-printf("  (%s-%s):\n", ppc->getInternalName(), ppc->getExternalName() );
-ppc->show();
-ppc = ppc->parentPanelContainer;
-}
-*/
-// End - try to raise the entire tree.
       int indexOf = tabWidget->indexOf(p->getBaseWidgetFrame());
       if( indexOf == -1 )
       {
@@ -1441,6 +1439,15 @@ ppc = ppc->parentPanelContainer;
       nprintf(DEBUG_PANELCONTAINERS) ("setCurrentPage(%d)\n", count);
       tabWidget->setCurrentPage(count);
       p->getPanelContainer()->handleSizeEvent(NULL);
+
+      { // Make sure if this is a nested panel (inside a toplevel, such
+        // as an experiment panel, that the entire heirarchy is raised.
+      Panel *rp = raiseToTop(p);
+      if( rp )
+      {
+        return(rp);
+      }
+      }
       return(p);
     }
     int isHidden = tabWidget->indexOf(p->getBaseWidgetFrame());
@@ -1450,6 +1457,59 @@ ppc = ppc->parentPanelContainer;
     }
   }
 
+  return(NULL);
+}
+
+Panel * PanelContainer::raiseToTop(Panel *p)
+{
+  PanelContainer *pc = p->getPanelContainer();
+//  debugPanelContainerTree();
+  bool found = FALSE;
+  PanelContainer *pcmatch = NULL;
+  Panel *pmatch = NULL;
+  while( pc )
+  {
+//printf("hmm: (%s:%s)\n", pc->getInternalName(), pc->getExternalName() );
+    if( pc->topLevel == TRUE )
+    {
+      //    printf("pc is toplevel.\n");
+      // Look through all the panels, matching "pc" to p->topPC... if we find
+      // a match recursively call this (raisePanel) to continue walking up the
+      // tree.
+      for( PanelContainerList::Iterator itmatch = _masterPanelContainerList->begin();
+               itmatch != _masterPanelContainerList->end();
+               itmatch++ )
+      {
+        pcmatch = (PanelContainer *)*itmatch;
+        for( PanelList::Iterator pitmatch = pcmatch->panelList.begin();
+               pitmatch != pcmatch->panelList.end(); ++pitmatch )
+        {
+           pmatch = (Panel *)*pitmatch;
+           if( pmatch->topPC == pc )
+           {
+//       printf("Can you continue from here???!!\n");
+             found = TRUE;
+             break;
+           }
+        }
+        if( found )
+        {
+          break;
+        }
+      }
+      if( found )
+      {
+        pcmatch->raisePanel(pmatch);
+        return(p);
+      } else
+      {
+        return(p);
+      }
+    } else
+    {
+      pc = pc->parentPanelContainer;
+    }
+  }
   return(NULL);
 }
 
@@ -2727,22 +2787,41 @@ PanelContainer::printPanelContainer(int depth)
   char indent_buffer[1024];
   indent_buffer[0] = '\0';
 
+bool brief = TRUE;
   if( leftPanelContainer && rightPanelContainer )
   {
     indentString(depth,indent_buffer);
+if( brief )
+{
+    printf("%s(%s-%s) o=%d mfd=%s \n",
+       indent_buffer, getInternalName(), getExternalName(),
+       splitter->orientation(), 
+       markedForDelete ? "mfd" : "---" );
+} else 
+{
     printf("0x%x %s(%s-%s) o=%d w=%d h=%d mfd=%s menuEnabled=%d depth=%d\n",
        this,
        indent_buffer, getInternalName(), getExternalName(),
        splitter->orientation(), width(), height(),
        markedForDelete ? "mfd" : "---", menuEnabled, _depth );
+}
   } else if( !leftPanelContainer && !rightPanelContainer )
   {
     indentString(depth,indent_buffer);
+if( brief )
+{
+    printf("%s(%s-%s) o=%d mfd=%s menuEnabled=%d\n",
+      indent_buffer, getInternalName(), getExternalName(),
+      splitter->orientation(), 
+      markedForDelete ? "mfd" : "---", menuEnabled );
+} else
+{
     printf("0x%x %s(%s-%s) o=%d w=%d h=%d mfd=%s menuEnabled=%d depth=%d\n",
       this,
       indent_buffer, getInternalName(), getExternalName(),
       splitter->orientation(), width(), height(),
       markedForDelete ? "mfd" : "---", menuEnabled, _depth );
+}
 #ifdef MORE_INFO_NEEDED
     printf("%s-%s  leftFrame->panelContainer=(%s)\n",  indent_buffer,
       leftFrame->panelContainer ? leftFrame->panelContainer->getInternalName() : "aaack!", leftFrame->panelContainer ? leftFrame->panelContainer->getExternalName() : "aaack!" );

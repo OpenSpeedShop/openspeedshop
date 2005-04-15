@@ -96,6 +96,8 @@ pcStatsPanel::listener(void *msg)
   {
     UpdateObject *msg = (UpdateObject *)msgObject;
     nprintf(DEBUG_MESSAGES) ("pcStatsPanel::listener() UpdateExperimentDataObject!\n");
+
+group_id = msg->expID;
     updateStatsPanelBaseData(msg->fw_expr, msg->expID, msg->experiment_name);
     if( msg->raiseFLAG )
     {
@@ -193,7 +195,7 @@ pcStatsPanel::details()
 void
 pcStatsPanel::exportData()
 {
-  printf("exportData() menu selected.\n");
+//  printf("exportData() menu selected.\n");
   QPtrList<QListViewItem> lst;
   QListViewItemIterator it( lv );
   int cols =  lv->columns();
@@ -325,7 +327,7 @@ pcStatsPanel::matchSelectedItem(std::string selected_function )
     if( definitions.size() > 0 )
     {
       std::set<Statement>::const_iterator di = definitions.begin();
-      spo = new SourceObject(it->first.getName().c_str(), di->getPath(), di->getLine()-1, TRUE, NULL);
+      spo = new SourceObject(it->first.getName().c_str(), di->getPath(), di->getLine()-1, group_id, TRUE, NULL);
     }
 
 
@@ -391,6 +393,8 @@ pcStatsPanel::updateStatsPanelBaseData(void *expr, int expID, QString experiment
     Collector c1 = *ci;
 
     nprintf( DEBUG_PANELS) ("GetMetricByFunctionInThread()\n");
+// printf("Convert this (parameter) to a paramater that is presented in a dynamic view and passed into this pcStatsPanel by the >calling< experiment.\n");
+//printf("Convert this (thread) passed into this pcStatsPanel by the >calling< experiment.\n");
     Queries::GetMetricByFunctionInThread(c1, "time", t1, orig_data);
 
     // Display the results

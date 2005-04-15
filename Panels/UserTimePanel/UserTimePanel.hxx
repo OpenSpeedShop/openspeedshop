@@ -128,8 +128,8 @@ public:
   ManageProcessesDialog *manageProcessesDialog;
   ManageCollectorsDialog *manageCollectorsDialog;
 
-OpenSpeedShop::Framework::Experiment *fw_experiment() { return experiment; }
-
+  OpenSpeedShop::Framework::Experiment *fw_experiment() { return experiment; }
+  
 public slots:
   void saveAsSelected();
   void manageCollectorsAndProcessesSelected();
@@ -162,5 +162,7 @@ private:
   void loadMain();
   GenericProgressDialog *pd;
   int steps;
+
+  bool exitingFLAG;
 };
 #endif // UserTimePanel_H_H

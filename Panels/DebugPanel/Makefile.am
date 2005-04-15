@@ -34,7 +34,7 @@ moc_DebugPanel.cxx: DebugPanel.hxx
 	-moc -o moc_DebugPanel.cxx DebugPanel.hxx
 
 DebugPanel_la_SOURCES = \
-	DebugPanel.hxx DebugPanel.cxx \
+	DebugPanel.hxx DebugPanel.cxx moc_DebugPanel.cxx \
 	local_plugin_info.hxx
 
 clean:

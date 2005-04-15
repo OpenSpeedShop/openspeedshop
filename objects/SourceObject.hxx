@@ -34,7 +34,7 @@ public:
     //! Unused constructor.
     SourceObject();
     //! Constructor for creating source message.
-    SourceObject(QString _functionName, QString _fileName, int l, bool rF=1, HighlightList *hll=NULL);
+    SourceObject(QString _functionName, QString _fileName, int l, int gid = -1, bool rF=1, HighlightList *hll=NULL);
 
     //! Destructor
     ~SourceObject();
@@ -50,6 +50,9 @@ public:
 
     //! The line number to focus.
     int line_number;
+
+    //! Group id
+    int group_id;
 
     //! Flag to determine if the reciever should raise it's panel
     //! when handling this message.

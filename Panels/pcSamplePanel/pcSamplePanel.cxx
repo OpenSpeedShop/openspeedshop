@@ -761,7 +761,7 @@ pcSamplePanel::loadMain()
     if(statement_definition.size() > 0 )
     {
       std::set<Statement>::const_iterator i = statement_definition.begin();
-      SourceObject *spo = new SourceObject("main", i->getPath(), i->getLine()-1, TRUE, NULL);
+      SourceObject *spo = new SourceObject("main", i->getPath(), i->getLine()-1, expID, TRUE, NULL);
   
       QString name = QString("Source Panel [%1]").arg(expID);
       Panel *sourcePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
