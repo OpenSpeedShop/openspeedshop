@@ -48,7 +48,7 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, int bu
  /* How long is the expCreate command? */  
   int cmdlen = 0;
   int i;
-  for ( i=0; i<argc; i++ ) {
+  for ( i=1; i<argc; i++ ) {
     if (butnotarg == i) {
       continue;
     }
@@ -61,7 +61,7 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, int bu
     char *cmdstr = (char *)malloc(10 + cmdlen + 1);
     bcopy("expCreate", cmdstr, 10);
     cmdlen = strlen(cmdstr)-1;
-    for ( i=0; i<argc; i++ ) {
+    for ( i=1; i<argc; i++ ) {
       if (butnotarg == i) {
        // This is the "-batch", "-cli" or "-gui" option.
         continue;
@@ -100,36 +100,33 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, int bu
 
 }
 
-int Start_TLI_Mode (CMDWID my_window)
+bool Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, int butnotarg,
+                             bool batch_mode)
 {
   Assert (my_window);
 
- /* Define stdin as the main input file. */
-  (void)Append_Input_File (my_window, std::string("stdin"),
-                           &Default_TLI_Line_Output, &Default_TLI_Command_Output);
-
-  return 1;
-}
-
-int Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, int butnotarg,
-                             bool batch_mode, bool read_stdin_file)
-{
-  Assert (my_window);
+  bool read_stdin_file = (stdin && !isatty(fileno(stdin)));
+  if (read_stdin_file) {
+   // Read a piped-in file.
+    if ( !Push_Input_File (my_window, std::string("stdin"),
+                           &Default_TLI_Line_Output, &Default_TLI_Command_Output) ) {
+      fprintf(stderr,"ERROR: Unable to read piped in stdin file\n");
+      return false;
+    }
+  }
 
  // Translate the command line arguments into an "expCreate command".
   Input_Command_Args ( my_window, argc, argv, butnotarg);
 
-  if (read_stdin_file) {
-   // Read a piped-in file.
-    (void)Append_Input_File (my_window, std::string("stdin"),
-                             &Default_TLI_Line_Output, &Default_TLI_Command_Output);
-  } else if (batch_mode) {
-   // If there is no input file and in "-batch" mode, end with an "expGo" command.
-   // Otherwise, assume the input file will control execution.
-    char *cmdrun = "expGo\n";
-    (void)Append_Input_String (my_window, cmdrun,
-                               NULL, &Default_TLI_Line_Output, &Default_TLI_Command_Output);
+ // If there is no input file and in "-batch" mode, end with an "expGo" command.
+ // Otherwise, assume the input file will control execution.
+  if (batch_mode && !read_stdin_file) {
+    if (NULL == Append_Input_String (my_window, "expGo\n", NULL,
+                                     &Default_TLI_Line_Output, &Default_TLI_Command_Output) ) {
+      fprintf(stderr,"ERROR: Unable to initiate execution of commands.\n");
+      return false;
+    }
   }
 
-  return 1;
+  return true;
 }
