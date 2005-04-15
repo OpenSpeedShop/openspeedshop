@@ -30,9 +30,11 @@
 #endif
 
 #include "AddressRange.hxx"
+#include "Assert.hxx"
 #include "Blob.hxx"
 #include "CollectorImpl.hxx"
 #include "Entry.hxx"
+#include "Exception.hxx"
 #include "Metadata.hxx"
 #include "SmartPtr.hxx"
 #include "TimeInterval.hxx"

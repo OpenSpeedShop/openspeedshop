@@ -45,6 +45,7 @@ libopenss_framework_la_SOURCES = \
 	CollectorAPI.hxx \
 	CollectorGroup.hxx CollectorGroup.cxx \
 	CollectorImpl.hxx CollectorImpl.cxx \
+	CollectorPluginTable.hxx CollectorPluginTable.cxx \
 	Database.hxx Database.cxx \
 	Entry.hxx Entry.cxx \
 	EntrySpy.hxx \
