@@ -152,40 +152,29 @@ AC_DEFUN([AC_PKG_DYNINST], [
 
 
 ################################################################################
-# Check for Python (www.python.org)
+# Check for Python 2.3 (http://www.python.org)
 ################################################################################
 
 AC_DEFUN([AC_PKG_PYTHON], [
 
     AC_ARG_WITH(python,
                 AC_HELP_STRING([--with-python=DIR],
-                               [PYTHON installation @<:@/usr/bin/python@:>@]),
+                               [PYTHON installation @<:@/usr@:>@]),
                 python_dir=$withval, python_dir="/usr")
-
-    AC_CHECK_FILE([$python_dir/include/Python.h], [
-        PYTHON_CPPFLAGS="-I$python_dir/include"
-        PYTHON_LDFLAGS="-Wl,$python_dir/lib/libpython2.3.so"
-    ])
 
     AC_CHECK_FILE([$python_dir/include/python2.3/Python.h], [
         PYTHON_CPPFLAGS="-I$python_dir/include/python2.3"
-        PYTHON_LDFLAGS="-Wl,$python_dir/lib/libpython2.3.so"
+        PYTHON_LDFLAGS="-L$python_dir/lib"
     ])
 
     if test -d "$ROOT"; then
         AC_CHECK_FILE([$ROOT/include/python2.3/Python.h], [
             PYTHON_CPPFLAGS="-I$ROOT/include/python2.3"
-            PYTHON_LDFLAGS="-Wl,$ROOT/lib/libpython2.3.so"
+            PYTHON_LDFLAGS=""
         ])
     fi
 
-    case "$host" in
-        ia64-*-linux-*)
-            PYTHON_CPPFLAGS="$PYTHON_CPPFLAGS -D__64BIT__"
-            ;;
-    esac
-
-    PYTHON_LIBS=""
+    PYTHON_LIBS="-lpython2.3"
 
     AC_LANG_PUSH(C++)
 
@@ -195,14 +184,14 @@ AC_DEFUN([AC_PKG_PYTHON], [
     CPPFLAGS="$CPPFLAGS $PYTHON_CPPFLAGS"
     LDFLAGS="$CXXFLAGS $PYTHON_LDFLAGS $PYTHON_LIBS"
 
-    AC_MSG_CHECKING([for PYTHON client library and headers])
+    AC_MSG_CHECKING([for Python 2.3 library and headers])
 
     AC_LINK_IFELSE(AC_LANG_PROGRAM([[
         #include <Python.h>
         ]], [[
         PyDoc_STR("xxx");
         ]]), AC_MSG_RESULT(yes), [ AC_MSG_RESULT(no)
-        AC_MSG_FAILURE(cannot locate PYTHON library and/or headers.) ]
+        AC_MSG_FAILURE(cannot locate Python 2.3 library and/or headers.) ]
     )
 
     CPPFLAGS=$python_saved_CPPFLAGS
@@ -214,7 +203,6 @@ AC_DEFUN([AC_PKG_PYTHON], [
     AC_SUBST(PYTHON_LDFLAGS)
     AC_SUBST(PYTHON_LIBS)
 
-    AC_DEFINE(HAVE_PYTHON, 1, [Define to 1 if you have PYTHON.])
+    AC_DEFINE(HAVE_PYTHON, 1, [Define to 1 if you have Python 2.3.])
 
 ])
-

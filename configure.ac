@@ -61,11 +61,10 @@ AC_LIBTOOL_DLOPEN
 AC_PROG_LIBTOOL
 AC_CONFIG_SUBDIRS(libltdl)
 
-AM_PROG_LEX
-AC_PROG_YACC
-AC_PATH_PROG([RPCGEN], rpcgen)
-
 AC_PROG_INSTALL
+AC_PROG_LEX
+AC_PATH_PROG([RPCGEN], rpcgen)
+AC_PROG_YACC
 
 ################################################################################
 # Check for Instrumentor

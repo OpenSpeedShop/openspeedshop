@@ -36,7 +36,7 @@ libopenss_cli_la_LDFLAGS = \
 	$(LIBLTDL) \
 	-lpthread -lutil -LANG:std
 
-libopenss_cli_la_LIBADD = $(LIBLTDL) -lopenss-framework
+libopenss_cli_la_LIBADD = $(PYTHON_LIBS) $(LIBLTDL) -lopenss-framework
 
 LEXWOFF =
 YFLAGS = -d
