@@ -288,7 +288,7 @@ class ExperimentObject
         }
       }
     }
-  void Dump(FILE *TFile)
+  static void Dump(FILE *TFile)
     { std::list<ExperimentObject *>::reverse_iterator expi;
       for (expi = ExperimentObject_list.rbegin(); expi != ExperimentObject_list.rend(); expi++)
       {
