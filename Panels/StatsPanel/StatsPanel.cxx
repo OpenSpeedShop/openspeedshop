@@ -87,7 +87,7 @@ StatsPanel::listener(void *msg)
   {
     UpdateObject *msg = (UpdateObject *)msgObject;
 // msg->print();
-    updateStatsPanelBaseData(msg->fw_expr, msg->expID, msg->experiment_name);
+    updateStatsPanelBaseData();
     if( msg->raiseFLAG )
     {
       getPanelContainer()->raisePanel((Panel *)this);

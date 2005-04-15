@@ -22,6 +22,9 @@
 #include "PanelContainer.hxx"   // Do not remove
 #include "plugin_entry_point.hxx"   // Do not remove
 
+#include "CollectorListObject.hxx"
+#include "CollectorMetricEntryClass.hxx"
+
 #include <qvaluelist.h>
 #include <qmessagebox.h>
 class MetricHeaderInfo;
@@ -53,6 +56,10 @@ pcStatsPanel::pcStatsPanel(PanelContainer *pc, const char *n, void *argument) : 
 {
 //  printf("pcStatsPanel() entered\n");
   setCaption("pcStatsPanel");
+
+  metricMenu = NULL;
+  metricStr = QString("time"); // Default to this for now...
+  expID = -1;
 }
 
 
@@ -97,10 +104,19 @@ pcStatsPanel::listener(void *msg)
     UpdateObject *msg = (UpdateObject *)msgObject;
     nprintf(DEBUG_MESSAGES) ("pcStatsPanel::listener() UpdateExperimentDataObject!\n");
 
-group_id = msg->expID;
-    updateStatsPanelBaseData(msg->fw_expr, msg->expID, msg->experiment_name);
+  if( expID == -1 || expID != msg->expID )
+  {
+    clo = new CollectorListObject(msg->expID);
+  }
+  expID = msg->expID;
+// I know this is a problem.  -FIX
+// If a user adds a collector, after creating the pcStatsPanel,
+// we'll somehow need to update this list... (Maybe via a message
+// to the listener...
+    updateStatsPanelBaseData();
     if( msg->raiseFLAG )
     {
+    if( msg->raiseFLAG )
       getPanelContainer()->raisePanel((Panel *)this);
     }
   } else if( msgObject->msgType == "PreferencesChangedObject" )
@@ -118,7 +134,45 @@ pcStatsPanel::menu( QPopupMenu* contextMenu)
 {
 //  printf("pcStatsPanel::menu() entered.\n");
 
+  if( metricMenu != NULL )
+  {
+    delete metricMenu;
+  }
+  metricMenu = NULL;
 
+  contextMenu->insertSeparator();
+{  // Display by metrics...
+// Over all the collectors....
+// Round up the metrics ....
+// Create a menu of metrics....
+// (Don't forget to do this for threads as well...)
+  CollectorEntry *ce = NULL;
+  CollectorEntryList::Iterator it;
+  for( it = clo->collectorEntryList.begin();
+         it != clo->collectorEntryList.end();
+         ++it )
+  {
+    ce = (CollectorEntry *)*it;
+    CollectorMetricEntryList::Iterator pit = ce->metricList.begin();
+    if( ce->metricList.size() == 1 )
+    {
+      CollectorMetricEntry *cpe = (CollectorMetricEntry *)*pit;
+      contextMenu->insertItem( QString("Show Metric ... (%1)").arg(cpe->name.ascii()), this, SLOT(metricSelected()) );
+    } else
+    {
+      metricMenu = new QPopupMenu(this);
+      connect( metricMenu, SIGNAL( activated( int ) ),
+                 this, SLOT( metricSelected( int ) ) );
+      contextMenu->insertItem("Show Metric", metricMenu);
+      for( ;pit != ce->metricList.end();  pit++)
+      {
+        CollectorMetricEntry *cpe = (CollectorMetricEntry *)*pit;
+// printf("\t%s\n", cpe->name.ascii() );
+        metricMenu->insertItem(cpe->name);
+      }
+    }
+  }
+}
   contextMenu->insertSeparator();
 
   contextMenu->insertItem("Compare...", this, SLOT(compareSelected()) );
@@ -146,7 +200,6 @@ pcStatsPanel::menu( QPopupMenu* contextMenu)
     id++;
   }
 
-//  contextMenu->insertItem("Export Report Data...", this, NULL, NULL);
   contextMenu->insertItem("Export Report Data...", this, SLOT(exportData()));
 
   if( lv->selectedItem() )
@@ -163,7 +216,7 @@ pcStatsPanel::menu( QPopupMenu* contextMenu)
 bool
 pcStatsPanel::createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos )
 {
-printf("pcStatsPanel::createPopupMenu(contextMenu=0x%x) entered\n", contextMenu);
+// printf("pcStatsPanel::createPopupMenu(contextMenu=0x%x) entered\n", contextMenu);
 #ifdef OLDWAY
   QPopupMenu *panelMenu = new QPopupMenu(this);
   panelMenu->setCaption("Panel Menu");
@@ -327,7 +380,7 @@ pcStatsPanel::matchSelectedItem(std::string selected_function )
     if( definitions.size() > 0 )
     {
       std::set<Statement>::const_iterator di = definitions.begin();
-      spo = new SourceObject(it->first.getName().c_str(), di->getPath(), di->getLine()-1, group_id, TRUE, NULL);
+      spo = new SourceObject(it->first.getName().c_str(), di->getPath(), di->getLine()-1, expID, TRUE, NULL);
     }
 
 
@@ -359,141 +412,151 @@ pcStatsPanel::matchSelectedItem(std::string selected_function )
 }
 
 void
-pcStatsPanel::updateStatsPanelBaseData(void *expr, int expID, QString experiment_name)
+pcStatsPanel::updateStatsPanelBaseData()
 {
   nprintf( DEBUG_PANELS) ("pcStatsPanel::updateStatsPanelBaseData() entered.\n");
 
-  StatsPanelBase::updateStatsPanelBaseData(expr, expID, experiment_name);
+  StatsPanelBase::updateStatsPanelBaseData();
 
   
   SPListViewItem *lvi;
   columnList.clear();
 
   nprintf( DEBUG_PANELS) ("Find_Experiment_Object() for %d\n", expID);
-  ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-  if( eo && eo->FW() )
+
+  try
   {
-    Experiment *fw_experiment = eo->FW();
-    // Evaluate the collector's time metric for all functions in the thread
-    ThreadGroup tgrp = fw_experiment->getThreads();
-    if( tgrp.size() == 0 )
+    ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+    if( eo && eo->FW() )
     {
-      fprintf(stderr, "There are no known threads for this experiment.\n");
-      return;
-    }
-    ThreadGroup::iterator ti = tgrp.begin();
-    Thread t1 = *ti;
-    CollectorGroup cgrp = fw_experiment->getCollectors();
-    if( cgrp.size() == 0 )
-    {
-      fprintf(stderr, "There are no known collectors for this experiment.\n");
-      return;
-    }
-    CollectorGroup::iterator ci = cgrp.begin();
-    Collector c1 = *ci;
-
-    nprintf( DEBUG_PANELS) ("GetMetricByFunctionInThread()\n");
-// printf("Convert this (parameter) to a paramater that is presented in a dynamic view and passed into this pcStatsPanel by the >calling< experiment.\n");
-//printf("Convert this (thread) passed into this pcStatsPanel by the >calling< experiment.\n");
-    Queries::GetMetricByFunctionInThread(c1, "time", t1, orig_data);
-
-    // Display the results
-    MetricHeaderInfoList metricHeaderInfoList;
-    metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("CPU Time (Seconds)"), FLOAT_T));
-metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("% of Time"), FLOAT_T));
-metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Cumulative %"), FLOAT_T));
-    metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Function"), CHAR_T));
-    if( metricHeaderTypeArray != NULL )
-    {
-      delete []metricHeaderTypeArray;
-    }
-    int header_count = metricHeaderInfoList.count();
-    metricHeaderTypeArray = new int[header_count];
-
-    int i=0;
-    for( MetricHeaderInfoList::Iterator pit = metricHeaderInfoList.begin(); pit != metricHeaderInfoList.end(); ++pit )
-    { 
-      MetricHeaderInfo *mhi = (MetricHeaderInfo *)*pit;
-      QString s = mhi->label;
-      lv->addColumn( s );
-      metricHeaderTypeArray[i] = mhi->type;
-    
-      columnList.push_back( s );
-      i++;
-    }
-
-    // Look up the latest of the preferences and apply them...
-    // Which column should we sort?
-    bool ok;
-    int columnToSort = getPreferenceColumnToSortLineEdit().toInt(&ok);
-    if( !ok )
-    {
-      columnToSort = 0;
-    }
-    lv->setSorting ( columnToSort, FALSE );
-
-    // Figure out which way to sort
-    bool sortOrder = getPreferenceSortDecending();
-    if( sortOrder == TRUE )
-    {
-      lv->setSortOrder ( Qt::Descending );
-    } else
-    {
-      lv->setSortOrder ( Qt::Ascending );
-    }
-
-    // How many rows should we display?
-    int numberItemsToDisplay = -1;
-    if( !getPreferenceTopNLineEdit().isEmpty() )
-    {
-      numberItemsToDisplay = getPreferenceTopNLineEdit().toInt(&ok);
+      Experiment *fw_experiment = eo->FW();
+      // Evaluate the collector's time metric for all functions in the thread
+      ThreadGroup tgrp = fw_experiment->getThreads();
+      if( tgrp.size() == 0 )
+      {
+        fprintf(stderr, "There are no known threads for this experiment.\n");
+        return;
+      }
+      ThreadGroup::iterator ti = tgrp.begin();
+      Thread t1 = *ti;
+      CollectorGroup cgrp = fw_experiment->getCollectors();
+      if( cgrp.size() == 0 )
+      {
+        fprintf(stderr, "There are no known collectors for this experiment.\n");
+        return;
+      }
+      CollectorGroup::iterator ci = cgrp.begin();
+      Collector c1 = *ci;
+  
+      nprintf( DEBUG_PANELS) ("GetMetricByFunctionInThread()\n");
+      Queries::GetMetricByFunctionInThread(c1, metricStr.ascii(), t1, orig_data);
+  
+      // Display the results
+      MetricHeaderInfoList metricHeaderInfoList;
+  //    metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("CPU Time (Seconds)"), FLOAT_T));
+      metricHeaderInfoList.push_back(new MetricHeaderInfo(QString(metricStr.ascii() ), FLOAT_T));
+      metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("% of Time"), FLOAT_T));
+      metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Cumulative %"), FLOAT_T));
+      metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Function"), CHAR_T));
+      if( metricHeaderTypeArray != NULL )
+      {
+        delete []metricHeaderTypeArray;
+      }
+      int header_count = metricHeaderInfoList.count();
+      metricHeaderTypeArray = new int[header_count];
+  
+      int i=0;
+      for( MetricHeaderInfoList::Iterator pit = metricHeaderInfoList.begin(); pit != metricHeaderInfoList.end(); ++pit )
+      { 
+        MetricHeaderInfo *mhi = (MetricHeaderInfo *)*pit;
+        QString s = mhi->label;
+        lv->addColumn( s );
+        metricHeaderTypeArray[i] = mhi->type;
+      
+        columnList.push_back( s );
+        i++;
+      }
+  
+      // Look up the latest of the preferences and apply them...
+      // Which column should we sort?
+      bool ok;
+      int columnToSort = getPreferenceColumnToSortLineEdit().toInt(&ok);
       if( !ok )
       {
-        numberItemsToDisplay = 5; // Default to top5.
+        columnToSort = 0;
       }
-   }
-
-
-    nprintf( DEBUG_PANELS) ("Put the data out...\n");
-
-    double TotalTime = Get_Total_Time();
-
-    char cputimestr[50];
-    char a_percent_str[50];
-    a_percent_str[0] = '\0';
-    char c_percent_str[50];
-    // convert time to %
-    double percent_factor = 100.0 / TotalTime;
-    double a_percent = 0; // accumulated percent
-    double c_percent = 0.0;
-
-    for(std::map<Function, double>::const_iterator
-            it = orig_data->begin(); it != orig_data->end(); ++it)
-    {
-      c_percent = it->second*percent_factor;  // current item's percent of total time
-      sprintf(cputimestr, "%f", it->second);
-      sprintf(a_percent_str, "%f", c_percent);
-      sprintf(c_percent_str, "%f", a_percent);
-      lvi =  new SPListViewItem( this, lv, cputimestr,  a_percent_str, c_percent_str, it->first.getName().c_str() );
-
-#ifdef OLDWAY
-      if(numberItemsToDisplay >= 0 )
+      lv->setSorting ( columnToSort, FALSE );
+  
+      // Figure out which way to sort
+      bool sortOrder = getPreferenceSortDecending();
+      if( sortOrder == TRUE )
       {
-        numberItemsToDisplay--;
-        if( numberItemsToDisplay == 0)
-        {
-          // That's all the user requested...
-          break;  
-        }
+        lv->setSortOrder ( Qt::Descending );
+      } else
+      {
+        lv->setSortOrder ( Qt::Ascending );
       }
+  
+      // How many rows should we display?
+      int numberItemsToDisplay = -1;
+      if( !getPreferenceTopNLineEdit().isEmpty() )
+      {
+        numberItemsToDisplay = getPreferenceTopNLineEdit().toInt(&ok);
+        if( !ok )
+        {
+          numberItemsToDisplay = 5; // Default to top5.
+        }
+     }
+
+      nprintf( DEBUG_PANELS) ("Put the data out...\n");
+
+      double TotalTime = Get_Total_Time();
+
+      char cputimestr[50];
+      char a_percent_str[50];
+      a_percent_str[0] = '\0';
+      char c_percent_str[50];
+      // convert time to %
+      double percent_factor = 100.0 / TotalTime;
+      double a_percent = 0; // accumulated percent
+      double c_percent = 0.0;
+  
+      for(std::map<Function, double>::const_iterator
+              it = orig_data->begin(); it != orig_data->end(); ++it)
+      {
+        c_percent = it->second*percent_factor;  // current item's percent of total time
+        sprintf(cputimestr, "%f", it->second);
+        sprintf(a_percent_str, "%f", c_percent);
+        sprintf(c_percent_str, "%f", a_percent);
+        lvi =  new SPListViewItem( this, lv, cputimestr,  a_percent_str, c_percent_str, it->first.getName().c_str() );
+  
+#ifdef OLDWAY
+        if(numberItemsToDisplay >= 0 )
+        {
+          numberItemsToDisplay--;
+          if( numberItemsToDisplay == 0)
+          {
+            // That's all the user requested...
+            break;  
+          }
+        }
 #endif // OLDWAY
-    }
+      }
     
-    lv->sort();
+      lv->sort();
 
 
-    sortCalledRecalculateCumulative(0);
-
+      sortCalledRecalculateCumulative(0);
+  
+    }
+  }
+  catch(const std::exception& error)
+  { 
+    std::cerr << std::endl << "Error: "
+              << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+              "Unknown runtime error." : error.what()) << std::endl
+              << std::endl;
+    return;
   }
 }
 
@@ -527,4 +590,24 @@ pcStatsPanel::sortCalledRecalculateCumulative(int val)
     item->setText( 2, QString("%1").arg(a_percent) );
     ++it;
   }
+}
+
+void
+pcStatsPanel::metricSelected(int val)
+{ 
+// printf("metricSelected val=%d\n", val);
+// printf("metricSelected val=%s\n", QString("%1").arg(val).ascii() );
+
+  metricStr = metricMenu->text(val);
+// printf("metricStr = (%s)\n", metricStr.ascii() );
+  updateStatsPanelBaseData();
+}
+
+void
+pcStatsPanel::metricSelected()
+{ 
+// printf("metricSelected() entered\n");
+
+// printf("metricStr = (%s)\n", metricStr.ascii() );
+  updateStatsPanelBaseData();
 }

@@ -62,7 +62,8 @@ libopenss_Objects_la_SOURCES = \
 	AnimatedQPushButton.hxx AnimatedQPushButton.cxx \
 	InfoEventFilter.hxx InfoEventFilter.cxx \
 	ProcessControlObject.hxx ProcessControlObject.cxx \
-	CollectorParameterEntryClass.hxx
+	CollectorParameterEntryClass.hxx \
+	CollectorMetricEntryClass.hxx
 
 nodist_libopenss_Objects_la_SOURCES = \
 	moc_AnimatedQPushButton.cxx \

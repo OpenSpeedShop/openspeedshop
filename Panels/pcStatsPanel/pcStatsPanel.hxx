@@ -21,11 +21,13 @@
 #define PCSTATSPANEL_H
 #include "StatsPanelBase.hxx"           // Do not remove
 #include "Panel.hxx"           // Do not remove
+#include "CollectorListObject.hxx"
 
 class PanelContainer;   // Do not remove
 class QVBoxLayout;
 
 #include <qlistview.h>
+#include <qpopupmenu.h>
 #include <qinputdialog.h>
 
 #include "CollectorInfo.hxx"   // For dummied up data...
@@ -67,6 +69,10 @@ class pcStatsPanel  : public StatsPanelBase
     //! Sets the language specific strings.
     virtual void languageChange();
 
+    QPopupMenu *metricMenu;
+
+    QString metricStr;
+
   public slots:
     void itemSelected( QListViewItem * );
     void exportData();
@@ -76,15 +82,20 @@ class pcStatsPanel  : public StatsPanelBase
   private slots:
     virtual void sortCalledRecalculateCumulative(int);
 
+    void metricSelected();
+    void metricSelected(int);
+
   private:
     void matchSelectedItem( std::string function_name );
 
-    void updateStatsPanelBaseData(void *expr = 0, int expID = 0, QString experiment_name = NULL);
+    void updateStatsPanelBaseData();
 
     SmartPtr<std::map<Function, double> > orig_data;
 
     double Get_Total_Time();
 
-    int group_id;
+    int expID;
+
+    CollectorListObject *clo;
 };
 #endif // PCSTATSPANEL_H

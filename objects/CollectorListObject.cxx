@@ -131,6 +131,43 @@ CollectorListObject::createCollectorList(int expID)
             ce->paramList.push_back(cpe);
         }
 
+//Begin metrics
+{
+        Metadata m;
+        std::set<Metadata> md =pcSampleCollector.getMetrics();
+        std::set<Metadata>::const_iterator mi;
+        for (mi = md.begin(); mi != md.end(); mi++)
+        {
+          m = *mi;
+//printf("%s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
+//printf("%s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
+//printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
+
+// While sub-marvelous this works for now...
+            QString metric = QString(m.getUniqueId().c_str());
+            QString metric_val = QString::null;
+            double double_metric;
+            unsigned int uint_metric = 0;
+            int int_metric = 0;
+            if( m.isType(typeid(int)) )
+            {
+//printf("int\n");
+            } else if( m.isType(typeid(unsigned int)) )
+            {
+//printf("unsigned int\n");
+            } else if( m.isType(typeid(double)) )
+            {
+//printf("double\n");
+            } else
+            {
+              metric_val = QString("Unknown type.");
+            }
+            CollectorMetricEntry *cpe = new CollectorMetricEntry(metric, metric_val);
+            ce->metricList.push_back(cpe);
+        }
+}
+//End metrics
+
 
         collectorEntryList.push_back(ce);
 //      printf("sampling_rate=%u\n", sampling_rate);

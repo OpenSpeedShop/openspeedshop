@@ -17,31 +17,21 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef COLLECTORENTRYCLASS_H
-#define COLLECTORENTRYCLASS_H
-#include "CollectorParameterEntryClass.hxx"
-#include "CollectorMetricEntryClass.hxx"
-#include <qvaluelist.h>
-
-typedef QValueList<CollectorParameterEntry *> CollectorParameterEntryList;
-typedef QValueList<CollectorMetricEntry *> CollectorMetricEntryList;
-class CollectorEntry
+#ifndef COLLECTORMETRICENTRYCLASS_H
+#define COLLECTORMETRICENTRYCLASS_H
+class CollectorMetricEntry
 {
   public:
-    CollectorEntry();
-    CollectorEntry(QString n=QString::null, QString sn=QString::null, QString d=QString::null )
+    CollectorMetricEntry();
+    CollectorMetricEntry(QString n, QString mv)
     {
       name = n;
-      short_name = sn;
-      description = d;
+      metric_val = mv;
     }
-    ~CollectorEntry()
+    ~CollectorMetricEntry()
     {
     }
     QString name;
-    QString short_name;
-    QString description;
-    CollectorParameterEntryList paramList;
-    CollectorMetricEntryList metricList;
+    QString metric_val;
 };
-#endif // COLLECTORENTRYCLASS_H
+#endif // COLLECTORMETRICENTRYCLASS_H

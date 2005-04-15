@@ -70,7 +70,7 @@ class StatsPanelBase  : public Panel
 
     virtual bool createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos );
 
-    virtual void updateStatsPanelBaseData(void *expr = 0, int expID = 0, QString experiment_name = NULL);
+    virtual void updateStatsPanelBaseData();
 
     //! truncate the character string.
     char *truncateCharString(char *str, int length);

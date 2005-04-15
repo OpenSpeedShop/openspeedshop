@@ -777,12 +777,12 @@ pcSamplePanel::loadMain()
         sourcePanel->listener((void *)spo);
       }
     }
-statusLabelText->setText( tr("Experiment is loaded:  Hit the \"Run\" button to continue execution.") );
-pco->runButton->setEnabled(TRUE);
-pco->runButton->enabledFLAG = TRUE;
-runnableFLAG = TRUE;
-pco->pauseButton->setEnabled(FALSE);
-pco->pauseButton->enabledFLAG = FALSE;
+    statusLabelText->setText( tr("Experiment is loaded:  Hit the \"Run\" button to continue execution.") );
+    pco->runButton->setEnabled(TRUE);
+    pco->runButton->enabledFLAG = TRUE;
+    runnableFLAG = TRUE;
+    pco->pauseButton->setEnabled(FALSE);
+    pco->pauseButton->enabledFLAG = FALSE;
   }
 }
 

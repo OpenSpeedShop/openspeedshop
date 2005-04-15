@@ -69,13 +69,13 @@ StatsPanelBase::~StatsPanelBase()
 }
 
 void
-StatsPanelBase::updateStatsPanelBaseData(void *expr, int expID, QString experiment_name)
+StatsPanelBase::updateStatsPanelBaseData()
 {
    // Read the new data, destroy the old data, and update the StatsPanelBase with
    // the new data.
 
 
-  dprintf("updateStatsPanelBaseData() enterd.\n");
+  dprintf("updateStatsPanelBaseData() entered.\n");
 
   if( lv != NULL )
   {
