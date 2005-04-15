@@ -72,12 +72,12 @@ Process_Command_Line (int argc, char **argv)
     }
 
    /* Look for an executable description. */
-    if (!strcasecmp( argv[i], "-h") ||
+    if (!strcasecmp( argv[i], "-c") ||
+        !strcasecmp( argv[i], "-h") ||
         !strcasecmp( argv[i], "-f") ||
         !strcasecmp( argv[i], "-p") ||
         !strcasecmp( argv[i], "-t") ||
-        !strcasecmp( argv[i], "-r") ||
-        !strcasecmp( argv[i], "-a")) {
+        !strcasecmp( argv[i], "-r")) {
       executable_encountered = true;
       need_command_line = true;
      // if the next argv is not another "-" option, skip it.
@@ -188,9 +188,8 @@ Initial_Python ()
   fclose (fp);
 }
 
-int Start_TLI_Mode (CMDWID my_window);
-int Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, int butnotarg,
-                             bool batch_mode,  bool read_stdin_file);
+bool Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, int butnotarg,
+                              bool batch_mode);
 void SS_Direct_stdin_Input (void *attachtowindow);
 
 extern "C"
@@ -350,8 +349,10 @@ setup_signal_handler (int s)
     {
      // Move the command line options to an input control window.
       command_line_window = Default_Window ("COMMAND_LINE",&HostName[0],my_pid,0,false);
-      Start_COMMAND_LINE_Mode( command_line_window, argc-1, &argv[1], initiate_command_at-1,
-                               need_batch, read_stdin_file);
+      if ( !Start_COMMAND_LINE_Mode( command_line_window, argc, argv, initiate_command_at,
+                                     need_batch) ) {
+        return -1;
+      }
     } else if (need_batch && (argc <= 2) && !read_stdin_file) {
       fprintf(stderr,"Missing command line arguments\n");
       return -1;
