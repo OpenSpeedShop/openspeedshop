@@ -1466,7 +1466,7 @@ bool SS_ListMetrics (CommandObject *cmd) {
       cmd_error = true;
     }
   } else {
-   // Get the list of colectors from the focused experiment.
+   // Get the list of collectors from the focused experiment.
     ExperimentObject *exp = Find_Specified_Experiment (cmd);
     if (exp == NULL) {
       return false;
@@ -1567,7 +1567,7 @@ bool SS_ListParams (CommandObject *cmd) {
       cmd_error = true;
     }
   } else {
-   // Get the list of colectors from the focused experiment.
+   // Get the list of collectors from the focused experiment.
     ExperimentObject *exp = Find_Specified_Experiment (cmd);
     if (exp == NULL) {
       return false;
@@ -1895,9 +1895,13 @@ bool SS_Log (CommandObject *cmd) {
     R = Command_Log_OFF (WindowID);
   } else {
     R = Command_Log_ON(WindowID, f_val->name );
+    if (!R) {
+      cmd->Result_String (f_val->name + " could not be opened as a log file.");
+      return false;
+    }
   }
 
- // This command does not reutrn a result.
+ // This command does not return a result.
   cmd->set_Status(R ? CMD_COMPLETE : CMD_ERROR);
   return R;
 }
@@ -1947,8 +1951,12 @@ bool SS_Playback (CommandObject *cmd) {
     return false;
   }
 
-  Push_Input_File (WindowID, f_val->name,
-                   &Default_TLI_Line_Output, &Default_TLI_Command_Output);
+  if ( !Push_Input_File (WindowID, f_val->name,
+                         &Default_TLI_Line_Output, &Default_TLI_Command_Output) ) {
+    cmd->Result_String ("Unable to open alternate command file " + f_val->name);
+    cmd->set_Status(CMD_ERROR);
+    return false;
+  }
 
   cmd->set_Status(CMD_COMPLETE);
   return true;
@@ -1962,7 +1970,10 @@ bool SS_Record (CommandObject *cmd) {
   if (f_val == NULL) {
    (void)Command_Record_OFF (WindowID);
   } else {
-    (void)Command_Record_ON(WindowID, f_val->name);
+    if (!Command_Record_ON(WindowID, f_val->name)) {
+      cmd->Result_String (f_val->name + " could not be opened for recording.");
+      return false;
+    }
   }
 
   cmd->set_Status(CMD_COMPLETE);
