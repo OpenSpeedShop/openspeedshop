@@ -112,7 +112,7 @@ Initial_Python ()
   // There are multiple directories this can be locate in...
   // First look in the user defined one, then the installed,
   // and finally the package directory.
-  char *myparse_name = "myparse.py";
+  char *myparse_name = "SS_Preparse.py";
   char *plugin_directory = getenv("OPENSS_PLUGIN_PATH");
   if( plugin_directory != NULL )
   {
