@@ -16,99 +16,54 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-pkglib_LTLIBRARIES = libopenss-cli.la
+BUILT_SOURCES = SS_Parse_Yacc.h
+AM_YFLAGS = -d
 
-libopenss_cli_la_CXXFLAGS =  \
-	-c -LANG:std -fpic \
-	-I. \
-        $(PYTHON_CPPFLAGS) \
+dist_pkglib_SCRIPTS = myparse.py
+
+lib_LTLIBRARIES = libopenss-cli.la
+
+libopenss_cli_la_CXXFLAGS = \
+	-I$(top_srcdir)/base \
 	-I$(top_srcdir)/libopenss-framework \
-    -DPLUGIN_PATH=\"$(pkglibdir)\" \
-	-I/usr/include -I. -I../objects -I../base
+	-I$(top_srcdir)/objects \
+	-DPLUGIN_PATH=\"$(pkglibdir)\" \
+	$(LTDLINCL) \
+	$(PYTHON_CPPFLAGS)
 
 libopenss_cli_la_LDFLAGS = \
-    	-fpic \
-	--export-dynamic \
-	-module \
-	-avoid-version \
 	-L$(top_srcdir)/libopenss-framework \
-        $(PYTHON_LDFLAGS) \
+	$(PYTHON_LDFLAGS) \
+	-export-dynamic -version-info 0:0:0
+
+libopenss_cli_la_LIBADD = \
+	-lopenss-framework \
 	$(LIBLTDL) \
-	-lpthread -lutil -LANG:std
-
-libopenss_cli_la_LIBADD = $(PYTHON_LIBS) $(LIBLTDL) -lopenss-framework
-
-LEXWOFF =
-YFLAGS = -d
-LFILES = SS_Parse_Lex.l
-YFILES = SS_Parse_Yacc.y
-
-pcli_SOURCES =
-
-#test_SOURCES = \
-#	$(LFILES) $(YFILES)
-	
-EXTRA_DIST = $(LFILES) $(YFILES) myparse.py
-
-pcli_includes = ArgClass.hxx Clip.hxx Commander.hxx CommandObject.hxx Experiment.hxx SS_Cmd_Execution.hxx SS_Input_Manager.hxx SS_Parse_Param.hxx SS_Parse_Range.hxx SS_Parse_Result.hxx SS_Parse_Target.hxx SS_View.hxx
+	$(PYTHON_LIBS) \
+	-lpthread -lutil
 
 libopenss_cli_la_SOURCES = \
-    	help.cxx \
-   	Start.cxx \
-	Start_Modes.cxx \
-	Commander.cxx \
-	CommandObject.cxx \
-	SS_Cmd_Execution.cxx \
-	SS_View.cxx \
-	SS_View_exp.cxx \
-	SS_View_pcfunc.cxx \
-	SS_View_params.cxx \
-	SS_Parse_Param.cxx \
-	SS_Parse_Range.cxx \
-	SS_Parse_Result.cxx \
-	SS_Parse_Target.cxx \
-	Experiment.cxx \
+	ArgClass.hxx \
+	Clip.hxx \
+	Commander.hxx Commander.cxx \
+	CommandObject.hxx CommandObject.cxx \
+	Experiment.hxx Experiment.cxx \
+	help.cxx \
 	PY_Input.cxx \
-	$(pcli_includes)
-
-nodist_libopenss_cli_la_SOURCES = \
-	SS_Parse_Yacc.cxx \
-	SS_Parse_Lex.cxx 
-
-SS_Parse_Yacc.cxx: $(YFILES) SS_Parse_Result.hxx
-	-rm -f SS_Parse_Yacc.cxx
-	-$(YACC) $(YFLAGS) $(YFILES);
-	-mv y.tab.c SS_Parse_Yacc.cxx
-
-y.tab.h: $(YFILES)
-	-rm -f SS_Parse_Yacc.cxx
-	-$(YACC) $(YFLAGS) $(YFILES);
-	-mv y.tab.c SS_Parse_Yacc.cxx
-
-SS_Parse_Lex.cxx: $(LFILES) y.tab.h
-	-rm -f SS_Parse_Lex.cxx
-	-$(LEX) $(LFILES);
-	-mv lex.yy.c SS_Parse_Lex.cxx
-
-clobber:
-	-rm \
-	*.lo \
-	*.la \
-	y.tab.h \
-	SS_Parse_Lex.cxx \
-	SS_Parse_Yacc.cxx
-
-bin_PROGRAMS = pcli
-
-pcli:
-	-rm -f ${prefix}/lib/openspeedshop/myparse.py;
-	-cp myparse.py ${prefix}/lib/openspeedshop;
+	SS_Cmd_Execution.hxx SS_Cmd_Execution.cxx \
+	SS_Input_Manager.hxx \
+	SS_Parse_Lex.lxx \
+	SS_Parse_Param.hxx SS_Parse_Param.cxx \
+	SS_Parse_Range.hxx SS_Parse_Range.cxx \
+	SS_Parse_Result.hxx SS_Parse_Result.cxx \
+	SS_Parse_Target.hxx SS_Parse_Target.cxx \
+	SS_Parse_Yacc.yxx \
+	SS_View.hxx SS_View.cxx \
+	SS_View_exp.cxx \
+	SS_View_params.cxx \
+	SS_View_pcfunc.cxx \
+	Start.cxx \
+	Start_Modes.cxx
 
 doc:
 	-doxygen Doxyfile
-
-CLEANFILES = \
-    	lex.yy.cxx \
-	y.tab.cxx \
-	y.tab.h
-
