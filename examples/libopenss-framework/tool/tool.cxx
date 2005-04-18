@@ -27,7 +27,7 @@ using namespace OpenSpeedShop::Framework;
 
 
 
-static Experiment* Run(int argc, char* argv[])
+static void Run(int argc, char* argv[])
 {
     // Create and open a new experiment
     std::string name = std::string(Path(argv[0]).getBaseName()) + ".openss";
