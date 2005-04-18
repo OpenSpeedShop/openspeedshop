@@ -28,7 +28,7 @@
 
 #include <ctype.h>
 #include <string.h>
-#include "SS_Parse_Yacc.h"
+#include "SS_Parse_Yacc.hxx"
 extern int yylex();
 extern char * copy_string(char *);
 extern int ip_number(char *,int);

@@ -18,6 +18,7 @@
 
 BUILT_SOURCES = SS_Preparse.py
 AM_YFLAGS = -d
+YFLAGS = -d
 
 dist_pkglib_SCRIPTS = SS_Preparse.py
 
@@ -65,5 +66,24 @@ libopenss_cli_la_SOURCES = \
 	Start.cxx \
 	Start_Modes.cxx
 
+LFILES = SS_Parse_Lex.lxx
+YFILES = SS_Parse_Yacc.yxx
+
 doc:
 	-doxygen Doxyfile
+SS_Parse_Yacc.cxx: $(YFILES) SS_Parse_Result.hxx
+	-rm -f SS_Parse_Yacc.cxx
+	-$(YACC) $(AM_YFLAGS) $(YFILES);
+	-mv y.tab.c SS_Parse_Yacc.cxx
+
+SS_Parse_Yacc.hxx: $(YFILES)
+	-rm -f SS_Parse_Yacc.cxx
+	-$(YACC) $(AM_YFLAGS) $(YFILES);
+	-mv y.tab.c SS_Parse_Yacc.cxx
+	-mv y.tab.h SS_Parse_Yacc.hxx
+
+SS_Parse_Lex.cxx: $(LFILES) SS_Parse_Yacc.hxx
+	-rm -f SS_Parse_Lex.cxx
+	-$(LEX) $(LFILES);
+	-mv lex.yy.c SS_Parse_Lex.cxx
+
