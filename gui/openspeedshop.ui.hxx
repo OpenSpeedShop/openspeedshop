@@ -346,10 +346,12 @@ void OpenSpeedshop::fileExit()
 {
  dprintf("fileExit() entered.\n");
 
+#ifdef OLDWAY
   int wid = ((PanelContainer *)topPC)->getMainWindow()->widStr.toInt();
 //  InputLineObject *ilp = Append_Input_String( wid, "quit");
   InputLineObject *ilp = Append_Input_String( wid, "exit\n");
 //  Append_Input_String( wid, "exit\n");
+
   if( ilp == NULL )
   {
     fprintf(stderr, "FATAL ERROR: No clip returned from cli for exit attempting exit regardless.\n");
@@ -370,6 +372,19 @@ void OpenSpeedshop::fileExit()
  qApp->exit();
  pthread_exit(EXIT_SUCCESS);
  dprintf("fileExit() called pthread_exit.\n");
+#else // OLDWAY
+
+ /* close all the panel containers.   Well all except the masterPC's
+    That one we need to do explicitly. (See the next line.) */
+  ((PanelContainer *)topPC)->getMasterPC()->closeAllExternalPanelContainers();
+
+ /* Now close the master pc's information. */
+  ((PanelContainer *)topPC)->closeWindow((PanelContainer *)topPC);
+
+
+  int wid = ((PanelContainer *)topPC)->getMainWindow()->widStr.toInt();
+  InputLineObject *ilp = Append_Input_String( wid, "exit\n");
+#endif  // OLDWAY
 }
 
 

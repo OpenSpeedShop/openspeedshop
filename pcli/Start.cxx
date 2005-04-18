@@ -265,6 +265,7 @@ extern "C"
     {
       Commander_Termination(gui_window);
       gui_window = 0;
+      pthread_cancel (phandle[1]);
     }
     if (tli_window != 0)
     {
@@ -456,8 +457,9 @@ setup_signal_handler (int s)
       exit(EXIT_FAILURE);
     }
   
-    pthread_t gui_phandle;
-    (*dl_gui_init_routine)((void *)argStruct, &gui_phandle);
+//    pthread_t gui_phandle;
+//    (*dl_gui_init_routine)((void *)argStruct, &gui_phandle);
+    (*dl_gui_init_routine)((void *)argStruct, &phandle[1]);
   }
 
 }

@@ -192,8 +192,8 @@ void OpenSpeedshop::languageChange()
 {
   setCaption( tr( "Open/SpeedShop" ) );
 
-  fileOpenExperimentAction->setText( tr( "Open Experiment..." ) );
-  fileOpenExperimentAction->setMenuText( tr( "&Open Experiment..." ) );
+  fileOpenExperimentAction->setText( tr( "Open Existing Experiment..." ) );
+  fileOpenExperimentAction->setMenuText( tr( "&Open Existing Experiment..." ) );
   fileOpenExperimentAction->setAccel( tr( "Ctrl+O" ) );
 
   fileOpenSavedExperimentAction->setText( tr( "Open Saved Experiment..." ) );

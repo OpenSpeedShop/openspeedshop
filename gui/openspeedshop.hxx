@@ -124,7 +124,7 @@ class OpenSpeedshop : public QMainWindow
     //! The load file dialog.
     AttachProgramDialog *lfd;
 
-void closeEvent(QCloseEvent *e);
+    void closeEvent(QCloseEvent *e);
 
     //! The save experiment dialog.
 //    QFileDialog *sed;
