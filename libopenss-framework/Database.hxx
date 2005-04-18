@@ -80,11 +80,15 @@ namespace OpenSpeedShop { namespace Framework {
 
 	static bool isAccessible(const std::string&);
 	static void create(const std::string&);
+	static void remove(const std::string&);
 	
 	explicit Database(const std::string&);
 	~Database();
+
+	void renameTo(const std::string&);
+	void copyTo(const std::string&);
 	
-	std::string getName() const;
+	std::string getName();
 
 	void beginTransaction();
 	void prepareStatement(const std::string&);

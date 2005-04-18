@@ -55,8 +55,11 @@ namespace {
 	{ Exception::DatabaseCannotCreate,
 	  "Database \"%1\" cannot be created." },
 
-	{ Exception::DatabaseCannotOpen,
-	  "Database \"%1\" cannot be opened." },
+	{ Exception::DatabaseCannotRemove,
+	  "Database \"%1\" cannot be removed (%2)." },
+	
+	{ Exception::DatabaseDoesNotExist,
+	  "Database \"%1\" does not exist." },
 		
 	{ Exception::DatabaseExists,
 	  "Database \"%1\" already exists." },

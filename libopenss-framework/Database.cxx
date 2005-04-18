@@ -28,6 +28,7 @@
 #include "Database.hxx"
 #include "Time.hxx"
 
+#include <errno.h>
 #include <fcntl.h>
 #ifdef HAVE_INTTYPES_H
 #include <inttypes.h>
@@ -35,6 +36,7 @@
 #include <limits>
 #include <pthread.h>
 #include <sqlite3.h>
+#include <string.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -173,9 +175,9 @@ bool Database::isAccessible(const std::string& name)
  * be performed on the new database by creating a Database object with this
  * database's name and then executing SQL statements.
  *
- * @note    A DatabaseCannotCreate or DatabaseExists exception is thrown if the
+ * @note    A DatabaseExists or DatabaseCannotCreate exception is thrown if the
  *          database cannot be created for any reason (including pre-existence
- *          of the named database in the later case).
+ *          of the named database in the former case).
  *
  * @param name    Name of the database to be created.
  */
@@ -200,13 +202,37 @@ void Database::create(const std::string& name)
 
 
 /**
+ * Remove a database.
+ *
+ * Removes the database with the specified name.
+ *
+ * @note    A DatabaseDoesNotExist or DatabaseCannotRemove exception is thrown
+ *          if the database cannot be removed for any reason (including the non-
+ *          existence of the named database in the former case).
+ *
+ * @param name    Name of the database to be removed.
+ */
+void Database::remove(const std::string& name)
+{
+    // Verify the database is accessible
+    if(!isAccessible(name))
+	throw Exception(Exception::DatabaseDoesNotExist, name);
+    
+    // Attempt to remove the database file
+    if(::remove(name.c_str()) == -1)
+	throw Exception(Exception::DatabaseCannotRemove, name, strerror(errno));
+}
+
+
+
+/**
  * Constructor from database name.
  *
  * Constructs an object for accessing the existing named database. Operations
  * can then be performed on this database by executing SQL statements using the
  * member functions of this class.
  *
- * @note    A DatabaseCannotOpen exception is thrown if the database cannot
+ * @note    A DatabaseDoesNotExist exception is thrown if the database cannot
  *          be opened for any reason.
  *
  * @param name    Name of database to be accessed.
@@ -230,10 +256,10 @@ Database::Database(const std::string& name) :
     
     // Verify the database is accessible
     if(!isAccessible(name))
-	throw Exception(Exception::DatabaseCannotOpen, name);
+	throw Exception(Exception::DatabaseDoesNotExist, name);
     
     // Open the database
-    Assert(sqlite3_open(name.c_str(), &dm_handle) == SQLITE_OK);
+    Assert(sqlite3_open(dm_name.c_str(), &dm_handle) == SQLITE_OK);
     Assert(dm_handle != NULL);
     
     // Specify our busy handler
@@ -263,6 +289,7 @@ Database::~Database()
     for(std::map<std::string, sqlite3_stmt*>::const_iterator
 	    i = dm_statements.begin(); i != dm_statements.end(); ++i)
 	Assert(sqlite3_finalize(i->second) == SQLITE_OK);
+    dm_statements.clear();
     
     // Close the database
     Assert(sqlite3_close(dm_handle) == SQLITE_OK);    
@@ -274,15 +301,144 @@ Database::~Database()
 
 
 /**
+ * Rename this database.
+ *
+ * Renames this database to the specified name. The database is unmodified and
+ * still accessible via this object.
+ *
+ * @param name    New name of this database.
+ */
+void Database::renameTo(const std::string& name)
+{
+    // Copy this database to the new name
+    copyTo(name);
+    
+    // Acquire exclusive access to this object
+    Assert(pthread_mutex_lock(&dm_lock) == 0);
+    
+    // Check assertions
+    Assert(dm_handle != NULL);
+    Assert(dm_nesting_level == 0);
+    
+    // Reset and finalize all cached prepared statements
+    for(std::map<std::string, sqlite3_stmt*>::const_iterator
+	    i = dm_statements.begin(); i != dm_statements.end(); ++i)
+	Assert(sqlite3_finalize(i->second) == SQLITE_OK);
+    dm_statements.clear();
+    
+    // Close the database
+    Assert(sqlite3_close(dm_handle) == SQLITE_OK);    
+
+    // Remove the original database
+    remove(dm_name);
+    
+    // Switch to the renamed database
+    dm_name = name;
+    
+    // Open the database
+    Assert(sqlite3_open(dm_name.c_str(), &dm_handle) == SQLITE_OK);
+    Assert(dm_handle != NULL);
+    
+    // Specify our busy handler
+    Assert(sqlite3_busy_handler(dm_handle, busyHandler, this) == SQLITE_OK);
+    
+    // Specify the user-defined address addition function
+    Assert(sqlite3_create_function(dm_handle, "addrAdd", 2,
+				   SQLITE_ANY, NULL, addressAdditionFunc,
+				   NULL, NULL) == SQLITE_OK);    
+    
+    // Release exclusive access to this object
+    Assert(pthread_mutex_unlock(&dm_lock) == 0);
+}
+
+
+
+/**
+ * Copy this database.
+ *
+ * Copies this database to the specified name. The original database is
+ * unmodified and still accessible via this object. Accessing the copy involves
+ * creating a new Database object with the copy's name.
+ *
+ * @param name    Name of the created copy.
+ */
+void Database::copyTo(const std::string& name)
+{
+    const int copyBufferSize = 65536;
+    
+    // Create the copy database
+    create(name);
+    
+    // Open the original database (as a simple file) for read-only access
+    int original_fd;
+    Assert((original_fd = open(dm_name.c_str(), O_RDONLY)) != -1);
+    
+    // Open the copy database (as a simple file) for write-only access
+    int copy_fd;
+    Assert((copy_fd = open(name.c_str(), O_WRONLY | O_TRUNC)) != -1);
+    
+    // Allocate a buffer for performing the copy
+    char* buffer = new char[copyBufferSize];
+    
+    // Begin a transaction (insuring original database doesn't change mid-copy)
+    beginTransaction();
+    
+    // Perform the copy
+    for(int num = 1; num > 0;) {
+	
+	// Read bytes from the original database file
+	num = read(original_fd, buffer, copyBufferSize);
+	Assert((num >= 0) || ((num == -1) && (errno == EINTR)));
+	
+	// Write bytes until none remain
+	if(num > 0)
+	    for(int i = 0; i < num;) {
+		
+		// Write bytes to the copy database file
+		int written = write(copy_fd, &(buffer[i]), num - i);
+		Assert((written >= 0) || ((written == -1) && (errno == EINTR)));
+		
+		// Update the number of bytes remaining
+		if(written > 0)
+		    i+= written;
+		
+	    }
+	
+    }
+    
+    // Commit the transaction (allowing changes to proceed)
+    commitTransaction();
+    
+    // Destroy the copy buffer
+    delete [] buffer;
+    
+    // Close the two databases
+    Assert(close(original_fd) == 0);
+    Assert(close(copy_fd) == 0);
+}
+
+
+
+/**
  * Get our name.
  *
  * Returns the name of this database.
  *
  * @return    Name of this database.
  */
-std::string Database::getName() const
+std::string Database::getName()
 {
-    return dm_name;
+    // Acquire exclusive access to this object
+    Assert(pthread_mutex_lock(&dm_lock) == 0);
+    
+    // Access the database's name
+    std::string name = dm_name;
+    
+    // Release exclusive access to this object
+    Assert(pthread_mutex_unlock(&dm_lock) == 0);
+    
+    // Return the database name to the caller
+    return name;
 }
 
 

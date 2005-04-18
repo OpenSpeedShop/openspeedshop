@@ -93,9 +93,13 @@ namespace OpenSpeedShop { namespace Framework {
 
 	static bool isAccessible(const std::string&);
 	static void create(const std::string&);
+	static void remove(const std::string&);
 
 	explicit Experiment(const std::string&);
 	~Experiment();
+
+	void renameTo(const std::string&) const;
+	void copyTo(const std::string&) const;
 	
 	std::string getName() const;
 

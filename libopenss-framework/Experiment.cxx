@@ -237,7 +237,7 @@ bool Experiment::isAccessible(const std::string& name)
  *
  * Creates a new, empty, experiment database with the specified name.
  *
- * @param name    Name of the database to be created.
+ * @param name    Name of the experiment database to be created.
  */
 void Experiment::create(const std::string& name)
 {
@@ -257,15 +257,29 @@ void Experiment::create(const std::string& name)
 
 
 /**
+ * Remove an experiment database.
+ *
+ * Removes the experiment database with the specified name.
+ *
+ * @param name    Name of the experiment database to be removed.
+ */
+void Experiment::remove(const std::string& name)
+{
+    // Remove the database
+    Database::remove(name);
+}
+
+
+
+/**
  * Constructor from an experiment database name.
  *
  * Constructs an object for accessing the specified experiment database.
  * Any threads in this experiment that correspond to an underlying thread
  * are automatically reattached.
  *
- * @note    A DatabaseCannotOpen or DatabaseInvalid exception is thrown if the
- *          experiment database cannot be opened for any reason (including the
- *          database not being a valid experiment file in the later case).
+ * @note    A DatabaseInvalid exception is thrown if the specified name is not
+ *          a valid experiment database.
  *
  * @param name    Name of the experiment database to be accessed.
  */
@@ -321,6 +335,40 @@ Experiment::~Experiment()
 	Instrumentor::detachUnderlyingThread(*i);
 	
     }
+}
+
+
+
+/**
+ * Rename this experiment database.
+ *
+ * Renames this experiment database to the specified name. The experiment
+ * database is unmodified and still accessible via this object.
+ *
+ * @param name    New name of the database for this experiment.
+ */
+void Experiment::renameTo(const std::string& name) const
+{
+    // Rename the database
+    dm_database->renameTo(name);
+}
+
+
+
+/**
+ * Copy this experiment database.
+ *
+ * Copies this experiment database to the specified name. The original
+ * experiment database is unmodified and still accessible via this object.
+ * Accessing the copy involves creating a new Experiment object with the
+ * copy's name.
+ *
+ * @param name    Name of the created copy.
+ */
+void Experiment::copyTo(const std::string& name) const
+{
+    // Copy the database
+    dm_database->copyTo(name);
 }
 
 

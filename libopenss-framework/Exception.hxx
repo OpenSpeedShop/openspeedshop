@@ -70,8 +70,9 @@ namespace OpenSpeedShop { namespace Framework {
 	    CommandNotFound,       /**< Command couldn't be found. */
 	    CollectorUnavailable,  /**< Collector's plugin not available. */
 	    DatabaseCannotCreate,  /**< Database cannot be created. */
+	    DatabaseCannotRemove,  /**< Database cannot be removed. */
+	    DatabaseDoesNotExist,  /**< Database doesn't exist. */
 	    DatabaseExists,        /**< Database already exists. */
-	    DatabaseCannotOpen,    /**< Database cannot be opened. */
 	    DatabaseInvalid,       /**< Database isn't valid. */
 	    EntryNotFound,         /**< Database table entry not found. */
 	    EntryNotUnique,        /**< Database table entry not unique. */
