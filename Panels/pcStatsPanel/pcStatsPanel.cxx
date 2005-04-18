@@ -58,7 +58,8 @@ pcStatsPanel::pcStatsPanel(PanelContainer *pc, const char *n, void *argument) : 
   setCaption("pcStatsPanel");
 
   metricMenu = NULL;
-  metricStr = QString("time"); // Default to this for now...
+  metricStr = QString::null;
+  collectorStr = QString::null;
   expID = -1;
 }
 
@@ -106,7 +107,33 @@ pcStatsPanel::listener(void *msg)
 
   if( expID == -1 || expID != msg->expID )
   {
+    // Initialize the collector list....
     clo = new CollectorListObject(msg->expID);
+
+    // Now that you have the list initialize the default metricStr 
+    // and default collector string (if it's the first time..)
+
+    if( collectorStr.isEmpty() && metricStr.isEmpty() )
+    {
+      CollectorEntry *ce = NULL;
+      CollectorEntryList::Iterator it;
+      for( it = clo->collectorEntryList.begin();
+             it != clo->collectorEntryList.end();
+             ++it )
+      {
+        ce = (CollectorEntry *)*it;
+        CollectorMetricEntryList::Iterator pit = NULL;
+        for( pit =  ce->metricList.begin();pit != ce->metricList.end();  pit++)
+        {
+          CollectorMetricEntry *cpe = (CollectorMetricEntry *)*pit;
+// printf("\t%s\n", ce->name.ascii() );
+// printf("\t%s\n", cpe->name.ascii() );
+          collectorStr = ce->name;
+          metricStr = cpe->name;
+// printf("Initialize collectorStr=(%s) metricStr=(%s)\n", collectorStr.ascii(), metricStr.ascii() );
+        }
+      }
+    }
   }
   expID = msg->expID;
 // I know this is a problem.  -FIX
@@ -132,13 +159,18 @@ pcStatsPanel::listener(void *msg)
 bool
 pcStatsPanel::menu( QPopupMenu* contextMenu)
 {
-//  printf("pcStatsPanel::menu() entered.\n");
+//printf("pcStatsPanel::menu() entered.\n");
 
   if( metricMenu != NULL )
   {
     delete metricMenu;
   }
   metricMenu = NULL;
+
+  popupMenu = contextMenu; // So we can look up the text easily later.
+
+  connect(contextMenu, SIGNAL( highlighted(int) ),
+        this, SLOT(contextMenuHighlighted(int)) );
 
   contextMenu->insertSeparator();
 {  // Display by metrics...
@@ -153,25 +185,22 @@ pcStatsPanel::menu( QPopupMenu* contextMenu)
          ++it )
   {
     ce = (CollectorEntry *)*it;
-    CollectorMetricEntryList::Iterator pit = ce->metricList.begin();
-    if( ce->metricList.size() == 1 )
+    metricMenu = new QPopupMenu(this);
+    connect(metricMenu, SIGNAL( highlighted(int) ),
+               this, SLOT(metricMenuHighlighted(int)) );
+    contextMenu->insertItem(QString("Show Metric : %1").arg(ce->name), metricMenu);
+
+    CollectorMetricEntryList::Iterator pit = NULL;
+    for( pit =  ce->metricList.begin();pit != ce->metricList.end();  pit++)
     {
       CollectorMetricEntry *cpe = (CollectorMetricEntry *)*pit;
-      contextMenu->insertItem( QString("Show Metric ... (%1)").arg(cpe->name.ascii()), this, SLOT(metricSelected()) );
-    } else
-    {
-      metricMenu = new QPopupMenu(this);
-      connect( metricMenu, SIGNAL( activated( int ) ),
-                 this, SLOT( metricSelected( int ) ) );
-      contextMenu->insertItem("Show Metric", metricMenu);
-      for( ;pit != ce->metricList.end();  pit++)
-      {
-        CollectorMetricEntry *cpe = (CollectorMetricEntry *)*pit;
 // printf("\t%s\n", cpe->name.ascii() );
-        metricMenu->insertItem(cpe->name);
-      }
+//      metricMenu->insertItem(cpe->name);
+//      metricMenu->insertItem(cpe->name);
+      metricMenu->insertItem(cpe->name, this, SLOT(metricSelected()) );
     }
   }
+
 }
   contextMenu->insertSeparator();
 
@@ -445,36 +474,45 @@ pcStatsPanel::updateStatsPanelBaseData()
         fprintf(stderr, "There are no known collectors for this experiment.\n");
         return;
       }
-      CollectorGroup::iterator ci = cgrp.begin();
-      Collector c1 = *ci;
-  
-      nprintf( DEBUG_PANELS) ("GetMetricByFunctionInThread()\n");
-      Queries::GetMetricByFunctionInThread(c1, metricStr.ascii(), t1, orig_data);
-  
-      // Display the results
-      MetricHeaderInfoList metricHeaderInfoList;
-  //    metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("CPU Time (Seconds)"), FLOAT_T));
-      metricHeaderInfoList.push_back(new MetricHeaderInfo(QString(metricStr.ascii() ), FLOAT_T));
-      metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("% of Time"), FLOAT_T));
-      metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Cumulative %"), FLOAT_T));
-      metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Function"), CHAR_T));
-      if( metricHeaderTypeArray != NULL )
+      for(CollectorGroup::iterator ci = cgrp.begin();ci != cgrp.end();ci++)
       {
-        delete []metricHeaderTypeArray;
-      }
-      int header_count = metricHeaderInfoList.count();
-      metricHeaderTypeArray = new int[header_count];
+        Collector collector = *ci;
+        Metadata cm = collector.getMetadata();
+        QString name = QString(cm.getUniqueId().c_str());
+
+// printf("Try to match: name.ascii()=%s collectorStr.ascii()=%s\n", name.ascii(), collectorStr.ascii() );
+        if( name == collectorStr )
+        {
+          nprintf( DEBUG_PANELS) ("GetMetricByFunctionInThread()\n");
+// printf("GetMetricByFunction(%s  %s )\n", name.ascii(), metricStr.ascii() );
+          Queries::GetMetricByFunctionInThread(collector, metricStr.ascii(), t1, orig_data);
   
-      int i=0;
-      for( MetricHeaderInfoList::Iterator pit = metricHeaderInfoList.begin(); pit != metricHeaderInfoList.end(); ++pit )
-      { 
-        MetricHeaderInfo *mhi = (MetricHeaderInfo *)*pit;
-        QString s = mhi->label;
-        lv->addColumn( s );
-        metricHeaderTypeArray[i] = mhi->type;
-      
-        columnList.push_back( s );
-        i++;
+          // Display the results
+          MetricHeaderInfoList metricHeaderInfoList;
+          metricHeaderInfoList.push_back(new MetricHeaderInfo(QString(metricStr.ascii() ), FLOAT_T));
+          metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("% of Time"), FLOAT_T));
+          metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Cumulative %"), FLOAT_T));
+          metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Function"), CHAR_T));
+          if( metricHeaderTypeArray != NULL )
+          {
+            delete []metricHeaderTypeArray;
+          }
+          int header_count = metricHeaderInfoList.count();
+          metricHeaderTypeArray = new int[header_count];
+    
+          int i=0;
+          for( MetricHeaderInfoList::Iterator pit = metricHeaderInfoList.begin(); pit != metricHeaderInfoList.end(); ++pit )
+          { 
+            MetricHeaderInfo *mhi = (MetricHeaderInfo *)*pit;
+            QString s = mhi->label;
+            lv->addColumn( s );
+            metricHeaderTypeArray[i] = mhi->type;
+          
+            columnList.push_back( s );
+            i++;
+          }
+          break;
+        }
       }
   
       // Look up the latest of the preferences and apply them...
@@ -506,7 +544,7 @@ pcStatsPanel::updateStatsPanelBaseData()
         {
           numberItemsToDisplay = 5; // Default to top5.
         }
-     }
+      }
 
       nprintf( DEBUG_PANELS) ("Put the data out...\n");
 
@@ -593,21 +631,33 @@ pcStatsPanel::sortCalledRecalculateCumulative(int val)
 }
 
 void
-pcStatsPanel::metricSelected(int val)
+pcStatsPanel::metricSelected()
 { 
-// printf("metricSelected val=%d\n", val);
-// printf("metricSelected val=%s\n", QString("%1").arg(val).ascii() );
 
-  metricStr = metricMenu->text(val);
+// metricStr = metricMenu->text(val);
 // printf("metricStr = (%s)\n", metricStr.ascii() );
+ 
+
+// printf("collectorStrFromMenu=(%s)\n", collectorStrFromMenu.ascii() );
+ int loc = collectorStrFromMenu.find(':');
+ collectorStr = collectorStrFromMenu.right(collectorStrFromMenu.length()-(loc+2));
+// printf("collectorStr=(%s)\n", collectorStr.ascii() );
+
   updateStatsPanelBaseData();
 }
 
 void
-pcStatsPanel::metricSelected()
+pcStatsPanel::contextMenuHighlighted(int val)
 { 
-// printf("metricSelected() entered\n");
+//   printf("contextMenuHighlighted val=%d\n", val);
+// printf("contextMenuHighlighted: Full collectorStr=(%s)\n", popupMenu->text(val).ascii() );
+   collectorStrFromMenu = popupMenu->text(val).ascii();
+}
 
-// printf("metricStr = (%s)\n", metricStr.ascii() );
-  updateStatsPanelBaseData();
+void
+pcStatsPanel::metricMenuHighlighted(int val)
+{ 
+//   printf("metricMenuHighlighted val=%d\n", val);
+// printf("metricMenuHighlighted: Full collectorStr=(%s)\n", popupMenu->text(val).ascii() );
+   metricStr = popupMenu->text(val).ascii();
 }

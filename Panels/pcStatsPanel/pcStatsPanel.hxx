@@ -70,8 +70,11 @@ class pcStatsPanel  : public StatsPanelBase
     virtual void languageChange();
 
     QPopupMenu *metricMenu;
+    QPopupMenu *popupMenu;   // Pointer to the contextMenu
 
     QString metricStr;
+    QString collectorStr;
+    QString collectorStrFromMenu;
 
   public slots:
     void itemSelected( QListViewItem * );
@@ -83,7 +86,8 @@ class pcStatsPanel  : public StatsPanelBase
     virtual void sortCalledRecalculateCumulative(int);
 
     void metricSelected();
-    void metricSelected(int);
+    void contextMenuHighlighted(int);
+    void metricMenuHighlighted(int);
 
   private:
     void matchSelectedItem( std::string function_name );

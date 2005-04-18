@@ -83,9 +83,9 @@ CollectorListObject::createCollectorList(int expID)
     {
       for(CollectorGroup::iterator ci = cgrp.begin();ci != cgrp.end();ci++)
       {
-        Collector pcSampleCollector = *ci;
+        Collector collector = *ci;
             
-        Metadata cm = pcSampleCollector.getMetadata();
+        Metadata cm = collector.getMetadata();
 
         QString name = QString(cm.getUniqueId().c_str());
         QString short_name = QString(cm.getShortName().c_str());
@@ -93,7 +93,7 @@ CollectorListObject::createCollectorList(int expID)
         CollectorEntry *ce = new CollectorEntry(name, short_name, description);
 
         Metadata m;
-        std::set<Metadata> md =pcSampleCollector.getParameters();
+        std::set<Metadata> md =collector.getParameters();
         std::set<Metadata>::const_iterator mi;
         for (mi = md.begin(); mi != md.end(); mi++)
         {
@@ -111,17 +111,17 @@ CollectorListObject::createCollectorList(int expID)
             if( m.isType(typeid(int)) )
             {
 //              printf("int\n");
-              pcSampleCollector.getParameterValue(param.ascii(), int_param);
+              collector.getParameterValue(param.ascii(), int_param);
               param_val = QString("%1").arg(int_param);
             } else if( m.isType(typeid(unsigned int)) )
             {
 //              printf("unsigned int\n");
-              pcSampleCollector.getParameterValue(param.ascii(), uint_param);
+              collector.getParameterValue(param.ascii(), uint_param);
               param_val = QString("%1").arg(uint_param);
             } else if( m.isType(typeid(double)) )
             {
 //              printf("double\n");
-              pcSampleCollector.getParameterValue(param.ascii(), double_param);
+              collector.getParameterValue(param.ascii(), double_param);
               param_val = QString("%1").arg(double_param);
             } else
             {
@@ -134,7 +134,7 @@ CollectorListObject::createCollectorList(int expID)
 //Begin metrics
 {
         Metadata m;
-        std::set<Metadata> md =pcSampleCollector.getMetrics();
+        std::set<Metadata> md =collector.getMetrics();
         std::set<Metadata>::const_iterator mi;
         for (mi = md.begin(); mi != md.end(); mi++)
         {
