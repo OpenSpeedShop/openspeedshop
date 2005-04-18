@@ -69,9 +69,11 @@ class pcStatsPanel  : public StatsPanelBase
     //! Sets the language specific strings.
     virtual void languageChange();
 
+    QPopupMenu *threadMenu;
     QPopupMenu *metricMenu;
     QPopupMenu *popupMenu;   // Pointer to the contextMenu
 
+    QString threadStr;
     QString metricStr;
     QString collectorStr;
     QString collectorStrFromMenu;
@@ -85,9 +87,11 @@ class pcStatsPanel  : public StatsPanelBase
   private slots:
     virtual void sortCalledRecalculateCumulative(int);
 
+    void threadSelected();
     void metricSelected();
-    void contextMenuHighlighted(int);
+    void threadMenuHighlighted(int);
     void metricMenuHighlighted(int);
+    void contextMenuHighlighted(int);
 
   private:
     void matchSelectedItem( std::string function_name );

@@ -200,6 +200,45 @@ pcStatsPanel::menu( QPopupMenu* contextMenu)
       metricMenu->insertItem(cpe->name, this, SLOT(metricSelected()) );
     }
   }
+// Begin try a pid/thread menu hook 
+try
+{
+  ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+
+  if( eo->FW() != NULL )
+  {
+// The following bit of code was snag and modified from SS_View_exp.cxx
+    ThreadGroup tgrp = eo->FW()->getThreads();
+    ThreadGroup::iterator ti;
+    bool atleastone = false;
+    threadMenu = new QPopupMenu(this);
+    connect(threadMenu, SIGNAL( highlighted(int) ),
+               this, SLOT(threadMenuHighlighted(int)) );
+    contextMenu->insertItem(QString("Show Thread/Process"), threadMenu);
+    for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
+    {
+      Thread t = *ti;
+      std::string host = t.getHost();
+      pid_t pid = t.getProcessId();
+      if (!atleastone)
+      {
+        atleastone = true;
+      }
+      QString pidstr = QString("%1").arg(pid);
+      threadMenu->insertItem(pidstr, this, SLOT(threadSelected()) );
+    }
+  }
+}
+catch(const std::exception& error)
+{ 
+  std::cerr << std::endl << "Error: "
+            << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+            "Unknown runtime error." : error.what()) << std::endl
+            << std::endl;
+  return 0;
+}
+  
+// End try a pid/thread menu hook 
 
 }
   contextMenu->insertSeparator();
@@ -468,6 +507,22 @@ pcStatsPanel::updateStatsPanelBaseData()
       }
       ThreadGroup::iterator ti = tgrp.begin();
       Thread t1 = *ti;
+// Begin: If the user requested a specific thread, use it instead.
+// The following bit of code was snag and modified from SS_View_exp.cxx
+    for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
+    {
+      Thread t = *ti;
+      std::string host = t.getHost();
+      pid_t pid = t.getProcessId();
+      QString pidstr = QString("%1").arg(pid);
+      if( pidstr == threadStr )
+      {
+// printf("Using %s\n", threadStr.ascii() );
+        t1 = *ti;
+        break;
+      }
+    }
+// End: If the user requested a specific thread, use it instead.
       CollectorGroup cgrp = fw_experiment->getCollectors();
       if( cgrp.size() == 0 )
       {
@@ -484,7 +539,7 @@ pcStatsPanel::updateStatsPanelBaseData()
         if( name == collectorStr )
         {
           nprintf( DEBUG_PANELS) ("GetMetricByFunctionInThread()\n");
-// printf("GetMetricByFunction(%s  %s )\n", name.ascii(), metricStr.ascii() );
+// printf("GetMetricByFunction(%s  %s %s)\n", name.ascii(), metricStr.ascii(), QString("%1").arg(t1.getProcessId()).ascii() );
           Queries::GetMetricByFunctionInThread(collector, metricStr.ascii(), t1, orig_data);
   
           // Display the results
@@ -647,17 +702,48 @@ pcStatsPanel::metricSelected()
 }
 
 void
+pcStatsPanel::threadSelected()
+{ 
+
+// printf("threadStr = (%s)\n", threadStr.ascii() );
+ 
+
+// printf("collectorStrFromMenu=(%s)\n", collectorStrFromMenu.ascii() );
+ int loc = collectorStrFromMenu.find(':');
+ collectorStr = collectorStrFromMenu.right(collectorStrFromMenu.length()-(loc+2));
+// printf("collectorStr=(%s)\n", collectorStr.ascii() );
+
+  updateStatsPanelBaseData();
+}
+
+void
 pcStatsPanel::contextMenuHighlighted(int val)
 { 
-//   printf("contextMenuHighlighted val=%d\n", val);
+// printf("contextMenuHighlighted val=%d\n", val);
 // printf("contextMenuHighlighted: Full collectorStr=(%s)\n", popupMenu->text(val).ascii() );
-   collectorStrFromMenu = popupMenu->text(val).ascii();
+QString s = popupMenu->text(val).ascii();
+
+if( s.find("Show Metric :") != -1 )
+{
+  collectorStrFromMenu = popupMenu->text(val).ascii();
+}
+
 }
 
 void
 pcStatsPanel::metricMenuHighlighted(int val)
 { 
-//   printf("metricMenuHighlighted val=%d\n", val);
+// printf("metricMenuHighlighted val=%d\n", val);
 // printf("metricMenuHighlighted: Full collectorStr=(%s)\n", popupMenu->text(val).ascii() );
+
    metricStr = popupMenu->text(val).ascii();
+}
+
+void
+pcStatsPanel::threadMenuHighlighted(int val)
+{ 
+// printf("threadMenuHighlighted val=%d\n", val);
+// printf("threadMenuHighlighted: Full collectorStr=(%s)\n", popupMenu->text(val).ascii() );
+   threadStr = popupMenu->text(val).ascii();
+// printf("threadStr=(%s)\n", threadStr.ascii() );
 }
