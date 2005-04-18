@@ -16,7 +16,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-BUILT_SOURCES = SS_Parse_Yacc.h
+BUILT_SOURCES = SS_Preparse.py
 AM_YFLAGS = -d
 
 dist_pkglib_SCRIPTS = myparse.py
