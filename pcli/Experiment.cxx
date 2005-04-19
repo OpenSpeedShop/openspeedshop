@@ -715,8 +715,10 @@ static bool Enable_Experiment (CommandObject *cmd, ExperimentObject *exp) {
     cgrp.startCollecting(tgrp);
   }
   catch(const Exception& error) {
-    Mark_Cmd_With_Std_Error (cmd, error);
-    return false;
+    if (error.getCode() != Exception::ThreadUnavailable) {
+      Mark_Cmd_With_Std_Error (cmd, error);
+      return false;
+    }
   }
 
   return true;
@@ -995,15 +997,26 @@ bool SS_expSave (CommandObject *cmd) {
  // Look at general modifier types for "copy" option.
   bool Copy_KeyWord = Look_For_KeyWord (cmd, "copy");
 
-  bool cmd_success = false;
   if (Copy_KeyWord) {
-    cmd_success = exp->CopyDB (data_base_name);
+    try {
+      exp->CopyDB (data_base_name);
+    }
+    catch(const Exception& error) {
+      Mark_Cmd_With_Std_Error (cmd, error);
+      return false;
+    }
   } else {
-    cmd_success = exp->RenameDB (data_base_name);
+    try {
+      exp->RenameDB (data_base_name);
+    }
+    catch(const Exception& error) {
+      Mark_Cmd_With_Std_Error (cmd, error);
+      return false;
+    }
   }
 
-  cmd->set_Status(cmd_success ? CMD_COMPLETE : CMD_ERROR);
-  return cmd_success;
+  cmd->set_Status(CMD_COMPLETE);
+  return true;
 }
 
 static bool setparam (Collector C, std::string pname, ParseParam pvalue) {
