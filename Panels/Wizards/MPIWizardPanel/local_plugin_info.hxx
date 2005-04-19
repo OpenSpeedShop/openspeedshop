@@ -20,6 +20,7 @@
   plugin_entry->grouping = "TOPLEVEL";
   plugin_entry->show_immediate = 0;
   plugin_entry->plugin_description = "PLUGIN_DESCRIPTMPIN";
+plugin_entry->plugin_short_description = "Manages setup for the MPI Experiment.";
   plugin_entry->plugin_name =  "MPIWizardPanel.so";
   plugin_entry->plugin_location = "$OPENSS_PLUGIN_PATH";
   plugin_entry->plugin_entry_point = "panel_init";

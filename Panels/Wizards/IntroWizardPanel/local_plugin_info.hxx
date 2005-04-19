@@ -20,6 +20,7 @@
   plugin_entry->grouping = "TOPLEVEL";
   plugin_entry->show_immediate = 0;
   plugin_entry->plugin_description = "PLUGIN_DESCRIPTION";
+plugin_entry->plugin_short_description = "The top most, highlevel wizard.  (Start here for full wizard functionality.)";
   plugin_entry->plugin_name =  "IntroWizardPanel.so";
   plugin_entry->plugin_location = "$OPENSS_PLUGIN_PATH";
   plugin_entry->plugin_entry_point = "panel_init";

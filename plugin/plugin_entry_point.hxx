@@ -20,6 +20,7 @@
 #include "openspeedshop.hxx"
 #include "PluginInfo.hxx"
 #include <qaction.h>
+#include <qobject.h>
 
 // // #define DEBUG_OUTPUT_REQUESTED 1
 #include "debug.hxx"
@@ -151,6 +152,10 @@ extern "C"
     action->setMenuText( pluginInfo->menu_label );
     dprintf("assign the accelerator to %s\n", pluginInfo->menu_accel );
     action->setAccel( QString(pluginInfo->menu_accel) );
+    if( pluginInfo->plugin_short_description )
+    {
+      action->setStatusTip(QObject::tr(pluginInfo->plugin_short_description) );
+    }
   
     pluginInfo->slotInfo->connect( action,
       SIGNAL( activated() ), pluginInfo->slotInfo,

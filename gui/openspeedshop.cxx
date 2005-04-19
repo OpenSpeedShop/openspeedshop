@@ -195,14 +195,17 @@ void OpenSpeedshop::languageChange()
   fileOpenExperimentAction->setText( tr( "Open Existing Experiment..." ) );
   fileOpenExperimentAction->setMenuText( tr( "&Open Existing Experiment..." ) );
   fileOpenExperimentAction->setAccel( tr( "Ctrl+O" ) );
+fileOpenExperimentAction->setStatusTip( tr("Open an experiment that has been created in the cli, but is not currently in a window.") );
 
-  fileOpenSavedExperimentAction->setText( tr( "Open Saved Experiment..." ) );
+  fileOpenSavedExperimentAction->setText( tr( "Open Saved Experiment (From Saved File) ..." ) );
   fileOpenSavedExperimentAction->setMenuText( tr( "Open S&aved Experiment..." ) );
+fileOpenSavedExperimentAction->setStatusTip( tr("Open an experiment that was saved to a file for later viewing.") );
   fileOpenSavedExperimentAction->setAccel( tr( "Ctrl+A" ) );
 
-  fileSaveExperimentAction->setText( tr( "Save Experiment Data" ) );
-  fileSaveExperimentAction->setMenuText( tr( "&Save Experiment Data" ) );
+  fileSaveExperimentAction->setText( tr( "Save Experiment Data..." ) );
+  fileSaveExperimentAction->setMenuText( tr( "&Save Experiment Data..." ) );
   fileSaveExperimentAction->setAccel( tr( "Ctrl+S" ) );
+fileSaveExperimentAction->setStatusTip( tr("Save the experiment data to a file for later viewing.") );
 
 #ifdef EXPORT
   fileExportExperimentDataAction->setText( tr( "Export Experiment Data" ) );
@@ -219,11 +222,17 @@ void OpenSpeedshop::languageChange()
   filePreferencesAction->setText( tr( "Preferences" ) );
   filePreferencesAction->setMenuText( tr( "&Preferences..." ) );
   filePreferencesAction->setAccel( QString::null );
+filePreferencesAction->setStatusTip( tr("Open the Preferences Panel to set persistent preferences.") );
+
   fileCloseAction->setText( tr( "Close" ) );
   fileCloseAction->setMenuText( tr( "C&lose" ) );
+fileCloseAction->setStatusTip( tr("Close the windows, but don't exit the tool.  \"opengui\" form the openss>> prompt reopens the windows.") );
+
   fileCloseAction->setAccel( QString::null );
   fileExitAction->setText( tr( "Exit" ) );
   fileExitAction->setMenuText( tr( "E&xit" ) );
+fileExitAction->setStatusTip( tr("Exit the entire session closing down all experiments.") );
+
   fileExitAction->setAccel( QString::null );
   helpContentsAction->setText( tr( "Contents" ) );
   helpContentsAction->setMenuText( tr( "&Contents..." ) );
