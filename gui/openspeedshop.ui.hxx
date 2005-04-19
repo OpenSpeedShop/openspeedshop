@@ -237,35 +237,24 @@ void OpenSpeedshop::fileOpenSavedExperiment()
 //printf("  with the same layout as what it was left in during the prior\n");
 //printf("  save.\n");
 
-  QFileDialog *sed = new QFileDialog(this, "file dialog", TRUE );
-  sed->setCaption( QFileDialog::tr("Enter saved experiment name:") );
-  sed->setMode( QFileDialog::AnyFile );
-  QString types(
-                  "Open|SpeedShop files (*.openss);;"
-                  );
-  sed->setFilters( types );
-//    sed->setDir(dirName);
+  QString fn = QFileDialog::getOpenFileName(
+                    "./",
+                    "Open|SpeedShop files (*.openss);;",
+                    this,
+                    "open file dialog",
+                    "Choose a experiment file to open" );
 
-  QString fileName = QString::null;
-  if( sed->exec() == QDialog::Accepted )
+  if( !fn.isEmpty() )
   {
-    fileName = sed->selectedFile();
-    if( !fileName.isEmpty() )
-    {
-      QString command;
-      command = QString("expRestore -f %1").arg(fileName);
+    QString command;
+    command = QString("expRestore -f %1").arg(fn);
 //QMessageBox::information( (QWidget *)NULL, tr("Info: Unable to complete command"), tr("This feature currently under construction.\nCommand to be executed:\n%1").arg(command), QMessageBox::Ok );
 //return;
-      if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
-      {
-        printf("Unable to run %s command.\n", command.ascii() );
-      }
-    } else
+    if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
     {
-      return;
+      printf("Unable to run %s command.\n", command.ascii() );
     }
   }
-
 }
 
 void OpenSpeedshop::fileSaveExperiment()
