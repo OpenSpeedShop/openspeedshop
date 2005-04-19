@@ -82,17 +82,16 @@ class ExperimentObject
   ~ExperimentObject () {
     ExperimentObject_list.remove (this);
     if (FW_Experiment != NULL) {
-      if (Data_File_Has_A_Generated_Name) {
-        int err = remove (FW_Experiment->getName().c_str());
-        Data_File_Has_A_Generated_Name = false;
-      }
       try {
+        if (Data_File_Has_A_Generated_Name) {
+          FW_Experiment->remove (FW_Experiment->getName());
+        }
         delete FW_Experiment;
       }
       catch(const Exception& error) {
        // Don't really care why.
-        Data_File_Has_A_Generated_Name = false;
       }
+      Data_File_Has_A_Generated_Name = false;
       FW_Experiment = NULL;
     }
     Exp_ID = 0;
@@ -162,55 +161,19 @@ class ExperimentObject
 
   void setStatus (int S) {ExpStatus = S;}
 
-  bool RenameDB (std::string New_DB) {
-   // Determine the old DataBase Name.
-    std::string Old_DB;
-    if (Status() == ExpStatus_Suspended) {
-      return false;
-    } else {
-      Old_DB = FW_Experiment->getName();
+  void RenameDB (std::string New_DB) {
+   // Rename the data base file.
+    if (FW_Experiment != NULL) {
+      FW_Experiment->renameTo(New_DB);
+      Data_File_Has_A_Generated_Name = false;
     }
-
-   // Rename the Old DataBase.
-    int len1 = Old_DB.length();
-    int len2 = New_DB.length();
-    char *scmd = (char *)malloc(6 + len1 + len2);
-    sprintf(scmd,"mv %s %s\n\0",Old_DB.c_str(),New_DB.c_str());
-    int ret = system(scmd);
-    free (scmd);
-    if (ret == 0) {
-     // Success!
-      try {
-        delete FW_Experiment;  // Get rid of the old experiment
-        FW_Experiment = new OpenSpeedShop::Framework::Experiment (New_DB);
-        Data_File_Has_A_Generated_Name = false;
-      }
-      catch(const Exception& error) {
-       // Don't really care why.
-       // Signal an error to calling routine.
-        ret = -1;
-      }
-    }
-    return (ret == 0);  // "0" indicates succcess!
   }
 
-  bool CopyDB (std::string New_DB) {
-   // Determine the old DataBase Name.
-    std::string Old_DB;
-    if (Status() == ExpStatus_Suspended) {
-      return false;
-    } else {
-      Old_DB = FW_Experiment->getName();
+  void CopyDB (std::string New_DB) {
+   // Make a copy of the data base file.
+    if (FW_Experiment != NULL) {
+      FW_Experiment->copyTo(New_DB);
     }
-
-   // Copy the Old DataBase into the New location.
-    int len1 = Old_DB.length();
-    int len2 = New_DB.length();
-    char *scmd = (char *)malloc(6 + len1 + len2);
-    sprintf(scmd,"cp %s %s\n\0",Old_DB.c_str(),New_DB.c_str());
-    int ret = system(scmd);
-    free (scmd);
-    return (ret == 0);  // "0" indicates success!
   }
 
   std::string ExpStatus_Name () {
