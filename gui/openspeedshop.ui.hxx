@@ -253,9 +253,9 @@ void OpenSpeedshop::fileOpenSavedExperiment()
     if( !fileName.isEmpty() )
     {
       QString command;
-      command = QString("expRestore %1").arg(fileName);
-QMessageBox::information( (QWidget *)NULL, tr("Info: Unable to complete command"), tr("This feature currently under construction.\nCommand to be executed:\n%1").arg(command), QMessageBox::Ok );
-return;
+      command = QString("expRestore -f %1").arg(fileName);
+//QMessageBox::information( (QWidget *)NULL, tr("Info: Unable to complete command"), tr("This feature currently under construction.\nCommand to be executed:\n%1").arg(command), QMessageBox::Ok );
+//return;
       if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
       {
         printf("Unable to run %s command.\n", command.ascii() );
