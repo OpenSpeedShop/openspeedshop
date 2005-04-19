@@ -46,6 +46,7 @@ public:
     SelectExperimentDialog( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0 );
     ~SelectExperimentDialog();
 
+    QLabel* headerLabel;
     QPushButton* buttonHelp;
     QPushButton* buttonOk;
     QPushButton* buttonCancel;

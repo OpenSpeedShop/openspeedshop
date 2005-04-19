@@ -50,6 +50,9 @@ SelectExperimentDialog::SelectExperimentDialog( QWidget* parent, const char* nam
   setSizeGripEnabled( TRUE );
   SelectExperimentDialogLayout = new QVBoxLayout( this, 11, 6, "SelectExperimentDialogLayout"); 
 
+  headerLabel = new QLabel(this, "headerLabel");
+  SelectExperimentDialogLayout->addWidget( headerLabel );
+
   availableExperimentsListView = new QListView( this, "availableExperimentsListView" );
   availableExperimentsListView->addColumn( tr( "Experiment ID:" ) );
   availableExperimentsListView->addColumn( tr( "Name:" ) );
@@ -106,6 +109,7 @@ SelectExperimentDialog::~SelectExperimentDialog()
 void SelectExperimentDialog::languageChange()
 {
   setCaption( tr( name() ) );
+  headerLabel->setText( tr( "Select the item to be raised:" ) );
   buttonHelp->setText( tr( "&Help" ) );
   buttonHelp->setAccel( QKeySequence( tr( "F1" ) ) );
   buttonOk->setText( tr( "&OK" ) );
