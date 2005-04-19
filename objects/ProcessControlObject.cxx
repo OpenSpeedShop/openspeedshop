@@ -136,6 +136,8 @@ ProcessControlObject::ProcessControlObject(QVBoxLayout *frameLayout, QWidget *ba
   interruptButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, interruptButton->sizePolicy().hasHeightForWidth() ) );
   buttonGroupLayout->addWidget( interruptButton );
   interruptButton->setText( tr("Interrupt") );
+// Hide this until you finally know what to do with it...
+interruptButton->hide();
   }
 
   {
