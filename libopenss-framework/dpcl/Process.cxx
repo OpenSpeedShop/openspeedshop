@@ -117,7 +117,7 @@ namespace {
      */
     void stateChangedCB(GCBSysType, GCBTagType tag, GCBObjType, GCBMsgType msg)
     {	
-	std::string name = std::string(reinterpret_cast<char*>(tag));
+	std::string* name = reinterpret_cast<std::string*>(tag);
 	AisStatus* retval = reinterpret_cast<AisStatus*>(msg);
 	SmartPtr<Process> process;
 	
@@ -130,8 +130,11 @@ namespace {
 	    Guard guard_process_table(ProcessTable::TheTable);
 	    
 	    // Get the process (if any) by its unique name
-	    process = ProcessTable::TheTable.getProcessByName(name);
+	    process = ProcessTable::TheTable.getProcessByName(*name);
 	}
+
+	// Destroy the name string allocated by Process::changeState()
+	delete name;
 	
 	// Go no further if the process no longer exists
 	if(process.isNull())
@@ -520,11 +523,11 @@ void Process::changeState(const Thread::State& state)
     if(dm_current_state == Thread::Terminated)
 	throw Exception(Exception::StateChangeInvalid, "terminated",
 			(state == Thread::Suspended) ? "suspend" : "run");
-    
-    // Cast the process' name to the proper type for use below
-    std::string name = formUniqueName(dm_host, dm_pid);
-    void* name_ptr =
-	const_cast<void*>(reinterpret_cast<const void*>(name.c_str()));
+
+    // Allocate and cast the process' name to the proper type for use below
+    void* name_ptr = reinterpret_cast<void*>(
+	new std::string(formUniqueName(dm_host, dm_pid))
+	);
     
     // Handle Suspended --> Running
     if((dm_current_state == Thread::Suspended) && (state == Thread::Running)) {
