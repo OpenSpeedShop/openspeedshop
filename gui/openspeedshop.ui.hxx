@@ -216,7 +216,8 @@ void OpenSpeedshop::fileOpenExperiment()
 
 
 //printf("pane_type.ascii() = %s\n", panel_type.ascii() );
-  topPC->dl_create_and_add_panel((char *)panel_type.ascii(), topPC->leftPanelContainer, (void *)&expStr);
+  PanelContainer *bestFitPC = ((PanelContainer *)topPC)->findBestFitPanelContainer((PanelContainer *)topPC);
+  topPC->dl_create_and_add_panel((char *)panel_type.ascii(), bestFitPC, (void *)&expStr);
     }
   }
 
@@ -730,9 +731,9 @@ if( fd )
       lastTopPC = createPanelContainer( topWidget, pc_name, NULL, lastTopPC->getMasterPCList() );
   
       lastTopPC->topLevel = TRUE;
-    // Mark the new PanelContainer as s outsidePC.
-targetPC->outsidePC = TRUE;
-targetPC->topWidget = topLevelWidget;
+      // Mark the new PanelContainer as s outsidePC.
+      targetPC->outsidePC = TRUE;
+      targetPC->topWidget = topLevelWidget;
 
   
       topWidget->setGeometry(x,y, width, height);
