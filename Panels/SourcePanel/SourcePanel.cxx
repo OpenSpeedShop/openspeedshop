@@ -38,6 +38,7 @@
 #include <qfiledialog.h>
 #include <qinputdialog.h>
 #include <qheader.h>
+#include <qaction.h>
 
 #include <qmessagebox.h>
 
@@ -201,36 +202,97 @@ SourcePanel::menu(QPopupMenu* contextMenu)
   nprintf(DEBUG_PANELS) ("SourcePanel::menu() requested.\n");
 
   contextMenu->insertSeparator();
-contextMenu->insertItem("&Save As...", this, SLOT(saveAs()), CTRL+Key_O );
+
+//  contextMenu->insertItem("&Save As...", this, SLOT(saveAs()), CTRL+Key_O );
+  QAction *qaction = new QAction( this,  "saveAs");
+  qaction->addTo( contextMenu );
+  qaction->setText( tr("Save As...") );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( saveAs() ) );
+  qaction->setStatusTip( tr("Save panel to ascii file.") );
+
   contextMenu->insertSeparator();
-  contextMenu->insertItem("&Open New", this, SLOT(chooseFile()), CTRL+Key_O );
-  contextMenu->insertItem("&Goto Line...", this, SLOT(goToLine()), CTRL+Key_G );
+//  contextMenu->insertItem("&Open New", this, SLOT(chooseFile()), CTRL+Key_O );
+  qaction = new QAction( this,  "openNew");
+  qaction->addTo( contextMenu );
+  qaction->setText( tr("Open New...") );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( chooseFile() ) );
+  qaction->setStatusTip( tr("Open a new file and load it into panel.") );
+
+//  contextMenu->insertItem("&Goto Line...", this, SLOT(goToLine()), CTRL+Key_G );
+  qaction = new QAction( this,  "gotoLine");
+  qaction->addTo( contextMenu );
+  qaction->setText( tr("Goto Line...") );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( goToLine() ) );
+  qaction->setStatusTip( tr("Goto a specific source line.") );
+
 if( expID > 0 )
 {
-  contextMenu->insertItem("&Goto Function...", this, SLOT(goToFunction()), CTRL+Key_F );
+//  contextMenu->insertItem("&Goto Function...", this, SLOT(goToFunction()), CTRL+Key_F );
+  qaction = new QAction( this,  "gotoFunction");
+  qaction->addTo( contextMenu );
+  qaction->setText( tr("Goto Function...") );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( goToFunction() ) );
+  qaction->setStatusTip( tr("Goto a specific function.") );
 }
   if( line_numbersFLAG == TRUE )
   {
-    contextMenu->insertItem("Hide &Line Numbers...", this,
-      SLOT(showLineNumbers()), CTRL+Key_L );
+//    contextMenu->insertItem("Hide &Line Numbers...", this,
+//      SLOT(showLineNumbers()), CTRL+Key_L );
+    qaction = new QAction( this,  "hideLineNumbers");
+    qaction->addTo( contextMenu );
+    qaction->setText( tr("Hide Line Numbers") );
+    connect( qaction, SIGNAL( activated() ), this, SLOT( showLineNumbers() ) );
+    qaction->setStatusTip( tr("Hide the line numbers.") );
   } else
   {
-    contextMenu->insertItem("Show &Line Numbers...", this,
-      SLOT(showLineNumbers()), CTRL+Key_L );
+//    contextMenu->insertItem("Show &Line Numbers...", this,
+//      SLOT(showLineNumbers()), CTRL+Key_L );
+    qaction = new QAction( this,  "showLineNumbers");
+    qaction->addTo( contextMenu );
+    qaction->setText( tr("Show Line Numbers") );
+    connect( qaction, SIGNAL( activated() ), this, SLOT( showLineNumbers() ) );
+    qaction->setStatusTip( tr("Show line numbers.") );
   }
   if( statsFLAG == TRUE )
   {
-    contextMenu->insertItem("Hide &Statistics...", this,
-    SLOT(showCanvasForm()), CTRL+Key_L );
+//    contextMenu->insertItem("Hide &Statistics...", this,
+//      SLOT(showCanvasForm()), CTRL+Key_L );
+    qaction = new QAction( this,  "hideStatistics");
+    qaction->addTo( contextMenu );
+    qaction->setText( tr("Hide Statistics") );
+    connect( qaction, SIGNAL( activated() ), this, SLOT( showCanvasForm() ) );
+    qaction->setStatusTip( tr("Hide statistics canvas.") );
   } else
   {
-    contextMenu->insertItem("Show &Statistics...", this,
-    SLOT(showCanvasForm()), CTRL+Key_L );
+//    contextMenu->insertItem("Show &Statistics...", this,
+//      SLOT(showCanvasForm()), CTRL+Key_L );
+    qaction = new QAction( this,  "showStatistics");
+    qaction->addTo( contextMenu );
+    qaction->setText( tr("Show Statistics") );
+    connect( qaction, SIGNAL( activated() ), this, SLOT( showCanvasForm() ) );
+    qaction->setStatusTip( tr("Show statistics canvas. (Currently unimplemented.)") );
   }
-  contextMenu->insertItem("&Find...", this, SLOT(findString()), CTRL+Key_F );
+//  contextMenu->insertItem("&Find...", this, SLOT(findString()), CTRL+Key_F );
+  qaction = new QAction( this,  "findString");
+  qaction->addTo( contextMenu );
+  qaction->setText( tr("Find...") );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( findString() ) );
+  qaction->setStatusTip( tr("Search for a string in this source panel.") );
+
   contextMenu->insertSeparator();
-  contextMenu->insertItem("Zoom In", this, SLOT(zoomIn()), CTRL+Key_Plus );
-  contextMenu->insertItem("Zoom Out", this, SLOT(zoomOut()), CTRL+Key_Minus );
+//  contextMenu->insertItem("Zoom In", this, SLOT(zoomIn()), CTRL+Key_Plus );
+  qaction = new QAction( this,  "zoomIn");
+  qaction->addTo( contextMenu );
+  qaction->setText( tr("Zoom In") );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( zoomIn() ) );
+  qaction->setStatusTip( tr("Makes the font larger.") );
+
+//  contextMenu->insertItem("Zoom Out", this, SLOT(zoomOut()), CTRL+Key_Minus );
+  qaction = new QAction( this,  "zoomOut");
+  qaction->addTo( contextMenu );
+  qaction->setText( tr("Zoom Out") );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( zoomOut() ) );
+  qaction->setStatusTip( tr("Makes the font smaller.") );
 
   return( TRUE );
 }
