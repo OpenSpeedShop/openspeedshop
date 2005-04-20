@@ -1735,13 +1735,9 @@ PanelContainer::removeRaisedPanel(PanelContainer *targetPC)
       return;
     }
 
-// printf("Current page (raised tab) = %d (%s) p=(%s)\n", currentPageIndex, targetPC->tabWidget->label(currentPageIndex).ascii(), p->getName() );
-    if( p )
-    {
-      ClosingDownObject *cdo = new ClosingDownObject();
-      p->listener((char *)cdo);
-//      getMasterPC()->notifyAllDecendants((char *)cdo, targetPC);
-    }
+// printf("%d: Current page (raised tab) = %d (%s) p=(%s)\n", getMasterPC()->_eventsEnabled, currentPageIndex, targetPC->tabWidget->label(currentPageIndex).ascii(), p->getName() );
+    ClosingDownObject *cdo = new ClosingDownObject();
+    p->listener((char *)cdo);
 
     targetPC->tabWidget->removePage(currentPage);
     deletePanel(p, targetPC);
@@ -1770,7 +1766,7 @@ PanelContainer::removePanels(PanelContainer *targetPC)
     targetPC = getMasterPC()->_lastPC;
   }
   nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::removePanels from (%s-%s)\n", targetPC->getInternalName(), targetPC->getExternalName() );
- 
+
   bool savedEnableState = getMasterPC()->_eventsEnabled;
   getMasterPC()->_eventsEnabled = FALSE;
 
@@ -1796,6 +1792,10 @@ PanelContainer::removePanels(PanelContainer *targetPC)
 void
 PanelContainer::removeLastPanelContainer() 
 {
+  // Prewarn all panels that they're going away...
+  ClosingDownObject *cdo = new ClosingDownObject();
+  getMasterPC()->notifyAllDecendants((char *)cdo, getMasterPC()->_lastPC);   
+ 
   removePanelContainer(getMasterPC()->_lastPC);
 }
 
