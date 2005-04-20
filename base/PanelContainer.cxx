@@ -1662,7 +1662,7 @@ PanelContainer::deletePanel(Panel *p, PanelContainer *targetPC)
     nprintf(DEBUG_PANELCONTAINERS) ("we've got a hidden panel to delete.  delete it (%s)\n",
     p->getName() );
     targetPC->panelList.remove(p);   
-    nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::removeRaisedPanel() delete %s\n", p->getName() );
+    nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::deletePanel() delete %s\n", p->getName() );
     // If the panel is a toplevel, delete any panel containers it may have.
     if( p->topLevel == TRUE && p->topPC != NULL )
     {
@@ -1733,7 +1733,7 @@ PanelContainer::removeRaisedPanel(PanelContainer *targetPC)
       return;
     }
 
-// printf("%d: Current page (raised tab) = %d (%s) p=(%s)\n", getMasterPC()->_eventsEnabled, currentPageIndex, targetPC->tabWidget->label(currentPageIndex).ascii(), p->getName() );
+//printf("%d: Current page (raised tab) = %d (%s) p=(%s)\n", getMasterPC()->_eventsEnabled, currentPageIndex, targetPC->tabWidget->label(currentPageIndex).ascii(), p->getName() );
     ClosingDownObject *cdo = new ClosingDownObject();
     p->listener((char *)cdo);
 
@@ -1815,7 +1815,8 @@ PanelContainer::removePanelContainer(PanelContainer *targetPC)
 
   // Prewarn all panels that they're going away...
   ClosingDownObject *cdo = new ClosingDownObject();
-  getMasterPC()->notifyAllDecendants((char *)cdo, getMasterPC()->_lastPC);   
+//  getMasterPC()->notifyAllDecendants((char *)cdo, getMasterPC()->_lastPC);   
+  getMasterPC()->notifyAllDecendants((char *)cdo, targetPC);
  
 
 // printf("PanelContainer::removePanelContainer(%s:%s) entered\n", targetPC->getInternalName(), targetPC->getExternalName() );
@@ -1861,8 +1862,8 @@ PanelContainer::removePanelContainer(PanelContainer *targetPC)
       if( targetPC->outsidePC == TRUE )
       {
 // We only do this when this is a toplevel, "outside PC"
-//printf("YOU'RE AN OUTSIDE WINDOW... remove don't forget to null the panelContianer reference!!!!\n");
-targetPC->topWidget->hide();
+// printf("YOU'RE AN OUTSIDE WINDOW... remove don't forget to null the panelContianer reference!!!!\n");
+  targetPC->topWidget->hide();
   targetPC->topWidget->panelContainer = NULL;
 
         getMasterPC()->removeTopLevelPanelContainer(targetPC, TRUE);
@@ -2942,7 +2943,7 @@ PanelContainer::panelContainerContextMenuEvent( PanelContainer *targetPC, bool l
   qaction->addTo( pcMenu );
   qaction->setIconSet( QIconSet( *apm ) );
   qaction->setText( tr( "Split Horizontal" ) );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( splitHorizontal() ) );
+  connect( qaction, SIGNAL( activated() ), targetPC, SLOT( splitHorizontal() ) );
   qaction->setStatusTip( tr("Split this window (panel container) horizontally.") );
 
   delete apm;
@@ -2952,7 +2953,7 @@ PanelContainer::panelContainerContextMenuEvent( PanelContainer *targetPC, bool l
   qaction->addTo( pcMenu );
   qaction->setIconSet( QIconSet( *apm ) );
   qaction->setText( tr( "Split Vertical" ) );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( splitVertical() ) );
+  connect( qaction, SIGNAL( activated() ), targetPC, SLOT( splitVertical() ) );
   qaction->setStatusTip( tr("Split this window (panel container) vertically.") );
 
 if( targetPC->areTherePanels() )
@@ -2963,7 +2964,7 @@ if( targetPC->areTherePanels() )
   qaction->addTo( pcMenu );
   qaction->setIconSet( QIconSet( *apm ) );
   qaction->setText( tr( "Drag Raised Panel" ) );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( dragRaisedPanel() ) );
+  connect( qaction, SIGNAL( activated() ), targetPC, SLOT( dragRaisedPanel() ) );
   qaction->setStatusTip( tr("Drag the raise panel to a new location.") );
 }
 
@@ -2976,7 +2977,7 @@ if( targetPC->areTherePanels() )
   qaction->addTo( pcMenu );
   qaction->setIconSet( QIconSet( *apm ) );
   qaction->setText( tr( "Remove Container" ) );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( removeLastPanelContainer() ) );
+  connect( qaction, SIGNAL( activated() ), targetPC->getMasterPC(), SLOT( removeLastPanelContainer() ) );
   qaction->setStatusTip( tr("Remove the panel container and all it's panels.") );
 
   getMasterPC()->contextMenu = NULL;
