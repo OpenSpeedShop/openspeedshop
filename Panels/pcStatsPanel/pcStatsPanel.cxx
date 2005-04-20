@@ -57,6 +57,7 @@ pcStatsPanel::pcStatsPanel(PanelContainer *pc, const char *n, void *argument) : 
 //  printf("pcStatsPanel() entered\n");
   setCaption("pcStatsPanel");
 
+  f = NULL;
   metricMenu = NULL;
   metricStr = QString::null;
   collectorStr = QString::null;
@@ -87,6 +88,7 @@ pcStatsPanel::languageChange()
     \return 0 means you didn't do anything with the message.
     \return 1 means you handled the message.
  */
+#include "SaveAsObject.hxx"
 int 
 pcStatsPanel::listener(void *msg)
 {
@@ -151,7 +153,20 @@ pcStatsPanel::listener(void *msg)
     nprintf(DEBUG_MESSAGES) ("pcStatsPanel::listener() PreferencesChangedObject!\n");
     pco = (PreferencesChangedObject *)msgObject;
     preferencesChanged();
+  } else if( msgObject->msgType == "SaveAsObject" )
+  {
+    SaveAsObject *sao = (SaveAsObject *)msg;
+// printf("pcStatsPanel!!!!! Save as!\n");
+    if( !sao )
+    {
+      return 0;  // 0 means, did not act on message.
+    }
+//    exportData(sao->f, sao->ts);
+// Currently you're not passing the file descriptor down... you need to.sao->f, sao->ts);
+    f = sao->f;
+    exportData();
   }
+
 
   return 0;  // 0 means, did not want this message and did not act on anything.
 }
@@ -340,7 +355,7 @@ pcStatsPanel::details()
 void
 pcStatsPanel::exportData()
 {
-//  printf("exportData() menu selected.\n");
+// printf("exportData() menu selected.\n");
   QPtrList<QListViewItem> lst;
   QListViewItemIterator it( lv );
   int cols =  lv->columns();
@@ -348,53 +363,62 @@ pcStatsPanel::exportData()
   QString fileName = "pcStatsPanel.txt";
   QString dirName = QString::null;
 
-  QFileDialog *fd = new QFileDialog(this, "save_pcStatsPanelData:", TRUE );
-  fd->setCaption( QFileDialog::tr("Save pcStatsPanel data:") );
-  fd->setMode( QFileDialog::AnyFile );
-  fd->setSelection(fileName);
-  QString types( "Any Files (*);;"
-                    "Text files (*.txt);;"
-                    );
-  fd->setFilters( types );
-  fd->setDir(dirName);
-
-  if( fd->exec() == QDialog::Accepted )
+  if( f == NULL)
   {
-    fileName = fd->selectedFile();
+    QFileDialog *fd = new QFileDialog(this, "save_pcStatsPanelData:", TRUE );
+    fd->setCaption( QFileDialog::tr("Save pcStatsPanel data:") );
+    fd->setMode( QFileDialog::AnyFile );
+    fd->setSelection(fileName);
+    QString types( "Any Files (*);;"
+                      "Text files (*.txt);;"
+                      );
+    fd->setFilters( types );
+    fd->setDir(dirName);
   
+    if( fd->exec() == QDialog::Accepted )
+    {
+      fileName = fd->selectedFile();
+    }
+    
     if( !fileName.isEmpty() )
     {
-      QFile f(fileName);
-      f.open(IO_WriteOnly );
-
-      // Write out the header info
-      QString line = QString("  ");
-      for(i=0;i<cols;i++)
-      {
-        for(i=0;i<cols;i++)
-        {
-          line += QString(lv->columnText(i))+" ";
-        }
-        line += QString("\n");
-      }
-      f.writeBlock( line, qstrlen(line) );
-
-      // Write out the body info
-      while( it.current() )
-      {
-        QListViewItem *item = *it;
-        line = QString("  ");
-        for(i=0;i<cols;i++)
-        {
-          line += QString(item->text(i))+" ";
-        }
-        line += QString("\n");
-        f.writeBlock( line, qstrlen(line) );
-        ++it;
-      }
-      f.close();
+        f = new QFile(fileName);
+        f->open(IO_WriteOnly );
     }
   }
+
+  if( f != NULL )
+  {
+    // Write out the header info
+    QString line = QString("  ");
+    for(i=0;i<cols;i++)
+    {
+      for(i=0;i<cols;i++)
+      {
+        line += QString(lv->columnText(i))+" ";
+      }
+      line += QString("\n");
+    }
+    f->writeBlock( line, qstrlen(line) );
+
+   // Write out the body info
+    while( it.current() )
+    {
+      QListViewItem *item = *it;
+      line = QString("  ");
+      for(i=0;i<cols;i++)
+      {
+        line += QString(item->text(i))+" ";
+      }
+      line += QString("\n");
+      f->writeBlock( line, qstrlen(line) );
+      ++it;
+    }
+    f->close();
+  }
+
+  f = NULL;
+
 }
 
 /*! Go to source menu item was selected. */

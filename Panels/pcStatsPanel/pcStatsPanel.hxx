@@ -25,6 +25,7 @@
 
 class PanelContainer;   // Do not remove
 class QVBoxLayout;
+class QFile;
 
 #include <qlistview.h>
 #include <qpopupmenu.h>
@@ -78,6 +79,7 @@ class pcStatsPanel  : public StatsPanelBase
     QString collectorStr;
     QString collectorStrFromMenu;
 
+    QFile *f;
   public slots:
     void itemSelected( QListViewItem * );
     void exportData();

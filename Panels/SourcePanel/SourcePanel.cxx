@@ -203,22 +203,20 @@ SourcePanel::menu(QPopupMenu* contextMenu)
 
   contextMenu->insertSeparator();
 
-//  contextMenu->insertItem("&Save As...", this, SLOT(saveAs()), CTRL+Key_O );
   QAction *qaction = new QAction( this,  "saveAs");
   qaction->addTo( contextMenu );
-  qaction->setText( tr("Save As...") );
+  qaction->setText( tr("Export Data...") );
   connect( qaction, SIGNAL( activated() ), this, SLOT( saveAs() ) );
   qaction->setStatusTip( tr("Save panel to ascii file.") );
 
   contextMenu->insertSeparator();
-//  contextMenu->insertItem("&Open New", this, SLOT(chooseFile()), CTRL+Key_O );
+
   qaction = new QAction( this,  "openNew");
   qaction->addTo( contextMenu );
   qaction->setText( tr("Open New...") );
   connect( qaction, SIGNAL( activated() ), this, SLOT( chooseFile() ) );
   qaction->setStatusTip( tr("Open a new file and load it into panel.") );
 
-//  contextMenu->insertItem("&Goto Line...", this, SLOT(goToLine()), CTRL+Key_G );
   qaction = new QAction( this,  "gotoLine");
   qaction->addTo( contextMenu );
   qaction->setText( tr("Goto Line...") );
@@ -227,7 +225,6 @@ SourcePanel::menu(QPopupMenu* contextMenu)
 
 if( expID > 0 )
 {
-//  contextMenu->insertItem("&Goto Function...", this, SLOT(goToFunction()), CTRL+Key_F );
   qaction = new QAction( this,  "gotoFunction");
   qaction->addTo( contextMenu );
   qaction->setText( tr("Goto Function...") );
@@ -236,8 +233,6 @@ if( expID > 0 )
 }
   if( line_numbersFLAG == TRUE )
   {
-//    contextMenu->insertItem("Hide &Line Numbers...", this,
-//      SLOT(showLineNumbers()), CTRL+Key_L );
     qaction = new QAction( this,  "hideLineNumbers");
     qaction->addTo( contextMenu );
     qaction->setText( tr("Hide Line Numbers") );
@@ -245,8 +240,6 @@ if( expID > 0 )
     qaction->setStatusTip( tr("Hide the line numbers.") );
   } else
   {
-//    contextMenu->insertItem("Show &Line Numbers...", this,
-//      SLOT(showLineNumbers()), CTRL+Key_L );
     qaction = new QAction( this,  "showLineNumbers");
     qaction->addTo( contextMenu );
     qaction->setText( tr("Show Line Numbers") );
@@ -255,8 +248,6 @@ if( expID > 0 )
   }
   if( statsFLAG == TRUE )
   {
-//    contextMenu->insertItem("Hide &Statistics...", this,
-//      SLOT(showCanvasForm()), CTRL+Key_L );
     qaction = new QAction( this,  "hideStatistics");
     qaction->addTo( contextMenu );
     qaction->setText( tr("Hide Statistics") );
@@ -264,15 +255,13 @@ if( expID > 0 )
     qaction->setStatusTip( tr("Hide statistics canvas.") );
   } else
   {
-//    contextMenu->insertItem("Show &Statistics...", this,
-//      SLOT(showCanvasForm()), CTRL+Key_L );
     qaction = new QAction( this,  "showStatistics");
     qaction->addTo( contextMenu );
     qaction->setText( tr("Show Statistics") );
     connect( qaction, SIGNAL( activated() ), this, SLOT( showCanvasForm() ) );
     qaction->setStatusTip( tr("Show statistics canvas. (Currently unimplemented.)") );
   }
-//  contextMenu->insertItem("&Find...", this, SLOT(findString()), CTRL+Key_F );
+
   qaction = new QAction( this,  "findString");
   qaction->addTo( contextMenu );
   qaction->setText( tr("Find...") );
@@ -280,14 +269,13 @@ if( expID > 0 )
   qaction->setStatusTip( tr("Search for a string in this source panel.") );
 
   contextMenu->insertSeparator();
-//  contextMenu->insertItem("Zoom In", this, SLOT(zoomIn()), CTRL+Key_Plus );
+
   qaction = new QAction( this,  "zoomIn");
   qaction->addTo( contextMenu );
   qaction->setText( tr("Zoom In") );
   connect( qaction, SIGNAL( activated() ), this, SLOT( zoomIn() ) );
   qaction->setStatusTip( tr("Makes the font larger.") );
 
-//  contextMenu->insertItem("Zoom Out", this, SLOT(zoomOut()), CTRL+Key_Minus );
   qaction = new QAction( this,  "zoomOut");
   qaction->addTo( contextMenu );
   qaction->setText( tr("Zoom Out") );
@@ -337,9 +325,9 @@ SourcePanel::saveAs()
     sfd = new QFileDialog(this, "file dialog", TRUE );
     sfd->setCaption( QFileDialog::tr("Enter filename:") );
     sfd->setMode( QFileDialog::AnyFile );
-    sfd->setSelection(QString("SourcePanel.html"));
+    sfd->setSelection(QString("SourcePanel.txt"));
     QString types(
-                  "Html files (*.html *.htm);;"
+                  "Html files (*.txt);;"
                   );
     sfd->setFilters( types );
     sfd->setDir(dirName);
@@ -357,13 +345,6 @@ SourcePanel::saveAs()
       if( file.open( IO_WriteOnly ) ) 
       {
         QTextStream stream(&file);
-        stream << "<html>";
-        stream << "<head>";
-        stream << "<meta content=\"text/html; charset=ISO-8859-1\" \
-                           http-equiv=\"content-type\"> ";
-        stream << "<h2>SourcePanel</h2>";
-        stream << "<title>SourcePanel</title>";
-        stream << "</head>";
 
         doSaveAs(&stream);
 
@@ -1200,11 +1181,6 @@ void
 SourcePanel::doSaveAs(QTextStream *ts)
 {
 // printf("doSaveAs() entered\n");
-  *ts << "<h3>SourcePanel</h3>\n";
-  *ts << "<body>\n";
   *ts << fileName;
-  *ts << "<pre>\n";
   *ts << textEdit->text();
-  *ts << "</pre>";
-  *ts << "</body>";
 }
