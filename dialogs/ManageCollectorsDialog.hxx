@@ -82,7 +82,8 @@ protected:
     QPopupMenu *collectorMenu;
     QPopupMenu *collectorPopupMenu;
     DialogSortType dialogSortType;
-std::list<std::string> list_of_collectors;
+    std::list<std::string> list_of_collectors;
+    
 protected slots:
     virtual void languageChange();
 

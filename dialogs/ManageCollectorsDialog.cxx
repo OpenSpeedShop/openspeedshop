@@ -35,6 +35,7 @@
 #include <qinputdialog.h>
 #include <qmenubar.h>
 #include <qvaluelist.h>
+#include <qaction.h>
 #include <qmessagebox.h>
 
 #include "SS_Input_Manager.hxx"
@@ -61,24 +62,79 @@ ManageCollectorsDialog::ManageCollectorsDialog( QWidget* parent, const char* nam
 
   QHBoxLayout *menuLayout = new QHBoxLayout( ManageCollectorsDialogLayout );
   QPopupMenu *file = new QPopupMenu( this );
-  file->insertItem( "&Attach Program...",  this, SLOT(attachProgramSelected()), CTRL+Key_L );
-  file->insertItem( "&Attach Process", this, SLOT(attachProcessSelected()), CTRL+Key_A );
+//  file->insertItem( "&Attach Program...",  this, SLOT(attachProgramSelected()), CTRL+Key_L );
+  QAction *qaction = new QAction( this,  "attachProgram");
+  qaction->addTo( file );
+  qaction->setText( tr("Attach Program...") );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( attachProgramSelected() ) );
+  qaction->setStatusTip( tr("Opens dialog box to load application from disk.") );
+
+//  file->insertItem( "&Attach Process", this, SLOT(attachProcessSelected()), CTRL+Key_A );
+  qaction = new QAction( this,  "attachProcess");
+  qaction->addTo( file );
+  qaction->setText( tr("Attach Process...") );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( attachProcessSelected() ) );
+  qaction->setStatusTip( tr("Opens dialog box to attach to running process.") );
+
   collectorMenu = new QPopupMenu(this);
-//  printf("HereB:\n");
   connect( collectorMenu, SIGNAL( activated( int ) ),
                      this, SLOT( attachCollectorSelected( int ) ) );
   connect( collectorMenu, SIGNAL( aboutToShow() ),
                      this, SLOT( fileCollectorAboutToShowSelected( ) ) );
+
   file->insertItem("Add Collector", collectorMenu);
-  file->insertItem( "&Detach Collector", this, SLOT(detachSelected()), CTRL+Key_D );
-  file->insertItem( "&Enable Collector", this, SLOT(enableSelected()), CTRL+Key_D );
-  file->insertItem( "&Disable Collector", this, SLOT(disableSelected()), CTRL+Key_D );
+
+//  file->insertItem( "&Detach Collector", this, SLOT(detachSelected()), CTRL+Key_D );
+  qaction = new QAction( this,  "detachCollector");
+  qaction->addTo( file );
+  qaction->setText( tr("Detach Collector") );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( detachSelected() ) );
+  qaction->setStatusTip( tr("Detach the selected (highlighted) collector from the experiment.") );
+
+//  file->insertItem( "&Enable Collector", this, SLOT(enableSelected()), CTRL+Key_D );
+  qaction = new QAction( this,  "enableCollector");
+  qaction->addTo( file );
+  qaction->setText( tr("Enable Collector") );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( enableSelected() ) );
+  qaction->setStatusTip( tr("Enable the selected (highlighted) collector from the experiment.") );
+
+//  file->insertItem( "&Disable Collector", this, SLOT(disableSelected()), CTRL+Key_D );
+  qaction = new QAction( this,  "disableCollector");
+  qaction->addTo( file );
+  qaction->setText( tr("Disable Collector") );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( disableSelected() ) );
+  qaction->setStatusTip( tr("Disable the selected (highlighted) collector from the experiment.") );
+
   
   QPopupMenu *view = new QPopupMenu( this );
-  view->insertItem( "Sort By &Process...", this, SLOT(sortByProcess()), CTRL+Key_P );
-  view->insertItem( "Sort By &Collector...", this, SLOT(sortByCollector()), CTRL+Key_C );
-  view->insertItem( "Sort By &Host...", this, SLOT(sortByHost()), CTRL+Key_H );
-  view->insertItem( "Sort By &MPI Rank...", this, SLOT(sortByMPIRank()), CTRL+Key_M );
+//  view->insertItem( "Sort By &Process...", this, SLOT(sortByProcess()), CTRL+Key_P );
+  qaction = new QAction( this,  "sortByProcess");
+  qaction->addTo( view );
+  qaction->setText( tr("Sort By Process") );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( sortByProcess() ) );
+  qaction->setStatusTip( tr("Sort the collectors by attached processes.") );
+
+//  view->insertItem( "Sort By &Collector...", this, SLOT(sortByCollector()), CTRL+Key_C );
+  qaction = new QAction( this,  "sortByCollector");
+  qaction->addTo( view );
+  qaction->setText( tr("Sort By Collector") );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( sortByCollector() ) );
+  qaction->setStatusTip( tr("Sort the list by attached collectors.") );
+
+//  view->insertItem( "Sort By &Host...", this, SLOT(sortByHost()), CTRL+Key_H );
+  qaction = new QAction( this,  "sortByHost");
+  qaction->addTo( view );
+  qaction->setText( tr("Sort By Host") );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( sortByHost() ) );
+  qaction->setStatusTip( tr("Sort the list by known hosts.") );
+
+//  view->insertItem( "Sort By &MPI Rank...", this, SLOT(sortByMPIRank()), CTRL+Key_M );
+  qaction = new QAction( this,  "sortByMPIRank");
+  qaction->addTo( view );
+  qaction->setText( tr("Sort By MPI Rank") );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( sortByMPIRank() ) );
+  qaction->setStatusTip( tr("Sort the list mpi rank. (Currently unimplemented)") );
+
 
   QMenuBar *menuBar = new QMenuBar(this, "menubar");
   menuBar->insertItem( "&File", file );
@@ -168,7 +224,13 @@ void ManageCollectorsDialog::languageChange()
     for( std::list<std::string>::const_iterator it = list_of_collectors.begin();         it != list_of_collectors.end(); it++ )
     {
       std::string collector_name = *it;
-collectorMenu->insertItem(QString(collector_name.c_str()) );
+// collectorMenu->insertItem(QString(collector_name.c_str()) );
+  QAction *qaction = new QAction( this,  "addCollector");
+  qaction->addTo( collectorMenu );
+  qaction->setText( QString(collector_name.c_str()) );
+//  connect( qaction, SIGNAL( activated() ), this, SLOT( detachSelected() ) );
+  qaction->setStatusTip( tr(QString("Add the collector %1 to the experiment.").arg(collector_name.c_str()) ) );
+
 // printf("Add item (%s)\n", collector_name.c_str() );
     }
   }
@@ -551,27 +613,64 @@ if( dialogSortType == COLLECTOR_T || dialogSortType == PID_T ||
       }
     }
   }
-    popupMenu->insertSeparator();
-    popupMenu->insertItem("Detach...", this, SLOT(detachSelected()) );
-    popupMenu->insertItem("Disable...", this, SLOT(disableSelected()) );
-    popupMenu->insertItem("Enable...", this, SLOT(enableSelected()) );
-if( dialogSortType == COLLECTOR_T || dialogSortType == HOST_T )
-{
-  if( selected_item->parent() == NULL )
+  popupMenu->insertSeparator();
+
+  QAction *qaction = new QAction( this,  "detachSelected");
+  qaction->addTo( popupMenu );
+  qaction->setText( tr("Detach...") );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( detachSelected() ) );
+  qaction->setStatusTip( tr(QString("Detach this entry from the experiment.")) );
+  qaction = new QAction( this,  "disableSelected");
+  qaction->addTo( popupMenu );
+  qaction->setText( tr("Disable...") );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( disableSelected() ) );
+  qaction->setStatusTip( tr(QString("Disable this entry from the experiment.")) );
+
+  qaction = new QAction( this,  "enableSelected");
+  qaction->addTo( popupMenu );
+  qaction->setText( tr("Enable...") );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( enableSelected() ) );
+  qaction->setStatusTip( tr(QString("Enable this entry from the experiment.")) );
+
+  if( dialogSortType == COLLECTOR_T || dialogSortType == HOST_T )
   {
-    popupMenu->insertSeparator();
-    popupMenu->insertItem("Attach Process...", this, SLOT(attachProcessSelected()) );
-    popupMenu->insertItem("Attach Program...", this, SLOT(attachProgramSelected()) );
-  }
-} else
-{
-  if( selected_item->parent() != NULL )
+    if( selected_item->parent() == NULL )
+    {
+      popupMenu->insertSeparator();
+      qaction = new QAction( this,  "attachProcess");
+      qaction->addTo( popupMenu );
+      qaction->setText( tr("Attach Process...") );
+      connect( qaction, SIGNAL( activated() ), this, SLOT( attachProcessSelected() ) );
+      qaction->setStatusTip( tr(QString("Attach a process to this collector.")) );
+
+      qaction = new QAction( this,  "attachProgram");
+      qaction->addTo( popupMenu );
+      qaction->setText( tr("Attach Program...") );
+      connect( qaction, SIGNAL( activated() ), this, SLOT( attachProgramSelected() ) );
+      qaction->setStatusTip( tr(QString("Attach a program to this collector.")) );
+
+    }
+  } else
   {
-    popupMenu->insertSeparator();
-    popupMenu->insertItem("Attach Process...", this, SLOT(attachProcessSelected()) );
-    popupMenu->insertItem("Attach Program...", this, SLOT(attachProgramSelected()) );
+    if( selected_item->parent() != NULL )
+    {
+      popupMenu->insertSeparator();
+//      popupMenu->insertItem("Attach Process...", this, SLOT(attachProcessSelected()) );
+      qaction = new QAction( this,  "attachProcess");
+      qaction->addTo( popupMenu );
+      qaction->setText( tr("Attach Process...") );
+      connect( qaction, SIGNAL( activated() ), this, SLOT( attachProcessSelected() ) );
+      qaction->setStatusTip( tr(QString("Attach a process to this collector.")) );
+
+//      popupMenu->insertItem("Attach Program...", this, SLOT(attachProgramSelected()) );
+      qaction = new QAction( this,  "attachProgram");
+      qaction->addTo( popupMenu );
+      qaction->setText( tr("Attach Program...") );
+      connect( qaction, SIGNAL( activated() ), this, SLOT( attachProgramSelected() ) );
+      qaction->setStatusTip( tr(QString("Attach a program to this collector.")) );
+
+    }
   }
-}
 }
 
 
