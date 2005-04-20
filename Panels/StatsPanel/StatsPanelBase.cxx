@@ -50,6 +50,9 @@ StatsPanelBase::StatsPanelBase(PanelContainer *pc, const char *n, void *argument
 
   frameLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
+  headerLabel = new QLabel(getBaseWidgetFrame(), "headerLabel");
+  frameLayout->addWidget(headerLabel);
+
   lv = NULL;
   
   getBaseWidgetFrame()->setCaption("StatsPanelBaseBaseWidget");

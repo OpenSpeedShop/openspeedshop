@@ -80,6 +80,7 @@
 #include <qpixmap.h>
 #include <TabBarWidget.hxx>
 #include <qevent.h>
+#include <qaction.h>
 
 #include <qsizegrip.h>  // Debuggging only.
 
@@ -106,12 +107,9 @@ extern QEventLoop *qeventloop;
 
 #include "menu_arrow.xpm"
 
-#define ICONSONMENU 1
-#ifdef ICONSONMENU
 #include "hsplit.xpm"
 #include "vsplit.xpm"
 #include "x.xpm"
-#endif // ICONSONMENU
 
 /*! It should never be called and is only here for completeness.
  */
@@ -2937,21 +2935,36 @@ PanelContainer::panelContainerContextMenuEvent( PanelContainer *targetPC, bool l
 
   Q_CHECK_PTR( getMasterPC()->pcMenu );
 //  getMasterPC()->pcMenu->insertItem( "Remove Raised &Panel", targetPC->getMasterPC(), SLOT(removeRaisedPanel()), CTRL+Key_P );
-#ifdef ICONSONMENU
+
   QPixmap *apm = new QPixmap( hsplit_xpm );
   apm->setMask( apm->createHeuristicMask());
-  getMasterPC()->pcMenu->insertItem( *apm,  "Split &Horizontal",  targetPC, SLOT(splitHorizontal()), CTRL+Key_H );
+  QAction *qaction = new QAction( this,  "Split &Horizontal");
+  qaction->addTo( pcMenu );
+  qaction->setIconSet( QIconSet( *apm ) );
+  qaction->setText( tr( "Split Horizontal" ) );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( splitHorizontal() ) );
+  qaction->setStatusTip( tr("Split this window (panel container) horizontally.") );
 
   delete apm;
   apm = new QPixmap( vsplit_xpm );
   apm->setMask( apm->createHeuristicMask());
-  getMasterPC()->pcMenu->insertItem(*apm, "Split &Vertical", targetPC, SLOT(splitVertical()), CTRL+Key_V );
+  qaction = new QAction( this,  "Split Vertical");
+  qaction->addTo( pcMenu );
+  qaction->setIconSet( QIconSet( *apm ) );
+  qaction->setText( tr( "Split Vertical" ) );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( splitVertical() ) );
+  qaction->setStatusTip( tr("Split this window (panel container) vertically.") );
 
 if( targetPC->areTherePanels() )
 {
   apm = new QPixmap( drag_xpm );
   apm->setMask( apm->createHeuristicMask());
-  getMasterPC()->pcMenu->insertItem(*apm, "Drag Raised &Panel", targetPC, SLOT(dragRaisedPanel()), CTRL+Key_P );
+  qaction = new QAction( this,  "Drag Raised Panel");
+  qaction->addTo( pcMenu );
+  qaction->setIconSet( QIconSet( *apm ) );
+  qaction->setText( tr( "Drag Raised Panel" ) );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( dragRaisedPanel() ) );
+  qaction->setStatusTip( tr("Drag the raise panel to a new location.") );
 }
 
   getMasterPC()->pcMenu->insertSeparator();
@@ -2959,12 +2972,12 @@ if( targetPC->areTherePanels() )
   delete apm;
   apm = new QPixmap( x_xpm );
   apm->setMask( apm->createHeuristicMask());
-  getMasterPC()->pcMenu->insertItem(*apm, "&Remove Container", targetPC->getMasterPC(), SLOT(removeLastPanelContainer()), CTRL+Key_R );
-#else // ICONSONMENU
-  getMasterPC()->pcMenu->insertItem( "Split &Horizontal",  targetPC, SLOT(splitHorizontal()), CTRL+Key_H );
-  getMasterPC()->pcMenu->insertItem( "Split &Vertical", targetPC, SLOT(splitVertical()), CTRL+Key_V );
-  getMasterPC()->pcMenu->insertItem( "&Remove Container", targetPC->getMasterPC(), SLOT(removeLastPanelContainer()), CTRL+Key_R );
-#endif // ICONSONMENU
+  qaction = new QAction( this,  "Remove Container");
+  qaction->addTo( pcMenu );
+  qaction->setIconSet( QIconSet( *apm ) );
+  qaction->setText( tr( "Remove Container" ) );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( removeLastPanelContainer() ) );
+  qaction->setStatusTip( tr("Remove the panel container and all it's panels.") );
 
   getMasterPC()->contextMenu = NULL;
   if( localMenu == TRUE )

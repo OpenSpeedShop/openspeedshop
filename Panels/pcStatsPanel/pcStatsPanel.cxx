@@ -173,11 +173,10 @@ pcStatsPanel::menu( QPopupMenu* contextMenu)
         this, SLOT(contextMenuHighlighted(int)) );
 
   contextMenu->insertSeparator();
-{  // Display by metrics...
-// Over all the collectors....
-// Round up the metrics ....
-// Create a menu of metrics....
-// (Don't forget to do this for threads as well...)
+  // Over all the collectors....
+  // Round up the metrics ....
+  // Create a menu of metrics....
+  // (Don't forget to do this for threads as well...)
   CollectorEntry *ce = NULL;
   CollectorEntryList::Iterator it;
   for( it = clo->collectorEntryList.begin();
@@ -197,53 +196,62 @@ pcStatsPanel::menu( QPopupMenu* contextMenu)
 // printf("\t%s\n", cpe->name.ascii() );
 //      metricMenu->insertItem(cpe->name);
 //      metricMenu->insertItem(cpe->name);
-      metricMenu->insertItem(cpe->name, this, SLOT(metricSelected()) );
+      QAction *qaction = new QAction( this,  "metric item");
+      qaction->addTo( metricMenu );
+      qaction->setText( cpe->name );
+      connect( qaction, SIGNAL( activated() ), this, SLOT( metricSelected() ) );
+      qaction->setStatusTip( tr("Query metric values %1.").arg(cpe->name) );
     }
   }
-// Begin try a pid/thread menu hook 
-try
-{
-  ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-
-  if( eo->FW() != NULL )
+  // Begin try a pid/thread menu hook 
+  try
   {
-// The following bit of code was snag and modified from SS_View_exp.cxx
-    ThreadGroup tgrp = eo->FW()->getThreads();
-    ThreadGroup::iterator ti;
-    bool atleastone = false;
-    threadMenu = new QPopupMenu(this);
-    connect(threadMenu, SIGNAL( highlighted(int) ),
-               this, SLOT(threadMenuHighlighted(int)) );
-    contextMenu->insertItem(QString("Show Thread/Process"), threadMenu);
-    for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
+    ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+
+    if( eo->FW() != NULL )
     {
-      Thread t = *ti;
-      std::string host = t.getHost();
-      pid_t pid = t.getProcessId();
-      if (!atleastone)
+  // The following bit of code was snag and modified from SS_View_exp.cxx
+      ThreadGroup tgrp = eo->FW()->getThreads();
+      ThreadGroup::iterator ti;
+      bool atleastone = false;
+      threadMenu = new QPopupMenu(this);
+      connect(threadMenu, SIGNAL( highlighted(int) ),
+                 this, SLOT(threadMenuHighlighted(int)) );
+      contextMenu->insertItem(QString("Show Thread/Process"), threadMenu);
+      for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
       {
-        atleastone = true;
+        Thread t = *ti;
+        std::string host = t.getHost();
+        pid_t pid = t.getProcessId();
+        if (!atleastone)
+        {
+          atleastone = true;
+        }
+        QString pidstr = QString("%1").arg(pid);
+        QAction *qaction = new QAction( this,  "pidThreadRank");
+        qaction->addTo( threadMenu );
+        qaction->setText( pidstr );
+        connect( qaction, SIGNAL( activated() ), this, SLOT( threadSelected() ) );
+        qaction->setStatusTip( tr("Query metric values for %1.").arg(pidstr) );
       }
-      QString pidstr = QString("%1").arg(pid);
-      threadMenu->insertItem(pidstr, this, SLOT(threadSelected()) );
     }
   }
-}
-catch(const std::exception& error)
-{ 
-  std::cerr << std::endl << "Error: "
-            << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-            "Unknown runtime error." : error.what()) << std::endl
-            << std::endl;
-  return 0;
-}
-  
-// End try a pid/thread menu hook 
+  catch(const std::exception& error)
+  { 
+    std::cerr << std::endl << "Error: "
+              << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+              "Unknown runtime error." : error.what()) << std::endl
+              << std::endl;
+    return 0;
+  }
 
-}
   contextMenu->insertSeparator();
 
-  contextMenu->insertItem("Compare...", this, SLOT(compareSelected()) );
+  QAction *qaction = new QAction( this,  "compareAction");
+  qaction->addTo( contextMenu );
+  qaction->setText( "Compare..." );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( compareSelected() ) );
+  qaction->setStatusTip( tr("Compare one experiment to another, one thread to another, ... currently unimplemented.") );
 
   contextMenu->insertSeparator();
 
@@ -257,7 +265,15 @@ catch(const std::exception& error)
            ++pit )
   { 
     QString s = (QString)*pit;
+#ifndef OLDWAY
     columnsMenu->insertItem(s, this, SLOT(doOption(int)), CTRL+Key_1, id, -1);
+#else // OLDWAY
+    QAction *qaction = new QAction( this,  "columnsMenuActions");
+    qaction->addTo( columnsMenu );
+    qaction->setText( s );
+//    connect( qaction, SIGNAL( activated(int) ), this, SLOT( doOption(int) ) );
+    qaction->setStatusTip( tr("Select which columns to display.") );
+#endif  // OLDWAY
     if( lv->columnWidth(id) )
     {
       columnsMenu->setItemChecked(id, TRUE);
@@ -268,7 +284,15 @@ catch(const std::exception& error)
     id++;
   }
 
+#ifdef  OLDWAY
   contextMenu->insertItem("Export Report Data...", this, SLOT(exportData()));
+#else // OLDWAY
+  qaction = new QAction( this,  "exportDataAction");
+  qaction->addTo( contextMenu );
+  qaction->setText( "Export Report Data..." );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( exportData() ) );
+  qaction->setStatusTip( tr("Save the report's data to an ascii file.") );
+#endif  // OLDWAY
 
   if( lv->selectedItem() )
   {
@@ -515,6 +539,10 @@ pcStatsPanel::updateStatsPanelBaseData()
       std::string host = t.getHost();
       pid_t pid = t.getProcessId();
       QString pidstr = QString("%1").arg(pid);
+      if( threadStr.isEmpty() )
+      {
+        threadStr = pidstr;
+      }
       if( pidstr == threadStr )
       {
 // printf("Using %s\n", threadStr.ascii() );
@@ -651,6 +679,10 @@ pcStatsPanel::updateStatsPanelBaseData()
               << std::endl;
     return;
   }
+
+  // Update header information
+  headerLabel->setText(QString("Report for collector type \"%1\" with metric selection \"%2\" for thread \"%3\"").arg(collectorStr).arg(metricStr).arg(threadStr) );
+
 }
 
 double

@@ -24,6 +24,7 @@
 class PanelContainer;   // Do not remove
 class QVBoxLayout;
 
+#include <qlabel.h>
 #include <qlistview.h>
 #include <qinputdialog.h>
 
@@ -65,6 +66,8 @@ class StatsPanelBase  : public Panel
 
     //! Controls the base layout of the Panel's widgets.
     QVBoxLayout * frameLayout;
+
+    QLabel *headerLabel;
 
     QListView *lv;
 
