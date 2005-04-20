@@ -332,49 +332,24 @@ void OpenSpeedshop::filePreferences()
 }
 
 #include "Commander.hxx"   // Contains the InputLineObject definition.
+#include "GenericProgressDialog.hxx"
 void OpenSpeedshop::fileExit()
 {
  dprintf("fileExit() entered.\n");
 
-#ifdef OLDWAY
-  int wid = ((PanelContainer *)topPC)->getMainWindow()->widStr.toInt();
-//  InputLineObject *ilp = Append_Input_String( wid, "quit");
-  InputLineObject *ilp = Append_Input_String( wid, "exit\n");
-//  Append_Input_String( wid, "exit\n");
+//  QMessageBox::information( (QWidget *)this, tr("Info:"), tr("Closing down Open|SpeedShop... This may take a few seconds cleaning up...."),  QMessageBox::NoButton );
 
-  if( ilp == NULL )
-  {
-    fprintf(stderr, "FATAL ERROR: No clip returned from cli for exit attempting exit regardless.\n");
-  }
+  steps = 0;
+  pd = new GenericProgressDialog(this, "Exiting Open|SpeedShop", TRUE );
+  pd->infoLabel->setText( tr("Waiting to exit: Cleaning up...") );
+  QTimer *loadTimer = new QTimer( this, "progressTimer" );
+  connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
+  loadTimer->start( 1000 );
 
- /* close all the panel containers.   Well all except the masterPC's
-    That one we need to do explicitly. (See the next line.) */
- ((PanelContainer *)topPC)->getMasterPC()->closeAllExternalPanelContainers();
-
- /* Now close the master pc's information. */
- ((PanelContainer *)topPC)->closeWindow((PanelContainer *)topPC);
-
-
- qApp->closeAllWindows();
- dprintf("fileExit() called closeAllWindows.\n");
-
-
- qApp->exit();
- pthread_exit(EXIT_SUCCESS);
- dprintf("fileExit() called pthread_exit.\n");
-#else // OLDWAY
-
- /* close all the panel containers.   Well all except the masterPC's
-    That one we need to do explicitly. (See the next line.) */
-  ((PanelContainer *)topPC)->getMasterPC()->closeAllExternalPanelContainers();
-
- /* Now close the master pc's information. */
-  ((PanelContainer *)topPC)->closeWindow((PanelContainer *)topPC);
-
+  pd->show();
 
   int wid = ((PanelContainer *)topPC)->getMainWindow()->widStr.toInt();
   InputLineObject *ilp = Append_Input_String( wid, "exit\n");
-#endif  // OLDWAY
 }
 
 
@@ -382,6 +357,38 @@ void OpenSpeedshop::fileClose()
 {
   dprintf("fileClose() entered.\n");
   dprintf("Try to hide the main window!\n");
+
+
+  topLevelPanelContainersToHideList.clear();
+
+  
+  PanelContainer *pc = NULL;
+  for( PanelContainerList::Iterator it = topPC->getMasterPCList()->begin();
+               it != topPC->getMasterPCList()->end();
+               it++ )
+  {
+    pc = (PanelContainer *)*it;
+    if( pc->topLevel == TRUE || pc->outsidePC == TRUE )
+    {
+      // Don't close the masterPC here.  It can only be closed from
+      // OpenSpeedShop::fileExit().
+      if( strcmp(pc->getExternalName(),"masterPC") != 0 )
+      { 
+        topLevelPanelContainersToHideList.push_back(pc);
+      }
+    }
+  }
+
+  if( !topLevelPanelContainersToHideList.empty() )
+  {
+    for( PanelContainerList::Iterator it = topLevelPanelContainersToHideList.begin();
+               it != topLevelPanelContainersToHideList.end();
+               it++ )
+    {
+      pc = (PanelContainer *)*it;
+      pc->topWidget->hide();
+    }
+  }
   hide();
 }
 
@@ -956,6 +963,17 @@ void OpenSpeedshop::raiseTheGUI()
 {
   dprintf("raiseTheGUI entered.\n");
   show();
+  PanelContainer *pc = NULL;
+  if( !topLevelPanelContainersToHideList.empty() )
+  {
+    for( PanelContainerList::Iterator it = topLevelPanelContainersToHideList.begin();
+               it != topLevelPanelContainersToHideList.end();
+               it++ )
+    {
+      pc = (PanelContainer *)*it;
+      pc->topWidget->show();
+    }
+  }
   qapplication->flushX();
 }
 
@@ -966,3 +984,25 @@ void OpenSpeedshop::raiseGUI()
 
   QTimer::singleShot( 1, this, SLOT(raiseTheGUI()) );
 }
+
+static bool step_forward = TRUE;
+void
+OpenSpeedshop::progressUpdate()
+{
+  pd->qs->setValue( steps );
+  if( step_forward )
+  {
+    steps++;
+  } else
+  {
+    steps--;
+  }
+  if( steps == 10 )
+  {
+    step_forward = FALSE;
+  } else if( steps == 0 )
+  {
+    step_forward = TRUE;
+  }
+}
+

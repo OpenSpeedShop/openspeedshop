@@ -29,6 +29,7 @@
 
 #include "preferencesdialog.hxx"
 
+
 #include <qfile.h>   // For the file dialog box.
 #include <qfiledialog.h>  // For the file dialog box.
 
@@ -41,6 +42,7 @@ class QActionGroup;
 class QToolBar;
 class QPopupMenu;
 class AttachProgramDialog;
+class GenericProgressDialog;
 
 class CLIInterface;
 
@@ -160,7 +162,9 @@ class OpenSpeedshop : public QMainWindow
     virtual void attachNewProcess();
 
     virtual void myQuit();
+    void progressUpdate();
     void raiseTheGUI();
+    PanelContainerList topLevelPanelContainersToHideList;
 protected:
     //! A vertical box to place the child widgets.
     QVBoxLayout* OpenSpeedshopLayout;
@@ -175,6 +179,9 @@ private:
 
     //! Routine that is call just pior to this class' destructor.
     void destroy();
+
+    int steps;
+    GenericProgressDialog *pd;
 };
 
 #endif // OPENSPEEDSHOP_H

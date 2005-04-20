@@ -1792,10 +1792,6 @@ PanelContainer::removePanels(PanelContainer *targetPC)
 void
 PanelContainer::removeLastPanelContainer() 
 {
-  // Prewarn all panels that they're going away...
-  ClosingDownObject *cdo = new ClosingDownObject();
-  getMasterPC()->notifyAllDecendants((char *)cdo, getMasterPC()->_lastPC);   
- 
   removePanelContainer(getMasterPC()->_lastPC);
 }
 
@@ -1818,6 +1814,11 @@ PanelContainer::removePanelContainer(PanelContainer *targetPC)
   {
     targetPC = getMasterPC()->_lastPC;
   }
+
+  // Prewarn all panels that they're going away...
+  ClosingDownObject *cdo = new ClosingDownObject();
+  getMasterPC()->notifyAllDecendants((char *)cdo, getMasterPC()->_lastPC);   
+ 
 
 // printf("PanelContainer::removePanelContainer(%s:%s) entered\n", targetPC->getInternalName(), targetPC->getExternalName() );
 
@@ -1863,6 +1864,7 @@ PanelContainer::removePanelContainer(PanelContainer *targetPC)
       {
 // We only do this when this is a toplevel, "outside PC"
 //printf("YOU'RE AN OUTSIDE WINDOW... remove don't forget to null the panelContianer reference!!!!\n");
+targetPC->topWidget->hide();
   targetPC->topWidget->panelContainer = NULL;
 
         getMasterPC()->removeTopLevelPanelContainer(targetPC, TRUE);
