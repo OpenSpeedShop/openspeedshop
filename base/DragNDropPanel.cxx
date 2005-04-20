@@ -191,6 +191,7 @@ DragNDropPanel::DropPanel( PanelContainer *sourcePC, bool doubleClickedFLAG )
     targetPC->topLevel = TRUE;
     // Mark the new PanelContainer as s outsidePC.
     targetPC->outsidePC = TRUE;
+targetPC->topWidget = topLevelWidget;
 
 
     // We must set this for proper destructor cleanup.   Otherwise no
@@ -327,6 +328,7 @@ DragNDropPanel::DropPanelWithQtDnD( PanelContainer *targetPC)
     targetPC->topLevel = TRUE;
     // Mark the new PanelContainer as s outsidePC.
     targetPC->outsidePC = TRUE;
+targetPC->topWidget = topLevelWidget;
 
 
     // We must set this for proper destructor cleanup.   Otherwise no

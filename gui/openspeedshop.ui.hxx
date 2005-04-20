@@ -730,6 +730,10 @@ if( fd )
       lastTopPC = createPanelContainer( topWidget, pc_name, NULL, lastTopPC->getMasterPCList() );
   
       lastTopPC->topLevel = TRUE;
+    // Mark the new PanelContainer as s outsidePC.
+targetPC->outsidePC = TRUE;
+targetPC->topWidget = topLevelWidget;
+
   
       topWidget->setGeometry(x,y, width, height);
 

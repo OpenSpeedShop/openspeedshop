@@ -40,6 +40,7 @@ public:
   
     void closeEvent( QCloseEvent *e );
 
+    PanelContainer *panelContainer;
   public slots:
 
 
@@ -47,7 +48,6 @@ public:
     virtual void languageChange();
 
 private:
-    PanelContainer *panelContainer;
 
     char *name;
 

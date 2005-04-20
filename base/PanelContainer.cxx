@@ -139,6 +139,8 @@ PanelContainer::PanelContainer( QWidget* _parent, const char* n, PanelContainer 
 
   char cn[1024]; // Caption Name space
 
+  outsidePC = FALSE;
+  topWidget = NULL;
   topLevel = FALSE;
 
   if( strcmp(n, "masterPC") == 0 )
@@ -1738,6 +1740,7 @@ PanelContainer::removeRaisedPanel(PanelContainer *targetPC)
     {
       ClosingDownObject *cdo = new ClosingDownObject();
       p->listener((char *)cdo);
+//      getMasterPC()->notifyAllDecendants((char *)cdo, targetPC);
     }
 
     targetPC->tabWidget->removePage(currentPage);
@@ -1790,6 +1793,12 @@ PanelContainer::removePanels(PanelContainer *targetPC)
   getMasterPC()->_eventsEnabled = savedEnableState;
 }
 
+void
+PanelContainer::removeLastPanelContainer() 
+{
+  removePanelContainer(getMasterPC()->_lastPC);
+}
+
 /*! Remove a PanelContainer.  It will delete any Panels 
    in the targetted PanelContainer, then reparent any Panels in the opposite
    PanelContainer.   Finally it will delete the opposite and the targetted
@@ -1809,6 +1818,9 @@ PanelContainer::removePanelContainer(PanelContainer *targetPC)
   {
     targetPC = getMasterPC()->_lastPC;
   }
+
+// printf("PanelContainer::removePanelContainer(%s:%s) entered\n", targetPC->getInternalName(), targetPC->getExternalName() );
+
 
   bool savedEnableState = getMasterPC()->_eventsEnabled;
   getMasterPC()->_eventsEnabled = FALSE;
@@ -1850,6 +1862,9 @@ PanelContainer::removePanelContainer(PanelContainer *targetPC)
       if( targetPC->outsidePC == TRUE )
       {
 // We only do this when this is a toplevel, "outside PC"
+//printf("YOU'RE AN OUTSIDE WINDOW... remove don't forget to null the panelContianer reference!!!!\n");
+  targetPC->topWidget->panelContainer = NULL;
+
         getMasterPC()->removeTopLevelPanelContainer(targetPC, TRUE);
       }
     }
@@ -2421,12 +2436,14 @@ createPanelContainer( QWidget* parent, const char* name, PanelContainer *parentP
 {
   nprintf(DEBUG_PANELCONTAINERS) ("createPanelContainer(%s) entered.\n", name);
 
+  TopWidget *topWidget = NULL;
   if( parent == NULL )
   {
     nprintf(DEBUG_PANELCONTAINERS) ("no parent create a toplevel\n");
-    TopWidget *topWidget = new TopWidget( 0, "toplevel" );
+    topWidget = new TopWidget( 0, "toplevel" );
     topWidget->setCaption("topwidget");
     parent = (QWidget *)topWidget;
+
 
     topWidget->show();
   }
@@ -2439,6 +2456,12 @@ createPanelContainer( QWidget* parent, const char* name, PanelContainer *parentP
   {
     npc->topLevel = TRUE;
   }
+
+if( topWidget != NULL )
+{
+  npc->outsidePC = TRUE;
+  npc->topWidget = topWidget;
+}
 
    return( npc );
 }
@@ -2934,11 +2957,11 @@ if( targetPC->areTherePanels() )
   delete apm;
   apm = new QPixmap( x_xpm );
   apm->setMask( apm->createHeuristicMask());
-  getMasterPC()->pcMenu->insertItem(*apm, "&Remove Container", targetPC->getMasterPC(), SLOT(removePanelContainer()), CTRL+Key_R );
+  getMasterPC()->pcMenu->insertItem(*apm, "&Remove Container", targetPC->getMasterPC(), SLOT(removeLastPanelContainer()), CTRL+Key_R );
 #else // ICONSONMENU
   getMasterPC()->pcMenu->insertItem( "Split &Horizontal",  targetPC, SLOT(splitHorizontal()), CTRL+Key_H );
   getMasterPC()->pcMenu->insertItem( "Split &Vertical", targetPC, SLOT(splitVertical()), CTRL+Key_V );
-  getMasterPC()->pcMenu->insertItem( "&Remove Container", targetPC->getMasterPC(), SLOT(removePanelContainer()), CTRL+Key_R );
+  getMasterPC()->pcMenu->insertItem( "&Remove Container", targetPC->getMasterPC(), SLOT(removeLastPanelContainer()), CTRL+Key_R );
 #endif // ICONSONMENU
 
   getMasterPC()->contextMenu = NULL;

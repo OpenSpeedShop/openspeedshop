@@ -59,6 +59,7 @@ TopWidget::closeEvent( QCloseEvent *e )
 
   if( panelContainer && panelContainer->getMasterPC() )
   {
+// printf("panelContainer(%s:%s)\n", panelContainer->getInternalName(), panelContainer->getExternalName() );
     // before you remove the panels notify everyone that they'r going away.
     ClosingDownObject *cdo = new ClosingDownObject();
     panelContainer->notifyAllDecendants((char *)cdo, panelContainer);

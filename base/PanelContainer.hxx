@@ -31,6 +31,7 @@
 #include <qhbox.h>
 #include <TabWidget.hxx>
 #include <TabBarWidget.hxx>
+#include <TopWidget.hxx>
 #include <qtabwidget.h>
 
 #include <qbutton.h>
@@ -130,6 +131,7 @@ class PanelContainer : public QWidget
         A outsidePC is parented to the desktop.
      */
     bool outsidePC;
+TopWidget *topWidget;
                   
     //! A flag to easily tell if this is a topLevel PanelContainer.
     /*! This is true if the panel is a topLevel PanelContainer.
@@ -288,6 +290,10 @@ Panel *raiseToTop(Panel *p);
 
     //! This routine drags the current (raised) Panel.
     void dragRaisedPanel();
+
+//! This routine removes a PanelContainer.
+void removeLastPanelContainer();
+
 
     //! This routine removes a PanelContainer.
     void removePanelContainer(PanelContainer *pc=NULL);
