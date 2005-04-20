@@ -24,6 +24,9 @@
 #include <vector>
 #include <iostream>
 
+#include "SS_Input_Manager.hxx"
+#include "SS_Cmd_Execution.hxx"
+
 using namespace std;
 
 #include "SS_Parse_Param.hxx"
@@ -32,6 +35,8 @@ using namespace std;
 #include "SS_Parse_Result.hxx"
 
 using namespace OpenSpeedShop::cli;
+
+#define MAX_STRING 1024
 
 char *indent_table[MAX_INDENT] = {
     "",
@@ -50,10 +55,13 @@ char *indent_table[MAX_INDENT] = {
     "                                        "
 };
 
+extern ParseResult *p_parse_result;
+extern CommandObject *p_cmdobj;
 
 static void help_exptype(int indent_ndx);
 static void help_host_list(int indent_ndx);
 static command_t command;
+static char *p_buf;
 
 #if 0
 /**
@@ -71,6 +79,28 @@ xxx(int indent_ndx)
 }
 #endif
 
+/**
+ * Function: s_output_to_CO
+ * 
+ * @param   input_str string to push to command object.
+ *
+ * @return  void.
+ *
+ */
+static void
+s_output_to_CO(char *input_str)
+{
+
+//    int len = strlen(input_str)+1;
+//    char *t_str = (char *)malloc(len);
+
+//    strcpy(t_str,input_str);
+//    printf("%s ",t_str);
+//    p_cmdobj->Result_String (t_str);
+//    p_cmdobj->Result_String ("STUPID STUFF!!");
+   p_cmdobj->Result_String (p_buf);
+
+}
 /**
  * Function: is_type
  * 
@@ -162,10 +192,12 @@ help_get_type(help_desc_t *p_help)
 static void
 help_name(char *name, char *format, int indent_ndx)
 {
-    printf("%s<%sname> = <%s>\n",
+    sprintf(p_buf,"%s<%sname> ::= <%s> ",
     	    indent_table[indent_ndx],
 	    name,
 	    format);
+
+    s_output_to_CO(p_buf);
 }
  
 /**
@@ -179,11 +211,12 @@ help_name(char *name, char *format, int indent_ndx)
 static void
 help_spec(char *icon, char *name, char *format, int indent_ndx)
 {
-    printf("%s<%s_spec> = %s <%sname> \n",
+    sprintf(p_buf,"%s<%s_spec> ::= %s <%sname>  ",
     	    indent_table[indent_ndx],
 	    name,
 	    icon,
 	    name);
+    s_output_to_CO(p_buf);
 
     help_name(name, format, indent_ndx+1);
 }
@@ -199,11 +232,12 @@ help_spec(char *icon, char *name, char *format, int indent_ndx)
 static void
 help_range(char *name, char *format, int indent_ndx)
 {
-    printf("%s<%s_range> = <%sname> [: <%sname>]...\n",
+    sprintf(p_buf,"%s<%s_range> ::= <%sname> [: <%sname>]... ",
     	    indent_table[indent_ndx],
 	    name,
 	    name,
 	    name);
+    s_output_to_CO(p_buf);
     help_name(name, format, indent_ndx+1);
 }
  
@@ -221,19 +255,21 @@ static void
 help_list(char *name, char *format, bool has_range, int indent_ndx)
 {
     if (has_range) {
-    	printf("%s<%s_list> = <%s_range>[,<%s_range>]...\n",
+    	sprintf(p_buf,"%s<%s_list> ::= <%s_range>[,<%s_range>]... ",
     	    	indent_table[indent_ndx],
 	    	name,
 	    	name,
 	    	name);
+    	s_output_to_CO(p_buf);
     	help_range(name, format, indent_ndx+1);
     }
     else {
-    	printf("%s<%s_list> = <%s_name>[,<%s_name>]...\n",
+    	sprintf(p_buf,"%s<%s_list> ::= <%s_name>[,<%s_name>]... ",
     	    	indent_table[indent_ndx],
 	    	name,
 	    	name,
 	    	name);
+    	s_output_to_CO(p_buf);
     	help_name(name, format, indent_ndx+1);
     }
 }
@@ -257,19 +293,21 @@ help_list_spec(
 		int indent_ndx)
 {
     if (has_range) {
-    	printf("%s<%s_list_spec> = %s <%s_list> \n",
+    	sprintf(p_buf,"%s<%s_list_spec> ::= %s <%s_list>  ",
     	    	indent_table[indent_ndx],
 	    	name,
 	    	icon,
 	    	name);
+    	s_output_to_CO(p_buf);
     	help_list(name, format, has_range, indent_ndx+1);
     }
     else {
-    	printf("%s<%s_list_spec> = <%s_name>[,<%s_name>]...\n",
+    	sprintf(p_buf,"%s<%s_list_spec> ::= <%s_name>[,<%s_name>]... ",
     	    	indent_table[indent_ndx],
 	    	name,
 	    	icon,
 	    	name);
+    	s_output_to_CO(p_buf);
     	help_name(name, format, indent_ndx+1);
     }
 }
@@ -287,8 +325,9 @@ help_list_spec(
 static void
 help_expmetric(int indent_ndx)
 {
-    printf("%s<expMetric> = [<expType>::] <metricname\n", 
+    sprintf(p_buf,"%s<expMetric> ::= [<expType>::] <metricname ", 
     	    indent_table[indent_ndx]);
+    s_output_to_CO(p_buf);
     help_exptype(indent_ndx+1);
     help_name("metricname", "string", indent_ndx+1);
 }
@@ -308,13 +347,16 @@ help_paramname(int indent_ndx)
 {
     int i;
 
-    printf("%s<paramname> = {",indent_table[indent_ndx]);
+    sprintf(p_buf,"%s<paramname> ::= {",indent_table[indent_ndx]);
+    s_output_to_CO(p_buf);
     for (i=0;i<H_PARAM_MAX;++i) {
-    	printf("%s %s ", 
+    	sprintf(p_buf,"%s %s ", 
 	    	paramtype_name[i],
 		i==H_PARAM_MAX-1 ? " " : "||");
+    	s_output_to_CO(p_buf);
     }
-    printf("}\n");
+    sprintf(p_buf,"} ");
+    s_output_to_CO(p_buf);
 }
  
 /**
@@ -328,8 +370,9 @@ help_paramname(int indent_ndx)
 static void
 help_expparam(int indent_ndx)
 {
-    printf("%s<expParam> = [<expType>::] <paramname>\n",
+    sprintf(p_buf,"%s<expParam> ::= [<expType>::] <paramname> ",
     	    indent_table[indent_ndx]);
+    s_output_to_CO(p_buf);
 }
  
 /**
@@ -345,13 +388,17 @@ help_predefined_exp(int indent_ndx)
 {
     int i;
 
-    printf("%s<predefined_exp> = {",indent_table[indent_ndx]);
+    sprintf(p_buf,"%s<predefined_exp> ::= ",indent_table[indent_ndx]);
+    s_output_to_CO(p_buf);
     for (i=0;i<H_EXP_MAX;++i) {
-    	printf("%s %s ", 
+    	sprintf(p_buf,"%s%s %s ", 
+	    	indent_table[indent_ndx+1],
 	    	experiment_name[i],
 		i==H_EXP_MAX-1 ? " " : "||");
+    	s_output_to_CO(p_buf);
     }
-    printf("\n");
+//    sprintf(p_buf," ");
+//    s_output_to_CO(p_buf);
 }
  
 /**
@@ -365,8 +412,9 @@ help_predefined_exp(int indent_ndx)
 static void
 help_user_defined_exp(int indent_ndx)
 {
-    printf("%s<user_define_exp> = string\n",
+    sprintf(p_buf,"%s<user_define_exp> ::= string ",
     	    indent_table[indent_ndx]);
+    s_output_to_CO(p_buf);
 }
  
 /**
@@ -380,8 +428,9 @@ help_user_defined_exp(int indent_ndx)
 static void
 help_exptype(int indent_ndx)
 {
-    printf("%s<expType = <predefined_exp> || <user_define_exp>\n",
+    sprintf(p_buf,"%s<expType = <predefined_exp> || <user_define_exp> ",
     	    indent_table[indent_ndx]);
+    s_output_to_CO(p_buf);
 }
  
 /**
@@ -398,8 +447,9 @@ static void
 help_expType_list(int indent_ndx)
 {
 
-    printf("%s<expType_list> = <expType>[,expType>]\n",
+    sprintf(p_buf,"%s<expType_list> ::= <expType>[,expType>] ",
     	    indent_table[indent_ndx]);
+    s_output_to_CO(p_buf);
     help_exptype(indent_ndx+1);
     help_user_defined_exp(indent_ndx+1);
     help_predefined_exp(indent_ndx+1);
@@ -417,8 +467,9 @@ help_expType_list(int indent_ndx)
 static void
 help_ip_address(int indent_ndx)
 {
-    printf("%s<IP_address> = <int>.<int>.<int>.<int>\n",
+    sprintf(p_buf,"%s<IP_address> ::= <int>.<int>.<int>.<int> ",
     	    indent_table[indent_ndx]);
+    s_output_to_CO(p_buf);
 }
  
 /**
@@ -432,8 +483,9 @@ help_ip_address(int indent_ndx)
 static void
 help_filename(int indent_ndx)
 {
-    printf("%s<filename> = <string> || \"<string>\"\n",
+    sprintf(p_buf,"%s<filename> ::= <string> || \"<string>\" ",
     	    indent_table[indent_ndx]);
+    s_output_to_CO(p_buf);
 }
  
 /**
@@ -447,8 +499,9 @@ help_filename(int indent_ndx)
 static void
 help_hostname(int indent_ndx)
 {
-    printf("%s<hostname> = <string> | IP_address*\n",
+    sprintf(p_buf,"%s<hostname> ::= <string> | IP_address* ",
     	    indent_table[indent_ndx]);
+    s_output_to_CO(p_buf);
     help_ip_address(indent_ndx+1);
 }
  
@@ -465,8 +518,9 @@ help_hostname(int indent_ndx)
 static void
 help_file_spec(int indent_ndx)
 {
-    printf("%s<file_spec> = -f <filename>\n",
+    sprintf(p_buf,"%s<file_spec> ::= -f <filename> ",
     	    indent_table[indent_ndx]);
+    s_output_to_CO(p_buf);
     help_filename(indent_ndx+1);
 }
  
@@ -483,8 +537,9 @@ help_file_spec(int indent_ndx)
 static void
 help_host_spec(int indent_ndx)
 {
-    printf("%s<host_spec> = -h <host_list>\n",
+    sprintf(p_buf,"%s<host_spec> ::= -h <host_list> ",
     	    indent_table[indent_ndx]);
+    s_output_to_CO(p_buf);
     help_host_list(indent_ndx+1);
 }
  
@@ -499,8 +554,9 @@ help_host_spec(int indent_ndx)
 static void
 help_host_file(int indent_ndx)
 {
-    printf("%s<host_file> = [<host_spec>] <file_spec>\n",
+    sprintf(p_buf,"%s<host_file> ::= [<host_spec>] <file_spec> ",
     	    indent_table[indent_ndx]);
+    s_output_to_CO(p_buf);
     help_host_spec(indent_ndx+1);
     help_file_spec(indent_ndx+1);
 }
@@ -518,8 +574,9 @@ help_host_file(int indent_ndx)
 static void
 help_file_list(int indent_ndx)
 {
-    printf("%s<file_list> = <filename>[,<filename>]*\n",
+    sprintf(p_buf,"%s<file_list> ::= <filename>[,<filename>]* ",
     	    indent_table[indent_ndx]);
+    s_output_to_CO(p_buf);
     help_filename(indent_ndx+1);
 }
  
@@ -536,8 +593,9 @@ help_file_list(int indent_ndx)
 static void
 help_host_list(int indent_ndx)
 {
-    printf("%s<host_list> = <hostname>[,<hostname>]*\n",
+    sprintf(p_buf,"%s<host_list> ::= <hostname>[,<hostname>]* ",
     	    indent_table[indent_ndx]);
+    s_output_to_CO(p_buf);
     help_hostname(indent_ndx+1);
 }
  
@@ -552,14 +610,16 @@ help_host_list(int indent_ndx)
 static void
 help_target(int indent_ndx)
 {
-    printf("%s<target> = "
-    	    "\t[<host_list_spec>]"
-	    "\n\t\t\t\t[<file_list_spec>]"
-    	    "\n\t\t\t\t[<pid_list_spec>]"
-	    "\n\t\t\t\t[<thread_list_spec>]"
-	    "\n\t\t\t\t[<cluster_list_spec>]"
-	    "\n\t\t\t\t[<rank_list_spec>]\n",
+    sprintf(p_buf,"%s<target> ::= "
+    	    "\n\t\t[<host_list_spec>]"
+	    "\n\t\t[<file_list_spec>]"
+    	    "\n\t\t[<pid_list_spec>]"
+	    "\n\t\t[<thread_list_spec>]"
+	    "\n\t\t[<cluster_list_spec>]"
+	    "\n\t\t[<rank_list_spec>]\n",
 	    indent_table[indent_ndx]);
+    s_output_to_CO(p_buf);
+
     help_list_spec("-h","host",     "<string> || <IP_Address>",true,indent_ndx+1);
     help_list_spec("-f","file",     "<string>",true,indent_ndx+1);
     help_list_spec("-p","pid",	    "<int>",true,indent_ndx+1);
@@ -581,8 +641,9 @@ help_target(int indent_ndx)
 static void
 help_target_list(int indent_ndx)
 {
-    printf("%s<target_list> = <target>[,target>]...\n",
+    sprintf(p_buf,"%s<target_list> ::= <target>[,target>]... ",
     	    indent_table[indent_ndx]);
+    s_output_to_CO(p_buf);
     help_target(indent_ndx+1);
 }
  
@@ -599,8 +660,9 @@ help_target_list(int indent_ndx)
 static void
 help_address_description(int indent_ndx)
 {
-    printf("%s<address_description> = <64bit value> || <string>\n",
+    sprintf(p_buf,"%s<address_description> ::= <64bit value> || <string> ",
     	    indent_table[indent_ndx]);
+    s_output_to_CO(p_buf);
 }
 
 /**
@@ -616,8 +678,9 @@ help_address_description(int indent_ndx)
 static void
 help_linenumber(int indent_ndx)
 {
-    printf("%s<linenumber> = <int>\n",
+    sprintf(p_buf,"%s<linenumber> ::= <int> ",
     	    indent_table[indent_ndx]);
+    s_output_to_CO(p_buf);
 }
  
 /**
@@ -633,8 +696,9 @@ help_linenumber(int indent_ndx)
 static void
 help_linenumber_range(int indent_ndx)
 {
-    printf("%s<linenumber_range> = <linenumber> [:<linenumber>]...\n",
+    sprintf(p_buf,"%s<linenumber_range> ::= <linenumber> [:<linenumber>]... ",
     	    indent_table[indent_ndx]);
+    s_output_to_CO(p_buf);
     help_linenumber(indent_ndx+1 /* number of indents */);
 }
  
@@ -651,8 +715,9 @@ help_linenumber_range(int indent_ndx)
 static void
 help_linenumber_spec(int indent_ndx)
 {
-    printf("%s<linenumber_spec> = -l <linenumber_range>\n",
+    sprintf(p_buf,"%s<linenumber_spec> ::= -l <linenumber_range> ",
     	    indent_table[indent_ndx]);
+    s_output_to_CO(p_buf);
     help_linenumber_range(indent_ndx+1 /* number of indents */);
 }
  
@@ -671,13 +736,16 @@ help_viewtype(int indent_ndx)
 {
     int i;
 
-    printf("%s<viewType> = ",indent_table[indent_ndx]);
+    sprintf(p_buf,"%s<viewType> ::= ",indent_table[indent_ndx]);
+    s_output_to_CO(p_buf);
     for (i=0;i<H_VIEW_MAX;++i) {
-    	printf("%s %s ", 
+    	sprintf(p_buf,"%s %s ", 
 	    	viewtype_name[i],
 		i==H_VIEW_MAX-1 ? " " : "||");
+    	s_output_to_CO(p_buf);
     }
-    printf("\n");
+    sprintf(p_buf," ");
+    s_output_to_CO(p_buf);
 }
   
 /**
@@ -693,66 +761,83 @@ help_viewtype(int indent_ndx)
  */
 #if 1
 void
-dump_help_cmd(oss_cmd_enum cmd_ndx, int indent_ndx, bool is_brief)
+dump_help_cmd(oss_cmd_enum cmd_ndx, int indent_ndx, bool is_brief,CommandObject *cmd)
 #else
 static void
 dump_help_cmd(help_desc_t *p_help, int indent_ndx)
 #endif
 {
 
-    if (!is_brief)
-    	printf("\n");
+    char buf[MAX_STRING];
+    
+    p_buf = buf; // Make it used by all the help routines.
+    p_cmdobj = cmd;
+
+//    if (!is_brief)
+//    	sprintf(p_buf," ");
+//  s_output_to_CO(" ");
     switch(cmd_ndx) {
     	case CMD_EXP_ATTACH:
     	case CMD_EXP_DETACH:
-    	    printf("%s  [<expId_spec>] [<target_list>] [<expType_list>]\n",
+    	    sprintf(p_buf,"%s  [<expId_spec>] [<target_list>] [<expType_list>]",
     	    	    OpenSpeedShop::cli::cmd_desc[cmd_ndx].name);
+    	    s_output_to_CO(p_buf);
     	    if (is_brief)
 	    	break;
 	    
-	    printf("%sWhere:\n", indent_table[indent_ndx]);
+	    sprintf(p_buf,"%sWhere: ", indent_table[indent_ndx]);
+    	    s_output_to_CO(p_buf);
     	    help_spec("-x","expId",     "int",indent_ndx+1);
     	    help_target_list(indent_ndx+1 /* number of indents */);
     	    help_expType_list(indent_ndx+1 /* number of indents */);
     	    break;
     	case CMD_EXP_CLOSE:
-    	    printf("%s  [focus || <expId_spec> || all] [kill] \n",
+    	    sprintf(p_buf,"%s  [focus || <expId_spec> || all] [kill]  ",
     	    	    OpenSpeedShop::cli::cmd_desc[cmd_ndx].name);
+    	    s_output_to_CO(p_buf);
     	    if (is_brief)
 	    	break;
 	    
-    	    printf("%sWhere:\n", indent_table[indent_ndx]);
+    	    sprintf(p_buf,"%sWhere: ", indent_table[indent_ndx]);
+    	    s_output_to_CO(p_buf);
     	    help_spec("-x","expId",     "int",indent_ndx+1);
     	    break;
+    	case CMD_LIST_STATUS:
     	case CMD_LIST_TYPES:
    	case CMD_EXP_DISABLE:
    	case CMD_EXP_ENABLE:
     	case CMD_EXP_PAUSE:
     	case CMD_EXP_GO:
-    	    printf("%s  [<expId_spec> || all] \n",
+    	    sprintf(p_buf,"%s  [<expId_spec> || all]  ",
     	    	    OpenSpeedShop::cli::cmd_desc[cmd_ndx].name);
+    	    s_output_to_CO(p_buf);
     	    if (is_brief)
 	    	break;
 	    
-    	    printf("%sWhere:\n", indent_table[indent_ndx]);
+    	    sprintf(p_buf,"%sWhere: ", indent_table[indent_ndx]);
+    	    s_output_to_CO(p_buf);
     	    help_spec("-x","expId",     "int",indent_ndx+1);
     	    break;
     	case CMD_EXP_FOCUS:
-    	    printf("%s  [<expId_spec>]\n",
+    	    sprintf(p_buf,"%s  [<expId_spec>] ",
     	    	    OpenSpeedShop::cli::cmd_desc[cmd_ndx].name);
+    	    s_output_to_CO(p_buf);
     	    if (is_brief)
 	    	break;
 	    
-    	    printf("%sWhere:\n", indent_table[indent_ndx]);
+    	    sprintf(p_buf,"%sWhere: ", indent_table[indent_ndx]);
+    	    s_output_to_CO(p_buf);
     	    help_spec("-x","expId",     "int",indent_ndx+1);
     	    break;
     	case CMD_EXP_CREATE:
-    	    printf("%s  [<target_list>] [<expType_list>]\n",
+    	    sprintf(p_buf,"%s  [<target_list>] [<expType_list>] ",
     	    	    OpenSpeedShop::cli::cmd_desc[cmd_ndx].name);
+    	    s_output_to_CO(p_buf);
     	    if (is_brief)
 	    	break;
 	    
-    	    printf("%sWhere:\n", indent_table[indent_ndx]);
+    	    sprintf(p_buf,"%sWhere: ", indent_table[indent_ndx]);
+    	    s_output_to_CO(p_buf);
     	    help_target_list(indent_ndx+1 /* number of indents */);
     	    help_expType_list(indent_ndx+1 /* number of indents */);
     	    break;
@@ -761,81 +846,97 @@ dump_help_cmd(help_desc_t *p_help, int indent_ndx)
     	case CMD_LOG:
     	case CMD_PLAYBACK:
     	case CMD_RECORD:
-    	    printf("%s  <file_spec> \n",
+    	    sprintf(p_buf,"%s  <file_spec>  ",
     	    	    OpenSpeedShop::cli::cmd_desc[cmd_ndx].name);
+    	    s_output_to_CO(p_buf);
     	    if (is_brief)
 	    	break;
 	    
-    	    printf("%sWhere:\n", indent_table[indent_ndx]);
+    	    sprintf(p_buf,"%sWhere: ", indent_table[indent_ndx]);
+    	    s_output_to_CO(p_buf);
     	    help_file_spec(indent_ndx+1 /* number of indents */);
      	    break;
     	case CMD_EXP_SAVE:
-    	    printf("%s  [<expId_spec>] [copy] <file_spec> \n",
+    	    sprintf(p_buf,"%s  [<expId_spec>] [copy] <file_spec>  ",
     	    	    OpenSpeedShop::cli::cmd_desc[cmd_ndx].name);
+    	    s_output_to_CO(p_buf);
     	    if (is_brief)
 	    	break;
 	    
-    	    printf("%sWhere:\n", indent_table[indent_ndx]);
+    	    sprintf(p_buf,"%sWhere: ", indent_table[indent_ndx]);
+    	    s_output_to_CO(p_buf);
     	    help_spec("-x","expId",     "int",indent_ndx+1);
     	    help_file_spec(indent_ndx+1 /* number of indents */);
      	    break;
     	case CMD_EXP_SETPARAM:
-    	    printf("%s  [<expId_spec>] <expParam>=<expParamValue> [,<expParam>=<expParamValue>] \n",
+    	    sprintf(p_buf,"%s  [<expId_spec>] <expParam>=<expParamValue> [,<expParam>=<expParamValue>]  ",
     	    	    OpenSpeedShop::cli::cmd_desc[cmd_ndx].name);
+    	    s_output_to_CO(p_buf);
     	    if (is_brief)
 	    	break;
 	    
-    	    printf("%sWhere:\n", indent_table[indent_ndx]);
+    	    sprintf(p_buf,"%sWhere: ", indent_table[indent_ndx]);
+    	    s_output_to_CO(p_buf);
     	    help_spec("-x","expId",     "int",indent_ndx+1);
 	    help_expparam(indent_ndx+1 /* number of indents */);
      	    break;
     	case CMD_EXP_VIEW:
-    	    printf("%s  [<expId_spec>] [-gui] <viewType> \n",
+    	    sprintf(p_buf,"%s  [<expId_spec>] [-gui] <viewType>  ",
     	    	    OpenSpeedShop::cli::cmd_desc[cmd_ndx].name);
+    	    s_output_to_CO(p_buf);
     	    if (is_brief)
 	    	break;
 	    
-    	    printf("%sWhere:\n", indent_table[indent_ndx]);
+    	    sprintf(p_buf,"%sWhere: ", indent_table[indent_ndx]);
+    	    s_output_to_CO(p_buf);
     	    help_spec("-x","expId",     "int",indent_ndx+1);
 	    help_viewtype(indent_ndx+1 /* number of indents */);
      	    break;
     	case CMD_LIST_HOSTS:
-    	    printf("%s  [<expId_spec> || all || <cluster_spec>]\n",
+    	    sprintf(p_buf,"%s  [<expId_spec> || all || <cluster_spec>] ",
     	    	    OpenSpeedShop::cli::cmd_desc[cmd_ndx].name);
+    	    s_output_to_CO(p_buf);
     	    if (is_brief)
 	    	break;
 	    
-    	    printf("%sWhere:\n", indent_table[indent_ndx]);
+    	    sprintf(p_buf,"%sWhere: ", indent_table[indent_ndx]);
+    	    s_output_to_CO(p_buf);
     	    help_spec("-x","expId",     "int",indent_ndx+1);
     	    help_spec("-c","cluster",	"string || int",indent_ndx+1);
      	    break;
     	case CMD_LIST_OBJ:
-    	    printf("%s  [<expId_spec>] [<target>]\n",
+    	    sprintf(p_buf,"%s  [<expId_spec>] [<target>] ",
     	    	    OpenSpeedShop::cli::cmd_desc[cmd_ndx].name);
+    	    s_output_to_CO(p_buf);
     	    if (is_brief)
 	    	break;
 	    
-    	    printf("%sWhere:\n", indent_table[indent_ndx]);
+    	    sprintf(p_buf,"%sWhere: ", indent_table[indent_ndx]);
+    	    s_output_to_CO(p_buf);
     	    help_spec("-x","expId",     "int",indent_ndx+1);
     	    help_target(indent_ndx+1 /* number of indents */);
     	    break;
     	case CMD_LIST_PIDS:
-    	    printf("%s [<expId_spec> || all] [<host_file>]\n",
+    	    sprintf(p_buf,"%s [<expId_spec> || all] [<host_file>] ",
     	    	    OpenSpeedShop::cli::cmd_desc[cmd_ndx].name);
+    	    s_output_to_CO(p_buf);
     	    if (is_brief)
 	    	break;
 	    
-    	    printf("%sWhere:\n", indent_table[indent_ndx]);
+    	    sprintf(p_buf,"%sWhere: ", indent_table[indent_ndx]);
+    	    s_output_to_CO(p_buf);
     	    help_spec("-x","expId",     "int",indent_ndx+1);
     	    help_host_file(indent_ndx+1 /* number of indents */);
     	    break;
     	case CMD_LIST_SRC:
-    	    printf("%s  [<expId_spec>] [<target>] [<linenumber_spec>]\n",
+    	    sprintf(p_buf,"%s  [<expId_spec>] [<target>] [<linenumber_spec>] ",
     	    	    OpenSpeedShop::cli::cmd_desc[cmd_ndx].name);
+    	    s_output_to_CO(p_buf);
     	    if (is_brief)
 	    	break;
 	    
-    	    printf("%sWhere:\n", indent_table[indent_ndx]);
+    	    sprintf(p_buf,"%sWhere: ", indent_table[indent_ndx]);
+    	    s_output_to_CO(p_buf);
     	    help_spec("-x","expId",     "int",indent_ndx+1);
     	    help_target(indent_ndx+1 /* number of indents */);
 	    help_linenumber_spec(indent_ndx+1);
@@ -845,57 +946,68 @@ dump_help_cmd(help_desc_t *p_help, int indent_ndx)
     	case CMD_LIST_RANKS:
     	case CMD_LIST_BREAKS:
     	case CMD_LIST_VIEWS:
-    	    printf("%s  [<expId_spec> || all || <expType>]\n",
+    	    sprintf(p_buf,"%s  [<expId_spec> || all || <expType>] ",
     	    	    OpenSpeedShop::cli::cmd_desc[cmd_ndx].name);
+    	    s_output_to_CO(p_buf);
     	    if (is_brief)
 	    	break;
 	    
-    	    printf("%sWhere:\n", indent_table[indent_ndx]);
+    	    sprintf(p_buf,"%sWhere: ", indent_table[indent_ndx]);
+    	    s_output_to_CO(p_buf);
     	    help_spec("-x","expId",     "int",indent_ndx+1);
     	    help_exptype(indent_ndx+1);
     	    break;
     	case CMD_LIST_THREADS:
-    	    printf("%s  [<expId_spec> || all || <target>]\n",
+    	    sprintf(p_buf,"%s  [<expId_spec> || all || <target>] ",
     	    	    OpenSpeedShop::cli::cmd_desc[cmd_ndx].name);
+    	    s_output_to_CO(p_buf);
     	    if (is_brief)
 	    	break;
 	    
-    	    printf("%sWhere:\n", indent_table[indent_ndx]);
+    	    sprintf(p_buf,"%sWhere: ", indent_table[indent_ndx]);
+    	    s_output_to_CO(p_buf);
     	    help_spec("-x","expId",     "int",indent_ndx+1);
     	    help_target(indent_ndx+1);
     	    break;
     	case CMD_CLEAR_BREAK:
-    	    printf("%s  <breakId>\n",
+    	    sprintf(p_buf,"%s  <breakId> ",
     	    	    OpenSpeedShop::cli::cmd_desc[cmd_ndx].name);
+    	    s_output_to_CO(p_buf);
     	    if (is_brief)
 	    	break;
 	    
-    	    printf("%sWhere:\n", indent_table[indent_ndx]);
+    	    sprintf(p_buf,"%sWhere: ", indent_table[indent_ndx]);
+    	    s_output_to_CO(p_buf);
     	    help_name("breakId", "int", indent_ndx+1);
     	    break;
     	case CMD_LIST_EXP:
     	case CMD_EXIT:
     	case CMD_OPEN_GUI:
-    	    printf("%s <no args>\n",
+    	    sprintf(p_buf,"%s <no args> ",
     	    	    OpenSpeedShop::cli::cmd_desc[cmd_ndx].name);
+    	    s_output_to_CO(p_buf);
     	    break;
     	case CMD_HELP:
-    	    printf("%s [<string>]\n",
+    	    sprintf(p_buf,"%s [<string>] ",
     	    	    OpenSpeedShop::cli::cmd_desc[cmd_ndx].name);
+    	    s_output_to_CO(p_buf);
     	    break;
     	case CMD_SETBREAK:
-    	    printf("%s  [<expId_spec>] [<target>] <address_description>\n",
+    	    sprintf(p_buf,"%s  [<expId_spec>] [<target>] <address_description> ",
     	    	    OpenSpeedShop::cli::cmd_desc[cmd_ndx].name);
+    	    s_output_to_CO(p_buf);
     	    if (is_brief)
 	    	break;
 	    
-    	    printf("%sWhere:\n", indent_table[indent_ndx]);
+    	    sprintf(p_buf,"%sWhere: ", indent_table[indent_ndx]);
+    	    s_output_to_CO(p_buf);
     	    help_spec("-x","expId",     "int",indent_ndx+1);
     	    help_target(indent_ndx+1 /* number of indents */);
 	    help_address_description(indent_ndx+1);
     	    break;
     	default :
-    	    printf("No help for requested string\n");
+    	    sprintf(p_buf,"No help for requested string ");
+    	    s_output_to_CO(p_buf);
     	    break;
     }
 }
@@ -910,11 +1022,14 @@ dump_help_cmd(help_desc_t *p_help, int indent_ndx)
  *
  */
 void
-dump_help_brief()
+dump_help_brief(CommandObject *cmd)
 {
 
     for (int i=1;i<CMD_MAX;++i) {
-    	dump_help_cmd((oss_cmd_enum)i,0,true /* is_brief */);
+    	dump_help_cmd((oss_cmd_enum)i,
+	    	      0 /* indentation level */,
+		      true /* is_brief */,
+		      cmd);
     }
 }
 
@@ -939,7 +1054,8 @@ dump_help_param(help_desc_t *p_help, int indent_ndx)
     	case H_PARAM_XSAVEFILE:
     	case H_PARAM_SAMPRATE:
     	default :
-    	    printf("No help for %s\n",p_help->name);
+    	    sprintf(p_buf,"No help for %s ",p_help->name);
+    	    s_output_to_CO(p_buf);
     	    break;
     }
 }
@@ -966,7 +1082,8 @@ dump_help_exp(help_desc_t *p_help, int indent_ndx)
     	case H_EXP_HWC:
     	case H_EXP_IO:
     	default :
-    	    printf("No help for %s\n",p_help->name);
+    	    sprintf(p_buf,"No help for %s ",p_help->name);
+    	    s_output_to_CO(p_buf);
     	    break;
     }
 }
@@ -992,7 +1109,8 @@ dump_help_view(help_desc_t *p_help, int indent_ndx)
     	case H_VIEW_FPE:
     	case H_VIEW_HWC:
     	default :
-    	    printf("No help for %s\n",p_help->name);
+    	    sprintf(p_buf,"No help for %s ",p_help->name);
+    	    s_output_to_CO(p_buf);
     	    break;
     }
 }
@@ -1013,29 +1131,30 @@ dump_help_gen(help_desc_t *p_help, int indent_ndx)
 {
     switch(p_help->u.param_ndx) {
     	case H_GEN_FOCUS:
-    	    printf("\n%s: Alters which experiment is the default focus.\n",
+    	    sprintf(p_buf,"\n%s: Alters which experiment is the default focus. ",
 	    	    p_help->name);
     	    break;
     	case H_GEN_ALL:
-    	    printf("\n%s: Apply action to all targets.\n",
+    	    sprintf(p_buf,"\n%s: Apply action to all targets. ",
 	    	    p_help->name);
     	    break;
     	case H_GEN_COPY:
-    	    printf("\n%s: Copy state to database.\n",
+    	    sprintf(p_buf,"\n%s: Copy state to database. ",
 	    	    p_help->name);
     	    break;
      	case H_GEN_KILL:
-    	    printf("\n%s: Force applications to terminate.\n",
+    	    sprintf(p_buf,"\n%s: Force applications to terminate. ",
 	    	    p_help->name);
     	    break;
     	case H_GEN_GUI:
-    	    printf("\n%s: Lauch the gui for display.\n",
+    	    sprintf(p_buf,"\n%s: Lauch the gui for display. ",
 	    	    p_help->name);
     	    break;
     	default :
-    	    printf("\nNo help for %s\n",p_help->name);
+    	    sprintf(p_buf,"\nNo help for %s ",p_help->name);
     	    break;
     }
+    s_output_to_CO(p_buf);
 }
  
 /**
@@ -1049,7 +1168,7 @@ dump_help_gen(help_desc_t *p_help, int indent_ndx)
  *
  */
 void 
-dump_help(command_t *p_cmd)
+dump_help(command_t *p_cmd, CommandObject *cmd)
 {
     if (command.help_table.cur_node) {
     	int i;
@@ -1064,7 +1183,7 @@ dump_help(command_t *p_cmd)
 	    	switch (help_tab[i].tag) {
 		    case HELP_CMD:
 #if 1
-		    	dump_help_cmd(p_help->u.cmd_ndx, indent, false /* is_brief */);
+		    	dump_help_cmd(p_help->u.cmd_ndx, indent, false /* is_brief */,cmd);
 #else
 		    	dump_help_cmd(p_help, indent);
 #endif
@@ -1082,15 +1201,19 @@ dump_help(command_t *p_cmd)
 		    	dump_help_gen(p_help, indent);
 		    	break;
 		    default:
-	    	    	printf("No help for %s",help_tab[i].name);
+	    	    	sprintf(p_buf,"No help for %s",help_tab[i].name);
+    	    	    	s_output_to_CO(p_buf);
 			break;
 		} /* switch */
 	    }	/* if */
 
-	    else
-	    	printf("No help for %s",help_tab[i].name);
+	    else {
+	    	sprintf(p_buf,"No help for %s",help_tab[i].name);
+    	    	s_output_to_CO(p_buf);
+	    }
 	}   /* for */
-	printf("\n");
+	sprintf(p_buf," ");
+    	s_output_to_CO(p_buf);
     }	/* if */
 
     fflush(stdout);

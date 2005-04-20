@@ -355,6 +355,7 @@ class ParseResult {
 	}
 
     	void push_help(char * name);
+    	void push_help();
 
     	/** Syntax error handling. */
     	void set_error(char * name1, char * name2);
@@ -434,6 +435,9 @@ class ParseResult {
 
     	/** Debugging code */
     	void dumpInfo();
+	
+	/**  Temporary help facility */
+	void dumpHelp(CommandObject *);
 
     private:
     	/** What command are we representing */
@@ -442,6 +446,9 @@ class ParseResult {
     	/** What command are we representing */
     	int dm_experiment_id;
     	bool dm_experiment_set;
+
+    	/** Was help called? */
+    	bool dm_help_set;
 
     	/** Are there any param values? */
     	bool dm_param_set;

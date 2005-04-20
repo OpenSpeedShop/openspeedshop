@@ -5,7 +5,12 @@
  */
 
 #include <vector>
+#include <string>
 #include <iostream>
+#include <cctype>
+
+#include "SS_Input_Manager.hxx"
+#include "SS_Cmd_Execution.hxx"
 
 using namespace std;
 
@@ -16,7 +21,8 @@ using namespace std;
 
 using namespace OpenSpeedShop::cli;
 
-extern void dump_help_cmd(oss_cmd_enum, int, bool);
+extern void dump_help_cmd(oss_cmd_enum, int, bool, CommandObject *);
+extern void dump_help_brief(CommandObject *);
 
 command_type_t OpenSpeedShop::cli::cmd_desc[CMD_MAX] = {
     "Syntax_Error", false,  CMD_HEAD_ERROR, /* used in error reporting */
@@ -111,6 +117,7 @@ ParseResult() :
     dm_command_type(CMD_HEAD_ERROR),
     dm_experiment_id(-1),
     dm_experiment_set(false),
+    dm_help_set(false),
     dm_param_set(false),
     dm_error_set(false),
     dm_p_param(NULL)
@@ -258,10 +265,96 @@ s_dumpRange(vector<ParseRange> *p_list, char *label, bool is_hex)
 }
 
 /**
+ * Method: nocase_compare()
+ * 
+ * case insensitive compare
+ *     
+ * @return  bool true if same.
+ *
+ * @todo    Error handling.
+ *
+ */
+static bool
+nocase_compare(char c1, char c2)
+{
+    return toupper(c1) == toupper(c2);
+}
+
+/**
+ * Method: ParseResult::dumpHelp()
+ * 
+ * Dump help requests
+ * This is not meant to be used by dumpInfo().
+ *     
+ * @return  void.
+ *
+ * @todo    Error handling.
+ *
+ */
+void
+ParseResult::
+dumpHelp(CommandObject *cmd) 
+{
+
+    bool found_match = false;
+    char input[512]; // until I can figure out how to lowercase in C++
+//    extern int tolower();
+
+    if (!dm_help_set)
+    	return;
+
+    // general modifier types.
+    vector<string> *p_slist = this->getHelpList();
+
+    // Dump out command oneliners
+    if (p_slist->begin() == p_slist->end()) {
+    	dump_help_brief(cmd);
+
+    	return;
+    }
+
+    for (vector<string>::iterator j=p_slist->begin();
+    	 j != p_slist->end() && !found_match; 
+	 j++) {
+	string name(*j);
+	
+	// lower case the input string
+//	transform(*j->begin(),
+//	    	  *j->end(),
+//		  *j->begin(),
+//		  tolower);
+	
+	// Look for commands
+	for (int i=0;i<CMD_MAX && !found_match;++i) {
+	    string table(cmd_desc[(oss_cmd_enum)i].name);
+
+   	    if ((strcasecmp(name.c_str(),table.c_str())) == 0) {
+	    	dump_help_cmd((oss_cmd_enum)i,0,false /* is_brief */,cmd);
+		found_match = true;
+		break;
+	    }
+	}
+	// Look for param types
+	for (int i=0;i<H_PARAM_MAX && !found_match;++i) {
+	}
+	// Look for experiment types
+	for (int i=0;i<H_EXP_MAX && !found_match;++i) {
+	}
+	// Look for view types
+	for (int i=0;i<H_VIEW_MAX && !found_match;++i) {
+	}
+	// Look for general modifiers
+	for (int i=0;i<H_GEN_MAX && !found_match;++i) {
+	}
+    }
+}
+
+/**
  * Method: ParseResult::dumpInfo()
  * 
  * Dump the data for this command
- * 
+ * This is for debugging only and not meant
+ * for regular use in the tool.
  *     
  * @return  void.
  *
@@ -464,6 +557,23 @@ pushParm(char *etype, char * ptype, char * name)
 }
  
 /**
+ * Method: ParseResult::push_help(void)
+ * 
+ * Used for generic help topic dump
+ *     
+ * @return  void.
+ *
+ * @todo    help facility.
+ *
+ */
+void
+ParseResult::
+push_help()
+{
+    dm_help_set = true;
+}
+
+/**
  * Method: ParseResult::push_help(char * name)
  * 
  *     
@@ -476,16 +586,17 @@ void
 ParseResult::
 push_help(char *name)
 {
+    dm_help_set = true;
     dm_help_list.push_back(name);
     
     // This is temporary during development.
-    int i;
-    for (i=1;i<CMD_MAX;++i) {
-    	if ((strcmp(name,cmd_desc[(oss_cmd_enum)i].name)) == 0) {
-	    dump_help_cmd((oss_cmd_enum)i,0,false /* is_brief */);
-	    break;
-	}
-    }
+//    int i;
+//    for (i=1;i<CMD_MAX;++i) {
+//    	if ((strcmp(name,cmd_desc[(oss_cmd_enum)i].name)) == 0) {
+//	    dump_help_cmd((oss_cmd_enum)i,0,false /* is_brief */);
+//	    break;
+//	}
+//    }
 }
 
 /**

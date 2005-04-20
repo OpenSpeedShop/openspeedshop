@@ -24,6 +24,9 @@
 #include <vector>
 #include <iostream>
 
+#include "SS_Input_Manager.hxx"
+#include "SS_Cmd_Execution.hxx"
+
 using namespace std;
 
 #include "SS_Parse_Range.hxx"
@@ -458,10 +461,10 @@ gen_exit_com:	    GEN_EXIT_HEAD
       	    	;
 
     	    /** GEN_HELP **/
-gen_help_com:	    GEN_HELP_HEAD   {dump_help_brief();}
+gen_help_com:	    GEN_HELP_HEAD    {p_parse_result->push_help();}
     		|   GEN_HELP_HEAD   gen_help_args 
     	    	;
-gen_help_args:	    gen_help_arg 
+gen_help_args:	    gen_help_arg
     	    	|   gen_help_args gen_help_arg  
     	    	;
 gen_help_arg:	    NAME {p_parse_result->push_help($1);}

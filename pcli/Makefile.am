@@ -75,6 +75,8 @@ SS_Parse_Yacc.cxx: $(YFILES) SS_Parse_Result.hxx
 	-rm -f SS_Parse_Yacc.cxx
 	-$(YACC) $(AM_YFLAGS) $(YFILES);
 	-mv y.tab.c SS_Parse_Yacc.cxx
+	-cp y.tab.h SS_Parse_Yacc.h
+	-mv y.tab.h SS_Parse_Yacc.hxx
 
 SS_Parse_Yacc.hxx: $(YFILES)
 	-rm -f SS_Parse_Yacc.cxx

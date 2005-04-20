@@ -1879,7 +1879,9 @@ bool SS_Help (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
-  cmd->Result_String ("not yet implemented");
+//  cmd->Result_String ("not yet implemented");
+  cmd->P_Result()->dumpHelp(cmd);
+  cmd->Result_String ("");
   cmd->set_Status(CMD_COMPLETE);
   return true;
 }

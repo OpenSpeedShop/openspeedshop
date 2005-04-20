@@ -7,6 +7,9 @@
 #include <vector>
 #include <iostream>
 
+#include "SS_Input_Manager.hxx"
+#include "SS_Cmd_Execution.hxx"
+
 using namespace std;
 
 #include "SS_Parse_Range.hxx"
