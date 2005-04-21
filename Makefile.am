@@ -53,7 +53,7 @@ tests: $(TEST_SUBDIRS)
 
 DOC_SUBDIRS = \
 	libopenss-framework \
-	Panels pcli openspeedshop base chart gui plugin objects dialogs
+	Panels pcli openss base chart gui plugin objects dialogs
 
 doc: $(DOC_SUBDIRS) 
 	-doxygen Doxyfile
