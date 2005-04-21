@@ -152,9 +152,9 @@ namespace OpenSpeedShop { namespace Framework {
  *
  * @param db    Pointer to database being accessed.
  */
-#define BEGIN_TRANSACTION(db)    \
-    try {                        \
-	db->beginTransaction();  \
+#define BEGIN_TRANSACTION(db)   \
+    try {                       \
+	db->beginTransaction(); \
 	if(0)
 
 
@@ -167,13 +167,13 @@ namespace OpenSpeedShop { namespace Framework {
  *
  * @param db    Pointer to database being accessed.
  */
-#define END_TRANSACTION(db)	    \
-        db->commitTransaction();    \
-    }				    \
-    catch(...) {		    \
-	db->rollbackTransaction();  \
-	throw;                      \
-    }                               \
+#define END_TRANSACTION(db)	   \
+        db->commitTransaction();   \
+    }				   \
+    catch(...) {		   \
+	db->rollbackTransaction(); \
+	throw;                     \
+    }                              \
     if(0)
 
 
