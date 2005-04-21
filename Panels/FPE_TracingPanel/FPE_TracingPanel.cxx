@@ -656,6 +656,8 @@ void
 FPE_TracingPanel::languageChange()
 {
   statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\" with the local menu.") );
+
+  QToolTip::add(statusLabelText, tr("Shows the current status of the processes/threads in the experiment.") );
 }
 
 #include "SaveAsObject.hxx"
@@ -923,6 +925,9 @@ FPE_TracingPanel::updateStatus()
         pco->terminateButton->setFlat(TRUE);
         pco->terminateButton->setEnabled(FALSE);
         statusTimer->stop();
+// Begin if we default a report panel put it here...
+loadStatsPanel();
+// End if we default a report panel put it here...
         break;
       default:
         statusLabelText->setText( QString("%1: Unknown status").arg(status) );
