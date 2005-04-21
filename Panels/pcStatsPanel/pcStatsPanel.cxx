@@ -409,10 +409,18 @@ pcStatsPanel::exportData()
 void
 pcStatsPanel::gotoSource()
 {
-  printf("gotoSource() menu selected.\n");
+//  printf("gotoSource() menu selected.\n");
   QListViewItem *lvi = lv->selectedItem();
 
   itemSelected(lvi);
+}
+
+/*! Go to source menu item was selected. */
+void
+pcStatsPanel::compareSelected()
+{
+//  printf("compareSelected() menu selected.\n");
+QMessageBox::information(this, "compareSelected() unimplemented", "This functionality is currently unimplement.\nIt will eventually bring up a dialog that will\nallow many different comparisons.\n  - Compare one run to another.\n  - Compare on thread to another.\n  - Compare one thread against all others.\n  - ...\n", "Ok");
 }
 
 void

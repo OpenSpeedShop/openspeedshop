@@ -368,7 +368,7 @@ void OpenSpeedshop::fileClose()
                it++ )
   {
     pc = (PanelContainer *)*it;
-    if( pc->topLevel == TRUE || pc->outsidePC == TRUE )
+    if( pc->topLevel == TRUE && pc->outsidePC == TRUE )
     {
       // Don't close the masterPC here.  It can only be closed from
       // OpenSpeedShop::fileExit().

@@ -85,6 +85,7 @@ class pcStatsPanel  : public StatsPanelBase
     void exportData();
     void details();
     void gotoSource();
+    void compareSelected();
 
   private slots:
     virtual void sortCalledRecalculateCumulative(int);
