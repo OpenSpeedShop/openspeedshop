@@ -297,13 +297,40 @@ IOPanel::menu(QPopupMenu* contextMenu)
   nprintf( DEBUG_PANELS ) ("IOPanel::menu() requested.\n");
 
   contextMenu->insertSeparator();
-  contextMenu->insertItem(tr("pc S&tats Panel..."), this, SLOT(loadStatsPanel()), CTRL+Key_T );
-  contextMenu->insertItem(tr("S&ource Panel..."), this, SLOT(loadSourcePanel()), CTRL+Key_O );
+
+  QAction *qaction = new QAction( this,  "pcStatsPanel");
+  qaction->addTo( contextMenu );
+  qaction->setText( "pc Stats Panel..." );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( loadStatsPanel() ) );
+  qaction->setStatusTip( tr("Bring up the data statistics for the experiment.") );
+
+  qaction = new QAction( this,  "sourcePanel");
+  qaction->addTo( contextMenu );
+  qaction->setText( "Source Panel..." );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( loadSourcePanel() ) );
+  qaction->setStatusTip( tr("Bring up the source panel.") );
+
   contextMenu->insertSeparator();
-  contextMenu->insertItem(tr("&Manage Collectors and Processes..."), this, SLOT(manageCollectorsAndProcessesSelected()), CTRL+Key_M );
-  contextMenu->insertItem(tr("Manage &Data Sets..."), this, SLOT(manageDataSetsSelected()), CTRL+Key_D );
+
+  qaction = new QAction( this,  "managerCollectorsAndProcesses");
+  qaction->addTo( contextMenu );
+  qaction->setText( "Manage Collectors and Process..." );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( manageCollectorsAndProcessesSelected() ) );
+  qaction->setStatusTip( tr("Add/Attach/Delete collectors, process, programs to the experiment.") );
+
+  qaction = new QAction( this,  "manageDataSets");
+  qaction->addTo( contextMenu );
+  qaction->setText( "Manage Data Sets..." );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( manageDataSetsSelected() ) );
+  qaction->setStatusTip( tr("Combine data sets from multiple runs. (Currently unimplemented)") );
+
   contextMenu->insertSeparator();
-  contextMenu->insertItem("&Save As ...", this, SLOT(saveAsSelected()), CTRL+Key_S ); 
+
+  qaction = new QAction( this,  "IOPanelSaveAs");
+  qaction->addTo( contextMenu );
+  qaction->setText( "Export Data..." );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( saveAsSelected() ) );
+  qaction->setStatusTip( tr("Export data from all the IOPanel's windows to an ascii file.") );
 
   return( TRUE );
 }
@@ -313,11 +340,11 @@ IOPanel::manageCollectorsAndProcessesSelected()
 {
   nprintf( DEBUG_PANELS ) ("IOPanel::manageCollectorsAndProcessesSelected()\n");
 
-int initial_thread_count = 0;
+  int initial_thread_count = 0;
 
-ThreadGroup tgrp = experiment->getThreads();
-ThreadGroup::iterator ti = tgrp.begin();
-initial_thread_count = tgrp.size();
+  ThreadGroup tgrp = experiment->getThreads();
+  ThreadGroup::iterator ti = tgrp.begin();
+  initial_thread_count = tgrp.size();
 
   if( manageCollectorsDialog == NULL )
   {
@@ -328,23 +355,23 @@ initial_thread_count = tgrp.size();
 //    printf("QDialog::Accepted\n");
 //    pidStr = dialog->selectedProcesses();
 
-ThreadGroup tgrp = experiment->getThreads();
-ThreadGroup::iterator ti = tgrp.begin();
-if( tgrp.size() > 0 )
-{
-  if( initial_thread_count == 0 )
-  {
-    loadMain();
-  } else
-  {
-    statusLabelText->setText( tr("Experiment is loaded:  Hit the \"Run\" button to continue execution.") );
-    pco->runButton->setEnabled(TRUE);
-    pco->runButton->enabledFLAG = TRUE;
-    runnableFLAG = TRUE;
-    pco->pauseButton->setEnabled(FALSE);
-    pco->pauseButton->enabledFLAG = FALSE;
-  }
-}
+    ThreadGroup tgrp = experiment->getThreads();
+    ThreadGroup::iterator ti = tgrp.begin();
+    if( tgrp.size() > 0 )
+    {
+      if( initial_thread_count == 0 )
+      {
+        loadMain();
+      } else
+      {
+        statusLabelText->setText( tr("Experiment is loaded:  Hit the \"Run\" button to continue execution.") );
+        pco->runButton->setEnabled(TRUE);
+        pco->runButton->enabledFLAG = TRUE;
+        runnableFLAG = TRUE;
+        pco->pauseButton->setEnabled(FALSE);
+        pco->pauseButton->enabledFLAG = FALSE;
+      }
+    }
   }
   delete manageCollectorsDialog;
   manageCollectorsDialog = NULL;
@@ -644,12 +671,10 @@ IOPanel::saveAsSelected()
     sfd = new QFileDialog(this, "file dialog", TRUE );
     sfd->setCaption( QFileDialog::tr("Enter filename:") );
     sfd->setMode( QFileDialog::AnyFile );
-    sfd->setSelection(QString("IOPanel.html"));
+    sfd->setSelection(QString("IOPanel.txt"));
     QString types(
                   "Any Files (*);;"
-                  "Image files (*.png *.xpm *.jpg);;"
                   "Text files (*.txt);;"
-                  "(*.c *.cpp *.cxx *.C *.c++ *.f* *.F*);;"
                   );
     sfd->setFilters( types );
     sfd->setDir(dirName);
@@ -663,13 +688,6 @@ IOPanel::saveAsSelected()
     if( !fileName.isEmpty() )
     { 
       SaveAsObject *sao = new SaveAsObject(fileName);
-
-      *sao->ts << "<html>";
-      *sao->ts << "<head>";
-      *sao->ts << "<meta content=\"text/html; charset=ISO-8859-1\" http-equiv=\"content-type\"> ";
-      *sao->ts << "<title>ioReport</title>";
-      *sao->ts << "<h2>ioReport</h2>";
-      *sao->ts << "</head>";
 
       sao->f->flush();
 
@@ -777,12 +795,12 @@ IOPanel::loadMain()
         sourcePanel->listener((void *)spo);
       }
     }
-statusLabelText->setText( tr("Experiment is loaded:  Hit the \"Run\" button to continue execution.") );
-pco->runButton->setEnabled(TRUE);
-pco->runButton->enabledFLAG = TRUE;
-runnableFLAG = TRUE;
-pco->pauseButton->setEnabled(FALSE);
-pco->pauseButton->enabledFLAG = FALSE;
+    statusLabelText->setText( tr("Experiment is loaded:  Hit the \"Run\" button to continue execution.") );
+    pco->runButton->setEnabled(TRUE);
+    pco->runButton->enabledFLAG = TRUE;
+    runnableFLAG = TRUE;
+    pco->pauseButton->setEnabled(FALSE);
+    pco->pauseButton->enabledFLAG = FALSE;
   }
 }
 
