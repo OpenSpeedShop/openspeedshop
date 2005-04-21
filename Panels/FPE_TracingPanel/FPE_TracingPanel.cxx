@@ -94,7 +94,7 @@ FPE_TracingPanel::FPE_TracingPanel(PanelContainer *pc, const char *n, void *argu
       expID = expIDString->toInt();
       nprintf( DEBUG_PANELS ) ("we're coming in with an expID=%d\n", expID);
       // Look to see if any collectors have already been assigned.   If not, we
-      // need to attach the xfpele collector.
+      // need to attach the fpe collector.
       eo = Find_Experiment_Object((EXPID)expID);
       if( eo && eo->FW() )
       {
@@ -112,7 +112,7 @@ FPE_TracingPanel::FPE_TracingPanel(PanelContainer *pc, const char *n, void *argu
       if( cgrp.size() == 0 )
       {
         nprintf( DEBUG_PANELS ) ("There are no known collectors for this experiment so add one.\n");
-        QString command = QString("expAttach -x %1 xfpe").arg(expID);
+        QString command = QString("expAttach -x %1 fpe").arg(expID);
         CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
         if( !cli->runSynchronousCLI((char *)command.ascii() ) )
         {
@@ -169,13 +169,13 @@ FPE_TracingPanel::FPE_TracingPanel(PanelContainer *pc, const char *n, void *argu
     QString command = QString::null;
     if( !executableNameStr.isEmpty() )
     {
-      command = QString("expCreate -f \"%1 %2\" xfpe\n").arg(executableNameStr).arg(argsStr);
+      command = QString("expCreate -f \"%1 %2\" fpe\n").arg(executableNameStr).arg(argsStr);
     } else if( !pidStr.isEmpty() )
     { 
-      command = QString("expCreate -x %1 xfpe\n").arg(pidStr);
+      command = QString("expCreate -x %1 fpe\n").arg(pidStr);
     } else
     {
-      command = QString("expCreate xfpe\n");
+      command = QString("expCreate fpe\n");
     }
     bool mark_value_for_delete = true;
     int64_t val = 0;
@@ -747,7 +747,7 @@ FPE_TracingPanel::loadStatsPanel()
     {
       experiment = eo->FW();
       UpdateObject *msg =
-        new UpdateObject((void *)experiment, expID, "xfpe", 1);
+        new UpdateObject((void *)experiment, expID, "fpe", 1);
       statsPanel->listener( (void *)msg );
     }
   }

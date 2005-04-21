@@ -79,7 +79,7 @@ do
     echo "echo "y" | mysed \"pc Sample Panel\" "FPE Tracing Panel" $i/$i.cxx $i/$i.hxx $i/Makefile.am"
    echo "y" | mysed "pc Sample Panel" "FPE Tracing Panel" $i/$i.cxx $i/$i.hxx $i/Makefile.am
     echo "y" | mysed "pcSample" "fpeTracing" $i/$i.cxx $i/$i.hxx $i/Makefile.am
-    echo "y" | mysed "pcsamp" "xfpe" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+    echo "y" | mysed "pcsamp" "fpe" $i/$i.cxx $i/$i.hxx $i/Makefile.am
   fi
   if [ $i = "HW_CounterPanel" ]
   then
