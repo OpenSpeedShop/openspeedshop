@@ -178,7 +178,7 @@ void OpenSpeedshop::fileOpenExperiment()
     {
 //      std::string collector_name = *it;
       QString collector_name = (QString)*it;
-//      printf("(%s)\n", collector_name.ascii() );
+//printf("(%s)\n", collector_name.ascii() );
       if( collector_name == "pcsamp" )
       {
         knownCollectorType = TRUE;
@@ -210,10 +210,13 @@ void OpenSpeedshop::fileOpenExperiment()
         knownCollectorType = TRUE;
         break;
       }
-      
     }
   }
 
+  if( knownCollectorType != TRUE )
+  {
+    panel_type = "Construct New";
+  }
 
 //printf("pane_type.ascii() = %s\n", panel_type.ascii() );
   PanelContainer *bestFitPC = ((PanelContainer *)topPC)->findBestFitPanelContainer((PanelContainer *)topPC);
