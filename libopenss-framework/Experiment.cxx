@@ -109,7 +109,7 @@ namespace {
 	"    linked_object INTEGER," // From LinkedObjects.id
 	"    file INTEGER," // From Files.id
 	"    line INTEGER,"
-	"    column INTEGER"
+	"    'column' INTEGER"
 	");",
 
 	// Statement Range Table
