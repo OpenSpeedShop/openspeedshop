@@ -18,6 +18,9 @@
 
 pkglib_LTLIBRARIES = pcsamp.la pcsamp-rt.la
 
+BUILT_SOURCES = \
+	blobs.h blobs.c	
+
 pcsamp_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
 
@@ -25,7 +28,7 @@ pcsamp_la_LDFLAGS = \
 	-no-undefined -module -avoid-version
 
 pcsamp_la_SOURCES = \
-	blobs.h blobs.c blobs.x \
+	blobs.x $(BUILT_SOURCES) \
 	PCSampCollector.hxx PCSampCollector.cxx
 
 pcsamp_rt_la_CFLAGS = \
@@ -39,11 +42,12 @@ pcsamp_rt_la_LIBADD = \
 	-lopenss-framework-runtime -lpthread -lrt
 
 pcsamp_rt_la_SOURCES = \
-	blobs.h blobs.c blobs.x \
+	blobs.x $(BUILT_SOURCES) \
 	runtime.c
 
 SUFFIXES = .x
-CLEANFILES = blobs.h blobs.c
+
+CLEANFILES = $(BUILT_SOURCES)
 
 blobs.h blobs.c : blobs.x
 	rm -f  $(patsubst %.x, %.h, $<) $(patsubst %.x, %.c, $<)

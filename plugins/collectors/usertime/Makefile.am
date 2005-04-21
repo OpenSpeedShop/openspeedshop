@@ -18,6 +18,9 @@
 
 pkglib_LTLIBRARIES = usertime.la usertime-rt.la
 
+BUILT_SOURCES = \
+	blobs.h blobs.c
+
 usertime_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
 
@@ -25,11 +28,8 @@ usertime_la_LDFLAGS = \
 	-no-undefined -module -avoid-version
 
 usertime_la_SOURCES = \
-	blobs.x \
+	blobs.x $(BUILT_SOURCES) \
 	UserTimeCollector.hxx UserTimeCollector.cxx
-
-nodist_usertime_la_SOURCES = \
-	blobs.h blobs.c 
 
 usertime_rt_la_CFLAGS = \
 	-I$(top_srcdir)/libopenss-framework/runtime
@@ -42,15 +42,12 @@ usertime_rt_la_LIBADD = \
 	-lopenss-framework-runtime -lpthread -lrt
 
 usertime_rt_la_SOURCES = \
-	blobs.x runtime.c
-
-nodist_usertime_rt_la_SOURCES = \
-	blobs.h blobs.c
-
-usertime_rt_la usertime_la: $(nodist_usertime_rt_la_SOURCES)
+	blobs.x $(BUILT_SOURCES) \
+	runtime.c
 
 SUFFIXES = .x
-CLEANFILES = $(nodist_usertime_la_SOURCES) $(nodist_usertime_rt_la_SOURCES)
+
+CLEANFILES = $(BUILT_SOURCES)
 
 blobs.h blobs.c : blobs.x
 	rm -f  $(patsubst %.x, %.h, $<) $(patsubst %.x, %.c, $<)
