@@ -103,7 +103,7 @@ void StatementBuilder::processAndStore(SmartPtr<Database>& database,
 	// Create the statement entry
 	database->prepareStatement(
 	    "INSERT INTO Statements "
-	    "  (linked_object, file, line, 'column') "
+	    "  (linked_object, file, line, \"column\") "
 	    "VALUES (?, ?, ?, ?);"
 	    );
 	database->bindArgument(1, linked_object);

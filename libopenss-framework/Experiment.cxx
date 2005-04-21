@@ -54,10 +54,10 @@ namespace {
     const char* DatabaseSchema[] = {
 
 	// Open|SpeedShop Table
-	"CREATE TABLE 'Open|SpeedShop' ("
+	"CREATE TABLE \"Open|SpeedShop\" ("
 	"    version INTEGER"
 	");",
-	"INSERT INTO 'Open|SpeedShop' (version) VALUES (1);",
+	"INSERT INTO \"Open|SpeedShop\" (version) VALUES (1);",
 	
 	// Thread Table
 	"CREATE TABLE Threads ("
@@ -109,7 +109,7 @@ namespace {
 	"    linked_object INTEGER," // From LinkedObjects.id
 	"    file INTEGER," // From Files.id
 	"    line INTEGER,"
-	"    'column' INTEGER"
+	"    \"column\" INTEGER"
 	");",
 
 	// Statement Range Table
@@ -216,7 +216,7 @@ bool Experiment::isAccessible(const std::string& name)
 
 	// Verify there is a "Open|SpeedShop" table containing a single row
 	BEGIN_TRANSACTION(database);
-	database->prepareStatement("SELECT COUNT(*) FROM 'Open|SpeedShop';");
+	database->prepareStatement("SELECT COUNT(*) FROM \"Open|SpeedShop\";");
 	while(database->executeStatement())
 	    is_accessible = (database->getResultAsInteger(1) == 1);
 	END_TRANSACTION(database);

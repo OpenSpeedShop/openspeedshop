@@ -239,7 +239,7 @@ int Statement::getColumn() const
     BEGIN_TRANSACTION(dm_database);
     validate("Statements");
     dm_database->prepareStatement(
-	"SELECT 'column' FROM Statements WHERE id = ?;"
+	"SELECT \"column\" FROM Statements WHERE id = ?;"
 	);
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement())
