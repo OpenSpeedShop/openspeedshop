@@ -32,7 +32,7 @@ then
 fi
 if test -d Panels
 then
-  bootstrap --clean;bootstrap;configure --prefix=$OPENSS_INSTALL_DIR;make uninstall;make install;make dist;
+  bootstrap;configure --prefix=$OPENSS_INSTALL_DIR;make uninstall;make install;make dist;
 else
   echo NOTE: This must be run from the 'current' directory...
 fi

@@ -17,23 +17,6 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-if test -r "Makefile"; then
-    make distclean
-fi
-
-rm -rf autom4te.cache libltdl
-rm -f aclocal.m4 compile config.guess config.h.in config.sub
-rm -f configure depcomp install-sh ltmain.sh missing mkinstalldirs
-
-rm -f Makefile.in
-rm -f */Makefile.in
-rm -f */*/Makefile.in
-rm -f */*/*/Makefile.in
-
-if test "$1" = "--clean"; then
-    exit
-fi
-
 aclocal
 libtoolize --ltdl --copy
 autoheader
