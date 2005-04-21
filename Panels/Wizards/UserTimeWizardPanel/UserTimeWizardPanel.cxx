@@ -43,6 +43,7 @@
 #include <qfiledialog.h>  // For the file dialog box.
 #include <qmessagebox.h>
 #include <qscrollview.h>
+#include <qapplication.h>
 
 #include <qbitmap.h>
 #include "rightarrow.xpm"
@@ -524,6 +525,36 @@ int
 UserTimeWizardPanel::listener(void *msg)
 {
   nprintf(DEBUG_PANELS) ("UserTimeWizardPanel::listener() requested.\n");
+
+  MessageObject *messageObject = (MessageObject *)msg;
+  nprintf(DEBUG_PANELS) ("  messageObject->msgType = %s\n", messageObject->msgType.ascii() );
+  if( messageObject->msgType == getName() )
+  {
+    vSummaryPageFinishButton->setEnabled(TRUE);
+    eSummaryPageFinishButton->setEnabled(TRUE);
+    vSummaryPageBackButton->setEnabled(TRUE);
+    eSummaryPageBackButton->setEnabled(TRUE);
+    qApp->flushX();
+    return 1;
+  }
+  if( messageObject->msgType == "Wizard_Raise_First_Page" )
+  {
+    vSummaryPageFinishButton->setEnabled(TRUE);
+    eSummaryPageFinishButton->setEnabled(TRUE);
+    vSummaryPageBackButton->setEnabled(TRUE);
+    eSummaryPageBackButton->setEnabled(TRUE);
+    qApp->flushX();
+    nprintf(DEBUG_PANELS) ("vDescriptionPageWidget\n");
+    if( wizardMode->isOn() )
+    {// is it verbose?
+      mainWidgetStack->raiseWidget(vDescriptionPageWidget);
+    } else
+    {
+      mainWidgetStack->raiseWidget(eDescriptionPageWidget);
+    }
+    return 1;
+  }
+
   return 0;  // 0 means, did not want this message and did not act on anything.
 }
 
@@ -929,10 +960,42 @@ nprintf(DEBUG_PANELS) ("vSummaryPageFinishButtonSelected() \n");
  *  Sets the strings of the subwidgets using the current
  *  language.
  */
+#include "SS_Input_Manager.hxx"
+using namespace OpenSpeedShop::Framework;
 void
 UserTimeWizardPanel::languageChange()
 {
     setCaption( tr( "User Time Wizard Panel" ) );
+
+  // Look up default metrics.   There's only one in this case.
+  // Get list of all the collectors from the FrameWork.
+  // To do this, we need to create a dummy experiment.
+  unsigned int sampling_rate = 100;
+  try {
+    char *temp_name = tmpnam(NULL);
+    static std::string tmpdb = std::string(temp_name);
+    OpenSpeedShop::Framework::Experiment::create (tmpdb);
+    OpenSpeedShop::Framework::Experiment dummy_experiment(tmpdb);
+    Collector userTimeCollector = dummy_experiment.createCollector("usertime");
+
+    Metadata cm = userTimeCollector.getMetadata();
+      std::set<Metadata> md =userTimeCollector.getParameters();
+      std::set<Metadata>::const_iterator mi;
+      for (mi = md.begin(); mi != md.end(); mi++) {
+        Metadata m = *mi;
+      }
+      userTimeCollector.getParameterValue("sampling_rate", sampling_rate);
+
+    if( temp_name )
+    {
+      (void) remove( temp_name );
+    }
+
+  }
+  catch(const std::exception& error)
+  {
+    return;
+  }
     vDescriptionPageTitleLabel->setText( tr( "<h1>User Time Wizard</h1>" ) );
     vDescriptionPageText->setText( tr( vUserTimeDescription ) );
     vDescriptionPageIntroButton->setText( tr( "<< Start" ) );
@@ -945,11 +1008,11 @@ UserTimeWizardPanel::languageChange()
 "performance and a larger data file.<br><br>\n"
 "It may take a little experimenting to find the right setting for your \n"
 "particular executable.   We suggest starting with the default setting\n"
-"of 10." ) );
+"of %1." ).arg(sampling_rate) );
     vParameterPageSampleRateHeaderLabel->setText( tr( "You can set the following option(s):" ) );
     vParameterPageSampleRateLabel->setText( tr( "User Time rate:" ) );
-    vParameterPageSampleRateText->setText( tr( "10" ) );
-    QToolTip::add( vParameterPageSampleRateText, tr( "The rate to sample.   (Default 10 milliseconds.)" ) );
+    vParameterPageSampleRateText->setText( tr( QString("%1").arg(sampling_rate) ) );
+    QToolTip::add( vParameterPageSampleRateText, tr( "The rate to sample.   (Default %1 milliseconds.)" ).arg(sampling_rate) );
     vParameterPageBackButton->setText( tr( "< Back" ) );
     QToolTip::add( vParameterPageBackButton, tr( "Takes you back one page." ) );
     vParameterPageResetButton->setText( tr( "Reset" ) );
@@ -980,8 +1043,8 @@ QToolTip::add( vAttachOrLoadPageResetButton, tr( "This clears all settings resto
     eParameterPageDescriptionLabel->setText( tr( "The following options (paramaters) are available to adjust.     <br>These are the options the collector has exported." ) );
     eParameterPageSampleRateHeaderLabel->setText( tr( "You can set the following option(s):" ) );
     eParameterPageSampleRateLabel->setText( tr( "User Time rate:" ) );
-    eParameterPageSampleRateText->setText( tr( "10" ) );
-    QToolTip::add( eParameterPageSampleRateText, tr( "The rate to sample.   (Default 10 milliseconds.)" ) );
+    eParameterPageSampleRateText->setText( tr( QString("%1").arg(sampling_rate) ) );
+    QToolTip::add( eParameterPageSampleRateText, tr( "The rate to sample.   (Default %1 milliseconds.)" ).arg(sampling_rate) );
     eParameterPageBackButton->setText( tr( "< Back" ) );
     QToolTip::add( eParameterPageBackButton, tr( "Takes you back one page." ) );
     eParameterPageResetButton->setText( tr( "Reset" ) );

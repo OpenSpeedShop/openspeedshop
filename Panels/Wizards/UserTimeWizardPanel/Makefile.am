@@ -24,14 +24,16 @@ UserTimeWizardPanel_la_CXXFLAGS = \
     -I. \
     -I$(top_srcdir)/gui \
     -I$(top_srcdir)/images \
-    -I$(top_srcdir)/plugin \
     -I$(top_srcdir)/objects \
+	-I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/pcli \
     -I$(top_srcdir)/dialogs \
+    -I$(top_srcdir)/plugin \
     -I$(top_srcdir)/base
 
-UserTimeWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
+UserTimeWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version -L$(top_srcdir)/libopenss-framework
 
-UserTimeWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
+UserTimeWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt -lopenss-framework
 
 moc_UserTimeWizardPanel.cxx: UserTimeWizardPanel.hxx
 	-moc -o moc_UserTimeWizardPanel.cxx UserTimeWizardPanel.hxx
