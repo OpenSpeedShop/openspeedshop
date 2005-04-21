@@ -31,13 +31,13 @@ Please try to "think aloud" as you work through the scenario.
 It will help us understand where our problems are.
 
 Your task is to take a simple program ("fred") and, by
-using the Open/Speedshop tool, determine which routine(s) are
+using the Open|SpeedShop(tm) tool, determine which routine(s) are
 taking the most time.    The program, "fred", is
 provided in the current directory.
 
 
 
-Remember:  You are not being tested.    The User Interface and it's
+Remember:  You are not being tested.    The user interface and it's
 ease of use, is being analyzed.   Your initial feedback and thoughts as you 
 navigate through this set of tasks will enable us to see our problem
 areas.
@@ -60,14 +60,14 @@ Step 2:
   Type:
     $ fred
     Usage: fred <size>
-    No size argument given.   Defaulting to 1000.
+    No size argument given.   Defaulting to 750.
     fred: succesfully competed.
     $
 
 
 Step 3:
   The Open/Speedshop performance tool is 'openss'.    'man openss' gives you
-  the typical 'man' description of the command.
+  a typical 'man' description of the command.
 
 
 Step 4:

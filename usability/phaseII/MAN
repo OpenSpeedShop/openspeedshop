@@ -27,7 +27,7 @@ SYNOPSIS
 
 
 DESCRIPTION
-  Open/Speedshop is a performance tool designed to capture performance data
+  Open|SpeedShop(tm) is a performance tool designed to capture performance data
   for an executable(s).
 
   When collecting the performance data, openss either writes the data to 
@@ -50,14 +50,13 @@ DESCRIPTION
     experiment_name
       Specifies the experiment to be run on the executable or process.
 
-      o pssamp   - Actual CPU time at the source line, machine instruction,
+      o pcsamp   - Actual CPU time at the source line, machine instruction,
                    and function levels by sampling the program counter at
-                   10 or 1-millisecond intervals. See “PC Sampling
-                   Wizard.
+                   100-millisecond intervals. See “PC Sampling Wizard.
   
       o usertime - Inclusive and exclusive CPU time for each function by
-                   sampling the callstack at 30-millisecond intervals.
-                   See   User Time Wizard.
+                   sampling the callstack at 10-millisecond intervals.
+                   See User Time Wizard.
 
       o fpe      - All floating-point exceptions, with the exception type
                    and the call stack at the time of the exception. See 
@@ -85,21 +84,63 @@ EXAMPLES:
   $ openss
 
 
-  To load an executable into Open/Speedshop
-  for eventual capturing of data:
-  $ openss -f a.out
+  To load an executable to run a simple timing (pcSampling) experiment:
+  $ openss -f a.out pcsamp
 
 
   To attach to a running executable:
   $ openss -p 123456
 
 
-  To load an executable to run a simple timing (pcSampling) experiment:
-  $ openss -f a.out pcsamp
-
   To load an executable that takes a command line argument:
   $ openss -f "a.out abc"  pcsamp
 
 
 COMMAND LINE:
-  Currently undocumented.
+  Available commands:
+  openss>>help
+    expAttach  [<expId_spec>] [<target_list>] [<expType_list>]
+    expClose  [focus || <expId_spec> || all] [kill]  
+    expCreate  [<target_list>] [<expType_list>] 
+    expDetach  [<expId_spec>] [<target_list>] [<expType_list>]
+    expDisable  [<expId_spec> || all]  
+    expEnable  [<expId_spec> || all]  
+    expFocus  [<expId_spec>] 
+    expPause  [<expId_spec> || all]  
+    expRestore  <file_spec>  
+      expGo  [<expId_spec> || all]  
+    expSave  [<expId_spec>] [copy] <file_spec>  
+    expSetparm  [<expId_spec>] <expParam>=<expParamValue> [,<expParam>=<expParamValue>]  
+    expView  [<expId_spec>] [-gui] <viewType>  
+    listBreaks  [<expId_spec> || all || <expType>] 
+    listExp <no args> 
+    listHosts  [<expId_spec> || all || <cluster_spec>] 
+    listMetrics  [<expId_spec> || all || <expType>] 
+    listObj  [<expId_spec>] [<target>] 
+    listParams  [<expId_spec> || all || <expType>] 
+    listPids [<expId_spec> || all] [<host_file>] 
+    listRanks  [<expId_spec> || all || <expType>] 
+    listSrc  [<expId_spec>] [<target>] [<linenumber_spec>] 
+    listStatus  [<expId_spec> || all]  
+    listThreads  [<expId_spec> || all || <target>] 
+    listTypes  [<expId_spec> || all]  
+    listViews  [<expId_spec> || all || <expType>] 
+    clearBreak  <breakId> 
+    exit <no args> 
+    help [<string>] 
+    history  <file_spec>  
+    log  <file_spec>  
+    openGui <no args> 
+    playback  <file_spec>  
+    record  <file_spec>  
+    setBreak  [<expId_spec>] [<target>] <address_description> 
+
+
+  To get more details about a command: 
+  openss>>help <command>
+
+
+Currently this is only support from the command line interface (of the 
+shell invocation).
+  
+
