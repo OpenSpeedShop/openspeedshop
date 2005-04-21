@@ -261,7 +261,7 @@ void UserTimeCollector::getMetricValue(const std::string& metric,
 	    {
 		
     // FIXME: need ui support to pass inclusive_time and exclusive_time
-		if(/*metric == "time" ||*/ metric == "inclusive_time" ) {
+		if(metric == "time" || metric == "inclusive_time" ) {
                     // Is this PC address inside the range?
                     if(range.doesContain(data.bt.bt_val[j])) {
 		    
@@ -270,7 +270,7 @@ void UserTimeCollector::getMetricValue(const std::string& metric,
 			    static_cast<double>(data.interval) /
 							1000000000.0;
 		    }
-		} else if (metric == "time" /*|| metric == "exclusive_time"*/) {
+		} else if ( metric == "exclusive_time") {
     // FIXME: need ui support to pass inclusive_time and exclusive_time
 		    // Loop over each call stack in this BLOB
 		    // if "first" PC of call stack inside of requested metric
