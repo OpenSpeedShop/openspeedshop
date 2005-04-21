@@ -22,6 +22,7 @@
 
 #include <qvaluelist.h>
 #include <qheader.h>
+#include <qtooltip.h>
 class MetricHeaderInfo;
 typedef QValueList<MetricHeaderInfo *> MetricHeaderInfoList;
 
@@ -102,6 +103,8 @@ StatsPanelBase::updateStatsPanelBaseData()
 
     // Hook the click in the header up to a sort routine...
     connect( lv->header(), SIGNAL(clicked(int)), this, SLOT( sortCalledRecalculateCumulative(int)) );
+
+    QToolTip::add( lv, tr( "The list of statistics collected." ) );
   }
 
   lv->clear();

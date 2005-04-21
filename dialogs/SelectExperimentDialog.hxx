@@ -47,7 +47,9 @@ public:
     ~SelectExperimentDialog();
 
     QLabel* headerLabel;
+#if 0
     QPushButton* buttonHelp;
+#endif // 0
     QPushButton* buttonOk;
     QPushButton* buttonCancel;
 

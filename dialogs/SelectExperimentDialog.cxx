@@ -34,6 +34,7 @@
 #include <qlabel.h>
 #include <qcombobox.h>
 #include <qlistview.h>
+#include <qtooltip.h>
 #include <qapplication.h>
 
 #include "SS_Input_Manager.hxx"
@@ -65,14 +66,18 @@ SelectExperimentDialog::SelectExperimentDialog( QWidget* parent, const char* nam
   availableExperimentsListView->setRootIsDecorated(TRUE);
   SelectExperimentDialogLayout->addWidget( availableExperimentsListView );
 
+ QToolTip::add( availableExperimentsListView, tr( "Select on an entry to raise.   Then press \"OK\"." ) );
+
 
   Layout1 = new QHBoxLayout( 0, 0, 6, "Layout1"); 
 
+#if 0
   buttonHelp = new QPushButton( this, "buttonHelp" );
   buttonHelp->setAutoDefault( TRUE );
   Layout1->addWidget( buttonHelp );
   Horizontal_Spacing2 = new QSpacerItem( 20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
   Layout1->addItem( Horizontal_Spacing2 );
+#endif // 0
 
   buttonOk = new QPushButton( this, "buttonOk" );
   buttonOk->setAutoDefault( TRUE );
@@ -110,8 +115,10 @@ void SelectExperimentDialog::languageChange()
 {
   setCaption( tr( name() ) );
   headerLabel->setText( tr( "Select the item to be raised:" ) );
+#if 0
   buttonHelp->setText( tr( "&Help" ) );
   buttonHelp->setAccel( QKeySequence( tr( "F1" ) ) );
+#endif // 0
   buttonOk->setText( tr( "&OK" ) );
   buttonOk->setAccel( QKeySequence( QString::null ) );
   buttonCancel->setText( tr( "&Cancel" ) );

@@ -280,15 +280,14 @@ pcStatsPanel::menu( QPopupMenu* contextMenu)
            ++pit )
   { 
     QString s = (QString)*pit;
-#ifndef OLDWAY
     columnsMenu->insertItem(s, this, SLOT(doOption(int)), CTRL+Key_1, id, -1);
-#else // OLDWAY
+#ifdef TRIED   // FIX - Add context sensitive help to these entries.
     QAction *qaction = new QAction( this,  "columnsMenuActions");
     qaction->addTo( columnsMenu );
     qaction->setText( s );
 //    connect( qaction, SIGNAL( activated(int) ), this, SLOT( doOption(int) ) );
     qaction->setStatusTip( tr("Select which columns to display.") );
-#endif  // OLDWAY
+#endif  // TRIED
     if( lv->columnWidth(id) )
     {
       columnsMenu->setItemChecked(id, TRUE);
@@ -299,20 +298,20 @@ pcStatsPanel::menu( QPopupMenu* contextMenu)
     id++;
   }
 
-#ifdef  OLDWAY
-  contextMenu->insertItem("Export Report Data...", this, SLOT(exportData()));
-#else // OLDWAY
   qaction = new QAction( this,  "exportDataAction");
   qaction->addTo( contextMenu );
   qaction->setText( "Export Report Data..." );
   connect( qaction, SIGNAL( activated() ), this, SLOT( exportData() ) );
   qaction->setStatusTip( tr("Save the report's data to an ascii file.") );
-#endif  // OLDWAY
 
   if( lv->selectedItem() )
   {
-    contextMenu->insertItem("Tell Me MORE about %d!!!", this, SLOT(details()), CTRL+Key_1 );
-    contextMenu->insertItem("Go to source location...", this, SLOT(gotoSource()), CTRL+Key_1 );
+//    contextMenu->insertItem("Tell Me MORE about %d!!!", this, SLOT(details()), CTRL+Key_1 );
+    qaction = new QAction( this,  "gotoSource");
+    qaction->addTo( contextMenu );
+    qaction->setText( "Go to source location..." );
+    connect( qaction, SIGNAL( activated() ), this, SLOT( gotoSource() ) );
+    qaction->setStatusTip( tr("Position at source location of this item.") );
     return( TRUE );
   }
 
@@ -324,23 +323,8 @@ bool
 pcStatsPanel::createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos )
 {
 // printf("pcStatsPanel::createPopupMenu(contextMenu=0x%x) entered\n", contextMenu);
-#ifdef OLDWAY
-  QPopupMenu *panelMenu = new QPopupMenu(this);
-  panelMenu->setCaption("Panel Menu");
-  contextMenu->insertItem("&Panel Menu", panelMenu, CTRL+Key_C);
-  panelMenu->insertSeparator();
-  menu(panelMenu);
-
-  if( lv->selectedItem() )
-  {
-  //  contextMenu->insertItem("Tell Me MORE about %d!!!", this, SLOT(details()), CTRL+Key_1 );
-    contextMenu->insertItem("Go to source location...", this, SLOT(gotoSource()), CTRL+Key_1 );
-    return( TRUE );
-  }
-#else // OLDWAY
   menu(contextMenu);
   return( TRUE );
-#endif // OLDWAY
   
   return( FALSE );
 }
@@ -426,6 +410,9 @@ void
 pcStatsPanel::gotoSource()
 {
   printf("gotoSource() menu selected.\n");
+  QListViewItem *lvi = lv->selectedItem();
+
+  itemSelected(lvi);
 }
 
 void
