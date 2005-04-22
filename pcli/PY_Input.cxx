@@ -36,6 +36,7 @@ using namespace OpenSpeedShop::cli;
 
 extern FILE *yyin;
 extern int yyparse (void);
+extern int yydebug;
 ParseResult *p_parse_result;
 
 /* Global Data for tracking the current command line. */
@@ -59,12 +60,13 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     if (!PyArg_ParseTuple(args, "s", &input_line)) {
     	;
     }
-
+    
     yyin = tmpfile();
 
     fprintf(yyin,"%s\n", input_line);
     rewind(yyin);
 
+    //yydebug = 1;
     ret = yyparse();
 
     fclose(yyin); 
@@ -72,7 +74,7 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     // testing code
     //parse_result.dumpInfo();
 
-  // Build a CommandObject so that the semantic routines can be called.
+    // Build a CommandObject so that the semantic routines can be called.
     cmd = new CommandObject (&parse_result);
 
     // See if the parse went alright.
