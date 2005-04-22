@@ -42,6 +42,8 @@ extern int yywrap();
 extern ParseResult *p_parse_result;
 extern void dump_help_brief(void);
 
+#define YYDEBUG 1
+
 %}
 
 %union {
@@ -101,6 +103,7 @@ ss_line:
 */
 command_line:  END_LINE {/* printf("OSS > "); */ }
     	|   command_desc END_LINE {p_parse_result->PushParseTarget(); }
+    	|   command_desc END_LINE END_LINE {p_parse_result->PushParseTarget(); }
     	;
 
 command_desc: exp_attach_com 	{p_parse_result->SetCommandType(CMD_EXP_ATTACH);}
@@ -461,7 +464,7 @@ gen_exit_com:	    GEN_EXIT_HEAD
       	    	;
 
     	    /** GEN_HELP **/
-gen_help_com:	    GEN_HELP_HEAD    {p_parse_result->push_help();}
+gen_help_com:	    GEN_HELP_HEAD   {p_parse_result->push_help();}
     		|   GEN_HELP_HEAD   gen_help_args 
     	    	;
 gen_help_args:	    gen_help_arg
@@ -764,7 +767,10 @@ lineno: 	    NUMBER
 void 
 yyerror(const char *s)
 {
-    printf("%s\n",s);
+    /* printf("%s\n",s); */
+    //printf("///%s///\n",yytext);
+    //printf("in yyerror()\n");
+    p_parse_result->set_error((char *)yytext);
 }
 
 /***************************************************/
