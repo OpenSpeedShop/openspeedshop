@@ -55,6 +55,23 @@ char *indent_table[MAX_INDENT] = {
     "                                        "
 };
 
+/** Decribe message information */
+typedef struct {
+    char *brief_string; /**  */
+    char **normal;  	/**  */
+    int normal_count;   /**  */
+    char **verbose; 	/**  */
+    int verbose_count;	/**  */
+    char **examples;	/**  */
+    int example_count;	/**  */
+} message_type_t;
+
+// **************************************************************
+
+
+
+// **************************************************************
+
 extern ParseResult *p_parse_result;
 extern CommandObject *p_cmdobj;
 
@@ -127,59 +144,7 @@ is_type(char **table, int count, char *name)
     
     return count;
 }
- 
-/**
- * Function: help_get_type
- * 
- * 
- *     
- * @param   p_help  pointer to help descriptor.
- *
- * @return  true/false.
- *
- */
-static bool
-help_get_type(help_desc_t *p_help)
-{
-
-    int ret;
-   
-#if 0
-    ret = is_type(command_name,CMD_MAX,p_help->name);
-    if (ret != CMD_MAX) {
-    	p_help->tag = HELP_CMD;
-	p_help->u.cmd_ndx = (oss_cmd_enum)ret;
-	return true;
-    }
-#endif
-    ret = is_type(paramtype_name,H_PARAM_MAX,p_help->name);
-    if (ret != H_PARAM_MAX) {
-    	p_help->tag = HELP_PARM;
-	p_help->u.param_ndx = (help_param_enum)ret;
-	return true;
-    }
-    ret = is_type(experiment_name,H_EXP_MAX,p_help->name);
-    if (ret != H_EXP_MAX) {
-    	p_help->tag = HELP_EXPERIMENT;
-	p_help->u.exp_ndx = (help_exp_enum)ret;
-	return true;
-    }
-    ret = is_type(viewtype_name,H_VIEW_MAX,p_help->name);
-    if (ret != H_VIEW_MAX) {
-    	p_help->tag = HELP_VIEW;
-	p_help->u.view_ndx = (help_view_enum)ret;
-	return true;
-    }
-    ret = is_type(general_name,H_GEN_MAX,p_help->name);
-    if (ret != H_GEN_MAX) {
-    	p_help->tag = HELP_GENERAL;
-	p_help->u.gen_ndx = (help_gen_enum)ret;
-	return true;
-    }
-    
-    return false;
-}
- 
+  
 /******************************************************************/
 /**
  * Function: help_name
@@ -759,23 +724,14 @@ help_viewtype(int indent_ndx)
  * @return  void.
  *
  */
-#if 1
 void
 dump_help_cmd(oss_cmd_enum cmd_ndx, int indent_ndx, bool is_brief,CommandObject *cmd)
-#else
-static void
-dump_help_cmd(help_desc_t *p_help, int indent_ndx)
-#endif
 {
-
     char buf[MAX_STRING];
     
     p_buf = buf; // Make it used by all the help routines.
     p_cmdobj = cmd;
 
-//    if (!is_brief)
-//    	sprintf(p_buf," ");
-//  s_output_to_CO(" ");
     switch(cmd_ndx) {
     	case CMD_EXP_ATTACH:
     	case CMD_EXP_DETACH:
@@ -1038,23 +994,30 @@ dump_help_brief(CommandObject *cmd)
  * 
  * 
  *     
- * @param   p_help  	pointer to help descriptor.
- * @param   indent_ndx	indentation index.
+ * @param   name  	param string.
+ * @param   param_ndx  	index to param type.
+ * @param   is_brief	is this a short or verbose message.
+ * @param   cmd     	pointer to command object.
  *
  * @return  void.
  *
  */
-static void
-dump_help_param(help_desc_t *p_help, int indent_ndx)
+void
+dump_help_param(char *name, int param_ndx, bool is_brief, CommandObject *cmd)
 {
-    switch(p_help->u.param_ndx) {
+    char buf[MAX_STRING];
+    
+    p_buf = buf; // Make it used by all the help routines.
+    p_cmdobj = cmd;
+
+    switch(param_ndx) {
     	case H_PARAM_DMODE:
     	case H_PARAM_DMEDIA:
     	case H_PARAM_DREFRESH:
     	case H_PARAM_XSAVEFILE:
     	case H_PARAM_SAMPRATE:
     	default :
-    	    sprintf(p_buf,"No help for %s ",p_help->name);
+    	    sprintf(p_buf,"No help for %s ", name);
     	    s_output_to_CO(p_buf);
     	    break;
     }
@@ -1065,16 +1028,23 @@ dump_help_param(help_desc_t *p_help, int indent_ndx)
  * 
  * 
  *     
- * @param   p_help  	pointer to help descriptor.
- * @param   indent_ndx	indentation index.
+ * @param   name  	param string.
+ * @param   param_ndx  	index to param type.
+ * @param   is_brief	is this a short or verbose message.
+ * @param   cmd     	pointer to command object.
  *
  * @return  void.
  *
  */
-static void
-dump_help_exp(help_desc_t *p_help, int indent_ndx)
+void
+dump_help_exp(char *name, int param_ndx, bool is_brief, CommandObject *cmd)
 {
-    switch(p_help->u.param_ndx) {
+    char buf[MAX_STRING];
+    
+    p_buf = buf; // Make it used by all the help routines.
+    p_cmdobj = cmd;
+
+    switch(param_ndx) {
     	case H_EXP_PCSAMP:
     	case H_EXP_USERTIME:
     	case H_EXP_MPI:
@@ -1082,7 +1052,7 @@ dump_help_exp(help_desc_t *p_help, int indent_ndx)
     	case H_EXP_HWC:
     	case H_EXP_IO:
     	default :
-    	    sprintf(p_buf,"No help for %s ",p_help->name);
+    	    sprintf(p_buf,"No help for %s ", name);
     	    s_output_to_CO(p_buf);
     	    break;
     }
@@ -1093,23 +1063,30 @@ dump_help_exp(help_desc_t *p_help, int indent_ndx)
  * 
  * 
  *     
- * @param   p_help  	pointer to help descriptor.
- * @param   indent_ndx	indentation index.
+ * @param   name  	param string.
+ * @param   param_ndx  	index to param type.
+ * @param   is_brief	is this a short or verbose message.
+ * @param   cmd     	pointer to command object.
  *
  * @return  void.
  *
  */
-static void
-dump_help_view(help_desc_t *p_help, int indent_ndx)
+void
+dump_help_view(char *name, int view_ndx, bool is_brief, CommandObject *cmd)
 {
-    switch(p_help->u.param_ndx) {
+    char buf[MAX_STRING];
+    
+    p_buf = buf; // Make it used by all the help routines.
+    p_cmdobj = cmd;
+
+    switch(view_ndx) {
     	case H_VIEW_TOPN:
     	case H_VIEW_EXCLTIME:
     	case H_VIEW_IO:
     	case H_VIEW_FPE:
     	case H_VIEW_HWC:
     	default :
-    	    sprintf(p_buf,"No help for %s ",p_help->name);
+    	    sprintf(p_buf,"No help for %s ", name);
     	    s_output_to_CO(p_buf);
     	    break;
     }
@@ -1120,128 +1097,47 @@ dump_help_view(help_desc_t *p_help, int indent_ndx)
  * 
  * 
  *     
- * @param   p_help  	pointer to help descriptor.
- * @param   indent_ndx	indentation index.
- *
- * @return  void.
- *
- */
-static void
-dump_help_gen(help_desc_t *p_help, int indent_ndx)
-{
-    switch(p_help->u.param_ndx) {
-    	case H_GEN_FOCUS:
-    	    sprintf(p_buf,"\n%s: Alters which experiment is the default focus. ",
-	    	    p_help->name);
-    	    break;
-    	case H_GEN_ALL:
-    	    sprintf(p_buf,"\n%s: Apply action to all targets. ",
-	    	    p_help->name);
-    	    break;
-    	case H_GEN_COPY:
-    	    sprintf(p_buf,"\n%s: Copy state to database. ",
-	    	    p_help->name);
-    	    break;
-     	case H_GEN_KILL:
-    	    sprintf(p_buf,"\n%s: Force applications to terminate. ",
-	    	    p_help->name);
-    	    break;
-    	case H_GEN_GUI:
-    	    sprintf(p_buf,"\n%s: Lauch the gui for display. ",
-	    	    p_help->name);
-    	    break;
-    	default :
-    	    sprintf(p_buf,"\nNo help for %s ",p_help->name);
-    	    break;
-    }
-    s_output_to_CO(p_buf);
-}
- 
-/**
- * Function: dump_help
- * 
- * 
- *     
- * @param   xxx    	xxx.
- *
- * @return  void.
- *
- */
-void 
-dump_help(command_t *p_cmd, CommandObject *cmd)
-{
-    if (command.help_table.cur_node) {
-    	int i;
-	help_desc_t *help_tab = (help_desc_t *)command.help_table.table;
-	int count = command.help_table.cur_node;
-	int indent = 1;
-
-	for (i=0;i<count;++i) {
-	    help_desc_t *p_help = &help_tab[i];
-	    
-	    if  (help_get_type(p_help)) {
-	    	switch (help_tab[i].tag) {
-		    case HELP_CMD:
-#if 1
-		    	dump_help_cmd(p_help->u.cmd_ndx, indent, false /* is_brief */,cmd);
-#else
-		    	dump_help_cmd(p_help, indent);
-#endif
-		    	break;
-		    case HELP_PARM:
-		    	dump_help_param(p_help, indent);
-		    	break;
-		    case HELP_EXPERIMENT:
-		    	dump_help_exp(p_help, indent);
-		    	break;
-		    case HELP_VIEW:
-		    	dump_help_view(p_help, indent);
-		    	break;
-		    case HELP_GENERAL:
-		    	dump_help_gen(p_help, indent);
-		    	break;
-		    default:
-	    	    	sprintf(p_buf,"No help for %s",help_tab[i].name);
-    	    	    	s_output_to_CO(p_buf);
-			break;
-		} /* switch */
-	    }	/* if */
-
-	    else {
-	    	sprintf(p_buf,"No help for %s",help_tab[i].name);
-    	    	s_output_to_CO(p_buf);
-	    }
-	}   /* for */
-	sprintf(p_buf," ");
-    	s_output_to_CO(p_buf);
-    }	/* if */
-
-    fflush(stdout);
-}
-
-/**
- * Function: cmd_init
- * 
- * 
- *     
- * @param   void
+ * @param   name  	param string.
+ * @param   param_ndx  	index to param type.
+ * @param   is_brief	is this a short or verbose message.
+ * @param   cmd     	pointer to command object.
  *
  * @return  void.
  *
  */
 void
-cmd_init()
+dump_help_gen(char *name, int gen_ndx, bool is_brief, CommandObject *cmd)
 {
-    command.lineno_table.entry_size	= sizeof(arg_desc_t);	/*  */
-    command.address_table.entry_size	= sizeof(arg_desc_t);	/*  */
-    command.pid_table.entry_size    	= sizeof(arg_desc_t);
-    command.break_table.entry_size  	= sizeof(arg_desc_t);
-    command.rank_table.entry_size   	= sizeof(arg_desc_t);
-    command.thread_table.entry_size 	= sizeof(arg_desc_t);
-    command.file_table.entry_size   	= sizeof(arg_desc_t);
-    command.experiment_table.entry_size	= sizeof(arg_desc_t);	/*  */
-    command.name_table.entry_size	= sizeof(name_tab_t);	/*  */
-    command.param_table.entry_size   	= sizeof(arg_desc_t);
-    command.view_table.entry_size   	= sizeof(arg_desc_t);
+    char buf[MAX_STRING];
+    
+    p_buf = buf; // Make it used by all the help routines.
+    p_cmdobj = cmd;
 
+    switch(gen_ndx) {
+    	case H_GEN_FOCUS:
+    	    sprintf(p_buf,"\n%s: Alters which experiment is the default focus. ",
+	    	    name);
+    	    break;
+    	case H_GEN_ALL:
+    	    sprintf(p_buf,"\n%s: Apply action to all targets. ",
+	    	    name);
+    	    break;
+    	case H_GEN_COPY:
+    	    sprintf(p_buf,"\n%s: Copy state to database. ",
+	    	    name);
+    	    break;
+     	case H_GEN_KILL:
+    	    sprintf(p_buf,"\n%s: Force applications to terminate. ",
+	    	    name);
+    	    break;
+    	case H_GEN_GUI:
+    	    sprintf(p_buf,"\n%s: Lauch the gui for display. ",
+	    	    name);
+    	    break;
+    	default :
+    	    sprintf(p_buf,"\nNo help for %s ", name);
+    	    break;
+    }
+    s_output_to_CO(p_buf);
 }
+ 
