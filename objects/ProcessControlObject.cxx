@@ -328,7 +328,7 @@ void
 ProcessControlObject::languageChange()
 {
   buttonGroup->setTitle( tr( "Process Control" ) );
-  QToolTip::add( runButton, tr( "Run the experiment." ) );
+  QToolTip::add( runButton, tr( "Run or Continue the experiment." ) );
   QToolTip::add( pauseButton, tr( "Temporarily pause the experiment." ) );
 #ifdef CONTROL_BUTTON
   QToolTip::add( continueButton, tr( "Continue the experiment from current location." ) );
