@@ -630,7 +630,7 @@ class CLI(code.InteractiveConsole):
     # my main application as though on a python commandline.
     #
     ##################################################################
-    def interact(self):
+    def interact(self,scripting):
         myparse.terminate_SS = 0
         nesting_depth = 0
 
@@ -661,21 +661,33 @@ class CLI(code.InteractiveConsole):
                 if not line:
                    line = 'EOF'
 
-                if check_compound_stmt(line, self.python_compound_stmts):
-                   nesting_depth = nesting_depth + 1
-                elif is_more and not line.isspace():
-                   lb = leading_blanks(line)
-                   d_line = Delay_ILO_Processing(lb)
-                   line = d_line
-                else:
-                   line = self.process(line)
+    	    	# Scripting
+    	    	if scripting == 1:
+                    if check_compound_stmt(line, self.python_compound_stmts):
+    	    	    	nesting_depth = nesting_depth + 1
+                    elif is_more and not line.isspace():
+    	    	    	lb = leading_blanks(line)
+    	    	    	d_line = Delay_ILO_Processing(lb)
+    	    	    	line = d_line
+                    else:
+                    	line = self.process(line)
 
-                # Push lines onto input stack for execution.
-                # Python will decide when to execute the line
-                # but we had better be correct about when the
-                # execution will be delayed.
-                if line or is_more:
-                    is_more = self.push(line)
+    	    	    # Push lines onto input stack for execution.
+    	    	    # Python will decide when to execute the line
+    	    	    # but we had better be correct about when the
+                    # execution will be delayed.
+    	    	    if line or is_more:
+    	    	    	is_more = self.push(line)
+
+    	    	# Non-Scripting
+		else:
+    	    	    count = len(line)
+		    if count > 3:
+    	    	    	arg = PY_Input.Save_ILO()
+    	    	    	d_line = PY_Input.ReadILO(arg)
+			# count = len(d_line)
+			# print d_line," ",count
+		    	PY_Input.CallParser(d_line)
 
             # Handle CTRL-C
             except KeyboardInterrupt:                
@@ -693,15 +705,28 @@ class CLI(code.InteractiveConsole):
 
     ##################################################################
     #
-    # Do_Parse
+    # do_input
     #
     # This function will allow Python to do it's own reading of
     # input from stdin.
     #
     ##################################################################
-    def do_input(self):
+    def do_flat_input(self):
 
-        self.interact()
+        self.interact(0)
+        pass
+
+    ##################################################################
+    #
+    # do_input
+    #
+    # This function will allow Python to do it's own reading of
+    # input from stdin.
+    #
+    ##################################################################
+    def do_scripting_input(self):
+
+        self.interact(1)
         pass
 
 

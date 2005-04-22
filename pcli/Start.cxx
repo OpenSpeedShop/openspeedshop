@@ -387,7 +387,10 @@ setup_signal_handler (int s)
     }
 
    // Fire off Python.
-    PyRun_SimpleString( "myparse.do_input ()\n");
+//    if (scripting_mode)
+    	PyRun_SimpleString( "myparse.do_scripting_input ()\n");
+//    else
+//    	PyRun_SimpleString( "myparse.do_flat_input ()\n");
 
    // When Python exits, terminate SpeedShop:
     cli_terminate ();
