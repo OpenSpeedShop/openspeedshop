@@ -23,6 +23,10 @@ using namespace OpenSpeedShop::cli;
 
 extern void dump_help_cmd(oss_cmd_enum, int, bool, CommandObject *);
 extern void dump_help_brief(CommandObject *);
+extern void dump_help_param(char *, int, bool, CommandObject *);
+extern void dump_help_exp(char *, int, bool, CommandObject *);
+extern void dump_help_view(char *, int, bool, CommandObject *);
+extern void dump_help_gen(char *, int, bool, CommandObject *);
 
 command_type_t OpenSpeedShop::cli::cmd_desc[CMD_MAX] = {
     "Syntax_Error", false,  CMD_HEAD_ERROR, /* used in error reporting */
@@ -336,15 +340,44 @@ dumpHelp(CommandObject *cmd)
 	}
 	// Look for param types
 	for (int i=0;i<H_PARAM_MAX && !found_match;++i) {
+	    char *table = paramtype_name[i];
+
+   	    if ((strcasecmp(name.c_str(),table)) == 0) {
+	    	dump_help_param(table,i,false /* is_brief */,cmd);
+		found_match = true;
+		break;
+	    }
 	}
 	// Look for experiment types
 	for (int i=0;i<H_EXP_MAX && !found_match;++i) {
+	    char *table = experiment_name[i];
+
+   	    if ((strcasecmp(name.c_str(),table)) == 0) {
+	    	dump_help_exp(table,i,false /* is_brief */,cmd);
+		found_match = true;
+		break;
+	    }
 	}
 	// Look for view types
 	for (int i=0;i<H_VIEW_MAX && !found_match;++i) {
+	    char *table = viewtype_name[i];
+
+   	    if ((strcasecmp(name.c_str(),table)) == 0) {
+	    	dump_help_view(table,i,false /* is_brief */,cmd);
+		found_match = true;
+		break;
+	    }
 	}
+
 	// Look for general modifiers
 	for (int i=0;i<H_GEN_MAX && !found_match;++i) {
+	    char *table = general_name[i];
+
+   	    if ((strcasecmp(name.c_str(),table)) == 0) {
+	    	dump_help_gen(table,i,false /* is_brief */,cmd);
+		found_match = true;
+		break;
+	    }
 	}
     }
 }
