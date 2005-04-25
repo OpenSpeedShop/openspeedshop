@@ -62,6 +62,7 @@
       This is where the user would create the panel specific Qt code
       to do whatever functionality the user wanted the panel to perform.
  */
+#include <qtextedit.h>  // For QTextEdit in example below...
 TemplatePanel::TemplatePanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
 {
   setCaption("TemplatePanel");
@@ -85,6 +86,11 @@ TemplatePanel::TemplatePanel(PanelContainer *pc, const char *n, void *argument) 
   topPPL->show();
   topPPL->topLevel = TRUE;
 */
+
+  // A simple start to adding simple qt widgets to a panel...
+  QTextEdit *te = new QTextEdit( getBaseWidgetFrame() );
+  frameLayout->addWidget(te);
+  te->show();
 
   getBaseWidgetFrame()->setCaption("TemplatePanelBaseWidget");
 }

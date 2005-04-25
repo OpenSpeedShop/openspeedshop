@@ -17,4 +17,5 @@
 ################################################################################
 
 
-mknewpanel ../FPE_TracingPanel "FPE_TracingPanel" "E\&xperiments" "\&FPE_Tracing" "Ctrl+F" 0 "Performance"
+# mknewpanel ../FPE_TracingPanel "FPE_TracingPanel" "E\&xperiments" "\&FPE_Tracing" "Ctrl+F" 0 "Performance"
+mknewpanel ../ExamplePanel "ExamplePanel" "E\&xperiments" "ExamplePanel" " " 0 "Performance"
