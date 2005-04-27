@@ -53,7 +53,7 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, int bu
       continue;
     }
     if (strlen(argv[i]) > 0) {
-      cmdlen += strlen(argv[i]) + 1;
+      cmdlen += strlen(argv[i]) + 3;  // add 3 for space and possible quote characters
     }
   }
 
