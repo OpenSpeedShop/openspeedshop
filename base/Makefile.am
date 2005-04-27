@@ -16,8 +16,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-
-pkglib_LTLIBRARIES = libopenss-Base.la
+lib_LTLIBRARIES = libopenss-Base.la
 
 libopenss_Base_la_CXXFLAGS = \
     -I../objects \
@@ -29,10 +28,10 @@ libopenss_Base_la_CXXFLAGS = \
     -I$(top_srcdir)/gui \
     -I$(top_srcdir)/base
 
+libopenss_Base_la_LDFLAGS = \
+	-export-dynamic -version-info 0:0:0
 
-libopenss_Base_la_LDFLAGS = --export-dynamic -avoid-version
-
-libopenss_Base_la_LIBADD = $(LIBLTDL)
+libopenss_Base_la_LIBADD =
 
 moc_TopWidget.cxx: TopWidget.hxx
 	-moc -o moc_TopWidget.cxx TopWidget.hxx

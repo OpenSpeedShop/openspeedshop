@@ -31,7 +31,8 @@ libopenss_Objects_la_CXXFLAGS = \
 	-I$(top_srcdir)/plugin \
 	-I$(QTDIR)
 
-libopenss_Objects_la_LDFLAGS = --export-dynamic -avoid-version
+libopenss_Objects_la_LDFLAGS = \
+	-export-dynamic -version-info 0:0:0
 
 libopenss_Objects_la_LIBADD = $(LIBLTDL)
 

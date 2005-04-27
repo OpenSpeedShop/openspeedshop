@@ -32,7 +32,8 @@ libopenss_Dialogs_la_CXXFLAGS = \
     -I$(top_srcdir)/objects \
 	-I$(QTDIR)
 
-libopenss_Dialogs_la_LDFLAGS = --export-dynamic -avoid-version
+libopenss_Dialogs_la_LDFLAGS = \
+	-export-dynamic -version-info 0:0:0
 
 libopenss_Dialogs_la_LIBADD = $(LIBLTDL)  -L../objects -lopenss-Objects
 

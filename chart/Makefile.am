@@ -25,7 +25,8 @@ libopenss_Chart_la_CXXFLAGS = \
 	-I$(top_srcdir)/plugin \
 	-I$(top_srcdir)/base
 
-libopenss_Chart_la_LDFLAGS = --export-dynamic -avoid-version
+libopenss_Chart_la_LDFLAGS = \
+	-export-dynamic -version-info 0:0:0
 
 libopenss_Chart_la_LIBADD = $(LIBLTDL)
 

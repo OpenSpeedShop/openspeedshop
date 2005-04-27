@@ -95,31 +95,9 @@ void PreferencesDialog::resetPreferenceDefaults()
   char plugin_file[1024];
   if( panelContainer->getMasterPC() && panelContainer->getMasterPC()->_pluginRegistryList )
   {
-  assert(lt_dlinit() == 0);
-  // Start with an empty user-defined search path
-  assert(lt_dlsetsearchpath("") == 0);
-  // Add the user-specified plugin path
-  if(getenv("OPENSS_PLUGIN_PATH") != NULL)
-  {
-    char *user_specified_path = getenv("OPENSS_PLUGIN_PATH");
-    const char *currrent_search_path = lt_dlgetsearchpath();
-    assert(lt_dladdsearchdir(user_specified_path) == 0);
-  }
-  // Add the install plugin path
-  char *openss_install_dir = getenv("OPENSS_INSTALL_DIR");
-  if( openss_install_dir != NULL)
-  {
-    char *install_path = (char *)calloc(strlen(openss_install_dir)+
-                                        strlen("/lib/openspeedshop")+1,
-                                        sizeof(char *) );
-    strcpy(install_path, openss_install_dir);
-    strcat(install_path, "/lib/openspeedshop");
-    const char *currrent_search_path = lt_dlgetsearchpath();
-    assert(lt_dladdsearchdir(install_path) == 0);
-  }
-  // Add the compile-time plugin path
-  assert(lt_dladdsearchdir(PLUGIN_PATH) == 0);
-  // Now search for plugins preferences in all these paths
+    // Insure the libltdl user-defined library search path has been set
+    assert(lt_dlgetsearchpath() != NULL);
+    // Now search for plugins preferences in this path
     PluginInfo *pi = NULL;
     for( PluginRegistryList::Iterator it = panelContainer->getMasterPC()->_pluginRegistryList->begin();
          it != panelContainer->getMasterPC()->_pluginRegistryList->end();
@@ -291,32 +269,9 @@ void PreferencesDialog::savePreferences()
   char plugin_file[1024];
   if( panelContainer->getMasterPC() && panelContainer->getMasterPC()->_pluginRegistryList )
   {
-    assert(lt_dlinit() == 0);
-    // Start with an empty user-defined search path
-    assert(lt_dlsetsearchpath("") == 0);
-    // Add the user-specified plugin path
-    if(getenv("OPENSS_PLUGIN_PATH") != NULL)
-    {
-      char *user_specified_path = getenv("OPENSS_PLUGIN_PATH");
-      const char *currrent_search_path = lt_dlgetsearchpath();
-      assert(lt_dladdsearchdir(user_specified_path) == 0);
-    }
-    // Add the install plugin path
-    char *openss_install_dir = getenv("OPENSS_INSTALL_DIR");
-    if( openss_install_dir != NULL)
-    {
-      char *install_path = (char *)calloc(strlen(openss_install_dir)+
-                                        strlen("/lib/openspeedshop")+1,
-                                          sizeof(char *) );
-      strcpy(install_path, openss_install_dir);
-      strcat(install_path, "/lib/openspeedshop");
-      const char *currrent_search_path = lt_dlgetsearchpath();
-      assert(lt_dladdsearchdir(install_path) == 0);
-    }
-    // Add the compile-time plugin path
-    assert(lt_dladdsearchdir(PLUGIN_PATH) == 0);
-    // Now search for plugins in all these paths
-
+    // Insure the libltdl user-defined library search path has been set
+    assert(lt_dlgetsearchpath() != NULL);
+    // Now search for plugins in this path
     PluginInfo *pi = NULL;
     for( PluginRegistryList::Iterator it = panelContainer->getMasterPC()->_pluginRegistryList->begin();
          it != panelContainer->getMasterPC()->_pluginRegistryList->end();

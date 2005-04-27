@@ -179,42 +179,9 @@ foreachCallback(const char *filename, lt_ptr data)
 */
 void initialize_plugins()
 {
-  // Initialize libltdl
-  assert(lt_dlinit() == 0);
-
-  // Start with an empty user-defined search path
-  assert(lt_dlsetsearchpath("") == 0);
-
-  // Add the user-specified plugin path
-  if(getenv("OPENSS_PLUGIN_PATH") != NULL)
-  {
-    dprintf("OPENSS_PLUGIN_PATH set\n");
-    QString user_specified_path = QString(getenv("OPENSS_PLUGIN_PATH"));
-    const char *currrent_search_path = lt_dlgetsearchpath();
-    if( QString(currrent_search_path).contains(user_specified_path) == 0 )
-    {
-      assert(lt_dladdsearchdir(user_specified_path.ascii()) == 0);
-    }
-  }
-
-  // Add the install plugin path
-  char *openss_install_dir = getenv("OPENSS_INSTALL_DIR");
-  if( openss_install_dir != NULL)
-  {
-    dprintf("OPENSS_INSTALL_DIR set\n");
-    QString install_path = QString(getenv(openss_install_dir)) +
-            QString("/lib/openspeedshop");
-    const char *currrent_search_path = lt_dlgetsearchpath();
-    if( QString(currrent_search_path).contains(install_path) == 0 )
-    {
-      assert(lt_dladdsearchdir(install_path.ascii()) == 0);
-    }
-  }
-
-  // Add the compile-time plugin path
-  assert(lt_dladdsearchdir(PLUGIN_PATH) == 0);
-
-  // Now search for panel plugins in all these paths
+  // Insure the libltdl user-defined library search path has been set
+  assert(lt_dlgetsearchpath() != NULL);
+  // Now search for panel plugins in this path
   lt_dlforeachfile(lt_dlgetsearchpath(), foreachCallback, 0);
 }
 

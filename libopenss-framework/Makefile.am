@@ -22,7 +22,6 @@ DIST_SUBDIRS = dpcl dyninst runtime
 lib_LTLIBRARIES = libopenss-framework.la
 
 libopenss_framework_la_CXXFLAGS = \
-	-DPLUGIN_PATH=\"$(pkglibdir)\" \
 	$(LTDLINCL)
 
 libopenss_framework_la_LDFLAGS = \

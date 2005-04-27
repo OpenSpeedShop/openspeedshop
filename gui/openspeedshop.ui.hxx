@@ -590,32 +590,9 @@ void OpenSpeedshop::init()
 {
 //  topPL = this;
   char pc_plugin_file[2048];
-  assert(lt_dlinit() == 0);
-  // Start with an empty user-defined search path
-  assert(lt_dlsetsearchpath("") == 0);
-  // Add the user-specified plugin path
-  if(getenv("OPENSS_PLUGIN_PATH") != NULL)
-  {
-    char *user_specified_path = getenv("OPENSS_PLUGIN_PATH");
-    const char *currrent_search_path = lt_dlgetsearchpath();
-    assert(lt_dladdsearchdir(user_specified_path) == 0);
-  }
-  // Add the install plugin path
-  char *openss_install_dir = getenv("OPENSS_INSTALL_DIR");
-  if( openss_install_dir != NULL)
-  {
-    char *install_path = (char *)calloc(strlen(openss_install_dir)+
-                                        strlen("/lib/openspeedshop")+1,
-                                        sizeof(char *) );
-    strcpy(install_path, openss_install_dir);
-    strcat(install_path, "/lib/openspeedshop");
-    const char *currrent_search_path = lt_dlgetsearchpath();
-    assert(lt_dladdsearchdir(install_path) == 0);
-  }
-  // Add the compile-time plugin path
-  assert(lt_dladdsearchdir(PLUGIN_PATH) == 0);
-  // Now search for plugins in all these paths
-
+  // Insure the libltdl user-defined library search path has been set
+  assert(lt_dlgetsearchpath() != NULL);
+  // Load base and plugin libraries
   char *pc_dl_name="libopenss-Base";
   lt_dlhandle dl_pc_object = lt_dlopenext((const char *)pc_dl_name);
   if( dl_pc_object == NULL )

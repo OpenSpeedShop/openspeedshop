@@ -16,7 +16,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-pkglib_LTLIBRARIES = libopenss-GUI.la
+lib_LTLIBRARIES = libopenss-GUI.la
 
 libopenss_GUI_la_CXXFLAGS =  \
 	-g \
@@ -30,10 +30,10 @@ libopenss_GUI_la_CXXFLAGS =  \
 	-I$(top_srcdir)/dialogs \
 	-I$(top_srcdir)/Panels/DebugPanel \
 	-I$(top_srcdir)/objects \
-	-DPLUGIN_PATH=\"$(pkglibdir)\" \
 	-I$(top_srcdir)/base
 
-libopenss_GUI_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
+libopenss_GUI_la_LDFLAGS = \
+	-export-dynamic -version-info 0:0:0
 
 libopenss_GUI_la_LIBADD = $(LIBLTDL) -L$(QTDIR)/lib -lqt -lqassistantclient -L/usr/X11R6/lib -lXext -lX11 -lm -lpthread -L$(top_srcdir)/base -lopenss-Base -L$(top_srcdir)/dialogs -lopenss-Dialogs -L$(top_srcdir)/plugin -lopenss-Plugin -lopenss-Objects
 

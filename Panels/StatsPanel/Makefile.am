@@ -30,7 +30,8 @@ libopenss_StatsPanel_la_CXXFLAGS = \
     -I$(top_srcdir)/plugin \
     -I$(top_srcdir)/base
 
-libopenss_StatsPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -avoid-version
+libopenss_StatsPanel_la_LDFLAGS = \
+	-export-dynamic -version-info 0:0:0
 
 libopenss_StatsPanel_la_LIBADD = -L$(QTDIR)/lib -lqt ../../libopenss-framework/.libs/libopenss-framework.so 
 

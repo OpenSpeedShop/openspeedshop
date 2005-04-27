@@ -16,8 +16,15 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
+#include "ToolAPI.hxx"
 #include "SS_Input_Manager.hxx"
+
+#include <ltdl.h>
+#include <pthread.h>
+#include <Python.h>
 #include <signal.h>
+
+using namespace OpenSpeedShop::Framework;
 
 // Global links to some windows.
 CMDWID gui_window = 0;
@@ -100,92 +107,51 @@ Process_Command_Line (int argc, char **argv)
 }
 
 extern "C" void initPY_Input ();
-#include "Python.h"
 static void
 Initial_Python ()
 {
-  FILE *fp;
-  PyObject *my_dict, *my_module, cli;
-  Py_Initialize ();
-  initPY_Input();
-  char pyfile[1024];
-  // There are multiple directories this can be locate in...
-  // First look in the user defined one, then the installed,
-  // and finally the package directory.
-  char *myparse_name = "SS_Preparse.py";
-  char *plugin_directory = getenv("OPENSS_PLUGIN_PATH");
-  if( plugin_directory != NULL )
-  {
-    char *filename = (char *)calloc(strlen(plugin_directory)+
-                                    strlen(myparse_name)+1,
-                                    sizeof(char *) );
-    strcpy(filename, plugin_directory);
-    strcat(filename, "/");
-    strcat(filename, myparse_name);
-    struct stat buf;
-    if( !stat(filename, &buf) == 0 )
-    {
-      plugin_directory = NULL;
-    } else
-    {
-      strcpy(pyfile, filename);
-    }
-    free(filename);
-  }
-  if( plugin_directory == NULL )
-  {
-    char *openss_install_dir = getenv("OPENSS_INSTALL_DIR");
-    if( openss_install_dir != NULL )
-    {
-      char *install_path = (char *)calloc(strlen(openss_install_dir)+
-                                          strlen("/lib/openspeedshop")+1,
-                                          sizeof(char *) );
-      plugin_directory = install_path;
+    const char* preparser_filename = "SS_Preparse.py";
 
-      char *filename = (char *)calloc(strlen(plugin_directory)+
-                                    strlen(myparse_name)+1, 
-                                    sizeof( char *) );
-      strcpy(filename, plugin_directory);
-      strcat(filename, "/");
-      strcat(filename, myparse_name);
-      struct stat buf;
-      if( !stat(filename, &buf) == 0 )
-      {
-        plugin_directory = NULL;
-      } else
-      {
-        strcpy(pyfile, filename);
-      }
-      free(filename);
+    // Insure the libltdl user-defined library search path has been set
+    Assert(lt_dlgetsearchpath() != NULL);
+    
+    // Iterate over individual directories in that search path
+    std::string path = lt_dlgetsearchpath();
+    for(std::string::size_type 
+	    i = path.find_first_not_of(':', 0), next = path.find(':', i);
+	i != std::string::npos;
+	i = path.find_first_not_of(':', next), next = path.find(':', i)) {
+	
+	// Extract this directory
+	Path directory = 
+	    path.substr(i, (next == std::string::npos) ? next : next - i);
+	
+	// Assemble the candidate and check if it is a file
+	Path candidate = directory + Path(preparser_filename);
+	if(candidate.isFile()) {
+	    
+	    // Initialize Python
+	    Py_Initialize();
+	    
+	    // Load the Py_Input module into Python
+	    initPY_Input();
+
+	    // Load the preparser into Python
+	    FILE* fp = fopen(candidate.c_str(), "r");
+	    Assert(fp != NULL);
+	    PyRun_SimpleFile(fp, preparser_filename);
+	    Assert(fclose(fp) == 0);
+	    
+	    // Return successfully to the caller
+	    return;
+	    
+	}	
     }
-  }
-  if( plugin_directory == NULL )
-  {
-    plugin_directory = PLUGIN_PATH;
-    char *filename = (char *)calloc(strlen(plugin_directory)+
-                                  strlen(myparse_name)+1,
-                                    sizeof(char *) );
-    strcpy(filename, plugin_directory);
-    strcat(filename, "/");
-    strcat(filename, myparse_name);
-    struct stat buf;
-    if( !stat(filename, &buf) == 0 )
-    {
-      plugin_directory = NULL;
-    } else
-    {
-      strcpy(pyfile, filename); }
-    free(filename);
-  }
-  if( plugin_directory == NULL )
-  {
-    fprintf(stderr, "Unable to locate myparse.py to initialize python.\n");
+
+    // Failed to find the preparser if we get this far
+    std::cerr << "Unable to locate \"" << preparser_filename
+	      << "\" necessary to initialize python." << std::endl;
     exit(EXIT_FAILURE);
-  }
-//  sprintf(pyfile, "%s/%s", plugin_directory, "myparse.py");
-  fp = fopen (pyfile, "r");
-  PyRun_SimpleFile ( fp, "myparse.py" );
-  fclose (fp);
 }
 
 bool Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, int butnotarg,
@@ -405,9 +371,6 @@ setup_signal_handler (int s)
   // big GUI libraries.   We load the gui as a dynamic library. 
   // The GUI will then start it's own thread and fire up a copy of the
   // gui (that will talk with the cli).
-//  #include <dlfcn.h>
-  #include <ltdl.h>
-  #include <assert.h>
   void
   loadTheGUI(ArgStruct *argStruct)
   {
@@ -416,33 +379,10 @@ setup_signal_handler (int s)
     char *gui_entry_point = getenv("OPENSS_GUI_ENTRY_POINT");
     char *plugin_directory = getenv("OPENSS_PLUGIN_PATH");
 
-    assert(lt_dlinit() == 0);
-    // Start with an empty user-defined search path
-    assert(lt_dlsetsearchpath("") == 0);
-    // Add the user-specified plugin path
-    if(getenv("OPENSS_PLUGIN_PATH") != NULL)
-    {
-      char *user_specified_path = getenv("OPENSS_PLUGIN_PATH");
-      const char *currrent_search_path = lt_dlgetsearchpath();
-      assert(lt_dladdsearchdir(user_specified_path) == 0);
-    }
-    // Add the install plugin path
-    char *openss_install_dir = getenv("OPENSS_INSTALL_DIR");
-    if( openss_install_dir != NULL)
-    {
-      char *install_path = (char *)calloc(strlen(openss_install_dir)+
-                                          strlen("/lib/openspeedshop")+1,
-                                          sizeof(char *) );
-      strcpy(install_path, openss_install_dir);
-      strcat(install_path, "/lib/openspeedshop");
-      const char *currrent_search_path = lt_dlgetsearchpath();
-      assert(lt_dladdsearchdir(install_path) == 0);
-    }
-    // Add the compile-time plugin path
-    assert(lt_dladdsearchdir(PLUGIN_PATH) == 0);
-    // Now search for collector plugins in all these paths
-//    printf("lt_dlgetsearchpath()=(%s)\n", lt_dlgetsearchpath() );
+    // Insure the libltdl user-defined library search path has been set
+    Assert(lt_dlgetsearchpath() != NULL);
 
+    // Load GUI library
     if( !gui_dl_name ) gui_dl_name = "libopenss-GUI";
     if( !gui_entry_point ) gui_entry_point = "gui_init";
   

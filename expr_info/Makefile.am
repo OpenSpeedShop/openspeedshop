@@ -25,7 +25,8 @@ libopenss_ExprInfo_la_CXXFLAGS = \
 	 -I.\
 	 -I$(top_srcdir)/base
 
-libopenss_ExprInfo_la_LDFLAGS = --export-dynamic -avoid-version
+libopenss_ExprInfo_la_LDFLAGS = \
+	-export-dynamic -version-info 0:0:0
 
 libopenss_ExprInfo_la_LIBADD = $(LIBLTDL)
 

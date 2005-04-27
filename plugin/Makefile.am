@@ -24,10 +24,10 @@ libopenss_Plugin_la_CXXFLAGS =  \
 	-I. \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/base \
-	-I$(top_srcdir)/gui \
-    -DPLUGIN_PATH=\"$(pkglibdir)\"
+	-I$(top_srcdir)/gui
 
-libopenss_Plugin_la_LDFLAGS = --export-dynamic --export-all-symbols -avoid-version
+libopenss_Plugin_la_LDFLAGS = \
+	-export-dynamic -version-info 0:0:0
 
 libopenss_Plugin_la_LIBADD = $(LIBLTDL)
 

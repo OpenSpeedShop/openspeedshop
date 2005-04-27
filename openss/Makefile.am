@@ -16,26 +16,19 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-# this is needed to pickup the openss script for the make dist target
-bin_PROGRAMS = openspeedshop
+bin_PROGRAMS = openss
 
-bin_SCRIPTS = openss
-# without a rule to build openss (likely from openss.sh for bin_SCRIPTS)
-# we need to add openss to EXTRA_DIST to include it in the tarball
-EXTRA_DIST = openss
+openss_CXXFLAGS = \
+	$(LTDLINCL)
 
-openspeedshop_CFLAGS = \
-	-DPLUGIN_PATH=\"$(pkglibdir)\"
+openss_LDFLAGS =
 
-openspeedshop_LDADD = \
-	-lc $(LIBLTDL)
+openss_LDADD = \
+	$(LIBLTDL) \
+	-lpthread
 
-openspeedshop_LDFLAGS = \
-	--export-dynamic --export-all-symbols -avoid-version
-
-openspeedshop_SOURCES = \
-	openspeedshop.c
+openss_SOURCES = \
+	openss.cxx
 
 doc: $(DOC_SUBDIRS) 
 	-doxygen Doxyfile
-

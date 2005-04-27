@@ -316,43 +316,23 @@ void CollectorPluginTable::foreachCallback(const std::string& filename)
 /**
  * Build the table.
  *
- * Builds the table of available collector plugins by searching three different
- * locations: the compile-time plugin path as passed via a macro from the build
- * system; the installation plugin path defined by the environment variable
- * OPENSS_INSTALL_DIR; and the user-specified plugin path(s) defined by the
- * environment variable OPENSS_PLUGIN_PATH.
+ * Builds the table of available collector plugins. If libltdl's user-defined
+ * library search path has not been set elsewhere (e.g. by the tool), it is set
+ * to the value of the environment variable OPENSS_PLUGIN_PATH. In either case,
+ * that path is then searched for plugins.
  */
 void CollectorPluginTable::build()
 {
     // Check preconditions
     Assert(!dm_is_built);
-
-    // Only setup the search path if one isn't already set
-    if(lt_dlgetsearchpath() == NULL) {
-	
-	// Start with an empty user-defined search path
-	Assert(lt_dlsetsearchpath("") == 0);
-	
-	// Add the compile-time plugin path
-	Assert(lt_dladdsearchdir(PLUGIN_PATH) == 0);
-	
-	// Add the install plugin path
-	if(getenv("OPENSS_INSTALL_DIR") != NULL) {
-	    Path install_path = Path(getenv("OPENSS_INSTALL_DIR")) +
-		Path("/lib/openspeedshop");
-	    Assert(lt_dladdsearchdir(install_path.c_str()) == 0);
-	}
-	
-	// Add the user-specified plugin path
-	if(getenv("OPENSS_PLUGIN_PATH") != NULL) {
-	    Path user_specified_path = Path(getenv("OPENSS_PLUGIN_PATH"));
-	    Assert(lt_dladdsearchdir(user_specified_path.c_str()) == 0);
-	}
-	
-    }
     
-    // Now search for collector plugins in all these paths
-    lt_dlforeachfile(lt_dlgetsearchpath(), ::foreachCallback, this);
+    // Only set the libltdl user-defined search path if it isn't already
+    if((lt_dlgetsearchpath() == NULL) && (getenv("OPENSS_PLUGIN_PATH") != NULL))
+	Assert(lt_dlsetsearchpath(getenv("OPENSS_PLUGIN_PATH")) == 0);
+    
+    // Search for collector plugins in the libltdl user-defined search path
+    if(lt_dlgetsearchpath() != NULL)
+	lt_dlforeachfile(lt_dlgetsearchpath(), ::foreachCallback, this);
     
     // Indicate this table has now been built.
     dm_is_built = true;
