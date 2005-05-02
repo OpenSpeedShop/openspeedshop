@@ -1021,7 +1021,6 @@ bool SS_expSave (CommandObject *cmd) {
 
 static bool setparam (Collector C, std::string pname, ParseParam pvalue) {
   try {
-    Metadata cm = C.getMetadata();
     std::set<Metadata> md = C.getParameters();
     std::set<Metadata>::const_iterator mi;
     for (mi = md.begin(); mi != md.end(); mi++) {
@@ -1879,9 +1878,7 @@ bool SS_Help (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
-//  cmd->Result_String ("not yet implemented");
   cmd->P_Result()->dumpHelp(cmd);
-  cmd->Result_String ("");
   cmd->set_Status(CMD_COMPLETE);
   return true;
 }
