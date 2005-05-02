@@ -28,7 +28,7 @@ using namespace std;
 
 using namespace OpenSpeedShop::cli;
 
-static CommandResult *Get_Metadata_Result (Collector c, Metadata m) {
+static CommandResult *Get_Collector_Metadata (Collector c, Metadata m) {
   CommandResult *Param_Value = NULL;
   std::string id = m.getUniqueId();
   if( m.isType(typeid(int)) ) {
@@ -42,11 +42,11 @@ static CommandResult *Get_Metadata_Result (Collector c, Metadata m) {
   } else if( m.isType(typeid(unsigned int)) ) {
     uint Value;
     c.getParameterValue(id, Value);
-    Param_Value = new CommandResult_Int (Value);
+    Param_Value = new CommandResult_Uint (Value);
   } else if( m.isType(typeid(uint64_t)) ) {
     int64_t Value;
     c.getParameterValue(id, Value);
-    Param_Value = new CommandResult_Int (Value);
+    Param_Value = new CommandResult_Uint (Value);
   } else if( m.isType(typeid(float)) ) {
     float Value;
     c.getParameterValue(id, Value);
@@ -71,6 +71,9 @@ static std::string VIEW_params_brief = "collector : parameter : value";
 static std::string VIEW_params_short = "Report the current values of parameters.";
 static std::string VIEW_params_long  = "Report the current values assigned to all the parameters"
                                        " that are part of a specific experiment.";
+static std::string VIEW_params_metrics[] =
+  { ""
+  };
 static std::string VIEW_params_collectors[] =
   { ""
   };
@@ -80,7 +83,7 @@ static std::string VIEW_params_header[] =
     "               Value",
     ""
   };
-static bool VIEW_params (CommandObject *cmd, ExperimentObject *exp, int64_t topn) {
+static bool VIEW_params (CommandObject *cmd, ExperimentObject *exp) {
   CollectorGroup cgrp;
   try {
     cgrp = exp->FW()->getCollectors();
@@ -108,7 +111,7 @@ static bool VIEW_params (CommandObject *cmd, ExperimentObject *exp, int64_t topn
       S = m.getUniqueId();
       for(int i = S.length(); i < 20; i++) S += " ";
       C->CommandResult_Columns::Add_Column (new CommandResult_String (S));
-      C->CommandResult_Columns::Add_Column (Get_Metadata_Result (c, m));
+      C->CommandResult_Columns::Add_Column (Get_Collector_Metadata (c, m));
       cmd->Result_Predefined (C);
     }
   }
@@ -122,11 +125,15 @@ class params_view : public ViewType {
                              VIEW_params_brief,
                              VIEW_params_short,
                              VIEW_params_long,
+                            &VIEW_params_metrics[0],
                             &VIEW_params_collectors[0],
-                            &VIEW_params_header[0]) {
+                            &VIEW_params_header[0],
+                             false,
+                             false) {
   }
-  virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn) {
-    return VIEW_params (cmd, exp, topn);
+  virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
+                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV) {
+    return VIEW_params (cmd, exp);
   }
 };
 
