@@ -28,89 +28,6 @@ using namespace std;
 
 using namespace OpenSpeedShop::cli;
 
-typedef std::pair<std::string, double> item_type;
-template <class T>
-struct sort_ascending : public std::binary_function<T,T,bool> {
-    bool operator()(const T& x, const T& y) const {
-        return x.second < y.second;
-    }
-};
-template <class T>
-struct sort_decending : public std::binary_function<T,T,bool> {
-    bool operator()(const T& x, const T& y) const {
-        return x.second > y.second;
-    }
-};
-
-// Utilities
-
-typedef std::pair<std::string, double> func_time_pair;
-
-static std::vector<func_time_pair>
-                 GetTimeByFunction (CommandObject *cmd,
-                                    OpenSpeedShop::Framework::Experiment *fexp,
-                                    std::string C_Name,
-                                    std::string metric)
-{
-  std::vector<func_time_pair> items;
-  SmartPtr<std::map<Function, double> > data;
-
-  if (!Collector_Used_In_Experiment (fexp, C_Name)) {
-    cmd->Result_String ("The required collector, " + C_Name + ", was not used.");
-    cmd->set_Status(CMD_ERROR);
-    return items;
-  }
-  Collector C = Get_Collector (fexp, C_Name);
-
- // Retrieve the specified metric for all functions in all the thread
-  ThreadGroup tgrp = fexp->getThreads();
-  if (tgrp.begin() == tgrp.end()) {
-    cmd->Result_String ( "There is no data available - there was no application run." );
-    cmd->set_Status(CMD_ERROR);
-    return items;
-  }
-  ThreadGroup::iterator ti;
-  for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
-    Thread T = *ti;
-    try {
-      Queries::GetMetricByFunctionInThread(C, metric, T, data);
-    }
-    catch(const Exception& error) {
-      //Mark_Cmd_With_Std_Error (cmd, error);
-      //return data;
-    }
-  }
-
- // If there is no data, return.
-  if (data->begin() == data->end()) {
-    cmd->Result_String ( "There is no data available - there were no samples generated." );
-    cmd->set_Status(CMD_ERROR);
-    return items;
-  }
-
- // Now we can sort the data.
-  for(std::map<Function, double>::const_iterator
-      item = data->begin(); item != data->end(); ++item)
-  {
-    items.push_back( std::pair<std::string, double>(item->first.getName(), item->second ) );
-  }
-
- // std::sort(items.begin(), items.end(), sort_ascending<item_type>());
-  std::sort(items.begin(), items.end(), sort_decending<func_time_pair>());
-
-  return items;
-}
-
-static double Get_Total_Time (std::vector<func_time_pair> items) {
- // Calculate the total time for this set of samples.
-  double TotalTime = 0.0;
-  std::vector<func_time_pair>::const_iterator itt = items.begin();
-  for( ; itt != items.end(); itt++ ) {
-    TotalTime += itt->second;
-  }
-  return TotalTime;
-}
-
 // pcfunc view
 
 static std::string VIEW_pcfunc_brief = "pctime : % total : % cumulative : function";
@@ -121,60 +38,16 @@ static std::string VIEW_pcfunc_long  = "Use the program timer to produce a sorte
                                        " A positive integer can be added to the end of the keyword"
                                        " ""pcfunc"" to indicate the maximum number of items in"
                                        " the report.";
-static std::string VIEW_pcfunc_collectors[] =
-  { "pcsamp",
+static std::string VIEW_pcfunc_metrics[] =
+  { "time",
     ""
+  };
+static std::string VIEW_pcfunc_collectors[] =
+  { ""
   };
 static std::string VIEW_pcfunc_header[] =
-  { "  CPU Time (Seconds)",
-    "          % of Total",
-    "        Cumulative %",
-    "Name",
-    ""
+  { ""
   };
-static bool VIEW_pcfunc (CommandObject *cmd, ExperimentObject *exp, int64_t topn) {
-  if (topn == 0) topn = INT_MAX;
-  try {
-    std::vector<item_type> items = GetTimeByFunction (cmd, exp->FW(), "pcsamp", "time");
-    if (items.begin() == items.end()) {
-      return false;   // There is no data, return.
-    }
-    double TotalTime = Get_Total_Time (items);
-    if (TotalTime < 0.0000000001) {
-      cmd->Result_String ( "(the measure time interval is too small)" );
-      cmd->set_Status(CMD_ERROR);
-      return false;
-    }
-
-   // Build a Header for the table.
-    Add_Header (cmd, &VIEW_pcfunc_header[0]);
-
-   // convert time to %
-    double percent_factor = 100.0 / TotalTime;
-
-   // Extract the top "n" items from the sorted list.
-    std::vector<func_time_pair>::const_iterator it = items.begin();
-    double a_percent = 0; // accumulated percent
-    for(int64_t foundn = 0; (foundn < topn) && (it != items.end()); foundn++, it++ ) {
-      double c_percent = it->second*percent_factor;  // current item's percent of total time
-      a_percent += c_percent;
-
-      CommandResult_Columns *C = new CommandResult_Columns (4);
-      C->CommandResult_Columns::Add_Column (new CommandResult_Float (it->second));
-      C->CommandResult_Columns::Add_Column (new CommandResult_Float (c_percent));
-      C->CommandResult_Columns::Add_Column (new CommandResult_Float (a_percent));
-      C->CommandResult_Columns::Add_Column (new CommandResult_String (it->first));
-      cmd->Result_Predefined (C);
-    }
-
-  }
-  catch(const Exception& error) {
-    Mark_Cmd_With_Std_Error (cmd, error);
-    return false;
-  }
-
-  return true;
-}
 class pcfunc_view : public ViewType {
 
  public: 
@@ -182,11 +55,103 @@ class pcfunc_view : public ViewType {
                              VIEW_pcfunc_brief,
                              VIEW_pcfunc_short,
                              VIEW_pcfunc_long,
+                            &VIEW_pcfunc_metrics[0],
                             &VIEW_pcfunc_collectors[0],
-                            &VIEW_pcfunc_header[0]) {
+                            &VIEW_pcfunc_header[0],
+                             true,
+                             true) {
   }
-  virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn) {
-    return VIEW_pcfunc (cmd, exp, topn);
+  virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
+                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV) {
+    CV.erase(++CV.begin(), CV.end());
+    MV.erase(MV.begin(), MV.end());
+    MV.push_back(VIEW_pcfunc_metrics[0]);
+    return Generic_View->GenerateView (cmd, exp, topn, tgrp, CV, MV);
+  }
+};
+
+
+// Inclusive Time
+
+static std::string VIEW_intime_brief = "Inclusive Time Report";
+static std::string VIEW_intime_short = "Report the amount of time spent in a function.";
+static std::string VIEW_intime_long  = "Produce a decending report of the functions that use the"
+                                     " most time.  Th reported time includes all the time spent"
+                                     " in the functions that are called from the reported function."
+                                     " A positive integer can be added to the end of the keyword"
+                                     " ""intime"" to indicate the maximum number of items in"
+                                     " the report.";
+static std::string VIEW_intime_metrics[] =
+  { "inclusive_time",
+    ""
+  };
+static std::string VIEW_intime_collectors[] =
+  { ""
+  };
+static std::string VIEW_intime_header[] =
+  { ""
+  };
+class intime_view : public ViewType {
+
+ public: 
+  intime_view() : ViewType ("intime",
+                             VIEW_intime_brief,
+                             VIEW_intime_short,
+                             VIEW_intime_long,
+                            &VIEW_intime_metrics[0],
+                            &VIEW_intime_collectors[0],
+                            &VIEW_intime_header[0],
+                             true,
+                             true) {
+  }
+  virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
+                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV) {
+    CV.erase(++CV.begin(), CV.end());
+    MV.erase(MV.begin(), MV.end());
+    MV.push_back(VIEW_intime_metrics[0]);
+    return Generic_View->GenerateView (cmd, exp, topn, tgrp, CV, MV);
+  }
+};
+
+
+// Exclusive Time
+
+static std::string VIEW_extime_brief = "Exclusive Time Report";
+static std::string VIEW_extime_short = "Report the amount of time spent in a function.";
+static std::string VIEW_extime_long  = "Produce a decending report of the functions that use the "
+                                     " most time."
+                                     " A positive integer can be added to the end of the keyword"
+                                     " ""extime"" to indicate the maximum number of items in"
+                                     " the report.";
+static std::string VIEW_extime_metrics[] =
+  { "exclusive_time",
+    ""
+  };
+static std::string VIEW_extime_collectors[] =
+  { ""
+  };
+static std::string VIEW_extime_header[] =
+  { ""
+  };
+class extime_view : public ViewType {
+
+ public: 
+  extime_view() : ViewType ("extime",
+                             VIEW_extime_brief,
+                             VIEW_extime_short,
+                             VIEW_extime_long,
+                            &VIEW_extime_metrics[0],
+                            &VIEW_extime_collectors[0],
+                            &VIEW_extime_header[0],
+                             true,
+                             true) {
+  }
+  virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
+                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV) {
+    CV.erase(++CV.begin(), CV.end());
+    MV.erase(MV.begin(), MV.end());
+    MV.push_back(VIEW_extime_metrics[0]);
+    return Generic_View->GenerateView (cmd, exp, topn, tgrp, CV, MV);
   }
 };
 
@@ -200,20 +165,23 @@ static std::string VIEW_vtop_long  = "Produce a decending report of the function
                                      " A positive integer can be added to the end of the keyword"
                                      " ""vtop"" to indicate the maximum number of items in"
                                      " the report.";
-static std::string VIEW_vtop_collectors[] =
-  { "pcsamp",
+static std::string VIEW_vtop_metrics[] =
+  { "time",
     ""
+  };
+static std::string VIEW_vtop_collectors[] =
+  { ""
   };
 static std::string VIEW_vtop_header[] =
   { "  CPU Time (Seconds)",
     "Function",
     ""
   };
-static bool VIEW_vtop (CommandObject *cmd, ExperimentObject *exp, int64_t topn)
-{
+static bool VIEW_vtop (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
+                       ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV) {
   if (topn == 0) topn = INT_MAX;
   try {
-    std::vector<item_type> items = GetTimeByFunction (cmd, exp->FW(), "pcsamp", "time");
+    std::vector<Function_double_pair> items = GetDoubleByFunction (cmd, false, tgrp, CV[0], MV[0]);
     if (items.begin() == items.end()) {
       return false;   // There is no data, return.
     }
@@ -222,11 +190,11 @@ static bool VIEW_vtop (CommandObject *cmd, ExperimentObject *exp, int64_t topn)
     Add_Header (cmd, &VIEW_vtop_header[0]);
 
    // Extract the top "n" items from the sorted list.
-    std::vector<item_type>::const_iterator it = items.begin();
+    std::vector<Function_double_pair>::const_iterator it = items.begin();
     for(int64_t foundn = 0; (foundn < topn) && (it != items.end()); foundn++, it++ ) {
       CommandResult_Columns *C = new CommandResult_Columns (2);
       C->CommandResult_Columns::Add_Column (new CommandResult_Float (it->second));
-      C->CommandResult_Columns::Add_Column (new CommandResult_String (it->first));
+      C->CommandResult_Columns::Add_Column (new CommandResult_String (it->first.getName()));
       cmd->Result_Predefined (C);
     }
   }
@@ -244,11 +212,15 @@ class vtop_view : public ViewType {
                            VIEW_vtop_brief,
                            VIEW_vtop_short,
                            VIEW_vtop_long,
+                          &VIEW_vtop_metrics[0],
                           &VIEW_vtop_collectors[0],
-                          &VIEW_vtop_header[0]) {
+                          &VIEW_vtop_header[0],
+                           true,
+                           true) {
   }
-  virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn) {
-    return VIEW_vtop (cmd, exp, topn);
+  virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
+                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV) {
+    return VIEW_vtop (cmd, exp, topn, tgrp, CV, MV);
   }
 };
 
@@ -257,5 +229,7 @@ class vtop_view : public ViewType {
 // Calls to the VIEWs needs to be done through the ViewType class objects.
 extern "C" void pcfunc_LTX_ViewFactory () {
   Define_New_View (new vtop_view());
+  Define_New_View (new intime_view());
+  Define_New_View (new extime_view());
   Define_New_View (new pcfunc_view());
 }
