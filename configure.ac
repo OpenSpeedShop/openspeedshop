@@ -158,7 +158,7 @@ AC_CONFIG_FILES(Makefile
 		Panels/MPIPanel/Makefile
 		Panels/DebugPanel/Makefile
 		Panels/FPE_TracingPanel/Makefile
-		Panels/ConstructNewExperimentPanel/Makefile
+		Panels/CustomExperimentPanel/Makefile
 		Panels/Wizards/Makefile
 		Panels/Wizards/IntroWizardPanel/Makefile
 		Panels/Wizards/pcSampleWizardPanel/Makefile

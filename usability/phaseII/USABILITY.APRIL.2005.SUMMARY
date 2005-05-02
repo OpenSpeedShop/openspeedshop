@@ -68,6 +68,7 @@ Please feel free to correct/add/delete anything you interpreted differently.
       after the experiment has been finished being instrumented.
       (Maybe with a dialog showing progress is being made and 
       a status line being displayed.)
+FIXED: current:OpenSpeedShop:191911a
 
 2 - When setting command line options (openss -f fred pcsamp)
     the GUI should take hints from any failure that may of prevented
@@ -80,6 +81,7 @@ Please feel free to correct/add/delete anything you interpreted differently.
 
 4 - There should only be one cli.  All candidates and observers
     agreed it should be the CmdPanel when in GUI mode.
+FIXED: current:OpenSpeedShop:191911a
 
 5 - Cumulative percent should be removed from the pcsamp default
     report.   (As per a suggestion... I'll wait for feedback if 
@@ -99,6 +101,7 @@ Please feel free to correct/add/delete anything you interpreted differently.
     select a set of items (from the list) and only show them.
 
 9 - Change "Construct New Experiment" to "Custom Experiment"
+FIXED
 
 10- Allow the flexibility to change the tab name. (Experiment name)
     Allow this from a menu option on the tab, or at the wizard
@@ -133,6 +136,7 @@ Please feel free to correct/add/delete anything you interpreted differently.
     arguments to their executable and run again.
 
 18- BUG: opess -f "fred 1000" usertime    ABORTS.
+FIXED: 
 
 19- Allow selecting multiple entries off the Intro Wizard.
 
