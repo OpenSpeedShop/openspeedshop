@@ -1,0 +1,265 @@
+################################################################################
+# Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+#
+# This library is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this library; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+################################################################################
+
+
+                 Phase II Usability Study   4/27/05
+         Conducted by Chip Kent, Scott Cranford, Martin Shulz, and Al Stipek
+
+
+          As last time, there's definitely room for improvement...
+
+
+Good candidates again.  I'd like to thank Chip for organizing this 
+study and all the candidates for their time and input.
+
+Four candidates were chosen for the study conducted on 04/27/05.
+
+
+The users were able to complete the assignments, for the most
+part, in fairly short order.   There are areas for improvement
+and 2 of those are most obvious to me.   First, when loading an 
+experiment from the command line ($openss -f fred pcsamp) there needs
+be both more feed back that the experiment is being loaded and the
+experiment panel needs to be created and raised.  (This was by far 
+the most glaring problem encountered.)   The other was the candidates
+often struggled with locating the menus.  The little triangle was not
+understood to be a way to raise a local menu.
+
+There are other areas for improvement as well.   The dialogs to 
+attach "collectors" and "Attach" processes were not intuitive enough.
+This was true of most all the dialogs.
+
+Also worth noting in the summary, the term "Collector" means nothing
+to the user.   While we've become educated to this term, when 
+presenting it to the user, they drew a blank.  (The did however
+seem comfortable with the 'experiment' concept.)
+
+Much other feedback and room for improvement were also discovered.
+I've attempted to itemize them as action items below.  
+
+Please feel free to correct/add/delete anything you interpreted differently.
+
+
+1 - When loading the execuable and experiment from the command line,
+    we need to bring up the experiment directly.    This was a major
+    source of confusion for 3 of the 4 candidates.  I'm sure it would
+    have been confusing for 4 of 4 had the other candidate not come
+    into Open|SpeedShop and used the wizard to load the experiment.
+
+    o One suggestion was to bring up the 'Summary wizard' page, 
+      with a progress bar, then bring up the experiment panel.
+
+    o Another suggestion is to bring up the experiment panel 
+      after the experiment has been finished being instrumented.
+      (Maybe with a dialog showing progress is being made and 
+      a status line being displayed.)
+
+2 - When setting command line options (openss -f fred pcsamp)
+    the GUI should take hints from any failure that may of prevented
+    the command from being completed.   While I'd rate this at a 
+    lower priority this could help people from further frustration.
+
+3 - It's not clear that the user output is going to the shell 
+    window where the openss command was issued.   People expected
+    it to go to the CmdPanel when the gui is visible.  
+
+4 - There should only be one cli.  All candidates and observers
+    agreed it should be the CmdPanel when in GUI mode.
+
+5 - Cumulative percent should be removed from the pcsamp default
+    report.   (As per a suggestion... I'll wait for feedback if 
+    others agree with this comment.)
+
+6 - "File->Save Experiment ..." needs better descriptive wording.
+    Also, since it's an overview window (the start of one anyway)
+    maybe it should be turned into a panel and the
+    "File->Save Experiment" functionaly should be hung off it.
+
+7 - When attaching a "collector" or process to an experiment, put the
+    current status somewhere.   Possibilities may be a dialog box,
+    or even in the experiment window itself.
+
+8 - A feature addition:  The user wants to be able to sort the
+    pcStatsPanel like we currently do.  However they also want to
+    select a set of items (from the list) and only show them.
+
+9 - Change "Construct New Experiment" to "Custom Experiment"
+
+10- Allow the flexibility to change the tab name. (Experiment name)
+    Allow this from a menu option on the tab, or at the wizard
+    interface.
+
+11- Put the "Experiments" menu under the File->Experiments entry.
+
+12- When bringing up a "fresh" experiment, put a "dialog" inito
+    the blank panel container that will help the user Load a 
+    process/program/"collector".
+
+13- When loading an "collector" into an experiment, the dialog 
+    reads, "Loading Executable"... it should be "Loading Experiment"
+
+14- Add a "Window'-like entry to list the experiments that are
+    currently available to be raised in the gui.
+    NOTE: The overview panel may be another approach.
+
+15- The "Open Saved Experiment" as well as the "Open Existing 
+    Experiment" should create and raise the experiment directly
+    rather than requiring the use to take one more step to
+    select the entry to be raised.
+
+16- Pet-peeve:  Single click should highlight in the pcStatsPanel,
+    double click should raise the source.  (Of course single
+    vs double click should be used consistently across the tool.)
+
+17- The user should be able to do a rerun.
+    The users commented that they will run with one set of input
+    paramaters, then they'll run with a different set of parameters.
+    They don't want to script this, they simply want to change the
+    arguments to their executable and run again.
+
+18- BUG: opess -f "fred 1000" usertime    ABORTS.
+
+19- Allow selecting multiple entries off the Intro Wizard.
+
+20- Possibly put a 'Close' on the local panel menu.
+
+21- Need a source navigator.
+
+22- BUG: Save data to file when showing 2 experiments, and the 
+    first entry was never run.   Selects first experiment.... ABORT.
+
+23- Try adding a icon bar, next to the 'x' that doesn menu, split
+    horizontal, split vertical, and 'x'.
+    Change the icon menu to something more obvious... maybe MS-Ladder...
+
+24- Should we use the term 'Tab' instead of 'Panel'?
+
+25- BUG: Selecting Save Experiment but not selecting item causes ABORT.
+
+26- The sort indicator in pcStatsPanel seems reversed.
+
+27- BUG: Update brings up pcStatsPanel.
+
+28- Add tooltip regarding menus (i.e. "Right mouse button for
+    context sensitive menu.")
+
+29- No intuitive way to delete a panel container.   Possibly leave
+    the icon bar on an empty panel container.
+
+30- BUG:  Panel layout resize problem.   Resize, split, then tried removing
+    the CmdPanel (or the PanelContainer the CmdPanel was in).   Did not
+    resize/reposition correctly.   (Actually in retrospect this may have
+    worked.  If I remember correctly, the user may have shrunk the thumb
+    into a small area and this was being resized.... Hmmm.)
+
+31- "Managing Collectors and Process" still needs more help understanding
+    what it does.   Suggests changing this to simply "Manager Processes..."
+
+32- "Collector" is an internal name.   Use one that is more generic
+    and meaningful.   One suggestion was "Instrumentation."
+
+33- Possibly add an 'unsplit' menu option.
+
+34- "Attach Program" should be "Load Program" (Manage Collectors and Processes)
+                                                                                
+35- "Detach Collector" should be "Remove Collector" -- Remember "Collector"
+    should be something different...
+
+36- Color for tabs experiment number.   This is easier to show association
+    rather than [1] number.   NOTE: The v menu option could be used to
+    easily show color association.
+                                                                                
+37- In the Intro Wizard add the actual experiment name after the
+    more wordy description.
+    i.e. "I'm trying to find where my program is spending most of it's time"
+    should be:
+    I'm trying to find where my program is spending most of it's time. [pcsamp]
+                                                                                
+38- Make more consistent usage of the experiment terms.  i.e. use
+    pcsamp, pc Sampling, pc Sample Experiment but don't mix them all.
+
+39- Finish - Load - Finish in the wizard, skip the last Finish.
+                                                                                
+40- "Finish" to "Use Defaults"... (After thinking about this
+    one, "Use Defaults" would be confusing as it may be misleading
+    that each page would want that entry.   I see Martin's
+    issue, but would ask for a different wording suggestion.
+                                                                                
+41- Intro Wizard Scrollbar.   Move the scrollbar to the inner
+    frame so the buttons can be seen without scrolling the window.
+
+42- Bug: Source Panel, when it can't find source don't reposition
+    the 'current' source.
+
+43- Run button status.   When launching executable, change the
+    status first to "launching", "Paused - Ready to run", then
+    to Running.   Greying the buttons as appropriate.
+
+44- Put a clock out on the run button that ticks the wall clock
+    time the executable is taking...
+
+45- Grey "Update Button" when loading from Saved File.
+
+46- Grey "Other buttons" when loading from Saved File.
+
+47- Make the Overview "Open Existing Experiment" a panel.
+
+48- (Make the Manager Collectors and Processes a panel.)
+
+49- Add a 'gather routine" for all associated panels.  This
+    would basically pull all disjoint panels (with same
+    expid) to one experiment panel.
+
+50- Also add a function to delete all the panels associated
+    with an experiment.   Possibly add this to the 'close
+    experiment dialog"
+       Delete (expClose) the experiment?
+       Selecting Yes will delete the experiment.
+       Selecting No will close the window.
+       [x] Close all related windows.
+       [Yes]   [No]
+
+51- When you restarted the GUI from the CLI,
+    the GUI came as you left it - it might be easier for the user,
+    if you could open/raise the experiment panel of the currently
+    focused experiment. That's presumably the experiment the user
+    has worked on last and hence wants to see now. Even better
+    would be an optional argument to opengui that users can use to
+    specify an experiment (orthogonal to all other commands), but
+    that's not a comment for you alone anymore. 
+
+
+Other comments and requests:
+
+  - HPC Toolkit
+    I was asked to look at thie for tree display example. (Chip)
+
+  - gprof callstacks 
+    I was asked to look at this for callgraph example.  (Scott)
+
+  - Multiprocess management
+    In this case, the user was saying that he wanted a single tool
+    that allows him to do both serial and parallel performance analysis.  
+    He would like it to be able to do both gprof/prof type experiments 
+    plus vampir type MPI tracing.  He was saying that he was forced 
+    to use pixie and totalview in the past, but it doesn't work as 
+    well as a single tool would.
+                                                                                
+  - Wants one data file, not many.   Wants to be able to compare
+    one run to another.
+

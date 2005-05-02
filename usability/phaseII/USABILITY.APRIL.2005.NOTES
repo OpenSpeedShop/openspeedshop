@@ -1,0 +1,317 @@
+Candidates #1
+  - Read through the source
+
+  - man openss
+
+  - openss -f fred pcsamp
+
+* - Expects command (shell command) to set options
+    for the wizard.   Since the pcsample panel didn't
+    pop up, he went to the wizard and created a 
+    new experiment (with the wizard).
+
+* - Having a hard time determinining the experiment 
+    was loaded on the command line.
+
+* - Really expected pcsamp wizard to pop up & allow 
+    him to continue.  (Maybe a dialog to indicate
+    the experiment is loading.)
+
+  - User commented he didn't know where the executables
+    output went.  (He didn't see it was going to the
+    shell window.)
+
+  - The user was confused over the cumulative percent 
+    and commented that it may be unnecessary for pcsamp.
+
+  - The "Save Experiment To File" needed better (more)
+    wording to make it more clear of what the dialog 
+    is attempting.
+===
+  Follow up comments:
+
+  - When loading from the command shell ($ openss -f fred
+    pcsamp) bring up the wizard's summary page with an
+    option to cancel.
+
+  - Put the current status at the top of the page (somewhere)
+    to indicate what's happening....   
+
+  - Cumulative % for pcsamp means nothing.
+
+  - Wants a way to select individual functions from the
+    pcstats panel, looking just at them for performance
+    data.
+
+  - Change "Create New Experiment" to "Custom Experiment"
+
+  - Allow the flexibility to change the tab name.   Especially
+    when combining collectors or starting with the "Custom
+    Experiment". 
+
+    The user could enter this during one of the dialogs, via
+    the wizard, or under a experiment menu.
+
+  - Put the "Experiments" under File->Experiments  (or File->New)
+    menu entry.
+
+  - When bringing up an empty experiment, via the Experiments 
+    menu, put "Something" in the blank panel container to help
+    aid the user to load an executable and collector.
+
+  - The "Load Executable" wording is wrong when bringing up an
+    experiment.   It should say something like, "Loading Experiment".
+
+  - Would like see a "Window"-like entry off the main menu that
+    shows all the experiments that have been loaded and are able
+    to be brought forward, via the gui.  (His example was MS-Word.)
+
+  - Open "Save Experiment" should bring up the filedialog dircectly
+    when there's only one experiment.
+
+  - Pet-peeve:  Single click should highlight in the pcStatsPanel
+    while a double-click should do the actual callback.   (I'm 
+    concerned over this as it seems 'non-standard' for Qt... 
+    investigate.
+
+  - The user should be able to do a rerun.   Rerun should automatically
+    detect the executable has changed.
+
+  - On load of saved experiment, we should simple create and raise
+    the proper experiment panel.
+
+Candidates #2
+
+  - man : was wondering how this related to Irix SpeedShop
+
+  - openss -f "fred 1000" usertime
+    parsing error:
+BUG-Regression
+
+  - Went to wizard, pc Sample Wizard
+    Commented, "Why did I get into wizard whenI had a parsing
+    error on command line."
+
+* - Putting arguments on the open file dialog caused abort.  BUG-Regression
+
+**- Still major confusing when loading from the command line and not
+    bringing up the appropriate experiment right away.
+
+  - Wants to select multiple options off the wizard.
+
+  - Should highlight in the wizard, options gleaned from the command line.
+
+* - Came through wizard after not realizing the commannd line had
+    loaded the experiment.
+
+  - Seemed to look for a 'Close' button on the local menu.   Still 
+    seems confused over how to delete a panel.
+
+  - Struggled with using the pcStatsPanel to position source.  Looking
+    for help...
+
+  - Show line numbers from preferences.   Shows stats as well.
+
+  - Looking for source navigator.   Tried to bring up source panel 
+    and find routine.
+
+  - Did get the source from the pcStatsPanel, but commented that
+    it's not intuitive.
+
+* BUG - Save data to file, now sees 2 experiments.   Selects first
+    experiment, the one that was never run.... ABORT.
+
+  - Chip comments the first time:   HPC Toolkit example... 
+
+  - Try adding icon bar to the 'x' entry.   
+     v [|] = x
+
+  - Try using the term "Tab" rather than "Panel".
+    PanelContainer isn't obvious, "Panels" is not as intuitive
+    as "Tab".
+
+
+Candidate #3
+  - Double clicking on pcstatspanel... was trying to split window.
+
+  - Can't figure out how to split panels (See Martin's icon bar
+    comment.)
+
+  - The users don't find the menus... (See Martin's icon bar comment.)
+
+*BUG: Selecting Save Experiment but not selecting item causes ABORT.
+
+  - v   Sort indicator seems reversed.
+
+  - Goes to preferences to set items that would (could) otherwise
+    be set via local menus.
+
+  - The user was looking to reorder the tab ordering.
+
+  - Deleted the SourcePanel and pcStatsPanel and struggled to get them
+    back... eventually they did get them back.
+
+  - BUG: Update brings up pcStatsPanel.
+
+  
+Comments:
+  - Add tooltip regarding menus (i.e. Always try right mouse button for
+    context sensitive menu.)
+
+  - Change the icon menu to something more obvious... maybe MS-Ladder...
+
+  - No intuitive way to delete a panel container.   Martin suggest leaving
+    the icon bar on an empty panel container. 
+
+  - "Wants a call tree" 
+
+  - "Wants a good way to manage parallel executions." - Was asking to 
+    do what totalview does to attach to all processes.  (uses pixie)
+
+  - Wants one data file, not many.   Wants to be able to compare 
+    one run to another.
+
+
+  - When running there should be only one cli.   If running -cli
+    use the shell, otherwise use CmdPanel.    Multiple cli interfaces
+    is confusing.
+
+BUG:  Panel layout resize problem.   Resize, split, then tried removing
+   the CmdPanel (or the PanelContainer the CmdPanel was in).   Did not
+   resize/reposition correctly.   (Actually in retrospect this may have
+   worked.  If I remember correctly, the user may have shrunk the thumb
+   into a small area and this was being resized.... Hmmm.)
+
+  - Only one CmdPanel, the GUI by default.
+
+  - "Managing Collectors and Process" sitll needs more help understanding
+    what it does.   Suggests changing this to simply "Manager Processes..."
+
+  - "Collector" is an internal name.   Use one that is more generic
+    and meaningful.   One suggestion was "Instrumentor"
+
+  - Wants an 'unsplit' menu option.
+
+* - "Attach Program" should be "Load Program" (Manage Collectors and Processes)
+    
+  - "Detach Collector" should be "Remove Collector" -- Remember "Collector"
+    should be something different...
+
+  - The word "Collector' is generally confusing.   (This may end up 
+    being an education issue.)
+
+  - Color for tabs experiment number.   This is easier to show association
+    rather than [1] number.   NOTE: The v menu option could be used to 
+    easily show color association.
+
+  - In the Intro Wizard add the actual experiment name after the 
+    more wordy description.
+
+    i.e. "I'm trying to find where my program is spending most of it's time"
+    should be:
+    I'm trying to find where my program is spending most of it's time. [pcsamp]
+
+  - Make more consistent usage of the experiment terms.  i.e. use
+    pcsamp, pc Sampling, pc Sample Experiment but don't mix them all.
+
+
+
+ Candidate #4
+  - $ openss -f fred usertime
+
+***BUG:  This user was confused by this not bringing up the User Time Panel.
+
+  - Following (not getting a User Time Panel) the user was confused as to
+    why they had to enter the "redundant" data into the wizard.
+
+  - NOTE: No one notices (or comments) that the output goes to the 
+    cli window.   No candidate went to the cli command line...
+
+  - There should be only one command line.  (GUI) 
+
+  - The v is not obvious that there's a menu there....
+    Local menus must be made more obvious.
+
+  - "Double clicked" on pcStatsPanel to position source.
+
+  - Once he found the v menu he was good-to-go.  v is still not
+    obvious.
+
+  - Saved data, but has 2 experiments up and it was confusing.
+    
+  - User tried to 'double click' in Save Data (double click should
+    be default OK)
+
+
+Comments:
+  - Interface from function (pcStatsPanel) to source was intuitive.
+
+  - Splitting was not so intuitive.   Was looking to the main menu
+    bar for split.
+
+  - v was not obvious.
+
+  - Possibly put a menubar (optional) at the top of Tab (panels)
+    maybe as a preference to help with the confusion of the 'v' 
+    confusion.
+
+
+Marin's additions:
+  - Finish - Load - Finish in the wizard, skip the last Finish.
+
+  - "Finish" to "Use Defaults"... (After thinking about this 
+    one, "Use Defaults" would be confusing as it may be misleading
+    that each page would want that entry.   I see Martin's 
+    issue, but would ask for a different wording suggestion.
+
+  - Intro Wizard Scrollbar.   Move the scrollbar to the inner
+    frame so the buttons can be seen without scrolling the window.
+
+  - Allow the user to select multiple wizard paths.
+
+  - gprof -callstacks   (Required - Comment from Chip and Scott.)
+
+  - HPC Toolkit!    I hear you Chip!
+
+  - Source lookup... We need a better way to navigate source.
+
+  - Bug: Source Panel, when it can't find source don't reposition 
+    the 'current' source.
+
+  - Run button status.   When launching executable, change the 
+    status first to "launching", "Paused - Ready to run", then
+    to Running.   Greying the buttons as appropriate.
+
+  - Put a clock out on the run button that ticks the wall clock
+    time the executable is taking...
+
+  - Grey "Update Button" when loading from Saved File.
+
+  - Grey "Other buttons" when loading from Saved File.
+
+  - Make the Overview "Open Existing Experiment" a panel.
+
+  - (Make the Manager Collectors and Processes a panel.)
+
+  - Add a 'gather routine" for all associated panels.  This
+    would basically pull all disjoint panels (with same 
+    expid) to one experiment panel.
+
+  - Also add a function to delete all the panels associated
+    with an experiment.   Possibly add this to the 'close
+    experiment dialog"
+
+       Delete (expClose) the experiment?
+       Selecting Yes will delete the experiment.
+       Selecting No will close the window.
+       [x] Close all related windows.
+       [Yes]   [No]
+
+  - When you restarted the GUI from the CLI,
+    the GUI came as you left it - it might be easier for the user,
+    if you could open/raise the experiment panel of the currently
+    focused experiment. That's presumably the experiment the user
+    has worked on last and hence wants to see now. Even better
+    would be an optional argument to opengui that users can use to
+    specify an experiment (orthogonal to all other commands), but
+    that's not a comment for you alone anymore. 
