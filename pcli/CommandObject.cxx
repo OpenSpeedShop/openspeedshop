@@ -81,7 +81,8 @@ bool CommandObject::Print_Results (FILE *TFile, std::string list_seperator, std:
     int cnt = 0;
     for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++) {
       if (cnt++ > 0) fprintf(TFile,"%s",list_seperator.c_str());
-      (*cri)->Print (TFile);
+      // (*cri)->Print (TFile);
+      (*cri)->Print (TFile, 20, true);
     }
     fprintf(TFile,"%s",termination_char.c_str());
     return true;
