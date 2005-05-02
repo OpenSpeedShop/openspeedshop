@@ -92,6 +92,7 @@ extern "C"
     for(int i=0;i<argc;i++)
     {
       QString arg = argv[i];
+// printf("argv[%d]=(%s)\n", i, argv[i]);
       if( arg == "-wid" )
       { // You have a window id from the cli
         for( ;i<argc;)
@@ -164,6 +165,15 @@ extern "C"
       delete splash;
       delete splash_pixmap;
     }
+
+// printf("argc=%d\n", argc );
+if( argc > 3 )
+{
+  w->lookForExperiment();
+} else
+{
+  w->loadTheWizard();
+}
 
     qapplication->exec();
 
