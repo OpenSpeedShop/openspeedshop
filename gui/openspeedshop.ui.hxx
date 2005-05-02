@@ -588,6 +588,8 @@ AppEventFilter::eventFilter( QObject *obj, QEvent *e )
 
 void OpenSpeedshop::init()
 {
+// printf("OpenSpeedShop::init() called.\n");
+
 //  topPL = this;
   char pc_plugin_file[2048];
   // Insure the libltdl user-defined library search path has been set
@@ -854,7 +856,7 @@ height+=50;   // FIX
 // End: Set up a saved session geometry.
 #else // SAVESESSION
   topPC->splitVertical(80);
-  topPC->dl_create_and_add_panel("Intro Wizard", topPC->leftPanelContainer);
+//  topPC->dl_create_and_add_panel("Intro Wizard", topPC->leftPanelContainer);
   topPC->dl_create_and_add_panel("Command Panel", topPC->rightPanelContainer);
 #endif // SAVESESSION
 
@@ -986,3 +988,108 @@ OpenSpeedshop::progressUpdate()
   }
 }
 
+
+void
+OpenSpeedshop::lookForExperiment()
+{
+  printf("The user may have loaded an experiment... as there was something on the command line.\n");
+
+  QString command;
+  std::list<int64_t> int_list;
+
+  steps = 0;
+  pd = new GenericProgressDialog(this, "Progress Dialog", TRUE );
+  pd->infoLabel->setText( tr("Processing command line initialization...") );
+  QTimer *loadTimer = new QTimer( this, "progressTimer" );
+  connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
+  loadTimer->start( 1000 );
+
+  pd->show();
+
+  command = QString("listexp");
+  int_list.clear();
+  if( !cli->getIntListValueFromCLI( (char *)command.ascii(), &int_list ) )
+  {
+    printf("Unable to run %s command.\n", command.ascii() );
+  }
+
+
+  std::list<int64_t>::iterator it;
+// printf("int_list.size() =%d\n", int_list.size() );
+  for(it = int_list.begin(); it != int_list.end(); it++ )
+  {
+    int64_t expID = (int64_t)(*it);
+
+
+    QString expStr = QString("%1").arg(expID);
+
+    command = QString("listTypes -x %1").arg(expStr);
+    std::list<std::string> list_of_collectors;
+    if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
+           &list_of_collectors, FALSE ) )
+    {
+      printf("Unable to run %s command.\n", command.ascii() );
+    }
+  
+    int knownCollectorType = FALSE;
+    QString panel_type = "other";
+    if( list_of_collectors.size() > 0 )
+    {
+      for( std::list<std::string>::const_iterator it = list_of_collectors.begin();         it != list_of_collectors.end(); it++ )
+      {
+//      std::string collector_name = *it;
+        QString collector_name = (QString)*it;
+//printf("(%s)\n", collector_name.ascii() );
+        if( collector_name == "pcsamp" )
+        {
+          knownCollectorType = TRUE;
+          panel_type = "pc Sampling";
+          break;
+        } else if( collector_name == "usertime" )
+        {
+          knownCollectorType = TRUE;
+          panel_type = "User Time";
+          break;
+        } else if( collector_name == "fpe" )
+        {
+          knownCollectorType = TRUE;
+          panel_type = "FPE Tracing";
+          break;
+        } else if( collector_name == "hw" )
+        {
+          panel_type = "HW Counter";
+          knownCollectorType = TRUE;
+          break;
+        } else if( collector_name == "io" )
+        {
+          panel_type = "IO";
+          knownCollectorType = TRUE;
+          break;
+        } else if( collector_name == "mpi" )
+        {
+          panel_type = "MPI";
+          knownCollectorType = TRUE;
+          break;
+        }
+      }
+    }
+  
+    if( knownCollectorType != TRUE )
+    {
+      panel_type = "Construct New";
+    }
+
+// printf("pane_type.ascii() = %s\n", panel_type.ascii() );
+    PanelContainer *bestFitPC = ((PanelContainer *)topPC)->findBestFitPanelContainer((PanelContainer *)topPC);
+    topPC->dl_create_and_add_panel((char *)panel_type.ascii(), bestFitPC, (void *)&expStr);
+  }
+
+  loadTimer->stop();
+  pd->hide();
+}
+
+void
+OpenSpeedshop::loadTheWizard()
+{
+  topPC->dl_create_and_add_panel("Intro Wizard", topPC->leftPanelContainer);
+}
