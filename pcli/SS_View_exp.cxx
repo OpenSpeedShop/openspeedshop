@@ -41,15 +41,18 @@ static std::string VIEW_exp_long  = "Report the current state of an experiment a
                                     " Data collectores that were, at one time, incldued in the"
                                     " experiment but are not currently linked to an excutable"
                                     " module are listed after an ""expDetach"" directive.";
+static std::string VIEW_exp_metrics[] =
+  { ""
+  };
 static std::string VIEW_exp_collectors[] =
   { ""
   };
 static std::string VIEW_exp_header[] =
   { ""
   };
-static bool VIEW_exp (CommandObject *cmd, ExperimentObject *exp, int64_t topn) {
+static bool VIEW_exp (CommandObject *cmd, ExperimentObject *exp) {
   char id[20]; sprintf(&id[0],"%lld",exp->ExperimentObject_ID());
-  cmd->Result_String ("expDefine");
+  cmd->Result_String ("Experiment definition");
   std::string TmpDB = exp->Data_Base_Is_Tmp() ? "Temporary" : "Saved";
   cmd->Result_String ("{ # ExpId is " + std::string(&id[0])
                          + ", Status is " + exp->ExpStatus_Name()
@@ -136,11 +139,15 @@ class exp_view : public ViewType {
                           VIEW_exp_brief,
                           VIEW_exp_short,
                           VIEW_exp_long,
+                         &VIEW_exp_metrics[0],
                          &VIEW_exp_collectors[0],
-                         &VIEW_exp_header[0]) {
+                         &VIEW_exp_header[0],
+                         true,
+                         false) {
   }
-  virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn) {
-    return VIEW_exp (cmd, exp, topn);
+  virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
+                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV) {
+    return VIEW_exp (cmd, exp);
   }
 };
 
@@ -155,20 +162,15 @@ static std::string VIEW_allexp_long  = "Report the current state of all experime
                                        " on the same line. Data collectors that were, at one time, incldued"
                                        " in the experiment but are not currently linked to an excutable"
                                        " module are listed after an ""expDetach"" directive.";
+static std::string VIEW_allexp_metrics[] =
+  { ""
+  };
 static std::string VIEW_allexp_collectors[] =
   { ""
   };
 static std::string VIEW_allexp_header[] =
   { ""
   };
-static bool VIEW_allexp (CommandObject *cmd, ExperimentObject *exp, int64_t topn) {
-  std::list<ExperimentObject *>::reverse_iterator expi;
-  for (expi = ExperimentObject_list.rbegin(); expi != ExperimentObject_list.rend(); expi++)
-  {
-    (void)VIEW_exp (cmd, *expi, topn);
-  }
-  return true;
-}
 class allexp_view : public ViewType {
 
  public: 
@@ -176,12 +178,20 @@ class allexp_view : public ViewType {
                              VIEW_allexp_brief,
                              VIEW_allexp_short,
                              VIEW_allexp_long,
+                            &VIEW_allexp_metrics[0],
                             &VIEW_allexp_collectors[0],
                             &VIEW_allexp_header[0],
+                             false,
                              false) {
   }
-  virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn) {
-    return VIEW_allexp (cmd, exp, topn);
+  virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
+                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV) {
+    std::list<ExperimentObject *>::reverse_iterator expi;
+    for (expi = ExperimentObject_list.rbegin(); expi != ExperimentObject_list.rend(); expi++)
+    {
+      (void)VIEW_exp (cmd, *expi);
+    }
+    return true;
   }
 };
 
@@ -190,6 +200,9 @@ static std::string VIEW_expstatus_brief = "ExperimentID : Current Status";
 static std::string VIEW_expstatus_short = "Report the current status of all known experiments.";
 static std::string VIEW_expstatus_long  = "Check each executable segment that is part of each"
                                           " experiment an report the current status of each experiment.";
+static std::string VIEW_expstatus_metrics[] =
+  { ""
+  };
 static std::string VIEW_expstatus_collectors[] =
   { ""
   };
@@ -198,7 +211,7 @@ static std::string VIEW_expstatus_header[] =
     "Current Status      ",
     ""
   };
-static bool VIEW_expstatus (CommandObject *cmd, ExperimentObject *exp, int64_t topn) {
+static bool VIEW_expstatus (CommandObject *cmd, ExperimentObject *exp) {
   if (ExperimentObject_list.rbegin() != ExperimentObject_list.rend()) {
    // Build a Header for the table - just two items - time and function name.
     Add_Header (cmd, &VIEW_expstatus_header[0]);
@@ -222,12 +235,15 @@ class expstatus_view : public ViewType {
                                 VIEW_expstatus_brief,
                                 VIEW_expstatus_short,
                                 VIEW_expstatus_long,
+                               &VIEW_expstatus_metrics[0],
                                &VIEW_expstatus_collectors[0],
                                &VIEW_expstatus_header[0],
+                                false,
                                 false) {
   }
-  virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn) {
-    return VIEW_expstatus (cmd, exp, topn);
+  virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
+                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV) {
+    return VIEW_expstatus (cmd, exp);
   }
 };
 
