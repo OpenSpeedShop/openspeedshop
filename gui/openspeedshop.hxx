@@ -138,6 +138,12 @@ class OpenSpeedshop : public QMainWindow
     //! print out some internal debug information about this class.
     void print();
 
+    //! Routine that is called when work was done from the command line.
+    void lookForExperiment();
+
+    //! Routine that is called when no hints are given on the command line.
+    void loadTheWizard();
+
 
     void fileLoadNewProgram();
     void fileAttachNewProcess();
