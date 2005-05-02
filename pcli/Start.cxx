@@ -66,7 +66,7 @@ Process_Command_Line (int argc, char **argv)
         continue;
       } else if (!strcasecmp( argv[i], "-gui")) {
         need_gui = true;
-        need_tli = true;
+        need_tli = false;
         continue;
       } else if (!strcasecmp( argv[i], "-batch")) {
         need_batch = true;
@@ -102,7 +102,7 @@ Process_Command_Line (int argc, char **argv)
   if (initiate_command_at == -1) {
    // If not specified by the user, default to -gui and -tli modes.
     need_gui = true;
-    need_tli = true;
+    need_tli = false;
   }
 }
 
