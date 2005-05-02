@@ -21,11 +21,14 @@
 // types of results that can be returned in a CommandObject
 enum cmd_result_type_enum {
   CMD_RESULT_NULL,
+  CMD_RESULT_UINT,
   CMD_RESULT_INT,
   CMD_RESULT_FLOAT,
   CMD_RESULT_STRING,
+  CMD_RESULT_TITLE,
   CMD_RESULT_COLUMN_HEADER,
   CMD_RESULT_COLUMN_VALUES,
+  CMD_RESULT_COLUMN_ENDER,
 };
 
 class CommandResult {
@@ -45,8 +48,37 @@ class CommandResult {
   virtual void Value (char **C) {
     *C = NULL;
   }
-  virtual void Print (FILE *TFile) {
-    fprintf(TFile,"               (none)");
+  virtual void Print (FILE *TFile, int64_t fieldsize=20, bool leftjustified=false) {
+    //fprintf(TFile,"              (none)");
+    char F[20];
+    int i = 0;
+    F[i++] = *("%");
+    if (leftjustified) F[i++] = *("-");
+    sprintf(&F[i], "%llds\0", fieldsize);
+    fprintf(TFile,&F[0],"(none)");
+  }
+};
+
+class CommandResult_Uint : public CommandResult {
+  uint64_t uint_value;
+
+ public:
+  CommandResult_Uint (uint64_t U) : CommandResult(CMD_RESULT_UINT) {
+    uint_value = U;
+  }
+
+
+  virtual void Value (uint64_t *U) {
+    *U = uint_value;
+  };
+  virtual void Print (FILE *TFile, int64_t fieldsize, bool leftjustified) {
+    // fprintf(TFile,"%20llu\n",uint_value);
+    char F[20];
+    int i = 0;
+    F[i++] = *("%");
+    if (leftjustified) F[i++] = *("-");
+    sprintf(&F[i], "%lldllu\0", fieldsize);
+    fprintf(TFile,&F[0],uint_value);
   }
 };
 
@@ -62,8 +94,14 @@ class CommandResult_Int : public CommandResult {
   virtual void Value (int64_t *I) {
     *I = int_value;
   };
-  virtual void Print (FILE *TFile) {
-    fprintf(TFile,"%20lld",int_value);
+  virtual void Print (FILE *TFile, int64_t fieldsize, bool leftjustified) {
+    // fprintf(TFile,"%20lld\n",int_value);
+    char F[20];
+    int i = 0;
+    F[i++] = *("%");
+    if (leftjustified) F[i++] = *("-");
+    sprintf(&F[i], "%lldlld\0", fieldsize);
+    fprintf(TFile,&F[0],int_value);
   }
 };
 
@@ -79,13 +117,19 @@ class CommandResult_Float : public CommandResult {
   virtual void Value (double *F) {
     *F = float_value;
   };
-  virtual void Print (FILE *TFile) {
-    fprintf(TFile,"%20f",float_value);
+  virtual void Print (FILE *TFile, int64_t fieldsize, bool leftjustified) {
+    // fprintf(TFile,"%20f",float_value);
+    char F[20];
+    int i = 0;
+    F[i++] = *("%");
+    if (leftjustified) F[i++] = *("-");
+    sprintf(&F[i], "%lldf\0", fieldsize);
+    fprintf(TFile,&F[0],float_value);
   }
 };
 
 class CommandResult_String : public CommandResult {
-    std::string string_value;
+  std::string string_value;
 
  public:
   CommandResult_String (std::string S) : CommandResult(CMD_RESULT_STRING) {
@@ -98,13 +142,34 @@ class CommandResult_String : public CommandResult {
   virtual void Value (std::string *S) {
     *S = string_value;
   }
-  virtual void Print (FILE *TFile) {
-    fprintf(TFile,"%s",string_value.c_str());
+  virtual void Print (FILE *TFile, int64_t fieldsize, bool leftjustified) {
+    // fprintf(TFile,"%s",string_value.c_str());
+    char F[20];
+    int i = 0;
+    F[i++] = *("%");
+    if (leftjustified) F[i++] = *("-");
+    sprintf(&F[i], "%llds\0", fieldsize);
+    fprintf(TFile,&F[0],string_value.c_str());
+  }
+};
+
+class CommandResult_Title : public CommandResult {
+  std::string string_value;
+
+ public:
+  CommandResult_Title (std::string S) : CommandResult(CMD_RESULT_TITLE) {
+    string_value = S;
+  }
+
+  virtual void Value (std::string *S) {
+    *S = string_value;
+  }
+  virtual void Print (FILE *TFile, int64_t fieldsize, bool leftjustified) {
+    fprintf(TFile,"%s/n",string_value.c_str());
   }
 };
 
 class CommandResult_Headers : public CommandResult {
-    std::string string_value;
 
  int64_t number_of_columns;
  std::list<CommandResult *> Headers;
@@ -121,44 +186,74 @@ class CommandResult_Headers : public CommandResult {
   virtual void Value (int64_t *C) {
     *C = number_of_columns;
   }
-  virtual void Print (FILE *TFile) {
+  virtual void Print (FILE *TFile, int64_t fieldsize=20, bool leftjustified=false) {
     
     std::list<CommandResult *> cmd_object = Headers;
     std::list<CommandResult *>::iterator coi;
     int num_results = 0;
     for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
       if (num_results++ != 0) fprintf(TFile,"  ");
-      (*coi)->Print (TFile);
+      (*coi)->Print (TFile, fieldsize, (num_results >= number_of_columns) ? true : false);
+    }
+
+  }
+};
+
+class CommandResult_Enders : public CommandResult {
+
+ int64_t number_of_columns;
+ std::list<CommandResult *> Enders;
+
+ public:
+  CommandResult_Enders () : CommandResult(CMD_RESULT_COLUMN_ENDER) {
+    number_of_columns = 0;
+  }
+  void Add_Ender (CommandResult *R) {
+    number_of_columns++;
+    Enders.push_back(R);
+  }
+
+  virtual void Value (int64_t *C) {
+    *C = number_of_columns;
+  }
+  virtual void Print (FILE *TFile, int64_t fieldsize=20, bool leftjustified=false) {
+    
+    std::list<CommandResult *> cmd_object = Enders;
+    std::list<CommandResult *>::iterator coi;
+    int num_results = 0;
+    for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
+      if (num_results++ != 0) fprintf(TFile,"  ");
+      (*coi)->Print (TFile, fieldsize, (num_results >= number_of_columns) ? true : false);
     }
 
   }
 };
 
 class CommandResult_Columns : public CommandResult {
-    std::string string_value;
 
  int64_t number_of_columns;
  std::list<CommandResult *> Columns;
 
  public:
-  CommandResult_Columns (int64_t C) : CommandResult(CMD_RESULT_COLUMN_HEADER) {
-    number_of_columns = C;
+  CommandResult_Columns (int64_t C = 0) : CommandResult(CMD_RESULT_COLUMN_VALUES) {
+    number_of_columns = 0;
   }
   void Add_Column (CommandResult *R) {
+    number_of_columns++;
     Columns.push_back(R);
   }
 
   virtual void Value (CommandResult *R) {
     *R = *this;
   }
-  virtual void Print (FILE *TFile) {
+  virtual void Print (FILE *TFile, int64_t fieldsize=20, bool leftjustified=false) {
     
     std::list<CommandResult *> cmd_object = Columns;
     std::list<CommandResult *>::iterator coi;
     int num_results = 0;
     for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
       if (num_results++ != 0) fprintf(TFile,"  ");
-      (*coi)->Print (TFile);
+      (*coi)->Print (TFile, fieldsize, (num_results >= number_of_columns) ? true : false);
     }
 
   }
@@ -232,6 +327,9 @@ public:
   void set_Status (Command_Status S); // defined in CommandObject.cxx
   void set_Results_Used () { results_used = true; }
 
+  void Result_Uint (uint64_t U) {
+    Add_Result (new CommandResult_Uint(U));
+  }
   void Result_Int (int64_t I) {
     Add_Result (new CommandResult_Int(I));
   }
