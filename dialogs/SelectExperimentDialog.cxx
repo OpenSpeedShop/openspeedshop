@@ -45,6 +45,7 @@ SelectExperimentDialog::SelectExperimentDialog( QWidget* parent, const char* nam
 
   mw = (OpenSpeedshop *)parent;
   cli = mw->cli;
+
   
   if ( !name ) setName( "SelectExperimentDialog" );
 
@@ -95,7 +96,7 @@ SelectExperimentDialog::SelectExperimentDialog( QWidget* parent, const char* nam
   // signals and slots connections
   connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
   connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
-  updateAvailableExperimentList();
+//  updateAvailableExperimentList();
 }
 
 /*
@@ -157,7 +158,7 @@ SelectExperimentDialog::selectedExperiment(int *expID)
       return firstChild;
     } else
     {
-return selectedItem;
+      return selectedItem;
       return NULL; // Error condition.
     }
   } else
@@ -170,9 +171,11 @@ return selectedItem;
 
 
 #include "PanelContainer.hxx"
-void
-SelectExperimentDialog::updateAvailableExperimentList()
+PanelListViewItem *
+SelectExperimentDialog::updateAvailableExperimentList(int *returned_expID, int *count)
 {
+  PanelListViewItem *pitem = NULL;
+
   availableExperimentsListView->clear();
 
   QString command("listExp");
@@ -186,30 +189,40 @@ SelectExperimentDialog::updateAvailableExperimentList()
 
   std::list<int64_t>::iterator it;
   nprintf( DEBUG_PANELS ) ("int_list.size() =%d\n", int_list.size() );
+
+  *count = int_list.size();
+  if( int_list.size() == 0 )
+  {
+    *returned_expID = 0;
+    return( 0 );
+  }
+
   for(it = int_list.begin(); it != int_list.end(); it++ )
   {
     int64_t expID = (int64_t)(*it);
+    *returned_expID = expID;
 
     nprintf( DEBUG_PANELS ) ("Here are the experiment ids that can be saved (%d)\n", expID);
-QString expName = QString::null;
-ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-Experiment *fw_experiment = NULL;
-if( eo && eo->FW() )
-{
-  fw_experiment = eo->FW();
-  CollectorGroup cgrp = fw_experiment->getCollectors();
-  CollectorGroup::iterator ci;
-  for (ci = cgrp.begin(); ci != cgrp.end(); ci++)
-  {
-    Collector collector = *ci;
-    std::string name = collector.getMetadata().getUniqueId();
-    if( !expName.isEmpty() )
+    QString expName = QString::null;
+    ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+    Experiment *fw_experiment = NULL;
+    if( eo && eo->FW() )
     {
-      expName += QString(" ,");
+      fw_experiment = eo->FW();
+      CollectorGroup cgrp = fw_experiment->getCollectors();
+      CollectorGroup::iterator ci;
+      for (ci = cgrp.begin(); ci != cgrp.end(); ci++)
+      {
+        Collector collector = *ci;
+        std::string name = collector.getMetadata().getUniqueId();
+        if( !expName.isEmpty() )
+        {
+          expName += QString(" ,");
+        }
+        expName += QString(name.c_str());
+      }
     }
-    expName += QString(name.c_str());
-  }
-}
+
     QListViewItem *item = new QListViewItem( availableExperimentsListView,
       QString("%1").arg(expID),
       expName,
@@ -221,11 +234,19 @@ if( eo && eo->FW() )
         for( PanelList::Iterator pit = panelList->begin(); pit != panelList->end(); pit++ )
         {
           Panel *p = (Panel *)*pit;
-          (void) new PanelListViewItem( (QListViewItem *)item, p->getName(), p );
+          pitem = new PanelListViewItem( (QListViewItem *)item, p->getName(), p );
+          if( int_list.size() == 1 )
+          {
+            // leak... for panelList
+            return pitem;
+          }
         }
         delete panelList;
       }
   }
 
   QApplication::restoreOverrideCursor();
+
+  
+  return(pitem);
 }

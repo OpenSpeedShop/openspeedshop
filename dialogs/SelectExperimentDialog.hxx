@@ -56,7 +56,7 @@ public:
     QListView* availableExperimentsListView;
 
     PanelListViewItem *selectedExperiment(int *expID);
-    void updateAvailableExperimentList();
+    PanelListViewItem *updateAvailableExperimentList(int *returned_expID, int *count);
 
 protected:
     QVBoxLayout* SelectExperimentDialogLayout;

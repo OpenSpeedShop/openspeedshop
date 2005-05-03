@@ -88,7 +88,7 @@ SaveAsExperimentDialog::SaveAsExperimentDialog( QWidget* parent, const char* nam
   connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
   connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 
-  updateAvailableExperimentList();
+//  updateAvailableExperimentList();
 }
 
 /*
@@ -160,9 +160,12 @@ return selectedItem;
 
 
 #include "PanelContainer.hxx"
-void
-SaveAsExperimentDialog::updateAvailableExperimentList()
+PanelListViewItem *
+SaveAsExperimentDialog::updateAvailableExperimentList(int *returned_expID, int *count)
 {
+  PanelListViewItem *pitem = NULL;
+  QListViewItem *item = NULL;
+
   availableExperimentsListView->clear();
 
   QString command("listExp");
@@ -176,9 +179,18 @@ SaveAsExperimentDialog::updateAvailableExperimentList()
 
   std::list<int64_t>::iterator it;
   nprintf( DEBUG_PANELS ) ("int_list.size() =%d\n", int_list.size() );
+
+  *count = int_list.size();
+  if( int_list.size() == 0 )
+  {
+    *returned_expID = 0;
+    return( 0 );
+  }
+
   for(it = int_list.begin(); it != int_list.end(); it++ )
   {
     int64_t expID = (int64_t)(*it);
+    *returned_expID = expID;
 
     nprintf( DEBUG_PANELS ) ("Here are the experiment ids that can be saved (%d)\n", expID);
 
@@ -201,11 +213,18 @@ SaveAsExperimentDialog::updateAvailableExperimentList()
         expName += QString(name.c_str());
       }
     }
-    QListViewItem *item = new QListViewItem( availableExperimentsListView,
+    item = new QListViewItem( availableExperimentsListView,
     QString("%1").arg(expID),
     expName,
     fw_experiment ? fw_experiment->getName().c_str() : "Unknown experiment name" );
+    pitem = (PanelListViewItem *)item;
+    if( int_list.size() == 1 )
+    {
+      return pitem;
+    }
   }
   
-    QApplication::restoreOverrideCursor();
+  QApplication::restoreOverrideCursor();
+
+  return(pitem);
 }

@@ -130,6 +130,7 @@ FIXED
     Experiment" should create and raise the experiment directly
     rather than requiring the use to take one more step to
     select the entry to be raised.
+FIXED:
 
 16- Pet-peeve:  Single click should highlight in the pcStatsPanel,
     double click should raise the source.  (Of course single
@@ -152,6 +153,7 @@ FIXED:
 
 22- BUG: Save data to file when showing 2 experiments, and the 
     first entry was never run.   Selects first experiment.... ABORT.
+FIXED:
 
 23- Try adding a icon bar, next to the 'x' that doesn menu, split
     horizontal, split vertical, and 'x'.
@@ -160,6 +162,7 @@ FIXED:
 24- Should we use the term 'Tab' instead of 'Panel'?
 
 25- BUG: Selecting Save Experiment but not selecting item causes ABORT.
+FIXED:
 
 26- The sort indicator in pcStatsPanel seems reversed.
 

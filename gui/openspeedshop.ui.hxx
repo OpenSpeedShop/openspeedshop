@@ -137,91 +137,110 @@ void OpenSpeedshop::fileOpenExperiment()
   SelectExperimentDialog *dialog = new SelectExperimentDialog(this, "Select Experiment To Open Dialog", TRUE);
 
   QString expStr;
-  if( dialog->exec() == QDialog::Accepted )
+  int count = 0;
+  int id = 0;
+  int expID = 0;
+  PanelListViewItem *item = dialog->updateAvailableExperimentList(&id, &count);
+
+  if( count == 0 )
+  {
+    QApplication::restoreOverrideCursor();
+    QMessageBox::information( (QWidget *)NULL, tr("Info:"), tr("No experiments defined.  Try the \"Intro Wizard\" to create a new experiment."), QMessageBox::Ok );
+    return;
+  }
+  if( count == 1 )
+  {
+    expID = id;
+  }
+  if( count > 1 && dialog->exec() == QDialog::Accepted )
   {
 //printf("QDialog::Accepted\n");
-    int expID = 0;
-    PanelListViewItem *item = dialog->selectedExperiment(&expID);
-    Panel *p = NULL;
-    if( item )
+    item = dialog->selectedExperiment(&expID);
+// printf("item=0x%x\n", item);
+    if( item == NULL || expID == 0 )
     {
-      if( item->parent() != NULL )
+      return;
+    }
+  }
+  Panel *p = NULL;
+  if( item )
+  {
+    if( item->parent() != NULL )
+    {
+      p = item->panel;
+    }
+  }
+  if( p )
+  {
+    //const char *name = p->getName();
+    //printf( "panel name = (%s)\n", name );
+    p->getPanelContainer()->raisePanel(p);
+  } else
+  {
+    //printf("Create a new one!\n");
+    //printf("expID = (%d) \n", expID );
+    QString expStr = QString("%1").arg(expID);
+
+    QString command;
+    command = QString("listTypes -x %1").arg(expStr);
+    std::list<std::string> list_of_collectors;
+    if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
+           &list_of_collectors, FALSE ) )
+    {
+      printf("Unable to run %s command.\n", command.ascii() );
+    }
+  
+    int knownCollectorType = FALSE;
+    QString panel_type = "other";
+    if( list_of_collectors.size() > 0 )
+    {
+      for( std::list<std::string>::const_iterator it = list_of_collectors.begin();         it != list_of_collectors.end(); it++ )
       {
-        p = item->panel;
+  //      std::string collector_name = *it;
+        QString collector_name = (QString)*it;
+  //printf("(%s)\n", collector_name.ascii() );
+        if( collector_name == "pcsamp" )
+        {
+          knownCollectorType = TRUE;
+          panel_type = "pc Sampling";
+          break;
+        } else if( collector_name == "usertime" )
+        {
+          knownCollectorType = TRUE;
+          panel_type = "User Time";
+          break;
+        } else if( collector_name == "fpe" )
+        {
+          knownCollectorType = TRUE;
+          panel_type = "FPE Tracing";
+          break;
+        } else if( collector_name == "hw" )
+        {
+          panel_type = "HW Counter";
+          knownCollectorType = TRUE;
+          break;
+        } else if( collector_name == "io" )
+        {
+          panel_type = "IO";
+          knownCollectorType = TRUE;
+          break;
+        } else if( collector_name == "mpi" )
+        {
+          panel_type = "MPI";
+          knownCollectorType = TRUE;
+          break;
+        }
       }
     }
-    if( p )
-    {
-      //const char *name = p->getName();
-      //printf( "panel name = (%s)\n", name );
-      p->getPanelContainer()->raisePanel(p);
-    } else
-    {
-      //printf("Create a new one!\n");
-      //printf("expID = (%d) \n", expID );
-      QString expStr = QString("%1").arg(expID);
 
-  QString command;
-  command = QString("listTypes -x %1").arg(expStr);
-  std::list<std::string> list_of_collectors;
-  if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
-         &list_of_collectors, FALSE ) )
-  {
-    printf("Unable to run %s command.\n", command.ascii() );
-  }
-
-  int knownCollectorType = FALSE;
-  QString panel_type = "other";
-  if( list_of_collectors.size() > 0 )
-  {
-    for( std::list<std::string>::const_iterator it = list_of_collectors.begin();         it != list_of_collectors.end(); it++ )
+    if( knownCollectorType != TRUE )
     {
-//      std::string collector_name = *it;
-      QString collector_name = (QString)*it;
-//printf("(%s)\n", collector_name.ascii() );
-      if( collector_name == "pcsamp" )
-      {
-        knownCollectorType = TRUE;
-        panel_type = "pc Sampling";
-        break;
-      } else if( collector_name == "usertime" )
-      {
-        knownCollectorType = TRUE;
-        panel_type = "User Time";
-        break;
-      } else if( collector_name == "fpe" )
-      {
-        knownCollectorType = TRUE;
-        panel_type = "FPE Tracing";
-        break;
-      } else if( collector_name == "hw" )
-      {
-        panel_type = "HW Counter";
-        knownCollectorType = TRUE;
-        break;
-      } else if( collector_name == "io" )
-      {
-        panel_type = "IO";
-        knownCollectorType = TRUE;
-        break;
-      } else if( collector_name == "mpi" )
-      {
-        panel_type = "MPI";
-        knownCollectorType = TRUE;
-        break;
-      }
+      panel_type = "Construct New";
     }
-  }
-
-  if( knownCollectorType != TRUE )
-  {
-    panel_type = "Construct New";
-  }
-
-//printf("pane_type.ascii() = %s\n", panel_type.ascii() );
-  PanelContainer *bestFitPC = ((PanelContainer *)topPC)->findBestFitPanelContainer((PanelContainer *)topPC);
-  topPC->dl_create_and_add_panel((char *)panel_type.ascii(), bestFitPC, (void *)&expStr);
-    }
+  
+  //printf("pane_type.ascii() = %s\n", panel_type.ascii() );
+    PanelContainer *bestFitPC = ((PanelContainer *)topPC)->findBestFitPanelContainer((PanelContainer *)topPC);
+    topPC->dl_create_and_add_panel((char *)panel_type.ascii(), bestFitPC, (void *)&expStr);
   }
 
   delete dialog;
@@ -263,51 +282,75 @@ void OpenSpeedshop::fileOpenSavedExperiment()
 
 void OpenSpeedshop::fileSaveExperiment()
 {
+  PanelListViewItem *item = NULL;
+
   SaveAsExperimentDialog *dialog = new SaveAsExperimentDialog(this, "Select Experiment To Save Dialog", TRUE);
 
-  QString expStr;
-  if( dialog->exec() == QDialog::Accepted )
-  {
-    const char *name = NULL;
-    int expID = 0;
-    PanelListViewItem *item = dialog->selectedExperiment(&expID);
-    QString expStr = QString("%1").arg(expID);
-    QString collectorName = QString("%1").arg(item->text(1));
-    QString databaseName = QString("%1").arg(item->text(2));
-//printf("expStr=(%s) collectorName=(%s) databaseName=(%s)\n", expStr.ascii(), collectorName.ascii(), databaseName.ascii() );
-    QString dirName = "./";
+  int count = 0;
+  int id = 0;
+  item = dialog->updateAvailableExperimentList(&id, &count);
 
-    QFileDialog *sed = new QFileDialog(this, "file dialog", TRUE );
-    sed->setCaption( QFileDialog::tr("Enter session name:") );
-    sed->setMode( QFileDialog::AnyFile );
-    QString types(
-                  "Open|SpeedShop files (*.openss);;"
-                  );
-    sed->setFilters( types );
-    sed->setDir(dirName);
-//    const char *n = databaseName.ascii();
-//    char *bn = basename( (char *)n );
-    QString bn = collectorName+".openss";
-    sed->setSelection(bn);
-  
-    QString fileName = QString::null;
-    if( sed->exec() == QDialog::Accepted )
+  if( count == 0 )
+  {
+    QApplication::restoreOverrideCursor();
+    QMessageBox::information( (QWidget *)NULL, tr("Info:"), tr("No experiments defined.  Try the \"Intro Wizard\" to create a new experiment."), QMessageBox::Ok );
+    return;
+  }
+
+  int expID = 0;
+  if( count == 1 )
+  {
+    expID = id;
+  }
+
+  if( count > 1 )
+  {
+    if( dialog->exec() == QDialog::Accepted )
     {
-      fileName = sed->selectedFile();
-      if( !fileName.isEmpty() )
-      {
-// printf("fileName.ascii() = (%s)\n", fileName.ascii() );
-        QString command;
-        command = QString("expSave -x %1 -f %2").arg(expID).arg(fileName);
-// printf("command=(%s)\n", command.ascii() );
-        if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
-        {
-          printf("Unable to run %s command.\n", command.ascii() );
-        }
-      } else
+      item = dialog->selectedExperiment(&expID);
+// printf("item=0x%x\n", item);
+      if( item == NULL || expID == 0 )
       {
         return;
       }
+    }
+  }
+
+  const char *name = NULL;
+  QString expStr = QString("%1").arg(expID);
+  QString collectorName = QString("%1").arg(item->text(1));
+  QString databaseName = QString("%1").arg(item->text(2));
+//printf("expStr=(%s) collectorName=(%s) databaseName=(%s)\n", expStr.ascii(), collectorName.ascii(), databaseName.ascii() );
+  QString dirName = "./";
+
+  QFileDialog *sed = new QFileDialog(this, "file dialog", TRUE );
+  sed->setCaption( QFileDialog::tr("Enter session name:") );
+  sed->setMode( QFileDialog::AnyFile );
+  QString types( "Open|SpeedShop files (*.openss);;");
+  sed->setFilters( types );
+  sed->setDir(dirName);
+//    const char *n = databaseName.ascii();
+//    char *bn = basename( (char *)n );
+  QString bn = collectorName+".openss";
+  sed->setSelection(bn);
+  
+  QString fileName = QString::null;
+  if( sed->exec() == QDialog::Accepted )
+  {
+    fileName = sed->selectedFile();
+    if( !fileName.isEmpty() )
+    {
+// printf("fileName.ascii() = (%s)\n", fileName.ascii() );
+      QString command;
+      command = QString("expSave -x %1 -f %2").arg(expID).arg(fileName);
+// printf("command=(%s)\n", command.ascii() );
+      if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
+      {
+        printf("Unable to run %s command.\n", command.ascii() );
+      }
+    } else
+    {
+      return;
     }
   }
 
