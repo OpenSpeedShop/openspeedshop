@@ -107,6 +107,12 @@ FIXED
     Allow this from a menu option on the tab, or at the wizard
     interface.
 
+    Martin adds:
+      Should this change the name in all associated windows (if the
+      main experiment name becomes part of the tab names)? Also,
+      should this be part of the CLI as well, since ID won't make
+      sense to the user anymore once they exit the GUI? 
+
 11- Put the "Experiments" menu under the File->Experiments entry.
 
 12- When bringing up a "fresh" experiment, put a "dialog" inito
@@ -203,6 +209,15 @@ FIXED:
     one, "Use Defaults" would be confusing as it may be misleading
     that each page would want that entry.   I see Martin's
     issue, but would ask for a different wording suggestion.
+
+    Martin adds:
+      I see the problem with "Use defaults"; that would be confusing.
+      What about keeping "Finish Wizard" and using this button to
+      accept all defaults that were not selected, yet, and then skip
+      forward to the experiment panel without asking for a binary
+      or confirmation. Using the "Finish Wizard" button right after
+      selecting an experiment would then be the same as just selecting
+      the experiment without a wizard.
                                                                                 
 41- Intro Wizard Scrollbar.   Move the scrollbar to the inner
     frame so the buttons can be seen without scrolling the window.
@@ -214,8 +229,8 @@ FIXED:
     status first to "launching", "Paused - Ready to run", then
     to Running.   Greying the buttons as appropriate.
 
-44- Put a clock out on the run button that ticks the wall clock
-    time the executable is taking...
+44- Put a clock out on the run button (or some visible status area)
+    that ticks the wall clock time the executable is taking...
 
 45- Grey "Update Button" when loading from Saved File.
 
@@ -227,7 +242,8 @@ FIXED:
 
 49- Add a 'gather routine" for all associated panels.  This
     would basically pull all disjoint panels (with same
-    expid) to one experiment panel.
+    expid) to one experiment panel and locate the
+    experiment int the top-level (focused) window/frame.
 
 50- Also add a function to delete all the panels associated
     with an experiment.   Possibly add this to the 'close
@@ -246,6 +262,8 @@ FIXED:
     would be an optional argument to opengui that users can use to
     specify an experiment (orthogonal to all other commands), but
     that's not a comment for you alone anymore. 
+
+52- Move Wizards to the File-> menu.
 
 
 Other comments and requests:
@@ -267,3 +285,5 @@ Other comments and requests:
   - Wants one data file, not many.   Wants to be able to compare
     one run to another.
 
+  - Better/Hierarchical source navigation (make all modules belonging
+    to one application visible) 
