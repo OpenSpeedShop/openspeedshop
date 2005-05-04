@@ -28,7 +28,6 @@ libopenss_cli_la_CXXFLAGS = \
 	-I$(top_srcdir)/base \
 	-I$(top_srcdir)/libopenss-framework \
 	-I$(top_srcdir)/objects \
-	-DPLUGIN_PATH=\"$(pkglibdir)\" \
 	$(LTDLINCL) \
 	$(PYTHON_CPPFLAGS)
 

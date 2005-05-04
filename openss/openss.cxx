@@ -16,15 +16,12 @@
 // Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <errno.h>
 #include <iostream>
 #include <ltdl.h>
 #include <pthread.h>
-#include <sstream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
-#include <unistd.h>
 
 
 
@@ -124,43 +121,21 @@ namespace {
 /**
  * Main entry point.
  *
- * Main entry point for the application. Locates the full path name of this
- * process' executable, uses that path to setup library and plugin paths, then
+ * Main entry point for the application. Sets up library and plugin paths, then
  * loads the CLI library and calls its entry point.
- *
- * @note    The current implementation uses the Linux /proc/<pid>/exe symbolic
- *          link to locate the executable and thus is currently Linux-specific.
  *
  * @param argc    Number of command-line arguments.
  * @param argv    Array of command-line arguments.
  */
 int main(int argc, char* argv[])
 {
-    // Form the name of this process' /proc/<pid>/exe symbolic link
-    std::ostringstream executable_link;
-    executable_link << "/proc/" << getpid() << "/exe";
-    
-    // Resolve this symbolic link into the full path name of our executable
-    char executable[PATH_MAX];
-    Assert(readlink(executable_link.str().c_str(),
-		    executable, sizeof(executable)) != -1);
-    
-    // Strip off executable name to form our base directory
-    std::string base = executable;
-    base = (base.rfind('/') != std::string::npos) ?
-	std::string(base, 0, base.rfind('/') + 1) : "/";
-
-    // Construct the name of our library and plugin directories from the base
-    char* libraries = strdup((base + "../lib").c_str());
-    char* plugins = strdup((base + "../lib/openspeedshop").c_str());
-    
-    // Prepend our library directory to LD_LIBRARY_PATH
-    std::string ld_library_path = std::string("LD_LIBRARY_PATH=") + libraries;
+    // Prepend our compile-time library directory to LD_LIBRARY_PATH
+    std::string ld_library_path = std::string("LD_LIBRARY_PATH=") + LIBRARY_DIR;
     if(getenv("LD_LIBRARY_PATH") != NULL)
 	ld_library_path += std::string(":") + getenv("LD_LIBRARY_PATH");
     char* ld_library_path_cstr = NULL;
     Assert((ld_library_path_cstr = strdup(ld_library_path.c_str())) != NULL);
-    Assert(putenv(ld_library_path_cstr) == 0);
+    Assert(putenv(ld_library_path_cstr) == 0);    
 
     // Note: For some unknown reason, before returning, lt_dlmutex_register()
     //       calls libltdl_unlock() - even though it never acquired the lock
@@ -182,8 +157,8 @@ int main(int argc, char* argv[])
     if(getenv("OPENSS_PLUGIN_PATH") != NULL)
 	Assert(lt_dladdsearchdir(getenv("OPENSS_PLUGIN_PATH")) == 0);
 
-    // Add our plugin directory
-    Assert(lt_dladdsearchdir(plugins) == 0);
+    // Add our compile-time plugin directory
+    Assert(lt_dladdsearchdir(PLUGIN_DIR) == 0);
 
     // Attempt to open the CLI library
     const char* cli_library = "libopenss-cli";

@@ -159,7 +159,7 @@ AC_DEFUN([AC_PKG_PYTHON], [
 
     AC_ARG_WITH(python,
                 AC_HELP_STRING([--with-python=DIR],
-                               [PYTHON installation @<:@/usr@:>@]),
+                               [Python 2.3 installation @<:@/usr@:>@]),
                 python_dir=$withval, python_dir="/usr")
 
     AC_CHECK_FILE([$python_dir/include/python2.3/Python.h], [

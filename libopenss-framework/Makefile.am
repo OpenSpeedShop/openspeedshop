@@ -71,5 +71,5 @@ libopenss_framework_la_SOURCES = \
 	ToolAPI.hxx \
 	TotallyOrdered.hxx
 
-doc: $(SUBDIRS)
-	-doxygen Doxyfile
+doc:
+	$(DOXYGEN) Doxyfile

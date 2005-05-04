@@ -19,6 +19,8 @@
 bin_PROGRAMS = openss
 
 openss_CXXFLAGS = \
+	-DLIBRARY_DIR=\"$(libdir)\" \
+	-DPLUGIN_DIR=\"$(pkglibdir)\" \
 	$(LTDLINCL)
 
 openss_LDFLAGS =
@@ -29,6 +31,3 @@ openss_LDADD = \
 
 openss_SOURCES = \
 	openss.cxx
-
-doc: $(DOC_SUBDIRS) 
-	-doxygen Doxyfile

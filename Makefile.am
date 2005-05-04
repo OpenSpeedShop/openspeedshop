@@ -47,14 +47,11 @@ DIST_SUBDIRS = $(SUBDIRS)
 # need the images files and the tests files in tarball.
 EXTRA_DIST = images/* $(DIST_TEST_SUBDIRS)
 
-openspeedshop_la_CXXFLAGS = -I/usr/include -I.
-
 tests: $(TEST_SUBDIRS)
 
 DOC_SUBDIRS = \
 	libopenss-framework \
-	Panels pcli openss base chart gui plugin objects dialogs
+	Panels pcli base chart gui plugin objects dialogs
 
 doc: $(DOC_SUBDIRS) 
-	-doxygen Doxyfile
-
+	$(DOXYGEN) Doxyfile
