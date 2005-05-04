@@ -62,15 +62,12 @@ UserTimeCollector::UserTimeCollector() :
                               typeid(unsigned)));
 
     // Declare our metrics
-    declareMetric(Metadata("time", "User Time",
+
+    declareMetric(Metadata("inclusive_time", "Inclusive Time",
                            "Inclusive User time in seconds.",
                            typeid(double)));
 
-    declareMetric(Metadata("inclusive_time", "User Time",
-                           "Inclusive User time in seconds.",
-                           typeid(double)));
-
-    declareMetric(Metadata("exclusive_time", "User Time",
+    declareMetric(Metadata("exclusive_time", "Exclusive Time",
                            "Exclusive User time in seconds.",
                            typeid(double)));
 }
@@ -230,8 +227,7 @@ void UserTimeCollector::getMetricValue(const std::string& metric,
 {
     // Handle the "time" inclusive time metric
     // FIXME: need ui support to pass inclusive_time and exclusive_time
-    if(metric == "time" ||
-       metric == "inclusive_time" ||
+    if( metric == "inclusive_time" ||
        metric == "exclusive_time" ) {
         double* value = reinterpret_cast<double*>(ptr);
 
@@ -261,7 +257,7 @@ void UserTimeCollector::getMetricValue(const std::string& metric,
 	    {
 		
     // FIXME: need ui support to pass inclusive_time and exclusive_time
-		if(metric == "time" || metric == "inclusive_time" ) {
+		if( metric == "inclusive_time" ) {
                     // Is this PC address inside the range?
                     if(range.doesContain(data.bt.bt_val[j])) {
 		    
@@ -295,7 +291,5 @@ void UserTimeCollector::getMetricValue(const std::string& metric,
             xdr_free(reinterpret_cast<xdrproc_t>(xdr_usertime_data),
                      reinterpret_cast<char*>(&data));
         }
-    }
-    else if(metric == "exclusive_time") {
     }
 }
