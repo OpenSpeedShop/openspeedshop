@@ -25,6 +25,7 @@
   plugin_entry->plugin_location = "$OPENSS_PLUGIN_PATH";
   plugin_entry->plugin_entry_point = "panel_init";
   plugin_entry->menu_heading =  "MENU_HEADING";
+  plugin_entry->sub_menu_heading =  "SUB_MENU_HEADING";
   plugin_entry->menu_label =  "MENU_LABEL";
   plugin_entry->menu_accel =  "MENU_ACCEL";
   plugin_entry->panel_type =  "MENU_LABEL";

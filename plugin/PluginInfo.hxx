@@ -52,6 +52,9 @@ class PluginInfo {
     //! The name of which menu to add this entry to.
     char *menu_heading;
 
+    //! The name of which sub_menu to add this entry to.
+    char *sub_menu_heading;
+
     //! The actual "words used" in the menu entry.
     char *menu_label;
 

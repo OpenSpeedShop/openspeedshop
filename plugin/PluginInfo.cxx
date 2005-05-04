@@ -59,6 +59,7 @@ PluginInfo::initialize()
   plugin_entry_point=NULL;
   grouping=NULL;
   menu_heading=NULL;
+  sub_menu_heading=NULL;
   menu_label=NULL;
   menu_accel=NULL;
   panel_type=NULL;
@@ -99,6 +100,7 @@ PluginInfo::~PluginInfo()
   if( plugin_entry_point ) free( plugin_entry_point );
   if( grouping ) free( grouping );
   if( menu_heading ) free( menu_heading );
+  if( sub_menu_heading ) free( sub_menu_heading );
   if( menu_label ) free( menu_label );
   if( menu_accel ) free( menu_accel );
   if( panel_type ) free( panel_type );
@@ -119,6 +121,7 @@ PluginInfo::Print()
   printf("plugin_entry_point=%s\n", plugin_entry_point );
   printf("grouping=%s\n", grouping );
   printf("menu_heading=%s\n", menu_heading );
+  printf("sub_menu_heading=%s\n", sub_menu_heading );
   printf("menu_label=%s\n", menu_label );
   printf("menu_accel=%s\n", menu_accel );
   printf("panel_type=%s\n", panel_type );

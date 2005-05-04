@@ -24,7 +24,8 @@
   plugin_entry->plugin_name =  "IOPanel.so";
   plugin_entry->plugin_location = "$OPENSS_PLUGIN_PATH";
   plugin_entry->plugin_entry_point = "panel_init";
-  plugin_entry->menu_heading =  "E&xperiments";
+  plugin_entry->menu_heading =  "&File";
+  plugin_entry->sub_menu_heading =  "E&xperiments";
   plugin_entry->menu_label =  "IO";
   plugin_entry->menu_accel =  "Alt+Q";
   plugin_entry->panel_type =  "IO";

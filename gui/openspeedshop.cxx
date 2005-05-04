@@ -109,13 +109,18 @@ OpenSpeedshop::OpenSpeedshop( int _wid, QWidget* parent, const char* name, WFlag
 #endif // SAVESESSION
 
   fileMenu->insertSeparator();
-  filePreferencesAction->addTo( fileMenu );
+QPopupMenu *experimentsMenu = new QPopupMenu(this);
+QPopupMenu *wizardsMenu = new QPopupMenu(this);
+fileMenu->insertItem( "E&xperiments", experimentsMenu, 1 );
+fileMenu->insertItem( "&Wizards", wizardsMenu, 3 );
+
   fileMenu->insertSeparator();
+  filePreferencesAction->addTo( fileMenu );
   fileMenu->insertSeparator();
   fileCloseAction->addTo( fileMenu );
   fileMenu->insertSeparator();
   fileExitAction->addTo( fileMenu );
-  menubar->insertItem( QString(""), fileMenu, 1 );
+  menubar->insertItem( QString("&File"), fileMenu, 1 );
 
   editMenu = new QPopupMenu( this );
 
@@ -245,7 +250,8 @@ fileExitAction->setStatusTip( tr("Exit the entire session closing down all exper
   helpAboutAction->setAccel( QString::null );
   if (menubar->findItem(1))
   {
-    menubar->findItem(1)->setText( tr( "&File" ) );
+//    menubar->findItem(1)->setText( tr( "&File" ) );
+    menubar->findItem(1)->setText( "&File" );
   }
 #ifdef HOLD
   if (menubar->findItem(3))

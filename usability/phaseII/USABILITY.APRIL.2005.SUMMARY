@@ -114,6 +114,7 @@ FIXED
       sense to the user anymore once they exit the GUI? 
 
 11- Put the "Experiments" menu under the File->Experiments entry.
+FIXED:
 
 12- When bringing up a "fresh" experiment, put a "dialog" inito
     the blank panel container that will help the user Load a 
@@ -267,6 +268,7 @@ FIXED:
     that's not a comment for you alone anymore. 
 
 52- Move Wizards to the File-> menu.
+FIXED:
 
 
 Other comments and requests:

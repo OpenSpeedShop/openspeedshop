@@ -59,6 +59,7 @@ extern "C"
 
     #include "local_plugin_info.hxx"
     plugin_entry->masterPC = topPCArg;
+// plugin_entry->Print();
 
     return 1;
   }
@@ -77,6 +78,7 @@ extern "C"
   int
   panel_init(void *pl_arg, void *pluginInfoArg)
   {
+dprintf("  panel_init() entered\n");
     QPopupMenu *menu = NULL;
     OpenSpeedshop *pl = (OpenSpeedshop *)pl_arg;
     QMenuBar *menubar = pl->menubar;
@@ -102,7 +104,7 @@ extern "C"
     int i = 0;
     bool found=FALSE;
 
-    dprintf("menubar->count()=%d\n", menubar->count() );
+dprintf("pluginInfo->panel_type=(%s) menubar->count()=%d\n", pluginInfo->panel_type, menubar->count() );
 
     // Menu's off the menubar are 1 based
     for( i=1;i<=count;i++ )
@@ -113,24 +115,64 @@ extern "C"
         menu_text = item->text();
       }
 
-      if( menu_text )
+      if( menu_text.isEmpty() )
       {
-        dprintf("menu_text(%d)=%s\n", i, menu_text.ascii() );
+dprintf("no menu_text at position %d\n", i );
       } else
       {
-        dprintf("no menu_text at position %d\n", i );
+dprintf("menu_text(%d)=%s\n", i, menu_text.ascii() );
       }
 
-      dprintf("menu_text(%d)=(%s) menu_heading=(%s)\n", i, menu_text.ascii(), pluginInfo->menu_heading );
+dprintf("menu_text(%d)=(%s) menu_heading=(%s)\n", i, menu_text.ascii(), pluginInfo->menu_heading );
       if( menu_text == pluginInfo->menu_heading )
       {
-        dprintf("Found %s at %d\n", pluginInfo->menu_heading, i );
+dprintf("Found %s at %d for %s\n", pluginInfo->menu_heading, i, pluginInfo->panel_type );
+// pluginInfo->Print();
+
         found = TRUE;
-        if( item )
+        if(  pluginInfo->sub_menu_heading == NULL )
         {
-          menu = item->popup();
+          if( item )
+          {
+            menu = item->popup();
+          }
+          break;
+        } else
+        {
+dprintf("Found %s now look for sub_menu_heading %s\n", pluginInfo->menu_heading, pluginInfo->sub_menu_heading );
+          QPopupMenu *sub_menu = NULL;
+dprintf("item =0x%x\n", item );
+          if( item )
+          {
+            sub_menu = item->popup();
+            int sub_count = sub_menu->count();
+dprintf("sub_menu->count()=%d\n", sub_menu->count() );
+dprintf("item->text()=%s\n", item->text().ascii() );
+            found = FALSE;
+            for( int si=1;si<=sub_count;si++ )
+            {
+              QMenuItem *sub_menu_item = sub_menu->findItem(si);
+              menu = sub_menu;
+dprintf("sub_menu_item[%d]=0x%x\n", si, sub_menu_item );
+              QString sub_menu_text = sub_menu->text(si);
+              if( sub_menu_text.isEmpty() )
+              {
+dprintf("sub_menu_text is empty.  ;-( \n");
+              } else if( sub_menu_text == pluginInfo->sub_menu_heading )
+              {
+dprintf("FOUND: sub_menu_text=%s\n", sub_menu_text.ascii() );
+                found = TRUE;
+                menu = sub_menu_item->popup();
+dprintf("menu (sub menu really) =0x%x\n", menu);
+                break;
+              }
+            }
+            break;
+          } else
+          {
+dprintf("A: Create a new submenu!!!!\n");
+          }
         }
-        break;
       }
     }
 
@@ -138,7 +180,7 @@ extern "C"
 
     if( !found || !menu )
     {
-      dprintf("no menu found, create a new entry.\n");
+dprintf("no menu found, create a new entry.\n");
       menu = new QPopupMenu( pl );
       {
       char n[1024]; strcpy(n,"plugin menu:");strcat(n, pluginInfo->menu_label);
