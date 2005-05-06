@@ -80,6 +80,7 @@ extern "C"
   {
 dprintf("  panel_init() entered\n");
     QPopupMenu *menu = NULL;
+    QPopupMenu *new_menu = NULL;
     OpenSpeedshop *pl = (OpenSpeedshop *)pl_arg;
     QMenuBar *menubar = pl->menubar;
 
@@ -139,6 +140,7 @@ dprintf("Found %s at %d for %s\n", pluginInfo->menu_heading, i, pluginInfo->pane
           break;
         } else
         {
+          int si = 1;
 dprintf("Found %s now look for sub_menu_heading %s\n", pluginInfo->menu_heading, pluginInfo->sub_menu_heading );
           QPopupMenu *sub_menu = NULL;
 dprintf("item =0x%x\n", item );
@@ -149,7 +151,7 @@ dprintf("item =0x%x\n", item );
 dprintf("sub_menu->count()=%d\n", sub_menu->count() );
 dprintf("item->text()=%s\n", item->text().ascii() );
             found = FALSE;
-            for( int si=1;si<=sub_count;si++ )
+            for(;si<=sub_count;si++ )
             {
               QMenuItem *sub_menu_item = sub_menu->findItem(si);
               menu = sub_menu;
@@ -167,10 +169,20 @@ dprintf("menu (sub menu really) =0x%x\n", menu);
                 break;
               }
             }
+dprintf("A: Create a new submenu???? found=%d menu=0x%x\n", found, menu);
+            if( !found && menu)
+            {
+dprintf("A: Create a new submenu!!!! si=%d pl=0x%x\n", si, pl);
+              new_menu = new QPopupMenu(pl);
+dprintf("sub_menu=0x%x item->popup()=0x%x\n", sub_menu, item->popup() );
+              sub_menu->insertItem(pluginInfo->sub_menu_heading, new_menu, si, si-7);
+              menu = new_menu;
+              found = TRUE;
+            }
             break;
           } else
           {
-dprintf("A: Create a new submenu!!!!\n");
+fprintf(stderr, "Warning: You shouldn't get here.\n");
           }
         }
       }
@@ -192,7 +204,7 @@ dprintf("no menu found, create a new entry.\n");
     action->addTo( menu );
 //    action->setText( pluginInfo->menu_label );
     action->setMenuText( pluginInfo->menu_label );
-    dprintf("assign the accelerator to %s\n", pluginInfo->menu_accel );
+dprintf("assign the accelerator to %s\n", pluginInfo->menu_accel );
     action->setAccel( QString(pluginInfo->menu_accel) );
     if( pluginInfo->plugin_short_description )
     {
