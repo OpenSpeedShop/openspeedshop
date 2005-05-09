@@ -49,8 +49,8 @@ static std::string VIEW_pcfunc_header[] =
   };
 static bool VIEW_stats (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV) {
-  bool report_accumulated_percent = true;  // Is this useful nformation?
   bool report_Column_summary = false;
+  std::vector<CommandResult *> Column_Sum;
 
   if (topn == 0) topn = INT_MAX;
 
@@ -65,21 +65,16 @@ static bool VIEW_stats (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
 
    // Calculate %?
     bool Gen_Total_Percent = (CV.size() == 1);
-    double TotalTime = 0.0;
+    CommandResult *TotalValue = NULL;
     if (Gen_Total_Percent) {
+      double TotalTime = 0.0;
       TotalTime = Total_second (items);
       if (TotalTime < 0.0000000001) {
         cmd->Result_String ( "(the measured time interval is too small)" );
         cmd->set_Status(CMD_ERROR);
         return false;
       }
-    }
-
-   // convert time to %
-    bool Gen_Cumulative_Percent = Gen_Total_Percent;
-    double percent_factor = 0;
-    if (Gen_Cumulative_Percent) {
-      percent_factor = 100.0 / TotalTime;
+      TotalValue = new CommandResult_Float (TotalTime);
     }
 
    // Build a Header for the table.
@@ -89,18 +84,23 @@ static bool VIEW_stats (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
     for ( i=0; i < MV.size(); i++) {
       Metadata m = Find_Metadata ( CV[i], MV[i] );
       H->CommandResult_Headers::Add_Header ( new CommandResult_String ( m.getShortName() ) );
+      if (report_Column_summary) {
+        CommandResult *S = new CommandResult_Float();
+        Column_Sum.push_back(S);
+      }
       if ((i == 0) && Gen_Total_Percent) {
         H->CommandResult_Headers::Add_Header ( new CommandResult_String ( "% of Total" ) );
-      }
-      if (report_accumulated_percent) {
-       // There is some doubt that this is useful information
-        if ((i == 0) && Gen_Cumulative_Percent) {
-          H->CommandResult_Headers::Add_Header ( new CommandResult_String ( "Cumulative %" ) );
+        if (report_Column_summary) {
+          CommandResult *S = new CommandResult_Float();
+          Column_Sum.push_back(S);
         }
       }
     }
    // Add Function
     H->CommandResult_Headers::Add_Header ( new CommandResult_String ( "Name" ) );
+    if (report_Column_summary) {
+      Column_Sum.push_back(NULL);
+    }
     cmd->Result_Predefined (H);
 
    // Extract the top "n" items from the sorted list.
@@ -110,23 +110,26 @@ static bool VIEW_stats (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
       CommandResult_Columns *C = new CommandResult_Columns ();
 
      // Add Metrics
-      C->CommandResult_Columns::Add_Column (new CommandResult_Float (it->second));
-      if (Gen_Total_Percent) {
-        double c_percent = it->second*percent_factor;  // current item's percent of total time
-        CumulativePercent += c_percent;
-        C->CommandResult_Columns::Add_Column (new CommandResult_Float (c_percent));
+      CommandResult *Metric_Result = new CommandResult_Float (it->second);
+      C->CommandResult_Columns::Add_Column (Metric_Result);
+      if (report_Column_summary) {
+        Accumulate_CommandResult (Column_Sum[0], Metric_Result);
       }
-      if (report_accumulated_percent) {
-       // There is some doubt that this is useful information
-        if (Gen_Cumulative_Percent) {
-          C->CommandResult_Columns::Add_Column (new CommandResult_Float (CumulativePercent));
+      if (Gen_Total_Percent) {
+        CommandResult *P = Calculate_Percent (Metric_Result, TotalValue);
+        C->CommandResult_Columns::Add_Column (P);
+        if (report_Column_summary) {
+          Accumulate_CommandResult (Column_Sum[1], P);
         }
       }
       for ( i=1; i < MV.size(); i++) {
-        C->CommandResult_Columns::Add_Column ( Get_Collector_Metric( cmd, it->first, tgrp, CV[i], MV[i] ) );
+        CommandResult *Next_Metric_Value  = Get_Collector_Metric( cmd, it->first, tgrp, CV[i], MV[i] );
+        C->CommandResult_Columns::Add_Column (Next_Metric_Value);
+        if (report_Column_summary) {
+          Accumulate_CommandResult (Column_Sum[i+(Gen_Total_Percent?1:0)], Next_Metric_Value);
+        }
       }
-     // Add Function
-      // C->CommandResult_Columns::Add_Column (new CommandResult_String (it->first.getName()));
+     // Add ID for row
       C->CommandResult_Columns::Add_Column (gen_F_name (it->first));
       cmd->Result_Predefined (C);
     }
@@ -134,15 +137,15 @@ static bool VIEW_stats (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
     if (report_Column_summary) {
      // Build an Ender summary for the table.
       CommandResult_Enders *E = new CommandResult_Enders ();
-     // Add Metrics
-      E->CommandResult_Enders::Add_Ender ( new CommandResult_Float ( TotalTime ) );
+     // Add Metrics Summary
+      E->CommandResult_Enders::Add_Ender (Column_Sum[0]);
       if (Gen_Total_Percent) {
-        E->CommandResult_Enders::Add_Ender ( new CommandResult_Float ( CumulativePercent ) );
+        E->CommandResult_Enders::Add_Ender (Column_Sum[1]);
       }
       for ( i=1; i < MV.size(); i++) {
-        E->CommandResult_Enders::Add_Ender ( new CommandResult_String ( " " ) );
+        E->CommandResult_Enders::Add_Ender (Column_Sum[i+(Gen_Total_Percent?1:0)]);
       }
-     // Add Function
+     // Add ID
       E->CommandResult_Enders::Add_Ender ( new CommandResult_String ( "Report Totals" ) );
       cmd->Result_Predefined (E);
     }
