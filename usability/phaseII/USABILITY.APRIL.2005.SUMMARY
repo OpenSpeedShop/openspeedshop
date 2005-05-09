@@ -211,6 +211,7 @@ FIXED:
     pcsamp, pc Sampling, pc Sample Experiment but don't mix them all.
 
 39- Finish - Load - Finish in the wizard, skip the last Finish.
+FIXED
                                                                                 
 40- "Finish" to "Use Defaults"... (After thinking about this
     one, "Use Defaults" would be confusing as it may be misleading
@@ -225,6 +226,7 @@ FIXED:
       or confirmation. Using the "Finish Wizard" button right after
       selecting an experiment would then be the same as just selecting
       the experiment without a wizard.
+FIXED:
                                                                                 
 41- Intro Wizard Scrollbar.   Move the scrollbar to the inner
     frame so the buttons can be seen without scrolling the window.

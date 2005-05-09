@@ -1116,15 +1116,17 @@ void pcSampleWizardPanel::finishButtonSelected()
       mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
       vUpdateAttachOrLoadPageWidget();
       vAttachOrLoadPageNextButtonSelected();
+vSummaryPageFinishButtonSelected();
     } else
     {
       mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
-//      eUpdateAttachOrLoadPageWidget();
       vUpdateAttachOrLoadPageWidget();
       eAttachOrLoadPageNextButtonSelected();
+vSummaryPageFinishButtonSelected();
     }
   } else
   {
+#ifdef OLDWAY
     if( wizardMode->isOn() )
     {
       mainWidgetStack->raiseWidget(vSummaryPageWidget);
@@ -1132,7 +1134,9 @@ void pcSampleWizardPanel::finishButtonSelected()
     {
       mainWidgetStack->raiseWidget(eSummaryPageWidget);
     }
-//    vSummaryPageFinishButtonSelected();
+#else // OLDWAY
+    vSummaryPageFinishButtonSelected();
+#endif // OLDWAY
   }
 }
 
