@@ -165,7 +165,7 @@ CLIInterface::getIntValueFromCLI(const char *command, int64_t *val, bool mark_va
         crl = co->Result_List().begin();    
         CommandResult_Int *cr_int = (CommandResult_Int *)(*crl);
 
-        cr_int->Value(val);
+        cr_int->Value(*val);
 
         if( mark_value_for_delete )
         {
@@ -261,7 +261,7 @@ std::list<CommandResult *> cmd_result = co->Result_List();
 //printf("cr_int=0x%x\n", cr_int);   // This is null?
 
           int64_t val = 0;
-          cr_int->Value(&val);
+          cr_int->Value(val);
           (*int_list).push_back(val);
         }
 
@@ -352,7 +352,7 @@ CLIInterface::getStringValueFromCLI(const char *command, std::string *str_val, b
         crl = co->Result_List().begin();    
         CommandResult_String *cr_str = (CommandResult_String *)(*crl);
 
-        cr_str->Value(str_val);
+        cr_str->Value(*str_val);
 
         if( mark_value_for_delete )
         {
@@ -440,7 +440,7 @@ CLIInterface::getStringListValueFromCLI(const char *command, std::list<std::stri
           CommandResult_String *cr_str = (CommandResult_String *)(*cri);
 
           std::string str_val;
-          cr_str->Value(&str_val);
+          cr_str->Value(str_val);
           (*str_list).push_back(str_val);
         }
 
