@@ -25,7 +25,7 @@
 
 for i in `p_list -c`
 do
-  if [ $i == "ConstructNewExperimentPanel" ]
+  if [ $i == "CustomExperimentPanel" ]
   then
     echo "WARNING: $i  is check out."
     exit
@@ -56,7 +56,7 @@ do
     exit
   fi
 done
-for i in `echo "ConstructNewExperimentPanel FPE_TracingPanel HW_CounterPanel IOPanel MPIPanel UserTimePanel"`
+for i in `echo "CustomExperimentPanel FPE_TracingPanel HW_CounterPanel IOPanel MPIPanel UserTimePanel"`
 do
   echo Doing $i
 
@@ -67,10 +67,10 @@ do
   echo "y" | mysed "PCSAMPLEPANEL" ${i}_H $i/$i.cxx $i/$i.hxx $i/Makefile.am
   echo "y" | mysed "pcSamplePanel" $i $i/$i.cxx $i/$i.hxx $i/Makefile.am
 
-  if [ $i == "ConstructNewExperimentPanel" ]
+  if [ $i == "CustomExperimentPanel" ]
   then
-    echo "echo "y" | mysed \"pc Sample Panel\" \"Construct New Experiment Panel\" $i/$i.cxx $i/$i.hxx $i/Makefile.am"
-    echo "y" | mysed "pc Sample Panel" "Construct New Experiment Panel" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+    echo "echo "y" | mysed \"pc Sample Panel\" \"Custom Experiment Panel\" $i/$i.cxx $i/$i.hxx $i/Makefile.am"
+    echo "y" | mysed "pc Sample Panel" "Custom Experiment Panel" $i/$i.cxx $i/$i.hxx $i/Makefile.am
     echo "y" | mysed "pcSample" "constructNewExperiment" $i/$i.cxx $i/$i.hxx $i/Makefile.am
     echo "y" | mysed "pcsamp" " " $i/$i.cxx $i/$i.hxx $i/Makefile.am
   fi

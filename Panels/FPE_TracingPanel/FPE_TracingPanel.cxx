@@ -94,7 +94,7 @@ FPE_TracingPanel::FPE_TracingPanel(PanelContainer *pc, const char *n, void *argu
       expID = expIDString->toInt();
       nprintf( DEBUG_PANELS ) ("we're coming in with an expID=%d\n", expID);
       // Look to see if any collectors have already been assigned.   If not, we
-      // need to attach the fpe collector.
+      // need to attach the fpele collector.
       eo = Find_Experiment_Object((EXPID)expID);
       if( eo && eo->FW() )
       {
@@ -167,16 +167,20 @@ FPE_TracingPanel::FPE_TracingPanel(PanelContainer *pc, const char *n, void *argu
   {
     // We're coming in cold, or we're coming in from the fpeTracingWizardPanel.
     QString command = QString::null;
+#ifdef OLDWAY
     if( !executableNameStr.isEmpty() )
     {
       command = QString("expCreate -f \"%1 %2\" fpe\n").arg(executableNameStr).arg(argsStr);
     } else if( !pidStr.isEmpty() )
     { 
-      command = QString("expCreate -x %1 fpe\n").arg(pidStr);
+      command = QString("expCreate %1 fpe\n").arg(pidStr);
     } else
     {
       command = QString("expCreate fpe\n");
     }
+#else // OLDWAY
+    command = QString("expCreate fpe\n");
+#endif // OLDWAY
     bool mark_value_for_delete = true;
     int64_t val = 0;
 
@@ -260,7 +264,9 @@ FPE_TracingPanel::FPE_TracingPanel(PanelContainer *pc, const char *n, void *argu
     ThreadGroup::iterator ti = tgrp.begin();
     if( tgrp.size() == 0 )
     {
-      statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\" with the local menu.") );
+      statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\".") );
+PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
+topPC->dl_create_and_add_panel("FPE Tracing Wizard", bestFitPC, (char *)this);
     } else
     {
       statusLabelText->setText( tr(QString("Process Loaded: Click on the \"Run\" button to begin the experiment.")) );
@@ -268,7 +274,7 @@ FPE_TracingPanel::FPE_TracingPanel(PanelContainer *pc, const char *n, void *argu
     }
   } else if( executableNameStr.isEmpty() )
   {
-    statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\" with the local menu.") );
+    statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\".") );
     runnableFLAG = FALSE;
     pco->runButton->setEnabled(FALSE);
     pco->runButton->enabledFLAG = FALSE;
@@ -590,24 +596,77 @@ CLIInterface::interrupt = true;
     // Update status, will update the status bar as the status 
     // of the command progresses to completion.
     updateStatus();
- } else if( lao )
- {
-   nprintf( DEBUG_MESSAGES ) ("we've got a LoadAttachObject message\n");
+  } else if( lao )
+  {
+    nprintf( DEBUG_MESSAGES ) ("we've got a LoadAttachObject message\n");
 
-   if( lao->loadNowHint == TRUE || runnableFLAG == FALSE )
-   {
-     mw->executableName = lao->executableName;
-     mw->pidStr = lao->pidStr;
+    if( lao->loadNowHint == TRUE || runnableFLAG == FALSE )
+    {
+      mw->executableName = lao->executableName;
+      executableNameStr = lao->executableName;
+      mw->pidStr = lao->pidStr;
+      pidStr = lao->pidStr;
+ 
+      executableNameStr = lao->executableName;
+      pidStr = lao->pidStr;
+ 
+      QString command = QString::null;
+      if( !executableNameStr.isEmpty() )
+      {
+        command = QString("expAttach -x %1 -f \"%2 %3\"\n").arg(expID).arg(executableNameStr).arg(argsStr);
+      } else if( !pidStr.isEmpty() )
+      { 
+        command = QString("expAttach -x %1 %2\n").arg(expID).arg(pidStr);
+      } else
+      {
+        return 0;
+//      command = QString("expCreate fpe\n");
+      }
+      bool mark_value_for_delete = true;
+      int64_t val = 0;
+ 
+      steps = 0;
+ 	 pd = new GenericProgressDialog(this, "Loading process...", TRUE);
+      loadTimer = new QTimer( this, "progressTimer" );
+      connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
+      loadTimer->start( 0 );
+      pd->show();
+      statusLabelText->setText( tr(QString("Loading ...  "))+mw->executableName);
+ 
+      runnableFLAG = FALSE;
+      pco->runButton->setEnabled(FALSE);
+      pco->runButton->enabledFLAG = FALSE;
+  
+      CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+      if( !cli->runSynchronousCLI((char *)command.ascii() ) )
+      {
+        QMessageBox::information( this, "No collector found:", QString("Unable to issue command:\n  ")+command, QMessageBox::Ok );
+        return 1;
+      }
+ 
+      statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the \"Run\" button to begin the experiment.")) );
+      loadTimer->stop();
+      pd->hide();
+ 
+      if( !executableNameStr.isEmpty() || !pidStr.isEmpty() )
+      {
+        runnableFLAG = TRUE;
+        pco->runButton->setEnabled(TRUE);
+        pco->runButton->enabledFLAG = TRUE;
+      }
+  
+      updateInitialStatus();
+
 
       if( lao->paramList ) // Really not a list yet, just one param.
-      {
-        unsigned int sampling_rate = lao->paramList.toUInt();
-        // Set the sample_rate of the collector.
-        try
-        {
-          ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-          if( eo && eo->FW() )
-          {
+       {
+         unsigned int sampling_rate = lao->paramList.toUInt();
+         // Set the sample_rate of the collector.
+         try
+         {
+           ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+           if( eo && eo->FW() )
+           {
             experiment = eo->FW();
           }
           ThreadGroup tgrp = experiment->getThreads();
@@ -631,11 +690,8 @@ CLIInterface::interrupt = true;
         {
           return 0;
         }
-      }
-
-      updateInitialStatus();
- 
-      ret_val = 1;
+       }
+       ret_val = 1;
     }
   }
 

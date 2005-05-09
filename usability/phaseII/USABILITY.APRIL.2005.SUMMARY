@@ -119,6 +119,9 @@ FIXED:
 12- When bringing up a "fresh" experiment, put a "dialog" inito
     the blank panel container that will help the user Load a 
     process/program/"collector".
+PARTIAL FIX: We now put a wizard in all 'blank' experiments, except
+the Custom Experiment Panel.   That panel is one-off and may need
+a separate wizard panel...
 
 13- When loading an "collector" into an experiment, the dialog 
     reads, "Loading Executable"... it should be "Loading Experiment"

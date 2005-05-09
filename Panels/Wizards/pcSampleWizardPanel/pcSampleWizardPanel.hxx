@@ -263,5 +263,7 @@ protected slots:
 
 private:
     QString sampleRate;
+
+    Panel *pcSamplePanel;
 };
 #endif // PCSAMPLEWIZARDPANEL_H

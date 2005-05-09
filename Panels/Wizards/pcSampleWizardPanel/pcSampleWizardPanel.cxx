@@ -564,12 +564,22 @@ pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n, void
 
   sv->viewport()->setBackgroundColor(getBaseWidgetFrame()->backgroundColor() );
 
-  if( (bool)argument == FALSE )
+  if( (bool)argument == 0 )
   {
     // This wizard panel was brought up explicitly.   Don't
     // enable the hook to go back to the IntroWizardPanel.
     vDescriptionPageIntroButton->hide();
     eDescriptionPageIntroButton->hide();
+  }
+
+// This is way ugly and only a temporary hack to get a handle on the 
+// parent pcSamplePanel's hook.    
+// This should only be > 1 when we're calling this wizard from within
+// a pcSamplePanel session to help the user load an executable.
+  pcSamplePanel = NULL;
+  if( (int)argument > 1 )
+  {
+    pcSamplePanel = (Panel *)argument;
   }
 }
 
@@ -1139,8 +1149,12 @@ void pcSampleWizardPanel::vSummaryPageFinishButtonSelected()
 
   getPanelContainer()->hidePanel((Panel *)this);
 
-  QString *argument = new QString("-1");
-  Panel *p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("pc Sampling", getPanelContainer(), (void *)argument);
+  Panel *p = pcSamplePanel;
+  if( !p )
+  {
+    QString *argument = new QString("-1");
+    p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("pc Sampling", getPanelContainer(), (void *)argument);
+  }
 
   if( getPanelContainer()->getMainWindow() )
   { 
@@ -1179,7 +1193,8 @@ pcSampleWizardPanel::languageChange()
   unsigned int sampling_rate = 100;
   try {
     char *temp_name = tmpnam(NULL);
-    static std::string tmpdb = std::string(temp_name);
+//    static std::string tmpdb = std::string(temp_name);
+    std::string tmpdb = std::string(temp_name);
     OpenSpeedShop::Framework::Experiment::create (tmpdb);
     OpenSpeedShop::Framework::Experiment dummy_experiment(tmpdb);
     Collector pcSampleCollector = dummy_experiment.createCollector("pcsamp");
