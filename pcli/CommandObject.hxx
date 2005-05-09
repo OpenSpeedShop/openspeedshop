@@ -45,8 +45,8 @@ class CommandResult {
     return Result_Type;
   }
 
-  virtual void Value (char **C) {
-    *C = NULL;
+  virtual void Value (char *&C) {
+    C = NULL;
   }
   virtual void Print (FILE *TFile, int64_t fieldsize=20, bool leftjustified=false) {
     //fprintf(TFile,"              (none)");
@@ -63,13 +63,20 @@ class CommandResult_Uint : public CommandResult {
   uint64_t uint_value;
 
  public:
+  CommandResult_Uint () : CommandResult(CMD_RESULT_UINT) {
+    uint_value = 0;
+  }
   CommandResult_Uint (uint64_t U) : CommandResult(CMD_RESULT_UINT) {
     uint_value = U;
   }
 
+  static void Accumulate_Uint (CommandResult_Uint *A, CommandResult_Uint *B) {
+    A->uint_value += B->uint_value;
+  }
 
-  virtual void Value (uint64_t *U) {
-    *U = uint_value;
+
+  virtual void Value (uint64_t &U) {
+    U = uint_value;
   };
   virtual void Print (FILE *TFile, int64_t fieldsize, bool leftjustified) {
     // fprintf(TFile,"%20llu\n",uint_value);
@@ -86,13 +93,25 @@ class CommandResult_Int : public CommandResult {
   int64_t int_value;
 
  public:
+  CommandResult_Int () : CommandResult(CMD_RESULT_INT) {
+    int_value = 0;
+  }
+  CommandResult_Int (CommandResult_Uint *U) : CommandResult(CMD_RESULT_INT) {
+    uint64_t Uvalue;
+    U->Value(Uvalue);
+    int_value = Uvalue;
+  }
   CommandResult_Int (int64_t I) : CommandResult(CMD_RESULT_INT) {
     int_value = I;
   }
 
+  static void Accumulate_Int (CommandResult_Int *A, CommandResult_Int *B) {
+    A->int_value += B->int_value;
+  }
 
-  virtual void Value (int64_t *I) {
-    *I = int_value;
+
+  virtual void Value (int64_t &I) {
+    I = int_value;
   };
   virtual void Print (FILE *TFile, int64_t fieldsize, bool leftjustified) {
     // fprintf(TFile,"%20lld\n",int_value);
@@ -109,13 +128,30 @@ class CommandResult_Float : public CommandResult {
   double float_value;
 
  public:
+  CommandResult_Float () : CommandResult(CMD_RESULT_FLOAT) {
+    float_value = 0.0;
+  }
+  CommandResult_Float (CommandResult_Uint *U) : CommandResult(CMD_RESULT_FLOAT) {
+    uint64_t Uvalue;
+    U->Value(Uvalue);
+    float_value = Uvalue;
+  }
+  CommandResult_Float (CommandResult_Int *I) : CommandResult(CMD_RESULT_FLOAT) {
+    int64_t Ivalue;
+    I->Value(Ivalue);
+    float_value = Ivalue;
+  }
   CommandResult_Float (double f) : CommandResult(CMD_RESULT_FLOAT) {
     float_value = f;
   }
 
+  static void Accumulate_Float (CommandResult_Float *A, CommandResult_Float *B) {
+    A->float_value += B->float_value;
+  }
 
-  virtual void Value (double *F) {
-    *F = float_value;
+
+  virtual void Value (double &F) {
+    F = float_value;
   };
   virtual void Print (FILE *TFile, int64_t fieldsize, bool leftjustified) {
     // fprintf(TFile,"%20f",float_value);
@@ -139,8 +175,8 @@ class CommandResult_String : public CommandResult {
     string_value = std::string(S);
   }
 
-  virtual void Value (std::string *S) {
-    *S = string_value;
+  virtual void Value (std::string S) {
+    S = string_value;
   }
   virtual void Print (FILE *TFile, int64_t fieldsize, bool leftjustified) {
     // fprintf(TFile,"%s",string_value.c_str());
@@ -161,8 +197,8 @@ class CommandResult_Title : public CommandResult {
     string_value = S;
   }
 
-  virtual void Value (std::string *S) {
-    *S = string_value;
+  virtual void Value (std::string S) {
+    S = string_value;
   }
   virtual void Print (FILE *TFile, int64_t fieldsize, bool leftjustified) {
     fprintf(TFile,"%s/n",string_value.c_str());
@@ -183,8 +219,8 @@ class CommandResult_Headers : public CommandResult {
     Headers.push_back(R);
   }
 
-  virtual void Value (int64_t *C) {
-    *C = number_of_columns;
+  virtual void Value (int64_t &C) {
+    C = number_of_columns;
   }
   virtual void Print (FILE *TFile, int64_t fieldsize=20, bool leftjustified=false) {
     
@@ -213,8 +249,8 @@ class CommandResult_Enders : public CommandResult {
     Enders.push_back(R);
   }
 
-  virtual void Value (int64_t *C) {
-    *C = number_of_columns;
+  virtual void Value (int64_t &C) {
+    C = number_of_columns;
   }
   virtual void Print (FILE *TFile, int64_t fieldsize=20, bool leftjustified=false) {
     
@@ -243,8 +279,8 @@ class CommandResult_Columns : public CommandResult {
     Columns.push_back(R);
   }
 
-  virtual void Value (CommandResult *R) {
-    *R = *this;
+  virtual void Value (CommandResult &R) {
+    R = *this;
   }
   virtual void Print (FILE *TFile, int64_t fieldsize=20, bool leftjustified=false) {
     
@@ -258,6 +294,60 @@ class CommandResult_Columns : public CommandResult {
 
   }
 };
+
+inline void Accumulate_CommandResult (CommandResult *A, CommandResult *B) {
+  if (!A || !B) return;
+  switch (A->Type()) {
+  case CMD_RESULT_UINT:
+    CommandResult_Uint::Accumulate_Uint ((CommandResult_Uint *)A, (CommandResult_Uint *)B);
+    break;
+  case CMD_RESULT_INT:
+    CommandResult_Int::Accumulate_Int ((CommandResult_Int *)A, (CommandResult_Int *)B);
+    break;
+  case CMD_RESULT_FLOAT:
+    CommandResult_Float::Accumulate_Float ((CommandResult_Float *)A, (CommandResult_Float *)B);
+    break;
+  }
+}
+
+inline CommandResult *Calculate_Percent (CommandResult *A, CommandResult *B) {
+  double Avalue;
+  double Bvalue;
+
+  switch (A->Type()) {
+   case CMD_RESULT_UINT:
+    uint64_t Uvalue;
+    ((CommandResult_Uint *)A)->Value(Uvalue);
+    Avalue = Uvalue;
+    break;
+   case CMD_RESULT_INT:
+    int64_t Ivalue;
+    ((CommandResult_Int *)A)->Value(Ivalue);
+    Avalue = Ivalue;
+    break;
+   case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)A)->Value(Avalue);
+    break;
+  }
+  switch (B->Type()) {
+   case CMD_RESULT_UINT:
+    uint64_t Uvalue;
+    ((CommandResult_Uint *)B)->Value(Uvalue);
+    Bvalue = Uvalue;
+    break;
+   case CMD_RESULT_INT:
+    int64_t Ivalue;
+    ((CommandResult_Int *)B)->Value(Ivalue);
+    Bvalue = Ivalue;
+    break;
+   case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)B)->Value(Bvalue);
+    break;
+  }
+
+  return new CommandResult_Float ((Avalue *100) / Bvalue );
+}
+    
 
 enum Command_Status
 {
