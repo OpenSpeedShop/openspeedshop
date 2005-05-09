@@ -78,7 +78,8 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     cmd = new CommandObject (&parse_result);
 
     // See if the parse went alright.
-    if (p_parse_result->syntax_error()) {
+    if ((p_parse_result->syntax_error()) ||
+        (p_parse_result->GetCommandType() == CMD_HEAD_ERROR)) {
         cmd->Result_String ("Parsing failed");
         cmd->set_Status(CMD_ERROR);
 
@@ -121,7 +122,7 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
           {
             int64_t I = 0;
 
-            ((CommandResult_Int *)(*cri))->Value(&I);
+            ((CommandResult_Int *)(*cri))->Value(I);
             p_object = Py_BuildValue("l", I);
 
 	    if (list_returned) {
@@ -138,7 +139,7 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
           {
             std::string C;
 
-            ((CommandResult_String *)(*cri))->Value(&C);
+            ((CommandResult_String *)(*cri))->Value(C);
     	      p_object = Py_BuildValue("s",C.c_str());
 
 	    if (list_returned) {
