@@ -24,7 +24,6 @@ pcStatsPanel_la_CXXFLAGS = \
     -I. \
     -I$(top_srcdir)/objects \
     -I$(top_srcdir)/libopenss-framework \
-    -I$(top_srcdir)/Panels/StatsPanel \
     -I$(top_srcdir)/pcli \
     -I$(top_srcdir)/gui \
     -I$(top_srcdir)/expr_info \
@@ -33,13 +32,22 @@ pcStatsPanel_la_CXXFLAGS = \
 
 pcStatsPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
-pcStatsPanel_la_LIBADD = -L$(QTDIR)/lib -lqt -L../../libopenss-framework -lopenss-framework -L../StatsPanel -lopenss-StatsPanel
+pcStatsPanel_la_LIBADD = -L$(QTDIR)/lib -lqt -L../../libopenss-framework -lopenss-framework -L../StatsPanel
 
 moc_pcStatsPanel.cxx: pcStatsPanel.hxx
 	-moc -o moc_pcStatsPanel.cxx pcStatsPanel.hxx
 
+moc_StatsPanelBase.cxx: StatsPanelBase.hxx
+	-moc -o moc_StatsPanelBase.cxx StatsPanelBase.hxx
+
+moc_SPListView.cxx: SPListView.hxx
+	-moc -o moc_SPListView.cxx SPListView.hxx
+
 pcStatsPanel_la_SOURCES = \
 	pcStatsPanel.hxx pcStatsPanel.cxx moc_pcStatsPanel.cxx \
+	StatsPanelBase.hxx StatsPanelBase.cxx moc_StatsPanelBase.cxx \
+	SPListViewItem.hxx SPListViewItem.cxx \
+	SPListView.hxx SPListView.cxx moc_SPListView.cxx \
 	local_plugin_info.hxx preference_plugin_info.hxx
 
-CLEANFILES=moc_pcStatsPanel.cxx
+CLEANFILES=moc_pcStatsPanel.cxx moc_SPListView.cxx moc_StatsPanel.cxx

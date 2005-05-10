@@ -17,10 +17,10 @@
 ################################################################################
 
 # directories that will be built
-SUBDIRS = SourcePanel CmdPanel TopPanel StatsPanel pcStatsPanel pcSamplePanel UserTimePanel HW_CounterPanel IOPanel FPE_TracingPanel MPIPanel CustomExperimentPanel Wizards DebugPanel
+SUBDIRS = SourcePanel CmdPanel TopPanel pcStatsPanel pcSamplePanel UserTimePanel HW_CounterPanel IOPanel FPE_TracingPanel MPIPanel CustomExperimentPanel Wizards DebugPanel
 # directories that will be packaged into tar.gz.
 # these can be a subset of the directories in SUBDIRS.
 # i.e. We may not want to include all the SUBDIRS in the tar.gz.
 # for example, a Panel may be experimental or in development and
 # is not to be delivered in the openss release.
-DIST_SUBDIRS = SourcePanel CmdPanel TopPanel StatsPanel pcStatsPanel pcSamplePanel UserTimePanel HW_CounterPanel IOPanel FPE_TracingPanel MPIPanel CustomExperimentPanel Wizards DebugPanel
+DIST_SUBDIRS = SourcePanel CmdPanel TopPanel pcStatsPanel pcSamplePanel UserTimePanel HW_CounterPanel IOPanel FPE_TracingPanel MPIPanel CustomExperimentPanel Wizards DebugPanel
