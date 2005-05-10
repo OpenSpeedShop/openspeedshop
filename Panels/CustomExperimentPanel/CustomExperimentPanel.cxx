@@ -298,9 +298,9 @@ CustomExperimentPanel::menu(QPopupMenu* contextMenu)
 
   contextMenu->insertSeparator();
 
-  QAction *qaction = new QAction( this,  "pcStatsPanel");
+  QAction *qaction = new QAction( this,  "StatsPanel");
   qaction->addTo( contextMenu );
-  qaction->setText( "pc Stats Panel..." );
+  qaction->setText( "Stats Panel..." );
   connect( qaction, SIGNAL( activated() ), this, SLOT( loadStatsPanel() ) );
   qaction->setStatusTip( tr("Bring up the data statistics for the experiment.") );
 
@@ -723,20 +723,20 @@ CustomExperimentPanel::loadStatsPanel()
 {
   nprintf( DEBUG_PANELS ) ("load the stats panel.\n");
 
-  QString name = QString("pc Stats Panel [%1]").arg(expID);
+  QString name = QString("Stats Panel [%1]").arg(expID);
 
 
   Panel *statsPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
 
   if( statsPanel )
   { 
-    nprintf( DEBUG_PANELS ) ("loadStatsPanel() found pc Stats Panel found.. raise it.\n");
+    nprintf( DEBUG_PANELS ) ("loadStatsPanel() found Stats Panel found.. raise it.\n");
     getPanelContainer()->raisePanel(statsPanel);
   } else
   {
-    nprintf( DEBUG_PANELS ) ("loadStatsPanel() no pc Stats Panel found.. create one.\n");
+    nprintf( DEBUG_PANELS ) ("loadStatsPanel() no Stats Panel found.. create one.\n");
     PanelContainer *pc = topPC->findBestFitPanelContainer(topPC);
-    statsPanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("pc Stats Panel", pc, (void *)expID);
+    statsPanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Stats Panel", pc, (void *)expID);
   }
 
   if( statsPanel )
