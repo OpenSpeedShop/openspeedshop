@@ -39,7 +39,7 @@ usertime_rt_la_LDFLAGS = \
 	-no-undefined -module -avoid-version
 
 usertime_rt_la_LIBADD = \
-	-lopenss-framework-runtime -lpthread -lrt
+	-lopenss-framework-runtime -lpthread -lrt -lunwind
 
 usertime_rt_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
