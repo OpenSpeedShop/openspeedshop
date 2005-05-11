@@ -85,7 +85,7 @@ def CompareResults(testName, fileptr):
 		while outputfileline[i] == ' ':
 			i = i+1
 		j = i
-		while outputfileline[j] != '\n':
+		while (outputfileline[j] != '\n') and (outputfileline[j] != ' '):
 			j = j+1
 		actual_function = outputfileline[i:j]
 		i = 0
@@ -99,9 +99,11 @@ def CompareResults(testName, fileptr):
                 while expectedfileline[i] == ' ':
                         i = i+1
                 j = i
-                while expectedfileline[j] != '\n':
+                while (expectedfileline[j] != '\n') and (expectedfileline[j] != ' '):
                         j = j+1
                 expected_function = expectedfileline[i:j]
+		print expected_function + 'expected'
+		print actual_function + 'actual'
 		if (expected_function == actual_function):
 			if (previous_expected != 0 ):
 				actual_ratio = previous_actual / actual_time
