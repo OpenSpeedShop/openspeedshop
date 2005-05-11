@@ -153,6 +153,9 @@ class OpenSpeedshop : public QMainWindow
 #ifdef SAVESESSION // move back to 'public slots: when needed.
     virtual void fileSaveSession();
 #endif // SAVESESSION
+
+    QVBoxLayout* OpenSpeedshopLayout;
+    PanelContainerList topLevelPanelContainersToHideList;
   public slots:
     virtual void fileOpenExperiment();
     virtual void fileOpenSavedExperiment();
@@ -170,10 +173,6 @@ class OpenSpeedshop : public QMainWindow
     virtual void myQuit();
     void progressUpdate();
     void raiseTheGUI();
-    PanelContainerList topLevelPanelContainersToHideList;
-protected:
-    //! A vertical box to place the child widgets.
-    QVBoxLayout* OpenSpeedshopLayout;
 
 protected slots:
     //! Change the language by calling tr().
