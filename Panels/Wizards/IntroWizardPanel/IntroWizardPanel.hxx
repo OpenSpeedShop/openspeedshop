@@ -110,7 +110,7 @@ public:
     QRadioButton* vpage1HardwareCounterRB;
     QRadioButton* vpage1FloatingPointRB;
     QRadioButton* vpage1InputOutputRB;
-QRadioButton* vpage1MPIRB;
+    QRadioButton* vpage1MPIRB;
     QPushButton* vpage1NextButton;
 
     QWidget* eWStackPage;
@@ -123,7 +123,7 @@ QRadioButton* vpage1MPIRB;
     QRadioButton* epage1HardwareCounterRB;
     QRadioButton* epage1FloatingPointRB;
     QRadioButton* epage1InputOutputRB;
-QRadioButton* epage1MPIRB;
+    QRadioButton* epage1MPIRB;
     QPushButton* epage1NextButton;
 
     QCheckBox* wizardMode;
@@ -131,27 +131,6 @@ QRadioButton* epage1MPIRB;
 
     void vSetStateChanged(QRadioButton *rb);
     void eSetStateChanged(QRadioButton *rb);
-
-public slots:
-    virtual void wizardModeSelected();
-    virtual void epage1NextButtonSelected();
-    virtual void vpage1NextButtonSelected();
-    void vpage1pcSampleRBChanged();
-    void vpage1UserTimeRBChanged();
-    void vpage1HardwareCounterRBChanged();
-    void vpage1FloatingPointRBChanged();
-    void vpage1InputOutputRBChanged();
-void vpage1MPIRBChanged();
-
-    void epage1pcSampleRBChanged();
-    void epage1UserTimeRBChanged();
-    void epage1HardwareCounterRBChanged();
-    void epage1FloatingPointRBChanged();
-    void epage1InputOutputRBChanged();
-void epage1MPIRBChanged();
-
-    void handleSizeEvent( QResizeEvent *e );
-    QScrollView *sv;
 
 protected:
     QVBoxLayout* IntroWizardFormLayout;
@@ -169,7 +148,7 @@ protected:
     QHBoxLayout* vFloatingPointRBLayout;
     QSpacerItem* spacer7_3;
     QHBoxLayout* vInputOutputRBLayout;
-QHBoxLayout* vMPIRBLayout;
+    QHBoxLayout* vMPIRBLayout;
     QSpacerItem* spacer7_4;
     QHBoxLayout* layout18;
     QSpacerItem* spacer7_5;
@@ -188,7 +167,7 @@ QHBoxLayout* vMPIRBLayout;
     QHBoxLayout* eFloatingPointRBLayout;
     QSpacerItem* spacer7_3_2;
     QHBoxLayout* eInputOutputRBLayout;
-QHBoxLayout* eMPIRBLayout;
+    QHBoxLayout* eMPIRBLayout;
     QSpacerItem* spacer7_4_2;
     QHBoxLayout* layout18_2;
     QSpacerItem* spacer7_5_2;
@@ -196,9 +175,28 @@ QHBoxLayout* eMPIRBLayout;
     QSpacerItem* spacer37;
     QHBoxLayout* wizardModeLayout;
     QSpacerItem* spacer1;
+    QScrollView *sv;
 
-protected slots:
-    virtual void languageChange();
+    void languageChange();
 
+public slots:
+    virtual void wizardModeSelected();
+    virtual void epage1NextButtonSelected();
+    virtual void vpage1NextButtonSelected();
+    void vpage1pcSampleRBChanged();
+    void vpage1UserTimeRBChanged();
+    void vpage1HardwareCounterRBChanged();
+    void vpage1FloatingPointRBChanged();
+    void vpage1InputOutputRBChanged();
+    void vpage1MPIRBChanged();
+
+    void epage1pcSampleRBChanged();
+    void epage1UserTimeRBChanged();
+    void epage1HardwareCounterRBChanged();
+    void epage1FloatingPointRBChanged();
+    void epage1InputOutputRBChanged();
+    void epage1MPIRBChanged();
+
+    void handleSizeEvent( QResizeEvent *e );
 };
 #endif // INTROWIZARDPANEL_H

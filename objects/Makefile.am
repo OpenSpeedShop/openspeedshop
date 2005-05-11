@@ -36,9 +36,6 @@ libopenss_Objects_la_LDFLAGS = \
 
 libopenss_Objects_la_LIBADD = $(LIBLTDL)
 
-moc_AnimatedQPushButton.cxx: AnimatedQPushButton.hxx
-	-moc -o moc_AnimatedQPushButton.cxx AnimatedQPushButton.hxx
-
 moc_ProcessControlObject.cxx: ProcessControlObject.hxx
 	-moc -o moc_ProcessControlObject.cxx ProcessControlObject.hxx
 
@@ -67,7 +64,6 @@ libopenss_Objects_la_SOURCES = \
 	CollectorMetricEntryClass.hxx
 
 nodist_libopenss_Objects_la_SOURCES = \
-	moc_AnimatedQPushButton.cxx \
 	moc_ProcessControlObject.cxx \
 	moc_InfoEventFilter.cxx
 

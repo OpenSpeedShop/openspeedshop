@@ -40,14 +40,11 @@ moc_StatsPanel.cxx: StatsPanel.hxx
 moc_StatsPanelBase.cxx: StatsPanelBase.hxx
 	-moc -o moc_StatsPanelBase.cxx StatsPanelBase.hxx
 
-moc_SPListView.cxx: SPListView.hxx
-	-moc -o moc_SPListView.cxx SPListView.hxx
-
 StatsPanel_la_SOURCES = \
 	StatsPanel.hxx StatsPanel.cxx moc_StatsPanel.cxx \
 	StatsPanelBase.hxx StatsPanelBase.cxx moc_StatsPanelBase.cxx \
 	SPListViewItem.hxx SPListViewItem.cxx \
-	SPListView.hxx SPListView.cxx moc_SPListView.cxx \
+	SPListView.hxx SPListView.cxx \
 	local_plugin_info.hxx preference_plugin_info.hxx
 
-CLEANFILES=moc_StatsPanel.cxx moc_SPListView.cxx moc_StatsPanel.cxx moc_StatsPanelBase.cxx
+CLEANFILES=moc_StatsPanel.cxx moc_StatsPanel.cxx moc_StatsPanelBase.cxx
