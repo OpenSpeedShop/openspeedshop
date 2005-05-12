@@ -175,7 +175,7 @@ class CommandResult_String : public CommandResult {
     string_value = std::string(S);
   }
 
-  virtual void Value (std::string S) {
+  virtual void Value (std::string &S) {
     S = string_value;
   }
   virtual void Print (FILE *TFile, int64_t fieldsize, bool leftjustified) {
@@ -197,7 +197,7 @@ class CommandResult_Title : public CommandResult {
     string_value = S;
   }
 
-  virtual void Value (std::string S) {
+  virtual void Value (std::string &S) {
     S = string_value;
   }
   virtual void Print (FILE *TFile, int64_t fieldsize, bool leftjustified) {
@@ -377,7 +377,7 @@ class CommandObject
     Link_Cmd_Obj_to_Input (Associated_Clip, this);
   }
 
-  void Add_Result (CommandResult *R) {
+  void Attach_Result (CommandResult *R) {
     CMD_Result.push_back(R);
   }
 
@@ -418,22 +418,22 @@ public:
   void set_Results_Used () { results_used = true; }
 
   void Result_Uint (uint64_t U) {
-    Add_Result (new CommandResult_Uint(U));
+    Attach_Result (new CommandResult_Uint(U));
   }
   void Result_Int (int64_t I) {
-    Add_Result (new CommandResult_Int(I));
+    Attach_Result (new CommandResult_Int(I));
   }
   void Result_Float (double F) {
-    Add_Result (new CommandResult_Float(F));
+    Attach_Result (new CommandResult_Float(F));
   }
   void Result_String (std::string S) {
-    Add_Result (new CommandResult_String (S));
+    Attach_Result (new CommandResult_String (S));
   }
   void Result_String (char *C) {
-    Add_Result (new CommandResult_String (C));
+    Attach_Result (new CommandResult_String (C));
   }
   void Result_Predefined (CommandResult *C) {
-    Add_Result (C);
+    Attach_Result (C);
   }
 
   std::list<CommandResult *> Result_List () {
