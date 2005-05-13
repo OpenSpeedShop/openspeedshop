@@ -105,7 +105,7 @@ extern QEventLoop *qeventloop;
 
 #include "PluginInfo.hxx"
 
-#include "menu_arrow.xpm"
+#include "menu.xpm"
 
 #include "hsplit.xpm"
 #include "vsplit.xpm"
@@ -3348,9 +3348,11 @@ PanelContainer::augmentTab( QWidget *targetWidget, Panel *p, QIconSet *iconset )
     tabWidget->setTabIconSet( cp, *iconset );
   } else
   {
-    QPixmap *apm = new QPixmap( menu_arrow );
+    QPixmap *apm = new QPixmap( menu_xpm );
+//  QPixmap *apm = new QPixmap( QImage( "../gui/images/editcut" ) );
     apm->setMask( apm->createHeuristicMask());
     nprintf(DEBUG_PANELCONTAINERS) ("D: create the pulldown widget.\n");
     tabWidget->setTabIconSet( cp, QIconSet( *apm ));
+//    tabWidget->setTabIconSet( cp, QIconSet( QPixmap::fromMimeSource( "hsplit" ) ) );
   }
 }

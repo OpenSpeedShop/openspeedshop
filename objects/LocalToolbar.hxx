@@ -17,20 +17,29 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-static const char *drag_xpm[]={
-"12 12 2 1", 
-"# c #000000",
-". c #ffffff",
-"..###.......",
-".#...#......",
-"#.....######",
-"#..........#",
-"#..........#",
-"#..........#",
-"#..........#",
-"#..........#",
-"#..........#",
-"#..........#",
-"#..........#",
-"############"
+#ifndef LOCALTOOLBAR_H
+#define LOCALTOOLBAR_H
+
+#include <qvaluelist.h>
+#include <qiconset.h>
+#include <qwidget.h>
+#include "AnimatedQPushButton.hxx"
+
+typedef QValueList<QPixmap *>ImageList;
+
+class LocalToolbar : public QWidget
+{
+  public:
+    LocalToolbar(QWidget *, const char *, bool f=TRUE);
+
+    ~LocalToolbar();
+
+    AnimatedQPushButton *addButton(QPixmap *);
+
+    bool enabledFLAG;
+  public slots:
+
+  private:
+    QHBoxLayout *layout;
 };
+#endif // LOCALTOOLBAR_H

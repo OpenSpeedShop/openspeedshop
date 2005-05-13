@@ -58,6 +58,7 @@ libopenss_Objects_la_SOURCES = \
 	CollectorListObject.hxx CollectorListObject.cxx \
 	OutputObject.hxx OutputObject.cxx \
 	AnimatedQPushButton.hxx AnimatedQPushButton.cxx \
+	LocalToolbar.hxx LocalToolbar.cxx \
 	InfoEventFilter.hxx InfoEventFilter.cxx \
 	ProcessControlObject.hxx ProcessControlObject.cxx \
 	CollectorParameterEntryClass.hxx \

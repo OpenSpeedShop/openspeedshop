@@ -23,8 +23,9 @@
 #include <qwidget.h>
 #include <qtabwidget.h>
 
-class AnimatedQPushButton;
+class LocalToolbar;
 class PanelContainer;
+class AnimatedQPushButton;
 
 //! This overloads QTabWidget so the tabbar can accept mouse down events.
 class TabWidget : public QTabWidget
@@ -46,15 +47,23 @@ class TabWidget : public QTabWidget
     //! Gets the tabbar.
     QTabBar *tabBar();
 
+    AnimatedQPushButton *splitHorizontalButton;
+    AnimatedQPushButton *splitVerticalButton;
+    AnimatedQPushButton *menuButton;
+    AnimatedQPushButton *deleteButton;
+
   protected slots:
     //! The standard Qt slot to change language information.
     virtual void languageChange();
 
   private slots:
     void deletePanelButtonSelected();
+    void splitHorizontal();
+    void splitVertical();
+    void panelContainerMenu();
 
   private:
-    AnimatedQPushButton *cw;
+    LocalToolbar *cw;
 
     PanelContainer *_panelContainer;
 

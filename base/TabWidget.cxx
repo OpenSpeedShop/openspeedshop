@@ -26,10 +26,16 @@
 #include <qtooltip.h>
 #include <qbitmap.h>
 #include <qpixmap.h>
+#include <qimage.h>
 #include "x.xpm"
+#include "hsplit.xpm"
+#include "vsplit.xpm"
+#include "menu.xpm"
 
-#include "AnimatedQPushButton.hxx"
 #include "PanelContainer.hxx"
+#include "LocalToolbar.hxx"
+
+#include <qtextedit.h>
 
 
 #include "debug.hxx"  // This includes the definition of nprintf(DEBUG_PANELCONTAINERS) 
@@ -51,23 +57,37 @@ TabWidget::TabWidget( PanelContainer *pc, QWidget *parent, const char *n )
 
   _panelContainer = pc;
 
-  cw = new AnimatedQPushButton(this, "corner widget");
-  QPixmap *pm = new QPixmap( x_xpm );
+  QPixmap *pm = NULL;
+
+  cw = new LocalToolbar(this, "local toolbar");
+
+  pm = new QPixmap( menu_xpm );
   pm->setMask(pm->createHeuristicMask());
-  cw->setPixmap( *pm );
-  cw->push_back( pm );
+  menuButton = cw->addButton(pm);
+  connect( menuButton, SIGNAL( pressed() ), this, SLOT( panelContainerMenu() ) );
+  QToolTip::add( menuButton, tr( "Bring up a local menu of options." ) );
 
-  cw->setFlat(TRUE);
-  cw->setEnabled(TRUE);
-  QToolTip::add( cw, tr( "Remove the current tab (Panel)." ) );
 
-cw->resize(16,16);
+  pm = new QPixmap( hsplit_xpm );
+  pm->setMask(pm->createHeuristicMask());
+  splitHorizontalButton = cw->addButton(pm);
+  connect( splitHorizontalButton, SIGNAL( clicked() ), this, SLOT( splitHorizontal() ) );
+  QToolTip::add( splitHorizontalButton, tr( "Split this container horizontally." ) );
+
+  pm = new QPixmap( vsplit_xpm );
+  pm->setMask(pm->createHeuristicMask());
+  splitVerticalButton = cw->addButton(pm);
+  connect( splitVerticalButton, SIGNAL( clicked() ), this, SLOT( splitVertical() ) );
+  QToolTip::add( splitVerticalButton, tr( "Split this container vertically." ) );
+
+  pm = new QPixmap( x_xpm );
+  pm->setMask(pm->createHeuristicMask());
+  deleteButton = cw->addButton(pm);
+  connect( deleteButton, SIGNAL( clicked() ), this, SLOT( deletePanelButtonSelected() ) );
+  QToolTip::add( deleteButton, tr( "Remove the current tab (Panel)." ) );
 
   setCornerWidget( cw );
-
   cw->show();
-
-  connect( cw, SIGNAL( clicked() ), this, SLOT( deletePanelButtonSelected() ) );
 
   languageChange();
 }
@@ -109,4 +129,27 @@ void
 TabWidget::deletePanelButtonSelected()
 {
   _panelContainer->getMasterPC()->removeRaisedPanel( _panelContainer );
+
+  deleteButton->setDown(FALSE);
+}
+
+void
+TabWidget::splitHorizontal()
+{
+  _panelContainer->splitHorizontal();
+  splitHorizontalButton->setDown(FALSE);
+}
+
+void
+TabWidget::splitVertical()
+{
+  _panelContainer->splitVertical();
+  splitVerticalButton->setDown(FALSE);
+}
+
+void
+TabWidget::panelContainerMenu()
+{
+  _panelContainer->getMasterPC()->panelContainerContextMenuEvent( _panelContainer, TRUE );
+  menuButton->setDown(FALSE);
 }
