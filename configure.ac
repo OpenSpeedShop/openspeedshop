@@ -123,6 +123,7 @@ AC_PKG_PYTHON()
 ################################################################################
 
 AC_CONFIG_FILES(Makefile
+    	    	message/Makefile
 		libopenss-framework/Makefile
 		libopenss-framework/dpcl/Makefile
 		libopenss-framework/dyninst/Makefile
