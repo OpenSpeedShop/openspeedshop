@@ -28,6 +28,7 @@ DIST_TEST_SUBDIRS = tests/fw/database/* \
 
 SUBDIRS = . \
 	libltdl \
+	message \
 	libopenss-framework \
 	plugins \
 	openss \
