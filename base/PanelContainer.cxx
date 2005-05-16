@@ -68,6 +68,8 @@
 #include <qdragobject.h>
 
 #include "ClosingDownObject.hxx"
+#include "LocalToolbar.hxx"
+#include <qpushbutton.h>
 
 #include <qcolor.h>
 #include <qvariant.h>
@@ -106,17 +108,9 @@ extern QEventLoop *qeventloop;
 #include "PluginInfo.hxx"
 
 #include "menu.xpm"
-
 #include "hsplit.xpm"
 #include "vsplit.xpm"
 #include "x.xpm"
-
-/*! It should never be called and is only here for completeness.
- */
-PanelContainer::PanelContainer( )
-{
-  nprintf(DEBUG_CONST_DESTRUCT) ("PanelContainer::PanelContainer() unused constructor called.\n");
-}
 
 /*! PanelContainer(QWidget *parent, const char *name,
                        PanelContainer *parentPanelContainer,
@@ -234,12 +228,39 @@ PanelContainer::PanelContainer( QWidget* _parent, const char* n, PanelContainer 
   leftFrame->setDragEnabled(TRUE);
   leftFrame->setDropEnabled(TRUE);
 
+{
+  QPixmap *pm = NULL;
+  ltb = new LocalToolbar(leftFrame, "pc pushbutton");
+  ltb->show();
+
+  pm = new QPixmap( hsplit_xpm );
+  pm->setMask(pm->createHeuristicMask());
+  AnimatedQPushButton *splitHorizontalButton = ltb->addButton(pm);
+  connect( splitHorizontalButton, SIGNAL( clicked() ), this, SLOT( splitHorizontal() ) );
+  QToolTip::add( splitHorizontalButton, tr( "Split this container horizontally." ) );
+
+  pm = new QPixmap( vsplit_xpm );
+  pm->setMask(pm->createHeuristicMask());
+  AnimatedQPushButton *splitVerticalButton = ltb->addButton(pm);
+  connect( splitVerticalButton, SIGNAL( clicked() ), this, SLOT( splitVertical() ) );
+  QToolTip::add( splitVerticalButton, tr( "Split this container vertically." ) );
+
+  pm = new QPixmap( x_xpm );
+  pm->setMask(pm->createHeuristicMask());
+  deleteButton = ltb->addButton(pm);
+  connect( deleteButton, SIGNAL( clicked() ), this, SLOT( setThenRemoveLastPanelContainer() ) );
+  QToolTip::add( deleteButton, tr( "Remove the current tab (Panel)." ) );
+
+  ltb->resize(18*3,16);
+}
+
   // This is only used to hold panels... not PanelContainers.
   dropSiteLayoutParent = new QWidget( leftFrame, "dropSiteLayoutParent" );
   if( debug(DEBUG_FRAMES) ) dropSiteLayoutParent->setBackgroundColor("blue");
   strcpy(cn,"dropSiteLayoutParent:");strcat(cn, internal_name);strcat(cn,"-");strcat(cn,external_name); dropSiteLayoutParent->setCaption(cn);
 
   dropSiteLayout = new QVBoxLayout( dropSiteLayoutParent, 0, 0, "dropSiteLayout");
+
 
   tabWidget = new TabWidget( this, dropSiteLayoutParent, "tabWidget" );
   if( debug(DEBUG_FRAMES) ) tabWidget->setBackgroundColor("orange");
@@ -273,6 +294,7 @@ PanelContainer::PanelContainer( QWidget* _parent, const char* n, PanelContainer 
   // signals and slots connections
 
   getMasterPC()->_panel_container_count++;
+
 }
 
 /*! Currently those allocated resources are:
@@ -1788,8 +1810,19 @@ PanelContainer::removePanels(PanelContainer *targetPC)
 }
 
 void
+PanelContainer::setThenRemoveLastPanelContainer() 
+{
+//printf("setThenRemoveLastPanelContainer() - %s:%s\n", getInternalName(), getExternalName() );
+  getMasterPC()->_lastPC = this;
+
+  // I'm not sure this is going to work...!!!!   FIX
+  getMasterPC()->removePanelContainer(this);
+}
+
+void
 PanelContainer::removeLastPanelContainer() 
 {
+// printf("removeLastPanelContainer() - %s:%s\n", getInternalName(), getExternalName() );
   removePanelContainer(getMasterPC()->_lastPC);
 }
 
@@ -2346,6 +2379,17 @@ PanelContainer::handleSizeEvent(QResizeEvent *e)
   {
 // nprintf(DEBUG_PANELCONTAINERS) ("p->getName(%s) resize!\n", p->getName() );
     p->handleSizeEvent(e);
+  }
+
+
+  // Now relocate the toolbar to the right side...
+  ltb->move(width-(ltb->width()+5),3);
+
+  // If there's no panel container that can be delete, then remove
+  // the option to delete it...
+  if( topLevel == TRUE )
+  {
+    deleteButton->hide();
   }
 
   return;

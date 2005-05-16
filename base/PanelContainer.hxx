@@ -131,7 +131,7 @@ class PanelContainer : public QWidget
         A outsidePC is parented to the desktop.
      */
     bool outsidePC;
-TopWidget *topWidget;
+    TopWidget *topWidget;
                   
     //! A flag to easily tell if this is a topLevel PanelContainer.
     /*! This is true if the panel is a topLevel PanelContainer.
@@ -139,6 +139,8 @@ TopWidget *topWidget;
         by itself (with optional child panel containers (and panels)).
      */
     bool topLevel;
+
+    LocalToolbar *ltb;
                   
     //! The name of this PanelContainer given by the panel developer.
     char *external_name;
@@ -187,8 +189,8 @@ TopWidget *topWidget;
     //! Find nearest Panel by name.
     Panel *findNamedPanel(PanelContainer *start_pc, char *panel_name);
 
-//! Return a list of all the panels matching the id.
-PanelList *getPanelListByID(int id);
+    //! Return a list of all the panels matching the id.
+    PanelList *getPanelListByID(int id);
 
     //! Find the PanelContainer by external name.
     PanelContainer *findPanelContainerWithNamedPanel(char *panel_container_name);
@@ -208,8 +210,8 @@ PanelList *getPanelListByID(int id);
     //! Raise the panel.
     Panel *raisePanel(Panel *p);
 
-//! Percolate the panel to the top, even if it's buried.
-Panel *raiseToTop(Panel *p);
+    //! Percolate the panel to the top, even if it's buried.
+    Panel *raiseToTop(Panel *p);
 
     //! This is the parent for drop site layout.
     /*! This goes into the PanelContainer's left side */
@@ -291,9 +293,11 @@ Panel *raiseToTop(Panel *p);
     //! This routine drags the current (raised) Panel.
     void dragRaisedPanel();
 
-//! This routine removes a PanelContainer.
-void removeLastPanelContainer();
+    //! This routine removes a PanelContainer.
+    void removeLastPanelContainer();
 
+    //! This routine removes a PanelContainer.
+    void setThenRemoveLastPanelContainer();
 
     //! This routine removes a PanelContainer.
     void removePanelContainer(PanelContainer *pc=NULL);
@@ -307,6 +311,7 @@ void removeLastPanelContainer();
     //! This routine closes the empty PanelContainer and window.
     void closeWindow(PanelContainer *pc=NULL);
 
+  AnimatedQPushButton *deleteButton;
   protected:
 
   private slots:
@@ -348,7 +353,7 @@ void removeLastPanelContainer();
 
     //! A flag enabling menus for this PanelContainer.
     bool menuEnabled;
- 
+
     //! Widget to be reparent on splitting.
     /*! When splitting PanelContainers this pointer is used to point to
         the Panels that need to be reparented to the new PanelContainer.
