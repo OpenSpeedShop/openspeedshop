@@ -44,6 +44,7 @@ static bool executable_encountered;
 static bool collector_encountered;
 static bool read_stdin_file;
 
+extern void pcli_load_messages(void);
 
 static void
 Process_Command_Line (int argc, char **argv)
@@ -305,6 +306,9 @@ setup_signal_handler (int s)
     executable_encountered = false;
     collector_encountered = false;
     Process_Command_Line (argc, argv);
+
+   // Load in pcli messages into message czar
+   pcli_load_messages();
 
    // Define Built-In Views
     SS_Init_BuiltIn_Views ();
