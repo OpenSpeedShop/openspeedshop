@@ -1,0 +1,2560 @@
+/*********************************************/
+// COMMAND ARGUMENTS
+/*********************************************/
+char *cmd_expattach_args = {
+    "expAttach [ <expId_spec> ] [ <target_list> ] [ <expType_list> ]"
+};
+
+
+char *cmd_expClose_args = {
+    " expClose [ focus || <expId_spec> || all ] [ kill ]"
+};
+
+
+char *cmd_expCreate_args = {
+    "<expId> = expCreate [ <target_list> ] [ <expType_list> ]"
+};
+
+
+char *cmd_expDetach_args = {
+    "expDetach [ <expId_spec> ] [ <target_list> ] [ <expType_list> ]"
+};
+
+
+char *cmd_expDisable_args = {
+    "expDisable [ <expId_spec> || all ]"
+};
+
+
+char *cmd_expEnable_args = {
+    "<expId>  = expEnable  [ <expId_spec> || all ]"
+};
+
+
+char *cmd_expFocus_args = {
+    "<expId> = expFocus [ <expId_spec> ]"
+};
+
+
+char *cmd_expGo_args = {
+    "expGo [ <expId_spec> || all ]"
+};
+
+
+char *cmd_expPause_args = {
+    "expPause [ <expId_spec> || all ]"
+};
+
+
+char *cmd_expRestore_args = {
+    "<exp_Id> = expRestore <file_spec>"
+};
+
+
+char *cmd_expSave_args = {
+    "expSave [ <expId_spec> ] [ copy ] <file_spec>"
+};
+
+
+char *cmd_expSetParam_args = {
+    "expSetParam  [ <expId_spec> ] <expParam> = <expParamValue> [ , <expParam> = <expParamValue> ] ... "
+};
+
+
+char *cmd_expView_args = {
+    "expView [ <expId_spec> ] [ -gui ] <viewType>"
+};
+
+
+char *cmd_listBreaks_args = {
+    "<ListOf_breakId> = listBreaks [ <expId_spec> || all ]"
+};
+
+
+char *cmd_listExp_args = {
+    "<ListOf_expId> = listExp"
+};
+
+
+char *cmd_listHosts_args = {
+    "<ListOf_hostname> = listHosts [ <expId_spec> || all || <cluster_spec> ]"
+};
+
+
+char *cmd_listObj_args = {
+    "<ListOf_filename> = listObj [ <expId_spec> ] [ <target> ]"
+};
+
+
+char *cmd_listPids_args = {
+    "<ListOf_pidname> = listPids [ <expId_spec> || all ] [ <host_file> ]"
+};
+
+
+char *cmd_listMetrics_args = {
+    "<ListOf_expMetric> = listMetrics [ <expId_spec> || all || <expType> ]"
+};
+
+
+char *cmd_listParams_args = {
+    "<ListOf_expParam> = listParams [ <expId_spec> || all || <expType> ]"
+};
+
+
+char *cmd_listRanks_args = {
+    "<ListOf_Ranks> = listRanks [ <expId_spec> || all ] [ <target> ]"
+};
+
+
+char *cmd_listSrc_args = {
+    "<string> = listSrc [ <expId_spec> ] [ <target> ] [ <linenumber_spec> ]"
+};
+
+
+char *cmd_listStatus_args = {
+    "<ListOf_statusType> = listStatus [ <expId_spec> || all ]"
+};
+
+
+char *cmd_listThreads_args = {
+    "<ListOf_Threads> = listThreads [ <expId_spec> || all ] [ <target> ]"
+};
+
+
+char *cmd_listTypes_args = {
+    "<ListOf_expType> = listTypes [ <expId_spec> || all ]"
+};
+
+
+char *cmd_listViews_args = {
+    "<ListOf_viewType> = listViews [ <expId_spec> || all || <expType> ]"
+};
+
+
+char *cmd_clearBreak_args = {
+    "clearbreak <breakId>"
+};
+
+
+char *cmd_exit_args = {
+    "exit"
+};
+
+
+char *cmd_help_args = {
+    "<string> = help [ <string> ]"
+};
+
+
+char *cmd_history_args = {
+    "history [ <file_spec> ]"
+};
+
+
+char *cmd_log_args = {
+    "log [ <file_spec> ]"
+};
+
+
+char *cmd_openGui_args = {
+    "openGui"
+};
+
+
+char *cmd_playback_args = {
+    "playback <file_spec>"
+};
+
+
+char *cmd_record_args = {
+    "record [ <file_spec> ]"
+};
+
+
+char *cmd_setbreak_args = {
+    "<breakId> setbreak [ <expId_spec> ] [ <target> ] <address_description>"
+};
+
+
+/*********************************************/
+// BRIEF COMMAND MESSAGES
+/*********************************************/
+char *cmd_expattach_brief = {
+    "Attach applications or collectors to an experiment."
+};
+
+
+char *cmd_expClose_brief = {
+    "Close/Terminate the experiment."
+};
+
+
+char *cmd_expCreate_brief = {
+    "Start the process of defining an experiment."
+};
+
+
+char *cmd_expDetach_brief = {
+    "Detach applications from collectors."
+};
+
+
+char *cmd_expDisable_brief = {
+    "Turn off data collection."
+};
+
+
+char *cmd_expEnable_brief = {
+    "Restart data collection."
+};
+
+
+char *cmd_expFocus_brief = {
+    "Focus the current input window on a specified experiment."
+};
+
+
+char *cmd_expGo_brief = {
+    "Start execution or continue running the experiment."
+};
+
+
+char *cmd_expPause_brief = {
+    "Temporarily interrupt the specified experiment."
+};
+
+
+char *cmd_expRestore_brief = {
+    "Restore experiment data from a file."
+};
+
+
+char *cmd_expSave_brief = {
+    "Save the experiment data to a file for later analysis."
+};
+
+
+char *cmd_expSetParam_brief = {
+    "Change the value an experiment's argument."
+};
+
+
+char *cmd_expView_brief = {
+    "View the experiment's output in text form."
+};
+
+
+char *cmd_listBreaks_brief = {
+    "List the breakpoints that have been defined."
+};
+
+
+char *cmd_listExp_brief = {
+    "List the experiments that have been defined."
+};
+
+
+char *cmd_listHosts_brief = {
+    "Lists the hosts that define the specified cluster."
+};
+
+
+char *cmd_listObj_brief = {
+    "List the object files that are known."
+};
+
+
+char *cmd_listPids_brief = {
+    "List the process Id's that are known."
+};
+
+
+char *cmd_listMetrics_brief = {
+    "List the measurements that an experiment is capable of making."
+};
+
+
+char *cmd_listParams_brief = {
+    "Report the current values assigned to all the parameters\n"
+    "that are part of a specific experiment."
+};
+
+
+char *cmd_listRanks_brief = {
+    "List the mpi ranks that are known. "
+};
+
+
+char *cmd_listSrc_brief = {
+    "Display a source file. "
+};
+
+
+char *cmd_listStatus_brief = {
+    "List the current status of an experiment."
+};
+
+
+char *cmd_listThreads_brief = {
+    "List the threads that are known."
+};
+
+
+char *cmd_listTypes_brief = {
+    "List available performance measurement utilities."
+};
+
+
+char *cmd_listViews_brief = {
+    "List the reports that can be produced by an experiment."
+};
+
+
+char *cmd_clearBreak_brief = {
+    "Remove a breakpoint."
+};
+
+
+char *cmd_exit_brief = {
+    "Terminate the session."
+};
+
+
+char *cmd_help_brief = {
+    "Request information about a topic."
+};
+
+
+char *cmd_history_brief = {
+    "Print a list of previously executed commands."
+};
+
+
+char *cmd_log_brief = {
+    "Echo executed commands and their results to a file."
+};
+
+
+char *cmd_openGui_brief = {
+    "Open the Graphical User Interface."
+};
+
+
+char *cmd_playback_brief = {
+    "Read and execute commands stored in a file."
+};
+
+
+char *cmd_record_brief = {
+    "Begin echoing executed commands to a file."
+};
+
+
+char *cmd_setbreak_brief = {
+    "Enter a breakpoint, which will halt the application when reached."
+};
+
+/*********************************************/
+// DETAILED COMMAND MESSAGES
+/*********************************************/
+char *cmd_expattach_detailed[] = {
+    cmd_expattach_args,
+    " ",
+    cmd_expattach_brief,
+    " ",
+    "\t The attached applications will not execute until ",
+    "\t an expGo command is issued.",
+    " ",
+    "- If there is no <expId_spec> provided, information is ",
+    "  attached to the focused experiment.",
+    " ",
+    "- The <target_list> is used to restrict the knowledge ",
+    "  of the experiment or data collection to certain portions ",
+    "  of an appliaction.",
+    " ",
+    "- It is ambiguous to use both the -f and -p options.",
+    " ",
+    "\t The -f option implies that an executable is to be ",
+    "\t loaded into the OpenSS tool from a file.",
+    " ",
+    "\t The use of -p option implies that the OpenSS tool ",
+    "\t is to attach to a program that is already executing.",
+    " ",
+    "- If <target_list> is provided without <expType_list>, ",
+    "  those applications are attached to all the <expType>s ",
+    "  that are already attached of the experiment.",
+    " ",
+    "- If <expType_list> is provided without <target_list>, ",
+    "  the specified data collectors are used to instrument ",
+    "  all the executable routines that are already attached ",
+    "  to the indicated experiment.",
+    " ",
+    "- If both <target_list> and <expType_list> are provided, ",
+    "  only those portions of the application in the <target_list> ",
+    "  are linked to the specified collectors in <expType_list>.",
+    " ",
+    "- If neither <target_list> nor <expType_list> is provided, ",
+    "  the command does nothing.",
+    " "
+};
+
+
+char *cmd_expClose_detailed[] = {
+    cmd_expClose_args,
+    " ",
+    cmd_expClose_brief,
+    " ",
+    "\t The OpenSS tool is NOT terminated. Use exit to ",
+    "\t terminate the session.",
+    " ",
+    "\t All data collectors attached to the experiment ",
+    "\t are removed from the attached applications.",
+    " ",
+    "\t All attached applications are removed from the experiment.",
+    " ",
+    "\t If the kill keyword is not provided, attached applications ",
+    "\t will continue executing.",
+    " ",
+    "\t If the kill keyword is provided, attached applications ",
+    "\t will be terminated.",
+    " ",
+    "\t The data base file that was used to save information ",
+    "\t about the applications and the collected data, is deleted ",
+    "\t if it is a temporary file, or closed if it is a user ",
+    "\t defined file. Use expSave for saving information.",
+    " ",
+    "- Because important information may accidently be lost, ",
+    "  the absence of any arguments will not cause the focused ",
+    "  experiment to be deleted. This can only be done by ",
+    "  specifying the expId of the focused experiment or by ",
+    "  using the focus keyword.",
+    " ",
+    "- Use of the all keyword will cause all defined experiments ",
+    "  to be deleted.",
+    " "
+};
+
+
+char *cmd_expCreate_detailed[] = {
+    cmd_expCreate_args,
+    " ",
+    cmd_expCreate_brief,
+    " ",
+    "\t define a new experiment identifier,",
+    " ",
+    "\t set the current focus to the new identifier and",
+    " ",
+    "\t return the experiment identification identifier.",
+    " ",
+    "\t The experiment will not execute until an expGo command ",
+    "\t is issued.",
+    " ",
+    "- The <target_list> will associate the specified executable ",
+    "  with the experiment being defined.",
+    " ",
+    "- The experiment type argument, <expType_list>, can be ",
+    "  used to specify the types of data that will be collected ",
+    "  during the experiment.",
+    " ",
+    "- Missing arguments can be supplied later with the expAttach ",
+    "  command.",
+    " ",
+    "- An expCreate command with no arguments will still return ",
+    "  a new <expId> and will set the focus.",
+    " "
+};
+
+
+char *cmd_expDetach_detailed[] = {
+    cmd_expDetach_args,
+    " ",
+    cmd_expDetach_brief,
+    " ",
+    "\t The remaining applications will not execute until an ",
+    "\t expGo command is issued.",
+    " ",
+    "\t The experiment retains knowledge of both the applications ",
+    "\t and the collectors and they can be referenced on later commands.",
+    " ",
+    "\t All previously collected data samples will be retained.",
+    " ",
+    "\t No new data, of the specified type, will be collected ",
+    "\t for the specified application.",
+    " ",
+    "- If there is no <expId_spec> provided, the focused experiment ",
+    "  is used.",
+    " ",
+    "- If <target_list> is provided without <expType_list>, ",
+    "  all collectors are detached for those applications.",
+    " ",
+    "- If <expType_list> is provided without <target_list>, ",
+    "  the specified data collectors are detached from all ",
+    "  the executable routines that are ttached to the indicated ",
+    "  experiment.",
+    " ",
+    "- If both <target_list> and <expType_list> are provided, ",
+    "  only the specified collectores in <expType_list> are ",
+    "  detached from just those applications described in <target_list>.",
+    " ",
+    "- If neither <target_list> nor <expType_list> is provided, ",
+    "  the command does nothing.",
+    " "
+};
+
+
+char *cmd_expDisable_detailed[] = {
+    cmd_expDisable_args,
+    " ",
+    cmd_expDisable_brief,
+    " ",
+    "\t The experiment remains defined.",
+    " ",
+    "\t Data collection is \"turned off\" and no new ",
+    "\t information is saved.",
+    " ",
+    "\t Instrumentation is disabled but may not removed ",
+    "\t from the application.",
+    " ",
+    "\t Previously collected data is still available and ",
+    "\t can be viewed or saved.",
+    " ",
+    "\t The attached applications will not continue executing ",
+    "\t until an expGo command is issued.",
+    " ",
+    "- See related commands:",
+    " ",
+    "\t expEnable can be used to restart data collection.",
+    " ",
+    "\t expSave can be used to save previously collected data.",
+    " ",
+    "\t expClose can be used to destroy the experiment and ",
+    "\t free all data space used to save the collected data.",
+    " ",
+    "- The all keyword will result in data collection being ",
+    "  stopped for all defined experiments.",
+    " ",
+    "- If this command is issued with no arguments, data ",
+    "  collection is stopped for the focused experiment.",
+    " "
+};
+
+
+char *cmd_expEnable_detailed[] = {
+    cmd_expEnable_args,
+    " ",
+    cmd_expEnable_brief,
+    " ",
+    "\t Existing instrumentation is enabled.",
+    " ",
+    "\t Data collection is \"turned on\" and new information ",
+    "\t will be saved.",
+    " ",
+    "\t New information will be merged with any previously ",
+    "\t collected data.",
+    " ",
+    "\t The attached applications will not continue executing ",
+    "\t until an expGo command is issued.",
+    " ",
+    "- The all keyword will result in data collection being ",
+    "  restarted for all defined experiments.",
+    " ",
+    "- If this command is issued with no arguments, data ",
+    "  collection for the focused experiment is restarted.",
+    " "
+};
+
+
+char *cmd_expFocus_detailed[] = {
+    cmd_expFocus_args,
+    " ",
+    cmd_expFocus_brief,
+    " ",
+    "- In many commands <expId_spec> is optional. When omitted, ",
+    "  the currently \"focused\" experiment is used.",
+    " "
+    "- If no argument is present on this command, return ",
+    "  the focused experiment.\n",
+    " "
+    "- If the <expId_spec> argument has an experiment id ",
+    "  of zero (0), then clear the experiment focus.",
+    " "
+    "\t A command that uses an experiment id of zero is illegal ",
+    "\t and will produce a fatal error.",
+    " "
+    "- This command does not change the execution state of ",
+    "  an experiment.",
+    " "
+};
+
+
+char *cmd_expGo_detailed[] = {
+    cmd_expGo_args,
+    " ",
+    cmd_expGo_brief,
+    " ",
+    "- If the experiment has already begun execution,",
+    "  this command causes execution to continue from ",
+    "  where it was interrupted.",
+    " ",
+    "- The experiment will continue to run until either:",
+    " ",
+    "\t * the application terminates, or",
+    " ",
+    "\t * the application executes a programmed halt, or",
+    " ",
+    "\t * the user issues another exp... command that refers ",
+    "\t   to this experiment Id. or",
+    " ",
+    "\t * the OpenSS tool terminates due to an exit command, ",
+    "\t   an external interrupt, or abnormal, internal event.",
+    " ",
+    "- Except when executed in batch mode, the execution of the ",
+    "  application and the collection of performance data does not, ",
+    "  automatically, prevent other commands from being issued:",
+    " ",
+    "\t A following command that depends on the result of this ",
+    "\t experiment may not be able to execute and may block ",
+    "\t further commands from being issued.",
+    " ",
+    "\t Independent commands may be issued and completed before ",
+    "\t this experiment completes.",
+
+    "\t The status of any experiment can be determined through the ",
+    "\t listStatus command.",
+    " ",
+    "\t Depending on the type of data collection that is taking ",
+    "\t place, it may be possible to view the results before the ",
+    "\t application completes.",
+    " ",
+    "- The absence of the <expId_spec> and all keyword will result ",
+    "  in only the focused experiment being run.",
+    " ",
+    "- The use of <expId_spec> will result in only that experiment ",
+    "  being run.",
+    " ",
+    "- The use of the all option will result in every defined experiment ",
+    "  being run."
+    " "
+};
+
+
+char *cmd_expPause_detailed[] = {
+    cmd_expPause_args,
+    " ",
+    cmd_expPause_brief,
+    " ",
+    "- If <expId_spec> is not provided, the focused experiment is used.",
+    " ",
+    "- If the keywork all is present, every defined experiment is halted.",
+    " "
+};
+
+
+char *cmd_expRestore_detailed[] = {
+    cmd_expRestore_args,
+    " ",
+    cmd_expRestore_brief,
+    " ",
+    "\t A new experiment is created and intitialize with ",
+    "\t this information.",
+    " ",
+    "\t This command also sets the focus to the new experiment's ",
+    "\t Identifier.",
+    " ",
+    "\t Previously collected data can be looked at with the ",
+    "\t expView command.",
+    " ",
+    "\t If the original applications are still running, the ",
+    "\t OpenSS tool will attempt to attach to the application ",
+    "\t and reinsert instrumentation into the application. ",
+    "\t If this is successful, the execution of the applications ",
+    "\t are not interrupted although the user may issue an ",
+    "\t expPause command, if that behaviour is desired.",
+    " ",
+    "\t The new experiment can be modified with the use of ",
+    "\t expAttach or expDetach commands.",
+    " ",
+    "\t If an expGo command is issued, new data samples will ",
+    "\t be placed into the data base specified by <file_spec>. ",
+    "\t A different data base can be specified with the expSave command.",
+    " "
+};
+
+
+char *cmd_expSave_detailed[] = {
+    cmd_expSave_args,
+    " ",
+    cmd_expSave_brief,
+    " ",
+    "\t For each experiment, information about the executable ",
+    "\t programs that are instrumented, information about the ",
+    "\t instrumentation that is used and any performance data ",
+    "\t that is collected are saved in a data base.",
+    " ",
+    "\t The data base is created by the OpenSS tool in a temporary ",
+    "\t location and will be deleted when an expClose command is ",
+    "\t issued for the experiment, or when an exit command is ",
+    "\t issued that terminates the OpenSS tool.",
+    " ",
+    "\t The entire data base can be saved with the expSave command ",
+    "\t and can be reloaded into the OpenSS tool with the expRestore ",
+    "\t command.",
+    " ",
+    "\t The data base is in a special format that supports the ",
+    "\t opertaions that the OpenSS tool must perform.",
+    " ",
+    "- Without the copy option",
+    " ",
+    "\t If the original, temporary data base file is still in use, ",
+    "\t it is copied to the specified file name and the OpenSS tool ",
+    "\t will use the new file to collect any new information about ",
+    "\t the experiment. When the experiment completes, this data ",
+    "\t base will be retained.",
+    " ",
+    "\t If a previous expSave command has caused the experiment's ",
+    "\t information to be directed to a user defined data base",
+    " ",
+    "\t The contents of the previous data base  ",   
+    " ",
+    "- without any of the data samples",
+    " ",
+    "- is copied to the new data base.",
+    " ",
+    "\t The previous data base is closed.",
+    " ",
+    "\t The new data base is used by the OpenSS tool to collect any ",
+    "\t new information that is added to or collected for, the experiment.",
+    " ",
+    "- With the copy option the given location receives a copy ",
+    "  of the current state of the data base.",
+    " ",
+    "\t The current contents of the data base is duplicated and ",
+    "\t saved to the given location.",
+    " ",
+    "\t No new information will be added to the given location.",
+    " ",
+    "\t New information will be added to the original data base.",
+    " ",
+    "- This command does not change the execution state of the ",
+    "  experiment, although it may temporarily suspend execution ",
+    "  while the command is being executed.",
+    " "
+};
+
+
+char *cmd_expSetParam_detailed[] = {
+    cmd_expSetParam_args,
+    " ",
+    cmd_expSetParam_brief,
+    " ",
+    "- <expParam> will be unique within the experiment.",
+    " ",
+    "- The parameter names can be used by other experiments.",
+    " ",
+    "- This command does not change the execution state of ",
+    "  the experiment, although it may temporarily suspend ",
+    "  execution while the command is being executed.",
+    " "
+};
+
+
+char *cmd_expView_detailed[] = {
+    cmd_expView_args,
+    " ",
+    cmd_expView_brief,
+    " ",
+    "- If this command is issued with no <expId_spec>, the ",
+    "  focused experiment is used.",
+    " ",
+    "- The optional -gui argument will cause the data to be ",
+    "  directed to an appropriate window for display in a ",
+    "  graphical format.",
+    " ",
+    "- This command does not change the execution state of the ",
+    "  experiment, although the nature of the requested data may ",
+    "  require that the experiment complete execution before the ",
+    "  information can be provided.",
+    " "
+};
+
+
+char *cmd_listBreaks_detailed[] = {
+    cmd_listBreaks_args,
+    " ",
+    cmd_listBreaks_brief,
+    " ",
+    "\t The absence of any option will cause all the breakpoints ",
+    "\t for the focused experiment to be listed.",
+    " ",
+    "\t The use of <expId_spec> will cause all the breakpoints ",
+    "\t for the specified experiment to be listed.",
+    " ",
+    "\t The use of all will cause all the known breakpoints, for ",
+    "\t all of the experiments defined by the user, to be listed.",
+    " "
+};
+
+
+char *cmd_listExp_detailed[] = {
+    cmd_listExp_args,
+    " ",
+    cmd_listExp_brief,
+    " "
+};
+
+
+char *cmd_listHosts_detailed[] = {
+    cmd_listHosts_args,
+    " ",
+    cmd_listHosts_brief,
+    " ",
+    "\t The absence of any options will cause all the hosts that ",
+    "\t have been included in the focused experiment to be listed.",
+    " ",
+    "\t The <expId_spec> option will cause all the hosts that have ",
+    "\t been included in the selected experiment to be listed.",
+    " ",
+    "\t The \"all\" option will cause all the known hosts to be listed.",
+    " ",
+    "\t The \"<cluster_spec>\" option will cause all the hosts that ",
+    "\t are part of the named cluster to be listed.",
+    " "
+};
+
+
+char *cmd_listObj_detailed[] = {
+    cmd_listObj_args,
+    " ",
+    cmd_listObj_brief,
+    " ",
+    "\t If <expId_spec> is not provided, the focused experiment is used.",
+    " ",
+    "- The listing can be restricted with the use of a <target> ",
+    "  specification.",
+    " ",
+    "- Any component described in the <target> specification must ",
+    "  be part of the selected experiment.",
+    " ",
+    "- If <target> is not provided, information will be provided for ",
+    "  all portions of all applications that are attached to the experiment.",
+    " "
+};
+
+
+char *cmd_listPids_detailed[] = {
+    cmd_listPids_args,
+    " ",
+    cmd_listPids_brief,
+    " ",
+    "\t If no options are supplied, the Pids that are referenced ",
+    "\t in the focused experiment are listed.",
+    " ",
+    "\t If the \"<expId_spec>\" option is supplied, all the Pids ",
+    "\t that are part of the specified experiment are listed.",
+    " ",
+    "\t If the all option is supplied, all Pids that are active ",
+    "\t on the specified system are listed.",
+    " ",
+    "- The use of the \"<host_file>\" option acts like a filter ",
+    "\t on the output.",
+    " ",
+    "\t The absence of any \"-h <hostname>\" specification will ",
+    "\t cause all pids on all systems in the cluster to be listed.",
+    " ",
+    "\t The default cluster contains only localhost and must be ",
+    "\t specified by using -h localhost.",
+    " ",
+    "\t Use of the -f <filename> option will result in only the ",
+    "\t pids associated with that <filename> being listed for the ",
+    "\t selected hosts.",
+    " "
+};
+
+
+char *cmd_listMetrics_detailed[] = {
+    cmd_listMetrics_args,
+    " ",
+    cmd_listMetrics_brief,
+    " ",
+    "\t If no options are selected, metrics for only the data ",
+    "\t collectors that are part of the focused experiment will ",
+    "\t be listed.",
+    " ",
+    "\t The use of <expId_spec> will cause the metrics that are ",
+    "\t associated with the set of data collectors that are part ",
+    "\t of the specified experiment to be listed.",
+    " ",
+    "\t The use of the keyword all will cause all the metrics ",
+    "\t for all available collectors to be listed.",
+    " ",
+    "\t The use of the \"<viewType>\" option will result in a ",
+    "\t listing of only those metrics associated with that ",
+    "\t specific data collector.",
+    " "
+};
+
+
+char *cmd_listParams_detailed[] = {
+    cmd_listParams_args,
+    " ",
+    cmd_listParams_brief,
+    " ",
+    "\t If no options are selected, parameters for only the data ",
+    "\t collectors that are part of the focused experiment will ",
+    "\t be listed.",
+    " ",
+    "\t The use of <expId_spec> will cause the parameters that ",
+    "\t are associated with the set of data collectors that are ",
+    "\t part of the specified experiment to be listed.",
+    " ",
+    "\t The use of the keyword all will cause all the parameters ",
+    "\t for all available collectors to be listed.",
+    " ",
+    "\t The use of the \"<viewType>\" option will result in a ",
+    "\t listing of only those parameters associated with that ",
+    "\t specific data collector.",
+    " "
+};
+
+
+char *cmd_listRanks_detailed[] = {
+    cmd_listRanks_args,
+    " ",
+    cmd_listRanks_brief,
+    " ",
+    "\t If no options are supplied, all the Ranks that are ",
+    "\t referenced in the focused experiment are listed.",
+    " ",
+    "\t If the \"<expId_spec>\" option is supplied, all the ",
+    "\t Ranks that are part of the specified experiment are listed.",
+    " ",
+    "\t If the all option is supplied, all Ranks that are active ",
+    "\t on the specified system are listed.",
+    " ",
+    "- The use of the \"<target>\" option acts like a filter on ",
+    "  the output.",
+    " ",
+    "\t The use of the all option and the absence of any ",
+    "\t \"-h <hostname>\" specification will cause all Ranks ",
+    "\t on all systems in the cluster to be listed.",
+    " ",
+    "\t The default cluster contains only localhost and must be ",
+    "\t specified by using -h localhost.",
+    " ",
+    "\t Use of the -f option will result in only the Ranks ",
+    "\t associated with that <filename> being listed for the ",
+    "\t selected hosts.",
+    " ",
+    "\t Use of the -p option will result in only the Ranks associated ",
+    "\t with that Pid being listed for the selected hosts.",
+    " ",
+    "\t Use of the -r option will result in only that specific Rank ",
+    "\t being listed, if it exists on the selected hosts.",
+    " "
+};
+
+
+char *cmd_listSrc_detailed[] = {
+    cmd_listSrc_args,
+    " ",
+    cmd_listSrc_brief,
+    " ",
+    "- If <expId_spec> is not provided, the focused experiment ",
+    "  is used.",
+    " ",
+    "- The listing can be restricted with the use of a <target> ",
+    "  specification.",
+    " ",
+    "- Any component described in the <target> specification must ",
+    "  be part of the selected experiment.",
+    " ",
+    "- If <target> is not provided, information will be provided ",
+    "  for all portions of all applications that are attached to the experiment.",
+    " ",
+    "- The listing can be restricted with the use of <linenumber_spec>.",
+    " ",
+    "- If <linenumber_spec> is not provided, information will be ",
+    "  provided for all portions of any application that has been selected.",
+    " "
+};
+
+
+char *cmd_listStatus_detailed[] = {
+    cmd_listStatus_args,
+    " ",
+    cmd_listStatus_brief,
+    " ",
+    "\t If no option is selected, return the status of the ",
+    "\t focused experiment.",
+    " ",
+    "\t The use of <expId_spec> will cause the status of the ",
+    "\t specified experiment to be returned.",
+    " ",
+    "\t The use of the all keyword will cause the status of ",
+    "\t all the defined experiments to be returned.",
+    " "
+};
+
+
+char *cmd_listThreads_detailed[] = {
+    cmd_listThreads_args,
+    " ",
+    cmd_listThreads_brief,
+    " ",
+    "\t If no options are supplied, the Threads that are  ",
+    "\t referenced in the focused experiment are listed.",
+    " ",
+    "\t If the \"<expId_spec>\" option is supplied, all the  ",
+    "\t Threads that are part of the specified experiment are listed.",
+    " ",
+    "\t If the \"all\" option is supplied, all Threads that are  ",
+    "\t active on the specified system are listed.",
+    " ",
+    "\t The use of the \"<target>\" option acts like a filter on the output.",
+    " ",
+    "\t The absence of any \"-h <hostname>\" specification  ",
+    "\t will cause all pids on all systems in the cluster to be listed.",
+    " ",
+    "\t The default cluster contains only localhost and must  ",
+    "\t be specified by using -h localhost.",
+    " ",
+    "\t Use of the -f option will result in only the Threads ",
+    "\t associated with that <filename> being listed for the selected hosts.",
+    " ",
+    "\t Use of the -p option will result in only the Threads ",
+    "\t associated with that Pid being listed for the selected hosts.",
+    " ",
+    "\t Use of the -t option will result in only that specific ",
+    "\t Thread being listed, if it exists on the selected hosts.",
+    " "
+};
+
+
+char *cmd_listTypes_detailed[] = {
+    cmd_listTypes_args,
+    " ",
+    cmd_listTypes_brief,
+    " ",
+    "- If no option is selected, list the utilities that are ",
+    "  attached to the focused experiment.",
+    " ",
+    "- The use of <expId_spec> will cause the utilities that ",
+    "  are attached to the specified experiment to be listed.",
+    " ",
+    "- The use of the all keyword will cause all the possible ",
+    "  performance measurement utilities that can be used in ",
+    "  experiments to be listed.",
+    " "
+};
+
+
+char *cmd_listViews_detailed[] = {
+    cmd_listViews_args,
+    " ",
+    cmd_listViews_brief,
+    " ",
+    "- If no options are selected, the reports for only the ",
+    "  data collectors that are part of the focused experiment ",
+    "  will be listed.",
+    " ",
+    "- The use of <expId_spec> will cause the the reports that ",
+    "  are associated with the set of data collectors that are ",
+    "  part of the specified experiment to be listed.",
+    " ",
+    "- The use of the keyword all will cause all the the reports ",
+    "  for all available collectors to be listed.",
+    " ",
+    "- The use of the \"<viewType>\" option will result in a listing ",
+    "  of only those the reports associated with that specific ",
+    "  data collector.",
+    " "
+};
+
+
+char *cmd_clearBreak_detailed[] = {
+    cmd_clearBreak_args,
+    " ",
+    cmd_clearBreak_brief,
+    " ",
+    "- This command does not change the execution state of an ",
+    "  experiment, although it may be temporarily suspended ",
+    "  during execution of the command.",
+    " "
+};
+
+
+char *cmd_exit_detailed[] = {
+    cmd_exit_args,
+    " ",
+    cmd_exit_brief,
+    " ",
+    "- Suspend execution or all executables",
+    " ",
+    "- Suspend data collection.",
+    " ",
+    "- Remove instrumentation from all applications.",
+    " ",
+    "- Release all applications from control of the OpenSS tool",
+    " ",
+    "- Allow all applications to continue executing.",
+    " ",
+    "- Close all data base files.",
+    " ",
+    "- Delete all temporary files.",
+    " ",
+    "- Close the GUI and Command windows.",
+    " ",
+    "- Terminate execution of the OpenSS tool.",
+    " "
+};
+
+
+char *cmd_help_detailed[] = {
+    cmd_help_args,
+    " ",
+    cmd_help_brief,
+    " "
+};
+
+
+char *cmd_history_detailed[] = {
+    cmd_history_args,
+    " ",
+    cmd_history_brief,
+    " ",
+    "- If no <file_spec> is provided, send the list to stdout",
+    " "
+};
+
+
+char *cmd_log_detailed[] = {
+    cmd_log_args,
+    " ",
+    cmd_log_brief,
+    " ",
+    "- Stop echoing if no file is specified on a log command.",
+    " ",
+    "- This is primarly intended to be an internal debug aid ",
+    "  for the OpenSS tool developer since the generated files ",
+    "  can quickly become huge.",
+    " "
+};
+
+
+char *cmd_openGui_detailed[] = {
+    cmd_openGui_args,
+    " ",
+    cmd_openGui_brief,
+    " "
+};
+
+
+char *cmd_playback_detailed[] = {
+    cmd_playback_args,
+    " ",
+    cmd_playback_brief,
+    " "
+};
+
+
+char *cmd_record_detailed[] = {
+    cmd_record_args,
+    " ",
+    cmd_record_brief,
+    " ",
+    "\t Recording is preformed relative to the input source that ",
+    "\t issues this command.",
+    " ",
+    "\t This design causes commands issued by the GUI to be ",
+    "\t recorded seperately from commands issued by the Command window.",
+    " ",
+    "- Commands read from a file specified on a succeeding playback ",
+    "  command will not be echoed.",
+    " ",
+    "- Stop echoing if no file is specified on a record command.",
+    " ",
+    "- Stop echoing if the end of the input file containing the ",
+    "  original record command is encoutnered.",
+    " "
+};
+
+
+char *cmd_setbreak_detailed[] = {
+    cmd_setbreak_args,
+    " ",
+    cmd_setbreak_brief,
+    " ",
+    "- If <expId_spec> is not provided, the focused experiment is used.",
+    " ",
+    "- The break location is specified through the combination of the ",
+    "  <target> and <address_description> arguments.",
+    " ",
+    "- The break location must be a location in the specified experiment.",
+    " ",
+    "- If <target> is not provided, the <address_description> must be ",
+    "  valid on every host and executable attached to the experiment.",
+    " "
+};
+
+/*********************************************/
+// COMMAND MESSAGE ARRAY
+/*********************************************/
+// message array to be passed to message czar
+OpenSpeedShop::message_element_t cmd_msg[CMD_MAX] = {
+
+//    CMD_HEAD_ERROR,
+    -1,NULL,NULL,0,NULL,NULL,
+    NULL,0,NULL,0,NULL,0,
+//    CMD_EXP_ATTACH,
+    -1,cmd_desc[CMD_EXP_ATTACH].name,NULL,0,"command",cmd_expattach_brief,
+    cmd_expattach_detailed,sizeof(cmd_expattach_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    CMD_EXP_CLOSE,
+    -1,cmd_desc[CMD_EXP_CLOSE].name,NULL,0,"command",cmd_expClose_brief,
+    cmd_expClose_detailed,sizeof(cmd_expClose_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    CMD_EXP_CREATE,
+    -1,cmd_desc[CMD_EXP_CREATE].name,NULL,0,"command",cmd_expCreate_brief,
+    cmd_expCreate_detailed,sizeof(cmd_expCreate_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    CMD_EXP_DETACH,
+    -1,cmd_desc[CMD_EXP_DETACH].name,NULL,0,"command",cmd_expDetach_brief,
+    cmd_expDetach_detailed,sizeof(cmd_expDetach_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    CMD_EXP_DISABLE,
+    -1,cmd_desc[CMD_EXP_DISABLE].name,NULL,0,"command",cmd_expDisable_brief,
+    cmd_expDisable_detailed,sizeof(cmd_expDisable_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    CMD_EXP_ENABLE,
+    -1,cmd_desc[CMD_EXP_ENABLE].name,NULL,0,"command",cmd_expEnable_brief,
+    cmd_expEnable_detailed,sizeof(cmd_expEnable_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    CMD_EXP_FOCUS,
+    -1,cmd_desc[CMD_EXP_FOCUS].name,NULL,0,"command",cmd_expFocus_brief,
+    cmd_expFocus_detailed,sizeof(cmd_expFocus_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    CMD_EXP_PAUSE,
+    -1,cmd_desc[CMD_EXP_PAUSE].name,NULL,0,"command",cmd_expPause_brief,
+    cmd_expPause_detailed,sizeof(cmd_expPause_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    CMD_EXP_RESTORE,
+    -1,cmd_desc[CMD_EXP_RESTORE].name,NULL,0,"command",cmd_expRestore_brief,
+    cmd_expRestore_detailed,sizeof(cmd_expRestore_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    CMD_EXP_GO,
+    -1,cmd_desc[CMD_EXP_GO].name,NULL,0,"command",cmd_expGo_brief,
+    cmd_expGo_detailed,sizeof(cmd_expGo_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    CMD_EXP_SAVE,
+    -1,cmd_desc[CMD_EXP_SAVE].name,NULL,0,"command",cmd_expSave_brief,
+    cmd_expSave_detailed,sizeof(cmd_expSave_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    CMD_EXP_SETPARAM,
+    -1,cmd_desc[CMD_EXP_SETPARAM].name,NULL,0,"command",cmd_expSetParam_brief,
+    cmd_expSetParam_detailed,sizeof(cmd_expSetParam_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    CMD_EXP_VIEW,
+    -1,cmd_desc[CMD_EXP_VIEW].name,NULL,0,"command",cmd_expView_brief,
+    cmd_expView_detailed,sizeof(cmd_expView_detailed)/sizeof(char **),NULL,0,NULL,0,
+
+//    CMD_LIST_BREAKS,
+    -1,cmd_desc[CMD_LIST_BREAKS].name,NULL,0,"command",cmd_listBreaks_brief,
+    cmd_listBreaks_detailed,sizeof(cmd_listBreaks_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    CMD_LIST_EXP,
+    -1,cmd_desc[CMD_LIST_EXP].name,NULL,0,"command",cmd_listExp_brief,
+    cmd_listExp_detailed,sizeof(cmd_listExp_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    CMD_LIST_HOSTS,
+    -1,cmd_desc[CMD_LIST_HOSTS].name,NULL,0,"command",cmd_listHosts_brief,
+    cmd_listHosts_detailed,sizeof(cmd_listHosts_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    CMD_LIST_METRICS,
+    -1,cmd_desc[CMD_LIST_METRICS].name,NULL,0,"command",cmd_listMetrics_brief,
+    cmd_listMetrics_detailed,sizeof(cmd_listMetrics_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    CMD_LIST_OBJ,
+    -1,cmd_desc[CMD_LIST_OBJ].name,NULL,0,"command",cmd_listObj_brief,
+    cmd_listObj_detailed,sizeof(cmd_listObj_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    CMD_LIST_PARAMS,
+    -1,cmd_desc[CMD_LIST_PARAMS].name,NULL,0,"command",cmd_listParams_brief,
+    cmd_listParams_detailed,sizeof(cmd_listParams_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    CMD_LIST_PIDS,
+    -1,cmd_desc[CMD_LIST_PIDS].name,NULL,0,"command",cmd_listPids_brief,
+    cmd_listPids_detailed,sizeof(cmd_listPids_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    CMD_LIST_RANKS,
+    -1,cmd_desc[CMD_LIST_RANKS].name,NULL,0,"command",cmd_listRanks_brief,
+    cmd_listRanks_detailed,sizeof(cmd_listRanks_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    CMD_LIST_SRC,
+    -1,cmd_desc[CMD_LIST_SRC].name,NULL,0,"command",cmd_listSrc_brief,
+    cmd_listSrc_detailed,sizeof(cmd_listSrc_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    CMD_LIST_STATUS,
+    -1,cmd_desc[CMD_LIST_STATUS].name,NULL,0,"command",cmd_listStatus_brief,
+    cmd_listStatus_detailed,sizeof(cmd_listStatus_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    CMD_LIST_THREADS,
+    -1,cmd_desc[CMD_LIST_THREADS].name,NULL,0,"command",cmd_listThreads_brief,
+    cmd_listThreads_detailed,sizeof(cmd_listThreads_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    CMD_LIST_TYPES,
+    -1,cmd_desc[CMD_LIST_TYPES].name,NULL,0,"command",cmd_listTypes_brief,
+    cmd_listTypes_detailed,sizeof(cmd_listTypes_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    CMD_LIST_VIEWS,
+    -1,cmd_desc[CMD_LIST_VIEWS].name,NULL,0,"command",cmd_listViews_brief,
+    cmd_listViews_detailed,sizeof(cmd_listViews_detailed)/sizeof(char **),NULL,0,NULL,0,
+
+//    CMD_CLEAR_BREAK,
+    -1,cmd_desc[CMD_CLEAR_BREAK].name,NULL,0,"command",cmd_clearBreak_brief,
+    cmd_clearBreak_detailed,sizeof(cmd_clearBreak_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    CMD_EXIT,
+    -1,cmd_desc[CMD_EXIT].name,NULL,0,"command",cmd_exit_brief,
+    cmd_exit_detailed,sizeof(cmd_exit_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    CMD_HELP,
+    -1,cmd_desc[CMD_HELP].name,NULL,0,"command",cmd_help_brief,
+    cmd_help_detailed,sizeof(cmd_help_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    CMD_HISTORY,
+    -1,cmd_desc[CMD_HISTORY].name,NULL,0,"command",cmd_history_brief,
+    cmd_history_detailed,sizeof(cmd_history_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    CMD_LOG,
+    -1,cmd_desc[CMD_LOG].name,NULL,0,"command",cmd_log_brief,
+    cmd_log_detailed,sizeof(cmd_log_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    CMD_OPEN_GUI,
+    -1,cmd_desc[CMD_OPEN_GUI].name,NULL,0,"command",cmd_openGui_brief,
+    cmd_openGui_detailed,sizeof(cmd_openGui_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    CMD_PLAYBACK,
+    -1,cmd_desc[CMD_PLAYBACK].name,NULL,0,"command",cmd_playback_brief,
+    cmd_playback_detailed,sizeof(cmd_playback_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    CMD_RECORD,
+    -1,cmd_desc[CMD_RECORD].name,NULL,0,"command",cmd_record_brief,
+    cmd_record_detailed,sizeof(cmd_record_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    CMD_SETBREAK,
+    -1,cmd_desc[CMD_SETBREAK].name,NULL,0,"command",cmd_setbreak_brief,
+    cmd_setbreak_detailed,sizeof(cmd_setbreak_detailed)/sizeof(char **),NULL,0,NULL,0
+};
+
+/*********************************************/
+// GRAMMAR ARGUMENTS
+/*********************************************/
+char *gram_address_description_arg = {
+    "<address_description> ::= <int> || <string>"
+};
+char *gram_breakId_arg = {
+    "<breakId> ::= <int>"
+};
+char *gram_expId_arg = {
+    "<expId> ::= <int>"
+};
+char *gram_expId_spec_arg = {
+    "<expId_spec> ::= -x <expId>"
+};
+char *gram_expMetric_arg = {
+    "<expMetric> ::= [<expType>::]<metric_name>"
+};
+char *gram_metric_name_arg = {
+    "<metric_name> ::= { ? }"
+};
+char *gram_expParamValue_arg = {
+    "<expParamValue> ::= [ <int> || <float> || <string> || \"<string>\"]"
+};
+char *gram_expParam_arg = {
+    "<expParam> ::= [<expType>::]<param_name>"
+};
+char *gram_param_name_arg = {
+    "<param_name> ::= { displayMode || displayMedia || displayRefreshRate || expSaveFile || samplingRate || ? }"
+};
+char *gram_expType_list_arg = {
+    "<expType_list> ::= <expType> [ , <expType> ]*"
+};
+char *gram_expType_arg = {
+    "<expType>> ::= [ <predefined_exp> || <user_defined_exp> ]"
+};
+char *gram_user_defined_exp_arg = {
+    "<user_defined_exp> ::= <filename>"
+};
+char *gram_predefined_exp_arg = {
+    "<predefined_exp> ::= { pcsamp || usertime || mpi || fpe || hwc || io || ? }"
+};
+
+//  RANK
+char *gram_rank_list_spec_arg = {
+    "<rank_list_spec> ::= -r <rank_list>"
+};
+char *gram_rank_list_arg = {
+    "<rank_list> ::= <rank_range> [ , <rank_range> ]*"
+};
+char *gram_rank_range_arg = {
+    "<rank_range> ::= <rankname> [ : <rankname> ]"
+};
+char *gram_rankname_arg = {
+    "<rankname> ::= <int>"
+};
+
+//  THREAD
+char *gram_threadname_arg = {
+    "<threadname> ::= <int>"
+};
+char *gram_thread_range_arg = {
+    "<thread_range> ::= <threadname> [ : <threadname> ]"
+};
+char *gram_thread_list_arg = {
+    "<thread_list> ::= <thread_range> [ , <thread_range> ]*"
+};
+char *gram_thread_list_spec_arg = {
+    "<thread_list_spec> ::= -t <thread_list>"
+};
+
+//  PID
+char *gram_pidname_arg = {
+    "<pidname> ::= <int>"
+};
+char *gram_pid_range_arg = {
+    "<pid_range> ::= <pidname> [ : <pidname> ]"
+};
+char *gram_pid_list_arg = {
+    "<pid_list> ::= <pid_range> [ , <pid_range> ]*"
+};
+char *gram_pid_list_spec_arg = {
+    "<pid_list_spec> ::= -p <pid_list>"
+};
+
+//  FILE
+char *gram_filename_arg = {
+    "<filename> ::= <string> || \"<string>\""
+};
+char *gram_file_list_arg = {
+    "<file_list> ::= <filename> [ , <filename> ]*"
+};
+char *gram_file_list_spec_arg = {
+    "<file_list_spec> ::= -f <file_list>"
+};
+
+//  HOST
+char *gram_IP_Address_arg = {
+    "<IP_Address> ::= <int>.<int>.<int>.<int>"
+};
+char *gram_hostname_arg = {
+    "<hostname> ::= <string> || <IP_Address>"
+};
+char *gram_host_list_arg = {
+    "<host_list> ::= -h <host_name> [ , <host_name> ]*"
+};
+char *gram_host_list_spec_arg = {
+    "<host_list_spec> ::= -h <host_list>"
+};
+
+//  CLUSTER
+char *gram_clustername_arg = {
+    "<clustername> ::= <string> || \"<string>\""
+};
+char *gram_cluster_list_arg = {
+    "<cluster_list> ::= <clustername> [ , <clustername> ]*"
+};
+char *gram_cluster_list_spec_arg = {
+    "<cluster_list_spec> ::= -c <cluster_list>"
+};
+
+//  TARGET
+char *gram_target_arg = {
+    "<target> ::= [ <cluster_list_spec> ] [ <host_list_spec> ] [ <file_list_spec> ] [ <pid_list_spec> ] [ <thread_list_spec ] [ <rank_list_spec ]"
+};
+char *gram_target_list_arg = {
+    "<target_list> ::= <target> [ ; <target> ]*"
+};
+
+char *gram_file_spec_arg = {
+    "<file_spec> ::= -f <file_name>"
+};
+char *gram_host_spec_arg = {
+    "<host_spec> ::= -h <host_name>"
+};
+char *gram_host_file_arg = {
+    "<host_file> ::= [ <host_spec> ] <file_spec>"
+};
+
+//  LINENUMBER
+char *gram_lineno_range_arg = {
+    "<lineno_range> ::= <lineno> [ : <lineno> ]"
+};
+char *gram_linenumber_range_spec_arg = {
+    "<linenumber_range_spec> ::= -l <lineno_range>"
+};
+char *gram_linenumber_list_spec_arg = {
+    "<linenumber_list_spec> ::= -l <lineno_range> [, <lineno_range> ]*"
+};
+
+char *gram_statusType_arg = {
+    "<statusType> ::= { NonExistent || Paused || Running || Terminated || Error }"
+};
+char *gram_viewType_arg = {
+    "<viewType> ::= { vTopN || vExclTime || vIO || vFpe || vHwc || ? }"
+};
+
+char *gram_vTopN_arg = {
+    ""
+};
+char *gram_vExclTime_arg = {
+    ""
+};
+char *gram_vIO_arg = {
+    ""
+};
+char *gram_vFpe_arg = {
+    ""
+};
+char *gram_vHwc_arg = {
+    ""
+};
+char *gram_pcsamp_arg = {
+    ""
+};
+char *gram_usertime_arg = {
+    ""
+};
+char *gram_mpi_arg = {
+    ""
+};
+char *gram_fpe_arg = {
+    ""
+};
+char *gram_hwc_arg = {
+    ""
+};
+char *gram_io_arg = {
+    ""
+};
+char *gram_displayMode_arg = {
+    ""
+};
+char *gram_displayMedia_arg = {
+    ""
+};
+char *gram_displayRefreshRate_arg = {
+    ""
+};
+char *gram_expSaveFile_arg = {
+    ""
+};
+char *gram_samplingRate_arg = {
+    ""
+};
+
+//char *gram_xxx_arg = {
+//    ""
+//};
+
+/*********************************************/
+// BRIEF GRAMMAR MESSAGES
+/*********************************************/
+char *gram_address_description_brief = {
+    "An absolute or relative address."
+};
+char *gram_breakId_brief = {
+    "A breakpoint identifier."
+};
+char *gram_expId_brief = {
+    "an experiment identifier."
+};
+char *gram_expId_spec_brief = {
+    "an experiment identifier."
+};
+char *gram_expMetric_brief = {
+    "A result that an experiment can return. \nIt could be a full report, a value or a set of values."
+};
+char *gram_metric_name_brief = {
+    "Symbolic name representing desired metric."
+};
+char *gram_param_name_brief = {
+    "Symbolic name representing parameter desired."
+};
+char *gram_expParam_brief = {
+    "The experiment parameters correspond to items in the experiment \nclass that can be changed by the user or a tool component."
+};
+char *gram_expParamValue_brief = {
+    "Value to assinge to parameter."
+};
+char *gram_predefined_exp_brief = {
+    "Built in experiments type."
+};
+char *gram_user_defined_exp_brief = {
+    "User defined experiment type."
+};
+char *gram_expType_brief = {
+    "The experiment type designator. "
+};
+char *gram_expType_list_brief = {
+    "List of experiment types."
+};
+char *gram_rankname_brief = {
+    "."
+};
+char *gram_rank_range_brief = {
+    "."
+};
+char *gram_rank_list_brief = {
+    "."
+};
+char *gram_rank_list_spec_brief = {
+    "."
+};
+char *gram_threadname_brief = {
+    "."
+};
+char *gram_thread_range_brief = {
+    "."
+};
+char *gram_thread_list_brief = {
+    "."
+};
+char *gram_thread_list_spec_brief = {
+    "."
+};
+char *gram_pidname_brief = {
+    "."
+};
+char *gram_pid_range_brief = {
+    "."
+};
+char *gram_pid_list_brief = {
+    "."
+};
+char *gram_pid_list_spec_brief = {
+    "."
+};
+char *gram_filename_brief = {
+    "."
+};
+char *gram_file_list_brief = {
+    "."
+};
+char *gram_file_list_spec_brief = {
+    "."
+};
+char *gram_IP_Address_brief = {
+    "."
+};
+char *gram_hostname_brief = {
+    "."
+};
+char *gram_host_list_brief = {
+    "."
+};
+char *gram_host_list_spec_brief = {
+    "."
+};
+char *gram_clustername_brief = {
+    "."
+};
+char *gram_cluster_list_brief = {
+    "."
+};
+char *gram_cluster_list_spec_brief = {
+    "."
+};
+char *gram_target_brief = {
+    "Represents the host file and machine along with \na specific process, thread, or rank identifier.."
+};
+char *gram_target_list_brief = {
+    "."
+};
+char *gram_file_spec_brief = {
+    "."
+};
+char *gram_host_spec_brief = {
+    "."
+};
+char *gram_host_file_brief = {
+    "."
+};
+char *gram_lineno_range_brief = {
+    "."
+};
+char *gram_linenumber_range_spec_brief = {
+    "."
+};
+char *gram_linenumber_list_spec_brief = {
+    "."
+};
+char *gram_statusType_brief = {
+    "Current status of a given experiment as a predefined string."
+};
+char *gram_viewType_brief = {
+    "The format of the output display for this experiment."
+};
+char *gram_vTopN_brief = {
+    "Report the amount of program time spent in a function."
+};
+char *gram_vExclTime_brief = {
+    "Report the amount of time spent in a function."
+};
+char *gram_vIO_brief = {
+    "."
+};
+char *gram_vFpe_brief = {
+    "."
+};
+char *gram_vHwc_brief = {
+    "."
+};
+
+char *gram_pcsamp_brief = {
+    "PC (Program Counter) sampling."
+};
+char *gram_usertime_brief = {
+    "Usertime call stack profiling."
+};
+char *gram_mpi_brief = {
+    "MPI call tracing."
+};
+char *gram_fpe_brief = {
+    "Floating point profiling ."
+};
+char *gram_hwc_brief = {
+    "Hardware counter experiment."
+};
+char *gram_io_brief = {
+    "I/O (Input/Output) trace experiment."
+};
+
+char *gram_displayMode_brief = {
+    "."
+};
+char *gram_displayMedia_brief = {
+    "."
+};
+char *gram_displayRefreshRate_brief = {
+    "."
+};
+char *gram_expSaveFile_brief = {
+    "."
+};
+char *gram_samplingRate_brief = {
+    "."
+};
+
+//char *gram__brief = {
+//    "."
+//};
+
+/*********************************************/
+// DETAILED GRAMMAR MESSAGES
+/*********************************************/
+char *address_description[] = {
+    gram_address_description_arg,
+    " ",
+    gram_address_description_brief,
+    " ",
+    "Addresses can either be numbers or symbolic.",
+    "If symbolic, sufficient debugging information needs to be",
+    "available to resolve to a number",
+    " "
+};
+char *gram_breakId_detailed[] = {
+    gram_breakId_arg,
+    " ",
+    gram_breakId_brief,
+    " ",
+    "The break identifier is SpeedShop generated",
+    " "
+};
+char *gram_expId_detailed[] = {
+    gram_expId_arg,
+    " ",
+    gram_expId_brief,
+    " ",
+    "The experiment identifier is SpeedShop generated",
+    " "
+};
+char *gram_expId_spec_detailed[] = {
+    gram_expId_spec_arg,
+    " ",
+    gram_expId_brief,
+    " ",
+    "The experiment identifier is SpeedShop generated",
+    " "
+};
+char *gram_metric_name_detailed[] = {
+    gram_metric_name_arg,
+    " ",
+    gram_metric_name_brief,
+    " ",
+    " "
+};
+char *gram_expMetric_detailed[] = {
+    gram_expMetric_arg,
+    " ",
+    gram_expMetric_brief,
+    " ",
+    " "
+};
+char *gram_param_name_detailed[] = {
+    gram_param_name_arg,
+    " ",
+    gram_param_name_brief,
+    " ",
+    " "
+};
+char *gram_expParam_detailed[] = {
+    gram_expParam_arg,
+    " ",
+    gram_expParam_brief,
+    " ",
+    "- If <expType> is specified, then only that collector's ",
+    "  parameter is updated.",
+    "- If <expType> is NOT specified, then all parameters ",
+    "  matching the parameter name are updated, regardless ",
+    "  of the collector name, for that experiment ",
+    " "
+};
+char *gram_expParamValue_detailed[] = {
+    gram_expParamValue_arg,
+    " ",
+    gram_expParamValue_brief,
+    " ",
+    " "
+};
+char *gram_predefined_exp_detailed[] = {
+    gram_predefined_exp_arg,
+    " ",
+    gram_predefined_exp_brief,
+    " ",
+    " "
+};
+char *gram_user_defined_exp_detailed[] = {
+    gram_user_defined_exp_arg,
+    " ",
+    gram_user_defined_exp_brief,
+    " ",
+    " "
+};
+char *gram_expType_detailed[] = {
+    gram_expType_arg,
+    " ",
+    gram_expType_brief,
+    " ",
+    "Using this in the expCreate or expAttach command ",
+    "fills in the default values for the experiment."
+    " "
+};
+char *gram_expType_list_detailed[] = {
+    gram_expType_list_arg,
+    " ",
+    gram_expType_list_brief,
+    " ",
+    " "
+};
+char *gram_rankname_detailed[] = {
+    gram_rankname_arg,
+    " ",
+    gram_rankname_brief,
+    " ",
+    " "
+};
+char *gram_rank_range_detailed[] = {
+    gram_rank_range_arg,
+    gram_rankname_arg,
+    " ",
+    gram_rank_range_brief,
+    " ",
+    " "
+};
+char *gram_rank_list_detailed[] = {
+    gram_rank_list_arg,
+    gram_rank_range_arg,
+    gram_rankname_arg,
+    " ",
+    gram_rank_list_brief,
+    " ",
+    " "
+};
+char *gram_rank_list_spec_detailed[] = {
+    gram_rank_list_spec_arg,
+    gram_rank_list_arg,
+    gram_rank_range_arg,
+    gram_rankname_arg,
+    " ",
+    gram_rank_list_spec_brief,
+    " ",
+    " "
+};
+char *gram_threadname_detailed[] = {
+    gram_threadname_arg,
+    " ",
+    gram_threadname_brief,
+    " ",
+    " "
+};
+char *gram_thread_range_detailed[] = {
+    gram_thread_range_arg,
+    gram_threadname_arg,
+    " ",
+    gram_thread_range_brief,
+    " ",
+    " "
+};
+char *gram_thread_list_detailed[] = {
+    gram_thread_list_arg,
+    gram_thread_range_arg,
+    gram_threadname_arg,
+    " ",
+    gram_thread_list_brief,
+    " ",
+    " "
+};
+char *gram_thread_list_spec_detailed[] = {
+    gram_thread_list_spec_arg,
+    gram_thread_list_arg,
+    gram_thread_range_arg,
+    gram_threadname_arg,
+    " ",
+    gram_thread_list_spec_brief,
+    " ",
+    " "
+};
+char *gram_pidname_detailed[] = {
+    gram_pidname_arg,
+    " ",
+    gram_pidname_brief,
+    " ",
+    " "
+};
+char *gram_pid_range_detailed[] = {
+    gram_pid_range_arg,
+    gram_pidname_arg,
+    " ",
+    gram_pid_range_brief,
+    " ",
+    " "
+};
+char *gram_pid_list_detailed[] = {
+    gram_pid_list_arg,
+    gram_pid_range_arg,
+    gram_pidname_arg,
+    " ",
+    gram_pid_list_brief,
+    " ",
+    " "
+};
+char *gram_pid_list_spec_detailed[] = {
+    gram_pid_list_spec_arg,
+    gram_pid_list_arg,
+    gram_pid_range_arg,
+    gram_pidname_arg,
+    " ",
+    gram_pid_list_spec_brief,
+    " ",
+    " "
+};
+char *gram_filename_detailed[] = {
+    gram_filename_arg,
+    " ",
+    gram_filename_brief,
+    " ",
+    " "
+};
+char *gram_file_list_detailed[] = {
+    gram_file_list_arg,
+    gram_filename_arg,
+    " ",
+    gram_file_list_brief,
+    " ",
+    " "
+};
+char *gram_file_spec_detailed[] = {
+    gram_file_spec_arg,
+    gram_filename_arg,
+    " ",
+    gram_file_spec_brief,
+    " ",
+    " "
+};
+char *gram_file_list_spec_detailed[] = {
+    gram_file_list_spec_arg,
+    gram_file_list_arg,
+    gram_filename_arg,
+    " ",
+    gram_file_list_spec_brief,
+    " ",
+    " "
+};
+char *gram_IP_Address_detailed[] = {
+    gram_IP_Address_arg,
+    " ",
+    gram_IP_Address_brief,
+    " ",
+    " "
+};
+char *gram_hostname_detailed[] = {
+    gram_hostname_arg,
+    gram_IP_Address_arg,
+    " ",
+    gram_hostname_brief,
+    " ",
+    " "
+};
+char *gram_host_list_detailed[] = {
+    gram_host_list_arg,
+    gram_hostname_arg,
+    gram_IP_Address_arg,
+    " ",
+    gram_host_list_brief,
+    " ",
+    " "
+};
+char *gram_host_list_spec_detailed[] = {
+    gram_host_list_spec_arg,
+    gram_host_list_arg,
+    gram_hostname_arg,
+    gram_IP_Address_arg,
+    " ",
+    gram_host_list_spec_brief,
+    " ",
+    " "
+};
+char *gram_clustername_detailed[] = {
+    gram_clustername_arg,
+    " ",
+    gram_clustername_brief,
+    " ",
+    " "
+};
+char *gram_cluster_list_detailed[] = {
+    gram_cluster_list_arg,
+    gram_clustername_arg,
+    " ",
+    gram_cluster_list_brief,
+    " ",
+    " "
+};
+char *gram_cluster_list_spec_detailed[] = {
+    gram_cluster_list_spec_arg,
+    gram_cluster_list_arg,
+    gram_clustername_arg,
+    " ",
+    gram_cluster_list_spec_brief,
+    " ",
+    " "
+};
+
+char *gram_target_detailed[] = {
+    gram_target_arg,
+    " ",
+    gram_target_brief,
+    " ",
+    " "
+};
+char *gram_target_list_detailed[] = {
+    gram_target_list_arg,
+    gram_target_arg,
+    " ",
+    gram_target_list_brief,
+    " ",
+    " "
+};
+char *gram_host_spec_detailed[] = {
+    gram_host_spec_arg,
+    gram_hostname_arg,
+    gram_IP_Address_arg,
+    " ",
+    gram_host_spec_brief,
+    " ",
+    " "
+};
+char *gram_host_file_detailed[] = {
+    gram_host_file_arg,
+    gram_host_spec_arg,
+    gram_file_spec_arg,
+    " ",
+    gram_host_file_brief,
+    " ",
+    " "
+};
+char *gram_lineno_range_detailed[] = {
+    gram_lineno_range_arg,
+    " ",
+    gram_lineno_range_brief,
+    " ",
+    " "
+};
+char *gram_linenumber_range_spec_detailed[] = {
+    gram_linenumber_range_spec_arg,
+    " ",
+    gram_linenumber_range_spec_brief,
+    " ",
+    " "
+};
+char *gram_linenumber_list_spec_detailed[] = {
+    gram_linenumber_list_spec_arg,
+    gram_linenumber_range_spec_arg,
+    gram_lineno_range_arg,
+    " ",
+    gram_linenumber_list_spec_brief,
+    " ",
+    " "
+};
+char *gram_statusType_detailed[] = {
+    gram_statusType_arg,
+    " ",
+    gram_statusType_brief,
+    " ",
+    "\t- \"NonExistent\": ",
+    "\t\tThe experiment requested doesn't exist.",
+    " ",
+    "\t\tIn general, this is an internal error state.",
+    " ",
+    "\t\tIf the tool checked the status of the ExperimentObject",
+    "\t\tafter an \"expClose\" command, it might return",
+    "\t\tthis status. It will also be returned if the",
+    "\t\tframework experiment was destroyed - also an ",
+    "\t\tinternal error.",
+    " ",
+    "\t- \"Paused\": ",
+    "\t\tThe experiment requested has been paused by the user",
+    "\t\tor has been loaded and is ready to run, but isn't ",
+    "\t\tRunning yet.",
+    " ",
+    "\t\tThis is the initial state that a user will see.",
+    "\t\tThe experiment is not collecting information.",
+    "\t\tAdditional executables and additional experiment",
+    "\t\ttypes can be added to the experiment before an",
+    "\t\t\"expGo\" command is issued.",
+    " ",
+    "\t- \"Running\": ",
+    "\t\tAt least one pid that is part of the experiment ",
+    "\t\tis still currently executing.",
+    " ",
+    "\t- \"Terminated\": ",
+    "\t\tThe experiment requested has succesfully terminated.",
+    " ",
+    "\t\tThe program that is part of the experiment can no",
+    "\t\tlonger be executed. This could be because it has",
+    "\t\tcompleted normally or because it encountered a",
+    "\t\tfatal error.",
+    " ",
+    "\t- \"Error\": ",
+    "\t\tThis state is reported if the FrameWork encounters",
+    "\t\tan unexpected problem.",
+    " "
+};
+char *gram_viewType_detailed[] = {
+    gram_viewType_arg,
+    " ",
+    gram_viewType_brief,
+    " ",
+    " "
+};
+char *gram_vTopN_detailed[] = {
+    gram_vTopN_arg,
+    " ",
+    gram_vTopN_brief,
+    " ",
+    "Produce a descending report of the functions that use the",
+    "most time as measured by the program counter.",
+    " "
+    "A positive integer can be added to the end of the keyword",
+    "\"vtop\" to indicate the maximum number of items in",
+    "the report.",
+    " "
+};
+char *gram_vExclTime_detailed[] = {
+    gram_vExclTime_arg,
+    " ",
+    gram_vExclTime_brief,
+    " ",
+    "Produce a decending report of the functions that use the",
+    "most time.",
+    "",
+    "A positive integer can be added to the end of the keyword",
+    "\"extime\" to indicate the maximum number of items in",
+    "the report.",
+    "",
+    " "
+};
+char *gram_vIO_detailed[] = {
+    gram_vIO_arg,
+    " ",
+    gram_vIO_brief,
+    " ",
+    " "
+};
+char *gram_vFpe_detailed[] = {
+    gram_vFpe_arg,
+    " ",
+    gram_vFpe_brief,
+    " ",
+    " "
+};
+char *gram_vHwc_detailed[] = {
+    gram_vHwc_arg,
+    " ",
+    gram_vHwc_brief,
+    " ",
+    " "
+};
+char *gram_displayMode_detailed[] = {
+    gram_displayMode_arg,
+    " ",
+    gram_displayMode_brief,
+    " ",
+    " "
+};
+char *gram_displayMedia_detailed[] = {
+    gram_displayMedia_arg,
+    " ",
+    gram_displayMedia_brief,
+    " ",
+    " "
+};
+char *gram_displayRefreshRate_detailed[] = {
+    gram_displayRefreshRate_arg,
+    " ",
+    gram_displayRefreshRate_brief,
+    " ",
+    " "
+};
+char *gram_expSaveFile_detailed[] = {
+    gram_expSaveFile_arg,
+    " ",
+    gram_expSaveFile_brief,
+    " ",
+    " "
+};
+char *gram_samplingRate_detailed[] = {
+    gram_samplingRate_arg,
+    " ",
+    gram_samplingRate_brief,
+    " ",
+    " "
+};
+char *gram_pcsamp_detailed[] = {
+    gram_pcsamp_arg,
+    " ",
+    gram_pcsamp_brief,
+    " ",
+    "The pcsamp experiment estimates the actual CPU ",
+    "time for each source code line, machine code line, ",
+    "and function in your program. The listing of ",
+    "this experiment shows exclusive PC sampling time. ",
+    "This experiment is a lightweight, high-speed operation ",
+    "that makes use of the operating system.",
+    " ",
+    "CPU time is calculated by multiplying the number of ",
+    "times an instruction or function appears in the PC by ",
+    "the interval specified for the experiment.",
+    " ",
+    "To collect the data, the operating system regularly ",
+    "stops the process, increments a counter corresponding ",
+    "to the current value of the PC, and resumes the process. ",
+    "The default sample interval is 100 milliseconds. The",
+    "sample interval can be controlled via Open|SpeedShop. ",
+    " ",
+    "PC sampling runs should slow the execution time of ",
+    "the program down no more than 5 percent. The measurements ",
+    "are statistical in nature, meaning they exhibit variance ",
+    "inversely proportional to the running time.",
+    " "
+};
+char *gram_usertime_detailed[] = {
+    gram_usertime_arg,
+    " ",
+    gram_usertime_brief,
+    " ",
+    "The usertime and the totaltime experiments are useful ",
+    "experiments to start your performance analysis. The usertime ",
+    "experiment returns CPU time for each function while your ",
+    "program runs and the totaltime experiment returns real ",
+    "time for each function.",
+    " ",
+    "These expeirments use statistical call stack profiling ",
+    "to measure inclusive and exclusive user time. They take ",
+    "a sample every 30 milliseconds. Data is measured by ",
+    "periodically sampling the callstack. The program's ",
+    "callstack data is used to do the following:",
+    " ",
+    "\t- Attribute exclusive user time to the function at the ",
+    "\t  bottom of each callstack (that is, the function being ",
+    "\t  executed at the time of the sample).",
+    " ",
+    "\t- Attribute inclusive user time to all the functions above ",
+    "\t  the one currently being executed (those involved in the ",
+    "\t  chain of calls that led to the function at the bottom of ",
+    "\t  the callstack executing).",
+    " ",
+    "The time spent in a procedure is determined by multiplying ",
+    "the number of times an instruction for that procedure appears ",
+    "in the stack by the sampling time interval between call stack ",
+    "samples. Call stacks are gathered when the program is running; ",
+    "hence, the time computed represents user time, not time spent ",
+    "when the program is waiting for a CPU. User time shows both ",
+    "the time the program itself is executing and the time the ",
+    "operating system is performing services for the program, ",
+    "such as I/O.",
+    " ",
+    "The usertime experiment should incur a program execution slowdown ",
+    "of no more than 15%. Data from a usertime experiment is statistical ",
+    "in nature and shows some variance from run to run.",
+    " "
+};
+char *gram_mpi_detailed[] = {
+    gram_mpi_arg,
+    " ",
+    gram_mpi_brief,
+    " ",
+    "The mpi trace experiment traces calls to various MPI routines.",
+    " "
+};
+char *gram_fpe_detailed[] = {
+    gram_fpe_arg,
+    " ",
+    gram_fpe_brief,
+    " ",
+    "A floating-point exception trace collects each ",
+    "floating-point exception with the exception type ",
+    "and the call stack at the time of the exception. ",
+    "Floating-point exception tracing experiments should ",
+    "incur a slowdown in execution of the program of no ",
+    "more than 15%. These measurements are exact, not ",
+    "statistical.",
+    " "
+};
+char *gram_hwc_detailed[] = {
+    gram_hwc_arg,
+    " ",
+    gram_hwc_brief,
+    " ",
+    "In hardware counter experiments, overflows of a particular ",
+    "hardware counter are recorded. Each hardware counter is ",
+    "configured to count from zero to a number designated as ",
+    "the overflow value. When the counter reaches the overflow ",
+    "value, the system resets it to zero and increments the number ",
+    "of overflows at the present program instruction address. ",
+    "Each experiment provides two possible overflow values; the ",
+    "values are prime numbers, so any profiles that seem the same ",
+    "for both overflow values should be statistically valid.",
+    " "
+};
+char *gram_io_detailed[] = {
+    gram_io_arg,
+    " ",
+    gram_io_brief,
+    " ",
+    "The I/O trace experiment shows you the level of I/O activity ",
+    "in your program by tracing various I/O system calls, ",
+    "for example read(2) and write(2).",
+    " ",
+    "",
+    "\t- The number of I/O system calls executed.",
+    "",
+    "\t- The number of calls with an incomplete traceback.",
+    "",
+    "\t- The [index] column assigns a reference number to ",
+    "\t  each function.",
+    "",
+    "\t- The number of I/O-related system calls from each ",
+    "\t  function in the program.",
+    "",
+    "\t- The percentage of I/O-related system calls from each ",
+    "\t  function in the program.",
+    "",
+    "\t- The percentage of I/O-related system calls encountered ",
+    "\t  so far in the list of functions.",
+    "",
+    "\t- The number of I/O-related system calls made by a given ",
+    "\t  function and by all the functions ultimately called by ",
+    "\t  that given function. For example, the main function will ",
+    "\t  probably include all of the program's I/O calls with ",
+    "\t  complete tracebacks.",
+    "",
+    "\t- The percentage of I/O-related system calls made by a ",
+    "\t  given function and by all the functions ultimately called ",
+    "\t  by that given function.",
+    "",
+    "\t- The dso/dll, file name, and line number for each function.",
+    "",
+    " "
+};
+
+/*********************************************/
+// GRAMMAR MESSAGE ARRAY
+/*********************************************/
+// message array to be passed to message czar
+OpenSpeedShop::message_element_t grammar_msg[] = {
+//    <breakId>
+    -1,"breakId",NULL,0,"grammar",gram_breakId_brief,
+    gram_breakId_detailed,sizeof(gram_breakId_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <expId>
+    -1,"expId",NULL,0,"grammar",gram_expId_brief,
+    gram_expId_detailed,sizeof(gram_expId_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <expId_spec>
+    -1,"expId_spec",NULL,0,"grammar",gram_expId_spec_brief,
+    gram_expId_spec_detailed,sizeof(gram_expId_spec_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <metric_name>
+    -1,"metric_name",NULL,0,"grammar",gram_metric_name_brief,
+    gram_metric_name_detailed,sizeof(gram_metric_name_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <expMetric>
+    -1,"expMetric",NULL,0,"grammar",gram_expMetric_brief,
+    gram_expMetric_detailed,sizeof(gram_expMetric_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <param_name>
+    -1,"param_name",NULL,0,"grammar",gram_param_name_brief,
+    gram_param_name_detailed,sizeof(gram_param_name_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <expParam>
+    -1,"expParam",NULL,0,"grammar",gram_expParam_brief,
+    gram_expParam_detailed,sizeof(gram_expParam_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <expParamValue>
+    -1,"expParamValue",NULL,0,"grammar",gram_expParamValue_brief,
+    gram_expParamValue_detailed,sizeof(gram_expParamValue_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <predefined_exp>
+    -1,"predefined_exp",NULL,0,"grammar",gram_predefined_exp_brief,
+    gram_predefined_exp_detailed,sizeof(gram_predefined_exp_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <user_defined_exp>
+    -1,"user_defined_exp",NULL,0,"grammar",gram_user_defined_exp_brief,
+    gram_user_defined_exp_detailed,sizeof(gram_user_defined_exp_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <expType>
+    -1,"expType",NULL,0,"grammar",gram_expType_brief,
+    gram_expType_detailed,sizeof(gram_expType_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <expType_list>
+    -1,"expType_list",NULL,0,"grammar",gram_expType_list_brief,
+    gram_expType_list_detailed,sizeof(gram_expType_list_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <rankname>
+    -1,"rankname",NULL,0,"grammar",gram_rankname_brief,
+    gram_rankname_detailed,sizeof(gram_rankname_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <rank_range>
+    -1,"rank_range",NULL,0,"grammar",gram_rank_range_brief,
+    gram_rank_range_detailed,sizeof(gram_rank_range_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <rank_list>
+    -1,"rank_list",NULL,0,"grammar",gram_rank_list_brief,
+    gram_rank_list_detailed,sizeof(gram_rank_list_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <rank_list_spec>
+    -1,"rank_list_spec",NULL,0,"grammar",gram_rank_list_spec_brief,
+    gram_rank_list_spec_detailed,sizeof(gram_rank_list_spec_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <threadname>
+    -1,"threadname",NULL,0,"grammar",gram_threadname_brief,
+    gram_threadname_detailed,sizeof(gram_threadname_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <thread_range>
+    -1,"thread_range",NULL,0,"grammar",gram_thread_range_brief,
+    gram_thread_range_detailed,sizeof(gram_thread_range_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <thread_list>
+    -1,"thread_list",NULL,0,"grammar",gram_thread_list_brief,
+    gram_thread_list_detailed,sizeof(gram_thread_list_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <thread_list_spec>
+    -1,"thread_list_spec",NULL,0,"grammar",gram_thread_list_spec_brief,
+    gram_thread_list_spec_detailed,sizeof(gram_thread_list_spec_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <pidname>
+    -1,"pidname",NULL,0,"grammar",gram_pidname_brief,
+    gram_pidname_detailed,sizeof(gram_pidname_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <pid_range>
+    -1,"pid_range",NULL,0,"grammar",gram_pid_range_brief,
+    gram_pid_range_detailed,sizeof(gram_pid_range_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <pid_list>
+    -1,"pid_list",NULL,0,"grammar",gram_pid_list_brief,
+    gram_pid_list_detailed,sizeof(gram_pid_list_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <pid_list_spec>
+    -1,"pid_list_spec",NULL,0,"grammar",gram_pid_list_spec_brief,
+    gram_pid_list_spec_detailed,sizeof(gram_pid_list_spec_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <filename>
+    -1,"filename",NULL,0,"grammar",gram_filename_brief,
+    gram_filename_detailed,sizeof(gram_filename_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <file_list>
+    -1,"file_list",NULL,0,"grammar",gram_file_list_brief,
+    gram_file_list_detailed,sizeof(gram_file_list_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <file_list_spec>
+    -1,"file_list_spec",NULL,0,"grammar",gram_file_list_spec_brief,
+    gram_file_list_spec_detailed,sizeof(gram_file_list_spec_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <IP_Address>
+    -1,"IP_Address",NULL,0,"grammar",gram_IP_Address_brief,
+    gram_IP_Address_detailed,sizeof(gram_IP_Address_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <hostname>
+    -1,"hostname",NULL,0,"grammar",gram_hostname_brief,
+    gram_hostname_detailed,sizeof(gram_hostname_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <host_list>
+    -1,"host_list",NULL,0,"grammar",gram_host_list_brief,
+    gram_host_list_detailed,sizeof(gram_host_list_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <host_list_spec>
+    -1,"host_list_spec",NULL,0,"grammar",gram_host_list_spec_brief,
+    gram_host_list_spec_detailed,sizeof(gram_host_list_spec_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <clustername>
+    -1,"clustername",NULL,0,"grammar",gram_clustername_brief,
+    gram_clustername_detailed,sizeof(gram_clustername_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <cluster_list>
+    -1,"cluster_list",NULL,0,"grammar",gram_cluster_list_brief,
+    gram_cluster_list_detailed,sizeof(gram_cluster_list_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <cluster_list_spec>
+    -1,"cluster_list_spec",NULL,0,"grammar",gram_cluster_list_spec_brief,
+    gram_cluster_list_spec_detailed,sizeof(gram_cluster_list_spec_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <target>
+    -1,"target",NULL,0,"grammar",gram_target_brief,
+    gram_target_detailed,sizeof(gram_target_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <target_list>
+    -1,"target_list",NULL,0,"grammar",gram_target_list_brief,
+    gram_target_list_detailed,sizeof(gram_target_list_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <file_spec>
+    -1,"file_spec",NULL,0,"grammar",gram_file_spec_brief,
+    gram_file_spec_detailed,sizeof(gram_file_spec_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <host_spec> 
+    -1,"host_spec",NULL,0,"grammar",gram_host_spec_brief,
+    gram_host_spec_detailed,sizeof(gram_host_spec_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <host_file>
+    -1,"host_file",NULL,0,"grammar",gram_host_file_brief,
+    gram_host_file_detailed,sizeof(gram_host_file_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <lineno_range>
+    -1,"lineno_range",NULL,0,"grammar",gram_lineno_range_brief,
+    gram_lineno_range_detailed,sizeof(gram_lineno_range_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <linenumber_range_spec>
+    -1,"linenumber_range_spec",NULL,0,"grammar",gram_linenumber_range_spec_brief,
+    gram_linenumber_range_spec_detailed,sizeof(gram_linenumber_range_spec_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <linenumber_list_spec>
+    -1,"linenumber_list_spec",NULL,0,"grammar",gram_linenumber_list_spec_brief,
+    gram_linenumber_list_spec_detailed,sizeof(gram_linenumber_list_spec_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <statusType>
+    -1,"statusType",NULL,0,"grammar",gram_statusType_brief,
+    gram_statusType_detailed,sizeof(gram_statusType_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <viewType>
+    -1,"viewType",NULL,0,"grammar",gram_viewType_brief,
+    gram_viewType_detailed,sizeof(gram_viewType_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    vTopN
+    -1,"vTopN",NULL,0,"grammar",gram_vTopN_brief,
+    gram_vTopN_detailed,sizeof(gram_vTopN_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    vExclTime
+    -1,"vExclTime",NULL,0,"grammar",gram_vExclTime_brief,
+    gram_vExclTime_detailed,sizeof(gram_vExclTime_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    vIO
+    -1,"vIO",NULL,0,"grammar",gram_vIO_brief,
+    gram_vIO_detailed,sizeof(gram_vIO_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    vFpe
+    -1,"vFpe",NULL,0,"grammar",gram_vFpe_brief,
+    gram_vFpe_detailed,sizeof(gram_vFpe_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    vHwc
+    -1,"vHwc",NULL,0,"grammar",gram_vHwc_brief,
+    gram_vHwc_detailed,sizeof(gram_vHwc_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    pcsamp
+    -1,"pcsamp",NULL,0,"experiment",gram_pcsamp_brief,
+    gram_pcsamp_detailed,sizeof(gram_pcsamp_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    usertime
+    -1,"usertime",NULL,0,"experiment",gram_usertime_brief,
+    gram_usertime_detailed,sizeof(gram_usertime_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    mpi
+    -1,"mpi",NULL,0,"experiment",gram_mpi_brief,
+    gram_mpi_detailed,sizeof(gram_mpi_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    fpe
+    -1,"fpe",NULL,0,"experiment",gram_fpe_brief,
+    gram_fpe_detailed,sizeof(gram_fpe_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    hwc
+    -1,"hwc",NULL,0,"experiment",gram_hwc_brief,
+    gram_hwc_detailed,sizeof(gram_hwc_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    io
+    -1,"io",NULL,0,"experiment",gram_io_brief,
+    gram_io_detailed,sizeof(gram_io_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    displayMode
+    -1,"displayMode",NULL,0,"grammar",gram_displayMode_brief,
+    gram_displayMode_detailed,sizeof(gram_displayMode_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    displayMedia
+    -1,"displayMedia",NULL,0,"grammar",gram_displayMedia_brief,
+    gram_displayMedia_detailed,sizeof(gram_displayMedia_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    displayRefreshRate
+    -1,"displayRefreshRate",NULL,0,"grammar",gram_displayRefreshRate_brief,
+    gram_displayRefreshRate_detailed,sizeof(gram_displayRefreshRate_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    expSaveFile
+    -1,"expSaveFile",NULL,0,"grammar",gram_expSaveFile_brief,
+    gram_expSaveFile_detailed,sizeof(gram_expSaveFile_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    samplingRate
+    -1,"samplingRate",NULL,0,"experiment",gram_samplingRate_brief,
+    gram_samplingRate_detailed,sizeof(gram_samplingRate_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    
+//    -1,"",NULL,0,"grammar",gram_xxx_brief,
+//    gram_xxx_detailed,sizeof(gram_xxx_detailed)/sizeof(char **),NULL,0,NULL,0,
+
+//    END OF LIST
+    -1,NULL,NULL,0,NULL,NULL,
+    NULL,0,NULL,0,NULL,0
+};
+
+
+
+
+
+
+
+
+
+
