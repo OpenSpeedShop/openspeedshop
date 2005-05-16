@@ -14,12 +14,16 @@
 
 using namespace std;
 
+#include "SS_Message_Element.hxx"
+#include "SS_Message_Czar.hxx"
+
 #include "SS_Parse_Param.hxx"
 #include "SS_Parse_Range.hxx"
 #include "SS_Parse_Target.hxx"
 #include "SS_Parse_Result.hxx"
 
 using namespace OpenSpeedShop::cli;
+using namespace OpenSpeedShop;
 
 extern void dump_help_cmd(oss_cmd_enum, int, bool, CommandObject *);
 extern void dump_help_brief(CommandObject *);
@@ -27,6 +31,8 @@ extern void dump_help_param(char *, int, bool, CommandObject *);
 extern void dump_help_exp(char *, int, bool, CommandObject *);
 extern void dump_help_view(char *, int, bool, CommandObject *);
 extern void dump_help_gen(char *, int, bool, CommandObject *);
+
+extern SS_Message_Czar& theMessageCzar();
 
 command_type_t OpenSpeedShop::cli::cmd_desc[CMD_MAX] = {
     "Syntax_Error", false,  CMD_HEAD_ERROR, /* used in error reporting */
@@ -317,6 +323,38 @@ dumpHelp(CommandObject *cmd)
     	return;
     }
 
+#if 1
+    // Get reference of the message czar.
+    SS_Message_Czar& czar = theMessageCzar();
+
+    for (vector<string>::iterator j=p_slist->begin();
+    	 j != p_slist->end() && !found_match; 
+	 j++) {
+	string name(*j);
+    	vector <SS_Message_Element *> element;
+	    
+    	czar.Find_By_Keyword(name.c_str(), &element);
+    
+    	if (element.begin() == element.end()) {
+    	    cout << "No help for " << name.c_str() << endl;
+    	}
+
+    	vector <SS_Message_Element*>:: iterator k;
+    	for (k = element.begin();
+    	    k != element.end();
+	    ++k) {
+	    SS_Message_Element *p_el = *k;
+	    vector <string> :: iterator j;
+	    vector<string> *p_string = p_el->get_normal_list();
+    	    for (j=p_string->begin();
+    	     	j!= p_string->end();
+	     	++j) {
+	    	cout << *j << endl;
+	    }
+    	}
+    }
+
+#else
     for (vector<string>::iterator j=p_slist->begin();
     	 j != p_slist->end() && !found_match; 
 	 j++) {
@@ -380,6 +418,7 @@ dumpHelp(CommandObject *cmd)
 	    }
 	}
     }
+#endif
 }
 
 /**
