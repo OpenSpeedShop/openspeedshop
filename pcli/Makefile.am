@@ -26,18 +26,21 @@ lib_LTLIBRARIES = libopenss-cli.la
 
 libopenss_cli_la_CXXFLAGS = \
 	-I$(top_srcdir)/base \
+	-I$(top_srcdir)/message \
 	-I$(top_srcdir)/libopenss-framework \
 	-I$(top_srcdir)/objects \
 	$(LTDLINCL) \
 	$(PYTHON_CPPFLAGS)
 
 libopenss_cli_la_LDFLAGS = \
+	-L$(top_srcdir)/message \
 	-L$(top_srcdir)/libopenss-framework \
 	$(PYTHON_LDFLAGS) \
 	-export-dynamic -version-info 0:0:0
 
 libopenss_cli_la_LIBADD = \
 	-lopenss-framework \
+	-lopenss-message \
 	$(LIBLTDL) \
 	$(PYTHON_LIBS) \
 	-lpthread -lutil
@@ -49,6 +52,7 @@ libopenss_cli_la_SOURCES = \
 	CommandObject.hxx CommandObject.cxx \
 	Experiment.hxx Experiment.cxx \
 	help.cxx \
+	Load_Messages.cxx help_cmd_msg.dxx \
 	PY_Input.cxx \
 	SS_Cmd_Execution.hxx SS_Cmd_Execution.cxx \
 	SS_Input_Manager.hxx \
