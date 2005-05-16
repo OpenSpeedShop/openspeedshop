@@ -80,6 +80,7 @@
 #include <qtooltip.h>
 #include <qimage.h>
 #include <qpixmap.h>
+#include <qbitmap.h>
 #include <TabBarWidget.hxx>
 #include <qevent.h>
 #include <qaction.h>
@@ -107,6 +108,8 @@ extern QEventLoop *qeventloop;
 
 #include "PluginInfo.hxx"
 
+#include "dot.xpm"
+#include "dot_mask.bmp"
 #include "menu.xpm"
 #include "hsplit.xpm"
 #include "vsplit.xpm"
@@ -3392,11 +3395,88 @@ PanelContainer::augmentTab( QWidget *targetWidget, Panel *p, QIconSet *iconset )
     tabWidget->setTabIconSet( cp, *iconset );
   } else
   {
-    QPixmap *apm = new QPixmap( menu_xpm );
-//  QPixmap *apm = new QPixmap( QImage( "../gui/images/editcut" ) );
-    apm->setMask( apm->createHeuristicMask());
+    QPixmap *apm = new QPixmap( dot_xpm );
+// apm->fill(QColor("yellow"));
+apm->fill( getTabColor(p->groupID) );
+//    apm->setMask( apm->createHeuristicMask());
+    apm->setMask( QBitmap( dot_mask_width, dot_mask_height, dot_mask_bits ) );
     nprintf(DEBUG_PANELCONTAINERS) ("D: create the pulldown widget.\n");
     tabWidget->setTabIconSet( cp, QIconSet( *apm ));
-//    tabWidget->setTabIconSet( cp, QIconSet( QPixmap::fromMimeSource( "hsplit" ) ) );
   }
+}
+
+QColor
+PanelContainer::getTabColor(int id)
+{
+ // Temporary hack to return cooperative colors...
+ if( id > 16 )
+ {
+printf("We're over the limit of colors.. start over... FIX\n");
+   while(id -= 16 )
+   {
+     if( id < 16 )
+     {
+       break;
+     }
+   }
+ }
+
+
+ switch( id )
+ {
+   case 0:
+    return( QColor(white) );
+    break;
+   case 1:
+    return( QColor(red) );
+    break;
+   case 2:
+    return( QColor(green) );
+    break;
+   case 3:
+    return( QColor(blue) );
+    break;
+   case 4:
+    return( QColor(cyan) );
+    break;
+   case 5:
+    return( QColor(magenta) );
+    break;
+   case 6:
+    return( QColor(yellow) );
+    break;
+   case 7:
+    return( QColor(gray) );
+    break;
+   case 8:
+    return( QColor(black) );
+    break;
+   case 9:
+    return( QColor(darkRed) );
+    break;
+   case 10:
+    return( QColor(darkGreen) );
+    break;
+   case 11:
+    return( QColor(darkBlue) );
+    break;
+   case 12:
+    return( QColor(darkCyan) );
+    break;
+   case 13:
+    return( QColor(darkMagenta) );
+    break;
+   case 14:
+    return( QColor(darkYellow) );
+    break;
+   case 15:
+    return( QColor(darkGray) );
+    break;
+   case 16:
+   default:
+    return( QColor(lightGray) );
+    break;
+ }
+
+  return( QColor(lightGray) );
 }

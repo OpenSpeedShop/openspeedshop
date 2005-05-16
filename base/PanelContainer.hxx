@@ -141,6 +141,8 @@ class PanelContainer : public QWidget
     bool topLevel;
 
     LocalToolbar *ltb;
+
+    QColor getTabColor(int);
                   
     //! The name of this PanelContainer given by the panel developer.
     char *external_name;
