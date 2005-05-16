@@ -162,6 +162,7 @@ FIXED:
 23- Try adding a icon bar, next to the 'x' that doesn menu, split
     horizontal, split vertical, and 'x'.
     Change the icon menu to something more obvious... maybe MS-Ladder...
+FIXED:
 
 24- Should we use the term 'Tab' instead of 'Panel'?
 
@@ -174,15 +175,18 @@ FIXED:
 
 28- Add tooltip regarding menus (i.e. "Right mouse button for
     context sensitive menu.")
+FIXED:
 
 29- No intuitive way to delete a panel container.   Possibly leave
     the icon bar on an empty panel container.
+FIXED:
 
 30- BUG:  Panel layout resize problem.   Resize, split, then tried removing
     the CmdPanel (or the PanelContainer the CmdPanel was in).   Did not
     resize/reposition correctly.   (Actually in retrospect this may have
     worked.  If I remember correctly, the user may have shrunk the thumb
     into a small area and this was being resized.... Hmmm.)
+PENDING: (Unable to reproduce.)
 
 31- "Managing Collectors and Process" still needs more help understanding
     what it does.   Suggests changing this to simply "Manager Processes..."
@@ -247,7 +251,7 @@ FIXED:
 
 47- Make the Overview "Open Existing Experiment" a panel.
 
-48- (Make the Manager Collectors and Processes a panel.)
+48- (Make the "Manager Collectors and Processes" a panel.)
 
 49- Add a 'gather routine" for all associated panels.  This
     would basically pull all disjoint panels (with same
