@@ -383,6 +383,7 @@ void OpenSpeedshop::fileExit()
 {
  dprintf("fileExit() entered.\n");
 
+#ifdef OLDWAY
 //  QMessageBox::information( (QWidget *)this, tr("Info:"), tr("Closing down Open|SpeedShop... This may take a few seconds cleaning up...."),  QMessageBox::NoButton );
 
   steps = 0;
@@ -393,6 +394,7 @@ void OpenSpeedshop::fileExit()
   loadTimer->start( 1000 );
 
   pd->show();
+#endif // OLDWAY
 
   int wid = ((PanelContainer *)topPC)->getMainWindow()->widStr.toInt();
   InputLineObject *ilp = Append_Input_String( wid, "exit\n");
