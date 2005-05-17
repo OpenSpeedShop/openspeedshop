@@ -204,6 +204,7 @@ PENDING: (Unable to reproduce.)
 36- Color for tabs experiment number.   This is easier to show association
     rather than [1] number.   NOTE: The v menu option could be used to
     easily show color association.
+FIXED:
                                                                                 
 37- In the Intro Wizard add the actual experiment name after the
     more wordy description.
