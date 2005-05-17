@@ -150,12 +150,12 @@ CustomExperimentPanel::CustomExperimentPanel(PanelContainer *pc, const char *n, 
   PanelContainerList *lpcl = new PanelContainerList();
   lpcl->clear();
 
-  QWidget *customExperimentControlPanelContainerWidget =
-    new QWidget( getBaseWidgetFrame(), "customExperimentControlPanelContainerWidget" );
-  topPC = createPanelContainer( customExperimentControlPanelContainerWidget,
+  QWidget *constructNewExperimentControlPanelContainerWidget =
+    new QWidget( getBaseWidgetFrame(), "constructNewExperimentControlPanelContainerWidget" );
+  topPC = createPanelContainer( constructNewExperimentControlPanelContainerWidget,
                               "PCSamplingControlPanel_topPC", NULL,
                               pc->getMasterPCList() );
-  frameLayout->addWidget( customExperimentControlPanelContainerWidget );
+  frameLayout->addWidget( constructNewExperimentControlPanelContainerWidget );
 
   OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
 
@@ -167,16 +167,20 @@ CustomExperimentPanel::CustomExperimentPanel(PanelContainer *pc, const char *n, 
   {
     // We're coming in cold, or we're coming in from the constructNewExperimentWizardPanel.
     QString command = QString::null;
+#ifdef OLDWAY
     if( !executableNameStr.isEmpty() )
     {
       command = QString("expCreate -f \"%1 %2\"  \n").arg(executableNameStr).arg(argsStr);
     } else if( !pidStr.isEmpty() )
     { 
-      command = QString("expCreate -x %1  \n").arg(pidStr);
+      command = QString("expCreate %1  \n").arg(pidStr);
     } else
     {
       command = QString("expCreate  \n");
     }
+#else // OLDWAY
+    command = QString("expCreate  \n");
+#endif // OLDWAY
     bool mark_value_for_delete = true;
     int64_t val = 0;
 
@@ -243,7 +247,7 @@ CustomExperimentPanel::CustomExperimentPanel(PanelContainer *pc, const char *n, 
   groupID = expID;
 
 
-  customExperimentControlPanelContainerWidget->show();
+  constructNewExperimentControlPanelContainerWidget->show();
   topPC->show();
   topLevel = TRUE;
   topPC->topLevel = TRUE;
@@ -260,7 +264,9 @@ CustomExperimentPanel::CustomExperimentPanel(PanelContainer *pc, const char *n, 
     ThreadGroup::iterator ti = tgrp.begin();
     if( tgrp.size() == 0 )
     {
-      statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\" with the local menu.") );
+      statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\".") );
+PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
+topPC->dl_create_and_add_panel("pc Sample Wizard", bestFitPC, (char *)this);
     } else
     {
       statusLabelText->setText( tr(QString("Process Loaded: Click on the \"Run\" button to begin the experiment.")) );
@@ -268,7 +274,7 @@ CustomExperimentPanel::CustomExperimentPanel(PanelContainer *pc, const char *n, 
     }
   } else if( executableNameStr.isEmpty() )
   {
-    statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\" with the local menu.") );
+    statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\".") );
     runnableFLAG = FALSE;
     pco->runButton->setEnabled(FALSE);
     pco->runButton->enabledFLAG = FALSE;
@@ -298,7 +304,15 @@ CustomExperimentPanel::menu(QPopupMenu* contextMenu)
 
   contextMenu->insertSeparator();
 
-  QAction *qaction = new QAction( this,  "StatsPanel");
+  QAction *qaction = new QAction( this,  "EditName");
+  qaction->addTo( contextMenu );
+  qaction->setText( "Edit Panel Name..." );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( editPanelName() ) );
+  qaction->setStatusTip( tr("Change the name of this panel...") );
+
+  contextMenu->insertSeparator();
+
+  qaction = new QAction( this,  "StatsPanel");
   qaction->addTo( contextMenu );
   qaction->setText( "Stats Panel..." );
   connect( qaction, SIGNAL( activated() ), this, SLOT( loadStatsPanel() ) );
@@ -590,24 +604,77 @@ CLIInterface::interrupt = true;
     // Update status, will update the status bar as the status 
     // of the command progresses to completion.
     updateStatus();
- } else if( lao )
- {
-   nprintf( DEBUG_MESSAGES ) ("we've got a LoadAttachObject message\n");
+  } else if( lao )
+  {
+    nprintf( DEBUG_MESSAGES ) ("we've got a LoadAttachObject message\n");
 
-   if( lao->loadNowHint == TRUE || runnableFLAG == FALSE )
-   {
-     mw->executableName = lao->executableName;
-     mw->pidStr = lao->pidStr;
+    if( lao->loadNowHint == TRUE || runnableFLAG == FALSE )
+    {
+      mw->executableName = lao->executableName;
+      executableNameStr = lao->executableName;
+      mw->pidStr = lao->pidStr;
+      pidStr = lao->pidStr;
+ 
+      executableNameStr = lao->executableName;
+      pidStr = lao->pidStr;
+ 
+      QString command = QString::null;
+      if( !executableNameStr.isEmpty() )
+      {
+        command = QString("expAttach -x %1 -f \"%2 %3\"\n").arg(expID).arg(executableNameStr).arg(argsStr);
+      } else if( !pidStr.isEmpty() )
+      { 
+        command = QString("expAttach -x %1 %2\n").arg(expID).arg(pidStr);
+      } else
+      {
+        return 0;
+//      command = QString("expCreate  \n");
+      }
+      bool mark_value_for_delete = true;
+      int64_t val = 0;
+ 
+      steps = 0;
+ 	 pd = new GenericProgressDialog(this, "Loading process...", TRUE);
+      loadTimer = new QTimer( this, "progressTimer" );
+      connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
+      loadTimer->start( 0 );
+      pd->show();
+      statusLabelText->setText( tr(QString("Loading ...  "))+mw->executableName);
+ 
+      runnableFLAG = FALSE;
+      pco->runButton->setEnabled(FALSE);
+      pco->runButton->enabledFLAG = FALSE;
+  
+      CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+      if( !cli->runSynchronousCLI((char *)command.ascii() ) )
+      {
+        QMessageBox::information( this, "No collector found:", QString("Unable to issue command:\n  ")+command, QMessageBox::Ok );
+        return 1;
+      }
+ 
+      statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the \"Run\" button to begin the experiment.")) );
+      loadTimer->stop();
+      pd->hide();
+ 
+      if( !executableNameStr.isEmpty() || !pidStr.isEmpty() )
+      {
+        runnableFLAG = TRUE;
+        pco->runButton->setEnabled(TRUE);
+        pco->runButton->enabledFLAG = TRUE;
+      }
+  
+      updateInitialStatus();
+
 
       if( lao->paramList ) // Really not a list yet, just one param.
-      {
-        unsigned int sampling_rate = lao->paramList.toUInt();
-        // Set the sample_rate of the collector.
-        try
-        {
-          ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-          if( eo && eo->FW() )
-          {
+       {
+         unsigned int sampling_rate = lao->paramList.toUInt();
+         // Set the sample_rate of the collector.
+         try
+         {
+           ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+           if( eo && eo->FW() )
+           {
             experiment = eo->FW();
           }
           ThreadGroup tgrp = experiment->getThreads();
@@ -631,11 +698,8 @@ CLIInterface::interrupt = true;
         {
           return 0;
         }
-      }
-
-      updateInitialStatus();
- 
-      ret_val = 1;
+       }
+       ret_val = 1;
     }
   }
 
@@ -715,6 +779,26 @@ CustomExperimentPanel::loadSourcePanel()
   } else
   {
 // printf("Raise the source panel!\n");
+  }
+}
+
+#include <qinputdialog.h>
+void
+CustomExperimentPanel::editPanelName()
+{
+  nprintf( DEBUG_PANELS ) ("editPanelName.\n");
+
+  bool ok;
+  QString text = QInputDialog::getText(
+            "Open|SpeedShop", "Enter your name:", QLineEdit::Normal,
+            QString::null, &ok, this );
+  if( ok && !text.isEmpty() )
+  {
+    // user entered something and pressed OK
+    setName(text);
+  } else
+  {
+    // user entered nothing or pressed Cancel
   }
 }
 

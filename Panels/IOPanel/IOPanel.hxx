@@ -135,6 +135,7 @@ public slots:
   void manageCollectorsAndProcessesSelected();
   void manageDataSetsSelected();
   void loadSourcePanel();
+  void editPanelName();
   void loadStatsPanel();
   void progressUpdate();
 

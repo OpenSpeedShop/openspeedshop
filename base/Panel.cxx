@@ -156,10 +156,14 @@ void Panel::setName(QString n)
   PanelContainer *pc = getPanelContainer();
   if( pc && pc->tabWidget && !n.isEmpty() && !name.isEmpty() && n != name )
   {
-  
-    QWidget *cp = pc->tabWidget->currentPage();
-    pc->tabWidget->changeTab(cp, n);
-    qApp->flushX();
+    int indexOf = pc->tabWidget->indexOf(getBaseWidgetFrame());
+    if( indexOf >= 0 )
+    {
+//      QWidget *cp = pc->tabWidget->currentPage();
+      QWidget *cp = pc->tabWidget->page(indexOf);
+      pc->tabWidget->changeTab(cp, n);
+      qApp->flushX();
+    }
   }
 
   name = n;
