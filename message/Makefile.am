@@ -18,7 +18,7 @@
 
 lib_LTLIBRARIES = libopenss-message.la
 
-libopenss_cli_la_CXXFLAGS = \
+libopenss_message_la_CXXFLAGS = \
 	-I$(top_srcdir)/base \
 	-I$(top_srcdir)/libopenss-framework \
 	-I$(top_srcdir)/objects \
@@ -26,10 +26,10 @@ libopenss_cli_la_CXXFLAGS = \
 	$(LTDLINCL) \
 	$(PYTHON_CPPFLAGS)
 
-libopenss_cli_la_LDFLAGS = \
+libopenss_message_la_LDFLAGS = \
 	-export-dynamic -version-info 0:0:0
 
-libopenss_cli_la_LIBADD = \
+libopenss_message_la_LIBADD = \
 	$(LIBLTDL) \
 	-lutil
 
