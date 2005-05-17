@@ -383,9 +383,9 @@ void OpenSpeedshop::fileExit()
 {
  dprintf("fileExit() entered.\n");
 
-#ifdef OLDWAY
 //  QMessageBox::information( (QWidget *)this, tr("Info:"), tr("Closing down Open|SpeedShop... This may take a few seconds cleaning up...."),  QMessageBox::NoButton );
 
+#ifdef OLDWAY
   steps = 0;
   pd = new GenericProgressDialog(this, "Exiting Open|SpeedShop", TRUE );
   pd->infoLabel->setText( tr("Waiting to exit: Cleaning up...") );
@@ -394,6 +394,9 @@ void OpenSpeedshop::fileExit()
   loadTimer->start( 1000 );
 
   pd->show();
+#else // OLDWAY
+  pd = new GenericProgressDialog(this, "Exiting Open|SpeedShop", TRUE );
+  pd->infoLabel->setText( tr("Waiting to exit: Cleaning up...") );
 #endif // OLDWAY
 
   int wid = ((PanelContainer *)topPC)->getMainWindow()->widStr.toInt();
