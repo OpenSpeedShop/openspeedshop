@@ -53,7 +53,7 @@ class QTabWidget;
 
 #include <qtimer.h>
 
-#include <qpushbutton.h>  // For debug only ... 
+#include <qapplication.h>  // For debug only ... 
  
 #include "debug.hxx"  // This includes the definition of nprintf(DEBUG_PANELS) 
 
@@ -75,11 +75,11 @@ Panel::Panel(PanelContainer *pc, const char *n) : QWidget(pc, n)
 
   baseWidgetFrame = NULL;
 
+  setPanelContainer(pc);
+
   setName(n);
 
   setCaption(n);
-
-  setPanelContainer(pc);
 
   QWidget *w = pc->dropSiteLayoutParent;
 
@@ -152,6 +152,16 @@ void Panel::setName(const char *n)
 //! Set the name of the Panel.
 void Panel::setName(QString n)
 {
+
+  PanelContainer *pc = getPanelContainer();
+  if( pc && pc->tabWidget && !n.isEmpty() && !name.isEmpty() && n != name )
+  {
+  
+    QWidget *cp = pc->tabWidget->currentPage();
+    pc->tabWidget->changeTab(cp, n);
+    qApp->flushX();
+  }
+
   name = n;
 }
 

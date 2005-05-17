@@ -304,7 +304,15 @@ pcSamplePanel::menu(QPopupMenu* contextMenu)
 
   contextMenu->insertSeparator();
 
-  QAction *qaction = new QAction( this,  "StatsPanel");
+  QAction *qaction = new QAction( this,  "EditName");
+  qaction->addTo( contextMenu );
+  qaction->setText( "Edit Panel Name..." );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( editPanelName() ) );
+  qaction->setStatusTip( tr("Change the name of this panel...") );
+
+  contextMenu->insertSeparator();
+
+  qaction = new QAction( this,  "StatsPanel");
   qaction->addTo( contextMenu );
   qaction->setText( "Stats Panel..." );
   connect( qaction, SIGNAL( activated() ), this, SLOT( loadStatsPanel() ) );
@@ -771,6 +779,26 @@ pcSamplePanel::loadSourcePanel()
   } else
   {
 // printf("Raise the source panel!\n");
+  }
+}
+
+#include <qinputdialog.h>
+void
+pcSamplePanel::editPanelName()
+{
+  nprintf( DEBUG_PANELS ) ("editPanelName.\n");
+
+  bool ok;
+  QString text = QInputDialog::getText(
+            "Open|SpeedShop", "Enter your name:", QLineEdit::Normal,
+            QString::null, &ok, this );
+  if( ok && !text.isEmpty() )
+  {
+    // user entered something and pressed OK
+    setName(text);
+  } else
+  {
+    // user entered nothing or pressed Cancel
   }
 }
 

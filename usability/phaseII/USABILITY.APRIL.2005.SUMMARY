@@ -113,6 +113,7 @@ FIXED
       main experiment name becomes part of the tab names)? Also,
       should this be part of the CLI as well, since ID won't make
       sense to the user anymore once they exit the GUI? 
+PARTIAL FIX:  Supported in GUI not in cli
 
 11- Put the "Experiments" menu under the File->Experiments entry.
 FIXED:
