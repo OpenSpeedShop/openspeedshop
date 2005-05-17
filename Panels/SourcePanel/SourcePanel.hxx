@@ -152,7 +152,7 @@ bool firstTimeShowingStatAreaFLAG;
   QString fileName;
 
   //! Routine to load a file.
-  void loadFile(const QString &fileName);
+  bool loadFile(const QString &fileName);
 
   //! Used to clear the text and set everything back to normal
   QColor defaultColor;

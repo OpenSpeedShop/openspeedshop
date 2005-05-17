@@ -409,7 +409,12 @@ SourcePanel::listener(void *msg)
     }
 
     nprintf(DEBUG_PANELS)  ("load the file spo->fileName=%s\n", spo->fileName.ascii() );
-    loadFile(spo->fileName);
+    if( loadFile(spo->fileName) == FALSE )
+    {
+      // We didn't find or load the file, but we did attempt
+      // to handle this message.   Return 1.
+      return 1;
+    }
 
     nprintf(DEBUG_PANELS)  ("doFileHighlights()\n");
 
@@ -718,7 +723,7 @@ SourcePanel::zoomOut()
 }
 
 /* Load a given file in the display. */
-void
+bool
 SourcePanel::loadFile(const QString &_fileName)
 {
   nprintf(DEBUG_PANELS) ("SourcePanel::loadFile() entered\n");
@@ -744,7 +749,7 @@ SourcePanel::loadFile(const QString &_fileName)
     textEdit->clear();
     textEdit->clearScrollBar();
     label->setText(tr("No file found."));
-    return;
+    return FALSE;
   }
   fileName = _fileName;
 
@@ -755,7 +760,7 @@ SourcePanel::loadFile(const QString &_fileName)
     msg = QString("Unable to open file: %1").arg(fileName);
     QMessageBox::information( (QWidget *)this, tr("Details..."),
                                msg, QMessageBox::Ok );
-    return;
+    return FALSE;
   }
 
   textEdit->hide();
@@ -825,6 +830,8 @@ SourcePanel::loadFile(const QString &_fileName)
     positionLineAtTop(lastTop);
     nprintf(DEBUG_PANELS) ("loadFile:: down here sameFile: lastTop=%d\n", lastTop);
   }
+
+  return TRUE;
 }
 
 /*! Get more information about the current posotion (if any). */

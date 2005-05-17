@@ -54,7 +54,7 @@ using namespace OpenSpeedShop::Framework;
 */
 StatsPanel::StatsPanel(PanelContainer *pc, const char *n, void *argument) : StatsPanelBase(pc, n, argument)
 {
-printf("StatsPanel() entered\n");
+// printf("StatsPanel() entered\n");
   setCaption("StatsPanel");
 
   f = NULL;
