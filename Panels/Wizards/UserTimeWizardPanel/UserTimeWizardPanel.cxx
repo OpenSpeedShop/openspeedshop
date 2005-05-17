@@ -1116,27 +1116,17 @@ void UserTimeWizardPanel::finishButtonSelected()
       mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
       vUpdateAttachOrLoadPageWidget();
       vAttachOrLoadPageNextButtonSelected();
-vSummaryPageFinishButtonSelected();
+      vSummaryPageFinishButtonSelected();
     } else
     {
       mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
       vUpdateAttachOrLoadPageWidget();
       eAttachOrLoadPageNextButtonSelected();
-vSummaryPageFinishButtonSelected();
+      vSummaryPageFinishButtonSelected();
     }
   } else
   {
-#ifdef OLDWAY
-    if( wizardMode->isOn() )
-    {
-      mainWidgetStack->raiseWidget(vSummaryPageWidget);
-    } else
-    {
-      mainWidgetStack->raiseWidget(eSummaryPageWidget);
-    }
-#else // OLDWAY
     vSummaryPageFinishButtonSelected();
-#endif // OLDWAY
   }
 }
 
@@ -1154,11 +1144,6 @@ void UserTimeWizardPanel::vSummaryPageFinishButtonSelected()
   getPanelContainer()->hidePanel((Panel *)this);
 
   Panel *p = UserTimePanel;
-  if( !p )
-  {
-    QString *argument = new QString("-1");
-    p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("User Time", getPanelContainer(), (void *)argument);
-  }
 
   if( getPanelContainer()->getMainWindow() )
   { 
@@ -1176,7 +1161,16 @@ void UserTimeWizardPanel::vSummaryPageFinishButtonSelected()
       {
         printf("Warning: No attach or load paramaters available.\n");
       }
-      p->listener((void *)lao);
+      if( lao != NULL )
+      {
+        if( !p )
+        {
+          QString *argument = new QString("-1");
+          p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("User Time", getPanelContainer(), (void *)argument);
+        }
+        getPanelContainer()->hidePanel((Panel *)this);
+        p->listener((void *)lao);
+      }
     }
   }
 

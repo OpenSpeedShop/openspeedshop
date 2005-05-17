@@ -1151,15 +1151,7 @@ void pcSampleWizardPanel::vSummaryPageFinishButtonSelected()
   eSummaryPageBackButton->setEnabled(FALSE);
   qApp->flushX();
 
-  getPanelContainer()->hidePanel((Panel *)this);
-
   Panel *p = pcSamplePanel;
-  if( !p )
-  {
-    QString *argument = new QString("-1");
-    p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("pc Sampling", getPanelContainer(), (void *)argument);
-  }
-
   if( getPanelContainer()->getMainWindow() )
   { 
     OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
@@ -1174,9 +1166,19 @@ void pcSampleWizardPanel::vSummaryPageFinishButtonSelected()
         lao = new LoadAttachObject((char *)NULL, mw->pidStr, sampleRate, TRUE);
       } else
       {
-        printf("Warning: No attach or load paramaters available.\n");
+//        printf("Warning: No attach or load paramaters available.\n");
       }
-      p->listener((void *)lao);
+      if( lao != NULL )
+      {
+        if( !p )
+        {
+          QString *argument = new QString("-1");
+          p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("pc Sampling", getPanelContainer(), (void *)argument);
+        }
+
+        getPanelContainer()->hidePanel((Panel *)this);
+        p->listener((void *)lao);
+      }
     }
   }
 
