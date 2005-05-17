@@ -1034,7 +1034,7 @@ OpenSpeedshop::progressUpdate()
 }
 
 
-void
+int
 OpenSpeedshop::lookForExperiment()
 {
   printf("The user may have loaded an experiment... as there was something on the command line.\n");
@@ -1131,6 +1131,8 @@ OpenSpeedshop::lookForExperiment()
 
   loadTimer->stop();
   pd->hide();
+
+  return( int_list.size() );
 }
 
 void

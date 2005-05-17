@@ -166,14 +166,19 @@ extern "C"
       delete splash_pixmap;
     }
 
-// printf("argc=%d\n", argc );
-if( argc > 3 )
-{
-  w->lookForExperiment();
-} else
-{
-  w->loadTheWizard();
-}
+    int number_of_found_experiments = 0;
+    // The user specified some arguments on the command line.
+    // See if they've defined any experiments.
+    if( argc > 3 )
+    {
+      number_of_found_experiments = w->lookForExperiment();
+    }
+    // If the use has not defined any experiments, then 
+    // load the wizard to help them...
+    if( number_of_found_experiments == 0 )
+    {
+      w->loadTheWizard();
+    }
 
     qapplication->exec();
 
