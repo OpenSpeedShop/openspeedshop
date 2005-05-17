@@ -74,6 +74,7 @@ FIXED: current:OpenSpeedShop:191911a
     the GUI should take hints from any failure that may of prevented
     the command from being completed.   While I'd rate this at a 
     lower priority this could help people from further frustration.
+PENDING: Partially implemented.
 
 3 - It's not clear that the user output is going to the shell 
     window where the openss command was issued.   People expected
@@ -139,6 +140,7 @@ FIXED:
 16- Pet-peeve:  Single click should highlight in the pcStatsPanel,
     double click should raise the source.  (Of course single
     vs double click should be used consistently across the tool.)
+FIXED:
 
 17- The user should be able to do a rerun.
     The users commented that they will run with one set of input
@@ -238,6 +240,7 @@ FIXED:
 
 42- Bug: Source Panel, when it can't find source don't reposition
     the 'current' source.
+FIXED: mod current:OpenSpeedShop:192690a 
 
 43- Run button status.   When launching executable, change the
     status first to "launching", "Paused - Ready to run", then

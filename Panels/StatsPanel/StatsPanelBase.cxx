@@ -91,7 +91,8 @@ StatsPanelBase::updateStatsPanelBaseData()
   {
     lv = new SPListView( this, getBaseWidgetFrame(), getName(), 0 );
  
-    connect( lv, SIGNAL(clicked(QListViewItem *)), this, SLOT( itemSelected( QListViewItem* )) );
+//    connect( lv, SIGNAL(clicked(QListViewItem *)), this, SLOT( itemSelected( QListViewItem* )) );
+    connect( lv, SIGNAL(doubleClicked(QListViewItem *)), this, SLOT( itemSelected( QListViewItem* )) );
 
     lv->setAllColumnsShowFocus(TRUE);
 
