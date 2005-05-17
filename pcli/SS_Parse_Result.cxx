@@ -336,7 +336,12 @@ dumpHelp(CommandObject *cmd)
     	czar.Find_By_Keyword(name.c_str(), &element);
     
     	if (element.begin() == element.end()) {
+#if 1
     	    cout << "No help for " << name.c_str() << endl;
+	    cmd->Result_String (*j);
+#else
+    	    cmd->Result_String() << "No help for " << name.c_str();
+#endif
     	}
 
     	vector <SS_Message_Element*>:: iterator k;
@@ -349,7 +354,11 @@ dumpHelp(CommandObject *cmd)
     	    for (j=p_string->begin();
     	     	j!= p_string->end();
 	     	++j) {
+#if 1
+		cmd->Result_String (*j);
+#else
 	    	cout << *j << endl;
+#endif
 	    }
     	}
     }
