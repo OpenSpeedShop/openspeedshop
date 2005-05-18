@@ -137,6 +137,7 @@ public slots:
   void loadSourcePanel();
   void editPanelName();
   void loadStatsPanel();
+  void loadManageProcessesPanel();
   void progressUpdate();
 
 private slots:

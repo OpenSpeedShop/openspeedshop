@@ -154,6 +154,7 @@ AC_CONFIG_FILES(Makefile
 		Panels/CmdPanel/Makefile
 		Panels/TopPanel/Makefile
 		Panels/StatsPanel/Makefile
+		Panels/ManageProcessesPanel/Makefile
 		Panels/HW_CounterPanel/Makefile
 		Panels/IOPanel/Makefile
 		Panels/MPIPanel/Makefile

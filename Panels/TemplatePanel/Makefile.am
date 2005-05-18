@@ -36,3 +36,5 @@ moc_TemplatePanel.cxx: TemplatePanel.hxx
 TemplatePanel_la_SOURCES = \
 	TemplatePanel.hxx TemplatePanel.cxx moc_TemplatePanel.cxx \
 	local_plugin_info.hxx
+
+CLEANFILES=moc_TemplatePanel.cxx

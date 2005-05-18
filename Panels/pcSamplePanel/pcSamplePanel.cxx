@@ -36,6 +36,7 @@
 #include "UpdateObject.hxx"
 #include "SourceObject.hxx"
 #include "TopPanel.hxx"
+#include "ManageProcessesPanel.hxx"
 
 #include "LoadAttachObject.hxx"
 
@@ -331,6 +332,13 @@ pcSamplePanel::menu(QPopupMenu* contextMenu)
   qaction->setText( "Manage Collectors and Process..." );
   connect( qaction, SIGNAL( activated() ), this, SLOT( manageCollectorsAndProcessesSelected() ) );
   qaction->setStatusTip( tr("Add/Attach/Delete collectors, process, programs to the experiment.") );
+
+qaction = new QAction( this,  "manageProcessesPanel");
+qaction->addTo( contextMenu );
+qaction->setText( "Manage Processes Panel..." );
+connect( qaction, SIGNAL( activated() ), this, SLOT( loadManageProcessesPanel() ) );
+qaction->setStatusTip( tr("Bring up the process and collector manager.") );
+
 
   qaction = new QAction( this,  "manageDataSets");
   qaction->addTo( contextMenu );
@@ -833,6 +841,45 @@ pcSamplePanel::loadStatsPanel()
       UpdateObject *msg =
         new UpdateObject((void *)experiment, expID, "pcsamp", 1);
       statsPanel->listener( (void *)msg );
+    }
+  }
+}
+
+void
+pcSamplePanel::loadManageProcessesPanel()
+{
+//  nprintf( DEBUG_PANELS ) ("loadManageProcessesPanel\n");
+printf("loadManageProcessesPanel\n");
+
+  QString name = QString("ManageProcessesPanel [%1]").arg(expID);
+
+
+  Panel *manageProcessPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+
+  if( manageProcessPanel )
+  { 
+    nprintf( DEBUG_PANELS ) ("loadManageProcessesPanel() found ManageProcessesPanel found.. raise it.\n");
+    getPanelContainer()->raisePanel(manageProcessPanel);
+  } else
+  {
+//    nprintf( DEBUG_PANELS ) ("loadManageProcessesPanel() no ManageProcessesPanel found.. create one.\n");
+printf("loadManageProcessesPanel() no ManageProcessesPanel found.. create one for %d\n", expID);
+
+    PanelContainer *pc = topPC->findBestFitPanelContainer(topPC);
+    manageProcessPanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("ManageProcessesPanel", pc, (void *)expID);
+  }
+
+  if( manageProcessPanel )
+  {
+//    nprintf( DEBUG_PANELS )("call (%s)'s listener routine.\n", manageProcessPanel->getName());
+printf("call (%s)'s listener routine expID=%d.\n", manageProcessPanel->getName(), expID);
+    ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+    if( eo && eo->FW() )
+    {
+      experiment = eo->FW();
+      UpdateObject *msg =
+        new UpdateObject((void *)experiment, expID, "pcsamp", 1);
+      manageProcessPanel->listener( (void *)msg );
     }
   }
 }

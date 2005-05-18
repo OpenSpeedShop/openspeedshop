@@ -16,44 +16,34 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-pkglib_LTLIBRARIES = pcSamplePanel.la
+pkglib_LTLIBRARIES = ManageProcessesPanel.la
 
-pcSamplePanel_la_CXXFLAGS = \
-	-c -LANG:std -fpic \
+ManageProcessesPanel_la_CXXFLAGS = \
     -I/usr/include \
     -I$(QTDIR)/include \
     -I. \
-	-I$(top_srcdir)/libopenss-framework \
-    -I$(top_srcdir)/pcli \
+    -I$(top_srcdir) \
+    -I$(top_srcdir)/libopenss-framework \
     -I$(top_srcdir)/gui \
-    -I$(top_srcdir)/images \
+	-I$(top_srcdir)/pcli \
+	-I$(top_srcdir)/objects \
+	-I$(top_srcdir)/dialogs \
     -I$(top_srcdir)/plugin \
-    -I$(top_srcdir)/objects \
-    -I$(top_srcdir)/dialogs \
-    -I$(top_srcdir)/Panels/ManageProcessesPanel \
-    -I$(top_srcdir)/Panels/SourcePanel \
-    -I$(top_srcdir)/Panels/TopPanel \
     -I$(top_srcdir)/base
 
-pcSamplePanel_la_LDFLAGS = \
-	-fpic \
-	--export-dynamic \
-	--export-all-symbols \
-	-module \
-	-avoid-version \
-	-L$(top_srcdir)/libopenss-framework \
-	-L$(top_srcdir)/dialogs \
-	-L$(QTDIR)/lib \
-	-lqt \
-	-ldl
+ManageProcessesPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
-pcSamplePanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-Dialogs
+ManageProcessesPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
 
-moc_pcSamplePanel.cxx: pcSamplePanel.hxx
-	-moc -o moc_pcSamplePanel.cxx pcSamplePanel.hxx
+moc_ManageProcessesPanel.cxx: ManageProcessesPanel.hxx
+	-moc -o moc_ManageProcessesPanel.cxx ManageProcessesPanel.hxx
 
-pcSamplePanel_la_SOURCES = \
-	pcSamplePanel.hxx pcSamplePanel.cxx moc_pcSamplePanel.cxx \
+moc_ManageCollectorsClass.cxx: ManageCollectorsClass.hxx
+	-moc -o moc_ManageCollectorsClass.cxx ManageCollectorsClass.hxx
+
+ManageProcessesPanel_la_SOURCES = \
+	ManageProcessesPanel.hxx ManageProcessesPanel.cxx moc_ManageProcessesPanel.cxx \
+	ManageCollectorsClass.hxx ManageCollectorsClass.cxx moc_ManageCollectorsClass.cxx \
 	local_plugin_info.hxx
 
-CLEANFILES=moc_pcSamplePanel.cxx
+CLEANFILES=moc_ManageProcessesPanel.cxx
