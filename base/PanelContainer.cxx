@@ -2466,7 +2466,7 @@ PanelContainer::dl_create_and_add_panel(const char *panel_type, PanelContainer *
       if( strcmp(pi->panel_type, panel_type) == 0 )
       {
         nprintf(DEBUG_PANELCONTAINERS) ("HE SHOOTS!   HE SCORES!\n");
-printf ("HE SHOOTS!   HE SCORES!\n");
+// printf ("HE SHOOTS!   HE SCORES!\n");
         Panel *p = (*(pi->dl_create_and_add_panel))((void *)pi, targetPC, arguments);
         p->show();
         return p;
@@ -3380,7 +3380,7 @@ PanelContainer::notifyAll(char *msg)
 void
 PanelContainer::augmentTab( QWidget *targetWidget, Panel *p, QIconSet *iconset )
 {
-printf("PanelContainer::augmentTab()\n");
+// printf("PanelContainer::augmentTab()\n");
   int index_of = tabWidget->indexOf( targetWidget );
   tabWidget->setCurrentPage(index_of);
   QWidget *cp = tabWidget->currentPage();
@@ -3399,7 +3399,7 @@ printf("PanelContainer::augmentTab()\n");
   {
     QPixmap *apm = new QPixmap( dot_xpm );
 // apm->fill(QColor("yellow"));
-printf("PanelContainer::augmentTab(%d)\n", p->groupID );
+// printf("PanelContainer::augmentTab(%d)\n", p->groupID );
 apm->fill( getTabColor(p->groupID) );
 //    apm->setMask( apm->createHeuristicMask());
     apm->setMask( QBitmap( dot_mask_width, dot_mask_height, dot_mask_bits ) );
