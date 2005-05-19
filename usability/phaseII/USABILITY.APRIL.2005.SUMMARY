@@ -174,8 +174,11 @@ FIXED:
 FIXED:
 
 26- The sort indicator in pcStatsPanel seems reversed.
+REJECTED:   I checked with a designer example and the sort indicator is
+            as trolltech wants it...
 
 27- BUG: Update brings up pcStatsPanel.
+FIXED:
 
 28- Add tooltip regarding menus (i.e. "Right mouse button for
     context sensitive menu.")
