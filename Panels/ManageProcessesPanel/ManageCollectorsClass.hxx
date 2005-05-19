@@ -100,7 +100,7 @@ private slots:
     void disableSelected();
     void enableSelected();
     void attachProcessSelected();
-    void attachProgramSelected();
+    void loadProgramSelected();
     void fileCollectorAboutToShowSelected();
     void paramSelected(int);
     void sortByProcess();

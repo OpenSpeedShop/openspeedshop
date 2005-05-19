@@ -127,6 +127,7 @@ a separate wizard panel...
 
 13- When loading an "collector" into an experiment, the dialog 
     reads, "Loading Executable"... it should be "Loading Experiment"
+FIXED:
 
 14- Add a "Window'-like entry to list the experiments that are
     currently available to be raised in the gui.
@@ -193,6 +194,7 @@ PENDING: (Unable to reproduce.)
 
 31- "Managing Collectors and Process" still needs more help understanding
     what it does.   Suggests changing this to simply "Manager Processes..."
+FIXED:
 
 32- "Collector" is an internal name.   Use one that is more generic
     and meaningful.   One suggestion was "Instrumentation."
@@ -200,6 +202,7 @@ PENDING: (Unable to reproduce.)
 33- Possibly add an 'unsplit' menu option.
 
 34- "Attach Program" should be "Load Program" (Manage Collectors and Processes)
+Fixed:
                                                                                 
 35- "Detach Collector" should be "Remove Collector" -- Remember "Collector"
     should be something different...
@@ -214,6 +217,7 @@ FIXED:
     i.e. "I'm trying to find where my program is spending most of it's time"
     should be:
     I'm trying to find where my program is spending most of it's time. [pcsamp]
+FIXED:
                                                                                 
 38- Make more consistent usage of the experiment terms.  i.e. use
     pcsamp, pc Sampling, pc Sample Experiment but don't mix them all.

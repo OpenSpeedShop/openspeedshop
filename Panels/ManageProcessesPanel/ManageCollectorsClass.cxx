@@ -613,7 +613,7 @@ return;
 }
 
 void
-ManageCollectorsClass::attachProgramSelected()
+ManageCollectorsClass::loadProgramSelected()
 {
   dprintf("addProgramSelected\n");
   mw->executableName = QString::null;
@@ -868,10 +868,10 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
 
   contextMenu->insertSeparator();
 
-  QAction *qaction = new QAction( this,  "attachProgram");
+  QAction *qaction = new QAction( this,  "loadProgram");
   qaction->addTo( contextMenu );
-  qaction->setText( tr("Attach Program...") );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( attachProgramSelected() ) );
+  qaction->setText( tr("Load Program...") );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( loadProgramSelected() ) );
   qaction->setStatusTip( tr("Opens dialog box to load application from disk.") );
 
   qaction = new QAction( this,  "attachProcess");

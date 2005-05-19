@@ -388,14 +388,14 @@ IntroWizardPanel::languageChange()
     vWelcomeHeader->setText( tr( "<h2>Welcome to Open/SpeedShop(tm)</h2>" ) );
     vHelpfulLabel->setText( tr( "Please select which of the following are true for your application:" ) );
     vpage1LoadExperimentCheckBox->setText( tr( "I already have experiment data and would like to analyze it." ) );
-    vpage1pcSampleRB->setText( tr( "I'm trying to find where my program is spending most of it's time." ) );
-    vpage1UserTimeRB->setText( tr( "I'd like to find out how much time is system time vs. my program's time." ) );
+    vpage1pcSampleRB->setText( tr( "I'm trying to find where my program is spending most of it's time. (pcsamp)" ) );
+    vpage1UserTimeRB->setText( tr( "I'd like to find out how much time is system time vs. my program's time. (usertime)" ) );
     vpage1HardwareCounterRB->setText( tr( "I'd like to see what the internal Hardware Counters can show me.\n"
 "(Hardware Counters are an advanced feature that utilizes machine \n"
-"hardware to measure certain attributes of program execution.)" ) );
-    vpage1FloatingPointRB->setText( tr( "I need to measure how many times I am causing Floating Point Exceptions." ) );
-    vpage1InputOutputRB->setText( tr( "My program does a lot of Input and Output and I'd like to trace that work." ) );
-    vpage1MPIRB->setText( tr( "I have an MPI program and I'd like trace the mpi calls." ) );
+"hardware to measure certain attributes of program execution.) (hw)" ) );
+    vpage1FloatingPointRB->setText( tr( "I need to measure how many times I am causing Floating Point Exceptions. (fpe)" ) );
+    vpage1InputOutputRB->setText( tr( "My program does a lot of Input and Output and I'd like to trace that work. (io)" ) );
+    vpage1MPIRB->setText( tr( "I have an MPI program and I'd like trace the mpi calls. (mpi)" ) );
     vpage1NextButton->setText( tr( "> Next" ) );
     eWelcomeHeader->setText( tr( "<h2>Welcome to Open/SpeedShop(tm)</h2>" ) );
     eHelpfulLabel->setText( tr( "Please select which of the following are true for your application:" ) );
