@@ -102,9 +102,6 @@ StatsPanelBase::updateStatsPanelBaseData()
     // If there should be sort indicators in the header, show them here.
     lv->setShowSortIndicator(TRUE);
 
-    // Hook the click in the header up to a sort routine...
-    connect( lv->header(), SIGNAL(clicked(int)), this, SLOT( sortCalledRecalculateCumulative(int)) );
-
     QToolTip::add( lv, tr( "The list of statistics collected." ) );
   }
 
@@ -113,11 +110,6 @@ StatsPanelBase::updateStatsPanelBaseData()
   frameLayout->addWidget(lv);
 
   lv->show();
-}
-
-void
-StatsPanelBase::sortCalledRecalculateCumulative(int i)
-{
 }
 
 void

@@ -409,7 +409,7 @@ StatsPanel::exportData()
 void
 StatsPanel::gotoSource()
 {
-//  printf("gotoSource() menu selected.\n");
+// printf("gotoSource() menu selected.\n");
   QListViewItem *lvi = lv->selectedItem();
 
   itemSelected(lvi);
@@ -426,27 +426,29 @@ QMessageBox::information(this, "compareSelected() unimplemented", "This function
 void
 StatsPanel::itemSelected(QListViewItem *item)
 {
-//  printf("StatsPanel::itemSelected(clicked) entered\n");
+// printf("StatsPanel::itemSelected(clicked) entered\n");
 
   if( item )
   {
-//    printf("  item->depth()=%d\n", item->depth() );
+// printf("  item->depth()=%d\n", item->depth() );
 
     SPListViewItem *nitem = (SPListViewItem *)item;
     while( nitem->parent() )
     {
-//      printf("looking for 0x%x\n", nitem->parent() );
+// printf("looking for 0x%x\n", nitem->parent() );
       nitem = (SPListViewItem *)nitem->parent();
     } 
   
     
     if( nitem )
     {
-//      printf("here's the parent! 0x%x\n", nitem);
+// printf("here's the parent! 0x%x\n", nitem);
 //      printf("  here's the rank of that parent: function name = %s\n",
 //        nitem->text(1).ascii() );
 //      matchSelectedItem( atoi( nitem->text(1).ascii() ) );
-      matchSelectedItem( std::string(nitem->text(3).ascii()) );
+
+// printf("YOU NEED TO LOOP THROUGH AND FIND THE FUNCTION FIELD!!!\n");
+      matchSelectedItem( std::string(nitem->text(2).ascii()) );
     }
   }
 }
@@ -480,7 +482,7 @@ StatsPanel::matchSelectedItem(std::string selected_function )
           break;
         } else
         {
-// fprintf(stderr, "No function definition for this entry.   Unable to position source.\n");
+fprintf(stderr, "No function definition for this entry.   Unable to position source.\n");
           QMessageBox::information(this, "Open|SpeedShop", "No function definition for this entry.\nUnable to position source. (No symbols.)\n", "Ok");
           return;
         }
@@ -500,6 +502,7 @@ StatsPanel::matchSelectedItem(std::string selected_function )
     {
       if( broadcast((char *)spo, NEAREST_T) == 0 )
       { // No source view up...
+// printf("place the source panel.\n");
         char *panel_type = "Source Panel";
   //Find the nearest toplevel and start placement from there...
         PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(getPanelContainer());
@@ -593,7 +596,6 @@ StatsPanel::updateStatsPanelBaseData()
           MetricHeaderInfoList metricHeaderInfoList;
           metricHeaderInfoList.push_back(new MetricHeaderInfo(QString(metricStr.ascii() ), FLOAT_T));
           metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("% of Time"), FLOAT_T));
-          metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Cumulative %"), FLOAT_T));
           metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Function"), CHAR_T));
           if( metricHeaderTypeArray != NULL )
           {
@@ -655,11 +657,10 @@ StatsPanel::updateStatsPanelBaseData()
       char cputimestr[50];
       char a_percent_str[50];
       a_percent_str[0] = '\0';
-      char c_percent_str[50];
       // convert time to %
       double percent_factor = 100.0 / TotalTime;
       double a_percent = 0; // accumulated percent
-      double c_percent = 0.0;
+      double c_percent = 0; // accumulated percent
   
       for(std::map<Function, double>::const_iterator
               it = orig_data->begin(); it != orig_data->end(); ++it)
@@ -667,8 +668,7 @@ StatsPanel::updateStatsPanelBaseData()
         c_percent = it->second*percent_factor;  // current item's percent of total time
         sprintf(cputimestr, "%f", it->second);
         sprintf(a_percent_str, "%f", c_percent);
-        sprintf(c_percent_str, "%f", a_percent);
-        lvi =  new SPListViewItem( this, lv, cputimestr,  a_percent_str, c_percent_str, it->first.getName().c_str() );
+        lvi =  new SPListViewItem( this, lv, cputimestr,  a_percent_str, it->first.getName().c_str() );
   
 #ifdef OLDWAY
         if(numberItemsToDisplay >= 0 )
@@ -684,10 +684,6 @@ StatsPanel::updateStatsPanelBaseData()
       }
     
       lv->sort();
-
-
-      sortCalledRecalculateCumulative(0);
-  
     }
   }
   catch(const std::exception& error)
@@ -717,24 +713,6 @@ StatsPanel::Get_Total_Time()
   return TotalTime;
 }
 
-
-void
-StatsPanel::sortCalledRecalculateCumulative(int val)
-{
-  // Now calculate the cumulative %
-  double a_percent = 0.0;
-  QPtrList<QListViewItem> lst;
-  QListViewItemIterator it( lv );
-  while( it.current() )
-  {
-    QListViewItem *item = *it;
-    QString val_str = item->text(1);
-    double val = val_str.toDouble();
-    a_percent += val;
-    item->setText( 2, QString("%1").arg(a_percent) );
-    ++it;
-  }
-}
 
 void
 StatsPanel::metricSelected()

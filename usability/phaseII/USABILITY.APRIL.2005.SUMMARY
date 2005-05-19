@@ -87,6 +87,7 @@ FIXED: current:OpenSpeedShop:191911a
 5 - Cumulative percent should be removed from the pcsamp default
     report.   (As per a suggestion... I'll wait for feedback if 
     others agree with this comment.)
+FIXED:
 
 6 - "File->Save Experiment ..." needs better descriptive wording.
     Also, since it's an overview window (the start of one anyway)

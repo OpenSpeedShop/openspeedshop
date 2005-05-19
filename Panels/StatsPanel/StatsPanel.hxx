@@ -88,8 +88,6 @@ class StatsPanel  : public StatsPanelBase
     void compareSelected();
 
   private slots:
-    virtual void sortCalledRecalculateCumulative(int);
-
     void threadSelected();
     void metricSelected();
     void threadMenuHighlighted(int);
