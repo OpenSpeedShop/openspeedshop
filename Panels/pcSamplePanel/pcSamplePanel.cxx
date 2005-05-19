@@ -65,8 +65,6 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n, void *argument) 
   executableNameStr = QString::null;
   argsStr = QString::null;
   pidStr = QString::null;
-  manageCollectorsDialog = NULL;
-  manageProcessesDialog = NULL;
   exitingFLAG = FALSE;
 
   mw = getPanelContainer()->getMainWindow();
@@ -327,17 +325,11 @@ pcSamplePanel::menu(QPopupMenu* contextMenu)
 
   contextMenu->insertSeparator();
 
-  qaction = new QAction( this,  "managerCollectorsAndProcesses");
+  qaction = new QAction( this,  "manageProcessesPanel");
   qaction->addTo( contextMenu );
-  qaction->setText( "Manage Collectors and Process..." );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( manageCollectorsAndProcessesSelected() ) );
-  qaction->setStatusTip( tr("Add/Attach/Delete collectors, process, programs to the experiment.") );
-
-qaction = new QAction( this,  "manageProcessesPanel");
-qaction->addTo( contextMenu );
-qaction->setText( "Manage Processes Panel..." );
-connect( qaction, SIGNAL( activated() ), this, SLOT( loadManageProcessesPanel() ) );
-qaction->setStatusTip( tr("Bring up the process and collector manager.") );
+  qaction->setText( "Manage Processes Panel..." );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( loadManageProcessesPanel() ) );
+  qaction->setStatusTip( tr("Bring up the process and collector manager.") );
 
 
   qaction = new QAction( this,  "manageDataSets");
@@ -356,48 +348,6 @@ qaction->setStatusTip( tr("Bring up the process and collector manager.") );
 
   return( TRUE );
 }
-
-void
-pcSamplePanel::manageCollectorsAndProcessesSelected()
-{
-  nprintf( DEBUG_PANELS ) ("pcSamplePanel::manageCollectorsAndProcessesSelected()\n");
-
-  int initial_thread_count = 0;
-
-  ThreadGroup tgrp = experiment->getThreads();
-  ThreadGroup::iterator ti = tgrp.begin();
-  initial_thread_count = tgrp.size();
-
-  if( manageCollectorsDialog == NULL )
-  {
-    manageCollectorsDialog = new ManageCollectorsDialog(mw, "ManageCollectorsDialog", TRUE, 0, expID);
-  }
-  if( manageCollectorsDialog->exec() == QDialog::Accepted )
-  {
-//    printf("QDialog::Accepted\n");
-//    pidStr = dialog->selectedProcesses();
-
-    ThreadGroup tgrp = experiment->getThreads();
-    ThreadGroup::iterator ti = tgrp.begin();
-    if( tgrp.size() > 0 )
-    {
-      if( initial_thread_count == 0 )
-      {
-        loadMain();
-      } else
-      {
-        statusLabelText->setText( tr("Experiment is loaded:  Hit the \"Run\" button to continue execution.") );
-        pco->runButton->setEnabled(TRUE);
-        pco->runButton->enabledFLAG = TRUE;
-        runnableFLAG = TRUE;
-        pco->pauseButton->setEnabled(FALSE);
-        pco->pauseButton->enabledFLAG = FALSE;
-      }
-    }
-  }
-  delete manageCollectorsDialog;
-  manageCollectorsDialog = NULL;
-}   
 
 
 void
@@ -849,7 +799,6 @@ void
 pcSamplePanel::loadManageProcessesPanel()
 {
 //  nprintf( DEBUG_PANELS ) ("loadManageProcessesPanel\n");
-printf("loadManageProcessesPanel\n");
 
   QString name = QString("ManageProcessesPanel [%1]").arg(expID);
 
@@ -863,7 +812,6 @@ printf("loadManageProcessesPanel\n");
   } else
   {
 //    nprintf( DEBUG_PANELS ) ("loadManageProcessesPanel() no ManageProcessesPanel found.. create one.\n");
-printf("loadManageProcessesPanel() no ManageProcessesPanel found.. create one for %d\n", expID);
 
     PanelContainer *pc = topPC->findBestFitPanelContainer(topPC);
     manageProcessPanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("ManageProcessesPanel", pc, (void *)expID);
@@ -872,7 +820,6 @@ printf("loadManageProcessesPanel() no ManageProcessesPanel found.. create one fo
   if( manageProcessPanel )
   {
 //    nprintf( DEBUG_PANELS )("call (%s)'s listener routine.\n", manageProcessPanel->getName());
-printf("call (%s)'s listener routine expID=%d.\n", manageProcessPanel->getName(), expID);
     ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
     if( eo && eo->FW() )
     {

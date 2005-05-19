@@ -46,6 +46,7 @@ class QListView;
 class QListViewItem;
 
 class PanelContainer;
+class ManageProcessesPanel;
 
 class ManageCollectorsClass : public QWidget
 {
@@ -62,7 +63,10 @@ public:
 
     CollectorListObject *clo;
 
+    bool menu(QPopupMenu* contextMenu);
+
     int expID;
+
 protected:
     QVBoxLayout* ManageCollectorsClassLayout;
     QHBoxLayout* AddCollectorLayout;

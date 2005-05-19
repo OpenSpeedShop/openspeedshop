@@ -36,6 +36,7 @@
 #include "UpdateObject.hxx"
 #include "SourceObject.hxx"
 #include "TopPanel.hxx"
+#include "ManageProcessesPanel.hxx"
 
 #include "LoadAttachObject.hxx"
 
@@ -64,8 +65,6 @@ CustomExperimentPanel::CustomExperimentPanel(PanelContainer *pc, const char *n, 
   executableNameStr = QString::null;
   argsStr = QString::null;
   pidStr = QString::null;
-  manageCollectorsDialog = NULL;
-  manageProcessesDialog = NULL;
   exitingFLAG = FALSE;
 
   mw = getPanelContainer()->getMainWindow();
@@ -326,11 +325,12 @@ CustomExperimentPanel::menu(QPopupMenu* contextMenu)
 
   contextMenu->insertSeparator();
 
-  qaction = new QAction( this,  "managerCollectorsAndProcesses");
+  qaction = new QAction( this,  "manageProcessesPanel");
   qaction->addTo( contextMenu );
-  qaction->setText( "Manage Collectors and Process..." );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( manageCollectorsAndProcessesSelected() ) );
-  qaction->setStatusTip( tr("Add/Attach/Delete collectors, process, programs to the experiment.") );
+  qaction->setText( "Manage Processes Panel..." );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( loadManageProcessesPanel() ) );
+  qaction->setStatusTip( tr("Bring up the process and collector manager.") );
+
 
   qaction = new QAction( this,  "manageDataSets");
   qaction->addTo( contextMenu );
@@ -348,48 +348,6 @@ CustomExperimentPanel::menu(QPopupMenu* contextMenu)
 
   return( TRUE );
 }
-
-void
-CustomExperimentPanel::manageCollectorsAndProcessesSelected()
-{
-  nprintf( DEBUG_PANELS ) ("CustomExperimentPanel::manageCollectorsAndProcessesSelected()\n");
-
-  int initial_thread_count = 0;
-
-  ThreadGroup tgrp = experiment->getThreads();
-  ThreadGroup::iterator ti = tgrp.begin();
-  initial_thread_count = tgrp.size();
-
-  if( manageCollectorsDialog == NULL )
-  {
-    manageCollectorsDialog = new ManageCollectorsDialog(mw, "ManageCollectorsDialog", TRUE, 0, expID);
-  }
-  if( manageCollectorsDialog->exec() == QDialog::Accepted )
-  {
-//    printf("QDialog::Accepted\n");
-//    pidStr = dialog->selectedProcesses();
-
-    ThreadGroup tgrp = experiment->getThreads();
-    ThreadGroup::iterator ti = tgrp.begin();
-    if( tgrp.size() > 0 )
-    {
-      if( initial_thread_count == 0 )
-      {
-        loadMain();
-      } else
-      {
-        statusLabelText->setText( tr("Experiment is loaded:  Hit the \"Run\" button to continue execution.") );
-        pco->runButton->setEnabled(TRUE);
-        pco->runButton->enabledFLAG = TRUE;
-        runnableFLAG = TRUE;
-        pco->pauseButton->setEnabled(FALSE);
-        pco->pauseButton->enabledFLAG = FALSE;
-      }
-    }
-  }
-  delete manageCollectorsDialog;
-  manageCollectorsDialog = NULL;
-}   
 
 
 void
@@ -833,6 +791,42 @@ CustomExperimentPanel::loadStatsPanel()
       UpdateObject *msg =
         new UpdateObject((void *)experiment, expID, " ", 1);
       statsPanel->listener( (void *)msg );
+    }
+  }
+}
+
+void
+CustomExperimentPanel::loadManageProcessesPanel()
+{
+//  nprintf( DEBUG_PANELS ) ("loadManageProcessesPanel\n");
+
+  QString name = QString("ManageProcessesPanel [%1]").arg(expID);
+
+
+  Panel *manageProcessPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+
+  if( manageProcessPanel )
+  { 
+    nprintf( DEBUG_PANELS ) ("loadManageProcessesPanel() found ManageProcessesPanel found.. raise it.\n");
+    getPanelContainer()->raisePanel(manageProcessPanel);
+  } else
+  {
+//    nprintf( DEBUG_PANELS ) ("loadManageProcessesPanel() no ManageProcessesPanel found.. create one.\n");
+
+    PanelContainer *pc = topPC->findBestFitPanelContainer(topPC);
+    manageProcessPanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("ManageProcessesPanel", pc, (void *)expID);
+  }
+
+  if( manageProcessPanel )
+  {
+//    nprintf( DEBUG_PANELS )("call (%s)'s listener routine.\n", manageProcessPanel->getName());
+    ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+    if( eo && eo->FW() )
+    {
+      experiment = eo->FW();
+      UpdateObject *msg =
+        new UpdateObject((void *)experiment, expID, " ", 1);
+      manageProcessPanel->listener( (void *)msg );
     }
   }
 }

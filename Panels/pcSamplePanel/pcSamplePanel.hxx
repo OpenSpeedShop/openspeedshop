@@ -31,7 +31,6 @@
 #include <qhbox.h>
 #include <qtimer.h>
 #include "GenericProgressDialog.hxx"
-#include "ManageCollectorsDialog.hxx"
 #include "ManageProcessesDialog.hxx"
 
 #include "SS_Input_Manager.hxx"
@@ -125,14 +124,11 @@ public:
   QString pidStr;
   QTimer *timer;
   QTimer *loadTimer;
-  ManageProcessesDialog *manageProcessesDialog;
-  ManageCollectorsDialog *manageCollectorsDialog;
 
   OpenSpeedShop::Framework::Experiment *fw_experiment() { return experiment; }
   
 public slots:
   void saveAsSelected();
-  void manageCollectorsAndProcessesSelected();
   void manageDataSetsSelected();
   void loadSourcePanel();
   void editPanelName();

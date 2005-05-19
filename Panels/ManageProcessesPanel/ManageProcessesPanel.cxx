@@ -31,18 +31,11 @@ ManageProcessesPanel::ManageProcessesPanel(PanelContainer *pc, const char *n, vo
   frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
 
-#ifdef OLDWAY
-  // A simple start to adding simple qt widgets to a panel...
-  QTextEdit *te = new QTextEdit( getBaseWidgetFrame() );
-  frameLayout->addWidget(te);
-  te->show();
-#else // OLDWAY
   mcc = new ManageCollectorsClass( pc, getBaseWidgetFrame() );
   frameLayout->addWidget(mcc);
   mcc->show();
   mcc->expID = (int)argument;
   groupID = mcc->expID;
-#endif // OLDWAY
 
   getBaseWidgetFrame()->setCaption("ManageProcessesPanelBaseWidget");
 }
@@ -73,6 +66,8 @@ bool
 ManageProcessesPanel::menu(QPopupMenu* contextMenu)
 {
   dprintf("ManageProcessesPanel::menu() requested.\n");
+
+  return( mcc->menu(contextMenu) );
 
   return( FALSE );
 }
@@ -122,7 +117,7 @@ ManageProcessesPanel::listener(void *msg)
   {
     UpdateObject *msg = (UpdateObject *)msgObject;
     nprintf(DEBUG_MESSAGES) ("ManageProcessesPanel::listener() UpdateExperimentDataObject!\n");
-printf("ManageProcessesPanel::listener() UpdateExperimentDataObject!\n");
+  dprintf("ManageProcessesPanel::listener() UpdateExperimentDataObject!\n");
 
 //  expID = msg->expID;
     mcc->expID = msg->expID;
@@ -136,14 +131,14 @@ printf("ManageProcessesPanel::listener() UpdateExperimentDataObject!\n");
   } else if( msgObject->msgType == "PreferencesChangedObject" )
   {
     nprintf(DEBUG_MESSAGES) ("ManageProcessesPanel::listener() PreferencesChangedObject!\n");
-printf ("ManageProcessesPanel::listener() PreferencesChangedObject!\n");
-printf ("HANDLE THIS!!!!\n");
+  dprintf ("ManageProcessesPanel::listener() PreferencesChangedObject!\n");
+  dprintf ("HANDLE THIS!!!!\n");
     pco = (PreferencesChangedObject *)msgObject;
 //    preferencesChanged();
   } else if( msgObject->msgType == "SaveAsObject" )
   {
 //    SaveAsObject *sao = (SaveAsObject *)msg;
-printf("ManageProcessesPanel!!!!! Save as!\n");
+  dprintf("ManageProcessesPanel!!!!! Save as!\n");
 //    if( !sao )
 //    {
 //      return 0;  // 0 means, did not act on message.
@@ -151,7 +146,7 @@ printf("ManageProcessesPanel!!!!! Save as!\n");
 //    exportData(sao->f, sao->ts);
 // Currently you're not passing the file descriptor down... you need to.sao->f, sao->ts);
 //    f = sao->f;
-printf("Attempt to call (unexistent) exportData() routine\n");
+  dprintf("Attempt to call (unexistent) exportData() routine\n");
 //    exportData();
   }
 

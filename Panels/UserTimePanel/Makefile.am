@@ -18,8 +18,6 @@
 
 pkglib_LTLIBRARIES = UserTimePanel.la
 
-# NOTE 1: The -I../SourcePanel is only here for #define DEMO 1
-# NOTE 2: The -I../TopPanel is only here for #define DEMO 1
 UserTimePanel_la_CXXFLAGS = \
 	-c -LANG:std -fpic \
     -I/usr/include \
@@ -32,6 +30,7 @@ UserTimePanel_la_CXXFLAGS = \
     -I$(top_srcdir)/plugin \
     -I$(top_srcdir)/objects \
     -I$(top_srcdir)/dialogs \
+    -I$(top_srcdir)/Panels/ManageProcessesPanel \
     -I$(top_srcdir)/Panels/SourcePanel \
     -I$(top_srcdir)/Panels/TopPanel \
     -I$(top_srcdir)/base
