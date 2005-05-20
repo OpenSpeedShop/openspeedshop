@@ -670,7 +670,6 @@ StatsPanel::updateStatsPanelBaseData()
         sprintf(a_percent_str, "%f", c_percent);
         lvi =  new SPListViewItem( this, lv, cputimestr,  a_percent_str, it->first.getName().c_str() );
   
-#ifdef OLDWAY
         if(numberItemsToDisplay >= 0 )
         {
           numberItemsToDisplay--;
@@ -680,7 +679,6 @@ StatsPanel::updateStatsPanelBaseData()
             break;  
           }
         }
-#endif // OLDWAY
       }
     
       lv->sort();

@@ -401,6 +401,10 @@ void OpenSpeedshop::fileExit()
 
   int wid = ((PanelContainer *)topPC)->getMainWindow()->widStr.toInt();
   InputLineObject *ilp = Append_Input_String( wid, "exit\n");
+
+
+//  qapplication->eventLoop()->exitLoop();
+  qapplication->exit(0);
 }
 
 

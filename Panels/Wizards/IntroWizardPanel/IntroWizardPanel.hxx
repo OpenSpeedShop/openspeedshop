@@ -48,9 +48,6 @@ class IntroWizardPanel  : public Panel
   //! Q_OBJECT is needed as there are slots defined for the class
   Q_OBJECT
 public:
-  //! IntroWizardPanel() - A default constructor the the Panel Class.
-  IntroWizardPanel();  // Default construct
-
   //! IntroWizardPanel(PanelContainer *pc, const char *name)
     /*! This constructor is the work constructor.   It is called to
         create the new Panel and attach it to a PanelContainer.
@@ -175,13 +172,11 @@ protected:
     QSpacerItem* spacer37;
     QHBoxLayout* wizardModeLayout;
     QSpacerItem* spacer1;
-    QScrollView *sv;
 
     void languageChange();
 
 public slots:
     virtual void wizardModeSelected();
-    virtual void epage1NextButtonSelected();
     virtual void vpage1NextButtonSelected();
     void vpage1pcSampleRBChanged();
     void vpage1UserTimeRBChanged();
@@ -196,7 +191,5 @@ public slots:
     void epage1FloatingPointRBChanged();
     void epage1InputOutputRBChanged();
     void epage1MPIRBChanged();
-
-    void handleSizeEvent( QResizeEvent *e );
 };
 #endif // INTROWIZARDPANEL_H
