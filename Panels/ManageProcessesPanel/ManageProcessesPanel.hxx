@@ -18,14 +18,15 @@
 
 
 
-#ifndef TEMPLATE_PANEL_H
-#define TEMPLATE_PANEL_H
+#ifndef MANAGEPROCESSPANEL_H
+#define MANAGEPROCESSPANEL_H
 #include "Panel.hxx"           // Do not remove
 
 class PanelContainer;
 class ManageCollectorsClass;
 class QHBoxLayout;
 
+#undef PANEL_CLASS_NAME
 #define PANEL_CLASS_NAME ManageProcessesPanel   // Change the value of the define
                                          // to the name of your new class.
 //! ManageProcessesPanel Class
@@ -68,4 +69,4 @@ class ManageProcessesPanel  : public Panel
 
   private:
 };
-#endif // TEMPLATE_PANEL_H
+#endif // MANAGEPROCESSPANEL_H
