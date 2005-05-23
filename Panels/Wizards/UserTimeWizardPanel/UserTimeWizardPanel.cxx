@@ -1302,13 +1302,11 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new execu
     {
       if( mi->getUniqueId() == "usertime" )
       {
-        printf("FOUND usertime\n");
         found_one = TRUE;
       }
     }
     if( found_one == FALSE )
     {
-      printf("None found.  Return.\n");
       return;
     }
 
