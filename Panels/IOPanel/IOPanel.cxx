@@ -251,6 +251,9 @@ IOPanel::IOPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, 
   topLevel = TRUE;
   topPC->topLevel = TRUE;
 
+  // Set up the timer that will monitor the progress of the experiment.
+  statusTimer = new QTimer( this, "statusTimer" );
+  connect( statusTimer, SIGNAL(timeout()), this, SLOT(statusUpdateTimerSlot()) );
   if( expID > 0 && !executableNameStr.isEmpty() )
   {
     statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the \"Run\" button to begin the experiment.")) );
@@ -269,7 +272,6 @@ topPC->dl_create_and_add_panel("pc Sample Wizard", bestFitPC, (char *)this);
     } else
     {
       statusLabelText->setText( tr(QString("Process Loaded: Click on the \"Run\" button to begin the experiment.")) );
-      updateInitialStatus();
     }
   } else if( executableNameStr.isEmpty() )
   {
@@ -279,9 +281,7 @@ topPC->dl_create_and_add_panel("pc Sample Wizard", bestFitPC, (char *)this);
     pco->runButton->enabledFLAG = FALSE;
   }
 
-  // Set up the timer that will monitor the progress of the experiment.
-  statusTimer = new QTimer( this, "statusTimer" );
-  connect( statusTimer, SIGNAL(timeout()), this, SLOT(statusUpdateTimerSlot()) );
+  updateInitialStatus();
 }
 
 
@@ -291,6 +291,9 @@ topPC->dl_create_and_add_panel("pc Sample Wizard", bestFitPC, (char *)this);
 IOPanel::~IOPanel()
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("  IOPanel::~IOPanel() destructor called\n");
+  statusTimer->stop();
+  delete statusTimer;
+
   delete frameLayout;
 }
 
@@ -842,12 +845,15 @@ IOPanel::loadMain()
 {
   nprintf( DEBUG_PANELS ) ("loadMain() entered\n");
 
-  if( experiment != NULL );
+  if( experiment != NULL )
   {
     ThreadGroup tgrp = experiment->getThreads();
     ThreadGroup::iterator ti = tgrp.begin();
     if( tgrp.size() == 0 )
     {
+      pco->runButton->setEnabled(FALSE);
+      pco->runButton->enabledFLAG = FALSE;
+      runnableFLAG = FALSE;
       return;
     }
     Thread thread = *ti;
@@ -875,12 +881,23 @@ IOPanel::loadMain()
         sourcePanel->listener((void *)spo);
       }
     }
+#ifdef OLDWAY
     statusLabelText->setText( tr("Experiment is loaded:  Hit the \"Run\" button to continue execution.") );
     pco->runButton->setEnabled(TRUE);
     pco->runButton->enabledFLAG = TRUE;
     runnableFLAG = TRUE;
     pco->pauseButton->setEnabled(FALSE);
     pco->pauseButton->enabledFLAG = FALSE;
+#else // OLDWAY
+    statusLabelText->setText( tr("Experiment is loaded:  Hit the \"Run\" button to continue execution.") );
+
+    updateStatus();
+#endif // OLDWAY
+  } else
+  {
+    pco->runButton->setEnabled(FALSE);
+    pco->runButton->enabledFLAG = FALSE;
+    runnableFLAG = FALSE;
   }
 }
 
@@ -908,7 +925,7 @@ IOPanel::updateStatus()
       case 0:
 //        statusLabelText->setText( "0: ExpStatus_NonExistent" );
         statusLabelText->setText( tr("No available experiment status available") );
-        if( statusTimer ) statusTimer->stop();
+        statusTimer->stop();
         pco->runButton->setEnabled(FALSE);
         pco->runButton->enabledFLAG = FALSE;
         runnableFLAG = FALSE;
@@ -986,7 +1003,7 @@ IOPanel::updateStatus()
 //          statusLabelText->setText( "5: ExpStatus_InError" );
           statusLabelText->setText( tr("Experiment has encountered an Error.") );
         }
-        if( statusTimer ) statusTimer->stop();
+        statusTimer->stop();
         pco->runButton->setEnabled(FALSE);
         pco->runButton->enabledFLAG = FALSE;
         runnableFLAG = FALSE;
