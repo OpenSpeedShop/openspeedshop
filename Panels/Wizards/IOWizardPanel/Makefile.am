@@ -16,7 +16,6 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-
 pkglib_LTLIBRARIES = IOWizardPanel.la
 
 IOWizardPanel_la_CXXFLAGS = \
@@ -26,20 +25,25 @@ IOWizardPanel_la_CXXFLAGS = \
     -I$(top_srcdir)/gui \
     -I$(top_srcdir)/images \
     -I$(top_srcdir)/objects \
+    -I$(top_srcdir)/libopenss-framework \
+    -I$(top_srcdir)/pcli \
     -I$(top_srcdir)/dialogs \
     -I$(top_srcdir)/plugin \
     -I$(top_srcdir)/base
 
-IOWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
+IOWizardPanel_la_LDFLAGS = --export-dynamic \
+	--export-all-symbols \
+	-module -avoid-version \
+	-L$(top_srcdir)/libopenss-framework
 
-IOWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt 
+IOWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt -lopenss-framework
 
 moc_IOWizardPanel.cxx: IOWizardPanel.hxx
 	-moc -o moc_IOWizardPanel.cxx IOWizardPanel.hxx
 
 IOWizardPanel_la_SOURCES = \
-	IODescription.hxx IOWizardPanel.hxx IOWizardPanel.cxx \
-    moc_IOWizardPanel.cxx \
+	IOWizardPanel.hxx IOWizardPanel.cxx \
+    moc_IOWizardPanel.cxx IODescription.hxx \
 	local_plugin_info.hxx
 
 CLEANFILES=moc_IOWizardPanel.cxx

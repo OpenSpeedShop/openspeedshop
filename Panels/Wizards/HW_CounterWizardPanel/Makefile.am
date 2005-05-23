@@ -16,7 +16,6 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-
 pkglib_LTLIBRARIES = HW_CounterWizardPanel.la
 
 HW_CounterWizardPanel_la_CXXFLAGS = \
@@ -25,21 +24,26 @@ HW_CounterWizardPanel_la_CXXFLAGS = \
     -I. \
     -I$(top_srcdir)/gui \
     -I$(top_srcdir)/images \
-    -I$(top_srcdir)/plugin \
-    -I$(top_srcdir)/dialogs \
     -I$(top_srcdir)/objects \
+    -I$(top_srcdir)/libopenss-framework \
+    -I$(top_srcdir)/pcli \
+    -I$(top_srcdir)/dialogs \
+    -I$(top_srcdir)/plugin \
     -I$(top_srcdir)/base
 
-HW_CounterWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
+HW_CounterWizardPanel_la_LDFLAGS = --export-dynamic \
+	--export-all-symbols \
+	-module -avoid-version \
+	-L$(top_srcdir)/libopenss-framework
 
-HW_CounterWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt 
+HW_CounterWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt -lopenss-framework
 
 moc_HW_CounterWizardPanel.cxx: HW_CounterWizardPanel.hxx
 	-moc -o moc_HW_CounterWizardPanel.cxx HW_CounterWizardPanel.hxx
 
 HW_CounterWizardPanel_la_SOURCES = \
-	HW_CounterDescription.hxx HW_CounterWizardPanel.hxx \
-    HW_CounterWizardPanel.cxx moc_HW_CounterWizardPanel.cxx \
+	HW_CounterWizardPanel.hxx HW_CounterWizardPanel.cxx \
+    moc_HW_CounterWizardPanel.cxx HW_CounterDescription.hxx \
 	local_plugin_info.hxx
 
 CLEANFILES=moc_HW_CounterWizardPanel.cxx

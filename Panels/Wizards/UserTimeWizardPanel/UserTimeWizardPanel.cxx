@@ -54,6 +54,8 @@
 
 #include "UserTimeDescription.hxx"
 
+#include "SS_Input_Manager.hxx"
+using namespace OpenSpeedShop::Framework;
 
 /*!  UserTimeWizardPanel Class
      This class is used by the script mknewpanel to create a new work area
@@ -87,7 +89,7 @@ UserTimeWizardPanel::UserTimeWizardPanel(PanelContainer *pc, const char *n, void
   sv->resize(700,400);
   sv->resizeContents(800,450);
 
-  UserTimeFormLayout = new QVBoxLayout( sv->viewport(), 1, 2, getName() );
+  usertimeFormLayout = new QVBoxLayout( sv->viewport(), 1, 2, getName() );
 
   mainFrame = new QFrame( sv->viewport(), "mainFrame" );
   mainFrame->setFrameShape( QFrame::StyledPanel );
@@ -452,7 +454,7 @@ UserTimeWizardPanel::UserTimeWizardPanel(PanelContainer *pc, const char *n, void
   eSummaryPageLayout->addLayout( eSummaryPageButtonLayout );
   mainWidgetStack->addWidget( eSummaryPageWidget, 7 );
   mainFrameLayout->addWidget( mainWidgetStack );
-  UserTimeFormLayout->addWidget( mainFrame );
+  usertimeFormLayout->addWidget( mainFrame );
 // End: advance (expert) summary page
 
 
@@ -471,7 +473,7 @@ UserTimeWizardPanel::UserTimeWizardPanel(PanelContainer *pc, const char *n, void
   bottomLayout->addWidget( broughtToYouByLabel );
 // End: add the bottom portion: The "wizard mode" and "brought to you by"
 
-  UserTimeFormLayout->addLayout( bottomLayout );
+  usertimeFormLayout->addLayout( bottomLayout );
   languageChange();
   resize( QSize(631, 508).expandedTo(minimumSizeHint()) );
   clearWState( WState_Polished );
@@ -573,13 +575,13 @@ UserTimeWizardPanel::UserTimeWizardPanel(PanelContainer *pc, const char *n, void
   }
 
 // This is way ugly and only a temporary hack to get a handle on the 
-// parent UserTimePanel's hook.    
+// parent usertimePanel's hook.    
 // This should only be > 1 when we're calling this wizard from within
-// a UserTimePanel session to help the user load an executable.
-  UserTimePanel = NULL;
+// a usertimePanel session to help the user load an executable.
+  usertimePanel = NULL;
   if( (int)argument > 1 )
   {
-    UserTimePanel = (Panel *)argument;
+    usertimePanel = (Panel *)argument;
   }
 }
 
@@ -873,7 +875,7 @@ void UserTimeWizardPanel::eAttachOrLoadPageNextButtonSelected()
       {
         return;
       }
-      sprintf(buffer, "<p align=\"left\">Requesting to load process \"%s\" on host \"%s\",  with sampling rate \"%s\".<br><br></p>", mw->pidStr.ascii(), "localhost", eParameterPageSampleRateText->text().ascii() );
+      sprintf(buffer, "<p align=\"left\">Requesting to load process \"%s\" on host \"%s\",  with a sampling rate of \"%s\".<br><br></p>", mw->pidStr.ascii(), "localhost", eParameterPageSampleRateText->text().ascii() );
     }
   }
   if( eAttachOrLoadPageLoadExecutableCheckBox->isChecked() ||
@@ -889,7 +891,7 @@ void UserTimeWizardPanel::eAttachOrLoadPageNextButtonSelected()
     {
       return;
     }
-    sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", with sampling \"%s\".<br><br></p>", mw->executableName.ascii(), "localhost", eParameterPageSampleRateText->text().ascii() );
+    sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", with a sampling rate of \"%s\".<br><br></p>", mw->executableName.ascii(), "localhost", eParameterPageSampleRateText->text().ascii() );
   }
 
   eSummaryPageFinishLabel->setText( tr( buffer ) );
@@ -1069,7 +1071,7 @@ void UserTimeWizardPanel::vAttachOrLoadPageNextButtonSelected()
     {
       return;
     }
-    sprintf(buffer, "<p align=\"left\">You've selected a User Time experiment for process \"%s\" running on host \"%s\".  Futher you've chosed a sample rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"UserTime\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->pidStr.ascii(), "localhost", vParameterPageSampleRateText->text().ascii() );
+    sprintf(buffer, "<p align=\"left\">You've selected a User Time experiment for process \"%s\" running on host \"%s\".  Futher you've chosed a sampling rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"usertime\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->pidStr.ascii(), "localhost", vParameterPageSampleRateText->text().ascii() );
   }
   if( vAttachOrLoadPageLoadExecutableCheckBox->isChecked() ||
       vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() )
@@ -1084,7 +1086,7 @@ void UserTimeWizardPanel::vAttachOrLoadPageNextButtonSelected()
     {
       return;
     }
-    sprintf(buffer, "<p align=\"left\">You've selected a User Time experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"UserTime\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), "localhost", vParameterPageSampleRateText->text().ascii() );
+    sprintf(buffer, "<p align=\"left\">You've selected a User Time experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sampling rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"usertime\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), "localhost", vParameterPageSampleRateText->text().ascii() );
   }
 
   vSummaryPageFinishLabel->setText( tr( buffer ) );
@@ -1116,17 +1118,27 @@ void UserTimeWizardPanel::finishButtonSelected()
       mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
       vUpdateAttachOrLoadPageWidget();
       vAttachOrLoadPageNextButtonSelected();
-      vSummaryPageFinishButtonSelected();
+vSummaryPageFinishButtonSelected();
     } else
     {
       mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
       vUpdateAttachOrLoadPageWidget();
       eAttachOrLoadPageNextButtonSelected();
-      vSummaryPageFinishButtonSelected();
+vSummaryPageFinishButtonSelected();
     }
   } else
   {
+#ifdef OLDWAY
+    if( wizardMode->isOn() )
+    {
+      mainWidgetStack->raiseWidget(vSummaryPageWidget);
+    } else
+    {
+      mainWidgetStack->raiseWidget(eSummaryPageWidget);
+    }
+#else // OLDWAY
     vSummaryPageFinishButtonSelected();
+#endif // OLDWAY
   }
 }
 
@@ -1141,10 +1153,7 @@ void UserTimeWizardPanel::vSummaryPageFinishButtonSelected()
   eSummaryPageBackButton->setEnabled(FALSE);
   qApp->flushX();
 
-  getPanelContainer()->hidePanel((Panel *)this);
-
-  Panel *p = UserTimePanel;
-
+  Panel *p = usertimePanel;
   if( getPanelContainer()->getMainWindow() )
   { 
     OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
@@ -1159,7 +1168,7 @@ void UserTimeWizardPanel::vSummaryPageFinishButtonSelected()
         lao = new LoadAttachObject((char *)NULL, mw->pidStr, sampleRate, TRUE);
       } else
       {
-        printf("Warning: No attach or load paramaters available.\n");
+//        printf("Warning: No attach or load paramaters available.\n");
       }
       if( lao != NULL )
       {
@@ -1168,6 +1177,7 @@ void UserTimeWizardPanel::vSummaryPageFinishButtonSelected()
           QString *argument = new QString("-1");
           p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("User Time", getPanelContainer(), (void *)argument);
         }
+
         getPanelContainer()->hidePanel((Panel *)this);
         p->listener((void *)lao);
       }
@@ -1180,46 +1190,10 @@ void UserTimeWizardPanel::vSummaryPageFinishButtonSelected()
  *  Sets the strings of the subwidgets using the current
  *  language.
  */
-#include "SS_Input_Manager.hxx"
-using namespace OpenSpeedShop::Framework;
 void
 UserTimeWizardPanel::languageChange()
 {
-  // Look up default metrics.   There's only one in this case.
-  // Get list of all the collectors from the FrameWork.
-  // To do this, we need to create a dummy experiment.
   unsigned int sampling_rate = 100;
-  try {
-    char *temp_name = tmpnam(NULL);
-//    static std::string tmpdb = std::string(temp_name);
-    std::string tmpdb = std::string(temp_name);
-    OpenSpeedShop::Framework::Experiment::create (tmpdb);
-    OpenSpeedShop::Framework::Experiment dummy_experiment(tmpdb);
-    Collector UserTimeCollector = dummy_experiment.createCollector("pcsamp");
-
-    Metadata cm = UserTimeCollector.getMetadata();
-      std::set<Metadata> md =UserTimeCollector.getParameters();
-      std::set<Metadata>::const_iterator mi;
-      for (mi = md.begin(); mi != md.end(); mi++) {
-        Metadata m = *mi;
-//        printf("%s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
-//        printf("%s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
-//        printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
-      }
-      UserTimeCollector.getParameterValue("sampling_rate", sampling_rate);
-// printf("sampling_rate=%d\n", sampling_rate);
-//    UserTimeCollector.setParameterValue("sampling_rate", (unsigned)100);
-
-    if( temp_name )
-    {
-      (void) remove( temp_name );
-    }
-
-  }
-  catch(const std::exception& error)
-  {
-    return;
-  }
 
   setCaption( tr( "User Time Wizard Panel" ) );
   vDescriptionPageTitleLabel->setText( tr( "<h1>User Time Wizard</h1>" ) );
@@ -1263,11 +1237,11 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new execu
   vAttachOrLoadPageFinishButton->setText( tr( ">> Finish" ) );
   QToolTip::add( vAttachOrLoadPageFinishButton, tr( "Advance to the wizard finish page." ) );
   vSummaryPageFinishLabel->setText( tr( "<p align=\"left\">\n"
-"You've selected a User Time experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%d\".<br><br>To complete the exeriment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"UserTime\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>" ) );
+"You've selected a User Time experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%d\".<br><br>To complete the exeriment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"usertime\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>" ) );
   vSummaryPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( vSummaryPageBackButton, tr( "Takes you back one page." ) );
   vSummaryPageFinishButton->setText( tr( "Finish..." ) );
-  QToolTip::add( vSummaryPageFinishButton, tr( "Finishes loading the wizard information and brings up a \"UserTime\" panel" ) );
+  QToolTip::add( vSummaryPageFinishButton, tr( "Finishes loading the wizard information and brings up a \"usertime\" panel" ) );
   eDescriptionPageTitleLabel->setText( tr( "<h1>User Time Wizard</h1>" ) );
   eDescriptionPageText->setText( tr( eUserTimeDescription ) );
   eDescriptionPageIntroButton->setText( tr( "<< Intro" ) );
@@ -1309,6 +1283,60 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new execu
   QToolTip::add( eSummaryPageFinishButton, tr( "Finishes loading the wizard information and brings up a \"User Time\" panel" ) );
   wizardMode->setText( tr( "Verbose Wizard Mode" ) );
   broughtToYouByLabel->setText( tr( "Brought to you by SGI (SiliconGraphics)" ) );
+
+  // Look up default metrics.   There's only one in this case.
+  // Get list of all the collectors from the FrameWork.
+  // To do this, we need to create a dummy experiment.
+  try {
+    char *temp_name = tmpnam(NULL);
+//    static std::string tmpdb = std::string(temp_name);
+    std::string tmpdb = std::string(temp_name);
+    OpenSpeedShop::Framework::Experiment::create (tmpdb);
+    OpenSpeedShop::Framework::Experiment dummy_experiment(tmpdb);
+
+    // Is there a usertime experiment type?
+    bool found_one = FALSE;
+    std::set<Metadata> collectortypes = Collector::getAvailable();
+    for( std::set<Metadata>::const_iterator mi = collectortypes.begin();
+         mi != collectortypes.end(); mi++ )
+    {
+      if( mi->getUniqueId() == "usertime" )
+      {
+        printf("FOUND usertime\n");
+        found_one = TRUE;
+      }
+    }
+    if( found_one == FALSE )
+    {
+      printf("None found.  Return.\n");
+      return;
+    }
+
+    Collector usertimeCollector = dummy_experiment.createCollector("usertime");
+
+    Metadata cm = usertimeCollector.getMetadata();
+      std::set<Metadata> md =usertimeCollector.getParameters();
+      std::set<Metadata>::const_iterator mi;
+      for (mi = md.begin(); mi != md.end(); mi++) {
+        Metadata m = *mi;
+//        printf("%s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
+//        printf("%s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
+//        printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
+      }
+      usertimeCollector.getParameterValue("sampling_rate", sampling_rate);
+// printf("sampling_rate=%d\n", sampling_rate);
+//    usertimeCollector.setParameterValue("sampling_rate", (unsigned)100);
+
+    if( temp_name )
+    {
+      (void) remove( temp_name );
+    }
+
+  }
+  catch(const std::exception& error)
+  {
+    return;
+  }
 }
 
 void

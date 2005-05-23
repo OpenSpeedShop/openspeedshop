@@ -16,7 +16,6 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-
 pkglib_LTLIBRARIES = MPIWizardPanel.la
 
 MPIWizardPanel_la_CXXFLAGS = \
@@ -26,20 +25,25 @@ MPIWizardPanel_la_CXXFLAGS = \
     -I$(top_srcdir)/gui \
     -I$(top_srcdir)/images \
     -I$(top_srcdir)/objects \
+    -I$(top_srcdir)/libopenss-framework \
+    -I$(top_srcdir)/pcli \
     -I$(top_srcdir)/dialogs \
     -I$(top_srcdir)/plugin \
     -I$(top_srcdir)/base
 
-MPIWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
+MPIWizardPanel_la_LDFLAGS = --export-dynamic \
+	--export-all-symbols \
+	-module -avoid-version \
+	-L$(top_srcdir)/libopenss-framework
 
-MPIWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
+MPIWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt -lopenss-framework
 
 moc_MPIWizardPanel.cxx: MPIWizardPanel.hxx
 	-moc -o moc_MPIWizardPanel.cxx MPIWizardPanel.hxx
 
 MPIWizardPanel_la_SOURCES = \
-	MPIDescription.hxx MPIWizardPanel.hxx MPIWizardPanel.cxx \
-    moc_MPIWizardPanel.cxx \
+	MPIWizardPanel.hxx MPIWizardPanel.cxx \
+    moc_MPIWizardPanel.cxx MPIDescription.hxx \
 	local_plugin_info.hxx
 
 CLEANFILES=moc_MPIWizardPanel.cxx

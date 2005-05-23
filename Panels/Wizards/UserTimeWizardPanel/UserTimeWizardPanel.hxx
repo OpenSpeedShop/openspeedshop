@@ -105,7 +105,7 @@ public:
   int broadcast(char *msg);
 
 
-  QVBoxLayout * UserTimeFormLayout;
+  QVBoxLayout * usertimeFormLayout;
     QFrame* mainFrame;
     QWidgetStack* mainWidgetStack;
     QWidget* vDescriptionPageWidget;
@@ -264,6 +264,6 @@ protected slots:
 private:
     QString sampleRate;
 
-    Panel *UserTimePanel;
+    Panel *usertimePanel;
 };
 #endif // PCSAMPLEWIZARDPANEL_H

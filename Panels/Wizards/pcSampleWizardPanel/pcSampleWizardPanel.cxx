@@ -54,6 +54,8 @@
 
 #include "pcSampleDescription.hxx"
 
+#include "SS_Input_Manager.hxx"
+using namespace OpenSpeedShop::Framework;
 
 /*!  pcSampleWizardPanel Class
      This class is used by the script mknewpanel to create a new work area
@@ -1188,50 +1190,14 @@ void pcSampleWizardPanel::vSummaryPageFinishButtonSelected()
  *  Sets the strings of the subwidgets using the current
  *  language.
  */
-#include "SS_Input_Manager.hxx"
-using namespace OpenSpeedShop::Framework;
 void
 pcSampleWizardPanel::languageChange()
 {
-  // Look up default metrics.   There's only one in this case.
-  // Get list of all the collectors from the FrameWork.
-  // To do this, we need to create a dummy experiment.
   unsigned int sampling_rate = 100;
-  try {
-    char *temp_name = tmpnam(NULL);
-//    static std::string tmpdb = std::string(temp_name);
-    std::string tmpdb = std::string(temp_name);
-    OpenSpeedShop::Framework::Experiment::create (tmpdb);
-    OpenSpeedShop::Framework::Experiment dummy_experiment(tmpdb);
-    Collector pcSampleCollector = dummy_experiment.createCollector("pcsamp");
-
-    Metadata cm = pcSampleCollector.getMetadata();
-      std::set<Metadata> md =pcSampleCollector.getParameters();
-      std::set<Metadata>::const_iterator mi;
-      for (mi = md.begin(); mi != md.end(); mi++) {
-        Metadata m = *mi;
-//        printf("%s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
-//        printf("%s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
-//        printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
-      }
-      pcSampleCollector.getParameterValue("sampling_rate", sampling_rate);
-// printf("sampling_rate=%d\n", sampling_rate);
-//    pcSampleCollector.setParameterValue("sampling_rate", (unsigned)100);
-
-    if( temp_name )
-    {
-      (void) remove( temp_name );
-    }
-
-  }
-  catch(const std::exception& error)
-  {
-    return;
-  }
 
   setCaption( tr( "pc Sample Wizard Panel" ) );
   vDescriptionPageTitleLabel->setText( tr( "<h1>pc Sample Wizard</h1>" ) );
-  vDescriptionPageText->setText( tr( vpcSampleDescripition ) );
+  vDescriptionPageText->setText( tr( vpcSampleDescription ) );
   vDescriptionPageIntroButton->setText( tr( "<< Intro" ) );
   QToolTip::add( vDescriptionPageIntroButton, tr( "Takes you back to the Intro Wizard so you can make a different selection." ) );
   vDescriptionPageNextButton->setText( tr( "> Next" ) );
@@ -1277,7 +1243,7 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new execu
   vSummaryPageFinishButton->setText( tr( "Finish..." ) );
   QToolTip::add( vSummaryPageFinishButton, tr( "Finishes loading the wizard information and brings up a \"pcSample\" panel" ) );
   eDescriptionPageTitleLabel->setText( tr( "<h1>pc Sample Wizard</h1>" ) );
-  eDescriptionPageText->setText( tr( epcSampleDescripition ) );
+  eDescriptionPageText->setText( tr( epcSampleDescription ) );
   eDescriptionPageIntroButton->setText( tr( "<< Intro" ) );
   eDescriptionPageNextButton->setText( tr( "> Next" ) );
   QToolTip::add( eDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
@@ -1317,6 +1283,60 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new execu
   QToolTip::add( eSummaryPageFinishButton, tr( "Finishes loading the wizard information and brings up a \"pc Sample\" panel" ) );
   wizardMode->setText( tr( "Verbose Wizard Mode" ) );
   broughtToYouByLabel->setText( tr( "Brought to you by SGI (SiliconGraphics)" ) );
+
+  // Look up default metrics.   There's only one in this case.
+  // Get list of all the collectors from the FrameWork.
+  // To do this, we need to create a dummy experiment.
+  try {
+    char *temp_name = tmpnam(NULL);
+//    static std::string tmpdb = std::string(temp_name);
+    std::string tmpdb = std::string(temp_name);
+    OpenSpeedShop::Framework::Experiment::create (tmpdb);
+    OpenSpeedShop::Framework::Experiment dummy_experiment(tmpdb);
+
+    // Is there a pcsamp experiment type?
+    bool found_one = FALSE;
+    std::set<Metadata> collectortypes = Collector::getAvailable();
+    for( std::set<Metadata>::const_iterator mi = collectortypes.begin();
+         mi != collectortypes.end(); mi++ )
+    {
+      if( mi->getUniqueId() == "pcsamp" )
+      {
+        printf("FOUND pcsamp\n");
+        found_one = TRUE;
+      }
+    }
+    if( found_one == FALSE )
+    {
+      printf("None found.  Return.\n");
+      return;
+    }
+
+    Collector pcSampleCollector = dummy_experiment.createCollector("pcsamp");
+
+    Metadata cm = pcSampleCollector.getMetadata();
+      std::set<Metadata> md =pcSampleCollector.getParameters();
+      std::set<Metadata>::const_iterator mi;
+      for (mi = md.begin(); mi != md.end(); mi++) {
+        Metadata m = *mi;
+//        printf("%s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
+//        printf("%s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
+//        printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
+      }
+      pcSampleCollector.getParameterValue("sampling_rate", sampling_rate);
+// printf("sampling_rate=%d\n", sampling_rate);
+//    pcSampleCollector.setParameterValue("sampling_rate", (unsigned)100);
+
+    if( temp_name )
+    {
+      (void) remove( temp_name );
+    }
+
+  }
+  catch(const std::exception& error)
+  {
+    return;
+  }
 }
 
 void

@@ -17,8 +17,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef MPIWIZARDPANEL_H
-#define MPIWIZARDPANEL_H
+#ifndef PCSAMPLEWIZARDPANEL_H
+#define PCSAMPLEWIZARDPANEL_H
 #include "Panel.hxx"           // Do not remove
 
 class PanelContainer;   // Do not remove
@@ -105,7 +105,7 @@ public:
   int broadcast(char *msg);
 
 
-  QVBoxLayout * MPIFormLayout;
+  QVBoxLayout * mpiFormLayout;
     QFrame* mainFrame;
     QWidgetStack* mainWidgetStack;
     QWidget* vDescriptionPageWidget;
@@ -113,6 +113,7 @@ public:
     QTextEdit* vDescriptionPageText;
     QPushButton* vDescriptionPageIntroButton;
     QPushButton* vDescriptionPageNextButton;
+    QPushButton* vDescriptionPageFinishButton;
     QWidget* vParameterPageWidget;
     QLabel* vParameterPageDescriptionLabel;
     QFrame* vParameterPageLine;
@@ -122,14 +123,17 @@ public:
     QPushButton* vParameterPageBackButton;
     QPushButton* vParameterPageResetButton;
     QPushButton* vParameterPageNextButton;
+    QPushButton* vParameterPageFinishButton;
     QWidget* vAttachOrLoadPageWidget;
     QLabel* vAttachOrLoadPageDescriptionLabel;
     QFrame* vAttachOrLoadPageLine;
     QCheckBox* vAttachOrLoadPageAttachToProcessCheckBox;
     QCheckBox* vAttachOrLoadPageLoadExecutableCheckBox;
+    QCheckBox* vAttachOrLoadPageLoadDifferentExecutableCheckBox;
     QPushButton* vAttachOrLoadPageBackButton;
     QPushButton* vAttachOrLoadPageNextButton;
-QPushButton *vAttachOrLoadPageResetButton;
+    QPushButton* vAttachOrLoadPageFinishButton;
+    QPushButton *vAttachOrLoadPageClearButton;
     QWidget* vSummaryPageWidget;
     QLabel* vSummaryPageFinishLabel;
     QPushButton* vSummaryPageBackButton;
@@ -139,6 +143,7 @@ QPushButton *vAttachOrLoadPageResetButton;
     QLabel* eDescriptionPageText;
     QPushButton* eDescriptionPageIntroButton;
     QPushButton* eDescriptionPageNextButton;
+    QPushButton* eDescriptionPageFinishButton;
     QWidget* eParameterPageWidget;
     QLabel* eParameterPageDescriptionLabel;
     QFrame* eParameterPageLine;
@@ -148,14 +153,17 @@ QPushButton *vAttachOrLoadPageResetButton;
     QPushButton* eParameterPageBackButton;
     QPushButton* eParameterPageResetButton;
     QPushButton* eParameterPageNextButton;
+    QPushButton* eParameterPageFinishButton;
     QWidget* eAttachOrLoadPageWidget;
     QLabel* eAttachOrLoadPageDescriptionLabel;
     QFrame* eAttachOrLoadPageLine;
     QCheckBox* eAttachOrLoadPageAttachToProcessCheckBox;
     QCheckBox* eAttachOrLoadPageLoadExecutableCheckBox;
+    QCheckBox* eAttachOrLoadPageLoadDifferentExecutableCheckBox;
     QPushButton* eAttachOrLoadPageBackButton;
     QPushButton* eAttachOrLoadPageNextButton;
-QPushButton *eAttachOrLoadPageResetButton;
+    QPushButton* eAttachOrLoadPageFinishButton;
+    QPushButton *eAttachOrLoadPageClearButton;
     QWidget* eSummaryPageWidget;
     QLabel* eSummaryPageFinishLabel;
     QPushButton* eSummaryPageBackButton;
@@ -170,7 +178,7 @@ public slots:
     virtual void eParameterPageNextButtonSelected();
     virtual void eParameterPageResetButtonSelected();
     virtual void eAttachOrLoadPageBackButtonSelected();
-    virtual void eAttachOrLoadPageResetButtonSelected();
+    virtual void eAttachOrLoadPageClearButtonSelected();
     virtual void eAttachOrLoadPageNextButtonSelected();
     virtual void eSummaryPageBackButtonSelected();
     virtual void eSummaryPageFinishButtonSelected();
@@ -181,12 +189,19 @@ public slots:
     virtual void vParameterPageNextButtonSelected();
     virtual void vParameterPageResetButtonSelected();
     virtual void vAttachOrLoadPageBackButtonSelected();
-    virtual void vAttachOrLoadPageResetButtonSelected();
+    virtual void vAttachOrLoadPageClearButtonSelected();
     virtual void vAttachOrLoadPageNextButtonSelected();
     virtual void vSummaryPageBackButtonSelected();
     virtual void vSummaryPageFinishButtonSelected();
     virtual void eParameterPageSampleRateTextReturnPressed();
     virtual void wizardModeSelected();
+    virtual void vAttachOrLoadPageAttachToProcessCheckBoxSelected();
+    virtual void eAttachOrLoadPageAttachToProcessCheckBoxSelected();
+    virtual void vAttachOrLoadPageLoadExecutableCheckBoxSelected();
+    virtual void vAttachOrLoadPageLoadDifferentExecutableCheckBoxSelected();
+    virtual void eAttachOrLoadPageLoadExecutableCheckBoxSelected();
+    virtual void eAttachOrLoadPageLoadDifferentExecutableCheckBoxSelected();
+    virtual void finishButtonSelected();
 
 protected:
     QVBoxLayout* mainFrameLayout;
@@ -249,5 +264,6 @@ protected slots:
 private:
     QString sampleRate;
 
+    Panel *mpiPanel;
 };
-#endif // MPIWIZARDPANEL_H
+#endif // PCSAMPLEWIZARDPANEL_H

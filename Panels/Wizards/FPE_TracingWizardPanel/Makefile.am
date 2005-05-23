@@ -24,22 +24,26 @@ FPE_TracingWizardPanel_la_CXXFLAGS = \
     -I. \
     -I$(top_srcdir)/gui \
     -I$(top_srcdir)/images \
+    -I$(top_srcdir)/objects \
+    -I$(top_srcdir)/libopenss-framework \
+    -I$(top_srcdir)/pcli \
     -I$(top_srcdir)/dialogs \
     -I$(top_srcdir)/plugin \
-    -I$(top_srcdir)/objects \
     -I$(top_srcdir)/base
 
-FPE_TracingWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
+FPE_TracingWizardPanel_la_LDFLAGS = --export-dynamic \
+	--export-all-symbols \
+	-module -avoid-version \
+	-L$(top_srcdir)/libopenss-framework
 
-FPE_TracingWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt 
+FPE_TracingWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt -lopenss-framework
 
 moc_FPE_TracingWizardPanel.cxx: FPE_TracingWizardPanel.hxx
 	-moc -o moc_FPE_TracingWizardPanel.cxx FPE_TracingWizardPanel.hxx
 
 FPE_TracingWizardPanel_la_SOURCES = \
-	FPE_TracingDescription.hxx FPE_TracingWizardPanel.hxx \
-    FPE_TracingWizardPanel.cxx \
-    moc_FPE_TracingWizardPanel.cxx \
+	FPE_TracingWizardPanel.hxx FPE_TracingWizardPanel.cxx \
+    moc_FPE_TracingWizardPanel.cxx FPE_TracingDescription.hxx \
 	local_plugin_info.hxx
 
 CLEANFILES=moc_FPE_TracingWizardPanel.cxx
