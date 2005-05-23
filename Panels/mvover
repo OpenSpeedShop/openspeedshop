@@ -71,6 +71,7 @@ do
   then
     echo "echo "y" | mysed \"pc Sample Panel\" \"Custom Experiment Panel\" $i/$i.cxx $i/$i.hxx $i/Makefile.am"
     echo "y" | mysed "pc Sample Panel" "Custom Experiment Panel" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+    echo "y" | mysed "pc Sample Wizard" "Custom Experiment Wizard" $i/$i.cxx $i/$i.hxx $i/Makefile.am
     echo "y" | mysed "pcSample" "constructNewExperiment" $i/$i.cxx $i/$i.hxx $i/Makefile.am
     echo "y" | mysed "pcsamp" " " $i/$i.cxx $i/$i.hxx $i/Makefile.am
   fi
@@ -78,12 +79,14 @@ do
   then
     echo "echo "y" | mysed \"pc Sample Panel\" "FPE Tracing Panel" $i/$i.cxx $i/$i.hxx $i/Makefile.am"
    echo "y" | mysed "pc Sample Panel" "FPE Tracing Panel" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+   echo "y" | mysed "pc Sample Wizard" "FPE Tracing Wizard" $i/$i.cxx $i/$i.hxx $i/Makefile.am
     echo "y" | mysed "pcSample" "fpeTracing" $i/$i.cxx $i/$i.hxx $i/Makefile.am
     echo "y" | mysed "pcsamp" "fpe" $i/$i.cxx $i/$i.hxx $i/Makefile.am
   fi
   if [ $i = "HW_CounterPanel" ]
   then
     echo "echo "y" | mysed \"pc Sample Panel\" \"HW Counter Panel\" $i/$i.cxx $i/$i.hxx $i/Makefile.am"
+    echo "echo "y" | mysed \"pc Sample Wizard\" \"HW Counter Wizard\" $i/$i.cxx $i/$i.hxx $i/Makefile.am"
    echo "y" | mysed "pc Sample Panel" "HW Counter Panel" $i/$i.cxx $i/$i.hxx $i/Makefile.am
     echo "y" | mysed "pcSample" "hwCounter" $i/$i.cxx $i/$i.hxx $i/Makefile.am
     echo "y" | mysed "pcsamp" "hw" $i/$i.cxx $i/$i.hxx $i/Makefile.am
@@ -91,6 +94,7 @@ do
   if [ $i = "IOPanel" ]
   then
     echo "echo "y" | mysed \"pc Sample Panel\" \"IO Panel\" $i/$i.cxx $i/$i.hxx $i/Makefile.am"
+    echo "echo "y" | mysed \"pc Sample Wizard\" \"IO Wizard\" $i/$i.cxx $i/$i.hxx $i/Makefile.am"
     echo "y" | mysed "pc Sample Panel" "IO Panel" $i/$i.cxx $i/$i.hxx $i/Makefile.am
     echo "y" | mysed "pcSample" "io" $i/$i.cxx $i/$i.hxx $i/Makefile.am
     echo "y" | mysed "pcsamp" "io" $i/$i.cxx $i/$i.hxx $i/Makefile.am
@@ -99,6 +103,7 @@ do
   then
     echo "echo "y" | mysed \"pc Sample Panel\" \"MPI Panel\" $i/$i.cxx $i/$i.hxx $i/Makefile.am"
    echo "y" | mysed "pc Sample Panel" "MPI Panel" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+   echo "y" | mysed "pc Sample Wizard" "MPI Wizard" $i/$i.cxx $i/$i.hxx $i/Makefile.am
     echo "y" | mysed "pcSample" "mpi" $i/$i.cxx $i/$i.hxx $i/Makefile.am
     echo "y" | mysed "pcsamp" "mpi" $i/$i.cxx $i/$i.hxx $i/Makefile.am
   fi
@@ -106,6 +111,7 @@ do
   then
     echo "echo "y" | mysed \"pc Sample Panel\" \"User Time Panel\" $i/$i.cxx $i/$i.hxx $i/Makefile.am"
    echo "y" | mysed "pc Sample Panel" "User Time Panel" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+   echo "y" | mysed "pc Sample Wizard" "User Time Wizard" $i/$i.cxx $i/$i.hxx $i/Makefile.am
     echo "y" | mysed "pcSample" "usertime" $i/$i.cxx $i/$i.hxx $i/Makefile.am
     echo "y" | mysed "pcsamp" "usertime" $i/$i.cxx $i/$i.hxx $i/Makefile.am
   fi
