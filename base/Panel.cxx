@@ -84,6 +84,7 @@ Panel::Panel(PanelContainer *pc, const char *n) : QWidget(pc, n)
   QWidget *w = pc->dropSiteLayoutParent;
 
   baseWidgetFrame = new Frame(getPanelContainer(), w, "baseWidgetFrame");
+  baseWidgetFrame->setMinimumSize( QSize(0,0) );
 // baseWidgetFrame->dragEnabled = TRUE;
 
   // Resize this to the right height right away...

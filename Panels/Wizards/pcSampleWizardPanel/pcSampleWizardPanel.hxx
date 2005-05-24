@@ -115,7 +115,7 @@ public:
     QPushButton* vDescriptionPageNextButton;
     QPushButton* vDescriptionPageFinishButton;
     QWidget* vParameterPageWidget;
-    QLabel* vParameterPageDescriptionLabel;
+    QTextEdit* vParameterPageDescriptionText;
     QFrame* vParameterPageLine;
     QLabel* vParameterPageSampleRateHeaderLabel;
     QLabel* vParameterPageSampleRateLabel;
@@ -125,7 +125,7 @@ public:
     QPushButton* vParameterPageNextButton;
     QPushButton* vParameterPageFinishButton;
     QWidget* vAttachOrLoadPageWidget;
-    QLabel* vAttachOrLoadPageDescriptionLabel;
+    QTextEdit* vAttachOrLoadPageDescriptionLabel;
     QFrame* vAttachOrLoadPageLine;
     QCheckBox* vAttachOrLoadPageAttachToProcessCheckBox;
     QCheckBox* vAttachOrLoadPageLoadExecutableCheckBox;
@@ -135,7 +135,7 @@ public:
     QPushButton* vAttachOrLoadPageFinishButton;
     QPushButton *vAttachOrLoadPageClearButton;
     QWidget* vSummaryPageWidget;
-    QLabel* vSummaryPageFinishLabel;
+    QTextEdit* vSummaryPageFinishLabel;
     QPushButton* vSummaryPageBackButton;
     QPushButton* vSummaryPageFinishButton;
     QWidget* eDescriptionPageWidget;
@@ -145,7 +145,7 @@ public:
     QPushButton* eDescriptionPageNextButton;
     QPushButton* eDescriptionPageFinishButton;
     QWidget* eParameterPageWidget;
-    QLabel* eParameterPageDescriptionLabel;
+    QTextEdit* eParameterPageDescriptionLabel;
     QFrame* eParameterPageLine;
     QLabel* eParameterPageSampleRateHeaderLabel;
     QLabel* eParameterPageSampleRateLabel;
@@ -165,11 +165,11 @@ public:
     QPushButton* eAttachOrLoadPageFinishButton;
     QPushButton *eAttachOrLoadPageClearButton;
     QWidget* eSummaryPageWidget;
-    QLabel* eSummaryPageFinishLabel;
+    QTextEdit* eSummaryPageFinishLabel;
     QPushButton* eSummaryPageBackButton;
     QPushButton* eSummaryPageFinishButton;
-    QCheckBox* wizardMode;
-    QLabel* broughtToYouByLabel;
+    QCheckBox* vwizardMode;
+    QCheckBox* ewizardMode;
 
 public slots:
     virtual void eDescriptionPageNextButtonSelected();
@@ -194,6 +194,8 @@ public slots:
     virtual void vSummaryPageBackButtonSelected();
     virtual void vSummaryPageFinishButtonSelected();
     virtual void eParameterPageSampleRateTextReturnPressed();
+    virtual void ewizardModeSelected();
+    virtual void vwizardModeSelected();
     virtual void wizardModeSelected();
     virtual void vAttachOrLoadPageAttachToProcessCheckBoxSelected();
     virtual void eAttachOrLoadPageAttachToProcessCheckBoxSelected();
@@ -226,7 +228,9 @@ protected:
     QVBoxLayout* vSummaryPageLayout;
     QVBoxLayout* vSummaryPageLabelLayout;
     QSpacerItem* vSummaryPageButtonSpacer;
+#ifdef OLDWAY
     QSpacerItem* vSummaryPageSpacer;
+#endif // OLDWAY
     QHBoxLayout* vSummaryPageButtonLayout;
     QVBoxLayout* eDescriptionPageLayout;
     QHBoxLayout* eDescriptionPageButtonLayout;
@@ -254,9 +258,6 @@ protected:
     void eUpdateAttachOrLoadPageWidget();
     void vUpdateAttachOrLoadPageWidget();
 
-
-    void handleSizeEvent( QResizeEvent *e );
-    QScrollView *sv;
 
 protected slots:
     virtual void languageChange();

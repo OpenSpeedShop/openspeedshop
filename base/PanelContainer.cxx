@@ -218,6 +218,7 @@ PanelContainer::PanelContainer( QWidget* _parent, const char* n, PanelContainer 
   // Now create the splitter so we can put a container (frame) on the left
   // and right or top and bottom.
   splitter = new QSplitter(parent, "splitter");
+splitter->setMinimumSize( QSize(10,10) );
   strcpy(cn,"splitter:");strcat(cn, internal_name);strcat(cn,"-");strcat(cn,external_name); splitter->setCaption(cn);
   if( debug(DEBUG_FRAMES) ) splitter->setBackgroundColor("red");
 
@@ -227,6 +228,7 @@ PanelContainer::PanelContainer( QWidget* _parent, const char* n, PanelContainer 
   // Create a frame for the left side and show it.
   sprintf(tmp_str, "originalLeftFrame for %s", getInternalName() );
   leftFrame = new Frame(this, splitter, "left_frame");
+leftFrame->setMinimumSize( QSize(10,10) );
   if( debug(DEBUG_FRAMES) ) leftFrame->setBackgroundColor("white");
   leftFrame->setDragEnabled(TRUE);
   leftFrame->setDropEnabled(TRUE);
@@ -259,6 +261,7 @@ PanelContainer::PanelContainer( QWidget* _parent, const char* n, PanelContainer 
 
   // This is only used to hold panels... not PanelContainers.
   dropSiteLayoutParent = new QWidget( leftFrame, "dropSiteLayoutParent" );
+dropSiteLayoutParent->setMinimumSize( QSize(10,10) );
   if( debug(DEBUG_FRAMES) ) dropSiteLayoutParent->setBackgroundColor("blue");
   strcpy(cn,"dropSiteLayoutParent:");strcat(cn, internal_name);strcat(cn,"-");strcat(cn,external_name); dropSiteLayoutParent->setCaption(cn);
 
@@ -266,6 +269,7 @@ PanelContainer::PanelContainer( QWidget* _parent, const char* n, PanelContainer 
 
 
   tabWidget = new TabWidget( this, dropSiteLayoutParent, "tabWidget" );
+tabWidget->setMinimumSize( QSize(10,10) );
   if( debug(DEBUG_FRAMES) ) tabWidget->setBackgroundColor("orange");
   strcpy(cn,"tabWidget:");strcat(cn, internal_name);strcat(cn,"-");strcat(cn,external_name); tabWidget->setCaption(cn);
 
@@ -280,6 +284,7 @@ PanelContainer::PanelContainer( QWidget* _parent, const char* n, PanelContainer 
 
   // Create a frame for the right side, but don't show it... yet.
   rightFrame = new Frame(this, splitter, "right_frame");
+rightFrame->setMinimumSize( QSize(10,10) );
   if( debug(DEBUG_FRAMES) ) rightFrame->setBackgroundColor("green");
 
 

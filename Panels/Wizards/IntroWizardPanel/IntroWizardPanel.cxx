@@ -76,18 +76,22 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
   vWelcomeHeader = new QLabel( getBaseWidgetFrame(), "vWelcomeHeader" );
   vWelcomeHeader->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding, 0, 0, FALSE ) );
   vWelcomeHeader->setAlignment( int( QLabel::WordBreak | QLabel::AlignCenter ) );
+  vWelcomeHeader->setMinimumSize( QSize(10,10) );
 
   IntroWizardFormLayout->addWidget( vWelcomeHeader);
 
   mainWidgetStack = new QWidgetStack( getBaseWidgetFrame(), "mainWidgetStack" );
+  mainWidgetStack->setMinimumSize( QSize(10,10) );
   mainWidgetStack->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding,QSizePolicy::BothDirections, QSizePolicy::BothDirections, FALSE ) );
    IntroWizardFormLayout->addWidget(mainWidgetStack);
 
   vWStackPage = new QWidget( mainWidgetStack, "vWStackPage" );
+  vWStackPage->setMinimumSize( QSize(10,10) );
   vWStackPageLayout = new QVBoxLayout( vWStackPage, 11, 6, "vWStackPageLayout"); 
   vRBLayout = new QVBoxLayout( 0, 0, 6, "vRBLayout"); 
 
   vHelpfulLabel = new QLabel( vWStackPage, "vHelpfulLabel" );
+  vHelpfulLabel->setMinimumSize( QSize(10,10) );
   vHelpfulLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, vHelpfulLabel->sizePolicy().hasHeightForWidth() ) );
   vRBLayout->addWidget( vHelpfulLabel );
 

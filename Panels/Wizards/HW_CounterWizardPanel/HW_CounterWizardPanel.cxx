@@ -57,64 +57,52 @@
 #include "SS_Input_Manager.hxx"
 using namespace OpenSpeedShop::Framework;
 
-/*!  HW_CounterWizardPanel Class
-     This class is used by the script mknewpanel to create a new work area
-     for the panel creator to design a new panel.
-
-
-     Autor: Al Stipek (stipek@sgi.com)
- */
-
-
-/*! Constructs a new UserPanel object */
-/*! This is the most often used constructor call.
-    \param pc         The panel container the panel will initially be attached.
-    \param n          The initial name of the panel container
-    \param argument   TRUE|FALSE TRUE if call invoked by IntroWizardPanel
- */
 HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
 {
   nprintf(DEBUG_CONST_DESTRUCT) ("HW_CounterWizardPanel::HW_CounterWizardPanel() constructor called\n");
-
   if ( !getName() )
   {
 	setName( "HW Counter" );
   }
 
-  sv = new QScrollView(getBaseWidgetFrame(), "scrollview");
-  sv->setResizePolicy( QScrollView::Manual );
+  hwCounterFormLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
-  // I'm not calculating this, but rather just setting a "reasonable"
-  // size.   Eventually this should be calculated.
-  sv->resize(700,400);
-  sv->resizeContents(800,450);
-
-  hwCounterFormLayout = new QVBoxLayout( sv->viewport(), 1, 2, getName() );
-
-  mainFrame = new QFrame( sv->viewport(), "mainFrame" );
+  mainFrame = new QFrame( getBaseWidgetFrame(), "mainFrame" );
+  mainFrame->setMinimumSize( QSize(10,10) );
   mainFrame->setFrameShape( QFrame::StyledPanel );
   mainFrame->setFrameShadow( QFrame::Raised );
   mainFrameLayout = new QVBoxLayout( mainFrame, 11, 6, "mainFrameLayout"); 
 
   mainWidgetStack = new QWidgetStack( mainFrame, "mainWidgetStack" );
+  mainWidgetStack->setMinimumSize( QSize(10,10) );
 
 // Begin: verbose description page
   vDescriptionPageWidget = new QWidget( mainWidgetStack, "vDescriptionPageWidget" );
   vDescriptionPageLayout = new QVBoxLayout( vDescriptionPageWidget, 11, 6, "vDescriptionPageLayout"); 
 
   vDescriptionPageTitleLabel = new QLabel( vDescriptionPageWidget, "vDescriptionPageTitleLabel" );
-  vDescriptionPageTitleLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, vDescriptionPageTitleLabel->sizePolicy().hasHeightForWidth() ) );
+  vDescriptionPageTitleLabel->setMinimumSize( QSize(0,0) );
+  vDescriptionPageTitleLabel->setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed, 0, 0, FALSE ) );
   vDescriptionPageTitleLabel->setAlignment( int( QLabel::WordBreak | QLabel::AlignCenter ) );
   vDescriptionPageLayout->addWidget( vDescriptionPageTitleLabel );
 
   vDescriptionPageText = new QTextEdit( vDescriptionPageWidget, "vDescriptionPageText" );
+  vDescriptionPageText->setMinimumSize( QSize(10,10) );
+  vDescriptionPageText->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum, 0, 0, FALSE ) );
+  vDescriptionPageText->setMinimumSize( QSize(10,10) );
   vDescriptionPageText->setWordWrap( QTextEdit::WidgetWidth );
   vDescriptionPageLayout->addWidget( vDescriptionPageText );
 
   vDescriptionPageButtonLayout = new QHBoxLayout( 0, 0, 6, "vDescriptionPageButtonLayout"); 
 
-  vDescriptionPageButtonSpacer = new QSpacerItem( 251, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
+  vwizardMode = new QCheckBox( vDescriptionPageWidget, "vwizardMode" );
+  vwizardMode->setSizePolicy( QSizePolicy( QSizePolicy::Maximum, QSizePolicy::Fixed, 0, 0, FALSE ) );
+  vwizardMode->setChecked( TRUE );
+  vDescriptionPageButtonLayout->addWidget( vwizardMode );
+
+  vDescriptionPageButtonSpacer = new QSpacerItem( 251, 10, QSizePolicy::Expanding, QSizePolicy::Fixed );
   vDescriptionPageButtonLayout->addItem( vDescriptionPageButtonSpacer );
+
   vDescriptionPageIntroButton = new QPushButton( vDescriptionPageWidget, "vDescriptionPageIntroButton" );
   vDescriptionPageIntroButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vDescriptionPageIntroButton->sizePolicy().hasHeightForWidth() ) );
   vDescriptionPageButtonLayout->addWidget( vDescriptionPageIntroButton );
@@ -133,13 +121,20 @@ HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, 
 
 // Begin: verbose parameter page
   vParameterPageWidget = new QWidget( mainWidgetStack, "vParameterPageWidget" );
+  vParameterPageWidget->setMinimumSize( QSize(10,10) );
   vParameterPageLayout = new QVBoxLayout( vParameterPageWidget, 11, 6, "vParameterPageLayout"); 
 
-  vParameterPageDescriptionLabel = new QLabel( vParameterPageWidget, "vParameterPageDescriptionLabel" );
-  vParameterPageDescriptionLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)5, 0, 0, vParameterPageDescriptionLabel->sizePolicy().hasHeightForWidth() ) );
-  vParameterPageLayout->addWidget( vParameterPageDescriptionLabel );
+  vParameterPageDescriptionText = new QTextEdit( vParameterPageWidget, "vParameterPageDescriptionText" );
+  vParameterPageDescriptionText->setMinimumSize( QSize(10,10) );
+
+  vParameterPageDescriptionText->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum, 0, 0, FALSE ) );
+  vParameterPageDescriptionText->setMinimumSize( QSize(10,10) );
+  vParameterPageDescriptionText->setWordWrap( QTextEdit::WidgetWidth );
+  vParameterPageLayout->addWidget( vParameterPageDescriptionText );
+
 
   vParameterPageLine = new QFrame( vParameterPageWidget, "vParameterPageLine" );
+  vParameterPageLine->setMinimumSize( QSize(10,10) );
   vParameterPageLine->setFrameShape( QFrame::HLine );
   vParameterPageLine->setFrameShadow( QFrame::Sunken );
   vParameterPageLine->setFrameShape( QFrame::HLine );
@@ -148,20 +143,25 @@ HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, 
   vParameterPageParameterLayout = new QVBoxLayout( 0, 0, 6, "vParameterPageParameterLayout"); 
 
   vParameterPageSampleRateHeaderLabel = new QLabel( vParameterPageWidget, "vParameterPageSampleRateHeaderLabel" );
-  vParameterPageSampleRateHeaderLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, vParameterPageSampleRateHeaderLabel->sizePolicy().hasHeightForWidth() ) );
+//  vParameterPageSampleRateHeaderLabel->setMinimumSize( QSize(10,10) );
+  vParameterPageSampleRateHeaderLabel->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, 0, 0, FALSE ) );
   vParameterPageParameterLayout->addWidget( vParameterPageSampleRateHeaderLabel );
 
   vParameterPageSampleRateLayout = new QHBoxLayout( 0, 0, 6, "vParameterPageSampleRateLayout"); 
 
   vParameterPageSampleRateLabel = new QLabel( vParameterPageWidget, "vParameterPageSampleRateLabel" );
+  vParameterPageSampleRateLabel->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
   vParameterPageSampleRateLayout->addWidget( vParameterPageSampleRateLabel );
 
   vParameterPageSampleRateText = new QLineEdit( vParameterPageWidget, "vParameterPageSampleRateText" );
+  vParameterPageSampleRateText->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
   vParameterPageSampleRateLayout->addWidget( vParameterPageSampleRateText );
+
+  vParameterPageSpacer = new QSpacerItem( 400, 30, QSizePolicy::Preferred, QSizePolicy::Fixed );
+  vParameterPageSampleRateLayout->addItem( vParameterPageSpacer );
+
   vParameterPageParameterLayout->addLayout( vParameterPageSampleRateLayout );
   vParameterPageLayout->addLayout( vParameterPageParameterLayout );
-  vParameterPageSpacer = new QSpacerItem( 20, 30, QSizePolicy::Minimum, QSizePolicy::Expanding );
-  vParameterPageLayout->addItem( vParameterPageSpacer );
 
   vParameterPageButtonLayout = new QHBoxLayout( 0, 0, 6, "vParameterPageButtonLayout"); 
 
@@ -189,13 +189,19 @@ HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, 
 
 // Begin: AttachOrLoad page
   vAttachOrLoadPageWidget = new QWidget( mainWidgetStack, "vAttachOrLoadPageWidget" );
+  vAttachOrLoadPageWidget->setMinimumSize( QSize(10,10) );
+  vAttachOrLoadPageWidget->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Preferred, 0, 0, FALSE ) );
+
   vAttachOrLoadPageLayout = new QVBoxLayout( vAttachOrLoadPageWidget, 11, 6, "vAttachOrLoadPageLayout"); 
 
-  vAttachOrLoadPageDescriptionLabel = new QLabel( vAttachOrLoadPageWidget, "vAttachOrLoadPageDescriptionLabel" );
-  vAttachOrLoadPageDescriptionLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)5, 0, 0, vAttachOrLoadPageDescriptionLabel->sizePolicy().hasHeightForWidth() ) );
+  vAttachOrLoadPageDescriptionLabel = new QTextEdit( vAttachOrLoadPageWidget, "vAttachOrLoadPageDescriptionLabel" );
+  vAttachOrLoadPageDescriptionLabel->setMinimumSize( QSize(10,10) );
+  vAttachOrLoadPageDescriptionLabel->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum, 0, 0, FALSE ) );
   vAttachOrLoadPageLayout->addWidget( vAttachOrLoadPageDescriptionLabel );
 
   vAttachOrLoadPageLine = new QFrame( vAttachOrLoadPageWidget, "vAttachOrLoadPageLine" );
+  vAttachOrLoadPageLine->setMinimumSize( QSize(10,10) );
+  vAttachOrLoadPageLine->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Preferred, 0, 0, FALSE ) );
   vAttachOrLoadPageLine->setFrameShape( QFrame::HLine );
   vAttachOrLoadPageLine->setFrameShadow( QFrame::Sunken );
   vAttachOrLoadPageLine->setFrameShape( QFrame::HLine );
@@ -207,14 +213,16 @@ HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, 
   vAttachOrLoadPageAttachOrLoadLayout->addWidget( vAttachOrLoadPageAttachToProcessCheckBox );
 
   vAttachOrLoadPageProcessListLabel = new QLabel( vAttachOrLoadPageWidget, "vAttachOrLoadPageProcessListLabel" );
-  vAttachOrLoadPageProcessListLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageProcessListLabel ) );
+  vAttachOrLoadPageProcessListLabel->setMinimumSize( QSize(10,10) );
+  vAttachOrLoadPageProcessListLabel->setSizePolicy( QSizePolicy( QSizePolicy::Maximum, QSizePolicy::Expanding, 0, 0, FALSE ) );
   vAttachOrLoadPageAttachOrLoadLayout->addWidget( vAttachOrLoadPageProcessListLabel );
 
   vAttachOrLoadPageLoadExecutableCheckBox = new QCheckBox( vAttachOrLoadPageWidget, "vAttachOrLoadPageLoadExecutableCheckBox" );
   vAttachOrLoadPageAttachOrLoadLayout->addWidget( vAttachOrLoadPageLoadExecutableCheckBox );
 
   vAttachOrLoadPageExecutableLabel = new QLabel( vAttachOrLoadPageWidget, "vAttachOrLoadPageExecutableLabel" );
-  vAttachOrLoadPageExecutableLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageExecutableLabel ) );
+    vAttachOrLoadPageExecutableLabel->setMinimumSize( QSize(10,10) );
+  vAttachOrLoadPageExecutableLabel->setSizePolicy( QSizePolicy( QSizePolicy::Maximum, QSizePolicy::Expanding, 0, 0, FALSE ) );
   vAttachOrLoadPageAttachOrLoadLayout->addWidget( vAttachOrLoadPageExecutableLabel );
 
   vAttachOrLoadPageLoadDifferentExecutableCheckBox = new QCheckBox( vAttachOrLoadPageWidget, "vAttachOrLoadPageLoadDifferentExecutableCheckBox" );
@@ -230,7 +238,7 @@ HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, 
 
   vAttachOrLoadPageButtonLayout = new QHBoxLayout( 0, 0, 6, "vAttachOrLoadPageButtonLayout"); 
 
-  vAttachOrLoadPageButtonSpacer = new QSpacerItem( 251, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
+  vAttachOrLoadPageButtonSpacer = new QSpacerItem( 251, 1, QSizePolicy::Expanding, QSizePolicy::Minimum );
   vAttachOrLoadPageButtonLayout->addItem( vAttachOrLoadPageButtonSpacer );
   vAttachOrLoadPageBackButton = new QPushButton( vAttachOrLoadPageWidget, "vAttachOrLoadPageBackButton" );
   vAttachOrLoadPageBackButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, vAttachOrLoadPageBackButton->sizePolicy().hasHeightForWidth() ) );
@@ -254,14 +262,18 @@ HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, 
 
 // Begin: verbose summary page
   vSummaryPageWidget = new QWidget( mainWidgetStack, "vSummaryPageWidget" );
+  vSummaryPageWidget->setMinimumSize( QSize(10,10) );
   vSummaryPageLayout = new QVBoxLayout( vSummaryPageWidget, 11, 6, "vSummaryPageLayout"); 
 
   vSummaryPageLabelLayout = new QVBoxLayout( 0, 0, 6, "vSummaryPageLabelLayout"); 
+#ifdef OLDWAY
   vSummaryPageSpacer = new QSpacerItem( 20, 1, QSizePolicy::Minimum, QSizePolicy::Fixed );
   vSummaryPageLabelLayout->addItem( vSummaryPageSpacer );
+#endif // OLDWAY
 
-  vSummaryPageFinishLabel = new QLabel( vSummaryPageWidget, "vSummaryPageFinishLabel" );
-  vSummaryPageFinishLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)1, 0, 0, vSummaryPageFinishLabel->sizePolicy().hasHeightForWidth() ) );
+  vSummaryPageFinishLabel = new QTextEdit( vSummaryPageWidget, "vSummaryPageFinishLabel" );
+  vSummaryPageFinishLabel->setMinimumSize( QSize(10,10) );
+  vSummaryPageFinishLabel->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Preferred, 0, 0, FALSE ) );
   vSummaryPageLabelLayout->addWidget( vSummaryPageFinishLabel );
   vSummaryPageLayout->addLayout( vSummaryPageLabelLayout );
 
@@ -291,8 +303,15 @@ HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, 
   eDescriptionPageLayout->addWidget( eDescriptionPageTitleLabel );
 
   eDescriptionPageText = new QLabel( eDescriptionPageWidget, "eDescriptionPageText" );
+  eDescriptionPageText->setMinimumSize( QSize(10,10) );
   eDescriptionPageLayout->addWidget( eDescriptionPageText );
   eDescriptionPageButtonLayout = new QHBoxLayout( 0, 0, 6, "eDescriptionPageButtonLayout"); 
+
+ewizardMode = new QCheckBox( eDescriptionPageWidget, "ewizardMode" );
+ewizardMode->setSizePolicy( QSizePolicy( QSizePolicy::Maximum, QSizePolicy::Fixed, 0, 0, FALSE ) );
+ewizardMode->setChecked( FALSE );
+eDescriptionPageButtonLayout->addWidget( ewizardMode );
+
 
   eDescriptionPageSpacer = new QSpacerItem( 251, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
   eDescriptionPageButtonLayout->addItem( eDescriptionPageSpacer );
@@ -314,12 +333,15 @@ HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, 
 
 // Begin: advance (expert) parameter page
   eParameterPageWidget = new QWidget( mainWidgetStack, "eParameterPageWidget" );
+  eParameterPageWidget->setMinimumSize( QSize(10,10) );
   eParameterPageLayout = new QVBoxLayout( eParameterPageWidget, 11, 6, "eParameterPageLayout"); 
 
-  eParameterPageDescriptionLabel = new QLabel( eParameterPageWidget, "eParameterPageDescriptionLabel" );
-  eParameterPageDescriptionLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)5, 0, 0, eParameterPageDescriptionLabel->sizePolicy().hasHeightForWidth() ) );
+  eParameterPageDescriptionLabel = new QTextEdit( eParameterPageWidget, "eParameterPageDescriptionLabel" );
+  eParameterPageDescriptionLabel->setMinimumSize( QSize(10,10) );
+  eParameterPageDescriptionLabel->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum, 0, 0, FALSE ) );
   eParameterPageLayout->addWidget( eParameterPageDescriptionLabel );
   eParameterPageLine = new QFrame( eParameterPageWidget, "eParameterPageLine" );
+  eParameterPageLine->setMinimumSize( QSize(10,10) );
   eParameterPageLine->setFrameShape( QFrame::HLine );
   eParameterPageLine->setFrameShadow( QFrame::Sunken );
   eParameterPageLine->setFrameShape( QFrame::HLine );
@@ -328,21 +350,25 @@ HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, 
   eParameterPageParameterLayout = new QVBoxLayout( 0, 0, 6, "eParameterPageParameterLayout"); 
 
   eParameterPageSampleRateHeaderLabel = new QLabel( eParameterPageWidget, "eParameterPageSampleRateHeaderLabel" );
-  eParameterPageSampleRateHeaderLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, eParameterPageSampleRateHeaderLabel->sizePolicy().hasHeightForWidth() ) );
+//  eParameterPageSampleRateHeaderLabel->setMinimumSize( QSize(10,10) );
+  eParameterPageSampleRateHeaderLabel->setSizePolicy( QSizePolicy( QSizePolicy::Maximum, QSizePolicy::Fixed, 0, 0, FALSE ) );
   eParameterPageParameterLayout->addWidget( eParameterPageSampleRateHeaderLabel );
 
   eParameterPageSampleRateLayout = new QHBoxLayout( 0, 0, 6, "eParameterPageSampleRateLayout"); 
 
   eParameterPageSampleRateLabel = new QLabel( eParameterPageWidget, "eParameterPageSampleRateLabel" );
+  eParameterPageSampleRateLabel->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
   eParameterPageSampleRateLayout->addWidget( eParameterPageSampleRateLabel );
 
   eParameterPageSampleRateText = new QLineEdit( eParameterPageWidget, "eParameterPageSampleRateText" );
+  eParameterPageSampleRateText->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
   eParameterPageSampleRateLayout->addWidget( eParameterPageSampleRateText );
+
+  eParameterPageSpacer = new QSpacerItem( 20, 1, QSizePolicy::Preferred, QSizePolicy::Fixed );
+  eParameterPageSampleRateLayout->addItem( eParameterPageSpacer );
+
   eParameterPageParameterLayout->addLayout( eParameterPageSampleRateLayout );
   eParameterPageLayout->addLayout( eParameterPageParameterLayout );
-  eParameterPageSpacer = new QSpacerItem( 20, 70, QSizePolicy::Minimum, QSizePolicy::Expanding );
-  eParameterPageLayout->addItem( eParameterPageSpacer );
-
   eParameterPageButtonLayout = new QHBoxLayout( 0, 0, 6, "eParameterPageButtonLayout"); 
 
   eParameterPageButtonSpacer = new QSpacerItem( 251, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
@@ -370,13 +396,15 @@ HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, 
 
 // Begin: advance (expert) attach/load page
   eAttachOrLoadPageWidget = new QWidget( mainWidgetStack, "eAttachOrLoadPageWidget" );
+  eAttachOrLoadPageWidget->setMinimumSize( QSize(10,10) );
   eAttachOrLoadPageLayout = new QVBoxLayout( eAttachOrLoadPageWidget, 11, 6, "eAttachOrLoadPageLayout"); 
 
   eAttachOrLoadPageDescriptionLabel = new QLabel( eAttachOrLoadPageWidget, "eAttachOrLoadPageDescriptionLabel" );
-  eAttachOrLoadPageDescriptionLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)5, 0, 0, eAttachOrLoadPageDescriptionLabel->sizePolicy().hasHeightForWidth() ) );
+  eAttachOrLoadPageDescriptionLabel->setSizePolicy( QSizePolicy( QSizePolicy::Maximum, QSizePolicy::Fixed, 0, 0, FALSE ) );
   eAttachOrLoadPageLayout->addWidget( eAttachOrLoadPageDescriptionLabel );
 
   eAttachOrLoadPageLine = new QFrame( eAttachOrLoadPageWidget, "eAttachOrLoadPageLine" );
+  eAttachOrLoadPageLine->setMinimumSize( QSize(10,10) );
   eAttachOrLoadPageLine->setFrameShape( QFrame::HLine );
   eAttachOrLoadPageLine->setFrameShadow( QFrame::Sunken );
   eAttachOrLoadPageLine->setFrameShape( QFrame::HLine );
@@ -388,6 +416,7 @@ HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, 
   eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageAttachToProcessCheckBox );
 
   eAttachOrLoadPageProcessListLabel = new QLabel( eAttachOrLoadPageWidget, "eAttachOrLoadPageProcessListLabel" );
+  eAttachOrLoadPageProcessListLabel->setMinimumSize( QSize(10,10) );
   eAttachOrLoadPageProcessListLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, eAttachOrLoadPageProcessListLabel ) );
 
   eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageProcessListLabel );
@@ -396,6 +425,7 @@ HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, 
   eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageLoadExecutableCheckBox );
 
   eAttachOrLoadPageExecutableLabel = new QLabel( eAttachOrLoadPageWidget, "eAttachOrLoadPageExecutableLabel" );
+  eAttachOrLoadPageExecutableLabel->setMinimumSize( QSize(10,10) );
   eAttachOrLoadPageExecutableLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, eAttachOrLoadPageExecutableLabel ) );
   eAttachOrLoadPageAttachOrLoadLayout->addWidget( eAttachOrLoadPageExecutableLabel );
 
@@ -434,10 +464,12 @@ HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, 
 
 // Begin: advance (expert) summary page
   eSummaryPageWidget = new QWidget( mainWidgetStack, "eSummaryPageWidget" );
+  eSummaryPageWidget->setMinimumSize( QSize(10,10) );
   eSummaryPageLayout = new QVBoxLayout( eSummaryPageWidget, 11, 6, "eSummaryPageLayout"); 
 
-  eSummaryPageFinishLabel = new QLabel( eSummaryPageWidget, "eSummaryPageFinishLabel" );
-  eSummaryPageFinishLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)1, 0, 0, eSummaryPageFinishLabel->sizePolicy().hasHeightForWidth() ) );
+  eSummaryPageFinishLabel = new QTextEdit( eSummaryPageWidget, "eSummaryPageFinishLabel" );
+  eSummaryPageFinishLabel->setMinimumSize( QSize(10,10) );
+  eSummaryPageFinishLabel->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum, 0, 0, FALSE ) );
   eSummaryPageLayout->addWidget( eSummaryPageFinishLabel );
 
   eSummaryPageButtonLayout = new QHBoxLayout( 0, 0, 6, "eSummaryPageButtonLayout"); 
@@ -458,22 +490,6 @@ HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, 
 // End: advance (expert) summary page
 
 
-// Begin: add the bottom portion: The "wizard mode" and "brought to you by"
-  bottomLayout = new QHBoxLayout( 0, 0, 6, "bottomLayout"); 
-
-  wizardMode = new QCheckBox( sv->viewport(), "wizardMode" );
-  wizardMode->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, wizardMode->sizePolicy().hasHeightForWidth() ) );
-  wizardMode->setChecked( TRUE );
-  bottomLayout->addWidget( wizardMode );
-  bottomSpacer = new QSpacerItem( 40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
-  bottomLayout->addItem( bottomSpacer );
-
-  broughtToYouByLabel = new QLabel( sv->viewport(), "broughtToYouByLabel" );
-  broughtToYouByLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, broughtToYouByLabel->sizePolicy().hasHeightForWidth() ) );
-  bottomLayout->addWidget( broughtToYouByLabel );
-// End: add the bottom portion: The "wizard mode" and "brought to you by"
-
-  hwCounterFormLayout->addLayout( bottomLayout );
   languageChange();
   resize( QSize(631, 508).expandedTo(minimumSizeHint()) );
   clearWState( WState_Polished );
@@ -546,8 +562,10 @@ HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, 
            SLOT( vSummaryPageBackButtonSelected() ) );
   connect( vSummaryPageFinishButton, SIGNAL( clicked() ), this,
            SLOT( vSummaryPageFinishButtonSelected() ) );
-  connect( wizardMode, SIGNAL( clicked() ), this,
-           SLOT( wizardModeSelected() ) );
+  connect( vwizardMode, SIGNAL( clicked() ), this,
+           SLOT( vwizardModeSelected() ) );
+  connect( ewizardMode, SIGNAL( clicked() ), this,
+           SLOT( ewizardModeSelected() ) );
 
   connect( eDescriptionPageFinishButton, SIGNAL( clicked() ), this,
            SLOT( finishButtonSelected() ) );
@@ -563,8 +581,6 @@ HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, 
            SLOT( finishButtonSelected() ) );
   connect( vAttachOrLoadPageFinishButton, SIGNAL( clicked() ), this,
            SLOT( finishButtonSelected() ) );
-
-  sv->viewport()->setBackgroundColor(getBaseWidgetFrame()->backgroundColor() );
 
   if( (bool)argument == 0 )
   {
@@ -649,7 +665,7 @@ HW_CounterWizardPanel::listener(void *msg)
     eSummaryPageBackButton->setEnabled(TRUE);
     qApp->flushX();
     nprintf(DEBUG_PANELS) ("vDescriptionPageWidget\n");
-    if( wizardMode->isOn() )
+    if( vwizardMode->isOn() && !ewizardMode->isOn() )
     {// is it verbose?
       mainWidgetStack->raiseWidget(vDescriptionPageWidget);
     } else
@@ -669,6 +685,62 @@ HW_CounterWizardPanel::broadcast(char *msg)
   nprintf(DEBUG_PANELS) ("HW_CounterWizardPanel::broadcast() requested.\n");
   return 0;
 }
+
+void HW_CounterWizardPanel::vwizardModeSelected()
+{
+  QWidget *raisedWidget = mainWidgetStack->visibleWidget();
+  wizardModeSelected();
+  vUpdateAttachOrLoadPageWidget();
+  if( raisedWidget == vDescriptionPageWidget )
+  {
+      nprintf(DEBUG_PANELS) ("vDescriptionPageWidget\n");
+      mainWidgetStack->raiseWidget(eDescriptionPageWidget);
+  } else if( raisedWidget ==  vParameterPageWidget )
+  {
+      nprintf(DEBUG_PANELS) ("vParameterPageWidget\n");
+      mainWidgetStack->raiseWidget(eParameterPageWidget);
+  } else if( raisedWidget ==  vAttachOrLoadPageWidget )
+  {
+      nprintf(DEBUG_PANELS) ("vAttachOrLoadPageWidget\n");
+      mainWidgetStack->raiseWidget(eAttachOrLoadPageWidget);
+  } else if( raisedWidget == vSummaryPageWidget )
+  {
+      nprintf(DEBUG_PANELS) ("vSummaryPageWidget\n");
+      mainWidgetStack->raiseWidget(eSummaryPageWidget);
+  } else
+  {
+      nprintf(DEBUG_PANELS) ("Expert to Verbose: unknown WStackPage\n");
+  }
+  vwizardMode->setChecked( FALSE );
+}
+
+void HW_CounterWizardPanel::ewizardModeSelected()
+{
+  QWidget *raisedWidget = mainWidgetStack->visibleWidget();
+  wizardModeSelected();
+  vUpdateAttachOrLoadPageWidget();
+  if( raisedWidget  == eDescriptionPageWidget )
+  {
+      nprintf(DEBUG_PANELS) ("eDescriptionPageWidget\n");
+      mainWidgetStack->raiseWidget(vDescriptionPageWidget);
+  } else if( raisedWidget == eParameterPageWidget )
+  {
+      nprintf(DEBUG_PANELS) ("eParameterPageWidget\n");
+      mainWidgetStack->raiseWidget(vParameterPageWidget);
+  } else if( raisedWidget == eAttachOrLoadPageWidget )
+  {
+      nprintf(DEBUG_PANELS) ("eAttachOrLoadPageWidget\n");
+      mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
+  } else if( raisedWidget == eSummaryPageWidget )
+  {
+      nprintf(DEBUG_PANELS) ("eSummaryPageWidget\n");
+      mainWidgetStack->raiseWidget(vSummaryPageWidget);
+  } else
+  {
+      nprintf(DEBUG_PANELS) ("Verbose to Expert: unknown WStackPage\n");
+  }
+}
+
 
 void HW_CounterWizardPanel::wizardModeSelected()
 {
@@ -693,61 +765,7 @@ void HW_CounterWizardPanel::wizardModeSelected()
     nprintf(DEBUG_PANELS) ("eSummaryPageWidget\n");
   }
 
-  if( wizardMode->isOn() )
-  {
-    vUpdateAttachOrLoadPageWidget();
-    if( raisedWidget  == eDescriptionPageWidget )
-    {
-        nprintf(DEBUG_PANELS) ("eDescriptionPageWidget\n");
-        mainWidgetStack->raiseWidget(vDescriptionPageWidget);
-    } else if( raisedWidget == eParameterPageWidget )
-    {
-        nprintf(DEBUG_PANELS) ("eParameterPageWidget\n");
-        mainWidgetStack->raiseWidget(vParameterPageWidget);
-    } else if( raisedWidget == eAttachOrLoadPageWidget )
-    {
-        nprintf(DEBUG_PANELS) ("eAttachOrLoadPageWidget\n");
-        mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
-    } else if( raisedWidget == eSummaryPageWidget )
-    {
-        nprintf(DEBUG_PANELS) ("eSummaryPageWidget\n");
-        mainWidgetStack->raiseWidget(vSummaryPageWidget);
-    } else
-    {
-        nprintf(DEBUG_PANELS) ("Verbose to Expert: unknown WStackPage\n");
-    }
-  } else
-  {
-//    eUpdateAttachOrLoadPageWidget();
-    vUpdateAttachOrLoadPageWidget();
-    if( raisedWidget == vDescriptionPageWidget )
-    {
-        nprintf(DEBUG_PANELS) ("vDescriptionPageWidget\n");
-        mainWidgetStack->raiseWidget(eDescriptionPageWidget);
-    } else if( raisedWidget ==  vParameterPageWidget )
-    {
-        nprintf(DEBUG_PANELS) ("vParameterPageWidget\n");
-        mainWidgetStack->raiseWidget(eParameterPageWidget);
-    } else if( raisedWidget ==  vAttachOrLoadPageWidget )
-    {
-        nprintf(DEBUG_PANELS) ("vAttachOrLoadPageWidget\n");
-        mainWidgetStack->raiseWidget(eAttachOrLoadPageWidget);
-    } else if( raisedWidget == vSummaryPageWidget )
-    {
-        nprintf(DEBUG_PANELS) ("vSummaryPageWidget\n");
-        mainWidgetStack->raiseWidget(eSummaryPageWidget);
-    } else
-    {
-        nprintf(DEBUG_PANELS) ("Expert to Verbose: unknown WStackPage\n");
-    }
-  }
-
-  // Before we swith reposition to top...
-  sv->verticalScrollBar()->setValue(0);
-  sv->horizontalScrollBar()->setValue(0);
-
-  handleSizeEvent(NULL);  
-
+  ewizardMode->setChecked( FALSE );
 }
 
 
@@ -1113,32 +1131,22 @@ void HW_CounterWizardPanel::finishButtonSelected()
   OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
   if( mw->executableName.isEmpty() && mw->pidStr.isEmpty() )
   {
-    if( wizardMode->isOn() )
+    if( vwizardMode->isOn() && !ewizardMode->isOn() )
     {
       mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
       vUpdateAttachOrLoadPageWidget();
       vAttachOrLoadPageNextButtonSelected();
-vSummaryPageFinishButtonSelected();
+      vSummaryPageFinishButtonSelected();
     } else
     {
       mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
       vUpdateAttachOrLoadPageWidget();
       eAttachOrLoadPageNextButtonSelected();
-vSummaryPageFinishButtonSelected();
+      vSummaryPageFinishButtonSelected();
     }
   } else
   {
-#ifdef OLDWAY
-    if( wizardMode->isOn() )
-    {
-      mainWidgetStack->raiseWidget(vSummaryPageWidget);
-    } else
-    {
-      mainWidgetStack->raiseWidget(eSummaryPageWidget);
-    }
-#else // OLDWAY
     vSummaryPageFinishButtonSelected();
-#endif // OLDWAY
   }
 }
 
@@ -1204,7 +1212,7 @@ HW_CounterWizardPanel::languageChange()
   QToolTip::add( vDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
   vDescriptionPageFinishButton->setText( tr( ">> Finish" ) );
   QToolTip::add( vDescriptionPageFinishButton, tr( "Advance to the wizard finish page." ) );
-  vParameterPageDescriptionLabel->setText( tr( QString("The following options (paramaters) are available to adjust.   These are the options the collector has exported.<br><br>\n"
+  vParameterPageDescriptionText->setText( tr( QString("The following options (paramaters) are available to adjust.   These are the options the collector has exported.<br><br>\n"
 "The smaller the number used for the sample rate, the more\n"
 "HW Counter detail will be shown.   However, the trade off will be slower\n"
 "performance and a larger data file.<br><br>\n"
@@ -1281,8 +1289,8 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new execu
   QToolTip::add( eSummaryPageBackButton, tr( "Takes you back one page." ) );
   eSummaryPageFinishButton->setText( tr( "Finish..." ) );
   QToolTip::add( eSummaryPageFinishButton, tr( "Finishes loading the wizard information and brings up a \"HW Counter\" panel" ) );
-  wizardMode->setText( tr( "Verbose Wizard Mode" ) );
-  broughtToYouByLabel->setText( tr( "Brought to you by SGI (SiliconGraphics)" ) );
+  vwizardMode->setText( tr( "Verbose Wizard Mode" ) );
+  ewizardMode->setText( tr( "Verbose Wizard Mode" ) );
 
   // Look up default metrics.   There's only one in this case.
   // Get list of all the collectors from the FrameWork.
@@ -1394,23 +1402,4 @@ HW_CounterWizardPanel::vUpdateAttachOrLoadPageWidget()
       eAttachOrLoadPageProcessListLabel->setText( mw->pidStr );
     }
   }
-}
-
-void
-HW_CounterWizardPanel::handleSizeEvent( QResizeEvent *e )
-{
-
-  int width=100;
-  int height=100;
-
-
-
-  width=getBaseWidgetFrame()->width();
-  height=getBaseWidgetFrame()->height();
-
-
-  // We've got to reposition this on a resize or all alignment goes amuck...
-  sv->verticalScrollBar()->setValue(0);
-
-  sv->resize(width, height);  // this line is correct..
 }
