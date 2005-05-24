@@ -31,7 +31,7 @@ ManageProcessesPanel::ManageProcessesPanel(PanelContainer *pc, const char *n, vo
   frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
 
-  mcc = new ManageCollectorsClass( pc, getBaseWidgetFrame() );
+  mcc = new ManageCollectorsClass( this, getBaseWidgetFrame() );
   frameLayout->addWidget(mcc);
   mcc->show();
   mcc->expID = (int)argument;
@@ -117,9 +117,7 @@ ManageProcessesPanel::listener(void *msg)
   {
     UpdateObject *msg = (UpdateObject *)msgObject;
     nprintf(DEBUG_MESSAGES) ("ManageProcessesPanel::listener() UpdateExperimentDataObject!\n");
-  dprintf("ManageProcessesPanel::listener() UpdateExperimentDataObject!\n");
 
-//  expID = msg->expID;
     mcc->expID = msg->expID;
     mcc->updateAttachedList();
 
@@ -131,8 +129,6 @@ ManageProcessesPanel::listener(void *msg)
   } else if( msgObject->msgType == "PreferencesChangedObject" )
   {
     nprintf(DEBUG_MESSAGES) ("ManageProcessesPanel::listener() PreferencesChangedObject!\n");
-  dprintf ("ManageProcessesPanel::listener() PreferencesChangedObject!\n");
-  dprintf ("HANDLE THIS!!!!\n");
     pco = (PreferencesChangedObject *)msgObject;
 //    preferencesChanged();
   } else if( msgObject->msgType == "SaveAsObject" )

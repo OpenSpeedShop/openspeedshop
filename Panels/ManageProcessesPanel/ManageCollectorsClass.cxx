@@ -41,23 +41,24 @@
 #include "SS_Input_Manager.hxx"
 #include "PanelContainer.hxx"
 
-ManageCollectorsClass::ManageCollectorsClass( PanelContainer *pc, QWidget* parent, const char* name, bool modal, WFlags fl, int exp_id )
+ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const char* name, bool modal, WFlags fl, int exp_id )
     : QWidget( parent, name )
 {
 //  nprintf(DEBUG_CONST_DESTRUCT) ("ManageCollectorsClass::ManageCollectorsClass() constructor called.\n");
   dprintf("ManageCollectorsClass::ManageCollectorsClass() constructor called.\n");
   
+  p = _p;
   dialogSortType = COLLECTOR_T;
   popupMenu = NULL;
   paramMenu = NULL;
   collectorPopupMenu = NULL;
-  mw = (OpenSpeedshop *)pc->getMainWindow();
-  cli = pc->getMainWindow()->cli;
+  mw = (OpenSpeedshop *)p->getPanelContainer()->getMainWindow();
+  cli = p->getPanelContainer()->getMainWindow()->cli;
   clo = NULL;
   expID = exp_id;
   list_of_collectors.clear();
 
-  if ( !name ) setName( "ManageCollectorsAndProcessesDialog" );
+  if ( !name ) setName( "ManageCollectorsClass" );
 
   ManageCollectorsClassLayout = new QVBoxLayout( this, 1, 1, "ManageCollectorsClassLayout"); 
 
@@ -76,6 +77,7 @@ ManageCollectorsClass::ManageCollectorsClass( PanelContainer *pc, QWidget* paren
   connect(attachCollectorsListView, SIGNAL( contextMenuRequested( QListViewItem *, const QPoint& , int ) ), this, SLOT( contextMenuRequested( QListViewItem *, const QPoint &, int ) ) );
 
   updateAttachedList();
+
 }
 
 /*
@@ -93,7 +95,7 @@ ManageCollectorsClass::~ManageCollectorsClass()
  */
 void ManageCollectorsClass::languageChange()
 {
-  setCaption( tr( "Manage Collectors and Processes Dialog" ) );
+  setCaption( tr( "Manage Processes Panel" ) );
   QString command;
 
   command = QString("listTypes all");
@@ -134,161 +136,171 @@ ManageCollectorsClass::updateAttachedList()
 
   switch( dialogSortType )
   {
-  case COLLECTOR_T:
-    {
-      CollectorEntry *ce = NULL;
-      if( clo )
+    case COLLECTOR_T:
       {
-        delete(clo);
-      }
-
-      clo = new CollectorListObject(expID);
-      CollectorEntryList::Iterator it;
-      for( it = clo->collectorEntryList.begin();
-         it != clo->collectorEntryList.end();
-         ++it )
-      {
-        ce = (CollectorEntry *)*it;
-        QListViewItem *item = new QListViewItem( attachCollectorsListView, ce->name, ce->short_name );
-        try
+        CollectorEntry *ce = NULL;
+        if( clo )
         {
-          ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-    
-          if( eo->FW() != NULL )
+          delete(clo);
+        }
+  
+        clo = new CollectorListObject(expID);
+        CollectorEntryList::Iterator it;
+        for( it = clo->collectorEntryList.begin();
+           it != clo->collectorEntryList.end();
+           ++it )
+        {
+          ce = (CollectorEntry *)*it;
+          QListViewItem *item = new QListViewItem( attachCollectorsListView, ce->name, ce->short_name );
+          try
           {
-// The following bit of code was snag and modified from SS_View_exp.cxx
-            ThreadGroup tgrp = eo->FW()->getThreads();
-            ThreadGroup::iterator ti;
-            bool atleastone = false;
-            for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
+            ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+      
+            if( eo->FW() != NULL )
             {
-              Thread t = *ti;
-              std::string host = t.getHost();
-              pid_t pid = t.getProcessId();
-              if (!atleastone) {
-                atleastone = true;
-              }
-              QString pidstr = QString("%1").arg(pid);
-              std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
-              QString tidstr = QString::null;
-              if (pthread.first)
+  // The following bit of code was snag and modified from SS_View_exp.cxx
+              ThreadGroup tgrp = eo->FW()->getThreads();
+              ThreadGroup::iterator ti;
+              bool atleastone = false;
+              for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
               {
-                tidstr = QString("%1").arg(pthread.second);
-              }
-              std::pair<bool, int> rank = t.getMPIRank();
-              QString ridstr = QString::null;
-              if (rank.first)
-              {
-                ridstr = QString("%1").arg(rank.second);
-              }
-              CollectorGroup cgrp = t.getCollectors();
-              CollectorGroup::iterator ci;
-              int collector_count = 0;
-              for (ci = cgrp.begin(); ci != cgrp.end(); ci++)
-              {
-                Collector c = *ci;
-                Metadata m = c.getMetadata();
-                if (collector_count)
-                {
-                } else
-                {
-                  collector_count = 1;
+                Thread t = *ti;
+                std::string host = t.getHost();
+                pid_t pid = t.getProcessId();
+                if (!atleastone) {
+                  atleastone = true;
                 }
-                if( m.getUniqueId() == ce->name.ascii() )
+                QString pidstr = QString("%1").arg(pid);
+                std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
+                QString tidstr = QString::null;
+                if (pthread.first)
                 {
-                  if( !tidstr.isEmpty() )
+                  tidstr = QString("%1").arg(pthread.second);
+                }
+                std::pair<bool, int> rank = t.getMPIRank();
+                QString ridstr = QString::null;
+                if (rank.first)
+                {
+                  ridstr = QString("%1").arg(rank.second);
+                }
+                CollectorGroup cgrp = t.getCollectors();
+                CollectorGroup::iterator ci;
+                int collector_count = 0;
+                for (ci = cgrp.begin(); ci != cgrp.end(); ci++)
+                {
+                  Collector c = *ci;
+                  Metadata m = c.getMetadata();
+                  if (collector_count)
                   {
-                    QListViewItem *item2 =
-                      new QListViewItem( item, host, pidstr, tidstr );
-                  } else if( !ridstr.isEmpty() )
-                  {
-                    QListViewItem *item2 =
-                      new QListViewItem( item, host, pidstr, ridstr );
                   } else
                   {
-                    QListViewItem *item2 =
-                      new QListViewItem( item, host, pidstr );
+                    collector_count = 1;
+                  }
+                  if( m.getUniqueId() == ce->name.ascii() )
+                  {
+                    if( !tidstr.isEmpty() )
+                    {
+                      QListViewItem *item2 =
+                        new QListViewItem( item, host, pidstr, tidstr );
+                    } else if( !ridstr.isEmpty() )
+                    {
+                      QListViewItem *item2 =
+                        new QListViewItem( item, host, pidstr, ridstr );
+                    } else
+                    {
+                      QListViewItem *item2 =
+                        new QListViewItem( item, host, pidstr );
+                    }
                   }
                 }
               }
             }
           }
-        }
-        catch(const std::exception& error)
-        {
-          std::cerr << std::endl << "Error: "
-            << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-            "Unknown runtime error." : error.what()) << std::endl
-            << std::endl;
-          return;
+          catch(const std::exception& error)
+          {
+            std::cerr << std::endl << "Error: "
+              << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+              "Unknown runtime error." : error.what()) << std::endl
+              << std::endl;
+            return;
+          }
         }
       }
-    }
+      attachCollectorsListView->setColumnText( 0,
+        tr( QString("Collectors attached to experiment: '%1':").arg(expID) ) );
+      attachCollectorsListView->setColumnText( 1, tr( QString("Name") ) );
       break;
     case PID_T:
     {
-    try {
-      ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-
-      if( eo->FW() != NULL )
+      try
       {
-// The following bit of code was snag and modified from SS_View_exp.cxx
-        ThreadGroup tgrp = eo->FW()->getThreads();
-        ThreadGroup::iterator ti;
-        bool atleastone = false;
-        for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
+        ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+  
+        if( eo->FW() != NULL )
         {
-          Thread t = *ti;
-          std::string host = t.getHost();
-          pid_t pid = t.getProcessId();
-          if (!atleastone) {
-            atleastone = true;
-          }
-          QString pidstr = QString("%1").arg(pid);
-          std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
-          QString tidstr = QString::null;
-          if (pthread.first)
+  // The following bit of code was snag and modified from SS_View_exp.cxx
+          ThreadGroup tgrp = eo->FW()->getThreads();
+          ThreadGroup::iterator ti;
+          bool atleastone = false;
+          for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
           {
-            tidstr = QString("%1").arg(pthread.second);
-          }
-          std::pair<bool, int> rank = t.getMPIRank();
-          QString ridstr = QString::null;
-          if (rank.first)
-          {
-            ridstr = QString("%1").arg(rank.second);
-          }
-          CollectorGroup cgrp = t.getCollectors();
-          CollectorGroup::iterator ci;
-          int collector_count = 0;
-          QListViewItem *item =
-            new QListViewItem( attachCollectorsListView, pidstr );
-          for (ci = cgrp.begin(); ci != cgrp.end(); ci++)
-          {
-            Collector c = *ci;
-            Metadata m = c.getMetadata();
-            if (collector_count)
-            {
-            } else
-            {
-              collector_count = 1;
+            Thread t = *ti;
+            std::string host = t.getHost();
+            pid_t pid = t.getProcessId();
+            if (!atleastone) {
+              atleastone = true;
             }
-            QListViewItem *item2 = new QListViewItem( item, host, m.getUniqueId());
+            QString pidstr = QString("%1").arg(pid);
+            std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
+            QString tidstr = QString::null;
+            if (pthread.first)
+            {
+              tidstr = QString("%1").arg(pthread.second);
+            }
+            std::pair<bool, int> rank = t.getMPIRank();
+            QString ridstr = QString::null;
+            if (rank.first)
+            {
+              ridstr = QString("%1").arg(rank.second);
+            }
+            CollectorGroup cgrp = t.getCollectors();
+            CollectorGroup::iterator ci;
+            int collector_count = 0;
+            QListViewItem *item =
+              new QListViewItem( attachCollectorsListView, pidstr );
+            for (ci = cgrp.begin(); ci != cgrp.end(); ci++)
+            {
+              Collector c = *ci;
+              Metadata m = c.getMetadata();
+              if (collector_count)
+              {
+              } else
+              {
+                collector_count = 1;
+              }
+              QListViewItem *item2 = new QListViewItem( item, host, m.getUniqueId());
+            }
           }
         }
       }
-    }
-    catch(const std::exception& error)
-    {
-      std::cerr << std::endl << "Error: "
-        << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-        "Unknown runtime error." : error.what()) << std::endl
-        << std::endl;
-      return;
-    }
+      catch(const std::exception& error)
+      {
+        std::cerr << std::endl << "Error: "
+          << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+          "Unknown runtime error." : error.what()) << std::endl
+          << std::endl;
+        return;
+      }
+      attachCollectorsListView->setColumnText( 0,
+        tr( QString("Processes attached to experiment: '%1':").arg(expID) ) );
+      attachCollectorsListView->setColumnText( 1, tr( QString("Name") ) );
     }
     break;
   case  MPIRANK_T:
 // Does this one make sense?
+    attachCollectorsListView->setColumnText( 0,
+      tr( QString("MPI ranks associated with experiment: '%1':").arg(expID) ) );
+    attachCollectorsListView->setColumnText( 1, tr( QString("Process ID") ) );
     break;
   case  HOST_T:
     try
@@ -384,6 +396,9 @@ ManageCollectorsClass::updateAttachedList()
         << std::endl;
       return;
     }
+    attachCollectorsListView->setColumnText( 0,
+      tr( QString("Hosts associated with experiment: '%1':").arg(expID) ) );
+    attachCollectorsListView->setColumnText( 1, tr( QString("N/A") ) );
     break;
   }
 
@@ -612,21 +627,24 @@ return;
   updateAttachedList();
 }
 
+// #include "LoadAttachObject.hxx"
+#include "UpdateObject.hxx"
 void
 ManageCollectorsClass::loadProgramSelected()
 {
-  dprintf("addProgramSelected\n");
+// printf("ManageCollectorsClass::loadProgramSelected()\n");
   mw->executableName = QString::null;
   mw->argsStr = QString::null;
   mw->loadNewProgram();
   QString executableNameStr = mw->executableName;
   if( !mw->executableName.isEmpty() )
   {
+// printf("ManageCollectorsClass::loadProgramSelected() executableName=%s\n", mw->executableName.ascii() );
     executableNameStr = mw->executableName;
     QString command =
       QString("expAttach -x %1 -f \"%2 %3\"").arg(expID).arg(executableNameStr).arg(mw->argsStr);
 
-  dprintf("command=(%s)\n", command.ascii() );
+// printf("command=(%s)\n", command.ascii() );
     steps = 0;
     pd = new GenericProgressDialog(this, "Loading process...", TRUE);
     loadTimer = new QTimer( this, "progressTimer" );
@@ -638,13 +656,25 @@ ManageCollectorsClass::loadProgramSelected()
     {
       QMessageBox::information( this, tr("Error issuing command to cli:"), tr("Unable to run %1 command.").arg(command), QMessageBox::Ok );
   //    return;
+    }
+  
+    loadTimer->stop();
+    pd->hide();
+    delete(pd);
+
+    // Send out a message to all those that might care about this change request
+    ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+    
+// printf("Send out update?\n");
+    if( eo->FW() != NULL )
+    {
+// printf("Yes!  Send out update?\n");
+      UpdateObject *msg = new UpdateObject(eo->FW(), expID,  NULL, 0);
+      p->broadcast((char *)msg, GROUP_T);
+    }
+  
   }
 
-  loadTimer->stop();
-  pd->hide();
-  delete(pd);
-
-  }
   updateAttachedList();
 }
 
@@ -794,9 +824,11 @@ ManageCollectorsClass::sortByProcess()
 
 
 // printf("attachCollectorsListView->columnText(0) = (%s)\n", attachCollectorsListView->columnText(1).ascii() );
+#ifdef OLDWAY
   attachCollectorsListView->setColumnText( 0,
     tr( QString("Processes attached to experiment: '%1':").arg(expID) ) );
   attachCollectorsListView->setColumnText( 1, tr( QString("Name") ) );
+#endif // OLDWAY
 
   updateAttachedList();
 }
@@ -807,9 +839,11 @@ ManageCollectorsClass::sortByCollector()
 // printf("sortByCollector\n");
   dialogSortType = COLLECTOR_T;
 
+#ifdef OLDWAY
   attachCollectorsListView->setColumnText( 0,
     tr( QString("Collectors attached to experiment: '%1':").arg(expID) ) );
   attachCollectorsListView->setColumnText( 1, tr( QString("Name") ) );
+#endif // OLDWAY
 
   updateAttachedList();
 }
@@ -820,9 +854,11 @@ ManageCollectorsClass::sortByHost()
 // printf("sortByHost\n");
   dialogSortType = HOST_T;
 
+#ifdef OLDWAY
   attachCollectorsListView->setColumnText( 0,
     tr( QString("Hosts associated with experiment: '%1':").arg(expID) ) );
   attachCollectorsListView->setColumnText( 1, tr( QString("N/A") ) );
+#endif // OLDWAY
 
   updateAttachedList();
 }
@@ -833,9 +869,11 @@ ManageCollectorsClass::sortByMPIRank()
 // printf("sortByMPIRank\n");
   dialogSortType = MPIRANK_T;
 
+#ifdef OLDWAY
   attachCollectorsListView->setColumnText( 0,
     tr( QString("MPI ranks associated with experiment: '%1':").arg(expID) ) );
   attachCollectorsListView->setColumnText( 1, tr( QString("Process ID") ) );
+#endif // OLDWAY
 
   updateAttachedList();
 }

@@ -171,7 +171,7 @@ class PanelContainer : public QWidget
     Panel *notifyNearest(char *msg);
 
     //! Notify a group of panels of a message.
-    int notifyGroup(char *msg);
+    int notifyGroup(char *msg, int groupID);
 
     //! Notify all decendants of a message.
     int notifyAllDecendants(char *msg, PanelContainer *targetPC);

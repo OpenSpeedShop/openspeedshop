@@ -236,7 +236,7 @@ Panel::broadcast(char *msg, BROADCAST_TYPE bt, PanelContainer *startPC)
     case ALL_DECENDANTS_T:
       return( getPanelContainer()->notifyAllDecendants(msg, startPC) );
     case GROUP_T:
-      return( getPanelContainer()->notifyGroup(msg) );
+      return( getPanelContainer()->notifyGroup(msg, groupID) );
     case ALL_T:
     default:
       return( getPanelContainer()->notifyAll(msg) );

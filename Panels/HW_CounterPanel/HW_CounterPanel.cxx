@@ -391,9 +391,11 @@ HW_CounterPanel::listener(void *msg)
 
   ControlObject *co = NULL;
   LoadAttachObject *lao = NULL;
+  UpdateObject *uo = NULL;
 
   MessageObject *mo = (MessageObject *)msg;
-// printf("HW_CounterPanel::listener(%s) requested.\n", mo->msgType );
+
+  nprintf( DEBUG_MESSAGES ) ("HW_CounterPanel::listener(%s) requested.\n", mo->msgType.ascii() );
 
   if( mo->msgType == getName() )
   {
@@ -413,7 +415,7 @@ HW_CounterPanel::listener(void *msg)
     nprintf( DEBUG_MESSAGES ) ("we've got a LoadAttachObject\n");
   } else if( mo->msgType == "ClosingDownObject" )
   {
-//    printf("HW_CounterPanel::listener() ClosingDownObject!\n");
+    nprintf( DEBUG_MESSAGES ) ("HW_CounterPanel::listener() ClosingDownObject!\n");
     if( exitingFLAG == FALSE )
     {
       QString command = QString::null;
@@ -431,6 +433,11 @@ HW_CounterPanel::listener(void *msg)
       }
       exitingFLAG = TRUE;
     }
+  } else if( mo->msgType == "UpdateExperimentDataObject" )
+  {
+    uo = (UpdateObject *)msg;
+    nprintf( DEBUG_MESSAGES ) ("we've got an UpdateObject\n");
+    updateStatus();
   } else
   {
 //    fprintf(stderr, "Unknown object type recieved.\n");
@@ -536,7 +543,8 @@ HW_CounterPanel::listener(void *msg)
         nprintf( DEBUG_MESSAGES ) ("Update\n");
         {
         UpdateObject *update_object = new UpdateObject(NULL, expID, QString::null, FALSE);
-        broadcast((char *)update_object, ALL_T);
+//        broadcast((char *)update_object, ALL_T);
+        broadcast((char *)update_object, GROUP_T);
         }
         ret_val = 1;
         break;

@@ -53,7 +53,7 @@ class ManageCollectorsClass : public QWidget
     Q_OBJECT
 
 public:
-    ManageCollectorsClass( PanelContainer *pc, QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0, int exp_id = -1 );
+    ManageCollectorsClass( Panel *p, QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0, int exp_id = -1 );
     ~ManageCollectorsClass();
 
     QListView* attachCollectorsListView;
@@ -66,6 +66,7 @@ public:
     bool menu(QPopupMenu* contextMenu);
 
     int expID;
+    Panel *p;
 
 protected:
     QVBoxLayout* ManageCollectorsClassLayout;

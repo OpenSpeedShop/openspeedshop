@@ -3281,11 +3281,39 @@ PanelContainer::findNearestInterestedPanel(PanelContainer *pc, char *msg, int *r
     \note: Currently unimplemented.
  */
 int
-PanelContainer::notifyGroup(char *msg)
+PanelContainer::notifyGroup(char *msg, int groupID)
 {
-  nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::notifyGroup()\n");
+  nprintf(DEBUG_MESSAGES) ("PanelContainer::notifyGroup()\n");
+
+  Panel *p = NULL;
+  PanelContainer *pc = NULL;
   int return_value = 0;
-  return(return_value);
+  int ret_val = 0;
+  for( PanelContainerList::Iterator pcit = _masterPanelContainerList->begin();
+               pcit != _masterPanelContainerList->end();
+               pcit++ )
+  {
+    pc = (PanelContainer *)*pcit;
+    for( PanelList::Iterator pit = pc->panelList.begin();
+             pit != pc->panelList.end();
+             ++pit )
+    {
+      p = (Panel *)*pit;
+      nprintf(DEBUG_MESSAGES) ("p->groupID = %d groupID = %d\n", p->groupID, groupID);
+      if( p->groupID == groupID )
+      {
+        nprintf(DEBUG_MESSAGES) ("Send to (%s)\n", p->getName() );
+        ret_val = p->listener(msg);
+        if( ret_val > 0 )
+        {
+          // At least on panel wanted to see this message.
+          return_value = ret_val;
+        }
+      }
+    }
+  }
+
+  return return_value;
 }
 
 /*! Notify all decendents of this panel container of the message.
