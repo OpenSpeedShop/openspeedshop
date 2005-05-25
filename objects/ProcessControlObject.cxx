@@ -115,7 +115,7 @@ interruptButton->hide();
   }
 
   {
-  QSpacerItem *spacer = new QSpacerItem( 500, 20, QSizePolicy::Maximum, QSizePolicy::Minimum );
+  QSpacerItem *spacer = new QSpacerItem( 1, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
   buttonGroupLayout->addItem(spacer);
   }
 
