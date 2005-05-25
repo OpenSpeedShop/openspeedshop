@@ -102,8 +102,6 @@ def CompareResults(testName, fileptr):
                 while (expectedfileline[j] != '\n') and (expectedfileline[j] != ' '):
                         j = j+1
                 expected_function = expectedfileline[i:j]
-		print expected_function + 'expected'
-		print actual_function + 'actual'
 		if (expected_function == actual_function):
 			if (previous_expected != 0 ):
 				actual_ratio = previous_actual / actual_time
