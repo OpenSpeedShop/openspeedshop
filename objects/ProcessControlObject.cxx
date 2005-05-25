@@ -60,66 +60,39 @@ ProcessControlObject::ProcessControlObject(QVBoxLayout *frameLayout, QWidget *ba
   frameLayout->addWidget( buttonGroup );
 
   {
-  QSpacerItem *spacer = new QSpacerItem( 5, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
+  QSpacerItem *spacer = new QSpacerItem( 1, 20, QSizePolicy::Maximum, QSizePolicy::Minimum );
   buttonGroupLayout->addItem(spacer);
   }
 
-#ifdef OLDWAY
-  runButton = new AnimatedQPushButton( buttonGroup, "runButton" );
-  QPixmap *pm = new QPixmap( run_xpm );
-  pm->setMask(pm->createHeuristicMask());
-  runButton->setPixmap( *pm );
-  runButton->push_back( pm );
-  runButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, runButton->sizePolicy().hasHeightForWidth() ) );
-  buttonGroupLayout->addWidget( runButton );
-  runButton->setText( QString::null );
-  {
-  QSpacerItem *spacer = new QSpacerItem( 10, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
-  buttonGroupLayout->addItem(spacer);
-  }
-#else // OLDWAY
   QPixmap *pm = new QPixmap( run_xpm );
   pm->setMask(pm->createHeuristicMask());
   runButton = new AnimatedQPushButton( QIconSet( *pm), QString("runButton"), buttonGroup );
-  runButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, runButton->sizePolicy().hasHeightForWidth() ) );
+  runButton->setMinimumSize( QSize(20,20) );
+  runButton->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
   buttonGroupLayout->addWidget( runButton );
   runButton->setText( tr("Run") );
   {
-  QSpacerItem *spacer = new QSpacerItem( 20, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
+  QSpacerItem *spacer = new QSpacerItem( 20, 20, QSizePolicy::Maximum, QSizePolicy::Minimum );
   buttonGroupLayout->addItem(spacer);
   }
-#endif // OLDWAY
 
 
   {
   QPixmap *pm = new QPixmap( pause_xpm );
   pm->setMask(pm->createHeuristicMask());
   pauseButton = new AnimatedQPushButton( QIconSet(*pm), "pauseButton", buttonGroup, FALSE );
-  pauseButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, pauseButton->sizePolicy().hasHeightForWidth() ) );
+  pauseButton->setMinimumSize( QSize(20,20) );
+  pauseButton->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
   buttonGroupLayout->addWidget( pauseButton );
   pauseButton->setText( tr("Pause") );
   }
-
-#ifdef CONTROL_BUTTTON
-  {
-  QPixmap *pm = new QPixmap( cont_xpm );
-  pm->setMask(pm->createHeuristicMask());
-  continueButton = new AnimatedQPushButton( QIconSet(*pm), "continueButton", buttonGroup, FALSE );
-  continueButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, continueButton->sizePolicy().hasHeightForWidth() ) );
-  buttonGroupLayout->addWidget( continueButton );
-  continueButton->setText( tr("Cont") );
-  {
-  QSpacerItem *spacer = new QSpacerItem( 10, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
-  buttonGroupLayout->addItem(spacer);
-  }
-  }
-#endif // CONTROL_BUTTTON
 
   {
   QPixmap *pm = new QPixmap( update_xpm );
   pm->setMask(pm->createHeuristicMask());
   updateButton = new AnimatedQPushButton( QIconSet(*pm), "updateButton", buttonGroup, FALSE );
-  updateButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, updateButton->sizePolicy().hasHeightForWidth() ) );
+  updateButton->setMinimumSize( QSize(20,20) );
+  updateButton->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, 0, 0, FALSE ) );
   buttonGroupLayout->addWidget( updateButton );
   updateButton->setText( tr("Update") );
   }
@@ -133,7 +106,8 @@ ProcessControlObject::ProcessControlObject(QVBoxLayout *frameLayout, QWidget *ba
   QPixmap *pm = new QPixmap( interrupt_xpm );
   pm->setMask(pm->createHeuristicMask());
   interruptButton = new AnimatedQPushButton( QIconSet(*pm), "interruptButton", buttonGroup, TRUE );
-  interruptButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, interruptButton->sizePolicy().hasHeightForWidth() ) );
+  interruptButton->setMinimumSize( QSize(0,0) );
+  interruptButton->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, 0, 0, FALSE ) );
   buttonGroupLayout->addWidget( interruptButton );
   interruptButton->setText( tr("Interrupt") );
 // Hide this until you finally know what to do with it...
@@ -141,7 +115,7 @@ interruptButton->hide();
   }
 
   {
-  QSpacerItem *spacer = new QSpacerItem( 20, 20, QSizePolicy::Preferred, QSizePolicy::Minimum );
+  QSpacerItem *spacer = new QSpacerItem( 1, 20, QSizePolicy::Maximum, QSizePolicy::Minimum );
   buttonGroupLayout->addItem(spacer);
   }
 
@@ -149,7 +123,8 @@ interruptButton->hide();
   QPixmap *pm = new QPixmap( terminate_xpm );
   pm->setMask(pm->createHeuristicMask());
   terminateButton = new AnimatedQPushButton( QIconSet(*pm), "terminateButton", buttonGroup, FALSE );
-  terminateButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, terminateButton->sizePolicy().hasHeightForWidth() ) );
+  terminateButton->setMinimumSize( QSize(0,0) );
+  terminateButton->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, 0, 0, FALSE ) );
   buttonGroupLayout->addWidget( terminateButton );
   terminateButton->setText( tr("Terminate") );
   }
@@ -157,9 +132,6 @@ interruptButton->hide();
   // set button look.
   runButton->setFlat(TRUE);
   pauseButton->setFlat(TRUE);
-#ifdef CONTROL_BUTTON
-  continueButton->setFlat(TRUE);
-#endif // CONTROL_BUTTON
   updateButton->setFlat(TRUE);
   interruptButton->setFlat(TRUE);
   terminateButton->setFlat(TRUE);
@@ -167,18 +139,12 @@ interruptButton->hide();
   // set button sensitivities.
   runButton->setEnabled(TRUE);
   pauseButton->setEnabled(FALSE);
-#ifdef CONTROL_BUTTON
-  continueButton->setEnabled(FALSE);
-#endif // CONTROL_BUTTON
   updateButton->setEnabled(FALSE);
   terminateButton->setEnabled(FALSE);
 
 
 // signals and slots connections
   connect( runButton, SIGNAL( clicked() ), this, SLOT( runButtonSlot() ) );
-#ifdef CONTROL_BUTTON
-  connect( continueButton, SIGNAL( clicked() ), this, SLOT( continueButtonSlot() ) );
-#endif // CONTROL_BUTTON
   connect( interruptButton, SIGNAL( clicked() ), this, SLOT( interruptButtonSlot() ) );
   connect( pauseButton, SIGNAL( clicked() ), this, SLOT( pauseButtonSlot() ) );   
   connect( terminateButton, SIGNAL( clicked() ), this, SLOT( terminateButtonSlot() ) );
@@ -207,10 +173,6 @@ ProcessControlObject::runButtonSlot()
   runButton->setFlat(TRUE);
   pauseButton->setEnabled(TRUE);
   pauseButton->enabledFLAG = TRUE;
-#ifdef CONTROL_BUTTON
-  continueButton->setEnabled(FALSE);
-  continueButton->enabledFLAG = FALSE;
-#endif // CONTROL_BUTTON
   updateButton->setEnabled(TRUE);
   updateButton->enabledFLAG = TRUE;
   terminateButton->setEnabled(TRUE);
@@ -232,38 +194,11 @@ ProcessControlObject::pauseButtonSlot()
   pauseButton->setEnabled(FALSE);
   pauseButton->enabledFLAG = FALSE;
   pauseButton->setFlat(TRUE);
-#ifdef CONTROL_BUTTON
-  continueButton->setEnabled(TRUE);
-  continueButton->enabledFLAG = TRUE;
-  continueButton->setFlat(TRUE);
-#endif // CONTROL_BUTTON
 
   ControlObject *co = new ControlObject(PAUSE_T);
   panel->listener((void *)co);
   delete co;
 }
-
-
-#ifdef CONTROL_BUTTON
-void 
-ProcessControlObject::continueButtonSlot()
-{
-  nprintf( DEBUG_PANELS ) ("PCO: Continue button pressed.\n");
-
-//  statusLabelText->setText( tr("Process running...") );
-
-  pauseButton->setEnabled(TRUE);
-  pauseButton->enabledFLAG = TRUE;
-  pauseButton->setFlat(TRUE);
-  continueButton->setEnabled(FALSE);
-  continueButton->enabledFLAG = TRUE;
-  continueButton->setFlat(TRUE);
-
-  ControlObject *co = new ControlObject(CONT_T);
-  panel->listener((void *)co);
-  delete co;
-}
-#endif // CONTROL_BUTTON
 
 
 void 
@@ -302,11 +237,6 @@ ProcessControlObject::terminateButtonSlot()
   runButton->enabledFLAG = TRUE;
   pauseButton->setEnabled(FALSE);
   pauseButton->enabledFLAG = FALSE;
-#ifdef CONTROL_BUTTON
-  continueButton->setEnabled(FALSE);
-  continueButton->setEnabled(FALSE);
-  continueButton->enabledFLAG = FALSE;
-#endif // CONTROL_BUTTON
   updateButton->setEnabled(FALSE);
   updateButton->setEnabled(FALSE);
   updateButton->enabledFLAG = FALSE;
@@ -330,9 +260,6 @@ ProcessControlObject::languageChange()
   buttonGroup->setTitle( tr( "Process Control" ) );
   QToolTip::add( runButton, tr( "Run or Continue the experiment." ) );
   QToolTip::add( pauseButton, tr( "Temporarily pause the experiment." ) );
-#ifdef CONTROL_BUTTON
-  QToolTip::add( continueButton, tr( "Continue the experiment from current location." ) );
-#endif // CONTROL_BUTTON
   QToolTip::add( updateButton, tr( "Update the display with the current information." ) );
   QToolTip::add( interruptButton, tr( "Interrupt the current action." ) );
   QToolTip::add( terminateButton, tr( "Terminate the experiment." ) );

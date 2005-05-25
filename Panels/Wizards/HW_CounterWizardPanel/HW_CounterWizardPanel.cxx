@@ -96,11 +96,12 @@ HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, 
   vDescriptionPageButtonLayout = new QHBoxLayout( 0, 0, 6, "vDescriptionPageButtonLayout"); 
 
   vwizardMode = new QCheckBox( vDescriptionPageWidget, "vwizardMode" );
-  vwizardMode->setSizePolicy( QSizePolicy( QSizePolicy::Maximum, QSizePolicy::Fixed, 0, 0, FALSE ) );
+  vwizardMode->setMinimumSize( QSize(10,10) );
+  vwizardMode->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
   vwizardMode->setChecked( TRUE );
   vDescriptionPageButtonLayout->addWidget( vwizardMode );
 
-  vDescriptionPageButtonSpacer = new QSpacerItem( 251, 10, QSizePolicy::Expanding, QSizePolicy::Fixed );
+  vDescriptionPageButtonSpacer = new QSpacerItem( 1, 10, QSizePolicy::Expanding, QSizePolicy::Fixed );
   vDescriptionPageButtonLayout->addItem( vDescriptionPageButtonSpacer );
 
   vDescriptionPageIntroButton = new QPushButton( vDescriptionPageWidget, "vDescriptionPageIntroButton" );
@@ -307,13 +308,14 @@ HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, 
   eDescriptionPageLayout->addWidget( eDescriptionPageText );
   eDescriptionPageButtonLayout = new QHBoxLayout( 0, 0, 6, "eDescriptionPageButtonLayout"); 
 
-ewizardMode = new QCheckBox( eDescriptionPageWidget, "ewizardMode" );
-ewizardMode->setSizePolicy( QSizePolicy( QSizePolicy::Maximum, QSizePolicy::Fixed, 0, 0, FALSE ) );
-ewizardMode->setChecked( FALSE );
-eDescriptionPageButtonLayout->addWidget( ewizardMode );
+  ewizardMode = new QCheckBox( eDescriptionPageWidget, "ewizardMode" );
+  ewizardMode->setMinimumSize( QSize(10,10) );
+  ewizardMode->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
+  ewizardMode->setChecked( FALSE );
+  eDescriptionPageButtonLayout->addWidget( ewizardMode );
 
 
-  eDescriptionPageSpacer = new QSpacerItem( 251, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
+  eDescriptionPageSpacer = new QSpacerItem( 1, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
   eDescriptionPageButtonLayout->addItem( eDescriptionPageSpacer );
   eDescriptionPageIntroButton = new QPushButton( eDescriptionPageWidget, "eDescriptionPageIntroButton" );
   eDescriptionPageIntroButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, eDescriptionPageIntroButton->sizePolicy().hasHeightForWidth() ) );

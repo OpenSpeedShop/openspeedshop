@@ -46,18 +46,12 @@ public:
   QButtonGroup *buttonGroup;
   AnimatedQPushButton *runButton;
   AnimatedQPushButton *pauseButton;
-#ifdef CONTINUE_BUTTON
-  AnimatedQPushButton *continueButton;
-#endif // CONTINUE_BUTTON
   AnimatedQPushButton *updateButton;
   AnimatedQPushButton *interruptButton;
   AnimatedQPushButton *terminateButton;
 
   Panel *panel;
 
-#ifdef CONTINUE_BUTTON // move to public slots if needed ...
-  virtual void continueButtonSlot();
-#endif // CONTINUE_BUTTON
 public slots:
   virtual void runButtonSlot();
   virtual void pauseButtonSlot();

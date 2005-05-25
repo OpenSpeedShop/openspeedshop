@@ -252,10 +252,11 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
   spacer44 = new QSpacerItem( 40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
   vNextButtonLayout->addItem( spacer44 );
   broughtToYouByLabel = new QLabel( getBaseWidgetFrame(), "broughtToYouByLabel" );
-  broughtToYouByLabel->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, broughtToYouByLabel->sizePolicy().hasHeightForWidth() ) );
+  broughtToYouByLabel->setMinimumSize( QSize(1,1) );
+  broughtToYouByLabel->setSizePolicy( QSizePolicy( QSizePolicy::Maximum, QSizePolicy::Fixed, 0, 0, FALSE ) );
   vNextButtonLayout->addWidget( broughtToYouByLabel );
 
-  spacer44 = new QSpacerItem( 40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
+  spacer44 = new QSpacerItem( 1, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
   vNextButtonLayout->addItem( spacer44 );
 
   vpage1NextButton = new QPushButton( getBaseWidgetFrame(), "vpage1NextButton" );
