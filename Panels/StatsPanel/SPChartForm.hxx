@@ -17,33 +17,35 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef SPLISTVIEW_H
-#define SPLISTVIEW_H
+#ifndef MYCHARTFORM_H
+#define MYCHARTFORM_H
 
 class StatsPanel;
-class QSplitter;
 
-#include "qlistview.h"
-#include <qpopupmenu.h>
+#include "chartform.hxx"
 
 #include <qwidget.h>
+#include <qtextedit.h>
+#include <qsplitter.h>
 
-class SPListView : public QListView
+//! Overrides the Chart implementation to allow context menu event.
+class SPChartForm : public ChartForm
 {
 public:
-  SPListView( StatsPanel *sp, QSplitter *splitter, const char *name=0, int flags=0 );
+  SPChartForm( StatsPanel *sp, QSplitter *splitter, const char *name=0, int flags=0 );
 
-  ~SPListView( );
+  ~SPChartForm( );
 
-
-  void contentsContextMenuEvent( QContextMenuEvent *e );
-  QPopupMenu* createPopupMenu( const QPoint & pos );
-  QPopupMenu* createPopupMenu( ) { /* obsoleted function. */ return NULL; };
 
   StatsPanel *statsPanel;
+
+int mouseClicked( int );
+void contentsContextMenuEvent( QContextMenuEvent *e );
+  QPopupMenu* createPopupMenu( const QPoint & pos );
+  QPopupMenu* createPopupMenu( ) { /* obsoleted function. */ return NULL; };
 
 public slots:
 
 private:
 };
-#endif // SPLISTVIEW_H
+#endif // MYCHARTFORM_H

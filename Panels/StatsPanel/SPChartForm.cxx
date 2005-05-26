@@ -17,14 +17,13 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-/*! \class SPListView
+/*! \class SPChartForm
     This class overloads the chart widget to allow the contents menu event
     to be recognized.
  */
-#include "SPListView.hxx"
+#include "SPChartForm.hxx"
 
 #include <qpopupmenu.h>
-#include <qtooltip.h>
 #include <qcursor.h>
 #include "StatsPanel.hxx"
 
@@ -35,59 +34,55 @@
 /*! Work constructor.   Set's the name of the frame, the pointer to the
     parent panel container, and the frame shape and shadow characteristics.
 */
-SPListView::SPListView( StatsPanel *sp, QSplitter *splitter, const char *n, int flags )
-     : QListView( splitter, n, flags )
+SPChartForm::SPChartForm( StatsPanel *sp, QSplitter *splitter, const char *n, int flags )
+    : ChartForm( splitter, n, flags )
 {
-printf ( "SPListView::SPListView( ) constructor called\n");
-
   statsPanel = sp;
-
-  setAllColumnsShowFocus(TRUE);
-
-  // If there are subitems, then indicate with root decorations.
-  setRootIsDecorated(TRUE);
-
-  // If there should be sort indicators in the header, show them here.
-  setShowSortIndicator(TRUE);
-
-  QToolTip::add( this, tr( "The list of statistics collected." ) );
-
-
-  clear();
-
+  nprintf(DEBUG_CONST_DESTRUCT) ( "SPChartForm::SPChartForm( ) constructor called\n");
 }
 
 /*! The default destructor. */
-SPListView::~SPListView( )
+SPChartForm::~SPChartForm( )
 {
   // default destructor.
-  dprintf ("  SPListView::~SPListView( ) destructor called\n");
+  nprintf(DEBUG_CONST_DESTRUCT) ("  SPChartForm::~SPChartForm( ) destructor called\n");
 }
 
-/*! Create the local popup menu for the list items. */
-void
-SPListView::contentsContextMenuEvent( QContextMenuEvent *e)
+int
+SPChartForm::mouseClicked( int item )
 {
-  dprintf ("SPListView::contentsContextMenuEvent() entered\n");
+  nprintf(DEBUG_PANELS) ("SPChartForm::mouseClicked(item=%d) called.\n", item);
+#ifdef SYNTAX
+  statsPanel->itemSelected(item);
+#endif // SYNTAX
+}
+
+void
+SPChartForm::contentsContextMenuEvent( QContextMenuEvent *e)
+{
+  nprintf(DEBUG_PANELS) ("SPChartForm::contentsContextMenuEvent() entered\n");
 
   createPopupMenu( QCursor::pos() );
 }
 
 QPopupMenu*
-SPListView::createPopupMenu( const QPoint & pos )
+SPChartForm::createPopupMenu( const QPoint & pos )
 {
-  dprintf ("SPListView: Hello from down under the hood.\n");
+  nprintf(DEBUG_PANELS) ("SPChartForm: Hello from down under the hood.\n");
 
-  QPopupMenu *popupMenu = new QPopupMenu(this);
+  // First create the default Qt widget menu...
+  QPopupMenu *popupMenu = ChartForm::createPopupMenu(pos);
 
-  if( statsPanel->createPopupMenu(popupMenu, pos) )
-  {
-    popupMenu->exec( pos );
-    return popupMenu;
-  }
+  // Now create the panel specific menu... and add it to the popup as
+  // a cascading menu.
+  QPopupMenu *panelMenu = new QPopupMenu(this);
+  statsPanel->menu(panelMenu);
+  popupMenu->insertSeparator();
+  popupMenu->insertItem("&Panel Menu", panelMenu, CTRL+Key_P );
 
-  delete popupMenu;
+  popupMenu->exec( pos );
 
-  return NULL;
+  delete (panelMenu);
+
+  return popupMenu;
 }
-

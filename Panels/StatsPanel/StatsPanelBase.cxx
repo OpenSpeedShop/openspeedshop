@@ -40,8 +40,9 @@ static char *color_name_table[10] =
   { "red", "orange", "yellow", "skyblue", "green" };
 
 
-StatsPanelBase::StatsPanelBase(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
+StatsPanelBase::StatsPanelBase(QWidget *parent, const char *n, int flags, void *argument) : QListView( parent, n, flags )
 {
+#ifdef SYNTAX
   setCaption("StatsPanelBase");
 
   groupID = (int)argument;
@@ -61,6 +62,7 @@ StatsPanelBase::StatsPanelBase(PanelContainer *pc, const char *n, void *argument
   char name_buffer[100];
   sprintf(name_buffer, "%s [%d]", getName(), groupID);
   setName(name_buffer);
+#endif // SYNTAX
 }
 
 
@@ -75,6 +77,7 @@ StatsPanelBase::~StatsPanelBase()
 void
 StatsPanelBase::updateStatsPanelBaseData()
 {
+#ifdef SYNTAX
    // Read the new data, destroy the old data, and update the StatsPanelBase with
    // the new data.
 
@@ -110,6 +113,7 @@ StatsPanelBase::updateStatsPanelBaseData()
   frameLayout->addWidget(lv);
 
   lv->show();
+#endif // SYNTAX
 }
 
 void

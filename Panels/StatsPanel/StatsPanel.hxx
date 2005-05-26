@@ -19,15 +19,19 @@
 
 #ifndef PCSTATSPANEL_H
 #define PCSTATSPANEL_H
-#include "StatsPanelBase.hxx"           // Do not remove
+#include "SPListView.hxx"           // Do not remove
 #include "Panel.hxx"           // Do not remove
 #include "CollectorListObject.hxx"
 
 class PanelContainer;   // Do not remove
 class QVBoxLayout;
+class QHBoxLayout;
 class QFile;
+#include "SPChartForm.hxx"
+
 
 #include <qlistview.h>
+#include <qsplitter.h>
 #include <qpopupmenu.h>
 #include <qinputdialog.h>
 
@@ -46,7 +50,7 @@ typedef std::pair<std::string, double> item_type;
 
 #define PANEL_CLASS_NAME StatsPanel   // Change the value of the define
 //! StatsPanel Class
-class StatsPanel  : public StatsPanelBase
+class StatsPanel  : public Panel
 {
     //! Q_OBJECT is needed as there are slots defined for the class
     Q_OBJECT
@@ -66,6 +70,14 @@ class StatsPanel  : public StatsPanelBase
     //! Routine to popup dynamic menu.
     bool createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos );
 
+    SPListView *splv;
+
+QHBoxLayout *frameLayout;
+QSplitter *splitterA;
+SPChartForm *cf;
+ColumnList columnList;
+int *metricHeaderTypeArray;  // matches the QListView # of column entries.
+
   protected:
     //! Sets the language specific strings.
     virtual void languageChange();
@@ -82,6 +94,7 @@ class StatsPanel  : public StatsPanelBase
     QFile *f;
   public slots:
     void itemSelected( QListViewItem * );
+    void doOption(int id);
     void exportData();
     void details();
     void gotoSource();
@@ -97,7 +110,7 @@ class StatsPanel  : public StatsPanelBase
   private:
     void matchSelectedItem( std::string function_name );
 
-    void updateStatsPanelBaseData();
+    void updateStatsPanelData();
 
     SmartPtr<std::map<Function, double> > orig_data;
 

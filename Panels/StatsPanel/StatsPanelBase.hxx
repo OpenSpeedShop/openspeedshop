@@ -37,14 +37,16 @@ typedef QValueList<QString> ColumnList;
 
 #include <qsettings.h>
 
+class StatsPanel;
+
 //! StatsPanelBase Class
-class StatsPanelBase  : public Panel
+class StatsPanelBase : QWidget
 {
     //! Q_OBJECT is needed as there are slots defined for the class
     Q_OBJECT
   public:
-    //! StatsPanelBase(PanelContainer *pc, const char *name)
-    StatsPanelBase(PanelContainer *pc, const char *n, void *argument);
+    //! StatsPanelBase(const char *name)
+    StatsPanelBase(QWidget *, const char *n, void *argument);
 
     //! ~StatsPanelBase() - The default destructor.
     ~StatsPanelBase();  // Active destructor

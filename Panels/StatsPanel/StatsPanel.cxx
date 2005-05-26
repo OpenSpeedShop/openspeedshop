@@ -18,7 +18,6 @@
 
 
 #include "StatsPanel.hxx"   // Change this to your new class header file name
-#include "StatsPanelBase.hxx"   // Change this to your new class header file name
 #include "PanelContainer.hxx"   // Do not remove
 #include "plugin_entry_point.hxx"   // Do not remove
 
@@ -52,16 +51,59 @@ using namespace OpenSpeedShop::Framework;
 /*! Create a pc Sampling Specific Stats Panel.   This panel is derived
     from the StatsPanelBase class.  
 */
-StatsPanel::StatsPanel(PanelContainer *pc, const char *n, void *argument) : StatsPanelBase(pc, n, argument)
+// StatsPanel::StatsPanel(PanelContainer *pc, const char *n, void *argument) : StatsPanelBase(pc, n, argument)
+StatsPanel::StatsPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
 {
 // printf("StatsPanel() entered\n");
   setCaption("StatsPanel");
 
+
   f = NULL;
   metricMenu = NULL;
   metricStr = QString::null;
+  metricHeaderTypeArray = NULL;
   collectorStr = QString::null;
   expID = -1;
+
+
+  frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
+
+  splitterA = new QSplitter( getBaseWidgetFrame(), "splitterA");
+  splitterA->setCaption("TopPanelSplitterA");
+
+  splitterA->setOrientation( QSplitter::Horizontal );
+
+  cf = new SPChartForm(this, splitterA, getName(), 0);
+  cf->setCaption("SPChartFormIntoSplitterA");
+
+  splv = new SPListView(this, splitterA, getName(), 0);
+  splv->show();
+
+  connect( splv, SIGNAL(doubleClicked(QListViewItem *)), this, SLOT( itemSelected( QListViewItem* )) );
+
+
+  int width = pc->width();
+  int height = pc->height();
+  QValueList<int> sizeList;
+  sizeList.clear();
+  if( splitterA->orientation() == QSplitter::Vertical )
+  {
+    sizeList.push_back((int)(height/4));
+    sizeList.push_back(height-(int)(height/4));
+  } else
+  {
+    sizeList.push_back((int)(width/4));
+    sizeList.push_back(width-(int)(width/4));
+  }
+  splitterA->setSizes(sizeList);
+
+
+  frameLayout->addWidget( splitterA );
+
+cf->hide();
+
+  splitterA->show();
+
 }
 
 
@@ -142,17 +184,12 @@ StatsPanel::listener(void *msg)
 // If a user adds a collector, after creating the StatsPanel,
 // we'll somehow need to update this list... (Maybe via a message
 // to the listener...
-    updateStatsPanelBaseData();
+    updateStatsPanelData();
     if( msg->raiseFLAG )
     {
     if( msg->raiseFLAG )
       getPanelContainer()->raisePanel((Panel *)this);
     }
-  } else if( msgObject->msgType == "PreferencesChangedObject" )
-  {
-    nprintf(DEBUG_MESSAGES) ("StatsPanel::listener() PreferencesChangedObject!\n");
-    pco = (PreferencesChangedObject *)msgObject;
-    preferencesChanged();
   } else if( msgObject->msgType == "SaveAsObject" )
   {
     SaveAsObject *sao = (SaveAsObject *)msg;
@@ -174,7 +211,7 @@ StatsPanel::listener(void *msg)
 bool
 StatsPanel::menu( QPopupMenu* contextMenu)
 {
-//printf("StatsPanel::menu() entered.\n");
+printf("StatsPanel::menu() entered.\n");
 
   if( metricMenu != NULL )
   {
@@ -288,7 +325,7 @@ StatsPanel::menu( QPopupMenu* contextMenu)
 //    connect( qaction, SIGNAL( activated(int) ), this, SLOT( doOption(int) ) );
     qaction->setStatusTip( tr("Select which columns to display.") );
 #endif  // TRIED
-    if( lv->columnWidth(id) )
+    if( splv->columnWidth(id) )
     {
       columnsMenu->setItemChecked(id, TRUE);
     } else
@@ -304,7 +341,7 @@ StatsPanel::menu( QPopupMenu* contextMenu)
   connect( qaction, SIGNAL( activated() ), this, SLOT( exportData() ) );
   qaction->setStatusTip( tr("Save the report's data to an ascii file.") );
 
-  if( lv->selectedItem() )
+  if( splv->selectedItem() )
   {
 //    contextMenu->insertItem("Tell Me MORE about %d!!!", this, SLOT(details()), CTRL+Key_1 );
     qaction = new QAction( this,  "gotoSource");
@@ -341,8 +378,8 @@ StatsPanel::exportData()
 {
 // printf("exportData() menu selected.\n");
   QPtrList<QListViewItem> lst;
-  QListViewItemIterator it( lv );
-  int cols =  lv->columns();
+  QListViewItemIterator it( splv );
+  int cols =  splv->columns();
   int i=0;
   QString fileName = "StatsPanel.txt";
   QString dirName = QString::null;
@@ -379,7 +416,7 @@ StatsPanel::exportData()
     {
       for(i=0;i<cols;i++)
       {
-        line += QString(lv->columnText(i))+" ";
+        line += QString(splv->columnText(i))+" ";
       }
       line += QString("\n");
     }
@@ -410,7 +447,7 @@ void
 StatsPanel::gotoSource()
 {
 // printf("gotoSource() menu selected.\n");
-  QListViewItem *lvi = lv->selectedItem();
+  QListViewItem *lvi = splv->selectedItem();
 
   itemSelected(lvi);
 }
@@ -452,6 +489,23 @@ StatsPanel::itemSelected(QListViewItem *item)
     }
   }
 }
+
+static int cwidth = 0;  // This isn't what I want to do long term.. 
+void
+StatsPanel::doOption(int id)
+{
+  dprintf("doOption() id=%d\n", id);
+
+  if( splv->columnWidth(id) )
+  {
+    cwidth = splv->columnWidth(id);
+    splv->hideColumn(id);
+  } else
+  {
+    splv->setColumnWidth(id, cwidth);
+  } 
+}
+
 
 
 void
@@ -526,12 +580,9 @@ fprintf(stderr, "No function definition for this entry.   Unable to position sou
 }
 
 void
-StatsPanel::updateStatsPanelBaseData()
+StatsPanel::updateStatsPanelData()
 {
-  nprintf( DEBUG_PANELS) ("StatsPanel::updateStatsPanelBaseData() entered.\n");
-
-  StatsPanelBase::updateStatsPanelBaseData();
-
+  nprintf( DEBUG_PANELS) ("StatsPanel::updateStatsPanelData() entered.\n");
   
   SPListViewItem *lvi;
   columnList.clear();
@@ -609,7 +660,7 @@ StatsPanel::updateStatsPanelBaseData()
           { 
             MetricHeaderInfo *mhi = (MetricHeaderInfo *)*pit;
             QString s = mhi->label;
-            lv->addColumn( s );
+            splv->addColumn( s );
             metricHeaderTypeArray[i] = mhi->type;
           
             columnList.push_back( s );
@@ -627,16 +678,16 @@ StatsPanel::updateStatsPanelBaseData()
       {
         columnToSort = 0;
       }
-      lv->setSorting ( columnToSort, FALSE );
+      splv->setSorting ( columnToSort, FALSE );
   
       // Figure out which way to sort
       bool sortOrder = getPreferenceSortDecending();
       if( sortOrder == TRUE )
       {
-        lv->setSortOrder ( Qt::Descending );
+        splv->setSortOrder ( Qt::Descending );
       } else
       {
-        lv->setSortOrder ( Qt::Ascending );
+        splv->setSortOrder ( Qt::Ascending );
       }
   
       // How many rows should we display?
@@ -668,7 +719,7 @@ StatsPanel::updateStatsPanelBaseData()
         c_percent = it->second*percent_factor;  // current item's percent of total time
         sprintf(cputimestr, "%f", it->second);
         sprintf(a_percent_str, "%f", c_percent);
-        lvi =  new SPListViewItem( this, lv, cputimestr,  a_percent_str, it->first.getName().c_str() );
+        lvi =  new SPListViewItem( this, splv, cputimestr,  a_percent_str, it->first.getName().c_str() );
   
         if(numberItemsToDisplay >= 0 )
         {
@@ -681,7 +732,7 @@ StatsPanel::updateStatsPanelBaseData()
         }
       }
     
-      lv->sort();
+      splv->sort();
     }
   }
   catch(const std::exception& error)
@@ -693,9 +744,12 @@ StatsPanel::updateStatsPanelBaseData()
     return;
   }
 
+#ifdef SYNTAX
   // Update header information
   headerLabel->setText(QString("Report for collector type \"%1\" with metric selection \"%2\" for thread \"%3\"").arg(collectorStr).arg(metricStr).arg(threadStr) );
-
+#else // SYNTAX
+  printf("Set the header.\n");
+#endif // SYNTAX
 }
 
 double
@@ -725,7 +779,7 @@ StatsPanel::metricSelected()
  collectorStr = collectorStrFromMenu.right(collectorStrFromMenu.length()-(loc+2));
 // printf("collectorStr=(%s)\n", collectorStr.ascii() );
 
-  updateStatsPanelBaseData();
+  updateStatsPanelData();
 }
 
 void
@@ -740,7 +794,7 @@ StatsPanel::threadSelected()
  collectorStr = collectorStrFromMenu.right(collectorStrFromMenu.length()-(loc+2));
 // printf("collectorStr=(%s)\n", collectorStr.ascii() );
 
-  updateStatsPanelBaseData();
+  updateStatsPanelData();
 }
 
 void

@@ -25,7 +25,7 @@
 
 #include <qpopupmenu.h>
 #include <qcursor.h>
-#include "StatsPanelBase.hxx"
+#include "StatsPanel.hxx"
 
 #include "debug.hxx"
 
@@ -34,13 +34,13 @@
 /*! Work constructor.   Set's the name of the frame, the pointer to the
     parent panel container, and the frame shape and shadow characteristics.
 */
-SPListViewItem::SPListViewItem( StatsPanelBase *sp, QListView * parent, QString label1, QString label2, QString label3, QString label4, QString label5, QString label6, QString label7, QString label8 )
+SPListViewItem::SPListViewItem( StatsPanel *sp, QListView * parent, QString label1, QString label2, QString label3, QString label4, QString label5, QString label6, QString label7, QString label8 )
      : QListViewItem( parent, label1, label2, label3, label4, label5, label6, label7, label8 )
 {
   statsPanel = sp;
 }
 
-SPListViewItem::SPListViewItem( StatsPanelBase *sp, SPListViewItem * parent, QString label1, QString label2, QString label3, QString label4, QString label5, QString label6, QString label7, QString label8 )
+SPListViewItem::SPListViewItem( StatsPanel *sp, SPListViewItem * parent, QString label1, QString label2, QString label3, QString label4, QString label5, QString label6, QString label7, QString label8 )
      : QListViewItem( (SPListViewItem *)parent, label1, label2, label3, label4, label5, label6, label7, label8 )
 {
   statsPanel = sp;

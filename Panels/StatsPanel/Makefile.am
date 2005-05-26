@@ -25,6 +25,7 @@ StatsPanel_la_CXXFLAGS = \
     -I$(top_srcdir)/objects \
     -I$(top_srcdir)/libopenss-framework \
     -I$(top_srcdir)/pcli \
+    -I$(top_srcdir)/chart \
     -I$(top_srcdir)/gui \
     -I$(top_srcdir)/expr_info \
     -I$(top_srcdir)/plugin \
@@ -32,19 +33,16 @@ StatsPanel_la_CXXFLAGS = \
 
 StatsPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
-StatsPanel_la_LIBADD = -L$(QTDIR)/lib -lqt -L../../libopenss-framework -lopenss-framework -L../StatsPanel
+StatsPanel_la_LIBADD = -L$(QTDIR)/lib -lqt -L../../libopenss-framework -lopenss-framework -L$(top_srcdir)/Panels/StatsPanel -L$(top_srcdir)/chart -lopenss-Chart
 
 moc_StatsPanel.cxx: StatsPanel.hxx
 	-moc -o moc_StatsPanel.cxx StatsPanel.hxx
 
-moc_StatsPanelBase.cxx: StatsPanelBase.hxx
-	-moc -o moc_StatsPanelBase.cxx StatsPanelBase.hxx
-
 StatsPanel_la_SOURCES = \
 	StatsPanel.hxx StatsPanel.cxx moc_StatsPanel.cxx \
-	StatsPanelBase.hxx StatsPanelBase.cxx moc_StatsPanelBase.cxx \
 	SPListViewItem.hxx SPListViewItem.cxx \
 	SPListView.hxx SPListView.cxx \
+	SPChartForm.hxx SPChartForm.cxx \
 	local_plugin_info.hxx preference_plugin_info.hxx
 
-CLEANFILES=moc_StatsPanel.cxx moc_StatsPanel.cxx moc_StatsPanelBase.cxx
+CLEANFILES=moc_StatsPanel.cxx moc_StatsPanel.cxx
