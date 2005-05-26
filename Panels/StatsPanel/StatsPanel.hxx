@@ -106,9 +106,13 @@ int *metricHeaderTypeArray;  // matches the QListView # of column entries.
     void threadMenuHighlighted(int);
     void metricMenuHighlighted(int);
     void contextMenuHighlighted(int);
+    void showStats();
+    void showChart();
+    void setOrientation();
 
   private:
     void matchSelectedItem( std::string function_name );
+
 
     void updateStatsPanelData();
 
@@ -117,6 +121,13 @@ int *metricHeaderTypeArray;  // matches the QListView # of column entries.
     double Get_Total_Time();
 
     int expID;
+
+    //! Flag setting, indicating if we should be displaying the statistics.
+    bool statsFLAG;
+  
+    //! Flag setting, indicating if we should be displaying the chart.
+    bool chartFLAG;
+
 
     CollectorListObject *clo;
 };

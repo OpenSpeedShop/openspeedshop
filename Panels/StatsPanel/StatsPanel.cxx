@@ -38,12 +38,6 @@ typedef QValueList<MetricHeaderInfo *> MetricHeaderInfoList;
 
 #include "preference_plugin_info.hxx"
 
-// #include "MetricInfo.hxx" // dummy data only...
-// This is only hear for the debugging tables....
-static char *color_name_table[10] =
-  { "red", "orange", "yellow", "skyblue", "green" };
-
-
 #include "ToolAPI.hxx"
 using namespace OpenSpeedShop::Framework;
 
@@ -63,8 +57,8 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, void *argument) : Pane
   metricStr = QString::null;
   metricHeaderTypeArray = NULL;
   collectorStr = QString::null;
+  groupID = (int)argument;
   expID = -1;
-
 
   frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
@@ -77,7 +71,6 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, void *argument) : Pane
   cf->setCaption("SPChartFormIntoSplitterA");
 
   splv = new SPListView(this, splitterA, getName(), 0);
-  splv->show();
 
   connect( splv, SIGNAL(doubleClicked(QListViewItem *)), this, SLOT( itemSelected( QListViewItem* )) );
 
@@ -100,7 +93,17 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, void *argument) : Pane
 
   frameLayout->addWidget( splitterA );
 
-cf->hide();
+if( pc->getMainWindow()->preferencesDialog->showGraphicsCheckBox->isChecked() )
+{
+  chartFLAG = TRUE;
+  cf->show();
+} else
+{
+  chartFLAG = FALSE;
+  cf->hide();
+}
+  statsFLAG = TRUE;
+  splv->show();
 
   splitterA->show();
 
@@ -190,6 +193,18 @@ StatsPanel::listener(void *msg)
     if( msg->raiseFLAG )
       getPanelContainer()->raisePanel((Panel *)this);
     }
+  } else if( msgObject->msgType == "PreferencesChangedObject" )
+  {
+    if( getPanelContainer()->getMainWindow()->preferencesDialog->showGraphicsCheckBox->isChecked() )
+    {
+      chartFLAG = TRUE;
+      cf->show();
+    } else
+    {
+      chartFLAG = FALSE;
+      cf->hide();
+    }
+    splv->show();
   } else if( msgObject->msgType == "SaveAsObject" )
   {
     SaveAsObject *sao = (SaveAsObject *)msg;
@@ -211,7 +226,7 @@ StatsPanel::listener(void *msg)
 bool
 StatsPanel::menu( QPopupMenu* contextMenu)
 {
-printf("StatsPanel::menu() entered.\n");
+// printf("StatsPanel::menu() entered.\n");
 
   if( metricMenu != NULL )
   {
@@ -349,7 +364,28 @@ printf("StatsPanel::menu() entered.\n");
     qaction->setText( "Go to source location..." );
     connect( qaction, SIGNAL( activated() ), this, SLOT( gotoSource() ) );
     qaction->setStatusTip( tr("Position at source location of this item.") );
-    return( TRUE );
+  }
+
+
+  contextMenu->insertSeparator();
+  contextMenu->insertItem("&Re-orientate", this, SLOT(setOrientation()), CTRL+Key_R );
+  if( chartFLAG == TRUE )
+  {
+    contextMenu->insertItem("Hide &Chart...", this,
+    SLOT(showChart()), CTRL+Key_L );
+  } else
+  {
+    contextMenu->insertItem("Show &Chart...", this,
+    SLOT(showChart()), CTRL+Key_L );
+  }
+  if( statsFLAG == TRUE )
+  {
+    contextMenu->insertItem("Hide &Statistics...", this,
+    SLOT(showStats()), CTRL+Key_L );
+  } else
+  {
+    contextMenu->insertItem("Show &Statistics...", this,
+    SLOT(showStats()), CTRL+Key_L );
   }
 
   return( TRUE );
@@ -362,9 +398,73 @@ StatsPanel::createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos )
 // printf("StatsPanel::createPopupMenu(contextMenu=0x%x) entered\n", contextMenu);
   menu(contextMenu);
   return( TRUE );
-  
-  return( FALSE );
 }
+
+
+
+void
+StatsPanel::showChart()
+{
+  nprintf(DEBUG_PANELS) ("TopPanel::showChart() entered\n");
+  if( chartFLAG == TRUE )
+  {
+    chartFLAG = FALSE;
+    cf->hide();
+  } else
+  {
+    chartFLAG = TRUE;
+    cf->show();
+  }
+
+  // Make sure there's not a blank panel.   If the user selected to 
+  // hide the only display, show the other by default.
+  if( chartFLAG == FALSE && statsFLAG == FALSE )
+  {
+    statsFLAG = TRUE;
+    splv->show();
+  }
+}
+
+
+void
+StatsPanel::showStats()
+{
+  nprintf(DEBUG_PANELS) ("TopPanel::showStats() entered\n");
+  if( statsFLAG == TRUE )
+  {
+    statsFLAG = FALSE;
+    splv->hide();
+  } else
+  {
+    statsFLAG = TRUE;
+    splv->show();
+  }
+
+  // Make sure there's not a blank panel.   If the user selected to 
+  // hide the only display, show the other by default.
+  if( statsFLAG == FALSE && chartFLAG == FALSE )
+  {
+    chartFLAG = TRUE;
+    cf->show();
+  }
+}
+
+
+/*! Reset the orientation of the graph/text relationship with setOrientation */
+void
+StatsPanel::setOrientation()
+{
+  nprintf(DEBUG_PANELS) ("TopPanel::setOrientation() entered\n");
+  Orientation o = splitterA->orientation();
+  if( o == QSplitter::Vertical )
+  {
+    splitterA->setOrientation(QSplitter::Horizontal);
+  } else
+  {
+    splitterA->setOrientation(QSplitter::Vertical);
+  }
+}
+
 
 /*! Go to source menu item was selected. */
 void
@@ -377,7 +477,6 @@ void
 StatsPanel::exportData()
 {
 // printf("exportData() menu selected.\n");
-  QPtrList<QListViewItem> lst;
   QListViewItemIterator it( splv );
   int cols =  splv->columns();
   int i=0;
@@ -583,6 +682,13 @@ void
 StatsPanel::updateStatsPanelData()
 {
   nprintf( DEBUG_PANELS) ("StatsPanel::updateStatsPanelData() entered.\n");
+
+  int index = 0;
+  int count = 0;
+  int values[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  char *color_names[] = { "red", "green", "cyan", "gray", "darkGreen", "darkCyan", "magenta", "blue", "yellow", "black", "darkRed", "darkBlue", "darkMagenta", "darkYellow", "darkGray", "lightGray" };
+  char *strings[] = { "", "", "", "", "", "", "", "", "", "" };
+
   
   SPListViewItem *lvi;
   columnList.clear();
@@ -625,6 +731,7 @@ StatsPanel::updateStatsPanelData()
     }
 // End: If the user requested a specific thread, use it instead.
       CollectorGroup cgrp = fw_experiment->getCollectors();
+// printf("Is says you have %d collectors.\n", cgrp.size() );
       if( cgrp.size() == 0 )
       {
         fprintf(stderr, "There are no known collectors for this experiment.\n");
@@ -701,6 +808,13 @@ StatsPanel::updateStatsPanelData()
         }
       }
 
+
+if( orig_data.isNull() )
+{
+  printf("no data read.\n");
+  return;
+}
+
       nprintf( DEBUG_PANELS) ("Put the data out...\n");
 
       double TotalTime = Get_Total_Time();
@@ -720,7 +834,7 @@ StatsPanel::updateStatsPanelData()
         sprintf(cputimestr, "%f", it->second);
         sprintf(a_percent_str, "%f", c_percent);
         lvi =  new SPListViewItem( this, splv, cputimestr,  a_percent_str, it->first.getName().c_str() );
-  
+
         if(numberItemsToDisplay >= 0 )
         {
           numberItemsToDisplay--;
@@ -733,6 +847,24 @@ StatsPanel::updateStatsPanelData()
       }
     
       splv->sort();
+
+        // Set the values for the top 5 pie chart elements...
+      QListViewItemIterator it( splv );
+      while( it.current() )
+      {
+        QListViewItem *item = *it;
+        if( index < 5 )
+        {
+          values[index] = (int)item->text(1).toFloat();
+// printf("values[%d] = (%d)\n", index, values[index] );
+          strings[index] = (char *)item->text(1).ascii();
+          count = index+1;
+        }
+        index++;
+      
+        ++it;
+      }
+
     }
   }
   catch(const std::exception& error)
@@ -744,11 +876,30 @@ StatsPanel::updateStatsPanelData()
     return;
   }
 
+// Begin: Try putting out the graph here...
+// Loop through splv and print out the top 5....
+{
+  int total_percent = 0;
+int i = 0;
+  for(i =0;i<count;i++)
+  {
+    total_percent += values[i];
+  }
+if( total_percent < 100 )
+{
+  values[i] = 100-total_percent;
+  strings[i] = "other";
+  count++;
+}
+  cf->setValues(values, color_names, strings, count+1);
+}
+// End: Try putting out the graph here...
+
 #ifdef SYNTAX
   // Update header information
   headerLabel->setText(QString("Report for collector type \"%1\" with metric selection \"%2\" for thread \"%3\"").arg(collectorStr).arg(metricStr).arg(threadStr) );
 #else // SYNTAX
-  printf("Set the header.\n");
+//  printf("Set the header.\n");
 #endif // SYNTAX
 }
 
@@ -756,7 +907,14 @@ double
 StatsPanel::Get_Total_Time()
 {
  // Calculate the total time for this set of samples.
+
   double TotalTime = 0.0;
+
+  if( orig_data.isNull() )
+  {
+    return TotalTime;
+  }
+
   for(std::map<Function, double>::const_iterator
             it = orig_data->begin(); it != orig_data->end(); ++it)
   {

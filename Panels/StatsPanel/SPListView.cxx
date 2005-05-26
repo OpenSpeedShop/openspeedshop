@@ -38,7 +38,7 @@
 SPListView::SPListView( StatsPanel *sp, QSplitter *splitter, const char *n, int flags )
      : QListView( splitter, n, flags )
 {
-printf ( "SPListView::SPListView( ) constructor called\n");
+// printf ( "SPListView::SPListView( ) constructor called\n");
 
   statsPanel = sp;
 
@@ -50,7 +50,7 @@ printf ( "SPListView::SPListView( ) constructor called\n");
   // If there should be sort indicators in the header, show them here.
   setShowSortIndicator(TRUE);
 
-  QToolTip::add( this, tr( "The list of statistics collected." ) );
+//  QToolTip::add( this, tr( "The list of statistics collected." ) );
 
 
   clear();
