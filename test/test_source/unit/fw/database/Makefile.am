@@ -24,30 +24,39 @@
 
 database_la_CXXFLAGS =  \
 	-I. \
-	-I../../../libopenss-framework \
+	-I../../../../../libopenss-framework \
 	-I/usr/include -I.
 
 database_la_LDFLAGS = \
 	-L/perftools/ROOT/lib \
-	-Wl,../../../libopenss-framework/.libs/libopenss-framework.so \
+	-Wl,../../../../../libopenss-framework/.libs/libopenss-framework.so \
 	-LANG:std -lsqlite3
 
 database_la_LIBADD = $(LIBLTDL)
 
-all: dbtest5 dbtest4 dbtest3 dbtest2 dbtest1
+filelist = \
+	dbtest1 \
+	dbtest2 \
+	dbtest3 \
+	dbtest4 \
+	dbtest5 
 
-dbtest5: dbtest5.cxx
-	-g++ -o dbtest5 $(database_la_CXXFLAGS) $(database_la_LDFLAGS) dbtest5.cxx
-
-dbtest4: dbtest4.cxx
-	-g++ -o dbtest4 $(database_la_CXXFLAGS) $(database_la_LDFLAGS) dbtest4.cxx
-
-dbtest3: dbtest3.cxx
-	-g++ -o dbtest3 $(database_la_CXXFLAGS) $(database_la_LDFLAGS) dbtest3.cxx
-
-dbtest2: dbtest2.cxx
-	-g++ -o dbtest2 $(database_la_CXXFLAGS) $(database_la_LDFLAGS) dbtest2.cxx
+all: $(filelist)
 
 dbtest1: dbtest1.cxx
 	-g++ -o dbtest1 $(database_la_CXXFLAGS) $(database_la_LDFLAGS) dbtest1.cxx
 
+dbtest2: dbtest2.cxx
+	-g++ -o dbtest2 $(database_la_CXXFLAGS) $(database_la_LDFLAGS) dbtest2.cxx
+
+dbtest3: dbtest3.cxx
+	-g++ -o dbtest3 $(database_la_CXXFLAGS) $(database_la_LDFLAGS) dbtest3.cxx
+
+dbtest4: dbtest4.cxx
+	-g++ -o dbtest4 $(database_la_CXXFLAGS) $(database_la_LDFLAGS) dbtest4.cxx
+
+dbtest5: dbtest5.cxx
+	-g++ -o dbtest5 $(database_la_CXXFLAGS) $(database_la_LDFLAGS) dbtest5.cxx
+
+clean:
+	rm $(filelist)
