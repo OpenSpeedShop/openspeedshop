@@ -140,6 +140,8 @@ if __name__ == '__main__':
 	currTime = strftime("%d_%m_%Y_%H%M%S", localtime())
         resultsFile =  'testresults_' + currTime
         resultfileptr = open(resultsFile, 'w')
+	tempfileptr = open('testresultsfilename', 'w')
+	tempfileptr.write(resultsFile)
 
 	createTestList()
 	iterateThroughTestList(resultfileptr)
