@@ -43,7 +43,7 @@ def getResultFileFromDir(directoryName):
 	checkForMarker = os.path.isfile('../inthisdirectory')
 	
 	if checkForMarker:
-	
+		os.system('pwd')	
 		resultsfilenameinput = open('testresultsfilename', 'r')
 		resultsFileName = resultsfilenameinput.readline()
 		os.chdir('..')
@@ -82,7 +82,7 @@ def mailResults(filename, fm_add, to_add):
 		msg = MIMEText(fp.read())
 		fp.close
 				
-		msg['Subject']= 'working'
+		msg['Subject']= filename 
 		msg['From'] = fm_add
 		msg['To'] = to_add
 				
@@ -171,12 +171,14 @@ if __name__ == '__main__':
 			       		os.chdir(dirName)
 			       		os.system('./runall')
 					getResultFileFromDir(dirName)
-					os.remove('inthisdirectory')
-					os.remove('testresultsfilename')
+					#os.remove('inthisdirectory')
+					#os.remove('testresultsfilename')
+					os.chdir('..')
+					
 					
 
 	if (typeofdir == reg_leaf):
-		print 'call runone' 		
+		os.system('./runone')
 	if (typeofdir == unit_leaf):
 
 		unitNum = determineIfSimpleUnit()
@@ -188,18 +190,17 @@ if __name__ == '__main__':
 			os.system('./rununit -c')
 		if unitNum == 3:
 			os.system('./rununit -f')
-
-	if (typeofdir != unit_leaf or (checkForTop != 1)):
+	isTop = 0
+	if (typeofdir == unit_leaf or (checkForTop == 1) or typeofdir == reg_leaf):
 		os.chdir('..')
-		isTop = 0
 		isTop = determineIfTopDir()
 	#if isTop:
 	if checkForTop or isTop:
 		if (typeofdir == unit_leaf and checkForTop):
-			hello = "hello"
-			#resultsfilenameinput = open('testresultsfilename', 'r')
-			#resultsFileName = resultsfilenameinput.readline()
-			#os.system('more '+resultsFileName+' >> ' + resultsFile)
+			#hello = "hello"
+			resultsfilenameinput = open('testresultsfilename', 'r')
+			resultsFileName = resultsfilenameinput.readline()
+			os.system('more '+resultsFileName+' >> ' + resultsFile)
 			
 		isHere = os.path.isfile(resultsFile)
 	
@@ -230,8 +231,8 @@ if __name__ == '__main__':
 	if (typeofdir == not_leaf or checkForTop):
 		if (os.path.isfile('inthisdirectory')):
 			os.remove('inthisdirectory')
-		if (os.path.isfile('testresultsfilename')):
-			os.remove('testresultsfilename')
+		#if (os.path.isfile('testresultsfilename')):
+			#os.remove('testresultsfilename')
 
 
 		  
