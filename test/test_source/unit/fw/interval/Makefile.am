@@ -24,18 +24,47 @@
 
 database_la_CXXFLAGS =  \
 	-I. \
-	-I../../../libopenss-framework \
+	-I../../../../../libopenss-framework \
 	-I/usr/include -I.
 
 database_la_LDFLAGS = \
 	-L/perftools/ROOT/lib \
-	-Wl,../../../libopenss-framework/.libs/libopenss-framework.so \
+	-Wl,../../../../../libopenss-framework/.libs/libopenss-framework.so \
 	-LANG:std -lsqlite3
 
 database_la_LIBADD = $(LIBLTDL)
 
-all: locking1
+filelist = \
+	interval1 \
+	interval2 \
+	interval3 \
+	interval4 \
+	interval5 \
+	interval6 \
+	interval7
 
-locking1: locking1.cxx
-	-g++ -o locking1 $(database_la_CXXFLAGS) $(database_la_LDFLAGS) locking1.cxx
+all: $(filelist)
 
+interval1: interval1.cxx
+	-g++ -o interval1 $(database_la_CXXFLAGS) $(database_la_LDFLAGS) interval1.cxx
+
+interval2: interval2.cxx
+	-g++ -o interval2 $(database_la_CXXFLAGS) $(database_la_LDFLAGS) interval2.cxx
+
+interval3: interval3.cxx
+	-g++ -o interval3 $(database_la_CXXFLAGS) $(database_la_LDFLAGS) interval3.cxx
+
+interval4: interval4.cxx
+	-g++ -o interval4 $(database_la_CXXFLAGS) $(database_la_LDFLAGS) interval4.cxx
+
+interval5: interval5.cxx
+	-g++ -o interval5 $(database_la_CXXFLAGS) $(database_la_LDFLAGS) interval5.cxx
+
+interval6: interval6.cxx
+	-g++ -o interval6 $(database_la_CXXFLAGS) $(database_la_LDFLAGS) interval6.cxx
+
+interval7: interval7.cxx
+	-g++ -o interval7 $(database_la_CXXFLAGS) $(database_la_LDFLAGS) interval7.cxx
+
+clean:
+	rm $(filelist)
