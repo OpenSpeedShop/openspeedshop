@@ -1,9 +1,9 @@
 database_la_CXXFLAGS =  \
 	-LANG:std  \
 	-I. \
-	-I../../../libopenss-framework \
-	-I../../../pcli \
-	-I/usr/include -I. -I../../../objects -I../../../base \
+	-I../../../../../libopenss-framework \
+	-I../../../../../pcli \
+	-I/usr/include -I. -I../../../../../objects -I../../../../../base \
 	-DPLUGIN_PATH=\"$(pkglibdir)\"
 
 database_la_LDFLAGS = \
