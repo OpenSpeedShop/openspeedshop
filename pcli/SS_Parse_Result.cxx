@@ -323,7 +323,6 @@ dumpHelp(CommandObject *cmd)
     	return;
     }
 
-#if 1
     // Get reference of the message czar.
     SS_Message_Czar& czar = theMessageCzar();
 
@@ -362,72 +361,6 @@ dumpHelp(CommandObject *cmd)
 	    }
     	}
     }
-
-#else
-    for (vector<string>::iterator j=p_slist->begin();
-    	 j != p_slist->end() && !found_match; 
-	 j++) {
-	string name(*j);
-	
-	// lower case the input string
-//	transform(*j->begin(),
-//	    	  *j->end(),
-//		  *j->begin(),
-//		  tolower);
-	
-	// Look for commands
-	for (int i=0;i<CMD_MAX && !found_match;++i) {
-	    string table(cmd_desc[(oss_cmd_enum)i].name);
-
-   	    if ((strcasecmp(name.c_str(),table.c_str())) == 0) {
-	    	dump_help_cmd((oss_cmd_enum)i,0,false /* is_brief */,cmd);
-		found_match = true;
-		break;
-	    }
-	}
-	// Look for param types
-	for (int i=0;i<H_PARAM_MAX && !found_match;++i) {
-	    char *table = paramtype_name[i];
-
-   	    if ((strcasecmp(name.c_str(),table)) == 0) {
-	    	dump_help_param(table,i,false /* is_brief */,cmd);
-		found_match = true;
-		break;
-	    }
-	}
-	// Look for experiment types
-	for (int i=0;i<H_EXP_MAX && !found_match;++i) {
-	    char *table = experiment_name[i];
-
-   	    if ((strcasecmp(name.c_str(),table)) == 0) {
-	    	dump_help_exp(table,i,false /* is_brief */,cmd);
-		found_match = true;
-		break;
-	    }
-	}
-	// Look for view types
-	for (int i=0;i<H_VIEW_MAX && !found_match;++i) {
-	    char *table = viewtype_name[i];
-
-   	    if ((strcasecmp(name.c_str(),table)) == 0) {
-	    	dump_help_view(table,i,false /* is_brief */,cmd);
-		found_match = true;
-		break;
-	    }
-	}
-
-	// Look for general modifiers
-	for (int i=0;i<H_GEN_MAX && !found_match;++i) {
-	    char *table = general_name[i];
-
-   	    if ((strcasecmp(name.c_str(),table)) == 0) {
-	    	dump_help_gen(table,i,false /* is_brief */,cmd);
-		found_match = true;
-		break;
-	    }
-	}
-    }
-#endif
 }
 
 /**
@@ -667,17 +600,37 @@ void
 ParseResult::
 push_help(char *name)
 {
-    dm_help_set = true;
-    dm_help_list.push_back(name);
+    int len = strlen(name);
+    char *tname = (char *)malloc(len +1);
     
-    // This is temporary during development.
-//    int i;
-//    for (i=1;i<CMD_MAX;++i) {
-//    	if ((strcmp(name,cmd_desc[(oss_cmd_enum)i].name)) == 0) {
-//	    dump_help_cmd((oss_cmd_enum)i,0,false /* is_brief */);
-//	    break;
-//	}
-//    }
+    if (!tname) {
+    	return; // ERROR!
+    }
+    
+    // Lower case and strip off any surrounding 
+    // grammar symbolic characters.
+    int i = 0;
+    int k = 0;
+    if (name[0] == '<')
+    	i++;
+    if (name[len] == '>')
+    	len--;
+    for (k=0;i<len;++i,++k) {
+    	
+#if 1
+    	tname[k] = name[i];
+#else
+    	tname[k] = tolower(name[i]);
+#endif
+    }
+    cout << tname << endl;
+    tname[k] = '\0';
+      
+    dm_help_set = true;
+    dm_help_list.push_back(tname);
+    
+    free(tname);
+    
 }
 
 /**
