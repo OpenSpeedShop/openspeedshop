@@ -325,9 +325,9 @@ Process::Process(const std::string& host, const pid_t& pid) :
     dm_process(NULL),
     dm_host(host),
     dm_pid(pid),
-    dm_current_state(Thread::Running),
+    dm_current_state(Thread::Suspended),
     dm_is_state_changing(false),
-    dm_future_state(Thread::Running),
+    dm_future_state(Thread::Suspended),
     dm_library_name_to_entry()
 {
     // Critical section touching the process table
