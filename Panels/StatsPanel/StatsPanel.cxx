@@ -107,6 +107,9 @@ if( pc->getMainWindow()->preferencesDialog->showGraphicsCheckBox->isChecked() )
 
   splitterA->show();
 
+  char name_buffer[100];
+  sprintf(name_buffer, "%s [%d]", getName(), groupID);
+  setName(name_buffer);
 }
 
 
@@ -692,6 +695,11 @@ StatsPanel::updateStatsPanelData()
   
   SPListViewItem *lvi;
   columnList.clear();
+  splv->clear();
+  for(int i=splv->columns();i>=0;i--)
+  {
+    splv->removeColumn(i-1);
+  }
 
   nprintf( DEBUG_PANELS) ("Find_Experiment_Object() for %d\n", expID);
 
