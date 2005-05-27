@@ -20,6 +20,7 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <stdlib.h>
 #include <string>
 #include <unistd.h>
  
@@ -31,24 +32,38 @@ static void Run(int argc, char* argv[])
 {
     // Create and open a new experiment
     std::string name = std::string(Path(argv[0]).getBaseName()) + ".openss";
-    Experiment::create(name);
+    if(Experiment::isAccessible(name))
+	Experiment::remove(name);
+    Experiment::create(name);	
     Experiment experiment(name);
-    
-    // Build a command string from the passed arguments
-    std::string command;
-    for(int i = 0; i < argc; ++i) {
-	if(i > 0)
-	    command += " ";
-	command += argv[i];
+
+    // Was the first argument potentially a process identifier?
+    pid_t pid = strtol(argv[0], NULL, 10);
+    if(pid > 0) {
+	
+	// Attach to the specified process and put it into the suspended state
+	experiment.attachProcess(pid);
+	
     }
-    
-    // Create a process for the command in the suspended state
-    Thread thread = experiment.createProcess(command);
+    else {
+
+	// Build a command string from the passed arguments
+	std::string command;
+	for(int i = 0; i < argc; ++i) {
+	    if(i > 0)
+		command += " ";
+	    command += argv[i];
+	}
+	
+	// Create a process for the command in the suspended state
+	experiment.createProcess(command);
+	
+    }
     
     // Create and start the PC sampling collector
     Collector collector = experiment.createCollector("pcsamp");
     collector.setParameterValue("sampling_rate", (unsigned)100);
-    collector.startCollecting(thread);
+    experiment.getThreads().startCollecting(collector);
     
     // Resume all threads and wait for them to terminate
     experiment.getThreads().changeState(Thread::Running);
