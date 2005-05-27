@@ -23,9 +23,9 @@
  */
 
 #include "Address.hxx"
-#include "Assert.hxx"
 #include "Blob.hxx"
 #include "Database.hxx"
+#include "Exception.hxx"
 #include "Time.hxx"
 
 #include <errno.h>

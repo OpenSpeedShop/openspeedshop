@@ -112,8 +112,8 @@ namespace OpenSpeedShop { namespace Framework {
 		path(""),
 		instances(0),
 		handle(NULL)
-		{
-		}		
+	     {
+	     }		
 	    
 	};	
 	

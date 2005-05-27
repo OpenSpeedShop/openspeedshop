@@ -30,7 +30,6 @@
 #endif
 
 #include "Entry.hxx"
-#include "SmartPtr.hxx"
 #include "Time.hxx"
 
 #include <pthread.h>
@@ -52,6 +51,7 @@ namespace OpenSpeedShop { namespace Framework {
     class Experiment;
     class Function;
     class LinkedObject;
+    template <typename> class SmartPtr;
     class Statement;
     
     /**

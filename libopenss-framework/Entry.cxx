@@ -22,7 +22,6 @@
  *
  */
 
-#include "Database.hxx"
 #include "Entry.hxx"
 #include "Exception.hxx"
 

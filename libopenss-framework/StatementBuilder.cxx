@@ -22,11 +22,11 @@
  *
  */
 
-#include "Address.hxx"
 #include "AddressBitmap.hxx"
-#include "AddressRange.hxx"
+#include "Blob.hxx"
 #include "Database.hxx"
 #include "Path.hxx"
+#include "SmartPtr.hxx"
 #include "StatementBuilder.hxx"
 
 #include <deque>

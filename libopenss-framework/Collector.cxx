@@ -24,8 +24,6 @@
 
 #include "Collector.hxx"
 #include "CollectorPluginTable.hxx"
-#include "Database.hxx"
-#include "Thread.hxx"
 #include "ThreadGroup.hxx"
 
 #include <typeinfo>

@@ -22,16 +22,14 @@
  *
  */
 
-#include "Assert.hxx"
+#include "Address.hxx"
 #include "Blob.hxx"
-#include "Collector.hxx"
-#include "Database.hxx"
 #include "Exception.hxx"
 #include "Experiment.hxx"
 #include "ExperimentTable.hxx"
 #include "Guard.hxx"
 #include "runtime/OpenSS_DataHeader.h"
-#include "Thread.hxx"
+#include "Time.hxx"
 
 using namespace OpenSpeedShop::Framework;
 

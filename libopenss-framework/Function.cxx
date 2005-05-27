@@ -22,12 +22,9 @@
  *
  */
 
-#include "Address.hxx"
 #include "AddressBitmap.hxx"
-#include "Assert.hxx"
 #include "Blob.hxx"
 #include "CallSite.hxx"
-#include "Database.hxx"
 #include "Function.hxx"
 #include "LinkedObject.hxx"
 #include "Statement.hxx"

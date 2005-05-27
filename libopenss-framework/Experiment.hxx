@@ -29,6 +29,7 @@
 #include "config.h"
 #endif
 
+#include "Database.hxx"
 #include "NonCopyable.hxx"
 #include "SmartPtr.hxx"
 
@@ -44,7 +45,6 @@ namespace OpenSpeedShop { namespace Framework {
 
     class Collector;
     class CollectorGroup;
-    class Database;
     class ExperimentTable;
     class Thread;
     class ThreadGroup;

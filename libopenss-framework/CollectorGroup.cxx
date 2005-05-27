@@ -23,8 +23,6 @@
  */
 
 #include "CollectorGroup.hxx"
-#include "Database.hxx"
-#include "Thread.hxx"
 #include "ThreadGroup.hxx"
 
 using namespace OpenSpeedShop::Framework;

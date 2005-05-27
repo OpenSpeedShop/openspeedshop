@@ -22,7 +22,6 @@
  *
  */
 
-#include "Assert.hxx"
 #include "CollectorImpl.hxx"
 #include "CollectorPluginTable.hxx"
 #include "Guard.hxx"
@@ -77,6 +76,7 @@ namespace {
  * table isn't actually built until it is first required.
  */
 CollectorPluginTable::CollectorPluginTable() :
+    Lockable(),
     dm_is_built(false),
     dm_unique_id_to_entry()
 {

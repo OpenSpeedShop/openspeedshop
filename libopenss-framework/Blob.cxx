@@ -25,7 +25,6 @@
 #include "Assert.hxx"
 #include "Blob.hxx"
 
-#include <stdexcept>
 #include <string.h>
 
 using namespace OpenSpeedShop::Framework;

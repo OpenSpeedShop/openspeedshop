@@ -22,8 +22,6 @@
  *
  */
 
-#include "Assert.hxx"
-#include "Database.hxx"
 #include "Exception.hxx"
 #include "Function.hxx"
 #include "LinkedObject.hxx"

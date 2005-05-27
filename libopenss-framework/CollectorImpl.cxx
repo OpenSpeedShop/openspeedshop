@@ -22,14 +22,11 @@
  *
  */
 
-#include "Blob.hxx"
 #include "Collector.hxx"
 #include "CollectorImpl.hxx"
-#include "Database.hxx"
 #include "EntrySpy.hxx"
 #include "ExperimentTable.hxx"
 #include "Instrumentor.hxx"
-#include "Thread.hxx"
 
 using namespace OpenSpeedShop::Framework;
 

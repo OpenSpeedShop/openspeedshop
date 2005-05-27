@@ -29,8 +29,7 @@
 #include "config.h"
 #endif
 
-#include "SmartPtr.hxx"
-
+#include <map>
 #include <set>
 #include <vector>
 
@@ -41,6 +40,7 @@ namespace OpenSpeedShop { namespace Framework {
     class Address;
     class Database;
     class Path;
+    template <typename> class SmartPtr;
 
     /**
      * Statement builder.

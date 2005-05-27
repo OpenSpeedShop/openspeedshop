@@ -22,11 +22,8 @@
  *
  */
 
-#include "Assert.hxx"
-#include "Address.hxx"
 #include "AddressBitmap.hxx"
 #include "Blob.hxx"
-#include "Database.hxx"
 #include "Exception.hxx"
 #include "Function.hxx"
 #include "LinkedObject.hxx"

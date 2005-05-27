@@ -36,7 +36,6 @@
 #include "Entry.hxx"
 #include "Exception.hxx"
 #include "Metadata.hxx"
-#include "SmartPtr.hxx"
 #include "TimeInterval.hxx"
 
 #include <set>
@@ -48,6 +47,7 @@ namespace OpenSpeedShop { namespace Framework {
 
     class Database;
     class Experiment;
+    template <typename> class SmartPtr;
     class Thread;
     class ThreadGroup;
     

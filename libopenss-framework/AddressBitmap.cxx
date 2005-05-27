@@ -22,8 +22,8 @@
  *
  */
 
-#include "Address.hxx"
 #include "AddressBitmap.hxx"
+#include "Blob.hxx"
 
 #include <string.h>
 

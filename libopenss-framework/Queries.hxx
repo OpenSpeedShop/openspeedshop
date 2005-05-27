@@ -29,8 +29,6 @@
 #include "config.h"
 #endif
 
-#include "SmartPtr.hxx"
-
 #include <map>
 #include <string>
 
@@ -40,6 +38,7 @@ namespace OpenSpeedShop { namespace Framework {
 
     class Collector;
     class Function;
+    template <typename> class SmartPtr;
     class Statement;
     class Thread;
 

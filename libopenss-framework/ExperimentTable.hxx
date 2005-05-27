@@ -30,7 +30,6 @@
 #endif
 
 #include "Lockable.hxx"
-#include "SmartPtr.hxx"
 
 #include <map>
 
@@ -39,10 +38,9 @@
 namespace OpenSpeedShop { namespace Framework {
 
     class Blob;
-    class Collector;
     class Database;
     class Experiment;
-    class Thread;
+    template <typename> class SmartPtr;
 
     /**
      * Experiment table.

@@ -29,7 +29,6 @@
 #include "config.h"
 #endif
 
-#include "Exception.hxx"
 #include "NonCopyable.hxx"
 
 #include <map>

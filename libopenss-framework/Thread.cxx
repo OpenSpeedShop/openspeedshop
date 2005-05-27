@@ -22,12 +22,8 @@
  *
  */
 
-#include "Address.hxx"
 #include "AddressBitmap.hxx"
-#include "Collector.hxx"
 #include "CollectorGroup.hxx"
-#include "Database.hxx"
-#include "Exception.hxx"
 #include "Function.hxx"
 #include "Instrumentor.hxx"
 #include "LinkedObject.hxx"

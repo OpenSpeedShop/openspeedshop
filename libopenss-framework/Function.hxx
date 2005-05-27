@@ -31,7 +31,6 @@
 
 #include "AddressRange.hxx"
 #include "Entry.hxx"
-#include "SmartPtr.hxx"
 
 #include <set>
 #include <string>
@@ -43,6 +42,7 @@ namespace OpenSpeedShop { namespace Framework {
     class CallSite;
     class Database;
     class LinkedObject;
+    template <typename> class SmartPtr;
     class Statement;
     class Thread;
     

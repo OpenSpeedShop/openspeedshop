@@ -22,18 +22,13 @@
  *
  */
 
-#include "Assert.hxx"
-#include "Collector.hxx"
 #include "CollectorGroup.hxx"
-#include "Database.hxx"
 #include "EntrySpy.hxx"
 #include "Experiment.hxx"
 #include "ExperimentTable.hxx"
 #include "Instrumentor.hxx"
-#include "Thread.hxx"
 #include "ThreadGroup.hxx"
 
-#include <pthread.h>
 #include <unistd.h>
 
 using namespace OpenSpeedShop::Framework;
@@ -511,6 +506,8 @@ ThreadGroup Experiment::attachProcess(const pid_t& pid,
  * Attaches to an existing POSIX thread and adds that thread to this experiment.
  * The thread's status is not affected.
  *
+ * @todo    Currently this routine is unimplemented.
+ *
  * @param pid     Process identifier of the process in which the thread resides.
  * @param tid     Thread identifier for the thread.
  * @param host    Name of the host on which the thread resides.
@@ -519,23 +516,7 @@ ThreadGroup Experiment::attachProcess(const pid_t& pid,
 Thread Experiment::attachPosixThread(const pid_t& pid, const pthread_t& tid,
 				     const std::string& host) const
 {
-    Thread thread;
-    
-    // Create the thread and attach to the underlying thread
-    BEGIN_TRANSACTION(dm_database);
-    dm_database->prepareStatement(
-	"INSERT INTO Threads (host, pid, posix_tid) VALUES (?, ?, ?);"
-	);
-    dm_database->bindArgument(1, host);
-    dm_database->bindArgument(2, pid);
-    dm_database->bindArgument(3, static_cast<int>(tid));    
-    while(dm_database->executeStatement());
-    thread = Thread(dm_database, dm_database->getLastInsertedUID());
-    Instrumentor::attachUnderlyingThread(thread);
-    END_TRANSACTION(dm_database);
-    
-    // Return the thread to the caller
-    return thread;
+    return Thread();
 }
 
 

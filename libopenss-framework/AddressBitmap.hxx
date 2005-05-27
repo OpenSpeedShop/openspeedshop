@@ -30,7 +30,6 @@
 #endif
 
 #include "AddressRange.hxx"
-#include "Blob.hxx"
 
 #include <vector>
 
@@ -39,6 +38,7 @@
 namespace OpenSpeedShop { namespace Framework {
 
     class Address;
+    class Blob;
 
     /**
      * Address bitmap.

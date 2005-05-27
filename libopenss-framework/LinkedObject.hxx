@@ -31,7 +31,6 @@
 
 #include "AddressRange.hxx"
 #include "Entry.hxx"
-#include "SmartPtr.hxx"
 
 #include <set>
 
@@ -42,13 +41,14 @@ namespace OpenSpeedShop { namespace Framework {
     class Database;
     class Function;
     class Path;
+    template <typename> class SmartPtr;
     class Statement;
     class Thread;
     
     /**
      * Linked object.
      *
-     * Representation of a single executable or library (linked object).
+     * Representation of a single executable or library (a "linked object").
      * Provides member functions for getting the containing thread, full path
      * name, address range, and the list of all functions contained within this
      * linked object.
