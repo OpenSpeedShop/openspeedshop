@@ -36,12 +36,13 @@ using namespace OpenSpeedShop;
 /**
  * Method: SS_Message_Czar::Add_Help()
  * 
- * 
- * 
+ * Add an SS_Message_Element to the help container
+ * for a particular help message.
  *     
  * @return  void.
  *
  * @todo    Error handling.
+ * @todo    Example.
  *
  */
 void
@@ -54,12 +55,16 @@ Add_Help(SS_Message_Element& element)
 /**
  * Method: SS_Message_Czar::Add_Error()
  * 
+ * Add an SS_Message_Element to the error container
+ * for a particular error message.
  * 
- * 
+ * It needs to be decided how to key into error messages.
+ * Do we require error numbers or are keywords good enough?
  *     
  * @return  void.
  *
  * @todo    Error handling.
+ * @todo    Example.
  *
  */
 void
@@ -74,10 +79,12 @@ Add_Error(SS_Message_Element& element)
 /**
  * Method: SS_Message_Czar::Find_By_Keyword()
  * 
- * 
+ * Given a keyword, do a case sensitive search in
+ * the help list. If no hits, do a case insensitive
+ * search.
  * 
  *     
- * @return  void.
+ * @return  void, but vector of SS_Message_Element * passed in.
  *
  * @todo    Error handling.
  *
@@ -100,10 +107,11 @@ Find_By_Keyword(string keyword,vector <SS_Message_Element *> *p_element)
 /**
  * Method: SS_Message_Czar::Find_By_Err_No()
  * 
- * 
+ * Given an integer find the message associated
+ * with it.
  * 
  *     
- * @return  void.
+ * @return  void, but vector of SS_Message_Element * passed in.
  *
  * @todo    Error handling.
  *
@@ -128,7 +136,7 @@ Find_By_Err_No(int id_num, vector <SS_Message_Element *> *p_element)
 /**
  * Method: SS_Message_Czar::Find_By_Related()
  * 
- * 
+ * Not done yet!
  * 
  *     
  * @return  void.

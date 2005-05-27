@@ -38,6 +38,7 @@ using namespace OpenSpeedShop;
  *     
  *
  * @todo    Error handling.
+ * @todo    Example.
  *
  */
 SS_Message_Element::
@@ -53,6 +54,7 @@ SS_Message_Element() :
  *     
  *
  * @todo    Error handling.
+ * @todo    Example.
  *
  */
 SS_Message_Element::
@@ -87,6 +89,7 @@ set_keyword(char *keyword_str)
  * @return  void.
  *
  * @todo    Error handling.
+ * @todo    Example.
  *
  */
 void
@@ -105,6 +108,7 @@ set_keyword(string keyword_str)
  * @return  void.
  *
  * @todo    Error handling.
+ * @todo    Example.
  *
  */
 void
@@ -125,6 +129,7 @@ set_keyword(string keyword_str,string topic_str)
  * @return  void.
  *
  * @todo    Error handling.
+ * @todo    Example.
  *
  */
 void
@@ -139,12 +144,13 @@ set_keyword(string keyword_str,string topic_str,int id)
 /**
  * Method: SS_Message_Element::get_keyword()
  * 
- * 
+ * Return the keyword associated with this message.
  * 
  *     
- * @return  void.
+ * @return  const string *.
  *
  * @todo    Error handling.
+ * @todo    Example.
  *
  */
 const string *
@@ -163,6 +169,7 @@ get_keyword()
  * @return  void.
  *
  * @todo    Error handling.
+ * @todo    Example.
  *
  */
 void
@@ -181,6 +188,7 @@ set_topic(char *topic_str)
  * @return  void.
  *
  * @todo    Error handling.
+ * @todo    Example.
  *
  */
 void
@@ -199,6 +207,7 @@ set_topic(string topic_str)
  * @return  void.
  *
  * @todo    Error handling.
+ * @todo    Example.
  *
  */
 const string *
@@ -217,6 +226,7 @@ get_topic()
  * @return  void.
  *
  * @todo    Error handling.
+ * @todo    Example.
  *
  */
 void
@@ -235,6 +245,7 @@ add_related(char *related_str)
  * @return  void.
  *
  * @todo    Error handling.
+ * @todo    Example.
  *
  */
 void
@@ -253,6 +264,7 @@ add_related(string related_str)
  * @return  void.
  *
  * @todo    Error handling.
+ * @todo    Example.
  *
  */
 vector<string> *
@@ -271,6 +283,7 @@ get_related_list()
  * @return  void.
  *
  * @todo    Error handling.
+ * @todo    Example.
  *
  */
 void
@@ -289,6 +302,7 @@ set_id(int id)
  * @return  void.
  *
  * @todo    Error handling.
+ * @todo    Example.
  *
  */
 int
@@ -307,6 +321,7 @@ get_id()
  * @return  void.
  *
  * @todo    Error handling.
+ * @todo    Example.
  *
  */
 const string *
@@ -325,6 +340,7 @@ get_brief()
  * @return  void.
  *
  * @todo    Error handling.
+ * @todo    Example.
  *
  */
 void
@@ -343,6 +359,7 @@ set_brief(char *brief_str)
  * @return  void.
  *
  * @todo    Error handling.
+ * @todo    Example.
  *
  */
 void
@@ -361,6 +378,7 @@ set_brief(string brief_str)
  * @return  void.
  *
  * @todo    Error handling.
+ * @todo    Example.
  *
  */
 void
@@ -379,6 +397,7 @@ add_normal(char *normal_str)
  * @return  void.
  *
  * @todo    Error handling.
+ * @todo    Example.
  *
  */
 void
@@ -397,6 +416,7 @@ add_normal(string normal_str)
  * @return  void.
  *
  * @todo    Error handling.
+ * @todo    Example.
  *
  */
 vector<string> *
@@ -415,6 +435,7 @@ get_normal_list()
  * @return  void.
  *
  * @todo    Error handling.
+ * @todo    Example.
  *
  */
 void
@@ -433,6 +454,7 @@ add_verbose(char *verbose_str)
  * @return  void.
  *
  * @todo    Error handling.
+ * @todo    Example.
  *
  */
 void
@@ -451,6 +473,7 @@ add_verbose(string verbose_str)
  * @return  void.
  *
  * @todo    Error handling.
+ * @todo    Example.
  *
  */
 vector<string> *
@@ -469,6 +492,7 @@ get_verbose_list()
  * @return  void.
  *
  * @todo    Error handling.
+ * @todo    Example.
  *
  */
 void
@@ -487,6 +511,7 @@ add_example(char *example_str)
  * @return  void.
  *
  * @todo    Error handling.
+ * @todo    Example.
  *
  */
 void
@@ -505,6 +530,7 @@ add_example(string example_str)
  * @return  void.
  *
  * @todo    Error handling.
+ * @todo    Example.
  *
  */
 vector<string> *
@@ -523,6 +549,7 @@ get_example_list()
  * @return  void.
  *
  * @todo    Error handling.
+ * @todo    Example.
  *
  */
 void
@@ -578,6 +605,7 @@ set_element(message_element_t *p_element)
  * @return  void.
  *
  * @todo    Error handling.
+ * @todo    Example.
  *
  */
 void
