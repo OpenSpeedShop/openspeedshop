@@ -116,15 +116,18 @@ ChartForm::ChartForm(  QWidget* parent, const char* name, WFlags fl) : QWidget( 
     connect( filePrintAction, SIGNAL( activated() ),
 	     this, SLOT( filePrint() ) );
 
+#ifdef OLDWAY
     optionsSetDataAction = new QAction(
 	    "Set Data", QPixmap( options_setdata ),
 	    "Set &Data...", CTRL+Key_D, this, "set data" );
     connect( optionsSetDataAction, SIGNAL( activated() ),
 	     this, SLOT( optionsSetData() ) );
+#endif // OLDWAY
 
 
     QActionGroup *chartGroup = new QActionGroup( this ); // Connected later
     chartGroup->setExclusive( TRUE );
+
 
     optionsPieChartActionWithShadow = new QAction(
 	    "Pie Chart with shadow", QPixmap( options_piechart ),
@@ -175,14 +178,19 @@ optionsBarChartActionWith3D = new QAction(
 
 
     optionsMenu = new QPopupMenu( this );
+#ifdef OLDWAY
     optionsSetDataAction->addTo( optionsMenu );
     optionsMenu->insertSeparator();
+#endif // OLDWAY
     optionsPieChartActionWithShadow->addTo( optionsMenu );
+#ifdef OLDWAY
     optionsPieChartActionWithNoShadow->addTo( optionsMenu );
     optionsPieChartActionWith3D->addTo( optionsMenu );
     optionsBarChartActionWith3D->addTo( optionsMenu );
+#endif // OLDWAY
     optionsHorizontalBarChartAction->addTo( optionsMenu );
     optionsVerticalBarChartAction->addTo( optionsMenu );
+#ifdef OLDWAY
     optionsMenu->insertSeparator();
     optionsSetFontAction->addTo( optionsMenu );
     optionsMenu->insertSeparator();
@@ -197,6 +205,7 @@ optionsBarChartActionWith3D = new QAction(
     fileSaveAsPixmapAction->addTo( optionsMenu );
     filePrintAction->addTo( optionsMenu );
 // fileQuitAction->addTo( optionsMenu );
+#endif // OLDWAY
 
 
     m_printer = 0;
@@ -213,9 +222,13 @@ optionsBarChartActionWith3D = new QAction(
     m_addValues = AddValuesType(
 		    settings.readNumEntry( APP_KEY + "AddValues", int(NO) ));
     m_decimalPlaces = settings.readNumEntry( APP_KEY + "Decimals", 2 );
+#ifdef OLDWAY
     m_font = QFont( "Helvetica", 18, QFont::Bold );
     m_font.fromString(
 	    settings.readEntry( APP_KEY + "Font", m_font.toString() ) );
+#else // OLDWAY
+    m_font = qApp->font();
+#endif  // OLDWAY
     for ( int i = 0; i < MAX_RECENTFILES; ++i ) {
 	QString filename = settings.readEntry( APP_KEY + "File" +
 					       QString::number( i + 1 ) );
@@ -238,9 +251,6 @@ optionsBarChartActionWith3D = new QAction(
 
     m_canvas = new QCanvas( this );
     m_canvas->setBackgroundColor(parent->backgroundColor());
-#ifdef NORESIZE
-    m_canvas->resize( width(), height() );
-#endif // NORESIZE
     m_canvasView = new CanvasView( m_canvas, &m_elements, this );
     localLayout->addWidget(m_canvasView);
     m_canvasView->show();
@@ -434,6 +444,7 @@ void ChartForm::setChartType( ChartType chartType )
 	case PIEWITHSHADOW:
 	    optionsPieChartActionWithShadow->setOn( TRUE );
 	    break;
+#ifdef OLDWAY
 case PIEWITHNOSHADOW:
   optionsPieChartActionWithNoShadow->setOn( TRUE );
   break;
@@ -443,6 +454,7 @@ case PIEWITH3D:
 case BARWITH3D:
   optionsBarChartActionWith3D->setOn( TRUE );
   break;
+#endif // OLDWAY
 	case VERTICAL_BAR:
 	    optionsVerticalBarChartAction->setOn( TRUE );
 	    break;
@@ -536,14 +548,14 @@ void ChartForm::helpAbout()
 QPopupMenu *
 ChartForm::createPopupMenu(const QPoint & /*pos */)
 {
-  printf("ChartForm::createPopupMenu() entered.\n");
+//  printf("ChartForm::createPopupMenu() entered.\n");
   return(optionsMenu);
 }
 
 void
 ChartForm::contentsContextMenuEvent( QContextMenuEvent *e )
 {
-  printf("ChartForm::contentsContextMenuEvent() called.\n");
+//  printf("ChartForm::contentsContextMenuEvent() called.\n");
 }
 
 
@@ -554,7 +566,7 @@ void ChartForm::helpAboutQt()
 
 int ChartForm::mouseClicked(int item)
 {
-  printf("ChartForm::mouseClicked(%d) entered.\n", item);
+//  printf("ChartForm::mouseClicked(%d) entered.\n", item);
 }
 
 void ChartForm::setValues(int values[], char *color_names[], char *strings[], int n )

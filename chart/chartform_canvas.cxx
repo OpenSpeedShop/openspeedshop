@@ -38,10 +38,8 @@
 void ChartForm::drawElements()
 {
     QCanvasItemList list = m_canvas->allItems();
-    nprintf(DEBUG_PANELS) ("drawElements() entered\n");
     for ( QCanvasItemList::iterator it = list.begin(); it != list.end(); ++it )
     {
-      nprintf(DEBUG_PANELS) ("DELETE IT!\n");
 	  delete *it;
     }
 
@@ -80,7 +78,6 @@ void ChartForm::drawElements()
         }
      }
 
-      nprintf(DEBUG_PANELS) ("m_chartType=%d\n", m_chartType );
 	switch ( m_chartType ) {
 	    case PIEWITHSHADOW:
 	    case PIEWITHNOSHADOW:
@@ -105,10 +102,8 @@ void ChartForm::drawElements()
 
 void ChartForm::drawPieChart( const double scales[], double total, int count)
 {
-
-  nprintf(DEBUG_PANELS) ("ChartForm::drawPieChart(%d)\n", m_chartType );
-
     float pitch = .35;
+//    float pitch = .90;
     int margin = 10;
     double width = m_canvas->width()-margin;
     double height = m_canvas->height()-margin;
@@ -119,31 +114,7 @@ void ChartForm::drawPieChart( const double scales[], double total, int count)
     y+=(margin/2);
     int angle = 0;
 
-// Begin try to put out shadow
-if(  m_chartType == PIEWITH3D )
-{
-  int z = 0;
-  for(int depth = 12; depth > 0; depth--)
-  {
-    for ( int i = 0; i < count; ++i ) {
-	if ( m_elements[i].isValid() ) {
-	    int extent = int(scales[i]);
-nprintf(DEBUG_PANELS) ("angle=%d extent=%d\n", angle,extent);
-	    CanvasShadowEllipse *arc = new CanvasShadowEllipse(
-					    i, size, (int)(size*pitch), angle, extent, m_canvas );
-//	    QCanvasEllipse *arc = new QCanvasEllipse(
-//					    size, size*pitch, angle, extent, m_canvas );
-	    arc->setX( x );
-	    arc->setY( y+depth );
-	    arc->setZ( z++ );
-	    arc->setBrush( QBrush( m_elements[i].valueColor(),
-			   BrushStyle(m_elements[i].valuePattern()) ) );
-	    arc->show();
-	    angle += extent;
-	  }
-    }
-  }
-} else if( m_chartType == PIEWITHSHADOW )
+if( m_chartType == PIEWITHSHADOW )
 {
     int shadow_angle = 3;
     int depth = 12;
@@ -167,7 +138,6 @@ nprintf(DEBUG_PANELS) ("angle=%d extent=%d\n", angle,extent);
 	  }
     }
 }
-// End try to put out shadow...
 
     margin = 10;
     width = m_canvas->width()-margin;
@@ -178,21 +148,6 @@ nprintf(DEBUG_PANELS) ("angle=%d extent=%d\n", angle,extent);
     x+=(margin/2);
     y+=(margin/2);
     angle = 0;
-
-if( m_chartType == PIEWITH3D )
-{
-// Begin outline
-// QCanvasEllipse *arc = new QCanvasEllipse(
-//                         size, size*pitch, 0, 5760, m_canvas );
-QCanvasEllipse *arc = new QCanvasEllipse(
-                        size+1, (int)((size+1)*pitch), 4000, 5760, m_canvas );
-arc->setX( x );
-arc->setY( y );
-arc->setZ( 100 );
-arc->setBrush( QBrush( QColor("black"), BrushStyle(1)) );
-arc->show();
-// End outline
-}
 
     for ( int i = 0; i < count; ++i )
     {
@@ -208,7 +163,7 @@ arc->show();
 				   BrushStyle(m_elements[i].valuePattern()) ) );
 	    arc->show();
 	    angle += extent;
-#ifdef TEXT_WANTED
+#ifndef TEXT_WANTED
 	    QString label = m_elements[i].label();
 	    if ( !label.isEmpty() || m_addValues != NO ) {
 		label = valueLabel( label, m_elements[i].value(), total );
@@ -247,30 +202,21 @@ void ChartForm::drawVerticalBarChart(
 {
     double width = m_canvas->width();
     double height = m_canvas->height();
-//    int prowidth = int(width / count);
-    int prowidth = int(width / (count+1));
+    int prowidth = int(width / count);
     int x = 0;
     QPen pen;
     pen.setStyle( NoPen );
 
-int X = 0;
-int Y = 0;
-
     for ( int i = 0; i < MAX_ELEMENTS; ++i ) {
 	if ( m_elements[i].isValid() ) {
-for( int d = 0; d < prowidth; d++ ) // begin depth
-{
 	    int extent = int(scales[i]);
 	    int y = int(height - extent);
- Y = y - d;
- X = x + 1; 
 	    QCanvasRectangle *rect = new QCanvasRectangle(
-					    X, Y, prowidth, extent, m_canvas );
+					    x, y, prowidth, extent, m_canvas );
 	    rect->setBrush( QBrush( m_elements[i].valueColor(),
 				    BrushStyle(m_elements[i].valuePattern()) ) );
 	    rect->setPen( pen );
-//	    rect->setZ( 0 );
-	    rect->setZ( i );
+	    rect->setZ( 0 );
 	    rect->show();
 	    QString label = m_elements[i].label();
 	    if ( !label.isEmpty() || m_addValues != NO ) {
@@ -286,14 +232,11 @@ for( int d = 0; d < prowidth; d++ ) // begin depth
 		text->setX( proX * width );
 		text->setY( proY * height );
 		text->setZ( 1 );
-//		text->setZ( i );
 		text->show();
 		m_elements[i].setProX( VERTICAL_BAR, proX );
 		m_elements[i].setProY( VERTICAL_BAR, proY );
 	    }
-//	    x += prowidth;
-	    x += 1;
-}
+	    x += prowidth;
 	}
     }
 }
@@ -305,28 +248,18 @@ void ChartForm::drawHorizontalBarChart(
     double width = m_canvas->width();
     double height = m_canvas->height();
     int proheight = int(height / count);
-//    int proheight = int(height / (count+1));
     int y = 0;
     QPen pen;
     pen.setStyle( NoPen );
-//int Y = 0;
-//int X = 0;
 
     for ( int i = 0; i < MAX_ELEMENTS; ++i ) {
-// X = 0;
 	if ( m_elements[i].isValid() ) {
-// for( int d = 0; d < proheight; d++ ) // begin depth
-// {
 	    int extent = int(scales[i]);
-// Y = y + d;
-// X++;
 	    QCanvasRectangle *rect = new QCanvasRectangle(
-//					    X, Y, extent, proheight, m_canvas );
 					    0, y, extent, proheight, m_canvas );
 	    rect->setBrush( QBrush( m_elements[i].valueColor(),
 				    BrushStyle(m_elements[i].valuePattern()) ) );
 	    rect->setPen( pen );
-//	    rect->setZ( i );
 	    rect->setZ( 0 );
 	    rect->show();
 	    QString label = m_elements[i].label();
@@ -348,8 +281,6 @@ void ChartForm::drawHorizontalBarChart(
 		m_elements[i].setProY( HORIZONTAL_BAR, proY );
 	    }
 	    y += proheight;
-//	    y += 1;
-// }
 	}
     }
 }
@@ -377,20 +308,15 @@ int row = block_cnt;
 int shadow_angle = 3;
 x = block_cnt*shadow_angle;
 
-printf("count=%d block_cnt=%d\n", count, block_cnt);
-
 int row_priority = 1;
     for ( int i = count-1; i >= 0; i-- ) {
 	if ( m_elements[i].isValid() ) {
-// printf("put out element %d\n", i);
 if(row > 0 )
 {
   int residual = i%block_cnt;
-// printf("residual = %d  %d = (%d)\n", i, block_cnt, residual);
   if( residual == 0 )
   {
 row_priority++;
-//    printf("                            break!\n");
     row--;
     x = row*shadow_angle;
   }
@@ -445,7 +371,6 @@ ChartForm::getItemFromPos( QPoint p )
 {
 
   QPoint pos = mapFromGlobal(p);
-  nprintf(DEBUG_PANELS) ("ChartForm::getItemFromPos() pos.x=%d pos.y=%d.\n", pos.x(), pos.y() );
 
   int selected = -1;
 
@@ -458,7 +383,6 @@ ChartForm::getItemFromPos( QPoint p )
   {
     if ( (*it)->rtti() == CanvasEllipse::CANVAS_ELLIPSE )
     {
-      nprintf(DEBUG_PANELS) ("Match CANVAS_ELLIPSE\n");
       m_movingItem = *it;
       item = (CanvasEllipse *)m_movingItem;
     }
