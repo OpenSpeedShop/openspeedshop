@@ -37,9 +37,11 @@
 #include <qvaluelist.h>
 #include <qaction.h>
 #include <qmessagebox.h>
+#include <qstring.h>
 
 #include "SS_Input_Manager.hxx"
 #include "PanelContainer.hxx"
+#include "UpdateObject.hxx"
 
 ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const char* name, bool modal, WFlags fl, int exp_id )
     : QWidget( parent, name )
@@ -603,9 +605,16 @@ ManageCollectorsClass::attachProcessSelected()
 
   if( !mw->pidStr.isEmpty() )
   {
-    QString command = QString("expAttach -x %1 -p %2").arg(expID).arg(mw->pidStr);
-QMessageBox::information( this, tr("Under Construction:"), tr("This feature currently under construction.\nIt will eventuall do a:\n%1").arg(command), QMessageBox::Ok );
-return;
+    QString command;
+
+    // Hack to get host and pid strings for the attach... This will be 
+    // replace with something better shortly.
+
+    QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
+    QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
+    QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
+    command = QString("expAttach -x %1 -h %2 -p %3\n").arg(expID).arg(host_name).arg(pid_name); 
+printf("command=(%s)\n", command.ascii() );
 
     steps = 0;
     pd = new GenericProgressDialog(this, "Loading process...", TRUE);
@@ -620,15 +629,25 @@ return;
   //    return;
     }
 
-    loadTimer->stop();
-    pd->hide();
+    // Send out a message to all those that might care about this change request
+    ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+    
   }
 
+  loadTimer->stop();
+  pd->hide();
+  // Send out a message to all those that might care about this change request
+  ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+    
+  if( eo->FW() != NULL )
+  {
+    UpdateObject *msg = new UpdateObject(eo->FW(), expID,  NULL, 0);
+    p->broadcast((char *)msg, GROUP_T);
+  }
+  
   updateAttachedList();
 }
 
-// #include "LoadAttachObject.hxx"
-#include "UpdateObject.hxx"
 void
 ManageCollectorsClass::loadProgramSelected()
 {

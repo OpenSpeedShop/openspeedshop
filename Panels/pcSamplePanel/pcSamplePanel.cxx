@@ -559,7 +559,7 @@ CLIInterface::interrupt = true;
       case  TERMINATE_T:
         {
         statusLabelText->setText( tr("Process terminated...") );
-        command = QString("expStop -x %d\n").arg(expID);
+        command = QString("expStop -x %1\n").arg(expID);
         int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
         InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii() );
         ret_val = 1;
@@ -593,7 +593,16 @@ CLIInterface::interrupt = true;
         command = QString("expAttach -x %1 -f \"%2 %3\"\n").arg(expID).arg(executableNameStr).arg(argsStr);
       } else if( !pidStr.isEmpty() )
       { 
+#ifdef OLDWAY
         command = QString("expAttach -x %1 %2\n").arg(expID).arg(pidStr);
+#else // OLDWAY
+    QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
+    QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
+    QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
+    command = QString("expAttach -x %1 -h %2 -p %3\n").arg(expID).arg(host_name).arg(pid_name);
+printf("command=(%s)\n", command.ascii() );
+
+#endif // OLDWAY
       } else
       {
         return 0;
