@@ -1,0 +1,115 @@
+#!/usr/bin/env python
+
+from sys import *
+import sys
+import os
+from time import *
+from string import *
+#from datetime import *
+
+
+def createTestList():
+	checktemptestlist = os.system('test -e temptestlist')
+	if checktemptestlist == 0:
+        	os.system('rm -f temptestlist')
+	os.system('ls -1 *.tst >> temptestlist')
+
+def runTest(testName):
+	#checkinput = os.system('test -e input.script')
+	#if checkinput == 0:
+	#	os.system('rm -f input.script')
+	#test_input = open(testName, 'r')
+	#testCommand = test_input.readline()
+	#linesToCompare = test_input.readline()
+	#test_input.close()
+	os.system('./'+testName+ '>> '+ testName+'.output')
+
+def iterateThroughTestList(fileptr):
+	con_input = open('temptestlist', 'r')
+        while 1:
+                config_line = con_input.readline()
+                if not config_line:
+                        break
+                test_name = config_line
+		i = 0
+	        while 1:
+                	if test_name[i] == '.':
+                        	break
+                	else:
+                        	i = i + 1
+        	testName = test_name[0:i+4]
+
+		runTest(testName)
+		CompareResults(testName, fileptr)
+               
+        con_input.close()
+
+def CompareResults(testName, fileptr):
+	outputfilename = testName + '.output'
+	expectedfilename = testName + '.expected'
+	outputfileptr = open(outputfilename, 'r')
+	expectedfileptr = open(expectedfilename, 'r')
+	nooutput = 0
+#	print " outputfilename=%s" %  outputfilename
+	size = os.path.getsize(outputfilename)
+#	print " size=%d" %  size
+	if size <= 0:
+		nooutput = 1
+	#while 1:
+	#	tempfileline = outputfileptr.readline()
+	#	if tempfileline[0:5] == '  CPU':
+	#		break
+	expectedfileptr.readline()
+	test_status = 0
+	previous_expected = 0
+	previous_actual = 0
+	passing_ratio = 1
+	failure_reason = 0
+	while 1:
+		if (nooutput == 1):
+			failure_reason = 3
+			passing_ratio = 0
+			break
+		outputfileline = outputfileptr.readline()
+#		print " outputfileline=%s" %  outputfileline
+		if not outputfileline:
+			break
+		expectedfileline = expectedfileptr.readline()
+#	        print " expectedfileline=%s" %  expectedfileline
+		if not expectedfileline:
+			break
+                if expectedfileline == expectedfileline:
+                        passing_ratio = 1
+                else:
+			passing_ratio = 0
+			failure_reason = 1
+			break
+
+#	print "passing_ratio=%d\n" % passing_ratio 
+
+	if (passing_ratio== 1) :
+		fileptr.write(testName + ' has PASSED \n')
+	else:
+		fileptr.write(testName + ' has FAILED.  ')
+		if (failure_reason == 1):
+			fileptr.write('The compare file does not match expected results\n')
+		if (failure_reason == 3):
+			fileptr.write('Looks like dpcl crashed. The expected output file is empty \n')
+		if (failure_reason == 2):
+			fileptr.write('The ordering of the functions is incorrect.\n')
+		
+
+
+	 	
+
+if __name__ == '__main__':
+	checkoutput = os.system('test -e *.output')
+        if checkoutput == 0:
+                os.system('rm -f *.output')
+
+	currTime = strftime("%d_%m_%Y_%H%M%S", localtime())
+        resultsFile =  'testresults_' + currTime
+        resultfileptr = open(resultsFile, 'w')
+
+	createTestList()
+	iterateThroughTestList(resultfileptr)
