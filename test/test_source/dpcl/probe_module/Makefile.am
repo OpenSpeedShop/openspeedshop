@@ -19,16 +19,23 @@
 bin_PROGRAMS = mutator hello  mutatee
 
 mutator_CXXFLAGS = \
-	-D__64BIT__ -I$(ROOT)/include/dpcl
+	 $(DPCL_CPPFLAGS)
 
 mutator_LDFLAGS = \
-	-L$(ROOT)/lib -ldpcl -lelf
+	-L$(ROOT)/lib \
+	$(DPCL_LIBS) -lelf
+	$(DPCL_LDFLAGS) 
+
+mutator_LIBS = \
+	$(DPCL_LDFLAGS) \
+	$(DPCL_LIBS) -lelf
 
 mutator_SOURCES = \
 	mutator.cxx
 
 mutatee_CFLAGS = \
-	-D__64BIT__ -g -gdwarf-2
+	 $(DPCL_CPPFLAGS) \
+	 -g -gdwarf-2
 
 mutatee_LDADD = \
 	-ldl
@@ -37,7 +44,8 @@ mutatee_SOURCES = \
 	mutatee.c
 
 hello_CFLAGS = \
-	-D__64BIT__ -g -gdwarf-2 -fpic -I$(ROOT)/include/dpcl
+	$(DPCL_CPPFLAGS) \
+	-g -gdwarf-2 -fpic 
 
 hello_LDADD = \
 	-L$(ROOT)/lib 
