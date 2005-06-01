@@ -24,6 +24,10 @@ char *Alternate_Current_OpenSpeedShop_Prompt = "....ss>";
 static FILE *ttyin = NULL;  // Read directly from this xterm window.
 static FILE *ttyout = NULL; // Write directly to this xterm window.
 
+static ss_ostream *ss_err = NULL;
+static ss_ostream *ss_out = NULL;
+static ss_ostream *ss_ttyout = NULL;
+
 // Forward definitions of local functions
 void Default_TLI_Command_Output (CommandObject *C);
 bool All_Command_Objects_Are_Used (InputLineObject *clip);
@@ -270,6 +274,9 @@ class CommandWindowID
 {
  protected:
   CMDWID id;
+  FILE *default_output;
+  ss_ostream *default_outstream;
+  ss_ostream *default_errstream;
   bool remote;
   std::string I_Call_Myself;
   std::string Host_ID;
@@ -310,6 +317,9 @@ class CommandWindowID
  public:
   CommandWindowID ( std::string IAM, std::string  Host, pid_t Process, int64_t Panel, bool async)
     {
+      default_output = NULL;
+      default_outstream = ss_out;
+      default_errstream = ss_err;
       remote = false;
       I_Call_Myself = IAM;
       Host_ID = Host;
@@ -543,6 +553,16 @@ public:
   }
 
   // Field access
+  void    set_output (FILE *output) { default_output = output; }
+  void    set_outstream (ss_ostream *output) { default_outstream = output; }
+  void    set_errstream (ss_ostream *errput) { default_errstream = errput; }
+  FILE   *output () { return default_output; }
+  bool has_outstream () { return (default_outstream != NULL); }
+  ostream &outstream () { return default_outstream->mystream(); }
+  ss_ostream *ss_outstream () { return default_outstream; }
+  bool has_errstream () { return (default_errstream != NULL); }
+  ostream &errstream () { return default_errstream->mystream(); }
+  ss_ostream *ss_errstream () { return default_errstream; }
   std::string Log_Name() { return Log_File_Name.c_str(); }
   FILE   *Log_File() { return Log_F; }
   CMDWID  ID () { return id; }
@@ -665,14 +685,13 @@ public:
       (*cmi)->Print (TFile);
     }
   }
-  void Dump(FILE *TFile)
+  void Dump(FILE *TFile) {
+    std::list<CommandWindowID *>::reverse_iterator cwi;
+    for (cwi = CommandWindowID_list.rbegin(); cwi != CommandWindowID_list.rend(); cwi++)
     {
-      std::list<CommandWindowID *>::reverse_iterator cwi;
-      for (cwi = CommandWindowID_list.rbegin(); cwi != CommandWindowID_list.rend(); cwi++)
-      {
-        (*cwi)->Print(TFile);
-      }
+      (*cwi)->Print(TFile);
     }
+  }
 };
 
 // For the Text-Line-Interface
@@ -1014,17 +1033,32 @@ bool Command_Record_OFF (CMDWID WindowID)
 }
 
 // This is the start of the Command Line Processing Routines.
-// Only one thread can be executing one of these rotuines at a time,
-// so the must be protected with the use of Window_List_Lock.
 
-CMDWID Commander_Initialization (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async)
-{
- // Create a new Window
-  CommandWindowID *cwid = new CommandWindowID(std::string(my_name ? my_name : ""),
-                                              std::string(my_host ? my_host : ""),
-                                              my_pid, my_panel, Input_is_Async);
-  Async_Inputs |= Input_is_Async;
-  return cwid->ID();
+void Commander_Initialization () {
+
+ // Define default err and out streams.
+  class err_ostream : public ss_ostream {
+   private:
+    virtual void output_string (std::string s) {
+      fprintf(stderr,"%s",s.c_str());
+    }
+    virtual void flush_ostream () {
+      fflush(stderr);
+    }
+  };
+  class out_ostream : public ss_ostream {
+   private:
+    virtual void output_string (std::string s) {
+      fprintf(stdout,"%s",s.c_str());
+    }
+    virtual void flush_ostream () {
+      fflush(stdout);
+    }
+  };
+  ss_err = new err_ostream ();
+  ss_out = new out_ostream ();
+  ss_ttyout = NULL;
+
 }
 
 CMDWID Default_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async)
@@ -1039,10 +1073,50 @@ CMDWID Default_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_pa
 
 CMDWID TLI_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async)
 {
+ // Define the output control stream for the command terminal.
+  class tli_ostream : public ss_ostream {
+   private:
+    virtual void output_string (std::string s) {
+      fprintf(ttyout,"%s",s.c_str());
+    }
+    virtual void flush_stream () {
+      fflush(ttyout);
+    }
+  };
+  ss_ttyout = new tli_ostream ();
+  ss_ttyout->Set_Issue_Prompt (true);
+
  // Create a new Window
   CommandWindowID *cwid = new TLI_CommandWindowID(std::string(my_name ? my_name : ""),
                                                  std::string(my_host ? my_host : ""),
                                                  my_pid, my_panel, Input_is_Async);
+
+ // Setup output redirection.
+ // The user can redirect stdout for the tool and we
+ // will still send critical output to the terminal window.
+  if (isatty(fileno(stdout))) {
+   // Replace uses of stdout with ttyout.
+    std::list<CommandWindowID *>::reverse_iterator cwi;
+    for (cwi = CommandWindowID_list.rbegin(); cwi != CommandWindowID_list.rend(); cwi++)
+    {
+      CommandWindowID *my_window = *cwi;
+      if (my_window->ss_outstream() == ss_out) {
+        my_window->set_outstream ( ss_ttyout );
+      }
+    }
+  }
+  if (isatty(fileno(stderr))) {
+   // Replace uses of stderr with ttyout.
+    std::list<CommandWindowID *>::reverse_iterator cwi;
+    for (cwi = CommandWindowID_list.rbegin(); cwi != CommandWindowID_list.rend(); cwi++)
+    {
+      CommandWindowID *my_window = *cwi;
+      if (my_window->ss_errstream() == ss_err) {
+        my_window->set_errstream ( ss_ttyout );
+      }
+    }
+  }
+
   Async_Inputs |= Input_is_Async;
   return cwid->ID();
 }
@@ -1067,13 +1141,44 @@ CMDWID RLI_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel,
   return cwid->ID();
 }
 
-void Commander_Termination (CMDWID im)
+void Window_Termination (CMDWID im)
 {
   if (im) {
     CommandWindowID *my_window = Find_Command_Window (im);
     if (my_window) delete my_window;
   }
   return;
+}
+
+void Commander_Termination () {
+
+ // Remove all remaining input windows.
+  std::list<CommandWindowID *>::reverse_iterator cwi;
+  for (cwi = CommandWindowID_list.rbegin(); cwi != CommandWindowID_list.rend(); )
+  {
+    CommandWindowID *my_window = *cwi;
+    cwi++;
+    if (my_window) {
+      delete my_window;
+    }
+  }
+
+ // Remove default ss_ostream definitions.
+  if (ss_ttyout && (ss_ttyout != ss_out)) delete ss_ttyout;
+  if (ss_out) delete ss_out;
+  if (ss_err) delete ss_err;
+
+  return;
+}
+
+void Redirect_Window_Output (CMDWID for_window, ss_ostream *for_out, ss_ostream *for_err) {
+  CommandWindowID *my_window = Find_Command_Window (for_window);
+  if (for_out != NULL) {
+    my_window->set_outstream (for_out);
+  }
+  if (for_err != NULL) {
+    my_window->set_outstream (for_err);
+  }
 }
 
 
@@ -1215,19 +1320,40 @@ void Default_TLI_Line_Output (InputLineObject *clip) {
 
 void Default_TLI_Command_Output (CommandObject *C) {
   if (!(C->Results_Used())) {
-    if (C->Status() != CMD_ABORTED) {
-      FILE *outfile = (C->Status() == CMD_ERROR) ? stderr : stdout;
-      if ((ttyout != NULL)  &&
-          isatty(fileno(outfile))) {
-        outfile = ttyout;
-      }
+    std::list<CommandResult *> cmd_result = C->Result_List();
+    if ((cmd_result.begin() != cmd_result.end()) &&
+        (C->Status() != CMD_ABORTED)) {
+      InputLineObject *clip = C->Clip ();
+      CMDWID w = (clip) ? clip->Who() : 0;
+      CommandWindowID *cw = (w) ? Find_Command_Window (w) : NULL;
 
      // Print the ResultdObject list
-      if (C->Print_Results (outfile, "\n", "\n") &&
-          (ttyout != NULL) &&
-          (ttyout == outfile)) {
-       // Re-issue the prompt
-        SS_Issue_Prompt (ttyout);
+      if (cw->has_outstream()) {
+        ss_ostream *this_ss_stream = ((C->Status() == CMD_ERROR) && cw->has_errstream())
+                                                   ? cw->ss_errstream() : cw->ss_outstream();
+        this_ss_stream->acquireLock();
+        if (C->Print_Results (this_ss_stream->mystream(), "\n", "\n") &&
+            this_ss_stream->Issue_Prompt()) {
+         // Re-issue the prompt
+          this_ss_stream->mystream() << Current_OpenSpeedShop_Prompt;
+        }
+        this_ss_stream->releaseLock();
+      } else {
+        FILE *outfile = (cw) ? cw->output() : NULL; // (C->Status() == CMD_ERROR) ? stderr : stdout;
+        if (outfile == NULL) {
+          outfile = (C->Status() == CMD_ERROR) ? stderr : stdout;
+          if ((ttyout != NULL)  &&
+              isatty(fileno(outfile))) {
+            outfile = ttyout;
+          }
+        }
+
+        if (C->Print_Results (outfile, "\n", "\n") &&
+              cw->Async()) {
+            // isatty(fileno(outfile))) {
+         // Re-issue the prompt
+          SS_Issue_Prompt (outfile);
+        }
       }
     }
     C->set_Results_Used (); // Everything is where it belongs.
@@ -1245,9 +1371,13 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
   Buffer[Buffer_Size-1] = *"\0";
   ttyin = fopen ( "/dev/tty", "r" );  // Read directly from the xterm window
   ttyout = fopen ( "/dev/tty", "w" );  // Write prompt directly to the xterm window
+
+ // Infinite loop to read user input.
   for(;;) {
     // usleep (10000); /* DEBUG - give testing code time to react before splashing screen with prompt */
-    SS_Issue_Prompt (ttyout);
+    ss_ttyout->acquireLock();
+    ss_ttyout->mystream() << Current_OpenSpeedShop_Prompt;
+    ss_ttyout->releaseLock();
     Buffer[0] == *("\0");
     char *read_result = fgets (&Buffer[0], Buffer_Size, ttyin);
     if (Buffer[Buffer_Size-1] != (char)0) {
