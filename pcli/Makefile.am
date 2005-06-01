@@ -49,6 +49,7 @@ libopenss_cli_la_SOURCES = \
 	ArgClass.hxx \
 	Clip.hxx \
 	Commander.hxx Commander.cxx \
+	SS_Output.hxx \
 	CommandObject.hxx CommandObject.cxx \
 	Experiment.hxx Experiment.cxx \
 	help.cxx \
