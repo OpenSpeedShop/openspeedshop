@@ -1,0 +1,48 @@
+
+ORIGINAL run command:
+
+./run 311 --create localhost
+
+ Will print 'SUCCESS' if the number of calls to 'mysleep' matches
+ the number of calls requested (311).
+
+ORIGINAL run script:
+#! /bin/tcsh
+
+rm -f mutator mutatee LOG core.*
+
+if ($2 == "--create") then
+    set flag = "-DTEST_CREATE_PROCESS"
+    set localhost = $3
+else
+    set flag = ""
+endif
+
+set count = $1
+
+echo " Going to: $localhost"
+echo " Calling mysleep $count times"
+
+g++ -D__64BIT__ -o mutator mutator.cxx \
+        -I/scratch/slc/perftools/ROOT/include/dpcl -L/scratch/slc/perftools/ROOT/lib \
+        $flag \
+        -ldpcl64 -lelf -lpthread
+
+gcc -o mutatee mutatee.c
+
+chmod 777 mutatee
+
+if ($2 == "--create") then
+    ./mutator $count $localhost /scratch/slc/Test/point_probe/mutatee $count
+else if ($2 == "--attach") then
+    ./mutatee $count > LOG &
+    sleep 1
+    set pid = `ps -ef | grep "\.\/mutatee" | cut -c 10-14`
+    ./mutator $count $localhost $pid
+endif
+
+#pkill dpcl
+pkill -9 mutatee
+#rm -f /tmp/dpcl.*
+exit
+
