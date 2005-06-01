@@ -55,6 +55,8 @@ using namespace OpenSpeedShop::Framework;
 
 using namespace std;
 
+#include "SS_Output.hxx"
+
 #include "SS_Parse_Range.hxx"
 #include "SS_Parse_Target.hxx"
 #include "SS_Parse_Result.hxx"
