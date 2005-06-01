@@ -647,6 +647,7 @@ int
 FPE_TracingWizardPanel::listener(void *msg)
 {
   nprintf(DEBUG_PANELS) ("FPE_TracingWizardPanel::listener() requested.\n");
+// printf("FPE_TracingWizardPanel::listener() requested.\n");
 
   MessageObject *messageObject = (MessageObject *)msg;
   nprintf(DEBUG_PANELS) ("  messageObject->msgType = %s\n", messageObject->msgType.ascii() );
@@ -895,7 +896,10 @@ void FPE_TracingWizardPanel::eAttachOrLoadPageNextButtonSelected()
       {
         return;
       }
-      sprintf(buffer, "<p align=\"left\">Requesting to load process \"%s\" on host \"%s\",  with a sampling rate of \"%s\".<br><br></p>", mw->pidStr.ascii(), "localhost", eParameterPageSampleRateText->text().ascii() );
+      QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
+      QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
+      QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
+      sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" (%s) on host \"%s\", with a sampling rate of \"%s\".<br><br></p>", prog_name.ascii(), pid_name.ascii(), host_name.ascii(), eParameterPageSampleRateText->text().ascii() );
     }
   }
   if( eAttachOrLoadPageLoadExecutableCheckBox->isChecked() ||
@@ -911,7 +915,10 @@ void FPE_TracingWizardPanel::eAttachOrLoadPageNextButtonSelected()
     {
       return;
     }
-    sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", with a sampling rate of \"%s\".<br><br></p>", mw->executableName.ascii(), "localhost", eParameterPageSampleRateText->text().ascii() );
+    QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
+    QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
+    QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
+    sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" (%s) on host \"%s\", with a sampling rate of \"%s\".<br><br></p>", prog_name.ascii(), pid_name.ascii(), host_name.ascii(), eParameterPageSampleRateText->text().ascii() );
   }
 
   eSummaryPageFinishLabel->setText( tr( buffer ) );
@@ -984,6 +991,13 @@ void FPE_TracingWizardPanel::vAttachOrLoadPageBackButtonSelected()
 void FPE_TracingWizardPanel::vAttachOrLoadPageClearButtonSelected()
 {
   nprintf(DEBUG_PANELS) ("vAttachOrLoadPageClearButtonSelected() \n");
+
+  vAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
+  vAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
+  vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+  eAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
+  eAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
+  eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
 
   if( getPanelContainer()->getMainWindow() )
   { 
@@ -1091,7 +1105,10 @@ void FPE_TracingWizardPanel::vAttachOrLoadPageNextButtonSelected()
     {
       return;
     }
-    sprintf(buffer, "<p align=\"left\">You've selected a FPE Tracing experiment for process \"%s\" running on host \"%s\".  Futher you've chosed a sampling rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"fpeTracing\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->pidStr.ascii(), "localhost", vParameterPageSampleRateText->text().ascii() );
+    QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
+    QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
+    QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
+    sprintf(buffer, "<p align=\"left\">You've selected a FPE Tracing experiment for process \"%s\" (%s) running on host \"%s\".  Futher you've chosed a sampling rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"fpeTracing\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", prog_name.ascii(), pid_name.ascii(), host_name.ascii(), vParameterPageSampleRateText->text().ascii() );
   }
   if( vAttachOrLoadPageLoadExecutableCheckBox->isChecked() ||
       vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() )
@@ -1133,7 +1150,7 @@ void FPE_TracingWizardPanel::finishButtonSelected()
   OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
   if( mw->executableName.isEmpty() && mw->pidStr.isEmpty() )
   {
-    if( vwizardMode->isOn() && !ewizardMode->isOn() )
+    if( vwizardMode->isOn() )
     {
       mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
       vUpdateAttachOrLoadPageWidget();
@@ -1156,12 +1173,7 @@ void FPE_TracingWizardPanel::finishButtonSelected()
 void FPE_TracingWizardPanel::vSummaryPageFinishButtonSelected()
 {
   nprintf(DEBUG_PANELS) ("vSummaryPageFinishButtonSelected() \n");
-
-  vSummaryPageFinishButton->setEnabled(FALSE);
-  eSummaryPageFinishButton->setEnabled(FALSE);
-  vSummaryPageBackButton->setEnabled(FALSE);
-  eSummaryPageBackButton->setEnabled(FALSE);
-  qApp->flushX();
+// printf("vSummaryPageFinishButtonSelected() \n");
 
   Panel *p = fpeTracingPanel;
   if( getPanelContainer()->getMainWindow() )
@@ -1178,10 +1190,16 @@ void FPE_TracingWizardPanel::vSummaryPageFinishButtonSelected()
         lao = new LoadAttachObject((char *)NULL, mw->pidStr, sampleRate, TRUE);
       } else
       {
-//        printf("Warning: No attach or load paramaters available.\n");
+// printf("Warning: No attach or load paramaters available.\n");
       }
       if( lao != NULL )
       {
+        vSummaryPageFinishButton->setEnabled(FALSE);
+        eSummaryPageFinishButton->setEnabled(FALSE);
+        vSummaryPageBackButton->setEnabled(FALSE);
+        eSummaryPageBackButton->setEnabled(FALSE);
+        qApp->flushX();
+
         if( !p )
         {
           QString *argument = new QString("-1");
@@ -1345,17 +1363,26 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new execu
   {
     return;
   }
-}
 
-void
-FPE_TracingWizardPanel::vUpdateAttachOrLoadPageWidget()
-{
   vAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
   vAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
   vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
   eAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
   eAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
   eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+}
+
+void
+FPE_TracingWizardPanel::vUpdateAttachOrLoadPageWidget()
+{
+#ifdef OLDWAY
+  vAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
+  vAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
+  vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+  eAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
+  eAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
+  eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+#endif // OLDWAY
   vAttachOrLoadPageProcessListLabel->hide();
   eAttachOrLoadPageProcessListLabel->hide();
   vAttachOrLoadPageExecutableLabel->hide();
