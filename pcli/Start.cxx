@@ -230,7 +230,7 @@ extern "C"
    // Close allocated input windows.
     if (gui_window != 0)
     {
-      Commander_Termination(gui_window);
+      Window_Termination(gui_window);
       gui_window = 0;
       pthread_cancel (phandle[1]);
     }
@@ -239,14 +239,15 @@ extern "C"
      // Stop async read loop for xterm window
       pthread_cancel (phandle[0]);
 
-      Commander_Termination(tli_window);
+      Window_Termination(tli_window);
       tli_window = 0;
     }
     if (command_line_window != 0)
     {
-      Commander_Termination(command_line_window);
+      Window_Termination(command_line_window);
       command_line_window = 0;
     }
+    Commander_Termination ();
   }
 
 static void
@@ -284,6 +285,10 @@ setup_signal_handler (int s)
     // setup_signal_handler (SIGPIPE);
     // setup_signal_handler (SIGCLD);
 
+   // Start up the Command line processor.
+    Commander_Initialization ();
+
+   // Process the execution time arguments for openss.
     int i;
     ArgStruct *argStruct = new ArgStruct(argc, argv);
     pid_t my_pid = getpid();
