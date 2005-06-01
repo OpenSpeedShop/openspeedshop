@@ -48,6 +48,16 @@ class CommandResult {
   virtual void Value (char *&C) {
     C = NULL;
   }
+  virtual void Print (ostream &to, int64_t fieldsize=20, bool leftjustified=false) {
+    char F[20];
+    char S[20];
+    int i = 0;
+    F[i++] = *("%");
+    if (leftjustified) F[i++] = *("-");
+    sprintf(&F[i], "%llds\0", fieldsize);
+    sprintf(S, F, "(none)");
+    to << S;
+  }
   virtual void Print (FILE *TFile, int64_t fieldsize=20, bool leftjustified=false) {
     //fprintf(TFile,"              (none)");
     char F[20];
@@ -78,6 +88,16 @@ class CommandResult_Uint : public CommandResult {
   virtual void Value (uint64_t &U) {
     U = uint_value;
   };
+  virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
+    char F[20];
+    char S[20];
+    int i = 0;
+    F[i++] = *("%");
+    if (leftjustified) F[i++] = *("-");
+    sprintf(&F[i], "%lldllu\0", fieldsize);
+    sprintf(S,&F[0],uint_value);
+    to << S;
+  }
   virtual void Print (FILE *TFile, int64_t fieldsize, bool leftjustified) {
     // fprintf(TFile,"%20llu\n",uint_value);
     char F[20];
@@ -113,6 +133,16 @@ class CommandResult_Int : public CommandResult {
   virtual void Value (int64_t &I) {
     I = int_value;
   };
+  virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
+    char F[20];
+    char S[20];
+    int i = 0;
+    F[i++] = *("%");
+    if (leftjustified) F[i++] = *("-");
+    sprintf(&F[i], "%lldlld\0", fieldsize);
+    sprintf(S,F,int_value);
+    to << S;
+  }
   virtual void Print (FILE *TFile, int64_t fieldsize, bool leftjustified) {
     // fprintf(TFile,"%20lld\n",int_value);
     char F[20];
@@ -153,6 +183,16 @@ class CommandResult_Float : public CommandResult {
   virtual void Value (double &F) {
     F = float_value;
   };
+  virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
+    char F[20];
+    char S[20];
+    int i = 0;
+    F[i++] = *("%");
+    if (leftjustified) F[i++] = *("-");
+    sprintf(&F[i], "%lldf\0", fieldsize);
+    sprintf(S,F,float_value);
+    to << S;
+  }
   virtual void Print (FILE *TFile, int64_t fieldsize, bool leftjustified) {
     // fprintf(TFile,"%20f",float_value);
     char F[20];
@@ -178,6 +218,16 @@ class CommandResult_String : public CommandResult {
   virtual void Value (std::string &S) {
     S = string_value;
   }
+  virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
+    char F[20];
+    char S[20];
+    int i = 0;
+    F[i++] = *("%");
+    if (leftjustified) F[i++] = *("-");
+    sprintf(&F[i], "%llds\0", fieldsize);
+    sprintf(S,F,string_value.c_str());
+    to << S;
+  }
   virtual void Print (FILE *TFile, int64_t fieldsize, bool leftjustified) {
     // fprintf(TFile,"%s",string_value.c_str());
     char F[20];
@@ -200,6 +250,9 @@ class CommandResult_Title : public CommandResult {
   virtual void Value (std::string &S) {
     S = string_value;
   }
+  virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
+    to << string_value;
+  }
   virtual void Print (FILE *TFile, int64_t fieldsize, bool leftjustified) {
     fprintf(TFile,"%s/n",string_value.c_str());
   }
@@ -221,6 +274,17 @@ class CommandResult_Headers : public CommandResult {
 
   virtual void Value (int64_t &C) {
     C = number_of_columns;
+  }
+  virtual void Print (ostream &to, int64_t fieldsize=20, bool leftjustified=false) {
+    
+    std::list<CommandResult *> cmd_object = Headers;
+    std::list<CommandResult *>::iterator coi;
+    int num_results = 0;
+    for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
+      if (num_results++ != 0) to << "  ";
+      (*coi)->Print (to, fieldsize, (num_results >= number_of_columns) ? true : false);
+    }
+
   }
   virtual void Print (FILE *TFile, int64_t fieldsize=20, bool leftjustified=false) {
     
@@ -252,6 +316,17 @@ class CommandResult_Enders : public CommandResult {
   virtual void Value (int64_t &C) {
     C = number_of_columns;
   }
+  virtual void Print (ostream &to, int64_t fieldsize=20, bool leftjustified=false) {
+    
+    std::list<CommandResult *> cmd_object = Enders;
+    std::list<CommandResult *>::iterator coi;
+    int num_results = 0;
+    for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
+      if (num_results++ != 0) to << "  ";
+      (*coi)->Print (to, fieldsize, (num_results >= number_of_columns) ? true : false);
+    }
+
+  }
   virtual void Print (FILE *TFile, int64_t fieldsize=20, bool leftjustified=false) {
     
     std::list<CommandResult *> cmd_object = Enders;
@@ -281,6 +356,17 @@ class CommandResult_Columns : public CommandResult {
 
   virtual void Value (CommandResult &R) {
     R = *this;
+  }
+  virtual void Print (ostream &to, int64_t fieldsize=20, bool leftjustified=false) {
+    
+    std::list<CommandResult *> cmd_object = Columns;
+    std::list<CommandResult *>::iterator coi;
+    int num_results = 0;
+    for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
+      if (num_results++ != 0) to << "  ";
+      (*coi)->Print (to, fieldsize, (num_results >= number_of_columns) ? true : false);
+    }
+
   }
   virtual void Print (FILE *TFile, int64_t fieldsize=20, bool leftjustified=false) {
     
@@ -446,5 +532,6 @@ public:
   void Print (FILE *TFile);
  // The Print_Results routine is for sending results to the user.
  // The result returned is "true" if there was information printed.
+  bool Print_Results (ostream &to, std::string list_seperator, std::string termination_char);
   bool Print_Results (FILE *TFile, std::string list_seperator, std::string termination_char);
 };
