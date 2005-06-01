@@ -1,0 +1,5 @@
+	using DPCLVersion = 3.3.4.0
+Ais_override_default_callback() passes: ASC_success
+Process::bcreate() passes: ASC_success
+Process::bstart() passes: ASC_success
+SUCCESS
