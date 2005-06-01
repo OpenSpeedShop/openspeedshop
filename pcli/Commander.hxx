@@ -59,13 +59,19 @@ class CodeObjectLocator
 class CommandObject; // defined in CommandObject.hxx
 class InputLineObject; // defined in Clip.hxx
 class CommandWindowID; // defined in Commander.cxx
+class ss_ostream; // defined in SS_Output.hxx
+
+// Basic Initialization and Termination calls.
+void Commander_Initialization ();
+void Commander_Termination ();
 
 // Command WIndows provide a way to get textual commands into the OpendSpeedShop tool.
-CMDWID Commander_Initialization (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
 CMDWID Default_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
 CMDWID TLI_Window     (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
 CMDWID GUI_Window     (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
 CMDWID RLI_Window     (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
+void   Window_Termination (CMDWID my_window);
+void   Redirect_Window_Output (CMDWID for_window, ss_ostream *for_out, ss_ostream *for_err);
 
 void Default_TLI_Line_Output (InputLineObject *clip);
 void Default_TLI_Command_Output (CommandObject *C);
@@ -79,8 +85,6 @@ inline void SS_Issue_Prompt (FILE *TFile) {
   fprintf(TFile,"%s",Current_OpenSpeedShop_Prompt);
   fflush(TFile);
 }
-
-void Commander_Termination (CMDWID my_window);
 
 // Selection of items in the log file are controlled throught his enum.
 // Except for raw data dumps, the record identifier is stripped from output.
