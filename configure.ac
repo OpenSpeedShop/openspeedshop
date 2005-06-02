@@ -175,6 +175,9 @@ AC_CONFIG_FILES(Makefile
 		test/test_source/unit/pcli/parse_result/Makefile
 		test/test_source/unit/pcli/parse_target/Makefile
 		test/test_source/dpcl/one_shot/Makefile
+		test/test_source/dpcl/probe_module/Makefile
+		test/test_source/dpcl/point_probe/Makefile
+		test/test_source/dpcl/simple/Makefile
 		usability/Makefile
 		usability/phaseII/Makefile
 )

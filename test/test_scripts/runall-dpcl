@@ -35,7 +35,8 @@ def whatKindofDirectory():
 
 def createDirectoryList():
 
-	os.system('ls -1 >> dirlist')
+#	os.system('ls -1 >> dirlist')
+	os.system('ls -F | grep "/" >> dirlist')
 	
 
 def getResultFileFromDir(directoryName):
@@ -46,10 +47,14 @@ def getResultFileFromDir(directoryName):
 	if checkForMarker:
 		os.system('pwd')	
 #	        print "in getResultFileFromDir, 'testresultsfilename'=%s\n" % 'testresultsfilename'
-		resultsfilenameinput = open('testresultsfilename', 'r')
-		resultsFileName = resultsfilenameinput.readline()
+		tmp_resultsfilenameinput = open('tmp_testresultsfilename', 'wr')
+	        os.system('ls -Fr | grep testresults >> tmp_resultsfilenameinput')
+		tmp_resultsfilenameinput = open('tmp_testresultsfilename', 'r')
+		tmp_resultsFileName = tmp_resultsfilenameinput.readline()
+#jeg		resultsfilenameinput = open('testresultsfilename', 'r')
+#jeg		resultsFileName = resultsfilenameinput.readline()
 		os.chdir('..')
-		os.system('more '+ directoryName+'/'+resultsFileName+' >> ' + testResultsFile)
+		os.system('more '+ directoryName+'/'+tmp_resultsFileName+' >> ' + testResultsFile)
 	
 		os.chdir(directoryName)
 
