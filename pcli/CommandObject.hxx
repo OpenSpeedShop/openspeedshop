@@ -219,14 +219,26 @@ class CommandResult_String : public CommandResult {
     S = string_value;
   }
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
-    char F[20];
-    char S[20];
-    int i = 0;
-    F[i++] = *("%");
-    if (leftjustified) F[i++] = *("-");
-    sprintf(&F[i], "%llds\0", fieldsize);
-    sprintf(S,F,string_value.c_str());
-    to << S;
+    if (leftjustified) {
+     // Left justification is only done on the last column of a report.
+     // Don't truncate the string if bigger than field size.
+     // This is done to make sure everything gets printed.
+     // But make sure we fill the field.
+      to << string_value;
+      for (int i = string_value.length(); i < fieldsize; i++) to << " ";
+    } else {
+     // Right justify the string in the field.
+     // Don't let it exceed the size of the field.
+     // Also, limit the size based on our internal buffer size.
+      char F[20];
+      char S[1000];
+      int max_size = MIN(fieldsize,1000);
+      int i = 0;
+      F[i++] = *("%");
+      sprintf(&F[i], "%lld.%llds\0", max_size, max_size);
+      sprintf(S,F,string_value.c_str());
+      to << S;
+    }
   }
   virtual void Print (FILE *TFile, int64_t fieldsize, bool leftjustified) {
     // fprintf(TFile,"%s",string_value.c_str());
@@ -358,11 +370,9 @@ class CommandResult_Columns : public CommandResult {
     R = *this;
   }
   virtual void Print (ostream &to, int64_t fieldsize=20, bool leftjustified=false) {
-    
-    std::list<CommandResult *> cmd_object = Columns;
     std::list<CommandResult *>::iterator coi;
     int num_results = 0;
-    for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
+    for (coi = Columns.begin(); coi != Columns.end(); coi++) {
       if (num_results++ != 0) to << "  ";
       (*coi)->Print (to, fieldsize, (num_results >= number_of_columns) ? true : false);
     }
