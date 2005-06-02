@@ -203,7 +203,7 @@ ManageProcessesDialog::contextMenuRequested( QListViewItem *item, const QPoint &
 void
 ManageProcessesDialog::addProcessSelected()
 {
-  printf("addProcessSelected\n");
+printf("addProcessSelected\n");
   mw->executableName = QString::null;
   mw->pidStr = QString::null;
   mw->attachNewProcess();
@@ -247,7 +247,7 @@ ManageProcessesDialog::removeEntrySelected()
 void
 ManageProcessesDialog::addProgramSelected()
 {
-  printf("addProgramSelected\n");
+printf("addProgramSelected\n");
   mw->executableName = QString::null;
   mw->loadNewProgram();
   QString executableNameStr = mw->executableName;
