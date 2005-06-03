@@ -45,6 +45,7 @@
 OpenSpeedshop::OpenSpeedshop( int _wid, QWidget* parent, const char* name, WFlags fl )
     : QMainWindow( parent, name, fl )
 {
+  afd = NULL;
   lfd = NULL;
   sfd = NULL;
   widStr = QString::null;

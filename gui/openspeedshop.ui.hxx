@@ -929,6 +929,7 @@ void OpenSpeedshop::loadNewProgram()
 {
 // all load programs requests come through here!
   QString dirName = QString::null;
+printf("OpenSpeedshop::loadNewProgram()\n");
   if( lfd == NULL )
   {
     lfd = new AttachProgramDialog(this, "file dialog", TRUE );
@@ -974,15 +975,17 @@ void OpenSpeedshop::loadNewProgram()
 
 void OpenSpeedshop::attachNewProcess()
 {
-  AttachProcessDialog *dialog = new AttachProcessDialog(this, "AttachProcessDialog", TRUE);
-  if( dialog->exec() == QDialog::Accepted )
+// printf("OpenSpeedshop::attachNewProcess()\n");
+  if( afd == NULL )
+  {
+    afd = new AttachProcessDialog(this, "AttachProcessDialog", TRUE);
+  }
+  if( afd->exec() == QDialog::Accepted )
   {
     //printf("QDialog::Accepted\n");
-    pidStr = dialog->selectedProcesses();
+    pidStr = afd->selectedProcesses();
   }
-
-  //printf("pidStr = %s\n", pidStr.ascii() );
-  delete dialog;
+// printf("pidStr = %s\n", pidStr.ascii() );
 }
 
 void OpenSpeedshop::myQuit()

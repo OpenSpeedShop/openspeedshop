@@ -42,6 +42,7 @@ class QActionGroup;
 class QToolBar;
 class QPopupMenu;
 class AttachProgramDialog;
+class AttachProcessDialog;
 class GenericProgressDialog;
 
 class CLIInterface;
@@ -122,6 +123,9 @@ class OpenSpeedshop : public QMainWindow
 
     //! The hinted experiment_name that is to be intialized.. 
     QString experimentName;
+
+    //! The attach process dialog.
+    AttachProcessDialog *afd;
 
     //! The load file dialog.
     AttachProgramDialog *lfd;

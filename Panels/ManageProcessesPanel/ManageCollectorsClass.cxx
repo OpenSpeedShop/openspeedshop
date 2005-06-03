@@ -49,6 +49,7 @@ ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const 
 //  nprintf(DEBUG_CONST_DESTRUCT) ("ManageCollectorsClass::ManageCollectorsClass() constructor called.\n");
   dprintf("ManageCollectorsClass::ManageCollectorsClass() constructor called.\n");
   
+  loadTimer = NULL;
   p = _p;
   dialogSortType = COLLECTOR_T;
   popupMenu = NULL;
@@ -632,10 +633,11 @@ printf("command=(%s)\n", command.ascii() );
     // Send out a message to all those that might care about this change request
     ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
     
-  }
 
-  loadTimer->stop();
-  pd->hide();
+    loadTimer->stop();
+    pd->hide();
+
+  }
   // Send out a message to all those that might care about this change request
   ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
     
@@ -675,10 +677,11 @@ ManageCollectorsClass::loadProgramSelected()
     {
       QMessageBox::information( this, tr("Error issuing command to cli:"), tr("Unable to run %1 command.").arg(command), QMessageBox::Ok );
   //    return;
-    }
   
-    loadTimer->stop();
-    pd->hide();
+      loadTimer->stop();
+      pd->hide();
+
+    }
     delete(pd);
 
     // Send out a message to all those that might care about this change request

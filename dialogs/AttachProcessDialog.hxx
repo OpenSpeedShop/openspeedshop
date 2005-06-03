@@ -47,6 +47,7 @@ public:
 
     QPushButton* buttonHelp;
     QPushButton* buttonOk;
+    QPushButton* updateOk;
     QPushButton* buttonCancel;
 
     QLabel* attachHostLabel;
@@ -58,10 +59,15 @@ public:
 
     ProcessListObject *plo;
 
+    void accept();
+
 protected:
     QVBoxLayout* AttachProcessDialogLayout;
     QHBoxLayout* Layout1;
     QSpacerItem* Horizontal_Spacing2;
+
+private slots:
+   void ok_accept();
 
 protected slots:
     virtual void languageChange();

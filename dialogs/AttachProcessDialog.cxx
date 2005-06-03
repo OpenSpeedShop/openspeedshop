@@ -21,6 +21,7 @@
 
 #include "debug.hxx"
 
+#include <qapplication.h>
 #include <qvariant.h>
 #include <qframe.h>
 #include <qpushbutton.h>
@@ -52,7 +53,7 @@ AttachProcessDialog::AttachProcessDialog( QWidget* parent, const char* name, boo
   AttachProcessDialogLayout->addWidget( attachHostComboBox );
 
   availableProcessListView = new QListView( this, "availableProcessListView" );
-  availableProcessListView->addColumn( tr( "Processes belonging to '%s':" ) );
+  availableProcessListView->addColumn( tr( "Processes list:" ) );
   availableProcessListView->setSelectionMode( QListView::Single );
   availableProcessListView->setAllColumnsShowFocus( FALSE );
   availableProcessListView->setShowSortIndicator( FALSE );
@@ -72,6 +73,11 @@ AttachProcessDialog::AttachProcessDialog( QWidget* parent, const char* name, boo
   buttonOk->setDefault( TRUE );
   Layout1->addWidget( buttonOk );
 
+  updateOk = new QPushButton( this, "updateOk" );
+  updateOk->setAutoDefault( TRUE );
+  updateOk->setDefault( TRUE );
+  Layout1->addWidget( updateOk );
+
   buttonCancel = new QPushButton( this, "buttonCancel" );
   buttonCancel->setAutoDefault( TRUE );
   Layout1->addWidget( buttonCancel );
@@ -80,8 +86,11 @@ AttachProcessDialog::AttachProcessDialog( QWidget* parent, const char* name, boo
   resize( QSize(511, 282).expandedTo(minimumSizeHint()) );
   clearWState( WState_Polished );
 
+  attachHostComboBox->setAutoCompletion(TRUE);
+
   // signals and slots connections
-  connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
+  connect( buttonOk, SIGNAL( clicked() ), this, SLOT( ok_accept() ) );
+  connect( updateOk, SIGNAL( clicked() ), this, SLOT( attachHostComboBoxActivated() ) );
   connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
   connect( attachHostComboBox, SIGNAL( activated(const QString &) ), this, SLOT( attachHostComboBoxActivated() ) );
 
@@ -108,14 +117,16 @@ void AttachProcessDialog::languageChange()
   buttonHelp->setAccel( QKeySequence( tr( "F1" ) ) );
   buttonOk->setText( tr( "&OK" ) );
   buttonOk->setAccel( QKeySequence( QString::null ) );
+  updateOk->setText( tr( "&Update" ) );
+  updateOk->setAccel( QKeySequence( QString::null ) );
   buttonCancel->setText( tr( "&Cancel" ) );
   buttonCancel->setAccel( QKeySequence( QString::null ) );
   attachHostLabel->setText( tr("Host:") );
   attachHostComboBox->insertItem( "localhost" );
-  attachHostComboBox->insertItem( "clink.americas.sgi.com" );
-  attachHostComboBox->insertItem( "hope.americas.sgi.com" );
-  attachHostComboBox->insertItem( "hope1.americas.sgi.com" );
-  attachHostComboBox->insertItem( "hope2.americas.sgi.com" );
+//  attachHostComboBox->insertItem( "clink.americas.sgi.com" );
+//  attachHostComboBox->insertItem( "hope.americas.sgi.com" );
+//  attachHostComboBox->insertItem( "hope1.americas.sgi.com" );
+//  attachHostComboBox->insertItem( "hope2.americas.sgi.com" );
 }
 
 QString
@@ -142,6 +153,7 @@ void
 AttachProcessDialog::updateAttachableProcessList()
 {
   char *host = (char *)attachHostComboBox->currentText().ascii();
+// printf("host=(%s)\n", host );
   ProcessEntry *pe = NULL;
   char entry_buffer[1024];
 
@@ -149,13 +161,10 @@ AttachProcessDialog::updateAttachableProcessList()
   {
     delete(plo);
   }
-//  printf("look up processes on host=(%s)\n", host);
+// printf("look up processes on host=(%s)\n", host);
   plo = new ProcessListObject(host);
 
   availableProcessListView->clear();
-  QListViewItem *item_2 = new QListViewItem( availableProcessListView, 0 );
-  item_2->setOpen( TRUE );
-  item_2->setText( 0, tr( "hostname" ) );
 
   ProcessEntryList::Iterator it;
   for( it = plo->processEntryList.begin();
@@ -163,15 +172,27 @@ AttachProcessDialog::updateAttachableProcessList()
        ++it )
   {
     pe = (ProcessEntry *)*it;
-//    printf("%-20s %-10d %-20s\n", pe->host_name, pe->pid, pe->process_name);
+// printf("%-20s %-10d %-20s\n", pe->host_name, pe->pid, pe->process_name);
     sprintf(entry_buffer, "%-20s %-10d %-20s\n", pe->host_name, pe->pid, pe->process_name);
-    QListViewItem *item = new QListViewItem( item_2, 0 );
+    QListViewItem *item = new QListViewItem( availableProcessListView, 0 );
     item->setText( 0, tr(entry_buffer) );
   }
 }
 
 void AttachProcessDialog::attachHostComboBoxActivated()
 {
-//  printf("attachHostComboBoxActivated\n");
+// printf("attachHostComboBoxActivated\n");
+// attachHostComboBox->insertItem( attachHostComboBox->currentText() );
     updateAttachableProcessList();
+}
+
+void AttachProcessDialog::accept()
+{
+// printf("AttachProcessDialog::accept() called.\n");
+}
+
+void AttachProcessDialog::ok_accept()
+{
+// printf("AttachProcessDialog::ok_accept() called.\n");
+  QDialog::accept();
 }
