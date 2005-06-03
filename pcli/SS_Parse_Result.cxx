@@ -335,12 +335,7 @@ dumpHelp(CommandObject *cmd)
     	czar.Find_By_Keyword(name.c_str(), &element);
     
     	if (element.begin() == element.end()) {
-#if 1
-    	    cout << "No help for " << name.c_str() << endl;
-	    cmd->Result_String (*j);
-#else
-    	    cmd->Result_String() << "No help for " << name.c_str();
-#endif
+	    cmd->Result_String( "No help for " + name);
     	}
 
     	vector <SS_Message_Element*>:: iterator k;
@@ -348,16 +343,11 @@ dumpHelp(CommandObject *cmd)
     	    k != element.end();
 	    ++k) {
 	    SS_Message_Element *p_el = *k;
-	    vector <string> :: iterator j;
 	    vector<string> *p_string = p_el->get_normal_list();
-    	    for (j=p_string->begin();
-    	     	j!= p_string->end();
-	     	++j) {
-#if 1
-		cmd->Result_String (*j);
-#else
-	    	cout << *j << endl;
-#endif
+    	    for (vector <string> :: iterator i=p_string->begin();
+    	     	 i!= p_string->end();
+	     	 ++i) {
+		cmd->Result_String (*i);
 	    }
     	}
     }
@@ -616,14 +606,8 @@ push_help(char *name)
     if (name[len] == '>')
     	len--;
     for (k=0;i<len;++i,++k) {
-    	
-#if 1
     	tname[k] = name[i];
-#else
-    	tname[k] = tolower(name[i]);
-#endif
     }
-    cout << tname << endl;
     tname[k] = '\0';
       
     dm_help_set = true;
