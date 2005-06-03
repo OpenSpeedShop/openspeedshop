@@ -711,7 +711,7 @@ param_list:  	    param
 param:	    	    expType COLON COLON param_name EQUAL NUMBER
 		     {p_parse_result->pushParm($1,$4,$6);}
     	    	|   expType COLON COLON param_name EQUAL NAME
-		     {p_parse_result->pushParm($1,$4,$6);printf("expType=%s\n",$1);}
+		     {p_parse_result->pushParm($1,$4,$6); /* printf("expType=%s\n",$1); */}
     	    	|   param_name EQUAL NUMBER
 		     {p_parse_result->pushParm(NULL,$1,$3);}
     	    	|   param_name EQUAL NAME
