@@ -85,5 +85,16 @@ pcli_load_messages()
 	++i;
     }
     
+    // Load general help messages.
+    // Table ends when topic is NULL.
+    i = 0;
+    while (general_msg[i].topic != NULL) {
+    	SS_Message_Element element;
+	
+	element.set_element(&general_msg[i]);
+	czar.Add_Help(element);
+	++i;
+    }
+    
 }
 
