@@ -106,17 +106,19 @@ bool Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, int butn
   Assert (my_window);
 
   bool read_stdin_file = (stdin && !isatty(fileno(stdin)));
+
+ // Translate the command line arguments into an "expCreate command".
+  Input_Command_Args ( my_window, argc, argv, butnotarg);
+
+ // After executing an expCreate command, read any piped-in file.
   if (read_stdin_file) {
    // Read a piped-in file.
-    if ( !Push_Input_File (my_window, std::string("stdin"),
+    if ( !Append_Input_File (my_window, std::string("stdin"),
                            &Default_TLI_Line_Output, &Default_TLI_Command_Output) ) {
       fprintf(stderr,"ERROR: Unable to read piped in stdin file\n");
       return false;
     }
   }
-
- // Translate the command line arguments into an "expCreate command".
-  Input_Command_Args ( my_window, argc, argv, butnotarg);
 
  // If there is no input file and in "-batch" mode, end with an "expGo" command.
  // Otherwise, assume the input file will control execution.
