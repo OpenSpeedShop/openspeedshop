@@ -21,6 +21,11 @@ extern "C" void loadTheGUI(ArgStruct *);
 
 char *Current_OpenSpeedShop_Prompt = "openss>>";
 char *Alternate_Current_OpenSpeedShop_Prompt = "....ss>";
+
+int64_t History_Limit = DEFAULT_HISTORY_BUFFER;
+int64_t History_Count = 0;
+std::list<std::string> History;
+
 static FILE *ttyin = NULL;  // Read directly from this xterm window.
 static FILE *ttyout = NULL; // Write directly to this xterm window.
 
@@ -960,49 +965,42 @@ static bool Read_Log_File_History (CommandObject *cmd, enum Log_Entry_Type log_t
 bool Command_History (CommandObject *cmd, enum Log_Entry_Type log_type,
                       CMDWID cmdwinid, std::string tofname)
 {
-  bool cmd_good = true;
   FILE *tof = predefined_filename( tofname );
   bool tof_predefined = (tof != NULL);
   if (tof == NULL) {
     if (tofname.length() != 0) {
       tof = fopen (tofname.c_str(), "a");
-    }
-    if (tof == NULL) {
-      cmd->Result_String ("Could not open output file " + tofname);
-      return false;
+      if (tof == NULL) {
+        cmd->Result_String ("Could not open output file " + tofname);
+        return false;
+      }
     }
   }
-  if (isatty(fileno(tof))) {
+  if ((tof != NULL) &&
+      isatty(fileno(tof))) {
    // If printing to the Xterm window, return data through the CommandObject.
     tof = NULL;
   }
 
-  std::list<CommandWindowID *>::reverse_iterator cwi;
-  for (cwi = CommandWindowID_list.rbegin(); cwi != CommandWindowID_list.rend(); cwi++)
-  {
-    if ((cmdwinid == 0) ||
-        (cmdwinid == (*cwi)->ID ())) {
-      std::string cmwtrn = (*cwi)->Log_Name();
-      FILE *cmwtrf = (*cwi)->Log_File();
-      if (!cmwtrf) {
-        cmd->Result_String ("Missing history file " + cmwtrn);
-        cmd_good = false;
-      } else if (fflush (cmwtrf)) {
-        cmd->Result_String ("Could not flush log file " + cmwtrn);
-        cmd_good = false;
-      } else if (!Read_Log_File_History (cmd, log_type, cmwtrn, tof)) {
-        cmd->Result_String ("Could not flush log file " + cmwtrn);
-        cmd_good = false;
+  std::list<std::string>::iterator hi;
+  for (hi = History.begin(); hi != History.end(); ) {
+    std::string S = *hi;
+    if (++hi != History.end()) {
+      if (tof == NULL) {
+        cmd->Result_String (S);
+      } else {
+        fprintf(tof,"%s",S.c_str());
       }
     }
   }
+
   if (tof != NULL) {
     fflush(tof);
     if (!tof_predefined) {
       fclose (tof);
     }
   }
-  return cmd_good;
+  return true;
 }
 
 // Set up an alternative log file at user request.
@@ -1059,6 +1057,10 @@ void Commander_Initialization () {
   ss_out = new out_ostream ();
   ss_ttyout = NULL;
 
+ // Set up History Buffer.
+  History_Limit = DEFAULT_HISTORY_BUFFER;
+  History_Count = 0;
+  History.empty();
 }
 
 CMDWID Default_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async)
@@ -1552,6 +1554,14 @@ read_another_window:
   clip->SetStatus (ILO_IN_PARSER);
  // Mark nested commands
   if (is_more)   clip-> Set_Complex_Exp ();
+
+ // Add command to the history file.
+  History.push_back(clip->Command());
+  History_Count++;
+  if (History_Count > History_Limit) {
+    (void) History.pop_front();
+    History_Count--;
+  }
 
  // Track it until completion
   cw->TrackCmd(clip);
