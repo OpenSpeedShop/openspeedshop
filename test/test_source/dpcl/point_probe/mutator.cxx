@@ -3,6 +3,15 @@
 #include <stdlib.h>
 #include <string.h>
 
+//
+// Maximum length of a host name. According to the Linux manual page for the
+// gethostname() function, this should be available in a header somewhere. But
+// it isn't found on all systems, so define it directly if necessary.
+//
+#ifndef HOST_NAME_MAX
+#define HOST_NAME_MAX (256)
+#endif
+
 static int Count = 0;
 static int Count_requested = 0;
 
@@ -44,7 +53,13 @@ int main(int argc, char* argv[])
 
 #if (1)
 //        Ais_blog_on("hope2.americas.sgi.com", LGL_detail, LGD_daemon, 0,0);
-        Ais_blog_on("localhost", LGL_detail, LGD_daemon, 0,0);
+//        Ais_blog_on("localhost", LGL_detail, LGD_daemon, 0,0);
+    // Obtain the local host name from the operating system
+    char namebuffer[HOST_NAME_MAX];
+    assert(gethostname(namebuffer, sizeof(namebuffer)) == 0);
+//    printf("blog got namebuffer=%s\n", namebuffer);
+    Ais_blog_on(namebuffer, LGL_detail, LGD_daemon, 0,0);
+
 #endif
 
     

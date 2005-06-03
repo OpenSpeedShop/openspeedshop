@@ -1,2 +1,3 @@
 #! /bin/tcsh
-./mutator 301 hope2.americas.sgi.com $cwd/mutatee 301
+echo $HOSTNAME
+./mutator 301 "$HOSTNAME" $cwd/mutatee 301
