@@ -108,6 +108,11 @@ InputLineObject *Append_Input_String (CMDWID issuedbywindow, char *b_ptr,
                                       void (*CallBackLine) (InputLineObject *b) = NULL,
                                       void (*CallBackCmd) (CommandObject *b) = NULL);
 
+// Attach a new input source that will be read AFTER all the previous ones
+bool Append_Input_File (CMDWID issuedbywindow, std::string fromfname,
+                                      void (*CallBackLine) (InputLineObject *b) = NULL,
+                                      void (*CallBackCmd) (CommandObject *b) = NULL);
+
 // Attach a new input source that will be read BEFORE all the previous ones
 bool Push_Input_File (CMDWID issuedbywindow, std::string fromfname,
                                       void (*CallBackLine) (InputLineObject *b) = NULL,
