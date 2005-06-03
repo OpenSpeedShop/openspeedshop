@@ -77,13 +77,27 @@ bool CommandObject::Print_Results (ostream &to, std::string list_seperator, std:
   std::list<CommandResult *>::iterator cri = cmd_result.begin();
   if  (cri != cmd_result.end()) {
     if (((*cri)->Type() == CMD_RESULT_COLUMN_HEADER) ||
-         (++cri != cmd_result.end())) to << std::endl;
-    int cnt = 0;
-    for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++) {
-      if (cnt++ > 0) to << list_seperator;
-      (*cri)->Print (to, 20, true);
+         (++cri != cmd_result.end())) {
+      to << std::endl;
     }
-    to << termination_char;
+    bool list_seperator_needed = false;
+    for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++) {
+      if (list_seperator_needed) to << list_seperator;
+      (*cri)->Print (to, 20, true);
+
+      list_seperator_needed = true;
+      if ((*cri)->Type() == CMD_RESULT_STRING) {
+        std::string S;
+        ((CommandResult_String *)(*cri))->Value(S);
+        if (S.substr(S.length()-1,1) == list_seperator) {
+          list_seperator_needed = false;
+        }
+      }
+    }
+    if (list_seperator_needed ||
+        (list_seperator != termination_char)) {
+      to << termination_char;
+    }
     return true;
   } else {
     return false;
