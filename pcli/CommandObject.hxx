@@ -221,11 +221,18 @@ class CommandResult_String : public CommandResult {
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
     if (leftjustified) {
      // Left justification is only done on the last column of a report.
-     // Don't truncate the string if bigger than field size.
+     // Don't truncate the string if it is bigger than the field size.
      // This is done to make sure everything gets printed.
      // But make sure we fill the field.
+
       to << string_value;
-      for (int i = string_value.length(); i < fieldsize; i++) to << " ";
+
+     // If there is unused space in the field, pad with blanks.
+      if ((string_value.length() < fieldsize) &&
+          (string_value[string_value.length()-1] != *("\n"))) {
+        for (int64_t i = string_value.length(); i < fieldsize; i++) to << " ";
+      }
+
     } else {
      // Right justify the string in the field.
      // Don't let it exceed the size of the field.
