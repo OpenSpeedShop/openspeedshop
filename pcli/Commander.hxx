@@ -86,6 +86,12 @@ inline void SS_Issue_Prompt (FILE *TFile) {
   fflush(TFile);
 }
 
+// History Buffers
+#define DEFAULT_HISTORY_BUFFER 100
+extern int64_t History_Limit;
+extern int64_t History_Count;
+extern std::list<std::string> History;
+
 // Selection of items in the log file are controlled throught his enum.
 // Except for raw data dumps, the record identifier is stripped from output.
 enum Log_Entry_Type
