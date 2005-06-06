@@ -16,19 +16,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-bin_PROGRAMS = tool mutatee
-
-tool_CXXFLAGS = \
-	-I$(top_srcdir)/libopenss-framework
-
-tool_LDFLAGS = \
-	-L$(top_srcdir)/libopenss-framework
-
-tool_LDADD = \
-	-lopenss-framework
-
-tool_SOURCES = \
-	tool.cxx
+bin_PROGRAMS = mutatee
 
 mutatee_CFLAGS = \
 	-g -gdwarf-2
