@@ -533,17 +533,6 @@ class CLI(code.InteractiveConsole):
     #
     ##################################################################
     o_ss_reserved = { \
-        "vtopn"         : "viewtype:top_n",
-        "vexcltime"     : "viewtype:exclusive_time",
-        "vio"           : "viewtype:io_time",
-        "vfpe"          : "viewtype:floatingpoint_exceptions",
-        "vhwc"          : "viewtype:hardware_counters",
-        "pcsamp"        : "exp_type:pc_sampling",
-        "usertime"      : "exp_type:user_time",
-        "mpi"           : "exp_type:mpi",
-        "fpe"           : "exp_type:floating_point_exceptions",
-        "hwc"           : "exp_type:hardware_counters",
-        "io"            : "exp_type:input_output",
 	"all"	    	: "gen_type:all",
 	"copy"	    	: "gen_type:copy",
 	"-mpi"     	: "gen_type:mip",
