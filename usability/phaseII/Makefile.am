@@ -1,4 +1,4 @@
-noinst_PROGRAMS = fred fredO2
+noinst_PROGRAMS = fred fredO2 forever
 
 fred_CFLAGS = \
 	-g -gdwarf-2
@@ -25,3 +25,12 @@ fredO2_SOURCES = \
 	f3.c \
 	work.c \
 	fred.c
+
+forever_CFLAGS = \
+	-g -gdwarf-2
+
+forever_LDADD = \
+	-ldl
+
+forever_SOURCES = \
+	forever.c

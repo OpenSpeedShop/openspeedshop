@@ -13,8 +13,12 @@ int main(int argc, char* argv[])
     {
       size = atoi(argv[1]);
     }
+
+    MPI_Init(&argc,&argv);
     
     work(size);
+
+    MPI_Finalize();
 
     printf("%s: succesfully competed.\n", argv[0]);
 }
