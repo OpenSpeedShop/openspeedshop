@@ -615,7 +615,7 @@ ManageCollectorsClass::attachProcessSelected()
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
     command = QString("expAttach -x %1 -p %2 -h %3\n").arg(expID).arg(pid_name).arg(host_name); 
-printf("command=(%s)\n", command.ascii() );
+// printf("command=(%s)\n", command.ascii() );
 
     steps = 0;
     pd = new GenericProgressDialog(this, "Loading process...", TRUE);
