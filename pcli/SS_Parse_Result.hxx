@@ -381,6 +381,11 @@ class ParseResult {
 	bool syntax_error( ) { return dm_error_set;}
     	vector<ParseRange> * getErrorList() {return &dm_error_list;}
 
+    	/** Handle list of expMetrics. */
+    	void pushExpMetric(char * name1, char * name2);
+    	void pushExpMetric(char * name);
+    	vector<ParseRange> * getexpMetricList() {return &dm_exp_metric_list;}
+
     	/** Handle list of break ids. */
     	vector<int> * getBreakList(){return &dm_break_id_list;}
 
@@ -495,6 +500,8 @@ class ParseResult {
     	vector<ParseParam> dm_param_list;
     	/** Container of syntax error symbols */
     	vector<ParseRange> dm_error_list;
+    	/** Container of expMetric tuples */
+    	vector<ParseRange> dm_exp_metric_list;
 
     	/** Container of host/file/rpt as class HostFileRPT */
     	vector<ParseTarget> dm_target_list;

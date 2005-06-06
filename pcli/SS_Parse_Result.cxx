@@ -426,6 +426,9 @@ dumpInfo()
     // Address list.
     s_dumpRange(this->getAddressList(), "ADDRESSES",true /* is_hex */);
 
+    // Metric list.
+    s_dumpRange(this->getexpMetricList(), "METRICS",false /* is_hex */);
+
     // Param list.
     s_dumpParam(this->getParmList(), "PARAMS");
 
@@ -655,6 +658,46 @@ set_error(char * name)
 
     dm_error_set = true;
     dm_error_list.push_back(range);
+
+    return ;
+}
+ 
+/**
+ * Method: ParseResult::pushExpMetric(char * name1, char * name2)
+ * 
+ *     
+ * @return  void.
+ *
+ * @todo    Error handling.
+ *
+ */
+void
+ParseResult::
+pushExpMetric(char * name1, char * name2)
+{
+    ParseRange range(name1,name2);
+
+    dm_exp_metric_list.push_back(range);
+
+    return ;
+}
+ 
+/**
+ * Method: ParseResult::pushExpMetric(char * name)
+ * 
+ *     
+ * @return  void.
+ *
+ * @todo    Error handling.
+ *
+ */
+void
+ParseResult::
+pushExpMetric(char * name)
+{
+    ParseRange range(name);
+
+   dm_exp_metric_list.push_back(range);
 
     return ;
 }
