@@ -1,5 +1,21 @@
 #!/usr/bin/env python
-
+#
+#Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+# Place, Suite 330, Boston, MA  02111-1307  USA
+#
 from sys import *
 import sys
 import os
@@ -80,14 +96,18 @@ def CompareResults(testName, fileptr):
 			break
 #		print " outputfileline=%s" %  outputfileline
 #	        print " expectedfileline=%s" %  expectedfileline
-                if (expectedfileline == expectedfileline):
-                        passing_ratio = 1
-#			print "says the lines are equal passing_ratio=%d\n" % passing_ratio 
-                else:
-			passing_ratio = 0
-#			print "says the lines are NOT equal passing_ratio=%d\n" % passing_ratio 
-			failure_reason = 1
-			break
+		j = 0
+# For this loop - assume passing until proven unequal
+		passing_ratio = 1
+		while (expectedfileline[j] != '\n') and (outputfileline[j] != '\n'):
+			if expectedfileline[j] == outputfileline[j]:
+				j = j + 1
+			else:
+#				print "expectedfileline[j]=%c\n" % expectedfileline[j]
+#				print "outputfileline[j]=%c\n" % outputfileline[j]
+				passing_ratio = 0
+				failure_reason = 1
+				break
 
 #	print "passing_ratio=%d\n" % passing_ratio 
 
