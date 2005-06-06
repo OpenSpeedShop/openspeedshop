@@ -154,9 +154,8 @@ CmdPanel::returnPressed()
   {
     QString command = (QString) *ci;
     nprintf(DEBUG_PANELS) ("Send down (%s)\n", command.ascii());
-int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
-printf("wid=%d\n", wid);
-Redirect_Window_Output( wid, oclass, oclass );
+    int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
+    Redirect_Window_Output( wid, oclass, oclass );
 
     InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii());
 
