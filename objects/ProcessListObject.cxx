@@ -174,12 +174,14 @@ nprintf( DEBUG_PANELS ) ("pid_field_name_column = %d command_field_name_column =
     } else if( pid_field_name_column == line_column_count )
     {
       pid_field_start = current_field_start;
+pid_field_start--;
       char *ptr = first_line+current_field_start;
       while ( *ptr && *ptr != ' ')
       {
         ptr++;
       }
       pid_field_length = ptr - (first_line-pid_field_start);
+// printf("pid_field_start=%d pid_field_length=%d\n", pid_field_start, pid_field_length);
     } else if( command_field_name_column == line_column_count )
     {
       command_field_start = current_field_start-1;
