@@ -1888,13 +1888,50 @@ bool SS_History (CommandObject *cmd) {
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
   bool R = true;;
   parse_val_t *f_val = Get_Simple_File_Name (cmd);
+  std::string tofname = (f_val != NULL) ? f_val->name : std::string("");
+  ss_ostream *to_ostream = Predefined_ostream (tofname);
+  FILE *tof = NULL;
 
- // Default action with no arguments: Dump the history file.
-  R = Command_History (cmd, CMDW_TRACE_ORIGINAL_COMMANDS, WindowID,
-                       (f_val != NULL) ? f_val->name : std::string(""));
+ // Determine where to sent output.
+  if (to_ostream == NULL) {
+    if (tofname.length() != 0) {
+     // The user specified a name - use it!
+      tof = fopen (tofname.c_str(), "a");
+      if (tof == NULL) {
+        cmd->Result_String ("Could not open output file " + tofname);
+        cmd->set_Status(CMD_ERROR);
+        return false;
+      }
+    } else {
+     // No file specified - direct output to window that issued the command.
+     // This is accomplished by attaching the strings to cmd.
+    }
+  }
 
-  cmd->set_Status( R ? CMD_COMPLETE : CMD_ERROR);
-  return R;
+ // Copy commands from the history list.
+ // Skip the last one because it is this "history" command.
+  std::list<std::string>::iterator hi;
+  for (hi = History.begin(); hi != History.end(); ) {
+    std::string S = *hi;
+    if (++hi != History.end()) {
+      if (to_ostream != NULL) {
+        to_ostream->mystream() << S;
+      } else if (tof != NULL) {
+        fprintf(tof,"%s",S.c_str());
+      } else {
+       // Attach result to CommandObject.
+        cmd->Result_String (S);
+      }
+    }
+  }
+
+  if (tof != NULL) {
+    fflush(tof);
+    fclose (tof);
+  }
+
+  cmd->set_Status(CMD_COMPLETE);
+  return true;
 }
 
 bool SS_Log (CommandObject *cmd) {
