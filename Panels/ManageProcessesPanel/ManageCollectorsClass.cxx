@@ -678,11 +678,11 @@ ManageCollectorsClass::loadProgramSelected()
       QMessageBox::information( this, tr("Error issuing command to cli:"), tr("Unable to run %1 command.").arg(command), QMessageBox::Ok );
   //    return;
   
-      loadTimer->stop();
-      pd->hide();
-
     }
-    delete(pd);
+    loadTimer->stop();
+    pd->hide();
+
+//    delete(pd);
 
     // Send out a message to all those that might care about this change request
     ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);

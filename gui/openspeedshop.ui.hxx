@@ -929,7 +929,7 @@ void OpenSpeedshop::loadNewProgram()
 {
 // all load programs requests come through here!
   QString dirName = QString::null;
-printf("OpenSpeedshop::loadNewProgram()\n");
+// printf("OpenSpeedshop::loadNewProgram()\n");
   if( lfd == NULL )
   {
     lfd = new AttachProgramDialog(this, "file dialog", TRUE );
