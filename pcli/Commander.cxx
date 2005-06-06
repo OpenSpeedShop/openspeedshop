@@ -961,48 +961,6 @@ static bool Read_Log_File_History (CommandObject *cmd, enum Log_Entry_Type log_t
   return true;
 }
 
-// Read the log files and echo selected entries to another file.
-bool Command_History (CommandObject *cmd, enum Log_Entry_Type log_type,
-                      CMDWID cmdwinid, std::string tofname)
-{
-  FILE *tof = predefined_filename( tofname );
-  bool tof_predefined = (tof != NULL);
-  if (tof == NULL) {
-    if (tofname.length() != 0) {
-      tof = fopen (tofname.c_str(), "a");
-      if (tof == NULL) {
-        cmd->Result_String ("Could not open output file " + tofname);
-        return false;
-      }
-    }
-  }
-  if ((tof != NULL) &&
-      isatty(fileno(tof))) {
-   // If printing to the Xterm window, return data through the CommandObject.
-    tof = NULL;
-  }
-
-  std::list<std::string>::iterator hi;
-  for (hi = History.begin(); hi != History.end(); ) {
-    std::string S = *hi;
-    if (++hi != History.end()) {
-      if (tof == NULL) {
-        cmd->Result_String (S);
-      } else {
-        fprintf(tof,"%s",S.c_str());
-      }
-    }
-  }
-
-  if (tof != NULL) {
-    fflush(tof);
-    if (!tof_predefined) {
-      fclose (tof);
-    }
-  }
-  return true;
-}
-
 // Set up an alternative log file at user request.
 bool Command_Log_ON (CMDWID WindowID, std::string tofname)
 {
@@ -1183,6 +1141,26 @@ void Redirect_Window_Output (CMDWID for_window, ss_ostream *for_out, ss_ostream 
   }
 }
 
+ss_ostream *Predefined_ostream (std::string oname)
+{
+  if (oname.length() == 0) {
+    return NULL;
+  } if (oname == "stdout") {
+    return ss_out;
+  } else if (oname == "stderr") {
+    return ss_err;
+  } else if (oname == "/dev/tty") {
+    return ss_ttyout;
+  } else {
+    return NULL;
+  }
+}
+
+ss_ostream *Window_ostream (CMDWID for_window) {
+  CommandWindowID *cw = Find_Command_Window (for_window);
+  return (cw != NULL) ? cw->ss_outstream() : NULL;
+}
+
 
 static bool Isa_SS_Command (CMDWID issuedbywindow, const char *b_ptr) {
   int fc;
@@ -1312,10 +1290,15 @@ bool Push_Input_File (CMDWID issuedbywindow, std::string fromfname,
 }
 
 void Default_TLI_Line_Output (InputLineObject *clip) {
+ // Make sure all the output, associated with every CommandObject, has been printed.
   if (!(clip->Results_Used())) {
-   // The individual CommandObject's have been marked as "Results_Used"
-   // by the time this function is caled.  Since there is no additional
-   // output to produce, this line is also complete.
+    std::list<CommandObject *> cmd_list = clip->CmdObj_List();
+    std::list<CommandObject *>::iterator cmi;
+    for (cmi = cmd_list.begin(); cmi != cmd_list.end(); cmi++) {
+      if (!(*cmi)->Results_Used ()) {
+        Default_TLI_Command_Output (*cmi);
+      }
+    }
     clip->Set_Results_Used();
   }
 }
