@@ -40,6 +40,9 @@ class PanelContainer;   // Do not remove
 
 typedef QValueList<QString> CmdHistoryList;
 
+class OutputClass;
+
+
 //! The command panel that fields input from the user.
 class CmdPanel  : public Panel
 {
@@ -51,7 +54,8 @@ public:
   void upKey();
   void downKey();
 
-void positionToEndForReturn();
+  void positionToEndForReturn();
+  OutputClass *oclass;
 
 #ifdef PULL
   void clicked(int, int);
@@ -63,12 +67,12 @@ protected slots:
   void textChanged();
   void returnPressed();
 
+
 protected:
 
 
 private:
   QHBoxLayout * frameLayout;
-  QTextEdit *output;
   int last_para;   // The from portion of the last cursor position.
   int last_index;  // The from portion of the last cursor position.
 

@@ -36,6 +36,22 @@ QString prompt = QString::null;
 
   This is prototype code to show proof of concept.
   */
+static  QTextEdit *output;
+
+class OutputClass : public ss_ostream
+{
+   private:
+    virtual void output_string (std::string s) {
+// This goes to the text stream...
+// fprintf(stderr,"A: %s",s.c_str());
+      output->append(s.c_str());
+    }
+    virtual void flush_ostream () {
+// This flushes the text stream...
+//      fflush(stderr);
+      qApp->flushX();
+    }
+};
 
 CmdPanel::CmdPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
 {
@@ -72,6 +88,9 @@ CmdPanel::CmdPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc
   output->installEventFilter( keyEventFilter );
 
   cmdHistoryListIterator = cmdHistoryList.begin();
+
+// int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
+oclass = new OutputClass();
 }
 
 
@@ -135,7 +154,10 @@ CmdPanel::returnPressed()
   {
     QString command = (QString) *ci;
     nprintf(DEBUG_PANELS) ("Send down (%s)\n", command.ascii());
-    int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
+int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
+printf("wid=%d\n", wid);
+Redirect_Window_Output( wid, oclass, oclass );
+
     InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii());
 
     // Push the command onto the history list.
@@ -188,6 +210,8 @@ CmdPanel::returnPressed()
         break;
        }
     }
+
+#ifdef OLDWAY
     // This in only a cludge for now!!! FIX
     if( clip && status == ILO_COMPLETE )
     {
@@ -214,6 +238,16 @@ CmdPanel::returnPressed()
       }
       unlink(fname);
     }
+#else //OLDWAY
+    Default_TLI_Line_Output(clip);
+
+    output->moveCursor(QTextEdit::MoveEnd, FALSE);
+    output->getCursorPosition(&history_start_para, &history_start_index);
+    history_start_index = prompt.length();
+    output->moveCursor(QTextEdit::MoveEnd, FALSE);
+    output->getCursorPosition(&last_para, &last_index);
+#endif //OLDWAY
+
   } 
   textDisabled = FALSE;
 
