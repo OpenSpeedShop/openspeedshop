@@ -65,13 +65,17 @@ class ss_ostream; // defined in SS_Output.hxx
 void Commander_Initialization ();
 void Commander_Termination ();
 
-// Command WIndows provide a way to get textual commands into the OpendSpeedShop tool.
+// Command Windows provide a way to get textual commands into the OpendSpeedShop tool.
 CMDWID Default_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
 CMDWID TLI_Window     (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
 CMDWID GUI_Window     (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
 CMDWID RLI_Window     (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
 void   Window_Termination (CMDWID my_window);
+
+// ss_ostreams provide a way to get textual output to the proper window.
 void   Redirect_Window_Output (CMDWID for_window, ss_ostream *for_out, ss_ostream *for_err);
+ss_ostream *Predefined_ostream (std::string oname);
+ss_ostream *Window_ostream (CMDWID for_window);
 
 void Default_TLI_Line_Output (InputLineObject *clip);
 void Default_TLI_Command_Output (CommandObject *C);
@@ -125,8 +129,6 @@ bool Push_Input_File (CMDWID issuedbywindow, std::string fromfname,
                                       void (*CallBackCmd) (CommandObject *b) = NULL);
 
 // Manipulate tracing options
-bool Command_History (CommandObject *cmd, enum Log_Entry_Type log_type,
-                      CMDWID cmdwinid, std::string tofname);
 bool Command_Record_OFF (CMDWID WindowID);
 bool Command_Record_ON (CMDWID WindowID, std::string tofname);
 bool Command_Log_OFF (CMDWID WindowID);
