@@ -140,7 +140,7 @@ extern "C"
       sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, sortDecendingCheckBox->name() );
       sortDecendingCheckBox->setChecked(
-        settings->readBoolEntry(settings_buffer) );
+        settings->readBoolEntry(settings_buffer, TRUE) );
 
       sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, showTopNLineEdit->name() );
