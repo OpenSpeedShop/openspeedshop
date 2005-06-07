@@ -1047,7 +1047,7 @@ OpenSpeedshop::progressUpdate()
 int
 OpenSpeedshop::lookForExperiment()
 {
-  printf("The user may have loaded an experiment... as there was something on the command line.\n");
+//  printf("The user may have loaded an experiment... as there was something on the command line.\n");
 
   QString command;
   std::list<int64_t> int_list;
