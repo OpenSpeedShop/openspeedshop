@@ -21,7 +21,9 @@ Place, Suite 330, Boston, MA  02111-1307  USA
 #include <unistd.h>
 
 void mysleep() {
+/*  avoid compare output failures by commenting this out
 	printf("I am sleeping\n");
+*/
 }
 int main(int argc, char* argv[])
 {

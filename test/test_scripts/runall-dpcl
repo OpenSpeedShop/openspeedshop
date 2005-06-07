@@ -37,13 +37,13 @@ to_addr = ''
 def whatKindofDirectory():
 
 	typeofdir = ''
-#	checkforrununit = os.path.isfile('rununit')
-#	if checkforrununit:
-#		typeofdir = unit_leaf
-#	else:
-	checkforrunone = os.path.isfile('runone-dpcl')
-	if checkforrunone:
-		typeofdir = reg_leaf
+	checkforrununit = os.path.isfile('rununit')
+	if checkforrununit:
+		typeofdir = unit_leaf
+	else:
+		checkforrunone = os.path.isfile('runone-dpcl')
+		if checkforrunone:
+			typeofdir = reg_leaf
        	if ((typeofdir != reg_leaf) and (typeofdir != unit_leaf)):
 		typeofdir = not_leaf
 
@@ -51,8 +51,7 @@ def whatKindofDirectory():
 
 def createDirectoryList():
 
-#	os.system('ls -1 >> dirlist')
-	os.system('ls -F | grep "/" >> dirlist')
+	os.system('ls -1 >> dirlist')
 	
 
 def getResultFileFromDir(directoryName):
@@ -62,16 +61,10 @@ def getResultFileFromDir(directoryName):
 	
 	if checkForMarker:
 		os.system('pwd')	
-	        print "in getResultFileFromDir, 'testresultsfilename'=%s\n" % 'testresultsfilename'
-		tmp_resultsfilenameinput = open('tmp_testresultsfilename', 'wr')
-	        os.system('ls -Fr | grep testresults >> tmp_resultsfilenameinput')
-		tmp_resultsfilenameinput = open('tmp_testresultsfilename', 'r')
-		tmp_resultsFileName = tmp_resultsfilenameinput.readline()
-	        print "in getResultFileFromDir, tmp_resultsFileName=%s\n" % tmp_resultsFileName
-#jeg		resultsfilenameinput = open('testresultsfilename', 'r')
-#jeg		resultsFileName = resultsfilenameinput.readline()
+		resultsfilenameinput = open('testresultsfilename', 'r')
+		resultsFileName = resultsfilenameinput.readline()
 		os.chdir('..')
-		os.system('more '+ directoryName+'/'+tmp_resultsFileName+' >> ' + testResultsFile)
+		os.system('more '+ directoryName+'/'+resultsFileName+' >> ' + testResultsFile)
 	
 		os.chdir(directoryName)
 
@@ -174,7 +167,7 @@ if __name__ == '__main__':
 	
 		createDirectoryList()
 		dirListInput = open('dirlist', 'r')
-		resultsOutput = open(resultsFile, 'w')
+		#resultsOutput = open(resultsFile, 'w')
 		    
 
 		while 1:
@@ -199,7 +192,7 @@ if __name__ == '__main__':
 				
 			       	if checkIfDir:
 			       		os.chdir(dirName)
-			       		os.system('./runone-dpcl')
+			       		os.system('./runall-dpcl')
 					getResultFileFromDir(dirName)
 					#os.remove('inthisdirectory')
 					#os.remove('testresultsfilename')

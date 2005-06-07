@@ -31,9 +31,9 @@ def createTestList():
 	os.system('ls -1 *.tst >> temptestlist')
 
 def runTest(testName):
-	#checkinput = os.system('test -e input.script')
-	#if checkinput == 0:
-	#	os.system('rm -f input.script')
+	checkinput = os.system('test -e input.script')
+	if checkinput == 0:
+		os.system('rm -f input.script')
 	#test_input = open(testName, 'r')
 	#testCommand = test_input.readline()
 	#linesToCompare = test_input.readline()
@@ -134,6 +134,8 @@ if __name__ == '__main__':
 	currTime = strftime("%d_%m_%Y_%H%M%S", localtime())
         resultsFile =  'testresults_' + currTime
         resultfileptr = open(resultsFile, 'w')
+	tempfileptr = open('testresultsfilename', 'w')
+	tempfileptr.write(resultsFile)
 
 	createTestList()
 	iterateThroughTestList(resultfileptr)
