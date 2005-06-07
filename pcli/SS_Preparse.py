@@ -556,6 +556,7 @@ class CLI(code.InteractiveConsole):
     ##################################################################
     o_ss_str_subopts = { \
         "-h"             : "suboption:host_list",
+        "-m"             : "suboption:metric_list",
         "-c"             : "suboption:cluster_list",
         "-f"             : "suboption:file_list", \
         }

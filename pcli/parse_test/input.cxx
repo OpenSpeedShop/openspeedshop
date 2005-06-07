@@ -239,13 +239,13 @@ arglist_t view_arg[VIEW_MAX] = {
 char *metric_list[] = {
     NULL,
     "pcsamp::view1",
-    "pcsamp::view1,pcsamp::view2,exptype2::view2",
+    "pcsamp::view1,exptype2,exptype2::view2",
     "exptype3"
 };
 
 #define METRIC_MAX 1
 arglist_t metric_arg[METRIC_MAX] = {
-    4,metric_list,NULL
+    4,metric_list,"-m"
 };
 
 //*************************************************************
@@ -669,7 +669,7 @@ main()
     	    	0,EXPID_MAX,exp_id_arg,NULL,
     	    	0,GUI_MAX,gui_arg,NULL,
     	    	1,VIEW_MAX,view_arg,NULL,
-    	    	0,METRIC_MAX,metric_arg,"()",
+    	    	0,METRIC_MAX,metric_arg,NULL,
     	    	0,TARGET_MAX,target_arg,NULL
     	    	);
 

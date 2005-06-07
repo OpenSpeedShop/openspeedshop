@@ -299,22 +299,22 @@ exp_view_arg:	    viewType
      	    	|   file_spec viewType
      	    	|   GUI viewType {p_parse_result->push_modifiers(general_name[H_GEN_GUI]);}
 
-    	    	|   viewType expMetric_bounded
-    	    	|   expId_spec viewType expMetric_bounded
-     	    	|   expId_spec file_spec viewType expMetric_bounded
-     	    	|   expId_spec GUI viewType expMetric_bounded 
+    	    	|   viewType expMetric_list_spec
+    	    	|   expId_spec viewType expMetric_list_spec
+     	    	|   expId_spec file_spec viewType expMetric_list_spec
+     	    	|   expId_spec GUI viewType expMetric_list_spec 
 		    	{p_parse_result->push_modifiers(general_name[H_GEN_GUI]);}
-     	    	|   file_spec viewType expMetric_bounded
-     	    	|   GUI viewType expMetric_bounded 
+     	    	|   file_spec viewType expMetric_list_spec
+     	    	|   GUI viewType expMetric_list_spec 
 		    	{p_parse_result->push_modifiers(general_name[H_GEN_GUI]);}
  
-   	    	|   viewType expMetric_bounded target_list
-    	    	|   expId_spec viewType expMetric_bounded  target_list
-     	    	|   expId_spec file_spec viewType expMetric_bounded  target_list
-     	    	|   expId_spec GUI viewType expMetric_bounded  
+   	    	|   viewType expMetric_list_spec target_list
+    	    	|   expId_spec viewType expMetric_list_spec  target_list
+     	    	|   expId_spec file_spec viewType expMetric_list_spec  target_list
+     	    	|   expId_spec GUI viewType expMetric_list_spec  
 		    	target_list {p_parse_result->push_modifiers(general_name[H_GEN_GUI]);}
-     	    	|   file_spec viewType expMetric_bounded  target_list
-      	    	|   GUI viewType expMetric_bounded  target_list 
+     	    	|   file_spec viewType expMetric_list_spec  target_list
+      	    	|   GUI viewType expMetric_list_spec  target_list 
 		    	{p_parse_result->push_modifiers(general_name[H_GEN_GUI]);}
  
    	    	|   viewType target_list
@@ -738,6 +738,9 @@ param_name: 	    PARAM_DISPLAY_MODE
 		;
 
 expMetric_bounded:  LPARAM expMetric_list RPARAM
+		;
+
+expMetric_list_spec:  METRIC_ID expMetric_list
 		;
 
 expMetric_list:     expMetric
