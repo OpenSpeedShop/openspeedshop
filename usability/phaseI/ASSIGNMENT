@@ -31,7 +31,7 @@ Please try to "think aloud" as you work through the scenario.
 It will help us understand where our problems are.
 
 Your task is to take a simple program (fred_calls_ted) and, by
-using the Open/Speedshop tool, determine which routine(s) are
+using the Open|Speedshop tool, determine which routine(s) are
 taking the most time.    The program, fred_calls_ted, is
 provided in the current directory.
 
@@ -63,12 +63,12 @@ Step 2:
 
 
 Step 3:
-  The Open/Speedshop performance tool is 'openss'.    'man openss' gives you
+  The Open|Speedshop performance tool is 'openss'.    'man openss' gives you
   the typical 'man' description of the command.
 
 
 Step 4:
-  Launch the Open/Speedshop command so you can run performance debugging
+  Launch the Open|Speedshop command so you can run performance debugging
   on the executable named 'fred_calls_ted'.
 
 
@@ -113,4 +113,4 @@ Step 12:
 
 
 Step 13:
-  Exit the Open/Speedshop tool.
+  Exit the Open|Speedshop tool.

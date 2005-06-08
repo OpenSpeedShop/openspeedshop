@@ -20,7 +20,7 @@ openss(1)                                                openss(1)
 
 
 NAME
-  openss - Collects Open/Speedshop performance data
+  openss - Collects Open|Speedshop performance data
 
 SYNOPSIS
   openss [-f executable] [-h host] [-x experiment_name]
@@ -29,7 +29,7 @@ SYNOPSIS
 
 
 DESCRIPTION
-  Open/Speedshop is a performance tool designed to capture performance data
+  Open|Speedshop is a performance tool designed to capture performance data
   for an executable(s).
 
   When collecting the performance data, openss either writes the data to 
@@ -86,11 +86,11 @@ DESCRIPTION
       run.
 
 EXAMPLES:
-  To start Open/Speedshop simply type:
+  To start Open|Speedshop simply type:
   $ openss
 
 
-  To load an executable into Open/Speedshop
+  To load an executable into Open|Speedshop
   for eventual capturing of data:
   $ openss -f a.out
 

@@ -66,12 +66,12 @@ Step 2:
 
 
 Step 3:
-  The Open/Speedshop performance tool is 'openss'.    'man openss' gives you
+  The Open|Speedshop performance tool is 'openss'.    'man openss' gives you
   a typical 'man' description of the command.
 
 
 Step 4:
-  Launch the Open/Speedshop command so you can run performance debugging
+  Launch the Open|Speedshop command so you can run performance debugging
   on the executable named "fred".
 
 
@@ -116,4 +116,4 @@ Step 12:
 
 
 Step 13:
-  Exit the Open/Speedshop tool.
+  Exit the Open|Speedshop tool.

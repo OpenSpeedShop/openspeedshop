@@ -204,10 +204,10 @@ extern "C"
     printf("  -a : quoted command line arguments to be passed to executable.\n");
     printf("\n");
     printf("Examples:\n");
-    printf("  To start Open/Speedshop simply type:\n");
+    printf("  To start Open|Speedshop simply type:\n");
     printf("  $ openss\n");
     printf("\n\n");
-    printf("  To load an executable into Open/Speedshop\n");
+    printf("  To load an executable into Open|Speedshop\n");
     printf("  for eventual capturing of data:\n");
     printf("  $ openss -f a.out\n");
     printf("\n\n");

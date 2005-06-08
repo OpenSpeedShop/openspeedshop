@@ -11,7 +11,7 @@ Phase 1 Results</small></h1>
 <span style="font-weight: bold;">Milestone 3: March 14, 2005</span><br>
 <br>
 This is a summary of the ASC/SGI October 25, 2004 meeting to review the
-Open/SpeedShop
+Open|SpeedShop
 CLI interactive commands and syntax.
 <br>
 <br>
@@ -160,7 +160,7 @@ We intend to handle this in by passing the mpi commands through the
 tool via the -f option (See <a
  href="../cli_doc/fields.html#mozTocId464754"><span
  style="font-weight: bold;">host_file_rpt</span> section of
-the Open/SpeedShop Types and Definition Document.</a>)&nbsp;&nbsp; This
+the Open|SpeedShop Types and Definition Document.</a>)&nbsp;&nbsp; This
 way the tool does not have to know about the syntax of all the
 variations of mpi.&nbsp;&nbsp; <br>
 <br>
@@ -172,20 +172,20 @@ specification which can include MPI commands to run MPI jobs such as
 this:&nbsp;&nbsp; expAttach -f "mpirun -np 512 a.out".<br>
 <br>
 Additionally, there needs to be a software interface that will provide
-Open/SpeedShop this functionality in order to attach to all the
+Open|SpeedShop this functionality in order to attach to all the
 processes/ranks of an MPI job:<br>
 <ul>
   <li>Given a process identifier, return the job identifier</li>
   <li>Given the job identifier, return all the processes and hosts
 associated with that job identifier</li>
 </ul>
-With this information Open/SpeedShop can attach to a running MPI
+With this information Open|SpeedShop can attach to a running MPI
 job.&nbsp;&nbsp; On the SGI Altix platform, the array services
 functionality provides this information.&nbsp; On other platforms,
 whatever a similar type job monitoring service will be
 needed.&nbsp;&nbsp; The new API that asks the questions mentioned
 above, will interface with the platform specific software that provides
-the needed information.&nbsp; The new API will provide Open/SpeedShop
+the needed information.&nbsp; The new API will provide Open|SpeedShop
 with a common interface to the various multiprocessing job monitoring
 solutions that are platform specific.<br>
 <br>
@@ -396,7 +396,7 @@ This could be an enhancement after the first release, if
 a standard checkpoint/restart functionality exists.
 <br>
 <br>
-UPDATE from Open/SpeedShop group meeting discussion: This is different
+UPDATE from Open|SpeedShop group meeting discussion: This is different
 than the checkpoint/restart issue
 but it may be what some users will want to do. It may be possible to do
 attach and detach cycles
@@ -404,20 +404,20 @@ of data gathering as long as the original application is still
 running.&nbsp; The user could:
 <br>
 <br>
-run-1.a) Open the Open/SpeedShop tool
+run-1.a) Open the Open|SpeedShop tool
 <br>
 run-1.b) Run the experiment of their choice
 <br>
 run-1.c) Save the performance data
 <br>
-run-1.d) Shutdown the Open/SpeedShop tool
+run-1.d) Shutdown the Open|SpeedShop tool
 <br>
 <br>
 The user could then come back a day or a week later and if the original
 application is still running:
 <br>
 <br>
-run-2.a) Open the Open/SpeedShop tool
+run-2.a) Open the Open|SpeedShop tool
 <br>
 run-2.b) Restore the data files from 1st run
 <br>
@@ -428,7 +428,7 @@ run-2.d) Save the performance data
 run-2.e) Aggregate the data from the two runs run-2.f) Create a report
 or view the performance data
 <br>
-run-2.g) Shutdown the Open/SpeedShop tool <br>
+run-2.g) Shutdown the Open|SpeedShop tool <br>
 Then repeat the cycle if desired.
 <br>
 This would be a follow on enhancement feature.
@@ -472,7 +472,7 @@ possible speed.&nbsp;&nbsp; We would like to wait on this until we
 better understand what the framework functionality will be.
 <br>
 <br>
-UPDATE from Open/SpeedShop group meeting discussion:
+UPDATE from Open|SpeedShop group meeting discussion:
 <br>
 For a given collector, it is expensive to load the probe module
 dso into the application.&nbsp; So, for start gathering and stop
@@ -559,7 +559,7 @@ during the run</li>
   <li>We discussed this at our SGI performance tools weekly meeting and
 we
 concluded that once we enhance DPCL to support setting breakpoints
-Open/SpeedShop will support 1).&nbsp;&nbsp; With breakpoints the user
+Open|SpeedShop will support 1).&nbsp;&nbsp; With breakpoints the user
 can run to a breakpoint
 (or collect one type of data or collect performance data on a specific
 function)
