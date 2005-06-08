@@ -36,9 +36,6 @@ extern int ip_number(char *,int);
 
 %%
 
-"(" 	{ return LPARAM; }
-")" 	{ return RPARAM; }
-
 \"[^"\n]*["\n] {
     	    yylval.string = strdup(yytext+1);
 	    yylval.string[yyleng-2] = 0;
@@ -50,8 +47,6 @@ extern int ip_number(char *,int);
 ":" 	{ return COLON; }
 "::" 	{ return DOUBLE_COLON; }
 "=" 	{ return EQUAL; }
-"(" 	{ return LPARAM; }
-")" 	{ return RPARAM; }
 
 "focus"     	{ return FOCUS;}
 "all"	    	{ return ALL;}
