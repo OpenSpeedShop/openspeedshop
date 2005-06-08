@@ -1,0 +1,361 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>GUI Phase II Results</title>
+</head>
+<body>
+################################################################################
+<br>
+# Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+#
+<br>
+# This library is free software; you can redistribute it and/or modify
+it under
+<br>
+# the terms of the GNU Lesser General Public License as published by
+the Free<br>
+# Software Foundation; either version 2.1 of the License, or (at your
+option)
+<br>
+# any later version.
+<br>
+#
+<br>
+# This library is distributed in the hope that it will be useful, but
+WITHOUT
+<br>
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS
+<br>
+# FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+for more
+<br>
+# details.
+<br>
+#
+<br>
+# You should have received a copy of the GNU Lesser General Public
+License
+<br>
+# along with this library; if not, write to the Free Software
+Foundation, Inc.,
+<br>
+# 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+################################################################################
+<br>
+<h2><a class="mozTocH2" name="mozTocId204375"></a><big><span
+ style="font-weight: bold;">Phase II Usability Study 4/27/05 <br>
+</span></big></h2>
+<p><big><span style="font-weight: bold;"><small>Conducted by Chip Kent,
+Scott Cranford, Martin Shulz, and Al Stipek</small></span></big></p>
+<br>
+<ol id="mozToc">
+<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId204375">Phase
+II Usability Study 4/27/05 </a>
+    <ol>
+      <li><a href="#mozTocId202770">Summary</a></li>
+      <li><a href="#mozTocId729081">Issues</a></li>
+      <li><a href="#mozTocId67362">Other comments and requests:</a></li>
+    </ol>
+  </li>
+</ol>
+<pre><br></pre>
+<h2><a class="mozTocH3" name="mozTocId202770"></a><a name="Summary"></a>Summary<br>
+</h2>
+<br>
+Good candidates again. I'd like to thank Chip for organizing this study
+and all the candidates for their time and input.
+<pre><br></pre>
+Four candidates were chosen for the study conducted on 04/27/05.<br>
+<br>
+<br>
+The users were able to complete the assignments, for the most part, in
+fairly short order. There are areas for improvement<br>
+and 2 of those are most obvious to me. First, when loading an
+experiment from the command line ($openss -f fred pcsamp) there needs
+be both more feed back that the experiment is being loaded and the
+experiment panel needs to be created and raised. (This was by far the
+most glaring problem encountered.) The other was the candidates often
+struggled with locating the menus. The little triangle was not
+understood to be a way to raise a local menu.<br>
+<br>
+There are other areas for improvement as well. The dialogs to attach
+"collectors" and "Attach" processes were not intuitive enough.&nbsp;
+This was true of most all the dialogs.<br>
+<br>
+Also worth noting in the summary, the term "Collector" means nothing to
+the user. While we've become educated to this term, when presenting it
+to the user, they drew a blank. (The did however seem comfortable with
+the 'experiment' concept.)<br>
+<br>
+Much other feedback and room for improvement were also
+discovered.&nbsp; I've attempted to itemize them as action items below.
+<br>
+<br>
+Please feel free to correct/add/delete anything you interpreted
+differently.<br>
+<br>
+<h2><a class="mozTocH2" name="mozTocId729081"></a><a name="Issues"></a>Issues</h2>
+<br>
+1 - When loading the execuable and experiment from the command line, we
+need to bring up the experiment directly. This was a major source of
+confusion for 3 of the 4 candidates. I'm sure it would have been
+confusing for 4 of 4 had the other candidate not come into
+Open|SpeedShop and used the wizard to load the experiment.<br>
+<br>
+o One suggestion was to bring up the 'Summary wizard' page, with a
+progress bar, then bring up the experiment panel.<br>
+<br>
+o Another suggestion is to bring up the experiment panel after the
+experiment has been finished being instrumented.<br>
+(Maybe with a dialog showing progress is being made and a status line
+being displayed.)<br>
+FIXED: current:OpenSpeedShop:191911a<br>
+<br>
+2 - When setting command line options (openss -f fred pcsamp) the GUI
+should take hints from any failure that may of prevented the command
+from being completed. While I'd rate this at a lower priority this
+could help people from further frustration.<br>
+PENDING: Partially implemented.<br>
+<br>
+3 - It's not clear that the user output is going to the shell window
+where the openss command was issued. People expected it to go to the
+CmdPanel when the gui is visible. <br>
+<br>
+4 - There should only be one cli. All candidates and observers agreed
+it should be the CmdPanel when in GUI mode.<br>
+FIXED: current:OpenSpeedShop:191911a<br>
+<br>
+5 - Cumulative percent should be removed from the pcsamp default
+report. (As per a suggestion... I'll wait for feedback if&nbsp; others
+agree with this comment.)<br>
+FIXED:<br>
+<br>
+6 - "File-&gt;Save Experiment ..." needs better descriptive
+wording.&nbsp; Also, since it's an overview window (the start of one
+anyway) maybe it should be turned into a panel and the "File-&gt;Save
+Experiment" functionaly should be hung off it.<br>
+<br>
+7 - When attaching a "collector" or process to an experiment, put the
+current status somewhere. Possibilities may be a dialog box, or even in
+the experiment window itself.<br>
+<br>
+8 - A feature addition: The user wants to be able to sort the
+pcStatsPanel like we currently do. However they also want to select a
+set of items (from the list) and only show them.<br>
+<br>
+9 - Change "Construct New Experiment" to "Custom Experiment"<br>
+FIXED<br>
+<br>
+10- Allow the flexibility to change the tab name. (Experiment name)
+Allow this from a menu option on the tab, or at the wizard interface.<br>
+<br>
+Martin adds:<br>
+Should this change the name in all associated windows (if the main
+experiment name becomes part of the tab names)? Also, should this be
+part of the CLI as well, since ID won't make sense to the user anymore
+once they exit the GUI? <br>
+PARTIAL FIX: Supported in GUI not in cli<br>
+<br>
+11- Put the "Experiments" menu under the File-&gt;Experiments entry.<br>
+FIXED:<br>
+<br>
+12- When bringing up a "fresh" experiment, put a "dialog" inito the
+blank panel container that will help the user Load a
+process/program/"collector".<br>
+PARTIAL FIX: We now put a wizard in all 'blank' experiments, except the
+Custom Experiment Panel. That panel is one-off and may need a separate
+wizard panel...<br>
+<br>
+13- When loading an "collector" into an experiment, the dialog reads,
+"Loading Executable"... it should be "Loading Experiment"<br>
+FIXED:<br>
+<br>
+14- Add a "Window'-like entry to list the experiments that are
+currently available to be raised in the gui.<br>
+NOTE: The overview panel may be another approach.<br>
+<br>
+15- The "Open Saved Experiment" as well as the "Open Existing&nbsp;
+Experiment" should create and raise the experiment directly rather than
+requiring the use to take one more step to select the entry to be
+raised.<br>
+FIXED:<br>
+<br>
+16- Pet-peeve: Single click should highlight in the pcStatsPanel,
+double click should raise the source. (Of course single vs double click
+should be used consistently across the tool.)<br>
+FIXED:<br>
+<br>
+17- The user should be able to do a rerun.&nbsp; The users commented
+that they will run with one set of input paramaters, then they'll run
+with a different set of parameters.&nbsp; They don't want to script
+this, they simply want to change the arguments to their executable and
+run again.<br>
+<br>
+18- BUG: opess -f "fred 1000" usertime ABORTS.<br>
+FIXED: <br>
+<br>
+19- Allow selecting multiple entries off the Intro Wizard.<br>
+<br>
+20- Possibly put a 'Close' on the local panel menu.<br>
+<br>
+21- Need a source navigator.<br>
+<br>
+22- BUG: Save data to file when showing 2 experiments, and the&nbsp;
+first entry was never run. Selects first experiment.... ABORT.<br>
+FIXED:<br>
+<br>
+23- Try adding a icon bar, next to the 'x' that doesn menu, split
+horizontal, split vertical, and 'x'. Change the icon menu to something
+more obvious... maybe MS-Ladder...<br>
+FIXED:<br>
+<br>
+24- Should we use the term 'Tab' instead of 'Panel'?<br>
+<br>
+25- BUG: Selecting Save Experiment but not selecting item causes ABORT.<br>
+FIXED:<br>
+<br>
+26- The sort indicator in pcStatsPanel seems reversed.<br>
+REJECTED: I checked with a designer example and the sort indicator is
+as trolltech wants it...<br>
+<br>
+27- BUG: Update brings up pcStatsPanel.<br>
+FIXED:<br>
+<br>
+28- Add tooltip regarding menus (i.e. "Right mouse button for context
+sensitive menu.")<br>
+FIXED:<br>
+<br>
+29- No intuitive way to delete a panel container. Possibly leave the
+icon bar on an empty panel container.<br>
+FIXED:<br>
+<br>
+30- BUG: Panel layout resize problem. Resize, split, then tried
+removing the CmdPanel (or the PanelContainer the CmdPanel was in). Did
+not<br>
+resize/reposition correctly. (Actually in retrospect this may have
+worked. If I remember correctly, the user may have shrunk the thumb
+into a small area and this was being resized.... Hmmm.)<br>
+PENDING: (Unable to reproduce.)<br>
+<br>
+31- "Managing Collectors and Process" still needs more help
+understanding what it does. Suggests changing this to simply "Manager
+Processes..."<br>
+FIXED:<br>
+<br>
+32- "Collector" is an internal name. Use one that is more generic<br>
+and meaningful. One suggestion was "Instrumentation."<br>
+<br>
+33- Possibly add an 'unsplit' menu option.<br>
+<br>
+34- "Attach Program" should be "Load Program" (Manage Collectors and
+Processes)<br>
+Fixed:<br>
+<br>
+35- "Detach Collector" should be "Remove Collector" -- Remember
+"Collector" should be something different...<br>
+<br>
+36- Color for tabs experiment number. This is easier to show
+association rather than [1] number. NOTE: The v menu option could be
+used to easily show color association.<br>
+FIXED:<br>
+<br>
+37- In the Intro Wizard add the actual experiment name after the more
+wordy description.<br>
+i.e. "I'm trying to find where my program is spending most of it's
+time" should be:&nbsp; I'm trying to find where my program is spending
+most of it's time. [pcsamp]<br>
+FIXED:<br>
+<br>
+38- Make more consistent usage of the experiment terms. i.e. use
+pcsamp, pc Sampling, pc Sample Experiment but don't mix them all.<br>
+<br>
+39- Finish - Load - Finish in the wizard, skip the last Finish.<br>
+FIXED<br>
+<br>
+40- "Finish" to "Use Defaults"... (After thinking about this one, "Use
+Defaults" would be confusing as it may be misleading that each page
+would want that entry. I see Martin's issue, but would ask for a
+different wording suggestion.<br>
+<br>
+Martin adds:<br>
+I see the problem with "Use defaults"; that would be confusing.&nbsp;
+What about keeping "Finish Wizard" and using this button to accept all
+defaults that were not selected, yet, and then skip forward to the
+experiment panel without asking for a binary or confirmation. Using the
+"Finish Wizard" button right after selecting an experiment would then
+be the same as just selecting the experiment without a wizard.<br>
+FIXED:<br>
+<br>
+41- Intro Wizard Scrollbar. Move the scrollbar to the inner frame so
+the buttons can be seen without scrolling the window.<br>
+<br>
+42- Bug: Source Panel, when it can't find source don't reposition the
+'current' source.<br>
+FIXED: mod current:OpenSpeedShop:192690a <br>
+<br>
+43- Run button status. When launching executable, change the status
+first to "launching", "Paused - Ready to run", then to Running. Greying
+the buttons as appropriate.<br>
+<br>
+44- Put a clock out on the run button (or some visible status area)
+that ticks the wall clock time the executable is taking...<br>
+<br>
+45- Grey "Update Button" when loading from Saved File.<br>
+<br>
+46- Grey "Other buttons" when loading from Saved File.<br>
+<br>
+47- Make the Overview "Open Existing Experiment" a panel.<br>
+<br>
+48- (Make the "Manager Collectors and Processes" a panel.)<br>
+<br>
+49- Add a 'gather routine" for all associated panels. This would
+basically pull all disjoint panels (with same expid) to one experiment
+panel and locate the experiment int the top-level (focused)
+window/frame.<br>
+<br>
+50- Also add a function to delete all the panels associated with an
+experiment. Possibly add this to the 'close experiment dialog"<br>
+Delete (expClose) the experiment?<br>
+Selecting Yes will delete the experiment.<br>
+Selecting No will close the window.<br>
+[x] Close all related windows.<br>
+[Yes] [No]<br>
+<br>
+51- When you restarted the GUI from the CLI, the GUI came as you left
+it - it might be easier for the user, if you could open/raise the
+experiment panel of the currently focused experiment. That's presumably
+the experiment the user has worked on last and hence wants to see now.
+Even better<br>
+would be an optional argument to opengui that users can use to specify
+an experiment (orthogonal to all other commands), but that's not a
+comment for you alone anymore. <br>
+<br>
+52- Move Wizards to the File-&gt; menu.<br>
+FIXED:<br>
+<br>
+<br>
+<h2><a class="mozTocH3" name="mozTocId67362"></a><a
+ name="Other_comments_and_requests:"></a>Other comments and requests:</h2>
+<br>
+- HPC Toolkit<br>
+I was asked to look at thie for tree display example. (Chip)<br>
+<br>
+- gprof callstacks <br>
+I was asked to look at this for callgraph example. (Scott)<br>
+<br>
+- Multiprocess management<br>
+In this case, the user was saying that he wanted a single tool that
+allows him to do both serial and parallel performance analysis.&nbsp;
+He would like it tbe able to do both gprof/prof type experiments&nbsp;
+plus vampir type MPI tracing. He was saying that he was forced to use
+pixie and totalview in the past, but it doesn't work as well as a
+single tool would.<br>
+<br>
+- Wants one data file, not many. Wants to be able to compare one run to
+another.<br>
+<br>
+- Better/Hierarchical source navigation (make all modules belonging to
+one application visible) <br>
+</body>
+</html>
