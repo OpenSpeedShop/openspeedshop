@@ -1,0 +1,558 @@
+
+This is the Milestone 3 demo scenario from March 14, 2005
+
+
+*First Step - check that the example tool works  It does!   Not part of the demo.........*
+
+[marmot] 
+~/workarea/OpenSpeedShop/current/examples/libopenss-framework/tool: ./runit
+rm: cannot remove `core.*': No such file or directory
+rm: cannot remove `*.openss*': No such file or directory
+Starting process for command 
+"/home/openss/workarea/OpenSpeedShop/current/examples/libopenss-framework/tool/mutatee 
+750"...
+Process creation took 6.85695 seconds.
+Running the process...
+Found symtab
+Calculating results...
+Results calculation took 0.820319 seconds.
+      Time    Function
+     3.880    f3 (mutatee.c, 24)
+     2.510    f2 (mutatee.c, 15)
+     1.010    f1 (mutatee.c, 6)
+
+
+*First Demo item - Run PC sampling experiment on mutatee through the batch facility
+
+*[marmot] ~/demo/Simple: ls
+batch.input  f1.c  f2.c  f3.c  jack.tmp  mutatee  mutatee.c  work.c
+[marmot] ~/demo/Simple: cat batch.input
+*expcreate -f /home/openss/demo/Simple/mutatee pcsamp
+expGo
+expView vtop5
+exit*
+[marmot] ~/demo/Simple: *openss -batch < batch.input*
+
+1
+Found symtab
+ Usage: /home/openss/demo/Simple/mutatee <size>
+No size argument given.   Defaulting to 250.
+/home/openss/demo/Simple/mutatee: succesfully competed.
+  CPU Time (Seconds)  Function
+            2.360000  f3
+            1.160000  f2
+            0.460000  f1
+            0.010000  work
+[marmot] ~/demo/Simple:
+*Second Demo item - Run PC sampling experiment on mutatee through the CLI
+*[marmot] ~/demo/Simple: *openss -cli*
+openss>>*expcreate -f /home/openss/demo/Simple/mutatee pcsamp*
+openss>>
+openss>>   1
+*expGo*
+openss>>Found symtab
+Usage: /home/openss/demo/Simple/mutatee <size>
+No size argument given.   Defaulting to 250.
+*expView vtop5*
+openss>>/home/openss/demo/Simple/mutatee: succesfully competed.
+  CPU Time (Seconds)  Function
+            2.200000  f3
+            1.350000  f2
+            0.530000  f1
+openss>>
+*Third Demo item - Run PC sampling experiment mutatee through the GUI*
+openss> *openss*
+
+Then Next through the Wizard panels
+
+Intro Panel - This panel is the default generic wizard panel.  If you 
+were a first time or
+new user and didn't have good feel for the tool or the experiments - it 
+would guide you
+through the process of selecting the experiment that corresponds to what 
+you want to
+find out about the performance of your program.
+
+Here we want to find where my program is spending most of it's time.  
+
+*NEXT*
+
+This PC Sampling Wizard intro panel tells about the PC sampling 
+experiment and it's parameters.
+
+*NEXT *
+
+This panel is the PC sampling input parameter panel.  You may change the 
+sampling rate here and explains the
+pros and cons of parameter changes.
+
+*NEXT *
+
+This is the PC Sampling wizard executable/application selection panel.   
+You may choose to attach to running processes or
+load an executable from disk.
+
+*NEXT *
+
+This is the PC Sampling executable selection window.   Choose your 
+executable.
+
+*NEXT *
+
+This PC Sampling Wizard window shows the summary of the users selections.
+
+*FINISH*
+
+When you select the Finish button the executable is loaded and the 
+actual PC Sampling Experiment
+window is raised with the user's choices (sampling rate and executable).
+
+The PC Sampling Experiment window has a Process Control panel for 
+controling the experiment, a source panel for the
+source corresponding to the executable, and a command panel for CLI 
+command input.
+
+The next step is to choose the RUN button (Right facing arrow) under 
+Process control panel tab.
+
+In a short time the PC Sampling experiment will complete and the PC 
+Stats Panel will appear.
+This panel shows the experiment results with function and time values.
+Note that clinking on a function name will focus the source panel.   You 
+may want to split the
+panel container horizontally so that the PC Stats and Source panels will 
+be side by side.
+To split the panel containers use the right mouse button the one of the 
+panel tabs and select
+split horizontally.
+
+Then click on the "f3 line of data" in the PC Stats panel.
+
+You can also show the capability to sort the time and function values in 
+the PC Stats panel
+by clicking on the arrows in the time and function header.
+
+*Fourth Demo item - Run PC sampling experiment on Eon through the CLI*
+[marmot] ~/demo/Eon: pwd
+/home/openss/demo/Eon
+[marmot] ~/demo/Eon: ls eo*
+eon.cc  eon.dat  eon-dbg  eon-dbg-opt  eonImageCalculator.cc  
+eonImageCalculator.h  eon-opt
+[marmot] ~/demo/Eon: openss -cli
+openss>>*expcreate -f /home/openss/demo/Eon/eon-opt pcsamp*
+openss>>
+openss>>   1
+*expGo*
+openss>>Found symtab
+Eon, Version 1.1
+getting pixel output filename pixels_out.cook
+opening control file chair.control.cook
+opening camera file chair.camera
+opening surfaces file chair.surfaces
+reading data
+processing 8parts
+Grid measure is 6 by 3.0001 by 6
+cell dimension is 0.863065
+Creating grid for list of length 21
+Grid size = 7 by 4 by 7
+Total occupancy = 236
+reading control stream
+reading camera stream
+Writing to chair.cook.ppm
+calculating 150 by 150 image with 400 samples
+col 0. . .
+col 1. . .
+col 2. . .
+col 3. . .
+col 4
+. . .
+...
+....
+....
+
+146  144  149
+147  144  149
+148  144  149
+149  144  149
+OO-style eon Time= 48.160000
+*expview vtop24*
+openss>>
+  CPU Time (Seconds)  Function
+            4.940000  ggGridIterator<mrSurface*>::Next
+            2.830000  ggSpectrum::Set
+            2.400000  mrSurfaceList::shadowHit
+            2.290000  mrSurfaceList::viewingHit
+            2.080000  ggRayXZRectangleIntersect
+            1.960000  ggRayBoxIntersect
+            1.790000  ggGridIterator<mrSurface*>::ComputeCellAndTraversal
+            1.700000  mrCookPixelRenderer::directLight
+            1.530000  operator*
+            1.380000  mrCookPixelRenderer::samplePixel
+            1.330000  ggGridIterator<mrSurface*>::ggGridIterator
+            1.190000  ggGridIterator<mrSurface*>::ComputeDistanceToPlanes
+            1.120000  mrGrid::shadowHit
+            1.110000  mrGrid::viewingHit
+            1.030000  ggRayYZRectangleIntersect
+            0.800000  operator*
+            0.780000  operator*
+            0.760000  mrMaterial::shadowHit
+            0.730000  operator*
+            0.710000  ggJitterSample2::Generate
+            0.670000  mrMaterial::viewingHit
+            0.630000  mrXZRectangle::shadowHit
+            0.590000  mrCookPixelRenderer::cookRadiance
+            0.560000  mrXZRectangle::viewingHit
+openss>>
+openss>>*opengui*
+
+Go to the File menu and choose "open experiment" 
+Then in that new selection window highlight Experiment 1 and click ok.
+Then Right mouse down on the PC Sample Panel header and pick the Stats 
+Panel menu item.
+---- this shows that there is an association between experiments - in the CLI and the GUI
+
+
+****************************************************************************** 
+*
+*First Part of Demonstration of Current status of Testing Suite  - Parse Result Unit Tests * 
+*
+***************************************************************************** 
+*
+For this milestone we need to demonstrate two things: the progress of
+the unit test development and the status of the regression tests.
+
+for the unit tests:
+
+%cd /current/tests/pcli/parse_target
+JEG ALIAS: cdpt
+[marmot] ~/workarea/OpenSpeedShop/current/tests/pcli/parse_target: lsr
+total 97
+4 -r--r--r--  1 openss compiler  471 2005-03-11 16:45 pt1.cxx
+4 -r--r--r--  1 openss compiler  788 2005-03-11 16:45 pt12.cxx
+4 -r--r--r--  1 openss compiler  806 2005-03-11 16:45 pt11.cxx
+4 -r--r--r--  1 openss compiler  784 2005-03-11 16:45 pt10.cxx
+4 -r--r--r--  1 openss compiler 2020 2005-03-11 16:45 Makefile.am
+4 -r--r--r--  1 openss compiler   45 2005-03-11 16:45 test_config
+4 -r--r--r--  1 openss compiler  663 2005-03-11 16:45 pt9.cxx
+4 -r--r--r--  1 openss compiler  672 2005-03-11 16:45 pt8.cxx
+4 -r--r--r--  1 openss compiler  772 2005-03-11 16:45 pt7.cxx
+4 -r--r--r--  1 openss compiler  779 2005-03-11 16:45 pt6.cxx
+4 -r--r--r--  1 openss compiler  797 2005-03-11 16:45 pt5.cxx
+4 -r--r--r--  1 openss compiler  775 2005-03-11 16:45 pt4.cxx
+4 -r--r--r--  1 openss compiler  654 2005-03-11 16:45 pt3.cxx
+4 -r--r--r--  1 openss compiler  663 2005-03-11 16:45 pt2.cxx
+4 -r--r--r--  1 openss compiler  772 2005-03-11 16:45 pt19.cxx
+4 -r--r--r--  1 openss compiler  779 2005-03-11 16:45 pt18.cxx
+4 -r--r--r--  1 openss compiler  797 2005-03-11 16:45 pt17.cxx
+4 -r--r--r--  1 openss compiler  775 2005-03-11 16:45 pt16.cxx
+4 -r--r--r--  1 openss compiler  654 2005-03-11 16:45 pt15.cxx
+4 -r--r--r--  1 openss compiler  663 2005-03-11 16:45 pt14.cxx
+4 -r--r--r--  1 openss compiler  781 2005-03-11 16:45 pt13.cxx
+4 -r-xr-xr-x  1 openss compiler 4035 2005-03-12 10:02 rununit
+8 -r-xr-xr-x  1 openss compiler 4965 2005-03-12 10:02 runall
+0 drwxr-xr-x  4 openss compiler  160 2005-03-12 10:02 ..
+1 drwxr-xr-x  2 openss compiler  616 2005-03-12 10:02 .
+
+the LD_LIBRARY_PATH needs to be set to: OPENSPEEDSHOP_PLUGIN_PATH
+
+%setenv LD_LIBRARY_PATH $OPENSPEEDSHOP_PLUGIN_PATH
+
+for the sake of clarity remove any remaining testresults* files.
+
+%rm testresults*
+
+if anyone wants to take a look at an example unit test, display one on the screen.
+
+%cat pt3.cxx
+[marmot] ~/workarea/OpenSpeedShop/current/tests/pcli/parse_target: cat -n pt3.cxx
+     1  #include <stdio.h>
+     2
+     3  #include <vector>
+     4  #include <iostream>
+     5
+     6  using namespace std;
+     7
+     8  #include "SS_Parse_Range.hxx"
+     9  #include "SS_Parse_Target.hxx"
+    10  #include "SS_Parse_Result.hxx"
+    11
+    12  using namespace OpenSpeedShop::cli;
+    13  /*
+    14  This test checks for the correctness of PushFilePoint().
+    15  */
+    16  int main()
+    17  {
+    18          ParseTarget p_parse_target;
+    19          int  number= 8;
+    20          int testnumber;
+    21          vector<ParseRange> * pr_vector;
+    22          p_parse_target.pushFilePoint(number);
+    23          pr_vector = p_parse_target.getFileList();
+    24          ParseRange testRange = pr_vector->front();
+    25          testnumber = testRange.getRange()->start_range.num;
+    26          if (testnumber == 8)
+    27                  cout << "PASS" << endl;
+    28          else
+    29                  cout << "FAIL" << endl;
+    30          return 0;
+    31  }
+[marmot] ~/workarea/OpenSpeedShop/current/tests/pcli/parse_target:
+
+
+This directory of unit tests checks for the correctness of various
+functions in the ParseTarget class.  ParseTarget is used by the command
+line.  
+
+To run the tests in the directory in general one would call runall.  if
+we are demoing on a machine that is connected to the network call it.
+If we are on a standalone machine that isn't, we should simply call rununit.  
+
+"runall" mails the results out.
+
+%*./runall *
+(on network)
+
+[marmot] ~/workarea/OpenSpeedShop/current/tests/pcli/parse_target:* 
+./runall*
+g++ -o pt1 pt1.cxx -LANG:std -I. -I../../../libopenss-framework 
+-I../../../pcli -I/usr/include -I. -I../../../objects -I../../../base 
+/home/openss/demo/lib/openspeedshop/posscli.so
+g++ -o pt2 pt2.cxx -LANG:std -I. -I../../../libopenss-framework 
+-I../../../pcli -I/usr/include -I. -I../../../objects -I../../../base 
+/home/openss/demo/lib/openspeedshop/posscli.so
+...
+...
+g++ -o pt18 pt18.cxx -LANG:std -I. -I../../../libopenss-framework 
+-I../../../pcli -I/usr/include -I. -I../../../objects -I../../../base 
+/home/openss/demo/lib/openspeedshop/posscli.so
+g++ -o pt19 pt19.cxx -LANG:std -I. -I../../../libopenss-framework 
+-I../../../pcli -I/usr/include -I. -I../../../objects -I../../../base 
+/home/openss/demo/lib/openspeedshop/posscli.so
+rm pt1 pt2 pt3 pt4 pt5 pt6 pt7 pt8 pt9 pt10 pt11 pt12 pt13 pt14 pt15 
+pt16 pt17 pt18 pt19
+[marmot] ~/workarea/OpenSpeedShop/current/tests/pcli/parse_target: ls
+dirlist      pt11.cxx  pt15.cxx  pt19.cxx  pt4.cxx  pt8.cxx  temptestlist
+Makefile     pt12.cxx  pt16.cxx  pt1.cxx   pt5.cxx  pt9.cxx  test_config
+Makefile.am  pt13.cxx  pt17.cxx  pt2.cxx   pt6.cxx  runall   
+*testresults_13_03_2005_180314*
+pt10.cxx     pt14.cxx  pt18.cxx  pt3.cxx   pt7.cxx  rununit
+
+%more or cat testresults_date_time
+
+[marmot] ~/workarea/OpenSpeedShop/current/tests/pcli/parse_target: *cat 
+testresults_13_03_2005_180314*
+pt10 PASSES.
+pt11 PASSES.
+pt12 PASSES.
+pt13 PASSES.
+pt14 PASSES.
+pt15 PASSES.
+pt16 PASSES.
+pt17 PASSES.
+pt18 PASSES.
+pt19 PASSES.
+pt1 PASSES.
+pt2 PASSES.
+pt3 PASSES.
+pt4 PASSES.
+pt5 PASSES.
+pt6 PASSES.
+pt7 PASSES.
+pt8 PASSES.
+pt9 PASSES.
+
+or
+%./rununit
+(off network)
+
+The result will be a file of the name "testresults_date_time".  look for
+the file and display that on the screen.
+
+* ********************************************************************** *
+*Second Part of Demonstration of Current status of Testing Suite  - PC Sampling Regression Tests
+** ********************************************************************** *
+*For the regression test demo.  change directories to the regression suite.
+
+%cd current/tests/regression/pcsamp/pcsamp1
+%*ls *
+mutatee  pcsamp1.tst  pcsamp1.tst.expected  runone
+%*cat -n pcsamp1.tst*
+     1  echo expcreate -f $PWD/mutatee pcsamp >> input.script
+     2  echo expgo >> input.script
+     3  echo expview vtop5 >>input.script
+     4  openss -batch < input.script
+
+
+***it should be noted that the mutatee that is checked in is a 64bit binary. 
+
+pcsamp1.tst is the test script, runone is the testing framework, and
+pcsamp1.tst.expected is the expected output.
+
+to run the test call:
+%*./runone *
+
+the results will be in the same format as the unit tests:
+"testresults_date_time".
+
+%cat testresults_date_time
+[marmot] 
+~/workarea/OpenSpeedShop/current/tests/regression/pcsamp/pcsamp1: *./runone*
+
+[marmot] 
+~/workarea/OpenSpeedShop/current/tests/regression/pcsamp/pcsamp1: *lsr*
+total 109
+ 4 -r-xr-xr-x  1 openss compiler   144 2005-03-11 16:45 pcsamp1.tst
+ 4 -r--r--r--  1 openss compiler   100 2005-03-12 10:02 pcsamp1.tst.expected
+20 -rwxr-xr-x  1 openss compiler 18416 2005-03-12 12:38 mutatee
+ 4 -rw-r--r--  1 openss compiler    12 2005-03-12 12:40 temptestlist
+ 4 -rw-r--r--  1 openss compiler   124 2005-03-12 12:40 input.script
+ 4 -rw-r--r--  1 openss compiler   270 2005-03-12 12:40 pcsamp1.tst.output
+ 4 -rw-r--r--  1 openss compiler    24 2005-03-12 12:40 
+testresults_12_03_2005_124007
+[marmot] 
+~/workarea/OpenSpeedShop/current/tests/regression/pcsamp/pcsamp1: *cat 
+testresults_12_03_2005_124007
+pcsamp1.tst has PASSED*
+[marmot] 
+~/workarea/OpenSpeedShop/current/tests/regression/pcsamp/pcsamp1:* cat  
+pcsamp1.tst.output*
+
+1
+Found symtab
+ Usage: 
+/home/openss/workarea/OpenSpeedShop/current/tests/regression/pcsamp/pcsamp1/mutatee 
+<size>
+No size argument given.   Defaulting to 750.
+
+  CPU Time (Seconds)  Function
+            3.640000  f3
+            2.520000  f2
+            1.150000  f1
+[marmot] 
+~/workarea/OpenSpeedShop/current/tests/regression/pcsamp/pcsamp1: *cat 
+pcsamp1.tst.expected*
+  CPU Time (Seconds)  Function
+           3.000000  f3
+           2.0000  f2
+            1.0000  f1
+
+To show that the testing script actually catches errors i created two
+mirror directories with changed expected outputs.
+
+In current/tests/regression/pcsamp/pcsamp2 the functions are placed in a
+different order.  If anyone wants to see the testing framework
+catch that, change to that directory and call runone.
+[marmot] 
+~/workarea/OpenSpeedShop/current/tests/regression/pcsamp/pcsamp2:* ./runone*
+
+[marmot] 
+~/workarea/OpenSpeedShop/current/tests/regression/pcsamp/pcsamp2: *lsr*
+total 72
+ 4 -r-xr-xr-x  1 openss compiler   144 2005-03-11 16:45 pcsamp2.tst
+ 4 -r-xr-xr-x  1 openss compiler  3866 2005-03-12 10:02 runone
+ 4 -r--r--r--  1 openss compiler   100 2005-03-12 10:02 pcsamp2.tst.expected
+20 -rwxr-xr-x  1 openss compiler 18416 2005-03-12 12:43 mutatee
+ 4 -rw-r--r--  1 openss compiler    12 2005-03-12 12:43 temptestlist
+ 4 -rw-r--r--  1 openss compiler   124 2005-03-12 12:43 input.script
+ 4 -rw-r--r--  1 openss compiler   297 2005-03-12 12:43 pcsamp2.tst.output
+ 4 -rw-r--r--  1 openss compiler    69 2005-03-12 12:43 
+testresults_12_03_2005_124332
+[marmot] 
+~/workarea/OpenSpeedShop/current/tests/regression/pcsamp/pcsamp2: *cat 
+testresults_12_03_2005_124332*
+pcsamp2.tst has FAILED.  The ordering of the functions is incorrect.
+[marmot] 
+~/workarea/OpenSpeedShop/current/tests/regression/pcsamp/pcsamp2: *cat 
+pcsamp2.tst.output*
+
+1
+Found symtab
+ Usage: 
+/home/openss/workarea/OpenSpeedShop/current/tests/regression/pcsamp/pcsamp2/mutatee 
+<size>
+No size argument given.   Defaulting to 750.
+
+  CPU Time (Seconds)  Function
+            3.650000  f3
+            2.380000  f2
+            1.290000  f1
+            0.010000  work
+[marmot] 
+~/workarea/OpenSpeedShop/current/tests/regression/pcsamp/pcsamp2: *cat 
+pcsamp2.tst.expected*
+  CPU Time (Seconds)  Function
+           3.000000  f2
+           2.0000  f3
+            1.0000  f1
+
+In current/tests/regression/pcsamp/pcsamp3 the ratios of the function times are different.
+[marmot] 
+~/workarea/OpenSpeedShop/current/tests/regression/pcsamp/pcsamp3: *./runone*
+
+[marmot] 
+~/workarea/OpenSpeedShop/current/tests/regression/pcsamp/pcsamp3: *lsr*
+ 4 -r-xr-xr-x  1 openss compiler   144 2005-03-11 16:45 pcsamp3.tst
+ 4 -r-xr-xr-x  1 openss compiler  3866 2005-03-12 10:02 runone
+ 8 -r-xr-xr-x  1 openss compiler  4942 2005-03-12 10:02 runall
+ 4 -r--r--r--  1 openss compiler   101 2005-03-12 10:02 pcsamp3.tst.expected
+20 -rwxr-xr-x  1 openss compiler 18416 2005-03-12 12:46 mutatee
+ 4 -rw-r--r--  1 openss compiler    12 2005-03-12 12:46 temptestlist
+ 4 -rw-r--r--  1 openss compiler   124 2005-03-12 12:46 input.script
+ 4 -rw-r--r--  1 openss compiler   270 2005-03-12 12:46 pcsamp3.tst.output
+ 4 -rw-r--r--  1 openss compiler    65 2005-03-12 12:46 
+testresults_12_03_2005_124626
+[marmot] 
+~/workarea/OpenSpeedShop/current/tests/regression/pcsamp/pcsamp3: *cat 
+testresults_12_03_2005_124626*
+pcsamp3.tst has FAILED.  The function time ratios are incorrect.
+[marmot] 
+~/workarea/OpenSpeedShop/current/tests/regression/pcsamp/pcsamp3: *cat  
+pcsamp3.tst.output
+*
+1
+Found symtab
+ Usage: 
+/home/openss/workarea/OpenSpeedShop/current/tests/regression/pcsamp/pcsamp3/mutatee 
+<size>
+No size argument given.   Defaulting to 750.
+
+  CPU Time (Seconds)  Function
+            3.380000  f3
+            2.680000  f2
+            1.250000  f1
+[marmot] 
+~/workarea/OpenSpeedShop/current/tests/regression/pcsamp/pcsamp3:* cat  
+pcsamp3.tst.expected*
+  CPU Time (Seconds)  Function
+           13.000000  f3
+           4.0000  f2
+            1.0000  f1
+[marmot] ~/workarea/OpenSpeedShop/current/tests/regression/pcsamp/pcsamp3:
+
+************************************************************************** *
+*Demonstration of Current status of Installation and Packaging for 
+Open/SpeedShop
+** 
+************************************************************************* *
+cd new workarea and show that we can build Open/SpeedShop from a clean 
+source directory using the automake/autoconf tools.
+
+*cd <openspeedshop source dir>
+bootstrap --clean
+bootstrap
+configure --prefix=<install directory path>
+make uninstall
+make install*
+
+Packaging demo:
+
+Show that we can build Open/SpeedShop from a tarball from the make dist target in our Makefiles.
+
+
+-----------
+
+Questions?
+
+End demo
+
+
