@@ -47,7 +47,7 @@ x - Save As...
    Additionally there seems to be several formats the users
    want to save the data.   First, they want the actual performance
    data saved to a file so they can come back later and do more
-   interrogation with openss.  Open/SpeedShop will save the data by default,
+   interrogation with openss.  Open|SpeedShop will save the data by default,
    but there should be a way for the user to interface and rename the file.
    Also wanted is the ability to save the data in an easily readable format
    that could be parsed with a script.  i.e. ASCII.    One individual

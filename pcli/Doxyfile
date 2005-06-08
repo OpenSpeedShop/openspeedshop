@@ -20,7 +20,7 @@
 #---------------------------------------------------------------------------
 # Project related configuration options
 #---------------------------------------------------------------------------
-PROJECT_NAME           = "Open/SpeedShop Command Line Interface"
+PROJECT_NAME           = "Open|SpeedShop Command Line Interface"
 PROJECT_NUMBER         = "Version 1.0"
 OUTPUT_DIRECTORY       = ../doc/design_doc/CLI
 OUTPUT_LANGUAGE        = English

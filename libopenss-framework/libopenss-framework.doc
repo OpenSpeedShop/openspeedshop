@@ -18,13 +18,13 @@
 
 /** @namespace OpenSpeedShop
 
-Enclosing namespace for all <em>Open/SpeedShop</em> libraries.
+Enclosing namespace for all <em>Open|SpeedShop</em> libraries.
 
 */
 
 /** @namespace OpenSpeedShop::Framework
 
-Enclosing namespace for the <em>Open/SpeedShop</em> framework library.
+Enclosing namespace for the <em>Open|SpeedShop</em> framework library.
 
 */
 

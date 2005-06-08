@@ -20,7 +20,7 @@
 #---------------------------------------------------------------------------
 # Project related configuration options
 #---------------------------------------------------------------------------
-PROJECT_NAME           = "Open/SpeedShop GUI objects"
+PROJECT_NAME           = "Open|SpeedShop GUI objects"
 PROJECT_NUMBER         = "Version 1.0"
 OUTPUT_DIRECTORY       = ../doc/design_doc/GUIobjects
 OUTPUT_LANGUAGE        = English

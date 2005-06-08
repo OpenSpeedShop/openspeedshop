@@ -531,10 +531,10 @@ pcsamp3.tst.expected*
 
 ************************************************************************** *
 *Demonstration of Current status of Installation and Packaging for 
-Open/SpeedShop
+Open|SpeedShop
 ** 
 ************************************************************************* *
-cd new workarea and show that we can build Open/SpeedShop from a clean 
+cd new workarea and show that we can build Open|SpeedShop from a clean 
 source directory using the automake/autoconf tools.
 
 *cd <openspeedshop source dir>
@@ -546,7 +546,7 @@ make install*
 
 Packaging demo:
 
-Show that we can build Open/SpeedShop from a tarball from the make dist target in our Makefiles.
+Show that we can build Open|SpeedShop from a tarball from the make dist target in our Makefiles.
 
 
 -----------

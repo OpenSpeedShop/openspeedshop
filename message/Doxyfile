@@ -20,7 +20,7 @@
 #---------------------------------------------------------------------------
 # Project related configuration options
 #---------------------------------------------------------------------------
-PROJECT_NAME           = "Open/SpeedShop Message Handling"
+PROJECT_NAME           = "Open|SpeedShop Message Handling"
 PROJECT_NUMBER         = "Version 1.0"
 OUTPUT_DIRECTORY       = ../doc/design_doc/Message
 OUTPUT_LANGUAGE        = English

@@ -14,10 +14,10 @@ Group: Development/Tools
 # %{_topdir}/../rpminstall ==  $WORKAREA/rpminstall.
 BuildRoot:%{_topdir}/../rpminstall
 
-BuildRequires: gcc >= 3.2
-BuildRequires: elfutils-libelf >= 0.85
-BuildRequires: binutils >= 2.14
-BuildRequires: qt >= 3.3.1
+#BuildRequires: gcc >= 3.2
+#BuildRequires: elfutils-libelf >= 0.85
+#BuildRequires: binutils >= 2.14
+#BuildRequires: qt >= 3.3.1
 # additional BuildRequires go here.
 # for some reason, some of the packages fail this test.
 # (sqlite, sqlite-devel, tmake, libtool, python, doxygen)
@@ -26,7 +26,7 @@ BuildRequires: qt >= 3.3.1
 # The source rpm file is essentially a tarball within an rpm package.
 
 %description
-Open/SpeedShop is a cross platform open source
+Open|SpeedShop is a cross platform open source
 performance tool.
 
 %package openspeedshop

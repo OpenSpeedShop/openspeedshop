@@ -11,7 +11,7 @@ char *gen_Experiment_brief = {
     " performance metric."
 };
 char *gen_Component_brief = {
-    "A somewhat self-contained section of the Open/SpeedShop"
+    "A somewhat self-contained section of the Open|SpeedShop"
     " performance tool."
 };
 char *gen_Collector_brief = {
@@ -46,7 +46,7 @@ char *gen_Component_detailed[] = {
     " ",
     "This section of code does a set of specific related tasks for",
     "the tool. For example, the GUI component does all the tasks",
-    "related to displaying Open/SpeedShop wizards, experiment",
+    "related to displaying Open|SpeedShop wizards, experiment",
     "creation, and results using a graphical user interface. The",
     "CLI component does similar functions but uses the interactive",
     "command line delivery method",

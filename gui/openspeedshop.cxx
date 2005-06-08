@@ -196,7 +196,7 @@ OpenSpeedshop::~OpenSpeedshop()
  */
 void OpenSpeedshop::languageChange()
 {
-  setCaption( tr( "Open/SpeedShop" ) );
+  setCaption( tr( "Open|SpeedShop" ) );
 
   fileOpenExperimentAction->setText( tr( "Open Existing Experiment..." ) );
   fileOpenExperimentAction->setMenuText( tr( "&Open Existing Experiment..." ) );

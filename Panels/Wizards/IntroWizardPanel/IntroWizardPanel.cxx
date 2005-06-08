@@ -357,7 +357,7 @@ void
 IntroWizardPanel::languageChange()
 {
   setCaption( tr( "IntroWizardForm" ) );
-  vWelcomeHeader->setText( tr( "<h2>Welcome to Open/SpeedShop(tm)</h2>" ) );
+  vWelcomeHeader->setText( tr( "<h2>Welcome to Open|SpeedShop(tm)</h2>" ) );
 
   vHelpfulLabel->setText( tr( "Please select which of the following are true for your application:" ) );
   vpage1LoadExperimentCheckBox->setText( tr( "I already have experiment data and would like to analyze it." ) );
@@ -369,7 +369,7 @@ IntroWizardPanel::languageChange()
   vpage1FloatingPointRB->setText( tr( "I need to measure how many times I am causing Floating Point Exceptions. (fpe)" ) );
   vpage1InputOutputRB->setText( tr( "My program does a lot of Input and Output and I'd like to trace that work. (io)" ) );
   vpage1MPIRB->setText( tr( "I have an MPI program and I'd like trace the mpi calls. (mpi)" ) );
-  eWelcomeHeader->setText( tr( "<h2>Welcome to Open/SpeedShop(tm)</h2>" ) );
+  eWelcomeHeader->setText( tr( "<h2>Welcome to Open|SpeedShop(tm)</h2>" ) );
   eHelpfulLabel->setText( tr( "Please select which of the following are true for your application:" ) );
   epage1LoadExperimentCheckBox->setText( tr( "Load experiment data" ) );
   epage1pcSampleRB->setText( tr( "pcSampling (profiling)" ) );

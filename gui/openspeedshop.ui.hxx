@@ -478,7 +478,7 @@ void OpenSpeedshop::helpAbout()
 {
  dprintf("helpAbout() entered.\n");
 
- QMessageBox::about(this, "Open/SpeedShop", "Open/SpeedShop about example....");
+ QMessageBox::about(this, "Open|SpeedShop", "Open|SpeedShop about example....");
 }
 
 

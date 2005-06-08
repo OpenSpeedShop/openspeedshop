@@ -20,7 +20,7 @@ Estimated Time:
    Anticipated test time; 15-30 minutes.   Max test time; 30 minutes.
 
 Task 1:
-  Launch Open/SpeedShop and optionally load a target application.
+  Launch Open|SpeedShop and optionally load a target application.
   (named 'fred_calls_ted').
 Reason:
   To see if the user can initiate the tool and (optionally) figure out how to 

@@ -20,7 +20,7 @@
 #---------------------------------------------------------------------------
 # Project related configuration options
 #---------------------------------------------------------------------------
-PROJECT_NAME           = "Open/SpeedShop GUI Base"
+PROJECT_NAME           = "Open|SpeedShop GUI Base"
 PROJECT_NUMBER         = "Version 1.0"
 OUTPUT_DIRECTORY       = ../doc/design_doc/GUIbase
 OUTPUT_LANGUAGE        = English
