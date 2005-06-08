@@ -221,7 +221,8 @@ char *cmd_expSetParam_args = {
 
 
 char *cmd_expView_args = {
-    "expView [ <expId_spec> ] [ -gui ] <viewType>"
+    "expView [ <expId_spec> ] [ <file_spec> || -gui ] <viewType>" 
+    "\n\t[ <expMetric_list_spec> ] [ <target_spec> ]"
 };
 
 
@@ -929,6 +930,16 @@ char *cmd_expView_detailed[] = {
     "  directed to an appropriate window for display in a ",
     "  graphical format.",
     " ",
+    "- If <file_spec> is specified, output will be directed",
+    "  to the named file. If neither -gui nor <file_spec> are",
+    "  present, output will be to stdout",
+    " ",
+    "- If <expMetric_list_spec> is present, only those metrics ",
+    "  in the list will be included in the report.",
+    " ",
+    "- If a <target_list> is specified, only the data for the",
+    "  specified targets will be included in the report.",
+    " ",
     "- This command does not change the execution state of the ",
     "  experiment, although the nature of the requested data may ",
     "  require that the experiment complete execution before the ",
@@ -1488,6 +1499,9 @@ char *gram_expId_arg = {
 char *gram_expId_spec_arg = {
     "<expId_spec> ::= -x <expId>"
 };
+char *gram_expMetric_list_spec_arg = {
+    "<expMetric_list_spec> ::= -m <expMetric> [ , <expMetric> ]*"
+};
 char *gram_expMetric_arg = {
     "<expMetric> ::= [<expType>::]<metric_name>"
 };
@@ -1699,6 +1713,9 @@ char *gram_expId_spec_brief = {
     "an experiment identifier."
 };
 char *gram_expMetric_brief = {
+    "A result that an experiment can return. \nIt could be a full report, a value or a set of values."
+};
+char *gram_expMetric_list_spec_brief = {
     "A result that an experiment can return. \nIt could be a full report, a value or a set of values."
 };
 char *gram_metric_name_brief = {
@@ -1924,6 +1941,13 @@ char *gram_expMetric_detailed[] = {
     gram_expMetric_arg,
     " ",
     gram_expMetric_brief,
+    " ",
+    " "
+};
+char *gram_expMetric_list_spec_detailed[] = {
+    gram_expMetric_list_spec_arg,
+    " ",
+    gram_expMetric_list_spec_brief,
     " ",
     " "
 };
@@ -2534,6 +2558,9 @@ OpenSpeedShop::message_element_t grammar_msg[] = {
 //    <expMetric>
     -1,"expMetric",NULL,0,"grammar",gram_expMetric_brief,
     gram_expMetric_detailed,sizeof(gram_expMetric_detailed)/sizeof(char **),NULL,0,NULL,0,
+//    <expMetric_list_spec>
+    -1,"expMetric_list_spec",NULL,0,"grammar",gram_expMetric_list_spec_brief,
+    gram_expMetric_list_spec_detailed,sizeof(gram_expMetric_list_spec_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    <param_name>
     -1,"param_name",NULL,0,"grammar",gram_param_name_brief,
     gram_param_name_detailed,sizeof(gram_param_name_detailed)/sizeof(char **),NULL,0,NULL,0,
