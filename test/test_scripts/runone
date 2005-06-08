@@ -36,7 +36,7 @@ def iterateThroughTestList(fileptr):
                 	if test_name[i] == '.':
                         	break
                 	else:
-                        	i = i + 1
+                        	i += 1
         	testName = test_name[0:i+4]
 
 		runTest(testName)
@@ -76,31 +76,31 @@ def CompareResults(testName, fileptr):
 			break
 		i = 0
 		while outputfileline[i] == ' ':
-			i = i+ 1
+			i +=  1
 		j = i
 		while outputfileline[j] != ' ':
-			j = j+1
+			j += 1
 		actual_time = atof(outputfileline[i:j])
 		i = j+ 1
 		while outputfileline[i] == ' ':
-			i = i+1
+			i += 1
 		j = i
 		while (outputfileline[j] != '\n') and (outputfileline[j] != ' '):
-			j = j+1
+			j +=1
 		actual_function = outputfileline[i:j]
 		i = 0
                 while expectedfileline[i] == ' ':
-                        i = i+ 1
+                        i += 1
                 j = i
                 while expectedfileline[j] != ' ':
-                        j = j+1
+                        j += 1
                 expected_time = atof(expectedfileline[i:j])
                 i = j+ 1
                 while expectedfileline[i] == ' ':
-                        i = i+1
+                        i += 1
                 j = i
                 while (expectedfileline[j] != '\n') and (expectedfileline[j] != ' '):
-                        j = j+1
+                        j  += 1
                 expected_function = expectedfileline[i:j]
 		if (expected_function == actual_function):
 			if (previous_expected != 0 ):
