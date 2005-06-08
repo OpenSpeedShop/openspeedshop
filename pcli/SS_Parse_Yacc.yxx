@@ -43,6 +43,7 @@ extern ParseResult *p_parse_result;
 extern void dump_help_brief(void);
 
 #define YYDEBUG 1
+#define YYERROR_VERBOSE 1
 
 %}
 
@@ -77,7 +78,7 @@ char *string;
 %token RANK_ID HOST_ID THREAD_ID FILE_ID EXP_ID PROCESS_ID
 %token LINE_ID CLUSTER_ID METRIC_ID
 
-%token COMMA SEMICOLON COLON END_LINE EQUAL RPARAM LPARAM DOUBLE_COLON
+%token COMMA SEMICOLON COLON END_LINE EQUAL DOUBLE_COLON
 
 %token <val> IPNUMBER_32
 %token <val> HEXNUMBER
@@ -177,7 +178,7 @@ exp_close_arg:	    /* empty */
 
     	    /** EXP_CREATE **/
 exp_create_com:     CREATE_HEAD   exp_create_args 
-    	    	|   CREATE_HEAD {p_parse_result->SetCommandType(CMD_EXP_CREATE);} error 
+  	    	|   CREATE_HEAD error END_LINE {p_parse_result->set_error(cmd_desc[CMD_EXP_CREATE].name);} 
     	    	;
 exp_create_args:    /* empty */
     	    	|   target_list
@@ -477,7 +478,7 @@ list_views_arg:   /* empty */
 
     	    /** GEN_CLEAR_BREAK **/
 gen_clear_break_com:	GEN_CLEAR_BREAK_HEAD   gen_clear_break_arg
-  	    	|   	GEN_CLEAR_BREAK_HEAD END_LINE error {p_parse_result->set_error(cmd_desc[CMD_CLEAR_BREAK].name);} 
+  	    	|   	GEN_CLEAR_BREAK_HEAD error END_LINE {p_parse_result->set_error(cmd_desc[CMD_CLEAR_BREAK].name);} 
       	    	;
 gen_clear_break_arg:	NUMBER {p_parse_result->pushBreakId($1);}
     	    	;
@@ -490,6 +491,7 @@ gen_exit_com:	    GEN_EXIT_HEAD
     	    /** GEN_HELP **/
 gen_help_com:	    GEN_HELP_HEAD   {p_parse_result->push_help();}
     		|   GEN_HELP_HEAD   gen_help_args 
+    		|   GEN_HELP_HEAD   error END_LINE {p_parse_result->set_error(cmd_desc[CMD_HELP].name);}
     	    	;
 gen_help_args:	    gen_help_arg
     	    	|   gen_help_args gen_help_arg  
@@ -737,9 +739,6 @@ param_name: 	    PARAM_DISPLAY_MODE
     	    	|   NAME	    	    	    	 
 		;
 
-expMetric_bounded:  LPARAM expMetric_list RPARAM
-		;
-
 expMetric_list_spec:  METRIC_ID expMetric_list
 		;
 
@@ -783,8 +782,9 @@ yyerror(const char *s)
 {
     /* printf("%s\n",s); */
     //printf("///%s///\n",yytext);
-    //printf("in yyerror()\n");
+    //printf("in yyerror(): yynerrs = %d\n",yynerrs);
     p_parse_result->set_error((char *)yytext);
+    ;
 }
 
 /***************************************************/
