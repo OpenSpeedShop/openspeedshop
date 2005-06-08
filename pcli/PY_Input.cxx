@@ -37,6 +37,9 @@ using namespace OpenSpeedShop::cli;
 extern FILE *yyin;
 extern int yyparse (void);
 extern int yydebug;
+extern int yynerrs;
+extern char yychar;
+// extern yylval;
 ParseResult *p_parse_result;
 
 /* Global Data for tracking the current command line. */
@@ -67,6 +70,12 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     rewind(yyin);
 
     //yydebug = 1;
+    //yynerrs = 0; // If this is not set then error conditions are carried over.
+    //yychar = '\0';
+    //cout << "in SS_CallParser():" << endl;
+    //cout << "\tyynerrs = " << yynerrs << endl;
+    //cout << "\tyydebug = " << yydebug << endl;
+    //cout << "\tyychar = " << yychar << endl;
     ret = yyparse();
 
     fclose(yyin); 
