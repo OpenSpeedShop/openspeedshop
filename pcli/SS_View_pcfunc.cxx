@@ -28,6 +28,7 @@ using namespace std;
 
 using namespace OpenSpeedShop::cli;
 
+
 // pcfunc view
 
 static std::string VIEW_pcfunc_brief = "pctime : % total : % cumulative : function";
@@ -62,11 +63,64 @@ class pcfunc_view : public ViewType {
                              true) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV) {
-    CV.erase(++CV.begin(), CV.end());
+                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
+                         std::vector<ViewInstruction *>IV) {
+    CV.erase(++CV.begin(), CV.end());  // Save the collector name
     MV.erase(MV.begin(), MV.end());
-    MV.push_back(VIEW_pcfunc_metrics[0]);
-    return Generic_View->GenerateView (cmd, exp, topn, tgrp, CV, MV);
+    IV.erase(IV.begin(), IV.end());
+
+    MV.push_back(VIEW_pcfunc_metrics[0]);  // Use the Collector with the first metric
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, 0, 0));  // first column is metric
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Metric, 1, 0));  // second column is %
+    return Generic_View->GenerateView (cmd, exp, topn, tgrp, CV, MV, IV);
+  }
+};
+
+
+// pcsamp view
+
+static std::string VIEW_pcsamp_brief = "pctime : % total : % cumulative : function";
+static std::string VIEW_pcsamp_short = "Report the amount and percent of program time spent in a function.";
+static std::string VIEW_pcsamp_long  = "Use the program timer to produce a sorted report of the functions"
+                                       " that use the most time.  Calculate"
+                                       " the percent of total time that each function uses."
+                                       " A positive integer can be added to the end of the keyword"
+                                       " ""pcsamp"" to indicate the maximum number of items in"
+                                       " the report.";
+static std::string VIEW_pcsamp_metrics[] =
+  { "time",
+    ""
+  };
+static std::string VIEW_pcsamp_collectors[] =
+  { ""
+  };
+static std::string VIEW_pcsamp_header[] =
+  { ""
+  };
+class pcsamp_view : public ViewType {
+
+ public: 
+  pcsamp_view() : ViewType ("pcsamp",
+                             VIEW_pcsamp_brief,
+                             VIEW_pcsamp_short,
+                             VIEW_pcsamp_long,
+                            &VIEW_pcsamp_metrics[0],
+                            &VIEW_pcsamp_collectors[0],
+                            &VIEW_pcsamp_header[0],
+                             true,
+                             true) {
+  }
+  virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
+                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
+                         std::vector<ViewInstruction *>IV) {
+    CV.erase(++CV.begin(), CV.end());  // Save the collector name
+    MV.erase(MV.begin(), MV.end());
+    IV.erase(IV.begin(), IV.end());
+
+    MV.push_back(VIEW_pcsamp_metrics[0]);  // Use the Collector with the first metric
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, 0, 0));  // first column is metric
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Metric, 1, 0));  // second column is %
+    return Generic_View->GenerateView (cmd, exp, topn, tgrp, CV, MV, IV);
   }
 };
 
@@ -105,11 +159,16 @@ class intime_view : public ViewType {
                              true) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV) {
+                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
+                         std::vector<ViewInstruction *>IV) {
     CV.erase(++CV.begin(), CV.end());
     MV.erase(MV.begin(), MV.end());
-    MV.push_back(VIEW_intime_metrics[0]);
-    return Generic_View->GenerateView (cmd, exp, topn, tgrp, CV, MV);
+    IV.erase(IV.begin(), IV.end());
+
+    MV.push_back(VIEW_intime_metrics[0]);  // Use the Collector with the first metric
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, 0, 0));  // first column is metric
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Metric, 1, 0));  // second column is %
+    return Generic_View->GenerateView (cmd, exp, topn, tgrp, CV, MV, IV);
   }
 };
 
@@ -147,11 +206,99 @@ class extime_view : public ViewType {
                              true) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV) {
+                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
+                         std::vector<ViewInstruction *>IV) {
     CV.erase(++CV.begin(), CV.end());
     MV.erase(MV.begin(), MV.end());
-    MV.push_back(VIEW_extime_metrics[0]);
-    return Generic_View->GenerateView (cmd, exp, topn, tgrp, CV, MV);
+    IV.erase(IV.begin(), IV.end());
+
+    MV.push_back(VIEW_extime_metrics[0]);  // Use the Collector with the first metric
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, 0, 0));  // first column is metric
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Metric, 1, 0));  // second column is %
+    return Generic_View->GenerateView (cmd, exp, topn, tgrp, CV, MV, IV);
+  }
+};
+
+// UserTime Report
+
+static std::string VIEW_usertime_brief = "User Time Report";
+static std::string VIEW_usertime_short = "Report the amount of time spent in a function.";
+static std::string VIEW_usertime_long  = "Produce a decending report of the functions that use the "
+                                     " most time."
+                                     " A positive integer can be added to the end of the keyword"
+                                     " ""usertime"" to indicate the maximum number of items in"
+                                     " the report.";
+static std::string VIEW_usertime_metrics[] =
+  { "inclusive_time",
+    "exclusive_time",
+    ""
+  };
+static std::string VIEW_usertime_collectors[] =
+  { "usertime",
+    ""
+  };
+static std::string VIEW_usertime_header[] =
+  { ""
+  };
+class usertime_view : public ViewType {
+
+ public: 
+  usertime_view() : ViewType ("usertime",
+                             VIEW_usertime_brief,
+                             VIEW_usertime_short,
+                             VIEW_usertime_long,
+                            &VIEW_usertime_metrics[0],
+                            &VIEW_usertime_collectors[0],
+                            &VIEW_usertime_header[0],
+                             true,
+                             true) {
+  }
+  virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
+                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
+                         std::vector<ViewInstruction *>IV) {
+    if (MV.size() > 2) {
+     // There are only two metrics.  Default to the basic report.
+      CV.erase(CV.begin(), CV.end());
+      MV.erase(MV.begin(), MV.end());
+      IV.erase(IV.begin(), IV.end());
+    }
+
+    int64_t Max_Column = Find_Max_Column_Def (IV);
+
+   // The user might have already define the metrics, but it doesn't hurt to do it again.
+    Collector c = Get_Collector (exp->FW(), VIEW_usertime_collectors[0]);
+
+   // Define inclusive time metric.
+    int intime_index = MV.size();
+    CV.push_back (c);
+    MV.push_back (VIEW_intime_metrics[0]);
+
+   // Define exclusive time metric.
+    int extime_index = intime_index + 1;
+    CV.push_back (c);
+    MV.push_back ("exclusive_time");
+
+   // If the user didn't define the metrics - set the default columns for the report.
+    if (IV.size() == 0) {
+     // Column[0] is inclusive time
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, ++Max_Column, intime_index));
+     // Column[1] is exclusive time
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, ++Max_Column, extime_index));
+      Max_Column = 1;
+    }
+
+   // Column[2] is % of  whatever is the first metric in the list.
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, ++Max_Column, 0));
+
+   // Report on all functions that have inclusive time.
+   // (This offers the greatest coverage, since functions with no time are dropped.)
+    IV.push_back(new ViewInstruction (VIEWINST_Define_Base, intime_index));
+
+   // The Total Time (used for % calculation) is always the total exclusive time.
+   // (Otherwise, we measure a unit of time multiple times.)
+    IV.push_back(new ViewInstruction (VIEWINST_Define_Total, extime_index));
+
+    return Generic_View->GenerateView (cmd, exp, topn, tgrp, CV, MV, IV);
   }
 };
 
@@ -178,7 +325,7 @@ static std::string VIEW_vtop_header[] =
     ""
   };
 static bool VIEW_vtop (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                       ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV) {
+                       ThreadGroup tgrp, std::vector<Collector>CV, std::vector<std::string> MV) {
   if (topn == 0) topn = INT_MAX;
   try {
     std::vector<Function_double_pair> items = GetDoubleByFunction (cmd, false, tgrp, CV[0], MV[0]);
@@ -219,7 +366,17 @@ class vtop_view : public ViewType {
                            true) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV) {
+                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
+                         std::vector<ViewInstruction *>IV) {
+/* TEST - replace with generic view 
+    CV.erase(++CV.begin(), CV.end());  // Save the collector name
+    MV.erase(MV.begin(), MV.end());
+    IV.erase(IV.begin(), IV.end());
+
+    MV.push_back(VIEW_vtop_metrics[0]);  // Use the Collector with the metric "time"
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, 0, 0));  // first column is metric
+    return Generic_View->GenerateView (cmd, exp, topn, tgrp, CV, MV, IV);
+*/
     return VIEW_vtop (cmd, exp, topn, tgrp, CV, MV);
   }
 };
@@ -231,5 +388,7 @@ extern "C" void pcfunc_LTX_ViewFactory () {
   Define_New_View (new vtop_view());
   Define_New_View (new intime_view());
   Define_New_View (new extime_view());
+  Define_New_View (new usertime_view());
   Define_New_View (new pcfunc_view());
+  Define_New_View (new pcsamp_view());
 }
