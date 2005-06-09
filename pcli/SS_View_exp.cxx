@@ -146,7 +146,8 @@ class exp_view : public ViewType {
                          false) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV) {
+                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
+                         std::vector<ViewInstruction *>IV) {
     return VIEW_exp (cmd, exp);
   }
 };
@@ -185,7 +186,8 @@ class allexp_view : public ViewType {
                              false) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV) {
+                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
+                         std::vector<ViewInstruction *>IV) {
     std::list<ExperimentObject *>::reverse_iterator expi;
     for (expi = ExperimentObject_list.rbegin(); expi != ExperimentObject_list.rend(); expi++)
     {
@@ -242,7 +244,8 @@ class expstatus_view : public ViewType {
                                 false) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV) {
+                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
+                         std::vector<ViewInstruction *>IV) {
     return VIEW_expstatus (cmd, exp);
   }
 };
