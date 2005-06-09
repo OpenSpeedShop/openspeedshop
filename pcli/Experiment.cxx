@@ -956,7 +956,8 @@ bool SS_expRestore (CommandObject *cmd) {
 
  // Create a new experiment and connect it to the saved data base.
   ExperimentObject *exp = new ExperimentObject (data_base_name);
-  if (exp == NULL) {
+  if ((exp == NULL) ||
+      (exp->ExperimentObject_ID() <= 0)) {
     cmd->Result_String ("The specified file name is not a legal data base.");
     cmd->set_Status(CMD_ERROR);
     return false;
@@ -964,7 +965,6 @@ bool SS_expRestore (CommandObject *cmd) {
 
  // Pick up the ID for an allocated experiment.
   EXPID ExperimentID = exp->ExperimentObject_ID();
-  Assert (ExperimentID > 0);
 
  // Attempt to reattach to the executable and insert instrumentation.
   (void)Enable_Experiment (cmd, exp);
