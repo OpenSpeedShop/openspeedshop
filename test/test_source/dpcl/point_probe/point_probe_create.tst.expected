@@ -1,4 +1,5 @@
 Ais_override called
 bcreate called
 Doing 301 calls to sleep
-client: server 'localhost.localdomain' terminated, removing socket 3.
+Counted 301 calls to sleep()!
+SUCCESS
