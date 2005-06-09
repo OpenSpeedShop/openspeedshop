@@ -32,7 +32,7 @@ database_la_LDFLAGS = \
 	-Wl,../../../../../libopenss-framework/.libs/libopenss-framework.so \
 	-LANG:std -lsqlite3
 
-database_la_LIBADD = $(LIBLTDL)
+#database_la_LIBADD = $(LIBLTDL)
 
 filelist = \
 	dbtest1 \

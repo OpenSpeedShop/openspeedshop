@@ -32,10 +32,10 @@ database_la_LDFLAGS = \
 	-Wl,../../../libopenss-framework/.libs/libopenss-framework.so \
 	-LANG:std -lsqlite3
 
-database_la_LIBADD = $(LIBLTDL)
+#database_la_LIBADD = $(LIBLTDL)
 
-all: locking1
+all: lock1
 
-locking1: locking1.cxx
-	-g++ -o locking1 $(database_la_CXXFLAGS) $(database_la_LDFLAGS) locking1.cxx
+lock1: lock1.cxx
+	-g++ -o lock1 $(database_la_CXXFLAGS) $(database_la_LDFLAGS) lock1.cxx
 

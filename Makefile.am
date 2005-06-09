@@ -70,7 +70,7 @@ tests: $(TEST_SUBDIRS)
 
 DOC_SUBDIRS = \
 	libopenss-framework \
-	Panels pcli base chart gui plugin objects dialogs
+	Panels pcli base chart gui plugin objects dialogs plugins/collectors
 
 doc: $(DOC_SUBDIRS) 
 	$(DOXYGEN) Doxyfile
