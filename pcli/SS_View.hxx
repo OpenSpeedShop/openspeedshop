@@ -16,6 +16,64 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
+enum ViewOpCode {
+     VIEWINST_Define_Base,
+     VIEWINST_Define_Total,
+     VIEWINST_Display_Metric,
+     VIEWINST_Display_Tmp,
+     VIEWINST_Display_Percent_Column,
+     VIEWINST_Display_Percent_Metric,
+     VIEWINST_Display_Percent_Tmp
+};
+
+class ViewInstruction
+{
+ private:
+  ViewOpCode Instruction;
+  int64_t TmpResult;  // result temp or column number
+  int64_t TMP_index1; // index of Collector::Metric vectors or temp
+  int64_t TMP_index2; // index of temp
+
+ public:
+  ViewInstruction (ViewOpCode I, int64_t TR) {
+    Instruction = I;
+    TmpResult = -1;
+    TMP_index1 = TR;
+    TMP_index2 = -1;
+  }
+  ViewInstruction (ViewOpCode I, int64_t TR, int64_t TMP1) {
+    Instruction = I;
+    TmpResult = TR;
+    TMP_index1 = TMP1;
+    TMP_index2 = -1;
+  }
+  ViewInstruction (ViewOpCode I, int64_t TR, int64_t TMP1, int64_t TMP2) {
+    Instruction = I;
+    TmpResult = TR;
+    TMP_index1 = TMP1;
+    TMP_index2 = TMP2;
+  }
+  ViewOpCode OpCode () { return Instruction; }
+  int64_t TR () { return TmpResult; }
+  int64_t TMP1 () { return TMP_index1; }
+  int64_t TMP2 () { return TMP_index2; }
+
+  void Print (FILE *TFile) {
+    std::string op;
+    switch (Instruction) {
+     case VIEWINST_Define_Base: op = "Define_Base"; break;
+     case VIEWINST_Define_Total: op = "Define_Total"; break;
+     case VIEWINST_Display_Metric: op = "Display_Metric"; break;
+     case VIEWINST_Display_Tmp: op = "Display_Tmp"; break;
+     case VIEWINST_Display_Percent_Column: op = "Display_Percent_Column"; break;
+     case VIEWINST_Display_Percent_Metric: op = "Display_Percent_Metric"; break;
+     case VIEWINST_Display_Percent_Tmp: op = "Display_Percent_Tmp"; break;
+     default: op ="(unknown)"; break;
+    }
+    fprintf(TFile,"%s %lld %lld %lld\n",op.c_str(),TmpResult,TMP_index1,TMP_index2);
+  }
+};
+
 class ViewType
 {
 
@@ -36,7 +94,8 @@ class ViewType
   // virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp,
   //                            int64_t topn, std::string useCollector) {
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV) {
+                             ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
+                             std::vector<ViewInstruction *>IV) {
     cmd->Result_String ("The requested view has not been implemented.");
     cmd->set_Status(CMD_ERROR);
     return false;
@@ -81,6 +140,8 @@ extern std::list<ViewType *> Available_Views;
 extern ViewType *Generic_View;
 inline void Define_New_View (ViewType *vnew) { Available_Views.push_front (vnew); }
 
+std::set<Function> GetFunctions (CommandObject *cmd,
+                                 ThreadGroup tgrp);
 typedef std::pair<Function, double> Function_double_pair;
 CommandResult *Get_Collector_Metric (CommandObject *cmd,
                                      Function F,
@@ -95,12 +156,24 @@ std::vector<Function_double_pair>
                                       std::string metric);
 double Total_second (std::vector<Function_double_pair> items);
 ViewType *Find_View (std::string viewname);
+bool Collector_Generates_Metrics (Collector C, std::string *Metric_List);
 std::string Find_Collector_With_Metrics (CollectorGroup cgrp,
                                          std::string *Metric_List);
-bool Collector_Generates_Metrics (Collector C, std::string *Metric_List);
+bool Collector_Generates_Metric (Collector C, std::string Metric_Name);
+std::string Find_Collector_With_Metric (CollectorGroup cgrp,
+                                        std::string Metric_Name);
 bool Metadata_hasName (std::set<Metadata> M, std::string name);
 Metadata Find_Metadata (Collector C, std::string name);
 CommandResult *gen_F_name (Function F);
+ViewInstruction *Find_Base_Def (std::vector<ViewInstruction *>IV);
+ViewInstruction *Find_Total_Def (std::vector<ViewInstruction *>IV);
+ViewInstruction *Find_Percent_Def (std::vector<ViewInstruction *>IV);
+ViewInstruction *Find_Column_Def (std::vector<ViewInstruction *>IV, int64_t Column);
+int64_t Find_Max_Column_Def (std::vector<ViewInstruction *>IV);
+void Print_View_Params (FILE *TFile,
+                        std::vector<Collector> CV,
+                        std::vector<std::string> MV,
+                        std::vector<ViewInstruction *>IV);
 
 void Add_Column_Headers (CommandResult_Headers *H, std::string *column_titles);
 void Add_Header (CommandObject *cmd, std::string *column_titles);
