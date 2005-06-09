@@ -497,10 +497,13 @@ gen_help_args:	    gen_help_arg
     	    	|   gen_help_args gen_help_arg  
     	    	;
 gen_help_arg:	    NAME {p_parse_result->push_help($1);}
+
     	    	|   ATTACH_HEAD     	    {p_parse_result->push_help(cmd_desc[CMD_EXP_ATTACH].name);}
     	    	|   CLOSE_HEAD	    	    {p_parse_result->push_help(cmd_desc[CMD_EXP_CLOSE].name);}
     	    	|   CREATE_HEAD     	    {p_parse_result->push_help(cmd_desc[CMD_EXP_CREATE].name);}
     	    	|   DETACH_HEAD     	    {p_parse_result->push_help(cmd_desc[CMD_EXP_DETACH].name);}
+    	    	|   DISABLE_HEAD     	    {p_parse_result->push_help(cmd_desc[CMD_EXP_DISABLE].name);}
+    	    	|   ENABLE_HEAD     	    {p_parse_result->push_help(cmd_desc[CMD_EXP_ENABLE].name);}
     	    	|   FOCUS_HEAD	    	    {p_parse_result->push_help(cmd_desc[CMD_EXP_FOCUS].name);}
     	    	|   PAUSE_HEAD	    	    {p_parse_result->push_help(cmd_desc[CMD_EXP_PAUSE].name);}
     	    	|   RESTORE_HEAD    	    {p_parse_result->push_help(cmd_desc[CMD_EXP_RESTORE].name);}
@@ -508,22 +511,27 @@ gen_help_arg:	    NAME {p_parse_result->push_help($1);}
     	    	|   SAVE_HEAD   	    {p_parse_result->push_help(cmd_desc[CMD_EXP_SAVE].name);}
    	    	|   SETPARAM_HEAD   	    {p_parse_result->push_help(cmd_desc[CMD_EXP_SETPARAM].name);}
     	    	|   VIEW_HEAD	    	    {p_parse_result->push_help(cmd_desc[CMD_EXP_VIEW].name);}
+
+    	    	|   LIST_BREAKS_HEAD	    {p_parse_result->push_help(cmd_desc[CMD_LIST_BREAKS].name);}
     	    	|   LIST_EXP_HEAD   	    {p_parse_result->push_help(cmd_desc[CMD_LIST_EXP].name);}
     	    	|   LIST_HOSTS_HEAD 	    {p_parse_result->push_help(cmd_desc[CMD_LIST_HOSTS].name);}
-    	    	|   LIST_OBJ_HEAD   	    {p_parse_result->push_help(cmd_desc[CMD_LIST_OBJ].name);}
-    	    	|   LIST_PIDS_HEAD  	    {p_parse_result->push_help(cmd_desc[CMD_LIST_PIDS].name);}
-    	    	|   LIST_SRC_HEAD   	    {p_parse_result->push_help(cmd_desc[CMD_LIST_SRC].name);}
     	    	|   LIST_METRICS_HEAD	    {p_parse_result->push_help(cmd_desc[CMD_LIST_METRICS].name);}
+    	    	|   LIST_OBJ_HEAD   	    {p_parse_result->push_help(cmd_desc[CMD_LIST_OBJ].name);}
     	    	|   LIST_PARAMS_HEAD	    {p_parse_result->push_help(cmd_desc[CMD_LIST_PARAMS].name);}
-    	    	|   LIST_VIEWS_HEAD	    {p_parse_result->push_help(cmd_desc[LIST_VIEWS_HEAD].name);}
-    	    	|   LIST_BREAKS_HEAD	    {p_parse_result->push_help(cmd_desc[CMD_LIST_BREAKS].name);}
+    	    	|   LIST_PIDS_HEAD  	    {p_parse_result->push_help(cmd_desc[CMD_LIST_PIDS].name);}
+    	    	|   LIST_RANKS_HEAD  	    {p_parse_result->push_help(cmd_desc[CMD_LIST_RANKS].name);}
+    	    	|   LIST_SRC_HEAD   	    {p_parse_result->push_help(cmd_desc[CMD_LIST_SRC].name);}
+    	    	|   LIST_STATUS_HEAD   	    {p_parse_result->push_help(cmd_desc[CMD_LIST_STATUS].name);}
+    	    	|   LIST_THREADS_HEAD	    {p_parse_result->push_help(cmd_desc[CMD_LIST_THREADS].name);}
     	    	|   LIST_TYPES_HEAD	    {p_parse_result->push_help(cmd_desc[CMD_LIST_TYPES].name);}
+    	    	|   LIST_VIEWS_HEAD	    {p_parse_result->push_help(cmd_desc[CMD_LIST_VIEWS].name);}
+
     	    	|   GEN_CLEAR_BREAK_HEAD    {p_parse_result->push_help(cmd_desc[CMD_CLEAR_BREAK].name);}
     	    	|   GEN_EXIT_HEAD   	    {p_parse_result->push_help(cmd_desc[CMD_EXIT].name);}
-    	    	|   GEN_OPEN_GUI_HEAD	    {p_parse_result->push_help(cmd_desc[CMD_OPEN_GUI].name);}
     	    	|   GEN_HELP_HEAD   	    {p_parse_result->push_help(cmd_desc[CMD_HELP].name);}
     	    	|   GEN_HISTORY_HEAD	    {p_parse_result->push_help(cmd_desc[CMD_HISTORY].name);}
     	    	|   GEN_LOG_HEAD    	    {p_parse_result->push_help(cmd_desc[CMD_LOG].name);}
+    	    	|   GEN_OPEN_GUI_HEAD	    {p_parse_result->push_help(cmd_desc[CMD_OPEN_GUI].name);}
     	    	|   GEN_PLAYBACK_HEAD	    {p_parse_result->push_help(cmd_desc[CMD_PLAYBACK].name);}
     	    	|   GEN_RECORD_HEAD 	    {p_parse_result->push_help(cmd_desc[CMD_RECORD].name);}
     	    	|   GEN_SETBREAK_HEAD	    {p_parse_result->push_help(cmd_desc[CMD_SETBREAK].name);}
@@ -548,6 +556,8 @@ gen_help_arg:	    NAME {p_parse_result->push_help($1);}
     	    	|   FILE_ID	    {p_parse_result->push_help("-f");}
     	    	|   EXP_ID	    {p_parse_result->push_help("-x");}
     	    	|   LINE_ID	    {p_parse_result->push_help("-l");}
+    	    	|   METRIC_ID	    {p_parse_result->push_help("-m");}
+
     	    	;
 
     	    /** GEN_HISTORY **/
