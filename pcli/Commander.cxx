@@ -677,6 +677,7 @@ public:
         id,Input_Is_Async?"async":" sync",remote?"remote":"local",
         I_Call_Myself.c_str(),Host_ID.c_str(),(int64_t)Process_ID,Panel_ID,
         Focus(),Log_File_Name.c_str());
+    fprintf(TFile,"    outstream=%p, errstream=%p\n",default_outstream,default_errstream);
     if (Input) {
       fprintf(TFile,"  Active Input Source Stack:\n");
       for (Input_Source *inp = Input; inp != NULL; inp = inp->Next()) {
@@ -1137,7 +1138,7 @@ void Redirect_Window_Output (CMDWID for_window, ss_ostream *for_out, ss_ostream 
     my_window->set_outstream (for_out);
   }
   if (for_err != NULL) {
-    my_window->set_outstream (for_err);
+    my_window->set_errstream (for_err);
   }
 }
 
@@ -1169,12 +1170,34 @@ static bool Isa_SS_Command (CMDWID issuedbywindow, const char *b_ptr) {
   }
   if (b_ptr[fc] == *("\?")) {
     bool Fatal_Error_Encountered = false;
-    fprintf(stdout,"SpeedShop Status:\n");
     CommandWindowID *cw = Find_Command_Window (issuedbywindow);
     if ((cw == NULL) || (cw->ID() == 0)) {
-      fprintf(stdout,"    ERROR: the window(%lld) this command came from is illegal\n",issuedbywindow);
-      Fatal_Error_Encountered = true;
+      fprintf(stderr,"    ERROR: the window(%lld) this command came from is illegal\n",issuedbywindow);
+      return false;
     }
+    if (!(cw->has_outstream())) {
+      fprintf(stderr,"    ERROR: window(%lld) has no defined output stream\n",issuedbywindow);
+      return false;
+    }
+    ss_ostream *this_ss_stream = Window_ostream (issuedbywindow);
+    this_ss_stream->acquireLock();
+    ostream &mystream = this_ss_stream->mystream();
+    mystream << "SpeedShop Status:" << std::endl;
+    mystream << "    " << (Looking_for_Async_Inputs?" ":"Not") << " Waiting for Async input" << std::endl;
+    if (Looking_for_Async_Inputs) {
+      if (More_Input_Needed_From_Window) {
+        mystream << "    " << "Processing of a complex statement requires input from W "
+                 << More_Input_Needed_From_Window  << std::endl;
+        CommandWindowID *lw = Find_Command_Window (More_Input_Needed_From_Window);
+        if ((lw == NULL) || (!lw->Input_Available())) {
+          mystream << "    ERROR: this window can not provide more input!!" << std::endl;
+          Fatal_Error_Encountered = true;
+        }
+      }
+    }
+    this_ss_stream->releaseLock();
+/*
+    fprintf(stdout,"SpeedShop Status:\n");
     fprintf(stdout,"  %s Waiting for Async input\n",Looking_for_Async_Inputs?" ":"Not");
     if (Looking_for_Async_Inputs) {
       if (More_Input_Needed_From_Window) {
@@ -1187,6 +1210,8 @@ static bool Isa_SS_Command (CMDWID issuedbywindow, const char *b_ptr) {
         }
       }
     }
+*/
+    fprintf(stdout,"    ss_ostreams: stdout=%p, stderr=%p, ttyout=%p\n",ss_out,ss_err,ss_ttyout);
     List_CommandWindows(stdout);
     // ExperimentObject *a; a->Dump(stdout);
     ExperimentObject::Dump(stdout);
@@ -1291,6 +1316,7 @@ bool Push_Input_File (CMDWID issuedbywindow, std::string fromfname,
 
 void Default_TLI_Line_Output (InputLineObject *clip) {
  // Make sure all the output, associated with every CommandObject, has been printed.
+  Assert(clip != NULL);
   if (!(clip->Results_Used())) {
     std::list<CommandObject *> cmd_list = clip->CmdObj_List();
     std::list<CommandObject *>::iterator cmi;
