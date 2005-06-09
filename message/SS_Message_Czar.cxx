@@ -28,6 +28,29 @@
 
 using namespace std;
 
+////////////////////////////////////////////////
+// Case insensitive compare function:
+int 
+stringCmpi(const string& s1, const string& s2) {
+    // Select the first element of each string:
+    string::const_iterator 
+    p1 = s1.begin(), p2 = s2.begin();
+
+    // Don't run past the end:
+    while(p1 != s1.end() && p2 != s2.end()) {
+    	// Compare upper-cased chars:
+    	if(toupper(*p1) != toupper(*p2))
+    	    // Report which was lexically  greater:
+    	    return (toupper(*p1)<toupper(*p2))? -1 : 1;
+    	p1++;
+    	p2++;
+    }
+    // If they match up to the detected eos, say 
+    // which was longer. Return 0 if the same.
+    return(s2.size() - s1.size());
+}
+////////////////////////////////////////////////
+
 #include "SS_Message_Element.hxx"
 #include "SS_Message_Czar.hxx"
 
@@ -83,6 +106,8 @@ Add_Error(SS_Message_Element& element)
  * the help list. If no hits, do a case insensitive
  * search.
  * 
+ * We go through the full message database gathering
+ * multiple hits.
  *     
  * @return  void, but vector of SS_Message_Element * passed in.
  *
@@ -94,10 +119,27 @@ SS_Message_Czar::
 Find_By_Keyword(string keyword,vector <SS_Message_Element *> *p_element) 
 {
     vector <SS_Message_Element>:: iterator k;
+    bool found = false;
+
+    // Case sensitive search
     for (k=dm_help_list.begin();
     	 k!= dm_help_list.end();
 	 ++k) {
 	if ((keyword.compare(*k->get_keyword())) == 0) {
+	    SS_Message_Element& el = *k;
+	    p_element->push_back(&el);
+	    found = true;
+	}
+    }
+    
+    if (found)
+    	return;
+
+    // Case insensitive search
+    for (k=dm_help_list.begin();
+    	 k!= dm_help_list.end();
+	 ++k) {
+    	if ((stringCmpi(keyword,*k->get_keyword())) == 0) {
 	    SS_Message_Element& el = *k;
 	    p_element->push_back(&el);
 	}
