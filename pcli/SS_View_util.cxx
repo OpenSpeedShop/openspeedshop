@@ -127,6 +127,33 @@ CommandResult *Get_Collector_Metric (CommandObject *cmd,
   return Param_Value;
 }
 
+std::set<Function> GetFunctions (CommandObject *cmd,
+                                 ThreadGroup tgrp)
+{
+  std::set<Function> functions;
+
+ // Iterate over all the threads and find all the functions
+  ThreadGroup::iterator ti;
+  for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+    Thread T = *ti;
+    try {
+      std::set<Function> fset = T.getFunctions();
+
+     // Iterate over each function and add it to the base set.
+      for(std::set<Function>::const_iterator
+              it = functions.begin(); it != functions.end(); ++it) {
+        functions.insert(*it);
+      }
+
+    }
+    catch(const Exception& error) {
+     // Ignore errors and do with what is available.
+    }
+  }
+
+  return functions;
+}
+
 std::vector<Function_double_pair>
                  GetDoubleByFunction (CommandObject *cmd,
                                       bool ascending_sort,
@@ -211,6 +238,46 @@ void Add_Header (CommandObject *cmd, std::string *column_titles)
   CommandResult_Headers *H = new CommandResult_Headers ();
   Add_Column_Headers (H, column_titles);
   cmd->Result_Predefined (H);
+}
+
+bool Collector_Generates_Metric (Collector C, std::string Metric_Name) {
+ // Does a given collector produce a specific metric?
+  std::set<Metadata> md = C.getMetrics();
+  std::set<Metadata>::const_iterator mi;
+
+ // Check that all the required metrics are in this collector.
+  for (mi = md.begin(); mi != md.end(); mi++) {
+    Metadata m = *mi;
+    if (!strcasecmp(Metric_Name.c_str(), m.getUniqueId().c_str())) {
+     // Match succeeds!
+      return true;
+    }
+  }
+
+  return false;
+}
+
+std::string Find_Collector_With_Metric (CollectorGroup cgrp,
+                                        std::string Metric_Name) {
+ // Look for all elements of the list of metrics in one of the collectors in the group.
+  CollectorGroup::iterator ci;
+  for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
+   // Return the first collector that generates the requested metric.
+    Collector C = *ci;
+    try {
+      if (Collector_Generates_Metric ( C, Metric_Name )) {
+       // Found a collector that generates the metric!
+        return C.getMetadata().getUniqueId();
+      }
+    }
+    catch(const Exception& error) {
+     // Guess not.
+      continue;
+    }
+  }
+
+ // Failed to find a collector that generated the metric.
+  return std::string("");
 }
 
 bool Collector_Generates_Metrics (Collector C, std::string *Metric_List) {
@@ -328,4 +395,85 @@ CommandResult *gen_F_name (Function F) {
   S += ")";
 
   return (new CommandResult_String (S));
+}
+
+
+// Utilities for working with class ViewInstruction
+
+ViewInstruction *Find_Base_Def (std::vector<ViewInstruction *>IV) {
+  for (int64_t i = 0; i < IV.size(); i++) {
+    ViewInstruction *vp = IV[i];
+    if (vp->OpCode() == VIEWINST_Define_Base) {
+      return vp;
+    }
+  }
+  return NULL;
+}
+
+ViewInstruction *Find_Total_Def (std::vector<ViewInstruction *>IV) {
+  for (int64_t i = 0; i < IV.size(); i++) {
+    ViewInstruction *vp = IV[i];
+    if (vp->OpCode() == VIEWINST_Define_Total) {
+      return vp;
+    }
+  }
+  return NULL;
+}
+
+ViewInstruction *Find_Percent_Def (std::vector<ViewInstruction *>IV) {
+  for (int64_t i = 0; i < IV.size(); i++) {
+    ViewInstruction *vp = IV[i];
+    if ((vp->OpCode() == VIEWINST_Display_Percent_Metric) ||
+        (vp->OpCode() == VIEWINST_Display_Percent_Tmp)) {
+      return vp;
+    }
+  }
+  return NULL;
+}
+
+ViewInstruction *Find_Column_Def (std::vector<ViewInstruction *>IV, int64_t Column) {
+  for (int64_t i = 0; i < IV.size(); i++) {
+    ViewInstruction *vp = IV[i];
+    if (vp->TR() == Column) {
+      if ((vp->OpCode() == VIEWINST_Display_Metric) ||
+          (vp->OpCode() == VIEWINST_Display_Tmp) ||
+          (vp->OpCode() == VIEWINST_Display_Percent_Column) ||
+          (vp->OpCode() == VIEWINST_Display_Percent_Metric) ||
+          (vp->OpCode() == VIEWINST_Display_Percent_Tmp)) {
+        return vp;
+      }
+    }
+  }
+  return NULL;
+}
+
+int64_t Find_Max_Column_Def (std::vector<ViewInstruction *>IV) {
+  int64_t Max_Column = -1;
+  for (int64_t i = 0; i < IV.size(); i++) {
+    ViewInstruction *vp = IV[i];
+    if ((vp->OpCode() == VIEWINST_Display_Metric) ||
+        (vp->OpCode() == VIEWINST_Display_Tmp) ||
+        (vp->OpCode() == VIEWINST_Display_Percent_Column) ||
+        (vp->OpCode() == VIEWINST_Display_Percent_Metric) ||
+        (vp->OpCode() == VIEWINST_Display_Percent_Tmp)) {
+      if (vp->TR() > Max_Column) Max_Column = vp->TR();
+    }
+  }
+  return Max_Column;
+}
+
+void Print_View_Params (FILE *TFile,
+                        std::vector<Collector> CV,
+                        std::vector<std::string> MV,
+                        std::vector<ViewInstruction *>IV) {
+  int i;
+  fprintf(TFile,"\nList Metrics\n");
+  for ( i=0; i < MV.size(); i++) {
+    fprintf(TFile,"\t%s\n",MV[i].c_str());
+  }
+  fprintf(TFile,"List Instructions\n");
+  for ( i=0; i < IV.size(); i++) {
+    fprintf(TFile,"\t");
+    IV[i]->Print (TFile);
+  }
 }
