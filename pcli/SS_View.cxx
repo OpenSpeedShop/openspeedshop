@@ -181,6 +181,12 @@ void SS_Get_Views (CommandObject *cmd, OpenSpeedShop::Framework::Experiment *fex
 }
 
 bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string viewname) {
+  std::vector<Collector> CV;
+  std::vector<std::string> MV;
+  std::vector<ViewInstruction *>IV;
+ 
+  OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
+  Assert(p_result != NULL);
 
  // Determine the availability of the view.
   ViewType *vt = Find_View (viewname);
@@ -205,68 +211,124 @@ bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string vi
     }
   }
 
- // Determine the required Collector.
-  bool collector_found = false;
-  std::string *Metric_List = vt->Metrics();
-  std::string *Collector_List = vt->Collectors();
-  std::string C_Name = Collector_List[0];
-  if ((Collector_List[0].length() != 0) &&
-      (Collector_List[1].length() == 0)) {
-   // There is a single, required collector.
-     C_Name = vt->Unique_Name();
-     collector_found = true;
-  } else if (!collector_found &&
-             (Metric_List[0].length() > 0) &&
-             (exp != NULL) &&
-             (exp->FW() != NULL)) {
-   // Look for a collector that produces the required metrics.
-    CollectorGroup cgrp = exp->FW()->getCollectors();
-    C_Name = Find_Collector_With_Metrics (cgrp, &Metric_List[0]);
-    collector_found = (C_Name.length() > 0);
+ // Determine the required Collectors.
+  vector<ParseRange> *p_slist = p_result->getexpMetricList();
+  if (p_slist->begin() != p_slist->end()) {
+   // Prefer user specified collector::metric specifications.
+    int64_t i = 0;
+    vector<ParseRange>::iterator mi;
+    for (mi = p_slist->begin(); mi != p_slist->end(); mi++) {
+      parse_range_t *m_range = (*mi).getRange();
+      std::string C_Name;
+      std::string M_Name;
+      if (m_range->is_range) {
+        C_Name = m_range->start_range.name;
+        M_Name = m_range->end_range.name;
+        if (!Collector_Used_In_Experiment (exp->FW(), C_Name)) {
+          cmd->Result_String ("The specified collector, " + C_Name + ", was not used in the experiment.");
+          cmd->set_Status(CMD_ERROR);
+          return false;
+        }
+      } else {
+        M_Name = m_range->start_range.name;
+        if ((exp != NULL) &&
+            (exp->FW() != NULL)) {
+          CollectorGroup cgrp = exp->FW()->getCollectors();
+          C_Name = Find_Collector_With_Metric ( cgrp, M_Name);
+          if (C_Name.length() == 0) {
+            cmd->Result_String ("The specified metric, " + M_Name + " was not generated for the experiment.");
+            cmd->set_Status(CMD_ERROR);
+            return false;
+          }
+        }
+      }
+
+      Collector C = Get_Collector (exp->FW(), C_Name);
+      if (!Collector_Generates_Metric ( C, M_Name)) {
+        cmd->Result_String ("The specified collector, " + C_Name +
+                            ", does not generate the specified metric, " + M_Name);
+        cmd->set_Status(CMD_ERROR);
+        return false;
+      }
+
+      CV.push_back(C);
+      MV.push_back(M_Name);
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, i, i));
+      i++;
+    }
   } else {
-   // We handle multiple collectors by letting the View figure out what to do.
-   // This also includes Views that require no collectors.
-  }
-
-  if (vt->Need_Exp() &&
-      ((Collector_List[0].length() != 0) ||
-       (Metric_List[0].length() != 0))) {
-    if (!collector_found) {
-      cmd->Result_String ("The metrics required to generate the view are not available in the experiment.");
-      cmd->set_Status(CMD_ERROR);
-      return false;
+   // Use the metrics specified in the experiment definition.
+    bool collector_found = false;
+    std::string *Metric_List = vt->Metrics();
+    std::string *Collector_List = vt->Collectors();
+    std::string C_Name = Collector_List[0];
+    if ((Collector_List[0].length() != 0) &&
+        (Collector_List[1].length() == 0)) {
+     // There is a single, required collector.
+       C_Name = vt->Unique_Name();
+       collector_found = true;
+    } else if (!collector_found &&
+                 (Metric_List[0].length() > 0) &&
+                 (exp != NULL) &&
+                 (exp->FW() != NULL)) {
+     // Look for a collector that produces the required metrics.
+      CollectorGroup cgrp = exp->FW()->getCollectors();
+      C_Name = Find_Collector_With_Metrics (cgrp, &Metric_List[0]);
+      collector_found = (C_Name.length() > 0);
+    } else {
+     // We handle multiple collectors by letting the View figure out what to do.
+     // This also includes Views that require no collectors.
     }
-    if (!Collector_Used_In_Experiment (exp->FW(), C_Name)) {
-      cmd->Result_String ("The required collector, " + C_Name + ", was not used in the experiment.");
-      cmd->set_Status(CMD_ERROR);
-      return false;
-    }
-  }
 
- // Determine threads, collectors and metrics that are required.
-  ThreadGroup tgrp;
-  std::vector<Collector> CV;
-  std::vector<std::string> MV;
-  if (vt->Deterimne_Metrics()) {
-    tgrp = exp->FW()->getThreads();
-    CollectorGroup cgrp = exp->FW()->getCollectors();
-    CollectorGroup::iterator ci;
-    for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
-      Collector c = *ci;
-      Metadata cm = c.getMetadata();
-      std::set<Metadata> md = c.getMetrics();
-      std::set<Metadata>::const_iterator mi;
-      for (mi = md.begin(); mi != md.end(); mi++) {
-        Metadata m = *mi;
-        CV.push_back(c);
-        MV.push_back(m.getUniqueId());
+    if (vt->Need_Exp() &&
+        ((Collector_List[0].length() != 0) ||
+         (Metric_List[0].length() != 0))) {
+      if (!collector_found) {
+        cmd->Result_String ("The metrics required to generate the view are not available in the experiment.");
+        cmd->set_Status(CMD_ERROR);
+        return false;
+      }
+      if (!Collector_Used_In_Experiment (exp->FW(), C_Name)) {
+        cmd->Result_String ("The required collector, " + C_Name + ", was not used in the experiment.");
+        cmd->set_Status(CMD_ERROR);
+        return false;
       }
     }
+
+   // Determine the collectors and metrics that are required.
+    if (vt->Deterimne_Metrics()  &&
+        (exp != NULL) &&
+        (exp->FW() != NULL)) {
+      int64_t column = 0;
+      CollectorGroup cgrp = exp->FW()->getCollectors();
+      CollectorGroup::iterator ci;
+      for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
+        Collector c = *ci;
+        Metadata cm = c.getMetadata();
+        std::set<Metadata> md = c.getMetrics();
+        std::set<Metadata>::const_iterator mi;
+        for (mi = md.begin(); mi != md.end(); mi++) {
+          Metadata m = *mi;
+          CV.push_back(c);
+          MV.push_back(m.getUniqueId());
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, column, column));
+          column++;
+        }
+      }
+    }
+
+  }
+
+ // Determine threads that are required.
+  ThreadGroup tgrp;
+  if ((exp != NULL) &&
+      (exp->FW() != NULL)) {
+    tgrp = exp->FW()->getThreads();
   }
 
  // Try to Generate the Requested View!
   return vt->GenerateView (cmd, exp, Get_Trailing_Int (viewname, vt->Unique_Name().length()),
-                           tgrp, CV, MV);
+                           tgrp, CV, MV, IV);
 }
 
 // Initialize definitions of the predefined views.
