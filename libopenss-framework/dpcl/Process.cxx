@@ -937,13 +937,13 @@ void Process::processStatements(const Thread& thread,
 	    // Iterate over each statement in this source file
 	    for(int s = 0; s < info.get_line_count(); ++s) {
 		StatementInfoLine line = info.get_line_entry(s);
-		
-		// Iterate over each address in this statement
-		for(int a = 0; a < line.get_address_count(); ++a) {
 
-		    // Get the address
-		    Address addr = line.get_address_entry(a);
+		// Iterate over each address range in this statement
+		for(int r = 0; (r + 1) < line.get_address_count(); r += 2) {
 
+		    // Get the address range
+                    Address begin = line.get_address_entry(r);
+		    Address end = line.get_address_entry(r + 1);
 
 		    // Note: Various conditions exist under which "garbage"
 		    //       appears in the statement list. For example, several
@@ -953,20 +953,27 @@ void Process::processStatements(const Thread& thread,
 		    //       help keep these unusable statement entries out of
 		    //       the symbol database.
 
+		    // Discard statements where (end <= begin)
+		    if(end <= begin)
+			continue;
+		    
 		    // Discard statements not contained in this linked object
-		    if(!range.doesContain(addr))
+		    if(!range.doesContain(AddressRange(begin, end)))
 			continue;
 
+		    // Iterate over each address in the range
+		    for(Address addr = begin; addr < end; ++addr) {
 
-		    // Convert the address to a linked object offset
-		    addr = addr - range.getBegin();
-		    
-		    // Add this entry to the builder
-		    builder.addEntry(info.get_filename(), line.get_line(),
-				     line.get_column(), addr);
-		    
+			// Add this entry to the builder
+			builder.addEntry(info.get_filename(), 
+					 line.get_line(),
+					 line.get_column(), 
+					 addr - range.getBegin());
+			
+		    }
+
 		}
-		
+
 	    }
 	    
 	}
