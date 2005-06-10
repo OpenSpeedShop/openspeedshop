@@ -51,7 +51,7 @@ static std::string VIEW_exp_header[] =
   { ""
   };
 static bool VIEW_exp (CommandObject *cmd, ExperimentObject *exp) {
-  char id[20]; sprintf(&id[0],"%lld",exp->ExperimentObject_ID());
+  char id[20]; sprintf(&id[0],"%lld",(int64_t)exp->ExperimentObject_ID());
   cmd->Result_String ("Experiment definition");
   std::string TmpDB = exp->Data_Base_Is_Tmp() ? "Temporary" : "Saved";
   cmd->Result_String ("{ # ExpId is " + std::string(&id[0])
@@ -69,17 +69,17 @@ static bool VIEW_exp (CommandObject *cmd, ExperimentObject *exp) {
           if (!atleastone) {
             atleastone = true;
           }
-          char spid[20]; sprintf(&spid[0],"%lld",pid);
+          char spid[20]; sprintf(&spid[0],"%lld",(int64_t)pid);
           std::string S = "  expAttach -h " + host + " -p " + std::string(&spid[0]);
           std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
           if (pthread.first) {
-            char tid[20]; sprintf(&tid[0],"%lld",pthread.second);
+            char tid[20]; sprintf(&tid[0],"%lld",(int64_t)pthread.second);
             S = S + std::string(&tid[0]);
           }
 #ifdef HAVE_MPI
           std::pair<bool, int> rank = t.getMPIRank();
           if (rank.first) {
-            char rid[20]; sprintf(&rid[0],"%lld",rank.second);
+            char rid[20]; sprintf(&rid[0],"%lld",(int64_t)rank.second);
             S = S + std::string(&rid[0]);
           }
 #endif

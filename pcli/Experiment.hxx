@@ -201,15 +201,15 @@ class ExperimentObject
           if (!atleastone) {
             atleastone = true;
           }
-          fprintf(TFile,"    -h %s -p %lld",host.c_str(),pid);
+          fprintf(TFile,"    -h %s -p %lld",host.c_str(),(int64_t)pid);
           std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
           if (pthread.first) {
-            fprintf(TFile," -t %lld",pthread.second);
+            fprintf(TFile," -t %lld",(int64_t)pthread.second);
           }
 #ifdef HAVE_MPI
           std::pair<bool, int> rank = t.getMPIRank();
           if (rank.first) {
-            fprintf(TFile," -r %lld",rank.second);
+            fprintf(TFile," -r %lld",(int64_t)rank.second);
           }
 #endif
           CollectorGroup cgrp = t.getCollectors();
