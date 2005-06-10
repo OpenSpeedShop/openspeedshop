@@ -138,7 +138,7 @@ class ViewType
 
 extern std::list<ViewType *> Available_Views;
 extern ViewType *Generic_View;
-inline void Define_New_View (ViewType *vnew) { Available_Views.push_front (vnew); }
+void Define_New_View (ViewType *vnew);
 
 std::set<Function> GetFunctions (CommandObject *cmd,
                                  ThreadGroup tgrp);
@@ -162,7 +162,7 @@ std::string Find_Collector_With_Metrics (CollectorGroup cgrp,
 bool Collector_Generates_Metric (Collector C, std::string Metric_Name);
 std::string Find_Collector_With_Metric (CollectorGroup cgrp,
                                         std::string Metric_Name);
-bool Metadata_hasName (std::set<Metadata> M, std::string name);
+bool Metadata_hasName (Collector C, std::string name);
 Metadata Find_Metadata (Collector C, std::string name);
 CommandResult *gen_F_name (Function F);
 ViewInstruction *Find_Base_Def (std::vector<ViewInstruction *>IV);
