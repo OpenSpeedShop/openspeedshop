@@ -16,5 +16,5 @@ int main(int argc, char* argv[])
     
     work(size);
 
-    printf("%s: succesfully competed.\n", argv[0]);
+    printf("%s: succesfully completed.\n", argv[0]);
 }

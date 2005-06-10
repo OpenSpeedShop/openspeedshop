@@ -20,5 +20,5 @@ int main(int argc, char* argv[])
 
     MPI_Finalize();
 
-    printf("%s: succesfully competed.\n", argv[0]);
+    printf("%s: succesfully completed.\n", argv[0]);
 }
