@@ -30,6 +30,12 @@
 #include "libunwind.h"
 #include "blobs.h"
 
+#if UNW_TARGET_X86
+# define STACK_SIZE     (128*1024)      /* On x86, SIGSTKSZ is too small */
+#else
+# define STACK_SIZE     SIGSTKSZ
+#endif
+
 /* Forward Declarations */
 void usertime_start_sampling(const char*);
 void usertime_stop_sampling(const char*);
@@ -97,6 +103,13 @@ static void send_samples()
  */
 static void usertimeTimerHandler(ucontext_t* context)
 {
+    /* Obtain the program counter (PC) address from the thread context */
+    /* We will test passedpc against the first stack frame address */
+    /* to see if we have to skip any signal handler overhead. */
+    /* Suse and SLES may not have the signal handler overhead. */
+    uint64_t passedpc;
+    passedpc = OpenSS_GetPCFromContext(context);
+
     unw_word_t ip;	/* current stack trace pc address */
 
     /* Obtain the program counter current address from the thread context */
@@ -131,6 +144,11 @@ static void usertimeTimerHandler(ucontext_t* context)
 	unw_get_reg (&cursor, UNW_REG_IP, &ip);
 
 	unw_word_t off;
+
+        /* are we already past the 3 frames of signal handler overhead? */
+        if (overhead_marker == 0 && passedpc == ip) {
+            overhead_marker = 3; /* we started past the overhead */
+        }
 
 	/* are we past the 3 frame? */
 	if (overhead_marker > 2) {
