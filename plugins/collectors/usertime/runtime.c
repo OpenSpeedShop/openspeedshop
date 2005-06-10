@@ -27,8 +27,10 @@
 #endif
 
 #include "RuntimeAPI.h"
-#include "libunwind.h"
 #include "blobs.h"
+
+#define UNW_LOCAL_ONLY
+#include "libunwind.h"
 
 #if UNW_TARGET_X86
 # define STACK_SIZE     (128*1024)      /* On x86, SIGSTKSZ is too small */
