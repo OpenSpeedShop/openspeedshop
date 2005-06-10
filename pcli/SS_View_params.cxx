@@ -78,9 +78,9 @@ static std::string VIEW_params_collectors[] =
   { ""
   };
 static std::string VIEW_params_header[] =
-  { "Collector           ",
-    "Parameter           ",
-    "               Value",
+  { "Collector",
+    "Parameter",
+    "Value",
     ""
   };
 static bool VIEW_params (CommandObject *cmd, ExperimentObject *exp) {
@@ -128,11 +128,12 @@ class params_view : public ViewType {
                             &VIEW_params_metrics[0],
                             &VIEW_params_collectors[0],
                             &VIEW_params_header[0],
-                             false,
+                             true,
                              false) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV) {
+                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
+                         std::vector<ViewInstruction *>IV) {
     return VIEW_params (cmd, exp);
   }
 };
