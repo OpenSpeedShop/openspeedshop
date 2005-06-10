@@ -17,11 +17,11 @@
 ################################################################################
 #
 # directories that will be built
-SUBDIRS = cplus_version c_version
+SUBDIRS = cplus_version c_version f77_version
 #
 # directories that will be packaged into tar.gz.
 # these can be a subset of the directories in SUBDIRS.
 #
-DIST_SUBDIRS = cplus_version c_version
+DIST_SUBDIRS = cplus_version c_version f77_version
 
 

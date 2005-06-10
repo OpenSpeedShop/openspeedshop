@@ -31,7 +31,8 @@ TEST_SUBDIRS =	test/test_source/unit/fw \
 		test/executables/mutatee/32bit/c_version \
 		test/executables/mutatee/64bit \
 		test/executables/mutatee/64bit/c_version \
-		test/executables/mutatee/64bit/cplus_version
+		test/executables/mutatee/64bit/cplus_version \
+		test/executables/mutatee/64bit/f77_version
 
 DIST_TEST_SUBDIRS = test/test_source/unit/fw/* \
 		test/test_source/unit/fw/interval/* \
@@ -48,7 +49,8 @@ DIST_TEST_SUBDIRS = test/test_source/unit/fw/* \
 		test/executables/mutatee/32bit/c_version/* \
 		test/executables/mutatee/64bit/* \
 		test/executables/mutatee/64bit/c_version/* \
-		test/executables/mutatee/64bit/cplus_version/*
+		test/executables/mutatee/64bit/cplus_version/* \
+		test/executables/mutatee/64bit/f77_version/*
 
 SUBDIRS = . \
 	libltdl \

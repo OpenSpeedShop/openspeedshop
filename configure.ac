@@ -172,6 +172,7 @@ AC_CONFIG_FILES(Makefile
 		test/executables/mutatee/64bit/Makefile
 		test/executables/mutatee/64bit/c_version/Makefile
 		test/executables/mutatee/64bit/cplus_version/Makefile
+		test/executables/mutatee/64bit/f77_version/Makefile
 		test/test_source/unit/fw/Makefile
 		test/test_source/unit/fw/database/Makefile
 		test/test_source/unit/fw/interval/Makefile
