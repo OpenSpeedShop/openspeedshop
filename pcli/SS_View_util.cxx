@@ -212,6 +212,17 @@ static bool Remainaing_Length_Is_Numeric (std::string viewname, int64_t L) {
 
 ViewType *Find_View (std::string viewname) {
   std::list<ViewType *>::iterator vi;
+
+ // First, attempt a case sensitive search for the name.
+  for (vi = Available_Views.begin(); vi != Available_Views.end(); vi++) {
+    ViewType *vt = (*vi);
+    if (!strncmp (viewname.c_str(), vt->Unique_Name().c_str(), vt->Unique_Name().length()) &&
+        Remainaing_Length_Is_Numeric (viewname, vt->Unique_Name().length())) {
+      return vt;
+    }
+  }
+
+ // if the case sensitive search fails, attempt a case insensitive search for the name.
   for (vi = Available_Views.begin(); vi != Available_Views.end(); vi++) {
     ViewType *vt = (*vi);
     if (!strncasecmp (viewname.c_str(), vt->Unique_Name().c_str(), vt->Unique_Name().length()) &&
@@ -221,6 +232,15 @@ ViewType *Find_View (std::string viewname) {
   }
 
   return NULL;
+}
+
+void Define_New_View (ViewType *vnew) {
+  ViewType *existing = Find_View (vnew->Unique_Name());
+  if (existing != NULL) {
+    fprintf(stderr,"WARNING: Definition of View named %s may hide the existing definition of %s\n",
+                    vnew->Unique_Name().c_str(), existing->Unique_Name().c_str());
+  }
+  Available_Views.push_front (vnew);
 }
 
 void Add_Column_Headers (CommandResult_Headers *H, std::string *column_titles)
@@ -332,8 +352,9 @@ std::string Find_Collector_With_Metrics (CollectorGroup cgrp,
   return std::string("");
 }
 
-bool Metadata_hasName (std::set<Metadata> M, std::string name) {
+bool Metadata_hasName (Collector C, std::string name) {
   try {
+    std::set<Metadata> M = C.getMetrics();
     std::set<Metadata>::const_iterator mi;
     for (mi = M.begin(); mi != M.end(); mi++) {
       Metadata m = *mi;
@@ -347,7 +368,7 @@ bool Metadata_hasName (std::set<Metadata> M, std::string name) {
    // Ignore problems - the calling routine can figure something out.
   }
 
- // We didn't find the Mete-Name in this set.
+ // We didn't find the Meta-Name in this set.
   return false;
 }
 
@@ -388,7 +409,7 @@ CommandResult *gen_F_name (Function F) {
       }
       Statement s = *ti;
       char l[20];
-      sprintf( &l[0], "%lld", s.getLine());
+      sprintf( &l[0], "%lld", (int64_t)s.getLine());
       S = S + ": " + s.getPath().getBaseName() + "," + &l[0];
     }
   }
