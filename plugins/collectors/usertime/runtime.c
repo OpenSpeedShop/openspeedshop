@@ -119,10 +119,17 @@ static void usertimeTimerHandler(ucontext_t* context)
     /* Libunwind provides it's own get context routines and the libunwind */
     /* documentation suggests that we use that. */
     
-    unw_context_t uc;	          /* libunwind context */
-    unw_cursor_t cursor;          /* libunwind stack cursor (pointer) */
 
-    unw_getcontext (&uc);    /* get the libunwind context */
+    unw_cursor_t cursor;          /* libunwind stack cursor (pointer) */
+    unw_context_t uc;	          /* libunwind context */
+
+#if UNW_TARGET_IA64
+    unw_getcontext (&uc);         /* get the libunwind context */
+#else
+    /* copy passed context to a libunwind context */
+    memcpy(&uc, context, sizeof(ucontext_t));
+#endif
+
     if (unw_init_local (&cursor, &uc) < 0) {
 	/* handle error if we get a negative stack pointer */
 	/*panic ("unw_init_local failed!\n"); */
@@ -140,19 +147,18 @@ static void usertimeTimerHandler(ucontext_t* context)
     */
     int overhead_marker = 0;  /* marker to count signal handler overhead*/
     int rval = 0;  /* return value from libunwind calls */
+
     do
     {
 	/* get current stack address pointed to by cursor */
 	unw_get_reg (&cursor, UNW_REG_IP, &ip);
 
-	unw_word_t off;
-
-        /* are we already past the 3 frames of signal handler overhead? */
+	/* are we already past the 3 frames of signal handler overhead? */
         if (overhead_marker == 0 && passedpc == ip) {
             overhead_marker = 3; /* we started past the overhead */
         }
 
-	/* are we past the 3 frame? */
+	/* add frame address if we are past any signal handler overhead */
 	if (overhead_marker > 2) {
 
 	    /* add frame address to buffer */
