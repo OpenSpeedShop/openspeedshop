@@ -4,7 +4,7 @@
       integer work 
       integer size 
 
-      size = 1000
+      size = 500
       print *, 'size=', size
       n=work(size)
       print *, 'work done n =', n
