@@ -755,6 +755,9 @@ void Process::updateAddressSpace(const Thread& thread, const Time& when)
 	
 	// Parse symbol information if it isn't present in the database
 	if(linked_object == -1) {
+
+	    // Is this linked object the executable?
+	    bool is_executable = (i->second.second.size() > 1);
 	    
 	    // Create the file entry
 	    database->prepareStatement("INSERT INTO Files (path) VALUES (?);");
@@ -771,17 +774,18 @@ void Process::updateAddressSpace(const Thread& thread, const Time& when)
 	    database->bindArgument(1, Address(i->first.getEnd() - 
 					      i->first.getBegin()));
 	    database->bindArgument(2, file);	    
-	    database->bindArgument(3, ((i->second.second.size() > 1) ? 1 : 0));
+	    database->bindArgument(3, (is_executable ? 1 : 0));
 	    while(database->executeStatement());
 	    linked_object = database->getLastInsertedUID();
 	    
 	    // Process the function information for this module
 	    processFunctions(thread, linked_object,
 			     i->first, i->second.second);
-	    
+
 	    // Process the statement information for this module
-	    processStatements(thread, linked_object,
-			      i->first, i->second.second);
+	    if(is_executable)
+		processStatements(thread, linked_object,
+				  i->first, i->second.second);
 	    
 	}
 	
