@@ -109,6 +109,7 @@ void SS_Get_Views (CommandObject *cmd, std::string collector_name) {
 
 void SS_Get_Views (CommandObject *cmd, OpenSpeedShop::Framework::Experiment *fexp) {
  // List all views that can be generate from the collectors used in an experiment.
+ // Skip views that don't depend on any collector.
   CollectorGroup cgrp;
   try {
     cgrp = fexp->getCollectors();
@@ -119,11 +120,9 @@ void SS_Get_Views (CommandObject *cmd, OpenSpeedShop::Framework::Experiment *fex
       ViewType *vt = (*vi);
       std::string *Collector_List = vt->Collectors();
       std::string *Metric_List = vt->Metrics();
-      bool all_collectors_available = ((Collector_List[0].length() == 0) &&
-                                       (Metric_List[0].length() == 0));
+      bool all_collectors_available = false;
 
-      if (!all_collectors_available &&
-          (Collector_List[0].length() > 0)) {
+      if (Collector_List[0].length() != 0) {
        // Check that all the required collectors are available.
         std::string C = Collector_List[0];
         all_collectors_available = true;
