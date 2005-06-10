@@ -57,7 +57,7 @@ def createDirectoryList():
 def getResultFileFromDir(directoryName):
 
 	checkForMarker = os.path.isfile('../inthisdirectory')
-	print "in getResultFileFromDir, directoryName=%s\n" % directoryName
+#	print "in getResultFileFromDir, directoryName=%s\n" % directoryName
 	
 	if checkForMarker:
 		os.system('pwd')	
@@ -144,7 +144,7 @@ if __name__ == '__main__':
 
 	typeofdir = whatKindofDirectory()
 
-	print "typeofdir=%d\n" % typeofdir
+#	print "typeofdir=%d\n" % typeofdir
 
 	checkForList = os.path.isfile('dirlist')
 
@@ -173,7 +173,7 @@ if __name__ == '__main__':
 		while 1:
 			dirListLine = dirListInput.readline()
 
-			print "dirListLine=%s\n" % dirListLine
+#			print "dirListLine=%s\n" % dirListLine
 			
 			if not dirListLine:
 				break
@@ -223,7 +223,7 @@ if __name__ == '__main__':
 			#hello = "hello"
 			resultsfilenameinput = open('testresultsfilename', 'r')
 			resultsFileName = resultsfilenameinput.readline()
-	        	print "in unit_leaf resultsFileName=%s\n" % resultsFileName
+#	        	print "in unit_leaf resultsFileName=%s\n" % resultsFileName
 			os.system('more '+resultsFileName+' >> ' + resultsFile)
 			
 		isHere = os.path.isfile(resultsFile)
