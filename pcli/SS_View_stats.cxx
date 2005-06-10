@@ -128,8 +128,12 @@ static bool VIEW_stats (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
 
       std::string column_header;
       if (vinst->OpCode() == VIEWINST_Display_Metric) {
-        Metadata m = Find_Metadata ( CV[CM_Index], MV[CM_Index] );
-        column_header = m.getShortName();
+        if (Metadata_hasName( CV[CM_Index], MV[CM_Index] )) {
+          Metadata m = Find_Metadata ( CV[CM_Index], MV[CM_Index] );
+          column_header = m.getShortName();
+        } else {
+          column_header = MV[CM_Index];
+        }
       } else if (vinst->OpCode() == VIEWINST_Display_Tmp) {
         column_header = std::string("Temp" + CM_Index);
       } else if ((vinst->OpCode() == VIEWINST_Display_Percent_Column) ||
