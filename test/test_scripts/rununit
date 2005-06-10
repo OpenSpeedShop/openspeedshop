@@ -119,8 +119,8 @@ if __name__ == '__main__':
 
 	checkForTestResultsFile = os.path.isfile('testresultsfilename')
 	
-	if checkForTestResultsFile:
-		os.system('rm testresultsfilename')
+	#if checkForTestResultsFile:
+	#	os.system('rm testresultsfilename')
 
 	currTime = strftime("%d_%m_%Y_%H%M%S", localtime())
 
@@ -175,8 +175,8 @@ if __name__ == '__main__':
        	CreateOutput(runtype, resultsfileptr)
 	os.system('make clean')
 		
-	if isSimple:
-		os.remove('test_list')
+	#if isSimple:
+	#	os.remove('test_list')
 		 
 			
 			

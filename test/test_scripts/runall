@@ -196,11 +196,11 @@ if __name__ == '__main__':
 		isTop = determineIfTopDir()
 	#if isTop:
 	if checkForTop or isTop:
-		if (typeofdir == unit_leaf and checkForTop):
+		#if (typeofdir == unit_leaf and checkForTop):
 			#hello = "hello"
-			resultsfilenameinput = open('testresultsfilename', 'r')
-			resultsFileName = resultsfilenameinput.readline()
-			os.system('more '+resultsFileName+' >> ' + resultsFile)
+			#resultsfilenameinput = open('testresultsfilename', 'r')
+			#resultsFileName = resultsfilenameinput.readline()
+			#os.system('more '+resultsFileName+' >> ' + resultsFile)
 			
 		isHere = os.path.isfile(resultsFile)
 	
