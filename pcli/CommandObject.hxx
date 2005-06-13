@@ -239,8 +239,8 @@ class CommandResult_String : public CommandResult {
      // Also, limit the size based on our internal buffer size.
       char F[20];
       char S[1000];
-      int max_size = MIN(fieldsize,1000);
-      int i = 0;
+      int64_t max_size = MIN(fieldsize,1000);
+      int64_t i = 0;
       F[i++] = *("%");
       sprintf(&F[i], "%lld.%llds\0", max_size, max_size);
       sprintf(S,F,string_value.c_str());
