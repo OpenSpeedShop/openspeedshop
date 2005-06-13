@@ -106,8 +106,8 @@ def CompareResults(testName, fileptr):
 			if (previous_expected != 0 ):
 				actual_ratio = previous_actual / actual_time
 				expected_ratio = previous_expected / expected_time
-				upper_limit = expected_ratio + (expected_ratio * .1)
-				lower_limit = expected_ratio - (expected_ratio * .1)
+				upper_limit = expected_ratio + (expected_ratio * .15)
+				lower_limit = expected_ratio - (expected_ratio * .15)
 				if not (lower_limit <= actual_ratio <= upper_limit):
 					passing_ratio = 0
 					failure_reason = 1
