@@ -210,43 +210,16 @@ CmdPanel::returnPressed()
        }
     }
 
-#ifdef OLDWAY
-    // This in only a cludge for now!!! FIX
-    if( clip && status == ILO_COMPLETE )
+    if( clip )
     {
-//      fprintf(stderr, "ILO_COMPLETE!\n");
-      char *fname = tempnam("/tmp", "__oss");
-      FILE *fp = fopen(fname, "w+");
-      clip->Print_Results(fp, "\n", "");
-      fclose(fp);
-      QFile f( fname );
-      QString line = NULL;
-      if( f.open( IO_ReadOnly ) )
-      {
-        QTextStream ts(&f);
-        while( !ts.atEnd() )
-        {
-          line = ts.readLine();  // line of text excluding '\n'
-          output->append(line);
-        }
-        output->moveCursor(QTextEdit::MoveEnd, FALSE);
-        output->getCursorPosition(&history_start_para, &history_start_index);
-        history_start_index = prompt.length();
-        output->moveCursor(QTextEdit::MoveEnd, FALSE);
-        output->getCursorPosition(&last_para, &last_index);
-      }
-      unlink(fname);
+      Default_TLI_Line_Output(clip);
     }
-#else //OLDWAY
-    Default_TLI_Line_Output(clip);
 
     output->moveCursor(QTextEdit::MoveEnd, FALSE);
     output->getCursorPosition(&history_start_para, &history_start_index);
     history_start_index = prompt.length();
     output->moveCursor(QTextEdit::MoveEnd, FALSE);
     output->getCursorPosition(&last_para, &last_index);
-#endif //OLDWAY
-
   } 
   textDisabled = FALSE;
 
