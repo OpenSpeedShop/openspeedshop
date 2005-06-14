@@ -37,13 +37,13 @@ make doc
 #make doc
 #cd ../dialogs
 #make doc
-cd ../plugins/collectors
+cd ../libopenss-framework
 make doc
-cd ../../libopenss-framework
+cd ../plugins/collectors
 make doc
 #cd ../Panels
 #make doc
-cd ../pcli
+cd ../../pcli
 make doc
 
 #doxygen Doxyfile

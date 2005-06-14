@@ -41,7 +41,7 @@ int work(int size)
  
 int main(int argc, char* argv[])
 {
-   int size = 500;
+   int size = 800;
 
     if(argc != 2) {
         printf("Usage: %s <size>\n", argv[0]);
