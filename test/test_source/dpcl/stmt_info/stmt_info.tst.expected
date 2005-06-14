@@ -1,0 +1,178 @@
+bcreate() was successful.
+Module name mutatee.c examined
+Module mutatee.c found... getting statement info
+bget_all_statements() SUCCESS! - status ASC_success
+stmt info count 57
+stmt line  count 1
+   line 6 column 0
+stmt address  count 2
+stmt line  count 1
+   line 6 column 0
+stmt address  count 2
+stmt line  count 1
+   line 7 column 0
+stmt address  count 2
+stmt line  count 1
+   line 6 column 0
+stmt address  count 2
+stmt line  count 1
+   line 7 column 0
+stmt address  count 2
+stmt line  count 1
+   line 7 column 0
+stmt address  count 2
+stmt line  count 1
+   line 7 column 0
+stmt address  count 2
+stmt line  count 1
+   line 7 column 0
+stmt address  count 2
+stmt line  count 1
+   line 7 column 0
+stmt address  count 2
+stmt line  count 1
+   line 7 column 0
+stmt address  count 2
+stmt line  count 1
+   line 7 column 0
+stmt address  count 2
+stmt line  count 1
+   line 7 column 0
+stmt address  count 2
+stmt line  count 1
+   line 7 column 0
+stmt address  count 2
+stmt line  count 1
+   line 7 column 0
+stmt address  count 2
+stmt line  count 1
+   line 7 column 0
+stmt address  count 2
+stmt line  count 1
+   line 9 column 0
+stmt address  count 2
+stmt line  count 1
+   line 9 column 0
+stmt address  count 2
+stmt line  count 1
+   line 12 column 0
+stmt address  count 2
+stmt line  count 1
+   line 9 column 0
+stmt address  count 2
+stmt line  count 1
+   line 11 column 0
+stmt address  count 2
+stmt line  count 1
+   line 11 column 0
+stmt address  count 2
+stmt line  count 1
+   line 12 column 0
+stmt address  count 2
+stmt line  count 1
+   line 12 column 0
+stmt address  count 2
+stmt line  count 1
+   line 12 column 0
+stmt address  count 2
+stmt line  count 1
+   line 12 column 0
+stmt address  count 2
+stmt line  count 1
+   line 12 column 0
+stmt address  count 2
+stmt line  count 1
+   line 12 column 0
+stmt address  count 2
+stmt line  count 1
+   line 12 column 0
+stmt address  count 2
+stmt line  count 1
+   line 13 column 0
+stmt address  count 2
+stmt line  count 1
+   line 13 column 0
+stmt address  count 2
+stmt line  count 1
+   line 9 column 0
+stmt address  count 2
+stmt line  count 1
+   line 9 column 0
+stmt address  count 2
+stmt line  count 1
+   line 9 column 0
+stmt address  count 2
+stmt line  count 1
+   line 9 column 0
+stmt address  count 2
+stmt line  count 1
+   line 317 column 0
+stmt address  count 2
+stmt line  count 1
+   line 317 column 0
+stmt address  count 2
+stmt line  count 1
+   line 317 column 0
+stmt address  count 2
+stmt line  count 1
+   line 382 column 0
+stmt address  count 2
+stmt line  count 1
+   line 382 column 0
+stmt address  count 2
+stmt line  count 1
+   line 317 column 0
+stmt address  count 2
+stmt line  count 1
+   line 317 column 0
+stmt address  count 2
+stmt line  count 1
+   line 317 column 0
+stmt address  count 2
+stmt line  count 1
+   line 15 column 0
+stmt address  count 2
+stmt line  count 1
+   line 317 column 0
+stmt address  count 2
+stmt line  count 1
+   line 15 column 0
+stmt address  count 2
+stmt line  count 1
+   line 15 column 0
+stmt address  count 2
+stmt line  count 1
+   line 15 column 0
+stmt address  count 2
+stmt line  count 1
+   line 15 column 0
+stmt address  count 2
+stmt line  count 1
+   line 9 column 0
+stmt address  count 2
+stmt line  count 1
+   line 16 column 0
+stmt address  count 2
+stmt line  count 1
+   line 16 column 0
+stmt address  count 2
+stmt line  count 1
+   line 16 column 0
+stmt address  count 2
+stmt line  count 1
+   line 15 column 0
+stmt address  count 2
+stmt line  count 1
+   line 15 column 0
+stmt address  count 2
+stmt line  count 1
+   line 9 column 0
+stmt address  count 2
+stmt line  count 1
+   line 9 column 0
+stmt address  count 2
+stmt line  count 1
+   line 9 column 0
+stmt address  count 2
+bget_all_statements() SUCCESS !!!!
+
