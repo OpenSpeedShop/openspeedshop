@@ -45,8 +45,10 @@ class QFile;
 typedef QValueList<QString> ColumnList;
 
 typedef std::pair<std::string, double> item_type;
+typedef std::pair<Function, double> Function_double_pair;
 
 #include <qsettings.h>
+
 
 #define PANEL_CLASS_NAME StatsPanel   // Change the value of the define
 //! StatsPanel Class
@@ -117,6 +119,8 @@ int *metricHeaderTypeArray;  // matches the QListView # of column entries.
     void updateStatsPanelData();
 
     SmartPtr<std::map<Function, double> > orig_data;
+    std::vector<Function_double_pair> sorted_items;
+    bool ascending_sort;
 
     double Get_Total_Time();
 

@@ -41,6 +41,20 @@ typedef QValueList<MetricHeaderInfo *> MetricHeaderInfoList;
 #include "ToolAPI.hxx"
 using namespace OpenSpeedShop::Framework;
 
+template <class T>
+struct sort_ascending : public std::binary_function<T,T,bool> {
+    bool operator()(const T& x, const T& y) const {
+        return x.second < y.second;
+    }
+};
+template <class T>
+struct sort_descending : public std::binary_function<T,T,bool> {
+    bool operator()(const T& x, const T& y) const {
+        return x.second > y.second;
+    }
+};
+
+
 
 /*! Create a pc Sampling Specific Stats Panel.   This panel is derived
     from the StatsPanelBase class.  
@@ -59,6 +73,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, void *argument) : Pane
   collectorStr = QString::null;
   groupID = (int)argument;
   expID = -1;
+  ascending_sort = false;
 
   frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
@@ -618,9 +633,9 @@ StatsPanel::matchSelectedItem(std::string selected_function )
 
   try
   {
-    std::map<Function, double>::const_iterator it = orig_data->begin();
+    std::vector<Function_double_pair>::const_iterator it = sorted_items.begin();
     std::set<Statement> definitions = it->first.getDefinitions();
-    for( ; it != orig_data->end(); ++it)
+    for( ; it != sorted_items.end(); ++it)
     {
 // printf("%s %f\n", it->first.getName().c_str(), it->second );
       if( selected_function == it->first.getName()  )
@@ -757,6 +772,25 @@ StatsPanel::updateStatsPanelData()
           nprintf( DEBUG_PANELS) ("GetMetricByFunctionInThread()\n");
 // printf("GetMetricByFunction(%s  %s %s)\n", name.ascii(), metricStr.ascii(), QString("%1").arg(t1.getProcessId()).ascii() );
           Queries::GetMetricByFunctionInThread(collector, metricStr.ascii(), t1, orig_data);
+
+          if( !orig_data.isNull() )
+          {
+           sorted_items.clear();
+           // sort by the time metric
+            // Now we can sort the data.
+            for(std::map<Function, double>::const_iterator
+                item = orig_data->begin(); item != orig_data->end(); ++item)
+            {
+              sorted_items.push_back( *item );
+            }
+          
+            if (ascending_sort) {
+              std::sort(sorted_items.begin(), sorted_items.end(), sort_ascending<Function_double_pair>());
+            } else {
+              std::sort(sorted_items.begin(), sorted_items.end(), sort_descending<Function_double_pair>());
+            }
+          
+          }
   
           // Display the results
           MetricHeaderInfoList metricHeaderInfoList;
@@ -800,9 +834,11 @@ StatsPanel::updateStatsPanelData()
       if( sortOrder == TRUE )
       {
         splv->setSortOrder ( Qt::Descending );
+        ascending_sort = false;
       } else
       {
         splv->setSortOrder ( Qt::Ascending );
+        ascending_sort = false;
       }
   
       // How many rows should we display?
@@ -835,8 +871,8 @@ if( orig_data.isNull() )
       double a_percent = 0; // accumulated percent
       double c_percent = 0; // accumulated percent
   
-      for(std::map<Function, double>::const_iterator
-              it = orig_data->begin(); it != orig_data->end(); ++it)
+      for(std::vector<Function_double_pair>::const_iterator
+              it = sorted_items.begin(); it != sorted_items.end(); ++it)
       {
         c_percent = it->second*percent_factor;  // current item's percent of total time
         sprintf(cputimestr, "%f", it->second);
@@ -854,7 +890,7 @@ if( orig_data.isNull() )
         }
       }
     
-      splv->sort();
+//      splv->sort();
 
         // Set the values for the top 5 pie chart elements...
       QListViewItemIterator it( splv );
@@ -915,7 +951,6 @@ double
 StatsPanel::Get_Total_Time()
 {
  // Calculate the total time for this set of samples.
-
   double TotalTime = 0.0;
 
   if( orig_data.isNull() )
