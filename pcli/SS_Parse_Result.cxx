@@ -307,8 +307,6 @@ dumpHelp(CommandObject *cmd)
 {
 
     bool found_match = false;
-    char input[512]; // until I can figure out how to lowercase in C++
-//    extern int tolower();
 
     if (!dm_help_set)
     	return;
@@ -343,7 +341,7 @@ dumpHelp(CommandObject *cmd)
     	    k != element.end();
 	    ++k) {
 	    SS_Message_Element *p_el = *k;
-	    vector<string> *p_string = p_el->get_normal_list();
+	    vector<string> * const p_string = p_el->get_normal_list();
     	    for (vector <string> :: iterator i=p_string->begin();
     	     	 i!= p_string->end();
 	     	 ++i) {
