@@ -57,6 +57,8 @@ PreferencesDialog::PreferencesDialog( QWidget* parent, const char* name, bool mo
    globalFontWeight = QFont::Normal;
    globalFontItalic = FALSE;
 
+   globalRemoteShell = "/usr/bin/rsh";
+
     if ( !name )
 	setName( "PreferencesDialog" );
     setSizeGripEnabled( TRUE );
@@ -186,26 +188,17 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     fontLayout->addWidget( fontLineEdit );
     rightSideLayout->addLayout( fontLayout );
 
-    precisionLayout = new QHBoxLayout( 0, 0, 6, "precisionLayout"); 
+    remoteShellLayout = new QHBoxLayout( 0, 0, 6, "remoteShellLayout"); 
+    remoteShellLabel = new QLabel( generalPrivateLayout, "remote shell label" );
+    remoteShellLayout->addWidget( remoteShellLabel );
 
-    precisionTextLabel = new QLabel( generalPrivateLayout, "precisionTextLabel" );
-    precisionLayout->addWidget( precisionTextLabel );
-
-    precisionLineEdit = new QLineEdit( generalPrivateLayout, "precisionLineEdit" );
-    precisionLayout->addWidget( precisionLineEdit );
-    rightSideLayout->addLayout( precisionLayout );
+    remoteShellEdit = new QLineEdit( generalPrivateLayout, "remoteShellEdit" );
+    remoteShellLayout->addWidget( remoteShellEdit );
+    rightSideLayout->addLayout( remoteShellLayout );
 
     setShowSplashScreenCheckBox = new QCheckBox( generalPrivateLayout, "setShowSplashScreenCheckBox" );
     setShowSplashScreenCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, setShowSplashScreenCheckBox->sizePolicy().hasHeightForWidth() ) );
     rightSideLayout->addWidget( setShowSplashScreenCheckBox );
-
-    setShowColoredTabsCheckBox = new QCheckBox( generalPrivateLayout, "setShowColoredTabsCheckBox" );
-    setShowColoredTabsCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, setShowColoredTabsCheckBox->sizePolicy().hasHeightForWidth() ) );
-    rightSideLayout->addWidget( setShowColoredTabsCheckBox );
-
-    deleteEmptyPCCheckBox = new QCheckBox( generalPrivateLayout, "deleteEmptyPCCheckBox" );
-    deleteEmptyPCCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, deleteEmptyPCCheckBox->sizePolicy().hasHeightForWidth() ) );
-    rightSideLayout->addWidget( deleteEmptyPCCheckBox );
 
     showGraphicsCheckBox = new QCheckBox( generalPrivateLayout, "showGraphicsCheckBox" );
     showGraphicsCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, showGraphicsCheckBox->sizePolicy().hasHeightForWidth() ) );
@@ -229,9 +222,14 @@ void PreferencesDialog::languageChange()
   globalFontItalic = FALSE;
   fontLineEdit->setText( globalFontFamily );
   fontLineEdit->setReadOnly(TRUE);
+
+  remoteShellLabel->setText( tr("Remote Shell Command:") );
+  globalRemoteShell = "/usr/bin/rsh";
+  remoteShellEdit->setText( tr(globalRemoteShell) );
+  remoteShellEdit->setReadOnly(FALSE);
+
   setShowSplashScreenCheckBox->setChecked( TRUE );
-  setShowColoredTabsCheckBox->setChecked(FALSE);
-  deleteEmptyPCCheckBox->setChecked(FALSE);
+
   showGraphicsCheckBox->setChecked(FALSE);
 
     setCaption( tr( "Preferences Dialog" ) );
@@ -240,11 +238,8 @@ void PreferencesDialog::languageChange()
 
     GeneralGroupBox->setTitle( tr( "General" ) );
     setFontButton->setText( tr( "Font:" ) );
-    precisionTextLabel->setText( tr( "Precision:" ) );
-    precisionLineEdit->setText( tr( "7" ) );
+
     setShowSplashScreenCheckBox->setText( tr( "Show splash screen on startup" ) );
-    setShowColoredTabsCheckBox->setText( tr( "Show related panel tabs in color" ) );
-    deleteEmptyPCCheckBox->setText( tr( "Remove empty panel containers" ) );
     showGraphicsCheckBox->setText( tr( "Show graphics when available" ) );
 
     buttonHelp->setText( tr( "&Help" ) );

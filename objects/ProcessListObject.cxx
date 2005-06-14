@@ -38,11 +38,17 @@ class ProcessEntry;
 
 #include <qvaluelist.h>
 
+#include "openspeedshop.hxx"
+extern OpenSpeedshop *w;
+
 ProcessListObject::ProcessListObject(char *host)
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("SourceObject::ProcesslistObject(host=%s)\n", host);
 
-  createProcList(host);
+  const char *command = w->preferencesDialog->globalRemoteShell.ascii();
+printf("command=%s\n", command );
+
+  createProcList(command, host);
 }
 
 ProcessListObject::~ProcessListObject()
@@ -296,12 +302,14 @@ ProcessListObject::extract_ps_list ( char *host, FILE *input, int *count, int /*
   // fetch the header line
   if ( !fgets (header, 255, input) )
   {
+printf("header=%s", header);
     return (0);
   }
 
   // Set up the field start/end pairs.
   if( fgets (line, 255, input) )
   {
+printf("line=%s", line);
     (void)analyze_ps_header (header, line);			
   }
 
@@ -372,7 +380,7 @@ ProcessListObject::extract_ps_list ( char *host, FILE *input, int *count, int /*
 }
 
 void
-ProcessListObject::createProcList(char *host)
+ProcessListObject::createProcList(const char *command, char *host)
 {
     int new_pid = -1;
 	int child_pid;
@@ -383,26 +391,25 @@ ProcessListObject::createProcList(char *host)
     char *login = getlogin();
 
 	char *ps_command = "/bin/ps";
-    char command[255];
+    char local_command[255];
     int in_fd = 0;
 
     if( strcmp(host, "localhost") == 0 )
     {
-      strcpy(command, ps_command);
+      strcpy(local_command, ps_command);
       sprintf(arg0, "-lu%s", login );
-      in_fd = do_ps_cmd ( command, arg0, &child_pid );
+      in_fd = do_ps_cmd ( local_command, arg0, &child_pid );
     } else
     {
 char arg1[255];
 char arg2[255];
-      strcpy(command, "/usr/bin/rsh");
+      strcpy(local_command, command);
 sprintf(arg0, "%s", host);
 sprintf(arg1, "%s", ps_command);
 sprintf(arg2, "-lu%s", login );
-
-      in_fd = do_ps_cmd ( command, arg0, arg1, arg2, &child_pid );
+      in_fd = do_ps_cmd ( local_command, arg0, arg1, arg2, &child_pid );
     }
-nprintf( DEBUG_PANELS ) ("command=(%s)\n", command);
+nprintf( DEBUG_PANELS ) ("local_command=(%s)\n", local_command);
 
 
     if (in_fd < 0)

@@ -42,6 +42,6 @@ class ProcessListObject
     int extract_ps_list ( char *host, FILE *input, int *count, int new_pid);
     bool analyze_ps_header ( char *header, char *first_line );
 
-    void createProcList(char *host);
+    void createProcList(const char *command, char *host);
 };
 #endif // PROCESSLISTOBJECT_H

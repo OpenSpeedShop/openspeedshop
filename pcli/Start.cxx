@@ -350,6 +350,7 @@ setup_signal_handler (int s)
 // the GUI can open and define an async input window.
 // The hack is to define a dummy async window before python starts.
 // We will need to sort this out at some point in the future.
+      argStruct->addArg("-gui");
       gui_window = GUI_Window ("GUI",&HostName[0],my_pid,0,true);
       argStruct->addArg("-wid");
       char buffer[10];

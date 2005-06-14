@@ -52,6 +52,10 @@ void PreferencesDialog::readPreferencesOnEntry()
     settings->readEntry( "/openspeedshop/general/globalFontFamily" );
   fontLineEdit->setText( globalFontFamily );
 
+  globalRemoteShell =
+    settings->readEntry( "/openspeedshop/general/globalRemoteShell" );
+  remoteShellEdit->setText( globalRemoteShell );
+
   globalFontPointSize =
     settings->readNumEntry("/openspeedshop/general/globalFontPointSize");
   globalFontWeight =
@@ -61,14 +65,8 @@ void PreferencesDialog::readPreferencesOnEntry()
 
 
 
-  precisionLineEdit->setText(
-    settings->readEntry( "/openspeedshop/general/globalPrecision") );
-
   setShowSplashScreenCheckBox->setChecked(
     settings->readBoolEntry( "/openspeedshop/general/showSplashScreen") );
-  setShowColoredTabsCheckBox->setChecked(settings->readBoolEntry( "/openspeedshop/general/showColoredTabs") );
-  deleteEmptyPCCheckBox->setChecked(
-    settings->readBoolEntry( "/openspeedshop/general/deleteEmptyPC") );
   showGraphicsCheckBox->setChecked(
     settings->readBoolEntry( "/openspeedshop/general/showGraphics") );
 }
@@ -83,9 +81,12 @@ void PreferencesDialog::resetPreferenceDefaults()
 
    fontLineEdit->setText( globalFontFamily );
    fontLineEdit->setReadOnly(TRUE);
+
+globalRemoteShell = "/usr/bin/ssh";
+remoteShellEdit->setText( globalRemoteShell );
+remoteShellEdit->setReadOnly(FALSE);
+
    setShowSplashScreenCheckBox->setChecked( TRUE );
-   setShowColoredTabsCheckBox->setChecked(FALSE);
-   deleteEmptyPCCheckBox->setChecked(FALSE);
    showGraphicsCheckBox->setChecked(FALSE);
 
 
@@ -191,6 +192,8 @@ void PreferencesDialog::applyPreferences()
 
   delete( m_font );
 
+  globalRemoteShell = remoteShellEdit->text();
+
   // NOTIFY EVERYONE THAT PREFERENCES HAVE CHANGED!
   PreferencesChangedObject msg = PreferencesChangedObject();
   panelContainer->getMasterPC()->notifyAll((char *)&msg);
@@ -219,48 +222,38 @@ void PreferencesDialog::savePreferences()
 
   if( !settings->writeEntry( "/openspeedshop/general/globalFontFamily", globalFontFamily ) )
   {
-    printf("A: Unable to write globalFontFamily.\n");
+    printf("Unable to write globalFontFamily.\n");
   }
 
   if( !settings->writeEntry("/openspeedshop/general/globalFontPointSize", globalFontPointSize ) )
   {
-    printf("B: Unable to write globalFontFamily.\n");
+    printf("Unable to write globalFontPointSize.\n");
   }
 
   if( !settings->writeEntry("/openspeedshop/general/globalFontWeight", globalFontWeight ) )
   {
-    printf("C: Unable to write globalFontFamily.\n");
+    printf("Unable to write globalFontWeight.\n");
   }
 
   if( !settings->writeEntry("/openspeedshop/general/globalFontItalic", globalFontItalic ) )
   {
-    printf("D: Unable to write globalFontFamily.\n");
+    printf("Unable to write globalFontItalic.\n");
   }
 
-
-  if( !settings->writeEntry( "/openspeedshop/general/globalPrecision", precisionLineEdit->text() ) )
+  if( !settings->writeEntry( "/openspeedshop/general/globalRemoteShell", globalRemoteShell ) )
   {
-    printf("E: Unable to write globalFontFamily.\n");
+    printf("Unable to write globalRemoteShell.\n");
   }
+
 
   if( !settings->writeEntry( "/openspeedshop/general/showSplashScreen", setShowSplashScreenCheckBox->isChecked() ) )
   {
-    printf("F: Unable to write globalFontFamily.\n");
-  }
-
-  if( !settings->writeEntry( "/openspeedshop/general/showColoredTabs", setShowColoredTabsCheckBox->isChecked() ) )
-  {
-    printf("G: Unable to write globalFontFamily.\n");
-  }
-
-  if( !settings->writeEntry( "/openspeedshop/general/deleteEmptyPC", deleteEmptyPCCheckBox->isChecked() ) )
-  {
-    printf("H: Unable to write globalFontFamily.\n");
+    printf("Unable to write showSplashScreen.\n");
   }
 
   if( !settings->writeEntry( "/openspeedshop/general/showGraphics", showGraphicsCheckBox->isChecked() ) )
   {
-    printf("I: Unable to write globalFontFamily.\n");
+    printf("Unable to write showGraphics.\n");
   }
 
   // Begin save all preferences

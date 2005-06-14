@@ -57,7 +57,7 @@ class OpenSpeedshop : public QMainWindow
 
   public:
     //! Constructor for the QMainWindow.
-    OpenSpeedshop( int wid=0, QWidget* parent = 0, const char* name = 0, WFlags fl = WType_TopLevel );
+    OpenSpeedshop( int wid=0, int climode=0, QWidget* parent = 0, const char* name = 0, WFlags fl = WType_TopLevel );
 
     //! Destructor for the QMainWindow.
     ~OpenSpeedshop();
@@ -90,6 +90,7 @@ class OpenSpeedshop : public QMainWindow
     QAssistantClient *assistant;
 
     CLIInterface *cli;
+    bool climode;
 
     //! A list to all plugin panel preferences 
     PreferencesStackPagesList preferencesStackPagesList;
@@ -161,8 +162,8 @@ class OpenSpeedshop : public QMainWindow
     QVBoxLayout* OpenSpeedshopLayout;
     PanelContainerList topLevelPanelContainersToHideList;
   public slots:
-    virtual void fileOpenExperiment();
-    virtual void fileOpenSavedExperiment();
+    virtual void fileOpenExperiment(int selectedID=0);
+    virtual void fileOpenSavedExperiment(QString filename=QString::null);
     virtual void fileSaveExperiment();
     virtual void filePreferences();
     virtual void fileClose();

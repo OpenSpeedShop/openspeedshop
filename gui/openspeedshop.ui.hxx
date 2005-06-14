@@ -131,7 +131,7 @@ void OpenSpeedshop::fileSaveSession()
 #endif // SAVESESSION
 
 
-void OpenSpeedshop::fileOpenExperiment()
+void OpenSpeedshop::fileOpenExperiment(int selectedID)
 {
   QApplication::setOverrideCursor(QCursor::WaitCursor);
   SelectExperimentDialog *dialog = new SelectExperimentDialog(this, "Select Experiment To Open Dialog", TRUE);
@@ -141,6 +141,12 @@ void OpenSpeedshop::fileOpenExperiment()
   int id = 0;
   int expID = 0;
   PanelListViewItem *item = dialog->updateAvailableExperimentList(&id, &count);
+
+  if( selectedID > 0 )
+  {
+    count = 1;
+    id = selectedID;
+  }
 
   if( count == 0 )
   {
@@ -248,7 +254,7 @@ void OpenSpeedshop::fileOpenExperiment()
   QApplication::restoreOverrideCursor();
 }
 
-void OpenSpeedshop::fileOpenSavedExperiment()
+void OpenSpeedshop::fileOpenSavedExperiment(QString filename)
 {
 //printf("OpenSpeedshop::fileOpenSavedExperiment() entered\n");
 //printf("  Get a list of all the experiment files in the current directory\n");
@@ -260,12 +266,20 @@ void OpenSpeedshop::fileOpenSavedExperiment()
 //printf("  with the same layout as what it was left in during the prior\n");
 //printf("  save.\n");
 
-  QString fn = QFileDialog::getOpenFileName(
+  QString fn  = QString::null;
+
+  if( !filename.isEmpty() )
+  {
+    fn = filename;
+  } else
+  {
+    fn = QFileDialog::getOpenFileName(
                     "./",
                     "Open|SpeedShop files (*.openss);;",
                     this,
                     "open file dialog",
                     "Choose a experiment file to open" );
+  }
 
   if( !fn.isEmpty() )
   {
@@ -273,9 +287,15 @@ void OpenSpeedshop::fileOpenSavedExperiment()
     command = QString("expRestore -f %1").arg(fn);
 //QMessageBox::information( (QWidget *)NULL, tr("Info: Unable to complete command"), tr("This feature currently under construction.\nCommand to be executed:\n%1").arg(command), QMessageBox::Ok );
 //return;
-    if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
+    bool mark_value_for_delete = true;
+    int64_t val = 0;
+    if( !cli->getIntValueFromCLI( (char *)command.ascii(), &val, mark_value_for_delete ) )
     {
-      printf("Unable to run %s command.\n", command.ascii() );
+      QMessageBox::information( this, "No collector found for file.:", QString("Unable to issue command:\n  ")+command, QMessageBox::Ok );
+    } else
+    {
+//      ExperimentObject *eo = Find_Experiment_Object((EXPID)val);
+      fileOpenExperiment(val);
     }
   }
 }
@@ -411,8 +431,6 @@ void OpenSpeedshop::fileExit()
 void OpenSpeedshop::fileClose()
 {
   dprintf("fileClose() entered.\n");
-  dprintf("Try to hide the main window!\n");
-
 
   topLevelPanelContainersToHideList.clear();
 

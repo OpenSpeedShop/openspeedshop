@@ -42,7 +42,7 @@
  *  name 'name' and widget flags set to 'f'.
  *
  */
-OpenSpeedshop::OpenSpeedshop( int _wid, QWidget* parent, const char* name, WFlags fl )
+OpenSpeedshop::OpenSpeedshop( int _wid, int _climode, QWidget* parent, const char* name, WFlags fl )
     : QMainWindow( parent, name, fl )
 {
   afd = NULL;
@@ -57,6 +57,8 @@ OpenSpeedshop::OpenSpeedshop( int _wid, QWidget* parent, const char* name, WFlag
   hostStr = QString::null;
   expStr = QString::null;
   preferencesDialog = NULL;
+
+  climode = _climode;
 
   (void)statusBar();
 
@@ -233,6 +235,8 @@ filePreferencesAction->setStatusTip( tr("Open the Preferences Panel to set persi
   fileCloseAction->setText( tr( "Close" ) );
   fileCloseAction->setMenuText( tr( "C&lose" ) );
 fileCloseAction->setStatusTip( tr("Close the windows, but don't exit the tool.  \"opengui\" form the openss>> prompt reopens the windows.") );
+
+  fileCloseAction->setEnabled(climode);
 
   fileCloseAction->setAccel( QString::null );
   fileExitAction->setText( tr( "Exit" ) );

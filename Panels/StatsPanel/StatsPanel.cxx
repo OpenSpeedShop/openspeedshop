@@ -63,7 +63,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, void *argument) : Pane
   frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
   splitterA = new QSplitter( getBaseWidgetFrame(), "splitterA");
-  splitterA->setCaption("TopPanelSplitterA");
+  splitterA->setCaption("StatsPanelSplitterA");
 
   splitterA->setOrientation( QSplitter::Horizontal );
 
@@ -408,7 +408,7 @@ StatsPanel::createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos )
 void
 StatsPanel::showChart()
 {
-  nprintf(DEBUG_PANELS) ("TopPanel::showChart() entered\n");
+  nprintf(DEBUG_PANELS) ("StatsPanel::showChart() entered\n");
   if( chartFLAG == TRUE )
   {
     chartFLAG = FALSE;
@@ -432,7 +432,7 @@ StatsPanel::showChart()
 void
 StatsPanel::showStats()
 {
-  nprintf(DEBUG_PANELS) ("TopPanel::showStats() entered\n");
+  nprintf(DEBUG_PANELS) ("StatsPanel::showStats() entered\n");
   if( statsFLAG == TRUE )
   {
     statsFLAG = FALSE;
@@ -457,7 +457,7 @@ StatsPanel::showStats()
 void
 StatsPanel::setOrientation()
 {
-  nprintf(DEBUG_PANELS) ("TopPanel::setOrientation() entered\n");
+  nprintf(DEBUG_PANELS) ("StatsPanel::setOrientation() entered\n");
   Orientation o = splitterA->orientation();
   if( o == QSplitter::Vertical )
   {

@@ -62,11 +62,9 @@ public:
     QGroupBox* GeneralGroupBox;
     QPushButton* setFontButton;
     QLineEdit* fontLineEdit;
-    QLabel* precisionTextLabel;
-    QLineEdit* precisionLineEdit;
+    QLabel* remoteShellLabel;
+    QLineEdit* remoteShellEdit;
     QCheckBox* setShowSplashScreenCheckBox;
-    QCheckBox* setShowColoredTabsCheckBox;
-    QCheckBox* deleteEmptyPCCheckBox;
     QCheckBox* showGraphicsCheckBox;
     QPushButton* buttonHelp;
     QPushButton* buttonDefaults;
@@ -78,6 +76,7 @@ public:
     void createGeneralStackPage(QWidgetStack* stack, char *name );
 
     bool preferencesAvailable;
+QString globalRemoteShell;
     QString globalFontFamily;
     int globalFontPointSize;
     int globalFontWeight;
@@ -102,7 +101,7 @@ protected:
     QVBoxLayout* generalStackPageLayout;
     QVBoxLayout* rightSideLayout;
     QHBoxLayout* fontLayout;
-    QHBoxLayout* precisionLayout;
+QHBoxLayout* remoteShellLayout;
     QVBoxLayout* generalStackPageLayout_4;
     QHBoxLayout* preferenceDialogWidgetStackLayout;
     QSpacerItem* Horizontal_Spacing2;

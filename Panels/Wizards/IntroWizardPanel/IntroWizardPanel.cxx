@@ -400,201 +400,203 @@ void IntroWizardPanel::wizardModeSelected()
 void IntroWizardPanel::vpage1NextButtonSelected()
 {
   Panel *p = NULL;
-if( wizardMode->isOn() )
-{
-  if( vpage1LoadExperimentCheckBox->isOn() )
+  if( wizardMode->isOn() )
   {
-    QString fn = QString::null;
-    char *cwd = get_current_dir_name();
-    fn = QFileDialog::getOpenFileName( cwd, "Experiment Files (*.openss)", this, "open experiment dialog", "Choose an experiment file to open");
-    free(cwd);
-    if( !fn.isEmpty() )
+    if( vpage1LoadExperimentCheckBox->isOn() )
     {
-      printf("fn = %s\n", fn.ascii() );
-      fprintf(stderr, "Determine which panel to bring up base on experiment file %s\n", fn.ascii() );
-    } else
-    {
-      fprintf(stderr, "No experiment file name given.\n");
+      QString fn = QString::null;
+      char *cwd = get_current_dir_name();
+      fn = QFileDialog::getOpenFileName( cwd, "Experiment Files (*.openss)", this, "open experiment dialog", "Choose an experiment file to open");
+      free(cwd);
+      if( !fn.isEmpty() )
+      {
+//      printf("fn = %s\n", fn.ascii() );
+//      fprintf(stderr, "Determine which panel to bring up base on experiment file %s\n", fn.ascii() );
+        getPanelContainer()->getMainWindow()->fileOpenSavedExperiment(fn);
+      } else
+      {
+        fprintf(stderr, "No experiment file name given.\n");
+      }
+      return;
     }
-    return;
-  }
-  if( vpage1pcSampleRB->isOn() )
+    if( vpage1pcSampleRB->isOn() )
+    {
+      p = getPanelContainer()->raiseNamedPanel("pc Sample Wizard");
+      if( !p )
+      {
+        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("pc Sample Wizard", getPanelContainer(), (char *)TRUE);
+      } else
+      {
+        MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
+        p->listener((void *)msg);
+        delete msg;
+      }
+    }
+    if( vpage1UserTimeRB->isOn() )
+    {
+      p = getPanelContainer()->raiseNamedPanel("User Time Wizard");
+      if( !p )
+      {
+        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("User Time Wizard", getPanelContainer(), (char *)TRUE);
+      } else
+      {
+        MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
+        p->listener((void *)msg);
+        delete msg;
+      }
+    }
+    if( vpage1HardwareCounterRB->isOn() )
+    {
+      p = getPanelContainer()->raiseNamedPanel("HW Counter Wizard");
+      if( !p )
+      {
+        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("HW Counter Wizard", getPanelContainer(), (char *)TRUE);
+      } else
+      {
+        MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
+        p->listener((void *)msg);
+        delete msg;
+      }
+    }
+    if( vpage1FloatingPointRB->isOn() )
+    {
+      p = getPanelContainer()->raiseNamedPanel("FPE Tracing Wizard");
+      if( !p )
+      {
+        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("FPE Tracing Wizard", getPanelContainer(), (char *)TRUE);
+      } else
+      {
+        MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
+        p->listener((void *)msg);
+        delete msg;
+      }
+    }
+    if( vpage1InputOutputRB->isOn() )
+    {
+      p = getPanelContainer()->raiseNamedPanel("IO Wizard");
+      if( !p )
+      {
+        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("IO Wizard", getPanelContainer(), (char *)TRUE);
+      } else
+      {
+        MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
+        p->listener((void *)msg);
+        delete msg;
+      }
+    }
+    if( vpage1MPIRB->isOn() )
+    {
+      p = getPanelContainer()->raiseNamedPanel("MPI Wizard");
+      if( !p )
+      {
+        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("MPI Wizard", getPanelContainer(), (char *)TRUE);
+      } else
+      {
+        MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
+        p->listener((void *)msg);
+        delete msg;
+      }
+    }
+  } else
   {
-    p = getPanelContainer()->raiseNamedPanel("pc Sample Wizard");
-    if( !p )
+  
+    Panel *p = NULL;
+    if( vpage1LoadExperimentCheckBox->isOn() )
     {
-      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("pc Sample Wizard", getPanelContainer(), (char *)TRUE);
-    } else
+      QString fn = QString::null;
+      char *cwd = get_current_dir_name();
+      fn = QFileDialog::getOpenFileName( cwd, "Experiment Files (*.openss)", this, "open experiment dialog", "Choose an experiment file to open");
+      free(cwd);
+      if( !fn.isEmpty() )
+      {
+//      printf("fn = %s\n", fn.ascii() );
+//      fprintf(stderr, "Determine which panel to bring up base on experiment file %s\n", fn.ascii() );
+        getPanelContainer()->getMainWindow()->fileOpenSavedExperiment(fn);
+      } else
+      {
+        fprintf(stderr, "No experiment file name given.\n");
+      }
+      return;
+    }
+    if( epage1pcSampleRB->isOn() )
     {
-      MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
-      p->listener((void *)msg);
-      delete msg;
+      p = getPanelContainer()->raiseNamedPanel("pc Sample Wizard");
+      if( !p )
+      {
+        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("pc Sample Wizard", getPanelContainer(), (char *)TRUE);
+      } else
+      {
+        MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
+        p->listener((void *)msg);
+        delete msg;
+      }
+    }
+    if( epage1UserTimeRB->isOn() )
+    {
+      p = getPanelContainer()->raiseNamedPanel("User Time Wizard");
+      if( !p )
+      {
+        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("User Time Wizard", getPanelContainer(), (char *)TRUE);
+      } else
+      {
+        MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
+        p->listener((void *)msg);
+        delete msg;
+      }
+    }
+    if( epage1HardwareCounterRB->isOn() )
+    {
+      p = getPanelContainer()->raiseNamedPanel("HW Counter Wizard");
+      if( !p )
+      {
+        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("HW Counter Wizard", getPanelContainer(), (char *)TRUE);
+      } else
+      {
+        MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
+        p->listener((void *)msg);
+        delete msg;
+      }
+    }
+    if( epage1FloatingPointRB->isOn() )
+    {
+      p = getPanelContainer()->raiseNamedPanel("FPE Tracing Wizard");
+      if( !p )
+      {
+        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("FPE Tracing Wizard", getPanelContainer(), (char *)TRUE);
+      } else
+      {
+        MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
+        p->listener((void *)msg);
+        delete msg;
+      }
+    }
+    if( epage1InputOutputRB->isOn() )
+    {
+      p = getPanelContainer()->raiseNamedPanel("IO Wizard");
+      if( !p )
+      {
+        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("IO Wizard", getPanelContainer(), (char *)TRUE);
+      } else
+      {
+        MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
+        p->listener((void *)msg);
+        delete msg;
+      }
+    }
+    if( epage1MPIRB->isOn() )
+    {
+      p = getPanelContainer()->raiseNamedPanel("MPI Wizard");
+      if( !p )
+      {
+        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("MPI Wizard", getPanelContainer(), (char *)TRUE);
+      } else
+      {
+        MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
+        p->listener((void *)msg);
+        delete msg;
+      }
     }
   }
-  if( vpage1UserTimeRB->isOn() )
-  {
-    p = getPanelContainer()->raiseNamedPanel("User Time Wizard");
-    if( !p )
-    {
-      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("User Time Wizard", getPanelContainer(), (char *)TRUE);
-    } else
-    {
-      MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
-      p->listener((void *)msg);
-      delete msg;
-    }
-  }
-  if( vpage1HardwareCounterRB->isOn() )
-  {
-    p = getPanelContainer()->raiseNamedPanel("HW Counter Wizard");
-    if( !p )
-    {
-      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("HW Counter Wizard", getPanelContainer(), (char *)TRUE);
-    } else
-    {
-      MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
-      p->listener((void *)msg);
-      delete msg;
-    }
-  }
-  if( vpage1FloatingPointRB->isOn() )
-  {
-    p = getPanelContainer()->raiseNamedPanel("FPE Tracing Wizard");
-    if( !p )
-    {
-      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("FPE Tracing Wizard", getPanelContainer(), (char *)TRUE);
-    } else
-    {
-      MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
-      p->listener((void *)msg);
-      delete msg;
-    }
-  }
-  if( vpage1InputOutputRB->isOn() )
-  {
-    p = getPanelContainer()->raiseNamedPanel("IO Wizard");
-    if( !p )
-    {
-      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("IO Wizard", getPanelContainer(), (char *)TRUE);
-    } else
-    {
-      MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
-      p->listener((void *)msg);
-      delete msg;
-    }
-  }
-  if( vpage1MPIRB->isOn() )
-  {
-    p = getPanelContainer()->raiseNamedPanel("MPI Wizard");
-    if( !p )
-    {
-      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("MPI Wizard", getPanelContainer(), (char *)TRUE);
-    } else
-    {
-      MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
-      p->listener((void *)msg);
-      delete msg;
-    }
-  }
-} else
-{
-
-  Panel *p = NULL;
-  if( vpage1LoadExperimentCheckBox->isOn() )
-  {
-    QString fn = QString::null;
-    char *cwd = get_current_dir_name();
-    fn = QFileDialog::getOpenFileName( cwd, "Experiment Files (*.openss)", this, "open experiment dialog", "Choose an experiment file to open");
-    free(cwd);
-    if( !fn.isEmpty() )
-    {
-      printf("fn = %s\n", fn.ascii() );
-      fprintf(stderr, "Determine which panel to bring up base on experiment file %s\n", fn.ascii() );
-    } else
-    {
-      fprintf(stderr, "No experiment file name given.\n");
-    }
-    return;
-  }
-  if( epage1pcSampleRB->isOn() )
-  {
-    p = getPanelContainer()->raiseNamedPanel("pc Sample Wizard");
-    if( !p )
-    {
-      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("pc Sample Wizard", getPanelContainer(), (char *)TRUE);
-    } else
-    {
-      MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
-      p->listener((void *)msg);
-      delete msg;
-    }
-  }
-  if( epage1UserTimeRB->isOn() )
-  {
-    p = getPanelContainer()->raiseNamedPanel("User Time Wizard");
-    if( !p )
-    {
-      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("User Time Wizard", getPanelContainer(), (char *)TRUE);
-    } else
-    {
-      MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
-      p->listener((void *)msg);
-      delete msg;
-    }
-  }
-  if( epage1HardwareCounterRB->isOn() )
-  {
-    p = getPanelContainer()->raiseNamedPanel("HW Counter Wizard");
-    if( !p )
-    {
-      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("HW Counter Wizard", getPanelContainer(), (char *)TRUE);
-    } else
-    {
-      MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
-      p->listener((void *)msg);
-      delete msg;
-    }
-  }
-  if( epage1FloatingPointRB->isOn() )
-  {
-    p = getPanelContainer()->raiseNamedPanel("FPE Tracing Wizard");
-    if( !p )
-    {
-      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("FPE Tracing Wizard", getPanelContainer(), (char *)TRUE);
-    } else
-    {
-      MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
-      p->listener((void *)msg);
-      delete msg;
-    }
-  }
-  if( epage1InputOutputRB->isOn() )
-  {
-    p = getPanelContainer()->raiseNamedPanel("IO Wizard");
-    if( !p )
-    {
-      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("IO Wizard", getPanelContainer(), (char *)TRUE);
-    } else
-    {
-      MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
-      p->listener((void *)msg);
-      delete msg;
-    }
-  }
-  if( epage1MPIRB->isOn() )
-  {
-    p = getPanelContainer()->raiseNamedPanel("MPI Wizard");
-    if( !p )
-    {
-      getPanelContainer()->getMasterPC()->dl_create_and_add_panel("MPI Wizard", getPanelContainer(), (char *)TRUE);
-    } else
-    {
-      MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
-      p->listener((void *)msg);
-      delete msg;
-    }
-  }
-}
 
   getPanelContainer()->hidePanel((Panel *)this);
 }

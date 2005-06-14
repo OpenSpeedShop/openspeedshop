@@ -54,6 +54,7 @@ extern "C"
     ArgStruct *arg_struct = NULL;
     int argc = 0;
     char **argv = NULL;
+    bool climode = true;
     if( ptr != NULL )
     {
       arg_struct = (ArgStruct *)ptr;
@@ -74,6 +75,18 @@ extern "C"
         break;
       }
     }
+
+    for(int i=0;i<argc;i++)
+    {
+// printf("  argv[%d]=(%s)\n", i, argv[i] );
+      QString arg = argv[i];
+      if( arg == "-gui" || arg == "--gui" )
+      {
+        climode = false;
+        break;
+      }
+    }
+
 
     qapplication = new QApplication( argc, argv );
 
@@ -105,7 +118,7 @@ extern "C"
     }
 
 
-    w = new OpenSpeedshop(widStr.toInt());
+    w = new OpenSpeedshop(widStr.toInt(), climode);
 
     QPixmap *splash_pixmap = NULL;
     QSplashScreen *splash = NULL;
@@ -169,7 +182,7 @@ extern "C"
     int number_of_found_experiments = 0;
     // The user specified some arguments on the command line.
     // See if they've defined any experiments.
-    if( argc > 3 )
+    if( argc > 4 )
     {
       number_of_found_experiments = w->lookForExperiment();
     }
