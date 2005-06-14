@@ -75,7 +75,7 @@ SS_Message_Element::
  */
 void
 SS_Message_Element::
-set_keyword(char *keyword_str) 
+set_keyword(const char * const keyword_str) 
 {
     dm_keyword = keyword_str;
 }
@@ -94,7 +94,7 @@ set_keyword(char *keyword_str)
  */
 void
 SS_Message_Element::
-set_keyword(string keyword_str) 
+set_keyword(const string keyword_str) 
 {
     dm_keyword = keyword_str;
 }
@@ -113,7 +113,7 @@ set_keyword(string keyword_str)
  */
 void
 SS_Message_Element::
-set_keyword(string keyword_str,string topic_str) 
+set_keyword(const string keyword_str,const string topic_str) 
 {
     dm_keyword = keyword_str;
     dm_topic = topic_str;
@@ -134,7 +134,7 @@ set_keyword(string keyword_str,string topic_str)
  */
 void
 SS_Message_Element::
-set_keyword(string keyword_str,string topic_str,int id) 
+set_keyword(const string keyword_str, const string topic_str, const int id) 
 {
     dm_keyword = keyword_str;
     dm_topic = topic_str;
@@ -153,7 +153,7 @@ set_keyword(string keyword_str,string topic_str,int id)
  * @todo    Example.
  *
  */
-const string *
+string * 
 SS_Message_Element::
 get_keyword() 
 {
@@ -174,7 +174,7 @@ get_keyword()
  */
 void
 SS_Message_Element::
-set_topic(char *topic_str) 
+set_topic(const char * const topic_str) 
 {
    dm_topic = topic_str;
 }
@@ -193,7 +193,7 @@ set_topic(char *topic_str)
  */
 void
 SS_Message_Element::
-set_topic(string topic_str) 
+set_topic(const string topic_str) 
 {
    dm_topic = topic_str;
 }
@@ -210,7 +210,7 @@ set_topic(string topic_str)
  * @todo    Example.
  *
  */
-const string *
+string * 
 SS_Message_Element::
 get_topic() 
 {
@@ -231,7 +231,7 @@ get_topic()
  */
 void
 SS_Message_Element::
-add_related(char *related_str) 
+add_related(const char * const related_str) 
 {
    dm_related_keyword_list.push_back(related_str);
 }
@@ -250,7 +250,7 @@ add_related(char *related_str)
  */
 void
 SS_Message_Element::
-add_related(string related_str) 
+add_related(const string related_str) 
 {
    dm_related_keyword_list.push_back(related_str);
 }
@@ -267,7 +267,7 @@ add_related(string related_str)
  * @todo    Example.
  *
  */
-vector<string> *
+vector<string> * 
 SS_Message_Element::
 get_related_list() 
 {
@@ -288,7 +288,7 @@ get_related_list()
  */
 void
 SS_Message_Element::
-set_id(int id) 
+set_id(const int id) 
 {
     dm_id_num = id;
 }
@@ -324,7 +324,7 @@ get_id()
  * @todo    Example.
  *
  */
-const string *
+string * 
 SS_Message_Element::
 get_brief() 
 {
@@ -345,7 +345,7 @@ get_brief()
  */
 void
 SS_Message_Element::
-set_brief(char *brief_str) 
+set_brief(const char * const brief_str) 
 {
    dm_brief_message = brief_str;
 }
@@ -364,7 +364,7 @@ set_brief(char *brief_str)
  */
 void
 SS_Message_Element::
-set_brief(string brief_str) 
+set_brief(const string brief_str) 
 {
    dm_brief_message = brief_str;
 }
@@ -383,7 +383,7 @@ set_brief(string brief_str)
  */
 void
 SS_Message_Element::
-add_normal(char *normal_str) 
+add_normal(const char * const normal_str) 
 {
    dm_normal_message_list.push_back(normal_str);
 }
@@ -402,7 +402,7 @@ add_normal(char *normal_str)
  */
 void
 SS_Message_Element::
-add_normal(string normal_str) 
+add_normal(const string normal_str) 
 {
    dm_normal_message_list.push_back(normal_str);
 }
@@ -419,7 +419,7 @@ add_normal(string normal_str)
  * @todo    Example.
  *
  */
-vector<string> *
+vector<string> * 
 SS_Message_Element::
 get_normal_list() 
 {
@@ -440,7 +440,7 @@ get_normal_list()
  */
 void
 SS_Message_Element::
-add_verbose(char *verbose_str) 
+add_verbose(const char * const verbose_str) 
 {
    dm_verbose_message_list.push_back(verbose_str);
 }
@@ -459,7 +459,7 @@ add_verbose(char *verbose_str)
  */
 void
 SS_Message_Element::
-add_verbose(string verbose_str) 
+add_verbose(const string verbose_str) 
 {
    dm_verbose_message_list.push_back(verbose_str);
 }
@@ -476,7 +476,7 @@ add_verbose(string verbose_str)
  * @todo    Example.
  *
  */
-vector<string> *
+vector<string> * 
 SS_Message_Element::
 get_verbose_list() 
 {
@@ -497,7 +497,7 @@ get_verbose_list()
  */
 void
 SS_Message_Element::
-add_example(char *example_str) 
+add_example(const char * const example_str) 
 {
    dm_example_list.push_back(example_str);
 }
@@ -516,7 +516,7 @@ add_example(char *example_str)
  */
 void
 SS_Message_Element::
-add_example(string example_str) 
+add_example(const string example_str) 
 {
     dm_example_list.push_back(example_str);
 }
@@ -533,7 +533,7 @@ add_example(string example_str)
  * @todo    Example.
  *
  */
-vector<string> *
+vector<string> * 
 SS_Message_Element::
 get_example_list() 
 {
@@ -554,7 +554,7 @@ get_example_list()
  */
 void
 SS_Message_Element::
-set_element(message_element_t *p_element) 
+set_element(const message_element_t * const p_element) 
 {
 
     // Numeric id

@@ -61,48 +61,48 @@ class SS_Message_Element {
 	~SS_Message_Element();
 
     	/** Set name/keyword that message is associated with */
-	void set_keyword(char *);
-	void set_keyword(string);
-	void set_keyword(string,string);
-	void set_keyword(string,string,int);
-	const string *get_keyword();
+	void set_keyword(const char * const);
+	void set_keyword(const string);
+	void set_keyword(const string,const string);
+	void set_keyword(const string,const string,const int);
+	string * get_keyword();
 
     	/** Set general topic that message is associated with */
-	void set_topic(char *);
-	void set_topic(string);
-	const string *get_topic();
+	void set_topic(const char * const );
+	void set_topic(const string);
+	string * get_topic();
 
     	/** Add related keyword */
-	void add_related(char *);
-	void add_related(string);
-	vector<string> *get_related_list();
+	void add_related(const char * const );
+	void add_related(const string);
+	vector<string> * get_related_list();
 
     	/** Set any id number for this message */
-	void set_id(int);
+	void set_id(const int);
 	int get_id();
 
     	/** Set the brief string for this message */
-	void set_brief(char *);
-	void set_brief(string);
-	const string *get_brief();
+	void set_brief(const char * const );
+	void set_brief(const string);
+	string * get_brief();
 
     	/** Add line of normal message */
-	void add_normal(char *);
-	void add_normal(string);
-	vector<string> *get_normal_list();
+	void add_normal(const char * const );
+	void add_normal(const string);
+	vector<string> * get_normal_list();
 
     	/** Add line of verbose message */
-	void add_verbose(char *);
-	void add_verbose(string);
-	vector<string> *get_verbose_list();
+	void add_verbose(const char * const );
+	void add_verbose(const string);
+	vector<string> * get_verbose_list();
 
     	/** Add line of example */
-	void add_example(char *);
-	void add_example(string);
-	vector<string> *get_example_list();
+	void add_example(const char * const );
+	void add_example(const string);
+	vector<string> * get_example_list();
 	
 	/** Use message_element_t to initialize element */
-	void set_element(message_element_t *p_element);
+	void set_element(const message_element_t * const p_element);
 
     private:
 

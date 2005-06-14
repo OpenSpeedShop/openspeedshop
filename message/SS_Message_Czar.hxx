@@ -48,11 +48,11 @@ class SS_Message_Czar {
 
     public:
     
-    	void Add_Help(SS_Message_Element&);
-	void Add_Error(SS_Message_Element&);
-    	void Find_By_Keyword(string, vector <SS_Message_Element *> *);
-	void Find_By_Related(string, vector <SS_Message_Element *> *);
-	void Find_By_Err_No(int, vector <SS_Message_Element *> *);
+    	void Add_Help(const SS_Message_Element&);
+	void Add_Error(const SS_Message_Element&);
+    	void Find_By_Keyword(const string, vector <SS_Message_Element *> *);
+	void Find_By_Related(const string, vector <SS_Message_Element *> *);
+	void Find_By_Err_No(const int, vector <SS_Message_Element *> *);
 
     private:
     

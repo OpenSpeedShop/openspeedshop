@@ -70,7 +70,7 @@ using namespace OpenSpeedShop;
  */
 void
 SS_Message_Czar::
-Add_Help(SS_Message_Element& element) 
+Add_Help(const SS_Message_Element& element) 
 {
    dm_help_list.push_back(element);
 }
@@ -92,7 +92,7 @@ Add_Help(SS_Message_Element& element)
  */
 void
 SS_Message_Czar::
-Add_Error(SS_Message_Element& element) 
+Add_Error(const SS_Message_Element& element) 
 {
 
    dm_error_list.push_back(element);
@@ -116,7 +116,7 @@ Add_Error(SS_Message_Element& element)
  */
 void
 SS_Message_Czar::
-Find_By_Keyword(string keyword,vector <SS_Message_Element *> *p_element) 
+Find_By_Keyword(const string keyword,vector <SS_Message_Element *> *p_element) 
 {
     vector <SS_Message_Element>:: iterator k;
     bool found = false;
@@ -160,7 +160,7 @@ Find_By_Keyword(string keyword,vector <SS_Message_Element *> *p_element)
  */
 void
 SS_Message_Czar::
-Find_By_Err_No(int id_num, vector <SS_Message_Element *> *p_element) 
+Find_By_Err_No(const int id_num, vector <SS_Message_Element *> *p_element) 
 {
 
     vector <SS_Message_Element>:: iterator k;
@@ -188,7 +188,7 @@ Find_By_Err_No(int id_num, vector <SS_Message_Element *> *p_element)
  */
 void
 SS_Message_Czar::
-Find_By_Related(string related, vector <SS_Message_Element *> *p_element) 
+Find_By_Related(const string related, vector <SS_Message_Element *> *p_element) 
 {
 
 #if 0
