@@ -1,0 +1,24 @@
+
+ORIGINAL run command:
+
+./run 
+
+ Will print 'SUCCESS' if the number of calls to 'mysleep' matches
+ the number of calls requested (311).
+
+ORIGINAL run script:
+
+rm -f mutator mutatee LOG core.*
+
+g++ -g -D__64BIT__ -o mutator mutator.cxx \
+        -I/scratch/slc/perftools/ROOT/include/dpcl -L/scratch/slc/perftools/ROOT/lib  \
+        -ldpcl64 -lelf -lpthread
+
+gcc -g -o mutatee mutatee.c
+
+
+./mutator /scratch/slc/Test/simple/mutatee
+#./mutator ./mutatee
+
+#rm -f /tmp/dpcl.*
+
