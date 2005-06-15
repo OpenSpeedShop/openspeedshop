@@ -35,7 +35,6 @@
 #include "SourcePanel.hxx"
 #include "UpdateObject.hxx"
 #include "SourceObject.hxx"
-#include "TopPanel.hxx"
 #include "ManageProcessesPanel.hxx"
 
 #include "LoadAttachObject.hxx"

@@ -32,7 +32,6 @@ HW_CounterPanel_la_CXXFLAGS = \
     -I$(top_srcdir)/dialogs \
     -I$(top_srcdir)/Panels/ManageProcessesPanel \
     -I$(top_srcdir)/Panels/SourcePanel \
-    -I$(top_srcdir)/Panels/TopPanel \
     -I$(top_srcdir)/base
 
 HW_CounterPanel_la_LDFLAGS = \
