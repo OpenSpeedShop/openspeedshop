@@ -183,8 +183,9 @@ AC_CONFIG_FILES(Makefile
 		test/test_source/dpcl/one_shot/Makefile
 		test/test_source/dpcl/probe_module/Makefile
 		test/test_source/dpcl/point_probe/Makefile
-		test/test_source/dpcl/simple/Makefile
+		test/test_source/dpcl/start_terminate/Makefile
 		test/test_source/dpcl/module_addr/Makefile
+		test/test_source/dpcl/phase/Makefile
 		usability/Makefile
 		usability/phaseII/Makefile
 )

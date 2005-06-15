@@ -26,8 +26,9 @@ TEST_SUBDIRS =	test/test_source/unit/fw \
 		test/test_source/dpcl/one_shot \
 		test/test_source/dpcl/probe_module \
 		test/test_source/dpcl/point_probe \
-		test/test_source/dpcl/simple \
+		test/test_source/dpcl/start_terminate \
 		test/test_source/dpcl/module_addr \
+		test/test_source/dpcl/phase \
 		test/test_scripts \
 		test/executables/mutatee/32bit/c_version \
 		test/executables/mutatee/64bit \
@@ -45,8 +46,9 @@ DIST_TEST_SUBDIRS = test/test_source/unit/fw/* \
 		test/test_source/dpcl/one_shot/* \
 		test/test_source/dpcl/probe_module/* \
 		test/test_source/dpcl/point_probe/* \
-		test/test_source/dpcl/simple/* \
+		test/test_source/dpcl/start_terminate/* \
 		test/test_source/dpcl/module_addr/* \
+		test/test_source/dpcl/phase/* \
 		test/test_scripts/* \
 		test/executables/mutatee/32bit/c_version/* \
 		test/executables/mutatee/64bit/* \
