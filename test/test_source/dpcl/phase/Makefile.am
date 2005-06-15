@@ -16,7 +16,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-bin_PROGRAMS = mutator 
+bin_PROGRAMS = mutator probe_module
 
 mutator_CXXFLAGS = \
 	 $(DPCL_CPPFLAGS)
@@ -33,3 +33,18 @@ mutator_LIBS = \
 mutator_SOURCES = \
 	mutator.C
 
+gcc -g -I/perftools/ROOT/include/dpcl -fpic -L /perftools/ROOT/lib  -shared -o /tmp/probe_module.so probe_module.c
+
+probe_module_CFLAGS = \
+	 $(DPCL_CPPFLAGS)
+
+probe_module_LDFLAGS = \
+	-L$(ROOT)/lib \
+	$(DPCL_LIBS) -shared -o /tmp/probe_module.so 
+
+probe_module_LIBS = \
+	$(DPCL_LDFLAGS) \
+	$(DPCL_LIBS) 
+
+probe_module_SOURCES = \
+	probe_module.c

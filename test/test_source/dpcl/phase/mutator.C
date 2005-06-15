@@ -103,7 +103,7 @@ main(int argc, char *argv[])
 
                              // construct a valid Process object
 
-    printf("argv[1]=%s, argv[2]=%d\n", argv[1], atoi(argv[2]) );
+//    printf("debug info: argv[1]=%s, argv[2]=%d\n", argv[1], atoi(argv[2]) );
     P = Process(argv[1], atoi(argv[2]));
 
                              // connect to the target application
@@ -188,7 +188,6 @@ main(int argc, char *argv[])
     {
 
         printf("new Phase failed with status =%s\n", excp.status_name());
-
         exit(1);
 
     }
@@ -291,17 +290,17 @@ msg_cb(GCBSysType sys, GCBTagType tag, GCBTagType obj, GCBMsgType msg)
 
     char *chp = (char *)msg;
 
-    printf("msg_cb received the msg(%d)=\"", count);
+//    printf("msg_cb received the msg(%d)=\"", count);
 
     for (int i = 0; i < sys.msg_size; ++i)
 
     {
 
-        printf("%c", chp[i]);
+//        printf("%c", chp[i]);
 
     }
 
-    printf("\"\n");
+//    printf("\"\n");
 
 }
  

@@ -1,6 +1,6 @@
 #! /bin/tcsh
 #./mutator localhost $cwd/mutatee 30
-$cwd/Eon/eon &
+../../../executables/Eon/eon &
 set pid=$!
 ./mutator localhost $pid
-
+rm /tmp/probe_module*
