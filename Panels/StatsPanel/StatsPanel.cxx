@@ -169,6 +169,8 @@ StatsPanel::listener(void *msg)
     return 1;
   }
 
+// printf("StatsPanel::listener(%s)\n", msgObject->msgType.ascii() );
+
   if(  msgObject->msgType  == "UpdateExperimentDataObject" )
   {
     UpdateObject *msg = (UpdateObject *)msgObject;

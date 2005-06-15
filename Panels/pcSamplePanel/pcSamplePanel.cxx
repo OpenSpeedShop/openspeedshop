@@ -798,11 +798,9 @@ pcSamplePanel::loadStatsPanel()
     nprintf( DEBUG_PANELS ) ("loadStatsPanel() no Stats Panel found.. create one.\n");
     PanelContainer *pc = topPC->findBestFitPanelContainer(topPC);
     statsPanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Stats Panel", pc, (void *)expID);
-  }
 
-  if( statsPanel )
-  {
     nprintf( DEBUG_PANELS )("call (%s)'s listener routine.\n", statsPanel->getName());
+// printf("pcSamplePanel:: call (%s)'s listener routine.\n", statsPanel->getName());
     ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
     if( eo && eo->FW() )
     {
@@ -1036,9 +1034,8 @@ pcSamplePanel::updateStatus()
         pco->terminateButton->setFlat(TRUE);
         pco->terminateButton->setEnabled(FALSE);
         statusTimer->stop();
-// Begin if we default a report panel put it here...
-loadStatsPanel();
-// End if we default a report panel put it here...
+       // If we default a report panel bring it up here...
+       loadStatsPanel();
         break;
       default:
         statusLabelText->setText( QString("%1: Unknown status").arg(status) );
