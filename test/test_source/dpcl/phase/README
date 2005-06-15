@@ -1,0 +1,9 @@
+
+  ./run <eon_pid> <host>  (e.g. ./run 12345 localhost )
+
+
+   NOTE: <eon_pid> comes from 'eon' after run.csh in ~c_tests/eon/run
+
+   NOTE: must have build 'eon' first via ~c_tests/eon/build/build.csh
+
+
