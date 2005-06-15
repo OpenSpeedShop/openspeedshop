@@ -161,27 +161,22 @@ int main(int argc, char* argv[])
     Assert(lt_dladdsearchdir(PLUGIN_DIR) == 0);
 
     // Attempt to open the CLI library
-    const char* cli_library = "libopenss-cli";
-    lt_dlhandle handle = lt_dlopenext(cli_library);
+    lt_dlhandle handle = lt_dlopenext("libopenss-cli");
     if(handle == NULL) {
-	std::cerr << std::endl
-		  << "Unable to locate Open|SpeedShop command-line library \""
-		  << cli_library << "\"." << std::endl
-		  << std::endl;
+	const char* error = lt_dlerror();
+	Assert(error != NULL);
+	std::cerr << std::endl << error << std::endl << std::endl;
 	Assert(lt_dlexit() == 0);
 	return 1;
     }
     
     // Attempt to locate the CLI library's entry point
-    const char* cli_entry = "cli_init";
     void (*entry)(int, char*[]) = (void (*)(int, char*[]))
-	lt_dlsym(handle, cli_entry);
+	lt_dlsym(handle, "cli_init");
     if(entry == NULL) {
-	std::cerr << std::endl
-		  << "Unable to locate entry point " << cli_entry
-		  << "() in Open|SpeedShop command-line library \""
-		  << cli_library << "\"." << std::endl
-		  << std::endl;
+	const char* error = lt_dlerror();
+	Assert(error != NULL);
+	std::cerr << std::endl << error << std::endl << std::endl;
 	Assert(lt_dlclose(handle) == 0);
 	Assert(lt_dlexit() == 0);
 	return 1;
