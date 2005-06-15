@@ -5,11 +5,8 @@
       integer size 
 
       size = 500
-      print *, 'size=', size
       n=work(size)
-      print *, 'work done n =', n
       goto 100
-99    print *, 'can not get the size'
 100   continue
       end
 
