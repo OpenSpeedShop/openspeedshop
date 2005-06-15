@@ -187,77 +187,77 @@ class ExperimentObject
     return std::string("Unknown");
   }
 
-  void Print(FILE *TFile)
-    { fprintf(TFile,"Experiment %lld %s data->%s\n",ExperimentObject_ID(), ExpStatus_Name().c_str(),
-              (FW_Experiment != NULL) ? FW_Experiment->getName().c_str() : "(null)");
-      if (FW_Experiment != NULL) {
-        ThreadGroup tgrp = FW_Experiment->getThreads();
-        ThreadGroup::iterator ti;
-        bool atleastone = false;
-        for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
-          Thread t = *ti;
-          std::string host = t.getHost();
-          pid_t pid = t.getProcessId();
-          if (!atleastone) {
-            atleastone = true;
-          }
-          fprintf(TFile,"    -h %s -p %lld",host.c_str(),(int64_t)pid);
-          std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
-          if (pthread.first) {
-            fprintf(TFile," -t %lld",(int64_t)pthread.second);
-          }
-#ifdef HAVE_MPI
-          std::pair<bool, int> rank = t.getMPIRank();
-          if (rank.first) {
-            fprintf(TFile," -r %lld",(int64_t)rank.second);
-          }
-#endif
-          CollectorGroup cgrp = t.getCollectors();
-          CollectorGroup::iterator ci;
-          int collector_count = 0;
-          for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
-            Collector c = *ci;
-            Metadata m = c.getMetadata();
-            if (collector_count) {
-              fprintf(TFile,",");
-            } else {
-              fprintf(TFile," ");
-              collector_count = 1;
-            }
-            fprintf(TFile," %s", m.getUniqueId().c_str() );
-          }
-          fprintf(TFile,"\n");
+  void Print(ostream &mystream) {
+    mystream << "Experiment " << ExperimentObject_ID() << " " << ExpStatus_Name() << " data->";
+    mystream << ((FW_Experiment != NULL) ? FW_Experiment->getName() : "(null)") << std::endl;
+    if (FW_Experiment != NULL) {
+      ThreadGroup tgrp = FW_Experiment->getThreads();
+      ThreadGroup::iterator ti;
+      bool atleastone = false;
+      for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+        Thread t = *ti;
+        std::string host = t.getHost();
+        pid_t pid = t.getProcessId();
+        if (!atleastone) {
+          atleastone = true;
         }
-
-        CollectorGroup cgrp = FW_Experiment->getCollectors();
+        mystream << "    -h " << host << " -p " << pid;
+        std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
+        if (pthread.first) {
+          mystream << " -t " << pthread.second;
+        }
+#ifdef HAVE_MPI
+        std::pair<bool, int> rank = t.getMPIRank();
+        if (rank.first) {
+          mystream << " -r " << rank.second;
+        }
+#endif
+        CollectorGroup cgrp = t.getCollectors();
         CollectorGroup::iterator ci;
-        atleastone = false;
+        int collector_count = 0;
         for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
           Collector c = *ci;
-          ThreadGroup tgrp = c.getThreads();
-          if (tgrp.empty()) {
-            Metadata m = c.getMetadata();
-            if (atleastone) {
-              fprintf(TFile,",");
-            } else {
-              fprintf(TFile,"   ");
-              atleastone = true;
-            }
-            fprintf(TFile," %s", m.getUniqueId().c_str() );
+          Metadata m = c.getMetadata();
+          if (collector_count) {
+            mystream << ",";
+          } else {
+            mystream << " ";
+            collector_count = 1;
           }
+          mystream << " " << m.getUniqueId();
         }
-        if (atleastone) {
-          fprintf(TFile,"\n");
+        mystream << std::endl;
+      }
+
+      CollectorGroup cgrp = FW_Experiment->getCollectors();
+      CollectorGroup::iterator ci;
+      atleastone = false;
+      for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
+        Collector c = *ci;
+        ThreadGroup tgrp = c.getThreads();
+        if (tgrp.empty()) {
+          Metadata m = c.getMetadata();
+          if (atleastone) {
+            mystream << ",";
+          } else {
+            mystream << "   ";
+            atleastone = true;
+          }
+          mystream << " " << m.getUniqueId();
         }
       }
-    }
-  static void Dump(FILE *TFile)
-    { std::list<ExperimentObject *>::reverse_iterator expi;
-      for (expi = ExperimentObject_list.rbegin(); expi != ExperimentObject_list.rend(); expi++)
-      {
-        (*expi)->Print(TFile);
+      if (atleastone) {
+        mystream << std::endl;
       }
     }
+  }
+  static void Dump(ostream &mystream) {
+    std::list<ExperimentObject *>::reverse_iterator expi;
+    for (expi = ExperimentObject_list.rbegin(); expi != ExperimentObject_list.rend(); expi++)
+    {
+      (*expi)->Print(mystream);
+    }
+  }
 };
 
 // Make sure all experiments are closed and associated files freed.

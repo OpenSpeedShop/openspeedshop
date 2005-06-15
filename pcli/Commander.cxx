@@ -37,7 +37,14 @@ static ss_ostream *ss_ttyout = NULL;
 void Default_TLI_Command_Output (CommandObject *C);
 bool All_Command_Objects_Are_Used (InputLineObject *clip);
 
+inline std::string ptr2str (void *p) {
+  char s[40];
+  sprintf ( s, "%p", p);
+  return std::string (s);
+}
+
 // Local Macros
+
 static inline
 FILE *predefined_filename (std::string filename)
 {
@@ -206,7 +213,7 @@ class Input_Source
     }
     char *next_line = &Buffer[Next_Line_At];
     int64_t line_len = strlen(next_line);
-    int i;
+    int64_t i;
     for (i = 1; i < line_len; i++) {  
       if (next_line[i] == *("\0")) {
         line_len = i;
@@ -246,6 +253,31 @@ class Input_Source
   FILE *Record_File () { return Record_F; }
 
   // Debug aids
+  void Dump (ostream &mystream) {
+    bool nl_at_eol = false;
+    mystream << "    Read from: " << ((Fp) ? Name : (Input_Object) ? "image " : "buffer ");
+    if (Input_Object != NULL) {
+      Input_Object->Print (mystream);
+      nl_at_eol = true;
+    } else if (!Fp) {
+      mystream << "len=" << Buffer_Size << ", next=" << Next_Line_At;
+      if (Buffer_Size > Next_Line_At) {
+        int64_t nline = MIN (20,strlen (&(Buffer[Next_Line_At])));
+        nl_at_eol = (Buffer[Next_Line_At+nline] == *("\n"));
+        if (nline > 2) {
+          mystream << ": " << std::setiosflags(std::ios::left) << std::setw(20) << Buffer;
+          if (nline > 20) mystream << "...";
+        }
+      }
+    }
+    if (!nl_at_eol) {
+      mystream << std::endl;
+    }
+    if (Record_F) {
+      mystream << "     record to: "<< Record_Name << std::endl;
+    }
+  }
+/*
   void Dump(FILE *TFile) {
       bool nl_at_eol = false;
       fprintf(TFile,"    Read from: %s",
@@ -257,7 +289,7 @@ class Input_Source
       } else if (!Fp) {
         fprintf(TFile,"len=%d, next=%d",Buffer_Size,Next_Line_At);
         if (Buffer_Size > Next_Line_At) {
-          int nline = strlen (&(Buffer[Next_Line_At]));
+          int64_t nline = strlen (&(Buffer[Next_Line_At]));
           nl_at_eol = (Buffer[Next_Line_At+nline] == *("\n"));
           if (nline > 2) {
             fprintf(TFile,": %.20s", &(Buffer[Next_Line_At]));
@@ -272,6 +304,7 @@ class Input_Source
         fprintf(TFile,"     record to: %s\n",Record_Name.c_str());
       }
   }
+*/
 };
 
 // CommandWindowID
@@ -377,7 +410,7 @@ class CommandWindowID
           (predefined_filename (Log_File_Name) == NULL)) {
         fclose (Log_F);
         if (Log_File_Is_A_Temporary_File) {
-          int err = remove (Log_File_Name.c_str());
+          (void ) remove (Log_File_Name.c_str());
         }
       }
      // Remove the record files
@@ -385,7 +418,7 @@ class CommandWindowID
           (predefined_filename (Record_File_Name) == NULL)) {
         fclose (Record_F);
         if (Record_File_Is_A_Temporary_File) {
-          int err = remove (Record_File_Name.c_str());
+          (void) remove (Record_File_Name.c_str());
         }
       }
      // Remove the input specifiers
@@ -569,7 +602,7 @@ public:
   ostream &errstream () { return default_errstream->mystream(); }
   ss_ostream *ss_errstream () { return default_errstream; }
   std::string Log_Name() { return Log_File_Name.c_str(); }
-  FILE   *Log_File() { return Log_F; }
+  FILE       *Log_File() { return Log_F; }
   CMDWID  ID () { return id; }
   EXPID   Focus () { return FocusedExp; }
   void    Set_Focus (EXPID exp) { FocusedExp = exp; }
@@ -587,13 +620,16 @@ public:
      // Copy the old file to the new file.
       fclose (Log_F);
       if (tof == NULL) {
-        int len1 = Log_File_Name.length();
-        int len2 = tofname.length();
+        int64_t len1 = Log_File_Name.length();
+        int64_t len2 = tofname.length();
         char *scmd = (char *)malloc(6 + len1 + len2);
         sprintf(scmd,"mv %s %s\n\0",Log_File_Name.c_str(),tofname.c_str());
-        int ret = system(scmd);
+        int64_t ret = system(scmd);
         free (scmd);
-        if (ret != 0) return false;
+        if (ret != 0) {
+         // Some system error.  Keep the old log file around.
+          return false;
+        }
         Log_File_Is_A_Temporary_File = false;
       }
     }
@@ -667,35 +703,36 @@ public:
   }
 
   // For error reporting
-  void Print_Location(FILE *TFile) {
-    fprintf(TFile,"%s %lld",Host_ID.c_str(),(int64_t)Process_ID);
+  void Print_Location(ostream &mystream) {
+    mystream << Host_ID << " " << Process_ID;
   }
   // Debug aids
-  void Print(FILE *TFile) {
-    fprintf(TFile,
-       "W %lld: %s %s IAM:%s %s %lld %lld, focus at %lld, log->%s\n",
-        id,Input_Is_Async?"async":" sync",remote?"remote":"local",
-        I_Call_Myself.c_str(),Host_ID.c_str(),(int64_t)Process_ID,Panel_ID,
-        Focus(),Log_File_Name.c_str());
-    fprintf(TFile,"    outstream=%p, errstream=%p\n",default_outstream,default_errstream);
+  void Print(ostream &mystream) {
+    mystream << "W " << id << ":";
+    mystream << (Input_Is_Async?" async":" sync") << (remote?" remote":" local");
+    mystream << "IAM:" << I_Call_Myself << " " << Host_ID << " " << Process_ID;
+    mystream << "focus at " << Focus() << " log->" << Log_File_Name << std::endl;
+
+    mystream << "      outstreams=" << ptr2str(default_outstream);
+    mystream << ", errstream=" << ptr2str (default_errstream) << std::endl;
     if (Input) {
-      fprintf(TFile,"  Active Input Source Stack:\n");
+      mystream << "  Active Input Source Stack:" << std::endl;
       for (Input_Source *inp = Input; inp != NULL; inp = inp->Next()) {
-        inp->Dump(TFile );
+        inp->Dump(mystream);
       }
     }
    // Print the list of completed commands
     std::list<InputLineObject *> cmd_object = Complete_Cmds;
     std::list<InputLineObject *>::iterator cmi;
     for (cmi = cmd_object.begin(); cmi != cmd_object.end(); cmi++) {
-      (*cmi)->Print (TFile);
+      (*cmi)->Print (mystream);
     }
   }
-  void Dump(FILE *TFile) {
+  void Dump(ostream &mystream) {
     std::list<CommandWindowID *>::reverse_iterator cwi;
     for (cwi = CommandWindowID_list.rbegin(); cwi != CommandWindowID_list.rend(); cwi++)
     {
-      (*cwi)->Print(TFile);
+      (*cwi)->Print(mystream);
     }
   }
 };
@@ -711,7 +748,7 @@ class TLI_CommandWindowID : public CommandWindowID
       return new TLI_InputLineObject (From, Cmd);
     }
 
-  // Constructors
+// Constructors
  private:
   TLI_CommandWindowID () { }  // Hide default constructor to catch errors at compile time
 
@@ -883,12 +920,12 @@ EXPID Experiment_Focus (CMDWID WindowID, EXPID ExperimentID)
   return 0;
 }
 
-void List_CommandWindows ( FILE *TFile )
+void List_CommandWindows (ostream &mystream)
 {
   if (*CommandWindowID_list.begin()) {
-    (*CommandWindowID_list.begin())->Dump(TFile);
+    (*CommandWindowID_list.begin())->Dump(mystream);
   } else {
-    fprintf(TFile,"\n(there are no defined windows)\n");
+    mystream << std::endl << "(there are no defined windows)" << std::endl;
   }
 }
 
@@ -906,7 +943,7 @@ static bool Read_Log_File_History (CommandObject *cmd, enum Log_Entry_Type log_t
   char *s = (char *)malloc(stat_buf.st_size+1);
   for (int i=0; i < stat_buf.st_size; ) {
     fgets (s, (stat_buf.st_size), cmdf);
-    int len  = strlen(s);
+    int64_t len  = strlen(s);
     if (len > 2) {
       bool dump_this_record = false;
       char *t = s;
@@ -1162,9 +1199,8 @@ ss_ostream *Window_ostream (CMDWID for_window) {
   return (cw != NULL) ? cw->ss_outstream() : NULL;
 }
 
-
 static bool Isa_SS_Command (CMDWID issuedbywindow, const char *b_ptr) {
-  int fc;
+  int64_t fc;
   for (fc = 0; fc < strlen(b_ptr); fc++) {
     if (b_ptr[fc] != *(" ")) break;
   }
@@ -1196,29 +1232,15 @@ static bool Isa_SS_Command (CMDWID issuedbywindow, const char *b_ptr) {
       }
     }
     this_ss_stream->releaseLock();
-/*
-    fprintf(stdout,"SpeedShop Status:\n");
-    fprintf(stdout,"  %s Waiting for Async input\n",Looking_for_Async_Inputs?" ":"Not");
-    if (Looking_for_Async_Inputs) {
-      if (More_Input_Needed_From_Window) {
-        fprintf(stdout,"    Processing of a complex statement requires input from W %d.\n",
-                More_Input_Needed_From_Window);
-        CommandWindowID *lw = Find_Command_Window (More_Input_Needed_From_Window);
-        if ((lw == NULL) || (!lw->Input_Available())) {
-          fprintf(stdout,"    ERROR: this window can not provide more input!!\n");
-          Fatal_Error_Encountered = true;
-        }
-      }
-    }
-*/
-    fprintf(stdout,"    ss_ostreams: stdout=%p, stderr=%p, ttyout=%p\n",ss_out,ss_err,ss_ttyout);
-    List_CommandWindows(stdout);
-    // ExperimentObject *a; a->Dump(stdout);
-    ExperimentObject::Dump(stdout);
+    mystream << "      ss_ostreams: stdout=" << ptr2str(ss_out);
+    mystream << ", stderr=" << ptr2str (ss_err);
+    mystream << ", ttyout=" << ptr2str (ss_ttyout) << std::endl;
+    List_CommandWindows(mystream);
+    ExperimentObject::Dump(mystream);
     Assert(!Fatal_Error_Encountered);
     return false;
   } else if (b_ptr[fc] == *("!")) {
-    int ret = system(&b_ptr[fc+1]);
+    (void) system(&b_ptr[fc+1]);
     return false;
   }
   return true;
@@ -1377,7 +1399,7 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
   Assert ((CMDWID)attachtowindow != 0);
   CommandWindowID *cw = Find_Command_Window ((CMDWID)attachtowindow);
   Assert (cw);
-  int Buffer_Size= DEFAULT_INPUT_BUFFER_SIZE;
+  int64_t Buffer_Size= DEFAULT_INPUT_BUFFER_SIZE;
   char Buffer[Buffer_Size];
   Buffer[Buffer_Size-1] = *"\0";
   ttyin = fopen ( "/dev/tty", "r" );  // Read directly from the xterm window
@@ -1538,7 +1560,7 @@ read_another_window:
       break;
     }
     const char *s = clip->Command().c_str();
-    int len  = strlen(s);
+    (void) strlen(s);
     if (!Isa_SS_Command(readfromwindow, s)) {
       clip = NULL;
       continue;

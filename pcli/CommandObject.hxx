@@ -49,19 +49,12 @@ class CommandResult {
     C = NULL;
   }
   virtual void Print (ostream &to, int64_t fieldsize=20, bool leftjustified=false) {
-    char F[20];
-    char S[20];
-    int i = 0;
-    F[i++] = *("%");
-    if (leftjustified) F[i++] = *("-");
-    sprintf(&F[i], "%llds\0", fieldsize);
-    sprintf(S, F, "(none)");
-    to << S;
+    to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
+       << std::setw(fieldsize) << "(none)";
   }
   virtual void Print (FILE *TFile, int64_t fieldsize=20, bool leftjustified=false) {
-    //fprintf(TFile,"              (none)");
     char F[20];
-    int i = 0;
+    int64_t i = 0;
     F[i++] = *("%");
     if (leftjustified) F[i++] = *("-");
     sprintf(&F[i], "%llds\0", fieldsize);
@@ -89,19 +82,12 @@ class CommandResult_Uint : public CommandResult {
     U = uint_value;
   };
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
-    char F[20];
-    char S[20];
-    int i = 0;
-    F[i++] = *("%");
-    if (leftjustified) F[i++] = *("-");
-    sprintf(&F[i], "%lldllu\0", fieldsize);
-    sprintf(S,&F[0],uint_value);
-    to << S;
+    to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
+       << std::setw(fieldsize) << uint_value;
   }
   virtual void Print (FILE *TFile, int64_t fieldsize, bool leftjustified) {
-    // fprintf(TFile,"%20llu\n",uint_value);
     char F[20];
-    int i = 0;
+    int64_t i = 0;
     F[i++] = *("%");
     if (leftjustified) F[i++] = *("-");
     sprintf(&F[i], "%lldllu\0", fieldsize);
@@ -134,19 +120,12 @@ class CommandResult_Int : public CommandResult {
     I = int_value;
   };
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
-    char F[20];
-    char S[20];
-    int i = 0;
-    F[i++] = *("%");
-    if (leftjustified) F[i++] = *("-");
-    sprintf(&F[i], "%lldlld\0", fieldsize);
-    sprintf(S,F,int_value);
-    to << S;
+    to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
+       << std::setw(fieldsize) << int_value;
   }
   virtual void Print (FILE *TFile, int64_t fieldsize, bool leftjustified) {
-    // fprintf(TFile,"%20lld\n",int_value);
     char F[20];
-    int i = 0;
+    int64_t i = 0;
     F[i++] = *("%");
     if (leftjustified) F[i++] = *("-");
     sprintf(&F[i], "%lldlld\0", fieldsize);
@@ -184,19 +163,12 @@ class CommandResult_Float : public CommandResult {
     F = float_value;
   };
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
-    char F[20];
-    char S[20];
-    int i = 0;
-    F[i++] = *("%");
-    if (leftjustified) F[i++] = *("-");
-    sprintf(&F[i], "%lldf\0", fieldsize);
-    sprintf(S,F,float_value);
-    to << S;
+    to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
+       << std::setw(fieldsize) << fixed << setprecision(4) << float_value;
   }
   virtual void Print (FILE *TFile, int64_t fieldsize, bool leftjustified) {
-    // fprintf(TFile,"%20f",float_value);
     char F[20];
-    int i = 0;
+    int64_t i = 0;
     F[i++] = *("%");
     if (leftjustified) F[i++] = *("-");
     sprintf(&F[i], "%lldf\0", fieldsize);
@@ -223,9 +195,8 @@ class CommandResult_String : public CommandResult {
      // Left justification is only done on the last column of a report.
      // Don't truncate the string if it is bigger than the field size.
      // This is done to make sure everything gets printed.
-     // But make sure we fill the field.
 
-      to << string_value;
+      to << std::setiosflags(std::ios::left) << string_value;
 
      // If there is unused space in the field, pad with blanks.
       if ((string_value.length() < fieldsize) &&
@@ -237,23 +208,16 @@ class CommandResult_String : public CommandResult {
      // Right justify the string in the field.
      // Don't let it exceed the size of the field.
      // Also, limit the size based on our internal buffer size.
-      char F[20];
-      char S[1000];
-      int64_t max_size = MIN(fieldsize,1000);
-      int64_t i = 0;
-      F[i++] = *("%");
-      sprintf(&F[i], "%lld.%llds\0", max_size, max_size);
-      sprintf(S,F,string_value.c_str());
-      to << S;
+      to << std::setiosflags(std::ios::right) << std::setw(fieldsize)
+         << ((string_value.length() <= fieldsize) ? string_value : string_value.substr(0, fieldsize));
     }
   }
   virtual void Print (FILE *TFile, int64_t fieldsize, bool leftjustified) {
-    // fprintf(TFile,"%s",string_value.c_str());
     char F[20];
-    int i = 0;
+    int64_t i = 0;
     F[i++] = *("%");
     if (leftjustified) F[i++] = *("-");
-    sprintf(&F[i], "%llds\0", fieldsize);
+    sprintf(&F[i], "%lld.%llds\0", fieldsize, fieldsize);
     fprintf(TFile,&F[0],string_value.c_str());
   }
 };
@@ -298,7 +262,7 @@ class CommandResult_Headers : public CommandResult {
     
     std::list<CommandResult *> cmd_object = Headers;
     std::list<CommandResult *>::iterator coi;
-    int num_results = 0;
+    int64_t num_results = 0;
     for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
       if (num_results++ != 0) to << "  ";
       (*coi)->Print (to, fieldsize, (num_results >= number_of_columns) ? true : false);
@@ -309,7 +273,7 @@ class CommandResult_Headers : public CommandResult {
     
     std::list<CommandResult *> cmd_object = Headers;
     std::list<CommandResult *>::iterator coi;
-    int num_results = 0;
+    int64_t num_results = 0;
     for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
       if (num_results++ != 0) fprintf(TFile,"  ");
       (*coi)->Print (TFile, fieldsize, (num_results >= number_of_columns) ? true : false);
@@ -339,7 +303,7 @@ class CommandResult_Enders : public CommandResult {
     
     std::list<CommandResult *> cmd_object = Enders;
     std::list<CommandResult *>::iterator coi;
-    int num_results = 0;
+    int64_t num_results = 0;
     for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
       if (num_results++ != 0) to << "  ";
       (*coi)->Print (to, fieldsize, (num_results >= number_of_columns) ? true : false);
@@ -350,7 +314,7 @@ class CommandResult_Enders : public CommandResult {
     
     std::list<CommandResult *> cmd_object = Enders;
     std::list<CommandResult *>::iterator coi;
-    int num_results = 0;
+    int64_t num_results = 0;
     for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
       if (num_results++ != 0) fprintf(TFile,"  ");
       (*coi)->Print (TFile, fieldsize, (num_results >= number_of_columns) ? true : false);
@@ -378,7 +342,7 @@ class CommandResult_Columns : public CommandResult {
   }
   virtual void Print (ostream &to, int64_t fieldsize=20, bool leftjustified=false) {
     std::list<CommandResult *>::iterator coi;
-    int num_results = 0;
+    int64_t num_results = 0;
     for (coi = Columns.begin(); coi != Columns.end(); coi++) {
       if (num_results++ != 0) to << "  ";
       (*coi)->Print (to, fieldsize, (num_results >= number_of_columns) ? true : false);
@@ -389,7 +353,7 @@ class CommandResult_Columns : public CommandResult {
     
     std::list<CommandResult *> cmd_object = Columns;
     std::list<CommandResult *>::iterator coi;
-    int num_results = 0;
+    int64_t num_results = 0;
     for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
       if (num_results++ != 0) fprintf(TFile,"  ");
       (*coi)->Print (TFile, fieldsize, (num_results >= number_of_columns) ? true : false);
@@ -468,7 +432,7 @@ enum Command_Status
 class CommandObject
 {
   InputLineObject *Associated_Clip; // The input line that caused generation of this object.
-  int Seq_Num; // The order this object was generated in from the input line.
+  int64_t Seq_Num; // The order this object was generated in from the input line.
   Command_Status Cmd_Status;
   oss_cmd_enum Cmd_Type; // A copy of information in the Parse_Result.
   // command_t *Parse_Result;
@@ -519,7 +483,7 @@ public:
   // command_t *P_Result () { return Parse_Result; }
   //command_type_t *P_Result () { return Parse_Result; }
     
-  void SetSeqNum (int a) { Seq_Num = a; }
+  void SetSeqNum (int64_t a) { Seq_Num = a; }
   void set_Status (Command_Status S); // defined in CommandObject.cxx
   void set_Results_Used () { results_used = true; }
 
@@ -549,6 +513,7 @@ public:
  // The following are defined in CommandObject.cxx
 
  // The simple Print is for dumping information to a trace file.
+  void Print (ostream &mystream);
   void Print (FILE *TFile);
  // The Print_Results routine is for sending results to the user.
  // The result returned is "true" if there was information printed.

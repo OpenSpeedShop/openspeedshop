@@ -139,7 +139,6 @@ FILE *Log_File (CMDWID WindowID);
 void Experiment_Purge_Focus (EXPID ExperimentID);                // Remove focus from windows
 EXPID Experiment_Focus (CMDWID WindowID);                        // What is the focus?
 EXPID Experiment_Focus (CMDWID WindowID, EXPID ExperimentID);    // Set the focus.
-void List_CommandWindows ( FILE *TFile );
 
 // Batch processing input is not Async.  Command execution should be serial.
 bool Window_Is_Async (CMDWID WindowID);
