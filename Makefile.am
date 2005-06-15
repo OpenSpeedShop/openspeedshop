@@ -28,13 +28,15 @@ TEST_SUBDIRS =	test/test_source/unit/fw \
 		test/test_source/dpcl/point_probe \
 		test/test_source/dpcl/start_terminate \
 		test/test_source/dpcl/module_addr \
+		test/test_source/dpcl/stmt_info \
 		test/test_source/dpcl/phase \
 		test/test_scripts \
-		test/executables/mutatee/32bit/c_version \
-		test/executables/mutatee/64bit \
-		test/executables/mutatee/64bit/c_version \
-		test/executables/mutatee/64bit/cplus_version \
-		test/executables/mutatee/64bit/f77_version
+		test/executables/ \
+		test/executables/Eon/ \
+		test/executables/mutatee/ \
+		test/executables/mutatee/c_version \
+		test/executables/mutatee/cplus_version \
+		test/executables/mutatee/f77_version
 
 DIST_TEST_SUBDIRS = test/test_source/unit/fw/* \
 		test/test_source/unit/fw/interval/* \
@@ -48,13 +50,15 @@ DIST_TEST_SUBDIRS = test/test_source/unit/fw/* \
 		test/test_source/dpcl/point_probe/* \
 		test/test_source/dpcl/start_terminate/* \
 		test/test_source/dpcl/module_addr/* \
+		test/test_source/dpcl/stmt_info/* \
 		test/test_source/dpcl/phase/* \
 		test/test_scripts/* \
-		test/executables/mutatee/32bit/c_version/* \
-		test/executables/mutatee/64bit/* \
-		test/executables/mutatee/64bit/c_version/* \
-		test/executables/mutatee/64bit/cplus_version/* \
-		test/executables/mutatee/64bit/f77_version/*
+		test/executables/* \
+		test/executables/Eon/* \
+		test/executables/mutatee/* \
+		test/executables/mutatee/c_version/* \
+		test/executables/mutatee/cplus_version/* \
+		test/executables/mutatee/f77_version/*
 
 SUBDIRS = . \
 	libltdl \
