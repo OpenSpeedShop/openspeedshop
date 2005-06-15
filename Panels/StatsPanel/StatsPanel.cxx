@@ -696,10 +696,32 @@ StatsPanel::sortColumn(int column)
   for(std::vector<Function_double_pair>::const_iterator
               it = sorted_items.begin(); it != sorted_items.end(); ++it)
   {
+QString funcInfo = QString::null;
     c_percent = it->second*percent_factor;  // current item's percent of total time
     sprintf(cputimestr, "%f", it->second);
     sprintf(a_percent_str, "%f", c_percent);
-    lvi =  new SPListViewItem( this, splv, cputimestr,  a_percent_str, it->first.getName().c_str() );
+funcInfo = it->first.getName().c_str() + QString(" (") + it->first.getLinkedObject().getPath().getBaseName();
+
+std::set<Statement> T = it->first.getDefinitions();
+if( T.size() > 0 )
+{
+  std::set<Statement>::const_iterator ti;
+  for (ti = T.begin(); ti != T.end(); ti++)
+  {
+    if (ti != T.begin())
+    {
+      funcInfo += "  &...";
+      break;
+    }
+    Statement s = *ti;
+    char l[20];
+    sprintf( &l[0], "%lld", (int64_t)s.getLine());
+    funcInfo = funcInfo + ": " + s.getPath().getBaseName() + "," + &l[0];
+  }
+}
+funcInfo += QString(")");
+
+    lvi =  new SPListViewItem( this, splv, cputimestr,  a_percent_str, funcInfo.ascii() );
 // printf("Put out (%s)\n", cputimestr);
 
     if(numberItemsToDisplay >= 0 )
@@ -776,10 +798,15 @@ StatsPanel::doOption(int id)
 
 
 void
-StatsPanel::matchSelectedItem(std::string selected_function )
+StatsPanel::matchSelectedItem(std::string sf )
 {
   bool foundFLAG = FALSE;
-// printf ("StatsPanel::matchSelectedItem() = %s\n", selected_function.c_str() );
+// printf ("StatsPanel::matchSelectedItem() = %s\n", sf.c_str() );
+
+  QString selected_function_qstring = QString(sf);
+  QString funcString = selected_function_qstring.section(' ', 0, 0, QString::SectionSkipEmpty);
+  std::string selected_function = funcString.ascii();
+
 
   try
   {
@@ -809,12 +836,17 @@ fprintf(stderr, "No function definition for this entry.   Unable to position sou
         }
       }
     }
+// printf("FOUND?\n");
 
     SourceObject *spo = NULL;
     if( definitions.size() > 0 )
     {
       std::set<Statement>::const_iterator di = definitions.begin();
       spo = new SourceObject(it->first.getName().c_str(), di->getPath(), di->getLine()-1, expID, TRUE, NULL);
+    } else
+    {
+// printf("No file found.\n");
+      return;
     }
 
 
