@@ -24,6 +24,8 @@
 #include "CollectorListObject.hxx"
 #include "CollectorMetricEntryClass.hxx"
 
+#include <qheader.h>
+
 #include <qvaluelist.h>
 #include <qmessagebox.h>
 class MetricHeaderInfo;
@@ -88,6 +90,8 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, void *argument) : Pane
   splv = new SPListView(this, splitterA, getName(), 0);
 
   connect( splv, SIGNAL(doubleClicked(QListViewItem *)), this, SLOT( itemSelected( QListViewItem* )) );
+
+  connect( splv->header(), SIGNAL( clicked(int) ), this, SLOT( sortColumn(int) ) );
 
 
   int width = pc->width();
@@ -607,6 +611,150 @@ StatsPanel::itemSelected(QListViewItem *item)
   }
 }
 
+void
+StatsPanel::sortColumn(int column)
+{
+//  printf("StatsPanel::sortColumn(%d) entered\n", column);
+
+  // For now we only allow column 0 to be sorted.
+  if( column > 0 )
+  {
+    return;
+  }
+
+  int index = 0;
+  int count = 0;
+  int values[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  char *color_names[] = { "red", "green", "cyan", "gray", "darkGreen", "darkCyan", "magenta", "blue", "yellow", "black", "darkRed", "darkBlue", "darkMagenta", "darkYellow", "darkGray", "lightGray" };
+  char *strings[] = { "", "", "", "", "", "", "", "", "", "" };
+  SPListViewItem *lvi;
+
+  // How many rows should we display?
+  bool ok;
+  int numberItemsToDisplay = -1;
+  if( !getPreferenceTopNLineEdit().isEmpty() )
+  {
+    numberItemsToDisplay = getPreferenceTopNLineEdit().toInt(&ok);
+    if( !ok )
+    {
+      numberItemsToDisplay = 5; // Default to top5.
+    }
+  }
+
+  if( column >= 0 )
+  {
+    if( ascending_sort == false )
+    { 
+      splv->header()->setSortIndicator( column, Qt::Descending );
+      ascending_sort = true;
+    } else
+    {
+      splv->header()->setSortIndicator( column, Qt::Ascending );
+      ascending_sort = false;
+    }
+  }
+
+  if( column < 0 )
+  {
+    column = 0;
+  }
+// printf("Now really sort the items: ascending_sort=%d\n", ascending_sort);
+
+  sorted_items.clear();
+  // sort by the time metric
+  // Now we can sort the data.
+  for(std::map<Function, double>::const_iterator
+                item = orig_data->begin(); item != orig_data->end(); ++item)
+  {
+    sorted_items.push_back( *item );
+  }
+          
+  if (ascending_sort)
+  {
+    std::sort(sorted_items.begin(), sorted_items.end(), sort_ascending<Function_double_pair>());
+  } else
+  {
+    std::sort(sorted_items.begin(), sorted_items.end(), sort_descending<Function_double_pair>());
+  }
+
+  nprintf( DEBUG_PANELS) ("Put the data out...\n");
+
+  splv->clear();
+
+  double TotalTime = Get_Total_Time();
+
+  char cputimestr[50];
+  char a_percent_str[50];
+  a_percent_str[0] = '\0';
+  // convert time to %
+  double percent_factor = 100.0 / TotalTime;
+  double a_percent = 0; // accumulated percent
+  double c_percent = 0; // accumulated percent
+  
+  for(std::vector<Function_double_pair>::const_iterator
+              it = sorted_items.begin(); it != sorted_items.end(); ++it)
+  {
+    c_percent = it->second*percent_factor;  // current item's percent of total time
+    sprintf(cputimestr, "%f", it->second);
+    sprintf(a_percent_str, "%f", c_percent);
+    lvi =  new SPListViewItem( this, splv, cputimestr,  a_percent_str, it->first.getName().c_str() );
+// printf("Put out (%s)\n", cputimestr);
+
+    if(numberItemsToDisplay >= 0 )
+    {
+      numberItemsToDisplay--;
+      if( numberItemsToDisplay == 0)
+      {
+        // That's all the user requested...
+        break;  
+      }
+    }
+  }
+    
+  // Set the values for the top 5 pie chart elements...
+  QListViewItemIterator it( splv );
+  while( it.current() )
+  {
+    QListViewItem *item = *it;
+    if( index < 5 )
+    {
+      values[index] = (int)item->text(1).toFloat();
+// printf("values[%d] = (%d)\n", index, values[index] );
+      strings[index] = (char *)item->text(1).ascii();
+      count = index+1;
+    }
+    index++;
+      
+    ++it;
+  }
+
+// Begin: Try putting out the graph here...
+// Loop through splv and print out the top 5....
+{
+  int total_percent = 0;
+int i = 0;
+  for(i =0;i<count;i++)
+  {
+    total_percent += values[i];
+  }
+if( total_percent < 100 )
+{
+  values[i] = 100-total_percent;
+  strings[i] = "other";
+  count++;
+}
+  cf->setValues(values, color_names, strings, count+1);
+}
+// End: Try putting out the graph here...
+
+  // Now sort the data that has been sorted already...
+  splv->setSorting ( column, ascending_sort );
+  splv->sort();
+  splv->setSorting ( -1, ascending_sort );
+  splv->header()->setSortIndicator( column, ascending_sort );
+}
+
+
 static int cwidth = 0;  // This isn't what I want to do long term.. 
 void
 StatsPanel::doOption(int id)
@@ -701,13 +849,6 @@ StatsPanel::updateStatsPanelData()
 {
   nprintf( DEBUG_PANELS) ("StatsPanel::updateStatsPanelData() entered.\n");
 
-  int index = 0;
-  int count = 0;
-  int values[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-  char *color_names[] = { "red", "green", "cyan", "gray", "darkGreen", "darkCyan", "magenta", "blue", "yellow", "black", "darkRed", "darkBlue", "darkMagenta", "darkYellow", "darkGray", "lightGray" };
-  char *strings[] = { "", "", "", "", "", "", "", "", "", "" };
-
-  
   SPListViewItem *lvi;
   columnList.clear();
   splv->clear();
@@ -773,25 +914,6 @@ StatsPanel::updateStatsPanelData()
 // printf("GetMetricByFunction(%s  %s %s)\n", name.ascii(), metricStr.ascii(), QString("%1").arg(t1.getProcessId()).ascii() );
           Queries::GetMetricByFunctionInThread(collector, metricStr.ascii(), t1, orig_data);
 
-          if( !orig_data.isNull() )
-          {
-           sorted_items.clear();
-           // sort by the time metric
-            // Now we can sort the data.
-            for(std::map<Function, double>::const_iterator
-                item = orig_data->begin(); item != orig_data->end(); ++item)
-            {
-              sorted_items.push_back( *item );
-            }
-          
-            if (ascending_sort) {
-              std::sort(sorted_items.begin(), sorted_items.end(), sort_ascending<Function_double_pair>());
-            } else {
-              std::sort(sorted_items.begin(), sorted_items.end(), sort_descending<Function_double_pair>());
-            }
-          
-          }
-  
           // Display the results
           MetricHeaderInfoList metricHeaderInfoList;
           metricHeaderInfoList.push_back(new MetricHeaderInfo(QString(metricStr.ascii() ), FLOAT_T));
@@ -827,7 +949,6 @@ StatsPanel::updateStatsPanelData()
       {
         columnToSort = 0;
       }
-      splv->setSorting ( columnToSort, FALSE );
   
       // Figure out which way to sort
       bool sortOrder = getPreferenceSortDecending();
@@ -835,80 +956,24 @@ StatsPanel::updateStatsPanelData()
       {
         splv->setSortOrder ( Qt::Descending );
         ascending_sort = false;
+        splv->header()->setSortIndicator( columnToSort, Qt::Descending );
+// printf("set sort order Decending.\n");
       } else
       {
         splv->setSortOrder ( Qt::Ascending );
-        ascending_sort = false;
+        ascending_sort = true;
+        splv->header()->setSortIndicator( columnToSort, Qt::Ascending );
+// printf("set sort order Ascending.\n");
       }
-  
-      // How many rows should we display?
-      int numberItemsToDisplay = -1;
-      if( !getPreferenceTopNLineEdit().isEmpty() )
+// printf("columnToSort=%d\n", columnToSort);
+      splv->setSorting ( columnToSort, !ascending_sort );
+      sortColumn(-1);
+
+      if( orig_data.isNull() )
       {
-        numberItemsToDisplay = getPreferenceTopNLineEdit().toInt(&ok);
-        if( !ok )
-        {
-          numberItemsToDisplay = 5; // Default to top5.
-        }
+// printf("no data read.\n");
+        return;
       }
-
-
-if( orig_data.isNull() )
-{
-  printf("no data read.\n");
-  return;
-}
-
-      nprintf( DEBUG_PANELS) ("Put the data out...\n");
-
-      double TotalTime = Get_Total_Time();
-
-      char cputimestr[50];
-      char a_percent_str[50];
-      a_percent_str[0] = '\0';
-      // convert time to %
-      double percent_factor = 100.0 / TotalTime;
-      double a_percent = 0; // accumulated percent
-      double c_percent = 0; // accumulated percent
-  
-      for(std::vector<Function_double_pair>::const_iterator
-              it = sorted_items.begin(); it != sorted_items.end(); ++it)
-      {
-        c_percent = it->second*percent_factor;  // current item's percent of total time
-        sprintf(cputimestr, "%f", it->second);
-        sprintf(a_percent_str, "%f", c_percent);
-        lvi =  new SPListViewItem( this, splv, cputimestr,  a_percent_str, it->first.getName().c_str() );
-
-        if(numberItemsToDisplay >= 0 )
-        {
-          numberItemsToDisplay--;
-          if( numberItemsToDisplay == 0)
-          {
-            // That's all the user requested...
-            break;  
-          }
-        }
-      }
-    
-//      splv->sort();
-
-        // Set the values for the top 5 pie chart elements...
-      QListViewItemIterator it( splv );
-      while( it.current() )
-      {
-        QListViewItem *item = *it;
-        if( index < 5 )
-        {
-          values[index] = (int)item->text(1).toFloat();
-// printf("values[%d] = (%d)\n", index, values[index] );
-          strings[index] = (char *)item->text(1).ascii();
-          count = index+1;
-        }
-        index++;
-      
-        ++it;
-      }
-
     }
   }
   catch(const std::exception& error)
@@ -919,25 +984,6 @@ if( orig_data.isNull() )
               << std::endl;
     return;
   }
-
-// Begin: Try putting out the graph here...
-// Loop through splv and print out the top 5....
-{
-  int total_percent = 0;
-int i = 0;
-  for(i =0;i<count;i++)
-  {
-    total_percent += values[i];
-  }
-if( total_percent < 100 )
-{
-  values[i] = 100-total_percent;
-  strings[i] = "other";
-  count++;
-}
-  cf->setValues(values, color_names, strings, count+1);
-}
-// End: Try putting out the graph here...
 
 #ifdef SYNTAX
   // Update header information

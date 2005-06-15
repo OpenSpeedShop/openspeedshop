@@ -96,6 +96,7 @@ int *metricHeaderTypeArray;  // matches the QListView # of column entries.
     QFile *f;
   public slots:
     void itemSelected( QListViewItem * );
+    void sortColumn( int );
     void doOption(int id);
     void exportData();
     void details();

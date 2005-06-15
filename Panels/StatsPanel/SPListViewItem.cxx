@@ -53,10 +53,18 @@ SPListViewItem::~SPListViewItem( )
   dprintf ("  SPListViewItem::~SPListViewItem( ) destructor called\n");
 }
 
+// #ifdef GROWL
 QString
 SPListViewItem::key(int c, bool b) const
 {
   dprintf("GROWL! c=%d\n", c);
+  // Currently we only sort on column 0;
+  if( c != 0 )
+  {
+    dprintf("You shouldn't be allowed to do this!\n");
+    return QString::null;
+  }
+
   QString s;
   if( statsPanel->metricHeaderTypeArray[c] == INT_T )
   {
@@ -77,13 +85,14 @@ SPListViewItem::key(int c, bool b) const
     
   return s;
 }
+// #endif // GROWL
 
 #ifdef HOLD
 int
 SPListViewItem::compare( QListViewItem *i, int col, bool ascending ) const
 {
-  printf("GRAAAAOOOOWL!\n");
+  printf("GRAAAAOOOOWL! %d\n", col);
 
-  return key( col, ascending ).compare( i->key( col, ascending) );
+//  return key( col, ascending ).compare( i->key( col, ascending) );
 }
 #endif // HOLD

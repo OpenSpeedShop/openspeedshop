@@ -35,7 +35,9 @@ public:
 
   ~SPListViewItem( );
 
+// #ifdef GROWL
   QString key(int c, bool b) const;
+// #endif // GROWL
  
 #ifdef HOLD
   int compare( QListViewItem *i, int col, bool ascending ) const;
