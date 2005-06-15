@@ -167,7 +167,14 @@ class intime_view : public ViewType {
 
     MV.push_back(VIEW_intime_metrics[0]);  // Use the Collector with the first metric
     IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, 0, 0));  // first column is metric
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Metric, 1, 0));  // second column is %
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, 1, 0)); // second column is %
+
+   // The Total Time (used for % calculation) is always the total exclusive time.
+   // (Otherwise, we measure a unit of time multiple times.)
+    CV.push_back (CV[0]);
+    MV.push_back ("exclusive_time");
+    IV.push_back(new ViewInstruction (VIEWINST_Define_Total, MV.size()-1));
+
     return Generic_View->GenerateView (cmd, exp, topn, tgrp, CV, MV, IV);
   }
 };
