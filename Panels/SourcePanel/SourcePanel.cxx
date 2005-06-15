@@ -392,6 +392,7 @@ SourcePanel::listener(void *msg)
   if( msgObject->msgType == "SourceObject" )
   {
     nprintf(DEBUG_PANELS)  ("Its a SourceObject\n");
+// printf("Its a SourceObject\n");
     spo = (SourceObject *)msg;
     if( !spo )
     {
@@ -408,7 +409,7 @@ SourcePanel::listener(void *msg)
       }
     }
 
-    nprintf(DEBUG_PANELS)  ("load the file spo->fileName=%s\n", spo->fileName.ascii() );
+// printf ("load the file spo->fileName=%s\n", spo->fileName.ascii() );
     if( loadFile(spo->fileName) == FALSE )
     {
       // We didn't find or load the file, but we did attempt
@@ -416,7 +417,7 @@ SourcePanel::listener(void *msg)
       return 1;
     }
 
-    nprintf(DEBUG_PANELS)  ("doFileHighlights()\n");
+// printf ("doFileHighlights()\n");
 
     highlightList = spo->highlightList;
     doFileHighlights();
@@ -1093,9 +1094,11 @@ int max_value = vscrollbar->maxValue();
 void
 SourcePanel::doFileHighlights()
 {
-  // Begin for demos and testing (for now)...   FIX
+// printf("doFileHighlights() entered\n");
+
   if( !highlightList || highlightList->empty() )
   {
+// printf("no highlights, return.\n");
     return;
   }
 
@@ -1106,14 +1109,15 @@ SourcePanel::doFileHighlights()
        ++it)
   {
     hlo = (HighlightObject *)*it;
-    if( hlo->fileName == fileName )
+// printf("Here's a line to highlight line=%d\n", hlo->line);
+// hlo->print();
+//    if( hlo->fileName == fileName )
     {
+// printf("Try to highlight line %d\n", hlo->line );
       highlightLine(hlo->line, hlo->color, TRUE);
     }
 //    highlightSegment(para, index, para, index+4, "yellow");
   }
-  // End for demos and testing (for now)...   FIX
-
 
   // Don't forget to turn the refreshing (for resize etc) back on...
   textEdit->setUpdatesEnabled( TRUE );

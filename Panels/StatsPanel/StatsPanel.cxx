@@ -31,10 +31,12 @@
 class MetricHeaderInfo;
 typedef QValueList<MetricHeaderInfo *> MetricHeaderInfoList;
 
+static char *color_names[] = { "red", "green", "cyan", "gray", "darkGreen", "darkCyan", "magenta", "blue", "yellow", "black", "darkRed", "darkBlue", "darkMagenta", "darkYellow", "darkGray", "lightGray" };
 
 #include "SPListView.hxx"   // Change this to your new class header file name
 #include "SPListViewItem.hxx"   // Change this to your new class header file name
 #include "UpdateObject.hxx"
+#include "HighlightObject.hxx"
 #include "SourceObject.hxx"
 #include "PreferencesChangedObject.hxx"
 
@@ -627,7 +629,6 @@ StatsPanel::sortColumn(int column)
   int index = 0;
   int count = 0;
   int values[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-  char *color_names[] = { "red", "green", "cyan", "gray", "darkGreen", "darkCyan", "magenta", "blue", "yellow", "black", "darkRed", "darkBlue", "darkMagenta", "darkYellow", "darkGray", "lightGray" };
   char *strings[] = { "", "", "", "", "", "", "", "", "", "" };
   SPListViewItem *lvi;
 
@@ -715,7 +716,7 @@ if( T.size() > 0 )
     }
     Statement s = *ti;
     char l[20];
-    sprintf( &l[0], "%lld", (int64_t)s.getLine());
+    sprintf( &l[0], " %lld", (int64_t)s.getLine());
     funcInfo = funcInfo + ": " + s.getPath().getBaseName() + "," + &l[0];
   }
 }
@@ -807,6 +808,16 @@ StatsPanel::matchSelectedItem(std::string sf )
   QString funcString = selected_function_qstring.section(' ', 0, 0, QString::SectionSkipEmpty);
   std::string selected_function = funcString.ascii();
 
+/*
+  QString lineString = selected_function_qstring.section(' ', 3, 3, QString::SectionSkipEmpty);
+  printf("lineString=(%s)\n", lineString.ascii() );
+
+  char lineCharString[16];
+  strcpy(lineCharString, lineString.ascii() );
+  lineCharString[strlen(lineCharString)-1] = '\0';
+  printf("lineCharString=%s\n", lineCharString);
+*/
+
 
   try
   {
@@ -842,12 +853,33 @@ fprintf(stderr, "No function definition for this entry.   Unable to position sou
     if( definitions.size() > 0 )
     {
       std::set<Statement>::const_iterator di = definitions.begin();
-      spo = new SourceObject(it->first.getName().c_str(), di->getPath(), di->getLine()-1, expID, TRUE, NULL);
+      HighlightList *highlightList = new HighlightList();
+      highlightList->clear();
+      HighlightObject *hlo = NULL;
+// cout << "name: " << di->getPath() << " line: " << di->getLine()-1 << "red" << "HighlightInfo note." << "\n";
+      int64_t line = 1;
+      if( definitions.size() > 0 )
+      {
+        std::set<Statement>::const_iterator ti;
+        for (ti = definitions.begin(); ti != definitions.end(); ti++)
+        {
+          if (ti != definitions.begin())
+          {
+            break;
+          }
+          Statement s = *ti;
+          line = (int64_t)s.getLine();
+        }
+      }
+      hlo = new HighlightObject(di->getPath(), line, color_names[0], "HighlightInfo note.");
+      highlightList->push_back(hlo);
+      spo = new SourceObject(it->first.getName().c_str(), di->getPath(), di->getLine()-1, expID, TRUE, highlightList);
     } else
     {
 // printf("No file found.\n");
       return;
     }
+
 
 
 

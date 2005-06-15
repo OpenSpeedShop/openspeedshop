@@ -1233,7 +1233,7 @@ HW_CounterWizardPanel::languageChange()
   vDescriptionPageFinishButton->setText( tr( ">> Finish" ) );
   QToolTip::add( vDescriptionPageFinishButton, tr( "Advance to the wizard finish page." ) );
   vParameterPageDescriptionText->setText( tr( QString("The following options (paramaters) are available to adjust.   These are the options the collector has exported.<br><br>\n"
-"The smaller the number used for the sample rate, the more\n"
+"The larger the number used for the sample rate, the more\n"
 "HW Counter detail will be shown.   However, the trade off will be slower\n"
 "performance and a larger data file.<br><br>\n"
 "It may take a little experimenting to find the right setting for your \n"
