@@ -40,11 +40,41 @@ void CommandObject::set_Status (Command_Status S) {
 
 
 // For tracing commands to the log file.
+void CommandObject::Print (ostream &mystream) {
+ // Header information
+  InputLineObject *clip = Associated_Clip;
+  CMDID when = clip->Seq ();
+  mystream << "X " << when << "." << Seq_Num;
+
+ // Status information
+  char *S;
+  switch (Cmd_Status) {
+  case CMD_UNKNOWN:   S = "UNKNOWN"; break;
+  case CMD_PARSED:    S = "PARSED"; break;
+  case CMD_EXECUTING: S = "EXECUTING"; break;
+  case CMD_COMPLETE:  S = "COMPLETE"; break;
+  case CMD_ERROR:     S = "ERROR"; break;
+  case CMD_ABORTED:   S = "ABORTED"; break;
+  default:            S = "ILLEGAL"; break;
+  }
+  mystream << " " << S << ": ";
+
+ // result information
+  std::list<CommandResult *> cmd_result = Result_List();
+  std::list<CommandResult *>::iterator cri;
+  int cnt = 0;
+  for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++) {
+    if (cnt++ > 0) mystream << ". ";
+    (*cri)->Print (mystream);
+  }
+  mystream << std::endl;
+}
+
 void CommandObject::Print (FILE *TFile) {
  // Header information
   InputLineObject *clip = Associated_Clip;
   CMDID when = clip->Seq ();
-  fprintf(TFile,"X %lld.%d ",when,Seq_Num);
+  fprintf(TFile,"X %lld.%lld ",when,Seq_Num);
 
  // Status information
   char *S;

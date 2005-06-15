@@ -56,7 +56,7 @@ class InputLineObject
   void (*CallBackCmd) (CommandObject *b);  // Optional call back function for Command Objects.
   std::string msg_string;	// Intermediate processing or error information.
   oss_cmd_enum cmd_type;	// Filled in when the parser determines the type of command.
-  int Num_Cmd_Objs;             // Count the number of CommandObjects on the list.
+  int64_t Num_Cmd_Objs;         // Count the number of CommandObjects on the list.
   std::list<CommandObject *> Cmd_Obj;  // list of associated command objects
 
  public:
@@ -161,6 +161,53 @@ class InputLineObject
     Cmd_Obj.push_back(C);
   }
 
+  void Print (ostream &mystream) {
+    CMDWID who = Who();
+    Input_Line_Status what = What();
+    CMDID seq_num = Where();
+    time_t cmd_time = When();
+    std::string command = Command();
+    mystream << "C " << seq_num << "(" << Num_Cmd_Objs << ")";
+    mystream << " (W" << who << "@" << ctime(&cmd_time) << ") ";
+    char *what_c;
+    switch (what)
+    { 
+      case ILO_UNKNOWN:      what_c = "UNKNOWN"; break;
+      case ILO_QUEUED_INPUT: what_c = "QUEUED"; break;
+      case ILO_IN_PARSER:    what_c = "PARSING"; break;
+      case ILO_EXECUTING:    what_c = "EXECUTING"; break;
+      case ILO_COMPLETE:     what_c = "COMPLETE"; break;
+      case ILO_ERROR:        what_c = "ERROR"; break;
+      default:               what_c = "ILLEGAL"; break;
+    }
+    mystream << what_c << ":" << std::endl;
+    if (command.length() != 0) {
+      mystream << command;
+      int nline = strlen (command.c_str()) - 1;
+      if ((nline <= 0) || (command.c_str()[nline] != *("\n"))) {
+        mystream << std::endl;
+      }
+    }
+
+   // CommandObject list
+    std::list<CommandObject *> cmd_object = Cmd_Obj;
+    std::list<CommandObject *>::iterator coi;
+    for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
+      (*coi)->Print (mystream);
+    }
+
+    mystream << flush;  // So that we can look at the file while still running
+  }
+
+  void Print_Results (ostream &to, std::string list_seperator, std::string termination_char) {
+   // Print only the result information attached to each CommandObject
+    std::list<CommandObject *> cmd_object = Cmd_Obj;
+    std::list<CommandObject *>::iterator coi;
+    for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
+      (*coi)->Print_Results (to, list_seperator, termination_char);
+    }
+  }
+
   void Print (FILE *TFile) {
     if (TFile != NULL) {
       CMDWID who = Who();
@@ -202,14 +249,6 @@ class InputLineObject
     }
   }
 
-  void Print_Results (ostream &to, std::string list_seperator, std::string termination_char) {
-   // Print only the result information attached to each CommandObject
-    std::list<CommandObject *> cmd_object = Cmd_Obj;
-    std::list<CommandObject *>::iterator coi;
-    for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
-      (*coi)->Print_Results (to, list_seperator, termination_char);
-    }
-  }
   void Print_Results (FILE *TFile, std::string list_seperator, std::string termination_char) {
    // Print only the result information attached to each CommandObject
     std::list<CommandObject *> cmd_object = Cmd_Obj;
