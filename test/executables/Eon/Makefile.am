@@ -37,7 +37,7 @@ eon_SOURCES = \
 	ggPolishedBRDF.cc ggPolishedMaterial.cc ggPolygon.cc ggQuaternion.cc ggRandomSample2.cc ggRandomSample3.cc \
 	ggRasterSurfaceTexture.cc ggRay2.cc ggRay3.cc ggRGBE.cc \
 	ggRGBFPixel.cc ggRGBPixel_x.cc ggRotatingPinholeCamera.cc ggSolidNoise2.cc ggSolidNoise3.cc ggSolidTexture.cc ggSpectrum.cc \
-	ggSpecularMaterial.cc ggSphere.cc ggSpline.cc ggString.cc ggThinLensCamera.cc ggTimer.cc  \
+	ggSpecularMaterial.cc ggSphere.cc ggSpline.cc ggString.cc ggThinLensCamera.cc  \
 	ggTrianglePixelFilter.cc ggVector2.cc ggVector3.cc mrBox.cc mrBruteForcePixelRenderer.cc mrCamera.cc mrCoarsePixelRenderer.cc \
 	mrCookPixelRenderer.cc mrDiffuseAreaSphereLuminaire.cc mrDiffuseAreaTriangleLuminaire.cc mrDiffuseAreaXYRectangleLuminaire.cc mrDiffuseAreaXZRectangleLuminaire.cc \
 	mrDiffuseAreaYZRectangleLuminaire.cc mrDiffuseAreaZCylinderLuminaire.cc mrDiffuseCosineSphereLuminaire.cc mrDiffuseCosineZCylinderLuminaire.cc \

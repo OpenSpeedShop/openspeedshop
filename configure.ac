@@ -168,12 +168,11 @@ AC_CONFIG_FILES(Makefile
 		Panels/Wizards/HW_CounterWizardPanel/Makefile
 		Panels/Wizards/IOWizardPanel/Makefile
 		Panels/Wizards/MPIWizardPanel/Makefile
-		test/executables/Makefile
-		test/executables/Eon/Makefile
 		test/executables/mutatee/Makefile
 		test/executables/mutatee/c_version/Makefile
 		test/executables/mutatee/cplus_version/Makefile
 		test/executables/mutatee/f77_version/Makefile
+		test/executables/Eon/Makefile
 		test/test_source/unit/fw/Makefile
 		test/test_source/unit/fw/database/Makefile
 		test/test_source/unit/fw/interval/Makefile
