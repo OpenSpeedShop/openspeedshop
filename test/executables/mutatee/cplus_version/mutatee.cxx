@@ -41,15 +41,7 @@ int work(int size)
  
 int main(int argc, char* argv[])
 {
-   int size = 500;
+   int size = 800;
 
-    if(argc != 2) {
-        cout <<"Usage: "<< argv[0] << " <size>" << endl;
-        cout<<"No size argument given.   Defaulting to " <<size << endl;
-    } else
-    {
-      size = atoi(argv[1]);
-    }
-    
     work(size);
 }
