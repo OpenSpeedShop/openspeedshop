@@ -1,4 +1,4 @@
-################################################################################
+###############################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -15,34 +15,13 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
+#
+# directories that will be built
+SUBDIRS = mutatee Eon
+#
+# directories that will be packaged into tar.gz.
+# these can be a subset of the directories in SUBDIRS.
+#
+DIST_SUBDIRS = mutatee Eon
 
-bin_PROGRAMS = mutator probe_module
 
-mutator_CXXFLAGS = \
-	 $(DPCL_CPPFLAGS)
-
-mutator_LDFLAGS = \
-	-L$(ROOT)/lib \
-	$(DPCL_LIBS) -lelf
-	$(DPCL_LDFLAGS) 
-
-mutator_LIBS = \
-	$(DPCL_LDFLAGS) \
-	$(DPCL_LIBS) -lelf
-
-mutator_SOURCES = \
-	mutator.C
-
-probe_module_CFLAGS = \
-	 $(DPCL_CPPFLAGS)
-
-probe_module_LDFLAGS = \
-	-L$(ROOT)/lib \
-	$(DPCL_LIBS) -shared -o /tmp/probe_module.so 
-
-probe_module_LIBS = \
-	$(DPCL_LDFLAGS) \
-	$(DPCL_LIBS) 
-
-probe_module_SOURCES = \
-	probe_module.c
