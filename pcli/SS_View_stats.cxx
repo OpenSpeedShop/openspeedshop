@@ -90,27 +90,58 @@ static bool VIEW_stats (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
    // Calculate %?
     CommandResult *TotalValue = NULL;
     if (Gen_Total_Percent) {
-     // We calculate Total Time by adding all the time in the base metric.
-     // Unfortunately, there may be time intervals that are not included
+     // We calculate Total by adding all the values n the base metric.
+     // Unfortunately, there may be intervals that are not included
      // in the base metric, so the total we calcualte may be less than the
-     // actual total.  Worst yet, it ma be less than the total for an item
+     // actual total.  Worst yet, it may be less than the total for an item
      // displayed in Column[0] leading to a % reported that is over 100.
-      TotalValue = new CommandResult_Float();
+      TotalValue = Init_Collector_Metric ( cmd, CV[totalIndex], MV[totalIndex] );
+      if (TotalValue == NULL) {
+        return false;
+      }
 
       std::vector<Function_double_pair>::const_iterator itt = items.begin();
       for( ; itt != items.end(); itt++ ) {
         Function_double_pair f = *itt;
         CommandResult *Metric_Value = Get_Collector_Metric( cmd, f.first, tgrp,
                                                             CV[totalIndex], MV[totalIndex] );
-        Accumulate_CommandResult (TotalValue, Metric_Value);
+        if (Metric_Value != NULL) {
+          Accumulate_CommandResult (TotalValue, Metric_Value);
+        }
       }
 
-      double TotalTime = 0.0;
-      ((CommandResult_Float *)TotalValue)->Value(TotalTime);
-      if (TotalTime < 0.0000000001) {
-        cmd->Result_String ( "(The measured time interval is too small.)" );
-        cmd->set_Status(CMD_ERROR);
-        return false;
+      switch (TotalValue->Type()) {
+        case CMD_RESULT_UINT:
+          { uint64_t Uvalue;
+            ((CommandResult_Uint *)TotalValue)->Value(Uvalue);
+            if (Uvalue == 0) {
+             // The measured time interval is too small.
+              Gen_Total_Percent = false;
+            }
+            break;
+          }
+        case CMD_RESULT_INT:
+          { int64_t Ivalue;
+            ((CommandResult_Int *)TotalValue)->Value(Ivalue);
+            if (Ivalue <= 0) {
+             // The measured time interval is too small.
+              Gen_Total_Percent = false;
+            }
+            break;
+          }
+        case CMD_RESULT_FLOAT:
+          { double Fvalue = 0.0;
+            ((CommandResult_Float *)TotalValue)->Value(Fvalue);
+            if (Fvalue < 0.0000000001) {
+             // The measured time interval is too small.
+              Gen_Total_Percent = false;
+            }
+            break;
+          }
+        default:
+          { Gen_Total_Percent = false;
+            break;
+          }
       }
     }
 
@@ -139,6 +170,10 @@ static bool VIEW_stats (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
       } else if ((vinst->OpCode() == VIEWINST_Display_Percent_Column) ||
                  (vinst->OpCode() == VIEWINST_Display_Percent_Metric) ||
                  (vinst->OpCode() == VIEWINST_Display_Percent_Tmp)) {
+        if (!Gen_Total_Percent) {
+         // The measured time interval is too small.
+          continue;
+        }
         column_header = "% of Total";
       }
       H->CommandResult_Headers::Add_Header ( new CommandResult_String ( column_header ) );
@@ -191,12 +226,23 @@ static bool VIEW_stats (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
           int64_t percentIndex = percentInst->TMP1();
           CommandResult *Metric_Result = Get_Collector_Metric( cmd, it->first, tgrp,
                                                                CV[percentIndex], MV[percentIndex] );
+          if (!Gen_Total_Percent) {
+           // The measured time interval is too small.
+            continue;
+          }
           Next_Metric_Value = Calculate_Percent (Metric_Result, TotalValue);
         } else if ((vinst->OpCode() == VIEWINST_Display_Percent_Metric) ||
                    (vinst->OpCode() == VIEWINST_Display_Percent_Tmp)) {
           CommandResult *Metric_Result = Get_Collector_Metric( cmd, it->first, tgrp,
                                                                CV[CM_Index], MV[CM_Index] );
+          if (!Gen_Total_Percent) {
+           // The measured time interval is too small.
+            continue;
+          }
           Next_Metric_Value = Calculate_Percent (Metric_Result, TotalValue);
+        }
+        if (Next_Metric_Value == NULL) {
+          Next_Metric_Value = new CommandResult_String ("");
         }
         C->CommandResult_Columns::Add_Column (Next_Metric_Value);
         if (report_Column_summary) {
