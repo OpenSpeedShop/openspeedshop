@@ -85,6 +85,34 @@ void GetMetricsForFunction (CommandObject *cmd,
   return;
 }
 
+CommandResult *Init_Collector_Metric (CommandObject *cmd,
+                                      Collector collector,
+                                      std::string metric) {
+  CommandResult *Param_Value = NULL;
+  Metadata m = Find_Metadata ( collector, metric );
+  std::string id = m.getUniqueId();
+  if( m.isType(typeid(unsigned int)) ) {
+    Param_Value = new CommandResult_Uint ();
+  } else if( m.isType(typeid(uint64_t)) ) {
+    Param_Value = new CommandResult_Uint ();
+  } else if( m.isType(typeid(int)) ) {
+    Param_Value = new CommandResult_Int ();
+  } else if( m.isType(typeid(int64_t)) ) {
+    Param_Value = new CommandResult_Int ();
+  } else if( m.isType(typeid(float)) ) {
+    Param_Value = new CommandResult_Float ();
+  } else if( m.isType(typeid(double)) ) {
+    Param_Value = new CommandResult_Float ();
+  } else if( m.isType(typeid(string)) ) {
+    Param_Value = new CommandResult_String ("");
+  } else {
+    cmd->Result_String ("(The metric, " + id + ", does not have a supported type.)");
+    cmd->set_Status(CMD_ERROR);
+    Param_Value = NULL;
+  }
+  return Param_Value;
+}
+
 CommandResult *Get_Collector_Metric (CommandObject *cmd,
                                      Function F,
                                      ThreadGroup tgrp,
