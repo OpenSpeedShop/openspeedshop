@@ -143,6 +143,9 @@ void Define_New_View (ViewType *vnew);
 std::set<Function> GetFunctions (CommandObject *cmd,
                                  ThreadGroup tgrp);
 typedef std::pair<Function, double> Function_double_pair;
+CommandResult *Init_Collector_Metric (CommandObject *cmd,
+                                      Collector collector,
+                                      std::string metric);
 CommandResult *Get_Collector_Metric (CommandObject *cmd,
                                      Function F,
                                      ThreadGroup tgrp,
