@@ -141,7 +141,7 @@ std::set<Function> GetFunctions (CommandObject *cmd,
 
      // Iterate over each function and add it to the base set.
       for(std::set<Function>::const_iterator
-              it = functions.begin(); it != functions.end(); ++it) {
+              it = fset.begin(); it != fset.end(); ++it) {
         functions.insert(*it);
       }
 
