@@ -164,11 +164,6 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
   eWStackPage = new QWidget( mainWidgetStack, "eWStackPage" );
   WStackPageLayout_2 = new QVBoxLayout( eWStackPage, 11, 6, "WStackPageLayout_2"); 
 
-  eWelcomeHeader = new QLabel( eWStackPage, "eWelcomeHeader" );
-  eWelcomeHeader->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, eWelcomeHeader->sizePolicy().hasHeightForWidth() ) );
-  eWelcomeHeader->setAlignment( int( QLabel::WordBreak | QLabel::AlignCenter ) );
-  WStackPageLayout_2->addWidget( eWelcomeHeader );
-
   eRBLayout = new QVBoxLayout( 0, 0, 6, "eRBLayout"); 
 
   eHelpfulLabel = new QLabel( eWStackPage, "eHelpfulLabel" );
@@ -279,6 +274,10 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
   connect( vpage1InputOutputRB, SIGNAL( clicked() ), this, SLOT(vpage1InputOutputRBChanged() ) );
   connect( vpage1MPIRB, SIGNAL( clicked() ), this, SLOT(vpage1MPIRBChanged() ) );
 
+connect( vpage1LoadExperimentCheckBox, SIGNAL( clicked() ), this, SLOT(page1LoadExperimentCheckBoxChanged() ) );
+connect( epage1LoadExperimentCheckBox, SIGNAL( clicked() ), this, SLOT(page1LoadExperimentCheckBoxChanged() ) );
+
+
   connect( epage1pcSampleRB, SIGNAL( clicked() ), this, SLOT(epage1pcSampleRBChanged() ) );
   connect( epage1UserTimeRB, SIGNAL( clicked() ), this, SLOT(epage1UserTimeRBChanged() ) );
   connect( epage1HardwareCounterRB, SIGNAL( clicked() ), this, SLOT(epage1HardwareCounterRBChanged() ) );
@@ -369,7 +368,6 @@ IntroWizardPanel::languageChange()
   vpage1FloatingPointRB->setText( tr( "I need to measure how many times I am causing Floating Point Exceptions. (fpe)" ) );
   vpage1InputOutputRB->setText( tr( "My program does a lot of Input and Output and I'd like to trace that work. (io)" ) );
   vpage1MPIRB->setText( tr( "I have an MPI program and I'd like trace the mpi calls. (mpi)" ) );
-  eWelcomeHeader->setText( tr( "<h2>Welcome to Open|SpeedShop(tm)</h2>" ) );
   eHelpfulLabel->setText( tr( "Please select which of the following are true for your application:" ) );
   epage1LoadExperimentCheckBox->setText( tr( "Load experiment data" ) );
   epage1pcSampleRB->setText( tr( "pcSampling (profiling)" ) );
@@ -501,7 +499,7 @@ void IntroWizardPanel::vpage1NextButtonSelected()
   {
   
     Panel *p = NULL;
-    if( vpage1LoadExperimentCheckBox->isOn() )
+    if( epage1LoadExperimentCheckBox->isOn() )
     {
       QString fn = QString::null;
       char *cwd = get_current_dir_name();
@@ -631,6 +629,27 @@ void IntroWizardPanel::vpage1MPIRBChanged()
   vSetStateChanged(vpage1MPIRB);
 }
 
+void IntroWizardPanel::page1LoadExperimentCheckBoxChanged()
+{
+  vSetStateChanged(NULL);
+  eSetStateChanged(NULL);
+  if( wizardMode->isOn() )
+  {
+    if( !vpage1LoadExperimentCheckBox->isOn() )
+    {
+      vpage1pcSampleRB->setChecked( TRUE );
+      epage1pcSampleRB->setChecked( TRUE );
+    }
+  } else
+  {
+    if( !epage1LoadExperimentCheckBox->isOn() )
+    {
+      vpage1pcSampleRB->setChecked( TRUE );
+      epage1pcSampleRB->setChecked( TRUE );
+    }
+  }
+}
+
 void IntroWizardPanel::vSetStateChanged(QRadioButton *rb)
 {
   vpage1pcSampleRB->setChecked( FALSE );
@@ -639,7 +658,12 @@ void IntroWizardPanel::vSetStateChanged(QRadioButton *rb)
   vpage1FloatingPointRB->setChecked( FALSE );
   vpage1InputOutputRB->setChecked( FALSE );
   vpage1MPIRB->setChecked( FALSE );
-  rb->setChecked(TRUE);
+  if( rb != NULL )
+  {
+    rb->setChecked(TRUE);
+    vpage1LoadExperimentCheckBox->setChecked( FALSE );
+    epage1LoadExperimentCheckBox->setChecked( FALSE );
+  }
 }
 
 
@@ -673,6 +697,7 @@ void IntroWizardPanel::epage1MPIRBChanged()
   eSetStateChanged(epage1MPIRB);
 }
 
+
 void IntroWizardPanel::eSetStateChanged(QRadioButton *rb)
 {
   epage1pcSampleRB->setChecked( FALSE );
@@ -681,5 +706,10 @@ void IntroWizardPanel::eSetStateChanged(QRadioButton *rb)
   epage1FloatingPointRB->setChecked( FALSE );
   epage1InputOutputRB->setChecked( FALSE );
   epage1MPIRB->setChecked( FALSE );
-  rb->setChecked(TRUE);
+  if( rb != NULL )
+  {
+    rb->setChecked(TRUE);
+    vpage1LoadExperimentCheckBox->setChecked( FALSE );
+    epage1LoadExperimentCheckBox->setChecked( FALSE );
+  }
 }

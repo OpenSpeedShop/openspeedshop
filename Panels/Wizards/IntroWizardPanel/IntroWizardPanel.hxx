@@ -111,7 +111,6 @@ public:
     QPushButton* vpage1NextButton;
 
     QWidget* eWStackPage;
-    QLabel* eWelcomeHeader;
     QLabel* eHelpfulLabel;
     QCheckBox* epage1LoadExperimentCheckBox;
     QFrame* line2;
@@ -184,6 +183,7 @@ public slots:
     void vpage1FloatingPointRBChanged();
     void vpage1InputOutputRBChanged();
     void vpage1MPIRBChanged();
+    void page1LoadExperimentCheckBoxChanged();
 
     void epage1pcSampleRBChanged();
     void epage1UserTimeRBChanged();
