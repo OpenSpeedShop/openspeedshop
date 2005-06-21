@@ -24,13 +24,8 @@ AC_DEFUN([AC_PKG_DPCL], [
 
     AC_ARG_WITH(dpcl,
                 AC_HELP_STRING([--with-dpcl=DIR],
-                               [DPCL installation @<:@/opt/dpcl@:>@]),
-                dpcl_dir=$withval, dpcl_dir="/opt/dpcl")
-
-    AC_CHECK_FILE([$dpcl_dir/include/dpcl.h], [
-        DPCL_CPPFLAGS="-I$dpcl_dir/include"
-        DPCL_LDFLAGS="-L$dpcl_dir/lib"
-    ])
+                               [DPCL installation @<:@/usr@:>@]),
+                dpcl_dir=$withval, dpcl_dir="/usr")
 
     AC_CHECK_FILE([$dpcl_dir/include/dpcl/dpcl.h], [
         DPCL_CPPFLAGS="-I$dpcl_dir/include/dpcl"
@@ -92,8 +87,8 @@ AC_DEFUN([AC_PKG_DYNINST], [
 
     AC_ARG_WITH(dyninst,
                 AC_HELP_STRING([--with-dyninst=DIR],
-                               [Dyninst installation @<:@/usr/dyninst@:>@]),
-                dyninst_dir=$withval, dyninst_dir="/usr/dyninst")
+                               [Dyninst installation @<:@/usr@:>@]),
+                dyninst_dir=$withval, dyninst_dir="/usr/")
 
     case "$host" in
 	i386-*-linux-*)
@@ -104,9 +99,9 @@ AC_DEFUN([AC_PKG_DYNINST], [
             ;;
     esac
 
-    AC_CHECK_FILE([$dyninst_dir/core/dyninstAPI/h/BPatch.h], [
-        DYNINST_CPPFLAGS="-I$dyninst_dir/core/dyninstAPI/h"
-        DYNINST_LDFLAGS="-L$dyninst_dir/$dyninst_platform/lib"
+    AC_CHECK_FILE([$dyninst_dir/include/dyninst/BPatch.h], [
+        DYNINST_CPPFLAGS="-I$dyninst_dir/include/dyninst"
+        DYNINST_LDFLAGS="-L$dyninst_dir/lib"
     ])
 
     if test -d "$ROOT"; then
