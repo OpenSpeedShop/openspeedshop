@@ -87,6 +87,7 @@ int *metricHeaderTypeArray;  // matches the QListView # of column entries.
     //! Sets the language specific strings.
     virtual void languageChange();
 Thread *currentThread;
+Collector *currentCollector;
 
     QPopupMenu *threadMenu;
     QPopupMenu *metricMenu;
@@ -125,6 +126,7 @@ Thread *currentThread;
 
     SmartPtr<std::map<Function, double> > orig_data;
     std::vector<Function_double_pair> sorted_items;
+SmartPtr<std::map<int, double> > orig_statement_data;
     bool ascending_sort;
 
     double Get_Total_Time();

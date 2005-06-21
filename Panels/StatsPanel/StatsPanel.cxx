@@ -24,6 +24,7 @@
 #include "CollectorListObject.hxx"
 #include "CollectorMetricEntryClass.hxx"
 
+#include <qapplication.h>
 #include <qheader.h>
 
 #include <qvaluelist.h>
@@ -70,6 +71,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, void *argument) : Pane
   setCaption("StatsPanel");
 
   currentThread = NULL;
+currentCollector = NULL;
 
   f = NULL;
   metricMenu = NULL;
@@ -872,30 +874,31 @@ fprintf(stderr, "No function definition for this entry.   Unable to position sou
           line = (int64_t)s.getLine();
         }
       }
-// Only if we want graphics (for now)
-if( getPanelContainer()->getMainWindow()->preferencesDialog->showGraphicsCheckBox->isChecked() )
-{ // Lookup up all the statements and figure out the highlights for the file.
-  std::set<Statement> sbsf = currentThread->getStatementsBySourceFile( di->getPath() );
-  
-  std::set<Statement>::const_iterator si;
-  for( si = sbsf.begin();si != sbsf.end(); si++)
-  {
-    Statement s = *si;
-    int64_t statement_line = (int64_t)s.getLine();
-// printf("Info @ %d\n", statement_line);
-    hlo = new HighlightObject(di->getPath(), statement_line, color_names[5], "A statement lives here.");
-    highlightList->push_back(hlo);
-  }
-}
-      hlo = new HighlightObject(di->getPath(), line, color_names[4], "HighlightInfo note.");
+      // Put out statment metrics for this file.
+      if( getPanelContainer()->getMainWindow()->preferencesDialog->showGraphicsCheckBox->isChecked() )
+      {
+QApplication::setOverrideCursor(QCursor::WaitCursor);
+// printf("Look up metrics by statement in file.\n");
+        Queries::GetMetricByStatementInFileForThread(*currentCollector, metricStr.ascii(), di->getPath(), *currentThread, orig_statement_data);
+        for(std::map<int, double>::const_iterator
+              item = orig_statement_data->begin(); item != orig_statement_data->end(); ++item)
+        {
+// printf("item->first=%d\n", item->first);
+// printf("item->second=%f\n", item->second );
+          hlo = new HighlightObject(di->getPath(), item->first, color_names[0], item->second, (char *)QString("This line took %1 seconds.").arg(item->second).ascii());
+          highlightList->push_back(hlo);
+        }
+      }
+
+      hlo = new HighlightObject(di->getPath(), line, color_names[4], -1, (char *)QString("Beginning of function %1").arg(it->first.getName().c_str()).ascii() );
       highlightList->push_back(hlo);
       spo = new SourceObject(it->first.getName().c_str(), di->getPath(), di->getLine()-1, expID, TRUE, highlightList);
+
     } else
     {
 // printf("No file found.\n");
       return;
     }
-
 
     if( spo )
     {
@@ -913,6 +916,7 @@ if( getPanelContainer()->getMainWindow()->preferencesDialog->showGraphicsCheckBo
         }
       }
     }
+qApp->restoreOverrideCursor( );
   }
   catch(const std::exception& error)
   { 
@@ -996,6 +1000,11 @@ currentThread = new Thread(*ti);
 // printf("Try to match: name.ascii()=%s collectorStr.ascii()=%s\n", name.ascii(), collectorStr.ascii() );
         if( name == collectorStr )
         {
+if( currentCollector )
+{
+  delete currentCollector;
+}
+currentCollector = new Collector(*ci);
           nprintf( DEBUG_PANELS) ("GetMetricByFunctionInThread()\n");
 // printf("GetMetricByFunction(%s  %s %s)\n", name.ascii(), metricStr.ascii(), QString("%1").arg(t1.getProcessId()).ascii() );
           Queries::GetMetricByFunctionInThread(collector, metricStr.ascii(), t1, orig_data);
