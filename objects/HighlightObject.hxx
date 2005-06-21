@@ -38,14 +38,16 @@ public:
     {
       // Default constructor.  Not used.
       line = 0;
+      value = -1;
       description = "none";
     };
 
-    HighlightObject(QString fn, int l, char *c="red", char *d="N/A")
+    HighlightObject(QString fn, int l, char *c="red", double v=-1, char *d="N/A")
     {
       fileName = fn;
       line = l;
       color = strdup(c);
+      value = v;
       description = strdup(d);
     };
 
@@ -64,12 +66,13 @@ public:
 
     void print()
     {
-      printf("%d %s %s\n", line, color, description);
+      printf("%d %s %f %s\n", line, color, value, description);
     }
 
     QString fileName;
     int line;
     char *color;
+    double value;
     char *description;
 };
 #endif // HIGHLIGHTOBJECT_H
