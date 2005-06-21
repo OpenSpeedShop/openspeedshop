@@ -97,11 +97,12 @@ SPCanvasForm::setHighlights(QFont canvas_font, int lineHeight, int topLine, int 
       {
         HighlightObject *hlo = (HighlightObject *)*it;
 // printf ("Look for %d\n", topLine+i);
-        if( hlo->line == topLine+i )
+        if( hlo->line == topLine+i && hlo->value != -1 )
         {
           nprintf(DEBUG_PANELS) ("We have data at that line!!!\n");
 // printf ("We have data at that line!!!\n");
-          sprintf(buffer, "%d", topLine+i);
+//          sprintf(buffer, "%d", topLine+i);
+          sprintf(buffer, "%f", hlo->value );
           QCanvasText *text = new QCanvasText( buffer, canvas_font, canvas);
           text->setColor("red");
           text->setX(10);
