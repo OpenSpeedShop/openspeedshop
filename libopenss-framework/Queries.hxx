@@ -76,6 +76,14 @@ namespace OpenSpeedShop { namespace Framework {
 	    SmartPtr<std::map<Statement, double> >&
 	    );
 	
+	void GetMetricByStatementInFileForThread(
+	    const Collector&,
+        const std::string&,
+	    const std::string& path,
+	    const Thread&,
+	    SmartPtr<std::map<int, double> >&
+	    );
+	
     }
     
 } }

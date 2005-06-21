@@ -142,3 +142,73 @@ void Queries::GetMetricByStatementInFunction(
 	
     }
 }
+
+
+/**
+ * Get metric values by statement in a file.
+ *
+ * Gets the current list of statements in the specified file and evalutes
+ * the specified metric, in the specified collector, over the entire time
+ * interval. The results are returned in a map of statements to metric values.
+ * Only those statements with non-zero metric values will be present in the
+ * returned map.
+ *
+ * @param collector    Collector for which to get a metric.
+ * @param metric       Unique identifier of the metric.
+ * @param file         File for which to get metric values.
+ * @param Thread       Thread for which to query.
+ * @retval result      Smart pointer to a map of the file's statements to
+ *                     their metric values.
+ */
+void Queries::GetMetricByStatementInFileForThread(
+    const Collector& collector,
+    const std::string& metric,
+    const std::string& path,
+    const Thread& thread,
+    SmartPtr<std::map<int, double> >& result)
+{
+    // Time interval covering earliest to latest possible time
+    const TimeInterval Forever = 
+	  TimeInterval(Time::TheBeginning(), Time::TheEnd());
+    
+    // Allocate a new map of statements to doubles
+    result = SmartPtr<std::map<int, double> >(
+	  new std::map<int, double>()
+	);
+    Assert(!result.isNull());
+
+
+    // Get the list of statements in this file
+    std::set<Statement> statements = thread.getStatementsBySourceFile(path);
+    
+    // Iterate over each statement
+	double value = 0.0;
+    for(std::set<Statement>::const_iterator
+	    i = statements.begin(); i != statements.end(); ++i)
+    {
+	  value = 0.0;
+      Statement s = *i;
+      int statement_line = (int)s.getLine();
+	
+	  // Get the address ranges of this statement
+	  std::set<AddressRange> ranges = i->getAddressRanges();
+	
+	  // Iterate over each address range
+	  for(std::set<AddressRange>::const_iterator
+		  j = ranges.begin(); j != ranges.end(); ++j )
+      {
+	    // Evalute the metric over this address range
+	    double tmp = 0.0;
+	    collector.getMetricValue(metric, thread, *j, Forever, tmp);
+	    value += tmp;
+	  }
+	
+	  // Add this statement and its metric value to the map
+	  if(value != 0.0)
+      {
+	    result->insert(std::make_pair(statement_line, value));
+      }
+	
+    }
+}
+
