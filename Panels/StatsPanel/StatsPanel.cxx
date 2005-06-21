@@ -41,9 +41,9 @@ static char *color_names[] = { "red", "green", "cyan", "gray", "darkGreen", "dar
 #include "PreferencesChangedObject.hxx"
 
 #include "preference_plugin_info.hxx"
-
 #include "ToolAPI.hxx"
 using namespace OpenSpeedShop::Framework;
+
 
 template <class T>
 struct sort_ascending : public std::binary_function<T,T,bool> {
@@ -69,6 +69,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, void *argument) : Pane
 // printf("StatsPanel() entered\n");
   setCaption("StatsPanel");
 
+  currentThread = NULL;
 
   f = NULL;
   metricMenu = NULL;
@@ -871,7 +872,22 @@ fprintf(stderr, "No function definition for this entry.   Unable to position sou
           line = (int64_t)s.getLine();
         }
       }
-      hlo = new HighlightObject(di->getPath(), line, color_names[0], "HighlightInfo note.");
+// Only if we want graphics (for now)
+if( getPanelContainer()->getMainWindow()->preferencesDialog->showGraphicsCheckBox->isChecked() )
+{ // Lookup up all the statements and figure out the highlights for the file.
+  std::set<Statement> sbsf = currentThread->getStatementsBySourceFile( di->getPath() );
+  
+  std::set<Statement>::const_iterator si;
+  for( si = sbsf.begin();si != sbsf.end(); si++)
+  {
+    Statement s = *si;
+    int64_t statement_line = (int64_t)s.getLine();
+// printf("Info @ %d\n", statement_line);
+    hlo = new HighlightObject(di->getPath(), statement_line, color_names[5], "A statement lives here.");
+    highlightList->push_back(hlo);
+  }
+}
+      hlo = new HighlightObject(di->getPath(), line, color_names[4], "HighlightInfo note.");
       highlightList->push_back(hlo);
       spo = new SourceObject(it->first.getName().c_str(), di->getPath(), di->getLine()-1, expID, TRUE, highlightList);
     } else
@@ -879,8 +895,6 @@ fprintf(stderr, "No function definition for this entry.   Unable to position sou
 // printf("No file found.\n");
       return;
     }
-
-
 
 
     if( spo )
@@ -894,6 +908,7 @@ fprintf(stderr, "No function definition for this entry.   Unable to position sou
         Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, (void *)groupID);
         if( p != NULL ) 
         {
+// printf("Call the sourcepanel listener with the source object...\n");
           p->listener((void *)spo);
         }
       }
@@ -956,6 +971,11 @@ StatsPanel::updateStatsPanelData()
       {
 // printf("Using %s\n", threadStr.ascii() );
         t1 = *ti;
+if( currentThread )
+{
+  delete currentThread;
+}
+currentThread = new Thread(*ti);
         break;
       }
     }

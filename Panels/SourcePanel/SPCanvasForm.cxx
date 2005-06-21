@@ -71,10 +71,12 @@ SPCanvasForm::~SPCanvasForm( )
 }
 
 void
-SPCanvasForm::setHighlights(QFont canvas_font, int lineHeight, int topLine, int visibleLines, int line_count, int top_offset)
+SPCanvasForm::setHighlights(QFont canvas_font, int lineHeight, int topLine, int visibleLines, int line_count, int top_offset, HighlightList *highlightList)
 {
   nprintf(DEBUG_PANELS) ("SPCanvasForm::setHighlights()\n");
   nprintf(DEBUG_PANELS) ("lineHeight=%d topLine=%d visibleLines=%d line_count=%d\n", lineHeight, topLine, visibleLines, line_count );
+// printf ("SPCanvasForm::setHighlights()\n");
+// printf ("lineHeight=%d topLine=%d visibleLines=%d line_count=%d\n", lineHeight, topLine, visibleLines, line_count );
 
   int i = 0;
   char buffer[100];
@@ -86,15 +88,35 @@ SPCanvasForm::setHighlights(QFont canvas_font, int lineHeight, int topLine, int 
       nprintf(DEBUG_PANELS) ("line_count=%d topLine=%d i=%d == %d\n", line_count, topLine, i, topLine+i );
       break;
     }
-    nprintf(DEBUG_PANELS) ("LOOKUP HIGHLIGHT FOR THIS LINE=%d\n", i);
-    sprintf(buffer, "%d", topLine+i);
-    QCanvasText *text = new QCanvasText( buffer, canvas_font, canvas);
-    text->setColor("black");
-    text->setX(10);
-    text->setY( (i*lineHeight)-top_offset );
-    text->setZ(1);
-    text->show();
-    canvasTextList.push_back(text);
+// printf ("LOOKUP HIGHLIGHT FOR THIS LINE=%d\n", i);
+    if( highlightList != NULL )
+    {
+      for( HighlightList::Iterator it = highlightList->begin();
+           it != highlightList->end();
+           ++it)
+      {
+        HighlightObject *hlo = (HighlightObject *)*it;
+// printf ("Look for %d\n", topLine+i);
+        if( hlo->line == topLine+i )
+        {
+          nprintf(DEBUG_PANELS) ("We have data at that line!!!\n");
+// printf ("We have data at that line!!!\n");
+          sprintf(buffer, "%d", topLine+i);
+          QCanvasText *text = new QCanvasText( buffer, canvas_font, canvas);
+          text->setColor("red");
+          text->setX(10);
+          text->setY( (i*lineHeight)-top_offset );
+          text->setZ(1);
+          text->show(); 
+          canvasTextList.push_back(text);
+    
+          break;
+        }
+      }
+    } else
+    {
+// printf("no highlightlist.\n");
+    }
   }
 
   canvas->update();

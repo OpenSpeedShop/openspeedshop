@@ -165,12 +165,16 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n, void *argument) : Pa
   label->show();
 
   textEdit->setFocus();
+// printf("Now, getShowStatistics()= %d\n", getShowStatistics() );
   if( getShowStatistics() == TRUE )
   {
+// printf("show canvas form!\n");
     showCanvasForm();
   }
+// printf("Now, getShowLineNumbers()= %d\n", getShowLineNumbers() );
   if( getShowLineNumbers() == TRUE )
   {
+// printf("show line numbers!\n");
     showLineNumbers();
   }
 
@@ -417,7 +421,7 @@ SourcePanel::listener(void *msg)
       return 1;
     }
 
-// printf ("doFileHighlights()\n");
+// printf ("	doFileHighlights()\n");
 
     highlightList = spo->highlightList;
     doFileHighlights();
@@ -433,6 +437,9 @@ SourcePanel::listener(void *msg)
     nprintf(DEBUG_PANELS) ("Try to position at line %d\n", spo->line_number);
 
     positionLineAtCenter(spo->line_number);
+
+    // Now just make sure everything is lined up and resized correctly.
+    valueChanged(-1);
   } else if( msgObject->msgType == "SaveAsObject" )
   {
     sao = (SaveAsObject *)msg;
@@ -822,10 +829,11 @@ SourcePanel::loadFile(const QString &_fileName)
   {
     textEdit->moveCursor(QTextEdit::MoveHome, FALSE);
     canvasForm->clearAllItems();
-    canvasForm->setHighlights(textEdit->font(), lastLineHeight, lastTop, lineCount, lastVisibleLines);
+    canvasForm->setHighlights(textEdit->font(), lastLineHeight, lastTop, lineCount, lastVisibleLines, -2, highlightList);
   } else
   {
     // Redisplay the high lights.
+// printf("loadFile() now call doFileHighlights()\n");
     doFileHighlights();
 
     positionLineAtTop(lastTop);
@@ -1056,6 +1064,7 @@ SourcePanel::clicked(int para, int offset)
 void
 SourcePanel::valueChanged(int passed_in_value)
 {
+// printf("SourcePanel::valueChanged(%d)\n", passed_in_value );
   if( textEdit->isUpdatesEnabled() == FALSE )
   {
     return;
@@ -1087,7 +1096,7 @@ int max_value = vscrollbar->maxValue();
 
   nprintf(DEBUG_PANELS) ("top_line =%d\n", top_line);
   canvasForm->clearAllItems();
-  canvasForm->setHighlights(textEdit->font(), lastLineHeight, lastTop, lastVisibleLines, lineCount, (int)remainder);
+  canvasForm->setHighlights(textEdit->font(), lastLineHeight, lastTop, lastVisibleLines, lineCount, (int)remainder, highlightList);
 }
 
 /*! If there's a highlight list.... highlight the lines. */
@@ -1111,7 +1120,7 @@ SourcePanel::doFileHighlights()
     hlo = (HighlightObject *)*it;
 // printf("Here's a line to highlight line=%d\n", hlo->line);
 // hlo->print();
-//    if( hlo->fileName == fileName )
+    if( hlo->fileName == fileName )
     {
 // printf("Try to highlight line %d\n", hlo->line );
       highlightLine(hlo->line, hlo->color, TRUE);

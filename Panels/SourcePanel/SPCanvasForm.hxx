@@ -33,6 +33,8 @@
 #define DEFAULT_CANVAS_WIDTH 100
 #define DEFAULT_CANVAS_MIN 20
 
+#include "HighlightObject.hxx"
+
 typedef QValueList<QCanvasText *> CanvasTextList;
 class SPCanvasForm : public QWidget
 {
@@ -54,7 +56,8 @@ public:
     void clearAllItems();
     void setHighlights(QFont font, int lineHeight,
                        int lastTop, int visibleLines,
-                       int line_count = 0, int top_offset=-2);
+                       int line_count = 0, int top_offset=-2,
+                       HighlightList *highlightList = NULL);
 protected: 
 
 public slots:

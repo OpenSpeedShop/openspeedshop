@@ -23,6 +23,9 @@
 #include "Panel.hxx"           // Do not remove
 #include "CollectorListObject.hxx"
 
+#include "ToolAPI.hxx"
+using namespace OpenSpeedShop::Framework;
+
 class PanelContainer;   // Do not remove
 class QVBoxLayout;
 class QHBoxLayout;
@@ -48,7 +51,6 @@ typedef std::pair<std::string, double> item_type;
 typedef std::pair<Function, double> Function_double_pair;
 
 #include <qsettings.h>
-
 
 #define PANEL_CLASS_NAME StatsPanel   // Change the value of the define
 //! StatsPanel Class
@@ -80,9 +82,11 @@ SPChartForm *cf;
 ColumnList columnList;
 int *metricHeaderTypeArray;  // matches the QListView # of column entries.
 
+
   protected:
     //! Sets the language specific strings.
     virtual void languageChange();
+Thread *currentThread;
 
     QPopupMenu *threadMenu;
     QPopupMenu *metricMenu;

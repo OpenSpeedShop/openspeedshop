@@ -66,9 +66,9 @@ extern "C"
     return( showTopNLineEdit->text() );
   }
 
-  void initPreferenceSettings()
+  void initStatsPanelPreferenceSettings()
   {
-// printf("initPreferenceSettings(%s)\n", pname);
+// printf("initStatsPanelPreferenceSettings(%s)\n", pname);
     sortDecendingCheckBox->setChecked(TRUE);
     showTopNLineEdit->setText( "5" );
     showColumnToSortLineEdit->setText( "0" );
@@ -132,7 +132,7 @@ extern "C"
     showTopNTextLabel->setText( "Show top N items:" );
     showColumnToSortTextLabel->setText( "Column to sort:" );
 
-    initPreferenceSettings();
+    initStatsPanelPreferenceSettings();
 
     if( settings != NULL )
     {

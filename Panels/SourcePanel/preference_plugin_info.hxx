@@ -41,26 +41,30 @@ extern "C"
 
   bool getShowStatistics()
   {
-// printf("getShowStatistics(%s)\n", pname);
+// printf("getShowStatistics(%s)=%d\n", pname, showStatisticsCheckBox->isChecked() );
     return( showStatisticsCheckBox->isChecked() );
   }
 
   bool getShowLineNumbers()
   {
-// printf("getShowLineNumbers(%s)\n", pname);
+// printf("getShowLineNumbers(%s)=%d\n", pname, showLineNumbersCheckBox->isChecked() );
     return( showLineNumbersCheckBox->isChecked() );
   }
 
-  void initPreferenceSettings()
+// #include <assert.h>
+static int i = 1;
+  void initSourcePanelPreferenceSettings()
   {
-// printf("initPreferenceSettings(%s)\n", pname);
+// printf("initSourcePanelPreferenceSettings(%s)\n", pname);
+// assert(i);
     showStatisticsCheckBox->setChecked(FALSE);
     showLineNumbersCheckBox->setChecked(FALSE);
+i--;
   }
 
   QWidget *initialize_preferences_entry_point(QSettings *settings, QWidgetStack *stack, char *name)
   {
-//    printf("initialize_preferences_entry_point(0x%x 0x%x %s) entered\n", settings, stack, name);
+// printf("initialize_preferences_entry_point(0x%x 0x%x %s) entered\n", settings, stack, name);
 
     sourcePanelStackPage = new QWidget( stack, name );
     pname = strdup(name);
@@ -94,10 +98,11 @@ extern "C"
     showStatisticsCheckBox->setText( "Show statistics" );
     showLineNumbersCheckBox->setText( "Show line numbers" );
 
-    initPreferenceSettings();
+    initSourcePanelPreferenceSettings();
 
     if( settings != NULL )
     {
+// printf("Now set the initial settings from the preferences file.\n");
       char settings_buffer[1024];
       sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, showStatisticsCheckBox->name() );
@@ -114,7 +119,7 @@ extern "C"
   }
   void save_preferences_entry_point(QSettings *settings, char *name)
   {
-//    printf("save_preferences_entry_point(0x%x %s) entered\n", settings, name);
+// printf("save_preferences_entry_point(0x%x %s) entered\n", settings, name);
 
     char settings_buffer[1024];
 
