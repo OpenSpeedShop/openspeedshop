@@ -106,18 +106,18 @@ main(int argc, char *argv[])
             if (sts.status() == ASC_success) {
                printf("bget_all_statements() SUCCESS! - status %s\n",sts.status_name());
                int stmt_info_cnt = stmt_info_list->get_count();
-               printf("stmt info count %d\n", stmt_info_cnt);
+//               printf("stmt info count %d\n", stmt_info_cnt);
                for (int i = 0; i < stmt_info_cnt; i++) {
                   StatementInfo stmt = stmt_info_list->get_entry(i);
 //                  printf("Source file %s\n", stmt.get_filename());
                   int stmt_info_linecnt = stmt.get_line_count();
-                  printf("stmt line  count %d\n", stmt_info_linecnt);
+//                  printf("stmt line  count %d\n", stmt_info_linecnt);
                   for (int j = 0; j < stmt_info_linecnt; j++) {
                      StatementInfoLine stmt_line = stmt.get_line_entry(j);
-                     printf("   line %d column %d\n", stmt_line.get_line(),
-                                                      stmt_line.get_column());
+//                     printf("   line %d column %d\n", stmt_line.get_line(),
+//                                                      stmt_line.get_column());
                      int stmt_line_address_cnt = stmt_line.get_address_count();
-                     printf("stmt address  count %d\n", stmt_line_address_cnt);
+//                     printf("stmt address  count %d\n", stmt_line_address_cnt);
                      for (int k = 0; k < stmt_line_address_cnt; k++) {
                         unsigned long stmt_line_address =stmt_line.get_address_entry(k);
 //                        printf("      address 0x%016llx\n", stmt_line_address);
