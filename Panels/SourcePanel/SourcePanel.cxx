@@ -90,10 +90,10 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n, void *argument) : Pa
   canvasForm = new SPCanvasForm( label->height(), splitter, "Stats" );
   canvasForm->hide();
 
-#ifdef CANVASFORM2
+#ifdef CANVAS_FORM_2
   canvasForm2 = new SPCanvasForm( label->height(), splitter, "stats" );
   canvasForm2->hide();
-#endif // CANVASFORM2
+#endif // CANVAS_FORM_2
 
   delete label;
 
@@ -642,16 +642,16 @@ SourcePanel::showCanvasForm()
   {
     statsFLAG = FALSE;
     canvasForm->hide();
-#ifdef CANVASFORM2
+#ifdef CANVAS_FORM_2
     canvasForm2->hide();
-#endif // CANVASFORM2
+#endif // CANVAS_FORM_2
   } else
   {
     statsFLAG = TRUE;
     canvasForm->show();
-#ifdef CANVASFORM2
+#ifdef CANVAS_FORM_2
     canvasForm2->show();
-#endif // CANVASFORM2
+#endif // CANVAS_FORM_2
   }
 
   // Make sure the scrollbar is sync'd with everyone..

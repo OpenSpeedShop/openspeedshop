@@ -31,6 +31,8 @@ class StatsPanel;
 //! Overrides the Chart implementation to allow context menu event.
 class SPChartForm : public ChartForm
 {
+  //! Q_OBJECT is needed as there are slots defined for the class
+  Q_OBJECT
 public:
   SPChartForm( StatsPanel *sp, QSplitter *splitter, const char *name=0, int flags=0 );
 
@@ -39,12 +41,14 @@ public:
 
   StatsPanel *statsPanel;
 
-int mouseClicked( int );
-void contentsContextMenuEvent( QContextMenuEvent *e );
+  int mouseClicked( int );
+  void contentsContextMenuEvent( QContextMenuEvent *e );
   QPopupMenu* createPopupMenu( const QPoint & pos );
   QPopupMenu* createPopupMenu( ) { /* obsoleted function. */ return NULL; };
+  QPopupMenu *popupMenu;
 
 public slots:
+   void goToLine();
 
 private:
 };

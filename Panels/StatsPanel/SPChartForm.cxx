@@ -38,6 +38,7 @@ SPChartForm::SPChartForm( StatsPanel *sp, QSplitter *splitter, const char *n, in
     : ChartForm( splitter, n, flags )
 {
   statsPanel = sp;
+  popupMenu = NULL;
   nprintf(DEBUG_CONST_DESTRUCT) ( "SPChartForm::SPChartForm( ) constructor called\n");
 }
 
@@ -52,9 +53,7 @@ int
 SPChartForm::mouseClicked( int item )
 {
   nprintf(DEBUG_PANELS) ("SPChartForm::mouseClicked(item=%d) called.\n", item);
-#ifdef SYNTAX
   statsPanel->itemSelected(item);
-#endif // SYNTAX
 }
 
 void
@@ -71,18 +70,30 @@ SPChartForm::createPopupMenu( const QPoint & pos )
   nprintf(DEBUG_PANELS) ("SPChartForm: Hello from down under the hood.\n");
 
   // First create the default Qt widget menu...
-  QPopupMenu *popupMenu = ChartForm::createPopupMenu(pos);
+  if( !popupMenu )
+  {
+    popupMenu = ChartForm::createPopupMenu(pos);
 
-  // Now create the panel specific menu... and add it to the popup as
-  // a cascading menu.
-  QPopupMenu *panelMenu = new QPopupMenu(this);
-  statsPanel->menu(panelMenu);
-  popupMenu->insertSeparator();
-  popupMenu->insertItem("&Panel Menu", panelMenu, CTRL+Key_P );
+    // Now create the panel specific menu... and add it to the popup as
+    // a cascading menu.
+    QPopupMenu *panelMenu = new QPopupMenu(this);
+    statsPanel->menu(panelMenu);
+    popupMenu->insertSeparator();
+    popupMenu->insertItem("&Panel Menu", panelMenu, CTRL+Key_P );
+    popupMenu->insertSeparator();
+    popupMenu->insertItem("&Goto Line...", this, SLOT(goToLine()) );
+
+  
+//    delete (panelMenu);
+  }
 
   popupMenu->exec( pos );
 
-  delete (panelMenu);
-
   return popupMenu;
+}
+
+void
+SPChartForm::goToLine() 
+{
+  statsPanel->gotoSource(TRUE);
 }

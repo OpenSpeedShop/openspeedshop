@@ -94,6 +94,9 @@ class StatsPanel  : public Panel
     //! Holds the current collector that is in focus
     Collector *currentCollector;
 
+    //! Current selected chart item.
+    SPListViewItem *currentItem;
+
     QPopupMenu *threadMenu;
     QPopupMenu *metricMenu;
     QPopupMenu *popupMenu;   // Pointer to the contextMenu
@@ -106,11 +109,12 @@ class StatsPanel  : public Panel
     QFile *f;
   public slots:
     void itemSelected( QListViewItem * );
+    void itemSelected( int );
     void sortColumn( int );
     void doOption(int id);
     void exportData();
     void details();
-    void gotoSource();
+    void gotoSource(bool use_current_item = FALSE);
     void compareSelected();
 
   private slots:

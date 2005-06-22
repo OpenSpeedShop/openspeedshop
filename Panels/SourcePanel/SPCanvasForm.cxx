@@ -46,9 +46,9 @@ SPCanvasForm::SPCanvasForm( int label_height, QWidget *parent, const char *n, WF
   canvasFormHeaderLayout->addItem( spacerItem );
 
   header = new QHeader( this, "canvas header" );
+  header->setFixedHeight(label_height);
   header->setCaption("canvas header");
-  header->setStretchEnabled(TRUE, -1);
-// header->setStyle( QStyle::Style_Off );
+  header->setStretchEnabled(TRUE, 0);
   canvasFormHeaderLayout->addWidget( header );
   header->addLabel(n, DEFAULT_CANVAS_WIDTH);
   header->show();

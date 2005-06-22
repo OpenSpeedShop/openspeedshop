@@ -102,8 +102,9 @@ public:
   QLabel *label;
 
   SPCanvasForm *canvasForm;
-
+#ifdef CANVAS_FORM_2
   SPCanvasForm *canvasForm2;
+#endif // CANVAS_FORM_2
 
   //! The QTextEdit for managing the actual text.
   SPTextEdit *textEdit;

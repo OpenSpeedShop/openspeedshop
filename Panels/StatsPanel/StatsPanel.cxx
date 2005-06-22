@@ -71,7 +71,8 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, void *argument) : Pane
   setCaption("StatsPanel");
 
   currentThread = NULL;
-currentCollector = NULL;
+  currentCollector = NULL;
+  currentItem = NULL;
 
   f = NULL;
   metricMenu = NULL;
@@ -572,10 +573,18 @@ StatsPanel::exportData()
 
 /*! Go to source menu item was selected. */
 void
-StatsPanel::gotoSource()
+StatsPanel::gotoSource(bool use_current_item)
 {
+  QListViewItem *lvi = NULL;
+
+  if( use_current_item )
+  {
 // printf("gotoSource() menu selected.\n");
-  QListViewItem *lvi = splv->selectedItem();
+    lvi = currentItem;
+  } else 
+  {
+    lvi =  splv->selectedItem();
+  }
 
   itemSelected(lvi);
 }
@@ -589,9 +598,34 @@ QMessageBox::information(this, "compareSelected() unimplemented", "This function
 }
 
 void
+StatsPanel::itemSelected(int index)
+{
+// printf("StatsPanel::itemSelected(%d)\n", index);
+  QListViewItemIterator it( splv );
+  int i = 0;
+  while( it.current() )
+  {
+    QListViewItem *item = *it;
+// printf("%d == %d\n", i, index);
+    if( i == index )
+    {
+#ifdef OLDWAY
+      itemSelected(item);
+#else // OLDWAY
+      currentItem = (SPListViewItem *)item;
+#endif // OLDWAY
+      break;
+    }
+    i++;
+    it++;
+  }
+    
+}
+
+void
 StatsPanel::itemSelected(QListViewItem *item)
 {
-// printf("StatsPanel::itemSelected(clicked) entered\n");
+// printf("StatsPanel::itemSelected(QListViewItem *) entered\n");
 
   if( item )
   {
@@ -613,6 +647,7 @@ StatsPanel::itemSelected(QListViewItem *item)
 //      matchSelectedItem( atoi( nitem->text(1).ascii() ) );
 
 // printf("YOU NEED TO LOOP THROUGH AND FIND THE FUNCTION FIELD!!!\n");
+      currentItem = (SPListViewItem *)nitem;
       matchSelectedItem( std::string(nitem->text(2).ascii()) );
     }
   }
@@ -807,17 +842,6 @@ StatsPanel::matchSelectedItem(std::string sf )
   QString selected_function_qstring = QString(sf);
   QString funcString = selected_function_qstring.section(' ', 0, 0, QString::SectionSkipEmpty);
   std::string selected_function = funcString.ascii();
-
-/*
-  QString lineString = selected_function_qstring.section(' ', 3, 3, QString::SectionSkipEmpty);
-  printf("lineString=(%s)\n", lineString.ascii() );
-
-  char lineCharString[16];
-  strcpy(lineCharString, lineString.ascii() );
-  lineCharString[strlen(lineCharString)-1] = '\0';
-  printf("lineCharString=%s\n", lineCharString);
-*/
-
 
   try
   {

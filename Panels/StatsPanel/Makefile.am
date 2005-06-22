@@ -39,11 +39,15 @@ StatsPanel_la_LIBADD = -L$(QTDIR)/lib -lqt -L../../libopenss-framework -lopenss-
 moc_StatsPanel.cxx: StatsPanel.hxx
 	-moc -o moc_StatsPanel.cxx StatsPanel.hxx
 
+moc_SPChartForm.cxx: SPChartForm.hxx
+	-moc -o moc_SPChartForm.cxx SPChartForm.hxx
+
+
 StatsPanel_la_SOURCES = \
 	StatsPanel.hxx StatsPanel.cxx moc_StatsPanel.cxx \
 	SPListViewItem.hxx SPListViewItem.cxx \
 	SPListView.hxx SPListView.cxx \
-	SPChartForm.hxx SPChartForm.cxx \
+	SPChartForm.hxx SPChartForm.cxx moc_SPChartForm.cxx \
 	local_plugin_info.hxx preference_plugin_info.hxx
 
-CLEANFILES=moc_StatsPanel.cxx moc_StatsPanel.cxx
+CLEANFILES=moc_StatsPanel.cxx moc_SPChartForm.cxx
