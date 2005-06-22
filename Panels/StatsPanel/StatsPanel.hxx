@@ -22,6 +22,7 @@
 #include "SPListView.hxx"           // Do not remove
 #include "Panel.hxx"           // Do not remove
 #include "CollectorListObject.hxx"
+#include "GenericProgressDialog.hxx"
 
 #include "ToolAPI.hxx"
 using namespace OpenSpeedShop::Framework;
@@ -76,18 +77,22 @@ class StatsPanel  : public Panel
 
     SPListView *splv;
 
-QHBoxLayout *frameLayout;
-QSplitter *splitterA;
-SPChartForm *cf;
-ColumnList columnList;
-int *metricHeaderTypeArray;  // matches the QListView # of column entries.
+    QHBoxLayout *frameLayout;
+    QSplitter *splitterA;
+    SPChartForm *cf;
+    ColumnList columnList;
+    int *metricHeaderTypeArray;  // matches the QListView # of column entries.
 
 
   protected:
     //! Sets the language specific strings.
     virtual void languageChange();
-Thread *currentThread;
-Collector *currentCollector;
+
+    //! Holds the current thread that is in focus
+    Thread *currentThread;
+
+    //! Holds the current collector that is in focus
+    Collector *currentCollector;
 
     QPopupMenu *threadMenu;
     QPopupMenu *metricMenu;
@@ -126,7 +131,7 @@ Collector *currentCollector;
 
     SmartPtr<std::map<Function, double> > orig_data;
     std::vector<Function_double_pair> sorted_items;
-SmartPtr<std::map<int, double> > orig_statement_data;
+    SmartPtr<std::map<int, double> > orig_statement_data;
     bool ascending_sort;
 
     double Get_Total_Time();
@@ -138,7 +143,6 @@ SmartPtr<std::map<int, double> > orig_statement_data;
   
     //! Flag setting, indicating if we should be displaying the chart.
     bool chartFLAG;
-
 
     CollectorListObject *clo;
 };

@@ -29,6 +29,7 @@ StatsPanel_la_CXXFLAGS = \
     -I$(top_srcdir)/gui \
     -I$(top_srcdir)/expr_info \
     -I$(top_srcdir)/plugin \
+	-I$(top_srcdir)/dialogs \
     -I$(top_srcdir)/base
 
 StatsPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version

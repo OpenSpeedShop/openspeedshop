@@ -32,7 +32,7 @@
 class MetricHeaderInfo;
 typedef QValueList<MetricHeaderInfo *> MetricHeaderInfoList;
 
-static char *color_names[] = { "red", "green", "cyan", "gray", "darkGreen", "darkCyan", "magenta", "blue", "yellow", "black", "darkRed", "darkBlue", "darkMagenta", "darkYellow", "darkGray", "lightGray" };
+static char *color_names[] = { "red", "green", "darkGreen", "darkCyan", "yellow", "cyan", "blue", "magenta", "black", "darkRed", "darkBlue", "darkMagenta", "darkYellow", "darkGray", "gray", "lightGray" };
 
 #include "SPListView.hxx"   // Change this to your new class header file name
 #include "SPListViewItem.hxx"   // Change this to your new class header file name
@@ -700,30 +700,30 @@ StatsPanel::sortColumn(int column)
   for(std::vector<Function_double_pair>::const_iterator
               it = sorted_items.begin(); it != sorted_items.end(); ++it)
   {
-QString funcInfo = QString::null;
+    QString funcInfo = QString::null;
     c_percent = it->second*percent_factor;  // current item's percent of total time
     sprintf(cputimestr, "%f", it->second);
     sprintf(a_percent_str, "%f", c_percent);
-funcInfo = it->first.getName().c_str() + QString(" (") + it->first.getLinkedObject().getPath().getBaseName();
+    funcInfo = it->first.getName().c_str() + QString(" (") + it->first.getLinkedObject().getPath().getBaseName();
 
-std::set<Statement> T = it->first.getDefinitions();
-if( T.size() > 0 )
-{
-  std::set<Statement>::const_iterator ti;
-  for (ti = T.begin(); ti != T.end(); ti++)
-  {
-    if (ti != T.begin())
+    std::set<Statement> T = it->first.getDefinitions();
+    if( T.size() > 0 )
     {
-      funcInfo += "  &...";
-      break;
+      std::set<Statement>::const_iterator ti;
+      for (ti = T.begin(); ti != T.end(); ti++)
+      {
+        if (ti != T.begin())
+        {
+          funcInfo += "  &...";
+          break;
+        }
+        Statement s = *ti;
+        char l[20];
+        sprintf( &l[0], " %lld", (int64_t)s.getLine());
+        funcInfo = funcInfo + ": " + s.getPath().getBaseName() + "," + &l[0];
+      }
     }
-    Statement s = *ti;
-    char l[20];
-    sprintf( &l[0], " %lld", (int64_t)s.getLine());
-    funcInfo = funcInfo + ": " + s.getPath().getBaseName() + "," + &l[0];
-  }
-}
-funcInfo += QString(")");
+    funcInfo += QString(")");
 
     lvi =  new SPListViewItem( this, splv, cputimestr,  a_percent_str, funcInfo.ascii() );
 // printf("Put out (%s)\n", cputimestr);
@@ -877,11 +877,15 @@ fprintf(stderr, "No function definition for this entry.   Unable to position sou
       // Put out statment metrics for this file.
       if( getPanelContainer()->getMainWindow()->preferencesDialog->showGraphicsCheckBox->isChecked() )
       {
-QApplication::setOverrideCursor(QCursor::WaitCursor);
+        QApplication::setOverrideCursor(QCursor::WaitCursor);
+
 // printf("Look up metrics by statement in file.\n");
         Queries::GetMetricByStatementInFileForThread(*currentCollector, metricStr.ascii(), di->getPath(), *currentThread, orig_statement_data);
+// printf("Looked up metrics by statement in file.\n");
+
         for(std::map<int, double>::const_iterator
-              item = orig_statement_data->begin(); item != orig_statement_data->end(); ++item)
+              item = orig_statement_data->begin();
+              item != orig_statement_data->end(); ++item)
         {
 // printf("item->first=%d\n", item->first);
 // printf("item->second=%f\n", item->second );
@@ -916,7 +920,7 @@ QApplication::setOverrideCursor(QCursor::WaitCursor);
         }
       }
     }
-qApp->restoreOverrideCursor( );
+    qApp->restoreOverrideCursor( );
   }
   catch(const std::exception& error)
   { 
@@ -975,11 +979,11 @@ StatsPanel::updateStatsPanelData()
       {
 // printf("Using %s\n", threadStr.ascii() );
         t1 = *ti;
-if( currentThread )
-{
-  delete currentThread;
-}
-currentThread = new Thread(*ti);
+        if( currentThread )
+        {
+          delete currentThread;
+        }
+        currentThread = new Thread(*ti);
         break;
       }
     }
@@ -1000,14 +1004,17 @@ currentThread = new Thread(*ti);
 // printf("Try to match: name.ascii()=%s collectorStr.ascii()=%s\n", name.ascii(), collectorStr.ascii() );
         if( name == collectorStr )
         {
-if( currentCollector )
-{
-  delete currentCollector;
-}
-currentCollector = new Collector(*ci);
+          if( currentCollector )
+          {
+            delete currentCollector;
+          }
+          currentCollector = new Collector(*ci);
+
           nprintf( DEBUG_PANELS) ("GetMetricByFunctionInThread()\n");
-// printf("GetMetricByFunction(%s  %s %s)\n", name.ascii(), metricStr.ascii(), QString("%1").arg(t1.getProcessId()).ascii() );
+          nprintf( DEBUG_PANELS ) ("GetMetricByFunction(%s  %s %s)\n", name.ascii(), metricStr.ascii(), QString("%1").arg(t1.getProcessId()).ascii() );
+          QApplication::setOverrideCursor(QCursor::WaitCursor);
           Queries::GetMetricByFunctionInThread(collector, metricStr.ascii(), t1, orig_data);
+          qApp->restoreOverrideCursor( );
 
           // Display the results
           MetricHeaderInfoList metricHeaderInfoList;

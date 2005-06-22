@@ -165,20 +165,7 @@ pcSamplePanel::pcSamplePanel(PanelContainer *pc, const char *n, void *argument) 
   {
     // We're coming in cold, or we're coming in from the pcSampleWizardPanel.
     QString command = QString::null;
-#ifdef OLDWAY
-    if( !executableNameStr.isEmpty() )
-    {
-      command = QString("expCreate -f \"%1 %2\" pcsamp\n").arg(executableNameStr).arg(argsStr);
-    } else if( !pidStr.isEmpty() )
-    { 
-      command = QString("expCreate %1 pcsamp\n").arg(pidStr);
-    } else
-    {
-      command = QString("expCreate pcsamp\n");
-    }
-#else // OLDWAY
     command = QString("expCreate pcsamp\n");
-#endif // OLDWAY
     bool mark_value_for_delete = true;
     int64_t val = 0;
 
@@ -592,16 +579,11 @@ CLIInterface::interrupt = true;
         command = QString("expAttach -x %1 -f \"%2 %3\"\n").arg(expID).arg(executableNameStr).arg(argsStr);
       } else if( !pidStr.isEmpty() )
       { 
-#ifdef OLDWAY
-        command = QString("expAttach -x %1 %2\n").arg(expID).arg(pidStr);
-#else // OLDWAY
     QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
     command = QString("expAttach -x %1 -p %2 -h %3\n").arg(expID).arg(pid_name).arg(host_name);
 // printf("command=(%s)\n", command.ascii() );
-
-#endif // OLDWAY
       } else
       {
         return 0;
