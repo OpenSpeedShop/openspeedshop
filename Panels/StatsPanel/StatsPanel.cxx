@@ -117,15 +117,15 @@ currentCollector = NULL;
 
   frameLayout->addWidget( splitterA );
 
-if( pc->getMainWindow()->preferencesDialog->showGraphicsCheckBox->isChecked() )
-{
-  chartFLAG = TRUE;
-  cf->show();
-} else
-{
-  chartFLAG = FALSE;
-  cf->hide();
-}
+  if( pc->getMainWindow()->preferencesDialog->showGraphicsCheckBox->isChecked() )
+  {
+    chartFLAG = TRUE;
+    cf->show();
+  } else
+  {
+    chartFLAG = FALSE;
+    cf->hide();
+  }
   statsFLAG = TRUE;
   splv->show();
 
@@ -739,6 +739,12 @@ StatsPanel::sortColumn(int column)
     }
   }
     
+  // Now sort the data that has been sorted already...
+  splv->setSorting ( column, ascending_sort );
+  splv->sort();
+  splv->setSorting ( -1, ascending_sort );
+  splv->header()->setSortIndicator( column, ascending_sort );
+
   // Set the values for the top 5 pie chart elements...
   QListViewItemIterator it( splv );
   while( it.current() )
@@ -756,30 +762,21 @@ StatsPanel::sortColumn(int column)
     ++it;
   }
 
-// Begin: Try putting out the graph here...
-// Loop through splv and print out the top 5....
-{
+  // Now put out the graph
   int total_percent = 0;
-int i = 0;
+  int i = 0;
   for(i =0;i<count;i++)
   {
     total_percent += values[i];
   }
-if( total_percent < 100 )
-{
-  values[i] = 100-total_percent;
-  strings[i] = "other";
-  count++;
-}
+  if( total_percent < 100 )
+  {
+    values[i] = 100-total_percent;
+    strings[i] = "other";
+    count++;
+  }
   cf->setValues(values, color_names, strings, count+1);
-}
-// End: Try putting out the graph here...
 
-  // Now sort the data that has been sorted already...
-  splv->setSorting ( column, ascending_sort );
-  splv->sort();
-  splv->setSorting ( -1, ascending_sort );
-  splv->header()->setSortIndicator( column, ascending_sort );
 }
 
 
