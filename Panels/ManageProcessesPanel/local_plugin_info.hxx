@@ -26,7 +26,7 @@
   plugin_entry->plugin_entry_point = "panel_init";
   plugin_entry->menu_heading =  "";
   plugin_entry->sub_menu_heading =  "";
-  plugin_entry->menu_label =  "ManageProcessPanel";
+  plugin_entry->menu_label =  "ManageProcessesPanel";
   plugin_entry->menu_accel =  " ";
   plugin_entry->panel_type =  "ManageProcessesPanel";
   plugin_entry->preference_category =  "ManageProcessesPanel";

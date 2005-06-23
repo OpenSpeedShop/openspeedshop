@@ -168,7 +168,7 @@ StatsPanel::listener(void *msg)
   PreferencesChangedObject *pco = NULL;
 
   MessageObject *msgObject = (MessageObject *)msg;
-  if( msgObject->msgType == getName() )
+  if( msgObject->msgType == getName() && recycleFLAG == TRUE )
   {
     nprintf(DEBUG_MESSAGES) ("StatsPanel::listener() interested!\n");
     getPanelContainer()->raisePanel(this);
@@ -257,6 +257,8 @@ bool
 StatsPanel::menu( QPopupMenu* contextMenu)
 {
 // printf("StatsPanel::menu() entered.\n");
+
+  Panel::menu(contextMenu);
 
   if( metricMenu != NULL )
   {

@@ -205,6 +205,8 @@ SourcePanel::menu(QPopupMenu* contextMenu)
 {
   nprintf(DEBUG_PANELS) ("SourcePanel::menu() requested.\n");
 
+  Panel::menu(contextMenu);
+
   contextMenu->insertSeparator();
 
   QAction *qaction = new QAction( this,  "saveAs");
@@ -393,7 +395,9 @@ SourcePanel::listener(void *msg)
 
 
   // Check the message type to make sure it's our type...
-  if( msgObject->msgType == "SourceObject" )
+//  if( msgObject->msgType == "SourceObject" )
+//  if( msgObject->msgType == getName() && recycleFLAG == TRUE )
+  if( msgObject->msgType == "SourceObject" && recycleFLAG == TRUE )
   {
     nprintf(DEBUG_PANELS)  ("Its a SourceObject\n");
 // printf("Its a SourceObject\n");

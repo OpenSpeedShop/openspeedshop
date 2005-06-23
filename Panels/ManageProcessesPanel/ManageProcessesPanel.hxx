@@ -61,6 +61,8 @@ class ManageProcessesPanel  : public Panel
 
     ManageCollectorsClass *mcc;
 
+    int expID;
+
   public slots:
 
   protected:

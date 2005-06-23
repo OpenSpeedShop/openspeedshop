@@ -67,6 +67,9 @@ Panel::Panel(PanelContainer *pc, const char *n) : QWidget(pc, n)
   nprintf(DEBUG_PANELS) ("Panel::Panel(...) entered.\n");
 
   pluginInfo = NULL;
+  contextMenu = NULL;
+  recycleID = 0;
+  recycleFLAG = TRUE;
 
   groupID = 0;
 
@@ -177,9 +180,15 @@ void Panel::setName(QString n)
     mouse down in the panel.
     /param  contextMenu is the QPopupMenu * that use menus can be attached.
  */
-bool Panel::menu(QPopupMenu* contextMenu)
+bool Panel::menu(QPopupMenu* _contextMenu)
 {
   nprintf(DEBUG_PANELS) ("Panel::menu() entered\n");
+
+  contextMenu = _contextMenu;
+  recycleID = contextMenu->insertItem("Recycle", this, SLOT(toggleRecycle()) );
+  contextMenu->setCheckable(TRUE);
+  contextMenu->setItemChecked(recycleID, recycleFLAG);
+
 
   return( FALSE );
 }
@@ -286,3 +295,19 @@ Panel::displayWhatsThis(QString msg)
 //  getPanelContainer()->getMasterPC()->whatsThis->display( msg, mapFromGlobal( QCursor::pos() ) );
 }
 
+void
+Panel::toggleRecycle()
+{
+// printf("toggleRecycle() entered\n");
+  if( recycleFLAG == TRUE )
+  {
+    recycleFLAG = FALSE;
+  } else
+  {
+    recycleFLAG = TRUE;
+  }
+  if( contextMenu )
+  {
+    contextMenu->setItemChecked(recycleID, recycleFLAG);
+  }
+}

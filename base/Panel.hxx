@@ -109,6 +109,11 @@ public:
 
     //! The plugin information that hooked up this panel to the dso.
     PluginInfo *pluginInfo;
+
+    QPopupMenu* contextMenu;
+    int recycleID;
+    bool recycleFLAG;
+
 protected:
     //! Sets the Panel specific strings.
     virtual void languageChange();
@@ -126,5 +131,6 @@ private:
 public slots:
     virtual void wakeupFromSleep();
     virtual void popupInfoAtLine();
+    virtual void toggleRecycle();
 };
 #endif // PANEL_H

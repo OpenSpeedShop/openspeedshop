@@ -30,6 +30,7 @@ ManageProcessesPanel::ManageProcessesPanel(PanelContainer *pc, const char *n, vo
   setCaption("ManageProcessesPanel");
   frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
+  expID = (int)argument;
 
   mcc = new ManageCollectorsClass( this, getBaseWidgetFrame() );
   frameLayout->addWidget(mcc);
@@ -38,6 +39,10 @@ ManageProcessesPanel::ManageProcessesPanel(PanelContainer *pc, const char *n, vo
   groupID = mcc->expID;
 
   getBaseWidgetFrame()->setCaption("ManageProcessesPanelBaseWidget");
+
+  char name_buffer[100];
+  sprintf(name_buffer, "%s [%d]", getName(), expID);
+  setName(name_buffer);
 }
 
 
@@ -66,6 +71,8 @@ bool
 ManageProcessesPanel::menu(QPopupMenu* contextMenu)
 {
   dprintf("ManageProcessesPanel::menu() requested.\n");
+
+  Panel::menu(contextMenu);
 
   return( mcc->menu(contextMenu) );
 
@@ -106,7 +113,10 @@ ManageProcessesPanel::listener(void *msg)
   PreferencesChangedObject *pco = NULL;
 
   MessageObject *msgObject = (MessageObject *)msg;
-  if( msgObject->msgType == getName() )
+//  if( msgObject->msgType == getName() )
+// printf("ManageProcessesPanel::listener() getName=%s\n", getName());
+// msgObject->print();
+  if( msgObject->msgType == getName() && recycleFLAG == TRUE )
   {
     nprintf(DEBUG_MESSAGES) ("ManageProcessesPanel::listener() interested!\n");
     getPanelContainer()->raisePanel(this);
