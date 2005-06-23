@@ -390,11 +390,26 @@ void OpenSpeedshop::fileExportExperimentData()
 }
 #endif // EXPORT
 
-void OpenSpeedshop::filePreferences()
+#include "qwidgetstack.h"
+void OpenSpeedshop::filePreferences(QWidget *stackWidgetToRaise, QString panel_type)
 {
-//printf("filePreferences() entered.\n");
-
-  preferencesDialog->show();
+// printf("filePreferences() entered.\n");
+  if( stackWidgetToRaise )
+  {
+// printf("raise a particular panel's preferences\n");
+    preferencesDialog->show();
+    QWidgetStack *parent = (QWidgetStack *)stackWidgetToRaise->parent();
+    parent->raiseWidget(stackWidgetToRaise);
+    preferencesDialog->categoryListView->clearSelection();
+    QListViewItem *item = preferencesDialog->categoryListView->findItem( panel_type, 0 );
+    if( item )
+    {
+      preferencesDialog->categoryListView->setSelected(item, TRUE);
+    }
+  } else
+  {
+    preferencesDialog->show();
+  }
 }
 
 #include "Commander.hxx"   // Contains the InputLineObject definition.

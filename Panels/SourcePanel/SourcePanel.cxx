@@ -1208,3 +1208,10 @@ SourcePanel::doSaveAs(QTextStream *ts)
   *ts << fileName;
   *ts << textEdit->text();
 }
+
+void
+SourcePanel::raisePreferencePanel()
+{
+// printf("StatsPanel::raisePreferencePanel() \n");
+  getPanelContainer()->getMainWindow()->filePreferences( sourcePanelStackPage, QString(pluginInfo->panel_type) );
+}

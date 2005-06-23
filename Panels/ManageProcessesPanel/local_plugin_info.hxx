@@ -29,6 +29,12 @@
   plugin_entry->menu_label =  "ManageProcessesPanel";
   plugin_entry->menu_accel =  " ";
   plugin_entry->panel_type =  "ManageProcessesPanel";
+#ifdef PREFERENCES_NEEDED
   plugin_entry->preference_category =  "ManageProcessesPanel";
   plugin_entry->initialize_preferences_entry_point =  "initialize_preferences_entry_point";
   plugin_entry->save_preferences_entry_point =  "save_preferences_entry_point";
+#else // PREFERENCES_NEEDED
+  plugin_entry->preference_category =  NULL;
+  plugin_entry->initialize_preferences_entry_point =  NULL;
+  plugin_entry->save_preferences_entry_point =  NULL;
+#endif // PREFERENCES_NEEDED

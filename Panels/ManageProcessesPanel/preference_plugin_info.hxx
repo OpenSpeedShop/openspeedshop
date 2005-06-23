@@ -16,6 +16,8 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifdef PREFERENCES_NEEDED
+
 
 #ifndef PREFERENCE_PLUGIN_INFO_H
 #define PREFERENCE_PLUGIN_INFO_H
@@ -41,5 +43,7 @@ extern "C"
     // an example.
   }
 }
+
+#endif // PREFERENCES_NEEDED
 
 #endif // PREFERENCE_PLUGIN_INFO_H

@@ -133,6 +133,8 @@ class StatsPanel  : public Panel
 
     void updateStatsPanelData();
 
+    void raisePreferencePanel();
+
     SmartPtr<std::map<Function, double> > orig_data;
     std::vector<Function_double_pair> sorted_items;
     SmartPtr<std::map<int, double> > orig_statement_data;

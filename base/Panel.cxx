@@ -53,6 +53,8 @@ class QTabWidget;
 
 #include <qtimer.h>
 
+#include "PluginInfo.hxx"
+
 #include <qapplication.h>  // For debug only ... 
  
 #include "debug.hxx"  // This includes the definition of nprintf(DEBUG_PANELS) 
@@ -189,6 +191,13 @@ bool Panel::menu(QPopupMenu* _contextMenu)
   contextMenu->setCheckable(TRUE);
   contextMenu->setItemChecked(recycleID, recycleFLAG);
 
+// printf("Panel::menu() pluginInfo=0x%x\n", pluginInfo);
+  if( pluginInfo->initialize_preferences_entry_point != NULL )
+  {
+    contextMenu->insertItem("Preference Panel", this, SLOT(raisePreferencePanel()) );
+  }
+  
+
 
   return( FALSE );
 }
@@ -310,4 +319,10 @@ Panel::toggleRecycle()
   {
     contextMenu->setItemChecked(recycleID, recycleFLAG);
   }
+}
+
+void
+Panel::raisePreferencePanel()
+{
+// printf("raisePreferencePanel() entered\n");
 }

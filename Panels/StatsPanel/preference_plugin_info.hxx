@@ -31,7 +31,7 @@
 
 extern "C"
 {
-  QWidget* statsPanelStackPage;
+  QWidget* statsPanelStackPage = NULL;
   QVBoxLayout* generalStackPageLayout_3;
   QGroupBox* statsPanelGroupBox;
   QVBoxLayout* layout8;
@@ -78,7 +78,7 @@ extern "C"
   {
 // printf("initialize_preferences_entry_point(0x%x 0x%x %s) entered\n", settings, stack, name);
 
-    QWidget *statsPanelStackPage = new QWidget( stack, name );
+    statsPanelStackPage = new QWidget( stack, name );
     pname = strdup(name);
 
     generalStackPageLayout_3 =

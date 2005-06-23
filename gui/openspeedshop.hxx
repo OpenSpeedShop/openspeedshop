@@ -165,7 +165,7 @@ class OpenSpeedshop : public QMainWindow
     virtual void fileOpenExperiment(int selectedID=0);
     virtual void fileOpenSavedExperiment(QString filename=QString::null);
     virtual void fileSaveExperiment();
-    virtual void filePreferences();
+    virtual void filePreferences(QWidget *stackWidgetToRaise = NULL, QString panel_type = QString::null );
     virtual void fileClose();
     virtual void fileExit();
     virtual void helpIndex();

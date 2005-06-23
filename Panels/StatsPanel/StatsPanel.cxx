@@ -64,7 +64,6 @@ struct sort_descending : public std::binary_function<T,T,bool> {
 /*! Create a pc Sampling Specific Stats Panel.   This panel is derived
     from the StatsPanelBase class.  
 */
-// StatsPanel::StatsPanel(PanelContainer *pc, const char *n, void *argument) : StatsPanelBase(pc, n, argument)
 StatsPanel::StatsPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
 {
 // printf("StatsPanel() entered\n");
@@ -1199,4 +1198,11 @@ StatsPanel::threadMenuHighlighted(int val)
 // printf("threadMenuHighlighted: Full collectorStr=(%s)\n", popupMenu->text(val).ascii() );
    threadStr = popupMenu->text(val).ascii();
 // printf("threadStr=(%s)\n", threadStr.ascii() );
+}
+
+void
+StatsPanel::raisePreferencePanel()
+{
+// printf("StatsPanel::raisePreferencePanel() \n");
+  getPanelContainer()->getMainWindow()->filePreferences( statsPanelStackPage, QString(pluginInfo->panel_type) );
 }

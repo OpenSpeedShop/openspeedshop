@@ -57,6 +57,8 @@ PluginInfo::initialize()
   plugin_name=NULL;
   plugin_location=NULL;
   plugin_entry_point=NULL;
+  initialize_preferences_entry_point=NULL;
+
   grouping=NULL;
   menu_heading=NULL;
   sub_menu_heading=NULL;

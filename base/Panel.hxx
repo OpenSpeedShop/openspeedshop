@@ -132,5 +132,6 @@ public slots:
     virtual void wakeupFromSleep();
     virtual void popupInfoAtLine();
     virtual void toggleRecycle();
+    virtual void raisePreferencePanel();
 };
 #endif // PANEL_H

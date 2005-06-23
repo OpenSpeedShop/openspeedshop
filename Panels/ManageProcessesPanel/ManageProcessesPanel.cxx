@@ -140,6 +140,7 @@ ManageProcessesPanel::listener(void *msg)
   {
     nprintf(DEBUG_MESSAGES) ("ManageProcessesPanel::listener() PreferencesChangedObject!\n");
     pco = (PreferencesChangedObject *)msgObject;
+// Currently ignored.
 //    preferencesChanged();
   } else if( msgObject->msgType == "SaveAsObject" )
   {

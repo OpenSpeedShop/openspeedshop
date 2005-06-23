@@ -238,5 +238,6 @@ private:
   OpenSpeedShop::Framework::Experiment *experiment;
 //  OpenSpeedShop::Framework::Experiment *fw_experiment() { return experiment; }
   
+  void raisePreferencePanel();
 };
 #endif // SOURCE_PANEL_H
