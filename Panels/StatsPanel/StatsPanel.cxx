@@ -75,7 +75,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, void *argument) : Pane
 
   f = NULL;
   metricMenu = NULL;
-  metricStr = QString::null;
+  currentMetricStr = QString::null;
   metricHeaderTypeArray = NULL;
   collectorStr = QString::null;
   groupID = (int)argument;
@@ -186,10 +186,10 @@ StatsPanel::listener(void *msg)
     // Initialize the collector list....
     clo = new CollectorListObject(msg->expID);
 
-    // Now that you have the list initialize the default metricStr 
+    // Now that you have the list initialize the default currentMetricStr 
     // and default collector string (if it's the first time..)
 
-    if( collectorStr.isEmpty() && metricStr.isEmpty() )
+    if( collectorStr.isEmpty() && currentMetricStr.isEmpty() )
     {
       CollectorEntry *ce = NULL;
       CollectorEntryList::Iterator it;
@@ -205,8 +205,9 @@ StatsPanel::listener(void *msg)
 // printf("\t%s\n", ce->name.ascii() );
 // printf("\t%s\n", cpe->name.ascii() );
           collectorStr = ce->name;
-          metricStr = cpe->name;
-// printf("Initialize collectorStr=(%s) metricStr=(%s)\n", collectorStr.ascii(), metricStr.ascii() );
+          currentMetricStr = cpe->name;
+// printf("Initialize collectorStr=(%s) currentMetricStr=(%s)\n", collectorStr.ascii(), currentMetricStr.ascii() );
+          break;
         }
       }
     }
@@ -902,7 +903,7 @@ fprintf(stderr, "No function definition for this entry.   Unable to position sou
         QApplication::setOverrideCursor(QCursor::WaitCursor);
 
 // printf("Look up metrics by statement in file.\n");
-        Queries::GetMetricByStatementInFileForThread(*currentCollector, metricStr.ascii(), di->getPath(), *currentThread, orig_statement_data);
+        Queries::GetMetricByStatementInFileForThread(*currentCollector, currentMetricStr.ascii(), di->getPath(), *currentThread, orig_statement_data);
 // printf("Looked up metrics by statement in file.\n");
 
         for(std::map<int, double>::const_iterator
@@ -1033,14 +1034,14 @@ StatsPanel::updateStatsPanelData()
           currentCollector = new Collector(*ci);
 
           nprintf( DEBUG_PANELS) ("GetMetricByFunctionInThread()\n");
-          nprintf( DEBUG_PANELS ) ("GetMetricByFunction(%s  %s %s)\n", name.ascii(), metricStr.ascii(), QString("%1").arg(t1.getProcessId()).ascii() );
+          nprintf( DEBUG_PANELS ) ("GetMetricByFunction(%s  %s %s)\n", name.ascii(), currentMetricStr.ascii(), QString("%1").arg(t1.getProcessId()).ascii() );
           QApplication::setOverrideCursor(QCursor::WaitCursor);
-          Queries::GetMetricByFunctionInThread(collector, metricStr.ascii(), t1, orig_data);
+          Queries::GetMetricByFunctionInThread(collector, currentMetricStr.ascii(), t1, orig_data);
           qApp->restoreOverrideCursor( );
 
           // Display the results
           MetricHeaderInfoList metricHeaderInfoList;
-          metricHeaderInfoList.push_back(new MetricHeaderInfo(QString(metricStr.ascii() ), FLOAT_T));
+          metricHeaderInfoList.push_back(new MetricHeaderInfo(QString(currentMetricStr.ascii() ), FLOAT_T));
           metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("% of Time"), FLOAT_T));
           metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Function"), CHAR_T));
           if( metricHeaderTypeArray != NULL )
@@ -1111,7 +1112,7 @@ StatsPanel::updateStatsPanelData()
 
 #ifdef SYNTAX
   // Update header information
-  headerLabel->setText(QString("Report for collector type \"%1\" with metric selection \"%2\" for thread \"%3\"").arg(collectorStr).arg(metricStr).arg(threadStr) );
+  headerLabel->setText(QString("Report for collector type \"%1\" with metric selection \"%2\" for thread \"%3\"").arg(collectorStr).arg(currentMetricStr).arg(threadStr) );
 #else // SYNTAX
 //  printf("Set the header.\n");
 #endif // SYNTAX
@@ -1141,8 +1142,8 @@ void
 StatsPanel::metricSelected()
 { 
 
-// metricStr = metricMenu->text(val);
-// printf("metricStr = (%s)\n", metricStr.ascii() );
+// currentMetricStr = metricMenu->text(val);
+// printf("currentMetricStr = (%s)\n", currentMetricStr.ascii() );
  
 
 // printf("collectorStrFromMenu=(%s)\n", collectorStrFromMenu.ascii() );
@@ -1173,13 +1174,12 @@ StatsPanel::contextMenuHighlighted(int val)
 { 
 // printf("contextMenuHighlighted val=%d\n", val);
 // printf("contextMenuHighlighted: Full collectorStr=(%s)\n", popupMenu->text(val).ascii() );
-QString s = popupMenu->text(val).ascii();
+  QString s = popupMenu->text(val).ascii();
 
-if( s.find("Show Metric :") != -1 )
-{
-  collectorStrFromMenu = popupMenu->text(val).ascii();
-}
-
+  if( s.find("Show Metric :") != -1 )
+  {
+    collectorStrFromMenu = popupMenu->text(val).ascii();
+  }
 }
 
 void
@@ -1188,7 +1188,7 @@ StatsPanel::metricMenuHighlighted(int val)
 // printf("metricMenuHighlighted val=%d\n", val);
 // printf("metricMenuHighlighted: Full collectorStr=(%s)\n", popupMenu->text(val).ascii() );
 
-   metricStr = popupMenu->text(val).ascii();
+   currentMetricStr = popupMenu->text(val).ascii();
 }
 
 void

@@ -94,6 +94,8 @@ class StatsPanel  : public Panel
     //! Holds the current collector that is in focus
     Collector *currentCollector;
 
+    QString currentMetricStr;
+
     //! Current selected chart item.
     SPListViewItem *currentItem;
 
@@ -102,7 +104,6 @@ class StatsPanel  : public Panel
     QPopupMenu *popupMenu;   // Pointer to the contextMenu
 
     QString threadStr;
-    QString metricStr;
     QString collectorStr;
     QString collectorStrFromMenu;
 

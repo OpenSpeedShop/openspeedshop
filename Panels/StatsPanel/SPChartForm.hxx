@@ -46,6 +46,7 @@ public:
   QPopupMenu* createPopupMenu( const QPoint & pos );
   QPopupMenu* createPopupMenu( ) { /* obsoleted function. */ return NULL; };
   QPopupMenu *popupMenu;
+  QPopupMenu *panelMenu;
 
 public slots:
    void goToLine();
