@@ -220,7 +220,7 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
           knownCollectorType = TRUE;
           panel_type = "FPE Tracing";
           break;
-        } else if( collector_name == "hw" )
+        } else if( collector_name == "hwc" )
         {
           panel_type = "HW Counter";
           knownCollectorType = TRUE;
@@ -1143,7 +1143,7 @@ OpenSpeedshop::lookForExperiment()
           knownCollectorType = TRUE;
           panel_type = "FPE Tracing";
           break;
-        } else if( collector_name == "hw" )
+        } else if( collector_name == "hwc" )
         {
           panel_type = "HW Counter";
           knownCollectorType = TRUE;

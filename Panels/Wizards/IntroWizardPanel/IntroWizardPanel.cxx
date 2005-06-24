@@ -364,7 +364,7 @@ IntroWizardPanel::languageChange()
   vpage1UserTimeRB->setText( tr( "I'd like to find out how much time is system time vs. my program's time. (usertime)" ) );
   vpage1HardwareCounterRB->setText( tr( "I'd like to see what the internal Hardware Counters can show me.\n"
 "(Hardware Counters are an advanced feature that utilizes machine \n"
-"hardware to measure certain attributes of program execution.) (hw)" ) );
+"hardware to measure certain attributes of program execution.) (hwc)" ) );
   vpage1FloatingPointRB->setText( tr( "I need to measure how many times I am causing Floating Point Exceptions. (fpe)" ) );
   vpage1InputOutputRB->setText( tr( "My program does a lot of Input and Output and I'd like to trace that work. (io)" ) );
   vpage1MPIRB->setText( tr( "I have an MPI program and I'd like trace the mpi calls. (mpi)" ) );

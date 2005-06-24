@@ -1328,7 +1328,7 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new execu
     for( std::set<Metadata>::const_iterator mi = collectortypes.begin();
          mi != collectortypes.end(); mi++ )
     {
-      if( mi->getUniqueId() == "hw" )
+      if( mi->getUniqueId() == "hwc" )
       {
         found_one = TRUE;
       }
@@ -1338,7 +1338,7 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new execu
       return;
     }
 
-    Collector hwCounterCollector = dummy_experiment.createCollector("hw");
+    Collector hwCounterCollector = dummy_experiment.createCollector("hwc");
 
     Metadata cm = hwCounterCollector.getMetadata();
       std::set<Metadata> md =hwCounterCollector.getParameters();

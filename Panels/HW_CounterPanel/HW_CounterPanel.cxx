@@ -110,7 +110,7 @@ HW_CounterPanel::HW_CounterPanel(PanelContainer *pc, const char *n, void *argume
       if( cgrp.size() == 0 )
       {
         nprintf( DEBUG_PANELS ) ("There are no known collectors for this experiment so add one.\n");
-        QString command = QString("expAttach -x %1 hw").arg(expID);
+        QString command = QString("expAttach -x %1 hwc").arg(expID);
         CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
         if( !cli->runSynchronousCLI((char *)command.ascii() ) )
         {
@@ -168,16 +168,16 @@ HW_CounterPanel::HW_CounterPanel(PanelContainer *pc, const char *n, void *argume
 #ifdef OLDWAY
     if( !executableNameStr.isEmpty() )
     {
-      command = QString("expCreate -f \"%1 %2\" hw\n").arg(executableNameStr).arg(argsStr);
+      command = QString("expCreate -f \"%1 %2\" hwc\n").arg(executableNameStr).arg(argsStr);
     } else if( !pidStr.isEmpty() )
     { 
-      command = QString("expCreate %1 hw\n").arg(pidStr);
+      command = QString("expCreate %1 hwc\n").arg(pidStr);
     } else
     {
-      command = QString("expCreate hw\n");
+      command = QString("expCreate hwc\n");
     }
 #else // OLDWAY
-    command = QString("expCreate hw\n");
+    command = QString("expCreate hwc\n");
 #endif // OLDWAY
     bool mark_value_for_delete = true;
     int64_t val = 0;
@@ -605,7 +605,7 @@ CLIInterface::interrupt = true;
       } else
       {
         return 0;
-//      command = QString("expCreate hw\n");
+//      command = QString("expCreate hwc\n");
       }
       bool mark_value_for_delete = true;
       int64_t val = 0;
@@ -806,7 +806,7 @@ HW_CounterPanel::loadStatsPanel()
     {
       experiment = eo->FW();
       UpdateObject *msg =
-        new UpdateObject((void *)experiment, expID, "hw", 1);
+        new UpdateObject((void *)experiment, expID, "hwc", 1);
       statsPanel->listener( (void *)msg );
     }
   }
@@ -842,7 +842,7 @@ HW_CounterPanel::loadManageProcessesPanel()
     {
       experiment = eo->FW();
       UpdateObject *msg =
-        new UpdateObject((void *)experiment, expID, "hw", 1);
+        new UpdateObject((void *)experiment, expID, "hwc", 1);
       manageProcessPanel->listener( (void *)msg );
     }
   }
