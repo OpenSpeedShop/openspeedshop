@@ -21,6 +21,8 @@
     This class manages mouse events of the QTabBarWidget.
  */
 
+#include "qtimer.h"
+
 #include "TabWidget.hxx"
 #include "TabBarWidget.hxx"
 
@@ -35,6 +37,8 @@ TabBarWidget::TabBarWidget( )
 {
   fprintf(stderr, "TabBarWidget::TabBarWidget() should not be called.\n");
   fprintf(stderr, "see: TabBarWidget::TabBarWidget( PanelContainer *pc, QWidget *parent, const char *n );\n");
+
+  mouseDown = FALSE;
   setPanelContainer(NULL);
 }
 
@@ -45,6 +49,8 @@ TabBarWidget::TabBarWidget( PanelContainer *pc, QWidget *parent, const char *n )
     : QTabBar( parent, n )
 {
   nprintf(DEBUG_PANELCONTAINERS) ("TabBarWidget constructor called.\n");
+
+  mouseDown = FALSE;
 
   setPanelContainer(pc);
 
@@ -83,7 +89,8 @@ TabBarWidget::mouseDoubleClickEvent(QMouseEvent *e)
     The sourceDragNDropObject is created and a global flag is set notifying 
     everyone that a drag is undeway.
  */
-void TabBarWidget::mousePressEvent(QMouseEvent *e)
+void
+TabBarWidget::mousePressEvent(QMouseEvent *e)
 {
   nprintf(DEBUG_PANELCONTAINERS) ("TabBarWidget::mousePressEvent()\n");
 
@@ -132,12 +139,36 @@ void TabBarWidget::mousePressEvent(QMouseEvent *e)
       getPanelContainer()->leftFrame->contextMenuEvent( (QContextMenuEvent *)e, TRUE );
     } else if( e->button() == LeftButton )
     {
+      // On left mouse arm a one shot time.   Mark the mouse
+      // as down.   Then if the timer goes before the user 
+      // lifts the mouse, process the panel as a drag.
       nprintf(DEBUG_PANELCONTAINERS) ("LeftButton!\n");
-      getPanelContainer()->dragRaisedPanel();
+      downPos = e->pos();
+      QTimer::singleShot( 250, this, SLOT(dragIt()) );
+      mouseDown = TRUE;
+//      getPanelContainer()->dragRaisedPanel();
     }
   }
 
   return;
+}
+
+void
+TabBarWidget::mouseReleaseEvent(QMouseEvent *e)
+{
+// printf ("TabBarWidget::mouseReleaseEvent()\n");
+  mouseDown = FALSE;
+}
+
+void
+TabBarWidget::dragIt()
+{
+// printf ("TabBarWidget::dragIt(?)\n");
+
+  if( mouseDown == TRUE )
+  {
+    getPanelContainer()->dragRaisedPanel();
+  }
 }
 
 /*!  Sets the strings of the subwidgets using the current language.

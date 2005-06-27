@@ -90,6 +90,12 @@ DragNDropPanel::DragNDropPanel( const char *mimeType, PanelContainer *sourcePC, 
 
   nprintf(DEBUG_DND) ("\n\n\nDragNDropPanel(load: %s) Frame=(%s)\n", panelContainer->getInternalName(), sourceFrame->getName() );
 
+  currentSourcePC = sourcePC;
+  currentPanel = sourcePC->getRaisedPanel();
+  currentPanel->getBaseWidgetFrame()->hide();
+  sourcePC->hidePanel(currentPanel);
+
+
 #ifdef CHANGE_CURSOR
   QBitmap custom_bits(
     panel_drag_bitmap_width, panel_drag_bitmap_height,
@@ -137,6 +143,8 @@ void
 DragNDropPanel::DropPanel( PanelContainer *sourcePC, bool doubleClickedFLAG )
 {
   nprintf(DEBUG_DND) ("DropPanel  sourcePC=(%s)\n", sourcePC->getInternalName() );
+
+  currentSourcePC->raisePanel(currentPanel);
 
   // Now, get the location of the mouse and return a PanelContainer given 
   // current mouse location.
@@ -281,6 +289,8 @@ void
 DragNDropPanel::DropPanelWithQtDnD( PanelContainer *targetPC)
 {
   nprintf(DEBUG_DND) ("DropPanel in targetPC=(%s)\n", targetPC->getInternalName() );
+
+  currentSourcePC->raisePanel(currentPanel);
 
   // Make sure there is a valid place to drop it.
   if( panelContainer == targetPC || panelContainer->tabWidget == NULL )

@@ -23,6 +23,7 @@
 #include "debug.hxx"
 
 class PanelContainer;
+class Panel;
 class Frame;
 
 #include <qwidget.h>
@@ -63,6 +64,9 @@ public:
 
     //! The cursor shape for dragging a Panel.
     QCursor *customDragNDropCursor;
+
+PanelContainer *currentSourcePC;
+Panel *currentPanel;
 
 public slots:
 

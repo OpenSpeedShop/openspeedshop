@@ -48,9 +48,16 @@ class TabBarWidget : public QTabBar
     //! The standard Qt slot to change language information.
     virtual void languageChange();
 
+    virtual void dragIt();
+
   private:
     //! Fields the mousePressEvent for drag and drop.
     void mousePressEvent(QMouseEvent *e=NULL);
+
+    //! Fields the mouseReleaseEvent for drag and drop.
+    void mouseReleaseEvent(QMouseEvent *e=NULL);
+    bool mouseDown;
+    QPoint downPos;
 
     //! Fields the mousePressEvent for drag and drop.
     void mouseDoubleClickEvent(QMouseEvent *e=NULL);
