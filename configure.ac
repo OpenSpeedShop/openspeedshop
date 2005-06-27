@@ -117,6 +117,7 @@ AC_CHECK_HEADER(pthread.h, [ AC_CHECK_LIB(pthread, pthread_create, [
 ################################################################################
 
 AC_PKG_PYTHON()
+AC_PKG_QTLIB()
 
 ################################################################################
 # Generate Output Files

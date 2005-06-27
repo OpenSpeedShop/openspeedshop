@@ -20,7 +20,7 @@ pkglib_LTLIBRARIES = pcSampleWizardPanel.la
 
 pcSampleWizardPanel_la_CXXFLAGS = \
     -I/usr/include \
-    -I$(QTDIR)/include \
+	$(QTLIB_CPPFLAGS) \
     -I. \
     -I$(top_srcdir)/gui \
     -I$(top_srcdir)/images \
@@ -36,7 +36,7 @@ pcSampleWizardPanel_la_LDFLAGS = --export-dynamic \
 	-module -avoid-version \
 	-L$(top_srcdir)/libopenss-framework
 
-pcSampleWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt -lopenss-framework
+pcSampleWizardPanel_la_LIBADD = $(QTLIB_LIBS) $(QTLIB_LDFLAGS) -lopenss-framework
 
 moc_pcSampleWizardPanel.cxx: pcSampleWizardPanel.hxx
 	-moc -o moc_pcSampleWizardPanel.cxx pcSampleWizardPanel.hxx

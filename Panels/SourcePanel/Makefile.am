@@ -21,7 +21,7 @@ pkglib_LTLIBRARIES = SourcePanel.la
 SourcePanel_la_CXXFLAGS = \
 	-I../../objects \
     -I/usr/include \
-    -I$(QTDIR)/include \
+    $(QTLIB_CPPFLAGS) \
     -I. \
     -I$(top_srcdir)/pcli \
     -I$(top_srcdir)/gui \
@@ -31,7 +31,7 @@ SourcePanel_la_CXXFLAGS = \
 
 SourcePanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
-SourcePanel_la_LIBADD = -L$(QTDIR)/lib -lqt
+SourcePanel_la_LIBADD = $(QTLIB_LIBS) $(QTLIB_LDFLAGS)
 
 moc_SPTextEdit.cxx: SPTextEdit.hxx
 	-moc -o moc_SPTextEdit.cxx SPTextEdit.hxx

@@ -20,7 +20,7 @@ pkglib_LTLIBRARIES = CmdPanel.la
 
 CmdPanel_la_CXXFLAGS = \
     -I/usr/include \
-    -I$(QTDIR)/include \
+    $(QTLIB_CPPFLAGS) \
     -I. \
 	-I$(top_srcdir)/objects \
 	-I$(top_srcdir)/libopenss-framework \
@@ -31,7 +31,7 @@ CmdPanel_la_CXXFLAGS = \
 
 CmdPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version 
 
-CmdPanel_la_LIBADD =  -L$(QTDIR)/lib -lqt
+CmdPanel_la_LIBADD =  $(QTLIB_LIBS) $(QTLIB_LDFLAGS)
 
 moc_CmdPanel.cxx: CmdPanel.hxx
 	-moc -o moc_CmdPanel.cxx CmdPanel.hxx

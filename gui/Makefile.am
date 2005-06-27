@@ -21,7 +21,7 @@ lib_LTLIBRARIES = libopenss-GUI.la
 libopenss_GUI_la_CXXFLAGS =  \
 	-g \
 	-I/usr/include \
-	-I$(QTDIR)/include \
+	$(QTLIB_CPPFLAGS) \
 	-I. \
 	-I$(top_srcdir)/libopenss-framework \
 	-I$(top_srcdir)/pcli \
@@ -35,7 +35,7 @@ libopenss_GUI_la_CXXFLAGS =  \
 libopenss_GUI_la_LDFLAGS = \
 	-export-dynamic -version-info 0:0:0
 
-libopenss_GUI_la_LIBADD = $(LIBLTDL) -L$(QTDIR)/lib -lqt -lqassistantclient -L/usr/X11R6/lib -lXext -lX11 -lm -lpthread -L$(top_srcdir)/base -lopenss-Base -L$(top_srcdir)/dialogs -lopenss-Dialogs -L$(top_srcdir)/plugin -lopenss-Plugin -lopenss-Objects
+libopenss_GUI_la_LIBADD = $(LIBLTDL) $(QTLIB_LIBS) $(QTLIB_LDFLAGS) -lqassistantclient -L/usr/X11R6/lib -lXext -lX11 -lm -lpthread -L$(top_srcdir)/base -lopenss-Base -L$(top_srcdir)/dialogs -lopenss-Dialogs -L$(top_srcdir)/plugin -lopenss-Plugin -lopenss-Objects
 
 moc_CLIInterface.cxx: CLIInterface.hxx
 	-moc -o moc_CLIInterface.cxx CLIInterface.hxx

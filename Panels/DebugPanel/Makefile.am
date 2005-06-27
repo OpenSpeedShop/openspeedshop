@@ -20,7 +20,7 @@ pkglib_LTLIBRARIES = DebugPanel.la
 
 DebugPanel_la_CXXFLAGS = \
     -I/usr/include \
-    -I$(QTDIR)/include \
+    $(QTLIB_CPPFLAGS) \
     -I. \
     -I$(top_srcdir)/gui \
     -I$(top_srcdir)/plugin \
@@ -28,7 +28,7 @@ DebugPanel_la_CXXFLAGS = \
 
 DebugPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
-DebugPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
+DebugPanel_la_LIBADD = $(QTLIB_LIBS) $(QTLIB_LDFLAGS)
 
 moc_DebugPanel.cxx: DebugPanel.hxx
 	-moc -o moc_DebugPanel.cxx DebugPanel.hxx

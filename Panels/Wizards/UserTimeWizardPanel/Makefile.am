@@ -20,7 +20,7 @@ pkglib_LTLIBRARIES = UserTimeWizardPanel.la
 
 UserTimeWizardPanel_la_CXXFLAGS = \
     -I/usr/include \
-    -I$(QTDIR)/include \
+	$(QTLIB_CPPFLAGS) \
     -I. \
     -I$(top_srcdir)/gui \
     -I$(top_srcdir)/images \
@@ -36,7 +36,7 @@ UserTimeWizardPanel_la_LDFLAGS = --export-dynamic \
 	-module -avoid-version \
 	-L$(top_srcdir)/libopenss-framework
 
-UserTimeWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt -lopenss-framework
+UserTimeWizardPanel_la_LIBADD = $(QTLIB_LIBS) $(QTLIB_LDFLAGS) -lopenss-framework
 
 moc_UserTimeWizardPanel.cxx: UserTimeWizardPanel.hxx
 	-moc -o moc_UserTimeWizardPanel.cxx UserTimeWizardPanel.hxx

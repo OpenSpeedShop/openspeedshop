@@ -21,8 +21,8 @@ pkglib_LTLIBRARIES = pcSamplePanel.la
 pcSamplePanel_la_CXXFLAGS = \
 	-c -LANG:std -fpic \
     -I/usr/include \
-    -I$(QTDIR)/include \
-    -I. \
+	$(QTLIB_CPPFLAGS) \
+	-I. \
 	-I$(top_srcdir)/libopenss-framework \
     -I$(top_srcdir)/pcli \
     -I$(top_srcdir)/gui \
@@ -42,8 +42,7 @@ pcSamplePanel_la_LDFLAGS = \
 	-avoid-version \
 	-L$(top_srcdir)/libopenss-framework \
 	-L$(top_srcdir)/dialogs \
-	-L$(QTDIR)/lib \
-	-lqt \
+	$(QTLIB_LIBS) $(QTLIB_LDFLAGS) \
 	-ldl
 
 pcSamplePanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-Dialogs

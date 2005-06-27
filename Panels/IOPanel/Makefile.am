@@ -21,7 +21,7 @@ pkglib_LTLIBRARIES = IOPanel.la
 IOPanel_la_CXXFLAGS = \
 	-c -LANG:std -fpic \
     -I/usr/include \
-    -I$(QTDIR)/include \
+    $(QTLIB_CPPFLAGS) \
     -I. \
 	-I$(top_srcdir)/libopenss-framework \
     -I$(top_srcdir)/pcli \
@@ -42,8 +42,7 @@ IOPanel_la_LDFLAGS = \
 	-avoid-version \
 	-L$(top_srcdir)/libopenss-framework \
 	-L$(top_srcdir)/dialogs \
-	-L$(QTDIR)/lib \
-	-lqt \
+	$(QTLIB_LIBS) $(QTLIB_LDFLAGS) \
 	-ldl
 
 IOPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-Dialogs

@@ -20,7 +20,7 @@ pkglib_LTLIBRARIES = IOWizardPanel.la
 
 IOWizardPanel_la_CXXFLAGS = \
     -I/usr/include \
-    -I$(QTDIR)/include \
+    $(QTLIB_CPPFLAGS) \
     -I. \
     -I$(top_srcdir)/gui \
     -I$(top_srcdir)/images \
@@ -36,7 +36,7 @@ IOWizardPanel_la_LDFLAGS = --export-dynamic \
 	-module -avoid-version \
 	-L$(top_srcdir)/libopenss-framework
 
-IOWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt -lopenss-framework
+IOWizardPanel_la_LIBADD = $(QTLIB_LIBS) $(QTLIB_LDFLAGS) -lopenss-framework
 
 moc_IOWizardPanel.cxx: IOWizardPanel.hxx
 	-moc -o moc_IOWizardPanel.cxx IOWizardPanel.hxx

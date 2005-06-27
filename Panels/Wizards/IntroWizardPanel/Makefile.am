@@ -21,7 +21,7 @@ pkglib_LTLIBRARIES = IntroWizardPanel.la
 
 IntroWizardPanel_la_CXXFLAGS = \
     -I/usr/include \
-    -I$(QTDIR)/include \
+    $(QTLIB_CPPFLAGS) \
     -I. \
     -I$(top_srcdir)/gui \
     -I$(top_srcdir)/objects \
@@ -30,7 +30,7 @@ IntroWizardPanel_la_CXXFLAGS = \
 
 IntroWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
-IntroWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
+IntroWizardPanel_la_LIBADD = $(QTLIB_LIBS) $(QTLIB_LDFLAGS)
 
 moc_IntroWizardPanel.cxx: IntroWizardPanel.hxx
 	-moc -o moc_IntroWizardPanel.cxx IntroWizardPanel.hxx

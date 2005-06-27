@@ -20,7 +20,7 @@ pkglib_LTLIBRARIES = TopPanel.la
 
 TopPanel_la_CXXFLAGS = \
 	-I/usr/include \
-	-I$(QTDIR)/include \
+	$(QTLIB_CPPFLAGS) \
 	-I. \
 	-I$(top_srcdir)/objects \
 	-I$(top_srcdir)/expr_info \
@@ -31,7 +31,7 @@ TopPanel_la_CXXFLAGS = \
 
 TopPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
-TopPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
+TopPanel_la_LIBADD = $(QTLIB_LIBS) $(QTLIB_LDFLAGS)
 
 moc_TopPanel.cxx: TopPanel.hxx
 	-moc -o moc_TopPanel.cxx TopPanel.hxx

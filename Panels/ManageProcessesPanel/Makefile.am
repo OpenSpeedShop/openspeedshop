@@ -20,7 +20,7 @@ pkglib_LTLIBRARIES = ManageProcessesPanel.la
 
 ManageProcessesPanel_la_CXXFLAGS = \
     -I/usr/include \
-    -I$(QTDIR)/include \
+     $(QTLIB_CPPFLAGS) \
     -I. \
     -I$(top_srcdir) \
     -I$(top_srcdir)/libopenss-framework \
@@ -33,7 +33,7 @@ ManageProcessesPanel_la_CXXFLAGS = \
 
 ManageProcessesPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
-ManageProcessesPanel_la_LIBADD = -L$(QTDIR)/lib -lqt
+ManageProcessesPanel_la_LIBADD = $(QTLIB_LIBS) $(QTLIB_LDFLAGS)
 
 moc_ManageProcessesPanel.cxx: ManageProcessesPanel.hxx
 	-moc -o moc_ManageProcessesPanel.cxx ManageProcessesPanel.hxx

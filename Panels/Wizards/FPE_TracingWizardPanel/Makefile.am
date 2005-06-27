@@ -20,7 +20,7 @@ pkglib_LTLIBRARIES = FPE_TracingWizardPanel.la
 
 FPE_TracingWizardPanel_la_CXXFLAGS = \
     -I/usr/include \
-    -I$(QTDIR)/include \
+	$(QTLIB_CPPFLAGS) \
     -I. \
     -I$(top_srcdir)/gui \
     -I$(top_srcdir)/images \
@@ -36,7 +36,7 @@ FPE_TracingWizardPanel_la_LDFLAGS = --export-dynamic \
 	-module -avoid-version \
 	-L$(top_srcdir)/libopenss-framework
 
-FPE_TracingWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt -lopenss-framework
+FPE_TracingWizardPanel_la_LIBADD = $(QTLIB_LIBS) $(QTLIB_LDFLAGS) -lopenss-framework
 
 moc_FPE_TracingWizardPanel.cxx: FPE_TracingWizardPanel.hxx
 	-moc -o moc_FPE_TracingWizardPanel.cxx FPE_TracingWizardPanel.hxx

@@ -20,7 +20,7 @@ pkglib_LTLIBRARIES = HW_CounterWizardPanel.la
 
 HW_CounterWizardPanel_la_CXXFLAGS = \
     -I/usr/include \
-    -I$(QTDIR)/include \
+	$(QTLIB_CPPFLAGS) \
     -I. \
     -I$(top_srcdir)/gui \
     -I$(top_srcdir)/images \
@@ -36,7 +36,7 @@ HW_CounterWizardPanel_la_LDFLAGS = --export-dynamic \
 	-module -avoid-version \
 	-L$(top_srcdir)/libopenss-framework
 
-HW_CounterWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt -lopenss-framework
+HW_CounterWizardPanel_la_LIBADD = $(QTLIB_LIBS) $(QTLIB_LDFLAGS) -lopenss-framework
 
 moc_HW_CounterWizardPanel.cxx: HW_CounterWizardPanel.hxx
 	-moc -o moc_HW_CounterWizardPanel.cxx HW_CounterWizardPanel.hxx

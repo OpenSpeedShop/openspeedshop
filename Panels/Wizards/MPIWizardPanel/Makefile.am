@@ -20,7 +20,7 @@ pkglib_LTLIBRARIES = MPIWizardPanel.la
 
 MPIWizardPanel_la_CXXFLAGS = \
     -I/usr/include \
-    -I$(QTDIR)/include \
+    $(QTLIB_CPPFLAGS) \
     -I. \
     -I$(top_srcdir)/gui \
     -I$(top_srcdir)/images \
@@ -36,7 +36,7 @@ MPIWizardPanel_la_LDFLAGS = --export-dynamic \
 	-module -avoid-version \
 	-L$(top_srcdir)/libopenss-framework
 
-MPIWizardPanel_la_LIBADD = -L$(QTDIR)/lib -lqt -lopenss-framework
+MPIWizardPanel_la_LIBADD = $(QTLIB_LIBS) $(QTLIB_LDFLAGS) -lopenss-framework
 
 moc_MPIWizardPanel.cxx: MPIWizardPanel.hxx
 	-moc -o moc_MPIWizardPanel.cxx MPIWizardPanel.hxx
