@@ -98,31 +98,37 @@ CollectorListObject::createCollectorList(int expID)
         for (mi = md.begin(); mi != md.end(); mi++)
         {
           m = *mi;
-//          printf("%s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
-//          printf("%s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
-//          printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
+// printf("%s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
+// printf("%s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
+// printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
 
 // While sub-marvelous this works for now...
             QString param = QString(m.getUniqueId().c_str());
             QString param_val = QString::null;
             double double_param;
+            std::string string_param;
             unsigned int uint_param = 0;
             int int_param = 0;
             if( m.isType(typeid(int)) )
             {
-//              printf("int\n");
+// printf("int\n");
               collector.getParameterValue(param.ascii(), int_param);
               param_val = QString("%1").arg(int_param);
             } else if( m.isType(typeid(unsigned int)) )
             {
-//              printf("unsigned int\n");
+// printf("unsigned int\n");
               collector.getParameterValue(param.ascii(), uint_param);
               param_val = QString("%1").arg(uint_param);
             } else if( m.isType(typeid(double)) )
             {
-//              printf("double\n");
+// printf("double\n");
               collector.getParameterValue(param.ascii(), double_param);
               param_val = QString("%1").arg(double_param);
+            } else if( m.isType(typeid(std::string)) )
+            {
+// printf("std::string\n");
+              collector.getParameterValue(param.ascii(), string_param);
+              param_val = QString("%1").arg(string_param.c_str());
             } else
             {
               param_val = QString("Unknown type.");
