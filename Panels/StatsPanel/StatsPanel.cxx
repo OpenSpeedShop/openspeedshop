@@ -298,6 +298,12 @@ StatsPanel::menu( QPopupMenu* contextMenu)
       QAction *qaction = new QAction( this,  "metric item");
       qaction->addTo( metricMenu );
       qaction->setText( cpe->name );
+if( currentMetricStr.isEmpty() || currentMetricStr == cpe->name )
+{
+  currentMetricStr = cpe->name;
+  qaction->setToggleAction(TRUE);
+  qaction->setOn(TRUE);
+} 
       connect( qaction, SIGNAL( activated() ), this, SLOT( metricSelected() ) );
       qaction->setStatusTip( tr("Query metric values %1.").arg(cpe->name) );
     }
@@ -330,6 +336,15 @@ StatsPanel::menu( QPopupMenu* contextMenu)
         QAction *qaction = new QAction( this,  "pidThreadRank");
         qaction->addTo( threadMenu );
         qaction->setText( pidstr );
+if( currentThread == NULL || *currentThread == t )
+{
+  if( currentThread == NULL )
+  {
+    currentThread = new Thread(*ti);
+  }
+  qaction->setToggleAction(TRUE);
+  qaction->setOn(TRUE);
+}
         connect( qaction, SIGNAL( activated() ), this, SLOT( threadSelected() ) );
         qaction->setStatusTip( tr("Query metric values for %1.").arg(pidstr) );
       }
@@ -365,13 +380,6 @@ StatsPanel::menu( QPopupMenu* contextMenu)
   { 
     QString s = (QString)*pit;
     columnsMenu->insertItem(s, this, SLOT(doOption(int)), CTRL+Key_1, id, -1);
-#ifdef TRIED   // FIX - Add context sensitive help to these entries.
-    QAction *qaction = new QAction( this,  "columnsMenuActions");
-    qaction->addTo( columnsMenu );
-    qaction->setText( s );
-//    connect( qaction, SIGNAL( activated(int) ), this, SLOT( doOption(int) ) );
-    qaction->setStatusTip( tr("Select which columns to display.") );
-#endif  // TRIED
     if( splv->columnWidth(id) )
     {
       columnsMenu->setItemChecked(id, TRUE);
