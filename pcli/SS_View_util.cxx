@@ -97,7 +97,7 @@ void GetMetricsforThreads (CommandObject *cmd,
       TimeInterval(Time::TheBeginning(), Time::TheEnd());
 
  // Define the maximum address range of any thread
-  AddressRange range = AddressRange( 0, 0xffffffffffffffff );
+  AddressRange range = AddressRange( 0, ULONG_MAX );
 
  // Evalute the metric over this address range
   for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
