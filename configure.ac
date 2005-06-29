@@ -169,11 +169,15 @@ AC_CONFIG_FILES(Makefile
 		Panels/Wizards/HW_CounterWizardPanel/Makefile
 		Panels/Wizards/IOWizardPanel/Makefile
 		Panels/Wizards/MPIWizardPanel/Makefile
+		test/Makefile
+		test/executables/Makefile
 		test/executables/mutatee/Makefile
 		test/executables/mutatee/c_version/Makefile
 		test/executables/mutatee/cplus_version/Makefile
 		test/executables/mutatee/f77_version/Makefile
 		test/executables/Eon/Makefile
+		test/test_source/Makefile
+		test/test_source/unit/Makefile
 		test/test_source/unit/fw/Makefile
 		test/test_source/unit/fw/database/Makefile
 		test/test_source/unit/fw/interval/Makefile
@@ -186,7 +190,7 @@ AC_CONFIG_FILES(Makefile
 		test/test_source/dpcl/probe_module/Makefile
 		test/test_source/dpcl/point_probe/Makefile
 		test/test_source/dpcl/start_terminate/Makefile
-		 test/test_source/dpcl/module_addr/Makefile
+		test/test_source/dpcl/module_addr/Makefile
 		test/test_source/dpcl/stmt_info/Makefile
 		test/test_source/dpcl/phase/Makefile
 		usability/Makefile

@@ -16,7 +16,10 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-TEST_SUBDIRS =	test/test_source/unit/fw \
+TEST_SUBDIRS =	test/ \
+		test/test_source/ \
+		test/test_source/unit/ \
+		test/test_source/unit/fw \
 		test/test_source/unit/fw/interval \
 		test/test_source/unit/fw/database \
 		test/test_source/unit/pcli \
@@ -37,7 +40,10 @@ TEST_SUBDIRS =	test/test_source/unit/fw \
 		test/executables/mutatee/f77_version \
 		test/executables/Eon/ 
 
-DIST_TEST_SUBDIRS = test/test_source/unit/fw/* \
+DIST_TEST_SUBDIRS =	test/* \
+		test/test_source/* \
+		test/test_source/unit/* \
+		test/test_source/unit/fw/* \
 		test/test_source/unit/fw/interval/* \
 		test/test_source/unit/fw/database/* \
 		test/test_source/unit/pcli/* \
@@ -74,6 +80,7 @@ SUBDIRS = . \
 	chart \
 	gui \
 	Panels \
+	test \
 	usability
 
 DIST_SUBDIRS = $(SUBDIRS)
