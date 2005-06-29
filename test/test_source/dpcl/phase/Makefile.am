@@ -16,7 +16,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-bin_PROGRAMS = mutator probe_module
+noinst_PROGRAMS = mutator probe_module
 
 mutator_CXXFLAGS = \
 	 $(DPCL_CPPFLAGS)

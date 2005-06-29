@@ -16,7 +16,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-bin_PROGRAMS = mutatee
+noinst_PROGRAMS = mutatee
 
 mutatee_F77FLAGS = \
 	-g -gdwarf-2

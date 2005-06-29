@@ -16,7 +16,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-bin_PROGRAMS = eon
+noinst_PROGRAMS = eon
 
 eon_CXXFLAGS = \
 	-g -gdwarf-2 -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG 
