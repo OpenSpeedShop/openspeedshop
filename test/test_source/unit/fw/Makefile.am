@@ -16,6 +16,16 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 #
+database_la_CXXFLAGS =  \
+        -I. \
+        -I$(WORKAREA)/current/libopenss-framework \
+        -I/usr/include -I.
+
+database_la_LDFLAGS = \
+        -L/perftools/ROOT/lib \
+        -Wl,$(WORKAREA)/current/libopenss-framework/.libs/libopenss-framework.so \
+        -LANG:std -lsqlite3
+
 # directories that will be built
 SUBDIRS = database interval
 #

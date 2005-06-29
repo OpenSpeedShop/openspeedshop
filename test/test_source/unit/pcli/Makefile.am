@@ -16,6 +16,17 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 #
+pcl_la_CXXFLAGS =  \
+        -LANG:std  \
+        -I. \
+        -I../../../../../libopenss-framework \
+        -I../../../../../pcli \
+        -I/usr/include -I. -I../../../../../objects -I../../../../../base \
+        -DPLUGIN_PATH=\"$(pkglibdir)\"
+
+pcl_la_LDFLAGS = \
+         $(PLUGIN_PATH)/posscli.so
+
 # directories that will be built
 SUBDIRS = parse_target parse_result
 #

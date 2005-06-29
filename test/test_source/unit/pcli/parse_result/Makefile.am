@@ -22,17 +22,6 @@
 # All Rights Reserved.
 ################################################################################
 
-database_la_CXXFLAGS =  \
-	-LANG:std  \
-	-I. \
-	-I../../../../../libopenss-framework \
-	-I../../../../../pcli \
-	-I/usr/include -I. -I../../../../../objects -I../../../../../base \
-	-DPLUGIN_PATH=\"$(pkglibdir)\"
-
-database_la_LDFLAGS = \
-	 $(PLUGIN_PATH)/posscli.so  
-
 filelist = \
 	pr1 \
 	pr2 \
@@ -49,37 +38,37 @@ filelist = \
 all: $(filelist)
 
 pr1: pr1.cxx
-	-g++ -o pr1 pr1.cxx $(database_la_CXXFLAGS) $(database_la_LDFLAGS)
+	-g++ -o pr1 pr1.cxx $(pcli_la_CXXFLAGS) $(pcli_la_LDFLAGS)
 
 pr2: pr2.cxx
-	-g++ -o pr2 pr2.cxx $(database_la_CXXFLAGS) $(database_la_LDFLAGS)
+	-g++ -o pr2 pr2.cxx $(pcli_la_CXXFLAGS) $(pcli_la_LDFLAGS)
 
 pr3: pr3.cxx
-	-g++ -o pr3 pr3.cxx $(database_la_CXXFLAGS) $(database_la_LDFLAGS)
+	-g++ -o pr3 pr3.cxx $(pcli_la_CXXFLAGS) $(pcli_la_LDFLAGS)
 
 pr4: pr4.cxx
-	-g++ -o pr4 pr4.cxx $(database_la_CXXFLAGS) $(database_la_LDFLAGS)
+	-g++ -o pr4 pr4.cxx $(pcli_la_CXXFLAGS) $(pcli_la_LDFLAGS)
 
 pr5: pr5.cxx
-	-g++ -o pr5 pr5.cxx $(database_la_CXXFLAGS) $(database_la_LDFLAGS)
+	-g++ -o pr5 pr5.cxx $(pcli_la_CXXFLAGS) $(pcli_la_LDFLAGS)
 
 pr6: pr6.cxx
-	-g++ -o pr6 pr6.cxx $(database_la_CXXFLAGS) $(database_la_LDFLAGS)
+	-g++ -o pr6 pr6.cxx $(pcli_la_CXXFLAGS) $(pcli_la_LDFLAGS)
 
 pr7: pr7.cxx
-	-g++ -o pr7 pr7.cxx $(database_la_CXXFLAGS) $(database_la_LDFLAGS)
+	-g++ -o pr7 pr7.cxx $(pcli_la_CXXFLAGS) $(pcli_la_LDFLAGS)
 
 pr8: pr8.cxx
-	-g++ -o pr8 pr8.cxx $(database_la_CXXFLAGS) $(database_la_LDFLAGS)
+	-g++ -o pr8 pr8.cxx $(pcli_la_CXXFLAGS) $(pcli_la_LDFLAGS)
 
 pr9: pr9.cxx
-	-g++ -o pr9 pr9.cxx $(database_la_CXXFLAGS) $(database_la_LDFLAGS)
+	-g++ -o pr9 pr9.cxx $(pcli_la_CXXFLAGS) $(pcli_la_LDFLAGS)
 
 pr10: pr10.cxx
-	-g++ -o pr10 pr10.cxx $(database_la_CXXFLAGS) $(database_la_LDFLAGS)
+	-g++ -o pr10 pr10.cxx $(pcli_la_CXXFLAGS) $(pcli_la_LDFLAGS)
 
 pr11: pr11.cxx
-	-g++ -o pr11 pr11.cxx $(database_la_CXXFLAGS) $(database_la_LDFLAGS)
+	-g++ -o pr11 pr11.cxx $(pcli_la_CXXFLAGS) $(pcli_la_LDFLAGS)
 
 clean:	
 	rm $(filelist)
