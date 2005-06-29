@@ -362,6 +362,50 @@ class CommandResult_Columns : public CommandResult {
   }
 };
 
+inline bool CommandResult_lt (CommandResult *lhs, CommandResult *rhs) {
+  Assert (lhs->Type() == rhs->Type());
+  switch (lhs->Type()) {
+   case CMD_RESULT_UINT:
+    uint64_t Uvalue1, Uvalue2;
+    ((CommandResult_Uint *)lhs)->Value(Uvalue1);
+    ((CommandResult_Uint *)rhs)->Value(Uvalue2);
+    return Uvalue1 < Uvalue2;
+   case CMD_RESULT_INT:
+    int64_t Ivalue1, Ivalue2;
+    ((CommandResult_Int *)lhs)->Value(Ivalue1);
+    ((CommandResult_Int *)rhs)->Value(Ivalue2);
+    return Ivalue1 < Ivalue2;
+   case CMD_RESULT_FLOAT:
+    double Fvalue1, Fvalue2;
+    ((CommandResult_Float *)lhs)->Value(Fvalue1);
+    ((CommandResult_Float *)rhs)->Value(Fvalue2);
+    return Fvalue1 < Fvalue2;
+  }
+  return false;
+}
+
+inline bool CommandResult_gt (CommandResult *lhs, CommandResult *rhs) {
+  Assert (lhs->Type() == rhs->Type());
+  switch (lhs->Type()) {
+   case CMD_RESULT_UINT:
+    uint64_t Uvalue1, Uvalue2;
+    ((CommandResult_Uint *)lhs)->Value(Uvalue1);
+    ((CommandResult_Uint *)rhs)->Value(Uvalue2);
+    return Uvalue1 > Uvalue2;
+   case CMD_RESULT_INT:
+    int64_t Ivalue1, Ivalue2;
+    ((CommandResult_Int *)lhs)->Value(Ivalue1);
+    ((CommandResult_Int *)rhs)->Value(Ivalue2);
+    return Ivalue1 > Ivalue2;
+   case CMD_RESULT_FLOAT:
+    double Fvalue1, Fvalue2;
+    ((CommandResult_Float *)lhs)->Value(Fvalue1);
+    ((CommandResult_Float *)rhs)->Value(Fvalue2);
+    return Fvalue1 > Fvalue2;
+  }
+  return false;
+}
+
 inline void Accumulate_CommandResult (CommandResult *A, CommandResult *B) {
   if (!A || !B) return;
   switch (A->Type()) {
@@ -378,6 +422,14 @@ inline void Accumulate_CommandResult (CommandResult *A, CommandResult *B) {
 }
 
 inline CommandResult *Calculate_Percent (CommandResult *A, CommandResult *B) {
+
+  if (B == NULL) {
+    return NULL;
+  }
+  if (A == NULL) {
+    return new CommandResult_Float (0.0);
+  }
+
   double Avalue;
   double Bvalue;
 
@@ -410,6 +462,10 @@ inline CommandResult *Calculate_Percent (CommandResult *A, CommandResult *B) {
    case CMD_RESULT_FLOAT:
     ((CommandResult_Float *)B)->Value(Bvalue);
     break;
+  }
+
+  if (Bvalue <= 0.0) {
+    return NULL;
   }
 
   double percent = (Avalue *100) / Bvalue;
