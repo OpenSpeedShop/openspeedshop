@@ -40,7 +40,7 @@ AC_DEFUN([AC_PKG_DPCL], [
     fi
 
     case "$host" in
-        ia64-*-linux-*)
+        ia64-*-linux*)
             DPCL_CPPFLAGS="$DPCL_CPPFLAGS -D__64BIT__"
             ;;
     esac
