@@ -297,10 +297,6 @@ class usertime_view : public ViewType {
    // Column[2] is % of  whatever is the first metric in the list.
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, ++Max_Column, 0));
 
-   // Report on all functions that have inclusive time.
-   // (This offers the greatest coverage, since functions with no time are dropped.)
-    IV.push_back(new ViewInstruction (VIEWINST_Define_Base, intime_index));
-
    // The Total Time (used for % calculation) is always the total exclusive time.
    // (Otherwise, we measure a unit of time multiple times.)
     IV.push_back(new ViewInstruction (VIEWINST_Define_Total, extime_index));
@@ -331,34 +327,6 @@ static std::string VIEW_vtop_header[] =
     "Function",
     ""
   };
-static bool VIEW_vtop (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                       ThreadGroup tgrp, std::vector<Collector>CV, std::vector<std::string> MV) {
-  if (topn == 0) topn = INT_MAX;
-  try {
-    std::vector<Function_double_pair> items = GetDoubleByFunction (cmd, false, tgrp, CV[0], MV[0]);
-    if (items.begin() == items.end()) {
-      return false;   // There is no data, return.
-    }
-
-   // Build a Header for the table - just two items - time and function name.
-    Add_Header (cmd, &VIEW_vtop_header[0]);
-
-   // Extract the top "n" items from the sorted list.
-    std::vector<Function_double_pair>::const_iterator it = items.begin();
-    for(int64_t foundn = 0; (foundn < topn) && (it != items.end()); foundn++, it++ ) {
-      CommandResult_Columns *C = new CommandResult_Columns (2);
-      C->CommandResult_Columns::Add_Column (new CommandResult_Float (it->second));
-      C->CommandResult_Columns::Add_Column (new CommandResult_String (it->first.getName()));
-      cmd->Result_Predefined (C);
-    }
-  }
-  catch(const Exception& error) {
-    Mark_Cmd_With_Std_Error (cmd, error);
-    return false;
-  }
-
-  return true;
-}
 class vtop_view : public ViewType {
 
  public: 
@@ -375,7 +343,6 @@ class vtop_view : public ViewType {
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                          ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
                          std::vector<ViewInstruction *>IV) {
-/* TEST - replace with generic view 
     CV.erase(++CV.begin(), CV.end());  // Save the collector name
     MV.erase(MV.begin(), MV.end());
     IV.erase(IV.begin(), IV.end());
@@ -383,8 +350,6 @@ class vtop_view : public ViewType {
     MV.push_back(VIEW_vtop_metrics[0]);  // Use the Collector with the metric "time"
     IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, 0, 0));  // first column is metric
     return Generic_View->GenerateView (cmd, exp, topn, tgrp, CV, MV, IV);
-*/
-    return VIEW_vtop (cmd, exp, topn, tgrp, CV, MV);
   }
 };
 
