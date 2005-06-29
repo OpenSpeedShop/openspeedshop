@@ -44,7 +44,7 @@ static std::string VIEW_stats_metrics[] =
 static std::string VIEW_stats_collectors[] =
   { ""
   };
-static std::string VIEW_pcfunc_header[] =
+static std::string VIEW_stats_header[] =
   { ""
   };
 static bool VIEW_stats (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
@@ -63,11 +63,25 @@ static bool VIEW_stats (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
       cmd->set_Status(CMD_ERROR);
       return false;   // There is no collector, return.
     }
-    ViewInstruction *baseInst = Find_Base_Def (IV);
-    int64_t baseIndex = 0;
-    if (baseInst != NULL) {
-      baseIndex = baseInst->TMP1();
+
+   // Be sure we sort the items based on the metric displayed in the first column.
+    ViewInstruction *vinst0 = Find_Column_Def (IV, 0);
+    if (vinst0 == NULL) {
+      cmd->Result_String ("(There is no display requested.)");
+      cmd->set_Status(CMD_ERROR);
+      return false;   // There is no column[0] defined, return.
     }
+    int64_t Column0index = vinst0->TMP1();
+    std::vector<Function_CommandResult_pair> items = GetMetricByFunction (cmd, false, tgrp,
+                                                                          CV[Column0index], MV[Column0index]);
+    if (items.begin() == items.end()) {
+      cmd->Result_String ("(There are no data samples for " + MV[Column0index] + " available.)");
+      cmd->set_Status(CMD_ERROR);
+      return false;   // There is no data, return.
+    }
+
+   // Calculate %?
+    CommandResult *TotalValue = NULL;
     ViewInstruction *totalInst = Find_Total_Def (IV);
     if (totalInst == NULL) {
       totalInst = Find_Percent_Def (IV);
@@ -76,72 +90,13 @@ static bool VIEW_stats (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
     int64_t totalIndex = 0;
     if (Gen_Total_Percent) {
       totalIndex = totalInst->TMP1();
-      if (baseInst == NULL) {
-        baseIndex = totalIndex;
-      }
     }
-    std::vector<Function_double_pair> items = GetDoubleByFunction (cmd, false, tgrp, CV[baseIndex], MV[baseIndex]);
-    if (items.begin() == items.end()) {
-      cmd->Result_String ("(There are no data samples for " + MV[baseIndex] + " available.)");
-      cmd->set_Status(CMD_ERROR);
-      return false;   // There is no data, return.
-    }
-
-   // Calculate %?
-    CommandResult *TotalValue = NULL;
     if (Gen_Total_Percent) {
-     // We calculate Total by adding all the values n the base metric.
-     // Unfortunately, there may be intervals that are not included
-     // in the base metric, so the total we calcualte may be less than the
-     // actual total.  Worst yet, it may be less than the total for an item
-     // displayed in Column[0] leading to a % reported that is over 100.
-      TotalValue = Init_Collector_Metric ( cmd, CV[totalIndex], MV[totalIndex] );
+     // We calculate Total by adding all the values that were recorded for the thread group.
+      TotalValue = Get_Total_Metric ( cmd, tgrp, CV[totalIndex], MV[totalIndex] );
       if (TotalValue == NULL) {
-        return false;
-      }
-
-      std::vector<Function_double_pair>::const_iterator itt = items.begin();
-      for( ; itt != items.end(); itt++ ) {
-        Function_double_pair f = *itt;
-        CommandResult *Metric_Value = Get_Collector_Metric( cmd, f.first, tgrp,
-                                                            CV[totalIndex], MV[totalIndex] );
-        if (Metric_Value != NULL) {
-          Accumulate_CommandResult (TotalValue, Metric_Value);
-        }
-      }
-
-      switch (TotalValue->Type()) {
-        case CMD_RESULT_UINT:
-          { uint64_t Uvalue;
-            ((CommandResult_Uint *)TotalValue)->Value(Uvalue);
-            if (Uvalue == 0) {
-             // The measured time interval is too small.
-              Gen_Total_Percent = false;
-            }
-            break;
-          }
-        case CMD_RESULT_INT:
-          { int64_t Ivalue;
-            ((CommandResult_Int *)TotalValue)->Value(Ivalue);
-            if (Ivalue <= 0) {
-             // The measured time interval is too small.
-              Gen_Total_Percent = false;
-            }
-            break;
-          }
-        case CMD_RESULT_FLOAT:
-          { double Fvalue = 0.0;
-            ((CommandResult_Float *)TotalValue)->Value(Fvalue);
-            if (Fvalue < 0.0000000001) {
-             // The measured time interval is too small.
-              Gen_Total_Percent = false;
-            }
-            break;
-          }
-        default:
-          { Gen_Total_Percent = false;
-            break;
-          }
+       // Something went wrong, delete the column of % from the report.
+        Gen_Total_Percent = false;
       }
     }
 
@@ -189,20 +144,8 @@ static bool VIEW_stats (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
     }
     cmd->Result_Predefined (H);
 
-   // Be sure we sort the items based on the metric displayed in the first column.
-    ViewInstruction *vinst0 = Find_Column_Def (IV, 0);
-    if (vinst0 != NULL) {
-      int64_t Column0index = vinst0->TMP1();
-      if ((Column0index != baseIndex) &&
-          ((CV[Column0index] != CV[baseIndex]) ||
-           (MV[Column0index] != MV[baseIndex]))) {
-        items = GetDoubleByFunction (cmd, false, tgrp, CV[Column0index], MV[Column0index]);
-      }
-    }
-
    // Extract the top "n" items from the sorted list.
-    std::vector<Function_double_pair>::const_iterator it = items.begin();
-    double CumulativePercent = 0; // accumulated percent
+    std::vector<Function_CommandResult_pair>::const_iterator it = items.begin();
     for(int64_t foundn = 0; (foundn < topn) && (it != items.end()); foundn++, it++ ) {
       CommandResult_Columns *C = new CommandResult_Columns ();
 
@@ -217,28 +160,35 @@ static bool VIEW_stats (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
 
         CommandResult *Next_Metric_Value = NULL;
         if (vinst->OpCode() == VIEWINST_Display_Metric) {
-          Next_Metric_Value = Get_Collector_Metric( cmd, it->first, tgrp,
-                                                    CV[CM_Index], MV[CM_Index] );
+          if (i == 0) {
+            Next_Metric_Value = it->second;
+          } else {
+            Next_Metric_Value = Get_Function_Metric( cmd, it->first, tgrp,
+                                                     CV[CM_Index], MV[CM_Index] );
+          }
+          if (Next_Metric_Value == NULL) {
+            Next_Metric_Value = Init_Collector_Metric ( cmd, CV[CM_Index], MV[CM_Index] );
+          }
         } else if (vinst->OpCode() == VIEWINST_Display_Tmp) {
           // Next_Metric_Value  = ???
         } else if (vinst->OpCode() == VIEWINST_Display_Percent_Column) {
-          ViewInstruction *percentInst = Find_Column_Def (IV, vinst->TMP1());
-          int64_t percentIndex = percentInst->TMP1();
-          CommandResult *Metric_Result = Get_Collector_Metric( cmd, it->first, tgrp,
-                                                               CV[percentIndex], MV[percentIndex] );
           if (!Gen_Total_Percent) {
            // The measured time interval is too small.
             continue;
           }
+          ViewInstruction *percentInst = Find_Column_Def (IV, vinst->TMP1());
+          int64_t percentIndex = percentInst->TMP1();
+          CommandResult *Metric_Result = Get_Function_Metric( cmd, it->first, tgrp,
+                                                               CV[percentIndex], MV[percentIndex] );
           Next_Metric_Value = Calculate_Percent (Metric_Result, TotalValue);
         } else if ((vinst->OpCode() == VIEWINST_Display_Percent_Metric) ||
                    (vinst->OpCode() == VIEWINST_Display_Percent_Tmp)) {
-          CommandResult *Metric_Result = Get_Collector_Metric( cmd, it->first, tgrp,
-                                                               CV[CM_Index], MV[CM_Index] );
           if (!Gen_Total_Percent) {
            // The measured time interval is too small.
             continue;
           }
+          CommandResult *Metric_Result = Get_Function_Metric( cmd, it->first, tgrp,
+                                                               CV[CM_Index], MV[CM_Index] );
           Next_Metric_Value = Calculate_Percent (Metric_Result, TotalValue);
         }
         if (Next_Metric_Value == NULL) {
@@ -287,7 +237,7 @@ class stats_view : public ViewType {
                             VIEW_stats_long,
                            &VIEW_stats_metrics[0],
                            &VIEW_stats_collectors[0],
-                           &VIEW_pcfunc_header[0],
+                           &VIEW_stats_header[0],
                            true,
                            true) {
   }
