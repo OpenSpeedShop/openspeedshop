@@ -17,7 +17,6 @@
 *******************************************************************************/
 
 enum ViewOpCode {
-     VIEWINST_Define_Base,
      VIEWINST_Define_Total,
      VIEWINST_Display_Metric,
      VIEWINST_Display_Tmp,
@@ -61,7 +60,6 @@ class ViewInstruction
   void Print (FILE *TFile) {
     std::string op;
     switch (Instruction) {
-     case VIEWINST_Define_Base: op = "Define_Base"; break;
      case VIEWINST_Define_Total: op = "Define_Total"; break;
      case VIEWINST_Display_Metric: op = "Display_Metric"; break;
      case VIEWINST_Display_Tmp: op = "Display_Tmp"; break;
@@ -142,15 +140,26 @@ void Define_New_View (ViewType *vnew);
 
 std::set<Function> GetFunctions (CommandObject *cmd,
                                  ThreadGroup tgrp);
+typedef std::pair<Function, CommandResult *> Function_CommandResult_pair;
 typedef std::pair<Function, double> Function_double_pair;
 CommandResult *Init_Collector_Metric (CommandObject *cmd,
                                       Collector collector,
                                       std::string metric);
-CommandResult *Get_Collector_Metric (CommandObject *cmd,
-                                     Function F,
-                                     ThreadGroup tgrp,
-                                     Collector collector,
-                                     std::string metric);
+CommandResult *Get_Function_Metric (CommandObject *cmd,
+                                    Function F,
+                                    ThreadGroup tgrp,
+                                    Collector collector,
+                                    std::string metric);
+CommandResult *Get_Total_Metric (CommandObject *cmd,
+                                 ThreadGroup tgrp,
+                                 Collector collector,
+                                 std::string metric);
+std::vector<Function_CommandResult_pair>
+                 GetMetricByFunction (CommandObject *cmd,
+                                      bool ascending_sort,
+                                      ThreadGroup tgrp,
+                                      Collector C,
+                                      std::string metric);
 std::vector<Function_double_pair>
                  GetDoubleByFunction (CommandObject *cmd,
                                       bool ascending_sort,
