@@ -458,13 +458,30 @@ experiment is used. <br>
 - The optional <b>-gui</b> argument will cause the data to be directed
 to an appropriate window for display in a graphical format. <br>
 - This command does not change the execution state of the experiment,
-although
-the nature of the requested data may require that the experiment
-complete execution
-before the information can be provided. </font><br>
+although the nature of the requested data may require that the experiment
+complete execution before the information can be provided.<br>
+- The use of the "&lt;expMetric_list&gt;" option allows control over the data
+that is included in the report.
+  <dir><li>Only the metrics specified in the list will be included in the report.</li>
+  <li>The meterics will be reported in the order that they occur in the list.</li>
+  <li>The report will be sorted in descending order of the first metric in the list.</li>
+  </dir>
+- The use of the "&lt;target_list&gt;" option acts like a filter on the output.
+  <dir><li>The absence of any "<b>-h</b> &lt;hostname&gt;" specification will
+      cause all pids on all systems in the cluster to be listed. </li>
+  <li>The default cluster contains only localhost and must be specified by
+      using <b>-h localhost</b>. </li>
+  <li>Use of the <b>-f</b> option will result in only the Threads associated
+      with that &lt;filename&gt; being listed for the selected hosts. </li>
+  <li>Use of the <b>-p</b> option will result in only the Threads associated
+      with that Pid being listed for the selected hosts. </li>
+  <li>Use of the <b>-t</b> option will result in only that specific Thread
+      being listed, if it exists on the selected hosts. </li>
+  </dir>
+</font>
   <br>
-  <font size="-1"><b>expView </b>[ &lt;expId_spec&gt; ] [ <b>-gui</b>
-] &lt;viewType&gt;</font>
+  <font size="-1"><b>expView </b>[ &lt;expId_spec&gt; ] [ <b>-gui</b> ]
+&lt;viewType&gt; [ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target_list&gt; ]</font>
 </ul>
 <br>
 <font size="+0"></font>
@@ -477,8 +494,7 @@ before the information can be provided. </font><br>
  size="+0"><li>listBreaks</li>
 </font></b></h3>
 <ul>
-  <font size="-1">- List the breakpoints that have been set by the
-user. <br>
+  <font size="-1">- List the breakpoints that have been set by the user. <br>
   <dir><li>The absence of any option will cause all the breakpoints for the
       focused experiment to be listed. </li>
   <li>The use of &lt;expId_spec&gt; will cause all the breakpoints for
@@ -509,12 +525,12 @@ user. <br>
   <li>The &lt;expId_spec&gt; option will cause all the hosts that have been
       included in the selected experiment to be listed. </li>
   <li>The "<b>all</b>" option will cause all the known hosts to be listed. </li>
-  <li>The "&lt;cluster_spec&gt;" option will cause all the hosts that are part
-      of the named cluster to be listed. </li>
+  <li>The "&lt;cluster_list_spec&gt;" option will cause all the hosts that are part
+      of the clusters in the list. </li>
   </dir>
   <br>
   <font size="-1"><b>&lt;</b>ListOf_hostname&gt; <b>= listHosts</b> [
-&lt;expId_spec&gt; || <b>all</b> || &lt;cluster_spec&gt; ]</font>
+&lt;expId_spec&gt; || <b>all</b> || &lt;cluster_list_spec&gt; ]</font>
 </ul>
 <h3><a name="mozTocId685141" class="mozTocH3"></a><b><font size="+0"><a
  name="listObj"></a><li>listObj</li>
@@ -550,7 +566,8 @@ experiment, on a specific machine or on a specific cluster.
   <li>If the <b>all</b> option is supplied, all Pids that are active on the
       specified system are listed.</li>
   </dir>
-- The use of the "&lt;host_file&gt;" option acts like a filter on the output.
+- The use of the "&lt;host_list_spec&gt;"  or "&lt;file_list_spec&gt;" options
+acts like a filter on the output.
   <dir><li>The absence of any "<b>-h</b> &lt;hostname&gt;" specification will
       cause all pids on all systems in the cluster to be listed. </li>
   <li>The default cluster contains only localhost and must be specified by
@@ -562,14 +579,14 @@ experiment, on a specific machine or on a specific cluster.
 </font>
   <br>
   <font size="-1"><b>&lt;</b>ListOf_pidname&gt; <b>= listPids</b> [
-&lt;expId_spec&gt; || <b>all</b> ] [ &lt;host_file&gt; ]</font>
+&lt;expId_spec&gt; || <b>all</b> ] [ &lt;host_list_spec&gt; ] [ &lt;file_list_spec&gt; ]</font>
 </ul>
 <h3><a name="mozTocId965893" class="mozTocH3"></a><a name="listMetrics"></a><b><font
  size="+0"><li>listMetrics</li>
 </font></b></h3>
 <ul>
   <font size="-1">- Retrieve the metrics that are associated with a particular
-&lt;viewType&gt; or set of &lt;viewType&gt;s.
+&lt;viewType&gt; or list of &lt;viewType&gt;s.
   <dir><li>If no options are selected, metrics for only the data collectors that
       are part of the focused experiment will be listed. </li>
   <li>The use of &lt;expId_spec&gt; will cause the metrics that are associated
@@ -577,13 +594,13 @@ experiment, on a specific machine or on a specific cluster.
       to be listed. </li>
   <li>The use of the keyword <b>all</b> will cause all the metrics for all
       available collectors to be listed. </li>
-  <li>The use of the "&lt;viewType&gt;" option will result in a listing of only
-      those metrics associated with that specific data collector.</li>
+  <li>The use of the "&lt;viewType_list&gt;" option will result in a listing of only
+      those metrics associated with the specific data collectors in the list.</li>
   </dir>
 </font>
   <br>
   <font size="-1">&lt;ListOf_expMetric&gt; <b>= listMetrics </b>[
-&lt;expId_spec&gt; || <b>all</b> || &lt;expType&gt; ]</font>
+&lt;expId_spec&gt; || <b>all</b> || &lt;expType_list&gt; ]</font>
 </ul>
 <h3><a name="mozTocId362324" class="mozTocH3"></a><a name="listParams"></a><b><font
  size="+0"><li>listParams</li>
@@ -604,7 +621,7 @@ experiment, on a specific machine or on a specific cluster.
 </font>
   <br>
   <font size="-1">&lt;ListOf_expParam&gt; <b>= listParams </b>[
-&lt;expId_spec&gt; || <b>all</b> || &lt;expType&gt; ]</font>
+&lt;expId_spec&gt; || <b>all</b> || &lt;expType_list&gt; ]</font>
 </ul>
 <h3><a name="mozTocId924409" class="mozTocH3"></a><a name="listRanks"></a><b><font
  size="+0"><li>listRanks</li>
@@ -654,14 +671,14 @@ part of the selected experiment. <br>
 provided for
 all portions of all applications that are attached to the experiment. <br>
 - The listing can be restricted with the use of
-&lt;linenumber_spec&gt;. <br>
-- If &lt;linenumber_spec&gt; is not provided, information will be
+&lt;linenumber_list_spec&gt;. <br>
+- If &lt;linenumber_list_spec&gt; is not provided, information will be
 provided
 for all portions of any application that has been selected. </font><br>
   <br>
   <font size="-1"><b>&lt;</b>string&gt; <b>= listSrc</b> [
 &lt;expId_spec&gt; ] [ &lt;target&gt; ] [
-&lt;linenumber_spec&gt; ]</font>
+&lt;linenumber_list_spec&gt; ]</font>
 </ul>
 <h3><a name="mozTocId613828" class="mozTocH3"></a><b><font size="+0"><a
  name="listTypes"></a><li>listStatus</li>
@@ -731,7 +748,7 @@ that can be used to collect data in an  experiment. <br>
 </font></b></h3>
 <ul>
   <font size="-1">- Retrieve the views that are available for a particular
-&lt;viewType&gt; or set of &lt;viewType&gt;s.
+&lt;viewType&gt; or list of &lt;viewType&gt;s.
   <dir><li>If no options are selected, the reports for only the data collectors that
       are part of the focused experiment will be listed. </li>
   <li>The use of &lt;expId_spec&gt; will cause the the reports that are associated
@@ -739,13 +756,13 @@ that can be used to collect data in an  experiment. <br>
       to be listed. </li>
   <li>The use of the keyword <b>all</b> will cause all the the reports for all
       available collectors to be listed. </li>
-  <li>The use of the "&lt;viewType&gt;" option will result in a listing of only
-      those the reports associated with that specific data collector.</li>
+  <li>The use of the "&lt;viewType_list&gt;" option will result in a listing of only
+      those reports associated with the specific data collectors in the list.</li>
   </dir>
 </font>
   <br>
   <font size="-1"><b>&lt;</b>ListOf_viewType&gt; <b>= listViews </b>[
-&lt;expId_spec&gt; || <b>all</b> || &lt;expType&gt; ]</font>
+&lt;expId_spec&gt; || <b>all</b> || &lt;expType_list&gt; ]</font>
 </ul>
 <br>
 <font size="+0"></font>

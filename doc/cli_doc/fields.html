@@ -67,9 +67,11 @@ identifier.</font>
 experiment can return.
 It could be a full report, a value or a set of values. </font>
 <ul>
-  <font size="2">&lt;<b>metric_name</b>&gt; ::= { ? }</font></p>
+  <p><font size="2">&lt;<b>metric_name</b>&gt; ::= &lt;string&gt;</font></p>
   <p><font size="2">&lt;<b>expMetric</b>&gt;
 ::= [&lt;expType&gt;<b>::</b>]&lt;metric_name&gt;</font></p>
+  <p><font size="2">&lt;<b>expMetric_list</b>&gt;
+::= &lt;expMetric&gt; [ <b>,</b> &lt;expMetric&gt; ] +</font></p>
 </ul>
 <h3><a name="mozTocId932908" class="mozTocH3"></a><b><font
  size="3"><li><a name="expParam"></a>expParam</li>
@@ -79,9 +81,7 @@ parameters correspond to
 items in the experiment class that can be changed by the user or a tool
 component.</font>
 <ul>
-  <p><font size="2">&lt;<b>param_name</b>&gt;
-::= { <b>displayMode</b> || <b>displayMedia</b> || <b>displayRefreshRate</b>
-|| <b>expSaveFile</b> || <b>samplingRate</b> || ? }</font></p>
+  <p><font size="2">&lt;<b>param_name</b>&gt; ::=  &lt;string&gt;</font></p>
   <p><font size="2">&lt;<b>expParam</b>&gt;
 ::= [&lt;expType&gt;<b>::</b>]&lt;param_name&gt;</font></p>
   <p><font size="2">&lt;<b>expParamValue</b>&gt;
@@ -245,9 +245,9 @@ indicates the format of the output display that the performance data is
 needed for.</font>
 </p>
 <ul>
-  <p><font size="2">&lt;<b>viewType</b>&gt;
-::= { <b>vTopN</b> || <b>vExclTime</b> || <b>vIO</b> || <b>vFpe</b> || <b>vHwc</b>
-|| ? }</font></p>
+  <p><font size="2">&lt;<b>viewType</b>&gt; ::= &lt;string&gt;</font></p>
+  <p><font size="2">&lt;<b>viewType_list</b>&gt; ::= &lt;viewType&gt;
+     [ <b>,</b> &lt;viewType&gt; ] +</font></p>
 </ul>
 </body>
 </html>
