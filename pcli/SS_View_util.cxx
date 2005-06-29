@@ -43,6 +43,19 @@ struct sort_descending : public std::binary_function<T,T,bool> {
     }
 };
 
+template <class T>
+struct sort_ascending_CommandResult : public std::binary_function<T,T,bool> {
+    bool operator()(const T& x, const T& y) const {
+        return CommandResult_lt (x.second, y.second);
+    }
+};
+template <class T>
+struct sort_descending_CommandResult : public std::binary_function<T,T,bool> {
+    bool operator()(const T& x, const T& y) const {
+        return CommandResult_gt (x.second, y.second);
+    }
+};
+
 template <typename T>
 void GetMetricsForFunction (CommandObject *cmd,
                             Function F,
@@ -56,30 +69,45 @@ void GetMetricsForFunction (CommandObject *cmd,
   const TimeInterval Forever =
       TimeInterval(Time::TheBeginning(), Time::TheEnd());
 
+ // Get the thread containing this function
+  Thread thread = F.getThread();
+
+ // Get the address range of this function
+  AddressRange range = F.getAddressRange();
+
+ // Evalute the metric over this address range
+  T new_value;
+  collector.getMetricValue(metric, thread, range, Forever, new_value);
+
+ // Add this function and its metric value to the map
+  value += new_value;
+  return;
+}
+
+template <typename T>
+void GetMetricsforThreads (CommandObject *cmd,
+                           ThreadGroup tgrp,
+                           Collector collector,
+                           std::string metric,
+                           T& value)
+{
+
+ // Time interval covering earliest to latest possible time
+  const TimeInterval Forever =
+      TimeInterval(Time::TheBeginning(), Time::TheEnd());
+
+ // Define the maximum address range of any thread
+  AddressRange range = AddressRange( 0, 0xffffffffffffffff );
+
+ // Evalute the metric over this address range
   for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
     Thread thread = *ti;
 
-    try {
-     // Get the current list of functions in this thread
-      std::set<Function> functions = thread.getFunctions();
-      std::set<Function>::iterator fi = functions.find(F);
+    T new_value;
+    collector.getMetricValue(metric, thread, range, Forever, new_value);
 
-      if (F == *fi) {
-
-       // Get the address range of this function
-        AddressRange range = fi->getAddressRange();
-
-       // Evalute the metric over this address range
-        T new_value;
-        collector.getMetricValue(metric, thread, range, Forever, new_value);
-
-       // Add this function and its metric value to the map
-        value += new_value;
-      }
-    }
-    catch(const Exception& error) {
-      // Ignore problem and do the best we can.
-    }
+   // Add this function and its metric value to the map
+    value += new_value;
   }
 
   return;
@@ -113,44 +141,79 @@ CommandResult *Init_Collector_Metric (CommandObject *cmd,
   return Param_Value;
 }
 
-CommandResult *Get_Collector_Metric (CommandObject *cmd,
-                                     Function F,
-                                     ThreadGroup tgrp,
-                                     Collector collector,
-                                     std::string metric) {
+CommandResult *Get_Function_Metric (CommandObject *cmd,
+                                    Function F,
+                                    ThreadGroup tgrp,
+                                    Collector collector,
+                                    std::string metric) {
   CommandResult *Param_Value = NULL;
   Metadata m = Find_Metadata ( collector, metric );
   std::string id = m.getUniqueId();
   if( m.isType(typeid(unsigned int)) ) {
     uint Value = 0;
     GetMetricsForFunction(cmd, F, tgrp, collector, metric, Value);
-    Param_Value = new CommandResult_Uint (Value);
+    if (Value != 0) Param_Value = new CommandResult_Uint (Value);
   } else if( m.isType(typeid(uint64_t)) ) {
     int64_t Value = 0;
     GetMetricsForFunction(cmd, F, tgrp, collector, metric, Value);
-    Param_Value = new CommandResult_Uint (Value);
+    if (Value != 0) Param_Value = new CommandResult_Uint (Value);
   } else if( m.isType(typeid(int)) ) {
     int Value = 0;
     GetMetricsForFunction(cmd, F, tgrp, collector, metric, Value);
-    Param_Value = new CommandResult_Int (Value);
+    if (Value != 0) Param_Value = new CommandResult_Int (Value);
   } else if( m.isType(typeid(int64_t)) ) {
     int64_t Value = 0;
     GetMetricsForFunction(cmd, F, tgrp, collector, metric, Value);
-    Param_Value = new CommandResult_Int (Value);
+    if (Value != 0) Param_Value = new CommandResult_Int (Value);
   } else if( m.isType(typeid(float)) ) {
     float Value = 0.0;
     GetMetricsForFunction(cmd, F, tgrp, collector, metric, Value);
-    Param_Value = new CommandResult_Float (Value);
+    if (Value != 0.0) Param_Value = new CommandResult_Float (Value);
   } else if( m.isType(typeid(double)) ) {
     double Value = 0.0;
     GetMetricsForFunction(cmd, F, tgrp, collector, metric, Value);
-    Param_Value = new CommandResult_Float (Value);
+    if (Value != 0.0) Param_Value = new CommandResult_Float (Value);
   } else if( m.isType(typeid(string)) ) {
     std::string Value = "";
     GetMetricsForFunction(cmd, F, tgrp, collector, metric, Value);
-    Param_Value = new CommandResult_String (Value);
+    if (Value != "") Param_Value = new CommandResult_String (Value);
   } else {
-    Param_Value = new CommandResult_String("Unknown type.");
+    Param_Value = NULL;
+  }
+  return Param_Value;
+}
+
+CommandResult *Get_Total_Metric (CommandObject *cmd,
+                                 ThreadGroup tgrp,
+                                 Collector collector,
+                                 std::string metric) {
+  CommandResult *Param_Value = NULL;
+  Metadata m = Find_Metadata ( collector, metric );
+  std::string id = m.getUniqueId();
+  if( m.isType(typeid(unsigned int)) ) {
+    uint Value = 0;
+    GetMetricsforThreads(cmd, tgrp, collector, metric, Value);
+    if (Value != 0) Param_Value = new CommandResult_Uint (Value);
+  } else if( m.isType(typeid(uint64_t)) ) {
+    int64_t Value = 0;
+    GetMetricsforThreads(cmd, tgrp, collector, metric, Value);
+    if (Value != 0) Param_Value = new CommandResult_Uint (Value);
+  } else if( m.isType(typeid(int)) ) {
+    int Value = 0;
+    GetMetricsforThreads(cmd, tgrp, collector, metric, Value);
+    if (Value > 0) Param_Value = new CommandResult_Int (Value);
+  } else if( m.isType(typeid(int64_t)) ) {
+    int64_t Value = 0;
+    GetMetricsforThreads(cmd, tgrp, collector, metric, Value);
+    if (Value > 0) Param_Value = new CommandResult_Int (Value);
+  } else if( m.isType(typeid(float)) ) {
+    float Value = 0.0;
+    GetMetricsforThreads(cmd, tgrp, collector, metric, Value);
+    if (Value > 0.0000000001) Param_Value = new CommandResult_Float (Value);
+  } else if( m.isType(typeid(double)) ) {
+    double Value = 0.0;
+    GetMetricsforThreads(cmd, tgrp, collector, metric, Value);
+    if (Value > 0.0000000001) Param_Value = new CommandResult_Float (Value);
   }
   return Param_Value;
 }
@@ -180,6 +243,42 @@ std::set<Function> GetFunctions (CommandObject *cmd,
   }
 
   return functions;
+}
+
+std::vector<Function_CommandResult_pair>
+                 GetMetricByFunction (CommandObject *cmd,
+                                      bool ascending_sort,
+                                      ThreadGroup tgrp,
+                                      Collector C,
+                                      std::string metric)
+{
+  std::vector<Function_CommandResult_pair> items;
+
+ // Get the current list of functions in this thread
+  std::set<Function> functions = GetFunctions (cmd, tgrp);
+
+ // Iterate over each function
+  for(std::set<Function>::const_iterator
+            i = functions.begin(); i != functions.end(); ++i) {
+
+   // Evalute the metric for this function
+    CommandResult *value = Get_Function_Metric ( cmd, *i, tgrp, C, metric);
+
+   // Add this function and its metric value to the map
+    if(value != NULL) {
+        items.push_back( std::make_pair(*i, value) );
+    }
+
+  }
+
+ // Now we can sort the data.
+  if (ascending_sort) {
+    std::sort(items.begin(), items.end(), sort_ascending_CommandResult<Function_CommandResult_pair>());
+  } else {
+    std::sort(items.begin(), items.end(), sort_descending_CommandResult<Function_CommandResult_pair>());
+  }
+
+  return items;
 }
 
 std::vector<Function_double_pair>
@@ -448,16 +547,6 @@ CommandResult *gen_F_name (Function F) {
 
 
 // Utilities for working with class ViewInstruction
-
-ViewInstruction *Find_Base_Def (std::vector<ViewInstruction *>IV) {
-  for (int64_t i = 0; i < IV.size(); i++) {
-    ViewInstruction *vp = IV[i];
-    if (vp->OpCode() == VIEWINST_Define_Base) {
-      return vp;
-    }
-  }
-  return NULL;
-}
 
 ViewInstruction *Find_Total_Def (std::vector<ViewInstruction *>IV) {
   for (int64_t i = 0; i < IV.size(); i++) {
