@@ -40,30 +40,9 @@ TEST_SUBDIRS =	test/ \
 		test/executables/mutatee/f77_version \
 		test/executables/Eon/ 
 
-DIST_TEST_SUBDIRS =	test/* \
-		test/test_source/* \
-		test/test_source/unit/* \
-		test/test_source/unit/fw/* \
-		test/test_source/unit/fw/interval/* \
-		test/test_source/unit/fw/database/* \
-		test/test_source/unit/pcli/* \
-		test/test_source/unit/pcli/parse_result/* \
-		test/test_source/unit/pcli/parse_target/* \
-		test/test_source/dpcl/* \
-		test/test_source/dpcl/one_shot/* \
-		test/test_source/dpcl/probe_module/* \
-		test/test_source/dpcl/point_probe/* \
-		test/test_source/dpcl/start_terminate/* \
-		test/test_source/dpcl/module_addr/* \
-		test/test_source/dpcl/stmt_info/* \
-		test/test_source/dpcl/phase/* \
-		test/test_scripts/* \
-		test/executables/mutatee/* \
-		test/executables/mutatee/c_version/* \
-		test/executables/mutatee/cplus_version/* \
-		test/executables/mutatee/f77_version/* \
-		test/executables/Eon/* 
-
+DIST_TEST_SUBDIRS =	test/test_source/* \
+			test/test_scripts/* \
+			test/executables/*
 SUBDIRS = . \
 	libltdl \
 	message \
