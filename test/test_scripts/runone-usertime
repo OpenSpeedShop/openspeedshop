@@ -55,15 +55,12 @@ def CompareResults(testName, fileptr):
 		if not tempfileline:
 			nooutput = 1	
 			break
-		if tempfileline[0:9] == '      Exc':
+		if tempfileline[0:9] == '      Exc' or tempfileline[0:9] == '      Inc':
 			break
 	expectedfileptr.readline()
 	test_status = 0
-	previous_exclusive_expected = 0
 	previous_inclusive_expected = 0
-	previous_exclusive_actual = 0
 	previous_inclusive_actual = 0
-	exclusive_passing_ratio = 1
 	inclusive_passing_ratio = 1
 	failure_reason = 0
 	while 1:
@@ -79,13 +76,6 @@ def CompareResults(testName, fileptr):
 			break
 		i = 0
 		while outputfileline[i] == ' ':
-			i += 1
-		j = i
-		while outputfileline[j] != ' ':
-			j +=1
-		actual_exclusive_time = atof(outputfileline[i:j])
-		i = j+ 1
-		while outputfileline[i] == ' ':
 			i +=1
 		j = i
 		while (outputfileline[j] != ' '):
@@ -100,13 +90,6 @@ def CompareResults(testName, fileptr):
 		actual_function = outputfileline[i:j]
 		i = 0
                 while expectedfileline[i] == ' ':
-                        i += 1
-                j = i
-                while expectedfileline[j] != ' ':
-                        j +=1
-                expected_exclusive_time= atof(expectedfileline[i:j])
-                i = j+ 1
-                while expectedfileline[i] == ' ':
                         i +=1
                 j = i
 		while (outputfileline[j] != ' '):
@@ -120,20 +103,11 @@ def CompareResults(testName, fileptr):
                         j +=1
                 expected_function = expectedfileline[i:j]
 		if (expected_function == actual_function):
-			if (previous_exclusive_expected != 0 ):
-				actual_exclusive_ratio = previous_exclusive_expected / actual_exclusive_time
-				expected_exclusive_ratio = previous_exclusive_expected / expected_exclusive_time
-				upper_limit = expected_exclusive_ratio + (expected_exclusive_ratio * .1)
-				lower_limit = expected_exclusive_ratio - (expected_exclusive_ratio * .1)
-				print actual_exclusive_ratio
-				if not (lower_limit <= actual_exclusive_ratio <= upper_limit):
-					exclusive_passing_ratio = 0
-					failure_reason = 1
-                                actual_inclusive_ratio = previous_inclusive_expected / actual_inclusive_time
+			if ( previous_inclusive_expected != 0 and previous_inclusive_actual != 0 ):
+                                actual_inclusive_ratio = previous_inclusive_actual / actual_inclusive_time
                                 expected_inclusive_ratio = previous_inclusive_expected / expected_inclusive_time
                                 upper_limit = expected_inclusive_ratio + (expected_inclusive_ratio * .1)
                                 lower_limit = expected_inclusive_ratio - (expected_inclusive_ratio * .1)
-				print actual_inclusive_ratio
                                 if not (lower_limit <= actual_inclusive_ratio <= upper_limit):
                                         inclusive_passing_ratio = 0
                                         failure_reason = 4
@@ -141,12 +115,10 @@ def CompareResults(testName, fileptr):
 		else:
 				passing_ratio = 0
 				failure_reason = 2
-		previous_actual_inclusive = actual_inclusive_time
-		previous_actual_exclusive = actual_exclusive_time
-		previous_exclusive_expected = expected_exclusive_time
+		previous_inclusive_actual = actual_inclusive_time
 		previous_inclusive_expected = expected_inclusive_time
 
-	if ((exclusive_passing_ratio== 1) and inclusive_passing_ratio == 1):
+	if ( inclusive_passing_ratio == 1):
 		fileptr.write(testName + ' has PASSED \n')
 	else:
 		fileptr.write(testName + ' has FAILED.  ')
@@ -157,7 +129,7 @@ def CompareResults(testName, fileptr):
 		if (failure_reason == 2):
 			fileptr.write('The ordering of the functions is incorrect.\n')
 		if (failure_reason == 4):
-			fileptr.write('The functions inclusive time ratios are incorrect.\n')
+			fileptr.write('The functions time ratios are incorrect.\n')
 		
 
 
