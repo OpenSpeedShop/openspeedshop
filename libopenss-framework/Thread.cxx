@@ -718,3 +718,39 @@ Thread::Thread(const SmartPtr<Database>& database, const int& entry) :
     Entry(database, entry, 0)
 {
 }
+
+
+
+/**
+ * Conversion from Thread::State to std::string.
+ *
+ * Returns the conversion of a Thread::State into a std::string. Simply returns
+ * the string containing the textual representation of the passed thread state
+ * enumeration value (e.g. "Running" for Thread::Running).
+ *
+ * @note    This cannot be implemented as a regular C++ type conversion
+ *          operator because Thread::State is an enumeration rather than
+ *          a class or structure.
+ *
+ * @param state    Thread state to be converted.
+ * @return         String conversion of that thread state.
+ */
+std::string OpenSpeedShop::Framework::toString(const Thread::State& state)
+{
+    switch(state) {
+    case Thread::Disconnected:
+	return "Disconnected";
+    case Thread::Connecting:
+	return "Connecting";
+    case Thread::Nonexistent:
+	return "Nonexistent";
+    case Thread::Running:
+	return "Running";
+    case Thread::Suspended:
+	return "Suspended";
+    case Thread::Terminated:
+	return "Terminated";
+    default:
+	return "?";
+    }
+}

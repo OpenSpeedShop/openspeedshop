@@ -94,9 +94,12 @@ namespace OpenSpeedShop { namespace Framework {
 	 * to a performance tool.
 	 */
 	enum State {
-	    Running,    /**< Thread is active and running. */
-	    Suspended,  /**< Thread has been temporarily suspended. */
-	    Terminated  /**< Thread has terminated. */
+	    Disconnected,  /**< Thread isn't connected (may not even exist). */
+	    Connecting,    /**< Thread is being connected. */
+	    Nonexistent,   /**< Thread doesn't exist. */
+	    Running,       /**< Thread is active and running. */
+	    Suspended,     /**< Thread has been temporarily suspended. */
+	    Terminated     /**< Thread has terminated. */
 	};
 	
 	State getState() const;
@@ -137,6 +140,8 @@ namespace OpenSpeedShop { namespace Framework {
 	Thread(const SmartPtr<Database>&, const int&);
 	
     };
+    
+    std::string toString(const Thread::State&);
     
 } }
 
