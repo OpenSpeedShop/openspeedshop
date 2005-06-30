@@ -111,14 +111,13 @@ def CompareResults(testName, fileptr):
                                 if not (lower_limit <= actual_inclusive_ratio <= upper_limit):
                                         inclusive_passing_ratio = 0
                                         failure_reason = 4
-
 		else:
 				passing_ratio = 0
 				failure_reason = 2
 		previous_inclusive_actual = actual_inclusive_time
 		previous_inclusive_expected = expected_inclusive_time
 
-	if ( inclusive_passing_ratio == 1):
+	if ( inclusive_passing_ratio == 1 and failure_reason != 2):
 		fileptr.write(testName + ' has PASSED \n')
 	else:
 		fileptr.write(testName + ' has FAILED.  ')
