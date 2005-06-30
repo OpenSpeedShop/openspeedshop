@@ -43,15 +43,12 @@ using namespace OpenSpeedShop::Framework;
 #include "Commander.hxx"
 #include "Python.h"
 
-static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, int butnotarg)
+static void Input_Command_Args (CMDWID my_window, int argc, char ** argv)
 {
- /* How long is the expCreate command? */  
+ /* What is the maximum length of the expCreate command? */  
   int cmdlen = 0;
   int i;
   for ( i=1; i<argc; i++ ) {
-    if (butnotarg == i) {
-      continue;
-    }
     if (strlen(argv[i]) > 0) {
       cmdlen += strlen(argv[i]) + 3;  // add 3 for space and possible quote characters
     }
@@ -60,11 +57,13 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, int bu
   if (cmdlen > 0) {
     char *cmdstr = (char *)malloc(10 + cmdlen + 1);
     bcopy("expCreate", cmdstr, 10);
-    cmdlen = strlen(cmdstr)-1;
+    int num_cmds = 0;
     for ( i=1; i<argc; i++ ) {
-      if (butnotarg == i) {
-       // This is the "-batch", "-cli" or "-gui" option.
-        continue;
+      if (strlen(argv[i]) > 0) {
+       // Don't include any mode options.
+        if (!strcasecmp( argv[i], "-cli")) continue;
+        if (!strcasecmp( argv[i], "-gui")) continue;
+        if (!strcasecmp( argv[i], "-batch")) continue;
       }
       if ((strlen(argv[i]) > 0) &&
         !strncasecmp( argv[i], "--", 2)) {
@@ -76,6 +75,7 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, int bu
         }
       }
       if (strlen(argv[i]) > 0) {
+        num_cmds++;
         strcat(cmdstr," ");
         strcat(cmdstr,argv[i]);
 
@@ -91,24 +91,29 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, int bu
         }
       }
     }
-    strcat(cmdstr,"\n\0");
 
-   /* Put the "expCreate" command to the input stack */
-    (void)Append_Input_String (my_window, cmdstr,
-                               NULL, &Default_TLI_Line_Output, &Default_TLI_Command_Output);
+    if (num_cmds > 0) {
+      strcat(cmdstr,"\n\0");
+
+     /* Put the "expCreate" command to the input stack */
+      (void)Append_Input_String (my_window, cmdstr,
+                                 NULL, &Default_TLI_Line_Output, &Default_TLI_Command_Output);
+    }
+
+   // Release allocated space.
+    free(cmdstr);
   }
 
 }
 
-bool Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, int butnotarg,
-                             bool batch_mode)
+bool Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, bool batch_mode)
 {
   Assert (my_window);
 
   bool read_stdin_file = (stdin && !isatty(fileno(stdin)));
 
  // Translate the command line arguments into an "expCreate command".
-  Input_Command_Args ( my_window, argc, argv, butnotarg);
+  Input_Command_Args ( my_window, argc, argv);
 
  // After executing an expCreate command, read any piped-in file.
   if (read_stdin_file) {
