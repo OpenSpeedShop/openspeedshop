@@ -24,8 +24,6 @@ from time import *
 import smtplib
 from email.MIMEText import MIMEText
 
-
-
 reg_leaf = 1
 unit_leaf = 2
 not_leaf = 3
