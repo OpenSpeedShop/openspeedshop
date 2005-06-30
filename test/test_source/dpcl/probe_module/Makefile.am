@@ -51,7 +51,7 @@ hello_LDADD = \
 	-L$(ROOT)/lib 
 
 hello_LDFLAGS = \
-	-shared -o /tmp/hello.so
+	-shared -o hello.so
 
 
 hello_SOURCES = \

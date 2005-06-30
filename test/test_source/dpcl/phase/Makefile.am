@@ -38,7 +38,7 @@ probe_module_CFLAGS = \
 
 probe_module_LDFLAGS = \
 	-L$(ROOT)/lib \
-	$(DPCL_LIBS) -shared -o /tmp/probe_module.so 
+	$(DPCL_LIBS) -shared -o probe_module.so 
 
 probe_module_LIBS = \
 	$(DPCL_LDFLAGS) \
