@@ -39,7 +39,6 @@ static bool need_tli;
 static bool need_batch;
 static bool need_command_line;
 
-static int initiate_command_at;
 static bool executable_encountered;
 static bool collector_encountered;
 static bool read_stdin_file;
@@ -49,6 +48,9 @@ extern void pcli_load_messages(void);
 static void
 Process_Command_Line (int argc, char **argv)
 {
+  bool found_tli = false;
+  bool found_gui = false;
+  bool found_batch = false;
   int i;
 
  /* Check the command line flags: */
@@ -59,24 +61,22 @@ Process_Command_Line (int argc, char **argv)
     }
 
    // Look for an indication of which input control window to open.
-   // Go with the first indication we encoutner.
-    if (initiate_command_at == -1) {
-        initiate_command_at = i;
-      if (!strcasecmp( argv[i], "-cli")) {
-        need_tli = true;
-        continue;
-      } else if (!strcasecmp( argv[i], "-gui")) {
-        need_gui = true;
-        need_tli = false;
-        continue;
-      } else if (!strcasecmp( argv[i], "-batch")) {
-        need_batch = true;
-        read_stdin_file = (stdin && !isatty(fileno(stdin)));
-        continue;
-      } else {
-       // We haven't found the mode, yet.
-        initiate_command_at = -1;
-      }
+   // (I really do intend to allow both gui and tli windows at the same time!)
+    if (!strcasecmp( argv[i], "-cli")) {
+      found_tli = true;
+      need_tli = true;
+      if (!found_gui) need_gui = false;
+      continue;
+    } else if (!strcasecmp( argv[i], "-gui")) {
+      found_gui = true;
+      need_gui = true;
+      if (!found_tli) need_tli = false;
+      continue;
+    } else if (!strcasecmp( argv[i], "-batch")) {
+      found_batch = true;
+      need_batch = true;
+      read_stdin_file = (stdin && !isatty(fileno(stdin)));
+      continue;
     }
 
    /* Look for an executable description. */
@@ -100,8 +100,8 @@ Process_Command_Line (int argc, char **argv)
     }
   }
 
-  if (initiate_command_at == -1) {
-   // If not specified by the user, default to -gui and -tli modes.
+  if (!found_batch && !found_gui && !found_tli) {
+   // If not specified by the user, default to -gui only mode.
     need_gui = true;
     need_tli = false;
   }
@@ -155,8 +155,7 @@ Initial_Python ()
     exit(EXIT_FAILURE);
 }
 
-bool Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, int butnotarg,
-                              bool batch_mode);
+bool Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, bool batch_mode);
 void SS_Direct_stdin_Input (void *attachtowindow);
 
 extern "C"
@@ -307,7 +306,6 @@ setup_signal_handler (int s)
     command_line_window = 0;
 
     read_stdin_file = (stdin && !isatty(fileno(stdin)));
-    initiate_command_at = -1;
     executable_encountered = false;
     collector_encountered = false;
     Process_Command_Line (argc, argv);
@@ -325,8 +323,7 @@ setup_signal_handler (int s)
     {
      // Move the command line options to an input control window.
       command_line_window = Default_Window ("COMMAND_LINE",&HostName[0],my_pid,0,false);
-      if ( !Start_COMMAND_LINE_Mode( command_line_window, argc, argv, initiate_command_at,
-                                     need_batch) ) {
+      if ( !Start_COMMAND_LINE_Mode( command_line_window, argc, argv, need_batch) ) {
         return -1;
       }
     } else if (need_batch && (argc <= 2) && !read_stdin_file) {
