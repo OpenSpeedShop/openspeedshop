@@ -1,4 +1,7 @@
-      Exclusive Time        Inclusive Time  Name
-            3.000000              3.000000  f3(mutatee: mutatee.cxx,25  &...)
-            2.000000              2.000000  f2(mutatee: mutatee.cxx,16  &...)
-            1.000000              1.000000  f1(mutatee: mutatee.cxx,7  &...)
+      Inclusive Time  Function Name
+              6.5000  __libc_start_main(libc.so.6.1)
+              6.5000  work(mutatee: mutatee.c,33)
+              6.5000  _start(mutatee)
+              3.0000  f3(mutatee: mutatee.c,27)
+              2.0000  f2(mutatee: mutatee.c,18)
+              1.0000  f1(mutatee: mutatee.c,9)
