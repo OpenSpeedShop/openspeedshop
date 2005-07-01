@@ -258,7 +258,7 @@ class usertime_view : public ViewType {
                             &VIEW_usertime_collectors[0],
                             &VIEW_usertime_header[0],
                              true,
-                             true) {
+                             false) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                          ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
