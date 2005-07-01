@@ -494,6 +494,7 @@ class CommandObject
   // command_t *Parse_Result;
   // command_type_t *Parse_Result;
   OpenSpeedShop::cli::ParseResult *PR;
+  bool result_needed_in_python;  // Don't Print to ostream if this is set!
   bool results_used; // Once used, this object can be deleted!
   std::list<CommandResult *> CMD_Result;
 
@@ -519,13 +520,14 @@ public:
 //    PR = NULL;
 //    results_used = false;
 //  }
-  CommandObject(OpenSpeedShop::cli::ParseResult *pr)
+  CommandObject(OpenSpeedShop::cli::ParseResult *pr, bool use_by_python)
   {
     this->Associate_Input ();
     Cmd_Status = CMD_PARSED;
     Cmd_Type =  pr->GetCommandType();
 //    Parse_Result = NULL;
     PR = pr;
+    result_needed_in_python = use_by_python;
     results_used = false;
   }
   ~CommandObject() {
@@ -534,6 +536,7 @@ public:
   InputLineObject *Clip () { return Associated_Clip; }
   Command_Status Status () { return Cmd_Status; }
   oss_cmd_enum Type () { return Cmd_Type; }
+  bool Needed_By_Python () { return result_needed_in_python; }
   bool Results_Used () { return results_used; }
   OpenSpeedShop::cli::ParseResult *P_Result () { return PR; }
   // command_t *P_Result () { return Parse_Result; }
