@@ -1352,7 +1352,8 @@ void Default_TLI_Line_Output (InputLineObject *clip) {
 }
 
 void Default_TLI_Command_Output (CommandObject *C) {
-  if (!(C->Results_Used())) {
+  if (!(C->Results_Used()) &&
+      !(C->Needed_By_Python())) {
     std::list<CommandResult *> cmd_result = C->Result_List();
     if ((cmd_result.begin() != cmd_result.end()) &&
         (C->Status() != CMD_ABORTED)) {
