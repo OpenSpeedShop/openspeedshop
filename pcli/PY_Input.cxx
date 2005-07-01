@@ -47,6 +47,26 @@ InputLineObject *Current_ILO = NULL;
 CommandObject   *Current_CO  = NULL;
 CommandObject   *p_cmdobj = NULL;
 
+// The following mechanism is defined to allow python programs
+// to capture the output of OSS commands and avoid sending it
+// to the input window for printing.
+//
+//   all_output_to_python defines the default action
+//   cmd_output_to_python defines the action for individual commands
+
+static bool all_output_to_python = false;
+static bool cmd_output_to_python = false;
+
+// Change the default direction for command results if OpenSpeedShop
+// is used as a utility within a Python application.
+void Send_All_Results_To_Python () { all_output_to_python = true; }
+
+static PyObject *SS_Set_Assign (PyObject *self, PyObject *args) {
+  cmd_output_to_python = true;
+  return Py_BuildValue("");
+}
+
+// Parse and execute an individual command
 static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     char *input_line = NULL;
     PyObject *p_object = NULL;
@@ -56,6 +76,10 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     int i;
     bool list_returned = false;
     PyObject *py_list = NULL;
+
+   // Copy the desired action and reset the default action
+    bool python_needs_result = cmd_output_to_python;
+    cmd_output_to_python = all_output_to_python;
     
     // Give yacc access to ParseResult object.
     p_parse_result = &parse_result;
@@ -84,7 +108,7 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     //parse_result.dumpInfo();
 
     // Build a CommandObject so that the semantic routines can be called.
-    cmd = new CommandObject (&parse_result);
+    cmd = new CommandObject (&parse_result, python_needs_result);
 
     // See if the parse went alright.
     if ((p_parse_result->syntax_error()) ||
@@ -99,9 +123,11 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
 
     SS_Execute_Cmd (cmd);
 
-     if ((cmd->Status() == CMD_ERROR) ||
+    if (!python_needs_result ||
+        (cmd->Status() == CMD_ERROR) ||
         (cmd->Status() == CMD_ABORTED)) {
-     // If somethign went wrong, return a null value to Python.
+     // If the result is not needed within Python
+     // or if something went wrong, return a null value to Python.
       p_object = Py_BuildValue("");
       return p_object;
     }
@@ -166,6 +192,9 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
           }
         }
       }
+     // The results have been copied for use within Python
+     // so we are done working wih the command.
+      cmd->set_Results_Used ();
     }
 
     if (p_object == NULL) {
@@ -268,7 +297,7 @@ static PyObject *SS_ParseError (PyObject *self, PyObject *args) {
     ParseResult parse_result = ParseResult();
 
     // Build a CommandObject so that the semantic routines can be called.
-    cmd = new CommandObject (&parse_result);
+    cmd = new CommandObject (&parse_result, false);
 
     cmd->Result_String ("Preparse syntax error");
     cmd->set_Status(CMD_ERROR);
@@ -285,6 +314,9 @@ static PyMethodDef PY_Input_Methods[] = {
 
     {"CallParser",  SS_CallParser, METH_VARARGS,
      "Call the YACC'd parser."},
+
+    {"SetAssign",  SS_Set_Assign, METH_VARARGS,
+     "Set to 1 if the result is used in a python."},
 
     {"Save_ILO",  SS_DelayILO, METH_VARARGS,
      "Save the Current_ILO."},

@@ -24,6 +24,7 @@ import types
 
 import PY_Input
 global terminate_SS
+global cmd_is_assignment
 
 ################################################################################
 #
@@ -74,10 +75,13 @@ def cmd_parse(args):
     # single space delimitted string to pass
     # down to the yacc parser.
     if count > 0:
-    	blank_delim = " "
-    	zusamen = blank_delim.join(args[:count])
-	#print "zusamen=" , zusamen
-    	return PY_Input.CallParser (zusamen)
+        blank_delim = " "
+        zusamen = blank_delim.join(args[:count])
+        #print "zusamen=" , zusamen
+        #print "cmd_is_assignment", cmd_is_assignment
+        if myparse.cmd_is_assignment is not 0:
+            PY_Input.SetAssign (1)
+        return PY_Input.CallParser (zusamen)
 
     pass
 
@@ -318,11 +322,15 @@ def preParseArgs(line, command_dict, arg_dict, str_opts_dict, num_opts_dict):
     count = len(parts)
     blank_delim = " "
     global_dict = globals()
+    myparse.cmd_is_assignment = 0
+    python_needs_result = 0
 
     for ndx in range(count):
 
         if ndx is 0 and count > 2 and parts[1] == '=':
             # Don't process target of assignment
+            myparse.cmd_is_assignment = 1
+            python_needs_result = 1
             continue
 
         # Find the function for this command in the command dictionary
@@ -337,7 +345,8 @@ def preParseArgs(line, command_dict, arg_dict, str_opts_dict, num_opts_dict):
     	function = command_dict.get(t_part)
 
         if function is not None:
-	    parts[ndx] = t_part
+            # Yes!  This is an OSS command!
+            parts[ndx] = t_part
             func_ndx = ndx
 
 	    i = ndx+1
@@ -393,7 +402,7 @@ def preParseArgs(line, command_dict, arg_dict, str_opts_dict, num_opts_dict):
                 #i = i+1
 
             # line = makePythonCall("myparse." + function, parts[func_ndx+1:])
-	    parts[func_ndx] = '"' + parts[func_ndx] + '"'
+            parts[func_ndx] = '"' + parts[func_ndx] + '"'
             line = makePythonCall( function, parts[func_ndx:])
 
             # Check for leading assignment words
@@ -677,6 +686,8 @@ class CLI(code.InteractiveConsole):
     	    	    	d_line = PY_Input.ReadILO(arg)
 			# count = len(d_line)
 			# print d_line," ",count
+                        if myparse.cmd_is_assignment is not 0:
+                            PY_Input.SetAssign (1)
 		    	PY_Input.CallParser(d_line)
 
             # Handle CTRL-C
