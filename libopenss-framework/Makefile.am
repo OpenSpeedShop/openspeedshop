@@ -37,6 +37,7 @@ libopenss_framework_la_SOURCES = \
 	Address.hxx \
 	AddressBitmap.hxx AddressBitmap.cxx \
 	AddressRange.hxx \
+	AddressSpace.hxx AddressSpace.cxx \
 	Assert.hxx \
 	Blob.hxx Blob.cxx \
 	CallSite.hxx CallSite.cxx \
@@ -63,7 +64,7 @@ libopenss_framework_la_SOURCES = \
 	Queries.hxx Queries.cxx \
 	SmartPtr.hxx \
 	Statement.hxx Statement.cxx \
-	StatementBuilder.hxx StatementBuilder.cxx \
+	SymbolTable.hxx SymbolTable.cxx \
 	Thread.hxx Thread.cxx \
 	ThreadGroup.hxx ThreadGroup.cxx \
 	Time.hxx \
