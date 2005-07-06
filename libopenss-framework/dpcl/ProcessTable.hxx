@@ -29,36 +29,49 @@
 #include "config.h"
 #endif
 
-#include "Lockable.hxx"
-#include "SmartPtr.hxx"
-#include "Thread.hxx"
-
 #include <map>
-#include <set>
 #include <string>
+#include <utility>
 
 
 
 namespace OpenSpeedShop { namespace Framework {
 
+    class Lockable;
     class Process;
+    template <typename> class SmartPtr;
+    class Thread;
+    class ThreadGroup;
 
     /**
      * Process table.
      *
-     * Multiple Thread objects can refer to a single underlying Process object.
      * There exists a one-to-one relationship between Process objects and their
      * underlying DPCL process objects (also called DPCL "process handles"). The
      * DPCL client library allows only one of its process handles to do a full
-     * attach to a given underlying process in the system at a time. This means
-     * the DPCL process handle, and thus the Process objects, must be shareable
-     * between multiple instances of Thread. This class maintains the mapping
-     * between the Thread and Process objects.
+     * attach to a given underlying process on the system at a given time. This
+     * implies the DPCL process handle, and thus the Process objects, must be
+     * shareable between multiple uses.
+     *
+     * Multiple Thread objects within an experiment can refer to a single
+     * process. Worse yet, more than one Experiment object can exist at once,
+     * and each of these may contain multiple Thread objects that all refer to
+     * a given process. This class maintains a mapping between the Thread and
+     * Process objects that makes tracking all of this possible.
+     *
+     * To complicate things even further, Process objects do not always exist
+     * for the group of threads contained within that process. It is often
+     * desirable for the tool to remain disconnected from the actual processes
+     * on the system. This class also facilitates tracking which threads are
+     * actually connected to a Process object, and also allows the Process
+     * objects to be released at an appropriate time.
      *
      * @ingroup Implementation
      */
     class ProcessTable :
-	public Lockable
+	public Lockable,
+	private std::map<std::string, 
+			 std::pair<SmartPtr<Process>, ThreadGroup> >
     {
 	
     public:
@@ -67,24 +80,15 @@ namespace OpenSpeedShop { namespace Framework {
 	
 	bool isEmpty() const;
 	
-	void addThread(const Thread&, const SmartPtr<Process>&);
+	void addProcess(const SmartPtr<Process>&);
+	void removeProcess(const SmartPtr<Process>&);
+	void addThread(const Thread&);
 	void removeThread(const Thread&);
 	
 	SmartPtr<Process> getProcessByName(const std::string&) const;
         SmartPtr<Process> getProcessByThread(const Thread&) const;
-        std::set<Thread> getThreadsByProcess(const SmartPtr<Process>&) const;
-        std::set<Thread> getThreadsByName(const std::string&) const;
-	
-    private:
-	
-	/** Map unique process names to their process. */
-	std::map<std::string, SmartPtr<Process> > dm_name_to_process;
-	
-	/** Map processes to their threads. */
-	std::map<SmartPtr<Process>, std::set<Thread> > dm_process_to_threads;
-	
-	/** Map threads to their process. */
-	std::map<Thread, SmartPtr<Process> > dm_thread_to_process;
+        ThreadGroup getThreadsByName(const std::string&) const;
+        ThreadGroup getThreadsByProcess(const SmartPtr<Process>&) const;
 	
     };
     

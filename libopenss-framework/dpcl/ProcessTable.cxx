@@ -23,8 +23,12 @@
  */
 
 #include "Assert.hxx"
+#include "Lockable.hxx"
 #include "Process.hxx"
 #include "ProcessTable.hxx"
+#include "SmartPtr.hxx"
+#include "Thread.hxx"
+#include "ThreadGroup.hxx"
 
 using namespace OpenSpeedShop::Framework;
 
@@ -38,13 +42,89 @@ ProcessTable ProcessTable::TheTable;
 /**
  * Test if table is empty.
  *
- * Returns a boolean value indicating if this process table is empty.
+ * Returns a boolean value indicating if this process table is empty. Process
+ * tables are defined as being "empty" when they have no processes in them. An
+ * empty table may still contain threads.
  *
  * @return    Boolean "true" if this process table is empty, "false" otherwise.
  */
 bool ProcessTable::isEmpty() const
 {
-    return dm_name_to_process.empty();
+    // Iterate over each entry in the process table looking for a process
+    for(ProcessTable::const_iterator i = begin(); i != end(); ++i)
+	if(!i->second.first.isNull())
+	    return false;
+    
+    // Otherwise indicate to the caller that the table is empty
+    return true;
+}
+
+
+
+/**
+ * Add a process.
+ *
+ * Adds the passed process to this process table. The process is automatically
+ * associated with any threads in this table that are contained by it.
+ *
+ * @note    An assertion failure occurs if an attempt is made to add a process
+ *          that already exists in this process table.
+ *
+ * @param process    Process to be added.
+ */
+void ProcessTable::addProcess(const SmartPtr<Process>& process)
+{
+    // Form the unique process name for this process
+    std::string name = 
+	Process::formUniqueName(process->getHost(), process->getProcessId());
+    
+    // Find the entry (if any) for this unique process name
+    ProcessTable::iterator entry = find(name);
+
+    // Create an entry for this unique process name if it didn't already exist
+    if(entry == end())
+	entry = insert(
+	    std::make_pair(
+		name, 
+		std::make_pair(SmartPtr<Process>(), ThreadGroup()))
+	    ).first;
+    
+    // Check assertions
+    Assert(entry->second.first.isNull());
+    
+    // Place this process in the appropriate entry of the process table
+    entry->second.first = process;
+}
+
+
+
+/**
+ * Remove a process.
+ *
+ * Removes a process from this process table. Causes the process table to
+ * release its smart pointer to this process. The process isn't destroyed
+ * until all such smart pointer references to the process are released.
+ *
+ * @note    An assertion failure occurs if an attempt is made to remove a
+ *          process that isn't in this process table.
+ *
+ * @param process    Process to be removed.
+ */
+void ProcessTable::removeProcess(const SmartPtr<Process>& process)
+{
+    // Form the unique process name for this process
+    std::string name = 
+	Process::formUniqueName(process->getHost(), process->getProcessId());
+    
+    // Find the entry (if any) for this unique process name
+    ProcessTable::iterator entry = find(name);  
+
+    // Check assertions
+    Assert(entry != end());
+    Assert(!entry->second.first.isNull());
+
+    // Remove this process
+    entry->second.first = SmartPtr<Process>();
 }
 
 
@@ -52,33 +132,41 @@ bool ProcessTable::isEmpty() const
 /**
  * Add a thread.
  *
- * Adds the passed thread to this process table. If the passed thread is the
- * first thread within a given process, that process is also added to this
- * process table.
+ * Adds a thread to this process table. Adding a thread simply indicates to
+ * the process table that the thread is in use. This information is used to
+ * locate the process associated with this thread, and can be used to decide
+ * when it is appropriate to remove that process from the process table.
  *
- * @note     An assertion failure occurs if an attempt is made to add a thread
- *           more than once.
+ * @note    An assertion failure occurs if an attempt is made to add a thread
+ *          more than once.
  *
- * @param thread     Thread to be added.
- * @param process    Process containing the added thread.
+ * @param thread    Thread to be added.
  */
-void ProcessTable::addThread(const Thread& thread,
-			     const SmartPtr<Process>& process)
+void ProcessTable::addThread(const Thread& thread)
 {
-    // Check assertions
-    Assert(dm_thread_to_process.find(thread) == dm_thread_to_process.end());
+    // Form the unique process name for this thread
+    std::string name = 
+	Process::formUniqueName(thread.getHost(), thread.getProcessId());
 
-    // Add the process if this is the first thread using it
-    if(dm_process_to_threads.find(process) == dm_process_to_threads.end()) {
-	std::string name = Process::formUniqueName(process->getHost(),
-						   process->getProcessId());
-	dm_name_to_process[name] = process;
-	dm_process_to_threads[process] = std::set<Thread>();
-    }
-   
-    // Add this thread
-    (dm_process_to_threads.find(process))->second.insert(thread);
-    dm_thread_to_process[thread] = process;
+    // Find the entry (if any) for this unique process name
+    ProcessTable::iterator entry = find(name);
+
+    // Create an entry for this unique process name if it didn't already exist
+    if(entry == end())
+	entry = insert(
+	    std::make_pair(
+		name, 
+		std::make_pair(SmartPtr<Process>(), ThreadGroup()))
+	    ).first;
+    
+    // Find the thread within this entry
+    ThreadGroup::iterator i = entry->second.second.find(thread);
+
+    // Check assertions
+    Assert(i == entry->second.second.end());
+    
+    // Add this thread to the appropriate entry of the process table
+    entry->second.second.insert(thread); 
 }
 
 
@@ -86,9 +174,10 @@ void ProcessTable::addThread(const Thread& thread,
 /**
  * Remove a thread.
  *
- * Removes the passed thread from this process table. If the passed thread was
- * the last thread within a given process, that process is also removed from
- * this process table.
+ * Removes a thread from this process table. Removing a thread simply indicates
+ * to the process table that the thread is no longer used. This information can
+ * be used to decide when it is appropriate to remove a process from the process
+ * table.
  *
  * @note    An assertion failure occurs if an attempt is made to remove a
  *          thread that isn't in this process table.
@@ -97,29 +186,24 @@ void ProcessTable::addThread(const Thread& thread,
  */
 void ProcessTable::removeThread(const Thread& thread)
 {
+    // Form the unique process name for this thread
+    std::string name = 
+	Process::formUniqueName(thread.getHost(), thread.getProcessId());
+    
+    // Find the entry (if any) for this unique process name
+    ProcessTable::iterator entry = find(name);
+    
     // Check assertions
-    // Assert(dm_thread_to_process.find(thread) != dm_thread_to_process.end());
-
-    // WDH: Simply ignore attempts to remove a non-existent thread for now.
-    //      This case should be cleaned up by MS4.
-    if(dm_thread_to_process.find(thread) == dm_thread_to_process.end())
-	return;
-        
-    // Find this thread's process
-    std::map<Thread, SmartPtr<Process> >::const_iterator
-	i = dm_thread_to_process.find(thread);
+    Assert(entry != end());
+    
+    // Find the thread within this entry
+    ThreadGroup::iterator i = entry->second.second.find(thread);
+    
+    // Check assertions
+    Assert(i != entry->second.second.end());
     
     // Remove this thread
-    (dm_process_to_threads.find(i->second))->second.erase(thread);
-    dm_thread_to_process.erase(thread);
-    
-    // Remove the process if this was the last thread using it
-    if((dm_process_to_threads.find(i->second))->second.empty()) {
-	dm_name_to_process.erase(Process::formUniqueName(
-				     i->second->getHost(),
-				     i->second->getProcessId()));	
-	dm_process_to_threads.erase(i->second);	
-    }
+    entry->second.second.erase(i);
 }
 
 
@@ -140,9 +224,8 @@ void ProcessTable::removeThread(const Thread& thread)
 SmartPtr<OpenSpeedShop::Framework::Process>
 ProcessTable::getProcessByName(const std::string& name) const
 {
-    std::map<std::string, SmartPtr<Process> >::const_iterator
-	i = dm_name_to_process.find(name);
-    return (i != dm_name_to_process.end()) ? i->second : SmartPtr<Process>();
+    ProcessTable::const_iterator entry = find(name);
+    return (entry != end()) ? entry->second.first : SmartPtr<Process>();
 }
 
 
@@ -163,28 +246,10 @@ ProcessTable::getProcessByName(const std::string& name) const
 SmartPtr<OpenSpeedShop::Framework::Process>
 ProcessTable::getProcessByThread(const Thread& thread) const
 {
-    std::map<Thread, SmartPtr<Process> >::const_iterator
-	i = dm_thread_to_process.find(thread);
-    return (i != dm_thread_to_process.end()) ? i->second : SmartPtr<Process>();
-}
-
-
-
-/**
- * Get the threads for a process.
- *
- * Returns all the threads contained in the passed process. An empty set is
- * returned if the passed process isn't in this process table.
- *
- * @param process    Query process.
- * @return           Set of threads for this process.
- */
-std::set<Thread>
-ProcessTable::getThreadsByProcess(const SmartPtr<Process>& process) const
-{
-    std::map<SmartPtr<Process>, std::set<Thread> >::const_iterator
-	i = dm_process_to_threads.find(process);
-    return (i != dm_process_to_threads.end()) ? i->second : std::set<Thread>();
+    std::string name = 
+	Process::formUniqueName(thread.getHost(), thread.getProcessId());
+    ProcessTable::const_iterator entry = find(name);
+    return (entry != end()) ? entry->second.first : SmartPtr<Process>();
 }
 
 
@@ -198,9 +263,28 @@ ProcessTable::getThreadsByProcess(const SmartPtr<Process>& process) const
  * @param name    Query name.
  * @return        Set of threads for the process of this name.
  */
-std::set<Thread> ProcessTable::getThreadsByName(const std::string& name) const
+ThreadGroup ProcessTable::getThreadsByName(const std::string& name) const
 {
-    SmartPtr<Process> process = getProcessByName(name);
-    return (!process.isNull()) ?
-	getThreadsByProcess(process) : std::set<Thread>();
+    ProcessTable::const_iterator entry = find(name);
+    return (entry != end()) ? entry->second.second : ThreadGroup();
+}
+
+
+
+/**
+ * Get the threads for a process.
+ *
+ * Returns all the threads contained in the passed process. An empty set is
+ * returned if the passed process isn't in this process table.
+ *
+ * @param process    Query process.
+ * @return           Set of threads for this process.
+ */
+ThreadGroup
+ProcessTable::getThreadsByProcess(const SmartPtr<Process>& process) const
+{
+    std::string name = 
+	Process::formUniqueName(process->getHost(), process->getProcessId());
+    ProcessTable::const_iterator entry = find(name);
+    return (entry != end()) ? entry->second.second : ThreadGroup();
 }

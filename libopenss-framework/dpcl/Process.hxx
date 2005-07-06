@@ -30,27 +30,25 @@
 #endif
 
 #include "AddressRange.hxx"
-#include "Lockable.hxx"
+#include "Collector.hxx"
 #include "Path.hxx"
 #include "Thread.hxx"
 
+#include <dpcl.h>
 #include <map>
 #include <string>
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
-#include <vector>
-
-class ProbeHandle;
-class ProbeModule;
-class Process;
-class SourceObj;
+#include <utility>
 
 
 
 namespace OpenSpeedShop { namespace Framework {
 
-    class Blob;
+    class Lockable;
+    struct SymbolTableState;
+    class ThreadGroup;
     class Time;
 
     /**
@@ -81,33 +79,85 @@ namespace OpenSpeedShop { namespace Framework {
 	
 	Thread::State getState() const;
 	void changeState(const Thread::State&);
+	bool isConnected() const;
+
+	void executeNow(const Collector&, const Thread&,
+			const std::string&, const Blob&);
+	void executeAtEntryOrExit(const Collector&, const Thread&,
+				  const Function&, const bool&,
+				  const std::string&, const Blob&);
 	
-	void completeStateChange();
-	void terminateNow();
-
-	void updateAddressSpace(const Thread&, const Time&);
-	void processFunctions(const Thread&, const int&, const AddressRange&,
-			      std::vector<SourceObj>&) const;	
-	void processStatements(const Thread&, const int&, const AddressRange&, 
-			       std::vector<SourceObj>&) const;
-
-	void loadLibrary(const std::string&);
-	void unloadLibrary(const std::string&);
-	void execute(const std::string&, const std::string&, const Blob&);
-
+	void uninstrument(const Collector&, const Thread&);
+	
     private:
+
+#ifndef NDEBUG
+	static bool is_debug_enabled;
 	
+	static void debugCallback(const std::string&, const std::string&);
+	static void debugDPCL(const std::string&, const AisStatus&);
+	void debugState() const;
+	void debugRequest(const std::string&) const;
+#endif
+	
+	static void initialize();
+	static void finalize();
+
 	static Path searchForExecutable(const Path&);
 
+	static std::pair<std::string, std::string> 
+	parseLibraryFunctionName(const std::string&);	
+
+	static void finishSymbolTableProcessing(SymbolTableState*);
+
+	static void activateProbeCallback(GCBSysType, GCBTagType, 
+					  GCBObjType, GCBMsgType);	
+	static void attachCallback(GCBSysType, GCBTagType, 
+				   GCBObjType, GCBMsgType);
+	static void connectCallback(GCBSysType, GCBTagType,
+				    GCBObjType, GCBMsgType);
+	static void deactivateProbeCallback(GCBSysType, GCBTagType,
+					    GCBObjType, GCBMsgType);
+	static void destroyCallback(GCBSysType, GCBTagType,
+				    GCBObjType, GCBMsgType);
+	static void disconnectCallback(GCBSysType, GCBTagType,
+				       GCBObjType, GCBMsgType);
+	static void executeCallback(GCBSysType, GCBTagType,
+				    GCBObjType, GCBMsgType);
+	static void expandCallback(GCBSysType, GCBTagType,
+				   GCBObjType, GCBMsgType);
+	static void installProbeCallback(GCBSysType, GCBTagType,
+					 GCBObjType, GCBMsgType);
+	static void loadModuleCallback(GCBSysType, GCBTagType,
+				       GCBObjType, GCBMsgType);
+	static void performanceDataCallback(GCBSysType, GCBTagType,
+					    GCBObjType, GCBMsgType);
+	static void removeProbeCallback(GCBSysType, GCBTagType,
+					GCBObjType, GCBMsgType);
+	static void resumeCallback(GCBSysType, GCBTagType,
+				   GCBObjType, GCBMsgType);
+	static void statementsCallback(GCBSysType, GCBTagType,
+				       GCBObjType, GCBMsgType);
+	static void stderrCallback(GCBSysType, GCBTagType,
+				   GCBObjType, GCBMsgType);
+	static void stdoutCallback(GCBSysType, GCBTagType,
+				   GCBObjType, GCBMsgType);
+	static void suspendCallback(GCBSysType, GCBTagType,
+				    GCBObjType, GCBMsgType);
+	static void terminationCallback(GCBSysType, GCBTagType,
+					GCBObjType, GCBMsgType);
+	static void unloadModuleCallback(GCBSysType, GCBTagType,
+					 GCBObjType, GCBMsgType);
+	
 	/** DPCL process handle. */
 	::Process* dm_process;
-
+	
 	/** Name of host on which this process is located. */
         std::string dm_host;
 	
         /** Identifier of this process. */
         pid_t dm_pid;
-	
+
 	/** Current state of this process. */
 	Thread::State dm_current_state;
 	
@@ -116,41 +166,73 @@ namespace OpenSpeedShop { namespace Framework {
 	
 	/** Future state of this process. */
 	Thread::State dm_future_state;
-
+	
 	/**
 	 * Library entry.
 	 *
-	 * Structure for an entry in the library table describing a single
-	 * library that has been loaded into the process. Contains the name,
-	 * full path, probe module, and reference count for the library.
+	 * Structure for an entry in the library table. Describes a single
+	 * library that has been loaded into the process for a collector.
 	 */
 	struct LibraryEntry {
-
+	    
+	    /** Collector for which the library was loaded. */
+	    Collector dm_collector;
+	    
 	    /** Name of this library. */
-	    std::string name;
+	    std::string dm_name;
 	    
 	    /** Full path of this library. */
-	    Path path;
+	    Path dm_path;
 	    
 	    /** Probe module for this library. */
-	    ProbeModule* module;
-	    
-	    /** Number of references to this library. */
-	    unsigned references;
+	    ProbeModule dm_module;
 
 	    /** Map function names to their probe module indicies. */
-	    std::map<std::string, int> functions;
-
-	    /** Handle of the messaing probe for this library. */
-	    ProbeHandle* messaging;
+	    std::map<std::string, int> dm_functions;
 	    
-	};
+	    /** Messaging probe for this library. */
+	    ProbeHandle dm_messaging;
 
-	/** Map loaded library names to their entries. */
-	std::map<std::string, LibraryEntry> dm_library_name_to_entry;
+	    /** Probes used with this library. */
+	    std::multimap<Thread, ProbeHandle> dm_probes;
+	    
+	    /** Constructor from collector and library name. */
+	    LibraryEntry(const Collector& collector, const std::string& name) :
+		dm_collector(collector),
+		dm_name(name),
+		dm_path(),
+		dm_module(),
+		dm_functions(),
+		dm_messaging(),
+		dm_probes()
+	    {
+	    }
+
+	};
 	
+	/** Map loaded libraries to their entries. */
+	std::map<std::pair<Collector, std::string>, LibraryEntry> dm_libraries;
+	
+	void requestAddressSpace(const ThreadGroup&, const Time&);	
+	void requestAttach();
+	void requestConnect();
+	void requestDeactivateAndRemove(ProbeHandle);
+	void requestDestroy();
+	void requestDisconnect();
+	void requestExecute(ProbeExp, GCBFuncType, GCBTagType);
+	ProbeHandle requestInstallAndActivate(ProbeExp, InstPoint,
+					      GCBFuncType, GCBTagType);
+	void requestLoadModule(LibraryEntry&);
+	void requestResume();
+	void requestSuspend();
+	void requestUnloadModule(LibraryEntry&);
+
 	void initializeMessaging(LibraryEntry&);
 	void finalizeMessaging(LibraryEntry&);
+
+	std::pair<ProbeExp, std::multimap<Thread, ProbeHandle>::iterator>
+	prepareCallTo(const Collector&, const Thread&,
+		      const std::string&, const Blob&);
 	
     };
     
