@@ -210,22 +210,21 @@ namespace std {
      * Less-than predicate for half-closed intervals.
      *
      * Partial template specialization of less<> for Interval<>. One of the
-     * reasons an interval class is defined is to allow multiple (usually non-
-     * overlapping) intervals to be placed into STL associative containers that
-     * can then be searched for a particular value in logarithmic time. I.E. an
-     * address (value) from a set of address ranges (intervals) in a std::map.
+     * reasons an interval class is defined is to allow multiple non-overlapping
+     * intervals to be placed into STL associative containers such that they can
+     * be searched for a particular value in logarithmic time. E.g. search for
+     * an address (value) in a set of address ranges (intervals) via std::map.
      * Associative containers cannot search for the value directly, but can
      * search for the interval [value, value + 1) that represents the value.
      * Interval<>'s "constructor from a value" makes the conversion from value
      * to interval simple and convenient. However, the containers still use the
-     * default ordering defined by Interval<>'s overloaded < operator. And that
+     * default ordering defined by Interval<>'s overloaded < operator, and that
      * operator defines a total, rather than simply strict weak, ordering. The
-     * result is that when an interval is contained entirely within another,
-     * they are still not considered equivalent. This template redefines the
-     * default ordering used by associative containers of Interval<> to impose
-     * a strict weak ordering in which two such intervals will be considered
-     * equivalent. Doing so makes the search for a value within intervals work
-     * as expected.
+     * result is that when an interval overlaps another, they are not considered
+     * equivalent. This template redefines the default ordering used by
+     * associative containers of Interval<> to impose a strict weak ordering in
+     * which two such intervals will be considered equivalent. Doing so makes
+     * the search for a value within non-overlapping intervals work as expected.
      */
     template <typename T>
     struct less<OpenSpeedShop::Framework::Interval< T > > :
@@ -239,8 +238,7 @@ namespace std {
 	operator()(const OpenSpeedShop::Framework::Interval< T >& lhs,
 		   const OpenSpeedShop::Framework::Interval< T >& rhs) const
 	{
-	    if((lhs.getBegin() < rhs.getBegin()) && 
-	       (lhs.getEnd() < rhs.getEnd()))
+	    if(lhs.getEnd() <= rhs.getBegin())
 		return true;
 	    return false;
 	}
