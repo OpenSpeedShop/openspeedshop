@@ -38,6 +38,7 @@
 
 namespace OpenSpeedShop { namespace Framework {
 
+    class AddressSpace;
     class Database;
     class Function;
     class Path;
@@ -58,6 +59,7 @@ namespace OpenSpeedShop { namespace Framework {
     class LinkedObject :
 	public Entry
     {
+	friend class AddressSpace;
 	friend class Function;
 	friend class Statement;
 	friend class Thread;
