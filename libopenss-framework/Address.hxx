@@ -64,6 +64,18 @@ namespace OpenSpeedShop { namespace Framework {
 	
     public:
 
+	/** Create the lowest possible address value. */
+	static Address TheLowest()
+	{
+	    return Address(std::numeric_limits<value_type>::min());
+	}
+
+	/** Create the highest possible time value. */
+	static Address TheHighest()
+	{
+	    return Address(std::numeric_limits<value_type>::max());
+	}
+
 	/** Type representing a memory address. */
 	typedef uint64_t value_type;
 	
