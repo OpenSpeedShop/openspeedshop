@@ -161,9 +161,6 @@ void PCSampCollector::setParameterValue(const std::string& parameter,
 void PCSampCollector::startCollecting(const Collector& collector,
 				      const Thread& thread) const
 {
-    // Load our runtime library into the thread
-    loadLibrary(thread, "pcsamp-rt");
-    
     // Assemble and encode arguments to pcsamp_start_sampling()
     pcsamp_start_sampling_args args;
     memset(&args, 0, sizeof(args));
@@ -171,9 +168,18 @@ void PCSampCollector::startCollecting(const Collector& collector,
     getECT(collector, thread, args.experiment, args.collector, args.thread);
     Blob arguments(reinterpret_cast<xdrproc_t>(xdr_pcsamp_start_sampling_args),
                    &args);
+
+    // Find exit() in this thread
+    std::pair<bool, Function> exit = thread.getFunctionByName("exit");
+    
+    // Execute pcsamp_stop_sampling() when we enter exit() for the thread
+    if(exit.first)
+	executeAtEntry(collector, thread, exit.second,
+		       "pcsamp-rt: pcsamp_stop_sampling", Blob());
     
     // Execute pcsamp_start_sampling() in the thread
-    execute(thread, "pcsamp-rt", "pcsamp_start_sampling", arguments);
+    executeNow(collector, thread, 
+	       "pcsamp-rt: pcsamp_start_sampling", arguments);
 }
 
 
@@ -189,14 +195,12 @@ void PCSampCollector::startCollecting(const Collector& collector,
 void PCSampCollector::stopCollecting(const Collector& collector,
 				     const Thread& thread) const
 {
-    // WDH: Don't actually remove anything until a new "resource management"
-    //      architecture is in place.
-
     // Execute pcsamp_stop_sampling() in the thread
-    // execute(thread, "pcsamp-rt", "pcsamp_stop_sampling", Blob());
-    
-    // Unload our runtime library from the thread
-    // unloadLibrary(thread, "pcsamp-rt");
+    executeNow(collector, thread, 
+	       "pcsamp-rt: pcsamp_stop_sampling", Blob());
+        
+    // Remove all instrumentation associated with this collector/thread pairing
+    uninstrument(collector, thread);
 }
 
 

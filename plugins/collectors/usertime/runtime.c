@@ -243,15 +243,6 @@ void usertime_start_sampling(const char* arguments)
     /* Begin sampling */
     tls.header.time_begin = OpenSS_GetTime();
     OpenSS_Timer(tls.data.interval, usertimeTimerHandler);
-
-    /* 
-     * WDH: Temporary hack to insure that usertime_stop_sampling() is called
-     *      before the process exits. This insures that any samples remaining
-     *      in the sampling buffer are still sent. Eventually this will be
-     *      replaced with an instrumentation call to usertime_stop_sampling()
-     *      instead.
-     */
-    atexit(usertime_stop_sampling);
 }
 
 

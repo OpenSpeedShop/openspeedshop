@@ -29,10 +29,6 @@
 #include "RuntimeAPI.h"
 #include "blobs.h"
 
-/* Forward Declarations */
-void pcsamp_start_sampling(const char*);
-void pcsamp_stop_sampling(const char*);
-
 
 
 /*
@@ -200,15 +196,6 @@ void pcsamp_start_sampling(const char* arguments)
     /* Begin sampling */
     tls.header.time_begin = OpenSS_GetTime();
     OpenSS_Timer(tls.data.interval, pcsampTimerHandler);
-
-    /* 
-     * WDH: Temporary hack to insure that pcsamp_stop_sampling() is called
-     *      before the process exits. This insures that any samples remaining
-     *      in the sampling buffer are still sent. Eventually this will be
-     *      replaced with an instrumentation call to pcsamp_stop_sampling()
-     *      instead.
-     */
-    atexit(pcsamp_stop_sampling);
 }
 
 

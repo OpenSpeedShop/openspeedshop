@@ -165,9 +165,6 @@ void UserTimeCollector::setParameterValue(const std::string& parameter,
 void UserTimeCollector::startCollecting(const Collector& collector,
 				      const Thread& thread) const
 {
-    // Load our runtime library into the thread
-    loadLibrary(thread, "usertime-rt");
-    
     // Assemble and encode arguments to usertime_start_sampling()
     usertime_start_sampling_args args;
     memset(&args, 0, sizeof(args));
@@ -175,9 +172,18 @@ void UserTimeCollector::startCollecting(const Collector& collector,
     getECT(collector, thread, args.experiment, args.collector, args.thread);
     Blob arguments(reinterpret_cast<xdrproc_t>(xdr_usertime_start_sampling_args),
                    &args);
-    
+
+    // Find exit() in this thread
+    std::pair<bool, Function> exit = thread.getFunctionByName("exit");
+
+    // Execute usertime_stop_sampling() when we enter exit() for the thread
+    if(exit.first)
+        executeAtEntry(collector, thread, exit.second,
+                       "usertime-rt: usertime_stop_sampling", Blob());
+
     // Execute usertime_start_sampling() in the thread
-    execute(thread, "usertime-rt", "usertime_start_sampling", arguments);
+    executeNow(collector, thread, 
+	       "usertime-rt: usertime_start_sampling", arguments);
 }
 
 
@@ -193,14 +199,12 @@ void UserTimeCollector::startCollecting(const Collector& collector,
 void UserTimeCollector::stopCollecting(const Collector& collector,
 				     const Thread& thread) const
 {
-    // WDH: Don't actually remove anything until a new "resource management"
-    //      architecture is in place.
-
     // Execute usertime_stop_sampling() in the thread
-    // execute(thread, "usertime-rt", "usertime_stop_sampling", Blob());
-    
-    // Unload our runtime library from the thread
-    // unloadLibrary(thread, "usertime-rt");
+    executeNow(collector, thread,
+               "usertime-rt: usertime_stop_sampling", Blob());
+
+    // Remove all instrumentation associated with this collector/thread pairing
+    uninstrument(collector, thread);
 }
 
 
