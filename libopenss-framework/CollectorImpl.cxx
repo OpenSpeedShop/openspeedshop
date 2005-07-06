@@ -130,61 +130,6 @@ void CollectorImpl::declareMetric(const Metadata& metric)
 
 
 /**
- * Load library into a thread.
- *
- * Loads the passed library into the specified thread. Called by derived classes
- * when loading their runtime library(ies).
- *
- * @param thread     Thread into which the library should be loaded.
- * @param library    Name of library to be loaded.
- */
-void CollectorImpl::loadLibrary(const Thread& thread,
-				const std::string& library) const
-{
-    Instrumentor::loadLibrary(thread, library);
-}
-
-
-
-/**
- * Unload library from a thread.
- *
- * Unloads the passed library from the specified thread. Called by derived
- * classes when unloading their runtime library(ies).
- *
- * @param thread     Thread from which the library should be unloaded.
- * @param library    Name of library to be unloaded.
- */
-void CollectorImpl::unloadLibrary(const Thread& thread,
-				  const std::string& library) const
-{
-    Instrumentor::unloadLibrary(thread, library);
-}
-
-
-
-/**
- * Execute a library function in a thread.
- *
- * Immediately execute the specified function in the specified thread. Called by
- * derived classes to execute functions in their runtime library(ies).
- *
- * @param thread      Thread in which the function should be executed.
- * @param library     Name of library containing function to be executed.
- * @param function    Name of function to be executed.
- * @param argument    Blob argument to the function.
- */
-void CollectorImpl::execute(const Thread& thread,
-			    const std::string& library,
-			    const std::string& function,
-			    const Blob& argument) const
-{
-    Instrumentor::execute(thread, library, function, argument);
-}
-
-
-
-/**
  * Get experiment, collector, and thread (ECT) identifiers.
  *
  * Gets the experiment, collector, and thread (ECT) identifiers of the specified
@@ -213,6 +158,99 @@ void CollectorImpl::getECT(const Collector& collector,
     // Set the collector and thread identifiers
     collector_id = EntrySpy(collector).getEntry();
     thread_id = EntrySpy(thread).getEntry();
+}
+
+
+
+/**
+ * Execute library function now.
+ *
+ * Immediately execute the specified library function in the specified thread.
+ * Called by derived classes to execute functions in their runtime library.
+ *
+ * @param collector    Collector requesting the execution.
+ * @param thread       Thread in which the function should be executed.
+ * @param callee       Name of the library function to be executed.
+ * @param argument     Blob argument to the function.
+ */
+void CollectorImpl::executeNow(const Collector& collector,
+			       const Thread& thread,
+			       const std::string& callee,
+			       const Blob& argument) const
+{
+    Instrumentor::executeNow(thread, collector, callee, argument);
+}
+
+
+
+/**
+ * Execute library function at another function's entry.
+ *
+ * Executes the specified library function every time another function's entry
+ * is executed in the specified thread. Called by derived classes to execute
+ * functions in their runtime library.
+ *
+ * @param collector    Collector requesting the execution.
+ * @param thread       Thread in which the function should be executed.
+ * @param where        Function at whose entry the library function should
+ *                     be executed.
+ * @param callee       Name of the library function to be executed.
+ * @param argument     Blob argument to the function.
+ */
+void CollectorImpl::executeAtEntry(const Collector& collector,
+				   const Thread& thread,
+				   const Function& where,
+				   const std::string& callee, 
+				   const Blob& argument) const
+{
+    Instrumentor::executeAtEntryOrExit(thread, collector, 
+				       where, true,
+				       callee, argument);
+}
+
+
+
+/**
+ * Execute library function at another function's exit.
+ *
+ * Executes the specified library function every time another function's exit
+ * is executed in the specified thread. Called by derived classes to execute
+ * functions in their runtime library.
+ *
+ * @param collector    Collector requesting the execution.
+ * @param thread       Thread in which the function should be executed.
+ * @param where        Function at whose exit the library function should
+ *                     be executed.
+ * @param callee       Name of the library function to be executed.
+ * @param argument     Blob argument to the function.
+ */
+void CollectorImpl::executeAtExit(const Collector& collector,
+				  const Thread& thread,
+				  const Function& where,
+				  const std::string& callee, 
+				  const Blob& argument) const
+{
+    Instrumentor::executeAtEntryOrExit(thread, collector, 
+				       where, false,
+				       callee, argument);
+}
+
+
+
+/**
+ * Remove instrumentation from a thread.
+ *
+ * Removes all instrumentation associated with the specified collector from the
+ * specified thread. Called by derived classes when they are done using any
+ * instrumentation they placed in the thread.
+ *
+ * @param collector    Collector which is removing instrumentation.
+ * @param thread       Thread from which instrumentation should be removed.
+ */
+void CollectorImpl::uninstrument(const Collector& collector,
+				 const Thread& thread) const
+{
+    Instrumentor::uninstrument(thread, collector);
 }
 
 

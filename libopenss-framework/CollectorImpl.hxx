@@ -43,6 +43,7 @@ namespace OpenSpeedShop { namespace Framework {
 
     class Blob;
     class Collector;
+    class Function;
     class Thread;
     
     /**
@@ -191,12 +192,17 @@ namespace OpenSpeedShop { namespace Framework {
 	void declareParameter(const Metadata&);
 	void declareMetric(const Metadata&);
 
-	void loadLibrary(const Thread&, const std::string&) const;
-	void unloadLibrary(const Thread&, const std::string&) const;
-	void execute(const Thread&, const std::string&, const std::string&,
-		     const Blob&) const;
 	void getECT(const Collector&, const Thread&, int&, int&, int&) const;
 
+	void executeNow(const Collector&, const Thread&,
+			const std::string&, const Blob&) const;
+	void executeAtEntry(const Collector&, const Thread&, const Function&,
+			    const std::string&, const Blob&) const;
+	void executeAtExit(const Collector&, const Thread&, const Function&,
+			   const std::string&, const Blob&) const;
+	
+	void uninstrument(const Collector&, const Thread&) const;
+	
 	std::vector<Blob> getData(const Collector&,
 				  const Thread&,
 				  const AddressRange&,
