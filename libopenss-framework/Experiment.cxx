@@ -271,7 +271,7 @@ void Experiment::remove(const std::string& name)
  *
  * Constructs an object for accessing the specified experiment database.
  * Any threads in this experiment that correspond to an underlying thread
- * are automatically reattached.
+ * must be explicitly connected when/if needed.
  *
  * @note    A DatabaseInvalid exception is thrown if the specified name is not
  *          a valid experiment database.
@@ -285,19 +285,15 @@ Experiment::Experiment(const std::string& name) :
     if(!isAccessible(name))
 	throw Exception(Exception::DatabaseInvalid, dm_database->getName());
     
-    // Find our threads
+    // Iterate over each thread in this experiment
     ThreadGroup threads = getThreads();
     for(ThreadGroup::const_iterator
 	    i = threads.begin(); i != threads.end(); ++i) {
 	
-	// Attempt to attach to the underlying thread
-	try {
-	    Instrumentor::attachUnderlyingThread(*i);
-	}
-	catch(...) {
-	}
+	// Retain this thread in the instrumentor
+	Instrumentor::retain(*i);
 	
-    }    
+    }
 
     // Add this experiment to the experiment table
     ExperimentTable::TheTable.addExperiment(this);
@@ -309,9 +305,9 @@ Experiment::Experiment(const std::string& name) :
  * Destructor.
  *
  * Stops all data collection in this experiment, detaches from the underlying
- * threads, and closes the experiment's database reference. The database will
- * remain open if other objects (Thread, Collector, etc.) still exist and
- * refer to it.
+ * threads (if not used by other experiments), and close the experiment's
+ * database reference. The database will remain open if other objects (Thread,
+ * Collector, etc.) still exist and refer to it.
  */
 Experiment::~Experiment()
 {
@@ -326,8 +322,8 @@ Experiment::~Experiment()
     for(ThreadGroup::const_iterator 
 	    i = threads.begin(); i != threads.end(); ++i) {
 	
-	// Detach from the underlying thread
-	Instrumentor::detachUnderlyingThread(*i);
+	// Release this thread in the instrumentor
+	Instrumentor::release(*i);
 	
     }
 }
@@ -430,8 +426,9 @@ Thread Experiment::createProcess(const std::string& command,
     dm_database->prepareStatement("INSERT INTO Threads (host) VALUES (?);");
     dm_database->bindArgument(1, host);
     while(dm_database->executeStatement());
-    thread = Thread(dm_database, dm_database->getLastInsertedUID());    
-    Instrumentor::createUnderlyingThread(thread, command);    
+    thread = Thread(dm_database, dm_database->getLastInsertedUID()); 
+    // Instrumentor::retain(thread);  (Implied by Following Line)
+    Instrumentor::create(thread, command);
     END_TRANSACTION(dm_database);
     
     // Return the thread to the caller
@@ -467,6 +464,9 @@ ThreadGroup Experiment::attachMPIJob(const pid_t& pid,
  * Attaches to an existing process and adds all threads within that process to
  * this experiment. The threads' statuses are not affected.
  *
+ * @note    If the process already exists within this experiment, its existing
+ *          threads are returned without attaching again.
+ *
  * @todo    Currently this routine assumes each process has a single thread and
  *          thus creates only one Thread object. Once a mechanism is found to
  *          "discover" the list of threads in a process this can be changed to
@@ -480,18 +480,34 @@ ThreadGroup Experiment::attachProcess(const pid_t& pid,
 				      const std::string& host) const
 {
     ThreadGroup threads;
-    
-    // Create the threads for this process and attach to the underlying threads
-    BEGIN_TRANSACTION(dm_database);    
-    dm_database->prepareStatement(
-	"INSERT INTO Threads (host, pid) VALUES (?, ?);"
+
+    // Begin a multi-statement transaction
+    BEGIN_TRANSACTION(dm_database);
+
+    // Find any existing thread(s) for this process
+    dm_database->prepareStatement(	
+	"SELECT id FROM Threads WHERE host = ? AND pid = ?;"
 	);
     dm_database->bindArgument(1, host);
     dm_database->bindArgument(2, pid);
-    while(dm_database->executeStatement());
-    Thread thread(dm_database, dm_database->getLastInsertedUID());
-    Instrumentor::attachUnderlyingThread(thread);
-    threads.insert(thread);    
+    while(dm_database->executeStatement())
+	threads.insert(Thread(dm_database, dm_database->getResultAsInteger(1)));
+
+    // Create the thread(s) entries if they weren't present in the database
+    if(threads.empty()) {
+	dm_database->prepareStatement(
+	    "INSERT INTO Threads (host, pid) VALUES (?, ?);"
+	    );
+	dm_database->bindArgument(1, host);
+	dm_database->bindArgument(2, pid);
+	while(dm_database->executeStatement());
+	Thread thread(dm_database, dm_database->getLastInsertedUID());
+	Instrumentor::retain(thread);
+	Instrumentor::changeState(thread, Thread::Connecting);
+	threads.insert(thread);	
+    }
+    
+    // End this multi-statement transaction
     END_TRANSACTION(dm_database);
     
     // Return the thread to the caller
@@ -569,8 +585,8 @@ void Experiment::removeThread(const Thread& thread) const
     thread.getCollectors().stopCollecting(thread);
     thread.getPostponedCollectors().stopCollecting(thread);
     
-    // Detach from the underlying thread
-    Instrumentor::detachUnderlyingThread(thread);
+    // Release this thread in the instrumentor
+    Instrumentor::release(thread);
     
     // Remove this thread
     dm_database->prepareStatement("DELETE FROM Threads WHERE id = ?;");
