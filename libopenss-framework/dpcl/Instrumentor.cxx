@@ -38,106 +38,87 @@ using namespace OpenSpeedShop::Framework;
 
 
 /**
- * Create underlying thread.
+ * Retain a thread.
+ *
+ * Retains a thread in this instrumentor. Retaining a thread simply indicates
+ * to the instrumentor that the thread is currently in use. This information is
+ * used by the instrumentor to decide when it is appropriate to disconnect from
+ * the underlying process in the operating system that contains this thread.
+ *
+ * @param thread    Thread to be retained.
+ */
+void Instrumentor::retain(const Thread& thread)
+{
+    // Critical section touching the process table
+    {
+	Guard guard_process_table(ProcessTable::TheTable);
+
+	// Add this thread to the process table
+	ProcessTable::TheTable.addThread(thread);	
+    }
+}
+
+
+
+/**
+ * Release a thread.
+ *
+ * Releases a thread in this instrumentor. Releasing a thread simply indicates
+ * to the instrumentor that the thread is no longer in use. This information is
+ * used by the instrumentor to decide when it is appropriate to disconnect from
+ * the underlying thread in the operating system that contains this thread.
+ *
+ * @param thread    Thread to be released.
+ */
+void Instrumentor::release(const Thread& thread)
+{
+    // Critical section touching the process table
+    {
+	Guard guard_process_table(ProcessTable::TheTable);
+	
+	// Remove this thread from the process table
+	ProcessTable::TheTable.removeThread(thread);
+    }
+}
+
+
+
+/**
+ * Create a thread.
  *
  * Creates the specified thread as a new process to execute the passed command.
  * The command is created with the same initial environment (standard file
- * descriptors, environment variables, etc.) as when the tool was started. The
- * process is created in a suspended state. When a thread is created, it is
- * automatically attached.
+ * descriptors, environment variables, etc.) in which the tool was started. The
+ * process is created in the suspended state.
  *
  * @param thread     Thread to be created.
  * @param command    Command to be executed.
  */
-void Instrumentor::createUnderlyingThread(const Thread& thread,
-					  const std::string& command)
+void Instrumentor::create(const Thread& thread, const std::string& command)
 {
-    SmartPtr<Process> process;
-
     // Critical section touching the process table
     {
 	Guard guard_process_table(ProcessTable::TheTable);
 	
-	// Create a new process to execute this command
-	process = SmartPtr<Process>(new Process(thread.getHost(), command));
+	// Allocate a new Process object for executing this command
+	SmartPtr<Process> process = 
+	    SmartPtr<Process>(new Process(thread.getHost(), command));
 	Assert(!process.isNull());
 	
+	// Add this process to the process table
+	ProcessTable::TheTable.addProcess(process);
+
+	// Update the thread's process identifier
+	SmartPtr<Database> database = EntrySpy(thread).getDatabase();
+	BEGIN_TRANSACTION(database);
+	database->prepareStatement("UPDATE Threads SET pid = ? WHERE id = ?;");
+	database->bindArgument(1, static_cast<int>(process->getProcessId()));
+	database->bindArgument(2, EntrySpy(thread).getEntry());
+	while(database->executeStatement());    
+	END_TRANSACTION(database);
+
 	// Add this thread to the process table
-	ProcessTable::TheTable.addThread(thread, process);
-    }
-    
-    // Update the thread's process identifier
-    SmartPtr<Database> database = EntrySpy(thread).getDatabase();
-    BEGIN_TRANSACTION(database);
-    database->prepareStatement("UPDATE Threads SET pid = ? WHERE id = ?;");
-    database->bindArgument(1, static_cast<int>(process->getProcessId()));
-    database->bindArgument(2, EntrySpy(thread).getEntry());
-    while(database->executeStatement());    
-    END_TRANSACTION(database);
-    
-    // Update the current in-memory address space of this thread
-    process->updateAddressSpace(thread, Time::Now());
-}
-
-
-
-/**
- * Attach to underlying thread.
- *
- * Attaches the specified thread to its underlying thread in the operating
- * system. Once a thread is attached, the instrumentor can perform operations
- * (such as changing its state) on this thread.
- *
- * @param thread    Thread to be attached.
- */
-void Instrumentor::attachUnderlyingThread(const Thread& thread)
-{
-    SmartPtr<Process> process;
-
-    // Critical section touching the process table
-    {
-	Guard guard_process_table(ProcessTable::TheTable);
-
-	// Look for a pre-existing process for this thread
-	process = ProcessTable::TheTable.getProcessByName(
-	    Process::formUniqueName(thread.getHost(), thread.getProcessId()));
-	
-	// Attach to the process if we haven't already
-	if(process.isNull())
-	    process = SmartPtr<Process>(new Process(thread.getHost(),
-						    thread.getProcessId()));
-	Assert(!process.isNull());
-	
-	// Add this thread to the process table
-	ProcessTable::TheTable.addThread(thread, process);  
-    }
-    
-    // Update the current in-memory address space of this thread
-    process->updateAddressSpace(thread, Time::Now());
-}
-
-
-
-/**
- * Detach from underlying thread.
- *
- * Detaches the specified thread from its underlying thread in the operating
- * system. Once a thread is detached, the instrumentor can no longer perform
- * operations (such as changing its state) on this thread without first being
- * attached again. The underlying thread in the operating system is <em>not</em>
- * destroyed. If the thread was in the suspended state, it is put into the
- * running state before being detached.
- *
- * @param thread    Thread to be detached.
- */
-void Instrumentor::detachUnderlyingThread(const Thread& thread)
-{
-    // Critical section touching the process table
-    {
-	Guard guard_process_table(ProcessTable::TheTable);
-    
-	// Remove the thread (and possibly the process) from the process table
-	ProcessTable::TheTable.removeThread(thread);
+	ProcessTable::TheTable.addThread(thread);
     }
 }
 
@@ -157,20 +138,20 @@ void Instrumentor::detachUnderlyingThread(const Thread& thread)
  * @param thread    Thread whose state should be obtained.
  * @return          Current state of the thread.
  */
-Thread::State Instrumentor::getThreadState(const Thread& thread)
+Thread::State Instrumentor::getState(const Thread& thread)
 {
     SmartPtr<Process> process;
 
     // Critical section touching the process table
     {
 	Guard guard_process_table(ProcessTable::TheTable);
-
+	
 	// Get the process for this thread (if any)
 	process = ProcessTable::TheTable.getProcessByThread(thread);
     }
     
     // Return the thread's current state to the caller
-    return (process.isNull()) ? Thread::Terminated : process->getState();
+    return (process.isNull()) ? Thread::Disconnected : process->getState();
 }
 
 
@@ -184,9 +165,10 @@ Thread::State Instrumentor::getThreadState(const Thread& thread)
  * calling getThreadState() immediately following changeThreadState() will not
  * reflect the new state until the change has actually completed.
  *
- * @pre    Only applies to a thread which has been attached to an underlying
- *         thread. A ThreadUnavailable exception is thrown if called for a
- *         thread that is not attached.
+ * @pre    Only applies to a thread which is connected. A ThreadUnavailable
+ *         exception is thrown if called for a thread that is not connected.
+ *         There is one exception - a disconnected thread may be changed to
+ *         the "connecting" state.
  *
  * @todo    Currently DPCL provides the ability to change the state of an entire
  *          process only - not that of a single thread. For now, if a thread's
@@ -196,19 +178,34 @@ Thread::State Instrumentor::getThreadState(const Thread& thread)
  * @param thread    Thread whose state should be changed.
  * @param state     Change the theread to this state.
  */
-void Instrumentor::changeThreadState(const Thread& thread, 
-				     const Thread::State& state)
+void Instrumentor::changeState(const Thread& thread, const Thread::State& state)
 {
     SmartPtr<Process> process;
-
+    
     // Critical section touching the process table
     {
 	Guard guard_process_table(ProcessTable::TheTable);
-
+	
 	// Get the process for this thread (if any)
 	process = ProcessTable::TheTable.getProcessByThread(thread);
+	
+	// Are we attempting to connect to this process for the first time?
+	if(process.isNull() && (state == Thread::Connecting)) {
+	    
+	    // Allocate a new Process object for connecting to this process
+	    process = SmartPtr<Process>(new Process(thread.getHost(),
+						    thread.getProcessId()));
+	    Assert(!process.isNull());
+	    
+	    // Add this process to the process table
+	    ProcessTable::TheTable.addProcess(process);
+	    
+	    // Return to caller (Process constructor initiates state change)
+	    return;
+	    
+	}
     }
-
+    
     // Check preconditions
     if(process.isNull())
 	throw Exception(Exception::ThreadUnavailable, thread.getHost(),
@@ -221,124 +218,135 @@ void Instrumentor::changeThreadState(const Thread& thread,
 
 
 /**
- * Load library into a thread.
+ * Execute a library function now.
  *
- * Loads the passed library into the specified thread. Collectors use this
- * function to load their runtime library(ies). Separated loads of the same
- * library into a single thread do <em>not</em> result in multiple loaded
- * copies. Instead a reference count is maintained and the library will not
- * be unloaded until each reference is released via unloadLibrary().
+ * Immediately execute the specified library function in the specified thread.
+ * Used by collectors to execute functions in their runtime library.
  *
- * @pre    Only applies to a thread which has been attached to an underlying
- *         thread. A ThreadUnavailable exception is thrown if called for a
- *         thread that is not attached.
- *
- * @param thread     Thread into which the library should be loaded.
- * @param library    Name of library to be loaded.
- */
-void Instrumentor::loadLibrary(const Thread& thread,
-			       const std::string& library)
-{
-    SmartPtr<Process> process;
-
-    // Critical section touching the process table
-    {
-	Guard guard_process_table(ProcessTable::TheTable);
-	
-	// Get the process for this thread (if any)
-	process = ProcessTable::TheTable.getProcessByThread(thread);
-    }
-
-    // Check preconditions
-    if(process.isNull())
-	throw Exception(Exception::ThreadUnavailable, thread.getHost(),
-			Exception::toString(thread.getProcessId()));
-
-    // Request the library be loaded into the process
-    process->loadLibrary(library);    
-}
-
-
-
-/**
- * Unload library from a thread.
- *
- * Unloads the passed library from the specified thread. Collectors use this
- * function to unload their runtime library(ies). The library isn't actually
- * unloaded until each call to loadLibrary() for that library has been matched
- * by a corresponding call to unloadLibrary().
- *
- * @pre    Only applies to a thread which has been attached to an underlying
- *         thread. A ThreadUnavailable exception is thrown if called for a
- *         thread that is not attached.
- *
- * @param thread     Thread from which the library should be unloaded.
- * @param library    Name of library to be unloaded.
- */
-void Instrumentor::unloadLibrary(const Thread& thread,
-				 const std::string& library)
-{
-    SmartPtr<Process> process;
-    
-    // Critical section touching the process table
-    {
-	Guard guard_process_table(ProcessTable::TheTable);
-	
-	// Get the process for this thread (if any)
-	process = ProcessTable::TheTable.getProcessByThread(thread);
-    } 
-
-    // Check preconditions
-    if(process.isNull())
-	throw Exception(Exception::ThreadUnavailable, thread.getHost(),
-			Exception::toString(thread.getProcessId()));
-    
-    // Request the library be unloaded from the process
-    process->unloadLibrary(library);    
-}
-
-
-
-/**
- * Execute a library function in a thread.
- *
- * Immediately execute the specified function in the specified thread. Used by
- * collectors to execute function in their runtime library(ies).
- *
- * @pre    Only applies to a thread which has been attached to an underlying
- *         thread. A ThreadUnavailable exception is thrown if called for a
- *         thread that is not attached.
+ * @pre    Only applies to a thread which is connected. A ThreadUnavailable
+ *         exception is thrown if called for a thread that is not connected.
  *
  * @todo    Currently DPCL does not provide the ability to specify the thread
  *          within a process that will execute a probe expression. For now, the
  *          only guarantee that can be made is that <em>some</em> thread in the
  *          process containing the specified thread will execute the expression.
  *
- * @param thread      Thread in which the function should be executed.
- * @param library     Name of library containing function to be executed.
- * @param function    Name of function to be executed.
- * @param argument    Blob argument to the function.
+ * @param thread       Thread in which the function should be executed.
+ * @param collector    Collector requesting the execution.
+ * @param callee       Name of the library function to be executed.
+ * @param argument     Blob argument to the function.
  */
-void Instrumentor::execute(const Thread& thread,
-			   const std::string& library,
-			   const std::string& function,
-			   const Blob& argument)
+void Instrumentor::executeNow(const Thread& thread, 
+			      const Collector& collector,
+			      const std::string callee, 
+			      const Blob& argument)
 {
     SmartPtr<Process> process;
-    
+
     // Critical section touching the process table
     {
-	Guard guard_process_table(ProcessTable::TheTable);
-	
-	// Get the process for this thread (if any)
-	process = ProcessTable::TheTable.getProcessByThread(thread);
-    } 
-    
-    // Check preconditions
-    if(process.isNull())
-	throw Exception(Exception::ThreadUnavailable, thread.getHost(),
-			Exception::toString(thread.getProcessId()));
+        Guard guard_process_table(ProcessTable::TheTable);
 
-    // Request the function be executed by the process
-    process->execute(library, function, argument);
+        // Get the process for this thread (if any)
+        process = ProcessTable::TheTable.getProcessByThread(thread);
+    }
+
+    // Check preconditions
+    if(process.isNull() || !process->isConnected())
+        throw Exception(Exception::ThreadUnavailable, thread.getHost(),
+                        Exception::toString(thread.getProcessId()));
+    
+    // Request the library function be executed by the process
+    process->executeNow(collector, thread, callee, argument);
+}
+
+
+
+/**
+ * Execute a library function at another function's entry or exit.
+ *
+ * Executes the specified library function every time another function's entry
+ * or exit is executed in the specified thread. Used by collectors to execute
+ * functions in their runtime library.
+ *
+ * @pre    Only applies to a thread which is connected. A ThreadUnavailable
+ *         exception is thrown if called for a thread that is not connected.
+ *
+ * @todo    Currently DPCL does not provide the ability to specify the thread
+ *          within a process that will execute a probe expression. For now, the
+ *          only guarantee that can be made is that <em>all</em> threads in the
+ *          process containing the specified thread will execute the expression.
+ *
+ * @param thread         Thread in which the function should be executed.
+ * @param collector      Collector requesting the execution.
+ * @param at_function    Function at whose entry/exit the library function
+ *                       should be executed.
+ * @param at_entry       Boolean "true" if instrumenting function's entry point,
+ *                       or "false" if function's exit point.
+ * @param callee         Name of the library function to be executed.
+ * @param argument       Blob argument to the function.
+ */
+void Instrumentor::executeAtEntryOrExit(const Thread& thread,
+					const Collector& collector,
+					const Function& at_function, 
+					const bool& at_entry,
+					const std::string& callee, 
+					const Blob& argument)
+{
+    SmartPtr<Process> process;
+
+    // Critical section touching the process table
+    {
+        Guard guard_process_table(ProcessTable::TheTable);
+
+        // Get the process for this thread (if any)
+        process = ProcessTable::TheTable.getProcessByThread(thread);
+    }
+
+    // Check preconditions
+    if(process.isNull() || !process->isConnected())
+        throw Exception(Exception::ThreadUnavailable, thread.getHost(),
+                        Exception::toString(thread.getProcessId()));
+    
+    // Request the library function be executed in the process
+    process->executeAtEntryOrExit(collector, thread,
+				  at_function, at_entry,
+				  callee, argument);
+}
+
+
+
+/**
+ * Remove instrumentation from a thread.
+ *
+ * Removes all instrumentation associated with the specified collector from the
+ * specified thread. Used by collectors to indicate when they are done using any
+ * instrumentation they placed in the thread.
+ *
+ * @pre    Only applies to a thread which is connected. A ThreadUnavailable
+ *         exception is thrown if called for a thread that is not connected.
+ *
+ * @param thread       Thread from which instrumentation should be removed.
+ * @param collector    Collector which is removing instrumentation.
+ */	
+void Instrumentor::uninstrument(const Thread& thread, 
+				const Collector& collector)
+{
+    SmartPtr<Process> process;
+
+    // Critical section touching the process table
+    {
+        Guard guard_process_table(ProcessTable::TheTable);
+
+        // Get the process for this thread (if any)
+        process = ProcessTable::TheTable.getProcessByThread(thread);
+    }
+
+    // Check preconditions
+    if(process.isNull() || !process->isConnected())
+        throw Exception(Exception::ThreadUnavailable, thread.getHost(),
+                        Exception::toString(thread.getProcessId()));
+    
+    // Request the collector's instrumentation be removed from the process
+    process->uninstrument(collector, thread);
 }
