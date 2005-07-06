@@ -45,7 +45,7 @@ using namespace OpenSpeedShop::Framework;
  */
 Thread::State Thread::getState() const
 {
-    return Instrumentor::getThreadState(*this);
+    return Instrumentor::getState(*this);
 }
 
 
@@ -82,7 +82,7 @@ bool Thread::isState(const State& state) const
  */
 void Thread::changeState(const State& state) const
 {
-    Instrumentor::changeThreadState(*this, state);
+    Instrumentor::changeState(*this, state);
 }
 
 
