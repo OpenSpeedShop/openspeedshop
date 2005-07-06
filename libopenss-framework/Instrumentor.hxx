@@ -38,6 +38,8 @@
 namespace OpenSpeedShop { namespace Framework {
 
     class Blob;
+    class Collector;
+    class Function;
 
     /**
      * Instrumentor.
@@ -52,15 +54,20 @@ namespace OpenSpeedShop { namespace Framework {
      */
     namespace Instrumentor
     {
-	void createUnderlyingThread(const Thread&, const std::string&);	
-	void attachUnderlyingThread(const Thread&);
-	void detachUnderlyingThread(const Thread&);
-	Thread::State getThreadState(const Thread&);
-	void changeThreadState(const Thread&, const Thread::State&);
-	void loadLibrary(const Thread&, const std::string&);
-	void unloadLibrary(const Thread&, const std::string&);
-	void execute(const Thread&, const std::string&, const std::string&,
-		     const Blob&);
+	void retain(const Thread&);
+	void release(const Thread&);
+	void create(const Thread&, const std::string&);
+	Thread::State getState(const Thread&);
+	void changeState(const Thread&, const Thread::State&);
+
+	void executeNow(const Thread&, const Collector&,
+			const std::string, const Blob&);
+	void executeAtEntryOrExit(const Thread&, const Collector&,
+				  const Function&, const bool&,
+				  const std::string&, const Blob&);
+	
+	void uninstrument(const Thread&, const Collector&);
+	
     }
     
 } }
