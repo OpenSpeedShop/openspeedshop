@@ -59,6 +59,10 @@ static void Run(int argc, char* argv[])
 	experiment.createProcess(command);
 	
     }
+
+    // Wait until we've finished connecting the process
+    while(experiment.getThreads().isAnyState(Thread::Connecting))
+	sleep(1);
     
     // Create and start the PC sampling collector
     Collector collector = experiment.createCollector("pcsamp");
