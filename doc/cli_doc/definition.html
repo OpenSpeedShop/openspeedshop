@@ -350,15 +350,15 @@ a data base that was saved with an <b>expSave</b> command.<br>
 information.</li>
   <li>This command also sets the focus to the new experiment's
 Identifier.</li>
+  <li>The new experiment will be in the same state as that established with
+the <b>expDisable</b> command.</li>
+  <li>If the original applications are still running, the user can reconnect
+to them, and reinsert instrumentation into them,  through the use of the
+<b>expEnable</b> command.  Doing this will interrupt the executing application
+and an <b>expGo</b> command will be required before the application continues
+and new data samples can be collected.</li>
   <li>Previously collected data can be looked at with the <b>expView</b>
-command.</li>
-  <li>If the original applications are still running, the <b>OpenSS</b>
-tool will attempt to attach to the application and reinsert instrumentation
-into the application. If this is successful, the execution of the applications
-are not interrupted although the user may issue an <b>expPause</b>
-command, if that behaviour is desired.</li>
-  <li>The new experiment can be modified with the use of <b>expAttach</b>
-or <b>expDetach</b> commands.</li>
+command without reconnecting to the original applications.</li>
   <li>If an <b>expGo</b> command is issued, new data samples will be
 placed into the
 data base specified by &lt;file_spec&gt;. A different data base can be
