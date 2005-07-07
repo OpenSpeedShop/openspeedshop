@@ -53,6 +53,28 @@ void Experiment_Termination () {
 
 // Experiment Utilities.
 
+static int Wait_For_Exp_State (int to_state, ExperimentObject *exp) {
+ // After changing the state of each thread, wait for the
+ // status of the experiment to change.  This is necessary
+ // because of the asynchronous nature of the FrameWork.
+  int latest = exp->Determine_Status();
+  while ((latest != to_state) &&
+         (latest != ExpStatus_NonExistent) &&
+         (latest != ExpStatus_Terminated) &&
+         (latest != ExpStatus_InError)) {
+    usleep (10000);
+    latest = exp->Determine_Status();
+  }
+
+  return latest;
+}
+
+static void Wait_For_Thread_Connected (Thread t) {
+  while (t.getState() == Thread::Connecting) {
+    usleep (10000);
+  }
+}
+
 ExperimentObject *Find_Experiment_Object (EXPID ExperimentID)
 {
 // Search for existing entry.
@@ -196,9 +218,19 @@ Collector Get_Collector (OpenSpeedShop::Framework::Experiment *fexp, std::string
 
 static void Attach_Command (CommandObject *cmd, ExperimentObject *exp, Thread t, Collector c) {
   try {
+    if (t.getState() == Thread::Disconnected) {
+      t.changeState (Thread::Connecting);
+    }
+    Wait_For_Thread_Connected (t);
+
     c.startCollecting(t);  // There is no point in attaching unless we intend to use it!
   }
   catch(const Exception& error) {
+    if ((t.getState() == Thread::Terminated) ||
+        (t.getState() == Thread::Nonexistent)) {
+     // These states cause errors, but we can ignore them.
+      return;
+    }
     Mark_Cmd_With_Std_Error (cmd, error);
     return;
   }
@@ -206,9 +238,17 @@ static void Attach_Command (CommandObject *cmd, ExperimentObject *exp, Thread t,
 
 static void Detach_Command (CommandObject *cmd, ExperimentObject *exp, Thread t, Collector c) {
   try {
+    Wait_For_Thread_Connected (t);
     c.stopCollecting(t);  // We don't want to collect any more data for this thread!
   }
   catch(const Exception& error) {
+    if ((t.getState() == Thread::Terminated) ||
+        (t.getState() == Thread::Connecting) ||
+        (t.getState() == Thread::Disconnected) ||
+        (t.getState() == Thread::Nonexistent)) {
+     // These states cause errors, but we can ignore them.
+      return;
+    }
     Mark_Cmd_With_Std_Error (cmd, error);
     return;
   }
@@ -555,10 +595,13 @@ static bool Destroy_Experiment (CommandObject *cmd, ExperimentObject *exp, bool 
     for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
       Thread t = *ti;
       try {
+        Wait_For_Thread_Connected (t);
         t.changeState (Thread::Terminated );
       }
       catch(const Exception& error) {
-        if (t.getState() == Thread::Terminated) {
+        if ((t.getState() == Thread::Terminated) ||
+            (t.getState() == Thread::Disconnected) ||
+            (t.getState() == Thread::Nonexistent)) {
          // This state causes an error, but we can ignore it.
           continue;
         }
@@ -567,15 +610,8 @@ static bool Destroy_Experiment (CommandObject *cmd, ExperimentObject *exp, bool 
       }
     }
 
-   // After changing the state of each thread, wait for the
-   // status of the experiment to change.  This is necessary
-   // because of the asynchronous nature of the FrameWork.
-    InputLineObject *clip = cmd->Clip();
-    CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
-    while ((exp->Determine_Status() != ExpStatus_Terminated) &&
-           (exp->Status() != ExpStatus_InError)) {
-      usleep (10000);
-    }
+   // Be sure the application is in a terminal state.
+    (void) Wait_For_Exp_State (ExpStatus_NonExistent , exp);
   }
 
  // Remove all trace of the experiment from the Command Windows.
@@ -588,6 +624,7 @@ bool SS_expClose (CommandObject *cmd) {
  // Terminate the experiment and purge the data structure
   bool All_KeyWord = Look_For_KeyWord (cmd, "all");
   bool Kill_KeyWord = Look_For_KeyWord (cmd, "kill");
+  bool cmd_executed = true;
 
   if (All_KeyWord) {
     std::list<ExperimentObject *>::iterator expi;
@@ -595,23 +632,22 @@ bool SS_expClose (CommandObject *cmd) {
       ExperimentObject *exp = *expi;
       expi++;
       if (!Destroy_Experiment (cmd, exp, Kill_KeyWord)) {
-        return false;
+        cmd_executed = false;
+        break;
       }
     }
   } else {
     ExperimentObject *exp = Find_Specified_Experiment (cmd);
-    if (exp == NULL) {
-      return false;
-    }
-    if (!Destroy_Experiment (cmd, exp, Kill_KeyWord)) {
-      return false;
+    if ((exp == NULL) ||
+        !Destroy_Experiment (cmd, exp, Kill_KeyWord)) {
+      cmd_executed = false;
     }
   }
 
 
  // No result returned from this command.
   cmd->set_Status(CMD_COMPLETE);
-  return true;
+  return cmd_executed;
 }
 
 bool SS_expCreate (CommandObject *cmd) {
@@ -709,15 +745,37 @@ bool SS_expDisable (CommandObject *cmd) {
 static bool Enable_Experiment (CommandObject *cmd, ExperimentObject *exp) {
 
  // Determine target and collectors and turn on data collection.
-  try {
-    CollectorGroup cgrp = exp->FW()->getCollectors();
-    ThreadGroup tgrp = exp->FW()->getThreads();
-    cgrp.startCollecting(tgrp);
-  }
-  catch(const Exception& error) {
-    if (error.getCode() != Exception::ThreadUnavailable) {
+  ThreadGroup tgrp = exp->FW()->getThreads();
+
+ // Be sure the Threads are connected.
+  ThreadGroup::iterator ti;
+  for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+    Thread t = *ti;
+    try {
+      if (t.getState() == Thread::Disconnected) {
+        t.changeState (Thread::Connecting);
+      }
+    }
+    catch(const Exception& error) {
+      if ((t.getState() == Thread::Terminated) ||
+          (t.getState() == Thread::Connecting) ||
+          (t.getState() == Thread::Nonexistent)) {
+       // These states cause errors, but we can ignore them.
+        continue;
+      }
       Mark_Cmd_With_Std_Error (cmd, error);
-      return false;
+      continue;   // Keep processing!
+    }
+  }
+
+ // Restart the collectors.
+  for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+    Thread t = *ti;
+    CollectorGroup cgrp = t.getPostponedCollectors();
+    CollectorGroup::iterator ci;
+    for (ci=cgrp.begin(); ci != cgrp.end(); ci++) {
+      Collector c = *ci;
+      Attach_Command (cmd, exp, t, c);
     }
   }
 
@@ -782,15 +840,15 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
   if ((exp == NULL) ||
       (exp->FW() == NULL) ||
       (exp->Status() == ExpStatus_NonExistent)) {
-    cmd->Result_String ("The experiment can not be run because it doe snot exist.");
+    cmd->Result_String ("The experiment can not be run because it does not exist.");
     return false;
   }
 
   exp->Determine_Status();
 
-  if (exp->Status() == ExpStatus_Suspended) {
-   // Can not run if ExpStatus_Terminated or ExpStatus_Suspended.
-   // There is no way to determine when it Terminated, so ignore that error.
+  if ((exp->Status() == ExpStatus_Terminated) ||
+      (exp->Status() == ExpStatus_InError)) {
+   // Can not run if ExpStatus_Terminated or ExpStatus_InError
     cmd->Result_String ("The experiment can not be run because it is in the "
                          + exp->ExpStatus_Name() + " state.");
     cmd->set_Status(CMD_ERROR);
@@ -819,11 +877,18 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
     for(ThreadGroup::const_iterator tgi = tgrp.begin(); tgi != tgrp.end(); ++tgi) {
       Thread t = *tgi;
       try {
+       // Be sure transitional states are complete before running.
+        if (t.getState() == Thread::Disconnected) {
+          t.changeState (Thread::Connecting);
+        }
+        Wait_For_Thread_Connected (t);
+
         t.changeState (Thread::Running);
       }
       catch(const Exception& error) {
-        if (t.getState() == Thread::Terminated) {
-         // This state causes an error, but we can ignore it.
+        if ((t.getState() == Thread::Terminated) ||
+            (t.getState() == Thread::Nonexistent)) {
+         // These states cause errors, but we can ignore them.
           continue;
         }
         Mark_Cmd_With_Std_Error (cmd, error);
@@ -832,15 +897,8 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
     }
 
    // After changing the state of each thread, wait for the
-   // status of the experiment to change.  This is necessary
-   // because of the asynchronous nature of the FrameWork.
-    InputLineObject *clip = cmd->Clip();
-    CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
-    while ((exp->Determine_Status() != ExpStatus_Running) &&
-           (exp->Status() != ExpStatus_Terminated) &&
-           (exp->Status() != ExpStatus_InError)) {
-      usleep (10000);
-    }
+   // something to actually start executing.
+    (void) Wait_For_Exp_State (ExpStatus_Running, exp);
   }
   return true;
 }
@@ -888,11 +946,15 @@ static bool Pause_Experiment (CommandObject *cmd, ExperimentObject *exp) {
     for(ThreadGroup::const_iterator tgi = tgrp.begin(); tgi != tgrp.end(); ++tgi) {
       Thread t = *tgi;
       try {
+       // Be sure transitional states are complete before suspending.
         t.changeState (Thread::Suspended);
       }
       catch(const Exception& error) {
-        if (t.getState() == Thread::Terminated) {
-         // This state causes an error, but we can ignore it.
+        if ((t.getState() == Thread::Terminated) ||
+            (t.getState() == Thread::Connecting) ||
+            (t.getState() == Thread::Disconnected) ||
+            (t.getState() == Thread::Nonexistent)) {
+         // These states cause errors, but we can ignore them.
           continue;
         }
         Mark_Cmd_With_Std_Error (cmd, error);
@@ -901,16 +963,8 @@ static bool Pause_Experiment (CommandObject *cmd, ExperimentObject *exp) {
     }
 
    // After changing the state of each thread, wait for the
-   // status of the experiment to change.  This is necessary
-   // because of the asynchronous nature of the FrameWork.
-    InputLineObject *clip = cmd->Clip();
-    CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
-    while ((exp->Determine_Status() != ExpStatus_Paused) &&
-           (exp->Status() != ExpStatus_Terminated) &&
-           (exp->Status() != ExpStatus_InError)) {
-      usleep (10000);
-    }
-
+   // the experiment to actually stop.
+    (void) Wait_For_Exp_State (ExpStatus_Paused, exp);
   }
   return true;
 }
@@ -963,13 +1017,10 @@ bool SS_expRestore (CommandObject *cmd) {
     return false;
   }
 
- // Pick up the ID for an allocated experiment.
+ // Pick up the EXPID for an allocated experiment.
   EXPID ExperimentID = exp->ExperimentObject_ID();
 
- // Attempt to reattach to the executable and insert instrumentation.
-  (void)Enable_Experiment (cmd, exp);
-
- // When we allocate a new experiment, set the focus to point to it.
+ // Set the focus to point to the new EXPID.
   (void)Experiment_Focus (WindowID, ExperimentID);
 
  // Return the EXPID for this command.
@@ -1165,9 +1216,7 @@ bool SS_expView (CommandObject *cmd) {
 
  // For batch processing, wait for completion before generating a report.
   if ((exp != NULL) && !Window_Is_Async(WindowID)) {
-    while (exp->Determine_Status() == ExpStatus_Running) {
-      usleep (10000);
-    }
+    (void) Wait_For_Exp_State (ExpStatus_Paused, exp);
   }
 
  // Pick up the <viewType> from the comand.
