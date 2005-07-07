@@ -644,7 +644,6 @@ bool SS_expClose (CommandObject *cmd) {
     }
   }
 
-
  // No result returned from this command.
   cmd->set_Status(CMD_COMPLETE);
   return cmd_executed;
@@ -924,6 +923,8 @@ bool SS_expGo (CommandObject *cmd) {
     }
   }
 
+ // No result returned from this command.
+  cmd->set_Status(CMD_COMPLETE);
   return true;
 }
 
