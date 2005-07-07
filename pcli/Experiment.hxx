@@ -25,10 +25,9 @@ extern std::list<ExperimentObject *> ExperimentObject_list;
 
 #define ExpStatus_NonExistent 0
 #define ExpStatus_Paused      1
-#define ExpStatus_Suspended   2
-#define ExpStatus_Running     3
-#define ExpStatus_Terminated  4
-#define ExpStatus_InError     5
+#define ExpStatus_Running     2
+#define ExpStatus_Terminated  3
+#define ExpStatus_InError     4
 
 class ExperimentObject
 {
@@ -118,7 +117,7 @@ class ExperimentObject
   int Determine_Status() {
     int S = ExpStatus;
     if (FW() == NULL) {
-      if (ExpStatus != ExpStatus_Suspended) ExpStatus = ExpStatus_NonExistent;
+      ExpStatus = ExpStatus_NonExistent;
     } else {
       ThreadGroup tgrp = FW()->getThreads();
       int A = ExpStatus_NonExistent;
@@ -141,6 +140,11 @@ class ExperimentObject
               if (A != ExpStatus_Paused) {
                 A = ExpStatus_Terminated;
               }
+            } else if ((t.getState() == Thread::Connecting) ||
+                       (t.getState() == Thread::Disconnected) ||
+                       (t.getState() == Thread::Nonexistent)) {
+             // These are 'Don't care" states at the user level.
+             // Note: we might default to ExpStatus_NonExistent.
             } else {
               A = ExpStatus_InError;
               break;
@@ -180,7 +184,6 @@ class ExperimentObject
     Determine_Status();
     if ((this == NULL) || (ExpStatus == ExpStatus_NonExistent)) return std::string("NonExistent");
     if (ExpStatus == ExpStatus_Paused) return std::string("Paused");
-    if (ExpStatus == ExpStatus_Suspended) return std::string("Disabled");
     if (ExpStatus == ExpStatus_Running) return std::string("Running");
     if (ExpStatus == ExpStatus_Terminated) return std::string("Terminated");
     if (ExpStatus == ExpStatus_InError) return std::string("Error");
