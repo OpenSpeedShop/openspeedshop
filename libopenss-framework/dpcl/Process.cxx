@@ -1262,8 +1262,22 @@ void Process::connectCallback(GCBSysType, GCBTagType tag,
     {
 	Guard guard_process(*process);
 
-	// Did the connect fail?
-	if(status->status() != ASC_success) {
+	// Does the specified process not exist?
+	if(status->status() == ASC_invalid_pid) {
+
+	    // Indicate process' current state is "nonexistent"
+	    process->dm_current_state = Thread::Nonexistent;
+	    process->dm_is_state_changing = false;
+
+#ifndef NDEBUG
+	    if(is_debug_enabled)
+		process->debugState();
+#endif
+
+	}
+
+	// Did the connect otherwise fail?
+	else if(status->status() != ASC_success) {
 
 	    // Indicate process' current state is "disconnected"
 	    process->dm_current_state = Thread::Disconnected;
