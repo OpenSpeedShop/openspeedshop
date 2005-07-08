@@ -1,7 +1,7 @@
 #include <iostream>
 #include <list>
 #include "inttypes.h"
-#include "AddressRange.hxx"
+#include "../../../../../libopenss-framework/AddressRange.hxx"
 
 using namespace std;
 using namespace OpenSpeedShop;
