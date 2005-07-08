@@ -21,7 +21,6 @@ TEST_SUBDIRS =	test/ \
 		test/test_source/unit/ \
 		test/test_source/unit/fw \
 		test/test_source/unit/fw/interval \
-		test/test_source/unit/fw/database \
 		test/test_source/unit/pcli \
 		test/test_source/unit/pcli/parse_result \
 		test/test_source/unit/pcli/parse_target \

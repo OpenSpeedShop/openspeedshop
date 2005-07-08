@@ -179,9 +179,8 @@ AC_CONFIG_FILES(Makefile
 		test/test_source/Makefile
 		test/test_source/unit/Makefile
 		test/test_source/unit/fw/Makefile
-		test/test_source/unit/fw/database/Makefile
 		test/test_source/unit/fw/interval/Makefile
-		test/test_source/unit/fw/locking/Makefile
+		test/test_source/unit/fw/utility/Makefile
 		test/test_source/unit/pcli/Makefile
 		test/test_source/unit/pcli/parse_result/Makefile
 		test/test_source/unit/pcli/parse_target/Makefile
