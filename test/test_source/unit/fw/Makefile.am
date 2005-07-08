@@ -27,11 +27,11 @@ database_la_LDFLAGS = \
         -LANG:std -lsqlite3
 
 # directories that will be built
-SUBDIRS = database interval
+SUBDIRS = utility interval
 #
 # directories that will be packaged into tar.gz.
 # these can be a subset of the directories in SUBDIRS.
 #
-DIST_SUBDIRS = database interval
+DIST_SUBDIRS = utility interval
 
 
