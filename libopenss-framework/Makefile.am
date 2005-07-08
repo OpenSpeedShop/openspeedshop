@@ -25,7 +25,7 @@ libopenss_framework_la_CXXFLAGS = \
 	$(LTDLINCL)
 
 libopenss_framework_la_LDFLAGS = \
-	-export-dynamic -version-info 0:0:0
+	-export-dynamic -version-info 1:0:0
 
 libopenss_framework_la_LIBADD = \
 	@INSTRUMENTOR@/libopenss-framework-@INSTRUMENTOR@.la \
@@ -61,7 +61,6 @@ libopenss_framework_la_SOURCES = \
 	Metadata.hxx \
 	NonCopyable.hxx \
 	Path.hxx Path.cxx \
-	Queries.hxx Queries.cxx \
 	SmartPtr.hxx \
 	Statement.hxx Statement.cxx \
 	SymbolTable.hxx SymbolTable.cxx \

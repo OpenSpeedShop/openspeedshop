@@ -24,6 +24,7 @@ StatsPanel_la_CXXFLAGS = \
     -I. \
     -I$(top_srcdir)/objects \
     -I$(top_srcdir)/libopenss-framework \
+    -I$(top_srcdir)/libopenss-queries \
     -I$(top_srcdir)/pcli \
     -I$(top_srcdir)/chart \
     -I$(top_srcdir)/gui \
@@ -34,7 +35,7 @@ StatsPanel_la_CXXFLAGS = \
 
 StatsPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 
-StatsPanel_la_LIBADD = $(QTLIB_LIBS) $(QTLIB_LDFLAGS) -L../../libopenss-framework -lopenss-framework -L$(top_srcdir)/Panels/StatsPanel -L$(top_srcdir)/chart -lopenss-Chart
+StatsPanel_la_LIBADD = $(QTLIB_LIBS) $(QTLIB_LDFLAGS) -L$(top_srcdir)/libopenss-framework -L$(top_srcdir)/libopenss-queries -lopenss-framework -lopenss-queries -L$(top_srcdir)/Panels/StatsPanel -L$(top_srcdir)/chart -lopenss-Chart
 
 moc_StatsPanel.cxx: StatsPanel.hxx
 	-moc -o moc_StatsPanel.cxx StatsPanel.hxx

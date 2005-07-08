@@ -25,6 +25,9 @@
 #include "GenericProgressDialog.hxx"
 
 #include "ToolAPI.hxx"
+#include "Queries.hxx"
+
+using namespace OpenSpeedShop;
 using namespace OpenSpeedShop::Framework;
 
 class PanelContainer;   // Do not remove

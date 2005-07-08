@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "ToolAPI.hxx"
+#include "Queries.hxx"
 
 #include <iostream>
 #include <stdexcept>
@@ -24,6 +25,7 @@
 #include <string>
 #include <unistd.h>
  
+using namespace OpenSpeedShop;
 using namespace OpenSpeedShop::Framework;
 
 

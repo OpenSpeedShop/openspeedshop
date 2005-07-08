@@ -40,8 +40,6 @@
 #include "Thread.hxx"
 #include "ThreadGroup.hxx"
 
-#include "Queries.hxx"
-
 
 
 #endif

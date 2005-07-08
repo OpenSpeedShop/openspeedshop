@@ -46,6 +46,7 @@ SUBDIRS = . \
 	libltdl \
 	message \
 	libopenss-framework \
+	libopenss-queries \
 	plugins \
 	openss \
 	pcli \
@@ -68,7 +69,7 @@ EXTRA_DIST = images/* $(DIST_TEST_SUBDIRS)
 tests: $(TEST_SUBDIRS)
 
 DOC_SUBDIRS = \
-	libopenss-framework \
+	libopenss-framework libopenss-queries \
 	Panels pcli base chart gui plugin objects dialogs plugins/collectors
 
 doc: $(DOC_SUBDIRS) 

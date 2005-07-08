@@ -28,6 +28,7 @@ libopenss_cli_la_CXXFLAGS = \
 	-I$(top_srcdir)/base \
 	-I$(top_srcdir)/message \
 	-I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/libopenss-queries \
 	-I$(top_srcdir)/objects \
 	$(LTDLINCL) \
 	$(PYTHON_CPPFLAGS)
@@ -35,11 +36,13 @@ libopenss_cli_la_CXXFLAGS = \
 libopenss_cli_la_LDFLAGS = \
 	-L$(top_srcdir)/message \
 	-L$(top_srcdir)/libopenss-framework \
+	-L$(top_srcdir)/libopenss-queries \
 	$(PYTHON_LDFLAGS) \
 	-export-dynamic -version-info 0:0:0
 
 libopenss_cli_la_LIBADD = \
 	-lopenss-framework \
+	-lopenss-queries \
 	-lopenss-message \
 	$(LIBLTDL) \
 	$(PYTHON_LIBS) \

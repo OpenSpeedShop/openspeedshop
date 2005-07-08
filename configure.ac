@@ -131,6 +131,7 @@ AC_CONFIG_FILES(Makefile
 		libopenss-framework/runtime/Makefile
 		libopenss-framework/runtime/dpcl/Makefile
 		libopenss-framework/runtime/dyninst/Makefile
+		libopenss-queries/Makefile
 		plugins/Makefile
 		plugins/collectors/Makefile
 		plugins/collectors/pcsamp/Makefile

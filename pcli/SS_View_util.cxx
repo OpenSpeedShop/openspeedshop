@@ -19,6 +19,9 @@
 
 #include "SS_Input_Manager.hxx"
 
+#include "Queries.hxx"
+using namespace OpenSpeedShop;
+
 #include "Python.h"
 
 using namespace std;

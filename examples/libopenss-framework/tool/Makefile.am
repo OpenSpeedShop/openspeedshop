@@ -19,13 +19,16 @@
 noinst_PROGRAMS = tool mutatee
 
 tool_CXXFLAGS = \
-	-I$(top_srcdir)/libopenss-framework
+	-I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/libopenss-queries
 
 tool_LDFLAGS = \
-	-L$(top_srcdir)/libopenss-framework
+	-L$(top_srcdir)/libopenss-framework \
+	-L$(top_srcdir)/libopenss-queries
 
 tool_LDADD = \
-	-lopenss-framework
+	-lopenss-framework \
+	-lopenss-queries
 
 tool_SOURCES = \
 	tool.cxx
