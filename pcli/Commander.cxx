@@ -82,6 +82,10 @@ static CMDWID More_Input_Needed_From_Window = 0;
 static pthread_mutex_t Async_Input_Lock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t  Async_Input_Available = PTHREAD_COND_INITIALIZER;
 
+static CMDWID Default_WindowID = 0;
+static CMDWID TLI_WindowID = 0;
+static CMDWID GUI_WindowID = 0;
+
 
 // Input_Source
 #define DEFAULT_INPUT_BUFFER_SIZE 4096
@@ -1061,16 +1065,19 @@ void Commander_Initialization () {
 
 CMDWID Default_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async)
 {
+  Assert(Default_WindowID == 0);
  // Create a new Window
   CommandWindowID *cwid = new CommandWindowID(std::string(my_name ? my_name : ""),
                                               std::string(my_host ? my_host : ""),
                                               my_pid, my_panel, Input_is_Async);
   Async_Inputs |= Input_is_Async;
-  return cwid->ID();
+  Default_WindowID = cwid->ID();
+  return Default_WindowID;
 }
 
 CMDWID TLI_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async)
 {
+  Assert(TLI_WindowID == 0);
  // Define the output control stream for the command terminal.
   class tli_ostream : public ss_ostream {
    private:
@@ -1116,17 +1123,20 @@ CMDWID TLI_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel,
   }
 
   Async_Inputs |= Input_is_Async;
-  return cwid->ID();
+  TLI_WindowID = cwid->ID();
+  return TLI_WindowID;
 }
 
 CMDWID GUI_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async)
 {
  // Create a new Window
+  Assert(GUI_WindowID == 0);
   CommandWindowID *cwid = new GUI_CommandWindowID(std::string(my_name ? my_name : ""),
                                                  std::string(my_host ? my_host : ""),
                                                  my_pid, my_panel, Input_is_Async);
   Async_Inputs |= Input_is_Async;
-  return cwid->ID();
+  GUI_WindowID = cwid->ID();
+  return GUI_WindowID;
 }
 
 CMDWID RLI_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async)
@@ -1144,6 +1154,14 @@ void Window_Termination (CMDWID im)
   if (im) {
     CommandWindowID *my_window = Find_Command_Window (im);
     if (my_window) delete my_window;
+
+    if (im == Default_WindowID) {
+      Default_WindowID = 0;
+    } else if (im == TLI_WindowID) {
+      TLI_WindowID = 0;
+    } else if (im == GUI_WindowID) {
+      GUI_WindowID = 0;
+    }
   }
   return;
 }
@@ -1199,21 +1217,16 @@ ss_ostream *Window_ostream (CMDWID for_window) {
   return (cw != NULL) ? cw->ss_outstream() : NULL;
 }
 
-static bool Isa_SS_Command (CMDWID issuedbywindow, const char *b_ptr) {
-  int64_t fc;
-  for (fc = 0; fc < strlen(b_ptr); fc++) {
-    if (b_ptr[fc] != *(" ")) break;
-  }
-  if (b_ptr[fc] == *("\?")) {
+static void User_Debug_Mode (CMDWID issuedbywindow) {
     bool Fatal_Error_Encountered = false;
     CommandWindowID *cw = Find_Command_Window (issuedbywindow);
     if ((cw == NULL) || (cw->ID() == 0)) {
       fprintf(stderr,"    ERROR: the window(%lld) this command came from is illegal\n",issuedbywindow);
-      return false;
+      return;
     }
     if (!(cw->has_outstream())) {
       fprintf(stderr,"    ERROR: window(%lld) has no defined output stream\n",issuedbywindow);
-      return false;
+      return;
     }
     ss_ostream *this_ss_stream = Window_ostream (issuedbywindow);
     this_ss_stream->acquireLock();
@@ -1231,13 +1244,22 @@ static bool Isa_SS_Command (CMDWID issuedbywindow, const char *b_ptr) {
         }
       }
     }
-    this_ss_stream->releaseLock();
     mystream << "      ss_ostreams: stdout=" << ptr2str(ss_out);
     mystream << ", stderr=" << ptr2str (ss_err);
     mystream << ", ttyout=" << ptr2str (ss_ttyout) << std::endl;
     List_CommandWindows(mystream);
     ExperimentObject::Dump(mystream);
+    this_ss_stream->releaseLock();
     Assert(!Fatal_Error_Encountered);
+}
+
+static bool Isa_SS_Command (CMDWID issuedbywindow, const char *b_ptr) {
+  int64_t fc;
+  for (fc = 0; fc < strlen(b_ptr); fc++) {
+    if (b_ptr[fc] != *(" ")) break;
+  }
+  if (b_ptr[fc] == *("\?")) {
+    User_Debug_Mode (issuedbywindow);
     return false;
   } else if (b_ptr[fc] == *("!")) {
     (void) system(&b_ptr[fc+1]);
@@ -1394,6 +1416,26 @@ void Default_TLI_Command_Output (CommandObject *C) {
   }
 }
 
+// Catch keyboard interrupt signals from TLI window.
+#include "sys/signal.h"
+static void
+catch_TLI_signal (int sig, int error_num)
+{
+  if (sig == SIGINT) {
+    User_Debug_Mode (TLI_WindowID);
+
+    ss_ttyout->acquireLock();
+    ss_ttyout->mystream() << Current_OpenSpeedShop_Prompt;
+    ss_ttyout->releaseLock();
+  }
+}
+inline static void
+setup_signal_handler (int s)
+{
+    if (signal (s, SIG_IGN) != SIG_IGN)
+        signal (s,  reinterpret_cast <void (*)(int)> (catch_TLI_signal));
+}
+
 // This routine continuously reads from /dev/tty and appends the string to an input window.
 // It is intended that this routine execute in it's own thread.
 void SS_Direct_stdin_Input (void * attachtowindow) {
@@ -1406,6 +1448,10 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
   ttyin = fopen ( "/dev/tty", "r" );  // Read directly from the xterm window
   ttyout = fopen ( "/dev/tty", "w" );  // Write prompt directly to the xterm window
 
+ // Set up to catch keyboard control signals
+  setup_signal_handler (SIGINT); // CNTRL-C
+  setup_signal_handler (SIGQUIT); // CNTRL-\
+
  // Infinite loop to read user input.
   for(;;) {
     // usleep (10000); /* DEBUG - give testing code time to react before splashing screen with prompt */
@@ -1415,23 +1461,45 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
     Buffer[0] == *("\0");
     char *read_result = fgets (&Buffer[0], Buffer_Size, ttyin);
     if (Buffer[Buffer_Size-1] != (char)0) {
-      fprintf(ttyout,"ERROR: Input line is too long for buffer.\n");
+      ss_ttyout->acquireLock();
+      ss_ttyout->mystream() << "ERROR: Input line is too long for buffer." << std::endl;
+      ss_ttyout->releaseLock();
+      Buffer[Buffer_Size-1] = *"\0";
       continue; // Don't terminate the thread - allow user to retry.
     }
     if (read_result == NULL) {
-     // This indicates an EOF or error
-      exit (0); // terminate the thread
+     // This indicates an EOF or error.
+     // This could be a CNTRL-D signal.
+      break; // terminate the thread
     }
     if (Buffer[0] == *("\0")) {
-     // This indicates an EOF
-      exit (0); // terminate the thread
+     // This indicates an EOF.
+      break; // terminate the thread
     }
     if (cw->ID() == 0) {
      // This indicates that someone freed the input window
-      exit (0); // terminate the thread
+      break; // terminate the thread
     }
     (void) Append_Input_String ((CMDWID)attachtowindow, &Buffer[0], 
                                  NULL, &Default_TLI_Line_Output, &Default_TLI_Command_Output);
+  }
+
+ // We have exited the loop and will no longer read input.
+  TLI_WindowID = 0;
+  if (GUI_WindowID != 0) {
+   // Stop this thread but keep the GUI runnning.
+   // The user can stop OpenSS through the GUI.
+    /* pthread_exit (0); */
+  } else if (Default_WindowID == 0) {
+   // This is the only window open, terminate Openss with a normal exit
+   // so that all previously read commands finish first.
+    (void) Append_Input_String ((CMDWID)attachtowindow, "exit",
+                                 NULL, &Default_TLI_Line_Output, &Default_TLI_Command_Output);
+  } else {
+   // Add an Exit command to the end of the command line input stream
+   // so that the command line arguments and input files are processed first.
+    (void) Append_Input_String (Default_WindowID, "exit",
+                                NULL, &Default_TLI_Line_Output, &Default_TLI_Command_Output);
   }
 }
 
