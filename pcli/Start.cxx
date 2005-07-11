@@ -283,6 +283,7 @@ setup_signal_handler (int s)
     setup_signal_handler (SIGSYS);
     // setup_signal_handler (SIGPIPE);
     // setup_signal_handler (SIGCLD);
+    setup_signal_handler (SIGTSTP);  // CNTRL-Z
 
    // Start up the Command line processor.
     Commander_Initialization ();
