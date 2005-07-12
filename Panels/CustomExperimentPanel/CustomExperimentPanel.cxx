@@ -70,9 +70,12 @@ CustomExperimentPanel::CustomExperimentPanel(PanelContainer *pc, const char *n, 
   last_status = ExpStatus_NonExistent;
 
   mw = getPanelContainer()->getMainWindow();
+  executableNameStr = mw->executableName;
+  argsStr = mw->argsStr;
+  pidStr = mw->pidStr;
 
   expID = -1;
-  if( ao->qstring_data )
+  if( ao && ao->qstring_data )
   {
     // We have an existing experiment, load the executable or pid if we 
     // have one associated.  (TODO)
@@ -80,6 +83,7 @@ CustomExperimentPanel::CustomExperimentPanel(PanelContainer *pc, const char *n, 
     if( expIDString->toInt() == -1 )
     {
       nprintf( DEBUG_PANELS ) ("we're coming in from the constructNewExperimentWizardPanel.\n");
+#ifdef UNNEEDED
       // We're comming in cold,
       // Check to see if there's a suggested executable or pid ...
       if( !mw->executableName.isEmpty() )
@@ -90,6 +94,7 @@ CustomExperimentPanel::CustomExperimentPanel(PanelContainer *pc, const char *n, 
       {
         pidStr = mw->pidStr;
       }
+#endif // UNNEEDED
     } else if( expIDString->toInt() > 0 )
     {
       expID = expIDString->toInt();
@@ -173,7 +178,7 @@ CustomExperimentPanel::CustomExperimentPanel(PanelContainer *pc, const char *n, 
     int64_t val = 0;
 
     steps = 0;
-	pd = new GenericProgressDialog(this, "Loading process...", TRUE);
+	pd = new GenericProgressDialog(this, "Loading experiment...", TRUE);
     loadTimer = new QTimer( this, "progressTimer" );
     connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
     loadTimer->start( 0 );
@@ -243,6 +248,7 @@ CustomExperimentPanel::CustomExperimentPanel(PanelContainer *pc, const char *n, 
   // Set up the timer that will monitor the progress of the experiment.
   statusTimer = new QTimer( this, "statusTimer" );
   connect( statusTimer, SIGNAL(timeout()), this, SLOT(statusUpdateTimerSlot()) );
+
   if( expID > 0 && !executableNameStr.isEmpty() )
   {
     statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the \"Run\" button to begin the experiment.")) );
@@ -256,9 +262,9 @@ CustomExperimentPanel::CustomExperimentPanel(PanelContainer *pc, const char *n, 
     if( tgrp.size() == 0 )
     {
       statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\".") );
-      PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
+        PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
       ArgumentObject *ao = new ArgumentObject("ArgumentObject", (Panel *)this);
-      topPC->dl_create_and_add_panel("Custom Experiment Wizard", bestFitPC, ao);
+topPC->dl_create_and_add_panel("Custom Experiment Wizard", bestFitPC, ao);
       delete ao;
     } else
     {
@@ -584,10 +590,10 @@ CLIInterface::interrupt = true;
         command = QString("expAttach -x %1 -f \"%2 %3\"\n").arg(expID).arg(executableNameStr).arg(argsStr);
       } else if( !pidStr.isEmpty() )
       { 
-    QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
-    QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
-    QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
-    command = QString("expAttach -x %1 -p %2 -h %3\n").arg(expID).arg(pid_name).arg(host_name);
+        QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
+        QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
+        QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
+        command = QString("expAttach -x %1 -p %2 -h %3\n").arg(expID).arg(pid_name).arg(host_name);
 // printf("command=(%s)\n", command.ascii() );
       } else
       {
@@ -598,7 +604,7 @@ CLIInterface::interrupt = true;
       int64_t val = 0;
  
       steps = 0;
- 	 pd = new GenericProgressDialog(this, "Loading process...", TRUE);
+ 	  pd = new GenericProgressDialog(this, "Loading process...", TRUE);
       loadTimer = new QTimer( this, "progressTimer" );
       connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
       loadTimer->start( 0 );
@@ -740,9 +746,9 @@ CustomExperimentPanel::loadSourcePanel()
   {
     PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
 //    (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", bestFitPC, (char *)expID);
-      ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
+    ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
     (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", bestFitPC, ao);
-      delete ao;
+    delete ao;
   } else
   {
 // printf("Raise the source panel!\n");

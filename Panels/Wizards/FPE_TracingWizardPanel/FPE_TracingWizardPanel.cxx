@@ -584,7 +584,7 @@ FPE_TracingWizardPanel::FPE_TracingWizardPanel(PanelContainer *pc, const char *n
   connect( vAttachOrLoadPageFinishButton, SIGNAL( clicked() ), this,
            SLOT( finishButtonSelected() ) );
 
-  if( ao->int_data == 0 )
+  if( ao && ao->int_data == 0 )
   {
     // This wizard panel was brought up explicitly.   Don't
     // enable the hook to go back to the IntroWizardPanel.
@@ -598,7 +598,7 @@ FPE_TracingWizardPanel::FPE_TracingWizardPanel(PanelContainer *pc, const char *n
 // a fpeTracingPanel session to help the user load an executable.
   fpeTracingPanel = NULL;
 //  if( (int)argument > 1 )
-  if( ao->panel_data != NULL )
+  if( ao && ao->panel_data != NULL )
   {
     fpeTracingPanel = (Panel *)ao->panel_data;
   }
