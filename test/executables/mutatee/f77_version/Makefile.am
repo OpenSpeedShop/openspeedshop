@@ -19,7 +19,7 @@
 noinst_PROGRAMS = mutatee
 
 mutatee_F77FLAGS = \
-	-g -gdwarf-2
+	-g -gdwarf-2 -O1
 
 mutatee_LDADD = \
 	-ldl
