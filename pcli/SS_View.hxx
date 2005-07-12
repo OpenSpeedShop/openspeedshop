@@ -121,6 +121,39 @@ class ViewType
     Headers_Name         = Head;
     Requires_Exp         = NeedsExp;
     PreDetermine_Metrics = DeterimneMetrics;
+
+   // Send information to the message czar.
+    SS_Message_Czar& czar = theMessageCzar();
+
+    SS_Message_Element element;
+
+   // Set keyword. You really need to have a keyword.
+    element.set_keyword(viewname);
+
+   // This message is not associated with an error number so we won't set this field
+   //element.set_id(p_element->errnum);
+
+   // Related keywords
+    element.add_related("view");
+    element.add_related("views");
+
+   // General topic
+    element.set_topic("expView");
+
+   // Brief, one line description
+    element.set_brief(BriefD);
+
+   // More than one line description
+    element.add_normal(ShortD);
+
+   // A wordy explaination
+    element.add_verbose(LongD);
+
+   // No example needed for views.
+    // element.add_example("");
+
+   // Submit the message to the database
+    czar.Add_Help(element);
   }
   std::string Unique_Name() { return Id; }
   std::string Brief_Name() { return Brief_Description; }
