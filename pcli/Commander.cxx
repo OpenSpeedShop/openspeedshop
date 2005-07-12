@@ -338,6 +338,7 @@ class CommandWindowID
   pthread_mutex_t Input_List_Lock;
   EXPID FocusedExp;
 
+  pthread_mutex_t Cmds_List_Lock;
   std::list<InputLineObject *>Complete_Cmds;
 
  public:
@@ -380,6 +381,7 @@ class CommandWindowID
       if (Input_Is_Async) {
         Assert(pthread_mutex_init(&Input_List_Lock, NULL) == 0); // dynamic initialization
       }
+      Assert(pthread_mutex_init(&Cmds_List_Lock, NULL) == 0); // dynamic initialization
       FocusedExp = 0;
 
      // Generate a unique ID and remember it
@@ -438,6 +440,7 @@ class CommandWindowID
       if (Input_Is_Async) {
         pthread_mutex_destroy(&Input_List_Lock);
       }
+      pthread_mutex_destroy(&Cmds_List_Lock);
 
      // Unlink from the chain of windows
 
@@ -452,6 +455,47 @@ class CommandWindowID
      // Release the lock.
       Assert(pthread_mutex_unlock(&Window_List_Lock) == 0);
     }
+
+  void Purge_All_Input () {
+   // Get the lock to this window's inputs
+    Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
+
+   // Go throught the list of remaining inputs and delete them.
+    for (Input_Source *inp = Input; inp != NULL; ) {
+      Input_Source *next = inp->Next();
+      delete inp;
+      inp = next;
+    }
+    Input = NULL;
+
+   // Release the lock
+    Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
+  }
+
+  void Abort_Executing_Input_Lines () {
+   // Get the lock to this window's current in-process commands.
+    Assert(pthread_mutex_lock(&Cmds_List_Lock) == 0);
+
+   // Look through the list for unneeded Commands
+    std::list<InputLineObject *>::iterator cmi;
+    for (cmi = Complete_Cmds.begin(); cmi != Complete_Cmds.end(); cmi++) {
+      InputLineObject *clip = *cmi;
+      std::list<CommandObject *> cmd_object = clip->CmdObj_List();
+      std::list<CommandObject *>::iterator coi;
+      for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
+        if (((*coi)->Status() == CMD_PARSED) ||
+            ((*coi)->Status() == CMD_EXECUTING)) {
+          (*coi)->set_Status (CMD_ABORTED);
+        }
+      }
+     // Terminate the Clip after aborting the CommandObjects so that
+     // the final status of commands is entered in the log file.
+      clip->SetStatus (ILO_ERROR);
+    }
+
+   // Release the lock
+    Assert(pthread_mutex_unlock(&Cmds_List_Lock) == 0);
+  }
 
   void Append_Input_Source (Input_Source *inp) {
    // Get exclusive access to the lock so that only one
@@ -506,8 +550,20 @@ class CommandWindowID
       Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
     }
   }
-  void TrackCmd (InputLineObject *Clip) { Complete_Cmds.push_back (Clip); }
+  void TrackCmd (InputLineObject *Clip) {
+   // Get the lock to this window's current in-process commands.
+    Assert(pthread_mutex_lock(&Cmds_List_Lock) == 0);
+
+   // Add a new in-process command to the list.
+    Complete_Cmds.push_back (Clip);
+
+   // Release the lock
+    Assert(pthread_mutex_unlock(&Cmds_List_Lock) == 0);
+  }
   void Remove_Completed_Input_Lines () {
+   // Get the lock to this window's current in-process commands.
+    Assert(pthread_mutex_lock(&Cmds_List_Lock) == 0);
+
    // Look through the list for unneeded lines
     std::list<InputLineObject *> cmd_object = Complete_Cmds;
     std::list<InputLineObject *>::iterator cmi;
@@ -523,7 +579,11 @@ class CommandWindowID
         Complete_Cmds.remove(L);
       }
     }
+
+   // Release the lock
+    Assert(pthread_mutex_unlock(&Cmds_List_Lock) == 0);
   }
+
 private:
   void Pop_Input_Source () {
    // We do not need to get exclusive access to Input_List_Lock
@@ -725,12 +785,19 @@ public:
         inp->Dump(mystream);
       }
     }
+
    // Print the list of completed commands
+   // Get the lock to this window's current in-process commands.
+    Assert(pthread_mutex_lock(&Cmds_List_Lock) == 0);
+
     std::list<InputLineObject *> cmd_object = Complete_Cmds;
     std::list<InputLineObject *>::iterator cmi;
     for (cmi = cmd_object.begin(); cmi != cmd_object.end(); cmi++) {
       (*cmi)->Print (mystream);
     }
+
+   // Release the lock
+    Assert(pthread_mutex_unlock(&Cmds_List_Lock) == 0);
   }
   void Dump(ostream &mystream) {
     std::list<CommandWindowID *>::reverse_iterator cwi;
@@ -833,7 +900,22 @@ CommandWindowID *Find_Command_Window (CMDWID WindowID)
 
 void Link_Cmd_Obj_to_Input (InputLineObject *I, CommandObject *C)
 {
+ // Get exclusive access to the lock so that only one
+ // add/remove/search of the list is done at a time.
+  CommandWindowID *cw = Find_Command_Window (I->Who());
+  Assert(cw != NULL);
+  Assert(pthread_mutex_lock(&Window_List_Lock) == 0);
+
   I->Push_Cmd_Obj(C);
+
+  if (I->What() == ILO_ERROR) {
+   // Something is wrong with the original commanad.
+   // Abort processing of the CommandObject.
+    C->set_Status (CMD_ABORTED);
+  }
+
+ // Release the lock.
+  Assert(pthread_mutex_unlock(&Window_List_Lock) == 0);
 }
 
 bool All_Command_Objects_Are_Used (InputLineObject *clip) {
@@ -1217,7 +1299,7 @@ ss_ostream *Window_ostream (CMDWID for_window) {
   return (cw != NULL) ? cw->ss_outstream() : NULL;
 }
 
-static void User_Debug_Mode (CMDWID issuedbywindow) {
+static void User_Info_Dump (CMDWID issuedbywindow) {
     bool Fatal_Error_Encountered = false;
     CommandWindowID *cw = Find_Command_Window (issuedbywindow);
     if ((cw == NULL) || (cw->ID() == 0)) {
@@ -1259,7 +1341,7 @@ static bool Isa_SS_Command (CMDWID issuedbywindow, const char *b_ptr) {
     if (b_ptr[fc] != *(" ")) break;
   }
   if (b_ptr[fc] == *("\?")) {
-    User_Debug_Mode (issuedbywindow);
+    User_Info_Dump  (issuedbywindow);
     return false;
   } else if (b_ptr[fc] == *("!")) {
     (void) system(&b_ptr[fc+1]);
@@ -1418,14 +1500,26 @@ void Default_TLI_Command_Output (CommandObject *C) {
 
 // Catch keyboard interrupt signals from TLI window.
 #include "sys/signal.h"
+
+static void User_Interrupt (CMDWID issuedbywindow) {
+  CommandWindowID *cw = Find_Command_Window (issuedbywindow);
+  if (cw != NULL) {
+   // Get rid of all queued commands from this window.
+    cw->Purge_All_Input ();
+
+   // Stop commands that are being processed.
+    cw->Abort_Executing_Input_Lines ();
+  }
+}
+
 static void
 catch_TLI_signal (int sig, int error_num)
 {
   if (sig == SIGINT) {
-    User_Debug_Mode (TLI_WindowID);
+    User_Interrupt (TLI_WindowID);
 
     ss_ttyout->acquireLock();
-    ss_ttyout->mystream() << Current_OpenSpeedShop_Prompt;
+    ss_ttyout->mystream() << std::endl << Current_OpenSpeedShop_Prompt;
     ss_ttyout->releaseLock();
   }
 }
