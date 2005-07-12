@@ -119,8 +119,10 @@ bool CommandObject::Print_Results (ostream &to, std::string list_seperator, std:
       if ((*cri)->Type() == CMD_RESULT_STRING) {
         std::string S;
         ((CommandResult_String *)(*cri))->Value(S);
-        if (S.substr(S.length()-1,1) == list_seperator) {
-          list_seperator_needed = false;
+        if (S.length() > 0) {
+          if (S.substr(S.length()-1,1) == list_seperator) {
+            list_seperator_needed = false;
+          }
         }
       }
     }
