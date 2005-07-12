@@ -22,6 +22,8 @@
 #include <qaction.h>
 #include <qobject.h>
 
+class ArgumentObject;
+
 // // #define DEBUG_OUTPUT_REQUESTED 1
 #include "debug.hxx"
 
@@ -221,8 +223,8 @@ dprintf("assign the accelerator to %s\n", pluginInfo->menu_accel );
     {
       dprintf("This panel is a top level grouping panel.\n");
       dprintf("Initialize it right away, then continue the menu addition...\n");
-      extern Panel * create_and_add_panel(void *, void *, void *);
-      create_and_add_panel(pluginInfoArg, (void *)pluginInfo->masterPC, (void *)NULL);
+      extern Panel * create_and_add_panel(void *, void *, ArgumentObject *);
+      create_and_add_panel(pluginInfoArg, (void *)pluginInfo->masterPC, NULL);
     }
 
     dprintf("panel_init(success) returning\n");
@@ -242,7 +244,7 @@ dprintf("assign the accelerator to %s\n", pluginInfo->menu_accel );
    */
 //  int
   Panel *
-  create_and_add_panel(void *pluginInfoArg, void *tPC, void *argument)
+  create_and_add_panel(void *pluginInfoArg, void *tPC, ArgumentObject *ao)
   {
     PanelContainer *targetPC = (PanelContainer *)tPC;
     PluginInfo *pluginInfo = (PluginInfo *)pluginInfoArg;
@@ -323,7 +325,7 @@ dprintf("assign the accelerator to %s\n", pluginInfo->menu_accel );
 
     dprintf("All panels start here!   name=(%s)\n", name);
 
-    plugin_panel = new PANEL_CLASS_NAME(targetPC, name, (char *)argument);
+    plugin_panel = new PANEL_CLASS_NAME(targetPC, name, ao);
     plugin_panel->pluginInfo = pluginInfo;
     targetPC->addPanel((Panel *)plugin_panel, targetPC, name);
     

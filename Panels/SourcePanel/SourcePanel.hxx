@@ -29,6 +29,7 @@
 #include <qsplitter.h>
 
 #include "SourceObject.hxx"
+#include "ArgumentObject.hxx"
 #include "HighlightObject.hxx"
 
 #include "SPTextEdit.hxx"
@@ -58,7 +59,7 @@ public:
   SourcePanel();
 
   //! Constructor for the SourcePanel.
-  SourcePanel(PanelContainer *pc, const char *n, void *argument);
+  SourcePanel(PanelContainer *pc, const char *n, ArgumentObject *ao);
 
   //! SourcePanel destructor.
   ~SourcePanel();

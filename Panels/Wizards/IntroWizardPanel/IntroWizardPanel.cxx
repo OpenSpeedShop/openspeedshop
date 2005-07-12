@@ -34,6 +34,8 @@
 
 #include "MessageObject.hxx"
 
+#include "ArgumentObject.hxx"
+
 
 #include <qvariant.h>
 #include <qpushbutton.h>
@@ -422,7 +424,9 @@ void IntroWizardPanel::vpage1NextButtonSelected()
       p = getPanelContainer()->raiseNamedPanel("pc Sample Wizard");
       if( !p )
       {
-        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("pc Sample Wizard", getPanelContainer(), (char *)TRUE);
+        ArgumentObject *ao = new ArgumentObject("ArgumentObject", 1);
+        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("pc Sample Wizard", getPanelContainer(), ao);
+        delete ao;
       } else
       {
         MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
@@ -435,7 +439,9 @@ void IntroWizardPanel::vpage1NextButtonSelected()
       p = getPanelContainer()->raiseNamedPanel("User Time Wizard");
       if( !p )
       {
-        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("User Time Wizard", getPanelContainer(), (char *)TRUE);
+        ArgumentObject *ao = new ArgumentObject("ArgumentObject", 1);
+        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("User Time Wizard", getPanelContainer(), ao);
+        delete ao;
       } else
       {
         MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
@@ -448,7 +454,9 @@ void IntroWizardPanel::vpage1NextButtonSelected()
       p = getPanelContainer()->raiseNamedPanel("HW Counter Wizard");
       if( !p )
       {
-        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("HW Counter Wizard", getPanelContainer(), (char *)TRUE);
+        ArgumentObject *ao = new ArgumentObject("ArgumentObject", 1);
+        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("HW Counter Wizard", getPanelContainer(), ao);
+        delete ao;
       } else
       {
         MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
@@ -461,7 +469,9 @@ void IntroWizardPanel::vpage1NextButtonSelected()
       p = getPanelContainer()->raiseNamedPanel("FPE Tracing Wizard");
       if( !p )
       {
-        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("FPE Tracing Wizard", getPanelContainer(), (char *)TRUE);
+        ArgumentObject *ao = new ArgumentObject("ArgumentObject", 1);
+        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("FPE Tracing Wizard", getPanelContainer(), ao);
+        delete ao;
       } else
       {
         MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
@@ -474,7 +484,9 @@ void IntroWizardPanel::vpage1NextButtonSelected()
       p = getPanelContainer()->raiseNamedPanel("IO Wizard");
       if( !p )
       {
-        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("IO Wizard", getPanelContainer(), (char *)TRUE);
+        ArgumentObject *ao = new ArgumentObject("ArgumentObject", 1);
+        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("IO Wizard", getPanelContainer(), ao);
+        delete ao;
       } else
       {
         MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
@@ -487,7 +499,9 @@ void IntroWizardPanel::vpage1NextButtonSelected()
       p = getPanelContainer()->raiseNamedPanel("MPI Wizard");
       if( !p )
       {
-        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("MPI Wizard", getPanelContainer(), (char *)TRUE);
+        ArgumentObject *ao = new ArgumentObject("ArgumentObject", 1);
+        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("MPI Wizard", getPanelContainer(), ao);
+        delete ao;
       } else
       {
         MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
@@ -521,7 +535,9 @@ void IntroWizardPanel::vpage1NextButtonSelected()
       p = getPanelContainer()->raiseNamedPanel("pc Sample Wizard");
       if( !p )
       {
-        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("pc Sample Wizard", getPanelContainer(), (char *)TRUE);
+        ArgumentObject *ao = new ArgumentObject("ArgumentObject", 1);
+        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("pc Sample Wizard", getPanelContainer(), ao);
+        delete ao;
       } else
       {
         MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
@@ -534,7 +550,9 @@ void IntroWizardPanel::vpage1NextButtonSelected()
       p = getPanelContainer()->raiseNamedPanel("User Time Wizard");
       if( !p )
       {
-        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("User Time Wizard", getPanelContainer(), (char *)TRUE);
+        ArgumentObject *ao = new ArgumentObject("ArgumentObject", 1);
+        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("User Time Wizard", getPanelContainer(), ao);
+        delete ao;
       } else
       {
         MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
@@ -547,7 +565,9 @@ void IntroWizardPanel::vpage1NextButtonSelected()
       p = getPanelContainer()->raiseNamedPanel("HW Counter Wizard");
       if( !p )
       {
-        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("HW Counter Wizard", getPanelContainer(), (char *)TRUE);
+        ArgumentObject *ao = new ArgumentObject("ArgumentObject", 1);
+        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("HW Counter Wizard", getPanelContainer(), ao);
+        delete ao;
       } else
       {
         MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
@@ -560,7 +580,9 @@ void IntroWizardPanel::vpage1NextButtonSelected()
       p = getPanelContainer()->raiseNamedPanel("FPE Tracing Wizard");
       if( !p )
       {
-        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("FPE Tracing Wizard", getPanelContainer(), (char *)TRUE);
+        ArgumentObject *ao = new ArgumentObject("ArgumentObject", 1);
+        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("FPE Tracing Wizard", getPanelContainer(), ao);
+        delete ao;
       } else
       {
         MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
@@ -573,7 +595,9 @@ void IntroWizardPanel::vpage1NextButtonSelected()
       p = getPanelContainer()->raiseNamedPanel("IO Wizard");
       if( !p )
       {
-        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("IO Wizard", getPanelContainer(), (char *)TRUE);
+        ArgumentObject *ao = new ArgumentObject("ArgumentObject", 1);
+        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("IO Wizard", getPanelContainer(), ao);
+        delete ao;
       } else
       {
         MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
@@ -586,7 +610,9 @@ void IntroWizardPanel::vpage1NextButtonSelected()
       p = getPanelContainer()->raiseNamedPanel("MPI Wizard");
       if( !p )
       {
-        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("MPI Wizard", getPanelContainer(), (char *)TRUE);
+        ArgumentObject *ao = new ArgumentObject("ArgumentObject", 1);
+        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("MPI Wizard", getPanelContainer(), ao);
+        delete ao;
       } else
       {
         MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");

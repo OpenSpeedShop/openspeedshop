@@ -47,6 +47,8 @@ class QButtonGroup;
 class QTextEdit;
 class QScrollView;
 
+#include "ArgumentObject.hxx"
+
 
 #define PANEL_CLASS_NAME IOWizardPanel   // Change the value of the define
                                          // to the name of your new class.
@@ -69,7 +71,7 @@ public:
         This is where the user would create the panel specific Qt code
         to do whatever functionality the user wanted the panel to perform.
      */
-  IOWizardPanel(PanelContainer *pc, const char *n, void *argument);
+  IOWizardPanel(PanelContainer *pc, const char *n, ArgumentObject *ao);
 
   //! ~IOWizardPanel() - The default destructor.
   ~IOWizardPanel();  // Active destructor

@@ -35,9 +35,11 @@
 #include "SourcePanel.hxx"
 #include "UpdateObject.hxx"
 #include "SourceObject.hxx"
+#include "ArgumentObject.hxx"
 #include "ManageProcessesPanel.hxx"
 
 #include "LoadAttachObject.hxx"
+#include "ArgumentObject.hxx"
 
 #include "CLIInterface.hxx"
 
@@ -55,7 +57,7 @@ using namespace OpenSpeedShop::Framework;
     \param pc    The panel container the panel will initially be attached.
     \param n     The initial name of the panel container
  */
-HW_CounterPanel::HW_CounterPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
+HW_CounterPanel::HW_CounterPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(pc, n)
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("HW_CounterPanel::HW_CounterPanel() constructor called\n");
 
@@ -65,15 +67,16 @@ HW_CounterPanel::HW_CounterPanel(PanelContainer *pc, const char *n, void *argume
   argsStr = QString::null;
   pidStr = QString::null;
   exitingFLAG = FALSE;
+  last_status = ExpStatus_NonExistent;
 
   mw = getPanelContainer()->getMainWindow();
 
   expID = -1;
-  if( argument )
+  if( ao->qstring_data )
   {
     // We have an existing experiment, load the executable or pid if we 
     // have one associated.  (TODO)
-    QString *expIDString = (QString *)argument;
+    QString *expIDString = ao->qstring_data;
     if( expIDString->toInt() == -1 )
     {
       nprintf( DEBUG_PANELS ) ("we're coming in from the hwCounterWizardPanel.\n");
@@ -110,7 +113,7 @@ HW_CounterPanel::HW_CounterPanel(PanelContainer *pc, const char *n, void *argume
       if( cgrp.size() == 0 )
       {
         nprintf( DEBUG_PANELS ) ("There are no known collectors for this experiment so add one.\n");
-        QString command = QString("expAttach -x %1 hwc").arg(expID);
+        QString command = QString("expAttach -x %1 hw").arg(expID);
         CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
         if( !cli->runSynchronousCLI((char *)command.ascii() ) )
         {
@@ -165,20 +168,7 @@ HW_CounterPanel::HW_CounterPanel(PanelContainer *pc, const char *n, void *argume
   {
     // We're coming in cold, or we're coming in from the hwCounterWizardPanel.
     QString command = QString::null;
-#ifdef OLDWAY
-    if( !executableNameStr.isEmpty() )
-    {
-      command = QString("expCreate -f \"%1 %2\" hwc\n").arg(executableNameStr).arg(argsStr);
-    } else if( !pidStr.isEmpty() )
-    { 
-      command = QString("expCreate %1 hwc\n").arg(pidStr);
-    } else
-    {
-      command = QString("expCreate hwc\n");
-    }
-#else // OLDWAY
-    command = QString("expCreate hwc\n");
-#endif // OLDWAY
+    command = QString("expCreate hw\n");
     bool mark_value_for_delete = true;
     int64_t val = 0;
 
@@ -266,8 +256,10 @@ HW_CounterPanel::HW_CounterPanel(PanelContainer *pc, const char *n, void *argume
     if( tgrp.size() == 0 )
     {
       statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\".") );
-PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
-topPC->dl_create_and_add_panel("pc Sample Wizard", bestFitPC, (char *)this);
+      PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
+      ArgumentObject *ao = new ArgumentObject("ArgumentObject", (Panel *)this);
+      topPC->dl_create_and_add_panel("pc Sample Wizard", bestFitPC, ao);
+      delete ao;
     } else
     {
       statusLabelText->setText( tr(QString("Process Loaded: Click on the \"Run\" button to begin the experiment.")) );
@@ -592,20 +584,15 @@ CLIInterface::interrupt = true;
         command = QString("expAttach -x %1 -f \"%2 %3\"\n").arg(expID).arg(executableNameStr).arg(argsStr);
       } else if( !pidStr.isEmpty() )
       { 
-#ifdef OLDWAY
-        command = QString("expAttach -x %1 %2\n").arg(expID).arg(pidStr);
-#else // OLDWAY
     QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
     command = QString("expAttach -x %1 -p %2 -h %3\n").arg(expID).arg(pid_name).arg(host_name);
 // printf("command=(%s)\n", command.ascii() );
-
-#endif // OLDWAY
       } else
       {
         return 0;
-//      command = QString("expCreate hwc\n");
+//      command = QString("expCreate hw\n");
       }
       bool mark_value_for_delete = true;
       int64_t val = 0;
@@ -752,7 +739,10 @@ HW_CounterPanel::loadSourcePanel()
   if( !sourcePanel )
   {
     PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
-    SourcePanel *sp = (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", bestFitPC, (char *)expID);
+//    (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", bestFitPC, (char *)expID);
+    ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
+    (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", bestFitPC, ao);
+    delete ao;
   } else
   {
 // printf("Raise the source panel!\n");
@@ -797,7 +787,9 @@ HW_CounterPanel::loadStatsPanel()
   {
     nprintf( DEBUG_PANELS ) ("loadStatsPanel() no Stats Panel found.. create one.\n");
     PanelContainer *pc = topPC->findBestFitPanelContainer(topPC);
-    statsPanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Stats Panel", pc, (void *)expID);
+    ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
+    statsPanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel((const char *)"Stats Panel", pc, ao);
+    delete ao;
 
     nprintf( DEBUG_PANELS )("call (%s)'s listener routine.\n", statsPanel->getName());
 // printf("HW_CounterPanel:: call (%s)'s listener routine.\n", statsPanel->getName());
@@ -806,7 +798,7 @@ HW_CounterPanel::loadStatsPanel()
     {
       experiment = eo->FW();
       UpdateObject *msg =
-        new UpdateObject((void *)experiment, expID, "hwc", 1);
+        new UpdateObject((void *)experiment, expID, "hw", 1);
       statsPanel->listener( (void *)msg );
     }
   }
@@ -831,7 +823,9 @@ HW_CounterPanel::loadManageProcessesPanel()
 //    nprintf( DEBUG_PANELS ) ("loadManageProcessesPanel() no ManageProcessesPanel found.. create one.\n");
 
     PanelContainer *pc = topPC->findBestFitPanelContainer(topPC);
-    manageProcessPanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("ManageProcessesPanel", pc, (void *)expID);
+    ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
+    manageProcessPanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("ManageProcessesPanel", pc, ao);
+    delete ao;
   }
 
   if( manageProcessPanel )
@@ -842,7 +836,7 @@ HW_CounterPanel::loadManageProcessesPanel()
     {
       experiment = eo->FW();
       UpdateObject *msg =
-        new UpdateObject((void *)experiment, expID, "hwc", 1);
+        new UpdateObject((void *)experiment, expID, "hw", 1);
       manageProcessPanel->listener( (void *)msg );
     }
   }
@@ -888,7 +882,9 @@ HW_CounterPanel::loadMain()
         char *panel_type = "Source Panel";
         //Find the nearest toplevel and start placement from there...
         PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
-        sourcePanel = getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, (void *)groupID);
+        ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
+        sourcePanel = getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, ao);
+        delete ao;
       }
       if( sourcePanel != NULL )
       {
@@ -936,7 +932,7 @@ HW_CounterPanel::updateStatus()
     nprintf( DEBUG_PANELS ) ("status=%d\n", status);
     switch( status )
     {
-      case 0:
+      case ExpStatus_NonExistent:
 //        statusLabelText->setText( "0: ExpStatus_NonExistent" );
         statusLabelText->setText( tr("No available experiment status available") );
         statusTimer->stop();
@@ -958,9 +954,15 @@ HW_CounterPanel::updateStatus()
         pco->terminateButton->setEnabled(FALSE);
         statusTimer->stop();
         break;
-      case 1:
+      case ExpStatus_Paused:
 //        statusLabelText->setText( "1: ExpStatus_Paused" );
+if( last_status == ExpStatus_NonExistent )
+{
+        statusLabelText->setText( tr("Experiment is Paused:  Hit the \"Run\" button to start execution.") );
+} else
+{
         statusLabelText->setText( tr("Experiment is Paused:  Hit the \"Run\" button to continue execution.") );
+}
         pco->runButton->setEnabled(TRUE);
         pco->runButton->enabledFLAG = TRUE;
         runnableFLAG = TRUE;
@@ -978,8 +980,8 @@ HW_CounterPanel::updateStatus()
         pco->terminateButton->setEnabled(TRUE);
         statusTimer->start(2000);
         break;
-      case 3:
-        if( status == 3 )
+      case ExpStatus_Running:
+        if( status == ExpStatus_Running )
         {
 //          statusLabelText->setText( "3: ExpStatus_Running" );
           statusLabelText->setText( tr("Experiment is Running.") );
@@ -1001,20 +1003,15 @@ HW_CounterPanel::updateStatus()
         pco->terminateButton->setEnabled(TRUE);
         statusTimer->start(2000);
         break;
-      case 2:
-      case 4:
-      case 5:
-        if( status == 2 )
+      case ExpStatus_Terminated:
+      case ExpStatus_InError:
+        if( status == ExpStatus_Terminated )
         {
-//          statusLabelText->setText( "2: ExpStatus_Suspended" );
-          statusLabelText->setText( tr("Experiment is Susupended.") );
-        } else if( status == 4 )
-        {
-//          statusLabelText->setText( "4: ExpStatus_Terminated" );
+//          statusLabelText->setText( "ExpStatus_Terminated" );
           statusLabelText->setText( tr("Experiment has Terminated") );
-        } else if( status == 5 )
+        } else if( status == ExpStatus_InError )
         {
-//          statusLabelText->setText( "5: ExpStatus_InError" );
+//          statusLabelText->setText( "ExpStatus_InError" );
           statusLabelText->setText( tr("Experiment has encountered an Error.") );
         }
         statusTimer->stop();
@@ -1042,12 +1039,14 @@ HW_CounterPanel::updateStatus()
           statusTimer->stop();
         break;
     }
+last_status = status;
     
   } else
   {
     statusLabelText->setText( "Cannot find experiment for expID" );
     return;
   }
+
 }
 
 void

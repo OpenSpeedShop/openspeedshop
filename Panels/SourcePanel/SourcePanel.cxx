@@ -57,14 +57,14 @@ SourcePanel::SourcePanel()
 
 /*! This constructor creates a title label and a QTextEdit.
 */
-SourcePanel::SourcePanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
+SourcePanel::SourcePanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(pc, n)
 {
   nprintf(DEBUG_CONST_DESTRUCT) ( "SourcePanel::SourcePanel() constructor called\n");
   expID = 0;
 
   frameLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
-  expID = (int)argument;
+  expID = ao->int_data;
   groupID = expID;
 
   splitter = new QSplitter(getBaseWidgetFrame(), "SourcePanel: splitter");

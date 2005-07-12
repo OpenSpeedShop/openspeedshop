@@ -64,7 +64,7 @@ struct sort_descending : public std::binary_function<T,T,bool> {
 /*! Create a pc Sampling Specific Stats Panel.   This panel is derived
     from the StatsPanelBase class.  
 */
-StatsPanel::StatsPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
+StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(pc, n)
 {
 // printf("StatsPanel() entered\n");
   setCaption("StatsPanel");
@@ -78,7 +78,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, void *argument) : Pane
   currentMetricStr = QString::null;
   metricHeaderTypeArray = NULL;
   collectorStr = QString::null;
-  groupID = (int)argument;
+  groupID = ao->int_data;
   expID = -1;
   ascending_sort = false;
 
@@ -943,7 +943,9 @@ fprintf(stderr, "No function definition for this entry.   Unable to position sou
         char *panel_type = "Source Panel";
   //Find the nearest toplevel and start placement from there...
         PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(getPanelContainer());
-        Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, (void *)groupID);
+        ArgumentObject *ao = new ArgumentObject("ArgumentObject", groupID);
+        Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, ao);
+        delete ao;
         if( p != NULL ) 
         {
 // printf("Call the sourcepanel listener with the source object...\n");

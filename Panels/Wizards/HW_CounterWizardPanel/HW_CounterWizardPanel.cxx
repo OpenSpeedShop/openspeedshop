@@ -57,7 +57,7 @@
 #include "SS_Input_Manager.hxx"
 using namespace OpenSpeedShop::Framework;
 
-HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
+HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(pc, n)
 {
   nprintf(DEBUG_CONST_DESTRUCT) ("HW_CounterWizardPanel::HW_CounterWizardPanel() constructor called\n");
   if ( !getName() )
@@ -584,7 +584,7 @@ HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, 
   connect( vAttachOrLoadPageFinishButton, SIGNAL( clicked() ), this,
            SLOT( finishButtonSelected() ) );
 
-  if( (bool)argument == 0 )
+  if( ao->int_data == 0 )
   {
     // This wizard panel was brought up explicitly.   Don't
     // enable the hook to go back to the IntroWizardPanel.
@@ -597,9 +597,10 @@ HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, 
 // This should only be > 1 when we're calling this wizard from within
 // a hwCounterPanel session to help the user load an executable.
   hwCounterPanel = NULL;
-  if( (int)argument > 1 )
+//  if( (int)argument > 1 )
+  if( ao->panel_data != NULL )
   {
-    hwCounterPanel = (Panel *)argument;
+    hwCounterPanel = (Panel *)ao->panel_data;
   }
 }
 
@@ -787,7 +788,7 @@ void HW_CounterWizardPanel::eDescriptionPageIntroButtonSelected()
   Panel *p = getPanelContainer()->raiseNamedPanel("Intro Wizard");
   if( !p )
   {
-    getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Intro Wizard", getPanelContainer(), (void *)NULL );
+    getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Intro Wizard", getPanelContainer(), NULL );
   }
 }
 
@@ -944,7 +945,7 @@ void HW_CounterWizardPanel::vDescriptionPageIntroButtonSelected()
   if( !p )
   {
     nprintf(DEBUG_PANELS) ("vDescriptionPageIntroButtonSelected() create a new one!\n");
-    getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Intro Wizard", getPanelContainer(), (void *)NULL);
+    getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Intro Wizard", getPanelContainer(), NULL);
   }
 }
 
@@ -1202,8 +1203,9 @@ void HW_CounterWizardPanel::vSummaryPageFinishButtonSelected()
 
         if( !p )
         {
-          QString *argument = new QString("-1");
-          p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("HW Counter", getPanelContainer(), (void *)argument);
+          ArgumentObject *ao = new ArgumentObject("ArgumentObject", -1 );
+          p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("HW Counter", getPanelContainer(), ao);
+          delete ao;
         }
 
         getPanelContainer()->hidePanel((Panel *)this);
@@ -1328,7 +1330,7 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new execu
     for( std::set<Metadata>::const_iterator mi = collectortypes.begin();
          mi != collectortypes.end(); mi++ )
     {
-      if( mi->getUniqueId() == "hwc" )
+      if( mi->getUniqueId() == "hw" )
       {
         found_one = TRUE;
       }
@@ -1338,7 +1340,7 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new execu
       return;
     }
 
-    Collector hwCounterCollector = dummy_experiment.createCollector("hwc");
+    Collector hwCounterCollector = dummy_experiment.createCollector("hw");
 
     Metadata cm = hwCounterCollector.getMetadata();
       std::set<Metadata> md =hwCounterCollector.getParameters();

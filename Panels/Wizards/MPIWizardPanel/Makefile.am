@@ -20,7 +20,7 @@ pkglib_LTLIBRARIES = MPIWizardPanel.la
 
 MPIWizardPanel_la_CXXFLAGS = \
     -I/usr/include \
-    $(QTLIB_CPPFLAGS) \
+	$(QTLIB_CPPFLAGS) \
     -I. \
     -I$(top_srcdir)/gui \
     -I$(top_srcdir)/images \

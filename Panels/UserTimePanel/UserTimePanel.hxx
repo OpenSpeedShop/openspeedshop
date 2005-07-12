@@ -43,6 +43,8 @@ class QHBoxLayout;
 
 class OpenSpeedshop;
 
+class ArgumentObject;
+
 #undef PANEL_CLASS_NAME
 #define PANEL_CLASS_NAME UserTimePanel   // Change the value of the define
                                          // to the name of your new class.
@@ -64,7 +66,7 @@ public:
         This is where the user would create the panel specific Qt code
         to do whatever functionality the user wanted the panel to perform.
      */
-  UserTimePanel(PanelContainer *pc, const char *n, void *argument);
+  UserTimePanel(PanelContainer *pc, const char *n, ArgumentObject *ao);
 
   //! ~UserTimePanel() - The default destructor.
   ~UserTimePanel();  // Active destructor
@@ -113,6 +115,7 @@ public:
   QHBoxLayout *statusLayout;
   QLabel *statusLabel; 
   QLineEdit *statusLabelText;
+  int last_status;
 
   QVBoxLayout * frameLayout;
   ProcessControlObject *pco;

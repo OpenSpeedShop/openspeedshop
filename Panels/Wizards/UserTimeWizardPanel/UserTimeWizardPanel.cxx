@@ -57,7 +57,7 @@
 #include "SS_Input_Manager.hxx"
 using namespace OpenSpeedShop::Framework;
 
-UserTimeWizardPanel::UserTimeWizardPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
+UserTimeWizardPanel::UserTimeWizardPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(pc, n)
 {
   nprintf(DEBUG_CONST_DESTRUCT) ("UserTimeWizardPanel::UserTimeWizardPanel() constructor called\n");
   if ( !getName() )
@@ -584,7 +584,7 @@ UserTimeWizardPanel::UserTimeWizardPanel(PanelContainer *pc, const char *n, void
   connect( vAttachOrLoadPageFinishButton, SIGNAL( clicked() ), this,
            SLOT( finishButtonSelected() ) );
 
-  if( (bool)argument == 0 )
+  if( ao->int_data == 0 )
   {
     // This wizard panel was brought up explicitly.   Don't
     // enable the hook to go back to the IntroWizardPanel.
@@ -597,9 +597,10 @@ UserTimeWizardPanel::UserTimeWizardPanel(PanelContainer *pc, const char *n, void
 // This should only be > 1 when we're calling this wizard from within
 // a usertimePanel session to help the user load an executable.
   usertimePanel = NULL;
-  if( (int)argument > 1 )
+//  if( (int)argument > 1 )
+  if( ao->panel_data != NULL )
   {
-    usertimePanel = (Panel *)argument;
+    usertimePanel = (Panel *)ao->panel_data;
   }
 }
 
@@ -787,7 +788,7 @@ void UserTimeWizardPanel::eDescriptionPageIntroButtonSelected()
   Panel *p = getPanelContainer()->raiseNamedPanel("Intro Wizard");
   if( !p )
   {
-    getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Intro Wizard", getPanelContainer(), (void *)NULL );
+    getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Intro Wizard", getPanelContainer(), NULL );
   }
 }
 
@@ -944,7 +945,7 @@ void UserTimeWizardPanel::vDescriptionPageIntroButtonSelected()
   if( !p )
   {
     nprintf(DEBUG_PANELS) ("vDescriptionPageIntroButtonSelected() create a new one!\n");
-    getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Intro Wizard", getPanelContainer(), (void *)NULL);
+    getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Intro Wizard", getPanelContainer(), NULL);
   }
 }
 
@@ -1202,8 +1203,9 @@ void UserTimeWizardPanel::vSummaryPageFinishButtonSelected()
 
         if( !p )
         {
-          QString *argument = new QString("-1");
-          p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("User Time", getPanelContainer(), (void *)argument);
+          ArgumentObject *ao = new ArgumentObject("ArgumentObject", -1 );
+          p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("User Time", getPanelContainer(), ao);
+          delete ao;
         }
 
         getPanelContainer()->hidePanel((Panel *)this);

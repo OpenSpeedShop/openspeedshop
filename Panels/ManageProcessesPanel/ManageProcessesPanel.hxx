@@ -25,6 +25,7 @@
 class PanelContainer;
 class ManageCollectorsClass;
 class QHBoxLayout;
+class ArgumentObject;
 
 #undef PANEL_CLASS_NAME
 #define PANEL_CLASS_NAME ManageProcessesPanel   // Change the value of the define
@@ -36,7 +37,7 @@ class ManageProcessesPanel  : public Panel
     Q_OBJECT
   public:
     //! ManageProcessesPanel(PanelContainer *pc, const char *name)
-    ManageProcessesPanel(PanelContainer *pc, const char *n, void *argument);
+    ManageProcessesPanel(PanelContainer *pc, const char *n, ArgumentObject *ao);
 
     //! ~ManageProcessesPanel() - The default destructor.
     ~ManageProcessesPanel();  // Active destructor

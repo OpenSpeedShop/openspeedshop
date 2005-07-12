@@ -46,6 +46,8 @@ class QFile;
 
 #include "SPListViewItem.hxx"
 
+
+#include "ArgumentObject.hxx"
 #include "SS_Input_Manager.hxx"
 
 #include <qvaluelist.h>
@@ -64,7 +66,7 @@ class StatsPanel  : public Panel
     Q_OBJECT
   public:
     //! StatsPanel(PanelContainer *pc, const char *name)
-    StatsPanel(PanelContainer *pc, const char *n, void *argument);
+    StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao);
 
     //! ~StatsPanel() - The default destructor.
     ~StatsPanel();  // Active destructor

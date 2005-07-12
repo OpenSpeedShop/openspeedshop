@@ -24,6 +24,7 @@
 #include "SlotInfo.hxx"
 
 class Panel;
+class ArgumentObject;
 
 //! Defines all the fields required for a plugin definition.
 class PluginInfo {
@@ -66,7 +67,7 @@ class PluginInfo {
 
     /*! This gets called on the main menu callback to create
         and add each type of panel. */
-    Panel * (*dl_create_and_add_panel)(void *, void *, void *);
+    Panel * (*dl_create_and_add_panel)(void *, void *, ArgumentObject *);
 
     //! The plugin preference category listing.
     char *preference_category;

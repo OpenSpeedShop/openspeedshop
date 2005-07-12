@@ -57,7 +57,7 @@
 #include "SS_Input_Manager.hxx"
 using namespace OpenSpeedShop::Framework;
 
-pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
+pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(pc, n)
 {
   nprintf(DEBUG_CONST_DESTRUCT) ("pcSampleWizardPanel::pcSampleWizardPanel() constructor called\n");
   if ( !getName() )
@@ -584,7 +584,7 @@ pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n, void
   connect( vAttachOrLoadPageFinishButton, SIGNAL( clicked() ), this,
            SLOT( finishButtonSelected() ) );
 
-  if( (bool)argument == 0 )
+  if( ao->int_data == 0 )
   {
     // This wizard panel was brought up explicitly.   Don't
     // enable the hook to go back to the IntroWizardPanel.
@@ -597,9 +597,10 @@ pcSampleWizardPanel::pcSampleWizardPanel(PanelContainer *pc, const char *n, void
 // This should only be > 1 when we're calling this wizard from within
 // a pcSamplePanel session to help the user load an executable.
   pcSamplePanel = NULL;
-  if( (int)argument > 1 )
+//  if( (int)argument > 1 )
+  if( ao->panel_data != NULL )
   {
-    pcSamplePanel = (Panel *)argument;
+    pcSamplePanel = (Panel *)ao->panel_data;
   }
 }
 
@@ -787,7 +788,7 @@ void pcSampleWizardPanel::eDescriptionPageIntroButtonSelected()
   Panel *p = getPanelContainer()->raiseNamedPanel("Intro Wizard");
   if( !p )
   {
-    getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Intro Wizard", getPanelContainer(), (void *)NULL );
+    getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Intro Wizard", getPanelContainer(), NULL );
   }
 }
 
@@ -944,7 +945,7 @@ void pcSampleWizardPanel::vDescriptionPageIntroButtonSelected()
   if( !p )
   {
     nprintf(DEBUG_PANELS) ("vDescriptionPageIntroButtonSelected() create a new one!\n");
-    getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Intro Wizard", getPanelContainer(), (void *)NULL);
+    getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Intro Wizard", getPanelContainer(), NULL);
   }
 }
 
@@ -1202,8 +1203,9 @@ void pcSampleWizardPanel::vSummaryPageFinishButtonSelected()
 
         if( !p )
         {
-          QString *argument = new QString("-1");
-          p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("pc Sampling", getPanelContainer(), (void *)argument);
+          ArgumentObject *ao = new ArgumentObject("ArgumentObject", -1 );
+          p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("pc Sampling", getPanelContainer(), ao);
+          delete ao;
         }
 
         getPanelContainer()->hidePanel((Panel *)this);

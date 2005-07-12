@@ -2443,7 +2443,7 @@ PanelContainer::setExternalName( const char *n )
 */
 #include "MessageObject.hxx"
 Panel *
-PanelContainer::dl_create_and_add_panel(const char *panel_type, PanelContainer *targetPC, void *arguments)
+PanelContainer::dl_create_and_add_panel(const char *panel_type, PanelContainer *targetPC, ArgumentObject *ao)
 {
   // if targetPC is null, try starting from the nearest top level...
   if( !targetPC )
@@ -2472,7 +2472,7 @@ PanelContainer::dl_create_and_add_panel(const char *panel_type, PanelContainer *
       {
         nprintf(DEBUG_PANELCONTAINERS) ("HE SHOOTS!   HE SCORES!\n");
 // printf ("HE SHOOTS!   HE SCORES!\n");
-        Panel *p = (*(pi->dl_create_and_add_panel))((void *)pi, targetPC, arguments);
+        Panel *p = (*(pi->dl_create_and_add_panel))((void *)pi, targetPC, ao);
         p->show();
         return p;
       }

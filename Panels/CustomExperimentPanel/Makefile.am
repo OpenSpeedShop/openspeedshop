@@ -22,7 +22,7 @@ CustomExperimentPanel_la_CXXFLAGS = \
 	-c -LANG:std -fpic \
     -I/usr/include \
 	$(QTLIB_CPPFLAGS) \
-    -I. \
+	-I. \
 	-I$(top_srcdir)/libopenss-framework \
     -I$(top_srcdir)/pcli \
     -I$(top_srcdir)/gui \

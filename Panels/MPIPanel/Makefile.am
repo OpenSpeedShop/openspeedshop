@@ -21,8 +21,8 @@ pkglib_LTLIBRARIES = MPIPanel.la
 MPIPanel_la_CXXFLAGS = \
 	-c -LANG:std -fpic \
     -I/usr/include \
-    $(QTLIB_CPPFLAGS) \
-    -I. \
+	$(QTLIB_CPPFLAGS) \
+	-I. \
 	-I$(top_srcdir)/libopenss-framework \
     -I$(top_srcdir)/pcli \
     -I$(top_srcdir)/gui \
@@ -42,7 +42,7 @@ MPIPanel_la_LDFLAGS = \
 	-avoid-version \
 	-L$(top_srcdir)/libopenss-framework \
 	-L$(top_srcdir)/dialogs \
-	 $(QTLIB_LIBS) $(QTLIB_LDFLAGS) \
+	$(QTLIB_LIBS) $(QTLIB_LDFLAGS) \
 	-ldl
 
 MPIPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-Dialogs

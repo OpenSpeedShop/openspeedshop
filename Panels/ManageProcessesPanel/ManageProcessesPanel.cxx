@@ -23,19 +23,20 @@
 #include "UpdateObject.hxx"
 #include "PanelContainer.hxx"   // Do not remove
 #include "plugin_entry_point.hxx"   // Do not remove
+#include "ArgumentObject.hxx"
 
 #include <qtextedit.h>  // For QTextEdit in example below...
-ManageProcessesPanel::ManageProcessesPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
+ManageProcessesPanel::ManageProcessesPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(pc, n)
 {
   setCaption("ManageProcessesPanel");
   frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
-  expID = (int)argument;
+  expID = ao->int_data;
 
   mcc = new ManageCollectorsClass( this, getBaseWidgetFrame() );
   frameLayout->addWidget(mcc);
   mcc->show();
-  mcc->expID = (int)argument;
+  mcc->expID = ao->int_data;
   groupID = mcc->expID;
 
   getBaseWidgetFrame()->setCaption("ManageProcessesPanelBaseWidget");

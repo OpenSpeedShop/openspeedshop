@@ -43,6 +43,8 @@ class QHBoxLayout;
 
 class OpenSpeedshop;
 
+class ArgumentObject;
+
 #undef PANEL_CLASS_NAME
 #define PANEL_CLASS_NAME MPIPanel   // Change the value of the define
                                          // to the name of your new class.
@@ -64,7 +66,7 @@ public:
         This is where the user would create the panel specific Qt code
         to do whatever functionality the user wanted the panel to perform.
      */
-  MPIPanel(PanelContainer *pc, const char *n, void *argument);
+  MPIPanel(PanelContainer *pc, const char *n, ArgumentObject *ao);
 
   //! ~MPIPanel() - The default destructor.
   ~MPIPanel();  // Active destructor
@@ -113,6 +115,7 @@ public:
   QHBoxLayout *statusLayout;
   QLabel *statusLabel; 
   QLineEdit *statusLabelText;
+  int last_status;
 
   QVBoxLayout * frameLayout;
   ProcessControlObject *pco;

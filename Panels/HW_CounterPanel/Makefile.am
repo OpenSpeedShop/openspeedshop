@@ -21,8 +21,8 @@ pkglib_LTLIBRARIES = HW_CounterPanel.la
 HW_CounterPanel_la_CXXFLAGS = \
 	-c -LANG:std -fpic \
     -I/usr/include \
-    $(QTLIB_CPPFLAGS) \
-    -I. \
+	$(QTLIB_CPPFLAGS) \
+	-I. \
 	-I$(top_srcdir)/libopenss-framework \
     -I$(top_srcdir)/pcli \
     -I$(top_srcdir)/gui \

@@ -31,6 +31,8 @@
 #include "PluginInfo.hxx"
 
 
+#include "ArgumentObject.hxx"
+
 #include "preferencesdialog.hxx"
 
 #include <qapplication.h>
@@ -244,9 +246,10 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
       panel_type = "Construct New";
     }
   
-  //printf("pane_type.ascii() = %s\n", panel_type.ascii() );
     PanelContainer *bestFitPC = ((PanelContainer *)topPC)->findBestFitPanelContainer((PanelContainer *)topPC);
-    topPC->dl_create_and_add_panel((char *)panel_type.ascii(), bestFitPC, (void *)&expStr);
+    ArgumentObject *ao = new ArgumentObject("ArgumentObject", &expStr);
+    topPC->dl_create_and_add_panel((char *)panel_type.ascii(), bestFitPC, ao);
+    delete ao;
   }
 
   delete dialog;
@@ -1169,7 +1172,9 @@ OpenSpeedshop::lookForExperiment()
 
 // printf("pane_type.ascii() = %s\n", panel_type.ascii() );
     PanelContainer *bestFitPC = ((PanelContainer *)topPC)->findBestFitPanelContainer((PanelContainer *)topPC);
-    topPC->dl_create_and_add_panel((char *)panel_type.ascii(), bestFitPC, (void *)&expStr);
+    ArgumentObject *ao = new ArgumentObject("ArgumentObject", &expStr);
+    topPC->dl_create_and_add_panel((char *)panel_type.ascii(), bestFitPC, ao);
+    delete ao;
   }
 
   loadTimer->stop();

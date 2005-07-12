@@ -144,7 +144,7 @@ register_plugin(const char *plugin_file)
   dprintf("\tlibdso: dynamic routine returned %d\n", i);
 
   i = (*dl_routine)((void *)pl, (void *)pluginInfo);
-  pluginInfo->dl_create_and_add_panel = (Panel * (*)(void *, void *, void *))lt_dlsym(dl_object, "create_and_add_panel" );
+  pluginInfo->dl_create_and_add_panel = (Panel * (*)(void *, void *, ArgumentObject *))lt_dlsym(dl_object, "create_and_add_panel" );
   if( pluginInfo->dl_create_and_add_panel == NULL )
   {
 //    fprintf(stderr, "libdso: dlsym %s not found dlerror()=%s\n", pluginInfo->plugin_entry_point, lt_dlerror() );
