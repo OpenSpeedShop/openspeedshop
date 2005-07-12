@@ -147,6 +147,11 @@ static bool VIEW_stats (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
    // Extract the top "n" items from the sorted list.
     std::vector<Function_CommandResult_pair>::const_iterator it = items.begin();
     for(int64_t foundn = 0; (foundn < topn) && (it != items.end()); foundn++, it++ ) {
+     // Check for asnychonous abort command
+      if (cmd->Status() == CMD_ABORTED) {
+        return false;
+      }
+
       CommandResult_Columns *C = new CommandResult_Columns ();
 
      // Add Metrics

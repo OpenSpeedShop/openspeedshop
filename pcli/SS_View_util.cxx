@@ -104,6 +104,11 @@ void GetMetricsforThreads (CommandObject *cmd,
 
  // Evalute the metric over this address range
   for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+   // Check for asnychonous abort command
+    if (cmd->Status() == CMD_ABORTED) {
+      return;
+    }
+
     Thread thread = *ti;
 
     T new_value;
@@ -263,6 +268,10 @@ std::vector<Function_CommandResult_pair>
  // Iterate over each function
   for(std::set<Function>::const_iterator
             i = functions.begin(); i != functions.end(); ++i) {
+   // Check for asnychonous abort command
+    if (cmd->Status() == CMD_ABORTED) {
+      return items;
+    }
 
    // Evalute the metric for this function
     CommandResult *value = Get_Function_Metric ( cmd, *i, tgrp, C, metric);
@@ -272,6 +281,11 @@ std::vector<Function_CommandResult_pair>
         items.push_back( std::make_pair(*i, value) );
     }
 
+  }
+
+ // Check for asnychonous abort command
+  if (cmd->Status() == CMD_ABORTED) {
+    return items;
   }
 
  // Now we can sort the data.
