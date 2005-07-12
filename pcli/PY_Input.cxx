@@ -125,7 +125,8 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
 
     if (!python_needs_result ||
         (cmd->Status() == CMD_ERROR) ||
-        (cmd->Status() == CMD_ABORTED)) {
+        (cmd->Status() == CMD_ABORTED) ||
+        (cmd->Clip()->What() == ILO_ERROR)) {
      // If the result is not needed within Python
      // or if something went wrong, return a null value to Python.
       p_object = Py_BuildValue("");
@@ -228,6 +229,11 @@ static PyObject *SS_DelayILO (PyObject *self, PyObject *args) {
 static PyObject *Prepare_Input_Line (InputLineObject *clip) {
   int64_t buffer_size = clip->Command().length()+1;
   bool need_newline = false;
+
+ // Verify that the command is still valid.
+  if ((clip->What() == ILO_ERROR)) {
+    return NULL;
+  }
 
  // Python requires that every input line end with an EOL character.
   if (clip->Command().c_str()[buffer_size-2] != *("\n")) {
