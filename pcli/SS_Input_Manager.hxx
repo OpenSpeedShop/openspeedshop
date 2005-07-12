@@ -55,6 +55,12 @@ using namespace OpenSpeedShop::Framework;
 
 using namespace std;
 
+#include "SS_Message_Element.hxx"
+#include "SS_Message_Czar.hxx"
+
+using namespace OpenSpeedShop;
+extern SS_Message_Czar& theMessageCzar();
+
 #include "SS_Output.hxx"
 
 #include "SS_Parse_Range.hxx"
@@ -67,4 +73,7 @@ using namespace std;
 #include "SS_View.hxx"
 
 #include "ArgClass.hxx"
+
+#include "SS_Cmd_Execution.hxx"
+
 #endif // SS_INPUT_MANAGER_H
