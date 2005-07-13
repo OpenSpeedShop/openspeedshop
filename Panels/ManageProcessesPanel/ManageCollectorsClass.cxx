@@ -250,7 +250,36 @@ ManageCollectorsClass::updateAttachedList()
             Thread t = *ti;
             std::string host = t.getHost();
             pid_t pid = t.getProcessId();
-            if (!atleastone) {
+
+            // Add some status to each thread.
+            QString threadStatusStr;
+            switch( t.getState() )
+            {
+              case Thread::Disconnected:
+                threadStatusStr = "Disconnected";
+                break;
+              case Thread::Connecting:
+                threadStatusStr = "Connecting";
+                break;
+              case Thread::Nonexistent:
+                threadStatusStr = "Nonexistent";
+                break;
+              case Thread::Running:
+                threadStatusStr = "Running";
+                break;
+              case Thread::Suspended:
+                threadStatusStr = "Suspended";
+                break;
+              case Thread::Terminated:
+                threadStatusStr = "Terminate";
+                break;
+              default:
+                threadStatusStr = "Unknown";
+                break;
+            }
+  
+            if (!atleastone)
+            {
               atleastone = true;
             }
             QString pidstr = QString("%1").arg(pid);
@@ -270,7 +299,7 @@ ManageCollectorsClass::updateAttachedList()
             CollectorGroup::iterator ci;
             int collector_count = 0;
             QListViewItem *item =
-              new QListViewItem( attachCollectorsListView, pidstr );
+              new QListViewItem( attachCollectorsListView, pidstr, threadStatusStr );
             for (ci = cgrp.begin(); ci != cgrp.end(); ci++)
             {
               Collector c = *ci;
