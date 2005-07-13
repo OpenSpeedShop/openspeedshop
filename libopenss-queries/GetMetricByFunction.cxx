@@ -38,6 +38,10 @@ using namespace OpenSpeedShop::Framework;
  * The results are returned in a map of functions to metric values. Only those
  * functions with non-zero metric values will be present in the returned map.
  *
+ * @pre    The specified collector and thread must be in the same experiment
+ *         database. An assertion failure occurs if the collector and thread
+ *         are in different databases.
+ *
  * @param collector    Collector for which to get a metric.
  * @param metric       Unique identifier of the metric.
  * @param thread       Thread for which to get metric values.
@@ -50,6 +54,12 @@ void Queries::GetMetricByFunctionInThread(
     const Thread& thread,
     SmartPtr<std::map<Function, double> >& result)
 {
+    // Check preconditions
+    Assert(collector.inSameDatabase(thread));
+
+    // Lock the appropriate database
+    collector.lockDatabase();
+
     // Time interval covering earliest to latest possible time
     const TimeInterval Forever = 
 	TimeInterval(Time::TheBeginning(), Time::TheEnd());
@@ -79,5 +89,8 @@ void Queries::GetMetricByFunctionInThread(
 	    result->insert(std::make_pair(*i, value));
 	
     }    
+
+    // Unlock the apropriate database
+    collector.unlockDatabase();
 }
 

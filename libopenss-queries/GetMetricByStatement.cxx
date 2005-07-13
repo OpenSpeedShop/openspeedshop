@@ -39,6 +39,10 @@ using namespace OpenSpeedShop::Framework;
  * Only those statements with non-zero metric values will be present in the
  * returned map.
  *
+ * @pre    The specified collector and thread must be in the same experiment
+ *         database. An assertion failure occurs if the collector and thread
+ *         are in different databases.
+ *
  * @param collector    Collector for which to get a metric.
  * @param metric       Unique identifier of the metric.
  * @param file         File for which to get metric values.
@@ -53,6 +57,12 @@ void Queries::GetMetricByStatementInFileForThread(
     const Thread& thread,
     SmartPtr<std::map<int, double> >& result)
 {
+    // Check preconditions
+    Assert(collector.inSameDatabase(thread));
+
+    // Lock the appropriate database
+    collector.lockDatabase();
+    
     // Time interval covering earliest to latest possible time
     const TimeInterval Forever = 
 	TimeInterval(Time::TheBeginning(), Time::TheEnd());
@@ -95,6 +105,9 @@ void Queries::GetMetricByStatementInFileForThread(
 	}
 	
     }
+    
+    // Unlock the appropriate database
+    collector.unlockDatabase();
 }
 
 
@@ -108,6 +121,10 @@ void Queries::GetMetricByStatementInFileForThread(
  * Only those statements with non-zero metric values will be present in the
  * returned map.
  *
+ * @pre    The specified collector and function must be in the same experiment
+ *         database. An assertion failure occurs if the collector and function
+ *         are in different databases.
+ *
  * @param collector    Collector for which to get a metric.
  * @param metric       Unique identifier of the metric.
  * @param function     Function for which to get metric values.
@@ -120,6 +137,12 @@ void Queries::GetMetricByStatementInFunction(
     const Function& function,
     SmartPtr<std::map<Statement, double> >& result)
 {
+    // Check preconditions
+    Assert(collector.inSameDatabase(function));
+
+    // Lock the appropriate database
+    collector.lockDatabase();
+
     // Time interval covering earliest to latest possible time
     const TimeInterval Forever = 
 	TimeInterval(Time::TheBeginning(), Time::TheEnd());
@@ -160,4 +183,7 @@ void Queries::GetMetricByStatementInFunction(
 	    result->insert(std::make_pair(*i, value));
 	
     }
+
+    // Unlock the appropriate database
+    collector.unlockDatabase();
 }
