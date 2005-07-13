@@ -18,7 +18,7 @@
 
 noinst_PROGRAMS = mutatee
 
-mutatee_CFLAGS = \
+CFLAGS = \
 	-g -gdwarf-2 -O1
 
 mutatee_LDADD = \
