@@ -53,7 +53,7 @@ void Experiment_Termination () {
 
 // Experiment Utilities.
 
-static int Wait_For_Exp_State (int to_state, ExperimentObject *exp) {
+static int Wait_For_Exp_State (CommandObject *cmd, int to_state, ExperimentObject *exp) {
  // After changing the state of each thread, wait for the
  // status of the experiment to change.  This is necessary
  // because of the asynchronous nature of the FrameWork.
@@ -62,6 +62,11 @@ static int Wait_For_Exp_State (int to_state, ExperimentObject *exp) {
          (latest != ExpStatus_NonExistent) &&
          (latest != ExpStatus_Terminated) &&
          (latest != ExpStatus_InError)) {
+   // Check for asnychonous abort command 
+    if ((cmd->Status() == CMD_ERROR) ||
+        (cmd->Status() == CMD_ABORTED)) {
+      break;
+    }
     usleep (10000);
     latest = exp->Determine_Status();
   }
@@ -69,8 +74,13 @@ static int Wait_For_Exp_State (int to_state, ExperimentObject *exp) {
   return latest;
 }
 
-static void Wait_For_Thread_Connected (Thread t) {
+static void Wait_For_Thread_Connected (CommandObject *cmd, Thread t) {
   while (t.getState() == Thread::Connecting) {
+   // Check for asnychonous abort command 
+    if ((cmd->Status() == CMD_ERROR) ||
+        (cmd->Status() == CMD_ABORTED)) {
+      break;
+    }
     usleep (10000);
   }
 }
@@ -221,7 +231,7 @@ static void Attach_Command (CommandObject *cmd, ExperimentObject *exp, Thread t,
     if (t.getState() == Thread::Disconnected) {
       t.changeState (Thread::Connecting);
     }
-    Wait_For_Thread_Connected (t);
+    Wait_For_Thread_Connected (cmd, t);
 
     c.startCollecting(t);  // There is no point in attaching unless we intend to use it!
   }
@@ -238,7 +248,7 @@ static void Attach_Command (CommandObject *cmd, ExperimentObject *exp, Thread t,
 
 static void Detach_Command (CommandObject *cmd, ExperimentObject *exp, Thread t, Collector c) {
   try {
-    Wait_For_Thread_Connected (t);
+    Wait_For_Thread_Connected (cmd, t);
     c.stopCollecting(t);  // We don't want to collect any more data for this thread!
   }
   catch(const Exception& error) {
@@ -595,7 +605,7 @@ static bool Destroy_Experiment (CommandObject *cmd, ExperimentObject *exp, bool 
     for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
       Thread t = *ti;
       try {
-        Wait_For_Thread_Connected (t);
+        Wait_For_Thread_Connected (cmd, t);
         t.changeState (Thread::Terminated );
       }
       catch(const Exception& error) {
@@ -611,7 +621,7 @@ static bool Destroy_Experiment (CommandObject *cmd, ExperimentObject *exp, bool 
     }
 
    // Be sure the application is in a terminal state.
-    (void) Wait_For_Exp_State (ExpStatus_NonExistent , exp);
+    (void) Wait_For_Exp_State (cmd, ExpStatus_NonExistent , exp);
   }
 
  // Remove all trace of the experiment from the Command Windows.
@@ -880,7 +890,7 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
         if (t.getState() == Thread::Disconnected) {
           t.changeState (Thread::Connecting);
         }
-        Wait_For_Thread_Connected (t);
+        Wait_For_Thread_Connected (cmd, t);
 
         t.changeState (Thread::Running);
       }
@@ -897,7 +907,7 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
 
    // After changing the state of each thread, wait for the
    // something to actually start executing.
-    (void) Wait_For_Exp_State (ExpStatus_Running, exp);
+    (void) Wait_For_Exp_State (cmd, ExpStatus_Running, exp);
   }
   return true;
 }
@@ -965,7 +975,7 @@ static bool Pause_Experiment (CommandObject *cmd, ExperimentObject *exp) {
 
    // After changing the state of each thread, wait for the
    // the experiment to actually stop.
-    (void) Wait_For_Exp_State (ExpStatus_Paused, exp);
+    (void) Wait_For_Exp_State (cmd, ExpStatus_Paused, exp);
   }
   return true;
 }
@@ -1217,7 +1227,7 @@ bool SS_expView (CommandObject *cmd) {
 
  // For batch processing, wait for completion before generating a report.
   if ((exp != NULL) && !Window_Is_Async(WindowID)) {
-    (void) Wait_For_Exp_State (ExpStatus_Paused, exp);
+    (void) Wait_For_Exp_State (cmd, ExpStatus_Paused, exp);
   }
 
  // Pick up the <viewType> from the comand.
