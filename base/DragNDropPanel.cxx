@@ -90,12 +90,6 @@ DragNDropPanel::DragNDropPanel( const char *mimeType, PanelContainer *sourcePC, 
 
   nprintf(DEBUG_DND) ("\n\n\nDragNDropPanel(load: %s) Frame=(%s)\n", panelContainer->getInternalName(), sourceFrame->getName() );
 
-  currentSourcePC = sourcePC;
-  currentPanel = sourcePC->getRaisedPanel();
-  currentPanel->getBaseWidgetFrame()->hide();
-  sourcePC->hidePanel(currentPanel);
-
-
 #ifdef CHANGE_CURSOR
   QBitmap custom_bits(
     panel_drag_bitmap_width, panel_drag_bitmap_height,
@@ -144,8 +138,6 @@ DragNDropPanel::DropPanel( PanelContainer *sourcePC, bool doubleClickedFLAG )
 {
   nprintf(DEBUG_DND) ("DropPanel  sourcePC=(%s)\n", sourcePC->getInternalName() );
 
-  currentSourcePC->raisePanel(currentPanel);
-
   // Now, get the location of the mouse and return a PanelContainer given 
   // current mouse location.
   PanelContainer *targetPC = NULL;
@@ -163,19 +155,17 @@ DragNDropPanel::DropPanel( PanelContainer *sourcePC, bool doubleClickedFLAG )
     targetPC = NULL;
   }
 
-  // From the sourcePC, snag the currentPage and get it's Panel.
-  QWidget *currentPage = sourcePC->tabWidget->currentPage();
-  Panel *p = sourcePC->getRaisedPanel();
-
   // Make sure there is a valid place to drop it.
   if( sourcePC == targetPC || sourcePC->tabWidget == NULL )
   {
     nprintf(DEBUG_DND) ("sourcePC and targePC are the same or there is no tabWidget to drop to.  Abort the DragNDrop\n");
-    p->getPanelContainer()->augmentTab( currentPage, p );
     delete( DragNDropPanel::sourceDragNDropObject );
     return;
   }
 
+  // From the sourcePC, snag the currentPage and get it's Panel.
+  QWidget *currentPage = sourcePC->tabWidget->currentPage();
+  Panel *p = sourcePC->getRaisedPanel();
   if( !p )
   {
     fprintf(stderr, "Error: Couldn't locate a panel to drag.\n");
@@ -292,16 +282,13 @@ DragNDropPanel::DropPanelWithQtDnD( PanelContainer *targetPC)
 {
   nprintf(DEBUG_DND) ("DropPanel in targetPC=(%s)\n", targetPC->getInternalName() );
 
-  currentSourcePC->raisePanel(currentPanel);
-
   // Make sure there is a valid place to drop it.
   if( panelContainer == targetPC || panelContainer->tabWidget == NULL )
   {
     nprintf(DEBUG_DND) ("sourcePC and targePC are the same or there is no tabWidget to drop to.  Abort the DragNDrop\n");
-    QWidget *currentPage = currentSourcePC->tabWidget->currentPage();
-    currentPanel->getPanelContainer()->augmentTab( currentPage, currentPanel );
     delete( DragNDropPanel::sourceDragNDropObject );
     return;
+
   }
 
   // Make sure the target wasn't a grab bar that was located on top

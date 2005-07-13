@@ -64,7 +64,10 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n, ArgumentObject *ao) 
 
   frameLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
-  expID = ao->int_data;
+  if( ao )
+  {
+    expID = ao->int_data;
+  }
   groupID = expID;
 
   splitter = new QSplitter(getBaseWidgetFrame(), "SourcePanel: splitter");
