@@ -59,6 +59,11 @@ namespace OpenSpeedShop { namespace Framework {
     public:
 
 	bool operator<(const Entry&) const;
+
+	bool inSameDatabase(const Entry&) const;
+	
+	void lockDatabase() const;
+	void unlockDatabase() const;
 	
     protected:
 	

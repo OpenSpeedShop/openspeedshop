@@ -57,6 +57,56 @@ bool Entry::operator<(const Entry& other) const
 
 
 /**
+ * Test if in same database.
+ *
+ * Compare this entry's database aginst the database of the passed entry.
+ * Returns a boolean value indicating if the entries are in the same database
+ * or not.
+ *
+ * @param entry    Entry to compare against.
+ * @return         Boolean "true" if this entry is in the same database as the
+ *                 passed entry, "false" otherwise.
+ */
+bool Entry::inSameDatabase(const Entry& entry) const
+{
+    return dm_database == entry.dm_database;
+}
+
+
+
+/**
+ * Lock our database.
+ *
+ * Locks this entry's database before beginning a prolonged operation on that
+ * database. Using this function to lock the database is not strictly necessary
+ * as each individual query on the database will perform locking when required.
+ * Performing explicit locking can, however, improve performance dramatically
+ * for such queries that would otherwise require thousands of locking operations
+ * instead of just one.
+ */
+void Entry::lockDatabase() const
+{
+    dm_database->beginTransaction();
+}
+
+
+
+/**
+ * Unlock our database.
+ *
+ * Unlocks this entry's database after completing a prolonged operation on that
+ * database. Must be called once for each previous call to lockDatabase() in
+ * order to properly release the database once the long operations has been
+ * completed.
+ */
+void Entry::unlockDatabase() const
+{
+    dm_database->commitTransaction();
+}
+
+
+
+/**
  * Default constructor.
  *
  * Constructs an Entry that refers to a non-existent database table entry. Any
