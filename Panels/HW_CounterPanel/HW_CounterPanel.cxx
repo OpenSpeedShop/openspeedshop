@@ -118,7 +118,7 @@ HW_CounterPanel::HW_CounterPanel(PanelContainer *pc, const char *n, ArgumentObje
       if( cgrp.size() == 0 )
       {
         nprintf( DEBUG_PANELS ) ("There are no known collectors for this experiment so add one.\n");
-        QString command = QString("expAttach -x %1 hw").arg(expID);
+        QString command = QString("expAttach -x %1 hwc").arg(expID);
         CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
         if( !cli->runSynchronousCLI((char *)command.ascii() ) )
         {
@@ -173,7 +173,7 @@ HW_CounterPanel::HW_CounterPanel(PanelContainer *pc, const char *n, ArgumentObje
   {
     // We're coming in cold, or we're coming in from the hwCounterWizardPanel.
     QString command = QString::null;
-    command = QString("expCreate hw\n");
+    command = QString("expCreate hwc\n");
     bool mark_value_for_delete = true;
     int64_t val = 0;
 
@@ -598,7 +598,7 @@ CLIInterface::interrupt = true;
       } else
       {
         return 0;
-//      command = QString("expCreate hw\n");
+//      command = QString("expCreate hwc\n");
       }
       bool mark_value_for_delete = true;
       int64_t val = 0;
@@ -804,7 +804,7 @@ HW_CounterPanel::loadStatsPanel()
     {
       experiment = eo->FW();
       UpdateObject *msg =
-        new UpdateObject((void *)experiment, expID, "hw", 1);
+        new UpdateObject((void *)experiment, expID, "hwc", 1);
       statsPanel->listener( (void *)msg );
     }
   }
@@ -842,7 +842,7 @@ HW_CounterPanel::loadManageProcessesPanel()
     {
       experiment = eo->FW();
       UpdateObject *msg =
-        new UpdateObject((void *)experiment, expID, "hw", 1);
+        new UpdateObject((void *)experiment, expID, "hwc", 1);
       manageProcessPanel->listener( (void *)msg );
     }
   }

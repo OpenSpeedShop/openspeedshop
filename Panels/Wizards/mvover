@@ -81,7 +81,7 @@ do
     echo "y" | mysed "pc Sample" "HW Counter" $i/$i.cxx $i/$i.hxx $i/Makefile.am
     echo "y" | mysed "pc Sampling" "HW Counter" $i/$i.cxx $i/$i.hxx $i/Makefile.am
     echo "y" | mysed "pcSample" "hwCounter" $i/$i.cxx $i/$i.hxx $i/Makefile.am
-    echo "y" | mysed "pcsamp" "hw" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+    echo "y" | mysed "pcsamp" "hwc" $i/$i.cxx $i/$i.hxx $i/Makefile.am
   fi
   if [ $i = "IOWizardPanel" ]
   then
