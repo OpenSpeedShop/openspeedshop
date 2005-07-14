@@ -48,17 +48,18 @@
      #include <netinet/in.h>
      #include <netdb.h>
 
+using namespace std;
+
 #include "ToolAPI.hxx"
+
+using namespace OpenSpeedShop;
 using namespace OpenSpeedShop::Framework;
 
 #include "Commander.hxx"
 
-using namespace std;
-
 #include "SS_Message_Element.hxx"
 #include "SS_Message_Czar.hxx"
 
-using namespace OpenSpeedShop;
 extern SS_Message_Czar& theMessageCzar();
 
 #include "SS_Output.hxx"
@@ -75,5 +76,7 @@ extern SS_Message_Czar& theMessageCzar();
 #include "ArgClass.hxx"
 
 #include "SS_Cmd_Execution.hxx"
+
+using namespace OpenSpeedShop::cli;
 
 #endif // SS_INPUT_MANAGER_H
