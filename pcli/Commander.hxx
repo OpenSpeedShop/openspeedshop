@@ -70,12 +70,15 @@ CMDWID Default_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_pa
 CMDWID TLI_Window     (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
 CMDWID GUI_Window     (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
 CMDWID RLI_Window     (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
+CMDWID Embedded_Window(char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
 void   Window_Termination (CMDWID my_window);
 
 // ss_ostreams provide a way to get textual output to the proper window.
+void   Redirect_GUI_Output_To_TLI ();
 void   Redirect_Window_Output (CMDWID for_window, ss_ostream *for_out, ss_ostream *for_err);
 ss_ostream *Predefined_ostream (std::string oname);
-ss_ostream *Window_ostream (CMDWID for_window);
+ss_ostream *Window_outstream (CMDWID for_window);
+ss_ostream *Window_errstream (CMDWID for_window);
 
 void Default_TLI_Line_Output (InputLineObject *clip);
 void Default_TLI_Command_Output (CommandObject *C);
