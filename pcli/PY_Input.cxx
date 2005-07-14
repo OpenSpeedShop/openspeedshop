@@ -18,21 +18,9 @@
 
 
 #include "Python.h"
-#include <stdio.h>
-
-#include <vector>
-#include <iostream>
-
 #include "SS_Input_Manager.hxx"
-#include "SS_Cmd_Execution.hxx"
 
-using namespace std;
-
-#include "SS_Parse_Range.hxx"
-#include "SS_Parse_Target.hxx"
-#include "SS_Parse_Result.hxx"
-
-using namespace OpenSpeedShop::cli;
+extern void pcli_load_messages(void);
 
 extern FILE *yyin;
 extern int yyparse (void);
@@ -51,15 +39,11 @@ CommandObject   *p_cmdobj = NULL;
 // to capture the output of OSS commands and avoid sending it
 // to the input window for printing.
 //
-//   all_output_to_python defines the default action
+//   (Embedded_WindowID != 0) is the default action
 //   cmd_output_to_python defines the action for individual commands
 
-static bool all_output_to_python = false;
+static CMDWID Embedded_WindowID = 0;
 static bool cmd_output_to_python = false;
-
-// Change the default direction for command results if OpenSpeedShop
-// is used as a utility within a Python application.
-void Send_All_Results_To_Python () { all_output_to_python = true; }
 
 static PyObject *SS_Set_Assign (PyObject *self, PyObject *args) {
   cmd_output_to_python = true;
@@ -79,7 +63,7 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
 
    // Copy the desired action and reset the default action
     bool python_needs_result = cmd_output_to_python;
-    cmd_output_to_python = all_output_to_python;
+    cmd_output_to_python = (Embedded_WindowID != 0);
     
     // Give yacc access to ParseResult object.
     p_parse_result = &parse_result;
@@ -208,6 +192,20 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     	return p_object;
 }
 
+// Create a Clip for the command and then go parse and execute it.
+static PyObject *SS_EmbeddedParser (PyObject *self, PyObject *args) {
+  InputLineObject *clip = NULL;
+  char *input_line = NULL;
+    
+  if (!PyArg_ParseTuple(args, "s", &input_line)) {
+  	;
+  }
+  Current_ILO = new InputLineObject (Embedded_WindowID, std::string(input_line));
+  Current_CO = NULL;
+
+  return SS_CallParser (self, args);
+}
+
 // Save a pointer to the most recent Input_Line_Object.
 //
 // Since Python likes character strings better than anything,
@@ -315,11 +313,38 @@ static PyObject *SS_ParseError (PyObject *self, PyObject *args) {
     return p_object;
 
 }
-    
+ 
+// Openss can be used as a utility from a Python routine.
+// To do so, this initialization routine must be the first thing called
+// within the Openss utility.
+static PyObject *SS_InitEmbeddedInterface (PyObject *self, PyObject *args) {
+ // Setup the Command Line tracking mechanisms
+  Commander_Initialization ();
+
+ // Load in pcli messages into message czar
+  pcli_load_messages();
+
+ // Define Built-In Views
+   SS_Init_BuiltIn_Views ();
+
+ // Define a default input window as an anchor for tracking commands
+  pid_t my_pid = getpid();
+  char HostName[MAXHOSTNAMELEN+1];
+  Embedded_WindowID = Embedded_Window ("EmbeddedInterface", &HostName[0],my_pid,0,true);
+
+ // Direct output back to Python.
+  cmd_output_to_python = true;
+
+  return Py_BuildValue("");
+}
+
 static PyMethodDef PY_Input_Methods[] = {
 
     {"CallParser",  SS_CallParser, METH_VARARGS,
      "Call the YACC'd parser."},
+
+    {"EmbeddedParser",  SS_EmbeddedParser, METH_VARARGS,
+     "Call the YACC'd parser for a scripting command."},
 
     {"SetAssign",  SS_Set_Assign, METH_VARARGS,
      "Set to 1 if the result is used in a python."},
@@ -335,6 +360,9 @@ static PyMethodDef PY_Input_Methods[] = {
 
     {"ParseError",  SS_ParseError, METH_VARARGS,
      "Python or Yacc parser error marking."},
+
+    {"OSS_Init",  SS_InitEmbeddedInterface, METH_VARARGS,
+     "Initialize openss for use as an embedded utility."},
 
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
