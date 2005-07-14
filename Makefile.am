@@ -39,9 +39,6 @@ TEST_SUBDIRS =	test/ \
 		test/executables/mutatee/f77_version \
 		test/executables/Eon/ 
 
-DIST_TEST_SUBDIRS =	test/test_source/* \
-			test/test_scripts/* \
-			test/executables/*
 SUBDIRS = . \
 	libltdl \
 	message \
@@ -64,7 +61,7 @@ SUBDIRS = . \
 
 DIST_SUBDIRS = $(SUBDIRS)
 # need the images files and the tests files in tarball.
-EXTRA_DIST = images/* $(DIST_TEST_SUBDIRS)
+EXTRA_DIST = images/* 
 
 tests: $(TEST_SUBDIRS)
 
