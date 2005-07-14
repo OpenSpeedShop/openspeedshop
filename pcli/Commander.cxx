@@ -85,6 +85,7 @@ static pthread_cond_t  Async_Input_Available = PTHREAD_COND_INITIALIZER;
 static CMDWID Default_WindowID = 0;
 static CMDWID TLI_WindowID = 0;
 static CMDWID GUI_WindowID = 0;
+static CMDWID Embedded_WindowID = 0;
 
 
 // Input_Source
@@ -1147,7 +1148,7 @@ void Commander_Initialization () {
 
 CMDWID Default_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async)
 {
-  Assert(Default_WindowID == 0);
+  // Assert(Default_WindowID == 0);
  // Create a new Window
   CommandWindowID *cwid = new CommandWindowID(std::string(my_name ? my_name : ""),
                                               std::string(my_host ? my_host : ""),
@@ -1231,6 +1232,19 @@ CMDWID RLI_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel,
   return cwid->ID();
 }
 
+CMDWID EM_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async)
+{
+ // Check for any previous initialization.
+  Assert(Default_WindowID == 0);
+  Assert(TLI_WindowID == 0);
+  Assert(GUI_WindowID == 0);
+  Assert(Embedded_WindowID == 0);
+
+ // Create a new Window
+  Embedded_WindowID = Default_Window(my_name,my_host,my_pid,my_panel,Input_is_Async);
+  return Embedded_WindowID;
+}
+
 void Window_Termination (CMDWID im)
 {
   if (im) {
@@ -1269,6 +1283,24 @@ void Commander_Termination () {
   return;
 }
 
+void Redirect_GUI_Output_To_TLI () {
+  CommandWindowID *gui_window = Find_Command_Window (GUI_WindowID);
+  if (TLI_WindowID == 0) {
+    pid_t my_pid = getpid();
+    char HostName[MAXHOSTNAMELEN+1];
+    TLI_WindowID = TLI_Window ("TLI",&HostName[0],my_pid,0,true);
+  }
+  CommandWindowID *tli_window = Find_Command_Window (TLI_WindowID);
+  if ((gui_window != NULL) && (tli_window != NULL)) {
+    if (gui_window->has_outstream()) {
+      gui_window->set_outstream (tli_window->ss_outstream());
+    }
+    if (gui_window->has_errstream()) {
+      gui_window->set_errstream (tli_window->ss_errstream());
+    }
+  }
+}
+
 void Redirect_Window_Output (CMDWID for_window, ss_ostream *for_out, ss_ostream *for_err) {
   CommandWindowID *my_window = Find_Command_Window (for_window);
   if (for_out != NULL) {
@@ -1294,9 +1326,14 @@ ss_ostream *Predefined_ostream (std::string oname)
   }
 }
 
-ss_ostream *Window_ostream (CMDWID for_window) {
+ss_ostream *Window_outstream (CMDWID for_window) {
   CommandWindowID *cw = Find_Command_Window (for_window);
   return (cw != NULL) ? cw->ss_outstream() : NULL;
+}
+
+ss_ostream *Window_errstream (CMDWID for_window) {
+  CommandWindowID *cw = Find_Command_Window (for_window);
+  return (cw != NULL) ? cw->ss_errstream() : NULL;
 }
 
 static void User_Info_Dump (CMDWID issuedbywindow) {
@@ -1310,7 +1347,7 @@ static void User_Info_Dump (CMDWID issuedbywindow) {
       fprintf(stderr,"    ERROR: window(%lld) has no defined output stream\n",issuedbywindow);
       return;
     }
-    ss_ostream *this_ss_stream = Window_ostream (issuedbywindow);
+    ss_ostream *this_ss_stream = Window_outstream (issuedbywindow);
     this_ss_stream->acquireLock();
     ostream &mystream = this_ss_stream->mystream();
     mystream << "SpeedShop Status:" << std::endl;
