@@ -271,6 +271,7 @@ ExperimentObject *Find_Experiment_Object (EXPID ExperimentID);
 
 bool Collector_Used_In_Experiment (OpenSpeedShop::Framework::Experiment *fexp, std::string myname);
 Collector Get_Collector (OpenSpeedShop::Framework::Experiment *fexp, std::string myname);
+void Filter_ThreadGroup (CommandObject *cmd, ThreadGroup& tgrp);
 
 inline void Mark_Cmd_With_Std_Error (CommandObject *cmd, const Exception& error) {
    cmd->Result_String ( error.getDescription() );
