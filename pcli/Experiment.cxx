@@ -226,6 +226,189 @@ Collector Get_Collector (OpenSpeedShop::Framework::Experiment *fexp, std::string
   return fexp->createCollector(myname);
 }
 
+// Utilities to restrict a set of OpenSpeedShop::Framework::Experiment::Thread
+// using a <target_list> specification.
+
+static bool within_range (int64_t Value, parse_range_t R) {
+  parse_val_t pval1 = R.start_range;
+  Assert (pval1.tag == VAL_NUMBER);
+  int64_t Rvalue1 = pval1.num;
+  if (R.is_range) {
+    parse_val_t pval2 = R.end_range;
+    Assert (pval2.tag == VAL_NUMBER);
+    int64_t Rvalue2 = pval2.num;
+    if ((Value >= Rvalue1) &&
+        (Value <= Rvalue2)) {
+      return true;
+    }
+  } else if (Value == Rvalue1) {
+    return true;
+  }
+  return false;
+}
+
+static bool within_range (std::string S, parse_range_t R) {
+  parse_val_t pval1 = R.start_range;
+  Assert (pval1.tag == VAL_STRING);
+  std::string Rname1 = pval1.name;
+  if (R.is_range) {
+    parse_val_t pval2 = R.end_range;
+    Assert (pval2.tag == VAL_STRING);
+    std::string Rname2 = pval2.name;
+    if ((S >= Rname1) &&
+        (S <= Rname2)) {
+      return true;
+    }
+  } else if (S == Rname1) {
+    return true;
+  }
+  return false;
+}
+
+void Filter_ThreadGroup (CommandObject *cmd, ThreadGroup& tgrp) {
+  OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
+  vector<ParseTarget> *p_tlist = p_result->GetTargetList();
+  if (p_tlist->begin() == p_tlist->end()) {
+   // There are no filters.
+    return;
+  }
+
+  ParseTarget pt = *p_tlist->begin(); // There can only be one!
+  vector<ParseRange> *c_list = pt.getClusterList();
+  vector<ParseRange> *h_list = pt.getHostList();
+  vector<ParseRange> *f_list = pt.getFileList();
+  vector<ParseRange> *p_list = pt.getPidList();
+  vector<ParseRange> *t_list = pt.getThreadList();
+  vector<ParseRange> *r_list = pt.getRankList();
+
+  bool has_h = !((h_list == NULL) || h_list->empty());
+  bool has_f = !((f_list == NULL) || f_list->empty());
+  bool has_p = !((p_list == NULL) || p_list->empty());
+  bool has_t = !((t_list == NULL) || t_list->empty());
+  bool has_r = !((r_list == NULL) || r_list->empty());
+
+  if (has_f) {
+    cmd->Result_String ("Selection based on file name is not supported." );
+    cmd->set_Status(CMD_ERROR);
+    return;
+  }
+
+ // Remove non-matching hosts.
+  if (has_h) {
+
+    ThreadGroup::iterator ti;
+    for (ti = tgrp.begin(); ti != tgrp.end(); ) {
+      Thread t = *ti;
+      std::string hid = t.getHost();
+      bool within_list = false;
+
+      vector<ParseRange>::iterator pr_iter;
+      for (pr_iter=h_list->begin();pr_iter != h_list->end(); pr_iter++) {
+        if (within_range(hid, *pr_iter->getRange())) {
+          within_list = true;
+          break;
+        }
+      }
+
+     // Remove non-matching hosts from the ThreadGroup.
+      if (!within_list) {
+        tgrp.erase(ti);
+      } else {
+        ti++;
+      }
+    }
+
+  }
+
+ // Remove non-matching pids.
+  if (has_p) {
+
+    ThreadGroup::iterator ti;
+    for (ti = tgrp.begin(); ti != tgrp.end(); ) {
+      Thread t = *ti;
+      pid_t pid = t.getProcessId();
+      bool within_list = false;
+
+      vector<ParseRange>::iterator pr_iter;
+      for (pr_iter=h_list->begin();pr_iter != h_list->end(); pr_iter++) {
+        if (within_range(pid, *pr_iter->getRange())) {
+          within_list = true;
+          break;
+        }
+      }
+
+     // Remove non-matching hosts from the ThreadGroup.
+      if (!within_list) {
+        tgrp.erase(ti);
+      } else {
+        ti++;
+      }
+    }
+
+  }
+
+ // Remove non-matching threads.
+  if (has_t) {
+
+    ThreadGroup::iterator ti;
+    for (ti = tgrp.begin(); ti != tgrp.end(); ) {
+      Thread t = *ti;
+      std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
+      if (pthread.first) {
+        int64_t tid = pthread.second;
+        bool within_list = false;
+
+        vector<ParseRange>::iterator pr_iter;
+        for (pr_iter=h_list->begin();pr_iter != h_list->end(); pr_iter++) {
+          if (within_range(tid, *pr_iter->getRange())) {
+            within_list = true;
+            break;
+          }
+        }
+
+       // Remove non-matching hosts from the ThreadGroup.
+        if (!within_list) {
+          tgrp.erase(ti);
+          continue;
+        }
+      }
+      ti++;
+    }
+
+  }
+
+#if HAS_OPENMP
+ // Remove non-matching ranks.
+  if (has_r) {
+
+    ThreadGroup::iterator ti;
+    for (ti = tgrp.begin(); ti != tgrp.end(); ) {
+      Thread t = *ti;
+      int64_t rid = t.getOmpThreadId();
+      bool within_list = false;
+
+      vector<ParseRange>::iterator pr_iter;
+      for (pr_iter=h_list->begin();pr_iter != h_list->end(); pr_iter++) {
+        if (within_range(rid, *pr_iter->getRange())) {
+          within_list = true;
+          break;
+        }
+      }
+
+     // Remove non-matching hosts from the ThreadGroup.
+      if (!within_list) {
+        tgrp.erase(ti);
+      } else {
+        ti++;
+      }
+    }
+
+  }
+#endif
+}
+
+// Utilities to decode <target_list> and attach or detach
+
 static void Attach_Command (CommandObject *cmd, ExperimentObject *exp, Thread t, Collector c) {
   try {
     if (t.getState() == Thread::Disconnected) {
@@ -1266,184 +1449,6 @@ bool SS_ListExp (CommandObject *cmd) {
 
   cmd->set_Status(CMD_COMPLETE);
   return true;
-}
-
-static bool within_range (int64_t Value, parse_range_t R) {
-  parse_val_t pval1 = R.start_range;
-  Assert (pval1.tag == VAL_NUMBER);
-  int64_t Rvalue1 = pval1.num;
-  if (R.is_range) {
-    parse_val_t pval2 = R.end_range;
-    Assert (pval2.tag == VAL_NUMBER);
-    int64_t Rvalue2 = pval2.num;
-    if ((Value >= Rvalue1) &&
-        (Value <= Rvalue2)) {
-      return true;
-    }
-  } else if (Value == Rvalue1) {
-    return true;
-  }
-  return false;
-}
-
-static bool within_range (std::string S, parse_range_t R) {
-  parse_val_t pval1 = R.start_range;
-  Assert (pval1.tag == VAL_STRING);
-  std::string Rname1 = pval1.name;
-  if (R.is_range) {
-    parse_val_t pval2 = R.end_range;
-    Assert (pval2.tag == VAL_STRING);
-    std::string Rname2 = pval2.name;
-    if ((S >= Rname1) &&
-        (S <= Rname2)) {
-      return true;
-    }
-  } else if (S == Rname1) {
-    return true;
-  }
-  return false;
-}
-
-static void Filter_ThreadGroup (CommandObject *cmd, ThreadGroup& tgrp) {
-  OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  vector<ParseTarget> *p_tlist = p_result->GetTargetList();
-  if (p_tlist->begin() == p_tlist->end()) {
-   // There are no filters.
-    return;
-  }
-
-  ParseTarget pt = *p_tlist->begin(); // There can only be one!
-  vector<ParseRange> *c_list = pt.getClusterList();
-  vector<ParseRange> *h_list = pt.getHostList();
-  vector<ParseRange> *f_list = pt.getFileList();
-  vector<ParseRange> *p_list = pt.getPidList();
-  vector<ParseRange> *t_list = pt.getThreadList();
-  vector<ParseRange> *r_list = pt.getRankList();
-
-  bool has_h = !((h_list == NULL) || h_list->empty());
-  bool has_f = !((f_list == NULL) || f_list->empty());
-  bool has_p = !((p_list == NULL) || p_list->empty());
-  bool has_t = !((t_list == NULL) || t_list->empty());
-  bool has_r = !((r_list == NULL) || r_list->empty());
-
-  if (has_f) {
-    cmd->Result_String ("Selection based on file name is not supported." );
-    cmd->set_Status(CMD_ERROR);
-    return;
-  }
-
- // Remove non-matching hosts.
-  if (has_h) {
-
-    ThreadGroup::iterator ti;
-    for (ti = tgrp.begin(); ti != tgrp.end(); ) {
-      Thread t = *ti;
-      std::string hid = t.getHost();
-      bool within_list = false;
-
-      vector<ParseRange>::iterator pr_iter;
-      for (pr_iter=h_list->begin();pr_iter != h_list->end(); pr_iter++) {
-        if (within_range(hid, *pr_iter->getRange())) {
-          within_list = true;
-          break;
-        }
-      }
-
-     // Remove non-matching hosts from the ThreadGroup.
-      if (!within_list) {
-        tgrp.erase(ti);
-      } else {
-        ti++;
-      }
-    }
-
-  }
-
- // Remove non-matching pids.
-  if (has_p) {
-
-    ThreadGroup::iterator ti;
-    for (ti = tgrp.begin(); ti != tgrp.end(); ) {
-      Thread t = *ti;
-      pid_t pid = t.getProcessId();
-      bool within_list = false;
-
-      vector<ParseRange>::iterator pr_iter;
-      for (pr_iter=h_list->begin();pr_iter != h_list->end(); pr_iter++) {
-        if (within_range(pid, *pr_iter->getRange())) {
-          within_list = true;
-          break;
-        }
-      }
-
-     // Remove non-matching hosts from the ThreadGroup.
-      if (!within_list) {
-        tgrp.erase(ti);
-      } else {
-        ti++;
-      }
-    }
-
-  }
-
- // Remove non-matching threads.
-  if (has_t) {
-
-    ThreadGroup::iterator ti;
-    for (ti = tgrp.begin(); ti != tgrp.end(); ) {
-      Thread t = *ti;
-      std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
-      if (pthread.first) {
-        int64_t tid = pthread.second;
-        bool within_list = false;
-
-        vector<ParseRange>::iterator pr_iter;
-        for (pr_iter=h_list->begin();pr_iter != h_list->end(); pr_iter++) {
-          if (within_range(tid, *pr_iter->getRange())) {
-            within_list = true;
-            break;
-          }
-        }
-
-       // Remove non-matching hosts from the ThreadGroup.
-        if (!within_list) {
-          tgrp.erase(ti);
-          continue;
-        }
-      }
-      ti++;
-    }
-
-  }
-
-#if HAS_OPENMP
- // Remove non-matching ranks.
-  if (has_r) {
-
-    ThreadGroup::iterator ti;
-    for (ti = tgrp.begin(); ti != tgrp.end(); ) {
-      Thread t = *ti;
-      int64_t rid = t.getOmpThreadId();
-      bool within_list = false;
-
-      vector<ParseRange>::iterator pr_iter;
-      for (pr_iter=h_list->begin();pr_iter != h_list->end(); pr_iter++) {
-        if (within_range(rid, *pr_iter->getRange())) {
-          within_list = true;
-          break;
-        }
-      }
-
-     // Remove non-matching hosts from the ThreadGroup.
-      if (!within_list) {
-        tgrp.erase(ti);
-      } else {
-        ti++;
-      }
-    }
-
-  }
-#endif
 }
 
 bool SS_ListHosts (CommandObject *cmd) {
