@@ -194,6 +194,11 @@ class InputLineObject
     std::list<CommandObject *>::iterator coi;
     for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
       (*coi)->Print (mystream);
+ 
+     // Check for asnychonous abort command
+      if (What() == ILO_ERROR) {
+        break;
+      }
     }
 
     mystream << flush;  // So that we can look at the file while still running
@@ -205,6 +210,11 @@ class InputLineObject
     std::list<CommandObject *>::iterator coi;
     for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
       (*coi)->Print_Results (to, list_seperator, termination_char);
+ 
+     // Check for asnychonous abort command
+      if (What() == ILO_ERROR) {
+        break;
+      }
     }
   }
 
@@ -243,6 +253,11 @@ class InputLineObject
       std::list<CommandObject *>::iterator coi;
       for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
         (*coi)->Print (TFile);
+ 
+       // Check for asnychonous abort command
+        if (What() == ILO_ERROR) {
+          break;
+        }
       }
 
       fflush(TFile);  // So that we can look at the file while still running
@@ -255,6 +270,11 @@ class InputLineObject
     std::list<CommandObject *>::iterator coi;
     for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
       (*coi)->Print_Results (TFile, list_seperator, termination_char);
+ 
+     // Check for asnychonous abort command
+      if (What() == ILO_ERROR) {
+        break;
+      }
     }
   }
 

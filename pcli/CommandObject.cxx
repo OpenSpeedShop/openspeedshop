@@ -66,6 +66,11 @@ void CommandObject::Print (ostream &mystream) {
   for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++) {
     if (cnt++ > 0) mystream << ". ";
     (*cri)->Print (mystream);
+
+   // Check for asnychonous abort command
+    if (Cmd_Status == CMD_ABORTED) {
+      break;
+    }
   }
   mystream << std::endl;
 }
@@ -96,6 +101,11 @@ void CommandObject::Print (FILE *TFile) {
   for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++) {
     if (cnt++ > 0) fprintf(TFile,", ");
     (*cri)->Print (TFile);
+
+   // Check for asnychonous abort command
+    if (Cmd_Status == CMD_ABORTED) {
+      break;
+    }
   }
   fprintf(TFile,"\n");
 }
@@ -125,6 +135,11 @@ bool CommandObject::Print_Results (ostream &to, std::string list_seperator, std:
           }
         }
       }
+
+     // Check for asnychonous abort command
+      if (Cmd_Status == CMD_ABORTED) {
+        break;
+      }
     }
     if (list_seperator_needed ||
         (list_seperator != termination_char)) {
@@ -147,6 +162,11 @@ bool CommandObject::Print_Results (FILE *TFile, std::string list_seperator, std:
       if (cnt++ > 0) fprintf(TFile,"%s",list_seperator.c_str());
       // (*cri)->Print (TFile);
       (*cri)->Print (TFile, 20, true);
+
+     // Check for asnychonous abort command
+      if (Cmd_Status == CMD_ABORTED) {
+        break;
+      }
     }
     fprintf(TFile,"%s",termination_char.c_str());
     return true;
