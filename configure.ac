@@ -195,6 +195,7 @@ AC_CONFIG_FILES(Makefile
 		test/test_source/dpcl/phase/Makefile
 		usability/Makefile
 		usability/phaseII/Makefile
+		usability/phaseIII/Makefile
 )
 
 AC_OUTPUT
