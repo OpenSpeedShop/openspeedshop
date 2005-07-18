@@ -1,0 +1,78 @@
+################################################################################
+# Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+#
+# This library is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this library; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+################################################################################
+
+
+                        The Study.
+
+Approximately 60 minutes should be allow for each test.
+
+The observers should be limited to 1-3 for each session.
+
+It is expected that each candidate will take 15-30 minutes to complete the 
+test.   Each test will conclude (regardless of completion) at the end of
+the 30 minute time period.
+
+Observers must not give hints or suggestions to the candidate unless the 
+candidate asks for help and then only enough information to allow the process
+to proceed should be given.
+
+There should be a keeper of notes.
+
+
+Here's how each session goes:
+
+  o An assignment sheet, paper, and pen is all that is provided for the user.
+
+  o The candidate is welcomed into the room and give a very short introduction 
+    as to what is being done.   Basically they are sat down at the workstation,
+    given a short description (that is also reiterated on the assignment sheet),
+    then asked to think aloud as they go along.   Then they are allowed to
+    complete the assignment.  They are give 30 minutes to complete the task, but
+    it's best if they are not aware of the time limit.
+
+
+  o At the end of the session a 5-15 minute wrap up session should be held with 
+    the candidate.   The candidate should be ask questions such as the
+    following:
+
+    - What is your overall opinion of the tool?  i.e. Was it easy enough
+      to invoke?    Did it give useful feedback?   Were you able to obtain
+      the answer(s) you were looking for?
+
+    - What was confusing?
+
+    - Were there any wording issues that could be clearer?  If so, what might
+      you suggest?
+   
+    - Do you have any suggestions to improve the overall usability of the tool?
+
+    - Do you have any suggestions to improve the overall appearance of the tool?
+
+    - Any other suggestions?
+
+    Obviously if the user struggled in certain areas, questions targeting the
+    reason for the confusion should be asked.
+
+
+  o Following the candidate's interview process there should be a 10-15 minutes
+    wrap-up session with the observers to go over the notes and to discuss any
+    possible recommendations.
+
+
+At the end of the sessions, a report detailing any problems and suggested 
+recommendations should be written.

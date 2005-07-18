@@ -1,0 +1,114 @@
+################################################################################
+# Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+#
+# This library is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this library; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+################################################################################
+
+
+                         Usability Study
+
+
+Introduction:
+-------------
+
+For this assignment you'll be asked to do a simple
+performance tuning task.  There is no time constraint to "correctly"
+complete this task.
+
+Please try to "think aloud" as you work through the scenario.   
+It will help us understand where our problems are.
+
+Your task is to take a simple program ("fred") and using only the
+command line interface, (openss -cli) determine which routine(s) are
+taking the most time.    The program, "fred", is provided in
+the current directory.
+
+
+
+Remember:  You are not being tested.    The user interface and it's
+ease of use, is being analyzed.   Your initial feedback and thoughts as you 
+navigate through this set of tasks will enable us to see our problem
+areas.
+
+Enjoy.
+
+
+Step 1:
+  Type the following command at the prompt:
+    $ make 
+
+  This should have made the test case "fred".   It's a
+  very simple 'c' example that has a few straight forward function
+  calls and a few variables.
+
+
+Step 2:
+  Run the executable "fred".
+
+  Type:
+    $ fred
+    Usage: fred <size>
+    No size argument given.   Defaulting to 750.
+    fred: succesfully competed.
+    $
+
+
+Step 3:
+  The Open|Speedshop performance tool is 'openss'.    'man openss' gives you
+  a typical 'man' description of the command.
+
+
+Step 4:
+  Launch the Open|Speedshop command so you can run performance debugging
+  on the executable named "fred".
+
+  Remember to use the -cli option to only bring up the command line 
+  interface.
+
+
+Step 5: 
+  Determine which performance experiment will show you where the application
+  is spending it's time.   
+
+
+Step 6:
+  Using the experiment you determined (in Step 5) gather the performance
+  date for it on the application "fred".
+
+
+Step 7:
+  Once the application has run to completion, find which routine took the
+  most time.   
+
+  Which routine took the most time?
+
+  What source file is this top routine located?
+
+  Which routine took the second most time?
+
+Step 8:
+  Save the experment's data to a file for later viewing.
+
+
+Step 9:
+  List out all the paramaters (option) that you could have
+  set to non default values for this experiment.
+
+
+Step 10:
+  Set the value for the parameter to a new value.
+
+Step 9:
+  Exit the Open|Speedshop tool.

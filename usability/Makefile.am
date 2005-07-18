@@ -17,10 +17,10 @@
 ################################################################################
 
 # directories that will be built
-SUBDIRS = phaseII
+SUBDIRS = phaseII phaseIII
 # directories that will be packaged into tar.gz.
 # these can be a subset of the directories in SUBDIRS.
 # i.e. We may not want to include all the SUBDIRS in the tar.gz.
 # for example, a Panel may be experimental or in development and
 # is not to be delivered in the openss release.
-DIST_SUBDIRS = phaseII 
+DIST_SUBDIRS = phaseII phaseIII

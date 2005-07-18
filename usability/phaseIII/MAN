@@ -1,0 +1,148 @@
+################################################################################
+# Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+#
+# This library is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this library; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+################################################################################
+
+openss(1)                                                openss(1)
+
+
+NAME
+  openss - Collects Open|SpeedShop performance data
+
+SYNOPSIS
+  openss -cli [-h host] [-f "executable arg1 arg2 arg3 ..."] [-p process_ID [-r thread_rank] ] [experiment_name]
+
+
+DESCRIPTION
+  Open|SpeedShop(tm) is a performance tool designed to capture performance data
+  for an executable(s).
+
+  When collecting the performance data, openss either writes the data to 
+  a file or makes it available to be displayed by the command line interface
+  or the graphical user interface.
+ 
+  You can specify the following options on the command line:
+    -h host
+      Specifies the target host.
+
+    -f executable
+      Specifies the executable to run the performance experiment on.
+
+    -p process_ID
+      Specifies the running process to attach to for performance gathering.
+
+    -r thread_rank
+      Specifies which thread of a process to gather data.
+
+    -cli   Run only the command line interface part of openss.
+           (Note: The Graphical User Interface (GUI) can be
+           brought up later with the opengui command.
+
+    experiment_name
+      Specifies the experiment to be run on the executable or process.
+
+      o pcsamp   - Actual CPU time at the source line, machine instruction,
+                   and function levels by sampling the program counter at
+                   100-millisecond intervals. See “PC Sampling Wizard.
+  
+      o usertime - Inclusive and exclusive CPU time for each function by
+                   sampling the callstack at 10-millisecond intervals.
+                   See User Time Wizard.
+
+      o fpe      - All floating-point exceptions, with the exception type
+                   and the call stack at the time of the exception. See 
+                   FPE Tracing Wizard.
+
+      o hwc      - Counts at the source line, machine instruction, and
+                   function levels of various hardware events, including:
+                   clock cycles, graduated instructions, primary
+                   instruction cache misses, secondary instruction cache
+                   misses, primary data cache misses, secondary data
+                   cache misses, translation lookaside buffer (TLB)
+                   misses, and graduated floating-point instructions.
+                   See HW Counter Wizard.
+
+      o io       - Traces the following I/O system calls: read, readv,
+                   write, writev, open, close, dup, pipe, creat. 
+                   See IO Wizard.
+
+      o mpi      - Traces calls to various MPI routines.
+                   See MPI Wizard.
+
+
+EXAMPLES:
+  To start Open|Speedshop simply type:
+  $ openss
+
+
+  To load an executable to run a simple timing (pcSampling) experiment:
+  $ openss -f a.out pcsamp
+
+
+  To attach to a running executable:
+  $ openss -p 123456
+
+
+  To load an executable that takes a command line argument:
+  $ openss -f "a.out abc"  pcsamp
+
+ 
+  To run Open|Speed shop without the GUI use the -cli option:
+  $ openss -cli
+
+
+COMMAND LINE:
+  Available commands:
+  openss>>help
+    expAttach  [<expId_spec>] [<target_list>] [<expType_list>]
+    expClose  [focus || <expId_spec> || all] [kill]  
+    expCreate  [<target_list>] [<expType_list>] 
+    expDetach  [<expId_spec>] [<target_list>] [<expType_list>]
+    expDisable  [<expId_spec> || all]  
+    expEnable  [<expId_spec> || all]  
+    expFocus  [<expId_spec>] 
+    expPause  [<expId_spec> || all]  
+    expRestore  <file_spec>  
+      expGo  [<expId_spec> || all]  
+    expSave  [<expId_spec>] [copy] <file_spec>  
+    expSetparm  [<expId_spec>] <expParam>=<expParamValue> [,<expParam>=<expParamValue>]  
+    expView  [<expId_spec>] [-gui] <viewType>  
+    listBreaks  [<expId_spec> || all || <expType>] 
+    listExp <no args> 
+    listHosts  [<expId_spec> || all || <cluster_spec>] 
+    listMetrics  [<expId_spec> || all || <expType>] 
+    listObj  [<expId_spec>] [<target>] 
+    listParams  [<expId_spec> || all || <expType>] 
+    listPids [<expId_spec> || all] [<host_file>] 
+    listRanks  [<expId_spec> || all || <expType>] 
+    listSrc  [<expId_spec>] [<target>] [<linenumber_spec>] 
+    listStatus  [<expId_spec> || all]  
+    listThreads  [<expId_spec> || all || <target>] 
+    listTypes  [<expId_spec> || all]  
+    listViews  [<expId_spec> || all || <expType>] 
+    clearBreak  <breakId> 
+    exit <no args> 
+    help [<string>] 
+    history  <file_spec>  
+    log  <file_spec>  
+    openGui <no args> 
+    playback  <file_spec>  
+    record  <file_spec>  
+    setBreak  [<expId_spec>] [<target>] <address_description> 
+
+
+  To get more details about a command: 
+  openss>>help <command>
