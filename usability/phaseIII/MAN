@@ -64,7 +64,7 @@ DESCRIPTION
 
       o fpe      - All floating-point exceptions, with the exception type
                    and the call stack at the time of the exception. See 
-                   FPE Tracing Wizard.
+                   FPE Tracing Wizard. (Currently unimplemented.)
 
       o hwc      - Counts at the source line, machine instruction, and
                    function levels of various hardware events, including:
@@ -73,14 +73,14 @@ DESCRIPTION
                    misses, primary data cache misses, secondary data
                    cache misses, translation lookaside buffer (TLB)
                    misses, and graduated floating-point instructions.
-                   See HW Counter Wizard.
+                   See HW Counter Wizard. (Currently unimplemented.)
 
       o io       - Traces the following I/O system calls: read, readv,
                    write, writev, open, close, dup, pipe, creat. 
-                   See IO Wizard.
+                   See IO Wizard. (Currently unimplemented.)
 
       o mpi      - Traces calls to various MPI routines.
-                   See MPI Wizard.
+                   See MPI Wizard. (Currently unimplemented.)
 
 
 EXAMPLES:
