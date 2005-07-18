@@ -1,0 +1,5 @@
+if [ $1 = "openss" ] ; then
+  more MAN
+else
+  /usr/bin/man $1
+fi
