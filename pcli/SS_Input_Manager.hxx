@@ -70,7 +70,7 @@ extern SS_Message_Czar& theMessageCzar();
 
 #include "CommandObject.hxx"
 #include "Clip.hxx"
-#include "Experiment.hxx"
+#include "SS_Exp.hxx"
 #include "SS_View.hxx"
 
 #include "ArgClass.hxx"
