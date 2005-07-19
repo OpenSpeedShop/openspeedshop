@@ -54,7 +54,7 @@ libopenss_cli_la_SOURCES = \
 	Commander.hxx Commander.cxx \
 	SS_Output.hxx \
 	CommandObject.hxx CommandObject.cxx \
-	Experiment.hxx Experiment.cxx \
+	SS_Exp.hxx SS_Exp.cxx \
 	help.cxx \
 	Load_Messages.cxx help_cmd_msg.dxx \
 	PY_Input.cxx \
@@ -71,8 +71,8 @@ libopenss_cli_la_SOURCES = \
 	SS_View_stats.cxx \
 	SS_View_exp.cxx \
 	SS_View_params.cxx \
-	SS_View_pcfunc.cxx \
-	Start.cxx \
+	SS_View_pcsamp.cxx \
+	SS_Start.cxx \
 	Start_Modes.cxx
 
 LFILES = SS_Parse_Lex.lxx
