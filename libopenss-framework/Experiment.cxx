@@ -409,15 +409,18 @@ ThreadGroup Experiment::getThreads() const
  *
  * Creates a new process to execute the specified command and adds that process
  * to this experiment. The command is created with the same initial environment
- * (standard file descriptors, environment variables, etc.) as when the tool was
- * started. The process is created in a suspended state.
+ * as when the tool was started. The process is created in a suspended state.
  *
- * @param command    Command to be executed.
- * @param host       Name of host on which to execute the command.
- * @return           Newly created thread.
+ * @param command            Command to be executed.
+ * @param host               Name of host on which to execute the command.
+ * @param stdout_callback    Standard output stream callback for the process.
+ * @param stderr_callback    Standard error stream callback for the process.
+ * @return                   Newly created thread.
  */
 Thread Experiment::createProcess(const std::string& command,
-				 const std::string& host) const
+				 const std::string& host,
+				 const OutputCallback stdout_callback,
+				 const OutputCallback stderr_callback) const
 {   
     Thread thread;
 
@@ -428,7 +431,7 @@ Thread Experiment::createProcess(const std::string& command,
     while(dm_database->executeStatement());
     thread = Thread(dm_database, dm_database->getLastInsertedUID()); 
     // Instrumentor::retain(thread);  (Implied by Following Line)
-    Instrumentor::create(thread, command);
+    Instrumentor::create(thread, command, stdout_callback, stderr_callback);
     END_TRANSACTION(dm_database);
     
     // Return the thread to the caller

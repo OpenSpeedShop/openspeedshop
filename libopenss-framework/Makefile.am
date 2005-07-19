@@ -60,6 +60,7 @@ libopenss_framework_la_SOURCES = \
 	Lockable.hxx \
 	Metadata.hxx \
 	NonCopyable.hxx \
+	OutputCallback.hxx \
 	Path.hxx Path.cxx \
 	SmartPtr.hxx \
 	Statement.hxx Statement.cxx \

@@ -29,6 +29,7 @@
 #include "config.h"
 #endif
 
+#include "OutputCallback.hxx"
 #include "Thread.hxx"
 
 #include <string>
@@ -56,7 +57,8 @@ namespace OpenSpeedShop { namespace Framework {
     {
 	void retain(const Thread&);
 	void release(const Thread&);
-	void create(const Thread&, const std::string&);
+	void create(const Thread&, const std::string&,
+		    const OutputCallback, const OutputCallback);
 	Thread::State getState(const Thread&);
 	void changeState(const Thread&, const Thread::State&);
 

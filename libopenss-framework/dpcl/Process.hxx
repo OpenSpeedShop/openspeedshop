@@ -31,6 +31,7 @@
 
 #include "AddressRange.hxx"
 #include "Collector.hxx"
+#include "OutputCallback.hxx"
 #include "Path.hxx"
 #include "Thread.hxx"
 
@@ -69,7 +70,8 @@ namespace OpenSpeedShop { namespace Framework {
 
 	static std::string formUniqueName(const std::string&, const pid_t&);
 	
-	Process(const std::string&, const std::string&);
+	Process(const std::string&, const std::string&,
+		const OutputCallback, const OutputCallback);
 	Process(const std::string&, const pid_t&);
 	
 	~Process();
@@ -157,6 +159,12 @@ namespace OpenSpeedShop { namespace Framework {
 	
         /** Identifier of this process. */
         pid_t dm_pid;
+
+	/** Standard output stream callback. */
+	OutputCallback dm_stdout_callback;
+	
+	/** Standard error stream callback. */
+	OutputCallback dm_stderr_callback;
 
 	/** Current state of this process. */
 	Thread::State dm_current_state;

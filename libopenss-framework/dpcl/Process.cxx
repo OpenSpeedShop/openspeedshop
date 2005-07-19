@@ -242,22 +242,27 @@ std::string Process::formUniqueName(const std::string& host, const pid_t& pid)
  * Constructor from process creation.
  *
  * Creates a new process to execute the specified command. The command is
- * created with the same initial environment (standard file descriptors,
- * environment variables, etc.) as when the tool was started. The process
- * is created in a suspended state.
+ * created with the same initial environment as when the tool was started.
+ * The process is created in a suspended state.
  *
  * @todo    Need to research a better way to handle creating commands that
  *          will support quoted strings, evaluations, I/O redirection, etc.
  *          Looking into what gdb does might be one avenue of research.
  *
- * @param host       Name of host on which to execute the command.
- * @param command    Command to be executed.
+ * @param host               Name of host on which to execute the command.
+ * @param command            Command to be executed.
+ * @param stdout_callback    Standard output stream callback.
+ * @param stderr_callback    Standard error stream callback.
  */
-Process::Process(const std::string& host, const std::string& command) :
+Process::Process(const std::string& host, const std::string& command,
+		 const OutputCallback stdout_callback, 
+		 const OutputCallback stderr_callback) :
     Lockable(),
     dm_process(NULL),
     dm_host(host),
     dm_pid(0),
+    dm_stdout_callback(stdout_callback),
+    dm_stderr_callback(stderr_callback),
     dm_current_state(Thread::Disconnected),
     dm_is_state_changing(false),
     dm_future_state(Thread::Disconnected),
@@ -270,7 +275,8 @@ Process::Process(const std::string& host, const std::string& command) :
     if(is_debug_enabled) {
 	std::stringstream output;
 	output << "[TID " << pthread_self() << "] "
-	       << "Process::Process(\"" << host << "\", \"" << command << "\")"
+	       << "Process::Process(\"" << host << "\", \"" 
+	       << command << "\", ...)"
 	       << std::endl;
 	std::cerr << output.str();
     }
@@ -306,13 +312,17 @@ Process::Process(const std::string& host, const std::string& command) :
     
     // Declare access to the external environment variables
     extern char** environ;
+
+    // Allocate a copy of our unique name
+    std::string* name = new std::string(formUniqueName(dm_host, dm_pid));
+    Assert(name != NULL);
     
     // Ask DPCL to create a process for executing the command
     MainLoop::suspend();    
     AisStatus retval = dm_process->bcreate(dm_host.c_str(),
 					   argv[0], argv, ::environ,
-					   stdoutCallback, NULL, 
-					   stderrCallback, NULL);
+					   stdoutCallback, name, 
+					   stderrCallback, name);
 #ifndef NDEBUG
     if(is_debug_enabled) 
 	debugDPCL("bcreate", retval);
@@ -335,6 +345,9 @@ Process::Process(const std::string& host, const std::string& command) :
     
     // Ask DPCL for the process identifier
     dm_pid = static_cast<pid_t>(dm_process->get_pid());
+
+    // Replace the copy of our unique name with the REAL unique name
+    *name = formUniqueName(dm_host, dm_pid);
     
     // Request an attachment to this process
     MainLoop::suspend();
@@ -358,6 +371,8 @@ Process::Process(const std::string& host, const pid_t& pid) :
     dm_process(NULL),
     dm_host(host),
     dm_pid(pid),
+    dm_stdout_callback(OutputCallback(NULL, NULL)),
+    dm_stderr_callback(OutputCallback(NULL, NULL)),
     dm_current_state(Thread::Disconnected),
     dm_is_state_changing(false),
     dm_future_state(Thread::Disconnected),
@@ -1805,13 +1820,53 @@ void Process::statementsCallback(GCBSysType, GCBTagType tag,
  * data to its standard error stream. Simply redirect the output to the tool's
  * standard error stream.
  */
-void Process::stderrCallback(GCBSysType sys, GCBTagType, 
+void Process::stderrCallback(GCBSysType sys, GCBTagType tag, 
 			     GCBObjType, GCBMsgType msg)
 {
-    char* ptr = (char*)msg;
-    for(int i = 0; i < sys.msg_size; ++i, ++ptr)
-	fputc(*ptr, stderr);
-    fflush(stderr);
+    std::string* name = reinterpret_cast<std::string*>(tag);
+    SmartPtr<Process> process;
+
+    // Check assertions
+    Assert(name != NULL);
+
+#ifndef NDEBUG
+    if(is_debug_enabled)
+	debugCallback("stderr", *name);
+#endif
+
+    // Critical section touching the process table
+    {
+	Guard guard_process_table(ProcessTable::TheTable);
+	
+	// Attempt to locate the process by its unique name
+	process = ProcessTable::TheTable.getProcessByName(*name);
+    }
+    
+    // Go no further if the process is no longer in the process table
+    if(process.isNull())
+	return;	
+    
+    // Critical section touching the process
+    {
+	Guard guard_process(*process);
+
+	// Is there a standard error stream callback set for this process?
+	if(process->dm_stderr_callback.first != NULL) {
+
+	    // Call the standard error stream callback
+	    (*(process->dm_stderr_callback.first))
+		((char*)msg, sys.msg_size, process->dm_stderr_callback.second);
+	    
+	}
+	else {
+
+	    // Redirect output to tool's standard error stream
+	    char* ptr = (char*)msg;
+	    for(int i = 0; i < sys.msg_size; ++i, ++ptr)
+		fputc(*ptr, stderr);
+	    fflush(stderr);
+	}	
+    }
 }
 
 
@@ -1823,13 +1878,53 @@ void Process::stderrCallback(GCBSysType sys, GCBTagType,
  * data to its standard out stream. Simply redirect the output to the tool's 
  * standard out stream.
  */
-void Process::stdoutCallback(GCBSysType sys, GCBTagType, 
+void Process::stdoutCallback(GCBSysType sys, GCBTagType tag, 
 			     GCBObjType, GCBMsgType msg)
-{
-    char* ptr = (char*)msg;
-    for(int i = 0; i < sys.msg_size; ++i, ++ptr)
-	fputc(*ptr, stdout);
-    fflush(stdout);
+{    
+    std::string* name = reinterpret_cast<std::string*>(tag);
+    SmartPtr<Process> process;
+
+    // Check assertions
+    Assert(name != NULL);
+
+#ifndef NDEBUG
+    if(is_debug_enabled)
+	debugCallback("stdout", *name);
+#endif
+    
+    // Critical section touching the process table
+    {
+	Guard guard_process_table(ProcessTable::TheTable);
+	
+	// Attempt to locate the process by its unique name
+	process = ProcessTable::TheTable.getProcessByName(*name);
+    }
+    
+    // Go no further if the process is no longer in the process table
+    if(process.isNull())
+	return;	
+    
+    // Critical section touching the process
+    {
+	Guard guard_process(*process);
+
+	// Is there a standard output stream callback set for this process?
+	if(process->dm_stdout_callback.first != NULL) {
+
+	    // Call the standard output stream callback
+	    (*(process->dm_stdout_callback.first))
+		((char*)msg, sys.msg_size, process->dm_stdout_callback.second);
+	    
+	}
+	else {
+
+	    // Redirect output to tool's standard output stream
+	    char* ptr = (char*)msg;
+	    for(int i = 0; i < sys.msg_size; ++i, ++ptr)
+		fputc(*ptr, stdout);
+	    fflush(stdout);
+	}	
+    }
 }
 
 

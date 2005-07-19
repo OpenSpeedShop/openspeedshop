@@ -87,14 +87,18 @@ void Instrumentor::release(const Thread& thread)
  * Create a thread.
  *
  * Creates the specified thread as a new process to execute the passed command.
- * The command is created with the same initial environment (standard file
- * descriptors, environment variables, etc.) in which the tool was started. The
- * process is created in the suspended state.
+ * The command is created with the same initial environment as when the tool was
+ * started. The process is created in a suspended state.
  *
- * @param thread     Thread to be created.
- * @param command    Command to be executed.
+ * @param thread             Thread to be created.
+ * @param command            Command to be executed.
+ * @param stdout_callback    Standard output stream callback for the process.
+ * @param stderr_callback    Standard error stream callback for the process.
  */
-void Instrumentor::create(const Thread& thread, const std::string& command)
+void Instrumentor::create(const Thread& thread, 
+			  const std::string& command,
+			  const OutputCallback stdout_cb,
+			  const OutputCallback stderr_cb)
 {
     // Critical section touching the process table
     {
@@ -102,7 +106,8 @@ void Instrumentor::create(const Thread& thread, const std::string& command)
 	
 	// Allocate a new Process object for executing this command
 	SmartPtr<Process> process = 
-	    SmartPtr<Process>(new Process(thread.getHost(), command));
+	    SmartPtr<Process>(new Process(thread.getHost(), command,
+					  stdout_cb, stderr_cb));
 	Assert(!process.isNull());
 	
 	// Add this process to the process table
