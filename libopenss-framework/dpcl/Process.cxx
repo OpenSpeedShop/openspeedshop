@@ -24,9 +24,9 @@
 
 #include "AddressSpace.hxx"
 #include "Blob.hxx"
+#include "DataQueues.hxx"
 #include "EntrySpy.hxx"
 #include "Exception.hxx"
-#include "ExperimentTable.hxx"
 #include "Function.hxx"
 #include "Guard.hxx"
 #include "LinkedObject.hxx"
@@ -1612,14 +1612,15 @@ void Process::loadModuleCallback(GCBSysType, GCBTagType tag,
 /**
  * Performance data callback.
  *
- * Callback function called by the DPCL main loop when performance data has been
- * received. Simply passes this data on for storage in an experiment database.
+ * Callback function called by the DPCL main loop when performance data has
+ * been received. Simply enqueues this data for later storage in an experiment
+ * database.
  */
 void Process::performanceDataCallback(GCBSysType sys, GCBTagType,
 				      GCBObjType, GCBMsgType msg)
 {
-    // Store this performance data in the correct experiment database
-    ExperimentTable::TheTable.storePerformanceData(Blob(sys.msg_size, msg));
+    // Enqueue this performance data
+    DataQueues::enqueuePerformanceData(Blob(sys.msg_size, msg));
 }
 
 

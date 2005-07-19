@@ -24,8 +24,8 @@
 
 #include "Collector.hxx"
 #include "CollectorImpl.hxx"
+#include "DataQueues.hxx"
 #include "EntrySpy.hxx"
-#include "ExperimentTable.hxx"
 #include "Instrumentor.hxx"
 
 using namespace OpenSpeedShop::Framework;
@@ -152,8 +152,8 @@ void CollectorImpl::getECT(const Collector& collector,
     Assert(EntrySpy(collector).getDatabase() == EntrySpy(thread).getDatabase());
 
     // Get and set the experiment identifier
-    experiment_id = ExperimentTable::TheTable.getIdentifier(
-	EntrySpy(collector).getDatabase());
+    experiment_id = 
+	DataQueues::getDatabaseIdentifier(EntrySpy(collector).getDatabase());
     
     // Set the collector and thread identifiers
     collector_id = EntrySpy(collector).getEntry();

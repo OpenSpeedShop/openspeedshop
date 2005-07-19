@@ -23,9 +23,9 @@
  */
 
 #include "CollectorGroup.hxx"
+#include "DataQueues.hxx"
 #include "EntrySpy.hxx"
 #include "Experiment.hxx"
-#include "ExperimentTable.hxx"
 #include "Instrumentor.hxx"
 #include "ThreadGroup.hxx"
 
@@ -295,8 +295,8 @@ Experiment::Experiment(const std::string& name) :
 	
     }
 
-    // Add this experiment to the experiment table
-    ExperimentTable::TheTable.addExperiment(this);
+    // Add this experiment's database to the data queues
+    DataQueues::addDatabase(dm_database);
 }
 
 
@@ -311,11 +311,11 @@ Experiment::Experiment(const std::string& name) :
  */
 Experiment::~Experiment()
 {
-    // Remove this experiment from the experiment table
-    ExperimentTable::TheTable.removeExperiment(this);
-    
     // Postpone all performance data collection
     getThreads().postponeCollecting(getCollectors());
+
+    // Remove this experiment's database from the data queues
+    DataQueues::removeDatabase(dm_database);
     
     // Iterate over each thread in this experiment
     ThreadGroup threads = getThreads();

@@ -45,7 +45,6 @@ namespace OpenSpeedShop { namespace Framework {
 
     class Collector;
     class CollectorGroup;
-    class ExperimentTable;
     class Thread;
     class ThreadGroup;
     
@@ -77,7 +76,6 @@ namespace OpenSpeedShop { namespace Framework {
     class Experiment :
 	private NonCopyable
     {
-	friend class ExperimentTable;
 
     public:
 
