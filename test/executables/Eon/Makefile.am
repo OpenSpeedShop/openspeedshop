@@ -18,7 +18,7 @@
 
 noinst_PROGRAMS = eon
 
-eon_CXXFLAGS = \
+CXXFLAGS = \
 	-g -gdwarf-2 -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG 
 
 eon_LDADD = \
@@ -49,3 +49,49 @@ eon_SOURCES = \
 	mrXEllipticalCylinder.cc mrXYDisk.cc mrXYRectangle.cc mrXZDisk.cc mrXZRectangle.cc mrYCylinder.cc mrYEllipticalCylinder.cc \
 	mrYZDisk.cc mrYZRectangle.cc mrZCylinder.cc mrZEllipticalCylinder.cc myrand.cc 
 
+EXTRA_DIST = \
+	assert-local.h bsd_time.h eonImageCalculator.h ggAll.h \
+	ggBoardFloorSolidTexture.h ggBoolean.h ggBox2.h ggBox3.h \
+	ggBoxPixelFilter.h ggBRDF.h ggBST.h ggCamera.h ggConductorMaterial.h \
+	ggConstantMaterial.h ggConstants.h ggCookSample3.h ggCoverageSolidTexture.h \
+	ggDictionary.h ggDielectricMaterial.h ggDiffuseBRDF.h ggDiffuseMaterial.h \
+	ggEdgeDiscrepancy.h ggErr.h ggFineSpectrum.h ggFormat.h ggFPoint3.h \
+	ggFrame2.h ggFrame3.h ggFrameInterpolation.h ggGamma.h ggGE.h ggGeometry.h \
+	ggGrayPixel.h ggGrid.h gg.h ggHAffineMatrix3.h ggHBoxMatrix3.h ggHMatrix3.h \
+	ggHPerspectiveMatrix3.h ggHPoint3.h ggHReflectionMatrix3.h ggHRigidBodyMatrix3.h \
+	ggHRotationMatrix3.h ggHScaleMatrix3.h ggHShearMatrix3.h ggHTranslationMatrix3.h \
+	ggIO.h ggIOhdr.h ggJitterSample1.h ggJitterSample2.h ggJitterSample3.h \
+	ggJRSample2.h ggJRSample3.h ggList.h ggMacros.h ggMaterial.h ggMetamer.h \
+	ggMultiJitterSample2.h ggMultiJitterSample3.h ggNA.h ggNRooksSample2.h \
+	ggNRooksSample3.h ggOakSolidTexture.h ggONB2.h ggONB3.h ggOptics.h \
+	ggPathDielectricMaterial.h ggPermute.h ggPhongBRDF.h ggPhotometer.h \
+	ggPinholeCamera.h ggPixelFilter.h ggPlane.h ggPoint2.h ggPoint3.h \
+	ggPoissonDiskSample2.h ggPoissonSphereSample3.h ggPolishedBRDF.h \
+	ggPolishedMaterial.h ggPolygon.h ggQuaternion.h ggRandomSample2.h \
+	ggRandomSample3.h ggRange.h ggRanNum.h ggRaster.h ggRasterSurfaceTexture.h \
+	ggRay2.h ggRay3.h ggRectangle.h ggRegularSample2.h ggRegularSample3.h \
+	ggRGBE.h ggRGBFPixel.h ggRGBPixel.h ggRotatingPinholeCamera.h ggSample1.h \
+	ggSample2.h ggSample3.h ggSolidNoise2.h ggSolidNoise3.h ggSolidTexture.h \
+	ggSpectrum.h ggSpecularMaterial.h ggSphere.h ggSpline.h ggStaticArray.h \
+	ggString.h ggThinLensCamera.h ggTimer.h ggTrain.h ggTriangle.h \
+	ggTrianglePixelFilter.h ggVector2.h ggVector3.h kai.h mrBox.h \
+	mrBruteForcePixelRenderer.h mrCamera.h mrChiuPixelRenderer.h mrCoarsePixelRenderer.h \
+	mrCookPixelRenderer.h mrDiffuseAreaSphereLuminaire.h mrDiffuseAreaTriangleLuminaire.h \
+	mrDiffuseAreaXYRectangleLuminaire.h mrDiffuseAreaXZRectangleLuminaire.h \
+	mrDiffuseAreaYZRectangleLuminaire.h mrDiffuseAreaZCylinderLuminaire.h \
+	mrDiffuseCosineSphereLuminaire.h mrDiffuseCosineZCylinderLuminaire.h \
+	mrDiffuseSolidAngleSphereLuminaire.h mrDiffuseVisibleAreaZCylinderLuminaire.h \
+	mrEmitter.h mrFastTriangle.h mrGrid.h mr.h mrImposter.h mrIndirectPixelRenderer.h \
+	mrInstance.h mrKajiyaPixelRenderer.h mrLinkedObjects.h mrMaterial.h \
+	mrObjectRecord.h mrPhongAreaTriangleLuminaire.h mrPhongAreaXYRectangleLuminaire.h \
+	mrPhongAreaXZRectangleLuminaire.h mrPhongAreaYZRectangleLuminaire.h mrPixelRenderer.h \
+	mrPolygon.h mrRushmeierPixelRenderer.h mrScene.h mrShellLuminaire.h mrSolidTexture.h \
+	mrSphere.h mrSpotAreaXYDiskLuminaire.h mrSurface.h mrSurfaceList.h mrSurfaceTexture.h \
+	mrTriangle.h mrXCylinder.h mrXEllipticalCylinder.h mrXYDisk.h \
+	mrXYRectangle.h mrXZDisk.h mrXZRectangle.h mrYCylinder.h mrYEllipticalCylinder.h \
+	mrYZDisk.h mrYZRectangle.h mrZCylinder.h mrZEllipticalCylinder.h myrand.h \
+	ggBST.cc ggConstantMaterial.cc ggCookSample3.cc ggIO.cc \
+	ggJitterSample3.cc ggJRSample2.cc ggJRSample3.cc ggMultiJitterSample2.cc \
+	ggMultiJitterSample3.cc ggNRooksSample3.cc ggPermute.cc ggPoissonDiskSample2.cc \
+	ggPoissonSphereSample3.cc ggRange.cc ggRanNum.cc ggRaster.cc ggRegularSample2.cc \
+	ggRegularSample3.cc ggRGBPixel.cc ggStaticArray.cc ggTimer.cc ggTrain.cc mrChiuPixelRenderer.cc
