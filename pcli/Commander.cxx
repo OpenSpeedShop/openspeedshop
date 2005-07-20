@@ -455,6 +455,13 @@ class CommandWindowID
 
      // Release the lock.
       Assert(pthread_mutex_unlock(&Window_List_Lock) == 0);
+
+
+      if (default_outstream) {
+        delete default_outstream;
+        if ((default_outstream != default_errstream) &&
+            default_errstream) delete default_outstream;
+      }
     }
 
   void Purge_All_Input () {
@@ -1492,6 +1499,60 @@ void Default_TLI_Line_Output (InputLineObject *clip) {
   }
 }
 
+void ReDirect_User_Stdout (const char *S, const int &len, void *tag) {
+  CMDWID to_window = (CMDWID)tag;
+  CommandWindowID *cw = (to_window) ? Find_Command_Window (to_window) : NULL;
+
+  if ((cw != NULL) &&
+      cw->has_outstream()) {
+    ss_ostream *this_ss_stream = cw->ss_outstream();
+    this_ss_stream->acquireLock();
+    ostream &mystream = this_ss_stream->mystream();
+    mystream.write( S, len);
+    this_ss_stream->releaseLock();
+  } else {
+    FILE *outfile = (cw) ? cw->output() : NULL;
+    if (outfile == NULL) {
+      outfile = stdout;
+      if ((ttyout != NULL)  &&
+          isatty(fileno(outfile))) {
+        outfile = ttyout;
+      }
+    }
+    for (int i = 0; i < len; i++) {
+      fputc ((S[i]), outfile);
+    }
+    fflush(outfile);
+  }
+}
+
+void ReDirect_User_Stderr (const char *S, const int &len, void *tag) {
+  CMDWID to_window = (CMDWID)tag;
+  CommandWindowID *cw = (to_window) ? Find_Command_Window (to_window) : NULL;
+
+  if ((cw != NULL) &&
+      cw->has_errstream()) {
+    ss_ostream *this_ss_stream = cw->ss_errstream();
+    this_ss_stream->acquireLock();
+    ostream &mystream = this_ss_stream->mystream();
+    mystream.write( S, len);
+    this_ss_stream->releaseLock();
+  } else {
+    FILE *errfile = (cw) ? cw->output() : NULL;
+    if (errfile == NULL) {
+      errfile = stderr;
+      if ((ttyout != NULL)  &&
+          isatty(fileno(errfile))) {
+        errfile = ttyout;
+      }
+    }
+    for (int i = 0; i < len; i++) {
+      fputc (S[i], errfile);
+    }
+    fflush(errfile);
+  }
+}
+
 void Default_TLI_Command_Output (CommandObject *C) {
   if (!(C->Results_Used()) &&
       !(C->Needed_By_Python())) {
@@ -1538,7 +1599,7 @@ void Default_TLI_Command_Output (CommandObject *C) {
 // Catch keyboard interrupt signals from TLI window.
 #include "sys/signal.h"
 
-static void User_Interrupt (CMDWID issuedbywindow) {
+void User_Interrupt (CMDWID issuedbywindow) {
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
   if (cw != NULL) {
    // Get rid of all queued commands from this window.
@@ -1581,7 +1642,17 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
 
  // Set up to catch keyboard control signals
   setup_signal_handler (SIGINT); // CNTRL-C
-  setup_signal_handler (SIGQUIT); // CNTRL-\
+
+ // If this is the only window, send a welcome message to the user.
+  if ((Default_WindowID == 0) &&
+      (GUI_WindowID == 0) &&
+      (Embedded_WindowID == 0)) {
+    char *Welcome_Message = "Welcome to Open|SpeedShop, version 0.1.\n"
+                            "Type 'help' for more information.\n";
+    ss_ttyout->acquireLock();
+    ss_ttyout->mystream() << Welcome_Message;
+    ss_ttyout->releaseLock();
+  }
 
  // Infinite loop to read user input.
   for(;;) {
