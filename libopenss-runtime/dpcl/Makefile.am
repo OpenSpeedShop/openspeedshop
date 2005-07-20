@@ -19,7 +19,7 @@
 noinst_LTLIBRARIES = libopenss-runtime-dpcl.la
 
 libopenss_runtime_dpcl_la_CFLAGS = \
-	-I$(top_srcdir)/libopenss-framework/runtime \
+	-I$(top_srcdir)/libopenss-runtime \
 	$(DPCL_CPPFLAGS)
 
 libopenss_runtime_dpcl_la_SOURCES = \

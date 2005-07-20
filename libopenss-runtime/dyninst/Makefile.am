@@ -19,6 +19,6 @@
 noinst_LTLIBRARIES = libopenss-runtime-dyninst.la
 
 libopenss_runtime_dyninst_la_CFLAGS = \
-	-I$(top_srcdir)/libopenss-framework/runtime
+	-I$(top_srcdir)/libopenss-runtime
 
 libopenss_runtime_dyninst_la_SOURCES =
