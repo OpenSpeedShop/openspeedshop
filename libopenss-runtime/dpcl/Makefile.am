@@ -16,39 +16,11 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-pkglib_LTLIBRARIES = pcsamp.la pcsamp-rt.la
+noinst_LTLIBRARIES = libopenss-runtime-dpcl.la
 
-BUILT_SOURCES = \
-	blobs.h blobs.c	
+libopenss_runtime_dpcl_la_CFLAGS = \
+	-I$(top_srcdir)/libopenss-framework/runtime \
+	$(DPCL_CPPFLAGS)
 
-pcsamp_la_CXXFLAGS = \
-	-I$(top_srcdir)/libopenss-framework
-
-pcsamp_la_LDFLAGS = \
-	-no-undefined -module -avoid-version
-
-pcsamp_la_SOURCES = \
-	blobs.x $(BUILT_SOURCES) \
-	PCSampCollector.hxx PCSampCollector.cxx
-
-pcsamp_rt_la_CFLAGS = \
-	-I$(top_srcdir)/libopenss-runtime
-
-pcsamp_rt_la_LDFLAGS = \
-	-L$(top_srcdir)/libopenss-runtime \
-	-no-undefined -module -avoid-version
-
-pcsamp_rt_la_LIBADD = \
-	-lopenss-runtime -lpthread -lrt
-
-pcsamp_rt_la_SOURCES = \
-	blobs.x $(BUILT_SOURCES) \
-	runtime.c
-
-SUFFIXES = .x
-CLEANFILES = $(BUILT_SOURCES)
-
-blobs.h blobs.c : blobs.x
-	rm -f  $(patsubst %.x, %.h, $<) $(patsubst %.x, %.c, $<)
-	$(RPCGEN) -h -o $(patsubst %.x, %.h, $<) $<
-	$(RPCGEN) -c -o $(patsubst %.x, %.c, $<) $<
+libopenss_runtime_dpcl_la_SOURCES = \
+	openss_send.c

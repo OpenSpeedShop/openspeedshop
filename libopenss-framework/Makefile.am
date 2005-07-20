@@ -22,7 +22,7 @@ DIST_SUBDIRS = dpcl dyninst
 lib_LTLIBRARIES = libopenss-framework.la
 
 libopenss_framework_la_CXXFLAGS = \
-	-I$(top_srcdir)/libopenss-framework/runtime \
+	-I$(top_srcdir)/libopenss-runtime \
 	$(LTDLINCL)
 
 libopenss_framework_la_LDFLAGS = \
@@ -34,7 +34,7 @@ libopenss_framework_la_LIBADD = \
 	-lsqlite3 -lpthread -lrt
 
 libopenss_framework_la_SOURCES = \
-	$(top_srcdir)/libopenss-framework/runtime/OpenSS_DataHeader.c \
+	$(top_srcdir)/libopenss-runtime/OpenSS_DataHeader.c \
 	Address.hxx \
 	AddressBitmap.hxx AddressBitmap.cxx \
 	AddressRange.hxx \

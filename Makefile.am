@@ -19,7 +19,7 @@
 SUBDIRS = \
 	libltdl \
 	message \
-	libopenss-framework/runtime \
+	libopenss-runtime \
 	libopenss-framework \
 	libopenss-queries \
 	pcli \
@@ -64,7 +64,7 @@ TEST_SUBDIRS =	\
 tests: $(TEST_SUBDIRS)
 
 DOC_SUBDIRS = \
-	libopenss-framework/runtime \
+	libopenss-runtime \
 	libopenss-framework \
 	libopenss-queries \
 	pcli \
@@ -83,7 +83,7 @@ EXTRA_DIST = images/*
 
 FRAMEWORK_SUBDIRS = \
 	libltdl \
-	libopenss-framework/runtime \
+	libopenss-runtime \
 	libopenss-framework \
 	libopenss-queries \
 	plugins/collectors \

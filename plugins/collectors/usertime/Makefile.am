@@ -32,10 +32,10 @@ usertime_la_SOURCES = \
 	UserTimeCollector.hxx UserTimeCollector.cxx
 
 usertime_rt_la_CFLAGS = \
-	-I$(top_srcdir)/libopenss-framework/runtime
+	-I$(top_srcdir)/libopenss-runtime
 
 usertime_rt_la_LDFLAGS = \
-	-L$(top_srcdir)/libopenss-framework/runtime \
+	-L$(top_srcdir)/libopenss-runtime \
 	-no-undefined -module -avoid-version
 
 usertime_rt_la_LIBADD = \

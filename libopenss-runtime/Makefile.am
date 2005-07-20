@@ -16,39 +16,35 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-pkglib_LTLIBRARIES = pcsamp.la pcsamp-rt.la
+SUBDIRS = @INSTRUMENTOR@
+DIST_SUBDIRS = dpcl dyninst
 
-BUILT_SOURCES = \
-	blobs.h blobs.c	
+noinst_LTLIBRARIES = libopenss-runtime.la
 
-pcsamp_la_CXXFLAGS = \
-	-I$(top_srcdir)/libopenss-framework
+libopenss_runtime_la_LDFLAGS = \
+        -export-dynamic -version-info 1:0:0
 
-pcsamp_la_LDFLAGS = \
-	-no-undefined -module -avoid-version
+libopenss_runtime_la_LIBADD = \
+	@INSTRUMENTOR@/libopenss-runtime-@INSTRUMENTOR@.la \
+	-lpthread -lrt
 
-pcsamp_la_SOURCES = \
-	blobs.x $(BUILT_SOURCES) \
-	PCSampCollector.hxx PCSampCollector.cxx
-
-pcsamp_rt_la_CFLAGS = \
-	-I$(top_srcdir)/libopenss-runtime
-
-pcsamp_rt_la_LDFLAGS = \
-	-L$(top_srcdir)/libopenss-runtime \
-	-no-undefined -module -avoid-version
-
-pcsamp_rt_la_LIBADD = \
-	-lopenss-runtime -lpthread -lrt
-
-pcsamp_rt_la_SOURCES = \
-	blobs.x $(BUILT_SOURCES) \
-	runtime.c
+libopenss_runtime_la_SOURCES = \
+	Assert.h \
+	OpenSS_DataHeader.h OpenSS_DataHeader.c OpenSS_DataHeader.x \
+	OpenSS_DecodeParameters.c \
+	OpenSS_GetPCFromContext.c \
+	OpenSS_GetTime.c \
+	OpenSS_Send.c \
+	OpenSS_Timer.c \
+	RuntimeAPI.h
 
 SUFFIXES = .x
-CLEANFILES = $(BUILT_SOURCES)
+CLEANFILES = OpenSS_DataHeader.h OpenSS_DataHeader.c
 
-blobs.h blobs.c : blobs.x
+OpenSS_DataHeader.h OpenSS_DataHeader.c : OpenSS_DataHeader.x
 	rm -f  $(patsubst %.x, %.h, $<) $(patsubst %.x, %.c, $<)
 	$(RPCGEN) -h -o $(patsubst %.x, %.h, $<) $<
 	$(RPCGEN) -c -o $(patsubst %.x, %.c, $<) $<
+
+doc:
+	$(DOXYGEN)
