@@ -46,7 +46,7 @@ ProcessListObject::ProcessListObject(char *host)
   nprintf( DEBUG_CONST_DESTRUCT ) ("SourceObject::ProcesslistObject(host=%s)\n", host);
 
   const char *command = w->preferencesDialog->globalRemoteShell.ascii();
-printf("command=%s\n", command );
+// printf("command=%s\n", command );
 
   createProcList(command, host);
 }
@@ -302,14 +302,14 @@ ProcessListObject::extract_ps_list ( char *host, FILE *input, int *count, int /*
   // fetch the header line
   if ( !fgets (header, 255, input) )
   {
-printf("header=%s", header);
+// printf("header=%s", header);
     return (0);
   }
 
   // Set up the field start/end pairs.
   if( fgets (line, 255, input) )
   {
-printf("line=%s", line);
+// printf("line=%s", line);
     (void)analyze_ps_header (header, line);			
   }
 
@@ -389,6 +389,12 @@ ProcessListObject::createProcList(const char *command, char *host)
     char **ps_args_buf = NULL;
     int _proc_count = 0;
     char *login = getlogin();
+  
+
+    if( login == NULL )
+    {
+      login = getenv("LOGNAME");
+    }
 
 	char *ps_command = "/bin/ps";
     char local_command[255];
@@ -396,6 +402,7 @@ ProcessListObject::createProcList(const char *command, char *host)
 
     if( strcmp(host, "localhost") == 0 )
     {
+// printf("login=%s\n", login);
       strcpy(local_command, ps_command);
       sprintf(arg0, "-lu%s", login );
       in_fd = do_ps_cmd ( local_command, arg0, &child_pid );

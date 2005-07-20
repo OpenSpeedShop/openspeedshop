@@ -588,12 +588,24 @@ CLIInterface::interrupt = true;
       if( !executableNameStr.isEmpty() )
       {
         command = QString("expAttach -x %1 -f \"%2 %3\"\n").arg(expID).arg(executableNameStr).arg(argsStr);
+// printf("executableNameStr is not empty.\n");
       } else if( !pidStr.isEmpty() )
       { 
         QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
         QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
         QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
+#ifdef OLDWAY
         command = QString("expAttach -x %1 -p %2 -h %3\n").arg(expID).arg(pid_name).arg(host_name);
+#else // OLDWAY
+// printf("host_name=(%s)\n", host_name.ascii() );
+// printf("pid_name=(%s)\n", pid_name.ascii() );
+// printf("prog_name=(%s)\n", prog_name.ascii() );
+
+// printf("pidStr =%s\n", pidStr.ascii() );
+// printf("mw->hostStr =%s\n", mw->hostStr.ascii() );
+
+        command = QString("expAttach -x %1 -p  %2 -h %3\n").arg(expID).arg(pidStr).arg(mw->hostStr);
+#endif // OLDWAY
 // printf("command=(%s)\n", command.ascii() );
       } else
       {

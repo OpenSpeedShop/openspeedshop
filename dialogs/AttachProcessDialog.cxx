@@ -33,6 +33,7 @@
 #include <qlabel.h>
 #include <qcombobox.h>
 #include <qlistview.h>
+#include <qradiobutton.h>
 
 AttachProcessDialog::AttachProcessDialog( QWidget* parent, const char* name, bool modal, WFlags fl )
     : QDialog( parent, name, modal, fl )
@@ -54,10 +55,16 @@ AttachProcessDialog::AttachProcessDialog( QWidget* parent, const char* name, boo
 
   availableProcessListView = new QListView( this, "availableProcessListView" );
   availableProcessListView->addColumn( tr( "Processes list:" ) );
-  availableProcessListView->setSelectionMode( QListView::Single );
+//  availableProcessListView->setSelectionMode( QListView::Single );
+  availableProcessListView->setSelectionMode( QListView::Multi );
   availableProcessListView->setAllColumnsShowFocus( FALSE );
   availableProcessListView->setShowSortIndicator( FALSE );
   AttachProcessDialogLayout->addWidget( availableProcessListView );
+
+
+  mpiRB = new QRadioButton( this, "mpiRB");
+  AttachProcessDialogLayout->addWidget( mpiRB );
+  mpiRB->setText(tr("Attach to all mpi related process."));
 
 
   Layout1 = new QHBoxLayout( 0, 0, 6, "Layout1"); 
@@ -129,22 +136,28 @@ void AttachProcessDialog::languageChange()
 //  attachHostComboBox->insertItem( "hope2.americas.sgi.com" );
 }
 
-QString
-AttachProcessDialog::selectedProcesses()
+// QString
+QStringList *
+AttachProcessDialog::selectedProcesses(bool *mpiFLAG)
 {
 //  QString ret_value = attachHostComboBox->currentText();
 
+// printf("AttachProcessDialog::selectedProcesses() entered\n");
+
+  QStringList *qsl = new QStringList();
+  qsl->clear();
   QListViewItem *selectedItem = availableProcessListView->selectedItem();
-  if( selectedItem )
+  *mpiFLAG = mpiRB->isChecked();
+  QListViewItemIterator it( availableProcessListView, QListViewItemIterator::Selected );
+  while( it.current() )
   {
-//    printf("Got an ITEM!\n");
-    QString ret_value = selectedItem->text(0);
-    return( ret_value );
-  } else
-  {
-//    printf("NO ITEMS SELECTED\n");
-    return( NULL );
+    QListViewItem *item = it.current();
+    QString ret_val = item->text(0);
+    qsl->push_back(ret_val);
+// printf("push_back (%s)\n", ret_val.ascii() );
+    ++it;
   }
+  return( qsl );
 }
 
 

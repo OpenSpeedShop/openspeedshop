@@ -106,6 +106,7 @@ class OpenSpeedshop : public QMainWindow
 
     //! The hinted process id string that is to be attached (eventually).
     QString pidStr;
+    QStringList *pidStrList;
 
     //! The host to the peruse.
     QString hostStr;

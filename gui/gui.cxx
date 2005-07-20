@@ -100,6 +100,7 @@ extern "C"
     QString widStr = QString::null;
     QString argsStr = QString::null;
     QString pidStr = QString::null;
+QStringList pidStrList = NULL;
     QString rankStr = QString::null;
     QString expStr = QString::null;
     for(int i=0;i<argc;i++)
@@ -157,6 +158,7 @@ extern "C"
     w->executableName = executableStr;
     w->widStr = widStr;
     w->pidStr = pidStr;
+w->pidStrList = NULL;
     w->rankStr = rankStr;
     w->expStr = expStr;
     w->hostStr = hostStr;

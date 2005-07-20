@@ -50,6 +50,7 @@ OpenSpeedshop::OpenSpeedshop( int _wid, int _climode, QWidget* parent, const cha
   sfd = NULL;
   widStr = QString::null;
   pidStr = QString::null;
+pidStrList = NULL;
   executableName = QString::null;
   experimentName = QString::null;
   argsStr = QString::null;

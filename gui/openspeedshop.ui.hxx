@@ -1019,7 +1019,35 @@ void OpenSpeedshop::attachNewProcess()
   if( afd->exec() == QDialog::Accepted )
   {
     //printf("QDialog::Accepted\n");
-    pidStr = afd->selectedProcesses();
+//    pidStr = afd->selectedProcesses();
+    bool mpiFLAG=FALSE;
+    pidStrList = afd->selectedProcesses(&mpiFLAG);
+
+pidStr = QString::null;
+    for( QStringList::Iterator it = pidStrList->begin();
+               it != pidStrList->end();
+               it++ )
+    {
+      QString qs = (QString)*it;
+
+QString host_name = qs.section(' ', 0, 0, QString::SectionSkipEmpty);
+QString pid_name = qs.section(' ', 1, 1, QString::SectionSkipEmpty);
+QString prog_name = qs.section(' ', 2, 2, QString::SectionSkipEmpty);
+
+hostStr = host_name;
+
+      if( pidStr == QString::null )
+      {
+        pidStr += pid_name;
+      } else
+      {
+        pidStr += ",";
+        pidStr += pid_name;
+      }
+// printf("qs.ascii() = (%s)\n", qs.ascii() );
+      
+    }
+
   }
 // printf("pidStr = %s\n", pidStr.ascii() );
 }

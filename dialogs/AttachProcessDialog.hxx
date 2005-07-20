@@ -22,9 +22,12 @@
 
 #include <qvariant.h>
 #include <qdialog.h>
+#include <qvaluelist.h>
 
 #include "ProcessListObject.hxx"  // For getting pid list off a host...
 #include "ProcessEntryClass.hxx"
+
+// typedef QValueList<QString *> QStringList;
 
 class QVBoxLayout;
 class QHBoxLayout;
@@ -36,6 +39,7 @@ class QLabel;
 class QComboBox;
 class QListView;
 class QListViewItem;
+class QRadioButton;
 
 class AttachProcessDialog : public QDialog
 {
@@ -53,8 +57,10 @@ public:
     QLabel* attachHostLabel;
     QComboBox * attachHostComboBox;
     QListView* availableProcessListView;
+    QRadioButton *mpiRB;
 
-    QString selectedProcesses();
+//    QString selectedProcesses(bool *);
+    QStringList * selectedProcesses(bool *);
     void updateAttachableProcessList();
 
     ProcessListObject *plo;

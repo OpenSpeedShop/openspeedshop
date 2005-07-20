@@ -118,7 +118,7 @@ HW_CounterPanel::HW_CounterPanel(PanelContainer *pc, const char *n, ArgumentObje
       if( cgrp.size() == 0 )
       {
         nprintf( DEBUG_PANELS ) ("There are no known collectors for this experiment so add one.\n");
-        QString command = QString("expAttach -x %1 hwc").arg(expID);
+        QString command = QString("expAttach -x %1 hw").arg(expID);
         CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
         if( !cli->runSynchronousCLI((char *)command.ascii() ) )
         {
@@ -173,7 +173,7 @@ HW_CounterPanel::HW_CounterPanel(PanelContainer *pc, const char *n, ArgumentObje
   {
     // We're coming in cold, or we're coming in from the hwCounterWizardPanel.
     QString command = QString::null;
-    command = QString("expCreate hwc\n");
+    command = QString("expCreate hw\n");
     bool mark_value_for_delete = true;
     int64_t val = 0;
 
@@ -588,17 +588,29 @@ CLIInterface::interrupt = true;
       if( !executableNameStr.isEmpty() )
       {
         command = QString("expAttach -x %1 -f \"%2 %3\"\n").arg(expID).arg(executableNameStr).arg(argsStr);
+// printf("executableNameStr is not empty.\n");
       } else if( !pidStr.isEmpty() )
       { 
         QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
         QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
         QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
+#ifdef OLDWAY
         command = QString("expAttach -x %1 -p %2 -h %3\n").arg(expID).arg(pid_name).arg(host_name);
+#else // OLDWAY
+// printf("host_name=(%s)\n", host_name.ascii() );
+// printf("pid_name=(%s)\n", pid_name.ascii() );
+// printf("prog_name=(%s)\n", prog_name.ascii() );
+
+// printf("pidStr =%s\n", pidStr.ascii() );
+// printf("mw->hostStr =%s\n", mw->hostStr.ascii() );
+
+        command = QString("expAttach -x %1 -p  %2 -h %3\n").arg(expID).arg(pidStr).arg(mw->hostStr);
+#endif // OLDWAY
 // printf("command=(%s)\n", command.ascii() );
       } else
       {
         return 0;
-//      command = QString("expCreate hwc\n");
+//      command = QString("expCreate hw\n");
       }
       bool mark_value_for_delete = true;
       int64_t val = 0;
@@ -804,7 +816,7 @@ HW_CounterPanel::loadStatsPanel()
     {
       experiment = eo->FW();
       UpdateObject *msg =
-        new UpdateObject((void *)experiment, expID, "hwc", 1);
+        new UpdateObject((void *)experiment, expID, "hw", 1);
       statsPanel->listener( (void *)msg );
     }
   }
@@ -842,7 +854,7 @@ HW_CounterPanel::loadManageProcessesPanel()
     {
       experiment = eo->FW();
       UpdateObject *msg =
-        new UpdateObject((void *)experiment, expID, "hwc", 1);
+        new UpdateObject((void *)experiment, expID, "hw", 1);
       manageProcessPanel->listener( (void *)msg );
     }
   }
