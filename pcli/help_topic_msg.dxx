@@ -1,0 +1,119 @@
+/*/*******************************************************************************
+** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+**
+** This library is free software; you can redistribute it and/or modify it under
+** the terms of the GNU Lesser General Public License as published by the Free
+** Software Foundation; either version 2.1 of the License, or (at your option)
+** any later version.
+**
+** This library is distributed in the hope that it will be useful, but WITHOUT
+** ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+** FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+** details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with this library; if not, write to the Free Software Foundation, Inc.,
+** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*******************************************************************************/
+
+/** @file
+ *
+ * Message database.
+ *
+ */
+
+/*********************************************/
+// BRIEF TOPICS
+/*********************************************/
+char *topic_commands_brief = {
+    "Lists all available commands"
+};
+char *topic_grammar_brief = {
+    "Lists command grammar elements"
+};
+char *topic_experiments_brief = {
+    "Lists available experiments"
+};
+char *topic_examples_brief = {
+    "Lists examples of Open|SpeedShop use"
+};
+char *topic_man_brief = {
+    "How to access the Open|SpeedShop man page"
+};
+char *topic_nomenclature_brief = {
+    "Lists general Open|SpeedShop nomenclature"
+};
+
+/*********************************************/
+// DETAILED TOPICS
+/*********************************************/
+char *topic_commands_detailed[] = {
+    topic_commands_brief,
+    " "
+};
+char *topic_grammar_detailed[] = {
+    topic_grammar_brief,
+    " "
+};
+char *topic_experiments_detailed[] = {
+    topic_experiments_brief,
+    " "
+};
+char *topic_examples_detailed[] = {
+    topic_examples_brief,
+    " "
+};
+char *topic_man_detailed[] = {
+    topic_man_brief,
+    " "
+};
+char *topic_nomenclature_detailed[] = {
+    topic_nomenclature_brief,
+    " "
+};
+
+/*********************************************/
+// TOPIC MESSAGE ARRAY
+/*********************************************/
+// message array to be passed to message czar
+OpenSpeedShop::message_element_t general_msg[] = {
+//    commands
+    -1,"commands",NULL,0,
+    "topic",topic_commands_brief,
+    topic_commands_detailed,sizeof(topic_commands_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+
+//    xxx
+    -1,"grammar",NULL,0,
+    "topic",topic_grammar_brief,
+    topic_grammar_detailed,sizeof(topic_grammar_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+
+//    xxx
+    -1,"experiments",NULL,0,
+    "topic",topic_experiments_brief,
+    topic_experiments_detailed,sizeof(topic_experiments_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+
+//    examples
+    -1,"examples",NULL,0,
+    "topic",topic_examples_brief,
+    topic_examples_detailed,sizeof(topic_examples_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+
+//    Man page
+    -1,"man",NULL,0,
+    "topic",topic_man_brief,
+    topic_man_detailed,sizeof(topic_man_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+
+//    General nomenclature
+    -1,"nomenclature",NULL,0,
+    "topic",topic_nomenclature_brief,
+    topic_nomenclature_detailed,sizeof(topic_nomenclature_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+
+//    END OF LIST
+    -1,NULL,NULL,0,NULL,NULL,
+    NULL,0,NULL,0,NULL,0
+};
