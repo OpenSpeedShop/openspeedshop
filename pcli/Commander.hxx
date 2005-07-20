@@ -150,4 +150,12 @@ bool Window_Is_Async (CMDWID WindowID);
 extern void Link_Cmd_Obj_to_Input (InputLineObject *I, CommandObject *);
 extern void Clip_Complete (InputLineObject *clip);
 extern void Cmd_Obj_Complete (CommandObject *C);
+extern void ReDirect_User_Stdout (const char *S, const int &len, void *tag);
+extern void ReDirect_User_Stderr (const char *S, const int &len, void *tag);
+
+// The following is what is called when the user does a CNTRL-C.
+// It will purge waiting commands from the input queue for a window and
+// abort the execution of all commands that were issued from the window.
+extern void User_Interrupt (CMDWID issuedbywindow);
+
 #endif // COMMANDER_H
