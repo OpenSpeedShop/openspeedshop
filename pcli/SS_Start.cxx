@@ -258,7 +258,10 @@ catch_signal (int sig, int error_num)
     abort();
   }
   processing_signal = true;
-fprintf(stderr,"catch_signal %d\n",sig);
+// the folowing is debug print
+if (sig != SIGQUIT) {
+  fprintf(stderr,"catch_signal %d\n",sig);
+}
   cli_terminate ();
   exit (1);
 }
@@ -283,7 +286,7 @@ setup_signal_handler (int s)
     setup_signal_handler (SIGSYS);
     // setup_signal_handler (SIGPIPE);
     // setup_signal_handler (SIGCLD);
-    setup_signal_handler (SIGTSTP);  // CNTRL-Z
+    setup_signal_handler (SIGQUIT); // CNTRL-\
 
    // Start up the Command line processor.
     Commander_Initialization ();
@@ -320,10 +323,20 @@ setup_signal_handler (int s)
    // Open the Python interpreter.
     Initial_Python ();
 
-    if (need_command_line || read_stdin_file)
-    {
-     // Move the command line options to an input control window.
+   // Create the input windows that we will need.
+    if (need_command_line || read_stdin_file) {
       command_line_window = Default_Window ("COMMAND_LINE",&HostName[0],my_pid,0,false);
+    }
+    if (need_tli) {
+      tli_window = TLI_Window ("TLI",&HostName[0],my_pid,0,true);
+    }
+    if (need_gui) {
+      gui_window = GUI_Window ("GUI",&HostName[0],my_pid,0,true);
+    }
+
+   // Complete set up for each input windwo.
+    if (command_line_window != 0) {
+     // Move the command line options to an input control window.
       if ( !Start_COMMAND_LINE_Mode( command_line_window, argc, argv, need_batch) ) {
         return -1;
       }
@@ -335,7 +348,6 @@ setup_signal_handler (int s)
     if (need_tli)
     {
      // Start up the Text Line Interface to read from the keyboard.
-      tli_window = TLI_Window ("TLI",&HostName[0],my_pid,0,true);
       int stat = pthread_create(&phandle[0], 0, (void *(*)(void *))SS_Direct_stdin_Input,(void *)tli_window);
     }
 
@@ -349,7 +361,6 @@ setup_signal_handler (int s)
 // The hack is to define a dummy async window before python starts.
 // We will need to sort this out at some point in the future.
       argStruct->addArg("-gui");
-      gui_window = GUI_Window ("GUI",&HostName[0],my_pid,0,true);
       argStruct->addArg("-wid");
       char buffer[10];
       sprintf(buffer, "%d", gui_window);
