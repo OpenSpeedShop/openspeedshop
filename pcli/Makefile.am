@@ -78,8 +78,6 @@ libopenss_cli_la_SOURCES = \
 LFILES = SS_Parse_Lex.lxx
 YFILES = SS_Parse_Yacc.yxx
 
-doc:
-	-doxygen Doxyfile
 SS_Parse_Yacc.cxx: $(YFILES) SS_Parse_Result.hxx
 	-rm -f SS_Parse_Yacc.cxx
 	-$(YACC) $(AM_YFLAGS) $(YFILES);
@@ -98,3 +96,5 @@ SS_Parse_Lex.cxx: $(LFILES) SS_Parse_Yacc.hxx
 	-$(LEX) $(LFILES);
 	-mv lex.yy.c SS_Parse_Lex.cxx
 
+doc:
+	$(DOXYGEN)

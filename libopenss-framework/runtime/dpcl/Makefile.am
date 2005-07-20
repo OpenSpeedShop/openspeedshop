@@ -16,11 +16,11 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-noinst_LTLIBRARIES = libopenss-framework-runtime-dpcl.la
+noinst_LTLIBRARIES = libopenss-runtime-dpcl.la
 
-libopenss_framework_runtime_dpcl_la_CFLAGS = \
+libopenss_runtime_dpcl_la_CFLAGS = \
 	-I$(top_srcdir)/libopenss-framework/runtime \
 	$(DPCL_CPPFLAGS)
 
-libopenss_framework_runtime_dpcl_la_SOURCES = \
+libopenss_runtime_dpcl_la_SOURCES = \
 	openss_send.c

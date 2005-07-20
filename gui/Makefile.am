@@ -55,7 +55,7 @@ libopenss_GUI_la_SOURCES = \
     preferencesdialog.hxx preferencesdialog.cxx moc_preferencesdialog.cxx \
 	preferencesdialog.ui.hxx
 
-doc:
-	-doxygen Doxyfile
-
 CLEANFILES=moc_openspeedshop.cxx moc_preferencesdialog.cxx moc_CLIInterface.cxx
+
+doc:
+	$(DOXYGEN)

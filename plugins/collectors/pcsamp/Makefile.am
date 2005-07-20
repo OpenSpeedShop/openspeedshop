@@ -39,14 +39,13 @@ pcsamp_rt_la_LDFLAGS = \
 	-no-undefined -module -avoid-version
 
 pcsamp_rt_la_LIBADD = \
-	-lopenss-framework-runtime -lpthread -lrt
+	-lopenss-runtime -lpthread -lrt
 
 pcsamp_rt_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	runtime.c
 
 SUFFIXES = .x
-
 CLEANFILES = $(BUILT_SOURCES)
 
 blobs.h blobs.c : blobs.x

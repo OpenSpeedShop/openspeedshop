@@ -19,6 +19,6 @@
 
 @INCLUDE ../Doxyfile.inc
 
-PROJECT_NAME     = "Open|SpeedShop Framework Library"
-OUTPUT_DIRECTORY = ../doc/design_doc/Framework
+PROJECT_NAME     = "Open|SpeedShop Runtime Library"
+OUTPUT_DIRECTORY = ../../doc/design_doc/Runtime
 INPUT            = . dpcl dyninst

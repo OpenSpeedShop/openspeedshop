@@ -22,8 +22,8 @@
  *
  */
 
-#ifndef _OpenSpeedShop_Framework_Assert_
-#define _OpenSpeedShop_Framework_Assert_
+#ifndef _OpenSpeedShop_Runtime_Assert_
+#define _OpenSpeedShop_Runtime_Assert_
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"

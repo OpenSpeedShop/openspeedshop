@@ -16,38 +16,13 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-TEST_SUBDIRS =	test/ \
-		test/test_source/ \
-		test/test_source/unit/ \
-		test/test_source/unit/fw \
-		test/test_source/unit/fw/interval \
-		test/test_source/unit/pcli \
-		test/test_source/unit/pcli/parse_result \
-		test/test_source/unit/pcli/parse_target \
-		test/test_source/dpcl \
-		test/test_source/dpcl/one_shot \
-		test/test_source/dpcl/probe_module \
-		test/test_source/dpcl/point_probe \
-		test/test_source/dpcl/start_terminate \
-		test/test_source/dpcl/module_addr \
-		test/test_source/dpcl/stmt_info \
-		test/test_source/dpcl/phase \
-		test/test_scripts \
-		test/executables/mutatee/ \
-		test/executables/mutatee/c_version \
-		test/executables/mutatee/cplus_version \
-		test/executables/mutatee/f77_version \
-		test/executables/Eon/ 
-
-SUBDIRS = . \
+SUBDIRS = \
 	libltdl \
 	message \
+	libopenss-framework/runtime \
 	libopenss-framework \
 	libopenss-queries \
-	plugins \
-	openss \
 	pcli \
-	examples \
 	base \
 	objects \
 	dialogs \
@@ -55,19 +30,64 @@ SUBDIRS = . \
 	plugin \
 	chart \
 	gui \
+	openss \
+	plugins \
 	Panels \
+	examples \
 	test \
 	usability
 
-DIST_SUBDIRS = $(SUBDIRS)
-# need the images files and the tests files in tarball.
-EXTRA_DIST = images/* 
+TEST_SUBDIRS =	\
+	test/ \
+	test/test_source/ \
+	test/test_source/unit/ \
+	test/test_source/unit/fw \
+	test/test_source/unit/fw/interval \
+	test/test_source/unit/pcli \
+	test/test_source/unit/pcli/parse_result \
+	test/test_source/unit/pcli/parse_target \
+	test/test_source/dpcl \
+	test/test_source/dpcl/one_shot \
+	test/test_source/dpcl/probe_module \
+	test/test_source/dpcl/point_probe \
+	test/test_source/dpcl/start_terminate \
+	test/test_source/dpcl/module_addr \
+	test/test_source/dpcl/stmt_info \
+	test/test_source/dpcl/phase \
+	test/test_scripts \
+	test/executables/mutatee/ \
+	test/executables/mutatee/c_version \
+	test/executables/mutatee/cplus_version \
+	test/executables/mutatee/f77_version \
+	test/executables/Eon/ 
 
 tests: $(TEST_SUBDIRS)
 
 DOC_SUBDIRS = \
-	libopenss-framework libopenss-queries \
-	Panels pcli base chart gui plugin objects dialogs plugins/collectors
+	libopenss-framework/runtime \
+	libopenss-framework \
+	libopenss-queries \
+	pcli \
+	gui
 
 doc: $(DOC_SUBDIRS) 
-	$(DOXYGEN) Doxyfile
+	for i in $(DOC_SUBDIRS); do (cd $$i; $(MAKE) doc); done
+
+DIST_SUBDIRS = $(SUBDIRS)
+# Need the images files and the tests files in tarball.
+EXTRA_DIST = images/* 
+
+# The following "framework" target is simply a short-hand for the framework
+# developers (i.e. WDH) to build just those components necessary for working
+# on the framework library.
+
+FRAMEWORK_SUBDIRS = \
+	libltdl \
+	libopenss-framework/runtime \
+	libopenss-framework \
+	libopenss-queries \
+	plugins/collectors \
+	examples/libopenss-framework/tool
+
+framework:
+	for i in $(FRAMEWORK_SUBDIRS); do (cd $$i; $(MAKE)); done

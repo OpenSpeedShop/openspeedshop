@@ -125,12 +125,12 @@ AC_PKG_QTLIB()
 
 AC_CONFIG_FILES(Makefile
     	    	message/Makefile
-		libopenss-framework/Makefile
-		libopenss-framework/dpcl/Makefile
-		libopenss-framework/dyninst/Makefile
 		libopenss-framework/runtime/Makefile
 		libopenss-framework/runtime/dpcl/Makefile
 		libopenss-framework/runtime/dyninst/Makefile
+		libopenss-framework/Makefile
+		libopenss-framework/dpcl/Makefile
+		libopenss-framework/dyninst/Makefile
 		libopenss-queries/Makefile
 		plugins/Makefile
 		plugins/collectors/Makefile

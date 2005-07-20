@@ -34,4 +34,4 @@ libopenss_queries_la_SOURCES = \
 	Queries.hxx
 
 doc:
-	$(DOXYGEN) Doxyfile
+	$(DOXYGEN)

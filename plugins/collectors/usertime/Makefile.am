@@ -39,14 +39,13 @@ usertime_rt_la_LDFLAGS = \
 	-no-undefined -module -avoid-version
 
 usertime_rt_la_LIBADD = \
-	-lopenss-framework-runtime -lpthread -lrt -lunwind
+	-lopenss-runtime -lpthread -lrt -lunwind
 
 usertime_rt_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	runtime.c
 
 SUFFIXES = .x
-
 CLEANFILES = $(BUILT_SOURCES)
 
 blobs.h blobs.c : blobs.x

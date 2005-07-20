@@ -16,9 +16,9 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-noinst_LTLIBRARIES = libopenss-framework-runtime-dyninst.la
+noinst_LTLIBRARIES = libopenss-runtime-dyninst.la
 
-libopenss_framework_runtime_dyninst_la_CFLAGS = \
+libopenss_runtime_dyninst_la_CFLAGS = \
 	-I$(top_srcdir)/libopenss-framework/runtime
 
-libopenss_framework_runtime_dyninst_la_SOURCES =
+libopenss_runtime_dyninst_la_SOURCES =

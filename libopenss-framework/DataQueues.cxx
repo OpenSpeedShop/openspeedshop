@@ -29,7 +29,8 @@
 #include "DataQueues.hxx"
 #include "SmartPtr.hxx"
 #include "Time.hxx"
-#include "runtime/OpenSS_DataHeader.h"
+
+#include "OpenSS_DataHeader.h"
 
 #include <deque>
 #include <pthread.h>

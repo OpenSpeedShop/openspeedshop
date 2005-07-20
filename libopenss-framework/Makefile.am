@@ -16,12 +16,13 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = @INSTRUMENTOR@ runtime
-DIST_SUBDIRS = dpcl dyninst runtime
+SUBDIRS = @INSTRUMENTOR@
+DIST_SUBDIRS = dpcl dyninst
 
 lib_LTLIBRARIES = libopenss-framework.la
 
 libopenss_framework_la_CXXFLAGS = \
+	-I$(top_srcdir)/libopenss-framework/runtime \
 	$(LTDLINCL)
 
 libopenss_framework_la_LDFLAGS = \
@@ -33,7 +34,7 @@ libopenss_framework_la_LIBADD = \
 	-lsqlite3 -lpthread -lrt
 
 libopenss_framework_la_SOURCES = \
-	runtime/OpenSS_DataHeader.c \
+	$(top_srcdir)/libopenss-framework/runtime/OpenSS_DataHeader.c \
 	Address.hxx \
 	AddressBitmap.hxx AddressBitmap.cxx \
 	AddressRange.hxx \
@@ -73,4 +74,4 @@ libopenss_framework_la_SOURCES = \
 	TotallyOrdered.hxx
 
 doc:
-	$(DOXYGEN) Doxyfile
+	$(DOXYGEN)

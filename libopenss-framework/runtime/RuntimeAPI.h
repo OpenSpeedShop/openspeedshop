@@ -22,8 +22,8 @@
  *
  */
 
-#ifndef _OpenSpeedShop_Framework_RuntimeAPI_
-#define _OpenSpeedShop_Framework_RuntimeAPI_
+#ifndef _OpenSpeedShop_Runtime_RuntimeAPI_
+#define _OpenSpeedShop_Runtime_RuntimeAPI_
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"

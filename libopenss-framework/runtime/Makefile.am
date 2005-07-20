@@ -19,13 +19,16 @@
 SUBDIRS = @INSTRUMENTOR@
 DIST_SUBDIRS = dpcl dyninst
 
-noinst_LTLIBRARIES = libopenss-framework-runtime.la
+noinst_LTLIBRARIES = libopenss-runtime.la
 
-libopenss_framework_runtime_la_LIBADD = \
-	@INSTRUMENTOR@/libopenss-framework-runtime-@INSTRUMENTOR@.la \
+libopenss_runtime_la_LDFLAGS = \
+        -export-dynamic -version-info 1:0:0
+
+libopenss_runtime_la_LIBADD = \
+	@INSTRUMENTOR@/libopenss-runtime-@INSTRUMENTOR@.la \
 	-lpthread -lrt
 
-libopenss_framework_runtime_la_SOURCES = \
+libopenss_runtime_la_SOURCES = \
 	Assert.h \
 	OpenSS_DataHeader.h OpenSS_DataHeader.c OpenSS_DataHeader.x \
 	OpenSS_DecodeParameters.c \
@@ -42,3 +45,6 @@ OpenSS_DataHeader.h OpenSS_DataHeader.c : OpenSS_DataHeader.x
 	rm -f  $(patsubst %.x, %.h, $<) $(patsubst %.x, %.c, $<)
 	$(RPCGEN) -h -o $(patsubst %.x, %.h, $<) $<
 	$(RPCGEN) -c -o $(patsubst %.x, %.c, $<) $<
+
+doc:
+	$(DOXYGEN)
