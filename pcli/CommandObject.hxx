@@ -25,6 +25,7 @@ enum cmd_result_type_enum {
   CMD_RESULT_INT,
   CMD_RESULT_FLOAT,
   CMD_RESULT_STRING,
+  CMD_RESULT_RAWSTRING,
   CMD_RESULT_TITLE,
   CMD_RESULT_COLUMN_HEADER,
   CMD_RESULT_COLUMN_VALUES,
@@ -219,6 +220,30 @@ class CommandResult_String : public CommandResult {
     if (leftjustified) F[i++] = *("-");
     sprintf(&F[i], "%lld.%llds\0", fieldsize, fieldsize);
     fprintf(TFile,&F[0],string_value.c_str());
+  }
+};
+
+class CommandResult_RawString : public CommandResult {
+  std::string string_value;
+
+ public:
+  CommandResult_RawString (std::string S) : CommandResult(CMD_RESULT_RAWSTRING) {
+    string_value = S;
+  }
+  CommandResult_RawString (char *S) : CommandResult(CMD_RESULT_RAWSTRING) {
+    string_value = std::string(S);
+  }
+
+  virtual void Value (std::string &S) {
+    S = string_value;
+  }
+  virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
+    // Ignore fieldsize and leftjustified specifications and just dump the
+    // the raw string to the output stream.
+    to << string_value;
+  }
+  virtual void Print (FILE *TFile, int64_t fieldsize, bool leftjustified) {
+    fprintf(TFile,"%s",string_value.c_str());
   }
 };
 
@@ -560,6 +585,12 @@ public:
   }
   void Result_String (char *C) {
     Attach_Result (new CommandResult_String (C));
+  }
+  void Result_Raw (std::string S) {
+    Attach_Result (new CommandResult_RawString (S));
+  }
+  void Result_Raw (char *C) {
+    Attach_Result (new CommandResult_RawString (C));
   }
   void Result_Predefined (CommandResult *C) {
     Attach_Result (C);

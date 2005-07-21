@@ -156,6 +156,7 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
             break;
           }
           case CMD_RESULT_STRING:
+          case CMD_RESULT_RAWSTRING:
           {
             std::string C;
 
