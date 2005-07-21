@@ -144,9 +144,12 @@ class ViewType
     element.set_brief(BriefD);
 
    // More than one line description
+    element.add_normal(BriefD + ":\n");
     element.add_normal(ShortD);
 
    // A wordy explaination
+    element.add_verbose(BriefD + ":\n");
+    element.add_verbose(ShortD);
     element.add_verbose(LongD);
 
    // No example needed for views.
