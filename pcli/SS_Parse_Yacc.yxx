@@ -99,6 +99,7 @@ ss_line:
 command_line:  END_LINE {/* printf("OSS > "); */ }
     	|   command_desc END_LINE {p_parse_result->PushParseTarget(); }
     	|   command_desc END_LINE END_LINE {p_parse_result->PushParseTarget(); }
+    	|   command_desc error END_LINE {p_parse_result->PushParseTarget(); } 
     	;
 
 command_desc: exp_attach_com 	{p_parse_result->SetCommandType(CMD_EXP_ATTACH);}
