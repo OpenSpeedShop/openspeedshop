@@ -85,7 +85,7 @@ def CompareResults(testName, fileptr):
 		while outputfileline[i] == ' ':
 			i += 1
 		j = i
-		while (outputfileline[j] != '\n') and (outputfileline[j] != ' '):
+		while (outputfileline[j] != '\n') and (outputfileline[j] != ' ') and (outputfileline[j] != '('):
 			j +=1
 		actual_function = outputfileline[i:j]
 		i = 0
@@ -99,7 +99,7 @@ def CompareResults(testName, fileptr):
                 while expectedfileline[i] == ' ':
                         i += 1
                 j = i
-                while (expectedfileline[j] != '\n') and (expectedfileline[j] != ' '):
+                while (expectedfileline[j] != '\n') and (expectedfileline[j] != ' ') :
                         j  += 1
                 expected_function = expectedfileline[i:j]
 		if (expected_function == actual_function):
