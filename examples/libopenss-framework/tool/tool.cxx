@@ -135,7 +135,8 @@ int main(int argc, char* argv[])
     if(argc < 2) {
         std::cout << "Usage: "
                   << ((argc > 0) ? argv[0] : "???")
-                  << " [<a.out> <args>] | [<exp-dbase>]" << std::endl;
+                  << " [<a.out> <args>] | [<pid>] | [<exp-dbase>]" 
+		  << std::endl;
 	return 1;
     }
     
