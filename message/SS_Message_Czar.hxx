@@ -51,7 +51,8 @@ class SS_Message_Czar {
     	void Add_Help(const SS_Message_Element&);
 	void Add_Error(const SS_Message_Element&);
     	void Find_By_Keyword(const string, vector <SS_Message_Element *> *);
-	void Find_By_Related(const string, vector <SS_Message_Element *> *);
+    	void Find_By_Topic(const string, vector <SS_Message_Element *> *);
+	// void Find_By_Related(const string, vector <SS_Message_Element *> *);
 	void Find_By_Err_No(const int, vector <SS_Message_Element *> *);
 
     private:

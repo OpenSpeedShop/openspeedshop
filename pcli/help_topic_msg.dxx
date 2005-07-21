@@ -76,7 +76,7 @@ char *topic_nomenclature_detailed[] = {
 // TOPIC MESSAGE ARRAY
 /*********************************************/
 // message array to be passed to message czar
-OpenSpeedShop::message_element_t general_msg[] = {
+OpenSpeedShop::message_element_t topic_msg[] = {
 //    commands
     -1,"commands",NULL,0,
     "topic",topic_commands_brief,

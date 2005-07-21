@@ -176,7 +176,7 @@ Find_By_Err_No(const int id_num, vector <SS_Message_Element *> *p_element)
 }
 
 /**
- * Method: SS_Message_Czar::Find_By_Related()
+ * Method: SS_Message_Czar::Find_By_Topic()
  * 
  * Not done yet!
  * 
@@ -188,15 +188,15 @@ Find_By_Err_No(const int id_num, vector <SS_Message_Element *> *p_element)
  */
 void
 SS_Message_Czar::
-Find_By_Related(const string related, vector <SS_Message_Element *> *p_element) 
+Find_By_Topic(const string related, vector <SS_Message_Element *> *p_element) 
 {
 
-#if 0
+#if 1
     vector <SS_Message_Element>:: iterator k;
     for (k=dm_help_list.begin();
     	 k!= dm_help_list.end();
 	 ++k) {
-	if ((related.compare(*k->get_related())) == 0) {
+	if ((related.compare(*k->get_topic())) == 0) {
 	    p_element->push_back(&(*k));
 	}
     }

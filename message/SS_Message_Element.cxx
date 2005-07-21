@@ -43,7 +43,8 @@ using namespace OpenSpeedShop;
  */
 SS_Message_Element::
 SS_Message_Element() :
-    dm_id_num	    	    (-1)
+    dm_id_num	    	    (-1),
+    dm_is_topic     	    (false)
 {
 
 }
@@ -215,6 +216,13 @@ SS_Message_Element::
 get_topic() 
 {
    return &dm_topic;
+}
+
+bool
+SS_Message_Element::
+is_topic()
+{
+    return dm_is_topic;
 }
 
 /**
@@ -554,7 +562,7 @@ get_example_list()
  */
 void
 SS_Message_Element::
-set_element(const message_element_t * const p_element) 
+set_element(const message_element_t * const p_element,bool is_topic) 
 {
 
     // Numeric id
@@ -593,6 +601,9 @@ set_element(const message_element_t * const p_element)
     	add_example(p_element->example[i]);
     }
 
+    // Is this a topic message
+    dm_is_topic = is_topic;
+    
 }
 
 #if 0

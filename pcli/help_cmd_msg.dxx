@@ -1,4 +1,28 @@
-/*********************************************/
+/*/*******************************************************************************
+** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+**
+** This library is free software; you can redistribute it and/or modify it under
+** the terms of the GNU Lesser General Public License as published by the Free
+** Software Foundation; either version 2.1 of the License, or (at your option)
+** any later version.
+**
+** This library is distributed in the hope that it will be useful, but WITHOUT
+** ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+** FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+** details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with this library; if not, write to the Free Software Foundation, Inc.,
+** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*******************************************************************************/
+
+/** @file
+ *
+ * Message database.
+ *
+ */
+
+/********************************************/
 // GENERAL MESSAGES
 /*********************************************/
 
@@ -118,37 +142,37 @@ char *gen_Panel_detailed[] = {
 OpenSpeedShop::message_element_t general_msg[] = {
 //    Experiment
     -1,"Experiment",NULL,0,
-    "general",gen_Experiment_brief,
+    "nomenclature",gen_Experiment_brief,
     gen_Experiment_detailed,sizeof(gen_Experiment_detailed)/sizeof(char **),
     NULL,0,NULL,0,
 //    Component
     -1,"Component",NULL,0,
-    "general",gen_Component_brief,
+    "nomenclature",gen_Component_brief,
     gen_Component_detailed,sizeof(gen_Component_detailed)/sizeof(char **),
     NULL,0,NULL,0,
 //    Collector
     -1,"Collector",NULL,0,
-    "general",gen_Collector_brief,
+    "nomenclature",gen_Collector_brief,
     gen_Collector_detailed,sizeof(gen_Collector_detailed)/sizeof(char **),
     NULL,0,NULL,0,
 //    Metric
     -1,"Metric",NULL,0,
-    "general",gen_Metric_brief,
+    "nomenclature",gen_Metric_brief,
     gen_Metric_detailed,sizeof(gen_Metric_detailed)/sizeof(char **),
     NULL,0,NULL,0,
 //    Framework
     -1,"Framework",NULL,0,
-    "general",gen_Framework_brief,
+    "nomenclature",gen_Framework_brief,
     gen_Framework_detailed,sizeof(gen_Framework_detailed)/sizeof(char **),
     NULL,0,NULL,0,
 //    Plugin
     -1,"Plugin",NULL,0,
-    "general",gen_Plugin_brief,
+    "nomenclature",gen_Plugin_brief,
     gen_Plugin_detailed,sizeof(gen_Plugin_detailed)/sizeof(char **),
     NULL,0,NULL,0,
 //    Panel
     -1,"Panel",NULL,0,
-    "general",gen_Panel_brief,
+    "nomenclature",gen_Panel_brief,
     gen_Panel_detailed,sizeof(gen_Panel_detailed)/sizeof(char **),
     NULL,0,NULL,0,
 
@@ -385,12 +409,13 @@ char *cmd_expPause_brief = {
 
 
 char *cmd_expRestore_brief = {
-    "Restore experiment data from a file."
+    "Restore experiment's definition and previously saved\n."
+    "data from a data base that was saved with an expSave command."
 };
 
 
 char *cmd_expSave_brief = {
-    "Save the experiment data to a file for later analysis."
+    "Save the experiment data for further analysis."
 };
 
 
@@ -821,18 +846,19 @@ char *cmd_expRestore_detailed[] = {
     "\t This command also sets the focus to the new experiment's ",
     "\t Identifier.",
     " ",
-    "\t Previously collected data can be looked at with the ",
-    "\t expView command.",
+    "\t The new experiment will be in the same state as that ",
+    "\t established with the expDisable command.",
     " ",
     "\t If the original applications are still running, the ",
-    "\t OpenSS tool will attempt to attach to the application ",
-    "\t and reinsert instrumentation into the application. ",
-    "\t If this is successful, the execution of the applications ",
-    "\t are not interrupted although the user may issue an ",
-    "\t expPause command, if that behaviour is desired.",
+    "\t user can reconnect to them and reinsert instrumentation ",
+    "\t into them, through them, through use of the expEnable command. ",
+    "\t Doing this will interrupt the executing application and an ",
+    "\t expGo command will be required before the application continues ",
+    "\t and new data samples can be collected.",
     " ",
-    "\t The new experiment can be modified with the use of ",
-    "\t expAttach or expDetach commands.",
+    "\t Previously collected data can be looked at with the ",
+    "\t expView command without reconnecting to the original",
+    "\t applications.",
     " ",
     "\t If an expGo command is issued, new data samples will ",
     "\t be placed into the data base specified by <file_spec>. ",
@@ -1376,111 +1402,111 @@ OpenSpeedShop::message_element_t cmd_msg[CMD_MAX] = {
     -1,NULL,NULL,0,NULL,NULL,
     NULL,0,NULL,0,NULL,0,
 //    CMD_EXP_ATTACH,
-    -1,cmd_desc[CMD_EXP_ATTACH].name,NULL,0,"command",cmd_expattach_brief,
+    -1,cmd_desc[CMD_EXP_ATTACH].name,NULL,0,"commands",cmd_expattach_brief,
     cmd_expattach_detailed,sizeof(cmd_expattach_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    CMD_EXP_CLOSE,
-    -1,cmd_desc[CMD_EXP_CLOSE].name,NULL,0,"command",cmd_expClose_brief,
+    -1,cmd_desc[CMD_EXP_CLOSE].name,NULL,0,"commands",cmd_expClose_brief,
     cmd_expClose_detailed,sizeof(cmd_expClose_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    CMD_EXP_CREATE,
-    -1,cmd_desc[CMD_EXP_CREATE].name,NULL,0,"command",cmd_expCreate_brief,
+    -1,cmd_desc[CMD_EXP_CREATE].name,NULL,0,"commands",cmd_expCreate_brief,
     cmd_expCreate_detailed,sizeof(cmd_expCreate_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    CMD_EXP_DETACH,
-    -1,cmd_desc[CMD_EXP_DETACH].name,NULL,0,"command",cmd_expDetach_brief,
+    -1,cmd_desc[CMD_EXP_DETACH].name,NULL,0,"commands",cmd_expDetach_brief,
     cmd_expDetach_detailed,sizeof(cmd_expDetach_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    CMD_EXP_DISABLE,
-    -1,cmd_desc[CMD_EXP_DISABLE].name,NULL,0,"command",cmd_expDisable_brief,
+    -1,cmd_desc[CMD_EXP_DISABLE].name,NULL,0,"commands",cmd_expDisable_brief,
     cmd_expDisable_detailed,sizeof(cmd_expDisable_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    CMD_EXP_ENABLE,
-    -1,cmd_desc[CMD_EXP_ENABLE].name,NULL,0,"command",cmd_expEnable_brief,
+    -1,cmd_desc[CMD_EXP_ENABLE].name,NULL,0,"commands",cmd_expEnable_brief,
     cmd_expEnable_detailed,sizeof(cmd_expEnable_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    CMD_EXP_FOCUS,
-    -1,cmd_desc[CMD_EXP_FOCUS].name,NULL,0,"command",cmd_expFocus_brief,
+    -1,cmd_desc[CMD_EXP_FOCUS].name,NULL,0,"commands",cmd_expFocus_brief,
     cmd_expFocus_detailed,sizeof(cmd_expFocus_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    CMD_EXP_PAUSE,
-    -1,cmd_desc[CMD_EXP_PAUSE].name,NULL,0,"command",cmd_expPause_brief,
+    -1,cmd_desc[CMD_EXP_PAUSE].name,NULL,0,"commands",cmd_expPause_brief,
     cmd_expPause_detailed,sizeof(cmd_expPause_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    CMD_EXP_RESTORE,
-    -1,cmd_desc[CMD_EXP_RESTORE].name,NULL,0,"command",cmd_expRestore_brief,
+    -1,cmd_desc[CMD_EXP_RESTORE].name,NULL,0,"commands",cmd_expRestore_brief,
     cmd_expRestore_detailed,sizeof(cmd_expRestore_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    CMD_EXP_GO,
-    -1,cmd_desc[CMD_EXP_GO].name,NULL,0,"command",cmd_expGo_brief,
+    -1,cmd_desc[CMD_EXP_GO].name,NULL,0,"commands",cmd_expGo_brief,
     cmd_expGo_detailed,sizeof(cmd_expGo_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    CMD_EXP_SAVE,
-    -1,cmd_desc[CMD_EXP_SAVE].name,NULL,0,"command",cmd_expSave_brief,
+    -1,cmd_desc[CMD_EXP_SAVE].name,NULL,0,"commands",cmd_expSave_brief,
     cmd_expSave_detailed,sizeof(cmd_expSave_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    CMD_EXP_SETPARAM,
-    -1,cmd_desc[CMD_EXP_SETPARAM].name,NULL,0,"command",cmd_expSetParam_brief,
+    -1,cmd_desc[CMD_EXP_SETPARAM].name,NULL,0,"commands",cmd_expSetParam_brief,
     cmd_expSetParam_detailed,sizeof(cmd_expSetParam_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    CMD_EXP_VIEW,
-    -1,cmd_desc[CMD_EXP_VIEW].name,NULL,0,"command",cmd_expView_brief,
+    -1,cmd_desc[CMD_EXP_VIEW].name,NULL,0,"commands",cmd_expView_brief,
     cmd_expView_detailed,sizeof(cmd_expView_detailed)/sizeof(char **),NULL,0,NULL,0,
 
 //    CMD_LIST_BREAKS,
-    -1,cmd_desc[CMD_LIST_BREAKS].name,NULL,0,"command",cmd_listBreaks_brief,
+    -1,cmd_desc[CMD_LIST_BREAKS].name,NULL,0,"commands",cmd_listBreaks_brief,
     cmd_listBreaks_detailed,sizeof(cmd_listBreaks_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    CMD_LIST_EXP,
-    -1,cmd_desc[CMD_LIST_EXP].name,NULL,0,"command",cmd_listExp_brief,
+    -1,cmd_desc[CMD_LIST_EXP].name,NULL,0,"commands",cmd_listExp_brief,
     cmd_listExp_detailed,sizeof(cmd_listExp_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    CMD_LIST_HOSTS,
-    -1,cmd_desc[CMD_LIST_HOSTS].name,NULL,0,"command",cmd_listHosts_brief,
+    -1,cmd_desc[CMD_LIST_HOSTS].name,NULL,0,"commands",cmd_listHosts_brief,
     cmd_listHosts_detailed,sizeof(cmd_listHosts_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    CMD_LIST_METRICS,
-    -1,cmd_desc[CMD_LIST_METRICS].name,NULL,0,"command",cmd_listMetrics_brief,
+    -1,cmd_desc[CMD_LIST_METRICS].name,NULL,0,"commands",cmd_listMetrics_brief,
     cmd_listMetrics_detailed,sizeof(cmd_listMetrics_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    CMD_LIST_OBJ,
-    -1,cmd_desc[CMD_LIST_OBJ].name,NULL,0,"command",cmd_listObj_brief,
+    -1,cmd_desc[CMD_LIST_OBJ].name,NULL,0,"commands",cmd_listObj_brief,
     cmd_listObj_detailed,sizeof(cmd_listObj_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    CMD_LIST_PARAMS,
-    -1,cmd_desc[CMD_LIST_PARAMS].name,NULL,0,"command",cmd_listParams_brief,
+    -1,cmd_desc[CMD_LIST_PARAMS].name,NULL,0,"commands",cmd_listParams_brief,
     cmd_listParams_detailed,sizeof(cmd_listParams_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    CMD_LIST_PIDS,
-    -1,cmd_desc[CMD_LIST_PIDS].name,NULL,0,"command",cmd_listPids_brief,
+    -1,cmd_desc[CMD_LIST_PIDS].name,NULL,0,"commands",cmd_listPids_brief,
     cmd_listPids_detailed,sizeof(cmd_listPids_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    CMD_LIST_RANKS,
-    -1,cmd_desc[CMD_LIST_RANKS].name,NULL,0,"command",cmd_listRanks_brief,
+    -1,cmd_desc[CMD_LIST_RANKS].name,NULL,0,"commands",cmd_listRanks_brief,
     cmd_listRanks_detailed,sizeof(cmd_listRanks_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    CMD_LIST_SRC,
-    -1,cmd_desc[CMD_LIST_SRC].name,NULL,0,"command",cmd_listSrc_brief,
+    -1,cmd_desc[CMD_LIST_SRC].name,NULL,0,"commands",cmd_listSrc_brief,
     cmd_listSrc_detailed,sizeof(cmd_listSrc_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    CMD_LIST_STATUS,
-    -1,cmd_desc[CMD_LIST_STATUS].name,NULL,0,"command",cmd_listStatus_brief,
+    -1,cmd_desc[CMD_LIST_STATUS].name,NULL,0,"commands",cmd_listStatus_brief,
     cmd_listStatus_detailed,sizeof(cmd_listStatus_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    CMD_LIST_THREADS,
-    -1,cmd_desc[CMD_LIST_THREADS].name,NULL,0,"command",cmd_listThreads_brief,
+    -1,cmd_desc[CMD_LIST_THREADS].name,NULL,0,"commands",cmd_listThreads_brief,
     cmd_listThreads_detailed,sizeof(cmd_listThreads_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    CMD_LIST_TYPES,
-    -1,cmd_desc[CMD_LIST_TYPES].name,NULL,0,"command",cmd_listTypes_brief,
+    -1,cmd_desc[CMD_LIST_TYPES].name,NULL,0,"commands",cmd_listTypes_brief,
     cmd_listTypes_detailed,sizeof(cmd_listTypes_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    CMD_LIST_VIEWS,
-    -1,cmd_desc[CMD_LIST_VIEWS].name,NULL,0,"command",cmd_listViews_brief,
+    -1,cmd_desc[CMD_LIST_VIEWS].name,NULL,0,"commands",cmd_listViews_brief,
     cmd_listViews_detailed,sizeof(cmd_listViews_detailed)/sizeof(char **),NULL,0,NULL,0,
 
 //    CMD_CLEAR_BREAK,
-    -1,cmd_desc[CMD_CLEAR_BREAK].name,NULL,0,"command",cmd_clearBreak_brief,
+    -1,cmd_desc[CMD_CLEAR_BREAK].name,NULL,0,"commands",cmd_clearBreak_brief,
     cmd_clearBreak_detailed,sizeof(cmd_clearBreak_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    CMD_EXIT,
-    -1,cmd_desc[CMD_EXIT].name,NULL,0,"command",cmd_exit_brief,
+    -1,cmd_desc[CMD_EXIT].name,NULL,0,"commands",cmd_exit_brief,
     cmd_exit_detailed,sizeof(cmd_exit_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    CMD_HELP,
-    -1,cmd_desc[CMD_HELP].name,NULL,0,"command",cmd_help_brief,
+    -1,cmd_desc[CMD_HELP].name,NULL,0,"commands",cmd_help_brief,
     cmd_help_detailed,sizeof(cmd_help_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    CMD_HISTORY,
-    -1,cmd_desc[CMD_HISTORY].name,NULL,0,"command",cmd_history_brief,
+    -1,cmd_desc[CMD_HISTORY].name,NULL,0,"commands",cmd_history_brief,
     cmd_history_detailed,sizeof(cmd_history_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    CMD_LOG,
-    -1,cmd_desc[CMD_LOG].name,NULL,0,"command",cmd_log_brief,
+    -1,cmd_desc[CMD_LOG].name,NULL,0,"commands",cmd_log_brief,
     cmd_log_detailed,sizeof(cmd_log_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    CMD_OPEN_GUI,
-    -1,cmd_desc[CMD_OPEN_GUI].name,NULL,0,"command",cmd_openGui_brief,
+    -1,cmd_desc[CMD_OPEN_GUI].name,NULL,0,"commands",cmd_openGui_brief,
     cmd_openGui_detailed,sizeof(cmd_openGui_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    CMD_PLAYBACK,
-    -1,cmd_desc[CMD_PLAYBACK].name,NULL,0,"command",cmd_playback_brief,
+    -1,cmd_desc[CMD_PLAYBACK].name,NULL,0,"commands",cmd_playback_brief,
     cmd_playback_detailed,sizeof(cmd_playback_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    CMD_RECORD,
-    -1,cmd_desc[CMD_RECORD].name,NULL,0,"command",cmd_record_brief,
+    -1,cmd_desc[CMD_RECORD].name,NULL,0,"commands",cmd_record_brief,
     cmd_record_detailed,sizeof(cmd_record_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    CMD_SETBREAK,
-    -1,cmd_desc[CMD_SETBREAK].name,NULL,0,"command",cmd_setbreak_brief,
+    -1,cmd_desc[CMD_SETBREAK].name,NULL,0,"commands",cmd_setbreak_brief,
     cmd_setbreak_detailed,sizeof(cmd_setbreak_detailed)/sizeof(char **),NULL,0,NULL,0
 };
 
@@ -2694,22 +2720,22 @@ OpenSpeedShop::message_element_t grammar_msg[] = {
     -1,"vHwc",NULL,0,"grammar",gram_vHwc_brief,
     gram_vHwc_detailed,sizeof(gram_vHwc_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    pcsamp
-    -1,"pcsamp",NULL,0,"experiment",gram_pcsamp_brief,
+    -1,"pcsamp",NULL,0,"experiments",gram_pcsamp_brief,
     gram_pcsamp_detailed,sizeof(gram_pcsamp_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    usertime
-    -1,"usertime",NULL,0,"experiment",gram_usertime_brief,
+    -1,"usertime",NULL,0,"experiments",gram_usertime_brief,
     gram_usertime_detailed,sizeof(gram_usertime_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    mpi
-    -1,"mpi",NULL,0,"experiment",gram_mpi_brief,
+    -1,"mpi",NULL,0,"experiments",gram_mpi_brief,
     gram_mpi_detailed,sizeof(gram_mpi_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    fpe
-    -1,"fpe",NULL,0,"experiment",gram_fpe_brief,
+    -1,"fpe",NULL,0,"experiments",gram_fpe_brief,
     gram_fpe_detailed,sizeof(gram_fpe_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    hwc
-    -1,"hwc",NULL,0,"experiment",gram_hwc_brief,
+    -1,"hwc",NULL,0,"experiments",gram_hwc_brief,
     gram_hwc_detailed,sizeof(gram_hwc_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    io
-    -1,"io",NULL,0,"experiment",gram_io_brief,
+    -1,"io",NULL,0,"experiments",gram_io_brief,
     gram_io_detailed,sizeof(gram_io_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    displayMode
     -1,"displayMode",NULL,0,"grammar",gram_displayMode_brief,
@@ -2724,7 +2750,7 @@ OpenSpeedShop::message_element_t grammar_msg[] = {
     -1,"expSaveFile",NULL,0,"grammar",gram_expSaveFile_brief,
     gram_expSaveFile_detailed,sizeof(gram_expSaveFile_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    samplingRate
-    -1,"samplingRate",NULL,0,"experiment",gram_samplingRate_brief,
+    -1,"samplingRate",NULL,0,"grammar",gram_samplingRate_brief,
     gram_samplingRate_detailed,sizeof(gram_samplingRate_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    
 //    -1,"",NULL,0,"grammar",gram_xxx_brief,

@@ -44,6 +44,7 @@ using namespace OpenSpeedShop::cli;
 using namespace OpenSpeedShop;
 
 #include "help_cmd_msg.dxx"
+#include "help_topic_msg.dxx"
 
 extern SS_Message_Czar& theMessageCzar();
 
@@ -70,7 +71,7 @@ pcli_load_messages()
     for (int i=1;i<CMD_MAX;++i) {
     	SS_Message_Element element;
 	
-	element.set_element(&cmd_msg[i]);
+	element.set_element(&cmd_msg[i],false /* is_topic */);
 	czar.Add_Help(element);
     }
     
@@ -80,7 +81,7 @@ pcli_load_messages()
     while (grammar_msg[i].topic != NULL) {
     	SS_Message_Element element;
 	
-	element.set_element(&grammar_msg[i]);
+	element.set_element(&grammar_msg[i],false /* is_topic */);
 	czar.Add_Help(element);
 	++i;
     }
@@ -91,10 +92,22 @@ pcli_load_messages()
     while (general_msg[i].topic != NULL) {
     	SS_Message_Element element;
 	
-	element.set_element(&general_msg[i]);
+	element.set_element(&general_msg[i],false /* is_topic */);
 	czar.Add_Help(element);
 	++i;
     }
+
+    // Load topic messages.
+    // Table ends when topic is NULL.
+    i = 0;
+    while (topic_msg[i].topic != NULL) {
+    	SS_Message_Element element;
+	
+	element.set_element(&topic_msg[i],true /* is_topic */);
+	czar.Add_Help(element);
+	++i;
+    }
+    
     
 }
 

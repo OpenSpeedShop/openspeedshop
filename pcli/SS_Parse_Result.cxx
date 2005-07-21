@@ -291,6 +291,50 @@ nocase_compare(char c1, char c2)
 }
 
 /**
+ * Method: dump_help_topic()
+ * 
+ * Dump help topics based on topic string
+ *     
+ * @return  void.
+ *
+ * @todo    Error handling.
+ *
+ */
+static void
+dump_help_topic(CommandObject *cmd, 
+    	    	SS_Message_Czar& czar, 
+		string *p_topic_str) 
+{
+    vector <SS_Message_Element *> sub_element;
+    czar.Find_By_Topic(*p_topic_str, &sub_element);
+    
+    if (sub_element.begin() == sub_element.end()) {
+    	;
+    }
+    else {
+    	vector <SS_Message_Element*>:: iterator l;
+    	for (l = sub_element.begin();
+    	    l != sub_element.end();
+    	    ++l) {
+    	    	    SS_Message_Element *p_el = *l;
+    	    	    string * const p_keyword = p_el->get_keyword();
+    	    	    string * const p_brief = p_el->get_brief();
+		    string newstr(*p_keyword + " -> " + *p_brief);
+    	    	    cmd->Result_String (newstr);
+    	}
+    }
+    cmd->Result_String(" ");
+    cmd->Result_String("To get details for a particular topic,");
+    cmd->Result_String("type \"help <topic>\".");
+    cmd->Result_String(" ");
+    cmd->Result_String("For instance, to get help list of the topic \"commands\"");
+    cmd->Result_String("\topenss>>help commands");
+    cmd->Result_String(" ");
+
+}
+    
+
+/**
  * Method: ParseResult::dumpHelp()
  * 
  * Dump help requests
@@ -314,15 +358,24 @@ dumpHelp(CommandObject *cmd)
     // general modifier types.
     vector<string> *p_slist = this->getHelpList();
 
-    // Dump out command oneliners
+    // Get reference of the message czar.
+    SS_Message_Czar& czar = theMessageCzar();
+
+    // Standalone help message and list
     if (p_slist->begin() == p_slist->end()) {
-    	dump_help_brief(cmd);
+    
+    	// Beginning blurb
+	cmd->Result_String("Open|SpeedShop is a performance tool brought");
+	cmd->Result_String("to you by SGI.");
+	cmd->Result_String(" ");
+	cmd->Result_String("Here are the available help topics:");
+	cmd->Result_String(" ");
+	
+    	string topic_str("topic");
+    	dump_help_topic(cmd, czar, &topic_str);
 
     	return;
     }
-
-    // Get reference of the message czar.
-    SS_Message_Czar& czar = theMessageCzar();
 
     for (vector<string>::iterator j=p_slist->begin();
     	 j != p_slist->end() && !found_match; 
@@ -346,6 +399,12 @@ dumpHelp(CommandObject *cmd)
     	     	 i!= p_string->end();
 	     	 ++i) {
 		cmd->Result_String (*i);
+	    }
+	    // Check for topics (nodes of the tree
+	    if (p_el->is_topic()) {
+	    	cout << "GOING INTO dump_help_topic()";
+		cout << "is_topic  = " << p_el->is_topic() << endl;
+    	    	dump_help_topic(cmd, czar, p_el->get_keyword());
 	    }
     	}
     }

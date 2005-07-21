@@ -71,6 +71,7 @@ class SS_Message_Element {
 	void set_topic(const char * const );
 	void set_topic(const string);
 	string * get_topic();
+	bool is_topic();
 
     	/** Add related keyword */
 	void add_related(const char * const );
@@ -102,7 +103,7 @@ class SS_Message_Element {
 	vector<string> * get_example_list();
 	
 	/** Use message_element_t to initialize element */
-	void set_element(const message_element_t * const p_element);
+	void set_element(const message_element_t * const p_element,bool is_topic);
 
     private:
 
@@ -111,6 +112,9 @@ class SS_Message_Element {
 
 	/** Topic string. */
     	string dm_topic;
+
+	/** Is this itself a topic. */
+    	bool dm_is_topic;
 	
 	/** Related keyword strings. */
     	vector <string> dm_related_keyword_list;
