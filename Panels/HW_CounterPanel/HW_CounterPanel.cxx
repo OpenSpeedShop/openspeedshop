@@ -816,7 +816,7 @@ HW_CounterPanel::loadStatsPanel()
     {
       experiment = eo->FW();
       UpdateObject *msg =
-        new UpdateObject((void *)experiment, expID, "hw", 1);
+        new UpdateObject((void *)experiment, expID, "hwc", 1);
       statsPanel->listener( (void *)msg );
     }
   }
@@ -854,7 +854,7 @@ HW_CounterPanel::loadManageProcessesPanel()
     {
       experiment = eo->FW();
       UpdateObject *msg =
-        new UpdateObject((void *)experiment, expID, "hw", 1);
+        new UpdateObject((void *)experiment, expID, "hwc", 1);
       manageProcessPanel->listener( (void *)msg );
     }
   }
