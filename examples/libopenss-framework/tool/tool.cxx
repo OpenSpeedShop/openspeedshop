@@ -40,12 +40,20 @@ static void Run(int argc, char* argv[])
     Experiment experiment(name);
 
     // Was the first argument potentially a process identifier?
-    pid_t pid = strtol(argv[0], NULL, 10);
-    if(pid > 0) {
-	
-	// Attach to the specified process and put it into the suspended state
-	experiment.attachProcess(pid);
-	
+    if(strtol(argv[0], NULL, 10) > 0) {
+
+	// Loop over each argument
+	for(int i = 0; i < argc; ++i) {
+	    
+	    // Convert this argument to a process identifier
+	    pid_t pid = strtol(argv[i], NULL, 10);
+
+	    // Attach to the process and put it into the suspended state
+	    if(pid > 0)		
+		experiment.attachProcess(pid);
+	    
+	}
+
     }
     else {
 
@@ -135,7 +143,7 @@ int main(int argc, char* argv[])
     if(argc < 2) {
         std::cout << "Usage: "
                   << ((argc > 0) ? argv[0] : "???")
-                  << " [<a.out> <args>] | [<pid>] | [<exp-dbase>]" 
+                  << " [<a.out> <args>] | [<pid> ...] | [<exp-dbase>]" 
 		  << std::endl;
 	return 1;
     }
