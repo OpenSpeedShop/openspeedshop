@@ -220,6 +220,14 @@ extern "C"
   void
   cli_terminate ()
   {
+    if (tli_window != 0)
+    {
+     // Before we do anything else -
+     // Stop async read loop for xterm window
+      pthread_cancel (phandle[0]);
+      usleep (10000);
+    }
+
    // Close Python
     Py_Finalize ();
 
@@ -236,7 +244,7 @@ extern "C"
     if (tli_window != 0)
     {
      // Stop async read loop for xterm window
-      pthread_cancel (phandle[0]);
+     //  pthread_cancel (phandle[0]);
 
       Window_Termination(tli_window);
       tli_window = 0;
