@@ -16,22 +16,13 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 #
-database_la_CXXFLAGS =  \
-        -I. \
-        -I$(WORKAREA)/current/libopenss-framework \
-        -I/usr/include -I.
-
-database_la_LDFLAGS = \
-        -L/perftools/ROOT/lib \
-        -Wl,$(WORKAREA)/current/libopenss-framework/.libs/libopenss-framework.so \
-        -LANG:std -lsqlite3
 
 # directories that will be built
-SUBDIRS = utility interval
+SUBDIRS = interval
 #
 # directories that will be packaged into tar.gz.
 # these can be a subset of the directories in SUBDIRS.
 #
-DIST_SUBDIRS = utility interval
+DIST_SUBDIRS = interval
 
 
