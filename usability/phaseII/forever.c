@@ -52,12 +52,23 @@ main(int argc, char **argv)
   int number = 100;
   char input[1024];
 
-  for(i=0;i<argc;i++)
-  {
-    printf("argv[%d]=%s\n", i, argv[i]);
-  }
+   int size = 0;
+
+   if(argc == 2)
+   {
+     size = atoi(argv[1]);
+     number = size;
+   }
+
   
-  printf("Started a program that never finishes.... pid=%d\n", getpid() );
+  if( size )
+  {
+    printf("%d\n", getpid() );
+  } else
+  {
+    printf("Started a program that never finishes.... pid=%d\n", getpid() );
+  }
+
   while( number > 0 )
   {
     for(i=0;i<number;i++)
@@ -70,10 +81,17 @@ main(int argc, char **argv)
       fflush(stdout);
     }
     input[0] = '\0';
+    if( size )
+    {
+      break;
+    }
     printf("\nGive me a number: ");
     scanf("%s", input);
     number = atoi(input);
     printf("Input was %d\n", number);
   }
-  printf("End of life for the forever program....\n");
+  if( !size )
+  {
+    printf("End of life for the forever program....\n");
+  }
 }
