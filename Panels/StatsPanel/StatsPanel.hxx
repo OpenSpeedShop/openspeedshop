@@ -100,6 +100,7 @@ class StatsPanel  : public Panel
     Collector *currentCollector;
 
     QString currentMetricStr;
+    QString currentMetricTypeStr;
 
     //! Current selected chart item.
     SPListViewItem *currentItem;

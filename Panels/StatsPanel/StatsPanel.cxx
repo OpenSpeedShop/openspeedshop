@@ -206,7 +206,8 @@ StatsPanel::listener(void *msg)
 // printf("\t%s\n", cpe->name.ascii() );
           collectorStr = ce->name;
           currentMetricStr = cpe->name;
-// printf("Initialize collectorStr=(%s) currentMetricStr=(%s)\n", collectorStr.ascii(), currentMetricStr.ascii() );
+          currentMetricTypeStr = cpe->type;
+// printf("Initialize collectorStr=(%s) currentMetricType=(%s) currentMetricStr=(%s)\n", collectorStr.ascii(), currentMetricTypeStr.ascii(), currentMetricStr.ascii() );
           break;
         }
       }
@@ -1051,7 +1052,21 @@ StatsPanel::updateStatsPanelData()
 
           // Display the results
           MetricHeaderInfoList metricHeaderInfoList;
+// printf("Display the results currentMetricTypeStr=(%s)\n", currentMetricTypeStr.ascii() );
+if( currentMetricTypeStr == "double" )
+{
           metricHeaderInfoList.push_back(new MetricHeaderInfo(QString(currentMetricStr.ascii() ), FLOAT_T));
+} else if( currentMetricTypeStr == "int" )
+{
+          metricHeaderInfoList.push_back(new MetricHeaderInfo(QString(currentMetricStr.ascii() ), INT_T));
+} else if( currentMetricTypeStr == "unsigned int" )
+{
+          metricHeaderInfoList.push_back(new MetricHeaderInfo(QString(currentMetricStr.ascii() ), UNSIGNED_INT_T));
+} else
+{
+          metricHeaderInfoList.push_back(new MetricHeaderInfo(QString(currentMetricStr.ascii() ), UNKNOWN_T));
+}
+
           metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("% of Time"), FLOAT_T));
           metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("Function"), CHAR_T));
           if( metricHeaderTypeArray != NULL )

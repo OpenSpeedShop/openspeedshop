@@ -30,7 +30,7 @@
     data, or pointers to sampling data.
  */
 
-enum MetricHeaderType { INT_T, FLOAT_T, CHAR_T };
+enum MetricHeaderType { UNKNOWN_T, INT_T, UNSIGNED_INT_T, FLOAT_T, CHAR_T };
 
 class MetricHeaderInfo
 {

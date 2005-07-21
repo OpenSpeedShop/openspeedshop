@@ -155,20 +155,25 @@ CollectorListObject::createCollectorList(int expID)
             double double_metric;
             unsigned int uint_metric = 0;
             int int_metric = 0;
+QString metric_type = QString::null;
             if( m.isType(typeid(int)) )
             {
-//printf("int\n");
+// printf("int\n");
+metric_type = "int";
             } else if( m.isType(typeid(unsigned int)) )
             {
-//printf("unsigned int\n");
+// printf("unsigned int\n");
+metric_type = "unsigned int";
             } else if( m.isType(typeid(double)) )
             {
-//printf("double\n");
+// printf("double\n");
+metric_type = "double";
             } else
             {
               metric_val = QString("Unknown type.");
+metric_type = "unknown";
             }
-            CollectorMetricEntry *cpe = new CollectorMetricEntry(metric, metric_val);
+            CollectorMetricEntry *cpe = new CollectorMetricEntry(metric, metric_type, metric_val);
             ce->metricList.push_back(cpe);
         }
 }

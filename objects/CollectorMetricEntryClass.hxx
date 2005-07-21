@@ -23,15 +23,17 @@ class CollectorMetricEntry
 {
   public:
     CollectorMetricEntry();
-    CollectorMetricEntry(QString n, QString mv)
+    CollectorMetricEntry(QString n, QString t, QString mv)
     {
       name = n;
+      type = t;
       metric_val = mv;
     }
     ~CollectorMetricEntry()
     {
     }
     QString name;
+    QString type;
     QString metric_val;
 };
 #endif // COLLECTORMETRICENTRYCLASS_H
