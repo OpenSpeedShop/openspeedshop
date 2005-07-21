@@ -32,16 +32,8 @@ utility_CXXFLAGS =  \
 	-Ii$(top_srcdir)/libopenss-framework \
 	-I/usr/include -I.
 
-utility_LDFLAGS = \
-	-L/usr/lib \
-	-Wl,$(top_srcdir)/libopenss-framework/.libs/libopenss-framework.so \
-	-LANG:std -lsqlite3
-
 addbitmap1_CXXFLAGS = \
 	$(utility_CXXFLAGS)
-
-addbitmap1_LDFLAGS = \
-	$(utility_LDFLAGS)
 
 addbitmap1_SOURCES = \
 	addbitmap1.cxx
@@ -49,17 +41,11 @@ addbitmap1_SOURCES = \
 addbitmap2_CXXFLAGS = \
 	$(utility_CXXFLAGS)
 
-addbitmap2_LDFLAGS = \
-	$(utility_LDFLAGS)
-
 addbitmap2_SOURCES = \
 	addbitmap2.cxx
 
 blob1_CXXFLAGS = \
 	$(utility_CXXFLAGS)
-
-blob1_LDFLAGS = \
-	$(utility_LDFLAGS)
 
 blob1_SOURCES = \
 	blob1.cxx
