@@ -457,10 +457,14 @@ class CommandWindowID
       Assert(pthread_mutex_unlock(&Window_List_Lock) == 0);
 
 
-      if (default_outstream) {
+      if (default_errstream &&
+          (default_errstream != default_outstream) &&
+          (default_errstream != ss_err)) {
+        delete default_errstream;
+      }
+      if (default_outstream &&
+          (default_outstream != ss_out)) {
         delete default_outstream;
-        if ((default_outstream != default_errstream) &&
-            default_errstream) delete default_outstream;
       }
     }
 
