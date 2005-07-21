@@ -383,7 +383,7 @@ class CommandWindowID
         Assert(pthread_mutex_init(&Input_List_Lock, NULL) == 0); // dynamic initialization
       }
       Assert(pthread_mutex_init(&Cmds_List_Lock, NULL) == 0); // dynamic initialization
-      FocusedExp = 0;
+      FocusedExp = -1;  // This is a "not yet intitialized" flag.  The user should never see it.
 
      // Generate a unique ID and remember it
 
@@ -1002,7 +1002,30 @@ EXPID Experiment_Focus (CMDWID WindowID)
 {
   if (WindowID == 0) WindowID = Last_ReadWindow;
   CommandWindowID *my_window = Find_Command_Window (WindowID);
-  return (my_window && my_window->Focus()) ? my_window->Focus() : 0;
+  EXPID f = my_window ? my_window->Focus() : 0;
+  if (f < 0) {
+   // This window has not been given a focus, use the last experiment.
+    f = Experiment_Sequence_Number;
+
+   // Find the last one that still exist.
+    while ((f > 0) && (Find_Experiment_Object (f) == NULL)) {
+      f--;
+    }
+
+    if (f > 0) {
+     // This is the initial value we are going to use.
+      my_window->Set_Focus (f);
+
+      if (f > 1) {
+        char a[100];
+        char *m = "The Focus has been initialized to Experiment ";
+        bcopy (m, a, strlen(m));
+        sprintf (&a[strlen(m)], "%lld\n", f);
+        ReDirect_User_Stderr (a, strlen(a), (void *)WindowID);
+      }
+    }
+  }
+  return f;
 }
 
 // Set the focus for a particular CommandWindow.
