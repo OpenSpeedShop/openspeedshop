@@ -17,6 +17,6 @@
 ################################################################################
 
 # directories that will be built
-SUBDIRS = fw pcli
+SUBDIRS = fw 
 
-DIST_SUBDIRS = fw pcli 
+DIST_SUBDIRS = fw 
