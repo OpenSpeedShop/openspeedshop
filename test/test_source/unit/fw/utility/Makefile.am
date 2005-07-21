@@ -22,33 +22,46 @@
 # All Rights Reserved.
 ################################################################################
 
-database_la_CXXFLAGS =  \
+check_PROGRAMS = \
+        addbitmap1 \
+        addbitmap2 \
+        blob1
+
+utility_CXXFLAGS =  \
 	-I. \
-	-I../../../../../libopenss-framework \
+	-Ii$(top_srcdir)/libopenss-framework \
 	-I/usr/include -I.
 
-database_la_LDFLAGS = \
-	-L/perftools/ROOT/lib \
-	-Wl,../../../../../libopenss-framework/.libs/libopenss-framework.so \
+utility_LDFLAGS = \
+	-L/usr/lib \
+	-Wl,$(top_srcdir)/libopenss-framework/.libs/libopenss-framework.so \
 	-LANG:std -lsqlite3
 
-database_la_LIBADD = $(LIBLTDL)
+addbitmap1_CXXFLAGS = \
+	$(utility_CXXFLAGS)
 
-filelist = \
-	addbitmap1 \
-	addbitmap2 \
-	blob1 
+addbitmap1_LDFLAGS = \
+	$(utility_LDFLAGS)
 
-all: $(filelist)
+addbitmap1_SOURCES = \
+	addbitmap1.cxx
 
-addbitmap1: addbitmap1.cxx
-	-g++ -o addbitmap1 $(database_la_CXXFLAGS) $(database_la_LDFLAGS) addbitmap1.cxx
+addbitmap2_CXXFLAGS = \
+	$(utility_CXXFLAGS)
 
-addbitmap2: addbitmap2.cxx
-	-g++ -o addbitmap2 $(database_la_CXXFLAGS) $(database_la_LDFLAGS) addbitmap2.cxx
+addbitmap2_LDFLAGS = \
+	$(utility_LDFLAGS)
 
-blob1: blob1.cxx
-	-g++ -o blob1 $(database_la_CXXFLAGS) $(database_la_LDFLAGS) blob1.cxx
+addbitmap2_SOURCES = \
+	addbitmap2.cxx
 
-clean:
-	rm $(filelist)
+blob1_CXXFLAGS = \
+	$(utility_CXXFLAGS)
+
+blob1_LDFLAGS = \
+	$(utility_LDFLAGS)
+
+blob1_SOURCES = \
+	blob1.cxx
+
+TESTS = $(check_PROGRAMS)
