@@ -54,7 +54,7 @@ def CreateOutput(runtype, fileptr):
 
 	#os.system('rm ' + resultsfile)
 	#os.system('rm testresults')
-	os.system('make')
+	os.system('make check')
 
 	test_input = open(listname, 'r')
 
@@ -173,7 +173,7 @@ if __name__ == '__main__':
 		
 	
        	CreateOutput(runtype, resultsfileptr)
-	os.system('make clean')
+	#os.system('make clean')
 		
 	#if isSimple:
 	#	os.remove('test_list')
