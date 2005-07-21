@@ -22,7 +22,8 @@
 # All Rights Reserved.
 ################################################################################
 
-filelist = \
+
+check_PROGRAMS = \
 	interval1 \
 	interval2 \
 	interval3 \
@@ -31,28 +32,75 @@ filelist = \
 	interval6 \
 	interval7
 
-all: $(filelist)
 
-interval1: interval1.cxx
-	-g++ -o interval1 $(database_la_CXXFLAGS) $(database_la_LDFLAGS) interval1.cxx
+interval_CXXFLAGS =  \
+	-I. \
+	-I$(top_srcdir)/libopenss-framework \
+	-I/usr/include -I.
 
-interval2: interval2.cxx
-	-g++ -o interval2 $(database_la_CXXFLAGS) $(database_la_LDFLAGS) interval2.cxx
+interval_LDFLAGS = \
+	-L/usr/lib \
+	-Wl,$(top_srcdir)/libopenss-framework/.libs/libopenss-framework.so \
+	-LANG:std -lsqlite3
 
-interval3: interval3.cxx
-	-g++ -o interval3 $(database_la_CXXFLAGS) $(database_la_LDFLAGS) interval3.cxx
+interval1_CXXFLAGS = \
+	$($(interval_CXXFLAGS))
 
-interval4: interval4.cxx
-	-g++ -o interval4 $(database_la_CXXFLAGS) $(database_la_LDFLAGS) interval4.cxx
+interval1_LDFLAGS = \
+	$($(interval_LDFLAGS))
 
-interval5: interval5.cxx
-	-g++ -o interval5 $(database_la_CXXFLAGS) $(database_la_LDFLAGS) interval5.cxx
+interval1_SOURCES = \
+	interval1.cxx
 
-interval6: interval6.cxx
-	-g++ -o interval6 $(database_la_CXXFLAGS) $(database_la_LDFLAGS) interval6.cxx
+interval2_CXXFLAGS = \
+	$($(interval_CXXFLAGS))
 
-interval7: interval7.cxx
-	-g++ -o interval7 $(database_la_CXXFLAGS) $(database_la_LDFLAGS) interval7.cxx
+interval2_SOURCES = \
+	interval2.cxx
 
-clean:
-	rm $(filelist)
+interval3_CXXFLAGS = \
+	$(interval_CXXFLAGS)
+
+interval3_LDFLAGS = \
+	$(interval_LDFLAGS)
+
+interval3_SOURCES = \
+	interval3.cxx
+
+interval4_CXXFLAGS = \
+        $(interval_CXXFLAGS)
+
+interval4_LDFLAGS = \
+        $(interval_LDFLAGS)
+
+interval4_SOURCES = \
+        interval4.cxx
+
+interval5_CXXFLAGS = \
+        $(interval_CXXFLAGS)
+
+interval5_LDFLAGS = \
+        $(interval_LDFLAGS)
+
+interval5_SOURCES = \
+        interval5.cxx
+
+interval6_CXXFLAGS = \
+        $(interval_CXXFLAGS)
+
+interval6_LDFLAGS = \
+        $(interval_LDFLAGS)
+
+interval6_SOURCES = \
+        interval6.cxx
+
+interval7_CXXFLAGS = \
+        $(interval_CXXFLAGS)
+
+interval7_LDFLAGS = \
+        $(interval_LDFLAGS)
+
+interval7_SOURCES = \
+        interval7.cxx
+
+TESTS = $(check_PROGRAMS)
