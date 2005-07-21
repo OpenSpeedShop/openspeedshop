@@ -24,9 +24,6 @@ pcl_la_CXXFLAGS =  \
         -I/usr/include -I. -I../../../../../objects -I../../../../../base \
         -DPLUGIN_PATH=\"$(pkglibdir)\"
 
-pcl_la_LDFLAGS = \
-         $(PLUGIN_PATH)/posscli.so
-
 # directories that will be built
 SUBDIRS = parse_target parse_result
 #

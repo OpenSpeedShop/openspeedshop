@@ -38,16 +38,8 @@ interval_CXXFLAGS =  \
 	-I$(top_srcdir)/libopenss-framework \
 	-I/usr/include -I.
 
-interval_LDFLAGS = \
-	-L/usr/lib \
-	-Wl,$(top_srcdir)/libopenss-framework/.libs/libopenss-framework.so \
-	-LANG:std -lsqlite3
-
 interval1_CXXFLAGS = \
 	$($(interval_CXXFLAGS))
-
-interval1_LDFLAGS = \
-	$($(interval_LDFLAGS))
 
 interval1_SOURCES = \
 	interval1.cxx
@@ -61,17 +53,11 @@ interval2_SOURCES = \
 interval3_CXXFLAGS = \
 	$(interval_CXXFLAGS)
 
-interval3_LDFLAGS = \
-	$(interval_LDFLAGS)
-
 interval3_SOURCES = \
 	interval3.cxx
 
 interval4_CXXFLAGS = \
         $(interval_CXXFLAGS)
-
-interval4_LDFLAGS = \
-        $(interval_LDFLAGS)
 
 interval4_SOURCES = \
         interval4.cxx
@@ -79,26 +65,17 @@ interval4_SOURCES = \
 interval5_CXXFLAGS = \
         $(interval_CXXFLAGS)
 
-interval5_LDFLAGS = \
-        $(interval_LDFLAGS)
-
 interval5_SOURCES = \
         interval5.cxx
 
 interval6_CXXFLAGS = \
         $(interval_CXXFLAGS)
 
-interval6_LDFLAGS = \
-        $(interval_LDFLAGS)
-
 interval6_SOURCES = \
         interval6.cxx
 
 interval7_CXXFLAGS = \
         $(interval_CXXFLAGS)
-
-interval7_LDFLAGS = \
-        $(interval_LDFLAGS)
 
 interval7_SOURCES = \
         interval7.cxx
