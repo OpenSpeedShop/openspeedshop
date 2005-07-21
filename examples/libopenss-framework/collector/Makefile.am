@@ -29,14 +29,14 @@ example_la_SOURCES = \
 	ExampleCollector.hxx ExampleCollector.cxx
 
 example_rt_la_CFLAGS = \
-	-I$(top_srcdir)/libopenss-framework/runtime
+	-I$(top_srcdir)/libopenss-runtime
 
 example_rt_la_LDFLAGS = \
-	-L$(top_srcdir)/libopenss-framework/runtime \
+	-L$(top_srcdir)/libopenss-runtime \
 	-no-undefined -module -avoid-version
 
 example_rt_la_LIBADD = \
-	-lopenss-framework-runtime -lpthread -lrt
+	-lopenss-runtime -lpthread -lrt
 
 example_rt_la_SOURCES = \
 	blobs.h blobs.c blobs.x \
