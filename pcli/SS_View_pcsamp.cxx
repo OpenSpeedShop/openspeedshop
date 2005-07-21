@@ -29,61 +29,13 @@ using namespace std;
 using namespace OpenSpeedShop::cli;
 
 
-// pcfunc view
-
-static std::string VIEW_pcfunc_brief = "pctime : % total : % cumulative : function";
-static std::string VIEW_pcfunc_short = "Report the amount and percent of program time spent in a function.";
-static std::string VIEW_pcfunc_long  = "Use the program timer to produce a sorted report of the functions"
-                                       " that use the most time.  Calculate"
-                                       " the percent of total time that each function uses."
-                                       " A positive integer can be added to the end of the keyword"
-                                       " ""pcfunc"" to indicate the maximum number of items in"
-                                       " the report.";
-static std::string VIEW_pcfunc_metrics[] =
-  { "time",
-    ""
-  };
-static std::string VIEW_pcfunc_collectors[] =
-  { ""
-  };
-static std::string VIEW_pcfunc_header[] =
-  { ""
-  };
-class pcfunc_view : public ViewType {
-
- public: 
-  pcfunc_view() : ViewType ("pcfunc",
-                             VIEW_pcfunc_brief,
-                             VIEW_pcfunc_short,
-                             VIEW_pcfunc_long,
-                            &VIEW_pcfunc_metrics[0],
-                            &VIEW_pcfunc_collectors[0],
-                            &VIEW_pcfunc_header[0],
-                             true,
-                             true) {
-  }
-  virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
-                         std::vector<ViewInstruction *>IV) {
-    CV.erase(++CV.begin(), CV.end());  // Save the collector name
-    MV.erase(MV.begin(), MV.end());
-    IV.erase(IV.begin(), IV.end());
-
-    MV.push_back(VIEW_pcfunc_metrics[0]);  // Use the Collector with the first metric
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, 0, 0));  // first column is metric
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Metric, 1, 0));  // second column is %
-    return Generic_View->GenerateView (cmd, exp, topn, tgrp, CV, MV, IV);
-  }
-};
-
-
 // pcsamp view
 
-static std::string VIEW_pcsamp_brief = "pctime : % total : % cumulative : function";
+static std::string VIEW_pcsamp_brief = "PC (Program Counter) report";
 static std::string VIEW_pcsamp_short = "Report the amount and percent of program time spent in a function.";
-static std::string VIEW_pcsamp_long  = "Use the program timer to produce a sorted report of the functions"
-                                       " that use the most time.  Calculate"
-                                       " the percent of total time that each function uses."
+static std::string VIEW_pcsamp_long  = "The program timer is used to generate date that will be used to"
+                                       " produce a sorted report of the functions that use the most time."
+                                       " Calculate the percent of total time that each function uses."
                                        " A positive integer can be added to the end of the keyword"
                                        " ""pcsamp"" to indicate the maximum number of items in"
                                        " the report.";
@@ -124,114 +76,12 @@ class pcsamp_view : public ViewType {
   }
 };
 
-
-// Inclusive Time
-
-static std::string VIEW_intime_brief = "Inclusive Time Report";
-static std::string VIEW_intime_short = "Report the amount of time spent in a function.";
-static std::string VIEW_intime_long  = "Produce a decending report of the functions that use the"
-                                     " most time.  Th reported time includes all the time spent"
-                                     " in the functions that are called from the reported function."
-                                     " A positive integer can be added to the end of the keyword"
-                                     " ""intime"" to indicate the maximum number of items in"
-                                     " the report.";
-static std::string VIEW_intime_metrics[] =
-  { "inclusive_time",
-    ""
-  };
-static std::string VIEW_intime_collectors[] =
-  { ""
-  };
-static std::string VIEW_intime_header[] =
-  { ""
-  };
-class intime_view : public ViewType {
-
- public: 
-  intime_view() : ViewType ("intime",
-                             VIEW_intime_brief,
-                             VIEW_intime_short,
-                             VIEW_intime_long,
-                            &VIEW_intime_metrics[0],
-                            &VIEW_intime_collectors[0],
-                            &VIEW_intime_header[0],
-                             true,
-                             true) {
-  }
-  virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
-                         std::vector<ViewInstruction *>IV) {
-    CV.erase(++CV.begin(), CV.end());
-    MV.erase(MV.begin(), MV.end());
-    IV.erase(IV.begin(), IV.end());
-
-    MV.push_back(VIEW_intime_metrics[0]);  // Use the Collector with the first metric
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, 0, 0));  // first column is metric
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, 1, 0)); // second column is %
-
-   // The Total Time (used for % calculation) is always the total exclusive time.
-   // (Otherwise, we measure a unit of time multiple times.)
-    CV.push_back (CV[0]);
-    MV.push_back ("exclusive_time");
-    IV.push_back(new ViewInstruction (VIEWINST_Define_Total, MV.size()-1));
-
-    return Generic_View->GenerateView (cmd, exp, topn, tgrp, CV, MV, IV);
-  }
-};
-
-
-// Exclusive Time
-
-static std::string VIEW_extime_brief = "Exclusive Time Report";
-static std::string VIEW_extime_short = "Report the amount of time spent in a function.";
-static std::string VIEW_extime_long  = "Produce a decending report of the functions that use the "
-                                     " most time."
-                                     " A positive integer can be added to the end of the keyword"
-                                     " ""extime"" to indicate the maximum number of items in"
-                                     " the report.";
-static std::string VIEW_extime_metrics[] =
-  { "exclusive_time",
-    ""
-  };
-static std::string VIEW_extime_collectors[] =
-  { ""
-  };
-static std::string VIEW_extime_header[] =
-  { ""
-  };
-class extime_view : public ViewType {
-
- public: 
-  extime_view() : ViewType ("extime",
-                             VIEW_extime_brief,
-                             VIEW_extime_short,
-                             VIEW_extime_long,
-                            &VIEW_extime_metrics[0],
-                            &VIEW_extime_collectors[0],
-                            &VIEW_extime_header[0],
-                             true,
-                             true) {
-  }
-  virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
-                         std::vector<ViewInstruction *>IV) {
-    CV.erase(++CV.begin(), CV.end());
-    MV.erase(MV.begin(), MV.end());
-    IV.erase(IV.begin(), IV.end());
-
-    MV.push_back(VIEW_extime_metrics[0]);  // Use the Collector with the first metric
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, 0, 0));  // first column is metric
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Metric, 1, 0));  // second column is %
-    return Generic_View->GenerateView (cmd, exp, topn, tgrp, CV, MV, IV);
-  }
-};
-
 // UserTime Report
 
-static std::string VIEW_usertime_brief = "User Time Report";
+static std::string VIEW_usertime_brief = "Usertime call stack report";
 static std::string VIEW_usertime_short = "Report the amount of time spent in a function.";
-static std::string VIEW_usertime_long  = "Produce a decending report of the functions that use the "
-                                     " most time."
+static std::string VIEW_usertime_long  = "A decending report of the functions that use the "
+                                     " most time is produced."
                                      " A positive integer can be added to the end of the keyword"
                                      " ""usertime"" to indicate the maximum number of items in"
                                      " the report.";
@@ -278,7 +128,7 @@ class usertime_view : public ViewType {
    // Define inclusive time metric.
     int intime_index = MV.size();
     CV.push_back (c);
-    MV.push_back (VIEW_intime_metrics[0]);
+    MV.push_back ("inclusive_time");
 
    // Define exclusive time metric.
     int extime_index = intime_index + 1;
@@ -306,61 +156,9 @@ class usertime_view : public ViewType {
 };
 
 
-// vtop view
-
-static std::string VIEW_vtop_brief = "pctime : function";
-static std::string VIEW_vtop_short = "Report the amount of program time spent in a function.";
-static std::string VIEW_vtop_long  = "Produce a decending report of the functions that use the "
-                                     " most time as measured by the program counter."
-                                     " A positive integer can be added to the end of the keyword"
-                                     " ""vtop"" to indicate the maximum number of items in"
-                                     " the report.";
-static std::string VIEW_vtop_metrics[] =
-  { "time",
-    ""
-  };
-static std::string VIEW_vtop_collectors[] =
-  { ""
-  };
-static std::string VIEW_vtop_header[] =
-  { "  CPU Time (Seconds)",
-    "Function",
-    ""
-  };
-class vtop_view : public ViewType {
-
- public: 
-  vtop_view() : ViewType ("vtop",
-                           VIEW_vtop_brief,
-                           VIEW_vtop_short,
-                           VIEW_vtop_long,
-                          &VIEW_vtop_metrics[0],
-                          &VIEW_vtop_collectors[0],
-                          &VIEW_vtop_header[0],
-                           true,
-                           true) {
-  }
-  virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
-                         std::vector<ViewInstruction *>IV) {
-    CV.erase(++CV.begin(), CV.end());  // Save the collector name
-    MV.erase(MV.begin(), MV.end());
-    IV.erase(IV.begin(), IV.end());
-
-    MV.push_back(VIEW_vtop_metrics[0]);  // Use the Collector with the metric "time"
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, 0, 0));  // first column is metric
-    return Generic_View->GenerateView (cmd, exp, topn, tgrp, CV, MV, IV);
-  }
-};
-
-
 // This is the only external entrypoint.
 // Calls to the VIEWs needs to be done through the ViewType class objects.
 extern "C" void pcfunc_LTX_ViewFactory () {
-  Define_New_View (new vtop_view());
-  Define_New_View (new intime_view());
-  Define_New_View (new extime_view());
   Define_New_View (new usertime_view());
-  Define_New_View (new pcfunc_view());
   Define_New_View (new pcsamp_view());
 }
