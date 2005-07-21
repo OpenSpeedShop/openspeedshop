@@ -569,6 +569,9 @@ static void Resolve_P_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
 static void Resolve_F_Target (CommandObject *cmd, ExperimentObject *exp, ThreadGroup *tgrp,
                               ParseTarget pt, std::string host_name) {
 
+  InputLineObject *clip = cmd->Clip ();
+  CMDWID w = (clip) ? clip->Who() : 0;
+
   vector<ParseRange> *f_list = pt.getFileList();
 
  // Okay. Process the file specification.
@@ -582,7 +585,9 @@ static void Resolve_F_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
 // TODO:
     } else {
       try {
-        Thread t = exp->FW()->createProcess(f_val1->name, host_name);
+        Thread t = exp->FW()->createProcess(f_val1->name, host_name,
+                                            OutputCallback(&ReDirect_User_Stdout,(void *)w),
+                                            OutputCallback(&ReDirect_User_Stderr,(void *)w));
         tgrp->insert(t);
       }
       catch(const Exception& error) {
