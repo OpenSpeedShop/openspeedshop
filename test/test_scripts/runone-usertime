@@ -106,8 +106,8 @@ def CompareResults(testName, fileptr):
 			if ( previous_inclusive_expected != 0 and previous_inclusive_actual != 0 ):
                                 actual_inclusive_ratio = previous_inclusive_actual / actual_inclusive_time
                                 expected_inclusive_ratio = previous_inclusive_expected / expected_inclusive_time
-                                upper_limit = expected_inclusive_ratio + (expected_inclusive_ratio * .1)
-                                lower_limit = expected_inclusive_ratio - (expected_inclusive_ratio * .1)
+                                upper_limit = expected_inclusive_ratio + (expected_inclusive_ratio * .25)
+                                lower_limit = expected_inclusive_ratio - (expected_inclusive_ratio * .25)
                                 if not (lower_limit <= actual_inclusive_ratio <= upper_limit):
                                         inclusive_passing_ratio = 0
                                         failure_reason = 4
