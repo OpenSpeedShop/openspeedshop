@@ -23,7 +23,7 @@ NAME
   openss - Collects Open|SpeedShop performance data
 
 SYNOPSIS
-  openss -cli [-h host] [-f "executable arg1 arg2 arg3 ..."] [-p process_ID [-r thread_rank] ] [experiment_name]
+  openss -cli [-h host] [-f "executable arg1 arg2 arg3 ..."] [-p process_ID [-t thread_ID] ] [experiment_name]
 
 
 DESCRIPTION
@@ -31,21 +31,25 @@ DESCRIPTION
   for an executable(s).
 
   When collecting the performance data, openss either writes the data to 
-  a file or makes it available to be displayed by the command line interface
+  a file and makes it available to be displayed by the command line interface
   or the graphical user interface.
  
   You can specify the following options on the command line:
     -h host
-      Specifies the target host.
+      Specifies the host on which an executable should be run, 
+      or where a process to be attached is located.
 
     -f executable
       Specifies the executable to run the performance experiment on.
+      Specifies that openss is going to create a new process
 
     -p process_ID
       Specifies the running process to attach to for performance gathering.
+      Specifies that openss is going to attach to the identified process.
 
-    -r thread_rank
-      Specifies which thread of a process to gather data.
+    -t thread_ID
+      Specifies specifying a single thread to be attached within the given
+      PID (rather than ALL threads by default)..
 
     -cli   Run only the command line interface part of openss.
            (Note: The Graphical User Interface (GUI) can be
@@ -55,12 +59,15 @@ DESCRIPTION
       Specifies the experiment to be run on the executable or process.
 
       o pcsamp   - Actual CPU time at the source line, machine instruction,
-                   and function levels by sampling the program counter at
-                   100-millisecond intervals. See “PC Sampling Wizard.
+		   and function levels by sampling the program counter at
+		   intervals. PC sampling samples at 10mS (down to 1mS)
+		   intervals. One could sample at the slower rate, but the
+		   data would be approaching useless. The default is 10mS.
   
       o usertime - Inclusive and exclusive CPU time for each function by
-                   sampling the callstack at 10-millisecond intervals.
-                   See User Time Wizard.
+		   sampling the callstack at intervals.Usertime samples at
+		   30mS intervals by default. But could sample at 10mS
+		   intervals.
 
       o fpe      - All floating-point exceptions, with the exception type
                    and the call stack at the time of the exception. See 
@@ -106,43 +113,44 @@ EXAMPLES:
 
 COMMAND LINE:
   Available commands:
-  openss>>help
-    expAttach  [<expId_spec>] [<target_list>] [<expType_list>]
-    expClose  [focus || <expId_spec> || all] [kill]  
-    expCreate  [<target_list>] [<expType_list>] 
-    expDetach  [<expId_spec>] [<target_list>] [<expType_list>]
-    expDisable  [<expId_spec> || all]  
-    expEnable  [<expId_spec> || all]  
-    expFocus  [<expId_spec>] 
-    expPause  [<expId_spec> || all]  
-    expRestore  <file_spec>  
-      expGo  [<expId_spec> || all]  
-    expSave  [<expId_spec>] [copy] <file_spec>  
-    expSetparm  [<expId_spec>] <expParam>=<expParamValue> [,<expParam>=<expParamValue>]  
-    expView  [<expId_spec>] [-gui] <viewType>  
-    listBreaks  [<expId_spec> || all || <expType>] 
-    listExp <no args> 
-    listHosts  [<expId_spec> || all || <cluster_spec>] 
-    listMetrics  [<expId_spec> || all || <expType>] 
-    listObj  [<expId_spec>] [<target>] 
-    listParams  [<expId_spec> || all || <expType>] 
-    listPids [<expId_spec> || all] [<host_file>] 
-    listRanks  [<expId_spec> || all || <expType>] 
-    listSrc  [<expId_spec>] [<target>] [<linenumber_spec>] 
-    listStatus  [<expId_spec> || all]  
-    listThreads  [<expId_spec> || all || <target>] 
-    listTypes  [<expId_spec> || all]  
-    listViews  [<expId_spec> || all || <expType>] 
-    clearBreak  <breakId> 
-    exit <no args> 
-    help [<string>] 
-    history  <file_spec>  
-    log  <file_spec>  
-    openGui <no args> 
-    playback  <file_spec>  
-    record  <file_spec>  
-    setBreak  [<expId_spec>] [<target>] <address_description> 
+openss>>help commands
 
+Lists all available commands
 
-  To get more details about a command: 
-  openss>>help <command>
+expAttach -> Attach applications or collectors to an experiment.
+expClose -> Close/Terminate the experiment.
+expCreate -> Start the process of defining an experiment.
+expDetach -> Detach applications from collectors.
+expDisable -> Turn off data collection.
+expEnable -> Restart data collection.
+expFocus -> Focus the current input window on a specified experiment.
+expPause -> Temporarily interrupt the specified experiment.
+expRestore -> Restore experiment's definition and previously saved
+.data from a data base that was saved with an expSave command.
+expGo -> Start execution or continue running the experiment.
+expSave -> Save the experiment data for further analysis.
+expSetparm -> Change the value an experiment's argument.
+expView -> View the experiment's output in text form.
+listBreaks -> List the breakpoints that have been defined.
+listExp -> List the experiments that have been defined.
+listHosts -> Lists the hosts that define the specified cluster.
+listMetrics -> List the measurements that an experiment is capable of making.
+listObj -> List the object files that are known.
+listParams -> Report the current values assigned to all the parameters
+that are part of a specific experiment.
+listPids -> List the process Id's that are known.
+listRanks -> List the mpi ranks that are known.
+listSrc -> Display a source file.
+listStatus -> List the current status of an experiment.
+listThreads -> List the threads that are known.
+listTypes -> List available performance measurement utilities.
+listViews -> List the reports that can be produced by an experiment.
+clearBreak -> Remove a breakpoint.
+exit -> Terminate the session.
+help -> Request information about a topic.
+history -> Print a list of previously executed commands.
+log -> Echo executed commands and their results to a file.
+openGui -> Open the Graphical User Interface.
+playback -> Read and execute commands stored in a file.
+record -> Begin echoing executed commands to a file.
+setBreak -> Enter a breakpoint, which will halt the application when reached.
