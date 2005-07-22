@@ -67,10 +67,10 @@ static CommandResult *Get_Collector_Metadata (Collector c, Metadata m) {
 
 // parameter views
 
-static std::string VIEW_params_brief = "collector : parameter : value";
-static std::string VIEW_params_short = "Report the current values of parameters.";
-static std::string VIEW_params_long  = "Report the current values assigned to all the parameters"
+static std::string VIEW_params_brief = "Report the current values of parameters";
+static std::string VIEW_params_short = "Report the current values assigned to all the parameters"
                                        " that are part of a specific experiment.";
+static std::string VIEW_params_long  = "";
 static std::string VIEW_params_metrics[] =
   { ""
   };

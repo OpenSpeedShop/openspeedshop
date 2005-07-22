@@ -31,10 +31,8 @@ using namespace OpenSpeedShop::cli;
 // stats view
 
 static std::string VIEW_stats_brief = "Generic Report";
-static std::string VIEW_stats_short = "Report the metric values gathered for each function in a program";
-static std::string VIEW_stats_long  = "For each function, produce a report containing the metrics that"
-                                      " were gathered.  The report is sorted in descending order by the"
-                                      " first metric preorted."
+static std::string VIEW_stats_short = "Report the metric values gathered for each function in a program.";
+static std::string VIEW_stats_long  = "The report is sorted in descending order by the first metric."
                                       " A positive integer can be added to the end of the keyword"
                                       " ""stats"" to indicate the maximum number of items in"
                                       " the report.";

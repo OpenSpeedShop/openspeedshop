@@ -30,15 +30,14 @@ using namespace OpenSpeedShop::cli;
 
 // experiment views
 
-static std::string VIEW_exp_brief = "";
-static std::string VIEW_exp_short = "Report the current state of an experiment.";
-static std::string VIEW_exp_long  = "Report the current state of an experiment and describe the"
+static std::string VIEW_exp_brief = "Report the state of an experiment";
+static std::string VIEW_exp_short = "Report the current state of an experiment and describe the"
                                     " executable segments and data collection modules"
-                                    " that are being used."
-                                    " Executable modules are listed"
+                                    " that are being used.";
+static std::string VIEW_exp_long  = "Executable modules are listed"
                                     " after an ""expAttach"" directive and any data collectors that"
                                     " are liked to that module are listed on the same line."
-                                    " Data collectores that were, at one time, incldued in the"
+                                    " Data collectors that were, at one time, incldued in the"
                                     " experiment but are not currently linked to an excutable"
                                     " module are listed after an ""expDetach"" directive.";
 static std::string VIEW_exp_metrics[] =
@@ -153,12 +152,11 @@ class exp_view : public ViewType {
 };
 
 
-static std::string VIEW_allexp_brief = "";
-static std::string VIEW_allexp_short = "Report the current state of all experiments.";
-static std::string VIEW_allexp_long  = "Report the current state of all experiments and describe the"
+static std::string VIEW_allexp_brief = "Report the state of all the defined experiments";
+static std::string VIEW_allexp_short = "Report the current state of all experiments and describe the"
                                        " executable segments and data collection modules that are being"
-                                       " used."
-                                       " Executable modules are listed, after an ""expAttach"" directive,"
+                                       " used.";
+static std::string VIEW_allexp_long  = "Executable modules are listed, after an ""expAttach"" directive,"
                                        " and any data collectors that are liked to that module are listed"
                                        " on the same line. Data collectors that were, at one time, incldued"
                                        " in the experiment but are not currently linked to an excutable"
@@ -198,10 +196,10 @@ class allexp_view : public ViewType {
 };
 
 
-static std::string VIEW_expstatus_brief = "ExperimentID : Current Status";
-static std::string VIEW_expstatus_short = "Report the current status of all known experiments.";
-static std::string VIEW_expstatus_long  = "Check each executable segment that is part of each"
-                                          " experiment an report the current status of each experiment.";
+static std::string VIEW_expstatus_brief = "Report the current status of all known experiments.";
+static std::string VIEW_expstatus_short = "Check each executable segment that is part of each"
+                                          " experiment and report the current status of each experiment.";
+static std::string VIEW_expstatus_long  = "";
 static std::string VIEW_expstatus_metrics[] =
   { ""
   };

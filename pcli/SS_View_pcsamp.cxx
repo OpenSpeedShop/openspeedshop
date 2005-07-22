@@ -33,11 +33,11 @@ using namespace OpenSpeedShop::cli;
 
 static std::string VIEW_pcsamp_brief = "PC (Program Counter) report";
 static std::string VIEW_pcsamp_short = "Report the amount and percent of program time spent in a function.";
-static std::string VIEW_pcsamp_long  = "The program timer is used to generate date that will be used to"
-                                       " produce a sorted report of the functions that use the most time."
-                                       " Calculate the percent of total time that each function uses."
+static std::string VIEW_pcsamp_long  = "The report is sorted in descending order by the amount of time that"
+                                       " was used in each function.  Also included in the report is the"
+                                       " percent of total time that each function uses."
                                        " A positive integer can be added to the end of the keyword"
-                                       " ""pcsamp"" to indicate the maximum number of items in"
+                                       " 'pcsamp' to indicate the maximum number of items in"
                                        " the report.";
 static std::string VIEW_pcsamp_metrics[] =
   { "time",
@@ -80,11 +80,15 @@ class pcsamp_view : public ViewType {
 
 static std::string VIEW_usertime_brief = "Usertime call stack report";
 static std::string VIEW_usertime_short = "Report the amount of time spent in a function.";
-static std::string VIEW_usertime_long  = "A decending report of the functions that use the "
-                                     " most time is produced."
-                                     " A positive integer can be added to the end of the keyword"
-                                     " ""usertime"" to indicate the maximum number of items in"
-                                     " the report.";
+static std::string VIEW_usertime_long  = "The report is sorted in descending order by the amount of time that"
+                                       " was used in each function.  Included in the report is both the time"
+                                       " used individually by each function (exclusive_time) and the time used"
+                                       " in aggregate by the function and all the functions it calls"
+                                       " (inclusive_time).  Also included in the report is the" 
+                                       " percent of total time that each function uses."
+                                       " A positive integer can be added to the end of the keyword"
+                                       " 'usertime' to indicate the maximum number of items in"
+                                       " the report.";
 static std::string VIEW_usertime_metrics[] =
   { "inclusive_time",
     "exclusive_time",
