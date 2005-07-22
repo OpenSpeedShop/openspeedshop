@@ -1769,94 +1769,98 @@ char *gram_expType_list_brief = {
     "List of experiment types."
 };
 char *gram_rankname_brief = {
-    "."
+    "A symbolic or numeric representation of a rank id."
 };
 char *gram_rank_range_brief = {
-    "."
+    "A single rankname or colon seperated pair of ranknames\n"
+    "representing a numeric range."
 };
 char *gram_rank_list_brief = {
-    "."
+    "A single rankname or a comma delineated list of ranknames."
 };
 char *gram_rank_list_spec_brief = {
-    "."
+    "-r followed by a rank_list."
 };
 char *gram_threadname_brief = {
-    "."
+    "A symbolic or numeric representation of a thread id."
 };
 char *gram_thread_range_brief = {
-    "."
+    "A single threadname or colon seperated pair of threadnames\n"
+    "representing a numeric range."
 };
 char *gram_thread_list_brief = {
-    "."
+    "A single threadname or a comma delineated list of threadnames."
 };
 char *gram_thread_list_spec_brief = {
-    "."
+    "-t followed by a thread_list."
 };
 char *gram_pidname_brief = {
-    "."
+    "A symbolic or numeric representation of a process id."
 };
 char *gram_pid_range_brief = {
-    "."
+    "A single pidname or colon seperated pair of pidnames\n"
+    "representing a numeric range."
 };
 char *gram_pid_list_brief = {
-    "."
+    "A single pidname or a comma delineated list of pidnames."
 };
 char *gram_pid_list_spec_brief = {
-    "."
+    "-p followed by a pid_list."
 };
 char *gram_filename_brief = {
-    "."
+    "A String representation of a file name."
 };
 char *gram_file_list_brief = {
-    "."
+    "A single file name or a comma delineated list of file names."
 };
 char *gram_file_list_spec_brief = {
-    "."
+    "-f followed by a file_list."
 };
 char *gram_IP_Address_brief = {
-    "."
+    "A set of 4 dot delineated octal digits representing an IP address."
 };
 char *gram_hostname_brief = {
-    "."
+    "A String or IP_Address representation of a host."
 };
 char *gram_host_list_brief = {
-    "."
+    "A single hostname or a comma delineated list of hostnames."
 };
 char *gram_host_list_spec_brief = {
-    "."
+    "-h followed by a host_list."
 };
 char *gram_clustername_brief = {
-    "."
+    "A String representation of a cluster name."
 };
 char *gram_cluster_list_brief = {
-    "."
+    "A single cluster name or a comma delineated list of cluster names."
 };
 char *gram_cluster_list_spec_brief = {
-    "."
+    "-c followed by a cluster_list."
 };
 char *gram_target_brief = {
     "Represents the host file and machine along with \na specific process, thread, or rank identifier.."
 };
 char *gram_target_list_brief = {
-    "."
+    "A single target or a semicolon delineated list of targets."
 };
 char *gram_file_spec_brief = {
-    "."
+    "-f followed by a single filename."
 };
 char *gram_host_spec_brief = {
-    "."
+    "-f followed by a single hostname."
 };
 char *gram_host_file_brief = {
     "."
 };
 char *gram_lineno_range_brief = {
-    "."
+    "A single line number or a comma delineated pair of \n"
+    "line numbers representing contiguous range."
 };
 char *gram_linenumber_range_spec_brief = {
-    "."
+    "-l followed by a linenumber_range."
 };
 char *gram_linenumber_list_spec_brief = {
-    "."
+    "-l followed by a linenumber_list."
 };
 char *gram_statusType_brief = {
     "Current status of a given experiment as a predefined string."
