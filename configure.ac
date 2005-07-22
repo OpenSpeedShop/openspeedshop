@@ -178,6 +178,7 @@ AC_CONFIG_FILES(Makefile
 		test/executables/mutatee/f77_version/Makefile
 		test/executables/Eon/Makefile
 		test/test_source/Makefile
+		test/test_source/regression/Makefile	
 		test/test_source/unit/Makefile
 		test/test_source/unit/fw/Makefile
 		test/test_source/unit/fw/interval/Makefile
