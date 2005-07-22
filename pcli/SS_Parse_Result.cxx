@@ -402,8 +402,6 @@ dumpHelp(CommandObject *cmd)
 	    }
 	    // Check for topics (nodes of the tree
 	    if (p_el->is_topic()) {
-	    	cout << "GOING INTO dump_help_topic()";
-		cout << "is_topic  = " << p_el->is_topic() << endl;
     	    	dump_help_topic(cmd, czar, p_el->get_keyword());
 	    }
     	}
@@ -661,10 +659,11 @@ push_help(char *name)
     // grammar symbolic characters.
     int i = 0;
     int k = 0;
-    if (name[0] == '<')
+    if ((name[0] == '<') && (name[len-1] == '>')){
     	i++;
-    if (name[len] == '>')
     	len--;
+    }
+
     for (k=0;i<len;++i,++k) {
     	tname[k] = name[i];
     }
