@@ -1,9 +1,9 @@
       Inclusive Time  Function Name
               6.0000  __libc_start_main(libc.so.6.1)
-              6.0000  main(mutatee)
               6.0000  _start(mutatee)
-              6.0000  MAIN_(mutatee: mutatee.f,1)
+              6.0000  MAIN_(mutatee: mutatee.f, 1)
               6.0000  work(mutatee: mutatee.f,13)
+              6.0000  main(mutatee)
               3.0000  f3(mutatee: mutatee.f,25)
               2.0000  f2(mutatee: mutatee.f,34)
               1.0000  f1(mutatee: mutatee.f,44)
