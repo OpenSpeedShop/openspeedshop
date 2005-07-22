@@ -134,23 +134,19 @@ class ViewType
    //element.set_id(p_element->errnum);
 
    // Related keywords
-    element.add_related("view");
-    element.add_related("views");
+    element.add_related("expView");
 
    // General topic
-    element.set_topic("expView");
+    element.set_topic("viewType");
 
    // Brief, one line description
     element.set_brief(BriefD);
 
    // More than one line description
-    element.add_normal(BriefD + ":\n");
-    element.add_normal(ShortD);
+    element.add_normal(BriefD + ":\n\n" + ShortD + " " + LongD);
 
    // A wordy explaination
-    element.add_verbose(BriefD + ":\n");
-    element.add_verbose(ShortD);
-    element.add_verbose(LongD);
+    element.add_verbose(BriefD + ":\n\n" + ShortD + " " + LongD);
 
    // No example needed for views.
     // element.add_example("");
