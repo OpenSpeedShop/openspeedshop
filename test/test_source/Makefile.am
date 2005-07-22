@@ -17,6 +17,6 @@
 ################################################################################
 
 # directories that will be built
-SUBDIRS = unit dpcl
+SUBDIRS = unit dpcl regression
 
-DIST_SUBDIRS = unit dpcl 
+DIST_SUBDIRS = unit dpcl regression
