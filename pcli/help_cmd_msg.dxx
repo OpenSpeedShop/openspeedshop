@@ -1532,7 +1532,7 @@ char *gram_expMetric_arg = {
     "<expMetric> ::= [<expType>::]<metric_name>"
 };
 char *gram_metric_name_arg = {
-    "<metric_name> ::= { ? }"
+    "<metric_name> ::= <string>"
 };
 char *gram_expParamValue_arg = {
     "<expParamValue> ::= [ <int> || <float> || <string> || \"<string>\"]"
@@ -1541,7 +1541,7 @@ char *gram_expParam_arg = {
     "<expParam> ::= [<expType>::]<param_name>"
 };
 char *gram_param_name_arg = {
-    "<param_name> ::= { displayMode || displayMedia || displayRefreshRate || expSaveFile || samplingRate || ? }"
+    "<param_name> ::=  <string> "
 };
 char *gram_expType_list_arg = {
     "<expType_list> ::= <expType> [ , <expType> ]*"
@@ -1553,7 +1553,7 @@ char *gram_user_defined_exp_arg = {
     "<user_defined_exp> ::= <filename>"
 };
 char *gram_predefined_exp_arg = {
-    "<predefined_exp> ::= { pcsamp || usertime || mpi || fpe || hwc || io || ? }"
+    "<predefined_exp> ::= { pcsamp || usertime || mpi || fpe || hwc || io || <string> }"
 };
 
 //  RANK
@@ -1667,24 +1667,9 @@ char *gram_statusType_arg = {
     "<statusType> ::= { NonExistent || Paused || Running || Terminated || Error }"
 };
 char *gram_viewType_arg = {
-    "<viewType> ::= { vTopN || vExclTime || vIO || vFpe || vHwc || ? }"
+    "<viewType> ::= <string>"
 };
 
-char *gram_vTopN_arg = {
-    ""
-};
-char *gram_vExclTime_arg = {
-    ""
-};
-char *gram_vIO_arg = {
-    ""
-};
-char *gram_vFpe_arg = {
-    ""
-};
-char *gram_vHwc_arg = {
-    ""
-};
 char *gram_pcsamp_arg = {
     ""
 };
@@ -1701,21 +1686,6 @@ char *gram_hwc_arg = {
     ""
 };
 char *gram_io_arg = {
-    ""
-};
-char *gram_displayMode_arg = {
-    ""
-};
-char *gram_displayMedia_arg = {
-    ""
-};
-char *gram_displayRefreshRate_arg = {
-    ""
-};
-char *gram_expSaveFile_arg = {
-    ""
-};
-char *gram_samplingRate_arg = {
     ""
 };
 
@@ -1868,21 +1838,6 @@ char *gram_statusType_brief = {
 char *gram_viewType_brief = {
     "The format of the output display for this experiment."
 };
-char *gram_vTopN_brief = {
-    "Report the amount of program time spent in a function."
-};
-char *gram_vExclTime_brief = {
-    "Report the amount of time spent in a function."
-};
-char *gram_vIO_brief = {
-    "."
-};
-char *gram_vFpe_brief = {
-    "."
-};
-char *gram_vHwc_brief = {
-    "."
-};
 
 char *gram_pcsamp_brief = {
     "PC (Program Counter) sampling."
@@ -1903,21 +1858,6 @@ char *gram_io_brief = {
     "I/O (Input/Output) trace experiment."
 };
 
-char *gram_displayMode_brief = {
-    "."
-};
-char *gram_displayMedia_brief = {
-    "."
-};
-char *gram_displayRefreshRate_brief = {
-    "."
-};
-char *gram_expSaveFile_brief = {
-    "."
-};
-char *gram_samplingRate_brief = {
-    "."
-};
 
 //char *gram__brief = {
 //    "."
@@ -1979,14 +1919,20 @@ char *gram_expMetric_list_spec_detailed[] = {
     " ",
     gram_expMetric_list_spec_brief,
     " ",
-    " "
+    "To see all of the current available metric types, type:",
+    "\t\"listMetrics all\"",
+    "You can then get more detailed information on each of the",
+    "metric types listed through the \"help\" facility."
 };
 char *gram_param_name_detailed[] = {
     gram_param_name_arg,
     " ",
     gram_param_name_brief,
     " ",
-    " "
+    "To see all of the current available parameter types, type:,",
+    "\t\"listParams all\"",
+    "You can then get more detailed information on each of the",
+    "parameter types listed through the \"help\" facility."
 };
 char *gram_expParam_detailed[] = {
     gram_expParam_arg,
@@ -2335,90 +2281,10 @@ char *gram_viewType_detailed[] = {
     " ",
     gram_viewType_brief,
     " ",
-    " "
-};
-char *gram_vTopN_detailed[] = {
-    gram_vTopN_arg,
-    " ",
-    gram_vTopN_brief,
-    " ",
-    "Produce a descending report of the functions that use the",
-    "most time as measured by the program counter.",
-    " "
-    "A positive integer can be added to the end of the keyword",
-    "\"vtop\" to indicate the maximum number of items in",
-    "the report.",
-    " "
-};
-char *gram_vExclTime_detailed[] = {
-    gram_vExclTime_arg,
-    " ",
-    gram_vExclTime_brief,
-    " ",
-    "Produce a decending report of the functions that use the",
-    "most time.",
-    "",
-    "A positive integer can be added to the end of the keyword",
-    "\"extime\" to indicate the maximum number of items in",
-    "the report.",
-    "",
-    " "
-};
-char *gram_vIO_detailed[] = {
-    gram_vIO_arg,
-    " ",
-    gram_vIO_brief,
-    " ",
-    " "
-};
-char *gram_vFpe_detailed[] = {
-    gram_vFpe_arg,
-    " ",
-    gram_vFpe_brief,
-    " ",
-    " "
-};
-char *gram_vHwc_detailed[] = {
-    gram_vHwc_arg,
-    " ",
-    gram_vHwc_brief,
-    " ",
-    " "
-};
-char *gram_displayMode_detailed[] = {
-    gram_displayMode_arg,
-    " ",
-    gram_displayMode_brief,
-    " ",
-    " "
-};
-char *gram_displayMedia_detailed[] = {
-    gram_displayMedia_arg,
-    " ",
-    gram_displayMedia_brief,
-    " ",
-    " "
-};
-char *gram_displayRefreshRate_detailed[] = {
-    gram_displayRefreshRate_arg,
-    " ",
-    gram_displayRefreshRate_brief,
-    " ",
-    " "
-};
-char *gram_expSaveFile_detailed[] = {
-    gram_expSaveFile_arg,
-    " ",
-    gram_expSaveFile_brief,
-    " ",
-    " "
-};
-char *gram_samplingRate_detailed[] = {
-    gram_samplingRate_arg,
-    " ",
-    gram_samplingRate_brief,
-    " ",
-    " "
+    "To see all of the current available view types, type:",
+    "\t\"listViews all\"",
+    "You can then get more detailed information on each of the",
+    "view types listed through the \"help\" facility."
 };
 char *gram_pcsamp_detailed[] = {
     gram_pcsamp_arg,
@@ -2708,21 +2574,6 @@ OpenSpeedShop::message_element_t grammar_msg[] = {
 //    <viewType>
     -1,"viewType",NULL,0,"grammar",gram_viewType_brief,
     gram_viewType_detailed,sizeof(gram_viewType_detailed)/sizeof(char **),NULL,0,NULL,0,
-//    vTopN
-    -1,"vTopN",NULL,0,"grammar",gram_vTopN_brief,
-    gram_vTopN_detailed,sizeof(gram_vTopN_detailed)/sizeof(char **),NULL,0,NULL,0,
-//    vExclTime
-    -1,"vExclTime",NULL,0,"grammar",gram_vExclTime_brief,
-    gram_vExclTime_detailed,sizeof(gram_vExclTime_detailed)/sizeof(char **),NULL,0,NULL,0,
-//    vIO
-    -1,"vIO",NULL,0,"grammar",gram_vIO_brief,
-    gram_vIO_detailed,sizeof(gram_vIO_detailed)/sizeof(char **),NULL,0,NULL,0,
-//    vFpe
-    -1,"vFpe",NULL,0,"grammar",gram_vFpe_brief,
-    gram_vFpe_detailed,sizeof(gram_vFpe_detailed)/sizeof(char **),NULL,0,NULL,0,
-//    vHwc
-    -1,"vHwc",NULL,0,"grammar",gram_vHwc_brief,
-    gram_vHwc_detailed,sizeof(gram_vHwc_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    pcsamp
     -1,"pcsamp",NULL,0,"experiments",gram_pcsamp_brief,
     gram_pcsamp_detailed,sizeof(gram_pcsamp_detailed)/sizeof(char **),NULL,0,NULL,0,
@@ -2741,21 +2592,6 @@ OpenSpeedShop::message_element_t grammar_msg[] = {
 //    io
     -1,"io",NULL,0,"experiments",gram_io_brief,
     gram_io_detailed,sizeof(gram_io_detailed)/sizeof(char **),NULL,0,NULL,0,
-//    displayMode
-    -1,"displayMode",NULL,0,"grammar",gram_displayMode_brief,
-    gram_displayMode_detailed,sizeof(gram_displayMode_detailed)/sizeof(char **),NULL,0,NULL,0,
-//    displayMedia
-    -1,"displayMedia",NULL,0,"grammar",gram_displayMedia_brief,
-    gram_displayMedia_detailed,sizeof(gram_displayMedia_detailed)/sizeof(char **),NULL,0,NULL,0,
-//    displayRefreshRate
-    -1,"displayRefreshRate",NULL,0,"grammar",gram_displayRefreshRate_brief,
-    gram_displayRefreshRate_detailed,sizeof(gram_displayRefreshRate_detailed)/sizeof(char **),NULL,0,NULL,0,
-//    expSaveFile
-    -1,"expSaveFile",NULL,0,"grammar",gram_expSaveFile_brief,
-    gram_expSaveFile_detailed,sizeof(gram_expSaveFile_detailed)/sizeof(char **),NULL,0,NULL,0,
-//    samplingRate
-    -1,"samplingRate",NULL,0,"grammar",gram_samplingRate_brief,
-    gram_samplingRate_detailed,sizeof(gram_samplingRate_detailed)/sizeof(char **),NULL,0,NULL,0,
 //    
 //    -1,"",NULL,0,"grammar",gram_xxx_brief,
 //    gram_xxx_detailed,sizeof(gram_xxx_detailed)/sizeof(char **),NULL,0,NULL,0,
