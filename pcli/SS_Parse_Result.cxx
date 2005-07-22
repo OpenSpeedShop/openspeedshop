@@ -329,6 +329,8 @@ dump_help_topic(CommandObject *cmd,
     cmd->Result_String(" ");
     cmd->Result_String("For instance, to get help list of the topic \"commands\"");
     cmd->Result_String("\topenss>>help commands");
+    cmd->Result_String("To get help on an individual command type, such as \"expCreate\"");
+    cmd->Result_String("\topenss>>help expCreate");
     cmd->Result_String(" ");
 
 }
