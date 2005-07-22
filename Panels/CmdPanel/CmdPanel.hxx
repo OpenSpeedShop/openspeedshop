@@ -56,6 +56,11 @@ public:
 
   void positionToEndForReturn();
   OutputClass *oclass;
+  int last_para;   // The from portion of the last cursor position.
+  int last_index;  // The from portion of the last cursor position.
+int history_start_para;
+int history_start_index;
+  bool textDisabled;
 
 #ifdef PULL
   void clicked(int, int);
@@ -73,11 +78,6 @@ protected:
 
 private:
   QHBoxLayout * frameLayout;
-  int last_para;   // The from portion of the last cursor position.
-  int last_index;  // The from portion of the last cursor position.
-
-int history_start_para;
-int history_start_index;
 
   bool menu(QPopupMenu* contextMenu);
   void save();
@@ -91,6 +91,5 @@ int history_start_index;
   void appendHistory(QString str);
   
 
-  bool textDisabled;
 };
 #endif // CMD_PANEL_H
