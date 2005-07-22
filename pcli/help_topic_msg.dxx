@@ -34,9 +34,6 @@ char *topic_grammar_brief = {
 char *topic_experiments_brief = {
     "Lists available experiments"
 };
-char *topic_examples_brief = {
-    "Lists examples of Open|SpeedShop use"
-};
 char *topic_man_brief = {
     "How to access the Open|SpeedShop man page"
 };
@@ -59,12 +56,16 @@ char *topic_experiments_detailed[] = {
     topic_experiments_brief,
     " "
 };
-char *topic_examples_detailed[] = {
-    topic_examples_brief,
-    " "
-};
 char *topic_man_detailed[] = {
     topic_man_brief,
+    " ",
+    "Use the shell escape sequence:",
+    "\t\"!man openss\"",
+    "To invoke the Open|SpeedShop man page for usage",
+    "and examples.",
+    " ",
+    "The openss session will resume when the man command",
+    "is completed.",
     " "
 };
 char *topic_nomenclature_detailed[] = {
@@ -83,22 +84,16 @@ OpenSpeedShop::message_element_t topic_msg[] = {
     topic_commands_detailed,sizeof(topic_commands_detailed)/sizeof(char **),
     NULL,0,NULL,0,
 
-//    xxx
+//    grammar
     -1,"grammar",NULL,0,
     "topic",topic_grammar_brief,
     topic_grammar_detailed,sizeof(topic_grammar_detailed)/sizeof(char **),
     NULL,0,NULL,0,
 
-//    xxx
+//    experiments
     -1,"experiments",NULL,0,
     "topic",topic_experiments_brief,
     topic_experiments_detailed,sizeof(topic_experiments_detailed)/sizeof(char **),
-    NULL,0,NULL,0,
-
-//    examples
-    -1,"examples",NULL,0,
-    "topic",topic_examples_brief,
-    topic_examples_detailed,sizeof(topic_examples_detailed)/sizeof(char **),
     NULL,0,NULL,0,
 
 //    Man page
@@ -108,7 +103,7 @@ OpenSpeedShop::message_element_t topic_msg[] = {
     NULL,0,NULL,0,
 
 //    General nomenclature
-    -1,"nomenclature",NULL,0,
+    -1,"terms",NULL,0,
     "topic",topic_nomenclature_brief,
     topic_nomenclature_detailed,sizeof(topic_nomenclature_detailed)/sizeof(char **),
     NULL,0,NULL,0,
