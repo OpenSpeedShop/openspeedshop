@@ -459,12 +459,16 @@ class CommandWindowID
 
       if (default_errstream &&
           (default_errstream != default_outstream) &&
+          (default_errstream != ss_ttyout) &&
+          (default_errstream != ss_out) &&
           (default_errstream != ss_err)) {
         delete default_errstream;
         default_errstream = NULL;
       }
       if (default_outstream &&
-          (default_outstream != ss_out)) {
+          (default_outstream != ss_ttyout) &&
+          (default_errstream != ss_out) &&
+          (default_errstream != ss_err)) {
         delete default_outstream;
         default_outstream = NULL;
       }
@@ -1312,9 +1316,17 @@ void Commander_Termination () {
   }
 
  // Remove default ss_ostream definitions.
-  if (ss_ttyout && (ss_ttyout != ss_out)) {delete ss_ttyout; ss_ttyout = NULL;}
-  if (ss_out) {delete ss_out; ss_out = NULL;}
-  if (ss_err) {delete ss_err; ss_err = NULL;}
+ // Copy and celar them first, so that catching a signal will not cause
+ // a problem if we re-enter this same routine.
+  ss_ostream *old_ss_ttyout = ss_ttyout;
+  ss_ostream *old_ss_out = ss_out;
+  ss_ostream *old_ss_err = ss_err;
+  ss_ttyout = NULL;
+  ss_out = NULL;
+  ss_err = NULL;
+  if (old_ss_ttyout && (old_ss_ttyout != old_ss_out)) delete old_ss_ttyout;
+  if (old_ss_out) delete old_ss_out;
+  if (old_ss_err) delete old_ss_err;
 
   return;
 }
@@ -1642,6 +1654,7 @@ void User_Interrupt (CMDWID issuedbywindow) {
 static void
 catch_TLI_signal (int sig, int error_num)
 {
+fprintf(stderr,"Caught signal SS: %d\n",sig);
   if (sig == SIGINT) {
     User_Interrupt (TLI_WindowID);
 
@@ -1671,6 +1684,8 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
 
  // Set up to catch keyboard control signals
   setup_signal_handler (SIGINT); // CNTRL-C
+  setup_signal_handler (SIGRTMIN+0);
+  setup_signal_handler (SIGRTMIN+1);
 
  // Allow us to be terminated from the main thread.
   int previous_value;
