@@ -1670,6 +1670,11 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
  // Set up to catch keyboard control signals
   setup_signal_handler (SIGINT); // CNTRL-C
 
+ // Allow us to be terminated from the main thread.
+  int previous_value;
+  pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, &previous_value);
+  pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, &previous_value);
+
  // If this is the only window, send a welcome message to the user.
   if ((Default_WindowID == 0) &&
       (GUI_WindowID == 0) &&
@@ -1688,7 +1693,9 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
     ss_ttyout->mystream() << Current_OpenSpeedShop_Prompt;
     ss_ttyout->releaseLock();
     Buffer[0] == *("\0");
+    pthread_testcancel();
     char *read_result = fgets (&Buffer[0], Buffer_Size, ttyin);
+    pthread_testcancel();
     if (Buffer[Buffer_Size-1] != (char)0) {
       ss_ttyout->acquireLock();
       ss_ttyout->mystream() << "ERROR: Input line is too long for buffer." << std::endl;
