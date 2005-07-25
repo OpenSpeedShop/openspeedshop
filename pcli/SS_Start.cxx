@@ -389,7 +389,7 @@ setup_signal_handler (int s)
    // When Python exits, terminate SpeedShop:
     cli_terminate ();
 
-    return 0;
+    exit(0);
   }
 
   // When the cli requests to bring up a new GUI thread.  NOTE: One will 
