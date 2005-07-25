@@ -224,7 +224,8 @@ extern "C"
     {
      // Before we do anything else -
      // Stop async read loop for xterm window
-      pthread_cancel (phandle[0]);
+      //pthread_cancel (phandle[0]);
+      pthread_kill (phandle[0], SIGUSR1);
       usleep (10000);
     }
 
