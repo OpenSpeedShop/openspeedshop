@@ -44,7 +44,6 @@ class ss_ostream : public std::basic_streambuf<char>
 
  public:
   ss_ostream () {
-    // ss_ostream_buf *new_buf = new ss_ostream_buf();;
     my_stream = new std::ostream(new ss_ostream_buf());
 
     my_old_buf = my_stream->rdbuf();
@@ -52,7 +51,7 @@ class ss_ostream : public std::basic_streambuf<char>
 
     issuePrompt = false;
     my_string.clear();
-    releaseLock();
+    Assert(pthread_mutex_init(&stream_in_use, NULL) == 0); // dynamic initialization
   }
   ss_ostream (std::ostream *stream) : my_stream(stream) {
     my_old_buf = stream->rdbuf();
@@ -67,6 +66,7 @@ class ss_ostream : public std::basic_streambuf<char>
       my_stream->rdbuf(my_old_buf);
     }
     delete my_stream;
+    pthread_mutex_destroy(&stream_in_use);
   }
 
   std::ostream &mystream () { return *my_stream; }
