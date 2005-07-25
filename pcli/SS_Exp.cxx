@@ -1422,10 +1422,43 @@ bool SS_expView (CommandObject *cmd) {
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<string> *p_slist = p_result->getViewList();
   vector<string>::iterator si;
-  for (si = p_slist->begin(); si != p_slist->end(); si++) {
-    std::string view = *si;
-    if (!SS_Generate_View (cmd, exp, view)) {
+  if (p_slist->begin() == p_slist->end()) {
+   // The user has not selected a view.
+   // Look for a view that would be meaningful.
+    CollectorGroup cgrp = exp->FW()->getCollectors();
+    if (cgrp.begin() == cgrp.end()) {
+     // No collector was used.
+      cmd->Result_String ("No performance measurements were made for the experiment.");
+      cmd->set_Status(CMD_ERROR);
       return false;
+    }
+    if (cgrp.size() == 1) {
+     // The experiment used only one collector.
+     // See if there is a view by the same name.
+      Collector c = *(cgrp.begin());
+      Metadata m = c.getMetadata();
+      std::string collector_name = m.getUniqueId();
+      ViewType *vt = Find_View (collector_name);
+      if (vt != NULL) {
+        if (!SS_Generate_View (cmd, exp, collector_name)) {
+          return false;
+        } else {
+          cmd->set_Status(CMD_COMPLETE);
+          return true;
+        }
+      }
+    }
+   // If all else fails, use the generic view.
+    if (!SS_Generate_View (cmd, exp, "stats")) {
+      return false;
+    }
+  } else {
+   // Generate all the views in the list.
+    for (si = p_slist->begin(); si != p_slist->end(); si++) {
+      std::string view = *si;
+      if (!SS_Generate_View (cmd, exp, view)) {
+        return false;
+      }
     }
   }
 
