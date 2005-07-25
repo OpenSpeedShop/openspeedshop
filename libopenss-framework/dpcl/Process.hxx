@@ -132,8 +132,8 @@ namespace OpenSpeedShop { namespace Framework {
 					 GCBObjType, GCBMsgType);
 	static void loadModuleCallback(GCBSysType, GCBTagType,
 				       GCBObjType, GCBMsgType);
-	static void performanceDataCallback(GCBSysType, GCBTagType,
-					    GCBObjType, GCBMsgType);
+	static void outOfBandDataCallback(GCBSysType, GCBTagType,
+					  GCBObjType, GCBMsgType);
 	static void removeProbeCallback(GCBSysType, GCBTagType,
 					GCBObjType, GCBMsgType);
 	static void resumeCallback(GCBSysType, GCBTagType,
@@ -198,9 +198,6 @@ namespace OpenSpeedShop { namespace Framework {
 	    /** Map function names to their probe module indicies. */
 	    std::map<std::string, int> dm_functions;
 	    
-	    /** Messaging probe for this library. */
-	    ProbeHandle dm_messaging;
-
 	    /** Probes used with this library. */
 	    std::multimap<Thread, ProbeHandle> dm_probes;
 	    
@@ -211,7 +208,6 @@ namespace OpenSpeedShop { namespace Framework {
 		dm_path(),
 		dm_module(),
 		dm_functions(),
-		dm_messaging(),
 		dm_probes()
 	    {
 	    }
@@ -234,9 +230,6 @@ namespace OpenSpeedShop { namespace Framework {
 	void requestResume();
 	void requestSuspend();
 	void requestUnloadModule(LibraryEntry&);
-
-	void initializeMessaging(LibraryEntry&);
-	void finalizeMessaging(LibraryEntry&);
 
 	std::pair<ProbeExp, std::multimap<Thread, ProbeHandle>::iterator>
 	prepareCallTo(const Collector&, const Thread&,

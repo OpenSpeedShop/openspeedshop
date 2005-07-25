@@ -18,42 +18,13 @@
 
 /** @file
  *
- * Definition of the openss_send() function and its supporting code.
+ * Definition of the openss_send() function.
  *
  */
 
 #include "Assert.h"
 
 #include <dpclExt.h>
-#include <stdio.h>
-
-
-
-/**
- * Message handle.
- *
- * Message handle used to send data back to the framework instance which loaded
- * this runtime library into the target process. Messages cannot be sent until
- * this is set to something other than null.
- */
-static AisPointer MsgHandle = NULL;
-
-
-
-/**
- * Set the message handle.
- *
- * Simply makes the specified message handle the one to be used for sending data
- * back to the proper framework instance.
- *
- * @todo    Do we need locking on MsgHandle here?
- *
- * @param msg_handle    Message handle to be used.
- */
-void openss_set_msg_handle(AisPointer msg_handle)
-{
-    MsgHandle = msg_handle;
-}
 
 
 
@@ -71,9 +42,6 @@ void openss_set_msg_handle(AisPointer msg_handle)
  */
 int openss_send(const unsigned size, const void* data)
 {
-    /* Check assertions */
-    Assert(MsgHandle != NULL);
-    
     /* Send the data and inform the caller whether we succeeded or not */
-    return (Ais_send(MsgHandle, (void*)data, size) == 0) ? 1 : 0;
+    return (Ais_send_outofband((void*)data, size) == 0) ? 1 : 0;
 }

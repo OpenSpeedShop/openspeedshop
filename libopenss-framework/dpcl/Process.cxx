@@ -58,46 +58,56 @@ namespace OpenSpeedShop { namespace Framework {
 
 
 
+/** 
+ * Symbol table map.
+ *
+ * Type defining a mapping from an address range to a symbol table for that
+ * address range along with its respective set of linked objects containing
+ * that symbol table.
+ *
+ * @ingroup Implementation
+ */
+typedef std::map<AddressRange, std::pair<SymbolTable, std::set<LinkedObject> > >
+SymbolTableMap;
+
+
+
 /**
  * Symbol table state.
  *
- * Structure for tracking the construction state of a symbol table. One symbol
- * table can contain multiple DPCL modules and gathering symbol information for
- * those modules involves issuing multiple asynchronous requests. This structure
- * provides the necessary mechanism for tracking when all the various requests
- * have been completed so that the finished symbol table can finally be stored
- * for the correct linked objects.
+ * Structure for tracking the construction of the symbol tables. Multiple symbol
+ * tables are often constructed for a single process, a symbol table can contain
+ * multiple DPCL modules, and gathering information for those modules involves
+ * issuing multiple asynchronous requests. This structure provides the necessary
+ * mechanism for tracking when all the various requests have been completed so
+ * that the finished symbol tables can finally be stored for the correct linked
+ * objects.
+ *
+ * @ingroup Implementation
  */
 struct SymbolTableState :
     public Lockable
 {
+    /** Flag indicating if requestAddressSpace() has finished constructing
+	this object. */
+    bool dm_constructed;
+    
     /** Unique name of the process containing this symbol table. */
     std::string dm_name;
-
-    /** Flag indicating if this is last needed symbol table for the process. */
-    bool dm_is_last_needed;
     
-    /** Symbol table under construction. */
-    SymbolTable dm_symbol_table;
-
-    /** Set of linked objects to contain this symbol table. */
-    std::set<LinkedObject> dm_linked_objects;    
-
     /** Number of pending requests for symbol information. */
-    unsigned dm_pending;    
+    unsigned dm_pending_requests;
 
-    /** Constructor from fields. */
-    SymbolTableState(const std::string name, 
-		     const bool& is_last_needed,
-		     const AddressRange& range,
-		     const std::set<LinkedObject>& linked_objects,
-		     const unsigned& pending) :
+    /** Symbol tables under construction. */
+    SymbolTableMap dm_symbol_tables;
+    
+    /** Constructor from process' unique name. */
+    SymbolTableState(const std::string& name) :
 	Lockable(),
+	dm_constructed(false),
 	dm_name(name),
-	dm_is_last_needed(is_last_needed),
-	dm_symbol_table(range),
-	dm_linked_objects(linked_objects),
-	dm_pending(pending)
+	dm_pending_requests(0),
+	dm_symbol_tables()
     {
     }
 
@@ -844,7 +854,6 @@ void Process::uninstrument(const Collector& collector, const Thread& thread)
 
 	    // Request the library (module) be unloaded from this process
 	    MainLoop::suspend();
-	    finalizeMessaging(i->second);
 	    requestUnloadModule(i->second);
 	    MainLoop::resume();
 	    
@@ -909,6 +918,13 @@ void Process::initialize()
 	    AisStatus retval = 
 		Ais_override_default_callback(AIS_PROC_TERMINATE_MSG,
 					      terminationCallback, NULL,
+					      &old_callback, &old_tag);
+	    Assert(retval.status() == ASC_success);	
+
+	    // Setup the out-of-band data handler
+	    retval = 
+		Ais_override_default_callback(AIS_OUTOFBAND_DATA,
+					      outOfBandDataCallback, NULL,
 					      &old_callback, &old_tag);
 	    Assert(retval.status() == ASC_success);	
 
@@ -1056,16 +1072,18 @@ Process::parseLibraryFunctionName(const std::string& function)
 /**
  * Finish symbol table processing.
  *
- * Finishes symbol table processing by storing the specfied symbol table for
- * the necessary linked object(s), updating the process' state if necessary,
- * and destroying the passed structure.
+ * Finishes symbol table processing by storing the specfied symbol table(s) for
+ * the necessary linked object(s), updates the process' state, and destroys the
+ * passed structure.
  *
  * @param state    Symbol table state structure to finish.
  */
 void Process::finishSymbolTableProcessing(SymbolTableState* state)
 {
+    SmartPtr<Process> process;
+
     // Note: Since this function is called only once, after everyone has
-    //       finished with the symbol table, the locking that would usually
+    //       finished with the symbol table(s), the locking that would usually
     //       be necessary here isn't needed.
     
 #ifndef NDEBUG
@@ -1078,52 +1096,57 @@ void Process::finishSymbolTableProcessing(SymbolTableState* state)
 	std::cerr << output.str();
     }
 #endif
-
-    // Process and store this symbol table for each linked object
-    for(std::set<LinkedObject>::const_iterator
-	    i = state->dm_linked_objects.begin();
-	i != state->dm_linked_objects.end();
-	++i)
-	state->dm_symbol_table.processAndStore(*i);
     
-    // Is this the last needed symbol table for the process?
-    if(state->dm_is_last_needed) {
-	SmartPtr<Process> process;
+    // Iterate over each symbol table in this state structure
+    for(SymbolTableMap::iterator i = state->dm_symbol_tables.begin();
+	i != state->dm_symbol_tables.end();
+	++i) {
+	
+	// Iterate over each linked object for this symbol table
+	for(std::set<LinkedObject>::const_iterator j = i->second.second.begin();
+	    j != i->second.second.end(); 
+	    ++j) {
 
-	// Critical section touching the process table
-	{
-	    Guard guard_process_table(ProcessTable::TheTable);
+	    // Process and store this symbol table for this linked object
+	    i->second.first.processAndStore(*j);
 	    
-	    // Attempt to locate the process by its unique name
-	    process = ProcessTable::TheTable.getProcessByName(state->dm_name);
 	}
-
-	// Only proceed if the process is in the process table
-	if(!process.isNull()) {
-
-	    // Critical section touching the process
-	    {
-		Guard guard_process(*process);
-		
-		// Only proceed if process state is changing from "connecting"
-		if(process->dm_is_state_changing &&
-		   (process->dm_current_state == Thread::Connecting)) {
-		
-		    // Indicate process' future state is its current state
-		    process->dm_current_state = process->dm_future_state;
-		    process->dm_is_state_changing = false;
-		    
-#ifndef NDEBUG
-		    if(is_debug_enabled)
-			process->debugState();
-#endif	
-		}
-	    }
-
-	}	
-
+	
+    }
+    
+    // Critical section touching the process table
+    {
+	Guard guard_process_table(ProcessTable::TheTable);
+	
+	// Attempt to locate the process by its unique name
+	process = ProcessTable::TheTable.getProcessByName(state->dm_name);
     }
 
+    // Only proceed if the process is in the process table
+    if(!process.isNull()) {
+
+	// Critical section touching the process
+	{
+	    Guard guard_process(*process);
+	    
+	    // Only proceed if process state is changing from "connecting"
+	    if(process->dm_is_state_changing &&
+	       (process->dm_current_state == Thread::Connecting)) {
+		
+		// Indicate process' future state is its current state
+		process->dm_current_state = process->dm_future_state;
+		process->dm_is_state_changing = false;
+		
+#ifndef NDEBUG
+		if(is_debug_enabled)
+		    process->debugState();
+#endif
+	
+	    }
+	}
+	
+    }	
+    
     // Destroy the heap-allocated state structure
     delete state;    
 }
@@ -1510,8 +1533,9 @@ void Process::executeCallback(GCBSysType, GCBTagType tag,
  *
  * Callback function called by the DPCL main loop when a module has been
  * expanded. Locates all the functions in this module and stores the relevant
- * data in the appropriate symbol table. Stores that symbol table in the
- * appropriate database(s) once construction is completed.
+ * data in the appropriate symbol table (when necessary). Stores all symbol
+ * table(s) in the appropriate database(s) once all pending requests have been
+ * completed.
  */
 void Process::expandCallback(GCBSysType, GCBTagType tag, 
 			     GCBObjType obj, GCBMsgType msg)
@@ -1532,31 +1556,46 @@ void Process::expandCallback(GCBSysType, GCBTagType tag,
     }
 #endif
 
+    // Obtain the address range occupied by the module
+    AddressRange range(static_cast<Address>(module->address_start()),
+		       static_cast<Address>(module->address_end()));
+    
     // Critical section touching the symbol table state
     bool requests_completed = false;
     {
 	Guard guard_state(state);
 
-	// Iterate over each function in this module
-	for(int f = 0; f < module->child_count(); ++f)
-	    if(module->child(f).src_type() == SOT_function) {
-		SourceObj function = module->child(f);
+	// Should this module's functions be stored in a symbol table?
+	if(state->dm_symbol_tables.find(range) !=
+	   state->dm_symbol_tables.end()) {
 
-		// Get the start/end address of the function
-		Address start = function.address_start();
-		Address end = function.address_end();
-				
-		// Get the demangled name of the function
-		char name[function.get_demangled_name_length() + 1];
-		function.get_demangled_name(name, sizeof(name));
+            // Locate the appropriate symbol table for this module's statements
+	    SymbolTable& symbol_table = 
+		state->dm_symbol_tables.find(range)->second.first;
 
-		// Add this function to the symbol table
-		state->dm_symbol_table.addFunction(start, end, name);
-		
-	    }
+	    // Iterate over each function in this module
+	    for(int f = 0; f < module->child_count(); ++f)
+		if(module->child(f).src_type() == SOT_function) {
+		    SourceObj function = module->child(f);
+		    
+		    // Get the start/end address of the function
+		    Address start = function.address_start();
+		    Address end = function.address_end();
+		    
+		    // Get the demangled name of the function
+		    char name[function.get_demangled_name_length() + 1];
+		    function.get_demangled_name(name, sizeof(name));
+		    
+		    // Add this function to the symbol table
+		    symbol_table.addFunction(start, end, name);
+
+		}
+
+	}
 
 	// Decrement the pending request count
-        requests_completed |= (--state->dm_pending == 0);
+        requests_completed = 
+	    (--state->dm_pending_requests == 0) && state->dm_constructed;	
     }
 
     // Finish symbol table processing if all requests have been completed
@@ -1625,14 +1664,14 @@ void Process::loadModuleCallback(GCBSysType, GCBTagType tag,
 
 
 /**
- * Performance data callback.
+ * Out-of-band data callback.
  *
- * Callback function called by the DPCL main loop when performance data has
- * been received. Simply enqueues this data for later storage in an experiment
- * database.
+ * Callback function called by the DPCL main loop when out-of-band data has
+ * been received. Simply enqueues this performance data for later storage in
+ * an experiment database.
  */
-void Process::performanceDataCallback(GCBSysType sys, GCBTagType,
-				      GCBObjType, GCBMsgType msg)
+void Process::outOfBandDataCallback(GCBSysType sys, GCBTagType,
+				    GCBObjType, GCBMsgType msg)
 {
     // Enqueue this performance data
     DataQueues::enqueuePerformanceData(Blob(sys.msg_size, msg));
@@ -1745,18 +1784,21 @@ void Process::resumeCallback(GCBSysType, GCBTagType tag,
  *
  * Callback function called by the DPCL main loop when a module's statements
  * have been received. Locates all the statements in this module and stores the
- * relevant data in the appropriate symbol table. Stores that symbol table in
- * the appropriate database(s) once construction is completed.
+ * relevant data in the appropriate symbol table (when necessary). Stores all
+ * symbol table(s) in the appropriate database(s) once all pending requests
+ * have been completed.
  */
 void Process::statementsCallback(GCBSysType, GCBTagType tag, 
 				 GCBObjType obj, GCBMsgType msg)
 {
     SymbolTableState* state = reinterpret_cast<SymbolTableState*>(tag);
+    SourceObj* module = reinterpret_cast<SourceObj*>(obj);
     struct get_stmt_info_list_msg_t* retval =
 	reinterpret_cast<struct get_stmt_info_list_msg_t*>(msg);
     
     // Check assertions
     Assert(state != NULL);
+    Assert(module != NULL);
     Assert(retval != NULL);
 
 #ifndef NDEBUG
@@ -1765,47 +1807,64 @@ void Process::statementsCallback(GCBSysType, GCBTagType tag,
     	debugDPCL("response from get_all_statements", retval->status);
     }
 #endif
+    
+    // Obtain the address range occupied by the module
+    AddressRange range(static_cast<Address>(module->address_start()),
+		       static_cast<Address>(module->address_end()));
 
     // Critical section touching the symbol table state
     bool requests_completed = false;
     {
 	Guard guard_state(state);
 
-	// Access the statement information from the return value
-	StatementInfoList* statements = retval->stmt_info_list_p;
-	Assert(statements != NULL);
-	
-	// Iterate over each source file in this module
-	for(int f = 0; f < statements->get_count(); ++f) {
-	    StatementInfo info = statements->get_entry(f);
+	// Should this module's statements be stored in a symbol table?	
+	if(state->dm_symbol_tables.find(range) !=
+	   state->dm_symbol_tables.end()) {
+
+            // Locate the appropriate symbol table for this module's statements
+	    SymbolTable& symbol_table = 
+		state->dm_symbol_tables.find(range)->second.first;
 	    
-	    // Iterate over each statement in this source file
-	    for(int s = 0; s < info.get_line_count(); ++s) {
-		StatementInfoLine line = info.get_line_entry(s);
+	    // Access the statement information from the return value
+	    StatementInfoList* statements = retval->stmt_info_list_p;
+	    Assert(statements != NULL);
+	    
+	    // Iterate over each source file in this module
+	    for(int f = 0; f < statements->get_count(); ++f) {
+		StatementInfo info = statements->get_entry(f);
+		
+		// Iterate over each statement in this source file
+		for(int s = 0; s < info.get_line_count(); ++s) {
+		    StatementInfoLine line = info.get_line_entry(s);
+		    
+		    // Iterate over each address range in this statement
+		    for(int r = 0; (r + 1) < line.get_address_count(); r += 2) {
 
-		// Iterate over each address range in this statement
-		for(int r = 0; (r + 1) < line.get_address_count(); r += 2) {
-
-		    // Add this statement to the symbol table
-		    state->dm_symbol_table.addStatement(
-			Address(line.get_address_entry(r)),
-			Address(line.get_address_entry(r + 1)),
-			info.get_filename(), line.get_line(), line.get_column()
-			);
+			// Add this statement to the symbol table
+			symbol_table.addStatement(
+			    Address(line.get_address_entry(r)),
+			    Address(line.get_address_entry(r + 1)),
+			    info.get_filename(), 
+			    line.get_line(), 
+			    line.get_column()
+			    );
+			
+		    }
 		    
 		}
 		
 	    }
-	    
-	}
 	
-	// Destroy the statement information returned by DPCL
-	delete statements;   
+	}
 
 	// Decrement the pending request count
-        requests_completed |= (--state->dm_pending == 0);
+	requests_completed =
+            (--state->dm_pending_requests == 0) && state->dm_constructed;
     }
 
+    // Destroy the statement information returned by DPCL
+    delete reinterpret_cast<StatementInfoList*>(retval->stmt_info_list_p);
+    
     // Finish symbol table processing if all requests have been completed
     if(requests_completed)
 	finishSymbolTableProcessing(state);
@@ -2081,10 +2140,9 @@ void Process::unloadModuleCallback(GCBSysType, GCBTagType tag,
  * Requests the module list for this process from DPCL and uses that list to
  * update the specified thread(s) with the current in-memory address space of
  * this process. Asynchronously requests that DPCL obtain symbol information
- * for each linked object in the process' address space. This request is made
- * only when the symbol information doesn't already exist in the thread's
- * database. After completing such requests, DPCL will call expandCallback()
- * and statementsCallback().
+ * for each linked object in the process' address space. The requests are made
+ * only when actually necessary. After completing such requests, DPCL will call
+ * expandCallback() and statementsCallback().
  *
  * @todo    DPCL provides some amount of call site information. Processing this
  *          needs to be added once the CallSite object is properly defined.
@@ -2104,9 +2162,6 @@ void Process::requestAddressSpace(const ThreadGroup& threads, const Time& when)
     // Address space for this process
     AddressSpace address_space;
 
-    // Modules for this process
-    std::map<AddressRange, std::vector<SourceObj> > modules;
-    
     // Iterate over each module associated with this process
     SourceObj program = dm_process->get_program_object();
     for(int m = 0; m < program.child_count(); ++m) {
@@ -2161,86 +2216,98 @@ void Process::requestAddressSpace(const ThreadGroup& threads, const Time& when)
 	// Create/update the entry for this address range in the address space
 	address_space.setValue(range, name, is_executable);
 	
-	// Create/update the entry for this address range in the module table
-	std::map<AddressRange, std::vector<SourceObj> >::iterator
-	    i = modules.insert(std::make_pair(
-				   range, 
-				   std::vector<SourceObj>())
-		).first;
-	i->second.push_back(module);
-	
     }
     
     // Update the specified threads with this address space
-    std::map<AddressRange, std::set<LinkedObject> > needed_symbol_tables =
+    std::map<AddressRange, std::set<LinkedObject> > needed =
 	address_space.updateThreads(threads, when);
 
-    // Iterate over each needed symbol table for this address space
-    for(std::map<AddressRange, std::set<LinkedObject> >::const_iterator
-	    t = needed_symbol_tables.begin(); 
-	t != needed_symbol_tables.end();
-	++t) {
+    // Allocate and initialize state structure for tracking the requests
+    SymbolTableState* state = 
+	new SymbolTableState(formUniqueName(dm_host, dm_pid));
+    Assert(state != NULL);
 
-	// Is this the last symbol table needed for this process?
-	std::map<AddressRange, std::set<LinkedObject> >::const_iterator
-	    next = t;
-	bool is_last_needed = (++next == needed_symbol_tables.end());
-	
-	// Find the modules associated with this symbol table
-	std::map<AddressRange, std::vector<SourceObj> >::iterator
-	    i = modules.find(t->first);
-	
-	// Check assertions
-	Assert(i != modules.end());
-	
-	// Allocate and initialize state structure for tracking the requests
-	SymbolTableState* state = 
-	    new SymbolTableState(formUniqueName(dm_host, dm_pid),
-				 is_last_needed, t->first, t->second,
-				 2 * i->second.size());
-	Assert(state != NULL);
-	
-	// Critical section touching the symbol table state
-	bool requests_completed = false;
-	{
-	    Guard guard_state(state);
+    // Critical section touching the symbol table state
+    bool requests_completed = false;
+    {
+	Guard guard_state(state);
+
+	// Iterate over each needed symbol table for this address space
+	for(std::map<AddressRange, std::set<LinkedObject> >::const_iterator
+		t = needed.begin(); t != needed.end(); ++t) {
+
+	    // Add an empty symbol table to the state for this address range
+	    state->dm_symbol_tables.insert(
+		std::make_pair(t->first,
+			       std::make_pair(SymbolTable(t->first), t->second))
+		);
 	    
-	    // Iterate over each module associated with this symbol table
-	    for(std::vector<SourceObj>::iterator 
-		    m = i->second.begin(); m != i->second.end(); ++m) {
-
-		// Ask DPCL to asynchronously expand this module
-		AisStatus retval = m->expand(*dm_process, 
-					     expandCallback, state);
-#ifndef NDEBUG
-		if(is_debug_enabled) 
-		    debugDPCL("request to expand", retval);
-#endif
+	}
 	
-		// Decrement the pending count if the request failed
-		if(retval.status() != ASC_success)
-		    requests_completed |= (--state->dm_pending == 0);
+	// Iterate over each module associated with this process (again)
+	for(int m = 0; m < program.child_count(); ++m) {
+	    SourceObj module = program.child(m);
+	    
+	    // Obtain the address range occupied by the module
+	    AddressRange range(static_cast<Address>(module.address_start()),
+			       static_cast<Address>(module.address_end()));
 
+	    // Note: The following code that requests symbol information is
+	    //       complicated by the fact that we must ALWAYS request the
+	    //       function information, even when we don't intend to store
+	    //       it in the experiment database because we've received the
+	    //       same information for another process. Unfortunately this
+	    //       is required so that we have function objects in each
+	    //       process for experessing instrumentation points to DPCL.
+	    //       Statement information, on the other hand, need only be
+	    //       requested when it will actually be stored in the database.
+	    
+	    // Ask DPCL to asynchronously expand this module
+	    AisStatus retval = module.expand(
+		*dm_process, expandCallback, state
+		);
+#ifndef NDEBUG
+	    if(is_debug_enabled) 
+		debugDPCL("request to expand", retval);
+#endif
+	    
+	    // Increment the pending request count if the request succeeded
+	    if(retval.status() == ASC_success)
+		state->dm_pending_requests++;
+
+	    // Only get the module's statements if its symbols are needed
+	    if(state->dm_symbol_tables.find(range) !=
+	       state->dm_symbol_tables.end()) {
+		
 		// Ask DPCL to asynchronously get this module's statements
-		retval = m->get_all_statements(*dm_process,
-					       statementsCallback, state, *m);
+		retval = module.get_all_statements(
+		    *dm_process, statementsCallback, state, module
+		    );
 #ifndef NDEBUG
 		if(is_debug_enabled) 
 		    debugDPCL("request to get_all_statements", retval);
 #endif	
 		
-		// Decrement the pending count if the request failed
-		if(retval.status() != ASC_success)
-		    requests_completed |= (--state->dm_pending == 0);
+		// Increment the pending request count if the request succeeded
+		if(retval.status() == ASC_success)
+		    state->dm_pending_requests++;
 		
 	    }
+	    
 	}
+
+	// Indicate construction of the state tracking structure is complete
+	state->dm_constructed = true;
 	
-	// Finish symbol table processing if all requests have been completed
-	if(requests_completed)
-	    finishSymbolTableProcessing(state);
+	// Are all the requests completed?
+	requests_completed =
+	    (state->dm_pending_requests == 0) && state->dm_constructed;
 	
     }
+    
+    // Finish symbol table processing if all requests have been completed
+    if(requests_completed)
+        finishSymbolTableProcessing(state);    
 }
 
 
@@ -2861,129 +2928,6 @@ void Process::requestUnloadModule(LibraryEntry& library)
 
 
 /**
- * Initialize messaging.
- *
- * Initialize messaging for the specified library within this process. Inserts
- * a probe at the entry point of sleep() to call a known function within the
- * library. That function, when called, squirrels away the message handle that
- * is passed into it for future use by the library. Once the probe has been
- * inserted, sleep(0) is called to force the initialization process to occur.
- *
- * @note    All of this is necessary because DPCL is designed to only provide a
- *          communication mechanism from the process to the tool in the context
- *          of a DPCL probe. Since collectors need to be able to send data at
- *          <em>any</em> time, we need to setup an otherwise-unnecessary "fake"
- *          probe to establish a usable message handle for the library.
- *
- * @param library    Library entry for which messaging is to be initialized.
- */
-void Process::initializeMessaging(LibraryEntry& library)
-{
-    Guard guard_myself(this);
-
-    // Ignore if a messaging probe was already installed for this library
-    if(library.dm_messaging.get_point().get_type() != IPT_invalid)
-	return;
-
-    // Find openss_set_msg_handle() within this library
-    std::map<std::string, int>::const_iterator
-	i = library.dm_functions.find("openss_set_msg_handle");
-    
-    // Was openss_set_msg_handle() found?
-    if(i == library.dm_functions.end())
-	return;
-    
-    // Obtain a probe expression reference to openss_set_msg_handle()
-    ProbeExp openss_set_msg_handle_exp =
-	library.dm_module.get_reference(i->second);
-    Assert(openss_set_msg_handle_exp.get_node_type() == CEN_function_ref);
-    
-    // Iterate over each module associated with this process
-    SourceObj program = dm_process->get_program_object();
-    for(int m = 0; m < program.child_count(); ++m) {
-	SourceObj module = program.child(m);
-	
-	// Iterate over each function of this module
-	for(int f = 0; f < module.child_count(); ++f)
-	    if(module.child(f).src_type() == SOT_function) {
-		SourceObj function = module.child(f);
-		
-		// Get the demangled name of the function
-		char name[function.get_demangled_name_length() + 1];
-		function.get_demangled_name(name, sizeof(name));
-
-		// Ignore if this wasn't the function sleep()
-		if(strcmp(name, "__sleep") != 0)
-		    continue;
-		
-		// Obtain a probe expression reference to sleep()
-		ProbeExp sleep_exp = function.reference();
-		Assert(sleep_exp.get_node_type() == CEN_function_ref);
-		
-		// Obtain the entry point to sleep()
-		InstPoint sleep_entry;
-		for(int p = 0; p < function.exclusive_point_count(); ++p)
-		    if(function.exclusive_point(p).get_type() ==
-		       IPT_function_entry)
-			sleep_entry = function.exclusive_point(p);
-		Assert(sleep_entry.get_type() == IPT_function_entry);
-
-		// Note: In theory Ais_msg_handle should be the only parameter
-		//       to openss_set_msg_handle(). But a bug in DPCL seems to
-		//       cause probe activation to fail if exactly one parameter
-		//       is passed. An extra, zero, parameter causes a different
-		//       code path to be executed which seems to work fine. The
-		//       offending DPCL code is "dpcl/src/daemon/src/PEtoBP.C"
-		//       around line #475.
-
-		// Create probe expression for entry of sleep()
-		ProbeExp args_exp[2] = { Ais_msg_handle, ProbeExp(0) };
-		ProbeExp call_exp = openss_set_msg_handle_exp.call(2, args_exp);
-		
-		// Create probe expression for calling sleep(0)
-		ProbeExp sleep_args_exp[1] = { ProbeExp(0) };
-		ProbeExp sleep_call_exp = sleep_exp.call(1, sleep_args_exp);
-		
-		// Request the instrumentation be executed in this process
-		library.dm_messaging =
-		    requestInstallAndActivate(call_exp, sleep_entry,
-					      performanceDataCallback, 0);
-		requestExecute(sleep_call_exp, NULL, NULL);
-		
-		// Return now that messaging is initialized
-		return;
-		
-	    }
-	
-    }
-}
-
-
-
-/**
- * Finalize messaging.
- *
- * Finalize messaging for the specified library within this process. Removes the
- * probe previously inserted at the entry point of sleep().
- *
- * @param library    Library entry for which messaging is to be finalized.
- */
-void Process::finalizeMessaging(LibraryEntry& library)
-{
-    Guard guard_myself(this);
-
-    // Ignore if a messaging probe was never installed for this library
-    if(library.dm_messaging.get_point().get_type() == IPT_invalid)
-	return;
-    
-    // Request the probe's deactivation and removal
-    requestDeactivateAndRemove(library.dm_messaging);
-    library.dm_messaging = ProbeHandle();
-}
-
-
-
-/**
  * Prepare a call to a library function.
  *
  * Prepares to call the specified library function in this process. The library
@@ -3034,7 +2978,6 @@ Process::prepareCallTo(const Collector& collector, const Thread& thread,
 	// Request the library (module) be loaded into this process
 	MainLoop::suspend();
 	requestLoadModule(entry);
-	initializeMessaging(entry);
 	MainLoop::resume();
 	
 	// Add this entry to the list of libraries if the library was found
