@@ -1654,8 +1654,6 @@ void User_Interrupt (CMDWID issuedbywindow) {
 static void
 catch_TLI_signal (int sig, int error_num)
 {
-fprintf(stderr,"Caught signal SS: %d\n",sig);
-pthread_exit(0);
   if (sig == SIGINT) {
     User_Interrupt (TLI_WindowID);
 
@@ -1663,6 +1661,9 @@ pthread_exit(0);
     ss_ttyout->mystream() << std::endl << Current_OpenSpeedShop_Prompt;
     ss_ttyout->releaseLock();
   }
+
+ // This isn't graceful, but it gets the job done.
+  pthread_exit(0);
 }
 inline static void
 setup_signal_handler (int s)
