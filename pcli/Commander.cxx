@@ -1655,6 +1655,7 @@ static void
 catch_TLI_signal (int sig, int error_num)
 {
 fprintf(stderr,"Caught signal SS: %d\n",sig);
+pthread_exit(0);
   if (sig == SIGINT) {
     User_Interrupt (TLI_WindowID);
 
@@ -1684,8 +1685,11 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
 
  // Set up to catch keyboard control signals
   setup_signal_handler (SIGINT); // CNTRL-C
+  setup_signal_handler (SIGUSR1);
   setup_signal_handler (SIGRTMIN+0);
   setup_signal_handler (SIGRTMIN+1);
+  setup_signal_handler (SIGRTMIN+32);
+  setup_signal_handler (SIGRTMAX);
 
  // Allow us to be terminated from the main thread.
   int previous_value;
