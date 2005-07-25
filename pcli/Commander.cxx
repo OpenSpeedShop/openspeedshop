@@ -461,10 +461,12 @@ class CommandWindowID
           (default_errstream != default_outstream) &&
           (default_errstream != ss_err)) {
         delete default_errstream;
+        default_errstream = NULL;
       }
       if (default_outstream &&
           (default_outstream != ss_out)) {
         delete default_outstream;
+        default_outstream = NULL;
       }
     }
 
@@ -1310,9 +1312,9 @@ void Commander_Termination () {
   }
 
  // Remove default ss_ostream definitions.
-  if (ss_ttyout && (ss_ttyout != ss_out)) delete ss_ttyout;
-  if (ss_out) delete ss_out;
-  if (ss_err) delete ss_err;
+  if (ss_ttyout && (ss_ttyout != ss_out)) {delete ss_ttyout; ss_ttyout = NULL;}
+  if (ss_out) {delete ss_out; ss_out = NULL;}
+  if (ss_err) {delete ss_err; ss_err = NULL;}
 
   return;
 }
