@@ -389,6 +389,10 @@ setup_signal_handler (int s)
    // When Python exits, terminate SpeedShop:
     cli_terminate ();
 
+   // Release allocated space.
+    free (argStruct);
+
+   // exit from openss.
     exit(0);
   }
 
