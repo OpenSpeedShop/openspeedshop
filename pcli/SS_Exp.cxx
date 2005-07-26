@@ -247,6 +247,24 @@ static bool within_range (int64_t Value, parse_range_t R) {
   return false;
 }
 
+static bool within_range (pid_t Value, parse_range_t R) {
+  parse_val_t pval1 = R.start_range;
+  Assert (pval1.tag == VAL_NUMBER);
+  pid_t Rvalue1 = pval1.num;
+  if (R.is_range) {
+    parse_val_t pval2 = R.end_range;
+    Assert (pval2.tag == VAL_NUMBER);
+    pid_t Rvalue2 = pval2.num;
+    if ((Value >= Rvalue1) &&
+        (Value <= Rvalue2)) {
+      return true;
+    }
+  } else if (Value == Rvalue1) {
+    return true;
+  }
+  return false;
+}
+
 static bool within_range (std::string S, parse_range_t R) {
   parse_val_t pval1 = R.start_range;
   Assert (pval1.tag == VAL_STRING);
@@ -273,6 +291,8 @@ void Filter_ThreadGroup (CommandObject *cmd, ThreadGroup& tgrp) {
     return;
   }
 
+  ThreadGroup dgrp;
+
   ParseTarget pt = *p_tlist->begin(); // There can only be one!
   vector<ParseRange> *c_list = pt.getClusterList();
   vector<ParseRange> *h_list = pt.getHostList();
@@ -297,7 +317,7 @@ void Filter_ThreadGroup (CommandObject *cmd, ThreadGroup& tgrp) {
   if (has_h) {
 
     ThreadGroup::iterator ti;
-    for (ti = tgrp.begin(); ti != tgrp.end(); ) {
+    for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
       Thread t = *ti;
       std::string hid = t.getHost();
       bool within_list = false;
@@ -312,9 +332,7 @@ void Filter_ThreadGroup (CommandObject *cmd, ThreadGroup& tgrp) {
 
      // Remove non-matching hosts from the ThreadGroup.
       if (!within_list) {
-        tgrp.erase(ti);
-      } else {
-        ti++;
+        dgrp.insert(t);
       }
     }
 
@@ -324,13 +342,13 @@ void Filter_ThreadGroup (CommandObject *cmd, ThreadGroup& tgrp) {
   if (has_p) {
 
     ThreadGroup::iterator ti;
-    for (ti = tgrp.begin(); ti != tgrp.end(); ) {
+    for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
       Thread t = *ti;
       pid_t pid = t.getProcessId();
       bool within_list = false;
 
       vector<ParseRange>::iterator pr_iter;
-      for (pr_iter=h_list->begin();pr_iter != h_list->end(); pr_iter++) {
+      for (pr_iter=p_list->begin();pr_iter != p_list->end(); pr_iter++) {
         if (within_range(pid, *pr_iter->getRange())) {
           within_list = true;
           break;
@@ -339,9 +357,7 @@ void Filter_ThreadGroup (CommandObject *cmd, ThreadGroup& tgrp) {
 
      // Remove non-matching hosts from the ThreadGroup.
       if (!within_list) {
-        tgrp.erase(ti);
-      } else {
-        ti++;
+        dgrp.insert(t);
       }
     }
 
@@ -351,7 +367,7 @@ void Filter_ThreadGroup (CommandObject *cmd, ThreadGroup& tgrp) {
   if (has_t) {
 
     ThreadGroup::iterator ti;
-    for (ti = tgrp.begin(); ti != tgrp.end(); ) {
+    for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
       Thread t = *ti;
       std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
       if (pthread.first) {
@@ -359,7 +375,7 @@ void Filter_ThreadGroup (CommandObject *cmd, ThreadGroup& tgrp) {
         bool within_list = false;
 
         vector<ParseRange>::iterator pr_iter;
-        for (pr_iter=h_list->begin();pr_iter != h_list->end(); pr_iter++) {
+        for (pr_iter=t_list->begin();pr_iter != t_list->end(); pr_iter++) {
           if (within_range(tid, *pr_iter->getRange())) {
             within_list = true;
             break;
@@ -368,7 +384,7 @@ void Filter_ThreadGroup (CommandObject *cmd, ThreadGroup& tgrp) {
 
        // Remove non-matching hosts from the ThreadGroup.
         if (!within_list) {
-          tgrp.erase(ti);
+          dgrp.insert(t);
           continue;
         }
       }
@@ -382,13 +398,13 @@ void Filter_ThreadGroup (CommandObject *cmd, ThreadGroup& tgrp) {
   if (has_r) {
 
     ThreadGroup::iterator ti;
-    for (ti = tgrp.begin(); ti != tgrp.end(); ) {
+    for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
       Thread t = *ti;
       int64_t rid = t.getOmpThreadId();
       bool within_list = false;
 
       vector<ParseRange>::iterator pr_iter;
-      for (pr_iter=h_list->begin();pr_iter != h_list->end(); pr_iter++) {
+      for (pr_iter=r_list->begin();pr_iter != r_list->end(); pr_iter++) {
         if (within_range(rid, *pr_iter->getRange())) {
           within_list = true;
           break;
@@ -397,14 +413,20 @@ void Filter_ThreadGroup (CommandObject *cmd, ThreadGroup& tgrp) {
 
      // Remove non-matching hosts from the ThreadGroup.
       if (!within_list) {
-        tgrp.erase(ti);
-      } else {
-        ti++;
+        dgrp.insert(t);
       }
     }
 
   }
 #endif
+
+ // Remove the unneeded threads fromt he original group.
+    ThreadGroup::iterator ti;
+    for (ti = dgrp.begin(); ti != dgrp.end(); ti++) {
+      Thread t = *ti;
+      tgrp.erase(t);
+    }
+
 }
 
 // Utilities to decode <target_list> and attach or detach
