@@ -143,7 +143,7 @@ Blob::Blob(const xdrproc_t xdrproc, const void* data) :
 	
 	// Destroy the encoding buffer if encoding failed
 	if(dm_contents == NULL)
-	    delete buffer;
+	    delete [] buffer;
 	
     }    
 }
@@ -158,7 +158,7 @@ Blob::Blob(const xdrproc_t xdrproc, const void* data) :
 Blob::~Blob()
 {    
     // Destroy our contents (if any)
-    delete reinterpret_cast<char*>(dm_contents);
+    delete [] reinterpret_cast<char*>(dm_contents);
 }
 
 
@@ -178,7 +178,7 @@ Blob& Blob::operator=(const Blob& other)
     if((dm_size != other.dm_size) || (dm_contents != other.dm_contents)) {
 	
 	// Destroy our current contents (if any)
-	delete reinterpret_cast<char*>(dm_contents);
+	delete [] reinterpret_cast<char*>(dm_contents);
 
 	// Only do an actual copy if the RHS is a non-empty blob
 	if((other.dm_size > 0) && (other.dm_contents != NULL)) {
