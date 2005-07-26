@@ -1660,6 +1660,7 @@ catch_TLI_signal (int sig, int error_num)
     ss_ttyout->acquireLock();
     ss_ttyout->mystream() << std::endl << Current_OpenSpeedShop_Prompt;
     ss_ttyout->releaseLock();
+    return;
   }
 
  // This isn't graceful, but it gets the job done.
@@ -1686,11 +1687,7 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
 
  // Set up to catch keyboard control signals
   setup_signal_handler (SIGINT); // CNTRL-C
-  setup_signal_handler (SIGUSR1);
-  setup_signal_handler (SIGRTMIN+0);
-  setup_signal_handler (SIGRTMIN+1);
-  setup_signal_handler (SIGRTMIN+32);
-  setup_signal_handler (SIGRTMAX);
+  setup_signal_handler (SIGUSR1); // request to terminate processing
 
  // Allow us to be terminated from the main thread.
   int previous_value;
