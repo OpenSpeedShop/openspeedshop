@@ -178,28 +178,6 @@ bool Look_For_KeyWord (CommandObject *cmd, std::string Key) {
   return false;
 }
 
-bool Thread_Already_Exists (Thread **returnThread, ExperimentObject *exp, std::string myhost, pid_t mypid) {
-  ThreadGroup current_tgrp = exp->FW()->getThreads();
-  ThreadGroup::iterator ti;
-  for (ti = current_tgrp.begin(); ti != current_tgrp.end(); ti++) {
-    Thread T = *ti;
-    std::string host = T.getHost();
-    pid_t pid = T.getProcessId();
-    if (!strcmp(host.c_str(), myhost.c_str()) &&
-        (pid = mypid) &&
-#ifdef HAVE_MPI
-        !T.getPosixThreadId().first &&
-        !T.getMPIRank().first) {
-#else
-        !T.getPosixThreadId().first) {
-#endif
-      *returnThread = &T;
-      return true;
-    }
-  }
-  return false;
-}
-
 bool Collector_Used_In_Experiment (OpenSpeedShop::Framework::Experiment *fexp, std::string myname) {
   CollectorGroup current_cgrp = fexp->getCollectors();
   CollectorGroup::iterator ci;
@@ -420,7 +398,7 @@ void Filter_ThreadGroup (CommandObject *cmd, ThreadGroup& tgrp) {
   }
 #endif
 
- // Remove the unneeded threads fromt he original group.
+ // Remove the unneeded threads from the original group.
     ThreadGroup::iterator ti;
     for (ti = dgrp.begin(); ti != dgrp.end(); ti++) {
       Thread t = *ti;
@@ -558,21 +536,17 @@ static void Resolve_P_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
     }
 
     pid_t mypid;
-    for ( mypid = (pid_t)p_val1->num; mypid <= (pid_t)p_val2->num; mypid++) {
+    for ( mypid = p_val1->num; mypid <= p_val2->num; mypid++) {
       if (has_t) {
         Resolve_T_Target ( cmd, exp, tgrp, pt, host_name, mypid);
       } else if (has_r) {
         Resolve_R_Target ( cmd, exp, tgrp, pt, host_name, mypid);
       } else {
-        Thread *pt;
-        if (Thread_Already_Exists (&pt, exp, host_name, mypid)) {
-          tgrp->insert (*pt);
-          continue;
-        }
         try {
           ThreadGroup ngrp = exp->FW()->attachProcess(mypid, host_name);
-          for(ThreadGroup::const_iterator tgi = ngrp.begin(); tgi != ngrp.end(); ++tgi) {
-            Thread t = *tgi;
+          ThreadGroup::iterator ngi;
+          for( ngi = ngrp.begin(); ngi != ngrp.end(); ngi++) {
+            Thread t = *ngi;
             tgrp->insert(t);
           }
         }
