@@ -193,6 +193,7 @@ AC_CONFIG_FILES(Makefile
 		test/test_source/dpcl/start_terminate/Makefile
 		test/test_source/dpcl/module_addr/Makefile
 		test/test_source/dpcl/stmt_info/Makefile
+		test/test_source/dpcl/daemonRT_locking/Makefile
 		test/test_source/dpcl/phase/Makefile
 		usability/Makefile
 		usability/phaseII/Makefile

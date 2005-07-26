@@ -1,4 +1,4 @@
-###############################################################################
+################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -15,13 +15,18 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
-#
-# directories that will be built
-SUBDIRS = one_shot point_probe probe_module start_terminate phase module_addr stmt_info daemonRT_locking
-#
-# directories that will be packaged into tar.gz.
-# these can be a subset of the directories in SUBDIRS.
-#
-DIST_SUBDIRS = one_shot point_probe probe_module start_terminate phase module_addr stmt_info daemonRT_locking
 
+noinst_PROGRAMS = daemonRT_locking
+
+daemonRT_locking_CFLAGS = \
+	 -O1 -g
+
+daemonRT_locking_LDFLAGS = \
+	-lpthread
+
+daemonRT_locking_SOURCES = \
+	daemonRT_locking.c
+
+EXTRA_DIST = \
+	runone-dpcl runall-dpcl
 

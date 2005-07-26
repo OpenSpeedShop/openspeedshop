@@ -1,0 +1,4 @@
+The test program takes two parameters, a number of threads and a
+number of iterations. The reported value at the end should be these two inputs
+multiplied together. If not, your locking isn't working...
+
