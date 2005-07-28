@@ -96,5 +96,8 @@ SS_Parse_Lex.cxx: $(LFILES) SS_Parse_Yacc.hxx
 	-$(LEX) $(LFILES);
 	-mv lex.yy.c SS_Parse_Lex.cxx
 
+EXTRA_DIST = \
+	help_topic_msg.dxx
+
 doc:
 	$(DOXYGEN)
