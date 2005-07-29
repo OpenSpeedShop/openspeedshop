@@ -2,8 +2,8 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-
+#include <asm/bitops.h>
+#include <asm/intrinsics.h>
 
 typedef int* atomic_p;
 typedef enum { false = 0, true = 1 } boolean_t;
