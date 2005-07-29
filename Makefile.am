@@ -48,7 +48,8 @@ DOC_SUBDIRS = \
 doc: $(DOC_SUBDIRS) 
 	for i in $(DOC_SUBDIRS); do (cd $$i; $(MAKE) doc); done
 
-DIST_SUBDIRS = $(SUBDIRS)
+DIST_SUBDIRS = $(SUBDIRS) \
+		test
 # Need the images files and the tests files in tarball.
 EXTRA_DIST = images/* 
 
