@@ -20,6 +20,11 @@
 #include "SS_Input_Manager.hxx"
 
 void SS_Execute_Cmd (CommandObject *cmd) {
+
+// Bracket execution of commands with a "catch-all" exception handler.
+// This is intended to catch failures in recovery code.
+try {
+
   bool cmd_successful = false;
   InputLineObject *clip = cmd->Clip();
 
@@ -155,5 +160,12 @@ void SS_Execute_Cmd (CommandObject *cmd) {
     cmd->Result_String ("This command has not been implimented yet");
     cmd->set_Status(CMD_ERROR);
   }
+
+}
+catch(const Exception& error) {
+  cmd->Result_String ("An unrecoverable error was encountered while trying to execute this command.");
+  Mark_Cmd_With_Std_Error (cmd, error);
+  cmd->set_Status(CMD_ERROR);
+}
 
 }
