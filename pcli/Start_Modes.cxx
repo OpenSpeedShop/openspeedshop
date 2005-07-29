@@ -125,11 +125,14 @@ bool Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, bool bat
     }
   }
 
- // If there is no input file and in "-batch" mode, end with an "expGo" command.
+ // If there is no input file and the user specified "-batch" mode,
+ // execute with an "expGo" command and display results with "expview stats".
  // Otherwise, assume the input file will control execution.
   if (batch_mode && !read_stdin_file) {
-    if (NULL == Append_Input_String (my_window, "expGo\n", NULL,
-                                     &Default_TLI_Line_Output, &Default_TLI_Command_Output) ) {
+    if ((NULL == Append_Input_String (my_window, "expGo\n", NULL,
+                                      &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ||
+        (NULL == Append_Input_String (my_window, "expView stats\n", NULL,
+                                      &Default_TLI_Line_Output, &Default_TLI_Command_Output))) {
       fprintf(stderr,"ERROR: Unable to initiate execution of commands.\n");
       return false;
     }
