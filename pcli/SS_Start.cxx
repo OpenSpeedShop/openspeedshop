@@ -390,7 +390,7 @@ setup_signal_handler (int s)
     cli_terminate ();
 
    // Release allocated space.
-    free (argStruct);
+    delete argStruct;
 
    // exit from openss.
     exit(0);
