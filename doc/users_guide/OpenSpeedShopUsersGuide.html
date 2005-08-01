@@ -1436,8 +1436,8 @@ st1\:*{behavior:url(#ieooui) }
 Users Guide<o:p></o:p></span></b></p>
 <p class="MsoNormal" style="text-align: center;" align="center"><b
  style=""><span
- style="font-size: 22pt; font-family: SGIAlt; color: red;">Milestone 4:
-June 13, 2005</span></b></p>
+ style="font-size: 22pt; font-family: SGIAlt; color: red;">Milestone 5:
+September 13, 2005</span></b></p>
 <div class="Section2"><b style=""><br style="" clear="all">
 </b>
 <p class="MsoNormal" style=""><b style=""><b style=""><span
@@ -1451,9 +1451,12 @@ style='mso-spacerun:yes'>&nbsp;</span>TOC \o &quot;1-4&quot; <span
 style='mso-element:field-separator'></span></span><![endif]--></p>
 <ul id="mozToc">
 <!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId541194">Introduction
-to Open|SpeedShop </a>
+to Open|SpeedShop
+    </a>
     <ul>
-      <li><a href="#mozTocId886403">Brief Open|SpeedShop Overview </a></li>
+      <li><a href="#mozTocId886403">Brief
+Open|SpeedShop Overview
+        </a></li>
       <li><a href="#mozTocId923468">Common Terminology</a></li>
       <li><a href="#mozTocId803509">Extensibility</a></li>
     </ul>
@@ -1461,24 +1464,49 @@ to Open|SpeedShop </a>
   <li><a href="#mozTocId153275">Open|SpeedShop
 Installation Information</a>
     <ul>
-      <li><a href="#mozTocId24049">Building Open|SpeedShop</a>
+      <li><a href="#mozTocId24049">Building Open|SpeedShop and
+Open|SpeedShop
+Development RPM Usage Information
+        </a>
         <ul>
-          <li><a href="#mozTocId253732">Required and Open|SpeedShop
-Verified Packages</a></li>
+          <li><a href="#mozTocId480642">Open|SpeedShop build
+component RPM versions:
+            </a></li>
+          <li><a href="#mozTocId400287">OVERVIEW - Setting up
+new machine for development on Open|SpeedShop
+            </a>
+            <ul>
+              <li><a href="#mozTocId653198">Step 1 - Check for
+the correct version of the development components</a></li>
+              <li><a href="#mozTocId986368">Step 2 - Checkout
+OpenSpeedShop_ROOT/current</a></li>
+              <li><a href="#mozTocId432241">Step 3 - Install
+missing RPMS</a></li>
+              <li><a href="#mozTocId15807">Step 4 - Build
+Open|SpeedShop</a></li>
+            </ul>
+          </li>
           <li><a href="#mozTocId80962">Key
 Environment Variables</a>
             <ul>
-              <li><a href="#mozTocId972152">Open|SpeedShop Developer
-Related Environment Variables </a></li>
+              <li><a href="#mozTocId972152">Open|SpeedShop
+Developer
+Related Environment Variables</a>
+                <ul>
+                  <li><a href="#mozTocId132645">Generally used
+environment variables</a></li>
+                  <li><a href="#mozTocId127260">Special purpose
+environment variables</a></li>
+                </ul>
+              </li>
               <li><a href="#mozTocId270505">Open|SpeedShop User
 Related Environment Variables</a></li>
             </ul>
           </li>
           <li><a href="#mozTocId681870">Building Open|SpeedShop
 from Source</a></li>
-          <li><a href="#mozTocId986787">Installing Open|SpeedShop from
-Executable RPM package(s) </a></li>
-          <li><a href="#mozTocId882423">Installing DPCL</a></li>
+          <li><a href="#mozTocId986787">Installing Open|SpeedShop
+from Executable RPM package(s) </a></li>
         </ul>
       </li>
     </ul>
@@ -1502,36 +1530,30 @@ Information: </a></li>
           <li><a href="#mozTocId15115">Basic Menus and Menu
 Item Introduction</a>
             <ul>
-              <li><a href="#mozTocId104383">File Menu </a>
+              <li><a href="#mozTocId104383">File
+Menu </a>
                 <ul>
-                  <li><a href="#mozTocId677079">Open Experiment</a></li>
+                  <li><a href="#mozTocId677079">Open
+Existing Experiment</a></li>
                   <li><a href="#mozTocId921560">Open Saved Experiment</a></li>
                   <li><a href="#mozTocId578022">Save Experiment Data</a></li>
-                  <li><a href="#mozTocId336137">Export Experiment Data</a></li>
-                  <li><a href="#mozTocId794441">Save Window Setup</a></li>
-                  <li><a href="#mozTocId249547">Preferences Menu Item </a></li>
-                  <li><a href="#mozTocId32692">Close Menu Item</a></li>
-                  <li><a href="#mozTocId945989">Exit Menu Item</a></li>
                 </ul>
               </li>
-              <li><a href="#mozTocId139584">Tools Menu</a>
-                <ul>
-                  <li><a href="#mozTocId539563">Command Panel</a></li>
-                  <li><a href="#mozTocId776821">Source Panel</a></li>
-                  <li><a href="#mozTocId181329">Top Panel</a></li>
-                </ul>
-              </li>
-              <li><a href="#mozTocId185127">Experiments Menu</a>
+              <li><a href="#mozTocId185127">Experiments
+Menu</a>
                 <ul>
                   <li><a href="#mozTocId866150">FPE Tracing Experiment</a></li>
                   <li><a href="#mozTocId676533">HW Counter Experiment</a></li>
-                  <li><a href="#mozTocId892172">I/O Experiment</a></li>
-                  <li><a href="#mozTocId263649">MPI Experiment</a></li>
+                  <li><a href="#mozTocId892172">I/O
+Experiment</a></li>
+                  <li><a href="#mozTocId263649">MPI
+Experiment</a></li>
                   <li><a href="#mozTocId951324">PC Sampling Experiment</a></li>
                   <li><a href="#mozTocId319939">User Time Experiment</a></li>
                 </ul>
               </li>
-              <li><a href="#mozTocId976010">Wizard Menu</a>
+              <li><a href="#mozTocId976010">Wizard
+Menu</a>
                 <ul>
                   <li><a href="#mozTocId288060">FPE Tracing Experiment
 Wizard </a></li>
@@ -1543,12 +1565,33 @@ Wizard </a></li>
 Wizard </a></li>
                   <li><a href="#mozTocId304844">User Time Experiment
 Wizard </a></li>
+                  <li><a href="#mozTocId249547">Preferences Menu Item </a>
+                    <ul>
+                      <li><a href="#mozTocId426001">General:</a></li>
+                      <li><a href="#mozTocId284897">Statistics Related</a></li>
+                      <li><a href="#mozTocId353011">Source Related</a></li>
+                    </ul>
+                  </li>
+                  <li><a href="#mozTocId32692">Close
+Menu Item</a></li>
+                  <li><a href="#mozTocId945989">Exit
+Menu Item</a></li>
+                </ul>
+              </li>
+              <li><a href="#mozTocId139584">Tools
+Menu</a>
+                <ul>
+                  <li><a href="#mozTocId539563">Command
+Panel</a></li>
+                  <li><a href="#mozTocId776821">Source Panel</a></li>
+                  <li><a href="#mozTocId155120">Stats Panel</a></li>
+                  <li><a href="#mozTocId868104"> </a></li>
                 </ul>
               </li>
             </ul>
           </li>
-          <li><a href="#mozTocId949525">Typical Open|SpeedShop GUI
-Wizard Usage </a>
+          <li><a href="#mozTocId949525">Typical
+Open|SpeedShop GUI Wizard Usage </a>
             <ul>
               <li><a href="#mozTocId87563">Ready to Run the Experiment </a></li>
             </ul>
@@ -1572,16 +1615,19 @@ Command Tool </a></li>
     </ul>
   </li>
   <li><a href="#mozTocId483325">Scripting
-API </a></li>
+API
+    </a></li>
   <li><a href="#mozTocId65366">Plugin
 API (Extensibility)&nbsp; Description</a>
     <ul>
       <li><a href="#mozTocId573729">Collector Plugin Definition</a>
         <ul>
-          <li><a href="#mozTocId960650">Collector Plugin FAQ: </a>
+          <li><a href="#mozTocId960650">Collector Plugin FAQ:
+            </a>
             <ul>
               <li><a href="#mozTocId612656">What is blob.x for? What is
-the significance of the .x suffix? </a></li>
+the significance of the .x suffix?
+                </a></li>
               <li><a href="#mozTocId690020">What is
 specifically needed to be known by the framework? Do these class
 structures need to follow a
@@ -1814,40 +1860,338 @@ and install Open|SpeedShop.<br>
   </b></blockquote>
 <h2><a class="mozTocH2" name="mozTocId24049"></a><b style=""><a
  name="mozTocId139249" class="mozTocH2"></a><a
- name="Building_OpenSpeedShop"></a>Building Open|SpeedShop</b></h2>
-<blockquote> <b style=""> </b>
-  <h3><a class="mozTocH3" name="mozTocId253732"></a><b style=""><a
- name="mozTocId337651" class="mozTocH3"></a><a
- name="Required_and_OpenSpeedShop_Verified"></a>Required and
-Open|SpeedShop Verified Packages</b></h3>
-  <b style="">The following items are the components that are necessary
-in order to
-successfully build and execute Open|SpeedShop.&nbsp; The numbers on the
-right hand side of each item correspond to the versions of the
-components/packages that have been tested.&nbsp; There are certainly
-other combinations of the components below that will work with
-Open|SpeedShop, but they are not verified at this point.&nbsp; These
-components will be upgraded as the project proceeds forward.<br>
-  <br>
-  </b></blockquote>
+ name="Building_OpenSpeedShop"></a>Building Open|SpeedShop</b> and
+Open|SpeedShop
+Development RPM Usage Information
+</h2>
+<h3><a class="mozTocH3" name="mozTocId480642"></a>Open|SpeedShop build
+component RPM versions:<br>
+</h3>
+<div style="margin-left: 40px;">This file documents the list of
+software packages used by the
+Open|SpeedShop<br>
+developers when building Open|SpeedShop or developing plugin modules
+for it.<br>
+For each package, a minimum and maximum version is given. These are the
+KNOWN<br>
+minimum and maximum verions that have been found to work with
+Open|SpeedShop.<br>
+<br>
+You may find newer (or older) versions of these packages work just
+fine.&nbsp;&nbsp; Let us know<br>
+if they do and we can update this document when you do!&nbsp;&nbsp;
+Packages <span style="font-weight: bold;">not </span>commonly found
+in<br>
+recent (e.g. SuSE Professional 9.1, SLES 9, Fedora Core 3) Linux
+distributions<br>
+are provided here in this (OpenSpeedShop_ROOT/current) directory as
+source tarballs <br>
+and binary RPMs
+for key platforms.&nbsp;&nbsp; The source and binary RPM components
+currently<br>
+supplied in OpenSpeedShop_ROOT because they are not readily available
+in RPM <br>
+form are:<br>
+</div>
+<ul style="margin-left: 40px;">
+  <li>dpcl-3.3.4</li>
+  <li>libunwind-0.98.5</li>
+  <li>libdwarf-20050503</li>
+  <li>sqlite-3.2.2</li>
+  <li>tmake-1.11</li>
+  <li>dyninst-4.2.1</li>
+  <li>xxdiff-3.1</li>
+</ul>
+<div style="margin-left: 40px;"><br>
+In addition, the components listed below are also needed for building
+Open|SpeedShop.<br>
+</div>
+<br>
+<table style="width: 684px; height: 513px; margin-left: 40px;"
+ border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td>Component Name </td>
+      <td>Minimum </td>
+      <td>Maximum </td>
+      <td>Notes</td>
+    </tr>
+    <tr>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td>autoconf </td>
+      <td>2.59 </td>
+      <td>2.59 </td>
+      <td>none</td>
+    </tr>
+    <tr>
+      <td>automake </td>
+      <td>1.7.9 </td>
+      <td>1.9.5 </td>
+      <td>none</td>
+    </tr>
+    <tr>
+      <td>binutils </td>
+      <td>2.15 </td>
+      <td>2.15 </td>
+      <td>none</td>
+    </tr>
+    <tr>
+      <td>doxygen </td>
+      <td>1.3.6 </td>
+      <td>1.4.2 </td>
+      <td>(2)</td>
+    </tr>
+    <tr>
+      <td>dpcl </td>
+      <td>see-note-1 </td>
+      <td>see-note-1 </td>
+      <td>(1)</td>
+    </tr>
+    <tr>
+      <td>dyninst </td>
+      <td>see-note-1 </td>
+      <td>see-note-2 </td>
+      <td>(1)</td>
+    </tr>
+    <tr>
+      <td>gcc/g++ </td>
+      <td>3.3.3 </td>
+      <td>3.3.3 </td>
+      <td>none</td>
+    </tr>
+    <tr>
+      <td>libdwarf </td>
+      <td>2004/02/03 </td>
+      <td>2005/05/03 </td>
+      <td>none</td>
+    </tr>
+    <tr>
+      <td>libelf </td>
+      <td>0.8.5 </td>
+      <td>0.8.5 </td>
+      <td>none</td>
+    </tr>
+    <tr>
+      <td>libtool </td>
+      <td>1.5.2 </td>
+      <td>1.5.14 </td>
+      <td>none</td>
+    </tr>
+    <tr>
+      <td>libunwind </td>
+      <td>0.98.5 </td>
+      <td>0.98.5 </td>
+      <td>none</td>
+    </tr>
+    <tr>
+      <td>python </td>
+      <td>2.3.3 </td>
+      <td>2.3.4 </td>
+      <td>none</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">python-devel<br>
+      </td>
+      <td style="vertical-align: top;">2.3.3<br>
+      </td>
+      <td style="vertical-align: top;">2.3.4<br>
+      </td>
+      <td style="vertical-align: top;">none<br>
+      </td>
+    </tr>
+    <tr>
+      <td>sqlite </td>
+      <td>3.0.8 </td>
+      <td>3.2.2 </td>
+      <td>none</td>
+    </tr>
+    <tr>
+      <td>qt </td>
+      <td>3.3.1 </td>
+      <td>3.3.4 </td>
+      <td>none</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">qt-devel<br>
+      </td>
+      <td style="vertical-align: top;">3.3.1<br>
+      </td>
+      <td style="vertical-align: top;">3.3.4<br>
+      </td>
+      <td style="vertical-align: top;">(3)<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">tmake<br>
+      </td>
+      <td style="vertical-align: top;">1.11<br>
+      </td>
+      <td style="vertical-align: top;">1.11<br>
+      </td>
+      <td style="vertical-align: top;">none<br>
+      </td>
+    </tr>
+    <tr>
+      <td>xxdiff </td>
+      <td>3.0.2 </td>
+      <td>3.1 </td>
+      <td>(2)</td>
+    </tr>
+  </tbody>
+</table>
+<div style="margin-left: 40px;"><br>
+NOTES:<br>
+</div>
+<ol style="margin-left: 40px;">
+  <li>Always use the Dyninst and DPCL versions found in this directory.
+Others will almost certainly not work with Open|SpeedShop.&nbsp; For
+advanced users click <a href="BuildingInstallingDPCL">here </a>for
+instructions on building and installing DPCL.<br>
+  </li>
+  <li>Utilities commonly used by the Open|SpeedShop developers but not
+strictly need to build Open|SpeedShop.</li>
+  <li>On SLES 9 Linux distributions the necessary qt development
+components require qt3-devel-doc and qt3-devel-tools in addition to
+qt3-devel.<br>
+  </li>
+</ol>
+<h3><a class="mozTocH3" name="mozTocId400287"></a>OVERVIEW - Setting up
+new machine for development on Open|SpeedShop<br>
+</h3>
+<div style="margin-left: 40px;">So, how do you prepare a machine for
+building O|SS?&nbsp;&nbsp; <br>
+</div>
+<h4><a class="mozTocH4" name="mozTocId653198"></a>Step 1 - Check for
+the correct version of the development components</h4>
+<div style="margin-left: 40px;">The query option of rpm can be used to
+verify whether the correct
+version of the component is installed.&nbsp;&nbsp; The rpm command "rpm
+--query
+--all | grep component_rpm_name" can be used for this
+purpose.&nbsp;&nbsp;&nbsp; A rpm
+query script, <a
+ href="../../../../../../ptmp/cmplrs.src/webpages/Tools/SpeedShop_ASCI/DevelopersCorner/DevelopmentEnv/rpmQuery">rpmQuery</a>,
+that searches for the
+necessary components has been created.&nbsp;&nbsp;&nbsp; Once you know
+what components are available on the prospective development machine,
+you can determine what components you may have to install.<br>
+</div>
+<br>
+<h4><a class="mozTocH4" name="mozTocId986368"></a>Step 2 - Checkout
+OpenSpeedShop_ROOT/current</h4>
+<div style="margin-left: 40px;">Use the OpenSpeedShop_ROOT repository
+and checkout the current
+directory.&nbsp;&nbsp; The RPMs not readily available on all systems
+can be found in that directory and it's sub-directories.<br>
+</div>
+<br>
+<h4><a class="mozTocH4" name="mozTocId432241"></a>Step 3 - Install
+missing RPMS</h4>
+<div style="margin-left: 40px;">For IA32, go into
+OpenSpeedShop_ROOT/current/RPMS/i586 and install all
+the
+RPMs that you find there. Assuming, of course, you are on a Linux/IA32
+system...&nbsp;
+There are also IA64 RPMS checked in.&nbsp;&nbsp;&nbsp; These RPMs are
+found in OpenSpeedShop_ROOT/current/RPMS/ia64.<br>
+<br>
+The installation of
+the RPMs is a per system task.&nbsp; Once the RPMs are installed, all
+users of the system will be using the
+components that were<br>
+installed via the rpm command.&nbsp;&nbsp; Currently all the RPMs in
+the ROOT/current/RPMS/{$ARCH} directory are installed in default
+locations, like
+/usr/lib.&nbsp;&nbsp; For example, the dyninst and dpcl libraries are
+installed in /usr/lib:<br>
+<br>
+lnx-jeg.americas.sgi.com-&gt;ls -lastr /usr/lib/libdyn* /usr/lib/libdpc*<br>
+2128 &nbsp; -rwxr-xr-x&nbsp; 1 root root 2166984 Jun 29 13:12
+/usr/lib/libdpcl.so*<br>
+&nbsp; 72 &nbsp; &nbsp; -rwxr-xr-x&nbsp; 1 root root&nbsp;&nbsp; 63988
+Jun 29 13:12
+/usr/lib/libdpclRT.so*<br>
+&nbsp;&nbsp; 4&nbsp;&nbsp; lrwxrwxrwx&nbsp; 1 root
+root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 21 Jun 29 15:10
+/usr/lib/libdpcl.so.1.0 -&gt; /usr/lib/libdpcl.so.1*<br>
+&nbsp;&nbsp; 4 &nbsp; lrwxrwxrwx&nbsp; 1 root
+root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 19 Jun 29 15:10
+/usr/lib/libdpcl.so.1 -&gt; /usr/lib/libdpcl.so*<br>
+&nbsp;&nbsp; 4&nbsp; lrwxrwxrwx&nbsp; 1 root
+root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 23 Jun 29 15:10
+/usr/lib/libdpclRT.so.1.0 -&gt; /usr/lib/libdpclRT.so.1*<br>
+&nbsp;&nbsp; 4&nbsp; lrwxrwxrwx&nbsp; 1 root
+root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 21 Jun 29 15:10
+/usr/lib/libdpclRT.so.1 -&gt; /usr/lib/libdpclRT.so*<br>
+6312 -rwxr-xr-x&nbsp; 1 root root 6443551 Jul 20 17:28
+/usr/lib/libdyninstAPI.so*<br>
+&nbsp; 36 &nbsp; -rwxr-xr-x&nbsp; 1 root root&nbsp;&nbsp; 30418 Jul 20
+17:28
+/usr/lib/libdyninstAPI_RT.so.1*<br>
+<br>
+</div>
+<h4><a class="mozTocH4" name="mozTocId15807"></a>Step 4 - Build
+Open|SpeedShop</h4>
+<div style="margin-left: 40px;">Legacy Build NOTE:&nbsp; If converting
+from the tarball based
+ROOT,&nbsp; then remove any references to $ROOT from your shell login
+scripts.<br>
+<br>
+Rebuild your source tree from scratch. I.e. get rid of ALL generated
+files,&nbsp; then do the following commands in the
+OpenSpeedShop/current directory:<br>
+<br>
+Open|SpeedShop uses
+automake/autoconf
+in it's build process.&nbsp; The sequence used to build Open|SpeedShop
+is as follows:<br>
+</div>
+<br>
 <div style="margin-left: 40px;">
 <ul>
-  <b style=""> <li>gcc &gt;= 3.2</li>
-  <li>elfutils-libelf &gt;= 0.85</li>
-  <li>binutils &gt;= 2.14</li>
-  <li>qt &gt;= 3.3.1</li>
-  <li>sqlite &gt;= 3.0.8</li>
-  <li>sqlite-devel &gt;= 3.0.8</li>
-  <li>tmake &gt;= 1.11</li>
-  <li>libtool &gt;= 1.5.2</li>
-  <li>python &gt;= 2.3.4</li>
-  <li>doxygen &gt;= 1.3.6</li>
-  <li>libunwind &gt;= 0.96 and UW-UMD fixes<br>
-  </li>
-  <li>dpcl &gt;= 3.3.4</li>
-  <li>dyninst &gt;= 4.1.1</li>
-  </b>
+  <li># Go to the Open|SpeedShop
+top level
+source directory</li>
+  <li><span style="font-weight: bold;">cd &lt;openspeedshop source
+directory&gt;</span></li>
+  <li># Create initial build files</li>
+  <li><span style="font-weight: bold;">bootstrap</span></li>
+  <li># Configure Open|SpeedShop with or without optional installation
+directory designation</li>
+  <li><span style="font-weight: bold;">configure
+[--prefix=&lt;Open|SpeedShop Install Directory Path&gt;]</span></li>
+  <li># Make and install Open|SpeedShop</li>
+  <li><span style="font-weight: bold;">make install</span></li>
 </ul>
+</div>
+<br>
+<div style="margin-left: 40px;">The Open|Speedshop build should find
+all of the necessary libraries and
+headers in /usr now.<br>
+<br>
+If this doesn't work, read OpenSpeedShop_ROOT/current/README (that file
+should have the most accurate list of RPM versions) and see if
+your Linux distribution is lacking one of the packages (or versions)
+mentioned.&nbsp; With SuSE 9.1 or SLES 9 you should be able to install
+the RPMS and go.&nbsp;
+Nothing else should be required. <br>
+<br>
+Fedora Core 3 requires libelf-0.8.5 be installed. &nbsp; This RPM can
+be found in
+OpenSpeedShop_ROOT/current/RPMS/i586/FedoraCore3/.&nbsp; You can use
+"rpm
+--query --all" to find out what packages are on your system.&nbsp;
+Grepping
+is
+recommended when doing the queries:&nbsp; "rpm
+--query --all | grep rpm_name"&nbsp; You can use the rpm
+query script, <a
+ href="../../../../../../ptmp/cmplrs.src/webpages/Tools/SpeedShop_ASCI/DevelopersCorner/DevelopmentEnv/rpmQuery">rpmQuery</a>
+for querying all the
+packages needed.<br>
 </div>
 <b style=""><br>
 </b>
@@ -1858,8 +2202,10 @@ Environment Variables</b></h3>
  name="mozTocId972152"></a><b style=""><a class="mozTocH4"
  name="mozTocId24750"></a><a name="OpenSpeedShop_developer_related"></a>Open|SpeedShop
 Developer
-Related Environment Variables<br>
-</b></h4>
+Related Environment Variables</b></h4>
+<h5 style="margin-left: 160px;"><a class="mozTocH5"
+ name="mozTocId132645"></a>Generally used environment variables<br>
+</h5>
 <ul>
   <b style=""> </b>
   <ul>
@@ -1868,18 +2214,23 @@ Related Environment Variables<br>
       <b style=""> <li>OPENSS_INSTALL_DIR - This environment variable
 specifies where the Open|SpeedShop binaries and libraries will be
 installed.&nbsp; Set this variable to a path, (e.g. "setenv
-OPENSS_INSTALL_DIR /scratch/jeg/openss/install)</li>
+OPENSS_INSTALL_DIR /scratch/jeg/openss/install).&nbsp;&nbsp; After
+installation, a bin and lib directory containing the Open|SpeedShop
+components, will be present under the /scratch/jeg/openss/install
+directory.<br>
+      </li>
       </b>
     </ul>
     <b style=""> </b>
   </ul>
 </ul>
+<br>
+<h5 style="margin-left: 160px;"><a class="mozTocH5"
+ name="mozTocId127260"></a>Special purpose environment variables</h5>
 <ul>
-  <b style=""> </b>
   <ul>
-    <b style=""> </b>
     <ul>
-      <b style=""> <li>OPENSS_PLUGIN_PATH - This environment variable
+      <b style=""><li>OPENSS_PLUGIN_PATH - This environment variable
 specifies where the Open|SpeedShop main program looks for the
 experiment plugins.&nbsp; At Open|SpeedShop initialization, set this
 variable to a path,&nbsp; (e.g.
@@ -1958,194 +2309,6 @@ will install Open|SpeedShop executables into /usr/local/bin and the
 Open|SpeedShop plugins into /usr/local/lib.<br>
   <br>
   </b></blockquote>
-<b style="">
-</b>
-<blockquote><b style=""> </b>
-  <h3><a class="mozTocH3" name="mozTocId882423"></a><b style=""><a
- name="mozTocId556715" class="mozTocH2"></a>Installing DPCL</b></h3>
-</blockquote>
-<blockquote><b style="">DPCL is the component responsible for
-supporting
-performance
-measurement gathering on clusters.&nbsp; In a clustering configuration
-DPCL uses a client/server architecture.&nbsp; A DPCL "super daemon" is
-created each time the user starts a performance tool. This super daemon
-is responsible for insuring that a "communication daemon" is running on
-each of the machines in the cluster. The super daemon distributes
-commands from the performance tool to the various communication daemons
-and gathers data from them. TCP/IP is the transport mechanism for this
-data in DPCL.<br>
-  <br>
-The <a href="TroubleShootingGuide/index.html">DPCL installation
-trouble shooting guide</a> provides problem solving information and
-tips for the installation of the cluster support component,
-DPCL.&nbsp;&nbsp; A quick and dirty list of items to check off if DPCL
-is not working is as follows:<br>
-  <br>
-  </b>
-  <div style="margin-left: 40px;"><b style=""><b>Step 1:&nbsp; </b><span
- style="font-weight: bold;">Build Dyninst and DPCL - Here is the script
-to build the DPCL and Dyninst</span><br>
-##!/bin/tcsh<br>
-################################################################################<br>
-# DPCL/Dyninst (in directory $HYBRID)<br>
-################################################################################<br>
-  <br>
-setenv DYNINST_ROOT "$HYBRID/dyninst"<br>
-  <br>
-if ((`uname` == "Linux") &amp;&amp; (`uname -m` == "ia64")) then<br>
-&nbsp;&nbsp;&nbsp; setenv PLATFORM "ia64-unknown-linux2.4"<br>
-else if (`uname` == "Linux") then<br>
-&nbsp;&nbsp;&nbsp; setenv PLATFORM "i386-unknown-linux2.4"<br>
-endif<br>
-  <br>
-cd $DYNINST_ROOT<br>
-mkdir -p ${PLATFORM}/bin<br>
-mkdir -p ${PLATFORM}/lib<br>
-cd $DYNINST_ROOT/core<br>
-make DyninstAPI<br>
-cd $DYNINST_ROOT<br>
-install -d $ROOT/include/dyninst<br>
-install -D -m u=rw,g=r,o=r core/dyninstAPI/h/BPatch*.h
-$ROOT/include/dyninst<br>
-install -D ${PLATFORM}/lib/libdyninstAPI_RT.so.1
-$ROOT/lib/libdyninstAPI_RT.so.1<br>
-install -D ${PLATFORM}/lib/libdyninstAPI.so $ROOT/lib/libdyninstAPI.so<br>
-  <br>
-cd $DYNINST_ROOT/../dpcl/src<br>
-./configure --prefix=$ROOT --includedir=$ROOT/include/dpcl
---enable-md-dyninst<br>
-make<br>
-make install<br>
-  <br>
-unsetenv DYNINST_ROOT<br>
-unsetenv PLATFORM<br>
-  <br>
-cd ../../..<br>
-  <br>
-  <b>Step 2: Check .rhosts file<br>
-  <br>
-  </b>Make sure that your login specific .rhosts file has entries for
-all the hosts you will be accessing via DPCL.&nbsp; Entries will look
-like this: (not the dashed lines)<br>
-----------------------------------------<br>
-hubble userid<br>
-hubble.americas.sgi.com userid<br>
-----------------------------------------<br>
-  <b><br>
-Step 3: dpcl.config file must be present</b><br>
-Create a file named dpcl.config in /opt/dpcl/etc that contains the
-following two lines: (not the dashed lines)<br>
-------------------------------<br>
-security:<br>
-method = dpcl<br>
-------------------------------<br>
-  <br>
-  <br>
-  <b>Step 4: Super Daemon entry in /etc/services<br>
-  <br>
-  </b>The build mentioned above should install the Super Daemon entry
-in /etc/services.&nbsp; If it doesn't proceed with the following.<br>
-  <br>
-Add the DPCL Super Daemon to the /etc/services file.&nbsp; The line(s)
-should be as follows: (not the dashed lines)&nbsp; You can insert it at
-the end of the file just above the Local Services area.<br>
--------------------------------------------<br>
-# dpcl Super Daemon<br>
-dpclSD 7895/tcp # DPCL Super Daemon<br>
--------------------------------------------<br>
-  <br>
-  <br>
-  <b>Step 5:</b>&nbsp; <span style="font-weight: bold;">/etc/xinetd.d/dpclSD
-file</span><br>
-  <br>
-Add the DPCL Super Daemon xinetd.d "dpclSD" file into the /etc/xinetd.d
-directory. Here is an example of the file contents needed: (not the
-dashed lines)<br>
----------------------------------------------<br>
-service dpclSD<br>
-{<br>
-disable = no<br>
-socket_type = stream<br>
-protocol = tcp<br>
-wait = no<br>
-user = root<br>
-server = /perftools/ROOT/bin/dpclSD<br>
-server_args = /perftools/ROOT/bin/dpcld /tmp/dpcld /tmp/dpcl<br>
-env += LD_LIBRARY_PATH=/perftools/ROOT/lib<br>
-env += DPCL_RT_LIB=/perftools/ROOT/lib/libdpclRT.so.1<br>
-env += DYNINSTAPI_RT_LIB=/perftools/ROOT/lib/libdyninstAPI_RT.so.1<br>
-}<br>
----------------------------------------------<br>
-  <br>
-Change the directory patch to match that of the actual directory path
-of the actual DPCL build you want to run.&nbsp; In this example the
-DPCL components are in /perftools/ROOT.<br>
-  <br>
-  <br>
-  <b>Step 6:</b> <span style="font-weight: bold;">Activate the Super
-Daemon</span><br>
-  <br>
-Do a: "ps -ef | grep dpcl" to see if any existing super daemons are
-running or if there are any hanging daemons.<br>
-  <br>
-The 'xinetd' daemon must be restarted: "/etc/init.d/xinetd start"at
-some point following Open|SpeedShop installation.&nbsp; Doing so allows
-'xinetd' to pick up the SuperDaemon (dpclSD) service and start
-'listening' on <br>
-its port. <br>
-  <br>
-For Altix: 'kill -SIGHUP `cat /var/run/xinetd.pid`'.&nbsp; When
-'xinetd' is restarted, lines similar to the following should appear in
-the system file '/var/log/messages':<br>
-  <br>
-  </b>
-  <pre wrap=""><b style="">  .... xinetd[617]: Starting reconfiguration<br>  <br>  .... xinetd[617]: readjusting service dpclSD<br><br><br></b></pre>
-  <b style="">Do the following command once the xinetd daemon has been
-restarted, per
-the TroubleShooting Guide.&nbsp; This will tell you if the Super Daemon
-is running.<br>
-  <br>
-"netstat -a -inet | grep dpclSD" <br>
-or<br>
-"netstat -a -inet" yields this type of list:<br>
-  <br>
-Active Internet connections (servers and established)<br>
-Proto Recv-Q Send-Q Local
-Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Foreign Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-State<br>
-tcp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0
-*:32768&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-*:*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-LISTEN<br>
-tcp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0
-*:login&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-*:*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-LISTEN<br>
-tcp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0 localhost.localdo:32769
-*:*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; LISTEN<br>
-...<br>
-...<br>
-tcp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0
-*:telnet&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-*:*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-LISTEN<br>
-  <b>tcp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0
-*:dpclSD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-*:*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-LISTEN</b><br>
-tcp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0
-*:smtp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-*:*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-LISTEN</b></div>
-</blockquote>
 <b style=""><br>
 <span style="font-size: 11pt; font-family: &quot;Times New Roman&quot;;">
 </span></b>
@@ -2293,8 +2456,8 @@ corresponding menu items.&nbsp;&nbsp; We will touch on the&nbsp; File
 menu, Tools menu, Experiments menu, and the Wizards menu, as shown at
 the top of the Open|SpeedShop window below.<br>
     <br>
-    <img alt="Top Menu" src="snapshot_TopMenu.png"
- style="width: 844px; height: 633px;"><br>
+    <img alt="Initial Open!SpeedShop Introduction Panel"
+ src="InitialPanel.png" style="width: 860px; height: 644px;"><br>
     <br>
     </b>
     <h4><a class="mozTocH4" name="mozTocId104383"></a><b style=""><a
@@ -2302,106 +2465,39 @@ the top of the Open|SpeedShop window below.<br>
 Menu </b></h4>
     <b style="">The File menu contains the menu items shown below:<br>
     <br>
-    <img alt="File Menu" src="snapshot_FileMenuItems.png"
- style="width: 254px; height: 222px;"><br>
+    <img alt="Open|SpeedShop File Menu" src="FileMenu.png"
+ style="width: 224px; height: 238px;"><br>
     <br>
     </b>
     <h5><a class="mozTocH5" name="mozTocId677079"></a><b style=""><a
  class="mozTocH5" name="mozTocId629620"></a><a name="Open_Experiment"></a>Open
-Experiment</b></h5>
-    <b style="">TBD<br>
+Existing Experiment</b></h5>
+    <b style="">This menu item allows the user to open an experiment
+that was started and subsequently closed.&nbsp; By opening the
+experiment, the user regains access to the performance data gathered so
+far and control over the running experiment.<br>
     <br>
     </b>
     <h5><a class="mozTocH5" name="mozTocId921560"></a><b style=""><a
  class="mozTocH5" name="mozTocId499924"></a><a
  name="Open_Saved_Experiment"></a>Open Saved Experiment</b></h5>
-    <b style="">TBD<br>
+    <b style="">This menu item allows the user to re-open a saved
+experiment that was saved via the <a href="Save%20Experiment%20Data">Save
+Experiment Data</a> menu item.&nbsp; Performance data contained in the
+experiment may be reexamined and redisplayed once the experiment is
+opened again.<br>
     <br>
     </b>
     <h5><a class="mozTocH5" name="mozTocId578022"></a><b style=""><a
  class="mozTocH5" name="mozTocId354538"></a><a
  name="Save_Experiment_Data"></a>Save Experiment Data</b></h5>
-    <b style="">TBD<br>
-    <br>
-    </b>
-    <h5><a class="mozTocH5" name="mozTocId336137"></a><b style=""><a
- class="mozTocH5" name="mozTocId888583"></a><a
- name="Export_Experiment_Data"></a>Export Experiment Data</b></h5>
-    <b style="">TBD<br>
-    <br>
-    </b>
-    <h5><a class="mozTocH5" name="mozTocId794441"></a><b style=""><a
- class="mozTocH5" name="mozTocId275115"></a><a name="Save_Window_Setup"></a>Save
-Window Setup</b></h5>
-    <b style="">TBD<br>
-    <br>
-    </b>
-    <h5><a class="mozTocH5" name="mozTocId249547"></a><b style=""><a
- class="mozTocH5" name="mozTocId980821"></a><a
- name="Preferences_Menu_Item"></a>Preferences Menu Item <br>
-    </b></h5>
-    <b style="">Selecting the Preferences menu item will cause the
-Open|SpeedShop
-Preferences Dialog window to appear.&nbsp;&nbsp; Selections for various
-configuration items can be done by selecting either General or a
-specific panel and then changing the particular preference item and
-clicking either the Apply button or the Ok button.&nbsp;&nbsp; The
-Apply button will apply the c<br>
-    <br>
-    <img alt="Preferences Dialog Window"
- src="snapshot_PreferencesDialog.png"
- style="width: 920px; height: 690px;"><br>
-    <br>
-    </b>
-    <h5><a class="mozTocH5" name="mozTocId32692"></a><b style=""><a
- class="mozTocH5" name="mozTocId678844"></a><a name="Close_Menu_Item"></a>Close
-Menu Item</b></h5>
-    <b style="">&nbsp;The Close menu item will cause this particular
-window to close.<br>
-    </b>
-    <h5><a class="mozTocH5" name="mozTocId945989"></a><b style=""><a
- class="mozTocH5" name="mozTocId199735"></a><a name="Exit_Menu_Item"></a>Exit
-Menu Item</b></h5>
-    <b style="">&nbsp; The Exit menu item will cause the Open|SpeedShop
-tool to
-completely stop execution and close all windows.<br>
-    <br>
-    </b>
-    <h4><a class="mozTocH4" name="mozTocId139584"></a><b style=""><a
- class="mozTocH4" name="mozTocId398994"></a><a name="Tools_Menu"></a>Tools
-Menu</b></h4>
-    <b style="">The Tools Menu contains items for the panels that have
-been
-created.&nbsp; In this example three panels can be accessed by clicking
-on the corresponding menu items.<br>
-    <br>
-    <img alt="Tools Menu items" src="snapshot_ToolsMenuItems.png"
- style="width: 178px; height: 82px;"><br>
-    </b></blockquote>
-</blockquote>
-<blockquote> <b style=""> </b>
-  <blockquote><b style=""> </b>
-    <h5><a class="mozTocH5" name="mozTocId539563"></a><b style=""><a
- class="mozTocH5" name="mozTocId445188"></a><a name="Command_Panel"></a>Command
-Panel</b></h5>
-    <b style="">The command panel is the panel that supports input of
-the same set of
-interactive command line interface (CLI) commands.&nbsp; These are the
-commands that that may be entered when the Open|SpeedShop tool is
-invoked via "openss -gui".&nbsp;&nbsp; See the <a
- href="../cli_doc/command_definition.html">CLI command section</a> for
-more information.<br>
-    <br>
-    </b>
-    <h5><a class="mozTocH5" name="mozTocId776821"></a><b style=""><a
- class="mozTocH5" name="mozTocId497209"></a>Source Panel</b></h5>
-    <b style="">TBD<br>
-    <br>
-    </b>
-    <h5><a class="mozTocH5" name="mozTocId181329"></a><b style=""><a
- class="mozTocH5" name="mozTocId598585"></a>Top Panel</b></h5>
-    <b style="">TBD<br>
-    <br>
+    <b style="">The Save Experiment Data menu item writes the
+Open|SpeedShop performance experiment information and data to a
+filename specified by the user.&nbsp;&nbsp; The information saved will
+allow the user to examine and display performance information at a
+later time by opening this saved file with the <a
+ href="Save_Experiment_Data">Open Saved Experiment</a> menu item.<br>
+    </b><b style=""><br>
     </b>
     <h4><a class="mozTocH4" name="mozTocId185127"></a><b style=""><a
  class="mozTocH4" name="mozTocId129835"></a><a name="Experiments_Menu"></a>Experiments
@@ -2417,10 +2513,11 @@ corresponding menu items.<br>
  src="snapshot_ExperimentsMenuItems.png"
  style="width: 249px; height: 186px;"><br>
     <br>
-In reality at this, the Milestone 3 delivery, only the PC Sampling
-experiment is developed.&nbsp; Clicking on PC Sampling will bring up
+In reality at this, the Milestone 5 delivery,&nbsp; the PC Sampling,
+Usertime and HW Counter
+experiments are developed.&nbsp; Clicking on PC Sampling will bring up
 the program counter (PC) Sampling experiment panel as shown in the PC
-Sampling Experiment section (TBD at this time).<br>
+Sampling Experiment section.<br>
     <br>
     </b>
     <h5><a class="mozTocH5" name="mozTocId866150"></a><b style=""><a
@@ -2491,16 +2588,131 @@ Menu</b></h4>
  name="PC_Sampling_Experiment_Wizard_"></a>PC Sampling Experiment Wizard<br>
     </b></h5>
     <b style="">See the Wizard description for <a
- href="#Typical_OpenSpeedShop_GUI_Wizard_Usage">Typical Open|SpeedShop
+ href="OpenSpeedShopUsersGuide.html#Typical_OpenSpeedShop_GUI_Wizard_Usage">Typical
+Open|SpeedShop
 GUI Wizard Usage</a><br>
     </b>
     <h5><a class="mozTocH5" name="mozTocId304844"></a><b style=""><a
  class="mozTocH5" name="mozTocId360325"></a><a
  name="User_Time_Experiment_Wizard"></a>User Time Experiment Wizard<br>
     </b></h5>
-    <b style="">TBD<br>
+    <b style="">TBD</b><br>
+    <h5><a class="mozTocH5" name="mozTocId249547"></a><b style=""><a
+ class="mozTocH5" name="mozTocId980821"></a><a
+ name="Preferences_Menu_Item"></a>Preferences Menu Item <br>
+    </b></h5>
+    <b style="">Selecting the Preferences menu item will cause the
+Open|SpeedShop
+Preferences Dialog window to appear.&nbsp;&nbsp; Selections for various
+configuration items can be done by selecting either General or a
+specific panel and then changing the particular preference item and
+clicking either the Apply button or the Ok button.&nbsp;&nbsp; The
+Apply button will apply the changes without exiting the preference
+processing window.&nbsp;&nbsp; Pressing the Ok button will apply the
+changes and exit the preference processing window.<br>
+    <br>
+Currently there are three areas of preference processing:<br>
+    </b>
+    <h6><a class="mozTocH6" name="mozTocId426001"></a>General:</h6>
+    <img alt="General Preference Processing Window"
+ src="Preferences-General.png" style="width: 630px; height: 414px;"><br>
+    <br>
+The General preferences are, as the general title implies, for setting
+items that apply to the overall Open|SpeedShop tool.&nbsp; Items such
+as font characteristics, graphics, splash screen, and remote shell
+command processing are now supported.<br>
+    <b style=""> <br>
+    </b>
+    <h6><a class="mozTocH6" name="mozTocId284897"></a>Statistics Related</h6>
+    <img alt="Statistics Preference Processing Window"
+ src="Preferences-Stats.png" style="width: 630px; height: 414px;"><br>
+    <br>
+The statistics related preferences apply to the performance experiment
+results presentation.&nbsp;&nbsp; How to sort the results, what column
+to sort from, and how many result items do you want displayed are the
+current options supported.<br>
+    <h6><a class="mozTocH6" name="mozTocId353011"></a>Source Related</h6>
+    <img alt="Source Preference Processing Window"
+ src="Preferences-Source.png" style="width: 630px; height: 414px;"><br>
+    <br>
+The source panel preferences are show line numbers and
+statistics.&nbsp;&nbsp; Statistics when set will present the
+performance results integrated with the source.&nbsp;&nbsp;&nbsp; See
+the source panel image at this <a href="ShowSourceStatistics">link</a>.<br>
+    <b style=""> <br>
+    </b>
+    <h5><a class="mozTocH5" name="mozTocId32692"></a><b style=""><a
+ class="mozTocH5" name="mozTocId678844"></a><a name="Close_Menu_Item"></a>Close
+Menu Item</b></h5>
+    <b style="">&nbsp;The Close menu item will cause the window to
+close but the Open|SpeedShop will continue......<br>
+    </b>
+    <h5><a class="mozTocH5" name="mozTocId945989"></a><b style=""><a
+ class="mozTocH5" name="mozTocId199735"></a><a name="Exit_Menu_Item"></a>Exit
+Menu Item</b></h5>
+    <b style="">&nbsp; The Exit menu item will cause the Open|SpeedShop
+tool to
+completely stop execution and close all windows.<br>
     <br>
     </b>
+    <h4><a class="mozTocH4" name="mozTocId139584"></a><b style=""><a
+ class="mozTocH4" name="mozTocId398994"></a><a name="Tools_Menu"></a>Tools
+Menu</b></h4>
+    <b style="">The Tools Menu contains items for the panels that have
+been
+created.&nbsp; In this example three panels can be accessed by clicking
+on the corresponding menu items.<br>
+    <br>
+    <img alt="Tools Menu" src="ToolsMenu.png"
+ style="width: 157px; height: 52px;"><br>
+    </b></blockquote>
+</blockquote>
+<blockquote> <b style=""> </b>
+  <blockquote><b style=""> </b>
+    <h5><a class="mozTocH5" name="mozTocId539563"></a><b style=""><a
+ class="mozTocH5" name="mozTocId445188"></a><a name="Command_Panel"></a>Command
+Panel</b></h5>
+    <b style="">The command panel is the panel that supports input of
+the same set of
+interactive command line interface (CLI) commands.&nbsp; These are the
+commands that that may be entered when the Open|SpeedShop tool is
+invoked via "openss -gui".&nbsp;&nbsp; See the <a
+ href="../cli_doc/command_definition.html">CLI command section</a> for
+more information.<br>
+    <br>
+    </b>
+    <h5><a class="mozTocH5" name="mozTocId776821"></a><b style=""><a
+ class="mozTocH5" name="mozTocId497209"></a>Source Panel</b></h5>
+    <b style="">This menu item brings up the source panel window.&nbsp;
+There are a number of option available in the source panel that can be
+viewed by right mouse clicking:<br>
+    <br>
+    <img alt="Source Panel and Options" src="SourcePanel.png"
+ style="width: 860px; height: 644px;"><br>
+    <br>
+    </b> <b style=""> </b>
+    <h5><a class="mozTocH5" name="mozTocId155120"></a><b style="">Stats
+Panel</b></h5>
+Although the Stats Panel isn't part of the tool menu it is a panel that
+is available from the experiment tab panel and is a significant&nbsp;
+panel.&nbsp;&nbsp; It is home to many of the important options used in
+viewing the performance experiment results.&nbsp; Options currently
+available (viewed by right mouse down click in Stats Panel tab) include:<br>
+    <ul>
+      <ul>
+        <li>Choosing experiment result metrics</li>
+        <li>Choosing process, thread, or rank to view</li>
+        <li>Comparing results <br>
+        </li>
+        <li>Exporting/Saving result data <br>
+        </li>
+      </ul>
+    </ul>
+    <br>
+    <img alt="Statistics Panel" src="StatsPanel.png"
+ style="width: 860px; height: 644px;"><br>
+    <br>
+    <h5><a class="mozTocH5" name="mozTocId868104"></a><b style=""> </b></h5>
     <h3><a class="mozTocH3" name="mozTocId949525"></a><b style=""><a
  name="mozTocId775083" class="mozTocH3"></a><a
  name="Typical_OpenSpeedShop_GUI_Wizard_Usage"></a>Typical
@@ -2517,9 +2729,8 @@ or -gui options), the initial window will look like this:<br>
 </blockquote>
 <blockquote> <b style=""> </b>
   <p style="margin-left: 40px;"><b style=""><img
- src="snapshot_pcsampWizard1.png"
- alt="Initial Open/SpeedShop Start-Up Window"
- style="width: 920px; height: 650px;"><br>
+ alt="Wizard Startup Panel - Initial Open|SpeedShop Panel"
+ src="InitialPanel.png" style="width: 860px; height: 644px;"><br>
   </b></p>
 </blockquote>
 <b style=""><br>
@@ -2538,8 +2749,8 @@ clicks on the Next button this is the window that appears.</b></p>
   <br>
   </b>
   <div style="margin-left: 40px;"><b style=""><img
- src="snapshot_pcsampWizard2.png" alt="PC Sampling Wizard Intro Window"
- style="width: 920px; height: 690px;"><br>
+ alt="Second PC Sampling Exp. Wizard Window"
+ src="PC_SamplingWizard-2.png" style="width: 860px; height: 644px;"><br>
   </b></div>
   <b style=""> <br>
   </b>
@@ -2562,8 +2773,8 @@ Next button.<br>
   </b></blockquote>
 <blockquote><b style=""> </b></blockquote>
 <p style="margin-left: 80px;"><b style=""><img
- src="snapshot_pcsampWizard3.png" alt="PC Sampling Wizard window 2"
- style="width: 920px; height: 690px;"><br>
+ alt="Third PC Sampling Exp. Wizard Window"
+ src="PC_SamplingWizard-3.png" style="width: 860px; height: 644px;"><br>
 </b></p>
 <blockquote></blockquote>
 <p class="MsoBodyText" style="margin-left: 0.5in;">
@@ -2594,9 +2805,8 @@ user clicked on the Next button.<br>
 <blockquote><b style=""><br>
   </b>
   <div style="margin-left: 40px;"><b style=""><img
- src="snapshot_pcsampWizard4.png"
- alt="PC Sampling wizard executable/application selection window"
- style="width: 920px; height: 690px;"><br>
+ alt="Attach/Load Executable Wizard Window"
+ src="PC_SamplingWizard-3A.png" style="width: 860px; height: 644px;"><br>
   </b></div>
   <b style=""> <br>
   </b>
@@ -2609,12 +2819,13 @@ window to appear.&nbsp; Using the selection window the user can click
 on executables to be the application that the PC sampling experiment
 will gather data for.<br>
     </b></blockquote>
-  <b style=""> <br>
-  <br>
-  </b>
   <div style="margin-left: 40px;"><b style=""><img
- src="snapshot_pcsampWizard5.png" alt="pc sampling wizard window"
- style="width: 920px; height: 690px;"><br>
+ alt="Fourth PC Sampling Exp. Wizard Window"
+ src="PC_SamplingWizard-4.png" style="width: 520px; height: 280px;"></b><br>
+  </div>
+  <b style=""> <br>
+  </b>
+  <div style="margin-left: 40px;"><b style=""><br>
   </b></div>
 </blockquote>
 <blockquote> <b style=""> </b>
@@ -2623,8 +2834,8 @@ executable
 selection window which allows the user to select the executable they
 would like to load and subsequently have performance analysis done on.<br>
   <br>
-  <img alt="PC Sampling Wizard summary window"
- src="snapshot_pcsampWizard6.png" style="width: 1024px; height: 768px;"><br>
+  <img alt="Finish/Summary Wizard Window" src="PC_SamplingWizard-5.png"
+ style="width: 860px; height: 644px;"><br>
   </b></div>
   <b style=""> </b>
   <blockquote><b style="">The panel/window above summarizes the results
@@ -2638,8 +2849,9 @@ will appear.<br>
   <b style=""> <br>
   </b>
   <div style="margin-left: 40px;"><b style=""><img
- src="snapshot_pcsampWizard7.png" alt="PC Sampling Experiment Window"
- style="width: 920px; height: 690px;"><br>
+ alt="Ready To Run PC Sampling Experiment"
+ src="PC_SamplingWizard-6_OR_PC_SampleExperiment-1.png"
+ style="width: 860px; height: 644px;"><br>
   </b></div>
 </blockquote>
 <blockquote> <b style=""> </b>
@@ -2679,13 +2891,26 @@ Doing this will engage Open|SpeedShop to start the application and to
 gather the PC Sampling performance data at the sampling rate chosen in
 the previous step(s).<br>
     <br>
-    <img alt="PC Sampling Results Panel"
- src="snapshot_pcsampWizard8.png" style="width: 860px; height: 644px;"><br>
+    <img alt="Running Experiment" src="PC_SampleExperiment-2.png"
+ style="width: 860px; height: 644px;"><br>
     </b></blockquote>
 </blockquote>
-<b style=""><br>
-</b>
-<div style="margin-left: 80px;"><b style="">Holding the right mouse
+<div style="margin-left: 80px;"><b style=""><br>
+The image below shows the results after the experiment is
+completed.&nbsp;&nbsp; Because the "Show graphics" preference was set,
+a pie chart is displayed.&nbsp;&nbsp; To view the source and the
+results side by side.&nbsp;&nbsp; Click on one of the split panel icons
+on the right hand side of the PC Sampling panel.<br>
+<br>
+<br>
+<br>
+<img alt="Experiment Is Finished - View Results"
+ src="PC_SampleExperiment-3-RESULTS.png"
+ style="width: 860px; height: 644px;"><br>
+<br>
+</b><b style=""></b></div>
+<div style="margin-left: 80px;"><b style="">Either clicking on the
+split panel icon or holding the right mouse
 button down in
 either the Source Panel tab or
 the Stats Panel tab will show a menu of user choices for various
@@ -2693,24 +2918,25 @@ actions to be taken on the panel structure, panel contents, or
 performance date.&nbsp; To split the panel container so that the source
 and
 performance data results (PC Stats Panel) will be side by
-side.&nbsp;&nbsp;
-Follow the Panel Container menu and select split horizontal. <br>
+side follow the Panel Container menu and select split horizontal. <br>
 <br>
-</b></div>
+</b><b style=""> The result of split horizontal panel
+action is
+shown in the next figure.</b><br>
+</div>
 <b style=""><br>
 </b>
 <div style="margin-left: 80px;"><b style=""><img
- alt="Split results and source panels horizontally"
- src="snapshot_pcsampWizard9.png" style="width: 920px; height: 690px;"><br>
+ alt="Show side by side source and results"
+ src="PC_SampleExperiment-4-Split.png"
+ style="width: 860px; height: 644px;"><br>
 </b></div>
 <blockquote> <b style=""> </b>
-  <blockquote><b style="">&nbsp; The result of split horizontal panel
-action is
-shown in the next figure.<br>
+  <blockquote><b style="">&nbsp;<br>
     <br>
-    <img alt="After splitting panels" src="snapshot_pcsampWizard10.png"
- style="width: 920px; height: 690px;"><br>
-    <span style="font-family: arial;"><span style="font-weight: bold;"><br>
+    <br>
+    <span style="font-family: arial;"><span style="font-weight: bold;"><a
+ name="ShowSourceStatistics"></a><br>
     </span></span>After splitting the panels appear side by
 side.&nbsp;&nbsp; Clicking on the "f3" function results line will focus
 the source panel to the corresponding function "f3" source file and
@@ -2721,7 +2947,8 @@ levels.&nbsp;&nbsp; In that case you may only have the function name
 but no source line information, so the click mentioned above will not
 be able to focus to the source for the function selected.<br>
     <br>
-    <img alt="Source correspondance" src="snapshot_pcsampWizard11.png"
+    <img alt="Show function f3 click focuses the source"
+ src="PC_SampleExperiment-5-f3click.png"
  style="width: 860px; height: 644px;"><br>
     <br>
 Clicking on the arrows to the right of the Time or Function header
@@ -2747,48 +2974,82 @@ choose the PC Sampling Experiment menu item.&nbsp; This will cause the
 PC Sampling Experiment Window to be created and displayed, as in the
 image below.<br>
 <br>
-<img alt="PC Sampling Experiment Clean/New Window"
- src="snapshot_PC_SamplingCleanWindow.png"
- style="width: 860px; height: 644px;"><br>
-</b></div>
-<blockquote></blockquote>
-<div style="margin-left: 80px;"><b style="">Note the Load a new program
-message or
-status in the Process Control Status line.&nbsp;&nbsp; To load a new
-program right mouse button down to get a menu item list as seen in the
-next image.<br>
-<br>
-<img alt="Selecting Load Experiment from Experiment Tab"
- src="snapshot_PC_SamplingFullScreenHowToLoadExecutable.png"
- style="width: 920px; height: 690px;"><br>
-</b></div>
+Note: using this Open|SpeedShop command, "openss -f
+usability/phaseIII/fred pcsamp" will get the same result as the
+following steps which are needed when one invokes Open|SpeedShop with
+the "openss" (no arguments) command.</b><b style="">&nbsp; Invoking the
+former command (</b><b style="">"openss -f usability/phaseIII/fred
+pcsamp") </b><b style="">will create the PC Sampling experiment and
+load the executable, fred,&nbsp; resulting in an openss GUI as shown in
+this link: <a
+ href="OpenSpeedShopUsersGuide.html#Ready_to_Run_the_Experiment">Ready
+to run
+experiment</a>.</b><br>
 <b style=""><br>
-</b>
-<div style="margin-left: 80px;"><b style="">Once the Load New Program
+</b><b style=""><img alt="Activate Manage Process Window"
+ src="PC_SampleExperiment-non-wizard-2.png"
+ style="width: 860px; height: 644px;"></b><br>
+</div>
+<blockquote></blockquote>
+<div style="margin-left: 80px;"><b style=""><br>
+The PC Sampling Experiment Window appears after choosing the PC
+Sampling menu item from the Experiment Menu.<br>
+<br>
+<br>
+</b></div>
+<div style="margin-left: 80px;"><b style=""><img
+ alt="PC Sampling Experiment - No Wizard Usage"
+ src="PC_SampleExperiment-non-wizard-1.png"
+ style="width: 860px; height: 644px;"></b></div>
+<div style="margin-left: 80px;"><b style=""><br>
+</b><b style="">Note the Load a new program
+message or
+status in the Process Control Status line.&nbsp; This indicates that no
+processes are attached and no executables have been loaded at this
+point.&nbsp; To load or attach to running process, right mouse button
+down in the PC Sampling Panel Tab to get a menu item list as seen in
+the
+next image.&nbsp;&nbsp;&nbsp; Select the Manage Processes Panel menu
+item.</b><br>
+<b style=""><br>
+<img alt="Manage Process Panel"
+ src="PC_SampleExperiment-non-wizard-3.png"
+ style="width: 860px; height: 644px;"><br>
+<br>
+<br>
+Once the Load New Program
 menu item is
 selected the user will see the Enter executable or saved experiment
-window.&nbsp; In this window a user may or may not change directories
-to find their executable and select it.&nbsp;&nbsp; <br>
+window.&nbsp; <br>
 </b></div>
 <b style=""><br>
 <br>
 </b>
 <div style="margin-left: 80px;"><b style=""><img
- alt="Load Executable Dialog"
- src="snapshot_PC_SamplingLoadExecutable.png"
- style="width: 561px; height: 280px;"><br>
+ alt="Load Program Panel" src="PC_SampleExperiment-non-wizard-4.png"
+ style="width: 860px; height: 644px;"><br>
 </b></div>
 <b style=""><br>
 </b>
-<div style="margin-left: 80px;"><b style="">When the executable is
+<div style="margin-left: 80px;"><b style="">In this window a user may
+or may not change directories
+to find their executable and select it.&nbsp;&nbsp; </b><br>
+</div>
+<b style=""><br>
+</b>
+<div style="margin-left: 80px;"><b style=""><img alt="Load Program"
+ src="PC_SampleExperiment-non-wizard-5.png"
+ style="width: 860px; height: 644px;"></b><br>
+<b style=""></b></div>
+<div style="margin-left: 80px;"><b style=""><br>
+When the executable is
 selected the PC
 Sampling Experiment window shows that the program has been loaded.<br>
 </b></div>
 <b style=""><br>
 </b>
-<div style="margin-left: 80px;"><b style=""><img
- alt="Ready to Run PC Sampling Experiment"
- src="snapshot_PC_SamplingRunTheExperiment.png"
+<div style="margin-left: 80px;"><b style=""><img alt="Ready to run"
+ src="PC_SampleExperiment-non-wizard-6.png"
  style="width: 860px; height: 644px;"><br>
 <br>
 At this point the typical non-Wizard usage matches that of the Wizard
