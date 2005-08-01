@@ -17,6 +17,6 @@
 ################################################################################
 
 # directories that will be built
-SUBDIRS = executables test_source
+SUBDIRS = executables test_source test_scripts
 
-DIST_SUBDIRS = executables test_source 
+DIST_SUBDIRS = executables test_source test_scripts

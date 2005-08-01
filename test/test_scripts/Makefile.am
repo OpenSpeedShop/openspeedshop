@@ -16,16 +16,11 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = pcsamp usertime
-
-DIST_SUBDIRS = $(SUBDIRS)
-
 EXTRA_DIST = \
 	runall \
-	test_config
-
-check_SCRIPTS_common = runall
-
-check_SCRIPTS = $(check_SCRIPTS_common)
-
-TESTS = $(check_SCRIPTS)
+	runall-dpcl \
+	runone \
+	runone-pcsamp \
+	runone-usertime \
+	rununit \
+	runone-dpcl
