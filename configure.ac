@@ -177,8 +177,20 @@ AC_CONFIG_FILES(Makefile
 		test/executables/mutatee/cplus_version/Makefile
 		test/executables/mutatee/f77_version/Makefile
 		test/executables/Eon/Makefile
+		test/test_scripts/Makefile
 		test/test_source/Makefile
 		test/test_source/regression/Makefile	
+		test/test_source/regression/pcsamp/Makefile
+		test/test_source/regression/pcsamp/pcsamp1/Makefile
+		test/test_source/regression/pcsamp/pcsamp2/Makefile
+		test/test_source/regression/pcsamp/pcsamp3/Makefile
+		test/test_source/regression/usertime/Makefile
+		test/test_source/regression/usertime/usertime1/Makefile
+		test/test_source/regression/usertime/usertime2/Makefile
+		test/test_source/regression/usertime/usertime3/Makefile
+		test/test_source/regression/usertime/usertime4/Makefile
+		test/test_source/regression/usertime/usertime5/Makefile
+		test/test_source/regression/usertime/usertime6/Makefile
 		test/test_source/unit/Makefile
 		test/test_source/unit/fw/Makefile
 		test/test_source/unit/fw/interval/Makefile
