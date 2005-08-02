@@ -40,25 +40,25 @@ static  QTextEdit *output;
 
 class OutputClass : public ss_ostream
 {
-   public:
-   CmdPanel *cp;
-   void setCP(CmdPanel *_cp) { cp = _cp; };
-   private:
-    virtual void output_string (std::string s) {
-// This goes to the text stream...
-// fprintf(stderr,"A: %s",s.c_str());
-cp->textDisabled = TRUE;
-      output->append(s.c_str());
-    output->moveCursor(QTextEdit::MoveEnd, FALSE);
-    output->getCursorPosition(&cp->history_start_para, &cp->history_start_index);
-    output->moveCursor(QTextEdit::MoveEnd, FALSE);
-    output->getCursorPosition(&cp->last_para, &cp->last_index);
-    cp->history_start_index = cp->last_index;
-cp->textDisabled = FALSE;
+  public:
+    CmdPanel *cp;
+    void setCP(CmdPanel *_cp) { cp = _cp; };
+  private:
+    virtual void output_string (std::string s)
+    {
+      // This goes to the text stream...
+      cp->textDisabled = TRUE;
+      output->moveCursor(QTextEdit::MoveEnd, FALSE);
+      output->insert(s.c_str());
+      output->moveCursor(QTextEdit::MoveEnd, FALSE);
+      output->getCursorPosition(&cp->history_start_para, &cp->history_start_index);
+      output->moveCursor(QTextEdit::MoveEnd, FALSE);
+      output->getCursorPosition(&cp->last_para, &cp->last_index);
+      cp->history_start_index = cp->last_index;
+      cp->textDisabled = FALSE;
     }
-    virtual void flush_ostream () {
-// This flushes the text stream...
-//      fflush(stderr);
+    virtual void flush_ostream ()
+    {
       qApp->flushX();
     }
 };
