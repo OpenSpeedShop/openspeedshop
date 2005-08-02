@@ -51,6 +51,7 @@ libopenss_Objects_la_SOURCES = \
 	MessageObject.hxx MessageObject.cxx \
 	SourceObject.hxx SourceObject.cxx \
 	UpdateObject.hxx UpdateObject.cxx \
+	FocusObject.hxx FocusObject.cxx \
 	ArgumentObject.hxx ArgumentObject.cxx \
 	ClosingDownObject.hxx ClosingDownObject.cxx \
 	PreferencesChangedObject.hxx PreferencesChangedObject.cxx \

@@ -37,6 +37,7 @@ static char *color_names[] = { "red", "green", "darkGreen", "darkCyan", "yellow"
 #include "SPListView.hxx"   // Change this to your new class header file name
 #include "SPListViewItem.hxx"   // Change this to your new class header file name
 #include "UpdateObject.hxx"
+#include "FocusObject.hxx"
 #include "HighlightObject.hxx"
 #include "SourceObject.hxx"
 #include "PreferencesChangedObject.hxx"
@@ -176,7 +177,16 @@ StatsPanel::listener(void *msg)
 
 // printf("StatsPanel::listener(%s)\n", msgObject->msgType.ascii() );
 
-  if(  msgObject->msgType  == "UpdateExperimentDataObject" )
+  if(  msgObject->msgType  == "FocusObject" )
+  {
+// printf("StatsPanel got a new FocusObject\n");
+    FocusObject *msg = (FocusObject *)msgObject;
+// msg->print();
+    expID = msg->expID;
+    threadStr = msg->pid_name;
+    updateStatsPanelData();
+    return 1;
+  } else if(  msgObject->msgType  == "UpdateExperimentDataObject" )
   {
     UpdateObject *msg = (UpdateObject *)msgObject;
     nprintf(DEBUG_MESSAGES) ("StatsPanel::listener() UpdateExperimentDataObject!\n");
@@ -1081,6 +1091,10 @@ if( currentMetricTypeStr == "double" )
           { 
             MetricHeaderInfo *mhi = (MetricHeaderInfo *)*pit;
             QString s = mhi->label;
+if( pit == metricHeaderInfoList.begin() )
+{
+  s += " for pid:" + threadStr;
+}
             splv->addColumn( s );
             metricHeaderTypeArray[i] = mhi->type;
           

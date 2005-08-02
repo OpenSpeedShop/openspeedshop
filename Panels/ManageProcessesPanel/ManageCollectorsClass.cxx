@@ -41,6 +41,7 @@
 
 #include "SS_Input_Manager.hxx"
 #include "PanelContainer.hxx"
+#include "FocusObject.hxx"
 #include "UpdateObject.hxx"
 
 ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const char* name, bool modal, WFlags fl, int exp_id )
@@ -684,6 +685,54 @@ ManageCollectorsClass::attachProcessSelected()
 }
 
 void
+ManageCollectorsClass::focusOnProcessSelected()
+{
+// printf("ManageCollectorsClass::focusOnProcessSelected() entered.\n");
+
+  QListViewItem *selectedItem = attachCollectorsListView->selectedItem();
+  printf("selectedItem->text(0) =(%s)\n", selectedItem->text(0).ascii() );
+  printf("selectedItem->text(1) =(%s)\n", selectedItem->text(1).ascii() );
+
+  QString pid_name = selectedItem->text(0);
+// printf("pid_name=(%s)\n", pid_name.ascii() );
+
+  bool ok = FALSE;
+  pid_name.toInt(&ok);
+#if 0
+  if( ok )
+  {
+    printf("We've got a pid\n");
+  }else
+  {
+    printf("We've got a string\n");
+  }
+#endif // 0
+
+  QString host_name = QString::null;
+  if( selectedItem )
+  {
+//printf("selectedItem->text(0) =(%s)\n", selectedItem->text(0).ascii() );
+    if( selectedItem->parent() )
+    {
+      host_name = selectedItem->parent()->text(0);
+    } else
+    {
+      host_name = selectedItem->text(0);
+    }
+
+  }
+
+//printf("host_name=(%s) pid_name=(%s)\n", host_name.ascii(), pid_name.ascii() );
+
+  if( ok )
+  {
+    FocusObject *msg = new FocusObject(expID,  host_name, pid_name);
+    p->broadcast((char *)msg, NEAREST_T);
+  }
+
+}
+
+void
 ManageCollectorsClass::loadProgramSelected()
 {
 // printf("ManageCollectorsClass::loadProgramSelected()\n");
@@ -972,6 +1021,13 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
   qaction->setText( tr("Attach Process...") );
   connect( qaction, SIGNAL( activated() ), this, SLOT( attachProcessSelected() ) );
   qaction->setStatusTip( tr("Opens dialog box to attach to running process.") );
+
+qaction = new QAction( this,  "focusOnProcess");
+qaction->addTo( contextMenu );
+qaction->setText( tr("Focus on Process...") );
+connect( qaction, SIGNAL( activated() ), this, SLOT( focusOnProcessSelected() ) );
+qaction->setStatusTip( tr("Opens dialog box to attach to running process.") );
+
 
   collectorMenu = new QPopupMenu(contextMenu);
   connect( collectorMenu, SIGNAL( activated( int ) ),
