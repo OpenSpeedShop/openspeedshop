@@ -2526,7 +2526,7 @@ examples show a few simple typical usage scenarios for Open|SpeedShop.<br>
 Example 1:&nbsp; Using the Open|SpeedShop GUI,&nbsp; you know your
 executable and the experiment you want to run (PC Sampling)<br>
   <br>
-openss -f &lt;pathTOexecutable&gt;</span><span
+prompt:&gt; openss -f &lt;pathTOexecutable&gt;</span><span
  style="font-weight: bold;">/executable_name</span><span
  style="font-weight: bold;"> pcsamp<br>
   <br>
@@ -2536,10 +2536,57 @@ user would need to do is push the "Run" button on the GUI and wait for
 the results to be displayed.&nbsp; The path to the executable can be a
 relative path.<br>
   <br>
+  </span><span style="font-weight: bold;">Example 2:&nbsp; The user
+wants use the command line interface, knows their executable,&nbsp;
+knows the experiment they want to run (User Time), and knows the host
+(bigiron.sgi.com) on which the performance experiment will be run.<br>
   <br>
+  </span><span style="font-weight: bold;">prompt:&gt;</span><span
+ style="font-weight: bold;">
+openss -cli<br>
+expcreate -hbigiron.sgi.com -f &lt;pathTOexecutable&gt;</span><span
+ style="font-weight: bold;">/executable_name</span><span
+ style="font-weight: bold;"> usertime<br>
+expgo<br>
+expview stats<br>
+  <br>
+The openss command above will invoke the command line interface in it's
+initial state.&nbsp;&nbsp; The user would then type the experiment
+create command (expcreate) and specifiy the host, executable file and
+experiment name.&nbsp;&nbsp; The command to run the experiment (expgo)
+will start the user application and performance experiment
+running.&nbsp;&nbsp; Currently the Open|SpeedShop command line
+interface is asynchronous.&nbsp;&nbsp; The user will get a prompt back
+immediately after issuing the expgo command.&nbsp;&nbsp; This allows
+the user to issue other commands and/or monitor performance data prior
+to completion of a long running job.&nbsp;&nbsp; If performance
+experiment data is available, the performance result viewing command
+(expview) can be used to view the data on demand.&nbsp; Open|SpeedShop
+will return the data that it currently knows about.<br>
+  <br>
+  </span><span style="font-weight: bold;">Example 3:&nbsp; The user
+wants use the batch interface, knows their executable,&nbsp; knows the
+experiment
+they want to run (PC Sampling), and knows the host (bigiron.sgi.com) on
+which the performance experiment will be run.<br>
+  <br>
+Create a file (batch.input) containing the command line commands:<br>
+  </span><span style="font-weight: bold;">expcreate -hbigiron.sgi.com
+-f &lt;pathTOexecutable&gt;</span><span style="font-weight: bold;">/executable_name</span><span
+ style="font-weight: bold;"> pcsamp<br>
+expgo<br>
+expview stats<br>
+exit<br>
+  <br>
+Then execute the Open|SpeedShop batch tool by using the "-batch"
+argument on the "openss" command:<br>
+  <br>
+openss -batch &lt; batch.input<br>
+  <br>
+The Open|SpeedShop PC Sampling experiment will be run and the output
+will be output to stdout.<br>
   </span><br>
-  <div style="margin-left: 40px;"><br>
-  </div>
+  <br>
 </blockquote>
 <p class="MsoBodyText"><span style=""><span style=""><span style=""><span
  style=""></span></span></span></span></p>
