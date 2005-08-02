@@ -6,7 +6,12 @@
 #if defined(__ia64__)
 #include <asm/bitops.h>
 #include <asm/intrinsics.h>
+#elif defined(__x86_64__)
+#define CONFIG_SMP
+#include <asm-x86_64/bitops.h>
+#include <asm-x86_64/system.h>
 #endif
+
 
 typedef int* atomic_p;
 typedef enum { false = 0, true = 1 } boolean_t;
@@ -30,15 +35,13 @@ boolean_t _check_lock(atomic_p word_addr, int old_val, int new_val)
     return prev_val != old_val;
 
 #elif defined(__x86_64__)
+    /* locks are performed in the _cmpxchg subroutine when
+       CONFIG_SMP is defined - as it is above */
 
-    asm ("\
-        movq 32(%rbp), %rcx;\
-        movq 24(%rbp), %rax;\
-        movq 16(%rbp), %rdx;\
-        lock; cmpxchgq %rcx, (%rdx);\
-        movq $0, %rax;\
-        setne %al;\
-    ");
+    int prev_val = cmpxchg(word_addr, old_val, new_val);
+    return prev_val != old_val;
+
+
 #else
 #error "Linux on this platform isn't supported yet!"
 #endif
@@ -68,10 +71,17 @@ int _safe_fetch(atomic_p word_addr)
     return *addr;
 #elif defined(__x86_64__)
 
-    asm ("\
-        movq 16(%rbp), %rcx;\
-        movq (%rcx), %rax;\
-    ");
+
+    /*
+     * A volatile is used here to force the GCC compiler to use a load that
+     * provides "acquire" rather than "unordered" memory ordering semantics. See
+     * the Intel Itanium Architecture Software Development Manual, Volume 1
+     * ("Application Architecture"), Part I ("Application Architecture Guide"),
+     * Section 4.4.7 ("Memory Access Ordering") for additional details on memory
+     * ordering semantics.
+     */
+    volatile int* addr = (volatile int*)word_addr;
+    return *addr;
 
 #else
 #error "Linux on this platform isn't supported yet!"
@@ -104,11 +114,16 @@ void _clear_lock(atomic_p word_addr, int val)
 
 #elif defined(__x86_64__)
 
-    asm ("\
-        movq 24(%rbp), %rax;                    \
-        movq 16(%rbp), %rcx;\
-        movq %rax, (%rcx);\
-    ");
+    /*
+     * A volatile is used here to force the GCC compiler to use a store that
+     * provides "release" rather than "unordered" memory ordering semantics. See
+     * the Intel Itanium Architecture Software Development Manual, Volume 1
+     * ("Application Architecture"), Part I ("Application Architecture Guide"),
+     * Section 4.4.7 ("Memory Access Ordering") for additional details on memory
+     * ordering semantics.
+     */
+    volatile int* addr = (volatile int*)word_addr;
+    *addr = val;
 
 #else
 #error "Linux on this platform isn't supported yet!"
