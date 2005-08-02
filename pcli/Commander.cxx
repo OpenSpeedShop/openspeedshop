@@ -19,6 +19,12 @@
 #include "SS_Input_Manager.hxx"
 extern "C" void loadTheGUI(ArgStruct *);
 
+#include "sys/signal.h"
+#include <sys/wait.h>
+#define SET_SIGNAL(s, f)                              \
+  if (signal (s, SIG_IGN) != SIG_IGN)                 \
+    signal (s, reinterpret_cast <void (*)(int)> (f));
+
 char *Current_OpenSpeedShop_Prompt = "openss>>";
 char *Alternate_Current_OpenSpeedShop_Prompt = "....ss>";
 
@@ -1420,6 +1426,96 @@ static void User_Info_Dump (CMDWID issuedbywindow) {
     Assert(!Fatal_Error_Encountered);
 }
 
+// Send a command to the shell for execution.
+// Do this by forking a process that will execute the command
+// and redirect output from it to a pipe that send it
+// back to the initiating proccess.  That process will
+// read the output and redirected to the proper window.
+static int
+do_cmd (const char *cmd_string, pid_t &child_pid) {
+  int input[2];
+
+  (void) pipe(input);
+
+  pid_t pid = fork();
+  if (pid < 0)
+  {
+    perror("Can't fork command");
+    return (-1);
+  }
+
+  if (pid == 0)     // child
+  {
+    (void) close(1);
+    (void) dup2(input[1], 1);  // redirect stdout
+    (void) dup2(input[1], 2);  // redirect stderr
+    (void) close(input[1]);
+    (void) system(cmd_string);
+    _exit(0);
+  }
+
+  // Don't need pipe output fd
+  close (input[1]);
+
+  child_pid = pid;
+  return (input[0]);
+}
+
+static void
+catch_escape_sigchld (int sig, int error_num) {
+  return;
+}
+
+static void
+do_escape_cmd (CMDWID issuedbywindow, const char *command) {
+  pid_t new_pid = -1;
+  pid_t child_pid;
+
+ // setup_signal_handler (SIGCHLD); // notification that child is terminating.
+  SET_SIGNAL (SIGCHLD, catch_escape_sigchld);
+
+ // fork a process to execute the command
+ // and get the handle to the output back.
+  int in_fd = do_cmd ( command, child_pid );
+
+  if (in_fd < 0) {
+    return;
+  }
+
+  CommandWindowID *cw = Find_Command_Window (issuedbywindow);
+  if ((cw == NULL) || (cw->ID() == 0)) {
+    fprintf(stderr,"    ERROR: the window(%lld) this command came from is illegal\n",issuedbywindow);
+    return;
+  }
+  if (!(cw->has_outstream())) {
+    fprintf(stderr,"    ERROR: window(%lld) has no defined output stream\n",issuedbywindow);
+    return;
+  }
+  ss_ostream *this_ss_stream = Window_outstream (issuedbywindow);
+  this_ss_stream->acquireLock();
+  ostream &mystream = this_ss_stream->mystream();
+
+  FILE *input = fdopen(in_fd, "r");
+  char line [DEFAULT_INPUT_BUFFER_SIZE];
+  if ( fgets (line, DEFAULT_INPUT_BUFFER_SIZE-1, input) ) {
+
+    do {
+      mystream << line;
+    } while ( fgets (line, DEFAULT_INPUT_BUFFER_SIZE-1, input) );
+
+    mystream << std::endl;
+  }
+
+  this_ss_stream->releaseLock();
+
+  fclose (input);
+  close (in_fd);
+  int statptr = 0;
+  (void)waitpid (child_pid, &statptr, 0);  // call wait to clear <defunc> process
+
+  return;
+}
+
 static bool Isa_SS_Command (CMDWID issuedbywindow, const char *b_ptr) {
   int64_t fc;
   for (fc = 0; fc < strlen(b_ptr); fc++) {
@@ -1429,7 +1525,7 @@ static bool Isa_SS_Command (CMDWID issuedbywindow, const char *b_ptr) {
     User_Info_Dump  (issuedbywindow);
     return false;
   } else if (b_ptr[fc] == *("!")) {
-    (void) system(&b_ptr[fc+1]);
+    do_escape_cmd (issuedbywindow, &b_ptr[fc+1]);
     return false;
   }
   return true;
@@ -1457,7 +1553,7 @@ InputLineObject *Append_Input_String (CMDWID issuedbywindow, char *b_ptr,
                                       void (*CallBackLine) (InputLineObject *b),
                                       void (*CallBackCmd) (CommandObject *b)) {
   InputLineObject *clip = NULL;;
-  if (Isa_SS_Command(issuedbywindow,b_ptr)) {
+  if (Isa_SS_Command(issuedbywindow, (const char *)b_ptr)) {
     CommandWindowID *cw = Find_Command_Window (issuedbywindow);
     Assert (cw);
     clip = cw->New_InputLineObject(issuedbywindow, std::string(b_ptr));
@@ -1638,7 +1734,6 @@ void Default_TLI_Command_Output (CommandObject *C) {
 }
 
 // Catch keyboard interrupt signals from TLI window.
-#include "sys/signal.h"
 
 void User_Interrupt (CMDWID issuedbywindow) {
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
@@ -1654,7 +1749,7 @@ void User_Interrupt (CMDWID issuedbywindow) {
 static void
 catch_TLI_signal (int sig, int error_num)
 {
-  if (sig == SIGINT) {
+    if (sig == SIGINT) {
     User_Interrupt (TLI_WindowID);
 
     ss_ttyout->acquireLock();
@@ -1665,12 +1760,6 @@ catch_TLI_signal (int sig, int error_num)
 
  // This isn't graceful, but it gets the job done.
   pthread_exit(0);
-}
-inline static void
-setup_signal_handler (int s)
-{
-    if (signal (s, SIG_IGN) != SIG_IGN)
-        signal (s,  reinterpret_cast <void (*)(int)> (catch_TLI_signal));
 }
 
 // This routine continuously reads from /dev/tty and appends the string to an input window.
@@ -1686,8 +1775,8 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
   ttyout = fopen ( "/dev/tty", "w" );  // Write prompt directly to the xterm window
 
  // Set up to catch keyboard control signals
-  setup_signal_handler (SIGINT); // CNTRL-C
-  setup_signal_handler (SIGUSR1); // request to terminate processing
+  SET_SIGNAL (SIGINT, catch_TLI_signal);   // CNTRL-C
+  SET_SIGNAL (SIGUSR1, catch_TLI_signal);  // request to terminate processing
 
  // Allow us to be terminated from the main thread.
   int previous_value;
