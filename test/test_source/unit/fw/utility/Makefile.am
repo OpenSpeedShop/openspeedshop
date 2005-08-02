@@ -51,3 +51,9 @@ blob1_SOURCES = \
 	blob1.cxx
 
 TESTS = $(check_PROGRAMS)
+
+dist_utility_sources = \
+	addbitmap1.cxx  blob1.cxx  addbitmap2.cxx 
+
+EXTRA_DIST	= \
+	rununit test_list runall test_config

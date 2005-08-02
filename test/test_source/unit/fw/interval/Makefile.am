@@ -32,7 +32,6 @@ check_PROGRAMS = \
 	interval6 \
 	interval7
 
-
 interval_CXXFLAGS =  \
 	-I. \
 	-I$(top_srcdir)/libopenss-framework \
@@ -81,3 +80,12 @@ interval7_SOURCES = \
         interval7.cxx
 
 TESTS = $(check_PROGRAMS)
+
+dist_interval_sources	= \
+	interval1.cxx  interval4.cxx  interval7.cxx  \
+	interval2.cxx  interval5.cxx   \
+	interval3.cxx  interval6.cxx  
+	
+EXTRA_DIST	= \
+	test_config runall test_list rununit
+
