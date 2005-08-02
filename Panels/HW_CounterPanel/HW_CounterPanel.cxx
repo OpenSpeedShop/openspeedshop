@@ -100,7 +100,7 @@ HW_CounterPanel::HW_CounterPanel(PanelContainer *pc, const char *n, ArgumentObje
       expID = expIDString->toInt();
       nprintf( DEBUG_PANELS ) ("we're coming in with an expID=%d\n", expID);
       // Look to see if any collectors have already been assigned.   If not, we
-      // need to attach the hwle collector.
+      // need to attach the hwcle collector.
       eo = Find_Experiment_Object((EXPID)expID);
       if( eo && eo->FW() )
       {
@@ -118,7 +118,7 @@ HW_CounterPanel::HW_CounterPanel(PanelContainer *pc, const char *n, ArgumentObje
       if( cgrp.size() == 0 )
       {
         nprintf( DEBUG_PANELS ) ("There are no known collectors for this experiment so add one.\n");
-        QString command = QString("expAttach -x %1 hw").arg(expID);
+        QString command = QString("expAttach -x %1 hwc").arg(expID);
         CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
         if( !cli->runSynchronousCLI((char *)command.ascii() ) )
         {
@@ -173,7 +173,7 @@ HW_CounterPanel::HW_CounterPanel(PanelContainer *pc, const char *n, ArgumentObje
   {
     // We're coming in cold, or we're coming in from the hwCounterWizardPanel.
     QString command = QString::null;
-    command = QString("expCreate hw\n");
+    command = QString("expCreate hwc\n");
     bool mark_value_for_delete = true;
     int64_t val = 0;
 
@@ -610,7 +610,7 @@ CLIInterface::interrupt = true;
       } else
       {
         return 0;
-//      command = QString("expCreate hw\n");
+//      command = QString("expCreate hwc\n");
       }
       bool mark_value_for_delete = true;
       int64_t val = 0;
@@ -631,6 +631,9 @@ CLIInterface::interrupt = true;
       if( !cli->runSynchronousCLI((char *)command.ascii() ) )
       {
         QMessageBox::information( this, "No collector found:", QString("Unable to issue command:\n  ")+command, QMessageBox::Ok );
+statusLabelText->setText( tr(QString("Unable to load executable name:  "))+mw->executableName);
+loadTimer->stop();
+pd->hide();
         return 1;
       }
  

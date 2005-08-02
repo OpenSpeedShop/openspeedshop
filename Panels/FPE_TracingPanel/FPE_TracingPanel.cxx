@@ -631,6 +631,9 @@ CLIInterface::interrupt = true;
       if( !cli->runSynchronousCLI((char *)command.ascii() ) )
       {
         QMessageBox::information( this, "No collector found:", QString("Unable to issue command:\n  ")+command, QMessageBox::Ok );
+statusLabelText->setText( tr(QString("Unable to load executable name:  "))+mw->executableName);
+loadTimer->stop();
+pd->hide();
         return 1;
       }
  
