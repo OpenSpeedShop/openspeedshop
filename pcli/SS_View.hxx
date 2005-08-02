@@ -148,8 +148,8 @@ class ViewType
    // A wordy explaination
     element.add_verbose(BriefD + ":\n\n" + ShortD + " " + LongD);
 
-   // No example needed for views.
-    // element.add_example("");
+   // Standard example for views.
+    element.add_example("expView " + viewname);
 
    // Submit the message to the database
     czar.Add_Help(element);
