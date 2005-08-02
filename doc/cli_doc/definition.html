@@ -524,13 +524,10 @@ that is included in the report.
       that have been included in the focused experiment to be listed. </li>
   <li>The &lt;expId_spec&gt; option will cause all the hosts that have been
       included in the selected experiment to be listed. </li>
-  <li>The "<b>all</b>" option will cause all the known hosts to be listed. </li>
-  <li>The "&lt;cluster_list_spec&gt;" option will cause all the hosts that are part
-      of the clusters in the list. </li>
   </dir>
   <br>
   <font size="-1"><b>&lt;</b>ListOf_hostname&gt; <b>= listHosts</b> [
-&lt;expId_spec&gt; || <b>all</b> || &lt;cluster_list_spec&gt; ]</font>
+&lt;expId_spec&gt; ]</font>
 </ul>
 <h3><a name="mozTocId685141" class="mozTocH3"></a><b><font size="+0"><a
  name="listObj"></a><li>listObj</li>
@@ -558,28 +555,22 @@ all portions of all applications that are attached to the experiment. </font><br
 </font></b></h3>
 <ul>
   <font size="-1">- List running processes associated with a specific
-experiment, on a specific machine or on a specific cluster.
+experiment and, optionally, on a specific machine.
   <dir><li>If no options are supplied, the Pids that are referenced in the
       focused experiment are listed.</li>
   <li>If the "&lt;expId_spec&gt;" option is supplied, all the Pids that
       are part of the specified experiment are listed.</li>
-  <li>If the <b>all</b> option is supplied, all Pids that are active on the
-      specified system are listed.</li>
   </dir>
-- The use of the "&lt;host_list_spec&gt;"  or "&lt;file_list_spec&gt;" options
-acts like a filter on the output.
+- The use of the "&lt;host_list_spec&gt;" option acts like a filter on the output.
   <dir><li>The absence of any "<b>-h</b> &lt;hostname&gt;" specification will
-      cause all pids on all systems in the cluster to be listed. </li>
-  <li>The default cluster contains only localhost and must be specified by
+      cause all pids in the specified experiment to be included. </li>
+  <li>The default cluster contains only localhost and can be specified by
       using <b>-h localhost</b>. </li>
-  <li>Use of the <b>-f</b> &lt;filename&gt; option will result in only the
-      pids associated with that &lt;filename&gt; being listed for the
-      selected hosts. </li>
   </dir>
 </font>
   <br>
   <font size="-1"><b>&lt;</b>ListOf_pidname&gt; <b>= listPids</b> [
-&lt;expId_spec&gt; || <b>all</b> ] [ &lt;host_list_spec&gt; ] [ &lt;file_list_spec&gt; ]</font>
+&lt;expId_spec&gt; ] [ &lt;host_list_spec&gt; ] </font>
 </ul>
 <h3><a name="mozTocId965893" class="mozTocH3"></a><a name="listMetrics"></a><b><font
  size="+0"><li>listMetrics</li>
@@ -633,26 +624,22 @@ experiment, a specific Pid or on a specific machine.
       focused experiment are listed.</li>
   <li>If the "&lt;expId_spec&gt;" option is supplied, all the Ranks that
       are part of the specified experiment are listed.</li>
-  <li>If the <b>all</b> option is supplied, all Ranks that are active on the
-      specified system are listed.</li>
   </dir>
 - The use of the "&lt;target&gt;" option acts like a filter on the output.
-  <dir><li>The use of the <b>all</b> option and the absence of any
-       "<b>-h</b> &lt;hostname&gt;" specification will
-      cause all Ranks on all systems in the cluster to be listed. </li>
-  <li>The default cluster contains only localhost and must be specified by
+  <dir><li>The absence of any "<b>-h</b> &lt;hostname&gt;" specification will
+      cause all Ranks in the specified experiment to be included. </li>
+  <li>The default cluster contains only localhost and can be specified by
       using <b>-h localhost</b>. </li>
-  <li>Use of the <b>-f</b> option will result in only the Ranks associated
-      with that &lt;filename&gt; being listed for the selected hosts. </li>
+  <li>Use of the <b>-f</b> option is not supported. </li>
   <li>Use of the <b>-p</b> option will result in only the Ranks associated
-      with that Pid being listed for the selected hosts. </li>
+      with that Pid being included for the selected hosts. </li>
   <li>Use of the <b>-r</b> option will result in only that specific Rank
-      being listed, if it exists on the selected hosts. </li>
+      being included, if it exists on the selected hosts. </li>
   </dir>
 </font>
   <br>
   <font size="-1"><b>&lt;</b>ListOf_Ranks&gt; <b>= listRanks</b> [
-&lt;expId_spec&gt; || <b>all</b> ] [ &lt;target&gt; ]</font>
+&lt;expId_spec&gt; ] [ &lt;target&gt; ]</font>
 </ul>
 <h3><a name="mozTocId924408" class="mozTocH3"></a><a name="listSrc"></a><b><font
  size="+0"><li>listSrc</li>
@@ -665,10 +652,8 @@ used. <br>
 - The listing can be restricted with the use of a &lt;target&gt;
 specification. <br>
 - Any component described in the &lt;target&gt; specification
-must be
-part of the selected experiment. <br>
-- If &lt;target&gt; is not provided, information will be
-provided for
+must be part of the selected experiment. <br>
+- If &lt;target&gt; is not provided, information will be provided for
 all portions of all applications that are attached to the experiment. <br>
 - The listing can be restricted with the use of
 &lt;linenumber_list_spec&gt;. <br>
@@ -705,25 +690,22 @@ experiment, a specific Pid or on a specific machine.
       focused experiment are listed.</li>
   <li>If the "&lt;expId_spec&gt;" option is supplied, all the Threads that
       are part of the specified experiment are listed.</li>
-  <li>If the <b>all</b> option is supplied, all Threads that are active on the
-      specified system are listed.</li>
   </dir>
 - The use of the "&lt;target&gt;" option acts like a filter on the output.
   <dir><li>The absence of any "<b>-h</b> &lt;hostname&gt;" specification will
-      cause all pids on all systems in the cluster to be listed. </li>
-  <li>The default cluster contains only localhost and must be specified by
+      cause all Threads in the specified experiment to be included. </li>
+  <li>The default cluster contains only localhost and can be specified by
       using <b>-h localhost</b>. </li>
-  <li>Use of the <b>-f</b> option will result in only the Threads associated
-      with that &lt;filename&gt; being listed for the selected hosts. </li>
+  <li>Use of the <b>-f</b> option is not supported.</li>
   <li>Use of the <b>-p</b> option will result in only the Threads associated
-      with that Pid being listed for the selected hosts. </li>
+      with that Pid being included for the selected hosts. </li>
   <li>Use of the <b>-t</b> option will result in only that specific Thread
-      being listed, if it exists on the selected hosts. </li>
+      being included, if it exists on the selected hosts. </li>
   </dir>
 </font>
   <br>
   <font size="-1"><b>&lt;</b>ListOf_Threads&gt; <b>= listThreads</b> [
-&lt;expId_spec&gt; || <b>all</b> ] [ &lt;target&gt; ]</font>
+&lt;expId_spec&gt; ] [ &lt;target&gt; ]</font>
 </ul>
 <h3><a name="mozTocId613827" class="mozTocH3"></a><b><font size="+0"><a
  name="listTypes"></a><li>listTypes</li>
