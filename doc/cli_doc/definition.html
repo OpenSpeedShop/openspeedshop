@@ -455,8 +455,13 @@ executed. </font><br>
 for the experiment specified by &lt;expId_spec&gt;. <br>
 - If this command is issued with no &lt;expId_spec&gt;, the focused
 experiment is used. <br>
-- The optional <b>-gui</b> argument will cause the data to be directed
-to an appropriate window for display in a graphical format. <br>
+- If this command is issued with no &lt;viewType&gt;, the specified
+experiment is examined and an attempt is made to find a &lt;viewType&gt;
+with the same name as the &lt;expType&gt; used in the experiment. 
+If there is no matching &lt;viewType&gt;, or if there is more than
+one &lt;expType&gt; used in the experiment, a generic view is
+requested that will display all the metrics that were generated
+for the experiment. <br>
 - This command does not change the execution state of the experiment,
 although the nature of the requested data may require that the experiment
 complete execution before the information can be provided.<br>
@@ -468,20 +473,20 @@ that is included in the report.
   </dir>
 - The use of the "&lt;target_list&gt;" option acts like a filter on the output.
   <dir><li>The absence of any "<b>-h</b> &lt;hostname&gt;" specification will
-      cause all pids on all systems in the cluster to be listed. </li>
-  <li>The default cluster contains only localhost and must be specified by
+      cause all the information available for all hosts in the specifed experiment
+      to be included.</li>
+  <li>The default cluster contains only localhost and can be specified by
       using <b>-h localhost</b>. </li>
-  <li>Use of the <b>-f</b> option will result in only the Threads associated
-      with that &lt;filename&gt; being listed for the selected hosts. </li>
+  <li>Use of the <b>-f</b> option is not supported.</li>
   <li>Use of the <b>-p</b> option will result in only the Threads associated
-      with that Pid being listed for the selected hosts. </li>
+      with that Pid being included for the selected hosts. </li>
   <li>Use of the <b>-t</b> option will result in only that specific Thread
-      being listed, if it exists on the selected hosts. </li>
+      being included, if it exists on the selected hosts. </li>
   </dir>
 </font>
   <br>
-  <font size="-1"><b>expView </b>[ &lt;expId_spec&gt; ] [ <b>-gui</b> ]
-&lt;viewType&gt; [ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target_list&gt; ]</font>
+  <font size="-1"><b>expView </b>[ &lt;expId_spec&gt; ] [ &lt;viewType&gt; ]
+[ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target_list&gt; ]</font>
 </ul>
 <br>
 <font size="+0"></font>
