@@ -70,7 +70,7 @@ extern "C"
   {
 // printf("initStatsPanelPreferenceSettings(%s)\n", pname);
     sortDecendingCheckBox->setChecked(TRUE);
-    showTopNLineEdit->setText( "5" );
+    showTopNLineEdit->setText( "10" );
     showColumnToSortLineEdit->setText( "0" );
   }
 
@@ -145,7 +145,7 @@ extern "C"
       sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, showTopNLineEdit->name() );
       showTopNLineEdit->setText(
-        settings->readEntry(settings_buffer, "5") );
+        settings->readEntry(settings_buffer, "10") );
 
       sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, showColumnToSortLineEdit->name() );
