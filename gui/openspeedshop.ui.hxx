@@ -135,6 +135,7 @@ void OpenSpeedshop::fileSaveSession()
 
 void OpenSpeedshop::fileOpenExperiment(int selectedID)
 {
+//printf("OpenSpeedshop::fileOpenExperiment(%d) entered\n", selectedID );
   QApplication::setOverrideCursor(QCursor::WaitCursor);
   SelectExperimentDialog *dialog = new SelectExperimentDialog(this, "Select Experiment To Open Dialog", TRUE);
 
@@ -142,31 +143,43 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
   int count = 0;
   int id = 0;
   int expID = 0;
-  PanelListViewItem *item = dialog->updateAvailableExperimentList(&id, &count);
+//  PanelListViewItem *item = dialog->updateAvailableExperimentList(&id, &count);
+  PanelListViewItem *item = NULL;
+  dialog->updateAvailableExperimentList(&id, &count);
+
+  QApplication::restoreOverrideCursor();
+
+// printf("id=%d\n", id);
 
   if( selectedID > 0 )
   {
-    count = 1;
     id = selectedID;
   }
 
+
   if( count == 0 )
   {
-    QApplication::restoreOverrideCursor();
     QMessageBox::information( (QWidget *)NULL, tr("Info:"), tr("No experiments defined.  Try the \"Intro Wizard\" to create a new experiment."), QMessageBox::Ok );
     return;
   }
-  if( count == 1 )
+
+  expID = id;
+
+// printf("count=%d selectedID=%d\n", count, selectedID );
+  if( selectedID == 0 )
   {
-    expID = id;
-  }
-  if( count > 1 && dialog->exec() == QDialog::Accepted )
-  {
-//printf("QDialog::Accepted\n");
-    item = dialog->selectedExperiment(&expID);
-// printf("item=0x%x\n", item);
-    if( item == NULL || expID == 0 )
+    if( dialog->exec() == QDialog::Accepted )
     {
+// printf("QDialog::Accepted\n");
+      item = dialog->selectedExperiment(&expID);
+// printf("item=0x%x\n", item);
+      if( item == NULL || expID == 0 )
+      {
+        return;
+      }
+    } else
+    {
+// printf("Cancel selected!\n");
       return;
     }
   }
@@ -180,17 +193,18 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
   }
   if( p )
   {
-    //const char *name = p->getName();
-    //printf( "panel name = (%s)\n", name );
+// const char *name = p->getName();
+// printf( "panel name = (%s)\n", name );
     p->getPanelContainer()->raisePanel(p);
   } else
   {
-    //printf("Create a new one!\n");
-    //printf("expID = (%d) \n", expID );
+// printf("Create a new one!\n");
+// printf("expID = (%d) \n", expID );
     QString expStr = QString("%1").arg(expID);
 
     QString command;
     command = QString("listTypes -x %1").arg(expStr);
+// printf("run command=(%s)\n", command.ascii() );
     std::list<std::string> list_of_collectors;
     if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
            &list_of_collectors, FALSE ) )
@@ -206,7 +220,7 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
       {
   //      std::string collector_name = *it;
         QString collector_name = (QString)*it;
-  //printf("(%s)\n", collector_name.ascii() );
+// printf("(%s)\n", collector_name.ascii() );
         if( collector_name == "pcsamp" )
         {
           knownCollectorType = TRUE;
@@ -1206,6 +1220,7 @@ OpenSpeedshop::lookForExperiment()
   }
 
   loadTimer->stop();
+  delete loadTimer;
   pd->hide();
 
   return( int_list.size() );
