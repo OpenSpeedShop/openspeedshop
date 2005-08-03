@@ -39,7 +39,11 @@
 #include <qmessagebox.h>
 #include <qstring.h>
 
-#include "SS_Input_Manager.hxx"
+// #include "SS_Input_Manager.hxx"
+#include "ToolAPI.hxx"
+using namespace OpenSpeedShop::Framework;
+#include "Thread.hxx"
+#include "LinkedObject.hxx"
 #include "PanelContainer.hxx"
 #include "FocusObject.hxx"
 #include "UpdateObject.hxx"
@@ -169,6 +173,21 @@ ManageCollectorsClass::updateAttachedList()
               for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
               {
                 Thread t = *ti;
+#if 0
+// Do you want executable name?   Here it is.
+//printf("t.getExecutable().getPath().getBaseName()=%s\n", t.getExecutable().getPath().getBaseName().c_str() );
+// printf("t.getExecutable().getPath()=0x%x", t.getExecutable().getPath() );
+std::pair<bool, LinkedObject> lo = t.getExecutable();
+if( lo.first == TRUE )
+{
+  printf("Got an executable name.\n");
+  printf("(%s)\n", lo.second.getPath().getBaseName().c_str() );
+} else
+{
+  printf("no executable name.\n");
+}
+#endif // 0
+
                 std::string host = t.getHost();
                 pid_t pid = t.getProcessId();
                 if (!atleastone) {
