@@ -236,7 +236,6 @@ leftFrame->setMinimumSize( QSize(10,10) );
 {
   QPixmap *pm = NULL;
   ltb = new LocalToolbar(leftFrame, "pc pushbutton");
-  ltb->show();
 
   pm = new QPixmap( hsplit_xpm );
   pm->setMask(pm->createHeuristicMask());
@@ -256,7 +255,8 @@ leftFrame->setMinimumSize( QSize(10,10) );
   connect( deleteButton, SIGNAL( clicked() ), this, SLOT( setThenRemoveLastPanelContainer() ) );
   QToolTip::add( deleteButton, tr( "Remove the current tab (Panel)." ) );
 
-  ltb->resize(18*3,16);
+//  ltb->resize(18*3,16);
+  ltb->show();
 }
 
   // This is only used to hold panels... not PanelContainers.
@@ -2391,7 +2391,7 @@ PanelContainer::handleSizeEvent(QResizeEvent *e)
 
 
   // Now relocate the toolbar to the right side...
-  ltb->move(width-(ltb->width()+5),3);
+//  ltb->move(width-(ltb->width()+5),3);
 
   // If there's no panel container that can be delete, then remove
   // the option to delete it...

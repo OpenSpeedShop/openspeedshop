@@ -29,7 +29,8 @@ LocalToolbar::LocalToolbar(QWidget *p, const char *n, bool f) : QWidget( p, n)
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("LocalToolbar::LocalToolbar() constructor called\n");
 
-  layout = new QHBoxLayout( this, 0, -1, n);
+  layout = new QHBoxLayout( this, 3, 0, n);
+
 }
 
 LocalToolbar::~LocalToolbar()
@@ -46,10 +47,14 @@ LocalToolbar::addButton(QPixmap *image)
   pb->setFlat(TRUE);
   pb->setEnabled(TRUE);
 
-pb->setMinimumSize( QSize(18,18) );
-pb->setSizePolicy(QSizePolicy( (QSizePolicy::SizeType)QSizePolicy::Fixed, (QSizePolicy::SizeType)QSizePolicy::Fixed, 0, 0, TRUE ) );
-
-  pb->resize(18,18);
+// pb->setMinimumSize( QSize(18,18) );
+// pb->setMinimumSize( QSize(16,16) );
+  pb->setMinimumSize( QSize(14,14) );
+  pb->setSizePolicy(QSizePolicy( (QSizePolicy::SizeType)QSizePolicy::Fixed, (QSizePolicy::SizeType)QSizePolicy::Fixed, 0, 0, TRUE ) );
+   
+//  pb->resize(18,18);
+//  pb->resize(16,16);
+  pb->resize(14,14);
   layout->addWidget(pb);
   pb->show();
 
