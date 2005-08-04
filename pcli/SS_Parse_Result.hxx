@@ -290,43 +290,43 @@ class ParseResult {
 	~ParseResult();
 
     	/** ParseTarget object handling */
-	void PushParseTarget();
+	void pushParseTarget();
 
     	/** Return pointer to current ParseTarget object */
-	ParseTarget * CurrentTarget()
+	ParseTarget * currentTarget()
 	{
 	    return dm_p_cur_target;
 	}
 
     	/** Return pointer to ParseTarget object list */
-	vector<ParseTarget> * GetTargetList()
+	vector<ParseTarget> * getTargetList()
 	{
 	    return &dm_target_list;
 	}
 
     	/** Handle command type */
-	void SetCommandType(oss_cmd_enum type)
+	void setCommandType(oss_cmd_enum type)
 	{
 	    dm_command_type = type;
 	}
-	oss_cmd_enum GetCommandType()
+	oss_cmd_enum getCommandType()
 	{
 	    return dm_command_type;
 	}
-	char * GetCommandname();
+	char * getCommandname();
 	bool isRetList();
  
     	/** Handle experiment id */
-	void SetExpId(int id)
+	void setExpId(int id)
 	{
 	    dm_experiment_id = id;
 	    dm_experiment_set = true;
 	}
-	int GetExpId()
+	int getExpId()
 	{
 	    return dm_experiment_id;
 	}
-	bool IsExpId()
+	bool isExpId()
 	{
 	    return dm_experiment_set;
 	}
@@ -358,11 +358,11 @@ class ParseResult {
 	    return &dm_modifier_list;
 	}
 
-    	void push_modifiers(char * name) {
+    	void pushModifiers(char * name) {
     	    dm_modifier_list.push_back(name);
 	}
 
-    	void push_modifiers(help_gen_enum ndx) {
+    	void pushModifiers(help_gen_enum ndx) {
     	    dm_modifier_list.push_back(general_name[ndx]);
 	}
 
@@ -372,13 +372,13 @@ class ParseResult {
 	    return &dm_help_list;
 	}
 
-    	void push_help(char * name);
-    	void push_help();
+    	void pushHelp(char * name);
+    	void pushHelp();
 
     	/** Syntax error handling. */
-    	void set_error(char * name1, char * name2);
-    	void set_error(char * name);
-	bool syntax_error( ) { return dm_error_set;}
+    	void setError(char * name1, char * name2);
+    	void setError(char * name);
+	bool syntaxError( ) { return dm_error_set;}
     	vector<ParseRange> * getErrorList() {return &dm_error_list;}
 
     	/** Handle list of expMetrics. */
@@ -451,10 +451,18 @@ class ParseResult {
 	}
 
     	/** Handle Params. */
-	bool IsParam();
+	bool isParam();
     	vector<ParseParam> *getParmList();
     	void pushParm(char *etype, char *ptype, int num);
     	void pushParm(char *etype, char *ptype, char *name);
+
+    	/** Set/Get redirect target string. */
+	bool setRedirectTarget(char *name) {
+	    dm_redirect = name;
+	}
+	string * getRedirectTarget() {
+	    return &dm_redirect;
+	}
 
     	/** Debugging code */
     	void dumpInfo();
@@ -507,7 +515,8 @@ class ParseResult {
     	vector<ParseTarget> dm_target_list;
 	ParseTarget *dm_p_cur_target;
 	
-
+    	/** Redirect target string */
+	string dm_redirect;
 
 //    protected:
 //    	/** Things I don't want to happen so don't define!*/

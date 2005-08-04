@@ -130,7 +130,8 @@ ParseResult() :
     dm_help_set(false),
     dm_param_set(false),
     dm_error_set(false),
-    dm_p_param(NULL)
+    dm_p_param(NULL),
+    dm_redirect()
     
 {
     // Create first ParseTarget object.
@@ -157,7 +158,7 @@ ParseResult::
 }
  
 /**
- * Method: ParseResult::PushParseTarget()
+ * Method: ParseResult::pushParseTarget()
  * 
  *     
  * @param   void
@@ -168,7 +169,7 @@ ParseResult::
  */
 void
 ParseResult::
-PushParseTarget()
+pushParseTarget()
 {
     if (this->dm_p_cur_target->used()) {
     	this->dm_target_list.push_back(*this->dm_p_cur_target);
@@ -275,7 +276,7 @@ s_dumpRange(vector<ParseRange> *p_list, char *label, bool is_hex)
 }
 
 /**
- * Method: nocase_compare()
+ * Method: s_nocase_compare()
  * 
  * case insensitive compare
  *     
@@ -285,13 +286,13 @@ s_dumpRange(vector<ParseRange> *p_list, char *label, bool is_hex)
  *
  */
 static bool
-nocase_compare(char c1, char c2)
+s_nocase_compare(char c1, char c2)
 {
     return toupper(c1) == toupper(c2);
 }
 
 /**
- * Method: dump_help_topic()
+ * Method: s_dump_help_topic()
  * 
  * Dump help topics based on topic string
  *     
@@ -301,7 +302,7 @@ nocase_compare(char c1, char c2)
  *
  */
 static void
-dump_help_topic(CommandObject *cmd, 
+s_dump_help_topic(CommandObject *cmd, 
     	    	SS_Message_Czar& czar, 
 		string *p_topic_str) 
 {
@@ -374,7 +375,7 @@ dumpHelp(CommandObject *cmd)
 	cmd->Result_String(" ");
 	
     	string topic_str("topic");
-    	dump_help_topic(cmd, czar, &topic_str);
+    	s_dump_help_topic(cmd, czar, &topic_str);
 
     	return;
     }
@@ -404,7 +405,7 @@ dumpHelp(CommandObject *cmd)
 	    }
 	    // Check for topics (nodes of the tree
 	    if (p_el->is_topic()) {
-    	    	dump_help_topic(cmd, czar, p_el->get_keyword());
+    	    	s_dump_help_topic(cmd, czar, p_el->get_keyword());
 	    }
     	}
     }
@@ -428,11 +429,11 @@ dumpInfo()
 {
 
     // Command name.
-    cout << "\nCommand: " << this->GetCommandname() << endl;
+    cout << "\nCommand: " << this->getCommandname() << endl;
 
     // Experimant id.
-    if (this->IsExpId())
-    	cout << "\tExperiment Id: " << this->GetExpId() << endl;
+    if (this->isExpId())
+    	cout << "\tExperiment Id: " << this->getExpId() << endl;
 
     // Experiment types.
     vector<string> *p_slist = this->getExpList();
@@ -494,7 +495,7 @@ dumpInfo()
 
     // target list.
     vector<ParseTarget>::iterator t_iter;
-    vector<ParseTarget> *p_tlist = this->GetTargetList();
+    vector<ParseTarget> *p_tlist = this->getTargetList();
 
     int count = 1;
     for (t_iter=p_tlist->begin() ;t_iter != p_tlist->end(); t_iter++) {
@@ -508,10 +509,16 @@ dumpInfo()
 	s_dumpRange(t_iter->getThreadList(), "THREAD",false /* is_hex */);
 	s_dumpRange(t_iter->getClusterList(), "CLUSTER",false /* is_hex */);
     }
+    
+    string *p_string = this->getRedirectTarget();
+    if (p_string->length() > 0) {
+    	
+    	cout << "\tRedirect target: " << *p_string << endl;
+    }
 }
 
 /**
- * Method: ParseResult::GetCommandname()
+ * Method: ParseResult::getCommandname()
  * 
  * Retrieve the formal command name.
  * 
@@ -523,7 +530,7 @@ dumpInfo()
  */
 char * 
 ParseResult::
-GetCommandname()
+getCommandname()
 {
     return cmd_desc[dm_command_type].name;
 }
@@ -549,7 +556,7 @@ isRetList()
 }
  
 /**
- * Method: ParseResult::IsParam()
+ * Method: ParseResult::isParam()
  * 
  *     
  * @return  true/false.
@@ -559,7 +566,7 @@ isRetList()
  */
 bool
 ParseResult::
-IsParam()
+isParam()
 {
     return this->dm_param_set;
 }
@@ -621,7 +628,7 @@ pushParm(char *etype, char * ptype, char * name)
 }
  
 /**
- * Method: ParseResult::push_help(void)
+ * Method: ParseResult::pushHelp(void)
  * 
  * Used for generic help topic dump
  *     
@@ -632,13 +639,13 @@ pushParm(char *etype, char * ptype, char * name)
  */
 void
 ParseResult::
-push_help()
+pushHelp()
 {
     dm_help_set = true;
 }
 
 /**
- * Method: ParseResult::push_help(char * name)
+ * Method: ParseResult::pushHelp(char * name)
  * 
  *     
  * @return  void.
@@ -648,7 +655,7 @@ push_help()
  */
 void
 ParseResult::
-push_help(char *name)
+pushHelp(char *name)
 {
     int len = strlen(name);
     char *tname = (char *)malloc(len +1);
@@ -679,7 +686,7 @@ push_help(char *name)
 }
 
 /**
- * Method: ParseResult::set_error(char * name1, char * name2)
+ * Method: ParseResult::setError(char * name1, char * name2)
  * 
  *     
  * @return  void.
@@ -689,7 +696,7 @@ push_help(char *name)
  */
 void
 ParseResult::
-set_error(char * name1, char * name2)
+setError(char * name1, char * name2)
 {
     ParseRange range(name1,name2);
 
@@ -700,7 +707,7 @@ set_error(char * name1, char * name2)
 }
  
 /**
- * Method: ParseResult::set_error(char * name)
+ * Method: ParseResult::setError(char * name)
  * 
  *     
  * @return  void.
@@ -710,7 +717,7 @@ set_error(char * name1, char * name2)
  */
 void
 ParseResult::
-set_error(char * name)
+setError(char * name)
 {
     ParseRange range(name);
 
