@@ -1278,7 +1278,7 @@ CMDWID RLI_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel,
   return cwid->ID();
 }
 
-CMDWID EM_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async)
+CMDWID Embedded_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async)
 {
  // Check for any previous initialization.
   Assert(Default_WindowID == 0);
