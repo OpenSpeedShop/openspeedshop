@@ -11,15 +11,15 @@ using namespace std;
 
 using namespace OpenSpeedShop::cli;
 /*
-this is a negative test for ParseResult.GetExpId().
+this is a negative test for ParseResult.getExpId().
 
 */
 
 int main()
 {
 	ParseResult p_parse_result;
-	p_parse_result.SetExpId(5);
-	if (p_parse_result.GetExpId() == 6)
+	p_parse_result.setExpId(5);
+	if (p_parse_result.getExpId() == 6)
 		cout << "FAIL" << endl;
 	else
 		cout << "PASS" << endl;

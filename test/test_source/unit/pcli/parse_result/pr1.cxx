@@ -15,8 +15,8 @@ using namespace OpenSpeedShop::cli;
 int main()
 {
 	ParseResult p_parse_result;
-	p_parse_result.SetCommandType(CMD_EXP_ATTACH);
-	if (p_parse_result.GetCommandType() == CMD_EXP_ATTACH)
+	p_parse_result.setCommandType(CMD_EXP_ATTACH);
+	if (p_parse_result.getCommandType() == CMD_EXP_ATTACH)
 		cout << "PASS" << endl;
 	else
 		cout << "FAIL" << endl;

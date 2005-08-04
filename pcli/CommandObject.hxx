@@ -549,7 +549,7 @@ public:
   {
     this->Associate_Input ();
     Cmd_Status = CMD_PARSED;
-    Cmd_Type =  pr->GetCommandType();
+    Cmd_Type =  pr->getCommandType();
 //    Parse_Result = NULL;
     PR = pr;
     result_needed_in_python = use_by_python;

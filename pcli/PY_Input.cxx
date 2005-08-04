@@ -95,8 +95,8 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     cmd = new CommandObject (&parse_result, python_needs_result);
 
     // See if the parse went alright.
-    if ((p_parse_result->syntax_error()) ||
-        (p_parse_result->GetCommandType() == CMD_HEAD_ERROR)) {
+    if ((p_parse_result->syntaxError()) ||
+        (p_parse_result->getCommandType() == CMD_HEAD_ERROR)) {
         cmd->Result_String ("Parsing failed");
         cmd->set_Status(CMD_ERROR);
 

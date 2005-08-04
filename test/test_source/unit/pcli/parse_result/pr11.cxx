@@ -18,5 +18,5 @@ int main()
 {
 	ParseResult p_parse_result;
 	char * name = "hello";
-	p_parse_result.push_modifiers(name);
+	p_parse_result.pushModifiers(name);
 }

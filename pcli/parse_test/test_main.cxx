@@ -17,6 +17,7 @@ using namespace OpenSpeedShop::cli;
 extern FILE *yyin;
 extern int yyparse (void);
 ParseResult *p_parse_result;
+static CMDWID Embedded_WindowID = 0;
 
 
 /**
@@ -121,11 +122,11 @@ int ret;
     ret = yyparse();
 
     // testing code
-    if (!p_parse_result->syntax_error())
+    if (!p_parse_result->syntaxError())
     	p_parse_result->dumpInfo();
     // Syntax error.
     else {
-    	char *cmd_name = p_parse_result->GetCommandname();
+    	char *cmd_name = p_parse_result->getCommandname();
 	
 //    	cout << "SYNTAX ERROR!!!" << endl;
 //	if (cmd_name)

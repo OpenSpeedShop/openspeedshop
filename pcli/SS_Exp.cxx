@@ -106,7 +106,7 @@ static ExperimentObject *Find_Specified_Experiment (CommandObject *cmd) {
 
  // Examine the parsed command for a "-x" specifier.
   Assert(cmd->P_Result() != NULL);
-  EXPID ExperimentID = (cmd->P_Result()->IsExpId()) ? cmd->P_Result()->GetExpId() : 0;
+  EXPID ExperimentID = (cmd->P_Result()->isExpId()) ? cmd->P_Result()->getExpId() : 0;
   ExperimentObject *exp = NULL;
 
  // If not experiment has been specified, pick up the
@@ -138,7 +138,7 @@ static ExperimentObject *Find_Specified_Experiment (CommandObject *cmd) {
 
 parse_val_t *Get_Simple_File_Name (CommandObject *cmd) {
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  vector<ParseTarget> *p_tlist = (p_result != NULL) ? p_result->GetTargetList() : NULL;
+  vector<ParseTarget> *p_tlist = (p_result != NULL) ? p_result->getTargetList() : NULL;
   if (p_tlist == NULL) {
     return NULL;
   }
@@ -263,7 +263,7 @@ static bool within_range (std::string S, parse_range_t R) {
 
 void Filter_ThreadGroup (CommandObject *cmd, ThreadGroup& tgrp) {
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  vector<ParseTarget> *p_tlist = p_result->GetTargetList();
+  vector<ParseTarget> *p_tlist = p_result->getTargetList();
   if (p_tlist->begin() == p_tlist->end()) {
    // There are no filters.
     return;
@@ -658,7 +658,7 @@ static void Resolve_H_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
 
 static ThreadGroup Resolve_Target_List (CommandObject *cmd, ExperimentObject *exp) {
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  vector<ParseTarget> *p_tlist = p_result->GetTargetList();
+  vector<ParseTarget> *p_tlist = p_result->getTargetList();
   ThreadGroup tgrp;
   if (p_tlist->begin() != p_tlist->end()) {
     vector<ParseTarget>::iterator ti;
@@ -857,7 +857,7 @@ bool SS_expCreate (CommandObject *cmd) {
 
  // Set the parsed command structure to fake a "-x" specifier.
   Assert(cmd->P_Result() != NULL);
-  cmd->P_Result()->SetExpId(exp->ExperimentObject_ID());
+  cmd->P_Result()->setExpId(exp->ExperimentObject_ID());
 
  // Let SS_expAttach do the rest of the work for this command.
   if (!SS_expAttach(cmd)) {
@@ -1008,8 +1008,8 @@ bool SS_expFocus  (CommandObject *cmd) {
   Assert(cmd->P_Result() != NULL);
   EXPID ExperimentID = 0;
 
-  if (cmd->P_Result()->IsExpId()) {
-    ExperimentID = cmd->P_Result()->GetExpId();
+  if (cmd->P_Result()->isExpId()) {
+    ExperimentID = cmd->P_Result()->getExpId();
   } else {
    // Get the Focused experiment - if it doesn't exist, return the default "0".
     ExperimentID = Experiment_Focus ( WindowID );
@@ -1406,7 +1406,7 @@ bool SS_expView (CommandObject *cmd) {
  // Some views do not need depend on an ExperimentObject.
  // Examine the parsed command for a "-x" specifier.
   Assert(cmd->P_Result() != NULL);
-  EXPID ExperimentID = (cmd->P_Result()->IsExpId()) ? cmd->P_Result()->GetExpId() : Experiment_Focus ( WindowID );
+  EXPID ExperimentID = (cmd->P_Result()->isExpId()) ? cmd->P_Result()->getExpId() : Experiment_Focus ( WindowID );
   ExperimentObject *exp = (ExperimentID != 0) ? Find_Experiment_Object (ExperimentID) : NULL;
 
  // For batch processing, wait for completion before generating a report.
@@ -1551,7 +1551,7 @@ bool SS_ListMetrics (CommandObject *cmd) {
       Mark_Cmd_With_Std_Error (cmd, error);
       cmd_error = true;
     }
-  } else if (cmd->P_Result()->IsExpId()) {
+  } else if (cmd->P_Result()->isExpId()) {
    // Get the list of collectors from the specified experiment.
     ExperimentObject *exp = Find_Specified_Experiment (cmd);
     if (exp == NULL) {
@@ -1652,7 +1652,7 @@ bool SS_ListParams (CommandObject *cmd) {
       Mark_Cmd_With_Std_Error (cmd, error);
       cmd_error = true;
     }
-  } else if (cmd->P_Result()->IsExpId()) {
+  } else if (cmd->P_Result()->isExpId()) {
    // Get the list of collectors from the specified experiment.
     ExperimentObject *exp = Find_Specified_Experiment (cmd);
     if (exp == NULL) {
@@ -1927,7 +1927,7 @@ bool SS_ListViews (CommandObject *cmd) {
   if (All_KeyWord) {
    // What are all the known views that can be generated?
     SS_Get_Views (cmd);
-  } else if (cmd->P_Result()->IsExpId()) {
+  } else if (cmd->P_Result()->isExpId()) {
    // What views can be genrated from the information collected in this experiment?
     ExperimentObject *exp = Find_Specified_Experiment (cmd);
     if (exp == NULL) {

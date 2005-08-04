@@ -11,14 +11,14 @@ using namespace std;
 
 using namespace OpenSpeedShop::cli;
 /*
-This is a test to see if the function ParseResult.IsExpId() works propertly.
+This is a test to see if the function ParseResult.isExpId() works propertly.
 */
 
 int main()
 {
 	ParseResult p_parse_result;
-	p_parse_result.SetExpId(5);
-	if (p_parse_result.IsExpId())
+	p_parse_result.setExpId(5);
+	if (p_parse_result.isExpId())
 		cout << "PASS" << endl;
 	else
 		cout << "FAIL" << endl;

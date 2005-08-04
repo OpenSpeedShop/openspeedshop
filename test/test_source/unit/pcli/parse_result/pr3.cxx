@@ -11,14 +11,14 @@ using namespace std;
 
 using namespace OpenSpeedShop::cli;
 /*
-This is a negative test for ParseResult.SetCommandType().
+This is a negative test for ParseResult.setCommandType().
 */
 
 int main()
 {
 	ParseResult p_parse_result;
-	p_parse_result.SetCommandType(CMD_EXP_CREATE);
-	if (p_parse_result.GetCommandType() == CMD_EXP_DETACH)
+	p_parse_result.setCommandType(CMD_EXP_CREATE);
+	if (p_parse_result.getCommandType() == CMD_EXP_DETACH)
 		cout << "FAIL" << endl;
 	else
 		cout << "PASS" << endl;
