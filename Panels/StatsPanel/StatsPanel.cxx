@@ -168,6 +168,7 @@ StatsPanel::listener(void *msg)
   PreferencesChangedObject *pco = NULL;
 
   MessageObject *msgObject = (MessageObject *)msg;
+// printf("StatsPanel::listener() msg->msgType = (%s)\n", msgObject->msgType.ascii() );
   if( msgObject->msgType == getName() && recycleFLAG == TRUE )
   {
     nprintf(DEBUG_MESSAGES) ("StatsPanel::listener() interested!\n");
@@ -177,7 +178,7 @@ StatsPanel::listener(void *msg)
 
 // printf("StatsPanel::listener(%s)\n", msgObject->msgType.ascii() );
 
-  if(  msgObject->msgType  == "FocusObject" )
+  if(  msgObject->msgType  == "FocusObject" && recycleFLAG == TRUE )
   {
 // printf("StatsPanel got a new FocusObject\n");
     FocusObject *msg = (FocusObject *)msgObject;
@@ -185,6 +186,20 @@ StatsPanel::listener(void *msg)
     expID = msg->expID;
     threadStr = msg->pid_name;
     updateStatsPanelData();
+    if( msg->raiseFLAG == TRUE )
+    {
+      getPanelContainer()->raisePanel(this);
+    }
+// now focus a source file that's listening....
+{
+// printf("Now focus the source panel, if it's up..\n");
+//First get the first item...
+QListViewItemIterator it( splv );
+QListViewItem *item = *it;
+
+// Now call the match routine, this should focus any source panels.
+matchSelectedItem( std::string(item->text(2).ascii()) );
+}
     return 1;
   } else if(  msgObject->msgType  == "UpdateExperimentDataObject" )
   {

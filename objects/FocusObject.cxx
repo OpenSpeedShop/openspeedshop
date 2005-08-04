@@ -28,12 +28,13 @@
 
 /*! Constructor for the FocusObject.
  */
-FocusObject::FocusObject(int id, QString hn, QString pn) : MessageObject("FocusObject")
+FocusObject::FocusObject(int id, QString hn, QString pn, bool rf) : MessageObject("FocusObject")
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("FocusObject::FocusObject(entered.\n");
   expID = id;
   host_name = hn;
   pid_name = pn;
+  raiseFLAG = rf;
 }
 
 /*! Destructor */
@@ -49,4 +50,5 @@ FocusObject::print()
   printf("	expID=(%d)\n", expID );
   printf("	host_name=(%s)\n", host_name.ascii());
   printf("	pid_name=(%s)\n", pid_name.ascii());
+  printf("	raiseFLAG=(%d)\n", raiseFLAG);
 }

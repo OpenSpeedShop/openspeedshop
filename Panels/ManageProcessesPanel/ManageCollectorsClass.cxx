@@ -47,6 +47,9 @@ using namespace OpenSpeedShop::Framework;
 #include "PanelContainer.hxx"
 #include "FocusObject.hxx"
 #include "UpdateObject.hxx"
+#include "ArgumentObject.hxx"
+
+#include "CLIInterface.hxx"
 
 ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const char* name, bool modal, WFlags fl, int exp_id )
     : QWidget( parent, name )
@@ -709,8 +712,8 @@ ManageCollectorsClass::focusOnProcessSelected()
 // printf("ManageCollectorsClass::focusOnProcessSelected() entered.\n");
 
   QListViewItem *selectedItem = attachCollectorsListView->selectedItem();
-  printf("selectedItem->text(0) =(%s)\n", selectedItem->text(0).ascii() );
-  printf("selectedItem->text(1) =(%s)\n", selectedItem->text(1).ascii() );
+// printf("selectedItem->text(0) =(%s)\n", selectedItem->text(0).ascii() );
+// printf("selectedItem->text(1) =(%s)\n", selectedItem->text(1).ascii() );
 
   QString pid_name = selectedItem->text(0);
 // printf("pid_name=(%s)\n", pid_name.ascii() );
@@ -745,8 +748,27 @@ ManageCollectorsClass::focusOnProcessSelected()
 
   if( ok )
   {
-    FocusObject *msg = new FocusObject(expID,  host_name, pid_name);
-    p->broadcast((char *)msg, NEAREST_T);
+    FocusObject *msg = new FocusObject(expID,  host_name, pid_name, TRUE);
+// printf("focus the StatsPanel...\n");
+//    p->broadcast((char *)msg, NEAREST_T);
+    if( p->broadcast((char *)msg, NEAREST_T) == 0 )
+    {
+// printf("No StatsPanel.   Make one...\n");
+      char *panel_type = "Stats Panel";
+      PanelContainer *bestFitPC = p->getPanelContainer()->getMasterPC()->findBestFitPanelContainer(p->getPanelContainer());
+      ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
+      Panel *sp = p->getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, ao);
+      delete ao;
+      if( sp != NULL )
+      {
+        UpdateObject *msg =
+          new UpdateObject((void *)Find_Experiment_Object((EXPID)expID), expID, "pcsamp", 1);
+        sp->listener( (void *)msg );
+      }
+
+// msg->print();
+        sp->listener((void *)msg);
+      }
   }
 
 }
