@@ -1,6 +1,6 @@
 
 # You will need to change these paths to fit your environment
-setenv LD_LIBRARY_PATH /perftools/ROOT/lib:/home/jcarter/workarea/bits/lib
+setenv LD_LIBRARY_PATH /home/jcarter/workarea/bits/lib
 setenv OPENSS_PLUGIN_PATH /home/jcarter/workarea/bits/lib/openspeedshop
 
 g++ test_main.cxx \
