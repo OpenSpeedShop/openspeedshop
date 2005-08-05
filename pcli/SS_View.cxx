@@ -107,7 +107,7 @@ void SS_Get_Views (CommandObject *cmd, std::string collector_name) {
   
 }
 
-void SS_Get_Views (CommandObject *cmd, OpenSpeedShop::Framework::Experiment *fexp) {
+void SS_Get_Views (CommandObject *cmd, OpenSpeedShop::Framework::Experiment *fexp, std::string s) {
  // List all views that can be generate from the collectors used in an experiment.
  // Skip views that don't depend on any collector.
   CollectorGroup cgrp;
@@ -168,7 +168,7 @@ void SS_Get_Views (CommandObject *cmd, OpenSpeedShop::Framework::Experiment *fex
       }
 
       if (all_collectors_available) {
-        cmd->Result_String ( vt->Unique_Name() );
+        cmd->Result_String ( s + vt->Unique_Name() );
       }
     }
   }
