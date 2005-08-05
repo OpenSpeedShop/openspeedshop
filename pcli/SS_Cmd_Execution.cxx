@@ -18,8 +18,22 @@
 
 
 #include "SS_Input_Manager.hxx"
+#include <fstream.h>;
 
 void SS_Execute_Cmd (CommandObject *cmd) {
+
+  // cmd->P_Result()->dumpInfo();
+  string *redirect_name = cmd->P_Result()->getRedirectTarget();
+  ofstream *redirect_streamP = NULL;
+  if (redirect_name->length() > 0) {
+    redirect_streamP = new ofstream (redirect_name->c_str(), ios::out);
+    if (redirect_streamP == NULL) {
+      cmd->Result_String (std::string("Could not open file ") + *redirect_name);
+      cmd->set_Status(CMD_ERROR);
+      Cmd_Obj_Complete (cmd);
+      return;
+    }
+  }
 
 // Bracket execution of commands with a "catch-all" exception handler.
 // This is intended to catch failures in recovery code.
@@ -37,6 +51,7 @@ try {
   case ILO_COMPLETE:
   case ILO_ERROR:
     cmd->set_Status (CMD_ABORTED);
+    Cmd_Obj_Complete (cmd);
     return;
   }
 
@@ -168,4 +183,12 @@ catch(const Exception& error) {
   cmd->set_Status(CMD_ERROR);
 }
 
+  if (redirect_streamP != NULL) {
+   cmd->Print_Results (*redirect_streamP, "\n", "\n");
+   cmd->set_Results_Used ();
+   redirect_streamP->flush();
+   delete redirect_streamP;
+  }
+
+  Cmd_Obj_Complete (cmd);
 }
