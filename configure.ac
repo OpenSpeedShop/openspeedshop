@@ -172,6 +172,7 @@ AC_CONFIG_FILES(Makefile
 		Panels/Wizards/MPIWizardPanel/Makefile
 		test/Makefile
 		test/executables/Makefile
+		test/executables/forever/Makefile
 		test/executables/mutatee/Makefile
 		test/executables/mutatee/c_version/Makefile
 		test/executables/mutatee/cplus_version/Makefile

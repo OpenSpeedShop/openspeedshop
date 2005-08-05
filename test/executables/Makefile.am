@@ -17,11 +17,11 @@
 ################################################################################
 #
 # directories that will be built
-SUBDIRS = mutatee Eon
+SUBDIRS = mutatee Eon forever
 #
 # directories that will be packaged into tar.gz.
 # these can be a subset of the directories in SUBDIRS.
 #
-DIST_SUBDIRS = mutatee Eon
+DIST_SUBDIRS = mutatee Eon forever
 
 
