@@ -34,6 +34,11 @@ Building Block Commands
           <li><a href="#mozTocId811994">expRestore</a></li>
           <li><a href="#mozTocId916219">expSave</a></li>
           <li><a href="#mozTocId563762">expSetParam</a></li>
+        </ul>
+      </li>
+      <li><a href="#mozTocId688200">Experiment Information Commands </a>
+        <ul>
+          <li><a href="#mozTocId575758">expStatus</a></li>
           <li><a href="#mozTocId575759">expView</a></li>
         </ul>
       </li>
@@ -134,7 +139,7 @@ continue executing.</li>
   <li>If the <b>kill</b> keyword is provided, attached applications
 will
 be terminated.</li>
-  <li>The data base file that was used to save information about the
+  <li>The database file that was used to save information about the
 applications and the collected data, is deleted if it is a temporary
 file, or
 closed if it is a user defined file. Use <b>expSave</b> for saving
@@ -345,7 +350,7 @@ halted. </font><br>
 <ul>
   <font size="-1">- Restore an experiment's definition and previously
 saved data from
-a data base that was saved with an <b>expSave</b> command.<br>
+a database that was saved with an <b>expSave</b> command.<br>
   <dir> <li>A new experiment is created and intitialize with this
 information.</li>
   <li>This command also sets the focus to the new experiment's
@@ -361,7 +366,7 @@ and new data samples can be collected.</li>
 command without reconnecting to the original applications.</li>
   <li>If an <b>expGo</b> command is issued, new data samples will be
 placed into the
-data base specified by &lt;file_spec&gt;. A different data base can be
+database specified by &lt;file_spec&gt;. A different database can be
 specified
 with the <b>expSave</b> command.</li>
   </dir>
@@ -377,49 +382,49 @@ with the <b>expSave</b> command.</li>
 analysis.<br>
   <dir> <li>For each experiment, information about the executable programs
 that are instrumented, information about the instrumentation that is used
-and any performance data that is collected are saved in a data base.</li>
-  <li>The data base is created by the <b>OpenSS</b> tool in a
+and any performance data that is collected are saved in a database.</li>
+  <li>The database is created by the <b>OpenSS</b> tool in a
 temporary location and will
 be deleted when an <b>expClose</b> command is issued for the
 experiment, or
 when an <b>exit</b> command is issued that terminates the <b>OpenSS</b>
 tool.</li>
-  <li>The entire data base can be saved with the <b>expSave</b>
+  <li>The entire database can be saved with the <b>expSave</b>
 command
 and can be reloaded into the <b>OpenSS</b> tool with the <b>expRestore</b>
 command.</li>
-  <li>The data base is in a special format that supports the
+  <li>The database is in a special format that supports the
 opertaions that
 the <b>OpenSS</b> tool must perform.</li>
   </dir>
 - Without the <b>copy</b> option
-  <dir><li>If the original, temporary data base file is still in use,
+  <dir><li>If the original, temporary database file is still in use,
 it is copied to the
 specified file name and the <b>OpenSS</b> tool will use the new file
 to collect any
 new information about the experiment. When the experiment completes,
-this data base
+this database
 will be retained.</li>
   <li>If a previous <b>expSave</b> command has caused the
 experiment's information to
-be directed to a user defined data base</li>
-  <dir> <li>The contents of the previous data base - without any of
+be directed to a user defined database</li>
+  <dir> <li>The contents of the previous database - without any of
 the
 data samples - is
-copied to the new data base.</li>
-  <li>The previous data base is closed.</li>
-  <li>The new data base is used by the <b>OpenSS</b> tool to collect
+copied to the new database.</li>
+  <li>The previous database is closed.</li>
+  <li>The new database is used by the <b>OpenSS</b> tool to collect
 any new
 information that is added to or collected for, the experiment.</li>
   </dir>
   </dir>
 - With the <b>copy</b> option the given location receives a <i>copy</i>
 of the
-current state of the data base.
-  <dir><li>The current contents of the data base is duplicated and
+current state of the database.
+  <dir><li>The current contents of the database is duplicated and
 saved to the given location.</li>
   <li>No new information will be added to the given location.</li>
-  <li>New information will be added to the original data base.</li>
+  <li>New information will be added to the original database.
   </dir>
 - This command does not change the execution state of the experiment,
 although
@@ -446,13 +451,34 @@ executed. </font><br>
 &lt;expParam&gt; <b>=</b> &lt;expParamValue&gt;
 [ <b>,</b> &lt;expParam&gt; <b>=</b> &lt;expParamValue&gt; ] ...</font>
 </ul>
+<br>
+<font size="+0"></font>
+<h2><a name="mozTocId688200" class="mozTocH2"></a><font face="Arial"><font
+ size="+0"><a name="INFORMATION_COMMANDS"></a><big>Experiment Information Commands</big><br>
+</font></font></h2>
+<p></p>
+<p></p>
+<h3><a name="mozTocId575758" class="mozTocH3"></a><a name="expStatus"></a><b><font
+ size="+0"><li>expStatus</li>
+</font></b></h3>
+<ul>
+  <font size="-1">- Report the current state of user defined experiments.<br>
+  <dir><li>The absence of any option will result in information being reported
+      for the focused experiment. </li>
+  <li>The use of &lt;expId_spec&gt; will result in information being reported
+      for the specified experiment. </li>
+  <li>The use of <b>all</b> will result in information being reported for
+      all the known experiments.  </li>
+  </dir>
+</font><br>
+  <font size="-1"><b>expStatus</b>[ &lt;expId_spec&gt; || <b>all</b> ]</font>
+</ul>
 <h3><a name="mozTocId575759" class="mozTocH3"></a><font size="+0"><b><a
  name="expView"></a><li>expView</li>
 </b></font></h3>
 <ul>
-  <font size="-1">- View the data associated with a particular
-&lt;viewType&gt;
-for the experiment specified by &lt;expId_spec&gt;. <br>
+  <font size="-1">- Display the performance data that has been collected for
+an experiment. <br>
 - If this command is issued with no &lt;expId_spec&gt;, the focused
 experiment is used. <br>
 - If this command is issued with no &lt;viewType&gt;, the specified
@@ -491,7 +517,7 @@ that is included in the report.
 <br>
 <font size="+0"></font>
 <h2><a name="mozTocId688201" class="mozTocH2"></a><font face="Arial"><font
- size="+0"><a name="INFORMATION_COMMANDS"></a><big>Information Commands</big><br>
+ size="+0"><a name="INFORMATION_COMMANDS"></a><big>Low Level Information Commands</big><br>
 </font></font></h2>
 <p></p>
 <p></p>
@@ -774,13 +800,13 @@ command. </font><br>
 </font></b></h3>
 <ul>
   <font size="-1">- Terminate all experiments and the session.
-  <dir><li>Suspend execution or all executables</li>
+  <dir><li>Suspend execution of all executables</li>
   <li>Suspend data collection.</li>
   <li>Remove instrumentation from all applications.</li>
   <li>Release all applications from control of the <b>OpenSS</b> tool</li>
   <li>Allow all applications to continue executing.</li>
-  <li>Close all data base files.</li>
-  <li>Delete all temporary files.</li>
+  <li>Close all database files.</li>
+  <li>Delete all temporary database files.</li>
   <li>Close the GUI and Command windows.</li>
   <li>Terminate execution of the <b>OpenSS</b> tool.</li>
   </dir>
@@ -801,9 +827,8 @@ command. </font><br>
 </font></b></h3>
 <ul>
   <font size="-1">- Print a list of previously executed commands. <br>
-- If no &lt;file_spec&gt; is provided, send the list to <b>stdout</b> </font><br>
   <br>
-  <font size="-1"><b>history </b>[ &lt;file_spec&gt; ]</font>
+  <font size="-1"><b>history</b></font>
 </ul>
 <h3><a name="mozTocId487321" class="mozTocH3"></a><a name="log"></a><b><font
  size="+0"><li>log</li>

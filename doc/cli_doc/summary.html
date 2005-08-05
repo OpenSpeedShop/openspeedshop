@@ -18,7 +18,9 @@ Command Summary
       <li><a href="#mozTocId54250">Table of Contents</a></li>
       <li><a href="#mozTocId860173">Experiment Building Block Commands
         </a></li>
-      <li><a href="#mozTocId327521">Information Commands
+      <li><a href="#mozTocId327520">Experiment Information Commands
+        </a></li>
+      <li><a href="#mozTocId327521">Low Level Information Commands
         </a></li>
       <li><a href="#mozTocId801043">Session Commands
         </a></li>
@@ -32,7 +34,7 @@ Command Summary
 <small>Experiment Building Block Commands</small><br>
 <font face="Arial"><font size="+0"> </font></font>
 </h2>
-<font size="-1"><b>expAttach </b>[ &lt;expId_spec&gt; ] [
+<font size="-1"><b>expAttach </b>[ &lt;expId_spec&gt; ] [ <b>mpi</b> ] [
 &lt;target_list&gt; ] [ &lt;expType_list&gt; ]</font>
 <br>
 <font size="-1"><b>expClose </b>[ <b>focus</b> || &lt;expId_spec&gt;
@@ -66,13 +68,20 @@ Command Summary
 &lt;expParam&gt; <b>=</b> &lt;expParamValue&gt;
 [ <b>,</b> &lt;expParam&gt; <b>=</b> &lt;expParamValue&gt; ]+</font>
 <br>
+<br>
+<br>
+<h2><a name="mozTocId327520" class="mozTocH2"></a><a
+ name="Information_Commands"></a><small>Experiment Information Commands</small><br>
+<font face="Arial"><font size="+0"></font></font></h2>
+<font size="-1"><b>expStatus</b> [ &lt;expId_spec&gt; || <b>all</b> ]</font>
+<br>
 <font size="-1"><b>expView </b>[ &lt;expId_spec&gt; ] [ &lt;viewType&gt; ]
 [ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target_list&gt; ]</font>
 <br>
 <br>
 <br>
 <h2><a name="mozTocId327521" class="mozTocH2"></a><a
- name="Information_Commands"></a><small>Information Commands</small><br>
+ name="Low Level Information_Commands"></a><small>Low Level Information Commands</small><br>
 <font face="Arial"><font size="+0"></font></font></h2>
 <font size="-1">&lt;ListOf_breakId&gt;
 <b>= listBreaks</b> [ &lt;expId_spec&gt; || <b>all</b> ]</font>
@@ -125,7 +134,7 @@ Command Summary
 <font size="-1">&lt;string&gt;
 <b>= help </b>[ &lt;string&gt; ]</font>
 <br>
-<font size="-1"><b>history </b>[ &lt;file_spec&gt; ]</font>
+<font size="-1"><b>history </b></font>
 <br>
 <font size="-1"><b>log </b>[ &lt;file_spec&gt; ]</font>
 <br>
