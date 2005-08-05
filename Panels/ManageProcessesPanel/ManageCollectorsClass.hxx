@@ -102,6 +102,7 @@ private slots:
     void enableSelected();
     void attachProcessSelected();
     void focusOnProcessSelected();
+    void focusOnProcessSelected(QListViewItem*);
     void loadProgramSelected();
     void fileCollectorAboutToShowSelected();
     void paramSelected(int);

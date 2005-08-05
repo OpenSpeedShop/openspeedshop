@@ -87,6 +87,8 @@ ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const 
 
   languageChange();
   connect(attachCollectorsListView, SIGNAL( contextMenuRequested( QListViewItem *, const QPoint& , int ) ), this, SLOT( contextMenuRequested( QListViewItem *, const QPoint &, int ) ) );
+  connect( attachCollectorsListView, SIGNAL(doubleClicked(QListViewItem *)), this, SLOT( focusOnProcessSelected( QListViewItem* )) );
+
 
 //  updateAttachedList();
 
@@ -708,6 +710,13 @@ ManageCollectorsClass::attachProcessSelected()
   
   updateAttachedList();
 }
+
+void
+ManageCollectorsClass::focusOnProcessSelected(QListViewItem *)
+{
+  focusOnProcessSelected();
+}
+
 
 void
 ManageCollectorsClass::focusOnProcessSelected()
