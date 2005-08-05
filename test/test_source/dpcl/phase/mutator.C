@@ -115,7 +115,7 @@ main(int argc, char *argv[])
 
                              // load probe module
 
-    load_1 = ProbeModule("/tmp/probe_module.so");
+    load_1 = ProbeModule("probe_module.so");
 
     sts = P.bload_module(&load_1);
 
