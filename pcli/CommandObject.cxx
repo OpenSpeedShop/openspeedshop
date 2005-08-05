@@ -28,12 +28,9 @@ void CommandObject::set_Status (Command_Status S) {
     InputLineObject *clip = Clip();
     if (S == CMD_COMPLETE) {
       clip->SetStatus (ILO_COMPLETE);
-      Cmd_Obj_Complete (this);
     } else if (S == CMD_ERROR) {
       clip->SetStatus (ILO_ERROR);
-      Cmd_Obj_Complete (this);
     } else if (S == CMD_ABORTED) {
-      Cmd_Obj_Complete (this);
     }
   }
 }
