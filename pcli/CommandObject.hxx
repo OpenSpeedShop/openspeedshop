@@ -188,6 +188,10 @@ class CommandResult_String : public CommandResult {
     string_value = std::string(S);
   }
 
+  static void Accumulate_String (CommandResult_String *A, CommandResult_String *B) {
+    A->string_value += B->string_value;
+  }
+
   virtual void Value (std::string &S) {
     S = string_value;
   }
@@ -232,6 +236,10 @@ class CommandResult_RawString : public CommandResult {
   }
   CommandResult_RawString (char *S) : CommandResult(CMD_RESULT_RAWSTRING) {
     string_value = std::string(S);
+  }
+
+  static void Accumulate_RawString (CommandResult_RawString *A, CommandResult_RawString *B) {
+    A->string_value += B->string_value;
   }
 
   virtual void Value (std::string &S) {
@@ -433,6 +441,7 @@ inline bool CommandResult_gt (CommandResult *lhs, CommandResult *rhs) {
 
 inline void Accumulate_CommandResult (CommandResult *A, CommandResult *B) {
   if (!A || !B) return;
+  Assert (A->Type() == B->Type());
   switch (A->Type()) {
   case CMD_RESULT_UINT:
     CommandResult_Uint::Accumulate_Uint ((CommandResult_Uint *)A, (CommandResult_Uint *)B);
@@ -442,6 +451,12 @@ inline void Accumulate_CommandResult (CommandResult *A, CommandResult *B) {
     break;
   case CMD_RESULT_FLOAT:
     CommandResult_Float::Accumulate_Float ((CommandResult_Float *)A, (CommandResult_Float *)B);
+    break;
+  case CMD_RESULT_STRING:
+    CommandResult_String::Accumulate_String ((CommandResult_String *)A, (CommandResult_String *)B);
+    break;
+  case CMD_RESULT_RAWSTRING:
+    CommandResult_RawString::Accumulate_RawString ((CommandResult_RawString *)A, (CommandResult_RawString *)B);
     break;
   }
 }
