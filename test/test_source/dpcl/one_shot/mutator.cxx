@@ -110,7 +110,7 @@ int main(int argc, char* argv[])
     // load the probe module to be executed 'one shot'
     //
     ProbeModule pm;
-    pm = ProbeModule("/tmp/hello.so");
+    pm = ProbeModule("hello.so");
     retval=appProcess.bload_module(&pm);
     if(retval.status() != ASC_success) {
 	printf("Process::bload_module() failed: %s\n", retval.status_name());

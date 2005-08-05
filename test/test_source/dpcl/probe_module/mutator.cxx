@@ -125,7 +125,7 @@ int main(int argc, char* argv[])
    
 
     ProbeModule pm;
-    pm = ProbeModule("/tmp/hello.so");
+    pm = ProbeModule("hello.so");
     retval=appProcess.bload_module(&pm);
     if(retval.status() != ASC_success) {
 	printf("Process::bload_module() failed: %s\n", retval.status_name());
