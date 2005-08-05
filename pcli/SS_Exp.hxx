@@ -293,9 +293,12 @@ bool SS_expPause (CommandObject *cmd);
 bool SS_expRestore (CommandObject *cmd);
 bool SS_expSave (CommandObject *cmd);
 bool SS_expSetParam (CommandObject *cmd);
-bool SS_expView (CommandObject *cmd);
 
 // Information level commands
+bool SS_expStatus(CommandObject *cmd);
+bool SS_expView (CommandObject *cmd);
+
+// Primitive Information level commands
 bool SS_ListBreaks (CommandObject *cmd);
 bool SS_ListExp (CommandObject *cmd);
 bool SS_ListHosts (CommandObject *cmd);

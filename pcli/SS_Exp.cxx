@@ -1399,6 +1399,180 @@ bool SS_expSetParam (CommandObject *cmd) {
   return true;
 }
 
+
+// Information Commands
+
+static CommandResult *Get_Collector_Metadata (Collector c, Metadata m) {
+  CommandResult *Param_Value = NULL;
+  std::string id = m.getUniqueId();
+  if( m.isType(typeid(int)) ) {
+    int Value;
+    c.getParameterValue(id, Value);
+    Param_Value = new CommandResult_Int (Value);
+  } else if( m.isType(typeid(int64_t)) ) {
+    int64_t Value;
+    c.getParameterValue(id, Value);
+    Param_Value = new CommandResult_Int (Value);
+  } else if( m.isType(typeid(unsigned int)) ) {
+    uint Value;
+    c.getParameterValue(id, Value);
+    Param_Value = new CommandResult_Uint (Value);
+  } else if( m.isType(typeid(uint64_t)) ) {
+    int64_t Value;
+    c.getParameterValue(id, Value);
+    Param_Value = new CommandResult_Uint (Value);
+  } else if( m.isType(typeid(float)) ) {
+    float Value;
+    c.getParameterValue(id, Value);
+    Param_Value = new CommandResult_Float (Value);
+  } else if( m.isType(typeid(double)) ) {
+    double Value;
+    c.getParameterValue(id, Value);
+    Param_Value = new CommandResult_Float (Value);
+  } else if( m.isType(typeid(string)) ) {
+    std::string Value;
+    c.getParameterValue(id, Value);
+    Param_Value = new CommandResult_String (Value);
+  } else {
+    Param_Value = new CommandResult_String("Unknown type.");
+  }
+  return Param_Value;
+}
+
+static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
+  char id[20]; sprintf(&id[0],"%lld",(int64_t)exp->ExperimentObject_ID());
+  cmd->Result_String ("Experiment definition");
+  std::string TmpDB = exp->Data_Base_Is_Tmp() ? "Temporary" : "Saved";
+  cmd->Result_String ("{ # ExpId is " + std::string(&id[0])
+                         + ", Status is " + exp->ExpStatus_Name()
+                         + ", " + TmpDB + " database is " + exp->Data_Base_Name ());
+  try {
+      if (exp->FW() != NULL) {
+        ThreadGroup tgrp = exp->FW()->getThreads();
+        ThreadGroup::iterator ti;
+        bool atleastone = false;
+        for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+          Thread t = *ti;
+          std::string host = t.getHost();
+          pid_t pid = t.getProcessId();
+          if (!atleastone) {
+            atleastone = true;
+            cmd->Result_String ("  Currently Specified Components:");
+          }
+          char spid[20]; sprintf(&spid[0],"%lld",(int64_t)pid);
+          // std::string S = "  expAttach -h " + host + " -p " + std::string(&spid[0]);
+          std::string S = "    -h " + host + " -p " + std::string(&spid[0]);
+          std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
+          if (pthread.first) {
+            char tid[20]; sprintf(&tid[0],"%lld",(int64_t)pthread.second);
+            S = S + std::string(&tid[0]);
+          }
+#ifdef HAVE_MPI
+          std::pair<bool, int> rank = t.getMPIRank();
+          if (rank.first) {
+            char rid[20]; sprintf(&rid[0],"%lld",(int64_t)rank.second);
+            S = S + std::string(&rid[0]);
+          }
+#endif
+          CollectorGroup cgrp = t.getCollectors();
+          CollectorGroup::iterator ci;
+          int collector_count = 0;
+          for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
+            Collector c = *ci;
+            Metadata m = c.getMetadata();
+            if (collector_count) {
+              S = S + ",";
+            } else {
+              S = S + " ";
+              collector_count = 1;
+            }
+            S = S + m.getUniqueId();
+          }
+          cmd->Result_String ( S );
+        }
+
+        CollectorGroup cgrp = exp->FW()->getCollectors();
+        CollectorGroup::iterator ci;
+        atleastone = false;
+        std::string S ;
+        for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
+          Collector c = *ci;
+          ThreadGroup tgrp = c.getThreads();
+          if (tgrp.empty()) {
+            Metadata m = c.getMetadata();
+            if (atleastone) {
+              S = S + ",";
+            } else {
+              cmd->Result_String ("  Previously Used Data Collectors:");
+              S = S + "    ";
+              atleastone = true;
+            }
+            S = S + m.getUniqueId();
+          }
+        }
+        if (atleastone) {
+          cmd->Result_String ( S );
+        }
+
+        if (cgrp.begin() != cgrp.end()) {
+          cmd->Result_String ("  Metric Values:");
+
+          for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
+            Collector c = *ci;
+            Metadata cm = c.getMetadata();
+            std::set<Metadata> md = c.getParameters();
+            std::set<Metadata>::const_iterator mi;
+            for (mi = md.begin(); mi != md.end(); mi++) {
+              CommandResult_Columns *C = new CommandResult_Columns (2);
+              Metadata m = *mi;
+              S = "    " + cm.getUniqueId() + "::" + m.getUniqueId() + " =";
+              C->CommandResult_Columns::Add_Column (new CommandResult_RawString (S));
+              C->CommandResult_Columns::Add_Column (Get_Collector_Metadata (c, m));
+              cmd->Result_Predefined (C);
+            }
+          }
+
+          cmd->Result_String ("  Available Views:");
+          SS_Get_Views (cmd, exp->FW(), "    ");
+        }
+
+      }
+    cmd->Result_String ( "}");
+  }
+  catch(const Exception& error) {
+    Mark_Cmd_With_Std_Error (cmd, error);
+    cmd->Result_String ( "}");
+    return false;
+  }
+
+  return true;
+}
+
+static bool SS_expStatus(CommandObject *cmd, ExperimentObject *exp) {
+  bool All_KeyWord = Look_For_KeyWord (cmd, "all");
+
+  if (All_KeyWord) {
+    std::list<ExperimentObject *>::iterator expi;
+    for (expi = ExperimentObject_list.begin(); expi != ExperimentObject_list.end(); expi++) {
+      ExperimentObject *exp = *expi;
+      if (!ReportStatus (cmd, exp)) {
+        return false;
+      }
+    }
+  } else {
+    ExperimentObject *exp = Find_Specified_Experiment (cmd);
+    if (exp == NULL) {
+      return false;
+    }
+    if (!ReportStatus (cmd, exp)) {
+      return false;
+    }
+  }
+
+  cmd->set_Status(CMD_COMPLETE);
+  return true;
+}
+
 bool SS_expView (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
@@ -1462,7 +1636,7 @@ bool SS_expView (CommandObject *cmd) {
   return true;
 }
 
-// Information Commands
+// Primitive Information Commands
 
 bool SS_ListBreaks (CommandObject *cmd) {
   ExperimentObject *exp = Find_Specified_Experiment (cmd);
