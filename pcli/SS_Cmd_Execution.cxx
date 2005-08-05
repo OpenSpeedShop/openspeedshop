@@ -22,10 +22,11 @@
 
 void SS_Execute_Cmd (CommandObject *cmd) {
 
-  // cmd->P_Result()->dumpInfo();
   string *redirect_name = cmd->P_Result()->getRedirectTarget();
   ofstream *redirect_streamP = NULL;
-  if (redirect_name->length() > 0) {
+  if ((redirect_name->length() > 0) &&
+      (Predefined_ostream (*redirect_name) == NULL)) {
+   // If they give us a real file name, direct command output there.
     redirect_streamP = new ofstream (redirect_name->c_str(), ios::out);
     if (redirect_streamP == NULL) {
       cmd->Result_String (std::string("Could not open file ") + *redirect_name);
