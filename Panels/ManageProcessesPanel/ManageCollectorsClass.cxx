@@ -59,7 +59,8 @@ ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const 
   
   loadTimer = NULL;
   p = _p;
-  dialogSortType = COLLECTOR_T;
+  dialogSortType = PID_T;
+//  dialogSortType = COLLECTOR_T;
   popupMenu = NULL;
   paramMenu = NULL;
   collectorPopupMenu = NULL;
@@ -87,7 +88,7 @@ ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const 
   languageChange();
   connect(attachCollectorsListView, SIGNAL( contextMenuRequested( QListViewItem *, const QPoint& , int ) ), this, SLOT( contextMenuRequested( QListViewItem *, const QPoint &, int ) ) );
 
-  updateAttachedList();
+//  updateAttachedList();
 
 }
 
@@ -251,19 +252,21 @@ if( lo.first == TRUE )
             return;
           }
         }
-      }
       attachCollectorsListView->setColumnText( 0,
         tr( QString("Collectors attached to experiment: '%1':").arg(expID) ) );
       attachCollectorsListView->setColumnText( 1, tr( QString("Name") ) );
+      }
       break;
     case PID_T:
     {
+// printf("expID=%d\n", expID );
       try
       {
         ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
   
         if( eo->FW() != NULL )
         {
+// printf("got an experiment.\n");
   // The following bit of code was snag and modified from SS_View_exp.cxx
           ThreadGroup tgrp = eo->FW()->getThreads();
           ThreadGroup::iterator ti;

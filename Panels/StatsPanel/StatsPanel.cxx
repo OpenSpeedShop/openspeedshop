@@ -932,7 +932,7 @@ fprintf(stderr, "No function definition for this entry.   Unable to position sou
         }
       }
       // Put out statment metrics for this file.
-      if( getPanelContainer()->getMainWindow()->preferencesDialog->showGraphicsCheckBox->isChecked() )
+//      if( getPanelContainer()->getMainWindow()->preferencesDialog->showGraphicsCheckBox->isChecked() )
       {
         QApplication::setOverrideCursor(QCursor::WaitCursor);
 
