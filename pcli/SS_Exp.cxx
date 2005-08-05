@@ -544,10 +544,11 @@ static void Resolve_P_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
         Resolve_R_Target ( cmd, exp, tgrp, pt, host_name, mypid);
       } else {
         try {
+          ThreadGroup ngrp;
           if (Mpi_KeyWord) {
-            ThreadGroup ngrp = exp->FW()->attachMPIJob (mypid, host_name);
+            ngrp = exp->FW()->attachMPIJob (mypid, host_name);
           } else {
-            ThreadGroup ngrp = exp->FW()->attachProcess(mypid, host_name);
+            ngrp = exp->FW()->attachProcess(mypid, host_name);
           }
           ThreadGroup::iterator ngi;
           for( ngi = ngrp.begin(); ngi != ngrp.end(); ngi++) {
