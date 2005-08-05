@@ -1337,24 +1337,6 @@ void Commander_Termination () {
   return;
 }
 
-void Redirect_GUI_Output_To_TLI () {
-  CommandWindowID *gui_window = Find_Command_Window (GUI_WindowID);
-  if (TLI_WindowID == 0) {
-    pid_t my_pid = getpid();
-    char HostName[MAXHOSTNAMELEN+1];
-    TLI_WindowID = TLI_Window ("TLI",&HostName[0],my_pid,0,true);
-  }
-  CommandWindowID *tli_window = Find_Command_Window (TLI_WindowID);
-  if ((gui_window != NULL) && (tli_window != NULL)) {
-    if (gui_window->has_outstream()) {
-      gui_window->set_outstream (tli_window->ss_outstream());
-    }
-    if (gui_window->has_errstream()) {
-      gui_window->set_errstream (tli_window->ss_errstream());
-    }
-  }
-}
-
 void Redirect_Window_Output (CMDWID for_window, ss_ostream *for_out, ss_ostream *for_err) {
   CommandWindowID *my_window = Find_Command_Window (for_window);
   if (for_out != NULL) {
