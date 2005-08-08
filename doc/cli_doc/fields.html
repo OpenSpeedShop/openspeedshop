@@ -28,6 +28,7 @@ and Status Defintions</a>
           <li><a href="#mozTocId359501">ListOf_</a></li>
           <li><a href="#mozTocId958241">statusType</a></li>
           <li><a href="#mozTocId958242">viewType</a></li>
+          <li><a href="#mozTocId958243">verbosity_list_spec</a></li>
         </ul>
       </li>
     </ul>
@@ -248,6 +249,19 @@ needed for.</font>
   <p><font size="2">&lt;<b>viewType</b>&gt; ::= &lt;string&gt;</font></p>
   <p><font size="2">&lt;<b>viewType_list</b>&gt; ::= &lt;viewType&gt;
      [ <b>,</b> &lt;viewType&gt; ] +</font></p>
+</ul>
+<h3><a name="mozTocId958243" class="mozTocH3"></a><b><font
+ size="3"><li><a name="verbosity_list_spec"></a>verbosity_list_spec</li>
+</font></b></h3>
+<p><font size="2">is used to control the amount and detail of information
+provided by the <b>help</b> command.  The currently supported values are
+<b>brief</b>, <b>normal</b> and <b>detailed</b>, which can be abreviated
+<b>b</b>, <b>n</b> or <b>d</b>.</font>
+</p>
+<ul>
+  <p><font size="2">&lt;<b>verbosityType</b>&gt; ::= &lt;string&gt;</font></p>
+  <p><font size="2">&lt;<b>verbosity_list_spec</b>&gt; ::= <b>-v</b>
+     &lt;verbosityType&gt; [ <b>,</b> &lt;verbosityType&gt; ] +</font></p>
 </ul>
 </body>
 </html>
