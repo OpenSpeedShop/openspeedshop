@@ -47,14 +47,10 @@ LocalToolbar::addButton(QPixmap *image)
   pb->setFlat(TRUE);
   pb->setEnabled(TRUE);
 
-// pb->setMinimumSize( QSize(18,18) );
-// pb->setMinimumSize( QSize(16,16) );
-  pb->setMinimumSize( QSize(14,14) );
-  pb->setSizePolicy(QSizePolicy( (QSizePolicy::SizeType)QSizePolicy::Fixed, (QSizePolicy::SizeType)QSizePolicy::Fixed, 0, 0, TRUE ) );
-   
-//  pb->resize(18,18);
-//  pb->resize(16,16);
-  pb->resize(14,14);
+pb->setMinimumSize( QSize(18,18) );
+pb->setSizePolicy(QSizePolicy( (QSizePolicy::SizeType)QSizePolicy::Fixed, (QSizePolicy::SizeType)QSizePolicy::Fixed, 0, 0, TRUE ) );
+
+  pb->resize(18,18);
   layout->addWidget(pb);
   pb->show();
 

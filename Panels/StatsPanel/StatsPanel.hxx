@@ -135,7 +135,7 @@ class StatsPanel  : public Panel
     void setOrientation();
 
   private:
-    void matchSelectedItem( std::string function_name );
+    bool matchSelectedItem( std::string function_name );
 
 
     void updateStatsPanelData();

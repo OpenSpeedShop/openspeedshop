@@ -191,16 +191,19 @@ StatsPanel::listener(void *msg)
       getPanelContainer()->raisePanel(this);
     }
 // now focus a source file that's listening....
-{
 // printf("Now focus the source panel, if it's up..\n");
 //First get the first item...
 QListViewItemIterator it( splv );
 QListViewItem *item = *it;
 
 // Now call the match routine, this should focus any source panels.
-matchSelectedItem( std::string(item->text(2).ascii()) );
-}
+if( item && matchSelectedItem( std::string(item->text(2).ascii()) ) )
+{
     return 1;
+} else
+{
+    return 0;
+}
   } else if(  msgObject->msgType  == "UpdateExperimentDataObject" )
   {
     UpdateObject *msg = (UpdateObject *)msgObject;
@@ -869,7 +872,7 @@ StatsPanel::doOption(int id)
 
 
 
-void
+bool
 StatsPanel::matchSelectedItem(std::string sf )
 {
   bool foundFLAG = FALSE;
@@ -889,6 +892,8 @@ StatsPanel::matchSelectedItem(std::string sf )
       if( selected_function == it->first.getName()  )
       {
 // printf("FOUND IT!\n");
+        foundFLAG = TRUE;
+
         definitions = it->first.getDefinitions();
         if(definitions.size() > 0 )
         {
@@ -903,7 +908,7 @@ StatsPanel::matchSelectedItem(std::string sf )
         {
 fprintf(stderr, "No function definition for this entry.   Unable to position source.\n");
           QMessageBox::information(this, "Open|SpeedShop", "No function definition for this entry.\nUnable to position source. (No symbols.)\n", "Ok");
-          return;
+          return foundFLAG;
         }
       }
     }
@@ -946,7 +951,7 @@ fprintf(stderr, "No function definition for this entry.   Unable to position sou
         {
 // printf("item->first=%d\n", item->first);
 // printf("item->second=%f\n", item->second );
-          hlo = new HighlightObject(di->getPath(), item->first, color_names[0], item->second, (char *)QString("This line took %1 seconds.").arg(item->second).ascii());
+          hlo = new HighlightObject(di->getPath(), item->first, color_names[0], item->second, (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
           highlightList->push_back(hlo);
         }
       }
@@ -958,7 +963,7 @@ fprintf(stderr, "No function definition for this entry.   Unable to position sou
     } else
     {
 // printf("No file found.\n");
-      return;
+      return foundFLAG;
     }
 
     if( spo )
@@ -987,9 +992,11 @@ fprintf(stderr, "No function definition for this entry.   Unable to position sou
               << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
               "Unknown runtime error." : error.what()) << std::endl
               << std::endl;
-    return;
+    return foundFLAG;
   }
 
+
+  return( foundFLAG );
 }
 
 void
