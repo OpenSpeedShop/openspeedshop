@@ -53,6 +53,12 @@ void Experiment_Termination () {
 
 // Experiment Utilities.
 
+inline std::string int2str (int64_t e) {
+  char s[40];
+  sprintf ( s, "%lld", e);
+  return std::string (s);
+}
+
 static int Wait_For_Exp_State (CommandObject *cmd, int to_state, ExperimentObject *exp) {
  // After changing the state of each thread, wait for the
  // status of the experiment to change.  This is necessary
@@ -875,6 +881,9 @@ bool SS_expCreate (CommandObject *cmd) {
  // When we allocate a new experiment, set the focus to point to it.
   (void)Experiment_Focus (WindowID, exp->ExperimentObject_ID());
 
+ // Annotate the command
+  cmd->Result_Annotation ("The new focused experiment identifier is:  -x ");
+
  // Return the EXPID for this command.
   cmd->Result_Int (exp->ExperimentObject_ID());
   cmd->set_Status(CMD_COMPLETE);
@@ -1031,6 +1040,7 @@ bool SS_expFocus  (CommandObject *cmd) {
 
  // Return the EXPID for this command.
   cmd->Result_Int (ExperimentID);
+  cmd->Result_Annotation ("The current focused experiment is:  -x ");
   cmd->set_Status(CMD_COMPLETE);
   return true;
 } 
@@ -1098,6 +1108,10 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
    // After changing the state of each thread, wait for the
    // something to actually start executing.
     (void) Wait_For_Exp_State (cmd, ExpStatus_Running, exp);
+
+   // Annotate the command
+    cmd->Result_Annotation ("Start asynchronous execution of experiment:  -x "
+                             + int2str(exp->ExperimentObject_ID()) + "\n");
   }
   return true;
 }
@@ -1130,7 +1144,8 @@ bool SS_expGo (CommandObject *cmd) {
 
 static bool Pause_Experiment (CommandObject *cmd, ExperimentObject *exp) {
   exp->Determine_Status();
-  if ((exp->Status() != ExpStatus_Paused) &&
+  if ((exp->Status() != ExpStatus_NonExistent) &&
+      (exp->Status() != ExpStatus_Paused) &&
       (exp->Status() != ExpStatus_Running)) {
    // These are the only states that can be changed.
     cmd->Result_String ("The experiment can not Pause because it is in the "
@@ -1166,6 +1181,10 @@ static bool Pause_Experiment (CommandObject *cmd, ExperimentObject *exp) {
    // After changing the state of each thread, wait for the
    // the experiment to actually stop.
     (void) Wait_For_Exp_State (cmd, ExpStatus_Paused, exp);
+
+   // Annotate the command
+    cmd->Result_Annotation ("Suspend execution of experiment:  -x "
+                             + int2str(exp->ExperimentObject_ID()) + "\n");
   }
   return true;
 }
@@ -1202,7 +1221,7 @@ bool SS_expRestore (CommandObject *cmd) {
  // Extract the savefile name.
   parse_val_t *file_name_value = Get_Simple_File_Name (cmd);
   if (file_name_value == NULL) {
-    cmd->Result_String ("A file name for the Data Base is required.");
+    cmd->Result_String ("A file name for the Database is required.");
     cmd->set_Status(CMD_ERROR);
     return false;
   }
@@ -1224,6 +1243,9 @@ bool SS_expRestore (CommandObject *cmd) {
  // Set the focus to point to the new EXPID.
   (void)Experiment_Focus (WindowID, ExperimentID);
 
+ // Annotate the command
+  cmd->Result_Annotation ("The restored experiment identifier is:  -x ");
+
  // Return the EXPID for this command.
   cmd->Result_Int (ExperimentID);
   cmd->set_Status(CMD_COMPLETE);
@@ -1239,7 +1261,7 @@ bool SS_expSave (CommandObject *cmd) {
  // Extract the savefile name.
   parse_val_t *file_name_value = Get_Simple_File_Name (cmd);
   if (file_name_value == NULL) {
-    cmd->Result_String ("need a file name for the Data Base.");
+    cmd->Result_String ("need a file name for the Database.");
     cmd->set_Status(CMD_ERROR);
     return false;
   }
