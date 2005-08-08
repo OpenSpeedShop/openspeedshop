@@ -537,6 +537,7 @@ class CommandObject
   bool result_needed_in_python;  // Don't Print to ostream if this is set!
   bool results_used; // Once used, this object can be deleted!
   std::list<CommandResult *> CMD_Result;
+  std::list<CommandResult_RawString *> CMD_Annotation;
 
   void Associate_Input ()
   {
@@ -613,6 +614,14 @@ public:
 
   std::list<CommandResult *> Result_List () {
     return CMD_Result;
+  }
+
+  void Result_Annotation (std::string S) {
+    CMD_Annotation.push_back(new CommandResult_RawString (S));
+  }
+
+  std::list<CommandResult_RawString *> Annotation_List () {
+    return CMD_Annotation;
   }
 
  // The following are defined in CommandObject.cxx

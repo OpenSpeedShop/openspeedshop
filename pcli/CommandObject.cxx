@@ -108,9 +108,28 @@ void CommandObject::Print (FILE *TFile) {
 }
 
 // For printing the results to an Xterm Window.
+
 bool CommandObject::Print_Results (ostream &to, std::string list_seperator, std::string termination_char) {
- // Print only the result information
+
+ // Pick up information lists from CommandObject.
   std::list<CommandResult *> cmd_result = Result_List();
+  std::list<CommandResult_RawString *> cmd_annotation = Annotation_List ();
+
+ // Print any Annotation information
+  bool annotation_printed = false;
+  std::list<CommandResult_RawString *>::iterator ari;
+  for (ari = cmd_annotation.begin(); ari != cmd_annotation.end(); ari++) {
+    (*ari)->Print (to, 20, true);
+    annotation_printed = true;
+  }
+
+  if (annotation_printed &&
+      (cmd_result.begin() == cmd_result.end())) {
+   // There is result, but we did print something and need a new prompt.
+    return true;
+  }
+
+ // Print the result information
   std::list<CommandResult *>::iterator cri = cmd_result.begin();
   if  (cri != cmd_result.end()) {
     if (((*cri)->Type() == CMD_RESULT_COLUMN_HEADER) ||

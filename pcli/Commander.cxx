@@ -1676,7 +1676,9 @@ void Default_TLI_Command_Output (CommandObject *C) {
   if (!(C->Results_Used()) &&
       !(C->Needed_By_Python())) {
     std::list<CommandResult *> cmd_result = C->Result_List();
-    if ((cmd_result.begin() != cmd_result.end()) &&
+    std::list<CommandResult_RawString *> cmd_annotation = C->Annotation_List();
+    if (((cmd_result.begin() != cmd_result.end()) ||
+         (cmd_annotation.begin() != cmd_annotation.end())) &&
         (C->Status() != CMD_ABORTED)) {
       InputLineObject *clip = C->Clip ();
       CMDWID w = (clip) ? clip->Who() : 0;
