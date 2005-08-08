@@ -819,16 +819,23 @@ command. </font><br>
 </font></b></h3>
 <ul>
   <font size="-1">- Request information about a topic.</font> <br>
+  <font size="-1">- The detail of information can be controlled with
+the optional &lt;verbosity_spec&gt;.</font> <br>
   <br>
-  <font size="-1">&lt;string&gt; <b>= help </b>[ &lt;string&gt; ]</font>
+  <font size="-1">&lt;string&gt;
+<b>= help </b>[ &lt;verbosity_list_spec&gt; ] [ &lt;string&gt; ]</font>
 </ul>
 <h3><a name="mozTocId543492" class="mozTocH3"></a><b><font size="+0"><a
  name="history"></a><li>history</li>
 </font></b></h3>
 <ul>
   <font size="-1">- Print a list of previously executed commands. <br>
+  <font size="-1">- If the optional integer is provided, the command will
+list that number of previous commands. <br>
+  <font size="-1">- If no integer is provided, the command will list
+a default number of previous commands. <br>
   <br>
-  <font size="-1"><b>history</b></font>
+  <font size="-1">&lt;string&gt; <b>= history </b> [ &lt;int&gt; ]</font>
 </ul>
 <h3><a name="mozTocId487321" class="mozTocH3"></a><a name="log"></a><b><font
  size="+0"><li>log</li>
