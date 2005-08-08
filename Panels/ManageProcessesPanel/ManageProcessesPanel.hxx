@@ -71,5 +71,6 @@ class ManageProcessesPanel  : public Panel
     virtual void languageChange();
 
   private:
+    void raisePreferencePanel();
 };
 #endif // MANAGEPROCESSPANEL_H

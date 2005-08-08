@@ -16,34 +16,80 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifdef PREFERENCES_NEEDED
-
-
 #ifndef PREFERENCE_PLUGIN_INFO_H
 #define PREFERENCE_PLUGIN_INFO_H
 
 #include <qwidgetstack.h>
 #include <qsettings.h>
 
+#include <qwidgetstack.h>
+#include <qlayout.h>
+#include <qgroupbox.h>
+#include <qlineedit.h>
+#include <qlabel.h>
+#include <qcheckbox.h>
+#include <qsettings.h>
+
 
 extern "C"
 {
-  QWidget *initialize_preferences_entry_point(QSetttings *settings, QWidgetStack *stack, char *name)
+  QWidget *manageProcessesPanelStackPage;
+  QGroupBox* managerProcessesPanelGroupBox;
+  QVBoxLayout* generalStackPageLayout_2;
+  QVBoxLayout* layout6;
+  QCheckBox* sortPreferenceCheckBox;
+
+  static char *pname = NULL;
+
+  bool getSortPreference()
   {
-    printf("initialize_preferences_entry_point(0x%x 0x%x %s) entered\n", settings, tack, name);
+    return( sortPreferenceCheckBox->isChecked() );
+  }
+
+  void initManageProcessesPanelPreferenceSettings()
+  {
+    sortPreferenceCheckBox->setChecked(FALSE);
+  }
+
+  QWidget *initialize_preferences_entry_point(QSettings *settings, QWidgetStack *stack, char *name)
+  {
+//printf("initialize_preferences_entry_point(0x%x 0x%x %s) entered\n", settings, stack, name);
 
     // Add your preferences to initialize here.   See Source Panel for 
     // an example.
-    return( NULL );
+
+    manageProcessesPanelStackPage = new QWidget( stack, name );
+    pname = strdup(name);
+
+    generalStackPageLayout_2 = new QVBoxLayout( manageProcessesPanelStackPage, 11, 6, "generalStackPageLayout_2");
+
+    managerProcessesPanelGroupBox = new QGroupBox( manageProcessesPanelStackPage, "managerProcessesPanelGroupBox" );
+
+    QWidget* managerProcessesPanelPrivateLayout = new QWidget( managerProcessesPanelGroupBox, "layout6" );
+    managerProcessesPanelPrivateLayout->setGeometry( QRect( 10, 40, 200, 100 ) );
+    layout6 = new QVBoxLayout( managerProcessesPanelPrivateLayout, 11, 6, "layout6");
+
+    sortPreferenceCheckBox =
+      new QCheckBox( managerProcessesPanelPrivateLayout, "sortPreferenceCheckBox" );
+    sortPreferenceCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7
+, (QSizePolicy::SizeType)0, 0, 0, sortPreferenceCheckBox->sizePolicy().hasHeightForWidth() ) );
+    layout6->addWidget( sortPreferenceCheckBox );
+    generalStackPageLayout_2->addWidget( managerProcessesPanelGroupBox );
+    stack->addWidget( manageProcessesPanelStackPage, 1 );
+
+    managerProcessesPanelGroupBox->setTitle( "Manage Processes Panel" );
+    sortPreferenceCheckBox->setText( "Sort Preference" );
+
+    initManageProcessesPanelPreferenceSettings();
+
+    return( manageProcessesPanelStackPage );
   }
   void save_preferences_entry_point(QSettings *settings, char *name)
   {
-    printf("save_preferences_entry_point() entered\n");
+//printf("save_preferences_entry_point() entered\n");
     // Add your preferences to save here.   See Source Panel for 
     // an example.
   }
 }
-
-#endif // PREFERENCES_NEEDED
 
 #endif // PREFERENCE_PLUGIN_INFO_H

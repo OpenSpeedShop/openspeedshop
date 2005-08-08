@@ -25,6 +25,8 @@
 #include "plugin_entry_point.hxx"   // Do not remove
 #include "ArgumentObject.hxx"
 
+#include "preference_plugin_info.hxx"
+
 #include <qtextedit.h>  // For QTextEdit in example below...
 ManageProcessesPanel::ManageProcessesPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(pc, n)
 {
@@ -44,6 +46,8 @@ ManageProcessesPanel::ManageProcessesPanel(PanelContainer *pc, const char *n, Ar
   char name_buffer[100];
   sprintf(name_buffer, "%s [%d]", getName(), expID);
   setName(name_buffer);
+
+  getSortPreference();
 }
 
 
@@ -172,4 +176,11 @@ ManageProcessesPanel::broadcast(char *msg)
 {
   dprintf("ManageProcessesPanel::broadcast() requested.\n");
   return 0;
+}
+
+void
+ManageProcessesPanel::raisePreferencePanel()
+{
+printf("ManageProcessesPanel::raisePreferencePanel() \n");
+  getPanelContainer()->getMainWindow()->filePreferences( manageProcessesPanelStackPage, QString(pluginInfo->panel_type) );
 }
