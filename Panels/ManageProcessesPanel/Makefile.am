@@ -45,6 +45,6 @@ moc_ManageCollectorsClass.cxx: ManageCollectorsClass.hxx
 ManageProcessesPanel_la_SOURCES = \
 	ManageProcessesPanel.hxx ManageProcessesPanel.cxx moc_ManageProcessesPanel.cxx \
 	ManageCollectorsClass.hxx ManageCollectorsClass.cxx moc_ManageCollectorsClass.cxx \
-	local_plugin_info.hxx
+	local_plugin_info.hxx preference_plugin_info.hxx
 
 CLEANFILES=moc_ManageProcessesPanel.cxx
