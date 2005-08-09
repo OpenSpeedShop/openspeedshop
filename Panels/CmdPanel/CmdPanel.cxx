@@ -56,6 +56,12 @@ class OutputClass : public ss_ostream
       output->getCursorPosition(&cp->last_para, &cp->last_index);
       cp->history_start_index = cp->last_index;
       cp->textDisabled = FALSE;
+/* This flush was added to prevent the following error:
+    "QPixmap::operator=: Cannot assign to pixmap during painting" 
+   If you see that error again, this block of code may need a 
+   thread lock to prevent multiple access.
+*/
+      flush_ostream();
     }
     virtual void flush_ostream ()
     {
