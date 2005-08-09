@@ -116,6 +116,8 @@ AC_CHECK_HEADER(pthread.h, [ AC_CHECK_LIB(pthread, pthread_create, [
 # Check for Python (http://www.python.org)
 ################################################################################
 
+AM_PATH_PYTHON(2.2)
+AM_CHECK_PYTHON_HEADERS()
 AC_PKG_PYTHON()
 AC_PKG_QTLIB()
 
