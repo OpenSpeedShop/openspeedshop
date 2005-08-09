@@ -876,6 +876,7 @@ bool
 StatsPanel::matchSelectedItem(std::string sf )
 {
   bool foundFLAG = FALSE;
+  SourceObject *spo = NULL;
 // printf ("StatsPanel::matchSelectedItem() = %s\n", sf.c_str() );
 
   QString selected_function_qstring = QString(sf);
@@ -908,13 +909,16 @@ StatsPanel::matchSelectedItem(std::string sf )
         {
 fprintf(stderr, "No function definition for this entry.   Unable to position source.\n");
           QMessageBox::information(this, "Open|SpeedShop", "No function definition for this entry.\nUnable to position source. (No symbols.)\n", "Ok");
+
+
+          clearSourceFile(expID);
+
           return foundFLAG;
         }
       }
     }
 // printf("FOUND?\n");
 
-    SourceObject *spo = NULL;
     if( definitions.size() > 0 )
     {
       std::set<Statement>::const_iterator di = definitions.begin();
@@ -962,6 +966,7 @@ fprintf(stderr, "No function definition for this entry.   Unable to position sou
 
     } else
     {
+      clearSourceFile(expID);
 // printf("No file found.\n");
       return foundFLAG;
     }
@@ -1266,4 +1271,24 @@ StatsPanel::raisePreferencePanel()
 {
 // printf("StatsPanel::raisePreferencePanel() \n");
   getPanelContainer()->getMainWindow()->filePreferences( statsPanelStackPage, QString(pluginInfo->panel_type) );
+}
+
+void 
+StatsPanel::clearSourceFile(int expID)
+{
+  SourceObject *spo = NULL;
+  spo = new SourceObject(NULL, NULL, -1, expID, TRUE, NULL);
+  if( broadcast((char *)spo, NEAREST_T) == 0 )
+  { // No source view up...
+    char *panel_type = "Source Panel";
+    //Find the nearest toplevel and start placement from there...
+    PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(getPanelContainer());
+    ArgumentObject *ao = new ArgumentObject("ArgumentObject", groupID);
+    Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, ao);
+    delete ao;
+    if( p != NULL ) 
+    {
+      p->listener((void *)spo);
+    }
+  }
 }

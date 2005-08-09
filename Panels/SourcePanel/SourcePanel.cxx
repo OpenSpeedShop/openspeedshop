@@ -743,6 +743,11 @@ SourcePanel::loadFile(const QString &_fileName)
 {
   nprintf(DEBUG_PANELS) ("SourcePanel::loadFile() entered\n");
 
+  canvasForm->hide();
+  canvasForm->clearAllItems();
+  canvasForm->show();
+
+
   bool sameFile = FALSE;
   if( fileName == _fileName )
   {
@@ -775,6 +780,9 @@ SourcePanel::loadFile(const QString &_fileName)
     msg = QString("Unable to open file: %1").arg(fileName);
     QMessageBox::information( (QWidget *)this, tr("Details..."),
                                msg, QMessageBox::Ok );
+    textEdit->clear();
+    textEdit->clearScrollBar();
+    label->setText(tr("No file found."));
     return FALSE;
   }
 

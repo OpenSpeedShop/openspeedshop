@@ -137,6 +137,7 @@ class StatsPanel  : public Panel
   private:
     bool matchSelectedItem( std::string function_name );
 
+    void clearSourceFile(int expID);
 
     void updateStatsPanelData();
 
@@ -158,5 +159,6 @@ class StatsPanel  : public Panel
     bool chartFLAG;
 
     CollectorListObject *clo;
+
 };
 #endif // PCSTATSPANEL_H
