@@ -92,10 +92,8 @@ Building Block Commands</big></font></font>
 command is issued.</li>
   </dir>
 - If there is no &lt;expId_spec&gt; provided, information is attached
-to the focused
-experiment. <br>
-- The &lt;target_list&gt; is used to restrict the knowledge of
-the
+to the focused experiment. <br>
+- The &lt;target_list&gt; is used to restrict the knowledge of the
 experiment or data collection to certain portions of an appliaction. <br>
 - It is ambiguous to use both the <b>-f</b> and <b>-p</b> options.
   <dir><li>The <b>-f</b> option implies that an executable is to be
@@ -145,11 +143,13 @@ file, or
 closed if it is a user defined file. Use <b>expSave</b> for saving
 information.</li>
   </dir>
-- Because important information may accidently be lost, the absence of
-any arguments will not cause the focused experiment to be deleted. This
-can
-only be done by specifying the <b>expId</b> of the focused experiment
-or by using the <b>focus</b> keyword. <br>
+- If there is no &lt;expId_spec&gt; provided, the focused experiment
+will be closed.<br>
+- Because important information may accidently be lost, this command
+should only be issued when the user is certain that more performance
+measurements are not needed and that the collected data measurements
+will be saved if there is any chance that the user will want to take
+another look at the results. <br>
 - Use of the <b>all</b> keyword will cause all defined experiments to
 be deleted. </font><br>
   <br>
@@ -199,12 +199,24 @@ new
 - If there is no &lt;expId_spec&gt; provided, the focused experiment is used.<br>
 - If &lt;target_list&gt; is provided without &lt;expType_list&gt;,
 all collectors are detached for those applications. <br>
-- If &lt;expType_list&gt; is provided without &lt;target_list&gt;,
-the specified data collectors are detached from all the executable
-routines that are ttached to the indicated experiment. <br>
+- The use of the "&lt;target_list&gt;" option allows control over the parts of
+an executable program that will no longer generate performance data.
+  <dir><li>The absence of any "<b>-h</b> &lt;hostname&gt;" specification will cause
+      all the  hosts in the specifed experiment to stop measuring performance.</li>
+  <li>The default cluster contains only localhost and can be specified by
+      using <b>-h localhost</b>. </li>
+  <li>Use of the <b>-f</b> option is not supported.</li>
+  <li>Use of the <b>-p</b> option will result in only the Threads associated
+      with that Pid to stop measuring performance.</li>
+  <li>Use of the <b>-t</b> option will result in only that specific Thread
+      o stop measuring performance.</li>
+  </dir>
 -If both &lt;target_list&gt; and &lt;expType_list&gt; are provided,
 only the specified collectores in &lt;expType_list&gt; are detached from
 just those applications described in &lt;target_list&gt;. <br>
+- If &lt;expType_list&gt; is provided without &lt;target_list&gt;,
+the specified data collectors are detached from all the executable
+routines that are ttached to the indicated experiment. <br>
 - If neither &lt;target_list&gt; nor &lt;expType_list&gt; is
 provided,
 the command does nothing. </font><br>
@@ -220,7 +232,7 @@ the command does nothing. </font><br>
   <font size="-1">- Turn off data collection.
   <dir><li>The experiment remains defined.</li>
   <li>Data collection is "turned off" and no new information is saved.</li>
-  <li>Instrumentation is disabled but may not removed from the
+  <li>Instrumentation is disabled but may not be removed from the
       application.</li>
   <li>Previously collected data is still available and can be viewed
       or saved.</li>
@@ -263,7 +275,7 @@ all defined experiments. <br>
 - If this command is issued with no arguments, data collection for
 the focused experiment is restarted. </font><br>
   <br>
-  <font size="-1">&lt;expId&gt; <b> = expEnable </b> [
+  <font size="-1"><b>expEnable</b> [
 &lt;expId_spec&gt; || <b>all</b> ]</font>
 </ul>
 <h3><a name="mozTocId738829" class="mozTocH3"></a><a name="expFocus"></a><font
