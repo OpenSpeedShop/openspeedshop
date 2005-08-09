@@ -17,11 +17,11 @@
 ################################################################################
 #
 # directories that will be built
-SUBDIRS = one_shot point_probe probe_module start_terminate phase module_addr stmt_info daemonRT_locking
+SUBDIRS = one_shot point_probe probe_module start_terminate phase module_addr stmt_info daemonRT_locking data_type
 #
 # directories that will be packaged into tar.gz.
 # these can be a subset of the directories in SUBDIRS.
 #
-DIST_SUBDIRS = one_shot point_probe probe_module start_terminate phase module_addr stmt_info daemonRT_locking
+DIST_SUBDIRS = one_shot point_probe probe_module start_terminate phase module_addr stmt_info daemonRT_locking data_type
 
 
