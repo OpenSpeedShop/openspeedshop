@@ -41,5 +41,6 @@ public:
     int int_data;
     Panel *panel_data;
     QString *qstring_data;
+    bool loadedFromSavedFile;
 };
 #endif // ARGUMENTOBJECT_H

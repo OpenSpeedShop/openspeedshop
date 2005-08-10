@@ -168,7 +168,7 @@ StatsPanel::listener(void *msg)
   PreferencesChangedObject *pco = NULL;
 
   MessageObject *msgObject = (MessageObject *)msg;
-// printf("StatsPanel::listener() msg->msgType = (%s)\n", msgObject->msgType.ascii() );
+//printf("StatsPanel::listener() msg->msgType = (%s)\n", msgObject->msgType.ascii() );
   if( msgObject->msgType == getName() && recycleFLAG == TRUE )
   {
     nprintf(DEBUG_MESSAGES) ("StatsPanel::listener() interested!\n");
@@ -180,7 +180,7 @@ StatsPanel::listener(void *msg)
 
   if(  msgObject->msgType  == "FocusObject" && recycleFLAG == TRUE )
   {
-// printf("StatsPanel got a new FocusObject\n");
+//printf("StatsPanel got a new FocusObject\n");
     FocusObject *msg = (FocusObject *)msgObject;
 // msg->print();
     expID = msg->expID;
@@ -199,9 +199,11 @@ QListViewItem *item = *it;
 // Now call the match routine, this should focus any source panels.
 if( item && matchSelectedItem( std::string(item->text(2).ascii()) ) )
 {
+//printf("match\n");
     return 1;
 } else
 {
+//printf("no match\n");
     return 0;
 }
   } else if(  msgObject->msgType  == "UpdateExperimentDataObject" )
@@ -890,7 +892,7 @@ StatsPanel::matchSelectedItem(std::string sf )
     for( ; it != sorted_items.end(); ++it)
     {
 // printf("%s %f\n", it->first.getName().c_str(), it->second );
-      if( selected_function == it->first.getName()  )
+      if( selected_function == it->first.getName()  || sf == NULL )
       {
 // printf("FOUND IT!\n");
         foundFLAG = TRUE;
@@ -917,7 +919,7 @@ fprintf(stderr, "No function definition for this entry.   Unable to position sou
         }
       }
     }
-// printf("FOUND?\n");
+// printf("FOUND? foundFLAG=%d\n", foundFLAG);
 
     if( definitions.size() > 0 )
     {
@@ -947,7 +949,7 @@ fprintf(stderr, "No function definition for this entry.   Unable to position sou
 
 // printf("Look up metrics by statement in file.\n");
         Queries::GetMetricByStatementInFileForThread(*currentCollector, currentMetricStr.ascii(), di->getPath(), *currentThread, orig_statement_data);
-// printf("Looked up metrics by statement in file.\n");
+//printf("Looked up metrics by statement in file.\n");
 
         for(std::map<int, double>::const_iterator
               item = orig_statement_data->begin();
@@ -957,6 +959,7 @@ fprintf(stderr, "No function definition for this entry.   Unable to position sou
 // printf("item->second=%f\n", item->second );
           hlo = new HighlightObject(di->getPath(), item->first, color_names[0], item->second, (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
           highlightList->push_back(hlo);
+// printf("Push_back a hlo for %d %f\n", item->first, item->second);
         }
       }
 
@@ -973,20 +976,22 @@ fprintf(stderr, "No function definition for this entry.   Unable to position sou
 
     if( spo )
     {
-      if( broadcast((char *)spo, NEAREST_T) == 0 )
-      { // No source view up...
-// printf("place the source panel.\n");
+      QString name = QString("Source Panel [%1]").arg(expID);
+// printf("Find a SourcePanel named %s\n", name.ascii() );
+      Panel *sourcePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+      if( !sourcePanel )
+      {
+//printf("no source view up, place the source panel.\n");
         char *panel_type = "Source Panel";
-  //Find the nearest toplevel and start placement from there...
-        PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(getPanelContainer());
+        PanelContainer *bestFitPC = topPC->findBestFitPanelContainer(getPanelContainer()->parentPanelContainer);
         ArgumentObject *ao = new ArgumentObject("ArgumentObject", groupID);
-        Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, ao);
-        delete ao;
-        if( p != NULL ) 
-        {
-// printf("Call the sourcepanel listener with the source object...\n");
-          p->listener((void *)spo);
-        }
+        sourcePanel = getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, ao);
+      }
+      if( sourcePanel )
+      {
+//printf("send the spo to the source panel.\n");
+        sourcePanel->listener((void *)spo);
+//printf("sent the spo to the source panel.\n");
       }
     }
     qApp->restoreOverrideCursor( );
@@ -1284,6 +1289,7 @@ StatsPanel::clearSourceFile(int expID)
     //Find the nearest toplevel and start placement from there...
     PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(getPanelContainer());
     ArgumentObject *ao = new ArgumentObject("ArgumentObject", groupID);
+//printf("StatsPanel::clearSourceFile() creating Source Panel\n");
     Panel *p = getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, ao);
     delete ao;
     if( p != NULL ) 

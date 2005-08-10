@@ -135,7 +135,7 @@ public slots:
   void manageDataSetsSelected();
   void loadSourcePanel();
   void editPanelName();
-  void loadStatsPanel();
+  Panel *loadStatsPanel();
   void loadManageProcessesPanel();
   void progressUpdate();
 

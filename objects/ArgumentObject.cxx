@@ -40,6 +40,7 @@ ArgumentObject::init()
   int_data = 0;
   panel_data = NULL;
   qstring_data = NULL;
+  loadedFromSavedFile = FALSE;
 }
 
 ArgumentObject::ArgumentObject(QString msg_type, int d)
@@ -81,5 +82,6 @@ ArgumentObject::print()
   printf("	msgType=(%s)\n", msgType.ascii() );
   printf("  panel_data=0x%x\n", panel_data);
   printf("  int_data=%d\n", int_data);
-  printf("  qstring_data=%s\n", qstring_data->ascii() );
+  printf("  qstring_data=%s\n", qstring_data ? qstring_data->ascii() : "NULL");
+  printf("  loadedFromSavedFile=%d\n", loadedFromSavedFile);
 }

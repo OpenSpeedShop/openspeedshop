@@ -36,6 +36,7 @@
 #include "UpdateObject.hxx"
 #include "SourceObject.hxx"
 #include "ArgumentObject.hxx"
+#include "FocusObject.hxx"
 #include "ManageProcessesPanel.hxx"
 
 #include "LoadAttachObject.hxx"
@@ -83,18 +84,6 @@ FPE_TracingPanel::FPE_TracingPanel(PanelContainer *pc, const char *n, ArgumentOb
     if( expIDString->toInt() == -1 )
     {
       nprintf( DEBUG_PANELS ) ("we're coming in from the fpeTracingWizardPanel.\n");
-#ifdef UNNEEDED
-      // We're comming in cold,
-      // Check to see if there's a suggested executable or pid ...
-      if( !mw->executableName.isEmpty() )
-      {
-        executableNameStr = mw->executableName;
-        argsStr = mw->argsStr;
-      } else if( !mw->pidStr.isEmpty() )
-      {
-        pidStr = mw->pidStr;
-      }
-#endif // UNNEEDED
     } else if( expIDString->toInt() > 0 )
     {
       expID = expIDString->toInt();
@@ -208,7 +197,6 @@ FPE_TracingPanel::FPE_TracingPanel(PanelContainer *pc, const char *n, ArgumentOb
       experiment = eo->FW();
     }
 
-//  fprintf(stdout, "A: MY VALUE! = (%d)\n", val);
     statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the \"Run\" button to begin the experiment.")) );
     loadTimer->stop();
     pd->hide();
@@ -221,7 +209,6 @@ FPE_TracingPanel::FPE_TracingPanel(PanelContainer *pc, const char *n, ArgumentOb
     }
   } else
   {
-    nprintf( DEBUG_PANELS ) ("fpeTracing has been requested to open an existing experiment!!!\n");
     // Look up the framework experiment and squirrel it away.
     ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
     if( eo && eo->FW() )
@@ -255,6 +242,7 @@ FPE_TracingPanel::FPE_TracingPanel(PanelContainer *pc, const char *n, ArgumentOb
     runnableFLAG = TRUE;
     pco->runButton->setEnabled(TRUE);
     pco->runButton->enabledFLAG = TRUE;
+    updateInitialStatus();
   } else if( expID > 0 )
   {
     ThreadGroup tgrp = experiment->getThreads();
@@ -264,11 +252,28 @@ FPE_TracingPanel::FPE_TracingPanel(PanelContainer *pc, const char *n, ArgumentOb
       statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\".") );
         PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
       ArgumentObject *ao = new ArgumentObject("ArgumentObject", (Panel *)this);
-topPC->dl_create_and_add_panel("FPE Tracing Wizard", bestFitPC, ao);
+      topPC->dl_create_and_add_panel("FPE Tracing Wizard", bestFitPC, ao);
       delete ao;
     } else
     {
-      statusLabelText->setText( tr(QString("Process Loaded: Click on the \"Run\" button to begin the experiment.")) );
+
+      if( ao && ao->loadedFromSavedFile == TRUE )
+      {
+        topPC->splitVertical(40);
+
+        // If we default a report panel bring it up here...
+        //printf("Split:  Now loadStatsPanel()\n");
+        Panel *p = loadStatsPanel();
+            
+        // Now focus on the first entry...
+          //printf("Now focus the statsPanel\n");
+        FocusObject *msg = new FocusObject(expID, NULL, NULL, TRUE);
+        p->listener(msg);
+      } else
+      {
+        statusLabelText->setText( tr(QString("Process Loaded: Click on the \"Run\" button to begin the experiment.")) );
+        updateInitialStatus();
+      }
     }
   } else if( executableNameStr.isEmpty() )
   {
@@ -276,9 +281,9 @@ topPC->dl_create_and_add_panel("FPE Tracing Wizard", bestFitPC, ao);
     runnableFLAG = FALSE;
     pco->runButton->setEnabled(FALSE);
     pco->runButton->enabledFLAG = FALSE;
+    updateInitialStatus();
   }
 
-  updateInitialStatus();
 }
 
 
@@ -631,9 +636,9 @@ CLIInterface::interrupt = true;
       if( !cli->runSynchronousCLI((char *)command.ascii() ) )
       {
         QMessageBox::information( this, "No collector found:", QString("Unable to issue command:\n  ")+command, QMessageBox::Ok );
-statusLabelText->setText( tr(QString("Unable to load executable name:  "))+mw->executableName);
-loadTimer->stop();
-pd->hide();
+        statusLabelText->setText( tr(QString("Unable to load executable name:  "))+mw->executableName);
+        loadTimer->stop();
+        pd->hide();
         return 1;
       }
  
@@ -753,15 +758,17 @@ FPE_TracingPanel::saveAsSelected()
 void
 FPE_TracingPanel::loadSourcePanel()
 {
-  nprintf( DEBUG_PANELS ) ("FPE_TracingPanel::loadSourcePanel()\n");
+nprintf( DEBUG_PANELS ) ("FPE_TracingPanel::loadSourcePanel()\n");
+//printf("FPE_TracingPanel::loadSourcePanel()!!!!!\n");
 
   QString name = QString("Source Panel [%1]").arg(expID);
+//printf("try to find (%s)\n", name.ascii() );
   Panel *sourcePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
   if( !sourcePanel )
   {
     PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
-//    (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", bestFitPC, (char *)expID);
     ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
+//printf("FPE_TracingPanel::loadSourcePanel() create a new Source Panel!!\n");
     (SourcePanel *)topPC->dl_create_and_add_panel("Source Panel", bestFitPC, ao);
     delete ao;
   } else
@@ -790,7 +797,7 @@ FPE_TracingPanel::editPanelName()
   }
 }
 
-void
+Panel *
 FPE_TracingPanel::loadStatsPanel()
 {
   nprintf( DEBUG_PANELS ) ("load the stats panel.\n");
@@ -823,6 +830,8 @@ FPE_TracingPanel::loadStatsPanel()
       statsPanel->listener( (void *)msg );
     }
   }
+
+  return(statsPanel);
 }
 
 void
@@ -897,10 +906,12 @@ FPE_TracingPanel::loadMain()
       SourceObject *spo = new SourceObject("main", i->getPath(), i->getLine()-1, expID, TRUE, NULL);
   
       QString name = QString("Source Panel [%1]").arg(expID);
+//printf("TRY TO FIND A SOURCE PANEL!!!  (loadMain() \n");
       Panel *sourcePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
       if( !sourcePanel )
       {
         char *panel_type = "Source Panel";
+//printf("FPE_TracingPanel:A: create a source panel.\n");
         //Find the nearest toplevel and start placement from there...
         PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
         ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
@@ -912,18 +923,9 @@ FPE_TracingPanel::loadMain()
         sourcePanel->listener((void *)spo);
       }
     }
-#ifdef OLDWAY
-    statusLabelText->setText( tr("Experiment is loaded:  Hit the \"Run\" button to continue execution.") );
-    pco->runButton->setEnabled(TRUE);
-    pco->runButton->enabledFLAG = TRUE;
-    runnableFLAG = TRUE;
-    pco->pauseButton->setEnabled(FALSE);
-    pco->pauseButton->enabledFLAG = FALSE;
-#else // OLDWAY
     statusLabelText->setText( tr("Experiment is loaded:  Hit the \"Run\" button to continue execution.") );
 
     updateStatus();
-#endif // OLDWAY
   } else
   {
     pco->runButton->setEnabled(FALSE);

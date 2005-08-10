@@ -60,6 +60,7 @@ SourcePanel::SourcePanel()
 SourcePanel::SourcePanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(pc, n)
 {
   nprintf(DEBUG_CONST_DESTRUCT) ( "SourcePanel::SourcePanel() constructor called\n");
+//printf ( "SourcePanel::SourcePanel() constructor called\n");
   expID = 0;
 
   frameLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
@@ -393,13 +394,18 @@ SourcePanel::listener(void *msg)
   SaveAsObject *sao = NULL;
   PreferencesChangedObject *pco = NULL;
   nprintf(DEBUG_PANELS) ("SourcePanel::listener() requested.\n");
+//printf("SourcePanel::listener() requested.\n");
 
   MessageObject *msgObject = (MessageObject *)msg;
 
+//printf("msgObject->msgType-%s getName()=%s\n", msgObject->msgType.ascii(), getName() );
 
   // Check the message type to make sure it's our type...
-//  if( msgObject->msgType == "SourceObject" )
-//  if( msgObject->msgType == getName() && recycleFLAG == TRUE )
+  if( msgObject->msgType == getName() && recycleFLAG == TRUE )
+  {
+    // Someone's looking for us... \n");
+    return 1;
+  } else 
   if( msgObject->msgType == "SourceObject" && recycleFLAG == TRUE )
   {
     nprintf(DEBUG_PANELS)  ("Its a SourceObject\n");
@@ -428,10 +434,17 @@ SourcePanel::listener(void *msg)
       return 1;
     }
 
-// printf ("	doFileHighlights()\n");
 
+//printf("Why won't you highlight!???!!\n");
+//canvasForm->hide();
+//qApp->flushX();
     highlightList = spo->highlightList;
     doFileHighlights();
+//canvasForm->update();
+//canvasForm->show();
+//qApp->flushX();
+//canvasForm->update();
+
 
     // Try to highlight the line...
     hscrollbar->setValue(0);

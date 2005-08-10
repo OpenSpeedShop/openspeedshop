@@ -55,6 +55,7 @@ extern QApplication *qapplication;
 #include "LoadAttachObject.hxx"
 
 #include "CLIInterface.hxx"
+static bool loadedFromSavedFile = FALSE;
 
 void OpenSpeedshop::fileLoadNewProgram()
 {
@@ -262,6 +263,7 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
   
     PanelContainer *bestFitPC = ((PanelContainer *)topPC)->findBestFitPanelContainer((PanelContainer *)topPC);
     ArgumentObject *ao = new ArgumentObject("ArgumentObject", &expStr);
+ao->loadedFromSavedFile = loadedFromSavedFile;
     topPC->dl_create_and_add_panel((char *)panel_type.ascii(), bestFitPC, ao);
     delete ao;
   }
@@ -312,6 +314,7 @@ void OpenSpeedshop::fileOpenSavedExperiment(QString filename)
     } else
     {
 //      ExperimentObject *eo = Find_Experiment_Object((EXPID)val);
+      loadedFromSavedFile = TRUE;
       fileOpenExperiment(val);
     }
   }
