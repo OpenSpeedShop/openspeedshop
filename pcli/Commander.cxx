@@ -203,6 +203,8 @@ class Input_Source
   Input_Source *Next () { return Next_Source; }
   InputLineObject *InObj () { return Input_Object; }
   bool InFileError () { return (Fp == NULL); }
+  bool Is_File () { return (Fp != NULL); }
+  std::string File_Name () { return Name; }
 
   char *Get_Next_Line () {
     if (Next_Line_At >= Last_Valid_Data) {
@@ -510,11 +512,13 @@ class CommandWindowID
         if (((*coi)->Status() == CMD_PARSED) ||
             ((*coi)->Status() == CMD_EXECUTING)) {
           (*coi)->set_Status (CMD_ABORTED);
+          (*coi)->set_Results_Used ();
         }
       }
      // Terminate the Clip after aborting the CommandObjects so that
      // the final status of commands is entered in the log file.
       clip->SetStatus (ILO_ERROR);
+      clip->Set_Results_Used ();
     }
 
    // Release the lock
@@ -674,9 +678,33 @@ public:
     return clip;
   }
 
-  bool Input_Available () {
+  bool Input_Async () {
     return  ((Input == NULL) ? Input_Is_Async : true);
   }
+  bool Input_Queued () {
+    if (Input != NULL) {
+      return (Input->InObj() != NULL);
+    }
+    return false;
+  }
+  bool Input_File () {
+    if (Input != NULL) {
+     return (Input->Is_File());
+    }
+    return false;
+  }
+  std::string Input_File_Name () {
+    if (Input != NULL) {
+     if (Input->Is_File()) {
+       return Input->File_Name();
+     }
+    }
+    return std::string ("");
+  }
+  bool Input_Available () {
+    return (Input_Async() || Input_Queued() || Input_File());
+  }
+  bool Cmds_BeingProcessed () { return (Complete_Cmds.size() != 0); }
 
   // Field access
   void    set_output (FILE *output) { default_output = output; }
@@ -692,6 +720,7 @@ public:
   std::string Log_Name() { return Log_File_Name.c_str(); }
   FILE       *Log_File() { return Log_F; }
   CMDWID  ID () { return id; }
+  std::string IAM () { return I_Call_Myself; }
   EXPID   Focus () { return FocusedExp; }
   void    Set_Focus (EXPID exp) { FocusedExp = exp; }
   bool    Async() {return Input_Is_Async;}
@@ -795,33 +824,78 @@ public:
     mystream << Host_ID << " " << Process_ID;
   }
   // Debug aids
-  void Print(ostream &mystream) {
-    mystream << "W " << id << ":";
-    mystream << (Input_Is_Async?" async":" sync") << (remote?" remote":" local");
-    mystream << "IAM:" << I_Call_Myself << " " << Host_ID << " " << Process_ID;
-    mystream << "focus at " << Focus() << " log->" << Log_File_Name << std::endl;
+  bool Print_Queued_Cmds (ostream &mystream) {
+   // Print the list of waiting commands
+    bool there_are_some = false;
 
-    mystream << "      outstreams=" << ptr2str(default_outstream);
-    mystream << ", errstream=" << ptr2str (default_errstream) << std::endl;
-    if (Input) {
-      mystream << "  Active Input Source Stack:" << std::endl;
-      for (Input_Source *inp = Input; inp != NULL; inp = inp->Next()) {
-        inp->Dump(mystream);
-      }
+   // Get exclusive access to the lock
+    if (Input_Is_Async) {
+      Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
     }
 
+    Input_Source *inp = Input;
+    while (inp != NULL) {
+      InputLineObject *clip = inp->InObj ();
+      if (clip != NULL) {
+       // Print the source command
+        there_are_some = true;
+        std::string cmd = clip->Command ();
+        if (cmd.length() > 0) {
+          mystream << cmd;
+          if (cmd.substr(cmd.length()-1,1) != "\n") {
+            mystream << std::endl;
+          }
+        }
+      }
+      inp = inp->Next();
+    }
+
+   // Release the lock.
+    if (Input_Is_Async) {
+      Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
+    }
+    return there_are_some;
+  }
+  bool Print_Active_Cmds (ostream &mystream) {
    // Print the list of completed commands
+    bool there_are_some = false;
+
    // Get the lock to this window's current in-process commands.
     Assert(pthread_mutex_lock(&Cmds_List_Lock) == 0);
 
     std::list<InputLineObject *> cmd_object = Complete_Cmds;
     std::list<InputLineObject *>::iterator cmi;
     for (cmi = cmd_object.begin(); cmi != cmd_object.end(); cmi++) {
-      (*cmi)->Print (mystream);
+      there_are_some = true;
+      InputLineObject *clip =  *cmi;
+      std::string cmd = clip->Command ();
+      if (cmd.length() > 0) {
+        mystream << cmd;
+        if (cmd.substr(cmd.length()-1,1) != "\n") {
+          mystream << std::endl;
+        }
+      }
     }
 
    // Release the lock
     Assert(pthread_mutex_unlock(&Cmds_List_Lock) == 0);
+    return there_are_some;
+  }
+  void Print(ostream &mystream) {
+    mystream << "W " << id << ":";
+    mystream << (Input_Is_Async?" async":" sync") << (remote?" remote":" local");
+    mystream << "IAM:" << I_Call_Myself << " " << Host_ID << " " << Process_ID;
+    mystream << " focus at " << Focus() << " log->" << Log_File_Name << std::endl;
+
+    mystream << "      outstreams=" << ptr2str(default_outstream);
+    mystream << ", errstream=" << ptr2str (default_errstream) << std::endl;
+    if (Input) {
+      mystream << "  Active Input Source Stack:" << std::endl;
+      (void) Print_Queued_Cmds(mystream);
+    }
+
+   // Print the list of completed commands
+    (void)Print_Active_Cmds (mystream);
   }
   void Dump(ostream &mystream) {
     std::list<CommandWindowID *>::reverse_iterator cwi;
@@ -1263,6 +1337,7 @@ CMDWID GUI_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel,
   CommandWindowID *cwid = new GUI_CommandWindowID(std::string(my_name ? my_name : ""),
                                                  std::string(my_host ? my_host : ""),
                                                  my_pid, my_panel, Input_is_Async);
+
   Async_Inputs |= Input_is_Async;
   GUI_WindowID = cwid->ID();
   return GUI_WindowID;
@@ -1345,6 +1420,22 @@ void Redirect_Window_Output (CMDWID for_window, ss_ostream *for_out, ss_ostream 
   if (for_err != NULL) {
     my_window->set_errstream (for_err);
   }
+
+ // We may want to redirect command line output.
+  if ((GUI_WindowID == for_window) &&
+      (Default_WindowID != 0) &&
+      (TLI_WindowID == 0)) {
+    if (isatty(fileno(stdout))) {
+     // Replace uses of stdout on the command line with the GUI text window.
+      CommandWindowID *my_window = Find_Command_Window (Default_WindowID);
+      my_window->set_outstream ( for_out );
+    }
+    if (isatty(fileno(stderr))) {
+     // Replace uses of stderr on the command line with the GUI text window.
+      CommandWindowID *my_window = Find_Command_Window (Default_WindowID);
+      my_window->set_errstream ( for_err );
+    }
+  }
 }
 
 ss_ostream *Predefined_ostream (std::string oname)
@@ -1372,15 +1463,20 @@ ss_ostream *Window_errstream (CMDWID for_window) {
   return (cw != NULL) ? cw->ss_errstream() : NULL;
 }
 
-static void User_Info_Dump (CMDWID issuedbywindow) {
+static std::string Window_Name (CMDWID issuedbywindow) {
+  CommandWindowID *cw = Find_Command_Window (issuedbywindow);
+  return ((cw == NULL) ? "DEAD" : cw->IAM());
+}
+
+static void Internal_Info_Dump (CMDWID issuedbywindow) {
     bool Fatal_Error_Encountered = false;
     CommandWindowID *cw = Find_Command_Window (issuedbywindow);
     if ((cw == NULL) || (cw->ID() == 0)) {
-      fprintf(stderr,"    ERROR: the window(%lld) this command came from is illegal\n",issuedbywindow);
+      cerr << "    ERROR: the window(" << issuedbywindow << ") this command came from is illegal" << std::endl;
       return;
     }
     if (!(cw->has_outstream())) {
-      fprintf(stderr,"    ERROR: window(%lld) has no defined output stream\n",issuedbywindow);
+      cerr << "    ERROR: window(" << issuedbywindow << ") thas no defined output stream" << std::endl;
       return;
     }
     ss_ostream *this_ss_stream = Window_outstream (issuedbywindow);
@@ -1406,6 +1502,165 @@ static void User_Info_Dump (CMDWID issuedbywindow) {
     ExperimentObject::Dump(mystream);
     this_ss_stream->releaseLock();
     Assert(!Fatal_Error_Encountered);
+}
+
+static void User_Info_Dump (CMDWID issuedbywindow) {
+  bool Fatal_Error_Encountered = false;
+  CommandWindowID *cw = Find_Command_Window (issuedbywindow);
+  Assert (cw != NULL);
+  Assert (cw->ID() != 0);
+  Assert (cw->has_outstream());
+
+  ss_ostream *this_ss_stream = Window_outstream (issuedbywindow);
+  this_ss_stream->acquireLock();
+  ostream &mystream = this_ss_stream->mystream();
+
+  mystream << std::endl << "************************" << std::endl;
+  mystream << "Current status of Open!SS" << std::endl;
+  mystream << "If you want information about commands, ask for 'help'" << std::endl;
+
+ // An error check
+  if (More_Input_Needed_From_Window) {
+    mystream << "Processing of a complex statement requires input from "
+             << Window_Name(More_Input_Needed_From_Window) << std::endl;
+    CommandWindowID *lw = Find_Command_Window (More_Input_Needed_From_Window);
+    if ((lw == NULL) || (!lw->Input_Available())) {
+      mystream << "    ERROR: this window can not provide more input!!" << std::endl;
+      Fatal_Error_Encountered = true;
+    }
+  }
+
+ // Check available input
+  bool input_available = false;
+
+ // Which files are we reading?
+  bool header_added = false;
+  std::list<CommandWindowID *>::reverse_iterator cwi;
+  for (cwi = CommandWindowID_list.rbegin(); cwi != CommandWindowID_list.rend(); cwi++) {
+    CommandWindowID *cw = *cwi;
+    if (cw->Input_File()) {
+      if (!header_added) {
+        header_added = true;
+        mystream << std::endl << "Input is being read from the following files:" << std::endl;
+      }
+      mystream << cw->Input_File_Name() << " from the " << cw->IAM() << std::endl;
+      input_available = true;
+    }
+  }
+
+ // What commands are queued?
+  header_added = false;
+  for (cwi = CommandWindowID_list.rbegin(); cwi != CommandWindowID_list.rend(); cwi++) {
+    CommandWindowID *cw = *cwi;
+    if (cw->Input_Queued()) {
+      if (!header_added) {
+        header_added = true;
+        mystream << std::endl << "Input has been queued from the " << cw->IAM() << " input window." << std::endl;
+      }
+      (void) cw->Print_Queued_Cmds(mystream);
+      input_available = true;
+    }
+  }
+
+  if (!input_available) {
+    for (cwi = CommandWindowID_list.rbegin(); cwi != CommandWindowID_list.rend(); cwi++)
+    {
+      CommandWindowID *cw = *cwi;
+      if (cw->Input_Async()) {
+        mystream << std::endl << "Waiting for a new command to be entered" << std::endl;
+        input_available = true;
+        break;
+      }
+    }
+    if (!input_available) {
+      mystream << "ERROR: It is not possible to input new commands" << std::endl;
+      Fatal_Error_Encountered = true;
+    }
+  }
+
+ // What are the active commands?
+  bool there_are_active_cmds = false;
+  for (cwi = CommandWindowID_list.rbegin(); cwi != CommandWindowID_list.rend(); cwi++) {
+    (*cwi)->Remove_Completed_Input_Lines ();
+  }
+  for (cwi = CommandWindowID_list.rbegin(); cwi != CommandWindowID_list.rend(); cwi++) {
+    if ((*cwi)->Cmds_BeingProcessed()) {
+      there_are_active_cmds = true;
+      break;
+    }
+  }
+  if (there_are_active_cmds) {
+    mystream << std::endl << "Commands currently being processed are:" << std::endl;
+    for (cwi = CommandWindowID_list.rbegin(); cwi != CommandWindowID_list.rend(); cwi++) {
+      CommandWindowID *cw = *cwi;
+      (void) cw->Print_Active_Cmds(mystream);
+    }
+  } else {
+    mystream << std::endl << "There are no Commands being processed" << std::endl;
+  }
+
+ // Determine the number of active experiments
+  int64_t ecnt = 0;
+  std::list<ExperimentObject *>::reverse_iterator expi;
+  for (expi = ExperimentObject_list.rbegin(); expi != ExperimentObject_list.rend(); expi++) {
+    ecnt++;
+  }
+
+  mystream << std::endl;
+  if (ecnt == 0) {
+    mystream << std::endl << "There are no defined experiments" << std::endl;
+  } else {
+   // Report the status of each experiment
+    for (expi = ExperimentObject_list.rbegin(); expi != ExperimentObject_list.rend(); expi++) {
+      ExperimentObject *exp = *expi;
+      int expstatus = exp->Determine_Status();
+      mystream << "Experiment " << exp->ExperimentObject_ID();
+      if (expstatus == ExpStatus_NonExistent) {
+        mystream << " is not currently connected to any executable program";
+      } else if (expstatus == ExpStatus_Paused) {
+        if (exp->CanExecute()) {
+          mystream << " is suspended and is not executing";
+        } else {
+          mystream << " contains no executable programs";
+        }
+      } else if (expstatus == ExpStatus_Running) {
+        mystream << " is running";
+      } else if (expstatus == ExpStatus_Terminated) {
+        mystream << " has terminated";
+      } else {
+        mystream << " is in the error state";
+      }
+      mystream << std::endl;
+    }
+  }
+
+ // Identify those experiments where the database will not be saved
+  int64_t nosave_cnt = 0;
+  for (expi = ExperimentObject_list.rbegin(); expi != ExperimentObject_list.rend(); expi++) {
+    ExperimentObject *exp = *expi;
+    int expstatus = exp->Determine_Status();
+    if ((expstatus != ExpStatus_NonExistent) &&
+        (exp->Data_Base_Is_Tmp())) {
+      nosave_cnt++;
+    }
+  }
+
+  if (nosave_cnt > 0) {
+    mystream << std::endl << "Performance data for the following "
+             << "experiments will not be saved on exit:" << std::endl;
+    for (expi = ExperimentObject_list.rbegin(); expi != ExperimentObject_list.rend(); expi++) {
+      ExperimentObject *exp = *expi;
+      int expstatus = exp->Determine_Status();
+      if ((expstatus != ExpStatus_NonExistent) &&
+          (exp->Data_Base_Is_Tmp())) {
+        mystream << "Experiment " << exp->ExperimentObject_ID() << std::endl;
+      }
+    }
+  }
+
+  mystream << "************************" << std::endl << std::endl;
+  this_ss_stream->releaseLock();
+  Assert(!Fatal_Error_Encountered);
 }
 
 // Send a command to the shell for execution.
@@ -1466,11 +1721,11 @@ do_escape_cmd (CMDWID issuedbywindow, const char *command) {
 
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
   if ((cw == NULL) || (cw->ID() == 0)) {
-    fprintf(stderr,"    ERROR: the window(%lld) this command came from is illegal\n",issuedbywindow);
+    cerr << "    ERROR: the window(" << issuedbywindow << ") this command came from is illegal" << std::endl;
     return;
   }
   if (!(cw->has_outstream())) {
-    fprintf(stderr,"    ERROR: window(%lld) has no defined output stream\n",issuedbywindow);
+    cerr << "    ERROR: window(" << issuedbywindow << ") thas no defined output stream" << std::endl;
     return;
   }
   ss_ostream *this_ss_stream = Window_outstream (issuedbywindow);
@@ -1504,7 +1759,11 @@ static bool Isa_SS_Command (CMDWID issuedbywindow, const char *b_ptr) {
     if (b_ptr[fc] != *(" ")) break;
   }
   if (b_ptr[fc] == *("\?")) {
-    User_Info_Dump  (issuedbywindow);
+    if (b_ptr[fc+1] == *("\?")) {
+      Internal_Info_Dump  (issuedbywindow);
+    } else {
+      User_Info_Dump  (issuedbywindow);
+    }
     return false;
   } else if (b_ptr[fc] == *("!")) {
     do_escape_cmd (issuedbywindow, &b_ptr[fc+1]);
@@ -1707,7 +1966,6 @@ void Default_TLI_Command_Output (CommandObject *C) {
 
         if (C->Print_Results (outfile, "\n", "\n") &&
               cw->Async()) {
-            // isatty(fileno(outfile))) {
          // Re-issue the prompt
           SS_Issue_Prompt (outfile);
         }
@@ -1733,8 +1991,13 @@ void User_Interrupt (CMDWID issuedbywindow) {
 static void
 catch_TLI_signal (int sig, int error_num)
 {
-    if (sig == SIGINT) {
+  if (sig == SIGINT) {
+   // CNTRL-C means that we want to stop commands issued from the TLI.
     User_Interrupt (TLI_WindowID);
+    if (Default_WindowID) {
+     // Also, stop commands issued from the command line.
+      User_Interrupt (TLI_WindowID);
+    }
 
     ss_ttyout->acquireLock();
     ss_ttyout->mystream() << std::endl << Current_OpenSpeedShop_Prompt;
@@ -1839,6 +2102,15 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
 static CMDWID select_input_window (int is_more) {
   CMDWID selectwindow = Last_ReadWindow;
 
+ // Dump results and clear tracking list of previous command
+  if ((is_more == 0) &&
+      (Last_ReadWindow != 0)) {
+    CommandWindowID *cw = Find_Command_Window (Last_ReadWindow);
+    if (cw) {
+      cw->Remove_Completed_Input_Lines ();
+    }
+  }
+
  // Get exclusive access to the lock so that only one
  // add/remove/search of the list is done at a time.
   Assert(pthread_mutex_lock(&Window_List_Lock) == 0);
@@ -1849,8 +2121,10 @@ static CMDWID select_input_window (int is_more) {
     for (cwi = CommandWindowID_list.rbegin(); cwi != CommandWindowID_list.rend(); cwi++)
     {
       if (selectwindow == (*cwi)->ID ()) {
+       // Choose the next window to return.
         std::list<CommandWindowID *>::reverse_iterator next_cwi = ++cwi;
         if (next_cwi == CommandWindowID_list.rend()) {
+         // At end of list, wrap around to the beginning.
           next_cwi = CommandWindowID_list.rbegin();
         }
         selectwindow = (*next_cwi)->ID();
@@ -1862,7 +2136,6 @@ static CMDWID select_input_window (int is_more) {
    // Do error recovery by choosing the first one on the list.
     cwi = CommandWindowID_list.rbegin();
     if ((*cwi)) selectwindow = (*cwi)->ID();
-    //selectwindow = (*CommandWindowID_list.rbegin())->ID();
 
   }
 
@@ -1903,10 +2176,6 @@ read_another_window:
 
   CommandWindowID *cw = Find_Command_Window (readfromwindow);
   Assert (cw);
-  if (is_more == 0) {
-   // What is waiting for completion?
-    cw->Remove_Completed_Input_Lines ();
-  }
 
   do {
     clip = cw->Read_Command ();
