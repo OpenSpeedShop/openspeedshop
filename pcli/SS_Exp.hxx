@@ -113,7 +113,19 @@ class ExperimentObject
       }
     }
   }
-  int Status() {return ExpStatus;}
+  bool CanExecute () {
+    if (FW() != NULL) {
+      try {
+        ThreadGroup tgrp = FW()->getThreads();
+        if (!tgrp.empty()) return true;
+      }
+      catch(const Exception& error) {
+       // Don't care
+      }
+    }
+    return false;
+  }
+  int Status() { return ExpStatus; }
   int Determine_Status() {
     int S = ExpStatus;
     if (FW() == NULL) {
