@@ -18,6 +18,15 @@
 
 noinst_PROGRAMS = mutator hello  mutatee
 
+CFLAGS	= \
+	 -g -gdwarf-2
+
+CXXFLAGS	= \
+	 -g -gdwarf-2
+
+CPPFLAGS	= \
+	 -g -gdwarf-2
+
 mutator_CXXFLAGS = \
 	 $(DPCL_CPPFLAGS)
 
@@ -35,7 +44,7 @@ mutator_SOURCES = \
 
 mutatee_CFLAGS = \
 	 $(DPCL_CPPFLAGS) \
-	 -g -gdwarf-2
+	 $(CPPFLAGS)
 
 mutatee_LDADD = \
 	-ldl
@@ -45,6 +54,7 @@ mutatee_SOURCES = \
 
 hello_CFLAGS = \
 	$(DPCL_CPPFLAGS) \
+	$(CXXFLAGS) \
 	-g -gdwarf-2 -fpic 
 
 hello_LDADD = \
