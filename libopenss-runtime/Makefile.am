@@ -26,7 +26,7 @@ libopenss_runtime_la_LDFLAGS = \
 
 libopenss_runtime_la_LIBADD = \
 	@INSTRUMENTOR@/libopenss-runtime-@INSTRUMENTOR@.la \
-	-lpthread -lrt
+	-lpthread -lrt -lpapi
 
 libopenss_runtime_la_SOURCES = \
 	Assert.h \
@@ -36,6 +36,9 @@ libopenss_runtime_la_SOURCES = \
 	OpenSS_GetTime.c \
 	OpenSS_Send.c \
 	OpenSS_Timer.c \
+	OpenSS_Overflow.c \
+	OpenSS_PapiUtil.c \
+	PapiAPI.h \
 	RuntimeAPI.h
 
 SUFFIXES = .x

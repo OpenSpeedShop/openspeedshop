@@ -31,7 +31,7 @@ libopenss_framework_la_LDFLAGS = \
 libopenss_framework_la_LIBADD = \
 	@INSTRUMENTOR@/libopenss-framework-@INSTRUMENTOR@.la \
 	$(LIBLTDL) \
-	-lsqlite3 -lpthread -lrt
+	-lsqlite3 -lpthread -lrt -lpapi
 
 libopenss_framework_la_SOURCES = \
 	$(top_srcdir)/libopenss-runtime/OpenSS_DataHeader.c \
@@ -68,6 +68,8 @@ libopenss_framework_la_SOURCES = \
 	SymbolTable.hxx SymbolTable.cxx \
 	Thread.hxx Thread.cxx \
 	ThreadGroup.hxx ThreadGroup.cxx \
+	OpenSS_PapiUtil.c \
+	PapiAPI.h \
 	Time.hxx \
 	TimeInterval.hxx \
 	ToolAPI.hxx \
