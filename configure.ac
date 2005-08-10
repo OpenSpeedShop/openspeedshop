@@ -138,6 +138,7 @@ AC_CONFIG_FILES(Makefile
 		plugins/collectors/Makefile
 		plugins/collectors/pcsamp/Makefile
 		plugins/collectors/usertime/Makefile
+		plugins/collectors/hwc/Makefile
 		examples/Makefile
 		examples/libopenss-framework/Makefile
 		examples/libopenss-framework/collector/Makefile
