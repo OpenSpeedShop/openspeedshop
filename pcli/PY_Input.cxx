@@ -99,6 +99,7 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
         (p_parse_result->getCommandType() == CMD_HEAD_ERROR)) {
         cmd->Result_String ("Parsing failed");
         cmd->set_Status(CMD_ERROR);
+        Cmd_Obj_Complete (cmd);
 
     	// I should be reporting exactly what went wrong here.
     	p_object = Py_BuildValue("");
@@ -181,6 +182,7 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
      // The results have been copied for use within Python
      // so we are done working wih the command.
       cmd->set_Results_Used ();
+      Cmd_Obj_Complete (cmd);
     }
 
     if (p_object == NULL) {
@@ -306,6 +308,7 @@ static PyObject *SS_ParseError (PyObject *self, PyObject *args) {
 
     cmd->Result_String ("Preparse syntax error");
     cmd->set_Status(CMD_ERROR);
+    Cmd_Obj_Complete (cmd);
     
     //cmd->Clip()->Print(stdout);
 
