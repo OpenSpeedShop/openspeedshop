@@ -501,11 +501,12 @@ class CLI(code.InteractiveConsole):
         "expdisable"    : "return_none",
         "expenable"     : "return_none",
         "expfocus"      : "return_int",
+        "expgo"         : "return_none",
         "exppause"      : "return_none",
         "exprestore"    : "return_int",
-        "expgo"         : "return_none",
         "expsave"       : "return_none",
         "expsetparam"   : "return_none",
+        "expstatus"       : "return_none",
         "expview"       : "return_none",
 
         "listbreaks"    : "return_int_list",

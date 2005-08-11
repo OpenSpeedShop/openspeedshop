@@ -62,11 +62,12 @@ extern int ip_number(char *,int);
 "expdisable" 	{ return DISABLE_HEAD; }
 "expenable" 	{ return ENABLE_HEAD; }
 "expfocus"  	{ return FOCUS_HEAD; }
+"expgo"    	{ return GO_HEAD; }
 "exppause"  	{ return PAUSE_HEAD; }
 "exprestore"	{ return RESTORE_HEAD; }
-"expgo"    	{ return GO_HEAD; }
 "expsave"	{ return SAVE_HEAD; }
 "expsetparam"	{ return SETPARAM_HEAD; }
+"expstatus"   	{ return STATUS_HEAD; }
 "expview"   	{ return VIEW_HEAD; }
 
 "listbreaks"	{ return LIST_BREAKS_HEAD; }
@@ -119,6 +120,7 @@ extern int ip_number(char *,int);
 
 [\n]	{ return END_LINE; }
 ">" 	{ return REDIRECT; } 
+">>" 	{ return APPEND; }
 
 %%
 #ifndef yywrap

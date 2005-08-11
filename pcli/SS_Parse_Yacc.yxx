@@ -61,8 +61,8 @@ char *string;
 
 %token ATTACH_HEAD CLOSE_HEAD CREATE_HEAD DETACH_HEAD 
 %token DISABLE_HEAD ENABLE_HEAD 
-%token FOCUS_HEAD PAUSE_HEAD RESTORE_HEAD GO_HEAD SAVE_HEAD
-%token SETPARAM_HEAD VIEW_HEAD 
+%token FOCUS_HEAD GO_HEAD PAUSE_HEAD RESTORE_HEAD SAVE_HEAD
+%token SETPARAM_HEAD STATUS_HEAD VIEW_HEAD 
 
 %token LIST_EXP_HEAD LIST_HOSTS_HEAD LIST_OBJ_HEAD LIST_PIDS_HEAD
 %token LIST_SRC_HEAD LIST_METRICS_HEAD LIST_PARAMS_HEAD LIST_VIEWS_HEAD
@@ -78,7 +78,7 @@ char *string;
 %token RANK_ID HOST_ID THREAD_ID FILE_ID EXP_ID PROCESS_ID
 %token LINE_ID CLUSTER_ID METRIC_ID
 
-%token COMMA SEMICOLON COLON END_LINE EQUAL DOUBLE_COLON REDIRECT
+%token COMMA SEMICOLON COLON END_LINE EQUAL DOUBLE_COLON REDIRECT APPEND
 
 %token <val> IPNUMBER_32
 %token <val> HEXNUMBER
@@ -115,11 +115,12 @@ command_desc: exp_attach_com 	{p_parse_result->setCommandType(CMD_EXP_ATTACH);}
 	    | exp_disable_com 	{p_parse_result->setCommandType(CMD_EXP_DISABLE);}
 	    | exp_enable_com 	{p_parse_result->setCommandType(CMD_EXP_ENABLE);}
 	    | exp_focus_com 	{p_parse_result->setCommandType(CMD_EXP_FOCUS);}
+	    | exp_go_com   	{p_parse_result->setCommandType(CMD_EXP_GO);}
 	    | exp_pause_com 	{p_parse_result->setCommandType(CMD_EXP_PAUSE);}
 	    | exp_restore_com 	{p_parse_result->setCommandType(CMD_EXP_RESTORE);}
-	    | exp_go_com   	{p_parse_result->setCommandType(CMD_EXP_GO);}
 	    | exp_save_com  	{p_parse_result->setCommandType(CMD_EXP_SAVE);}
 	    | exp_setparam_com  {p_parse_result->setCommandType(CMD_EXP_SETPARAM);}
+	    | exp_status_com  	{p_parse_result->setCommandType(CMD_EXP_STATUS);}
 	    | exp_view_com  	{p_parse_result->setCommandType(CMD_EXP_VIEW);}
 	    | list_breaks_com 	{p_parse_result->setCommandType(CMD_LIST_BREAKS);}
 	    | list_exp_com  	{p_parse_result->setCommandType(CMD_LIST_EXP);}
@@ -295,6 +296,15 @@ exp_setparam_arg:   param_list
     	    	|   expId_spec param_list
     	    	;
 
+    	    /** EXP_STATUS **/
+exp_status_com:   STATUS_HEAD   exp_status_arg
+  	    	|   STATUS_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_EXP_STATUS].name);} 
+      	    	;
+exp_status_arg:     /* empty */
+    	    	|   expId_spec
+		|   ALL
+    	    	;
+
     	    /** EXP_VIEW **/
 exp_view_com:	    VIEW_HEAD   exp_view_arg
   	    	|   VIEW_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_EXP_VIEW].name);} 
@@ -442,6 +452,8 @@ list_src_arg:	    /* empty */
 
     	    /** LIST_STATUS **/
 list_status_com:    LIST_STATUS_HEAD   list_status_arg
+    	    	|   LIST_STATUS_HEAD   list_status_arg 
+		    error END_LINE {p_parse_result->setError(cmd_desc[CMD_LIST_STATUS].name);} 
   	    	|   LIST_STATUS_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_LIST_STATUS].name);} 
       	    	;
 list_status_arg:    /* empty */
@@ -512,11 +524,12 @@ gen_help_arg:	    NAME {p_parse_result->pushHelp($1);}
     	    	|   DISABLE_HEAD     	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_DISABLE].name);}
     	    	|   ENABLE_HEAD     	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_ENABLE].name);}
     	    	|   FOCUS_HEAD	    	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_FOCUS].name);}
+    	    	|   GO_HEAD	    	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_GO].name);}
     	    	|   PAUSE_HEAD	    	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_PAUSE].name);}
     	    	|   RESTORE_HEAD    	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_RESTORE].name);}
-    	    	|   GO_HEAD	    	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_GO].name);}
     	    	|   SAVE_HEAD   	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_SAVE].name);}
    	    	|   SETPARAM_HEAD   	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_SETPARAM].name);}
+    	    	|   STATUS_HEAD	    	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_STATUS].name);}
     	    	|   VIEW_HEAD	    	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_VIEW].name);}
 
     	    	|   LIST_BREAKS_HEAD	    {p_parse_result->pushHelp(cmd_desc[CMD_LIST_BREAKS].name);}
