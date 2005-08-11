@@ -23,15 +23,21 @@ lib_LTLIBRARIES = libopenss-framework.la
 
 libopenss_framework_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime \
-	$(LTDLINCL)
+	$(LTDLINCL) \
+	$(ARRAYSVCS_CPPFLAGS) \
+	$(SQLITE_CPPFLAGS)
 
 libopenss_framework_la_LDFLAGS = \
+	$(ARRAYSVCS_LDFLAGS) \
+	$(SQLITE_LDFLAGS) \
 	-export-dynamic -version-info 1:0:0
 
 libopenss_framework_la_LIBADD = \
 	@INSTRUMENTOR@/libopenss-framework-@INSTRUMENTOR@.la \
 	$(LIBLTDL) \
-	-lsqlite3 -lpthread -lrt -lpapi
+	$(ARRAYSVCS_LIBS) \
+	$(SQLITE_LIBS) \
+	-lpthread -lrt -lpapi
 
 libopenss_framework_la_SOURCES = \
 	$(top_srcdir)/libopenss-runtime/OpenSS_DataHeader.c \
@@ -62,14 +68,13 @@ libopenss_framework_la_SOURCES = \
 	Metadata.hxx \
 	NonCopyable.hxx \
 	OutputCallback.hxx \
+	PapiAPI.h PapiAPI.cxx \
 	Path.hxx Path.cxx \
 	SmartPtr.hxx \
 	Statement.hxx Statement.cxx \
 	SymbolTable.hxx SymbolTable.cxx \
 	Thread.hxx Thread.cxx \
 	ThreadGroup.hxx ThreadGroup.cxx \
-	OpenSS_PapiUtil.c \
-	PapiAPI.h \
 	Time.hxx \
 	TimeInterval.hxx \
 	ToolAPI.hxx \

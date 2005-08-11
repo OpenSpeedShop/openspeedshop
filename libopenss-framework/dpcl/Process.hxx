@@ -90,6 +90,9 @@ namespace OpenSpeedShop { namespace Framework {
 				  const std::string&, const Blob&);
 	
 	void uninstrument(const Collector&, const Thread&);
+
+	bool getGlobal(const std::string&, int64_t&);
+	bool getGlobal(const std::string&, std::string&);
 	
     private:
 
@@ -128,6 +131,10 @@ namespace OpenSpeedShop { namespace Framework {
 				    GCBObjType, GCBMsgType);
 	static void expandCallback(GCBSysType, GCBTagType,
 				   GCBObjType, GCBMsgType);
+	static void getIntegerCallback(GCBSysType, GCBTagType,
+				       GCBObjType, GCBMsgType);
+	static void getStringCallback(GCBSysType, GCBTagType,
+				      GCBObjType, GCBMsgType);
 	static void installProbeCallback(GCBSysType, GCBTagType,
 					 GCBObjType, GCBMsgType);
 	static void loadModuleCallback(GCBSysType, GCBTagType,
@@ -231,10 +238,13 @@ namespace OpenSpeedShop { namespace Framework {
 	void requestSuspend();
 	void requestUnloadModule(LibraryEntry&);
 
+	SourceObj findFunction(const std::string&);
+	SourceObj findVariable(const std::string&);
+	
 	std::pair<ProbeExp, std::multimap<Thread, ProbeHandle>::iterator>
 	prepareCallTo(const Collector&, const Thread&,
 		      const std::string&, const Blob&);
-	
+
     };
     
 } }

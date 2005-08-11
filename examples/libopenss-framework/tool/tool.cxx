@@ -50,7 +50,7 @@ static void Run(int argc, char* argv[])
 
 	    // Attach to the process and put it into the suspended state
 	    if(pid > 0)		
-		experiment.attachProcess(pid);
+		experiment.attachMPIJob(pid);
 	    
 	}
 

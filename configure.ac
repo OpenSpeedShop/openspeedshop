@@ -93,14 +93,16 @@ esac
 AC_SUBST(INSTRUMENTOR)
 
 ################################################################################
+# Check for SGI Array Services (proprietary)
+################################################################################
+
+AC_PKG_ARRAYSVCS()
+
+################################################################################
 # Check for SQLite (http://www.sqlite.org/)
 ################################################################################
 
-AC_CHECK_HEADER(sqlite3.h, [ AC_CHECK_LIB(sqlite3, sqlite3_open, [
-    AC_DEFINE(HAVE_SQLITE, 1, [Define to 1 if you have SQLite.])
-], [
-    AC_MSG_FAILURE([cannot locate SQLite library and/or headers.])
-]) ])
+AC_PKG_SQLITE()
 
 ################################################################################
 # Check for POSIX Threads (ISO/IEC 9945-1:1996)

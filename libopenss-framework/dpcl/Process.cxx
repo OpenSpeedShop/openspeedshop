@@ -873,6 +873,159 @@ void Process::uninstrument(const Collector& collector, const Thread& thread)
 
 
 /**
+ * Get an integer global variable's value.
+ *
+ * Gets the current value of a signed integer global variable within this
+ * process. The value is always returned as a signed 64-bit integer and is
+ * promoted to this size when necessary. Returns a boolean value indicating
+ * if the variable's value was succesfully retrieved.
+ *
+ * @param global    Name of global variable whose value is being requested.
+ * @retval value    Current value of that variable.
+ * @return          Boolean "true" if the variable's value was successfully
+ *                  retrieved, "false" otherwise.
+ */
+bool Process::getGlobal(const std::string& global, int64_t& value)
+{
+    Guard guard_myself(this);
+    
+#ifndef NDEBUG
+    if(is_debug_enabled) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] "
+	       << "Process::getGlobal(\"" << global << "\", ...) for "
+	       << formUniqueName(dm_host, dm_pid) 
+	       << std::endl;
+	std::cerr << output.str();
+    }
+#endif
+    
+    // Find the requested global variable
+    SourceObj variable = findVariable(global);
+
+    // Go no further if the requested global could not be found
+    if(variable.src_type() != SOT_data)
+	return false;
+    
+    // Determine whether this variable is a signed integer and its size
+    unsigned size = 0;
+    switch(variable.get_data_type().get_node_type()) {
+	
+    case DEN_int8_type: size = sizeof(int8_t); break;
+    case DEN_int16_type: size = sizeof(int16_t); break;
+    case DEN_int32_type: size = sizeof(int32_t); break;
+    case DEN_int64_type: size = sizeof(int64_t); break;
+	
+    // Go no further if the variable isn't a known integer type
+    default: 
+	return false;
+
+    }
+    
+    // Create a probe expression to retrieve this value
+    ProbeExp send_args_exp[3] = { 
+	Ais_msg_handle,
+	variable.reference().address(),
+	size
+    };
+    ProbeExp send_exp = Ais_send.call(3, send_args_exp);
+    
+    // Ask DPCL to execute the probe expression in this process
+    MainLoop::suspend();
+    AisStatus retval =
+	dm_process->bexecute(send_exp, getIntegerCallback, &value);
+    MainLoop::resume();
+    
+    // Indicate to the caller if the value was retrieved
+    return retval.status() == ASC_success;
+}
+
+
+
+/**
+ * Get a string global variable's value.
+ *
+ * Gets the current value of a character string global variable within this
+ * process. The value is returned as a C++ standard string rather than a C
+ * character array. This makes managing the memory associated with the string
+ * more obvious. Returns a boolean value indicating if the variable's value
+ * was successfully retrieved.
+ *
+ * @param global    Name of global variable whose value is being requested.
+ * @retval value    Current value of that variable.
+ * @return          Boolean "true" if the variable's value was successfully
+ *                  retrieved, "false" otherwise.
+ */
+bool Process::getGlobal(const std::string& global, std::string& value)
+{
+    Guard guard_myself(this);
+    
+#ifndef NDEBUG
+    if(is_debug_enabled) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] "
+	       << "Process::getGlobal(\"" << global << "\", ...) for "
+	       << formUniqueName(dm_host, dm_pid) 
+	       << std::endl;
+	std::cerr << output.str();
+    }
+#endif
+    
+    // Find the requested global variable
+    SourceObj variable = findVariable(global);
+
+    // Go no further if the requested global could not be found
+    if(variable.src_type() != SOT_data)
+	return false;
+
+    // Find the strlen() function
+    SourceObj strlen_func = findFunction("strlen");    
+
+    // Go no further if strlen() could not be found
+    if(strlen_func.src_type() != SOT_function)
+	return false;
+    
+    // Create a probe expression to retrieve this value
+    ProbeExp send_empty_args_exp[3] = {
+	Ais_msg_handle,
+	ProbeExp(""),
+	ProbeExp(1)
+    };
+    ProbeExp strlen_args_exp[1] = { 
+	variable.reference() 
+    };
+    ProbeExp send_args_exp[3] = {
+	Ais_msg_handle, 
+	variable.reference(),
+	strlen_func.reference().call(1, strlen_args_exp) + ProbeExp(1)
+    };
+    ProbeExp send_exp = variable.reference().ifelse(
+	Ais_send.call(3, send_args_exp),
+	Ais_send.call(3, send_empty_args_exp)
+	);
+
+    // Define a pointer to the retrieved character array
+    char* buffer = NULL;
+    
+    // Ask DPCL to execute the probe expression in this process
+    MainLoop::suspend();
+    AisStatus retval =
+	dm_process->bexecute(send_exp, getStringCallback, &buffer);
+    MainLoop::resume();
+
+    // Extract and return the string's value if it was retrieved
+    if(buffer != NULL) {
+	value = std::string(buffer);
+	delete [] buffer;	
+    }
+    
+    // Indicate to the caller if the value was retrieved
+    return retval.status() == ASC_success; 
+}
+
+
+
+/**
  * Pre-first-process initializations.
  *
  * Performs any initializations that are necessary before the first process is
@@ -1601,6 +1754,86 @@ void Process::expandCallback(GCBSysType, GCBTagType tag,
     // Finish symbol table processing if all requests have been completed
     if(requests_completed)
 	finishSymbolTableProcessing(state);
+}
+
+
+
+/**
+ * Get integer callback.
+ *
+ * Callback function called by the DPCL main loop when an integer is being
+ * returned. Stores the integer in the specified location, promoting the integer
+ * to 64-bit when necessary.
+ *
+ * @todo    Problems will occur here if the endianness of the processor running
+ *          the instrumented process and the processor running the tool differ.
+ *          This is one of only a few places were we aren't dealing with the
+ *          endianness issue, so this should eventually be fixed.
+ */
+void Process::getIntegerCallback(GCBSysType sys, GCBTagType tag,
+				 GCBObjType, GCBMsgType msg)
+{
+    int64_t* value = reinterpret_cast<int64_t*>(tag); 
+
+    // Check assertions
+    Assert(value != NULL);
+    Assert((sys.msg_size == sizeof(int8_t)) ||
+	   (sys.msg_size == sizeof(int16_t)) ||
+	   (sys.msg_size == sizeof(int32_t)) ||
+	   (sys.msg_size == sizeof(int64_t)));
+    
+#ifndef NDEBUG
+    if(is_debug_enabled) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] "
+	       << "Process::getIntegerCallback()"
+	       << std::endl;
+	std::cerr << output.str();
+    }
+#endif
+
+    // Store the integer in the specified location
+    if(sys.msg_size == sizeof(int8_t))
+	*value = static_cast<int64_t>(*reinterpret_cast<int8_t*>(msg));
+    else if(sys.msg_size == sizeof(int16_t))
+	*value = static_cast<int64_t>(*reinterpret_cast<int16_t*>(msg));    
+    else if(sys.msg_size == sizeof(int32_t))
+	*value = static_cast<int64_t>(*reinterpret_cast<int32_t*>(msg));
+    else
+	*value = static_cast<int64_t>(*reinterpret_cast<int64_t*>(msg));
+}
+
+
+
+/**
+ * Get string callback.
+ *
+ * Callback function called by the DPCL main loop when a string is being
+ * returned. Allocates and stores a copy of the returned string, placing a
+ * pointer to this copy in the specified location.
+ */
+void Process::getStringCallback(GCBSysType sys, GCBTagType tag,
+				GCBObjType, GCBMsgType msg)
+{
+    char** value = reinterpret_cast<char**>(tag);
+
+    // Check assertions
+    Assert(value != NULL);
+    Assert(sys.msg_size > 0);
+
+#ifndef NDEBUG
+    if(is_debug_enabled) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] "
+	       << "Process::getStringCallback()"
+	       << std::endl;
+	std::cerr << output.str();
+    }
+#endif
+
+    // Store a copy of the character array in the specified location
+    *value = new char[sys.msg_size];
+    memcpy(*value, msg, sys.msg_size);
 }
 
 
@@ -2760,18 +2993,14 @@ void Process::requestLoadModule(LibraryEntry& library)
     library.dm_functions.clear();
         
     // Iterate over each function in this library
-    for(int i = 0; i < library.dm_module.get_count(); ++i) {
+    for(int f = 0; f < library.dm_module.get_count(); ++f) {
 	
 	// Obtain the function's name
-	unsigned length = library.dm_module.get_name_length(i);
-	char* buffer = new char[length];
-	library.dm_module.get_name(i, buffer, length);
+	char buffer[library.dm_module.get_name_length(f) + 1];
+	library.dm_module.get_name(f, buffer, sizeof(buffer));
 	
 	// Add this function to the list of functions for this library
-	library.dm_functions.insert(std::make_pair(buffer, i));
-	
-	// Destroy the allocate function name
-	delete [] buffer;
+	library.dm_functions.insert(std::make_pair(buffer, f));
 	
     }
 }
@@ -2923,6 +3152,88 @@ void Process::requestUnloadModule(LibraryEntry& library)
 	delete name;
 	
     }
+}
+
+
+
+/**
+ * Find a function.
+ *
+ * Finds the named function in this process and returns a source object for that
+ * function to the caller. A source object of type SOT_unknown_type is returned
+ * if the function cannot be found.
+ *
+ * @param name    Name of the function to be found.
+ * @return        Source object for the named function or a source object of
+ *                type SOT_unknown_type if the function could not be found.
+ */
+SourceObj Process::findFunction(const std::string& name)
+{
+    // Iterate over each module associated with this process
+    SourceObj program = dm_process->get_program_object();
+    for(int m = 0; m < program.child_count(); ++m) {
+	SourceObj module = program.child(m);
+	
+	// Iterate over each function in this module
+	for(int f = 0; f < module.child_count(); ++f)
+	    if(module.child(f).src_type() == SOT_function) {
+                SourceObj function = module.child(f);
+		
+		// Get the name of this function
+		char buffer[function.get_demangled_name_length() + 1];
+		function.get_demangled_name(buffer, sizeof(buffer));
+		
+		// Return this source object if it is the requested function
+		if(std::string(buffer) == name)
+		    return function;
+		
+	    }
+
+    }
+
+    // Return a default constructed source object if the function wasn't found
+    return SourceObj();    
+}
+
+
+
+/**
+ * Find a variable.
+ *
+ * Finds the named variable in this process and returns a source object for that
+ * variable to the caller. A source object of type SOT_unknown_type is returned
+ * if the variable cannot be found.
+ *
+ * @param name    Name of the variable to be found.
+ * @return        Source object for the named variable or a source object of
+ *                type SOT_unknown_type if the variable could not be found.
+ */
+SourceObj Process::findVariable(const std::string& name)
+{
+    // Iterate over each module associated with this process
+    SourceObj program = dm_process->get_program_object();
+    for(int m = 0; m < program.child_count(); ++m) {
+	SourceObj module = program.child(m);
+	
+	// Iterate over each variable in this module
+	for(int v = 0; v < module.child_count(); ++v)
+	    if(module.child(v).src_type() == SOT_data) {
+                SourceObj variable = module.child(v);
+		
+		// Get the name of this variable
+                char buffer[variable.get_variable_name_length() + 1];
+                variable.get_variable_name(buffer, sizeof(buffer));
+		
+		// Return this source object if it is the requested variable
+		if(std::string(buffer) == name)
+		    return variable;
+		
+	    }
+
+    }
+    
+    // Return a default constructed source object if the variable wasn't found
+    return SourceObj();    
 }
 
 

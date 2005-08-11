@@ -33,6 +33,9 @@
 #include "Thread.hxx"
 
 #include <string>
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
 
 
 
@@ -59,6 +62,7 @@ namespace OpenSpeedShop { namespace Framework {
 	void release(const Thread&);
 	void create(const Thread&, const std::string&,
 		    const OutputCallback, const OutputCallback);
+
 	Thread::State getState(const Thread&);
 	void changeState(const Thread&, const Thread::State&);
 
@@ -69,6 +73,9 @@ namespace OpenSpeedShop { namespace Framework {
 				  const std::string&, const Blob&);
 	
 	void uninstrument(const Thread&, const Collector&);
+
+	bool getGlobal(const Thread&, const std::string&, int64_t&);
+	bool getGlobal(const Thread&, const std::string&, std::string&);
 	
     }
     

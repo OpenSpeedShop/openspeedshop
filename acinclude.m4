@@ -17,6 +17,60 @@
 ################################################################################
 
 ################################################################################
+# Check for Array Services (SGI Proprietary)
+################################################################################
+
+AC_DEFUN([AC_PKG_ARRAYSVCS], [
+
+    AC_ARG_WITH(arraysvcs,
+                AC_HELP_STRING([--with-arraysvcs=DIR],
+                               [Array services installation @<:@/usr@:>@]),
+                arraysvcs_dir=$withval, arraysvcs_dir="/usr")
+
+    ARRAYSVCS_CPPFLAGS="-I$arraysvcs_dir/include"
+    ARRAYSVCS_LDFLAGS="-L$arraysvcs_dir/lib"
+    ARRAYSVCS_LIBS="-larray"
+
+    case "$host" in
+        *linux*)
+            ARRAYSVCS_CPPFLAGS="$ARRAYSVCS_CPPFLAGS -DLINUX"
+            ARRAYSVCS_CPPFLAGS="$ARRAYSVCS_CPPFLAGS -D_LANGUAGE_C_PLUS_PLUS"
+	    ;;
+    esac
+
+    AC_LANG_PUSH(C++)
+    AC_REQUIRE_CPP
+
+    arraysvcs_saved_CPPFLAGS=$CPPFLAGS
+    arraysvcs_saved_LDFLAGS=$LDFLAGS
+
+    CPPFLAGS="$CPPFLAGS $ARRAYSVCS_CPPFLAGS"
+    LDFLAGS="$CXXFLAGS $ARRAYSVCS_LDFLAGS $ARRAYSVCS_LIBS"
+
+    AC_MSG_CHECKING([for array services library and headers])
+
+    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+        #include <arraysvcs.h>
+        ]], [[
+        asgeterror();
+        ]]), AC_MSG_RESULT(yes), [ AC_MSG_RESULT(no)
+        AC_MSG_FAILURE(cannot locate array services library and/or headers.) ]
+    )
+
+    CPPFLAGS=$arraysvcs_saved_CPPFLAGS
+    LDFLAGS=$arraysvcs_saved_LDFLAGS
+
+    AC_LANG_POP(C++)
+
+    AC_SUBST(ARRAYSVCS_CPPFLAGS)
+    AC_SUBST(ARRAYSVCS_LDFLAGS)
+    AC_SUBST(ARRAYSVCS_LIBS)
+
+    AC_DEFINE(HAVE_ARRAYSVCS, 1, [Define to 1 if you have array services.])
+
+])
+
+################################################################################
 # Check for DPCL (http://oss.software.ibm.com/developerworks/opensource/dpcl)
 ################################################################################
 
@@ -27,25 +81,15 @@ AC_DEFUN([AC_PKG_DPCL], [
                                [DPCL installation @<:@/usr@:>@]),
                 dpcl_dir=$withval, dpcl_dir="/usr")
 
-    AC_CHECK_FILE([$dpcl_dir/include/dpcl/dpcl.h], [
-        DPCL_CPPFLAGS="-I$dpcl_dir/include/dpcl"
-        DPCL_LDFLAGS="-L$dpcl_dir/lib"
-    ])
-
-    if test -d "$ROOT"; then
-        AC_CHECK_FILE([$ROOT/include/dpcl/dpcl.h], [
-            DPCL_CPPFLAGS="-I$ROOT/include/dpcl"
-            DPCL_LDFLAGS=""
-        ])
-    fi
+    DPCL_CPPFLAGS="-I$dpcl_dir/include/dpcl"
+    DPCL_LDFLAGS="-L$dpcl_dir/lib"
+    DPCL_LIBS="-ldpcl"
 
     case "$host" in
         ia64-*-linux*)
             DPCL_CPPFLAGS="$DPCL_CPPFLAGS -D__64BIT__"
             ;;
     esac
-
-    DPCL_LIBS="-ldpcl"
 
     AC_LANG_PUSH(C++)
     AC_REQUIRE_CPP
@@ -90,27 +134,9 @@ AC_DEFUN([AC_PKG_DYNINST], [
                                [Dyninst installation @<:@/usr@:>@]),
                 dyninst_dir=$withval, dyninst_dir="/usr/")
 
-    case "$host" in
-	i386-*-linux-*)
-	    dyninst_platform="i386-unknown-linux2.4"
-	    ;;
-        ia64-*-linux-*)
-	    dyninst_platform="ia64-unknown-linux2.4"
-            ;;
-    esac
-
-    AC_CHECK_FILE([$dyninst_dir/include/dyninst/BPatch.h], [
-        DYNINST_CPPFLAGS="-I$dyninst_dir/include/dyninst"
-        DYNINST_LDFLAGS="-L$dyninst_dir/lib"
-    ])
-
-    if test -d "$ROOT"; then
-        AC_CHECK_FILE([$ROOT/include/dyninst/BPatch.h], [
-            DYNINST_CPPFLAGS="-I$ROOT/include/dyninst"
-            DYNINST_LDFLAGS=""
-        ])
-    fi
-
+    DYNINST_CPPFLAGS="-I$dyninst_dir/include/dyninst"
+    DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR -DIBM_BPATCH_COMPAT"
+    DYNINST_LDFLAGS="-L$dyninst_dir/lib"
     DYNINST_LIBS="-ldyninstAPI"
 
     AC_LANG_PUSH(C++)
@@ -142,6 +168,53 @@ AC_DEFUN([AC_PKG_DYNINST], [
     AC_SUBST(DYNINST_LIBS)
 
     AC_DEFINE(HAVE_DYNINST, 1, [Define to 1 if you have Dyninst.])
+
+])
+
+################################################################################
+# Check for SQLite (http://www.sqlite.org/)
+################################################################################
+
+AC_DEFUN([AC_PKG_SQLITE], [
+
+    AC_ARG_WITH(sqlite,
+                AC_HELP_STRING([--with-sqlite=DIR],
+                               [SQLite installation @<:@/usr@:>@]),
+                sqlite_dir=$withval, sqlite_dir="/usr")
+
+    SQLITE_CPPFLAGS="-I$sqlite_dir/include"
+    SQLITE_LDFLAGS="-L$sqlite_dir/lib"
+    SQLITE_LIBS="-lsqlite3"
+
+    AC_LANG_PUSH(C++)
+    AC_REQUIRE_CPP
+
+    sqlite_saved_CPPFLAGS=$CPPFLAGS
+    sqlite_saved_LDFLAGS=$LDFLAGS
+
+    CPPFLAGS="$CPPFLAGS $SQLITE_CPPFLAGS"
+    LDFLAGS="$CXXFLAGS $SQLITE_LDFLAGS $SQLITE_LIBS"
+
+    AC_MSG_CHECKING([for SQLite library and headers])
+
+    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+        #include <sqlite3.h>
+        ]], [[
+	sqlite3_libversion();
+        ]]), AC_MSG_RESULT(yes), [ AC_MSG_RESULT(no)
+        AC_MSG_FAILURE(cannot locate SQLite library and/or headers.) ]
+    )
+
+    CPPFLAGS=$sqlite_saved_CPPFLAGS
+    LDFLAGS=$sqlite_saved_LDFLAGS
+
+    AC_LANG_POP(C++)
+
+    AC_SUBST(SQLITE_CPPFLAGS)
+    AC_SUBST(SQLITE_LDFLAGS)
+    AC_SUBST(SQLITE_LIBS)
+
+    AC_DEFINE(HAVE_SQLITE, 1, [Define to 1 if you have SQLite.])
 
 ])
 

@@ -29,6 +29,12 @@
 #include "Instrumentor.hxx"
 #include "ThreadGroup.hxx"
 
+#ifdef HAVE_ARRAYSVCS
+#include <arraysvcs.h>
+#endif
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
 #include <unistd.h>
 
 using namespace OpenSpeedShop::Framework;
@@ -444,10 +450,8 @@ Thread Experiment::createProcess(const std::string& command,
  * Attach to an MPI job.
  *
  * Attaches to an existing process that is part of an MPI job and adds all the
- * threads within that job to this experiment. The threads' statuses are not
- * affected.
- *
- * @todo    Currently this routine is unimplemented.
+ * threads within that job to this experiment. The thread(s) are suspended as a
+ * result of attaching.
  *
  * @param pid     Process identifier for the process.
  * @param host    Name of the host on which the process resides.
@@ -456,7 +460,43 @@ Thread Experiment::createProcess(const std::string& command,
 ThreadGroup Experiment::attachMPIJob(const pid_t& pid,
 				     const std::string& host) const
 {
-    return ThreadGroup();
+    ThreadGroup threads;
+    
+    // Attach to the initial, specified, process
+    threads = attachProcess(pid, host);
+    
+    // Wait until no thread in that process is still connecting
+    while(threads.isAnyState(Thread::Connecting))
+	sleep(1);
+    
+    // Is there at least one connected (suspended) thread?
+    ThreadGroup connected = threads.getSubsetWithState(Thread::Suspended);
+    if(!connected.empty()) {
+	
+	// Grab an arbitrary (the first) connected thread
+	Thread thread = *(connected.begin());
+	
+	// Look for any available MPI job information for this thread
+	mpi_job job;
+	getMPIJobFromMPT(thread, job);
+	getMPIJobFromEtnus(thread, job);
+	
+	// Iterate over any processes found to be in our MPI job
+	for(mpi_job::const_iterator i = job.begin(); i != job.end(); ++i) {
+	    
+	    // Attach to this process
+	    ThreadGroup additional_threads = attachProcess(i->second, i->first);
+	    
+	    // Merge these additional threads into the overall thread group
+	    threads.insert(additional_threads.begin(), 
+			   additional_threads.end());
+	    
+	}
+	
+    }
+
+    // Return the threads to the caller
+    return threads;  
 }
 
 
@@ -465,7 +505,7 @@ ThreadGroup Experiment::attachMPIJob(const pid_t& pid,
  * Attach to a process.
  *
  * Attaches to an existing process and adds all threads within that process to
- * this experiment. The threads' statuses are not affected.
+ * this experiment. The thread(s) are suspended as a result of attaching.
  *
  * @note    If the process already exists within this experiment, its existing
  *          threads are returned without attaching again.
@@ -513,7 +553,7 @@ ThreadGroup Experiment::attachProcess(const pid_t& pid,
     // End this multi-statement transaction
     END_TRANSACTION(dm_database);
     
-    // Return the thread to the caller
+    // Return the threads to the caller
     return threads;  
 }
 
@@ -523,7 +563,7 @@ ThreadGroup Experiment::attachProcess(const pid_t& pid,
  * Attach to a POSIX thread.
  *
  * Attaches to an existing POSIX thread and adds that thread to this experiment.
- * The thread's status is not affected.
+ * The thread is suspended as a result of attaching.
  *
  * @todo    Currently this routine is unimplemented.
  *
@@ -544,7 +584,7 @@ Thread Experiment::attachPosixThread(const pid_t& pid, const pthread_t& tid,
  * Attach to an OpenMP thread.
  *
  * Attaches to an existing OpenMP thread and adds that thread to this
- * experiment. The thread's status is not affected.
+ * experiment.  The thread is suspended as a result of attaching.
  *
  * @todo    Currently this routine is unimplemented.
  *
@@ -765,4 +805,92 @@ void Experiment::removeCollector(const Collector& collector) const
     
     // End this multi-statement transaction
     END_TRANSACTION(dm_database);
+}
+
+
+
+/**
+ * Get MPI job information from MPT.
+ *
+ * Returns MPI job information for the specified thread. Looks for specific 
+ * global variables that indicate the specified thread is part of an "mpirun"
+ * process in the SGI MPT (Message Passing Toolkit) MPI implementation. If
+ * these variables are found, array services (part of MPT) is used to lookup
+ * and return all the host/pid pairs that are part of the MPI job containing
+ * this thread. No information is returned if the specified thread isn't part
+ * of an MPT mpirun process.
+ *
+ * @param thread    Thread for which to retrieve MPI job information.
+ * @retval job      MPI job information for this thread.
+ */
+void Experiment::getMPIJobFromMPT(const Thread& thread, mpi_job& job)
+{
+#ifdef HAVE_ARRAYSVCS
+
+    bool is_mpt_job = true;
+    int64_t ash = 0;
+    std::string array = "";
+    
+    // Attempt to access the ASH and array name from this thread
+    is_mpt_job &= Instrumentor::getGlobal(thread, "MPI_debug_ash", ash);
+    is_mpt_job &= Instrumentor::getGlobal(thread, "MPI_debug_array", array);
+    
+    // Go no further if this thread isn't in an MPT MPI job
+    if(!is_mpt_job)
+	return;
+    
+    // Open the MPT array services server on the host where this thread resides
+    asserver_t server = asopenserver(thread.getHost().c_str(), -1);
+
+    // Go no further if the MPT array services server couldn't be opened
+    if(server == 0)
+	return;
+    
+    // Get the list of hosts and their corresponding pids for this session
+    asarraypidlist_t* list =
+	aspidsinash_array(server, array.empty() ? NULL : array.c_str(), ash);
+
+    // Go no further if the list couldn't be accessed
+    if(list == NULL)
+	return;
+    
+    // Iterate over each machine in the array
+    for(int i = 0; i < list->nummachines; ++i)
+	
+        // Iterate over each PID on this machine in the job
+        for(int j = 0; j < list->machines[i]->numpids; ++j)
+
+	    // Add this host/pid to the MPI job information
+	    job.insert(std::make_pair(list->machines[i]->machname,
+				      list->machines[i]->pids[j]));
+    
+    // Free the list of hosts and their corresponding pids
+    asfreearraypidlist(list, ASFLF_FREEDATA);
+
+    // Close our handle to the MPT array services server
+    ascloseserver(server);
+    
+#endif
+}
+
+
+
+/**
+ * Get MPI job information from Etnus interface.
+ *
+ * Returns MPI job information for the specified thread. Looks for specific
+ * global variables that indicate the specified thread is part of an MPI job
+ * that supports the Etnus "process-finding" interface. If these variables
+ * are found, they are used to retrieve and return all the host/pid pairs
+ * that are part of the MPI job containing this thread. No information is
+ * returned if the specified thread doesn't contain the Etnus process-finding
+ * interface. 
+ *
+ * @todo    Currently this routine is unimplemented.
+ *
+ * @param thread    Thread for which to retrieve MPI job information.
+ * @retval job      MPI job information for this thread.
+ */
+void Experiment::getMPIJobFromEtnus(const Thread& thread, mpi_job& job)
+{
 }

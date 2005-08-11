@@ -35,10 +35,12 @@
 #include "SmartPtr.hxx"
 
 #include <pthread.h>
+#include <set>
 #include <string>
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
+#include <utility>
 
 
 
@@ -119,6 +121,12 @@ namespace OpenSpeedShop { namespace Framework {
 	void removeCollector(const Collector&) const;
 	
     private:
+
+	/** Type containing MPI job information (a set of host/pid pairs). */
+	typedef std::set<std::pair<std::string, pid_t> > mpi_job;
+	
+	static void getMPIJobFromMPT(const Thread&, mpi_job&);
+	static void getMPIJobFromEtnus(const Thread&, mpi_job&);
 	
 	/** Experiment database. */
 	SmartPtr<Database> dm_database;
