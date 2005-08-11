@@ -218,7 +218,7 @@ optionsBarChartActionWith3D = new QAction(
     int windowX = settings.readNumEntry( APP_KEY + "WindowX", -1 );
     int windowY = settings.readNumEntry( APP_KEY + "WindowY", -1 );
     setChartType( ChartType(
-	    settings.readNumEntry( APP_KEY + "ChartType", int(PIEWITHSHADOW) ) ) );
+	    settings.readNumEntry( APP_KEY + "ChartType", int(PIEWITHNOSHADOW) ) ) );
     m_addValues = AddValuesType(
 		    settings.readNumEntry( APP_KEY + "AddValues", int(NO) ));
     m_decimalPlaces = settings.readNumEntry( APP_KEY + "Decimals", 2 );
@@ -444,10 +444,10 @@ void ChartForm::setChartType( ChartType chartType )
 	case PIEWITHSHADOW:
 	    optionsPieChartActionWithShadow->setOn( TRUE );
 	    break;
-#ifdef OLDWAY
 case PIEWITHNOSHADOW:
   optionsPieChartActionWithNoShadow->setOn( TRUE );
   break;
+#ifdef OLDWAY
 case PIEWITH3D:
   optionsPieChartActionWith3D->setOn( TRUE );
   break;
@@ -548,14 +548,14 @@ void ChartForm::helpAbout()
 QPopupMenu *
 ChartForm::createPopupMenu(const QPoint & /*pos */)
 {
-//  printf("ChartForm::createPopupMenu() entered.\n");
+printf("ChartForm::createPopupMenu() entered.\n");
   return(optionsMenu);
 }
 
 void
 ChartForm::contentsContextMenuEvent( QContextMenuEvent *e )
 {
-//  printf("ChartForm::contentsContextMenuEvent() called.\n");
+printf("ChartForm::contentsContextMenuEvent() called.\n");
 }
 
 
@@ -566,7 +566,7 @@ void ChartForm::helpAboutQt()
 
 int ChartForm::mouseClicked(int item)
 {
-//  printf("ChartForm::mouseClicked(%d) entered.\n", item);
+printf("ChartForm::mouseClicked(%d) entered.\n", item);
 }
 
 void ChartForm::setValues(int values[], char *color_names[], char *strings[], int n )

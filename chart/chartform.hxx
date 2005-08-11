@@ -34,7 +34,6 @@ class QPrinter;
 class QString;
 
 
-// enum ChartType { PIEWITHSHADOW, PIEWITHNOSHADOW, PIEWITH3D, VERTICAL_BAR, HORIZONTAL_BAR, BARWITH3D };
 enum ChartType { PIEWITHSHADOW, VERTICAL_BAR, HORIZONTAL_BAR, PIEWITHNOSHADOW, PIEWITH3D, BARWITH3D };
 
 //! The container class for the charts (pie and bar)

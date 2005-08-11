@@ -19,7 +19,6 @@
 
 #include "canvasview.hxx"
 #include "chartform.hxx"
-// enum ChartType { PIEWITHSHADOW, PIEWITHNOSHADOW, PIEWITH3D, VERTICAL_BAR, HORIZONTAL_BAR, BARWITH3D };
 
 #include <qcursor.h>
 #include <qpoint.h>

@@ -26,6 +26,7 @@
 
 #include <qlayout.h>
 #include <qhbox.h>
+#include <qtimer.h>
 
 class QLabel;
 class QLineEdit;
@@ -52,8 +53,10 @@ public:
 
   Panel *panel;
 
+  QString argtext;
 public slots:
   virtual void runButtonSlot();
+  virtual void runButtonPressedSlot();
   virtual void pauseButtonSlot();
   virtual void updateButtonSlot();
   virtual void interruptButtonSlot();
@@ -61,9 +64,13 @@ public slots:
 
 protected slots:
   virtual void languageChange();
+  void buttonTimerSlot();
 
 protected:
 
 private:
+  bool menuFieldedFLAG;
+  QTimer *buttonTimer;
+
 };
 #endif // PROCESS_CONTROL_OBJECT_H

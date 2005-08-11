@@ -69,6 +69,9 @@ IOPanel::IOPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(
   pidStr = QString::null;
   exitingFLAG = FALSE;
   last_status = ExpStatus_NonExistent;
+  aboutToRunFLAG = FALSE;
+  postProcessFLAG = FALSE;
+  readyToRunFLAG = TRUE;
 
   mw = getPanelContainer()->getMainWindow();
   executableNameStr = mw->executableName;
@@ -260,6 +263,8 @@ IOPanel::IOPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(
       if( ao && ao->loadedFromSavedFile == TRUE )
       {
         topPC->splitVertical(40);
+        postProcessFLAG = TRUE;
+// printf("postProcessFLAG == TRUE!\n");
 
         // If we default a report panel bring it up here...
         //printf("Split:  Now loadStatsPanel()\n");
@@ -269,10 +274,12 @@ IOPanel::IOPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(
           //printf("Now focus the statsPanel\n");
         FocusObject *msg = new FocusObject(expID, NULL, NULL, TRUE);
         p->listener(msg);
+
+//        updateInitialStatus();
       } else
       {
         statusLabelText->setText( tr(QString("Process Loaded: Click on the \"Run\" button to begin the experiment.")) );
-        updateInitialStatus();
+//        updateInitialStatus();
       }
     }
   } else if( executableNameStr.isEmpty() )
@@ -281,8 +288,10 @@ IOPanel::IOPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(
     runnableFLAG = FALSE;
     pco->runButton->setEnabled(FALSE);
     pco->runButton->enabledFLAG = FALSE;
-    updateInitialStatus();
+//    updateInitialStatus();
   }
+
+  updateInitialStatus();
 
 }
 
@@ -507,6 +516,20 @@ IOPanel::listener(void *msg)
         ret_val = 1;
         break;
       case  RUN_T:
+// printf("pco->argtext =(%s)\n", pco->argtext.ascii() );
+        // Put out some notification that we're about to run this.
+        // Otherwise there's a deafning silence between when the user
+        // clicks the run button and when the run actually begins.
+        // This gives the user immediate feedback of what's taking place.
+        aboutToRunFLAG = TRUE;
+        pco->runButton->setEnabled(FALSE);
+        pco->runButton->enabledFLAG = FALSE;
+        pco->pauseButton->setEnabled(FALSE);
+        pco->pauseButton->enabledFLAG = FALSE;
+        pco->updateButton->setEnabled(FALSE);
+        pco->updateButton->enabledFLAG = FALSE;
+        runnableFLAG = FALSE;
+
         command = QString("expGo -x %1\n").arg(expID);
         {
         int status = -1;
@@ -561,7 +584,10 @@ CLIInterface::interrupt = true;
       case  TERMINATE_T:
         {
         statusLabelText->setText( tr("Process terminated...") );
-        command = QString("expStop -x %1\n").arg(expID);
+// NOTE expClose is too drastic.   I don't want to remove the experiment. 
+//      I just want to terminate it.
+//        command = QString("expClose -x %1 -kill\n").arg(expID);
+        command = QString("expPause -x %1\n").arg(expID);
         int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
         InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii() );
         ret_val = 1;
@@ -942,12 +968,38 @@ IOPanel::loadMain()
 void
 IOPanel::updateStatus()
 {
+// printf("updateStatus() entered\n");
   if( expID <= 0 )
   {
     statusLabelText->setText( "No expid" );
     statusTimer->stop();
     return;
   } 
+
+  // If we're only post processing, disable the process control
+  // buttons and turn off the timer.
+  if( postProcessFLAG == TRUE )
+  {
+// printf("updateStatus() PostProcessFLAG == TRUE!\n");
+    pco->runButton->setEnabled(FALSE);
+    pco->runButton->enabledFLAG = FALSE;
+    runnableFLAG = FALSE;
+    pco->pauseButton->setEnabled(FALSE);
+    pco->pauseButton->enabledFLAG = FALSE;
+#ifdef CONTINUE_BUTTON
+    pco->continueButton->setEnabled(FALSE);
+    pco->continueButton->setEnabled(FALSE);
+    pco->continueButton->enabledFLAG = FALSE;
+#endif // CONTINUE_BUTTON
+    pco->updateButton->setEnabled(TRUE);
+    pco->updateButton->enabledFLAG = TRUE;
+    pco->terminateButton->setEnabled(TRUE);
+    pco->terminateButton->setFlat(FALSE);
+    pco->terminateButton->setEnabled(FALSE);
+    statusTimer->stop();
+    statusLabelText->setText( tr("Save data restored.") );
+    return;
+  }
   ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
   if( eo && eo->FW() )
   {
@@ -956,6 +1008,7 @@ IOPanel::updateStatus()
     switch( status )
     {
       case ExpStatus_NonExistent:
+// printf("ExpStatus_NonExistent:\n");
 //        statusLabelText->setText( "0: ExpStatus_NonExistent" );
         statusLabelText->setText( tr("No available experiment status available") );
         statusTimer->stop();
@@ -978,14 +1031,24 @@ IOPanel::updateStatus()
         statusTimer->stop();
         break;
       case ExpStatus_Paused:
-//        statusLabelText->setText( "1: ExpStatus_Paused" );
-if( last_status == ExpStatus_NonExistent )
-{
-        statusLabelText->setText( tr("Experiment is Paused:  Hit the \"Run\" button to start execution.") );
-} else
-{
-        statusLabelText->setText( tr("Experiment is Paused:  Hit the \"Run\" button to continue execution.") );
-}
+// printf("ExpStatus_Paused:\n");
+        if( (last_status == ExpStatus_NonExistent || 
+            readyToRunFLAG == TRUE ) && aboutToRunFLAG == FALSE )
+        {
+          statusLabelText->setText( tr("Experiment is ready to run:  Hit the \"Run\" button to start execution.") );
+        } else
+        {
+          if( aboutToRunFLAG == TRUE )
+          {
+            statusLabelText->setText( tr("Experiment is being readied to run.") );
+                
+            statusTimer->start(2000);
+            break;
+          } else
+          {
+            statusLabelText->setText( tr("Experiment is Paused:  Hit the \"Run\" button to continue execution.") );
+          }
+        }
         pco->runButton->setEnabled(TRUE);
         pco->runButton->enabledFLAG = TRUE;
         runnableFLAG = TRUE;
@@ -1004,6 +1067,9 @@ if( last_status == ExpStatus_NonExistent )
         statusTimer->start(2000);
         break;
       case ExpStatus_Running:
+// printf("ExpStatus_Running:\n");
+        aboutToRunFLAG = FALSE;
+        readyToRunFLAG = FALSE;
         if( status == ExpStatus_Running )
         {
 //          statusLabelText->setText( "3: ExpStatus_Running" );
@@ -1030,10 +1096,12 @@ if( last_status == ExpStatus_NonExistent )
       case ExpStatus_InError:
         if( status == ExpStatus_Terminated )
         {
+// printf("ExpStatus_Terminated:\n");
 //          statusLabelText->setText( "ExpStatus_Terminated" );
           statusLabelText->setText( tr("Experiment has Terminated") );
         } else if( status == ExpStatus_InError )
         {
+// printf("ExpStatus_InError:\n");
 //          statusLabelText->setText( "ExpStatus_InError" );
           statusLabelText->setText( tr("Experiment has encountered an Error.") );
         }
@@ -1058,6 +1126,7 @@ if( last_status == ExpStatus_NonExistent )
        loadStatsPanel();
         break;
       default:
+// printf("unknown:\n");
         statusLabelText->setText( QString("%1: Unknown status").arg(status) );
           statusTimer->stop();
         break;

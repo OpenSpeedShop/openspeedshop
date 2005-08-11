@@ -46,6 +46,8 @@ ProcessControlObject::ProcessControlObject(QVBoxLayout *frameLayout, QWidget *ba
 { // Unused... Here for completeness...
   nprintf( DEBUG_CONST_DESTRUCT ) ("ProcessControlObject::ProcessControlObject() constructor called\n");
 
+  argtext = QString::null;
+
   panel = p;
 
   buttonGroup = new QButtonGroup( baseWidget, "buttonGroup" );
@@ -67,6 +69,7 @@ ProcessControlObject::ProcessControlObject(QVBoxLayout *frameLayout, QWidget *ba
   QPixmap *pm = new QPixmap( run_xpm );
   pm->setMask(pm->createHeuristicMask());
   runButton = new AnimatedQPushButton( QIconSet( *pm), QString("runButton"), buttonGroup );
+  runButton->setAutoRepeat(FALSE);
   runButton->setMinimumSize( QSize(20,20) );
   runButton->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
   buttonGroupLayout->addWidget( runButton );
@@ -145,12 +148,16 @@ interruptButton->hide();
 
 // signals and slots connections
   connect( runButton, SIGNAL( clicked() ), this, SLOT( runButtonSlot() ) );
+connect( runButton, SIGNAL( pressed() ), this, SLOT( runButtonPressedSlot() ) );
   connect( interruptButton, SIGNAL( clicked() ), this, SLOT( interruptButtonSlot() ) );
   connect( pauseButton, SIGNAL( clicked() ), this, SLOT( pauseButtonSlot() ) );   
   connect( terminateButton, SIGNAL( clicked() ), this, SLOT( terminateButtonSlot() ) );
   connect( updateButton, SIGNAL( clicked() ), this, SLOT( updateButtonSlot() ) );
 
   languageChange();
+
+  buttonTimer = new QTimer( this, "buttonTimer");
+  connect(buttonTimer, SIGNAL(timeout()), this, SLOT(buttonTimerSlot()) );
 }
 
 
@@ -164,9 +171,14 @@ ProcessControlObject::~ProcessControlObject()
 void 
 ProcessControlObject::runButtonSlot()
 {
-  nprintf( DEBUG_PANELS ) ("PCO: Run button pressed\n");
+  nprintf( DEBUG_PANELS ) ("PCO: Run button clicked\n");
 
-//  statusLabelText->setText( tr("Process running...") );
+  buttonTimer->stop();
+
+  if( menuFieldedFLAG == TRUE )
+  {
+    return;
+  }
 
   runButton->setEnabled(FALSE);
   runButton->enabledFLAG = FALSE;
@@ -183,11 +195,21 @@ ProcessControlObject::runButtonSlot()
   delete co;
 }
 
+void 
+ProcessControlObject::runButtonPressedSlot()
+{
+
+  menuFieldedFLAG = FALSE;
+ 
+  buttonTimer->start(500);
+  
+}
+
 
 void 
 ProcessControlObject::pauseButtonSlot()
 {
-  nprintf( DEBUG_PANELS ) ("PCO: Pause button pressed\n");
+  nprintf( DEBUG_PANELS ) ("PCO: Pause button clicked\n");
 
 //  statusLabelText->setText( tr("Process suspended...") );
 
@@ -204,7 +226,7 @@ ProcessControlObject::pauseButtonSlot()
 void 
 ProcessControlObject::updateButtonSlot()
 {
-  nprintf( DEBUG_PANELS ) ("PCO: Update button pressed.\n");
+  nprintf( DEBUG_PANELS ) ("PCO: Update button clicked.\n");
 //printf("Get some data!\n");
 
   ControlObject *co = new ControlObject(UPDATE_T);
@@ -217,7 +239,7 @@ ProcessControlObject::updateButtonSlot()
 void 
 ProcessControlObject::interruptButtonSlot()
 {
-  nprintf( DEBUG_PANELS ) ("PCO: Interrupt button pressed\n");
+  nprintf( DEBUG_PANELS ) ("PCO: Interrupt button clicked\n");
 
   ControlObject *co = new ControlObject(INTERRUPT_T);
   panel->listener((void *)co);
@@ -228,7 +250,7 @@ ProcessControlObject::interruptButtonSlot()
 void 
 ProcessControlObject::terminateButtonSlot()
 {
-  nprintf( DEBUG_PANELS ) ("PCO: Terminate button pressed\n");
+  nprintf( DEBUG_PANELS ) ("PCO: Terminate button clicked\n");
 
 //  statusLabelText->setText( tr("Process terminated...") );
 
@@ -266,4 +288,29 @@ ProcessControlObject::languageChange()
 
 //  statusLabel->setText( tr("Status:") );
 //  statusLabelText->setText( tr("No status currently available.") );
+}
+
+#include <qinputdialog.h>
+void
+ProcessControlObject::buttonTimerSlot()
+{
+  buttonTimer->stop();
+
+  if( menuFieldedFLAG == TRUE )
+  {
+    return;
+  }
+
+  bool ok;
+  QString text = QInputDialog::getText(
+            "MyApp 3000", "Enter your arguments:\nNOTE: This is currently unimplemented.\nCommand line options must currently be set from the\ncommand line: -f \"fred arg1 arg2\"\nor via the wizard dialog.", QLineEdit::Normal,
+            argtext, &ok, this );
+  if( ok && !text.isEmpty() )
+  {
+    // user entered something and pressed OK
+    argtext = text;
+printf("argtext=(%s)\n", argtext.ascii() );
+  }
+
+  menuFieldedFLAG = TRUE;
 }

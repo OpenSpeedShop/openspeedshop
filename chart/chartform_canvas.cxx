@@ -102,8 +102,8 @@ void ChartForm::drawElements()
 
 void ChartForm::drawPieChart( const double scales[], double total, int count)
 {
-    float pitch = .35;
-//    float pitch = .90;
+//    float pitch = .35;
+    float pitch = .90; // Makes the chart 2D (flat)
     int margin = 10;
     double width = m_canvas->width()-margin;
     double height = m_canvas->height()-margin;
@@ -114,6 +114,7 @@ void ChartForm::drawPieChart( const double scales[], double total, int count)
     y+=(margin/2);
     int angle = 0;
 
+#ifdef OLDWAY
 if( m_chartType == PIEWITHSHADOW )
 {
     int shadow_angle = 3;
@@ -138,6 +139,7 @@ if( m_chartType == PIEWITHSHADOW )
 	  }
     }
 }
+#endif // OLDWAY
 
     margin = 10;
     width = m_canvas->width()-margin;
@@ -164,6 +166,7 @@ if( m_chartType == PIEWITHSHADOW )
 	    arc->show();
 	    angle += extent;
 #ifndef TEXT_WANTED
+printf("Pie chart text wanted.\n");
 	    QString label = m_elements[i].label();
 	    if ( !label.isEmpty() || m_addValues != NO ) {
 		label = valueLabel( label, m_elements[i].value(), total );

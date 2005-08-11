@@ -121,6 +121,9 @@ public:
   ProcessControlObject *pco;
 
   bool runnableFLAG;
+  bool aboutToRunFLAG;
+  bool postProcessFLAG;
+  bool readyToRunFLAG;
 
   QString executableNameStr;
   QString argsStr;
