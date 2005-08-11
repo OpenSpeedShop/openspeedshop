@@ -126,6 +126,9 @@ class OpenSpeedshop : public QMainWindow
     //! The hinted experiment_name that is to be intialized.. 
     QString experimentName;
 
+    //! The hint that this is an mpi attach
+    bool mpiFLAG;
+
     //! The attach process dialog.
     AttachProcessDialog *afd;
 

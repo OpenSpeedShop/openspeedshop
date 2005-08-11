@@ -58,6 +58,7 @@ pidStrList = NULL;
   hostStr = QString::null;
   expStr = QString::null;
   preferencesDialog = NULL;
+  mpiFLAG = FALSE;
 
   climode = _climode;
 

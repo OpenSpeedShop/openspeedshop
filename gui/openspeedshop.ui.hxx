@@ -1029,6 +1029,7 @@ void OpenSpeedshop::loadNewProgram()
 void OpenSpeedshop::attachNewProcess()
 {
 // printf("OpenSpeedshop::attachNewProcess()\n");
+  mpiFLAG = FALSE;
   if( afd == NULL )
   {
     afd = new AttachProcessDialog(this, "AttachProcessDialog", TRUE);
@@ -1037,7 +1038,6 @@ void OpenSpeedshop::attachNewProcess()
   {
     //printf("QDialog::Accepted\n");
 //    pidStr = afd->selectedProcesses();
-    bool mpiFLAG=FALSE;
     pidStrList = afd->selectedProcesses(&mpiFLAG);
 
 pidStr = QString::null;

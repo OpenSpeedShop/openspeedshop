@@ -111,6 +111,10 @@ UserTimePanel::UserTimePanel(PanelContainer *pc, const char *n, ArgumentObject *
       {
         nprintf( DEBUG_PANELS ) ("There are no known collectors for this experiment so add one.\n");
         QString command = QString("expAttach -x %1 usertime").arg(expID);
+if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
+{
+  command += " -mpi";
+}
         CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
         if( !cli->runSynchronousCLI((char *)command.ascii() ) )
         {
@@ -473,6 +477,10 @@ UserTimePanel::listener(void *msg)
     {
       case  ATTACH_PROCESS_T:
         command = QString("expAttach  -x %1\n").arg(expID);
+if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
+{
+  command += " -mpi";
+}
 /*
         if( !cli->runSynchronousCLI(command.ascii()) )
         {
@@ -495,6 +503,10 @@ UserTimePanel::listener(void *msg)
         break;
       case  ATTACH_COLLECTOR_T:
         command = QString("expAttach -x %1\n").arg(expID);
+if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
+{
+  command += " -mpi";
+}
 /*
         if( !cli->runSynchronousCLI(command.ascii()) )
         {
@@ -619,6 +631,10 @@ CLIInterface::interrupt = true;
       if( !executableNameStr.isEmpty() )
       {
         command = QString("expAttach -x %1 -f \"%2 %3\"\n").arg(expID).arg(executableNameStr).arg(argsStr);
+if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
+{
+  command += " -mpi";
+}
 // printf("executableNameStr is not empty.\n");
       } else if( !pidStr.isEmpty() )
       { 
@@ -627,6 +643,10 @@ CLIInterface::interrupt = true;
         QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
 #ifdef OLDWAY
         command = QString("expAttach -x %1 -p %2 -h %3\n").arg(expID).arg(pid_name).arg(host_name);
+if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
+{
+  command += " -mpi";
+}
 #else // OLDWAY
 // printf("host_name=(%s)\n", host_name.ascii() );
 // printf("pid_name=(%s)\n", pid_name.ascii() );
@@ -636,6 +656,10 @@ CLIInterface::interrupt = true;
 // printf("mw->hostStr =%s\n", mw->hostStr.ascii() );
 
         command = QString("expAttach -x %1 -p  %2 -h %3\n").arg(expID).arg(pidStr).arg(mw->hostStr);
+if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
+{
+  command += " -mpi";
+}
 #endif // OLDWAY
 // printf("command=(%s)\n", command.ascii() );
       } else
