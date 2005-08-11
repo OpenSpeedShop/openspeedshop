@@ -216,6 +216,61 @@ s_dumpParam(vector<ParseParam> *p_list, char *label)
 }
 
 /**
+ * Method: s_dumpError()
+ * 
+ * Dump error lists. Basically a variation on s_dumpRange
+ * but talored for syntax error reporting.
+ * 
+ * The assumption here is that there is no real range and
+ * that the arguments are strings and probably just one
+ * at that.
+ *     
+ * @return  void.
+ *
+ * @todo    Error handling.
+ *
+ */
+void
+ParseResult::
+dumpError(CommandObject *cmd)
+{
+    // Get reference of the message czar.
+    SS_Message_Czar& czar = theMessageCzar();
+    
+    // Get list of error strings
+    vector<ParseRange> *p_list = this->getErrorList();
+
+    vector<ParseRange>::iterator iter;
+    
+    for (iter=p_list->begin();iter != p_list->end(); iter++) {
+    	parse_range_t *p_range = iter->getRange();
+
+    	parse_val_t *p_val1 = &p_range->start_range;
+    	if (p_val1->tag == VAL_STRING) {
+    	    vector <SS_Message_Element *> element;
+    	    czar.Find_By_Keyword(p_val1->name.c_str(), &element);
+    
+    	    vector <SS_Message_Element*>:: iterator k;
+    	    for (k = element.begin();
+    	    	k != element.end();
+	    	++k) {
+	    	SS_Message_Element *p_el = *k;
+
+    	    	// Normal list
+	    	vector<string> * const p_string = p_el->get_normal_list();
+    	    	for (vector <string> :: iterator i=p_string->begin();
+    	     	    i!= p_string->end();
+	     	    ++i) {
+		    cmd->Result_String (*i);
+	    	}
+
+    	    }
+    	}
+    }
+
+}
+
+/**
  * Method: s_dumpRange()
  * 
  * Dump range and point lists
@@ -337,7 +392,6 @@ s_dump_help_topic(CommandObject *cmd,
 
 }
     
-
 /**
  * Method: ParseResult::dumpHelp()
  * 

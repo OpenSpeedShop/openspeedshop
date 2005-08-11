@@ -77,13 +77,6 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     fprintf(yyin,"%s\n", input_line);
     rewind(yyin);
 
-    //yydebug = 1;
-    //yynerrs = 0; // If this is not set then error conditions are carried over.
-    //yychar = '\0';
-    //cout << "in SS_CallParser():" << endl;
-    //cout << "\tyynerrs = " << yynerrs << endl;
-    //cout << "\tyydebug = " << yydebug << endl;
-    //cout << "\tyychar = " << yychar << endl;
     ret = yyparse();
 
     fclose(yyin); 
@@ -98,6 +91,7 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     if ((p_parse_result->syntaxError()) ||
         (p_parse_result->getCommandType() == CMD_HEAD_ERROR)) {
         cmd->Result_String ("Parsing failed");
+	parse_result.dumpError(cmd);
         cmd->set_Status(CMD_ERROR);
         Cmd_Obj_Complete (cmd);
 
