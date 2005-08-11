@@ -240,7 +240,12 @@ char *cmd_expSave_args = {
 
 
 char *cmd_expSetParam_args = {
-    "expSetParam  [ <expId_spec> ] <expParam> = <expParamValue> [ , <expParam> = <expParamValue> ] ... "
+    "expSetParam [ <expId_spec> ] <expParam> = <expParamValue> [ , <expParam> = <expParamValue> ] ... "
+};
+
+
+char *cmd_expStatus_args = {
+    "expStatus [ <expId_spec> || all]"
 };
 
 
@@ -423,6 +428,10 @@ char *cmd_expSetParam_brief = {
     "Change the value an experiment's argument."
 };
 
+
+char *cmd_expStatus_brief = {
+    "Report the current state of user define experiments."
+};
 
 char *cmd_expView_brief = {
     "View the experiment's output in text form."
@@ -943,6 +952,22 @@ char *cmd_expSetParam_detailed[] = {
     " "
 };
 
+char *cmd_expStatus_detailed[] = {
+    cmd_expStatus_args,
+    " ",
+    cmd_expStatus_brief,
+    " ",
+    "- The absence of any option will result in information",
+    "  Being reported for the focused experiment",
+    " ",
+    "- The use of <expId_spec> will result in imformation",
+    "  being reported for the specified experiment.",
+    " ",
+    "- The use of \'all\' will result in information being",
+    "  reported for all the known experiments.",
+    " "
+};
+
 
 char *cmd_expView_detailed[] = {
     cmd_expView_args,
@@ -1393,6 +1418,230 @@ char *cmd_setbreak_detailed[] = {
 };
 
 /*********************************************/
+// COMMAND Examples
+/*********************************************/
+// 
+char *cmd_expAttach_example[] = {
+    "expAttach -x 2 -f my_prog pcsamp",
+    "    Includes the executable program \'my_prog\' into experiment",
+    "    #2 and adds the performance measurement utility \'pcsamp\'",
+    "    to the experiment. The executable is loaded into the",
+    "    system and instrumented to provide performance measurements.",
+    " ",
+    "    Experiment #2 must have been previously defined with an",
+    "    expCreate or expRestore command.",
+    " ",
+    "    The program will not start execution until a subsequent",
+    "    \'expGo -x 2\' command is issued.",
+    " "
+};
+
+char *cmd_expClose_example[] = {
+    "expClose -x 3",
+    "    Closes experiment #3.",
+    " ",
+    "expClose all",
+    "    Closes all experiments",
+    " ",
+    "    In all the above cases, if the target application is",
+    "    running it will be left running. To kill the",
+    "    application(s) you will need to add the \'kill\' option.",
+    " ",
+    "This command will also delete all performance measurements",
+    "that were not explicitly saved with an \'expSave\' command.",
+    "This means that the results of the experiment will not be",
+    "available to look at.",
+    " "
+};
+
+char *cmd_expCreate_example[] = {
+    "expCreate -f my_prog usertime",
+    "    Creates an experiment targeting the application",
+    "    \'my_prog\' using the usertime performance measurement",
+    "    utility.",
+    " ",
+    "    The next logical action would be to run the experiment",
+    "    using expGo.",
+    " ",
+    "    If you need to add more attributes to this experiment",
+    "    before running it, use the expAttach command.",
+    " ",
+    "    ExpCreate changes the focus to the newly created",
+    "    experiment. If you wish to change the focus back to an",
+    "    existing experiment use the expFocus command.",
+    " "
+};
+
+char *cmd_expDetach_example[] = {
+    "expDetach -f my_prog pcsamp",
+    " ",
+    "    Detach the pcsampling plugin from the targeted",
+    "    application \'my_prog\' in the focused experiment.",
+    " ",
+    "expDetach -x 2 -f my_prog pcsamp",
+    " ",
+    "    Detach the pcsampling plugin from the targeted",
+    "    application \'my_prog\' in experiment #2 only.",
+    " ",
+    "expDetach -x 2 pcsamp",
+    " ",
+    "    Detach the pcsampling plugin from the a.out and all dsos",
+    "    in experiment #2.",
+    " "
+};
+
+char *cmd_expDisable_example[] = {
+    "expDisable",
+    " ",
+    "    Turn off collection of performance data in the focused",
+    "    experiment.",
+    " ",
+    "expDisable all",
+    " ",
+    "    Turn off collection of performance data in all defined",
+    "    experiments.",
+    " ",
+    "expDisable -x 3",
+    " ",
+    "    Turn off collection of performance data in the defined",
+    "    experiment #3.",
+    " "
+};
+
+char *cmd_expEnable_example[] = {
+    "expEnable",
+    " ",
+    "    Turn on collection of performance data in the focused",
+    "    experiment that was previously disabled by an expDisable",
+    "    command.",
+    " ",
+    "expEnable all",
+    " ",
+    "    Turn on collection of performance data in all defined",
+    "    experiments that was previously disabled by an",
+    "    \'expDisable\' command.",
+    " ",
+    "expEnable -x 3",
+    " ",
+    "    Turn on collection of performance data in the defined",
+    "    experiment #3 that was previously disabled by an",
+    "    \'expDisable\' command.",
+    " ",
+    "    If #3 was not the currently focused experiment this will",
+    "    NOT bring it into focus. Use \'expFocus -x 3\' to do that.",
+    " ",
+    "    The next logical action would be to run the experiment",
+    "    using \'expGo -x 3\'.",
+    " "
+};
+
+char *cmd_expFocus_example[] = {
+    "expFocus",
+    " ",
+    "    Return the id of the currently focused experiment",
+    " ",
+    "expFocus -x 5",
+    " ",
+    "    Bring into focus experiment #5.",
+    " ",
+    "Only one experiment can be in focus at a time.",
+    " "
+};
+
+char *cmd_expGo_example[] = {
+    "expGo",
+    " ",
+    "    Run the currently focused experiment.",
+    " ",
+    "expGo -x 5",
+    " ",
+    "    Run experiment #5. If #5 was not the currently focused",
+    "    experiment this will NOT bring it into focus. Use",
+    "    \'expFocus\' to do that.",
+    " ",
+    "The next logical action would be to display the",
+    "experiment results using expView.",
+    " "
+};
+
+
+char *cmd_expPause_example[] = {
+    "expPause",
+    " ",
+    "    Suspend/stop execution of the currently focused",
+    "    experiment",
+    " ",
+    "expPause -x 5",
+    " ",
+    "    Suspend/stop execution of experiment #5. If #5 was not",
+    "    the currently focused experiment this will NOT bring it",
+    "    into focus. Use \'expFocus\' to do that.",
+    " "
+};
+
+char *cmd_expRestore_example[] = {
+    "expRestore -f my_experiment.data",
+    " ",
+    "    Reads the data stored in \'my_experiment.data\' and",
+    "    defines a new experiment that is initialized with",
+    "    information in the file. The focus is set to",
+    "    this new experiment.",
+    " ",
+    "    No attempt is made to determine if the saved information",
+    "    refers to a still running application however, a subsequent",
+    "    \'expGo\' command will attempt to find and attach to it.",
+    " "
+};
+
+char *cmd_expSave_example[] = {
+    "expSave -f my_experiment.data",
+    " ",
+    "    Saves data and state of the focused experiment to the",
+    "    file \'my_experiment.data\'.",
+    " ",
+    "expSave -x 3 -f my_experiment.data",
+    " ",
+    "    Saves data and state of experiment #3 to the",
+    "    file \'my_experiment.data\'.",
+    " "
+};
+
+char *cmd_expSetParam_example[] = {
+    "expSetParam pcsamp::sampling_rate=10",
+    " ",
+    "    Will set the sampling rate in the pcsamp collector for",
+    "    the focused experiment.",
+    " ",
+    "expSetParam -x 3 pcsamp::sampling_rate=10, usertime::sampling_rate=20",
+    " ",
+    "    Will set the sampling rate of the pcsamp collector to 10",
+    "    and the sampling rate of the usertime collector to 20,",
+    "    both in experiment #3.",
+    " ",
+    "expSetParam -x 5 sampling_rate=10",
+    " ",
+    "    Will set the sampling_rate to 10 in all the collectors",
+    "    that are part of experiment #5.",
+    " "
+};
+
+char *cmd_expStatus_example[] = {
+    "expStatus",
+    " ",
+    "    Displays the status of the currently focused experiment.",
+    " ",
+    "expStatus -x 2",
+    " ",
+    "    Displays the status of experiment #2.",
+    " ",
+    "expStatus all",
+    " ",
+    "    Displays the status of all defined experiments.",
+    " "
+};
+
+
+/*********************************************/
 // COMMAND MESSAGE ARRAY
 /*********************************************/
 // message array to be passed to message czar
@@ -1403,111 +1652,186 @@ OpenSpeedShop::message_element_t cmd_msg[CMD_MAX] = {
     NULL,0,NULL,0,NULL,0,
 //    CMD_EXP_ATTACH,
     -1,cmd_desc[CMD_EXP_ATTACH].name,NULL,0,"commands",cmd_expattach_brief,
-    cmd_expattach_detailed,sizeof(cmd_expattach_detailed)/sizeof(char **),NULL,0,NULL,0,
+    cmd_expattach_detailed,sizeof(cmd_expattach_detailed)/sizeof(char **),
+    NULL,0,
+    cmd_expAttach_example,sizeof(cmd_expAttach_example)/sizeof(char **),
 //    CMD_EXP_CLOSE,
     -1,cmd_desc[CMD_EXP_CLOSE].name,NULL,0,"commands",cmd_expClose_brief,
-    cmd_expClose_detailed,sizeof(cmd_expClose_detailed)/sizeof(char **),NULL,0,NULL,0,
+    cmd_expClose_detailed,sizeof(cmd_expClose_detailed)/sizeof(char **),
+    NULL,0,
+    cmd_expClose_example,sizeof(cmd_expClose_example)/sizeof(char **),
 //    CMD_EXP_CREATE,
     -1,cmd_desc[CMD_EXP_CREATE].name,NULL,0,"commands",cmd_expCreate_brief,
-    cmd_expCreate_detailed,sizeof(cmd_expCreate_detailed)/sizeof(char **),NULL,0,NULL,0,
+    cmd_expCreate_detailed,sizeof(cmd_expCreate_detailed)/sizeof(char **),
+    NULL,0,
+    cmd_expCreate_example,sizeof(cmd_expCreate_example)/sizeof(char **),
 //    CMD_EXP_DETACH,
     -1,cmd_desc[CMD_EXP_DETACH].name,NULL,0,"commands",cmd_expDetach_brief,
-    cmd_expDetach_detailed,sizeof(cmd_expDetach_detailed)/sizeof(char **),NULL,0,NULL,0,
+    cmd_expDetach_detailed,sizeof(cmd_expDetach_detailed)/sizeof(char **),
+    NULL,0,
+    cmd_expDetach_example,sizeof(cmd_expDetach_example)/sizeof(char **),
 //    CMD_EXP_DISABLE,
     -1,cmd_desc[CMD_EXP_DISABLE].name,NULL,0,"commands",cmd_expDisable_brief,
-    cmd_expDisable_detailed,sizeof(cmd_expDisable_detailed)/sizeof(char **),NULL,0,NULL,0,
+    cmd_expDisable_detailed,sizeof(cmd_expDisable_detailed)/sizeof(char **),
+    NULL,0,
+    cmd_expDisable_example,sizeof(cmd_expDisable_example)/sizeof(char **),
 //    CMD_EXP_ENABLE,
     -1,cmd_desc[CMD_EXP_ENABLE].name,NULL,0,"commands",cmd_expEnable_brief,
-    cmd_expEnable_detailed,sizeof(cmd_expEnable_detailed)/sizeof(char **),NULL,0,NULL,0,
+    cmd_expEnable_detailed,sizeof(cmd_expEnable_detailed)/sizeof(char **),
+    NULL,0,
+    cmd_expEnable_example,sizeof(cmd_expEnable_example)/sizeof(char **),
 //    CMD_EXP_FOCUS,
     -1,cmd_desc[CMD_EXP_FOCUS].name,NULL,0,"commands",cmd_expFocus_brief,
-    cmd_expFocus_detailed,sizeof(cmd_expFocus_detailed)/sizeof(char **),NULL,0,NULL,0,
-//    CMD_EXP_PAUSE,
-    -1,cmd_desc[CMD_EXP_PAUSE].name,NULL,0,"commands",cmd_expPause_brief,
-    cmd_expPause_detailed,sizeof(cmd_expPause_detailed)/sizeof(char **),NULL,0,NULL,0,
-//    CMD_EXP_RESTORE,
-    -1,cmd_desc[CMD_EXP_RESTORE].name,NULL,0,"commands",cmd_expRestore_brief,
-    cmd_expRestore_detailed,sizeof(cmd_expRestore_detailed)/sizeof(char **),NULL,0,NULL,0,
+    cmd_expFocus_detailed,sizeof(cmd_expFocus_detailed)/sizeof(char **),
+    NULL,0,
+    cmd_expFocus_example,sizeof(cmd_expFocus_example)/sizeof(char **),
 //    CMD_EXP_GO,
     -1,cmd_desc[CMD_EXP_GO].name,NULL,0,"commands",cmd_expGo_brief,
-    cmd_expGo_detailed,sizeof(cmd_expGo_detailed)/sizeof(char **),NULL,0,NULL,0,
+    cmd_expGo_detailed,sizeof(cmd_expGo_detailed)/sizeof(char **),
+    NULL,0,
+    cmd_expGo_example,sizeof(cmd_expGo_example)/sizeof(char **),
+//    CMD_EXP_PAUSE,
+    -1,cmd_desc[CMD_EXP_PAUSE].name,NULL,0,"commands",cmd_expPause_brief,
+    cmd_expPause_detailed,sizeof(cmd_expPause_detailed)/sizeof(char **),
+    NULL,0,
+    cmd_expPause_example,sizeof(cmd_expPause_example)/sizeof(char **),
+//    CMD_EXP_RESTORE,
+    -1,cmd_desc[CMD_EXP_RESTORE].name,NULL,0,"commands",cmd_expRestore_brief,
+    cmd_expRestore_detailed,sizeof(cmd_expRestore_detailed)/sizeof(char **),
+    NULL,0,
+    cmd_expRestore_example,sizeof(cmd_expRestore_example)/sizeof(char **),
 //    CMD_EXP_SAVE,
     -1,cmd_desc[CMD_EXP_SAVE].name,NULL,0,"commands",cmd_expSave_brief,
-    cmd_expSave_detailed,sizeof(cmd_expSave_detailed)/sizeof(char **),NULL,0,NULL,0,
+    cmd_expSave_detailed,sizeof(cmd_expSave_detailed)/sizeof(char **),
+    NULL,0,
+    cmd_expSave_example,sizeof(cmd_expSave_example)/sizeof(char **),
 //    CMD_EXP_SETPARAM,
     -1,cmd_desc[CMD_EXP_SETPARAM].name,NULL,0,"commands",cmd_expSetParam_brief,
-    cmd_expSetParam_detailed,sizeof(cmd_expSetParam_detailed)/sizeof(char **),NULL,0,NULL,0,
+    cmd_expSetParam_detailed,sizeof(cmd_expSetParam_detailed)/sizeof(char **),
+    NULL,0,
+    cmd_expSetParam_example,sizeof(cmd_expSetParam_example)/sizeof(char **),
+//    CMD_EXP_STATUS,
+    -1,cmd_desc[CMD_EXP_STATUS].name,NULL,0,"commands",cmd_expStatus_brief,
+    cmd_expStatus_detailed,sizeof(cmd_expStatus_detailed)/sizeof(char **),
+    NULL,0,
+    cmd_expStatus_example,sizeof(cmd_expStatus_example)/sizeof(char **),
 //    CMD_EXP_VIEW,
     -1,cmd_desc[CMD_EXP_VIEW].name,NULL,0,"commands",cmd_expView_brief,
-    cmd_expView_detailed,sizeof(cmd_expView_detailed)/sizeof(char **),NULL,0,NULL,0,
+    cmd_expView_detailed,sizeof(cmd_expView_detailed)/sizeof(char **),
+    NULL,0,
+    NULL,0,
 
 //    CMD_LIST_BREAKS,
     -1,cmd_desc[CMD_LIST_BREAKS].name,NULL,0,"commands",cmd_listBreaks_brief,
-    cmd_listBreaks_detailed,sizeof(cmd_listBreaks_detailed)/sizeof(char **),NULL,0,NULL,0,
+    cmd_listBreaks_detailed,sizeof(cmd_listBreaks_detailed)/sizeof(char **),
+    NULL,0,
+    NULL,0,
 //    CMD_LIST_EXP,
     -1,cmd_desc[CMD_LIST_EXP].name,NULL,0,"commands",cmd_listExp_brief,
-    cmd_listExp_detailed,sizeof(cmd_listExp_detailed)/sizeof(char **),NULL,0,NULL,0,
+    cmd_listExp_detailed,sizeof(cmd_listExp_detailed)/sizeof(char **),
+    NULL,0,
+    NULL,0,
 //    CMD_LIST_HOSTS,
     -1,cmd_desc[CMD_LIST_HOSTS].name,NULL,0,"commands",cmd_listHosts_brief,
-    cmd_listHosts_detailed,sizeof(cmd_listHosts_detailed)/sizeof(char **),NULL,0,NULL,0,
+    cmd_listHosts_detailed,sizeof(cmd_listHosts_detailed)/sizeof(char **),
+    NULL,0,
+    NULL,0,
 //    CMD_LIST_METRICS,
     -1,cmd_desc[CMD_LIST_METRICS].name,NULL,0,"commands",cmd_listMetrics_brief,
-    cmd_listMetrics_detailed,sizeof(cmd_listMetrics_detailed)/sizeof(char **),NULL,0,NULL,0,
+    cmd_listMetrics_detailed,sizeof(cmd_listMetrics_detailed)/sizeof(char **),
+    NULL,0,
+    NULL,0,
 //    CMD_LIST_OBJ,
     -1,cmd_desc[CMD_LIST_OBJ].name,NULL,0,"commands",cmd_listObj_brief,
-    cmd_listObj_detailed,sizeof(cmd_listObj_detailed)/sizeof(char **),NULL,0,NULL,0,
+    cmd_listObj_detailed,sizeof(cmd_listObj_detailed)/sizeof(char **),
+    NULL,0,
+    NULL,0,
 //    CMD_LIST_PARAMS,
     -1,cmd_desc[CMD_LIST_PARAMS].name,NULL,0,"commands",cmd_listParams_brief,
-    cmd_listParams_detailed,sizeof(cmd_listParams_detailed)/sizeof(char **),NULL,0,NULL,0,
+    cmd_listParams_detailed,sizeof(cmd_listParams_detailed)/sizeof(char **),
+    NULL,0,
+    NULL,0,
 //    CMD_LIST_PIDS,
     -1,cmd_desc[CMD_LIST_PIDS].name,NULL,0,"commands",cmd_listPids_brief,
-    cmd_listPids_detailed,sizeof(cmd_listPids_detailed)/sizeof(char **),NULL,0,NULL,0,
+    cmd_listPids_detailed,sizeof(cmd_listPids_detailed)/sizeof(char **),
+    NULL,0,
+    NULL,0,
 //    CMD_LIST_RANKS,
     -1,cmd_desc[CMD_LIST_RANKS].name,NULL,0,"commands",cmd_listRanks_brief,
-    cmd_listRanks_detailed,sizeof(cmd_listRanks_detailed)/sizeof(char **),NULL,0,NULL,0,
+    cmd_listRanks_detailed,sizeof(cmd_listRanks_detailed)/sizeof(char **),
+    NULL,0,
+    NULL,0,
 //    CMD_LIST_SRC,
     -1,cmd_desc[CMD_LIST_SRC].name,NULL,0,"commands",cmd_listSrc_brief,
-    cmd_listSrc_detailed,sizeof(cmd_listSrc_detailed)/sizeof(char **),NULL,0,NULL,0,
+    cmd_listSrc_detailed,sizeof(cmd_listSrc_detailed)/sizeof(char **),
+    NULL,0,
+    NULL,0,
 //    CMD_LIST_STATUS,
     -1,cmd_desc[CMD_LIST_STATUS].name,NULL,0,"commands",cmd_listStatus_brief,
-    cmd_listStatus_detailed,sizeof(cmd_listStatus_detailed)/sizeof(char **),NULL,0,NULL,0,
+    cmd_listStatus_detailed,sizeof(cmd_listStatus_detailed)/sizeof(char **),
+    NULL,0,
+    NULL,0,
 //    CMD_LIST_THREADS,
     -1,cmd_desc[CMD_LIST_THREADS].name,NULL,0,"commands",cmd_listThreads_brief,
-    cmd_listThreads_detailed,sizeof(cmd_listThreads_detailed)/sizeof(char **),NULL,0,NULL,0,
+    cmd_listThreads_detailed,sizeof(cmd_listThreads_detailed)/sizeof(char **),
+    NULL,0,
+    NULL,0,
 //    CMD_LIST_TYPES,
     -1,cmd_desc[CMD_LIST_TYPES].name,NULL,0,"commands",cmd_listTypes_brief,
-    cmd_listTypes_detailed,sizeof(cmd_listTypes_detailed)/sizeof(char **),NULL,0,NULL,0,
+    cmd_listTypes_detailed,sizeof(cmd_listTypes_detailed)/sizeof(char **),
+    NULL,0,
+    NULL,0,
 //    CMD_LIST_VIEWS,
     -1,cmd_desc[CMD_LIST_VIEWS].name,NULL,0,"commands",cmd_listViews_brief,
-    cmd_listViews_detailed,sizeof(cmd_listViews_detailed)/sizeof(char **),NULL,0,NULL,0,
+    cmd_listViews_detailed,sizeof(cmd_listViews_detailed)/sizeof(char **),
+    NULL,0,
+    NULL,0,
 
 //    CMD_CLEAR_BREAK,
     -1,cmd_desc[CMD_CLEAR_BREAK].name,NULL,0,"commands",cmd_clearBreak_brief,
-    cmd_clearBreak_detailed,sizeof(cmd_clearBreak_detailed)/sizeof(char **),NULL,0,NULL,0,
+    cmd_clearBreak_detailed,sizeof(cmd_clearBreak_detailed)/sizeof(char **),
+    NULL,0,
+    NULL,0,
 //    CMD_EXIT,
     -1,cmd_desc[CMD_EXIT].name,NULL,0,"commands",cmd_exit_brief,
-    cmd_exit_detailed,sizeof(cmd_exit_detailed)/sizeof(char **),NULL,0,NULL,0,
+    cmd_exit_detailed,sizeof(cmd_exit_detailed)/sizeof(char **),
+    NULL,0,
+    NULL,0,
 //    CMD_HELP,
     -1,cmd_desc[CMD_HELP].name,NULL,0,"commands",cmd_help_brief,
-    cmd_help_detailed,sizeof(cmd_help_detailed)/sizeof(char **),NULL,0,NULL,0,
+    cmd_help_detailed,sizeof(cmd_help_detailed)/sizeof(char **),
+    NULL,0,
+    NULL,0,
 //    CMD_HISTORY,
     -1,cmd_desc[CMD_HISTORY].name,NULL,0,"commands",cmd_history_brief,
-    cmd_history_detailed,sizeof(cmd_history_detailed)/sizeof(char **),NULL,0,NULL,0,
+    cmd_history_detailed,sizeof(cmd_history_detailed)/sizeof(char **),
+    NULL,0,
+    NULL,0,
 //    CMD_LOG,
     -1,cmd_desc[CMD_LOG].name,NULL,0,"commands",cmd_log_brief,
-    cmd_log_detailed,sizeof(cmd_log_detailed)/sizeof(char **),NULL,0,NULL,0,
+    cmd_log_detailed,sizeof(cmd_log_detailed)/sizeof(char **),
+    NULL,0,
+    NULL,0,
 //    CMD_OPEN_GUI,
     -1,cmd_desc[CMD_OPEN_GUI].name,NULL,0,"commands",cmd_openGui_brief,
-    cmd_openGui_detailed,sizeof(cmd_openGui_detailed)/sizeof(char **),NULL,0,NULL,0,
+    cmd_openGui_detailed,sizeof(cmd_openGui_detailed)/sizeof(char **),
+    NULL,0,
+    NULL,0,
 //    CMD_PLAYBACK,
     -1,cmd_desc[CMD_PLAYBACK].name,NULL,0,"commands",cmd_playback_brief,
-    cmd_playback_detailed,sizeof(cmd_playback_detailed)/sizeof(char **),NULL,0,NULL,0,
+    cmd_playback_detailed,sizeof(cmd_playback_detailed)/sizeof(char **),
+    NULL,0,
+    NULL,0,
 //    CMD_RECORD,
     -1,cmd_desc[CMD_RECORD].name,NULL,0,"commands",cmd_record_brief,
-    cmd_record_detailed,sizeof(cmd_record_detailed)/sizeof(char **),NULL,0,NULL,0,
+    cmd_record_detailed,sizeof(cmd_record_detailed)/sizeof(char **),
+    NULL,0,
+    NULL,0,
 //    CMD_SETBREAK,
     -1,cmd_desc[CMD_SETBREAK].name,NULL,0,"commands",cmd_setbreak_brief,
-    cmd_setbreak_detailed,sizeof(cmd_setbreak_detailed)/sizeof(char **),NULL,0,NULL,0
+    cmd_setbreak_detailed,sizeof(cmd_setbreak_detailed)/sizeof(char **),
+    NULL,0,
+    NULL,0
 };
 
 /*********************************************/
