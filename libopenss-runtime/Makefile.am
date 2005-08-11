@@ -21,12 +21,16 @@ DIST_SUBDIRS = dpcl dyninst
 
 noinst_LTLIBRARIES = libopenss-runtime.la
 
+libopenss_runtime_la_CFLAGS = \
+	@PAPI_CPPFLAGS@
+
 libopenss_runtime_la_LDFLAGS = \
-        -export-dynamic -version-info 1:0:0
+	@PAPI_LDFLAGS@
 
 libopenss_runtime_la_LIBADD = \
 	@INSTRUMENTOR@/libopenss-runtime-@INSTRUMENTOR@.la \
-	-lpthread -lrt -lpapi
+	@PAPI_LIBS@ \
+	-lpthread -lrt
 
 libopenss_runtime_la_SOURCES = \
 	Assert.h \

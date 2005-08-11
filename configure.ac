@@ -68,6 +68,30 @@ AC_PATH_PROG([RPCGEN], rpcgen)
 AC_PROG_YACC
 
 ################################################################################
+# Check for POSIX Threads (ISO/IEC 9945-1:1996)
+################################################################################
+
+AC_CHECK_HEADER(pthread.h, [ AC_CHECK_LIB(pthread, pthread_create, [
+    AC_DEFINE(HAVE_POSIX_THREADS, 1, [Define to 1 if you have POSIX threads.])
+], [
+    AC_MSG_FAILURE([cannot locate POSIX thread library and/or headers.])
+]) ])
+
+################################################################################
+# Check for Additional Packages
+################################################################################
+
+AC_PKG_ARRAYSVCS()
+AC_PKG_PAPI()
+
+AM_PATH_PYTHON(2.2)
+AM_CHECK_PYTHON_HEADERS()
+AC_PKG_PYTHON()
+
+AC_PKG_SQLITE()
+AC_PKG_QTLIB()
+
+################################################################################
 # Check for Instrumentor
 ################################################################################
 
@@ -91,37 +115,6 @@ case "$INSTRUMENTOR" in
 esac
 
 AC_SUBST(INSTRUMENTOR)
-
-################################################################################
-# Check for SGI Array Services (proprietary)
-################################################################################
-
-AC_PKG_ARRAYSVCS()
-
-################################################################################
-# Check for SQLite (http://www.sqlite.org/)
-################################################################################
-
-AC_PKG_SQLITE()
-
-################################################################################
-# Check for POSIX Threads (ISO/IEC 9945-1:1996)
-################################################################################
-
-AC_CHECK_HEADER(pthread.h, [ AC_CHECK_LIB(pthread, pthread_create, [
-    AC_DEFINE(HAVE_POSIX_THREADS, 1, [Define to 1 if you have POSIX threads.])
-], [
-    AC_MSG_FAILURE([cannot locate POSIX thread library and/or headers.])
-]) ])
-
-################################################################################
-# Check for Python (http://www.python.org)
-################################################################################
-
-AM_PATH_PYTHON(2.2)
-AM_CHECK_PYTHON_HEADERS()
-AC_PKG_PYTHON()
-AC_PKG_QTLIB()
 
 ################################################################################
 # Generate Output Files

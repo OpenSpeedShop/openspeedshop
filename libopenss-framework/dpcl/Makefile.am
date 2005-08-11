@@ -20,13 +20,13 @@ noinst_LTLIBRARIES = libopenss-framework-dpcl.la
 
 libopenss_framework_dpcl_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework \
-	$(DPCL_CPPFLAGS)
+	@DPCL_CPPFLAGS@
 
 libopenss_framework_dpcl_la_LDFLAGS = \
-	$(DPCL_LDFLAGS)
+	@DPCL_LDFLAGS@
 
 libopenss_framework_dpcl_la_LIBADD = \
-	$(DPCL_LIBS) \
+	@DPCL_LIBS@ \
 	-lpthread
 
 libopenss_framework_dpcl_la_SOURCES = \

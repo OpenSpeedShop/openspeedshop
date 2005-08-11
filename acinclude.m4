@@ -53,24 +53,28 @@ AC_DEFUN([AC_PKG_ARRAYSVCS], [
         #include <arraysvcs.h>
         ]], [[
         asgeterror();
-        ]]), [
-
-            AC_MSG_RESULT(yes)
-
-            AC_SUBST(ARRAYSVCS_CPPFLAGS)
-            AC_SUBST(ARRAYSVCS_LDFLAGS)
-            AC_SUBST(ARRAYSVCS_LIBS)
+        ]]), [ AC_MSG_RESULT(yes)
 
             AC_DEFINE(HAVE_ARRAYSVCS, 1, 
                       [Define to 1 if you have array services.])
 
-        ], [ AC_MSG_RESULT(no) ]
+        ], [ AC_MSG_RESULT(no) 
+
+            ARRAYSVCS_CPPFLAGS=""
+            ARRAYSVCS_LDFLAGS=""
+            ARRAYSVCS_LIBS=""
+
+        ]
     )
 
     CPPFLAGS=$arraysvcs_saved_CPPFLAGS
     LDFLAGS=$arraysvcs_saved_LDFLAGS
 
     AC_LANG_POP(C++)
+
+    AC_SUBST(ARRAYSVCS_CPPFLAGS)
+    AC_SUBST(ARRAYSVCS_LDFLAGS)
+    AC_SUBST(ARRAYSVCS_LIBS)
 
 ])
 
@@ -176,7 +180,54 @@ AC_DEFUN([AC_PKG_DYNINST], [
 ])
 
 ################################################################################
-# Check for SQLite (http://www.sqlite.org/)
+# Check for PAPI (http://icl.cs.utk.edu/papi)
+################################################################################
+
+AC_DEFUN([AC_PKG_PAPI], [
+
+    AC_ARG_WITH(papi,
+                AC_HELP_STRING([--with-papi=DIR],
+                               [PAPI installation @<:@/usr@:>@]),
+                papi_dir=$withval, papi_dir="/usr")
+
+    PAPI_CPPFLAGS="-I$papi_dir/include"
+    PAPI_LDFLAGS="-L$papi_dir/lib"
+    PAPI_LIBS="-lpapi"
+
+    AC_LANG_PUSH(C++)
+    AC_REQUIRE_CPP
+
+    papi_saved_CPPFLAGS=$CPPFLAGS
+    papi_saved_LDFLAGS=$LDFLAGS
+
+    CPPFLAGS="$CPPFLAGS $PAPI_CPPFLAGS"
+    LDFLAGS="$CXXFLAGS $PAPI_LDFLAGS $PAPI_LIBS"
+
+    AC_MSG_CHECKING([for PAPI library and headers])
+
+    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+        #include <papi.h>
+        ]], [[
+	PAPI_is_initialized();
+        ]]), AC_MSG_RESULT(yes), [ AC_MSG_RESULT(no)
+        AC_MSG_FAILURE(cannot locate PAPI library and/or headers.) ]
+    )
+
+    CPPFLAGS=$papi_saved_CPPFLAGS
+    LDFLAGS=$papi_saved_LDFLAGS
+
+    AC_LANG_POP(C++)
+
+    AC_SUBST(PAPI_CPPFLAGS)
+    AC_SUBST(PAPI_LDFLAGS)
+    AC_SUBST(PAPI_LIBS)
+
+    AC_DEFINE(HAVE_PAPI, 1, [Define to 1 if you have PAPI.])
+
+])
+
+################################################################################
+# Check for SQLite (http://www.sqlite.org)
 ################################################################################
 
 AC_DEFUN([AC_PKG_SQLITE], [

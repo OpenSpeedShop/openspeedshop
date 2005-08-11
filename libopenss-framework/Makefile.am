@@ -24,19 +24,19 @@ lib_LTLIBRARIES = libopenss-framework.la
 libopenss_framework_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime \
 	$(LTDLINCL) \
-	$(ARRAYSVCS_CPPFLAGS) \
-	$(SQLITE_CPPFLAGS)
+	@ARRAYSVCS_CPPFLAGS@ \
+	@SQLITE_CPPFLAGS@
 
 libopenss_framework_la_LDFLAGS = \
-	$(ARRAYSVCS_LDFLAGS) \
-	$(SQLITE_LDFLAGS) \
+	@ARRAYSVCS_LDFLAGS@ \
+	@SQLITE_LDFLAGS@ \
 	-export-dynamic -version-info 1:0:0
 
 libopenss_framework_la_LIBADD = \
 	@INSTRUMENTOR@/libopenss-framework-@INSTRUMENTOR@.la \
 	$(LIBLTDL) \
-	$(ARRAYSVCS_LIBS) \
-	$(SQLITE_LIBS) \
+	@ARRAYSVCS_LIBS@ \
+	@SQLITE_LIBS@ \
 	-lpthread -lrt -lpapi
 
 libopenss_framework_la_SOURCES = \
