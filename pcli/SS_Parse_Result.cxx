@@ -43,11 +43,12 @@ command_type_t OpenSpeedShop::cli::cmd_desc[CMD_MAX] = {
     "expDisable",   false,  CMD_EXP_DISABLE,
     "expEnable",    false,  CMD_EXP_ENABLE,
     "expFocus",     false,  CMD_EXP_FOCUS,
+    "expGo",	    false,  CMD_EXP_GO,
     "expPause",     false,  CMD_EXP_PAUSE,
     "expRestore",   false,  CMD_EXP_RESTORE,
-    "expGo",	    false,  CMD_EXP_GO,
     "expSave",	    false,  CMD_EXP_SAVE,
     "expSetparm",   false,  CMD_EXP_SETPARAM,
+    "expStatus",    false,  CMD_EXP_STATUS,
     "expView",	    false,  CMD_EXP_VIEW,
 
     "listBreaks",   true,   CMD_LIST_BREAKS,
@@ -397,9 +398,22 @@ dumpHelp(CommandObject *cmd)
     	    k != element.end();
 	    ++k) {
 	    SS_Message_Element *p_el = *k;
+
+    	    // Normal list
 	    vector<string> * const p_string = p_el->get_normal_list();
     	    for (vector <string> :: iterator i=p_string->begin();
     	     	 i!= p_string->end();
+	     	 ++i) {
+		cmd->Result_String (*i);
+	    }
+
+    	    // Example list
+	    vector<string> * const p_string_2 = p_el->get_example_list();
+    	    if (p_string_2->begin() != p_string_2->end()) {
+    	    	cmd->Result_String( "Examples:\n\n");
+    	    }
+    	    for (vector <string> :: iterator i=p_string_2->begin();
+    	     	 i!= p_string_2->end();
 	     	 ++i) {
 		cmd->Result_String (*i);
 	    }
