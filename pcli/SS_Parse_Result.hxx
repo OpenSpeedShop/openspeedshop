@@ -465,6 +465,9 @@ class ParseResult {
 	    return &dm_redirect;
 	}
 
+    	/** Syntax error reporting */
+    	void dumpError(CommandObject *cmd);
+	
     	/** Debugging code */
     	void dumpInfo();
 	
