@@ -24,6 +24,11 @@
 
 #include "PapiAPI.h"
 
+#include <stdlib.h>
+#include <string.h>
+
+
+
 void hwc_init_papi()
 {
     int rval;
@@ -155,7 +160,7 @@ int get_papi_eventcode (char* eventname)
     strptr = ename;
     if (PAPI_event_name_to_code(strptr,&EventCode) != PAPI_OK) {
         fprintf(stderr,"get_papi_eventcode: PAPI_event_name_to_code failed!\n");
-        return;
+        return -1;
     }
     return EventCode;
 }
