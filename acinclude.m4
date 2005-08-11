@@ -53,20 +53,24 @@ AC_DEFUN([AC_PKG_ARRAYSVCS], [
         #include <arraysvcs.h>
         ]], [[
         asgeterror();
-        ]]), AC_MSG_RESULT(yes), [ AC_MSG_RESULT(no)
-        AC_MSG_FAILURE(cannot locate array services library and/or headers.) ]
+        ]]), [
+
+            AC_MSG_RESULT(yes)
+
+            AC_SUBST(ARRAYSVCS_CPPFLAGS)
+            AC_SUBST(ARRAYSVCS_LDFLAGS)
+            AC_SUBST(ARRAYSVCS_LIBS)
+
+            AC_DEFINE(HAVE_ARRAYSVCS, 1, 
+                      [Define to 1 if you have array services.])
+
+        ], [ AC_MSG_RESULT(no) ]
     )
 
     CPPFLAGS=$arraysvcs_saved_CPPFLAGS
     LDFLAGS=$arraysvcs_saved_LDFLAGS
 
     AC_LANG_POP(C++)
-
-    AC_SUBST(ARRAYSVCS_CPPFLAGS)
-    AC_SUBST(ARRAYSVCS_LDFLAGS)
-    AC_SUBST(ARRAYSVCS_LIBS)
-
-    AC_DEFINE(HAVE_ARRAYSVCS, 1, [Define to 1 if you have array services.])
 
 ])
 
