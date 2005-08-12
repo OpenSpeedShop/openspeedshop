@@ -72,7 +72,7 @@ class pcsamp_view : public ViewType {
     MV.push_back(VIEW_pcsamp_metrics[0]);  // Use the Collector with the first metric
     IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, 0, 0));  // first column is metric
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Metric, 1, 0));  // second column is %
-    return Generic_View->GenerateView (cmd, exp, topn, tgrp, CV, MV, IV);
+    return Generic_View (cmd, exp, topn, tgrp, CV, MV, IV);
   }
 };
 
@@ -155,14 +155,72 @@ class usertime_view : public ViewType {
    // (Otherwise, we measure a unit of time multiple times.)
     IV.push_back(new ViewInstruction (VIEWINST_Define_Total, extime_index));
 
-    return Generic_View->GenerateView (cmd, exp, topn, tgrp, CV, MV, IV);
+    return Generic_View (cmd, exp, topn, tgrp, CV, MV, IV);
+  }
+};
+
+// Hardware Counter Report
+
+static std::string VIEW_hwc_brief = "Hardware counter report";
+static std::string VIEW_hwc_short = "Report the hardware counts spent in a function.";
+static std::string VIEW_hwc_long  = "The report is sorted in descending order by the number of counts that"
+                                    " were accumulated in each function.  The reported counter is the one"
+                                    " set in the 'event' parameter when the experiment was run."
+                                    "  Also included in the report is the percent of total cycles"
+                                    " that each function uses."
+                                    "  A positive integer can be added to the end of the keyword 'hwc'"
+                                    " to indicate the maximum number of items in the report.";
+static std::string VIEW_hwc_metrics[] =
+  { "overflows",
+    ""
+  };
+static std::string VIEW_hwc_collectors[] =
+  { "hwc",
+    ""
+  };
+static std::string VIEW_hwc_header[] =
+  { ""
+  };
+class hwc_view : public ViewType {
+
+ public: 
+  hwc_view() : ViewType ("hwc",
+                             VIEW_hwc_brief,
+                             VIEW_hwc_short,
+                             VIEW_hwc_long,
+                            &VIEW_hwc_metrics[0],
+                            &VIEW_hwc_collectors[0],
+                            &VIEW_hwc_header[0],
+                             true,
+                             false) {
+  }
+  virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
+                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
+                         std::vector<ViewInstruction *>IV) {
+   // Start with a clean slate.
+    CV.erase(CV.begin(), CV.end());
+    MV.erase(MV.begin(), MV.end());
+    IV.erase(IV.begin(), IV.end());
+
+    CV.push_back (Get_Collector (exp->FW(), VIEW_hwc_collectors[0]));  // Get the collector
+    MV.push_back(VIEW_hwc_metrics[0]);  // Get the name of the metric
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, 0, 0));  // first column is metric
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Metric, 1, 0));  // second column is %
+
+   // Get the name of the event that we were collecting.
+   // Use this for the column header in the report rather then the name of the metric.
+    std::string HV[1];
+    CV[0].getParameterValue ("event", HV[0]);
+
+    return Generic_View (cmd, exp, topn, tgrp, CV, MV, IV, HV);
   }
 };
 
 
 // This is the only external entrypoint.
 // Calls to the VIEWs needs to be done through the ViewType class objects.
-extern "C" void pcfunc_LTX_ViewFactory () {
+void Define_Basic_Views () {
   Define_New_View (new usertime_view());
   Define_New_View (new pcsamp_view());
+  Define_New_View (new hwc_view());
 }
