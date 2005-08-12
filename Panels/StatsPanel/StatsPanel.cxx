@@ -238,6 +238,11 @@ if( item && matchSelectedItem( std::string(item->text(2).ascii()) ) )
           currentMetricStr = cpe->name;
           currentMetricTypeStr = cpe->type;
 // printf("Initialize collectorStr=(%s) currentMetricType=(%s) currentMetricStr=(%s)\n", collectorStr.ascii(), currentMetricTypeStr.ascii(), currentMetricStr.ascii() );
+if( collectorStr == "hwc" )
+{
+// printf("set this to PAPI_TOT_CYC\n");
+  optionalMetricStr = "PAPI_TOT_CYC";
+}
           break;
         }
       }
@@ -367,15 +372,15 @@ if( currentMetricStr.isEmpty() || currentMetricStr == cpe->name )
         QAction *qaction = new QAction( this,  "pidThreadRank");
         qaction->addTo( threadMenu );
         qaction->setText( pidstr );
-if( currentThread == NULL || *currentThread == t )
-{
-  if( currentThread == NULL )
-  {
-    currentThread = new Thread(*ti);
-  }
-  qaction->setToggleAction(TRUE);
-  qaction->setOn(TRUE);
-}
+        if( currentThread == NULL || *currentThread == t )
+        {
+          if( currentThread == NULL )
+          {
+            currentThread = new Thread(*ti);
+          }
+          qaction->setToggleAction(TRUE);
+          qaction->setOn(TRUE);
+        }
         connect( qaction, SIGNAL( activated() ), this, SLOT( threadSelected() ) );
         qaction->setStatusTip( tr("Query metric values for %1.").arg(pidstr) );
       }
@@ -1123,6 +1128,10 @@ if( currentMetricTypeStr == "double" )
           { 
             MetricHeaderInfo *mhi = (MetricHeaderInfo *)*pit;
             QString s = mhi->label;
+if( optionalMetricStr )
+{
+  s = optionalMetricStr;
+}
 if( pit == metricHeaderInfoList.begin() )
 {
   s += " for pid:" + threadStr;
@@ -1259,7 +1268,10 @@ StatsPanel::metricMenuHighlighted(int val)
 // printf("metricMenuHighlighted val=%d\n", val);
 // printf("metricMenuHighlighted: Full collectorStr=(%s)\n", popupMenu->text(val).ascii() );
 
-   currentMetricStr = popupMenu->text(val).ascii();
+//   currentMetricStr = popupMenu->text(val).ascii();
+   currentMetricStr = popupMenu->text(val);
+// printf("currentMetricStr=(%s) \n", currentMetricStr.ascii() );
+// printf("optionalMetricStr=(%s) \n", optionalMetricStr ? optionalMetricStr.ascii() : "" );
 }
 
 void

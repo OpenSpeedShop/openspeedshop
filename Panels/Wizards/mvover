@@ -30,11 +30,11 @@ do
     echo "WARNING: $i  is check out."
     exit
   fi
-  if [ $i == "HW_CounterWizardPanel" ]
-  then
-    echo "WARNING: $i  is check out."
-    exit
-  fi
+#  if [ $i == "HW_CounterWizardPanel" ]
+#  then
+#    echo "WARNING: $i  is check out."
+#    exit
+#  fi
   if [ $i == "IOWizardPanel" ]
   then
     echo "WARNING: $i  is check out."
@@ -51,7 +51,8 @@ do
     exit
   fi
 done
-for i in `echo "FPE_TracingWizardPanel HW_CounterWizardPanel IOWizardPanel MPIWizardPanel UserTimeWizardPanel"`
+# for i in `echo "FPE_TracingWizardPanel HW_CounterWizardPanel IOWizardPanel MPIWizardPanel UserTimeWizardPanel"`
+for i in `echo "FPE_TracingWizardPanel IOWizardPanel MPIWizardPanel UserTimeWizardPanel"`
 do
   echo Doing $i
 
@@ -73,16 +74,16 @@ do
     echo "y" | mysed "pcsampDescription" "fpe" $i/$i.cxx $i/$i.hxx $i/Makefile.am
     echo "y" | mysed "pcsamp" "fpe" $i/$i.cxx $i/$i.hxx $i/Makefile.am
   fi
-  if [ $i = "HW_CounterWizardPanel" ]
-  then
-    echo "echo "y" | mysed \"pc Sample Wizard\" \"HW Counter Wizard\" $i/$i.cxx $i/$i.hxx $i/Makefile.am"
-    echo "y" | mysed "pcSampleDescription" "HW_CounterDescription" $i/$i.cxx $i/$i.hxx $i/Makefile.am
-    echo "y" | mysed "pc Sample rate" "sample rate" $i/$i.cxx $i/$i.hxx $i/Makefile.am
-    echo "y" | mysed "pc Sample" "HW Counter" $i/$i.cxx $i/$i.hxx $i/Makefile.am
-    echo "y" | mysed "pc Sampling" "HW Counter" $i/$i.cxx $i/$i.hxx $i/Makefile.am
-    echo "y" | mysed "pcSample" "hwCounter" $i/$i.cxx $i/$i.hxx $i/Makefile.am
-    echo "y" | mysed "pcsamp" "hwc" $i/$i.cxx $i/$i.hxx $i/Makefile.am
-  fi
+#  if [ $i = "HW_CounterWizardPanel" ]
+#  then
+#    echo "echo "y" | mysed \"pc Sample Wizard\" \"HW Counter Wizard\" $i/$i.cxx $i/$i.hxx $i/Makefile.am"
+#    echo "y" | mysed "pcSampleDescription" "HW_CounterDescription" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+#    echo "y" | mysed "pc Sample rate" "sample rate" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+#    echo "y" | mysed "pc Sample" "HW Counter" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+#    echo "y" | mysed "pc Sampling" "HW Counter" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+#    echo "y" | mysed "pcSample" "hwCounter" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+#    echo "y" | mysed "pcsamp" "hwc" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+#  fi
   if [ $i = "IOWizardPanel" ]
   then
     echo "echo "y" | mysed \"pc Sample Wizard\" \"IO Wizard\" $i/$i.cxx $i/$i.hxx $i/Makefile.am"

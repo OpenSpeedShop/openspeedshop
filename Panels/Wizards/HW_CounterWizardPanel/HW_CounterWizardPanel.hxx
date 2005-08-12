@@ -122,6 +122,8 @@ public:
     QLabel* vParameterPageSampleRateHeaderLabel;
     QLabel* vParameterPageSampleRateLabel;
     QLineEdit* vParameterPageSampleRateText;
+QLabel* vParamaterPagePAPIDescriptionLabel;
+QLineEdit* vParameterPagePAPIDescriptionText;
     QPushButton* vParameterPageBackButton;
     QPushButton* vParameterPageResetButton;
     QPushButton* vParameterPageNextButton;
@@ -151,6 +153,8 @@ public:
     QFrame* eParameterPageLine;
     QLabel* eParameterPageSampleRateHeaderLabel;
     QLabel* eParameterPageSampleRateLabel;
+QLabel* eParamaterPagePAPIDescriptionLabel;
+QLineEdit* eParameterPagePAPIDescriptionText;
     QLineEdit* eParameterPageSampleRateText;
     QPushButton* eParameterPageBackButton;
     QPushButton* eParameterPageResetButton;
@@ -220,6 +224,7 @@ protected:
     QSpacerItem* vAttachOrLoadPageSpacer;
     QVBoxLayout* vParameterPageParameterLayout;
     QHBoxLayout* vParameterPageSampleRateLayout;
+QHBoxLayout* vParameterPagePAPIDescriptionLayout;
     QHBoxLayout* vParameterPageButtonLayout;
     QLabel *vAttachOrLoadPageProcessListLabel;
     QLabel *vAttachOrLoadPageExecutableLabel;
@@ -243,6 +248,7 @@ protected:
     QSpacerItem* eAttachOrLoadPageSpacer;
     QVBoxLayout* eParameterPageParameterLayout;
     QHBoxLayout* eParameterPageSampleRateLayout;
+QHBoxLayout* eParameterPagePAPIDescriptionLayout;
     QHBoxLayout* eParameterPageButtonLayout;
     QSpacerItem* eParameterPageButtonSpacer;
     QLabel *eAttachOrLoadPageExecutableLabel;

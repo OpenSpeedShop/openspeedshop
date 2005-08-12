@@ -166,7 +166,7 @@ if( m_chartType == PIEWITHSHADOW )
 	    arc->show();
 	    angle += extent;
 #ifndef TEXT_WANTED
-printf("Pie chart text wanted.\n");
+// printf("Pie chart text wanted.\n");
 	    QString label = m_elements[i].label();
 	    if ( !label.isEmpty() || m_addValues != NO ) {
 		label = valueLabel( label, m_elements[i].value(), total );

@@ -1109,7 +1109,7 @@ void MPIWizardPanel::vAttachOrLoadPageNextButtonSelected()
     QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
-    sprintf(buffer, "<p align=\"left\">You've selected a MPI experiment for process \"%s\" (%s) running on host \"%s\".  Futher you've chosed a sampling rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"mpi\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", prog_name.ascii(), pid_name.ascii(), host_name.ascii(), vParameterPageSampleRateText->text().ascii() );
+    sprintf(buffer, "<p align=\"left\">You've selected a MPI experiment for process \"%s\" (%s) running on host \"%s\".  Further you've chosed a sampling rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"mpi\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", prog_name.ascii(), pid_name.ascii(), host_name.ascii(), vParameterPageSampleRateText->text().ascii() );
   }
   if( vAttachOrLoadPageLoadExecutableCheckBox->isChecked() ||
       vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() )
@@ -1124,7 +1124,7 @@ void MPIWizardPanel::vAttachOrLoadPageNextButtonSelected()
     {
       return;
     }
-    sprintf(buffer, "<p align=\"left\">You've selected a MPI experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sampling rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"mpi\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), "localhost", vParameterPageSampleRateText->text().ascii() );
+    sprintf(buffer, "<p align=\"left\">You've selected a MPI experiment for executable \"%s\" to be run on host \"%s\".  Further you've chosed a sampling rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"mpi\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), "localhost", vParameterPageSampleRateText->text().ascii() );
   }
 
   vSummaryPageFinishLabel->setText( tr( buffer ) );
@@ -1267,7 +1267,7 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new execu
   vAttachOrLoadPageFinishButton->setText( tr( ">> Finish" ) );
   QToolTip::add( vAttachOrLoadPageFinishButton, tr( "Advance to the wizard finish page." ) );
   vSummaryPageFinishLabel->setText( tr( "<p align=\"left\">\n"
-"You've selected a MPI experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%d\".<br><br>To complete the exeriment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"mpi\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>" ) );
+"You've selected a MPI experiment for executable \"%s\" to be run on host \"%s\".  Further you've chosed a sample rate of \"%d\".<br><br>To complete the exeriment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"mpi\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>" ) );
   vSummaryPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( vSummaryPageBackButton, tr( "Takes you back one page." ) );
   vSummaryPageFinishButton->setText( tr( "Finish..." ) );
@@ -1306,7 +1306,7 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new execu
   QToolTip::add( eAttachOrLoadPageFinishButton, tr( "Advance to the wizard finish page." ) );
 
   eSummaryPageFinishLabel->setText( tr( "<p align=\"left\">\n"
-"You've selected a MPI experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%d\".<br><br></p>" ) );
+"You've selected a MPI experiment for executable \"%s\" to be run on host \"%s\".  Further you've chosed a sample rate of \"%d\".<br><br></p>" ) );
   eSummaryPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( eSummaryPageBackButton, tr( "Takes you back one page." ) );
   eSummaryPageFinishButton->setText( tr( "Finish..." ) );

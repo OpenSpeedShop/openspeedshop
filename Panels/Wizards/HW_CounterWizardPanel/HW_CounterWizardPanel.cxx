@@ -156,13 +156,29 @@ HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, 
 
   vParameterPageSampleRateText = new QLineEdit( vParameterPageWidget, "vParameterPageSampleRateText" );
   vParameterPageSampleRateText->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
+
   vParameterPageSampleRateLayout->addWidget( vParameterPageSampleRateText );
 
   vParameterPageSpacer = new QSpacerItem( 400, 30, QSizePolicy::Preferred, QSizePolicy::Fixed );
   vParameterPageSampleRateLayout->addItem( vParameterPageSpacer );
 
+vParameterPagePAPIDescriptionLayout = new QHBoxLayout( 0, 0, 6, "vParameterPagePAPIDescriptionLayout"); 
+vParamaterPagePAPIDescriptionLabel = new QLabel( vParameterPageWidget, "vParamaterPagePAPIDescriptionLabel" );
+vParamaterPagePAPIDescriptionLabel->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
+vParameterPagePAPIDescriptionLayout->addWidget( vParamaterPagePAPIDescriptionLabel );
+
+vParameterPagePAPIDescriptionText = new QLineEdit( vParameterPageWidget, "vParameterPagePAPIDescriptionText" );
+vParameterPagePAPIDescriptionText->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
+vParameterPagePAPIDescriptionLayout->addWidget( vParameterPagePAPIDescriptionText );
+
+
+vParameterPageSpacer = new QSpacerItem( 400, 30, QSizePolicy::Preferred, QSizePolicy::Fixed );
+vParameterPagePAPIDescriptionLayout->addItem( vParameterPageSpacer );
+
   vParameterPageParameterLayout->addLayout( vParameterPageSampleRateLayout );
+  vParameterPageParameterLayout->addLayout( vParameterPagePAPIDescriptionLayout );
   vParameterPageLayout->addLayout( vParameterPageParameterLayout );
+
 
   vParameterPageButtonLayout = new QHBoxLayout( 0, 0, 6, "vParameterPageButtonLayout"); 
 
@@ -369,7 +385,20 @@ HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, 
   eParameterPageSpacer = new QSpacerItem( 20, 1, QSizePolicy::Preferred, QSizePolicy::Fixed );
   eParameterPageSampleRateLayout->addItem( eParameterPageSpacer );
 
+eParameterPagePAPIDescriptionLayout = new QHBoxLayout( 0, 0, 6, "eParameterPagePAPIDescriptionLayout"); 
+eParamaterPagePAPIDescriptionLabel = new QLabel( eParameterPageWidget, "eParamaterPagePAPIDescriptionLabel" );
+eParamaterPagePAPIDescriptionLabel->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
+eParameterPagePAPIDescriptionLayout->addWidget( eParamaterPagePAPIDescriptionLabel );
+
+eParameterPagePAPIDescriptionText = new QLineEdit( eParameterPageWidget, "eParameterPagePAPIDescriptionText" );
+eParameterPagePAPIDescriptionText->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
+eParameterPagePAPIDescriptionLayout->addWidget( eParameterPagePAPIDescriptionText );
+
+eParameterPageSpacer = new QSpacerItem( 400, 30, QSizePolicy::Preferred, QSizePolicy::Fixed );
+eParameterPagePAPIDescriptionLayout->addItem( eParameterPageSpacer );
+
   eParameterPageParameterLayout->addLayout( eParameterPageSampleRateLayout );
+eParameterPageParameterLayout->addLayout( eParameterPagePAPIDescriptionLayout );
   eParameterPageLayout->addLayout( eParameterPageParameterLayout );
   eParameterPageButtonLayout = new QHBoxLayout( 0, 0, 6, "eParameterPageButtonLayout"); 
 
@@ -900,7 +929,7 @@ void HW_CounterWizardPanel::eAttachOrLoadPageNextButtonSelected()
       QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
       QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
       QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
-      sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" (%s) on host \"%s\", with a sampling rate of \"%s\".<br><br></p>", prog_name.ascii(), pid_name.ascii(), host_name.ascii(), eParameterPageSampleRateText->text().ascii() );
+      sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" \"%s\" on host \"%s\", with a sampling rate of \"%s\" targeting \"%s\".<br><br></p>", prog_name.ascii(), pid_name.ascii(), host_name.ascii(), eParameterPageSampleRateText->text().ascii(), eParameterPagePAPIDescriptionText->text().ascii() );
     }
   }
   if( eAttachOrLoadPageLoadExecutableCheckBox->isChecked() ||
@@ -919,7 +948,7 @@ void HW_CounterWizardPanel::eAttachOrLoadPageNextButtonSelected()
     QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
-    sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" (%s) on host \"%s\", with a sampling rate of \"%s\".<br><br></p>", prog_name.ascii(), pid_name.ascii(), host_name.ascii(), eParameterPageSampleRateText->text().ascii() );
+      sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" \"%s\" on host \"%s\", with a sampling rate of \"%s\" targeting \"%s\".<br><br></p>", prog_name.ascii(), pid_name.ascii(), host_name.ascii(), eParameterPageSampleRateText->text().ascii(), eParameterPagePAPIDescriptionText->text().ascii() );
   }
 
   eSummaryPageFinishLabel->setText( tr( buffer ) );
@@ -1109,7 +1138,7 @@ void HW_CounterWizardPanel::vAttachOrLoadPageNextButtonSelected()
     QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
-    sprintf(buffer, "<p align=\"left\">You've selected a HW Counter experiment for process \"%s\" (%s) running on host \"%s\".  Futher you've chosed a sampling rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"hwCounter\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", prog_name.ascii(), pid_name.ascii(), host_name.ascii(), vParameterPageSampleRateText->text().ascii() );
+    sprintf(buffer, "<p align=\"left\">You've selected a HW Counter experiment for process \"%s\" (%s) Further running on host \"%s\".  Further you've chosed a sampling rate of \"%s\" tracing \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"hwCounter\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", prog_name.ascii(), pid_name.ascii(), host_name.ascii(), vParameterPagePAPIDescriptionText->text().ascii(), vParameterPageSampleRateText->text().ascii() );
   }
   if( vAttachOrLoadPageLoadExecutableCheckBox->isChecked() ||
       vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() )
@@ -1124,7 +1153,7 @@ void HW_CounterWizardPanel::vAttachOrLoadPageNextButtonSelected()
     {
       return;
     }
-    sprintf(buffer, "<p align=\"left\">You've selected a HW Counter experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sampling rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"hwCounter\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), "localhost", vParameterPageSampleRateText->text().ascii() );
+    sprintf(buffer, "<p align=\"left\">You've selected a HW Counter experiment for executable \"%s\" to be run on host \"%s\" tracing \"%s\".  Further you've chosed a sampling rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"hwCounter\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), "localhost", vParameterPagePAPIDescriptionText->text().ascii(), vParameterPageSampleRateText->text().ascii() );
   }
 
   vSummaryPageFinishLabel->setText( tr( buffer ) );
@@ -1245,6 +1274,11 @@ HW_CounterWizardPanel::languageChange()
   vParameterPageSampleRateLabel->setText( tr( "sample rate:" ) );
   vParameterPageSampleRateText->setText( tr( QString("%1").arg(sampling_rate) ) );
   QToolTip::add( vParameterPageSampleRateText, tr( QString("The rate to sample.   (Default %1.)").arg(sampling_rate) ) );
+
+vParamaterPagePAPIDescriptionLabel->setText( tr( "PAPI String:" ) );
+vParameterPagePAPIDescriptionText->setText( tr( QString("%1").arg("PAPI_TOT_CYC") ) );
+QToolTip::add( vParameterPagePAPIDescriptionText, tr( QString("The HW Counter one wants to leverage - Default Total Cycles: PAPI_TOT_CYC") ));
+
   vParameterPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( vParameterPageBackButton, tr( "Takes you back one page." ) );
   vParameterPageResetButton->setText( tr( "Reset" ) );
@@ -1267,7 +1301,7 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new execu
   vAttachOrLoadPageFinishButton->setText( tr( ">> Finish" ) );
   QToolTip::add( vAttachOrLoadPageFinishButton, tr( "Advance to the wizard finish page." ) );
   vSummaryPageFinishLabel->setText( tr( "<p align=\"left\">\n"
-"You've selected a HW Counter experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%d\".<br><br>To complete the exeriment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"hwCounter\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>" ) );
+"You've selected a HW Counter experiment for executable \"%s\" to be run on host \"%s\" tracing \"%s\".  Further you've chosed a sample rate of \"%d\".<br><br>To complete the exeriment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"hwCounter\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>" ) );
   vSummaryPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( vSummaryPageBackButton, tr( "Takes you back one page." ) );
   vSummaryPageFinishButton->setText( tr( "Finish..." ) );
@@ -1284,6 +1318,11 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new execu
   eParameterPageSampleRateLabel->setText( tr( "sample rate:" ) );
   eParameterPageSampleRateText->setText( tr( QString("%1").arg(sampling_rate) ) );
   QToolTip::add( eParameterPageSampleRateText, tr( QString("The rate to sample.   (Default %1.)").arg(sampling_rate) ) );
+
+eParamaterPagePAPIDescriptionLabel->setText( tr( "PAPI String:" ) );
+eParameterPagePAPIDescriptionText->setText( tr( QString("%1").arg("PAPI_TOT_CYC") ) );
+QToolTip::add( eParameterPagePAPIDescriptionText, tr( QString("The HW Counter one wants to leverage - Default Total Cycles: PAPI_TOT_CYC") ));
+
   eParameterPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( eParameterPageBackButton, tr( "Takes you back one page." ) );
   eParameterPageResetButton->setText( tr( "Reset" ) );
@@ -1306,7 +1345,7 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new execu
   QToolTip::add( eAttachOrLoadPageFinishButton, tr( "Advance to the wizard finish page." ) );
 
   eSummaryPageFinishLabel->setText( tr( "<p align=\"left\">\n"
-"You've selected a HW Counter experiment for executable \"%s\" to be run on host \"%s\".  Futher you've chosed a sample rate of \"%d\".<br><br></p>" ) );
+"You've selected a HW Counter experiment for executable \"%s\" to be run on host \"%s\" tracing \"%s\".  Further you've chosed a sample rate of \"%d\".<br><br></p>" ) );
   eSummaryPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( eSummaryPageBackButton, tr( "Takes you back one page." ) );
   eSummaryPageFinishButton->setText( tr( "Finish..." ) );
