@@ -99,11 +99,16 @@ try {
   case CMD_EXP_SETPARAM:
     cmd_successful = SS_expSetParam (cmd);
     break;
+
+// Information Commands
+  case CMD_EXP_STATUS:
+    cmd_successful = SS_expStatus (cmd);
+    break;
   case CMD_EXP_VIEW:
     cmd_successful = SS_expView (cmd);
     break;
 
-// Information Commands
+// Low Level Information Commands
   case CMD_LIST_BREAKS:
     cmd_successful = SS_ListBreaks (cmd);
     break;
