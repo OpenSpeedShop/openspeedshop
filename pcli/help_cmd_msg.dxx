@@ -250,7 +250,7 @@ char *cmd_expStatus_args = {
 
 
 char *cmd_expView_args = {
-    "expView [ <expId_spec> ] [ <file_spec> || -gui ] <viewType>" 
+    "expView [ <expId_spec> ] [ <file_spec> || -gui ] [<viewType>]" 
     "\n\t[ <expMetric_list_spec> ] [ <target_spec> ]"
 };
 

@@ -47,6 +47,8 @@ extern void dump_help_brief(void);
 
 %}
 
+%verbose
+
 %union {
 int val;
 char *string;
@@ -334,7 +336,8 @@ exp_view_com:	    VIEW_HEAD   exp_view_arg
   	    	|   VIEW_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_EXP_VIEW].name);} 
       	    	;
     	    /** These arguments are order dependant **/
-exp_view_arg:	    viewType
+exp_view_arg:	    /* empty */
+    	    	|   viewType
     	    	|   expId_spec viewType
      	    	|   expId_spec file_spec viewType
      	    	|   expId_spec GUI viewType {p_parse_result->pushModifiers(general_name[H_GEN_GUI]);}
@@ -501,6 +504,7 @@ list_threads_arg:    /* empty */
 
     	    /** LIST_TYPES **/
 list_types_com:     LIST_TYPES_HEAD list_types_arg
+  	    	|   LIST_TYPES_HEAD list_types_arg error END_LINE {p_parse_result->setError(cmd_desc[CMD_LIST_TYPES].name);} 
   	    	|   LIST_TYPES_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_LIST_TYPES].name);} 
       	    	;
 
