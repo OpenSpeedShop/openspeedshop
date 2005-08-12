@@ -185,7 +185,7 @@ OpenSpeedShop::message_element_t general_msg[] = {
 // COMMAND ARGUMENTS
 /*********************************************/
 char *cmd_expattach_args = {
-    "expAttach [ <expId_spec> ] [ <target_list> ] [ <expType_list> ]"
+    "expAttach [ <expId_spec> ] [ -mpi] [ <target_list> ] [ <expType_list> ]"
 };
 
 
@@ -1433,6 +1433,15 @@ char *cmd_expAttach_example[] = {
     " ",
     "    The program will not start execution until a subsequent",
     "    \'expGo -x 2\' command is issued.",
+    " ",
+    "expAttach -x 1 -mpi -h localhost -p 1234 pcsamp",
+    " ",
+    "    Which will, for the previously created experiment #1,",
+    "    find pid 1234 and attach the pcsamp data collector to",
+    "    all the associated pids that are part of the same mpi",
+    "    job. The assumption is that the given pid is the",
+    "    original one that the system allocated for an ",
+    "    \'mpirun...\' command.",
     " "
 };
 
