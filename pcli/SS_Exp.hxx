@@ -36,11 +36,15 @@ class ExperimentObject
   int ExpStatus;
   bool Data_File_Has_A_Generated_Name;
   OpenSpeedShop::Framework::Experiment *FW_Experiment;
+  pthread_mutex_t Experiment_Lock;
+  bool database_in_use;
 
  public:
   ExperimentObject (std::string data_base_name = std::string("")) {
     Exp_ID = ++Experiment_Sequence_Number;
     ExpStatus = ExpStatus_Paused;
+    Assert(pthread_mutex_init(&Experiment_Lock, NULL) == 0); // dynamic initialization
+    database_in_use = false;
 
    // Allocate a data base file for the information connected with the experiment.
     std::string Data_File_Name;
@@ -95,6 +99,7 @@ class ExperimentObject
     }
     Exp_ID = 0;
     ExpStatus = ExpStatus_NonExistent;
+    pthread_mutex_destroy(&Experiment_Lock);
   }
 
   EXPID ExperimentObject_ID() {return Exp_ID;}
@@ -113,6 +118,18 @@ class ExperimentObject
       }
     }
   }
+  bool Lock_DB () {
+    Assert(pthread_mutex_lock(&Experiment_Lock) == 0);
+    bool already_in_use = database_in_use;
+    database_in_use = true;
+    Assert(pthread_mutex_unlock(&Experiment_Lock) == 0);
+    return !already_in_use;
+  }
+  void UnLock_DB () {
+    Assert(pthread_mutex_lock(&Experiment_Lock) == 0);
+    database_in_use = false;
+    Assert(pthread_mutex_unlock(&Experiment_Lock) == 0);
+  }
   bool CanExecute () {
     if (FW() != NULL) {
       try {
@@ -127,10 +144,9 @@ class ExperimentObject
   }
   int Status() { return ExpStatus; }
   int Determine_Status() {
-    int S = ExpStatus;
     if (FW() == NULL) {
       ExpStatus = ExpStatus_NonExistent;
-    } else {
+    } else if (Lock_DB()) {
       ThreadGroup tgrp = FW()->getThreads();
       int A = ExpStatus_NonExistent;
       if (tgrp.empty()) {
@@ -169,6 +185,7 @@ class ExperimentObject
             break;
           }
         }
+        UnLock_DB();
       }
       ExpStatus = A;
     }
