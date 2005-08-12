@@ -1543,8 +1543,21 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
         }
 
         if (cgrp.begin() != cgrp.end()) {
-          cmd->Result_String ("  Metric Values:");
 
+          cmd->Result_String ("  Metrics:");
+          for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
+            Collector c = *ci;
+            Metadata cm = c.getMetadata();
+            std::set<Metadata> md = c.getMetrics();
+            std::set<Metadata>::const_iterator mi;
+            for (mi = md.begin(); mi != md.end(); mi++) {
+              Metadata m = *mi;
+              S = "    " + cm.getUniqueId() + "::" +  m.getUniqueId();
+              cmd->Result_String (S);
+            }
+          }
+
+          cmd->Result_String ("  Parameter Values:");
           for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
             Collector c = *ci;
             Metadata cm = c.getMetadata();
@@ -1576,8 +1589,12 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
   return true;
 }
 
-static bool SS_expStatus(CommandObject *cmd, ExperimentObject *exp) {
+bool SS_expStatus(CommandObject *cmd) {
   bool All_KeyWord = Look_For_KeyWord (cmd, "all");
+  ExperimentObject *exp = Find_Specified_Experiment (cmd);
+  if (exp == NULL) {
+    return false;
+  }
 
   if (All_KeyWord) {
     std::list<ExperimentObject *>::iterator expi;
