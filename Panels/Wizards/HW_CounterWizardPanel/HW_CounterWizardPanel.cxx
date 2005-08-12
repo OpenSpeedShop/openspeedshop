@@ -832,6 +832,7 @@ void HW_CounterWizardPanel::eParameterPageNextButtonSelected()
   nprintf(DEBUG_PANELS) ("eParameterPageNextButtonSelected() \n");
 
   sampleRate = eParameterPageSampleRateText->text();
+vParameterPageSampleRateText->setText(eParameterPageSampleRateText->text());
 
 //  eUpdateAttachOrLoadPageWidget();
   vUpdateAttachOrLoadPageWidget();
@@ -1000,6 +1001,7 @@ void HW_CounterWizardPanel::vParameterPageNextButtonSelected()
   nprintf(DEBUG_PANELS) ("vParameterPageNextButtonSelected() \n");
 
   sampleRate = vParameterPageSampleRateText->text();
+eParameterPageSampleRateText->setText(vParameterPageSampleRateText->text());
 
   vUpdateAttachOrLoadPageWidget();
 
@@ -1212,12 +1214,17 @@ void HW_CounterWizardPanel::vSummaryPageFinishButtonSelected()
     if( mw )
     {
       LoadAttachObject *lao = NULL;
+ParamList *paramList = new ParamList();
+paramList->push_back(vParameterPageSampleRateText->text() );
+// printf("A: push_back (%s)\n", vParameterPageSampleRateText->text().ascii() );
+paramList->push_back(vParameterPagePAPIDescriptionText->text() );
+// printf("A: push_back (%s)\n", vParameterPagePAPIDescriptionText->text().ascii() );
       if( !mw->executableName.isEmpty() )
       {
-        lao = new LoadAttachObject(mw->executableName, (char *)NULL, sampleRate, TRUE);
+        lao = new LoadAttachObject(mw->executableName, (char *)NULL, paramList, TRUE);
       } else if( !mw->pidStr.isEmpty() )
       {
-        lao = new LoadAttachObject((char *)NULL, mw->pidStr, sampleRate, TRUE);
+        lao = new LoadAttachObject((char *)NULL, mw->pidStr, paramList, TRUE);
       } else
       {
 // printf("Warning: No attach or load paramaters available.\n");
@@ -1239,6 +1246,8 @@ void HW_CounterWizardPanel::vSummaryPageFinishButtonSelected()
 
         getPanelContainer()->hidePanel((Panel *)this);
         p->listener((void *)lao);
+// The receiving routine should delete this...
+// delete paramList;
       }
     }
   }
@@ -1252,7 +1261,13 @@ void HW_CounterWizardPanel::vSummaryPageFinishButtonSelected()
 void
 HW_CounterWizardPanel::languageChange()
 {
+
+printf("HW_CounterWizardPanel::languageChange() entered\n");
+
+
   unsigned int sampling_rate = 100;
+std::string PAPIDescriptionStr;;
+printf("HW_CounterWizardPanel::languageChange(A) entered\n");
 
   setCaption( tr( "HW Counter Wizard Panel" ) );
   vDescriptionPageTitleLabel->setText( tr( "<h1>HW Counter Wizard</h1>" ) );
@@ -1276,7 +1291,7 @@ HW_CounterWizardPanel::languageChange()
   QToolTip::add( vParameterPageSampleRateText, tr( QString("The rate to sample.   (Default %1.)").arg(sampling_rate) ) );
 
 vParamaterPagePAPIDescriptionLabel->setText( tr( "PAPI String:" ) );
-vParameterPagePAPIDescriptionText->setText( tr( QString("%1").arg("PAPI_TOT_CYC") ) );
+vParameterPagePAPIDescriptionText->setText( tr( QString("%1").arg(PAPIDescriptionStr) ) );
 QToolTip::add( vParameterPagePAPIDescriptionText, tr( QString("The HW Counter one wants to leverage - Default Total Cycles: PAPI_TOT_CYC") ));
 
   vParameterPageBackButton->setText( tr( "< Back" ) );
@@ -1320,7 +1335,7 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new execu
   QToolTip::add( eParameterPageSampleRateText, tr( QString("The rate to sample.   (Default %1.)").arg(sampling_rate) ) );
 
 eParamaterPagePAPIDescriptionLabel->setText( tr( "PAPI String:" ) );
-eParameterPagePAPIDescriptionText->setText( tr( QString("%1").arg("PAPI_TOT_CYC") ) );
+eParameterPagePAPIDescriptionText->setText( tr( QString("%1").arg(PAPIDescriptionStr) ) );
 QToolTip::add( eParameterPagePAPIDescriptionText, tr( QString("The HW Counter one wants to leverage - Default Total Cycles: PAPI_TOT_CYC") ));
 
   eParameterPageBackButton->setText( tr( "< Back" ) );
@@ -1386,13 +1401,19 @@ QToolTip::add( eParameterPagePAPIDescriptionText, tr( QString("The HW Counter on
       std::set<Metadata>::const_iterator mi;
       for (mi = md.begin(); mi != md.end(); mi++) {
         Metadata m = *mi;
-//        printf("%s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
-//        printf("%s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
-//        printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
+printf("%s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
+printf("%s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
+printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
       }
       hwCounterCollector.getParameterValue("sampling_rate", sampling_rate);
-// printf("sampling_rate=%d\n", sampling_rate);
-//    hwCounterCollector.setParameterValue("sampling_rate", (unsigned)100);
+printf("sampling_rate=%d\n", sampling_rate);
+printf("Initialize the text fields... (%d)\n", sampling_rate);
+vParameterPageSampleRateText->setText(QString("%1").arg(sampling_rate));
+eParameterPageSampleRateText->setText(QString("%1").arg(sampling_rate));
+      hwCounterCollector.getParameterValue("event", PAPIDescriptionStr);
+printf("event=%s\n", PAPIDescriptionStr.c_str() );
+vParameterPagePAPIDescriptionText->setText(PAPIDescriptionStr.c_str());
+eParameterPagePAPIDescriptionText->setText(PAPIDescriptionStr.c_str());
 
     if( temp_name )
     {

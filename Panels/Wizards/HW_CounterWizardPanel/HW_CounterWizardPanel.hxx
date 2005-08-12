@@ -272,6 +272,7 @@ protected slots:
 
 private:
     QString sampleRate;
+    QString PAPIDescription;
 
     Panel *hwCounterPanel;
 };

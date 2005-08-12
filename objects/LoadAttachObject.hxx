@@ -21,6 +21,7 @@
 #define LOADATTACHOBJECT_H
 
 #include <qvaluelist.h>
+typedef QValueList<QString> ParamList;
 
 #include "MessageObject.hxx"
 
@@ -31,7 +32,7 @@ public:
     //! Unused constructor.
     LoadAttachObject();
     //! Constructor for attaching to executable
-    LoadAttachObject(QString executable_name = NULL, QString pid_string = NULL, QString param_list = NULL, bool loadNowHint = FALSE);
+    LoadAttachObject(QString executable_name = NULL, QString pid_string = NULL, ParamList *param_list = NULL, bool loadNowHint = FALSE);
 
     //! Destructor
     ~LoadAttachObject();
@@ -46,7 +47,8 @@ public:
     QString pidStr;
 
     //! The list of parameters
-    QString paramList;
+//    QString paramList;
+    ParamList *paramList;
 
 
     //! Load now!

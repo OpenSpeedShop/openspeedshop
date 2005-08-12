@@ -706,25 +706,22 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
       updateInitialStatus();
 
 
+// printf("About to look up the new paramList\n");
       if( lao->paramList ) // Really not a list yet, just one param.
-       {
-         unsigned int sampling_rate = lao->paramList.toUInt();
-         // Set the sample_rate of the collector.
-         try
-         {
-           ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-           if( eo && eo->FW() )
-           {
-            experiment = eo->FW();
+      {
+        QString sample_rate_str = (QString)*lao->paramList->begin();
+// printf("sample_rate_str=(%s)\n", sample_rate_str.ascii() );
+//        unsigned int sampling_rate = lao->paramList.toUInt();
+        unsigned int sampling_rate = sample_rate_str.toUInt();
+        // Set the sample_rate of the collector.
+        try
+        {
+          ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+          if( eo && eo->FW() )
+          {
+           experiment = eo->FW();
           }
           ThreadGroup tgrp = experiment->getThreads();
-//          if( tgrp.size() == 0 )
-//          {
-//            fprintf(stderr, "There are no known threads for this experiment.\n");
-//            return 0;
-//          }
-//          ThreadGroup::iterator ti = tgrp.begin();
-//          Thread t1 = *ti; 
           CollectorGroup cgrp = experiment->getCollectors();
           if( cgrp.size() > 0 )
           {
@@ -732,14 +729,30 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
             nprintf( DEBUG_MESSAGES ) ("sampling_rate=%u\n", sampling_rate);
             Collector mpiCollector = *ci;
             mpiCollector.setParameterValue("sampling_rate", sampling_rate);
+// printf("getName=(%s)\n", getName() );
+
+if( QString(getName()).contains("HW Counter") )
+{
+  printf("W'ere the HW Counter Panel!!!\n");
+  ParamList::Iterator it = lao->paramList->begin();
+  it++;
+  if( it != lao->paramList->end() )
+  {
+      QString event_value = (QString)*it;
+printf("I want to set this \"event\" value = %s\n", event_value.ascii() );
+//    mpiCollector.setParameterValue("event", event_value.ascii() );
+printf("set this \"event\" value = %s\n", event_value.ascii() );
+  }
+}
           }
         }
         catch(const std::exception& error)
         {
           return 0;
         }
-       }
-       ret_val = 1;
+delete lao->paramList;
+      }
+      ret_val = 1;
     }
   }
 
@@ -1064,7 +1077,7 @@ MPIPanel::updateStatus()
         {
           if( aboutToRunFLAG == TRUE )
           {
-            statusLabelText->setText( tr("Experiment is being readied to run.") );
+            statusLabelText->setText( tr("Experiment is being initialized to run.") );
                 
             statusTimer->start(2000);
             break;

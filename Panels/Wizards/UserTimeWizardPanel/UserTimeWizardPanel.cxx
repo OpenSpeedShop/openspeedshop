@@ -803,6 +803,7 @@ void UserTimeWizardPanel::eParameterPageNextButtonSelected()
   nprintf(DEBUG_PANELS) ("eParameterPageNextButtonSelected() \n");
 
   sampleRate = eParameterPageSampleRateText->text();
+vParameterPageSampleRateText->setText(eParameterPageSampleRateText->text());
 
 //  eUpdateAttachOrLoadPageWidget();
   vUpdateAttachOrLoadPageWidget();
@@ -971,6 +972,7 @@ void UserTimeWizardPanel::vParameterPageNextButtonSelected()
   nprintf(DEBUG_PANELS) ("vParameterPageNextButtonSelected() \n");
 
   sampleRate = vParameterPageSampleRateText->text();
+eParameterPageSampleRateText->setText(vParameterPageSampleRateText->text());
 
   vUpdateAttachOrLoadPageWidget();
 
@@ -1183,12 +1185,15 @@ void UserTimeWizardPanel::vSummaryPageFinishButtonSelected()
     if( mw )
     {
       LoadAttachObject *lao = NULL;
+      ParamList *paramList = new ParamList();
+      paramList->push_back(vParameterPageSampleRateText->text() );
+// printf("A: push_back (%s)\n", vParameterPageSampleRateText->text().ascii() );
       if( !mw->executableName.isEmpty() )
       {
-        lao = new LoadAttachObject(mw->executableName, (char *)NULL, sampleRate, TRUE);
+        lao = new LoadAttachObject(mw->executableName, (char *)NULL, paramList, TRUE);
       } else if( !mw->pidStr.isEmpty() )
       {
-        lao = new LoadAttachObject((char *)NULL, mw->pidStr, sampleRate, TRUE);
+        lao = new LoadAttachObject((char *)NULL, mw->pidStr, paramList, TRUE);
       } else
       {
 // printf("Warning: No attach or load paramaters available.\n");
@@ -1210,6 +1215,8 @@ void UserTimeWizardPanel::vSummaryPageFinishButtonSelected()
 
         getPanelContainer()->hidePanel((Panel *)this);
         p->listener((void *)lao);
+// The receiving routine should delete this...
+// delete paramList;
       }
     }
   }
@@ -1354,6 +1361,9 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new execu
       usertimeCollector.getParameterValue("sampling_rate", sampling_rate);
 // printf("sampling_rate=%d\n", sampling_rate);
 //    usertimeCollector.setParameterValue("sampling_rate", (unsigned)100);
+// printf("Initialize the text fields... (%d)\n", sampling_rate);
+    vParameterPageSampleRateText->setText(QString("%1").arg(sampling_rate));
+    eParameterPageSampleRateText->setText(QString("%1").arg(sampling_rate));
 
     if( temp_name )
     {

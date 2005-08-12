@@ -884,7 +884,8 @@ ManageCollectorsClass::paramSelected(int val)
 // printf("paramSelected param_value=(%u)\n", param_value.toUInt() );
 // Modify the parameter....
     bool ok;
-    int res = QInputDialog::getInteger(QString("Set %1 : %2").arg(collector_name).arg(param_name), QString("New Value:"), param_value.toUInt(), 0, 9999999, 10, &ok, this);
+//    int res = QInputDialog::getInteger(QString("Set %1 : %2").arg(collector_name).arg(param_name), QString("New Value:"), param_value.toUInt(), 0, 9999999, 10, &ok, this);
+    QString res = QInputDialog::getText(QString("Set %1 : %2").arg(collector_name).arg(param_name), QString("New Value:"), QLineEdit::Normal, param_value, &ok, this);
     if( ok )
     {
       QString command;

@@ -238,7 +238,7 @@ if( item && matchSelectedItem( std::string(item->text(2).ascii()) ) )
           currentMetricStr = cpe->name;
           currentMetricTypeStr = cpe->type;
 // printf("Initialize collectorStr=(%s) currentMetricType=(%s) currentMetricStr=(%s)\n", collectorStr.ascii(), currentMetricTypeStr.ascii(), currentMetricStr.ascii() );
-if( collectorStr == "hwc" )
+if( collectorStr == "hwc" && pit == ce->metricList.begin() )
 {
 // printf("set this to PAPI_TOT_CYC\n");
   optionalMetricStr = "PAPI_TOT_CYC";
@@ -1128,7 +1128,7 @@ if( currentMetricTypeStr == "double" )
           { 
             MetricHeaderInfo *mhi = (MetricHeaderInfo *)*pit;
             QString s = mhi->label;
-if( optionalMetricStr )
+if( optionalMetricStr && pit == metricHeaderInfoList.begin() )
 {
   s = optionalMetricStr;
 }
