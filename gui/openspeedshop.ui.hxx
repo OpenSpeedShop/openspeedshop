@@ -1142,7 +1142,7 @@ OpenSpeedshop::lookForExperiment()
 
   pd->show();
 
-  command = QString("listexp");
+  command = QString("listExp");
   int_list.clear();
   if( !cli->getIntListValueFromCLI( (char *)command.ascii(), &int_list ) )
   {
