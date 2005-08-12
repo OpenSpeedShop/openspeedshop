@@ -69,8 +69,6 @@ libopenss_cli_la_SOURCES = \
 	SS_View.hxx SS_View.cxx \
 	SS_View_util.cxx \
 	SS_View_stats.cxx \
-	SS_View_exp.cxx \
-	SS_View_params.cxx \
 	SS_View_pcsamp.cxx \
 	SS_Start.cxx \
 	Start_Modes.cxx
