@@ -602,10 +602,10 @@ public:
   void Result_String (char *C) {
     Attach_Result (new CommandResult_String (C));
   }
-  void Result_Raw (std::string S) {
+  void Result_RawString (std::string S) {
     Attach_Result (new CommandResult_RawString (S));
   }
-  void Result_Raw (char *C) {
+  void Result_RawString (char *C) {
     Attach_Result (new CommandResult_RawString (C));
   }
   void Result_Predefined (CommandResult *C) {
