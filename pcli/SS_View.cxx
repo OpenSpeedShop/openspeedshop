@@ -30,7 +30,6 @@ using namespace OpenSpeedShop::cli;
 
 // Global data definition
 std::list<ViewType *> Available_Views;
-ViewType *Generic_View = NULL;
 
 // Local utilities
 
@@ -327,19 +326,19 @@ bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string vi
   Filter_ThreadGroup (cmd, tgrp);
 
  // Try to Generate the Requested View!
-  return vt->GenerateView (cmd, exp, Get_Trailing_Int (viewname, vt->Unique_Name().length()),
-                           tgrp, CV, MV, IV);
+  while (!exp->Lock_DB()) usleep (10000);;
+  bool V = vt->GenerateView (cmd, exp, Get_Trailing_Int (viewname, vt->Unique_Name().length()),
+                             tgrp, CV, MV, IV);
+  exp->UnLock_DB();
+
+  return V;
 }
 
 // Initialize definitions of the predefined views.
-extern "C" void exp_LTX_ViewFactory ();
-extern "C" void pcfunc_LTX_ViewFactory ();
-extern "C" void params_LTX_ViewFactory ();
+void Define_Basic_Views ();
 extern "C" void stats_LTX_ViewFactory ();
 
 void SS_Init_BuiltIn_Views () {
-  exp_LTX_ViewFactory ();
   stats_LTX_ViewFactory ();
-  pcfunc_LTX_ViewFactory ();
-  params_LTX_ViewFactory ();
+  Define_Basic_Views ();
 }
