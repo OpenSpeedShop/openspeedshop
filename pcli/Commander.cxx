@@ -40,6 +40,7 @@ static ss_ostream *ss_out = NULL;
 static ss_ostream *ss_ttyout = NULL;
 
 // Forward definitions of local functions
+CommandWindowID *Find_Command_Window (CMDWID WindowID);
 void Default_TLI_Command_Output (CommandObject *C);
 bool All_Command_Objects_Are_Used (InputLineObject *clip);
 
@@ -460,7 +461,14 @@ class CommandWindowID
      // Release the lock.
       Assert(pthread_mutex_unlock(&Window_List_Lock) == 0);
 
-
+     // Reclaim ss_ostream structures if not used in another window.
+      if (Default_WindowID != 0) {
+        CommandWindowID *dw = Find_Command_Window (Default_WindowID);
+        if (default_outstream == dw->ss_outstream()) default_outstream = NULL;
+        if (default_outstream == dw->ss_errstream()) default_outstream = NULL;
+        if (default_errstream == dw->ss_outstream()) default_errstream = NULL;
+        if (default_errstream == dw->ss_errstream()) default_errstream = NULL;
+      }
       if (default_errstream &&
           (default_errstream != default_outstream) &&
           (default_errstream != ss_ttyout) &&
@@ -1345,8 +1353,8 @@ void Window_Termination (CMDWID im)
 {
   if (im) {
     CommandWindowID *my_window = Find_Command_Window (im);
-    if (my_window) delete my_window;
 
+   // Clear base ID's that are used in the destructor.
     if (im == Default_WindowID) {
       Default_WindowID = 0;
     } else if (im == TLI_WindowID) {
@@ -1354,6 +1362,9 @@ void Window_Termination (CMDWID im)
     } else if (im == GUI_WindowID) {
       GUI_WindowID = 0;
     }
+
+   // Now we can remove the CommandWindowID structure.
+    if (my_window) delete my_window;
   }
   return;
 }
