@@ -153,12 +153,36 @@ exp_attach_com:     ATTACH_HEAD   exp_attach_args
     	    	;
 exp_attach_args:    /* empty */
     	    	|   expId_spec
+    	    	|   MPI {p_parse_result->pushModifiers("MPI");}
     	    	|   target_list
     	    	|   expType_list
     	    	|   expId_spec target_list
     	    	|   expId_spec target_list expType_list
     	    	|   expId_spec expType_list
     	    	|   target_list expType_list
+		
+    	    	|   MPI expId_spec {p_parse_result->pushModifiers("MPI");}
+    	    	|   MPI target_list {p_parse_result->pushModifiers("MPI");}
+    	    	|   MPI expType_list {p_parse_result->pushModifiers("MPI");}
+    	    	|   MPI expId_spec target_list {p_parse_result->pushModifiers("MPI");} 
+    	    	|   MPI expId_spec target_list expType_list {p_parse_result->pushModifiers("MPI");} 
+    	    	|   MPI expId_spec expType_list {p_parse_result->pushModifiers("MPI");} 
+    	    	|   MPI target_list expType_list {p_parse_result->pushModifiers("MPI");} 
+		
+    	    	|   expId_spec MPI {p_parse_result->pushModifiers("MPI");}
+    	    	|   target_list MPI {p_parse_result->pushModifiers("MPI");}
+    	    	|   expType_list MPI {p_parse_result->pushModifiers("MPI");}
+    	    	|   expId_spec target_list MPI {p_parse_result->pushModifiers("MPI");}
+    	    	|   expId_spec target_list expType_list MPI {p_parse_result->pushModifiers("MPI");} 
+    	    	|   expId_spec expType_list MPI {p_parse_result->pushModifiers("MPI");} 
+    	    	|   target_list expType_list MPI {p_parse_result->pushModifiers("MPI");} 
+		
+    	    	|   expId_spec MPI target_list {p_parse_result->pushModifiers("MPI");} 
+    	    	|   expId_spec MPI target_list expType_list {p_parse_result->pushModifiers("MPI");} 
+    	    	|   expId_spec MPI expType_list {p_parse_result->pushModifiers("MPI");} 
+    	    	|   target_list MPI expType_list {p_parse_result->pushModifiers("MPI");} 
+		
+    	    	|   expId_spec target_list MPI expType_list {p_parse_result->pushModifiers("MPI");} 
     	    	;
 
     	    /** EXP_CLOSE **/
