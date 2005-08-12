@@ -45,9 +45,9 @@ static std::string VIEW_stats_collectors[] =
 static std::string VIEW_stats_header[] =
   { ""
   };
-static bool VIEW_stats (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                        ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
-                        std::vector<ViewInstruction *>IV) {
+bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
+                   ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
+                   std::vector<ViewInstruction *>IV, std::string *HV) {
   // Print_View_Params (stderr, CV,MV,IV);
 
   bool report_Column_summary = false;
@@ -112,7 +112,9 @@ static bool VIEW_stats (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
 
       std::string column_header;
       if (vinst->OpCode() == VIEWINST_Display_Metric) {
-        if (Metadata_hasName( CV[CM_Index], MV[CM_Index] )) {
+        if (HV != NULL) {
+          column_header = HV[i];
+        } else if (Metadata_hasName( CV[CM_Index], MV[CM_Index] )) {
           Metadata m = Find_Metadata ( CV[CM_Index], MV[CM_Index] );
           column_header = m.getShortName();
         } else {
@@ -247,7 +249,7 @@ class stats_view : public ViewType {
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                          ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
                          std::vector<ViewInstruction *>IV) {
-    return VIEW_stats (cmd, exp, topn, tgrp, CV, MV, IV);
+    return Generic_View (cmd, exp, topn, tgrp, CV, MV, IV, NULL);
   }
 };
 
@@ -255,6 +257,5 @@ class stats_view : public ViewType {
 // This is the only external entrypoint.
 // Calls to the VIEWs needs to be done through the ViewType class objects.
 extern "C" void stats_LTX_ViewFactory () {
-  Generic_View = new stats_view();
-  Define_New_View (Generic_View);
+  Define_New_View (new stats_view());
 }
