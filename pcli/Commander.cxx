@@ -1,4 +1,4 @@
-/*******************************************************************************
+/******************************************************************************e
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
@@ -387,9 +387,7 @@ class CommandWindowID
       Record_File_Is_A_Temporary_File = false;
       Input = NULL;
       Input_Is_Async = async;
-      if (Input_Is_Async) {
-        Assert(pthread_mutex_init(&Input_List_Lock, NULL) == 0); // dynamic initialization
-      }
+      Assert(pthread_mutex_init(&Input_List_Lock, NULL) == 0); // dynamic initialization
       Assert(pthread_mutex_init(&Cmds_List_Lock, NULL) == 0); // dynamic initialization
       FocusedExp = -1;  // This is a "not yet intitialized" flag.  The user should never see it.
 
@@ -446,9 +444,7 @@ class CommandWindowID
         Input = NULL;
       }
      // Remove the control structures associate with the lock
-      if (Input_Is_Async) {
-        pthread_mutex_destroy(&Input_List_Lock);
-      }
+      pthread_mutex_destroy(&Input_List_Lock);
       pthread_mutex_destroy(&Cmds_List_Lock);
 
      // Unlink from the chain of windows
@@ -487,12 +483,7 @@ class CommandWindowID
     Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
 
    // Go throught the list of remaining inputs and delete them.
-    for (Input_Source *inp = Input; inp != NULL; ) {
-      Input_Source *next = inp->Next();
-      delete inp;
-      inp = next;
-    }
-    Input = NULL;
+    for ( ; Input != NULL; ) { this->Pop_Input_Source(); }
 
    // Release the lock
     Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
@@ -528,9 +519,7 @@ class CommandWindowID
   void Append_Input_Source (Input_Source *inp) {
    // Get exclusive access to the lock so that only one
    // read, write, add or delete is done at a time.
-    if (Input_Is_Async) {
-      Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
-    }
+    Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
 
     if (Input == NULL) {
       Input = inp;
@@ -543,9 +532,7 @@ class CommandWindowID
     }
 
    // Release the lock.
-    if (Input_Is_Async) {
-      Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
-    }
+    Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
 
    // After a new comand is placed in the input window,
    // wake up a sleeping input reader.
@@ -565,18 +552,14 @@ class CommandWindowID
   void Push_Input_Source (Input_Source *inp) {
    // Get exclusive access to the lock so that only one
    // read, write, add or delete is done at a time.
-    if (Input_Is_Async) {
-      Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
-    }
+    Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
 
     Input_Source *previous_inp = Input;
     inp->Link(previous_inp);
     Input = inp;
 
    // Release the lock.
-    if (Input_Is_Async) {
-      Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
-    }
+    Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
   }
   void TrackCmd (InputLineObject *Clip) {
    // Get the lock to this window's current in-process commands.
@@ -639,9 +622,7 @@ public:
 
    // Get exclusive access to the lock so that only one
    // read, write, add or delete is done at a time.
-    if (Input_Is_Async) {
-      Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
-    }
+    Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
 
     InputLineObject *clip;
     char *next_line = NULL;
@@ -663,9 +644,7 @@ public:
     }
 
    // Release the lock.
-    if (Input_Is_Async) {
-      Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
-    }
+    Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
 
     if (clip == NULL) {
       if (next_line == NULL) {
@@ -829,9 +808,7 @@ public:
     bool there_are_some = false;
 
    // Get exclusive access to the lock
-    if (Input_Is_Async) {
-      Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
-    }
+    Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
 
     Input_Source *inp = Input;
     while (inp != NULL) {
@@ -851,9 +828,7 @@ public:
     }
 
    // Release the lock.
-    if (Input_Is_Async) {
-      Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
-    }
+    Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
     return there_are_some;
   }
   bool Print_Active_Cmds (ostream &mystream) {
@@ -1516,7 +1491,7 @@ static void User_Info_Dump (CMDWID issuedbywindow) {
   ostream &mystream = this_ss_stream->mystream();
 
   mystream << std::endl << "************************" << std::endl;
-  mystream << "Current status of Open!SS" << std::endl;
+  mystream << "Current status of Open|SS" << std::endl;
   mystream << "If you want information about commands, ask for 'help'" << std::endl;
 
  // An error check
@@ -1606,11 +1581,11 @@ static void User_Info_Dump (CMDWID issuedbywindow) {
     ecnt++;
   }
 
-  mystream << std::endl;
   if (ecnt == 0) {
     mystream << std::endl << "There are no defined experiments" << std::endl;
   } else {
    // Report the status of each experiment
+    mystream << std::endl;
     for (expi = ExperimentObject_list.rbegin(); expi != ExperimentObject_list.rend(); expi++) {
       ExperimentObject *exp = *expi;
       int expstatus = exp->Determine_Status();
@@ -1996,7 +1971,7 @@ catch_TLI_signal (int sig, int error_num)
     User_Interrupt (TLI_WindowID);
     if (Default_WindowID) {
      // Also, stop commands issued from the command line.
-      User_Interrupt (TLI_WindowID);
+      User_Interrupt (Default_WindowID);
     }
 
     ss_ttyout->acquireLock();
