@@ -238,8 +238,9 @@ extern "C"
    // Close allocated input windows.
     if (gui_window != 0)
     {
-      Window_Termination(gui_window);
+      CMDWID w = gui_window;
       gui_window = 0;
+      Window_Termination(w);
       pthread_cancel (phandle[1]);
     }
     if (tli_window != 0)
@@ -247,13 +248,15 @@ extern "C"
      // Stop async read loop for xterm window
      //  pthread_cancel (phandle[0]);
 
-      Window_Termination(tli_window);
+      CMDWID w = tli_window;
       tli_window = 0;
+      Window_Termination(w);
     }
     if (command_line_window != 0)
     {
-      Window_Termination(command_line_window);
+      CMDWID w = command_line_window;
       command_line_window = 0;
+      Window_Termination(w);
     }
     Commander_Termination ();
   }
