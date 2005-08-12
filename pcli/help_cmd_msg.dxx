@@ -190,7 +190,7 @@ char *cmd_expattach_args = {
 
 
 char *cmd_expClose_args = {
-    " expClose [ focus || <expId_spec> || all ] [ kill ]"
+    " expClose [ <expId_spec> || all ] [ kill ]"
 };
 
 
@@ -250,7 +250,7 @@ char *cmd_expStatus_args = {
 
 
 char *cmd_expView_args = {
-    "expView [ <expId_spec> ] [ <file_spec> || -gui ] [<viewType>]" 
+    "expView [ <expId_spec> ] [ <file_spec> ] [<viewType>]" 
     "\n\t[ <expMetric_list_spec> ] [ <target_spec> ]"
 };
 
@@ -606,24 +606,23 @@ char *cmd_expClose_detailed[] = {
     " ",
     "\t All attached applications are removed from the experiment.",
     " ",
-    "\t If the kill keyword is not provided, attached applications ",
+    "\t If the \'kill\' keyword is not provided, attached applications ",
     "\t will continue executing.",
     " ",
-    "\t If the kill keyword is provided, attached applications ",
+    "\t If the \'kill\' keyword is provided, attached applications ",
     "\t will be terminated.",
     " ",
     "\t The data base file that was used to save information ",
     "\t about the applications and the collected data, is deleted ",
     "\t if it is a temporary file, or closed if it is a user ",
-    "\t defined file. Use expSave for saving information.",
+    "\t defined file. Use \'expSave\' for saving information.",
     " ",
     "- Because important information may accidently be lost, ",
     "  the absence of any arguments will not cause the focused ",
     "  experiment to be deleted. This can only be done by ",
-    "  specifying the expId of the focused experiment or by ",
-    "  using the focus keyword.",
+    "  specifying the expId of the focused experiment.",
     " ",
-    "- Use of the all keyword will cause all defined experiments ",
+    "- Use of the \'all\' keyword will cause all defined experiments ",
     "  to be deleted.",
     " "
 };
@@ -640,7 +639,7 @@ char *cmd_expCreate_detailed[] = {
     " ",
     "\t return the experiment identification identifier.",
     " ",
-    "\t The experiment will not execute until an expGo command ",
+    "\t The experiment will not execute until an \'expGo\' command ",
     "\t is issued.",
     " ",
     "- The <target_list> will associate the specified executable ",
@@ -650,10 +649,10 @@ char *cmd_expCreate_detailed[] = {
     "  used to specify the types of data that will be collected ",
     "  during the experiment.",
     " ",
-    "- Missing arguments can be supplied later with the expAttach ",
+    "- Missing arguments can be supplied later with the \'expAttach\' ",
     "  command.",
     " ",
-    "- An expCreate command with no arguments will still return ",
+    "- An \'expCreate\' command with no arguments will still return ",
     "  a new <expId> and will set the focus.",
     " "
 };
@@ -665,7 +664,7 @@ char *cmd_expDetach_detailed[] = {
     cmd_expDetach_brief,
     " ",
     "\t The remaining applications will not execute until an ",
-    "\t expGo command is issued.",
+    "\t \'expGo\' command is issued.",
     " ",
     "\t The experiment retains knowledge of both the applications ",
     "\t and the collectors and they can be referenced on later commands.",
@@ -713,18 +712,18 @@ char *cmd_expDisable_detailed[] = {
     "\t can be viewed or saved.",
     " ",
     "\t The attached applications will not continue executing ",
-    "\t until an expGo command is issued.",
+    "\t until an \'expGo\' command is issued.",
     " ",
     "- See related commands:",
     " ",
-    "\t expEnable can be used to restart data collection.",
+    "\t \'expEnable\' can be used to restart data collection.",
     " ",
-    "\t expSave can be used to save previously collected data.",
+    "\t \'expSave'\ can be used to save previously collected data.",
     " ",
-    "\t expClose can be used to destroy the experiment and ",
+    "\t \'expClose\' can be used to destroy the experiment and ",
     "\t free all data space used to save the collected data.",
     " ",
-    "- The all keyword will result in data collection being ",
+    "- The \'all\' keyword will result in data collection being ",
     "  stopped for all defined experiments.",
     " ",
     "- If this command is issued with no arguments, data ",
@@ -747,7 +746,7 @@ char *cmd_expEnable_detailed[] = {
     "\t collected data.",
     " ",
     "\t The attached applications will not continue executing ",
-    "\t until an expGo command is issued.",
+    "\t until an \'expGo\' command is issued.",
     " ",
     "- The all keyword will result in data collection being ",
     "  restarted for all defined experiments.",
@@ -976,10 +975,6 @@ char *cmd_expView_detailed[] = {
     " ",
     "- If this command is issued with no <expId_spec>, the ",
     "  focused experiment is used.",
-    " ",
-    "- The optional -gui argument will cause the data to be ",
-    "  directed to an appropriate window for display in a ",
-    "  graphical format.",
     " ",
     "- If <file_spec> is specified, output will be directed",
     "  to the named file. If neither -gui nor <file_spec> are",

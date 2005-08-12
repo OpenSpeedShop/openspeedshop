@@ -149,19 +149,6 @@ arglist_t mpi_flag_arg[MPI_FLAG_MAX] = {
 //*************************************************************
 
 
-char *focus_list[] = {
-    NULL,
-    "focus"
-};
-
-#define FOCUS_MAX 1
-arglist_t focus_arg[FOCUS_MAX] = {
-    2,focus_list,NULL
-};
-
-//*************************************************************
-
-
 char *kill_list[] = {
     NULL,
     "kill"
@@ -652,10 +639,6 @@ main()
     }
 
     two_level("expclose",
-    	    	0,FOCUS_MAX,focus_arg,
-    	    	0,KILL_MAX,kill_arg
-    	    	);
-    two_level("expclose",
     	    	0,EXPID_MAX,exp_id_arg,
     	    	0,KILL_MAX,kill_arg
     	    	);
@@ -741,9 +724,8 @@ main()
 
     // EXPVIEW
     p_os = open_output("expview.input");
-    five_level ("expview",
+    four_level ("expview",
     	    	0,EXPID_MAX,exp_id_arg,NULL,
-    	    	0,GUI_MAX,gui_arg,NULL,
     	    	1,VIEW_MAX,view_arg,NULL,
     	    	0,METRIC_MAX,metric_arg,NULL,
     	    	0,TARGET_MAX,target_arg,NULL

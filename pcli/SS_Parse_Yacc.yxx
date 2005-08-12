@@ -54,12 +54,7 @@ int val;
 char *string;
 }
 
-%token FOCUS ALL COPY GUI KILL MPI
-
-%token PARAM_DISPLAY_MODE PARAM_DISPLAY_MEDIA PARAM_DISPLAY_REFRESH_RATE
-%token PARAM_EXP_SAVE_FILE PARAM_SAMPLING_RATE
-%type <string> PARAM_DISPLAY_MODE PARAM_DISPLAY_MEDIA PARAM_DISPLAY_REFRESH_RATE
-%type <string> PARAM_EXP_SAVE_FILE PARAM_SAMPLING_RATE
+%token ALL COPY KILL MPI
 
 %token ATTACH_HEAD CLOSE_HEAD CREATE_HEAD DETACH_HEAD 
 %token DISABLE_HEAD ENABLE_HEAD 
@@ -196,16 +191,11 @@ exp_close_args:     exp_close_arg
 exp_close_arg:	    /* empty */
     	    	|   expId_spec
 		|   ALL     	    	{p_parse_result->pushModifiers(general_name[H_GEN_ALL]);}
-		|   FOCUS	    	{p_parse_result->pushModifiers(general_name[H_GEN_FOCUS]);}
     	    	|   KILL expId_spec 	{p_parse_result->pushModifiers(general_name[H_GEN_KILL]);}
 		|   KILL ALL	    	{p_parse_result->pushModifiers(general_name[H_GEN_KILL]);
 		    	    	    	 p_parse_result->pushModifiers(general_name[H_GEN_ALL]);}
-		|   KILL FOCUS	    	{p_parse_result->pushModifiers(general_name[H_GEN_KILL]);
-		    	    	    	 p_parse_result->pushModifiers(general_name[H_GEN_FOCUS]);}
     	    	|   expId_spec KILL 	{p_parse_result->pushModifiers(general_name[H_GEN_KILL]);}
 		|   ALL KILL	    	{p_parse_result->pushModifiers(general_name[H_GEN_ALL]);
-		    	    	    	 p_parse_result->pushModifiers(general_name[H_GEN_KILL]);}
-		|   FOCUS KILL	    	{p_parse_result->pushModifiers(general_name[H_GEN_FOCUS]);
 		    	    	    	 p_parse_result->pushModifiers(general_name[H_GEN_KILL]);}
  		|   KILL	    	{p_parse_result->pushModifiers(general_name[H_GEN_KILL]);}
    	    	;
@@ -340,36 +330,22 @@ exp_view_arg:	    /* empty */
     	    	|   viewType
     	    	|   expId_spec viewType
      	    	|   expId_spec file_spec viewType
-     	    	|   expId_spec GUI viewType {p_parse_result->pushModifiers(general_name[H_GEN_GUI]);}
      	    	|   file_spec viewType
-     	    	|   GUI viewType {p_parse_result->pushModifiers(general_name[H_GEN_GUI]);}
 
     	    	|   viewType expMetric_list_spec
     	    	|   expId_spec viewType expMetric_list_spec
      	    	|   expId_spec file_spec viewType expMetric_list_spec
-     	    	|   expId_spec GUI viewType expMetric_list_spec 
-		    	{p_parse_result->pushModifiers(general_name[H_GEN_GUI]);}
      	    	|   file_spec viewType expMetric_list_spec
-     	    	|   GUI viewType expMetric_list_spec 
-		    	{p_parse_result->pushModifiers(general_name[H_GEN_GUI]);}
  
    	    	|   viewType expMetric_list_spec target_list
     	    	|   expId_spec viewType expMetric_list_spec  target_list
      	    	|   expId_spec file_spec viewType expMetric_list_spec  target_list
-     	    	|   expId_spec GUI viewType expMetric_list_spec  
-		    	target_list {p_parse_result->pushModifiers(general_name[H_GEN_GUI]);}
      	    	|   file_spec viewType expMetric_list_spec  target_list
-      	    	|   GUI viewType expMetric_list_spec  target_list 
-		    	{p_parse_result->pushModifiers(general_name[H_GEN_GUI]);}
  
    	    	|   viewType target_list
     	    	|   expId_spec viewType target_list
      	    	|   expId_spec file_spec viewType target_list
-     	    	|   expId_spec GUI viewType target_list 
-		    	{p_parse_result->pushModifiers(general_name[H_GEN_GUI]);}
      	    	|   file_spec viewType target_list
-      	    	|   GUI viewType target_list 
-		    	{p_parse_result->pushModifiers(general_name[H_GEN_GUI]);}
 
      	    	;
 
@@ -584,18 +560,10 @@ gen_help_arg:	    NAME {p_parse_result->pushHelp($1);}
     	    	|   GEN_RECORD_HEAD 	    {p_parse_result->pushHelp(cmd_desc[CMD_RECORD].name);}
     	    	|   GEN_SETBREAK_HEAD	    {p_parse_result->pushHelp(cmd_desc[CMD_SETBREAK].name);}
 
-    	    	|   FOCUS   {p_parse_result->pushHelp(general_name[H_GEN_FOCUS]);}
     	    	|   ALL	    {p_parse_result->pushHelp(general_name[H_GEN_ALL]);}
     	    	|   COPY    {p_parse_result->pushHelp(general_name[H_GEN_COPY]);}
-    	    	|   GUI	    {p_parse_result->pushHelp(general_name[H_GEN_GUI]);}
     	    	|   KILL    {p_parse_result->pushHelp(general_name[H_GEN_KILL]);}
     	    	|   MPI	    {p_parse_result->pushHelp("-mpi");}
-
-    	    	|   PARAM_DISPLAY_MODE	    {p_parse_result->pushHelp(paramtype_name[H_PARAM_DMODE]);}
-    	    	|   PARAM_DISPLAY_MEDIA	    {p_parse_result->pushHelp(paramtype_name[H_PARAM_DMEDIA]);}
-    	    	|   PARAM_DISPLAY_REFRESH_RATE {p_parse_result->pushHelp(paramtype_name[H_PARAM_DREFRESH]);}
-    	    	|   PARAM_EXP_SAVE_FILE	    {p_parse_result->pushHelp(paramtype_name[H_PARAM_XSAVEFILE]);}
-    	    	|   PARAM_SAMPLING_RATE	    {p_parse_result->pushHelp(paramtype_name[H_PARAM_SAMPRATE]);}
 
     	    	|   RANK_ID	    {p_parse_result->pushHelp("-r");}
     	    	|   HOST_ID	    {p_parse_result->pushHelp("-h");}
@@ -789,12 +757,7 @@ param:	    	    expType COLON COLON param_name EQUAL NUMBER
 		     {p_parse_result->pushParm(NULL,$1,$3);}
 		;
 
-param_name: 	    PARAM_DISPLAY_MODE	    	    	
-    	    	|   PARAM_DISPLAY_MEDIA	    	    	
-    	    	|   PARAM_DISPLAY_REFRESH_RATE	      	
-    	    	|   PARAM_EXP_SAVE_FILE	    	    	
-    	    	|   PARAM_SAMPLING_RATE	    	    	
-    	    	|   NAME	    	    	    	 
+param_name: 	    NAME	    	    	    	 
 		;
 
 expMetric_list_spec:  METRIC_ID expMetric_list

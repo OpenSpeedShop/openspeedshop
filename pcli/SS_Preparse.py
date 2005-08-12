@@ -546,15 +546,7 @@ class CLI(code.InteractiveConsole):
 	"all"	    	: "gen_type:all",
 	"copy"	    	: "gen_type:copy",
 	"-mpi"     	: "gen_type:mip",
-	"data"	    	: "gen_type:data",
-	"focus"     	: "gen_type:focus",
-	"-gui"	    	: "gen_type:gui",
-	"kill"	    	: "gen_type:kill",
-        "displaymode"   : "exp_param_display_mode:",
-        "displaymedia"  : "exp_param_display_media:",
-        "displayrefreshrate"	: "exp_param_display_refresh_rate:",
-        "expsavefile"   : "exp_param_:experiment_save_file",
-        "samplingrate"  : "exp_param_sampling_rate:" \
+	"kill"	    	: "gen_type:kill", \
         }
 
     ##################################################################

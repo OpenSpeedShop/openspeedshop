@@ -48,10 +48,8 @@ extern int ip_number(char *,int);
 "::" 	{ return DOUBLE_COLON; }
 "=" 	{ return EQUAL; }
 
-"focus"     	{ return FOCUS;}
 "all"	    	{ return ALL;}
 "copy"	    	{ return COPY;}
-"-gui"	    	{ return GUI;}
 "kill"	    	{ return KILL;}
 "-mpi"	    	{ return MPI;}
 
@@ -93,12 +91,6 @@ extern int ip_number(char *,int);
 "playback"  	{ return GEN_PLAYBACK_HEAD; }
 "record"    	{ return GEN_RECORD_HEAD; }
 "setbreak"  	{ return GEN_SETBREAK_HEAD; }
-
-"displaymode"  	{ yylval.string = copy_string(yytext); return PARAM_DISPLAY_MODE;}
-"displaymedia"	{ yylval.string = copy_string(yytext); return PARAM_DISPLAY_MEDIA;}
-"displayrefreshrate"  	{ yylval.string = copy_string(yytext); return PARAM_DISPLAY_REFRESH_RATE;}
-"expsavefile"  	{ yylval.string = copy_string(yytext); return PARAM_EXP_SAVE_FILE;}
-"samplingrate"	{ yylval.string = copy_string(yytext); return PARAM_SAMPLING_RATE;}
 
 "quit"  	{ return JUST_QUIT_HEAD; }
 
