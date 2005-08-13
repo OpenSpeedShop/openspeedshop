@@ -331,7 +331,7 @@ char *cmd_exit_args = {
 
 
 char *cmd_help_args = {
-    "<string> = help [ <string> ]"
+    "<string> = help [ -v <help_modifier_list> ] [ <string> ]"
 };
 
 
@@ -718,7 +718,7 @@ char *cmd_expDisable_detailed[] = {
     " ",
     "\t \'expEnable\' can be used to restart data collection.",
     " ",
-    "\t \'expSave'\ can be used to save previously collected data.",
+    "\t \'expSave\' can be used to save previously collected data.",
     " ",
     "\t \'expClose\' can be used to destroy the experiment and ",
     "\t free all data space used to save the collected data.",
@@ -1329,6 +1329,8 @@ char *cmd_help_detailed[] = {
     cmd_help_args,
     " ",
     cmd_help_brief,
+    " ",
+    "Currently the \'-v\' option is not supported.",
     " "
 };
 

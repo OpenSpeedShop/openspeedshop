@@ -103,6 +103,7 @@ extern int ip_number(char *,int);
 "-l"	{ return LINE_ID;}
 "-c"	{ return CLUSTER_ID;}
 "-m"	{ return METRIC_ID;}
+"-v"	{ return VERBOSE_ID;}
 
 [0-9]+[.][0-9]+[.][0-9]+[.][0-9]+ {yylval.val = ip_number(yytext,4); return(IPNUMBER_32);}
 0x[0-9a-f]+	{yylval.val = atoi(yytext); return(HEXNUMBER);}

@@ -470,6 +470,14 @@ class ParseResult {
     	void pushParm(char *etype, char *ptype, int num);
     	void pushParm(char *etype, char *ptype, char *name);
 
+    	/** Handle list of help modifiers. */
+    	vector<string> * getHelpModifierList()
+	{
+	    return &dm_help_modifier_list;
+	}
+
+    	void pushHelpModifier(char * name);
+
     	/** Set/Get redirect target string. */
 	bool setRedirectTarget(char *name) {
 	    dm_redirect = name;
@@ -517,6 +525,8 @@ class ParseResult {
     	vector<string> dm_modifier_list;
     	/** Container of help requests as strings */
     	vector<string> dm_help_list;
+    	/** Container of help modifiers */
+    	vector<string> dm_help_modifier_list;
     	/** Container of addresses */
     	vector<ParseRange> dm_address_list;
     	/** Container of history ranges */

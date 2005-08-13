@@ -203,6 +203,36 @@ arglist_t cluster_arg[CLUSTER_MAX] = {
 
 //*************************************************************
 
+char *help_modifier_list[] = {
+    NULL,
+    "brief",
+    "normal",
+    "detailed",
+    "brief,examples",
+    "normal,examples,grammar"
+};
+
+#define HELP_MOD_MAX 1
+arglist_t help_modifier_arg[HELP_MOD_MAX] = {
+    6,help_modifier_list,"-v"
+};
+
+//*************************************************************
+
+char *help_keyword_list[] = {
+    NULL,
+    "expcreate",
+    "expCreate",
+    "PcSaMp"
+};
+
+#define HELP_KEYWORD_MAX 1
+arglist_t help_keyword_arg[HELP_KEYWORD_MAX] = {
+    4,help_keyword_list,NULL
+};
+
+//*************************************************************
+
 
 char *gui_list[] = {
     NULL,
@@ -858,7 +888,9 @@ main()
     // HELP
 
     p_os = open_output("help.input");
-    out_stream << "help expcreate" << endl;
+    two_level("help",
+    	    	0,HELP_MOD_MAX,help_modifier_arg,
+		0,HELP_KEYWORD_MAX,help_keyword_arg);
 
     dunp_close_output(p_os);
 

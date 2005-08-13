@@ -413,7 +413,7 @@ dumpHelp(CommandObject *cmd)
     if (!dm_help_set)
     	return;
 
-    // general modifier types.
+    // List of help strings to look up.
     vector<string> *p_slist = this->getHelpList();
 
     // Get reference of the message czar.
@@ -520,6 +520,28 @@ dumpInfo()
 	
     if (p_slist->begin() != p_slist->end())
     	cout << "\tView Types: " ;
+    for (j=p_slist->begin();j != p_slist->end(); j++) {
+    	cout << *j << " " ;
+    }
+    if (p_slist->begin() != p_slist->end())
+    	cout << endl ;
+
+    // help keywords.
+    p_slist = this->getHelpList();
+	
+    if (p_slist->begin() != p_slist->end())
+    	cout << "\tHelp Keywords: " ;
+    for (j=p_slist->begin();j != p_slist->end(); j++) {
+    	cout << *j << " " ;
+    }
+    if (p_slist->begin() != p_slist->end())
+    	cout << endl ;
+
+    // help modifiers.
+    p_slist = this->getHelpModifierList();
+	
+    if (p_slist->begin() != p_slist->end())
+    	cout << "\tHelp Modifiers: " ;
     for (j=p_slist->begin();j != p_slist->end(); j++) {
     	cout << *j << " " ;
     }
@@ -754,6 +776,24 @@ pushHelp(char *name)
     
     free(tname);
     
+}
+
+/**
+ * Method: ParseResult::pushHelp(char * name)
+ * 
+ *     
+ * @return  void.
+ *
+ * @todo    help facility modifiers.
+ *
+ */
+void
+ParseResult::
+pushHelpModifier(char *name)
+{
+    
+    dm_help_set = true;
+    dm_help_modifier_list.push_back(name);   
 }
 
 /**

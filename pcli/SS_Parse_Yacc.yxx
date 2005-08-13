@@ -73,7 +73,7 @@ char *string;
 %token JUST_QUIT_HEAD
 
 %token RANK_ID HOST_ID THREAD_ID FILE_ID EXP_ID PROCESS_ID
-%token LINE_ID CLUSTER_ID METRIC_ID
+%token LINE_ID CLUSTER_ID METRIC_ID VERBOSE_ID
 
 %token COMMA SEMICOLON COLON END_LINE EQUAL DOUBLE_COLON REDIRECT APPEND
 
@@ -514,6 +514,8 @@ gen_exit_com:	    GEN_EXIT_HEAD
     	    /** GEN_HELP **/
 gen_help_com:	    GEN_HELP_HEAD   {p_parse_result->pushHelp();}
     		|   GEN_HELP_HEAD   gen_help_args 
+    		|   GEN_HELP_HEAD   verbose_list_spec gen_help_args 
+    		|   GEN_HELP_HEAD   verbose_list_spec
     		|   GEN_HELP_HEAD   error END_LINE {p_parse_result->setError(cmd_desc[CMD_HELP].name);}
     	    	;
 gen_help_args:	    gen_help_arg
@@ -791,6 +793,17 @@ lineno_range:	    lineno {p_parse_result->pushLineNoPoint($1);}
 
 lineno: 	    NUMBER
     	    	|   HEXNUMBER
+    	    	;
+
+verbose_list_spec:  VERBOSE_ID verbose_list
+		|   VERBOSE_ID {p_parse_result->setError("Bad help modifier list entry.");} error  
+		;
+
+verbose_list:  	    verbose_name 
+    	    	|   verbose_list COMMA verbose_name 
+		;
+
+verbose_name:  	    NAME {p_parse_result->pushHelpModifier($1);}
     	    	;
 
 
