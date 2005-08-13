@@ -581,7 +581,7 @@ gen_history_com:    GEN_HISTORY_HEAD   gen_history_arg
   	    	|   GEN_HISTORY_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_HISTORY].name);} 
       	    	;
 gen_history_arg:    /* empty */
-    	    	|   file_spec
+    	    	|   NUMBER {p_parse_result->pushHistoryPoint($1);} 
     	    	;
 
     	    /** GEN_LOG **/

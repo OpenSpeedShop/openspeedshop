@@ -552,6 +552,9 @@ dumpInfo()
     // Address list.
     s_dumpRange(this->getAddressList(), "ADDRESSES",true /* is_hex */);
 
+    // History list. Should be only one entry.
+    s_dumpRange(this->getHistoryList(), "HISTORY",false /* is_hex */);
+
     // Metric list.
     s_dumpRange(this->getexpMetricList(), "METRICS",false /* is_hex */);
 

@@ -336,7 +336,7 @@ char *cmd_help_args = {
 
 
 char *cmd_history_args = {
-    "history [ <file_spec> ]"
+    "history [ <integer> ]"
 };
 
 
@@ -1338,7 +1338,8 @@ char *cmd_history_detailed[] = {
     " ",
     cmd_history_brief,
     " ",
-    "- If no <file_spec> is provided, send the list to stdout",
+    "- If no <integer> is provided, print out only ",
+    "  requested number of history entries.",
     " "
 };
 

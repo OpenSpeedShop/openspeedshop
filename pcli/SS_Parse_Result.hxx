@@ -420,6 +420,19 @@ class ParseResult {
     	    dm_address_list.push_back(range);
 	}
 
+    	/** Handle list of history numbers. */
+	// semantically there is only one number,
+	// but it is easy to use the ParseRange container.
+    	vector<ParseRange> * getHistoryList()
+	{
+	    return &dm_history_list;
+	}
+
+    	void pushHistoryPoint(int num) {
+	    ParseRange range(num);
+    	    dm_history_list.push_back(range);
+	}
+
     	/** Handle list of line numbers. */
     	vector<ParseRange> * getLineNoList()
 	{
@@ -506,7 +519,9 @@ class ParseResult {
     	vector<string> dm_help_list;
     	/** Container of addresses */
     	vector<ParseRange> dm_address_list;
-    	/** Container of addresses */
+    	/** Container of history ranges */
+    	vector<ParseRange> dm_history_list;
+    	/** Container of line numbers */
     	vector<ParseRange> dm_lineno_list;
     	/** Container of parameter info as class param_tuple */
     	vector<ParseParam> dm_param_list;

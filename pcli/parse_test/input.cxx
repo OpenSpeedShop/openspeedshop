@@ -279,6 +279,20 @@ arglist_t address_arg[ADDRESS_MAX] = {
 //*************************************************************
 
 
+char *number_list[] = {
+    NULL,
+    "6"
+};
+
+#define NUMBER_MAX 1
+arglist_t number_arg[NUMBER_MAX] = {
+    2,number_list,NULL
+};
+
+
+//*************************************************************
+
+
 char *xx_list[] = {
     NULL,
     "6"
@@ -850,7 +864,7 @@ main()
 
     // HISTORY
     p_os = open_output("history.input");
-    one_level("history",0,FILE_1_MAX,file_1_arg);
+    one_level("history",0,NUMBER_MAX,number_arg);
 
     dunp_close_output(p_os);
 
