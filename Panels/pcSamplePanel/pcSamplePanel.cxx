@@ -740,6 +740,9 @@ if( QString(getName()).contains("HW Counter") )
   {
       QString event_value = (QString)*it;
 printf("I want to set this \"event\" value = %s\n", event_value.ascii() );
+// Once this works, you'll want to check StatsPanel's setting of 
+// "optionalMetricStr".   Currently it's hardcoded for hwc experiments.
+// That should change to reading it out of the collector.
 //    pcSampleCollector.setParameterValue("event", event_value.ascii() );
 printf("set this \"event\" value = %s\n", event_value.ascii() );
   }

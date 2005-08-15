@@ -208,6 +208,8 @@ if( item && matchSelectedItem( std::string(item->text(2).ascii()) ) )
 }
   } else if(  msgObject->msgType  == "UpdateExperimentDataObject" )
   {
+printf("UpdateExperimentDataObject\n");
+
     UpdateObject *msg = (UpdateObject *)msgObject;
     nprintf(DEBUG_MESSAGES) ("StatsPanel::listener() UpdateExperimentDataObject!\n");
 
@@ -238,11 +240,44 @@ if( item && matchSelectedItem( std::string(item->text(2).ascii()) ) )
           currentMetricStr = cpe->name;
           currentMetricTypeStr = cpe->type;
 // printf("Initialize collectorStr=(%s) currentMetricType=(%s) currentMetricStr=(%s)\n", collectorStr.ascii(), currentMetricTypeStr.ascii(), currentMetricStr.ascii() );
+#ifdef MOVE
 if( collectorStr == "hwc" && pit == ce->metricList.begin() )
 {
+#ifdef OLDWAY
+// For now, we're hardcoding this to the hwc default.   Eventually, 
+// once we can set the parameter, we should be able to pull this back 
+// out of the collector.    "Oddly", we'll want to pull the parameter
+// "event" name, for this metric str.    
 // printf("set this to PAPI_TOT_CYC\n");
   optionalMetricStr = "PAPI_TOT_CYC";
+#else // OLDWAY
+if( currentCollector )
+{
+printf("hwc and currentCollector.\n");
+  Metadata cm = currentCollector->getMetadata();
+  std::set<Metadata> md =currentCollector->getParameters();
+  std::set<Metadata>::const_iterator mi;
+  for (mi = md.begin(); mi != md.end(); mi++)
+  {
+    Metadata m = *mi;
+printf("%s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
+printf("%s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
+printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
+  }
+  unsigned int sampling_rate = 0;
+  currentCollector->getParameterValue("sampling_rate", sampling_rate);
+printf("sampling_rate=%d\n", sampling_rate);
+  std::string PAPIDescriptionStr;
+  currentCollector->getParameterValue("event", PAPIDescriptionStr);
+printf("event=%s\n", PAPIDescriptionStr.c_str() );
+} else
+{
+printf("hwc and but no currentCollector.\n");
 }
+
+#endif // OLDWAY
+}
+#endif // MOVE
           break;
         }
       }
@@ -1090,6 +1125,7 @@ StatsPanel::updateStatsPanelData()
             delete currentCollector;
           }
           currentCollector = new Collector(*ci);
+printf("Set a currentCollector!\n");
 
           nprintf( DEBUG_PANELS) ("GetMetricByFunctionInThread()\n");
           nprintf( DEBUG_PANELS ) ("GetMetricByFunction(%s  %s %s)\n", name.ascii(), currentMetricStr.ascii(), QString("%1").arg(t1.getProcessId()).ascii() );
@@ -1128,8 +1164,37 @@ if( currentMetricTypeStr == "double" )
           { 
             MetricHeaderInfo *mhi = (MetricHeaderInfo *)*pit;
             QString s = mhi->label;
-if( optionalMetricStr && pit == metricHeaderInfoList.begin() )
+if( collectorStr == "hwc" && pit == metricHeaderInfoList.begin() )
 {
+  if( currentCollector )
+  {
+// printf("hwc and currentCollector.\n");
+    Metadata cm = currentCollector->getMetadata();
+    std::set<Metadata> md =currentCollector->getParameters();
+    std::set<Metadata>::const_iterator mi;
+    for (mi = md.begin(); mi != md.end(); mi++)
+    {
+      Metadata m = *mi;
+// printf("%s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
+// printf("%s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
+// printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
+    }
+    unsigned int sampling_rate = 0;
+    currentCollector->getParameterValue("sampling_rate", sampling_rate);
+// printf("sampling_rate=%d\n", sampling_rate);
+    std::string PAPIDescriptionStr;
+    currentCollector->getParameterValue("event", PAPIDescriptionStr);
+// printf("PAPIDescriptionStr=(%s)\n", PAPIDescriptionStr.c_str() );
+  if( strlen(PAPIDescriptionStr.c_str()) <= 1 )
+  {
+    optionalMetricStr = "Unknown metric";
+// printf("optionalMetricStr=(%s)\n", optionalMetricStr.ascii() );
+  } else
+  {
+    optionalMetricStr = PAPIDescriptionStr.c_str();
+// printf("optionalMetricStr=(%s)\n", optionalMetricStr.ascii() );
+  }
+  }
   s = optionalMetricStr;
 }
 if( pit == metricHeaderInfoList.begin() )
