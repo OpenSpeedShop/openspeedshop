@@ -266,7 +266,7 @@ char *cmd_listExp_args = {
 
 
 char *cmd_listHosts_args = {
-    "<ListOf_hostname> = listHosts [ <expId_spec> || all || <cluster_spec> ]"
+    "<ListOf_hostname> = listHosts [ <expId_spec> || <cluster_spec> ]"
 };
 
 
@@ -276,7 +276,7 @@ char *cmd_listObj_args = {
 
 
 char *cmd_listPids_args = {
-    "<ListOf_pidname> = listPids [ <expId_spec> || all ] [ <host_file> ]"
+    "<ListOf_pidname> = listPids [ <expId_spec> ] [ <host_file> ]"
 };
 
 
@@ -291,7 +291,7 @@ char *cmd_listParams_args = {
 
 
 char *cmd_listRanks_args = {
-    "<ListOf_Ranks> = listRanks [ <expId_spec> || all ] [ <target> ]"
+    "<ListOf_Ranks> = listRanks [ <expId_spec> ] [ <target> ]"
 };
 
 
@@ -306,7 +306,7 @@ char *cmd_listStatus_args = {
 
 
 char *cmd_listThreads_args = {
-    "<ListOf_Threads> = listThreads [ <expId_spec> || all ] [ <target> ]"
+    "<ListOf_Threads> = listThreads [ <expId_spec> ] [ <target> ]"
 };
 
 
@@ -1030,8 +1030,6 @@ char *cmd_listHosts_detailed[] = {
     "\t The <expId_spec> option will cause all the hosts that have ",
     "\t been included in the selected experiment to be listed.",
     " ",
-    "\t The \"all\" option will cause all the known hosts to be listed.",
-    " ",
     "\t The \"<cluster_spec>\" option will cause all the hosts that ",
     "\t are part of the named cluster to be listed.",
     " "
@@ -1067,9 +1065,6 @@ char *cmd_listPids_detailed[] = {
     " ",
     "\t If the \"<expId_spec>\" option is supplied, all the Pids ",
     "\t that are part of the specified experiment are listed.",
-    " ",
-    "\t If the all option is supplied, all Pids that are active ",
-    "\t on the specified system are listed.",
     " ",
     "- The use of the \"<host_file>\" option acts like a filter ",
     "\t on the output.",
@@ -1150,10 +1145,6 @@ char *cmd_listRanks_detailed[] = {
     "- The use of the \"<target>\" option acts like a filter on ",
     "  the output.",
     " ",
-    "\t The use of the all option and the absence of any ",
-    "\t \"-h <hostname>\" specification will cause all Ranks ",
-    "\t on all systems in the cluster to be listed.",
-    " ",
     "\t The default cluster contains only localhost and must be ",
     "\t specified by using -h localhost.",
     " ",
@@ -1222,9 +1213,6 @@ char *cmd_listThreads_detailed[] = {
     " ",
     "\t If the \"<expId_spec>\" option is supplied, all the  ",
     "\t Threads that are part of the specified experiment are listed.",
-    " ",
-    "\t If the \"all\" option is supplied, all Threads that are  ",
-    "\t active on the specified system are listed.",
     " ",
     "\t The use of the \"<target>\" option acts like a filter on the output.",
     " ",
