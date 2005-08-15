@@ -169,9 +169,12 @@ void HWCCollector::setParameterValue(const std::string& parameter,
     if(parameter == "event") {
 
 	char EventCodeStr[PAPI_MAX_STR_LEN];
-	const char* papi_event_name = reinterpret_cast<const char*>(ptr);
-	memcpy(&EventCodeStr,papi_event_name,sizeof(papi_event_name));
-	parameters.hwc_event = get_papi_eventcode(EventCodeStr);
+	const std::string* papi_event_name = reinterpret_cast<const std::string*>(ptr);
+	const char *str = papi_event_name->c_str();
+
+	char *var = (char *)str;
+
+	parameters.hwc_event = get_papi_eventcode(var);
     }
     
     // Re-encode the blob containing the parameter values
