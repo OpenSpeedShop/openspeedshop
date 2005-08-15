@@ -471,7 +471,7 @@ static void Resolve_R_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
     }
 
     int64_t myrank;
-    for ( myrank = (int64_t)r_val1->num; myrank <= (int64_t)r_val2->num; myrank++) {
+    for ( myrank = r_val1->num; myrank <= r_val2->num; myrank++) {
       try {
         Thread t = exp->FW()->attachPosixThread(mypid, myrank, host_name);
         tgrp->insert(t);
@@ -502,7 +502,7 @@ static void Resolve_T_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
     }
 
     int64_t mythread;
-    for ( mythread = (int64_t)t_val1->num; mythread <= (int64_t)t_val2->num; mythread++) {
+    for ( mythread = t_val1->num; mythread <= t_val2->num; mythread++) {
 #ifdef HAVE_OPENMP
       try {
         Thread t = exp->FW()->attachOpenMPThread(mypid, mythread, host_name);
@@ -1487,18 +1487,20 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
             atleastone = true;
             cmd->Result_String ("  Currently Specified Components:");
           }
-          char spid[20]; sprintf(&spid[0],"%lld",(int64_t)pid);
-          // std::string S = "  expAttach -h " + host + " -p " + std::string(&spid[0]);
+          int64_t p = pid;
+          char spid[20]; sprintf(&spid[0],"%lld",p);
           std::string S = "    -h " + host + " -p " + std::string(&spid[0]);
           std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
           if (pthread.first) {
-            char tid[20]; sprintf(&tid[0],"%lld",(int64_t)pthread.second);
+            int64_t t = pthread.second;
+            char tid[20]; sprintf(&tid[0],"%lld",t);
             S = S + std::string(&tid[0]);
           }
 #ifdef HAVE_MPI
           std::pair<bool, int> rank = t.getMPIRank();
           if (rank.first) {
-            char rid[20]; sprintf(&rid[0],"%lld",(int64_t)rank.second);
+            int64_t r = rank.second;
+            char rid[20]; sprintf(&rid[0],"%lld",r);
             S = S + std::string(&rid[0]);
           }
 #endif
@@ -2193,9 +2195,6 @@ bool SS_Exit (CommandObject *cmd) {
 }
 
 bool SS_Help (CommandObject *cmd) {
-  InputLineObject *clip = cmd->Clip();
-  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
-
   cmd->P_Result()->dumpHelp(cmd);
   cmd->set_Status(CMD_COMPLETE);
   return true;
@@ -2203,9 +2202,27 @@ bool SS_Help (CommandObject *cmd) {
 
 bool SS_History (CommandObject *cmd) {
  // Copy commands from the history list.
+  std::list<std::string>::iterator hi = History.begin();  // Start at  beginning
+
+ // The user may ask us to limit the output
+  vector<ParseRange> *c_limit = cmd->P_Result()->getHistoryList();
+  if ((c_limit != NULL) &&
+      (c_limit->begin() != c_limit->end())) {
+    parse_range_t *c_range = c_limit->begin()->getRange();
+    parse_val_t *c_val1 = &c_range->start_range;
+    int64_t val1 = c_val1->num;
+    if ((val1 >= 0) && (val1 < History_Count)) { 
+     // Skip until there are just enough left in the list.
+      int64_t num = val1;
+      for (hi = History.end(); num >= 0; hi--, num--) {}
+    }
+   // Reset the limit for the user.
+    if (val1 > History_Limit) History_Limit = val1;
+  }
+
+ // Go through the rest of the list and echo them.
  // Skip the last one because it is this "history" command.
-  std::list<std::string>::iterator hi;
-  for (hi = History.begin(); hi != History.end(); ) {
+  for ( ; hi != History.end(); ) {
     std::string S = *hi;
     if (++hi != History.end()) {
      // Attach result to CommandObject.
