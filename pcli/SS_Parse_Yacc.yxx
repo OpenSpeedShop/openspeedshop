@@ -318,7 +318,7 @@ exp_status_com:   STATUS_HEAD   exp_status_arg
       	    	;
 exp_status_arg:     /* empty */
     	    	|   expId_spec
-		|   ALL
+		|   ALL {p_parse_result->pushModifiers(general_name[H_GEN_ALL]);}
     	    	;
 
     	    /** EXP_VIEW **/
@@ -369,7 +369,6 @@ list_hosts_com:     LIST_HOSTS_HEAD   list_hosts_arg
       	    	;
 list_hosts_arg:  
     	    	    expId_spec
-		|   ALL     	    	{p_parse_result->pushModifiers(general_name[H_GEN_ALL]);}
     	    	|   cluster_spec
     	    	|   error END_LINE {p_parse_result->setError("<list_hosts_arg>");} 
     	    	;
@@ -412,23 +411,18 @@ list_pids_com:	    LIST_PIDS_HEAD   list_pids_arg
 list_pids_arg:	    /* empty */
     	    	|   host_file
     	    	|   expId_spec 
-    	    	|   ALL     	    	    {p_parse_result->pushModifiers(general_name[H_GEN_ALL]);}
     	    	|   expId_spec host_file
-    	    	|   ALL host_file   	    {p_parse_result->pushModifiers(general_name[H_GEN_ALL]);}
     	    	;
 
     	    /** LIST_RANKS **/
-list_ranks_com:    LIST_RANKS_HEAD   list_ranks_arg
+list_ranks_com:     LIST_RANKS_HEAD   list_ranks_arg
   	    	|   LIST_RANKS_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_LIST_RANKS].name);} 
       	    	;
 list_ranks_arg:    /* empty */
 		|   expId_spec
-		|   ALL     	    	{p_parse_result->pushModifiers(general_name[H_GEN_ALL]);}
 		|   target
 		|   expId_spec target
 		|   target expId_spec
-		|   ALL target	{p_parse_result->pushModifiers(general_name[H_GEN_ALL]);}
-		|   target ALL	{p_parse_result->pushModifiers(general_name[H_GEN_ALL]);}
     	    	;
 
     	    /** LIST_SRC **/
@@ -470,12 +464,9 @@ list_threads_com:    LIST_THREADS_HEAD   list_threads_arg
       	    	;
 list_threads_arg:    /* empty */
 		|   expId_spec
-		|   ALL     	{p_parse_result->pushModifiers(general_name[H_GEN_ALL]);}
 		|   target
 		|   expId_spec target
 		|   target expId_spec
-		|   ALL target	{p_parse_result->pushModifiers(general_name[H_GEN_ALL]);}
-		|   target ALL	{p_parse_result->pushModifiers(general_name[H_GEN_ALL]);}
     	    	;
 
     	    /** LIST_TYPES **/
