@@ -727,24 +727,32 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
           {
             CollectorGroup::iterator ci = cgrp.begin();
             nprintf( DEBUG_MESSAGES ) ("sampling_rate=%u\n", sampling_rate);
-            Collector hwCounterCollector = *ci;
-            hwCounterCollector.setParameterValue("sampling_rate", sampling_rate);
-// printf("getName=(%s)\n", getName() );
-
-if( QString(getName()).contains("HW Counter") )
-{
-  printf("W'ere the HW Counter Panel!!!\n");
-  ParamList::Iterator it = lao->paramList->begin();
-  it++;
-  if( it != lao->paramList->end() )
-  {
-      QString event_value = (QString)*it;
-printf("I want to set this \"event\" value = %s\n", event_value.ascii() );
-//    hwCounterCollector.setParameterValue("event", event_value.ascii() );
-printf("set this \"event\" value = %s\n", event_value.ascii() );
-  }
-}
+            QString command = QString("expSetparam -x %1 sampling_rate = %2").arg(expID).arg(sampling_rate);
+            CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+            if( !cli->runSynchronousCLI((char *)command.ascii() ) )
+            {
+              return 0;
+            }
+            if( QString(getName()).contains("HW Counter") )
+            {
+              printf("W'ere the HW Counter Panel!!!\n");
+            
+              ParamList::Iterator it = lao->paramList->begin();
+              it++;
+              if( it != lao->paramList->end() )
+              {
+                QString event_value = (QString)*it;
+            
+                QString command = QString("expSetparam -x %1 event = %2").arg(expID).arg(event_value);
+                CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+                if( !cli->runSynchronousCLI((char *)command.ascii() ) )
+                {
+                  return 0;
+                }
+              }
+            }
           }
+
         }
         catch(const std::exception& error)
         {
