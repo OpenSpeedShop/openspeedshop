@@ -3,10 +3,15 @@
 from sys import *
 import sys
 import os
+import threading
 from time import *
 from string import *
+from threading import *
 #from datetime import *
 
+
+def too_long():
+	os.system('killall -q openss')
 
 def createTestList():
 	checktemptestlist = os.system('test -e temptestlist')
@@ -22,7 +27,10 @@ def runTest(testName):
 	#testCommand = test_input.readline()
 	#linesToCompare = test_input.readline()
 	#test_input.close()
+	t = Timer(300, too_long)
+	t.start()
 	os.system('./'+testName+ '>> '+ testName+'.output')
+	t.cancel()
 
 def iterateThroughTestList(fileptr):
 	con_input = open('temptestlist', 'r')
@@ -124,7 +132,7 @@ def CompareResults(testName, fileptr):
 		if (failure_reason == 1):
 			fileptr.write('The function time ratios are incorrect.\n')
 		if (failure_reason == 3):
-			fileptr.write('Looks like openss crashed. \n')
+			fileptr.write('Looks like openss crashed or ran too long. \n')
 		if (failure_reason == 2):
 			fileptr.write('The ordering of the functions is incorrect.\n')
 		

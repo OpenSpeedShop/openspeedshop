@@ -7,9 +7,9 @@ void frank()
   int i, j;
   int t = 0;
 
-  for(i=0; i<1000; i++)
+  for(i=0; i<500; i++)
   {
-    for(j=0; j<1000; j++)
+    for(j=0; j<500; j++)
     {
       t += i*j;
     }
@@ -50,7 +50,7 @@ void bill()
 main()
 {
   int i;
-  int number = 50000;
+  int number = 5000;
   cout << getpid() << endl;
 
   for(i=0;i<number;i++)
