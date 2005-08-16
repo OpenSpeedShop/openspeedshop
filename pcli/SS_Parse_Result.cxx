@@ -47,7 +47,7 @@ command_type_t OpenSpeedShop::cli::cmd_desc[CMD_MAX] = {
     "expPause",     false,  CMD_EXP_PAUSE,
     "expRestore",   false,  CMD_EXP_RESTORE,
     "expSave",	    false,  CMD_EXP_SAVE,
-    "expSetparm",   false,  CMD_EXP_SETPARAM,
+    "expSetparam",   false, CMD_EXP_SETPARAM,
     "expStatus",    false,  CMD_EXP_STATUS,
     "expView",	    false,  CMD_EXP_VIEW,
 
