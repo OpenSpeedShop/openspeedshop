@@ -81,7 +81,8 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   collectorStr = QString::null;
   groupID = ao->int_data;
   expID = -1;
-  ascending_sort = false;
+  descending_sort = true;
+  TotalTime = 0;
 
   frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
@@ -208,7 +209,7 @@ if( item && matchSelectedItem( std::string(item->text(2).ascii()) ) )
 }
   } else if(  msgObject->msgType  == "UpdateExperimentDataObject" )
   {
-printf("UpdateExperimentDataObject\n");
+// printf("UpdateExperimentDataObject\n");
 
     UpdateObject *msg = (UpdateObject *)msgObject;
     nprintf(DEBUG_MESSAGES) ("StatsPanel::listener() UpdateExperimentDataObject!\n");
@@ -240,44 +241,6 @@ printf("UpdateExperimentDataObject\n");
           currentMetricStr = cpe->name;
           currentMetricTypeStr = cpe->type;
 // printf("Initialize collectorStr=(%s) currentMetricType=(%s) currentMetricStr=(%s)\n", collectorStr.ascii(), currentMetricTypeStr.ascii(), currentMetricStr.ascii() );
-#ifdef MOVE
-if( collectorStr == "hwc" && pit == ce->metricList.begin() )
-{
-#ifdef OLDWAY
-// For now, we're hardcoding this to the hwc default.   Eventually, 
-// once we can set the parameter, we should be able to pull this back 
-// out of the collector.    "Oddly", we'll want to pull the parameter
-// "event" name, for this metric str.    
-// printf("set this to PAPI_TOT_CYC\n");
-  optionalMetricStr = "PAPI_TOT_CYC";
-#else // OLDWAY
-if( currentCollector )
-{
-printf("hwc and currentCollector.\n");
-  Metadata cm = currentCollector->getMetadata();
-  std::set<Metadata> md =currentCollector->getParameters();
-  std::set<Metadata>::const_iterator mi;
-  for (mi = md.begin(); mi != md.end(); mi++)
-  {
-    Metadata m = *mi;
-printf("%s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
-printf("%s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
-printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
-  }
-  unsigned int sampling_rate = 0;
-  currentCollector->getParameterValue("sampling_rate", sampling_rate);
-printf("sampling_rate=%d\n", sampling_rate);
-  std::string PAPIDescriptionStr;
-  currentCollector->getParameterValue("event", PAPIDescriptionStr);
-printf("event=%s\n", PAPIDescriptionStr.c_str() );
-} else
-{
-printf("hwc and but no currentCollector.\n");
-}
-
-#endif // OLDWAY
-}
-#endif // MOVE
           break;
         }
       }
@@ -737,7 +700,7 @@ StatsPanel::itemSelected(QListViewItem *item)
 void
 StatsPanel::sortColumn(int column)
 {
-//  printf("StatsPanel::sortColumn(%d) entered\n", column);
+// printf("StatsPanel::sortColumn(%d) entered\n", column);
 
   // For now we only allow column 0 to be sorted.
   if( column > 0 )
@@ -765,23 +728,24 @@ StatsPanel::sortColumn(int column)
 
   if( column >= 0 )
   {
-    if( ascending_sort == false )
+    if( descending_sort == true )
     { 
-      splv->header()->setSortIndicator( column, Qt::Descending );
-      ascending_sort = true;
+// printf("Toggle to ascending...\n");
+      splv->header()->setSortIndicator( column, Qt::Ascending );
+      descending_sort = false;
     } else
     {
-      splv->header()->setSortIndicator( column, Qt::Ascending );
-      ascending_sort = false;
+// printf("Toggle to descending...\n");
+      splv->header()->setSortIndicator( column, Qt::Descending );
+      descending_sort = true;
     }
   }
 
-  if( column < 0 )
-  {
-    column = 0;
-  }
-// printf("Now really sort the items: ascending_sort=%d\n", ascending_sort);
+// printf("Now really sort the items: descending_sort=%d\n", descending_sort);
 
+if( column == -1 )
+{
+// printf("Resort all the orig_data items\n");
   sorted_items.clear();
   // sort by the time metric
   // Now we can sort the data.
@@ -791,59 +755,34 @@ StatsPanel::sortColumn(int column)
     sorted_items.push_back( *item );
   }
           
-  if (ascending_sort)
-  {
-    std::sort(sorted_items.begin(), sorted_items.end(), sort_ascending<Function_double_pair>());
-  } else
+  if (descending_sort == true )
   {
     std::sort(sorted_items.begin(), sorted_items.end(), sort_descending<Function_double_pair>());
+  } else
+  {
+    std::sort(sorted_items.begin(), sorted_items.end(), sort_ascending<Function_double_pair>());
   }
+}
 
-  nprintf( DEBUG_PANELS) ("Put the data out...\n");
 
   splv->clear();
 
-  double TotalTime = Get_Total_Time();
-
-  char cputimestr[50];
-  char a_percent_str[50];
-  a_percent_str[0] = '\0';
-  // convert time to %
-  double percent_factor = 100.0 / TotalTime;
-  double a_percent = 0; // accumulated percent
-  double c_percent = 0; // accumulated percent
+if( column == -1 )
+{
+  TotalTime = Get_Total_Time();
+}
   
+
+
+if( column == -1 )
+{
+// printf("Push to a separate list, the topN functions.\n");
+  topNsorted_items.clear();
+  // Now, for the sorted items, just grab the top 'N'.
   for(std::vector<Function_double_pair>::const_iterator
-              it = sorted_items.begin(); it != sorted_items.end(); ++it)
+                it = sorted_items.begin(); it != sorted_items.end(); ++it)
   {
-    QString funcInfo = QString::null;
-    c_percent = it->second*percent_factor;  // current item's percent of total time
-    sprintf(cputimestr, "%f", it->second);
-    sprintf(a_percent_str, "%f", c_percent);
-    funcInfo = it->first.getName().c_str() + QString(" (") + it->first.getLinkedObject().getPath().getBaseName();
-
-    std::set<Statement> T = it->first.getDefinitions();
-    if( T.size() > 0 )
-    {
-      std::set<Statement>::const_iterator ti;
-      for (ti = T.begin(); ti != T.end(); ti++)
-      {
-        if (ti != T.begin())
-        {
-          funcInfo += "  &...";
-          break;
-        }
-        Statement s = *ti;
-        char l[20];
-        sprintf( &l[0], " %lld", (int64_t)s.getLine());
-        funcInfo = funcInfo + ": " + s.getPath().getBaseName() + "," + &l[0];
-      }
-    }
-    funcInfo += QString(")");
-
-    lvi =  new SPListViewItem( this, splv, cputimestr,  a_percent_str, funcInfo.ascii() );
-// printf("Put out (%s)\n", cputimestr);
-
+    topNsorted_items.push_back( *it );
     if(numberItemsToDisplay >= 0 )
     {
       numberItemsToDisplay--;
@@ -854,12 +793,103 @@ StatsPanel::sortColumn(int column)
       }
     }
   }
-    
-  // Now sort the data that has been sorted already...
-  splv->setSorting ( column, ascending_sort );
-  splv->sort();
-  splv->setSorting ( -1, ascending_sort );
-  splv->header()->setSortIndicator( column, ascending_sort );
+}
+
+  nprintf( DEBUG_PANELS) ("Put the data out...\n");
+  
+if( descending_sort == true )
+{
+// printf("Put out the descending list.\n");
+  for(std::vector<Function_double_pair>::reverse_iterator
+                it = topNsorted_items.rbegin(); it != topNsorted_items.rend(); ++it)
+  {
+//    std::vector<Function_double_pair> item = it;
+// putItem(it);
+    char cputimestr[50];
+    char a_percent_str[50];
+    a_percent_str[0] = '\0';
+    // convert time to %
+    double percent_factor = 100.0 / TotalTime;
+    double a_percent = 0; // accumulated percent
+    double c_percent = 0; // accumulated percent
+    QString funcInfo = QString::null;
+  
+    c_percent = it->second*percent_factor;  // current item's percent of total time
+      sprintf(cputimestr, "%f", it->second);
+      sprintf(a_percent_str, "%f", c_percent); funcInfo = it->first.getName().c_str() + QString(" (") + it->first.getLinkedObject().getPath().getBaseName();
+  
+      std::set<Statement> T = it->first.getDefinitions();
+      if( T.size() > 0 )
+      {
+        std::set<Statement>::const_iterator ti;
+        for (ti = T.begin(); ti != T.end(); ti++)
+        {
+          if (ti != T.begin())
+          {
+            funcInfo += "  &...";
+              break;
+          }
+            Statement s = *ti;
+          char l[20];
+          sprintf( &l[0], " %lld", (int64_t)s.getLine());
+          funcInfo = funcInfo + ": " + s.getPath().getBaseName() + "," + &l[0];
+        }
+      }
+      funcInfo += QString(")");
+  
+      lvi =  new SPListViewItem( this, splv, cputimestr,  a_percent_str, funcInfo.ascii() );
+//    printf("A: Put out (%s)\n", cputimestr);
+  } // end for
+} else
+{
+// printf("Put out the ascending list.\n");
+  for(std::vector<Function_double_pair>::const_iterator
+                it = sorted_items.begin(); it != sorted_items.end(); ++it)
+  {
+//    std::vector<Function_double_pair> item = *it;
+// putItem(it);
+    char cputimestr[50];
+    char a_percent_str[50];
+    a_percent_str[0] = '\0';
+    // convert time to %
+    double percent_factor = 100.0 / TotalTime;
+    double a_percent = 0; // accumulated percent
+    double c_percent = 0; // accumulated percent
+    QString funcInfo = QString::null;
+  
+    c_percent = it->second*percent_factor;  // current item's percent of total time
+      sprintf(cputimestr, "%f", it->second);
+      sprintf(a_percent_str, "%f", c_percent); funcInfo = it->first.getName().c_str() + QString(" (") + it->first.getLinkedObject().getPath().getBaseName();
+  
+      std::set<Statement> T = it->first.getDefinitions();
+      if( T.size() > 0 )
+      {
+        std::set<Statement>::const_iterator ti;
+        for (ti = T.begin(); ti != T.end(); ti++)
+        {
+          if (ti != T.begin())
+          {
+            funcInfo += "  &...";
+              break;
+          }
+            Statement s = *ti;
+          char l[20];
+          sprintf( &l[0], " %lld", (int64_t)s.getLine());
+          funcInfo = funcInfo + ": " + s.getPath().getBaseName() + "," + &l[0];
+        }
+      }
+      funcInfo += QString(")");
+  
+      lvi =  new SPListViewItem( this, splv, cputimestr,  a_percent_str, funcInfo.ascii() );
+//    printf("B: Put out (%s)\n", cputimestr);
+  }
+}
+
+
+
+//  splv->setSorting ( -1, descending_sort );
+  splv->setSorting ( -1 );
+  splv->header()->setSortIndicator( column == -1 ? 0 : column, descending_sort );
 
   // Set the values for the top 5 pie chart elements...
   QListViewItemIterator it( splv );
@@ -893,6 +923,47 @@ StatsPanel::sortColumn(int column)
   }
   cf->setValues(values, color_names, strings, count+1);
 
+}
+
+void
+StatsPanel::putItem(std::vector<Function_double_pair> *item)
+{
+#ifdef SYNTAX
+  char cputimestr[50];
+  char a_percent_str[50];
+  a_percent_str[0] = '\0';
+  // convert time to %
+  double percent_factor = 100.0 / TotalTime;
+  double a_percent = 0; // accumulated percent
+  double c_percent = 0; // accumulated percent
+  QString funcInfo = QString::null;
+
+  c_percent = item->second*percent_factor;  // current item's percent of total time
+    sprintf(cputimestr, "%f", item->second);
+    sprintf(a_percent_str, "%f", c_percent); funcInfo = item->first.getName().c_str() + QString(" (") + item->first.getLinkedObject().getPath().getBaseName();
+
+    std::set<Statement> T = item->first.getDefinitions();
+    if( T.size() > 0 )
+    {
+      std::set<Statement>::const_iterator ti;
+      for (ti = T.begin(); ti != T.end(); ti++)
+      {
+        if (ti != T.begin())
+        {
+          funcInfo += "  &...";
+          break;
+        }
+        Statement s = *ti;
+        char l[20];
+        sprintf( &l[0], " %lld", (int64_t)s.getLine());
+        funcInfo = funcInfo + ": " + s.getPath().getBaseName() + "," + &l[0];
+      }
+    }
+    funcInfo += QString(")");
+
+    lvi =  new SPListViewItem( this, splv, cputimestr,  a_percent_str, funcInfo.ascii() );
+printf("Put out (%s)\n", cputimestr);
+#endif // SYNTAX
 }
 
 
@@ -1125,7 +1196,7 @@ StatsPanel::updateStatsPanelData()
             delete currentCollector;
           }
           currentCollector = new Collector(*ci);
-printf("Set a currentCollector!\n");
+// printf("Set a currentCollector!\n");
 
           nprintf( DEBUG_PANELS) ("GetMetricByFunctionInThread()\n");
           nprintf( DEBUG_PANELS ) ("GetMetricByFunction(%s  %s %s)\n", name.ascii(), currentMetricStr.ascii(), QString("%1").arg(t1.getProcessId()).ascii() );
@@ -1225,18 +1296,18 @@ if( pit == metricHeaderInfoList.begin() )
       if( sortOrder == TRUE )
       {
         splv->setSortOrder ( Qt::Descending );
-        ascending_sort = false;
+        descending_sort = true;
         splv->header()->setSortIndicator( columnToSort, Qt::Descending );
 // printf("set sort order Decending.\n");
       } else
       {
         splv->setSortOrder ( Qt::Ascending );
-        ascending_sort = true;
+        descending_sort = false;
         splv->header()->setSortIndicator( columnToSort, Qt::Ascending );
 // printf("set sort order Ascending.\n");
       }
 // printf("columnToSort=%d\n", columnToSort);
-      splv->setSorting ( columnToSort, !ascending_sort );
+      splv->setSorting ( columnToSort, !descending_sort );
       sortColumn(-1);
 
       if( orig_data.isNull() )
