@@ -176,7 +176,7 @@ bool Look_For_KeyWord (CommandObject *cmd, std::string Key) {
 
   for (j=p_slist->begin();j != p_slist->end(); j++) {
     std::string S = *j;
-    if (!strcmp(S.c_str(),Key.c_str())) {
+    if (!strcasecmp(S.c_str(),Key.c_str())) {
       return true;
     }
   }
@@ -1304,6 +1304,9 @@ static bool setparam (Collector C, std::string pname, ParseParam pvalue) {
         continue;
       }
 
+     // Stop the collector so we can change the parameter value.
+      C.getThreads().postponeCollecting(C);
+
       if( m.isType(typeid(int)) ) {
         int ival;
         if (pvalue.isValString()) {
@@ -1363,6 +1366,9 @@ static bool setparam (Collector C, std::string pname, ParseParam pvalue) {
         }
         C.setParameterValue(pname,(std::string)sval);
       }
+
+     // Restart the collector with a different parameter value.
+      C.getPostponedThreads().startCollecting(C);
       return true;
     }
   }
