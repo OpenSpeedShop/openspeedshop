@@ -58,8 +58,8 @@ public:
   OutputClass *oclass;
   int last_para;   // The from portion of the last cursor position.
   int last_index;  // The from portion of the last cursor position.
-int history_start_para;
-int history_start_index;
+  int history_start_para;
+  int history_start_index;
   bool textDisabled;
 
 #ifdef PULL

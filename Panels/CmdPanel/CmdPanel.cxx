@@ -43,9 +43,11 @@ class OutputClass : public ss_ostream
   public:
     CmdPanel *cp;
     void setCP(CmdPanel *_cp) { cp = _cp; };
+    pthread_mutex_t CmdPanel_Lock;
   private:
     virtual void output_string (std::string s)
     {
+Assert(pthread_mutex_lock(&CmdPanel_Lock) == 0)
       // This goes to the text stream...
       cp->textDisabled = TRUE;
       output->moveCursor(QTextEdit::MoveEnd, FALSE);
@@ -62,6 +64,7 @@ class OutputClass : public ss_ostream
    thread lock to prevent multiple access.
 */
       flush_ostream();
+Assert(pthread_mutex_unlock(&CmdPanel_Lock) == 0)
     }
     virtual void flush_ostream ()
     {
@@ -105,9 +108,16 @@ CmdPanel::CmdPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc
 
   cmdHistoryListIterator = cmdHistoryList.begin();
 
-// int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
-oclass = new OutputClass();
-oclass->setCP(this);
+  oclass = new OutputClass();
+  oclass->setCP(this);
+
+
+  show();
+
+// printf("CmdPanel.   Redirect all output here...\n");
+  int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
+// printf("wid=%d\n", wid);
+  Redirect_Window_Output( wid, oclass, oclass );
 }
 
 
@@ -172,6 +182,7 @@ CmdPanel::returnPressed()
     QString command = (QString) *ci;
     nprintf(DEBUG_PANELS) ("Send down (%s)\n", command.ascii());
     int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
+printf("wid=%d\n", wid);
     Redirect_Window_Output( wid, oclass, oclass );
 
     InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii());
