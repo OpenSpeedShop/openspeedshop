@@ -1094,7 +1094,16 @@ fprintf(stderr, "No function definition for this entry.   Unable to position sou
       {
 //printf("no source view up, place the source panel.\n");
         char *panel_type = "Source Panel";
-        PanelContainer *bestFitPC = topPC->findBestFitPanelContainer(getPanelContainer()->parentPanelContainer);
+//        PanelContainer *bestFitPC = topPC->findBestFitPanelContainer(getPanelContainer()->parentPanelContainer);
+PanelContainer *startPC = NULL;
+if( getPanelContainer()->parentPanelContainer != NULL )
+{
+  getPanelContainer()->parentPanelContainer;
+} else
+{
+  getPanelContainer();
+}
+        PanelContainer *bestFitPC = topPC->findBestFitPanelContainer(startPC);
         ArgumentObject *ao = new ArgumentObject("ArgumentObject", groupID);
         sourcePanel = getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, ao);
       }

@@ -1244,6 +1244,7 @@ UserTimePanel::progressUpdate()
 int
 UserTimePanel::processLAO(LoadAttachObject *lao)
 {
+printf("ProcessLOA entered mpiFLAG=%d\n", getPanelContainer()->getMainWindow()->mpiFLAG );
   if( lao->paramList ) // Really not a list yet, just one param.
   {
     QString sample_rate_str = (QString)*lao->paramList->begin();
@@ -1331,12 +1332,17 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
 // printf("pidStr =%s\n", pidStr.ascii() );
 // printf("mw->hostStr =%s\n", mw->hostStr.ascii() );
 
-      command = QString("expAttach -x %1 -p  %2 -h %3\n").arg(expID).arg(pidStr).arg(mw->hostStr);
+QString optionsStr = QString::null;
 if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
 {
-  command += " -mpi";
+  optionsStr = " -mpi";
+} else
+{
+  optionsStr = QString("-h %1").arg(mw->hostStr);
 }
-// printf("command=(%s)\n", command.ascii() );
+//      command = QString("expAttach -x %1 %2 -p  %3 -h %4 ").arg(expID).arg(mpiStr).arg(pidStr).arg(mw->hostStr);
+      command = QString("expAttach -x %1 %2 -p  %3 ").arg(expID).arg(optionsStr).arg(pidStr);
+printf("command=(%s)\n", command.ascii() );
     } else
     {
       return 0;
