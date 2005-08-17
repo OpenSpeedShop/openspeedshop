@@ -31,12 +31,14 @@
 
 #include "AddressRange.hxx"
 #include "Collector.hxx"
+#include "Job.hxx"
 #include "OutputCallback.hxx"
 #include "Path.hxx"
 #include "Thread.hxx"
 
 #include <dpcl.h>
 #include <map>
+#include <set>
 #include <string>
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
@@ -93,6 +95,7 @@ namespace OpenSpeedShop { namespace Framework {
 
 	bool getGlobal(const std::string&, int64_t&);
 	bool getGlobal(const std::string&, std::string&);
+	bool getGlobalMPICHProcTable(Job&);
 	
     private:
 
@@ -131,10 +134,10 @@ namespace OpenSpeedShop { namespace Framework {
 				    GCBObjType, GCBMsgType);
 	static void expandCallback(GCBSysType, GCBTagType,
 				   GCBObjType, GCBMsgType);
+	static void getBlobCallback(GCBSysType, GCBTagType,
+				    GCBObjType, GCBMsgType);
 	static void getIntegerCallback(GCBSysType, GCBTagType,
 				       GCBObjType, GCBMsgType);
-	static void getStringCallback(GCBSysType, GCBTagType,
-				      GCBObjType, GCBMsgType);
 	static void installProbeCallback(GCBSysType, GCBTagType,
 					 GCBObjType, GCBMsgType);
 	static void loadModuleCallback(GCBSysType, GCBTagType,
@@ -240,6 +243,8 @@ namespace OpenSpeedShop { namespace Framework {
 
 	SourceObj findFunction(const std::string&);
 	SourceObj findVariable(const std::string&);
+
+	bool getString(const ProbeExp&, std::string&);
 	
 	std::pair<ProbeExp, std::multimap<Thread, ProbeHandle>::iterator>
 	prepareCallTo(const Collector&, const Thread&,

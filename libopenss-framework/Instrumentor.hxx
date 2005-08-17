@@ -29,6 +29,7 @@
 #include "config.h"
 #endif
 
+#include "Job.hxx"
 #include "OutputCallback.hxx"
 #include "Thread.hxx"
 
@@ -76,6 +77,7 @@ namespace OpenSpeedShop { namespace Framework {
 
 	bool getGlobal(const Thread&, const std::string&, int64_t&);
 	bool getGlobal(const Thread&, const std::string&, std::string&);
+	bool getGlobalMPICHProcTable(const Thread&, Job&);
 	
     }
     

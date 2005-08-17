@@ -893,7 +893,7 @@ bool Process::getGlobal(const std::string& global, int64_t& value)
     if(is_debug_enabled) {
 	std::stringstream output;
 	output << "[TID " << pthread_self() << "] "
-	       << "Process::getGlobal(\"" << global << "\", ...) for "
+	       << "Process::getGlobal(\"" << global << "\", <integer>) for "
 	       << formUniqueName(dm_host, dm_pid) 
 	       << std::endl;
 	std::cerr << output.str();
@@ -935,6 +935,10 @@ bool Process::getGlobal(const std::string& global, int64_t& value)
     AisStatus retval =
 	dm_process->bexecute(send_exp, getIntegerCallback, &value);
     MainLoop::resume();
+#ifndef NDEBUG
+    if(is_debug_enabled)
+    	debugDPCL("response from bexecute", retval);
+#endif
     
     // Indicate to the caller if the value was retrieved
     return retval.status() == ASC_success;
@@ -964,7 +968,7 @@ bool Process::getGlobal(const std::string& global, std::string& value)
     if(is_debug_enabled) {
 	std::stringstream output;
 	output << "[TID " << pthread_self() << "] "
-	       << "Process::getGlobal(\"" << global << "\", ...) for "
+	       << "Process::getGlobal(\"" << global << "\", <string>) for "
 	       << formUniqueName(dm_host, dm_pid) 
 	       << std::endl;
 	std::cerr << output.str();
@@ -978,49 +982,136 @@ bool Process::getGlobal(const std::string& global, std::string& value)
     if(variable.src_type() != SOT_data)
 	return false;
 
-    // Find the strlen() function
-    SourceObj strlen_func = findFunction("strlen");    
+    // Get the string from the process
+    return getString(variable.reference(), value);
+}
 
-    // Go no further if strlen() could not be found
-    if(strlen_func.src_type() != SOT_function)
-	return false;
+
+
+/**
+ * Get the MPICH process table.
+ * 
+ * Gets the current value of the MPICH process table within this process. The
+ * value is returned as a Job rather than directly as an array of MPIR_PROCDESC
+ * structures. This makes managing the memory associated with the table more
+ * obvious. Returns a boolean value indicating if the table's value was
+ * successfully retrieved.
+ *
+ * @sa    http://www-unix.mcs.anl.gov/mpi/mpi-debug/
+ *
+ * @retval value    Current value of the table.
+ * @return          Boolean "true" if the table's value was successfully
+ *                  retrieved, "false" otherwise.
+ */
+bool Process::getGlobalMPICHProcTable(Job& value)
+{
+    Guard guard_myself(this);
     
-    // Create a probe expression to retrieve this value
-    ProbeExp send_empty_args_exp[3] = {
-	Ais_msg_handle,
-	ProbeExp(""),
-	ProbeExp(1)
-    };
-    ProbeExp strlen_args_exp[1] = { 
-	variable.reference() 
-    };
-    ProbeExp send_args_exp[3] = {
-	Ais_msg_handle, 
-	variable.reference(),
-	strlen_func.reference().call(1, strlen_args_exp) + ProbeExp(1)
-    };
-    ProbeExp send_exp = variable.reference().ifelse(
-	Ais_send.call(3, send_args_exp),
-	Ais_send.call(3, send_empty_args_exp)
-	);
+#ifndef NDEBUG
+    if(is_debug_enabled) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] "
+	       << "Process::getGlobalMPICHProcTable(<job>) for "
+	       << formUniqueName(dm_host, dm_pid) 
+	       << std::endl;
+	std::cerr << output.str();
+    }
+#endif
 
-    // Define a pointer to the retrieved character array
-    char* buffer = NULL;
+    // Get the value of the "MPIR_proctable_size" variable
+    int64_t size = 0;
+    if(!getGlobal("MPIR_proctable_size", size))
+	return false;
+
+    // Find the "MPIR_proctable" variable
+    SourceObj variable = findVariable("MPIR_proctable");
+    
+    // Go no further if the "MPIR_proctable" global could not be found
+    if(variable.src_type() != SOT_data)
+	return false;
+
+    // Define types for 32-bit and 64-bit versions of the table
+
+    typedef struct {
+	uint32_t host_name;        /* Something we can pass to inet_addr */
+	uint32_t executable_name;  /* The name of the image */
+	int    pid;                /* The pid of the process */
+    } MPIR_PROCDESC_32;
+    
+    typedef struct {
+	uint64_t host_name;        /* Something we can pass to inet_addr */
+	uint64_t executable_name;  /* The name of the image */
+	int    pid;                /* The pid of the process */
+    } MPIR_PROCDESC_64;
+
+    // Determine if this is a 32-bit or 64-bit process    
+    SourceObj program = dm_process->get_program_object();
+    bool is_64bit = (program.get_program_type() == SOL_lp64);
+
+    // Calculate the number of bytes in the process table
+    size_t num_bytes = size * 
+	(is_64bit ? sizeof(MPIR_PROCDESC_64) : sizeof(MPIR_PROCDESC_32));
+    
+    // Create a probe expression to retrieve the table
+    ProbeExp send_args_exp[3] = { 
+	Ais_msg_handle,
+	variable.reference(),
+	ProbeExp(static_cast<int32_t>(num_bytes))
+    };
+    ProbeExp send_exp = Ais_send.call(3, send_args_exp);
+    
+    // Define a pointer to the retrieved process table
+    void* buffer = NULL;
     
     // Ask DPCL to execute the probe expression in this process
     MainLoop::suspend();
-    AisStatus retval =
-	dm_process->bexecute(send_exp, getStringCallback, &buffer);
+    AisStatus retval = dm_process->bexecute(send_exp, getBlobCallback, &buffer);
     MainLoop::resume();
-
-    // Extract and return the string's value if it was retrieved
-    if(buffer != NULL) {
-	value = std::string(buffer);
-	delete [] buffer;	
-    }
+#ifndef NDEBUG
+    if(is_debug_enabled)
+    	debugDPCL("response from bexecute", retval);
+#endif
+    bool succeeded = (retval.status() == ASC_success);
     
+    // Extract the table data if it was retrieved
+    if(buffer != NULL) {
+    
+	// Iterate over each entry in the table    
+	for(int i = 0; i < size; ++i)
+	    
+	    if(is_64bit) {
+		
+		// Cast the table to the appropriate type
+		MPIR_PROCDESC_64* table = 
+		    reinterpret_cast<MPIR_PROCDESC_64*>(buffer);
+		
+		// Get the host name string from the process
+		std::string host_name;
+		succeeded &= getString(ProbeExp(table[i].host_name), host_name);
+		
+		// Insert this host/pid pair into the result
+		value.insert(std::make_pair(host_name, table[i].pid));
+		
+	    }
+	    else {
+
+		// Cast the table to the appropriate type
+		MPIR_PROCDESC_32* table = 
+		    reinterpret_cast<MPIR_PROCDESC_32*>(buffer);
+		
+		// Get the host name string from the process
+		std::string host_name;
+		succeeded &= getString(ProbeExp(table[i].host_name), host_name);
+		
+		// Insert this host/pid pair into the result
+		value.insert(std::make_pair(host_name, table[i].pid));
+
+	    }
+
+    }
+
     // Indicate to the caller if the value was retrieved
-    return retval.status() == ASC_success; 
+    return succeeded;
 }
 
 
@@ -1759,6 +1850,40 @@ void Process::expandCallback(GCBSysType, GCBTagType tag,
 
 
 /**
+ * Get blob callback.
+ *
+ * Callback function called by the DPCL main loop when a blob of data is being
+ * returned. Allocates and stores a copy of the returned data, placing a pointer
+ * to this copy in the specified location.
+ */
+void Process::getBlobCallback(GCBSysType sys, GCBTagType tag,
+			      GCBObjType, GCBMsgType msg)
+{
+    char** value = reinterpret_cast<char**>(tag);
+
+    // Check assertions
+    Assert(value != NULL);
+
+#ifndef NDEBUG
+    if(is_debug_enabled) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] "
+	       << "Process::getBlobCallback()"
+	       << std::endl;
+	std::cerr << output.str();
+    }
+#endif
+
+    // Store a copy of the character array in the specified location
+    if(sys.msg_size > 0) {
+	*value = new char[sys.msg_size];
+	memcpy(*value, msg, sys.msg_size);
+    }
+}
+
+
+
+/**
  * Get integer callback.
  *
  * Callback function called by the DPCL main loop when an integer is being
@@ -1801,39 +1926,6 @@ void Process::getIntegerCallback(GCBSysType sys, GCBTagType tag,
 	*value = static_cast<int64_t>(*reinterpret_cast<int32_t*>(msg));
     else
 	*value = static_cast<int64_t>(*reinterpret_cast<int64_t*>(msg));
-}
-
-
-
-/**
- * Get string callback.
- *
- * Callback function called by the DPCL main loop when a string is being
- * returned. Allocates and stores a copy of the returned string, placing a
- * pointer to this copy in the specified location.
- */
-void Process::getStringCallback(GCBSysType sys, GCBTagType tag,
-				GCBObjType, GCBMsgType msg)
-{
-    char** value = reinterpret_cast<char**>(tag);
-
-    // Check assertions
-    Assert(value != NULL);
-    Assert(sys.msg_size > 0);
-
-#ifndef NDEBUG
-    if(is_debug_enabled) {
-	std::stringstream output;
-	output << "[TID " << pthread_self() << "] "
-	       << "Process::getStringCallback()"
-	       << std::endl;
-	std::cerr << output.str();
-    }
-#endif
-
-    // Store a copy of the character array in the specified location
-    *value = new char[sys.msg_size];
-    memcpy(*value, msg, sys.msg_size);
 }
 
 
@@ -3234,6 +3326,74 @@ SourceObj Process::findVariable(const std::string& name)
     
     // Return a default constructed source object if the variable wasn't found
     return SourceObj();    
+}
+
+
+
+/**
+ * Get a string.
+ *
+ * Gets the current value of a character string within this process. The value
+ * is returned as a C++ standard string rather than a C character array. This
+ * makes managing the memory associated with the string more obvious. Returns
+ * a boolean value indicating if the string's value was successfully retrieved.
+ *
+ * @param where     Probe expression for the address of the string whose value
+ *                  is being requested.
+ * @retval value    Current value of that string.
+ * @return          Boolean "true" if the string's value was successfully
+ *                  retrieved, "false" otherwise.
+ */
+bool Process::getString(const ProbeExp& where, std::string& value)
+{
+    Guard guard_myself(this);
+    
+    // Find the strlen() function
+    SourceObj strlen_func = findFunction("strlen");    
+
+    // Go no further if strlen() could not be found
+    if(strlen_func.src_type() != SOT_function)
+	return false;
+    
+    // Create a probe expression to retrieve this value
+    ProbeExp send_empty_args_exp[3] = {
+	Ais_msg_handle,
+	ProbeExp(""),
+	ProbeExp(1)
+    };
+    ProbeExp strlen_args_exp[1] = { 
+	where
+    };
+    ProbeExp send_args_exp[3] = {
+	Ais_msg_handle, 
+	where,
+	strlen_func.reference().call(1, strlen_args_exp) + ProbeExp(1)
+    };
+    ProbeExp send_exp = where.ifelse(
+	Ais_send.call(3, send_args_exp),
+	Ais_send.call(3, send_empty_args_exp)
+	);
+    
+    // Define a pointer to the retrieved character array
+    char* buffer = NULL;
+    
+    // Ask DPCL to execute the probe expression in this process
+    MainLoop::suspend();
+    AisStatus retval = dm_process->bexecute(send_exp, getBlobCallback, &buffer);
+    MainLoop::resume();
+#ifndef NDEBUG
+    if(is_debug_enabled)
+    	debugDPCL("response from bexecute", retval);
+#endif
+
+    // Extract and return the string's value if it was retrieved
+    if(buffer != NULL) {
+	value = std::string(buffer);
+	delete [] buffer;	
+    }
+    
+    // Indicate to the caller if the value was retrieved
+    return retval.status() == ASC_success; 
 }
 
 

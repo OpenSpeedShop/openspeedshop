@@ -63,6 +63,7 @@ libopenss_framework_la_SOURCES = \
 	Guard.hxx \
 	Instrumentor.hxx \
 	Interval.hxx \
+	Job.hxx \
 	LinkedObject.hxx LinkedObject.cxx \
 	Lockable.hxx \
 	Metadata.hxx \

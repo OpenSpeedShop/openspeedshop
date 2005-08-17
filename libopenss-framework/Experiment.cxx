@@ -477,12 +477,12 @@ ThreadGroup Experiment::attachMPIJob(const pid_t& pid,
 	Thread thread = *(connected.begin());
 	
 	// Look for any available MPI job information for this thread
-	mpi_job job;
+	Job job;
 	getMPIJobFromMPT(thread, job);
-	getMPIJobFromEtnus(thread, job);
+	getMPIJobFromMPICH(thread, job);
 	
 	// Iterate over any processes found to be in our MPI job
-	for(mpi_job::const_iterator i = job.begin(); i != job.end(); ++i) {
+	for(Job::const_iterator i = job.begin(); i != job.end(); ++i) {
 	    
 	    // Attach to this process
 	    ThreadGroup additional_threads = attachProcess(i->second, i->first);
@@ -823,7 +823,7 @@ void Experiment::removeCollector(const Collector& collector) const
  * @param thread    Thread for which to retrieve MPI job information.
  * @retval job      MPI job information for this thread.
  */
-void Experiment::getMPIJobFromMPT(const Thread& thread, mpi_job& job)
+void Experiment::getMPIJobFromMPT(const Thread& thread, Job& job)
 {
 #ifdef HAVE_ARRAYSVCS
 
@@ -876,21 +876,33 @@ void Experiment::getMPIJobFromMPT(const Thread& thread, mpi_job& job)
 
 
 /**
- * Get MPI job information from Etnus interface.
+ * Get MPI job information from MPICH interface.
  *
  * Returns MPI job information for the specified thread. Looks for specific
  * global variables that indicate the specified thread is part of an MPI job
- * that supports the Etnus "process-finding" interface. If these variables
+ * that supports the MPICH "process-finding" interface. If these variables
  * are found, they are used to retrieve and return all the host/pid pairs
  * that are part of the MPI job containing this thread. No information is
- * returned if the specified thread doesn't contain the Etnus process-finding
+ * returned if the specified thread doesn't contain the MPICH process-finding
  * interface. 
  *
- * @todo    Currently this routine is unimplemented.
+ * @sa    http://www-unix.mcs.anl.gov/mpi/mpi-debug/
  *
  * @param thread    Thread for which to retrieve MPI job information.
  * @retval job      MPI job information for this thread.
  */
-void Experiment::getMPIJobFromEtnus(const Thread& thread, mpi_job& job)
+void Experiment::getMPIJobFromMPICH(const Thread& thread, Job& job)
 {
+    bool is_mpich_job = true;
+    Job table;
+
+    // Attempt to access the MPICH process table from this thread
+    is_mpich_job &= Instrumentor::getGlobalMPICHProcTable(thread, table);
+    
+    // Go no further if this thread isn't in an MPICH MPI job
+    if(!is_mpich_job)
+	return;
+
+    // Add this table to the MPI job information
+    job.insert(table.begin(), table.end());    
 }

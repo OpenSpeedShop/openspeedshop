@@ -368,7 +368,8 @@ void Instrumentor::uninstrument(const Thread& thread,
  * @pre    Only applies to a thread which is connected. A ThreadUnavailable
  *         exception is thrown if called for a thread that is not connected.
  *
- * @param thread    Thread from the global variable value should be retrieved.
+ * @param thread    Thread from which the global variable value should be
+ *                  retrieved.
  * @param global    Name of global variable whose value is being requested.
  * @retval value    Current value of that variable.
  * @return          Boolean "true" if the variable's value was successfully
@@ -409,7 +410,8 @@ bool Instrumentor::getGlobal(const Thread& thread,
  * @pre    Only applies to a thread which is connected. A ThreadUnavailable
  *         exception is thrown if called for a thread that is not connected.
  *
- * @param thread    Thread from the global variable value should be retrieved.
+ * @param thread    Thread from which the global variable value should be
+ *                  retrieved.
  * @param global    Name of global variable whose value is being requested.
  * @retval value    Current value of that variable.
  * @return          Boolean "true" if the variable's value was successfully
@@ -436,4 +438,41 @@ bool Instrumentor::getGlobal(const Thread& thread,
     
     // Request the global variable be retrieved from the process
     return process->getGlobal(global, value);
+}
+
+
+
+/**
+ * Get value of the MPICH process table from a thread.
+ *
+ * Gets the current value of the MPICH process table within this thread. Used
+ * to obtain this information for the purposes of attaching to an entire MPI
+ * job.
+ *
+ * @pre    Only applies to a thread which is connected. A ThreadUnavailable
+ *         exception is thrown if called for a thread that is not connected.
+ *
+ * @param thread    Thread from which the MPICH process table should be
+ *                  retrieved. 
+ * @retval value    Current value of the MPICH process table.
+ */
+bool Instrumentor::getGlobalMPICHProcTable(const Thread& thread, Job& value)
+{
+    SmartPtr<Process> process;
+     
+    // Critical section touching the process table
+    {
+        Guard guard_process_table(ProcessTable::TheTable);
+
+        // Get the process for this thread (if any)
+        process = ProcessTable::TheTable.getProcessByThread(thread);
+    }
+
+    // Check preconditions
+    if(process.isNull() || !process->isConnected())
+        throw Exception(Exception::ThreadUnavailable, thread.getHost(),
+                        Exception::toString(thread.getProcessId()));
+    
+    // Request the MPICH process table be retrieved from the process
+    return process->getGlobalMPICHProcTable(value);
 }

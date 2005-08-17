@@ -30,6 +30,7 @@
 #endif
 
 #include "Database.hxx"
+#include "Job.hxx"
 #include "NonCopyable.hxx"
 #include "OutputCallback.hxx"
 #include "SmartPtr.hxx"
@@ -122,11 +123,8 @@ namespace OpenSpeedShop { namespace Framework {
 	
     private:
 
-	/** Type containing MPI job information (a set of host/pid pairs). */
-	typedef std::set<std::pair<std::string, pid_t> > mpi_job;
-	
-	static void getMPIJobFromMPT(const Thread&, mpi_job&);
-	static void getMPIJobFromEtnus(const Thread&, mpi_job&);
+	static void getMPIJobFromMPT(const Thread&, Job&);
+	static void getMPIJobFromMPICH(const Thread&, Job&);
 	
 	/** Experiment database. */
 	SmartPtr<Database> dm_database;
