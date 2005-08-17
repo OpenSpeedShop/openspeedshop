@@ -44,6 +44,7 @@ class QHBoxLayout;
 class OpenSpeedshop;
 
 class ArgumentObject;
+class LoadAttachObject;
 
 #undef PANEL_CLASS_NAME
 #define PANEL_CLASS_NAME UserTimePanel   // Change the value of the define
@@ -158,6 +159,7 @@ private:
   int expID;  // Experiment ID of the expCreate, returned from the cli
   OpenSpeedShop::Framework::Experiment *experiment;
 
+  int processLAO(LoadAttachObject *);
   void updateInitialStatus();
 
   QTimer *statusTimer;

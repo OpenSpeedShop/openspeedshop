@@ -1209,12 +1209,15 @@ void MPIWizardPanel::vSummaryPageFinishButtonSelected()
         if( !p )
         {
           ArgumentObject *ao = new ArgumentObject("ArgumentObject", -1 );
+ao->lao = lao;
           p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("MPI", getPanelContainer(), ao);
           delete ao;
+        } else
+        {
+          p->listener((void *)lao);
         }
 
         getPanelContainer()->hidePanel((Panel *)this);
-        p->listener((void *)lao);
 // The receiving routine should delete this...
 // delete paramList;
       }

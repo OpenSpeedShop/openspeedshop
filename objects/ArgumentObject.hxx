@@ -21,6 +21,7 @@
 #define ARGUMENTOBJECT_H
 
 #include <qstring.h>
+#include "LoadAttachObject.hxx"
 
 class Panel;
 
@@ -42,5 +43,7 @@ public:
     Panel *panel_data;
     QString *qstring_data;
     bool loadedFromSavedFile;
+
+LoadAttachObject *lao;
 };
 #endif // ARGUMENTOBJECT_H

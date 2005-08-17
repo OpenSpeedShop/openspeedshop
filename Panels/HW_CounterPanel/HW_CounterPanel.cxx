@@ -78,6 +78,12 @@ HW_CounterPanel::HW_CounterPanel(PanelContainer *pc, const char *n, ArgumentObje
   argsStr = mw->argsStr;
   pidStr = mw->pidStr;
 
+/*
+if( ao )
+{
+  ao->print();
+}
+*/
   expID = -1;
   if( ao && ao->qstring_data )
   {
@@ -116,6 +122,7 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
   command += " -mpi";
 }
         CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+// printf("A: command=(%s)\n", command.ascii() );
         if( !cli->runSynchronousCLI((char *)command.ascii() ) )
         {
           return;
@@ -187,11 +194,13 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
 
     CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
 // printf("command=(%s)\n", command.ascii() );
+// printf("B: command=(%s)\n", command.ascii() );
     if( !cli->getIntValueFromCLI(command.ascii(), &val, mark_value_for_delete ) )
     {
 //      fprintf(stderr, "Error retreiving experiment id. \n");
       QMessageBox::information( this, "No collector found:", QString("Unable to issue command:\n  ")+command, QMessageBox::Ok );
       command = QString("expCreate"); 
+// printf("C: command=(%s)\n", command.ascii() );
       if( !cli->getIntValueFromCLI(command.ascii(), &val, mark_value_for_delete ) )
       { // fatal errror.
         QMessageBox::critical( this, QString("Critical error:"), QString("Command line not responding as expected:\n  ")+command, QMessageBox::Ok,  QMessageBox::NoButton );
@@ -245,6 +254,7 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
 
   if( expID > 0 && !executableNameStr.isEmpty() )
   {
+// printf("Here A: \n");
     statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the \"Run\" button to begin the experiment.")) );
     runnableFLAG = TRUE;
     pco->runButton->setEnabled(TRUE);
@@ -252,6 +262,7 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
     updateInitialStatus();
   } else if( expID > 0 )
   {
+// printf("Here B: \n");
     ThreadGroup tgrp = experiment->getThreads();
     ThreadGroup::iterator ti = tgrp.begin();
     if( tgrp.size() == 0 )
@@ -288,12 +299,20 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
     }
   } else if( executableNameStr.isEmpty() )
   {
+// printf("Here C: \n");
     statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\".") );
     runnableFLAG = FALSE;
     pco->runButton->setEnabled(FALSE);
     pco->runButton->enabledFLAG = FALSE;
 //    updateInitialStatus();
   }
+
+if( ao && ao->lao )
+{
+// printf("Down here.   We have more work to do.\n");
+
+  processLAO(ao->lao);
+}
 
   updateInitialStatus();
 
@@ -617,6 +636,7 @@ CLIInterface::interrupt = true;
   {
     nprintf( DEBUG_MESSAGES ) ("we've got a LoadAttachObject message\n");
 
+#ifdef OLDWAY
     if( lao->loadNowHint == TRUE || runnableFLAG == FALSE )
     {
       mw->executableName = lao->executableName;
@@ -683,6 +703,7 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
       pco->runButton->enabledFLAG = FALSE;
   
       CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+// printf("D: command=(%s)\n", command.ascii() );
       if( !cli->runSynchronousCLI((char *)command.ascii() ) )
       {
         QMessageBox::information( this, "No collector found:", QString("Unable to issue command:\n  ")+command, QMessageBox::Ok );
@@ -727,8 +748,9 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
           {
             CollectorGroup::iterator ci = cgrp.begin();
             nprintf( DEBUG_MESSAGES ) ("sampling_rate=%u\n", sampling_rate);
-            QString command = QString("expSetparam -x %1 sampling_rate = %2").arg(expID).arg(sampling_rate);
+            QString command = QString("expSetParam -x %1 sampling_rate = %2").arg(expID).arg(sampling_rate);
             CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+// printf("E: command=(%s)\n", command.ascii() );
             if( !cli->runSynchronousCLI((char *)command.ascii() ) )
             {
               return 0;
@@ -743,8 +765,9 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
               {
                 QString event_value = (QString)*it;
             
-                QString command = QString("expSetparam -x %1 event = %2").arg(expID).arg(event_value);
+                QString command = QString("expSetParam -x %1 event = %2").arg(expID).arg(event_value);
                 CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+// printf("F: command=(%s)\n", command.ascii() );
                 if( !cli->runSynchronousCLI((char *)command.ascii() ) )
                 {
                   return 0;
@@ -762,6 +785,9 @@ delete lao->paramList;
       }
       ret_val = 1;
     }
+#else // OLDWAY
+    ret_val = processLAO(lao);
+#endif // OLDWAY
   }
 
   return ret_val;  // 0 means, did not want this message and did not act on anything.
@@ -1212,4 +1238,150 @@ HW_CounterPanel::progressUpdate()
   {
     step_forward = TRUE;
   }
+}
+
+
+int
+HW_CounterPanel::processLAO(LoadAttachObject *lao)
+{
+  if( lao->paramList ) // Really not a list yet, just one param.
+  {
+    QString sample_rate_str = (QString)*lao->paramList->begin();
+// printf("sample_rate_str=(%s)\n", sample_rate_str.ascii() );
+    unsigned int sampling_rate = sample_rate_str.toUInt();
+    // Set the sample_rate of the collector.
+    try
+    {
+      ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+      if( eo && eo->FW() )
+      {
+        experiment = eo->FW();
+      }
+      ThreadGroup tgrp = experiment->getThreads();
+      CollectorGroup cgrp = experiment->getCollectors();
+      if( cgrp.size() > 0 )
+      {
+        CollectorGroup::iterator ci = cgrp.begin();
+        nprintf( DEBUG_MESSAGES ) ("sampling_rate=%u\n", sampling_rate);
+        QString command = QString("expSetParam -x %1 sampling_rate = %2").arg(expID).arg(sampling_rate);
+        CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+// printf("E: command=(%s)\n", command.ascii() );
+        if( !cli->runSynchronousCLI((char *)command.ascii() ) )
+        {
+          return 0;
+        }
+        if( QString(getName()).contains("HW Counter") )
+        {
+          printf("W'ere the HW Counter Panel!!!\n");
+            
+          ParamList::Iterator it = lao->paramList->begin();
+          it++;
+          if( it != lao->paramList->end() )
+          {
+            QString event_value = (QString)*it;
+            
+            QString command = QString("expSetParam -x %1 event = %2").arg(expID).arg(event_value);
+            CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+// printf("F: command=(%s)\n", command.ascii() );
+            if( !cli->runSynchronousCLI((char *)command.ascii() ) )
+            {
+              return 0;
+            }
+          }
+        }
+      }
+
+    }
+    catch(const std::exception& error)
+    {
+      return 0;
+    }
+    delete lao->paramList;
+  }
+  nprintf( DEBUG_MESSAGES ) ("we've got a LoadAttachObject message\n");
+
+  if( lao->loadNowHint == TRUE || runnableFLAG == FALSE )
+  {
+    mw->executableName = lao->executableName;
+    executableNameStr = lao->executableName;
+    mw->pidStr = lao->pidStr;
+    pidStr = lao->pidStr;
+ 
+    executableNameStr = lao->executableName;
+    pidStr = lao->pidStr;
+ 
+    QString command = QString::null;
+    if( !executableNameStr.isEmpty() )
+    {
+      command = QString("expAttach -x %1 -f \"%2 %3\"\n").arg(expID).arg(executableNameStr).arg(argsStr);
+if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
+{
+  command += " -mpi";
+}
+// printf("executableNameStr is not empty.\n");
+    } else if( !pidStr.isEmpty() )
+    { 
+      QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
+      QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
+      QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
+// printf("host_name=(%s)\n", host_name.ascii() );
+// printf("pid_name=(%s)\n", pid_name.ascii() );
+// printf("prog_name=(%s)\n", prog_name.ascii() );
+
+// printf("pidStr =%s\n", pidStr.ascii() );
+// printf("mw->hostStr =%s\n", mw->hostStr.ascii() );
+
+      command = QString("expAttach -x %1 -p  %2 -h %3\n").arg(expID).arg(pidStr).arg(mw->hostStr);
+if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
+{
+  command += " -mpi";
+}
+// printf("command=(%s)\n", command.ascii() );
+    } else
+    {
+      return 0;
+//    command = QString("expCreate hwc\n");
+    }
+    bool mark_value_for_delete = true;
+    int64_t val = 0;
+ 
+    steps = 0;
+ 	pd = new GenericProgressDialog(this, "Loading process...", TRUE);
+    loadTimer = new QTimer( this, "progressTimer" );
+    connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
+    loadTimer->start( 0 );
+    pd->show();
+    statusLabelText->setText( tr(QString("Loading ...  "))+mw->executableName);
+ 
+    runnableFLAG = FALSE;
+    pco->runButton->setEnabled(FALSE);
+    pco->runButton->enabledFLAG = FALSE;
+  
+    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+// printf("D: command=(%s)\n", command.ascii() );
+    if( !cli->runSynchronousCLI((char *)command.ascii() ) )
+    {
+      QMessageBox::information( this, "No collector found:", QString("Unable to issue command:\n  ")+command, QMessageBox::Ok );
+      statusLabelText->setText( tr(QString("Unable to load executable name:  "))+mw->executableName);
+      loadTimer->stop();
+      pd->hide();
+      return 1;
+    }
+ 
+    statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the \"Run\" button to begin the experiment.")) );
+    loadTimer->stop();
+    pd->hide();
+ 
+    if( !executableNameStr.isEmpty() || !pidStr.isEmpty() )
+    {
+      runnableFLAG = TRUE;
+      pco->runButton->setEnabled(TRUE);
+      pco->runButton->enabledFLAG = TRUE;
+    }
+  
+    updateInitialStatus();
+  }
+
+// We handled it...
+  return 1;
 }

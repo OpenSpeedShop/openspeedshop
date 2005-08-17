@@ -41,6 +41,7 @@ ArgumentObject::init()
   panel_data = NULL;
   qstring_data = NULL;
   loadedFromSavedFile = FALSE;
+  lao = NULL;
 }
 
 ArgumentObject::ArgumentObject(QString msg_type, int d)
@@ -84,4 +85,9 @@ ArgumentObject::print()
   printf("  int_data=%d\n", int_data);
   printf("  qstring_data=%s\n", qstring_data ? qstring_data->ascii() : "NULL");
   printf("  loadedFromSavedFile=%d\n", loadedFromSavedFile);
+  printf("  lao:\n");
+  if( lao )
+  {
+    lao->print();
+  }
 }
