@@ -29,7 +29,7 @@ QString prompt = QString::null;
 
 #include "SS_Input_Manager.hxx"
 
-#define REDIRECT_IO 1
+// #define REDIRECT_IO 1
 
 /*! \class CmdPanel
   The CmdPanel class is designed to accept command line input from the user.
@@ -39,7 +39,6 @@ QString prompt = QString::null;
   */
 static  QTextEdit *output;
 
-static pthread_mutex_t CmdPanel_Lock = PTHREAD_MUTEX_INITIALIZER;
 class OutputClass : public ss_ostream
 {
   public:
@@ -48,7 +47,7 @@ class OutputClass : public ss_ostream
   private:
     virtual void output_string (std::string s)
     {
-pthread_mutex_lock(&CmdPanel_Lock);
+//printf("output_string() entered (%s)\n", s.c_str() );
       // This goes to the text stream...
       cp->textDisabled = TRUE;
       output->moveCursor(QTextEdit::MoveEnd, FALSE);
@@ -61,15 +60,16 @@ pthread_mutex_lock(&CmdPanel_Lock);
       cp->textDisabled = FALSE;
 /* This flush was added to prevent the following error:
     "QPixmap::operator=: Cannot assign to pixmap during painting" 
-   If you see that error again, this block of code may need a 
-   thread lock to prevent multiple access.
 */
       flush_ostream();
-pthread_mutex_unlock(&CmdPanel_Lock);
+      output->sync();
+// printf("output_string() finished\n");
     }
     virtual void flush_ostream ()
     {
       qApp->flushX();
+printf("flush_ostream() sleeping.\n");
+// sleep(1);
     }
 };
 
@@ -118,8 +118,9 @@ CmdPanel::CmdPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc
 #ifdef REDIRECT_IO
 // printf("CmdPanel.   Redirect all output here...\n");
   int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
-// printf("wid=%d\n", wid);
   Redirect_Window_Output( wid, oclass, oclass );
+#else // REDIRECT_IO
+printf("REDIRECT IO TURNED OFF.\n");
 #endif // REDIRECT_IO
 }
 
@@ -184,9 +185,9 @@ CmdPanel::returnPressed()
   {
     QString command = (QString) *ci;
     nprintf(DEBUG_PANELS) ("Send down (%s)\n", command.ascii());
-#ifdef REDIRECT_IO
     int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
-    Redirect_Window_Output( wid, oclass, oclass );
+#ifdef REDIRECT_IO
+//    Redirect_Window_Output( wid, oclass, oclass );
 #endif // REDIRECT_IO
 
     InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii());
