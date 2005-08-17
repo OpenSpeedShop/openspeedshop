@@ -1098,10 +1098,10 @@ fprintf(stderr, "No function definition for this entry.   Unable to position sou
 PanelContainer *startPC = NULL;
 if( getPanelContainer()->parentPanelContainer != NULL )
 {
-  getPanelContainer()->parentPanelContainer;
+  startPC = getPanelContainer()->parentPanelContainer;
 } else
 {
-  getPanelContainer();
+  startPC = getPanelContainer();
 }
         PanelContainer *bestFitPC = topPC->findBestFitPanelContainer(startPC);
         ArgumentObject *ao = new ArgumentObject("ArgumentObject", groupID);
