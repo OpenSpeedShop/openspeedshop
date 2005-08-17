@@ -29,6 +29,7 @@ QString prompt = QString::null;
 
 #include "SS_Input_Manager.hxx"
 
+#define REDIRECT_IO 1
 
 /*! \class CmdPanel
   The CmdPanel class is designed to accept command line input from the user.
@@ -38,16 +39,16 @@ QString prompt = QString::null;
   */
 static  QTextEdit *output;
 
+static pthread_mutex_t CmdPanel_Lock = PTHREAD_MUTEX_INITIALIZER;
 class OutputClass : public ss_ostream
 {
   public:
     CmdPanel *cp;
     void setCP(CmdPanel *_cp) { cp = _cp; };
-    pthread_mutex_t CmdPanel_Lock;
   private:
     virtual void output_string (std::string s)
     {
-Assert(pthread_mutex_lock(&CmdPanel_Lock) == 0)
+pthread_mutex_lock(&CmdPanel_Lock);
       // This goes to the text stream...
       cp->textDisabled = TRUE;
       output->moveCursor(QTextEdit::MoveEnd, FALSE);
@@ -64,7 +65,7 @@ Assert(pthread_mutex_lock(&CmdPanel_Lock) == 0)
    thread lock to prevent multiple access.
 */
       flush_ostream();
-Assert(pthread_mutex_unlock(&CmdPanel_Lock) == 0)
+pthread_mutex_unlock(&CmdPanel_Lock);
     }
     virtual void flush_ostream ()
     {
@@ -114,10 +115,12 @@ CmdPanel::CmdPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc
 
   show();
 
+#ifdef REDIRECT_IO
 // printf("CmdPanel.   Redirect all output here...\n");
   int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
 // printf("wid=%d\n", wid);
   Redirect_Window_Output( wid, oclass, oclass );
+#endif // REDIRECT_IO
 }
 
 
@@ -181,9 +184,10 @@ CmdPanel::returnPressed()
   {
     QString command = (QString) *ci;
     nprintf(DEBUG_PANELS) ("Send down (%s)\n", command.ascii());
+#ifdef REDIRECT_IO
     int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
-printf("wid=%d\n", wid);
     Redirect_Window_Output( wid, oclass, oclass );
+#endif // REDIRECT_IO
 
     InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii());
 
@@ -212,32 +216,11 @@ printf("wid=%d\n", wid);
       nprintf(DEBUG_PANELS) ("status = %d\n", status );
       if( status == ILO_ERROR )
       {
-#ifdef OLDDWAY
-        int64_t val = 0;
-        std::list<CommandObject *>::iterator coi;
-        coi = clip->CmdObj_List().begin();
-        CommandObject *co = (CommandObject *)(*coi);
-        std::list<CommandResult *>::iterator crl;
-        crl = co->Result_List().begin();
-        CommandResult_Int *cr_int = (CommandResult_Int *)(*crl);
-        cr_int->Value(&val);
-
-        fprintf(stderr, "ILO_ERROR val=(%d)!!!\n", val);
-#endif //  OLDDWAY
         break;
       }
       sleep(1);
       qApp->processEvents(3);
       status = clip->What();
-#ifdef OLDWAY
-      rough_second_count++;
-      if( rough_second_count > 30 )
-      {
-        fprintf(stdout, "Fake an error!\n");
-        output->append("Unable to process command.");
-        break;
-       }
-#endif // OLDWAY
     }
 
     if( clip )
