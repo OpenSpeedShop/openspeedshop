@@ -31,6 +31,76 @@ using namespace std;
 
 using namespace OpenSpeedShop::cli;
 
+// Move to Query library
+
+bool ISZERO (int a) { return (a == 0); }
+bool ISZERO (uint a) { return (a == 0); }
+bool ISZERO (int64_t a) { return (a == 0); }
+bool ISZERO (uint64_t a) { return (a == 0); }
+bool ISZERO (float a) { return (a == 0.0); }
+bool ISZERO (double a) { return (a == 0.0); }
+bool ISZERO (std::string a) { return (a.length() == 0); }
+
+template <typename T>
+void GetMetricByFunctionInThread(
+    const Collector& collector,
+    const std::string& metric,
+    const Thread& thread,
+    SmartPtr<std::map<Function, T> >& result)
+{
+    // Check preconditions
+    Assert(collector.inSameDatabase(thread));
+
+    // Lock the appropriate database
+    collector.lockDatabase();
+
+    // Time interval covering earliest to latest possible time
+    const TimeInterval Forever =
+        TimeInterval(Time::TheBeginning(), Time::TheEnd());
+
+    // Allocate a new map of functions to type T
+    result = SmartPtr<std::map<Function, T> >(
+        new std::map<Function, T>()
+        );
+    Assert(!result.isNull());
+
+    // Get the current list of functions in this thread
+    std::set<Function> functions = thread.getFunctions();
+
+    // Iterate over each function
+    for(std::set<Function>::const_iterator
+            i = functions.begin(); i != functions.end(); ++i) {
+        // Get the address range of this function
+        AddressRange range = i->getAddressRange();
+
+        // Evalute the metric over this address range
+        T value;
+        collector.getMetricValue(metric, thread, range, Forever, value);
+
+        // Add this function and its metric value to the map
+        if(!ISZERO(value))
+            result->insert(std::make_pair(*i, value));
+
+    }
+
+    // Unlock the apropriate database
+    collector.unlockDatabase();
+}
+
+template <typename T>
+void GetMetricByFunctionInThreadGroup(
+    const Collector& collector,
+    const std::string& metric,
+    const ThreadGroup& tgrp,
+    SmartPtr<std::map<Function, T> >& result)
+{
+  ThreadGroup::iterator ti;
+  for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+    Thread thread = *ti;
+    GetMetricByFunctionInThread(collector, metric, thread, result);
+  }
+}
+
 // Global View management utilities
 
 template <class T>
@@ -226,66 +296,79 @@ CommandResult *Get_Total_Metric (CommandObject *cmd,
   return Param_Value;
 }
 
-std::set<Function> GetFunctions (CommandObject *cmd,
-                                 ThreadGroup tgrp)
-{
-  std::set<Function> functions;
+void GetMetricByFunction (CommandObject *cmd,
+                          bool ascending_sort,
+                          ThreadGroup tgrp,
+                          Collector collector,
+                          std::string metric,
+                          std::vector<Function_CommandResult_pair>& items) {
 
- // Iterate over all the threads and find all the functions
-  ThreadGroup::iterator ti;
-  for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
-    Thread T = *ti;
-    try {
-      std::set<Function> fset = T.getFunctions();
+  Metadata m = Find_Metadata ( collector, metric );
+  std::string id = m.getUniqueId();
 
-     // Iterate over each function and add it to the base set.
-      for(std::set<Function>::const_iterator
-              it = fset.begin(); it != fset.end(); ++it) {
-        functions.insert(*it);
-      }
-
+  if( m.isType(typeid(unsigned int)) ) {
+    SmartPtr<std::map<Function, uint> > data;
+    GetMetricByFunctionInThreadGroup (collector, metric, tgrp, data);
+    for(std::map<Function, uint>::const_iterator
+        item = data->begin(); item != data->end(); ++item) {
+      std::pair<Function, uint> p = *item;
+      items.push_back( std::make_pair(p.first, new CommandResult_Uint (p.second)) );
     }
-    catch(const Exception& error) {
-     // Ignore errors and do with what is available.
+  } else if( m.isType(typeid(uint64_t)) ) {
+    SmartPtr<std::map<Function, uint64_t> > data;
+    GetMetricByFunctionInThreadGroup (collector, metric, tgrp, data);
+    for(std::map<Function, uint64_t>::const_iterator
+        item = data->begin(); item != data->end(); ++item) {
+      std::pair<Function, uint64_t> p = *item;
+      items.push_back( std::make_pair(p.first, new CommandResult_Uint (p.second)) );
     }
-  }
-
-  return functions;
-}
-
-std::vector<Function_CommandResult_pair>
-                 GetMetricByFunction (CommandObject *cmd,
-                                      bool ascending_sort,
-                                      ThreadGroup tgrp,
-                                      Collector C,
-                                      std::string metric)
-{
-  std::vector<Function_CommandResult_pair> items;
-
- // Get the current list of functions in this thread
-  std::set<Function> functions = GetFunctions (cmd, tgrp);
-
- // Iterate over each function
-  for(std::set<Function>::const_iterator
-            i = functions.begin(); i != functions.end(); ++i) {
-   // Check for asnychonous abort command
-    if (cmd->Status() == CMD_ABORTED) {
-      return items;
+  } else if( m.isType(typeid(int)) ) {
+    SmartPtr<std::map<Function, int> > data;
+    GetMetricByFunctionInThreadGroup (collector, metric, tgrp, data);
+    for(std::map<Function, int>::const_iterator
+        item = data->begin(); item != data->end(); ++item) {
+      std::pair<Function, int> p = *item;
+      items.push_back( std::make_pair(p.first, new CommandResult_Int (p.second)) );
     }
-
-   // Evalute the metric for this function
-    CommandResult *value = Get_Function_Metric ( cmd, *i, tgrp, C, metric);
-
-   // Add this function and its metric value to the map
-    if(value != NULL) {
-        items.push_back( std::make_pair(*i, value) );
+  } else if( m.isType(typeid(int64_t)) ) {
+    SmartPtr<std::map<Function, int64_t> > data;
+    GetMetricByFunctionInThreadGroup (collector, metric, tgrp, data);
+    for(std::map<Function, int64_t>::const_iterator
+        item = data->begin(); item != data->end(); ++item) {
+      std::pair<Function, int64_t> p = *item;
+      items.push_back( std::make_pair(p.first, new CommandResult_Int (p.second)) );
     }
-
+  } else if( m.isType(typeid(float)) ) {
+    SmartPtr<std::map<Function, float> > data;
+    GetMetricByFunctionInThreadGroup (collector, metric, tgrp, data);
+    for(std::map<Function, float>::const_iterator
+        item = data->begin(); item != data->end(); ++item) {
+      std::pair<Function, float> p = *item;
+      items.push_back( std::make_pair(p.first, new CommandResult_Float (p.second)) );
+    }
+  } else if( m.isType(typeid(double)) ) {
+    SmartPtr<std::map<Function, double> > data;
+    GetMetricByFunctionInThreadGroup (collector, metric, tgrp, data);
+    for(std::map<Function, double>::const_iterator
+        item = data->begin(); item != data->end(); ++item) {
+      std::pair<Function, double> p = *item;
+      items.push_back( std::make_pair(p.first, new CommandResult_Float (p.second)) );
+    }
+  } else if( m.isType(typeid(string)) ) {
+    SmartPtr<std::map<Function, string> > data;
+    GetMetricByFunctionInThreadGroup (collector, metric, tgrp, data);
+    for(std::map<Function, string>::const_iterator
+        item = data->begin(); item != data->end(); ++item) {
+      std::pair<Function, string> p = *item;
+      items.push_back( std::make_pair(p.first, new CommandResult_String (p.second)) );
+    }
+  } else {
+    return;
   }
 
  // Check for asnychonous abort command
   if (cmd->Status() == CMD_ABORTED) {
-    return items;
+    return;
   }
 
  // Now we can sort the data.
@@ -295,57 +378,9 @@ std::vector<Function_CommandResult_pair>
     std::sort(items.begin(), items.end(), sort_descending_CommandResult<Function_CommandResult_pair>());
   }
 
-  return items;
+  return;
 }
 
-std::vector<Function_double_pair>
-                 GetDoubleByFunction (CommandObject *cmd,
-                                      bool ascending_sort,
-                                      ThreadGroup tgrp,
-                                      Collector C,
-                                      std::string metric)
-{
-  std::vector<Function_double_pair> items;
-  SmartPtr<std::map<Function, double> > data;
-
-  ThreadGroup::iterator ti;
-  for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
-    Thread T = *ti;
-    try {
-      Queries::GetMetricByFunctionInThread(C, metric, T, data);
-    }
-    catch(const Exception& error) {
-      //Mark_Cmd_With_Std_Error (cmd, error);
-      //return data;
-    }
-  }
-
- // Now we can sort the data.
-  for(std::map<Function, double>::const_iterator
-      item = data->begin(); item != data->end(); ++item)
-  {
-    items.push_back( *item );
-  }
-
-  if (ascending_sort) {
-    std::sort(items.begin(), items.end(), sort_ascending<Function_double_pair>());
-  } else {
-    std::sort(items.begin(), items.end(), sort_descending<Function_double_pair>());
-  }
-
-  return items;
-}
-
-double Total_second (std::vector<Function_double_pair> items) {
- // Calculate the total time for this set of samples.
-  double Total = 0.0;
-  std::vector<Function_double_pair>::const_iterator itt = items.begin();
-  for( ; itt != items.end(); itt++ ) {
-    Total += itt->second;
-  }
-  return Total;
-}
- 
 static bool Remainaing_Length_Is_Numeric (std::string viewname, int64_t L) {
   for (int64_t i = L; i < viewname.length(); i++) {
     char a = viewname[i];
