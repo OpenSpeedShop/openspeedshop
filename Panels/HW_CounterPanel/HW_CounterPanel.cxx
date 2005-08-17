@@ -259,7 +259,7 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
       statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\".") );
         PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
       ArgumentObject *ao = new ArgumentObject("ArgumentObject", (Panel *)this);
-      topPC->dl_create_and_add_panel("pc Sample Wizard", bestFitPC, ao);
+      topPC->dl_create_and_add_panel("HW Counter Wizard", bestFitPC, ao);
       delete ao;
     } else
     {
