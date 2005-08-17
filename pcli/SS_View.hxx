@@ -172,11 +172,8 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                    ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
                    std::vector<ViewInstruction *>IV, std::string *HV = NULL);
 
-std::set<Function> GetFunctions (CommandObject *cmd,
-                                 ThreadGroup tgrp);
 typedef std::pair<Function, CommandResult *> Function_CommandResult_pair;
 typedef std::pair<Function, double> Function_double_pair;
-CommandResult *Get_Collector_Metadata_Value (Collector c, std::string m_name);
 CommandResult *Init_Collector_Metric (CommandObject *cmd,
                                       Collector collector,
                                       std::string metric);
@@ -189,19 +186,12 @@ CommandResult *Get_Total_Metric (CommandObject *cmd,
                                  ThreadGroup tgrp,
                                  Collector collector,
                                  std::string metric);
-std::vector<Function_CommandResult_pair>
-                 GetMetricByFunction (CommandObject *cmd,
-                                      bool ascending_sort,
-                                      ThreadGroup tgrp,
-                                      Collector C,
-                                      std::string metric);
-std::vector<Function_double_pair>
-                 GetDoubleByFunction (CommandObject *cmd,
-                                      bool ascending_sort,
-                                      ThreadGroup tgrp,
-                                      Collector C,
-                                      std::string metric);
-double Total_second (std::vector<Function_double_pair> items);
+void GetMetricByFunction (CommandObject *cmd,
+                          bool ascending_sort,
+                          ThreadGroup tgrp,
+                          Collector C,
+                          std::string metric,
+                          std::vector<Function_CommandResult_pair>& items);
 ViewType *Find_View (std::string viewname);
 bool Collector_Generates_Metrics (Collector C, std::string *Metric_List);
 std::string Find_Collector_With_Metrics (CollectorGroup cgrp,

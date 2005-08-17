@@ -70,8 +70,8 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
       return false;   // There is no column[0] defined, return.
     }
     int64_t Column0index = vinst0->TMP1();
-    std::vector<Function_CommandResult_pair> items = GetMetricByFunction (cmd, false, tgrp,
-                                                                          CV[Column0index], MV[Column0index]);
+    std::vector<Function_CommandResult_pair> items;
+    GetMetricByFunction (cmd, false, tgrp, CV[Column0index], MV[Column0index], items);
     if (items.begin() == items.end()) {
       cmd->Result_String ("(There are no data samples for " + MV[Column0index] + " available.)");
       cmd->set_Status(CMD_ERROR);
