@@ -504,61 +504,65 @@ ManageCollectorsClass::contextMenuRequested( QListViewItem *item, const QPoint &
 
   QListViewItem *selected_item = NULL;
 
-// It may make sense to allow other SortTypes to add/delete collectors... 
-// At this point only this sort type is supported.
-if( dialogSortType == COLLECTOR_T || dialogSortType == PID_T || 
-    dialogSortType == HOST_T )
-{
-  if( attachCollectorsListView->selectedItem() && 
+  // It may make sense to allow other SortTypes to add/delete collectors... 
+  // At this point only this sort type is supported.
+  if( dialogSortType == COLLECTOR_T || dialogSortType == PID_T || 
+      dialogSortType == HOST_T )
+  {
+    if( attachCollectorsListView->selectedItem() && 
       attachCollectorsListView->selectedItem()->parent() == NULL )
-  {
-    selected_item = item;
-  }
-  if( attachCollectorsListView->selectedItem() && 
-      attachCollectorsListView->selectedItem()->parent() != NULL )
-  {
-    selected_item = item;
-  }
-// printf("dialogSortType=%d selected_item=0x%x selected_item->parent()=0x%x\n", dialogSortType, selected_item, selected_item ? selected_item->parent() : NULL );
-  if( selected_item &&
-     ( dialogSortType == COLLECTOR_T && selected_item->parent() == NULL ) ||
-     ( dialogSortType == PID_T && selected_item->parent() != NULL ) )
-  {
-// printf("Here field_name=(%s)\n", !field_name.isEmpty() ? field_name.ascii() : NULL );
-    CollectorEntry *ce = NULL;
-    CollectorEntryList::Iterator it;
-    for( it = clo->collectorEntryList.begin();
-         it != clo->collectorEntryList.end();
-         ++it )
     {
-      ce = (CollectorEntry *)*it;
-      if( field_name == ce->name )
+      selected_item = item;
+    }
+
+    if( attachCollectorsListView->selectedItem() && 
+        attachCollectorsListView->selectedItem()->parent() != NULL )
+    {
+      selected_item = item;
+    }
+
+    if( selected_item &&
+       ( dialogSortType == COLLECTOR_T && selected_item->parent() == NULL ) ||
+       ( dialogSortType == PID_T && selected_item->parent() != NULL ) )
+    {
+// printf("Here field_name=(%s)\n", !field_name.isEmpty() ? field_name.ascii() : NULL );
+      CollectorEntry *ce = NULL;
+      CollectorEntryList::Iterator it;
+      if( clo )
       {
-// printf("(%s): parameters are\n", ce->name.ascii() );
-        CollectorParameterEntryList::Iterator pit = ce->paramList.begin();
-        if( ce->paramList.size() == 1 )
+        for( it = clo->collectorEntryList.begin();
+             it != clo->collectorEntryList.end();
+             ++it )
         {
-          CollectorParameterEntry *cpe = (CollectorParameterEntry *)*pit;
-          popupMenu->insertItem( QString("Modify Parameter ... (%1::%2)").arg(cpe->name.ascii()).arg(cpe->param_value.ascii()), this, SLOT(paramSelected(int)) );
-        } else
-        {
-          paramMenu = new QPopupMenu(this);
-          connect( paramMenu, SIGNAL( activated( int ) ),
-                     this, SLOT( paramSelected( int ) ) );
-          popupMenu->insertItem("Modify Parameter", paramMenu);
-          for( ;pit != ce->paramList.end();  pit++)
+          ce = (CollectorEntry *)*it;
+          if( field_name == ce->name )
           {
-            CollectorParameterEntry *cpe = (CollectorParameterEntry *)*pit;
+// printf("(%s): parameters are\n", ce->name.ascii() );
+            CollectorParameterEntryList::Iterator pit = ce->paramList.begin();
+            if( ce->paramList.size() == 1 )
+            {
+              CollectorParameterEntry *cpe = (CollectorParameterEntry *)*pit;
+              popupMenu->insertItem( QString("Modify Parameter ... (%1::%2)").arg(cpe->name.ascii()).arg(cpe->param_value.ascii()), this, SLOT(paramSelected(int)) );
+            } else
+            {
+              connect( paramMenu, SIGNAL( activated( int ) ),
+                         this, SLOT( paramSelected( int ) ) );
+              popupMenu->insertItem("Modify Parameter", paramMenu);
+              for( ;pit != ce->paramList.end();  pit++)
+              {
+                CollectorParameterEntry *cpe = (CollectorParameterEntry *)*pit;
 // printf("\t%s   %s\n", cpe->name.ascii(), cpe->param_value.ascii() );
-            paramMenu->insertItem(QString("%1::%2").arg(cpe->name.ascii()).arg(cpe->param_value.ascii()) );
+                paramMenu->insertItem(QString("%1::%2").arg(cpe->name.ascii()).arg(cpe->param_value.ascii()) );
+              }
+            }
+            break;
           }
         }
-        break;
       }
     }
-  }
+// printf("here... popupMenu=0x%x\n", popupMenu );
   menu(popupMenu);
-}
+  }
 
 
   popupMenu->popup( pos );
