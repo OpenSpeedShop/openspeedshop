@@ -482,6 +482,9 @@ ManageCollectorsClass::contextMenuRequested( QListViewItem *item, const QPoint &
 // printf("%s %s\n", attachCollectorsListView->selectedItem()->text(0).ascii(), attachCollectorsListView->selectedItem()->text(1).ascii()  );
       field_name = item->text(1);
     }
+  } else
+  {
+    return;
   }
 
   if( popupMenu != NULL )
@@ -528,6 +531,7 @@ ManageCollectorsClass::contextMenuRequested( QListViewItem *item, const QPoint &
 // printf("Here field_name=(%s)\n", !field_name.isEmpty() ? field_name.ascii() : NULL );
       CollectorEntry *ce = NULL;
       CollectorEntryList::Iterator it;
+clo = new CollectorListObject(expID);
       if( clo )
       {
         for( it = clo->collectorEntryList.begin();
@@ -541,18 +545,27 @@ ManageCollectorsClass::contextMenuRequested( QListViewItem *item, const QPoint &
             CollectorParameterEntryList::Iterator pit = ce->paramList.begin();
             if( ce->paramList.size() == 1 )
             {
+// printf("size == 1\n");
               CollectorParameterEntry *cpe = (CollectorParameterEntry *)*pit;
               popupMenu->insertItem( QString("Modify Parameter ... (%1::%2)").arg(cpe->name.ascii()).arg(cpe->param_value.ascii()), this, SLOT(paramSelected(int)) );
+// printf("done size == 1\n");
             } else
             {
+// printf("size != 1\n");
+              if( paramMenu == NULL )
+              {
+                paramMenu = new QPopupMenu(this);
+              }
               connect( paramMenu, SIGNAL( activated( int ) ),
                          this, SLOT( paramSelected( int ) ) );
               popupMenu->insertItem("Modify Parameter", paramMenu);
+// printf("done size != 1\n");
               for( ;pit != ce->paramList.end();  pit++)
               {
                 CollectorParameterEntry *cpe = (CollectorParameterEntry *)*pit;
 // printf("\t%s   %s\n", cpe->name.ascii(), cpe->param_value.ascii() );
                 paramMenu->insertItem(QString("%1::%2").arg(cpe->name.ascii()).arg(cpe->param_value.ascii()) );
+// printf("\tdone: %s   %s\n", cpe->name.ascii(), cpe->param_value.ascii() );
               }
             }
             break;
