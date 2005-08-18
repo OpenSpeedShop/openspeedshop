@@ -27,8 +27,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-
-
 void hwc_init_papi()
 {
     int rval;
@@ -167,5 +165,95 @@ int get_papi_eventcode (char* eventname)
 
 void print_papi_error (int errcode)
 {
-fprintf(stderr,"print_papi_error: ENTERED!\n");
+    char error_str[PAPI_MAX_STR_LEN];
+    PAPI_perror(errcode,error_str,PAPI_MAX_STR_LEN);
+    fprintf(stderr,"PAPI_error %d: %s\n",errcode,error_str);
+}
+
+void get_papi_available_presets()
+{
+/* Scan for available preset events on this platform */
+/* NOTE: For now, exclude derived presets (more than one native event) */
+
+    int available_presets = PAPI_PRESET_ENUM_AVAIL;
+    int i = PAPI_PRESET_MASK;
+    PAPI_event_info_t info;
+
+/*
+    printf("Name\t\tDescription\n");
+*/
+    do
+    {
+        int rval = PAPI_get_event_info(i, &info);
+        if (rval == PAPI_OK){
+	    /* this test will skip derived preset events */
+	    if (info.count == 1) {
+/*
+	        printf("%s\t%s\n", info.symbol, info.short_descr);
+*/
+	    }
+        }
+    } while (PAPI_enum_event(&i, available_presets) == PAPI_OK);
+}
+
+bool query_papi_event (int event)
+{
+        int rval = PAPI_query_event(event);
+        if (rval != PAPI_OK) {
+/*
+            fprintf(stderr,"The event %s does not seem to be supported\n",
+                get_papi_name(event));
+            OpenSS_PAPIerror(rval);
+*/
+            return false;
+        }
+
+        PAPI_event_info_t info;
+
+        rval = PAPI_get_event_info(event,&info);
+        if (rval != PAPI_OK) {
+/*
+	fprintf(stderr,"The event %s does not seem to be supported\n",
+		get_papi_name(event));
+            OpenSS_PAPIerror(rval);
+*/
+            return false;
+        }
+
+	/* till we get derived presets working, do not allow */
+	if (info.count > 1) {
+	    return false;
+	}
+
+	if (info.count == 0) {
+	    return true;
+	}
+}
+
+papi_available_presets OpenSS_papi_available_presets()
+{
+/* Scan for available preset events on this platform */
+/* NOTE: For now, exclude derived presets (more than one native event) */
+
+    int available_presets = PAPI_PRESET_ENUM_AVAIL;
+    int i = PAPI_PRESET_MASK;
+    PAPI_event_info_t info;
+    papi_available_presets presets_list;
+    presets_list.clear();
+    std::pair<std::string, std::string> *pe;
+
+    do
+    {
+        int rval = PAPI_get_event_info(i, &info);
+        if (rval == PAPI_OK){
+	    /* this test will skip derived preset events */
+	    if (info.count == 1) {
+	        //printf("%s\t%s\n", info.symbol, info.short_descr);
+		pe = new std::pair<std::string, std::string>(info.symbol,info.short_descr);	
+		presets_list.push_back(*pe);
+	    }
+        }
+    } while (PAPI_enum_event(&i, available_presets) == PAPI_OK);
+
+    return presets_list;
 }

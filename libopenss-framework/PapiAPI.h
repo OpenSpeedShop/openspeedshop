@@ -53,9 +53,18 @@ extern void hwc_init_papi();
 extern void print_hw_info();
 extern void get_papi_exe_info();
 extern void print_papi_events();
+extern void get_papi_available_presets();
+extern bool query_papi_event(int);
 
 #ifdef __cplusplus
 }
 #endif
+
+#include <string>
+#include <vector>
+
+typedef std::pair<std::string, std::string> papi_event;
+typedef std::vector<papi_event> papi_available_presets;
+papi_available_presets OpenSS_papi_available_presets();
 
 #endif
