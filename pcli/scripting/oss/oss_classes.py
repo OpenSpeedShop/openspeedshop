@@ -1,9 +1,23 @@
+import types
 
 class MyList:
     	"base class for all lists"
     	# 
-    	def __init__(self,input_list=[]) :
-    	    self._oss_object = input_list
+    	def __init__(self,input_list=None) :
+    	    t_list = []
+
+	    if input_list is None:
+	    	input_list=[]
+	    elif type(input_list) is types.StringType:
+	    	t_list.append(input_list)
+	    elif type(input_list) is types.IntType:
+	    	t_list.append(input_list)
+	    elif type(input_list) is types.LongType:
+	    	t_list.append(input_list)
+	    else:
+	    	t_list = input_list
+
+    	    self._oss_object = t_list
 	    return
     
     	def __getattr__(self,name):
@@ -26,6 +40,23 @@ class MyList:
 
 
     ###########################################
+#   <metric_name> ::= <string>
+#   <expMetric> ::= [<expType>::]<metric_name>
+#   <expMetric_list> ::= <expMetric> [ , <expMetric> ] +
+
+class MetricType:
+    	# 
+    	def __init__(self,metric_name) :
+
+    	    self._oss_metric_name = metric_name
+    	    self._oss_exp_type = None
+
+    	def __init__(self,exp_type, metric_name) :
+
+    	    self._oss_metric_name = metric_name
+    	    self._oss_exp_type = exp_type
+
+    ###########################################
 
 class HostList(MyList):
     	pass
@@ -45,7 +76,13 @@ class ThreadList(MyList):
 class ClusterList(MyList):
     	pass
 
+class MetricList(MyList):
+    	pass
+
 class ExpTypeList(MyList):
+    	pass
+
+class ViewTypeList(MyList):
     	pass
 
 class ExpId:
@@ -55,8 +92,13 @@ class ExpId:
     	def __getattr__(self,expid):
     	    return getattr(self._oss_expid,expid)
     
+class ModifierList(MyList):
+    	pass
 
 class ParmList(MyList):
+    	pass
+
+class LineNoList(MyList):
     	pass
 
 class xx(MyList):

@@ -34,13 +34,6 @@ my_rank += [6]
 my_rank += [1,3,(22,33),564]
 oss.RankList(my_rank).add(44)
 
-# Using the default value for a list fails
-# here because it just grabs the value set
-# by my_host for some reason. Same behavior
-# on IRIX and Linux. I'm going to change the
-# constructor to take a variable number of
-# arguments and check for len value of 0.
-#my_rank2 = oss.RankList([])
 my_rank2 = oss.RankList()
 my_rank2.add(1234)
 my_rank2.add(34)
@@ -87,4 +80,19 @@ my_line.add((333,444))
 
 my_id = oss.expCreate(my_line)
 
+my_exptype = oss.ExpTypeList()
+my_exptype += "pcsamp"
+my_exptype.add("usertime")
 
+my_id = oss.expCreate(my_file, my_exptype)
+
+my_viewtype = oss.ViewTypeList()
+my_viewtype += "butterfly"
+my_viewtype.add("inclusive")
+
+my_file_bosco = oss.FileList("bosco")
+
+my_id = oss.expView(my_file_bosco, my_viewtype)
+
+metric_1 = oss.MetricType("mtype_1")
+metric_2 = oss.MetricType("etype_2", "mtype_2")

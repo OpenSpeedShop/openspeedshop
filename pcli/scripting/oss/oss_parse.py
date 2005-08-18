@@ -49,10 +49,18 @@ def deconstruct(cmd_name,*args):
 	    	sublist = parse_list("-t",*args[ndx])
     	    elif isinstance(args[ndx],ClusterList):
 	    	sublist = parse_list("-c",*args[ndx])
+    	    elif isinstance(args[ndx],MetricList):
+	    	sublist = parse_list("-m",*args[ndx])
     	    elif isinstance(args[ndx],ExpTypeList):
+	    	sublist = parse_list("",*args[ndx])
+    	    elif isinstance(args[ndx],ViewTypeList):
 	    	sublist = parse_list("",*args[ndx])
     	    elif isinstance(args[ndx],ExpId):
 	    	sublist = parse_list("-x",*args[ndx])
+    	    elif isinstance(args[ndx],LineNoList):
+	    	sublist = parse_list("-l",*args[ndx])
+    	    elif isinstance(args[ndx],ModifierList):
+	    	sublist = parse_list("-M",*args[ndx])
     	    elif isinstance(args[ndx],ParmList):
 	    	sublist = parse_list("",*args[ndx])
     	    elif is_single_type(args[ndx]):
@@ -182,7 +190,13 @@ def return_string_list(args):
 # and processed by the yacc parser and semantic 
 # routines.
 #
+# This should have already been processed into
+# a single string before this point.
+#
 ################################################################################
-def cmd_parse(args):
-    print args
+def cmd_parse(zusamen):
+
+    print zusamen
+
+    #return PY_Input.CallParser (zusamen)
     return
