@@ -1,0 +1,78 @@
+#!/usr/bin/env python
+
+from sys import *
+import sys
+import os
+import threading
+from time import *
+from string import *
+from threading import *
+#from datetime import *
+
+
+def too_long():
+	os.system('killall -q openss')
+
+def createTestList():
+	checktemptestlist = os.system('test -e temptestlist')
+	if checktemptestlist == 0:
+        	os.system('rm -f temptestlist')
+	os.system('ls -1 *.tst >> temptestlist')
+
+def runTest(testName):
+	checkinput = os.system('test -e input.script')
+	if checkinput == 0:
+		os.system('rm -f input.script')
+	#test_input = open(testName, 'r')
+	#testCommand = test_input.readline()
+	#linesToCompare = test_input.readline()
+	#test_input.close()
+	t = Timer(300, too_long)
+	t.start()
+	os.system('./'+testName+ '>> '+ testName+'.output')
+	finished = 1
+	t.cancel()
+	return finished
+
+def iterateThroughTestList(fileptr):
+	con_input = open('temptestlist', 'r')
+        while 1:
+                config_line = con_input.readline()
+                if not config_line:
+                        break
+                test_name = config_line
+		i = 0
+	        while 1:
+                	if test_name[i] == '.':
+                        	break
+                	else:
+                        	i += 1
+        	testName = test_name[0:i+4]
+
+		complete = runTest(testName)
+		CompareResults(testName, fileptr, complete)
+               
+        con_input.close()
+
+def CompareResults(testName, fileptr, finished):
+	if (finished == 1) :
+		fileptr.write(testName + ' has PASSED \n')
+	else:
+		fileptr.write(testName + ' has FAILED. Openss has timed out or crashed. ')
+
+
+	 	
+
+if __name__ == '__main__':
+	checkoutput = os.system('test -e *.output')
+        if checkoutput == 0:
+                os.system('rm -f *.output')
+
+	currTime = strftime("%d_%m_%Y_%H%M%S", localtime())
+        resultsFile =  'testresults_' + currTime
+        resultfileptr = open(resultsFile, 'w')
+	tempfileptr = open('testresultsfilename', 'w')
+	tempfileptr.write(resultsFile)
+
+	createTestList()
+	iterateThroughTestList(resultfileptr)
