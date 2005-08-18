@@ -67,22 +67,23 @@ namespace OpenSpeedShop { namespace Framework {
 	 * of the tools.
 	 */
 	enum Code {
-	    CommandNotFound,       /**< Command couldn't be found. */
-	    CollectorUnavailable,  /**< Collector's plugin not available. */
-	    DatabaseCannotCreate,  /**< Database cannot be created. */
-	    DatabaseCannotRemove,  /**< Database cannot be removed. */
-	    DatabaseDoesNotExist,  /**< Database doesn't exist. */
-	    DatabaseExists,        /**< Database already exists. */
-	    DatabaseInvalid,       /**< Database isn't valid. */
-	    EntryNotFound,         /**< Database table entry not found. */
-	    EntryNotUnique,        /**< Database table entry not unique. */
-	    EntryOverlapping,      /**< Database table entries overlap. */
-	    LibraryFuncNotFound,   /**< Library function could not be found. */
-	    LibraryNotFound,       /**< Library could not be found. */
-	    StateAlreadyChanging,  /**< Thread state change in progress. */
-	    StateChangeInvalid,    /**< Thread state change is invalid. */
-	    ThreadUnavailable,     /**< Thread not available. */
-	    Unknown                /**< Catch-all for generic exceptions. */
+	    CommandNotFound,        /**< Command couldn't be found. */
+	    CollectorUnavailable,   /**< Collector's plugin not available. */
+	    DatabaseCannotCreate,   /**< Database cannot be created. */
+	    DatabaseCannotRemove,   /**< Database cannot be removed. */
+	    DatabaseDoesNotExist,   /**< Database doesn't exist. */
+	    DatabaseExists,         /**< Database already exists. */
+	    DatabaseInvalid,        /**< Database isn't valid. */
+	    EntryNotFound,          /**< Database table entry not found. */
+	    EntryNotUnique,         /**< Database table entry not unique. */
+	    EntryOverlapping,       /**< Database table entries overlap. */
+	    LibraryFuncNotFound,    /**< Library function could not be found. */
+	    LibraryNotFound,        /**< Library could not be found. */
+	    ParameterValueInvalid,  /**< Passed parameter value isn't valid. */
+	    StateAlreadyChanging,   /**< Thread state change in progress. */
+	    StateChangeInvalid,     /**< Thread state change is invalid. */
+	    ThreadUnavailable,      /**< Thread not available. */
+	    Unknown                 /**< Catch-all for generic exceptions. */
 	};
 
 	Exception(const Code&);

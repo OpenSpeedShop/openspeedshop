@@ -82,6 +82,9 @@ namespace {
 	{ Exception::LibraryNotFound,
 	  "Library \"%1\" could not be found." },
 
+	{ Exception::ParameterValueInvalid,
+	  "Specified parameter value is invalid. %1" },
+
 	{ Exception::StateAlreadyChanging,
 	  "State change for this process already in-progress but incomplete." },
 
