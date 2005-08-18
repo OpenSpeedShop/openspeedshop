@@ -1265,12 +1265,12 @@ void
 HW_CounterWizardPanel::languageChange()
 {
 
-printf("HW_CounterWizardPanel::languageChange() entered\n");
+// printf("HW_CounterWizardPanel::languageChange() entered\n");
 
 
   unsigned int sampling_rate = 100;
-std::string PAPIDescriptionStr;;
-printf("HW_CounterWizardPanel::languageChange(A) entered\n");
+  std::string PAPIDescriptionStr;;
+// printf("HW_CounterWizardPanel::languageChange(A) entered\n");
 
   setCaption( tr( "HW Counter Wizard Panel" ) );
   vDescriptionPageTitleLabel->setText( tr( "<h1>HW Counter Wizard</h1>" ) );
@@ -1287,7 +1287,49 @@ printf("HW_CounterWizardPanel::languageChange(A) entered\n");
 "performance and a larger data file.<br><br>\n"
 "It may take a little experimenting to find the right setting for your \n"
 "particular executable.   We suggest starting with the default setting\n"
-"of %1.").arg(sampling_rate) ) );
+"of %1.\n\n"
+"<br><br>The available PAPI events that can be set are:<br>"
+"<pre>  PAPI_L1_DCM     L1D cache misses<br>"
+"  PAPI_L1_ICM     L1I cache misses<br>"
+"  PAPI_L2_ICM     L2I cache misses<br>"
+"  PAPI_L3_ICM     L3I cache misses<br>"
+"  PAPI_L2_TCM     L2 cache misses<br>"
+"  PAPI_L3_TCM     L3 cache misses<br>"
+"  PAPI_CA_SNP     Snoop Requests<br>"
+"  PAPI_L3_LDM     L3 load misses<br>"
+"  PAPI_L3_STM     L3 store misses<br>"
+"  PAPI_TLB_DM     Data TLB misses<br>"
+"  PAPI_TLB_IM     Instr TLB misses<br>"
+"  PAPI_L2_LDM     L2 load misses<br>"
+"  PAPI_L2_STM     L2 store misses<br>"
+"  PAPI_STL_ICY    No instr issue<br>"
+"  PAPI_STL_CCY    No instr done<br>"
+"  PAPI_BR_PRC     Cond br predicted<br>"
+"  PAPI_TOT_IIS    Instr issued<br>"
+"  PAPI_LD_INS     Loads<br>"
+"  PAPI_SR_INS     Stores<br>"
+"  PAPI_BR_INS     Branches<br>"
+"  PAPI_RES_STL    Stalled res cycles<br>"
+"  PAPI_FP_STAL    Stalled FPU cycles<br>"
+"  PAPI_TOT_CYC    Total cycles<br>"
+"  PAPI_L1_DCA     L1D cache accesses<br>"
+"  PAPI_L2_DCA     L2D cache accesses<br>"
+"  PAPI_L3_DCA     L3D cache accesses<br>"
+"  PAPI_L1_DCR     L1D cache reads<br>"
+"  PAPI_L2_DCR     L2D cache reads<br>"
+"  PAPI_L3_DCR     L3D cache reads<br>"
+"  PAPI_L2_DCW     L2D cache writes<br>"
+"  PAPI_L3_DCW     L3D cache writes<br>"
+"  PAPI_L3_ICH     L3I cache hits<br>"
+"  PAPI_L2_ICA     L2I cache accesses<br>"
+"  PAPI_L3_ICA     L3I cache accesses<br>"
+"  PAPI_L3_ICR     L3I cache reads<br>"
+"  PAPI_L2_TCA     L2 cache accesses<br>"
+"  PAPI_L3_TCA     L3 cache accesses<br>"
+"  PAPI_L3_TCR     L3 cache reads<br>"
+"  PAPI_L2_TCW     L2 cache writes<br>"
+"  PAPI_L3_TCW     L3 cache writes<br>"
+"  PAPI_FP_OPS     FP operations</pre><br> ").arg(sampling_rate) ) );
   vParameterPageSampleRateHeaderLabel->setText( tr( "You can set the following option(s):" ) );
   vParameterPageSampleRateLabel->setText( tr( "sample rate:" ) );
   vParameterPageSampleRateText->setText( tr( QString("%1").arg(sampling_rate) ) );
@@ -1331,7 +1373,7 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new execu
   QToolTip::add( eDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
   eDescriptionPageFinishButton->setText( tr( ">> Finish" ) );
   QToolTip::add( eDescriptionPageFinishButton, tr( "Advance to the wizard finish page." ) );
-  eParameterPageDescriptionLabel->setText( tr( "The following options (paramaters) are available to adjust.     <br>These are the options the collector has exported." ) );
+  eParameterPageDescriptionLabel->setText( tr( "The following options (paramaters) are available to adjust.     <br><br>These are the options the collector has exported.<br><pre>  PAPI_L1_DCM     L1D cache misses<br>  PAPI_L1_ICM     L1I cache misses<br>  PAPI_L2_ICM     L2I cache misses<br>  PAPI_L3_ICM     L3I cache misses<br>  PAPI_L2_TCM     L2 cache misses<br>  PAPI_L3_TCM     L3 cache misses<br>  PAPI_CA_SNP     Snoop Requests<br>  PAPI_L3_LDM     L3 load misses<br>  PAPI_L3_STM     L3 store misses<br>  PAPI_TLB_DM     Data TLB misses<br>  PAPI_TLB_IM     Instr TLB misses<br>  PAPI_L2_LDM     L2 load misses<br>  PAPI_L2_STM     L2 store misses<br>  PAPI_STL_ICY    No instr issue<br>  PAPI_STL_CCY    No instr done<br>  PAPI_BR_PRC     Cond br predicted<br>  PAPI_TOT_IIS    Instr issued<br>  PAPI_LD_INS     Loads<br>  PAPI_SR_INS     Stores<br>  PAPI_BR_INS     Branches<br>  PAPI_RES_STL    Stalled res cycles<br>  PAPI_FP_STAL    Stalled FPU cycles<br>  PAPI_TOT_CYC    Total cycles<br>  PAPI_L1_DCA     L1D cache accesses<br>  PAPI_L2_DCA     L2D cache accesses<br>  PAPI_L3_DCA     L3D cache accesses<br>  PAPI_L1_DCR     L1D cache reads<br>  PAPI_L2_DCR     L2D cache reads<br>  PAPI_L3_DCR     L3D cache reads<br>  PAPI_L2_DCW     L2D cache writes<br>  PAPI_L3_DCW     L3D cache writes<br>  PAPI_L3_ICH     L3I cache hits<br>  PAPI_L2_ICA     L2I cache accesses<br>  PAPI_L3_ICA     L3I cache accesses<br>  PAPI_L3_ICR     L3I cache reads<br>  PAPI_L2_TCA     L2 cache accesses<br>  PAPI_L3_TCA     L3 cache accesses<br>  PAPI_L3_TCR     L3 cache reads<br>  PAPI_L2_TCW     L2 cache writes<br>  PAPI_L3_TCW     L3 cache writes<br>  PAPI_FP_OPS     FP operations</pre>" ) );
   eParameterPageSampleRateHeaderLabel->setText( tr( "You can set the following option(s):" ) );
   eParameterPageSampleRateLabel->setText( tr( "sample rate:" ) );
   eParameterPageSampleRateText->setText( tr( QString("%1").arg(sampling_rate) ) );
@@ -1404,17 +1446,17 @@ QToolTip::add( eParameterPagePAPIDescriptionText, tr( QString("The HW Counter on
       std::set<Metadata>::const_iterator mi;
       for (mi = md.begin(); mi != md.end(); mi++) {
         Metadata m = *mi;
-printf("%s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
-printf("%s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
-printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
+// printf("%s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
+// printf("%s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
+// printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
       }
       hwCounterCollector.getParameterValue("sampling_rate", sampling_rate);
-printf("sampling_rate=%d\n", sampling_rate);
-printf("Initialize the text fields... (%d)\n", sampling_rate);
+// printf("sampling_rate=%d\n", sampling_rate);
+// printf("Initialize the text fields... (%d)\n", sampling_rate);
 vParameterPageSampleRateText->setText(QString("%1").arg(sampling_rate));
 eParameterPageSampleRateText->setText(QString("%1").arg(sampling_rate));
       hwCounterCollector.getParameterValue("event", PAPIDescriptionStr);
-printf("event=%s\n", PAPIDescriptionStr.c_str() );
+// printf("event=%s\n", PAPIDescriptionStr.c_str() );
 vParameterPagePAPIDescriptionText->setText(PAPIDescriptionStr.c_str());
 eParameterPagePAPIDescriptionText->setText(PAPIDescriptionStr.c_str());
 
