@@ -1255,9 +1255,9 @@ if( collectorStr == "hwc" && pit == metricHeaderInfoList.begin() )
     for (mi = md.begin(); mi != md.end(); mi++)
     {
       Metadata m = *mi;
-// printf("%s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
-// printf("%s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
-// printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
+printf("%s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
+printf("%s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
+printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
     }
     unsigned int sampling_rate = 0;
     currentCollector->getParameterValue("sampling_rate", sampling_rate);
