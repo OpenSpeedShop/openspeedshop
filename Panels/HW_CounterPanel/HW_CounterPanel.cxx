@@ -757,7 +757,7 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
             }
             if( QString(getName()).contains("HW Counter") )
             {
-              printf("W'ere the HW Counter Panel!!!\n");
+//printf("We're the HW Counter Panel!!!\n");
             
               ParamList::Iterator it = lao->paramList->begin();
               it++;
@@ -1244,7 +1244,7 @@ HW_CounterPanel::progressUpdate()
 int
 HW_CounterPanel::processLAO(LoadAttachObject *lao)
 {
-printf("ProcessLOA entered mpiFLAG=%d\n", getPanelContainer()->getMainWindow()->mpiFLAG );
+// printf("ProcessLOA entered mpiFLAG=%d\n", getPanelContainer()->getMainWindow()->mpiFLAG );
   if( lao->paramList ) // Really not a list yet, just one param.
   {
     QString sample_rate_str = (QString)*lao->paramList->begin();
@@ -1273,7 +1273,7 @@ printf("ProcessLOA entered mpiFLAG=%d\n", getPanelContainer()->getMainWindow()->
         }
         if( QString(getName()).contains("HW Counter") )
         {
-          printf("W'ere the HW Counter Panel!!!\n");
+//          printf("W'ere the HW Counter Panel!!!\n");
             
           ParamList::Iterator it = lao->paramList->begin();
           it++;

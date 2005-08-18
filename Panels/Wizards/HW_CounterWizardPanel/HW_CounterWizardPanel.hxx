@@ -34,6 +34,7 @@ class QTabWidget;
 class QWidgetStack;
 class QLabel;
 class QTextEdit;
+class QComboBox;
 class QCheckBox;
 class QFrame;
 class QRadioButton;
@@ -47,8 +48,13 @@ class QButtonGroup;
 class QTextEdit;
 class QScrollView;
 
+
 #include "ArgumentObject.hxx"
 
+#include <unistd.h>
+#include <string>
+#include <vector>
+typedef std::pair<std::string, std::string> papi_type;
 
 #define PANEL_CLASS_NAME HW_CounterWizardPanel   // Change the value of the define
                                          // to the name of your new class.
@@ -123,7 +129,8 @@ public:
     QLabel* vParameterPageSampleRateLabel;
     QLineEdit* vParameterPageSampleRateText;
 QLabel* vParamaterPagePAPIDescriptionLabel;
-QLineEdit* vParameterPagePAPIDescriptionText;
+// QLineEdit* vParameterPagePAPIDescriptionText;
+QComboBox* vParameterPagePAPIDescriptionText;
     QPushButton* vParameterPageBackButton;
     QPushButton* vParameterPageResetButton;
     QPushButton* vParameterPageNextButton;
@@ -154,7 +161,8 @@ QLineEdit* vParameterPagePAPIDescriptionText;
     QLabel* eParameterPageSampleRateHeaderLabel;
     QLabel* eParameterPageSampleRateLabel;
 QLabel* eParamaterPagePAPIDescriptionLabel;
-QLineEdit* eParameterPagePAPIDescriptionText;
+// QLineEdit* eParameterPagePAPIDescriptionText;
+QComboBox* eParameterPagePAPIDescriptionText;
     QLineEdit* eParameterPageSampleRateText;
     QPushButton* eParameterPageBackButton;
     QPushButton* eParameterPageResetButton;
@@ -275,5 +283,10 @@ private:
     QString PAPIDescription;
 
     Panel *hwCounterPanel;
+
+    std::vector<papi_type> papi_types;
+    void initPapiTypes();
+    void appendComboBoxItems();
+    QString findPAPIStr(QString);
 };
 #endif // PCSAMPLEWIZARDPANEL_H

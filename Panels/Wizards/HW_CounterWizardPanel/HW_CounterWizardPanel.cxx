@@ -29,6 +29,7 @@
 #include <qwidgetstack.h>
 #include <qlabel.h>
 #include <qtextedit.h>
+#include <qcombobox.h>
 #include <qcheckbox.h>
 #include <qframe.h>
 #include <qradiobutton.h>
@@ -57,6 +58,8 @@
 #include "SS_Input_Manager.hxx"
 using namespace OpenSpeedShop::Framework;
 
+typedef std::pair<std::string, string> papi_type;
+
 HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(pc, n)
 {
   nprintf(DEBUG_CONST_DESTRUCT) ("HW_CounterWizardPanel::HW_CounterWizardPanel() constructor called\n");
@@ -66,6 +69,8 @@ HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, 
   }
 
   hwCounterFormLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
+
+  initPapiTypes();
 
   mainFrame = new QFrame( getBaseWidgetFrame(), "mainFrame" );
   mainFrame->setMinimumSize( QSize(10,10) );
@@ -167,7 +172,8 @@ vParamaterPagePAPIDescriptionLabel = new QLabel( vParameterPageWidget, "vParamat
 vParamaterPagePAPIDescriptionLabel->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
 vParameterPagePAPIDescriptionLayout->addWidget( vParamaterPagePAPIDescriptionLabel );
 
-vParameterPagePAPIDescriptionText = new QLineEdit( vParameterPageWidget, "vParameterPagePAPIDescriptionText" );
+// vParameterPagePAPIDescriptionText = new QLineEdit( vParameterPageWidget, "vParameterPagePAPIDescriptionText" );
+vParameterPagePAPIDescriptionText = new QComboBox( TRUE, vParameterPageWidget, "vParameterPagePAPIDescriptionText" );
 vParameterPagePAPIDescriptionText->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
 vParameterPagePAPIDescriptionLayout->addWidget( vParameterPagePAPIDescriptionText );
 
@@ -283,11 +289,6 @@ vParameterPagePAPIDescriptionLayout->addItem( vParameterPageSpacer );
   vSummaryPageLayout = new QVBoxLayout( vSummaryPageWidget, 11, 6, "vSummaryPageLayout"); 
 
   vSummaryPageLabelLayout = new QVBoxLayout( 0, 0, 6, "vSummaryPageLabelLayout"); 
-#ifdef OLDWAY
-  vSummaryPageSpacer = new QSpacerItem( 20, 1, QSizePolicy::Minimum, QSizePolicy::Fixed );
-  vSummaryPageLabelLayout->addItem( vSummaryPageSpacer );
-#endif // OLDWAY
-
   vSummaryPageFinishLabel = new QTextEdit( vSummaryPageWidget, "vSummaryPageFinishLabel" );
   vSummaryPageFinishLabel->setMinimumSize( QSize(10,10) );
   vSummaryPageFinishLabel->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Preferred, 0, 0, FALSE ) );
@@ -390,7 +391,7 @@ eParamaterPagePAPIDescriptionLabel = new QLabel( eParameterPageWidget, "eParamat
 eParamaterPagePAPIDescriptionLabel->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
 eParameterPagePAPIDescriptionLayout->addWidget( eParamaterPagePAPIDescriptionLabel );
 
-eParameterPagePAPIDescriptionText = new QLineEdit( eParameterPageWidget, "eParameterPagePAPIDescriptionText" );
+eParameterPagePAPIDescriptionText = new QComboBox( TRUE, eParameterPageWidget, "eParameterPagePAPIDescriptionText" );
 eParameterPagePAPIDescriptionText->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
 eParameterPagePAPIDescriptionLayout->addWidget( eParameterPagePAPIDescriptionText );
 
@@ -930,7 +931,7 @@ void HW_CounterWizardPanel::eAttachOrLoadPageNextButtonSelected()
       QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
       QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
       QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
-      sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" \"%s\" on host \"%s\", with a sampling rate of \"%s\" targeting \"%s\".<br><br></p>", prog_name.ascii(), pid_name.ascii(), host_name.ascii(), eParameterPageSampleRateText->text().ascii(), eParameterPagePAPIDescriptionText->text().ascii() );
+//      sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" \"%s\" on host \"%s\", with a sampling rate of \"%s\" targeting \"%s\".<br><br></p>", prog_name.ascii(), pid_name.ascii(), host_name.ascii(), eParameterPageSampleRateText->text().ascii(), eParameterPagePAPIDescriptionText->currentText().ascii() );
     }
   }
   if( eAttachOrLoadPageLoadExecutableCheckBox->isChecked() ||
@@ -949,7 +950,7 @@ void HW_CounterWizardPanel::eAttachOrLoadPageNextButtonSelected()
     QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
-      sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" \"%s\" on host \"%s\", with a sampling rate of \"%s\" targeting \"%s\".<br><br></p>", prog_name.ascii(), pid_name.ascii(), host_name.ascii(), eParameterPageSampleRateText->text().ascii(), eParameterPagePAPIDescriptionText->text().ascii() );
+      sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" \"%s\" on host \"%s\", with a sampling rate of \"%s\" targeting \"%s\".<br><br></p>", prog_name.ascii(), pid_name.ascii(), host_name.ascii(), eParameterPageSampleRateText->text().ascii(), eParameterPagePAPIDescriptionText->currentText().ascii() );
   }
 
   eSummaryPageFinishLabel->setText( tr( buffer ) );
@@ -1140,7 +1141,7 @@ void HW_CounterWizardPanel::vAttachOrLoadPageNextButtonSelected()
     QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
-    sprintf(buffer, "<p align=\"left\">You've selected a HW Counter experiment for process \"%s\" (%s) Further running on host \"%s\".  Further you've chosed a sampling rate of \"%s\" tracing \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"hwCounter\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", prog_name.ascii(), pid_name.ascii(), host_name.ascii(), vParameterPagePAPIDescriptionText->text().ascii(), vParameterPageSampleRateText->text().ascii() );
+    sprintf(buffer, "<p align=\"left\">You've selected a HW Counter experiment for process \"%s\" (%s) Further running on host \"%s\".  Further you've chosed a sampling rate of \"%s\" tracing \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"hwCounter\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", prog_name.ascii(), pid_name.ascii(), host_name.ascii(), vParameterPagePAPIDescriptionText->currentText().ascii(), vParameterPageSampleRateText->text().ascii() );
   }
   if( vAttachOrLoadPageLoadExecutableCheckBox->isChecked() ||
       vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() )
@@ -1155,7 +1156,7 @@ void HW_CounterWizardPanel::vAttachOrLoadPageNextButtonSelected()
     {
       return;
     }
-    sprintf(buffer, "<p align=\"left\">You've selected a HW Counter experiment for executable \"%s\" to be run on host \"%s\" tracing \"%s\".  Further you've chosed a sampling rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"hwCounter\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), "localhost", vParameterPagePAPIDescriptionText->text().ascii(), vParameterPageSampleRateText->text().ascii() );
+    sprintf(buffer, "<p align=\"left\">You've selected a HW Counter experiment for executable \"%s\" to be run on host \"%s\" tracing \"%s\".  Further you've chosed a sampling rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"hwCounter\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), "localhost", vParameterPagePAPIDescriptionText->currentText().ascii(), vParameterPageSampleRateText->text().ascii() );
   }
 
   vSummaryPageFinishLabel->setText( tr( buffer ) );
@@ -1214,11 +1215,14 @@ void HW_CounterWizardPanel::vSummaryPageFinishButtonSelected()
     if( mw )
     {
       LoadAttachObject *lao = NULL;
-ParamList *paramList = new ParamList();
-paramList->push_back(vParameterPageSampleRateText->text() );
+      ParamList *paramList = new ParamList();
+      paramList->push_back(vParameterPageSampleRateText->text() );
 // printf("A: push_back (%s)\n", vParameterPageSampleRateText->text().ascii() );
-paramList->push_back(vParameterPagePAPIDescriptionText->text() );
-// printf("A: push_back (%s)\n", vParameterPagePAPIDescriptionText->text().ascii() );
+      int i = vParameterPagePAPIDescriptionText->currentText().find(' ');
+      QString PAPI_str = vParameterPagePAPIDescriptionText->currentText().left(i);
+// printf("PAPI_str=(%s)\n", PAPI_str.ascii() );
+      paramList->push_back(PAPI_str);
+// printf("A: push_back (%s)\n", vParameterPagePAPIDescriptionText->currentText().ascii() );
       if( !mw->executableName.isEmpty() )
       {
         lao = new LoadAttachObject(mw->executableName, (char *)NULL, paramList, TRUE);
@@ -1240,7 +1244,7 @@ paramList->push_back(vParameterPagePAPIDescriptionText->text() );
         if( !p )
         {
           ArgumentObject *ao = new ArgumentObject("ArgumentObject", -1 );
-ao->lao = lao;
+          ao->lao = lao;
           p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("HW Counter", getPanelContainer(), ao);
           delete ao;
         } else
@@ -1336,7 +1340,11 @@ HW_CounterWizardPanel::languageChange()
   QToolTip::add( vParameterPageSampleRateText, tr( QString("The rate to sample.   (Default %1.)").arg(sampling_rate) ) );
 
 vParamaterPagePAPIDescriptionLabel->setText( tr( "PAPI String:" ) );
+#ifdef OLDWAY
 vParameterPagePAPIDescriptionText->setText( tr( QString("%1").arg(PAPIDescriptionStr) ) );
+#else // OLDWAY
+appendComboBoxItems();
+#endif // OLDWAY
 QToolTip::add( vParameterPagePAPIDescriptionText, tr( QString("The HW Counter one wants to leverage - Default Total Cycles: PAPI_TOT_CYC") ));
 
   vParameterPageBackButton->setText( tr( "< Back" ) );
@@ -1380,7 +1388,9 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new execu
   QToolTip::add( eParameterPageSampleRateText, tr( QString("The rate to sample.   (Default %1.)").arg(sampling_rate) ) );
 
 eParamaterPagePAPIDescriptionLabel->setText( tr( "PAPI String:" ) );
+#ifdef OLDWAY
 eParameterPagePAPIDescriptionText->setText( tr( QString("%1").arg(PAPIDescriptionStr) ) );
+#endif // OLDWAY
 QToolTip::add( eParameterPagePAPIDescriptionText, tr( QString("The HW Counter one wants to leverage - Default Total Cycles: PAPI_TOT_CYC") ));
 
   eParameterPageBackButton->setText( tr( "< Back" ) );
@@ -1457,8 +1467,14 @@ vParameterPageSampleRateText->setText(QString("%1").arg(sampling_rate));
 eParameterPageSampleRateText->setText(QString("%1").arg(sampling_rate));
       hwCounterCollector.getParameterValue("event", PAPIDescriptionStr);
 // printf("event=%s\n", PAPIDescriptionStr.c_str() );
+#ifdef OLDWAY
 vParameterPagePAPIDescriptionText->setText(PAPIDescriptionStr.c_str());
 eParameterPagePAPIDescriptionText->setText(PAPIDescriptionStr.c_str());
+#else // OLDWAY
+QString str = findPAPIStr(QString(PAPIDescriptionStr.c_str()));
+vParameterPagePAPIDescriptionText->setCurrentText(str);
+eParameterPagePAPIDescriptionText->setCurrentText(str);
+#endif // OLDWAY
 
     if( temp_name )
     {
@@ -1536,6 +1552,127 @@ HW_CounterWizardPanel::vUpdateAttachOrLoadPageWidget()
     {
       vAttachOrLoadPageProcessListLabel->setText( mw->pidStr );
       eAttachOrLoadPageProcessListLabel->setText( mw->pidStr );
+    }
+  }
+}
+
+
+void
+HW_CounterWizardPanel::initPapiTypes()
+{
+  papi_types.clear();
+  std::pair<std::string, std::string> *pt;
+  pt = new std::pair<std::string, std::string>("PAPI_L1_DCM", "L1D cache misses");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_L1_ICM", "L1I cache misses");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_L2_ICM", "L2I cache misses");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_L3_ICM", "L3I cache misses");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_L2_TCM", "L2 cache misses");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_L3_TCM", "L3 cache misses");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_CA_SNP", "Snoop Requests");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_L3_LDM", "L3 load misses");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_L3_STM", "L3 store misses");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_TLB_DM", "Data TLB misses");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_TLB_IM", "Instr TLB misses");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_L2_LDM", "L2 load misses");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_L2_STM", "L2 store misses");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_STL_ICY", "No instr issue");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_STL_CCY", "No instr done");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_BR_PRC", "Cond br predicted");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_TOT_IIS", "Instr issued");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_LD_INS", "Loads");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_SR_INS", "Stores");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_BR_INS", "Branches");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_RES_STL", "Stalled res cycles");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_FP_STAL", "Stalled FPU cycles");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_TOT_CYC", "Total cycles");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_L1_DCA", "L1D cache accesses");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_L2_DCA", "L2D cache accesses");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_L3_DCA", "L3D cache accesses");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_L1_DCR", "L1D cache reads");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_L2_DCR", "L2D cache reads");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_L3_DCR", "L3D cache reads");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_L2_DCW", "L2D cache writes");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_L3_DCW", "L3D cache writes");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_L3_ICH", "L3I cache hits");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_L2_ICA", "L2I cache accesses");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_L3_ICA", "L3I cache accesses");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_L3_ICR", "L3I cache reads");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_L2_TCA", "L2 cache accesses");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_L3_TCA", "L3 cache accesses");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_L3_TCR", "L3 cache reads");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_L2_TCW", "L2 cache writes");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_L3_TCW", "L3 cache writes");
+  papi_types.push_back(*pt);
+  pt = new std::pair<std::string, std::string>("PAPI_FP_OPS", "FP operations");
+  papi_types.push_back(*pt);
+
+/*
+  for(std::vector<papi_type>::const_iterator it = papi_types.begin(); it != papi_types.end(); ++it)
+  {
+    printf("%s   %s\n", it->first.c_str(), it->second.c_str() );
+  }
+*/
+}
+
+void
+HW_CounterWizardPanel::appendComboBoxItems()
+{
+  for(std::vector<papi_type>::const_iterator it = papi_types.begin(); it != papi_types.end(); ++it)
+  {
+    QString t = QString("%1  %2").arg(it->first.c_str()).arg(it->second.c_str());
+    
+    vParameterPagePAPIDescriptionText->insertItem(t);
+    eParameterPagePAPIDescriptionText->insertItem(t);
+  }
+}
+
+QString
+HW_CounterWizardPanel::findPAPIStr(QString param)
+{
+  for(std::vector<papi_type>::const_iterator it = papi_types.begin(); it != papi_types.end(); ++it)
+  {
+    if( param == QString(it->first.c_str()) )
+    {
+      return( QString("%1  %2").arg(it->first.c_str()).arg(it->second.c_str()) );
     }
   }
 }
