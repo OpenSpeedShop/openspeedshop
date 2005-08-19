@@ -131,7 +131,7 @@ bool Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, bool bat
   if (batch_mode && !read_stdin_file) {
     if ((NULL == Append_Input_String (my_window, "expGo\n", NULL,
                                       &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ||
-        (NULL == Append_Input_String (my_window, "expView stats\n", NULL,
+        (NULL == Append_Input_String (my_window, "expView\n", NULL,
                                       &Default_TLI_Line_Output, &Default_TLI_Command_Output))) {
       fprintf(stderr,"ERROR: Unable to initiate execution of commands.\n");
       return false;
