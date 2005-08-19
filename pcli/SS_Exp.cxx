@@ -1294,87 +1294,89 @@ bool SS_expSave (CommandObject *cmd) {
 }
 
 static bool setparam (Collector C, std::string pname, ParseParam pvalue) {
-  try {
-    std::set<Metadata> md = C.getParameters();
-    std::set<Metadata>::const_iterator mi;
-    for (mi = md.begin(); mi != md.end(); mi++) {
-      Metadata m = *mi;
-      if (m.getUniqueId() != pname) {
-       // Not the one we want - keep looking.
-        continue;
-      }
-
      // Stop the collector so we can change the parameter value.
-      C.getThreads().postponeCollecting(C);
+  ThreadGroup active;
 
-      if( m.isType(typeid(int)) ) {
-        int ival;
-        if (pvalue.isValString()) {
-          sscanf ( pvalue.getStingVal(), "%d", &ival);
-        } else {
-          ival = (int)(pvalue.getnumVal());
-        }
-        C.setParameterValue(pname,(int)ival);
-      } else if( m.isType(typeid(int64_t)) ) {
-        int64_t i64val;
-        if (pvalue.isValString()) {
-          sscanf ( pvalue.getStingVal(), "%lld", &i64val);
-        } else {
-          i64val = (int64_t)(pvalue.getnumVal());
-        }
-        C.setParameterValue(pname,(int64_t)i64val);
-      } else if( m.isType(typeid(uint)) ) {
-        uint uval;
-        if (pvalue.isValString()) {
-          sscanf ( pvalue.getStingVal(), "%d", &uval);
-        } else {
-          uval = (uint)(pvalue.getnumVal());
-        }
-        C.setParameterValue(pname,(uint)uval);
-      } else if( m.isType(typeid(uint64_t)) ) {
-        uint64_t u64val;
-        if (pvalue.isValString()) {
-          sscanf ( pvalue.getStingVal(), "%lld", &u64val);
-        } else {
-          u64val = (uint64_t)(pvalue.getnumVal());
-        }
-        C.setParameterValue(pname,(uint64_t)u64val);
-      } else if( m.isType(typeid(float)) ) {
-        float fval;
-        if (pvalue.isValString()) {
-          sscanf ( pvalue.getStingVal(), "%f", &fval);
-        } else {
-          fval = (float)(pvalue.getnumVal());
-        }
-        C.setParameterValue(pname,(float)fval);
-      } else if( m.isType(typeid(double)) ) {
-        double dval;
-        if (pvalue.isValString()) {
-          sscanf ( pvalue.getStingVal(), "%llf", &dval);
-        } else {
-          dval = (double)(pvalue.getnumVal());
-        }
-        C.setParameterValue(pname,(double)dval);
-      } else if( m.isType(typeid(string)) ) {
-        std::string sval;
-        if (pvalue.isValString()) {
-          sval = std::string(pvalue.getStingVal());
-        } else {
-          char cval[20];
-          sprintf( cval, "%d", pvalue.getnumVal());
-          sval = std::string(&cval[0]);
-        }
-        C.setParameterValue(pname,(std::string)sval);
-      }
+ // Stop the collector so we can change the parameter value.
+  active = C.getThreads();
+  active.postponeCollecting(C);
 
-     // Restart the collector with a different parameter value.
-      C.getPostponedThreads().startCollecting(C);
-      return true;
+  std::set<Metadata> md = C.getParameters();
+  std::set<Metadata>::const_iterator mi;
+  for (mi = md.begin(); mi != md.end(); mi++) {
+    Metadata m = *mi;
+    if (m.getUniqueId() != pname) {
+     // Not the one we want - keep looking.
+      continue;
     }
+
+    if( m.isType(typeid(int)) ) {
+      int ival;
+      if (pvalue.isValString()) {
+        sscanf ( pvalue.getStingVal(), "%d", &ival);
+      } else {
+        ival = (int)(pvalue.getnumVal());
+      }
+      C.setParameterValue(pname,(int)ival);
+    } else if( m.isType(typeid(int64_t)) ) {
+      int64_t i64val;
+      if (pvalue.isValString()) {
+        sscanf ( pvalue.getStingVal(), "%lld", &i64val);
+      } else {
+        i64val = (int64_t)(pvalue.getnumVal());
+      }
+      C.setParameterValue(pname,(int64_t)i64val);
+    } else if( m.isType(typeid(uint)) ) {
+      uint uval;
+      if (pvalue.isValString()) {
+        sscanf ( pvalue.getStingVal(), "%d", &uval);
+      } else {
+        uval = (uint)(pvalue.getnumVal());
+      }
+      C.setParameterValue(pname,(uint)uval);
+    } else if( m.isType(typeid(uint64_t)) ) {
+      uint64_t u64val;
+      if (pvalue.isValString()) {
+        sscanf ( pvalue.getStingVal(), "%lld", &u64val);
+      } else {
+        u64val = (uint64_t)(pvalue.getnumVal());
+      }
+      C.setParameterValue(pname,(uint64_t)u64val);
+    } else if( m.isType(typeid(float)) ) {
+      float fval;
+      if (pvalue.isValString()) {
+        sscanf ( pvalue.getStingVal(), "%f", &fval);
+      } else {
+        fval = (float)(pvalue.getnumVal());
+      }
+      C.setParameterValue(pname,(float)fval);
+    } else if( m.isType(typeid(double)) ) {
+      double dval;
+      if (pvalue.isValString()) {
+        sscanf ( pvalue.getStingVal(), "%llf", &dval);
+      } else {
+        dval = (double)(pvalue.getnumVal());
+      }
+      C.setParameterValue(pname,(double)dval);
+    } else if( m.isType(typeid(string)) ) {
+      std::string sval;
+      if (pvalue.isValString()) {
+        sval = std::string(pvalue.getStingVal());
+      } else {
+        char cval[20];
+        sprintf( cval, "%d", pvalue.getnumVal());
+        sval = std::string(&cval[0]);
+      }
+      C.setParameterValue(pname,(std::string)sval);
+    }
+
+   // Restart the collector with a different parameter value.
+    active.startCollecting(C);
+    return true;
   }
-  catch(const Exception& error) {
-   // Ignore problems - the calling routine can figure something out.
-  }
+
+ // Restart the collector with the old parameter value.
+  active.startCollecting(C);
 
  // We didn't find the named parameter in this collector.
   return false;
@@ -1399,7 +1401,7 @@ bool SS_expSetParam (CommandObject *cmd) {
       std::string C_name = std::string(iter->getParmExpType());
       try {
         Collector C = Get_Collector (exp->FW(), C_name);
-        setparam(C, param_name, *iter);
+        (void) setparam(C, param_name, *iter);
       }
       catch(const Exception& error) {
        // Return message, but continue to process other collectors.
@@ -1413,7 +1415,14 @@ bool SS_expSetParam (CommandObject *cmd) {
       CollectorGroup cgrp = exp->FW()->getCollectors();
       CollectorGroup::iterator ci;
       for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
-        param_was_set |= setparam(*ci, param_name, *iter);
+        try {
+          param_was_set |= setparam(*ci, param_name, *iter);
+        }
+        catch(const Exception& error) {
+         // Return message, but continue to process other collectors.
+          Mark_Cmd_With_Std_Error (cmd, error);
+          continue;
+        }
       }
 
       if (!param_was_set) {
