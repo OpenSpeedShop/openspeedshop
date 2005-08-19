@@ -156,7 +156,7 @@ void ThreadGroup::startCollecting(const CollectorGroup& collectors) const
 void ThreadGroup::postponeCollecting(const Collector& collector) const
 {
     for(ThreadGroup::const_iterator i = begin(); i != end(); ++i)
-	collector.startCollecting(*i);
+	collector.postponeCollecting(*i);
 }
 
 
