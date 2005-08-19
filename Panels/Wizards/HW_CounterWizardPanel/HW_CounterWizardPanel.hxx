@@ -54,7 +54,7 @@ class QScrollView;
 #include <unistd.h>
 #include <string>
 #include <vector>
-typedef std::pair<std::string, std::string> papi_type;
+typedef std::pair<std::string, std::string> papi_preset_event;
 
 #define PANEL_CLASS_NAME HW_CounterWizardPanel   // Change the value of the define
                                          // to the name of your new class.
@@ -284,7 +284,7 @@ private:
 
     Panel *hwCounterPanel;
 
-    std::vector<papi_type> papi_types;
+    std::vector<papi_preset_event> papi_available_presets;
     void initPapiTypes();
     void appendComboBoxItems();
     QString findPAPIStr(QString);

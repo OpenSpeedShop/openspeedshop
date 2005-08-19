@@ -57,8 +57,9 @@
 
 #include "SS_Input_Manager.hxx"
 using namespace OpenSpeedShop::Framework;
+#include "PapiAPI.h"
 
-typedef std::pair<std::string, string> papi_type;
+typedef std::pair<std::string, string> papi_preset_event;
 
 HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(pc, n)
 {
@@ -1285,6 +1286,13 @@ HW_CounterWizardPanel::languageChange()
   QToolTip::add( vDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
   vDescriptionPageFinishButton->setText( tr( ">> Finish" ) );
   QToolTip::add( vDescriptionPageFinishButton, tr( "Advance to the wizard finish page." ) );
+QString papi_preset_event_strings = "<pre>";
+ for(std::vector<papi_preset_event>::const_iterator it = papi_available_presets.begin(); it != papi_available_presets.end(); ++it)
+  {
+    papi_preset_event_strings += QString("%1   %2<br>").arg(it->first.c_str()).arg(it->second.c_str());
+  }
+  papi_preset_event_strings += "</pre>";
+
   vParameterPageDescriptionText->setText( tr( QString("The following options (paramaters) are available to adjust.   These are the options the collector has exported.<br><br>\n"
 "The larger the number used for the sample rate, the more\n"
 "HW Counter detail will be shown.   However, the trade off will be slower\n"
@@ -1293,47 +1301,7 @@ HW_CounterWizardPanel::languageChange()
 "particular executable.   We suggest starting with the default setting\n"
 "of %1.\n\n"
 "<br><br>The available PAPI events that can be set are:<br>"
-"<pre>  PAPI_L1_DCM     L1D cache misses<br>"
-"  PAPI_L1_ICM     L1I cache misses<br>"
-"  PAPI_L2_ICM     L2I cache misses<br>"
-"  PAPI_L3_ICM     L3I cache misses<br>"
-"  PAPI_L2_TCM     L2 cache misses<br>"
-"  PAPI_L3_TCM     L3 cache misses<br>"
-"  PAPI_CA_SNP     Snoop Requests<br>"
-"  PAPI_L3_LDM     L3 load misses<br>"
-"  PAPI_L3_STM     L3 store misses<br>"
-"  PAPI_TLB_DM     Data TLB misses<br>"
-"  PAPI_TLB_IM     Instr TLB misses<br>"
-"  PAPI_L2_LDM     L2 load misses<br>"
-"  PAPI_L2_STM     L2 store misses<br>"
-"  PAPI_STL_ICY    No instr issue<br>"
-"  PAPI_STL_CCY    No instr done<br>"
-"  PAPI_BR_PRC     Cond br predicted<br>"
-"  PAPI_TOT_IIS    Instr issued<br>"
-"  PAPI_LD_INS     Loads<br>"
-"  PAPI_SR_INS     Stores<br>"
-"  PAPI_BR_INS     Branches<br>"
-"  PAPI_RES_STL    Stalled res cycles<br>"
-"  PAPI_FP_STAL    Stalled FPU cycles<br>"
-"  PAPI_TOT_CYC    Total cycles<br>"
-"  PAPI_L1_DCA     L1D cache accesses<br>"
-"  PAPI_L2_DCA     L2D cache accesses<br>"
-"  PAPI_L3_DCA     L3D cache accesses<br>"
-"  PAPI_L1_DCR     L1D cache reads<br>"
-"  PAPI_L2_DCR     L2D cache reads<br>"
-"  PAPI_L3_DCR     L3D cache reads<br>"
-"  PAPI_L2_DCW     L2D cache writes<br>"
-"  PAPI_L3_DCW     L3D cache writes<br>"
-"  PAPI_L3_ICH     L3I cache hits<br>"
-"  PAPI_L2_ICA     L2I cache accesses<br>"
-"  PAPI_L3_ICA     L3I cache accesses<br>"
-"  PAPI_L3_ICR     L3I cache reads<br>"
-"  PAPI_L2_TCA     L2 cache accesses<br>"
-"  PAPI_L3_TCA     L3 cache accesses<br>"
-"  PAPI_L3_TCR     L3 cache reads<br>"
-"  PAPI_L2_TCW     L2 cache writes<br>"
-"  PAPI_L3_TCW     L3 cache writes<br>"
-"  PAPI_FP_OPS     FP operations</pre><br> ").arg(sampling_rate) ) );
+"%2<br> ").arg(sampling_rate).arg(papi_preset_event_strings) ) );
   vParameterPageSampleRateHeaderLabel->setText( tr( "You can set the following option(s):" ) );
   vParameterPageSampleRateLabel->setText( tr( "sample rate:" ) );
   vParameterPageSampleRateText->setText( tr( QString("%1").arg(sampling_rate) ) );
@@ -1381,17 +1349,15 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new execu
   QToolTip::add( eDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
   eDescriptionPageFinishButton->setText( tr( ">> Finish" ) );
   QToolTip::add( eDescriptionPageFinishButton, tr( "Advance to the wizard finish page." ) );
-  eParameterPageDescriptionLabel->setText( tr( "The following options (paramaters) are available to adjust.     <br><br>These are the options the collector has exported.<br><pre>  PAPI_L1_DCM     L1D cache misses<br>  PAPI_L1_ICM     L1I cache misses<br>  PAPI_L2_ICM     L2I cache misses<br>  PAPI_L3_ICM     L3I cache misses<br>  PAPI_L2_TCM     L2 cache misses<br>  PAPI_L3_TCM     L3 cache misses<br>  PAPI_CA_SNP     Snoop Requests<br>  PAPI_L3_LDM     L3 load misses<br>  PAPI_L3_STM     L3 store misses<br>  PAPI_TLB_DM     Data TLB misses<br>  PAPI_TLB_IM     Instr TLB misses<br>  PAPI_L2_LDM     L2 load misses<br>  PAPI_L2_STM     L2 store misses<br>  PAPI_STL_ICY    No instr issue<br>  PAPI_STL_CCY    No instr done<br>  PAPI_BR_PRC     Cond br predicted<br>  PAPI_TOT_IIS    Instr issued<br>  PAPI_LD_INS     Loads<br>  PAPI_SR_INS     Stores<br>  PAPI_BR_INS     Branches<br>  PAPI_RES_STL    Stalled res cycles<br>  PAPI_FP_STAL    Stalled FPU cycles<br>  PAPI_TOT_CYC    Total cycles<br>  PAPI_L1_DCA     L1D cache accesses<br>  PAPI_L2_DCA     L2D cache accesses<br>  PAPI_L3_DCA     L3D cache accesses<br>  PAPI_L1_DCR     L1D cache reads<br>  PAPI_L2_DCR     L2D cache reads<br>  PAPI_L3_DCR     L3D cache reads<br>  PAPI_L2_DCW     L2D cache writes<br>  PAPI_L3_DCW     L3D cache writes<br>  PAPI_L3_ICH     L3I cache hits<br>  PAPI_L2_ICA     L2I cache accesses<br>  PAPI_L3_ICA     L3I cache accesses<br>  PAPI_L3_ICR     L3I cache reads<br>  PAPI_L2_TCA     L2 cache accesses<br>  PAPI_L3_TCA     L3 cache accesses<br>  PAPI_L3_TCR     L3 cache reads<br>  PAPI_L2_TCW     L2 cache writes<br>  PAPI_L3_TCW     L3 cache writes<br>  PAPI_FP_OPS     FP operations</pre>" ) );
+
+  eParameterPageDescriptionLabel->setText( tr( "The following options (paramaters) are available to adjust.     <br><br>These are the options the collector has exported.<br>%1" ).arg(papi_preset_event_strings) );
   eParameterPageSampleRateHeaderLabel->setText( tr( "You can set the following option(s):" ) );
   eParameterPageSampleRateLabel->setText( tr( "sample rate:" ) );
   eParameterPageSampleRateText->setText( tr( QString("%1").arg(sampling_rate) ) );
   QToolTip::add( eParameterPageSampleRateText, tr( QString("The rate to sample.   (Default %1.)").arg(sampling_rate) ) );
 
-eParamaterPagePAPIDescriptionLabel->setText( tr( "PAPI String:" ) );
-#ifdef OLDWAY
-eParameterPagePAPIDescriptionText->setText( tr( QString("%1").arg(PAPIDescriptionStr) ) );
-#endif // OLDWAY
-QToolTip::add( eParameterPagePAPIDescriptionText, tr( QString("The HW Counter one wants to leverage - Default Total Cycles: PAPI_TOT_CYC") ));
+  eParamaterPagePAPIDescriptionLabel->setText( tr( "PAPI String:" ) );
+  QToolTip::add( eParameterPagePAPIDescriptionText, tr( QString("The HW Counter one wants to leverage - Default Total Cycles: PAPI_TOT_CYC") ));
 
   eParameterPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( eParameterPageBackButton, tr( "Takes you back one page." ) );
@@ -1560,103 +1526,23 @@ HW_CounterWizardPanel::vUpdateAttachOrLoadPageWidget()
 void
 HW_CounterWizardPanel::initPapiTypes()
 {
-  papi_types.clear();
-  std::pair<std::string, std::string> *pt;
-  pt = new std::pair<std::string, std::string>("PAPI_L1_DCM", "L1D cache misses");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_L1_ICM", "L1I cache misses");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_L2_ICM", "L2I cache misses");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_L3_ICM", "L3I cache misses");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_L2_TCM", "L2 cache misses");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_L3_TCM", "L3 cache misses");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_CA_SNP", "Snoop Requests");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_L3_LDM", "L3 load misses");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_L3_STM", "L3 store misses");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_TLB_DM", "Data TLB misses");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_TLB_IM", "Instr TLB misses");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_L2_LDM", "L2 load misses");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_L2_STM", "L2 store misses");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_STL_ICY", "No instr issue");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_STL_CCY", "No instr done");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_BR_PRC", "Cond br predicted");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_TOT_IIS", "Instr issued");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_LD_INS", "Loads");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_SR_INS", "Stores");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_BR_INS", "Branches");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_RES_STL", "Stalled res cycles");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_FP_STAL", "Stalled FPU cycles");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_TOT_CYC", "Total cycles");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_L1_DCA", "L1D cache accesses");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_L2_DCA", "L2D cache accesses");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_L3_DCA", "L3D cache accesses");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_L1_DCR", "L1D cache reads");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_L2_DCR", "L2D cache reads");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_L3_DCR", "L3D cache reads");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_L2_DCW", "L2D cache writes");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_L3_DCW", "L3D cache writes");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_L3_ICH", "L3I cache hits");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_L2_ICA", "L2I cache accesses");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_L3_ICA", "L3I cache accesses");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_L3_ICR", "L3I cache reads");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_L2_TCA", "L2 cache accesses");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_L3_TCA", "L3 cache accesses");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_L3_TCR", "L3 cache reads");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_L2_TCW", "L2 cache writes");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_L3_TCW", "L3 cache writes");
-  papi_types.push_back(*pt);
-  pt = new std::pair<std::string, std::string>("PAPI_FP_OPS", "FP operations");
-  papi_types.push_back(*pt);
+  papi_available_presets.clear();
+
+  papi_available_presets = OpenSS_papi_available_presets();
 
 /*
-  for(std::vector<papi_type>::const_iterator it = papi_types.begin(); it != papi_types.end(); ++it)
+  for(std::vector<papi_preset_event>::const_iterator it = papi_available_presets.begin(); it != papi_available_presets.end(); ++it)
   {
     printf("%s   %s\n", it->first.c_str(), it->second.c_str() );
   }
 */
+
 }
 
 void
 HW_CounterWizardPanel::appendComboBoxItems()
 {
-  for(std::vector<papi_type>::const_iterator it = papi_types.begin(); it != papi_types.end(); ++it)
+  for(std::vector<papi_preset_event>::const_iterator it = papi_available_presets.begin(); it != papi_available_presets.end(); ++it)
   {
     QString t = QString("%1  %2").arg(it->first.c_str()).arg(it->second.c_str());
     
@@ -1668,7 +1554,7 @@ HW_CounterWizardPanel::appendComboBoxItems()
 QString
 HW_CounterWizardPanel::findPAPIStr(QString param)
 {
-  for(std::vector<papi_type>::const_iterator it = papi_types.begin(); it != papi_types.end(); ++it)
+  for(std::vector<papi_preset_event>::const_iterator it = papi_available_presets.begin(); it != papi_available_presets.end(); ++it)
   {
     if( param == QString(it->first.c_str()) )
     {
