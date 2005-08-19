@@ -23,4 +23,6 @@ EXTRA_DIST = \
 	runone-pcsamp \
 	runone-usertime \
 	rununit \
-	runone-dpcl
+	runone-dpcl \
+	runone-hwc \
+	runone-noout
