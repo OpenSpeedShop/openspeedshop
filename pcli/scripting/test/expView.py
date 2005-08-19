@@ -14,6 +14,10 @@ my_viewtype += "pcsamp"
 
 my_modifer = oss.ModifierList("all")
 
+my_metric_list = oss.MetricList()
+my_metric_list += "exclusive"
+my_metric_list += ("pcsamp","inclusive")
+
 my_expid = oss.ExpId(7)
 
-oss.expView(my_expid,my_modifer,my_rank,my_file_bosco,my_viewtype)
+oss.expView(my_expid,my_modifer,my_rank,my_file_bosco,my_metric_list,my_viewtype)

@@ -38,35 +38,37 @@ def deconstruct(cmd_name,*args):
     	for ndx in range(count):
     	
     	    if isinstance(args[ndx],HostList):
-	    	sublist = parse_list("-h",*args[ndx])
+	    	sublist = parse_list("-h",None,*args[ndx])
     	    elif isinstance(args[ndx],RankList):
-	    	sublist = parse_list("-r",*args[ndx])
+	    	sublist = parse_list("-r",None,*args[ndx])
     	    elif isinstance(args[ndx],FileList):
-	    	sublist = parse_list("-f",*args[ndx])
+	    	sublist = parse_list("-f",None,*args[ndx])
     	    elif isinstance(args[ndx],PidList):
-	    	sublist = parse_list("-p",*args[ndx])
+	    	sublist = parse_list("-p",None,*args[ndx])
     	    elif isinstance(args[ndx],ThreadList):
-	    	sublist = parse_list("-t",*args[ndx])
+	    	sublist = parse_list("-t",None,*args[ndx])
     	    elif isinstance(args[ndx],ClusterList):
-	    	sublist = parse_list("-c",*args[ndx])
+	    	sublist = parse_list("-c",None,*args[ndx])
     	    elif isinstance(args[ndx],MetricList):
-	    	sublist = parse_list("-m",*args[ndx])
+	    	sublist = parse_list("-m","MetricType",*args[ndx])
     	    elif isinstance(args[ndx],ExpTypeList):
-	    	sublist = parse_list("",*args[ndx])
+	    	sublist = parse_list("",None,*args[ndx])
     	    elif isinstance(args[ndx],ViewTypeList):
-	    	sublist = parse_list("",*args[ndx])
+	    	sublist = parse_list("",None,*args[ndx])
     	    elif isinstance(args[ndx],ExpId):
-	    	sublist = parse_list("-x",*args[ndx])
+	    	sublist = parse_list("-x",None,*args[ndx])
     	    elif isinstance(args[ndx],LineNoList):
-	    	sublist = parse_list("-l",*args[ndx])
+	    	sublist = parse_list("-l",None,*args[ndx])
     	    elif isinstance(args[ndx],ModifierList):
-	    	sublist = parse_list("-M",*args[ndx])
-    	    elif isinstance(args[ndx],ParmList):
-	    	sublist = parse_list("",*args[ndx])
+	    	sublist = parse_list("-v",None,*args[ndx])
+    	    elif isinstance(args[ndx],ParamList):
+	    	sublist = parse_list("","ParamType",*args[ndx])
+    	    elif isinstance(args[ndx],BreakList):
+	    	sublist = parse_list("",None,*args[ndx])
     	    elif is_single_type(args[ndx]):
 	    	sublist = make_string(args[ndx])
     	    else:
-	    	sublist = parse_list("-j",*args[ndx])
+	    	sublist = parse_list("-j",None,*args[ndx])
 
 #    	    print sublist
 	    main_string += " "+sublist
@@ -82,7 +84,7 @@ def deconstruct(cmd_name,*args):
 # grammar.
 #
 ################################################################################
-def parse_list(flag,*arglist):
+def parse_list(flag, is_special,*arglist):
     
     	if (len(arglist) == 1) and (type(arglist) is types.TupleType):
     	    arglist = arglist[0]
@@ -100,11 +102,15 @@ def parse_list(flag,*arglist):
 	    	arg = arglist[ndx]
 	    
     	    	if is_single_type(arg) == 1:
+		    if is_special is "ParamType":
+		    	raise SyntaxError,"param arguments are tuples of 2" 
+		    else:
     	    	    	t_string.append(make_string(arg))
     	    	elif type(arg) is types.TupleType:
 		    	if len(arg) != 2:
 		    	    raise SyntaxError, "tuple is not of size 2"
 		    	else:
+
     	    	    	    if is_single_type(arg[0]) == 1:
     	    	    	    	t1 = make_string(arg[0])
     	    	    	    else:
@@ -114,11 +120,21 @@ def parse_list(flag,*arglist):
     	    	    	    	t2 = make_string(arg[1])
     	    	    	    else:
 			    	raise SyntaxError,"second argument of tuple not simple type" 
-			    t_string.append(t1+":"+t2)
+			    
+			    if is_special is "MetricType":
+			    	t_string.append(t1+"::"+t2)
+			    elif is_special is "ParamType":
+			    	t_string.append(t1+"="+t2)
+			    elif is_special is None:
+			    	t_string.append(t1+":"+t2)
+			    else:
+		    	    	raise SyntaxError, "tuple is special, but not handled in parse_list()"
     	    	else:
 	    	    	print type(arg)
+	    	    	print type(arglist)
 		    	raise SyntaxError, "argument not simple or tuple"
     	else:
+    	    print type(arglist[0])
     	    print type(arglist)
     	    raise SyntaxError, "unexpected data type"
 

@@ -46,15 +46,14 @@ class MyList:
 
 class MetricType:
     	# 
-    	def __init__(self,metric_name) :
+    	def __init__(self,val_1, val_2=None) :
 
-    	    self._oss_metric_name = metric_name
-    	    self._oss_exp_type = None
-
-    	def __init__(self,exp_type, metric_name) :
-
-    	    self._oss_metric_name = metric_name
-    	    self._oss_exp_type = exp_type
+    	    if val_2 is None:
+	    	self._oss_metric_name = val_1
+		self._oss_exp_type = None
+	    else:
+    	    	self._oss_metric_name = val_2
+    	    	self._oss_exp_type = val_1
 
     ###########################################
 
@@ -95,7 +94,10 @@ class ExpId:
 class ModifierList(MyList):
     	pass
 
-class ParmList(MyList):
+class ParamList(MyList):
+    	pass
+
+class BreakList(MyList):
     	pass
 
 class LineNoList(MyList):

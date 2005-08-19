@@ -251,98 +251,80 @@ def listViews(*arglist):
     #
     # clearBreak
     #
-    #  
-    #
     ################################################################################
 def oss_clearBreak(*arglist):
-    	#print arglist
     	cmd_string = deconstruct("clearBreak",*arglist)
+	return return_none(cmd_string)
 
     ################################################################################
     #
     # exit
     #
-    #  
-    #
     ################################################################################
 def oss_exit(*arglist):
-    	#print arglist
     	cmd_string = deconstruct("exit",*arglist)
+	return return_none(cmd_string)
 
     ################################################################################
     #
     # help
     #
-    #  
-    #
     ################################################################################
 def oss_help(*arglist):
-    	#print arglist
     	cmd_string = deconstruct("help",*arglist)
+	return return_string(cmd_string)
 
     ################################################################################
     #
     # history
     #
-    #  
-    #
     ################################################################################
 def oss_history(*arglist):
-    	#print arglist
     	cmd_string = deconstruct("history",*arglist)
+	return return_string(cmd_string)
 
     ################################################################################
     #
     # log
     #
-    #  
-    #
     ################################################################################
 def oss_log(*arglist):
-    	#print arglist
     	cmd_string = deconstruct("log",*arglist)
+	return return_none(cmd_string)
 
     ################################################################################
     #
     # openGui
     #
-    #  
-    #
     ################################################################################
 def oss_openGui(*arglist):
-    	#print arglist
     	cmd_string = deconstruct("openGui",*arglist)
+	return return_none(cmd_string)
 
     ################################################################################
     #
     # playBack
     #
-    #  
-    #
     ################################################################################
 def oss_playBack(*arglist):
-    	#print arglist
     	cmd_string = deconstruct("playBack",*arglist)
+	return return_none(cmd_string)
 
     ################################################################################
     #
     # record
     #
-    #  
-    #
     ################################################################################
 def oss_record(*arglist):
-    	#print arglist
     	cmd_string = deconstruct("record",*arglist)
+	return return_none(cmd_string)
 
     ################################################################################
     #
     # setBreak
     #
-    #  
-    #
     ################################################################################
 def oss_setBreak(*arglist):
-    	#print arglist
     	cmd_string = deconstruct("setBreak",*arglist)
+	return return_int(cmd_string)
 
