@@ -1,0 +1,4 @@
+        PAPI_TOT_CYC            % of Total  Function Name
+    30000000000.0000                3.0000  f3(mutatee: mutatee.c,25)
+    20000000000.0000                2.0000  f2(mutatee: mutatee.c,16)
+    10000000000.0000                1.0000  f1(mutatee: mutatee.c,7)
