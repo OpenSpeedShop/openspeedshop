@@ -117,7 +117,7 @@ linked to the specified collectors in &lt;expType_list&gt;. <br>
 provided,
 the command does nothing. </font><br>
   <br>
-  <font size="-1"><b>expAttach </b>[ &lt;expId_spec&gt; ] [
+  <font size="-1"><b>expAttach</b> [ <b>-v mpi</b> ] [ &lt;expId_spec&gt; ] [
 &lt;target_list&gt; ] [ &lt;expType_list&gt; ]</font>
 </ul>
 <h3><a name="mozTocId67486" class="mozTocH3"></a><a name="expClose"></a><font
@@ -131,10 +131,10 @@ to terminate the session.</li>
   <li>All data collectors attached to the experiment are removed from
 the attached applications.</li>
   <li>All attached applications are removed from the experiment.</li>
-  <li>If the <b>kill</b> keyword is not provided, attached
+  <li>If <b>-v kill</b> is not provided, attached
 applications will
 continue executing.</li>
-  <li>If the <b>kill</b> keyword is provided, attached applications
+  <li>If <b>-v kill</b> is provided, attached applications
 will
 be terminated.</li>
   <li>The database file that was used to save information about the
@@ -150,12 +150,11 @@ should only be issued when the user is certain that more performance
 measurements are not needed and that the collected data measurements
 will be saved if there is any chance that the user will want to take
 another look at the results. <br>
-- Use of the <b>all</b> keyword will cause all defined experiments to
+- Use of <b>-v all</b> will cause all defined experiments to
 be deleted. </font><br>
   <br>
-  <font size="-1"><b>expClose </b>[ <b>focus</b> ||
-&lt;expId_spec&gt; || <b>all</b> ]
-[ <b>kill</b> ]</font>
+  <font size="-1"><b>expClose</b> [ <b>-v kill</b> ] [ <b>-v all</b> || 
+&lt;expId_spec&gt; ]</font>
 </ul>
 <h3><a name="mozTocId103692" class="mozTocH3"></a><font size="+0"><b><a
  name="expCreate"></a><li>expCreate</li>
@@ -179,8 +178,9 @@ command. <br>
 new
 &lt;expId&gt; and will set the focus. </font><br>
   <br>
-  <font size="-1">&lt;expId&gt;<b> = expCreate </b>[
-&lt;target_list&gt; ] [ &lt;expType_list&gt; ]</font>
+  <font size="-1">&lt;expId&gt; <b>=</b>
+<b>expCreate </b>[ &lt;target_list&gt; ] [ &lt;expType_list&gt;
+]</font>
   <p></p>
 </ul>
 <h3><a name="mozTocId859330" class="mozTocH3"></a><a name="expDetach_"></a><font
@@ -222,8 +222,7 @@ provided,
 the command does nothing. </font><br>
   <br>
   <font size="-1"><b>expDetach </b>[ &lt;expId_spec&gt; ] [
-&lt;target_list&gt; ]
-[ &lt;expType_list&gt; ]</font>
+&lt;target_list&gt; ] [ &lt;expType_list&gt; ]</font>
 </ul>
 <h3><a name="mozTocId526141" class="mozTocH3"></a><font size="+0"><b><a
  name="expDisable"></a><li>expDisable</li>
@@ -245,14 +244,13 @@ the command does nothing. </font><br>
   <li><b>expClose</b> can be used to destroy the experiment and free
 all data space used to save the collected data.</li>
   </dir>
-- The <b>all</b> keyword will result in data collection being stopped
+- <b>-v all</b> will result in data collection being stopped
 for
 all defined experiments. <br>
 - If this command is issued with no arguments, data collection is
 stopped for the focused experiment. </font><br>
   <br>
-  <font size="-1"><b>expDisable </b>[ &lt;expId_spec&gt; || <b>all</b>
-]</font>
+  <font size="-1"><b>expDisable </b>[ <b>-v all</b> || &lt;expId_spec&gt; ]</font>
 </ul>
 <h3><a name="mozTocId946883" class="mozTocH3"></a><font size="+0"><b><a
  name="expEnable"></a><li>expEnable</li>
@@ -269,14 +267,13 @@ data.</li>
   <li>The attached applications will not continue executing until an <b>expGo</b>
 command is issued.</li>
   </dir>
-- The <b>all</b> keyword will result in data collection being
+- <b>-v all</b> will result in data collection being
 restarted for
 all defined experiments. <br>
 - If this command is issued with no arguments, data collection for
 the focused experiment is restarted. </font><br>
   <br>
-  <font size="-1"><b>expEnable</b> [
-&lt;expId_spec&gt; || <b>all</b> ]</font>
+  <font size="-1"><b>expEnable </b>[ <b>-v all</b> || &lt;expId_spec&gt; ]</font>
 </ul>
 <h3><a name="mozTocId738829" class="mozTocH3"></a><a name="expFocus"></a><font
  size="+0"><b><li>expFocus</li>
@@ -296,8 +293,8 @@ will produce a fatal error.</li>
   </dir>
 - This command does not change the execution state of an experiment. </font><br>
   <br>
-  <font size="-1">&lt;expId&gt; <b>= expFocus </b>[
-&lt;expId_spec&gt; ]</font>
+  <font size="-1">&lt;expId&gt; =
+<b>expFocus </b>[ &lt;expId_spec&gt; ]</font>
 </ul>
 <h3><a name="mozTocId888177" class="mozTocH3"></a><a name="expGo"></a><font
  size="+0"><b><li>expGo</li>
@@ -331,16 +328,16 @@ commands from being issued
   <li>Depending on the type of data collection that is taking place, it may be
       possible to view the results before the application completes.</li>
   </dir>
-- The absence of the &lt;expId_spec&gt; and <b>all</b> keyword will
+- The absence of the &lt;expId_spec&gt; and <b>-v all</b> will
 result in
 only the focused experiment being run.<br>
 - The use of &lt;expId_spec&gt; will result in only that experiment
 being run.<br>
-- The use of the <b>all</b> option will result in every defined
+- The use of <b>-v all</b> will result in every defined
 experiment being
 run. </font><br>
   <br>
-  <font size="-1"><b>expGo </b>[ &lt;expId_spec&gt; || <b>all</b> ]</font>
+  <font size="-1"><b>expGo </b>[ <b>-v all</b> || &lt;expId_spec&gt; ]</font>
 </ul>
 <h3><a name="mozTocId104711" class="mozTocH3"></a><font size="+0"><b><a
  name="expPause"></a><li>expPause</li>
@@ -350,11 +347,10 @@ run. </font><br>
 halt the experiment identified by the input experiment id. <br>
 - If &lt;expId_spec&gt; is not provided, the focused experiment is
 used. <br>
-- If the keywork <b>all</b> is present, every defined experiment is
+- If <b>-v all</b> is present, every defined experiment is
 halted. </font><br>
   <br>
-  <font size="-1"><b>expPause</b> [ &lt;expId_spec&gt; || <b>all</b>
-]</font>
+  <font size="-1"><b>expPause</b> [ <b>-v all</b> || &lt;expId_spec&gt; ]</font>
 </ul>
 <h3><a name="mozTocId811994" class="mozTocH3"></a><font size="+0"><b><a
  name="expRestore"></a><li>expRestore</li>
@@ -384,7 +380,8 @@ with the <b>expSave</b> command.</li>
   </dir>
 </font>
   <br>
-  <font size="-1">&lt;exp_Id&gt;<b> = expRestore </b>&lt;file_spec&gt;</font>
+  <font size="-1">&lt;expId&gt; <b>=</b>
+<b>expRestore </b> &lt;file_spec&gt;</font>
 </ul>
 <h3><a name="mozTocId916219" class="mozTocH3"></a><font size="+0"><b><a
  name="expSave"></a><li>expSave</li>
@@ -409,7 +406,7 @@ command.</li>
 opertaions that
 the <b>OpenSS</b> tool must perform.</li>
   </dir>
-- Without the <b>copy</b> option
+- Without <b>-v copy</b>
   <dir><li>If the original, temporary database file is still in use,
 it is copied to the
 specified file name and the <b>OpenSS</b> tool will use the new file
@@ -430,7 +427,7 @@ any new
 information that is added to or collected for, the experiment.</li>
   </dir>
   </dir>
-- With the <b>copy</b> option the given location receives a <i>copy</i>
+- With <b>-v copy</b>, the given location receives a <i>copy</i>
 of the
 current state of the database.
   <dir><li>The current contents of the database is duplicated and
@@ -443,8 +440,7 @@ although
 it may temporarily suspend execution while the command is being
 executed. </font><br>
   <br>
-  <font size="-1"><b>expSave </b>[ &lt;expId_spec&gt; ] [ <b>copy</b>
-]
+ <font size="-1"><b>expSave</b> [ <b>-v copy</b> ] [ &lt;expId_spec&gt; ]
 &lt;file_spec&gt;</font>
 </ul>
 <h3><a name="mozTocId563762" class="mozTocH3"></a><font size="+0"><b><a
@@ -461,7 +457,7 @@ executed. </font><br>
   <br>
   <font size="-1"><b>expSetParam </b> [ &lt;expId_spec&gt; ]
 &lt;expParam&gt; <b>=</b> &lt;expParamValue&gt;
-[ <b>,</b> &lt;expParam&gt; <b>=</b> &lt;expParamValue&gt; ] ...</font>
+[ <b>,</b> &lt;expParam&gt; <b>=</b> &lt;expParamValue&gt; ]+</font>
 </ul>
 <br>
 <font size="+0"></font>
@@ -479,11 +475,11 @@ executed. </font><br>
       for the focused experiment. </li>
   <li>The use of &lt;expId_spec&gt; will result in information being reported
       for the specified experiment. </li>
-  <li>The use of <b>all</b> will result in information being reported for
+  <li>The use of <b>-v all</b> will result in information being reported for
       all the known experiments.  </li>
   </dir>
 </font><br>
-  <font size="-1"><b>expStatus</b>[ &lt;expId_spec&gt; || <b>all</b> ]</font>
+  <font size="-1"><b>expStatus</b> [ <b>-v all</b> || &lt;expId_spec&gt; ]</font>
 </ul>
 <h3><a name="mozTocId575759" class="mozTocH3"></a><font size="+0"><b><a
  name="expView"></a><li>expView</li>
@@ -542,12 +538,12 @@ that is included in the report.
       focused experiment to be listed. </li>
   <li>The use of &lt;expId_spec&gt; will cause all the breakpoints for
       the specified experiment to be listed. </li>
-  <li>The use of <b>all</b> will cause all the known breakpoints, for all
+  <li>The use of <b>-v all</b> will cause all the known breakpoints, for all
       of the experiments defined by the user, to be listed. </li>
   </dir>
 </font><br>
-  <font size="-1"><b>&lt;</b>ListOf_breakId&gt; <b>= listBreaks </b>[
-&lt;expId_spec&gt; || <b>all</b> ]</font>
+  <font size="-1">&lt;ListOf_breakId&gt;
+<b>= listBreaks</b> [ <b>-v all</b> || &lt;expId_spec&gt; ]</font>
 </ul>
 <h3><a name="mozTocId332313" class="mozTocH3"></a><a name="listExp"></a><b><font
  size="+0"><li>listExp</li>
@@ -555,8 +551,8 @@ that is included in the report.
 <ul>
   <font size="-1">- List the experiments that have been defined. <br>
   <br>
-  <font size="-1"><b>&lt;</b>ListOf_expId&gt;<b>
-= listExp </b></font>
+  <font size="-1">&lt;listOf_expId&gt;
+<b>= listExp</b></font>
 </ul>
 <h3><a name="mozTocId760516" class="mozTocH3"></a><a name="listHosts"></a><b><font
  size="+0"><li>listHosts</li>
@@ -569,8 +565,8 @@ that is included in the report.
       included in the selected experiment to be listed. </li>
   </dir>
   <br>
-  <font size="-1"><b>&lt;</b>ListOf_hostname&gt; <b>= listHosts</b> [
-&lt;expId_spec&gt; ]</font>
+  <font size="-1">&lt;ListOf_hostname&gt;
+<b>= listHosts</b> [ &lt;expId_spec&gt; ]</font>
 </ul>
 <h3><a name="mozTocId685141" class="mozTocH3"></a><b><font size="+0"><a
  name="listObj"></a><li>listObj</li>
@@ -590,8 +586,8 @@ part of the selected experiment. <br>
 provided for
 all portions of all applications that are attached to the experiment. </font><br>
   <br>
-  <font size="-1"><b>&lt;</b>ListOf_filename&gt; <b>= listObj</b> [
-&lt;expId_spec&gt; ] [ &lt;target&gt; ]</font>
+  <font size="-1">&lt;ListOf_filename&gt;
+<b>= listObj</b> [ &lt;expId_spec&gt; ] [ &lt;target&gt; ]</font>
 </ul>
 <h3><a name="mozTocId629516" class="mozTocH3"></a><a name="listPids"></a><b><font
  size="+0"><li>listPids</li>
@@ -612,8 +608,8 @@ experiment and, optionally, on a specific machine.
   </dir>
 </font>
   <br>
-  <font size="-1"><b>&lt;</b>ListOf_pidname&gt; <b>= listPids</b> [
-&lt;expId_spec&gt; ] [ &lt;host_list_spec&gt; ] </font>
+  <font size="-1">&lt;ListOf_pidname&gt;
+<b>= listPids</b> [ &lt;expId_spec&gt; ] [ &lt;host_list_spec&gt; ]</font>
 </ul>
 <h3><a name="mozTocId965893" class="mozTocH3"></a><a name="listMetrics"></a><b><font
  size="+0"><li>listMetrics</li>
@@ -626,15 +622,15 @@ experiment and, optionally, on a specific machine.
   <li>The use of &lt;expId_spec&gt; will cause the metrics that are associated
       with the set of data collectors that are part of the specified  experiment
       to be listed. </li>
-  <li>The use of the keyword <b>all</b> will cause all the metrics for all
+  <li>The use of <b>-v all</b> will cause all the metrics for all
       available collectors to be listed. </li>
   <li>The use of the "&lt;viewType_list&gt;" option will result in a listing of only
       those metrics associated with the specific data collectors in the list.</li>
   </dir>
 </font>
   <br>
-  <font size="-1">&lt;ListOf_expMetric&gt; <b>= listMetrics </b>[
-&lt;expId_spec&gt; || <b>all</b> || &lt;expType_list&gt; ]</font>
+  <font size="-1">&lt;ListOf_expMetric&gt;
+<b>= listMetrics</b> [ <b>-v all</b> || &lt;expId_spec&gt; || &lt;expType_list&gt; ]</font>
 </ul>
 <h3><a name="mozTocId362324" class="mozTocH3"></a><a name="listParams"></a><b><font
  size="+0"><li>listParams</li>
@@ -647,15 +643,15 @@ experiment and, optionally, on a specific machine.
   <li>The use of &lt;expId_spec&gt; will cause the parameters that are associated
       with the set of data collectors that are part of the specified  experiment
       to be listed. </li>
-  <li>The use of the keyword <b>all</b> will cause all the parameters for all
+  <li>The use of <b>-v all</b> will cause all the parameters for all
       available collectors to be listed. </li>
   <li>The use of the "&lt;viewType&gt;" option will result in a listing of only
       those parameters associated with that specific data collector.</li>
   </dir>
 </font>
   <br>
-  <font size="-1">&lt;ListOf_expParam&gt; <b>= listParams </b>[
-&lt;expId_spec&gt; || <b>all</b> || &lt;expType_list&gt; ]</font>
+  <font size="-1">&lt;ListOf_expParam&gt;
+<b>= listParams</b> [ <b>-v all</b> || &lt;expId_spec&gt; || &lt;expType_list&gt; ]</font>
 </ul>
 <h3><a name="mozTocId924409" class="mozTocH3"></a><a name="listRanks"></a><b><font
  size="+0"><li>listRanks</li>
@@ -681,8 +677,8 @@ experiment, a specific Pid or on a specific machine.
   </dir>
 </font>
   <br>
-  <font size="-1"><b>&lt;</b>ListOf_Ranks&gt; <b>= listRanks</b> [
-&lt;expId_spec&gt; ] [ &lt;target&gt; ]</font>
+  <font size="-1"><b>&lt;</b>ListOf_rankname&gt;
+<b>= listRanks</b> [ &lt;expId_spec&gt; ] [ &lt;target&gt; ]</font>
 </ul>
 <h3><a name="mozTocId924408" class="mozTocH3"></a><a name="listSrc"></a><b><font
  size="+0"><li>listSrc</li>
@@ -704,9 +700,8 @@ all portions of all applications that are attached to the experiment. <br>
 provided
 for all portions of any application that has been selected. </font><br>
   <br>
-  <font size="-1"><b>&lt;</b>string&gt; <b>= listSrc</b> [
-&lt;expId_spec&gt; ] [ &lt;target&gt; ] [
-&lt;linenumber_list_spec&gt; ]</font>
+  <font size="-1">&lt;string&gt;
+<b>= listSrc</b> [ &lt;expId_spec&gt; ] [ &lt;target&gt; ] [ &lt;linenumber_list_spec&gt; ]</font>
 </ul>
 <h3><a name="mozTocId613828" class="mozTocH3"></a><b><font size="+0"><a
  name="listTypes"></a><li>listStatus</li>
@@ -716,12 +711,12 @@ for all portions of any application that has been selected. </font><br>
   <dir><li>If no option is selected, return the status of the focused experiment. </li>
   <li>The use of &lt;expId_spec&gt; will cause the status of 
       the specified experiment to be returned. </li>
-  <li>The use of the <b>all</b> keyword will cause the status of all the defined
+  <li>The use of <b>-v all</b> will cause the status of all the defined
        experiments to be returned. </li>
   </dir>
 </font><br>
-  <font size="-1"><b>&lt;</b>ListOf_statusType&gt;<b> = listSatus </b>[
-&lt;expId_spec&gt; || <b>all</b> ]</font>
+  <font size="-1">&lt;ListOf_statusType&gt;
+<b>= listStatus</b> [ <b>-v all</b> || &lt;expId_spec&gt; ] </font>
 </ul>
 <h3><a name="mozTocId613829" class="mozTocH3"></a><a name="listThreads"></a><b><font
  size="+0"><li>listThreads</li>
@@ -747,8 +742,8 @@ experiment, a specific Pid or on a specific machine.
   </dir>
 </font>
   <br>
-  <font size="-1"><b>&lt;</b>ListOf_Threads&gt; <b>= listThreads</b> [
-&lt;expId_spec&gt; ] [ &lt;target&gt; ]</font>
+  <font size="-1"><b>&lt;</b>ListOf_threadname&gt;
+<b>= listThreads</b> [ &lt;expId_spec&gt; ] [ &lt;target&gt; ]</font>
 </ul>
 <h3><a name="mozTocId613827" class="mozTocH3"></a><b><font size="+0"><a
  name="listTypes"></a><li>listTypes</li>
@@ -760,13 +755,13 @@ that can be used to collect data in an  experiment. <br>
        the focused experiment. </li>
   <li>The use of &lt;expId_spec&gt; will cause the utilities that are attached
        to the specified experiment to be listed. </li>
-  <li>The use of the <b>all</b> keyword will cause all the possible
+  <li>The use of <b>-v all</b> will cause all the possible
        performance measurement utilities that can be used in experiments
        to be listed. </li>
   </dir>
 </font><br>
-  <font size="-1"><b>&lt;</b>ListOf_expType&gt;<b> = listTypes </b>[
-&lt;expId_spec&gt; || <b>all</b> ]</font>
+  <font size="-1">&lt;ListOf_expType&gt;
+<b>= listTypes</b> [ <b>-v all</b> || &lt;expId_spec&gt; ] </font>
 </ul>
 <h3><a name="mozTocId460796" class="mozTocH3"></a><b><font size="+0"><a
  name="listViews"></a><li>listViews</li>
@@ -779,15 +774,15 @@ that can be used to collect data in an  experiment. <br>
   <li>The use of &lt;expId_spec&gt; will cause the the reports that are associated
       with the set of data collectors that are part of the specified  experiment
       to be listed. </li>
-  <li>The use of the keyword <b>all</b> will cause all the the reports for all
+  <li>The use of <b>-v all</b> will cause all the the reports for all
       available collectors to be listed. </li>
   <li>The use of the "&lt;viewType_list&gt;" option will result in a listing of only
       those reports associated with the specific data collectors in the list.</li>
   </dir>
 </font>
   <br>
-  <font size="-1"><b>&lt;</b>ListOf_viewType&gt; <b>= listViews </b>[
-&lt;expId_spec&gt; || <b>all</b> || &lt;expType_list&gt; ]</font>
+  <font size="-1">&lt;ListOf_viewType&gt;
+<b>= listViews</b> [ <b>-v all</b> || &lt;expId_spec&gt; || &lt;expType_list&gt; ]</font>
 </ul>
 <br>
 <font size="+0"></font>
@@ -913,9 +908,9 @@ used. <br>
 &lt;address_description&gt;
 must be valid on every host and executable attached to the experiment. </font><br>
   <br>
-  <font size="-1">&lt;breakId&gt; <b>setbreak</b> [ &lt;expId_spec&gt;
-]
-[ &lt;target&gt; ] &lt;address_description&gt;</font>
+  <font size="-1">&lt;breakId&gt;
+<b>= setbreak</b> [ &lt;expId_spec&gt; ]
+[ &lt;target&gt; ] &lt;address_description&gt;<br>
 </ul>
 </body>
 </html>
