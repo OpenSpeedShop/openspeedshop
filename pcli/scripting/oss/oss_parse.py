@@ -1,6 +1,8 @@
 from oss_classes import *
 import types
 
+from script_test import *
+
 ################################################################################
 #
 # is_single_type
@@ -173,7 +175,6 @@ def make_string(arg):
 #
 ################################################################
 def return_none(args):
-    	#print args
     	cmd_parse(args)
     	return
 
@@ -212,7 +213,8 @@ def return_string_list(args):
 ################################################################################
 def cmd_parse(zusamen):
 
-    print zusamen
+    print "cmd_parse(",zusamen,")"
 
+    return CallParseTest(zusamen)
     #return PY_Input.CallParser (zusamen)
-    return
+    #return
