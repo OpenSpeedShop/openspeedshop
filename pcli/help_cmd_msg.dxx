@@ -185,183 +185,148 @@ OpenSpeedShop::message_element_t general_msg[] = {
 // COMMAND ARGUMENTS
 /*********************************************/
 char *cmd_expattach_args = {
-    "expAttach [ <expId_spec> ] [ -mpi] [ <target_list> ] [ <expType_list> ]"
+    "expAttach [ -v mpi] [ <expId_spec> ] [ <target_list> ] [ <expType_list> ]"
 };
-
 
 char *cmd_expClose_args = {
-    " expClose [ <expId_spec> || all ] [ kill ]"
+    "expClose [ -v kill,all ] \n"
+    "expClose [ -v kill ] [ <expId_spec> ]"
 };
-
 
 char *cmd_expCreate_args = {
     "<expId> = expCreate [ <target_list> ] [ <expType_list> ]"
 };
 
-
 char *cmd_expDetach_args = {
     "expDetach [ <expId_spec> ] [ <target_list> ] [ <expType_list> ]"
 };
 
-
 char *cmd_expDisable_args = {
-    "expDisable [ <expId_spec> || all ]"
+    "expDisable [ -v all || <expId_spec> ]"
 };
-
 
 char *cmd_expEnable_args = {
-    "<expId>  = expEnable  [ <expId_spec> || all ]"
+    "expEnable [ -v all || <expId_spec> ]"
 };
-
 
 char *cmd_expFocus_args = {
     "<expId> = expFocus [ <expId_spec> ]"
 };
 
-
 char *cmd_expGo_args = {
-    "expGo [ <expId_spec> || all ]"
+    "expGo [ -v all || <expId_spec> ]"
 };
-
 
 char *cmd_expPause_args = {
-    "expPause [ <expId_spec> || all ]"
+    "expPause [ -v all || <expId_spec> ]"
 };
-
 
 char *cmd_expRestore_args = {
     "<exp_Id> = expRestore <file_spec>"
 };
 
-
 char *cmd_expSave_args = {
-    "expSave [ <expId_spec> ] [ copy ] <file_spec>"
+    "expSave [-v copy] [<expId_spec>] <file_spec>"
 };
-
 
 char *cmd_expSetParam_args = {
-    "expSetParam [ <expId_spec> ] <expParam> = <expParamValue> [ , <expParam> = <expParamValue> ] ... "
+    "expSetParam [<expId_spec>] <expParam>=<expParamValue> [, <expParam>=<expParamValue>] ... "
 };
-
 
 char *cmd_expStatus_args = {
-    "expStatus [ <expId_spec> || all]"
+    "expStatus [-v all || <expId_spec>]"
 };
-
 
 char *cmd_expView_args = {
-    "expView [ <expId_spec> ] [ <file_spec> ] [<viewType>]" 
-    "\n\t[ <expMetric_list_spec> ] [ <target_spec> ]"
+    "expView [<expId_spec>] [<viewType>] [-m <expMetric_list>] [<target_spec>]"
 };
-
 
 char *cmd_listBreaks_args = {
-    "<ListOf_breakId> = listBreaks [ <expId_spec> || all ]"
+    "<ListOf_breakId> = listBreaks [-v all || <expId_spec>]"
 };
-
 
 char *cmd_listExp_args = {
     "<ListOf_expId> = listExp"
 };
 
-
 char *cmd_listHosts_args = {
-    "<ListOf_hostname> = listHosts [ <expId_spec> || <cluster_spec> ]"
+    "<ListOf_hostname> = listHosts [<expId_spec>]"
 };
-
-
-char *cmd_listObj_args = {
-    "<ListOf_filename> = listObj [ <expId_spec> ] [ <target> ]"
-};
-
-
-char *cmd_listPids_args = {
-    "<ListOf_pidname> = listPids [ <expId_spec> ] [ <host_file> ]"
-};
-
 
 char *cmd_listMetrics_args = {
-    "<ListOf_expMetric> = listMetrics [ <expId_spec> || all || <expType> ]"
+    "<ListOf_expMetric> = listMetrics [-v all || <expId_spec> || <expType_list>]"
 };
 
+char *cmd_listObj_args = {
+    "<ListOf_filename> = listObj [<expId_spec>] [<target>]"
+};
+
+char *cmd_listPids_args = {
+    "<ListOf_pidname> = listPids [<expId_spec>] [<host_list_spec>]"
+};
 
 char *cmd_listParams_args = {
-    "<ListOf_expParam> = listParams [ <expId_spec> || all || <expType> ]"
+    "<ListOf_expParam> = listParams [-v all || <expId_spec> || <expType_list>]"
 };
-
 
 char *cmd_listRanks_args = {
-    "<ListOf_Ranks> = listRanks [ <expId_spec> ] [ <target> ]"
+    "<ListOf_Ranks> = listRanks [<expId_spec> ] [ <target>]"
 };
-
 
 char *cmd_listSrc_args = {
-    "<string> = listSrc [ <expId_spec> ] [ <target> ] [ <linenumber_spec> ]"
+    "<string> = listSrc [<expId_spec>] [<target>] [<linenumber_list_spec>]"
 };
-
 
 char *cmd_listStatus_args = {
-    "<ListOf_statusType> = listStatus [ <expId_spec> || all ]"
+    "<ListOf_statusType> = listStatus [-v all || <expId_spec>]"
 };
-
 
 char *cmd_listThreads_args = {
-    "<ListOf_Threads> = listThreads [ <expId_spec> ] [ <target> ]"
+    "<ListOf_Threads> = listThreads [<expId_spec>] [<target>]"
 };
-
 
 char *cmd_listTypes_args = {
-    "<ListOf_expType> = listTypes [ <expId_spec> || all ]"
+    "<ListOf_expType> = listTypes [-v all || <expId_spec>]"
 };
-
 
 char *cmd_listViews_args = {
-    "<ListOf_viewType> = listViews [ <expId_spec> || all || <expType> ]"
+    "<ListOf_viewType> = listViews [-v all || <expId_spec> || <expType>]"
 };
-
 
 char *cmd_clearBreak_args = {
     "clearbreak <breakId>"
 };
 
-
 char *cmd_exit_args = {
     "exit"
 };
 
-
 char *cmd_help_args = {
-    "<string> = help [ -v <help_modifier_list> ] [ <string> ]"
+    "<string> = help [-v <help_modifier_list>] [<string>]"
 };
-
 
 char *cmd_history_args = {
-    "history [ <integer> ]"
+    "history [<integer>]"
 };
-
 
 char *cmd_log_args = {
-    "log [ <file_spec> ]"
+    "log [<file_spec>]"
 };
-
 
 char *cmd_openGui_args = {
     "openGui"
 };
 
-
 char *cmd_playback_args = {
     "playback <file_spec>"
 };
 
-
 char *cmd_record_args = {
-    "record [ <file_spec> ]"
+    "record [<file_spec>]"
 };
 
-
 char *cmd_setbreak_args = {
-    "<breakId> setbreak [ <expId_spec> ] [ <target> ] <address_description>"
+    "<breakId> setbreak [<expId_spec>] [<target>] <address_description>"
 };
 
 
@@ -606,10 +571,10 @@ char *cmd_expClose_detailed[] = {
     " ",
     "\t All attached applications are removed from the experiment.",
     " ",
-    "\t If the \'kill\' keyword is not provided, attached applications ",
+    "\t If \'-v kill\' is not provided, attached applications ",
     "\t will continue executing.",
     " ",
-    "\t If the \'kill\' keyword is provided, attached applications ",
+    "\t If \'-v kill\' is provided, attached applications ",
     "\t will be terminated.",
     " ",
     "\t The data base file that was used to save information ",
@@ -622,7 +587,7 @@ char *cmd_expClose_detailed[] = {
     "  experiment to be deleted. This can only be done by ",
     "  specifying the expId of the focused experiment.",
     " ",
-    "- Use of the \'all\' keyword will cause all defined experiments ",
+    "- Use of \'-v all\' will cause all defined experiments ",
     "  to be deleted.",
     " "
 };
@@ -723,7 +688,7 @@ char *cmd_expDisable_detailed[] = {
     "\t \'expClose\' can be used to destroy the experiment and ",
     "\t free all data space used to save the collected data.",
     " ",
-    "- The \'all\' keyword will result in data collection being ",
+    "- \'-v all\' will result in data collection being ",
     "  stopped for all defined experiments.",
     " ",
     "- If this command is issued with no arguments, data ",
@@ -897,7 +862,7 @@ char *cmd_expSave_detailed[] = {
     "\t The data base is in a special format that supports the ",
     "\t opertaions that the OpenSS tool must perform.",
     " ",
-    "- Without the copy option",
+    "- Without \'-v copy\'",
     " ",
     "\t If the original, temporary data base file is still in use, ",
     "\t it is copied to the specified file name and the OpenSS tool ",
@@ -919,7 +884,7 @@ char *cmd_expSave_detailed[] = {
     "\t The new data base is used by the OpenSS tool to collect any ",
     "\t new information that is added to or collected for, the experiment.",
     " ",
-    "- With the copy option the given location receives a copy ",
+    "- With \'-v copy\' the given location receives a copy ",
     "  of the current state of the data base.",
     " ",
     "\t The current contents of the data base is duplicated and ",
@@ -962,7 +927,7 @@ char *cmd_expStatus_detailed[] = {
     "- The use of <expId_spec> will result in imformation",
     "  being reported for the specified experiment.",
     " ",
-    "- The use of \'all\' will result in information being",
+    "- The use of \'-v all\' will result in information being",
     "  reported for all the known experiments.",
     " "
 };
@@ -1029,9 +994,6 @@ char *cmd_listHosts_detailed[] = {
     " ",
     "\t The <expId_spec> option will cause all the hosts that have ",
     "\t been included in the selected experiment to be listed.",
-    " ",
-    "\t The \"<cluster_spec>\" option will cause all the hosts that ",
-    "\t are part of the named cluster to be listed.",
     " "
 };
 
@@ -1420,7 +1382,7 @@ char *cmd_expAttach_example[] = {
     "    The program will not start execution until a subsequent",
     "    \'expGo -x 2\' command is issued.",
     " ",
-    "expAttach -x 1 -mpi -h localhost -p 1234 pcsamp",
+    "expAttach -x 1 -v mpi -h localhost -p 1234 pcsamp",
     " ",
     "    Which will, for the previously created experiment #1,",
     "    find pid 1234 and attach the pcsamp data collector to",
@@ -1440,7 +1402,7 @@ char *cmd_expClose_example[] = {
     " ",
     "    In all the above cases, if the target application is",
     "    running it will be left running. To kill the",
-    "    application(s) you will need to add the \'kill\' option.",
+    "    application(s) you will need to add \'-v kill\'.",
     " ",
     "This command will also delete all performance measurements",
     "that were not explicitly saved with an \'expSave\' command.",

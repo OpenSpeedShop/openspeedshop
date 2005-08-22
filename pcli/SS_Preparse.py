@@ -209,12 +209,10 @@ def quote_arg(args,i):
 #
 ################################################################################
 def return_none(args):
-    #print args
     cmd_parse(args)
     return
 
 def return_int(args):
-    #print "return_int(",args,")"
     ret = cmd_parse(args)
     return ret
 
@@ -225,13 +223,10 @@ def return_string(args):
 def return_int_list(args):
     ret = cmd_parse(args)
     return ret
-    #return [4,5,6,7,8]
 
 def return_string_list(args):
     ret = cmd_parse(args)
     return ret
-    #cmd_parse(args)
-    #return ["jack","and","jill","went","up","the","hill"]
 
 ################################################################################
 #
@@ -316,7 +311,7 @@ def Process_ILO (arg):
 # uncloak all quoted strings later down the pipe.
 #
 ##################################################################
-def preParseArgs(line, command_dict, arg_dict, str_opts_dict, num_opts_dict):
+def preParseArgs(line, command_dict, str_opts_dict, num_opts_dict):
     
     parts = line.split()
     count = len(parts)
@@ -359,18 +354,16 @@ def preParseArgs(line, command_dict, arg_dict, str_opts_dict, num_opts_dict):
                 # good and wholesome solution is, we will have to
                 # live with this.
 	      t_part = string.lower(parts[i])
-	      t_arg = arg_dict.get(t_part)
-	      #print "t_part =",t_part
+
+	      #t_arg = arg_dict.get(t_part)
 	      if t_part[0] == '"':
-	      	#print "before match_quotes()"
 	      	(parts,i,count) = match_quotes(parts,i,count)
 	      else:
-		#print parts[i],i
-                if t_arg is not None:
-                    #print t_arg
-		    parts[i] = t_part
-		    (parts,i) = quote_arg(parts,i)
-		else:
+                #if t_arg is not None:
+		#    parts[i] = t_part
+		#    (parts,i) = quote_arg(parts,i)
+
+		#else:
 		    # Look for HELP arguments for commands
                     t_arg = command_dict.get(t_part)
 		    if t_arg is not None:
@@ -385,6 +378,7 @@ def preParseArgs(line, command_dict, arg_dict, str_opts_dict, num_opts_dict):
     	    	    	    if i < count-1:
 			    	# cloak sensitive characters and strings
 				(parts,i,count) = cloak_list_range(parts,i,count,1)
+
 			else:
 			    t_arg = num_opts_dict.get(parts[i])
 			    if t_arg is not None:
@@ -399,9 +393,6 @@ def preParseArgs(line, command_dict, arg_dict, str_opts_dict, num_opts_dict):
 				# don't have an associated dash option
     	    	    	    	(parts,i) = quote_arg(parts,i)		    	
 
-                #i = i+1
-
-            # line = makePythonCall("myparse." + function, parts[func_ndx+1:])
             parts[func_ndx] = '"' + parts[func_ndx] + '"'
             line = makePythonCall( function, parts[func_ndx:])
 
@@ -506,7 +497,7 @@ class CLI(code.InteractiveConsole):
         "exprestore"    : "return_int",
         "expsave"       : "return_none",
         "expsetparam"   : "return_none",
-        "expstatus"       : "return_none",
+        "expstatus" 	: "return_none",
         "expview"       : "return_none",
 
         "listbreaks"    : "return_int_list",
@@ -537,20 +528,6 @@ class CLI(code.InteractiveConsole):
     
     ##################################################################
     #
-    # o_ss_reserver
-    #
-    # The reserved word dictionary for O/SS.
-    #
-    ##################################################################
-    o_ss_reserved = { \
-	"all"	    	: "gen_type:all",
-	"copy"	    	: "gen_type:copy",
-	"-mpi"     	: "gen_type:mip",
-	"kill"	    	: "gen_type:kill", \
-        }
-
-    ##################################################################
-    #
     # o_ss_subopts
     #
     # The single letter string options for O/SS.
@@ -559,6 +536,7 @@ class CLI(code.InteractiveConsole):
     o_ss_str_subopts = { \
         "-h"             : "suboption:host_list",
         "-m"             : "suboption:metric_list",
+        "-v"             : "suboption:modifier_list",
         "-c"             : "suboption:cluster_list",
         "-f"             : "suboption:file_list", \
         }
@@ -747,7 +725,6 @@ class CLI(code.InteractiveConsole):
 
         t_line = preParseArgs(temp_line,
 	    	    	      self.commands,
-			      self.o_ss_reserved,
 			      self.o_ss_str_subopts,
 			      self.o_ss_num_subopts)
         

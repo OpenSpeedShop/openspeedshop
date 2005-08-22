@@ -130,7 +130,7 @@ char *all_list[] = {
 
 #define ALL_MAX 1
 arglist_t all_arg[ALL_MAX] = {
-    2,all_list,NULL
+    2,all_list,"-v"
 };
 
 //*************************************************************
@@ -138,12 +138,12 @@ arglist_t all_arg[ALL_MAX] = {
 
 char *mpi_flag_list[] = {
     NULL,
-    "-mpi"
+    "mpi"
 };
 
 #define MPI_FLAG_MAX 1
 arglist_t mpi_flag_arg[MPI_FLAG_MAX] = {
-    2,mpi_flag_list,NULL
+    2,mpi_flag_list,"-v"
 };
 
 //*************************************************************
@@ -156,7 +156,7 @@ char *kill_list[] = {
 
 #define KILL_MAX 1
 arglist_t kill_arg[KILL_MAX] = {
-    2,kill_list,NULL
+    2,kill_list,"-v"
 };
 
 //*************************************************************
@@ -169,7 +169,7 @@ char *copy_list[] = {
 
 #define COPY_MAX 1
 arglist_t copy_arg[COPY_MAX] = {
-    2,copy_list,NULL
+    2,copy_list,"-v"
 };
 
 //*************************************************************
@@ -632,7 +632,7 @@ open_output(char *name)
 }
 
 /**
- * Function: dunp_close_output
+ * Function: dump_close_output
  * 
  * cleanup.
  *     
@@ -642,7 +642,7 @@ open_output(char *name)
  *
  */
 void
-dunp_close_output(fstream *p_os)
+dump_close_output(fstream *p_os)
 {
     *p_os << out_stream.str();
     p_os->close();
@@ -673,7 +673,7 @@ main()
     	    	0,EXPTYPE_MAX,exptype_arg,NULL
     	    	);
 
-    dunp_close_output(p_os);
+    dump_close_output(p_os);
 
     // EXPCLOSE
     p_os = open_output("expclose.input");
@@ -691,7 +691,7 @@ main()
     	    	0,KILL_MAX,kill_arg
     	    	);
 
-    dunp_close_output(p_os);
+    dump_close_output(p_os);
 
     // EXPCREATE
     p_os = open_output("expcreate.input");
@@ -701,7 +701,7 @@ main()
     	    	0,EXPTYPE_MAX,exptype_arg
     	    	);
 
-    dunp_close_output(p_os);
+    dump_close_output(p_os);
 
     // EXPDETACH
     p_os = open_output("expdetach.input");
@@ -711,47 +711,47 @@ main()
     	    	0,EXPTYPE_MAX,exptype_arg
     	    	);
 
-    dunp_close_output(p_os);
+    dump_close_output(p_os);
 
     // EXPDISABLE
     p_os = open_output("expdisable.input");
     one_level("expdisable",0,EXPID_MAX,exp_id_arg);
     one_level("expdisable",0,ALL_MAX,all_arg);
 
-    dunp_close_output(p_os);
+    dump_close_output(p_os);
 
     // EXPENABLE
     p_os = open_output("expenable.input");
     one_level("expenable",0,EXPID_MAX,exp_id_arg);
     one_level("expenable",0,ALL_MAX,all_arg);
 
-    dunp_close_output(p_os);
+    dump_close_output(p_os);
 
     // FOCUS
     p_os = open_output("expfocus.input");
     one_level("expfocus",0,EXPID_MAX,exp_id_arg);
 
-    dunp_close_output(p_os);
+    dump_close_output(p_os);
 
     // EXPGO
     p_os = open_output("expgo.input");
     one_level("expgo",0,EXPID_MAX,exp_id_arg);
     one_level("expgo",0,ALL_MAX,all_arg);
 
-    dunp_close_output(p_os);
+    dump_close_output(p_os);
 
     // EXPPAUSE
     p_os = open_output("exppause.input");
     one_level("exppause",0,EXPID_MAX,exp_id_arg);
     one_level("exppause",0,ALL_MAX,all_arg);
 
-    dunp_close_output(p_os);
+    dump_close_output(p_os);
 
     // EXPRESTORE
     p_os = open_output("exprestore.input");
     one_level("exprestore",1,FILE_1_MAX,file_1_arg);
 
-    dunp_close_output(p_os);
+    dump_close_output(p_os);
 
     // EXPSAVE
     p_os = open_output("expsave.input");
@@ -761,7 +761,7 @@ main()
     	    	1,FILE_1_MAX,file_1_arg
     	    	);
 
-    dunp_close_output(p_os);
+    dump_close_output(p_os);
 
     // EXPVIEW
     	    	/* NOT DONE YET! */
@@ -775,7 +775,7 @@ main()
     	    	0,TARGET_MAX,target_arg,NULL
     	    	);
 
-    dunp_close_output(p_os);
+    dump_close_output(p_os);
 
     // LISTBREAKS
     p_os = open_output("listbreaks.input");
@@ -786,34 +786,37 @@ main()
     	    	0,ALL_MAX,all_arg
     	    	);
 
-    dunp_close_output(p_os);
+    dump_close_output(p_os);
 
     // LISTEXP
     p_os = open_output("listexp.input");
     out_stream << "listexp" << endl;
 
-    dunp_close_output(p_os);
+    dump_close_output(p_os);
 
     // LISTHOSTS
     p_os = open_output("listhosts.input");
     one_level("listhosts",0,EXPID_MAX,exp_id_arg);
-    one_level("listhosts",0,ALL_MAX,all_arg);
-    one_level("listhosts",0,CLUSTER_MAX,cluster_arg);
 
-    dunp_close_output(p_os);
+    dump_close_output(p_os);
 
     // LISTOBJ
     p_os = open_output("listobj.input");
     two_level("listobj",0,EXPID_MAX,exp_id_arg,0,TARGET_MAX,target_arg);
 
-    dunp_close_output(p_os);
+    dump_close_output(p_os);
 
     // LISTPIDS
     p_os = open_output("listpids.input");
-    three_level("listpids",0,ALL_MAX,all_arg,0,HOST_1_MAX,host_1_arg,1,FILE_1_MAX,file_1_arg);
-    three_level("listpids",0,EXPID_MAX,exp_id_arg,0,HOST_1_MAX,host_1_arg,1,FILE_1_MAX,file_1_arg);
+    two_level("listpids",
+		0,HOST_1_MAX,host_1_arg,
+		1,FILE_1_MAX,file_1_arg);
+    three_level("listpids",
+    	    	0,EXPID_MAX,exp_id_arg,
+		0,HOST_1_MAX,host_1_arg,
+		1,FILE_1_MAX,file_1_arg);
 
-    dunp_close_output(p_os);
+    dump_close_output(p_os);
 
     // LISTMETRICS
     p_os = open_output("listmetrics.input");
@@ -821,7 +824,7 @@ main()
     one_level("listmetrics",0,ALL_MAX,all_arg);
     one_level("listmetrics",0,EXPTYPE_MAX,exptype_arg);
 
-    dunp_close_output(p_os);
+    dump_close_output(p_os);
 
     // LISTPARAMS
     p_os = open_output("listparams.input");
@@ -829,41 +832,39 @@ main()
     one_level("listparams",0,ALL_MAX,all_arg);
     one_level("listparams",0,EXPTYPE_MAX,exptype_arg);
 
-    dunp_close_output(p_os);
+    dump_close_output(p_os);
+
+    // LISTRANKS
+    p_os = open_output("listranks.input");
+    two_level("listranks",0,EXPID_MAX,exp_id_arg,0,TARGET_MAX,target_arg);
+
+    dump_close_output(p_os);
 
     // LISTSRC
     p_os = open_output("listsrc.input");
     three_level("listsrc",0,EXPID_MAX,exp_id_arg,0,TARGET_MAX,target_arg,0,LINENO_MAX,lineno_arg);
 
-    dunp_close_output(p_os);
-
-    // LISTRANKS
-    p_os = open_output("listranks.input");
-    two_level("listranks",0,EXPID_MAX,exp_id_arg,0,TARGET_MAX,target_arg);
-    two_level("listranks",0,ALL_MAX,all_arg,0,TARGET_MAX,target_arg);
-
-    dunp_close_output(p_os);
+    dump_close_output(p_os);
 
     // LISTSTATUS
     p_os = open_output("liststatus.input");
     one_level("liststatus",0,EXPID_MAX,exp_id_arg);
     one_level("liststatus",0,ALL_MAX,all_arg);
 
-    dunp_close_output(p_os);
+    dump_close_output(p_os);
 
     // LISTTHREADS
     p_os = open_output("listthreads.input");
     two_level("listthreads",0,EXPID_MAX,exp_id_arg,0,TARGET_MAX,target_arg);
-    two_level("listthreads",0,ALL_MAX,all_arg,0,TARGET_MAX,target_arg);
 
-    dunp_close_output(p_os);
+    dump_close_output(p_os);
 
     // LISTTYPES
     p_os = open_output("listtypes.input");
     one_level("listtypes",0,EXPID_MAX,exp_id_arg);
     one_level("listtypes",0,ALL_MAX,all_arg);
 
-    dunp_close_output(p_os);
+    dump_close_output(p_os);
 
     // LISTVIEWS
     p_os = open_output("listviews.input");
@@ -871,19 +872,19 @@ main()
     one_level("listviews",0,ALL_MAX,all_arg);
     one_level("listviews",0,EXPTYPE_MAX,exptype_arg);
 
-    dunp_close_output(p_os);
+    dump_close_output(p_os);
 
     // CLEARBREAK
     p_os = open_output("clearbreak.input");
     out_stream << "clearbreak 9" << endl;
 
-    dunp_close_output(p_os);
+    dump_close_output(p_os);
 
     // EXIT
     p_os = open_output("exit.input");
     out_stream << "exit" << endl;
 
-    dunp_close_output(p_os);
+    dump_close_output(p_os);
 
     // HELP
 
@@ -892,25 +893,25 @@ main()
     	    	0,HELP_MOD_MAX,help_modifier_arg,
 		0,HELP_KEYWORD_MAX,help_keyword_arg);
 
-    dunp_close_output(p_os);
+    dump_close_output(p_os);
 
     // HISTORY
     p_os = open_output("history.input");
     one_level("history",0,NUMBER_MAX,number_arg);
 
-    dunp_close_output(p_os);
+    dump_close_output(p_os);
 
     // LOG
     p_os = open_output("log.input");
     one_level("log",0,FILE_1_MAX,file_1_arg);
 
-    dunp_close_output(p_os);
+    dump_close_output(p_os);
 
     // OPENGUI
     p_os = open_output("opengui.input");
     out_stream << "opengui" << endl;
 
-    dunp_close_output(p_os);
+    dump_close_output(p_os);
 
     // PLAYBACK
     p_os = open_output("playback.input");
@@ -918,7 +919,7 @@ main()
     	    	1,FILE_1_MAX,file_1_arg
     	    	);
 
-    dunp_close_output(p_os);
+    dump_close_output(p_os);
 
     // RECORD
     p_os = open_output("record.input");
@@ -926,7 +927,7 @@ main()
     	    	0,FILE_1_MAX,file_1_arg
     	    	);
 
-    dunp_close_output(p_os);
+    dump_close_output(p_os);
 
     // SETBREAK
     p_os = open_output("setbreak.input");
@@ -935,7 +936,7 @@ main()
     	    	0,TARGET_MAX,target_arg,
     	    	1,LINENO_MAX,address_arg
     	    	);
-    dunp_close_output(p_os);
+    dump_close_output(p_os);
 
 
 }
