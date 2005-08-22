@@ -3,7 +3,7 @@ on for the scripting module and what exactly needs
 to be done for each one.
 
 *****************************************************
-<target_list>	    	Not tested
+<target_list>	    	Not tested Not done
 <host_list_spec>    	Done
 <rank_list_spec>    	Done
 <pid_list_spec>     	Done
@@ -13,12 +13,11 @@ to be done for each one.
 <expId_spec>        	Done
 <linenumber_list_spec>	Done
 <viewType_list>   	Done
-<modifier_list_spec>	Prototype tested, not agreed upon yet.
-<verbosity_list_spec>  	Not tested, not defined yet
-<expMetric_list>   	Not tested, complicated
-<expMetric> 	    	Not tested, complicated
-<expParam>  	    	Not tested, complicated
-<expParamValue>   	Not tested, complicated
+<modifier_list_spec>	Done
+<expMetric_list>   	Done for simple tuples
+<expMetric> 	    	Not tested,Not done
+<expParam>  	    	Not tested,Not done
+<expParamValue>   	Not tested,Not done
 <expType_list>   	Done
 
 
