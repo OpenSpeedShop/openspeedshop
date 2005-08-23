@@ -172,6 +172,8 @@ AC_CONFIG_FILES(Makefile
 		test/executables/Makefile
 		test/executables/forever/Makefile
 		test/executables/forever_cxx/Makefile
+		test/executables/fredO2/Makefile
+		test/executables/fred/Makefile
 		test/executables/mutatee/Makefile
 		test/executables/mutatee/c_version/Makefile
 		test/executables/mutatee/cplus_version/Makefile
