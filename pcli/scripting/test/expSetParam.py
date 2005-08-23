@@ -10,4 +10,4 @@ my_param_list += ("parmtype_1","parmval_1")
 my_param_list += ("parmtype_2","parmval_2")
 my_param_list += ("parmtype_3","parmval_3")
 
-oss.expView(my_expid,my_param_list)
+oss.expSetParam(my_expid,my_param_list)
