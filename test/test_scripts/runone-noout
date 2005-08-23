@@ -55,7 +55,25 @@ def iterateThroughTestList(fileptr):
         con_input.close()
 
 def CompareResults(testName, fileptr, finished):
-	if (finished == 1) :
+	passed = 0
+	if (testName[0:6] == 'detach'):
+		outputfilename = testName + '.output'
+		outputfileptr = open(outputfilename, 'r')
+	        nooutput = 1
+      		while 1:
+                	tempfileline = outputfileptr.readline()
+                	if not tempfileline:
+                        	break
+                	if tempfileline[0:17] == '  Previously Used':
+                        	nooutput = 0
+                        	break
+		outputfileline = outputfileptr.readline()
+		if outputfileline[0:10] == '    pcsamp':
+			passed = 1
+		if (passed != 1) or (nooutput != 0):
+			finished = 0
+
+	if (finished == 1):
 		fileptr.write(testName + ' has PASSED \n')
 	else:
 		fileptr.write(testName + ' has FAILED. Openss has timed out or crashed. ')
