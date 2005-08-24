@@ -56,7 +56,7 @@ def iterateThroughTestList(fileptr):
 
 def CompareResults(testName, fileptr, finished):
 	passed = 0
-	if (testName[0:6] == 'detach'):
+	if (testName[0:6] == ('detach' or 'disable')):
 		outputfilename = testName + '.output'
 		outputfileptr = open(outputfilename, 'r')
 	        nooutput = 1
