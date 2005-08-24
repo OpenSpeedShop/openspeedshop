@@ -326,6 +326,7 @@ exp_view_com:	    VIEW_HEAD   exp_view_arg
       	    	;
     	    /** These arguments are order dependant **/
 exp_view_arg:	    /* empty */
+    	    	|   expId_spec
     	    	|   viewType
     	    	|   expId_spec viewType
      	    	|   expId_spec file_spec viewType
@@ -407,9 +408,9 @@ list_pids_com:	    LIST_PIDS_HEAD   list_pids_arg
   	    	|   LIST_PIDS_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_LIST_PIDS].name);} 
       	    	;
 list_pids_arg:	    /* empty */
-    	    	|   host_file
+    	    	|   host_list_spec
     	    	|   expId_spec 
-    	    	|   expId_spec host_file
+    	    	|   expId_spec host_list_spec
     	    	;
 
     	    /** LIST_RANKS **/
@@ -761,6 +762,13 @@ expType:	    NAME
 		;
 
 viewType:   	    NAME {p_parse_result->pushViewType($1);}
+		;
+
+lineno_list_spec:   LINE_ID lineno_list
+		;
+
+lineno_list:	    lineno
+    	    	|   lineno_list COMMA lineno 
 		;
 
 lineno_range_spec:  LINE_ID lineno_range

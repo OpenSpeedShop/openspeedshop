@@ -14,11 +14,10 @@ using namespace std;
 
 using namespace OpenSpeedShop::cli;
 
+extern int yydebug;
 extern FILE *yyin;
 extern int yyparse (void);
-ParseResult *p_parse_result;
-static CMDWID Embedded_WindowID = 0;
-
+ParseResult *p_parse_result = NULL;
 
 /**
  * Method: s_dumpRange()

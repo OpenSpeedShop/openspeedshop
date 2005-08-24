@@ -2,12 +2,10 @@
 
 import oss
 
-my_modifer = oss.ModifierList("all")
+my_file_bosco = oss.FileList("bosco")
+exp1 = oss.ExpId(7)
+my_break = oss.oss_setBreak(exp1,my_file_bosco,0x400144)
 
-my_breaks = oss.BreakList(oss.listBreaks())
-
-output = oss.oss_clearBreak(my_modifer)
-
-output = oss.oss_clearBreak(my_breaks)
+output = oss.oss_clearBreak(my_break)
 
 print output

@@ -15,11 +15,10 @@ using namespace std;
 
 using namespace OpenSpeedShop::cli;
 
+extern int yydebug;
 extern FILE *yyin;
 extern int yyparse (void);
-ParseResult *p_parse_result;
-static CMDWID Embedded_WindowID = 0;
-
+ParseResult *p_parse_result = NULL;
 
 /**
  * Method: s_dumpRange()
@@ -106,24 +105,30 @@ parse_line(char *input_line)
 {
     int ret;
 
-    cout << input_line << endl;
+    cout << "\"" << input_line << "\"" << endl;
 
-    yyin = fopen("/usr/tmp/jack.tmp","w+");
+    yyin = tmpfile();
     fprintf(yyin,"%s\n", input_line);
     rewind(yyin);
 
     ret = yyparse();
 
+    fclose(yyin); 
+
 #if 1
     	p_parse_result->dumpInfo();
 #else
     // testing code
-    if (!p_parse_result->syntaxError())
+    if (!p_parse_result->syntaxError()) {
     	p_parse_result->dumpInfo();
+	cout << "TEST_1" << endl;
+    }
+    
     // Syntax error.
     else {
     	char *cmd_name = p_parse_result->getCommandname();
 	
+	cout << "TEST_2" << endl;
     	s_dumpRange(p_parse_result->getErrorList(), 
 	    	    cmd_name, 
 		    false /* is_hex */,
@@ -131,7 +136,6 @@ parse_line(char *input_line)
     }
 #endif
 
-    fclose(yyin); 
 
     cout << endl << "****************************" << endl;
 }
@@ -154,6 +158,8 @@ static PyObject *SS_CallParseTest (PyObject *self, PyObject *args) {
     PyObject *p_object = NULL;
     PyObject *py_list = NULL;
 
+//yydebug = 1;
+
     // Give yacc access to ParseResult object.
     ParseResult parse_result = ParseResult();
     p_parse_result = &parse_result;
@@ -163,7 +169,7 @@ static PyObject *SS_CallParseTest (PyObject *self, PyObject *args) {
     	;
     }
     
-    cout << "SS_CallParseTest: \'" << input_line << "\'" << endl;
+    //cout << "SS_CallParseTest: \'" << input_line << "\'" << endl;
 
     parse_line(input_line);
 

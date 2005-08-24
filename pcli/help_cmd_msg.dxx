@@ -274,7 +274,7 @@ char *cmd_listRanks_args = {
 };
 
 char *cmd_listSrc_args = {
-    "<string> = listSrc [<expId_spec>] [<target>] [<linenumber_list_spec>]"
+    "<ListOf_filename> = listSrc [<expId_spec>] [<target>]"
 };
 
 char *cmd_listStatus_args = {
@@ -445,7 +445,8 @@ char *cmd_listRanks_brief = {
 
 
 char *cmd_listSrc_brief = {
-    "Display a source file. "
+    "List the source filenames of the modules that \n"
+    "are part of the specified experiment. "
 };
 
 
@@ -1137,13 +1138,11 @@ char *cmd_listSrc_detailed[] = {
     "- Any component described in the <target> specification must ",
     "  be part of the selected experiment.",
     " ",
+    "- <file_list_spec> can be used to provide a list of object modules ",
+    "  that will be searched for relevant source files. ",
+    " ",
     "- If <target> is not provided, information will be provided ",
     "  for all portions of all applications that are attached to the experiment.",
-    " ",
-    "- The listing can be restricted with the use of <linenumber_spec>.",
-    " ",
-    "- If <linenumber_spec> is not provided, information will be ",
-    "  provided for all portions of any application that has been selected.",
     " "
 };
 

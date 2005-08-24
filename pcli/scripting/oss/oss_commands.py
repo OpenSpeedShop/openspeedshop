@@ -209,7 +209,7 @@ def listRanks(*arglist):
     ################################################################################
 def listSrc(*arglist):
     	cmd_string = deconstruct("listSrc",*arglist)
-	return return_string(cmd_string)
+	return return_string_list(cmd_string)
 
     ################################################################################
     #
@@ -244,7 +244,7 @@ def listTypes(*arglist):
     #
     ################################################################################
 def listViews(*arglist):
-    	cmd_string = deconstruct("listTypes",*arglist)
+    	cmd_string = deconstruct("listViews",*arglist)
 	return return_string_list(cmd_string)
 
     ################################################################################

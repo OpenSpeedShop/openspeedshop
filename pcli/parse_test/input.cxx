@@ -836,13 +836,17 @@ main()
 
     // LISTRANKS
     p_os = open_output("listranks.input");
-    two_level("listranks",0,EXPID_MAX,exp_id_arg,0,TARGET_MAX,target_arg);
+    two_level("listranks",
+    	    	0,EXPID_MAX,exp_id_arg,
+		0,TARGET_MAX,target_arg);
 
     dump_close_output(p_os);
 
     // LISTSRC
     p_os = open_output("listsrc.input");
-    three_level("listsrc",0,EXPID_MAX,exp_id_arg,0,TARGET_MAX,target_arg,0,LINENO_MAX,lineno_arg);
+    two_level("listsrc",
+    	    	0,EXPID_MAX,exp_id_arg,
+		0,TARGET_MAX,target_arg);
 
     dump_close_output(p_os);
 
@@ -855,7 +859,9 @@ main()
 
     // LISTTHREADS
     p_os = open_output("listthreads.input");
-    two_level("listthreads",0,EXPID_MAX,exp_id_arg,0,TARGET_MAX,target_arg);
+    two_level("listthreads",
+    	    	0,EXPID_MAX,exp_id_arg,
+		0,TARGET_MAX,target_arg);
 
     dump_close_output(p_os);
 

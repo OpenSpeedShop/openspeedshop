@@ -684,24 +684,28 @@ experiment, a specific Pid or on a specific machine.
  size="+0"><li>listSrc</li>
 </font></b></h3>
 <ul>
-  <font size="-1">- List the source that was used to create the
-applications that are part of the specified, or focused, experiment. <br>
+  <font size="-1">
+- List the source filenames of the modules that are part of the
+      specified experiment. <br>
+
 - If &lt;expId_spec&gt; is not provided, the focused experiment is
 used. <br>
+
 - The listing can be restricted with the use of a &lt;target&gt;
 specification. <br>
+
 - Any component described in the &lt;target&gt; specification
 must be part of the selected experiment. <br>
+
+- &lt;file_list_spec&gt; can be used to provide a list of object modules
+      that will be searched for relevant source files. <br>
+
 - If &lt;target&gt; is not provided, information will be provided for
 all portions of all applications that are attached to the experiment. <br>
-- The listing can be restricted with the use of
-&lt;linenumber_list_spec&gt;. <br>
-- If &lt;linenumber_list_spec&gt; is not provided, information will be
-provided
-for all portions of any application that has been selected. </font><br>
+
   <br>
-  <font size="-1">&lt;string&gt;
-<b>= listSrc</b> [ &lt;expId_spec&gt; ] [ &lt;target&gt; ] [ &lt;linenumber_list_spec&gt; ]</font>
+  <font size="-1">&lt;listOf_filename&gt;
+<b>= listSrc</b> [ &lt;expId_spec&gt; ] [ &lt;target&gt; ] </font>
 </ul>
 <h3><a name="mozTocId613828" class="mozTocH3"></a><b><font size="+0"><a
  name="listTypes"></a><li>listStatus</li>

@@ -213,7 +213,7 @@ def return_string_list(args):
 ################################################################################
 def cmd_parse(zusamen):
 
-    print "cmd_parse(",zusamen,")"
+    #print "cmd_parse(",zusamen,")"
 
     return CallParseTest(zusamen)
     #return PY_Input.CallParser (zusamen)
