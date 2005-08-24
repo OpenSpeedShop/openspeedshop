@@ -28,7 +28,7 @@ AC_DEFUN([AC_PKG_ARRAYSVCS], [
                 arraysvcs_dir=$withval, arraysvcs_dir="/usr")
 
     ARRAYSVCS_CPPFLAGS="-I$arraysvcs_dir/include"
-    ARRAYSVCS_LDFLAGS="-L$arraysvcs_dir/lib"
+    ARRAYSVCS_LDFLAGS="-L$arraysvcs_dir/$abi_libdir"
     ARRAYSVCS_LIBS="-larray"
 
     case "$host" in
@@ -90,11 +90,11 @@ AC_DEFUN([AC_PKG_DPCL], [
                 dpcl_dir=$withval, dpcl_dir="/usr")
 
     DPCL_CPPFLAGS="-I$dpcl_dir/include/dpcl"
-    DPCL_LDFLAGS="-L$dpcl_dir/lib"
+    DPCL_LDFLAGS="-L$dpcl_dir/$abi_libdir"
     DPCL_LIBS="-ldpcl"
 
     case "$host" in
-        ia64-*-linux*)
+	x86_64-*-linux* | ia64-*-linux*)
             DPCL_CPPFLAGS="$DPCL_CPPFLAGS -D__64BIT__"
             ;;
     esac
@@ -144,7 +144,7 @@ AC_DEFUN([AC_PKG_DYNINST], [
 
     DYNINST_CPPFLAGS="-I$dyninst_dir/include/dyninst"
     DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR -DIBM_BPATCH_COMPAT"
-    DYNINST_LDFLAGS="-L$dyninst_dir/lib"
+    DYNINST_LDFLAGS="-L$dyninst_dir/$abi_libdir"
     DYNINST_LIBS="-ldyninstAPI"
 
     AC_LANG_PUSH(C++)
@@ -191,7 +191,7 @@ AC_DEFUN([AC_PKG_PAPI], [
                 papi_dir=$withval, papi_dir="/usr")
 
     PAPI_CPPFLAGS="-I$papi_dir/include"
-    PAPI_LDFLAGS="-L$papi_dir/lib"
+    PAPI_LDFLAGS="-L$papi_dir/$abi_libdir"
     PAPI_LIBS="-lpapi"
 
     AC_LANG_PUSH(C++)
@@ -209,8 +209,19 @@ AC_DEFUN([AC_PKG_PAPI], [
         #include <papi.h>
         ]], [[
 	PAPI_is_initialized();
-        ]]), AC_MSG_RESULT(yes), [ AC_MSG_RESULT(no)
-        AC_MSG_FAILURE(cannot locate PAPI library and/or headers.) ]
+        ]]), [ AC_MSG_RESULT(yes)
+
+            AM_CONDITIONAL(HAVE_PAPI, true)
+            AC_DEFINE(HAVE_PAPI, 1, [Define to 1 if you have PAPI.])
+
+        ], [ AC_MSG_RESULT(no)
+
+            AM_CONDITIONAL(HAVE_PAPI, false)
+            PAPI_CPPFLAGS=""
+            PAPI_LDFLAGS=""
+            PAPI_LIBS=""
+
+        ]
     )
 
     CPPFLAGS=$papi_saved_CPPFLAGS
@@ -221,8 +232,6 @@ AC_DEFUN([AC_PKG_PAPI], [
     AC_SUBST(PAPI_CPPFLAGS)
     AC_SUBST(PAPI_LDFLAGS)
     AC_SUBST(PAPI_LIBS)
-
-    AC_DEFINE(HAVE_PAPI, 1, [Define to 1 if you have PAPI.])
 
 ])
 
@@ -238,7 +247,7 @@ AC_DEFUN([AC_PKG_SQLITE], [
                 sqlite_dir=$withval, sqlite_dir="/usr")
 
     SQLITE_CPPFLAGS="-I$sqlite_dir/include"
-    SQLITE_LDFLAGS="-L$sqlite_dir/lib"
+    SQLITE_LDFLAGS="-L$sqlite_dir/$abi_libdir"
     SQLITE_LIBS="-lsqlite3"
 
     AC_LANG_PUSH(C++)
@@ -412,7 +421,7 @@ AC_DEFUN([AC_PKG_PYTHON], [
 
     AC_CHECK_FILE([$python_dir/include/python${PYTHON_VERSION}/Python.h], [
         PYTHON_CPPFLAGS="-I$python_dir/include/python${PYTHON_VERSION}"
-        PYTHON_LDFLAGS="-L$python_dir/lib"
+        PYTHON_LDFLAGS="-L$python_dir/$abi_libdir"
     ])
 
     if test -d "$ROOT"; then
@@ -431,7 +440,7 @@ AC_DEFUN([AC_PKG_PYTHON], [
     FOUND_PYTHON_LIB="no" 
 
     if test "$FOUND_PYTHON_LIB" == "no"; then
-        AC_MSG_CHECKING([for Python ${PYTHON_VERSION} headers and library (in $python_dir/lib)])
+        AC_MSG_CHECKING([for Python ${PYTHON_VERSION} headers and library (in $python_dir/$abi_libdir)])
         python_saved_CPPFLAGS=$CPPFLAGS
         python_saved_LDFLAGS=$LDFLAGS
         CPPFLAGS="$CPPFLAGS $PYTHON_CPPFLAGS"
@@ -448,9 +457,9 @@ AC_DEFUN([AC_PKG_PYTHON], [
 
     if test "$FOUND_PYTHON_LIB" == "no"; then
 
-        PYTHON_LDFLAGS="-L$python_dir/lib/python${PYTHON_VERSION}/config"
+        PYTHON_LDFLAGS="-L$python_dir/$abi_libdir/python${PYTHON_VERSION}/config"
 
-        AC_MSG_CHECKING([for Python ${PYTHON_VERSION} headers and library (in /usr/lib/python${PYTHON_VERSION}/config)])
+        AC_MSG_CHECKING([for Python ${PYTHON_VERSION} headers and library (in /usr/$abi_libdir/python${PYTHON_VERSION}/config)])
         python_saved_CPPFLAGS=$CPPFLAGS
         python_saved_LDFLAGS=$LDFLAGS
         CPPFLAGS="$CPPFLAGS $PYTHON_CPPFLAGS"
@@ -483,11 +492,11 @@ AC_DEFUN([AC_PKG_PYTHON], [
 
 ])
 
-##################################################################################
+################################################################################
 # Check for QT libraries
-# Some of this code was found by an internet search for qt configuration/checking,
-# so credit to those who originally created parts of the code below.
-##################################################################################
+# Some of this code was found by an internet search for qt configuration/
+# checking, so credit to those who originally created parts of the code below.
+################################################################################
 
 AC_DEFUN([AC_PKG_QTLIB], [
 
@@ -505,7 +514,7 @@ AC_CACHE_CHECK([for Qt library],
   ac_qtlib, [
   for X in qt-mt qt; do
     if test "x$ac_qtlib" = "x"; then
-      if test -f $QTDIR/lib/lib$X.so -o -f $QTDIR/lib/lib$X.a; then
+      if test -f $QTDIR/$abi_libdir/lib$X.so -o -f $QTDIR/$abi_libdir/lib$X.a; then
         ac_qtlib=$X
       fi
     fi
@@ -527,7 +536,7 @@ AC_SUBST(ac_thread)
 dnl Set initial values for QTLIB exports
 QTLIB_CFLAGS="$CFLAGS -I$QTDIR/include -I$KDEDIR/include"
 QTLIB_CPPFLAGS="$CPPFLAGS -I$QTDIR/include -I$KDEDIR/include"
-QTLIB_LIBS="-L$QTDIR/lib -L/usr/X11R6/lib"
+QTLIB_LIBS="-L$QTDIR/$abi_libdir -L/usr/X11R6/$abi_libdir"
 QTLIB_LDFLAGS="-l$ac_qtlib"
 
 dnl Save the current CPPFLAGS and LDFLAGS variables prior to qt version test
@@ -593,7 +602,7 @@ dnl This only needed if we continue the build environment ROOT support
     if test -d "$ROOT"; then
         AC_CHECK_FILE([$ROOT/include/qt-3.3/qtwidget.h], [
             QTLIB_CPPFLAGS="-I$ROOT/include/qt-3.3"
-            QTLIB_LDFLAGS="-L$ROOT/lib"
+            QTLIB_LDFLAGS="-L$ROOT/$abi_libdir"
             QTLIB_LIBS="-lqt-mt"
         ])
     fi

@@ -16,7 +16,10 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = pcsamp usertime hwc
+SUBDIRS = \
+	pcsamp \
+	usertime
 
-doc:
-	$(DOXYGEN) Doxyfile
+if HAVE_PAPI
+SUBDIRS += hwc
+endif

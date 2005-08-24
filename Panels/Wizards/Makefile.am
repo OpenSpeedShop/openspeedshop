@@ -16,4 +16,14 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = IntroWizardPanel pcSampleWizardPanel UserTimeWizardPanel FPE_TracingWizardPanel HW_CounterWizardPanel IOWizardPanel MPIWizardPanel
+SUBDIRS = \
+	IntroWizardPanel \
+	pcSampleWizardPanel \
+	UserTimeWizardPanel \
+	FPE_TracingWizardPanel \
+	IOWizardPanel \
+	MPIWizardPanel
+
+if HAVE_PAPI
+SUBDIRS += HW_CounterWizardPanel
+endif

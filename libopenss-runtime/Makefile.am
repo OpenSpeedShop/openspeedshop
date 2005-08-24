@@ -40,10 +40,13 @@ libopenss_runtime_la_SOURCES = \
 	OpenSS_GetTime.c \
 	OpenSS_Send.c \
 	OpenSS_Timer.c \
-	OpenSS_Overflow.c \
-	OpenSS_PapiUtil.c \
-	PapiAPI.h \
 	RuntimeAPI.h
+
+if HAVE_PAPI
+libopenss_runtime_la_SOURCES += \
+	OpenSS_Overflow.c \
+	PapiAPI.h PapiAPI.c
+endif
 
 SUFFIXES = .x
 CLEANFILES = OpenSS_DataHeader.h OpenSS_DataHeader.c

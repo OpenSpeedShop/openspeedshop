@@ -37,7 +37,6 @@
 #include <rpc/rpc.h>
 #include <ucontext.h>
 
-#include "PapiAPI.h"
 
 
 /** Type representing a function pointer to a timer event handler. */
@@ -51,11 +50,15 @@ uint64_t OpenSS_GetTime();
 void OpenSS_Send(const OpenSS_DataHeader*, const xdrproc_t, const void*);
 void OpenSS_Timer(uint64_t, OpenSS_TimerEventHandler);
 
-/* PAPI interfaces */
-void OpenSS_Create_Eventset(int* EventSet);
-void OpenSS_AddEvent(int EventSet, int event);
-void OpenSS_Overflow(int EventSet, int event, int threshold, void* );
-void OpenSS_Start(int EventSet);
-void OpenSS_Stop(int EventSet);
+#ifdef HAVE_PAPI
+#include "PapiAPI.h"
+void OpenSS_Create_Eventset(int*);
+void OpenSS_AddEvent(int, int);
+void OpenSS_Overflow(int, int, int, void*);
+void OpenSS_Start(int);
+void OpenSS_Stop(int);
+#endif
+
+
 
 #endif

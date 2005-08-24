@@ -25,10 +25,12 @@ libopenss_framework_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime \
 	$(LTDLINCL) \
 	@ARRAYSVCS_CPPFLAGS@ \
+	@PAPI_CPPFLAGS@ \
 	@SQLITE_CPPFLAGS@
 
 libopenss_framework_la_LDFLAGS = \
 	@ARRAYSVCS_LDFLAGS@ \
+	@PAPI_LDFLAGS@ \
 	@SQLITE_LDFLAGS@ \
 	-export-dynamic -version-info 1:0:0
 
@@ -36,8 +38,9 @@ libopenss_framework_la_LIBADD = \
 	@INSTRUMENTOR@/libopenss-framework-@INSTRUMENTOR@.la \
 	$(LIBLTDL) \
 	@ARRAYSVCS_LIBS@ \
+	@PAPI_LIBS@ \
 	@SQLITE_LIBS@ \
-	-lpthread -lrt -lpapi
+	-lpthread -lrt
 
 libopenss_framework_la_SOURCES = \
 	$(top_srcdir)/libopenss-runtime/OpenSS_DataHeader.c \
@@ -69,7 +72,6 @@ libopenss_framework_la_SOURCES = \
 	Metadata.hxx \
 	NonCopyable.hxx \
 	OutputCallback.hxx \
-	PapiAPI.h PapiAPI.cxx \
 	Path.hxx Path.cxx \
 	SmartPtr.hxx \
 	Statement.hxx Statement.cxx \
@@ -80,6 +82,11 @@ libopenss_framework_la_SOURCES = \
 	TimeInterval.hxx \
 	ToolAPI.hxx \
 	TotallyOrdered.hxx
+
+if HAVE_PAPI
+libopenss_framework_la_SOURCES += \
+	PapiAPI.h PapiAPI.cxx
+endif
 
 doc:
 	$(DOXYGEN)

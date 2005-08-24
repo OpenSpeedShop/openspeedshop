@@ -68,6 +68,23 @@ AC_PATH_PROG([RPCGEN], rpcgen)
 AC_PROG_YACC
 
 ################################################################################
+# Handle X86-64 Special Case
+################################################################################
+
+case "$host" in
+    x86_64-*-linux*)
+        if test x"$libdir" == x'${exec_prefix}/lib'; then
+            libdir='${exec_prefix}/lib64'
+        fi
+        abi_libdir="lib64"
+        LDFLAGS="-L/usr/lib64 $LDFLAGS"
+        ;;
+    *)
+        abi_libdir="lib"
+        ;;
+esac
+
+################################################################################
 # Check for POSIX Threads (ISO/IEC 9945-1:1996)
 ################################################################################
 
