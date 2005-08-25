@@ -16,11 +16,9 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = close detach disable enable
-
-DIST_SUBDIRS = $(SUBDIRS)
-
 EXTRA_DIST = \
+	enable1.tst \
+	runone \
 	runall \
 	test_config
 
