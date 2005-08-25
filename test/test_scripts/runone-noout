@@ -56,7 +56,7 @@ def iterateThroughTestList(fileptr):
 
 def CompareResults(testName, fileptr, finished):
 	passed = 0
-	if (testName[0:6] == ('detach' or 'disable')):
+	if (testName[0:6] == ('detach' or 'enable') or testName[0:7] == 'disable'):
 		outputfilename = testName + '.output'
 		outputfileptr = open(outputfilename, 'r')
 	        nooutput = 1
@@ -70,13 +70,16 @@ def CompareResults(testName, fileptr, finished):
 		outputfileline = outputfileptr.readline()
 		if outputfileline[0:10] == '    pcsamp':
 			passed = 1
-		if (passed != 1) or (nooutput != 0):
-			finished = 0
+	if (passed != 1) or (nooutput != 0):
+		finished = 0
 
 	if (finished == 1):
 		fileptr.write(testName + ' has PASSED \n')
 	else:
-		fileptr.write(testName + ' has FAILED. Openss has timed out or crashed. ')
+		if (passed == 0):
+			fileptr.write(testName + ' has FAILED.  The output is incorrect. \n')
+		else:
+			fileptr.write(testName + ' has FAILED. Openss has timed out or crashed. ')
 
 
 	 	
