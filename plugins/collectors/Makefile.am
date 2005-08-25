@@ -23,3 +23,6 @@ SUBDIRS = \
 if HAVE_PAPI
 SUBDIRS += hwc
 endif
+
+doc:
+	$(DOXYGEN)
