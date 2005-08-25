@@ -56,10 +56,15 @@ def iterateThroughTestList(fileptr):
 
 def CompareResults(testName, fileptr, finished):
 	passed = 0
-	if (testName[0:6] == ('detach' or 'enable') or testName[0:7] == 'disable'):
+	enable_pass = 0
+	nooutput = 1
+	if (testName[0:5] == 'close'):
+		nooutput = 0
+		passed = 1
+		enable_pass = 1
+	if (testName[0:6] == 'detach' or testName[0:6] == 'enable' or testName[0:7] == 'disable'):
 		outputfilename = testName + '.output'
 		outputfileptr = open(outputfilename, 'r')
-	        nooutput = 1
       		while 1:
                 	tempfileline = outputfileptr.readline()
                 	if not tempfileline:
@@ -70,16 +75,32 @@ def CompareResults(testName, fileptr, finished):
 		outputfileline = outputfileptr.readline()
 		if outputfileline[0:10] == '    pcsamp':
 			passed = 1
-	if (passed != 1) or (nooutput != 0):
+		if(testName[0:6] == 'enable'):
+			check_for_out = 0
+			while 1:
+				tempfileline = outputfileptr.readline()
+				if not tempfileline:
+					break
+				if tempfileline[0:11] == '  Currently':
+					check_for_out = 1
+					break
+			if check_for_out == 1:
+				outputfileline = outputfileptr.readline()
+				if outputfileline[21:-1] == 'pcsamp':
+					enable_pass = 1
+		else:
+			enable_pass = 1
+					
+	if (passed != 1) or (nooutput != 0) or (enable_pass != 1):
 		finished = 0
 
 	if (finished == 1):
 		fileptr.write(testName + ' has PASSED \n')
 	else:
-		if (passed == 0):
-			fileptr.write(testName + ' has FAILED.  The output is incorrect. \n')
+		if (nooutput == 1):
+			fileptr.write(testName + ' has FAILED.  Openss has timed out or crashed. \n')
 		else:
-			fileptr.write(testName + ' has FAILED. Openss has timed out or crashed. ')
+			fileptr.write(testName + ' has FAILED. The output is incorrect. ')
 
 
 	 	
