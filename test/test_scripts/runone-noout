@@ -79,7 +79,25 @@ def focus_result(testName):
 	else:
 		return 2	
 			
-
+def pause_result(testName):
+        nooutput = 1
+        outputfilename = testName + '.output'
+        outputfileptr = open(outputfilename, 'r')
+        while 1:
+                tempfileline = outputfileptr.readline()
+                if not tempfileline:
+                        break
+                if tempfileline[0:10] == 'Experiment':
+                        nooutput = 0
+                        break
+        tempfileline = outputfileptr.readline()
+        if not tempfileline:
+		return 1
+	if tempfileline[26:32] == 'Paused':
+		return 0
+	else:	
+		return 2
+	
 
 def CompareResults(testName, fileptr, finished):
 	passed = 0
@@ -97,11 +115,20 @@ def CompareResults(testName, fileptr, finished):
 			enable_pass = 1
 		elif resultnum == 1:
 			passed = 0
-			nooutput = 1
 		elif resultnum ==2:
 			passed = 0
 			nooutput = 0
-			
+
+	if (testName[0:5] == 'pause'):
+		resultnum = pause_result(testName)
+		if resultnum == 0:
+			passed = 1
+			nooutput = 0
+			enable_pass = 1
+		else:
+			passed = 0
+			if resultnum == 2:
+				nooutput = 0
 
 
 	if (testName[0:6] == 'detach' or testName[0:6] == 'enable' or testName[0:7] == 'disable'):
