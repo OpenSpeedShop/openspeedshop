@@ -54,6 +54,33 @@ def iterateThroughTestList(fileptr):
                
         con_input.close()
 
+def focus_result(testName):
+	nooutput = 1
+	outputfilename = testName + '.output'
+        outputfileptr = open(outputfilename, 'r')
+        while 1:
+	        tempfileline = outputfileptr.readline()
+                if not tempfileline:
+        	        break
+                if tempfileline[0:7] == 'The cur':
+                        nooutput = 0
+                        break
+	if tempfileline[36:40] == '-x 2':
+		tempfileline = outputfileptr.readline()
+		if not tempfileline:
+			return 1
+		tempfileline = outputfileptr.readline()
+		if not tempfileline:
+			return 1
+		if tempfileline[36:40] == '-x 1':
+			return 0
+		else:
+			return 2
+	else:
+		return 2	
+			
+
+
 def CompareResults(testName, fileptr, finished):
 	passed = 0
 	enable_pass = 0
@@ -62,6 +89,21 @@ def CompareResults(testName, fileptr, finished):
 		nooutput = 0
 		passed = 1
 		enable_pass = 1
+	if (testName[0:5] == 'focus'):
+		resultnum = focus_result(testName)
+		if resultnum == 0:
+			passed = 1
+			nooutput = 0
+			enable_pass = 1
+		elif resultnum == 1:
+			passed = 0
+			nooutput = 1
+		elif resultnum ==2:
+			passed = 0
+			nooutput = 0
+			
+
+
 	if (testName[0:6] == 'detach' or testName[0:6] == 'enable' or testName[0:7] == 'disable'):
 		outputfilename = testName + '.output'
 		outputfileptr = open(outputfilename, 'r')
