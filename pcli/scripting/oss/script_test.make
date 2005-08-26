@@ -17,6 +17,7 @@ LIB =  /home/jcarter/workarea/bits/lib/libopenss-cli.so
 ######################################################
 
 DSO_SRCS = \
+    script_data.cxx \
     script_test.cxx
 
 DSO = script_test.so

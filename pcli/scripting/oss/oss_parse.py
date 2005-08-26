@@ -180,23 +180,23 @@ def return_none(args):
 
 def return_int(args):
     	ret = cmd_parse(args)
-    	#return ret
-	return 98
+    	return ret
+	#return 98
 
 def return_string(args):
     	ret = cmd_parse(args)
-    	#return ret
-	return "this is a string"
+    	return ret
+	#return "this is a string"
 
 def return_int_list(args):
     	ret = cmd_parse(args)
-    	#return ret
-    	return [4,5,6,7,8]
+    	return ret
+    	#return [4,5,6,7,8]
 
 def return_string_list(args):
     	ret = cmd_parse(args)
-    	#return ret
-	return ["this","is","a","list","of","strings"]
+    	return ret
+	#return ["this","is","a","list","of","strings"]
 
 ################################################################################
 #

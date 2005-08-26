@@ -15,10 +15,22 @@ using namespace std;
 
 using namespace OpenSpeedShop::cli;
 
+extern PyObject * build_return(ParseResult *);
 extern int yydebug;
 extern FILE *yyin;
 extern int yyparse (void);
 ParseResult *p_parse_result = NULL;
+
+/**
+ * Function: xxx
+ * 
+ * .
+ *     
+ * @param   xx    	xx.
+ *
+ * @return  void.
+ *
+ */
 
 /**
  * Method: s_dumpRange()
@@ -136,16 +148,16 @@ parse_line(char *input_line)
     }
 #endif
 
-
     cout << endl << "****************************" << endl;
 }
 
 /**
  * Function: SS_CallParseTest
  * 
- * .
+ * Routine to be called by python.
  *     
- * @param   xx    	xx.
+ * @param   self    	xx.
+ * @param   args    	Argument string.
  *
  * @return  void.
  *
@@ -164,16 +176,15 @@ static PyObject *SS_CallParseTest (PyObject *self, PyObject *args) {
     ParseResult parse_result = ParseResult();
     p_parse_result = &parse_result;
 
-    
     if (!PyArg_ParseTuple(args, "s", &input_line)) {
     	;
     }
     
-    //cout << "SS_CallParseTest: \'" << input_line << "\'" << endl;
-
     parse_line(input_line);
 
-
+#if 1
+    return build_return(p_parse_result);
+#else
     if (p_object == NULL) {
       p_object = Py_BuildValue("");
     }
@@ -182,16 +193,13 @@ static PyObject *SS_CallParseTest (PyObject *self, PyObject *args) {
     	return py_list;
     else
     	return p_object;
+#endif
 }
 
 /**
- * Function: jack_methods
+ * Table: jack_methods
  * 
- * .
- *     
- * @param   xx    	xx.
- *
- * @return  void.
+ * C++ routines that are callable by python.
  *
  */
 static PyMethodDef 
@@ -204,9 +212,10 @@ jack_methods[] = {
 /**
  * Function: inittest_script
  * 
- * .
+ * This is needed to register the functions in jack_methods.
  *     
- * @param   xx    	xx.
+ * @param   "script_test"   Name of the module.
+ * @param   jack_methods    Name of the registration table.
  *
  * @return  void.
  *
