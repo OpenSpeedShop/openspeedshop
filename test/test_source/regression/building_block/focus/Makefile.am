@@ -16,7 +16,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = close detach disable enable focus
+SUBDIRS = focus1 
 
 DIST_SUBDIRS = $(SUBDIRS)
 

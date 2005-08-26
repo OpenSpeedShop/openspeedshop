@@ -208,6 +208,8 @@ AC_CONFIG_FILES(Makefile
 		test/test_source/regression/building_block/disable/disable1/Makefile
 		test/test_source/regression/building_block/enable/Makefile
 		test/test_source/regression/building_block/enable/enable1/Makefile
+		test/test_source/regression/building_block/focus/Makefile
+		test/test_source/regression/building_block/focus/focus1/Makefile
 		test/test_source/regression/pcsamp/Makefile
 		test/test_source/regression/pcsamp/pcsamp1/Makefile
 		test/test_source/regression/pcsamp/pcsamp2/Makefile
