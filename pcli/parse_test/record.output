@@ -1,0 +1,12 @@
+
+****************************
+record
+
+Command: record
+
+****************************
+record -f file_1
+  
+Command: record
+	Target #1 : 
+		FILE: file_1 

@@ -1,0 +1,1605 @@
+
+****************************
+expcreate
+
+Command: expCreate
+
+****************************
+expcreate pcsamp
+ 
+Command: expCreate
+	Experiment Types: pcsamp 
+
+****************************
+expcreate usertime
+ 
+Command: expCreate
+	Experiment Types: usertime 
+
+****************************
+expcreate mpi
+ 
+Command: expCreate
+	Experiment Types: mpi 
+
+****************************
+expcreate fpe
+ 
+Command: expCreate
+	Experiment Types: fpe 
+
+****************************
+expcreate hwc
+ 
+Command: expCreate
+	Experiment Types: hwc 
+
+****************************
+expcreate io
+ 
+Command: expCreate
+	Experiment Types: io 
+
+****************************
+expcreate pcsamp,usertime,mpi,io
+ 
+Command: expCreate
+	Experiment Types: pcsamp usertime mpi io 
+
+****************************
+expcreate -c cluster_1
+  
+Command: expCreate
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expcreate -c cluster_1 pcsamp
+   
+Command: expCreate
+	Experiment Types: pcsamp 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expcreate -c cluster_1 usertime
+   
+Command: expCreate
+	Experiment Types: usertime 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expcreate -c cluster_1 mpi
+   
+Command: expCreate
+	Experiment Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expcreate -c cluster_1 fpe
+   
+Command: expCreate
+	Experiment Types: fpe 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expcreate -c cluster_1 hwc
+   
+Command: expCreate
+	Experiment Types: hwc 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expcreate -c cluster_1 io
+   
+Command: expCreate
+	Experiment Types: io 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expcreate -c cluster_1 pcsamp,usertime,mpi,io
+   
+Command: expCreate
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expcreate -c cluster_1,cluster_2,cluster_3
+  
+Command: expCreate
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expcreate -c cluster_1,cluster_2,cluster_3 pcsamp
+   
+Command: expCreate
+	Experiment Types: pcsamp 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expcreate -c cluster_1,cluster_2,cluster_3 usertime
+   
+Command: expCreate
+	Experiment Types: usertime 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expcreate -c cluster_1,cluster_2,cluster_3 mpi
+   
+Command: expCreate
+	Experiment Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expcreate -c cluster_1,cluster_2,cluster_3 fpe
+   
+Command: expCreate
+	Experiment Types: fpe 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expcreate -c cluster_1,cluster_2,cluster_3 hwc
+   
+Command: expCreate
+	Experiment Types: hwc 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expcreate -c cluster_1,cluster_2,cluster_3 io
+   
+Command: expCreate
+	Experiment Types: io 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expcreate -c cluster_1,cluster_2,cluster_3 pcsamp,usertime,mpi,io
+   
+Command: expCreate
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expcreate
+
+Command: expCreate
+
+****************************
+expcreate pcsamp
+ 
+Command: expCreate
+	Experiment Types: pcsamp 
+
+****************************
+expcreate usertime
+ 
+Command: expCreate
+	Experiment Types: usertime 
+
+****************************
+expcreate mpi
+ 
+Command: expCreate
+	Experiment Types: mpi 
+
+****************************
+expcreate fpe
+ 
+Command: expCreate
+	Experiment Types: fpe 
+
+****************************
+expcreate hwc
+ 
+Command: expCreate
+	Experiment Types: hwc 
+
+****************************
+expcreate io
+ 
+Command: expCreate
+	Experiment Types: io 
+
+****************************
+expcreate pcsamp,usertime,mpi,io
+ 
+Command: expCreate
+	Experiment Types: pcsamp usertime mpi io 
+
+****************************
+expcreate -h host_1
+  
+Command: expCreate
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expcreate -h host_1 pcsamp
+   
+Command: expCreate
+	Experiment Types: pcsamp 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expcreate -h host_1 usertime
+   
+Command: expCreate
+	Experiment Types: usertime 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expcreate -h host_1 mpi
+   
+Command: expCreate
+	Experiment Types: mpi 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expcreate -h host_1 fpe
+   
+Command: expCreate
+	Experiment Types: fpe 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expcreate -h host_1 hwc
+   
+Command: expCreate
+	Experiment Types: hwc 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expcreate -h host_1 io
+   
+Command: expCreate
+	Experiment Types: io 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expcreate -h host_1 pcsamp,usertime,mpi,io
+   
+Command: expCreate
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expcreate -h host_1,host_2,host_3
+  
+Command: expCreate
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expcreate -h host_1,host_2,host_3 pcsamp
+   
+Command: expCreate
+	Experiment Types: pcsamp 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expcreate -h host_1,host_2,host_3 usertime
+   
+Command: expCreate
+	Experiment Types: usertime 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expcreate -h host_1,host_2,host_3 mpi
+   
+Command: expCreate
+	Experiment Types: mpi 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expcreate -h host_1,host_2,host_3 fpe
+   
+Command: expCreate
+	Experiment Types: fpe 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expcreate -h host_1,host_2,host_3 hwc
+   
+Command: expCreate
+	Experiment Types: hwc 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expcreate -h host_1,host_2,host_3 io
+   
+Command: expCreate
+	Experiment Types: io 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expcreate -h host_1,host_2,host_3 pcsamp,usertime,mpi,io
+   
+Command: expCreate
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expcreate -h 128.064.032.008
+  
+Command: expCreate
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expcreate -h 128.064.032.008 pcsamp
+   
+Command: expCreate
+	Experiment Types: pcsamp 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expcreate -h 128.064.032.008 usertime
+   
+Command: expCreate
+	Experiment Types: usertime 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expcreate -h 128.064.032.008 mpi
+   
+Command: expCreate
+	Experiment Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expcreate -h 128.064.032.008 fpe
+   
+Command: expCreate
+	Experiment Types: fpe 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expcreate -h 128.064.032.008 hwc
+   
+Command: expCreate
+	Experiment Types: hwc 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expcreate -h 128.064.032.008 io
+   
+Command: expCreate
+	Experiment Types: io 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expcreate -h 128.064.032.008 pcsamp,usertime,mpi,io
+   
+Command: expCreate
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expcreate -h 128.064.032.008,032.002.016.128
+  
+Command: expCreate
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expcreate -h 128.064.032.008,032.002.016.128 pcsamp
+   
+Command: expCreate
+	Experiment Types: pcsamp 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expcreate -h 128.064.032.008,032.002.016.128 usertime
+   
+Command: expCreate
+	Experiment Types: usertime 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expcreate -h 128.064.032.008,032.002.016.128 mpi
+   
+Command: expCreate
+	Experiment Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expcreate -h 128.064.032.008,032.002.016.128 fpe
+   
+Command: expCreate
+	Experiment Types: fpe 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expcreate -h 128.064.032.008,032.002.016.128 hwc
+   
+Command: expCreate
+	Experiment Types: hwc 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expcreate -h 128.064.032.008,032.002.016.128 io
+   
+Command: expCreate
+	Experiment Types: io 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expcreate -h 128.064.032.008,032.002.016.128 pcsamp,usertime,mpi,io
+   
+Command: expCreate
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expcreate -h host_1,128.064.032.008,host_2,032.004.016.128
+  
+Command: expCreate
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expcreate -h host_1,128.064.032.008,host_2,032.004.016.128 pcsamp
+   
+Command: expCreate
+	Experiment Types: pcsamp 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expcreate -h host_1,128.064.032.008,host_2,032.004.016.128 usertime
+   
+Command: expCreate
+	Experiment Types: usertime 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expcreate -h host_1,128.064.032.008,host_2,032.004.016.128 mpi
+   
+Command: expCreate
+	Experiment Types: mpi 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expcreate -h host_1,128.064.032.008,host_2,032.004.016.128 fpe
+   
+Command: expCreate
+	Experiment Types: fpe 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expcreate -h host_1,128.064.032.008,host_2,032.004.016.128 hwc
+   
+Command: expCreate
+	Experiment Types: hwc 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expcreate -h host_1,128.064.032.008,host_2,032.004.016.128 io
+   
+Command: expCreate
+	Experiment Types: io 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expcreate -h host_1,128.064.032.008,host_2,032.004.016.128 pcsamp,usertime,mpi,io
+   
+Command: expCreate
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expcreate
+
+Command: expCreate
+
+****************************
+expcreate pcsamp
+ 
+Command: expCreate
+	Experiment Types: pcsamp 
+
+****************************
+expcreate usertime
+ 
+Command: expCreate
+	Experiment Types: usertime 
+
+****************************
+expcreate mpi
+ 
+Command: expCreate
+	Experiment Types: mpi 
+
+****************************
+expcreate fpe
+ 
+Command: expCreate
+	Experiment Types: fpe 
+
+****************************
+expcreate hwc
+ 
+Command: expCreate
+	Experiment Types: hwc 
+
+****************************
+expcreate io
+ 
+Command: expCreate
+	Experiment Types: io 
+
+****************************
+expcreate pcsamp,usertime,mpi,io
+ 
+Command: expCreate
+	Experiment Types: pcsamp usertime mpi io 
+
+****************************
+expcreate -f file_1
+  
+Command: expCreate
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expcreate -f file_1 pcsamp
+   
+Command: expCreate
+	Experiment Types: pcsamp 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expcreate -f file_1 usertime
+   
+Command: expCreate
+	Experiment Types: usertime 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expcreate -f file_1 mpi
+   
+Command: expCreate
+	Experiment Types: mpi 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expcreate -f file_1 fpe
+   
+Command: expCreate
+	Experiment Types: fpe 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expcreate -f file_1 hwc
+   
+Command: expCreate
+	Experiment Types: hwc 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expcreate -f file_1 io
+   
+Command: expCreate
+	Experiment Types: io 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expcreate -f file_1 pcsamp,usertime,mpi,io
+   
+Command: expCreate
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expcreate -f file_1,file_2,file_3
+  
+Command: expCreate
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expcreate -f file_1,file_2,file_3 pcsamp
+   
+Command: expCreate
+	Experiment Types: pcsamp 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expcreate -f file_1,file_2,file_3 usertime
+   
+Command: expCreate
+	Experiment Types: usertime 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expcreate -f file_1,file_2,file_3 mpi
+   
+Command: expCreate
+	Experiment Types: mpi 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expcreate -f file_1,file_2,file_3 fpe
+   
+Command: expCreate
+	Experiment Types: fpe 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expcreate -f file_1,file_2,file_3 hwc
+   
+Command: expCreate
+	Experiment Types: hwc 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expcreate -f file_1,file_2,file_3 io
+   
+Command: expCreate
+	Experiment Types: io 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expcreate -f file_1,file_2,file_3 pcsamp,usertime,mpi,io
+   
+Command: expCreate
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expcreate
+
+Command: expCreate
+
+****************************
+expcreate pcsamp
+ 
+Command: expCreate
+	Experiment Types: pcsamp 
+
+****************************
+expcreate usertime
+ 
+Command: expCreate
+	Experiment Types: usertime 
+
+****************************
+expcreate mpi
+ 
+Command: expCreate
+	Experiment Types: mpi 
+
+****************************
+expcreate fpe
+ 
+Command: expCreate
+	Experiment Types: fpe 
+
+****************************
+expcreate hwc
+ 
+Command: expCreate
+	Experiment Types: hwc 
+
+****************************
+expcreate io
+ 
+Command: expCreate
+	Experiment Types: io 
+
+****************************
+expcreate pcsamp,usertime,mpi,io
+ 
+Command: expCreate
+	Experiment Types: pcsamp usertime mpi io 
+
+****************************
+expcreate -p 888
+  
+Command: expCreate
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expcreate -p 888 pcsamp
+   
+Command: expCreate
+	Experiment Types: pcsamp 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expcreate -p 888 usertime
+   
+Command: expCreate
+	Experiment Types: usertime 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expcreate -p 888 mpi
+   
+Command: expCreate
+	Experiment Types: mpi 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expcreate -p 888 fpe
+   
+Command: expCreate
+	Experiment Types: fpe 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expcreate -p 888 hwc
+   
+Command: expCreate
+	Experiment Types: hwc 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expcreate -p 888 io
+   
+Command: expCreate
+	Experiment Types: io 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expcreate -p 888 pcsamp,usertime,mpi,io
+   
+Command: expCreate
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expcreate -p 888,999,777
+  
+Command: expCreate
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expcreate -p 888,999,777 pcsamp
+   
+Command: expCreate
+	Experiment Types: pcsamp 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expcreate -p 888,999,777 usertime
+   
+Command: expCreate
+	Experiment Types: usertime 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expcreate -p 888,999,777 mpi
+   
+Command: expCreate
+	Experiment Types: mpi 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expcreate -p 888,999,777 fpe
+   
+Command: expCreate
+	Experiment Types: fpe 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expcreate -p 888,999,777 hwc
+   
+Command: expCreate
+	Experiment Types: hwc 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expcreate -p 888,999,777 io
+   
+Command: expCreate
+	Experiment Types: io 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expcreate -p 888,999,777 pcsamp,usertime,mpi,io
+   
+Command: expCreate
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expcreate -p 888:999
+  
+Command: expCreate
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expcreate -p 888:999 pcsamp
+   
+Command: expCreate
+	Experiment Types: pcsamp 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expcreate -p 888:999 usertime
+   
+Command: expCreate
+	Experiment Types: usertime 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expcreate -p 888:999 mpi
+   
+Command: expCreate
+	Experiment Types: mpi 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expcreate -p 888:999 fpe
+   
+Command: expCreate
+	Experiment Types: fpe 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expcreate -p 888:999 hwc
+   
+Command: expCreate
+	Experiment Types: hwc 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expcreate -p 888:999 io
+   
+Command: expCreate
+	Experiment Types: io 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expcreate -p 888:999 pcsamp,usertime,mpi,io
+   
+Command: expCreate
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expcreate -p 777,888:999,666
+  
+Command: expCreate
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expcreate -p 777,888:999,666 pcsamp
+   
+Command: expCreate
+	Experiment Types: pcsamp 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expcreate -p 777,888:999,666 usertime
+   
+Command: expCreate
+	Experiment Types: usertime 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expcreate -p 777,888:999,666 mpi
+   
+Command: expCreate
+	Experiment Types: mpi 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expcreate -p 777,888:999,666 fpe
+   
+Command: expCreate
+	Experiment Types: fpe 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expcreate -p 777,888:999,666 hwc
+   
+Command: expCreate
+	Experiment Types: hwc 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expcreate -p 777,888:999,666 io
+   
+Command: expCreate
+	Experiment Types: io 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expcreate -p 777,888:999,666 pcsamp,usertime,mpi,io
+   
+Command: expCreate
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expcreate
+
+Command: expCreate
+
+****************************
+expcreate pcsamp
+ 
+Command: expCreate
+	Experiment Types: pcsamp 
+
+****************************
+expcreate usertime
+ 
+Command: expCreate
+	Experiment Types: usertime 
+
+****************************
+expcreate mpi
+ 
+Command: expCreate
+	Experiment Types: mpi 
+
+****************************
+expcreate fpe
+ 
+Command: expCreate
+	Experiment Types: fpe 
+
+****************************
+expcreate hwc
+ 
+Command: expCreate
+	Experiment Types: hwc 
+
+****************************
+expcreate io
+ 
+Command: expCreate
+	Experiment Types: io 
+
+****************************
+expcreate pcsamp,usertime,mpi,io
+ 
+Command: expCreate
+	Experiment Types: pcsamp usertime mpi io 
+
+****************************
+expcreate -t 123
+  
+Command: expCreate
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expcreate -t 123 pcsamp
+   
+Command: expCreate
+	Experiment Types: pcsamp 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expcreate -t 123 usertime
+   
+Command: expCreate
+	Experiment Types: usertime 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expcreate -t 123 mpi
+   
+Command: expCreate
+	Experiment Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expcreate -t 123 fpe
+   
+Command: expCreate
+	Experiment Types: fpe 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expcreate -t 123 hwc
+   
+Command: expCreate
+	Experiment Types: hwc 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expcreate -t 123 io
+   
+Command: expCreate
+	Experiment Types: io 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expcreate -t 123 pcsamp,usertime,mpi,io
+   
+Command: expCreate
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expcreate -t 123,456,789
+  
+Command: expCreate
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expcreate -t 123,456,789 pcsamp
+   
+Command: expCreate
+	Experiment Types: pcsamp 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expcreate -t 123,456,789 usertime
+   
+Command: expCreate
+	Experiment Types: usertime 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expcreate -t 123,456,789 mpi
+   
+Command: expCreate
+	Experiment Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expcreate -t 123,456,789 fpe
+   
+Command: expCreate
+	Experiment Types: fpe 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expcreate -t 123,456,789 hwc
+   
+Command: expCreate
+	Experiment Types: hwc 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expcreate -t 123,456,789 io
+   
+Command: expCreate
+	Experiment Types: io 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expcreate -t 123,456,789 pcsamp,usertime,mpi,io
+   
+Command: expCreate
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expcreate -t 123:456
+  
+Command: expCreate
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expcreate -t 123:456 pcsamp
+   
+Command: expCreate
+	Experiment Types: pcsamp 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expcreate -t 123:456 usertime
+   
+Command: expCreate
+	Experiment Types: usertime 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expcreate -t 123:456 mpi
+   
+Command: expCreate
+	Experiment Types: mpi 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expcreate -t 123:456 fpe
+   
+Command: expCreate
+	Experiment Types: fpe 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expcreate -t 123:456 hwc
+   
+Command: expCreate
+	Experiment Types: hwc 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expcreate -t 123:456 io
+   
+Command: expCreate
+	Experiment Types: io 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expcreate -t 123:456 pcsamp,usertime,mpi,io
+   
+Command: expCreate
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expcreate -t 123,456:789,987
+  
+Command: expCreate
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expcreate -t 123,456:789,987 pcsamp
+   
+Command: expCreate
+	Experiment Types: pcsamp 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expcreate -t 123,456:789,987 usertime
+   
+Command: expCreate
+	Experiment Types: usertime 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expcreate -t 123,456:789,987 mpi
+   
+Command: expCreate
+	Experiment Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expcreate -t 123,456:789,987 fpe
+   
+Command: expCreate
+	Experiment Types: fpe 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expcreate -t 123,456:789,987 hwc
+   
+Command: expCreate
+	Experiment Types: hwc 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expcreate -t 123,456:789,987 io
+   
+Command: expCreate
+	Experiment Types: io 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expcreate -t 123,456:789,987 pcsamp,usertime,mpi,io
+   
+Command: expCreate
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expcreate
+
+Command: expCreate
+
+****************************
+expcreate pcsamp
+ 
+Command: expCreate
+	Experiment Types: pcsamp 
+
+****************************
+expcreate usertime
+ 
+Command: expCreate
+	Experiment Types: usertime 
+
+****************************
+expcreate mpi
+ 
+Command: expCreate
+	Experiment Types: mpi 
+
+****************************
+expcreate fpe
+ 
+Command: expCreate
+	Experiment Types: fpe 
+
+****************************
+expcreate hwc
+ 
+Command: expCreate
+	Experiment Types: hwc 
+
+****************************
+expcreate io
+ 
+Command: expCreate
+	Experiment Types: io 
+
+****************************
+expcreate pcsamp,usertime,mpi,io
+ 
+Command: expCreate
+	Experiment Types: pcsamp usertime mpi io 
+
+****************************
+expcreate -r 100
+  
+Command: expCreate
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expcreate -r 100 pcsamp
+   
+Command: expCreate
+	Experiment Types: pcsamp 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expcreate -r 100 usertime
+   
+Command: expCreate
+	Experiment Types: usertime 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expcreate -r 100 mpi
+   
+Command: expCreate
+	Experiment Types: mpi 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expcreate -r 100 fpe
+   
+Command: expCreate
+	Experiment Types: fpe 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expcreate -r 100 hwc
+   
+Command: expCreate
+	Experiment Types: hwc 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expcreate -r 100 io
+   
+Command: expCreate
+	Experiment Types: io 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expcreate -r 100 pcsamp,usertime,mpi,io
+   
+Command: expCreate
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expcreate -r 100,200,500
+  
+Command: expCreate
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expcreate -r 100,200,500 pcsamp
+   
+Command: expCreate
+	Experiment Types: pcsamp 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expcreate -r 100,200,500 usertime
+   
+Command: expCreate
+	Experiment Types: usertime 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expcreate -r 100,200,500 mpi
+   
+Command: expCreate
+	Experiment Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expcreate -r 100,200,500 fpe
+   
+Command: expCreate
+	Experiment Types: fpe 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expcreate -r 100,200,500 hwc
+   
+Command: expCreate
+	Experiment Types: hwc 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expcreate -r 100,200,500 io
+   
+Command: expCreate
+	Experiment Types: io 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expcreate -r 100,200,500 pcsamp,usertime,mpi,io
+   
+Command: expCreate
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expcreate -r 100:200
+  
+Command: expCreate
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expcreate -r 100:200 pcsamp
+   
+Command: expCreate
+	Experiment Types: pcsamp 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expcreate -r 100:200 usertime
+   
+Command: expCreate
+	Experiment Types: usertime 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expcreate -r 100:200 mpi
+   
+Command: expCreate
+	Experiment Types: mpi 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expcreate -r 100:200 fpe
+   
+Command: expCreate
+	Experiment Types: fpe 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expcreate -r 100:200 hwc
+   
+Command: expCreate
+	Experiment Types: hwc 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expcreate -r 100:200 io
+   
+Command: expCreate
+	Experiment Types: io 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expcreate -r 100:200 pcsamp,usertime,mpi,io
+   
+Command: expCreate
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expcreate -r 100,200:500,800
+  
+Command: expCreate
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expcreate -r 100,200:500,800 pcsamp
+   
+Command: expCreate
+	Experiment Types: pcsamp 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expcreate -r 100,200:500,800 usertime
+   
+Command: expCreate
+	Experiment Types: usertime 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expcreate -r 100,200:500,800 mpi
+   
+Command: expCreate
+	Experiment Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expcreate -r 100,200:500,800 fpe
+   
+Command: expCreate
+	Experiment Types: fpe 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expcreate -r 100,200:500,800 hwc
+   
+Command: expCreate
+	Experiment Types: hwc 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expcreate -r 100,200:500,800 io
+   
+Command: expCreate
+	Experiment Types: io 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expcreate -r 100,200:500,800 pcsamp,usertime,mpi,io
+   
+Command: expCreate
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 

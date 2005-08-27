@@ -1,0 +1,7284 @@
+
+****************************
+expattach
+
+Command: expAttach
+
+****************************
+expattach pcsamp
+ 
+Command: expAttach
+	Experiment Types: pcsamp 
+
+****************************
+expattach usertime
+ 
+Command: expAttach
+	Experiment Types: usertime 
+
+****************************
+expattach mpi
+ 
+Command: expAttach
+	Experiment Types: mpi 
+
+****************************
+expattach fpe
+ 
+Command: expAttach
+	Experiment Types: fpe 
+
+****************************
+expattach hwc
+ 
+Command: expAttach
+	Experiment Types: hwc 
+
+****************************
+expattach io
+ 
+Command: expAttach
+	Experiment Types: io 
+
+****************************
+expattach pcsamp,usertime,mpi,io
+ 
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+
+****************************
+expattach -c cluster_1
+  
+Command: expAttach
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expattach -c cluster_1 pcsamp
+   
+Command: expAttach
+	Experiment Types: pcsamp 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expattach -c cluster_1 usertime
+   
+Command: expAttach
+	Experiment Types: usertime 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expattach -c cluster_1 mpi
+   
+Command: expAttach
+	Experiment Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expattach -c cluster_1 fpe
+   
+Command: expAttach
+	Experiment Types: fpe 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expattach -c cluster_1 hwc
+   
+Command: expAttach
+	Experiment Types: hwc 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expattach -c cluster_1 io
+   
+Command: expAttach
+	Experiment Types: io 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expattach -c cluster_1 pcsamp,usertime,mpi,io
+   
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expattach -c cluster_1,cluster_2,cluster_3
+  
+Command: expAttach
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expattach -c cluster_1,cluster_2,cluster_3 pcsamp
+   
+Command: expAttach
+	Experiment Types: pcsamp 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expattach -c cluster_1,cluster_2,cluster_3 usertime
+   
+Command: expAttach
+	Experiment Types: usertime 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expattach -c cluster_1,cluster_2,cluster_3 mpi
+   
+Command: expAttach
+	Experiment Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expattach -c cluster_1,cluster_2,cluster_3 fpe
+   
+Command: expAttach
+	Experiment Types: fpe 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expattach -c cluster_1,cluster_2,cluster_3 hwc
+   
+Command: expAttach
+	Experiment Types: hwc 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expattach -c cluster_1,cluster_2,cluster_3 io
+   
+Command: expAttach
+	Experiment Types: io 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expattach -c cluster_1,cluster_2,cluster_3 pcsamp,usertime,mpi,io
+   
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expattach
+
+Command: expAttach
+
+****************************
+expattach pcsamp
+ 
+Command: expAttach
+	Experiment Types: pcsamp 
+
+****************************
+expattach usertime
+ 
+Command: expAttach
+	Experiment Types: usertime 
+
+****************************
+expattach mpi
+ 
+Command: expAttach
+	Experiment Types: mpi 
+
+****************************
+expattach fpe
+ 
+Command: expAttach
+	Experiment Types: fpe 
+
+****************************
+expattach hwc
+ 
+Command: expAttach
+	Experiment Types: hwc 
+
+****************************
+expattach io
+ 
+Command: expAttach
+	Experiment Types: io 
+
+****************************
+expattach pcsamp,usertime,mpi,io
+ 
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+
+****************************
+expattach -h host_1
+  
+Command: expAttach
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expattach -h host_1 pcsamp
+   
+Command: expAttach
+	Experiment Types: pcsamp 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expattach -h host_1 usertime
+   
+Command: expAttach
+	Experiment Types: usertime 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expattach -h host_1 mpi
+   
+Command: expAttach
+	Experiment Types: mpi 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expattach -h host_1 fpe
+   
+Command: expAttach
+	Experiment Types: fpe 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expattach -h host_1 hwc
+   
+Command: expAttach
+	Experiment Types: hwc 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expattach -h host_1 io
+   
+Command: expAttach
+	Experiment Types: io 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expattach -h host_1 pcsamp,usertime,mpi,io
+   
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expattach -h host_1,host_2,host_3
+  
+Command: expAttach
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expattach -h host_1,host_2,host_3 pcsamp
+   
+Command: expAttach
+	Experiment Types: pcsamp 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expattach -h host_1,host_2,host_3 usertime
+   
+Command: expAttach
+	Experiment Types: usertime 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expattach -h host_1,host_2,host_3 mpi
+   
+Command: expAttach
+	Experiment Types: mpi 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expattach -h host_1,host_2,host_3 fpe
+   
+Command: expAttach
+	Experiment Types: fpe 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expattach -h host_1,host_2,host_3 hwc
+   
+Command: expAttach
+	Experiment Types: hwc 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expattach -h host_1,host_2,host_3 io
+   
+Command: expAttach
+	Experiment Types: io 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expattach -h host_1,host_2,host_3 pcsamp,usertime,mpi,io
+   
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expattach -h 128.064.032.008
+  
+Command: expAttach
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expattach -h 128.064.032.008 pcsamp
+   
+Command: expAttach
+	Experiment Types: pcsamp 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expattach -h 128.064.032.008 usertime
+   
+Command: expAttach
+	Experiment Types: usertime 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expattach -h 128.064.032.008 mpi
+   
+Command: expAttach
+	Experiment Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expattach -h 128.064.032.008 fpe
+   
+Command: expAttach
+	Experiment Types: fpe 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expattach -h 128.064.032.008 hwc
+   
+Command: expAttach
+	Experiment Types: hwc 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expattach -h 128.064.032.008 io
+   
+Command: expAttach
+	Experiment Types: io 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expattach -h 128.064.032.008 pcsamp,usertime,mpi,io
+   
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expattach -h 128.064.032.008,032.002.016.128
+  
+Command: expAttach
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expattach -h 128.064.032.008,032.002.016.128 pcsamp
+   
+Command: expAttach
+	Experiment Types: pcsamp 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expattach -h 128.064.032.008,032.002.016.128 usertime
+   
+Command: expAttach
+	Experiment Types: usertime 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expattach -h 128.064.032.008,032.002.016.128 mpi
+   
+Command: expAttach
+	Experiment Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expattach -h 128.064.032.008,032.002.016.128 fpe
+   
+Command: expAttach
+	Experiment Types: fpe 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expattach -h 128.064.032.008,032.002.016.128 hwc
+   
+Command: expAttach
+	Experiment Types: hwc 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expattach -h 128.064.032.008,032.002.016.128 io
+   
+Command: expAttach
+	Experiment Types: io 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expattach -h 128.064.032.008,032.002.016.128 pcsamp,usertime,mpi,io
+   
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expattach -h host_1,128.064.032.008,host_2,032.004.016.128
+  
+Command: expAttach
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expattach -h host_1,128.064.032.008,host_2,032.004.016.128 pcsamp
+   
+Command: expAttach
+	Experiment Types: pcsamp 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expattach -h host_1,128.064.032.008,host_2,032.004.016.128 usertime
+   
+Command: expAttach
+	Experiment Types: usertime 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expattach -h host_1,128.064.032.008,host_2,032.004.016.128 mpi
+   
+Command: expAttach
+	Experiment Types: mpi 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expattach -h host_1,128.064.032.008,host_2,032.004.016.128 fpe
+   
+Command: expAttach
+	Experiment Types: fpe 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expattach -h host_1,128.064.032.008,host_2,032.004.016.128 hwc
+   
+Command: expAttach
+	Experiment Types: hwc 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expattach -h host_1,128.064.032.008,host_2,032.004.016.128 io
+   
+Command: expAttach
+	Experiment Types: io 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expattach -h host_1,128.064.032.008,host_2,032.004.016.128 pcsamp,usertime,mpi,io
+   
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expattach
+
+Command: expAttach
+
+****************************
+expattach pcsamp
+ 
+Command: expAttach
+	Experiment Types: pcsamp 
+
+****************************
+expattach usertime
+ 
+Command: expAttach
+	Experiment Types: usertime 
+
+****************************
+expattach mpi
+ 
+Command: expAttach
+	Experiment Types: mpi 
+
+****************************
+expattach fpe
+ 
+Command: expAttach
+	Experiment Types: fpe 
+
+****************************
+expattach hwc
+ 
+Command: expAttach
+	Experiment Types: hwc 
+
+****************************
+expattach io
+ 
+Command: expAttach
+	Experiment Types: io 
+
+****************************
+expattach pcsamp,usertime,mpi,io
+ 
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+
+****************************
+expattach -f file_1
+  
+Command: expAttach
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expattach -f file_1 pcsamp
+   
+Command: expAttach
+	Experiment Types: pcsamp 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expattach -f file_1 usertime
+   
+Command: expAttach
+	Experiment Types: usertime 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expattach -f file_1 mpi
+   
+Command: expAttach
+	Experiment Types: mpi 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expattach -f file_1 fpe
+   
+Command: expAttach
+	Experiment Types: fpe 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expattach -f file_1 hwc
+   
+Command: expAttach
+	Experiment Types: hwc 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expattach -f file_1 io
+   
+Command: expAttach
+	Experiment Types: io 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expattach -f file_1 pcsamp,usertime,mpi,io
+   
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expattach -f file_1,file_2,file_3
+  
+Command: expAttach
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expattach -f file_1,file_2,file_3 pcsamp
+   
+Command: expAttach
+	Experiment Types: pcsamp 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expattach -f file_1,file_2,file_3 usertime
+   
+Command: expAttach
+	Experiment Types: usertime 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expattach -f file_1,file_2,file_3 mpi
+   
+Command: expAttach
+	Experiment Types: mpi 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expattach -f file_1,file_2,file_3 fpe
+   
+Command: expAttach
+	Experiment Types: fpe 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expattach -f file_1,file_2,file_3 hwc
+   
+Command: expAttach
+	Experiment Types: hwc 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expattach -f file_1,file_2,file_3 io
+   
+Command: expAttach
+	Experiment Types: io 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expattach -f file_1,file_2,file_3 pcsamp,usertime,mpi,io
+   
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expattach
+
+Command: expAttach
+
+****************************
+expattach pcsamp
+ 
+Command: expAttach
+	Experiment Types: pcsamp 
+
+****************************
+expattach usertime
+ 
+Command: expAttach
+	Experiment Types: usertime 
+
+****************************
+expattach mpi
+ 
+Command: expAttach
+	Experiment Types: mpi 
+
+****************************
+expattach fpe
+ 
+Command: expAttach
+	Experiment Types: fpe 
+
+****************************
+expattach hwc
+ 
+Command: expAttach
+	Experiment Types: hwc 
+
+****************************
+expattach io
+ 
+Command: expAttach
+	Experiment Types: io 
+
+****************************
+expattach pcsamp,usertime,mpi,io
+ 
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+
+****************************
+expattach -p 888
+  
+Command: expAttach
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expattach -p 888 pcsamp
+   
+Command: expAttach
+	Experiment Types: pcsamp 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expattach -p 888 usertime
+   
+Command: expAttach
+	Experiment Types: usertime 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expattach -p 888 mpi
+   
+Command: expAttach
+	Experiment Types: mpi 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expattach -p 888 fpe
+   
+Command: expAttach
+	Experiment Types: fpe 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expattach -p 888 hwc
+   
+Command: expAttach
+	Experiment Types: hwc 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expattach -p 888 io
+   
+Command: expAttach
+	Experiment Types: io 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expattach -p 888 pcsamp,usertime,mpi,io
+   
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expattach -p 888,999,777
+  
+Command: expAttach
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expattach -p 888,999,777 pcsamp
+   
+Command: expAttach
+	Experiment Types: pcsamp 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expattach -p 888,999,777 usertime
+   
+Command: expAttach
+	Experiment Types: usertime 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expattach -p 888,999,777 mpi
+   
+Command: expAttach
+	Experiment Types: mpi 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expattach -p 888,999,777 fpe
+   
+Command: expAttach
+	Experiment Types: fpe 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expattach -p 888,999,777 hwc
+   
+Command: expAttach
+	Experiment Types: hwc 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expattach -p 888,999,777 io
+   
+Command: expAttach
+	Experiment Types: io 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expattach -p 888,999,777 pcsamp,usertime,mpi,io
+   
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expattach -p 888:999
+  
+Command: expAttach
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expattach -p 888:999 pcsamp
+   
+Command: expAttach
+	Experiment Types: pcsamp 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expattach -p 888:999 usertime
+   
+Command: expAttach
+	Experiment Types: usertime 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expattach -p 888:999 mpi
+   
+Command: expAttach
+	Experiment Types: mpi 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expattach -p 888:999 fpe
+   
+Command: expAttach
+	Experiment Types: fpe 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expattach -p 888:999 hwc
+   
+Command: expAttach
+	Experiment Types: hwc 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expattach -p 888:999 io
+   
+Command: expAttach
+	Experiment Types: io 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expattach -p 888:999 pcsamp,usertime,mpi,io
+   
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expattach -p 777,888:999,666
+  
+Command: expAttach
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expattach -p 777,888:999,666 pcsamp
+   
+Command: expAttach
+	Experiment Types: pcsamp 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expattach -p 777,888:999,666 usertime
+   
+Command: expAttach
+	Experiment Types: usertime 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expattach -p 777,888:999,666 mpi
+   
+Command: expAttach
+	Experiment Types: mpi 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expattach -p 777,888:999,666 fpe
+   
+Command: expAttach
+	Experiment Types: fpe 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expattach -p 777,888:999,666 hwc
+   
+Command: expAttach
+	Experiment Types: hwc 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expattach -p 777,888:999,666 io
+   
+Command: expAttach
+	Experiment Types: io 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expattach -p 777,888:999,666 pcsamp,usertime,mpi,io
+   
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expattach
+
+Command: expAttach
+
+****************************
+expattach pcsamp
+ 
+Command: expAttach
+	Experiment Types: pcsamp 
+
+****************************
+expattach usertime
+ 
+Command: expAttach
+	Experiment Types: usertime 
+
+****************************
+expattach mpi
+ 
+Command: expAttach
+	Experiment Types: mpi 
+
+****************************
+expattach fpe
+ 
+Command: expAttach
+	Experiment Types: fpe 
+
+****************************
+expattach hwc
+ 
+Command: expAttach
+	Experiment Types: hwc 
+
+****************************
+expattach io
+ 
+Command: expAttach
+	Experiment Types: io 
+
+****************************
+expattach pcsamp,usertime,mpi,io
+ 
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+
+****************************
+expattach -t 123
+  
+Command: expAttach
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expattach -t 123 pcsamp
+   
+Command: expAttach
+	Experiment Types: pcsamp 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expattach -t 123 usertime
+   
+Command: expAttach
+	Experiment Types: usertime 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expattach -t 123 mpi
+   
+Command: expAttach
+	Experiment Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expattach -t 123 fpe
+   
+Command: expAttach
+	Experiment Types: fpe 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expattach -t 123 hwc
+   
+Command: expAttach
+	Experiment Types: hwc 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expattach -t 123 io
+   
+Command: expAttach
+	Experiment Types: io 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expattach -t 123 pcsamp,usertime,mpi,io
+   
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expattach -t 123,456,789
+  
+Command: expAttach
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expattach -t 123,456,789 pcsamp
+   
+Command: expAttach
+	Experiment Types: pcsamp 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expattach -t 123,456,789 usertime
+   
+Command: expAttach
+	Experiment Types: usertime 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expattach -t 123,456,789 mpi
+   
+Command: expAttach
+	Experiment Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expattach -t 123,456,789 fpe
+   
+Command: expAttach
+	Experiment Types: fpe 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expattach -t 123,456,789 hwc
+   
+Command: expAttach
+	Experiment Types: hwc 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expattach -t 123,456,789 io
+   
+Command: expAttach
+	Experiment Types: io 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expattach -t 123,456,789 pcsamp,usertime,mpi,io
+   
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expattach -t 123:456
+  
+Command: expAttach
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expattach -t 123:456 pcsamp
+   
+Command: expAttach
+	Experiment Types: pcsamp 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expattach -t 123:456 usertime
+   
+Command: expAttach
+	Experiment Types: usertime 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expattach -t 123:456 mpi
+   
+Command: expAttach
+	Experiment Types: mpi 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expattach -t 123:456 fpe
+   
+Command: expAttach
+	Experiment Types: fpe 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expattach -t 123:456 hwc
+   
+Command: expAttach
+	Experiment Types: hwc 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expattach -t 123:456 io
+   
+Command: expAttach
+	Experiment Types: io 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expattach -t 123:456 pcsamp,usertime,mpi,io
+   
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expattach -t 123,456:789,987
+  
+Command: expAttach
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expattach -t 123,456:789,987 pcsamp
+   
+Command: expAttach
+	Experiment Types: pcsamp 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expattach -t 123,456:789,987 usertime
+   
+Command: expAttach
+	Experiment Types: usertime 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expattach -t 123,456:789,987 mpi
+   
+Command: expAttach
+	Experiment Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expattach -t 123,456:789,987 fpe
+   
+Command: expAttach
+	Experiment Types: fpe 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expattach -t 123,456:789,987 hwc
+   
+Command: expAttach
+	Experiment Types: hwc 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expattach -t 123,456:789,987 io
+   
+Command: expAttach
+	Experiment Types: io 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expattach -t 123,456:789,987 pcsamp,usertime,mpi,io
+   
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expattach
+
+Command: expAttach
+
+****************************
+expattach pcsamp
+ 
+Command: expAttach
+	Experiment Types: pcsamp 
+
+****************************
+expattach usertime
+ 
+Command: expAttach
+	Experiment Types: usertime 
+
+****************************
+expattach mpi
+ 
+Command: expAttach
+	Experiment Types: mpi 
+
+****************************
+expattach fpe
+ 
+Command: expAttach
+	Experiment Types: fpe 
+
+****************************
+expattach hwc
+ 
+Command: expAttach
+	Experiment Types: hwc 
+
+****************************
+expattach io
+ 
+Command: expAttach
+	Experiment Types: io 
+
+****************************
+expattach pcsamp,usertime,mpi,io
+ 
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+
+****************************
+expattach -r 100
+  
+Command: expAttach
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expattach -r 100 pcsamp
+   
+Command: expAttach
+	Experiment Types: pcsamp 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expattach -r 100 usertime
+   
+Command: expAttach
+	Experiment Types: usertime 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expattach -r 100 mpi
+   
+Command: expAttach
+	Experiment Types: mpi 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expattach -r 100 fpe
+   
+Command: expAttach
+	Experiment Types: fpe 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expattach -r 100 hwc
+   
+Command: expAttach
+	Experiment Types: hwc 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expattach -r 100 io
+   
+Command: expAttach
+	Experiment Types: io 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expattach -r 100 pcsamp,usertime,mpi,io
+   
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expattach -r 100,200,500
+  
+Command: expAttach
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expattach -r 100,200,500 pcsamp
+   
+Command: expAttach
+	Experiment Types: pcsamp 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expattach -r 100,200,500 usertime
+   
+Command: expAttach
+	Experiment Types: usertime 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expattach -r 100,200,500 mpi
+   
+Command: expAttach
+	Experiment Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expattach -r 100,200,500 fpe
+   
+Command: expAttach
+	Experiment Types: fpe 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expattach -r 100,200,500 hwc
+   
+Command: expAttach
+	Experiment Types: hwc 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expattach -r 100,200,500 io
+   
+Command: expAttach
+	Experiment Types: io 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expattach -r 100,200,500 pcsamp,usertime,mpi,io
+   
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expattach -r 100:200
+  
+Command: expAttach
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expattach -r 100:200 pcsamp
+   
+Command: expAttach
+	Experiment Types: pcsamp 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expattach -r 100:200 usertime
+   
+Command: expAttach
+	Experiment Types: usertime 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expattach -r 100:200 mpi
+   
+Command: expAttach
+	Experiment Types: mpi 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expattach -r 100:200 fpe
+   
+Command: expAttach
+	Experiment Types: fpe 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expattach -r 100:200 hwc
+   
+Command: expAttach
+	Experiment Types: hwc 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expattach -r 100:200 io
+   
+Command: expAttach
+	Experiment Types: io 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expattach -r 100:200 pcsamp,usertime,mpi,io
+   
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expattach -r 100,200:500,800
+  
+Command: expAttach
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expattach -r 100,200:500,800 pcsamp
+   
+Command: expAttach
+	Experiment Types: pcsamp 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expattach -r 100,200:500,800 usertime
+   
+Command: expAttach
+	Experiment Types: usertime 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expattach -r 100,200:500,800 mpi
+   
+Command: expAttach
+	Experiment Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expattach -r 100,200:500,800 fpe
+   
+Command: expAttach
+	Experiment Types: fpe 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expattach -r 100,200:500,800 hwc
+   
+Command: expAttach
+	Experiment Types: hwc 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expattach -r 100,200:500,800 io
+   
+Command: expAttach
+	Experiment Types: io 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expattach -r 100,200:500,800 pcsamp,usertime,mpi,io
+   
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expattach -v mpi
+  
+Command: expAttach
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi pcsamp
+   
+Command: expAttach
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi usertime
+   
+Command: expAttach
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi mpi
+   
+Command: expAttach
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi fpe
+   
+Command: expAttach
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi hwc
+   
+Command: expAttach
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi io
+   
+Command: expAttach
+	Experiment Types: io 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi pcsamp,usertime,mpi,io
+   
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi -c cluster_1
+    
+Command: expAttach
+	General Modifier Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expattach -v mpi -c cluster_1 pcsamp
+     
+Command: expAttach
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expattach -v mpi -c cluster_1 usertime
+     
+Command: expAttach
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expattach -v mpi -c cluster_1 mpi
+     
+Command: expAttach
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expattach -v mpi -c cluster_1 fpe
+     
+Command: expAttach
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expattach -v mpi -c cluster_1 hwc
+     
+Command: expAttach
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expattach -v mpi -c cluster_1 io
+     
+Command: expAttach
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expattach -v mpi -c cluster_1 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expattach -v mpi -c cluster_1,cluster_2,cluster_3
+    
+Command: expAttach
+	General Modifier Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expattach -v mpi -c cluster_1,cluster_2,cluster_3 pcsamp
+     
+Command: expAttach
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expattach -v mpi -c cluster_1,cluster_2,cluster_3 usertime
+     
+Command: expAttach
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expattach -v mpi -c cluster_1,cluster_2,cluster_3 mpi
+     
+Command: expAttach
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expattach -v mpi -c cluster_1,cluster_2,cluster_3 fpe
+     
+Command: expAttach
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expattach -v mpi -c cluster_1,cluster_2,cluster_3 hwc
+     
+Command: expAttach
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expattach -v mpi -c cluster_1,cluster_2,cluster_3 io
+     
+Command: expAttach
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expattach -v mpi -c cluster_1,cluster_2,cluster_3 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expattach -v mpi
+  
+Command: expAttach
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi pcsamp
+   
+Command: expAttach
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi usertime
+   
+Command: expAttach
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi mpi
+   
+Command: expAttach
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi fpe
+   
+Command: expAttach
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi hwc
+   
+Command: expAttach
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi io
+   
+Command: expAttach
+	Experiment Types: io 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi pcsamp,usertime,mpi,io
+   
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi -h host_1
+    
+Command: expAttach
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expattach -v mpi -h host_1 pcsamp
+     
+Command: expAttach
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expattach -v mpi -h host_1 usertime
+     
+Command: expAttach
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expattach -v mpi -h host_1 mpi
+     
+Command: expAttach
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expattach -v mpi -h host_1 fpe
+     
+Command: expAttach
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expattach -v mpi -h host_1 hwc
+     
+Command: expAttach
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expattach -v mpi -h host_1 io
+     
+Command: expAttach
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expattach -v mpi -h host_1 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expattach -v mpi -h host_1,host_2,host_3
+    
+Command: expAttach
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expattach -v mpi -h host_1,host_2,host_3 pcsamp
+     
+Command: expAttach
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expattach -v mpi -h host_1,host_2,host_3 usertime
+     
+Command: expAttach
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expattach -v mpi -h host_1,host_2,host_3 mpi
+     
+Command: expAttach
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expattach -v mpi -h host_1,host_2,host_3 fpe
+     
+Command: expAttach
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expattach -v mpi -h host_1,host_2,host_3 hwc
+     
+Command: expAttach
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expattach -v mpi -h host_1,host_2,host_3 io
+     
+Command: expAttach
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expattach -v mpi -h host_1,host_2,host_3 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expattach -v mpi -h 128.064.032.008
+    
+Command: expAttach
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expattach -v mpi -h 128.064.032.008 pcsamp
+     
+Command: expAttach
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expattach -v mpi -h 128.064.032.008 usertime
+     
+Command: expAttach
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expattach -v mpi -h 128.064.032.008 mpi
+     
+Command: expAttach
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expattach -v mpi -h 128.064.032.008 fpe
+     
+Command: expAttach
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expattach -v mpi -h 128.064.032.008 hwc
+     
+Command: expAttach
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expattach -v mpi -h 128.064.032.008 io
+     
+Command: expAttach
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expattach -v mpi -h 128.064.032.008 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expattach -v mpi -h 128.064.032.008,032.002.016.128
+    
+Command: expAttach
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expattach -v mpi -h 128.064.032.008,032.002.016.128 pcsamp
+     
+Command: expAttach
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expattach -v mpi -h 128.064.032.008,032.002.016.128 usertime
+     
+Command: expAttach
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expattach -v mpi -h 128.064.032.008,032.002.016.128 mpi
+     
+Command: expAttach
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expattach -v mpi -h 128.064.032.008,032.002.016.128 fpe
+     
+Command: expAttach
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expattach -v mpi -h 128.064.032.008,032.002.016.128 hwc
+     
+Command: expAttach
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expattach -v mpi -h 128.064.032.008,032.002.016.128 io
+     
+Command: expAttach
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expattach -v mpi -h 128.064.032.008,032.002.016.128 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expattach -v mpi -h host_1,128.064.032.008,host_2,032.004.016.128
+    
+Command: expAttach
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expattach -v mpi -h host_1,128.064.032.008,host_2,032.004.016.128 pcsamp
+     
+Command: expAttach
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expattach -v mpi -h host_1,128.064.032.008,host_2,032.004.016.128 usertime
+     
+Command: expAttach
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expattach -v mpi -h host_1,128.064.032.008,host_2,032.004.016.128 mpi
+     
+Command: expAttach
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expattach -v mpi -h host_1,128.064.032.008,host_2,032.004.016.128 fpe
+     
+Command: expAttach
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expattach -v mpi -h host_1,128.064.032.008,host_2,032.004.016.128 hwc
+     
+Command: expAttach
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expattach -v mpi -h host_1,128.064.032.008,host_2,032.004.016.128 io
+     
+Command: expAttach
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expattach -v mpi -h host_1,128.064.032.008,host_2,032.004.016.128 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expattach -v mpi
+  
+Command: expAttach
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi pcsamp
+   
+Command: expAttach
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi usertime
+   
+Command: expAttach
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi mpi
+   
+Command: expAttach
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi fpe
+   
+Command: expAttach
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi hwc
+   
+Command: expAttach
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi io
+   
+Command: expAttach
+	Experiment Types: io 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi pcsamp,usertime,mpi,io
+   
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi -f file_1
+    
+Command: expAttach
+	General Modifier Types: mpi 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expattach -v mpi -f file_1 pcsamp
+     
+Command: expAttach
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expattach -v mpi -f file_1 usertime
+     
+Command: expAttach
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expattach -v mpi -f file_1 mpi
+     
+Command: expAttach
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expattach -v mpi -f file_1 fpe
+     
+Command: expAttach
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expattach -v mpi -f file_1 hwc
+     
+Command: expAttach
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expattach -v mpi -f file_1 io
+     
+Command: expAttach
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expattach -v mpi -f file_1 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expattach -v mpi -f file_1,file_2,file_3
+    
+Command: expAttach
+	General Modifier Types: mpi 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expattach -v mpi -f file_1,file_2,file_3 pcsamp
+     
+Command: expAttach
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expattach -v mpi -f file_1,file_2,file_3 usertime
+     
+Command: expAttach
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expattach -v mpi -f file_1,file_2,file_3 mpi
+     
+Command: expAttach
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expattach -v mpi -f file_1,file_2,file_3 fpe
+     
+Command: expAttach
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expattach -v mpi -f file_1,file_2,file_3 hwc
+     
+Command: expAttach
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expattach -v mpi -f file_1,file_2,file_3 io
+     
+Command: expAttach
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expattach -v mpi -f file_1,file_2,file_3 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expattach -v mpi
+  
+Command: expAttach
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi pcsamp
+   
+Command: expAttach
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi usertime
+   
+Command: expAttach
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi mpi
+   
+Command: expAttach
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi fpe
+   
+Command: expAttach
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi hwc
+   
+Command: expAttach
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi io
+   
+Command: expAttach
+	Experiment Types: io 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi pcsamp,usertime,mpi,io
+   
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi -p 888
+    
+Command: expAttach
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expattach -v mpi -p 888 pcsamp
+     
+Command: expAttach
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expattach -v mpi -p 888 usertime
+     
+Command: expAttach
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expattach -v mpi -p 888 mpi
+     
+Command: expAttach
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expattach -v mpi -p 888 fpe
+     
+Command: expAttach
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expattach -v mpi -p 888 hwc
+     
+Command: expAttach
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expattach -v mpi -p 888 io
+     
+Command: expAttach
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expattach -v mpi -p 888 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expattach -v mpi -p 888,999,777
+    
+Command: expAttach
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expattach -v mpi -p 888,999,777 pcsamp
+     
+Command: expAttach
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expattach -v mpi -p 888,999,777 usertime
+     
+Command: expAttach
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expattach -v mpi -p 888,999,777 mpi
+     
+Command: expAttach
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expattach -v mpi -p 888,999,777 fpe
+     
+Command: expAttach
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expattach -v mpi -p 888,999,777 hwc
+     
+Command: expAttach
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expattach -v mpi -p 888,999,777 io
+     
+Command: expAttach
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expattach -v mpi -p 888,999,777 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expattach -v mpi -p 888:999
+    
+Command: expAttach
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expattach -v mpi -p 888:999 pcsamp
+     
+Command: expAttach
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expattach -v mpi -p 888:999 usertime
+     
+Command: expAttach
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expattach -v mpi -p 888:999 mpi
+     
+Command: expAttach
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expattach -v mpi -p 888:999 fpe
+     
+Command: expAttach
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expattach -v mpi -p 888:999 hwc
+     
+Command: expAttach
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expattach -v mpi -p 888:999 io
+     
+Command: expAttach
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expattach -v mpi -p 888:999 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expattach -v mpi -p 777,888:999,666
+    
+Command: expAttach
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expattach -v mpi -p 777,888:999,666 pcsamp
+     
+Command: expAttach
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expattach -v mpi -p 777,888:999,666 usertime
+     
+Command: expAttach
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expattach -v mpi -p 777,888:999,666 mpi
+     
+Command: expAttach
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expattach -v mpi -p 777,888:999,666 fpe
+     
+Command: expAttach
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expattach -v mpi -p 777,888:999,666 hwc
+     
+Command: expAttach
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expattach -v mpi -p 777,888:999,666 io
+     
+Command: expAttach
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expattach -v mpi -p 777,888:999,666 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expattach -v mpi
+  
+Command: expAttach
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi pcsamp
+   
+Command: expAttach
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi usertime
+   
+Command: expAttach
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi mpi
+   
+Command: expAttach
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi fpe
+   
+Command: expAttach
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi hwc
+   
+Command: expAttach
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi io
+   
+Command: expAttach
+	Experiment Types: io 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi pcsamp,usertime,mpi,io
+   
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi -t 123
+    
+Command: expAttach
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expattach -v mpi -t 123 pcsamp
+     
+Command: expAttach
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expattach -v mpi -t 123 usertime
+     
+Command: expAttach
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expattach -v mpi -t 123 mpi
+     
+Command: expAttach
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expattach -v mpi -t 123 fpe
+     
+Command: expAttach
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expattach -v mpi -t 123 hwc
+     
+Command: expAttach
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expattach -v mpi -t 123 io
+     
+Command: expAttach
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expattach -v mpi -t 123 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expattach -v mpi -t 123,456,789
+    
+Command: expAttach
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expattach -v mpi -t 123,456,789 pcsamp
+     
+Command: expAttach
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expattach -v mpi -t 123,456,789 usertime
+     
+Command: expAttach
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expattach -v mpi -t 123,456,789 mpi
+     
+Command: expAttach
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expattach -v mpi -t 123,456,789 fpe
+     
+Command: expAttach
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expattach -v mpi -t 123,456,789 hwc
+     
+Command: expAttach
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expattach -v mpi -t 123,456,789 io
+     
+Command: expAttach
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expattach -v mpi -t 123,456,789 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expattach -v mpi -t 123:456
+    
+Command: expAttach
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expattach -v mpi -t 123:456 pcsamp
+     
+Command: expAttach
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expattach -v mpi -t 123:456 usertime
+     
+Command: expAttach
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expattach -v mpi -t 123:456 mpi
+     
+Command: expAttach
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expattach -v mpi -t 123:456 fpe
+     
+Command: expAttach
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expattach -v mpi -t 123:456 hwc
+     
+Command: expAttach
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expattach -v mpi -t 123:456 io
+     
+Command: expAttach
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expattach -v mpi -t 123:456 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expattach -v mpi -t 123,456:789,987
+    
+Command: expAttach
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expattach -v mpi -t 123,456:789,987 pcsamp
+     
+Command: expAttach
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expattach -v mpi -t 123,456:789,987 usertime
+     
+Command: expAttach
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expattach -v mpi -t 123,456:789,987 mpi
+     
+Command: expAttach
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expattach -v mpi -t 123,456:789,987 fpe
+     
+Command: expAttach
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expattach -v mpi -t 123,456:789,987 hwc
+     
+Command: expAttach
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expattach -v mpi -t 123,456:789,987 io
+     
+Command: expAttach
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expattach -v mpi -t 123,456:789,987 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expattach -v mpi
+  
+Command: expAttach
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi pcsamp
+   
+Command: expAttach
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi usertime
+   
+Command: expAttach
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi mpi
+   
+Command: expAttach
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi fpe
+   
+Command: expAttach
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi hwc
+   
+Command: expAttach
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi io
+   
+Command: expAttach
+	Experiment Types: io 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi pcsamp,usertime,mpi,io
+   
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+
+****************************
+expattach -v mpi -r 100
+    
+Command: expAttach
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expattach -v mpi -r 100 pcsamp
+     
+Command: expAttach
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expattach -v mpi -r 100 usertime
+     
+Command: expAttach
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expattach -v mpi -r 100 mpi
+     
+Command: expAttach
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expattach -v mpi -r 100 fpe
+     
+Command: expAttach
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expattach -v mpi -r 100 hwc
+     
+Command: expAttach
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expattach -v mpi -r 100 io
+     
+Command: expAttach
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expattach -v mpi -r 100 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expattach -v mpi -r 100,200,500
+    
+Command: expAttach
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expattach -v mpi -r 100,200,500 pcsamp
+     
+Command: expAttach
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expattach -v mpi -r 100,200,500 usertime
+     
+Command: expAttach
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expattach -v mpi -r 100,200,500 mpi
+     
+Command: expAttach
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expattach -v mpi -r 100,200,500 fpe
+     
+Command: expAttach
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expattach -v mpi -r 100,200,500 hwc
+     
+Command: expAttach
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expattach -v mpi -r 100,200,500 io
+     
+Command: expAttach
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expattach -v mpi -r 100,200,500 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expattach -v mpi -r 100:200
+    
+Command: expAttach
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expattach -v mpi -r 100:200 pcsamp
+     
+Command: expAttach
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expattach -v mpi -r 100:200 usertime
+     
+Command: expAttach
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expattach -v mpi -r 100:200 mpi
+     
+Command: expAttach
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expattach -v mpi -r 100:200 fpe
+     
+Command: expAttach
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expattach -v mpi -r 100:200 hwc
+     
+Command: expAttach
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expattach -v mpi -r 100:200 io
+     
+Command: expAttach
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expattach -v mpi -r 100:200 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expattach -v mpi -r 100,200:500,800
+    
+Command: expAttach
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expattach -v mpi -r 100,200:500,800 pcsamp
+     
+Command: expAttach
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expattach -v mpi -r 100,200:500,800 usertime
+     
+Command: expAttach
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expattach -v mpi -r 100,200:500,800 mpi
+     
+Command: expAttach
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expattach -v mpi -r 100,200:500,800 fpe
+     
+Command: expAttach
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expattach -v mpi -r 100,200:500,800 hwc
+     
+Command: expAttach
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expattach -v mpi -r 100,200:500,800 io
+     
+Command: expAttach
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expattach -v mpi -r 100,200:500,800 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expattach -x 6
+  
+Command: expAttach
+	Experiment Id: 6
+
+****************************
+expattach -x 6 pcsamp
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+
+****************************
+expattach -x 6 usertime
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+
+****************************
+expattach -x 6 mpi
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+
+****************************
+expattach -x 6 fpe
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+
+****************************
+expattach -x 6 hwc
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+
+****************************
+expattach -x 6 io
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+
+****************************
+expattach -x 6 pcsamp,usertime,mpi,io
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+
+****************************
+expattach -x 6 -c cluster_1
+    
+Command: expAttach
+	Experiment Id: 6
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expattach -x 6 -c cluster_1 pcsamp
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expattach -x 6 -c cluster_1 usertime
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expattach -x 6 -c cluster_1 mpi
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expattach -x 6 -c cluster_1 fpe
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expattach -x 6 -c cluster_1 hwc
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expattach -x 6 -c cluster_1 io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expattach -x 6 -c cluster_1 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expattach -x 6 -c cluster_1,cluster_2,cluster_3
+    
+Command: expAttach
+	Experiment Id: 6
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expattach -x 6 -c cluster_1,cluster_2,cluster_3 pcsamp
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expattach -x 6 -c cluster_1,cluster_2,cluster_3 usertime
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expattach -x 6 -c cluster_1,cluster_2,cluster_3 mpi
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expattach -x 6 -c cluster_1,cluster_2,cluster_3 fpe
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expattach -x 6 -c cluster_1,cluster_2,cluster_3 hwc
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expattach -x 6 -c cluster_1,cluster_2,cluster_3 io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expattach -x 6 -c cluster_1,cluster_2,cluster_3 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expattach -x 6
+  
+Command: expAttach
+	Experiment Id: 6
+
+****************************
+expattach -x 6 pcsamp
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+
+****************************
+expattach -x 6 usertime
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+
+****************************
+expattach -x 6 mpi
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+
+****************************
+expattach -x 6 fpe
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+
+****************************
+expattach -x 6 hwc
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+
+****************************
+expattach -x 6 io
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+
+****************************
+expattach -x 6 pcsamp,usertime,mpi,io
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+
+****************************
+expattach -x 6 -h host_1
+    
+Command: expAttach
+	Experiment Id: 6
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expattach -x 6 -h host_1 pcsamp
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expattach -x 6 -h host_1 usertime
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expattach -x 6 -h host_1 mpi
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expattach -x 6 -h host_1 fpe
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expattach -x 6 -h host_1 hwc
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expattach -x 6 -h host_1 io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expattach -x 6 -h host_1 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expattach -x 6 -h host_1,host_2,host_3
+    
+Command: expAttach
+	Experiment Id: 6
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expattach -x 6 -h host_1,host_2,host_3 pcsamp
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expattach -x 6 -h host_1,host_2,host_3 usertime
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expattach -x 6 -h host_1,host_2,host_3 mpi
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expattach -x 6 -h host_1,host_2,host_3 fpe
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expattach -x 6 -h host_1,host_2,host_3 hwc
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expattach -x 6 -h host_1,host_2,host_3 io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expattach -x 6 -h host_1,host_2,host_3 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expattach -x 6 -h 128.064.032.008
+    
+Command: expAttach
+	Experiment Id: 6
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expattach -x 6 -h 128.064.032.008 pcsamp
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expattach -x 6 -h 128.064.032.008 usertime
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expattach -x 6 -h 128.064.032.008 mpi
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expattach -x 6 -h 128.064.032.008 fpe
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expattach -x 6 -h 128.064.032.008 hwc
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expattach -x 6 -h 128.064.032.008 io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expattach -x 6 -h 128.064.032.008 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expattach -x 6 -h 128.064.032.008,032.002.016.128
+    
+Command: expAttach
+	Experiment Id: 6
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expattach -x 6 -h 128.064.032.008,032.002.016.128 pcsamp
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expattach -x 6 -h 128.064.032.008,032.002.016.128 usertime
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expattach -x 6 -h 128.064.032.008,032.002.016.128 mpi
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expattach -x 6 -h 128.064.032.008,032.002.016.128 fpe
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expattach -x 6 -h 128.064.032.008,032.002.016.128 hwc
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expattach -x 6 -h 128.064.032.008,032.002.016.128 io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expattach -x 6 -h 128.064.032.008,032.002.016.128 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expattach -x 6 -h host_1,128.064.032.008,host_2,032.004.016.128
+    
+Command: expAttach
+	Experiment Id: 6
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expattach -x 6 -h host_1,128.064.032.008,host_2,032.004.016.128 pcsamp
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expattach -x 6 -h host_1,128.064.032.008,host_2,032.004.016.128 usertime
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expattach -x 6 -h host_1,128.064.032.008,host_2,032.004.016.128 mpi
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expattach -x 6 -h host_1,128.064.032.008,host_2,032.004.016.128 fpe
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expattach -x 6 -h host_1,128.064.032.008,host_2,032.004.016.128 hwc
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expattach -x 6 -h host_1,128.064.032.008,host_2,032.004.016.128 io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expattach -x 6 -h host_1,128.064.032.008,host_2,032.004.016.128 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expattach -x 6
+  
+Command: expAttach
+	Experiment Id: 6
+
+****************************
+expattach -x 6 pcsamp
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+
+****************************
+expattach -x 6 usertime
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+
+****************************
+expattach -x 6 mpi
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+
+****************************
+expattach -x 6 fpe
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+
+****************************
+expattach -x 6 hwc
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+
+****************************
+expattach -x 6 io
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+
+****************************
+expattach -x 6 pcsamp,usertime,mpi,io
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+
+****************************
+expattach -x 6 -f file_1
+    
+Command: expAttach
+	Experiment Id: 6
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expattach -x 6 -f file_1 pcsamp
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expattach -x 6 -f file_1 usertime
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expattach -x 6 -f file_1 mpi
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expattach -x 6 -f file_1 fpe
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expattach -x 6 -f file_1 hwc
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expattach -x 6 -f file_1 io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expattach -x 6 -f file_1 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expattach -x 6 -f file_1,file_2,file_3
+    
+Command: expAttach
+	Experiment Id: 6
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expattach -x 6 -f file_1,file_2,file_3 pcsamp
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expattach -x 6 -f file_1,file_2,file_3 usertime
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expattach -x 6 -f file_1,file_2,file_3 mpi
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expattach -x 6 -f file_1,file_2,file_3 fpe
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expattach -x 6 -f file_1,file_2,file_3 hwc
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expattach -x 6 -f file_1,file_2,file_3 io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expattach -x 6 -f file_1,file_2,file_3 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expattach -x 6
+  
+Command: expAttach
+	Experiment Id: 6
+
+****************************
+expattach -x 6 pcsamp
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+
+****************************
+expattach -x 6 usertime
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+
+****************************
+expattach -x 6 mpi
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+
+****************************
+expattach -x 6 fpe
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+
+****************************
+expattach -x 6 hwc
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+
+****************************
+expattach -x 6 io
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+
+****************************
+expattach -x 6 pcsamp,usertime,mpi,io
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+
+****************************
+expattach -x 6 -p 888
+    
+Command: expAttach
+	Experiment Id: 6
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expattach -x 6 -p 888 pcsamp
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expattach -x 6 -p 888 usertime
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expattach -x 6 -p 888 mpi
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expattach -x 6 -p 888 fpe
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expattach -x 6 -p 888 hwc
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expattach -x 6 -p 888 io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expattach -x 6 -p 888 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expattach -x 6 -p 888,999,777
+    
+Command: expAttach
+	Experiment Id: 6
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expattach -x 6 -p 888,999,777 pcsamp
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expattach -x 6 -p 888,999,777 usertime
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expattach -x 6 -p 888,999,777 mpi
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expattach -x 6 -p 888,999,777 fpe
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expattach -x 6 -p 888,999,777 hwc
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expattach -x 6 -p 888,999,777 io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expattach -x 6 -p 888,999,777 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expattach -x 6 -p 888:999
+    
+Command: expAttach
+	Experiment Id: 6
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expattach -x 6 -p 888:999 pcsamp
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expattach -x 6 -p 888:999 usertime
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expattach -x 6 -p 888:999 mpi
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expattach -x 6 -p 888:999 fpe
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expattach -x 6 -p 888:999 hwc
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expattach -x 6 -p 888:999 io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expattach -x 6 -p 888:999 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expattach -x 6 -p 777,888:999,666
+    
+Command: expAttach
+	Experiment Id: 6
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expattach -x 6 -p 777,888:999,666 pcsamp
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expattach -x 6 -p 777,888:999,666 usertime
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expattach -x 6 -p 777,888:999,666 mpi
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expattach -x 6 -p 777,888:999,666 fpe
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expattach -x 6 -p 777,888:999,666 hwc
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expattach -x 6 -p 777,888:999,666 io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expattach -x 6 -p 777,888:999,666 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expattach -x 6
+  
+Command: expAttach
+	Experiment Id: 6
+
+****************************
+expattach -x 6 pcsamp
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+
+****************************
+expattach -x 6 usertime
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+
+****************************
+expattach -x 6 mpi
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+
+****************************
+expattach -x 6 fpe
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+
+****************************
+expattach -x 6 hwc
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+
+****************************
+expattach -x 6 io
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+
+****************************
+expattach -x 6 pcsamp,usertime,mpi,io
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+
+****************************
+expattach -x 6 -t 123
+    
+Command: expAttach
+	Experiment Id: 6
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expattach -x 6 -t 123 pcsamp
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expattach -x 6 -t 123 usertime
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expattach -x 6 -t 123 mpi
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expattach -x 6 -t 123 fpe
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expattach -x 6 -t 123 hwc
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expattach -x 6 -t 123 io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expattach -x 6 -t 123 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expattach -x 6 -t 123,456,789
+    
+Command: expAttach
+	Experiment Id: 6
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expattach -x 6 -t 123,456,789 pcsamp
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expattach -x 6 -t 123,456,789 usertime
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expattach -x 6 -t 123,456,789 mpi
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expattach -x 6 -t 123,456,789 fpe
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expattach -x 6 -t 123,456,789 hwc
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expattach -x 6 -t 123,456,789 io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expattach -x 6 -t 123,456,789 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expattach -x 6 -t 123:456
+    
+Command: expAttach
+	Experiment Id: 6
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expattach -x 6 -t 123:456 pcsamp
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expattach -x 6 -t 123:456 usertime
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expattach -x 6 -t 123:456 mpi
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expattach -x 6 -t 123:456 fpe
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expattach -x 6 -t 123:456 hwc
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expattach -x 6 -t 123:456 io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expattach -x 6 -t 123:456 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expattach -x 6 -t 123,456:789,987
+    
+Command: expAttach
+	Experiment Id: 6
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expattach -x 6 -t 123,456:789,987 pcsamp
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expattach -x 6 -t 123,456:789,987 usertime
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expattach -x 6 -t 123,456:789,987 mpi
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expattach -x 6 -t 123,456:789,987 fpe
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expattach -x 6 -t 123,456:789,987 hwc
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expattach -x 6 -t 123,456:789,987 io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expattach -x 6 -t 123,456:789,987 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expattach -x 6
+  
+Command: expAttach
+	Experiment Id: 6
+
+****************************
+expattach -x 6 pcsamp
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+
+****************************
+expattach -x 6 usertime
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+
+****************************
+expattach -x 6 mpi
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+
+****************************
+expattach -x 6 fpe
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+
+****************************
+expattach -x 6 hwc
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+
+****************************
+expattach -x 6 io
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+
+****************************
+expattach -x 6 pcsamp,usertime,mpi,io
+   
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+
+****************************
+expattach -x 6 -r 100
+    
+Command: expAttach
+	Experiment Id: 6
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expattach -x 6 -r 100 pcsamp
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expattach -x 6 -r 100 usertime
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expattach -x 6 -r 100 mpi
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expattach -x 6 -r 100 fpe
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expattach -x 6 -r 100 hwc
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expattach -x 6 -r 100 io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expattach -x 6 -r 100 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expattach -x 6 -r 100,200,500
+    
+Command: expAttach
+	Experiment Id: 6
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expattach -x 6 -r 100,200,500 pcsamp
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expattach -x 6 -r 100,200,500 usertime
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expattach -x 6 -r 100,200,500 mpi
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expattach -x 6 -r 100,200,500 fpe
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expattach -x 6 -r 100,200,500 hwc
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expattach -x 6 -r 100,200,500 io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expattach -x 6 -r 100,200,500 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expattach -x 6 -r 100:200
+    
+Command: expAttach
+	Experiment Id: 6
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expattach -x 6 -r 100:200 pcsamp
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expattach -x 6 -r 100:200 usertime
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expattach -x 6 -r 100:200 mpi
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expattach -x 6 -r 100:200 fpe
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expattach -x 6 -r 100:200 hwc
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expattach -x 6 -r 100:200 io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expattach -x 6 -r 100:200 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expattach -x 6 -r 100,200:500,800
+    
+Command: expAttach
+	Experiment Id: 6
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expattach -x 6 -r 100,200:500,800 pcsamp
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expattach -x 6 -r 100,200:500,800 usertime
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expattach -x 6 -r 100,200:500,800 mpi
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expattach -x 6 -r 100,200:500,800 fpe
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expattach -x 6 -r 100,200:500,800 hwc
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expattach -x 6 -r 100,200:500,800 io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expattach -x 6 -r 100,200:500,800 pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expattach -x 6 -v mpi
+    
+Command: expAttach
+	Experiment Id: 6
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi pcsamp
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi usertime
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi mpi
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi fpe
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi hwc
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi -c cluster_1
+      
+Command: expAttach
+	Experiment Id: 6
+	General Modifier Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expattach -x 6 -v mpi -c cluster_1 pcsamp
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expattach -x 6 -v mpi -c cluster_1 usertime
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expattach -x 6 -v mpi -c cluster_1 mpi
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expattach -x 6 -v mpi -c cluster_1 fpe
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expattach -x 6 -v mpi -c cluster_1 hwc
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expattach -x 6 -v mpi -c cluster_1 io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expattach -x 6 -v mpi -c cluster_1 pcsamp,usertime,mpi,io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+expattach -x 6 -v mpi -c cluster_1,cluster_2,cluster_3
+      
+Command: expAttach
+	Experiment Id: 6
+	General Modifier Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expattach -x 6 -v mpi -c cluster_1,cluster_2,cluster_3 pcsamp
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expattach -x 6 -v mpi -c cluster_1,cluster_2,cluster_3 usertime
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expattach -x 6 -v mpi -c cluster_1,cluster_2,cluster_3 mpi
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expattach -x 6 -v mpi -c cluster_1,cluster_2,cluster_3 fpe
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expattach -x 6 -v mpi -c cluster_1,cluster_2,cluster_3 hwc
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expattach -x 6 -v mpi -c cluster_1,cluster_2,cluster_3 io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expattach -x 6 -v mpi -c cluster_1,cluster_2,cluster_3 pcsamp,usertime,mpi,io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+expattach -x 6 -v mpi
+    
+Command: expAttach
+	Experiment Id: 6
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi pcsamp
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi usertime
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi mpi
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi fpe
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi hwc
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi -h host_1
+      
+Command: expAttach
+	Experiment Id: 6
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expattach -x 6 -v mpi -h host_1 pcsamp
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expattach -x 6 -v mpi -h host_1 usertime
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expattach -x 6 -v mpi -h host_1 mpi
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expattach -x 6 -v mpi -h host_1 fpe
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expattach -x 6 -v mpi -h host_1 hwc
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expattach -x 6 -v mpi -h host_1 io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expattach -x 6 -v mpi -h host_1 pcsamp,usertime,mpi,io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+expattach -x 6 -v mpi -h host_1,host_2,host_3
+      
+Command: expAttach
+	Experiment Id: 6
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expattach -x 6 -v mpi -h host_1,host_2,host_3 pcsamp
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expattach -x 6 -v mpi -h host_1,host_2,host_3 usertime
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expattach -x 6 -v mpi -h host_1,host_2,host_3 mpi
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expattach -x 6 -v mpi -h host_1,host_2,host_3 fpe
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expattach -x 6 -v mpi -h host_1,host_2,host_3 hwc
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expattach -x 6 -v mpi -h host_1,host_2,host_3 io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expattach -x 6 -v mpi -h host_1,host_2,host_3 pcsamp,usertime,mpi,io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+expattach -x 6 -v mpi -h 128.064.032.008
+      
+Command: expAttach
+	Experiment Id: 6
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expattach -x 6 -v mpi -h 128.064.032.008 pcsamp
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expattach -x 6 -v mpi -h 128.064.032.008 usertime
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expattach -x 6 -v mpi -h 128.064.032.008 mpi
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expattach -x 6 -v mpi -h 128.064.032.008 fpe
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expattach -x 6 -v mpi -h 128.064.032.008 hwc
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expattach -x 6 -v mpi -h 128.064.032.008 io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expattach -x 6 -v mpi -h 128.064.032.008 pcsamp,usertime,mpi,io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+expattach -x 6 -v mpi -h 128.064.032.008,032.002.016.128
+      
+Command: expAttach
+	Experiment Id: 6
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expattach -x 6 -v mpi -h 128.064.032.008,032.002.016.128 pcsamp
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expattach -x 6 -v mpi -h 128.064.032.008,032.002.016.128 usertime
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expattach -x 6 -v mpi -h 128.064.032.008,032.002.016.128 mpi
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expattach -x 6 -v mpi -h 128.064.032.008,032.002.016.128 fpe
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expattach -x 6 -v mpi -h 128.064.032.008,032.002.016.128 hwc
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expattach -x 6 -v mpi -h 128.064.032.008,032.002.016.128 io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expattach -x 6 -v mpi -h 128.064.032.008,032.002.016.128 pcsamp,usertime,mpi,io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+expattach -x 6 -v mpi -h host_1,128.064.032.008,host_2,032.004.016.128
+      
+Command: expAttach
+	Experiment Id: 6
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expattach -x 6 -v mpi -h host_1,128.064.032.008,host_2,032.004.016.128 pcsamp
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expattach -x 6 -v mpi -h host_1,128.064.032.008,host_2,032.004.016.128 usertime
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expattach -x 6 -v mpi -h host_1,128.064.032.008,host_2,032.004.016.128 mpi
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expattach -x 6 -v mpi -h host_1,128.064.032.008,host_2,032.004.016.128 fpe
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expattach -x 6 -v mpi -h host_1,128.064.032.008,host_2,032.004.016.128 hwc
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expattach -x 6 -v mpi -h host_1,128.064.032.008,host_2,032.004.016.128 io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expattach -x 6 -v mpi -h host_1,128.064.032.008,host_2,032.004.016.128 pcsamp,usertime,mpi,io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+expattach -x 6 -v mpi
+    
+Command: expAttach
+	Experiment Id: 6
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi pcsamp
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi usertime
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi mpi
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi fpe
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi hwc
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi -f file_1
+      
+Command: expAttach
+	Experiment Id: 6
+	General Modifier Types: mpi 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expattach -x 6 -v mpi -f file_1 pcsamp
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expattach -x 6 -v mpi -f file_1 usertime
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expattach -x 6 -v mpi -f file_1 mpi
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expattach -x 6 -v mpi -f file_1 fpe
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expattach -x 6 -v mpi -f file_1 hwc
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expattach -x 6 -v mpi -f file_1 io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expattach -x 6 -v mpi -f file_1 pcsamp,usertime,mpi,io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expattach -x 6 -v mpi -f file_1,file_2,file_3
+      
+Command: expAttach
+	Experiment Id: 6
+	General Modifier Types: mpi 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expattach -x 6 -v mpi -f file_1,file_2,file_3 pcsamp
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expattach -x 6 -v mpi -f file_1,file_2,file_3 usertime
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expattach -x 6 -v mpi -f file_1,file_2,file_3 mpi
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expattach -x 6 -v mpi -f file_1,file_2,file_3 fpe
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expattach -x 6 -v mpi -f file_1,file_2,file_3 hwc
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expattach -x 6 -v mpi -f file_1,file_2,file_3 io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expattach -x 6 -v mpi -f file_1,file_2,file_3 pcsamp,usertime,mpi,io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+expattach -x 6 -v mpi
+    
+Command: expAttach
+	Experiment Id: 6
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi pcsamp
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi usertime
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi mpi
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi fpe
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi hwc
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi -p 888
+      
+Command: expAttach
+	Experiment Id: 6
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expattach -x 6 -v mpi -p 888 pcsamp
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expattach -x 6 -v mpi -p 888 usertime
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expattach -x 6 -v mpi -p 888 mpi
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expattach -x 6 -v mpi -p 888 fpe
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expattach -x 6 -v mpi -p 888 hwc
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expattach -x 6 -v mpi -p 888 io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expattach -x 6 -v mpi -p 888 pcsamp,usertime,mpi,io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+expattach -x 6 -v mpi -p 888,999,777
+      
+Command: expAttach
+	Experiment Id: 6
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expattach -x 6 -v mpi -p 888,999,777 pcsamp
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expattach -x 6 -v mpi -p 888,999,777 usertime
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expattach -x 6 -v mpi -p 888,999,777 mpi
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expattach -x 6 -v mpi -p 888,999,777 fpe
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expattach -x 6 -v mpi -p 888,999,777 hwc
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expattach -x 6 -v mpi -p 888,999,777 io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expattach -x 6 -v mpi -p 888,999,777 pcsamp,usertime,mpi,io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+expattach -x 6 -v mpi -p 888:999
+      
+Command: expAttach
+	Experiment Id: 6
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expattach -x 6 -v mpi -p 888:999 pcsamp
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expattach -x 6 -v mpi -p 888:999 usertime
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expattach -x 6 -v mpi -p 888:999 mpi
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expattach -x 6 -v mpi -p 888:999 fpe
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expattach -x 6 -v mpi -p 888:999 hwc
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expattach -x 6 -v mpi -p 888:999 io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expattach -x 6 -v mpi -p 888:999 pcsamp,usertime,mpi,io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+expattach -x 6 -v mpi -p 777,888:999,666
+      
+Command: expAttach
+	Experiment Id: 6
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expattach -x 6 -v mpi -p 777,888:999,666 pcsamp
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expattach -x 6 -v mpi -p 777,888:999,666 usertime
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expattach -x 6 -v mpi -p 777,888:999,666 mpi
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expattach -x 6 -v mpi -p 777,888:999,666 fpe
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expattach -x 6 -v mpi -p 777,888:999,666 hwc
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expattach -x 6 -v mpi -p 777,888:999,666 io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expattach -x 6 -v mpi -p 777,888:999,666 pcsamp,usertime,mpi,io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+expattach -x 6 -v mpi
+    
+Command: expAttach
+	Experiment Id: 6
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi pcsamp
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi usertime
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi mpi
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi fpe
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi hwc
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi -t 123
+      
+Command: expAttach
+	Experiment Id: 6
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expattach -x 6 -v mpi -t 123 pcsamp
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expattach -x 6 -v mpi -t 123 usertime
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expattach -x 6 -v mpi -t 123 mpi
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expattach -x 6 -v mpi -t 123 fpe
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expattach -x 6 -v mpi -t 123 hwc
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expattach -x 6 -v mpi -t 123 io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expattach -x 6 -v mpi -t 123 pcsamp,usertime,mpi,io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+expattach -x 6 -v mpi -t 123,456,789
+      
+Command: expAttach
+	Experiment Id: 6
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expattach -x 6 -v mpi -t 123,456,789 pcsamp
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expattach -x 6 -v mpi -t 123,456,789 usertime
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expattach -x 6 -v mpi -t 123,456,789 mpi
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expattach -x 6 -v mpi -t 123,456,789 fpe
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expattach -x 6 -v mpi -t 123,456,789 hwc
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expattach -x 6 -v mpi -t 123,456,789 io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expattach -x 6 -v mpi -t 123,456,789 pcsamp,usertime,mpi,io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+expattach -x 6 -v mpi -t 123:456
+      
+Command: expAttach
+	Experiment Id: 6
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expattach -x 6 -v mpi -t 123:456 pcsamp
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expattach -x 6 -v mpi -t 123:456 usertime
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expattach -x 6 -v mpi -t 123:456 mpi
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expattach -x 6 -v mpi -t 123:456 fpe
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expattach -x 6 -v mpi -t 123:456 hwc
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expattach -x 6 -v mpi -t 123:456 io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expattach -x 6 -v mpi -t 123:456 pcsamp,usertime,mpi,io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+expattach -x 6 -v mpi -t 123,456:789,987
+      
+Command: expAttach
+	Experiment Id: 6
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expattach -x 6 -v mpi -t 123,456:789,987 pcsamp
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expattach -x 6 -v mpi -t 123,456:789,987 usertime
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expattach -x 6 -v mpi -t 123,456:789,987 mpi
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expattach -x 6 -v mpi -t 123,456:789,987 fpe
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expattach -x 6 -v mpi -t 123,456:789,987 hwc
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expattach -x 6 -v mpi -t 123,456:789,987 io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expattach -x 6 -v mpi -t 123,456:789,987 pcsamp,usertime,mpi,io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+expattach -x 6 -v mpi
+    
+Command: expAttach
+	Experiment Id: 6
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi pcsamp
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi usertime
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi mpi
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi fpe
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi hwc
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi pcsamp,usertime,mpi,io
+     
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+
+****************************
+expattach -x 6 -v mpi -r 100
+      
+Command: expAttach
+	Experiment Id: 6
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expattach -x 6 -v mpi -r 100 pcsamp
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expattach -x 6 -v mpi -r 100 usertime
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expattach -x 6 -v mpi -r 100 mpi
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expattach -x 6 -v mpi -r 100 fpe
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expattach -x 6 -v mpi -r 100 hwc
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expattach -x 6 -v mpi -r 100 io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expattach -x 6 -v mpi -r 100 pcsamp,usertime,mpi,io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+expattach -x 6 -v mpi -r 100,200,500
+      
+Command: expAttach
+	Experiment Id: 6
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expattach -x 6 -v mpi -r 100,200,500 pcsamp
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expattach -x 6 -v mpi -r 100,200,500 usertime
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expattach -x 6 -v mpi -r 100,200,500 mpi
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expattach -x 6 -v mpi -r 100,200,500 fpe
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expattach -x 6 -v mpi -r 100,200,500 hwc
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expattach -x 6 -v mpi -r 100,200,500 io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expattach -x 6 -v mpi -r 100,200,500 pcsamp,usertime,mpi,io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+expattach -x 6 -v mpi -r 100:200
+      
+Command: expAttach
+	Experiment Id: 6
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expattach -x 6 -v mpi -r 100:200 pcsamp
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expattach -x 6 -v mpi -r 100:200 usertime
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expattach -x 6 -v mpi -r 100:200 mpi
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expattach -x 6 -v mpi -r 100:200 fpe
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expattach -x 6 -v mpi -r 100:200 hwc
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expattach -x 6 -v mpi -r 100:200 io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expattach -x 6 -v mpi -r 100:200 pcsamp,usertime,mpi,io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+expattach -x 6 -v mpi -r 100,200:500,800
+      
+Command: expAttach
+	Experiment Id: 6
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expattach -x 6 -v mpi -r 100,200:500,800 pcsamp
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expattach -x 6 -v mpi -r 100,200:500,800 usertime
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: usertime 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expattach -x 6 -v mpi -r 100,200:500,800 mpi
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: mpi 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expattach -x 6 -v mpi -r 100,200:500,800 fpe
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: fpe 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expattach -x 6 -v mpi -r 100,200:500,800 hwc
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: hwc 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expattach -x 6 -v mpi -r 100,200:500,800 io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+expattach -x 6 -v mpi -r 100,200:500,800 pcsamp,usertime,mpi,io
+       
+Command: expAttach
+	Experiment Id: 6
+	Experiment Types: pcsamp usertime mpi io 
+	General Modifier Types: mpi 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 

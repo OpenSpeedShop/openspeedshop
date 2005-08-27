@@ -3,18 +3,7 @@
 setenv LD_LIBRARY_PATH /home/jcarter/workarea/bits/lib
 setenv OPENSS_PLUGIN_PATH /home/jcarter/workarea/bits/lib/openspeedshop
 
-g++ test_main.cxx \
-    $OPENSS_PLUGIN_PATH/../libopenss-cli.so \
-    -g -o parser \
-    -I .. \
-    -I ../../base \
-    -I ../../message \
-    -I ../../libopenss-framework \
-    -I ../../objects  >& out.j
-
-    g++ \
-    input.cxx \
-    -o gen_input
+make -f parse_test.make
 
 gen_input 
 

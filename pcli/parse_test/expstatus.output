@@ -1,0 +1,22 @@
+
+****************************
+expstatus
+
+Command: expStatus
+
+****************************
+expstatus -x 6
+  
+Command: expStatus
+	Experiment Id: 6
+
+****************************
+expstatus
+
+Command: expStatus
+
+****************************
+expstatus -v all
+  
+Command: expStatus
+	General Modifier Types: all 

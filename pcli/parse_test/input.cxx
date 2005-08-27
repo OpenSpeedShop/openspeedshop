@@ -281,6 +281,23 @@ arglist_t metric_arg[METRIC_MAX] = {
 //*************************************************************
 
 
+char *param_list[] = {
+    NULL,
+    "pcsamp::parmtype_1=parmval_1",
+    "usertime::parmtype_1=parmval_1,hwc::parmtype_2=parmval_2",
+    "parmtype_1=parmval_1",
+    "parmtype_1=parmval_1,parmtype_2=parmval_2",
+    "parmtype_1=parmval_1,parmtype_2=parmval_2,parmtype_3=parmval_3"
+};
+
+#define PARAM_MAX 1
+arglist_t param_arg[PARAM_MAX] = {
+    6,param_list,NULL
+};
+
+//*************************************************************
+
+
 char *lineno_list[] = {
     NULL,
     "27",
@@ -763,8 +780,21 @@ main()
 
     dump_close_output(p_os);
 
-    // EXPVIEW
-    	    	/* NOT DONE YET! */
+    // EXPSETPARAM
+    p_os = open_output("expsetparam.input");
+    two_level ("expsetparam",
+    	    	0,EXPID_MAX,exp_id_arg,
+    	    	0,PARAM_MAX,param_arg
+    	    	);
+
+    dump_close_output(p_os);
+
+    // EXPSTATUS
+    p_os = open_output("expstatus.input");
+    one_level("expstatus",0,EXPID_MAX,exp_id_arg);
+    one_level("expstatus",0,ALL_MAX,all_arg);
+
+    dump_close_output(p_os);
 
     // EXPVIEW
     p_os = open_output("expview.input");
@@ -800,9 +830,37 @@ main()
 
     dump_close_output(p_os);
 
+    // LISTMETRICS
+    p_os = open_output("listmetrics.input");
+    one_level("listmetrics",
+    	    	0,EXPID_MAX,exp_id_arg
+    	    	);
+    one_level("listmetrics",
+    	    	0,ALL_MAX,all_arg
+    	    	);
+    one_level("listmetrics",
+    	    	0,EXPTYPE_MAX,exptype_arg
+    	    	);
+
+    dump_close_output(p_os);
+
     // LISTOBJ
     p_os = open_output("listobj.input");
     two_level("listobj",0,EXPID_MAX,exp_id_arg,0,TARGET_MAX,target_arg);
+
+    dump_close_output(p_os);
+
+    // LISTPARAMS
+    p_os = open_output("listparams.input");
+    one_level("listparams",
+    	    	0,EXPID_MAX,exp_id_arg
+    	    	);
+    one_level("listparams",
+    	    	0,ALL_MAX,all_arg
+    	    	);
+    one_level("listparams",
+    	    	0,EXPTYPE_MAX,exptype_arg
+    	    	);
 
     dump_close_output(p_os);
 
@@ -815,22 +873,6 @@ main()
     	    	0,EXPID_MAX,exp_id_arg,
 		0,HOST_1_MAX,host_1_arg,
 		1,FILE_1_MAX,file_1_arg);
-
-    dump_close_output(p_os);
-
-    // LISTMETRICS
-    p_os = open_output("listmetrics.input");
-    one_level("listmetrics",0,EXPID_MAX,exp_id_arg);
-    one_level("listmetrics",0,ALL_MAX,all_arg);
-    one_level("listmetrics",0,EXPTYPE_MAX,exptype_arg);
-
-    dump_close_output(p_os);
-
-    // LISTPARAMS
-    p_os = open_output("listparams.input");
-    one_level("listparams",0,EXPID_MAX,exp_id_arg);
-    one_level("listparams",0,ALL_MAX,all_arg);
-    one_level("listparams",0,EXPTYPE_MAX,exptype_arg);
 
     dump_close_output(p_os);
 

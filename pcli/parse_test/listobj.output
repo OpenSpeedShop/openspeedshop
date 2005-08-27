@@ -1,0 +1,381 @@
+
+****************************
+listobj
+
+Command: listObj
+
+****************************
+listobj -c cluster_1
+  
+Command: listObj
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+listobj -c cluster_1,cluster_2,cluster_3
+  
+Command: listObj
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+listobj
+
+Command: listObj
+
+****************************
+listobj -h host_1
+  
+Command: listObj
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+listobj -h host_1,host_2,host_3
+  
+Command: listObj
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+listobj -h 128.064.032.008
+  
+Command: listObj
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+listobj -h 128.064.032.008,032.002.016.128
+  
+Command: listObj
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+listobj -h host_1,128.064.032.008,host_2,032.004.016.128
+  
+Command: listObj
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+listobj
+
+Command: listObj
+
+****************************
+listobj -f file_1
+  
+Command: listObj
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+listobj -f file_1,file_2,file_3
+  
+Command: listObj
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+listobj
+
+Command: listObj
+
+****************************
+listobj -p 888
+  
+Command: listObj
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+listobj -p 888,999,777
+  
+Command: listObj
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+listobj -p 888:999
+  
+Command: listObj
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+listobj -p 777,888:999,666
+  
+Command: listObj
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+listobj
+
+Command: listObj
+
+****************************
+listobj -t 123
+  
+Command: listObj
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+listobj -t 123,456,789
+  
+Command: listObj
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+listobj -t 123:456
+  
+Command: listObj
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+listobj -t 123,456:789,987
+  
+Command: listObj
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+listobj
+
+Command: listObj
+
+****************************
+listobj -r 100
+  
+Command: listObj
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+listobj -r 100,200,500
+  
+Command: listObj
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+listobj -r 100:200
+  
+Command: listObj
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+listobj -r 100,200:500,800
+  
+Command: listObj
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+listobj -x 6
+  
+Command: listObj
+	Experiment Id: 6
+
+****************************
+listobj -x 6 -c cluster_1
+    
+Command: listObj
+	Experiment Id: 6
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+listobj -x 6 -c cluster_1,cluster_2,cluster_3
+    
+Command: listObj
+	Experiment Id: 6
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+listobj -x 6
+  
+Command: listObj
+	Experiment Id: 6
+
+****************************
+listobj -x 6 -h host_1
+    
+Command: listObj
+	Experiment Id: 6
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+listobj -x 6 -h host_1,host_2,host_3
+    
+Command: listObj
+	Experiment Id: 6
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+listobj -x 6 -h 128.064.032.008
+    
+Command: listObj
+	Experiment Id: 6
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+listobj -x 6 -h 128.064.032.008,032.002.016.128
+    
+Command: listObj
+	Experiment Id: 6
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+listobj -x 6 -h host_1,128.064.032.008,host_2,032.004.016.128
+    
+Command: listObj
+	Experiment Id: 6
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+listobj -x 6
+  
+Command: listObj
+	Experiment Id: 6
+
+****************************
+listobj -x 6 -f file_1
+    
+Command: listObj
+	Experiment Id: 6
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+listobj -x 6 -f file_1,file_2,file_3
+    
+Command: listObj
+	Experiment Id: 6
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+listobj -x 6
+  
+Command: listObj
+	Experiment Id: 6
+
+****************************
+listobj -x 6 -p 888
+    
+Command: listObj
+	Experiment Id: 6
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+listobj -x 6 -p 888,999,777
+    
+Command: listObj
+	Experiment Id: 6
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+listobj -x 6 -p 888:999
+    
+Command: listObj
+	Experiment Id: 6
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+listobj -x 6 -p 777,888:999,666
+    
+Command: listObj
+	Experiment Id: 6
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+listobj -x 6
+  
+Command: listObj
+	Experiment Id: 6
+
+****************************
+listobj -x 6 -t 123
+    
+Command: listObj
+	Experiment Id: 6
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+listobj -x 6 -t 123,456,789
+    
+Command: listObj
+	Experiment Id: 6
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+listobj -x 6 -t 123:456
+    
+Command: listObj
+	Experiment Id: 6
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+listobj -x 6 -t 123,456:789,987
+    
+Command: listObj
+	Experiment Id: 6
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+listobj -x 6
+  
+Command: listObj
+	Experiment Id: 6
+
+****************************
+listobj -x 6 -r 100
+    
+Command: listObj
+	Experiment Id: 6
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+listobj -x 6 -r 100,200,500
+    
+Command: listObj
+	Experiment Id: 6
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+listobj -x 6 -r 100:200
+    
+Command: listObj
+	Experiment Id: 6
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+listobj -x 6 -r 100,200:500,800
+    
+Command: listObj
+	Experiment Id: 6
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 

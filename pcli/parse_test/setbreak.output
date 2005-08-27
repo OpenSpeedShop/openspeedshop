@@ -1,0 +1,870 @@
+
+****************************
+setbreak 0x33567
+ 
+Command: setBreak
+		ADDRESSES: 0 
+
+****************************
+setbreak func1
+ 
+Command: setBreak
+		ADDRESSES: func1 
+
+****************************
+setbreak -c cluster_1 0x33567
+   
+Command: setBreak
+		ADDRESSES: 0 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+setbreak -c cluster_1 func1
+   
+Command: setBreak
+		ADDRESSES: func1 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+setbreak -c cluster_1,cluster_2,cluster_3 0x33567
+   
+Command: setBreak
+		ADDRESSES: 0 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+setbreak -c cluster_1,cluster_2,cluster_3 func1
+   
+Command: setBreak
+		ADDRESSES: func1 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+setbreak 0x33567
+ 
+Command: setBreak
+		ADDRESSES: 0 
+
+****************************
+setbreak func1
+ 
+Command: setBreak
+		ADDRESSES: func1 
+
+****************************
+setbreak -h host_1 0x33567
+   
+Command: setBreak
+		ADDRESSES: 0 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+setbreak -h host_1 func1
+   
+Command: setBreak
+		ADDRESSES: func1 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+setbreak -h host_1,host_2,host_3 0x33567
+   
+Command: setBreak
+		ADDRESSES: 0 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+setbreak -h host_1,host_2,host_3 func1
+   
+Command: setBreak
+		ADDRESSES: func1 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+setbreak -h 128.064.032.008 0x33567
+   
+Command: setBreak
+		ADDRESSES: 0 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+setbreak -h 128.064.032.008 func1
+   
+Command: setBreak
+		ADDRESSES: func1 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+setbreak -h 128.064.032.008,032.002.016.128 0x33567
+   
+Command: setBreak
+		ADDRESSES: 0 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+setbreak -h 128.064.032.008,032.002.016.128 func1
+   
+Command: setBreak
+		ADDRESSES: func1 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+setbreak -h host_1,128.064.032.008,host_2,032.004.016.128 0x33567
+   
+Command: setBreak
+		ADDRESSES: 0 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+setbreak -h host_1,128.064.032.008,host_2,032.004.016.128 func1
+   
+Command: setBreak
+		ADDRESSES: func1 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+setbreak 0x33567
+ 
+Command: setBreak
+		ADDRESSES: 0 
+
+****************************
+setbreak func1
+ 
+Command: setBreak
+		ADDRESSES: func1 
+
+****************************
+setbreak -f file_1 0x33567
+   
+Command: setBreak
+		ADDRESSES: 0 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+setbreak -f file_1 func1
+   
+Command: setBreak
+		ADDRESSES: func1 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+setbreak -f file_1,file_2,file_3 0x33567
+   
+Command: setBreak
+		ADDRESSES: 0 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+setbreak -f file_1,file_2,file_3 func1
+   
+Command: setBreak
+		ADDRESSES: func1 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+setbreak 0x33567
+ 
+Command: setBreak
+		ADDRESSES: 0 
+
+****************************
+setbreak func1
+ 
+Command: setBreak
+		ADDRESSES: func1 
+
+****************************
+setbreak -p 888 0x33567
+   
+Command: setBreak
+		ADDRESSES: 0 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+setbreak -p 888 func1
+   
+Command: setBreak
+		ADDRESSES: func1 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+setbreak -p 888,999,777 0x33567
+   
+Command: setBreak
+		ADDRESSES: 0 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+setbreak -p 888,999,777 func1
+   
+Command: setBreak
+		ADDRESSES: func1 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+setbreak -p 888:999 0x33567
+   
+Command: setBreak
+		ADDRESSES: 0 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+setbreak -p 888:999 func1
+   
+Command: setBreak
+		ADDRESSES: func1 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+setbreak -p 777,888:999,666 0x33567
+   
+Command: setBreak
+		ADDRESSES: 0 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+setbreak -p 777,888:999,666 func1
+   
+Command: setBreak
+		ADDRESSES: func1 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+setbreak 0x33567
+ 
+Command: setBreak
+		ADDRESSES: 0 
+
+****************************
+setbreak func1
+ 
+Command: setBreak
+		ADDRESSES: func1 
+
+****************************
+setbreak -t 123 0x33567
+   
+Command: setBreak
+		ADDRESSES: 0 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+setbreak -t 123 func1
+   
+Command: setBreak
+		ADDRESSES: func1 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+setbreak -t 123,456,789 0x33567
+   
+Command: setBreak
+		ADDRESSES: 0 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+setbreak -t 123,456,789 func1
+   
+Command: setBreak
+		ADDRESSES: func1 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+setbreak -t 123:456 0x33567
+   
+Command: setBreak
+		ADDRESSES: 0 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+setbreak -t 123:456 func1
+   
+Command: setBreak
+		ADDRESSES: func1 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+setbreak -t 123,456:789,987 0x33567
+   
+Command: setBreak
+		ADDRESSES: 0 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+setbreak -t 123,456:789,987 func1
+   
+Command: setBreak
+		ADDRESSES: func1 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+setbreak 0x33567
+ 
+Command: setBreak
+		ADDRESSES: 0 
+
+****************************
+setbreak func1
+ 
+Command: setBreak
+		ADDRESSES: func1 
+
+****************************
+setbreak -r 100 0x33567
+   
+Command: setBreak
+		ADDRESSES: 0 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+setbreak -r 100 func1
+   
+Command: setBreak
+		ADDRESSES: func1 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+setbreak -r 100,200,500 0x33567
+   
+Command: setBreak
+		ADDRESSES: 0 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+setbreak -r 100,200,500 func1
+   
+Command: setBreak
+		ADDRESSES: func1 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+setbreak -r 100:200 0x33567
+   
+Command: setBreak
+		ADDRESSES: 0 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+setbreak -r 100:200 func1
+   
+Command: setBreak
+		ADDRESSES: func1 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+setbreak -r 100,200:500,800 0x33567
+   
+Command: setBreak
+		ADDRESSES: 0 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+setbreak -r 100,200:500,800 func1
+   
+Command: setBreak
+		ADDRESSES: func1 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+setbreak -x 6 0x33567
+   
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: 0 
+
+****************************
+setbreak -x 6 func1
+   
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: func1 
+
+****************************
+setbreak -x 6 -c cluster_1 0x33567
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: 0 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+setbreak -x 6 -c cluster_1 func1
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: func1 
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+setbreak -x 6 -c cluster_1,cluster_2,cluster_3 0x33567
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: 0 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+setbreak -x 6 -c cluster_1,cluster_2,cluster_3 func1
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: func1 
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+setbreak -x 6 0x33567
+   
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: 0 
+
+****************************
+setbreak -x 6 func1
+   
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: func1 
+
+****************************
+setbreak -x 6 -h host_1 0x33567
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: 0 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+setbreak -x 6 -h host_1 func1
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: func1 
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+setbreak -x 6 -h host_1,host_2,host_3 0x33567
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: 0 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+setbreak -x 6 -h host_1,host_2,host_3 func1
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: func1 
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+setbreak -x 6 -h 128.064.032.008 0x33567
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: 0 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+setbreak -x 6 -h 128.064.032.008 func1
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: func1 
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+setbreak -x 6 -h 128.064.032.008,032.002.016.128 0x33567
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: 0 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+setbreak -x 6 -h 128.064.032.008,032.002.016.128 func1
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: func1 
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+setbreak -x 6 -h host_1,128.064.032.008,host_2,032.004.016.128 0x33567
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: 0 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+setbreak -x 6 -h host_1,128.064.032.008,host_2,032.004.016.128 func1
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: func1 
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+setbreak -x 6 0x33567
+   
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: 0 
+
+****************************
+setbreak -x 6 func1
+   
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: func1 
+
+****************************
+setbreak -x 6 -f file_1 0x33567
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: 0 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+setbreak -x 6 -f file_1 func1
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: func1 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+setbreak -x 6 -f file_1,file_2,file_3 0x33567
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: 0 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+setbreak -x 6 -f file_1,file_2,file_3 func1
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: func1 
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+setbreak -x 6 0x33567
+   
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: 0 
+
+****************************
+setbreak -x 6 func1
+   
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: func1 
+
+****************************
+setbreak -x 6 -p 888 0x33567
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: 0 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+setbreak -x 6 -p 888 func1
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: func1 
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+setbreak -x 6 -p 888,999,777 0x33567
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: 0 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+setbreak -x 6 -p 888,999,777 func1
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: func1 
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+setbreak -x 6 -p 888:999 0x33567
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: 0 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+setbreak -x 6 -p 888:999 func1
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: func1 
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+setbreak -x 6 -p 777,888:999,666 0x33567
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: 0 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+setbreak -x 6 -p 777,888:999,666 func1
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: func1 
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+setbreak -x 6 0x33567
+   
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: 0 
+
+****************************
+setbreak -x 6 func1
+   
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: func1 
+
+****************************
+setbreak -x 6 -t 123 0x33567
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: 0 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+setbreak -x 6 -t 123 func1
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: func1 
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+setbreak -x 6 -t 123,456,789 0x33567
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: 0 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+setbreak -x 6 -t 123,456,789 func1
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: func1 
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+setbreak -x 6 -t 123:456 0x33567
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: 0 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+setbreak -x 6 -t 123:456 func1
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: func1 
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+setbreak -x 6 -t 123,456:789,987 0x33567
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: 0 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+setbreak -x 6 -t 123,456:789,987 func1
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: func1 
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+setbreak -x 6 0x33567
+   
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: 0 
+
+****************************
+setbreak -x 6 func1
+   
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: func1 
+
+****************************
+setbreak -x 6 -r 100 0x33567
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: 0 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+setbreak -x 6 -r 100 func1
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: func1 
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+setbreak -x 6 -r 100,200,500 0x33567
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: 0 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+setbreak -x 6 -r 100,200,500 func1
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: func1 
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+setbreak -x 6 -r 100:200 0x33567
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: 0 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+setbreak -x 6 -r 100:200 func1
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: func1 
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+setbreak -x 6 -r 100,200:500,800 0x33567
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: 0 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+setbreak -x 6 -r 100,200:500,800 func1
+     
+Command: setBreak
+	Experiment Id: 6
+		ADDRESSES: func1 
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 

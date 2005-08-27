@@ -1,0 +1,32 @@
+
+****************************
+expsave -f file_1
+  
+Command: expSave
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expsave -v copy -f file_1
+    
+Command: expSave
+	General Modifier Types: copy 
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expsave -x 6 -f file_1
+    
+Command: expSave
+	Experiment Id: 6
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+expsave -x 6 -v copy -f file_1
+      
+Command: expSave
+	Experiment Id: 6
+	General Modifier Types: copy 
+	Target #1 : 
+		FILE: file_1 

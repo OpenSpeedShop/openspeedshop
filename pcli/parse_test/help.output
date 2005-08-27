@@ -1,0 +1,158 @@
+
+****************************
+help
+
+Command: help
+
+****************************
+help expcreate
+ 
+Command: help
+	Help Keywords: expCreate 
+
+****************************
+help expCreate
+ 
+Command: help
+	Help Keywords: expCreate 
+
+****************************
+help PcSaMp
+ 
+Command: help
+	Help Keywords: PcSaMp 
+
+****************************
+help -v brief
+  
+Command: help
+	General Modifier Types: brief 
+
+****************************
+help -v brief expcreate
+   
+Command: help
+	Help Keywords: expCreate 
+	General Modifier Types: brief 
+
+****************************
+help -v brief expCreate
+   
+Command: help
+	Help Keywords: expCreate 
+	General Modifier Types: brief 
+
+****************************
+help -v brief PcSaMp
+   
+Command: help
+	Help Keywords: PcSaMp 
+	General Modifier Types: brief 
+
+****************************
+help -v normal
+  
+Command: help
+	General Modifier Types: normal 
+
+****************************
+help -v normal expcreate
+   
+Command: help
+	Help Keywords: expCreate 
+	General Modifier Types: normal 
+
+****************************
+help -v normal expCreate
+   
+Command: help
+	Help Keywords: expCreate 
+	General Modifier Types: normal 
+
+****************************
+help -v normal PcSaMp
+   
+Command: help
+	Help Keywords: PcSaMp 
+	General Modifier Types: normal 
+
+****************************
+help -v detailed
+  
+Command: help
+	General Modifier Types: detailed 
+
+****************************
+help -v detailed expcreate
+   
+Command: help
+	Help Keywords: expCreate 
+	General Modifier Types: detailed 
+
+****************************
+help -v detailed expCreate
+   
+Command: help
+	Help Keywords: expCreate 
+	General Modifier Types: detailed 
+
+****************************
+help -v detailed PcSaMp
+   
+Command: help
+	Help Keywords: PcSaMp 
+	General Modifier Types: detailed 
+
+****************************
+help -v brief,examples
+  
+Command: help
+	General Modifier Types: brief examples 
+
+****************************
+help -v brief,examples expcreate
+   
+Command: help
+	Help Keywords: expCreate 
+	General Modifier Types: brief examples 
+
+****************************
+help -v brief,examples expCreate
+   
+Command: help
+	Help Keywords: expCreate 
+	General Modifier Types: brief examples 
+
+****************************
+help -v brief,examples PcSaMp
+   
+Command: help
+	Help Keywords: PcSaMp 
+	General Modifier Types: brief examples 
+
+****************************
+help -v normal,examples,grammar
+  
+Command: help
+	General Modifier Types: normal examples grammar 
+
+****************************
+help -v normal,examples,grammar expcreate
+   
+Command: help
+	Help Keywords: expCreate 
+	General Modifier Types: normal examples grammar 
+
+****************************
+help -v normal,examples,grammar expCreate
+   
+Command: help
+	Help Keywords: expCreate 
+	General Modifier Types: normal examples grammar 
+
+****************************
+help -v normal,examples,grammar PcSaMp
+   
+Command: help
+	Help Keywords: PcSaMp 
+	General Modifier Types: normal examples grammar 

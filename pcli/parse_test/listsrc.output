@@ -1,0 +1,381 @@
+
+****************************
+listsrc
+
+Command: listSrc
+
+****************************
+listsrc -c cluster_1
+  
+Command: listSrc
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+listsrc -c cluster_1,cluster_2,cluster_3
+  
+Command: listSrc
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+listsrc
+
+Command: listSrc
+
+****************************
+listsrc -h host_1
+  
+Command: listSrc
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+listsrc -h host_1,host_2,host_3
+  
+Command: listSrc
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+listsrc -h 128.064.032.008
+  
+Command: listSrc
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+listsrc -h 128.064.032.008,032.002.016.128
+  
+Command: listSrc
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+listsrc -h host_1,128.064.032.008,host_2,032.004.016.128
+  
+Command: listSrc
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+listsrc
+
+Command: listSrc
+
+****************************
+listsrc -f file_1
+  
+Command: listSrc
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+listsrc -f file_1,file_2,file_3
+  
+Command: listSrc
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+listsrc
+
+Command: listSrc
+
+****************************
+listsrc -p 888
+  
+Command: listSrc
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+listsrc -p 888,999,777
+  
+Command: listSrc
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+listsrc -p 888:999
+  
+Command: listSrc
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+listsrc -p 777,888:999,666
+  
+Command: listSrc
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+listsrc
+
+Command: listSrc
+
+****************************
+listsrc -t 123
+  
+Command: listSrc
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+listsrc -t 123,456,789
+  
+Command: listSrc
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+listsrc -t 123:456
+  
+Command: listSrc
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+listsrc -t 123,456:789,987
+  
+Command: listSrc
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+listsrc
+
+Command: listSrc
+
+****************************
+listsrc -r 100
+  
+Command: listSrc
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+listsrc -r 100,200,500
+  
+Command: listSrc
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+listsrc -r 100:200
+  
+Command: listSrc
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+listsrc -r 100,200:500,800
+  
+Command: listSrc
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+listsrc -x 6
+  
+Command: listSrc
+	Experiment Id: 6
+
+****************************
+listsrc -x 6 -c cluster_1
+    
+Command: listSrc
+	Experiment Id: 6
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+listsrc -x 6 -c cluster_1,cluster_2,cluster_3
+    
+Command: listSrc
+	Experiment Id: 6
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+listsrc -x 6
+  
+Command: listSrc
+	Experiment Id: 6
+
+****************************
+listsrc -x 6 -h host_1
+    
+Command: listSrc
+	Experiment Id: 6
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+listsrc -x 6 -h host_1,host_2,host_3
+    
+Command: listSrc
+	Experiment Id: 6
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+listsrc -x 6 -h 128.064.032.008
+    
+Command: listSrc
+	Experiment Id: 6
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+listsrc -x 6 -h 128.064.032.008,032.002.016.128
+    
+Command: listSrc
+	Experiment Id: 6
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+listsrc -x 6 -h host_1,128.064.032.008,host_2,032.004.016.128
+    
+Command: listSrc
+	Experiment Id: 6
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+listsrc -x 6
+  
+Command: listSrc
+	Experiment Id: 6
+
+****************************
+listsrc -x 6 -f file_1
+    
+Command: listSrc
+	Experiment Id: 6
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+listsrc -x 6 -f file_1,file_2,file_3
+    
+Command: listSrc
+	Experiment Id: 6
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+listsrc -x 6
+  
+Command: listSrc
+	Experiment Id: 6
+
+****************************
+listsrc -x 6 -p 888
+    
+Command: listSrc
+	Experiment Id: 6
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+listsrc -x 6 -p 888,999,777
+    
+Command: listSrc
+	Experiment Id: 6
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+listsrc -x 6 -p 888:999
+    
+Command: listSrc
+	Experiment Id: 6
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+listsrc -x 6 -p 777,888:999,666
+    
+Command: listSrc
+	Experiment Id: 6
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+listsrc -x 6
+  
+Command: listSrc
+	Experiment Id: 6
+
+****************************
+listsrc -x 6 -t 123
+    
+Command: listSrc
+	Experiment Id: 6
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+listsrc -x 6 -t 123,456,789
+    
+Command: listSrc
+	Experiment Id: 6
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+listsrc -x 6 -t 123:456
+    
+Command: listSrc
+	Experiment Id: 6
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+listsrc -x 6 -t 123,456:789,987
+    
+Command: listSrc
+	Experiment Id: 6
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+listsrc -x 6
+  
+Command: listSrc
+	Experiment Id: 6
+
+****************************
+listsrc -x 6 -r 100
+    
+Command: listSrc
+	Experiment Id: 6
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+listsrc -x 6 -r 100,200,500
+    
+Command: listSrc
+	Experiment Id: 6
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+listsrc -x 6 -r 100:200
+    
+Command: listSrc
+	Experiment Id: 6
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+listsrc -x 6 -r 100,200:500,800
+    
+Command: listSrc
+	Experiment Id: 6
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 

@@ -1,0 +1,381 @@
+
+****************************
+listranks
+
+Command: listRanks
+
+****************************
+listranks -c cluster_1
+  
+Command: listRanks
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+listranks -c cluster_1,cluster_2,cluster_3
+  
+Command: listRanks
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+listranks
+
+Command: listRanks
+
+****************************
+listranks -h host_1
+  
+Command: listRanks
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+listranks -h host_1,host_2,host_3
+  
+Command: listRanks
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+listranks -h 128.064.032.008
+  
+Command: listRanks
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+listranks -h 128.064.032.008,032.002.016.128
+  
+Command: listRanks
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+listranks -h host_1,128.064.032.008,host_2,032.004.016.128
+  
+Command: listRanks
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+listranks
+
+Command: listRanks
+
+****************************
+listranks -f file_1
+  
+Command: listRanks
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+listranks -f file_1,file_2,file_3
+  
+Command: listRanks
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+listranks
+
+Command: listRanks
+
+****************************
+listranks -p 888
+  
+Command: listRanks
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+listranks -p 888,999,777
+  
+Command: listRanks
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+listranks -p 888:999
+  
+Command: listRanks
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+listranks -p 777,888:999,666
+  
+Command: listRanks
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+listranks
+
+Command: listRanks
+
+****************************
+listranks -t 123
+  
+Command: listRanks
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+listranks -t 123,456,789
+  
+Command: listRanks
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+listranks -t 123:456
+  
+Command: listRanks
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+listranks -t 123,456:789,987
+  
+Command: listRanks
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+listranks
+
+Command: listRanks
+
+****************************
+listranks -r 100
+  
+Command: listRanks
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+listranks -r 100,200,500
+  
+Command: listRanks
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+listranks -r 100:200
+  
+Command: listRanks
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+listranks -r 100,200:500,800
+  
+Command: listRanks
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
+
+****************************
+listranks -x 6
+  
+Command: listRanks
+	Experiment Id: 6
+
+****************************
+listranks -x 6 -c cluster_1
+    
+Command: listRanks
+	Experiment Id: 6
+	Target #1 : 
+		CLUSTER: cluster_1 
+
+****************************
+listranks -x 6 -c cluster_1,cluster_2,cluster_3
+    
+Command: listRanks
+	Experiment Id: 6
+	Target #1 : 
+		CLUSTER: cluster_1 cluster_2 cluster_3 
+
+****************************
+listranks -x 6
+  
+Command: listRanks
+	Experiment Id: 6
+
+****************************
+listranks -x 6 -h host_1
+    
+Command: listRanks
+	Experiment Id: 6
+	Target #1 : 
+		HOST: host_1 
+
+****************************
+listranks -x 6 -h host_1,host_2,host_3
+    
+Command: listRanks
+	Experiment Id: 6
+	Target #1 : 
+		HOST: host_1 host_2 host_3 
+
+****************************
+listranks -x 6 -h 128.064.032.008
+    
+Command: listRanks
+	Experiment Id: 6
+	Target #1 : 
+		HOST: 0x80402008 
+
+****************************
+listranks -x 6 -h 128.064.032.008,032.002.016.128
+    
+Command: listRanks
+	Experiment Id: 6
+	Target #1 : 
+		HOST: 0x80402008 0x20021080 
+
+****************************
+listranks -x 6 -h host_1,128.064.032.008,host_2,032.004.016.128
+    
+Command: listRanks
+	Experiment Id: 6
+	Target #1 : 
+		HOST: host_1 0x80402008 host_2 0x20041080 
+
+****************************
+listranks -x 6
+  
+Command: listRanks
+	Experiment Id: 6
+
+****************************
+listranks -x 6 -f file_1
+    
+Command: listRanks
+	Experiment Id: 6
+	Target #1 : 
+		FILE: file_1 
+
+****************************
+listranks -x 6 -f file_1,file_2,file_3
+    
+Command: listRanks
+	Experiment Id: 6
+	Target #1 : 
+		FILE: file_1 file_2 file_3 
+
+****************************
+listranks -x 6
+  
+Command: listRanks
+	Experiment Id: 6
+
+****************************
+listranks -x 6 -p 888
+    
+Command: listRanks
+	Experiment Id: 6
+	Target #1 : 
+		PID: 888:888 
+
+****************************
+listranks -x 6 -p 888,999,777
+    
+Command: listRanks
+	Experiment Id: 6
+	Target #1 : 
+		PID: 888:888 999:999 777:777 
+
+****************************
+listranks -x 6 -p 888:999
+    
+Command: listRanks
+	Experiment Id: 6
+	Target #1 : 
+		PID: 888:999 
+
+****************************
+listranks -x 6 -p 777,888:999,666
+    
+Command: listRanks
+	Experiment Id: 6
+	Target #1 : 
+		PID: 777:777 888:999 666:666 
+
+****************************
+listranks -x 6
+  
+Command: listRanks
+	Experiment Id: 6
+
+****************************
+listranks -x 6 -t 123
+    
+Command: listRanks
+	Experiment Id: 6
+	Target #1 : 
+		THREAD: 123:123 
+
+****************************
+listranks -x 6 -t 123,456,789
+    
+Command: listRanks
+	Experiment Id: 6
+	Target #1 : 
+		THREAD: 123:123 456:456 789:789 
+
+****************************
+listranks -x 6 -t 123:456
+    
+Command: listRanks
+	Experiment Id: 6
+	Target #1 : 
+		THREAD: 123:456 
+
+****************************
+listranks -x 6 -t 123,456:789,987
+    
+Command: listRanks
+	Experiment Id: 6
+	Target #1 : 
+		THREAD: 123:123 456:789 987:987 
+
+****************************
+listranks -x 6
+  
+Command: listRanks
+	Experiment Id: 6
+
+****************************
+listranks -x 6 -r 100
+    
+Command: listRanks
+	Experiment Id: 6
+	Target #1 : 
+		RANK: 100:100 
+
+****************************
+listranks -x 6 -r 100,200,500
+    
+Command: listRanks
+	Experiment Id: 6
+	Target #1 : 
+		RANK: 100:100 200:200 500:500 
+
+****************************
+listranks -x 6 -r 100:200
+    
+Command: listRanks
+	Experiment Id: 6
+	Target #1 : 
+		RANK: 100:200 
+
+****************************
+listranks -x 6 -r 100,200:500,800
+    
+Command: listRanks
+	Experiment Id: 6
+	Target #1 : 
+		RANK: 100:100 200:500 800:800 
