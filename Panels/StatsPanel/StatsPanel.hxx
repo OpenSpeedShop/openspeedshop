@@ -53,8 +53,8 @@ class QFile;
 #include <qvaluelist.h>
 typedef QValueList<QString> ColumnList;
 
-typedef std::pair<std::string, double> item_type;
 typedef std::pair<Function, double> Function_double_pair;
+typedef std::pair<Function, unsigned int> Function_uint_pair;
 
 #include <qsettings.h>
 
@@ -119,6 +119,8 @@ QString optionalMetricStr;
     void itemSelected( QListViewItem * );
     void itemSelected( int );
     void sortColumn( int );
+    void sortUintColumn( int );
+    void sortDoubleColumn( int );
     void doOption(int id);
     void exportData();
     void details();
@@ -137,6 +139,8 @@ QString optionalMetricStr;
 
   private:
     bool matchSelectedItem( std::string function_name );
+    bool matchDoubleSelectedItem( std::string function_name );
+    bool matchUIntSelectedItem( std::string function_name );
 
     void clearSourceFile(int expID);
 
@@ -147,13 +151,20 @@ QString optionalMetricStr;
     double TotalTime;
     void putItem(std::vector<Function_double_pair> *item);
 
-    SmartPtr<std::map<Function, double> > orig_data;
-    std::vector<Function_double_pair> topNsorted_items;
-    std::vector<Function_double_pair> sorted_items;
-    SmartPtr<std::map<int, double> > orig_statement_data;
+    SmartPtr<std::map<Function, double> > orig_double_data;
+    std::vector<Function_double_pair> topNsorted_double_items;
+    std::vector<Function_double_pair> sorted_double_items;
+    SmartPtr<std::map<int, double> > orig_double_statement_data;
+
+    SmartPtr<std::map<Function, unsigned int> > orig_uint_data;
+    std::vector<Function_uint_pair> topNsorted_uint_items;
+    std::vector<Function_uint_pair> sorted_uint_items;
+    SmartPtr<std::map<int, unsigned int> > orig_uint_statement_data;
+
     bool descending_sort;
 
-    double Get_Total_Time();
+    double Get_Double_Total_Time();
+    double Get_UInt_Total_Time();
 
     int expID;
 
