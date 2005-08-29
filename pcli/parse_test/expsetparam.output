@@ -15,12 +15,12 @@ Command: expSetparam
 			pcsamp :: parmtype_1 = parmval_1
 
 ****************************
-expsetparam usertime::parmtype_1=parmval_1,hwcparmtype_2=parmval_2
+expsetparam usertime::parmtype_1=parmval_1,hwc::parmtype_2=parmval_2
  
 Command: expSetparam
 		PARAMS: 
 			usertime :: parmtype_1 = parmval_1
-			hwcparmtype_2 = parmval_2
+			hwc :: parmtype_2 = parmval_2
 
 ****************************
 expsetparam parmtype_1=parmval_1
@@ -63,13 +63,13 @@ Command: expSetparam
 			pcsamp :: parmtype_1 = parmval_1
 
 ****************************
-expsetparam -x 6 usertime::parmtype_1=parmval_1,hwcparmtype_2=parmval_2
+expsetparam -x 6 usertime::parmtype_1=parmval_1,hwc::parmtype_2=parmval_2
    
 Command: expSetparam
 	Experiment Id: 6
 		PARAMS: 
 			usertime :: parmtype_1 = parmval_1
-			hwcparmtype_2 = parmval_2
+			hwc :: parmtype_2 = parmval_2
 
 ****************************
 expsetparam -x 6 parmtype_1=parmval_1

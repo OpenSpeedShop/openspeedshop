@@ -11,7 +11,8 @@ CFLAGS = -g
 CC = cc  
 C++ = g++
 
-LIB =  /home/jcarter/workarea/bits/lib/libopenss-cli.so
+#LIB =  /home/jcarter/workarea/bits/lib/libopenss-cli.so
+LIB = ${OPENSS_PLUGIN_PATH}/../libopenss-cli.so
 
 ######################################################
 
