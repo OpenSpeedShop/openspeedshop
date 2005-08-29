@@ -1530,7 +1530,10 @@ HW_CounterWizardPanel::initPapiTypes()
 
   papi_available_presets = OpenSS_papi_available_presets();
 
+
 /*
+printf("initPapiTypes() entered\n");
+
   for(std::vector<papi_preset_event>::const_iterator it = papi_available_presets.begin(); it != papi_available_presets.end(); ++it)
   {
     printf("%s   %s\n", it->first.c_str(), it->second.c_str() );
@@ -1554,11 +1557,18 @@ HW_CounterWizardPanel::appendComboBoxItems()
 QString
 HW_CounterWizardPanel::findPAPIStr(QString param)
 {
+// printf("findPAPIStr() param=(%s)\n", param.ascii() );
+
   for(std::vector<papi_preset_event>::const_iterator it = papi_available_presets.begin(); it != papi_available_presets.end(); ++it)
   {
+printf("it->first.c_str()=%s it->second.c_str()=%s\n", it->first.c_str(), it->second.c_str() );
     if( param == QString(it->first.c_str()) )
     {
       return( QString("%1  %2").arg(it->first.c_str()).arg(it->second.c_str()) );
     }
   }
+// printf("findPAPIStr() there are no presets!!!\n");
+  QMessageBox::information( this, "PAPI preset information:", "There are no PAPI preset strings available..", QMessageBox::Ok );
+
+  return(QString::null);
 }
