@@ -242,6 +242,9 @@ papi_available_presets OpenSS_papi_available_presets()
     presets_list.clear();
     std::pair<std::string, std::string> *pe;
 
+    /* make sure papi is started prior to using low-level commands */
+    hwc_init_papi();
+
     do
     {
         int rval = PAPI_get_event_info(i, &info);
@@ -252,7 +255,9 @@ papi_available_presets OpenSS_papi_available_presets()
 		pe = new std::pair<std::string, std::string>(info.symbol,info.short_descr);	
 		presets_list.push_back(*pe);
 	    }
-        }
+        } else {
+	    print_papi_error(rval);
+	}
     } while (PAPI_enum_event(&i, available_presets) == PAPI_OK);
 
     return presets_list;
