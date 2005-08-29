@@ -21,7 +21,7 @@ SUBDIRS = \
 	usertime
 
 if HAVE_PAPI
-SUBDIRS += hwc
+SUBDIRS += hwc hwctime
 endif
 
 doc:
