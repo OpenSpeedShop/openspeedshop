@@ -26,4 +26,17 @@ oss.expView(my_expid)
 
 oss.expView(my_expid,my_viewtype)
 
-oss.expView(my_expid,my_viewtype,my_metric_list)
+ret = oss.expView(my_expid,my_viewtype,my_metric_list)
+
+#This is dummied up data packaged in  the C++ module 
+# and passed back by as a python object.
+print ret
+
+r_count = len(ret)
+for row_ndx in range(r_count):
+    print " "
+    row =ret[row_ndx]
+    c_count = len(row)
+    for rel_ndx in range(c_count):
+        print row[rel_ndx]
+
