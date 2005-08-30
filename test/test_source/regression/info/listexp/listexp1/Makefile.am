@@ -16,11 +16,9 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = hosts listexp
-
-DIST_SUBDIRS = $(SUBDIRS)
-
 EXTRA_DIST = \
+	listexp1.tst \
+	runone \
 	runall \
 	test_config
 
