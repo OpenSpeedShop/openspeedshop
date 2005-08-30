@@ -16,16 +16,9 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = pcsamp usertime pvs hwc building_block info
-
-DIST_SUBDIRS = $(SUBDIRS)
-
 EXTRA_DIST = \
+	hosts1.tst \
+	runone \
 	runall \
 	test_config
 
-check_SCRIPTS_common = runall
-
-check_SCRIPTS = $(check_SCRIPTS_common)
-
-TESTS = $(check_SCRIPTS)
