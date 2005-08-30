@@ -98,6 +98,30 @@ def pause_result(testName):
 	else:	
 		return 2
 	
+def hosts_result(testName):
+        nooutput = 1
+        outputfilename = testName + '.output'
+        outputfileptr = open(outputfilename, 'r')
+	expectedfileptr = open(testName+'.expected', 'r')
+	expectedfileline = expectedfileptr.readline()
+        while 1:
+                tempfileline = outputfileptr.readline()
+                if not tempfileline:
+                        break
+                if tempfileline[0:15] == 'The new focused':
+                        nooutput = 0
+                        break
+        tempfileline = outputfileptr.readline()
+	i = 0
+	while (tempfileline[i] != ' ' and tempfileline[i] != '\n'):
+		i+=1
+        if not tempfileline:
+                return 1
+        if tempfileline[0:i] == expectedfileline[0:-1]:
+                return 0
+        else:
+                return 2	
+
 
 def CompareResults(testName, fileptr, finished):
 	passed = 0
@@ -121,6 +145,17 @@ def CompareResults(testName, fileptr, finished):
 
 	if (testName[0:5] == 'pause'):
 		resultnum = pause_result(testName)
+		if resultnum == 0:
+			passed = 1
+			nooutput = 0
+			enable_pass = 1
+		else:
+			passed = 0
+			if resultnum == 2:
+				nooutput = 0
+
+	if (testName[0:5] == 'hosts'):
+		resultnum = hosts_result(testName)
 		if resultnum == 0:
 			passed = 1
 			nooutput = 0
