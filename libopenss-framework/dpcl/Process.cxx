@@ -1654,19 +1654,10 @@ void Process::destroyCallback(GCBSysType, GCBTagType tag,
     {
 	Guard guard_process(*process);
 
-	// Check assertions
-	Assert(process->dm_is_state_changing && 
-	       (process->dm_future_state == Thread::Terminated));
-	
-	// Did the resume fail?
-	if(status->status() != ASC_success) {
-	    
-	    // Request disconnection from this process
-	    process->requestDisconnect();
-	    
-	}
-	else {
-	    
+	// Is the process destroyed?
+	if((status->status() == ASC_success) ||
+	   (status->status() == ASC_already_destroyed)) {
+
 	    // Indicate process' current state is "terminated"
 	    process->dm_current_state = Thread::Terminated;
 	    process->dm_is_state_changing = false;
@@ -1675,6 +1666,12 @@ void Process::destroyCallback(GCBSysType, GCBTagType tag,
 	    if(is_debug_enabled)
 		process->debugState();
 #endif
+	    
+	}
+	else {
+	    
+	    // Request disconnection from this process
+	    process->requestDisconnect();
 	    
 	}
     }
@@ -2425,6 +2422,7 @@ void Process::terminationCallback(GCBSysType, GCBTagType,
 	if(is_debug_enabled)
 	    process->debugState();
 #endif	
+
     }
 }
 
