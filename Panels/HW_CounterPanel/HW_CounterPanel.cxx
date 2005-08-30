@@ -119,7 +119,7 @@ if( ao )
         QString command = QString("expAttach -x %1 hwc").arg(expID);
 if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
 {
-  command += " -mpi";
+  command += " -v mpi";
 }
         CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
 // printf("A: command=(%s)\n", command.ascii() );
@@ -498,7 +498,7 @@ HW_CounterPanel::listener(void *msg)
         command = QString("expAttach  -x %1\n").arg(expID);
 if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
 {
-  command += " -mpi";
+  command += " -v mpi";
 }
 /*
         if( !cli->runSynchronousCLI(command.ascii()) )
@@ -524,7 +524,7 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
         command = QString("expAttach -x %1\n").arg(expID);
 if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
 {
-  command += " -mpi";
+  command += " -v mpi";
 }
 /*
         if( !cli->runSynchronousCLI(command.ascii()) )
@@ -653,7 +653,7 @@ CLIInterface::interrupt = true;
         command = QString("expAttach -x %1 -f \"%2 %3\"\n").arg(expID).arg(executableNameStr).arg(argsStr);
 if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
 {
-  command += " -mpi";
+  command += " -v mpi";
 }
 // printf("executableNameStr is not empty.\n");
       } else if( !pidStr.isEmpty() )
@@ -665,7 +665,7 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
         command = QString("expAttach -x %1 -p %2 -h %3\n").arg(expID).arg(pid_name).arg(host_name);
 if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
 {
-  command += " -mpi";
+  command += " -v mpi";
 }
 #else // OLDWAY
 // printf("host_name=(%s)\n", host_name.ascii() );
@@ -678,7 +678,7 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
         command = QString("expAttach -x %1 -p  %2 -h %3\n").arg(expID).arg(pidStr).arg(mw->hostStr);
 if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
 {
-  command += " -mpi";
+  command += " -v mpi";
 }
 #endif // OLDWAY
 // printf("command=(%s)\n", command.ascii() );
@@ -757,7 +757,7 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
             }
             if( QString(getName()).contains("HW Counter") )
             {
-//printf("We're the HW Counter Panel!!!\n");
+              printf("W'ere the HW Counter Panel!!!\n");
             
               ParamList::Iterator it = lao->paramList->begin();
               it++;
@@ -1244,7 +1244,7 @@ HW_CounterPanel::progressUpdate()
 int
 HW_CounterPanel::processLAO(LoadAttachObject *lao)
 {
-// printf("ProcessLOA entered mpiFLAG=%d\n", getPanelContainer()->getMainWindow()->mpiFLAG );
+printf("ProcessLOA entered mpiFLAG=%d\n", getPanelContainer()->getMainWindow()->mpiFLAG );
   if( lao->paramList ) // Really not a list yet, just one param.
   {
     QString sample_rate_str = (QString)*lao->paramList->begin();
@@ -1273,7 +1273,7 @@ HW_CounterPanel::processLAO(LoadAttachObject *lao)
         }
         if( QString(getName()).contains("HW Counter") )
         {
-//          printf("W'ere the HW Counter Panel!!!\n");
+          printf("W'ere the HW Counter Panel!!!\n");
             
           ParamList::Iterator it = lao->paramList->begin();
           it++;
@@ -1317,7 +1317,7 @@ HW_CounterPanel::processLAO(LoadAttachObject *lao)
       command = QString("expAttach -x %1 -f \"%2 %3\"\n").arg(expID).arg(executableNameStr).arg(argsStr);
 if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
 {
-  command += " -mpi";
+  command += " -v mpi";
 }
 // printf("executableNameStr is not empty.\n");
     } else if( !pidStr.isEmpty() )
@@ -1335,7 +1335,7 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
 QString optionsStr = QString::null;
 if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
 {
-  optionsStr = " -mpi";
+  optionsStr = " -v mpi";
 } else
 {
   optionsStr = QString("-h %1").arg(mw->hostStr);
