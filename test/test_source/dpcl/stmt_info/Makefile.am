@@ -23,8 +23,8 @@ ext1_CXXFLAGS = \
 
 ext1_LDFLAGS = \
 	-L$(ROOT)/lib \
+	$(DPCL_LDFLAGS) \
 	$(DPCL_LIBS) -lelf
-	$(DPCL_LDFLAGS) 
 
 ext1_LIBS = \
 	$(DPCL_LDFLAGS) \

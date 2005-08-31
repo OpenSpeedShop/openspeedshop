@@ -23,8 +23,8 @@ mutator_CXXFLAGS = \
 
 mutator_LDFLAGS = \
 	-L$(ROOT)/lib \
+	$(DPCL_LDFLAGS) \
 	$(DPCL_LIBS) -lelf -pthread
-	$(DPCL_LDFLAGS) 
 
 mutator_LIBS = \
 	$(DPCL_LDFLAGS) \
