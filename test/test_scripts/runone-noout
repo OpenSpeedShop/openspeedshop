@@ -144,6 +144,27 @@ def listexp_result(testName):
         else:
                 return 2
 
+def views_result(testName):
+        nooutput = 1
+        outputfilename = testName + '.output'
+        outputfileptr = open(outputfilename, 'r')
+        while 1:
+                tempfileline = outputfileptr.readline()
+                if not tempfileline:
+                        break
+                if tempfileline[0:15] == 'The new focused':
+                        nooutput = 0
+                        break
+        tempfileline = outputfileptr.readline()
+        i = 0
+        while (tempfileline[i] != ' ' and tempfileline[i] != '\n'):
+                i+=1
+        if not tempfileline:
+                return 1
+        if tempfileline[0:i] == 'pcsamp':
+                return 0
+        else:
+                return 2
 
 
 def CompareResults(testName, fileptr, finished):
@@ -161,6 +182,8 @@ def CompareResults(testName, fileptr, finished):
                 resultnum = hosts_result(testName)
 	if (testName[0:7] == 'listexp'):
 		resultnum = listexp_result(testName)
+	if (testName[0:5] == 'views'):
+		resultnum = views_result(testName)
 	if resultnum == 0:
 		passed = 1
 		nooutput = 0
