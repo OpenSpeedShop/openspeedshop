@@ -188,7 +188,7 @@ if __name__ == '__main__':
 
 				
 				
-			       	if checkIfDir:
+			       	if checkIfDir and (dirName != 'CVS'):
 			       		os.chdir(dirName)
 			       		os.system('./runall-dpcl')
 					getResultFileFromDir(dirName)
