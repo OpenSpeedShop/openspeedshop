@@ -1,4 +1,4 @@
-noinst_PROGRAMS = fred fredO2 forever
+noinst_PROGRAMS = fred fredO2 forever lottalotta
 
 fred_CFLAGS = \
 	-g -gdwarf-2
@@ -34,3 +34,12 @@ forever_LDADD = \
 
 forever_SOURCES = \
 	forever.c
+
+lottalotta_CFLAGS = \
+	-g -gdwarf-2
+
+lottalotta_LDADD = \
+	-ldl
+
+lottalotta_SOURCES = \
+	lottalotta.c

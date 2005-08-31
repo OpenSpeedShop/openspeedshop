@@ -21,7 +21,8 @@
 #include "PanelContainer.hxx"   // Do not remove
 #include "plugin_entry_point.hxx"   // Do not remove
 
-#include "qapplication.h" // For qApp->processEvent() below.
+#include <qapplication.h>
+#include <qevent.h>
 
 // QString prompt = QString("openss-> ");
 extern char *Current_OpenSpeedShop_Prompt;
@@ -29,7 +30,7 @@ QString prompt = QString::null;
 
 #include "SS_Input_Manager.hxx"
 
-// #define REDIRECT_IO 1
+#define REDIRECT_IO 1
 
 /*! \class CmdPanel
   The CmdPanel class is designed to accept command line input from the user.
@@ -43,33 +44,22 @@ class OutputClass : public ss_ostream
 {
   public:
     CmdPanel *cp;
-    void setCP(CmdPanel *_cp) { cp = _cp; };
+    void setCP(CmdPanel *_cp) { cp = _cp;line_buffer = QString::null; };
+    QString line_buffer;
   private:
     virtual void output_string (std::string s)
     {
-//printf("output_string() entered (%s)\n", s.c_str() );
-      // This goes to the text stream...
-      cp->textDisabled = TRUE;
-      output->moveCursor(QTextEdit::MoveEnd, FALSE);
-      output->insert(s.c_str());
-      output->moveCursor(QTextEdit::MoveEnd, FALSE);
-      output->getCursorPosition(&cp->history_start_para, &cp->history_start_index);
-      output->moveCursor(QTextEdit::MoveEnd, FALSE);
-      output->getCursorPosition(&cp->last_para, &cp->last_index);
-      cp->history_start_index = cp->last_index;
-      cp->textDisabled = FALSE;
-/* This flush was added to prevent the following error:
-    "QPixmap::operator=: Cannot assign to pixmap during painting" 
-*/
-      flush_ostream();
-      output->sync();
-// printf("output_string() finished\n");
+       line_buffer += s.c_str();
+       if( QString(s).contains("\n") )
+       {
+         QString *data = new QString(line_buffer);
+         cp->postCustomEvent(data);
+         line_buffer = QString::null;
+       }
     }
     virtual void flush_ostream ()
     {
       qApp->flushX();
-printf("flush_ostream() sleeping.\n");
-// sleep(1);
     }
 };
 
@@ -433,4 +423,36 @@ CmdPanel::menu1callback()
 void CmdPanel::menu2callback()
 {
   nprintf(DEBUG_PANELS) ("CmdPanel::menu2callback() entered\n");
+}
+
+#define FRAP 10000
+void
+CmdPanel::postCustomEvent(QString *data)
+{
+  QCustomEvent *event;
+  event = new QCustomEvent(FRAP);
+  event->setData(data);
+  QApplication::postEvent(this, event);
+}
+
+void CmdPanel::customEvent(QCustomEvent *e)
+{
+//printf("CmdPanel::customEvent() entered\n");
+  if( e->type() == FRAP )
+  {
+// qApp->processEvents(30);
+   QString *data = static_cast<QString *>(e->data());
+//printf("PUt out the string (%s)", data->ascii() );
+   // This goes to the text stream...
+   textDisabled = TRUE;
+   output->moveCursor(QTextEdit::MoveEnd, FALSE);
+   output->append(*data);
+   output->moveCursor(QTextEdit::MoveEnd, FALSE);
+   output->getCursorPosition(&history_start_para, &history_start_index);
+   output->moveCursor(QTextEdit::MoveEnd, FALSE);
+   output->getCursorPosition(&last_para, &last_index);
+   history_start_index = last_index;
+   textDisabled = FALSE;
+//   delete data;
+  }
 }
