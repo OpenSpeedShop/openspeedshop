@@ -12,4 +12,5 @@ echo expgo -x 2 >> input.script
 #echo expview stats5 -m usertime::inclusive_time >> input.script
 echo exit >> input.script
 openss -batch < input.script
+kill $i
 
