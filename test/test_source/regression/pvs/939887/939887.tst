@@ -17,4 +17,5 @@ echo expattach -x 1 -p $j >> input.script
 echo expview stats5 -m time >> input.script
 echo exit >> input.script
 openss -batch < input.script
+kill $i $j
 
