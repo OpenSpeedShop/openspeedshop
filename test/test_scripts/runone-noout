@@ -210,6 +210,40 @@ def params_result(testName):
         else:
                 return 2
 
+def status_result(testName):
+        nooutput = 1
+        outputfilename = testName + '.output'
+        outputfileptr = open(outputfilename, 'r')
+	first_line_correct = 0
+        while 1:
+                tempfileline = outputfileptr.readline()
+                if not tempfileline:
+                        break
+                if tempfileline[0:15] == 'The new focused':
+                        nooutput = 0
+                        break
+        tempfileline = outputfileptr.readline()
+	if not tempfileline:
+		return 1
+        i = 0
+        while (tempfileline[i] != ' ' and tempfileline[i] != '\n'):
+                i+=1
+        if tempfileline[0:i] == 'Paused':
+                first_line_correct = 1
+	tempfileline = outputfileptr.readline()
+	if not tempfileline:
+		return 1
+	tempfileline = outputfileptr.readline()
+	if not tempfileline:
+		return 1
+	i = 0
+	while (tempfileline[i] != ' ' and tempfileline[i] != '\n'):
+		i +=1
+	if (tempfileline[0:i] == 'Running') and (first_line_correct == 1):
+		return 0
+	else:
+		return 2
+	
 
 def CompareResults(testName, fileptr, finished):
 	passed = 0
@@ -236,6 +270,8 @@ def CompareResults(testName, fileptr, finished):
 		resultnum = metrics_result(testName) 
 	if (testName[0:6] == 'params'):
 		resultnum = params_result(testName)
+	if (testName[0:6] == 'status'):
+		resultnum = status_result(testName)
 	if resultnum == 0:
 		passed = 1
 		nooutput = 0
