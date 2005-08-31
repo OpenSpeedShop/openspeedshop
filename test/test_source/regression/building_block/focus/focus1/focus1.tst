@@ -17,4 +17,4 @@ echo expfocus -x 1 >> input.script
 echo expfocus >> input.script
 echo exit >> input.script
 openss -batch < input.script
-killall -q forever
+kill $i $j
