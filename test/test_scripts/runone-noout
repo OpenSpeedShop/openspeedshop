@@ -224,10 +224,14 @@ def CompareResults(testName, fileptr, finished):
 		resultnum = pause_result(testName)
 	if (testName[0:5] == 'hosts'):
                 resultnum = hosts_result(testName)
+	if (testName[0:4] == 'pids'):
+		resultnum = hosts_result(testName)
 	if (testName[0:7] == 'listexp'):
 		resultnum = listexp_result(testName)
-	if (testName[0:5] == 'views' or 'types'):
+	if (testName[0:5] == 'views'):
 		resultnum = views_result(testName)
+	if (testName[0:5] == 'types'):
+		resultnum = views_result(testName)	
 	if (testName[0:7] == 'metrics'):
 		resultnum = metrics_result(testName) 
 	if (testName[0:6] == 'params'):
