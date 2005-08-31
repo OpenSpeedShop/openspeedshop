@@ -182,7 +182,7 @@ def CompareResults(testName, fileptr, finished):
                 resultnum = hosts_result(testName)
 	if (testName[0:7] == 'listexp'):
 		resultnum = listexp_result(testName)
-	if (testName[0:5] == 'views'):
+	if (testName[0:5] == 'views' or 'types'):
 		resultnum = views_result(testName)
 	if resultnum == 0:
 		passed = 1

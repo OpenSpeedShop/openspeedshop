@@ -16,11 +16,9 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = hosts listexp views types
-
-DIST_SUBDIRS = $(SUBDIRS)
-
 EXTRA_DIST = \
+	types1.tst \
+	runone \
 	runall \
 	test_config
 
