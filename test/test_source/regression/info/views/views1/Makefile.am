@@ -17,7 +17,7 @@
 ################################################################################
 
 EXTRA_DIST = \
-	hosts1.tst \
+	views1.tst \
 	runone \
 	runall \
 	test_config
