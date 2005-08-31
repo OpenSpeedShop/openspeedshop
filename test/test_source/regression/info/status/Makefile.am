@@ -16,7 +16,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = hosts listexp views types metrics params pids status
+SUBDIRS = status1 
 
 DIST_SUBDIRS = $(SUBDIRS)
 

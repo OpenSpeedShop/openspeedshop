@@ -16,11 +16,9 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = hosts listexp views types metrics params pids status
-
-DIST_SUBDIRS = $(SUBDIRS)
-
 EXTRA_DIST = \
+	status1.tst \
+	runone \
 	runall \
 	test_config
 
