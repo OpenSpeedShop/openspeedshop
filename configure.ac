@@ -228,6 +228,8 @@ AC_CONFIG_FILES(Makefile
 		test/test_source/regression/info/metrics/metrics1/Makefile
 		test/test_source/regression/info/params/Makefile
 		test/test_source/regression/info/params/params1/Makefile
+		test/test_source/regression/info/pids/Makefile
+		test/test_source/regression/info/pids/pids1/Makefile
 		test/test_source/regression/pcsamp/Makefile
 		test/test_source/regression/pcsamp/pcsamp1/Makefile
 		test/test_source/regression/pcsamp/pcsamp2/Makefile
