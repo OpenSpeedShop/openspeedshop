@@ -21,4 +21,4 @@
 
 PROJECT_NAME     = "Open|SpeedShop Collectors"
 OUTPUT_DIRECTORY = ../../doc/design_doc/Collectors
-INPUT            = . pcsamp usertime hwc
+INPUT            = . pcsamp usertime hwc hwctime
