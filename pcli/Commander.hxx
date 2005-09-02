@@ -81,6 +81,8 @@ ss_ostream *Window_errstream (CMDWID for_window);
 
 void Default_TLI_Line_Output (InputLineObject *clip);
 void Default_TLI_Command_Output (CommandObject *C);
+void Default_Log_Output (InputLineObject *clip);
+void Default_Log_Output (CommandObject *C);
 
 extern CMDWID command_line_window;
 extern CMDWID tli_window;
@@ -135,7 +137,6 @@ bool Command_Record_OFF (CMDWID WindowID);
 bool Command_Record_ON (CMDWID WindowID, std::string tofname);
 bool Command_Log_OFF (CMDWID WindowID);
 bool Command_Log_ON (CMDWID WindowID, std::string tofname);
-FILE *Log_File (CMDWID WindowID);
 
 // Focus is a property of the Command Window that issued the command.
 void Experiment_Purge_Focus (EXPID ExperimentID);                // Remove focus from windows
@@ -152,9 +153,17 @@ extern void Cmd_Obj_Complete (CommandObject *C);
 extern void ReDirect_User_Stdout (const char *S, const int &len, void *tag);
 extern void ReDirect_User_Stderr (const char *S, const int &len, void *tag);
 
-// The following is what is called when the user does a CNTRL-C.
-// It will purge waiting commands from the input queue for a window and
-// abort the execution of all commands that were issued from the window.
-extern void User_Interrupt (CMDWID issuedbywindow);
+// The following routines are used to clean up after a CNTRL-C or "Exit" command.
+// They will purge waiting commands from the input queues, abort any commands
+// that have been aprsed but are not yet executing, and will stop the execution
+// of all commands that are being executed.
+extern void Purge_Input_Sources ();
+extern void Purge_Dispatch_Queue ();
+extern void Purge_Executing_Commands ();
+
+// The following controls are used to properly order termination of threads.
+extern pthread_mutex_t Async_Input_Lock;
+extern pthread_cond_t  Async_Input_Available;  // The input reader waits here.
+extern bool            Shut_Down;              // Set when 'exit' command is processed
 
 #endif // COMMANDER_H
