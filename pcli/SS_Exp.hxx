@@ -21,6 +21,7 @@
 //       to ALL of the executables in the experiment's list.
 class ExperimentObject;
 extern EXPID Experiment_Sequence_Number;
+extern pthread_mutex_t Experiment_List_Lock;
 extern std::list<ExperimentObject *> ExperimentObject_list;
 
 #define ExpStatus_NonExistent 0
@@ -37,14 +38,18 @@ class ExperimentObject
   bool Data_File_Has_A_Generated_Name;
   OpenSpeedShop::Framework::Experiment *FW_Experiment;
   pthread_mutex_t Experiment_Lock;
-  bool database_in_use;
+  bool exp_reserved;
+  std::list<CommandObject *> waiting_cmds;
 
  public:
   ExperimentObject (std::string data_base_name = std::string("")) {
+    Assert(pthread_mutex_lock(&Experiment_List_Lock) == 0);
     Exp_ID = ++Experiment_Sequence_Number;
     ExpStatus = ExpStatus_Paused;
+    exp_reserved = false;
+
     Assert(pthread_mutex_init(&Experiment_Lock, NULL) == 0); // dynamic initialization
-    database_in_use = false;
+    Assert(pthread_mutex_lock(&Experiment_Lock) == 0);       // Lock it!
 
    // Allocate a data base file for the information connected with the experiment.
     std::string Data_File_Name;
@@ -81,9 +86,14 @@ class ExperimentObject
       FW_Experiment = NULL;
     }
 
+    Assert(pthread_mutex_unlock(&Experiment_Lock) == 0);       // Unlock new experiment
+    Assert(pthread_mutex_unlock(&Experiment_List_Lock) == 0);
   }
   ~ExperimentObject () {
+    Assert(pthread_mutex_lock(&Experiment_List_Lock) == 0);
     ExperimentObject_list.remove (this);
+    Assert(pthread_mutex_unlock(&Experiment_List_Lock) == 0);
+
     if (FW_Experiment != NULL) {
       try {
         if (Data_File_Has_A_Generated_Name) {
@@ -118,37 +128,63 @@ class ExperimentObject
       }
     }
   }
-  bool Lock_DB () {
+
+  void Q_Lock (CommandObject *cmd, bool start_next_cmd = false) {
     Assert(pthread_mutex_lock(&Experiment_Lock) == 0);
-    bool already_in_use = database_in_use;
-    database_in_use = true;
+    if (start_next_cmd) {
+      SafeToDoNextCmd ();
+    }
+    if (exp_reserved) {
+     // Queue myself up and wait until the previous
+     // commands have completed execution.
+      waiting_cmds.push_back(cmd);
+      cmd->Wait_On_Dependency(Experiment_Lock);
+     // When we return, the lock has been reset.
+    }
+    exp_reserved = true;
+    Assert(pthread_mutex_unlock(&Experiment_Lock) == 0);
+    return;
+  }
+  void Q_UnLock () {
+    Assert(pthread_mutex_lock(&Experiment_Lock) == 0);
+    if (waiting_cmds.begin() != waiting_cmds.end()) {
+      CommandObject *cmd = *waiting_cmds.begin();
+      waiting_cmds.pop_front();
+      cmd->All_Clear ();
+    }
+    exp_reserved = false;
+    Assert(pthread_mutex_unlock(&Experiment_Lock) == 0);
+  }
+  bool TS_Lock () {
+    Assert(pthread_mutex_lock(&Experiment_Lock) == 0);
+    bool already_in_use = exp_reserved;
+    exp_reserved = true;
     Assert(pthread_mutex_unlock(&Experiment_Lock) == 0);
     return !already_in_use;
   }
-  void UnLock_DB () {
-    Assert(pthread_mutex_lock(&Experiment_Lock) == 0);
-    database_in_use = false;
-    Assert(pthread_mutex_unlock(&Experiment_Lock) == 0);
-  }
+
   bool CanExecute () {
     if (FW() != NULL) {
-      try {
-        ThreadGroup tgrp = FW()->getThreads();
-        if (!tgrp.empty()) return true;
-      }
-      catch(const Exception& error) {
-       // Don't care
+      if (TS_Lock()) {
+        try {
+          ThreadGroup tgrp = FW()->getThreads();
+          if (!tgrp.empty()) return true;
+        }
+        catch(const Exception& error) {
+         // Don't care
+        }
+        Q_UnLock();
       }
     }
     return false;
   }
   int Status() { return ExpStatus; }
   int Determine_Status() {
+    int A = ExpStatus_NonExistent;
     if (FW() == NULL) {
-      ExpStatus = ExpStatus_NonExistent;
-    } else if (Lock_DB()) {
+      ExpStatus = A;
+    } else if (TS_Lock()) {
       ThreadGroup tgrp = FW()->getThreads();
-      int A = ExpStatus_NonExistent;
       if (tgrp.empty()) {
         A = ExpStatus_Paused;
       } else {
@@ -185,11 +221,11 @@ class ExperimentObject
             break;
           }
         }
-        UnLock_DB();
       }
       ExpStatus = A;
+      Q_UnLock();
     }
-    return ExpStatus;
+    return A;
   }
 
   void setStatus (int S) {ExpStatus = S;}
@@ -219,76 +255,87 @@ class ExperimentObject
     return std::string("Unknown");
   }
 
+  void Print_Waiting (ostream &mystream) {
+    Assert(pthread_mutex_lock(&Experiment_Lock) == 0);
+    if (waiting_cmds.begin() != waiting_cmds.end()) {
+      mystream << "  Waiting Commands" << std::endl;
+      std::list<CommandObject *>::iterator wi;
+      for (wi = waiting_cmds.begin(); wi != waiting_cmds.end(); wi++) {
+        CommandObject *cmd = *wi;
+        mystream << "    " << cmd->Clip()->Command() << std::endl;
+      }
+    }
+    Assert(pthread_mutex_unlock(&Experiment_Lock) == 0);
+  }
   void Print(ostream &mystream) {
     mystream << "Experiment " << ExperimentObject_ID() << " " << ExpStatus_Name() << " data->";
-    mystream << ((FW_Experiment != NULL) ? FW_Experiment->getName() : "(null)") << std::endl;
-    if (FW_Experiment != NULL) {
-      ThreadGroup tgrp = FW_Experiment->getThreads();
-      ThreadGroup::iterator ti;
-      bool atleastone = false;
-      for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
-        Thread t = *ti;
-        std::string host = t.getHost();
-        pid_t pid = t.getProcessId();
-        if (!atleastone) {
-          atleastone = true;
-        }
-        mystream << "    -h " << host << " -p " << pid;
-        std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
-        if (pthread.first) {
-          mystream << " -t " << pthread.second;
-        }
-#ifdef HAVE_MPI
-        std::pair<bool, int> rank = t.getMPIRank();
-        if (rank.first) {
-          mystream << " -r " << rank.second;
-        }
-#endif
-        CollectorGroup cgrp = t.getCollectors();
-        CollectorGroup::iterator ci;
-        int collector_count = 0;
-        for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
-          Collector c = *ci;
-          Metadata m = c.getMetadata();
-          if (collector_count) {
-            mystream << ",";
-          } else {
-            mystream << " ";
-            collector_count = 1;
-          }
-          mystream << " " << m.getUniqueId();
-        }
-        mystream << std::endl;
-      }
-
-      CollectorGroup cgrp = FW_Experiment->getCollectors();
-      CollectorGroup::iterator ci;
-      atleastone = false;
-      for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
-        Collector c = *ci;
-        ThreadGroup tgrp = c.getThreads();
-        if (tgrp.empty()) {
-          Metadata m = c.getMetadata();
-          if (atleastone) {
-            mystream << ",";
-          } else {
-            mystream << "   ";
+    if (TS_Lock()) {
+      mystream << ((FW_Experiment != NULL) ? FW_Experiment->getName() : "(null)") << std::endl;
+      if (FW_Experiment != NULL) {
+        ThreadGroup tgrp = FW_Experiment->getThreads();
+        ThreadGroup::iterator ti;
+        bool atleastone = false;
+        for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+          Thread t = *ti;
+          std::string host = t.getHost();
+          pid_t pid = t.getProcessId();
+          if (!atleastone) {
             atleastone = true;
           }
-          mystream << " " << m.getUniqueId();
+          mystream << "    -h " << host << " -p " << pid;
+          std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
+          if (pthread.first) {
+            mystream << " -t " << pthread.second;
+          }
+#ifdef HAVE_MPI
+          std::pair<bool, int> rank = t.getMPIRank();
+          if (rank.first) {
+            mystream << " -r " << rank.second;
+          }
+#endif
+          CollectorGroup cgrp = t.getCollectors();
+          CollectorGroup::iterator ci;
+          int collector_count = 0;
+          for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
+            Collector c = *ci;
+            Metadata m = c.getMetadata();
+            if (collector_count) {
+              mystream << ",";
+            } else {
+              mystream << " ";
+              collector_count = 1;
+            }
+            mystream << " " << m.getUniqueId();
+          }
+          mystream << std::endl;
+        }
+
+        CollectorGroup cgrp = FW_Experiment->getCollectors();
+        CollectorGroup::iterator ci;
+        atleastone = false;
+        for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
+          Collector c = *ci;
+          ThreadGroup tgrp = c.getThreads();
+          if (tgrp.empty()) {
+            Metadata m = c.getMetadata();
+            if (atleastone) {
+              mystream << ",";
+            } else {
+              mystream << "   ";
+              atleastone = true;
+            }
+            mystream << " " << m.getUniqueId();
+          }
+        }
+        if (atleastone) {
+          mystream << std::endl;
         }
       }
-      if (atleastone) {
-        mystream << std::endl;
-      }
+      Q_UnLock ();
+    } else {
+      mystream << "(Currently unable to access the database)" << std::endl;
     }
-  }
-  static void Dump(ostream &mystream) {
-    std::list<ExperimentObject *>::reverse_iterator expi;
-    for (expi = ExperimentObject_list.rbegin(); expi != ExperimentObject_list.rend(); expi++)
-    {
-      (*expi)->Print(mystream);
-    }
+    Print_Waiting (mystream);
   }
 };
 
