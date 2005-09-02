@@ -326,11 +326,8 @@ bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string vi
   Filter_ThreadGroup (cmd, tgrp);
 
  // Try to Generate the Requested View!
-  while (!exp->Lock_DB()) usleep (10000);;
   bool V = vt->GenerateView (cmd, exp, Get_Trailing_Int (viewname, vt->Unique_Name().length()),
                              tgrp, CV, MV, IV);
-  exp->UnLock_DB();
-
   return V;
 }
 
