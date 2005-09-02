@@ -33,6 +33,7 @@ using namespace OpenSpeedShop::cli;
 // Allow only one thread at a time through the Command processor.
 // Doing this allows only one thread at a time to allocate sequence numbers.
 EXPID Experiment_Sequence_Number = 0;
+pthread_mutex_t Experiment_List_Lock = PTHREAD_MUTEX_INITIALIZER;
 std::list<ExperimentObject *> ExperimentObject_list;
 static std::string tmpdb = std::string("./ssdbtmpcmd.openss");
 
@@ -771,9 +772,13 @@ bool SS_expAttach (CommandObject *cmd) {
     return false;
   }
 
+ // Prevent this experiment from changing until we are done.
+  exp->Q_Lock (cmd, true);
+
  // Determine target and collectors and link them together.
   if (!Process_expTypes (cmd, exp, &Attach_Command )) {
    // Don't return anything more if errors have been detected.
+    exp->Q_UnLock ();
     return false;
   }
 
@@ -783,6 +788,7 @@ bool SS_expAttach (CommandObject *cmd) {
    // There is no result returned from this command.
     cmd->set_Status(CMD_COMPLETE);
   }
+  exp->Q_UnLock ();
   return true;
 }
 
@@ -832,6 +838,12 @@ bool SS_expClose (CommandObject *cmd) {
   bool Kill_KeyWord = Look_For_KeyWord (cmd, "kill");
   bool cmd_executed = true;
 
+ // Wait for all executing commands to terminante.
+ // We do this so that another command thread won't get burned
+ // looking through the ExperimentObject_list when an entry is
+ // deleted from it.
+  Wait_For_Previous_Cmds ();
+
   if (All_KeyWord) {
     std::list<ExperimentObject *>::iterator expi;
     for (expi = ExperimentObject_list.begin(); expi != ExperimentObject_list.end(); ) {
@@ -858,6 +870,12 @@ bool SS_expClose (CommandObject *cmd) {
 bool SS_expCreate (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+
+ // Wait for all executing commands to terminate.
+ // We do this so that another command thread won't get burned
+ // looking through the ExperimentObject_list when a new entry
+ // is added to it.
+  Wait_For_Previous_Cmds ();
 
  // There is no specified experiment.  Allocate a new Experiment.
   ExperimentObject *exp = new ExperimentObject ();
@@ -898,6 +916,9 @@ bool SS_expDetach (CommandObject *cmd) {
     return false;
   }
 
+ // Prevent this experiment from changing until we are done.
+  exp->Q_Lock (cmd, true);
+
  // Determine target and collectors and break the link between them.
   if (!Process_expTypes (cmd, exp, &Detach_Command )) {
    // Don't return anything more if errors have been detected.
@@ -906,6 +927,7 @@ bool SS_expDetach (CommandObject *cmd) {
 
  // There is no result returned from this command.
   cmd->set_Status(CMD_COMPLETE);
+  exp->Q_UnLock ();
   return true;
 }
 
@@ -1228,6 +1250,12 @@ bool SS_expRestore (CommandObject *cmd) {
 
   std::string data_base_name = file_name_value->name;
 
+ // Wait for all executing commands to terminate.
+ // We do this so that another command thread won't get burned
+ // looking through the ExperimentObject_list when a new entry
+ // is added to it.
+  Wait_For_Previous_Cmds ();
+
  // Create a new experiment and connect it to the saved data base.
   ExperimentObject *exp = new ExperimentObject (data_base_name);
   if ((exp == NULL) ||
@@ -1273,6 +1301,10 @@ bool SS_expSave (CommandObject *cmd) {
 
   if (Copy_KeyWord) {
     try {
+     // Wait for previous comands to complete so that
+     // the copy has all the requested information.
+      Wait_For_Previous_Cmds ();
+
       exp->CopyDB (data_base_name);
     }
     catch(const Exception& error) {
@@ -1393,6 +1425,9 @@ bool SS_expSetParam (CommandObject *cmd) {
   vector<ParseParam> *p_list = p_result->getParmList();
   vector<ParseParam>::iterator iter;
 
+ // Prevent this experiment from changing until we are done.
+  exp->Q_Lock (cmd, true);
+
   for (iter=p_list->begin();iter != p_list->end(); iter++) {
     std::string param_name = iter->getParmParamType();
     if (iter->getParmExpType()) {
@@ -1432,6 +1467,7 @@ bool SS_expSetParam (CommandObject *cmd) {
       }
     }
   }
+  exp->Q_UnLock ();
 
   if ((cmd->Status() == CMD_ERROR) ||
       (cmd->Status() == CMD_ABORTED)) {
@@ -1483,6 +1519,10 @@ static CommandResult *Get_Collector_Metadata (Collector c, Metadata m) {
 }
 
 static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
+
+ // Prevent this experiment from changing until we are done.
+  exp->Q_Lock (cmd, true);
+
   char id[20]; sprintf(&id[0],"%lld",(int64_t)exp->ExperimentObject_ID());
   cmd->Result_String ("Experiment definition");
   std::string TmpDB = exp->Data_Base_Is_Tmp() ? "Temporary" : "Saved";
@@ -1600,9 +1640,11 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
   catch(const Exception& error) {
     Mark_Cmd_With_Std_Error (cmd, error);
     cmd->Result_String ( "}");
+    exp->Q_UnLock ();
     return false;
   }
 
+  exp->Q_UnLock ();
   return true;
 }
 
@@ -1614,8 +1656,8 @@ bool SS_expStatus(CommandObject *cmd) {
   }
 
   if (All_KeyWord) {
-    std::list<ExperimentObject *>::iterator expi;
-    for (expi = ExperimentObject_list.begin(); expi != ExperimentObject_list.end(); expi++) {
+    std::list<ExperimentObject *>::reverse_iterator expi;
+    for (expi = ExperimentObject_list.rbegin(); expi != ExperimentObject_list.rend(); expi++) {
       ExperimentObject *exp = *expi;
       if (!ReportStatus (cmd, exp)) {
         return false;
@@ -1638,6 +1680,7 @@ bool SS_expStatus(CommandObject *cmd) {
 bool SS_expView (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+  bool view_result = true;
 
  // Some views do not need depend on an ExperimentObject.
  // Examine the parsed command for a "-x" specifier.
@@ -1657,45 +1700,54 @@ bool SS_expView (CommandObject *cmd) {
   if (p_slist->begin() == p_slist->end()) {
    // The user has not selected a view.
    // Look for a view that would be meaningful.
+    std::string use_view = "stats";  // Use generic view as default
+
+   // Prevent this experiment from changing until we are done.
+    exp->Q_Lock (cmd, true);
+
     CollectorGroup cgrp = exp->FW()->getCollectors();
     if (cgrp.begin() == cgrp.end()) {
      // No collector was used.
       cmd->Result_String ("No performance measurements were made for the experiment.");
       cmd->set_Status(CMD_ERROR);
-      return false;
-    }
-    if (cgrp.size() == 1) {
-     // The experiment used only one collector.
-     // See if there is a view by the same name.
-      Collector c = *(cgrp.begin());
-      Metadata m = c.getMetadata();
-      std::string collector_name = m.getUniqueId();
-      ViewType *vt = Find_View (collector_name);
-      if (vt != NULL) {
-        if (!SS_Generate_View (cmd, exp, collector_name)) {
-          return false;
-        } else {
-          cmd->set_Status(CMD_COMPLETE);
-          return true;
+      view_result = false;
+    } else {
+      if (cgrp.size() == 1) {
+       // The experiment used only one collector.
+       // See if there is a view by the same name.
+        Collector c = *(cgrp.begin());
+        Metadata m = c.getMetadata();
+        std::string collector_name = m.getUniqueId();
+        ViewType *vt = Find_View (collector_name);
+        if (vt != NULL) {
+          use_view = collector_name;
         }
       }
+     // Generate the selected view
+      view_result = SS_Generate_View (cmd, exp, use_view);
     }
-   // If all else fails, use the generic view.
-    if (!SS_Generate_View (cmd, exp, "stats")) {
-      return false;
-    }
+
+    exp->Q_UnLock ();
   } else {
    // Generate all the views in the list.
-    for (si = p_slist->begin(); si != p_slist->end(); si++) {
+    for (si = p_slist->begin(); si != p_slist->end(); ) {
       std::string view = *si;
-      if (!SS_Generate_View (cmd, exp, view)) {
-        return false;
+
+     // Prevent this experiment from changing until we are done.
+      exp->Q_Lock (cmd, (++si == p_slist->end()));
+      view_result = SS_Generate_View (cmd, exp, view);
+      exp->Q_UnLock ();
+
+      if (!view_result) {
+        break;
       }
     }
   }
 
-  cmd->set_Status(CMD_COMPLETE);
-  return true;
+  if (view_result) {
+    cmd->set_Status(CMD_COMPLETE);
+  }
+  return view_result;
 }
 
 // Primitive Information Commands
@@ -1710,6 +1762,7 @@ bool SS_ListBreaks (CommandObject *cmd) {
 
 bool SS_ListExp (CommandObject *cmd) {
  // List all the allocated experiments
+  SafeToDoNextCmd ();
   std::list<ExperimentObject *>::reverse_iterator expi;
   for (expi = ExperimentObject_list.rbegin(); expi != ExperimentObject_list.rend(); expi++)
   {
@@ -1739,6 +1792,9 @@ bool SS_ListHosts (CommandObject *cmd) {
       return false;
     }
 
+   // Prevent this experiment from changing until we are done.
+    exp->Q_Lock (cmd, true);
+
    // Get the list of threads used in the specified experiment.
     ThreadGroup tgrp = exp->FW()->getThreads();
     std::set<std::string> hset;
@@ -1749,6 +1805,8 @@ bool SS_ListHosts (CommandObject *cmd) {
     for (std::set<std::string>::iterator hseti = hset.begin(); hseti != hset.end(); hseti++) {
       cmd->Result_String ( *hseti );
     }
+
+    exp->Q_UnLock ();
   }
 
   cmd->set_Status(CMD_COMPLETE);
@@ -1772,6 +1830,7 @@ bool SS_ListMetrics (CommandObject *cmd) {
   if (All_KeyWord) {
    // Get list of all the collectors from the FrameWork.
    // To do this, we need to create a dummy experiment.
+    SafeToDoNextCmd ();
     try {
       OpenSpeedShop::Framework::Experiment::create (tmpdb);
       fw_exp = new OpenSpeedShop::Framework::Experiment (tmpdb);
@@ -1793,9 +1852,16 @@ bool SS_ListMetrics (CommandObject *cmd) {
     if (exp == NULL) {
       return false;
     }
+
+   // Prevent this experiment from changing until we are done.
+    exp->Q_Lock (cmd, true);
+
     cgrp = exp->FW()->getCollectors();
+
+    exp->Q_UnLock ();
   } else if (p_slist->begin() != p_slist->end()) {
    // Get the list of collectors from the command.
+    SafeToDoNextCmd ();
     try {
       OpenSpeedShop::Framework::Experiment::create (tmpdb);
       fw_exp = new OpenSpeedShop::Framework::Experiment (tmpdb);
@@ -1818,7 +1884,13 @@ bool SS_ListMetrics (CommandObject *cmd) {
     if (exp == NULL) {
       return false;
     }
+
+   // Prevent this experiment from changing until we are done.
+    exp->Q_Lock (cmd, true);
+
     cgrp = exp->FW()->getCollectors();
+
+    exp->Q_UnLock ();
   }
 
   if (!cmd_error) {
@@ -1894,7 +1966,13 @@ bool SS_ListParams (CommandObject *cmd) {
     if (exp == NULL) {
       return false;
     }
+
+   // Prevent this experiment from changing until we are done.
+    exp->Q_Lock (cmd, true);
+
     cgrp = exp->FW()->getCollectors();
+
+    exp->Q_UnLock ();
   } else if (p_slist->begin() != p_slist->end()) {
    // Get the list of collectors from the command.
     try {
@@ -1919,7 +1997,13 @@ bool SS_ListParams (CommandObject *cmd) {
     if (exp == NULL) {
       return false;
     }
+
+   // Prevent this experiment from changing until we are done.
+    exp->Q_Lock (cmd, true);
+
     cgrp = exp->FW()->getCollectors();
+
+    exp->Q_UnLock ();
   }
 
   if (!cmd_error) {
@@ -1965,6 +2049,9 @@ bool SS_ListPids (CommandObject *cmd) {
       return false;
     }
 
+   // Prevent this experiment from changing until we are done.
+    exp->Q_Lock (cmd, true);
+
    // Get the list of threads used in the specified experiment.
     ThreadGroup tgrp = exp->FW()->getThreads();
     Filter_ThreadGroup (cmd, tgrp);
@@ -1976,6 +2063,8 @@ bool SS_ListPids (CommandObject *cmd) {
     for (std::set<pid_t>::iterator pseti = pset.begin(); pseti != pset.end(); pseti++) {
       cmd->Result_Int ( *pseti );
     }
+
+    exp->Q_UnLock ();
   }
 
   cmd->set_Status(CMD_COMPLETE);
@@ -2001,6 +2090,9 @@ bool SS_ListRanks (CommandObject *cmd) {
       return false;
     }
 
+   // Prevent this experiment from changing until we are done.
+    exp->Q_Lock (cmd, true);
+
    // Get the list of threads used in the specified experiment.
     ThreadGroup tgrp = exp->FW()->getThreads();
     Filter_ThreadGroup (cmd, tgrp);
@@ -2023,6 +2115,8 @@ bool SS_ListRanks (CommandObject *cmd) {
     for (std::set<int64_t>::iterator rseti = rset.begin(); rseti != rset.end(); rseti++) {
       cmd->Result_Int ( *rseti );
     }
+
+    exp->Q_UnLock ();
   }
 
   cmd->set_Status(CMD_COMPLETE);
@@ -2065,7 +2159,13 @@ bool SS_ListStatus (CommandObject *cmd) {
     if (exp == NULL) {
       return false;
     }
+
+   // Prevent this experiment from changing until we are done.
+    exp->Q_Lock (cmd, true);
+
     cmd->Result_String (exp->ExpStatus_Name());
+
+    exp->Q_UnLock ();
   }
 
   cmd->set_Status(CMD_COMPLETE);
@@ -2091,6 +2191,9 @@ bool SS_ListThreads (CommandObject *cmd) {
       return false;
     }
 
+   // Prevent this experiment from changing until we are done.
+    exp->Q_Lock (cmd, true);
+
    // Get the list of threads used in the specified experiment.
     ThreadGroup tgrp = exp->FW()->getThreads();
     Filter_ThreadGroup (cmd, tgrp);
@@ -2102,6 +2205,8 @@ bool SS_ListThreads (CommandObject *cmd) {
     for (std::set<int64_t>::iterator tseti = tset.begin(); tseti != tset.end(); tseti++) {
       cmd->Result_Int ( *tseti );
     }
+
+    exp->Q_UnLock ();
   }
 
   cmd->set_Status(CMD_COMPLETE);
@@ -2135,6 +2240,9 @@ bool SS_ListTypes (CommandObject *cmd) {
       return false;
     }
 
+   // Prevent this experiment from changing until we are done.
+    exp->Q_Lock (cmd, true);
+
    // Get the list of collectors used in the specified experiment.
     CollectorGroup cgrp = exp->FW()->getCollectors();
     CollectorGroup::iterator ci;
@@ -2143,6 +2251,8 @@ bool SS_ListTypes (CommandObject *cmd) {
       Metadata m = c.getMetadata();
       cmd->Result_String ( m.getUniqueId() );
     }
+
+    exp->Q_UnLock ();
   }
   
   cmd->set_Status(CMD_COMPLETE);
@@ -2169,7 +2279,13 @@ bool SS_ListViews (CommandObject *cmd) {
     if (exp == NULL) {
       return false;
     }
+
+   // Prevent this experiment from changing until we are done.
+    exp->Q_Lock (cmd, true);
+
     SS_Get_Views (cmd, exp->FW());
+
+    exp->Q_UnLock ();
   } else if (p_slist->begin() != p_slist->end()) {
    // What views depend on a specific collector?
     vector<string>::iterator si;
@@ -2182,7 +2298,13 @@ bool SS_ListViews (CommandObject *cmd) {
     if (exp == NULL) {
       return false;
     }
+
+   // Prevent this experiment from changing until we are done.
+    exp->Q_Lock (cmd, true);
+
     SS_Get_Views (cmd, exp->FW());
+
+    exp->Q_UnLock ();
   }
 
   cmd->set_Status(CMD_COMPLETE);
@@ -2201,11 +2323,28 @@ bool SS_ClearBreaks (CommandObject *cmd) {
 }
 
 bool SS_Exit (CommandObject *cmd) {
+  InputLineObject *clip = cmd->Clip();
+  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+
+ // Purge all waiting input and all commands awaiting dispatch.
+  Purge_Input_Sources ();
+  Purge_Dispatch_Queue ();
+
+ // Wait for all executing commands to terminante.
+  Wait_For_Previous_Cmds ();
+
  // Since Python is in control, we need to tell it to quit.
   PyRun_SimpleString( "myparse.Do_quit ()\n");
 
  // There is no result returned from this command.
   cmd->set_Status(CMD_COMPLETE);
+
+ // Force another "Exit" command through the input controler.
+ // This is done, after setting the Python signal with the
+ // previous "myparse.Do_quit" call, to trigger the actual
+ // return fromPython. (Note: any command will do the job.)
+  Assert (WindowID != 0);
+ 
   return true;
 }
 
@@ -2216,6 +2355,10 @@ bool SS_Help (CommandObject *cmd) {
 }
 
 bool SS_History (CommandObject *cmd) {
+
+ // Wait for all executing commands to terminate.
+  Wait_For_Previous_Cmds ();
+
  // Copy commands from the history list.
   std::list<std::string>::iterator hi = History.begin();  // Start at  beginning
 
@@ -2254,6 +2397,9 @@ bool SS_Log (CommandObject *cmd) {
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
   bool R = false;
   parse_val_t *f_val = Get_Simple_File_Name (cmd);
+
+ // Wait for all executing commands to terminate.
+  Wait_For_Previous_Cmds ();
 
   if (f_val == NULL) {
     R = Command_Log_OFF (WindowID);
@@ -2330,6 +2476,9 @@ bool SS_Record (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
   parse_val_t *f_val = Get_Simple_File_Name (cmd);
+
+ // Wait for all executing commands to terminate.
+  Wait_For_Previous_Cmds ();
 
   if (f_val == NULL) {
    (void)Command_Record_OFF (WindowID);
