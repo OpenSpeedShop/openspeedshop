@@ -68,14 +68,13 @@ extern SS_Message_Czar& theMessageCzar();
 #include "SS_Parse_Target.hxx"
 #include "SS_Parse_Result.hxx"
 
+#include "SS_Cmd_Execution.hxx"
 #include "CommandObject.hxx"
 #include "Clip.hxx"
 #include "SS_Exp.hxx"
 #include "SS_View.hxx"
 
 #include "ArgClass.hxx"
-
-#include "SS_Cmd_Execution.hxx"
 
 using namespace OpenSpeedShop::cli;
 
