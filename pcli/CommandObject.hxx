@@ -538,6 +538,7 @@ class CommandObject
   bool results_used; // Once used, this object can be deleted!
   std::list<CommandResult *> CMD_Result;
   std::list<CommandResult_RawString *> CMD_Annotation;
+  pthread_cond_t wait_on_dependency;
 
   void Associate_Input ()
   {
@@ -552,26 +553,22 @@ class CommandObject
   CommandObject() { } // Hide default constructor to catch errors at compile time
 
 public:
-//  CommandObject(command_t *P)
-//  {
-//    this->Associate_Input ();
-//    Cmd_Status = CMD_PARSED;
-//    Cmd_Type =  P->type;
-//    Parse_Result = P;
-//    PR = NULL;
-//    results_used = false;
-//  }
   CommandObject(OpenSpeedShop::cli::ParseResult *pr, bool use_by_python)
   {
     this->Associate_Input ();
     Cmd_Status = CMD_PARSED;
     Cmd_Type =  pr->getCommandType();
-//    Parse_Result = NULL;
     PR = pr;
     result_needed_in_python = use_by_python;
     results_used = false;
+    pthread_cond_init(&wait_on_dependency, (pthread_condattr_t *)NULL);
   }
   ~CommandObject() {
+   // Destroy ParseResult object
+    delete PR;
+
+   // Safety check.
+    pthread_cond_destroy (&wait_on_dependency);
   }
 
   InputLineObject *Clip () { return Associated_Clip; }
@@ -582,6 +579,20 @@ public:
   OpenSpeedShop::cli::ParseResult *P_Result () { return PR; }
   // command_t *P_Result () { return Parse_Result; }
   //command_type_t *P_Result () { return Parse_Result; }
+
+  void Wait_On_Dependency (pthread_mutex_t &exp_lock) {
+   // Suspend processing of the command.
+
+   // Release the lock and wait for the all-clear signal.
+    Assert(pthread_cond_wait(&wait_on_dependency,&exp_lock) == 0);
+
+   // Release the recently acquired lock and continue processing the command.
+    Assert(pthread_mutex_unlock(&exp_lock) == 0);
+  }
+  void All_Clear () {
+   // Release the suspended command.
+    Assert(pthread_cond_signal(&wait_on_dependency) == 0);
+  }
     
   void SetSeqNum (int64_t a) { Seq_Num = a; }
   void set_Status (Command_Status S); // defined in CommandObject.cxx
