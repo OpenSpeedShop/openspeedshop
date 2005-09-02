@@ -60,11 +60,8 @@ class InputLineObject
   std::list<CommandObject *> Cmd_Obj;  // list of associated command objects
 
  public:
-  virtual void status_change () {
-      FILE *Log_F = Log_File (who);
-      if (Log_F != NULL) {
-        Print(Log_F);
-      }
+  void status_change () {
+      Default_Log_Output (this);
   }
   virtual void issue_msg (char *msg) {fprintf(stdout,"%s\n",msg);}
   virtual void result_int (int64_t a) {fprintf(stdout,"TLI: %lld\n",a);}
