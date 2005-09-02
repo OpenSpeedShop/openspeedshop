@@ -56,7 +56,7 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     PyObject *p_object = NULL;
     int ret;
     CommandObject *cmd = NULL;
-    ParseResult parse_result = ParseResult();
+    ParseResult *parse_result = new ParseResult();
     int i;
     bool list_returned = false;
     PyObject *py_list = NULL;
@@ -66,7 +66,7 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     cmd_output_to_python = (Embedded_WindowID != 0);
     
     // Give yacc access to ParseResult object.
-    p_parse_result = &parse_result;
+    p_parse_result = parse_result;
     
     if (!PyArg_ParseTuple(args, "s", &input_line)) {
     	;
@@ -85,13 +85,13 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     //parse_result.dumpInfo();
 
     // Build a CommandObject so that the semantic routines can be called.
-    cmd = new CommandObject (&parse_result, python_needs_result);
+    cmd = new CommandObject (parse_result, python_needs_result);
 
     // See if the parse went alright.
     if ((p_parse_result->syntaxError()) ||
         (p_parse_result->getCommandType() == CMD_HEAD_ERROR)) {
         cmd->Result_String ("Parsing failed");
-	parse_result.dumpError(cmd);
+	parse_result->dumpError(cmd);
         cmd->set_Status(CMD_ERROR);
         Cmd_Obj_Complete (cmd);
 
@@ -295,10 +295,10 @@ static PyObject *SS_ReadLine (PyObject *self, PyObject *args) {
 static PyObject *SS_ParseError (PyObject *self, PyObject *args) {
     CommandObject *cmd = NULL;
     PyObject *p_object = NULL;
-    ParseResult parse_result = ParseResult();
+    ParseResult *parse_result = new ParseResult();
 
     // Build a CommandObject so that the semantic routines can be called.
-    cmd = new CommandObject (&parse_result, false);
+    cmd = new CommandObject (parse_result, false);
 
     cmd->Result_String ("Preparse syntax error");
     cmd->set_Status(CMD_ERROR);
