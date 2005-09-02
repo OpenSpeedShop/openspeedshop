@@ -28,6 +28,10 @@ extern "C" void loadTheGUI(ArgStruct *);
 char *Current_OpenSpeedShop_Prompt = "openss>>";
 char *Alternate_Current_OpenSpeedShop_Prompt = "....ss>";
 
+pthread_mutex_t Async_Input_Lock = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t  Async_Input_Available = PTHREAD_COND_INITIALIZER;
+bool            Shut_Down = false;
+
 int64_t History_Limit = DEFAULT_HISTORY_BUFFER;
 int64_t History_Count = 0;
 std::list<std::string> History;
@@ -86,8 +90,6 @@ static CMDWID Last_ReadWindow = 0;
 static bool Async_Inputs = false;
 static bool Looking_for_Async_Inputs = false;
 static CMDWID More_Input_Needed_From_Window = 0;
-static pthread_mutex_t Async_Input_Lock = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t  Async_Input_Available = PTHREAD_COND_INITIALIZER;
 
 static CMDWID Default_WindowID = 0;
 static CMDWID TLI_WindowID = 0;
@@ -337,16 +339,21 @@ class CommandWindowID
   int64_t *MsgWaitingFlag;
   int64_t Current_Input_Level;
   int64_t Cmd_Count_In_Log_File;
+
+  bool Input_Is_Async;
+  EXPID FocusedExp;
+
+  pthread_mutex_t Input_List_Lock;
+  Input_Source *Input;
+
+  pthread_mutex_t Log_File_Lock;
   std::string Log_File_Name;
   FILE *Log_F;
   bool Log_File_Is_A_Temporary_File;
+
   std::string Record_File_Name;
   FILE *Record_F;
   bool Record_File_Is_A_Temporary_File;
-  bool Input_Is_Async;
-  Input_Source *Input;
-  pthread_mutex_t Input_List_Lock;
-  EXPID FocusedExp;
 
   pthread_mutex_t Cmds_List_Lock;
   std::list<InputLineObject *>Complete_Cmds;
@@ -389,7 +396,8 @@ class CommandWindowID
       Input = NULL;
       Input_Is_Async = async;
       Assert(pthread_mutex_init(&Input_List_Lock, NULL) == 0); // dynamic initialization
-      Assert(pthread_mutex_init(&Cmds_List_Lock, NULL) == 0); // dynamic initialization
+      Assert(pthread_mutex_init(&Log_File_Lock, NULL) == 0);   // dynamic initialization
+      Assert(pthread_mutex_init(&Cmds_List_Lock, NULL) == 0);  // dynamic initialization
       FocusedExp = -1;  // This is a "not yet intitialized" flag.  The user should never see it.
 
      // Generate a unique ID and remember it
@@ -416,6 +424,9 @@ class CommandWindowID
     }
   ~CommandWindowID()
     {
+     // Be sure that all the output has been generated.
+      Remove_Completed_Input_Lines();
+
      // Clear the identification field in case someone trys to reference
      // this entry again.
       id = 0;
@@ -423,16 +434,20 @@ class CommandWindowID
       if ((Log_F != NULL) &&
           (predefined_filename (Log_File_Name) == NULL)) {
         fclose (Log_F);
+        Log_F = NULL;
         if (Log_File_Is_A_Temporary_File) {
           (void ) remove (Log_File_Name.c_str());
+          Log_File_Is_A_Temporary_File = false;
         }
       }
      // Remove the record files
       if ((Record_F != NULL) &&
           (predefined_filename (Record_File_Name) == NULL)) {
         fclose (Record_F);
+        Record_F = NULL;
         if (Record_File_Is_A_Temporary_File) {
           (void) remove (Record_File_Name.c_str());
+          Record_File_Is_A_Temporary_File = false;
         }
       }
      // Remove the input specifiers
@@ -446,6 +461,7 @@ class CommandWindowID
       }
      // Remove the control structures associate with the lock
       pthread_mutex_destroy(&Input_List_Lock);
+      pthread_mutex_destroy(&Log_File_Lock);
       pthread_mutex_destroy(&Cmds_List_Lock);
 
      // Unlink from the chain of windows
@@ -524,6 +540,23 @@ class CommandWindowID
     Assert(pthread_mutex_unlock(&Cmds_List_Lock) == 0);
   }
 
+  void Wake_Up_Reader () {
+   // After a new comand is placed in the input window,
+   // wake up a sleeping input reader.
+    if (Looking_for_Async_Inputs) {
+      Assert(pthread_mutex_lock(&Async_Input_Lock) == 0);
+     // After we get the lock, be sure that the reader
+     // is still waiting for input. No need to send a
+     // signal if it grabbed the last line before we
+     // got ahold of the lock.
+      if (Looking_for_Async_Inputs) {
+        Looking_for_Async_Inputs = false;
+        Assert(pthread_cond_signal(&Async_Input_Available) == 0);
+      }
+      Assert(pthread_mutex_unlock(&Async_Input_Lock) == 0);
+    }
+  }
+
   void Append_Input_Source (Input_Source *inp) {
    // Get exclusive access to the lock so that only one
    // read, write, add or delete is done at a time.
@@ -541,22 +574,9 @@ class CommandWindowID
 
    // Release the lock.
     Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
-
-   // After a new comand is placed in the input window,
-   // wake up a sleeping input reader.
-    if (Looking_for_Async_Inputs) {
-      Assert(pthread_mutex_lock(&Async_Input_Lock) == 0);
-     // After we get the lock, be sure that the reader
-     // is still waiting for input. No need to send a
-     // signal if it grabbed the last line before we
-     // got ahold of the lock.
-      if (Looking_for_Async_Inputs) {
-        Looking_for_Async_Inputs = false;
-        Assert(pthread_cond_signal(&Async_Input_Available) == 0);
-      }
-      Assert(pthread_mutex_unlock(&Async_Input_Lock) == 0);
-    }
+    Wake_Up_Reader ();
   }
+
   void Push_Input_Source (Input_Source *inp) {
    // Get exclusive access to the lock so that only one
    // read, write, add or delete is done at a time.
@@ -568,6 +588,7 @@ class CommandWindowID
 
    // Release the lock.
     Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
+    Wake_Up_Reader ();
   }
   void TrackCmd (InputLineObject *Clip) {
    // Get the lock to this window's current in-process commands.
@@ -669,29 +690,43 @@ public:
     return  ((Input == NULL) ? Input_Is_Async : true);
   }
   bool Input_Queued () {
+    bool there_is_input = false;
+    Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
     if (Input != NULL) {
-      return (Input->InObj() != NULL);
+      there_is_input = (Input->InObj() != NULL);
     }
-    return false;
+    Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
+    return there_is_input;
   }
   bool Input_File () {
+    bool there_is_input = false;
+    Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
     if (Input != NULL) {
-     return (Input->Is_File());
+      there_is_input = (Input->Is_File());
     }
-    return false;
+    Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
+    return there_is_input;
   }
   std::string Input_File_Name () {
+    std::string N = std::string ("");
+    Assert(pthread_mutex_lock(&Input_List_Lock) == 0);
     if (Input != NULL) {
-     if (Input->Is_File()) {
-       return Input->File_Name();
-     }
+      if (Input->Is_File()) {
+        N = Input->File_Name();
+      }
     }
-    return std::string ("");
+    Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
+    return N;
   }
   bool Input_Available () {
     return (Input_Async() || Input_Queued() || Input_File());
   }
-  bool Cmds_BeingProcessed () { return (Complete_Cmds.size() != 0); }
+  bool Cmds_BeingProcessed () {
+    Assert(pthread_mutex_lock(&Cmds_List_Lock) == 0);
+    bool there_are_some = (Complete_Cmds.size() != 0);
+    Assert(pthread_mutex_unlock(&Cmds_List_Lock) == 0);
+    return there_are_some;
+  }
 
   // Field access
   void    set_output (FILE *output) { default_output = output; }
@@ -704,26 +739,40 @@ public:
   bool has_errstream () { return (default_errstream != NULL); }
   ostream &errstream () { return default_errstream->mystream(); }
   ss_ostream *ss_errstream () { return default_errstream; }
-  std::string Log_Name() { return Log_File_Name.c_str(); }
-  FILE       *Log_File() { return Log_F; }
   CMDWID  ID () { return id; }
   std::string IAM () { return I_Call_Myself; }
   EXPID   Focus () { return FocusedExp; }
   void    Set_Focus (EXPID exp) { FocusedExp = exp; }
-  bool    Async() {return Input_Is_Async;}
+  bool    Async() { return Input_Is_Async; }
   int64_t Input_Level () { return Current_Input_Level; }
   void    Increment_Level () { Current_Input_Level++; }
   void    Decrement_Level () { Current_Input_Level--; }
 
  // The "Log" command will causes us to echo state changes that
  // are associate with a particular input stream to a user defined file.
+  void   Print_Log_File ( InputLineObject *clip ) {
+    Assert(pthread_mutex_lock(&Log_File_Lock) == 0);
+    if (Log_F != NULL) {
+      clip->Print (Log_F);
+    }
+    Assert(pthread_mutex_unlock(&Log_File_Lock) == 0);
+  }
+  void   Print_Log_File ( CommandObject *C ) {
+    Assert(pthread_mutex_lock(&Log_File_Lock) == 0);
+    if (Log_F != NULL) {
+      C->Print (Log_F);
+    }
+    Assert(pthread_mutex_unlock(&Log_File_Lock) == 0);
+  }
   bool   Set_Log_File ( std::string tofname ) {
+    Assert(pthread_mutex_lock(&Log_File_Lock) == 0);
     FILE *tof = predefined_filename (tofname);
     if ((Log_F != NULL) &&
         (predefined_filename (Log_File_Name) == NULL)) {
      // Copy the old file to the new file.
       fclose (Log_F);
-      if (tof == NULL) {
+      if ((tof == NULL)  &&
+          (tofname != Log_File_Name)) {
         int64_t len1 = Log_File_Name.length();
         int64_t len2 = tofname.length();
         char *scmd = (char *)malloc(6 + len1 + len2);
@@ -732,12 +781,14 @@ public:
         free (scmd);
         if (ret != 0) {
          // Some system error.  Keep the old log file around.
+          Assert(pthread_mutex_unlock(&Log_File_Lock) == 0);
           return false;
         }
         Log_File_Is_A_Temporary_File = false;
       }
     }
     if (Log_File_Is_A_Temporary_File) {
+      fclose (Log_F);
       (void) remove (Log_File_Name.c_str());
     }
     if (tof == NULL) {
@@ -746,22 +797,31 @@ public:
     Log_File_Name = tofname;
     Log_F  = tof;
     Log_File_Is_A_Temporary_File = false;
+    Assert(pthread_mutex_unlock(&Log_File_Lock) == 0);
     return (Log_F != NULL);
   }
   void   Remove_Log_File () {
+    Assert(pthread_mutex_lock(&Log_File_Lock) == 0);
     if ((Log_F != NULL)  &&
         (predefined_filename (Log_File_Name) == NULL)) {
       fclose (Log_F);
+      if (Log_File_Is_A_Temporary_File) {
+        (void) remove (Log_File_Name.c_str());
+      }
     }
+    Log_File_Is_A_Temporary_File = false;
     Log_File_Name = std::string("");
     Log_F = NULL;
+    Assert(pthread_mutex_unlock(&Log_File_Lock) == 0);
   }
 
  // The "Record" command will causes us to echo statements that
  // come from a particular input stream to a user defined file.
   bool Set_Record_File ( std::string tofname ) {
+    bool file_was_set = false;
+    Assert(pthread_mutex_lock(&Log_File_Lock) == 0);
     if (Input) {
-      return (Input->Set_Record ( tofname ));
+      file_was_set = (Input->Set_Record ( tofname ));
     } else {
       if (Record_F && !Record_File_Is_A_Temporary_File) {
         fclose (Record_F);
@@ -772,10 +832,13 @@ public:
       Record_File_Is_A_Temporary_File = is_predefined;
       Record_File_Name = tofname;
       Record_F = tof; 
-      return (tof != NULL);
+      file_was_set = (tof != NULL);
     }
+    Assert(pthread_mutex_unlock(&Log_File_Lock) == 0);
+    return file_was_set;
   }
   void   Remove_Record_File () {
+    Assert(pthread_mutex_lock(&Log_File_Lock) == 0);
     if (Input) {
       Input->Remove_Record ();
     } else {
@@ -786,8 +849,10 @@ public:
       Record_File_Name = std::string("");
       Record_F = NULL;
     }
+    Assert(pthread_mutex_unlock(&Log_File_Lock) == 0);
   }
   void Record (InputLineObject *clip) {
+    Assert(pthread_mutex_lock(&Log_File_Lock) == 0);
     FILE *rf = NULL;
     bool is_predefined = false;
     if (Input) {
@@ -800,10 +865,11 @@ public:
     if (rf) {
       fprintf(rf,"%s", clip->Command().c_str());  // Commands have a "\n" at the end.
       if (is_predefined) {
-       // Log_File is something like stdout, so push the message out to user.
+       // Record_File is something like stdout, so push the message out to user.
         fflush (rf);
       }
     }
+    Assert(pthread_mutex_unlock(&Log_File_Lock) == 0);
   }
 
   // For error reporting
@@ -864,7 +930,7 @@ public:
     Assert(pthread_mutex_unlock(&Cmds_List_Lock) == 0);
     return there_are_some;
   }
-  void Print(ostream &mystream) {
+  void Print_Header(ostream &mystream) {
     mystream << "W " << id << ":";
     mystream << (Input_Is_Async?" async":" sync") << (remote?" remote":" local");
     mystream << "IAM:" << I_Call_Myself << " " << Host_ID << " " << Process_ID;
@@ -872,20 +938,6 @@ public:
 
     mystream << "      outstreams=" << ptr2str(default_outstream);
     mystream << ", errstream=" << ptr2str (default_errstream) << std::endl;
-    if (Input) {
-      mystream << "  Active Input Source Stack:" << std::endl;
-      (void) Print_Queued_Cmds(mystream);
-    }
-
-   // Print the list of completed commands
-    (void)Print_Active_Cmds (mystream);
-  }
-  void Dump(ostream &mystream) {
-    std::list<CommandWindowID *>::reverse_iterator cwi;
-    for (cwi = CommandWindowID_list.rbegin(); cwi != CommandWindowID_list.rend(); cwi++)
-    {
-      (*cwi)->Print(mystream);
-    }
   }
 };
 
@@ -1039,12 +1091,6 @@ int64_t Find_Command_Level (CMDWID WindowID)
   return (cwi != NULL) ? cwi->Input_Level() : 0;
 }
 
-FILE *Log_File (CMDWID WindowID)
-{
-  CommandWindowID *cwi = Find_Command_Window (WindowID);
-  return (cwi != NULL) ? cwi->Log_File() : NULL;
-}
-
 // Semantic Utilities
 bool Window_Is_Async (CMDWID WindowID)
 {
@@ -1108,15 +1154,6 @@ EXPID Experiment_Focus (CMDWID WindowID, EXPID ExperimentID)
     return ExperimentID;
   }
   return 0;
-}
-
-void List_CommandWindows (ostream &mystream)
-{
-  if (*CommandWindowID_list.begin()) {
-    (*CommandWindowID_list.begin())->Dump(mystream);
-  } else {
-    mystream << std::endl << "(there are no defined windows)" << std::endl;
-  }
 }
 
 static bool Read_Log_File_History (CommandObject *cmd, enum Log_Entry_Type log_type,
@@ -1484,8 +1521,28 @@ static void Internal_Info_Dump (CMDWID issuedbywindow) {
     mystream << "      ss_ostreams: stdout=" << ptr2str(ss_out);
     mystream << ", stderr=" << ptr2str (ss_err);
     mystream << ", ttyout=" << ptr2str (ss_ttyout) << std::endl;
-    List_CommandWindows(mystream);
-    ExperimentObject::Dump(mystream);
+    mystream << "      " << EXT_Created << " Command Execution Threads have been created" << std::endl;
+
+   // Summarize the defined input windows
+    if (*CommandWindowID_list.begin()) {
+      std::list<CommandWindowID *>::reverse_iterator cwi;
+      for (cwi = CommandWindowID_list.rbegin(); cwi != CommandWindowID_list.rend(); cwi++)
+      {
+        (*cwi)->Print_Header(mystream);
+      }
+    } else {
+      mystream << std::endl << "(there are no defined windows)" << std::endl;
+    }
+
+   // Dump the ExperimentObject_list
+    std::list<ExperimentObject *>::reverse_iterator expi;
+    Assert(pthread_mutex_lock(&Experiment_List_Lock) == 0);
+    for (expi = ExperimentObject_list.rbegin(); expi != ExperimentObject_list.rend(); expi++)
+    {
+      (*expi)->Print(mystream);
+    }
+    Assert(pthread_mutex_unlock(&Experiment_List_Lock) == 0);
+
     this_ss_stream->releaseLock();
     Assert(!Fatal_Error_Encountered);
 }
@@ -1586,6 +1643,7 @@ static void User_Info_Dump (CMDWID issuedbywindow) {
   }
 
  // Determine the number of active experiments
+  Assert(pthread_mutex_lock(&Experiment_List_Lock) == 0);
   int64_t ecnt = 0;
   std::list<ExperimentObject *>::reverse_iterator expi;
   for (expi = ExperimentObject_list.rbegin(); expi != ExperimentObject_list.rend(); expi++) {
@@ -1643,6 +1701,7 @@ static void User_Info_Dump (CMDWID issuedbywindow) {
       }
     }
   }
+  Assert(pthread_mutex_unlock(&Experiment_List_Lock) == 0);
 
   mystream << "************************" << std::endl << std::endl;
   this_ss_stream->releaseLock();
@@ -1930,7 +1989,8 @@ void Default_TLI_Command_Output (CommandObject *C) {
       CommandWindowID *cw = (w) ? Find_Command_Window (w) : NULL;
 
      // Print the ResultdObject list
-      if (cw->has_outstream()) {
+      if ((cw != NULL) &&
+          (cw->has_outstream())) {
         ss_ostream *this_ss_stream = ((C->Status() == CMD_ERROR) && cw->has_errstream())
                                                    ? cw->ss_errstream() : cw->ss_outstream();
         this_ss_stream->acquireLock();
@@ -1961,9 +2021,40 @@ void Default_TLI_Command_Output (CommandObject *C) {
   }
 }
 
+void Default_Log_Output (CommandObject *C) {
+  CommandWindowID *cw = Find_Command_Window (C->Clip()->Who());
+  if (cw != NULL) cw->Print_Log_File (C);
+}
+void Default_Log_Output (InputLineObject *clip) {
+  CommandWindowID *cw = Find_Command_Window (clip->Who());
+  if (cw != NULL) cw->Print_Log_File (clip);
+}
+
+// Get rid of commands.
+
+void   Purge_Input_Sources () {
+  std::list<CommandWindowID *>::reverse_iterator cwi;
+  for (cwi = CommandWindowID_list.rbegin(); cwi != CommandWindowID_list.rend(); cwi++)
+  {
+   // Get rid of all queued commands from this window.
+    CommandWindowID *cw = *cwi;
+    cw->Purge_All_Input ();
+  }
+}
+
+void   Purge_Executing_Commands () {
+  std::list<CommandWindowID *>::reverse_iterator cwi;
+  for (cwi = CommandWindowID_list.rbegin(); cwi != CommandWindowID_list.rend(); cwi++)
+  {
+   // Get rid of all executing commands from this window.
+    CommandWindowID *cw = *cwi;
+    cw->Abort_Executing_Input_Lines ();
+  }
+}
+
 // Catch keyboard interrupt signals from TLI window.
 
-void User_Interrupt (CMDWID issuedbywindow) {
+static void User_Interrupt (CMDWID issuedbywindow) {
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
   if (cw != NULL) {
    // Get rid of all queued commands from this window.
@@ -2061,6 +2152,7 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
                                  NULL, &Default_TLI_Line_Output, &Default_TLI_Command_Output);
   }
 
+pthread_exit (0);
  // We have exited the loop and will no longer read input.
   TLI_WindowID = 0;
   if (GUI_WindowID != 0) {
@@ -2197,6 +2289,10 @@ read_another_window:
           Assert(pthread_mutex_lock(&Async_Input_Lock) == 0);
           Looking_for_Async_Inputs = true;
           I_HAVE_ASYNC_INPUT_LOCK = true;
+          if (Shut_Down) {
+            clip = NULL;  // Signal an EOF to Python
+            break;
+          }
         }
         goto read_another_window;
       }
@@ -2208,7 +2304,23 @@ read_another_window:
         There_Must_Be_More_Input(NULL);
       }
 
-     // Return an empty line to indicate an EOF.
+     // Enter termination processing.
+      if (!I_HAVE_ASYNC_INPUT_LOCK) {
+        Assert(pthread_mutex_lock(&Async_Input_Lock) == 0);
+        I_HAVE_ASYNC_INPUT_LOCK = true;
+      }
+      if (!Shut_Down) {
+       // We must have encountered an EOF on all the input streams.
+       // Create an 'exit' command to terminate command processing.
+        clip = new InputLineObject (readfromwindow, "Exit\n");
+        Shut_Down = true;  // only allow one.
+      } else {
+       // An 'Exit' command has been processed.  
+        I_HAVE_ASYNC_INPUT_LOCK = false;
+        Assert(pthread_cond_wait(&Async_Input_Available,&Async_Input_Lock) == 0);
+        clip = NULL;  // Signal an EOF to Python
+      }
+      I_HAVE_ASYNC_INPUT_LOCK = true;
       break;
     }
     const char *s = clip->Command().c_str();
