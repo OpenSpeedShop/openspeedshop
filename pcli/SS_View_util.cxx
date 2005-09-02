@@ -232,7 +232,7 @@ CommandResult *Get_Function_Metric (CommandObject *cmd,
     GetMetricsForFunction(cmd, F, tgrp, collector, metric, Value);
     if (Value != 0) Param_Value = new CommandResult_Uint (Value);
   } else if( m.isType(typeid(uint64_t)) ) {
-    int64_t Value = 0;
+    uint64_t Value = 0;
     GetMetricsForFunction(cmd, F, tgrp, collector, metric, Value);
     if (Value != 0) Param_Value = new CommandResult_Uint (Value);
   } else if( m.isType(typeid(int)) ) {
@@ -273,7 +273,7 @@ CommandResult *Get_Total_Metric (CommandObject *cmd,
     GetMetricsforThreads(cmd, tgrp, collector, metric, Value);
     if (Value != 0) Param_Value = new CommandResult_Uint (Value);
   } else if( m.isType(typeid(uint64_t)) ) {
-    int64_t Value = 0;
+    uint64_t Value = 0;
     GetMetricsforThreads(cmd, tgrp, collector, metric, Value);
     if (Value != 0) Param_Value = new CommandResult_Uint (Value);
   } else if( m.isType(typeid(int)) ) {
