@@ -125,6 +125,7 @@ void CanvasView::contentsMousePressEvent( QMouseEvent *e )
       if( item != NULL )
       {
         int selected = item->index();
+#ifdef IF_MOVE_PIE_ON_SELECT
         nprintf(DEBUG_PANELS) ("A: THE USER SELECTED ELEMENT =%d\n", selected );
 
         int chartType = form->chartType();
@@ -171,6 +172,7 @@ void CanvasView::contentsMousePressEvent( QMouseEvent *e )
             cse->moveBy( shadow_angle, shadow_angle );
           }
         }
+#endif // IF_MOVE_PIE_ON_SELECT
 
         nprintf(DEBUG_PANELS) ("call form->mouseClicked(%d)\n", selected);
         form->mouseClicked(selected);

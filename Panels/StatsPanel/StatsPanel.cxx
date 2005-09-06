@@ -657,6 +657,10 @@ StatsPanel::itemSelected(int index)
       itemSelected(item);
 #else // OLDWAY
       currentItem = (SPListViewItem *)item;
+// highlight the list item
+// Now call the action routine.
+splv->setSelected((QListViewItem *)item, TRUE);
+      itemSelected(item);
 #endif // OLDWAY
       break;
     }
