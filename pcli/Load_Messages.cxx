@@ -32,7 +32,6 @@ using namespace std;
 #include "SS_Message_Czar.hxx"
 
 #include "SS_Input_Manager.hxx"
-#include "SS_Cmd_Execution.hxx"
 
 using namespace OpenSpeedShop::cli;
 

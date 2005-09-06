@@ -58,7 +58,7 @@ libopenss_cli_la_SOURCES = \
 	help.cxx \
 	Load_Messages.cxx help_cmd_msg.dxx \
 	PY_Input.cxx \
-	SS_Cmd_Execution.hxx SS_Cmd_Execution.cxx \
+	SS_Cmd_Control.hxx SS_Cmd_Control.cxx \
 	SS_Input_Manager.hxx \
 	SS_Parse_Lex.lxx \
 	SS_Parse_Param.hxx SS_Parse_Param.cxx \
