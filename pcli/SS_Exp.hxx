@@ -114,6 +114,7 @@ class ExperimentObject
 
   EXPID ExperimentObject_ID() {return Exp_ID;}
   Experiment *FW() {return FW_Experiment;}
+
   bool Data_Base_Is_Tmp () {return Data_File_Has_A_Generated_Name;}
   std::string Data_Base_Name () {
     if (FW() == NULL) {
@@ -126,6 +127,19 @@ class ExperimentObject
        // Don't really care why.
         return "(Unable to determine.)";
       }
+    }
+  }
+  void RenameDB (std::string New_DB) {
+   // Rename the data base file.
+    if (FW_Experiment != NULL) {
+      FW_Experiment->renameTo(New_DB);
+      Data_File_Has_A_Generated_Name = false;
+    }
+  }
+  void CopyDB (std::string New_DB) {
+   // Make a copy of the data base file.
+    if (FW_Experiment != NULL) {
+      FW_Experiment->copyTo(New_DB);
     }
   }
 
@@ -177,166 +191,16 @@ class ExperimentObject
       }
     }
     return false;
+
   }
+
   int Status() { return ExpStatus; }
-  int Determine_Status() {
-    int A = ExpStatus_NonExistent;
-    if (FW() == NULL) {
-      ExpStatus = A;
-    } else if (TS_Lock()) {
-      ThreadGroup tgrp = FW()->getThreads();
-      if (tgrp.empty()) {
-        A = ExpStatus_Paused;
-      } else {
-        ThreadGroup::iterator ti;
-        for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
-          Thread t = *ti;
-          try {
-            if (t.getState() == Thread::Running) {
-             // if any thread is Running, the experiment is also.
-              A = ExpStatus_Running;
-              break;
-            } else if (t.getState() == Thread::Suspended) {
-             // Paused can override Terminated
-              A = ExpStatus_Paused;
-            } else if (t.getState() == Thread::Terminated) {
-             // The experiment is terminated only if all the threads are.
-              if (A != ExpStatus_Paused) {
-                A = ExpStatus_Terminated;
-              }
-            } else if ((t.getState() == Thread::Connecting) ||
-                       (t.getState() == Thread::Disconnected) ||
-                       (t.getState() == Thread::Nonexistent)) {
-             // These are 'Don't care" states at the user level.
-             // Note: we might default to ExpStatus_NonExistent.
-            } else {
-              A = ExpStatus_InError;
-              break;
-            }
-          }
-          catch(const Exception& error) {
-           // Don't really care why.
-           // Mark the experiment with an error and continue on.
-            A = ExpStatus_InError;
-            break;
-          }
-        }
-      }
-      ExpStatus = A;
-      Q_UnLock();
-    }
-    return A;
-  }
-
   void setStatus (int S) {ExpStatus = S;}
+  int Determine_Status();
+  std::string ExpStatus_Name ();
 
-  void RenameDB (std::string New_DB) {
-   // Rename the data base file.
-    if (FW_Experiment != NULL) {
-      FW_Experiment->renameTo(New_DB);
-      Data_File_Has_A_Generated_Name = false;
-    }
-  }
-
-  void CopyDB (std::string New_DB) {
-   // Make a copy of the data base file.
-    if (FW_Experiment != NULL) {
-      FW_Experiment->copyTo(New_DB);
-    }
-  }
-
-  std::string ExpStatus_Name () {
-    Determine_Status();
-    if ((this == NULL) || (ExpStatus == ExpStatus_NonExistent)) return std::string("NonExistent");
-    if (ExpStatus == ExpStatus_Paused) return std::string("Paused");
-    if (ExpStatus == ExpStatus_Running) return std::string("Running");
-    if (ExpStatus == ExpStatus_Terminated) return std::string("Terminated");
-    if (ExpStatus == ExpStatus_InError) return std::string("Error");
-    return std::string("Unknown");
-  }
-
-  void Print_Waiting (ostream &mystream) {
-    Assert(pthread_mutex_lock(&Experiment_Lock) == 0);
-    if (waiting_cmds.begin() != waiting_cmds.end()) {
-      mystream << "  Waiting Commands" << std::endl;
-      std::list<CommandObject *>::iterator wi;
-      for (wi = waiting_cmds.begin(); wi != waiting_cmds.end(); wi++) {
-        CommandObject *cmd = *wi;
-        mystream << "    " << cmd->Clip()->Command() << std::endl;
-      }
-    }
-    Assert(pthread_mutex_unlock(&Experiment_Lock) == 0);
-  }
-  void Print(ostream &mystream) {
-    mystream << "Experiment " << ExperimentObject_ID() << " " << ExpStatus_Name() << " data->";
-    if (TS_Lock()) {
-      mystream << ((FW_Experiment != NULL) ? FW_Experiment->getName() : "(null)") << std::endl;
-      if (FW_Experiment != NULL) {
-        ThreadGroup tgrp = FW_Experiment->getThreads();
-        ThreadGroup::iterator ti;
-        bool atleastone = false;
-        for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
-          Thread t = *ti;
-          std::string host = t.getHost();
-          pid_t pid = t.getProcessId();
-          if (!atleastone) {
-            atleastone = true;
-          }
-          mystream << "    -h " << host << " -p " << pid;
-          std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
-          if (pthread.first) {
-            mystream << " -t " << pthread.second;
-          }
-#ifdef HAVE_MPI
-          std::pair<bool, int> rank = t.getMPIRank();
-          if (rank.first) {
-            mystream << " -r " << rank.second;
-          }
-#endif
-          CollectorGroup cgrp = t.getCollectors();
-          CollectorGroup::iterator ci;
-          int collector_count = 0;
-          for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
-            Collector c = *ci;
-            Metadata m = c.getMetadata();
-            if (collector_count) {
-              mystream << ",";
-            } else {
-              mystream << " ";
-              collector_count = 1;
-            }
-            mystream << " " << m.getUniqueId();
-          }
-          mystream << std::endl;
-        }
-
-        CollectorGroup cgrp = FW_Experiment->getCollectors();
-        CollectorGroup::iterator ci;
-        atleastone = false;
-        for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
-          Collector c = *ci;
-          ThreadGroup tgrp = c.getThreads();
-          if (tgrp.empty()) {
-            Metadata m = c.getMetadata();
-            if (atleastone) {
-              mystream << ",";
-            } else {
-              mystream << "   ";
-              atleastone = true;
-            }
-            mystream << " " << m.getUniqueId();
-          }
-        }
-        if (atleastone) {
-          mystream << std::endl;
-        }
-      }
-      Q_UnLock ();
-    } else {
-      mystream << "(Currently unable to access the database)" << std::endl;
-    }
-    Print_Waiting (mystream);
-  }
+  void Print_Waiting (ostream &mystream);
+  void Print(ostream &mystream);
 };
 
 // Make sure all experiments are closed and associated files freed.
