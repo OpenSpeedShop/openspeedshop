@@ -216,6 +216,10 @@ static std::list<CommandObject *> EXT_Dispatch;
 static bool Cmd_Waiting = false;
 static pthread_cond_t  Waiting_For_Cmds = PTHREAD_COND_INITIALIZER;
 
+static bool Main_Waiting = false;
+static int64_t Main_Waiting_Count = 0;
+static pthread_cond_t  Waiting_For_Main = PTHREAD_COND_INITIALIZER;
+
 static void Wait_For_Others_To_Terminate () {
   Assert(pthread_mutex_lock(&Cmd_EXT_Lock) == 0);
   while (EXT_Allocated > 2) {   // There must be 2 processes: me and one to wake me up!
@@ -290,7 +294,6 @@ static void Cmd_EXT_Create () {
         EXT_Allocated--;  // I'm going to go away.
         if (EXT_Allocated == 1) {
          // Wakeup the last process so it can terminate.
-          Assert (Cmd_Waiting);
           Assert(pthread_cond_signal(&Waiting_For_Cmds) == 0);
         }
         Assert(pthread_mutex_unlock(&Cmd_EXT_Lock) == 0);    // release lock
@@ -318,6 +321,12 @@ static void Cmd_EXT_Create () {
 
    // When we complete the command, look for more work to do.
     Assert(pthread_mutex_lock(&Cmd_EXT_Lock) == 0);
+
+    if (Main_Waiting &&
+        (EXT_Dispatch.size() <= Main_Waiting_Count)) {
+      Main_Waiting = false;
+      Assert(pthread_cond_signal(&Waiting_For_Main) == 0);
+    }
 
     if (Terminate_All_Execution) {
      // Somebody has processed an Exit command.
@@ -365,25 +374,49 @@ void SS_Execute_Cmd (CommandObject *cmd) {
   Assert(pthread_mutex_lock(&Cmd_EXT_Lock) == 0);
 
   if (!Terminate_All_Execution) {
-   // Add the Command to the Queue
-    EXT_Dispatch.push_back(cmd);
+    if (cmd->Type() == CMD_RECORD) {
+     // Execute this command with the main thread
+     // and do it immediately so that any new comamnds
+     // read from the same input file will be logged
+     // in the record file.
+      Cmd_Execute (cmd);
+    } else {
+     // Add the Command to the Queue
+      EXT_Dispatch.push_back(cmd);
 
-   // Wake up someone to process it.
-    if (Ready_for_Next_Cmd) {
-      if (EXT_Free != 0) {
-        Assert(pthread_cond_signal(&Cmd_EXT_Dispatch) == 0);
-      }  else if (EXT_Allocated < EXT_MAX) {
-       // Allocate a new process to execute comamnds.
-        int stat = pthread_create(&EXT_handle[EXT_Allocated], 0, (void *(*)(void *))Cmd_EXT_Create,(void *)NULL);
-        if (stat == 0) {
-         // Control lock released when thread does a "join"
-          return;
-        } else {
-         // Attempt error recovery.
-          cerr << "ERROR: unable to execute any comands." << std::endl;
-          Terminate_All_Execution = true;
-          Shut_Down = true;
+     // Wake up someone to process it.
+      if (Ready_for_Next_Cmd) {
+        if (EXT_Free != 0) {
+          Assert(pthread_cond_signal(&Cmd_EXT_Dispatch) == 0);
+        }  else if (EXT_Allocated < EXT_MAX) {
+         // Allocate a new process to execute comamnds.
+          int stat = pthread_create(&EXT_handle[EXT_Allocated], 0, (void *(*)(void *))Cmd_EXT_Create,(void *)NULL);
+          if (stat != 0) {
+           // Attempt error recovery.
+            cerr << "ERROR: unable to execute any comands." << std::endl;
+            Terminate_All_Execution = true;
+            Shut_Down = true;
+          } else {
+           // Control lock released when thread does a "join"
+          }
         }
+      }
+
+      if (cmd->Type() == CMD_PLAYBACK) {
+       // Don't read any more input until this command is
+       // processed and the input file can be used.
+        Main_Waiting = true;
+        Main_Waiting_Count = 0;
+        Assert(pthread_cond_wait(&Waiting_For_Main,&Cmd_EXT_Lock) == 0);
+      }
+
+      if (!Main_Waiting &&
+          (EXT_Dispatch.size() > (EXT_MAX * 2))) {
+       // Don't read any more input until we can process
+       // some of the commands we already have.
+        Main_Waiting = true;
+        Main_Waiting_Count = EXT_MAX;
+        Assert(pthread_cond_wait(&Waiting_For_Main,&Cmd_EXT_Lock) == 0);
       }
     }
   }
