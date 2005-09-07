@@ -166,6 +166,13 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
 StatsPanel::~StatsPanel()
 {
   // Delete anything you new'd from the constructor.
+  nprintf( DEBUG_CONST_DESTRUCT ) ("  StatsPanel::~StatsPanel() destructor called\n");
+
+  if( currentCollector )
+  {
+// printf("Destructor delete the currentCollector\n");
+    delete currentCollector;
+  }
 }
 
 void
@@ -1676,6 +1683,7 @@ StatsPanel::updateStatsPanelData()
         {
           if( currentCollector )
           {
+// printf("delete the currentCollector\n");
             delete currentCollector;
           }
           currentCollector = new Collector(*ci);
