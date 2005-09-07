@@ -326,7 +326,7 @@ MPIPanel::~MPIPanel()
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("  MPIPanel::~MPIPanel() destructor called\n");
   statusTimer->stop();
-//  delete statusTimer;
+// delete statusTimer;
 
 //  delete frameLayout;
 }
@@ -1335,11 +1335,9 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
 QString optionsStr = QString::null;
 if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
 {
-  optionsStr = " -v mpi";
-} else
-{
-  optionsStr = QString("-h %1").arg(mw->hostStr);
+  optionsStr += QString(" -v mpi");
 }
+optionsStr += QString(" -h %1").arg(mw->hostStr);
 //      command = QString("expAttach -x %1 %2 -p  %3 -h %4 ").arg(expID).arg(mpiStr).arg(pidStr).arg(mw->hostStr);
       command = QString("expAttach -x %1 %2 -p  %3 ").arg(expID).arg(optionsStr).arg(pidStr);
 printf("command=(%s)\n", command.ascii() );
