@@ -1561,7 +1561,7 @@ HW_CounterWizardPanel::findPAPIStr(QString param)
 
   for(std::vector<papi_preset_event>::const_iterator it = papi_available_presets.begin(); it != papi_available_presets.end(); ++it)
   {
-printf("it->first.c_str()=%s it->second.c_str()=%s\n", it->first.c_str(), it->second.c_str() );
+// printf("it->first.c_str()=%s it->second.c_str()=%s\n", it->first.c_str(), it->second.c_str() );
     if( param == QString(it->first.c_str()) )
     {
       return( QString("%1  %2").arg(it->first.c_str()).arg(it->second.c_str()) );

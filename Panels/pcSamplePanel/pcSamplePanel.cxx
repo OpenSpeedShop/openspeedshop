@@ -1273,7 +1273,7 @@ pcSamplePanel::processLAO(LoadAttachObject *lao)
         }
         if( QString(getName()).contains("HW Counter") )
         {
-          printf("W'ere the HW Counter Panel!!!\n");
+//          printf("W'ere the HW Counter Panel!!!\n");
             
           ParamList::Iterator it = lao->paramList->begin();
           it++;
