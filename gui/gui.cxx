@@ -227,4 +227,11 @@ w->pidStrList = NULL;
     return 1;
   }
 
+  int
+  gui_exit()
+  {
+//    printf("Exit the gui!\n");
+      delete w->topPC;
+  }
+
 }

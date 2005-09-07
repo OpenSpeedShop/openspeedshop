@@ -326,9 +326,9 @@ MPIPanel::~MPIPanel()
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("  MPIPanel::~MPIPanel() destructor called\n");
   statusTimer->stop();
-  delete statusTimer;
+//  delete statusTimer;
 
-  delete frameLayout;
+//  delete frameLayout;
 }
 
 

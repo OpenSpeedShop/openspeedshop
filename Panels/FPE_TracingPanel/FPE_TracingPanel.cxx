@@ -326,9 +326,9 @@ FPE_TracingPanel::~FPE_TracingPanel()
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("  FPE_TracingPanel::~FPE_TracingPanel() destructor called\n");
   statusTimer->stop();
-  delete statusTimer;
+//  delete statusTimer;
 
-  delete frameLayout;
+//  delete frameLayout;
 }
 
 

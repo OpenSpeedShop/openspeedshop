@@ -326,9 +326,9 @@ pcSamplePanel::~pcSamplePanel()
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("  pcSamplePanel::~pcSamplePanel() destructor called\n");
   statusTimer->stop();
-  delete statusTimer;
+// delete statusTimer;
 
-  delete frameLayout;
+//  delete frameLayout;
 }
 
 

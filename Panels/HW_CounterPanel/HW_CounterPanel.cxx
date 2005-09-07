@@ -326,9 +326,9 @@ HW_CounterPanel::~HW_CounterPanel()
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("  HW_CounterPanel::~HW_CounterPanel() destructor called\n");
   statusTimer->stop();
-  delete statusTimer;
+//  delete statusTimer;
 
-  delete frameLayout;
+//  delete frameLayout;
 }
 
 

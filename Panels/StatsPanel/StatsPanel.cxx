@@ -167,6 +167,7 @@ StatsPanel::~StatsPanel()
 {
   // Delete anything you new'd from the constructor.
   nprintf( DEBUG_CONST_DESTRUCT ) ("  StatsPanel::~StatsPanel() destructor called\n");
+// printf("  StatsPanel::~StatsPanel() destructor called\n");
 
   if( currentCollector )
   {

@@ -326,9 +326,9 @@ IOPanel::~IOPanel()
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("  IOPanel::~IOPanel() destructor called\n");
   statusTimer->stop();
-  delete statusTimer;
+//  delete statusTimer;
 
-  delete frameLayout;
+//  delete frameLayout;
 }
 
 

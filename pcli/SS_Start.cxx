@@ -241,6 +241,8 @@ extern "C"
       CMDWID w = gui_window;
       gui_window = 0;
       Window_Termination(w);
+      extern void killTheGUI();
+      killTheGUI();
       pthread_cancel (phandle[1]);
     }
     if (tli_window != 0)
@@ -406,12 +408,14 @@ setup_signal_handler (int s)
   // big GUI libraries.   We load the gui as a dynamic library. 
   // The GUI will then start it's own thread and fire up a copy of the
   // gui (that will talk with the cli).
+  static lt_ptr (*dl_gui_kill_routine)();
   void
   loadTheGUI(ArgStruct *argStruct)
   {
     char gui_plugin_file[2048];
     char *gui_dl_name = getenv("OPENSS_GUI_RELOCATABLE_NAME");
     char *gui_entry_point = getenv("OPENSS_GUI_ENTRY_POINT");
+    char *gui_exit_point = getenv("OPENSS_GUI_EXIT_POINT");
     char *plugin_directory = getenv("OPENSS_PLUGIN_PATH");
 
     // Insure the libltdl user-defined library search path has been set
@@ -420,6 +424,7 @@ setup_signal_handler (int s)
     // Load GUI library
     if( !gui_dl_name ) gui_dl_name = "libopenss-GUI";
     if( !gui_entry_point ) gui_entry_point = "gui_init";
+    if( !gui_exit_point ) gui_exit_point = "gui_exit";
   
     lt_dlhandle dl_gui_object = lt_dlopenext((const char *)gui_dl_name);
     if( dl_gui_object == NULL ) {
@@ -434,10 +439,22 @@ setup_signal_handler (int s)
       fprintf(stderr, "%s\n", lt_dlerror() );
       exit(EXIT_FAILURE);
     }
+
+    dl_gui_kill_routine = (lt_ptr (*)())lt_dlsym(dl_gui_object, gui_exit_point);
+    if( dl_gui_kill_routine == NULL )
+    {
+      fprintf(stderr, "%s\n", lt_dlerror() );
+      exit(EXIT_FAILURE);
+    }
   
 //    pthread_t gui_phandle;
-//    (*dl_gui_init_routine)((void *)argStruct, &gui_phandle);
     (*dl_gui_init_routine)((void *)argStruct, &phandle[1]);
+  }
+
+  void
+  killTheGUI()
+  {
+    (*dl_gui_kill_routine)();
   }
 
 }

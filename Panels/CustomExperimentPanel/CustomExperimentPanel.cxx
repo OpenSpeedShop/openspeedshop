@@ -326,9 +326,9 @@ CustomExperimentPanel::~CustomExperimentPanel()
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("  CustomExperimentPanel::~CustomExperimentPanel() destructor called\n");
   statusTimer->stop();
-  delete statusTimer;
+//  delete statusTimer;
 
-  delete frameLayout;
+//  delete frameLayout;
 }
 
 
