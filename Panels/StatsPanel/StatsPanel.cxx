@@ -93,7 +93,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   currentCollector = NULL;
   currentItem = NULL;
   currentItemIndex = 0;
-printf("currentItemIndex initialized to 0\n");
+// printf("currentItemIndex initialized to 0\n");
 
   f = NULL;
   metricMenu = NULL;
@@ -674,17 +674,13 @@ StatsPanel::itemSelected(int index)
 // printf("%d == %d\n", i, index);
     if( i == index )
     {
-#ifdef OLDWAY
-      itemSelected(item);
-#else // OLDWAY
       currentItem = (SPListViewItem *)item;
       currentItemIndex = index;
-printf("A: currentItemIndex set to %d\n", currentItemIndex);
+// printf("A: currentItemIndex set to %d\n", currentItemIndex);
 // highlight the list item
 // Now call the action routine.
-splv->setSelected((QListViewItem *)item, TRUE);
+      splv->setSelected((QListViewItem *)item, TRUE);
       itemSelected(item);
-#endif // OLDWAY
       break;
     }
     i++;
@@ -1356,9 +1352,9 @@ if( currentMetricTypeStr == "unsigned int" )
         {
 // printf("item->first=%d\n", item->first);
 // printf("item->second=%f\n", item->second );
-printf("A: TotalTime=%f\n", TotalTime);
-printf("A: item->second=%f\n", item->second);
-int color_index = getLineColor(item->second);
+// printf("A: TotalTime=%f\n", TotalTime);
+// printf("A: item->second=%f\n", item->second);
+          int color_index = getLineColor(item->second);
           hlo = new HighlightObject(di->getPath(), item->first, hotToCold_color_names[color_index], item->second, (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
           highlightList->push_back(hlo);
 // printf("Push_back a hlo for %d %f\n", item->first, item->second);
@@ -1374,9 +1370,9 @@ int color_index = getLineColor(item->second);
         {
 // printf("item->first=%d\n", item->first);
 // printf("item->second=%f\n", item->second );
-printf("B: TotalTime=%f\n", TotalTime);
-printf("B: item->second=%f\n", item->second);
-int color_index = getLineColor(item->second);
+//printf("B: TotalTime=%f\n", TotalTime);
+// printf("B: item->second=%f\n", item->second);
+          int color_index = getLineColor(item->second);
           hlo = new HighlightObject(di->getPath(), item->first,  hotToCold_color_names[color_index], item->second, (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
           highlightList->push_back(hlo);
 // printf("Push_back a hlo for %d %f\n", item->first, item->second);
@@ -2000,7 +1996,7 @@ StatsPanel::clearSourceFile(int expID)
 int
 StatsPanel::getLineColor(double value)
 {
-  printf("getLineColor(%f)\n", value);
+// printf("getLineColor(%f)\n", value);
 
   if( (int) value >  0.0 )
   {
@@ -2046,7 +2042,7 @@ StatsPanel::getLineColor(double value)
 int
 StatsPanel::getLineColor(unsigned int value)
 {
-  printf("getLineColor(%d)\n", value);
+//  printf("getLineColor(%d)\n", value);
 
 
   if( (int) value >  0.0 )

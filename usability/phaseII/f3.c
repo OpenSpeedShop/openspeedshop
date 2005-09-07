@@ -1,3 +1,24 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 int f3(int x, int y)
 {
     int i, t = 0;
@@ -6,3 +27,24 @@ int f3(int x, int y)
         t += x * y;
     return t;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
