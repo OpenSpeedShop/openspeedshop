@@ -468,6 +468,15 @@ void
 ManageCollectorsClass::contextMenuRequested( QListViewItem *item, const QPoint &pos, int col)
 {
   dprintf("ManageCollectorsClass::contextMenuRequested() entered.\n");
+
+
+  if( item == 0 )
+  {
+    return;
+  }
+  QListViewItem *selected_item = item;
+
+
   QString field_name = QString::null;
   if( item )
   {
@@ -505,24 +514,12 @@ ManageCollectorsClass::contextMenuRequested( QListViewItem *item, const QPoint &
   collectorPopupMenu = NULL;
 
 
-  QListViewItem *selected_item = NULL;
 
   // It may make sense to allow other SortTypes to add/delete collectors... 
   // At this point only this sort type is supported.
   if( dialogSortType == COLLECTOR_T || dialogSortType == PID_T || 
       dialogSortType == HOST_T )
   {
-    if( attachCollectorsListView->selectedItem() && 
-      attachCollectorsListView->selectedItem()->parent() == NULL )
-    {
-      selected_item = item;
-    }
-
-    if( attachCollectorsListView->selectedItem() && 
-        attachCollectorsListView->selectedItem()->parent() != NULL )
-    {
-      selected_item = item;
-    }
 
     if( selected_item &&
        ( dialogSortType == COLLECTOR_T && selected_item->parent() == NULL ) ||
