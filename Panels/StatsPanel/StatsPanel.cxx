@@ -32,7 +32,26 @@
 class MetricHeaderInfo;
 typedef QValueList<MetricHeaderInfo *> MetricHeaderInfoList;
 
-static char *color_names[] = { "red", "green", "darkGreen", "darkCyan", "yellow", "cyan", "blue", "magenta", "black", "darkRed", "darkBlue", "darkMagenta", "darkYellow", "darkGray", "gray", "lightGray" };
+// These are the pie chart colors..
+// static char *hotToCold_color_names[] = { "red", "green", "darkGreen", "darkCyan", "yellow", "cyan", "blue", "magenta", "black", "darkRed", "darkBlue", "darkMagenta", "darkYellow", "darkGray", "gray", "lightGray" };
+static char *hotToCold_color_names[] = { 
+  "red", 
+  "magenta",
+  "blue",
+  "cyan",
+  "green",
+  "yellow",
+  "gray",
+  "lightGray"
+  "darkRed",
+  "darkMagenta",
+  "darkBlue",
+  "darkCyan",
+  "darkGreen",
+  "darkYellow",
+  "darkGray",
+  "black",
+};
 
 #include "SPListView.hxx"   // Change this to your new class header file name
 #include "SPListViewItem.hxx"   // Change this to your new class header file name
@@ -73,6 +92,8 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   currentThread = NULL;
   currentCollector = NULL;
   currentItem = NULL;
+  currentItemIndex = 0;
+printf("currentItemIndex initialized to 0\n");
 
   f = NULL;
   metricMenu = NULL;
@@ -657,6 +678,8 @@ StatsPanel::itemSelected(int index)
       itemSelected(item);
 #else // OLDWAY
       currentItem = (SPListViewItem *)item;
+      currentItemIndex = index;
+printf("A: currentItemIndex set to %d\n", currentItemIndex);
 // highlight the list item
 // Now call the action routine.
 splv->setSelected((QListViewItem *)item, TRUE);
@@ -680,10 +703,12 @@ StatsPanel::itemSelected(QListViewItem *item)
 // printf("  item->depth()=%d\n", item->depth() );
 
     SPListViewItem *nitem = (SPListViewItem *)item;
+    int index = 0;
     while( nitem->parent() )
     {
 // printf("looking for 0x%x\n", nitem->parent() );
       nitem = (SPListViewItem *)nitem->parent();
+      index++;
     } 
   
     
@@ -938,7 +963,7 @@ if( descending_sort == true )
     strings[i] = "other";
     count++;
   }
-  cf->setValues(values, color_names, strings, count+1);
+  cf->setValues(values, hotToCold_color_names, strings, count+1);
 
 }
 
@@ -1168,7 +1193,7 @@ if( descending_sort == true )
     strings[i] = "other";
     count++;
   }
-  cf->setValues(values, color_names, strings, count+1);
+  cf->setValues(values, hotToCold_color_names, strings, count+1);
 
 }
 
@@ -1259,6 +1284,7 @@ StatsPanel::matchDoubleSelectedItem(std::string sf )
   {
     std::vector<Function_double_pair>::const_iterator it = sorted_double_items.begin();
     std::set<Statement> definitions = it->first.getDefinitions();
+int index = 0;
     for( ; it != sorted_double_items.end(); ++it)
     {
 // printf("%s %f\n", it->first.getName().c_str(), it->second );
@@ -1266,6 +1292,7 @@ StatsPanel::matchDoubleSelectedItem(std::string sf )
       {
 // printf("FOUND IT!\n");
         foundFLAG = TRUE;
+        currentItemIndex = index;
 
         definitions = it->first.getDefinitions();
         if(definitions.size() > 0 )
@@ -1288,6 +1315,7 @@ fprintf(stderr, "No function definition for this entry.   Unable to position sou
           return foundFLAG;
         }
       }
+      index++;
     }
 // printf("FOUND? foundFLAG=%d\n", foundFLAG);
 
@@ -1328,7 +1356,10 @@ if( currentMetricTypeStr == "unsigned int" )
         {
 // printf("item->first=%d\n", item->first);
 // printf("item->second=%f\n", item->second );
-          hlo = new HighlightObject(di->getPath(), item->first, color_names[0], item->second, (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
+printf("A: TotalTime=%f\n", TotalTime);
+printf("A: item->second=%f\n", item->second);
+int color_index = getLineColor(item->second);
+          hlo = new HighlightObject(di->getPath(), item->first, hotToCold_color_names[color_index], item->second, (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
           highlightList->push_back(hlo);
 // printf("Push_back a hlo for %d %f\n", item->first, item->second);
         }
@@ -1343,14 +1374,17 @@ if( currentMetricTypeStr == "unsigned int" )
         {
 // printf("item->first=%d\n", item->first);
 // printf("item->second=%f\n", item->second );
-          hlo = new HighlightObject(di->getPath(), item->first, color_names[0], item->second, (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
+printf("B: TotalTime=%f\n", TotalTime);
+printf("B: item->second=%f\n", item->second);
+int color_index = getLineColor(item->second);
+          hlo = new HighlightObject(di->getPath(), item->first,  hotToCold_color_names[color_index], item->second, (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
           highlightList->push_back(hlo);
 // printf("Push_back a hlo for %d %f\n", item->first, item->second);
         }
 }
       }
 
-      hlo = new HighlightObject(di->getPath(), line, color_names[4], -1, (char *)QString("Beginning of function %1").arg(it->first.getName().c_str()).ascii() );
+      hlo = new HighlightObject(di->getPath(), line, hotToCold_color_names[currentItemIndex], -1, (char *)QString("Beginning of function %1").arg(it->first.getName().c_str()).ascii() );
       highlightList->push_back(hlo);
       spo = new SourceObject(it->first.getName().c_str(), di->getPath(), di->getLine()-1, expID, TRUE, highlightList);
 
@@ -1419,6 +1453,7 @@ StatsPanel::matchUIntSelectedItem(std::string sf )
 
   try
   {
+int index = 0;
     std::vector<Function_uint_pair>::const_iterator it = sorted_uint_items.begin();
     std::set<Statement> definitions = it->first.getDefinitions();
     for( ; it != sorted_uint_items.end(); ++it)
@@ -1426,6 +1461,7 @@ StatsPanel::matchUIntSelectedItem(std::string sf )
 // printf("%s %f\n", it->first.getName().c_str(), it->second );
       if( selected_function == it->first.getName()  || sf == NULL )
       {
+        currentItemIndex = index;
 // printf("FOUND IT!\n");
         foundFLAG = TRUE;
 
@@ -1450,6 +1486,7 @@ fprintf(stderr, "No function definition for this entry.   Unable to position sou
           return foundFLAG;
         }
       }
+      index++;
     }
 // printf("FOUND? foundFLAG=%d\n", foundFLAG);
 
@@ -1491,7 +1528,8 @@ if( currentMetricTypeStr == "unsigned int" )
         {
 // printf("item->first=%d\n", item->first);
 // printf("item->second=%u\n", item->second );
-          hlo = new HighlightObject(di->getPath(), item->first, color_names[0], item->second, (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
+//          hlo = new HighlightObject(di->getPath(), item->first, hotToCold_color_names[0], item->second, (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
+          hlo = new HighlightObject(di->getPath(), item->first, hotToCold_color_names[(int)(TotalTime/item->second)], item->second, (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
           highlightList->push_back(hlo);
 // printf("Push_back a hlo for %d %f\n", item->first, item->second);
         }
@@ -1506,14 +1544,15 @@ if( currentMetricTypeStr == "unsigned int" )
         {
 // printf("item->first=%d\n", item->first);
 // printf("item->second=%f\n", item->second );
-          hlo = new HighlightObject(di->getPath(), item->first, color_names[0], item->second, (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
+//          hlo = new HighlightObject(di->getPath(), item->first, hotToCold_color_names[0], item->second, (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
+          hlo = new HighlightObject(di->getPath(), item->first, hotToCold_color_names[(int)(TotalTime/item->second)], item->second, (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
           highlightList->push_back(hlo);
 // printf("Push_back a hlo for %d %f\n", item->first, item->second);
         }
 }
       }
 
-      hlo = new HighlightObject(di->getPath(), line, color_names[4], -1, (char *)QString("Beginning of function %1").arg(it->first.getName().c_str()).ascii() );
+      hlo = new HighlightObject(di->getPath(), line, hotToCold_color_names[currentItemIndex], -1, (char *)QString("Beginning of function %1").arg(it->first.getName().c_str()).ascii() );
       highlightList->push_back(hlo);
       spo = new SourceObject(it->first.getName().c_str(), di->getPath(), di->getLine()-1, expID, TRUE, highlightList);
 
@@ -1812,10 +1851,22 @@ StatsPanel::Get_Double_Total_Time()
     return TotalTime;
   }
 
+double_minTime = 0.0;
+double_maxTime = 0.0;
   for(std::map<Function, double>::const_iterator
             it = orig_double_data->begin(); it != orig_double_data->end(); ++it)
   {
     TotalTime += it->second;
+// Snag the min time...
+if( it->second < double_minTime )
+{
+  double_minTime = it->second;
+}
+// Snag the max time...
+if( it->second > double_maxTime )
+{
+  double_maxTime = it->second;
+}
   }
   return TotalTime;
 }
@@ -1832,10 +1883,22 @@ StatsPanel::Get_UInt_Total_Time()
     return TotalTime;
   }
 
+ui_minTime = 0;
+ui_maxTime = 0;
   for(std::map<Function, unsigned int>::const_iterator
             it = orig_uint_data->begin(); it != orig_uint_data->end(); ++it)
   {
     TotalTime += it->second;
+// Snag the min time...
+if( it->second < ui_minTime )
+{
+  ui_minTime = it->second;
+}
+// Snag the max time...
+if( it->second > ui_maxTime )
+{
+  ui_maxTime = it->second;
+}
   }
   return TotalTime;
 }
@@ -1932,4 +1995,97 @@ StatsPanel::clearSourceFile(int expID)
       p->listener((void *)spo);
     }
   }
+}
+
+int
+StatsPanel::getLineColor(double value)
+{
+  printf("getLineColor(%f)\n", value);
+
+  if( (int) value >  0.0 )
+  {
+    if( TotalTime*.90 >= value )
+    {
+      return(0);
+    } else if( TotalTime*.80 >= value )
+    {
+      return(1);
+    } else if( TotalTime*.70 >= value )
+    {
+      return(2);
+    } else if( TotalTime*.60 >= value )
+    {
+      return(3);
+    } else if( TotalTime*.50 >= value )
+    {
+      return(4);
+    } else if( TotalTime*.40 >= value )
+    {
+      return(5);
+    } else if( TotalTime*.30 >= value )
+    {
+      return(6);
+    } else if( TotalTime*.20 >= value )
+    {
+      return(7);
+    } else if( TotalTime*.10 >= value )
+    {
+      return(8);
+    } else if( TotalTime*0 >= value )
+    {
+      return(9);
+    } else
+    {
+      return(10);
+    }
+  }
+
+  return(10);
+}
+
+int
+StatsPanel::getLineColor(unsigned int value)
+{
+  printf("getLineColor(%d)\n", value);
+
+
+  if( (int) value >  0.0 )
+  {
+    if( TotalTime*.90 >= value )
+    {
+      return(0);
+    } else if( TotalTime*.80 >= value )
+    {
+      return(1);
+    } else if( TotalTime*.70 >= value )
+    {
+      return(2);
+    } else if( TotalTime*.60 >= value )
+    {
+      return(3);
+    } else if( TotalTime*.50 >= value )
+    {
+      return(4);
+    } else if( TotalTime*.40 >= value )
+    {
+      return(5);
+    } else if( TotalTime*.30 >= value )
+    {
+      return(6);
+    } else if( TotalTime*.20 >= value )
+    {
+      return(7);
+    } else if( TotalTime*.10 >= value )
+    {
+      return(8);
+    } else if( TotalTime*0 >= value )
+    {
+      return(9);
+    } else
+    {
+      return(10);
+    }
+  }
+
+  return(10);
 }

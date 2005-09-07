@@ -1244,7 +1244,7 @@ HW_CounterPanel::progressUpdate()
 int
 HW_CounterPanel::processLAO(LoadAttachObject *lao)
 {
-printf("ProcessLOA entered mpiFLAG=%d\n", getPanelContainer()->getMainWindow()->mpiFLAG );
+// printf("ProcessLOA entered mpiFLAG=%d\n", getPanelContainer()->getMainWindow()->mpiFLAG );
   if( lao->paramList ) // Really not a list yet, just one param.
   {
     QString sample_rate_str = (QString)*lao->paramList->begin();

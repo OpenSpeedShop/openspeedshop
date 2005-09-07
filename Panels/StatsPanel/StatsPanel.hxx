@@ -105,6 +105,7 @@ QString optionalMetricStr;
 
     //! Current selected chart item.
     SPListViewItem *currentItem;
+    int currentItemIndex;
 
     QPopupMenu *threadMenu;
     QPopupMenu *metricMenu;
@@ -149,7 +150,15 @@ QString optionalMetricStr;
     void raisePreferencePanel();
 
     double TotalTime;
+    double double_minTime;
+    double double_maxTime;
     void putItem(std::vector<Function_double_pair> *item);
+    unsigned int ui_minTime;
+    unsigned int ui_maxTime;
+
+    int getLineColor(double value);
+    int getLineColor(unsigned int value);
+
 
     SmartPtr<std::map<Function, double> > orig_double_data;
     std::vector<Function_double_pair> topNsorted_double_items;
