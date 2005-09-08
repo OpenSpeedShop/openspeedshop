@@ -1609,7 +1609,7 @@ fprintf(stderr, "No function definition for this entry.   Unable to position sou
 // printf("Look up metrics by statement in file.\n");
         if( currentMetricTypeStr == "unsigned int" )
         {
-printf("You shouldn't be here.  double function for an unsigned int???\n");
+// printf("You shouldn't be here.  double function for an unsigned int???\n");
           Queries::GetUIntMetricByStatementInFileForThread(*currentCollector, currentMetricStr.ascii(), di->getPath(), *currentThread, orig_uint_statement_data);
 
           for(std::map<int, unsigned int>::const_iterator
@@ -1797,7 +1797,7 @@ if( currentMetricTypeStr == "unsigned int" )
         }
 } else
 {
-printf("You shouldn't be here.  unsigned int function for an double???\n");
+// printf("You shouldn't be here.  unsigned int function for an double???\n");
         Queries::GetMetricByStatementInFileForThread(*currentCollector, currentMetricStr.ascii(), di->getPath(), *currentThread, orig_double_statement_data);
 //printf("Looked up metrics by statement in file.\n");
 
@@ -1899,12 +1899,6 @@ int index = 0;
         definitions = it->first.getDefinitions();
         if(definitions.size() > 0 )
         {
-//        for( std::set<Statement>::const_iterator i = definitions.begin(); i != definitions.end(); ++i)
-//        {
-//          std::cout << " (" << i->getPath().baseName()
-//              << ", " << i->getLine() << ")";
-//        }
-//        std::cout << std::endl;
           break;
         } else
         {
@@ -1956,15 +1950,21 @@ fprintf(stderr, "No function definition for this entry.   Unable to position sou
               item != orig_uint64_statement_data->end(); ++item)
         {
 // printf("item->first=%d\n", item->first);
-// printf("item->second=%u\n", item->second );
+// printf("item->second=%lld\n", item->second );
+#ifdef ABORTS
           hlo = new HighlightObject(di->getPath(), item->first, hotToCold_color_names[(int)(TotalTime/item->second)], item->second, (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
           highlightList->push_back(hlo);
-// printf("Push_back a hlo for %d %f\n", item->first, item->second);
+#endif // ABORTS
+// printf("Push_back a hlo for %d %lld\n", item->first, item->second);
+// printf("Push_back a hlo for %lld\n", item->second);
         }
       }
 
+// printf("now push back the beginning of function...\n");
+
       hlo = new HighlightObject(di->getPath(), line, hotToCold_color_names[currentItemIndex], -1, (char *)QString("Beginning of function %1").arg(it->first.getName().c_str()).ascii() );
       highlightList->push_back(hlo);
+// printf("create an spo \n");
       spo = new SourceObject(it->first.getName().c_str(), di->getPath(), di->getLine()-1, expID, TRUE, highlightList);
 
     } else
@@ -1981,26 +1981,25 @@ fprintf(stderr, "No function definition for this entry.   Unable to position sou
       Panel *sourcePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
       if( !sourcePanel )
       {
-//printf("no source view up, place the source panel.\n");
+// printf("no source view up, place the source panel.\n");
         char *panel_type = "Source Panel";
-//        PanelContainer *bestFitPC = topPC->findBestFitPanelContainer(getPanelContainer()->parentPanelContainer);
-PanelContainer *startPC = NULL;
-if( getPanelContainer()->parentPanelContainer != NULL )
-{
-  startPC = getPanelContainer()->parentPanelContainer;
-} else
-{
-  startPC = getPanelContainer();
-}
+        PanelContainer *startPC = NULL;
+        if( getPanelContainer()->parentPanelContainer != NULL )
+        {
+          startPC = getPanelContainer()->parentPanelContainer;
+        } else
+        {
+          startPC = getPanelContainer();
+        }
         PanelContainer *bestFitPC = topPC->findBestFitPanelContainer(startPC);
         ArgumentObject *ao = new ArgumentObject("ArgumentObject", groupID);
         sourcePanel = getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, ao);
       }
       if( sourcePanel )
       {
-//printf("send the spo to the source panel.\n");
+// printf("send the spo to the source panel.\n");
         sourcePanel->listener((void *)spo);
-//printf("sent the spo to the source panel.\n");
+// printf("sent the spo to the source panel.\n");
       }
     }
     qApp->restoreOverrideCursor( );
@@ -2015,6 +2014,7 @@ if( getPanelContainer()->parentPanelContainer != NULL )
   }
 
 
+// printf("return %d from StatsPanel::matchUInt64SelectedItem()\n", foundFLAG );
   return( foundFLAG );
 }
 
