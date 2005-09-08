@@ -1621,7 +1621,8 @@ fprintf(stderr, "No function definition for this entry.   Unable to position sou
 // printf("A: TotalTime=%f\n", TotalTime);
 // printf("A: item->second=%f\n", item->second);
             int color_index = getLineColor(item->second);
-            hlo = new HighlightObject(di->getPath(), item->first, hotToCold_color_names[color_index], item->second, (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
+//            hlo = new HighlightObject(di->getPath(), item->first, hotToCold_color_names[color_index], item->second, (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
+            hlo = new HighlightObject(di->getPath(), item->first, hotToCold_color_names[color_index], QString("%1").arg(item->second), (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
             highlightList->push_back(hlo);
 // printf("Push_back a hlo for %d %f\n", item->first, item->second);
           }
@@ -1639,14 +1640,16 @@ fprintf(stderr, "No function definition for this entry.   Unable to position sou
 //printf("B: TotalTime=%f\n", TotalTime);
 // printf("B: item->second=%f\n", item->second);
             int color_index = getLineColor(item->second);
-            hlo = new HighlightObject(di->getPath(), item->first,  hotToCold_color_names[color_index], item->second, (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
+//            hlo = new HighlightObject(di->getPath(), item->first,  hotToCold_color_names[color_index], item->second, (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
+            hlo = new HighlightObject(di->getPath(), item->first,  hotToCold_color_names[color_index], QString("%1").arg(item->second), (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
             highlightList->push_back(hlo);
 // printf("Push_back a hlo for %d %f\n", item->first, item->second);
           }
         }
       }
 
-      hlo = new HighlightObject(di->getPath(), line, hotToCold_color_names[currentItemIndex], -1, (char *)QString("Beginning of function %1").arg(it->first.getName().c_str()).ascii() );
+//      hlo = new HighlightObject(di->getPath(), line, hotToCold_color_names[currentItemIndex], -1, (char *)QString("Beginning of function %1").arg(it->first.getName().c_str()).ascii() );
+      hlo = new HighlightObject(di->getPath(), line, hotToCold_color_names[currentItemIndex], QString::null, (char *)QString("Beginning of function %1").arg(it->first.getName().c_str()).ascii() );
       highlightList->push_back(hlo);
       spo = new SourceObject(it->first.getName().c_str(), di->getPath(), di->getLine()-1, expID, TRUE, highlightList);
 
@@ -1790,8 +1793,8 @@ if( currentMetricTypeStr == "unsigned int" )
         {
 // printf("item->first=%d\n", item->first);
 // printf("item->second=%u\n", item->second );
-//          hlo = new HighlightObject(di->getPath(), item->first, hotToCold_color_names[0], item->second, (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
-          hlo = new HighlightObject(di->getPath(), item->first, hotToCold_color_names[(int)(TotalTime/item->second)], item->second, (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
+//          hlo = new HighlightObject(di->getPath(), item->first, hotToCold_color_names[(int)(TotalTime/item->second)], item->second, (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
+          hlo = new HighlightObject(di->getPath(), item->first, hotToCold_color_names[(int)(TotalTime/item->second)], QString("%1").arg(item->second), (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
           highlightList->push_back(hlo);
 // printf("Push_back a hlo for %d %f\n", item->first, item->second);
         }
@@ -1807,15 +1810,16 @@ if( currentMetricTypeStr == "unsigned int" )
         {
 // printf("item->first=%d\n", item->first);
 // printf("item->second=%f\n", item->second );
-//          hlo = new HighlightObject(di->getPath(), item->first, hotToCold_color_names[0], item->second, (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
-          hlo = new HighlightObject(di->getPath(), item->first, hotToCold_color_names[(int)(TotalTime/item->second)], item->second, (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
+//          hlo = new HighlightObject(di->getPath(), item->first, hotToCold_color_names[(int)(TotalTime/item->second)], item->second, (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
+          hlo = new HighlightObject(di->getPath(), item->first, hotToCold_color_names[(int)(TotalTime/item->second)], QString("%1").arg(item->second), (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
           highlightList->push_back(hlo);
 // printf("Push_back a hlo for %d %f\n", item->first, item->second);
         }
 }
       }
 
-      hlo = new HighlightObject(di->getPath(), line, hotToCold_color_names[currentItemIndex], -1, (char *)QString("Beginning of function %1").arg(it->first.getName().c_str()).ascii() );
+//      hlo = new HighlightObject(di->getPath(), line, hotToCold_color_names[currentItemIndex], -1, (char *)QString("Beginning of function %1").arg(it->first.getName().c_str()).ascii() );
+      hlo = new HighlightObject(di->getPath(), line, hotToCold_color_names[currentItemIndex], QString::null, (char *)QString("Beginning of function %1").arg(it->first.getName().c_str()).ascii() );
       highlightList->push_back(hlo);
       spo = new SourceObject(it->first.getName().c_str(), di->getPath(), di->getLine()-1, expID, TRUE, highlightList);
 
@@ -1954,6 +1958,11 @@ fprintf(stderr, "No function definition for this entry.   Unable to position sou
 #ifdef ABORTS
           hlo = new HighlightObject(di->getPath(), item->first, hotToCold_color_names[(int)(TotalTime/item->second)], item->second, (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
           highlightList->push_back(hlo);
+#endf // ABORTS
+char uint_value_buffer[100];
+sprintf(uint_value_buffer, "%lld", item->second);
+          hlo = new HighlightObject(di->getPath(), item->first, hotToCold_color_names[(int)(TotalTime/item->second)], QString(uint_value_buffer), (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
+          highlightList->push_back(hlo);
 #endif // ABORTS
 // printf("Push_back a hlo for %d %lld\n", item->first, item->second);
 // printf("Push_back a hlo for %lld\n", item->second);
@@ -1962,7 +1971,8 @@ fprintf(stderr, "No function definition for this entry.   Unable to position sou
 
 // printf("now push back the beginning of function...\n");
 
-      hlo = new HighlightObject(di->getPath(), line, hotToCold_color_names[currentItemIndex], -1, (char *)QString("Beginning of function %1").arg(it->first.getName().c_str()).ascii() );
+//      hlo = new HighlightObject(di->getPath(), line, hotToCold_color_names[currentItemIndex], -1, (char *)QString("Beginning of function %1").arg(it->first.getName().c_str()).ascii() );
+      hlo = new HighlightObject(di->getPath(), line, hotToCold_color_names[currentItemIndex], QString::null, (char *)QString("Beginning of function %1").arg(it->first.getName().c_str()).ascii() );
       highlightList->push_back(hlo);
 // printf("create an spo \n");
       spo = new SourceObject(it->first.getName().c_str(), di->getPath(), di->getLine()-1, expID, TRUE, highlightList);
