@@ -1906,7 +1906,7 @@ int index = 0;
           break;
         } else
         {
-fprintf(stderr, "No function definition for this entry.   Unable to position source.\n");
+// fprintf(stderr, "No function definition for this entry.   Unable to position source.\n");
           QMessageBox::information(this, "Open|SpeedShop", "No function definition for this entry.\nUnable to position source. (No symbols.)\n", "Ok");
 
 
@@ -1955,15 +1955,11 @@ fprintf(stderr, "No function definition for this entry.   Unable to position sou
         {
 // printf("item->first=%d\n", item->first);
 // printf("item->second=%lld\n", item->second );
-#ifdef ABORTS
-          hlo = new HighlightObject(di->getPath(), item->first, hotToCold_color_names[(int)(TotalTime/item->second)], item->second, (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
+char uint64_value_buffer[100];
+sprintf(uint64_value_buffer, "%lld", item->second);
+// printf("uint64_value_buffer = (%s)\n", uint64_value_buffer);
+          hlo = new HighlightObject(di->getPath(), item->first, hotToCold_color_names[(int)(TotalTime/item->second)], QString(uint64_value_buffer), (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
           highlightList->push_back(hlo);
-#endf // ABORTS
-char uint_value_buffer[100];
-sprintf(uint_value_buffer, "%lld", item->second);
-          hlo = new HighlightObject(di->getPath(), item->first, hotToCold_color_names[(int)(TotalTime/item->second)], QString(uint_value_buffer), (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
-          highlightList->push_back(hlo);
-#endif // ABORTS
 // printf("Push_back a hlo for %d %lld\n", item->first, item->second);
 // printf("Push_back a hlo for %lld\n", item->second);
         }

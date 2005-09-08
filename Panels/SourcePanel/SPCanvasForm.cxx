@@ -100,7 +100,8 @@ SPCanvasForm::setHighlights(QFont canvas_font, int lineHeight, int topLine, int 
         if( hlo->line == topLine+i && !hlo->value.isEmpty() )
         {
           nprintf(DEBUG_PANELS) ("We have data at that line!!!\n");
-// printf ("We have data at that line!!!\n");
+//printf ("We have data at that line!!!\n");
+//hlo->print();
           sprintf(buffer, "%s", hlo->value.ascii() );
           QCanvasText *text = new QCanvasText( buffer, canvas_font, canvas);
           text->setColor("red");
