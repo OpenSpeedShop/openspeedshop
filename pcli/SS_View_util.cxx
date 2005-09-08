@@ -58,11 +58,13 @@ void GetMetricByFunctionInThread(
     const TimeInterval Forever =
         TimeInterval(Time::TheBeginning(), Time::TheEnd());
 
-    // Allocate a new map of functions to type T
-    result = SmartPtr<std::map<Function, T> >(
-        new std::map<Function, T>()
-        );
-    Assert(!result.isNull());
+    if (result.isNull()) {
+        // Allocate a new map of functions to type T
+        result = SmartPtr<std::map<Function, T> >(
+            new std::map<Function, T>()
+            );
+        Assert(!result.isNull());
+    }
 
     // Get the current list of functions in this thread
     std::set<Function> functions = thread.getFunctions();
@@ -78,8 +80,15 @@ void GetMetricByFunctionInThread(
         collector.getMetricValue(metric, thread, range, Forever, value);
 
         // Add this function and its metric value to the map
-        if(!ISZERO(value))
-            result->insert(std::make_pair(*i, value));
+        if(!ISZERO(value)) {
+            Function f = *i;
+            typename std::map<Function, T>::iterator j = result->find(f);
+            if (j == result->end()) {
+                result->insert(std::make_pair(*i, value));
+            } else {
+                (*result)[f] += value;
+            }
+        }
 
     }
 
@@ -95,6 +104,13 @@ void GetMetricByFunctionInThreadGroup(
     SmartPtr<std::map<Function, T> >& result)
 {
   ThreadGroup::iterator ti;
+
+  // Allocate a new map of functions to type T
+  result = SmartPtr<std::map<Function, T> >(
+      new std::map<Function, T>()
+      );
+  Assert(!result.isNull());
+
   for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
     Thread thread = *ti;
     GetMetricByFunctionInThread(collector, metric, thread, result);
