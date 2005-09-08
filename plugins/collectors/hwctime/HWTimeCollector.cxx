@@ -69,11 +69,11 @@ HWTimeCollector::HWTimeCollector() :
 
     declareMetric(Metadata("inclusive_overflows", "Inclusive Overflows",
                            "Inclusive hwc overflow counts.",
-                           typeid(unsigned)));
+                           typeid(uint64_t)));
 
     declareMetric(Metadata("exclusive_overflows", "Exclusive Overflows",
                            "Exclusive hwc overflow counts.",
-                           typeid(unsigned)));
+                           typeid(uint64_t)));
 }
 
 
@@ -277,7 +277,7 @@ void HWTimeCollector::getMetricValue(const std::string& metric,
     // Handle the "overflows" metric
     if( metric == "inclusive_overflows" ||
 	metric == "exclusive_overflows" ) {
-        unsigned* value = reinterpret_cast<unsigned*>(ptr);
+        uint64_t* value = reinterpret_cast<uint64_t*>(ptr);
 
         // Initialize the time metric value to zero
         *value = 0;
@@ -309,7 +309,7 @@ void HWTimeCollector::getMetricValue(const std::string& metric,
 		    
                         // Add this sample time to the overflows metric value
 //fprintf(stderr,"HWTC::getMetricValue: pc=%#lx, value=%d range %s\n",data.bt.bt_val[j],*value, std::string(range).c_str());
-                        *value += static_cast<unsigned>(data.interval);
+                        *value += static_cast<uint64_t>(data.interval);
 		    }
 		} else if ( metric == "exclusive_overflows") {
 		    // Loop over each call stack in this BLOB
@@ -318,7 +318,7 @@ void HWTimeCollector::getMetricValue(const std::string& metric,
 
 		    if (top_stack_trace) {
 			if (range.doesContain(data.bt.bt_val[j])) {
-                            *value += static_cast<unsigned>(data.interval);
+                            *value += static_cast<uint64_t>(data.interval);
 			}
 			top_stack_trace = false;
 		    }

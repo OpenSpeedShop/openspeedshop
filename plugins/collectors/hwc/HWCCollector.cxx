@@ -71,7 +71,7 @@ HWCCollector::HWCCollector() :
     // PAPI event specified (e.g. PAPI_TOT_CYC, PAPI_TOT_INS, etc...).
     declareMetric(Metadata("overflows", "Overflows",
                            "Exclusive overflows in hardware counter events.",
-                           typeid(unsigned)));
+                           typeid(uint64_t)));
 }
 
 
@@ -277,7 +277,7 @@ void HWCCollector::getMetricValue(const std::string& metric,
 {
     // Handle the "overflows" metric
     if(metric == "overflows") {
-        unsigned* value = reinterpret_cast<unsigned*>(ptr);
+        uint64_t* value = reinterpret_cast<uint64_t*>(ptr);
 
         // Initialize the time metric value to zero
         *value = 0;
@@ -307,8 +307,8 @@ void HWCCollector::getMetricValue(const std::string& metric,
                 if(range.doesContain(data.pc.pc_val[j])) {
 		    
                     // Add this sample count's time to the time metric value
-                    *value += static_cast<unsigned>(data.count.count_val[j]) *
-                        static_cast<unsigned>(data.interval) ;
+                    *value += static_cast<uint64_t>(data.count.count_val[j]) *
+                        static_cast<uint64_t>(data.interval) ;
 		}
 	    }
 	    
