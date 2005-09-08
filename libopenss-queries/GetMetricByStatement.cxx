@@ -172,6 +172,65 @@ void Queries::GetUIntMetricByStatementInFileForThread(
 }
 
 
+void Queries::GetUIntMetricByStatementInFileForThread(
+    const Collector& collector,
+    const std::string& metric,
+    const std::string& path,
+    const Thread& thread,
+    SmartPtr<std::map<int, uint64_t> >& result)
+{
+    // Check preconditions
+    Assert(collector.inSameDatabase(thread));
+
+    // Lock the appropriate database
+    collector.lockDatabase();
+    
+    // Time interval covering earliest to latest possible time
+    const TimeInterval Forever = 
+	TimeInterval(Time::TheBeginning(), Time::TheEnd());
+    
+    // Allocate a new map of statements to unsigned int
+    result = SmartPtr<std::map<int, uint64_t> >(
+	new std::map<int, uint64_t>()
+	);
+    Assert(!result.isNull());
+
+    // Get the list of statements in this file
+    std::set<Statement> statements = thread.getStatementsBySourceFile(path);
+    
+    // Iterate over each statement
+    uint64_t value = 0;
+    for(std::set<Statement>::const_iterator
+	    i = statements.begin(); i != statements.end(); ++i) 
+    {	
+	value = 0;
+	Statement s = *i;
+	int statement_line = (int)s.getLine();
+	
+	// Get the address ranges of this statement
+	std::set<AddressRange> ranges = i->getAddressRanges();
+	
+	// Iterate over each address range
+	for(std::set<AddressRange>::const_iterator
+		j = ranges.begin(); j != ranges.end(); ++j )
+	{
+	    // Evalute the metric over this address range
+	    uint64_t tmp = 0;
+	    collector.getMetricValue(metric, thread, *j, Forever, tmp);
+	    value += tmp;
+	}
+	
+	// Add this statement and its metric value to the map
+	if(value != 0)
+	{
+	    result->insert(std::make_pair(statement_line, value));
+	}
+	
+    }
+    
+    // Unlock the appropriate database
+    collector.unlockDatabase();
+}
 
 /**
  * Get metric values by statement in a function.

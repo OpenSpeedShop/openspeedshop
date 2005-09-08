@@ -141,3 +141,51 @@ void Queries::GetUIntMetricByFunctionInThread(
     collector.unlockDatabase();
 }
 
+
+
+void Queries::GetUInt64MetricByFunctionInThread(
+    const Collector& collector, 
+    const std::string& metric,
+    const Thread& thread,
+    SmartPtr<std::map<Function, uint64_t> >& result)
+{
+    // Check preconditions
+    Assert(collector.inSameDatabase(thread));
+
+    // Lock the appropriate database
+    collector.lockDatabase();
+
+    // Time interval covering earliest to latest possible time
+    const TimeInterval Forever = 
+	TimeInterval(Time::TheBeginning(), Time::TheEnd());
+    
+    // Allocate a new map of functions to unsigned int
+    result = SmartPtr<std::map<Function, uint64_t> >(
+	new std::map<Function, uint64_t>()
+	);
+    Assert(!result.isNull());
+    
+    // Get the current list of functions in this thread
+    std::set<Function> functions = thread.getFunctions();
+    
+    // Iterate over each function
+    for(std::set<Function>::const_iterator
+	    i = functions.begin(); i != functions.end(); ++i) {
+	
+	// Get the address range of this function
+	AddressRange range = i->getAddressRange();
+	
+	// Evalute the metric over this address range
+	uint64_t value = 0;
+	collector.getMetricValue(metric, thread, range, Forever, value);
+	
+	// Add this function and its metric value to the map
+	if(value != 0.0)
+	    result->insert(std::make_pair(*i, value));
+	
+    }    
+
+    // Unlock the apropriate database
+    collector.unlockDatabase();
+}
+
