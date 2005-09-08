@@ -602,6 +602,9 @@ UserTimeWizardPanel::UserTimeWizardPanel(PanelContainer *pc, const char *n, Argu
   {
     usertimePanel = (Panel *)ao->panel_data;
   }
+
+// end debug
+
 }
 
 
@@ -898,10 +901,7 @@ void UserTimeWizardPanel::eAttachOrLoadPageNextButtonSelected()
       {
         return;
       }
-      QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
-      QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
-      QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
-      sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" (%s) on host \"%s\", with a sampling rate of \"%s\".<br><br></p>", prog_name.ascii(), pid_name.ascii(), host_name.ascii(), eParameterPageSampleRateText->text().ascii() );
+      sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", with a sampling rate of \"%s\".<br><br></p>", mw->pidStr.ascii(), mw->hostStr.ascii(), eParameterPageSampleRateText->text().ascii() );
     }
   }
   if( eAttachOrLoadPageLoadExecutableCheckBox->isChecked() ||
@@ -920,7 +920,7 @@ void UserTimeWizardPanel::eAttachOrLoadPageNextButtonSelected()
     QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
-    sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" (%s) on host \"%s\", with a sampling rate of \"%s\".<br><br></p>", prog_name.ascii(), pid_name.ascii(), host_name.ascii(), eParameterPageSampleRateText->text().ascii() );
+    sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", with a sampling rate of \"%s\".<br><br></p>", mw->executableName.ascii(), mw->hostStr.ascii(), vParameterPageSampleRateText->text().ascii() );
   }
 
   eSummaryPageFinishLabel->setText( tr( buffer ) );
@@ -932,6 +932,7 @@ void UserTimeWizardPanel::eAttachOrLoadPageNextButtonSelected()
 void UserTimeWizardPanel::vDescriptionPageNextButtonSelected()
 {
   nprintf(DEBUG_PANELS) ("vDescriptionPageNextButtonSelected() \n");
+
 
   mainWidgetStack->raiseWidget(vParameterPageWidget);
 }
@@ -1111,7 +1112,7 @@ void UserTimeWizardPanel::vAttachOrLoadPageNextButtonSelected()
     QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
-    sprintf(buffer, "<p align=\"left\">You've selected a User Time experiment for process \"%s\" (%s) running on host \"%s\".  Furthermore, you've chosen a sampling rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"usertime\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", prog_name.ascii(), pid_name.ascii(), host_name.ascii(), vParameterPageSampleRateText->text().ascii() );
+    sprintf(buffer, "<p align=\"left\">You've selected a User Time experiment for process \"%s\" running on host \"%s\".  Furthermore, you've chosen a sampling rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"usertime\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->pidStr.ascii(), mw->hostStr.ascii(), vParameterPageSampleRateText->text().ascii() );
   }
   if( vAttachOrLoadPageLoadExecutableCheckBox->isChecked() ||
       vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() )
@@ -1126,7 +1127,10 @@ void UserTimeWizardPanel::vAttachOrLoadPageNextButtonSelected()
     {
       return;
     }
-    sprintf(buffer, "<p align=\"left\">You've selected a User Time experiment for executable \"%s\" to be run on host \"%s\".  Furthermore, you've chosen a sampling rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"usertime\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), "localhost", vParameterPageSampleRateText->text().ascii() );
+    QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
+    QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
+    QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
+    sprintf(buffer, "<p align=\"left\">You've selected a User Time experiment for executable \"%s\" to be run on host \"%s\".  Furthermore, you've chosen a sampling rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"usertime\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), mw->hostStr.ascii(), vParameterPageSampleRateText->text().ascii() );
   }
 
   vSummaryPageFinishLabel->setText( tr( buffer ) );
@@ -1276,8 +1280,8 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new execu
   QToolTip::add( vAttachOrLoadPageNextButton, tr( "Advance to the next wizard page." ) );
   vAttachOrLoadPageFinishButton->setText( tr( ">> Finish" ) );
   QToolTip::add( vAttachOrLoadPageFinishButton, tr( "Advance to the wizard finish page." ) );
-  vSummaryPageFinishLabel->setText( tr( "<p align=\"left\">\n"
-"You've selected a User Time experiment for executable \"%s\" to be run on host \"%s\".  Furthermore, you've chosen a sample rate of \"%d\".<br><br>To complete the exeriment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"usertime\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>" ) );
+  vSummaryPageFinishLabel->setText( tr( "No summary available.\n" ) );
+
   vSummaryPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( vSummaryPageBackButton, tr( "Takes you back one page." ) );
   vSummaryPageFinishButton->setText( tr( "Finish..." ) );
@@ -1315,8 +1319,7 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new execu
   eAttachOrLoadPageFinishButton->setText( tr( ">> Finish" ) );
   QToolTip::add( eAttachOrLoadPageFinishButton, tr( "Advance to the wizard finish page." ) );
 
-  eSummaryPageFinishLabel->setText( tr( "<p align=\"left\">\n"
-"You've selected a User Time experiment for executable \"%s\" to be run on host \"%s\".  Furthermore, you've chosen a sample rate of \"%d\".<br><br></p>" ) );
+  eSummaryPageFinishLabel->setText( tr( "No summary yet available.") );
   eSummaryPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( eSummaryPageBackButton, tr( "Takes you back one page." ) );
   eSummaryPageFinishButton->setText( tr( "Finish..." ) );

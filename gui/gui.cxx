@@ -158,10 +158,13 @@ QStringList pidStrList = NULL;
     w->executableName = executableStr;
     w->widStr = widStr;
     w->pidStr = pidStr;
-w->pidStrList = NULL;
+    w->pidStrList = NULL;
     w->rankStr = rankStr;
     w->expStr = expStr;
-    w->hostStr = hostStr;
+    if( !hostStr.isEmpty() )
+    {
+      w->hostStr = hostStr;
+    }
     w->argsStr = argsStr;
 
     w->show();

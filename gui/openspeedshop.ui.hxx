@@ -694,6 +694,14 @@ AppEventFilter::eventFilter( QObject *obj, QEvent *e )
 void OpenSpeedshop::init()
 {
 // printf("OpenSpeedShop::init() called.\n");
+  if( hostStr.isEmpty() )
+  {
+    char host_name_buffer[1024];
+    if( gethostname(host_name_buffer, 1024) == 0 )
+    {
+      hostStr = host_name_buffer;
+    }
+  }
 
 //  topPL = this;
   char pc_plugin_file[2048];
@@ -970,6 +978,7 @@ height+=50;   // FIX
    qApp->installEventFilter( myEventFilter );
 
   qapplication->connect( qApp, SIGNAL( lastWindowClosed() ), this, SLOT( myQuit() ) );
+
 }
 
 void OpenSpeedshop::destroy()
@@ -1028,7 +1037,6 @@ void OpenSpeedshop::loadNewProgram()
 
 void OpenSpeedshop::attachNewProcess()
 {
-// printf("OpenSpeedshop::attachNewProcess()\n");
   mpiFLAG = FALSE;
   if( afd == NULL )
   {
@@ -1036,22 +1044,20 @@ void OpenSpeedshop::attachNewProcess()
   }
   if( afd->exec() == QDialog::Accepted )
   {
-    //printf("QDialog::Accepted\n");
-//    pidStr = afd->selectedProcesses();
     pidStrList = afd->selectedProcesses(&mpiFLAG);
 
-pidStr = QString::null;
+    pidStr = QString::null;
     for( QStringList::Iterator it = pidStrList->begin();
                it != pidStrList->end();
                it++ )
     {
       QString qs = (QString)*it;
 
-QString host_name = qs.section(' ', 0, 0, QString::SectionSkipEmpty);
-QString pid_name = qs.section(' ', 1, 1, QString::SectionSkipEmpty);
-QString prog_name = qs.section(' ', 2, 2, QString::SectionSkipEmpty);
+      QString host_name = qs.section(' ', 0, 0, QString::SectionSkipEmpty);
+      QString pid_name = qs.section(' ', 1, 1, QString::SectionSkipEmpty);
+      QString prog_name = qs.section(' ', 2, 2, QString::SectionSkipEmpty);
 
-hostStr = host_name;
+      hostStr = host_name;
 
       if( pidStr == QString::null )
       {
@@ -1061,12 +1067,10 @@ hostStr = host_name;
         pidStr += ",";
         pidStr += pid_name;
       }
-// printf("qs.ascii() = (%s)\n", qs.ascii() );
       
     }
 
   }
-// printf("pidStr = %s\n", pidStr.ascii() );
 }
 
 void OpenSpeedshop::myQuit()
