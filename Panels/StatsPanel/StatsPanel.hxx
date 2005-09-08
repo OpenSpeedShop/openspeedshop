@@ -55,6 +55,7 @@ typedef QValueList<QString> ColumnList;
 
 typedef std::pair<Function, double> Function_double_pair;
 typedef std::pair<Function, unsigned int> Function_uint_pair;
+typedef std::pair<Function, uint64_t> Function_uint64_pair;
 
 #include <qsettings.h>
 
@@ -120,8 +121,9 @@ QString optionalMetricStr;
     void itemSelected( QListViewItem * );
     void itemSelected( int );
     void sortColumn( int );
-    void sortUintColumn( int );
     void sortDoubleColumn( int );
+    void sortUintColumn( int );
+    void sortUInt64Column( int );
     void doOption(int id);
     void exportData();
     void details();
@@ -142,6 +144,7 @@ QString optionalMetricStr;
     bool matchSelectedItem( std::string function_name );
     bool matchDoubleSelectedItem( std::string function_name );
     bool matchUIntSelectedItem( std::string function_name );
+    bool matchUInt64SelectedItem( std::string function_name );
 
     void clearSourceFile(int expID);
 
@@ -155,9 +158,12 @@ QString optionalMetricStr;
     void putItem(std::vector<Function_double_pair> *item);
     unsigned int ui_minTime;
     unsigned int ui_maxTime;
+uint64_t uint64_minTime;
+uint64_t uint64_maxTime;
 
     int getLineColor(double value);
     int getLineColor(unsigned int value);
+    int getLineColor(uint64_t value);
 
 
     SmartPtr<std::map<Function, double> > orig_double_data;
@@ -170,10 +176,16 @@ QString optionalMetricStr;
     std::vector<Function_uint_pair> sorted_uint_items;
     SmartPtr<std::map<int, unsigned int> > orig_uint_statement_data;
 
+SmartPtr<std::map<Function, uint64_t> > orig_uint64_data;
+std::vector<Function_uint64_pair> topNsorted_uint64_items;
+std::vector<Function_uint64_pair> sorted_uint64_items;
+SmartPtr<std::map<int, uint64_t> > orig_uint64_statement_data;
+
     bool descending_sort;
 
     double Get_Double_Total_Time();
     double Get_UInt_Total_Time();
+double Get_UInt64_Total_Time();
 
     int expID;
 

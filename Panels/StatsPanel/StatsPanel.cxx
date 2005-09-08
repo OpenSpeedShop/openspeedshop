@@ -270,6 +270,18 @@ if( item && matchSelectedItem( std::string(item->text(2).ascii()) ) )
           currentMetricStr = cpe->name;
           currentMetricTypeStr = cpe->type;
 // printf("Initialize collectorStr=(%s) currentMetricType=(%s) currentMetricStr=(%s)\n", collectorStr.ascii(), currentMetricTypeStr.ascii(), currentMetricStr.ascii() );
+          if( currentMetricTypeStr != "double" &&
+              currentMetricStr != "unsigned int" )
+          {
+            // HACK!  FIX FIXME 
+//            if( currentMetricTypeStr == "unknown" )
+//            {
+//              printf("Flag this as a uint64_t\n");
+//            }
+            // Once we've passed the MS converge on the template
+            // approach the cli is using.
+            currentMetricTypeStr = "uint64_t";
+          }
           break;
         }
       }
@@ -737,6 +749,9 @@ StatsPanel::sortColumn(int column)
   if( currentMetricTypeStr == "unsigned int" )
   {
     sortUintColumn(column);
+  } else if( currentMetricTypeStr == "uint64_t" )
+  {
+    sortUInt64Column(column);
   } else
   {
     sortDoubleColumn(column);
@@ -1201,6 +1216,245 @@ if( descending_sort == true )
 
 }
 
+
+void
+StatsPanel::sortUInt64Column(int column)
+{
+// printf("StatsPanel::sortUInt64Column(%d) entered\n", column);
+
+  // For now we only allow column 0 to be sorted.
+  if( column > 0 )
+  {
+    return;
+  }
+
+  int index = 0;
+  int count = 0;
+  int values[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  char *strings[] = { "", "", "", "", "", "", "", "", "", "" };
+  SPListViewItem *lvi;
+
+  // How many rows should we display?
+  bool ok;
+  int numberItemsToDisplay = -1;
+  if( !getPreferenceTopNLineEdit().isEmpty() )
+  {
+    numberItemsToDisplay = getPreferenceTopNLineEdit().toInt(&ok);
+    if( !ok )
+    {
+      numberItemsToDisplay = 5; // Default to top5.
+    }
+  }
+
+  if( column >= 0 )
+  {
+    if( descending_sort == true )
+    { 
+// printf("Toggle to ascending...\n");
+      splv->header()->setSortIndicator( column, Qt::Ascending );
+      descending_sort = false;
+    } else
+    {
+// printf("Toggle to descending...\n");
+      splv->header()->setSortIndicator( column, Qt::Descending );
+      descending_sort = true;
+    }
+  }
+
+// printf("Now really sort the items: descending_sort=%d\n", descending_sort);
+
+  if( column == -1 )
+  {
+// printf("Resort all the orig_uint64_data items\n");
+    sorted_uint64_items.clear();
+    // sort by the time metric
+    // Now we can sort the data.
+    for(std::map<Function, uint64_t>::const_iterator
+                  item = orig_uint64_data->begin(); item != orig_uint64_data->end(); ++item)
+    {
+      sorted_uint64_items.push_back( *item );
+    }
+// printf("Okay ... sorted them..\n");
+          
+    if (descending_sort == true )
+    {
+      std::sort(sorted_uint64_items.begin(), sorted_uint64_items.end(), sort_descending<Function_uint64_pair>());
+    } else
+    {
+      std::sort(sorted_uint64_items.begin(), sorted_uint64_items.end(), sort_ascending<Function_uint64_pair>());
+    }
+  }
+
+// printf("Are you still okay?\n");
+
+
+  splv->clear();
+
+  if( column == -1 )
+  {
+    TotalTime = Get_UInt64_Total_Time();
+  }
+
+// printf("You got the TotalTime\n");
+  
+
+
+  if( column == -1 )
+  {
+// printf("Push to a separate list, the topN functions.\n");
+    topNsorted_uint64_items.clear();
+    // Now, for the sorted items, just grab the top 'N'.
+    for(std::vector<Function_uint64_pair>::const_iterator
+                  it = sorted_uint64_items.begin(); it != sorted_uint64_items.end(); ++it)
+    {
+      topNsorted_uint64_items.push_back( *it );
+      if(numberItemsToDisplay >= 0 )
+      {
+        numberItemsToDisplay--;
+        if( numberItemsToDisplay == 0)
+        {
+          // That's all the user requested...
+          break;  
+        }
+      }
+    }
+  }
+
+// printf("Put the data out...\n");
+  
+  if( descending_sort == true )
+  {
+// printf("Put out the descending list.\n");
+    for(std::vector<Function_uint64_pair>::reverse_iterator
+                it = topNsorted_uint64_items.rbegin(); it != topNsorted_uint64_items.rend(); ++it)
+    {
+      char cputimestr[50];
+      char a_percent_str[50];
+      a_percent_str[0] = '\0';
+      // convert time to %
+      double percent_factor = 100.0 / TotalTime;
+      double a_percent = 0; // accumulated percent
+      double c_percent = 0; // accumulated percent
+      QString funcInfo = QString::null;
+    
+      c_percent = it->second*percent_factor;  // current item's percent of total time
+        sprintf(cputimestr, "%lld", it->second);
+// printf("Blob: Here!\n");
+// printf("A:\tstr=%lld name=(%s)\n", it->second, it->first.getName().c_str() );
+// cout << "A:\tstr: " << it->second << "\n";
+
+        sprintf(a_percent_str, "%f", c_percent); funcInfo = it->first.getName().c_str() + QString(" (") + it->first.getLinkedObject().getPath().getBaseName();
+    
+        std::set<Statement> T = it->first.getDefinitions();
+        if( T.size() > 0 )
+        {
+          std::set<Statement>::const_iterator ti;
+          for (ti = T.begin(); ti != T.end(); ti++)
+          {
+            if (ti != T.begin())
+            {
+              funcInfo += "  &...";
+                break;
+            }
+              Statement s = *ti;
+            char l[20];
+            sprintf( &l[0], " %lld", (int64_t)s.getLine());
+            funcInfo = funcInfo + ": " + s.getPath().getBaseName() + "," + &l[0];
+          }
+        }
+        funcInfo += QString(")");
+    
+        lvi =  new SPListViewItem( this, splv, cputimestr,  a_percent_str, funcInfo.ascii() );
+// printf("A: Put out (%s)\n", cputimestr);
+    } // end for
+  } else
+  {
+// printf("Put out the ascending list.\n");
+    for(std::vector<Function_uint64_pair>::const_iterator
+                it = sorted_uint64_items.begin(); it != sorted_uint64_items.end(); ++it)
+    {
+//    std::vector<Function_uint64_pair> item = *it;
+// putItem(it);
+      char cputimestr[50];
+      char a_percent_str[50];
+      a_percent_str[0] = '\0';
+      // convert time to %
+      double percent_factor = 100.0 / TotalTime;
+      double a_percent = 0; // accumulated percent
+      double c_percent = 0; // accumulated percent
+      QString funcInfo = QString::null;
+    
+      c_percent = it->second*percent_factor;  // current item's percent of total time
+        sprintf(cputimestr, "%lld", it->second);
+// printf("\tcputimestr=(%s)\n", cputimestr);
+// cout << "str: " << it->second << "\n";
+        sprintf(a_percent_str, "%f", c_percent); funcInfo = it->first.getName().c_str() + QString(" (") + it->first.getLinkedObject().getPath().getBaseName();
+    
+        std::set<Statement> T = it->first.getDefinitions();
+        if( T.size() > 0 )
+        {
+          std::set<Statement>::const_iterator ti;
+          for (ti = T.begin(); ti != T.end(); ti++)
+          {
+            if (ti != T.begin())
+            {
+              funcInfo += "  &...";
+                break;
+            }
+              Statement s = *ti;
+            char l[20];
+            sprintf( &l[0], " %lld", (int64_t)s.getLine());
+            funcInfo = funcInfo + ": " + s.getPath().getBaseName() + "," + &l[0];
+          }
+        }
+        funcInfo += QString(")");
+    
+        lvi =  new SPListViewItem( this, splv, cputimestr,  a_percent_str, funcInfo.ascii() );
+// printf("B: Put out (%s)\n", cputimestr);
+    }
+  }
+
+
+
+//  splv->setSorting ( -1, descending_sort );
+  splv->setSorting ( -1 );
+  splv->header()->setSortIndicator( column == -1 ? 0 : column, descending_sort );
+
+  // Set the values for the top 5 pie chart elements...
+  QListViewItemIterator it( splv );
+  while( it.current() )
+  {
+    QListViewItem *item = *it;
+    if( index < 5 )
+    {
+      values[index] = (int)item->text(1).toFloat();
+// printf("values[%d] = (%d)\n", index, values[index] );
+      strings[index] = (char *)item->text(1).ascii();
+      count = index+1;
+    }
+    index++;
+      
+    ++it;
+  }
+
+  // Now put out the graph
+  int total_percent = 0;
+  int i = 0;
+  for(i =0;i<count;i++)
+  {
+    total_percent += values[i];
+  }
+  if( total_percent < 100 )
+  {
+    values[i] = 100-total_percent;
+    strings[i] = "other";
+    count++;
+  }
+  cf->setValues(values, hotToCold_color_names, strings, count+1);
+
+// printf("finished up putting out values.\n");
+}
+
 void
 StatsPanel::putItem(std::vector<Function_double_pair> *item)
 {
@@ -1266,9 +1520,12 @@ StatsPanel::matchSelectedItem(std::string sf )
   if( currentMetricTypeStr == "unsigned int" )
   {
     return( matchUIntSelectedItem(sf) );
-  } else
+  } else if( currentMetricTypeStr == "double" )
   {
     return( matchDoubleSelectedItem(sf) );
+  } else
+  {
+    return( matchUInt64SelectedItem(sf) );
   }
 }
 
@@ -1350,42 +1607,43 @@ fprintf(stderr, "No function definition for this entry.   Unable to position sou
         QApplication::setOverrideCursor(QCursor::WaitCursor);
 
 // printf("Look up metrics by statement in file.\n");
-if( currentMetricTypeStr == "unsigned int" )
-{
-        Queries::GetUIntMetricByStatementInFileForThread(*currentCollector, currentMetricStr.ascii(), di->getPath(), *currentThread, orig_uint_statement_data);
-
-        for(std::map<int, unsigned int>::const_iterator
-              item = orig_uint_statement_data->begin();
-              item != orig_uint_statement_data->end(); ++item)
+        if( currentMetricTypeStr == "unsigned int" )
         {
+printf("You shouldn't be here.  double function for an unsigned int???\n");
+          Queries::GetUIntMetricByStatementInFileForThread(*currentCollector, currentMetricStr.ascii(), di->getPath(), *currentThread, orig_uint_statement_data);
+
+          for(std::map<int, unsigned int>::const_iterator
+                item = orig_uint_statement_data->begin();
+                item != orig_uint_statement_data->end(); ++item)
+          {
 // printf("item->first=%d\n", item->first);
 // printf("item->second=%f\n", item->second );
 // printf("A: TotalTime=%f\n", TotalTime);
 // printf("A: item->second=%f\n", item->second);
-          int color_index = getLineColor(item->second);
-          hlo = new HighlightObject(di->getPath(), item->first, hotToCold_color_names[color_index], item->second, (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
-          highlightList->push_back(hlo);
+            int color_index = getLineColor(item->second);
+            hlo = new HighlightObject(di->getPath(), item->first, hotToCold_color_names[color_index], item->second, (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
+            highlightList->push_back(hlo);
 // printf("Push_back a hlo for %d %f\n", item->first, item->second);
-        }
-} else
-{
-        Queries::GetMetricByStatementInFileForThread(*currentCollector, currentMetricStr.ascii(), di->getPath(), *currentThread, orig_double_statement_data);
+          }
+        } else
+        {
+          Queries::GetMetricByStatementInFileForThread(*currentCollector, currentMetricStr.ascii(), di->getPath(), *currentThread, orig_double_statement_data);
 //printf("Looked up metrics by statement in file.\n");
 
-        for(std::map<int, double>::const_iterator
-              item = orig_double_statement_data->begin();
-              item != orig_double_statement_data->end(); ++item)
-        {
+          for(std::map<int, double>::const_iterator
+                item = orig_double_statement_data->begin();
+                item != orig_double_statement_data->end(); ++item)
+          {
 // printf("item->first=%d\n", item->first);
 // printf("item->second=%f\n", item->second );
 //printf("B: TotalTime=%f\n", TotalTime);
 // printf("B: item->second=%f\n", item->second);
-          int color_index = getLineColor(item->second);
-          hlo = new HighlightObject(di->getPath(), item->first,  hotToCold_color_names[color_index], item->second, (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
-          highlightList->push_back(hlo);
+            int color_index = getLineColor(item->second);
+            hlo = new HighlightObject(di->getPath(), item->first,  hotToCold_color_names[color_index], item->second, (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
+            highlightList->push_back(hlo);
 // printf("Push_back a hlo for %d %f\n", item->first, item->second);
+          }
         }
-}
       }
 
       hlo = new HighlightObject(di->getPath(), line, hotToCold_color_names[currentItemIndex], -1, (char *)QString("Beginning of function %1").arg(it->first.getName().c_str()).ascii() );
@@ -1539,6 +1797,7 @@ if( currentMetricTypeStr == "unsigned int" )
         }
 } else
 {
+printf("You shouldn't be here.  unsigned int function for an double???\n");
         Queries::GetMetricByStatementInFileForThread(*currentCollector, currentMetricStr.ascii(), di->getPath(), *currentThread, orig_double_statement_data);
 //printf("Looked up metrics by statement in file.\n");
 
@@ -1611,10 +1870,159 @@ if( getPanelContainer()->parentPanelContainer != NULL )
   return( foundFLAG );
 }
 
+
+bool
+StatsPanel::matchUInt64SelectedItem(std::string sf )
+{
+  bool foundFLAG = FALSE;
+  SourceObject *spo = NULL;
+// printf ("StatsPanel::matchUInt64SelectedItem() = %s\n", sf.c_str() );
+
+  QString selected_function_qstring = QString(sf);
+  QString funcString = selected_function_qstring.section(' ', 0, 0, QString::SectionSkipEmpty);
+  std::string selected_function = funcString.ascii();
+
+  try
+  {
+int index = 0;
+    std::vector<Function_uint64_pair>::const_iterator it = sorted_uint64_items.begin();
+    std::set<Statement> definitions = it->first.getDefinitions();
+    for( ; it != sorted_uint64_items.end(); ++it)
+    {
+// printf("%s %f\n", it->first.getName().c_str(), it->second );
+      if( selected_function == it->first.getName()  || sf == NULL )
+      {
+        currentItemIndex = index;
+// printf("FOUND IT!\n");
+        foundFLAG = TRUE;
+
+        definitions = it->first.getDefinitions();
+        if(definitions.size() > 0 )
+        {
+//        for( std::set<Statement>::const_iterator i = definitions.begin(); i != definitions.end(); ++i)
+//        {
+//          std::cout << " (" << i->getPath().baseName()
+//              << ", " << i->getLine() << ")";
+//        }
+//        std::cout << std::endl;
+          break;
+        } else
+        {
+fprintf(stderr, "No function definition for this entry.   Unable to position source.\n");
+          QMessageBox::information(this, "Open|SpeedShop", "No function definition for this entry.\nUnable to position source. (No symbols.)\n", "Ok");
+
+
+          clearSourceFile(expID);
+
+          return foundFLAG;
+        }
+      }
+      index++;
+    }
+// printf("FOUND? foundFLAG=%d\n", foundFLAG);
+
+    if( definitions.size() > 0 )
+    {
+      std::set<Statement>::const_iterator di = definitions.begin();
+      HighlightList *highlightList = new HighlightList();
+      highlightList->clear();
+      HighlightObject *hlo = NULL;
+// cout << "name: " << di->getPath() << " line: " << di->getLine()-1 << "red" << "HighlightInfo note." << "\n";
+      int64_t line = 1;
+      if( definitions.size() > 0 )
+      {
+        std::set<Statement>::const_iterator ti;
+        for (ti = definitions.begin(); ti != definitions.end(); ti++)
+        {
+          if (ti != definitions.begin())
+          {
+            break;
+          }
+          Statement s = *ti;
+          line = (int64_t)s.getLine();
+        }
+      }
+      // Put out statment metrics for this file.
+//      if( getPanelContainer()->getMainWindow()->preferencesDialog->showGraphicsCheckBox->isChecked() )
+      {
+        QApplication::setOverrideCursor(QCursor::WaitCursor);
+
+// printf("Look up metrics by statement in file.\n");
+        Queries::GetUIntMetricByStatementInFileForThread(*currentCollector, currentMetricStr.ascii(), di->getPath(), *currentThread, orig_uint64_statement_data);
+// printf("Looked up metrics by statement in file.\n");
+
+        for(std::map<int, uint64_t>::const_iterator
+              item = orig_uint64_statement_data->begin();
+              item != orig_uint64_statement_data->end(); ++item)
+        {
+// printf("item->first=%d\n", item->first);
+// printf("item->second=%u\n", item->second );
+          hlo = new HighlightObject(di->getPath(), item->first, hotToCold_color_names[(int)(TotalTime/item->second)], item->second, (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
+          highlightList->push_back(hlo);
+// printf("Push_back a hlo for %d %f\n", item->first, item->second);
+        }
+      }
+
+      hlo = new HighlightObject(di->getPath(), line, hotToCold_color_names[currentItemIndex], -1, (char *)QString("Beginning of function %1").arg(it->first.getName().c_str()).ascii() );
+      highlightList->push_back(hlo);
+      spo = new SourceObject(it->first.getName().c_str(), di->getPath(), di->getLine()-1, expID, TRUE, highlightList);
+
+    } else
+    {
+      clearSourceFile(expID);
+// printf("No file found.\n");
+      return foundFLAG;
+    }
+
+    if( spo )
+    {
+      QString name = QString("Source Panel [%1]").arg(expID);
+// printf("Find a SourcePanel named %s\n", name.ascii() );
+      Panel *sourcePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+      if( !sourcePanel )
+      {
+//printf("no source view up, place the source panel.\n");
+        char *panel_type = "Source Panel";
+//        PanelContainer *bestFitPC = topPC->findBestFitPanelContainer(getPanelContainer()->parentPanelContainer);
+PanelContainer *startPC = NULL;
+if( getPanelContainer()->parentPanelContainer != NULL )
+{
+  startPC = getPanelContainer()->parentPanelContainer;
+} else
+{
+  startPC = getPanelContainer();
+}
+        PanelContainer *bestFitPC = topPC->findBestFitPanelContainer(startPC);
+        ArgumentObject *ao = new ArgumentObject("ArgumentObject", groupID);
+        sourcePanel = getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, ao);
+      }
+      if( sourcePanel )
+      {
+//printf("send the spo to the source panel.\n");
+        sourcePanel->listener((void *)spo);
+//printf("sent the spo to the source panel.\n");
+      }
+    }
+    qApp->restoreOverrideCursor( );
+  }
+  catch(const std::exception& error)
+  { 
+    std::cerr << std::endl << "Error: "
+              << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+              "Unknown runtime error." : error.what()) << std::endl
+              << std::endl;
+    return foundFLAG;
+  }
+
+
+  return( foundFLAG );
+}
+
 void
 StatsPanel::updateStatsPanelData()
 {
   nprintf( DEBUG_PANELS) ("StatsPanel::updateStatsPanelData() entered.\n");
+// printf("StatsPanel::updateStatsPanelData() entered.\n");
 
   SPListViewItem *lvi;
   columnList.clear();
@@ -1695,30 +2103,38 @@ StatsPanel::updateStatsPanelData()
 // printf("GetMetricByFunction(%s  %s %s)\n", name.ascii(), currentMetricStr.ascii(), QString("%1").arg(t1.getProcessId()).ascii() );
           QApplication::setOverrideCursor(QCursor::WaitCursor);
 // printf("A: Display the results currentMetricTypeStr=(%s)\n", currentMetricTypeStr.ascii() );
-if( currentMetricTypeStr == "unsigned int" )
-{
-          Queries::GetUIntMetricByFunctionInThread(collector, currentMetricStr.ascii(), t1, orig_uint_data);
-} else
-{
-          Queries::GetMetricByFunctionInThread(collector, currentMetricStr.ascii(), t1, orig_double_data);
-}
+          if( currentMetricTypeStr == "unsigned int" )
+          {
+            Queries::GetUIntMetricByFunctionInThread(collector, currentMetricStr.ascii(), t1, orig_uint_data);
+          } else if( currentMetricTypeStr == "double" )
+          {
+            Queries::GetMetricByFunctionInThread(collector, currentMetricStr.ascii(), t1, orig_double_data);
+          } else
+          {
+// printf("about to call the new GetUInt64MetricByFunctionInThread() routine.\n");
+            Queries::GetUInt64MetricByFunctionInThread(collector, currentMetricStr.ascii(), t1, orig_uint64_data);
+// printf("called the new GetUInt64MetricByFunctionInThread() routine.\n");
+          }
           qApp->restoreOverrideCursor( );
 
           // Display the results
           MetricHeaderInfoList metricHeaderInfoList;
-if( currentMetricTypeStr == "double" )
-{
-          metricHeaderInfoList.push_back(new MetricHeaderInfo(QString(currentMetricStr.ascii() ), FLOAT_T));
-} else if( currentMetricTypeStr == "int" )
-{
-          metricHeaderInfoList.push_back(new MetricHeaderInfo(QString(currentMetricStr.ascii() ), INT_T));
-} else if( currentMetricTypeStr == "unsigned int" )
-{
-          metricHeaderInfoList.push_back(new MetricHeaderInfo(QString(currentMetricStr.ascii() ), UNSIGNED_INT_T));
-} else
-{
-          metricHeaderInfoList.push_back(new MetricHeaderInfo(QString(currentMetricStr.ascii() ), UNKNOWN_T));
-}
+          if( currentMetricTypeStr == "double" )
+          {
+            metricHeaderInfoList.push_back(new MetricHeaderInfo(QString(currentMetricStr.ascii() ), FLOAT_T));
+          } else if( currentMetricTypeStr == "int" )
+          {
+            metricHeaderInfoList.push_back(new MetricHeaderInfo(QString(currentMetricStr.ascii() ), INT_T));
+          } else if( currentMetricTypeStr == "unsigned int" )
+          {
+            metricHeaderInfoList.push_back(new MetricHeaderInfo(QString(currentMetricStr.ascii() ), UNSIGNED_INT_T));
+          } else if( currentMetricTypeStr == "uint64_t" )
+          {
+            metricHeaderInfoList.push_back(new MetricHeaderInfo(QString(currentMetricStr.ascii() ), UINT64_T));
+          } else
+          {
+            metricHeaderInfoList.push_back(new MetricHeaderInfo(QString(currentMetricStr.ascii() ), UNKNOWN_T));
+          }
 
 
           metricHeaderInfoList.push_back(new MetricHeaderInfo(QString("% of Time"), FLOAT_T));
@@ -1818,9 +2234,16 @@ if( currentMetricTypeStr == "unsigned int" )
 // printf("no data read.\n");
         return;
       }
-} else
+} else if( currentMetricTypeStr == "double" )
 {
       if( orig_double_data.isNull() )
+      {
+// printf("no data read.\n");
+        return;
+      }
+} else
+{
+      if( orig_uint64_data.isNull() )
       {
 // printf("no data read.\n");
         return;
@@ -1903,6 +2326,38 @@ if( it->second < ui_minTime )
 if( it->second > ui_maxTime )
 {
   ui_maxTime = it->second;
+}
+  }
+  return TotalTime;
+}
+
+
+double
+StatsPanel::Get_UInt64_Total_Time()
+{
+ // Calculate the total time for this set of samples.
+  double TotalTime = 0.0;
+
+  if( orig_uint64_data.isNull() )
+  {
+    return TotalTime;
+  }
+
+uint64_minTime = 0;
+uint64_maxTime = 0;
+  for(std::map<Function, uint64_t>::const_iterator
+            it = orig_uint64_data->begin(); it != orig_uint64_data->end(); ++it)
+  {
+    TotalTime += it->second;
+// Snag the min time...
+if( it->second < ui_minTime )
+{
+  uint64_minTime = it->second;
+}
+// Snag the max time...
+if( it->second > ui_maxTime )
+{
+  uint64_maxTime = it->second;
 }
   }
   return TotalTime;
@@ -2055,6 +2510,54 @@ StatsPanel::getLineColor(unsigned int value)
 
 
   if( (int) value >  0.0 )
+  {
+    if( TotalTime*.90 >= value )
+    {
+      return(0);
+    } else if( TotalTime*.80 >= value )
+    {
+      return(1);
+    } else if( TotalTime*.70 >= value )
+    {
+      return(2);
+    } else if( TotalTime*.60 >= value )
+    {
+      return(3);
+    } else if( TotalTime*.50 >= value )
+    {
+      return(4);
+    } else if( TotalTime*.40 >= value )
+    {
+      return(5);
+    } else if( TotalTime*.30 >= value )
+    {
+      return(6);
+    } else if( TotalTime*.20 >= value )
+    {
+      return(7);
+    } else if( TotalTime*.10 >= value )
+    {
+      return(8);
+    } else if( TotalTime*0 >= value )
+    {
+      return(9);
+    } else
+    {
+      return(10);
+    }
+  }
+
+  return(10);
+}
+
+
+int
+StatsPanel::getLineColor(uint64_t value)
+{
+//  printf("getLineColor(%l)\n", value);
+
+
+  if( (uint64_t) value >  0.0 )
   {
     if( TotalTime*.90 >= value )
     {
