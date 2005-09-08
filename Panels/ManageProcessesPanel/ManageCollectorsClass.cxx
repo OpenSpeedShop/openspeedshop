@@ -860,12 +860,24 @@ ManageCollectorsClass::paramSelected(int val)
   {
 //printf("selectedItem->text(0) =(%s)\n", selectedItem->text(0).ascii() );
     QString collector_name = QString::null;
-    if( selectedItem->parent() )
+    if( dialogSortType == PID_T )
     {
-      collector_name = selectedItem->parent()->text(0);
-    } else
+      if( selectedItem->parent() )
+      {
+        collector_name = selectedItem->text(1);
+      } else
+      {
+        collector_name = selectedItem->parent()->text(0);
+      }
+    } else if( dialogSortType == COLLECTOR_T )
     {
-      collector_name = selectedItem->text(0);
+      if( selectedItem->parent() )
+      {
+        collector_name = selectedItem->parent()->text(0);
+      } else
+      {
+        collector_name = selectedItem->text(0);
+      }
     }
     QString param_name = QString::null;
     int loc = -1;
@@ -903,6 +915,7 @@ ManageCollectorsClass::paramSelected(int val)
     if( ok )
     {
       QString command;
+// printf("colletor_name=(%s)\n", collector_name.ascii() );
       command = QString("expSetParam -x %1 %2::%3=%4").arg(expID).arg(collector_name).arg(param_name).arg(res);
 // printf("command=(%s)\n", command.ascii() );
       if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
