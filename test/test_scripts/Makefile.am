@@ -25,4 +25,5 @@ EXTRA_DIST = \
 	rununit \
 	runone-dpcl \
 	runone-hwc \
-	runone-noout
+	runone-noout \
+	runone-usertime-noout
