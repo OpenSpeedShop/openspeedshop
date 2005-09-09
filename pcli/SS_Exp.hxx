@@ -178,11 +178,12 @@ class ExperimentObject
   }
 
   bool CanExecute () {
+    bool itcan = false;
     if (FW() != NULL) {
       if (TS_Lock()) {
         try {
           ThreadGroup tgrp = FW()->getThreads();
-          if (!tgrp.empty()) return true;
+          if (!tgrp.empty()) itcan = true;
         }
         catch(const Exception& error) {
          // Don't care
@@ -190,7 +191,7 @@ class ExperimentObject
         Q_UnLock();
       }
     }
-    return false;
+    return itcan;
 
   }
 
