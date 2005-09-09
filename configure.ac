@@ -203,35 +203,50 @@ AC_CONFIG_FILES(Makefile
 		test/test_source/regression/building_block/Makefile
 		test/test_source/regression/building_block/close/Makefile
 		test/test_source/regression/building_block/close/close1/Makefile
+		test/test_source/regression/building_block/close/close2/Makefile
 		test/test_source/regression/building_block/detach/Makefile
 		test/test_source/regression/building_block/detach/detach1/Makefile
+		test/test_source/regression/building_block/detach/detach2/Makefile
 		test/test_source/regression/building_block/disable/Makefile
 		test/test_source/regression/building_block/disable/disable1/Makefile
+		test/test_source/regression/building_block/disable/disable2/Makefile
 		test/test_source/regression/building_block/enable/Makefile
 		test/test_source/regression/building_block/enable/enable1/Makefile
+		test/test_source/regression/building_block/enable/enable2/Makefile
 		test/test_source/regression/building_block/focus/Makefile
 		test/test_source/regression/building_block/focus/focus1/Makefile
+		test/test_source/regression/building_block/focus/focus2/Makefile
 		test/test_source/regression/building_block/pause/Makefile
 		test/test_source/regression/building_block/pause/pause1/Makefile
+		test/test_source/regression/building_block/pause/pause2/Makefile
 		test/test_source/regression/building_block/restore/Makefile
 		test/test_source/regression/building_block/restore/restore1/Makefile
+		test/test_source/regression/building_block/restore/restore2/Makefile
 		test/test_source/regression/info/Makefile
 		test/test_source/regression/info/hosts/Makefile
 		test/test_source/regression/info/hosts/hosts1/Makefile
+		test/test_source/regression/info/hosts/hosts2/Makefile
 		test/test_source/regression/info/listexp/Makefile
 		test/test_source/regression/info/listexp/listexp1/Makefile
+		test/test_source/regression/info/listexp/listexp2/Makefile
 		test/test_source/regression/info/views/Makefile
 		test/test_source/regression/info/views/views1/Makefile
+		test/test_source/regression/info/views/views2/Makefile
 		test/test_source/regression/info/types/Makefile
 		test/test_source/regression/info/types/types1/Makefile
+		test/test_source/regression/info/types/types2/Makefile
 		test/test_source/regression/info/metrics/Makefile
 		test/test_source/regression/info/metrics/metrics1/Makefile
+		test/test_source/regression/info/metrics/metrics2/Makefile
 		test/test_source/regression/info/params/Makefile
 		test/test_source/regression/info/params/params1/Makefile
+		test/test_source/regression/info/params/params2/Makefile
 		test/test_source/regression/info/pids/Makefile
 		test/test_source/regression/info/pids/pids1/Makefile
+		test/test_source/regression/info/pids/pids2/Makefile
 		test/test_source/regression/info/status/Makefile
 		test/test_source/regression/info/status/status1/Makefile
+		test/test_source/regression/info/status/status2/Makefile
 		test/test_source/regression/pcsamp/Makefile
 		test/test_source/regression/pcsamp/pcsamp1/Makefile
 		test/test_source/regression/pcsamp/pcsamp2/Makefile
