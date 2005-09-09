@@ -16,7 +16,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = types1 
+SUBDIRS = types1 types2
 
 DIST_SUBDIRS = $(SUBDIRS)
 

@@ -16,7 +16,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = listexp1 
+SUBDIRS = listexp1 listexp2
 
 DIST_SUBDIRS = $(SUBDIRS)
 
