@@ -17,7 +17,7 @@
 ################################################################################
 
 EXTRA_DIST = \
-	disable1.tst \
+	disable2.tst \
 	runone \
 	runall \
 	test_config
