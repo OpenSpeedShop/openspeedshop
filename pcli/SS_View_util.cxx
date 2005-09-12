@@ -158,18 +158,23 @@ void GetMetricsForFunction (CommandObject *cmd,
   const TimeInterval Forever =
       TimeInterval(Time::TheBeginning(), Time::TheEnd());
 
- // Get the thread containing this function
-  Thread thread = F.getThread();
+ // Go through all the threads in the group.
+  ThreadGroup::iterator ti;
+  for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+   // Get the thread containing this function
+    Thread thread = *ti;
 
- // Get the address range of this function
-  AddressRange range = F.getAddressRange();
+   // Note: we need to re-parent the Function Object before we can do the following!
+   // Get the address range of this function
+    AddressRange range = F.getAddressRange();
 
- // Evalute the metric over this address range
-  T new_value;
-  collector.getMetricValue(metric, thread, range, Forever, new_value);
+   // Evaluate the metric over it's address range
+    T new_value;
+    collector.getMetricValue(metric, thread, range, Forever, new_value);
 
- // Add this function and its metric value to the map
-  value += new_value;
+   // Add the new value to the accumulated value.
+    value += new_value;
+  }
   return;
 }
 
@@ -629,7 +634,8 @@ ViewInstruction *Find_Total_Def (std::vector<ViewInstruction *>IV) {
 ViewInstruction *Find_Percent_Def (std::vector<ViewInstruction *>IV) {
   for (int64_t i = 0; i < IV.size(); i++) {
     ViewInstruction *vp = IV[i];
-    if ((vp->OpCode() == VIEWINST_Display_Percent_Metric) ||
+    if ((vp->OpCode() == VIEWINST_Display_Percent_Column) ||
+        (vp->OpCode() == VIEWINST_Display_Percent_Metric) ||
         (vp->OpCode() == VIEWINST_Display_Percent_Tmp)) {
       return vp;
     }

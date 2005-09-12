@@ -71,7 +71,8 @@ class pcsamp_view : public ViewType {
 
     MV.push_back(VIEW_pcsamp_metrics[0]);  // Use the Collector with the first metric
     IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, 0, 0));  // first column is metric
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Metric, 1, 0));  // second column is %
+    IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 0));  // total the metric in first column
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, 1, 0));  // second column is %
     return Generic_View (cmd, exp, topn, tgrp, CV, MV, IV);
   }
 };
@@ -148,12 +149,12 @@ class usertime_view : public ViewType {
       Max_Column = 1;
     }
 
-   // Column[2] is % of  whatever is the first metric in the list.
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, ++Max_Column, 0));
-
    // The Total Time (used for % calculation) is always the total exclusive time.
    // (Otherwise, we measure a unit of time multiple times.)
     IV.push_back(new ViewInstruction (VIEWINST_Define_Total, extime_index));
+
+   // Column[2] is % of  whatever is the first metric in the list.
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, ++Max_Column, 0));
 
     return Generic_View (cmd, exp, topn, tgrp, CV, MV, IV);
   }
@@ -205,7 +206,8 @@ class hwc_view : public ViewType {
     CV.push_back (Get_Collector (exp->FW(), VIEW_hwc_collectors[0]));  // Get the collector
     MV.push_back(VIEW_hwc_metrics[0]);  // Get the name of the metric
     IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, 0, 0));  // first column is metric
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Metric, 1, 0));  // second column is %
+    IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 0));  // metric is total
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, 1, 0));  // second column is % of first
 
    // Get the name of the event that we were collecting.
    // Use this for the column header in the report rather then the name of the metric.
@@ -288,12 +290,12 @@ class hwctime_view : public ViewType {
       Max_Column = 1;
     }
 
-   // Column[2] is % of  whatever is the first metric in the list.
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, ++Max_Column, 0));
-
    // The Total Time (used for % calculation) is always the total exclusive time.
    // (Otherwise, we measure a unit of time multiple times.)
     IV.push_back(new ViewInstruction (VIEWINST_Define_Total, extime_index));
+
+   // Column[2] is % of  whatever is the first metric in the list.
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, ++Max_Column, 0));
 
    // Get the name of the event that we were collecting.
    // Use this for the column header in the report rather then the name of the metric.
