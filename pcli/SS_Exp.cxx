@@ -24,13 +24,13 @@ using namespace std;
 using namespace OpenSpeedShop::cli;
 
 int ExperimentObject::Determine_Status() {
-  int A = ExpStatus_NonExistent;
+  int expstatus = ExpStatus_NonExistent;
   if (FW() == NULL) {
-    ExpStatus = A;
-  } else if (TS_Lock()) {
+    ExpStatus = expstatus;
+  } else {
     ThreadGroup tgrp = FW()->getThreads();
     if (tgrp.empty()) {
-      A = ExpStatus_Paused;
+      expstatus = ExpStatus_Paused;
     } else {
       ThreadGroup::iterator ti;
       for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
@@ -38,15 +38,15 @@ int ExperimentObject::Determine_Status() {
         try {
           if (t.getState() == Thread::Running) {
            // if any thread is Running, the experiment is also.
-            A = ExpStatus_Running;
+            expstatus = ExpStatus_Running;
             break;
           } else if (t.getState() == Thread::Suspended) {
            // Paused can override Terminated
-            A = ExpStatus_Paused;
+            expstatus = ExpStatus_Paused;
           } else if (t.getState() == Thread::Terminated) {
            // The experiment is terminated only if all the threads are.
-            if (A != ExpStatus_Paused) {
-              A = ExpStatus_Terminated;
+            if (expstatus != ExpStatus_Paused) {
+              expstatus = ExpStatus_Terminated;
             }
           } else if ((t.getState() == Thread::Connecting) ||
                      (t.getState() == Thread::Disconnected) ||
@@ -54,31 +54,30 @@ int ExperimentObject::Determine_Status() {
            // These are 'Don't care" states at the user level.
            // Note: we might default to ExpStatus_NonExistent.
           } else {
-            A = ExpStatus_InError;
+            expstatus = ExpStatus_InError;
             break;
           }
         }
         catch(const Exception& error) {
          // Don't really care why.
          // Mark the experiment with an error and continue on.
-          A = ExpStatus_InError;
+          expstatus = ExpStatus_InError;
           break;
         }
       }
     }
-    ExpStatus = A;
-    Q_UnLock();
+    ExpStatus = expstatus;
   }
-  return A;
+  return expstatus;
 }
 
 std::string ExperimentObject::ExpStatus_Name () {
-  Determine_Status();
+  int expstatus = Status();
   if ((this == NULL) || (ExpStatus == ExpStatus_NonExistent)) return std::string("NonExistent");
-  if (ExpStatus == ExpStatus_Paused) return std::string("Paused");
-  if (ExpStatus == ExpStatus_Running) return std::string("Running");
-  if (ExpStatus == ExpStatus_Terminated) return std::string("Terminated");
-  if (ExpStatus == ExpStatus_InError) return std::string("Error");
+  if (expstatus == ExpStatus_Paused) return std::string("Paused");
+  if (expstatus == ExpStatus_Running) return std::string("Running");
+  if (expstatus == ExpStatus_Terminated) return std::string("Terminated");
+  if (expstatus == ExpStatus_InError) return std::string("Error");
   return std::string("Unknown");
 }
 
