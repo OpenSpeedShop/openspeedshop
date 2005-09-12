@@ -267,16 +267,21 @@ static void
 catch_signal (int sig, int error_num)
 {
   static bool processing_signal = false;
-  if (processing_signal) {
-    fprintf(stderr,"Multiple errors - %d %d\n",sig, error_num);
+  if (sig == SIGQUIT) {
+   // abort on user signal for CNTRL-\
     abort();
   }
-  processing_signal = true;
-// the folowing is debug print
-if (sig != SIGQUIT) {
-  fprintf(stderr,"catch_signal %d\n",sig);
-}
-  cli_terminate ();
+  if (sig != SIGINT) {
+   // If not a user initiated signal, try a normal shutdown.
+    if (processing_signal) {
+      fprintf(stderr,"Multiple errors - %d %d\n",sig, error_num);
+      abort();
+    }
+    processing_signal = true;
+   // the folowing is debug print
+   // fprintf(stderr,"catch_signal %d\n",sig);
+    cli_terminate ();
+  }
   exit (1);
 }
 inline static void
@@ -300,6 +305,7 @@ setup_signal_handler (int s)
     setup_signal_handler (SIGSYS);
     // setup_signal_handler (SIGPIPE);
     // setup_signal_handler (SIGCLD);
+    setup_signal_handler (SIGINT); // CNTRL-C
     setup_signal_handler (SIGQUIT); // CNTRL-\
 
    // Start up the Command line processor.
