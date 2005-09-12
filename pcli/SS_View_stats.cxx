@@ -49,8 +49,6 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                    ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
                    std::vector<ViewInstruction *>IV, std::string *HV) {
   // Print_View_Params (stderr, CV,MV,IV);
-  // cmd->Result_Predefined (new CommandResult_Title ("View Experiment "
-                                                       + cmd->Clip()->Command() ));
 
   bool report_Column_summary = false;
   std::vector<CommandResult *> Column_Sum;
