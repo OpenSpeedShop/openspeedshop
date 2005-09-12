@@ -49,6 +49,8 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                    ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
                    std::vector<ViewInstruction *>IV, std::string *HV) {
   // Print_View_Params (stderr, CV,MV,IV);
+  // cmd->Result_Predefined (new CommandResult_Title ("View Experiment "
+                                                       + cmd->Clip()->Command() ));
 
   bool report_Column_summary = false;
   std::vector<CommandResult *> Column_Sum;
@@ -81,13 +83,26 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
    // Calculate %?
     CommandResult *TotalValue = NULL;
     ViewInstruction *totalInst = Find_Total_Def (IV);
-    if (totalInst == NULL) {
-      totalInst = Find_Percent_Def (IV);
-    }
     bool Gen_Total_Percent = (totalInst != NULL);
     int64_t totalIndex = 0;
+    int64_t percentofcolumn = -1;
     if (Gen_Total_Percent) {
-      totalIndex = totalInst->TMP1();
+      totalIndex = totalInst->TMP1(); // this is a CV/MV index, not a column number!
+      ViewInstruction *vinst = Find_Percent_Def (IV);
+      if (vinst != NULL) {
+        if (vinst->OpCode() == VIEWINST_Display_Percent_Column) {
+         // This is the column number!  Save to avoid recalculateion.
+          percentofcolumn = vinst->TMP1(); // this is the column number!
+        } else if (vinst->OpCode() == VIEWINST_Display_Percent_Metric) {
+         // We will recalcualte the value when we generate the %.
+        } else {
+         // Note yet implemented??
+          Gen_Total_Percent = false;
+        }
+      } else {
+       // No % displayed, so why calcualte total?
+        Gen_Total_Percent = false;
+      }
     }
     if (Gen_Total_Percent) {
      // We calculate Total by adding all the values that were recorded for the thread group.
@@ -147,6 +162,8 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
    // Extract the top "n" items from the sorted list.
     std::vector<Function_CommandResult_pair>::const_iterator it = items.begin();
     for(int64_t foundn = 0; (foundn < topn) && (it != items.end()); foundn++, it++ ) {
+      CommandResult *percent_of = NULL;
+
      // Check for asnychonous abort command
       if (cmd->Status() == CMD_ABORTED) {
         return false;
@@ -181,13 +198,19 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
            // The measured time interval is too small.
             continue;
           }
-          ViewInstruction *percentInst = Find_Column_Def (IV, vinst->TMP1());
-          int64_t percentIndex = percentInst->TMP1();
-          CommandResult *Metric_Result = Get_Function_Metric( cmd, it->first, tgrp,
+          if ((i > percentofcolumn) &&
+              (percent_of != NULL)) {
+            Next_Metric_Value = Calculate_Percent (percent_of, TotalValue);
+          } else {
+            ViewInstruction *percentInst = Find_Column_Def (IV, vinst->TMP1());
+            int64_t percentIndex = percentInst->TMP1();
+            CommandResult *Metric_Result = Get_Function_Metric( cmd, it->first, tgrp,
                                                                CV[percentIndex], MV[percentIndex] );
-          Next_Metric_Value = Calculate_Percent (Metric_Result, TotalValue);
-        } else if ((vinst->OpCode() == VIEWINST_Display_Percent_Metric) ||
-                   (vinst->OpCode() == VIEWINST_Display_Percent_Tmp)) {
+            Next_Metric_Value = Calculate_Percent (Metric_Result, TotalValue);
+          }
+        } else if (vinst->OpCode() == VIEWINST_Display_Percent_Tmp) {
+          // Next_Metric_Value = NULL; /?? not sure how to implement this
+        } else if (vinst->OpCode() == VIEWINST_Display_Percent_Metric) {
           if (!Gen_Total_Percent) {
            // The measured time interval is too small.
             continue;
@@ -202,6 +225,10 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
         C->CommandResult_Columns::Add_Column (Next_Metric_Value);
         if (report_Column_summary) {
           Accumulate_CommandResult (Column_Sum[i], Next_Metric_Value);
+        }
+        if (Gen_Total_Percent &&
+            (i == percentofcolumn)) {
+          percent_of = Next_Metric_Value;
         }
       }
      // Add ID for row
