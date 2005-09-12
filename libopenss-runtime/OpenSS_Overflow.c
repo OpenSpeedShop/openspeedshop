@@ -40,8 +40,8 @@ static oss_boolean OpenSS_event_exists (int event)
 {
 	int rval = PAPI_query_event(event);
 	if (rval != PAPI_OK) {
-	    fprintf(stderr,"The event %s does not seem to be supported\n",
-		get_papi_name(event));
+	    fprintf(stderr,"The event %#x does not seem to be supported\n",
+		event);
 	    OpenSS_PAPIerror(rval);
 	    return false;
 	}
@@ -50,20 +50,21 @@ static oss_boolean OpenSS_event_exists (int event)
 
 	rval = PAPI_get_event_info(event,&info);
 	if (rval != PAPI_OK) {
-	    fprintf(stderr,"The event %s does not seem to be supported\n",
-		get_papi_name(event));
+	    fprintf(stderr,"The event %#x does not seem to be supported\n",
+		event);
 	    OpenSS_PAPIerror(rval);
 	    return false;
 	}
 
 	if (info.count > 0) {
 	    fprintf (stderr, "%s (%s) is available on this hardware.\n",
-		get_papi_name(event), info.short_descr ? info.short_descr : "");
+		info.symbol ? info.symbol : "",
+		info.short_descr ? info.short_descr : "");
 	}
 
 	if (info.count > 1) {
 	    fprintf (stderr,"%s is a derived event on this hardware.\n",
-		get_papi_name(event));
+		info.symbol ? info.symbol : "");
 	}
 }
 
@@ -116,7 +117,7 @@ fprintf(stderr,"OpenSS_Overflow: call PAPI_overflow for event %s, with threshold
     int rval = PAPI_overflow(EventSet,event,threshold, 0, hwcPAPIHandler);
 
     if (rval != PAPI_OK) {
-        fprintf(stderr,"PAPI_overflow() for event %s FAILED!\n", get_papi_name(event));
+        fprintf(stderr,"PAPI_overflow() for event %#x FAILED!\n", event);
 	OpenSS_PAPIerror(rval);
     }
 }

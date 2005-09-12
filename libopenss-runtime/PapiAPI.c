@@ -132,18 +132,14 @@ void print_papi_events ()
     } while (PAPI_enum_event(&i, PAPI_ENUM_ALL) == PAPI_OK);
 }
 
-char* get_papi_name (int code)
+void get_papi_name (int code, char *ecstr)
 {
     char EventCodeStr[PAPI_MAX_STR_LEN];
-    char *rstr = NULL;
     if (PAPI_event_code_to_name(code, EventCodeStr) != PAPI_OK)
     {
         fprintf(stderr,"get_papi_name: PAPI_event_code_to_name failed.\n");
-        return NULL;
     }
-
-    rstr = EventCodeStr;
-    return rstr;
+    strncpy(ecstr,EventCodeStr,sizeof(EventCodeStr));
 }
 
 int get_papi_eventcode (char* eventname)

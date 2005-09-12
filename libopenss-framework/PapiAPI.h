@@ -45,7 +45,7 @@ static int papithreshold = 1000000;
 
 static long_long values[2] = { 0, 0 };
 extern long_long **allocate_test_space(int , int);
-extern char* get_papi_name(int);
+extern void get_papi_name(int,char*);
 extern int get_papi_eventcode (char* eventname);
 extern void print_papi_error(int);
 

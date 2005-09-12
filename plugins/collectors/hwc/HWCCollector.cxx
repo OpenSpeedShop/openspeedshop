@@ -133,7 +133,8 @@ void HWCCollector::getParameterValue(const std::string& parameter,
     // Handle the "hwc_event" parameter
     if(parameter == "event") {
         std::string* value = reinterpret_cast<std::string*>(ptr);
-	char* EventCodeStr = get_papi_name(parameters.hwc_event);
+	char EventCodeStr[PAPI_MAX_STR_LEN];
+	get_papi_name(parameters.hwc_event,EventCodeStr);
 	std::string ecstr(EventCodeStr);
 	*value = ecstr;
     }
@@ -169,11 +170,10 @@ void HWCCollector::setParameterValue(const std::string& parameter,
     if(parameter == "event") {
 
 	char EventCodeStr[PAPI_MAX_STR_LEN];
-	const std::string* papi_event_name = reinterpret_cast<const std::string*>(ptr);
+	const std::string* papi_event_name =
+				reinterpret_cast<const std::string*>(ptr);
 	const char *str = papi_event_name->c_str();
-
 	char *var = (char *)str;
-
 	parameters.hwc_event = get_papi_eventcode(var);
     }
     

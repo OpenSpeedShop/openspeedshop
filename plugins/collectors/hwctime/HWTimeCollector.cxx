@@ -142,7 +142,8 @@ void HWTimeCollector::getParameterValue(const std::string& parameter,
     // Handle the "hwctime_event" parameter
     if(parameter == "event") {
         std::string* value = reinterpret_cast<std::string*>(ptr);
-        char* EventCodeStr = get_papi_name(parameters.hwctime_event);
+	char EventCodeStr[PAPI_MAX_STR_LEN];
+	get_papi_name(parameters.hwctime_event,EventCodeStr);
         std::string ecstr(EventCodeStr);
         *value = ecstr;
     }
