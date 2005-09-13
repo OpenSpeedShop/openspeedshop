@@ -1687,6 +1687,9 @@ bool SS_expView (CommandObject *cmd) {
     (void) Wait_For_Exp_State (cmd, ExpStatus_Paused, exp);
   }
 
+ // Prevent this experiment from changing until we are done.
+  if (exp != NULL) exp->Q_Lock (cmd, true);
+
  // Pick up the <viewType> from the comand.
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<string> *p_slist = p_result->getViewList();
@@ -1695,9 +1698,6 @@ bool SS_expView (CommandObject *cmd) {
    // The user has not selected a view.
    // Look for a view that would be meaningful.
     std::string use_view = "stats";  // Use generic view as default
-
-   // Prevent this experiment from changing until we are done.
-    exp->Q_Lock (cmd, true);
 
     CollectorGroup cgrp = exp->FW()->getCollectors();
     if (cgrp.begin() == cgrp.end()) {
@@ -1720,23 +1720,22 @@ bool SS_expView (CommandObject *cmd) {
      // Generate the selected view
       view_result = SS_Generate_View (cmd, exp, use_view);
     }
-
-    exp->Q_UnLock ();
   } else {
    // Generate all the views in the list.
-    for (si = p_slist->begin(); si != p_slist->end(); ) {
+    
+    for (si = p_slist->begin(); si != p_slist->end(); si++) {
       std::string view = *si;
 
-     // Prevent this experiment from changing until we are done.
-      exp->Q_Lock (cmd, (++si == p_slist->end()));
       view_result = SS_Generate_View (cmd, exp, view);
-      exp->Q_UnLock ();
 
       if (!view_result) {
         break;
       }
     }
   }
+
+ // Release the experiment lock.
+  if (exp != NULL) exp->Q_UnLock ();
 
   if (view_result) {
     cmd->set_Status(CMD_COMPLETE);
