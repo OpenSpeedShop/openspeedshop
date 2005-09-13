@@ -190,10 +190,11 @@ if __name__ == '__main__':
 				
 			       	if checkIfDir and (dirName != 'CVS'):
 			       		os.chdir(dirName)
-			       		os.system('./runall-dpcl')
-					getResultFileFromDir(dirName)
-					#os.remove('inthisdirectory')
-					#os.remove('testresultsfilename')
+					if os.path.isfile('runall-dpcl'):
+			       			os.system('./runall-dpcl')
+						getResultFileFromDir(dirName)
+						#os.remove('inthisdirectory')
+						#os.remove('testresultsfilename')
 					os.chdir('..')
 					
 					
