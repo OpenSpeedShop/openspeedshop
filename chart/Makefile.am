@@ -44,7 +44,7 @@ moc_setdataform.cxx: setdataform.hxx
 
 libopenss_Chart_la_SOURCES = \
 	canvasellipse.hxx        canvastext.hxx  chartform.hxx  optionsform.hxx \
-	canvasrectable.hxx \
+	canvasrectangle.hxx \
 	canvasshadowellipse.hxx  canvasview.hxx  element.hxx    setdataform.hxx \
 	canvasview.cxx        element.cxx          moc_setdataform.cxx \
 	chartform_canvas.cxx  moc_canvasview.cxx   optionsform.cxx \
