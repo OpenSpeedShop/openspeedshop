@@ -16,48 +16,30 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
 
-
-#ifndef CANVASVIEW_H
-#define CANVASVIEW_H
-
-#include "element.hxx"
-#include "canvastext.hxx"
-#include "canvasellipse.hxx"
-#include "canvasshadowellipse.hxx"
-#include "canvasrectangle.hxx"
+#ifndef CANVASRECTANGLE_H
+#define CANVASRECTANGLE_H
 
 #include <qcanvas.h>
 
+class QFont;
 
-class QPoint;
 
-
-//! The qcanvasview that holds the chart.
-class CanvasView : public QCanvasView
+//! Defines a simple canvas ellipse used to draw a pie chart.
+class CanvasRectangle : public QCanvasRectangle
 {
-    Q_OBJECT
 public:
-    CanvasView( QCanvas *canvas, ElementVector *elements,
-		QWidget* parent = 0, const char* name = "canvas view",
-		WFlags f = 0 )
-	: QCanvasView( canvas, parent, name, f ),
-	  m_elements( elements ) { }
+    enum { CANVAS_RECTANGLE = 1201 };
 
-    int getItemFromPos( QPoint pos );
-protected:
-    void viewportResizeEvent( QResizeEvent *e );
-    virtual void contentsMousePressEvent( QMouseEvent *e );
-#ifdef MOUSE_MOVE
-    void contentsMouseMoveEvent( QMouseEvent *e );
-#endif // MOUSE_MOVE
-    void contentsContextMenuEvent( QContextMenuEvent *e );
+    CanvasRectangle( int i, int s1, int s2, int a, int extent, QCanvas *m_canvas )
+	: QCanvasRectangle( s1, s2, a, extent, m_canvas ), m_index( i ) {}
+
+    int index() const { return m_index; }
+    void setIndex( int index ) { m_index = index; }
+
+    int rtti() const { return CANVAS_RECTANGLE; }
 
 private:
-    QCanvasItem *m_movingItem;
-    QPoint m_pos;
-    ElementVector *m_elements;
-    bool handlingEvent;
+    int m_index;
 };
 
-
-#endif
+#endif // CANVASRECTANGLE_H

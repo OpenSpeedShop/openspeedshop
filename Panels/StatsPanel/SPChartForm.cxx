@@ -54,6 +54,7 @@ int
 SPChartForm::mouseClicked( int item )
 {
   nprintf(DEBUG_PANELS) ("SPChartForm::mouseClicked(item=%d) called.\n", item);
+// printf("SPChartForm::mouseClicked() entered\n");
   statsPanel->itemSelected(item);
 }
 
@@ -83,10 +84,10 @@ SPChartForm::createPopupMenu( const QPoint & pos )
   
   panelMenu = new QPopupMenu(this);
   statsPanel->menu(panelMenu);
-  popupMenu->insertSeparator();
+//  popupMenu->insertSeparator();
   popupMenu->insertItem("&Panel Menu", panelMenu, CTRL+Key_P );
-  popupMenu->insertSeparator();
-  popupMenu->insertItem("&Goto Line...", this, SLOT(goToLine()) );
+//  popupMenu->insertSeparator();
+//  popupMenu->insertItem("&Goto Line...", this, SLOT(goToLine()) );
 
   popupMenu->exec( pos );
 

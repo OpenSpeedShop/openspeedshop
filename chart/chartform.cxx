@@ -548,14 +548,14 @@ void ChartForm::helpAbout()
 QPopupMenu *
 ChartForm::createPopupMenu(const QPoint & /*pos */)
 {
-printf("ChartForm::createPopupMenu() entered.\n");
+// printf("ChartForm::createPopupMenu() entered.\n");
   return(optionsMenu);
 }
 
 void
 ChartForm::contentsContextMenuEvent( QContextMenuEvent *e )
 {
-printf("ChartForm::contentsContextMenuEvent() called.\n");
+// printf("ChartForm::contentsContextMenuEvent() called.\n");
 }
 
 
@@ -566,7 +566,7 @@ void ChartForm::helpAboutQt()
 
 int ChartForm::mouseClicked(int item)
 {
-printf("ChartForm::mouseClicked(%d) entered.\n", item);
+// printf("ChartForm::mouseClicked(%d) entered.\n", item);
 }
 
 void ChartForm::setValues(int values[], char *color_names[], char *strings[], int n )

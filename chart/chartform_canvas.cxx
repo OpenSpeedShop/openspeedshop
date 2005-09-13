@@ -19,6 +19,7 @@
 
 #include "canvasellipse.hxx"
 #include "canvasshadowellipse.hxx"
+#include "canvasrectangle.hxx"
 #include "canvastext.hxx"
 #include "chartform.hxx"
 
@@ -214,8 +215,8 @@ void ChartForm::drawVerticalBarChart(
 	if ( m_elements[i].isValid() ) {
 	    int extent = int(scales[i]);
 	    int y = int(height - extent);
-	    QCanvasRectangle *rect = new QCanvasRectangle(
-					    x, y, prowidth, extent, m_canvas );
+	    CanvasRectangle *rect = new CanvasRectangle(
+					    i, x, y, prowidth, extent, m_canvas );
 	    rect->setBrush( QBrush( m_elements[i].valueColor(),
 				    BrushStyle(m_elements[i].valuePattern()) ) );
 	    rect->setPen( pen );
@@ -258,8 +259,8 @@ void ChartForm::drawHorizontalBarChart(
     for ( int i = 0; i < MAX_ELEMENTS; ++i ) {
 	if ( m_elements[i].isValid() ) {
 	    int extent = int(scales[i]);
-	    QCanvasRectangle *rect = new QCanvasRectangle(
-					    0, y, extent, proheight, m_canvas );
+	    CanvasRectangle *rect = new CanvasRectangle(
+					    i, 0, y, extent, proheight, m_canvas );
 	    rect->setBrush( QBrush( m_elements[i].valueColor(),
 				    BrushStyle(m_elements[i].valuePattern()) ) );
 	    rect->setPen( pen );

@@ -1150,9 +1150,9 @@ OpenSpeedshop::lookForExperiment()
   int_list.clear();
   if( !cli->getIntListValueFromCLI( (char *)command.ascii(), &int_list ) )
   {
-    printf("Unable to run %s command.\n", command.ascii() );
+//    printf("Unable to run %s command.\n", command.ascii() );
+    QMessageBox::information(this, QString(tr("Initialization warning:")), QString("Unable to run \"%1\" command.").arg(command.ascii()), QMessageBox::Ok );
   }
-
 
   std::list<int64_t>::iterator it;
 // printf("int_list.size() =%d\n", int_list.size() );
@@ -1168,7 +1168,15 @@ OpenSpeedshop::lookForExperiment()
     if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
            &list_of_collectors, FALSE ) )
     {
-      printf("Unable to run %s command.\n", command.ascii() );
+//      printf("Unable to run %s command.\n", command.ascii() );
+      
+      loadTimer->stop();
+      delete loadTimer;
+      pd->hide();
+
+      QMessageBox::information(this, QString(tr("Initialization warning:")), QString("Unable to run \"%1\" command.").arg(command.ascii()), QMessageBox::Ok );
+
+      return 0;
     }
   
     int knownCollectorType = FALSE;

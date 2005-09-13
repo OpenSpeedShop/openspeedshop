@@ -521,7 +521,8 @@ CLIInterface::checkStatus(InputLineObject *clip)
 bool 
 CLIInterface::shouldWeContinue()
 {
-  if( maxTime > 0 )
+  // Set an abort timer if the caller asked to set one up...
+  if( maxTime > 0 && warn_of_time == TRUE )
   {
     if( timer == NULL )
     {

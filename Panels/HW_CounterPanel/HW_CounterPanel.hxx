@@ -139,6 +139,7 @@ public slots:
   void manageDataSetsSelected();
   void loadSourcePanel();
   void editPanelName();
+  void experimentStatus();
   Panel *loadStatsPanel();
   void loadManageProcessesPanel();
   void progressUpdate();

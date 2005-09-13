@@ -346,6 +346,12 @@ IOPanel::menu(QPopupMenu* contextMenu)
   connect( qaction, SIGNAL( activated() ), this, SLOT( editPanelName() ) );
   qaction->setStatusTip( tr("Change the name of this panel...") );
 
+  qaction = new QAction( this,  "expStatus");
+  qaction->addTo( contextMenu );
+  qaction->setText( "Experiment Status..." );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( experimentStatus() ) );
+  qaction->setStatusTip( tr("Get general information about this experiment...") );
+
   contextMenu->insertSeparator();
 
   qaction = new QAction( this,  "StatsPanel");
@@ -892,6 +898,43 @@ IOPanel::editPanelName()
   {
     // user entered nothing or pressed Cancel
   }
+}
+
+
+void
+IOPanel::experimentStatus()
+{
+  nprintf( DEBUG_PANELS ) ("experimentStatus.\n");
+
+  QString command = QString("expStatus -x %1").arg(expID);
+  std::list<std::string> str_list;
+
+  str_list.clear();
+  CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+  if( !cli->getStringListValueFromCLI( (char *)command.ascii(), &str_list ) )
+  {
+    printf("Unable to run %s command.\n", command.ascii() );
+  }
+
+  std::list<std::string>::iterator it;
+  nprintf( DEBUG_PANELS ) ("str_list.size() =%d\n", str_list.size() );
+
+  if( str_list.size() == 0 )
+  {
+    return;
+  }
+
+  QString info_str = QString::null;
+  for(it = str_list.begin(); it != str_list.end(); it++ )
+  {
+    std::string str = (std::string)(*it);
+//printf("str=(%s)\n", str.c_str() );
+    info_str += str;
+    info_str += "\n";
+  }
+
+
+  QMessageBox::information( this, "Experiment Information", info_str, QMessageBox::Ok );
 }
 
 Panel *

@@ -54,48 +54,6 @@ void CanvasView::viewportResizeEvent( QResizeEvent *e )
 }
 
 
-
-
-#ifdef PULL
-int
-CanvasView::getItemFromPos( QPoint p )
-{
-//  nprintf(DEBUG_PANELS) ("CanvasView::getItemFromPos() entered.\n");
-  printf ("CanvasView::getItemFromPos() x=%d y=%d.\n", p.x(), p.y() );
-
-QPoint pos = mapToGlobal(p);
-  printf ("CanvasView::getItemFromPos() pos.x=%d pos.y=%d.\n", pos.x(), pos.y() );
-
-  int selected = -1;
-  QCanvasItemList list = canvas()->collisions( pos );
-  
-  CanvasEllipse *item = NULL;
-  QCanvasItemList::iterator it = NULL;
-  ChartForm *form = (ChartForm*)parent();
-  m_movingItem = NULL;
-  for ( it = list.begin(); it != list.end(); ++it )
-  {
-    if ( (*it)->rtti() == CanvasEllipse::CANVAS_ELLIPSE )
-    {
-      printf ("Match CANVAS_ELLIPSE\n");
-      m_movingItem = *it;
-      m_pos = pos;
-      printf ("m_pos.x()=%d m_pos.y()=%d\n", m_pos.x(), m_pos.y() );
-      int chartType = form->chartType();
-      item = (CanvasEllipse *)m_movingItem;
-    }
-    if( item != NULL )
-    {
-        selected = item->index();
-        break;
-    }
-  }
-
-  return( selected );
-}
-#endif // PULL
-
-#define SELECTMODE 0
 void CanvasView::contentsMousePressEvent( QMouseEvent *e )
 {
     nprintf(DEBUG_PANELS) ("CanvasView::contentsMousePressEvent() entered.\n");
@@ -107,12 +65,13 @@ void CanvasView::contentsMousePressEvent( QMouseEvent *e )
 
     QCanvasItemList list = canvas()->collisions( e->pos() );
 
-    CanvasEllipse *item = NULL;
     QCanvasItemList::iterator it = NULL;
 	ChartForm *form = (ChartForm*)parent();
     m_movingItem = NULL;
+    int index = -1;
     for ( it = list.begin(); it != list.end(); ++it )
     {
+      CanvasEllipse *item = NULL;
 	  if ( (*it)->rtti() == CanvasEllipse::CANVAS_ELLIPSE )
       {
         nprintf(DEBUG_PANELS) ("Match CANVAS_ELLIPSE\n");
@@ -121,66 +80,28 @@ void CanvasView::contentsMousePressEvent( QMouseEvent *e )
         nprintf(DEBUG_PANELS) ("m_pos.x()=%d m_pos.y()=%d\n", m_pos.x(), m_pos.y() );
 	    int chartType = form->chartType();
         item = (CanvasEllipse *)m_movingItem;
+        index = item->index();
       }
-      if( item != NULL )
+      if ( (*it)->rtti() == CanvasRectangle::CANVAS_RECTANGLE )
       {
-        int selected = item->index();
-#ifdef IF_MOVE_PIE_ON_SELECT
-        nprintf(DEBUG_PANELS) ("A: THE USER SELECTED ELEMENT =%d\n", selected );
-
+        CanvasRectangle *item = NULL;
+        nprintf(DEBUG_PANELS) ("Match CANVAS_RECTANGLE\n");
+        m_movingItem = *it;
+        m_pos = e->pos();
+        nprintf(DEBUG_PANELS) ("m_pos.x()=%d m_pos.y()=%d\n", m_pos.x(), m_pos.y() );
         int chartType = form->chartType();
-        CanvasShadowEllipse *cse = NULL;
-        if( chartType == PIEWITHSHADOW || chartType == PIEWITH3D || chartType == PIEWITHNOSHADOW )
-        {
-          QCanvasItemList all_list = canvas()->allItems();
-          nprintf(DEBUG_PANELS) ("drawElements() entered\n");
-          for ( QCanvasItemList::iterator shadow_it = all_list.begin(); shadow_it != all_list.end(); ++shadow_it )
-          {
-            if ( (*shadow_it)->rtti() == CanvasShadowEllipse::CANVAS_SHADOW_ELLIPSE )
-            {
-              cse = (CanvasShadowEllipse *)*shadow_it;
-              nprintf(DEBUG_PANELS) ("... looking ... index=%d!\n", cse->index() );
-              if( cse->index() == selected )
-              {
-                nprintf(DEBUG_PANELS) ("FOUND IT!\n");
-                break;
-              }
-            }
-          }
+        item = (CanvasRectangle *)m_movingItem;
+        index = item->index();
+      }
+      if( index > -1 )
+      {
 
-          int shadow_angle = 3;
-          static double initial_z = -1;
-          m_movingItem->moveBy( -shadow_angle,  -shadow_angle );
-
-          if( cse )
-          {
-            cse->moveBy( -shadow_angle, -shadow_angle );
-          }
-
-          double z = m_movingItem->z();
-          if( initial_z == -1 )
-          {
-            initial_z = m_movingItem->z();
-          }
-          m_movingItem->setZ( z+100 );
-          canvas()->update();
-          // move back.
-          m_movingItem->moveBy( shadow_angle, shadow_angle );
-          m_movingItem->setZ( initial_z );
-          if( cse )
-          {
-            cse->moveBy( shadow_angle, shadow_angle );
-          }
-        }
-#endif // IF_MOVE_PIE_ON_SELECT
-
-        nprintf(DEBUG_PANELS) ("call form->mouseClicked(%d)\n", selected);
-        form->mouseClicked(selected);
+        nprintf(DEBUG_PANELS) ("call form->mouseClicked(%d)\n", index);
+        form->mouseClicked(index);
 
         return;
       }
     }
-
 }
 
 #ifdef MOUSE_MOVE
