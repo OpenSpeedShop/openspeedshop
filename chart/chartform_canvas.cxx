@@ -161,7 +161,8 @@ if( m_chartType == PIEWITHSHADOW )
 					    i, size, (int)(size*pitch), angle, extent, m_canvas );
 	    arc->setX( x );
 	    arc->setY( y );
-	    arc->setZ( 200 );
+//	    arc->setZ( 200 );
+	    arc->setZ( 0 );
 	    arc->setBrush( QBrush( m_elements[i].valueColor(),
 				   BrushStyle(m_elements[i].valuePattern()) ) );
 	    arc->show();
