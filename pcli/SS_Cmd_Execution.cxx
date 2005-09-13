@@ -776,20 +776,14 @@ bool SS_expAttach (CommandObject *cmd) {
   exp->Q_Lock (cmd, true);
 
  // Determine target and collectors and link them together.
-  if (!Process_expTypes (cmd, exp, &Attach_Command )) {
-   // Don't return anything more if errors have been detected.
-    exp->Q_UnLock ();
-    return false;
-  }
+  bool process_OK = Process_expTypes (cmd, exp, &Attach_Command );
+  exp->Q_UnLock ();
 
- // Was this really an expCreate comamnd?
- // If so, return to SS_expCreate and let it set an argument.
-  if (cmd->Type() == CMD_EXP_ATTACH) {
-   // There is no result returned from this command.
+ // There is no result returned from this command.
+  if (process_OK) {
     cmd->set_Status(CMD_COMPLETE);
   }
-  exp->Q_UnLock ();
-  return true;
+  return process_OK;
 }
 
 static bool Destroy_Experiment (CommandObject *cmd, ExperimentObject *exp, bool Kill_KeyWord) {
@@ -884,26 +878,26 @@ bool SS_expCreate (CommandObject *cmd) {
     cmd->set_Status(CMD_ERROR);
     return false;
   }
+  EXPID exp_id = exp->ExperimentObject_ID();
 
- // Set the parsed command structure to fake a "-x" specifier.
-  Assert(cmd->P_Result() != NULL);
-  cmd->P_Result()->setExpId(exp->ExperimentObject_ID());
-
- // Let SS_expAttach do the rest of the work for this command.
-  if (!SS_expAttach(cmd)) {
+ // Determine target and collectors and link them together.
+  if (!Process_expTypes (cmd, exp, &Attach_Command )) {
    // Something went wrong - delete the experiment.
     delete exp;
     return false;
   }
 
  // When we allocate a new experiment, set the focus to point to it.
-  (void)Experiment_Focus (WindowID, exp->ExperimentObject_ID());
+  (void)Experiment_Focus (WindowID, exp_id);
+
+ // Let other comamnds get access to the experiment and new focus.
+  SafeToDoNextCmd ();
 
  // Annotate the command
   cmd->Result_Annotation ("The new focused experiment identifier is:  -x ");
 
  // Return the EXPID for this command.
-  cmd->Result_Int (exp->ExperimentObject_ID());
+  cmd->Result_Int (exp_id);
   cmd->set_Status(CMD_COMPLETE);
   return true;
 }
