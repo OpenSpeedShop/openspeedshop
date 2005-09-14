@@ -299,15 +299,17 @@ void Collector::startCollecting(const Thread& thread) const
 	    throw Exception(Exception::CollectorUnavailable,
 			    getMetadata().getUniqueId());
     }
-    
+
+    // Allocate these flags outside the transaction's try/catch block
+    bool is_collecting = false;
+    bool is_postponed = true;
+
     // Begin a multi-statement transaction
     BEGIN_TRANSACTION(dm_database);
     validate("Collectors");
     thread.validate("Threads");
 
     // Are we collecting and/or postponed for this thread?
-    bool is_collecting = false;
-    bool is_postponed = true;
     dm_database->prepareStatement(
 	"SELECT is_postponed "
 	"FROM Collecting "
@@ -332,14 +334,9 @@ void Collector::startCollecting(const Thread& thread) const
 	dm_database->bindArgument(2, thread.dm_entry);
 	while(dm_database->executeStatement());
     }
-    
-    // Only start collection if we are postponed
-    if(is_postponed) {
 
-	// Defer to our implementation
-	dm_impl->startCollecting(*this, thread);
-	
-	// Note in the database that we are no longer postponed
+    // Note (if necessary) that we are no longer postponed for this thread
+    if(is_postponed) {
 	dm_database->prepareStatement(
 	    "UPDATE Collecting "
 	    "SET is_postponed = 0 "
@@ -348,12 +345,19 @@ void Collector::startCollecting(const Thread& thread) const
 	    );
 	dm_database->bindArgument(1, dm_entry);
 	dm_database->bindArgument(2, thread.dm_entry);
-	while(dm_database->executeStatement());
-	
+	while(dm_database->executeStatement());	
     }
     
     // End this multi-statement transaction
     END_TRANSACTION(dm_database);
+
+    // Actually start data collection if we are postponed
+    if(is_postponed) {
+
+	// Defer to our implementation
+	dm_impl->startCollecting(*this, thread);	
+
+    }
 }
 
 
@@ -389,14 +393,16 @@ void Collector::postponeCollecting(const Thread& thread) const
 			    getMetadata().getUniqueId());
     }
 
+    // Allocate these flags outside the transaction's try/catch block
+    bool is_collecting = false;
+    bool is_postponed = true;
+
     // Begin a multi-statement transaction
     BEGIN_TRANSACTION(dm_database);
     validate("Collectors");
     thread.validate("Threads");
 
     // Are we collecting and/or postponed for this thread?
-    bool is_collecting = false;
-    bool is_postponed = true;
     dm_database->prepareStatement(
 	"SELECT is_postponed "
 	"FROM Collecting "
@@ -410,13 +416,8 @@ void Collector::postponeCollecting(const Thread& thread) const
 	is_postponed = dm_database->getResultAsInteger(1) != 0;
     }
 
-    // Only stop collection if we are collecting and not postponed
+    // Note (if necessary) that we are now postponed for this thread
     if(is_collecting && !is_postponed) {
-
-	// Defer to our implementation
-	dm_impl->stopCollecting(*this, thread);
-	
-	// Note in the database that we are now postponed
 	dm_database->prepareStatement(
 	    "UPDATE Collecting "
 	    "SET is_postponed = 1 "
@@ -425,12 +426,19 @@ void Collector::postponeCollecting(const Thread& thread) const
 	    );
 	dm_database->bindArgument(1, dm_entry);
 	dm_database->bindArgument(2, thread.dm_entry);
-	while(dm_database->executeStatement());
-	
+	while(dm_database->executeStatement());	
     }
 
     // End this multi-statement transaction
     END_TRANSACTION(dm_database); 
+
+    // Actually stop data collection if we were collecting and not postponed
+    if(is_collecting && !is_postponed) {
+
+	// Defer to our implementation
+	dm_impl->stopCollecting(*this, thread);
+
+    }    
 }
 
 
@@ -466,14 +474,16 @@ void Collector::stopCollecting(const Thread& thread) const
 			    getMetadata().getUniqueId());
     }
 
+    // Allocate these flags outside the transaction's try/catch block
+    bool is_collecting = false;
+    bool is_postponed = true;
+
     // Begin a multi-statement transaction
     BEGIN_TRANSACTION(dm_database);
     validate("Collectors");
     thread.validate("Threads");
 
     // Are we collecting and/or postponed for this thread?
-    bool is_collecting = false;
-    bool is_postponed = true;
     dm_database->prepareStatement(
 	"SELECT is_postponed "
 	"FROM Collecting "
@@ -487,29 +497,26 @@ void Collector::stopCollecting(const Thread& thread) const
 	is_postponed = dm_database->getResultAsInteger(1) != 0;
     }
 
-    // Only proceed further if we are already collecting
+    // Note (if necessary) that we are no longer collecting for this thread
     if(is_collecting) {
-
-	// Only stop collection if we aren't postponed
-	if(!is_postponed) {
-	    
-	    // Defer to our implementation
-	    dm_impl->stopCollecting(*this, thread);
-	    
-	}
-	
-	// Note in the database we are no longer collecting for this thread
 	dm_database->prepareStatement(
 	    "DELETE FROM Collecting WHERE collector = ? AND thread = ?;"
 	    );
 	dm_database->bindArgument(1, dm_entry);
 	dm_database->bindArgument(2, thread.dm_entry);
-	while(dm_database->executeStatement());
-	
+	while(dm_database->executeStatement());	
     }
     
     // End this multi-statement transaction
-    END_TRANSACTION(dm_database); 
+    END_TRANSACTION(dm_database);
+
+    // Actually stop data collection if we were collecting and not postponed
+    if(is_collecting && !is_postponed) {
+
+	// Defer to our implementation
+	dm_impl->stopCollecting(*this, thread);
+
+    }    
 }
 
 

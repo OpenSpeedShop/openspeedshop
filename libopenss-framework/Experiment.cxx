@@ -430,15 +430,29 @@ Thread Experiment::createProcess(const std::string& command,
 {   
     Thread thread;
 
-    // Create the thread and an underlying thread for executing the command
+    // Create the thread entry in the database
     BEGIN_TRANSACTION(dm_database);
     dm_database->prepareStatement("INSERT INTO Threads (host) VALUES (?);");
     dm_database->bindArgument(1, host);
     while(dm_database->executeStatement());
     thread = Thread(dm_database, dm_database->getLastInsertedUID()); 
-    // Instrumentor::retain(thread);  (Implied by Following Line)
-    Instrumentor::create(thread, command, stdout_callback, stderr_callback);
     END_TRANSACTION(dm_database);
+
+    // Create the underlying thread for executing the command
+    try {
+	// Instrumentor::retain(thread);  (Implied by Following Line)
+	Instrumentor::create(thread, command, stdout_callback, stderr_callback);
+    }
+    catch(...) {
+
+	// Remove this thread from the database
+	dm_database->prepareStatement("DELETE FROM Threads WHERE id = ?;");
+	dm_database->bindArgument(1, EntrySpy(thread).getEntry());
+	while(dm_database->executeStatement());    
+
+	// Re-throw exception upwards
+	throw;
+    }
     
     // Return the thread to the caller
     return thread;
@@ -524,10 +538,13 @@ ThreadGroup Experiment::attachProcess(const pid_t& pid,
 {
     ThreadGroup threads;
 
+    // Allocate this flag outside the transaction's try/catch block
+    bool is_attached = false;
+
     // Begin a multi-statement transaction
     BEGIN_TRANSACTION(dm_database);
 
-    // Find any existing thread(s) for this process
+    // Are there any existing thread(s) for this process?
     dm_database->prepareStatement(	
 	"SELECT id FROM Threads WHERE host = ? AND pid = ?;"
 	);
@@ -535,9 +552,10 @@ ThreadGroup Experiment::attachProcess(const pid_t& pid,
     dm_database->bindArgument(2, pid);
     while(dm_database->executeStatement())
 	threads.insert(Thread(dm_database, dm_database->getResultAsInteger(1)));
+    is_attached = !threads.empty();
 
     // Create the thread(s) entries if they weren't present in the database
-    if(threads.empty()) {
+    if(!is_attached) {
 	dm_database->prepareStatement(
 	    "INSERT INTO Threads (host, pid) VALUES (?, ?);"
 	    );
@@ -545,13 +563,28 @@ ThreadGroup Experiment::attachProcess(const pid_t& pid,
 	dm_database->bindArgument(2, pid);
 	while(dm_database->executeStatement());
 	Thread thread(dm_database, dm_database->getLastInsertedUID());
-	Instrumentor::retain(thread);
-	Instrumentor::changeState(thread, Thread::Connecting);
 	threads.insert(thread);	
     }
     
     // End this multi-statement transaction
     END_TRANSACTION(dm_database);
+
+    // Actually attach if we weren't already
+    if(!is_attached) {
+
+	// Iterate over each of the thread(s)
+	for(ThreadGroup::const_iterator 
+		i = threads.begin(); i != threads.end(); ++i) {
+	    
+	    // Retain this thread in the instrumentor
+	    Instrumentor::retain(*i);
+	    
+	    // Connect to this thread in the instrumentor
+	    Instrumentor::changeState(*i, Thread::Connecting);
+	    
+	}
+
+    }
     
     // Return the threads to the caller
     return threads;  
@@ -619,10 +652,6 @@ void Experiment::removeThread(const Thread& thread) const
 {
     // Check preconditions
     Assert(EntrySpy(thread).getDatabase() == dm_database);
-    
-    // Begin a multi-statement transaction
-    BEGIN_TRANSACTION(dm_database);
-    EntrySpy(thread).validate("Threads");
 
     // Stop all performance data collection for this thread
     thread.getCollectors().stopCollecting(thread);
@@ -631,6 +660,10 @@ void Experiment::removeThread(const Thread& thread) const
     // Release this thread in the instrumentor
     Instrumentor::release(thread);
     
+    // Begin a multi-statement transaction
+    BEGIN_TRANSACTION(dm_database);
+    EntrySpy(thread).validate("Threads");
+
     // Remove this thread
     dm_database->prepareStatement("DELETE FROM Threads WHERE id = ?;");
     dm_database->bindArgument(1, EntrySpy(thread).getEntry());
