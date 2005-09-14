@@ -243,11 +243,37 @@ def status_result(testName):
 		return 0
 	else:
 		return 2
+
+def enable_result(testName):
+        nooutput = 1
+        outputfilename = testName + '.output'
+        outputfileptr = open(outputfilename, 'r')
+        first_line_correct = 0
+        while 1:
+                tempfileline = outputfileptr.readline()
+                if not tempfileline:
+                        break
+                if tempfileline[0:5] == 'Start':
+                        nooutput = 0
+                        break
+        tempfileline = outputfileptr.readline()
+        if not tempfileline:
+                return 1
+	tempfileline = outputfileptr.readline()
+	if not tempfileline:
+		return 1
+	tempfileline = outputfileptr.readline()
+	if not tempfileline:
+		return 1
+        if tempfileline[26:33] == 'Running':
+                return 0
+        else:
+                return 2
+
 	
 
 def CompareResults(testName, fileptr, finished):
 	passed = 0
-	enable_pass = 0
 	nooutput = 1
 	resultnum = 1
 	if (testName[0:5] == 'close'):
@@ -272,10 +298,11 @@ def CompareResults(testName, fileptr, finished):
 		resultnum = params_result(testName)
 	if (testName[0:6] == 'status'):
 		resultnum = status_result(testName)
+	if (testName[0:6] == 'enable'):
+		resultnum = enable_result(testName)
 	if resultnum == 0:
 		passed = 1
 		nooutput = 0
-		enable_pass = 1
 	elif resultnum == 1:
 		passed = 0
 	elif resultnum ==2:
@@ -283,7 +310,7 @@ def CompareResults(testName, fileptr, finished):
 		nooutput = 0
 
 
-	if (testName[0:6] == 'detach' or testName[0:6] == 'enable' or testName[0:7] == 'disable'):
+	if (testName[0:6] == 'detach'  or testName[0:7] == 'disable'):
 		outputfilename = testName + '.output'
 		outputfileptr = open(outputfilename, 'r')
       		while 1:
@@ -296,23 +323,8 @@ def CompareResults(testName, fileptr, finished):
 		outputfileline = outputfileptr.readline()
 		if outputfileline[0:10] == '    pcsamp':
 			passed = 1
-		if(testName[0:6] == 'enable'):
-			check_for_out = 0
-			while 1:
-				tempfileline = outputfileptr.readline()
-				if not tempfileline:
-					break
-				if tempfileline[0:11] == '  Currently':
-					check_for_out = 1
-					break
-			if check_for_out == 1:
-				outputfileline = outputfileptr.readline()
-				if outputfileline[21:-1] == 'pcsamp':
-					enable_pass = 1
-		else:
-			enable_pass = 1
 					
-	if (passed != 1) or (nooutput != 0) or (enable_pass != 1):
+	if (passed != 1) or (nooutput != 0) :
 		finished = 0
 
 	if (finished == 1):
