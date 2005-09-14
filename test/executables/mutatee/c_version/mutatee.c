@@ -41,7 +41,7 @@ int work(int size)
  
 int main()
 {
-   int size = 800;
+   int size = 1000;
 
     work(size);
 }
