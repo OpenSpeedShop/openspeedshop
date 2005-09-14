@@ -4,7 +4,7 @@
       integer work 
       integer size 
 
-      size = 500
+      size = 1000
       n=work(size)
       goto 100
 100   continue
