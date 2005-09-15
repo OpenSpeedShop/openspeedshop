@@ -1061,7 +1061,7 @@ char *cmd_listMetrics_detailed[] = {
     "\t The use of the keyword all will cause all the metrics ",
     "\t for all available collectors to be listed.",
     " ",
-    "\t The use of the \"<viewType>\" option will result in a ",
+    "\t The use of the \"<expType>\" option will result in a ",
     "\t listing of only those metrics associated with that ",
     "\t specific data collector.",
     " "
@@ -1084,7 +1084,7 @@ char *cmd_listParams_detailed[] = {
     "\t The use of the keyword all will cause all the parameters ",
     "\t for all available collectors to be listed.",
     " ",
-    "\t The use of the \"<viewType>\" option will result in a ",
+    "\t The use of the \"<expType>\" option will result in a ",
     "\t listing of only those parameters associated with that ",
     "\t specific data collector.",
     " "
@@ -1229,7 +1229,7 @@ char *cmd_listViews_detailed[] = {
     "- The use of the keyword all will cause all the the reports ",
     "  for all available collectors to be listed.",
     " ",
-    "- The use of the \"<viewType>\" option will result in a listing ",
+    "- The use of the \"<expType>\" option will result in a listing ",
     "  of only those the reports associated with that specific ",
     "  data collector.",
     " "
