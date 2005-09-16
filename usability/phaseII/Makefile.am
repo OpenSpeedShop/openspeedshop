@@ -1,4 +1,5 @@
-noinst_PROGRAMS = fred fredO2 fred_mpi forever lottalotta
+#noinst_PROGRAMS = fred fredO2 fred_mpi forever lottalotta
+noinst_PROGRAMS = fred fredO2 forever lottalotta
 
 fred_CFLAGS = \
 	-g -gdwarf-2

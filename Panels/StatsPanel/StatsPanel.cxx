@@ -212,7 +212,7 @@ StatsPanel::listener(void *msg)
   PreferencesChangedObject *pco = NULL;
 
   MessageObject *msgObject = (MessageObject *)msg;
-//printf("StatsPanel::listener() msg->msgType = (%s)\n", msgObject->msgType.ascii() );
+// printf("StatsPanel::listener() msg->msgType = (%s)\n", msgObject->msgType.ascii() );
   if( msgObject->msgType == getName() && recycleFLAG == TRUE )
   {
     nprintf(DEBUG_MESSAGES) ("StatsPanel::listener() interested!\n");
@@ -229,6 +229,7 @@ StatsPanel::listener(void *msg)
 // msg->print();
     expID = msg->expID;
     threadStr = msg->pid_name;
+// Currently this causes a second update when loading from a saved file. FIX
     updateStatsPanelData();
     if( msg->raiseFLAG == TRUE )
     {
@@ -314,16 +315,7 @@ if( item && matchSelectedItem( std::string(item->text(2).ascii()) ) )
     }
   } else if( msgObject->msgType == "PreferencesChangedObject" )
   {
-    if( getPanelContainer()->getMainWindow()->preferencesDialog->showGraphicsCheckBox->isChecked() )
-    {
-      chartFLAG = TRUE;
-      cf->show();
-    } else
-    {
-      chartFLAG = FALSE;
-      cf->hide();
-    }
-    splv->show();
+    updateStatsPanelData();
   } else if( msgObject->msgType == "SaveAsObject" )
   {
     SaveAsObject *sao = (SaveAsObject *)msg;
@@ -2057,7 +2049,7 @@ void
 StatsPanel::updateStatsPanelData()
 {
   nprintf( DEBUG_PANELS) ("StatsPanel::updateStatsPanelData() entered.\n");
-// printf("StatsPanel::updateStatsPanelData() entered.\n");
+printf("StatsPanel::updateStatsPanelData() entered.\n");
 
   SPListViewItem *lvi;
   columnList.clear();
