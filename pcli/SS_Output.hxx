@@ -29,6 +29,7 @@ class ss_ostream : public std::basic_streambuf<char>
 {
  private:
   bool issuePrompt;
+  bool PromptNeeded;
   std::ostream *my_stream;
   std::streambuf *my_old_buf;
   std::string my_string;
@@ -50,6 +51,7 @@ class ss_ostream : public std::basic_streambuf<char>
     my_stream->rdbuf(this);
 
     issuePrompt = false;
+    PromptNeeded = false;
     my_string.clear();
     Assert(pthread_mutex_init(&stream_in_use, NULL) == 0); // dynamic initialization
   }
@@ -69,15 +71,27 @@ class ss_ostream : public std::basic_streambuf<char>
     pthread_mutex_destroy(&stream_in_use);
   }
 
-  std::ostream &mystream () { return *my_stream; }
-  void Set_Issue_Prompt (bool prompt) { issuePrompt = prompt; }
-  bool Issue_Prompt () { return issuePrompt; }
+  std::ostream &mystream () {
+    return *my_stream;
+  }
+  void Set_Issue_Prompt (bool prompt) {
+    issuePrompt = prompt;
+    PromptNeeded = prompt;
+  }
+  void Issue_Prompt () {
+    if (PromptNeeded) {
+      *my_stream << Current_OpenSpeedShop_Prompt;
+      PromptNeeded = false;
+    }
+  }
 
   void sputn (const char *p, int64_t n) {
     (void) xsputn( p, std::streamsize(n));
+    if (issuePrompt && (n > 0)) PromptNeeded = true;
   }
   void sput (const char *p) {
     (void) xsputn( p, strlen(p));
+    if (issuePrompt && (strlen(p) > 0)) PromptNeeded = true;
   }
   void flush () {
     if (!my_string.empty()) {
@@ -103,6 +117,7 @@ class ss_ostream : public std::basic_streambuf<char>
   };
   virtual std::streamsize xsputn(const char *p, std::streamsize n) {
     my_string.append(p, p + n);
+    if (issuePrompt && (n > 0)) PromptNeeded = true;
 
     int pos = 0;
     while (pos != std::string::npos) {
