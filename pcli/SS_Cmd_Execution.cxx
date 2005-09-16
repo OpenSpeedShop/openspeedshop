@@ -268,6 +268,20 @@ static bool within_range (std::string S, parse_range_t R) {
   return false;
 }
 
+bool Filter_Uses_F (CommandObject *cmd) {
+  OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
+  vector<ParseTarget> *p_tlist = p_result->getTargetList();
+  if (p_tlist->begin() == p_tlist->end()) {
+   // There are no filters.
+    return false;
+  }
+
+  ParseTarget pt = *p_tlist->begin(); // There can only be one!
+  vector<ParseRange> *f_list = pt.getFileList();
+
+  return !((f_list == NULL) || f_list->empty());
+}
+
 void Filter_ThreadGroup (CommandObject *cmd, ThreadGroup& tgrp) {
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<ParseTarget> *p_tlist = p_result->getTargetList();
@@ -291,12 +305,6 @@ void Filter_ThreadGroup (CommandObject *cmd, ThreadGroup& tgrp) {
   bool has_p = !((p_list == NULL) || p_list->empty());
   bool has_t = !((t_list == NULL) || t_list->empty());
   bool has_r = !((r_list == NULL) || r_list->empty());
-
-  if (has_f) {
-    cmd->Result_String ("Selection based on file name is not supported." );
-    cmd->set_Status(CMD_ERROR);
-    return;
-  }
 
  // Remove non-matching hosts.
   if (has_h) {
@@ -1914,9 +1922,37 @@ bool SS_ListMetrics (CommandObject *cmd) {
 bool SS_ListObj (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
-  ExperimentObject *exp = Find_Specified_Experiment (cmd);
 
-  cmd->Result_String ("not yet implemented");
+ // List the object files for a specified Experiment or the focused Experiment.
+  ExperimentObject *exp = Find_Specified_Experiment (cmd);
+  if (exp == NULL) {
+    return false;
+  }
+
+ // Prevent this experiment from changing until we are done.
+  exp->Q_Lock (cmd, true);
+
+ // Get a list of the unique threads used in the specified experiment.
+  ThreadGroup tgrp = exp->FW()->getThreads();
+  Filter_ThreadGroup (cmd, tgrp);
+  std::set<LinkedObject> ulset;
+  for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+    Thread t = *ti;
+    std::set<LinkedObject> lset = t.getLinkedObjects();
+    for (std::set<LinkedObject>::iterator lseti = lset.begin(); lseti != lset.end(); lseti++) {
+     // Build a set of unique LinkedObjects.
+      ulset.insert ( *lseti );
+    }
+  }
+ // Now go through the list of unique LinkedObjects and list their names.
+  for (std::set<LinkedObject>::iterator lseti = ulset.begin(); lseti != ulset.end(); lseti++) {
+    LinkedObject lobj = *lseti;
+    std::string L = lobj.getPath();
+    cmd->Result_String ( L );
+  }
+
+  exp->Q_UnLock ();
+
   cmd->set_Status(CMD_COMPLETE);
   return true;
 }
@@ -2042,6 +2078,12 @@ bool SS_ListPids (CommandObject *cmd) {
       return false;
     }
 
+    if (Filter_Uses_F(cmd)) {
+      cmd->Result_String ("Selection based on file name is not supported." );
+      cmd->set_Status(CMD_ERROR);
+      return false;
+    }
+
    // Prevent this experiment from changing until we are done.
     exp->Q_Lock (cmd, true);
 
@@ -2080,6 +2122,12 @@ bool SS_ListRanks (CommandObject *cmd) {
    // Get the Rankss for a specified Experiment or the focused Experiment.
     ExperimentObject *exp = Find_Specified_Experiment (cmd);
     if (exp == NULL) {
+      return false;
+    }
+
+    if (Filter_Uses_F(cmd)) {
+      cmd->Result_String ("Selection based on file name is not supported." );
+      cmd->set_Status(CMD_ERROR);
       return false;
     }
 
@@ -2125,9 +2173,54 @@ bool SS_ListRanks (CommandObject *cmd) {
 bool SS_ListSrc (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
-  ExperimentObject *exp = Find_Specified_Experiment (cmd);
 
-  cmd->Result_String ("not yet implemented");
+ // List the functions for a specified Experiment or the focused Experiment.
+  ExperimentObject *exp = Find_Specified_Experiment (cmd);
+  if (exp == NULL) {
+    return false;
+  }
+
+ // Prevent this experiment from changing until we are done.
+  exp->Q_Lock (cmd, true);
+
+ // Get a list of the unique threads used in the specified experiment.
+  ThreadGroup tgrp = exp->FW()->getThreads();
+  Filter_ThreadGroup (cmd, tgrp);
+  std::set<LinkedObject> ulset;
+  for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+    Thread t = *ti;
+    std::set<LinkedObject> lset = t.getLinkedObjects();
+    for (std::set<LinkedObject>::iterator lseti = lset.begin(); lseti != lset.end(); lseti++) {
+     // Build a set of unique LinkedObjects.
+      ulset.insert ( *lseti );
+    }
+  }
+ // Now go through the list of unique LinkedObjects and find the functions.
+  for (std::set<LinkedObject>::iterator lseti = ulset.begin(); lseti != ulset.end(); lseti++) {
+    LinkedObject lobj = *lseti;
+    std::string L = lobj.getPath();
+    std::set<Function> fset = lobj.getFunctions();
+    std::set<std::string> mset;
+   // For each function in the LinkedObject, get the file name it is in
+   // and build a set of these file names.  Take advantage of the property
+   // of std::set operation that eliminates duplicates.
+    for (std::set<Function>::iterator fseti = fset.begin(); fseti != fset.end(); fseti++) {
+      Function fobj = *fseti;
+      std::set<Statement> sobj = fobj.getDefinitions();
+      if( sobj.size() > 0 ) {
+        std::set<Statement>::const_iterator sobji = sobj.begin();
+        std::string F = sobji->getPath();
+        mset.insert ( F );
+      }
+    }
+   // Now we're ready to list the file names.
+    for (std::set<std::string>::iterator mseti = mset.begin(); mseti != mset.end(); mseti++) {
+      cmd->Result_String ( L + ": " + *mseti );
+    }
+  }
+
+  exp->Q_UnLock ();
+
   cmd->set_Status(CMD_COMPLETE);
   return true;
 }
@@ -2181,6 +2274,12 @@ bool SS_ListThreads (CommandObject *cmd) {
    // Get the Threads for a specified Experiment or the focused Experiment.
     ExperimentObject *exp = Find_Specified_Experiment (cmd);
     if (exp == NULL) {
+      return false;
+    }
+
+    if (Filter_Uses_F(cmd)) {
+      cmd->Result_String ("Selection based on file name is not supported." );
+      cmd->set_Status(CMD_ERROR);
       return false;
     }
 
