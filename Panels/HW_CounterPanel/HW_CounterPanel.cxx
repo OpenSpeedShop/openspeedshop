@@ -907,6 +907,8 @@ HW_CounterPanel::experimentStatus()
   nprintf( DEBUG_PANELS ) ("experimentStatus.\n");
 
   QString command = QString("expStatus -x %1").arg(expID);
+  QString info_str = QString::null;
+#ifdef OLDWAY
   std::list<std::string> str_list;
 
   str_list.clear();
@@ -924,7 +926,6 @@ HW_CounterPanel::experimentStatus()
     return;
   }
 
-  QString info_str = QString::null;
   for(it = str_list.begin(); it != str_list.end(); it++ )
   {
     std::string str = (std::string)(*it);
@@ -932,6 +933,194 @@ HW_CounterPanel::experimentStatus()
     info_str += str;
     info_str += "\n";
   }
+#else // OLDWAY
+  int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
+  InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii());
+
+  std::list<CommandObject *>::iterator coi;
+  coi = clip->CmdObj_List().begin();
+
+  CommandObject *cmd = (CommandObject *)(*coi);
+  ExperimentObject *exp = Find_Experiment_Object((EXPID)expID);
+
+  char id[20]; sprintf(&id[0],"%lld",(int64_t)exp->ExperimentObject_ID());
+//  cmd->Result_String ("Experiment definition");
+// cout << "Experiment definition" << "\n";
+  info_str +=  "Experiment definition\n";
+  std::string TmpDB = exp->Data_Base_Is_Tmp() ? "Temporary" : "Saved";
+//  cmd->Result_String ("{ # ExpId is " + std::string(&id[0])
+//                         + ", Status is " + exp->ExpStatus_Name()
+//                         + ", " + TmpDB + " database is " + exp->Data_Base_Name ());
+// cout<< "{ # ExpId is " + std::string(&id[0]) + ", Status is " + exp->ExpStatus_Name() + ", " + TmpDB + " database is " + exp->Data_Base_Name() + "\n" ;
+  info_str += "# ExpId is " + std::string(&id[0]) + "\n";
+  info_str += "Status is " + exp->ExpStatus_Name() + "\n";
+  info_str += TmpDB + " database is " + exp->Data_Base_Name() + "\n" ;
+  try {
+      if (exp->FW() != NULL) {
+        ThreadGroup tgrp = exp->FW()->getThreads();
+        ThreadGroup::iterator ti;
+        bool atleastone = false;
+        for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+          Thread t = *ti;
+          std::string host = t.getHost();
+          pid_t pid = t.getProcessId();
+          if (!atleastone) {
+            atleastone = true;
+//            cmd->Result_String ("  Currently Specified Components:");
+// cout << "  Currently Specified Components:" << "\n";
+info_str += "  Currently Specified Components:\n";
+          }
+          int64_t p = pid;
+          char spid[20]; sprintf(&spid[0],"%lld",p);
+          std::string S = "    -h " + host + " -p " + std::string(&spid[0]);
+          std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
+          if (pthread.first) {
+            int64_t t = pthread.second;
+            char tid[20]; sprintf(&tid[0],"%lld",t);
+            S = S + std::string(&tid[0]);
+          }
+#ifdef HAVE_MPI
+          std::pair<bool, int> rank = t.getMPIRank();
+          if (rank.first) {
+            int64_t r = rank.second;
+            char rid[20]; sprintf(&rid[0],"%lld",r);
+            S = S + std::string(&rid[0]);
+          }
+#endif
+          CollectorGroup cgrp = t.getCollectors();
+          CollectorGroup::iterator ci;
+          int collector_count = 0;
+          for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
+            Collector c = *ci;
+            Metadata m = c.getMetadata();
+            if (collector_count) {
+              S = S + ",";
+            } else {
+              S = S + " ";
+              collector_count = 1;
+            }
+            S = S + m.getUniqueId();
+          }
+//          cmd->Result_String ( S );
+// cout << S << "\n";
+info_str += S + "\n";
+        }
+
+        CollectorGroup cgrp = exp->FW()->getCollectors();
+        CollectorGroup::iterator ci;
+        atleastone = false;
+        std::string S ;
+        for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
+          Collector c = *ci;
+          ThreadGroup tgrp = c.getThreads();
+          if (tgrp.empty()) {
+            Metadata m = c.getMetadata();
+            if (atleastone) {
+              S = S + ",";
+            } else {
+//              cmd->Result_String ("  Previously Used Data Collectors:");
+//cout << "  Previously Used Data Collectors:" << "\n";
+info_str  += "  Previously Used Data Collectors:\n";
+              S = S + "    ";
+              atleastone = true;
+            }
+            S = S + m.getUniqueId();
+          }
+        }
+        if (atleastone) {
+//          cmd->Result_String ( S );
+// cout << S << "\n";
+info_str += S + "\n";
+        }
+
+        if (cgrp.begin() != cgrp.end()) {
+
+//          cmd->Result_String ("  Metrics:");
+//cout << "  Metrics:" << "\n";
+info_str += "  Metrics:\n";
+          for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
+            Collector c = *ci;
+            Metadata cm = c.getMetadata();
+            std::set<Metadata> md = c.getMetrics();
+            std::set<Metadata>::const_iterator mi;
+            for (mi = md.begin(); mi != md.end(); mi++) {
+              Metadata m = *mi;
+              S = "    " + cm.getUniqueId() + "::" +  m.getUniqueId();
+//              cmd->Result_String (S);
+// cout << S << "\n";
+info_str += S + "\n";
+            }
+          }
+
+//          cmd->Result_String ("  Parameter Values:");
+// cout << "  Parameter Values:" << "\n";
+info_str += "  Parameter Values:\n";
+          for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
+            Collector c = *ci;
+            Metadata cm = c.getMetadata();
+            std::set<Metadata> md = c.getParameters();
+            std::set<Metadata>::const_iterator mi;
+            for (mi = md.begin(); mi != md.end(); mi++) {
+              CommandResult_Columns *C = new CommandResult_Columns (2);
+              Metadata m = *mi;
+              S = "    " + cm.getUniqueId() + "::" + m.getUniqueId() + " =";
+              C->CommandResult_Columns::Add_Column (new CommandResult_RawString (S));
+//              C->CommandResult_Columns::Add_Column (Get_Collector_Metadata (c, m));
+//              cmd->Result_Predefined (C);
+// cout << S ;
+info_str += S;
+QString param = QString(m.getUniqueId().c_str());
+QString param_val = QString::null; 
+double double_param;
+std::string string_param;
+unsigned int uint_param = 0;
+int int_param = 0;
+if( m.isType(typeid(int)) )
+{
+// printf("int\n");
+  c.getParameterValue(param.ascii(), int_param);
+  param_val = QString("%1").arg(int_param);
+} else if( m.isType(typeid(unsigned int)) )
+{
+// printf("unsigned int\n");
+  c.getParameterValue(param.ascii(), uint_param);
+  param_val = QString("%1").arg(uint_param);
+} else if( m.isType(typeid(double)) )
+{
+// printf("double\n");
+  c.getParameterValue(param.ascii(), double_param);
+  param_val = QString("%1").arg(double_param);
+} else if( m.isType(typeid(std::string)) )
+{
+// printf("std::string\n");
+  c.getParameterValue(param.ascii(), string_param);
+  param_val = QString("%1").arg(string_param.c_str());
+} else
+{
+  param_val = QString("Unknown type.");
+}
+// cout << param_val.ascii() << "\n";
+info_str += param_val.ascii();
+info_str += "\n";
+
+
+            }
+          }
+        }
+
+      }
+// cout << "}" << "\n";
+info_str += "\n";
+  }
+  catch(const Exception& error) {
+//    Mark_Cmd_With_Std_Error (cmd, error);
+//    cmd->Result_String ( "}");
+//    exp->Q_UnLock ();
+//    return false;
+  }
+
+//  exp->Q_UnLock ();
+#endif // OLDWAY
 
 
   QMessageBox::information( this, "Experiment Information", info_str, QMessageBox::Ok );

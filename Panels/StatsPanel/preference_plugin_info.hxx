@@ -46,6 +46,8 @@ extern "C"
   QLabel* showColumnToSortTextLabel;
   QLineEdit* showColumnToSortLineEdit;
 
+  QCheckBox* showTextInChartCheckBox;
+
   static char *pname = NULL;
 
   bool getPreferenceSortDecending()
@@ -66,12 +68,20 @@ extern "C"
     return( showTopNLineEdit->text() );
   }
 
+  bool getPreferenceShowTextInChart()
+  {
+// printf("getPreferenceShowTextInChart(%s)\n", pname);
+    return( showTextInChartCheckBox->isChecked() );
+  }
+
+
   void initStatsPanelPreferenceSettings()
   {
 // printf("initStatsPanelPreferenceSettings(%s)\n", pname);
     sortDecendingCheckBox->setChecked(TRUE);
     showTopNLineEdit->setText( "10" );
     showColumnToSortLineEdit->setText( "0" );
+    showTextInChartCheckBox->setChecked(TRUE);
   }
 
   QWidget *initialize_preferences_entry_point(QSettings *settings, QWidgetStack *stack, char *name)
@@ -87,8 +97,15 @@ extern "C"
     statsPanelGroupBox = new QGroupBox( statsPanelStackPage, "statsPanelGroupBox" );
 
     QWidget* statsPanelPrivateLayout = new QWidget( statsPanelGroupBox, "layout8" );
-//    statsPanelPrivateLayout->setGeometry( QRect( 20, 86, 271, 57 ) );
-    statsPanelPrivateLayout->setGeometry( QRect( 20, 86, 300, 100 ) );
+//    statsPanelPrivateLayout->setGeometry( QRect( 20, 86, 300, 100 ) );
+//statsPanelPrivateLayout->setGeometry( QRect( 20, 86, 300, 200);
+// statsPanelStackPage->setSizePolicy( QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred, FALSE) );
+//statsPanelStackPage->setSizePolicy( QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum, FALSE) );
+QWidget *p = (QWidget *)stack->parent();
+p = (QWidget *)p->parent();
+p = (QWidget *)p->parent();
+printf("p->width(%d) p->height(%d)\n", p->width(), p->height() );
+//printf("stack->parent()->width(%d) stack->parent()->height(%d)\n", stack->parent()->width(), stack->parent()->height() );
     layout8 = new QVBoxLayout( statsPanelPrivateLayout, 11, 6, "layout8");
 
     sortDecendingCheckBox =
@@ -107,6 +124,10 @@ extern "C"
     layoutTopN->addWidget( showTopNLineEdit );
     layout8->addLayout( layoutTopN );
 
+
+    showTextInChartCheckBox =
+      new QCheckBox( statsPanelPrivateLayout, "showTextInChartCheckBox" );
+    layout8->addWidget( showTextInChartCheckBox );
 
 
 
@@ -131,6 +152,7 @@ extern "C"
     sortDecendingCheckBox->setText( "Sort Descending" );
     showTopNTextLabel->setText( "Show top N items:" );
     showColumnToSortTextLabel->setText( "Column to sort:" );
+    showTextInChartCheckBox->setText( "Show text in chart:" );
 
     initStatsPanelPreferenceSettings();
 
@@ -151,6 +173,11 @@ extern "C"
         "openspeedshop", name, showColumnToSortLineEdit->name() );
       showColumnToSortLineEdit->setText(
         settings->readEntry(settings_buffer, "0") );
+
+      sprintf(settings_buffer, "/%s/%s/%s",
+        "openspeedshop", name, showTextInChartCheckBox->name() );
+      showTextInChartCheckBox->setChecked(
+        settings->readBoolEntry(settings_buffer, TRUE) );
     }
 
     return statsPanelStackPage;
@@ -168,6 +195,11 @@ extern "C"
     sprintf(settings_buffer, "/%s/%s/%s",
       "openspeedshop", name, showTopNLineEdit->name() );
     settings->writeEntry(settings_buffer, showTopNLineEdit->text() );
+
+    sprintf(settings_buffer, "/%s/%s/%s",
+      "openspeedshop", name, showTextInChartCheckBox->name() );
+    settings->writeEntry(settings_buffer, showTextInChartCheckBox->isChecked() );
+
   }
 }
 

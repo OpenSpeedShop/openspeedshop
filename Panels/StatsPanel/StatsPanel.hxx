@@ -101,7 +101,7 @@ class StatsPanel  : public Panel
     Collector *currentCollector;
 
     QString currentMetricStr;
-QString optionalMetricStr;
+    QString optionalMetricStr;
     QString currentMetricTypeStr;
 
     //! Current selected chart item.
@@ -158,8 +158,8 @@ QString optionalMetricStr;
     void putItem(std::vector<Function_double_pair> *item);
     unsigned int ui_minTime;
     unsigned int ui_maxTime;
-uint64_t uint64_minTime;
-uint64_t uint64_maxTime;
+    uint64_t uint64_minTime;
+    uint64_t uint64_maxTime;
 
     int getLineColor(double value);
     int getLineColor(unsigned int value);
@@ -176,16 +176,16 @@ uint64_t uint64_maxTime;
     std::vector<Function_uint_pair> sorted_uint_items;
     SmartPtr<std::map<int, unsigned int> > orig_uint_statement_data;
 
-SmartPtr<std::map<Function, uint64_t> > orig_uint64_data;
-std::vector<Function_uint64_pair> topNsorted_uint64_items;
-std::vector<Function_uint64_pair> sorted_uint64_items;
-SmartPtr<std::map<int, uint64_t> > orig_uint64_statement_data;
+    SmartPtr<std::map<Function, uint64_t> > orig_uint64_data;
+    std::vector<Function_uint64_pair> topNsorted_uint64_items;
+    std::vector<Function_uint64_pair> sorted_uint64_items;
+    SmartPtr<std::map<int, uint64_t> > orig_uint64_statement_data;
 
     bool descending_sort;
 
     double Get_Double_Total_Time();
     double Get_UInt_Total_Time();
-double Get_UInt64_Total_Time();
+    double Get_UInt64_Total_Time();
 
     int expID;
 

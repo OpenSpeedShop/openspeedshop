@@ -39,6 +39,7 @@
 #include "qapplication.h"
 
 #include <qinputdialog.h>
+#include <qmessagebox.h>
 
 bool CLIInterface::interrupt = false;
 #define RETURN_FALSE QApplication::restoreOverrideCursor();return false;
@@ -498,6 +499,33 @@ CLIInterface::checkStatus(InputLineObject *clip)
       break;
     case ILO_ERROR:
       fprintf(stderr, "Unable to process the clip.   Error encountered.\n");
+
+      // Now put out whatever error message there might be.
+      {
+        std::list<CommandObject *>::iterator coi;
+        if( clip->CmdObj_List().size() == 1 )
+        {
+          coi = clip->CmdObj_List().begin();
+          CommandObject *co = (CommandObject *)(*coi);
+
+          std::list<CommandResult *>::iterator cri;
+          std::list<CommandResult *> cmd_result = co->Result_List();
+          QString info_str = QString::null;
+          for(cri = cmd_result.begin(); cri != cmd_result.end(); cri++ )
+          {
+            CommandResult_String *cr_str = (CommandResult_String *)(*cri);
+
+            std::string str_val;
+            cr_str->Value(str_val);
+            info_str += str_val.c_str();
+          }
+
+          QMessageBox::information( NULL, "Command Failure Information", info_str, QMessageBox::Ok );
+
+          //Allow the garbage collector to clean up the value...
+          clip->Set_Results_Used();
+        }
+      }
       // Remove the timer.  This return status should abort the command...
       if( timer )
       {

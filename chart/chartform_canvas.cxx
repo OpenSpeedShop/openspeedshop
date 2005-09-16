@@ -161,13 +161,12 @@ if( m_chartType == PIEWITHSHADOW )
 					    i, size, (int)(size*pitch), angle, extent, m_canvas );
 	    arc->setX( x );
 	    arc->setY( y );
-//	    arc->setZ( 200 );
 	    arc->setZ( 0 );
 	    arc->setBrush( QBrush( m_elements[i].valueColor(),
 				   BrushStyle(m_elements[i].valuePattern()) ) );
 	    arc->show();
 	    angle += extent;
-#ifndef TEXT_WANTED
+// #ifndef TEXT_WANTED
 // printf("Pie chart text wanted.\n");
 	    QString label = m_elements[i].label();
 	    if ( !label.isEmpty() || m_addValues != NO ) {
@@ -196,7 +195,7 @@ if( m_chartType == PIEWITHSHADOW )
 		m_elements[i].setProX( PIEWITHSHADOW, proX );
 		m_elements[i].setProY( PIEWITHSHADOW, proY );
 	    }
-#endif // TEXT_WANTED
+// #endif // TEXT_WANTED
 	  }
     }
 }

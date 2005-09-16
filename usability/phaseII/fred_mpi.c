@@ -4,7 +4,7 @@
 int main(int argc, char* argv[])
 {
    extern int work(int);
-   int size = 750;
+   int size = 2500;
 
     if(argc != 2) {
         printf("Usage: %s <size>\n", argv[0]);
@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
     }
 
     MPI_Init(&argc,&argv);
-    
+
     work(size);
 
     MPI_Finalize();

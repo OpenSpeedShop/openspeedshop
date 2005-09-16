@@ -234,6 +234,7 @@ QStringList pidStrList = NULL;
   gui_exit()
   {
 //    printf("Exit the gui!\n");
+      w->topPC->closeAllExternalPanelContainers();
       delete w->topPC;
   }
 

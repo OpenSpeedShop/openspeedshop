@@ -33,7 +33,6 @@ class MetricHeaderInfo;
 typedef QValueList<MetricHeaderInfo *> MetricHeaderInfoList;
 
 // These are the pie chart colors..
-// static char *hotToCold_color_names[] = { "red", "green", "darkGreen", "darkCyan", "yellow", "cyan", "blue", "magenta", "black", "darkRed", "darkBlue", "darkMagenta", "darkYellow", "darkGray", "gray", "lightGray" };
 static char *hotToCold_color_names[] = { 
   "red", 
   "magenta",
@@ -49,9 +48,24 @@ static char *hotToCold_color_names[] = {
   "darkCyan",
   "darkGreen",
   "darkYellow",
-  "darkGray",
-  "black",
 };
+static char *coldToHot_color_names[] = { 
+  "darkYellow",
+  "darkGreen",
+  "darkCyan",
+  "darkBlue",
+  "darkMagenta",
+  "darkRed",
+  "lightGray"
+  "gray",
+  "yellow",
+  "green",
+  "cyan",
+  "blue",
+  "magenta",
+  "red", 
+};
+#define MAX_COLOR_CNT 14
 
 #include "SPListView.hxx"   // Change this to your new class header file name
 #include "SPListViewItem.hxx"   // Change this to your new class header file name
@@ -761,7 +775,7 @@ StatsPanel::sortColumn(int column)
 void
 StatsPanel::sortDoubleColumn(int column)
 {
-// printf("StatsPanel::sortColumn(%d) entered\n", column);
+// printf("StatsPanel::sortDoubleColumn(%d) entered\n", column);
 
   // For now we only allow column 0 to be sorted.
   if( column > 0 )
@@ -771,8 +785,10 @@ StatsPanel::sortDoubleColumn(int column)
 
   int index = 0;
   int count = 0;
-  int values[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-  char *strings[] = { "", "", "", "", "", "", "", "", "", "" };
+  ChartTextValueList ctvl;
+  ctvl.clear();
+  ChartPercentValueList cpvl;
+  cpvl.clear();
   SPListViewItem *lvi;
 
   // How many rows should we display?
@@ -781,11 +797,8 @@ StatsPanel::sortDoubleColumn(int column)
   if( !getPreferenceTopNLineEdit().isEmpty() )
   {
     numberItemsToDisplay = getPreferenceTopNLineEdit().toInt(&ok);
-    if( !ok )
-    {
-      numberItemsToDisplay = 5; // Default to top5.
-    }
   }
+// printf("numberItemsToDisplay=%d\n", numberItemsToDisplay );
 
   if( column >= 0 )
   {
@@ -952,16 +965,18 @@ if( descending_sort == true )
   splv->setSorting ( -1 );
   splv->header()->setSortIndicator( column == -1 ? 0 : column, descending_sort );
 
+// printf("Set the chart elements\n");
   // Set the values for the top 5 pie chart elements...
   QListViewItemIterator it( splv );
+  int total_percent = 0;
   while( it.current() )
   {
     QListViewItem *item = *it;
-    if( index < 5 )
     {
-      values[index] = (int)item->text(1).toFloat();
+      cpvl.push_back( (int)item->text(1).toFloat() );
 // printf("values[%d] = (%d)\n", index, values[index] );
-      strings[index] = (char *)item->text(1).ascii();
+      total_percent += (int)item->text(1).toFloat();
+      ctvl.push_back( (char *)item->text(1).ascii() );
       count = index+1;
     }
     index++;
@@ -970,19 +985,26 @@ if( descending_sort == true )
   }
 
   // Now put out the graph
-  int total_percent = 0;
   int i = 0;
-  for(i =0;i<count;i++)
-  {
-    total_percent += values[i];
-  }
   if( total_percent < 100 )
   {
-    values[i] = 100-total_percent;
-    strings[i] = "other";
+    cpvl.push_back( 100-total_percent );
+    ctvl.push_back( "other" );
     count++;
   }
-  cf->setValues(values, hotToCold_color_names, strings, count+1);
+// printf("put out %d number of pie slices.\n", count);
+char **color_names = hotToCold_color_names;
+if( descending_sort != true )
+{
+ color_names = coldToHot_color_names;
+}
+if( !getPreferenceShowTextInChart() )
+{
+  ctvl.clear();
+} 
+cf->setValues(cpvl, ctvl, color_names, MAX_COLOR_CNT);
+
+
 
 }
 
@@ -1000,8 +1022,10 @@ StatsPanel::sortUintColumn(int column)
 
   int index = 0;
   int count = 0;
-  int values[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-  char *strings[] = { "", "", "", "", "", "", "", "", "", "" };
+  ChartTextValueList ctvl;
+  ctvl.clear();
+  ChartPercentValueList cpvl;
+  cpvl.clear();
   SPListViewItem *lvi;
 
   // How many rows should we display?
@@ -1010,10 +1034,6 @@ StatsPanel::sortUintColumn(int column)
   if( !getPreferenceTopNLineEdit().isEmpty() )
   {
     numberItemsToDisplay = getPreferenceTopNLineEdit().toInt(&ok);
-    if( !ok )
-    {
-      numberItemsToDisplay = 5; // Default to top5.
-    }
   }
 
   if( column >= 0 )
@@ -1184,14 +1204,16 @@ if( descending_sort == true )
 
   // Set the values for the top 5 pie chart elements...
   QListViewItemIterator it( splv );
+  int total_percent = 0;
   while( it.current() )
   {
     QListViewItem *item = *it;
     if( index < 5 )
     {
-      values[index] = (int)item->text(1).toFloat();
+      cpvl.push_back( (int)item->text(1).toFloat() );
 // printf("values[%d] = (%d)\n", index, values[index] );
-      strings[index] = (char *)item->text(1).ascii();
+      total_percent += (int)item->text(1).toFloat();
+      ctvl.push_back( (char *)item->text(1).ascii() );
       count = index+1;
     }
     index++;
@@ -1200,19 +1222,20 @@ if( descending_sort == true )
   }
 
   // Now put out the graph
-  int total_percent = 0;
   int i = 0;
-  for(i =0;i<count;i++)
-  {
-    total_percent += values[i];
-  }
   if( total_percent < 100 )
   {
-    values[i] = 100-total_percent;
-    strings[i] = "other";
+    cpvl.push_back( 100-total_percent );
+    ctvl.push_back( "other" );
     count++;
   }
-  cf->setValues(values, hotToCold_color_names, strings, count+1);
+if( descending_sort == true )
+{
+  cf->setValues(cpvl, ctvl, hotToCold_color_names, MAX_COLOR_CNT);
+} else
+{
+  cf->setValues(cpvl, ctvl, coldToHot_color_names, MAX_COLOR_CNT);
+}
 
 }
 
@@ -1230,8 +1253,10 @@ StatsPanel::sortUInt64Column(int column)
 
   int index = 0;
   int count = 0;
-  int values[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-  char *strings[] = { "", "", "", "", "", "", "", "", "", "" };
+  ChartTextValueList ctvl;
+  ctvl.clear();
+  ChartPercentValueList cpvl;
+  cpvl.clear();
   SPListViewItem *lvi;
 
   // How many rows should we display?
@@ -1422,14 +1447,16 @@ StatsPanel::sortUInt64Column(int column)
 
   // Set the values for the top 5 pie chart elements...
   QListViewItemIterator it( splv );
+  int total_percent = 0;
   while( it.current() )
   {
     QListViewItem *item = *it;
     if( index < 5 )
     {
-      values[index] = (int)item->text(1).toFloat();
+      cpvl.push_back( (int)item->text(1).toFloat() );
 // printf("values[%d] = (%d)\n", index, values[index] );
-      strings[index] = (char *)item->text(1).ascii();
+      total_percent += (int)item->text(1).toFloat();
+      ctvl.push_back( (char *)item->text(1).ascii() );
       count = index+1;
     }
     index++;
@@ -1438,19 +1465,20 @@ StatsPanel::sortUInt64Column(int column)
   }
 
   // Now put out the graph
-  int total_percent = 0;
   int i = 0;
-  for(i =0;i<count;i++)
-  {
-    total_percent += values[i];
-  }
   if( total_percent < 100 )
   {
-    values[i] = 100-total_percent;
-    strings[i] = "other";
+    cpvl.push_back( 100-total_percent );
+    ctvl.push_back( "other" );
     count++;
   }
-  cf->setValues(values, hotToCold_color_names, strings, count+1);
+if( descending_sort == true )
+{
+  cf->setValues(cpvl, ctvl, hotToCold_color_names, MAX_COLOR_CNT);
+} else
+{
+  cf->setValues(cpvl, ctvl, coldToHot_color_names, MAX_COLOR_CNT);
+}
 
 // printf("finished up putting out values.\n");
 }
@@ -1955,12 +1983,10 @@ int index = 0;
         {
 // printf("item->first=%d\n", item->first);
 // printf("item->second=%lld\n", item->second );
-char uint64_value_buffer[100];
-sprintf(uint64_value_buffer, "%lld", item->second);
+          char uint64_value_buffer[100];
+          sprintf(uint64_value_buffer, "%lld", item->second);
 // printf("uint64_value_buffer = (%s)\n", uint64_value_buffer);
-int color_index = getLineColor(item->second);
-//          hlo = new HighlightObject(di->getPath(), item->first, hotToCold_color_names[(int)(TotalTime/item->second)], QString(uint64_value_buffer), (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
-//          hlo = new HighlightObject(di->getPath(), item->first, hotToCold_color_names[(int)(TotalTime/item->second)], QString(uint64_value_buffer), (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
+          int color_index = getLineColor(item->second);
           hlo = new HighlightObject(di->getPath(), item->first, hotToCold_color_names[color_index], QString(uint64_value_buffer), (char *)QString("\n%1: This line took %2 seconds.").arg(threadStr).arg(item->second).ascii());
           highlightList->push_back(hlo);
 // printf("Push_back a hlo for %d %lld\n", item->first, item->second);
@@ -2469,7 +2495,7 @@ StatsPanel::clearSourceFile(int expID)
 int
 StatsPanel::getLineColor(double value)
 {
-// printf("getLineColor(%f)\n", value);
+// printf("getLineColor(%f) descending_sort= %d\n", value, descending_sort);
 
   if( (int) value >  0.0 )
   {
@@ -2508,14 +2534,13 @@ StatsPanel::getLineColor(double value)
       return(10);
     }
   }
-
   return(10);
 }
 
 int
 StatsPanel::getLineColor(unsigned int value)
 {
-//  printf("getLineColor(%d)\n", value);
+// printf("getLineColor(%d)\n", value);
 
 
   if( (int) value >  0.0 )
@@ -2555,15 +2580,15 @@ StatsPanel::getLineColor(unsigned int value)
       return(10);
     }
   }
-
   return(10);
+
 }
 
 
 int
 StatsPanel::getLineColor(uint64_t value)
 {
-//  printf("getLineColor(%l)\n", value);
+// printf("getLineColor(%l)\n", value);
 
 
   if( (uint64_t) value >  0.0 )

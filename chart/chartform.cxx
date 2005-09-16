@@ -57,6 +57,7 @@
 #include "images/options_verticalbarchart.xpm"
 
 
+
 #include "debug.hxx"
 
 const QString WINDOWS_REGISTRY = "/Trolltech/QtExamples";
@@ -569,12 +570,22 @@ int ChartForm::mouseClicked(int item)
 // printf("ChartForm::mouseClicked(%d) entered.\n", item);
 }
 
-void ChartForm::setValues(int values[], char *color_names[], char *strings[], int n )
+void ChartForm::setValues(ChartPercentValueList values, ChartTextValueList strings, char *color_names[], int max_color_cnt)
 {
-  for(int i = 0; i < n; i++ )
-  {
-	m_elements[i].set( values[i],
-      QColor(color_names[i]), 1, QString(strings[i]) );
-  }
+int i = 0;
+for( ChartPercentValueList::iterator vi = values.begin();vi != values.end(); vi++)
+{
+  ChartTextValueList::iterator ti = strings.begin();
+  int value = (int)*vi;
+  ti += i;
+  QString value_str = (QString)*ti;
+  int color_index = i;
+  if( i>15 ) color_index = max_color_cnt-1;
+// printf("ChartForm::setValues[%d] (%d) %s\n", i, value, value_str.ascii() );
+  m_elements[i].set( value,
+      QColor(color_names[color_index]), 1, value_str );
+  i++;
+}
+
   drawElements();
 }

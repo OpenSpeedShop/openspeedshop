@@ -24,6 +24,9 @@
 
 #include <qmainwindow.h>
 #include <qstringlist.h>
+#include <qvaluelist.h>
+typedef QValueList<QString> ChartTextValueList;
+typedef QValueList<int> ChartPercentValueList;
 
 class CanvasView;
 
@@ -59,7 +62,7 @@ public:
     virtual QPopupMenu *createPopupMenu(const QPoint & pos);
     QPopupMenu *optionsMenu; // Why public? See canvasview.cpp
 
-    void setValues(int values[], char *color_names[], char *strings[], int n);
+    void setValues(ChartPercentValueList values, ChartTextValueList strings,  char *color_names[], int max_color_cnt);
 
     QCanvas *getCanvas() { return m_canvas; }
 
