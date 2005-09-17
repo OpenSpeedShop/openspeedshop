@@ -131,6 +131,14 @@ command is issued.</li>
   </dir>
 - If there is no &lt;expId_spec&gt; provided, information is attached
 to the focused experiment. <br>
+
+- If the <b>-v mpi</b> option is selected, all the threads that are part of a
+running application will be included in the experiment.<br>
+
+- If the <b>-v mpi</b> option is not present, only those threads that are
+explicitly listed in the &lt;target_list&gt; will be included in the
+experiment.<br>
+
 - The &lt;target_list&gt; is used to restrict the knowledge of the
 experiment or data collection to certain portions of an appliaction. <br>
 - It is ambiguous to use both the <b>-f</b> and <b>-p</b> options.
@@ -147,7 +155,7 @@ attached of the experiment. <br>
 &lt;target_list&gt;,
 the specified data collectors are used to instrument all the executable
 routines that are already attached to the indicated experiment. <br>
--If both &lt;target_list&gt; and &lt;expType_list&gt; are
+- If both &lt;target_list&gt; and &lt;expType_list&gt; are
 provided,
 only those portions of the application in the
 &lt;target_list&gt; are
@@ -207,6 +215,14 @@ be deleted. </font><br>
   <li>The experiment will not execute until an <b>expGo</b> command is
 issued.</li>
   </dir>
+
+- If the <b>-v mpi</b> option is selected, all the threads that are part of a
+running application will be included in the experiment.<br>
+
+- If the <b>-v mpi</b> option is not present, only those threads that are
+explicitly listed in the &lt;target_list&gt; will be included in the
+experiment.<br>
+
 -The &lt;target_list&gt; will associate the specified executable
 with the experiment being defined. <br>
 - The experiment type argument, &lt;expType_list&gt;, can be used to
@@ -219,7 +235,7 @@ new
 &lt;expId&gt; and will set the focus. </font><br>
   <br>
   <font size="-1">&lt;expId&gt; <b>=</b>
-  <b>expCreate </b>[ &lt;target_list&gt; ] [ &lt;expType_list&gt;
+  <b>expCreate</b> [ <b>-v mpi</b> ] [ &lt;target_list&gt; ] [ &lt;expType_list&gt;
 ]</font>
   <p></p>
 </ul>
@@ -255,7 +271,7 @@ associated with that Pid to stop measuring performance.</li>
   <li>Use of the <b>-t</b> option will result in only that specific
 Thread o stop measuring performance.</li>
   </dir>
--If both &lt;target_list&gt; and &lt;expType_list&gt; are provided,
+- If both &lt;target_list&gt; and &lt;expType_list&gt; are provided,
 only the specified collectores in &lt;expType_list&gt; are detached
 from
 just those applications described in &lt;target_list&gt;. <br>
