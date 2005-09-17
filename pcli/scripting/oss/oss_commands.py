@@ -14,6 +14,14 @@ def expAttach(*arglist):
     	- The attached applications will not execute until 
 	an B{expGo} command is issued.
 
+    If I{ModifierList} object with B{mpi} is selected, all
+    the threads that are part of a running application will
+    be included in the experiment.
+
+    If I{ModifierList} object with B{mpi} is not present,
+    only those threads that are explicitly listed in
+    I{Target} will be included in the experiment.
+
     If there is no I{ExpId} provided, information is 
     attached to the focused experiment.
 
@@ -73,18 +81,31 @@ def expClose(*arglist):
 
     """
     Close/Terminate the experiment specified by I{ExpId}.
-        - The B{OpenSS} tool is NOT terminated. Use exit to terminate the session.
-        - All data collectors attached to the experiment are removed from the attached applications.
+        - The B{OpenSS} tool is NOT terminated. Use exit to terminate 
+	  the session.
+        - All data collectors attached to the experiment are removed 
+	  from the attached applications.
         - All attached applications are removed from the experiment.
-        - If I{ModifierList}(B{"kill"}) is not provided, attached applications will continue executing.
-        - If I{ModifierList}(B{"kill"}) is provided, attached applications will be terminated.
-        - The database file that was used to save information about the applications and the collected data, is deleted if it is a temporary file, or closed if it is a user defined file. Use expSave for saving information.
+        - If I{ModifierList}(B{"kill"}) is not provided, attached 
+	  applications will continue executing.
+        - If I{ModifierList}(B{"kill"}) is provided, attached 
+	  applications will be terminated.
+        - The database file that was used to save information about 
+	  the applications and the collected data, is deleted if it 
+	  is a temporary file, or closed if it is a user defined file. 
+	  Use B{expSave} for saving information.
 
-    If there is no I{ExpId} provided, the focused experiment will be closed.
+    If there is no I{ExpId} provided, the focused experiment will be 
+    closed.
 
-    Because important information may accidently be lost, this command should only be issued when the user is certain that more performance measurements are not needed and that the collected data measurements will be saved if there is any chance that the user will want to take another look at the results.
+    Because important information may accidently be lost, this command 
+    should only be issued when the user is certain that more performance 
+    measurements are not needed and that the collected data measurements 
+    will be saved if there is any chance that the user will want to take 
+    another look at the results.
 
-    Use of I{ModifierList}(B{"all"}) will cause all defined experiments to be deleted.
+    Use of I{ModifierList}(B{"all"}) will cause all defined experiments 
+    to be deleted.
 
 
     B{Examples}::
@@ -120,8 +141,16 @@ def expCreate(*arglist):
     	- Define a new experiment identifier.
     	- Set the current focus to the new identifier.
     	- Return the experiment identification identifier.
-    	- The experiment will not execute until an expGo 
+    	- The experiment will not execute until an B{expGo} 
     	  command is issued.
+
+    If I{ModifierList} object with B{mpi} is selected, all
+    the threads that are part of a running application will
+    be included in the experiment.
+
+    If I{ModifierList} object with B{mpi} is not present,
+    only those threads that are explicitly listed in
+    I{Target} will be included in the experiment.
 
     The I{Target} will associate the specified executable 
     with the experiment being defined.
@@ -130,10 +159,10 @@ def expCreate(*arglist):
     to specify the types of data that will be collected during 
     the experiment.
 
-    Missing arguments can be supplied later with the expAttach 
+    Missing arguments can be supplied later with the B{expAttach} 
     command.
 
-    An expCreate command with no arguments will still return a 
+    An B{expCreate} command with no arguments will still return a 
     new I{ExpId} and will set the focus.
 
     B{Examples}::
@@ -165,21 +194,42 @@ def expDetach(*arglist):
 
     """
     - Detach applications from collectors for an experiment.
-        - The remaining applications will not execute until an B{expGo} command is issued.
-        - The experiment retains knowledge of both the applications and the collectors and they can be referenced on later commands.
-        - All previously collected data samples will be retained.
-        - No new data, of the specified type, will be collected for the specified application.
-    - If there is no I{ExpId} provided, the focused experiment is used.
-    - If I{Target} is provided without I{ExpTypeList}, all collectors are detached for those applications.
-    - The use of I{Target}" allows control over the parts of an executable program that will no longer generate performance data.
-        - The absence of any I{HostList} specification will cause all the hosts in the specifed experiment to stop measuring performance.
-        - The default cluster contains only localhost and can be specified by using -h localhost.
+        - The remaining applications will not execute until 
+	  an B{expGo} command is issued.
+        - The experiment retains knowledge of both the 
+	  applications and the collectors and they can be 
+	  referenced on later commands.
+        - All previously collected data samples will be 
+	  retained.
+        - No new data, of the specified type, will be collected 
+	  for the specified application.
+    - If there is no I{ExpId} provided, the focused experiment 
+      is used.
+    - If I{Target} is provided without I{ExpTypeList}, all 
+      collectors are detached for those applications.
+    - The use of I{Target}" allows control over the parts of 
+      an executable program that will no longer generate 
+      performance data.
+        - The absence of any I{HostList} specification will 
+	  cause all the hosts in the specifed experiment to 
+	  stop measuring performance.
+        - The default cluster contains only localhost and can 
+	  be specified by using -h localhost.
         - Use of I{FileList} is not supported.
-        - Use of I{PidList} will result in only the Threads associated with that Pid to stop measuring performance.
-        - Use of I{TreadList} will result in only that specific Thread o stop measuring performance.
-    - If both I{Target} and I{ExpTypeList} are provided, only the specified collectores in I{ExpTypeList} are detached from just those applications described in I{Target}.
-    - If I{ExpTypeList} is provided without I{Target}, the specified data collectors are detached from all the executable routines that are ttached to the indicated experiment.
-    - If neither I{Target} nor I{ExpTypeList} is provided, the command does nothing.
+        - Use of I{PidList} will result in only the Threads 
+	  associated with that Pid to stop measuring 
+	  performance.
+        - Use of I{TreadList} will result in only that 
+	  specific Thread to stop measuring performance.
+    - If both I{Target} and I{ExpTypeList} are provided, only 
+      the specified collectores in I{ExpTypeList} are detached 
+      from just those applications described in I{Target}.
+    - If I{ExpTypeList} is provided without I{Target}, the 
+      specified data collectors are detached from all the 
+      executable routines that are ttached to the indicated 
+      experiment.
+    - If neither I{Target} nor I{ExpTypeList} is provided, 
+      the command does nothing.
 
 
     Example::
@@ -213,19 +263,45 @@ def expDisable(*arglist):
     """
     - Turn off data collection.
         - The experiment remains defined.
-        - Data collection is "turned off" and no new information is saved.
-        - Instrumentation is disabled but may not be removed from the application.
-        - Previously collected data is still available and can be viewed or saved.
-        - The attached applications will not continue executing until an expGo command is issued.
+        - Data collection is "turned off" and no new 
+    	  information is saved.
+        - Instrumentation is disabled but may not be 
+	  removed from the application.
+        - Previously collected data is still available 
+	  and can be viewed or saved.
+        - The attached applications will not continue 
+	  executing until an B{expGo} command is issued.
     - See related commands:
-        - expEnable can be used to restart data collection.
-        - expSave can be used to save previously collected data.
-        - expClose can be used to destroy the experiment and free all data space used to save the collected data.
-    - I{ModifierList}(B{"all"}) will result in data collection being stopped for all defined experiments.
-    - If this command is issued with no arguments, data collection is stopped for the focused experiment.
+        - B{expEnable} can be used to restart data collection.
+        - B{expSave} can be used to save previously 
+	  collected data.
+        - B{expClose} can be used to destroy the experiment 
+	  and free all data space used to save the collected 
+	  data.
+    - I{ModifierList}(B{"all"}) will result in data 
+      collection being stopped for all defined experiments.
+    - If this command is issued with no arguments, 
+      data collection is stopped for the focused experiment.
 
-      expDisable [ I{ModifierList}(B{"all"}) || I{ExpId} ] 
 
+    Example1::
+    	#Disable the currently focused experiment
+	oss.expDisable()
+	
+    Example2::
+    	#Disable all active experiments
+	my_modifier = oss.ModifierList("all")
+	oss.expDisable(my_modifier)
+	
+    Example3::
+    	#Disable a specified experiment (7)
+	my_exp = oss.ExpId(7)
+	oss.expDisable(my_exp)
+
+    @param arglist: 1 of 2 optional class objects:
+	- I{ModifierList}(B{"all"}) 
+    	- I{ExpId}
+    
     """
 
     cmd_string = deconstruct("expDisable",*arglist)
@@ -237,15 +313,39 @@ def expDisable(*arglist):
 def expEnable(*arglist):
 
     """
-    - Turn on any instrumentation that was turned off with an expDisable command.
+    - Turn on any instrumentation that was turned off with an 
+      B{expDisable} command.
         - Existing instrumentation is enabled.
-        - Data collection is "turned on" and new information will be saved.
-        - New information will be merged with any previously collected data.
-        - The attached applications will not continue executing until an expGo command is issued.
-    - I{ModifierList}(B{"all"}) will result in data collection being restarted for all defined experiments.
-    - If this command is issued with no arguments, data collection for the focused experiment is restarted.
+        - Data collection is "turned on" and new information 
+	  will be saved.
+        - New information will be merged with any previously 
+	  collected data.
+        - The attached applications will not continue executing 
+	  until an B{expGo} command is issued.
+    - I{ModifierList}(B{"all"}) will result in data collection 
+      being restarted for all defined experiments.
+    - If this command is issued with no arguments, data 
+      collection for the focused experiment is restarted.
 
-      expEnable [ I{ModifierList}(B{"all"}) || I{ExpId} ] 
+
+    Example1::
+    	#Enable the currently focused experiment
+	oss.expEnable()
+	
+    Example2::
+    	#Enable all experiments
+	my_modifier = oss.ModifierList("all")
+	oss.expEnable(my_modifier)
+	
+    Example3::
+    	#Enable a specified experiment (7)
+	my_exp = oss.ExpId(7)
+	oss.expEnable(my_exp)
+
+    @param arglist: 1 of 2 optional class objects:
+	- I{ModifierList}(B{"all"}) 
+    	- I{ExpId}
+    
 
     """
 
@@ -258,15 +358,31 @@ def expEnable(*arglist):
 def expFocus(*arglist):
 
     """
-    - Make the given experiment id the current, focused experiment.
-    - In many commands I{ExpId} is optional. When omitted, the currently "focused" experiment is used.
-    - If no argument is present on this command, return the focused experiment.
-    - If the I{ExpId} argument has an experiment id of zero (0), then clear the experiment focus.
-        - A command that uses an experiment id of zero is illegal and will produce a fatal error.
-    - This command does not change the execution state of an experiment.
+    - Make the given experiment id the current, focused 
+      experiment.
+    - In many commands I{ExpId} is optional. When omitted, 
+      the currently "focused" experiment is used.
+    - If no argument is present on this command, return the 
+      focused experiment.
+    - If the I{ExpId} argument has an experiment id of 
+      zero (0), then clear the experiment focus.
+        - A command that uses an experiment id of zero is 
+	  illegal and will produce a fatal error.
+    - This command does not change the execution state of 
+      an experiment.
 
-      I{ExpId} = expFocus [ I{ExpId} ] 
+    Example1::
+    	#Get the Id of the currently focused experiment
+	cur_id = oss.expEnable()
+	
+    Example2::
+    	#Change the focus to experiment #7
+	my_exp = oss.ExpId(7)
+	cur_id = oss.expEnable(my_exp)
 
+
+    @param arglist: 1 optional class object:
+    	- I{ExpId}
     """
 
     cmd_string = deconstruct("expFocus",*arglist)
@@ -279,21 +395,54 @@ def expGo(*arglist):
 
     """
     - Run the experiment and collect performance data.
-    - If the experiment has already begun execution, this command causes execution to continue from where it was interrupted. - The experiment will continue to run until either
+    - If the experiment has already begun execution, this 
+      command causes execution to continue from where it 
+      was interrupted. - The experiment will continue to 
+      run until either
         - the application terminates, or
         - the application executes a programmed halt, or
-        - the user issues another exp... command that refers to this experiment Id. or
-        - the B{OpenSS} tool terminates due to an exit command, an external interrupt, or abnormal, internal event.
-    - Except when executed in batch mode, the execution of the application and the collection of performance data does not, automatically, prevent other commands from being issued
-        - A following command that depends on the result of this experiment may not be able to execute and may block further commands from being issued.
-        - Independent commands may be issued and completed before this experiment completes.
-        - The status of any experiment can be determined through the listStatus command.
-        - Depending on the type of data collection that is taking place, it may be possible to view the results before the application completes.
+        - the user issues another exp... command that refers to
+	  this experiment Id. or
+        - the B{OpenSS} tool terminates due to an exit command,
+	  an external interrupt, or abnormal, internal event.
+    - Except when executed in batch mode, the execution of the 
+      application and the collection of performance data does 
+      not, automatically, prevent other commands from being 
+      issued
+        - A following command that depends on the result of 
+	  this experiment may not be able to execute and may 
+	  block further commands from being issued.
+        - Independent commands may be issued and completed 
+	  before this experiment completes.
+        - The status of any experiment can be determined 
+	  through the B{listStatus} command.
+        - Depending on the type of data collection that is 
+	  taking place, it may be possible to view the results 
+	  before the application completes.
     - The absence of the I{ExpId} and I{ModifierList}(B{"all"}) will result in only the focused experiment being run.
-    - The use of I{ExpId} will result in only that experiment being run.
-    - The use of I{ModifierList}(B{"all"}) will result in every defined experiment being run.
+    - The use of I{ExpId} will result in only that experiment 
+      being run.
+    - The use of I{ModifierList}(B{"all"}) will result in 
+      every defined experiment being run.
 
-      expGo [ I{ModifierList}(B{"all"}) || I{ExpId} ] 
+    Example1::
+    	#Run the currently focused experiment
+	oss.expGo()
+	
+    Example2::
+    	#Run all experiments
+	my_modifier = oss.ModifierList("all")
+	oss.expGo(my_modifier)
+	
+    Example3::
+    	#Run a specified experiment (7)
+	my_exp = oss.ExpId(7)
+	oss.expGo(my_exp)
+
+    @param arglist: 1 of 2 optional class objects:
+	- I{ModifierList}(B{"all"}) 
+    	- I{ExpId}
+    
 
     """
 
@@ -306,12 +455,34 @@ def expGo(*arglist):
 def expPause(*arglist):
 
     """
-    - Temporarily halt the experiment identified by the input experiment id.
-    - If I{ExpId} is not provided, the focused experiment is used.
-    - If I{ModifierList}(B{"all"}) is present, every defined experiment is halted.
+    - Temporarily halt the experiment identified by the input 
+      experiment id.
+    - If I{ExpId} is not provided, the focused experiment is 
+      used.
+    - If I{ModifierList}(B{"all"}) is present, every defined 
+      experiment is halted.
 
       expPause [ I{ModifierList}(B{"all"}) || I{ExpId} ] 
 
+
+    Example1::
+    	#Halt the currently focused experiment
+	oss.expPause()
+	
+    Example2::
+    	#Halt all experiments
+	my_modifier = oss.ModifierList("all")
+	oss.expPause(my_modifier)
+	
+    Example3::
+    	#Halt a specified experiment (7)
+	my_exp = oss.ExpId(7)
+	oss.expPause(my_exp)
+
+    @param arglist: 1 of 2 optional class objects:
+	- I{ModifierList}(B{"all"}) 
+    	- I{ExpId}
+    
     """
 
     cmd_string = deconstruct("expPause",*arglist)
@@ -323,15 +494,39 @@ def expPause(*arglist):
 def expRestore(*arglist):
 
     """
-    - Restore an experiment's definition and previously saved data from a database that was saved with an expSave command.
-        - A new experiment is created and intitialize with this information.
-        - This command also sets the focus to the new experiment's Identifier.
-        - The new experiment will be in the same state as that established with the expDisable command.
-        - If the original applications are still running, the user can reconnect to them, and reinsert instrumentation into them, through the use of the expEnable command. Doing this will interrupt the executing application and an expGo command will be required before the application continues and new data samples can be collected.
-        - Previously collected data can be looked at with the expView command without reconnecting to the original applications.
-        - If an expGo command is issued, new data samples will be placed into the database specified by <file_spec>. A different database can be specified with the expSave command.
+    - Restore an experiment's definition and previously saved 
+      data from a database that was saved with an expSave 
+      command.
+        - A new experiment is created and intitialize with 
+	  this information.
+        - This command also sets the focus to the new 
+	  experiment's Identifier.
+        - The new experiment will be in the same state as 
+	  that established with the B{expDisable} command.
+        - If the original applications are still running, 
+	  the user can reconnect to them, and reinsert 
+	  instrumentation into them, through the use of the 
+	  B{expEnable} command. Doing this will interrupt the 
+	  executing application and an B{expGo} command will be 
+	  required before the application continues and new 
+	  data samples can be collected.
+        - Previously collected data can be looked at with the 
+	  B{expView} command without reconnecting to the original 
+	  applications.
+        - If an B{expGo} command is issued, new data samples will 
+	  be placed into the database specified by I{FileList}. 
+	  A different database can be specified with the 
+	  B{expSave} command.
 
       I{ExpId} = expRestore <file_spec> 
+
+    Example::
+    	#Restore an experiment
+	my_file = oss.FileList("stored_data.db")
+	my_exp = oss.expRestore(my_file)
+
+    @param arglist: 1 class object:
+    	- I{FileList}
 
     """
 
@@ -345,23 +540,64 @@ def expSave(*arglist):
 
     """
     - Save the experiment information for further analysis.
-        - For each experiment, information about the executable programs that are instrumented, information about the instrumentation that is used and any performance data that is collected are saved in a database.
-        - The database is created by the B{OpenSS} tool in a temporary location and will be deleted when an expClose command is issued for the experiment, or when an exit command is issued that terminates the B{OpenSS} tool.
-        - The entire database can be saved with the expSave command and can be reloaded into the B{OpenSS} tool with the expRestore command.
-        - The database is in a special format that supports the opertaions that the B{OpenSS} tool must perform.
+        - For each experiment, information about the executable 
+	  programs that are instrumented, information about the 
+	  instrumentation that is used and any performance data that 
+	  is collected are saved in a database.
+        - The database is created by the B{OpenSS} tool in a temporary 
+	  location and will be deleted when an B{expClose} command is 
+	  issued for the experiment, or when an exit command is issued 
+	  that terminates the B{OpenSS} tool.
+        - The entire database can be saved with the expSave command 
+	  and can be reloaded into the B{OpenSS} tool with the 
+	  B{expRestore} command.
+        - The database is in a special format that supports the 
+	  opertaions that the B{OpenSS} tool must perform.
     - Without I{ModifierList}(B{"copy"})
-        - If the original, temporary database file is still in use, it is copied to the specified file name and the B{OpenSS} tool will use the new file to collect any new information about the experiment. When the experiment completes, this database will be retained.
-        - If a previous expSave command has caused the experiment's information to be directed to a user defined database
-        - The contents of the previous database - without any of the data samples - is copied to the new database.
+        - If the original, temporary database file is still in use, 
+	  it is copied to the specified file name and the B{OpenSS} 
+	  tool will use the new file to collect any new information 
+	  about the experiment. When the experiment completes, this 
+	  database will be retained.
+        - If a previous B{expSave} command has caused the experiment's 
+	  information to be directed to a user defined database
+        - The contents of the previous database - without any of the 
+	  data samples - is copied to the new database.
         - The previous database is closed.
-        - The new database is used by the B{OpenSS} tool to collect any new information that is added to or collected for, the experiment.
-    - With I{ModifierList}(B{"copy"}), the given location receives a copy of the current state of the database.
-        - The current contents of the database is duplicated and saved to the given location.
+        - The new database is used by the B{OpenSS} tool to collect 
+	  any new information that is added to or collected for, the 
+	  experiment.
+    - With I{ModifierList}(B{"copy"}), the given location receives a 
+      copy of the current state of the database.
+        - The current contents of the database is duplicated and saved 
+	  to the given location.
         - No new information will be added to the given location.
         - New information will be added to the original database.
-    - This command does not change the execution state of the experiment, although it may temporarily suspend execution while the command is being executed.
+    - This command does not change the execution state of the 
+      experiment, although it may temporarily suspend execution while 
+      the command is being executed.
 
-      expSave [ I{ModifierList}(B{"copy"}) ] [ I{ExpId} ] <file_spec> 
+    Example1::
+    	#Store the currently focused experiment
+	my_file = oss.FileList("stored_data.db")
+	oss.expSave(my_file)
+	
+    Example2::
+    	#Copy the currently focused experiment
+	my_file = oss.FileList("stored_data.db")
+	my_modifier = oss.ModifierList("copy")
+	oss.expSave(my_modifier,my_file)
+	
+    Example3::
+    	#Store a specified experiment (7) to file
+	my_file = oss.FileList("stored_data.db")
+	my_exp = oss.ExpId(7)
+	oss.expSave(my_exp,my_file)
+
+    @param arglist: From 1 to 3 class objects:
+    	- I{ModifierList}(B{"copy"}) (optional)
+	- I{ExpId}                   (optional)
+    	- I{FileList}                (required)
 
     """
 
@@ -375,11 +611,33 @@ def expSetParam(*arglist):
 
     """
     - Change the value an experiment's argument.
-    - <expParam> will be unique within the experiment.
+    - A parameter's setting will be unique within the experiment.
     - The parameter names can be used by other experiments.
-    - This command does not change the execution state of the experiment, although it may temporarily suspend execution while the command is being executed.
+    - This command does not change the execution state of 
+      the experiment, although it may temporarily suspend 
+      execution while the command is being executed.
 
-      expSetParam [ I{ExpId} ] <expParam> = <expParamValue> [ , <expParam> = <expParamValue> ]+ 
+    Example1::
+    	# Create a hardware counting experiment
+    	my_expid = oss.expCreate("hwc")
+
+    	my_param_list = oss.ParamList()
+	# Set which counter event we want
+    	my_param_list += ("event","PAPI_HW_INT")
+	# Set the sampling rate
+    	my_param_list += ("sampling_rate",2000)
+    	# Set the paramerter list to the experiment
+    	oss.expSetParam(my_expid,my_param_list)
+	# Attach the test program to the experiment
+    	my_prog = oss.FileList("bosco.exe")
+	oss.expAttach(my_expid,my_prog)
+	# Run the experiment
+	oss.expGo()
+
+    @param arglist: From 1 to 2 class objects:
+	- I{ExpId}                   (optional)
+    	- I{ParamList}               (required)
+
     """
 
     cmd_string = deconstruct("expSetParam",*arglist)
@@ -392,12 +650,31 @@ def expStatus(*arglist):
 
     """
     - Report the current state of user defined experiments.
-        - The absence of any option will result in information being reported for the focused experiment.
-        - The use of I{ExpId} will result in information being reported for the specified experiment.
-        - The use of I{ModifierList}(B{"all"}) will result in information being reported for all the known experiments.
+        - The absence of any option will result in information 
+	  being reported for the focused experiment.
+        - The use of I{ExpId} will result in information being 
+	  reported for the specified experiment.
+        - The use of I{ModifierList}(B{"all"}) will result in 
+	  information being reported for all the known experiments.
 
-      expStatus [ I{ModifierList}(B{"all"}) || I{ExpId} ] 
+    Example1::
+    	#Status for the focused experiment
+	oss.expStatus()
+	
+    Example2::
+    	#Status for all experiments
+	my_modifier = oss.ModifierList("all")
+	oss.expStatus(my_modifier)
+	
+    Example3::
+    	#Status for a specified experiment (7)
+	my_exp = oss.ExpId(7)
+	oss.expStatus(my_exp)
 
+    @param arglist: 0 to 2 optional class objects:
+	- I{ModifierList}(B{"all"}) 
+    	- I{ExpId}
+    
     """
 
     cmd_string = deconstruct("expStatus",*arglist)
@@ -409,22 +686,65 @@ def expStatus(*arglist):
 def expView(*arglist):
 
     """
-    - Display the performance data that has been collected for an experiment.
-    - If this command is issued with no I{ExpId}, the focused experiment is used.
-    - If this command is issued with no <viewType>, the specified experiment is examined and an attempt is made to find a <viewType> with the same name as the <expType> used in the experiment. If there is no matching <viewType>, or if there is more than one <expType> used in the experiment, a generic view is requested that will display all the metrics that were generated for the experiment.
-    - This command does not change the execution state of the experiment, although the nature of the requested data may require that the experiment complete execution before the information can be provided.
-    - The use of the "<expMetric_list>" option allows control over the data that is included in the report.
-        - Only the metrics specified in the list will be included in the report.
-        - The meterics will be reported in the order that they occur in the list.
-        - The report will be sorted in descending order of the first metric in the list.
-    - The use of the "I{Target}" option acts like a filter on the output.
-        - The absence of any I{HostList} specification will cause all the information available for all hosts in the specifed experiment to be included.
-        - The default cluster contains only localhost and can be specified by using -h localhost.
+    - Display the performance data that has been collected for an 
+      experiment.
+    - If this command is issued with no I{ExpId}, the focused 
+      experiment is used.
+    - If this command is issued with no I{ViewType}, the specified 
+      experiment is examined and an attempt is made to find a 
+      I{ViewType} with the same name as the I{ExpType} used in the 
+      experiment. If there is no matching I{ViewType}, or if there 
+      is more than one I{ExpType} used in the experiment, a generic 
+      view is requested that will display all the metrics that were 
+      generated for the experiment.
+    - This command does not change the execution state of the 
+      experiment, although the nature of the requested data may 
+      require that the experiment complete execution before the 
+      information can be provided.
+    - The use of the I{MetricList} option allows control over the 
+      data that is included in the report.
+        - Only the metrics specified in the list will be included in 
+	  the report.
+        - The meterics will be reported in the order that they occur 
+	  in the list.
+        - The report will be sorted in descending order of the first 
+	  metric in the list.
+    - The use of the I{Target} option acts like a filter on the 
+      output.
+        - The absence of any I{HostList} specification will cause all 
+	  the information available for all hosts in the specifed 
+	  experiment to be included.
+        - The default cluster contains only localhost and can be 
+	  specified by using -h localhost.
         - Use of I{FileList} is not supported.
-        - Use of I{PidList} will result in only the Threads associated with that Pid being included for the selected hosts.
-        - Use of I{TreadList} will result in only that specific Thread being included, if it exists on the selected hosts.
+        - Use of I{PidList} will result in only the Threads associated 
+	  with that Pid being included for the selected hosts.
+        - Use of I{TreadList} will result in only that specific Thread 
+	  being included, if it exists on the selected hosts.
 
       expView [ I{ExpId} ] [ <viewType> ] [ -m <expMetric_list> ] [ I{Target} ] 
+
+    Example::
+    	my_file = oss.FileList("bosco")
+	my_viewtype = oss.ViewTypeList("pcsamp")
+    	my_metric_list = oss.MetricList()
+    	my_metric_list += ("pcsamp","inclusive")
+
+	ret = oss.expView(my_expid,my_viewtype,my_metric_list)
+
+
+    @param arglist: up to 4 optional class objects:
+	- I{ExpId} object 
+    	- I{ViewType}
+    	- I{MetricList}
+	- I{Target} object lists
+	    - I{ClusterList}
+	    - I{FileList}
+	    - I{HostList}
+	    - I{PidList}
+	    - I{TreadList}
+	    - I{RankList}
+    
     """
 
     cmd_string = deconstruct("expView",*arglist)
@@ -437,12 +757,32 @@ def listBreaks(*arglist):
 
     """
     - List the breakpoints that have been set by the user.
-        - The absence of any option will cause all the breakpoints for the focused experiment to be listed.
-        - The use of I{ExpId} will cause all the breakpoints for the specified experiment to be listed.
-        - The use of I{ModifierList}(B{"all"}) will cause all the known breakpoints, for all of the experiments defined by the user, to be listed.
+        - The absence of any option will cause all the breakpoints 
+	  for the focused experiment to be listed.
+        - The use of I{ExpId} will cause all the breakpoints for 
+	  the specified experiment to be listed.
+        - The use of I{ModifierList}(B{"all"}) will cause all the 
+	  known breakpoints, for all of the experiments defined by 
+	  the user, to be listed.
 
-      <ListOf_breakId> = listBreaks [ I{ModifierList}(B{"all"}) || I{ExpId} ] 
+    Example1::
+    	#List breaks set in the currently focused experiment
+	int_list = oss.listBreaks()
+	
+    Example2::
+    	#List breaks set in all active experiments
+	my_modifier = oss.ModifierList("all")
+	int_list = oss.listBreaks(my_modifier)
+	
+    Example3::
+    	#List breaks set in a specified experiment (7)
+	my_exp = oss.ExpId(7)
+	int_list = oss.listBreaks(my_exp)
 
+    @param arglist: 1 of 2 optional class objects:
+	- I{ModifierList}(B{"all"}) (optional)
+    	- I{ExpId} (optional)
+    
     """
 
     cmd_string = deconstruct("listBreaks",*arglist)
@@ -456,7 +796,10 @@ def listExp(*arglist):
     """
     - List the experiments that have been defined.
 
-      <listOf_expId> = listExp 
+    Example::
+    	int_list = oss.listExp()
+
+    @param arglist: None
 
     """
 
@@ -470,11 +813,26 @@ def listHosts(*arglist):
 
     """
     - Lists the hosts that define the specified cluster.
-        - The absence of any options will cause all the hosts that have been included in the focused experiment to be listed.
-        - The I{ExpId} option will cause all the hosts that have been included in the selected experiment to be listed.
+        - The absence of any options will cause all the hosts 
+	  that have been included in the focused experiment to 
+	  be listed.
+        - The I{ExpId} option will cause all the hosts that have 
+	  been included in the selected experiment to be listed.
 
       <ListOf_hostname> = listHosts [ I{ExpId} ] 
 
+    Example1::
+    	#List hosts for currently focused experiment (7)
+    	int_list = oss.listHosts()
+
+    Example2::
+    	#List hosts for a specified experiment (7)
+	my_exp = oss.ExpId(7)
+	int_list = oss.listHosts(my_exp)
+
+    @param arglist: 1 optional class object:
+    	- I{ExpId} (optional)
+    
     """
 
     cmd_string = deconstruct("listHosts",*arglist)
@@ -486,11 +844,19 @@ def listHosts(*arglist):
 def listMetrics(*arglist):
 
     """
-    - Retrieve the metrics that are associated with a particular <viewType> or list of <viewType>s.
-        - If no options are selected, metrics for only the data collectors that are part of the focused experiment will be listed.
-        - The use of I{ExpId} will cause the metrics that are associated with the set of data collectors that are part of the specified experiment to be listed.
-        - The use of I{ModifierList}(B{"all"}) will cause all the metrics for all available collectors to be listed.
-        - The use of the "<viewType_list>" option will result in a listing of only those metrics associated with the specific data collectors in the list.
+    - Retrieve the metrics that are associated with a 
+      I{ViewTypeList} object.
+        - If no options are selected, metrics for only the data 
+	  collectors that are part of the focused experiment will 
+	  be listed.
+        - The use of I{ExpId} will cause the metrics that are 
+	  associated with the set of data collectors that are 
+	  part of the specified experiment to be listed.
+        - The use of I{ModifierList}(B{"all"}) will cause all the 
+	  metrics for all available collectors to be listed.
+        - The use of the "<viewType_list>" option will result in a 
+	  listing of only those metrics associated with the specific 
+	  data collectors in the list.
 
       <ListOf_expMetric> = listMetrics [ I{ModifierList}(B{"all"}) || I{ExpId} || I{ExpTypeList} ] 
 
@@ -505,11 +871,15 @@ def listMetrics(*arglist):
 def listObj(*arglist):
 
     """
-    - List the objects of the applications that are part of the specified experiment.
+    - List the objects of the applications that are part of the 
+      specified experiment.
         - If I{ExpId} is not provided, the focused experiment is used.
-    - The listing can be restricted with the use of a <target> specification.
-    - Any component described in the <target> specification must be part of the selected experiment.
-    - If <target> is not provided, information will be provided for all portions of all applications that are attached to the experiment.
+    - The listing can be restricted with the use of a <target> 
+      specification.
+    - Any component described in the <target> specification must be 
+      part of the selected experiment.
+    - If <target> is not provided, information will be provided for all 
+      portions of all applications that are attached to the experiment.
 
       <ListOf_filename> = listObj [ I{ExpId} ] [ <target> ] 
 
@@ -524,11 +894,19 @@ def listObj(*arglist):
 def listParams(*arglist):
 
     """
-    - Retrieve the parameters that are associated with a particular <viewType> or set of <viewType>s.
-        - If no options are selected, parameters for only the data collectors that are part of the focused experiment will be listed.
-        - The use of I{ExpId} will cause the parameters that are associated with the set of data collectors that are part of the specified experiment to be listed.
-        - The use of I{ModifierList}(B{"all"}) will cause all the parameters for all available collectors to be listed.
-        - The use of the "<viewType>" option will result in a listing of only those parameters associated with that specific data collector.
+    - Retrieve the parameters that are associated with a particular 
+      <viewType> or set of <viewType>s.
+        - If no options are selected, parameters for only the data 
+	  collectors that are part of the focused experiment will be 
+	  listed.
+        - The use of I{ExpId} will cause the parameters that are 
+	  associated with the set of data collectors that are part of 
+	  the specified experiment to be listed.
+        - The use of I{ModifierList}(B{"all"}) will cause all the 
+	  parameters for all available collectors to be listed.
+        - The use of the "<viewType>" option will result in a listing 
+	  of only those parameters associated with that specific data 
+	  collector.
 
       <ListOf_expParam> = listParams [ I{ModifierList}(B{"all"}) || I{ExpId} || I{ExpTypeList} ] 
 
@@ -543,12 +921,17 @@ def listParams(*arglist):
 def listPids(*arglist):
 
     """
-    - List running processes associated with a specific experiment and, optionally, on a specific machine.
-        - If no options are supplied, the Pids that are referenced in the focused experiment are listed.
-        - If the "I{ExpId}" option is supplied, all the Pids that are part of the specified experiment are listed.
-    - The use of the "<host_list_spec>" option acts like a filter on the output.
-        - The absence of any I{HostList} specification will cause all pids in the specified experiment to be included.
-        - The default cluster contains only localhost and can be specified by using -h localhost.
+    - List running processes associated with a specific experiment and,
+      optionally, on a specific machine.
+        - If no options are supplied, the Pids that are referenced in 
+	  the focused experiment are listed.
+        - If the "I{ExpId}" option is supplied, all the Pids that are 
+	  part of the specified experiment are listed.
+    - The use of the I{HostList} option acts like a filter on the output.
+        - The absence of any I{HostList} specification will cause all 
+	  pids in the specified experiment to be included.
+        - The default cluster contains only localhost and can be 
+	  specified by using I{HostList}.
 
       <ListOf_pidname> = listPids [ I{ExpId} ] [ <host_list_spec> ] 
 
@@ -563,15 +946,22 @@ def listPids(*arglist):
 def listRanks(*arglist):
 
     """
-    - List the mpi ranks associated with a specific experiment, a specific Pid or on a specific machine.
-        - If no options are supplied, all the Ranks that are referenced in the focused experiment are listed.
-        - If the "I{ExpId}" option is supplied, all the Ranks that are part of the specified experiment are listed.
+    - List the mpi ranks associated with a specific experiment, a 
+      specific Pid or on a specific machine.
+        - If no options are supplied, all the Ranks that are referenced 
+	  in the focused experiment are listed.
+        - If the "I{ExpId}" option is supplied, all the Ranks that are 
+	  part of the specified experiment are listed.
     - The use of the "<target>" option acts like a filter on the output.
-        - The absence of any I{HostList} specification will cause all Ranks in the specified experiment to be included.
-        - The default cluster contains only localhost and can be specified by using -h localhost.
+        - The absence of any I{HostList} specification will cause all 
+	  Ranks in the specified experiment to be included.
+        - The default cluster contains only localhost and can be 
+	  specified by using I{HostList}.
         - Use of I{FileList} is not supported.
-        - Use of I{PidList} will result in only the Ranks associated with that Pid being included for the selected hosts.
-        - Use of the -r option will result in only that specific Rank being included, if it exists on the selected hosts.
+        - Use of I{PidList} will result in only the Ranks associated 
+	  with that Pid being included for the selected hosts.
+        - Use of I{RankList} will result in only that specific Rank 
+	  being included, if it exists on the selected hosts.
 
       <ListOf_rankname> = listRanks [ I{ExpId} ] [ <target> ] 
 
@@ -586,12 +976,17 @@ def listRanks(*arglist):
 def listSrc(*arglist):
 
     """
-    - List the source filenames of the modules that are part of the specified experiment.
+    - List the source filenames of the modules that are part of the 
+      specified experiment.
     - If I{ExpId} is not provided, the focused experiment is used.
-    - The listing can be restricted with the use of a <target> specification.
-    - Any component described in the <target> specification must be part of the selected experiment.
-    - <file_list_spec> can be used to provide a list of object modules that will be searched for relevant source files.
-    - If <target> is not provided, information will be provided for all portions of all applications that are attached to the experiment.
+    - The listing can be restricted with the use of a <target> 
+      specification.
+    - Any component described in the <target> specification must be part
+      of the selected experiment.
+    - I{FileList} can be used to provide a list of object modules 
+      that will be searched for relevant source files.
+    - If <target> is not provided, information will be provided for all
+      portions of all applications that are attached to the experiment.
 
       <listOf_filename> = listSrc [ I{ExpId} ] [ <target> ] 
 
@@ -607,9 +1002,12 @@ def listStatus(*arglist):
 
     """
     - List the status of experiments.
-        - If no option is selected, return the status of the focused experiment.
-        - The use of I{ExpId} will cause the status of the specified experiment to be returned.
-        - The use of I{ModifierList}(B{"all"}) will cause the status of all the defined experiments to be returned.
+        - If no option is selected, return the status of the focused 
+	  experiment.
+        - The use of I{ExpId} will cause the status of the specified 
+	  experiment to be returned.
+        - The use of I{ModifierList}(B{"all"}) will cause the status 
+	  of all the defined experiments to be returned.
 
       <ListOf_statusType> = listStatus [ I{ModifierList}(B{"all"}) || I{ExpId} ] 
 
@@ -624,15 +1022,22 @@ def listStatus(*arglist):
 def listThreads(*arglist):
 
     """
-    - List the Threads associated with a specific experiment, a specific Pid or on a specific machine.
-        - If no options are supplied, the Threads that are referenced in the focused experiment are listed.
-        - If the "I{ExpId}" option is supplied, all the Threads that are part of the specified experiment are listed.
+    - List the Threads associated with a specific experiment, a 
+      specific Pid or on a specific machine.
+        - If no options are supplied, the Threads that are referenced 
+	  in the focused experiment are listed.
+        - If the "I{ExpId}" option is supplied, all the Threads that 
+	  are part of the specified experiment are listed.
     - The use of the "<target>" option acts like a filter on the output.
-        - The absence of any I{HostList} specification will cause all Threads in the specified experiment to be included.
-        - The default cluster contains only localhost and can be specified by using -h localhost.
+        - The absence of any I{HostList} specification will cause all 
+	  Threads in the specified experiment to be included.
+        - The default cluster contains only localhost and can be 
+	  specified by using I{HostList}.
         - Use of I{FileList} is not supported.
-        - Use of I{PidList} will result in only the Threads associated with that Pid being included for the selected hosts.
-        - Use of I{TreadList} will result in only that specific Thread being included, if it exists on the selected hosts.
+        - Use of I{PidList} will result in only the Threads associated 
+	  with that Pid being included for the selected hosts.
+        - Use of I{TreadList} will result in only that specific Thread 
+	  being included, if it exists on the selected hosts.
 
       <ListOf_threadname> = listThreads [ I{ExpId} ] [ <target> ] 
 
@@ -647,10 +1052,15 @@ def listThreads(*arglist):
 def listTypes(*arglist):
 
     """
-    - List the available performance measurement utilities that can be used to collect data in an experiment.
-        - If no option is selected, list the utilities that are attached to the focused experiment.
-        - The use of I{ExpId} will cause the utilities that are attached to the specified experiment to be listed.
-        - The use of I{ModifierList}(B{"all"}) will cause all the possible performance measurement utilities that can be used in experiments to be listed.
+    - List the available performance measurement utilities that can be 
+      used to collect data in an experiment.
+        - If no option is selected, list the utilities that are attached
+	  to the focused experiment.
+        - The use of I{ExpId} will cause the utilities that are attached
+	  to the specified experiment to be listed.
+        - The use of I{ModifierList}(B{"all"}) will cause all the 
+	  possible performance measurement utilities that can be used 
+	  in experiments to be listed.
 
       <ListOf_expType> = listTypes [ I{ModifierList}(B{"all"}) || I{ExpId} ] 
 
@@ -666,10 +1076,17 @@ def listViews(*arglist):
 
     """
     - Retrieve the views that are available for a particular <viewType> or list of <viewType>s.
-        - If no options are selected, the reports for only the data collectors that are part of the focused experiment will be listed.
-        - The use of I{ExpId} will cause the the reports that are associated with the set of data collectors that are part of the specified experiment to be listed.
-        - The use of I{ModifierList}(B{"all"}) will cause all the the reports for all available collectors to be listed.
-        - The use of the "<viewType_list>" option will result in a listing of only those reports associated with the specific data collectors in the list.
+        - If no options are selected, the reports for only the data 
+	  collectors that are part of the focused experiment will be 
+	  listed.
+        - The use of I{ExpId} will cause the the reports that are 
+	  associated with the set of data collectors that are part of 
+	  the specified experiment to be listed.
+        - The use of I{ModifierList}(B{"all"}) will cause all the the 
+	  reports for all available collectors to be listed.
+        - The use of the "<viewType_list>" option will result in a 
+	  listing of only those reports associated with the specific 
+	  data collectors in the list.
 
       <ListOf_viewType> = listViews [ I{ModifierList}(B{"all"}) || I{ExpId} || I{ExpTypeList} ] 
 
@@ -686,7 +1103,9 @@ def oss_clearBreak(*arglist):
 
     """
     - Remove a breakpoint.
-    - This command does not change the execution state of an experiment, although it may be temporarily suspended during execution of the command.
+    - This command does not change the execution state of an experiment,
+      although it may be temporarily suspended during execution of 
+      the command.
 
       clearbreak <breakId> 
 
@@ -712,6 +1131,11 @@ def oss_exit(*arglist):
     	- Close the GUI and Command windows.
     	- Terminate execution of the B{OpenSS} tool.
 
+    Example::
+    	oss.oss_exit()
+
+    @param arglist: None
+
     """
 
     cmd_string = deconstruct("exit",*arglist)
@@ -724,7 +1148,8 @@ def oss_help(*arglist):
 
     """
     - Request information about a topic.
-    - The detail of information can be controlled with the optional <verbosity_spec>.
+    - The detail of information can be controlled with the optional 
+      <verbosity_spec>.
 
       <string> = help [ <verbosity_list_spec> ] [ <string> ] 
 
@@ -740,8 +1165,10 @@ def oss_history(*arglist):
 
     """
     - Print a list of previously executed commands.
-    - If the optional integer is provided, the command will list that number of previous commands.
-    - If no integer is provided, the command will list a default number of previous commands.
+    - If the optional integer is provided, the command will list 
+      that number of previous commands.
+    - If no integer is provided, the command will list a default 
+      number of previous commands.
 
       <string> = history [ <int> ] 
 
@@ -777,6 +1204,11 @@ def oss_openGui(*arglist):
 
       openGui 
 
+    Example::
+    	oss.oss_openGui()
+
+    @param arglist: None
+
     """
 
     cmd_string = deconstruct("openGui",*arglist)
@@ -804,11 +1236,15 @@ def oss_record(*arglist):
 
     """
     - Begin echoing executed commands to a file.
-        - Recording is preformed relative to the input source that issues this command.
-        - This design causes commands issued by the GUI to be recorded seperately from commands issued by the Command window.
-    - Commands read from a file specified on a succeeding playback command will not be echoed.
+        - Recording is preformed relative to the input source that 
+	  issues this command.
+        - This design causes commands issued by the GUI to be recorded 
+	  seperately from commands issued by the Command window.
+    - Commands read from a file specified on a succeeding playback 
+      command will not be echoed.
     - Stop echoing if no file is specified on a record command.
-    - Stop echoing if the end of the input file containing the original record command is encoutnered.
+    - Stop echoing if the end of the input file containing the 
+      original record command is encoutnered.
 
       record [ <file_spec> ] 
 
@@ -825,9 +1261,11 @@ def oss_setBreak(*arglist):
     """
     - Enter a breakpoint, which will halt the application when reached.
     - If I{ExpId} is not provided, the focused experiment is used.
-    - The break location is specified through the combination of the <target> and <address_description> arguments.
+    - The break location is specified through the combination of 
+      the <target> and <address_description> arguments.
     - The break location must be a location in the specified experiment.
-    - If <target> is not provided, the <address_description> must be valid on every host and executable attached to the experiment.
+    - If <target> is not provided, the <address_description> must 
+      be valid on every host and executable attached to the experiment.
 
       <breakId> = setbreak [ I{ExpId} ] [ <target> ] <address_description>
     """
