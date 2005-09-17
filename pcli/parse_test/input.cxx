@@ -713,7 +713,8 @@ main()
     // EXPCREATE
     p_os = open_output("expcreate.input");
 
-    two_level("expcreate",
+    three_level("expcreate",
+    	    	0,MPI_FLAG_MAX,mpi_flag_arg,
     	    	0,TARGET_MAX,target_arg,
     	    	0,EXPTYPE_MAX,exptype_arg
     	    	);
