@@ -1,6 +1,6 @@
 import types
 
-class MyList:
+class OssList:
     "Base class for all lists"
     # 
     def __init__(self,input_list=None) :
@@ -90,7 +90,7 @@ class MetricType:
 
     ###########################################
 
-class HostList(MyList):
+class HostList(OssList):
     """
     Object for creating a list of hosts.
     
@@ -102,7 +102,7 @@ class HostList(MyList):
 
     pass
 
-class RankList(MyList):
+class RankList(OssList):
     """
     Object for creating a list of ranks.
     
@@ -119,49 +119,49 @@ class RankList(MyList):
 
     pass
 
-class FileList(MyList):
+class FileList(OssList):
     """
     Object for creating a list of file names.
     """
 
     pass
 
-class PidList(MyList):
+class PidList(OssList):
     """
     Object for creating a list of Process ids.
     """
 
     pass
 
-class ThreadList(MyList):
+class ThreadList(OssList):
     """
     Object for creating a list of thread ids.
     """
 
     pass
 
-class ClusterList(MyList):
+class ClusterList(OssList):
     """
     Object for creating a list of cluster names.
     """
 
     pass
 
-class MetricList(MyList):
+class MetricList(OssList):
     """
     Object for creating a list of MetricTypes.
     """
 
     pass
 
-class ExpTypeList(MyList):
+class ExpTypeList(OssList):
     """
     Object for creating a list of experiment types.
     """
 
     pass
 
-class ViewTypeList(MyList):
+class ViewTypeList(OssList):
     """
     Object for creating a list of view types.
     """
@@ -182,21 +182,21 @@ class ExpId:
     def __getattr__(self,expid):
     	return getattr(self._oss_expid,expid)
     
-class ModifierList(MyList):
+class ModifierList(OssList):
     """
     Object for creating a list of modifier names.
     """
 
     pass
 
-class ParamList(MyList):
+class ParamList(OssList):
     """
     Object for creating a list of parameter types.
     """
 
     pass
 
-class BreakList(MyList):
+class BreakList(OssList):
     """
     Used to build a list of break ids.
     
@@ -206,13 +206,13 @@ class BreakList(MyList):
     
     pass
 
-class LineNoList(MyList):
+class LineNoList(OssList):
     """
     Object for creating a list of line numbers.
     """
 
     pass
 
-class xx(MyList):
+class xx(OssList):
     	pass
 
