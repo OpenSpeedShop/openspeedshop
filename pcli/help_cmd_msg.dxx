@@ -194,7 +194,7 @@ char *cmd_expClose_args = {
 };
 
 char *cmd_expCreate_args = {
-    "<expId> = expCreate [ <target_list> ] [ <expType_list> ]"
+    "<expId> = expCreate [ -v mpi] [ <target_list> ] [ <expType_list> ]"
 };
 
 char *cmd_expDetach_args = {
@@ -528,6 +528,14 @@ char *cmd_expattach_detailed[] = {
     "- If there is no <expId_spec> provided, information is ",
     "  attached to the focused experiment.",
     " ",
+    "- If the -v mpi option is selected, all the threads that ",
+    "  are part of a running application will be included ",
+    "  in the experiment.",
+    " ",
+    "- If the -v mpi option is not present, only those ",
+    "  threads that are running application will be included ",
+    "  in the experiment.",
+    " ",
     "- The <target_list> is used to restrict the knowledge ",
     "  of the experiment or data collection to certain portions ",
     "  of an appliaction.",
@@ -599,14 +607,22 @@ char *cmd_expCreate_detailed[] = {
     " ",
     cmd_expCreate_brief,
     " ",
-    "\t define a new experiment identifier,",
+    "\to define a new experiment identifier,",
     " ",
-    "\t set the current focus to the new identifier and",
+    "\to set the current focus to the new identifier and",
     " ",
-    "\t return the experiment identification identifier.",
+    "\to return the experiment identification identifier.",
     " ",
-    "\t The experiment will not execute until an \'expGo\' command ",
-    "\t is issued.",
+    "\to The experiment will not execute until an \'expGo\' command ",
+    "\t  is issued.",
+    " ",
+    "- If the -v mpi option is selected, all the threads that ",
+    "  are part of a running application will be included ",
+    "  in the experiment.",
+    " ",
+    "- If the -v mpi option is not present, only those ",
+    "  threads that are running application will be included ",
+    "  in the experiment.",
     " ",
     "- The <target_list> will associate the specified executable ",
     "  with the experiment being defined.",
