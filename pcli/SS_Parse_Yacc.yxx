@@ -141,7 +141,8 @@ command_desc: exp_attach_com 	{p_parse_result->setCommandType(CMD_EXP_ATTACH);}
 	    | just_quit_com 	 {exit(0);}
     	    ; 
 
-    	    /** EXP_ATTACH **/	    
+    	    /** EXP_ATTACH **/
+    	    /** expAttach [ -v mpi ] [ <expId_spec> ] [ <target_list> ] [ <expType_list> ] **/
 exp_attach_com:     ATTACH_HEAD   exp_attach_args 
     	    	|   ATTACH_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_EXP_ATTACH].name);} 
     	    	;
@@ -180,6 +181,7 @@ exp_attach_args:    /* empty */
     	    	;
 
     	    /** EXP_CLOSE **/
+    	    /** expClose [ -v kill ] [ -v all || <expId_spec> ] **/
 exp_close_com:	    CLOSE_HEAD   exp_close_args 
     	    	|   CLOSE_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_EXP_CLOSE].name);} 
     	    	;
@@ -199,17 +201,32 @@ exp_close_arg:	    /* empty */
    	    	;
 
     	    /** EXP_CREATE **/
+    	    /** <expId> = expCreate [ -v mpi ] [ <target_list> ] [ <expType_list> ] **/
 exp_create_com:     CREATE_HEAD   exp_create_args 
   	    	|   CREATE_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_EXP_CREATE].name);} 
     	    	;
 exp_create_args:    /* empty */
+    	    	|   modifier_list_spec
     	    	|   target_list
-    	    	|   expType_list target_list
-    	    	|   target_list expType_list
     	    	|   expType_list
+
+    	    	|   modifier_list_spec target_list
+    	    	|   modifier_list_spec expType_list
+    	    	|   target_list modifier_list_spec
+    	    	|   target_list expType_list
+    	    	|   expType_list modifier_list_spec
+    	    	|   expType_list target_list
+		
+		|   modifier_list_spec target_list expType_list
+		|   modifier_list_spec expType_list target_list
+		|   target_list modifier_list_spec expType_list
+		|   target_list expType_list modifier_list_spec
+		|   expType_list modifier_list_spec target_list
+		|   expType_list target_list modifier_list_spec
     	    	;
 
     	    /** EXP_DETACH **/
+    	    /** expDetach [ <expId_spec> ] [ <target_list> ] [ <expType_list> ] **/
 exp_detach_com:     DETACH_HEAD   exp_detach_args 
   	    	|   DETACH_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_EXP_DETACH].name);} 
       	    	;
@@ -238,6 +255,7 @@ exp_detach_args:    /* empty */
     	    	;
 
     	    /** EXP_DISABLE **/
+    	    /** expDisable [ -v all || <expId_spec> ] **/
 exp_disable_com:    DISABLE_HEAD   exp_disable_arg
   	    	|   DISABLE_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_EXP_DISABLE].name);} 
       	    	;
@@ -247,6 +265,7 @@ exp_disable_arg:    /* empty */
     	    	;
 
     	    /** EXP_ENABLE **/
+    	    /** expEnable [ -v all || <expId_spec> ] **/
 exp_enable_com:	    ENABLE_HEAD   exp_enable_arg
   	    	|   ENABLE_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_EXP_ENABLE].name);} 
       	    	;
@@ -256,12 +275,14 @@ exp_enable_arg:	    /* empty */
     	    	;
 
     	    /** EXP_FOCUS **/
+    	    /** <expId> = expFocus [ <expId_spec> ] **/
 exp_focus_com:	    FOCUS_HEAD   
   	    	|   FOCUS_HEAD expId_spec
   	    	|   FOCUS_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_EXP_FOCUS].name);} 
       	    	;
 
     	    /** EXP_GO **/
+    	    /** expGo [ -v all || <expId_spec> ] **/
 exp_go_com:	    GO_HEAD   exp_go_arg
   	    	|   GO_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_EXP_GO].name);} 
       	    	;
@@ -271,6 +292,7 @@ exp_go_arg:	    /* empty */
     	    	;
 
     	    /** EXP_PAUSE **/
+    	    /** expPause [ -v all || <expId_spec> ] **/
 exp_pause_com:	    PAUSE_HEAD   exp_pause_arg
   	    	|   PAUSE_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_EXP_PAUSE].name);} 
       	    	;
@@ -280,11 +302,13 @@ exp_pause_arg:	    /* empty */
     	    	;
 
     	    /** EXP_RESTORE **/
+    	    /** <expId> = expRestore  <file_spec> **/
 exp_restore_com:    RESTORE_HEAD   file_spec
   	    	|   RESTORE_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_EXP_RESTORE].name);} 
       	    	;
 
     	    /** EXP_SAVE **/
+    	    /** expSave [ -v copy ] [ <expId_spec> ] <file_spec> **/
 exp_save_com:	    SAVE_HEAD   exp_save_arg
   	    	|   SAVE_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_EXP_SAVE].name);} 
       	    	;
@@ -303,6 +327,7 @@ exp_save_arg:	    file_spec
     	    	;
 
     	    /** EXP_SETPARAM **/
+    	    /** expSetParam  [ <expId_spec> ] <expParam> = <expParamValue> [ , <expParam> = <expParamValue> ]+ **/
 exp_setparam_com:   SETPARAM_HEAD   exp_setparam_arg
   	    	|   SETPARAM_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_EXP_SETPARAM].name);} 
       	    	;
@@ -311,6 +336,7 @@ exp_setparam_arg:   param_list
     	    	;
 
     	    /** EXP_STATUS **/
+    	    /** expStatus [ -v all || <expId_spec> ] **/
 exp_status_com:   STATUS_HEAD   exp_status_arg
   	    	|   STATUS_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_EXP_STATUS].name);} 
       	    	;
@@ -320,6 +346,7 @@ exp_status_arg:     /* empty */
     	    	;
 
     	    /** EXP_VIEW **/
+    	    /** expView [ <expId_spec> ] [ <viewType> ] [ -m <expMetric_list> ] [ <target_list> ] **/
 exp_view_com:	    VIEW_HEAD   exp_view_arg
   	    	|   VIEW_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_EXP_VIEW].name);} 
       	    	;
@@ -349,6 +376,7 @@ exp_view_arg:	    /* empty */
      	    	;
 
     	    /** LIST_BREAKS **/
+    	    /** <ListOf_breakId> = listBreaks [ -v all || <expId_spec> ] **/
 list_breaks_com:    LIST_BREAKS_HEAD   list_breaks_arg
   	    	|   LIST_BREAKS_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_LIST_BREAKS].name);} 
       	    	;
@@ -358,11 +386,13 @@ list_breaks_arg:    /* empty */
     	    	;
 
     	    /** LIST_EXP **/
+    	    /** <listOf_expId> = listExp **/
 list_exp_com:	    LIST_EXP_HEAD 
   	    	|   LIST_EXP_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_LIST_EXP].name);} 
       	    	;
 
     	    /** LIST_HOSTS **/
+    	    /** <ListOf_hostname> = listHosts [ <expId_spec> ] **/
 list_hosts_com:     LIST_HOSTS_HEAD   list_hosts_arg
   	    	|   LIST_HOSTS_HEAD  
       	    	;
@@ -372,6 +402,7 @@ list_hosts_arg:
     	    	;
 
     	    /** LIST_METRICS **/
+    	    /** <ListOf_expMetric> = listMetrics [ -v all || <expId_spec> || <expType_list> ] **/
 list_metrics_com:   LIST_METRICS_HEAD   list_metrics_arg
   	    	|   LIST_METRICS_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_LIST_METRICS].name);} 
       	    	;
@@ -382,6 +413,7 @@ list_metrics_arg:   /* empty */
     	    	;
 
     	    /** LIST_OBJ **/
+    	    /** <ListOf_filename> = listObj [ <expId_spec> ] [ <target> ]  **/
 list_obj_com:	    LIST_OBJ_HEAD   list_obj_arg
   	    	|   LIST_OBJ_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_LIST_OBJ].name);} 
       	    	;
@@ -393,6 +425,7 @@ list_obj_arg:	    /* empty */
     	    	;
 
     	    /** LIST_PARAMS **/
+    	    /** <ListOf_expParam> = listParams [ -v all || <expId_spec> || <expType_list> ]  **/
 list_params_com:    LIST_PARAMS_HEAD   list_params_arg
   	    	|   LIST_PARAMS_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_LIST_PARAMS].name);} 
       	    	;
@@ -403,6 +436,7 @@ list_params_arg:    /* empty */
     	    	;
 
     	    /** LIST_PIDS **/
+    	    /** <ListOf_pidname> = listPids [ <expId_spec> ] [ <host_list_spec> ]  **/
 list_pids_com:	    LIST_PIDS_HEAD   list_pids_arg
   	    	|   LIST_PIDS_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_LIST_PIDS].name);} 
       	    	;
@@ -413,6 +447,7 @@ list_pids_arg:	    /* empty */
     	    	;
 
     	    /** LIST_RANKS **/
+    	    /** <ListOf_rankname> = listRanks [ <expId_spec> ] [ <target> ] **/
 list_ranks_com:     LIST_RANKS_HEAD   list_ranks_arg
   	    	|   LIST_RANKS_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_LIST_RANKS].name);} 
       	    	;
@@ -424,6 +459,7 @@ list_ranks_arg:    /* empty */
     	    	;
 
     	    /** LIST_SRC **/
+    	    /** <listOf_filename> = listSrc [ <expId_spec> ] [ <target> ]  **/
 list_src_com:	    LIST_SRC_HEAD   list_src_arg
   	    	|   LIST_SRC_HEAD  error END_LINE {p_parse_result->setError("<list_src_arg>");} 
       	    	;
@@ -446,6 +482,7 @@ list_src_arg:	    /* empty */
     	    	;
 
     	    /** LIST_STATUS **/
+    	    /** <ListOf_statusType> = listStatus [ -v all || <expId_spec> ] **/
 list_status_com:    LIST_STATUS_HEAD   list_status_arg
     	    	|   LIST_STATUS_HEAD   list_status_arg 
 		    error END_LINE {p_parse_result->setError(cmd_desc[CMD_LIST_STATUS].name);} 
@@ -457,6 +494,7 @@ list_status_arg:    /* empty */
     	    	;
 
     	    /** LIST_THREADS **/
+    	    /** <ListOf_threadname> = listThreads [ <expId_spec> ] [ <target> ] **/
 list_threads_com:    LIST_THREADS_HEAD   list_threads_arg
   	    	|   LIST_THREADS_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_LIST_THREADS].name);} 
       	    	;
@@ -468,6 +506,7 @@ list_threads_arg:    /* empty */
     	    	;
 
     	    /** LIST_TYPES **/
+    	    /** <ListOf_expType> = listTypes [ -v all || <expId_spec> ]  **/
 list_types_com:     LIST_TYPES_HEAD list_types_arg
   	    	|   LIST_TYPES_HEAD list_types_arg error END_LINE {p_parse_result->setError(cmd_desc[CMD_LIST_TYPES].name);} 
   	    	|   LIST_TYPES_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_LIST_TYPES].name);} 
@@ -479,6 +518,7 @@ list_types_arg:    /* empty */
    	    	;
 
     	    /** LIST_VIEWS **/
+    	    /** <ListOf_viewType> = listViews [ -v all || <expId_spec> || <expType_list> ] **/
 list_views_com:   LIST_VIEWS_HEAD   list_views_arg
   	    	|   LIST_VIEWS_HEAD error END_LINE {p_parse_result->setError(cmd_desc[LIST_VIEWS_HEAD].name);} 
       	    	;
@@ -489,6 +529,7 @@ list_views_arg:   /* empty */
     	    	;
 
     	    /** GEN_CLEAR_BREAK **/
+    	    /** clearbreak <breakId> **/
 gen_clear_break_com:	GEN_CLEAR_BREAK_HEAD   gen_clear_break_arg
   	    	|   	GEN_CLEAR_BREAK_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_CLEAR_BREAK].name);} 
       	    	;
@@ -496,11 +537,13 @@ gen_clear_break_arg:	NUMBER {p_parse_result->pushBreakId($1);}
     	    	;
 
     	    /** GEN_EXIT **/
+    	    /** exit **/
 gen_exit_com:	    GEN_EXIT_HEAD
   	    	|   GEN_EXIT_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_EXIT].name);} 
       	    	;
 
     	    /** GEN_HELP **/
+    	    /** <string> = help [ <verbosity_list_spec> ] [ <string> ] **/
 gen_help_com:	    GEN_HELP_HEAD   {p_parse_result->pushHelp();}
     		|   GEN_HELP_HEAD   gen_help_args 
     		|   GEN_HELP_HEAD   modifier_list_spec gen_help_args 
@@ -563,6 +606,7 @@ gen_help_arg:	    NAME {p_parse_result->pushHelp($1);}
     	    	;
 
     	    /** GEN_HISTORY **/
+    	    /** <string> = history  [ <int> ] **/
 gen_history_com:    GEN_HISTORY_HEAD   gen_history_arg
   	    	|   GEN_HISTORY_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_HISTORY].name);} 
       	    	;
@@ -571,6 +615,7 @@ gen_history_arg:    /* empty */
     	    	;
 
     	    /** GEN_LOG **/
+    	    /** log [ <file_spec> ] **/
 gen_log_com:	    GEN_LOG_HEAD   gen_log_arg
   	    	|   GEN_LOG_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_LOG].name);} 
       	    	;
@@ -579,11 +624,13 @@ gen_log_arg:	    /* empty */
     	    	;
 
     	    /** GEN_OPEN_GUI **/
+    	    /** openGui **/
 gen_open_gui_com:   GEN_OPEN_GUI_HEAD
   	    	|   GEN_OPEN_GUI_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_OPEN_GUI].name);} 
       	    	;
 
     	    /** GEN_PLAYBACK **/
+    	    /** playback <file_spec> **/
 gen_playback_com:   GEN_PLAYBACK_HEAD   gen_playback_arg
   	    	|   GEN_PLAYBACK_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_PLAYBACK].name);} 
       	    	;
@@ -591,6 +638,7 @@ gen_playback_arg:   file_spec
     	    	;
 
     	    /** GEN_RECORD **/
+    	    /** record [ <file_spec> ] **/
 gen_record_com:     GEN_RECORD_HEAD   gen_record_arg
   	    	|   GEN_RECORD_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_RECORD].name);} 
       	    	;
@@ -599,6 +647,7 @@ gen_record_arg:     /* empty */
     	    	;
 
     	    /** GEN_SETBREAK **/
+    	    /** <breakId> = setbreak [ <expId_spec> ] [ <target> ] <address_description> **/
 gen_setbreak_com:   GEN_SETBREAK_HEAD   gen_setbreak_arg
   	    	|   GEN_SETBREAK_HEAD error END_LINE {p_parse_result->setError(cmd_desc[CMD_SETBREAK].name);} 
       	    	;
@@ -653,12 +702,14 @@ host_name:  	    NAME {p_parse_result->currentTarget()->pushHostPoint($1);}
     	    	|   ip_address {p_parse_result->currentTarget()->pushHostPoint($1);}
 		;
 
+/*
 host_file:  	    host_spec file_spec
     	    	|   file_spec
 		;
 
 host_spec:  	    HOST_ID host_list
     	    	;
+*/
 
 file_spec:  	    FILE_ID file_name
     	    	;
@@ -763,12 +814,14 @@ expType:	    NAME
 viewType:   	    NAME {p_parse_result->pushViewType($1);}
 		;
 
+/*
 lineno_list_spec:   LINE_ID lineno_list
 		;
 
 lineno_list:	    lineno
     	    	|   lineno_list COMMA lineno 
 		;
+*/
 
 lineno_range_spec:  LINE_ID lineno_range
 		|   LINE_ID {p_parse_result->setError("Bad line number entry.");} error  
