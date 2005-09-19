@@ -99,6 +99,11 @@ command_line:  END_LINE {/* printf("OSS > "); */ }
     	|   command_desc REDIRECT NAME END_LINE END_LINE 
 	    	    	{p_parse_result->setRedirectTarget($3);p_parse_result->pushParseTarget(); }
 
+    	|   command_desc APPEND NAME END_LINE 
+	    	    	{p_parse_result->setAppendTarget($3);p_parse_result->pushParseTarget(); }
+    	|   command_desc APPEND NAME END_LINE END_LINE 
+	    	    	{p_parse_result->setAppendTarget($3);p_parse_result->pushParseTarget(); }
+
     	|   command_desc error END_LINE {p_parse_result->pushParseTarget(); } 
     	;
 

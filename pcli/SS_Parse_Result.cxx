@@ -131,7 +131,8 @@ ParseResult() :
     dm_param_set(false),
     dm_error_set(false),
     dm_p_param(NULL),
-    dm_redirect()
+    dm_redirect(),
+    dm_append()
     
 {
     // Create first ParseTarget object.
@@ -605,7 +606,13 @@ dumpInfo()
     string *p_string = this->getRedirectTarget();
     if (p_string->length() > 0) {
     	
-    	cout << "\tRedirect target: " << *p_string << endl;
+    	cout << "\tCopy Redirect target: " << *p_string << endl;
+    }
+    
+    p_string = this->getAppendTarget();
+    if (p_string->length() > 0) {
+    	
+    	cout << "\tAppend Redirect target: " << *p_string << endl;
     }
 }
 

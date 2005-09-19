@@ -478,12 +478,20 @@ class ParseResult {
 
     	void pushHelpModifier(char * name);
 
-    	/** Set/Get redirect target string. */
+    	/** Set/Get copy redirect target string. */
 	bool setRedirectTarget(char *name) {
 	    dm_redirect = name;
 	}
 	string * getRedirectTarget() {
 	    return &dm_redirect;
+	}
+
+    	/** Set/Get append redirect target string. */
+	bool setAppendTarget(char *name) {
+	    dm_append = name;
+	}
+	string * getAppendTarget() {
+	    return &dm_append;
 	}
 
     	/** Syntax error reporting */
@@ -544,8 +552,9 @@ class ParseResult {
     	vector<ParseTarget> dm_target_list;
 	ParseTarget *dm_p_cur_target;
 	
-    	/** Redirect target string */
+    	/** Redirect target strings */
 	string dm_redirect;
+	string dm_append;
 
 //    protected:
 //    	/** Things I don't want to happen so don't define!*/
