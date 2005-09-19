@@ -35,6 +35,7 @@
 #ifdef HAVE_INTTYPES_H
 #include <inttypes.h>
 #endif
+#include <iostream>
 #include <limits>
 #include <time.h>
 
