@@ -276,8 +276,11 @@ void HWTimeCollector::getMetricValue(const std::string& metric,
 				     void* ptr) const
 {
     // Handle the "overflows" metric
-    if( metric == "inclusive_overflows" ||
-	metric == "exclusive_overflows" ) {
+
+    bool incloverflows = (metric == "inclusive_overflows") ? true : false;
+    bool excloverflows = (metric == "exclusive_overflows") ? true : false;
+
+    if( incloverflows || excloverflows ) {
         uint64_t* value = reinterpret_cast<uint64_t*>(ptr);
 
         // Initialize the time metric value to zero
@@ -304,7 +307,7 @@ void HWTimeCollector::getMetricValue(const std::string& metric,
 
             for(unsigned j = 0; j < data.bt.bt_len; j++)
 	    {
-		if( metric == "inclusive_overflows") {
+		if( incloverflows ) {
                     // Is this PC address inside the range?
                     if(range.doesContain(data.bt.bt_val[j])) {
 		    
@@ -312,7 +315,7 @@ void HWTimeCollector::getMetricValue(const std::string& metric,
 //fprintf(stderr,"HWTC::getMetricValue: pc=%#lx, value=%d range %s\n",data.bt.bt_val[j],*value, std::string(range).c_str());
                         *value += static_cast<uint64_t>(data.interval);
 		    }
-		} else if ( metric == "exclusive_overflows") {
+		} else if ( excloverflows ) {
 		    // Loop over each call stack in this BLOB
 		    // if "first" PC of call stack inside of requested metric
 		    // address range exclusive_time += sample time
