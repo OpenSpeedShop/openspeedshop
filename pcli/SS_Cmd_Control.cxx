@@ -24,10 +24,15 @@ static void Cmd_Execute (CommandObject *cmd) {
 
   string *redirect_name = cmd->P_Result()->getRedirectTarget();
   ofstream *redirect_streamP = NULL;
+  ios_base::openmode open_mode = ios::out;
+  if (redirect_name->length() == 0) {
+    redirect_name = cmd->P_Result()->getAppendTarget();
+    open_mode = ios::app;
+  }
   if ((redirect_name->length() > 0) &&
       (Predefined_ostream (*redirect_name) == NULL)) {
    // If they give us a real file name, direct command output there.
-    redirect_streamP = new ofstream (redirect_name->c_str(), ios::out);
+    redirect_streamP = new ofstream (redirect_name->c_str(), open_mode);
     if (redirect_streamP == NULL) {
       cmd->Result_String (std::string("Could not open file ") + *redirect_name);
       cmd->set_Status(CMD_ERROR);
