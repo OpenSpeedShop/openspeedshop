@@ -1077,7 +1077,10 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
     return false;
   }
 
+ // Get the current status of this experiment.
+  exp->Q_Lock (cmd, false);
   exp->Determine_Status();
+  exp->Q_UnLock ();
 
   if ((exp->Status() == ExpStatus_Terminated) ||
       (exp->Status() == ExpStatus_InError)) {
@@ -1167,7 +1170,12 @@ bool SS_expGo (CommandObject *cmd) {
 }
 
 static bool Pause_Experiment (CommandObject *cmd, ExperimentObject *exp) {
+
+ // Get the current status of this experiment.
+  exp->Q_Lock (cmd, false);
   exp->Determine_Status();
+  exp->Q_UnLock ();
+
   if ((exp->Status() != ExpStatus_NonExistent) &&
       (exp->Status() != ExpStatus_Paused) &&
       (exp->Status() != ExpStatus_Running)) {
@@ -1523,7 +1531,7 @@ static CommandResult *Get_Collector_Metadata (Collector c, Metadata m) {
 static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
 
  // Prevent this experiment from changing until we are done.
-  exp->Q_Lock (cmd, true);
+  exp->Q_Lock (cmd, false);
   exp->Determine_Status ();
 
   char id[20]; sprintf(&id[0],"%lld",(int64_t)exp->ExperimentObject_ID());
@@ -2261,10 +2269,8 @@ bool SS_ListStatus (CommandObject *cmd) {
 
    // Prevent this experiment from changing until we are done.
     exp->Q_Lock (cmd, true);
-
     exp->Determine_Status ();
     cmd->Result_String (exp->ExpStatus_Name());
-
     exp->Q_UnLock ();
   }
 
