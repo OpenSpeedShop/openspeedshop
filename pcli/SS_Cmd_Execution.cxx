@@ -1524,6 +1524,7 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
 
  // Prevent this experiment from changing until we are done.
   exp->Q_Lock (cmd, true);
+  exp->Determine_Status ();
 
   char id[20]; sprintf(&id[0],"%lld",(int64_t)exp->ExperimentObject_ID());
   cmd->Result_String ("Experiment definition");
@@ -2245,7 +2246,11 @@ bool SS_ListStatus (CommandObject *cmd) {
     for (expi = ExperimentObject_list.rbegin(); expi != ExperimentObject_list.rend(); expi++)
     {
      // Return the EXPID for every known experiment
-      cmd->Result_String ((*expi)->ExpStatus_Name());
+      ExperimentObject *exp = *expi;
+      exp->Q_Lock (cmd, false);
+      exp->Determine_Status ();
+      cmd->Result_String (exp->ExpStatus_Name());
+      exp->Q_UnLock ();
     }
   } else {
    // Get the status of a specific Experiment or the focused Experiment.
@@ -2257,6 +2262,7 @@ bool SS_ListStatus (CommandObject *cmd) {
    // Prevent this experiment from changing until we are done.
     exp->Q_Lock (cmd, true);
 
+    exp->Determine_Status ();
     cmd->Result_String (exp->ExpStatus_Name());
 
     exp->Q_UnLock ();
