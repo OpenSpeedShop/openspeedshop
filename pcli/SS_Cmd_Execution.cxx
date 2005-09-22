@@ -1704,29 +1704,37 @@ bool SS_expView (CommandObject *cmd) {
   vector<string>::iterator si;
   if (p_slist->begin() == p_slist->end()) {
    // The user has not selected a view.
-   // Look for a view that would be meaningful.
-    std::string use_view = "stats";  // Use generic view as default
-
-    CollectorGroup cgrp = exp->FW()->getCollectors();
-    if (cgrp.begin() == cgrp.end()) {
-     // No collector was used.
-      cmd->Result_String ("No performance measurements were made for the experiment.");
+    if ((exp == NULL) ||
+        (exp->FW() == NULL)) {
+     // No experiment was specified, so we can't find a useful view to gneerate.
+      cmd->Result_String ("No valid experiment was specified.");
       cmd->set_Status(CMD_ERROR);
       view_result = false;
     } else {
-      if (cgrp.size() == 1) {
-       // The experiment used only one collector.
-       // See if there is a view by the same name.
-        Collector c = *(cgrp.begin());
-        Metadata m = c.getMetadata();
-        std::string collector_name = m.getUniqueId();
-        ViewType *vt = Find_View (collector_name);
-        if (vt != NULL) {
-          use_view = collector_name;
+     // Look for a view that would be meaningful.
+      std::string use_view = "stats";  // Use generic view as default
+
+      CollectorGroup cgrp = exp->FW()->getCollectors();
+      if (cgrp.begin() == cgrp.end()) {
+       // No collector was used.
+        cmd->Result_String ("No performance measurements were made for the experiment.");
+        cmd->set_Status(CMD_ERROR);
+        view_result = false;
+      } else {
+        if (cgrp.size() == 1) {
+         // The experiment used only one collector.
+         // See if there is a view by the same name.
+          Collector c = *(cgrp.begin());
+          Metadata m = c.getMetadata();
+          std::string collector_name = m.getUniqueId();
+          ViewType *vt = Find_View (collector_name);
+          if (vt != NULL) {
+            use_view = collector_name;
+          }
         }
+       // Generate the selected view
+        view_result = SS_Generate_View (cmd, exp, use_view);
       }
-     // Generate the selected view
-      view_result = SS_Generate_View (cmd, exp, use_view);
     }
   } else {
    // Generate all the views in the list.
