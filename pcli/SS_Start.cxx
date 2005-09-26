@@ -22,7 +22,6 @@
 #include <ltdl.h>
 #include <pthread.h>
 #include <Python.h>
-#include <signal.h>
 
 using namespace OpenSpeedShop::Framework;
 
@@ -34,6 +33,7 @@ CMDWID command_line_window = 0;
 #define PTMAX 10
 pthread_t phandle[PTMAX];
 
+static bool Watcher_Active;
 static bool need_gui;
 static bool need_tli;
 static bool need_batch;
@@ -157,6 +157,7 @@ Initial_Python ()
 
 bool Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, bool batch_mode);
 void SS_Direct_stdin_Input (void *attachtowindow);
+void SS_Watcher ();
 
 extern "C"
 {
@@ -220,12 +221,18 @@ extern "C"
   void
   cli_terminate ()
   {
+    if (Watcher_Active) {
+     // Get rid of thread that looks for special conditions.
+      Watcher_Active = false;
+      pthread_kill (phandle[0], SIGUSR1);
+    }
+
     if (tli_window != 0)
     {
      // Before we do anything else -
      // Stop async read loop for xterm window
-      //pthread_cancel (phandle[0]);
-      pthread_kill (phandle[0], SIGUSR1);
+      //pthread_cancel (phandle[1]);
+      pthread_kill (phandle[1], SIGUSR1);
       usleep (10000);
     }
 
@@ -243,12 +250,12 @@ extern "C"
       Window_Termination(w);
       extern void killTheGUI();
       killTheGUI();
-      pthread_cancel (phandle[1]);
+      pthread_cancel (phandle[2]);
     }
     if (tli_window != 0)
     {
      // Stop async read loop for xterm window
-     //  pthread_cancel (phandle[0]);
+     //  pthread_cancel (phandle[1]);
 
       CMDWID w = tli_window;
       tli_window = 0;
@@ -279,34 +286,36 @@ catch_signal (int sig, int error_num)
     }
     processing_signal = true;
    // the folowing is debug print
-   // fprintf(stderr,"catch_signal %d\n",sig);
+    fprintf(stderr,"catch_signal %d\n",sig);
     cli_terminate ();
   }
   exit (1);
-}
-inline static void
-setup_signal_handler (int s)
-{
-    if (signal (s, SIG_IGN) != SIG_IGN)
-        signal (s,  reinterpret_cast <void (*)(int)> (catch_signal));
 }
 
   int
   cli_init(int argc, char **argv)
   {
+
+   // Basic Initialization
+    Watcher_Active = false;
+    need_gui = false;
+    need_tli = false;
+    need_batch = false;
+    need_command_line = false;
+    gui_window = 0;
+    tli_window = 0;
+    command_line_window = 0;
+
    // Set up to catch bad errors
-    setup_signal_handler (SIGILL);
-    // setup_signal_handler (SIGTRAP);
-    // setup_signal_handler (SIGABRT);
-    setup_signal_handler (SIGFPE);
-    // setup_signal_handler (SIGKILL);
-    setup_signal_handler (SIGBUS);
-    setup_signal_handler (SIGSEGV);
-    setup_signal_handler (SIGSYS);
-    // setup_signal_handler (SIGPIPE);
-    // setup_signal_handler (SIGCLD);
-    setup_signal_handler (SIGINT); // CNTRL-C
-    setup_signal_handler (SIGQUIT); // CNTRL-\
+    SET_SIGNAL (SIGILL, catch_signal);
+    SET_SIGNAL (SIGFPE, catch_signal);
+    SET_SIGNAL (SIGBUS, catch_signal);
+    SET_SIGNAL (SIGSEGV, catch_signal);
+    SET_SIGNAL (SIGSYS, catch_signal);
+    // SET_SIGNAL (SIGPIPE, catch_signal);
+    // SET_SIGNAL (SIGCLD, catch_signal);
+    SET_SIGNAL (SIGINT, catch_signal); // CNTRL-C
+    SET_SIGNAL (SIGQUIT, catch_signal); // CNTRL-\
 
    // Start up the Command line processor.
     Commander_Initialization ();
@@ -321,21 +330,18 @@ setup_signal_handler (int s)
       abort ();
     }
 
-    need_gui = false;
-    need_tli = false;
-    need_batch = false;
-    need_command_line = false;
-    gui_window = 0;
-    tli_window = 0;
-    command_line_window = 0;
-
     read_stdin_file = (stdin && !isatty(fileno(stdin)));
     executable_encountered = false;
     collector_encountered = false;
     Process_Command_Line (argc, argv);
 
+   // Start a thread to look for special conditions.
+    if (pthread_create(&phandle[0], 0, (void *(*)(void *))SS_Watcher,NULL) != 0) {
+      Watcher_Active = true;
+    }
+
    // Load in pcli messages into message czar
-   pcli_load_messages();
+    pcli_load_messages();
 
    // Define Built-In Views
     SS_Init_BuiltIn_Views ();
@@ -354,7 +360,7 @@ setup_signal_handler (int s)
       gui_window = GUI_Window ("GUI",&HostName[0],my_pid,0,true);
     }
 
-   // Complete set up for each input windwo.
+   // Complete set up for each input window.
     if (command_line_window != 0) {
      // Move the command line options to an input control window.
       if ( !Start_COMMAND_LINE_Mode( command_line_window, argc, argv, need_batch) ) {
@@ -368,7 +374,7 @@ setup_signal_handler (int s)
     if (need_tli)
     {
      // Start up the Text Line Interface to read from the keyboard.
-      int stat = pthread_create(&phandle[0], 0, (void *(*)(void *))SS_Direct_stdin_Input,(void *)tli_window);
+      int stat = pthread_create(&phandle[1], 0, (void *(*)(void *))SS_Direct_stdin_Input,(void *)tli_window);
     }
 
     if (need_gui)
@@ -454,7 +460,7 @@ setup_signal_handler (int s)
     }
   
 //    pthread_t gui_phandle;
-    (*dl_gui_init_routine)((void *)argStruct, &phandle[1]);
+    (*dl_gui_init_routine)((void *)argStruct, &phandle[2]);
   }
 
   void
