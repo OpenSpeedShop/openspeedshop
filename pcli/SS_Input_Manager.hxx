@@ -48,6 +48,12 @@
      #include <netinet/in.h>
      #include <netdb.h>
 
+// for catching hard interrupts and interprocess signals
+#include <sys/wait.h>
+#define SET_SIGNAL(s, f)                              \
+  if (signal (s, SIG_IGN) != SIG_IGN)                 \
+    signal (s, reinterpret_cast <void (*)(int)> (f));
+
 using namespace std;
 
 #include "ToolAPI.hxx"
@@ -74,6 +80,8 @@ extern SS_Message_Czar& theMessageCzar();
 #include "Clip.hxx"
 #include "SS_Exp.hxx"
 #include "SS_View.hxx"
+
+#include "SS_Watcher.hxx"
 
 #include "ArgClass.hxx"
 
