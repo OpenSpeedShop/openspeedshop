@@ -19,11 +19,6 @@
 #include "SS_Input_Manager.hxx"
 extern "C" void loadTheGUI(ArgStruct *);
 
-#include "sys/signal.h"
-#include <sys/wait.h>
-#define SET_SIGNAL(s, f)                              \
-  if (signal (s, SIG_IGN) != SIG_IGN)                 \
-    signal (s, reinterpret_cast <void (*)(int)> (f));
 #include <fstream>
 #include <iostream>
 
@@ -1049,6 +1044,22 @@ CommandWindowID *Find_Command_Window (CMDWID WindowID)
   Assert(pthread_mutex_unlock(&Window_List_Lock) == 0);
 
   return found_window;
+}
+
+void Send_Message_To_Window (CMDWID to_window, std::string S)
+{
+  CommandWindowID *cw = Find_Command_Window (to_window);
+  if ((cw != NULL) &&
+      (cw->has_outstream())) {
+   // Print a message to the window.
+    ss_ostream *this_ss_stream = cw->ss_outstream();
+    this_ss_stream->acquireLock();
+    this_ss_stream->mystream() << S << std::endl;
+    this_ss_stream->releaseLock();
+
+   // Clean up window and (maybe) issue a new prompt.
+    cw->Remove_Completed_Input_Lines (true);
+  }
 }
 
 void Link_Cmd_Obj_to_Input (InputLineObject *I, CommandObject *C)
