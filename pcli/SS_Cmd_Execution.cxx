@@ -22,10 +22,6 @@
 #include "Python.h"
 
 using namespace std;
-
-#include "SS_Parse_Result.hxx"
-#include "SS_Parse_Target.hxx"
-
 using namespace OpenSpeedShop::cli;
 
 // Private Data
@@ -795,6 +791,9 @@ bool SS_expAttach (CommandObject *cmd) {
 }
 
 static bool Destroy_Experiment (CommandObject *cmd, ExperimentObject *exp, bool Kill_KeyWord) {
+ // Clean up the notice board.
+  Cancle_Async_Notice (exp);
+
   if (Kill_KeyWord &&
       (exp->FW() != NULL) &&
        ((exp->Determine_Status() == ExpStatus_Paused) ||
@@ -934,6 +933,8 @@ bool SS_expDetach (CommandObject *cmd) {
 }
 
 static bool Disable_Experiment (CommandObject *cmd, ExperimentObject *exp) {
+ // Clean up the notice board.
+  Cancle_Async_Notice (exp);
   
  // Determine target and collectors and turn off data collection.
   try {
@@ -975,6 +976,8 @@ bool SS_expDisable (CommandObject *cmd) {
 }
 
 static bool Enable_Experiment (CommandObject *cmd, ExperimentObject *exp) {
+ // Clean up the notice board.
+  Cancle_Async_Notice (exp);
 
  // Determine target and collectors and turn on data collection.
   ThreadGroup tgrp = exp->FW()->getThreads();
@@ -1070,17 +1073,16 @@ bool SS_expFocus  (CommandObject *cmd) {
 } 
 
 static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
-  if ((exp == NULL) ||
-      (exp->FW() == NULL) ||
-      (exp->Status() == ExpStatus_NonExistent)) {
-    cmd->Result_String ("The experiment can not be run because it does not exist.");
-    return false;
-  }
-
  // Get the current status of this experiment.
   exp->Q_Lock (cmd, false);
   exp->Determine_Status();
   exp->Q_UnLock ();
+
+  if ((exp->FW() == NULL) ||
+      (exp->Status() == ExpStatus_NonExistent)) {
+    cmd->Result_String ("The experiment can not be run because it does not exist.");
+    return false;
+  }
 
   if ((exp->Status() == ExpStatus_Terminated) ||
       (exp->Status() == ExpStatus_InError)) {
@@ -1136,6 +1138,9 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
    // something to actually start executing.
     (void) Wait_For_Exp_State (cmd, ExpStatus_Running, exp);
 
+   // Notify the user when the experiment has terminated.
+    Request_Async_Notice_Of_Termination (cmd, exp);
+
    // Annotate the command
     cmd->Result_Annotation ("Start asynchronous execution of experiment:  -x "
                              + int2str(exp->ExperimentObject_ID()) + "\n");
@@ -1170,6 +1175,8 @@ bool SS_expGo (CommandObject *cmd) {
 }
 
 static bool Pause_Experiment (CommandObject *cmd, ExperimentObject *exp) {
+ // Clean up the notice board.
+  Cancle_Async_Notice (exp);
 
  // Get the current status of this experiment.
   exp->Q_Lock (cmd, false);
