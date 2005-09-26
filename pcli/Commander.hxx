@@ -74,6 +74,7 @@ CMDWID Embedded_Window(char *my_name, char *my_host, pid_t my_pid, int64_t my_pa
 void   Window_Termination (CMDWID my_window);
 
 // ss_ostreams provide a way to get textual output to the proper window.
+void Send_Message_To_Window (CMDWID to_window, std::string S);
 void Redirect_Window_Output (CMDWID for_window, ss_ostream *for_out, ss_ostream *for_err);
 ss_ostream *Predefined_ostream (std::string oname);
 ss_ostream *Window_outstream (CMDWID for_window);
