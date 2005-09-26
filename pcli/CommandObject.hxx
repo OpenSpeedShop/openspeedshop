@@ -531,8 +531,6 @@ class CommandObject
   int64_t Seq_Num; // The order this object was generated in from the input line.
   Command_Status Cmd_Status;
   oss_cmd_enum Cmd_Type; // A copy of information in the Parse_Result.
-  // command_t *Parse_Result;
-  // command_type_t *Parse_Result;
   OpenSpeedShop::cli::ParseResult *PR;
   bool result_needed_in_python;  // Don't Print to ostream if this is set!
   bool results_used; // Once used, this object can be deleted!
@@ -550,9 +548,18 @@ class CommandObject
     CMD_Result.push_back(R);
   }
 
-  CommandObject() { } // Hide default constructor to catch errors at compile time
-
 public:
+  CommandObject()
+  {
+    Associated_Clip = NULL;
+    Seq_Num = 0;
+    Cmd_Status = CMD_ERROR;
+    Cmd_Type =  CMD_HEAD_ERROR;
+    PR = NULL;
+    result_needed_in_python = false;
+    results_used = false;
+    pthread_cond_init(&wait_on_dependency, (pthread_condattr_t *)NULL);
+  }
   CommandObject(OpenSpeedShop::cli::ParseResult *pr, bool use_by_python)
   {
     this->Associate_Input ();
