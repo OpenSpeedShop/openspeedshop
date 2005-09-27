@@ -30,14 +30,14 @@ class StatsPanel;
 class SPListViewItem : public QListViewItem
 {
 public:
-  SPListViewItem( StatsPanel *sp, QListView * parent, QString label1, QString label2 = QString::null, QString label3 = QString::null, QString label4 = QString::null, QString label5 = QString::null, QString label6 = QString::null, QString label7 = QString::null, QString label8 = QString::null );
-  SPListViewItem( StatsPanel *sp, SPListViewItem * parent, QString label1, QString label2 = QString::null, QString label3 = QString::null, QString label4 = QString::null, QString label5 = QString::null, QString label6 = QString::null, QString label7 = QString::null, QString label8 = QString::null );
+  SPListViewItem( StatsPanel *sp, QListView * parent, SPListViewItem *after, QString label1, QString label2 = QString::null, QString label3 = QString::null, QString label4 = QString::null, QString label5 = QString::null, QString label6 = QString::null, QString label7 = QString::null, QString label8 = QString::null );
+  SPListViewItem( StatsPanel *sp, SPListViewItem * parent, SPListViewItem *after, QString label1, QString label2 = QString::null, QString label3 = QString::null, QString label4 = QString::null, QString label5 = QString::null, QString label6 = QString::null, QString label7 = QString::null, QString label8 = QString::null );
 
   ~SPListViewItem( );
 
-// #ifdef GROWL
+#ifdef LATER
   QString key(int c, bool b) const;
-// #endif // GROWL
+#endif // LATER
  
 #ifdef HOLD
   int compare( QListViewItem *i, int col, bool ascending ) const;

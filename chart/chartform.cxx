@@ -573,12 +573,20 @@ int ChartForm::mouseClicked(int item)
 void ChartForm::setValues(ChartPercentValueList values, ChartTextValueList strings, char *color_names[], int max_color_cnt)
 {
 int i = 0;
+for ( i = 0; i < MAX_ELEMENTS; ++i )
+{
+  m_elements[i].setValue(EPSILON);
+}
+
+i =0;
+
 for( ChartPercentValueList::iterator vi = values.begin();vi != values.end(); vi++)
 {
   ChartTextValueList::iterator ti = strings.begin();
   int value = (int)*vi;
   ti += i;
   QString value_str = (QString)*ti;
+// printf("ChartForm::setValues(%d)=(%s) (%d)\n", i, value_str.ascii(), value);
   int color_index = i;
   if( i>15 ) color_index = max_color_cnt-1;
 // printf("ChartForm::setValues[%d] (%d) %s\n", i, value, value_str.ascii() );

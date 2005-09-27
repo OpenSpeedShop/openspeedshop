@@ -34,14 +34,14 @@
 /*! Work constructor.   Set's the name of the frame, the pointer to the
     parent panel container, and the frame shape and shadow characteristics.
 */
-SPListViewItem::SPListViewItem( StatsPanel *sp, QListView * parent, QString label1, QString label2, QString label3, QString label4, QString label5, QString label6, QString label7, QString label8 )
-     : QListViewItem( parent, label1, label2, label3, label4, label5, label6, label7, label8 )
+SPListViewItem::SPListViewItem( StatsPanel *sp, QListView * parent, SPListViewItem *after, QString label1, QString label2, QString label3, QString label4, QString label5, QString label6, QString label7, QString label8 )
+     : QListViewItem( parent, after, label1, label2, label3, label4, label5, label6, label7, label8 )
 {
   statsPanel = sp;
 }
 
-SPListViewItem::SPListViewItem( StatsPanel *sp, SPListViewItem * parent, QString label1, QString label2, QString label3, QString label4, QString label5, QString label6, QString label7, QString label8 )
-     : QListViewItem( (SPListViewItem *)parent, label1, label2, label3, label4, label5, label6, label7, label8 )
+SPListViewItem::SPListViewItem( StatsPanel *sp, SPListViewItem * parent, SPListViewItem *after, QString label1, QString label2, QString label3, QString label4, QString label5, QString label6, QString label7, QString label8 )
+     : QListViewItem( (SPListViewItem *)parent, (SPListViewItem *)after, label1, label2, label3, label4, label5, label6, label7, label8 )
 {
   statsPanel = sp;
 }
@@ -53,7 +53,7 @@ SPListViewItem::~SPListViewItem( )
   dprintf ("  SPListViewItem::~SPListViewItem( ) destructor called\n");
 }
 
-// #ifdef GROWL
+#ifdef LATER  // OLDWAY
 QString
 SPListViewItem::key(int c, bool b) const
 {
@@ -85,7 +85,7 @@ SPListViewItem::key(int c, bool b) const
     
   return s;
 }
-// #endif // GROWL
+#endif // LATER  // OLDWAY
 
 #ifdef HOLD
 int

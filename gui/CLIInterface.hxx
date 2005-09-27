@@ -60,6 +60,11 @@ class CLIInterface : QObject
     //! The flag set when a command has been interrupted.
     static bool interrupt;
 
+    //! A routine to check status and timer before continuing.
+    bool shouldWeContinue();
+
+    //! A routine to check status of the command.
+    Input_Line_Status checkStatus(InputLineObject *clip);
   private:
     //! The timer set to how long the command should wait before aborting.
     QTimer *timer;
@@ -70,11 +75,6 @@ class CLIInterface : QObject
     //! The flag to tell if we need to warn before returning.
     bool warn_of_time;
 
-    //! A routine to check status and timer before continuing.
-    bool shouldWeContinue();
-
-    //! A routine to check status of the command.
-    Input_Line_Status checkStatus(InputLineObject *clip);
 
   public slots:
     void wakeupFromTimer();

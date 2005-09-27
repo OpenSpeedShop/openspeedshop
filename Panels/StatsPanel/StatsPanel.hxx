@@ -59,6 +59,23 @@ typedef std::pair<Function, uint64_t> Function_uint64_pair;
 
 #include <qsettings.h>
 
+class SPOutputClass;
+
+class ColumnValueClass
+{
+  public:
+    void init() { start_index = -1; end_index = -1; };
+
+    int start_index;
+    int end_index;
+
+    void print()
+    {
+      cout << start_index << " " << end_index << "\n";
+    }
+};
+
+
 #define PANEL_CLASS_NAME StatsPanel   // Change the value of the define
 //! StatsPanel Class
 class StatsPanel  : public Panel
@@ -86,9 +103,15 @@ class StatsPanel  : public Panel
     QHBoxLayout *frameLayout;
     QSplitter *splitterA;
     SPChartForm *cf;
-    ColumnList columnList;
+    ColumnList columnHeaderList;
+ColumnValueClass columnValueClass[10];
     int *metricHeaderTypeArray;  // matches the QListView # of column entries.
 
+    std::list<std::string> list_of_collectors;
+    std::list<int64_t> list_of_pids;
+    void updateThreadsList();
+    void updateCollectorMetricList();
+    void outputCLIData(QString *data);
 
   protected:
     //! Sets the language specific strings.
@@ -96,11 +119,14 @@ class StatsPanel  : public Panel
 
     //! Holds the current thread that is in focus
     Thread *currentThread;
+    void setCurrentThread();
 
     //! Holds the current collector that is in focus
     Collector *currentCollector;
+    void setCurrentCollector();
 
     QString currentMetricStr;
+void setCurrentMetricStr();
     QString optionalMetricStr;
     QString currentMetricTypeStr;
 
@@ -108,40 +134,40 @@ class StatsPanel  : public Panel
     SPListViewItem *currentItem;
     int currentItemIndex;
 
+    int showPercentageID;
+    bool showPercentageFLAG;
+
     QPopupMenu *threadMenu;
     QPopupMenu *metricMenu;
     QPopupMenu *popupMenu;   // Pointer to the contextMenu
 
-    QString threadStr;
-    QString collectorStr;
+    QString currentThreadStr;
+    QString currentCollectorStr;
     QString collectorStrFromMenu;
 
     QFile *f;
+
+    SPOutputClass *spoclass;
+
   public slots:
     void itemSelected( QListViewItem * );
     void itemSelected( int );
-    void sortColumn( int );
-    void sortDoubleColumn( int );
-    void sortUintColumn( int );
-    void sortUInt64Column( int );
     void doOption(int id);
     void exportData();
     void details();
     void gotoSource(bool use_current_item = FALSE);
+    void showPercentageSelected();
     void compareSelected();
 
   private slots:
-    void threadSelected();
-    void metricSelected();
-    void threadMenuHighlighted(int);
-    void metricMenuHighlighted(int);
-    void contextMenuHighlighted(int);
+    void threadSelected(int);
+    void collectorMetricSelected(int);
     void showStats();
     void showChart();
     void setOrientation();
 
   private:
-    bool matchSelectedItem( std::string function_name );
+    bool matchSelectedItem( QListViewItem *item, std::string function_name );
     bool matchDoubleSelectedItem( std::string function_name );
     bool matchUIntSelectedItem( std::string function_name );
     bool matchUInt64SelectedItem( std::string function_name );
@@ -150,12 +176,21 @@ class StatsPanel  : public Panel
 
     void updateStatsPanelData();
 
+    SPListViewItem *lastlvi;
+    bool gotHeader;
+    bool gotColumns;
+    int fieldCount;
+    int percentIndex;
     void raisePreferencePanel();
 
     double TotalTime;
+    double total_percent;
+    int numberItemsToDisplay;
+    ChartTextValueList ctvl;
+    ChartPercentValueList cpvl;
+
     double double_minTime;
     double double_maxTime;
-    void putItem(std::vector<Function_double_pair> *item);
     unsigned int ui_minTime;
     unsigned int ui_maxTime;
     uint64_t uint64_minTime;

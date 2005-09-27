@@ -105,13 +105,9 @@ CmdPanel::CmdPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc
 
   show();
 
-#ifdef REDIRECT_IO
 // printf("CmdPanel.   Redirect all output here...\n");
   int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
   Redirect_Window_Output( wid, oclass, oclass );
-#else // REDIRECT_IO
-printf("REDIRECT IO TURNED OFF.\n");
-#endif // REDIRECT_IO
 }
 
 
@@ -176,9 +172,7 @@ CmdPanel::returnPressed()
     QString command = (QString) *ci;
     nprintf(DEBUG_PANELS) ("Send down (%s)\n", command.ascii());
     int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
-#ifdef REDIRECT_IO
-//    Redirect_Window_Output( wid, oclass, oclass );
-#endif // REDIRECT_IO
+    Redirect_Window_Output( wid, oclass, oclass );
 
     InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii());
 
