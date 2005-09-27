@@ -258,6 +258,10 @@ AC_CONFIG_FILES(Makefile
 		test/test_source/regression/hwc/hwc1/Makefile
 		test/test_source/regression/hwc/hwc2/Makefile
 		test/test_source/regression/hwc/hwc3/Makefile
+		test/test_source/regression/hwctime/Makefile
+		test/test_source/regression/hwctime/hwctime1/Makefile
+		test/test_source/regression/hwctime/hwctime2/Makefile
+		test/test_source/regression/hwctime/hwctime3/Makefile
 		test/test_source/regression/usertime/Makefile
 		test/test_source/regression/usertime/usertime1/Makefile
 		test/test_source/regression/usertime/usertime2/Makefile

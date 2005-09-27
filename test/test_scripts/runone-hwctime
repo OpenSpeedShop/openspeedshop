@@ -60,15 +60,13 @@ def CompareResults(testName, fileptr):
 		tempfileline = outputfileptr.readline()
 		if not tempfileline:
 			break
-		if tempfileline[0:9] == 'Inclusive':
+		if tempfileline[0:10] == ' Inclusive':
 			nooutput = 0
 			break
 	expectedfileptr.readline()
 	test_status = 0
 	previous_cycles_expected = 0
 	previous_cycles_actual = 0
-	previous_percent_expected = 0
-	previous_percent_actual = 0
 	passing_ratio = 1
 	failure_reason = 0
 	while 1:
@@ -90,13 +88,6 @@ def CompareResults(testName, fileptr):
 			j +=1
 		actual_cycles_time = atof(outputfileline[i:j])
 		i = j+1
-		while outputfileline[i]==' ':
-			i +=1
-		j = i
-		while outputfileline[j] != ' ':
-			j += 1
-		actual_percentage = atof(outputfileline[i:j])
-		i = j+1
 		while (outputfileline[i] == ' '):
 			i +=1
 		j = i
@@ -110,13 +101,6 @@ def CompareResults(testName, fileptr):
 		while (expectedfileline[j] != ' '):
                         j +=1
                 expected_cycles_time = atof(expectedfileline[i:j])
-                i = j+1
-                while expectedfileline[i]==' ':
-                        i +=1
-                j = i
-		while (expectedfileline[j] != ' '):
-			j+=1
-		expected_percentage = atof(expectedfileline[i:j])
 		i = j+1
 		while (expectedfileline[i] == ' '):
 			i+=1
@@ -133,33 +117,22 @@ def CompareResults(testName, fileptr):
                                 if not (lower_limit <= actual_cycles_ratio <= upper_limit):
                                         passing_ratio = 0
                                         failure_reason = 4
-				actual_percent_ratio = previous_percent_actual / actual_percentage
-				expected_percent_ratio = previous_percent_expected / expected_percentage
-				perc_upper = expected_percent_ratio +(expected_percent_ratio * .25)
-				perc_lower = expected_percent_ratio - (expected_percent_ratio * .25)
-				if not (perc_lower <= actual_percent_ratio <= perc_upper):
-					passing_ratio = 0
-					failure_reason = 4
 		else:
 				passing_ratio = 0
 				failure_reason = 2
 		previous_cycles_actual = actual_cycles_time
 		previous_cycles_expected = expected_cycles_time
-		previous_percent_expected = expected_percentage
-		previous_percent_actual = actual_percentage
 
 	if ( passing_ratio == 1 and failure_reason != 2 and nooutput == 0):
 		fileptr.write(testName + ' has PASSED \n')
 	else:
 		fileptr.write(testName + ' has FAILED.  ')
-		if (failure_reason == 1):
-			fileptr.write('The functions exclusive time ratios are incorrect.\n')
 		if (failure_reason == 3):
 			fileptr.write('Looks like openss crashed or timed out. \n')
 		if (failure_reason == 2):
-			fileptr.write('The ordering  of the  functions is incorrect.\n')
+			fileptr.write('The ordering of the functions is incorrect.\n')
 		if (failure_reason == 4):
-			fileptr.write('The functions time  ratios are incorrect.\n')
+			fileptr.write('The inclusive overflows ratios are incorrect.\n')
 		
 
 
