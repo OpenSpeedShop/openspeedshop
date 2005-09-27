@@ -1227,30 +1227,36 @@ HW_CounterPanel::loadMain()
     Time time = Time::Now();
     const std::string main_string = std::string("main");
     std::pair<bool, Function> function = thread.getFunctionByName(main_string, time);
-    std::set<Statement> statement_definition = function.second.getDefinitions();
-
-    if(statement_definition.size() > 0 )
+    if( function.first )
     {
-      std::set<Statement>::const_iterator i = statement_definition.begin();
-      SourceObject *spo = new SourceObject("main", i->getPath(), i->getLine()-1, expID, TRUE, NULL);
+      std::set<Statement> statement_definition = function.second.getDefinitions();
+
+      if(statement_definition.size() > 0 )
+      {
+        std::set<Statement>::const_iterator i = statement_definition.begin();
+        SourceObject *spo = new SourceObject("main", i->getPath(), i->getLine()-1, expID, TRUE, NULL);
   
-      QString name = QString("Source Panel [%1]").arg(expID);
+        QString name = QString("Source Panel [%1]").arg(expID);
 //printf("TRY TO FIND A SOURCE PANEL!!!  (loadMain() \n");
-      Panel *sourcePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
-      if( !sourcePanel )
-      {
-        char *panel_type = "Source Panel";
+        Panel *sourcePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+        if( !sourcePanel )
+        {
+          char *panel_type = "Source Panel";
 //printf("HW_CounterPanel:A: create a source panel.\n");
-        //Find the nearest toplevel and start placement from there...
-        PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
-        ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
-        sourcePanel = getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, ao);
-        delete ao;
+          //Find the nearest toplevel and start placement from there...
+          PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
+          ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
+          sourcePanel = getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, ao);
+          delete ao;
+        }
+        if( sourcePanel != NULL )
+        {
+          sourcePanel->listener((void *)spo);
+        }
       }
-      if( sourcePanel != NULL )
-      {
-        sourcePanel->listener((void *)spo);
-      }
+    } else
+    {
+      QMessageBox::information( this, "Experiment Information", "No main located.", QMessageBox::Ok );
     }
     statusLabelText->setText( tr("Experiment is loaded:  Hit the \"Run\" button to continue execution.") );
 
