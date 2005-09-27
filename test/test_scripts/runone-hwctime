@@ -1,0 +1,180 @@
+#!/usr/bin/env python
+
+from sys import *
+import sys
+import os
+from time import *
+from string import *
+from threading import *
+#from datetime import *
+
+def too_long():
+        os.system('killall -q openss')
+
+def createTestList():
+	checktemptestlist = os.system('test -e temptestlist')
+	if checktemptestlist == 0:
+        	os.system('rm -f temptestlist')
+	os.system('ls -1 *.tst >> temptestlist')
+
+def runTest(testName):
+	checkinput = os.system('test -e input.script')
+	if checkinput == 0:
+		os.system('rm -f input.script')
+	#test_input = open(testName, 'r')
+	#testCommand = test_input.readline()
+	#linesToCompare = test_input.readline()
+	#test_input.close()
+	t = Timer(300, too_long)
+	t.start()
+	os.system('./'+testName+ '>> '+ testName+'.output')
+	t.cancel()
+
+def iterateThroughTestList(fileptr):
+	con_input = open('temptestlist', 'r')
+        while 1:
+                config_line = con_input.readline()
+                if not config_line:
+                        break
+                test_name = config_line
+		i = 0
+	        while 1:
+                	if test_name[i] == '.':
+                        	break
+                	else:
+                        	i += 1
+        	testName = test_name[0:i+4]
+
+		runTest(testName)
+		CompareResults(testName, fileptr)
+               
+        con_input.close()
+
+def CompareResults(testName, fileptr):
+	outputfilename = testName + '.output'
+	expectedfilename = testName + '.expected'
+	outputfileptr = open(outputfilename, 'r')
+	expectedfileptr = open(expectedfilename, 'r')
+	nooutput = 1 
+	while 1:
+		tempfileline = outputfileptr.readline()
+		if not tempfileline:
+			break
+		if tempfileline[0:9] == 'Inclusive':
+			nooutput = 0
+			break
+	expectedfileptr.readline()
+	test_status = 0
+	previous_cycles_expected = 0
+	previous_cycles_actual = 0
+	previous_percent_expected = 0
+	previous_percent_actual = 0
+	passing_ratio = 1
+	failure_reason = 0
+	while 1:
+		if (nooutput == 1):
+			failure_reason = 3
+			passing_ratio = 0
+			break
+		outputfileline = outputfileptr.readline()
+		if not outputfileline:
+			break
+		expectedfileline = expectedfileptr.readline()
+		if not expectedfileline:
+			break
+		i = 0
+		while outputfileline[i] == ' ':
+			i +=1
+		j = i
+		while (outputfileline[j] != ' '):
+			j +=1
+		actual_cycles_time = atof(outputfileline[i:j])
+		i = j+1
+		while outputfileline[i]==' ':
+			i +=1
+		j = i
+		while outputfileline[j] != ' ':
+			j += 1
+		actual_percentage = atof(outputfileline[i:j])
+		i = j+1
+		while (outputfileline[i] == ' '):
+			i +=1
+		j = i
+		while (outputfileline[j] != '\n') and (outputfileline[j] != ' ') and (outputfileline[j] != '(' ):
+			j +=1
+		actual_function = outputfileline[i:j]
+		i = 0
+                while expectedfileline[i] == ' ':
+                        i +=1
+                j = i
+		while (expectedfileline[j] != ' '):
+                        j +=1
+                expected_cycles_time = atof(expectedfileline[i:j])
+                i = j+1
+                while expectedfileline[i]==' ':
+                        i +=1
+                j = i
+		while (expectedfileline[j] != ' '):
+			j+=1
+		expected_percentage = atof(expectedfileline[i:j])
+		i = j+1
+		while (expectedfileline[i] == ' '):
+			i+=1
+		j = i
+                while (expectedfileline[j] != '\n') and (expectedfileline[j] != ' ') and (expectedfileline[j] != '('):
+                        j +=1
+                expected_function = expectedfileline[i:j]
+		if (expected_function == actual_function):
+			if ( previous_cycles_expected != 0 and previous_cycles_actual != 0 ):
+                                actual_cycles_ratio = previous_cycles_actual / actual_cycles_time
+                                expected_cycles_ratio = previous_cycles_expected / expected_cycles_time
+                                upper_limit = expected_cycles_ratio + (expected_cycles_ratio * .25)
+                                lower_limit = expected_cycles_ratio - (expected_cycles_ratio * .25)
+                                if not (lower_limit <= actual_cycles_ratio <= upper_limit):
+                                        passing_ratio = 0
+                                        failure_reason = 4
+				actual_percent_ratio = previous_percent_actual / actual_percentage
+				expected_percent_ratio = previous_percent_expected / expected_percentage
+				perc_upper = expected_percent_ratio +(expected_percent_ratio * .25)
+				perc_lower = expected_percent_ratio - (expected_percent_ratio * .25)
+				if not (perc_lower <= actual_percent_ratio <= perc_upper):
+					passing_ratio = 0
+					failure_reason = 4
+		else:
+				passing_ratio = 0
+				failure_reason = 2
+		previous_cycles_actual = actual_cycles_time
+		previous_cycles_expected = expected_cycles_time
+		previous_percent_expected = expected_percentage
+		previous_percent_actual = actual_percentage
+
+	if ( passing_ratio == 1 and failure_reason != 2 and nooutput == 0):
+		fileptr.write(testName + ' has PASSED \n')
+	else:
+		fileptr.write(testName + ' has FAILED.  ')
+		if (failure_reason == 1):
+			fileptr.write('The functions exclusive time ratios are incorrect.\n')
+		if (failure_reason == 3):
+			fileptr.write('Looks like openss crashed or timed out. \n')
+		if (failure_reason == 2):
+			fileptr.write('The ordering of the functions is incorrect.\n')
+		if (failure_reason == 4):
+			fileptr.write('The functions time ratios are incorrect.\n')
+		
+
+
+	 	
+
+if __name__ == '__main__':
+	checkoutput = os.system('test -e *.output')
+        if checkoutput == 0:
+                os.system('rm -f *.output')
+
+	currTime = strftime("%d_%m_%Y_%H%M%S", localtime())
+        resultsFile =  'testresults_' + currTime
+        resultfileptr = open(resultsFile, 'w')
+	tempfileptr = open('testresultsfilename', 'w')
+	tempfileptr.write(resultsFile)
+
+	createTestList()
+	iterateThroughTestList(resultfileptr)
