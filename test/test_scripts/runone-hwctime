@@ -159,7 +159,7 @@ def CompareResults(testName, fileptr):
 		if (failure_reason == 2):
 			fileptr.write('The ordering  of the  functions is incorrect.\n')
 		if (failure_reason == 4):
-			fileptr.write('The functions time ratios are incorrect.\n')
+			fileptr.write('The functions time  ratios are incorrect.\n')
 		
 
 
