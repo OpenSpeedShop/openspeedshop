@@ -67,6 +67,7 @@ libopenss_cli_la_SOURCES = \
 	SS_Parse_Result.hxx SS_Parse_Result.cxx \
 	SS_Parse_Target.hxx SS_Parse_Target.cxx \
 	SS_Parse_Yacc.yxx \
+	SS_View_init.cxx \
 	SS_View.hxx SS_View.cxx \
 	SS_View_util.cxx \
 	SS_View_stats.cxx \
