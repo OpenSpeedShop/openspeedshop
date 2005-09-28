@@ -549,6 +549,63 @@ get_example_list()
 }
 
 /**
+ * Method: SS_Message_Element::add_syntax(char *syntax_str)
+ * 
+ * 
+ * 
+ *     
+ * @return  void.
+ *
+ * @todo    Error handling.
+ * @todo    Example.
+ *
+ */
+void
+SS_Message_Element::
+add_syntax(const char * const syntax_str) 
+{
+   dm_syntax_list.push_back(syntax_str);
+}
+
+/**
+ * Method: SS_Message_Element::add_syntax(string syntax_str)
+ * 
+ * 
+ * 
+ *     
+ * @return  void.
+ *
+ * @todo    Error handling.
+ * @todo    Example.
+ *
+ */
+void
+SS_Message_Element::
+add_syntax(const string syntax_str) 
+{
+    dm_syntax_list.push_back(syntax_str);
+}
+
+/**
+ * Method: SS_Message_Element::get_syntax_list()
+ * 
+ * 
+ * 
+ *     
+ * @return  void.
+ *
+ * @todo    Error handling.
+ * @todo    Example.
+ *
+ */
+vector<string> * 
+SS_Message_Element::
+get_syntax_list() 
+{
+    return &dm_syntax_list;
+}
+
+/**
  * Method: SS_Message_Element::set_element()
  * 
  * Use message_element_t to initialize element.
@@ -599,6 +656,11 @@ set_element(const message_element_t * const p_element,bool is_topic)
     // An example of usage
     for (int i=0;i<p_element->example_cnt;++i) {
     	add_example(p_element->example[i]);
+    }
+
+    // Syntax description
+    for (int i=0;i<p_element->syntax_cnt;++i) {
+    	add_syntax(p_element->syntax[i]);
     }
 
     // Is this a topic message

@@ -41,6 +41,8 @@ typedef struct {
     int    detail_cnt;	/** Number of strings in detailed */
     char **example;	/** Example of use */
     int    example_cnt;	/** Number of strings in example */
+    char **syntax;	/** syntax description */
+    int    syntax_cnt; /** Number of strings in syntax description */
 } message_element_t;
 
 /**
@@ -102,6 +104,11 @@ class SS_Message_Element {
 	void add_example(const string);
 	vector<string> * get_example_list();
 	
+    	/** Add line of syntax */
+	void add_syntax(const char * const );
+	void add_syntax(const string);
+	vector<string> * get_syntax_list();
+	
 	/** Use message_element_t to initialize element */
 	void set_element(const message_element_t * const p_element,bool is_topic);
 
@@ -133,6 +140,9 @@ class SS_Message_Element {
 	
 	/** Multiline example. */
     	vector <string> dm_example_list;
+	
+	/** Multiline syntax description. */
+    	vector <string> dm_syntax_list;
 	
 };
 }  	// namespace OpenSpeedShop
