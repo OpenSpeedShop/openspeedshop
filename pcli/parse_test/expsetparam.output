@@ -1,10 +1,11 @@
 
 ****************************
 expsetparam
+SYNTAX ERROR!!!
+Command: expSetparam
 	expSetparam: 
 		
  
-		expSetparam 
 
 
 ****************************
@@ -48,10 +49,11 @@ Command: expSetparam
 
 ****************************
 expsetparam -x 6
-  	expSetparam: 
+  SYNTAX ERROR!!!
+Command: expSetparam
+	expSetparam: 
 		
  
-		expSetparam 
 
 
 ****************************

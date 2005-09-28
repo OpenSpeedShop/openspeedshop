@@ -1,38 +1,48 @@
 
 ****************************
 listpids -f file_1
-  	listPids: 
+  SYNTAX ERROR!!!
+Command: listPids
+	listPids: 
 		-f 
-		listPids 
 
 
 ****************************
 listpids -h host_1 -f file_1
-    	listPids: 
+    SYNTAX ERROR!!!
+Command: listPids
+	listPids: 
 		-f 
 
 
 ****************************
 listpids -f file_1
-  	listPids: 
+  SYNTAX ERROR!!!
+Command: listPids
+	listPids: 
 		-f 
-		listPids 
 
 
 ****************************
 listpids -h host_1 -f file_1
-    	listPids: 
+    SYNTAX ERROR!!!
+Command: listPids
+	listPids: 
 		-f 
 
 
 ****************************
 listpids -x 6 -f file_1
-    	listPids: 
+    SYNTAX ERROR!!!
+Command: listPids
+	listPids: 
 		-f 
 
 
 ****************************
 listpids -x 6 -h host_1 -f file_1
-      	listPids: 
+      SYNTAX ERROR!!!
+Command: listPids
+	listPids: 
 		-f 
 
