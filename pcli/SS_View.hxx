@@ -216,6 +216,8 @@ void Add_Column_Headers (CommandResult_Headers *H, std::string *column_titles);
 void Add_Header (CommandObject *cmd, std::string *column_titles);
 
 void SS_Init_BuiltIn_Views ();
+void SS_Load_View_plugins ();
+void SS_Remove_View_plugins ();
 void SS_Get_Views (CommandObject *cmd);
 void SS_Get_Views (CommandObject *cmd, std::string collector_name);
 void SS_Get_Views (CommandObject *cmd, OpenSpeedShop::Framework::Experiment *fexp, std::string s = "");
