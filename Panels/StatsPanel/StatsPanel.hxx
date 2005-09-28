@@ -226,6 +226,9 @@ void setCurrentMetricStr();
 
     //! Flag setting, indicating if we should be displaying the statistics.
     bool statsFLAG;
+
+    //! Flag setting, indicating if we should be displaying the text in graphics.
+    bool textFLAG;
   
     //! Flag setting, indicating if we should be displaying the chart.
     bool chartFLAG;

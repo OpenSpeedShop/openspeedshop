@@ -1046,14 +1046,14 @@ StatsPanel::updateStatsPanelData()
     if( !status || status == ILO_ERROR )
     { // An error occurred.... A message should have been posted.. return;
       QApplication::restoreOverrideCursor();
-//      return;
+      return;
     }
 
     qApp->processEvents(1000);
 
     if( !cli->shouldWeContinue() )
     {
-//printf("RETURN FALSE!   COMMAND FAILED!\n");
+// printf("RETURN FALSE!   COMMAND FAILED!\n");
       QApplication::restoreOverrideCursor();
       return;
     }
@@ -1072,7 +1072,8 @@ StatsPanel::updateStatsPanelData()
    {
     color_names = coldToHot_color_names;
    }
-   if( !getPreferenceShowTextInChart() )
+   textFLAG = getPreferenceShowTextInChart();
+   if( !textFLAG )
    {
      ctvl.clear();
    }
@@ -1090,7 +1091,10 @@ StatsPanel::updateStatsPanelData()
     {
 // printf("add other of %f\n", 100.00-total_percent );
       cpvl.push_back( (int)(100.00-total_percent) );
-      ctvl.push_back( "other" );
+      if( textFLAG )
+      {
+        ctvl.push_back( "other" );
+      }
     }
   }
 
