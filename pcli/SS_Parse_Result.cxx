@@ -236,7 +236,47 @@ dumpError(CommandObject *cmd)
 {
     // Get reference of the message czar.
     SS_Message_Czar& czar = theMessageCzar();
+
+#if 1
+    // Get list of error strings
+    vector<ParseRange> *p_list = this->getErrorList();
+
+    vector<ParseRange>::iterator iter;
     
+    for (iter=p_list->begin();iter != p_list->end(); iter++) {
+    	parse_range_t *p_range = iter->getRange();
+
+    	parse_val_t *p_val1 = &p_range->start_range;
+    	if (p_val1->tag == VAL_STRING) {
+	    string s("Invalid argument: ");
+	    
+	    s.append(p_val1->name);
+	    cmd->Result_String (s);
+    	}
+    }
+
+    	    // Print out help for command in question
+    	    vector <SS_Message_Element *> element;
+    	    czar.Find_By_Keyword(this->getCommandname(), &element);
+    
+    	    vector <SS_Message_Element*>:: iterator k;
+    	    for (k = element.begin();
+    	    	k != element.end();
+	    	++k) {
+	    	SS_Message_Element *p_el = *k;
+
+    	    	// Normal list
+	    	vector<string> * const p_string = p_el->get_syntax_list();
+    	    	for (vector <string> :: iterator i=p_string->begin();
+    	     	    i!= p_string->end();
+	     	    ++i) {
+		    cmd->Result_String (*i);
+	    	}
+
+    	    }
+
+#else
+
     // Get list of error strings
     vector<ParseRange> *p_list = this->getErrorList();
 
@@ -267,6 +307,7 @@ dumpError(CommandObject *cmd)
     	    }
     	}
     }
+#endif
 
 }
 
