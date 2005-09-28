@@ -242,6 +242,9 @@ extern "C"
    // Close any open experiments
     Experiment_Termination ();
 
+   // Unload plugin views
+    SS_Remove_View_plugins ();
+
    // Close allocated input windows.
     if (gui_window != 0)
     {
@@ -343,8 +346,9 @@ catch_signal (int sig, int error_num)
    // Load in pcli messages into message czar
     pcli_load_messages();
 
-   // Define Built-In Views
+   // Define Views
     SS_Init_BuiltIn_Views ();
+    SS_Load_View_plugins ();
 
    // Open the Python interpreter.
     Initial_Python ();
