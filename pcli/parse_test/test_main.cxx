@@ -126,9 +126,9 @@ int ret;
     else {
     	char *cmd_name = p_parse_result->getCommandname();
 	
-//    	cout << "SYNTAX ERROR!!!" << endl;
-//	if (cmd_name)
-//	    cout << "Command: " << cmd_name << endl;
+    	cout << "SYNTAX ERROR!!!" << endl;
+	if (cmd_name)
+	    cout << "Command: " << cmd_name << endl;
 
     	s_dumpRange(p_parse_result->getErrorList(), 
 	    	    cmd_name, 
