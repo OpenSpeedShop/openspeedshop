@@ -19,7 +19,7 @@
 noinst_PROGRAMS = mutator probe_module
 
 mutator_CXXFLAGS = \
-	 $(DPCL_CPPFLAGS)
+	 $(DPCL_CPPFLAGS) -fPIC
 
 mutator_LDFLAGS = \
 	-L$(ROOT)/lib \
@@ -34,7 +34,7 @@ mutator_SOURCES = \
 	mutator.C
 
 probe_module_CFLAGS = \
-	 $(DPCL_CPPFLAGS)
+	 $(DPCL_CPPFLAGS) -fPIC
 
 probe_module_LDFLAGS = \
 	$(DPCL_LDFLAGS) \
