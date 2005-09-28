@@ -145,187 +145,194 @@ OpenSpeedShop::message_element_t general_msg[] = {
     "nomenclature",gen_Experiment_brief,
     gen_Experiment_detailed,sizeof(gen_Experiment_detailed)/sizeof(char **),
     NULL,0,NULL,0,
+    NULL,0,
 //    Component
     -1,"Component",NULL,0,
     "nomenclature",gen_Component_brief,
     gen_Component_detailed,sizeof(gen_Component_detailed)/sizeof(char **),
     NULL,0,NULL,0,
+    NULL,0,
 //    Collector
     -1,"Collector",NULL,0,
     "nomenclature",gen_Collector_brief,
     gen_Collector_detailed,sizeof(gen_Collector_detailed)/sizeof(char **),
     NULL,0,NULL,0,
+    NULL,0,
 //    Metric
     -1,"Metric",NULL,0,
     "nomenclature",gen_Metric_brief,
     gen_Metric_detailed,sizeof(gen_Metric_detailed)/sizeof(char **),
     NULL,0,NULL,0,
+    NULL,0,
 //    Framework
     -1,"Framework",NULL,0,
     "nomenclature",gen_Framework_brief,
     gen_Framework_detailed,sizeof(gen_Framework_detailed)/sizeof(char **),
     NULL,0,NULL,0,
+    NULL,0,
 //    Plugin
     -1,"Plugin",NULL,0,
     "nomenclature",gen_Plugin_brief,
     gen_Plugin_detailed,sizeof(gen_Plugin_detailed)/sizeof(char **),
     NULL,0,NULL,0,
+    NULL,0,
 //    Panel
     -1,"Panel",NULL,0,
     "nomenclature",gen_Panel_brief,
     gen_Panel_detailed,sizeof(gen_Panel_detailed)/sizeof(char **),
     NULL,0,NULL,0,
 
+    NULL,0,
 //    END OF LIST
     -1,NULL,NULL,0,NULL,NULL,
-    NULL,0,NULL,0,NULL,0
+    NULL,0,NULL,0,NULL,0,NULL,0
 };
 
 /*********************************************/
 // COMMAND ARGUMENTS
 /*********************************************/
-char *cmd_expattach_args = {
+char *cmd_expAttach_args[] = {
     "expAttach [ -v mpi] [ <expId_spec> ] [ <target_list> ] [ <expType_list> ]"
 };
 
-char *cmd_expClose_args = {
+char *cmd_expClose_args[] = {
     "expClose [ -v kill,all ] \n"
     "expClose [ -v kill ] [ <expId_spec> ]"
 };
 
-char *cmd_expCreate_args = {
+char *cmd_expCreate_args[] = {
     "<expId> = expCreate [ -v mpi] [ <target_list> ] [ <expType_list> ]"
 };
 
-char *cmd_expDetach_args = {
+char *cmd_expDetach_args[] = {
     "expDetach [ <expId_spec> ] [ <target_list> ] [ <expType_list> ]"
 };
 
-char *cmd_expDisable_args = {
+char *cmd_expDisable_args[] = {
     "expDisable [ -v all || <expId_spec> ]"
 };
 
-char *cmd_expEnable_args = {
+char *cmd_expEnable_args[] = {
     "expEnable [ -v all || <expId_spec> ]"
 };
 
-char *cmd_expFocus_args = {
+char *cmd_expFocus_args[] = {
     "<expId> = expFocus [ <expId_spec> ]"
 };
 
-char *cmd_expGo_args = {
+char *cmd_expGo_args[] = {
     "expGo [ -v all || <expId_spec> ]"
 };
 
-char *cmd_expPause_args = {
+char *cmd_expPause_args[] = {
     "expPause [ -v all || <expId_spec> ]"
 };
 
-char *cmd_expRestore_args = {
+char *cmd_expRestore_args[] = {
     "<exp_Id> = expRestore <file_spec>"
 };
 
-char *cmd_expSave_args = {
+char *cmd_expSave_args[] = {
     "expSave [-v copy] [<expId_spec>] <file_spec>"
 };
 
-char *cmd_expSetParam_args = {
+char *cmd_expSetParam_args[] = {
     "expSetParam [<expId_spec>] <expParam>=<expParamValue> [, <expParam>=<expParamValue>] ... "
 };
 
-char *cmd_expStatus_args = {
+char *cmd_expStatus_args[] = {
     "expStatus [-v all || <expId_spec>]"
 };
 
-char *cmd_expView_args = {
+char *cmd_expView_args[] = {
     "expView [<expId_spec>] [<viewType>] [-m <expMetric_list>] [<target_spec>]"
 };
 
-char *cmd_listBreaks_args = {
+char *cmd_listBreaks_args[] = {
     "<ListOf_breakId> = listBreaks [-v all || <expId_spec>]"
 };
 
-char *cmd_listExp_args = {
+char *cmd_listExp_args[] = {
     "<ListOf_expId> = listExp"
 };
 
-char *cmd_listHosts_args = {
+char *cmd_listHosts_args[] = {
     "<ListOf_hostname> = listHosts [<expId_spec>]"
 };
 
-char *cmd_listMetrics_args = {
+char *cmd_listMetrics_args[] = {
     "<ListOf_expMetric> = listMetrics [-v all || <expId_spec> || <expType_list>]"
 };
 
-char *cmd_listObj_args = {
+char *cmd_listObj_args[] = {
     "<ListOf_filename> = listObj [<expId_spec>] [<target>]"
 };
 
-char *cmd_listPids_args = {
+char *cmd_listPids_args[] = {
     "<ListOf_pidname> = listPids [<expId_spec>] [<host_list_spec>]"
 };
 
-char *cmd_listParams_args = {
+char *cmd_listParams_args[] = {
     "<ListOf_expParam> = listParams [-v all || <expId_spec> || <expType_list>]"
 };
 
-char *cmd_listRanks_args = {
+char *cmd_listRanks_args[] = {
     "<ListOf_Ranks> = listRanks [<expId_spec> ] [ <target>]"
 };
 
-char *cmd_listSrc_args = {
+char *cmd_listSrc_args[] = {
     "<ListOf_filename> = listSrc [<expId_spec>] [<target>]"
 };
 
-char *cmd_listStatus_args = {
+char *cmd_listStatus_args[] = {
     "<ListOf_statusType> = listStatus [-v all || <expId_spec>]"
 };
 
-char *cmd_listThreads_args = {
+char *cmd_listThreads_args[] = {
     "<ListOf_Threads> = listThreads [<expId_spec>] [<target>]"
 };
 
-char *cmd_listTypes_args = {
+char *cmd_listTypes_args[] = {
     "<ListOf_expType> = listTypes [-v all || <expId_spec>]"
 };
 
-char *cmd_listViews_args = {
+char *cmd_listViews_args[] = {
     "<ListOf_viewType> = listViews [-v all || <expId_spec> || <expType>]"
 };
 
-char *cmd_clearBreak_args = {
+char *cmd_clearBreak_args[] = {
     "clearbreak <breakId>"
 };
 
-char *cmd_exit_args = {
+char *cmd_exit_args[] = {
     "exit"
 };
 
-char *cmd_help_args = {
+char *cmd_help_args[] = {
     "<string> = help [-v <help_modifier_list>] [<string>]"
 };
 
-char *cmd_history_args = {
+char *cmd_history_args[] = {
     "history [<integer>]"
 };
 
-char *cmd_log_args = {
+char *cmd_log_args[] = {
     "log [<file_spec>]"
 };
 
-char *cmd_openGui_args = {
+char *cmd_openGui_args[] = {
     "openGui"
 };
 
-char *cmd_playback_args = {
+char *cmd_playback_args[] = {
     "playback <file_spec>"
 };
 
-char *cmd_record_args = {
+char *cmd_record_args[] = {
     "record [<file_spec>]"
 };
 
-char *cmd_setbreak_args = {
+char *cmd_setbreak_args[] = {
     "<breakId> setbreak [<expId_spec>] [<target>] <address_description>"
 };
 
@@ -333,7 +340,7 @@ char *cmd_setbreak_args = {
 /*********************************************/
 // BRIEF COMMAND MESSAGES
 /*********************************************/
-char *cmd_expattach_brief = {
+char *cmd_expAttach_brief = {
     "Attach applications or collectors to an experiment."
 };
 
@@ -517,10 +524,10 @@ char *cmd_setbreak_brief = {
 /*********************************************/
 // DETAILED COMMAND MESSAGES
 /*********************************************/
-char *cmd_expattach_detailed[] = {
-    cmd_expattach_args,
+char *cmd_expAttach_detailed[] = {
+    cmd_expAttach_args[0],
     " ",
-    cmd_expattach_brief,
+    cmd_expAttach_brief,
     " ",
     "\t The attached applications will not execute until ",
     "\t an expGo command is issued.",
@@ -568,7 +575,7 @@ char *cmd_expattach_detailed[] = {
 
 
 char *cmd_expClose_detailed[] = {
-    cmd_expClose_args,
+    cmd_expClose_args[0],
     " ",
     cmd_expClose_brief,
     " ",
@@ -603,7 +610,7 @@ char *cmd_expClose_detailed[] = {
 
 
 char *cmd_expCreate_detailed[] = {
-    cmd_expCreate_args,
+    cmd_expCreate_args[0],
     " ",
     cmd_expCreate_brief,
     " ",
@@ -641,7 +648,7 @@ char *cmd_expCreate_detailed[] = {
 
 
 char *cmd_expDetach_detailed[] = {
-    cmd_expDetach_args,
+    cmd_expDetach_args[0],
     " ",
     cmd_expDetach_brief,
     " ",
@@ -678,7 +685,7 @@ char *cmd_expDetach_detailed[] = {
 
 
 char *cmd_expDisable_detailed[] = {
-    cmd_expDisable_args,
+    cmd_expDisable_args[0],
     " ",
     cmd_expDisable_brief,
     " ",
@@ -715,7 +722,7 @@ char *cmd_expDisable_detailed[] = {
 
 
 char *cmd_expEnable_detailed[] = {
-    cmd_expEnable_args,
+    cmd_expEnable_args[0],
     " ",
     cmd_expEnable_brief,
     " ",
@@ -740,7 +747,7 @@ char *cmd_expEnable_detailed[] = {
 
 
 char *cmd_expFocus_detailed[] = {
-    cmd_expFocus_args,
+    cmd_expFocus_args[0],
     " ",
     cmd_expFocus_brief,
     " ",
@@ -763,7 +770,7 @@ char *cmd_expFocus_detailed[] = {
 
 
 char *cmd_expGo_detailed[] = {
-    cmd_expGo_args,
+    cmd_expGo_args[0],
     " ",
     cmd_expGo_brief,
     " ",
@@ -814,7 +821,7 @@ char *cmd_expGo_detailed[] = {
 
 
 char *cmd_expPause_detailed[] = {
-    cmd_expPause_args,
+    cmd_expPause_args[0],
     " ",
     cmd_expPause_brief,
     " ",
@@ -826,7 +833,7 @@ char *cmd_expPause_detailed[] = {
 
 
 char *cmd_expRestore_detailed[] = {
-    cmd_expRestore_args,
+    cmd_expRestore_args[0],
     " ",
     cmd_expRestore_brief,
     " ",
@@ -858,7 +865,7 @@ char *cmd_expRestore_detailed[] = {
 
 
 char *cmd_expSave_detailed[] = {
-    cmd_expSave_args,
+    cmd_expSave_args[0],
     " ",
     cmd_expSave_brief,
     " ",
@@ -919,7 +926,7 @@ char *cmd_expSave_detailed[] = {
 
 
 char *cmd_expSetParam_detailed[] = {
-    cmd_expSetParam_args,
+    cmd_expSetParam_args[0],
     " ",
     cmd_expSetParam_brief,
     " ",
@@ -934,7 +941,7 @@ char *cmd_expSetParam_detailed[] = {
 };
 
 char *cmd_expStatus_detailed[] = {
-    cmd_expStatus_args,
+    cmd_expStatus_args[0],
     " ",
     cmd_expStatus_brief,
     " ",
@@ -951,7 +958,7 @@ char *cmd_expStatus_detailed[] = {
 
 
 char *cmd_expView_detailed[] = {
-    cmd_expView_args,
+    cmd_expView_args[0],
     " ",
     cmd_expView_brief,
     " ",
@@ -977,7 +984,7 @@ char *cmd_expView_detailed[] = {
 
 
 char *cmd_listBreaks_detailed[] = {
-    cmd_listBreaks_args,
+    cmd_listBreaks_args[0],
     " ",
     cmd_listBreaks_brief,
     " ",
@@ -994,7 +1001,7 @@ char *cmd_listBreaks_detailed[] = {
 
 
 char *cmd_listExp_detailed[] = {
-    cmd_listExp_args,
+    cmd_listExp_args[0],
     " ",
     cmd_listExp_brief,
     " "
@@ -1002,7 +1009,7 @@ char *cmd_listExp_detailed[] = {
 
 
 char *cmd_listHosts_detailed[] = {
-    cmd_listHosts_args,
+    cmd_listHosts_args[0],
     " ",
     cmd_listHosts_brief,
     " ",
@@ -1016,7 +1023,7 @@ char *cmd_listHosts_detailed[] = {
 
 
 char *cmd_listObj_detailed[] = {
-    cmd_listObj_args,
+    cmd_listObj_args[0],
     " ",
     cmd_listObj_brief,
     " ",
@@ -1035,7 +1042,7 @@ char *cmd_listObj_detailed[] = {
 
 
 char *cmd_listPids_detailed[] = {
-    cmd_listPids_args,
+    cmd_listPids_args[0],
     " ",
     cmd_listPids_brief,
     " ",
@@ -1062,7 +1069,7 @@ char *cmd_listPids_detailed[] = {
 
 
 char *cmd_listMetrics_detailed[] = {
-    cmd_listMetrics_args,
+    cmd_listMetrics_args[0],
     " ",
     cmd_listMetrics_brief,
     " ",
@@ -1085,7 +1092,7 @@ char *cmd_listMetrics_detailed[] = {
 
 
 char *cmd_listParams_detailed[] = {
-    cmd_listParams_args,
+    cmd_listParams_args[0],
     " ",
     cmd_listParams_brief,
     " ",
@@ -1108,7 +1115,7 @@ char *cmd_listParams_detailed[] = {
 
 
 char *cmd_listRanks_detailed[] = {
-    cmd_listRanks_args,
+    cmd_listRanks_args[0],
     " ",
     cmd_listRanks_brief,
     " ",
@@ -1141,7 +1148,7 @@ char *cmd_listRanks_detailed[] = {
 
 
 char *cmd_listSrc_detailed[] = {
-    cmd_listSrc_args,
+    cmd_listSrc_args[0],
     " ",
     cmd_listSrc_brief,
     " ",
@@ -1164,7 +1171,7 @@ char *cmd_listSrc_detailed[] = {
 
 
 char *cmd_listStatus_detailed[] = {
-    cmd_listStatus_args,
+    cmd_listStatus_args[0],
     " ",
     cmd_listStatus_brief,
     " ",
@@ -1181,7 +1188,7 @@ char *cmd_listStatus_detailed[] = {
 
 
 char *cmd_listThreads_detailed[] = {
-    cmd_listThreads_args,
+    cmd_listThreads_args[0],
     " ",
     cmd_listThreads_brief,
     " ",
@@ -1212,7 +1219,7 @@ char *cmd_listThreads_detailed[] = {
 
 
 char *cmd_listTypes_detailed[] = {
-    cmd_listTypes_args,
+    cmd_listTypes_args[0],
     " ",
     cmd_listTypes_brief,
     " ",
@@ -1230,7 +1237,7 @@ char *cmd_listTypes_detailed[] = {
 
 
 char *cmd_listViews_detailed[] = {
-    cmd_listViews_args,
+    cmd_listViews_args[0],
     " ",
     cmd_listViews_brief,
     " ",
@@ -1253,7 +1260,7 @@ char *cmd_listViews_detailed[] = {
 
 
 char *cmd_clearBreak_detailed[] = {
-    cmd_clearBreak_args,
+    cmd_clearBreak_args[0],
     " ",
     cmd_clearBreak_brief,
     " ",
@@ -1265,7 +1272,7 @@ char *cmd_clearBreak_detailed[] = {
 
 
 char *cmd_exit_detailed[] = {
-    cmd_exit_args,
+    cmd_exit_args[0],
     " ",
     cmd_exit_brief,
     " ",
@@ -1291,7 +1298,7 @@ char *cmd_exit_detailed[] = {
 
 
 char *cmd_help_detailed[] = {
-    cmd_help_args,
+    cmd_help_args[0],
     " ",
     cmd_help_brief,
     " ",
@@ -1301,7 +1308,7 @@ char *cmd_help_detailed[] = {
 
 
 char *cmd_history_detailed[] = {
-    cmd_history_args,
+    cmd_history_args[0],
     " ",
     cmd_history_brief,
     " ",
@@ -1312,7 +1319,7 @@ char *cmd_history_detailed[] = {
 
 
 char *cmd_log_detailed[] = {
-    cmd_log_args,
+    cmd_log_args[0],
     " ",
     cmd_log_brief,
     " ",
@@ -1326,7 +1333,7 @@ char *cmd_log_detailed[] = {
 
 
 char *cmd_openGui_detailed[] = {
-    cmd_openGui_args,
+    cmd_openGui_args[0],
     " ",
     cmd_openGui_brief,
     " "
@@ -1334,7 +1341,7 @@ char *cmd_openGui_detailed[] = {
 
 
 char *cmd_playback_detailed[] = {
-    cmd_playback_args,
+    cmd_playback_args[0],
     " ",
     cmd_playback_brief,
     " "
@@ -1342,7 +1349,7 @@ char *cmd_playback_detailed[] = {
 
 
 char *cmd_record_detailed[] = {
-    cmd_record_args,
+    cmd_record_args[0],
     " ",
     cmd_record_brief,
     " ",
@@ -1364,7 +1371,7 @@ char *cmd_record_detailed[] = {
 
 
 char *cmd_setbreak_detailed[] = {
-    cmd_setbreak_args,
+    cmd_setbreak_args[0],
     " ",
     cmd_setbreak_brief,
     " ",
@@ -1410,9 +1417,11 @@ char *cmd_expAttach_example[] = {
 
 char *cmd_expClose_example[] = {
     "expClose -x 3",
+    " ",
     "    Closes experiment #3.",
     " ",
     "expClose all",
+    " ",
     "    Closes all experiments",
     " ",
     "    In all the above cases, if the target application is",
@@ -1428,6 +1437,7 @@ char *cmd_expClose_example[] = {
 
 char *cmd_expCreate_example[] = {
     "expCreate -f my_prog usertime",
+    " ",
     "    Creates an experiment targeting the application",
     "    \'my_prog\' using the usertime performance measurement",
     "    utility.",
@@ -1621,189 +1631,204 @@ OpenSpeedShop::message_element_t cmd_msg[CMD_MAX] = {
 
 //    CMD_HEAD_ERROR,
     -1,NULL,NULL,0,NULL,NULL,
-    NULL,0,NULL,0,NULL,0,
+    NULL,0,
+    NULL,0,
+    NULL,0,
+    NULL,0,
 //    CMD_EXP_ATTACH,
-    -1,cmd_desc[CMD_EXP_ATTACH].name,NULL,0,"commands",cmd_expattach_brief,
-    cmd_expattach_detailed,sizeof(cmd_expattach_detailed)/sizeof(char **),
+    -1,cmd_desc[CMD_EXP_ATTACH].name,NULL,0,"commands",cmd_expAttach_brief,
+    cmd_expAttach_detailed,sizeof(cmd_expAttach_detailed)/sizeof(char **),
     NULL,0,
     cmd_expAttach_example,sizeof(cmd_expAttach_example)/sizeof(char **),
+    cmd_expAttach_args,sizeof(cmd_expAttach_args)/sizeof(char **),
 //    CMD_EXP_CLOSE,
     -1,cmd_desc[CMD_EXP_CLOSE].name,NULL,0,"commands",cmd_expClose_brief,
     cmd_expClose_detailed,sizeof(cmd_expClose_detailed)/sizeof(char **),
     NULL,0,
     cmd_expClose_example,sizeof(cmd_expClose_example)/sizeof(char **),
+    cmd_expClose_args,sizeof(cmd_expClose_args)/sizeof(char **),
 //    CMD_EXP_CREATE,
     -1,cmd_desc[CMD_EXP_CREATE].name,NULL,0,"commands",cmd_expCreate_brief,
     cmd_expCreate_detailed,sizeof(cmd_expCreate_detailed)/sizeof(char **),
     NULL,0,
     cmd_expCreate_example,sizeof(cmd_expCreate_example)/sizeof(char **),
+    cmd_expCreate_args,sizeof(cmd_expCreate_args)/sizeof(char **),
 //    CMD_EXP_DETACH,
     -1,cmd_desc[CMD_EXP_DETACH].name,NULL,0,"commands",cmd_expDetach_brief,
     cmd_expDetach_detailed,sizeof(cmd_expDetach_detailed)/sizeof(char **),
     NULL,0,
     cmd_expDetach_example,sizeof(cmd_expDetach_example)/sizeof(char **),
+    cmd_expDetach_args,sizeof(cmd_expDetach_args)/sizeof(char **),
 //    CMD_EXP_DISABLE,
     -1,cmd_desc[CMD_EXP_DISABLE].name,NULL,0,"commands",cmd_expDisable_brief,
     cmd_expDisable_detailed,sizeof(cmd_expDisable_detailed)/sizeof(char **),
     NULL,0,
     cmd_expDisable_example,sizeof(cmd_expDisable_example)/sizeof(char **),
+    cmd_expDisable_args,sizeof(cmd_expDisable_args)/sizeof(char **),
 //    CMD_EXP_ENABLE,
     -1,cmd_desc[CMD_EXP_ENABLE].name,NULL,0,"commands",cmd_expEnable_brief,
     cmd_expEnable_detailed,sizeof(cmd_expEnable_detailed)/sizeof(char **),
     NULL,0,
     cmd_expEnable_example,sizeof(cmd_expEnable_example)/sizeof(char **),
+    cmd_expEnable_args,sizeof(cmd_expEnable_args)/sizeof(char **),
 //    CMD_EXP_FOCUS,
     -1,cmd_desc[CMD_EXP_FOCUS].name,NULL,0,"commands",cmd_expFocus_brief,
     cmd_expFocus_detailed,sizeof(cmd_expFocus_detailed)/sizeof(char **),
     NULL,0,
     cmd_expFocus_example,sizeof(cmd_expFocus_example)/sizeof(char **),
+    cmd_expFocus_args,sizeof(cmd_expFocus_args)/sizeof(char **),
 //    CMD_EXP_GO,
     -1,cmd_desc[CMD_EXP_GO].name,NULL,0,"commands",cmd_expGo_brief,
     cmd_expGo_detailed,sizeof(cmd_expGo_detailed)/sizeof(char **),
     NULL,0,
     cmd_expGo_example,sizeof(cmd_expGo_example)/sizeof(char **),
+    cmd_expGo_args,sizeof(cmd_expGo_args)/sizeof(char **),
 //    CMD_EXP_PAUSE,
     -1,cmd_desc[CMD_EXP_PAUSE].name,NULL,0,"commands",cmd_expPause_brief,
     cmd_expPause_detailed,sizeof(cmd_expPause_detailed)/sizeof(char **),
     NULL,0,
     cmd_expPause_example,sizeof(cmd_expPause_example)/sizeof(char **),
+    cmd_expPause_args,sizeof(cmd_expPause_args)/sizeof(char **),
 //    CMD_EXP_RESTORE,
     -1,cmd_desc[CMD_EXP_RESTORE].name,NULL,0,"commands",cmd_expRestore_brief,
     cmd_expRestore_detailed,sizeof(cmd_expRestore_detailed)/sizeof(char **),
     NULL,0,
     cmd_expRestore_example,sizeof(cmd_expRestore_example)/sizeof(char **),
+    cmd_expRestore_args,sizeof(cmd_expRestore_args)/sizeof(char **),
 //    CMD_EXP_SAVE,
     -1,cmd_desc[CMD_EXP_SAVE].name,NULL,0,"commands",cmd_expSave_brief,
     cmd_expSave_detailed,sizeof(cmd_expSave_detailed)/sizeof(char **),
     NULL,0,
     cmd_expSave_example,sizeof(cmd_expSave_example)/sizeof(char **),
+    cmd_expSave_args,sizeof(cmd_expSave_args)/sizeof(char **),
 //    CMD_EXP_SETPARAM,
     -1,cmd_desc[CMD_EXP_SETPARAM].name,NULL,0,"commands",cmd_expSetParam_brief,
     cmd_expSetParam_detailed,sizeof(cmd_expSetParam_detailed)/sizeof(char **),
     NULL,0,
     cmd_expSetParam_example,sizeof(cmd_expSetParam_example)/sizeof(char **),
+    cmd_expSetParam_args,sizeof(cmd_expSetParam_args)/sizeof(char **),
 //    CMD_EXP_STATUS,
     -1,cmd_desc[CMD_EXP_STATUS].name,NULL,0,"commands",cmd_expStatus_brief,
     cmd_expStatus_detailed,sizeof(cmd_expStatus_detailed)/sizeof(char **),
     NULL,0,
     cmd_expStatus_example,sizeof(cmd_expStatus_example)/sizeof(char **),
+    cmd_expStatus_args,sizeof(cmd_expStatus_args)/sizeof(char **),
 //    CMD_EXP_VIEW,
     -1,cmd_desc[CMD_EXP_VIEW].name,NULL,0,"commands",cmd_expView_brief,
     cmd_expView_detailed,sizeof(cmd_expView_detailed)/sizeof(char **),
-    NULL,0,
-    NULL,0,
-
+    NULL,0,NULL,0,
+    cmd_expView_args,sizeof(cmd_expView_args)/sizeof(char **),
 //    CMD_LIST_BREAKS,
     -1,cmd_desc[CMD_LIST_BREAKS].name,NULL,0,"commands",cmd_listBreaks_brief,
     cmd_listBreaks_detailed,sizeof(cmd_listBreaks_detailed)/sizeof(char **),
-    NULL,0,
-    NULL,0,
+    NULL,0,NULL,0,
+    cmd_listBreaks_args,sizeof(cmd_listBreaks_args)/sizeof(char **),
 //    CMD_LIST_EXP,
     -1,cmd_desc[CMD_LIST_EXP].name,NULL,0,"commands",cmd_listExp_brief,
     cmd_listExp_detailed,sizeof(cmd_listExp_detailed)/sizeof(char **),
-    NULL,0,
-    NULL,0,
+    NULL,0,NULL,0,
+    cmd_listExp_args,sizeof(cmd_listExp_args)/sizeof(char **),
 //    CMD_LIST_HOSTS,
     -1,cmd_desc[CMD_LIST_HOSTS].name,NULL,0,"commands",cmd_listHosts_brief,
     cmd_listHosts_detailed,sizeof(cmd_listHosts_detailed)/sizeof(char **),
-    NULL,0,
-    NULL,0,
+    NULL,0,NULL,0,
+    cmd_listHosts_args,sizeof(cmd_listHosts_args)/sizeof(char **),
 //    CMD_LIST_METRICS,
     -1,cmd_desc[CMD_LIST_METRICS].name,NULL,0,"commands",cmd_listMetrics_brief,
     cmd_listMetrics_detailed,sizeof(cmd_listMetrics_detailed)/sizeof(char **),
-    NULL,0,
-    NULL,0,
+    NULL,0,NULL,0,
+    cmd_listMetrics_args,sizeof(cmd_listMetrics_args)/sizeof(char **),
 //    CMD_LIST_OBJ,
     -1,cmd_desc[CMD_LIST_OBJ].name,NULL,0,"commands",cmd_listObj_brief,
     cmd_listObj_detailed,sizeof(cmd_listObj_detailed)/sizeof(char **),
-    NULL,0,
-    NULL,0,
+    NULL,0,NULL,0,
+    cmd_listObj_args,sizeof(cmd_listObj_args)/sizeof(char **),
 //    CMD_LIST_PARAMS,
     -1,cmd_desc[CMD_LIST_PARAMS].name,NULL,0,"commands",cmd_listParams_brief,
     cmd_listParams_detailed,sizeof(cmd_listParams_detailed)/sizeof(char **),
-    NULL,0,
-    NULL,0,
+    NULL,0,NULL,0,
+    cmd_listParams_args,sizeof(cmd_listParams_args)/sizeof(char **),
 //    CMD_LIST_PIDS,
     -1,cmd_desc[CMD_LIST_PIDS].name,NULL,0,"commands",cmd_listPids_brief,
     cmd_listPids_detailed,sizeof(cmd_listPids_detailed)/sizeof(char **),
-    NULL,0,
-    NULL,0,
+    NULL,0,NULL,0,
+    cmd_listPids_args,sizeof(cmd_listPids_args)/sizeof(char **),
 //    CMD_LIST_RANKS,
     -1,cmd_desc[CMD_LIST_RANKS].name,NULL,0,"commands",cmd_listRanks_brief,
     cmd_listRanks_detailed,sizeof(cmd_listRanks_detailed)/sizeof(char **),
-    NULL,0,
-    NULL,0,
+    NULL,0,NULL,0,
+    cmd_listRanks_args,sizeof(cmd_listRanks_args)/sizeof(char **),
 //    CMD_LIST_SRC,
     -1,cmd_desc[CMD_LIST_SRC].name,NULL,0,"commands",cmd_listSrc_brief,
     cmd_listSrc_detailed,sizeof(cmd_listSrc_detailed)/sizeof(char **),
-    NULL,0,
-    NULL,0,
+    NULL,0,NULL,0,
+    cmd_listSrc_args,sizeof(cmd_listSrc_args)/sizeof(char **),
 //    CMD_LIST_STATUS,
     -1,cmd_desc[CMD_LIST_STATUS].name,NULL,0,"commands",cmd_listStatus_brief,
     cmd_listStatus_detailed,sizeof(cmd_listStatus_detailed)/sizeof(char **),
-    NULL,0,
-    NULL,0,
+    NULL,0,NULL,0,
+    cmd_listStatus_args,sizeof(cmd_listStatus_args)/sizeof(char **),
 //    CMD_LIST_THREADS,
     -1,cmd_desc[CMD_LIST_THREADS].name,NULL,0,"commands",cmd_listThreads_brief,
     cmd_listThreads_detailed,sizeof(cmd_listThreads_detailed)/sizeof(char **),
-    NULL,0,
-    NULL,0,
+    NULL,0,NULL,0,
+    cmd_listThreads_args,sizeof(cmd_listThreads_args)/sizeof(char **),
 //    CMD_LIST_TYPES,
     -1,cmd_desc[CMD_LIST_TYPES].name,NULL,0,"commands",cmd_listTypes_brief,
     cmd_listTypes_detailed,sizeof(cmd_listTypes_detailed)/sizeof(char **),
-    NULL,0,
-    NULL,0,
+    NULL,0,NULL,0,
+    cmd_listTypes_args,sizeof(cmd_listTypes_args)/sizeof(char **),
 //    CMD_LIST_VIEWS,
     -1,cmd_desc[CMD_LIST_VIEWS].name,NULL,0,"commands",cmd_listViews_brief,
     cmd_listViews_detailed,sizeof(cmd_listViews_detailed)/sizeof(char **),
-    NULL,0,
-    NULL,0,
-
+    NULL,0,NULL,0,
+    cmd_listViews_args,sizeof(cmd_listViews_args)/sizeof(char **),
 //    CMD_CLEAR_BREAK,
     -1,cmd_desc[CMD_CLEAR_BREAK].name,NULL,0,"commands",cmd_clearBreak_brief,
     cmd_clearBreak_detailed,sizeof(cmd_clearBreak_detailed)/sizeof(char **),
-    NULL,0,
-    NULL,0,
+    NULL,0,NULL,0,
+    cmd_clearBreak_args,sizeof(cmd_clearBreak_args)/sizeof(char **),
 //    CMD_EXIT,
     -1,cmd_desc[CMD_EXIT].name,NULL,0,"commands",cmd_exit_brief,
     cmd_exit_detailed,sizeof(cmd_exit_detailed)/sizeof(char **),
-    NULL,0,
-    NULL,0,
+    NULL,0,NULL,0,
+    cmd_exit_args,sizeof(cmd_exit_args)/sizeof(char **),
 //    CMD_HELP,
     -1,cmd_desc[CMD_HELP].name,NULL,0,"commands",cmd_help_brief,
     cmd_help_detailed,sizeof(cmd_help_detailed)/sizeof(char **),
-    NULL,0,
-    NULL,0,
+    NULL,0,NULL,0,
+    cmd_help_args,sizeof(cmd_help_args)/sizeof(char **),
 //    CMD_HISTORY,
     -1,cmd_desc[CMD_HISTORY].name,NULL,0,"commands",cmd_history_brief,
     cmd_history_detailed,sizeof(cmd_history_detailed)/sizeof(char **),
-    NULL,0,
-    NULL,0,
+    NULL,0,NULL,0,
+    cmd_history_args,sizeof(cmd_history_args)/sizeof(char **),
 //    CMD_LOG,
     -1,cmd_desc[CMD_LOG].name,NULL,0,"commands",cmd_log_brief,
     cmd_log_detailed,sizeof(cmd_log_detailed)/sizeof(char **),
-    NULL,0,
-    NULL,0,
+    NULL,0,NULL,0,
+    cmd_log_args,sizeof(cmd_log_args)/sizeof(char **),
 //    CMD_OPEN_GUI,
     -1,cmd_desc[CMD_OPEN_GUI].name,NULL,0,"commands",cmd_openGui_brief,
     cmd_openGui_detailed,sizeof(cmd_openGui_detailed)/sizeof(char **),
-    NULL,0,
-    NULL,0,
+    NULL,0,NULL,0,
+    cmd_openGui_args,sizeof(cmd_openGui_args)/sizeof(char **),
 //    CMD_PLAYBACK,
     -1,cmd_desc[CMD_PLAYBACK].name,NULL,0,"commands",cmd_playback_brief,
     cmd_playback_detailed,sizeof(cmd_playback_detailed)/sizeof(char **),
-    NULL,0,
-    NULL,0,
+    NULL,0,NULL,0,
+    cmd_playback_args,sizeof(cmd_playback_args)/sizeof(char **),
 //    CMD_RECORD,
     -1,cmd_desc[CMD_RECORD].name,NULL,0,"commands",cmd_record_brief,
     cmd_record_detailed,sizeof(cmd_record_detailed)/sizeof(char **),
-    NULL,0,
-    NULL,0,
+    NULL,0,NULL,0,
+    cmd_record_args,sizeof(cmd_record_args)/sizeof(char **),
 //    CMD_SETBREAK,
     -1,cmd_desc[CMD_SETBREAK].name,NULL,0,"commands",cmd_setbreak_brief,
     cmd_setbreak_detailed,sizeof(cmd_setbreak_detailed)/sizeof(char **),
     NULL,0,
-    NULL,0
+    NULL,0,
+    cmd_setbreak_args,sizeof(cmd_setbreak_args)/sizeof(char **)
 };
 
 /*********************************************/
@@ -2737,164 +2762,266 @@ char *gram_io_detailed[] = {
 OpenSpeedShop::message_element_t grammar_msg[] = {
 //    <breakId>
     -1,"breakId",NULL,0,"grammar",gram_breakId_brief,
-    gram_breakId_detailed,sizeof(gram_breakId_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_breakId_detailed,sizeof(gram_breakId_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <expId>
     -1,"expId",NULL,0,"grammar",gram_expId_brief,
-    gram_expId_detailed,sizeof(gram_expId_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_expId_detailed,sizeof(gram_expId_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <expId_spec>
     -1,"expId_spec",NULL,0,"grammar",gram_expId_spec_brief,
-    gram_expId_spec_detailed,sizeof(gram_expId_spec_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_expId_spec_detailed,sizeof(gram_expId_spec_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <metric_name>
     -1,"metric_name",NULL,0,"grammar",gram_metric_name_brief,
-    gram_metric_name_detailed,sizeof(gram_metric_name_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_metric_name_detailed,sizeof(gram_metric_name_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <expMetric>
     -1,"expMetric",NULL,0,"grammar",gram_expMetric_brief,
-    gram_expMetric_detailed,sizeof(gram_expMetric_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_expMetric_detailed,sizeof(gram_expMetric_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <expMetric_list_spec>
     -1,"expMetric_list_spec",NULL,0,"grammar",gram_expMetric_list_spec_brief,
-    gram_expMetric_list_spec_detailed,sizeof(gram_expMetric_list_spec_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_expMetric_list_spec_detailed,sizeof(gram_expMetric_list_spec_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <param_name>
     -1,"param_name",NULL,0,"grammar",gram_param_name_brief,
-    gram_param_name_detailed,sizeof(gram_param_name_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_param_name_detailed,sizeof(gram_param_name_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <expParam>
     -1,"expParam",NULL,0,"grammar",gram_expParam_brief,
-    gram_expParam_detailed,sizeof(gram_expParam_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_expParam_detailed,sizeof(gram_expParam_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <expParamValue>
     -1,"expParamValue",NULL,0,"grammar",gram_expParamValue_brief,
-    gram_expParamValue_detailed,sizeof(gram_expParamValue_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_expParamValue_detailed,sizeof(gram_expParamValue_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <predefined_exp>
     -1,"predefined_exp",NULL,0,"grammar",gram_predefined_exp_brief,
-    gram_predefined_exp_detailed,sizeof(gram_predefined_exp_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_predefined_exp_detailed,sizeof(gram_predefined_exp_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <user_defined_exp>
     -1,"user_defined_exp",NULL,0,"grammar",gram_user_defined_exp_brief,
-    gram_user_defined_exp_detailed,sizeof(gram_user_defined_exp_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_user_defined_exp_detailed,sizeof(gram_user_defined_exp_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <expType>
     -1,"expType",NULL,0,"grammar",gram_expType_brief,
-    gram_expType_detailed,sizeof(gram_expType_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_expType_detailed,sizeof(gram_expType_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <expType_list>
     -1,"expType_list",NULL,0,"grammar",gram_expType_list_brief,
-    gram_expType_list_detailed,sizeof(gram_expType_list_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_expType_list_detailed,sizeof(gram_expType_list_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <rankname>
     -1,"rankname",NULL,0,"grammar",gram_rankname_brief,
-    gram_rankname_detailed,sizeof(gram_rankname_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_rankname_detailed,sizeof(gram_rankname_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <rank_range>
     -1,"rank_range",NULL,0,"grammar",gram_rank_range_brief,
-    gram_rank_range_detailed,sizeof(gram_rank_range_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_rank_range_detailed,sizeof(gram_rank_range_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <rank_list>
     -1,"rank_list",NULL,0,"grammar",gram_rank_list_brief,
-    gram_rank_list_detailed,sizeof(gram_rank_list_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_rank_list_detailed,sizeof(gram_rank_list_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <rank_list_spec>
     -1,"rank_list_spec",NULL,0,"grammar",gram_rank_list_spec_brief,
-    gram_rank_list_spec_detailed,sizeof(gram_rank_list_spec_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_rank_list_spec_detailed,sizeof(gram_rank_list_spec_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <threadname>
     -1,"threadname",NULL,0,"grammar",gram_threadname_brief,
-    gram_threadname_detailed,sizeof(gram_threadname_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_threadname_detailed,sizeof(gram_threadname_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <thread_range>
     -1,"thread_range",NULL,0,"grammar",gram_thread_range_brief,
-    gram_thread_range_detailed,sizeof(gram_thread_range_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_thread_range_detailed,sizeof(gram_thread_range_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <thread_list>
     -1,"thread_list",NULL,0,"grammar",gram_thread_list_brief,
-    gram_thread_list_detailed,sizeof(gram_thread_list_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_thread_list_detailed,sizeof(gram_thread_list_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <thread_list_spec>
     -1,"thread_list_spec",NULL,0,"grammar",gram_thread_list_spec_brief,
-    gram_thread_list_spec_detailed,sizeof(gram_thread_list_spec_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_thread_list_spec_detailed,sizeof(gram_thread_list_spec_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <pidname>
     -1,"pidname",NULL,0,"grammar",gram_pidname_brief,
-    gram_pidname_detailed,sizeof(gram_pidname_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_pidname_detailed,sizeof(gram_pidname_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <pid_range>
     -1,"pid_range",NULL,0,"grammar",gram_pid_range_brief,
-    gram_pid_range_detailed,sizeof(gram_pid_range_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_pid_range_detailed,sizeof(gram_pid_range_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <pid_list>
     -1,"pid_list",NULL,0,"grammar",gram_pid_list_brief,
-    gram_pid_list_detailed,sizeof(gram_pid_list_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_pid_list_detailed,sizeof(gram_pid_list_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <pid_list_spec>
     -1,"pid_list_spec",NULL,0,"grammar",gram_pid_list_spec_brief,
-    gram_pid_list_spec_detailed,sizeof(gram_pid_list_spec_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_pid_list_spec_detailed,sizeof(gram_pid_list_spec_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <filename>
     -1,"filename",NULL,0,"grammar",gram_filename_brief,
-    gram_filename_detailed,sizeof(gram_filename_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_filename_detailed,sizeof(gram_filename_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <file_list>
     -1,"file_list",NULL,0,"grammar",gram_file_list_brief,
-    gram_file_list_detailed,sizeof(gram_file_list_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_file_list_detailed,sizeof(gram_file_list_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <file_list_spec>
     -1,"file_list_spec",NULL,0,"grammar",gram_file_list_spec_brief,
-    gram_file_list_spec_detailed,sizeof(gram_file_list_spec_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_file_list_spec_detailed,sizeof(gram_file_list_spec_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <IP_Address>
     -1,"IP_Address",NULL,0,"grammar",gram_IP_Address_brief,
-    gram_IP_Address_detailed,sizeof(gram_IP_Address_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_IP_Address_detailed,sizeof(gram_IP_Address_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <hostname>
     -1,"hostname",NULL,0,"grammar",gram_hostname_brief,
-    gram_hostname_detailed,sizeof(gram_hostname_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_hostname_detailed,sizeof(gram_hostname_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <host_list>
     -1,"host_list",NULL,0,"grammar",gram_host_list_brief,
-    gram_host_list_detailed,sizeof(gram_host_list_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_host_list_detailed,sizeof(gram_host_list_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <host_list_spec>
     -1,"host_list_spec",NULL,0,"grammar",gram_host_list_spec_brief,
-    gram_host_list_spec_detailed,sizeof(gram_host_list_spec_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_host_list_spec_detailed,sizeof(gram_host_list_spec_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <clustername>
     -1,"clustername",NULL,0,"grammar",gram_clustername_brief,
-    gram_clustername_detailed,sizeof(gram_clustername_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_clustername_detailed,sizeof(gram_clustername_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <cluster_list>
     -1,"cluster_list",NULL,0,"grammar",gram_cluster_list_brief,
-    gram_cluster_list_detailed,sizeof(gram_cluster_list_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_cluster_list_detailed,sizeof(gram_cluster_list_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <cluster_list_spec>
     -1,"cluster_list_spec",NULL,0,"grammar",gram_cluster_list_spec_brief,
-    gram_cluster_list_spec_detailed,sizeof(gram_cluster_list_spec_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_cluster_list_spec_detailed,sizeof(gram_cluster_list_spec_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <target>
     -1,"target",NULL,0,"grammar",gram_target_brief,
-    gram_target_detailed,sizeof(gram_target_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_target_detailed,sizeof(gram_target_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <target_list>
     -1,"target_list",NULL,0,"grammar",gram_target_list_brief,
-    gram_target_list_detailed,sizeof(gram_target_list_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_target_list_detailed,sizeof(gram_target_list_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <file_spec>
     -1,"file_spec",NULL,0,"grammar",gram_file_spec_brief,
-    gram_file_spec_detailed,sizeof(gram_file_spec_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_file_spec_detailed,sizeof(gram_file_spec_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <host_spec> 
     -1,"host_spec",NULL,0,"grammar",gram_host_spec_brief,
-    gram_host_spec_detailed,sizeof(gram_host_spec_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_host_spec_detailed,sizeof(gram_host_spec_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <host_file>
     -1,"host_file",NULL,0,"grammar",gram_host_file_brief,
-    gram_host_file_detailed,sizeof(gram_host_file_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_host_file_detailed,sizeof(gram_host_file_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <lineno_range>
     -1,"lineno_range",NULL,0,"grammar",gram_lineno_range_brief,
-    gram_lineno_range_detailed,sizeof(gram_lineno_range_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_lineno_range_detailed,sizeof(gram_lineno_range_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <linenumber_range_spec>
     -1,"linenumber_range_spec",NULL,0,"grammar",gram_linenumber_range_spec_brief,
-    gram_linenumber_range_spec_detailed,sizeof(gram_linenumber_range_spec_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_linenumber_range_spec_detailed,sizeof(gram_linenumber_range_spec_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <linenumber_list_spec>
     -1,"linenumber_list_spec",NULL,0,"grammar",gram_linenumber_list_spec_brief,
-    gram_linenumber_list_spec_detailed,sizeof(gram_linenumber_list_spec_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_linenumber_list_spec_detailed,sizeof(gram_linenumber_list_spec_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <statusType>
     -1,"statusType",NULL,0,"grammar",gram_statusType_brief,
-    gram_statusType_detailed,sizeof(gram_statusType_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_statusType_detailed,sizeof(gram_statusType_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <viewType>
     -1,"viewType",NULL,0,"grammar",gram_viewType_brief,
-    gram_viewType_detailed,sizeof(gram_viewType_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_viewType_detailed,sizeof(gram_viewType_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    pcsamp
     -1,"pcsamp",NULL,0,"experiments",gram_pcsamp_brief,
-    gram_pcsamp_detailed,sizeof(gram_pcsamp_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_pcsamp_detailed,sizeof(gram_pcsamp_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    usertime
     -1,"usertime",NULL,0,"experiments",gram_usertime_brief,
-    gram_usertime_detailed,sizeof(gram_usertime_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_usertime_detailed,sizeof(gram_usertime_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    mpi
     -1,"mpi",NULL,0,"experiments",gram_mpi_brief,
-    gram_mpi_detailed,sizeof(gram_mpi_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_mpi_detailed,sizeof(gram_mpi_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    fpe
     -1,"fpe",NULL,0,"experiments",gram_fpe_brief,
-    gram_fpe_detailed,sizeof(gram_fpe_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_fpe_detailed,sizeof(gram_fpe_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    hwc
     -1,"hwc",NULL,0,"experiments",gram_hwc_brief,
-    gram_hwc_detailed,sizeof(gram_hwc_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_hwc_detailed,sizeof(gram_hwc_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    io
     -1,"io",NULL,0,"experiments",gram_io_brief,
-    gram_io_detailed,sizeof(gram_io_detailed)/sizeof(char **),NULL,0,NULL,0,
+    gram_io_detailed,sizeof(gram_io_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    
 //    -1,"",NULL,0,"grammar",gram_xxx_brief,
 //    gram_xxx_detailed,sizeof(gram_xxx_detailed)/sizeof(char **),NULL,0,NULL,0,
 
 //    END OF LIST
     -1,NULL,NULL,0,NULL,NULL,
-    NULL,0,NULL,0,NULL,0
+    NULL,0,NULL,0,NULL,0,NULL,0
 };
 
 

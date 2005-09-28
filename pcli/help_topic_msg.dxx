@@ -82,33 +82,33 @@ OpenSpeedShop::message_element_t topic_msg[] = {
     -1,"commands",NULL,0,
     "topic",topic_commands_brief,
     topic_commands_detailed,sizeof(topic_commands_detailed)/sizeof(char **),
-    NULL,0,NULL,0,
+    NULL,0,NULL,0,NULL,0,
 
 //    grammar
     -1,"grammar",NULL,0,
     "topic",topic_grammar_brief,
     topic_grammar_detailed,sizeof(topic_grammar_detailed)/sizeof(char **),
-    NULL,0,NULL,0,
+    NULL,0,NULL,0,NULL,0,
 
 //    experiments
     -1,"experiments",NULL,0,
     "topic",topic_experiments_brief,
     topic_experiments_detailed,sizeof(topic_experiments_detailed)/sizeof(char **),
-    NULL,0,NULL,0,
+    NULL,0,NULL,0,NULL,0,
 
 //    Man page
     -1,"man",NULL,0,
     "topic",topic_man_brief,
     topic_man_detailed,sizeof(topic_man_detailed)/sizeof(char **),
-    NULL,0,NULL,0,
+    NULL,0,NULL,0,NULL,0,
 
 //    General nomenclature
     -1,"terms",NULL,0,
     "topic",topic_nomenclature_brief,
     topic_nomenclature_detailed,sizeof(topic_nomenclature_detailed)/sizeof(char **),
-    NULL,0,NULL,0,
+    NULL,0,NULL,0,NULL,0,
 
 //    END OF LIST
     -1,NULL,NULL,0,NULL,NULL,
-    NULL,0,NULL,0,NULL,0
+    NULL,0,NULL,0,NULL,0,NULL,0
 };
