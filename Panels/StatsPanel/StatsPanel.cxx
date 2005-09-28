@@ -575,6 +575,7 @@ StatsPanel::exportData()
     fd->setMode( QFileDialog::AnyFile );
     fd->setSelection(fileName);
     QString types( "Any Files (*);;"
+                      "Data files (semicolon delimited) (*.dat);;"
                       "Text files (*.txt);;"
                       );
     fd->setFilters( types );
@@ -592,6 +593,12 @@ StatsPanel::exportData()
     }
   }
 
+  bool datFLAG = FALSE;
+  if( fileName.endsWith(".dat") )
+  {
+    datFLAG = TRUE;
+  }
+
   if( f != NULL )
   {
     // Write out the header info
@@ -600,7 +607,19 @@ StatsPanel::exportData()
     {
       for(i=0;i<cols;i++)
       {
-        line += QString(splv->columnText(i))+" ";
+        if( datFLAG == TRUE )
+        {
+          if( i < cols-1 )
+          {
+            line += QString(splv->columnText(i))+"; ";
+          } else
+          {
+            line += QString(splv->columnText(i))+" ";
+          }
+        } else
+        {
+          line += QString(splv->columnText(i))+" ";
+        }
       }
       line += QString("\n");
     }
@@ -613,7 +632,19 @@ StatsPanel::exportData()
       line = QString("  ");
       for(i=0;i<cols;i++)
       {
-        line += QString(item->text(i))+" ";
+        if( datFLAG == TRUE )
+        {
+          if( i < cols-1 )
+          {
+            line += QString(item->text(i))+"; ";
+          } else
+          {
+            line += QString(item->text(i))+" ";
+          }
+        } else
+        {
+          line += QString(item->text(i))+" ";
+        }
       }
       line += QString("\n");
       f->writeBlock( line, qstrlen(line) );
