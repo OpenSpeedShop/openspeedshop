@@ -1,10 +1,11 @@
-To build the scripting API documentation:
+To build the scripting API documentation and fill
+out the package as it currently stands:
 
-    epydoc -o doc -t oss/__init__.py -n oss oss/oss*.py oss/__init__.py
+    source doit.csh
 
 The documentation will be deposited in the 
-directory ./doc. Just point your browser at
-./doc/index.html.
+directory oss/doc. Just point your browser at
+oss/doc/index.html.
 
 Don't have epydoc? Google it and download sources 
 from SourceForge and build it. Pretty easy. For our
