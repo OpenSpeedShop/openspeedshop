@@ -332,10 +332,9 @@ bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string vi
 }
 
 // Initialize definitions of the predefined views.
-void Define_Basic_Views ();
 extern "C" void stats_LTX_ViewFactory ();
+void SS_Load_View_plugins ();
 
 void SS_Init_BuiltIn_Views () {
-  stats_LTX_ViewFactory ();
-  Define_Basic_Views ();
+  stats_LTX_ViewFactory ();  // This is the generic, built-in view
 }
