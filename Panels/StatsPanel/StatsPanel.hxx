@@ -158,6 +158,7 @@ void setCurrentMetricStr();
     void gotoSource(bool use_current_item = FALSE);
     void showPercentageSelected();
     void compareSelected();
+    void manageProcessesSelected();
 
   private slots:
     void threadSelected(int);

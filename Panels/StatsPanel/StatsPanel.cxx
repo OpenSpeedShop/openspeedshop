@@ -34,6 +34,8 @@ class MetricHeaderInfo;
 typedef QValueList<MetricHeaderInfo *> MetricHeaderInfoList;
 #include "CLIInterface.hxx"
 
+#include "ManageProcessesPanel.hxx"
+
 
 // These are the pie chart colors..
 static char *hotToCold_color_names[] = { 
@@ -380,24 +382,34 @@ StatsPanel::menu( QPopupMenu* contextMenu)
   }
     
   threadMenu = new QPopupMenu(this);
-  contextMenu->insertItem(QString("Show Thread/Process"), threadMenu);
-  for( std::list<int64_t>::const_iterator it = list_of_pids.begin();
-       it != list_of_pids.end(); it++ )
+  int MAX_PROC_MENU_DISPLAY = 8;
+  if( list_of_pids.size() <= MAX_PROC_MENU_DISPLAY )
   {
-    int pid = (int64_t)*it;
-// printf("pid=(%d)\n", pid );
-    QString pidStr = QString("%1").arg(pid);
-    int mid = threadMenu->insertItem(pidStr);
-    threadMenu->setCheckable(TRUE);
-    if( currentThreadStr.isEmpty() || currentThreadStr == pidStr )
+    contextMenu->insertItem(QString("Show Thread/Process"), threadMenu);
+    for( std::list<int64_t>::const_iterator it = list_of_pids.begin();
+         it != list_of_pids.end(); it++ )
     {
-      currentThreadStr = pidStr;
-      threadMenu->setItemChecked(mid, TRUE);
+      int pid = (int64_t)*it;
+// printf("pid=(%d)\n", pid );
+      QString pidStr = QString("%1").arg(pid);
+      int mid = threadMenu->insertItem(pidStr);
+      threadMenu->setCheckable(TRUE);
+      if( currentThreadStr.isEmpty() || currentThreadStr == pidStr )
+      {
+        currentThreadStr = pidStr;
+        threadMenu->setItemChecked(mid, TRUE);
+      }
+      connect(threadMenu, SIGNAL( activated(int) ),
+        this, SLOT(threadSelected(int)) );
     }
-    connect(threadMenu, SIGNAL( activated(int) ),
-      this, SLOT(threadSelected(int)) );
+  } else
+  {
+    QAction *qaction = new QAction( this,  "manageProcessesMenu");
+    qaction->addTo( contextMenu );
+    qaction->setText( "Manage Processes..." );
+    connect( qaction, SIGNAL( activated() ), this, SLOT( manageProcessesSelected() ) );
+    qaction->setStatusTip( tr(QString("There are over %1 processes to manage.  This brings up the Manage Processes\nPanel which is designed to handle large number of procesess/threads.").arg(MAX_PROC_MENU_DISPLAY)) );
   }
-
 
   showPercentageID = contextMenu->insertItem("Show Percentages", this, SLOT(showPercentageSelected()) );
   contextMenu->setItemChecked(showPercentageID, showPercentageFLAG);
@@ -696,12 +708,53 @@ StatsPanel::showPercentageSelected()
   updateStatsPanelData();
 }
 
-/*! Go to source menu item was selected. */
+/*! Compare item was selected. */
 void
 StatsPanel::compareSelected()
 {
 printf("compareSelected() menu selected.\n");
 QMessageBox::information(this, "compareSelected() unimplemented", "This functionality is currently unimplement.\nIt will eventually bring up a dialog that will\nallow many different comparisons.\n  - Compare one run to another.\n  - Compare on thread to another.\n  - Compare one thread against all others.\n  - ...\n", "Ok");
+}
+
+/*! Compare item was selected. */
+void
+StatsPanel::manageProcessesSelected()
+{
+// printf("manageProcessesSelected() menu selected.\n");
+  QString name = QString("ManageProcessesPanel [%1]").arg(expID);
+
+
+  Panel *manageProcessPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+
+  if( manageProcessPanel )
+  { 
+    nprintf( DEBUG_PANELS ) ("loadManageProcessesPanel() found ManageProcessesPanel found.. raise it.\n");
+    getPanelContainer()->raisePanel(manageProcessPanel);
+  } else
+  {
+//    nprintf( DEBUG_PANELS ) ("loadManageProcessesPanel() no ManageProcessesPanel found.. create one.\n");
+
+    PanelContainer *startPC = getPanelContainer();
+    PanelContainer *bestFitPC = topPC->findBestFitPanelContainer(startPC);
+
+    ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
+    manageProcessPanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("ManageProcessesPanel", startPC, ao);
+    delete ao;
+  }
+
+  if( manageProcessPanel )
+  {
+//    nprintf( DEBUG_PANELS )("call (%s)'s listener routine.\n", manageProcessPanel->getName());
+    ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+    if( eo && eo->FW() )
+    {
+      Experiment *experiment = eo->FW();
+      UpdateObject *msg =
+        new UpdateObject((void *)experiment, expID, "pcsamp", 1);
+      manageProcessPanel->listener( (void *)msg );
+    }
+  }
+
 }
 
 void

@@ -367,7 +367,7 @@ pcSamplePanel::menu(QPopupMenu* contextMenu)
 
   qaction = new QAction( this,  "manageProcessesPanel");
   qaction->addTo( contextMenu );
-  qaction->setText( "Manage Processes Panel..." );
+  qaction->setText( "Manage Processes ..." );
   connect( qaction, SIGNAL( activated() ), this, SLOT( loadManageProcessesPanel() ) );
   qaction->setStatusTip( tr("Bring up the process and collector manager.") );
 
