@@ -102,8 +102,8 @@ CollectorPluginTable::~CollectorPluginTable()
 	    i = dm_unique_id_to_entry.begin();
 	i != dm_unique_id_to_entry.end();
 	++i) {
-	Assert(i->second.instances == 0);
-	Assert(i->second.handle == NULL);
+	Assert(i->second.dm_instances == 0);
+	Assert(i->second.dm_handle == NULL);
     }
     
     // Exit libltdl
@@ -134,7 +134,7 @@ std::set<Metadata> CollectorPluginTable::getAvailable()
 	    i = dm_unique_id_to_entry.begin();
 	i != dm_unique_id_to_entry.end();
 	++i)
-	metadata.insert(i->second.metadata);
+	metadata.insert(i->second.dm_metadata);
     
     // Return the metadata to the caller
     return metadata;
@@ -177,17 +177,17 @@ CollectorImpl* CollectorPluginTable::instantiate(const std::string& unique_id)
 	Guard guard_myself(this);
 		
 	// Is this the first instance of this collector implementation?
-	if(i->second.instances == 0) {
+	if(i->second.dm_instances == 0) {
 	    
 	    // Load the plugin into memory
-	    i->second.handle = lt_dlopenext(i->second.path.c_str());
-	    if(i->second.handle == NULL)
+	    i->second.dm_handle = lt_dlopenext(i->second.dm_path.c_str());
+	    if(i->second.dm_handle == NULL)
 		return NULL;
 	    
 	}
 		
 	// Find the factory method in the plugin
-	lt_dlhandle handle = reinterpret_cast<lt_dlhandle>(i->second.handle);
+	lt_dlhandle handle = reinterpret_cast<lt_dlhandle>(i->second.dm_handle);
 	Assert(handle != NULL);
 	CollectorImpl* (*factory)() = (CollectorImpl* (*)())
 	    lt_dlsym(handle, "CollectorFactory");
@@ -196,11 +196,11 @@ CollectorImpl* CollectorPluginTable::instantiate(const std::string& unique_id)
 	
 	// Create an instance of this collector
 	instance = (*factory)();
-	if(i->second.metadata != *instance)
+	if(i->second.dm_metadata != *instance)
 	    return NULL;
 		
 	// Increment the plugin's instance count
-	i->second.instances++;    
+	i->second.dm_instances++;    
 	
     }
     
@@ -239,17 +239,17 @@ void CollectorPluginTable::destroy(CollectorImpl* impl)
 	Guard guard_myself(this);
 	
 	// Decrement the plugin's instance count
-	i->second.instances--;
+	i->second.dm_instances--;
 	
 	// Was this the last instance of this plugin?
-	if(i->second.instances == 0) {
+	if(i->second.dm_instances == 0) {
 	    
 	    // Unload the plugin from memory
 	    lt_dlhandle handle =
-		reinterpret_cast<lt_dlhandle>(i->second.handle);
-	    Assert(i->second.handle != NULL);
+		reinterpret_cast<lt_dlhandle>(i->second.dm_handle);
+	    Assert(i->second.dm_handle != NULL);
 	    Assert(lt_dlclose(handle) == 0);
-	    i->second.handle = NULL;
+	    i->second.dm_handle = NULL;
 	    
 	}
     }
@@ -277,10 +277,10 @@ void CollectorPluginTable::foreachCallback(const std::string& filename)
 {
     // Create an entry for this possible collector plugin
     Entry entry;
-    entry.path = filename;
+    entry.dm_path = filename;
 	    
     // Can we open this file as a libltdl module?
-    lt_dlhandle handle = lt_dlopenext(entry.path.c_str());
+    lt_dlhandle handle = lt_dlopenext(entry.dm_path.c_str());
     if(handle == NULL)
 	return;
     
@@ -294,20 +294,20 @@ void CollectorPluginTable::foreachCallback(const std::string& filename)
     
     // Get the metadata for this collector implementation
     CollectorImpl* instance = (*factory)();
-    entry.metadata = *instance;
+    entry.dm_metadata = *instance;
     delete instance;
 	    
     // Close the module handle
     Assert(lt_dlclose(handle) == 0);
 	    
     // Have we already used this unique identifier?
-    if(dm_unique_id_to_entry.find(entry.metadata.getUniqueId()) != 
+    if(dm_unique_id_to_entry.find(entry.dm_metadata.getUniqueId()) != 
        dm_unique_id_to_entry.end())
 	return;
 	    
     // Add this entry to the table of collector plugins
     dm_unique_id_to_entry.insert(
-	std::make_pair(entry.metadata.getUniqueId(), entry)
+	std::make_pair(entry.dm_metadata.getUniqueId(), entry)
 	);
 }
 

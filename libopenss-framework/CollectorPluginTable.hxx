@@ -95,23 +95,23 @@ namespace OpenSpeedShop { namespace Framework {
 	{
 	    
 	    /** Metadata for this plugin's Collector class. */
-	    Metadata metadata;
+	    Metadata dm_metadata;
 	    
 	    /** Path of this plugin. */
-	    Path path;
+	    Path dm_path;
 	    
 	    /** Number of instances of this plugin's Collector class. */
-	    unsigned instances;
+	    unsigned dm_instances;
 	    
 	    /** Handle to this plugin. */
-	    void* handle;	
+	    void* dm_handle;	
 	    
 	    /** Default constructor. */
 	    Entry() :
-		metadata(),
-		path(""),
-		instances(0),
-		handle(NULL)
+		dm_metadata(),
+		dm_path(""),
+		dm_instances(0),
+		dm_handle(NULL)
 	     {
 	     }		
 	    
