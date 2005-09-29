@@ -206,7 +206,6 @@ catch(const Exception& error) {
 
 #define EXT_MAX 20
 int64_t EXT_Created = 0;
-static bool Terminate_All_Execution = false;
 static pthread_t EXT_handle[EXT_MAX];
 static int64_t EXT_Allocated = 0;
 static int64_t EXT_Free      = 0;
@@ -249,7 +248,6 @@ void Wait_For_Previous_Cmds () {
 
 void Purge_Dispatch_Queue () {
   Assert(pthread_mutex_lock(&Cmd_EXT_Lock) == 0);
-  Terminate_All_Execution = true;
   while (EXT_Dispatch.begin() != EXT_Dispatch.end()) {
     CommandObject *cmd = *EXT_Dispatch.begin();
     EXT_Dispatch.pop_front();
@@ -285,7 +283,7 @@ static void Cmd_EXT_Create () {
            (EXT_Dispatch.begin() == EXT_Dispatch.end())) {
       EXT_Free++;  // I am looking for work.
       if (Cmd_Waiting &&
-          !Terminate_All_Execution &&
+          !Shut_Down &&
           (EXT_Allocated == (EXT_Free + 1))) {
        // Wakeup the waiting process for single thread execution
         Assert(pthread_cond_signal(&Waiting_For_Cmds) == 0);
@@ -294,7 +292,7 @@ static void Cmd_EXT_Create () {
       Assert(pthread_cond_wait(&Cmd_EXT_Dispatch,&Cmd_EXT_Lock) == 0);
      // When we wake up, we have the lock again.
       EXT_Free--;  // I found work.
-      if (Terminate_All_Execution) {
+      if (Shut_Down) {
        // They woke me up to get rid of me!
         EXT_Allocated--;  // I'm going to go away.
         if (EXT_Allocated == 1) {
@@ -327,13 +325,7 @@ static void Cmd_EXT_Create () {
    // When we complete the command, look for more work to do.
     Assert(pthread_mutex_lock(&Cmd_EXT_Lock) == 0);
 
-    if (Main_Waiting &&
-        (EXT_Dispatch.size() <= Main_Waiting_Count)) {
-      Main_Waiting = false;
-      Assert(pthread_cond_signal(&Waiting_For_Main) == 0);
-    }
-
-    if (Terminate_All_Execution) {
+    if (Shut_Down) {
      // Somebody has processed an Exit command.
       if (EXT_Free != 0) {
        // Signal all the free processes to terminate.
@@ -349,9 +341,12 @@ static void Cmd_EXT_Create () {
 
        // Tell the input routines to send EOF to Python.
         Assert(pthread_mutex_lock(&Async_Input_Lock) == 0);
-        Shut_Down = true;
         Assert(pthread_cond_signal(&Async_Input_Available) == 0);
         Assert(pthread_mutex_unlock(&Async_Input_Lock) == 0);
+        if (Main_Waiting) {
+          Main_Waiting = false;
+          Assert(pthread_cond_signal(&Waiting_For_Main) == 0);
+        }
       } else {
         if (Cmd_Waiting &&
             (EXT_Allocated == 2)) {
@@ -363,6 +358,12 @@ static void Cmd_EXT_Create () {
       EXT_Allocated--;  // I'm going away, now.
       Assert(pthread_mutex_unlock(&Cmd_EXT_Lock) == 0);
       pthread_exit(0);
+    }
+
+    if (Main_Waiting &&
+        (EXT_Dispatch.size() <= Main_Waiting_Count)) {
+      Main_Waiting = false;
+      Assert(pthread_cond_signal(&Waiting_For_Main) == 0);
     }
 
     if (!Ready_for_Next_Cmd &&
@@ -378,7 +379,7 @@ void SS_Execute_Cmd (CommandObject *cmd) {
  // Prevent unsafe changes
   Assert(pthread_mutex_lock(&Cmd_EXT_Lock) == 0);
 
-  if (!Terminate_All_Execution) {
+  if (!Shut_Down) {
     if (cmd->Type() == CMD_RECORD) {
      // Execute this command with the main thread
      // and do it immediately so that any new comamnds
@@ -399,24 +400,30 @@ void SS_Execute_Cmd (CommandObject *cmd) {
           if (stat != 0) {
            // Attempt error recovery.
             cerr << "ERROR: unable to execute any comands." << std::endl;
-            Terminate_All_Execution = true;
             Shut_Down = true;
           } else {
-           // Control lock released when thread does a "join"
+           // Control lock released when thread does a "join".
+           // We need to get it back!
+            Assert(pthread_mutex_lock(&Cmd_EXT_Lock) == 0);
           }
         }
       }
 
-      if (cmd->Type() == CMD_PLAYBACK) {
+      if (cmd->Type() == CMD_EXIT) {
+       // Don't read any more input until this command is
+       // processed and shut down can be initiated.
+        if (!Shut_Down) {
+          Main_Waiting = true;
+          Main_Waiting_Count = 0;
+          Assert(pthread_cond_wait(&Waiting_For_Main,&Cmd_EXT_Lock) == 0);
+        }
+      } else if (cmd->Type() == CMD_PLAYBACK) {
        // Don't read any more input until this command is
        // processed and the input file can be used.
         Main_Waiting = true;
         Main_Waiting_Count = 0;
         Assert(pthread_cond_wait(&Waiting_For_Main,&Cmd_EXT_Lock) == 0);
-      }
-
-      if (!Main_Waiting &&
-          (EXT_Dispatch.size() > (EXT_MAX * 2))) {
+      } else if (EXT_Dispatch.size() > (EXT_MAX * 2)) {
        // Don't read any more input until we can process
        // some of the commands we already have.
         Main_Waiting = true;
