@@ -2803,13 +2803,76 @@ Experiment</b></h5>
     <h5><a class="mozTocH5" name="mozTocId951324"></a><b style=""><a
  class="mozTocH5" name="mozTocId464595"></a><a
  name="PC_Sampling_Experiment"></a>PC Sampling Experiment</b></h5>
-    <b style="">TBD<br>
-    </b>
+The <tt style="font-weight: bold;">pcsamp</tt> experiment estimates
+the actual CPU time for each source code line, machine code line, and
+function in your program. The Command Line Interface performance
+results
+listing and the GUI performance results panel of this experiment show
+both inclusive and exclusive PC sampling time. This
+experiment is a lightweight, high-speed operation that makes use of the
+operating system.
+    <p>CPU time is calculated by multiplying the number of times an
+instruction or function appears in the PC by the interval specified for
+the experiment (for example: 1 or 10 milliseconds).</p>
+To collect the data, the operating system regularly stops the
+process, increments a counter corresponding to the current value of the
+PC, and resumes the process. The default sample interval is 10
+milliseconds.<br>
+    <br>
+PC sampling runs should slow the execution time of the program down no
+more than 5 percent. The measurements are statistical in nature,
+meaning they exhibit variance inversely proportional to the running
+time.<br>
+    <br>
     <h5><a class="mozTocH5" name="mozTocId319939"></a><b style=""><a
  class="mozTocH5" name="mozTocId677740"></a><a
  name="User_Time_Experiment"></a>User Time Experiment</b></h5>
-    <b style="">TBD<br>
-    </b>
+    <p style="font-family: serif;">The usertime experiment is a useful
+experiment to start your performance analysis. The usertime experiment
+returns CPU time for each function while your program runs.</p>
+    <p style="font-family: serif;">This experiment uses a statistical
+call stack profiling to measure inclusive and exclusive <font
+ style="color: rgb(0, 0, 0);" color="darkred"><span
+ style="background-color: rgb(204, 204, 204);">user</span></font>
+time. It takes a sample every 30 milliseconds.&nbsp; Data is measured
+by
+periodically sampling the callstack. The program's callstack data is
+used to do the following:</p>
+    <div style="font-family: serif;" class="itemizedlist">
+    <ul type="disc">
+      <li>
+        <p>Attribute exclusive <font style="color: rgb(0, 0, 0);"
+ color="darkred"><span style="background-color: rgb(204, 204, 204);">user</span></font>
+time to the function at the bottom of each callstack (that is, the
+function being executed at the time of the sample).</p>
+      </li>
+      <li>
+        <p>Attribute inclusive <font style="color: rgb(0, 0, 0);"
+ color="darkred"><span style="background-color: rgb(204, 204, 204);">user</span></font>
+time to all the functions above the one currently being executed (those
+involved in the chain of calls that led to the function at the bottom
+of the callstack executing).</p>
+      </li>
+    </ul>
+    </div>
+    <p style="font-family: serif;">The time spent in a procedure is
+determined by
+multiplying the number of times an instruction for that procedure
+appears in the stack by the sampling time interval between call stack
+samples. Call stacks are gathered when the program is running; hence,
+the time computed represents <font style="color: rgb(0, 0, 0);"
+ color="darkred"><span style="background-color: rgb(204, 204, 204);">user</span></font>
+time, not time spent when the program is waiting for a CPU. <font
+ style="color: rgb(0, 0, 0);" color="darkred"><span
+ style="background-color: rgb(204, 204, 204);">User</span></font>
+time shows both the time the program itself is executing and the time
+the operating system is performing services for the program, such as
+I/O.</p>
+    <p style="font-family: serif;">The usertime experiment should incur
+a program execution slowdown of no more than 15%.&nbsp; Data from a
+usertime experiment is statistical in nature and shows some variance
+from run to run.</p>
+    <b style=""> </b>
     <h4><a class="mozTocH4" name="mozTocId976010"></a><b style=""><a
  class="mozTocH4" name="mozTocId851128"></a><a name="Wizard_Menu_"></a>Wizard
 Menu</b></h4>
