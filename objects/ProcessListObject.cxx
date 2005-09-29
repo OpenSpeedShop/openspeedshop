@@ -317,7 +317,16 @@ ProcessListObject::extract_ps_list ( char *host, FILE *input, int *count, int /*
   // field start/end pairs.   Process the ps list.
   do
   {
-//    fprintf(stderr, "line=(%s) pid_field_start=%d pid_field_length=%d\n", line, pid_field_start, pid_field_length );
+// fprintf(stderr, "line=(%s) pid_field_start=%d pid_field_length=%d\n", line, pid_field_start, pid_field_length );
+
+    // Throw out any known zombies.
+// fprintf(stderr, "line=(%s)\n", line );
+    if( strstr(line, "<defunct>") != NULL )
+    {
+// printf("Ignore this zombie!!\n");
+      continue;
+    }
+
     char *sub_str = substr( line, pid_field_start, pid_field_length );
     pid = (int) atol ( sub_str );
     free(sub_str);
@@ -325,6 +334,7 @@ ProcessListObject::extract_ps_list ( char *host, FILE *input, int *count, int /*
     parent_pid = (int) atol ( sub_str );
     free(sub_str);
     sscanf ( line + command_field_start, "%s", command_string);
+
 
     char *ptr = strchr(command_string, ' ');
     if( ptr != NULL )
@@ -344,9 +354,18 @@ ProcessListObject::extract_ps_list ( char *host, FILE *input, int *count, int /*
     if( command_string[0]  == '-' ||
         strcmp (base_command_string, "sh") == 0 ||
         strcmp (base_command_string, "csh") == 0 ||
+        strcmp (base_command_string, "tcsh") == 0 ||
         strcmp (base_command_string, "ksh") == 0 ||
         strcmp (base_command_string, "ps") == 0 ||
+        strcmp (base_command_string, "rshd") == 0 ||
+        strcmp (base_command_string, "sshd") == 0 ||
+        strcmp (base_command_string, "rsh") == 0 ||
+        strcmp (base_command_string, "ssh") == 0 ||
         strcmp(base_command_string, "openspeedshop") == 0 ||
+        strcmp(base_command_string, "openss") == 0 ||
+        strcmp(base_command_string, "dpcld") == 0 ||
+        strcmp(base_command_string, "vi") == 0 ||
+        strcmp(base_command_string, "emacs") == 0 ||
         strcmp(base_command_string, "xterm") == 0 )
     {
       continue;
