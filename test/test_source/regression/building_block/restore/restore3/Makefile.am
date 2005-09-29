@@ -16,11 +16,10 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = detach1 detach2 detach3
-
-DIST_SUBDIRS = $(SUBDIRS)
-
 EXTRA_DIST = \
+	restore3.tst \
+	restore3.tst.expected \
+	runone \
 	runall \
 	test_config
 
