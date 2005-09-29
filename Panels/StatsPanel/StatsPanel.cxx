@@ -808,7 +808,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 
   QApplication::setOverrideCursor(QCursor::WaitCursor);
 
-// Begin Find the file/function pair.
+  // Begin Find the file/function pair.
   try
   {
     std::set<Statement>::const_iterator di = NULL;
@@ -839,12 +839,12 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 // printf("FOUND THE FUNCTION in FILE (%s) line=%d\n", di->getPath().c_str(), di->getLine() );
 
 // printf("Try to query the metrics.\n");
-  HighlightObject *hlo = NULL;
+        HighlightObject *hlo = NULL;
 
-//printf("currentItemIndex=%d\n", currentItemIndex);
+// printf("currentItemIndex=%d\n", currentItemIndex);
 
-  hlo = new HighlightObject(di->getPath(), di->getLine(), hotToCold_color_names[currentItemIndex], QString::null, (char *)QString("Beginning of function %1").arg(function_name.ascii()).ascii() );
-  highlightList->push_back(hlo);
+        hlo = new HighlightObject(di->getPath(), di->getLine(), hotToCold_color_names[currentItemIndex], QString::null, (char *)QString("Beginning of function %1").arg(function_name.ascii()).ascii() );
+        highlightList->push_back(hlo);
 
 // printf("Query:\n");
 // printf("  %s\n", !currentCollectorStr.isEmpty() ? currentCollectorStr.ascii() : "NULL");
@@ -852,98 +852,101 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 // printf("  %s\n", !currentMetricStr.isEmpty() ? currentMetricStr.ascii() : "NULL");
 
  
-  // First, determine if we can simply set the defaults to the only possible
-  // settings.
-  if( list_of_collectors.size() == 1 && list_of_pids.size() == 1 )
-  {
-    setCurrentCollector();
-    setCurrentThread();
-    setCurrentMetricStr();
-  }
+        // First, determine if we can simply set the defaults to the only
+        // possible settings.
+        if( list_of_collectors.size() == 1 && list_of_pids.size() == 1 )
+        {
+// printf("There's no confusion (and there's not defaults) simply set the defaults.\n");
+          setCurrentCollector();
+          setCurrentThread();
+          setCurrentMetricStr();
+        }
 
-  // Since we don't yet aggragate values for all process/metrics/collectors
-  // warn that a default is being set and try to position based on that default.
-  if( !currentCollector || !currentThread  )
-  {
-    setCurrentCollector();
-    setCurrentThread();
-    setCurrentMetricStr();
-    QMessageBox::information(this, "Warning:", QString("Unable to query metric/thread/collector when trying to focus source.\nCurrently we can only query source annotations per thread... not with aggregated data.\nDefaulting %1 %2 %3").arg(currentCollectorStr).arg(currentMetricStr).arg(currentThreadStr), "Ok");
-  }
-  if( item->text(0).contains(".") )
-  {
-  // If double
-    Queries::GetMetricByStatementInFileForThread(*currentCollector, currentMetricStr.ascii(), di->getPath(), *currentThread, orig_double_statement_data);
+        // Since we don't yet aggragate values for all
+        // process/metrics/collectors warn that a default is being set
+        // and try to position based on that default.
+        if( !currentCollector || !currentThread  || currentMetricStr.isEmpty() )
+        {
+// printf("There is confusion, but we need these set!\n");
+          setCurrentCollector();
+          setCurrentThread();
+          setCurrentMetricStr();
+          QMessageBox::information(this, "Warning:", QString("Unable to query metric/thread/collector when trying to focus source.\nCurrently we can only query source annotations per thread... not with aggregated data.\nDefaulting to: %1 %2 %3").arg(currentCollectorStr).arg(currentMetricStr).arg(currentThreadStr), "Ok");
+        }
+        if( item->text(0).contains(".") )
+        {
+        // If double
+          Queries::GetMetricByStatementInFileForThread(*currentCollector, currentMetricStr.ascii(), di->getPath(), *currentThread, orig_double_statement_data);
 
 // printf("orig_double_statement_data->size(%d)\n", orig_double_statement_data->size() );
 
-    // Begin try to highlight source for doubles....
-    highlightList->clear();
-    for(std::map<int, double>::const_iterator
-                sit = orig_double_statement_data->begin();
-                sit != orig_double_statement_data->end(); ++sit)
-    {
+          // Begin try to highlight source for doubles....
+          highlightList->clear();
+          for(std::map<int, double>::const_iterator
+                      sit = orig_double_statement_data->begin();
+                      sit != orig_double_statement_data->end(); ++sit)
+          {
 // printf("Build a list of highlights for the source panel to update.\n");
-      int64_t line = 1;
-
-      int color_index = getLineColor(sit->second);
-      hlo = new HighlightObject(di->getPath(), sit->first, hotToCold_color_names[color_index], QString("%1").arg(sit->second), (char *)QString("\n%1: This line took %2 seconds.").arg(currentThreadStr).arg(sit->second).ascii());
-      highlightList->push_back(hlo);
+            int64_t line = 1;
+      
+            int color_index = getLineColor(sit->second);
+            hlo = new HighlightObject(di->getPath(), sit->first, hotToCold_color_names[color_index], QString("%1").arg(sit->second), (char *)QString("\n%1: This line took %2 seconds.").arg(currentThreadStr).arg(sit->second).ascii());
+            highlightList->push_back(hlo);
 // printf("Push_back a hlo for %d %f\n", sit->first, sit->second);
 //hlo->print();
-    }
+          }
 
-  } else
-  {
-    // Not a double value...
-    Queries::GetUIntMetricByStatementInFileForThread(*currentCollector, currentMetricStr.ascii(), di->getPath(), *currentThread, orig_uint64_statement_data);
-
+        } else
+        {
+          // Not a double value...
+          Queries::GetUIntMetricByStatementInFileForThread(*currentCollector, currentMetricStr.ascii(), di->getPath(), *currentThread, orig_uint64_statement_data);
+      
 // printf("orig_uint64_statement_data->size(%d)\n", orig_uint64_statement_data->size() );
 
-    // Begin try to highlight source for doubles....
-    highlightList->clear();
-    for(std::map<int, uint64_t>::const_iterator
+          // Begin try to highlight source for doubles....
+          highlightList->clear();
+          for(std::map<int, uint64_t>::const_iterator
                 sit = orig_uint64_statement_data->begin();
                 sit != orig_uint64_statement_data->end(); ++sit)
-    {
+          {
 // printf("Build a list of highlights for the source panel to update.\n");
-      int64_t line = 1;
+            int64_t line = 1;
 
-      int color_index = getLineColor(sit->second);
-      hlo = new HighlightObject(di->getPath(), sit->first, hotToCold_color_names[color_index], QString("%1").arg(sit->second), (char *)QString("\n%1: This line took %2 seconds.").arg(currentThreadStr).arg(sit->second).ascii());
-      highlightList->push_back(hlo);
-
+            int color_index = getLineColor(sit->second);
+            hlo = new HighlightObject(di->getPath(), sit->first, hotToCold_color_names[color_index], QString("%1").arg(sit->second), (char *)QString("\n%1: This line took %2 seconds.").arg(currentThreadStr).arg(sit->second).ascii());
+            highlightList->push_back(hlo);
+      
 // printf("Push_back a hlo for %d %f\n", sit->first, sit->second);
 // hlo->print();
-    }
+          }
+      
+        }
 
-  }
-
-  currentItemIndex = 0;
-  QListViewItemIterator lvit = (splv);
-  while( lvit.current() )
-  {
-    QListViewItem *this_item = lvit.current();
-
-    if( this_item == item )
-    {
-      break;
-    }
-  
-    currentItemIndex++;
-    lvit++;
-  }
+        currentItemIndex = 0;
+        QListViewItemIterator lvit = (splv);
+        while( lvit.current() )
+        {
+          QListViewItem *this_item = lvit.current();
+      
+          if( this_item == item )
+          {
+            break;
+          }
+        
+          currentItemIndex++;
+          lvit++;
+        }
 
 // printf("spo = (%s (%s) (%d)\n", function_name.ascii(), di->getPath().c_str(), di->getLine()-1 );
 
-  spo = new SourceObject(function_name.ascii(), di->getPath(), di->getLine()-1, expID, TRUE, highlightList);
+        spo = new SourceObject(function_name.ascii(), di->getPath(), di->getLine()-1, expID, TRUE, highlightList);
 // End try to highlight source for doubles....
 
 
       } else
-// { // Clear the highlight list.
+      { // Clear the highlight list.
           clearSourceFile(expID);
-// }
+      }
     }
     if( spo )
     {
@@ -984,6 +987,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
               << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
               "Unknown runtime error." : error.what()) << std::endl
               << std::endl;
+    QApplication::restoreOverrideCursor( );
     return FALSE;
   }
 // End Find the file/function pair.
