@@ -135,10 +135,13 @@ namespace OpenSpeedShop { namespace Framework {
 	friend std::ostream& operator<<(std::ostream& stream,
 					const Time& object)
 	{
-	    time_t value = object.dm_value / 1000000000;
+	    time_t calendar_time = object.dm_value / 1000000000;
+	    struct tm broken_down_time;
+	    Assert(localtime_r(&calendar_time, &broken_down_time) != NULL);
 	    char buffer[32];
-	    Assert(ctime_r(&value, buffer) != NULL);
-	    stream << std::string(buffer, strlen(buffer) - 1);
+	    Assert(strftime(buffer, sizeof(buffer),
+			    "%Y/%m/%d %H:%M:%S", &broken_down_time) > 0);
+	    stream << buffer;
 	    return stream;
 	}
 	
