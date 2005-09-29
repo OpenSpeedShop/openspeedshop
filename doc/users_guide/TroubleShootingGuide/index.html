@@ -66,6 +66,23 @@ Success in using Open|SpeedShop requires:<p>
            127.0.0.1         localhost.localdomain localhost
            128.162.243.146   foo.bar.com foo
  </pre></div> <br>
+ <dl compact><dt><b>o On some RedHat systems the /etc/hosts.allow file needs tweaking to get by some security issues.</b></dt><dd><br>
+ One user reported that an /etc/hosts.allow entry for the DPCL SuperDaemon was required, for example:</dd></dl>
+<pre><div>
+                 "dpclSD:      123.456.789.107,127.0.0.1"</pre></div><p>
+<pre><div>            Here are some useful background notes, as well, from that user:</pre></div><p>
+<pre><div>                 1)    /etc/hosts.allow is checked to see if a connection can access a port/service. 
+                    "ALL: localhost,10.,192.168." would allow any type of connection to be established by 
+                    localhost, 10.*.*.*, 192.168.*.* .  an entry like "dpclSD: localhost,  128.456.789.121" 
+                    would let my desktop machine open a connection to the dpclSD service. My /etc/hosts.allow
+                    file had no "ALL: suff".</pre></div><p>
+<pre><div>                 2)    /etc/hosts.deny is checked if no match is found in /etc/hosts.allow.  Typically in 
+                    reasonable security settings everything not allowed in /etc/hosts.allow is denied.</pre></div><p>
+<pre><div>                 3)    /etc/hosts.equiv or .rhosts are used to determine which machines can execute remote
+                    shells on a node without entering a password.  This is a list of nodes with optional 
+                    usernames.</pre></div><p>
+<pre><div> </pre></div><p>
+<br>
  <dl compact><dt><b>o Use the 'ping' command to confirm connectivity between all nodes in a cluster.</b></dt><dd><br>
  If one 'node' can 'ping' another 'node', then basic network connectivity is in place between those two nodes. For example, if a user has 'logged in' to 'node1', then the following command issued from 'node1' will test proper network connectivity between 'node1' and, e.g., 'foo.bar.com':</dd></dl>
 <pre><div>
@@ -117,6 +134,10 @@ Success in using Open|SpeedShop requires:<p>
 &lt;==&gt; 2. Proper Network Open|SpeedShop Installation</a></h3>
 <br>
 <p>
+<dl compact><dt><b>o The Open|SpeedShop software package installs both DPCL and Dyninst as RPM's.</b></dt><dd><br>
+ As such the DPCL daemons are found in /usr/bin, the libraries in /usr/lib and the include files in /usr/include/dpcl.</dd></dl>
+<br>
+<p>
 <dl compact><dt><b>o An identical copy of Open|SpeedShop must be installed on all nodes in a cluster</b></dt><dd><br>
  where the DPCL client or a target application will run under DPCL control. Refer to &lt;Open|SpeedShop's installation documentation&gt;. Once the installation has been done, the user can verify correctness in a variety of ways. But first, a brief discussion about two major pieces of DPCL that are installed on a node: the SuperDaemon ('ps' command will show 'dpclSD' upon activation) and the DPCL CommunicationsDaemon ('ps' command will show 'dpcld' upon activation).</dd></dl>
 <br>
@@ -131,7 +152,7 @@ Success in using Open|SpeedShop requires:<p>
  </pre></div><p>
 <br>
  <dl compact><dt><b>o A file named '/etc/xinetd.d/dpclSD' must exist to specify the DPCL SuperDaemon service via 'xinetd'. </b></dt><dd><br>
- An 'unofficial' tutorial on 'xinetd' and what the various entries in a 'service section' indicate can be found at: <a href="http://www.macsecurity.org/resources/xinetd/.">http://www.macsecurity.org/resources/xinetd/.</a> Of particular concern for Open|SpeedShop installation, are the 'server', 'server_args', and 'env' entries. Open|SpeedShop installation must copy a DPCL SuperDaemon binary('dpclSD') to the location specified in the 'server' entry. The 'server_args' entry specifies the location of the CommunicationsDaemon binary('dpcld') which will be 'execd' by the SuperDaemon with two arguments to specify a default 'Unix name' of the 'execd' CommunicationsDaemon and a 'default log name' for debug logfiles created by the CommunicationsDaemon. Finally, the 'env' entry must update the environment variables 'LD_LIBRARY_PATH', 'DPCL_RT_LIB', and 'DYNINST_RT_LIB' to include the path to the directories where the DPCL and Dyninst runtime libraries are installed.</dd></dl>
+ An 'unofficial' tutorial on 'xinetd' and what the various entries in a 'service section' indicate can be found at: <a href="http://www.macsecurity.org/resources/xinetd/.">http://www.macsecurity.org/resources/xinetd/.</a> Of particular concern for Open|SpeedShop installation, are the 'server', 'server_args', and 'env' entries. Open|SpeedShop installation must copy a DPCL SuperDaemon binary('dpclSD') to the location specified in the 'server' entry. The 'server_args' entry specifies the location of the CommunicationsDaemon binary('dpcld') which will be 'execd' by the SuperDaemon with two arguments to specify a default 'Unix name' of the 'execd' CommunicationsDaemon and a 'default log name' for debug logfiles created by the CommunicationsDaemon. Finally, the 'env' entry must update the environment variables 'DPCL_RT_LIB', and 'DYNINST_RT_LIB' to include the path to the directories where the DPCL and Dyninst runtime libraries are installed.</dd></dl>
 <pre><div>
        Example of '/etc/xinetd.d/dpclSD'</pre></div><p>
 <pre><div>       service dpclSD
@@ -141,11 +162,10 @@ Success in using Open|SpeedShop requires:<p>
             protocol = tcp
             wait = no
             user = root
-            server = /perftools/ROOT/bin/dpclSD
-            server_args = /perftools/ROOT/bin/dpcld /tmp/dpcld /tmp/dpcl
-            env += LD_LIBRARY_PATH=/perftools/ROOT/lib
-            env += DPCL_RT_LIB=/perftools/ROOT/lib/libdpclRT.so.1
-            env += DYNINSTAPI_RT_LIB=/perftools/ROOT/lib/libdyninstAPI_RT.so.1
+            server = /usr/bin/dpclSD
+            server_args = /usr/bin/dpcld /tmp/dpcld /tmp/dpcl
+            env += DPCL_RT_LIB=/usr/lib/libdpclRT.so.1
+            env += DYNINSTAPI_RT_LIB=/usr/lib/libdyninstAPI_RT.so.1
        }
  </pre></div> <br>
  <dl compact><dt><b>o The 'xinetd' daemon must be restarted at some point following Open|SpeedShop installation.</b></dt><dd><br>
@@ -186,15 +206,6 @@ Success in using Open|SpeedShop requires:<p>
        Sometimes the only solution is a reboot of the entire system.
  </pre></div><p>
 <br>
- <dl compact><dt><b>o DPCL security system config file '/opt/dpcl/etc/dpcl.config' must be present. </b></dt><dd><br>
- This file is owned by 'root' user and its contents are globally available. This security mechanism is relevant only to IBM users of DPCL. It can be ignored by non-IBM users, but the file itself must be present, with contents as follows:</dd></dl>
-<br>
- <pre><div>
-      security:
-          method = dpcl</pre></div><p>
-<pre><div>       With "method = ctsec", relevant only to IBM users, DPCL will 'dlopen' a special library. 
- </pre></div><p>
-<br>
  <h3><a class="anchor" name="subsection23">
 &lt;==&gt; 3. Proper Network User Login and Environment</a></h3>
 <br>
@@ -209,31 +220,8 @@ Success in using Open|SpeedShop requires:<p>
        foo2.bar.com userlogin
 </pre></div><p>
 <br>
- <dl compact><dt><b>o A 'full path' must be specified at the time of execution for a user's target application. </b></dt><dd><br>
- Otherwise a DPCL error will result (see 'Common Errors' section below).</dd></dl>
-<br>
  <dl compact><dt><b>o The user must set certain environment variables for successful target compilation and execution</b></dt><dd><br>
  using Open|SpeedShop. These environement variables point to necessary loadtime/runtime/etc libraries used by the two largest underlying components of Open|SpeedShop: Dyninst and DPCL (see 'INTRODUCTION. above). The user's '.login' file can do the following command:</dd></dl>
-<pre><div>
-         'source /perftools/ROOT/setenv.csh'</pre></div><p>
-<pre><div>          This '.csh' file contains:</pre></div><p>
-<pre><div>               #########################################################################
-               Ensure PATH, LD_LIBRARY_PATH, MANPATH, and CPPFLAGS have initial value
-               #########################################################################
-               if ($?PATH == "0") setenv PATH ""
-               if ($?LD_LIBRARY_PATH == "0") setenv LD_LIBRARY_PATH ""
-               if ($?MANPATH == "0") setenv MANPATH ""
-               if ($?CPPFLAGS == "0") setenv CPPFLAGS ""
-               #########################################################################
-               Set necessary environment variables to use ROOT directory
-               #########################################################################
-               setenv ROOT "/perftools/ROOT"
-               setenv QTDIR "$ROOT"
-               setenv PATH "$ROOT/bin:$PATH"
-               setenv LD_LIBRARY_PATH "$ROOT/lib:$LD_LIBRARY_PATH"
-               setenv MANPATH "$ROOT/man:$MANPATH"
-               setenv CPPFLAGS "-I$ROOT/include $CPPFLAGS"
-</pre></div><p>
 <br>
  <dl compact><dt><b>o The same 'userid' must be invoked at 'login' time on each 'node' in the cluster</b></dt><dd><br>
  where Open|SpeedShop will be utilized, locally or remotely from another 'node'. Otherwise a DPCL error will result (see 'Common Errors' section below). What this means, for example, is that a user expecting to 'login' on 'node1' as 'fred' and use Open|SpeedShop to dynamically instrument the user's target application 'foo' on 'node2', must 'login' to 'node2' as 'fred' as well.</dd></dl>
@@ -248,10 +236,9 @@ Success in using Open|SpeedShop requires:<p>
 <pre><div>              --begin Makefile</pre></div><p>
 <pre><div>                 .SUFFIXES:      .C 
                  code=sample
-                 ROOT=/perftools/ROOT
-                 INCDIR	= /perftools/ROOT/include/dpcl
+                 INCDIR	= /usr/include/dpcl
                  INC	= -I
-                 LIBLOC	= -L /perftools/ROOT/lib
+                 LIBLOC	= -L /usr/lib
                  LIB	= -ldpcl -lelf
                  CCFLAGS	= -pg -g -gdwarf_2 -D__64BIT__</pre></div><p>
 <pre><div>                 all:	${code}</pre></div><p>
@@ -269,7 +256,11 @@ Success in using Open|SpeedShop requires:<p>
 <pre><div>
                        'ps -ef | grep dpcl*'</pre></div><p>
 <pre><div>                       'pkill -9 dpcl'
-</pre></div><h2><a class="anchor" name="section3">
+</pre></div><p>
+<br>
+ <dl compact><dt><b>o The proper version of library 'libelf' is very important.</b></dt><dd><br>
+ The basic problem seems to be that there are two implementations of libelf out there. There is the one in <a href="http://directory.fsf.org/libs/misc/libelf.html">http://directory.fsf.org/libs/misc/libelf.html</a>, which is known to work (use 8.5 normally). There is a ".94" version which simple does not work with DPCL for unknown reasons. This bad version seems to be present primarily on the RedHat Linux systems (including the Fedora Core stuff). Using a bad version of libelf is known to cause DPCL to throw a C++ exception when building probe expressions. Everywhere that "libelf.h" is included should be examined to ensure the bad (".94") version is not somehow chosen by system default. Of course the -I compile options dictate the location of include files and need to be examined closely.</dd></dl>
+<h2><a class="anchor" name="section3">
 C. ERRORS</a></h2>
 The two major 3rd party software pieces that form the infrastructure for Open|SpeedShop (see 'OVERVIEW' above) are able to detect, and allow the user to recover from, a number of error situations when dealing with the complex problem of transporting dynamic instrumentation across several nodes in a cluster. These 'recoverable' errors can often be overcome with relative ease by the user and they are listed below. This same software, however, can sometimes unfortunately continue to the point of causing (e.g.) a SIGSTOP or SIGSEGV signal and recovery from these errors can be difficult. These 'other' errors sometimes require formal fixes or additions to the software and, accordingly, they are discussed in general terms only.<p>
 <br>
@@ -278,14 +269,11 @@ The two major 3rd party software pieces that form the infrastructure for Open|Sp
 <br>
 <p>
 <br>
- <dl compact><dt><b>o ASC_no_config_file</b></dt><dd><br>
- No DPCL security file (/opt/dpcl/etc/dpcl.config) can be found on the 'node' in question. See (USING Open|SpeedShop) section above regarding this necessary file and its contents.</dd></dl>
-<br>
  <dl compact><dt><b>o ASC_daisd_no_info_fserv</b></dt><dd><br>
  There is an obvious problem with setting up the DPCL SuperDaemon service. For example, no service entry for 'dpclSD' (the SuperDaemon) exists in file (/etc/services). Make sure each item listed above under 'Proper Network Installation for Open|SpeedShop' is satisfied.</dd></dl>
 <br>
- <dl compact><dt><b>o ASC_invalid_security_model</b></dt><dd><br>
- The DPCL security file (/opt/dpcl/etc/dpcl.config) exists on the 'node' in question, but its contents are not valid. See (USING Open|SpeedShop) section above regarding this necessary file and its contents.</dd></dl>
+ <dl compact><dt><b>o ASC_exec_failed</b></dt><dd><br>
+ This error occurs when the dplcSD (SuperDaemon) as specified in the /etc/xinetd.d/dpclSD service entry is trying to execute ('exec') a 'server arg' dpcld (CommDaemon) that does not exist, has insufficient permissions, etc. Either change the 'server arg' or make sure that the executable named in 'server arg' exists and has correct permission/owner information.</dd></dl>
 <br>
  <dl compact><dt><b>o ASC_install_failed</b></dt><dd><br>
  This error occurs when a DPCL instrumentation probe cannot be installed. Often this is due to running out of DPCL's shared memory because each instrumentation probe requires a shared memory 'message handle'. The value of AIS_SHM_SIZE determines how much DPCL shared memory is allocated. A recompile of DPCL with a larger value for AIS_SHM_SIZE might be required. Long term thinking is to make determination of AIS_SHM_SIZE a runtime function. But for now it is a fixed constant set up in ~daemon/src/ShmUsage.C.</dd></dl>
@@ -297,10 +285,10 @@ The two major 3rd party software pieces that form the infrastructure for Open|Sp
  This is a somewhat ambiguous error message that can often be associated with network 'connectivity' issues. See the section on 'Proper Network Connectivity' under the (USING Open|SpeedShop) heading and confirm that your network is properly connected between the 'nodes' in question.</dd></dl>
 <br>
  <dl compact><dt><b>ASC_communication_failure:</b></dt><dd><br>
- This error often means either the DPCL SuperDaemon or the CommunicationsDaemon crashed or were not able to begin execution. If the SuperDaemon crashes, it will close the 'socket' for its connection to the DPCL library code on the 'client' side and this 'client' code will issue the error. The 'ldd' command can be used to verify that both daemons are finding all the necessary dynamic libraries necessary for them to run. Assuming that '/perftools/ROOT/bin' contains a binary for both the SuperDaemon and the Communications daemon, this command can be tried as follows:</dd></dl>
+ This error often means either the DPCL SuperDaemon or the CommunicationsDaemon crashed or were not able to begin execution. If the SuperDaemon crashes, it will close the 'socket' for its connection to the DPCL library code on the 'client' side and this 'client' code will issue the error. The 'ldd' command can be used to verify that both daemons are finding all the necessary dynamic libraries necessary for them to run. Assuming that '/usr/bin' contains a binary for both the SuperDaemon and the Communications daemon, this command can be tried as follows:</dd></dl>
 <pre><div></pre></div><p>
-<pre><div>       'ldd /perftools/ROOT/bin/dpcld', or</pre></div><p>
-<pre><div>       'ldd /perftools/ROOT/bin/dpclSD'</pre></div><p>
+<pre><div>       'ldd /usr/bin/dpcld', or</pre></div><p>
+<pre><div>       'ldd /usr/bin/dpclSD'</pre></div><p>
 <pre><div>       If any dynamic library appears as 'unknown', then that would cause the above error to appear. Otherwise a 'non-recoverable' 
        error (see next section) could be the source of one of the DPCL daemons crashing. What's supposed to happen is that the 
        SuperDaemon either creates a DPCL CommunicationsDaemon process for a userid or finds an existing CommunicationsDaemon 
@@ -321,7 +309,8 @@ The two major 3rd party software pieces that form the infrastructure for Open|Sp
 <pre><div>       If any old shared memory segments are still out there for your userid, for example in this case 'slc' has old memory under 
        shmid 1703936 and it is a sizeable chunk of memory. It must be removed via the command 'ipcrm -m 1703936'.</pre></div><p>
 <pre><div>       Still another source of the 'ASC_communication_failure' error occurs during 'connection' processing when the '.rhosts'
-       file is not properly set up. See the Proper Network User Login and Environment section above.</pre></div><p>
+       file is not properly set up. See the Proper Network User Login and Environment section above. A command such 
+       as "grep dpcl /var/log/messages" might expose possible problems with the .rhosts /etc/hosts.* stuff.</pre></div><p>
 <pre><div>       Still another source of the 'ASC_communication_failure' error occurs when trying to create a 'mutatee'.  If the path 
        to the 'mutatee' is incorrect, or if the arguments to the 'mutatee' are incorrect (try executing the 'mutatee' with the path 
        and arguments you know you are using), then this error will appear.
@@ -339,14 +328,10 @@ The two major 3rd party software pieces that form the infrastructure for Open|Sp
  <dl compact><dt><b>o ASC_missing_predef_func</b></dt><dd><br>
  DPCL has certain functions it needs to find in the library 'libdpclRT.so'. These functions are: 'shm_attach', 'shm_detach', 'Ais_phase_add', 'Ais_phase_deactivate', 'Ais_phase_set_period', 'Ais_phase_remove'. Somehow DPCL is not finding 'libdpclRT.so' via the environment variable LD_LIBRARY_PATH.</dd></dl>
 <br>
- <dl compact><dt><b>o ASC_missing_aout</b></dt><dd><br>
- This usually means that a 'full path' was not specified for the target application at the time it was initially executed. Terminate the currrently running copy of the target application and re-execute it using a 'full path' specification.</dd></dl>
-<br>
  <dl compact><dt><b>o ASC_failure</b></dt><dd><br>
- This error has several points-of-origin, but one of the most easily remedied is that the user has not specified an accurate, full-path location for the target application when it was initially executed. The 'ASC_missing_aout' error above can also result from this user indiscretion, but so can this 'ASC_failure' error. The user can re-execute the target using an accurate, 'full path' specification.</dd></dl>
-<pre><div></pre></div><p>
-<pre><div>       Yet another source of this error is the improper setting of the environment variables LD_LIBRARY_PATH, 
-       DPCL_RT_LIB, and  DYNINSTAPI_RT_LIB in the file '/etc/xinetd.d/dpclSD'. See the section on Proper Network 
+ This error can have several points-of-origin.</dd></dl>
+<pre><div>
+       The improper setting of the environment variables DPCL_RT_LIB, and  DYNINSTAPI_RT_LIB in the file '/etc/xinetd.d/dpclSD'. See the section on Proper Network 
        Installation of Open|Speedshop above for an example of a proper '/etc/xinetd.d/dpclSD' file.
 </pre></div><p>
 <br>
@@ -363,9 +348,8 @@ The two major 3rd party software pieces that form the infrastructure for Open|Sp
 <br>
  <dl compact><dt><b>o Client-side</b></dt><dd><br>
  The 'client' portion of Open|SpeedShop has many pieces as well, including the 'client' portion of DPCL, the Open|SpeedShop 'framework', the Open|SpeedShop 'gui', and so forth. When this part of the software gets into an error situation with (e.g.) an improper index, then the user will likely see an error message displayed by Open|SpeedShop itself. In addition, the DPCL CommunicationsDaemon will detect that its client has problems and begin to shut down its side of things. Again, the combinatorics are complex and, accordingly, so is the error recovery on the client side of things. </dd></dl>
-<hr size="1"><address style="align: right;"><small>Generated on Fri Mar 4 11:36:18 2005 for Open Speed Shop by
+<hr size="1"><address style="align: right;"><small>Generated on Wed Sep 28 11:18:29 2005 for Open Speed Shop by
 <a href="http://www.doxygen.org/index.html">
-<img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
-</a>1.3.6 </small></address>
+<img src="doxygen.png" alt="doxygen" align="middle" border=0 > </a>1.3.6 </small></address>
 </body>
 </html>
