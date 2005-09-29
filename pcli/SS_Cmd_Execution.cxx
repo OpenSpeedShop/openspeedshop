@@ -2444,6 +2444,7 @@ bool SS_ClearBreaks (CommandObject *cmd) {
 bool SS_Exit (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+  Assert (WindowID != 0);
 
  // Purge all waiting input and all commands awaiting dispatch.
   Purge_Input_Sources ();
@@ -2455,15 +2456,14 @@ bool SS_Exit (CommandObject *cmd) {
  // Since Python is in control, we need to tell it to quit.
   PyRun_SimpleString( "myparse.Do_quit ()\n");
 
- // There is no result returned from this command.
-  cmd->set_Status(CMD_COMPLETE);
-
  // Force another "Exit" command through the input controler.
  // This is done, after setting the Python signal with the
  // previous "myparse.Do_quit" call, to trigger the actual
  // return fromPython. (Note: any command will do the job.)
-  Assert (WindowID != 0);
- 
+  Shut_Down = true;
+
+ // There is no result returned from this command.
+  cmd->set_Status(CMD_COMPLETE);
   return true;
 }
 
