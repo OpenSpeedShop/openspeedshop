@@ -153,7 +153,7 @@ gotColumns = FALSE;
   descending_sort = true;
   TotalTime = 0;
   showPercentageID = -1;
-  showPercentageFLAG = FALSE;
+  showPercentageFLAG = TRUE;
 
   frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
@@ -347,7 +347,7 @@ StatsPanel::menu( QPopupMenu* contextMenu)
   contextMenu->setCheckable(TRUE);
   int mid = -1;
   QString defaultStatsReportStr = QString::null;
-  if( list_of_collectors.size() > 1 )
+  if( list_of_collectors.size() > 1 || list_of_pids.size() > 1 )
   {
 // printf("We only have more than one collector... one metric\n");
     defaultStatsReportStr = QString("Show Metric: %1").arg(currentCollectorStr);
@@ -574,11 +574,15 @@ StatsPanel::exportData()
     fd->setCaption( QFileDialog::tr("Save StatsPanel data:") );
     fd->setMode( QFileDialog::AnyFile );
     fd->setSelection(fileName);
-    QString types( "Any Files (*);;"
-                      "Data files (semicolon delimited) (*.dat);;"
+    QString types( 
+                      "Data files (*.dat);;"
                       "Text files (*.txt);;"
+                      "Any File (*.*);;"
                       );
     fd->setFilters( types );
+    // Pick the initial default types to put out.
+    const QString mask = QString("*.txt");
+    fd->setSelectedFilter( mask );
     fd->setDir(dirName);
   
     if( fd->exec() == QDialog::Accepted )
@@ -842,7 +846,30 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
   hlo = new HighlightObject(di->getPath(), di->getLine(), hotToCold_color_names[currentItemIndex], QString::null, (char *)QString("Beginning of function %1").arg(function_name.ascii()).ascii() );
   highlightList->push_back(hlo);
 
-// printf("Query: %s %s: %s\n", currentCollectorStr.ascii(), currentThreadStr.ascii(), currentMetricStr.ascii() );
+// printf("Query:\n");
+// printf("  %s\n", !currentCollectorStr.isEmpty() ? currentCollectorStr.ascii() : "NULL");
+// printf("  %s\n", !currentThreadStr.isEmpty() ? currentThreadStr.ascii() : "NULL");
+// printf("  %s\n", !currentMetricStr.isEmpty() ? currentMetricStr.ascii() : "NULL");
+
+ 
+  // First, determine if we can simply set the defaults to the only possible
+  // settings.
+  if( list_of_collectors.size() == 1 && list_of_pids.size() == 1 )
+  {
+    setCurrentCollector();
+    setCurrentThread();
+    setCurrentMetricStr();
+  }
+
+  // Since we don't yet aggragate values for all process/metrics/collectors
+  // warn that a default is being set and try to position based on that default.
+  if( !currentCollector || !currentThread  )
+  {
+    setCurrentCollector();
+    setCurrentThread();
+    setCurrentMetricStr();
+    QMessageBox::information(this, "Warning:", QString("Unable to query metric/thread/collector when trying to focus source.\nCurrently we can only query source annotations per thread... not with aggregated data.\nDefaulting %1 %2 %3").arg(currentCollectorStr).arg(currentMetricStr).arg(currentThreadStr), "Ok");
+  }
   if( item->text(0).contains(".") )
   {
   // If double
@@ -863,7 +890,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
       hlo = new HighlightObject(di->getPath(), sit->first, hotToCold_color_names[color_index], QString("%1").arg(sit->second), (char *)QString("\n%1: This line took %2 seconds.").arg(currentThreadStr).arg(sit->second).ascii());
       highlightList->push_back(hlo);
 // printf("Push_back a hlo for %d %f\n", sit->first, sit->second);
-// hlo->print();
+//hlo->print();
     }
 
   } else
@@ -892,9 +919,6 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 
   }
 
-
-
-//  {
   currentItemIndex = 0;
   QListViewItemIterator lvit = (splv);
   while( lvit.current() )
@@ -909,7 +933,8 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
     currentItemIndex++;
     lvit++;
   }
-//  }
+
+// printf("spo = (%s (%s) (%d)\n", function_name.ascii(), di->getPath().c_str(), di->getLine()-1 );
 
   spo = new SourceObject(function_name.ascii(), di->getPath(), di->getLine()-1, expID, TRUE, highlightList);
 // End try to highlight source for doubles....
@@ -927,7 +952,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
       Panel *sourcePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
       if( !sourcePanel )
       {
-//printf("no source view up, place the source panel.\n");
+// printf("no source view up, place the source panel.\n");
         char *panel_type = "Source Panel";
         PanelContainer *startPC = NULL;
         if( getPanelContainer()->parentPanelContainer != NULL )
@@ -1109,11 +1134,6 @@ StatsPanel::updateStatsPanelData()
   }
   cf->setValues(cpvl, ctvl, color_names, MAX_COLOR_CNT);
 
-// Set up some defaults values if there's no current working ones...
-  setCurrentCollector();
-  setCurrentThread();
-  setCurrentMetricStr();
-  
   QApplication::restoreOverrideCursor();
 }
 
@@ -1154,6 +1174,7 @@ StatsPanel::collectorMetricSelected(int val)
       index = s.find(":");
       currentCollectorStr = s.mid(13, index-13 );
       currentMetricStr = QString::null;
+currentThreadStr = QString::null;
 // printf("B2: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
     }
 //contextMenu->setItemChecked(val, TRUE);
@@ -1455,6 +1476,7 @@ StatsPanel::setCurrentThread()
       Experiment *fw_experiment = eo->FW();
       // Evaluate the collector's time metric for all functions in the thread
       ThreadGroup tgrp = fw_experiment->getThreads();
+// printf("tgrp.size() = (%d)\n", tgrp.size() );
       if( tgrp.size() == 0 )
       {
         fprintf(stderr, "There are no known threads for this experiment.\n");
@@ -1470,7 +1492,16 @@ StatsPanel::setCurrentThread()
         QString pidstr = QString("%1").arg(pid);
         if( currentThreadStr.isEmpty() )
         {
+// printf("Seting a currentThreadStr!\n");
           currentThreadStr = pidstr;
+          // set a default thread as well...
+          t1 = *ti;
+          if( currentThread )
+          {
+            delete currentThread;
+          }
+          currentThread = new Thread(*ti);
+// printf("A: Set a currentThread\n");
         }
         if( pidstr == currentThreadStr )
         {
@@ -1481,7 +1512,7 @@ StatsPanel::setCurrentThread()
             delete currentThread;
           }
           currentThread = new Thread(*ti);
-// printf("Set a currentThread\n");
+// printf("B: Set a currentThread\n");
           break;
         }
       }

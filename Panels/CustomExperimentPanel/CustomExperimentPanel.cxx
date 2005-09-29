@@ -294,7 +294,7 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
       } else
       {
         statusLabelText->setText( tr(QString("Process Loaded: Click on the \"Run\" button to begin the experiment.")) );
-//        updateInitialStatus();
+        updateInitialStatus();
       }
     }
   } else if( executableNameStr.isEmpty() )
@@ -309,15 +309,12 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
 
 if( ao && ao->lao )
 {
-// printf("Down here.   We have more work to do.\n");
-
   processLAO(ao->lao);
-}
-
   updateInitialStatus();
-
 }
 
+
+}
 
 //! Destroys the object and frees any allocated resources
 /*! The only thing that needs to be cleaned up is the baseWidgetFrame.
@@ -1578,7 +1575,7 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
 optionsStr += QString(" -h %1").arg(mw->hostStr);
 //      command = QString("expAttach -x %1 %2 -p  %3 -h %4 ").arg(expID).arg(mpiStr).arg(pidStr).arg(mw->hostStr);
       command = QString("expAttach -x %1 %2 -p  %3 ").arg(expID).arg(optionsStr).arg(pidStr);
-printf("command=(%s)\n", command.ascii() );
+// printf("command=(%s)\n", command.ascii() );
     } else
     {
       return 0;
