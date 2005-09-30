@@ -183,32 +183,47 @@ def metrics_result(testName):
                 i+=1
         if not tempfileline:
                 return 1
-        if tempfileline[0:i] == 'hwctime::time':
+        if tempfileline[0:i] == 'hwc::overflows':
                 return 0
         else:
                 return 2
 
 def params_result(testName):
         nooutput = 1
+	part_one = 0
         outputfilename = testName + '.output'
         outputfileptr = open(outputfilename, 'r')
         while 1:
                 tempfileline = outputfileptr.readline()
                 if not tempfileline:
-                        break
+			return 1
                 if tempfileline[0:15] == 'The new focused':
                         nooutput = 0
                         break
+	tempfileline = outputfileptr.readline()
+	if not tempfileline:
+		return 1
         tempfileline = outputfileptr.readline()
         i = 0
+	if not tempfileline:
+		return 1
         while (tempfileline[i] != ' ' and tempfileline[i] != '\n'):
                 i+=1
-        if not tempfileline:
-                return 1
-        if tempfileline[0:i] == 'hwc::sampling_rate':
-                return 0
+        if tempfileline[0:i] == 'hwc::event':
+		part_one = 1
         else:
                 return 2
+	tempfileline = outputfileptr.readline()
+        i = 0
+	if not tempfileline:
+		return 1
+        while (tempfileline[i] != ' ' and tempfileline[i] != '\n'):
+                i+=1
+        if tempfileline[0:i] == 'hwc::sampling_rate' and part_one == 1:
+		return 0
+        else:
+                return 2
+
 
 def status_result(testName):
         nooutput = 1
