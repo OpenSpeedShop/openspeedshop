@@ -1194,9 +1194,11 @@ void FPE_TracingWizardPanel::vSummaryPageFinishButtonSelected()
 // printf("A: push_back (%s)\n", vParameterPageSampleRateText->text().ascii() );
       if( !mw->executableName.isEmpty() )
       {
+//printf("executable name was specified.\n");
         lao = new LoadAttachObject(mw->executableName, (char *)NULL, paramList, TRUE);
       } else if( !mw->pidStr.isEmpty() )
       {
+// printf("pid was specified.\n");
         lao = new LoadAttachObject((char *)NULL, mw->pidStr, paramList, TRUE);
       } else
       {
@@ -1221,7 +1223,7 @@ ao->lao = lao;
           p->listener((void *)lao);
         }
 
-        getPanelContainer()->hidePanel((Panel *)this);
+//        getPanelContainer()->hidePanel((Panel *)this);
 // The receiving routine should delete this...
 // delete paramList;
       }

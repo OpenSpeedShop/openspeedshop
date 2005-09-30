@@ -1726,7 +1726,16 @@ PanelContainer::hidePanel(Panel *targetPanel)
     {
       nprintf(DEBUG_PANELCONTAINERS)("matched a panel to remove (%s)\n", p->getName() );
       currentPage = tabWidget->page(index);
+      currentPage->hide();
       tabWidget->removePage(currentPage);
+// printf("tabWidget->count() = (%d)\n", tabWidget->count() );
+      // Hide the tabwidget when we're finished with it.  This keeps
+      // noise off the screen.
+      if( tabWidget->count() == 0 )
+      {
+        tabWidget->hide();
+        ltb->show();
+      }
       break;
     }
     // Don't bump the index for hidden panels.

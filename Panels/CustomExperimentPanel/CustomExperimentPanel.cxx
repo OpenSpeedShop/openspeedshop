@@ -52,6 +52,8 @@ using namespace OpenSpeedShop::Framework;
      Autor: Al Stipek (stipek@sgi.com)
  */
 
+// static bool attachFLAG = TRUE;
+static bool attachFLAG = FALSE;
 
 /*! Constructs a new UserPanel object */
 /*! This is the most often used constructor call.
@@ -61,6 +63,15 @@ using namespace OpenSpeedShop::Framework;
 CustomExperimentPanel::CustomExperimentPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(pc, n)
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("CustomExperimentPanel::CustomExperimentPanel() constructor called\n");
+
+
+if( attachFLAG )
+{
+  printf("Attach now!!! pid=%d\n", getpid() );
+
+  sleep(10);
+}
+
 
   ExperimentObject *eo = NULL;
   experiment = NULL;
@@ -259,6 +270,7 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
     runnableFLAG = TRUE;
     pco->runButton->setEnabled(TRUE);
     pco->runButton->enabledFLAG = TRUE;
+// printf("C: call updateInitialStatus() \n");
     updateInitialStatus();
   } else if( expID > 0 )
   {
@@ -294,6 +306,7 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
       } else
       {
         statusLabelText->setText( tr(QString("Process Loaded: Click on the \"Run\" button to begin the experiment.")) );
+// printf("D: call updateInitialStatus() \n");
         updateInitialStatus();
       }
     }
@@ -307,11 +320,19 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
 //    updateInitialStatus();
   }
 
-if( ao && ao->lao )
-{
-  processLAO(ao->lao);
-  updateInitialStatus();
-}
+  if( ao && ao->lao )
+  {
+    processLAO(ao->lao);
+// printf("A: Attempt to remove the wizard panel from the  le panel.\n");
+    QString name = QString("Custom Experiemnt Wizard");
+// printf("try to find (%s)\n", name.ascii() );
+    Panel *wizardPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+    if( wizardPanel )
+    {
+//printf("Found the wizard... Try to hide it.\n");
+      wizardPanel->getPanelContainer()->hidePanel(wizardPanel);
+    }
+  }
 
 
 }
@@ -639,158 +660,17 @@ CLIInterface::interrupt = true;
   {
     nprintf( DEBUG_MESSAGES ) ("we've got a LoadAttachObject message\n");
 
-#ifdef OLDWAY
-    if( lao->loadNowHint == TRUE || runnableFLAG == FALSE )
-    {
-      mw->executableName = lao->executableName;
-      executableNameStr = lao->executableName;
-      mw->pidStr = lao->pidStr;
-      pidStr = lao->pidStr;
- 
-      executableNameStr = lao->executableName;
-      pidStr = lao->pidStr;
- 
-      QString command = QString::null;
-      if( !executableNameStr.isEmpty() )
-      {
-        command = QString("expAttach -x %1 -f \"%2 %3\"\n").arg(expID).arg(executableNameStr).arg(argsStr);
-if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
-{
-  command += " -v mpi";
-}
-// printf("executableNameStr is not empty.\n");
-      } else if( !pidStr.isEmpty() )
-      { 
-        QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
-        QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
-        QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
-#ifdef OLDWAY
-        command = QString("expAttach -x %1 -p %2 -h %3\n").arg(expID).arg(pid_name).arg(host_name);
-if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
-{
-  command += " -v mpi";
-}
-#else // OLDWAY
-// printf("host_name=(%s)\n", host_name.ascii() );
-// printf("pid_name=(%s)\n", pid_name.ascii() );
-// printf("prog_name=(%s)\n", prog_name.ascii() );
-
-// printf("pidStr =%s\n", pidStr.ascii() );
-// printf("mw->hostStr =%s\n", mw->hostStr.ascii() );
-
-        command = QString("expAttach -x %1 -p  %2 -h %3\n").arg(expID).arg(pidStr).arg(mw->hostStr);
-if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
-{
-  command += " -v mpi";
-}
-#endif // OLDWAY
-// printf("command=(%s)\n", command.ascii() );
-      } else
-      {
-        return 0;
-//      command = QString("expCreate  \n");
-      }
-      bool mark_value_for_delete = true;
-      int64_t val = 0;
- 
-      steps = 0;
- 	  pd = new GenericProgressDialog(this, "Loading process...", TRUE);
-      loadTimer = new QTimer( this, "progressTimer" );
-      connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
-      loadTimer->start( 0 );
-      pd->show();
-      statusLabelText->setText( tr(QString("Loading ...  "))+mw->executableName);
- 
-      runnableFLAG = FALSE;
-      pco->runButton->setEnabled(FALSE);
-      pco->runButton->enabledFLAG = FALSE;
-  
-      CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-// printf("D: command=(%s)\n", command.ascii() );
-      if( !cli->runSynchronousCLI((char *)command.ascii() ) )
-      {
-        QMessageBox::information( this, "No collector found:", QString("Unable to issue command:\n  ")+command, QMessageBox::Ok );
-        statusLabelText->setText( tr(QString("Unable to load executable name:  "))+mw->executableName);
-        loadTimer->stop();
-        pd->hide();
-        return 1;
-      }
- 
-      statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the \"Run\" button to begin the experiment.")) );
-      loadTimer->stop();
-      pd->hide();
- 
-      if( !executableNameStr.isEmpty() || !pidStr.isEmpty() )
-      {
-        runnableFLAG = TRUE;
-        pco->runButton->setEnabled(TRUE);
-        pco->runButton->enabledFLAG = TRUE;
-      }
-  
-      updateInitialStatus();
-
-
-// printf("About to look up the new paramList\n");
-      if( lao->paramList ) // Really not a list yet, just one param.
-      {
-        QString sample_rate_str = (QString)*lao->paramList->begin();
-// printf("sample_rate_str=(%s)\n", sample_rate_str.ascii() );
-//        unsigned int sampling_rate = lao->paramList.toUInt();
-        unsigned int sampling_rate = sample_rate_str.toUInt();
-        // Set the sample_rate of the collector.
-        try
-        {
-          ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-          if( eo && eo->FW() )
-          {
-           experiment = eo->FW();
-          }
-          ThreadGroup tgrp = experiment->getThreads();
-          CollectorGroup cgrp = experiment->getCollectors();
-          if( cgrp.size() > 0 )
-          {
-            CollectorGroup::iterator ci = cgrp.begin();
-            nprintf( DEBUG_MESSAGES ) ("sampling_rate=%u\n", sampling_rate);
-            QString command = QString("expSetParam -x %1 sampling_rate = %2").arg(expID).arg(sampling_rate);
-            CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-// printf("E: command=(%s)\n", command.ascii() );
-            if( !cli->runSynchronousCLI((char *)command.ascii() ) )
-            {
-              return 0;
-            }
-            if( QString(getName()).contains("HW Counter") )
-            {
-              printf("W'ere the HW Counter Panel!!!\n");
-            
-              ParamList::Iterator it = lao->paramList->begin();
-              it++;
-              if( it != lao->paramList->end() )
-              {
-                QString event_value = (QString)*it;
-            
-                QString command = QString("expSetParam -x %1 event = %2").arg(expID).arg(event_value);
-                CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-// printf("F: command=(%s)\n", command.ascii() );
-                if( !cli->runSynchronousCLI((char *)command.ascii() ) )
-                {
-                  return 0;
-                }
-              }
-            }
-          }
-
-        }
-        catch(const std::exception& error)
-        {
-          return 0;
-        }
-delete lao->paramList;
-      }
-      ret_val = 1;
-    }
-#else // OLDWAY
     ret_val = processLAO(lao);
-#endif // OLDWAY
+// printf("B: Attempt to remove the wizard panel from the  le panel.\n");
+    QString name = QString("Custom Experiemnt Wizard");
+// printf("try to find (%s)\n", name.ascii() );
+    Panel *wizardPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+    if( wizardPanel )
+    {
+// printf("Found the wizard... Try to hide it.\n");
+      wizardPanel->getPanelContainer()->hidePanel(wizardPanel);
+    }
+
   }
 
   return ret_val;  // 0 means, did not want this message and did not act on anything.
@@ -799,6 +679,7 @@ delete lao->paramList;
 void
 CustomExperimentPanel::updateInitialStatus()
 {
+// printf("A: loadMain()\n");
   loadMain();
 }
 
@@ -905,32 +786,6 @@ CustomExperimentPanel::experimentStatus()
 
   QString command = QString("expStatus -x %1").arg(expID);
   QString info_str = QString::null;
-#ifdef OLDWAY
-  std::list<std::string> str_list;
-
-  str_list.clear();
-  CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-  if( !cli->getStringListValueFromCLI( (char *)command.ascii(), &str_list ) )
-  {
-    printf("Unable to run %s command.\n", command.ascii() );
-  }
-
-  std::list<std::string>::iterator it;
-  nprintf( DEBUG_PANELS ) ("str_list.size() =%d\n", str_list.size() );
-
-  if( str_list.size() == 0 )
-  {
-    return;
-  }
-
-  for(it = str_list.begin(); it != str_list.end(); it++ )
-  {
-    std::string str = (std::string)(*it);
-//printf("str=(%s)\n", str.c_str() );
-    info_str += str;
-    info_str += "\n";
-  }
-#else // OLDWAY
   int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
   InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii());
 
@@ -1117,7 +972,6 @@ info_str += "\n";
   }
 
 //  exp->Q_UnLock ();
-#endif // OLDWAY
 
 
   QMessageBox::information( this, "Experiment Information", info_str, QMessageBox::Ok );
@@ -1231,7 +1085,7 @@ CustomExperimentPanel::loadMain()
       if(statement_definition.size() > 0 )
       {
         std::set<Statement>::const_iterator i = statement_definition.begin();
-        SourceObject *spo = new SourceObject("main", i->getPath(), i->getLine()-1, expID, TRUE, NULL);
+        SourceObject *spo = new SourceObject(main_string.c_str(), i->getPath(), i->getLine()-1, expID, TRUE, NULL);
   
         QString name = QString("Source Panel [%1]").arg(expID);
 //printf("TRY TO FIND A SOURCE PANEL!!!  (loadMain() \n");
@@ -1253,7 +1107,7 @@ CustomExperimentPanel::loadMain()
       }
     } else
     {
-      QMessageBox::information( this, "Experiment Information", "No main located.", QMessageBox::Ok );
+//      QMessageBox::information( this, "Experiment Information", "Unable to locate the main routine of the program to position the Source Panel.\nYour Source Panel may appear blank.\nHit the \"Run\" button to continue/start execution.", QMessageBox::Ok );
     }
     statusLabelText->setText( tr("Experiment is loaded:  Hit the \"Run\" button to continue execution.") );
 
@@ -1618,6 +1472,7 @@ optionsStr += QString(" -h %1").arg(mw->hostStr);
       pco->runButton->enabledFLAG = TRUE;
     }
   
+// printf("B: call updateInitialStatus() \n");
     updateInitialStatus();
   }
 

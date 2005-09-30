@@ -1251,7 +1251,7 @@ void HW_CounterWizardPanel::vSummaryPageFinishButtonSelected()
           p->listener((void *)lao);
         }
 
-        getPanelContainer()->hidePanel((Panel *)this);
+//        getPanelContainer()->hidePanel((Panel *)this);
 // The receiving routine should delete this...
 // delete paramList;
       }
