@@ -42,7 +42,9 @@ using namespace OpenSpeedShop::cli;
 
 using namespace OpenSpeedShop;
 
+#include "help_general_msg.dxx"
 #include "help_cmd_msg.dxx"
+#include "help_grammar_msg.dxx"
 #include "help_topic_msg.dxx"
 
 extern SS_Message_Czar& theMessageCzar();

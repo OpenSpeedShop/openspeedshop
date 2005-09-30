@@ -1,0 +1,1301 @@
+/*/*******************************************************************************
+** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+**
+** This library is free software; you can redistribute it and/or modify it under
+** the terms of the GNU Lesser General Public License as published by the Free
+** Software Foundation; either version 2.1 of the License, or (at your option)
+** any later version.
+**
+** This library is distributed in the hope that it will be useful, but WITHOUT
+** ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+** FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+** details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with this library; if not, write to the Free Software Foundation, Inc.,
+** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*******************************************************************************/
+
+/** @file
+ *
+ * Message database.
+ *
+ */
+
+
+/*********************************************/
+// GRAMMAR Related topics
+/*********************************************/
+
+char *gram_expId_related[] = {
+    "listExp",
+    "expCreate",
+    "expFocus",
+    "expRestore"
+};
+
+char *gram_expMetric_related[] = {
+//    ""
+};
+
+char *gram_metric_name_related[] = {
+//    ""
+};
+
+char *gram_expParamValue_related[] = {
+//    ""
+};
+
+char *gram_expParam_related[] = {
+//    ""
+};
+
+char *gram_param_name_related[] = {
+//    ""
+};
+
+char *gram_expType_related[] = {
+    "expList"
+};
+
+char *gram_statusType_related[] = {
+    "expStatus"
+};
+
+char *gram_viewType_related[] = {
+    "listViews"
+};
+
+char *gram_target_related[] = {
+    "<lists>",
+    "<ranges>",
+    "<file_name>",
+    "<host_name>",
+    "<thread_name>",
+    "<pid_name>",
+    "<cluster_name>",
+    ""
+};
+
+/*********************************************/
+// GRAMMAR ARGUMENTS
+/*********************************************/
+char *gram_address_description_arg = {
+    "<address_description> ::= <int> || <string>"
+};
+char *gram_breakId_arg = {
+    "<breakId> ::= <int>"
+};
+char *gram_expId_arg = {
+    "<expId> ::= <int>"
+};
+char *gram_expId_spec_arg = {
+    "<expId_spec> ::= -x <expId>"
+};
+char *gram_expMetric_list_spec_arg = {
+    "<expMetric_list_spec> ::= -m <expMetric> [ , <expMetric> ]*"
+};
+char *gram_expMetric_arg = {
+    "<expMetric> ::= [<expType>::]<metric_name>"
+};
+char *gram_metric_name_arg = {
+    "<metric_name> ::= <string>"
+};
+char *gram_expParamValue_arg = {
+    "<expParamValue> ::= [ <int> || <float> || <string> || \"<string>\"]"
+};
+char *gram_expParam_arg = {
+    "<expParam> ::= [<expType>::]<param_name>"
+};
+char *gram_param_name_arg = {
+    "<param_name> ::=  <string> "
+};
+char *gram_expType_list_arg = {
+    "<expType_list> ::= <expType> [ , <expType> ]*"
+};
+char *gram_expType_arg = {
+    "<expType>> ::= [ <predefined_exp> || <user_defined_exp> ]"
+};
+char *gram_user_defined_exp_arg = {
+    "<user_defined_exp> ::= <file_name>"
+};
+char *gram_predefined_exp_arg = {
+    "<predefined_exp> ::= { pcsamp || usertime || mpi || fpe || hwc || io || <string> }"
+};
+
+//  RANK
+char *gram_rank_list_spec_arg = {
+    "<rank_list_spec> ::= -r <rank_list>"
+};
+char *gram_rank_list_arg = {
+    "<rank_list> ::= <rank_range> [ , <rank_range> ]*"
+};
+char *gram_rank_range_arg = {
+    "<rank_range> ::= <rank_name> [ : <rank_name> ]"
+};
+char *gram_rankname_arg = {
+    "<rank_name> ::= <int>"
+};
+
+//  THREAD
+char *gram_threadname_arg = {
+    "<thread_name> ::= <int>"
+};
+char *gram_thread_range_arg = {
+    "<thread_range> ::= <thread_name> [ : <thread_name> ]"
+};
+char *gram_thread_list_arg = {
+    "<thread_list> ::= <thread_range> [ , <thread_range> ]*"
+};
+char *gram_thread_list_spec_arg = {
+    "<thread_list_spec> ::= -t <thread_list>"
+};
+
+//  PID
+char *gram_pidname_arg = {
+    "<pid_name> ::= <int>"
+};
+char *gram_pid_range_arg = {
+    "<pid_range> ::= <pid_name> [ : <pid_name> ]"
+};
+char *gram_pid_list_arg = {
+    "<pid_list> ::= <pid_range> [ , <pid_range> ]*"
+};
+char *gram_pid_list_spec_arg = {
+    "<pid_list_spec> ::= -p <pid_list>"
+};
+
+//  FILE
+char *gram_filename_arg = {
+    "<file_name> ::= <string> || \"<string>\""
+};
+char *gram_file_list_arg = {
+    "<file_list> ::= <file_name> [ , <file_name> ]*"
+};
+char *gram_file_list_spec_arg = {
+    "<file_list_spec> ::= -f <file_list>"
+};
+
+//  HOST
+char *gram_IP_Address_arg = {
+    "<IP_Address> ::= <int>.<int>.<int>.<int>"
+};
+char *gram_hostname_arg = {
+    "<host_name> ::= <string> || <IP_Address>"
+};
+char *gram_host_list_arg = {
+    "<host_list> ::= <host_name> [ , <host_name> ]*"
+};
+char *gram_host_list_spec_arg = {
+    "<host_list_spec> ::= -h <host_list>"
+};
+
+//  CLUSTER
+char *gram_clustername_arg = {
+    "<cluster_name> ::= <string> || \"<string>\""
+};
+char *gram_cluster_list_arg = {
+    "<cluster_list> ::= <cluster_name> [ , <cluster_name> ]*"
+};
+char *gram_cluster_list_spec_arg = {
+    "<cluster_list_spec> ::= -c <cluster_list>"
+};
+
+//  TARGET
+char *gram_target_arg = {
+    "<target> ::= \n\t"
+    "[ -c <cluster_name> [ , <cluster_name> ]*> ]\n\t"
+    "[ -h <host_name>   [ , <host_name> ]* ]\n\t"
+    "[ -f <file_name>    [ , <file_name> ]* ]\n\t"
+    "[ -p <pid_name>    [ , <pid_name> ]* ]\n\t"
+    "[ -p <thread_name> [ , <thread_name> ]* ]\n\t"
+    "[ -r <rank_name>   [ , <rank_name>]* ]"
+};
+char *gram_target_list_arg = {
+    "<target_list> ::= <target> [ ; <target> ]*"
+};
+
+char *gram_file_spec_arg = {
+    "<file_spec> ::= -f <file_name>"
+};
+char *gram_host_spec_arg = {
+    "<host_spec> ::= -h <host_name>"
+};
+char *gram_host_file_arg = {
+    "<host_file> ::= [ <host_spec> ] -f <file_name>"
+};
+
+//  LINENUMBER
+char *gram_lineno_range_arg = {
+    "<lineno_range> ::= <lineno> [ : <lineno> ]"
+};
+char *gram_linenumber_range_spec_arg = {
+    "<linenumber_range_spec> ::= -l <lineno_range>"
+};
+char *gram_linenumber_list_spec_arg = {
+    "<linenumber_list_spec> ::= -l <lineno_range> [, <lineno_range> ]*"
+};
+
+char *gram_statusType_arg = {
+    "<statusType> ::= { NonExistent || Paused || Running || Terminated || Error }"
+};
+char *gram_viewType_arg = {
+    "<viewType> ::= <string>"
+};
+
+char *gram_pcsamp_arg = {
+    ""
+};
+char *gram_usertime_arg = {
+    ""
+};
+char *gram_mpi_arg = {
+    ""
+};
+char *gram_fpe_arg = {
+    ""
+};
+char *gram_hwc_arg = {
+    ""
+};
+char *gram_io_arg = {
+    ""
+};
+
+//char *gram_xxx_arg = {
+//    ""
+//};
+
+/*********************************************/
+// BRIEF GRAMMAR MESSAGES
+/*********************************************/
+char *gram_address_description_brief = {
+    "An absolute or relative address."
+};
+char *gram_breakId_brief = {
+    "A breakpoint identifier."
+};
+char *gram_expId_brief = {
+    "an experiment identifier."
+};
+char *gram_expId_spec_brief = {
+    "an experiment identifier."
+};
+char *gram_expMetric_brief = {
+    "A result that an experiment can return. \nIt could be a full report, a value or a set of values."
+};
+char *gram_expMetric_list_spec_brief = {
+    "A result that an experiment can return. \nIt could be a full report, a value or a set of values."
+};
+char *gram_metric_name_brief = {
+    "Symbolic name representing desired metric."
+};
+char *gram_param_name_brief = {
+    "Symbolic name representing parameter desired."
+};
+char *gram_expParam_brief = {
+    "The experiment parameters correspond to items in the experiment \nclass that can be changed by the user or a tool component."
+};
+char *gram_expParamValue_brief = {
+    "Value to assinge to parameter."
+};
+char *gram_predefined_exp_brief = {
+    "Built in experiments type."
+};
+char *gram_user_defined_exp_brief = {
+    "User defined experiment type."
+};
+char *gram_expType_brief = {
+    "The experiment type designator. "
+};
+char *gram_expType_list_brief = {
+    "List of experiment types."
+};
+char *gram_rankname_brief = {
+    "A symbolic or numeric representation of a rank id."
+};
+char *gram_rank_range_brief = {
+    "A single rankname or colon seperated pair of ranknames\n"
+    "representing a numeric range."
+};
+char *gram_rank_list_brief = {
+    "A single rankname or a comma delineated list of ranknames."
+};
+char *gram_rank_list_spec_brief = {
+    "-r followed by a rank_list."
+};
+char *gram_threadname_brief = {
+    "A symbolic or numeric representation of a thread id."
+};
+char *gram_thread_range_brief = {
+    "A single threadname or colon seperated pair of threadnames\n"
+    "representing a numeric range."
+};
+char *gram_thread_list_brief = {
+    "A single threadname or a comma delineated list of threadnames."
+};
+char *gram_thread_list_spec_brief = {
+    "-t followed by a thread_list."
+};
+char *gram_pidname_brief = {
+    "A symbolic or numeric representation of a process id."
+};
+char *gram_pid_range_brief = {
+    "A single pidname or colon seperated pair of pidnames\n"
+    "representing a numeric range."
+};
+char *gram_pid_list_brief = {
+    "A single pidname or a comma delineated list of pidnames."
+};
+char *gram_pid_list_spec_brief = {
+    "-p followed by a pid_list."
+};
+char *gram_filename_brief = {
+    "A String representation of a file name."
+};
+char *gram_file_list_brief = {
+    "A single file name or a comma delineated list of file names."
+};
+char *gram_file_list_spec_brief = {
+    "-f followed by a file_list."
+};
+char *gram_IP_Address_brief = {
+    "A set of 4 dot delineated octal digits representing an IP address."
+};
+char *gram_hostname_brief = {
+    "A String or IP_Address representation of a host."
+};
+char *gram_host_list_brief = {
+    "A single hostname or a comma delineated list of hostnames."
+};
+char *gram_host_list_spec_brief = {
+    "-h followed by a host_list."
+};
+char *gram_clustername_brief = {
+    "A String representation of a cluster name."
+};
+char *gram_cluster_list_brief = {
+    "A single cluster name or a comma delineated list of cluster names."
+};
+char *gram_cluster_list_spec_brief = {
+    "-c followed by a cluster_list."
+};
+char *gram_target_brief = {
+    "Represents the host file and machine along with \n"
+    "a specific process, thread, or rank identifier."
+};
+char *gram_target_list_brief = {
+    "A single target or a semicolon delineated list of targets."
+};
+char *gram_file_spec_brief = {
+    "-f followed by a single filename."
+};
+char *gram_host_spec_brief = {
+    "-f followed by a single hostname."
+};
+char *gram_host_file_brief = {
+    "."
+};
+char *gram_lineno_range_brief = {
+    "A single line number or a comma delineated pair of \n"
+    "line numbers representing contiguous range."
+};
+char *gram_linenumber_range_spec_brief = {
+    "-l followed by a linenumber_range."
+};
+char *gram_linenumber_list_spec_brief = {
+    "-l followed by a linenumber_list."
+};
+char *gram_statusType_brief = {
+    "Current status of a given experiment as a predefined string."
+};
+char *gram_viewType_brief = {
+    "The format of the output display for this experiment."
+};
+
+char *gram_pcsamp_brief = {
+    "PC (Program Counter) sampling."
+};
+char *gram_usertime_brief = {
+    "Usertime call stack profiling."
+};
+char *gram_mpi_brief = {
+    "MPI call tracing."
+};
+char *gram_fpe_brief = {
+    "Floating point profiling ."
+};
+char *gram_hwc_brief = {
+    "Hardware counter experiment."
+};
+char *gram_io_brief = {
+    "I/O (Input/Output) trace experiment."
+};
+
+
+//char *gram__brief = {
+//    "."
+//};
+
+/*********************************************/
+// DETAILED GRAMMAR MESSAGES
+/*********************************************/
+char *address_description[] = {
+    gram_address_description_arg,
+    " ",
+    gram_address_description_brief,
+    " ",
+    "Addresses can either be numbers or symbolic.",
+    "If symbolic, sufficient debugging information needs to be",
+    "available to resolve to a number",
+    " "
+};
+char *gram_breakId_detailed[] = {
+    gram_breakId_arg,
+    " ",
+    gram_breakId_brief,
+    " ",
+    "The break identifier is SpeedShop generated",
+    " "
+};
+char *gram_expId_detailed[] = {
+    gram_expId_arg,
+    " ",
+    gram_expId_brief,
+    " ",
+    "The experiment identifier is SpeedShop generated",
+    " "
+};
+char *gram_expId_spec_detailed[] = {
+    gram_expId_spec_arg,
+    " ",
+    gram_expId_brief,
+    " ",
+    "The experiment identifier is SpeedShop generated",
+    " "
+};
+char *gram_metric_name_detailed[] = {
+    gram_metric_name_arg,
+    " ",
+    gram_metric_name_brief,
+    " ",
+    " "
+};
+char *gram_expMetric_detailed[] = {
+    gram_expMetric_arg,
+    " ",
+    gram_expMetric_brief,
+    " ",
+    " "
+};
+char *gram_expMetric_list_spec_detailed[] = {
+    gram_expMetric_list_spec_arg,
+    " ",
+    gram_expMetric_list_spec_brief,
+    " ",
+    "To see all of the current available metric types, type:",
+    "\t\"listMetrics -v all\"",
+    "You can then get more detailed information on each of the",
+    "metric types listed through the \"help\" facility."
+};
+char *gram_param_name_detailed[] = {
+    gram_param_name_arg,
+    " ",
+    gram_param_name_brief,
+    " ",
+    "To see all of the current available parameter types, type:,",
+    "\t\"listParams -v all\"",
+    "You can then get more detailed information on each of the",
+    "parameter types listed through the \"help\" facility."
+};
+char *gram_expParam_detailed[] = {
+    gram_expParam_arg,
+    " ",
+    gram_expParam_brief,
+    " ",
+    "- If <expType> is specified, then only that collector's ",
+    "  parameter is updated.",
+    "- If <expType> is NOT specified, then all parameters ",
+    "  matching the parameter name are updated, regardless ",
+    "  of the collector name, for that experiment ",
+    " "
+};
+char *gram_expParamValue_detailed[] = {
+    gram_expParamValue_arg,
+    " ",
+    gram_expParamValue_brief,
+    " ",
+    " "
+};
+char *gram_predefined_exp_detailed[] = {
+    gram_predefined_exp_arg,
+    " ",
+    gram_predefined_exp_brief,
+    " ",
+    " "
+};
+char *gram_user_defined_exp_detailed[] = {
+    gram_user_defined_exp_arg,
+    " ",
+    gram_user_defined_exp_brief,
+    " ",
+    " "
+};
+char *gram_expType_detailed[] = {
+    gram_expType_arg,
+    " ",
+    gram_expType_brief,
+    " ",
+    "Using this in the expCreate or expAttach command ",
+    "fills in the default values for the experiment."
+    " ",
+    "To see all of the current available experiment types, type:",
+    "\t\"listtypes -v all\"",
+    "You can then get more detailed information on each of the",
+    "experiment types listed through the \"help\" facility."
+    " ",
+    " "
+};
+char *gram_expType_list_detailed[] = {
+    gram_expType_list_arg,
+    " ",
+    gram_expType_list_brief,
+    " ",
+    " "
+};
+char *gram_rankname_detailed[] = {
+    gram_rankname_arg,
+    " ",
+    gram_rankname_brief,
+    " ",
+    " "
+};
+char *gram_rank_range_detailed[] = {
+    gram_rank_range_arg,
+    gram_rankname_arg,
+    " ",
+    gram_rank_range_brief,
+    " ",
+    " "
+};
+char *gram_rank_list_detailed[] = {
+    gram_rank_list_arg,
+    gram_rank_range_arg,
+    gram_rankname_arg,
+    " ",
+    gram_rank_list_brief,
+    " ",
+    " "
+};
+char *gram_rank_list_spec_detailed[] = {
+    gram_rank_list_spec_arg,
+    gram_rank_list_arg,
+    gram_rank_range_arg,
+    gram_rankname_arg,
+    " ",
+    gram_rank_list_spec_brief,
+    " ",
+    " "
+};
+char *gram_threadname_detailed[] = {
+    gram_threadname_arg,
+    " ",
+    gram_threadname_brief,
+    " ",
+    " "
+};
+char *gram_thread_range_detailed[] = {
+    gram_thread_range_arg,
+    gram_threadname_arg,
+    " ",
+    gram_thread_range_brief,
+    " ",
+    " "
+};
+char *gram_thread_list_detailed[] = {
+    gram_thread_list_arg,
+    gram_thread_range_arg,
+    gram_threadname_arg,
+    " ",
+    gram_thread_list_brief,
+    " ",
+    " "
+};
+char *gram_thread_list_spec_detailed[] = {
+    gram_thread_list_spec_arg,
+    gram_thread_list_arg,
+    gram_thread_range_arg,
+    gram_threadname_arg,
+    " ",
+    gram_thread_list_spec_brief,
+    " ",
+    " "
+};
+char *gram_pidname_detailed[] = {
+    gram_pidname_arg,
+    " ",
+    gram_pidname_brief,
+    " ",
+    " "
+};
+char *gram_pid_range_detailed[] = {
+    gram_pid_range_arg,
+    gram_pidname_arg,
+    " ",
+    gram_pid_range_brief,
+    " ",
+    " "
+};
+char *gram_pid_list_detailed[] = {
+    gram_pid_list_arg,
+    gram_pid_range_arg,
+    gram_pidname_arg,
+    " ",
+    gram_pid_list_brief,
+    " ",
+    " "
+};
+char *gram_pid_list_spec_detailed[] = {
+    gram_pid_list_spec_arg,
+    gram_pid_list_arg,
+    gram_pid_range_arg,
+    gram_pidname_arg,
+    " ",
+    gram_pid_list_spec_brief,
+    " ",
+    " "
+};
+char *gram_filename_detailed[] = {
+    gram_filename_arg,
+    " ",
+    gram_filename_brief,
+    " ",
+    " "
+};
+char *gram_file_list_detailed[] = {
+    gram_file_list_arg,
+    gram_filename_arg,
+    " ",
+    gram_file_list_brief,
+    " ",
+    " "
+};
+char *gram_file_spec_detailed[] = {
+    gram_file_spec_arg,
+    gram_filename_arg,
+    " ",
+    gram_file_spec_brief,
+    " ",
+    " "
+};
+char *gram_file_list_spec_detailed[] = {
+    gram_file_list_spec_arg,
+    gram_file_list_arg,
+    gram_filename_arg,
+    " ",
+    gram_file_list_spec_brief,
+    " ",
+    " "
+};
+char *gram_IP_Address_detailed[] = {
+    gram_IP_Address_arg,
+    " ",
+    gram_IP_Address_brief,
+    " ",
+    " "
+};
+char *gram_hostname_detailed[] = {
+    gram_hostname_arg,
+    gram_IP_Address_arg,
+    " ",
+    gram_hostname_brief,
+    " ",
+    " "
+};
+char *gram_host_list_detailed[] = {
+    gram_host_list_arg,
+    gram_hostname_arg,
+    gram_IP_Address_arg,
+    " ",
+    gram_host_list_brief,
+    " ",
+    " "
+};
+char *gram_host_list_spec_detailed[] = {
+    gram_host_list_spec_arg,
+    gram_host_list_arg,
+    gram_hostname_arg,
+    gram_IP_Address_arg,
+    " ",
+    gram_host_list_spec_brief,
+    " ",
+    " "
+};
+char *gram_clustername_detailed[] = {
+    gram_clustername_arg,
+    " ",
+    gram_clustername_brief,
+    " ",
+    " "
+};
+char *gram_cluster_list_detailed[] = {
+    gram_cluster_list_arg,
+    gram_clustername_arg,
+    " ",
+    gram_cluster_list_brief,
+    " ",
+    " "
+};
+char *gram_cluster_list_spec_detailed[] = {
+    gram_cluster_list_spec_arg,
+    gram_cluster_list_arg,
+    gram_clustername_arg,
+    " ",
+    gram_cluster_list_spec_brief,
+    " "
+};
+
+char *gram_target_detailed[] = {
+    gram_target_arg,
+    " ",
+    gram_target_brief,
+    " ",
+    "A target is specified through one or more of the following:",
+    " ",
+    "\t-f <file_name>",
+    "\t-h <host_name>",
+    "\t-r <rank_name>",
+    "\t-t <thread_name>",
+    "\t-p <pid_name>",
+    "\t-c <cluster_name>",
+    " ",
+    "In addition each of the above arguments can be described",
+    "as a comma delimited list. For example:",
+    " ",
+    "\t-p 342,355,587",
+    "or:",
+    "\t-h host1,host5",
+    " "
+};
+char *gram_target_list_detailed[] = {
+    gram_target_list_arg,
+    gram_target_arg,
+    " ",
+    gram_target_list_brief,
+    " "
+};
+char *gram_host_spec_detailed[] = {
+    gram_host_spec_arg,
+    gram_hostname_arg,
+    gram_IP_Address_arg,
+    " ",
+    gram_host_spec_brief,
+    " ",
+    " "
+};
+char *gram_host_file_detailed[] = {
+    gram_host_file_arg,
+    gram_host_spec_arg,
+    gram_file_spec_arg,
+    " ",
+    gram_host_file_brief,
+    " ",
+    " "
+};
+char *gram_lineno_range_detailed[] = {
+    gram_lineno_range_arg,
+    " ",
+    gram_lineno_range_brief,
+    " ",
+    " "
+};
+char *gram_linenumber_range_spec_detailed[] = {
+    gram_linenumber_range_spec_arg,
+    " ",
+    gram_linenumber_range_spec_brief,
+    " ",
+    " "
+};
+char *gram_linenumber_list_spec_detailed[] = {
+    gram_linenumber_list_spec_arg,
+    gram_linenumber_range_spec_arg,
+    gram_lineno_range_arg,
+    " ",
+    gram_linenumber_list_spec_brief,
+    " ",
+    " "
+};
+char *gram_statusType_detailed[] = {
+    gram_statusType_arg,
+    " ",
+    gram_statusType_brief,
+    " ",
+    "\t- \"NonExistent\": ",
+    "\t\tThe experiment requested doesn't exist.",
+    " ",
+    "\t\tIn general, this is an internal error state.",
+    " ",
+    "\t\tIf the tool checked the status of the ExperimentObject",
+    "\t\tafter an \"expClose\" command, it might return",
+    "\t\tthis status. It will also be returned if the",
+    "\t\tframework experiment was destroyed - also an ",
+    "\t\tinternal error.",
+    " ",
+    "\t- \"Paused\": ",
+    "\t\tThe experiment requested has been paused by the user",
+    "\t\tor has been loaded and is ready to run, but isn't ",
+    "\t\tRunning yet.",
+    " ",
+    "\t\tThis is the initial state that a user will see.",
+    "\t\tThe experiment is not collecting information.",
+    "\t\tAdditional executables and additional experiment",
+    "\t\ttypes can be added to the experiment before an",
+    "\t\t\"expGo\" command is issued.",
+    " ",
+    "\t- \"Running\": ",
+    "\t\tAt least one pid that is part of the experiment ",
+    "\t\tis still currently executing.",
+    " ",
+    "\t- \"Terminated\": ",
+    "\t\tThe experiment requested has succesfully terminated.",
+    " ",
+    "\t\tThe program that is part of the experiment can no",
+    "\t\tlonger be executed. This could be because it has",
+    "\t\tcompleted normally or because it encountered a",
+    "\t\tfatal error.",
+    " ",
+    "\t- \"Error\": ",
+    "\t\tThis state is reported if the FrameWork encounters",
+    "\t\tan unexpected problem.",
+    " "
+};
+char *gram_viewType_detailed[] = {
+    gram_viewType_arg,
+    " ",
+    gram_viewType_brief,
+    " ",
+    "To see all of the current available view types, type:",
+    "\t\"listViews -v all\"",
+    "You can then get more detailed information on each of the",
+    "view types listed through the \"help\" facility."
+};
+char *gram_pcsamp_detailed[] = {
+    gram_pcsamp_arg,
+    " ",
+    gram_pcsamp_brief,
+    " ",
+    "The pcsamp experiment estimates the actual CPU ",
+    "time for each source code line, machine code line, ",
+    "and function in your program. The listing of ",
+    "this experiment shows exclusive PC sampling time. ",
+    "This experiment is a lightweight, high-speed operation ",
+    "that makes use of the operating system.",
+    " ",
+    "CPU time is calculated by multiplying the number of ",
+    "times an instruction or function appears in the PC by ",
+    "the interval specified for the experiment.",
+    " ",
+    "To collect the data, the operating system regularly ",
+    "stops the process, increments a counter corresponding ",
+    "to the current value of the PC, and resumes the process. ",
+    "The default sample interval is 100 milliseconds. The",
+    "sample interval can be controlled via Open|SpeedShop. ",
+    " ",
+    "PC sampling runs should slow the execution time of ",
+    "the program down no more than 5 percent. The measurements ",
+    "are statistical in nature, meaning they exhibit variance ",
+    "inversely proportional to the running time.",
+    " "
+};
+char *gram_usertime_detailed[] = {
+    gram_usertime_arg,
+    " ",
+    gram_usertime_brief,
+    " ",
+    "The usertime and the totaltime experiments are useful ",
+    "experiments to start your performance analysis. The usertime ",
+    "experiment returns CPU time for each function while your ",
+    "program runs and the totaltime experiment returns real ",
+    "time for each function.",
+    " ",
+    "These expeirments use statistical call stack profiling ",
+    "to measure inclusive and exclusive user time. They take ",
+    "a sample every 30 milliseconds. Data is measured by ",
+    "periodically sampling the callstack. The program's ",
+    "callstack data is used to do the following:",
+    " ",
+    "\t- Attribute exclusive user time to the function at the ",
+    "\t  bottom of each callstack (that is, the function being ",
+    "\t  executed at the time of the sample).",
+    " ",
+    "\t- Attribute inclusive user time to all the functions above ",
+    "\t  the one currently being executed (those involved in the ",
+    "\t  chain of calls that led to the function at the bottom of ",
+    "\t  the callstack executing).",
+    " ",
+    "The time spent in a procedure is determined by multiplying ",
+    "the number of times an instruction for that procedure appears ",
+    "in the stack by the sampling time interval between call stack ",
+    "samples. Call stacks are gathered when the program is running; ",
+    "hence, the time computed represents user time, not time spent ",
+    "when the program is waiting for a CPU. User time shows both ",
+    "the time the program itself is executing and the time the ",
+    "operating system is performing services for the program, ",
+    "such as I/O.",
+    " ",
+    "The usertime experiment should incur a program execution slowdown ",
+    "of no more than 15%. Data from a usertime experiment is statistical ",
+    "in nature and shows some variance from run to run.",
+    " "
+};
+char *gram_mpi_detailed[] = {
+    gram_mpi_arg,
+    " ",
+    gram_mpi_brief,
+    " ",
+    "The mpi trace experiment traces calls to various MPI routines.",
+    " "
+};
+char *gram_fpe_detailed[] = {
+    gram_fpe_arg,
+    " ",
+    gram_fpe_brief,
+    " ",
+    "A floating-point exception trace collects each ",
+    "floating-point exception with the exception type ",
+    "and the call stack at the time of the exception. ",
+    "Floating-point exception tracing experiments should ",
+    "incur a slowdown in execution of the program of no ",
+    "more than 15%. These measurements are exact, not ",
+    "statistical.",
+    " "
+};
+char *gram_hwc_detailed[] = {
+    gram_hwc_arg,
+    " ",
+    gram_hwc_brief,
+    " ",
+    "In hardware counter experiments, overflows of a particular ",
+    "hardware counter are recorded. Each hardware counter is ",
+    "configured to count from zero to a number designated as ",
+    "the overflow value. When the counter reaches the overflow ",
+    "value, the system resets it to zero and increments the number ",
+    "of overflows at the present program instruction address. ",
+    "Each experiment provides two possible overflow values; the ",
+    "values are prime numbers, so any profiles that seem the same ",
+    "for both overflow values should be statistically valid.",
+    " "
+};
+char *gram_io_detailed[] = {
+    gram_io_arg,
+    " ",
+    gram_io_brief,
+    " ",
+    "The I/O trace experiment shows you the level of I/O activity ",
+    "in your program by tracing various I/O system calls, ",
+    "for example read(2) and write(2).",
+    " ",
+    "",
+    "\t- The number of I/O system calls executed.",
+    "",
+    "\t- The number of calls with an incomplete traceback.",
+    "",
+    "\t- The [index] column assigns a reference number to ",
+    "\t  each function.",
+    "",
+    "\t- The number of I/O-related system calls from each ",
+    "\t  function in the program.",
+    "",
+    "\t- The percentage of I/O-related system calls from each ",
+    "\t  function in the program.",
+    "",
+    "\t- The percentage of I/O-related system calls encountered ",
+    "\t  so far in the list of functions.",
+    "",
+    "\t- The number of I/O-related system calls made by a given ",
+    "\t  function and by all the functions ultimately called by ",
+    "\t  that given function. For example, the main function will ",
+    "\t  probably include all of the program's I/O calls with ",
+    "\t  complete tracebacks.",
+    "",
+    "\t- The percentage of I/O-related system calls made by a ",
+    "\t  given function and by all the functions ultimately called ",
+    "\t  by that given function.",
+    "",
+    "\t- The dso/dll, file name, and line number for each function.",
+    "",
+    " "
+};
+
+/*********************************************/
+// GRAMMAR MESSAGE ARRAY
+/*********************************************/
+// message array to be passed to message czar
+OpenSpeedShop::message_element_t grammar_msg[] = {
+//    <breakId>
+    -1,"breakId",NULL,0,"grammar",gram_breakId_brief,
+    gram_breakId_detailed,sizeof(gram_breakId_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <expId>
+    -1,"expId",NULL,0,"grammar",gram_expId_brief,
+    gram_expId_detailed,sizeof(gram_expId_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <expId_spec>
+    -1,"expId_spec",NULL,0,"grammar",gram_expId_spec_brief,
+    gram_expId_spec_detailed,sizeof(gram_expId_spec_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <metric_name>
+    -1,"metric_name",NULL,0,"grammar",gram_metric_name_brief,
+    gram_metric_name_detailed,sizeof(gram_metric_name_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <expMetric>
+    -1,"expMetric",NULL,0,"grammar",gram_expMetric_brief,
+    gram_expMetric_detailed,sizeof(gram_expMetric_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <expMetric_list_spec>
+    -1,"expMetric_list_spec",NULL,0,"grammar",gram_expMetric_list_spec_brief,
+    gram_expMetric_list_spec_detailed,sizeof(gram_expMetric_list_spec_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <param_name>
+    -1,"param_name",NULL,0,"grammar",gram_param_name_brief,
+    gram_param_name_detailed,sizeof(gram_param_name_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <expParam>
+    -1,"expParam",NULL,0,"grammar",gram_expParam_brief,
+    gram_expParam_detailed,sizeof(gram_expParam_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <expParamValue>
+    -1,"expParamValue",NULL,0,"grammar",gram_expParamValue_brief,
+    gram_expParamValue_detailed,sizeof(gram_expParamValue_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <predefined_exp>
+    -1,"predefined_exp",NULL,0,"grammar",gram_predefined_exp_brief,
+    gram_predefined_exp_detailed,sizeof(gram_predefined_exp_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <user_defined_exp>
+    -1,"user_defined_exp",NULL,0,"grammar",gram_user_defined_exp_brief,
+    gram_user_defined_exp_detailed,sizeof(gram_user_defined_exp_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <expType>
+    -1,"expType",NULL,0,"grammar",gram_expType_brief,
+    gram_expType_detailed,sizeof(gram_expType_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <expType_list>
+    -1,"expType_list",NULL,0,"grammar",gram_expType_list_brief,
+    gram_expType_list_detailed,sizeof(gram_expType_list_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <rank_name>
+    -1,"rank_name",NULL,0,"grammar",gram_rankname_brief,
+    gram_rankname_detailed,sizeof(gram_rankname_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <rank_range>
+    -1,"rank_range",NULL,0,"grammar",gram_rank_range_brief,
+    gram_rank_range_detailed,sizeof(gram_rank_range_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <rank_list>
+    -1,"rank_list",NULL,0,"grammar",gram_rank_list_brief,
+    gram_rank_list_detailed,sizeof(gram_rank_list_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <rank_list_spec>
+    -1,"rank_list_spec",NULL,0,"grammar",gram_rank_list_spec_brief,
+    gram_rank_list_spec_detailed,sizeof(gram_rank_list_spec_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <thread_name>
+    -1,"thread_name",NULL,0,"grammar",gram_threadname_brief,
+    gram_threadname_detailed,sizeof(gram_threadname_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <thread_range>
+    -1,"thread_range",NULL,0,"grammar",gram_thread_range_brief,
+    gram_thread_range_detailed,sizeof(gram_thread_range_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <thread_list>
+    -1,"thread_list",NULL,0,"grammar",gram_thread_list_brief,
+    gram_thread_list_detailed,sizeof(gram_thread_list_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <thread_list_spec>
+    -1,"thread_list_spec",NULL,0,"grammar",gram_thread_list_spec_brief,
+    gram_thread_list_spec_detailed,sizeof(gram_thread_list_spec_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <pid_name>
+    -1,"pid_name",NULL,0,"grammar",gram_pidname_brief,
+    gram_pidname_detailed,sizeof(gram_pidname_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <pid_range>
+    -1,"pid_range",NULL,0,"grammar",gram_pid_range_brief,
+    gram_pid_range_detailed,sizeof(gram_pid_range_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <pid_list>
+    -1,"pid_list",NULL,0,"grammar",gram_pid_list_brief,
+    gram_pid_list_detailed,sizeof(gram_pid_list_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <pid_list_spec>
+    -1,"pid_list_spec",NULL,0,"grammar",gram_pid_list_spec_brief,
+    gram_pid_list_spec_detailed,sizeof(gram_pid_list_spec_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <file_name>
+    -1,"file_name",NULL,0,"grammar",gram_filename_brief,
+    gram_filename_detailed,sizeof(gram_filename_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <file_list>
+    -1,"file_list",NULL,0,"grammar",gram_file_list_brief,
+    gram_file_list_detailed,sizeof(gram_file_list_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <file_list_spec>
+    -1,"file_list_spec",NULL,0,"grammar",gram_file_list_spec_brief,
+    gram_file_list_spec_detailed,sizeof(gram_file_list_spec_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <IP_Address>
+    -1,"IP_Address",NULL,0,"grammar",gram_IP_Address_brief,
+    gram_IP_Address_detailed,sizeof(gram_IP_Address_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <host_name>
+    -1,"host_name",NULL,0,"grammar",gram_hostname_brief,
+    gram_hostname_detailed,sizeof(gram_hostname_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <host_list>
+    -1,"host_list",NULL,0,"grammar",gram_host_list_brief,
+    gram_host_list_detailed,sizeof(gram_host_list_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <host_list_spec>
+    -1,"host_list_spec",NULL,0,"grammar",gram_host_list_spec_brief,
+    gram_host_list_spec_detailed,sizeof(gram_host_list_spec_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <cluster_name>
+    -1,"cluster_name",NULL,0,"grammar",gram_clustername_brief,
+    gram_clustername_detailed,sizeof(gram_clustername_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <cluster_list>
+    -1,"cluster_list",NULL,0,"grammar",gram_cluster_list_brief,
+    gram_cluster_list_detailed,sizeof(gram_cluster_list_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <cluster_list_spec>
+    -1,"cluster_list_spec",NULL,0,"grammar",gram_cluster_list_spec_brief,
+    gram_cluster_list_spec_detailed,sizeof(gram_cluster_list_spec_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <target>
+    -1,"target",
+    gram_target_related,sizeof(gram_target_related)/sizeof(char **),
+    "grammar",gram_target_brief,
+    gram_target_detailed,sizeof(gram_target_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <target_list>
+    -1,"target_list",NULL,0,"grammar",gram_target_list_brief,
+    gram_target_list_detailed,sizeof(gram_target_list_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <file_spec>
+    -1,"file_spec",NULL,0,"grammar",gram_file_spec_brief,
+    gram_file_spec_detailed,sizeof(gram_file_spec_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <host_spec> 
+    -1,"host_spec",NULL,0,"grammar",gram_host_spec_brief,
+    gram_host_spec_detailed,sizeof(gram_host_spec_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <host_file>
+    -1,"host_file",NULL,0,"grammar",gram_host_file_brief,
+    gram_host_file_detailed,sizeof(gram_host_file_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <lineno_range>
+    -1,"lineno_range",NULL,0,"grammar",gram_lineno_range_brief,
+    gram_lineno_range_detailed,sizeof(gram_lineno_range_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <linenumber_range_spec>
+    -1,"linenumber_range_spec",NULL,0,"grammar",gram_linenumber_range_spec_brief,
+    gram_linenumber_range_spec_detailed,sizeof(gram_linenumber_range_spec_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <linenumber_list_spec>
+    -1,"linenumber_list_spec",NULL,0,"grammar",gram_linenumber_list_spec_brief,
+    gram_linenumber_list_spec_detailed,sizeof(gram_linenumber_list_spec_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <statusType>
+    -1,"statusType",NULL,0,"grammar",gram_statusType_brief,
+    gram_statusType_detailed,sizeof(gram_statusType_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <viewType>
+    -1,"viewType",NULL,0,"grammar",gram_viewType_brief,
+    gram_viewType_detailed,sizeof(gram_viewType_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    pcsamp
+    -1,"pcsamp",NULL,0,"experiments",gram_pcsamp_brief,
+    gram_pcsamp_detailed,sizeof(gram_pcsamp_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    usertime
+    -1,"usertime",NULL,0,"experiments",gram_usertime_brief,
+    gram_usertime_detailed,sizeof(gram_usertime_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    mpi
+    -1,"mpi",NULL,0,"experiments",gram_mpi_brief,
+    gram_mpi_detailed,sizeof(gram_mpi_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    fpe
+    -1,"fpe",NULL,0,"experiments",gram_fpe_brief,
+    gram_fpe_detailed,sizeof(gram_fpe_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    hwc
+    -1,"hwc",NULL,0,"experiments",gram_hwc_brief,
+    gram_hwc_detailed,sizeof(gram_hwc_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    io
+    -1,"io",NULL,0,"experiments",gram_io_brief,
+    gram_io_detailed,sizeof(gram_io_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    
+//    -1,"",NULL,0,"grammar",gram_xxx_brief,
+//    gram_xxx_detailed,sizeof(gram_xxx_detailed)/sizeof(char **),NULL,0,NULL,0,
+
+//    END OF LIST
+    -1,NULL,NULL,0,NULL,NULL,
+    NULL,0,NULL,0,NULL,0,NULL,0
+};
+
+
