@@ -39,7 +39,7 @@
  *
  * @ingroup RuntimeAPI
  */
-uint64_t OpenSS_GetPCFromContext(ucontext_t* context)
+uint64_t OpenSS_GetPCFromContext(const ucontext_t* context)
 {
     /* Check preconditions */
     Assert(context != NULL);

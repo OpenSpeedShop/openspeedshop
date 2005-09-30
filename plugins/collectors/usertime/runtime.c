@@ -103,7 +103,7 @@ static void send_samples()
  * 
  * @param context    Thread context at timer interrupt.
  */
-static void usertimeTimerHandler(ucontext_t* context)
+static void usertimeTimerHandler(const ucontext_t* context)
 {
     /* Obtain the program counter (PC) address from the thread context */
     /* We will test passedpc against the first stack frame address */

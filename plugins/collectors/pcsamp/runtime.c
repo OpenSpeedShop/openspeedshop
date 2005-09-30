@@ -87,7 +87,7 @@ static struct {
  * 
  * @param context    Thread context at timer interrupt.
  */
-static void pcsampTimerHandler(ucontext_t* context)
+static void pcsampTimerHandler(const ucontext_t* context)
 {
     uint64_t pc;
     unsigned bucket, entry;
