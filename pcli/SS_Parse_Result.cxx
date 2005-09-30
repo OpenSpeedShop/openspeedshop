@@ -237,7 +237,6 @@ dumpError(CommandObject *cmd)
     // Get reference of the message czar.
     SS_Message_Czar& czar = theMessageCzar();
 
-#if 1
     // Get list of error strings
     vector<ParseRange> *p_list = this->getErrorList();
 
@@ -265,49 +264,15 @@ dumpError(CommandObject *cmd)
 	    	++k) {
 	    	SS_Message_Element *p_el = *k;
 
-    	    	// Normal list
+    	    	// Syntax list
 	    	vector<string> * const p_string = p_el->get_syntax_list();
     	    	for (vector <string> :: iterator i=p_string->begin();
     	     	    i!= p_string->end();
 	     	    ++i) {
 		    cmd->Result_String (*i);
 	    	}
-
     	    }
 
-#else
-
-    // Get list of error strings
-    vector<ParseRange> *p_list = this->getErrorList();
-
-    vector<ParseRange>::iterator iter;
-    
-    for (iter=p_list->begin();iter != p_list->end(); iter++) {
-    	parse_range_t *p_range = iter->getRange();
-
-    	parse_val_t *p_val1 = &p_range->start_range;
-    	if (p_val1->tag == VAL_STRING) {
-    	    vector <SS_Message_Element *> element;
-    	    czar.Find_By_Keyword(p_val1->name.c_str(), &element);
-    
-    	    vector <SS_Message_Element*>:: iterator k;
-    	    for (k = element.begin();
-    	    	k != element.end();
-	    	++k) {
-	    	SS_Message_Element *p_el = *k;
-
-    	    	// Normal list
-	    	vector<string> * const p_string = p_el->get_normal_list();
-    	    	for (vector <string> :: iterator i=p_string->begin();
-    	     	    i!= p_string->end();
-	     	    ++i) {
-		    cmd->Result_String (*i);
-	    	}
-
-    	    }
-    	}
-    }
-#endif
 
 }
 
@@ -512,6 +477,19 @@ dumpHelp(CommandObject *cmd)
 	     	 ++i) {
 		cmd->Result_String (*i);
 	    }
+
+    	    // Related list
+	    vector<string> * const p_string_3 = p_el->get_related_list();
+    	    if (p_string_3->begin() != p_string_3->end()) {
+    	    	cmd->Result_String( "See also:\n\n");
+    	    }
+    	    for (vector <string> :: iterator i=p_string_3->begin();
+    	     	 i!= p_string_3->end();
+	     	 ++i) {
+		cmd->Result_String ("\t" + *i);
+	    }
+    	    cmd->Result_String (" ");
+
 	    // Check for topics (nodes of the tree
 	    if (p_el->is_topic()) {
     	    	s_dump_help_topic(cmd, czar, p_el->get_keyword());
