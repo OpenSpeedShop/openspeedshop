@@ -50,7 +50,7 @@ namespace OpenSpeedShop { namespace Framework {
      * These integers are interpreted as the number of nanoseconds that have
      * passed since midnight (00:00) Coordinated Universal Time (UTC), on
      * Janaury 1, 1970. This system gives nanosecond resolution for representing
-     * times while not running out the clock until sometime in the year 2054.
+     * times while not running out the clock until sometime in the year 2554.
      *
      * @ingroup Utility
      */
