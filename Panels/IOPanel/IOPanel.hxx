@@ -134,6 +134,8 @@ public:
 
   OpenSpeedShop::Framework::Experiment *fw_experiment() { return experiment; }
   
+  void outputCLIData(QString *data);
+
 public slots:
   void saveAsSelected();
   void manageDataSetsSelected();
@@ -171,5 +173,7 @@ private:
   int steps;
 
   bool exitingFLAG;
+
+  QString expStatsInfoStr;
 };
 #endif // IOPanel_H_H
