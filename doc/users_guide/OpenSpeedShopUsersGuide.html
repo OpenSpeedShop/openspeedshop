@@ -1526,10 +1526,14 @@ Open|SpeedShop Execution</a></li>
       </li>
     </ul>
   </li>
-  <li><a href="#mozTocId177198">Open|SpeedShop Test Information</a>
+  <li><a href="#mozTocId177198">Open|SpeedShop Test
+Information</a>
     <ul>
-      <li><a href="#mozTocId924141">Location and Organization of Tests</a></li>
-      <li><a href="#mozTocId803695">How to Run the Open|SpeedShop Tests</a></li>
+      <li><a href="#mozTocId924141">Location and
+Organization of Tests</a></li>
+      <li><a href="#mozTocId803695">How to Run the
+Open|SpeedShop Tests
+        </a></li>
     </ul>
   </li>
   <li><a href="#mozTocId57291">Open|SpeedShop
@@ -1647,20 +1651,20 @@ Experiment - Source and Statistics Relationship Display</a></li>
           </li>
           <li><a href="#mozTocId273266">Typical Open|SpeedShop GUI
 non-Wizard Usage</a></li>
-          <li><a href="#mozTocId612492">Open|SpeedShop GUI Usage on MPI
-Applications</a>
+          <li><a href="#mozTocId612492">Open|SpeedShop GUI Usage on
+MPI Applications</a>
             <ul>
               <li><a href="#mozTocId486395">Attaching to Already
 Running MPI Applications</a>
                 <ul>
                   <li><a href="#mozTocId95717">Gui Wizard Information</a></li>
                   <li><a href="#mozTocId995066">Gui Non-Wizard
-Information&nbsp; </a></li>
+Information&nbsp;
+                    </a></li>
                 </ul>
               </li>
-              <li><a href="#mozTocId245659">Loading and Starting MPI
-Applications</a></li>
-              <li><a href="#mozTocId759909"></a></li>
+              <li><a href="#mozTocId245659">Loading and Starting
+MPI Applications</a></li>
             </ul>
           </li>
         </ul>
@@ -1685,7 +1689,8 @@ API
   <li><a href="#mozTocId65366">Plugin
 API (Extensibility)&nbsp; Description</a>
     <ul>
-      <li><a href="#mozTocId573729">Collector Plugin Definition</a>
+      <li><a href="#mozTocId573729">Experiment Collector Plugin
+Definition</a>
         <ul>
           <li><a href="#mozTocId960650">Collector Plugin FAQ:
             </a>
@@ -2769,9 +2774,8 @@ In this example six experiments are available.&nbsp; The experiment
 panel can be accessed by clicking on the
 corresponding menu items.<br>
     <br>
-    <img alt="Experiments Menu items"
- src="snapshot_ExperimentsMenuItems.png"
- style="width: 249px; height: 186px;"><br>
+    <img alt="Experiment Menu" src="snapshot_ExperimentsMenuItems.png"
+ style="width: 178px; height: 167px;"><br>
     <br>
 In reality at this, the Milestone 5 delivery,&nbsp; the PC Sampling,
 Usertime and HW Counter
@@ -2831,24 +2835,24 @@ time.<br>
 experiment to start your performance analysis. The usertime experiment
 returns CPU time for each function while your program runs.</p>
     <p style="font-family: serif;">This experiment uses a statistical
-call stack profiling to measure inclusive and exclusive <font
+call stack profiling to measure inclusive and exclusive user <font
  style="color: rgb(0, 0, 0);" color="darkred"><span
- style="background-color: rgb(204, 204, 204);">user</span></font>
-time. It takes a sample every 30 milliseconds.&nbsp; Data is measured
+ style="background-color: rgb(204, 204, 204);"></span></font>time. It
+takes a sample every 30 milliseconds.&nbsp; Data is measured
 by
 periodically sampling the callstack. The program's callstack data is
 used to do the following:</p>
     <div style="font-family: serif;" class="itemizedlist">
     <ul type="disc">
       <li>
-        <p>Attribute exclusive <font style="color: rgb(0, 0, 0);"
- color="darkred"><span style="background-color: rgb(204, 204, 204);">user</span></font>
-time to the function at the bottom of each callstack (that is, the
+        <p>Attribute exclusive user <font style="color: rgb(0, 0, 0);"
+ color="darkred"><span style="background-color: rgb(204, 204, 204);"></span></font>time
+to the function at the bottom of each callstack (that is, the
 function being executed at the time of the sample).</p>
       </li>
       <li>
-        <p>Attribute inclusive <font style="color: rgb(0, 0, 0);"
- color="darkred"><span style="background-color: rgb(204, 204, 204);">user</span></font>
+        <p>Attribute inclusive user<font style="color: rgb(0, 0, 0);"
+ color="darkred"><span style="background-color: rgb(204, 204, 204);"></span></font>
 time to all the functions above the one currently being executed (those
 involved in the chain of calls that led to the function at the bottom
 of the callstack executing).</p>
@@ -2860,12 +2864,11 @@ determined by
 multiplying the number of times an instruction for that procedure
 appears in the stack by the sampling time interval between call stack
 samples. Call stacks are gathered when the program is running; hence,
-the time computed represents <font style="color: rgb(0, 0, 0);"
- color="darkred"><span style="background-color: rgb(204, 204, 204);">user</span></font>
-time, not time spent when the program is waiting for a CPU. <font
+the time computed represents user
+time, not time spent when the program is waiting for a CPU.&nbsp; User <font
  style="color: rgb(0, 0, 0);" color="darkred"><span
- style="background-color: rgb(204, 204, 204);">User</span></font>
-time shows both the time the program itself is executing and the time
+ style="background-color: rgb(204, 204, 204);"></span></font>time shows
+both the time the program itself is executing and the time
 the operating system is performing services for the program, such as
 I/O.</p>
     <p style="font-family: serif;">The usertime experiment should incur
@@ -3529,14 +3532,14 @@ MPI Applications</h4>
 <span style="font-weight: bold;">TBD - Not currently implemented (as of
 09/28/2005)</span>.<br>
 <br>
-<h4><a class="mozTocH4" name="mozTocId759909"></a><b style=""></b></h4>
-</div>
-<blockquote> <b style=""> </b>
+<span style="font-family: arial;"><span style="font-style: italic;"><span
+ style="font-weight: bold;"></span></span></span></div>
+<blockquote>
   <h2><a class="mozTocH2" name="mozTocId420404"></a><b style=""><a
  name="mozTocId235102" class="mozTocH2"></a><span style=""><span
  style=""><span style=""><span style=""><span style=""><span style="">Using
 the Interactive
-CLI Tool <br>
+CLI Tool<br>
   </span></span></span></span></span></span></b></h2>
 </blockquote>
 <blockquote><b style="">The interactive command line interface tool
@@ -3754,7 +3757,8 @@ gathering and analysis mechanism.<br>
 </b>
 <h2><a class="mozTocH2" name="mozTocId573729"></a><b style=""><a
  class="mozTocH2" name="mozTocId65995"></a><a
- name="Collector_Plugin_Definition"></a>Collector Plugin Definition</b></h2>
+ name="Collector_Plugin_Definition"></a>Experiment Collector Plugin
+Definition</b></h2>
 <b style=""><br>
 </b>
 <h3><a class="mozTocH3" name="mozTocId960650"></a><b style=""><a
@@ -3794,8 +3798,7 @@ Interface Panel Plugin Definition</b></h2>
  class="mozTocH2" name="mozTocId721763"></a><a
  name="Command_Line_Interface_Plugin_Definition"></a>Command Line
 Interface Plugin Definition</b></h2>
-<b style=""><br>
-</b>
+<br>
 <blockquote><b style=""> </b>
   <pre wrap=""></pre>
   <b style=""> </b>
