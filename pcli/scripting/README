@@ -4,8 +4,8 @@ out the package as it currently stands:
     source doit.csh
 
 The documentation will be deposited in the 
-directory oss/doc. Just point your browser at
-oss/doc/index.html.
+directory doc. Just point your browser at
+doc/index.html.
 
 Don't have epydoc? Google it and download sources 
 from SourceForge and build it. Pretty easy. For our
