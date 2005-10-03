@@ -1417,6 +1417,8 @@ PanelContainer::raiseNamedPanel(char *panel_name)
         tabWidget->insertTab(p->getBaseWidgetFrame(), p->getName(), count );
         tabWidget->showPage(p->getBaseWidgetFrame());
       }
+      // We hide this if the tab count went to zero.  Make sure we re-show it.
+      tabWidget->show();
       tabWidget->setCurrentPage(count);
       nprintf(DEBUG_PANELCONTAINERS) ("setCurrentPage(%d)\n", count);
       p->getPanelContainer()->handleSizeEvent(NULL);
