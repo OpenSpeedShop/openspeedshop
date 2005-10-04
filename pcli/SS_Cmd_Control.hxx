@@ -18,7 +18,7 @@
 
 // The main switch that implements the commands,
 // once we've figured out which one we were given.
-void SS_Execute_Cmd (CommandObject *cmd);
+void SS_Execute_Cmd (CommandObject *cmd, bool wait_for_completion);
 
 // The number of Command Execution Threads that have been created.
 extern int64_t EXT_Created;
