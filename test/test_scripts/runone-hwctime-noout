@@ -1,0 +1,367 @@
+#!/usr/bin/env python
+
+from sys import *
+import sys
+import os
+import threading
+from time import *
+from string import *
+from threading import *
+#from datetime import *
+
+
+def too_long():
+	os.system('killall -q openss')
+
+def createTestList():
+	checktemptestlist = os.system('test -e temptestlist')
+	if checktemptestlist == 0:
+        	os.system('rm -f temptestlist')
+	os.system('ls -1 *.tst >> temptestlist')
+
+def runTest(testName):
+	checkinput = os.system('test -e input.script')
+	if checkinput == 0:
+		os.system('rm -f input.script')
+	#test_input = open(testName, 'r')
+	#testCommand = test_input.readline()
+	#linesToCompare = test_input.readline()
+	#test_input.close()
+	t = Timer(300, too_long)
+	t.start()
+	os.system('./'+testName+ '>> '+ testName+'.output')
+	finished = 1
+	t.cancel()
+	return finished
+
+def iterateThroughTestList(fileptr):
+	con_input = open('temptestlist', 'r')
+        while 1:
+                config_line = con_input.readline()
+                if not config_line:
+                        break
+                test_name = config_line
+		i = 0
+	        while 1:
+                	if test_name[i] == '.':
+                        	break
+                	else:
+                        	i += 1
+        	testName = test_name[0:i+4]
+
+		complete = runTest(testName)
+		CompareResults(testName, fileptr, complete)
+               
+        con_input.close()
+
+def focus_result(testName):
+	nooutput = 1
+	outputfilename = testName + '.output'
+        outputfileptr = open(outputfilename, 'r')
+        while 1:
+	        tempfileline = outputfileptr.readline()
+                if not tempfileline:
+        	        break
+                if tempfileline[0:7] == 'The cur':
+                        nooutput = 0
+                        break
+	if tempfileline[36:40] == '-x 2':
+		tempfileline = outputfileptr.readline()
+		if not tempfileline:
+			return 1
+		tempfileline = outputfileptr.readline()
+		if not tempfileline:
+			return 1
+		if tempfileline[36:40] == '-x 1':
+			return 0
+		else:
+			return 2
+	else:
+		return 2	
+			
+def pause_result(testName):
+        nooutput = 1
+        outputfilename = testName + '.output'
+        outputfileptr = open(outputfilename, 'r')
+        while 1:
+                tempfileline = outputfileptr.readline()
+                if not tempfileline:
+                        break
+                if tempfileline[0:10] == 'Experiment':
+                        nooutput = 0
+                        break
+        tempfileline = outputfileptr.readline()
+        if not tempfileline:
+		return 1
+	if tempfileline[26:32] == 'Paused':
+		return 0
+	else:	
+		return 2
+	
+def hosts_result(testName):
+        nooutput = 1
+        outputfilename = testName + '.output'
+        outputfileptr = open(outputfilename, 'r')
+	expectedfileptr = open(testName+'.expected', 'r')
+	expectedfileline = expectedfileptr.readline()
+        while 1:
+                tempfileline = outputfileptr.readline()
+                if not tempfileline:
+                        break
+                if tempfileline[0:15] == 'The new focused':
+                        nooutput = 0
+                        break
+        tempfileline = outputfileptr.readline()
+	i = 0
+	while (tempfileline[i] != ' ' and tempfileline[i] != '\n'):
+		i+=1
+        if not tempfileline:
+                return 1
+        if tempfileline[0:i] == expectedfileline[0:-1]:
+                return 0
+        else:
+                return 2	
+
+def listexp_result(testName):
+        nooutput = 1
+        outputfilename = testName + '.output'
+        outputfileptr = open(outputfilename, 'r')
+        while 1:
+                tempfileline = outputfileptr.readline()
+                if not tempfileline:
+                        break
+                if tempfileline[0:15] == 'The new focused':
+                        nooutput = 0
+                        break
+        tempfileline = outputfileptr.readline()
+        i = 0
+        while (tempfileline[i] != ' ' and tempfileline[i] != '\n'):
+                i+=1
+        if not tempfileline:
+                return 1
+        if tempfileline[0:i] == '1':
+                return 0
+        else:
+                return 2
+
+def views_result(testName):
+        nooutput = 1
+        outputfilename = testName + '.output'
+        outputfileptr = open(outputfilename, 'r')
+        while 1:
+                tempfileline = outputfileptr.readline()
+                if not tempfileline:
+                        break
+                if tempfileline[0:15] == 'The new focused':
+                        nooutput = 0
+                        break
+        tempfileline = outputfileptr.readline()
+        i = 0
+        while (tempfileline[i] != ' ' and tempfileline[i] != '\n'):
+                i+=1
+        if not tempfileline:
+                return 1
+        if tempfileline[0:i] == 'hwctime':
+                return 0
+        else:
+                return 2
+
+def metrics_result(testName):
+        nooutput = 1
+        outputfilename = testName + '.output'
+        outputfileptr = open(outputfilename, 'r')
+        while 1:
+                tempfileline = outputfileptr.readline()
+                if not tempfileline:
+                        break
+                if tempfileline[0:15] == 'The new focused':
+                        nooutput = 0
+                        break
+        tempfileline = outputfileptr.readline()
+        i = 0
+        while (tempfileline[i] != ' ' and tempfileline[i] != '\n'):
+                i+=1
+        if not tempfileline:
+                return 1
+        if tempfileline[0:i] == 'hwctime::overflows':
+                return 0
+        else:
+                return 2
+
+def params_result(testName):
+        nooutput = 1
+	part_one = 0
+        outputfilename = testName + '.output'
+        outputfileptr = open(outputfilename, 'r')
+        while 1:
+                tempfileline = outputfileptr.readline()
+                if not tempfileline:
+			return 1
+                if tempfileline[0:15] == 'The new focused':
+                        nooutput = 0
+                        break
+	tempfileline = outputfileptr.readline()
+	if not tempfileline:
+		return 1
+        tempfileline = outputfileptr.readline()
+        i = 0
+	if not tempfileline:
+		return 1
+        while (tempfileline[i] != ' ' and tempfileline[i] != '\n'):
+                i+=1
+        if tempfileline[0:i] == 'hwctime::event':
+		part_one = 1
+        else:
+                return 2
+	tempfileline = outputfileptr.readline()
+        i = 0
+	if not tempfileline:
+		return 1
+        while (tempfileline[i] != ' ' and tempfileline[i] != '\n'):
+                i+=1
+        if tempfileline[0:i] == 'hwctime::sampling_rate' and part_one == 1:
+		return 0
+        else:
+                return 2
+
+
+def status_result(testName):
+        nooutput = 1
+        outputfilename = testName + '.output'
+        outputfileptr = open(outputfilename, 'r')
+	first_line_correct = 0
+        while 1:
+                tempfileline = outputfileptr.readline()
+                if not tempfileline:
+                        break
+                if tempfileline[0:15] == 'The new focused':
+                        nooutput = 0
+                        break
+        tempfileline = outputfileptr.readline()
+	if not tempfileline:
+		return 1
+        i = 0
+        while (tempfileline[i] != ' ' and tempfileline[i] != '\n'):
+                i+=1
+        if tempfileline[0:i] == 'Paused':
+                first_line_correct = 1
+	tempfileline = outputfileptr.readline()
+	if not tempfileline:
+		return 1
+	tempfileline = outputfileptr.readline()
+	if not tempfileline:
+		return 1
+	i = 0
+	while (tempfileline[i] != ' ' and tempfileline[i] != '\n'):
+		i +=1
+	if (tempfileline[0:i] == 'Running') and (first_line_correct == 1):
+		return 0
+	else:
+		return 2
+
+def enable_result(testName):
+        nooutput = 1
+        outputfilename = testName + '.output'
+        outputfileptr = open(outputfilename, 'r')
+        first_line_correct = 0
+        while 1:
+                tempfileline = outputfileptr.readline()
+                if not tempfileline:
+                        break
+                if tempfileline[0:5] == 'Start':
+                        nooutput = 0
+                        break
+        tempfileline = outputfileptr.readline()
+        if not tempfileline:
+                return 1
+        tempfileline = outputfileptr.readline()
+        if not tempfileline:
+                return 1
+        tempfileline = outputfileptr.readline()
+        if not tempfileline:
+                return 1
+        if tempfileline[26:33] == 'Running':
+                return 0
+        else:
+                return 2
+
+	
+
+def CompareResults(testName, fileptr, finished):
+	passed = 0
+	nooutput = 1
+	resultnum = 1
+	if (testName[0:5] == 'close'):
+		resultnum = 0
+	if (testName[0:5] == 'focus'):
+		resultnum = focus_result(testName)
+	if (testName[0:5] == 'pause'):
+		resultnum = pause_result(testName)
+	if (testName[0:5] == 'hosts'):
+                resultnum = hosts_result(testName)
+	if (testName[0:4] == 'pids'):
+		resultnum = hosts_result(testName)
+	if (testName[0:7] == 'listexp'):
+		resultnum = listexp_result(testName)
+	if (testName[0:5] == 'views'):
+		resultnum = views_result(testName)
+	if (testName[0:5] == 'types'):
+		resultnum = views_result(testName)	
+	if (testName[0:7] == 'metrics'):
+		resultnum = metrics_result(testName) 
+	if (testName[0:6] == 'params'):
+		resultnum = params_result(testName)
+	if (testName[0:6] == 'status'):
+		resultnum = status_result(testName)
+	if (testName[0:6] == 'enable'):
+		resultnum = enable_result(testName)
+	if resultnum == 0:
+		passed = 1
+		nooutput = 0
+	elif resultnum == 1:
+		passed = 0
+	elif resultnum ==2:
+		passed = 0
+		nooutput = 0
+
+
+	if (testName[0:6] == 'detach'  or testName[0:7] == 'disable'):
+		outputfilename = testName + '.output'
+		outputfileptr = open(outputfilename, 'r')
+      		while 1:
+                	tempfileline = outputfileptr.readline()
+                	if not tempfileline:
+                        	break
+                	if tempfileline[0:17] == '  Previously Used':
+                        	nooutput = 0
+                        	break
+		outputfileline = outputfileptr.readline()
+		if outputfileline[0:11] == '    hwctime':
+			passed = 1
+	if (passed != 1) or (nooutput != 0) :
+		finished = 0
+
+	if (finished == 1):
+		fileptr.write(testName + ' has PASSED \n')
+	else:
+		if (nooutput == 1):
+			fileptr.write(testName + ' has FAILED.  Openss has timed out or crashed. \n')
+		else:
+			fileptr.write(testName + ' has FAILED. The output is incorrect. \n ')
+
+
+	 	
+
+if __name__ == '__main__':
+	checkoutput = os.system('test -e *.output')
+        if checkoutput == 0:
+                os.system('rm -f *.output')
+
+	currTime = strftime("%d_%m_%Y_%H%M%S", localtime())
+        resultsFile =  'testresults_' + currTime
+        resultfileptr = open(resultsFile, 'w')
+	tempfileptr = open('testresultsfilename', 'w')
+	tempfileptr.write(resultsFile)
+
+	createTestList()
+	iterateThroughTestList(resultfileptr)
