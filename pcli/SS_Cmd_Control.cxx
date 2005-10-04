@@ -50,12 +50,17 @@ try {
 
   switch (clip->What()) {
   case ILO_IN_PARSER:
+   // First tiem we've see this command.
     clip->SetStatus (ILO_EXECUTING);
     break;
   case ILO_EXECUTING:
+   // Grat!  Keep going.
     break;
   case ILO_COMPLETE:
+   // There may be new CommandObjects that are not complete.
+    break;
   case ILO_ERROR:
+   // Unwind processing because of a previous error.
     cmd->set_Status (CMD_ABORTED);
     Cmd_Obj_Complete (cmd);
     return;
@@ -375,17 +380,31 @@ static void Cmd_EXT_Create () {
 }
 
 
-void SS_Execute_Cmd (CommandObject *cmd) {
+void SS_Execute_Cmd (CommandObject *cmd, bool serialize_exexcution) {
  // Prevent unsafe changes
   Assert(pthread_mutex_lock(&Cmd_EXT_Lock) == 0);
 
   if (!Shut_Down) {
-    if (cmd->Type() == CMD_RECORD) {
+
+    if (serialize_exexcution) {
+      if (EXT_Allocated != EXT_Free) {
+        Main_Waiting = true;
+        Main_Waiting_Count = 0;
+        Assert(pthread_cond_wait(&Waiting_For_Main,&Cmd_EXT_Lock) == 0);
+      }
+      if (!Shut_Down) {
+        Assert(pthread_mutex_unlock(&Cmd_EXT_Lock) == 0);
+        Cmd_Execute (cmd);
+        return;
+      }
+    } else  if (cmd->Type() == CMD_RECORD) {
      // Execute this command with the main thread
      // and do it immediately so that any new comamnds
      // read from the same input file will be logged
      // in the record file.
+      Assert(pthread_mutex_unlock(&Cmd_EXT_Lock) == 0);
       Cmd_Execute (cmd);
+      return;
     } else {
      // Add the Command to the Queue
       EXT_Dispatch.push_back(cmd);
