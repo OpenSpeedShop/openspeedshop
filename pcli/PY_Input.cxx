@@ -82,7 +82,7 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     fclose(yyin); 
     
     // testing code
-    //parse_result.dumpInfo();
+    //parse_result->dumpInfo();
 
     // Build a CommandObject so that the semantic routines can be called.
     cmd = new CommandObject (parse_result, python_needs_result);
@@ -100,7 +100,7 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     	return p_object;
     }
 
-    SS_Execute_Cmd (cmd);
+    SS_Execute_Cmd (cmd, python_needs_result);
 
     if (!python_needs_result ||
         (cmd->Status() == CMD_ERROR) ||
