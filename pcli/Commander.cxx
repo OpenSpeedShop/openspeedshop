@@ -611,7 +611,8 @@ class CommandWindowID
       InputLineObject *L = (*cmi);
       if (!L->Results_Used ()) {
         if (All_Command_Objects_Are_Used( (*cmi) )) {
-          (void)((*cmi)->CallBackL ());
+          L->SetStatus (ILO_COMPLETE);
+          (void)(L->CallBackL ());
         } else break;  // so that things are removed in order
       }
       ++cmi;
@@ -633,6 +634,30 @@ class CommandWindowID
       this_ss_stream->acquireLock();
       this_ss_stream->Issue_Prompt();
       this_ss_stream->releaseLock();
+    }
+
+   // Release the lock
+    Assert(pthread_mutex_unlock(&Cmds_List_Lock) == 0);
+  }
+  void Remove_Null_Input_Lines () {
+   // This routine can only safely be called when Python
+   // is outside a nested construct.
+
+   // Get the lock to this window's current in-process commands.
+    Assert(pthread_mutex_lock(&Cmds_List_Lock) == 0);
+
+   // Look through the list for lines with no CommandObjects.
+   // These may have been processed by Python and may not have
+   // generated any CommandObjects.
+    bool there_were_cmds = false;
+    std::list<InputLineObject *> cmd_object = Complete_Cmds;
+    std::list<InputLineObject *>::iterator cmi;
+    for (cmi = cmd_object.begin(); cmi != cmd_object.end(); cmi++) {
+      InputLineObject *L = (*cmi);
+      if ((L->What () == ILO_IN_PARSER) &&
+          (L->How_Many () == 0)) {
+        L->SetStatus (ILO_COMPLETE);
+      }
     }
 
    // Release the lock
@@ -1115,10 +1140,12 @@ void Cmd_Obj_Complete (CommandObject *C) {
   InputLineObject *clip = C->Clip();
   (void)(clip->CallBackC (C));
 
- // If output has been completed, issue a prompt
-  CMDWID w = clip->Who();
-  CommandWindowID *cw = (w) ? Find_Command_Window (w) : NULL;
-  if (cw != NULL) cw->Remove_Completed_Input_Lines (true);
+  if (!clip->Complex_Exp()) {
+   // If output has been completed, issue a prompt
+    CMDWID w = clip->Who();
+    CommandWindowID *cw = (w) ? Find_Command_Window (w) : NULL;
+    if (cw != NULL) cw->Remove_Completed_Input_Lines (true);
+  }
 }
 
 int64_t Find_Command_Level (CMDWID WindowID)
@@ -2238,6 +2265,7 @@ static CMDWID select_input_window (int is_more) {
       (Last_ReadWindow != 0)) {
     CommandWindowID *cw = Find_Command_Window (Last_ReadWindow);
     if (cw) {
+      cw->Remove_Null_Input_Lines ();
       cw->Remove_Completed_Input_Lines (true);
     }
   }
