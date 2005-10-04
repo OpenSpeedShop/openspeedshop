@@ -16,11 +16,10 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = pause1 pause2 pause3 pause4
-
-DIST_SUBDIRS = $(SUBDIRS)
-
 EXTRA_DIST = \
+	restore4.tst \
+	restore4.tst.expected \
+	runone \
 	runall \
 	test_config
 

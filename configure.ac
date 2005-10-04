@@ -207,30 +207,37 @@ AC_CONFIG_FILES(Makefile
 		test/test_source/regression/building_block/close/close1/Makefile
 		test/test_source/regression/building_block/close/close2/Makefile
 		test/test_source/regression/building_block/close/close3/Makefile
+		test/test_source/regression/building_block/close/close4/Makefile
 		test/test_source/regression/building_block/detach/Makefile
 		test/test_source/regression/building_block/detach/detach1/Makefile
 		test/test_source/regression/building_block/detach/detach2/Makefile
 		test/test_source/regression/building_block/detach/detach3/Makefile
+		test/test_source/regression/building_block/detach/detach4/Makefile
 		test/test_source/regression/building_block/disable/Makefile
 		test/test_source/regression/building_block/disable/disable1/Makefile
 		test/test_source/regression/building_block/disable/disable2/Makefile
 		test/test_source/regression/building_block/disable/disable3/Makefile
+		test/test_source/regression/building_block/disable/disable4/Makefile
 		test/test_source/regression/building_block/enable/Makefile
 		test/test_source/regression/building_block/enable/enable1/Makefile
 		test/test_source/regression/building_block/enable/enable2/Makefile
 		test/test_source/regression/building_block/enable/enable3/Makefile
+		test/test_source/regression/building_block/enable/enable4/Makefile
 		test/test_source/regression/building_block/focus/Makefile
 		test/test_source/regression/building_block/focus/focus1/Makefile
 		test/test_source/regression/building_block/focus/focus2/Makefile
 		test/test_source/regression/building_block/focus/focus3/Makefile
+		test/test_source/regression/building_block/focus/focus4/Makefile
 		test/test_source/regression/building_block/pause/Makefile
 		test/test_source/regression/building_block/pause/pause1/Makefile
 		test/test_source/regression/building_block/pause/pause2/Makefile
 		test/test_source/regression/building_block/pause/pause3/Makefile
+		test/test_source/regression/building_block/pause/pause4/Makefile
 		test/test_source/regression/building_block/restore/Makefile
 		test/test_source/regression/building_block/restore/restore1/Makefile
 		test/test_source/regression/building_block/restore/restore2/Makefile
 		test/test_source/regression/building_block/restore/restore3/Makefile
+		test/test_source/regression/building_block/restore/restore4/Makefile
 		test/test_source/regression/info/Makefile
 		test/test_source/regression/info/hosts/Makefile
 		test/test_source/regression/info/hosts/hosts1/Makefile
