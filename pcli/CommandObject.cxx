@@ -27,7 +27,10 @@ void CommandObject::set_Status (Command_Status S) {
     Cmd_Status = S;
     InputLineObject *clip = Clip();
     if (S == CMD_COMPLETE) {
-      clip->SetStatus (ILO_COMPLETE);
+      if (!clip->Complex_Exp()) {
+       // GUI waits on level-1 commands.  Mark them complete.
+        clip->SetStatus (ILO_COMPLETE);
+      }
     } else if (S == CMD_ERROR) {
       clip->SetStatus (ILO_ERROR);
     } else if (S == CMD_ABORTED) {
