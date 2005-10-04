@@ -146,6 +146,7 @@ gotColumns = FALSE;
 
   f = NULL;
   metricMenu = NULL;
+  threadMenu = NULL;
   currentMetricStr = QString::null;
   metricHeaderTypeArray = NULL;
   currentThreadStr = QString::null;
@@ -381,6 +382,10 @@ StatsPanel::menu( QPopupMenu* contextMenu)
     }
   }
     
+  if( threadMenu )
+  {
+    delete threadMenu;
+  }
   threadMenu = new QPopupMenu(this);
   int MAX_PROC_MENU_DISPLAY = 8;
   if( list_of_pids.size() <= MAX_PROC_MENU_DISPLAY )
@@ -397,11 +402,19 @@ StatsPanel::menu( QPopupMenu* contextMenu)
       if( currentThreadStr.isEmpty() || currentThreadStr == pidStr )
       {
         currentThreadStr = pidStr;
-        threadMenu->setItemChecked(mid, TRUE);
+//        threadMenu->setItemChecked(mid, TRUE);
       }
-      connect(threadMenu, SIGNAL( activated(int) ),
-        this, SLOT(threadSelected(int)) );
+for( ThreadGroupStringList::Iterator it = currentThreadGroupStrList.begin(); it != currentThreadGroupStrList.end(); ++it)
+{
+  QString ts = (QString)*it;
+  if( ts == pidStr )
+  {
+    threadMenu->setItemChecked(mid, TRUE);
+  }
+}
     }
+    connect(threadMenu, SIGNAL( activated(int) ),
+        this, SLOT(threadSelected(int)) );
   } else
   {
     QAction *qaction = new QAction( this,  "manageProcessesMenu");
@@ -1103,9 +1116,9 @@ StatsPanel::updateStatsPanelData()
   {
      command += QString(" -m %1").arg(currentMetricStr);
   }
-  if( !currentThreadStr.isEmpty() )
+  if( !currentThreadsStr.isEmpty() )
   {
-     command += QString(" -p %1").arg(currentThreadStr);
+     command += QString(" -p %1").arg(currentThreadsStr);
   }
 
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
@@ -1203,6 +1216,46 @@ StatsPanel::threadSelected(int val)
 // printf("threadMenu:(%s)\n", threadMenu->text(val).ascii() );
 
   currentThreadStr = threadMenu->text(val).ascii();
+
+  currentThreadsStr = QString::null;
+
+
+
+  // Dynamically build the menu from the user selected list of threads.
+  bool FOUND_FLAG = FALSE;
+  for( ThreadGroupStringList::Iterator it = currentThreadGroupStrList.begin(); it != currentThreadGroupStrList.end(); ++it)
+  {
+    QString ts = (QString)*it;
+//  printf("ts=(%s)\n", ts.ascii() );
+
+    if( ts == currentThreadStr )
+    {   // Then it's already in the list... now remove it.
+      currentThreadGroupStrList.remove(ts);
+      FOUND_FLAG = TRUE;
+      break;
+    }
+  }
+  if( FOUND_FLAG == FALSE )
+  {
+    currentThreadGroupStrList.push_back(currentThreadStr);
+  }
+
+// printf("Here's the string list...\n");
+  for( ThreadGroupStringList::Iterator it = currentThreadGroupStrList.begin(); it != currentThreadGroupStrList.end(); ++it)
+  {
+    QString ts = (QString)*it;
+// printf("ts=(%s)\n", ts.ascii() );
+  
+    if( currentThreadsStr.isEmpty() )
+    {
+      currentThreadsStr =  ts;
+    } else
+    {
+      currentThreadsStr += ","+ts;
+    }
+  }
+
+// printf("currentThreadsStr = %s\n", currentThreadsStr.ascii() );
  
   updateStatsPanelData();
 }
@@ -1231,8 +1284,10 @@ StatsPanel::collectorMetricSelected(int val)
       index = s.find(":");
       currentCollectorStr = s.mid(13, index-13 );
       currentMetricStr = QString::null;
-currentThreadStr = QString::null;
+      currentThreadStr = QString::null;
 // printf("B2: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
+      currentThreadsStr = QString::null;
+      currentThreadGroupStrList.clear();
     }
 //contextMenu->setItemChecked(val, TRUE);
     updateStatsPanelData();

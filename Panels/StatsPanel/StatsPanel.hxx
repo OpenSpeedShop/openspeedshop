@@ -52,6 +52,7 @@ class QFile;
 
 #include <qvaluelist.h>
 typedef QValueList<QString> ColumnList;
+typedef QValueList<QString> ThreadGroupStringList;
 
 typedef std::pair<Function, double> Function_double_pair;
 typedef std::pair<Function, unsigned int> Function_uint_pair;
@@ -121,6 +122,8 @@ ColumnValueClass columnValueClass[10];
     Thread *currentThread;
     void setCurrentThread();
 
+ThreadGroupStringList currentThreadGroupStrList;
+
     //! Holds the current collector that is in focus
     Collector *currentCollector;
     void setCurrentCollector();
@@ -142,6 +145,7 @@ void setCurrentMetricStr();
     QPopupMenu *popupMenu;   // Pointer to the contextMenu
 
     QString currentThreadStr;
+    QString currentThreadsStr;
     QString currentCollectorStr;
     QString collectorStrFromMenu;
 
