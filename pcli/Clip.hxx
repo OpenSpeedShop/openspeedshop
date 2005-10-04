@@ -127,6 +127,7 @@ class InputLineObject
   Input_Line_Status What() { return status; }
   time_t When () { return cmd_time; }
   CMDID Where () { return seq_num; }
+  int64_t How_Many () { return Num_Cmd_Objs; }
   bool Complex_Exp () { return complex_expression; }
   bool Results_Used () { return results_used; }
   std::list<CommandObject *> CmdObj_List () { return Cmd_Obj; }
