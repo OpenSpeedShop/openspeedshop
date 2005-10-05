@@ -56,6 +56,16 @@ def CompareResults(testName, fileptr):
 	outputfileptr = open(outputfilename, 'r')
 	expectedfileptr = open(expectedfilename, 'r')
 	nooutput = 1 
+        if testName[0:6] == 'result':
+                while 1:
+                        tempfileline = outputfileptr.readline()
+                        if not tempfile:
+                                break
+                        if tempfileline[0:16] == '    The restored':
+                                nooutput = 0
+                                outputfileptr.readline()
+                                break
+
 	while 1:
 		tempfileline = outputfileptr.readline()
 		if not tempfileline:
