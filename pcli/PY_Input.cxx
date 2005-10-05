@@ -50,6 +50,101 @@ static PyObject *SS_Set_Assign (PyObject *self, PyObject *args) {
   return Py_BuildValue("");
 }
 
+static PyObject *Convert_CommandResult_To_Python (CommandResult *cr) {
+  PyObject *p_object = NULL;
+
+  switch (cr->Type()) {
+
+   case CMD_RESULT_UINT:
+    uint64_t Uvalue;
+    ((CommandResult_Uint *)cr)->Value(Uvalue);
+    p_object = Py_BuildValue("l", Uvalue);
+    return p_object;
+
+   case CMD_RESULT_INT:
+    int64_t Ivalue;
+    ((CommandResult_Int *)cr)->Value(Ivalue);
+    p_object = Py_BuildValue("l", Ivalue);
+    return p_object;
+
+   case CMD_RESULT_FLOAT:
+    double Fvalue;
+    ((CommandResult_Float *)cr)->Value(Fvalue);
+    p_object = Py_BuildValue("d", Fvalue);
+    return p_object;
+
+   case CMD_RESULT_STRING:
+   case CMD_RESULT_RAWSTRING:
+   {
+    std::string S;
+    ((CommandResult_String *)(cr))->Value(S);
+    p_object = Py_BuildValue("s",S.c_str());
+    return p_object;
+   }
+   case CMD_RESULT_COLUMN_VALUES:
+   {
+    p_object = PyList_New(0);
+    std::list<CommandResult *> Columns;
+    ((CommandResult_Columns *)(cr))->Value(Columns);
+    std::list<CommandResult *>::iterator cri = Columns.begin();
+    for (cri = Columns.begin(); cri != Columns.end(); cri++) {
+      PyObject *p_item = Convert_CommandResult_To_Python (*cri);
+      PyList_Append(p_object,p_item);
+    }
+    return p_object;
+   }
+   CMD_RESULT_TITLE:              // Ignore for Python
+   CMD_RESULT_COLUMN_HEADER:
+   CMD_RESULT_COLUMN_ENDER:
+   default:
+    return NULL;
+  }
+
+}
+
+static PyObject *Convert_Cmd_To__Python (CommandObject *cmd) {
+  PyObject *p_object = NULL;
+  PyObject *py_list = NULL;
+  std::list<CommandResult *> cmd_result = cmd->Result_List();
+  std::list<CommandResult *>::iterator cri;
+
+  bool list_returned = cmd_desc[cmd->Type()].ret_list;
+  if (!list_returned && (cmd_result.size() > 1)) {
+    cmd->Result_String ("Too many results were generated for the command");
+    cmd->set_Status(CMD_ERROR);
+  }
+
+ // Start building python list object
+   if (list_returned) {
+  	py_list = PyList_New(0);
+  }
+
+  for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++) {
+    if (cri != NULL) {
+      int ret = 0; // python conversion routine error flag
+
+      p_object = Convert_CommandResult_To_Python (*cri);
+      if (p_object == NULL) {
+        continue;
+      }
+
+      if (list_returned) {
+        ret = PyList_Append(py_list,p_object);
+        if (ret != 0) {
+            cmd->Result_String ("PyList_Append() failed for int");
+            cmd->set_Status(CMD_ERROR);
+        }
+      }
+    }
+  }
+
+ // The results have been copied for use within Python
+ // so we are done working with the command.
+  cmd->set_Results_Used ();
+  Cmd_Obj_Complete (cmd);
+  return list_returned ? py_list : ((p_object == NULL) ? Py_BuildValue("") : p_object);
+}
+
 // Parse and execute an individual command
 static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     char *input_line = NULL;
@@ -111,82 +206,9 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
       p_object = Py_BuildValue("");
       return p_object;
     }
-    
-   // Build Python Objects for any return results.
-    {
-      std::list<CommandResult *> cmd_result = cmd->Result_List();
-      std::list<CommandResult *>::iterator cri;
 
-      list_returned = cmd_desc[cmd->Type()].ret_list;
-      if (!list_returned && (cmd_result.size() > 1)) {
-        cmd->Result_String ("Too many results were generated for the command");
-        cmd->set_Status(CMD_ERROR);
-      }
-
-    	// Start building python list object
-      if (list_returned) {
-      	py_list = PyList_New(0);
-      }
-
-      for (cri = cmd_result.begin(), i=0; cri != cmd_result.end(); cri++,++i) {
-        if (cri != NULL) {
-	  int ret = 0; // python conversion routine error flag
-
-          switch ((*cri)->Type()) {
-          case CMD_RESULT_INT:
-          {
-            int64_t I = 0;
-
-            ((CommandResult_Int *)(*cri))->Value(I);
-            p_object = Py_BuildValue("l", I);
-
-	    if (list_returned) {
-            	ret = PyList_Append(py_list,p_object);
-		if (ret != 0) {
-            	    cmd->Result_String ("PyList_Append() failed for int");
-            	    cmd->set_Status(CMD_ERROR);
-		}
-	    }
-	    
-            break;
-          }
-          case CMD_RESULT_STRING:
-          case CMD_RESULT_RAWSTRING:
-          {
-            std::string C;
-
-            ((CommandResult_String *)(*cri))->Value(C);
-    	      p_object = Py_BuildValue("s",C.c_str());
-
-	    if (list_returned) {
-            	ret = PyList_Append(py_list,p_object);
-		if (ret != 0) {
-            	    cmd->Result_String ("PyList_Append() failed for string");
-            	    cmd->set_Status(CMD_ERROR);
-		}
-	    }
-
-            break;
-          }
-          default:
-           break;
-          }
-        }
-      }
-     // The results have been copied for use within Python
-     // so we are done working wih the command.
-      cmd->set_Results_Used ();
-      Cmd_Obj_Complete (cmd);
-    }
-
-    if (p_object == NULL) {
-      p_object = Py_BuildValue("");
-    }
-
-    if (list_returned)
-    	return py_list;
-    else
-    	return p_object;
+   // Convert the results to proper Python form.
+    return Convert_Cmd_To__Python (cmd);
 }
 
 // Create a Clip for the command and then go parse and execute it.
