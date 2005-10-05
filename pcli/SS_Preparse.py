@@ -498,7 +498,7 @@ class CLI(code.InteractiveConsole):
         "expsave"       : "return_none",
         "expsetparam"   : "return_none",
         "expstatus" 	: "return_none",
-        "expview"       : "return_none",
+        "expview"       : "return_int_list",
 
         "listbreaks"    : "return_int_list",
         "listexp"       : "return_int_list",
