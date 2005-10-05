@@ -288,8 +288,8 @@ class CommandResult_Headers : public CommandResult {
     Headers.push_back(R);
   }
 
-  virtual void Value (int64_t &C) {
-    C = number_of_columns;
+  virtual void Value (std::list<CommandResult *> &R) {
+    R = Headers;
   }
   virtual void Print (ostream &to, int64_t fieldsize=20, bool leftjustified=false) {
     
@@ -329,8 +329,8 @@ class CommandResult_Enders : public CommandResult {
     Enders.push_back(R);
   }
 
-  virtual void Value (int64_t &C) {
-    C = number_of_columns;
+  virtual void Value (std::list<CommandResult *> &R) {
+    R = Enders;
   }
   virtual void Print (ostream &to, int64_t fieldsize=20, bool leftjustified=false) {
     
@@ -370,8 +370,8 @@ class CommandResult_Columns : public CommandResult {
     Columns.push_back(R);
   }
 
-  virtual void Value (CommandResult &R) {
-    R = *this;
+  virtual void Value (std::list<CommandResult *>  &R) {
+    R = Columns;
   }
   virtual void Print (ostream &to, int64_t fieldsize=20, bool leftjustified=false) {
     std::list<CommandResult *>::iterator coi;
