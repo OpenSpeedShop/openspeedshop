@@ -1450,7 +1450,7 @@ style='text-transform:none;font-weight:normal'><span style='mso-element:field-be
 style='mso-spacerun:yes'>&nbsp;</span>TOC \o &quot;1-4&quot; <span
 style='mso-element:field-separator'></span></span><![endif]--></p>
 <ul id="mozToc">
-<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId541194">Introduction
+<!--mozToc h1 1 h2 2 h3 3--><li><a href="#mozTocId541194">Introduction
 to Open|SpeedShop
     </a>
     <ul>
@@ -1458,6 +1458,15 @@ to Open|SpeedShop
 Open|SpeedShop Overview
         </a></li>
       <li><a href="#mozTocId923468">Common Terminology</a></li>
+      <li><a href="#mozTocId281237">Open|SpeedShop General Usage</a>
+        <ul>
+          <li><a href="#mozTocId773316">Concept of an Experiment</a></li>
+          <li><a href="#mozTocId287579">Selecting an
+Experiment</a></li>
+          <li><a href="#mozTocId382286">Gathering, Saving, and
+Re-examining Performance Data With Open|SpeedShop</a></li>
+        </ul>
+      </li>
       <li><a href="#mozTocId803509">Extensibility</a></li>
     </ul>
   </li>
@@ -1477,40 +1486,9 @@ component RPM versions:
           <li><a href="#mozTocId400287">OVERVIEW
 - Setting up
 new machine for development on Open|SpeedShop
-            </a>
-            <ul>
-              <li><a href="#mozTocId653198">Step
-1 - Check for
-the correct version of the development components</a></li>
-              <li><a href="#mozTocId986368">Step
-2 - Checkout
-OpenSpeedShop_ROOT/current</a></li>
-              <li><a href="#mozTocId432241">Step
-3 - Install
-missing RPMS</a></li>
-              <li><a href="#mozTocId15807">Step
-4 - Build
-Open|SpeedShop</a></li>
-            </ul>
-          </li>
+            </a></li>
           <li><a href="#mozTocId80962">Key
-Environment Variables</a>
-            <ul>
-              <li><a href="#mozTocId972152">Open|SpeedShop
-Developer/Build
-Related Environment Variables</a>
-                <ul>
-                  <li><a href="#mozTocId132645">Generally used
-environment variables
-                    </a></li>
-                  <li><a href="#mozTocId127260">Special purpose
-environment variables</a></li>
-                </ul>
-              </li>
-              <li><a href="#mozTocId270505">Open|SpeedShop User
-Related Environment Variables</a></li>
-            </ul>
-          </li>
+Environment Variables</a></li>
           <li><a href="#mozTocId681870">Building Open|SpeedShop
 from Source</a></li>
         </ul>
@@ -1536,12 +1514,6 @@ Organization of Tests</a></li>
 Open|SpeedShop Tests</a></li>
     </ul>
   </li>
-  <li><a href="#mozTocId396834">Open|SpeedShop General Usage
-    </a>
-    <ul>
-      <li><a href="#mozTocId287579">Selecting an Experiment</a></li>
-    </ul>
-  </li>
   <li><a href="#mozTocId57291">Open|SpeedShop
 Tools</a>
     <ul>
@@ -1564,134 +1536,13 @@ Open|SpeedShop on a cluster or multiple partitions</a></li>
 Background
 Information: </a></li>
           <li><a href="#mozTocId15115">Basic Menus and Menu
-Item Introduction</a>
-            <ul>
-              <li><a href="#mozTocId104383">File
-Menu </a>
-                <ul>
-                  <li><a href="#mozTocId677079">Open
-Existing Experiment</a></li>
-                  <li><a href="#mozTocId921560">Open Saved Experiment</a></li>
-                  <li><a href="#mozTocId578022">Save Experiment Data</a></li>
-                </ul>
-              </li>
-              <li><a href="#mozTocId185127">Experiments
-Menu</a>
-                <ul>
-                  <li><a href="#mozTocId866150">FPE Tracing Experiment</a></li>
-                  <li><a href="#mozTocId676533">HW Counter Experiments</a>
-                    <ul>
-                      <li><a href="#mozTocId593513">hwc Hardware
-Counter Experiment</a></li>
-                      <li><a href="#mozTocId442600">hwctime Hardware
-Counter Experiment</a></li>
-                    </ul>
-                  </li>
-                  <li><a href="#mozTocId892172">I/O
-Experiment</a></li>
-                  <li><a href="#mozTocId263649">MPI
-Experiment</a></li>
-                  <li><a href="#mozTocId951324">PC Sampling Experiment</a>
-                    <ul>
-                      <li><a href="#mozTocId197617">pcsamp PC
-Sampling Experiment</a></li>
-                    </ul>
-                  </li>
-                  <li><a href="#mozTocId319939">User Time Experiment</a>
-                    <ul>
-                      <li><a href="#mozTocId801932">&nbsp;usertime User
-Time Experiment</a></li>
-                    </ul>
-                  </li>
-                </ul>
-              </li>
-              <li><a href="#mozTocId976010">Wizard
-Menu</a>
-                <ul>
-                  <li><a href="#mozTocId288060">FPE Tracing Experiment
-Wizard </a></li>
-                  <li><a href="#mozTocId634532">HW Counter Experiment
-Wizard </a></li>
-                  <li><a href="#mozTocId652499">I/O Experiment Wizard </a></li>
-                  <li><a href="#mozTocId295988">MPI Experiment Wizard </a></li>
-                  <li><a href="#mozTocId872331">PC Sampling Experiment
-Wizard </a></li>
-                  <li><a href="#mozTocId304844">User Time Experiment
-Wizard </a></li>
-                  <li><a href="#mozTocId249547">Preferences Menu Item </a>
-                    <ul>
-                      <li><a href="#mozTocId426001">General:</a></li>
-                      <li><a href="#mozTocId284897">Statistics Related</a></li>
-                      <li><a href="#mozTocId353011">Source Related</a></li>
-                    </ul>
-                  </li>
-                  <li><a href="#mozTocId32692">Close
-Menu Item</a></li>
-                  <li><a href="#mozTocId945989">Exit
-Menu Item</a></li>
-                </ul>
-              </li>
-              <li><a href="#mozTocId139584">Tools
-Menu</a>
-                <ul>
-                  <li><a href="#mozTocId539563">Command
-Panel</a></li>
-                  <li><a href="#mozTocId776821">Source Panel</a></li>
-                  <li><a href="#mozTocId155120">Stats
-Panel</a></li>
-                  <li><a href="#mozTocId868104"> </a></li>
-                </ul>
-              </li>
-            </ul>
-          </li>
+Item Introduction</a></li>
           <li><a href="#mozTocId949525">Typical
-Open|SpeedShop GUI Wizard Usage </a>
-            <ul>
-              <li><a href="#mozTocId53656">Introductory Wizard Display </a></li>
-              <li><a href="#mozTocId445498"> </a></li>
-              <li><a href="#mozTocId480700">PC Sampling Wizard
-- Initial Display </a></li>
-              <li><a href="#mozTocId80095">PC Sampling
-Wizard - Change Sampling Rate Display </a></li>
-              <li><a href="#mozTocId737633">PC Sampling
-Wizard - Load Executable or Attach To Running Process Display </a></li>
-              <li><a href="#mozTocId776840">PC Sampling
-Wizard - Enter Executable Dialog Display </a></li>
-              <li><a href="#mozTocId565374">PC Sampling Wizard
-- Attach To Running Process Dialog Display</a></li>
-              <li><a href="#mozTocId954732">PC Sampling
-Wizard - Experiment Summary Display</a></li>
-              <li><a href="#mozTocId359478">PC Sampling
-Experiment Display</a></li>
-              <li><a href="#mozTocId87563">Ready to Run the Experiment </a></li>
-              <li><a href="#mozTocId524439">PC Sampling
-Experiment - Running Experiment Display</a></li>
-              <li><a href="#mozTocId407227">PC Sampling
-Experiment - Statistics Display</a></li>
-              <li><a href="#mozTocId91453">PC Sampling
-Experiment - Split Panel Display</a></li>
-              <li><a href="#mozTocId189286">PC Sampling
-Experiment - Source and Statistics Relationship Display</a></li>
-            </ul>
-          </li>
+Open|SpeedShop GUI Wizard Usage </a></li>
           <li><a href="#mozTocId273266">Typical Open|SpeedShop GUI
 non-Wizard Usage</a></li>
           <li><a href="#mozTocId612492">Open|SpeedShop GUI Usage on
-MPI Applications</a>
-            <ul>
-              <li><a href="#mozTocId486395">Attaching to Already
-Running MPI Applications</a>
-                <ul>
-                  <li><a href="#mozTocId95717">Gui Wizard Information</a></li>
-                  <li><a href="#mozTocId995066">Gui Non-Wizard
-Information&nbsp;
-                    </a></li>
-                </ul>
-              </li>
-              <li><a href="#mozTocId245659">Loading and Starting
 MPI Applications</a></li>
-            </ul>
-          </li>
         </ul>
       </li>
       <li><a href="#mozTocId420404">Using
@@ -1718,17 +1569,7 @@ API (Extensibility)&nbsp; Description</a>
 Definition</a>
         <ul>
           <li><a href="#mozTocId960650">Collector Plugin FAQ:
-            </a>
-            <ul>
-              <li><a href="#mozTocId612656">What is blob.x for? What is
-the significance of the .x suffix?
-                </a></li>
-              <li><a href="#mozTocId690020">What is
-specifically needed to be known by the framework? Do these class
-structures need to follow a
-particular convention?</a></li>
-            </ul>
-          </li>
+            </a></li>
         </ul>
       </li>
       <li><a href="#mozTocId671495">Graphical User
@@ -1894,9 +1735,171 @@ where to find the plugins.</font></font></li>
 <ul>
   <b style=""> </b>
   <ul>
-    <b style=""> <font size="2"><font size="2"> </font></font><font
- size="2"><br>
-    </font> </b>
+  </ul>
+</ul>
+<h2 style="margin-left: 40px;"><a class="mozTocH2" name="mozTocId281237"></a><span
+ style="color: rgb(0, 0, 102);">Open|SpeedShop General Usage</span></h2>
+<br>
+<h3 style="margin-left: 80px;"><a class="mozTocH3" name="mozTocId773316"></a><a
+ name="Concept_of_an_Experiment"></a>Concept of an Experiment</h3>
+<div style="margin-left: 80px;">Open|SpeedShop uses a <br>
+</div>
+<div style="margin-left: 80px;">
+<h3><a class="mozTocH2" name="mozTocId287579"></a>Selecting an
+Experiment</h3>
+<p>The Summary of Experiments table below shows the possible
+experiments you can perform using the Open|SpeedShop tools and the
+reasons why you might want to choose a specific
+experiment. The Clues column shows when you might use an experiment.
+The Data Collected column indicates performance data collected by the
+experiment. For detailed information on the experiments, see the
+relevant section in the remainder of this chapter.<br>
+</p>
+<div class="table">
+<p><b>Table: Summary of Experiments</b></p>
+<table summary="Summary of Experiments" border="1">
+  <colgroup><col char="c" align="left"><col char="c" align="left"><col
+ char="c" align="left"></colgroup><thead valign="bottom"><tr
+ valign="top">
+    <th scope="col" char="c" align="left" valign="bottom">
+    <p>Experiment</p>
+    </th>
+    <th scope="col" char="c" align="left" valign="bottom">
+    <p>Clues</p>
+    </th>
+    <th scope="col" char="c" align="left" valign="bottom">
+    <p>Data Collected</p>
+    </th>
+  </tr>
+  </thead><tbody valign="top">
+    <tr valign="top">
+      <td scope="row" char="c" align="left" valign="top">
+      <p><tt>fpe</tt></p>
+      </td>
+      <td char="c" align="left" valign="top">
+      <p>High system time. Presence of floating-point operations.</p>
+      <p>&nbsp;</p>
+      </td>
+      <td char="c" align="left" valign="top">
+      <p>All floating-point exceptions, with the exception type and the
+call stack at the time of the exception. Not implemented as of October
+2005.<a
+ href="http://techpubs.sgi.com/library/tpl/cgi-bin/getdoc.cgi/srch14@SpeedShop%20User/0650/bks/SGI_Developer/books/SShop_UG/sgi_html/ch04.html#Z35752"
+ title="Floating-Point Exception Trace Experiment (fpe)"><br>
+      </a></p>
+      </td>
+    </tr>
+    <tr valign="top">
+      <td scope="row" char="c" align="left" valign="top">
+      <p><tt>hwc</tt></p>
+      </td>
+      <td char="c" align="left" valign="top">
+      <p>High user CPU time.</p>
+      </td>
+      <td char="c" align="left" valign="top">
+      <p>Counts at the source line, machine
+instruction, and function levels of various hardware events, including:
+clock cycles, graduated instructions, primary instruction cache misses,
+secondary instruction cache misses, primary data cache misses,
+secondary data cache misses, translation lookaside buffer (TLB) misses,
+and graduated floating-point instructions.&nbsp; PC sampling is
+used.&nbsp;&nbsp; See&nbsp;<a
+ href="OpenSpeedShopUsersGuide.html#HW_Counter_Experiment">"Hardware
+Counter Experiments (hwc)"</a></p>
+      </td>
+    </tr>
+    <tr valign="top">
+      <td scope="row" char="c" align="left" valign="top">
+      <p><tt>hwctime</tt></p>
+      </td>
+      <td char="c" align="left" valign="top">
+      <p>High user CPU time.</p>
+      </td>
+      <td char="c" align="left" valign="top">
+      <p>Similar to <tt>hwc</tt> experiment, except that callstack
+sampling is used. See <a
+ href="OpenSpeedShopUsersGuide.html#HW_Counter_Experiment"
+ title="Hardware Counter Experiments (*_hwc, *_hwctime)">&#8220;Hardware
+Counter Experiments (hwctime)&#8221;</a>.</p>
+      </td>
+    </tr>
+    <tr valign="top">
+      <td scope="row" char="c" align="left" valign="top">
+      <p><tt>io</tt></p>
+      </td>
+      <td char="c" align="left" valign="top">
+      <p>I/O-bound.</p>
+      </td>
+      <td char="c" align="left" valign="top">
+      <p>Traces the following I/O system calls: <tt>read</tt>, <tt>readv</tt>,
+      <tt>write</tt>, <tt>writev</tt>, <tt>open</tt>, <tt>close</tt>,
+      <tt>dup</tt>, <tt>pipe</tt>, <tt>creat</tt>. <br>
+Not implemented as of October 2005.<br>
+      </p>
+      </td>
+    </tr>
+    <tr valign="top">
+      <td scope="row" char="c" align="left" valign="top">
+      <p><tt>mpi</tt></p>
+      </td>
+      <td char="c" align="left" valign="top">
+      <p><tt>mpi</tt> performance is poor.</p>
+      </td>
+      <td char="c" align="left" valign="top">
+      <p>Traces and times calls to various MPI routines. See <a
+ href="OpenSpeedShopUsersGuide.html#MPI_Experiment"
+ title="MPI Call Tracing Experiment (mpi/mpi_trace)">&#8220;MPI Call Tracing
+Experiment (mpi)&#8221;</a><br>
+Not implemented as of October 2005.<br>
+      </p>
+      </td>
+    </tr>
+    <tr valign="top">
+      <td scope="row" char="c" align="left" valign="top">
+      <p><tt>pcsamp</tt></p>
+      </td>
+      <td char="c" align="left" valign="top">
+      <p>High user CPU time.</p>
+      </td>
+      <td char="c" align="left" valign="top">
+      <p>Actual CPU time at the
+source line, machine instruction, and function levels by sampling the
+program counter at 10 or 1-millisecond intervals. See <a
+ href="OpenSpeedShopUsersGuide.html#PC_Sampling_Experiment"
+ title="PC Sampling Experiment (pcsamp)">&#8220;PC
+Sampling Experiment (pcsamp)&#8221;</a>.</p>
+      </td>
+    </tr>
+    <tr valign="top">
+      <td scope="row" char="c" align="left" valign="top">
+      <p><tt>usertime</tt></p>
+      </td>
+      <td char="c" align="left" valign="top">
+      <p>Slow program, nothing else known. Not CPU-bound. </p>
+      </td>
+      <td char="c" align="left" valign="top">
+      <p>Inclusive and exclusive CPU time for each function by sampling
+the callstack at 30-millisecond intervals. See <a
+ href="OpenSpeedShopUsersGuide.html#User_Time_Experiment"
+ title="Call Stack Profiling Experiment (usertime/totaltime)">&#8220;User
+Time Experiment (usertime)&#8221;</a>.</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<br>
+<h3><a class="mozTocH3" name="mozTocId382286"></a><a
+ name="Gathering_Saving_and_Re-examining"></a>Gathering, Saving, and
+Re-examining Performance Data With Open|SpeedShop</h3>
+<br>
+Open|SpeedShop tools allow for the gathering of performance data
+through the specification of experiments as mentioned in the sections
+above.&nbsp;&nbsp; This performance data can be saved into an
+experiment file<br>
+</div>
+<ul>
+  <ul>
   </ul>
   <b style=""> <font size="2"><font size="2"> </font></font> </b>
 </ul>
@@ -2541,154 +2544,6 @@ the regression and dpcl tests.<br>
  name="How_to_Run_the_OpenSpeedShop_Tests"></a>How to Run the
 Open|SpeedShop Tests</h2>
 TDB<br>
-<br>
-</div>
-<h1><a class="mozTocH1" name="mozTocId396834"></a><a
- name="OpenSpeedShop_General_Usage"></a><span
- style="color: rgb(0, 0, 102);">Open|SpeedShop General Usage</span><br>
-</h1>
-<div style="margin-left: 80px;">
-<h2><a class="mozTocH2" name="mozTocId287579"></a>Selecting an
-Experiment</h2>
-<p>The Summary of Experiments table below shows the possible
-experiments you can perform using the Open|SpeedShop tools and the
-reasons why you might want to choose a specific
-experiment. The Clues column shows when you might use an experiment.
-The Data Collected column indicates performance data collected by the
-experiment. For detailed information on the experiments, see the
-relevant section in the remainder of this chapter.<br>
-</p>
-<div class="table">
-<p><b>Table: Summary of Experiments</b></p>
-<table summary="Summary of Experiments" border="1">
-  <colgroup><col char="c" align="left"><col char="c" align="left"><col
- char="c" align="left"></colgroup><thead valign="bottom"><tr
- valign="top">
-    <th scope="col" char="c" align="left" valign="bottom">
-    <p>Experiment</p>
-    </th>
-    <th scope="col" char="c" align="left" valign="bottom">
-    <p>Clues</p>
-    </th>
-    <th scope="col" char="c" align="left" valign="bottom">
-    <p>Data Collected</p>
-    </th>
-  </tr>
-  </thead><tbody valign="top">
-    <tr valign="top">
-      <td scope="row" char="c" align="left" valign="top">
-      <p><tt>fpe</tt></p>
-      </td>
-      <td char="c" align="left" valign="top">
-      <p>High system time. Presence of floating-point operations.</p>
-      <p>&nbsp;</p>
-      </td>
-      <td char="c" align="left" valign="top">
-      <p>All floating-point exceptions, with the exception type and the
-call stack at the time of the exception. Not implemented as of October
-2005.<a
- href="http://techpubs.sgi.com/library/tpl/cgi-bin/getdoc.cgi/srch14@SpeedShop%20User/0650/bks/SGI_Developer/books/SShop_UG/sgi_html/ch04.html#Z35752"
- title="Floating-Point Exception Trace Experiment (fpe)"><br>
-      </a></p>
-      </td>
-    </tr>
-    <tr valign="top">
-      <td scope="row" char="c" align="left" valign="top">
-      <p><tt>hwc</tt></p>
-      </td>
-      <td char="c" align="left" valign="top">
-      <p>High user CPU time.</p>
-      </td>
-      <td char="c" align="left" valign="top">
-      <p>Counts at the source line, machine
-instruction, and function levels of various hardware events, including:
-clock cycles, graduated instructions, primary instruction cache misses,
-secondary instruction cache misses, primary data cache misses,
-secondary data cache misses, translation lookaside buffer (TLB) misses,
-and graduated floating-point instructions.&nbsp; PC sampling is
-used.&nbsp;&nbsp; See&nbsp;<a href="#HW_Counter_Experiment">"Hardware
-Counter Experiments (hwc)"</a></p>
-      </td>
-    </tr>
-    <tr valign="top">
-      <td scope="row" char="c" align="left" valign="top">
-      <p><tt>hwctime</tt></p>
-      </td>
-      <td char="c" align="left" valign="top">
-      <p>High user CPU time.</p>
-      </td>
-      <td char="c" align="left" valign="top">
-      <p>Similar to <tt>hwc</tt> experiment, except that callstack
-sampling is used. See <a href="#HW_Counter_Experiment"
- title="Hardware Counter Experiments (*_hwc, *_hwctime)">&#8220;Hardware
-Counter Experiments (hwctime)&#8221;</a>.</p>
-      </td>
-    </tr>
-    <tr valign="top">
-      <td scope="row" char="c" align="left" valign="top">
-      <p><tt>io</tt></p>
-      </td>
-      <td char="c" align="left" valign="top">
-      <p>I/O-bound.</p>
-      </td>
-      <td char="c" align="left" valign="top">
-      <p>Traces the following I/O system calls: <tt>read</tt>, <tt>readv</tt>,
-      <tt>write</tt>, <tt>writev</tt>, <tt>open</tt>, <tt>close</tt>,
-      <tt>dup</tt>, <tt>pipe</tt>, <tt>creat</tt>. <br>
-Not implemented as of October 2005.<br>
-      </p>
-      </td>
-    </tr>
-    <tr valign="top">
-      <td scope="row" char="c" align="left" valign="top">
-      <p><tt>mpi</tt></p>
-      </td>
-      <td char="c" align="left" valign="top">
-      <p><tt>mpi</tt> performance is poor.</p>
-      </td>
-      <td char="c" align="left" valign="top">
-      <p>Traces and times calls to various MPI routines. See <a
- href="#MPI_Experiment"
- title="MPI Call Tracing Experiment (mpi/mpi_trace)">&#8220;MPI Call Tracing
-Experiment (mpi)&#8221;</a><br>
-Not implemented as of October 2005.<br>
-      </p>
-      </td>
-    </tr>
-    <tr valign="top">
-      <td scope="row" char="c" align="left" valign="top">
-      <p><tt>pcsamp</tt></p>
-      </td>
-      <td char="c" align="left" valign="top">
-      <p>High user CPU time.</p>
-      </td>
-      <td char="c" align="left" valign="top">
-      <p>Actual CPU time at the
-source line, machine instruction, and function levels by sampling the
-program counter at 10 or 1-millisecond intervals. See <a
- href="#PC_Sampling_Experiment" title="PC Sampling Experiment (pcsamp)">&#8220;PC
-Sampling Experiment (pcsamp)&#8221;</a>.</p>
-      </td>
-    </tr>
-    <tr valign="top">
-      <td scope="row" char="c" align="left" valign="top">
-      <p><tt>usertime</tt></p>
-      </td>
-      <td char="c" align="left" valign="top">
-      <p>Slow program, nothing else known. Not CPU-bound. </p>
-      </td>
-      <td char="c" align="left" valign="top">
-      <p>Inclusive and exclusive CPU time for each function by sampling
-the callstack at 30-millisecond intervals. See <a
- href="#User_Time_Experiment"
- title="Call Stack Profiling Experiment (usertime/totaltime)">&#8220;User
-Time Experiment (usertime)&#8221;</a>.</p>
-      </td>
-    </tr>
-  </tbody>
-</table>
-</div>
-<br>
 </div>
 <div class="Section6">
 <h1 style="text-indent: -1.25in; margin-left: 1.6634in;"><a
