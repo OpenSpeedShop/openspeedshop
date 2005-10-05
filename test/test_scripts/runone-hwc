@@ -56,6 +56,17 @@ def CompareResults(testName, fileptr):
 	outputfileptr = open(outputfilename, 'r')
 	expectedfileptr = open(expectedfilename, 'r')
 	nooutput = 1 
+	failure_reason = 0
+        if testName[0:7] == 'restore':
+		while 1:
+			tempfileline = outputfileptr.readline()
+                       	if not tempfileline:
+				failure_reason = 3
+                        	break
+                       	if tempfileline[0:16] == '    The restored':
+                        	nooutput = 0
+                                outputfileptr.readline()
+                                break
 	while 1:
 		tempfileline = outputfileptr.readline()
 		if not tempfileline:
@@ -70,7 +81,6 @@ def CompareResults(testName, fileptr):
 	previous_percent_expected = 0
 	previous_percent_actual = 0
 	passing_ratio = 1
-	failure_reason = 0
 	while 1:
 		if (nooutput == 1):
 			failure_reason = 3

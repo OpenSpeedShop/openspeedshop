@@ -50,6 +50,17 @@ def CompareResults(testName, fileptr):
 	outputfileptr = open(outputfilename, 'r')
 	expectedfileptr = open(expectedfilename, 'r')
 	nooutput = 0
+	failure_reason = 3
+        if testName[0:7] == 'restore':
+                while 1:
+                        tempfileline = outputfileptr.readline()
+                        if not tempfileline:
+				failure_reason = 3
+                                break
+                        if tempfileline[0:16] == '    The restored':
+                                nooutput = 0
+                                outputfileptr.readline()
+                                break
 	while 1:
 		tempfileline = outputfileptr.readline()
 		if not tempfileline:
@@ -117,7 +128,7 @@ def CompareResults(testName, fileptr):
 		previous_inclusive_actual = actual_inclusive_time
 		previous_inclusive_expected = expected_inclusive_time
 
-	if ( inclusive_passing_ratio == 1 and failure_reason != 2):
+	if ( inclusive_passing_ratio == 1 and failure_reason == 0 ):
 		fileptr.write(testName + ' has PASSED \n')
 	else:
 		fileptr.write(testName + ' has FAILED.  ')
