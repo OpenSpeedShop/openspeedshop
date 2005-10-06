@@ -1,0 +1,43 @@
+
+To build and run the parser tests you will
+need to set some environment variables.
+Under tcsh here is how I do it:
+
+    setenv LD_LIBRARY_PATH /home/jcarter/workarea/bits/lib
+    setenv OPENSS_PLUGIN_PATH /home/jcarter/workarea/bits/lib/openspeedshop
+
+You will need to change the above paths to fit
+your installation.
+
+If your installation of python2.3 is not at /usr/include/python2.3,
+you will need to alter the INCLUDE_DIR in the makefile
+to reflect that.
+
+Basically I am linking in the dso libopenss-cli.so
+to get to the openss parser.
+
+Then you need to do the following:
+
+    make -f script_test.make
+
+You should get a dso named script_test.so.
+
+Then go to the test directory:
+
+    cd ../test
+
+Make soft link to directory where we have our oss module:
+
+    ln -s ../oss
+
+Now you should be able to run any of the tests
+under python. For example:
+
+    python expCreate.py
+
+The result will be a dump of the command from
+the internal ParseResult object within the OpenSpeedShop
+parser.
+
+
+
