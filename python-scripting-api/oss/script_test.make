@@ -1,9 +1,9 @@
 INCLUDE_DIR = \
-    -I ../.. \
-    -I ../../../base \
-    -I ../../../message \
-    -I ../../../libopenss-framework \
-    -I ../../../objects \
+    -I ../../pcli \
+    -I ../../base \
+    -I ../../libopenss-message \
+    -I ../../libopenss-framework \
+    -I ../../objects \
     -I /usr/include/python2.3
 
 CXXFLAGS = -g

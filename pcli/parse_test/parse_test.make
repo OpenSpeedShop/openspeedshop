@@ -1,7 +1,7 @@
 INCLUDE_DIR = \
     -I .. \
     -I ../../base \
-    -I ../../message \
+    -I ../../libopenss-message \
     -I ../../libopenss-framework \
     -I ../../objects
 
