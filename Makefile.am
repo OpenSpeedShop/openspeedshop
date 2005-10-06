@@ -18,7 +18,7 @@
 
 SUBDIRS = \
 	libltdl \
-	message \
+	libopenss-message \
 	libopenss-runtime \
 	libopenss-framework \
 	libopenss-queries \

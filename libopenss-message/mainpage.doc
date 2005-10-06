@@ -1,0 +1,85 @@
+/*! \mainpage "Open|SpeedShop Message Unit Library"
+
+    \section intro Introduction
+    
+    The message unit is an attempt to concentrate message
+    handling into one place. The idea is to allow developer
+    flexibilty while at the same time making it easier to 
+    make greater changes in the future such as localization.
+    
+    There will be one OpenSpeedShop::SS_Message_Czar object 
+    per SpeedShop run.
+    Currently the message library just grows. All information
+    for a given message key is subitted once. We may want to
+    loosen this in the future if there is any need.
+    
+    Error messages can have numeric tags associated with them
+    so one can look up a message by this tag.
+
+    \section howto
+    
+    Grab an instance of OpenSpeedShop::SS_Message_Czar with a call 
+    to theMessageCzar().
+    It will be automatically initialized if this is the first call.
+    
+    Start loading the message unit with message data.
+
+    An example of adding messages from a message table of type
+    OpenSpeedShop::message_element_t:
+
+    \ref example1.cxx
+
+    Another example demonstrating loading message information
+    one element at time:
+
+    \ref example3.cxx
+
+    For messages for plugins I suggest strongly that you make
+    a message table and have it read in during plugin startup.
+
+    \ref data1.dxx
+    
+    \section Conventions
+   
+    	Class names: UpperUpper (eg. SS_Message_Czar)
+
+	Private data members: dm_lower_lower (eg. dm_error_list)
+
+	Public data members: lower_lower (eg. data_member)
+
+	All function members: lowerUpper (eg. add_Help)
+
+    Put public declarations before private to expose
+    the user with what they can use up front.
+
+
+\todo
+    Which classes need explicit copy constructors?
+    What  is the criteria?
+
+\todo
+    Change names of public methods to follow above conventions.
+
+\todo
+    Internationalization/localization.
+
+\todo
+    Possible use of markup language instead of hardcoded
+    formatting.
+
+\todo
+    Figure out if we really need 3 levels of verboseness.
+
+\todo
+    Allow deletion of messages.
+
+\todo
+    Allow updates of messages.
+
+\todo
+    Examples for all public methods.
+
+\todo
+    Write up a better How To page.
+    
+ */
