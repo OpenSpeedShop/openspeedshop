@@ -26,7 +26,7 @@ libopenss_Dialogs_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework \
 	-I$(top_srcdir)/gui \
 	-I$(top_srcdir)/pcli \
-	-I$(top_srcdir)/message \
+	-I$(top_srcdir)/libopenss-message \
 	-I$(top_srcdir)/images \
 	-I$(top_srcdir)/base \
 	-I$(top_srcdir)/plugin \

@@ -27,7 +27,7 @@ HW_CounterWizardPanel_la_CXXFLAGS = \
     -I$(top_srcdir)/objects \
     -I$(top_srcdir)/libopenss-framework \
     -I$(top_srcdir)/pcli \
-    -I$(top_srcdir)/message \
+    -I$(top_srcdir)/libopenss-message \
     -I$(top_srcdir)/dialogs \
     -I$(top_srcdir)/plugin \
     -I$(top_srcdir)/base

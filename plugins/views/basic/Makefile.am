@@ -22,7 +22,7 @@ BUILT_SOURCES =
 
 basic_view_la_CXXFLAGS = \
 	-I$(top_srcdir)/pcli \
-	-I$(top_srcdir)/message \
+	-I$(top_srcdir)/libopenss-message \
 	-I$(top_srcdir)/libopenss-framework
 
 basic_view_la_LDFLAGS = \
