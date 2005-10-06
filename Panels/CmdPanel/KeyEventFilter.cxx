@@ -25,6 +25,7 @@
 KeyEventFilter::KeyEventFilter(QObject *t, CmdPanel *p) : QObject(t)
 {
   cmdPanel = p;
+  cmdPanel->user_line_buffer = QString::null;
 } 
 
 /* QObject *o;   o is really the object the event was install. */
@@ -34,22 +35,49 @@ KeyEventFilter::eventFilter( QObject *o, QEvent *e)
   if( e->type() == QEvent::KeyPress )
   {
     QKeyEvent *key_event = (QKeyEvent *)e;
+// printf("The user pressed a (%s)\n", key_event->text().ascii() );
     if( key_event->key() == Qt::Key_Up ) 
     {
 //      printf("Qt::Key_Up\n");
+      cmdPanel->user_line_buffer = QString::null;
       cmdPanel->upKey();
       return TRUE;
     } else if( key_event->key() == Qt::Key_Down ) 
     {
 //      printf("Qt::Key_Down\n");
+      cmdPanel->user_line_buffer = QString::null;
       cmdPanel->downKey();
       return TRUE;
     } else if( key_event->key() == Qt::Key_Return ) 
     {
 //      printf("Qt::Key_Return\n");
-      cmdPanel->positionToEndForReturn();
-      return FALSE;
-    }
+      cmdPanel->positionToEnd();
+      cmdPanel->returnPressed();
+      cmdPanel->user_line_buffer = QString::null;
+//      return FALSE;
+      return TRUE;
+    } else if( key_event->key() == Qt::Key_Backspace )
+    {
+      QString tstr = QString::null;
+      tstr = cmdPanel->user_line_buffer.left(cmdPanel->user_line_buffer.length()-1);
+      cmdPanel->user_line_buffer = tstr;
+    } else if( key_event->state() == QEvent::ControlButton && key_event->key() == Qt::Key_C
+ ) {
+     if( cmdPanel->user_line_buffer.isEmpty() )
+     {
+// printf("Send the cli an interrupt!\n");
+     } else 
+     {
+// printf("clear the current command!\n");
+       cmdPanel->user_line_buffer = QString::null;
+//       cmdPanel->positionToEnd();
+     }
+     cmdPanel->putOutPrompt();
+   } else
+   {
+      cmdPanel->user_line_buffer += key_event->text();
+   }
+
 #ifdef OLDWAY
 printf("key_event->state()=%d\n", key_event->state() );
 if( key_event->state() == QEvent::ControlButton && key_event->key() == Qt::Key_J )

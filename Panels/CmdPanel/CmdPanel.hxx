@@ -53,27 +53,21 @@ public:
 
   void upKey();
   void downKey();
+  void clearCurrentLine();
 
-  void positionToEndForReturn();
+  void positionToEnd();
+  void putOutPrompt();
   OutputClass *oclass;
-  int last_para;   // The from portion of the last cursor position.
-  int last_index;  // The from portion of the last cursor position.
-  int history_start_para;
-  int history_start_index;
-  bool textDisabled;
 
   void postCustomEvent(QString *data);
   void customEvent(QCustomEvent *event);
 
-#ifdef PULL
-  void clicked(int, int);
-  void selectionChanged();
-#endif // PULL
+  QString user_line_buffer;
+  void returnPressed();
+
 protected slots:
   void menu1callback();
   void menu2callback();
-  void textChanged();
-  void returnPressed();
 
 
 protected:
