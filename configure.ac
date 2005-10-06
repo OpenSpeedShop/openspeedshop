@@ -138,7 +138,7 @@ AC_SUBST(INSTRUMENTOR)
 ################################################################################
 
 AC_CONFIG_FILES(Makefile
-    	    	message/Makefile
+    	    	libopenss-message/Makefile
 		libopenss-runtime/Makefile
 		libopenss-runtime/dpcl/Makefile
 		libopenss-runtime/dyninst/Makefile
