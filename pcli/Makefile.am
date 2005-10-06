@@ -26,7 +26,7 @@ lib_LTLIBRARIES = libopenss-cli.la
 
 libopenss_cli_la_CXXFLAGS = \
 	-I$(top_srcdir)/base \
-	-I$(top_srcdir)/message \
+	-I$(top_srcdir)/libopenss-message \
 	-I$(top_srcdir)/libopenss-framework \
 	-I$(top_srcdir)/libopenss-queries \
 	-I$(top_srcdir)/objects \
@@ -34,7 +34,7 @@ libopenss_cli_la_CXXFLAGS = \
 	$(PYTHON_CPPFLAGS)
 
 libopenss_cli_la_LDFLAGS = \
-	-L$(top_srcdir)/message \
+	-L$(top_srcdir)/libopenss-message \
 	-L$(top_srcdir)/libopenss-framework \
 	-L$(top_srcdir)/libopenss-queries \
 	$(PYTHON_LDFLAGS) \
@@ -96,7 +96,7 @@ SS_Parse_Lex.cxx: $(LFILES) SS_Parse_Yacc.hxx
 	-$(LEX) $(LFILES);
 	-mv lex.yy.c SS_Parse_Lex.cxx
 
-EXTRA_DIST = help_cmd_msg.dxx  help_general_msg.dxx  \ 
+EXTRA_DIST = help_cmd_msg.dxx  help_general_msg.dxx  \
 		help_grammar_msg.dxx  help_topic_msg.dxx 
 
 
