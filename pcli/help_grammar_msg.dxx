@@ -66,9 +66,18 @@ char *gram_viewType_related[] = {
     "listViews"
 };
 
+char *gram_list_related[] = {
+    "<target>",
+    "<range>"
+};
+
+char *gram_range_related[] = {
+    "<list>"
+};
+
 char *gram_target_related[] = {
-    "<lists>",
-    "<ranges>",
+    "<list>",
+    "<range>",
     "<file_name>",
     "<host_name>",
     "<thread_name>",
@@ -201,6 +210,16 @@ char *gram_cluster_list_spec_arg = {
     "<cluster_list_spec> ::= -c <cluster_list>"
 };
 
+//  LIST (generic)
+char *gram_list_arg = {
+    "<list> ::= <list element> [ , <list element> ]*"
+};
+
+//  RANGE (generic)
+char *gram_range_arg = {
+    "<range> ::= <range element> [ : <range element> ]"
+};
+
 //  TARGET
 char *gram_target_arg = {
     "<target> ::= \n\t"
@@ -208,7 +227,7 @@ char *gram_target_arg = {
     "[ -h <host_name>   [ , <host_name> ]* ]\n\t"
     "[ -f <file_name>    [ , <file_name> ]* ]\n\t"
     "[ -p <pid_name>    [ , <pid_name> ]* ]\n\t"
-    "[ -p <thread_name> [ , <thread_name> ]* ]\n\t"
+    "[ -t <thread_name> [ , <thread_name> ]* ]\n\t"
     "[ -r <rank_name>   [ , <rank_name>]* ]"
 };
 char *gram_target_list_arg = {
@@ -379,6 +398,12 @@ char *gram_cluster_list_brief = {
 };
 char *gram_cluster_list_spec_brief = {
     "-c followed by a cluster_list."
+};
+char *gram_list_brief = {
+    "Comma delimited list of elements."
+};
+char *gram_range_brief = {
+    "Semicolon delimited range of values."
 };
 char *gram_target_brief = {
     "Represents the host file and machine along with \n"
@@ -755,6 +780,36 @@ char *gram_cluster_list_spec_detailed[] = {
     " "
 };
 
+char *gram_list_detailed[] = {
+    gram_list_arg,
+    " ",
+    gram_list_brief,
+    " ",
+    "A list element can consist of a single item such as",
+    "a filename or a range tuple.",
+    " ",
+    "The only time a list delimiter is NOT a comma \',\'is when",
+    "the list elements are <target>. In this case the delimiter ",
+    "is a semicolon \';\'.",
+    " "
+};
+
+char *gram_range_detailed[] = {
+    gram_range_arg,
+    " ",
+    gram_range_brief,
+    " ",
+    "A range of values can consist of a single item such as",
+    "a rank id or 2 values delimited by a colon \':\' representing",
+    "inclusive all the whole numbers from the first to the second value.",
+    " ",
+    "A single value will mean just that, a single value.",
+    " ",
+    "It is an error for the first value to be higher than the",
+    "second.",
+    " "
+};
+
 char *gram_target_detailed[] = {
     gram_target_arg,
     " ",
@@ -1028,6 +1083,30 @@ char *gram_io_detailed[] = {
 };
 
 /*********************************************/
+// GRAMMAR Examples
+/*********************************************/
+// 
+char *gram_list_example[] = {
+    " -f file1,file2,file3",
+    " ",
+    "    A list of file name strings.",
+    " ",
+    "-r 44,55,66:69,77",
+    " ",
+    "    A list of the rank numbers 44,55,66,67,68,69 and 77.",
+    "    Note that a <range can be an element of a list.",
+    " ",
+    "An example of a list of <target>",
+    "-h host1 -p 333:400 ; -h host2 -p 500:540",
+    " ",
+    "    An example of a list of <target>",
+    " ",
+    "    All the pids for this experiment on host1 from.",
+    "    333 ti 400 and all the pids on host2 from 500 to 540",
+    " "
+};
+
+/*********************************************/
 // GRAMMAR MESSAGE ARRAY
 /*********************************************/
 // message array to be passed to message czar
@@ -1200,11 +1279,24 @@ OpenSpeedShop::message_element_t grammar_msg[] = {
 //    <cluster_list>
     -1,"cluster_list",NULL,0,"grammar",gram_cluster_list_brief,
     gram_cluster_list_detailed,sizeof(gram_cluster_list_detailed)/sizeof(char **),
-    NULL,0,NULL,0,
+    NULL,0,
+    NULL,0,
     NULL,0,
 //    <cluster_list_spec>
     -1,"cluster_list_spec",NULL,0,"grammar",gram_cluster_list_spec_brief,
     gram_cluster_list_spec_detailed,sizeof(gram_cluster_list_spec_detailed)/sizeof(char **),
+    NULL,0,
+    NULL,0,
+    NULL,0,
+//    <list>
+    -1,"list",NULL,0,"grammar",gram_list_brief,
+    gram_list_detailed,sizeof(gram_list_detailed)/sizeof(char **),
+    NULL,0,
+    gram_list_example,sizeof(gram_list_example)/sizeof(char **),
+    NULL,0,
+//    <range>
+    -1,"range",NULL,0,"grammar",gram_range_brief,
+    gram_range_detailed,sizeof(gram_range_detailed)/sizeof(char **),
     NULL,0,NULL,0,
     NULL,0,
 //    <target>
