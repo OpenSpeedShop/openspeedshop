@@ -611,8 +611,11 @@ class CommandWindowID
       InputLineObject *L = (*cmi);
       if (!L->Results_Used ()) {
         if (All_Command_Objects_Are_Used( (*cmi) )) {
-          L->SetStatus (ILO_COMPLETE);
-          (void)(L->CallBackL ());
+          if (!(L->CallBackL ()) &&
+              (L->What() != ILO_COMPLETE) &&
+              (L->What() != ILO_ERROR)) {
+            L->SetStatus (ILO_COMPLETE);
+          }
         } else break;  // so that things are removed in order
       }
       ++cmi;
@@ -2401,7 +2404,6 @@ read_another_window:
        // We must have encountered an EOF on all the input streams.
        // Create an 'exit' command to terminate command processing.
         clip = new InputLineObject (readfromwindow, "Exit\n");
-        Shut_Down = true;  // only allow one.
       } else {
        // An 'Exit' command has been processed.  
         I_HAVE_ASYNC_INPUT_LOCK = false;
