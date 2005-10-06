@@ -190,7 +190,8 @@ void setCurrentMetricStr();
 
     double TotalTime;
     double total_percent;
-    int numberItemsToDisplay;
+    int numberItemsToDisplayInStats;
+    int numberItemsToDisplayInChart;
     ChartTextValueList ctvl;
     ChartPercentValueList cpvl;
 

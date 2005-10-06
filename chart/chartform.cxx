@@ -131,8 +131,8 @@ ChartForm::ChartForm(  QWidget* parent, const char* name, WFlags fl) : QWidget( 
 
 
     optionsPieChartActionWithShadow = new QAction(
-	    "Pie Chart with shadow", QPixmap( options_piechart ),
-	    "&Pie Chart with shadow", CTRL+Key_I, chartGroup, "pie chart with shadow" );
+	    "Pie Chart", QPixmap( options_piechart ),
+	    "&Pie Chart", CTRL+Key_I, chartGroup, "pie chart with shadow" );
     optionsPieChartActionWithShadow->setToggleAction( TRUE );
 
     optionsPieChartActionWithNoShadow = new QAction(
@@ -589,11 +589,16 @@ for( ChartPercentValueList::iterator vi = values.begin();vi != values.end(); vi+
 // printf("ChartForm::setValues(%d)=(%s) (%d)\n", i, value_str.ascii(), value);
   int color_index = i;
   if( i>15 ) color_index = max_color_cnt-1;
+  if( value_str.isEmpty() )
+  {
+    break;
+  }
 // printf("ChartForm::setValues[%d] (%d) %s\n", i, value, value_str.ascii() );
   m_elements[i].set( value,
       QColor(color_names[color_index]), 1, value_str );
   i++;
 }
+// printf("i=%d \n", i);
 
   drawElements();
 }

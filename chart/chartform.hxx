@@ -68,6 +68,7 @@ public:
 
     bool fileSaveAsPixmap(QString filename);
 
+    void init();
 protected:
     virtual void closeEvent( QCloseEvent * );
 
@@ -90,7 +91,6 @@ private slots:
     void saveOptions();
 
 private:
-    void init();
     void load( const QString& filename );
     bool okToClear();
     void drawPieChart( const double scales[], double total, int count );

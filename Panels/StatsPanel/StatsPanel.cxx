@@ -1075,13 +1075,21 @@ StatsPanel::updateStatsPanelData()
   cpvl.clear();
   // Text value list (for the chart)
   ctvl.clear();
+  cf->init();
   total_percent = 0.0;
-  numberItemsToDisplay = 10;
+  numberItemsToDisplayInStats = 10;
   if( !getPreferenceTopNLineEdit().isEmpty() )
   {
     bool ok;
-    numberItemsToDisplay = getPreferenceTopNLineEdit().toInt(&ok);
+    numberItemsToDisplayInStats = getPreferenceTopNLineEdit().toInt(&ok);
   }
+  numberItemsToDisplayInChart = 5;
+  if( !getPreferenceTopNChartLineEdit().isEmpty() )
+  {
+    bool ok;
+    numberItemsToDisplayInChart = getPreferenceTopNChartLineEdit().toInt(&ok);
+  }
+// printf("numberItemsToDisplayInChart = %d\n", numberItemsToDisplayInChart );
 
 
 
@@ -1107,10 +1115,10 @@ StatsPanel::updateStatsPanelData()
   QString command = QString("expView -x %1").arg(expID);
   if( currentCollectorStr.isEmpty() || showPercentageFLAG == FALSE )
   {
-     command += QString(" %1%2").arg("stats").arg(numberItemsToDisplay);
+     command += QString(" %1%2").arg("stats").arg(numberItemsToDisplayInStats);
   } else
   {
-     command += QString(" %1%2").arg(currentCollectorStr).arg(numberItemsToDisplay);
+     command += QString(" %1%2").arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
   }
   if( !currentMetricStr.isEmpty() )
   {
@@ -1174,13 +1182,18 @@ StatsPanel::updateStatsPanelData()
    }
 
 // printf("Put out the chart!!!!\n");
-// printf("numberItemsToDisplay=(%d) cpvl.count()=(%d)\n", numberItemsToDisplay, cpvl.count() );
+// printf("numberItemsToDisplayInStats=(%d) cpvl.count()=(%d)\n", numberItemsToDisplayInStats, cpvl.count() );
 
   // Do we need an other?
-// printf("total_percent=%f splv->childCount()=%d cpvl.count()=%d numberItemsToDisplay=%d\n", total_percent, splv->childCount(), cpvl.count(), numberItemsToDisplay );
+// printf("total_percent=%f splv->childCount()=%d cpvl.count()=%d numberItemsToDisplayInStats=%d\n", total_percent, splv->childCount(), cpvl.count(), numberItemsToDisplayInStats );
 
-  if( splv->childCount() > 0 && total_percent > 0.0 &&
-      cpvl.count() < numberItemsToDisplay )
+// printf("A: cpvl.count()=%d numberItemsToDisplayInChart = %d\n", cpvl.count(), numberItemsToDisplayInChart );
+//  if( splv->childCount() > 0 && total_percent > 0.0 &&
+  if( ( total_percent > 0.0 &&
+      cpvl.count() < numberItemsToDisplayInStats) ||
+      ( total_percent > 0.0 && 
+        cpvl.count() <= numberItemsToDisplayInStats &&
+        numberItemsToDisplayInChart <= numberItemsToDisplayInStats) )
   {
     if( total_percent < 100.00 )
     {
@@ -1202,6 +1215,8 @@ StatsPanel::updateStatsPanelData()
     cpvl.push_back(100);
     ctvl.push_back("N/A");
   }
+// printf("cpvl.count()=%d ctvl.count()=%d\n", cpvl.count(), ctvl.count() );
+
   cf->setValues(cpvl, ctvl, color_names, MAX_COLOR_CNT);
 
   QApplication::restoreOverrideCursor();
@@ -1769,10 +1784,14 @@ StatsPanel::outputCLIData(QString *data)
   { // i.e. like usertime
     lastlvi = splvi =  new SPListViewItem( this, splv, lastlvi, strings[0], strings[1], strings[2], strings[3] );
   }
-  if( total_percent > 0.0 && cpvl.count() <= numberItemsToDisplay )
+  if( total_percent > 0.0 && cpvl.count() <= numberItemsToDisplayInStats )
   {
 // printf("put out data for the chart. %d %s\n", percent, strings[percentIndex].stripWhiteSpace().ascii() );
     cpvl.push_back( percent );
+  } 
+  if( total_percent > 0.0 && cpvl.count() <= numberItemsToDisplayInChart )
+  {
+// printf("Push back another one!(%s)\n", strings[percentIndex].stripWhiteSpace().ascii());
     ctvl.push_back( strings[percentIndex].stripWhiteSpace() );
   }
 

@@ -40,7 +40,9 @@ extern "C"
 
   QHBoxLayout* layoutTopN;
   QLabel* showTopNTextLabel;
+  QLabel* showTopNChartTextLabel;
   QLineEdit* showTopNLineEdit;
+  QLineEdit* showTopNChartLineEdit;
 
   QHBoxLayout* layoutColumnToSort;
   QLabel* showColumnToSortTextLabel;
@@ -68,6 +70,13 @@ extern "C"
     return( showTopNLineEdit->text() );
   }
 
+  QString getPreferenceTopNChartLineEdit()
+  {
+// printf("getPreferenceTopNChartLineEdit(%s)\n", pname);
+    return( showTopNChartLineEdit->text() );
+  }
+
+
   bool getPreferenceShowTextInChart()
   {
 // printf("getPreferenceShowTextInChart(%s)\n", pname);
@@ -80,6 +89,7 @@ extern "C"
 // printf("initStatsPanelPreferenceSettings(%s)\n", pname);
     sortDecendingCheckBox->setChecked(TRUE);
     showTopNLineEdit->setText( "10" );
+    showTopNChartLineEdit->setText( "5" );
     showColumnToSortLineEdit->setText( "0" );
     showTextInChartCheckBox->setChecked(TRUE);
   }
@@ -115,6 +125,15 @@ sortDecendingCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QS
       new QLineEdit( statsPanelPrivateLayout, "showTopNLineEdit" );
 
     layoutTopN->addWidget( showTopNLineEdit );
+
+    showTopNChartTextLabel =
+      new QLabel( statsPanelPrivateLayout, "showTopNChartTextLabel" );
+    layoutTopN->addWidget( showTopNChartTextLabel );
+
+    showTopNChartLineEdit =
+      new QLineEdit( statsPanelPrivateLayout, "showTopNChartLineEdit" );
+
+    layoutTopN->addWidget( showTopNChartLineEdit );
     layout8->addLayout( layoutTopN );
 
 
@@ -164,6 +183,11 @@ showTextInChartCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (
         settings->readEntry(settings_buffer, "10") );
 
       sprintf(settings_buffer, "/%s/%s/%s",
+        "openspeedshop", name, showTopNChartLineEdit->name() );
+      showTopNChartLineEdit->setText(
+        settings->readEntry(settings_buffer, "5") );
+
+      sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, showColumnToSortLineEdit->name() );
       showColumnToSortLineEdit->setText(
         settings->readEntry(settings_buffer, "0") );
@@ -189,6 +213,10 @@ showTextInChartCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (
     sprintf(settings_buffer, "/%s/%s/%s",
       "openspeedshop", name, showTopNLineEdit->name() );
     settings->writeEntry(settings_buffer, showTopNLineEdit->text() );
+
+    sprintf(settings_buffer, "/%s/%s/%s",
+      "openspeedshop", name, showTopNChartLineEdit->name() );
+    settings->writeEntry(settings_buffer, showTopNChartLineEdit->text() );
 
     sprintf(settings_buffer, "/%s/%s/%s",
       "openspeedshop", name, showTextInChartCheckBox->name() );
