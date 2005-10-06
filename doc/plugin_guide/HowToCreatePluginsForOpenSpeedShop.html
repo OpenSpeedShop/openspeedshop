@@ -12,13 +12,21 @@ Creation Guide</h1>
  style="font-weight: bold;">Table of Contents</span><span
  style="text-decoration: underline;"></span></h2>
 <ul id="mozToc">
-<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId887556"></a></li>
-  <li><a href="#mozTocId831142">Open|SpeedShop Plugin Creation Guide</a>
+<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId831142">Open|SpeedShop
+Plugin Creation Guide</a>
     <ul>
       <li><a href="#mozTocId259966">Table of Contents</a></li>
       <li><a href="#mozTocId892353">General</a></li>
       <li><a href="#mozTocId926177">Performance Data Collector Plugin
-Information</a></li>
+Information</a>
+        <ul>
+          <li><a href="#mozTocId50966">Identifying and Analyzing The
+Performance Data Desired</a></li>
+          <li><a href="#mozTocId177039">Implementating The Collector
+Plugin</a></li>
+          <li><a href="#mozTocId715407">Example Collector Plugin</a></li>
+        </ul>
+      </li>
       <li><a href="#mozTocId376321">Graphical User Interface Plugin
 Information</a></li>
       <li><a href="#mozTocId501489">Command Line Interface Plugin
@@ -56,23 +64,32 @@ examples of how to create and integrate plugins into Open|SpeedShop.<br>
 <h2><a class="mozTocH2" name="mozTocId926177"></a>Performance Data
 Collector Plugin Information<br>
 </h2>
-<h3><a name="Idenitifying_and_Analysing_The"></a>Identifying and
-Analyzing The Performance Data Desired</h3>
-Writing a performance data collector consists of two main
+<h3><a class="mozTocH3" name="mozTocId50966"></a><a
+ name="Idenitifying_and_Analysing_The"></a>Identifying and Analyzing
+The Performance Data Desired</h3>
+Writing a performance data collector consists of a few
 steps.&nbsp;&nbsp; The first step is the thought process which
-identifies the performance data desired to be collected or put in
-another way, what are we trying to collect.&nbsp;&nbsp; Open|SpeedShop
-collects the performance data and maps the gathered data back to the
-program source line number or source function.&nbsp;&nbsp; So, one
+identifies the performance data desired to be collected.&nbsp; In other
+words, "What performance information are we trying to
+collect?".&nbsp;&nbsp; Open|SpeedShop allow the user to collect the
+performance data and then map the gathered data back to the program
+source function name and/or source line numbers.&nbsp;&nbsp; So, one
 question to be asked before starting to write a collector plugin for
 Open|SpeedShop is can the performance data desired be associated with
-the program's addresses.<br>
+the program's source line and function addresses.<br>
 <br>
 Another phase of the identify and analyze step is to identify and
 define the metric and parameters.&nbsp; The metric is a function of the
 time intervals and the instruction address space.&nbsp;&nbsp; The
 parameters can be thought of as the dial, selector, or knob that
 controls how the data is collected.<br>
+<h3><a class="mozTocH3" name="mozTocId177039"></a><a
+ name="Implementating_The_Collector_Plugin"></a>Implementating The
+Collector Plugin</h3>
+<br>
+<h3><a class="mozTocH3" name="mozTocId715407"></a><a
+ name="Example_Collector_Plugin"></a>Example Collector Plugin</h3>
+<br>
 <br>
 <h2><a class="mozTocH2" name="mozTocId376321"></a>Graphical User
 Interface Plugin Information<br>
