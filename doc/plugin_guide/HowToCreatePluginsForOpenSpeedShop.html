@@ -6,8 +6,6 @@
   <title>HowToCreatePluginsForOpenSpeedShop</title>
 </head>
 <body>
-<h1><a class="mozTocH1" name="mozTocId887556"></a><br>
-</h1>
 <h1><a class="mozTocH1" name="mozTocId831142"></a>Open|SpeedShop Plugin
 Creation Guide</h1>
 <h2><a class="mozTocH2" name="mozTocId259966"></a><span
@@ -29,6 +27,20 @@ Information</a></li>
   </li>
 </ul>
 <h2><a class="mozTocH2" name="mozTocId892353"></a>General</h2>
+The Open|SpeedShop performance tool is oriented toward gathering
+performance data from user applications and relating that performance
+data back to the application source file, function name and line
+number(s).&nbsp;&nbsp;&nbsp; The data gathering, graphical user
+interface displays, and the command line interface views are defined
+via the Open|SpeedShop plugin mechanism.&nbsp;&nbsp; What this means is
+that the code and data required to accomplish the above mentioned data
+gathering, GUI control and display panels, and the CLI displays is
+compiled into a dynamically loaded object called a plugin.&nbsp;&nbsp;
+The Open|SpeedShop tools search a specified directory path or paths to
+find the plugins and dynamically load them. &nbsp; Open|SpeedShop uses
+the information inside the plugin to adjust the tools menus, internal
+data structures, etc. to reflect the plugins presence in the tool.<br>
+<br>
 There are currently three separate types of Plugins that Open|SpeedShop
 recognizes and dynamically integrates into the Open|SpeedShop tool
 set.&nbsp; The three types of plugins are:<br>
@@ -44,7 +56,23 @@ examples of how to create and integrate plugins into Open|SpeedShop.<br>
 <h2><a class="mozTocH2" name="mozTocId926177"></a>Performance Data
 Collector Plugin Information<br>
 </h2>
+<h3><a name="Idenitifying_and_Analysing_The"></a>Identifying and
+Analyzing The Performance Data Desired</h3>
+Writing a performance data collector consists of two main
+steps.&nbsp;&nbsp; The first step is the thought process which
+identifies the performance data desired to be collected or put in
+another way, what are we trying to collect.&nbsp;&nbsp; Open|SpeedShop
+collects the performance data and maps the gathered data back to the
+program source line number or source function.&nbsp;&nbsp; So, one
+question to be asked before starting to write a collector plugin for
+Open|SpeedShop is can the performance data desired be associated with
+the program's addresses.<br>
 <br>
+Another phase of the identify and analyze step is to identify and
+define the metric and parameters.&nbsp; The metric is a function of the
+time intervals and the instruction address space.&nbsp;&nbsp; The
+parameters can be thought of as the dial, selector, or knob that
+controls how the data is collected.<br>
 <br>
 <h2><a class="mozTocH2" name="mozTocId376321"></a>Graphical User
 Interface Plugin Information<br>
