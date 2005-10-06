@@ -188,7 +188,7 @@ char *cmd_openGui_related[] = {
 //    ""
 };
 
-char *cmd_playback_related[] = {
+char *cmd_playBack_related[] = {
     "<file_name>"
 };
 
@@ -315,7 +315,7 @@ char *cmd_listViews_args[] = {
 };
 
 char *cmd_clearBreak_args[] = {
-    "clearbreak <breakId>"
+    "clearBreak <breakId>"
 };
 
 char *cmd_exit_args[] = {
@@ -338,16 +338,16 @@ char *cmd_openGui_args[] = {
     "openGui"
 };
 
-char *cmd_playback_args[] = {
-    "playback -f <file_name>"
+char *cmd_playBack_args[] = {
+    "playBack-f <file_name>"
 };
 
 char *cmd_record_args[] = {
     "record [-f <file_name>]"
 };
 
-char *cmd_setbreak_args[] = {
-    "<breakId> setbreak [-x <expId>] [<target>] <address_description>"
+char *cmd_setBreak_args[] = {
+    "<breakId> setBreak [-x <expId>] [<target>] <address_description>"
 };
 
 
@@ -521,7 +521,7 @@ char *cmd_openGui_brief = {
 };
 
 
-char *cmd_playback_brief = {
+char *cmd_playBack_brief = {
     "Read and execute commands stored in a file."
 };
 
@@ -531,7 +531,7 @@ char *cmd_record_brief = {
 };
 
 
-char *cmd_setbreak_brief = {
+char *cmd_setBreak_brief = {
     "Enter a breakpoint, which will halt the application when reached."
 };
 
@@ -1354,10 +1354,10 @@ char *cmd_openGui_detailed[] = {
 };
 
 
-char *cmd_playback_detailed[] = {
-    cmd_playback_args[0],
+char *cmd_playBack_detailed[] = {
+    cmd_playBack_args[0],
     " ",
-    cmd_playback_brief,
+    cmd_playBack_brief,
     " "
 };
 
@@ -1373,7 +1373,7 @@ char *cmd_record_detailed[] = {
     "\t This design causes commands issued by the GUI to be ",
     "\t recorded seperately from commands issued by the Command window.",
     " ",
-    "- Commands read from a file specified on a succeeding playback ",
+    "- Commands read from a file specified on a succeeding playBack",
     "  command will not be echoed.",
     " ",
     "- Stop echoing if no file is specified on a record command.",
@@ -1384,10 +1384,10 @@ char *cmd_record_detailed[] = {
 };
 
 
-char *cmd_setbreak_detailed[] = {
-    cmd_setbreak_args[0],
+char *cmd_setBreak_detailed[] = {
+    cmd_setBreak_args[0],
     " ",
-    cmd_setbreak_brief,
+    cmd_setBreak_brief,
     " ",
     "- If -x <expId> is not provided, the focused experiment is used.",
     " ",
@@ -1895,11 +1895,11 @@ OpenSpeedShop::message_element_t cmd_msg[CMD_MAX] = {
     cmd_openGui_args,sizeof(cmd_openGui_args)/sizeof(char **),
 //    CMD_PLAYBACK,
     -1,cmd_desc[CMD_PLAYBACK].name,
-    cmd_playback_related,sizeof(cmd_playback_related)/sizeof(char **),
-    "commands",cmd_playback_brief,
-    cmd_playback_detailed,sizeof(cmd_playback_detailed)/sizeof(char **),
+    cmd_playBack_related,sizeof(cmd_playBack_related)/sizeof(char **),
+    "commands",cmd_playBack_brief,
+    cmd_playBack_detailed,sizeof(cmd_playBack_detailed)/sizeof(char **),
     NULL,0,NULL,0,
-    cmd_playback_args,sizeof(cmd_playback_args)/sizeof(char **),
+    cmd_playBack_args,sizeof(cmd_playBack_args)/sizeof(char **),
 //    CMD_RECORD,
     -1,cmd_desc[CMD_RECORD].name,
     cmd_record_related,sizeof(cmd_record_related)/sizeof(char **),
@@ -1910,11 +1910,11 @@ OpenSpeedShop::message_element_t cmd_msg[CMD_MAX] = {
 //    CMD_SETBREAK,
     -1,cmd_desc[CMD_SETBREAK].name,
     cmd_setBreak_related,sizeof(cmd_setBreak_related)/sizeof(char **),
-    "commands",cmd_setbreak_brief,
-    cmd_setbreak_detailed,sizeof(cmd_setbreak_detailed)/sizeof(char **),
+    "commands",cmd_setBreak_brief,
+    cmd_setBreak_detailed,sizeof(cmd_setBreak_detailed)/sizeof(char **),
     NULL,0,
     NULL,0,
-    cmd_setbreak_args,sizeof(cmd_setbreak_args)/sizeof(char **)
+    cmd_setBreak_args,sizeof(cmd_setBreak_args)/sizeof(char **)
 };
 
 

@@ -70,7 +70,7 @@ command_type_t OpenSpeedShop::cli::cmd_desc[CMD_MAX] = {
     "history",	    false,  CMD_HISTORY,
     "log",  	    false,  CMD_LOG,
     "openGui",	    false,  CMD_OPEN_GUI,
-    "playback",     false,  CMD_PLAYBACK,
+    "playBack",     false,  CMD_PLAYBACK,
     "record",	    false,  CMD_RECORD,
     "setBreak",     false,  CMD_SETBREAK
 };

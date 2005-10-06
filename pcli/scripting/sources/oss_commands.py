@@ -1107,7 +1107,7 @@ def oss_clearBreak(*arglist):
       although it may be temporarily suspended during execution of 
       the command.
 
-      clearbreak <breakId> 
+      clearBreak <breakId> 
 
     """
 
@@ -1222,7 +1222,7 @@ def oss_playBack(*arglist):
     """
     - Read and execute commands from a file.
 
-      playback <file_spec> 
+      playBack <file_spec> 
 
     """
 
@@ -1267,7 +1267,7 @@ def oss_setBreak(*arglist):
     - If <target> is not provided, the <address_description> must 
       be valid on every host and executable attached to the experiment.
 
-      <breakId> = setbreak [ I{ExpId} ] [ <target> ] <address_description>
+      <breakId> = setBreak [ I{ExpId} ] [ <target> ] <address_description>
     """
 
     cmd_string = deconstruct("setBreak",*arglist)
