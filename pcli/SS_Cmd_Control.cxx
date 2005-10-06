@@ -48,13 +48,16 @@ try {
 
   InputLineObject *clip = cmd->Clip();
 
+ // Move this command to the EXECUTING state.
+  cmd->set_Status (CMD_EXECUTING);
+
   switch (clip->What()) {
   case ILO_IN_PARSER:
    // First tiem we've see this command.
     clip->SetStatus (ILO_EXECUTING);
     break;
   case ILO_EXECUTING:
-   // Grat!  Keep going.
+   // Great!  Keep going.
     break;
   case ILO_COMPLETE:
    // There may be new CommandObjects that are not complete.
@@ -65,9 +68,6 @@ try {
     Cmd_Obj_Complete (cmd);
     return;
   }
-
- // Move this command to the EXECUTING state.
-  cmd->set_Status (CMD_EXECUTING);
 
  // And now go and execute it!
   switch (cmd->Type()) {
