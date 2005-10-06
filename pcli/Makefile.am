@@ -57,11 +57,11 @@ libopenss_cli_la_SOURCES = \
 	SS_Exp.hxx SS_Exp.cxx \
 	help.cxx \
 	Load_Messages.cxx help_cmd_msg.dxx \
-	PY_Input.cxx \
+	PY_Input.cxx help_general_msg.dxx \
 	SS_Cmd_Control.hxx SS_Cmd_Control.cxx \
 	SS_Cmd_Execution.hxx SS_Cmd_Execution.cxx \
-	SS_Input_Manager.hxx \
-	SS_Parse_Lex.lxx \
+	SS_Input_Manager.hxx help_grammar_msg.dxx \
+	SS_Parse_Lex.lxx help_topic_msg.dxx \
 	SS_Parse_Param.hxx SS_Parse_Param.cxx \
 	SS_Parse_Range.hxx SS_Parse_Range.cxx \
 	SS_Parse_Result.hxx SS_Parse_Result.cxx \
@@ -96,8 +96,9 @@ SS_Parse_Lex.cxx: $(LFILES) SS_Parse_Yacc.hxx
 	-$(LEX) $(LFILES);
 	-mv lex.yy.c SS_Parse_Lex.cxx
 
-EXTRA_DIST = \
-	help_topic_msg.dxx
+EXTRA_DIST = help_cmd_msg.dxx  help_general_msg.dxx  \ 
+		help_grammar_msg.dxx  help_topic_msg.dxx 
+
 
 doc:
 	$(DOXYGEN)
