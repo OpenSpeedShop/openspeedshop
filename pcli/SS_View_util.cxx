@@ -25,10 +25,6 @@ using namespace OpenSpeedShop;
 #include "Python.h"
 
 using namespace std;
-
-#include "SS_Parse_Result.hxx"
-#include "SS_Parse_Target.hxx"
-
 using namespace OpenSpeedShop::cli;
 
 // Move to Query library
@@ -113,7 +109,10 @@ void GetMetricByFunctionInThreadGroup(
 
   for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
     Thread thread = *ti;
-    GetMetricByFunctionInThread(collector, metric, thread, result);
+    // GetMetricByFunctionInThread(collector, metric, thread, result);
+    Queries::GetMetricOfAllInThread(collector, metric,
+                                    TimeInterval(Time::TheBeginning(), Time::TheEnd()),
+                                    thread, result);
   }
 }
 
@@ -147,16 +146,12 @@ struct sort_descending_CommandResult : public std::binary_function<T,T,bool> {
 
 template <typename T>
 void GetMetricsForFunction (CommandObject *cmd,
-                            Function F,
-                            ThreadGroup tgrp,
-                            Collector collector,
-                            std::string metric,
+                            Function& F,
+                            ThreadGroup& tgrp,
+                            Collector& collector,
+                            std::string& metric,
                             T& value)
 {
-
- // Time interval covering earliest to latest possible time
-  const TimeInterval Forever =
-      TimeInterval(Time::TheBeginning(), Time::TheEnd());
 
  // Go through all the threads in the group.
   ThreadGroup::iterator ti;
@@ -164,16 +159,25 @@ void GetMetricsForFunction (CommandObject *cmd,
    // Get the thread containing this function
     Thread thread = *ti;
 
-   // Note: we need to re-parent the Function Object before we can do the following!
    // Get the address range of this function
-    AddressRange range = F.getAddressRange();
+    ExtentGroup egrp = F.getExtentIn (thread);
 
-   // Evaluate the metric over it's address range
-    T new_value;
-    collector.getMetricValue(metric, thread, range, Forever, new_value);
+   // Go through all the extents in the group.
+    for(Framework::ExtentGroup::const_iterator
+                j = egrp.begin(); j != egrp.end(); ++j) {
+      Extent extent = *j;
 
-   // Add the new value to the accumulated value.
-    value += new_value;
+     // Evaluate the metric over it's address range
+      T new_value;
+      collector.getMetricValue(metric, thread,
+                               extent.getAddressRange(),
+                               extent.getTimeInterval(),
+                               new_value);
+
+     // Add the new value to the accumulated value.
+      value += new_value;
+    }
+
   }
   return;
 }
