@@ -29,7 +29,6 @@
 #include "config.h"
 #endif
 
-#include "AddressRange.hxx"
 #include "Entry.hxx"
 
 #include <set>
@@ -40,6 +39,7 @@ namespace OpenSpeedShop { namespace Framework {
 
     class AddressSpace;
     class Database;
+    class ExtentGroup;
     class Function;
     class Path;
     template <typename> class SmartPtr;
@@ -50,9 +50,8 @@ namespace OpenSpeedShop { namespace Framework {
      * Linked object.
      *
      * Representation of a single executable or library (a "linked object").
-     * Provides member functions for getting the containing thread, full path
-     * name, address range, and the list of all functions contained within this
-     * linked object.
+     * Provides member functions for requesting information about this linked
+     * object, where it is contained, and what it contains.
      *
      * @ingroup CollectorAPI ToolAPI
      */
@@ -66,18 +65,19 @@ namespace OpenSpeedShop { namespace Framework {
 	
     public:
 
-	Thread getThread() const;
-
+	std::set<Thread> getThreads() const;
+	ExtentGroup getExtentIn(const Thread&) const;
+	
 	Path getPath() const;
-	AddressRange getAddressRange() const;
 	bool isExecutable() const;
 	
 	std::set<Function> getFunctions() const;
-	
+	std::set<Statement> getStatements() const;
+
     private:
 
 	LinkedObject();
-	LinkedObject(const SmartPtr<Database>&, const int&, const int&);
+	LinkedObject(const SmartPtr<Database>&, const int&);
 	
     };
     

@@ -167,9 +167,9 @@ namespace OpenSpeedShop { namespace Framework {
 	}
 
 	/** Width of this interval. */
-	typename T::difference_type getWidth() const
+	typename T::value_type getWidth() const
 	{
-	    return dm_end - dm_begin;
+	    return dm_end.getValue() - dm_begin.getValue();
 	}
 
 	/** Test if this interval contains a value. */

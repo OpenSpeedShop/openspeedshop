@@ -88,7 +88,7 @@ namespace OpenSpeedShop { namespace Framework {
 	void executeNow(const Collector&, const Thread&,
 			const std::string&, const Blob&);
 	void executeAtEntryOrExit(const Collector&, const Thread&,
-				  const Function&, const bool&,
+				  const std::string&, const bool&,
 				  const std::string&, const Blob&);
 	
 	void uninstrument(const Collector&, const Thread&);

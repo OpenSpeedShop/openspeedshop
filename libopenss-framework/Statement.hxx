@@ -29,7 +29,6 @@
 #include "config.h"
 #endif
 
-#include "AddressRange.hxx"
 #include "Entry.hxx"
 
 #include <set>
@@ -39,6 +38,7 @@
 namespace OpenSpeedShop { namespace Framework {
 
     class Database;
+    class ExtentGroup;
     class Function;
     class LinkedObject;
     class Path;
@@ -49,9 +49,8 @@ namespace OpenSpeedShop { namespace Framework {
      * Source code statement.
      *
      * Representation of a source code statement. Provides member functions for
-     * getting the containing thread, linked object and functions, the full path
-     * name of the statement's source file, its line and column numbers, and its
-     * address ranges.
+     * requesting information about this statement, where it is contained, and
+     * what it contains.
      *
      * @ingroup CollectorAPI ToolAPI
      */
@@ -59,24 +58,24 @@ namespace OpenSpeedShop { namespace Framework {
 	public Entry
     {
 	friend class Function;
+	friend class LinkedObject;
 	friend class Thread;
 	
     public:
 
-	Thread getThread() const;
+	std::set<Thread> getThreads() const;
+	ExtentGroup getExtentIn(const Thread&) const;
 	LinkedObject getLinkedObject() const;
 	std::set<Function> getFunctions() const;
 	
 	Path getPath() const;
 	int getLine() const;
 	int getColumn() const;
-	
-	std::set<AddressRange> getAddressRanges() const;
-	
+
     private:
 
 	Statement();
-	Statement(const SmartPtr<Database>&, const int&, const int&);
+	Statement(const SmartPtr<Database>&, const int&);
 	
     };
     

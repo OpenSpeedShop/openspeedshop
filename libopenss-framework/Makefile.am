@@ -62,6 +62,8 @@ libopenss_framework_la_SOURCES = \
 	EntrySpy.hxx \
 	Exception.hxx Exception.cxx \
 	Experiment.hxx Experiment.cxx \
+	Extent.hxx \
+	ExtentGroup.hxx ExtentGroup.cxx \
 	Function.hxx Function.cxx \
 	Guard.hxx \
 	Instrumentor.hxx \

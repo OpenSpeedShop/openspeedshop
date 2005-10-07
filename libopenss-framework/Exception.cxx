@@ -73,9 +73,6 @@ namespace {
 	{ Exception::EntryNotUnique,
 	  "Entry %2 in table \"%1\" is not unique." },
 
-	{ Exception::EntryOverlapping,
-	  "Entries in table \"%1\" have overlapping address ranges." },
-
 	{ Exception::LibraryFuncNotFound,
 	  "Function \"%2\" could not be found within library \"%1\"." },
 

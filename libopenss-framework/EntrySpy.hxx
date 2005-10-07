@@ -66,22 +66,22 @@ namespace OpenSpeedShop { namespace Framework {
 	    return dm_entry.dm_database;
 	}
 
+	/** Get the database table containing this entry. */
+	std::string getTable() const
+	{
+	    return dm_entry.getTable();
+	}
+
 	/** Get the identifier for this entry. */
 	int getEntry() const
 	{
 	    return dm_entry.dm_entry;
 	}
 	
-	/** Get the identifier of the address space context for this entry. */
-	int getContext() const
-	{
-	    return dm_entry.dm_context;
-	}
-
 	/** Validate this entry. */
-	void validate(const std::string& table) const
+	void validate() const
 	{
-	    dm_entry.validate(table);
+	    dm_entry.validate();
 	}
 		
     private:

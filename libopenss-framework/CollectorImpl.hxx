@@ -35,7 +35,6 @@
 
 #include <set>
 #include <string>
-#include <vector>
 
 
 
@@ -43,6 +42,8 @@ namespace OpenSpeedShop { namespace Framework {
 
     class Blob;
     class Collector;
+    class Extent;
+    class ExtentGroup;
     class Function;
     class Thread;
     
@@ -152,15 +153,15 @@ namespace OpenSpeedShop { namespace Framework {
 				    const Thread& thread) const = 0;
 
 	/**
-	 * Get a metric value.
+	 * Get metric values.
 	 *
 	 * Pure virtual member function that defines the interface by which a
 	 * collector plugin provides metric values. Gets one of this collector's
-	 * metric values for a particular thread, over a specific address range
-	 * and time interval.
+	 * metric values over all subextents of the specified extent for a
+	 * particular thread, for one of the collected performance data blobs.
 	 *
 	 * @note    Ideally the actual metric type would be used to return the
-	 *          value rather than an untyped pointer. However we don't know
+	 *          values rather than an untyped pointer. However we don't know
 	 *          apriori what type the metric data will be since that is
 	 *          entirely determined by the collector plugin, and we know
 	 *          nothing about the plugins at compile time. The obvious
@@ -170,19 +171,17 @@ namespace OpenSpeedShop { namespace Framework {
 	 *          we thus can't defer implementation to the plugin. Using an
 	 *          untyped pointer was, unfortunately, the best solution.
 	 *
-	 * @param metric       Unique identifier of the metric.
-	 * @param collector    Collector for which to get a value.
-	 * @param thread       Thread for which to get a value.
-	 * @param range        Address range over which to get a value.
-	 * @param interval     Time interval over which to get a value.
-	 * @retval ptr         Untyped pointer to the metric value.
+	 * @param metric        Unique identifier of the metric.
+	 * @param extent        Extent of the performance data blob.
+	 * @param blob          Blob containing the performance data.
+	 * @param subextents    Subextents for which to get values.
+	 * @retval ptr          Untyped pointer to the values of the metric.
 	 */
-	virtual void getMetricValue(const std::string& metric,
-				    const Collector& collector,
-				    const Thread& thread,
-				    const AddressRange& range,
-				    const TimeInterval& interval,
-				    void* ptr) const = 0;
+	virtual void getMetricValues(const std::string& metric,
+				     const Extent& extent,
+				     const Blob& blob,
+				     const ExtentGroup& subextents,
+				     void* ptr) const = 0;
 	
     protected:
 
@@ -196,18 +195,13 @@ namespace OpenSpeedShop { namespace Framework {
 
 	void executeNow(const Collector&, const Thread&,
 			const std::string&, const Blob&) const;
-	void executeAtEntry(const Collector&, const Thread&, const Function&,
+	void executeAtEntry(const Collector&, const Thread&, const std::string&,
 			    const std::string&, const Blob&) const;
-	void executeAtExit(const Collector&, const Thread&, const Function&,
+	void executeAtExit(const Collector&, const Thread&, const std::string&,
 			   const std::string&, const Blob&) const;
 	
 	void uninstrument(const Collector&, const Thread&) const;
 	
-	std::vector<Blob> getData(const Collector&,
-				  const Thread&,
-				  const AddressRange&,
-				  const TimeInterval&) const;
-
     private:
 
 	/** Set of parameters. */

@@ -714,8 +714,8 @@ void Process::executeNow(const Collector& collector,
  *
  * @param collector      Collector requesting the execution.
  * @param thread         Thread in which the function should be executed.
- * @param at_function    Function at whose entry/exit the library function
- *                       should be executed.
+ * @param at_function    Name of the function at whose entry/exit the library
+ *                       function should be executed.
  * @param at_entry       Boolean "true" if instrumenting function's entry point,
  *                       or "false" if function's exit point.
  * @param callee         Name of the library function to be executed.
@@ -723,7 +723,7 @@ void Process::executeNow(const Collector& collector,
  */
 void Process::executeAtEntryOrExit(const Collector& collector,
 				   const Thread& thread,
-				   const Function& at_function,
+				   const std::string& at_function,
 				   const bool& at_entry,
 				   const std::string& callee,
 				   const Blob& argument)
@@ -737,7 +737,7 @@ void Process::executeAtEntryOrExit(const Collector& collector,
 	       << "Process::executeAtEntryOrExit(C"
 	       << EntrySpy(collector).getEntry()  << ", T"
 	       << EntrySpy(thread).getEntry() << ", \"" 
-	       << at_function.getName() << "\", "
+	       << at_function << "\", "
 	       << (at_entry ? "Entry" : "Exit") << ", \""
 	       << callee << "\", ...) for "
 	       << formUniqueName(dm_host, dm_pid) 
@@ -746,42 +746,22 @@ void Process::executeAtEntryOrExit(const Collector& collector,
     }
 #endif
 
-    // Get the starting address of the function to be instrumented
-    Address at_address = at_function.getAddressRange().getBegin();
-
-    // Find the instrumentation point
+    // Find the requested function
+    SourceObj function = findFunction(at_function);
+    
+    // Go no further if the function could not be found
+    if(function.src_type() != SOT_function)
+	return;
+    		
+    // Obtain the entry/exit point to this function
     InstPoint point;
-
-    // Iterate over each module associated with this process
-    SourceObj program = dm_process->get_program_object();
-    for(int m = 0; m < program.child_count(); ++m) {
-	SourceObj module = program.child(m);
-	
-	// Iterate over each function of this module
-	for(int f = 0; f < module.child_count(); ++f)
-	    if(module.child(f).src_type() == SOT_function) {
-		SourceObj function = module.child(f);
-
-		// Ignore if this isn't the correct function
-		if(Address(function.address_start()) != at_address)
-		    continue;
-		
-		// Obtain a probe expression reference to this function
-		ProbeExp function_exp = function.reference();
-		Assert(function_exp.get_node_type() == CEN_function_ref);
-
-		// Obtain the entry/exit point to this function
-		for(int p = 0; p < function.exclusive_point_count(); ++p)
-		    if(function.exclusive_point(p).get_type() ==
-		       (at_entry ? IPT_function_entry : IPT_function_exit))
-			point = function.exclusive_point(p);
-		Assert(point.get_type() == 
-		       (at_entry ? IPT_function_entry : IPT_function_exit));
-		
-	    }
-
-    }    
-
+    for(int p = 0; p < function.exclusive_point_count(); ++p)
+	if(function.exclusive_point(p).get_type() ==
+	   (at_entry ? IPT_function_entry : IPT_function_exit))
+	    point = function.exclusive_point(p);
+    Assert(point.get_type() == 
+	   (at_entry ? IPT_function_entry : IPT_function_exit));
+    
     // Prepare to call the specified library function
     std::pair<ProbeExp, std::multimap<Thread, ProbeHandle>::iterator>
 	prepared = prepareCallTo(collector, thread, callee, argument);
@@ -3489,4 +3469,4 @@ Process::prepareCallTo(const Collector& collector, const Thread& thread,
 
 
 
-} }  // OpenSpeedShop::Framework
+} }  // namespace OpenSpeedShop::Framework

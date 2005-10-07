@@ -24,6 +24,7 @@
 
 #include "Collector.hxx"
 #include "CollectorPluginTable.hxx"
+#include "EntrySpy.hxx"
 #include "ThreadGroup.hxx"
 
 #include <typeinfo>
@@ -58,7 +59,7 @@ std::set<Metadata> Collector::getAvailable()
  * @param other    Collector to be copied.
  */
 Collector::Collector(const Collector& other) :
-    Entry(other.dm_database, other.dm_entry, 0),
+    Entry(other.dm_database, other.dm_table, other.dm_entry),
     dm_impl(NULL)
 {
 }
@@ -130,7 +131,7 @@ Metadata Collector::getMetadata() const
     // Find our unique identifier
     std::string unique_id;
     BEGIN_TRANSACTION(dm_database);
-    validate("Collectors");
+    validate();
     dm_database->prepareStatement(
         "SELECT unique_id FROM Collectors WHERE id = ?;"
         );
@@ -216,7 +217,7 @@ ThreadGroup Collector::getThreads() const
 
     // Find the threads for which we are collecting
     BEGIN_TRANSACTION(dm_database);
-    validate("Collectors");
+    validate();
     dm_database->prepareStatement(
         "SELECT thread "
 	"FROM Collecting "
@@ -250,7 +251,7 @@ ThreadGroup Collector::getPostponedThreads() const
 
     // Find the threads for which we are postponing collection
     BEGIN_TRANSACTION(dm_database);
-    validate("Collectors");
+    validate();
     dm_database->prepareStatement(
         "SELECT thread "
 	"FROM Collecting "
@@ -292,7 +293,7 @@ ThreadGroup Collector::getPostponedThreads() const
 void Collector::startCollecting(const Thread& thread) const
 {
     // Check preconditions
-    Assert(thread.dm_database == dm_database);
+    Assert(inSameDatabase(thread));
     if(dm_impl == NULL) {
 	instantiateImpl();
 	if(dm_impl == NULL)
@@ -306,8 +307,8 @@ void Collector::startCollecting(const Thread& thread) const
 
     // Begin a multi-statement transaction
     BEGIN_TRANSACTION(dm_database);
-    validate("Collectors");
-    thread.validate("Threads");
+    validate();
+    thread.validate();
 
     // Are we collecting and/or postponed for this thread?
     dm_database->prepareStatement(
@@ -385,7 +386,7 @@ void Collector::startCollecting(const Thread& thread) const
 void Collector::postponeCollecting(const Thread& thread) const
 {
     // Check preconditions
-    Assert(thread.dm_database == dm_database);
+    Assert(inSameDatabase(thread));
     if(dm_impl == NULL) {
 	instantiateImpl();
 	if(dm_impl == NULL)
@@ -399,8 +400,8 @@ void Collector::postponeCollecting(const Thread& thread) const
 
     // Begin a multi-statement transaction
     BEGIN_TRANSACTION(dm_database);
-    validate("Collectors");
-    thread.validate("Threads");
+    validate();
+    thread.validate();
 
     // Are we collecting and/or postponed for this thread?
     dm_database->prepareStatement(
@@ -466,7 +467,7 @@ void Collector::postponeCollecting(const Thread& thread) const
 void Collector::stopCollecting(const Thread& thread) const
 {
     // Check preconditions
-    Assert(thread.dm_database == dm_database);
+    Assert(inSameDatabase(thread));
     if(dm_impl == NULL) {
 	instantiateImpl();
 	if(dm_impl == NULL)
@@ -480,8 +481,8 @@ void Collector::stopCollecting(const Thread& thread) const
 
     // Begin a multi-statement transaction
     BEGIN_TRANSACTION(dm_database);
-    validate("Collectors");
-    thread.validate("Threads");
+    validate();
+    thread.validate();
 
     // Are we collecting and/or postponed for this thread?
     dm_database->prepareStatement(
@@ -545,7 +546,7 @@ Collector::Collector() :
  * @param entry       Identifier for this collector.
  */
 Collector::Collector(const SmartPtr<Database>& database, const int& entry) :
-    Entry(database, entry, 0),
+    Entry(database, Entry::Collectors, entry),
     dm_impl(NULL)
 {
 }
@@ -566,7 +567,7 @@ void Collector::instantiateImpl() const
     // Find our unique identifier
     std::string unique_id;
     BEGIN_TRANSACTION(dm_database);
-    validate("Collectors");
+    validate();
     dm_database->prepareStatement(
         "SELECT unique_id FROM Collectors WHERE id = ?;"
         );
@@ -594,7 +595,7 @@ Blob Collector::getParameterData() const
 
     // Find our parameter data
     BEGIN_TRANSACTION(dm_database);
-    validate("Collectors");
+    validate();
     dm_database->prepareStatement(
         "SELECT parameter_data FROM Collectors WHERE id = ?;"
         );
@@ -620,12 +621,72 @@ void Collector::setParameterData(const Blob& data) const
 {
     // Update our parameter data
     BEGIN_TRANSACTION(dm_database);
-    validate("Collectors");
+    validate();
     dm_database->prepareStatement(
 	"UPDATE Collectors SET parameter_data = ? WHERE id = ?;"
 	);
     dm_database->bindArgument(1, data);
     dm_database->bindArgument(2, dm_entry);
     while(dm_database->executeStatement());
+    END_TRANSACTION(dm_database);
+}
+
+
+
+/**
+ * Get our metric values.
+ *
+ * Returns metric values for this collector.
+ *
+ * @param unique_id     Unique identifier of the metric to get.
+ * @param thread        Thread for which to get values.
+ * @param subextents    Subextents for which to get values.
+ * @retval ptr          Untyped pointer to the values of the metric.
+ */
+void Collector::getMetricValues(const std::string& unique_id,
+				const Thread& thread,
+				const ExtentGroup& subextents,
+				void* ptr) const
+{
+    // Check assertions
+    Assert(inSameDatabase(thread));
+    Assert(dm_impl != NULL);
+
+    // Get the bounds of the subextents
+    Extent bounds = subextents.getBounds();
+    
+    // Find the performance data matching the specified criteria
+    BEGIN_TRANSACTION(dm_database);
+    validate();
+    thread.validate();
+    dm_database->prepareStatement(
+	"SELECT time_begin, time_end, "
+	"       addr_begin, addr_end, "
+	"       data "
+	"FROM Data "
+        "WHERE collector = ? AND thread = ? "
+        "  AND ? >= time_begin AND ? < time_end "
+        "  AND ? >= addr_begin AND ? < addr_end;"
+        );
+    dm_database->bindArgument(1, dm_entry);
+    dm_database->bindArgument(2, EntrySpy(thread).getEntry());    
+    dm_database->bindArgument(3, bounds.getTimeInterval().getEnd());
+    dm_database->bindArgument(4, bounds.getTimeInterval().getBegin());
+    dm_database->bindArgument(5, bounds.getAddressRange().getEnd());
+    dm_database->bindArgument(6, bounds.getAddressRange().getBegin());    
+    while(dm_database->executeStatement())
+	
+	// Defer to our implementation
+	dm_impl->getMetricValues(
+	    unique_id,    
+	    Extent(TimeInterval(dm_database->getResultAsTime(1),
+				dm_database->getResultAsTime(2)),
+		   AddressRange(dm_database->getResultAsAddress(3),
+				dm_database->getResultAsAddress(4))),
+	    dm_database->getResultAsBlob(5),
+	    subextents, 
+	    ptr
+	    );
+    
     END_TRANSACTION(dm_database);
 }

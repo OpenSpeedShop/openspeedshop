@@ -83,7 +83,7 @@ WARN_LOGFILE           =
 # configuration options related to the input files
 #---------------------------------------------------------------------------
 INPUT                  = .
-FILE_PATTERNS          = *.doc *.hxx *.cxx *.h *.c
+FILE_PATTERNS          = *.doc *.hxx *.cxx *.txx *.h *.c
 RECURSIVE              = NO
 EXCLUDE                = 
 EXCLUDE_SYMLINKS       = NO

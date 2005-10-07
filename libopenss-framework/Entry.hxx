@@ -44,10 +44,10 @@ namespace OpenSpeedShop { namespace Framework {
     /**       
      * Entry within a database table.
      *
-     * Representation of a single entry within a database table. Really not much
-     * more than a container grouping together the entry's database pointer, its
-     * identifier, and its address space entry (context) identifier. Member
-     * functions are provided here for comparing and validating entries.
+     * Representation of a single entry within a database table. Not much more
+     * than a container grouping together the entry's database pointer, table,
+     * and identifier. Member funtions are provided here for comparing and
+     * validating entries.
      *
      * @ingroup Implementation
      */
@@ -64,23 +64,41 @@ namespace OpenSpeedShop { namespace Framework {
 	
 	void lockDatabase() const;
 	void unlockDatabase() const;
-	
+
     protected:
+
+	/**
+	 * Database table enumeration.
+	 *
+	 * Enumeration defining all the database tables for which an Entry can
+	 * be created. This may not enumerate all possible database tables. It
+	 * contains only those database tables which have a corresponding Entry
+	 * subclass.
+	 */
+	enum Table {
+	    Collectors,     /**< Table of performance data collectors. */
+	    Functions,      /**< Table of source code functions. */
+	    LinkedObjects,  /**< Table of linked objects. */
+	    Statements,     /**< Table of source code statements. */
+	    Threads         /**< Table of threads of code execution. */
+	};
 	
 	Entry();
-	Entry(const SmartPtr<Database>&, const int&, const int&);
+	Entry(const SmartPtr<Database>&, const Table&, const int&);
 	virtual ~Entry();
+
+	std::string getTable() const;
 	
-	void validate(const std::string&) const;
+	void validate() const;
 	
 	/** Database containing this entry. */
         SmartPtr<Database> dm_database;
 
+	/** Table containing this entry. */
+	Table dm_table;
+
 	/** Identifier for this entry. */
 	int dm_entry;
-	
-	/** Identifier of the context (address space entry) for this entry. */
-	int dm_context;
 	
     };
     

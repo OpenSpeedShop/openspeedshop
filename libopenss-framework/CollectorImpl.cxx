@@ -192,14 +192,14 @@ void CollectorImpl::executeNow(const Collector& collector,
  *
  * @param collector    Collector requesting the execution.
  * @param thread       Thread in which the function should be executed.
- * @param where        Function at whose entry the library function should
- *                     be executed.
+ * @param where        Name of the function at whose entry the library function
+ *                     should be executed.
  * @param callee       Name of the library function to be executed.
  * @param argument     Blob argument to the function.
  */
 void CollectorImpl::executeAtEntry(const Collector& collector,
 				   const Thread& thread,
-				   const Function& where,
+				   const std::string& where,
 				   const std::string& callee, 
 				   const Blob& argument) const
 {
@@ -219,14 +219,14 @@ void CollectorImpl::executeAtEntry(const Collector& collector,
  *
  * @param collector    Collector requesting the execution.
  * @param thread       Thread in which the function should be executed.
- * @param where        Function at whose exit the library function should
- *                     be executed.
+ * @param where        Name of the function at whose exit the library function
+ *                     should be executed.
  * @param callee       Name of the library function to be executed.
  * @param argument     Blob argument to the function.
  */
 void CollectorImpl::executeAtExit(const Collector& collector,
 				  const Thread& thread,
-				  const Function& where,
+				  const std::string& where,
 				  const std::string& callee, 
 				  const Blob& argument) const
 {
@@ -251,53 +251,4 @@ void CollectorImpl::uninstrument(const Collector& collector,
 				 const Thread& thread) const
 {
     Instrumentor::uninstrument(thread, collector);
-}
-
-
-
-/**
- * Get performance data.
- *
- * Returns the set of performance data applicable to the specified collector,
- * thread, address range, and time interval. Called by derived classes to obtain
- * raw performance data for calculating metric values.
- *
- * @todo    Returning a list of blobs may be very inefficient if the list size
- *          is large due to the number of times the blob's contenst will be
- *          copied. Using a custom iterator here might be a much better option.
- *
- * @param collector    Collector for which to get data.
- * @param thread       Thread for which to get data.
- * @param range        Address range over which to get data.
- * @param interval     Time interval over which to get data.
- * @return             Applicable performance data.
- */
-std::vector<Blob> CollectorImpl::getData(const Collector& collector, 
-					 const Thread& thread,
-					 const AddressRange& range,
-					 const TimeInterval& interval) const
-{
-    std::vector<Blob> data;
-
-    // Find the data matching the specified criteria
-    SmartPtr<Database> database = EntrySpy(collector).getDatabase();
-    BEGIN_TRANSACTION(database);
-    database->prepareStatement(
-	"SELECT data FROM Data"
-	" WHERE collector = ? AND thread = ?"
-	"   AND ? >= time_begin AND ? < time_end"
-        "   AND ? >= addr_begin AND ? < addr_end;"
-        );
-    database->bindArgument(1, EntrySpy(collector).getEntry());
-    database->bindArgument(2, EntrySpy(thread).getEntry());
-    database->bindArgument(3, interval.getEnd());
-    database->bindArgument(4, interval.getBegin());
-    database->bindArgument(5, range.getEnd());
-    database->bindArgument(6, range.getBegin());
-    while(database->executeStatement())
-	data.push_back(database->getResultAsBlob(1));
-    END_TRANSACTION(database);
-
-    // Return the data to the caller
-    return data;
 }

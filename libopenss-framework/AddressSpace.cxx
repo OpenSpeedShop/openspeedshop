@@ -217,7 +217,6 @@ AddressSpace::updateThreads(const ThreadGroup& threads, const Time& when) const
 	    database->bindArgument(5, e->first.getEnd());
 	    database->bindArgument(6, linked_object);
 	    while(database->executeStatement());
-	    int context = database->getLastInsertedUID();
 
 	    // Does a symbol table need to be built for this linked object?
 	    if(needs_symbol_table) {
@@ -231,9 +230,7 @@ AddressSpace::updateThreads(const ThreadGroup& threads, const Time& when) const
 			).first;
 		
 		// Add this linked object to the entry
-		i->second.insert(
-		    LinkedObject(database, linked_object, context)
-		    );
+		i->second.insert(LinkedObject(database, linked_object));
 		
 	    }
 	    

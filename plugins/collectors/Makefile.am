@@ -17,12 +17,16 @@
 ################################################################################
 
 SUBDIRS = \
-	pcsamp \
-	usertime
-
-if HAVE_PAPI
-SUBDIRS += hwc hwctime
-endif
+	pcsamp
+#
+# WDH: Temporarily disable collectors not ported to "extents"
+#
+#	pcsamp \
+#	usertime
+#
+#if HAVE_PAPI
+#SUBDIRS += hwc hwctime
+#endif
 
 doc:
 	$(DOXYGEN)

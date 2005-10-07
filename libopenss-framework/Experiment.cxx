@@ -80,7 +80,9 @@ namespace {
 	"    addr_end INTEGER,"
 	"    linked_object INTEGER" // From LinkedObjects.id
 	");",
-	
+	"CREATE INDEX IndexAddressSpacesByLinkedObject "
+	"  ON AddressSpaces (linked_object);",
+
 	// Linked Object Table
 	"CREATE TABLE LinkedObjects ("
 	"    id INTEGER PRIMARY KEY,"
@@ -651,7 +653,7 @@ Thread Experiment::attachOpenMPThread(const pid_t& pid, const int& tid,
 void Experiment::removeThread(const Thread& thread) const
 {
     // Check preconditions
-    Assert(EntrySpy(thread).getDatabase() == dm_database);
+    Assert(dm_database == EntrySpy(thread).getDatabase());
 
     // Stop all performance data collection for this thread
     thread.getCollectors().stopCollecting(thread);
@@ -662,7 +664,7 @@ void Experiment::removeThread(const Thread& thread) const
     
     // Begin a multi-statement transaction
     BEGIN_TRANSACTION(dm_database);
-    EntrySpy(thread).validate("Threads");
+    EntrySpy(thread).validate();
 
     // Remove this thread
     dm_database->prepareStatement("DELETE FROM Threads WHERE id = ?;");
@@ -816,11 +818,11 @@ Collector Experiment::createCollector(const std::string& unique_id) const
 void Experiment::removeCollector(const Collector& collector) const
 {
     // Check preconditions
-    Assert(EntrySpy(collector).getDatabase() == dm_database);
+    Assert(dm_database == EntrySpy(collector).getDatabase());
     
     // Begin a multi-statement transaction
     BEGIN_TRANSACTION(dm_database);
-    EntrySpy(collector).validate("Collectors");
+    EntrySpy(collector).validate();
     
     // Stop all performance data collection for this collector
     collector.getThreads().stopCollecting(collector);

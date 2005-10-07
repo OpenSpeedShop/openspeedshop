@@ -25,6 +25,9 @@
 #include "AddressBitmap.hxx"
 #include "Blob.hxx"
 #include "CallSite.hxx"
+#include "EntrySpy.hxx"
+#include "Exception.hxx"
+#include "ExtentGroup.hxx"
 #include "Function.hxx"
 #include "LinkedObject.hxx"
 #include "Statement.hxx"
@@ -35,29 +38,92 @@ using namespace OpenSpeedShop::Framework;
 
 
 /**
- * Get our thread.
+ * Get our threads.
  *
- * Returns the thread containing this function.
+ * Returns the threads containing this function.
  *
- * @return    Thread containing this function.
+ * @return    Threads containing this function.
  */
-Thread Function::getThread() const
+std::set<Thread> Function::getThreads() const
 {
-    Thread thread;
+    std::set<Thread> threads;
 
-    // Find our context's thread    
+    // Find the threads containing our linked object
     BEGIN_TRANSACTION(dm_database);
-    validate("Functions");
+    validate();
     dm_database->prepareStatement(
-	"SELECT thread FROM AddressSpaces WHERE id = ?;"
+	"SELECT DISTINCT AddressSpaces.thread "
+	"FROM Functions "
+	"  JOIN AddressSpaces "
+	"ON Functions.linked_object = AddressSpaces.linked_object "
+	"WHERE Functions.id = ?;"
 	);
-    dm_database->bindArgument(1, dm_context);
+    dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement())
-	thread = Thread(dm_database, dm_database->getResultAsInteger(1));
+	threads.insert(Thread(dm_database, dm_database->getResultAsInteger(1)));
+    if(threads.empty())
+	throw Exception(Exception::EntryNotFound, "Threads",
+			"<Functions-Referenced>");
+    END_TRANSACTION(dm_database);    
+    
+    // Return the threads to the caller
+    return threads;
+}
+
+
+
+/**
+ * Get our extent in a thread.
+ *
+ * Returns the extent of this function within the specified thread. An
+ * empty extent is returned if this function isn't present within the
+ * specified thread.
+ *
+ * @pre    The thread must be in the same experiment as the function. An
+ *         assertion failure occurs if the thread is in a different experiment
+ *         than the function.
+ *
+ * @param thread    Thread in which to find our extent.
+ * @return          Extent of this function in that thread.
+ */
+ExtentGroup Function::getExtentIn(const Thread& thread) const
+{
+    ExtentGroup extent;
+
+    // Check assertions
+    Assert(inSameDatabase(thread));
+
+    // Find our extent in the specified thread
+    BEGIN_TRANSACTION(dm_database);
+    validate();
+    thread.validate();
+    dm_database->prepareStatement(
+	"SELECT AddressSpaces.time_begin, "
+	"       AddressSpaces.time_end, "
+	"       AddressSpaces.addr_begin, "
+	"       Functions.addr_begin, "
+	"       Functions.addr_end "
+	"FROM Functions "
+	"  JOIN AddressSpaces "
+	"ON Functions.linked_object = AddressSpaces.linked_object "
+	"WHERE Functions.id = ? "
+	"  AND AddressSpaces.thread = ?;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    dm_database->bindArgument(2, EntrySpy(thread).getEntry());
+    while(dm_database->executeStatement())
+	extent.push_back(
+	    Extent(TimeInterval(dm_database->getResultAsTime(1),
+				dm_database->getResultAsTime(2)),
+		   AddressRange(dm_database->getResultAsAddress(3) +
+				dm_database->getResultAsAddress(4),
+				dm_database->getResultAsAddress(3) +
+				dm_database->getResultAsAddress(5)))
+	    );
     END_TRANSACTION(dm_database);
     
-    // Return the thread to the caller
-    return thread;
+    // Return the extent to the caller    
+    return extent;
 }
 
 
@@ -73,17 +139,16 @@ LinkedObject Function::getLinkedObject() const
 {
     LinkedObject linked_object;
     
-    // Find our context's linked object
+    // Find our linked object
     BEGIN_TRANSACTION(dm_database);
-    validate("Functions");
+    validate();
     dm_database->prepareStatement(
-	"SELECT linked_object FROM AddressSpaces WHERE id = ?;"
+	"SELECT linked_object FROM Functions WHERE id = ?;"
 	);
-    dm_database->bindArgument(1, dm_context);	
+    dm_database->bindArgument(1, dm_entry);	
     while(dm_database->executeStatement())
 	linked_object = LinkedObject(dm_database,
-				     dm_database->getResultAsInteger(1),
-				     dm_context);
+				     dm_database->getResultAsInteger(1));
     END_TRANSACTION(dm_database);
     
     // Return the linked object to the caller
@@ -105,7 +170,7 @@ std::string Function::getName() const
 
     // Find our demangled name
     BEGIN_TRANSACTION(dm_database);
-    validate("Functions");
+    validate();
     dm_database->prepareStatement(
 	"SELECT name FROM Functions WHERE id = ?;"
 	);
@@ -116,45 +181,6 @@ std::string Function::getName() const
     
     // Return the demangled name to the caller
     return name;
-}
-
-
-
-/**
- * Get our address range.
- *
- * Returns the address range of this function.
- *
- * @return    Address range of this function.
- */
-AddressRange Function::getAddressRange() const
-{
-    AddressRange range;
-
-    // Find our context's base address and our address range
-    BEGIN_TRANSACTION(dm_database);
-    validate("Functions");
-    dm_database->prepareStatement(
-	"SELECT AddressSpaces.addr_begin, "
-	"       Functions.addr_begin, "
-	"       Functions.addr_end "
-	"FROM AddressSpaces "
-	"  JOIN Functions "
-	"ON AddressSpaces.linked_object = Functions.linked_object "
-	"WHERE Functions.id = ? "
-	"  AND AddressSpaces.id = ?;"
-	);	
-    dm_database->bindArgument(1, dm_entry);	
-    dm_database->bindArgument(2, dm_context);	
-    while(dm_database->executeStatement())
-	range = AddressRange(dm_database->getResultAsAddress(1) +
-			     dm_database->getResultAsAddress(2),
-			     dm_database->getResultAsAddress(1) +
-			     dm_database->getResultAsAddress(3));
-    END_TRANSACTION(dm_database);
-    
-    // Return the address range to the caller	
-    return range;
 }
 
 
@@ -173,18 +199,18 @@ std::set<Statement> Function::getDefinitions() const
 
     // Find the statements containing our beginning address
     BEGIN_TRANSACTION(dm_database);
-    validate("Functions");
+    validate();
     dm_database->prepareStatement(
 	"SELECT Functions.addr_begin, "
 	"       Statements.id, "
 	"       StatementRanges.addr_begin, "
 	"       StatementRanges.addr_end, "
 	"       StatementRanges.valid_bitmap "
-	"FROM Functions "
+	"FROM StatementRanges "
 	"  JOIN Statements "
-	"  JOIN StatementRanges "
-	"ON Functions.linked_object = Statements.linked_object "
-	"  AND Statements.id = StatementRanges.statement "
+	"  JOIN Functions "
+	"ON StatementRanges.statement = Statements.id "
+	"  AND Statements.linked_object = Functions.linked_object "
 	"WHERE Functions.id = ? "
 	"  AND Functions.addr_begin >= StatementRanges.addr_begin "
 	"  AND Functions.addr_begin < StatementRanges.addr_end;"
@@ -198,8 +224,7 @@ std::set<Statement> Function::getDefinitions() const
 
 	if(bitmap.getValue(dm_database->getResultAsAddress(1)))
 	    definitions.insert(Statement(dm_database,
-					 dm_database->getResultAsInteger(2),
-					 dm_context));
+					 dm_database->getResultAsInteger(2)));
 	
     }
     END_TRANSACTION(dm_database);
@@ -224,7 +249,7 @@ std::set<Statement> Function::getStatements() const
 
     // Find the statements intersecting our address range
     BEGIN_TRANSACTION(dm_database);
-    validate("Functions");
+    validate();
     dm_database->prepareStatement(
 	"SELECT Functions.addr_begin, "
 	"       Functions.addr_end, "
@@ -232,11 +257,11 @@ std::set<Statement> Function::getStatements() const
 	"       StatementRanges.addr_begin, "
 	"       StatementRanges.addr_end, "
 	"       StatementRanges.valid_bitmap "
-	"FROM Functions "
+	"FROM StatementRanges "
 	"  JOIN Statements "
-	"  JOIN StatementRanges "
-	"ON Functions.linked_object = Statements.linked_object "
-	"  AND Statements.id = StatementRanges.statement "
+	"  JOIN Functions "
+	"ON StatementRanges.statement = Statements.id "
+	"  AND Statements.linked_object = Functions.linked_object "
 	"WHERE Functions.id = ? "
 	"  AND Functions.addr_end >= StatementRanges.addr_begin"
 	"  AND Functions.addr_begin < StatementRanges.addr_end;"
@@ -256,9 +281,8 @@ std::set<Statement> Function::getStatements() const
 
 	for(Address i = range.getBegin(); i != range.getEnd(); ++i)
 	    if(bitmap.getValue(i))
-		statements.insert(Statement(dm_database,
-					    dm_database->getResultAsInteger(3),
-					    dm_context));
+		statements.insert(Statement(dm_database, dm_database->
+					    getResultAsInteger(3)));
 	
     }
     END_TRANSACTION(dm_database);
@@ -324,10 +348,8 @@ Function::Function() :
  *
  * @param database    Database containing this function.
  * @param entry       Identifier for this function.
- * @param context     Identifier of the context for this function.
  */
-Function::Function(const SmartPtr<Database>& database,
-		   const int& entry, const int& context) :
-    Entry(database, entry, context)
+Function::Function(const SmartPtr<Database>& database, const int& entry) :
+    Entry(database, Entry::Functions, entry)
 {
 }

@@ -284,8 +284,8 @@ void Instrumentor::executeNow(const Thread& thread,
  *
  * @param thread         Thread in which the function should be executed.
  * @param collector      Collector requesting the execution.
- * @param at_function    Function at whose entry/exit the library function
- *                       should be executed.
+ * @param at_function    Name of the function at whose entry/exit the library
+ *                       function should be executed.
  * @param at_entry       Boolean "true" if instrumenting function's entry point,
  *                       or "false" if function's exit point.
  * @param callee         Name of the library function to be executed.
@@ -293,7 +293,7 @@ void Instrumentor::executeNow(const Thread& thread,
  */
 void Instrumentor::executeAtEntryOrExit(const Thread& thread,
 					const Collector& collector,
-					const Function& at_function, 
+					const std::string& at_function, 
 					const bool& at_entry,
 					const std::string& callee, 
 					const Blob& argument)

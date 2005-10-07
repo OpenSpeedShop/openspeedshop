@@ -44,13 +44,13 @@
 
 namespace OpenSpeedShop { namespace Framework {
 
-    class Address;
     class Collector;
     class CollectorGroup;
     class Database;
     class Experiment;
     class Function;
     class LinkedObject;
+    class Path;
     template <typename> class SmartPtr;
     class Statement;
     
@@ -64,13 +64,13 @@ namespace OpenSpeedShop { namespace Framework {
      * tools to relate raw performance data gathered by collectors to the
      * source code constructs such as functions or statements.
      *
-     * @note    The existence (creation and destruction) of a Thread object may
+     * @note    The existence (creation and destruction) of a Thread object does
      *          not directly mirror the existence of the real underlying thread.
-     *          One cannot create a Thread for an underlying thread that did
-     *          not exist. An underlying thread, however, may terminate and the
-     *          corresponding Thread object will continue to exist. This class
-     *          serves merely as a proxy for performing operations on the thread
-     *          if and when it exists.
+     *          One can create a Thread for an underlying thread that did not
+     *          exist. An underlying thread may terminate and the corresponding
+     *          Thread object will continue to exist. This class serves as a
+     *          proxy for performing operations on the real thread if and when
+     *          it exists.
      *
      * @ingroup CollectorAPI ToolAPI
      */
@@ -112,24 +112,14 @@ namespace OpenSpeedShop { namespace Framework {
 	std::pair<bool, int> getOpenMPThreadId() const;
 	std::pair<bool, int> getMPIRank() const;
 	
+	std::set<LinkedObject> getLinkedObjects() const;
+	std::set<Function> getFunctions() const;
+	std::set<Statement> getStatements() const;
+	
 	std::pair<bool, LinkedObject> getExecutable(
-	    const Time& = Time::Now()) const;
-	std::set<LinkedObject> getLinkedObjects(
-	    const Time& = Time::Now()) const;
-	std::set<Function> getFunctions(
-	    const Time& = Time::Now()) const;
-	
-	std::pair<bool, LinkedObject> getLinkedObjectAt(
-	    const Address&, const Time& = Time::Now()) const;
-	std::pair<bool, Function> getFunctionAt(
-	    const Address&, const Time& = Time::Now()) const;
-	std::set<Statement> getStatementsAt(
-	    const Address&, const Time& = Time::Now()) const;
-	
-	std::pair<bool, Function> getFunctionByName(
-	    const std::string&, const Time& = Time::Now()) const;
-	std::set<Statement> getStatementsBySourceFile(
-	    const std::string&) const;
+	    const Time& = Time::Now()) const;	
+	std::pair<bool, Function> getFunctionByName(const std::string&) const;
+	std::set<Statement> getStatementsBySourceFile(const Path&) const;
 	
 	CollectorGroup getCollectors() const;
 	CollectorGroup getPostponedCollectors() const;

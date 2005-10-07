@@ -98,8 +98,11 @@ static void Show(const std::string& name)
 
     // Evaluate the collector's time metric for all functions in thread
     SmartPtr<std::map<Function, double> > data;
-    Queries::GetMetricByFunctionInThread(collector, "time", thread, data);
-    
+    Queries::GetMetricOfAllInThread(
+	collector, "time", TimeInterval(Time::TheBeginning(), Time::TheEnd()),
+	thread, data
+	);
+
     // Sort the results
     std::multimap<double, Function> sorted;
     for(std::map<Function, double>::const_iterator

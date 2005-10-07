@@ -76,7 +76,6 @@ namespace OpenSpeedShop { namespace Framework {
 	    DatabaseInvalid,        /**< Database isn't valid. */
 	    EntryNotFound,          /**< Database table entry not found. */
 	    EntryNotUnique,         /**< Database table entry not unique. */
-	    EntryOverlapping,       /**< Database table entries overlap. */
 	    LibraryFuncNotFound,    /**< Library function could not be found. */
 	    LibraryNotFound,        /**< Library could not be found. */
 	    ParameterValueInvalid,  /**< Passed parameter value isn't valid. */

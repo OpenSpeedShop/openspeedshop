@@ -62,7 +62,7 @@ FRAMEWORK_SUBDIRS = \
 	libopenss-runtime \
 	libopenss-framework \
 	libopenss-queries \
-	plugins/collectors \
+	plugins/collectors/pcsamp \
 	examples/libopenss-framework/tool
 
 framework:

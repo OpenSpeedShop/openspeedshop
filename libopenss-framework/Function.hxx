@@ -29,7 +29,6 @@
 #include "config.h"
 #endif
 
-#include "AddressRange.hxx"
 #include "Entry.hxx"
 
 #include <set>
@@ -41,6 +40,7 @@ namespace OpenSpeedShop { namespace Framework {
 
     class CallSite;
     class Database;
+    class ExtentGroup;
     class LinkedObject;
     template <typename> class SmartPtr;
     class Statement;
@@ -50,8 +50,8 @@ namespace OpenSpeedShop { namespace Framework {
      * Source code function.
      *
      * Representation of a source code function. Provides member functions for
-     * getting the containing thread and linked object, demangled name, address
-     * range, definitions, statements, callees, and callers of this function.
+     * requesting information about this function, where it is contained, and
+     * what it contains.
      *
      * @ingroup CollectorAPI ToolAPI
      */
@@ -64,21 +64,21 @@ namespace OpenSpeedShop { namespace Framework {
 	
     public:
 	
-	Thread getThread() const;
+	std::set<Thread> getThreads() const;
+	ExtentGroup getExtentIn(const Thread&) const;
 	LinkedObject getLinkedObject() const;
 	
 	std::string getName() const;
-	AddressRange getAddressRange() const;
 	
 	std::set<Statement> getDefinitions() const;
 	std::set<Statement> getStatements() const;
 	std::set<CallSite> getCallees() const;
 	std::set<CallSite> getCallers() const;
-	
+
     private:
 	
 	Function();
-	Function(const SmartPtr<Database>&, const int&, const int&);
+	Function(const SmartPtr<Database>&, const int&);
 	
     };
     

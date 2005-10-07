@@ -169,13 +169,9 @@ void PCSampCollector::startCollecting(const Collector& collector,
     Blob arguments(reinterpret_cast<xdrproc_t>(xdr_pcsamp_start_sampling_args),
                    &args);
 
-    // Find exit() in this thread
-    std::pair<bool, Function> exit = thread.getFunctionByName("exit");
-    
     // Execute pcsamp_stop_sampling() when we enter exit() for the thread
-    if(exit.first)
-	executeAtEntry(collector, thread, exit.second,
-		       "pcsamp-rt: pcsamp_stop_sampling", Blob());
+    executeAtEntry(collector, thread, 
+		   "exit", "pcsamp-rt: pcsamp_stop_sampling", Blob());
     
     // Execute pcsamp_start_sampling() in the thread
     executeNow(collector, thread, 
@@ -206,65 +202,76 @@ void PCSampCollector::stopCollecting(const Collector& collector,
 
 
 /**
- * Get a metric value.
+ * Get metric values.
  *
- * Implement getting one of our metric values for a particular thread, over a
- * specific address range and time interval.
+ * Implements getting one of this collector's metric values over all subextents
+ * of the specified extent for a particular thread, for one of the collected
+ * performance data blobs.
  *
- * @param metric       Unique identifier of the metric.
- * @param collector    Collector for which to get a value.
- * @param thread       Thread for which to get a value.
- * @param range        Address range over which to get a value.
- * @param interval     Time interval over which to get a value.
- * @param ptr          Untyped pointer to the return value.
+ * @param metric        Unique identifier of the metric.
+ * @param extent        Extent of the performance data blob.
+ * @param blob          Blob containing the performance data.
+ * @param subextents    Subextents for which to get values.
+ * @retval ptr          Untyped pointer to the values of the metric.
  */
-void PCSampCollector::getMetricValue(const std::string& metric,
-				     const Collector& collector,
-				     const Thread& thread,
-				     const AddressRange& range,
-				     const TimeInterval& interval,
-				     void* ptr) const
+void PCSampCollector::getMetricValues(const std::string& metric,
+				      const Extent& extent,
+				      const Blob& blob,
+				      const ExtentGroup& subextents,
+				      void* ptr) const
 {
-    // Handle the "time" metric
-    if(metric == "time") {
-        double* value = reinterpret_cast<double*>(ptr);
+    // Check assertions
+    Assert(metric == "time");
 
-        // Initialize the time metric value to zero
-        *value = 0.0;
+    // Cast the untyped pointer into a vector of doubles
+    std::vector<double>* values = reinterpret_cast<std::vector<double>*>(ptr);
+    
+    // Check assertions
+    Assert(values->size() >= subextents.size());
+
+    // Decode this data blob
+    pcsamp_data data;
+    memset(&data, 0, sizeof(data));
+    blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_pcsamp_data), &data);
+    
+    // Check assertions
+    Assert(data.pc.pc_len == data.count.count_len);
+
+    // Calculate time (in nS) of data blob's extent
+    double t_blob = static_cast<double>(extent.getTimeInterval().getWidth());
+    
+    // Iterate over each of the samples
+    for(unsigned i = 0; i < data.pc.pc_len; ++i) {
 	
-        // Obtain all the data blobs applicable to the requested metric value
-        std::vector<Blob> data_blobs =
-            getData(collector, thread, range, interval);
+	// Find the subextents that contain this sample
+	std::set<ExtentGroup::size_type> intersection = 
+	    subextents.getIntersectionWith(
+		Extent(extent.getTimeInterval(),
+		       AddressRange(data.pc.pc_val[i]))
+		);
 	
-        // Iterate over each of the data blobs
-        for(std::vector<Blob>::const_iterator
-                i = data_blobs.begin(); i != data_blobs.end(); ++i) {
-
-            // Decode this data blob
-            pcsamp_data data;
-            memset(&data, 0, sizeof(data));
-            i->getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_pcsamp_data),
-                              &data);
+	// Calculate the time (in seconds) attributable to this sample
+	double t_sample = static_cast<double>(data.count.count_val[i]) *
+	    static_cast<double>(data.interval) / 1000000000.0;
+	
+	// Iterate over each subextent in the intersection
+	for(std::set<ExtentGroup::size_type>::const_iterator
+		j = intersection.begin(); j != intersection.end(); ++j) {
 	    
-            // Check assertions
-            Assert(data.pc.pc_len == data.count.count_len);
+	    // Calculate intersection time (in nS) of subextent and data blob
+	    double t_intersection = static_cast<double>
+		((extent.getTimeInterval() & 
+		  subextents[*j].getTimeInterval()).getWidth());	    
 
-            // Iterate over each of the samples
-            for(unsigned j = 0; j < data.pc.pc_len; ++j)
-		
-                // Is this PC address inside the range?
-                if(range.doesContain(data.pc.pc_val[j]))
-		    
-                    // Add this sample count's time to the time metric value
-                    *value += static_cast<double>(data.count.count_val[j]) *
-                        static_cast<double>(data.interval) /
-                        1000000000.0;
+	    // Add (to the subextent's metric value) the appropriate fraction
+	    // of the total time attributable to this sample
+	    (*values)[*j] += t_sample * (t_intersection / t_blob);
 	    
-            // Free the decoded data blob
-            xdr_free(reinterpret_cast<xdrproc_t>(xdr_pcsamp_data),
-                     reinterpret_cast<char*>(&data));
-	    
-        }
-
+	}
+	
     }
+    
+    // Free the decoded data blob
+    xdr_free(reinterpret_cast<xdrproc_t>(xdr_pcsamp_data),
+	     reinterpret_cast<char*>(&data));
 }

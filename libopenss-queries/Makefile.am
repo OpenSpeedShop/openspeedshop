@@ -29,8 +29,9 @@ libopenss_queries_la_LIBADD = \
 	-lopenss-framework
 
 libopenss_queries_la_SOURCES = \
-	GetMetricByFunction.cxx \
-	GetMetricByStatement.cxx \
+	GetMetricByStatement.txx \
+	GetMetricInThread.txx \
+	GetMetricOfAllInThread.txx GetMetricOfAllInThread.cxx \
 	Queries.hxx
 
 doc:

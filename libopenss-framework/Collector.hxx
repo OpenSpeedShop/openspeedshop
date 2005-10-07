@@ -35,11 +35,13 @@
 #include "CollectorImpl.hxx"
 #include "Entry.hxx"
 #include "Exception.hxx"
+#include "ExtentGroup.hxx"
 #include "Metadata.hxx"
 #include "TimeInterval.hxx"
 
 #include <set>
 #include <string>
+#include <vector>
 
 
 
@@ -108,6 +110,10 @@ namespace OpenSpeedShop { namespace Framework {
 	void getMetricValue(const std::string&, const Thread&,
 			    const AddressRange&, const TimeInterval&, T&) const;
 	
+	template <typename T>
+	void getMetricValues(const std::string&, const Thread&,
+			     const ExtentGroup&, std::vector<T >&) const;
+	
 	ThreadGroup getThreads() const;
 	ThreadGroup getPostponedThreads() const;
         void startCollecting(const Thread&) const;	
@@ -122,6 +128,8 @@ namespace OpenSpeedShop { namespace Framework {
 	void instantiateImpl() const;
 	Blob getParameterData() const;
 	void setParameterData(const Blob&) const;
+	void getMetricValues(const std::string&, const Thread&,
+			     const ExtentGroup&, void*) const;
 	
 	/** Collector's implementation. */
 	mutable CollectorImpl* dm_impl;
@@ -265,7 +273,58 @@ namespace OpenSpeedShop { namespace Framework {
 				   const TimeInterval& interval,
 				   T& value) const
     {
+	// Construct an extent containing this single subextent
+	Extent extent;
+	extent.addSubextent(std::make_pair(interval, range));
+
+	// Construct a vector to hold the result value
+	std::vector<T > values(1, T());
+	
+	// Get our metric value
+	getMetricValues(unique_id, thread, values);
+	
+	// Extract the metric value
+	value = values[0];
+    }
+
+
+
+    /**
+     * Get metric values.
+     *
+     * Returns one of this collector's metric values over all subextents of the
+     * specified extent for a particular thread. 
+     * 
+     * @pre    The thread must be in the same experiment as the collector.
+     *         An assertion failure occurs if the thread is in a different
+     *         experiment than the collector.
+     *
+     * @pre    Can only be performed on collectors for which an implementation
+     *         can be instantiated. A CollectorUnavailable exception is thrown
+     *         if the collector's implementation cannot be instantiated.
+     *
+     * @pre    Metrics must be declared for the collector before they can
+     *         be accessed. An assertion failure occurs if the metric wasn't
+     *         previously declared.
+     *
+     * @pre    Metric values can only be returned in a value of the same type
+     *         as themselves. No implicit type conversion is allowed. An
+     *         assertion failure occurs if the metric is accessed as a type
+     *         other than its own.
+     *
+     * @param unique_id     Unique identifier of the metric to get.
+     * @param thread        Thread for which to get values.
+     * @param subextents    Subextents for which to get values.
+     * @retval values       Values of the metric.
+     */
+    template <typename T>
+    void Collector::getMetricValues(const std::string& unique_id,
+				    const Thread& thread,
+				    const ExtentGroup& subextents,
+				    std::vector<T >& values) const
+    {
 	// Check preconditions
+	Assert(inSameDatabase(thread));
 	if(dm_impl == NULL) {
 	    instantiateImpl();
 	    if(dm_impl == NULL)
@@ -280,10 +339,13 @@ namespace OpenSpeedShop { namespace Framework {
         // Check preconditions
 	Assert(i != dm_impl->getMetrics().end());
 	Assert(i->isType(typeid(T)));
-
-        // Get the metric value
-        dm_impl->getMetricValue(unique_id, *this, thread,
-				range, interval, &value);	
+	
+	// Insure vector of values is large enough to contain the results
+	if(values.size() < subextents.size())
+	    values.resize(subextents.size(), T());
+	
+	// Get our metric values
+	getMetricValues(unique_id, thread, subextents, &values);
     }
     
     

@@ -22,10 +22,14 @@
  *
  */
 
+#include "Assert.hxx"
+#include "EntrySpy.hxx"
 #include "Exception.hxx"
+#include "ExtentGroup.hxx"
 #include "Function.hxx"
 #include "LinkedObject.hxx"
 #include "Path.hxx"
+#include "Statement.hxx"
 #include "Thread.hxx"
 
 using namespace OpenSpeedShop::Framework;
@@ -33,29 +37,83 @@ using namespace OpenSpeedShop::Framework;
 
 
 /**
- * Get our thread.
+ * Get our threads.
  *
- * Returns the thread containing this linked object.
+ * Returns the threads containing this linked object.
  *
- * @return    Thread containing this linked object.
+ * @return    Threads containing this linked object.
  */
-Thread LinkedObject::getThread() const
+std::set<Thread> LinkedObject::getThreads() const
 {
-    Thread thread;
+    std::set<Thread> threads;
 
-    // Find our context's thread
+    // Find the threads containing this linked object
     BEGIN_TRANSACTION(dm_database);
-    validate("LinkedObjects");
+    validate();
     dm_database->prepareStatement(
-	"SELECT thread FROM AddressSpaces WHERE id = ?;"
-	);
-    dm_database->bindArgument(1, dm_context);
+	"SELECT DISTINCT thread FROM AddressSpaces WHERE linked_object = ?;"
+	);    
+    dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement())
-	thread = Thread(dm_database, dm_database->getResultAsInteger(1));
+	threads.insert(Thread(dm_database, dm_database->getResultAsInteger(1)));
+    if(threads.empty())
+	throw Exception(Exception::EntryNotFound, "Threads",
+			"<LinkedObjects-Referenced>");
     END_TRANSACTION(dm_database);
     
-    // Return the thread to the caller
-    return thread;
+    // Return the threads to the caller
+    return threads;
+}
+
+
+
+/**
+ * Get our extent in a thread.
+ *
+ * Returns the extent of this linked object within the specified thread.
+ * An empty extent is returned if this linked object isn't present within
+ * the specified thread.
+ *
+ * @pre    The thread must be in the same experiment as the linked object. An
+ *         assertion failure occurs if the thread is in a different experiment
+ *         than the linked object.
+ *
+ * @param thread    Thread in which to find our extent.
+ * @return          Extent of this linked object in that thread.
+ */
+ExtentGroup LinkedObject::getExtentIn(const Thread& thread) const
+{
+    ExtentGroup extent;
+
+    // Check assertions
+    Assert(inSameDatabase(thread));
+
+    // Find our extent in the specified thread
+    BEGIN_TRANSACTION(dm_database);
+    validate();
+    thread.validate();
+    dm_database->prepareStatement(
+	"SELECT time_begin, "
+	"       time_end, "
+	"       addr_begin, "
+	"       addr_end "
+	"FROM AddressSpaces "
+	"WHERE linked_object = ? "
+	"  AND thread = ?;"
+	);    
+    dm_database->bindArgument(1, dm_entry);
+    dm_database->bindArgument(2, EntrySpy(thread).getEntry());
+    while(dm_database->executeStatement())
+	extent.push_back(
+	    Extent(TimeInterval(dm_database->getResultAsTime(1),
+				dm_database->getResultAsTime(2)),
+		   AddressRange(dm_database->getResultAsAddress(3),
+				dm_database->getResultAsAddress(4)))
+	    );
+    END_TRANSACTION(dm_database);
+    
+    // Return the extent to the caller    
+    return extent;
 }
 
 
@@ -73,12 +131,12 @@ Path LinkedObject::getPath() const
 
     // Find our full path name
     BEGIN_TRANSACTION(dm_database);
-    validate("LinkedObjects");
+    validate();
     dm_database->prepareStatement(
 	"SELECT Files.path "
-	"FROM Files "
-	"  JOIN LinkedObjects "
-	"ON Files.id = LinkedObjects.file "
+	"FROM LinkedObjects "
+	"  JOIN Files "
+	"ON LinkedObjects.file = Files.id "
 	"WHERE LinkedObjects.id = ?;"
 	);
     dm_database->bindArgument(1, dm_entry);
@@ -100,35 +158,6 @@ Path LinkedObject::getPath() const
 
 
 /**
- * Get our address range.
- *
- * Returns the address range of this linked object.
- *
- * @return    Address range of this linked object.
- */
-AddressRange LinkedObject::getAddressRange() const
-{
-    AddressRange range;
-
-    // Find our context's address range
-    BEGIN_TRANSACTION(dm_database);
-    validate("LinkedObjects");
-    dm_database->prepareStatement(
-	"SELECT addr_begin, addr_end FROM AddressSpaces WHERE id = ?;"
-	);
-    dm_database->bindArgument(1, dm_context);
-    while(dm_database->executeStatement())
-	range = AddressRange(dm_database->getResultAsAddress(1),
-			     dm_database->getResultAsAddress(2));
-    END_TRANSACTION(dm_database);
-    
-    // Return the address range to the caller
-    return range;
-}
-
-
-
-/**
  * Test if we are an executable.
  *
  * Returns a boolean value indicating if this linked object is an executable or
@@ -145,7 +174,7 @@ bool LinkedObject::isExecutable() const
 
     // Find if we are an executable
     BEGIN_TRANSACTION(dm_database);
-    validate("LinkedObjects");
+    validate();
     dm_database->prepareStatement(
 	"SELECT is_executable FROM LinkedObjects WHERE id = ?;"
 	);
@@ -166,9 +195,6 @@ bool LinkedObject::isExecutable() const
  * Returns the functions contained within this linked object. An empty set is
  * returned if no functions are found within this linked object.
  *
- * @note    This is a relatively high cost operation in terms of time and memory
- *          used. Avoid using this member function if possible.
- *
  * @return    Functions contained within this linked object.
  */
 std::set<Function> LinkedObject::getFunctions() const
@@ -177,19 +203,48 @@ std::set<Function> LinkedObject::getFunctions() const
 
     // Find our functions
     BEGIN_TRANSACTION(dm_database);
-    validate("LinkedObjects");
+    validate();
     dm_database->prepareStatement(
 	"SELECT id FROM Functions WHERE linked_object = ?;"
 	);	
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement())
 	functions.insert(Function(dm_database, 
-				  dm_database->getResultAsInteger(1),
-				  dm_context));    
+				  dm_database->getResultAsInteger(1)));
     END_TRANSACTION(dm_database);
     
     // Return the functions to the caller
     return functions;
+}
+
+
+
+/**
+ * Get our statements.
+ *
+ * Returns the statements contained within this linked object. An empty set is
+ * returned if no statements are found within this linked object.
+ *
+ * @return    Statements contained within this linked object.
+ */
+std::set<Statement> LinkedObject::getStatements() const
+{
+    std::set<Statement> statements;
+
+    // Find our statements
+    BEGIN_TRANSACTION(dm_database);
+    validate();
+    dm_database->prepareStatement(
+	"SELECT id FROM Statements WHERE linked_object = ?;"
+	);	
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement())
+	statements.insert(Statement(dm_database,
+				    dm_database->getResultAsInteger(1)));
+    END_TRANSACTION(dm_database);
+    
+    // Return the statements to the caller
+    return statements;
 }
 
 
@@ -215,10 +270,9 @@ LinkedObject::LinkedObject() :
  *
  * @param database    Database containing this linked object.
  * @param entry       Identifier for this linked object.
- * @param context     Identifier of the context for this linked object.
  */
 LinkedObject::LinkedObject(const SmartPtr<Database>& database,
-			   const int& entry, const int& context) :
-    Entry(database, entry, context)
+			   const int& entry) :
+    Entry(database, Entry::LinkedObjects, entry)
 {
 }

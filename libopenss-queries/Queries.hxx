@@ -29,20 +29,14 @@
 #include "config.h"
 #endif
 
+#include "ToolAPI.hxx"
+
 #include <map>
 #include <string>
 
 
 
 namespace OpenSpeedShop {
-
-    namespace Framework {
-	class Collector;
-	class Function;
-	template <typename> class SmartPtr;
-	class Statement;
-	class Thread;
-    }
 
     /**
      * Enclosing namespace for the <em>Open|SpeedShop</em> query library.
@@ -53,73 +47,48 @@ namespace OpenSpeedShop {
      * same API that is available directly to every tool. The intention is
      * simply to promote re-use by providing some of the more commonly used 
      * queries.
-     *
-     * @todo    Currently these queries make the assumption that a given source
-     *          entity (function, statement, etc.) does not change addresses
-     *          during the lifetime of the thread. This is not, of course,
-     *          necessarily true in the presence of dlopen() and dlclose().
-     *          While the framework, etc. is setup to handle the reality of
-     *          moving shared libraries, the interface into this is awkward at
-     *          present. In the future this assumption should be removed.
      */
     namespace Queries
     {
 
-	void GetMetricByFunctionInThread(
-	    const Framework::Collector&, 
-	    const std::string&,
-	    const Framework::Thread&,
-	    Framework::SmartPtr<std::map<Framework::Function, double> >&
-	    );
-
-	void GetUIntMetricByFunctionInThread(
-	    const Framework::Collector&, 
-	    const std::string&,
-	    const Framework::Thread&,
-	    Framework::SmartPtr<std::map<Framework::Function, unsigned int> >&
-	    );
-
-	void GetUInt64MetricByFunctionInThread(
-	    const Framework::Collector&, 
-	    const std::string&,
-	    const Framework::Thread&,
-	    Framework::SmartPtr<std::map<Framework::Function, uint64_t> >&
-	    );
-
-	void GetMetricByStatementInFileForThread(
+	template <typename TS, typename TM>
+	void GetMetricInThread(
 	    const Framework::Collector&,
 	    const std::string&,
-	    const std::string&,
+	    const Framework::TimeInterval&,
 	    const Framework::Thread&,
-	    Framework::SmartPtr<std::map<int, double> >&
+	    const std::set<TS >&,
+	    Framework::SmartPtr<std::map<TS, TM > >&
 	    );
 
-	void GetUIntMetricByStatementInFileForThread(
+	template <typename TS, typename TM>
+	void GetMetricOfAllInThread(
 	    const Framework::Collector&,
 	    const std::string&,
-	    const std::string&,
+	    const Framework::TimeInterval&,
 	    const Framework::Thread&,
-	    Framework::SmartPtr<std::map<int, unsigned int> >&
+	    Framework::SmartPtr<std::map<TS, TM > >&
 	    );
 
-	void GetUIntMetricByStatementInFileForThread(
+	template <typename TS, typename TM>
+	void GetMetricByStatementOfFileInThread(
 	    const Framework::Collector&,
 	    const std::string&,
-	    const std::string&,
+	    const Framework::TimeInterval&,
 	    const Framework::Thread&,
-	    Framework::SmartPtr<std::map<int, uint64_t> >&
+	    const Framework::Path&,
+	    Framework::SmartPtr<std::map<int, TM > >&
 	    );
 
-	void GetMetricByStatementInFunction(
-	    const Framework::Collector&, 
-	    const std::string&,
-	    const Framework::Function&,
-	    Framework::SmartPtr<std::map<Framework::Statement, double> >&
-	    );
-	
     }
-    
+
 }
+
+
+
+#include "GetMetricInThread.txx"
+#include "GetMetricOfAllInThread.txx"
+#include "GetMetricByStatement.txx"
 
 
 
