@@ -70,7 +70,7 @@ namespace OpenSpeedShop {
 	    Framework::SmartPtr<std::map<TS, TM > >&
 	    );
 
-	template <typename TS, typename TM>
+	template <typename TM>
 	void GetMetricByStatementOfFileInThread(
 	    const Framework::Collector&,
 	    const std::string&,
