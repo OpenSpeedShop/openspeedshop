@@ -448,9 +448,11 @@ Thread Experiment::createProcess(const std::string& command,
     catch(...) {
 
 	// Remove this thread from the database
+	BEGIN_TRANSACTION(dm_database);
 	dm_database->prepareStatement("DELETE FROM Threads WHERE id = ?;");
 	dm_database->bindArgument(1, EntrySpy(thread).getEntry());
 	while(dm_database->executeStatement());    
+	END_TRANSACTION(dm_database);
 
 	// Re-throw exception upwards
 	throw;
