@@ -273,17 +273,15 @@ namespace OpenSpeedShop { namespace Framework {
 				   const TimeInterval& interval,
 				   T& value) const
     {
-	// Construct an extent containing this single subextent
-	Extent extent;
-	extent.addSubextent(std::make_pair(interval, range));
+	// Construct an extent group containing this single subextent
+	ExtentGroup subextents;
+	subextents.push_back(Extent(interval, range));
 
-	// Construct a vector to hold the result value
-	std::vector<T > values(1, T());
+	// Evalute the metric value for this subextent
+	std::vector<T > values;
+	getMetricValues(unique_id, thread, subextents, values);
 	
-	// Get our metric value
-	getMetricValues(unique_id, thread, values);
-	
-	// Extract the metric value
+	// Provide the metric value to the caller
 	value = values[0];
     }
 
