@@ -872,6 +872,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 // printf("A: filename=(%s)\n", filename.ascii() );
 
 
+#ifdef QUESTION_WDH
   QApplication::setOverrideCursor(QCursor::WaitCursor);
 
   // Begin Find the file/function pair.
@@ -942,7 +943,12 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
         if( item->text(0).contains(".") )
         {
         // If double
-          Queries::GetMetricByStatementInFileForThread(*currentCollector, currentMetricStr.ascii(), di->getPath(), *currentThread, orig_double_statement_data);
+//          Queries::GetMetricByStatementInFileForThread(*currentCollector, currentMetricStr.ascii(), di->getPath(), *currentThread, orig_double_statement_data);
+#ifdef QUESTION_WDH
+          Queries::GetMetricOfAllInThread(*currentCollector, currentMetricStr.ascii(), TimeInterval(Time::TheBeginning(),Time::TheEnd()), di->getPath(), *currentThread, orig_double_statement_data);
+#else // QUESTION_WDH
+printf("QUESTION_WDH\n");
+#endif // QUESTION_WDH
 
 // printf("orig_double_statement_data->size(%d)\n", orig_double_statement_data->size() );
 
@@ -965,7 +971,12 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
         } else
         {
           // Not a double value...
-          Queries::GetUIntMetricByStatementInFileForThread(*currentCollector, currentMetricStr.ascii(), di->getPath(), *currentThread, orig_uint64_statement_data);
+//          Queries::GetUIntMetricByStatementInFileForThread(*currentCollector, currentMetricStr.ascii(), di->getPath(), *currentThread, orig_uint64_statement_data);
+#ifdef QUESTION_WDH
+          Queries::GetMetricOfAllInThread(*currentCollector, currentMetricStr.ascii(), TimeInterval(Time::TheBeginning(),Time::TheEnd()), di->getPath(), *currentThread, orig_uint64_statement_data);
+#else // QUESTION_WDH
+printf("QUESTION_WDH\n");
+#endif // QUESTION_WDH
       
 // printf("orig_uint64_statement_data->size(%d)\n", orig_uint64_statement_data->size() );
 
@@ -1056,6 +1067,9 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
     QApplication::restoreOverrideCursor( );
     return FALSE;
   }
+#else // QUESTION_WDH
+printf("QUESTION_WDH\n");
+#endif // QUESTION_WDH
 // End Find the file/function pair.
 
 }

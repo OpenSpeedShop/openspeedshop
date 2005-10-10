@@ -946,6 +946,7 @@ UserTimePanel::loadMain()
 
   if( experiment != NULL )
   {
+#ifdef QUESTION_WDH
     ThreadGroup tgrp = experiment->getThreads();
     ThreadGroup::iterator ti = tgrp.begin();
     if( tgrp.size() == 0 )
@@ -956,9 +957,8 @@ UserTimePanel::loadMain()
       return;
     }
     Thread thread = *ti;
-    Time time = Time::Now();
     const std::string main_string = std::string("main");
-    std::pair<bool, Function> function = thread.getFunctionByName(main_string, time);
+    std::pair<bool, Function> function = thread.getFunctionByName(main_string);
     if( function.first )
     {
       std::set<Statement> statement_definition = function.second.getDefinitions();
@@ -991,7 +991,9 @@ UserTimePanel::loadMain()
 //      QMessageBox::information( this, "Experiment Information", "Unable to locate the main routine of the program to position the Source Panel.\nYour Source Panel may appear blank.\nHit the \"Run\" button to continue/start execution.", QMessageBox::Ok );
     }
     statusLabelText->setText( tr("Experiment is loaded:  Hit the \"Run\" button to continue execution.") );
-
+#else // QUESTION_WDH
+printf("QUESTION_WDH\n");
+#endif  // QUESTION_WDH
     updateStatus();
   } else
   {

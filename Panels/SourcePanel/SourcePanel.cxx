@@ -628,9 +628,10 @@ SourcePanel::goToFunction()
           return;
         }
         Thread thread = *ti;
-        Time time = Time::Now();
+//        Time time = Time::Now();
         const std::string func_string = std::string(text.ascii());
-        std::pair<bool, Function>  function = thread.getFunctionByName(func_string, time);
+//        std::pair<bool, Function>  function = thread.getFunctionByName(func_string, time);
+        std::pair<bool, Function>  function = thread.getFunctionByName(func_string);
         std::set<Statement> statement_definition = function.second.getDefinitions();
         if( statement_definition.size() > 0 )
         {
