@@ -35,7 +35,6 @@
 
     Currently Panels are the only thing reparented in the base functionality.
 
-    Author: Al Stipek   (stipek@sgi.com)
  */
 
 #include "Panel.hxx"

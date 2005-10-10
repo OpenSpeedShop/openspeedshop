@@ -26,7 +26,6 @@
     menus.
 
 
-    Author: Al Stipek   (stipek@sgi.com)
  */
 
 #include <unistd.h>

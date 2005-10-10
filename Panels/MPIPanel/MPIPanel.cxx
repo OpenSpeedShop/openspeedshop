@@ -72,7 +72,6 @@ class EPOutputClass : public ss_ostream
 
 /*!  MPIPanel Class
 
-     Autor: Al Stipek (stipek@sgi.com)
  */
 
 /*! Constructs a new UserPanel object */

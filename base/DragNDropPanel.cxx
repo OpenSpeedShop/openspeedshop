@@ -36,7 +36,6 @@
 
     Control is then returned to the event loop.
 
-    Author: Al Stipek   (stipek@sgi.com)
  */
 
 #include "debug.hxx"  // This includes the definition of nprintf

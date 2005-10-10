@@ -72,7 +72,6 @@ class EPOutputClass : public ss_ostream
 
 /*!  UserTimePanel Class
 
-     Autor: Al Stipek (stipek@sgi.com)
  */
 
 /*! Constructs a new UserPanel object */

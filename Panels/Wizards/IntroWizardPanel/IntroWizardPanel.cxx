@@ -21,11 +21,6 @@
      asks the highest level questions attempting to take 
      the user to a more specific wizard panel (i.e. pc sampline
      wizrard)
-
-     This is only prototype code.   It was created using
-     Qt Designer, then the code was pulled into this class.
-
-     Autor: Al Stipek (stipek@sgi.com)
  */
 
 #include "IntroWizardPanel.hxx"

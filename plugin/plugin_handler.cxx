@@ -29,7 +29,6 @@
     After the plugins are all loaded control is returned back to the 
     event loop to wait for menu requests to actually create the user panels.
 
-    Author: Al Stipek   (stipek@sgi.com)
  */
 
 #include <unistd.h>

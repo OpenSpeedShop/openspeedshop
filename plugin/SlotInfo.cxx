@@ -23,7 +23,6 @@
     add new Panels defined by the plugins.
 
 
-    Author: Al Stipek   (stipek@sgi.com)
  */
 
 #include "SlotInfo.hxx"

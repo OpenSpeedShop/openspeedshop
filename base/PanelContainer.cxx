@@ -56,7 +56,6 @@
     These hidden panel containers will be recovered at the first possible 
     opportunity.
 
-    Author: Al Stipek   (stipek@sgi.com)
  */
 
 #include "debug.hxx"  // This includes the definition of nprintf(DEBUG_PANELCONTAINERS) 

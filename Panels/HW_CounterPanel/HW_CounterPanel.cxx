@@ -72,7 +72,6 @@ class EPOutputClass : public ss_ostream
 
 /*!  HW_CounterPanel Class
 
-     Autor: Al Stipek (stipek@sgi.com)
  */
 
 /*! Constructs a new UserPanel object */
