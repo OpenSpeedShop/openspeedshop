@@ -872,7 +872,6 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 // printf("A: filename=(%s)\n", filename.ascii() );
 
 
-#ifdef QUESTION_WDH
   QApplication::setOverrideCursor(QCursor::WaitCursor);
 
   // Begin Find the file/function pair.
@@ -892,7 +891,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
       Thread thread = *ti;
       Time time = Time::Now();
       const std::string lookup_string = std::string(function_name.ascii());
-      std::pair<bool, Function> function = thread.getFunctionByName(lookup_string, time);
+      std::pair<bool, Function> function = thread.getFunctionByName(lookup_string);
       std::set<Statement> statement_definition;
       statement_definition.clear();
       if( function.first )
@@ -944,11 +943,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
         {
         // If double
 //          Queries::GetMetricByStatementInFileForThread(*currentCollector, currentMetricStr.ascii(), di->getPath(), *currentThread, orig_double_statement_data);
-#ifdef QUESTION_WDH
-          Queries::GetMetricOfAllInThread(*currentCollector, currentMetricStr.ascii(), TimeInterval(Time::TheBeginning(),Time::TheEnd()), di->getPath(), *currentThread, orig_double_statement_data);
-#else // QUESTION_WDH
-printf("QUESTION_WDH\n");
-#endif // QUESTION_WDH
+          Queries::GetMetricByStatementOfFileInThread(*currentCollector, currentMetricStr.ascii(), TimeInterval(Time::TheBeginning(),Time::TheEnd()), *currentThread, Path(di->getPath()), orig_double_statement_data);
 
 // printf("orig_double_statement_data->size(%d)\n", orig_double_statement_data->size() );
 
@@ -972,11 +967,7 @@ printf("QUESTION_WDH\n");
         {
           // Not a double value...
 //          Queries::GetUIntMetricByStatementInFileForThread(*currentCollector, currentMetricStr.ascii(), di->getPath(), *currentThread, orig_uint64_statement_data);
-#ifdef QUESTION_WDH
-          Queries::GetMetricOfAllInThread(*currentCollector, currentMetricStr.ascii(), TimeInterval(Time::TheBeginning(),Time::TheEnd()), di->getPath(), *currentThread, orig_uint64_statement_data);
-#else // QUESTION_WDH
-printf("QUESTION_WDH\n");
-#endif // QUESTION_WDH
+          Queries::GetMetricByStatementOfFileInThread(*currentCollector, currentMetricStr.ascii(), TimeInterval(Time::TheBeginning(),Time::TheEnd()), *currentThread, Path(di->getPath()), orig_uint64_statement_data);
       
 // printf("orig_uint64_statement_data->size(%d)\n", orig_uint64_statement_data->size() );
 
@@ -1067,9 +1058,6 @@ printf("QUESTION_WDH\n");
     QApplication::restoreOverrideCursor( );
     return FALSE;
   }
-#else // QUESTION_WDH
-printf("QUESTION_WDH\n");
-#endif // QUESTION_WDH
 // End Find the file/function pair.
 
 }

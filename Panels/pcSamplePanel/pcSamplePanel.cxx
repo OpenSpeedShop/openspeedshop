@@ -946,7 +946,6 @@ pcSamplePanel::loadMain()
 
   if( experiment != NULL )
   {
-#ifdef QUESTION_WDH
     ThreadGroup tgrp = experiment->getThreads();
     ThreadGroup::iterator ti = tgrp.begin();
     if( tgrp.size() == 0 )
@@ -991,9 +990,6 @@ pcSamplePanel::loadMain()
 //      QMessageBox::information( this, "Experiment Information", "Unable to locate the main routine of the program to position the Source Panel.\nYour Source Panel may appear blank.\nHit the \"Run\" button to continue/start execution.", QMessageBox::Ok );
     }
     statusLabelText->setText( tr("Experiment is loaded:  Hit the \"Run\" button to continue execution.") );
-#else // QUESTION_WDH
-printf("QUESTION_WDH\n");
-#endif  // QUESTION_WDH
     updateStatus();
   } else
   {
