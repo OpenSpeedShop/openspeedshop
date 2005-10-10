@@ -402,7 +402,7 @@ Thread::getFunctionByName(const std::string& name) const
 	"  AND Functions.name = ?;"
 	);
     dm_database->bindArgument(1, dm_entry);
-    dm_database->bindArgument(4, name);
+    dm_database->bindArgument(2, name);
     while(dm_database->executeStatement())
 	if(!function.first)
 	    function = std::make_pair(

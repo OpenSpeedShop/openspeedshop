@@ -85,7 +85,7 @@ void Queries::GetMetricByStatementOfFileInThread(
 
     // Get the set of statments for the specified file in this thread
     std::set<Framework::Statement> objects =
-	thread.getStatementsBySourcefile(file);
+	thread.getStatementsBySourceFile(file);
     
     // Get the metric values for these statements
     Framework::SmartPtr<std::map<Framework::Statement, TM > > statements;
@@ -94,7 +94,7 @@ void Queries::GetMetricByStatementOfFileInThread(
     // Strip out everything but the line numbers for the statements
     for(typename std::map<Framework::Statement, TM >::const_iterator
 	    i = statements->begin(); i != statements->end(); ++i)
-	result->insert(std::make_pair(i->first.getLineNumber(), i->second));    
+	result->insert(std::make_pair(i->first.getLine(), i->second));    
 }
 
 
