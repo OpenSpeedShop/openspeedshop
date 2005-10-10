@@ -219,17 +219,13 @@ void HWTimeCollector::startCollecting(const Collector& collector,
     Blob arguments(reinterpret_cast<xdrproc_t>(xdr_hwctime_start_sampling_args),
                    &args);
 
-    // Find exit() in this thread
-    std::pair<bool, Function> exit = thread.getFunctionByName("exit");
-
     // Execute hwctime_stop_sampling() when we enter exit() for the thread
-    if(exit.first)
-        executeAtEntry(collector, thread, exit.second,
-                       "hwctime-rt: hwctime_stop_sampling", Blob());
+    executeAtEntry(collector, thread,
+                   "exit", "hwctime-rt: hwctime_stop_sampling", Blob());
 
     // Execute hwctime_start_sampling() in the thread
-    executeNow(collector, thread, 
-	       "hwctime-rt: hwctime_start_sampling", arguments);
+    executeNow(collector, thread,
+               "hwctime-rt: hwctime_start_sampling", arguments);
 }
 
 
@@ -258,22 +254,22 @@ void HWTimeCollector::stopCollecting(const Collector& collector,
 /**
  * Get a metric value.
  *
- * Implement getting one of our metric values for a particular thread, over a
- * specific address range and time interval.
+ * Implement getting one of our metric values over all subextents
+ * of the specified extent for a particular thread, for one of the collected
+ * performance data blobs.
  *
- * @param metric       Unique identifier of the metric.
- * @param collector    Collector for which to get a value.
- * @param thread       Thread for which to get a value.
- * @param range        Address range over which to get a value.
- * @param interval     Time interval over which to get a value.
- * @param ptr          Untyped pointer to the return value.
+ * @param metric        Unique identifier of the metric.
+ * @param extent        Extent of the performance data blob.
+ * @param blob          Blob containing the performance data.
+ * @param subextents    Subextents for which to get values.
+ * @retval ptr          Untyped pointer to the values of the metric.
+ *
  */
-void HWTimeCollector::getMetricValue(const std::string& metric,
-				     const Collector& collector,
-				     const Thread& thread,
-				     const AddressRange& range,
-				     const TimeInterval& interval,
-				     void* ptr) const
+void HWTimeCollector::getMetricValues(const std::string& metric,
+                                      const Extent& extent,
+                                      const Blob& blob,
+                                      const ExtentGroup& subextents,
+				      void* ptr) const
 {
     // Handle the "overflows" metric
 
@@ -281,61 +277,90 @@ void HWTimeCollector::getMetricValue(const std::string& metric,
     bool excloverflows = (metric == "exclusive_overflows") ? true : false;
 
     if( incloverflows || excloverflows ) {
-        uint64_t* value = reinterpret_cast<uint64_t*>(ptr);
+        // Cast the untyped pointer into a vector of uint64_t
+        std::vector<uint64_t>* values =
+                                reinterpret_cast<std::vector<uint64_t>*>(ptr);
 
-        // Initialize the time metric value to zero
-        *value = 0;
-	
-        // Obtain all the data blobs applicable to the requested metric value
-        std::vector<Blob> data_blobs =
-            getData(collector, thread, range, interval);
-	
-        // Iterate over each of the data blobs
-	bool top_stack_trace = true;
-        for(std::vector<Blob>::const_iterator
-                i = data_blobs.begin(); i != data_blobs.end(); ++i) {
+        // Check assertions
+        Assert(values->size() >= subextents.size());
 
-            // Decode this data blob
-            hwctime_data data;
-            memset(&data, 0, sizeof(data));
-            i->getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_hwctime_data),
-                              &data);
-	    
-            // Check assertions ???
+        // Decode this data blob
+        hwctime_data data;
+        memset(&data, 0, sizeof(data));
+        blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_hwctime_data),&data
+);
 
-            // Iterate over each of the samples
+        // Check assertions
+        // Assert(data.bt.bt_len == data.count.count_len);
 
-            for(unsigned j = 0; j < data.bt.bt_len; j++)
-	    {
-		if( incloverflows ) {
-                    // Is this PC address inside the range?
-                    if(range.doesContain(data.bt.bt_val[j])) {
-		    
-                        // Add this sample time to the overflows metric value
-//fprintf(stderr,"HWTC::getMetricValue: pc=%#lx, value=%d range %s\n",data.bt.bt_val[j],*value, std::string(range).c_str());
-                        *value += static_cast<uint64_t>(data.interval);
-		    }
-		} else if ( excloverflows ) {
-		    // Loop over each call stack in this BLOB
-		    // if "first" PC of call stack inside of requested metric
-		    // address range exclusive_time += sample time
+        // Calculate time (in nS) of data blob's extent
+        uint64_t t_blob =
+                static_cast<uint64_t>(extent.getTimeInterval().getWidth());
 
-		    if (top_stack_trace) {
-			if (range.doesContain(data.bt.bt_val[j])) {
-                            *value += static_cast<uint64_t>(data.interval);
-			}
-			top_stack_trace = false;
-		    }
+        // Iterate over each of the samples
 
-		    if ( !top_stack_trace && data.bt.bt_val[j] == 0) {
-		        top_stack_trace = true;
-		    }
-		}
-	    }
-	    
-            // Free the decoded data blob
-            xdr_free(reinterpret_cast<xdrproc_t>(xdr_hwctime_data),
-                     reinterpret_cast<char*>(&data));
-        }
+        bool top_stack_trace = true;
+        bool add_to_values = true;
+
+        for(unsigned i = 0; i < data.bt.bt_len; i++)
+        {
+
+            // Find the subextents that contain this sample
+            std::set<ExtentGroup::size_type> intersection =
+                subextents.getIntersectionWith(
+                    Extent(extent.getTimeInterval(),
+                       AddressRange(data.bt.bt_val[i])) );
+
+            // Calculate the time (in seconds) attributable to this sample
+            uint64_t t_sample = static_cast<uint64_t>(data.interval);
+
+            // The boolean add_to_values is used to determine if we
+            // include the computed t_sample in values.
+            // incloverflows: always add each t_sample (stack frame) to values.
+            // excloverflows: only add t_sample for top stack frame to values.
+            if ( excloverflows) {
+
+                if (top_stack_trace) {
+                    // "first" PC of call stack, toggle add_to_values to true
+                    // and toggle top_stack_trace to false till next new stack.
+                    add_to_values = true;
+                    top_stack_trace = false;
+                } else {
+                    // t_sample for this stack frame not added to values.
+                    add_to_values = false;
+                }
+
+                if ( !top_stack_trace && data.bt.bt_val[i] == 0) {
+                    // reached end of stack marker. Next t_sample will
+                    // be top of new stack.
+                    top_stack_trace = true;
+                }
+            }
+
+            // add_to_values always true for incloverflows...
+            if (add_to_values) {
+                // Iterate over each subextent in the intersection
+                for(std::set<ExtentGroup::size_type>::const_iterator
+                    j = intersection.begin(); j != intersection.end(); ++j) {
+
+                    // Calculate intersection time (in nS) of subextent and
+                    // data blob
+                    uint64_t t_intersection = static_cast<uint64_t>
+                        ((extent.getTimeInterval() &
+                          subextents[*j].getTimeInterval()).getWidth());
+
+
+                    // Add (to the subextent's metric value) the appropriate
+                    // fraction of the total time attributable to this sample
+                    (*values)[*j] += t_sample * (t_intersection / t_blob);
+
+                } // end for subextent
+            }
+
+        } // end for samples
+
+        // Free the decoded data blob
+        xdr_free(reinterpret_cast<xdrproc_t>(xdr_hwctime_data),
+                 reinterpret_cast<char*>(&data));
     }
 }
