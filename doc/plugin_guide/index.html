@@ -8,8 +8,8 @@
 <body>
 <h1 style="text-align: center;"><a class="mozTocH1"
  name="mozTocId831142"></a>Open|SpeedShop Plugin Creation Guide</h1>
-<div style="text-align: center;"><big><span style="font-weight: bold;">First
-Public Release</span><br style="font-weight: bold;">
+<div style="text-align: center;"><big><span style="font-weight: bold;">Developer
+Beta Release</span><br style="font-weight: bold;">
 <span style="font-weight: bold;">November 13, 2005</span></big><br>
 </div>
 <br>
@@ -21,21 +21,31 @@ Public Release</span><br style="font-weight: bold;">
 Plugin Creation Guide</a>
     <ul>
       <li><a href="#mozTocId259966">Table of Contents</a></li>
-      <li><a href="#mozTocId99355">Open|SpeedShop Overview and
-Information Resources</a></li>
-      <li><a href="#mozTocId892353">Open|SpeedShop Plugin Overview</a></li>
+      <li><a href="#mozTocId99355">Open|SpeedShop
+Overview and Information Resources</a></li>
+      <li><a href="#mozTocId892353">Open|SpeedShop Plugin
+Overview
+        </a></li>
       <li><a href="#mozTocId926177">Performance Data
-Collector Plugin Information </a>
+Collector Plugin Information</a>
         <ul>
           <li><a href="#mozTocId50966">Identifying and Analyzing
 The Performance Data Desired</a></li>
           <li><a href="#mozTocId177039">Implementing The
-Collector Plugin</a></li>
+Collector Plugin</a>
+            <ul>
+              <li><a href="#mozTocId372405">Overview</a></li>
+              <li><a href="#mozTocId885458">Data blobs</a></li>
+              <li><a href="#mozTocId449880">Collector Runtime</a></li>
+              <li><a href="#mozTocId635517">Collector Client </a></li>
+            </ul>
+          </li>
           <li><a href="#mozTocId715407">Example Collector Plugin</a></li>
         </ul>
       </li>
       <li><a href="#mozTocId376321">Graphical User
-Interface Plugin Information </a>
+Interface Plugin Information
+        </a>
         <ul>
           <li><a href="#mozTocId337995">Creating The
 Graphical User Interface Panel</a></li>
@@ -46,7 +56,8 @@ User Interface Plugin</a></li>
         </ul>
       </li>
       <li><a href="#mozTocId501489">Command Line
-Interface Plugin Information </a></li>
+Interface Plugin Information
+        </a></li>
     </ul>
   </li>
 </ul>
@@ -104,15 +115,18 @@ the sections below that are associated with implementation and examples.<br>
 The Performance Data Desired</h3>
 The first step is the thought process which
 identifies the performance data desired to be collected.&nbsp; In other
-words, "What performance information are we trying to
+words, "What performance information do we want to try and
 collect?".&nbsp;&nbsp; Open|SpeedShop allows the user to collect the
 performance data and then map the gathered data back to the program
 source function name and/or source line numbers.&nbsp;&nbsp; So, one
 question to be asked before starting to write a collector plugin for
 Open|SpeedShop is can the performance data desired be associated with
 the program's source line and function addresses.&nbsp;&nbsp; Does the
-data map back to the source?&nbsp;&nbsp; If so, then it is a candidate
-to be gathered by an Open|SpeedShop plugin.&nbsp;&nbsp;&nbsp; For
+performance data map back to the source?&nbsp;&nbsp; If so, then it is
+a candidate
+to be gathered by an Open|SpeedShop plugin.&nbsp;&nbsp;&nbsp; <br>
+<br>
+For
 example, the PC Sampling experiment takes periodic samples of the
 program address counter.&nbsp;&nbsp; A periodic timer is set and when
 it goes off, the address of where the program is at, is
@@ -148,12 +162,75 @@ point: If the parameter is a type that is already supported by
 Open|SpeedShop, additional GUI and/or CLI plugins may not have to be
 written to support the new collector plugin.<br>
 <br>
-</span>A <span
+</span>TBD - need more here................<span
  style="font-weight: bold; font-style: italic; text-decoration: underline;"><br>
 </span><br>
 <h3><a class="mozTocH3" name="mozTocId177039"></a><a
  name="Implementating_The_Collector_Plugin"></a>Implementing The
 Collector Plugin</h3>
+<h4><a class="mozTocH4" name="mozTocId372405"></a>Overview</h4>
+This section provides a brief implementation related overview of what
+is going on inside Open|SpeedShop with respect to the interactions of
+the collector plugin with the other components of the tool and with the
+application being analyzed.&nbsp;&nbsp; The collector plugin will cause
+Open|SpeedShop to gather performance measurements that will be gathered
+and stored temporarily in the victim application.&nbsp; This
+performance data is sent from the victim application to the
+Open|SpeedShop client when the performance data buffer fills up in the
+victim application.&nbsp;&nbsp; When the Open|SpeedShop client receives
+the performance data it is stored in the experiment database file.<br>
+<br>
+<h4><a class="mozTocH4" name="mozTocId885458"></a>Data blobs</h4>
+The collector writer defines the format of the performance data being
+gathered and stored in the victim application.&nbsp;&nbsp;
+Open|SpeedShop uses the term, blob (binary large object), to refer to
+the performance data objects being gathered and stored in the victim
+application.&nbsp;&nbsp; There are design issues to consider when
+defining the structure and size of the blob data:<br>
+<ul>
+  <li>Try not to use too much memory because the blob is contained in
+the victom application.</li>
+  <li>The blob should not be too small because having to send many
+small blobs across the network could slow the network down.</li>
+  <li>16k bytes has been found to be a reasonable size.&nbsp;&nbsp; PC
+Sampling currently uses 8k bytes as the blob size.</li>
+</ul>
+Data blobs are specified in the XDR (External Data Representation)
+language.&nbsp;&nbsp; XDR deals with endianess issues, data packing,
+and other related issues.&nbsp;&nbsp; The XDR language looks like a C
+structure definition and is specified in a file call
+blob.x.&nbsp;&nbsp; This is what the collector plugin expects.&nbsp;
+The blob.x file is fed into rpcgen which generates a ".c" file and a
+".h" file.&nbsp; These files create a compilable C structure and
+functions to convert the data to a C structure and back.<br>
+<br>
+<h4><a class="mozTocH4" name="mozTocId449880"></a>Collector Runtime</h4>
+The collector runtime gathers data dependent on the type of performance
+data the collector writer has decided to gather.&nbsp;&nbsp;&nbsp; The
+collector runtime's purpose is to gather the data, package it, and send
+it from the victim application to the Open|SpeedShop experiment
+collector plugin client.&nbsp;&nbsp; Functionality that is generally
+needed by collector runtime plugins includes the following:<br>
+<ul>
+  <li>Setting up a timer to trigger the gathering of performance data</li>
+  <li>Using the PAPI overflow mechanism</li>
+  <li>Obtaining a callstack entry</li>
+  <li>Getting a program counter (PC) address</li>
+  <li>Putting the collected data into a data blob</li>
+  <li>Compressing the data to increase the bandwidth when sending to
+the tool host (collector plugin client)<br>
+  </li>
+  <li>Sending the data to the tool host when the buffer (blob) fills up
+and on program termination</li>
+</ul>
+There is also a set of commonly used shared functions that are bundled
+into the Open|SpeedShop libopenss-runtime dynamic object.&nbsp;&nbsp;
+These are functions that are used by more than one
+collector.&nbsp;&nbsp; For example, some of the libunwind functionality
+is contain in the libopenss-runtime dynamic object.<br>
+<br>
+<h4><a class="mozTocH4" name="mozTocId635517"></a>Collector Client </h4>
+<br>
 <br>
 <h3><a class="mozTocH3" name="mozTocId715407"></a><a
  name="Example_Collector_Plugin"></a>Example Collector Plugin</h3>
