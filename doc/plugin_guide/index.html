@@ -230,7 +230,17 @@ collector.&nbsp;&nbsp; For example, some of the libunwind functionality
 is contain in the libopenss-runtime dynamic object.<br>
 <br>
 <h4><a class="mozTocH4" name="mozTocId635517"></a>Collector Client </h4>
-<br>
+The client collector plugin directs the collector runtime by directly
+and indirectly making calls to the collector runtime
+functions.&nbsp;&nbsp;&nbsp; An example user action illustrates the
+path between the client and runtime collector plugin
+functionality.&nbsp;&nbsp; Suppose the user does an user interface
+gesture that tells Open|SpeedShop to start
+collecting.&nbsp;&nbsp;&nbsp; This triggers the user interface to call
+the Open|SpeedShop framework which then accesses the start_collecting<br>
+function in the client collector plugin.&nbsp;&nbsp; The client
+collector plugin calls a Open|SpeedShop routine which ultimately
+triggers the start collecting function in the runtime collector plugin.<br>
 <br>
 <h3><a class="mozTocH3" name="mozTocId715407"></a><a
  name="Example_Collector_Plugin"></a>Example Collector Plugin</h3>
