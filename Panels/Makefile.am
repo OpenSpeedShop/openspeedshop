@@ -28,6 +28,7 @@ SUBDIRS = \
 	MPIPanel \
 	CustomExperimentPanel \
 	Wizards \
+	ExamplePanel \
 	DebugPanel
 
 if HAVE_PAPI

@@ -36,6 +36,24 @@ class QFont;
 class QPrinter;
 class QString;
 
+static char *chart_colors[] = {
+  "red",
+  "magenta",
+  "blue",
+  "cyan",
+  "green",
+  "yellow",
+  "gray",
+  "lightGray"
+  "darkRed",
+  "darkMagenta",
+  "darkBlue",
+  "darkCyan",
+  "darkGreen",
+  "darkYellow",
+};
+#define MAX_COLOR_CNT 14
+
 
 enum ChartType { PIEWITHSHADOW, VERTICAL_BAR, HORIZONTAL_BAR, PIEWITHNOSHADOW, PIEWITH3D, BARWITH3D };
 
@@ -62,7 +80,7 @@ public:
     virtual QPopupMenu *createPopupMenu(const QPoint & pos);
     QPopupMenu *optionsMenu; // Why public? See canvasview.cpp
 
-    void setValues(ChartPercentValueList values, ChartTextValueList strings,  char *color_names[], int max_color_cnt);
+    void setValues(ChartPercentValueList values, ChartTextValueList strings,  char **color_names=chart_colors, int max_color_cnt=MAX_COLOR_CNT);
 
     QCanvas *getCanvas() { return m_canvas; }
 

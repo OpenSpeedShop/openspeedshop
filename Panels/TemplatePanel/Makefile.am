@@ -23,6 +23,7 @@ TemplatePanel_la_CXXFLAGS = \
 	$(QTLIB_CPPFLAGS) \
     -I. \
     -I$(top_srcdir)/gui \
+	-I$(top_srcdir)/chart \
     -I$(top_srcdir)/plugin \
     -I$(top_srcdir)/base
 

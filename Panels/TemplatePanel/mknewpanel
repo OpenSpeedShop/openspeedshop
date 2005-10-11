@@ -18,7 +18,7 @@
 
 #!/bin/sh
 
-echo "arg count = $#"
+# echo "arg count = $#"
 
 export PANEL_DIR=$1
 export PANEL_NAME=$2

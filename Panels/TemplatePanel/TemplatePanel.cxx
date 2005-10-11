@@ -25,44 +25,40 @@
 /*! TemplatePanel Class is intended to be used as a starting point to create
     user defined panels.   There's a script: mknewpanel that takes this
     template panel and creates a panel for the user to work with.    (See:
-    mknewpanel in this directory.  i.e. type: mknewpanel --help)
+    mknewpanel in this directory.  i.e. type: mknewpanel)
 
     $ mknewpanel
-    usage: mknewpanel directory panelname "menu header" "menu label" "show immediate" "grouping"
+    usage: mknewpanel directory panelname "menu header" "menu label" "menu accel" "show immediate" "grouping"
     where:
       directory:  Is the path to the directory to put the new panel code.
       panelname:  Is the name of the new panel.
       menu header: Is the Menu named to be put on the menu bar.
       menu label: Is the menu label under the menu header.
+      menu accel: Is the menu accelerator.
       show immediate: Default is 0.  Setting this to 1 will display the panel upon initialization.
       grouping: Which named panel container should this menu item drop this panel by default.
 
 
     An exmple would be to cd to this TemplatePanel directory and issue the
     following command:
-    mknewpanel ../NewPanelName "NewPanelName" "New Panel Menu Heading" "New Panel Label" 0 "Performance"
+    mknewpanel ../ExamplePanel "ExamplePanel" "Experiments" "ExamplePanel" " " 0 " Performance
 
     That command would create a new panel directory, with the necessary
     structure for the user to create a new panel.   The user's new panel would
-    be in the NewPanelName directory.   The future panel would be called,
-    "NewPanelName".   A toplevel menu heading will be created called "New 
-    Panel Menu Heading".   An entry under that topleve menu would read "New
-    Panel Label".    The panel would not be displayed upon initialization of
+    be in the ../ExamplePanel directory.   The future panel would be called,
+    "ExamplePanel".   A toplevel menu heading will be created called 
+    "Experiments".   An entry under that topleve menu would read "ExamplePanel"
+    The panel would not be displayed upon initialization of
     the tool, but only upon menu selection.    The final argument hints to the 
     tool that this panel belongs to the group of other Performance related 
     panels.
 */
 
 
-/*! This constructor is the work constructor.   It is called to
-    create the new Panel and attach it to a PanelContainer.
-    \param pc is a pointer to PanelContainer
-      the Panel will be initially attached.
-    \param name is the name give to the Panel.
-      This is where the user would create the panel specific Qt code
-      to do whatever functionality the user wanted the panel to perform.
- */
-#include <qtextedit.h>  // For QTextEdit in example below...
+#include <qlistview.h>  // For QListView
+#include <qvaluelist.h>  // For QTextEdit in example below...
+#include <qsplitter.h>  // For QSplitter in example below...
+#include <chartform.hxx>  // For chart in example below...
 TemplatePanel::TemplatePanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
 {
   setCaption("TemplatePanel");
@@ -87,18 +83,56 @@ TemplatePanel::TemplatePanel(PanelContainer *pc, const char *n, void *argument) 
   topPPL->topLevel = TRUE;
 */
 
+
+  QSplitter *splitter = new QSplitter(getBaseWidgetFrame(), "splitter");
+  splitter->setCaption("splitter");
+
+  splitter->setOrientation(QSplitter::Horizontal);
+
   // A simple start to adding simple qt widgets to a panel...
-  QTextEdit *te = new QTextEdit( getBaseWidgetFrame() );
-  frameLayout->addWidget(te);
-  te->show();
+  QListView *lv = new QListView( splitter );
+  lv->addColumn("Time");
+  lv->addColumn("Percent");
+  lv->addColumn("Description");
+  ChartForm *cf = new ChartForm( splitter );
+  cf->setCaption("Example Chart");
+
+
+  // Add some numbers to both the list and chart.
+  ChartPercentValueList cpvl;
+  ChartTextValueList ctvl;
+  cpvl.clear();
+  ctvl.clear();
+
+  cpvl.push_back(40);
+  cpvl.push_back(30);
+  cpvl.push_back(20);
+  cpvl.push_back(10);
+
+  ctvl.push_back("40");
+  ctvl.push_back("30");
+  ctvl.push_back("20");
+  ctvl.push_back("10");
+
+  cf->setValues(cpvl, ctvl);
+
+  cf->show();
+
+  new QListViewItem(lv,"40.00", "40", "Time spent in function a()" );
+  new QListViewItem(lv,"30.00", "30", "Time spent in function b()" );
+  new QListViewItem(lv,"20.00", "20", "Time spent in function c()" );
+  new QListViewItem(lv,"10.00", "10", "Time spent in function d()" );
+
+
+
+  lv->show();
+
+  frameLayout->addWidget( splitter );
 
   getBaseWidgetFrame()->setCaption("TemplatePanelBaseWidget");
 }
 
 
-/*! The only thing that needs to be cleaned is anything allocated in this
-    class.  By default that is nothing.
- */
 TemplatePanel::~TemplatePanel()
 {
   // Delete anything you new'd from the constructor.
@@ -120,8 +154,6 @@ TemplatePanel::languageChange()
 bool
 TemplatePanel::menu(QPopupMenu* contextMenu)
 {
-  dprintf("TemplatePanel::menu() requested.\n");
-
   return( FALSE );
 }
 
@@ -131,7 +163,6 @@ TemplatePanel::menu(QPopupMenu* contextMenu)
 void 
 TemplatePanel::save()
 {
-  dprintf("TemplatePanel::save() requested.\n");
 }
 
 /*! If the user panel provides save to functionality, their function
@@ -141,7 +172,6 @@ TemplatePanel::save()
 void 
 TemplatePanel::saveAs()
 {
-  dprintf("TemplatePanel::saveAs() requested.\n");
 }
 
 
@@ -156,7 +186,6 @@ TemplatePanel::saveAs()
 int 
 TemplatePanel::listener(void *msg)
 {
-  dprintf("TemplatePanel::listener() requested.\n");
   return 0;  // 0 means, did not want this message and did not act on anything.
 }
 
@@ -168,6 +197,5 @@ TemplatePanel::listener(void *msg)
 int 
 TemplatePanel::broadcast(char *msg)
 {
-  dprintf("TemplatePanel::broadcast() requested.\n");
   return 0;
 }
