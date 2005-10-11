@@ -1,0 +1,211 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+//
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License as published by the Free
+// Software Foundation; either version 2.1 of the License, or (at your option)
+// any later version.
+//
+// This library is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this library; if not, write to the Free Software Foundation, Inc.,
+// 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+////////////////////////////////////////////////////////////////////////////////
+  
+
+#include "AttachProcessDialog.hxx"
+
+#include "debug.hxx"
+
+#include <qapplication.h>
+#include <qvariant.h>
+#include <qframe.h>
+#include <qpushbutton.h>
+#include <qlayout.h>
+#include <qtooltip.h>
+#include <qwhatsthis.h>
+#include <qimage.h>
+#include <qpixmap.h>
+#include <qlabel.h>
+#include <qcombobox.h>
+#include <qlistview.h>
+#include <qradiobutton.h>
+
+AttachProcessDialog::AttachProcessDialog( QWidget* parent, const char* name, bool modal, WFlags fl )
+    : QDialog( parent, name, modal, fl )
+{
+  nprintf(DEBUG_CONST_DESTRUCT) ("AttachProcessDialog::AttachProcessDialog() constructor called.\n");
+  
+  plo = NULL;
+  if ( !name ) setName( "AttachProcessDialog" );
+
+  setSizeGripEnabled( TRUE );
+  AttachProcessDialogLayout = new QVBoxLayout( this, 11, 6, "AttachProcessDialogLayout"); 
+
+  attachHostLabel = new QLabel( this, "attachHostLabel" );
+  AttachProcessDialogLayout->addWidget( attachHostLabel );
+  attachHostComboBox = new QComboBox( this, "attachHostComboBox");
+  attachHostComboBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)2, (QSizePolicy::SizeType)0, 0, 0, attachHostComboBox->sizePolicy().hasHeightForWidth() ) );
+  attachHostComboBox->setEditable(TRUE);
+  AttachProcessDialogLayout->addWidget( attachHostComboBox );
+
+  availableProcessListView = new QListView( this, "availableProcessListView" );
+  availableProcessListView->addColumn( tr( "Processes list:" ) );
+//  availableProcessListView->setSelectionMode( QListView::Single );
+  availableProcessListView->setSelectionMode( QListView::Multi );
+  availableProcessListView->setAllColumnsShowFocus( FALSE );
+  availableProcessListView->setShowSortIndicator( FALSE );
+  AttachProcessDialogLayout->addWidget( availableProcessListView );
+
+
+  mpiRB = new QRadioButton( this, "mpiRB");
+  AttachProcessDialogLayout->addWidget( mpiRB );
+  mpiRB->setText(tr("Attach to all mpi related process."));
+
+
+  Layout1 = new QHBoxLayout( 0, 0, 6, "Layout1"); 
+
+  buttonHelp = new QPushButton( this, "buttonHelp" );
+  buttonHelp->setAutoDefault( TRUE );
+  Layout1->addWidget( buttonHelp );
+  Horizontal_Spacing2 = new QSpacerItem( 20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
+  Layout1->addItem( Horizontal_Spacing2 );
+
+  buttonOk = new QPushButton( this, "buttonOk" );
+  buttonOk->setAutoDefault( TRUE );
+  buttonOk->setDefault( TRUE );
+  Layout1->addWidget( buttonOk );
+
+  updateOk = new QPushButton( this, "updateOk" );
+  updateOk->setAutoDefault( TRUE );
+  updateOk->setDefault( TRUE );
+  Layout1->addWidget( updateOk );
+
+  buttonCancel = new QPushButton( this, "buttonCancel" );
+  buttonCancel->setAutoDefault( TRUE );
+  Layout1->addWidget( buttonCancel );
+  AttachProcessDialogLayout->addLayout( Layout1 );
+  languageChange();
+  resize( QSize(511, 282).expandedTo(minimumSizeHint()) );
+  clearWState( WState_Polished );
+
+  attachHostComboBox->setAutoCompletion(TRUE);
+
+  // signals and slots connections
+  connect( buttonOk, SIGNAL( clicked() ), this, SLOT( ok_accept() ) );
+  connect( updateOk, SIGNAL( clicked() ), this, SLOT( attachHostComboBoxActivated() ) );
+  connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
+  connect( attachHostComboBox, SIGNAL( activated(const QString &) ), this, SLOT( attachHostComboBoxActivated() ) );
+
+  updateAttachableProcessList();
+}
+
+/*
+ *  Destroys the object and frees any allocated resources
+ */
+AttachProcessDialog::~AttachProcessDialog()
+{
+  // no need to delete child widgets, Qt does it all for us
+  nprintf(DEBUG_CONST_DESTRUCT) ("AttachProcessDialog::AttachProcessDialog() destructor called.\n");
+}
+
+/*
+ *  Sets the strings of the subwidgets using the current
+ *  language.
+ */
+void AttachProcessDialog::languageChange()
+{
+  setCaption( tr( "AttachProcessDialog" ) );
+  buttonHelp->setText( tr( "&Help" ) );
+  buttonHelp->setAccel( QKeySequence( tr( "F1" ) ) );
+  buttonOk->setText( tr( "&OK" ) );
+  buttonOk->setAccel( QKeySequence( QString::null ) );
+  updateOk->setText( tr( "&Update" ) );
+  updateOk->setAccel( QKeySequence( QString::null ) );
+  buttonCancel->setText( tr( "&Cancel" ) );
+  buttonCancel->setAccel( QKeySequence( QString::null ) );
+  attachHostLabel->setText( tr("Host:") );
+  attachHostComboBox->insertItem( "localhost" );
+//  attachHostComboBox->insertItem( "clink.americas.sgi.com" );
+//  attachHostComboBox->insertItem( "hope.americas.sgi.com" );
+//  attachHostComboBox->insertItem( "hope1.americas.sgi.com" );
+//  attachHostComboBox->insertItem( "hope2.americas.sgi.com" );
+}
+
+// QString
+QStringList *
+AttachProcessDialog::selectedProcesses(bool *mpiFLAG)
+{
+//  QString ret_value = attachHostComboBox->currentText();
+
+// printf("AttachProcessDialog::selectedProcesses() entered\n");
+
+  QStringList *qsl = new QStringList();
+  qsl->clear();
+  QListViewItem *selectedItem = availableProcessListView->selectedItem();
+  *mpiFLAG = mpiRB->isChecked();
+  QListViewItemIterator it( availableProcessListView, QListViewItemIterator::Selected );
+  while( it.current() )
+  {
+    QListViewItem *item = it.current();
+    QString ret_val = item->text(0);
+    qsl->push_back(ret_val);
+// printf("push_back (%s)\n", ret_val.ascii() );
+    ++it;
+  }
+  return( qsl );
+}
+
+
+
+void
+AttachProcessDialog::updateAttachableProcessList()
+{
+  char *host = (char *)attachHostComboBox->currentText().ascii();
+// printf("host=(%s)\n", host );
+  ProcessEntry *pe = NULL;
+  char entry_buffer[1024];
+
+  if( plo )
+  {
+    delete(plo);
+  }
+// printf("look up processes on host=(%s)\n", host);
+  plo = new ProcessListObject(host);
+
+  availableProcessListView->clear();
+
+  ProcessEntryList::Iterator it;
+  for( it = plo->processEntryList.begin();
+       it != plo->processEntryList.end();
+       ++it )
+  {
+    pe = (ProcessEntry *)*it;
+// printf("%-20s %-10d %-20s\n", pe->host_name, pe->pid, pe->process_name);
+    sprintf(entry_buffer, "%-20s %-10d %-20s\n", pe->host_name, pe->pid, pe->process_name);
+    QListViewItem *item = new QListViewItem( availableProcessListView, 0 );
+    item->setText( 0, tr(entry_buffer) );
+  }
+}
+
+void AttachProcessDialog::attachHostComboBoxActivated()
+{
+// printf("attachHostComboBoxActivated\n");
+// attachHostComboBox->insertItem( attachHostComboBox->currentText() );
+    updateAttachableProcessList();
+}
+
+void AttachProcessDialog::accept()
+{
+// printf("AttachProcessDialog::accept() called.\n");
+}
+
+void AttachProcessDialog::ok_accept()
+{
+// printf("AttachProcessDialog::ok_accept() called.\n");
+  QDialog::accept();
+}
