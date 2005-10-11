@@ -30,7 +30,7 @@ then
   fi 
 #  exit
 fi
-if test -d Panels
+if test -d plugins/panels
 then
   bootstrap;configure --prefix=$OPENSS_INSTALL_DIR CXXFLAGS="-g -gdwarf-2 -O1";make uninstall;make install;make dist;
 else

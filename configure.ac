@@ -152,8 +152,29 @@ AC_CONFIG_FILES(Makefile
 		plugins/collectors/usertime/Makefile
 		plugins/collectors/hwc/Makefile
 		plugins/collectors/hwctime/Makefile
+		plugins/panels/Makefile
+		plugins/panels/pcSamplePanel/Makefile
+		plugins/panels/UserTimePanel/Makefile
+		plugins/panels/SourcePanel/Makefile
+		plugins/panels/CmdPanel/Makefile
+		plugins/panels/StatsPanel/Makefile
+		plugins/panels/ManageProcessesPanel/Makefile
+		plugins/panels/HW_CounterPanel/Makefile
+		plugins/panels/IOPanel/Makefile
+		plugins/panels/MPIPanel/Makefile
+		plugins/panels/DebugPanel/Makefile
+		plugins/panels/FPE_TracingPanel/Makefile
+		plugins/panels/CustomExperimentPanel/Makefile
 		plugins/views/Makefile
 		plugins/views/basic/Makefile
+		plugins/wizards/Makefile
+		plugins/wizards/IntroWizardPanel/Makefile
+		plugins/wizards/pcSampleWizardPanel/Makefile
+		plugins/wizards/UserTimeWizardPanel/Makefile
+		plugins/wizards/FPE_TracingWizardPanel/Makefile
+		plugins/wizards/HW_CounterWizardPanel/Makefile
+		plugins/wizards/IOWizardPanel/Makefile
+		plugins/wizards/MPIWizardPanel/Makefile
 		examples/Makefile
 		examples/libopenss-framework/Makefile
 		examples/libopenss-framework/collector/Makefile
@@ -167,27 +188,6 @@ AC_CONFIG_FILES(Makefile
 		chart/Makefile
 		pcli/Makefile
 		gui/Makefile
-		Panels/Makefile
-		Panels/pcSamplePanel/Makefile
-		Panels/UserTimePanel/Makefile
-		Panels/SourcePanel/Makefile
-		Panels/CmdPanel/Makefile
-		Panels/StatsPanel/Makefile
-		Panels/ManageProcessesPanel/Makefile
-		Panels/HW_CounterPanel/Makefile
-		Panels/IOPanel/Makefile
-		Panels/MPIPanel/Makefile
-		Panels/DebugPanel/Makefile
-		Panels/FPE_TracingPanel/Makefile
-		Panels/CustomExperimentPanel/Makefile
-		Panels/Wizards/Makefile
-		Panels/Wizards/IntroWizardPanel/Makefile
-		Panels/Wizards/pcSampleWizardPanel/Makefile
-		Panels/Wizards/UserTimeWizardPanel/Makefile
-		Panels/Wizards/FPE_TracingWizardPanel/Makefile
-		Panels/Wizards/HW_CounterWizardPanel/Makefile
-		Panels/Wizards/IOWizardPanel/Makefile
-		Panels/Wizards/MPIWizardPanel/Makefile
 		test/Makefile
 		test/executables/Makefile
 		test/executables/forever/Makefile

@@ -29,7 +29,7 @@ libopenss_GUI_la_CXXFLAGS =  \
 	-I$(top_srcdir)/plugin \
 	-I$(top_srcdir)/images \
 	-I$(top_srcdir)/dialogs \
-	-I$(top_srcdir)/Panels/DebugPanel \
+	-I$(top_srcdir)/plugins/panels/DebugPanel \
 	-I$(top_srcdir)/objects \
 	-I$(top_srcdir)/base
 

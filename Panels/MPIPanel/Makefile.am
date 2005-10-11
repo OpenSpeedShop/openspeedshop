@@ -31,8 +31,8 @@ MPIPanel_la_CXXFLAGS = \
     -I$(top_srcdir)/plugin \
     -I$(top_srcdir)/objects \
     -I$(top_srcdir)/dialogs \
-    -I$(top_srcdir)/Panels/ManageProcessesPanel \
-    -I$(top_srcdir)/Panels/SourcePanel \
+    -I$(top_srcdir)/plugins/panels/ManageProcessesPanel \
+    -I$(top_srcdir)/plugins/panels/SourcePanel \
     -I$(top_srcdir)/base
 
 MPIPanel_la_LDFLAGS = \

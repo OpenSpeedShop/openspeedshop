@@ -32,7 +32,6 @@ SUBDIRS = \
 	gui \
 	openss \
 	plugins \
-	Panels \
 	examples \
 	test \
 	usability
