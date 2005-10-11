@@ -604,7 +604,6 @@ class CommandWindowID
     Assert(pthread_mutex_lock(&Cmds_List_Lock) == 0);
 
    // Look through the list for unneeded lines
-    bool there_were_cmds = false;
     std::list<InputLineObject *> cmd_object = Complete_Cmds;
     std::list<InputLineObject *>::iterator cmi;
     for (cmi = cmd_object.begin(); cmi != cmd_object.end(); ) {
@@ -616,11 +615,14 @@ class CommandWindowID
               (L->What() != ILO_ERROR)) {
             L->SetStatus (ILO_COMPLETE);
           }
-        } else break;  // so that things are removed in order
+        } else {
+          break;  // so that things are removed in order
+        }
       }
       ++cmi;
       if (L->Results_Used ()) {
         Complete_Cmds.remove(L);
+        delete L;
       }
     }
 
@@ -633,10 +635,31 @@ class CommandWindowID
         (Input == NULL) &&
         has_outstream ()) {
      // Re-issue the prompt
-      ss_ostream *this_ss_stream = ss_outstream();
-      this_ss_stream->acquireLock();
-      this_ss_stream->Issue_Prompt();
-      this_ss_stream->releaseLock();
+
+     // If the output is associated with the command line,
+     // determine if the output stream is shared between windows.
+      CommandWindowID *cw = NULL;
+      if (Default_WindowID == id) {
+        if (TLI_WindowID != 0) {
+         // Command line and TLI share a window.  
+          cw = Find_Command_Window (TLI_WindowID);
+        } else if (GUI_WindowID != 0) {
+         // Command line and GUI share a window.  
+          cw = Find_Command_Window (GUI_WindowID);
+        }
+      }
+        
+      if ((cw != NULL) &&
+          (cw->has_outstream())) {
+       // Let the other window issue the prompt, when it's ready.
+        cw->Remove_Completed_Input_Lines (true);
+      } else {
+       // Issue the prompt here.
+        ss_ostream *this_ss_stream = ss_outstream();
+        this_ss_stream->acquireLock();
+        this_ss_stream->Issue_Prompt();
+        this_ss_stream->releaseLock();
+      }
     }
 
    // Release the lock
@@ -652,7 +675,6 @@ class CommandWindowID
    // Look through the list for lines with no CommandObjects.
    // These may have been processed by Python and may not have
    // generated any CommandObjects.
-    bool there_were_cmds = false;
     std::list<InputLineObject *> cmd_object = Complete_Cmds;
     std::list<InputLineObject *>::iterator cmi;
     for (cmi = cmd_object.begin(); cmi != cmd_object.end(); cmi++) {
@@ -962,6 +984,7 @@ public:
       InputLineObject *clip =  *cmi;
       std::string cmd = clip->Command ();
       if (cmd.length() > 0) {
+// clip->Print(mystream);
         mystream << cmd;
         if (cmd.substr(cmd.length()-1,1) != "\n") {
           mystream << std::endl;
@@ -1115,6 +1138,14 @@ bool All_Command_Objects_Are_Used (InputLineObject *clip) {
   std::list<CommandObject *>::iterator coi;
   for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
     if (!((*coi)->Results_Used())) {
+/* TEST */
+      CommandObject *co = *coi;
+      if ((co->Status() == CMD_COMPLETE) ||
+          (co->Status() == CMD_ERROR)) {
+        if (clip->CallBackC (co)) {
+          continue;
+        }
+      }
       return false;
     }
   }
@@ -1141,7 +1172,9 @@ void Clip_Complete (InputLineObject *clip) {
 
 void Cmd_Obj_Complete (CommandObject *C) {
   InputLineObject *clip = C->Clip();
+/* TEST
   (void)(clip->CallBackC (C));
+TEST */
 
   if (!clip->Complex_Exp()) {
    // If output has been completed, issue a prompt
