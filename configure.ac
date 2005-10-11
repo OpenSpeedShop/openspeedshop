@@ -185,7 +185,7 @@ AC_CONFIG_FILES(Makefile
 		expr_info/Makefile
 		objects/Makefile
 		dialogs/Makefile
-		chart/Makefile
+		libopenss-guichart/Makefile
 		pcli/Makefile
 		gui/Makefile
 		test/Makefile

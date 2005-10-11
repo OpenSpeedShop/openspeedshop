@@ -28,7 +28,7 @@ SUBDIRS = \
 	dialogs \
 	expr_info \
 	plugin \
-	chart \
+	libopenss-guichart \
 	gui \
 	openss \
 	plugins \
