@@ -23,7 +23,7 @@ libopenss_ExprInfo_la_CXXFLAGS = \
 	-I/usr/include\
 	 -I$(QTDIR)/include\
 	 -I.\
-	 -I$(top_srcdir)/base
+	 -I$(top_srcdir)/libopenss-guibase
 
 libopenss_ExprInfo_la_LDFLAGS = \
 	-export-dynamic -version-info 0:0:0

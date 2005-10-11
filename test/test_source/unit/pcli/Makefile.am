@@ -19,9 +19,9 @@
 pcl_la_CXXFLAGS =  \
         -LANG:std  \
         -I. \
-        -I../../../../../libopenss-framework \
-        -I../../../../../pcli \
-        -I/usr/include -I. -I../../../../../objects -I../../../../../base \
+        -I$(top_srcdir)/libopenss-framework \
+        -I$(top_srcdir)/pcli \
+        -I/usr/include -I. -I$(top_srcdir)/objects -I$(top_srcdir)/libopenss-guibase \
         -DPLUGIN_PATH=\"$(pkglibdir)\"
 
 # directories that will be built

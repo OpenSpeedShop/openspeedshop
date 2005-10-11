@@ -28,7 +28,7 @@ CmdPanel_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-message \
     -I$(top_srcdir)/gui \
     -I$(top_srcdir)/plugin \
-    -I$(top_srcdir)/base
+    -I$(top_srcdir)/libopenss-guibase
 
 CmdPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version 
 

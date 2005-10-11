@@ -30,7 +30,7 @@ IOWizardPanel_la_CXXFLAGS = \
     -I$(top_srcdir)/libopenss-message \
     -I$(top_srcdir)/dialogs \
     -I$(top_srcdir)/plugin \
-    -I$(top_srcdir)/base
+    -I$(top_srcdir)/libopenss-guibase
 
 IOWizardPanel_la_LDFLAGS = --export-dynamic \
 	--export-all-symbols \

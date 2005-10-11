@@ -23,7 +23,7 @@ libopenss_Plugin_la_CXXFLAGS =  \
 	-I$(QTDIR)/include \
 	-I. \
 	-I$(top_srcdir) \
-	-I$(top_srcdir)/base \
+	-I$(top_srcdir)/libopenss-guibase \
 	-I$(top_srcdir)/gui
 
 libopenss_Plugin_la_LDFLAGS = \

@@ -19,7 +19,7 @@
 lib_LTLIBRARIES = libopenss-message.la
 
 libopenss_message_la_CXXFLAGS = \
-	-I$(top_srcdir)/base \
+	-I$(top_srcdir)/libopenss-guibase \
 	-I$(top_srcdir)/libopenss-framework \
 	-I$(top_srcdir)/objects \
 	-DPLUGIN_PATH=\"$(pkglibdir)\" \

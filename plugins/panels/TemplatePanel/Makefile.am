@@ -23,9 +23,9 @@ TemplatePanel_la_CXXFLAGS = \
 	$(QTLIB_CPPFLAGS) \
     -I. \
     -I$(top_srcdir)/gui \
-	-I$(top_srcdir)/chart \
+	-I$(top_srcdir)/libopenss-guichart \
     -I$(top_srcdir)/plugin \
-    -I$(top_srcdir)/base
+    -I$(top_srcdir)/libopenss-guibase
 
 TemplatePanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 

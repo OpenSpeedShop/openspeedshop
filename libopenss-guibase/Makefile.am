@@ -26,7 +26,7 @@ libopenss_guibase_la_CXXFLAGS = \
     -I$(top_srcdir)/plugin \
     -I$(top_srcdir)/images \
     -I$(top_srcdir)/gui \
-    -I$(top_srcdir)/base
+    -I$(top_srcdir)/libopenss-guibase
 
 libopenss_guibase_la_LDFLAGS = \
 	-export-dynamic -version-info 0:0:0

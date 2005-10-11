@@ -25,7 +25,7 @@ dist_pkglib_SCRIPTS = SS_Preparse.py
 lib_LTLIBRARIES = libopenss-cli.la
 
 libopenss_cli_la_CXXFLAGS = \
-	-I$(top_srcdir)/base \
+	-I$(top_srcdir)/libopenss-guibase \
 	-I$(top_srcdir)/libopenss-message \
 	-I$(top_srcdir)/libopenss-framework \
 	-I$(top_srcdir)/libopenss-queries \

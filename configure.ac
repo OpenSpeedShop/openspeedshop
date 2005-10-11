@@ -180,7 +180,7 @@ AC_CONFIG_FILES(Makefile
 		examples/libopenss-framework/collector/Makefile
 		examples/libopenss-framework/tool/Makefile
 		openss/Makefile
-		base/Makefile
+		libopenss-guibase/Makefile
 		plugin/Makefile
 		expr_info/Makefile
 		objects/Makefile

@@ -25,7 +25,7 @@ libopenss_Objects_la_CXXFLAGS = \
 	-I. \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/images \
-	-I$(top_srcdir)/base \
+	-I$(top_srcdir)/libopenss-guibase \
 	-I$(top_srcdir)/libopenss-framework \
 	-I$(top_srcdir)/pcli \
 	-I$(top_srcdir)/libopenss-message \

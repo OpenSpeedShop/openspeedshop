@@ -33,7 +33,7 @@ StatsPanel_la_CXXFLAGS = \
     -I$(top_srcdir)/expr_info \
     -I$(top_srcdir)/plugin \
     -I$(top_srcdir)/dialogs \
-    -I$(top_srcdir)/base
+    -I$(top_srcdir)/libopenss-guibase
 
 StatsPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 

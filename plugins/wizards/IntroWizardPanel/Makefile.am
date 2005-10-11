@@ -26,7 +26,7 @@ IntroWizardPanel_la_CXXFLAGS = \
     -I$(top_srcdir)/gui \
     -I$(top_srcdir)/objects \
     -I$(top_srcdir)/plugin \
-    -I$(top_srcdir)/base
+    -I$(top_srcdir)/libopenss-guibase
 
 IntroWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version
 

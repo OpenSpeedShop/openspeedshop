@@ -23,7 +23,7 @@ SUBDIRS = \
 	libopenss-framework \
 	libopenss-queries \
 	pcli \
-	base \
+	libopenss-guibase \
 	objects \
 	dialogs \
 	expr_info \

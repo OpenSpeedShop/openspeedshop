@@ -23,7 +23,7 @@ libopenss_guichart_la_CXXFLAGS = \
 	-I$(QTDIR)/include \
 	-I. \
 	-I$(top_srcdir)/plugin \
-	-I$(top_srcdir)/base
+	-I$(top_srcdir)/libopenss-guibase
 
 libopenss_guichart_la_LDFLAGS = \
 	-export-dynamic -version-info 0:0:0
