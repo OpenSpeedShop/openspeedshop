@@ -16,9 +16,9 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-lib_LTLIBRARIES = libopenss-dialogs.la
+lib_LTLIBRARIES = libopenss-guidialogs.la
 
-libopenss_dialogs_la_CXXFLAGS = \
+libopenss_guidialogs_la_CXXFLAGS = \
 	-I/usr/include \
 	-I$(QTDIR)/include \
 	-I. \
@@ -33,10 +33,10 @@ libopenss_dialogs_la_CXXFLAGS = \
     -I$(top_srcdir)/libopenss-guiobjects \
 	-I$(QTDIR)
 
-libopenss_dialogs_la_LDFLAGS = \
+libopenss_guidialogs_la_LDFLAGS = \
 	-export-dynamic -version-info 0:0:0
 
-libopenss_dialogs_la_LIBADD = $(LIBLTDL)  -L../libopenss-guiobjects -lopenss-guiobjects
+libopenss_guidialogs_la_LIBADD = $(LIBLTDL)  -L../libopenss-guiobjects -lopenss-guiobjects
 
 moc_AttachProcessDialog.cxx: AttachProcessDialog.hxx
 	-moc -o moc_AttachProcessDialog.cxx AttachProcessDialog.hxx
@@ -56,7 +56,7 @@ moc_SaveAsExperimentDialog.cxx: SaveAsExperimentDialog.hxx
 moc_GenericProgressDialog.cxx: GenericProgressDialog.hxx
 	-moc -o moc_GenericProgressDialog.cxx GenericProgressDialog.hxx
 
-libopenss_dialogs_la_SOURCES = \
+libopenss_guidialogs_la_SOURCES = \
 	AttachProcessDialog.hxx AttachProcessDialog.cxx moc_AttachProcessDialog.cxx \
 	AttachProgramDialog.hxx AttachProgramDialog.cxx moc_AttachProgramDialog.cxx \
 	ManageProcessesDialog.hxx ManageProcessesDialog.cxx moc_ManageProcessesDialog.cxx \

@@ -17,9 +17,9 @@
 ################################################################################
 
 
-lib_LTLIBRARIES = libopenss-objects.la
+lib_LTLIBRARIES = libopenss-guiobjects.la
 
-libopenss_objects_la_CXXFLAGS = \
+libopenss_guiobjects_la_CXXFLAGS = \
 	-I/usr/include \
 	-I$(QTDIR)/include \
 	-I. \
@@ -33,10 +33,10 @@ libopenss_objects_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-guiplugin \
 	-I$(QTDIR)
 
-libopenss_objects_la_LDFLAGS = \
+libopenss_guiobjects_la_LDFLAGS = \
 	-export-dynamic -version-info 0:0:0
 
-libopenss_objects_la_LIBADD = $(LIBLTDL)
+libopenss_guiobjects_la_LIBADD = $(LIBLTDL)
 
 moc_ProcessControlObject.cxx: ProcessControlObject.hxx
 	-moc -o moc_ProcessControlObject.cxx ProcessControlObject.hxx
@@ -44,7 +44,7 @@ moc_ProcessControlObject.cxx: ProcessControlObject.hxx
 moc_InfoEventFilter.cxx: InfoEventFilter.hxx
 	-moc -o moc_InfoEventFilter.cxx InfoEventFilter.hxx
 
-libopenss_objects_la_SOURCES = \
+libopenss_guiobjects_la_SOURCES = \
 	HighlightObject.hxx \
 	ProcessEntryClass.hxx \
 	CollectorEntryClass.hxx \
@@ -68,8 +68,8 @@ libopenss_objects_la_SOURCES = \
 	CollectorParameterEntryClass.hxx \
 	CollectorMetricEntryClass.hxx
 
-nodist_libopenss_objects_la_SOURCES = \
+nodist_libopenss_guiobjects_la_SOURCES = \
 	moc_ProcessControlObject.cxx \
 	moc_InfoEventFilter.cxx
 
-CLEANFILES=$(nodist_libopenss_objects_la_SOURCES)
+CLEANFILES=$(nodist_libopenss_guiobjects_la_SOURCES)
