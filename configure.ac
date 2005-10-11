@@ -188,7 +188,6 @@ AC_CONFIG_FILES(Makefile
 		Panels/Wizards/HW_CounterWizardPanel/Makefile
 		Panels/Wizards/IOWizardPanel/Makefile
 		Panels/Wizards/MPIWizardPanel/Makefile
-		Panels/ExamplePanel/Makefile
 		test/Makefile
 		test/executables/Makefile
 		test/executables/forever/Makefile
