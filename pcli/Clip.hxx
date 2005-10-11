@@ -77,7 +77,6 @@ class InputLineObject
       complex_expression = false;
       command = std::string("");
       msg_string = std::string("");
-      // cmd_type = CMD_NONE;
       results_used = false;
       LocalCmdId = NULL;
       CallBackLine = NULL;
@@ -111,6 +110,13 @@ class InputLineObject
     }
   ~InputLineObject ()
     {
+      std::list<CommandObject *> cmd_object = Cmd_Obj;
+      std::list<CommandObject *>::iterator coi;
+      for (coi = cmd_object.begin(); coi != cmd_object.end(); ) {
+        CommandObject *C = (*coi);
+        coi++;
+        delete C;
+      }
     }
 
   void SetStatus (Input_Line_Status st) {
