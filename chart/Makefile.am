@@ -16,19 +16,19 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-lib_LTLIBRARIES = libopenss-Chart.la
+lib_LTLIBRARIES = libopenss-guichart.la
 
-libopenss_Chart_la_CXXFLAGS = \
+libopenss_guichart_la_CXXFLAGS = \
 	-I/usr/include \
 	-I$(QTDIR)/include \
 	-I. \
 	-I$(top_srcdir)/plugin \
 	-I$(top_srcdir)/base
 
-libopenss_Chart_la_LDFLAGS = \
+libopenss_guichart_la_LDFLAGS = \
 	-export-dynamic -version-info 0:0:0
 
-libopenss_Chart_la_LIBADD = $(LIBLTDL)
+libopenss_guichart_la_LIBADD = $(LIBLTDL)
 
 moc_canvasview.cxx: canvasview.hxx
 	-moc -o moc_canvasview.cxx canvasview.hxx
@@ -42,7 +42,7 @@ moc_optionsform.cxx: optionsform.hxx
 moc_setdataform.cxx: setdataform.hxx
 	-moc -o moc_setdataform.cxx setdataform.hxx
 
-libopenss_Chart_la_SOURCES = \
+libopenss_chart_la_SOURCES = \
 	canvasellipse.hxx        canvastext.hxx  chartform.hxx  optionsform.hxx \
 	canvasrectangle.hxx \
 	canvasshadowellipse.hxx  canvasview.hxx  element.hxx    setdataform.hxx \
