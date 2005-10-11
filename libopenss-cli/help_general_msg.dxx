@@ -1,0 +1,190 @@
+/*/*******************************************************************************
+** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+**
+** This library is free software; you can redistribute it and/or modify it under
+** the terms of the GNU Lesser General Public License as published by the Free
+** Software Foundation; either version 2.1 of the License, or (at your option)
+** any later version.
+**
+** This library is distributed in the hope that it will be useful, but WITHOUT
+** ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+** FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+** details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with this library; if not, write to the Free Software Foundation, Inc.,
+** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*******************************************************************************/
+
+/** @file
+ *
+ * Message database.
+ *
+ */
+
+/********************************************/
+// GENERAL MESSAGES
+/*********************************************/
+
+
+/*********************************************/
+// BRIEF GENERAL MESSAGES
+/*********************************************/
+char *gen_Experiment_brief = {
+    "A set of collectors and executables bound together to generate"
+    " performance metric."
+};
+char *gen_Component_brief = {
+    "A somewhat self-contained section of the Open|SpeedShop"
+    " performance tool."
+};
+char *gen_Collector_brief = {
+    "Plugin that describes an experiment and processes the data."
+};
+char *gen_Metric_brief = {
+    "The entity, which the collector/experiment is gathering."
+};
+char *gen_Framework_brief = {
+    "The internal routines that handle most of the "
+    "low level mechanisms in SpeedShop."
+};
+char *gen_Plugin_brief = {
+    "Shared objects for collection and display of experiment data."
+};
+char *gen_Panel_brief = {
+    "A panel is an area of real-estate on the screen "
+    "raised by a tab:"
+    "\n\t\"A tabbed panel\".",
+};
+
+/*********************************************/
+// DETAILED GENERAL MESSAGES
+/*********************************************/
+char *gen_Experiment_detailed[] = {
+    gen_Experiment_brief,
+    " "
+};
+
+char *gen_Component_detailed[] = {
+    gen_Component_brief,
+    " ",
+    "This section of code does a set of specific related tasks for",
+    "the tool. For example, the GUI component does all the tasks",
+    "related to displaying Open|SpeedShop wizards, experiment",
+    "creation, and results using a graphical user interface. The",
+    "CLI component does similar functions but uses the interactive",
+    "command line delivery method",
+    " "
+};
+
+char *gen_Collector_detailed[] = {
+    gen_Collector_brief,
+    " ",
+    "The portion of the tool containing logic that is responsible",
+    "for the gathering of the performance metric. A collector is",
+    "a portion of the code that is included in the experiment plugin",
+    " "
+};
+
+char *gen_Metric_detailed[] = {
+    gen_Metric_brief,
+    " ",
+    "A time, occurrence counter, or other entity, which reflects in",
+    "some way on the applications performance and is gathered by a",
+    "performance experiment (by the collector).",
+    "",
+    "",
+    " "
+};
+
+char *gen_Framework_detailed[] = {
+    gen_Framework_brief,
+    " ",
+    "The set of API functions that allows the user interface to",
+    "manage the creation and viewing of performance experiments.",
+    "It is the interface between the  user interface and the DPCL",
+    "and Dyninst components.",
+    " "
+};
+
+char *gen_Plugin_detailed[] = {
+    gen_Plugin_brief,
+    " ",
+    "A portion of the performance tool that can be loaded and",
+    "included in the tool at tool start-up time. Development of",
+    "the plugin uses a tool specific interface (API) so that the",
+    "plugin, and the tool it is to be included in, know how to",
+    "interact with each other. Plugins are normally placed in a",
+    "specific directory so that the tool knows where to find the",
+    "plugins.",
+    " "
+};
+
+char *gen_Panel_detailed[] = {
+    gen_Panel_brief,
+    " ",
+    "A panel can be raised, lowered, deleted, hidden,",
+    "or dragged around the screen.",
+    " ",
+    "It's usual purpose is to group a set of related information.",
+    "A panel lives in a panel container.  One or more panels",
+    "can be placed into a panel container.",
+    "",
+    "",
+    "",
+    " "
+};
+
+/*********************************************/
+// GENERAL MESSAGE ARRAY
+/*********************************************/
+// message array to be passed to message czar
+OpenSpeedShop::message_element_t general_msg[] = {
+//    Experiment
+    -1,"Experiment",NULL,0,
+    "nomenclature",gen_Experiment_brief,
+    gen_Experiment_detailed,sizeof(gen_Experiment_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    Component
+    -1,"Component",NULL,0,
+    "nomenclature",gen_Component_brief,
+    gen_Component_detailed,sizeof(gen_Component_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    Collector
+    -1,"Collector",NULL,0,
+    "nomenclature",gen_Collector_brief,
+    gen_Collector_detailed,sizeof(gen_Collector_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    Metric
+    -1,"Metric",NULL,0,
+    "nomenclature",gen_Metric_brief,
+    gen_Metric_detailed,sizeof(gen_Metric_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    Framework
+    -1,"Framework",NULL,0,
+    "nomenclature",gen_Framework_brief,
+    gen_Framework_detailed,sizeof(gen_Framework_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    Plugin
+    -1,"Plugin",NULL,0,
+    "nomenclature",gen_Plugin_brief,
+    gen_Plugin_detailed,sizeof(gen_Plugin_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    Panel
+    -1,"Panel",NULL,0,
+    "nomenclature",gen_Panel_brief,
+    gen_Panel_detailed,sizeof(gen_Panel_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+
+    NULL,0,
+//    END OF LIST
+    -1,NULL,NULL,0,NULL,NULL,
+    NULL,0,NULL,0,NULL,0,NULL,0
+};
+

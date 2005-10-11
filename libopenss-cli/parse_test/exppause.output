@@ -1,0 +1,22 @@
+
+****************************
+exppause
+
+Command: expPause
+
+****************************
+exppause -x 6
+  
+Command: expPause
+	Experiment Id: 6
+
+****************************
+exppause
+
+Command: expPause
+
+****************************
+exppause -v all
+  
+Command: expPause
+	General Modifier Types: all 

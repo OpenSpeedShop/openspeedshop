@@ -1,0 +1,47 @@
+
+****************************
+expclose
+
+Command: expClose
+
+****************************
+expclose -v kill
+  
+Command: expClose
+	General Modifier Types: kill 
+
+****************************
+expclose -x 6
+  
+Command: expClose
+	Experiment Id: 6
+
+****************************
+expclose -x 6 -v kill
+    
+Command: expClose
+	Experiment Id: 6
+	General Modifier Types: kill 
+
+****************************
+expclose
+
+Command: expClose
+
+****************************
+expclose -v kill
+  
+Command: expClose
+	General Modifier Types: kill 
+
+****************************
+expclose -v all
+  
+Command: expClose
+	General Modifier Types: all 
+
+****************************
+expclose -v all -v kill
+    
+Command: expClose
+	General Modifier Types: all kill 

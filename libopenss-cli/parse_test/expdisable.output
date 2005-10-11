@@ -1,0 +1,22 @@
+
+****************************
+expdisable
+
+Command: expDisable
+
+****************************
+expdisable -x 6
+  
+Command: expDisable
+	Experiment Id: 6
+
+****************************
+expdisable
+
+Command: expDisable
+
+****************************
+expdisable -v all
+  
+Command: expDisable
+	General Modifier Types: all 
