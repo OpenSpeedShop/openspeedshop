@@ -1,0 +1,25 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+//
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License as published by the Free
+// Software Foundation; either version 2.1 of the License, or (at your option)
+// any later version.
+//
+// This library is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this library; if not, write to the Free Software Foundation, Inc.,
+// 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+////////////////////////////////////////////////////////////////////////////////
+
+
+#define attach_hand_width 16
+#define attach_hand_height 16
+static unsigned char attach_hand_bits[] = {
+   0xe0, 0x07, 0x19, 0x18, 0x07, 0x20, 0x81, 0x67, 0x61, 0xcd, 0xb9, 0x9a,
+   0x41, 0x6e, 0x8f, 0x01, 0x31, 0x02, 0xc1, 0x03, 0x80, 0x0a, 0x00, 0x07,
+   0xc0, 0x1f, 0x00, 0x07, 0x80, 0x0a, 0x00, 0x02};
