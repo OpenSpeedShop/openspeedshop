@@ -27,7 +27,6 @@ SUBDIRS = \
 	FPE_TracingPanel \
 	MPIPanel \
 	CustomExperimentPanel \
-	$(top_srcdir)/plugins/wizards \
 	DebugPanel
 
 if HAVE_PAPI

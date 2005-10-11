@@ -19,7 +19,7 @@
 pkglib_LTLIBRARIES = SourcePanel.la
 
 SourcePanel_la_CXXFLAGS = \
-	-I../../objects \
+	-I$(top_srcdir)/objects \
     -I/usr/include \
     $(QTLIB_CPPFLAGS) \
     -I. \
