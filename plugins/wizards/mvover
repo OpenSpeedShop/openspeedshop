@@ -1,0 +1,118 @@
+#/bin/sh
+
+################################################################################
+# Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+# Place, Suite 330, Boston, MA  02111-1307  USA
+################################################################################
+
+
+# This simple a utility script to merge pcSampleWizardPanel changes to the other 
+# views.   It will be obsolted shortly.    It can be removed from the 
+# source tree without any side effects.
+
+for i in `p_list -c`
+do
+  if [ $i == "FPE_TracingWizardPanel" ]
+  then
+    echo "WARNING: $i  is check out."
+    exit
+  fi
+#  if [ $i == "HW_CounterWizardPanel" ]
+#  then
+#    echo "WARNING: $i  is check out."
+#    exit
+#  fi
+  if [ $i == "IOWizardPanel" ]
+  then
+    echo "WARNING: $i  is check out."
+    exit
+  fi
+  if [ $i == "MPIWizardPanel" ]
+  then
+    echo "WARNING: $i  is check out."
+    exit
+  fi
+  if [ $i == "UserTimeWizardPanel" ]
+  then
+    echo "WARNING: $i  is check out."
+    exit
+  fi
+done
+# for i in `echo "FPE_TracingWizardPanel HW_CounterWizardPanel IOWizardPanel MPIWizardPanel UserTimeWizardPanel"`
+for i in `echo "FPE_TracingWizardPanel IOWizardPanel MPIWizardPanel UserTimeWizardPanel"`
+do
+  echo Doing $i
+
+  p_modify $i/$i.cxx $i/$i.hxx $i/Makefile.am
+  cp pcSampleWizardPanel/pcSampleWizardPanel.cxx $i/$i.cxx
+  cp pcSampleWizardPanel/pcSampleWizardPanel.hxx $i/$i.hxx
+  cp pcSampleWizardPanel/Makefile.am $i
+  echo "y" | mysed "PCSAMPLEPANEL" ${i}_H $i/$i.cxx $i/$i.hxx $i/Makefile.am
+  echo "y" | mysed "pcSampleWizardPanel" $i $i/$i.cxx $i/$i.hxx $i/Makefile.am
+
+  if [ $i = "FPE_TracingWizardPanel" ]
+  then
+   echo "y" | mysed "pc Sample Wizard" "FPE Tracing Wizard" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+    echo "y" | mysed "pcSampleDescription" "FPE_TracingDescription" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+    echo "y" | mysed "pc Sample rate" "sample rate" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+    echo "y" | mysed "pc Sample" "FPE Tracing" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+    echo "y" | mysed "pc Sampling" "FPE Tracing" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+    echo "y" | mysed "pcSample" "fpeTracing" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+    echo "y" | mysed "pcsampDescription" "fpe" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+    echo "y" | mysed "pcsamp" "fpe" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+  fi
+#  if [ $i = "HW_CounterWizardPanel" ]
+#  then
+#    echo "echo "y" | mysed \"pc Sample Wizard\" \"HW Counter Wizard\" $i/$i.cxx $i/$i.hxx $i/Makefile.am"
+#    echo "y" | mysed "pcSampleDescription" "HW_CounterDescription" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+#    echo "y" | mysed "pc Sample rate" "sample rate" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+#    echo "y" | mysed "pc Sample" "HW Counter" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+#    echo "y" | mysed "pc Sampling" "HW Counter" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+#    echo "y" | mysed "pcSample" "hwCounter" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+#    echo "y" | mysed "pcsamp" "hwc" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+#  fi
+  if [ $i = "IOWizardPanel" ]
+  then
+    echo "echo "y" | mysed \"pc Sample Wizard\" \"IO Wizard\" $i/$i.cxx $i/$i.hxx $i/Makefile.am"
+    echo "y" | mysed "pcSampleDescription" "IODescription" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+    echo "y" | mysed "pc Sample rate" "sample rate" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+    echo "y" | mysed "pc Sample" "IO" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+    echo "y" | mysed "pc Sampling" "IO" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+    echo "y" | mysed "pcSample" "io" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+    echo "y" | mysed "pcsamp" "io" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+  fi
+  if [ $i = "MPIWizardPanel" ]
+  then
+   echo "y" | mysed "pc Sample Wizard" "MPI Wizard" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+    echo "y" | mysed "pcSampleDescription" "MPIDescription" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+    echo "y" | mysed "pc Sample rate" "sample rate" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+    echo "y" | mysed "pc Sample" "MPI" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+    echo "y" | mysed "pc Sampling" "MPI" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+    echo "y" | mysed "pcSample" "mpi" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+    echo "y" | mysed "pcsamp" "mpi" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+  fi
+  if [ $i = "UserTimeWizardPanel" ]
+  then
+   echo "y" | mysed "pc Sample Wizard" "User Time Wizard" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+    echo "y" | mysed "pcSampleDescription" "UserTimeDescription" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+    echo "y" | mysed "pc Sample rate" "sample rate" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+    echo "y" | mysed "pc Sample" "User Time" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+    echo "y" | mysed "pc Sampling" "User Time" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+    echo "y" | mysed "pcSample" "usertime" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+    echo "y" | mysed "pcsamp" "usertime" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+    echo "y" | mysed "pcsamp" "usertime" $i/$i.cxx $i/$i.hxx $i/Makefile.am
+  fi
+done
