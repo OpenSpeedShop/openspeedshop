@@ -438,7 +438,7 @@ catch_signal (int sig, int error_num)
     Assert(lt_dlgetsearchpath() != NULL);
 
     // Load GUI library
-    if( !gui_dl_name ) gui_dl_name = "libopenss-GUI";
+    if( !gui_dl_name ) gui_dl_name = "libopenss-gui";
     if( !gui_entry_point ) gui_entry_point = "gui_init";
     if( !gui_exit_point ) gui_exit_point = "gui_exit";
   
