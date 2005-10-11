@@ -589,7 +589,8 @@ for( ChartPercentValueList::iterator vi = values.begin();vi != values.end(); vi+
 // printf("ChartForm::setValues(%d)=(%s) (%d)\n", i, value_str.ascii(), value);
   int color_index = i;
   if( i>15 ) color_index = max_color_cnt-1;
-  if( value_str.isEmpty() )
+//  if( value_str.isEmpty() )
+  if( value == Element::INVALID )
   {
     break;
   }

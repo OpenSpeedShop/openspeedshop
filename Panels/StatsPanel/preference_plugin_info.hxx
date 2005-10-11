@@ -39,6 +39,7 @@ extern "C"
   QCheckBox* sortDecendingCheckBox;
 
   QHBoxLayout* layoutTopN;
+  QHBoxLayout* layoutTopNChart;
   QLabel* showTopNTextLabel;
   QLabel* showTopNChartTextLabel;
   QLineEdit* showTopNLineEdit;
@@ -110,11 +111,6 @@ extern "C"
     statsPanelPrivateLayout->setGeometry( QRect( 10, 40, 200, 200) );
     layout8 = new QVBoxLayout( statsPanelPrivateLayout, 11, 6, "layout8");
 
-    sortDecendingCheckBox =
-      new QCheckBox( statsPanelPrivateLayout, "sortDecendingCheckBox" );
-sortDecendingCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, sortDecendingCheckBox->sizePolicy().hasHeightForWidth() ) );
-    layout8->addWidget( sortDecendingCheckBox );
-
     layoutTopN = new QHBoxLayout( 0, 0, 6, "layoutTopN");
 
     showTopNTextLabel =
@@ -126,21 +122,31 @@ sortDecendingCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QS
 
     layoutTopN->addWidget( showTopNLineEdit );
 
+    layout8->addLayout( layoutTopN );
+
+    layoutTopNChart = new QHBoxLayout( 0, 0, 6, "layoutTopNChart");
+
     showTopNChartTextLabel =
       new QLabel( statsPanelPrivateLayout, "showTopNChartTextLabel" );
-    layoutTopN->addWidget( showTopNChartTextLabel );
+    layoutTopNChart->addWidget( showTopNChartTextLabel );
 
     showTopNChartLineEdit =
       new QLineEdit( statsPanelPrivateLayout, "showTopNChartLineEdit" );
 
-    layoutTopN->addWidget( showTopNChartLineEdit );
-    layout8->addLayout( layoutTopN );
+    layoutTopNChart->addWidget( showTopNChartLineEdit );
+
+    layout8->addLayout( layoutTopNChart );
 
 
     showTextInChartCheckBox =
       new QCheckBox( statsPanelPrivateLayout, "showTextInChartCheckBox" );
 showTextInChartCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, showTextInChartCheckBox->sizePolicy().hasHeightForWidth() ) );
     layout8->addWidget( showTextInChartCheckBox );
+
+    sortDecendingCheckBox =
+      new QCheckBox( statsPanelPrivateLayout, "sortDecendingCheckBox" );
+sortDecendingCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, sortDecendingCheckBox->sizePolicy().hasHeightForWidth() ) );
+    layout8->addWidget( sortDecendingCheckBox );
 
 
 
@@ -163,7 +169,8 @@ showTextInChartCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (
 
     statsPanelGroupBox->setTitle( "Stats Panel" );
     sortDecendingCheckBox->setText( "Sort Descending" );
-    showTopNTextLabel->setText( "Show top N items:" );
+    showTopNTextLabel->setText( "Show top N items in list:" );
+    showTopNChartTextLabel->setText( "Show top N items in chart:" );
     showColumnToSortTextLabel->setText( "Column to sort:" );
     showTextInChartCheckBox->setText( "Show text in chart:" );
 

@@ -942,7 +942,6 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
         if( item->text(0).contains(".") )
         {
         // If double
-//          Queries::GetMetricByStatementInFileForThread(*currentCollector, currentMetricStr.ascii(), di->getPath(), *currentThread, orig_double_statement_data);
           Queries::GetMetricByStatementOfFileInThread(*currentCollector, currentMetricStr.ascii(), TimeInterval(Time::TheBeginning(),Time::TheEnd()), *currentThread, Path(di->getPath()), orig_double_statement_data);
 
 // printf("orig_double_statement_data->size(%d)\n", orig_double_statement_data->size() );
@@ -966,7 +965,6 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
         } else
         {
           // Not a double value...
-//          Queries::GetUIntMetricByStatementInFileForThread(*currentCollector, currentMetricStr.ascii(), di->getPath(), *currentThread, orig_uint64_statement_data);
           Queries::GetMetricByStatementOfFileInThread(*currentCollector, currentMetricStr.ascii(), TimeInterval(Time::TheBeginning(),Time::TheEnd()), *currentThread, Path(di->getPath()), orig_uint64_statement_data);
       
 // printf("orig_uint64_statement_data->size(%d)\n", orig_uint64_statement_data->size() );
@@ -1194,8 +1192,8 @@ StatsPanel::updateStatsPanelData()
   if( ( total_percent > 0.0 &&
       cpvl.count() < numberItemsToDisplayInStats) ||
       ( total_percent > 0.0 && 
-        cpvl.count() <= numberItemsToDisplayInStats &&
-        numberItemsToDisplayInChart <= numberItemsToDisplayInStats) )
+        cpvl.count() < numberItemsToDisplayInStats &&
+        numberItemsToDisplayInChart < numberItemsToDisplayInStats) )
   {
     if( total_percent < 100.00 )
     {
@@ -1786,12 +1784,14 @@ StatsPanel::outputCLIData(QString *data)
   { // i.e. like usertime
     lastlvi = splvi =  new SPListViewItem( this, splv, lastlvi, strings[0], strings[1], strings[2], strings[3] );
   }
-  if( total_percent > 0.0 && cpvl.count() <= numberItemsToDisplayInStats )
+  if( total_percent > 0.0 && cpvl.count() < numberItemsToDisplayInStats  &&
+      ctvl.count() < numberItemsToDisplayInChart )
   {
 // printf("put out data for the chart. %d %s\n", percent, strings[percentIndex].stripWhiteSpace().ascii() );
     cpvl.push_back( percent );
   } 
-  if( total_percent > 0.0 && cpvl.count() <= numberItemsToDisplayInChart )
+  if( total_percent > 0.0 && cpvl.count() <= numberItemsToDisplayInChart &&
+      ctvl.count() < numberItemsToDisplayInChart )
   {
 // printf("Push back another one!(%s)\n", strings[percentIndex].stripWhiteSpace().ascii());
     ctvl.push_back( strings[percentIndex].stripWhiteSpace() );
