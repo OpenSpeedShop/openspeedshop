@@ -42,9 +42,9 @@ usage ()
 
   echo ""
   echo "Example:"
-  echo "cd .../Panels/TemplatePanel"
+  echo "cd .../panels/TemplatePanel"
   echo "$ mknewpanel ../TestPanel TestPanel "TestPanel" \"Test Panel\" \"Cntrl B\" 1 "Performance""
-  echo "vi .../Panels/Makefile.am   << Add TestPanel to this directory list."
+  echo "vi .../panels/Makefile.am   << Add TestPanel to this directory list."
   echo "vi .../../configure.ac   << Add TestPanel to this directory list. Use"
   echo "                            use CmdPanel as an example."
   echo "You then need to rebuild from the top level."
@@ -164,7 +164,7 @@ cp preference_plugin_info.hxx $PANEL_DIR
 rm -fr sed.script
 
 echo "Succeeded: Finished creating files in $PANEL_DIR."
-echo "You'll now need to edit the Panels/Makefile.am to add this new"
+echo "You'll now need to edit the panels/Makefile.am to add this new"
 echo "directory to the build list."
 echo "You'll also need to modify the top level configure.ac file to add"
 echo "the new directory to the list of directories to have makefiles"
