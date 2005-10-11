@@ -42,7 +42,7 @@ DOC_SUBDIRS = \
 	libopenss-framework \
 	libopenss-queries \
 	libopenss-cli \
-	gui
+	libopenss-gui
 
 doc: $(DOC_SUBDIRS) 
 	for i in $(DOC_SUBDIRS); do (cd $$i; $(MAKE) doc); done
@@ -50,7 +50,7 @@ doc: $(DOC_SUBDIRS)
 DIST_SUBDIRS = $(SUBDIRS) \
 		test
 # Need the images files and the tests files in tarball.
-EXTRA_DIST = images/* 
+EXTRA_DIST = libopenss-guiimages/* 
 
 # The following "framework" target is simply a short-hand for the framework
 # developers (i.e. WDH) to build just those components necessary for working
