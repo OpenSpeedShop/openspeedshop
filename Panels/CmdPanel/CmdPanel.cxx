@@ -47,14 +47,13 @@ class OutputClass : public ss_ostream
     virtual void output_string (std::string s)
     {
        line_buffer += s.c_str();
-       if( QString(s).contains("\n") )
        {
          QString *data = new QString(line_buffer);
          cp->postCustomEvent(data);
          line_buffer = QString::null;
        }
     }
-    virtual void flush_ostream ()
+    virtual void flush_stream ()
     {
       qApp->flushX();
     }
@@ -81,7 +80,6 @@ CmdPanel::CmdPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc
   output->append( prompt );
   output->moveCursor(QTextEdit::MoveEnd, FALSE);
 */
-  putOutPrompt();
   output->setFocus();
 
   KeyEventFilter *keyEventFilter = new KeyEventFilter(output, this);
@@ -91,6 +89,7 @@ CmdPanel::CmdPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc
 
   oclass = new OutputClass();
   oclass->setCP(this);
+  oclass->Set_Issue_Prompt (true);
 
 
   show();
@@ -98,6 +97,7 @@ CmdPanel::CmdPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc
 // printf("CmdPanel.   Redirect all output here...\n");
   int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
   Redirect_Window_Output( wid, oclass, oclass );
+  putOutPrompt();
 }
 
 
@@ -132,6 +132,7 @@ CmdPanel::returnPressed()
   if( user_line_buffer.stripWhiteSpace().isEmpty() )
   {
 // printf("No command, simply put out prompt.\n");
+    oclass->Set_Issue_Prompt (true);
     putOutPrompt();
     return;
   }
@@ -154,6 +155,7 @@ CmdPanel::returnPressed()
 
     InputLineObject clip;
     cmdHistoryList.push_back(command);
+    oclass->Set_Issue_Prompt (true);
     Append_Input_String( wid, (char *)command.ascii(), NULL, &Default_TLI_Line_Output, &Default_TLI_Command_Output);
 //    Append_Input_String( wid, (char *)command.ascii());
 
@@ -166,7 +168,6 @@ CmdPanel::returnPressed()
 
  
   user_line_buffer = QString::null;
-  putOutPrompt();
 }
 
 
@@ -242,7 +243,9 @@ CmdPanel::putOutPrompt()
 {
 // printf("PutOutPrompt() enterd\n");
 output->moveCursor(QTextEdit::MoveEnd, FALSE);
-output->append( prompt );
+oclass->acquireLock();
+oclass->Issue_Prompt();
+oclass->releaseLock();
 output->moveCursor(QTextEdit::MoveEnd, FALSE);
 
 // int para; int index;
