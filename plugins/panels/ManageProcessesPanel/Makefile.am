@@ -25,7 +25,7 @@ ManageProcessesPanel_la_CXXFLAGS = \
     -I$(top_srcdir) \
     -I$(top_srcdir)/libopenss-framework \
     -I$(top_srcdir)/libopenss-gui \
-	-I$(top_srcdir)/pcli \
+	-I$(top_srcdir)/libopenss-cli \
 	-I$(top_srcdir)/libopenss-message \
 	-I$(top_srcdir)/libopenss-guiobjects \
 	-I$(top_srcdir)/libopenss-guidialogs \

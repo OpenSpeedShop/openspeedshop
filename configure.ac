@@ -186,7 +186,7 @@ AC_CONFIG_FILES(Makefile
 		libopenss-guiobjects/Makefile
 		libopenss-guidialogs/Makefile
 		libopenss-guichart/Makefile
-		pcli/Makefile
+		libopenss-cli/Makefile
 		libopenss-gui/Makefile
 		test/Makefile
 		test/executables/Makefile

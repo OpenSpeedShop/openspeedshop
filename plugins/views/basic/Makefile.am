@@ -21,7 +21,7 @@ pkglib_LTLIBRARIES = basic_view.la
 BUILT_SOURCES =
 
 basic_view_la_CXXFLAGS = \
-	-I$(top_srcdir)/pcli \
+	-I$(top_srcdir)/libopenss-cli \
 	-I$(top_srcdir)/libopenss-message \
 	-I$(top_srcdir)/libopenss-framework
 

@@ -20,7 +20,7 @@ pcl_la_CXXFLAGS =  \
         -LANG:std  \
         -I. \
         -I$(top_srcdir)/libopenss-framework \
-        -I$(top_srcdir)/pcli \
+        -I$(top_srcdir)/libopenss-cli \
         -I/usr/include -I. -I$(top_srcdir)/objects -I$(top_srcdir)/libopenss-guibase \
         -DPLUGIN_PATH=\"$(pkglibdir)\"
 

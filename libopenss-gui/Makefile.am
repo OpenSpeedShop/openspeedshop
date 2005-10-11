@@ -24,7 +24,7 @@ libopenss_gui_la_CXXFLAGS =  \
 	$(QTLIB_CPPFLAGS) \
 	-I. \
 	-I$(top_srcdir)/libopenss-framework \
-	-I$(top_srcdir)/pcli \
+	-I$(top_srcdir)/libopenss-cli \
 	-I$(top_srcdir)/libopenss-message \
 	-I$(top_srcdir)/libopenss-guiplugin \
 	-I$(top_srcdir)/libopenss-guiimages \
