@@ -56,7 +56,7 @@ moc_SaveAsExperimentDialog.cxx: SaveAsExperimentDialog.hxx
 moc_GenericProgressDialog.cxx: GenericProgressDialog.hxx
 	-moc -o moc_GenericProgressDialog.cxx GenericProgressDialog.hxx
 
-libopenss_Dialogs_la_SOURCES = \
+libopenss_dialogs_la_SOURCES = \
 	AttachProcessDialog.hxx AttachProcessDialog.cxx moc_AttachProcessDialog.cxx \
 	AttachProgramDialog.hxx AttachProgramDialog.cxx moc_AttachProgramDialog.cxx \
 	ManageProcessesDialog.hxx ManageProcessesDialog.cxx moc_ManageProcessesDialog.cxx \
