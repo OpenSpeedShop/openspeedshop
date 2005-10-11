@@ -31,12 +31,12 @@ libopenss_GUI_la_CXXFLAGS =  \
 	-I$(top_srcdir)/dialogs \
 	-I$(top_srcdir)/plugins/panels/DebugPanel \
 	-I$(top_srcdir)/objects \
-	-I$(top_srcdir)/base
+	-I$(top_srcdir)/libopenss-guibase
 
 libopenss_GUI_la_LDFLAGS = \
 	-export-dynamic -version-info 0:0:0
 
-libopenss_GUI_la_LIBADD = $(LIBLTDL) $(QTLIB_LIBS) $(QTLIB_LDFLAGS) -lqassistantclient -L/usr/X11R6/lib -lXext -lX11 -lm -lpthread -L$(top_srcdir)/base -lopenss-Base -L$(top_srcdir)/dialogs -lopenss-Dialogs -L$(top_srcdir)/plugin -lopenss-Plugin -lopenss-Objects
+libopenss_GUI_la_LIBADD = $(LIBLTDL) $(QTLIB_LIBS) $(QTLIB_LDFLAGS) -lqassistantclient -L/usr/X11R6/lib -lXext -lX11 -lm -lpthread -L$(top_srcdir)/libopenss-guibase -lopenss-guibase -L$(top_srcdir)/dialogs -lopenss-Dialogs -L$(top_srcdir)/plugin -lopenss-Plugin -lopenss-Objects
 
 moc_CLIInterface.cxx: CLIInterface.hxx
 	-moc -o moc_CLIInterface.cxx CLIInterface.hxx

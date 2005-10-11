@@ -16,9 +16,9 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-lib_LTLIBRARIES = libopenss-Base.la
+lib_LTLIBRARIES = libopenss-guibase.la
 
-libopenss_Base_la_CXXFLAGS = \
+libopenss_guibase_la_CXXFLAGS = \
     -I../objects \
     -I/usr/include \
     -I$(QTDIR)/include \
@@ -28,10 +28,10 @@ libopenss_Base_la_CXXFLAGS = \
     -I$(top_srcdir)/gui \
     -I$(top_srcdir)/base
 
-libopenss_Base_la_LDFLAGS = \
+libopenss_guibase_la_LDFLAGS = \
 	-export-dynamic -version-info 0:0:0
 
-libopenss_Base_la_LIBADD =
+libopenss_guibase_la_LIBADD =
 
 moc_TopWidget.cxx: TopWidget.hxx
 	-moc -o moc_TopWidget.cxx TopWidget.hxx
@@ -51,7 +51,7 @@ moc_PanelContainer.cxx: PanelContainer.hxx
 moc_Panel.cxx: Panel.hxx
 	-moc -o moc_Panel.cxx Panel.hxx
 
-libopenss_Base_la_SOURCES = \
+libopenss_guibase_la_SOURCES = \
 	pc_plugin.cxx \
 	DragNDropPanel.hxx DragNDropPanel.cxx \
 	TopWidget.hxx TopWidget.cxx moc_TopWidget.cxx \

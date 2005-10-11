@@ -42,7 +42,7 @@ moc_optionsform.cxx: optionsform.hxx
 moc_setdataform.cxx: setdataform.hxx
 	-moc -o moc_setdataform.cxx setdataform.hxx
 
-libopenss_chart_la_SOURCES = \
+libopenss_guichart_la_SOURCES = \
 	canvasellipse.hxx        canvastext.hxx  chartform.hxx  optionsform.hxx \
 	canvasrectangle.hxx \
 	canvasshadowellipse.hxx  canvasview.hxx  element.hxx    setdataform.hxx \
