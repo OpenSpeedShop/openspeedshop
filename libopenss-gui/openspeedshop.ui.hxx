@@ -727,7 +727,7 @@ void OpenSpeedshop::init()
   topPC = masterPC;
 
   char ph_file[2048];
-  char *ph_dl_name = "libopenss-Plugin";
+  char *ph_dl_name = "libopenss-guiplugin";
   lt_dlhandle dl_ph_object = lt_dlopenext((const char *)ph_dl_name);
   if( dl_ph_object == NULL )
   {
