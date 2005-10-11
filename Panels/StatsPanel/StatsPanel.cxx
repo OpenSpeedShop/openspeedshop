@@ -1487,7 +1487,7 @@ StatsPanel::updateCollectorMetricList()
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
 list_of_collectors.clear();
   if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
-         &list_of_collectors, FALSE ) )
+         &list_of_collectors, TRUE ) )
   {
     printf("Unable to run %s command.\n", command.ascii() );
   }
@@ -1521,7 +1521,7 @@ StatsPanel::updateThreadsList()
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
 list_of_pids.clear();
   if( !cli->getIntListValueFromCLI( (char *)command.ascii(),
-         &list_of_pids, FALSE ) )
+         &list_of_pids, TRUE ) )
   {
     printf("Unable to run %s command.\n", command.ascii() );
   }

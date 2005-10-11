@@ -115,7 +115,7 @@ void ManageCollectorsClass::languageChange()
   command = QString("listTypes -v all");
 // printf("command=(%s)\n", command.ascii() );
   if( !cli->getStringListValueFromCLI( (char *)command.ascii(), 
-         &list_of_collectors, FALSE ) )
+         &list_of_collectors, TRUE ) )
   {
     QMessageBox::information( this, tr("Error issuing command to cli:"), tr("Unable to run %1 command.").arg(command), QMessageBox::Ok );
   }
