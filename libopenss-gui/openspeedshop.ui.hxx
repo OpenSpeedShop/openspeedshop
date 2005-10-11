@@ -708,7 +708,7 @@ void OpenSpeedshop::init()
   // Insure the libltdl user-defined library search path has been set
   assert(lt_dlgetsearchpath() != NULL);
   // Load base and plugin libraries
-  char *pc_dl_name="libopenss-Base";
+  char *pc_dl_name="libopenss-guibase";
   lt_dlhandle dl_pc_object = lt_dlopenext((const char *)pc_dl_name);
   if( dl_pc_object == NULL )
   {
