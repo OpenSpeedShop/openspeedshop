@@ -574,6 +574,22 @@ public:
    // Destroy ParseResult object
     delete PR;
 
+   // Reclaim results
+    std::list<CommandResult *>::iterator cri;
+    for (cri = CMD_Result.begin(); cri != CMD_Result.end(); ) {
+      CommandResult *CR = (*cri);
+      cri++;
+      delete CR;
+    }
+
+   // Reclaim annotations.
+    std::list<CommandResult_RawString *>::iterator crri;
+    for (crri = CMD_Annotation.begin(); crri != CMD_Annotation.end(); ) {
+      CommandResult_RawString *CR = (*crri);
+      crri++;
+      delete CR;
+    }
+
    // Safety check.
     pthread_cond_destroy (&wait_on_dependency);
   }
