@@ -22,7 +22,7 @@ SUBDIRS = \
 	libopenss-runtime \
 	libopenss-framework \
 	libopenss-queries \
-	pcli \
+	libopenss-cli \
 	libopenss-guibase \
 	libopenss-guiobjects \
 	libopenss-guidialogs \
@@ -41,7 +41,7 @@ DOC_SUBDIRS = \
 	libopenss-runtime \
 	libopenss-framework \
 	libopenss-queries \
-	pcli \
+	libopenss-cli \
 	gui
 
 doc: $(DOC_SUBDIRS) 
