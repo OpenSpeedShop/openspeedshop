@@ -29,69 +29,6 @@ using namespace OpenSpeedShop::cli;
 
 // Move to Query library
 
-bool ISZERO (int a) { return (a == 0); }
-bool ISZERO (uint a) { return (a == 0); }
-bool ISZERO (int64_t a) { return (a == 0); }
-bool ISZERO (uint64_t a) { return (a == 0); }
-bool ISZERO (float a) { return (a == 0.0); }
-bool ISZERO (double a) { return (a == 0.0); }
-bool ISZERO (std::string a) { return (a.length() == 0); }
-
-template <typename T>
-void GetMetricByFunctionInThread(
-    const Collector& collector,
-    const std::string& metric,
-    const Thread& thread,
-    SmartPtr<std::map<Function, T> >& result)
-{
-    // Check preconditions
-    Assert(collector.inSameDatabase(thread));
-
-    // Lock the appropriate database
-    collector.lockDatabase();
-
-    // Time interval covering earliest to latest possible time
-    const TimeInterval Forever =
-        TimeInterval(Time::TheBeginning(), Time::TheEnd());
-
-    if (result.isNull()) {
-        // Allocate a new map of functions to type T
-        result = SmartPtr<std::map<Function, T> >(
-            new std::map<Function, T>()
-            );
-        Assert(!result.isNull());
-    }
-
-    // Get the current list of functions in this thread
-    std::set<Function> functions = thread.getFunctions();
-
-    // Iterate over each function
-    for(std::set<Function>::const_iterator
-            i = functions.begin(); i != functions.end(); ++i) {
-        // Get the address range of this function
-        AddressRange range = i->getAddressRange();
-
-        // Evalute the metric over this address range
-        T value;
-        collector.getMetricValue(metric, thread, range, Forever, value);
-
-        // Add this function and its metric value to the map
-        if(!ISZERO(value)) {
-            Function f = *i;
-            typename std::map<Function, T>::iterator j = result->find(f);
-            if (j == result->end()) {
-                result->insert(std::make_pair(*i, value));
-            } else {
-                (*result)[f] += value;
-            }
-        }
-
-    }
-
-    // Unlock the apropriate database
-    collector.unlockDatabase();
-}
-
 template <typename T>
 void GetMetricByFunctionInThreadGroup(
     const Collector& collector,
