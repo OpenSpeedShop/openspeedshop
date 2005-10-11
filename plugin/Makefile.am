@@ -16,26 +16,26 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-lib_LTLIBRARIES = libopenss-Plugin.la
+lib_LTLIBRARIES = libopenss-plugin.la
 
-libopenss_Plugin_la_CXXFLAGS =  \
+libopenss_plugin_la_CXXFLAGS =  \
 	-I/usr/include \
 	-I$(QTDIR)/include \
 	-I. \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/libopenss-guibase \
-	-I$(top_srcdir)/gui
+	-I$(top_srcdir)/libopenss-gui
 
-libopenss_Plugin_la_LDFLAGS = \
+libopenss_plugin_la_LDFLAGS = \
 	-export-dynamic -version-info 0:0:0
 
-libopenss_Plugin_la_LIBADD = $(LIBLTDL)
+libopenss_plugin_la_LIBADD = $(LIBLTDL)
 
 moc_SlotInfo.cxx: SlotInfo.hxx
 	-moc -o moc_SlotInfo.cxx SlotInfo.hxx
 
-libopenss_Plugin_la_SOURCES = \
-    ../gui/openspeedshop.hxx \
+libopenss_plugin_la_SOURCES = \
+    ../libopenss-gui/openspeedshop.hxx \
 	plugin_handler.hxx plugin_handler.cxx \
 	PluginInfo.hxx PluginInfo.cxx \
 	SlotInfo.hxx SlotInfo.cxx moc_SlotInfo.cxx \

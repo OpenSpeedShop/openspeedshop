@@ -26,11 +26,11 @@ FPE_TracingPanel_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework \
     -I$(top_srcdir)/pcli \
     -I$(top_srcdir)/libopenss-message \
-    -I$(top_srcdir)/gui \
-    -I$(top_srcdir)/images \
-    -I$(top_srcdir)/plugin \
-    -I$(top_srcdir)/objects \
-    -I$(top_srcdir)/dialogs \
+    -I$(top_srcdir)/libopenss-gui \
+    -I$(top_srcdir)/libopenss-guiimages \
+    -I$(top_srcdir)/libopenss-guiplugin \
+    -I$(top_srcdir)/libopenss-guiobjects \
+    -I$(top_srcdir)/libopenss-guidialogs \
     -I$(top_srcdir)/plugins/panels/ManageProcessesPanel \
     -I$(top_srcdir)/plugins/panels/SourcePanel \
     -I$(top_srcdir)/libopenss-guibase
@@ -42,11 +42,11 @@ FPE_TracingPanel_la_LDFLAGS = \
 	-module \
 	-avoid-version \
 	-L$(top_srcdir)/libopenss-framework \
-	-L$(top_srcdir)/dialogs \
+	-L$(top_srcdir)/libopenss-guidialogs \
 	$(QTLIB_LIBS) $(QTLIB_LDFLAGS) \
 	-ldl
 
-FPE_TracingPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-Dialogs
+FPE_TracingPanel_la_LIBADD = $(LIBLTDL) -lopenss-framework -lopenss-guidialogs
 
 moc_FPE_TracingPanel.cxx: FPE_TracingPanel.hxx
 	-moc -o moc_FPE_TracingPanel.cxx FPE_TracingPanel.hxx

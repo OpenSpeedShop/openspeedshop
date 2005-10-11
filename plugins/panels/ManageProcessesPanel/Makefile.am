@@ -24,12 +24,12 @@ ManageProcessesPanel_la_CXXFLAGS = \
     -I. \
     -I$(top_srcdir) \
     -I$(top_srcdir)/libopenss-framework \
-    -I$(top_srcdir)/gui \
+    -I$(top_srcdir)/libopenss-gui \
 	-I$(top_srcdir)/pcli \
 	-I$(top_srcdir)/libopenss-message \
-	-I$(top_srcdir)/objects \
-	-I$(top_srcdir)/dialogs \
-    -I$(top_srcdir)/plugin \
+	-I$(top_srcdir)/libopenss-guiobjects \
+	-I$(top_srcdir)/libopenss-guidialogs \
+    -I$(top_srcdir)/libopenss-guiplugin \
     -I$(top_srcdir)/libopenss-guibase
 
 ManageProcessesPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version

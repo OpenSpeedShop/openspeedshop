@@ -24,12 +24,12 @@ SUBDIRS = \
 	libopenss-queries \
 	pcli \
 	libopenss-guibase \
-	objects \
-	dialogs \
+	libopenss-guiobjects \
+	libopenss-guidialogs \
 	expr_info \
-	plugin \
+	libopenss-guiplugin \
 	libopenss-guichart \
-	gui \
+	libopenss-gui \
 	openss \
 	plugins \
 	examples \

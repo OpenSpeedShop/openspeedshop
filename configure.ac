@@ -181,13 +181,13 @@ AC_CONFIG_FILES(Makefile
 		examples/libopenss-framework/tool/Makefile
 		openss/Makefile
 		libopenss-guibase/Makefile
-		plugin/Makefile
+		libopenss-guiplugin/Makefile
 		expr_info/Makefile
-		objects/Makefile
-		dialogs/Makefile
+		libopenss-guiobjects/Makefile
+		libopenss-guidialogs/Makefile
 		libopenss-guichart/Makefile
 		pcli/Makefile
-		gui/Makefile
+		libopenss-gui/Makefile
 		test/Makefile
 		test/executables/Makefile
 		test/executables/forever/Makefile

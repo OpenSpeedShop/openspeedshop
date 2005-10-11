@@ -22,17 +22,17 @@ StatsPanel_la_CXXFLAGS = \
     -I/usr/include \
 	$(QTLIB_CPPFLAGS) \
     -I. \
-    -I$(top_srcdir)/objects \
+    -I$(top_srcdir)/libopenss-guiobjects \
     -I$(top_srcdir)/libopenss-framework \
     -I$(top_srcdir)/libopenss-queries \
     -I$(top_srcdir)/pcli \
     -I$(top_srcdir)/libopenss-message \
     -I$(top_srcdir)/plugins/panels/ManageProcessesPanel \
     -I$(top_srcdir)/libopenss-guichart \
-    -I$(top_srcdir)/gui \
+    -I$(top_srcdir)/libopenss-gui \
     -I$(top_srcdir)/expr_info \
-    -I$(top_srcdir)/plugin \
-    -I$(top_srcdir)/dialogs \
+    -I$(top_srcdir)/libopenss-guiplugin \
+    -I$(top_srcdir)/libopenss-guidialogs \
     -I$(top_srcdir)/libopenss-guibase
 
 StatsPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version

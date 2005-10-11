@@ -23,9 +23,9 @@ IntroWizardPanel_la_CXXFLAGS = \
     -I/usr/include \
     $(QTLIB_CPPFLAGS) \
     -I. \
-    -I$(top_srcdir)/gui \
-    -I$(top_srcdir)/objects \
-    -I$(top_srcdir)/plugin \
+    -I$(top_srcdir)/libopenss-gui \
+    -I$(top_srcdir)/libopenss-guiobjects \
+    -I$(top_srcdir)/libopenss-guiplugin \
     -I$(top_srcdir)/libopenss-guibase
 
 IntroWizardPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version

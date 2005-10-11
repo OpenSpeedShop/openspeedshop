@@ -16,27 +16,27 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-lib_LTLIBRARIES = libopenss-Dialogs.la
+lib_LTLIBRARIES = libopenss-dialogs.la
 
-libopenss_Dialogs_la_CXXFLAGS = \
+libopenss_dialogs_la_CXXFLAGS = \
 	-I/usr/include \
 	-I$(QTDIR)/include \
 	-I. \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/libopenss-framework \
-	-I$(top_srcdir)/gui \
+	-I$(top_srcdir)/libopenss-gui \
 	-I$(top_srcdir)/pcli \
 	-I$(top_srcdir)/libopenss-message \
-	-I$(top_srcdir)/images \
+	-I$(top_srcdir)/libopenss-guiimages \
 	-I$(top_srcdir)/libopenss-guibase \
-	-I$(top_srcdir)/plugin \
-    -I$(top_srcdir)/objects \
+	-I$(top_srcdir)/libopenss-guiplugin \
+    -I$(top_srcdir)/libopenss-guiobjects \
 	-I$(QTDIR)
 
-libopenss_Dialogs_la_LDFLAGS = \
+libopenss_dialogs_la_LDFLAGS = \
 	-export-dynamic -version-info 0:0:0
 
-libopenss_Dialogs_la_LIBADD = $(LIBLTDL)  -L../objects -lopenss-Objects
+libopenss_dialogs_la_LIBADD = $(LIBLTDL)  -L../libopenss-guiobjects -lopenss-guiobjects
 
 moc_AttachProcessDialog.cxx: AttachProcessDialog.hxx
 	-moc -o moc_AttachProcessDialog.cxx AttachProcessDialog.hxx

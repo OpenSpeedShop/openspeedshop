@@ -22,8 +22,8 @@ DebugPanel_la_CXXFLAGS = \
     -I/usr/include \
     $(QTLIB_CPPFLAGS) \
     -I. \
-    -I$(top_srcdir)/gui \
-    -I$(top_srcdir)/plugin \
+    -I$(top_srcdir)/libopenss-gui \
+    -I$(top_srcdir)/libopenss-guiplugin \
     -I$(top_srcdir)/libopenss-guibase
 
 DebugPanel_la_LDFLAGS = --export-dynamic --export-all-symbols -module -avoid-version

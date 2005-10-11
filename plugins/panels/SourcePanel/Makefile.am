@@ -19,14 +19,14 @@
 pkglib_LTLIBRARIES = SourcePanel.la
 
 SourcePanel_la_CXXFLAGS = \
-	-I$(top_srcdir)/objects \
+	-I$(top_srcdir)/libopenss-guiobjects \
     -I/usr/include \
     $(QTLIB_CPPFLAGS) \
     -I. \
     -I$(top_srcdir)/pcli \
     -I$(top_srcdir)/libopenss-message \
-    -I$(top_srcdir)/gui \
-    -I$(top_srcdir)/plugin \
+    -I$(top_srcdir)/libopenss-gui \
+    -I$(top_srcdir)/libopenss-guiplugin \
     -I$(top_srcdir)/libopenss-framework \
     -I$(top_srcdir)/libopenss-guibase
 

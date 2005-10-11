@@ -21,7 +21,7 @@ lib_LTLIBRARIES = libopenss-message.la
 libopenss_message_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-guibase \
 	-I$(top_srcdir)/libopenss-framework \
-	-I$(top_srcdir)/objects \
+	-I$(top_srcdir)/libopenss-guiobjects \
 	-DPLUGIN_PATH=\"$(pkglibdir)\" \
 	$(LTDLINCL) \
 	$(PYTHON_CPPFLAGS)

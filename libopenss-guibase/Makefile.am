@@ -19,13 +19,13 @@
 lib_LTLIBRARIES = libopenss-guibase.la
 
 libopenss_guibase_la_CXXFLAGS = \
-    -I../objects \
+    -I../libopenss-guiobjects \
     -I/usr/include \
     -I$(QTDIR)/include \
     -I. \
-    -I$(top_srcdir)/plugin \
-    -I$(top_srcdir)/images \
-    -I$(top_srcdir)/gui \
+    -I$(top_srcdir)/libopenss-guiplugin \
+    -I$(top_srcdir)/libopenss-guiimages \
+    -I$(top_srcdir)/libopenss-gui \
     -I$(top_srcdir)/libopenss-guibase
 
 libopenss_guibase_la_LDFLAGS = \
