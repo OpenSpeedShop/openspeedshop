@@ -101,6 +101,8 @@ class StatsPanel  : public Panel
 
     SPListView *splv;
 
+    QString lastAbout;
+
     QHBoxLayout *frameLayout;
     QSplitter *splitterA;
     SPChartForm *cf;
@@ -161,6 +163,7 @@ void setCurrentMetricStr();
     void details();
     void gotoSource(bool use_current_item = FALSE);
     void showPercentageSelected();
+    void aboutSelected();
     void compareSelected();
     void manageProcessesSelected();
 

@@ -137,11 +137,12 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   currentCollector = NULL;
   currentItem = NULL;
   currentItemIndex = 0;
-lastlvi = NULL;
-gotHeader = FALSE;
-fieldCount = 0;
-percentIndex = -1;
-gotColumns = FALSE;
+  lastlvi = NULL;
+  gotHeader = FALSE;
+  fieldCount = 0;
+  percentIndex = -1;
+  gotColumns = FALSE;
+  lastAbout = QString::null;
 // printf("currentItemIndex initialized to 0\n");
 
   f = NULL;
@@ -346,7 +347,7 @@ StatsPanel::menu( QPopupMenu* contextMenu)
   // Over all the collectors....
   // Round up the metrics ....
   // Create a menu of metrics....
-    metricMenu = new QPopupMenu(this);
+  metricMenu = new QPopupMenu(this);
   contextMenu->setCheckable(TRUE);
   int mid = -1;
   QString defaultStatsReportStr = QString::null;
@@ -404,14 +405,14 @@ StatsPanel::menu( QPopupMenu* contextMenu)
         currentThreadStr = pidStr;
 //        threadMenu->setItemChecked(mid, TRUE);
       }
-for( ThreadGroupStringList::Iterator it = currentThreadGroupStrList.begin(); it != currentThreadGroupStrList.end(); ++it)
-{
-  QString ts = (QString)*it;
-  if( ts == pidStr )
-  {
-    threadMenu->setItemChecked(mid, TRUE);
-  }
-}
+      for( ThreadGroupStringList::Iterator it = currentThreadGroupStrList.begin(); it != currentThreadGroupStrList.end(); ++it)
+      {
+        QString ts = (QString)*it;
+        if( ts == pidStr )
+        {
+          threadMenu->setItemChecked(mid, TRUE);
+        }
+      }
     }
     connect(threadMenu, SIGNAL( activated(int) ),
         this, SLOT(threadSelected(int)) );
@@ -426,6 +427,8 @@ for( ThreadGroupStringList::Iterator it = currentThreadGroupStrList.begin(); it 
 
   showPercentageID = contextMenu->insertItem("Show Percentages", this, SLOT(showPercentageSelected()) );
   contextMenu->setItemChecked(showPercentageID, showPercentageFLAG);
+
+  contextMenu->insertItem("About...", this, SLOT(aboutSelected()) );
 
 
   contextMenu->insertSeparator();
@@ -719,6 +722,14 @@ StatsPanel::showPercentageSelected()
     contextMenu->setItemChecked(showPercentageID, showPercentageFLAG);
   }
   updateStatsPanelData();
+}
+
+void
+StatsPanel::aboutSelected()
+{
+
+QString aboutString = lastAbout;
+QMessageBox::information(this, "About stats information", aboutString, "Ok");
 }
 
 /*! Compare item was selected. */
@@ -1113,20 +1124,26 @@ StatsPanel::updateStatsPanelData()
 
   splv->setSorting ( -1 );
   QString command = QString("expView -x %1").arg(expID);
+lastAbout = QString("Experiment: %1\n").arg(expID);
   if( currentCollectorStr.isEmpty() || showPercentageFLAG == FALSE )
   {
      command += QString(" %1%2").arg("stats").arg(numberItemsToDisplayInStats);
+lastAbout += QString("Requested data for all collectors for top %1 items\n").arg(numberItemsToDisplayInStats);
   } else
   {
      command += QString(" %1%2").arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
+lastAbout += QString("Requested data for collector %1 for top %2 items\n").arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
+
   }
   if( !currentMetricStr.isEmpty() )
   {
      command += QString(" -m %1").arg(currentMetricStr);
+lastAbout += QString("for metrics %1\n").arg(currentMetricStr);
   }
   if( !currentThreadsStr.isEmpty() )
   {
      command += QString(" -p %1").arg(currentThreadsStr);
+lastAbout += QString("for threads %1\n").arg(currentThreadsStr);
   }
 
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
@@ -1134,6 +1151,7 @@ StatsPanel::updateStatsPanelData()
   QApplication::setOverrideCursor(QCursor::WaitCursor);
   Redirect_Window_Output( cli->wid, spoclass, spoclass );
 // printf("command: (%s)\n", command.ascii() );
+lastAbout += "Command issued: " + command;
   InputLineObject *clip = Append_Input_String( cli->wid, (char *)command.ascii());
   if( clip == NULL )
   {
@@ -1288,23 +1306,18 @@ StatsPanel::collectorMetricSelected(int val)
   {
     index = s.find("::");
     if( index > 0 )
-    {
+    { // The user selected one of the metrics
       currentCollectorStr = s.mid(13, index-13 );
       currentMetricStr = s.mid(index+2);
 // printf("B1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
       // This one resets to all...
-      currentThreadStr = QString::null;
     } else 
-    {
+    { // The user wants to do all the metrics on the selected threads...
       index = s.find(":");
       currentCollectorStr = s.mid(13, index-13 );
       currentMetricStr = QString::null;
-      currentThreadStr = QString::null;
 // printf("B2: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
-      currentThreadsStr = QString::null;
-      currentThreadGroupStrList.clear();
     }
-//contextMenu->setItemChecked(val, TRUE);
     updateStatsPanelData();
   }
 }
