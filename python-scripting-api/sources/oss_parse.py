@@ -215,6 +215,6 @@ def cmd_parse(zusamen):
 
     #print "cmd_parse(",zusamen,")"
 
-    return CallParser(zusamen)
+    return EmbeddedParser(zusamen)
     #return PY_Input.CallParser (zusamen)
     #return
