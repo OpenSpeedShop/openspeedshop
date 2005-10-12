@@ -363,7 +363,7 @@ static PyObject *SS_InitEmbeddedInterface (PyObject *self, PyObject *args) {
   return Py_BuildValue("");
 }
 
-static PyMethodDef PY_Input_Methods[] = {
+static PyMethodDef PYopenss_Methods[] = {
 
     {"CallParser",  SS_CallParser, METH_VARARGS,
      "Call the YACC'd parser."},
@@ -394,37 +394,9 @@ static PyMethodDef PY_Input_Methods[] = {
 
 PyMODINIT_FUNC
 initPY_Input (void) {
-  (void) Py_InitModule("PY_Input", PY_Input_Methods);
+  (void) Py_InitModule("PY_Input", PYopenss_Methods);
 }
 
-static PyMethodDef PYopenss_Methods[] = {
-
-    {"CallParser",  SS_CallParser, METH_VARARGS,
-     "Call the YACC'd parser."},
-
-    {"EmbeddedParser",  SS_EmbeddedParser, METH_VARARGS,
-     "Call the YACC'd parser for a scripting command."},
-
-    {"SetAssign",  SS_Set_Assign, METH_VARARGS,
-     "Set to 1 if the result is used in a python."},
-
-    {"Save_ILO",  SS_DelayILO, METH_VARARGS,
-     "Save the Current_ILO."},
-
-    {"ReadILO",  SS_ReadILO, METH_VARARGS,
-     "Use a saved ILO to get a command."},
-
-    {"ReadLine",  SS_ReadLine, METH_VARARGS,
-     "Read a SpeedShop command."},
-
-    {"ParseError",  SS_ParseError, METH_VARARGS,
-     "Python or Yacc parser error marking."},
-
-    {"OSS_Init",  SS_InitEmbeddedInterface, METH_VARARGS,
-     "Initialize openss for use as an embedded utility."},
-
-    {NULL, NULL, 0, NULL}        /* Sentinel */
-};
 
 PyMODINIT_FUNC
 initPYopenss (void) {
