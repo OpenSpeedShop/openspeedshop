@@ -208,7 +208,7 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
 // printf("run command=(%s)\n", command.ascii() );
     std::list<std::string> list_of_collectors;
     if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
-           &list_of_collectors, FALSE ) )
+           &list_of_collectors, TRUE ) )
     {
       printf("Unable to run %s command.\n", command.ascii() );
     }
@@ -1166,7 +1166,7 @@ OpenSpeedshop::lookForExperiment()
     command = QString("listTypes -x %1").arg(expStr);
     std::list<std::string> list_of_collectors;
     if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
-           &list_of_collectors, FALSE ) )
+           &list_of_collectors, TRUE ) )
     {
 //      printf("Unable to run %s command.\n", command.ascii() );
       
