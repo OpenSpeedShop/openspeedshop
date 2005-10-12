@@ -1,7 +1,7 @@
 from oss_classes import *
 import types
 
-from script_test import *
+from PY_Input import *
 
 ################################################################################
 #
@@ -215,6 +215,6 @@ def cmd_parse(zusamen):
 
     #print "cmd_parse(",zusamen,")"
 
-    return CallParseTest(zusamen)
+    return CallParser(zusamen)
     #return PY_Input.CallParser (zusamen)
     #return
