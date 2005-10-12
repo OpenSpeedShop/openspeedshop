@@ -1,32 +1,32 @@
 # expView [ <expId_spec> ] [ <viewType> ] [ -m <expMetric_list> ] [ <target_list> ]
-import oss
+import openss
 
-my_host = oss.HostList()
+my_host = openss.HostList()
 my_host += ["bosco","111.222.333.444"]
 
-my_rank = oss.RankList()
+my_rank = openss.RankList()
 my_rank += [1,3,(22,33),564]
 
-my_file_bosco = oss.FileList("bosco")
+my_file_bosco = openss.FileList("bosco")
 
-my_viewtype = oss.ViewTypeList()
+my_viewtype = openss.ViewTypeList()
 my_viewtype += "pcsamp"
 
-#my_modifer = oss.ModifierList("all")
+#my_modifer = openss.ModifierList("all")
 
-my_metric_list = oss.MetricList()
+my_metric_list = openss.MetricList()
 my_metric_list += "exclusive"
 my_metric_list += ("pcsamp","inclusive")
 
-my_expid = oss.ExpId(7)
+my_expid = openss.ExpId(7)
 
-oss.expView(my_expid,my_viewtype,my_metric_list,my_rank,my_file_bosco)
+openss.expView(my_expid,my_viewtype,my_metric_list,my_rank,my_file_bosco)
 
-oss.expView(my_expid)
+openss.expView(my_expid)
 
-oss.expView(my_expid,my_viewtype)
+openss.expView(my_expid,my_viewtype)
 
-ret = oss.expView(my_expid,my_viewtype,my_metric_list)
+ret = openss.expView(my_expid,my_viewtype,my_metric_list)
 
 #This is dummied up data packaged in  the C++ module 
 # and passed back by as a python object.

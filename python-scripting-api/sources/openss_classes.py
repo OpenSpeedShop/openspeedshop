@@ -31,29 +31,29 @@ class OssList:
     	else:
     	    t_list = input_list
 
-    	self._oss_object = t_list
+    	self._openss_object = t_list
     	return
     
     def __getattr__(self,name):
-    	return getattr(self._oss_object,name)
+    	return getattr(self._openss_object,name)
 
     def add(self,input_1):
     	"""
 	Allows + operations.
 	"""
     	if isinstance(input_1,list):
-    	    self._oss_object.extend(input_1)
+    	    self._openss_object.extend(input_1)
     	else:
-    	    self._oss_object.append(input_1)
+    	    self._openss_object.append(input_1)
 
     def __iadd__(self,input_1):
     	"""
 	Allows += operations.
 	"""
     	if isinstance(input_1,list):
-    	    self._oss_object.extend(input_1)
+    	    self._openss_object.extend(input_1)
     	else:
-    	    self._oss_object.append(input_1)
+    	    self._openss_object.append(input_1)
     	return self
 
 
@@ -82,11 +82,11 @@ class MetricType:
 	"""
 
     	if val_2 is None:
-    	    self._oss_metric_name = val_1
-    	    self._oss_exp_type = None
+    	    self._openss_metric_name = val_1
+    	    self._openss_exp_type = None
     	else:
-    	    self._oss_metric_name = val_2
-    	    self._oss_exp_type = val_1
+    	    self._openss_metric_name = val_2
+    	    self._openss_exp_type = val_1
 
     ###########################################
 
@@ -112,7 +112,7 @@ class RankList(OssList):
 	- a size 2 tuple which represents a range
 	- a list of individuals and tuples.
 
-    	my_rank = oss.RankList()
+    	my_rank = openss.RankList()
 
     	my_rank += [1,3,(22,33),564]
     """
@@ -177,10 +177,10 @@ class ExpId:
     """
     
     def __init__(self,expid) :
-    	self._oss_expid = [expid]
+    	self._openss_expid = [expid]
     	return
     def __getattr__(self,expid):
-    	return getattr(self._oss_expid,expid)
+    	return getattr(self._openss_expid,expid)
     
 class ModifierList(OssList):
     """

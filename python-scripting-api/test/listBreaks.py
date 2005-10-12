@@ -1,15 +1,15 @@
 # <ListOf_breakId> = listBreaks [ <expId_spec> || all ]
 
-import oss
+import openss
 
-exp1 = oss.ExpId(7)
+exp1 = openss.ExpId(7)
 
-my_modifer = oss.ModifierList("all")
+my_modifer = openss.ModifierList("all")
 
-output = oss.listBreaks(my_modifer)
+output = openss.listBreaks(my_modifer)
 
-output = oss.listBreaks(exp1)
+output = openss.listBreaks(exp1)
 
-output = oss.listBreaks()
+output = openss.listBreaks()
 
 print output

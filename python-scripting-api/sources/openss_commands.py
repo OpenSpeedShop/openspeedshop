@@ -1,5 +1,5 @@
-from oss_classes import *
-from oss_parse import *
+from openss_classes import *
+from openss_parse import *
 
 
 #    """OpenSpeedShop scripting language."""
@@ -52,10 +52,10 @@ def expAttach(*arglist):
     the command does nothing.
 
     Example::
-    	my_file = oss.FileList("file_1")
-    	my_exptype = oss.ExpTypeList("pcsamp")
-	my_expid = oss.expCreate()
-	oss.expAttach(my_expid,my_file,my_exptype)
+    	my_file = openss.FileList("file_1")
+    	my_exptype = openss.ExpTypeList("pcsamp")
+	my_expid = openss.expCreate()
+	openss.expAttach(my_expid,my_file,my_exptype)
 
     @param arglist: up to 4 optional class objects:
     	- I{ModifierList} object with B{mpi}
@@ -109,17 +109,17 @@ def expClose(*arglist):
 
 
     B{Examples}::
-	my_expid = oss.expCreate()
-    	all_mod = oss.ModifierList("all")
-	kill_mod = oss.ModifierList("kill")
+	my_expid = openss.expCreate()
+    	all_mod = openss.ModifierList("all")
+	kill_mod = openss.ModifierList("kill")
 
-	oss.expclose(all_mod,my_expid)
+	openss.expclose(all_mod,my_expid)
 	    -or-
-	oss.expclose(all_mod,kill_mod)
+	openss.expclose(all_mod,kill_mod)
 	    -or-
-	oss.expclose(all_mod)
+	openss.expclose(all_mod)
 	    -or-
-	oss.expclose()
+	openss.expclose()
 
     @param arglist: up to 2 optional class objects:
     	- I{ModifierList} object with B{kill}
@@ -166,9 +166,9 @@ def expCreate(*arglist):
     new I{ExpId} and will set the focus.
 
     B{Examples}::
-    	my_file = oss.FileList("file_1")
-    	my_exptype = oss.ExpTypeList("usertime")
-    	my_expid = oss.expCreate(my_file,my_exptype)
+    	my_file = openss.FileList("file_1")
+    	my_exptype = openss.ExpTypeList("usertime")
+    	my_expid = openss.expCreate(my_file,my_exptype)
 
 
     @param arglist: up to 3 optional class objects:
@@ -233,11 +233,11 @@ def expDetach(*arglist):
 
 
     Example::
-    	my_file = oss.FileList("file_1")
-    	my_exptype = oss.ExpTypeList("pcsamp")
-	my_expid = oss.expCreate()
-	oss.expAttach(my_expid,my_file,my_exptype)
-	oss.expDetach(my_expid,my_exptype)
+    	my_file = openss.FileList("file_1")
+    	my_exptype = openss.ExpTypeList("pcsamp")
+	my_expid = openss.expCreate()
+	openss.expAttach(my_expid,my_file,my_exptype)
+	openss.expDetach(my_expid,my_exptype)
 
 
     @param arglist: up to 3 optional class objects:
@@ -286,17 +286,17 @@ def expDisable(*arglist):
 
     Example1::
     	#Disable the currently focused experiment
-	oss.expDisable()
+	openss.expDisable()
 	
     Example2::
     	#Disable all active experiments
-	my_modifier = oss.ModifierList("all")
-	oss.expDisable(my_modifier)
+	my_modifier = openss.ModifierList("all")
+	openss.expDisable(my_modifier)
 	
     Example3::
     	#Disable a specified experiment (7)
-	my_exp = oss.ExpId(7)
-	oss.expDisable(my_exp)
+	my_exp = openss.ExpId(7)
+	openss.expDisable(my_exp)
 
     @param arglist: 1 of 2 optional class objects:
 	- I{ModifierList}(B{"all"}) 
@@ -330,17 +330,17 @@ def expEnable(*arglist):
 
     Example1::
     	#Enable the currently focused experiment
-	oss.expEnable()
+	openss.expEnable()
 	
     Example2::
     	#Enable all experiments
-	my_modifier = oss.ModifierList("all")
-	oss.expEnable(my_modifier)
+	my_modifier = openss.ModifierList("all")
+	openss.expEnable(my_modifier)
 	
     Example3::
     	#Enable a specified experiment (7)
-	my_exp = oss.ExpId(7)
-	oss.expEnable(my_exp)
+	my_exp = openss.ExpId(7)
+	openss.expEnable(my_exp)
 
     @param arglist: 1 of 2 optional class objects:
 	- I{ModifierList}(B{"all"}) 
@@ -373,12 +373,12 @@ def expFocus(*arglist):
 
     Example1::
     	#Get the Id of the currently focused experiment
-	cur_id = oss.expEnable()
+	cur_id = openss.expEnable()
 	
     Example2::
     	#Change the focus to experiment #7
-	my_exp = oss.ExpId(7)
-	cur_id = oss.expEnable(my_exp)
+	my_exp = openss.ExpId(7)
+	cur_id = openss.expEnable(my_exp)
 
 
     @param arglist: 1 optional class object:
@@ -417,7 +417,7 @@ def expGo(*arglist):
         - The status of any experiment can be determined 
 	  through the B{listStatus} command.
         - Depending on the type of data collection that is 
-	  taking place, it may be possible to view the results 
+	  taking place, it may be popenssible to view the results 
 	  before the application completes.
     - The absence of the I{ExpId} and I{ModifierList}(B{"all"}) will result in only the focused experiment being run.
     - The use of I{ExpId} will result in only that experiment 
@@ -427,17 +427,17 @@ def expGo(*arglist):
 
     Example1::
     	#Run the currently focused experiment
-	oss.expGo()
+	openss.expGo()
 	
     Example2::
     	#Run all experiments
-	my_modifier = oss.ModifierList("all")
-	oss.expGo(my_modifier)
+	my_modifier = openss.ModifierList("all")
+	openss.expGo(my_modifier)
 	
     Example3::
     	#Run a specified experiment (7)
-	my_exp = oss.ExpId(7)
-	oss.expGo(my_exp)
+	my_exp = openss.ExpId(7)
+	openss.expGo(my_exp)
 
     @param arglist: 1 of 2 optional class objects:
 	- I{ModifierList}(B{"all"}) 
@@ -467,17 +467,17 @@ def expPause(*arglist):
 
     Example1::
     	#Halt the currently focused experiment
-	oss.expPause()
+	openss.expPause()
 	
     Example2::
     	#Halt all experiments
-	my_modifier = oss.ModifierList("all")
-	oss.expPause(my_modifier)
+	my_modifier = openss.ModifierList("all")
+	openss.expPause(my_modifier)
 	
     Example3::
     	#Halt a specified experiment (7)
-	my_exp = oss.ExpId(7)
-	oss.expPause(my_exp)
+	my_exp = openss.ExpId(7)
+	openss.expPause(my_exp)
 
     @param arglist: 1 of 2 optional class objects:
 	- I{ModifierList}(B{"all"}) 
@@ -522,8 +522,8 @@ def expRestore(*arglist):
 
     Example::
     	#Restore an experiment
-	my_file = oss.FileList("stored_data.db")
-	my_exp = oss.expRestore(my_file)
+	my_file = openss.FileList("stored_data.db")
+	my_exp = openss.expRestore(my_file)
 
     @param arglist: 1 class object:
     	- I{FileList}
@@ -579,20 +579,20 @@ def expSave(*arglist):
 
     Example1::
     	#Store the currently focused experiment
-	my_file = oss.FileList("stored_data.db")
-	oss.expSave(my_file)
+	my_file = openss.FileList("stored_data.db")
+	openss.expSave(my_file)
 	
     Example2::
     	#Copy the currently focused experiment
-	my_file = oss.FileList("stored_data.db")
-	my_modifier = oss.ModifierList("copy")
-	oss.expSave(my_modifier,my_file)
+	my_file = openss.FileList("stored_data.db")
+	my_modifier = openss.ModifierList("copy")
+	openss.expSave(my_modifier,my_file)
 	
     Example3::
     	#Store a specified experiment (7) to file
-	my_file = oss.FileList("stored_data.db")
-	my_exp = oss.ExpId(7)
-	oss.expSave(my_exp,my_file)
+	my_file = openss.FileList("stored_data.db")
+	my_exp = openss.ExpId(7)
+	openss.expSave(my_exp,my_file)
 
     @param arglist: From 1 to 3 class objects:
     	- I{ModifierList}(B{"copy"}) (optional)
@@ -619,20 +619,20 @@ def expSetParam(*arglist):
 
     Example1::
     	# Create a hardware counting experiment
-    	my_expid = oss.expCreate("hwc")
+    	my_expid = openss.expCreate("hwc")
 
-    	my_param_list = oss.ParamList()
+    	my_param_list = openss.ParamList()
 	# Set which counter event we want
     	my_param_list += ("event","PAPI_HW_INT")
 	# Set the sampling rate
     	my_param_list += ("sampling_rate",2000)
     	# Set the paramerter list to the experiment
-    	oss.expSetParam(my_expid,my_param_list)
+    	openss.expSetParam(my_expid,my_param_list)
 	# Attach the test program to the experiment
-    	my_prog = oss.FileList("bosco.exe")
-	oss.expAttach(my_expid,my_prog)
+    	my_prog = openss.FileList("bosco.exe")
+	openss.expAttach(my_expid,my_prog)
 	# Run the experiment
-	oss.expGo()
+	openss.expGo()
 
     @param arglist: From 1 to 2 class objects:
 	- I{ExpId}                   (optional)
@@ -659,17 +659,17 @@ def expStatus(*arglist):
 
     Example1::
     	#Status for the focused experiment
-	oss.expStatus()
+	openss.expStatus()
 	
     Example2::
     	#Status for all experiments
-	my_modifier = oss.ModifierList("all")
-	oss.expStatus(my_modifier)
+	my_modifier = openss.ModifierList("all")
+	openss.expStatus(my_modifier)
 	
     Example3::
     	#Status for a specified experiment (7)
-	my_exp = oss.ExpId(7)
-	oss.expStatus(my_exp)
+	my_exp = openss.ExpId(7)
+	openss.expStatus(my_exp)
 
     @param arglist: 0 to 2 optional class objects:
 	- I{ModifierList}(B{"all"}) 
@@ -725,12 +725,12 @@ def expView(*arglist):
       expView [ I{ExpId} ] [ <viewType> ] [ -m <expMetric_list> ] [ I{Target} ] 
 
     Example::
-    	my_file = oss.FileList("bosco")
-	my_viewtype = oss.ViewTypeList("pcsamp")
-    	my_metric_list = oss.MetricList()
+    	my_file = openss.FileList("bosco")
+	my_viewtype = openss.ViewTypeList("pcsamp")
+    	my_metric_list = openss.MetricList()
     	my_metric_list += ("pcsamp","inclusive")
 
-	ret = oss.expView(my_expid,my_viewtype,my_metric_list)
+	ret = openss.expView(my_expid,my_viewtype,my_metric_list)
 
 
     @param arglist: up to 4 optional class objects:
@@ -767,17 +767,17 @@ def listBreaks(*arglist):
 
     Example1::
     	#List breaks set in the currently focused experiment
-	int_list = oss.listBreaks()
+	int_list = openss.listBreaks()
 	
     Example2::
     	#List breaks set in all active experiments
-	my_modifier = oss.ModifierList("all")
-	int_list = oss.listBreaks(my_modifier)
+	my_modifier = openss.ModifierList("all")
+	int_list = openss.listBreaks(my_modifier)
 	
     Example3::
     	#List breaks set in a specified experiment (7)
-	my_exp = oss.ExpId(7)
-	int_list = oss.listBreaks(my_exp)
+	my_exp = openss.ExpId(7)
+	int_list = openss.listBreaks(my_exp)
 
     @param arglist: 1 of 2 optional class objects:
 	- I{ModifierList}(B{"all"}) (optional)
@@ -797,7 +797,7 @@ def listExp(*arglist):
     - List the experiments that have been defined.
 
     Example::
-    	int_list = oss.listExp()
+    	int_list = openss.listExp()
 
     @param arglist: None
 
@@ -823,12 +823,12 @@ def listHosts(*arglist):
 
     Example1::
     	#List hosts for currently focused experiment (7)
-    	int_list = oss.listHosts()
+    	int_list = openss.listHosts()
 
     Example2::
     	#List hosts for a specified experiment (7)
-	my_exp = oss.ExpId(7)
-	int_list = oss.listHosts(my_exp)
+	my_exp = openss.ExpId(7)
+	int_list = openss.listHosts(my_exp)
 
     @param arglist: 1 optional class object:
     	- I{ExpId} (optional)
@@ -1059,7 +1059,7 @@ def listTypes(*arglist):
         - The use of I{ExpId} will cause the utilities that are attached
 	  to the specified experiment to be listed.
         - The use of I{ModifierList}(B{"all"}) will cause all the 
-	  possible performance measurement utilities that can be used 
+	  popenssible performance measurement utilities that can be used 
 	  in experiments to be listed.
 
       <ListOf_expType> = listTypes [ I{ModifierList}(B{"all"}) || I{ExpId} ] 
@@ -1099,7 +1099,7 @@ def listViews(*arglist):
 ##################################################
 # clearBreak
 ##################################################
-def oss_clearBreak(*arglist):
+def openss_clearBreak(*arglist):
 
     """
     - Remove a breakpoint.
@@ -1117,7 +1117,7 @@ def oss_clearBreak(*arglist):
 ##################################################
 # exit
 ##################################################
-def oss_exit(*arglist):
+def openss_exit(*arglist):
 
     """
     - Terminate all experiments and the session.
@@ -1132,7 +1132,7 @@ def oss_exit(*arglist):
     	- Terminate execution of the B{OpenSS} tool.
 
     Example::
-    	oss.oss_exit()
+    	openss.openss_exit()
 
     @param arglist: None
 
@@ -1144,7 +1144,7 @@ def oss_exit(*arglist):
 ##################################################
 # help
 ##################################################
-def oss_help(*arglist):
+def openss_help(*arglist):
 
     """
     - Request information about a topic.
@@ -1161,7 +1161,7 @@ def oss_help(*arglist):
 ##################################################
 # history
 ##################################################
-def oss_history(*arglist):
+def openss_history(*arglist):
 
     """
     - Print a list of previously executed commands.
@@ -1180,7 +1180,7 @@ def oss_history(*arglist):
 ##################################################
 # log
 ##################################################
-def oss_log(*arglist):
+def openss_log(*arglist):
 
     """
     - Begin echoing executed commands and their results to a file.
@@ -1197,7 +1197,7 @@ def oss_log(*arglist):
 ##################################################
 # openGui
 ##################################################
-def oss_openGui(*arglist):
+def openss_openGui(*arglist):
 
     """
     - Open the Graphical User Interface, if it is not already open.
@@ -1205,7 +1205,7 @@ def oss_openGui(*arglist):
       openGui 
 
     Example::
-    	oss.oss_openGui()
+    	openss.openss_openGui()
 
     @param arglist: None
 
@@ -1217,7 +1217,7 @@ def oss_openGui(*arglist):
 ##################################################
 # playBack
 ##################################################
-def oss_playBack(*arglist):
+def openss_playBack(*arglist):
 
     """
     - Read and execute commands from a file.
@@ -1232,7 +1232,7 @@ def oss_playBack(*arglist):
 ##################################################
 # record
 ##################################################
-def oss_record(*arglist):
+def openss_record(*arglist):
 
     """
     - Begin echoing executed commands to a file.
@@ -1256,7 +1256,7 @@ def oss_record(*arglist):
 ##################################################
 # setBreak
 ##################################################
-def oss_setBreak(*arglist):
+def openss_setBreak(*arglist):
 
     """
     - Enter a breakpoint, which will halt the application when reached.

@@ -1,7 +1,7 @@
 # openGui
 
-import oss
+import openss
 
-output = oss.oss_openGui()
+output = openss.openss_openGui()
 
 print output

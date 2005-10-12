@@ -1,8 +1,8 @@
 # <string> = history  [ <int> ]
 
-import oss
+import openss
 
-output = oss.oss_history(66)
-output = oss.oss_history()
+output = openss.openss_history(66)
+output = openss.openss_history()
 
 print output

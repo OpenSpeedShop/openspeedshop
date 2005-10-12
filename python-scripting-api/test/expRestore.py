@@ -1,9 +1,9 @@
 # <expId> = expRestore  <file_spec>
 
-import oss
+import openss
 
-my_file = oss.FileList("file_1")
+my_file = openss.FileList("file_1")
 
-exp1 = oss.expRestore(my_file)
+exp1 = openss.expRestore(my_file)
 
 print exp1

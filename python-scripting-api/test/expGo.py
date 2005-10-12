@@ -1,15 +1,15 @@
 # expGo [ <expId_spec> || all ]
 
-import oss
+import openss
 
-exp1 = oss.ExpId(7)
+exp1 = openss.ExpId(7)
 
-my_modifer = oss.ModifierList("all")
+my_modifer = openss.ModifierList("all")
 
-#oss.expGo(exp1,my_modifer)
+#openss.expGo(exp1,my_modifer)
 
-oss.expGo(my_modifer)
+openss.expGo(my_modifer)
 
-oss.expGo(exp1)
+openss.expGo(exp1)
 
-oss.expGo()
+openss.expGo()

@@ -1,7 +1,7 @@
 # <listOf_expId> = listExp
 
-import oss
+import openss
 
-output = oss.listExp()
+output = openss.listExp()
 
 print output

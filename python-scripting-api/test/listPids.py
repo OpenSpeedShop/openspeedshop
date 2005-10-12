@@ -1,12 +1,12 @@
 # <ListOf_pidname> = listPids [ <expId_spec> ] [ <host_list_spec> ]
 
-import oss
+import openss
 
-my_id = oss.ExpId(oss.expCreate())
-my_host = oss.HostList(["host1,host2"])
+my_id = openss.ExpId(openss.expCreate())
+my_host = openss.HostList(["host1,host2"])
 
-output = oss.listPids()
-output = oss.listPids(my_id)
-output = oss.listPids(my_host)
+output = openss.listPids()
+output = openss.listPids(my_id)
+output = openss.listPids(my_host)
 
 print output

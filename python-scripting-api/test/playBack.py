@@ -1,10 +1,10 @@
 # playBack <file_spec>
 
-import oss
+import openss
 
-my_file = oss.FileList("myexp.oss")
+my_file = openss.FileList("myexp.openss")
 
-output = oss.oss_playBack(my_file)
-#output = oss.oss_playBack()
+output = openss.openss_playBack(my_file)
+#output = openss.openss_playBack()
 
 print output

@@ -1,16 +1,16 @@
 # <ListOf_filename> = listObj [ <expId_spec> ] [ <target> ]
 
-import oss
+import openss
 
 
-my_file = oss.FileList("file_1")
+my_file = openss.FileList("file_1")
 
 # The number here is hard coded in a lowlevel routine
-my_id = oss.ExpId(oss.expCreate())
+my_id = openss.ExpId(openss.expCreate())
 
-output = oss.listObj(my_id,my_file)
-output = oss.listObj(my_file)
-output = oss.listObj(my_id)
-output = oss.listObj()
+output = openss.listObj(my_id,my_file)
+output = openss.listObj(my_file)
+output = openss.listObj(my_id)
+output = openss.listObj()
 
 print output

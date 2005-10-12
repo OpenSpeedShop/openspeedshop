@@ -1,17 +1,17 @@
 # <ListOf_viewType> = listViews [ <expId_spec> || all || <expType_list> ]
 
-import oss
+import openss
 
-exp1 = oss.ExpId(7)
-my_modifer = oss.ModifierList("all")
-my_exptype = oss.ExpTypeList("pcsamp")
+exp1 = openss.ExpId(7)
+my_modifer = openss.ModifierList("all")
+my_exptype = openss.ExpTypeList("pcsamp")
 
-output = oss.listViews(my_modifer)
+output = openss.listViews(my_modifer)
 
-output = oss.listViews(exp1)
+output = openss.listViews(exp1)
 
-output = oss.listViews(my_exptype)
+output = openss.listViews(my_exptype)
 
-output = oss.listViews()
+output = openss.listViews()
 
 print output

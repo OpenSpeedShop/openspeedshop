@@ -1,13 +1,13 @@
 # expStatus [ <expId_spec> || all ]
 
-import oss
+import openss
 
-exp1 = oss.ExpId(7)
+exp1 = openss.ExpId(7)
 
-my_modifer = oss.ModifierList("all")
+my_modifer = openss.ModifierList("all")
 
-oss.expStatus(my_modifer)
+openss.expStatus(my_modifer)
 
-oss.expStatus(exp1)
+openss.expStatus(exp1)
 
-oss.expPause()
+openss.expPause()

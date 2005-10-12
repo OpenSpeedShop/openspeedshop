@@ -1,14 +1,14 @@
 # <ListOf_expParam> = listParams [ <expId_spec> || all || <expType_list> ]
 
-import oss
+import openss
 
-my_id = oss.ExpId(oss.expCreate())
-my_exptype = oss.ExpTypeList("pcsamp")
-my_modifer = oss.ModifierList("all")
+my_id = openss.ExpId(openss.expCreate())
+my_exptype = openss.ExpTypeList("pcsamp")
+my_modifer = openss.ModifierList("all")
 
-output = oss.listParams()
-output = oss.listParams(my_id)
-output = oss.listParams(my_exptype)
-output = oss.listParams(my_modifer)
+output = openss.listParams()
+output = openss.listParams(my_id)
+output = openss.listParams(my_exptype)
+output = openss.listParams(my_modifer)
 
 print output

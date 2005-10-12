@@ -1,16 +1,16 @@
 # expDisable [ <expId_spec> || all ]
 
-import oss
+import openss
 
-exp1 = oss.ExpId(7)
+exp1 = openss.ExpId(7)
 
-my_modifer = oss.ModifierList("all")
+my_modifer = openss.ModifierList("all")
 
-#oss.expDisable(exp1,my_modifer)
+#openss.expDisable(exp1,my_modifer)
 
-oss.expDisable(my_modifer)
+openss.expDisable(my_modifer)
 
-oss.expDisable(exp1)
+openss.expDisable(exp1)
 
-oss.expDisable()
+openss.expDisable()
 

@@ -1,7 +1,7 @@
 # exit
 
-import oss
+import openss
 
-output = oss.oss_exit()
+output = openss.openss_exit()
 
 print output

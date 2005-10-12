@@ -1,14 +1,14 @@
 # help [<help_modifier_list>] [<keyword>]
 
-import oss
-oss.OSS_Init()
+import openss
+#openss.OSS_Init()
 
-my_modifer = oss.ModifierList("brief")
+my_modifer = openss.ModifierList("brief")
 my_modifer+= "examples"
 
-output = oss.oss_help(my_modifer,"expAttach")
-output = oss.oss_help(my_modifer)
-output = oss.oss_help("expAttach")
-output = oss.oss_help()
+output = openss.openss_help(my_modifer,"expAttach")
+output = openss.openss_help(my_modifer)
+output = openss.openss_help("expAttach")
+output = openss.openss_help()
 
 print output

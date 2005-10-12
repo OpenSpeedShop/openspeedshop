@@ -1,15 +1,15 @@
 # <ListOf_expType> = listTypes [ <expId_spec> || all ]
 
-import oss
+import openss
 
-exp1 = oss.ExpId(7)
+exp1 = openss.ExpId(7)
 
-my_modifer = oss.ModifierList("all")
+my_modifer = openss.ModifierList("all")
 
-output = oss.listTypes(my_modifer)
+output = openss.listTypes(my_modifer)
 
-output = oss.listTypes(exp1)
+output = openss.listTypes(exp1)
 
-output = oss.listTypes()
+output = openss.listTypes()
 
 print output

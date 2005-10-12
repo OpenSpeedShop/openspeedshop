@@ -1,18 +1,18 @@
 # expClose [ <expId_spec> || all ] [ kill ]
 
-import oss
+import openss
 
-exp1 = oss.ExpId(7)
+exp1 = openss.ExpId(7)
 
-my_modifer = oss.ModifierList("all")
+my_modifer = openss.ModifierList("all")
 
-oss.expClose(exp1,my_modifer)
+openss.expClose(exp1,my_modifer)
 
-my_modifer = oss.ModifierList("kill")
+my_modifer = openss.ModifierList("kill")
 
-oss.expClose(my_modifer)
+openss.expClose(my_modifer)
 
-oss.expClose(exp1)
+openss.expClose(exp1)
 
-oss.expClose()
+openss.expClose()
 

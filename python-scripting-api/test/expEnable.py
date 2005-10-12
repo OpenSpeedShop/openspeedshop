@@ -1,13 +1,13 @@
 # expEnable [ <expId_spec> || all ]
 
-import oss
+import openss
 
-exp1 = oss.ExpId(7)
+exp1 = openss.ExpId(7)
 
-my_modifer = oss.ModifierList("all")
+my_modifer = openss.ModifierList("all")
 
-oss.expEnable(my_modifer)
+openss.expEnable(my_modifer)
 
-oss.expEnable(exp1)
+openss.expEnable(exp1)
 
-oss.expEnable()
+openss.expEnable()

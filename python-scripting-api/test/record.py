@@ -1,10 +1,10 @@
 # record [ <file_spec> ]
 
-import oss
+import openss
 
-my_file = oss.FileList("myexp.oss")
+my_file = openss.FileList("myexp.openss")
 
-output = oss.oss_record(my_file)
-output = oss.oss_record()
+output = openss.openss_record(my_file)
+output = openss.openss_record()
 
 print output

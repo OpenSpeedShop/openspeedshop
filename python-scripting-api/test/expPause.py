@@ -1,15 +1,15 @@
 # expPause [ <expId_spec> || all ]
 
-import oss
+import openss
 
-exp1 = oss.ExpId(7)
+exp1 = openss.ExpId(7)
 
-my_modifer = oss.ModifierList("all")
+my_modifer = openss.ModifierList("all")
 
-#oss.expPause(exp1,my_modifer)
+#openss.expPause(exp1,my_modifer)
 
-oss.expPause(my_modifer)
+openss.expPause(my_modifer)
 
-oss.expPause(exp1)
+openss.expPause(exp1)
 
-oss.expPause()
+openss.expPause()

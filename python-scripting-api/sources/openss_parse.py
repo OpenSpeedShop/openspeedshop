@@ -1,7 +1,7 @@
-from oss_classes import *
+from openss_classes import *
 import types
 
-from PY_Input import *
+from PYopenss import *
 
 ################################################################################
 #
@@ -28,7 +28,7 @@ def is_single_type(arg):
 #
 # deconstruct
 #
-# Convert a full Python API oss commandline into
+# Convert a full Python API openss commandline into
 # an OpenSpeedShop commandline format.
 #
 ################################################################################
@@ -216,5 +216,4 @@ def cmd_parse(zusamen):
     #print "cmd_parse(",zusamen,")"
 
     return EmbeddedParser(zusamen)
-    #return PY_Input.CallParser (zusamen)
-    #return
+

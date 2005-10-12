@@ -1,18 +1,18 @@
 # expSave [ <expId_spec> ] [ copy ] <file_spec>
 
-import oss
+import openss
 
-my_expid = oss.ExpId(7)
+my_expid = openss.ExpId(7)
 
-my_modifer = oss.ModifierList("copy")
+my_modifer = openss.ModifierList("copy")
 
-my_file = oss.FileList("file_1")
+my_file = openss.FileList("file_1")
 
-oss.expSave(my_expid,my_modifer,my_file)
+openss.expSave(my_expid,my_modifer,my_file)
 
-oss.expSave(my_modifer,my_file)
+openss.expSave(my_modifer,my_file)
 
-oss.expSave(my_expid,my_file)
+openss.expSave(my_expid,my_file)
 
-oss.expSave(my_file)
+openss.expSave(my_file)
 

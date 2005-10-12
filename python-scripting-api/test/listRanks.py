@@ -1,12 +1,12 @@
 # <ListOf_rankname> = listRanks [ <expId_spec> ] [ <target> ]
 
-import oss
+import openss
 
-my_id = oss.ExpId(oss.expCreate())
-my_host = oss.HostList(["host1,host2"])
+my_id = openss.ExpId(openss.expCreate())
+my_host = openss.HostList(["host1,host2"])
 
-output = oss.listRanks()
-output = oss.listRanks(my_id)
-output = oss.listRanks(my_host)
+output = openss.listRanks()
+output = openss.listRanks(my_id)
+output = openss.listRanks(my_host)
 
 print output

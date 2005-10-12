@@ -1,10 +1,10 @@
 # log [ <file_spec> ]
 
-import oss
+import openss
 
-my_file = oss.FileList("myexp.log")
+my_file = openss.FileList("myexp.log")
 
-output = oss.oss_log(my_file)
-output = oss.oss_log()
+output = openss.openss_log(my_file)
+output = openss.openss_log()
 
 print output
