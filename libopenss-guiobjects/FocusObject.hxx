@@ -27,7 +27,7 @@ class FocusObject : public MessageObject
 {
 public:
     //! Constructor for creating source message.
-    FocusObject(int  expID, QString host_name, QString pid_name, bool rf=FALSE);
+    FocusObject(int  expID, QString host_name, QString pidString, bool rf=FALSE);
 
     //! Destructor
     ~FocusObject();
@@ -43,7 +43,7 @@ public:
     QString host_name;
 
     //! The pid name
-    QString pid_name;
+    QString pidString;
 
     //! The raise FLAG...
     bool raiseFLAG;

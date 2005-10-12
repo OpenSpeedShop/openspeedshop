@@ -207,8 +207,10 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
     command = QString("listTypes -x %1").arg(expStr);
 // printf("run command=(%s)\n", command.ascii() );
     std::list<std::string> list_of_collectors;
+    
+    InputLineObject *clip = NULL;
     if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
-           &list_of_collectors, TRUE ) )
+           &list_of_collectors, clip, FALSE ) )
     {
       printf("Unable to run %s command.\n", command.ascii() );
     }
@@ -266,6 +268,11 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
 ao->loadedFromSavedFile = loadedFromSavedFile;
     topPC->dl_create_and_add_panel((char *)panel_type.ascii(), bestFitPC, ao);
     delete ao;
+
+    if( clip )
+    {
+      clip->Set_Results_Used();
+    }
   }
 
   delete dialog;
@@ -1148,7 +1155,8 @@ OpenSpeedshop::lookForExperiment()
 
   command = QString("listExp");
   int_list.clear();
-  if( !cli->getIntListValueFromCLI( (char *)command.ascii(), &int_list ) )
+  InputLineObject *clip = NULL;
+  if( !cli->getIntListValueFromCLI( (char *)command.ascii(), &int_list, clip, FALSE ) )
   {
 //    printf("Unable to run %s command.\n", command.ascii() );
     QMessageBox::information(this, QString(tr("Initialization warning:")), QString("Unable to run \"%1\" command.").arg(command.ascii()), QMessageBox::Ok );
@@ -1166,7 +1174,7 @@ OpenSpeedshop::lookForExperiment()
     command = QString("listTypes -x %1").arg(expStr);
     std::list<std::string> list_of_collectors;
     if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
-           &list_of_collectors, TRUE ) )
+           &list_of_collectors, FALSE ) )
     {
 //      printf("Unable to run %s command.\n", command.ascii() );
       
@@ -1232,6 +1240,11 @@ OpenSpeedshop::lookForExperiment()
     ArgumentObject *ao = new ArgumentObject("ArgumentObject", &expStr);
     topPC->dl_create_and_add_panel((char *)panel_type.ascii(), bestFitPC, ao);
     delete ao;
+  }
+
+  if( clip )
+  {
+    clip->Set_Results_Used();
   }
 
   loadTimer->stop();

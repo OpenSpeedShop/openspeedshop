@@ -269,10 +269,15 @@ StatsPanel::listener(void *msg)
     FocusObject *msg = (FocusObject *)msgObject;
 // msg->print();
     expID = msg->expID;
+#ifdef OLDWAY
     currentThreadStr = msg->pid_name;
+#else // OLDWAY
+    currentThreadsStr = msg->pidString;
+#endif // OLDWAY
 // Currently this causes a second update when loading from a saved file. FIX
 // printf("Currently this causes a second update when loading from a saved file. FIX\n");
-//    updateStatsPanelData();
+printf("CAUSING DOUBLE REFRESH!\n");
+updateStatsPanelData();
     if( msg->raiseFLAG == TRUE )
     {
       getPanelContainer()->raisePanel(this);
@@ -1499,8 +1504,9 @@ StatsPanel::updateCollectorMetricList()
 // printf("attempt to run (%s)\n", command.ascii() );
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
 list_of_collectors.clear();
+  InputLineObject *clip = NULL;
   if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
-         &list_of_collectors, TRUE ) )
+         &list_of_collectors, clip, FALSE ) )
   {
     printf("Unable to run %s command.\n", command.ascii() );
   }
@@ -1522,6 +1528,10 @@ list_of_collectors.clear();
       }
     }
   }
+  if( clip )
+  {
+    clip->Set_Results_Used();
+  }
 }
 
 
@@ -1533,8 +1543,9 @@ StatsPanel::updateThreadsList()
 // printf("attempt to run (%s)\n", command.ascii() );
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
 list_of_pids.clear();
+  InputLineObject *clip = NULL;
   if( !cli->getIntListValueFromCLI( (char *)command.ascii(),
-         &list_of_pids, TRUE ) )
+         &list_of_pids, clip, FALSE ) )
   {
     printf("Unable to run %s command.\n", command.ascii() );
   }
@@ -1550,6 +1561,10 @@ list_of_pids.clear();
 //      printf("pid_name=(%s)\n", pid_name.ascii() );
 // printf("pid=(%d)\n", pid );
     }
+  }
+  if( clip )
+  {
+    clip->Set_Results_Used();
   }
 }
 

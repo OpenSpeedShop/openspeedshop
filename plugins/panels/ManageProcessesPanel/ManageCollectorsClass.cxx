@@ -78,7 +78,8 @@ ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const 
   attachCollectorsListView->addColumn( 
     tr( QString("Collectors attached to experiment: '%1':").arg(expID) ) );
   attachCollectorsListView->addColumn( tr( QString("Name") ) );
-  attachCollectorsListView->setSelectionMode( QListView::Single );
+//  attachCollectorsListView->setSelectionMode( QListView::Single );
+  attachCollectorsListView->setSelectionMode( QListView::Multi );
   attachCollectorsListView->setAllColumnsShowFocus( TRUE );
   attachCollectorsListView->setShowSortIndicator( TRUE );
   attachCollectorsListView->setRootIsDecorated(TRUE);
@@ -114,10 +115,15 @@ void ManageCollectorsClass::languageChange()
 
   command = QString("listTypes -v all");
 // printf("command=(%s)\n", command.ascii() );
+  InputLineObject *clip = NULL;
   if( !cli->getStringListValueFromCLI( (char *)command.ascii(), 
-         &list_of_collectors, TRUE ) )
+         &list_of_collectors, clip, FALSE ) )
   {
     QMessageBox::information( this, tr("Error issuing command to cli:"), tr("Unable to run %1 command.").arg(command), QMessageBox::Ok );
+  }
+  if( clip )
+  {
+    clip->Set_Results_Used();
   }
 
 }
@@ -685,11 +691,7 @@ ManageCollectorsClass::attachProcessSelected()
     QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
-#ifdef OLDWAY
-    command = QString("expAttach -x %1 -p %2 -h %3\n").arg(expID).arg(pid_name).arg(host_name); 
-#else // OLDWAY
     command = QString("expAttach -x %1 -p %2 -h %3\n").arg(expID).arg(mw->pidStr).arg(mw->hostStr); 
-#endif // OLDWAY
 // printf("A: command=(%s)\n", command.ascii() );
 
     steps = 0;
@@ -741,20 +743,31 @@ ManageCollectorsClass::focusOnProcessSelected()
 // printf("selectedItem->text(0) =(%s)\n", selectedItem->text(0).ascii() );
 // printf("selectedItem->text(1) =(%s)\n", selectedItem->text(1).ascii() );
 
+#ifdef OLDWAY
   QString pid_name = selectedItem->text(0);
 // printf("pid_name=(%s)\n", pid_name.ascii() );
+#else // OLDWAY
+  QString pid_name = QString::null;
+  QString pidString = QString::null;
+ 
+  QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
+  while( it.current() )
+  {
+    QListViewItem *lvi = (QListViewItem *)it.current();
+    pid_name = lvi->text(0);
+    if( pidString.isEmpty() )
+    {
+      pidString = pid_name;
+    } else
+    {
+      pidString += ","+pid_name;
+    }
+    ++it;
+  }
+#endif // OLDWAY
 
   bool ok = FALSE;
   pid_name.toInt(&ok);
-#if 0
-  if( ok )
-  {
-    printf("We've got a pid\n");
-  }else
-  {
-    printf("We've got a string\n");
-  }
-#endif // 0
 
   QString host_name = QString::null;
   if( selectedItem )
@@ -770,11 +783,11 @@ ManageCollectorsClass::focusOnProcessSelected()
 
   }
 
-//printf("host_name=(%s) pid_name=(%s)\n", host_name.ascii(), pid_name.ascii() );
+printf("host_name=(%s) pidString=(%s)\n", host_name.ascii(), pidString.ascii() );
 
   if( ok )
   {
-    FocusObject *msg = new FocusObject(expID,  host_name, pid_name, TRUE);
+    FocusObject *msg = new FocusObject(expID,  host_name, pidString, TRUE);
 // printf("focus the StatsPanel...\n");
 //    p->broadcast((char *)msg, NEAREST_T);
     if( p->broadcast((char *)msg, NEAREST_T) == 0 )

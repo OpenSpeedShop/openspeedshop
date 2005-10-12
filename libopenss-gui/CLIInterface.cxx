@@ -213,14 +213,14 @@ CLIInterface::getIntValueFromCLI(const char *command, int64_t *val, bool mark_va
                          to see if the command should contunue.
 */
 bool
-CLIInterface::getIntListValueFromCLI(const char *command, std::list<int64_t> *int_list, bool mark_value_for_delete, int mt, bool wot )
+CLIInterface::getIntListValueFromCLI(const char *command, std::list<int64_t> *int_list, InputLineObject *clip, bool mark_value_for_delete, int mt, bool wot )
 {
 //  printf("getIntListValueFromCLI(%s)\n", command);
   maxTime = mt;
   warn_of_time = wot;
 
   QApplication::setOverrideCursor(QCursor::WaitCursor);
-  InputLineObject *clip = Append_Input_String( wid, (char *)command);
+  clip = Append_Input_String( wid, (char *)command);
 //printf("clip = 0x%x\n", clip);
   if( clip == NULL )
   {
@@ -400,14 +400,14 @@ CLIInterface::getStringValueFromCLI(const char *command, std::string *str_val, b
                          to see if the command should contunue.
 */
 bool
-CLIInterface::getStringListValueFromCLI(const char *command, std::list<std::string> *str_list, bool mark_value_for_delete, int mt, bool wot )
+CLIInterface::getStringListValueFromCLI(const char *command, std::list<std::string> *str_list, InputLineObject *clip, bool mark_value_for_delete, int mt, bool wot )
 {
 //  printf("getStringListValueFromCLI(%s)\n", command);
   maxTime = mt;
   warn_of_time = wot;
 
   QApplication::setOverrideCursor(QCursor::WaitCursor);
-  InputLineObject *clip = Append_Input_String( wid, (char *)command);
+  clip = Append_Input_String( wid, (char *)command);
   if( clip == NULL )
   {
     fprintf(stderr, "FATAL ERROR: No clip returned from cli.\n");

@@ -33,7 +33,7 @@ FocusObject::FocusObject(int id, QString hn, QString pn, bool rf) : MessageObjec
   nprintf( DEBUG_CONST_DESTRUCT ) ("FocusObject::FocusObject(entered.\n");
   expID = id;
   host_name = hn;
-  pid_name = pn;
+  pidString = pn;
   raiseFLAG = rf;
 }
 
@@ -49,6 +49,6 @@ FocusObject::print()
   printf("FocusObject:\n");
   printf("	expID=(%d)\n", expID );
   printf("	host_name=(%s)\n", host_name.ascii());
-  printf("	pid_name=(%s)\n", pid_name.ascii());
+  printf("	pidString=(%s)\n", pidString.ascii());
   printf("	raiseFLAG=(%d)\n", raiseFLAG);
 }

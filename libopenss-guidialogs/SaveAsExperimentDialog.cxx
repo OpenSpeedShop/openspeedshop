@@ -172,7 +172,8 @@ SaveAsExperimentDialog::updateAvailableExperimentList(int *returned_expID, int *
   std::list<int64_t> int_list;
 
   int_list.clear();
-  if( !cli->getIntListValueFromCLI( (char *)command.ascii(), &int_list ) )
+  InputLineObject *clip = NULL;
+  if( !cli->getIntListValueFromCLI( (char *)command.ascii(), &int_list, clip, FALSE ) )
   {
     printf("Unable to run %s command.\n", command.ascii() );
   }
@@ -184,6 +185,10 @@ SaveAsExperimentDialog::updateAvailableExperimentList(int *returned_expID, int *
   if( int_list.size() == 0 )
   {
     *returned_expID = 0;
+    if( clip )
+    {
+      clip->Set_Results_Used();
+    }
     return( 0 );
   }
 
@@ -222,6 +227,10 @@ SaveAsExperimentDialog::updateAvailableExperimentList(int *returned_expID, int *
     {
       return pitem;
     }
+  }
+  if( clip )
+  {
+    clip->Set_Results_Used();
   }
   
   QApplication::restoreOverrideCursor();

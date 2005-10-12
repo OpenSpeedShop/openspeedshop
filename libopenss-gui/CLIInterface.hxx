@@ -43,13 +43,13 @@ class CLIInterface : QObject
     int wid;
 
     //! Return a list of string values from a given cli command.
-    bool getStringListValueFromCLI(const char *command, std::list<std::string> *string_list, bool mark_value_for_delete=true, int mt=MAXTIME, bool warn_of_time=false );
+    bool getStringListValueFromCLI(const char *command, std::list<std::string> *string_list, InputLineObject *clip, bool mark_value_for_delete=true, int mt=MAXTIME, bool warn_of_time=false );
 
     //! Return string value from a given cli command.
     bool getStringValueFromCLI(const char *command, std::string *val_string, bool mark_value_for_delete = true , int maxTime = MAXTIME, bool warn_of_time = true  );
 
     //! Return a list of int values from a given cli command.
-    bool getIntListValueFromCLI(const char *command, std::list<int64_t> *int_list, bool mark_value_for_delete=true, int mt=MAXTIME, bool warn_of_time=false );
+    bool getIntListValueFromCLI(const char *command, std::list<int64_t> *int_list, InputLineObject *clip, bool mark_value_for_delete=true, int mt=MAXTIME, bool warn_of_time=false );
 
     //! Return an int value from a given cli command.
     bool getIntValueFromCLI(const char *command, int64_t *val, bool mark_value_for_delete = true , int maxTime = MAXTIME, bool warn_of_time = true  );
