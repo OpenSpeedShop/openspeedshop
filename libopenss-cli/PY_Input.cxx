@@ -211,20 +211,6 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     return Convert_Cmd_To__Python (cmd);
 }
 
-// Create a Clip for the command and then go parse and execute it.
-static PyObject *SS_EmbeddedParser (PyObject *self, PyObject *args) {
-  InputLineObject *clip = NULL;
-  char *input_line = NULL;
-    
-  if (!PyArg_ParseTuple(args, "s", &input_line)) {
-  	;
-  }
-  Current_ILO = new InputLineObject (Embedded_WindowID, std::string(input_line));
-  Current_CO = NULL;
-
-  return SS_CallParser (self, args);
-}
-
 // Save a pointer to the most recent Input_Line_Object.
 //
 // Since Python likes character strings better than anything,
@@ -363,13 +349,57 @@ static PyObject *SS_InitEmbeddedInterface (PyObject *self, PyObject *args) {
   return Py_BuildValue("");
 }
 
+static PyObject *SS_ExitEmbeddedInterface (PyObject *self, PyObject *args) {
+
+//printf("Entering SS_ExitEmbeddedInterface()\n");
+
+  if (Embedded_WindowID != 0) {
+
+   // Close any open experiments.
+    Experiment_Termination ();
+
+   // Unload plugin views.
+    SS_Remove_View_plugins ();
+  
+   // Close allocated input windows.
+    Window_Termination (Embedded_WindowID);
+    Embedded_WindowID = 0;
+
+   // Close down the CLI.
+    Commander_Termination ();
+  }
+
+//printf("L SS_ExitEmbeddedInterface()\n");
+  
+  return Py_BuildValue("");
+}
+
+// Create a Clip for the command and then go parse and execute it.
+static PyObject *SS_EmbeddedParser (PyObject *self, PyObject *args) {
+  InputLineObject *clip = NULL;
+  char *input_line = NULL;
+    
+  if (!PyArg_ParseTuple(args, "s", &input_line)) {
+  	;
+  }
+  Current_ILO = new InputLineObject (Embedded_WindowID, std::string(input_line));
+  Current_CO = NULL;
+
+  PyObject *result = SS_CallParser (self, args);
+
+  if (Shut_Down) {
+   // We have seen an Exit command - close down the CLI.
+    (void)SS_ExitEmbeddedInterface (self, args);
+  }
+
+  return result;
+}
+
+
 static PyMethodDef PYopenss_Methods[] = {
 
     {"CallParser",  SS_CallParser, METH_VARARGS,
      "Call the YACC'd parser."},
-
-    {"EmbeddedParser",  SS_EmbeddedParser, METH_VARARGS,
-     "Call the YACC'd parser for a scripting command."},
 
     {"SetAssign",  SS_Set_Assign, METH_VARARGS,
      "Set to 1 if the result is used in a python."},
@@ -388,6 +418,12 @@ static PyMethodDef PYopenss_Methods[] = {
 
     {"OSS_Init",  SS_InitEmbeddedInterface, METH_VARARGS,
      "Initialize openss for use as an embedded utility."},
+
+    {"OSS_Fini",  SS_ExitEmbeddedInterface, METH_VARARGS,
+     "Terminate openss for use as an embedded utility."},
+
+    {"EmbeddedParser",  SS_EmbeddedParser, METH_VARARGS,
+     "Call the YACC'd parser for a scripting command."},
 
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
