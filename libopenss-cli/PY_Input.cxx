@@ -339,7 +339,7 @@ static PyObject *SS_InitEmbeddedInterface (PyObject *self, PyObject *args) {
  // Define a default input window as an anchor for tracking commands
   pid_t my_pid = getpid();
   char HostName[MAXHOSTNAMELEN+1];
-  Embedded_WindowID = Embedded_Window ("EmbeddedInterface", &HostName[0],my_pid,0,true);
+  Embedded_WindowID = Embedded_Window ("EmbeddedInterface", &HostName[0],my_pid,0,false);
 
  // Direct output back to Python.
   cmd_output_to_python = true;
