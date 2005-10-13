@@ -192,6 +192,12 @@ void GetMetricByFunction (CommandObject *cmd,
                           Collector C,
                           std::string metric,
                           std::vector<Function_CommandResult_pair>& items);
+void GetMetricByFunctionSet (CommandObject *cmd,
+                             ThreadGroup& tgrp,
+                             Collector& collector,
+                             std::string& metric,
+                             std::set<Function>& objects,
+                             SmartPtr<std::map<Function, CommandResult *> >& items);
 ViewType *Find_View (std::string viewname);
 bool Collector_Generates_Metrics (Collector C, std::string *Metric_List);
 std::string Find_Collector_With_Metrics (CollectorGroup cgrp,
