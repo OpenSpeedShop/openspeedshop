@@ -62,13 +62,33 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
       return false;   // There is no collector, return.
     }
 
-   // Be sure we sort the items based on the metric displayed in the first column.
-    ViewInstruction *vinst0 = Find_Column_Def (IV, 0);
-    if (vinst0 == NULL) {
+   // Set up quick access to instructions for columns.
+    int64_t num_columns = 0;
+    std::vector<ViewInstruction *> ViewInst;
+    int64_t i;
+    for ( i=0; i < IV.size(); i++) {
+      ViewInstruction *vinst = Find_Column_Def (IV, i);
+      if (vinst == NULL) {
+       // Exit if we didn't find a definition
+        break;
+      }
+      num_columns++;
+      ViewInst.push_back(vinst);
+    }   
+    if (num_columns == 0) {
       cmd->Result_String ("(There is no display requested.)");
       cmd->set_Status(CMD_ERROR);
       return false;   // There is no column[0] defined, return.
     }
+    if (ViewInst[0]->OpCode() != VIEWINST_Display_Metric) {
+      cmd->Result_String ("(The first column is not a metric.)");
+      cmd->set_Status(CMD_ERROR);
+      return false;   // There is nothing to sort on.
+    }
+
+   // Generate data for the first column.
+   // Be sure we sort the items based on the metric displayed in the first column.
+    ViewInstruction *vinst0 = ViewInst[0];
     int64_t Column0index = vinst0->TMP1();
     std::vector<Function_CommandResult_pair> items;
     GetMetricByFunction (cmd, false, tgrp, CV[Column0index], MV[Column0index], items);
@@ -114,13 +134,8 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
    // Build a Header for the table.
     CommandResult_Headers *H = new CommandResult_Headers ();
    // Add Metrics
-    int64_t i;
-    for ( i=0; i < IV.size(); i++) {
-      ViewInstruction *vinst = Find_Column_Def (IV, i);
-      if (vinst == NULL) {
-       // Exit if we didn't find a definition
-        break;
-      }
+    for ( i=0; i < num_columns; i++) {
+      ViewInstruction *vinst = ViewInst[i];
       int64_t CM_Index = vinst->TMP1();
 
       std::string column_header;
@@ -157,6 +172,29 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
     }
     cmd->Result_Predefined (H);
 
+   // Extract the top "n" items from the sorted list and get all the metric values.
+    std::vector<SmartPtr<std::map<Function, CommandResult *> > > Values(num_columns);
+    for ( i=1; i < num_columns; i++) {
+      ViewInstruction *vinst = ViewInst[i];
+      if (vinst->OpCode() == VIEWINST_Display_Metric) {
+        int64_t CM_Index = vinst->TMP1();
+        std::set<Function> objects;
+
+        std::vector<Function_CommandResult_pair>::const_iterator it = items.begin();
+        for(int64_t foundn = 0; (foundn < topn) && (it != items.end()); foundn++, it++ ) {
+          objects.insert(it->first);
+        }
+
+        SmartPtr<std::map<Function, CommandResult *> > column_values =
+            Framework::SmartPtr<std::map<Function, CommandResult *> >(
+                new std::map<Function, CommandResult * >()
+                );
+        GetMetricByFunctionSet (cmd, tgrp, CV[CM_Index], MV[CM_Index], objects, column_values);
+        Values[i] = column_values;
+      }
+    }
+
+
    // Extract the top "n" items from the sorted list.
     std::vector<Function_CommandResult_pair>::const_iterator it = items.begin();
     for(int64_t foundn = 0; (foundn < topn) && (it != items.end()); foundn++, it++ ) {
@@ -170,21 +208,26 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
       CommandResult_Columns *C = new CommandResult_Columns ();
 
      // Add Metrics
-      for ( i=0; i < IV.size(); i++) {
-        ViewInstruction *vinst = Find_Column_Def (IV, i);
-        if (vinst == NULL) {
-         // Exit if we didn't find a definition
-          break;
-        }
+      for ( i=0; i < num_columns; i++) {
+        ViewInstruction *vinst = ViewInst[i];
         int64_t CM_Index = vinst->TMP1();
 
         CommandResult *Next_Metric_Value = NULL;
         if (vinst->OpCode() == VIEWINST_Display_Metric) {
           if (i == 0) {
             Next_Metric_Value = it->second;
-          } else {
+          } else if (Values[i].isNull()) {
+           // There is no map - look up the individual function.
             Next_Metric_Value = Get_Function_Metric( cmd, it->first, tgrp,
                                                      CV[CM_Index], MV[CM_Index] );
+          } else {
+           // The entry should be in the column's values map for this function.
+            Next_Metric_Value = NULL;
+            SmartPtr<std::map<Function, CommandResult *> > column_values = Values[i];
+            std::map<Function, CommandResult *>::iterator sm = column_values->find(it->first);
+            if (sm != column_values->end()) {
+              Next_Metric_Value = sm->second;
+            }
           }
           if (Next_Metric_Value == NULL) {
             Next_Metric_Value = Init_Collector_Metric ( cmd, CV[CM_Index], MV[CM_Index] );

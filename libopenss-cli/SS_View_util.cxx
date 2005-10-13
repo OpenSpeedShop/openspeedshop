@@ -53,6 +53,31 @@ void GetMetricByFunctionInThreadGroup(
   }
 }
 
+template <typename TS, typename TO>
+void GetMetricByFunctionSetInThreadGroup(
+    const Collector& collector,
+    const std::string& metric,
+    const ThreadGroup& tgrp,
+    const std::set<TO >& objects,
+    SmartPtr<std::map<TO, TS> >& result)
+{
+  ThreadGroup::iterator ti;
+
+  // Allocate a new map of functions to type TS
+  result = SmartPtr<std::map<Function, TS> >(
+      new std::map<Function, TS>()
+      );
+  Assert(!result.isNull());
+
+  for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+    Thread thread = *ti;
+    // GetMetricByFunctionInThread(collector, metric, thread, result);
+    Queries::GetMetricInThread(collector, metric,
+                               TimeInterval(Time::TheBeginning(), Time::TheEnd()),
+                               thread, objects, result);
+  }
+}
+
 // Global View management utilities
 
 template <class T>
@@ -338,6 +363,77 @@ void GetMetricByFunction (CommandObject *cmd,
     std::sort(items.begin(), items.end(), sort_ascending_CommandResult<Function_CommandResult_pair>());
   } else {
     std::sort(items.begin(), items.end(), sort_descending_CommandResult<Function_CommandResult_pair>());
+  }
+
+  return;
+}
+
+void GetMetricByFunctionSet (CommandObject *cmd,
+                             ThreadGroup& tgrp,
+                             Collector& collector,
+                             std::string& metric,
+                             std::set<Function>& objects,
+                             SmartPtr<std::map<Function, CommandResult *> >& items) {
+
+  Metadata m = Find_Metadata ( collector, metric );
+  std::string id = m.getUniqueId();
+
+  if( m.isType(typeid(unsigned int)) ) {
+    SmartPtr<std::map<Function, uint> > data;
+    GetMetricByFunctionSetInThreadGroup (collector, metric, tgrp, objects, data);
+    for(std::map<Function, uint>::const_iterator
+        item = data->begin(); item != data->end(); ++item) {
+      std::pair<Function, uint> p = *item;
+      items->insert( std::make_pair(p.first, new CommandResult_Uint (p.second)) );
+    }
+  } else if( m.isType(typeid(uint64_t)) ) {
+    SmartPtr<std::map<Function, uint64_t> > data;
+    GetMetricByFunctionSetInThreadGroup (collector, metric, tgrp, objects, data);
+    for(std::map<Function, uint64_t>::const_iterator
+        item = data->begin(); item != data->end(); ++item) {
+      std::pair<Function, uint64_t> p = *item;
+      items->insert( std::make_pair(p.first, new CommandResult_Uint (p.second)) );
+    }
+  } else if( m.isType(typeid(int)) ) {
+    SmartPtr<std::map<Function, int> > data;
+    GetMetricByFunctionSetInThreadGroup (collector, metric, tgrp, objects, data);
+    for(std::map<Function, int>::const_iterator
+        item = data->begin(); item != data->end(); ++item) {
+      std::pair<Function, int> p = *item;
+      items->insert( std::make_pair(p.first, new CommandResult_Int (p.second)) );
+    }
+  } else if( m.isType(typeid(int64_t)) ) {
+    SmartPtr<std::map<Function, int64_t> > data;
+    GetMetricByFunctionSetInThreadGroup (collector, metric, tgrp, objects, data);
+    for(std::map<Function, int64_t>::const_iterator
+        item = data->begin(); item != data->end(); ++item) {
+      std::pair<Function, int64_t> p = *item;
+      items->insert( std::make_pair(p.first, new CommandResult_Int (p.second)) );
+    }
+  } else if( m.isType(typeid(float)) ) {
+    SmartPtr<std::map<Function, float> > data;
+    GetMetricByFunctionSetInThreadGroup (collector, metric, tgrp, objects, data);
+    for(std::map<Function, float>::const_iterator
+        item = data->begin(); item != data->end(); ++item) {
+      std::pair<Function, float> p = *item;
+      items->insert( std::make_pair(p.first, new CommandResult_Float (p.second)) );
+    }
+  } else if( m.isType(typeid(double)) ) {
+    SmartPtr<std::map<Function, double> > data;
+    GetMetricByFunctionSetInThreadGroup (collector, metric, tgrp, objects, data);
+    for(std::map<Function, double>::const_iterator
+        item = data->begin(); item != data->end(); ++item) {
+      std::pair<Function, double> p = *item;
+      items->insert( std::make_pair(p.first, new CommandResult_Float (p.second)) );
+    }
+  } else if( m.isType(typeid(string)) ) {
+    SmartPtr<std::map<Function, string> > data;
+    GetMetricByFunctionSetInThreadGroup (collector, metric, tgrp, objects, data);
+    for(std::map<Function, string>::const_iterator
+        item = data->begin(); item != data->end(); ++item) {
+      std::pair<Function, string> p = *item;
+      items->insert( std::make_pair(p.first, new CommandResult_String (p.second)) );
+    }
   }
 
   return;
