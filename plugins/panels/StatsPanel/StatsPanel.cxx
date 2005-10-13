@@ -269,11 +269,20 @@ StatsPanel::listener(void *msg)
     FocusObject *msg = (FocusObject *)msgObject;
 // msg->print();
     expID = msg->expID;
-#ifdef OLDWAY
-    currentThreadStr = msg->pid_name;
-#else // OLDWAY
     currentThreadsStr = msg->pidString;
-#endif // OLDWAY
+    currentThreadGroupStrList.clear();
+    QString ws = msg->pidString;
+    int cnt = ws.contains(",");
+    if( cnt > 1 )
+    {
+      for(int i=0;i<=cnt;i++)
+      {
+        currentThreadGroupStrList.push_back( ws.section(",", i, i) ); 
+      }
+    } else
+    {
+      currentThreadGroupStrList.push_back( ws );
+    }
 // Currently this causes a second update when loading from a saved file. FIX
 // printf("Currently this causes a second update when loading from a saved file. FIX\n");
 printf("CAUSING DOUBLE REFRESH!\n");
