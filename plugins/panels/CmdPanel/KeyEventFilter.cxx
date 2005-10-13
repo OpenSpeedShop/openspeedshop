@@ -34,6 +34,7 @@ KeyEventFilter::eventFilter( QObject *o, QEvent *e)
 {
   if( e->type() == QEvent::KeyPress )
   {
+    cmdPanel->positionToEnd();
     QKeyEvent *key_event = (QKeyEvent *)e;
 // printf("The user pressed a (%s)\n", key_event->text().ascii() );
     if( key_event->key() == Qt::Key_Up ) 

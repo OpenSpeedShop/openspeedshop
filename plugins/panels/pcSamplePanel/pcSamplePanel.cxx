@@ -503,7 +503,11 @@ pcSamplePanel::listener(void *msg)
               QString::null, 0, 1 ) )
       {
         int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
-        Append_Input_String( wid, (char *)command.ascii());
+        InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii());
+        if( clip )
+        {
+          clip->Set_Results_Used();
+        }
       }
       exitingFLAG = TRUE;
     }
@@ -611,7 +615,12 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
         InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii());
   
         ret_val = 1;
-clip->Set_Results_Used();
+/*
+        if( clip )
+        {
+          clip->Set_Results_Used();
+        }
+*/
         }
         break;
       case  PAUSE_T:
@@ -621,7 +630,12 @@ clip->Set_Results_Used();
         int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
         InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii());
         statusLabelText->setText( tr("Process Paused...") );
-clip->Set_Results_Used();
+/*
+        if( clip )
+        {
+          clip->Set_Results_Used();
+        }
+*/
         }
         ret_val = 1;
         break;
@@ -633,7 +647,10 @@ clip->Set_Results_Used();
         int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
         InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii() );
         statusLabelText->setText( tr("Process continued...") );
-clip->Set_Results_Used();
+        if( clip )
+        {
+          clip->Set_Results_Used();
+        }
         }
         ret_val = 1;
         break;
@@ -665,7 +682,12 @@ CLIInterface::interrupt = true;
         int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
         InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii() );
         ret_val = 1;
-clip->Set_Results_Used();
+/*
+        if( clip )
+        {
+          clip->Set_Results_Used();
+        }
+*/
         nprintf( DEBUG_MESSAGES ) ("Terminate\n");
         }
         break;
@@ -837,6 +859,10 @@ pcSamplePanel::experimentStatus()
     {
 // printf("RETURN FALSE!   COMMAND FAILED!\n");
       QApplication::restoreOverrideCursor();
+      if( clip ) 
+      {
+        clip->Set_Results_Used();
+      }
       return;
     }
 
@@ -846,8 +872,10 @@ pcSamplePanel::experimentStatus()
   //Test putting the output to statspanel stream.
   Default_TLI_Line_Output(clip);
 
-  clip->Set_Results_Used();
-
+  if( clip )
+  {
+    clip->Set_Results_Used();
+  }
 
   
   QMessageBox::information( this, "Experiment status", expStatsInfoStr, QMessageBox::Ok );

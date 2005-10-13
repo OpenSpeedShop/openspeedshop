@@ -125,7 +125,10 @@ CmdPanel::returnPressed()
 {
   nprintf(DEBUG_PANELS)  ("CmdPanel::returnPressed()\n");
 
-// printf("returnPressed() entered\n");
+output->append("\n");
+
+
+// printf("returnPressed() entered user_line_buffer=%s\n", user_line_buffer.ascii() );
 
   output->scrollToBottom();
 
@@ -140,9 +143,9 @@ CmdPanel::returnPressed()
   int i = 0;
   CommandList commandList;
   commandList.clear();
-  QString command_string = user_line_buffer.stripWhiteSpace();
 
-  commandList.push_back(command_string);
+  QString command_with_newline = user_line_buffer + "\n";
+  commandList.push_back(user_line_buffer);
 
   nprintf(DEBUG_PANELS) ("commandList.count()=%d\n", commandList.count() );
 
@@ -156,6 +159,7 @@ CmdPanel::returnPressed()
     InputLineObject clip;
     cmdHistoryList.push_back(command);
     oclass->Set_Issue_Prompt (true);
+// printf("send down command=(%s)\n", command.ascii() );
     Append_Input_String( wid, (char *)command.ascii(), NULL, &Default_TLI_Line_Output, &Default_TLI_Command_Output);
 //    Append_Input_String( wid, (char *)command.ascii());
 
@@ -349,7 +353,8 @@ void CmdPanel::customEvent(QCustomEvent *e)
 //printf("PUt out the string (%s)", data->ascii() );
    // This goes to the text stream...
    output->moveCursor(QTextEdit::MoveEnd, FALSE);
-   output->append(*data);
+// Insert, rather than append.   Append puts a newline out.
+   output->insert(*data);
    output->moveCursor(QTextEdit::MoveEnd, FALSE);
 //   delete data;
   }

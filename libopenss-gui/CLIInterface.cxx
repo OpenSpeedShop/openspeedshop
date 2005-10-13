@@ -71,7 +71,6 @@ CLIInterface::runSynchronousCLI(const char *command, int mt, bool wot )
 {
   maxTime = mt;
   warn_of_time = wot;
-//  printf("runSynchronousCLI(%s)\n", command);
   QApplication::setOverrideCursor(QCursor::WaitCursor);
   InputLineObject *clip = Append_Input_String( wid, (char *)command);
   if( clip == NULL )
@@ -94,6 +93,7 @@ CLIInterface::runSynchronousCLI(const char *command, int mt, bool wot )
     if( !shouldWeContinue() )
     {
 //printf("RETURN FALSE!   COMMAND FAILED!\n");
+      clip->Set_Results_Used();
       RETURN_FALSE;
     }
 
@@ -107,6 +107,10 @@ CLIInterface::runSynchronousCLI(const char *command, int mt, bool wot )
     timer = NULL;
   }
 
+  if( clip ) 
+  {
+    clip->Set_Results_Used();
+  }
   RETURN_TRUE;
 }
 
@@ -148,6 +152,10 @@ CLIInterface::getIntValueFromCLI(const char *command, int64_t *val, bool mark_va
     if( !status || status == ILO_ERROR )
     {   // An error occurred.... A message should have been posted.. return;
       fprintf(stderr, "an error occurred processing (%s)!\n", command);
+      if( clip ) 
+      {
+        clip->Set_Results_Used();
+      }
       RETURN_FALSE;
     }
 
@@ -238,6 +246,10 @@ CLIInterface::getIntListValueFromCLI(const char *command, std::list<int64_t> *in
     if( !status || status == ILO_ERROR )
     {   // An error occurred.... A message should have been posted.. return;
       fprintf(stderr, "an error occurred processing (%s)!\n", command);
+      if( mark_value_for_delete && clip ) 
+      {
+        clip->Set_Results_Used();
+      }
       RETURN_FALSE;
     }
 
@@ -266,9 +278,9 @@ std::list<CommandResult *> cmd_result = co->Result_List();
           (*int_list).push_back(val);
         }
 
-        if( mark_value_for_delete )
+        //Allow the garbage collector to clean up the value...
+        if( mark_value_for_delete && clip )
         {
-          //Allow the garbage collector to clean up the value...
           clip->Set_Results_Used();
         }
       }
@@ -280,6 +292,10 @@ std::list<CommandResult *> cmd_result = co->Result_List();
     if( !shouldWeContinue() )
     {
 //printf("RETURN FALSE!   COMMAND FAILED!\n");
+      if( mark_value_for_delete && clip ) 
+      {
+        clip->Set_Results_Used();
+      }
       RETURN_FALSE;
     }
 
@@ -293,6 +309,10 @@ std::list<CommandResult *> cmd_result = co->Result_List();
     timer = NULL;
   }
 
+  if( mark_value_for_delete && clip ) 
+  {
+    clip->Set_Results_Used();
+  }
   RETURN_TRUE;
 }
 
@@ -335,6 +355,10 @@ CLIInterface::getStringValueFromCLI(const char *command, std::string *str_val, b
     if( !status || status == ILO_ERROR )
     {   // An error occurred.... A message should have been posted.. return;
       fprintf(stderr, "an error occurred processing (%s)!\n", command);
+      if( clip ) 
+      {
+        clip->Set_Results_Used();
+      }
       RETURN_FALSE;
     }
 
@@ -369,6 +393,10 @@ CLIInterface::getStringValueFromCLI(const char *command, std::string *str_val, b
     if( !shouldWeContinue() )
     {
 //printf("RETURN FALSE!   COMMAND FAILED!\n");
+      if( clip ) 
+      {
+        clip->Set_Results_Used();
+      }
       RETURN_FALSE;
     }
 
@@ -382,6 +410,10 @@ CLIInterface::getStringValueFromCLI(const char *command, std::string *str_val, b
     timer = NULL;
   }
 
+  if( clip ) 
+  {
+    clip->Set_Results_Used();
+  }
   RETURN_TRUE;
 }
 
@@ -423,6 +455,10 @@ CLIInterface::getStringListValueFromCLI(const char *command, std::list<std::stri
     if( !status || status == ILO_ERROR )
     {   // An error occurred.... A message should have been posted.. return;
       fprintf(stderr, "an error occurred processing (%s)!\n", command);
+      if( mark_value_for_delete && clip ) 
+      {
+        clip->Set_Results_Used();
+      }
       RETURN_FALSE;
     }
 
@@ -445,7 +481,7 @@ CLIInterface::getStringListValueFromCLI(const char *command, std::list<std::stri
           (*str_list).push_back(str_val);
         }
 
-        if( mark_value_for_delete )
+        if( mark_value_for_delete && clip )
         {
           //Allow the garbage collector to clean up the value...
           clip->Set_Results_Used();
@@ -458,7 +494,11 @@ CLIInterface::getStringListValueFromCLI(const char *command, std::list<std::stri
 
     if( !shouldWeContinue() )
     {
-printf("RETURN FALSE!   COMMAND FAILED!\n");
+//printf("RETURN FALSE!   COMMAND FAILED!\n");
+      if( mark_value_for_delete && clip ) 
+      {
+        clip->Set_Results_Used();
+      }
       RETURN_FALSE;
     }
 
@@ -472,6 +512,10 @@ printf("RETURN FALSE!   COMMAND FAILED!\n");
     timer = NULL;
   }
 
+  if( mark_value_for_delete && clip ) 
+  {
+    clip->Set_Results_Used();
+  }
   RETURN_TRUE;
 }
 

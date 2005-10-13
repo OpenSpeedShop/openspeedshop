@@ -1172,6 +1172,10 @@ lastAbout += "Command issued: " + command;
     if( !status || status == ILO_ERROR )
     { // An error occurred.... A message should have been posted.. return;
       QApplication::restoreOverrideCursor();
+      if( clip )
+      {
+        clip->Set_Results_Used();
+      }
       return;
     }
 
@@ -1181,6 +1185,10 @@ lastAbout += "Command issued: " + command;
     {
 // printf("RETURN FALSE!   COMMAND FAILED!\n");
       QApplication::restoreOverrideCursor();
+      if( clip )
+      {
+        clip->Set_Results_Used();
+      }
       return;
     }
 
@@ -1243,6 +1251,11 @@ lastAbout += "Command issued: " + command;
   cf->setValues(cpvl, ctvl, color_names, MAX_COLOR_CNT);
 
   QApplication::restoreOverrideCursor();
+
+  if( clip )
+  {
+    clip->Set_Results_Used();
+  }
 }
 
 
