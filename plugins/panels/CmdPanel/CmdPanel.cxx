@@ -47,6 +47,8 @@ class OutputClass : public ss_ostream
     virtual void output_string (std::string s)
     {
        line_buffer += s.c_str();
+ 
+       if( strchr(line_buffer, '\n') )
        {
          QString *data = new QString(line_buffer);
          cp->postCustomEvent(data);
@@ -333,12 +335,12 @@ void CmdPanel::menu2callback()
   nprintf(DEBUG_PANELS) ("CmdPanel::menu2callback() entered\n");
 }
 
-#define FRAP 10000
+#define CMDPANELEVENT 10000
 void
 CmdPanel::postCustomEvent(QString *data)
 {
   QCustomEvent *event;
-  event = new QCustomEvent(FRAP);
+  event = new QCustomEvent(CMDPANELEVENT);
   event->setData(data);
   QApplication::postEvent(this, event);
 }
@@ -346,15 +348,15 @@ CmdPanel::postCustomEvent(QString *data)
 void CmdPanel::customEvent(QCustomEvent *e)
 {
 //printf("CmdPanel::customEvent() entered\n");
-  if( e->type() == FRAP )
+  if( e->type() == CMDPANELEVENT )
   {
 // qApp->processEvents(30);
    QString *data = static_cast<QString *>(e->data());
 //printf("PUt out the string (%s)", data->ascii() );
    // This goes to the text stream...
    output->moveCursor(QTextEdit::MoveEnd, FALSE);
-// Insert, rather than append.   Append puts a newline out.
-   output->insert(*data);
+   output->append(*data);
+//   output->insert(*data);
    output->moveCursor(QTextEdit::MoveEnd, FALSE);
 //   delete data;
   }
