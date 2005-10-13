@@ -91,11 +91,14 @@ AC_DEFUN([AC_PKG_DPCL], [
 
     DPCL_CPPFLAGS="-I$dpcl_dir/include/dpcl"
     DPCL_LDFLAGS="-L$dpcl_dir/$abi_libdir"
-    DPCL_LIBS="-ldpcl"
 
     case "$host" in
 	x86_64-*-linux* | ia64-*-linux*)
             DPCL_CPPFLAGS="$DPCL_CPPFLAGS -D__64BIT__"
+	    DPCL_LIBS="-ldpcl64 -lpthread"
+            ;;
+	*)
+	    DPCL_LIBS="-ldpcl -lpthread"
             ;;
     esac
 
