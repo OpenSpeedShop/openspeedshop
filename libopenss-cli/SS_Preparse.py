@@ -228,6 +228,10 @@ def return_string_list(args):
     ret = cmd_parse(args)
     return ret
 
+def return_list(args):
+    ret = cmd_parse(args)
+    return ret
+
 ################################################################################
 #
 # Do_quit
@@ -497,8 +501,8 @@ class CLI(code.InteractiveConsole):
         "exprestore"    : "return_int",
         "expsave"       : "return_none",
         "expsetparam"   : "return_none",
-        "expstatus" 	: "return_none",
-        "expview"       : "return_int_list",
+        "expstatus" 	: "return_list",
+        "expview"       : "return_list",
 
         "listbreaks"    : "return_int_list",
         "listexp"       : "return_int_list",
@@ -517,8 +521,8 @@ class CLI(code.InteractiveConsole):
         "clearbreak"    : "return_none",
         "exit"          : "return_none",
         "opengui"       : "return_none",
-        "help"          : "return_string",
-        "history"       : "return_none",
+        "help"          : "return_list",
+        "history"       : "return_list",
         "log"           : "return_none",
         "playback"      : "return_none",
         "record"        : "return_none",

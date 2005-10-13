@@ -47,7 +47,7 @@ command_type_t OpenSpeedShop::cli::cmd_desc[CMD_MAX] = {
     "expRestore",   false,  CMD_EXP_RESTORE,
     "expSave",	    false,  CMD_EXP_SAVE,
     "expSetparam",  false,  CMD_EXP_SETPARAM,
-    "expStatus",    false,  CMD_EXP_STATUS,
+    "expStatus",    true,  CMD_EXP_STATUS,
     "expView",	    true,   CMD_EXP_VIEW,
 
     "listBreaks",   true,   CMD_LIST_BREAKS,
@@ -66,8 +66,8 @@ command_type_t OpenSpeedShop::cli::cmd_desc[CMD_MAX] = {
 
     "clearBreak",   false,  CMD_CLEAR_BREAK,
     "exit", 	    false,  CMD_EXIT,
-    "help", 	    false,  CMD_HELP,
-    "history",	    false,  CMD_HISTORY,
+    "help", 	    true,   CMD_HELP,
+    "history",	    true,   CMD_HISTORY,
     "log",  	    false,  CMD_LOG,
     "openGui",	    false,  CMD_OPEN_GUI,
     "playBack",     false,  CMD_PLAYBACK,
