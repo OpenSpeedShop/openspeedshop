@@ -117,15 +117,10 @@ void ManageCollectorsClass::languageChange()
 // printf("command=(%s)\n", command.ascii() );
   InputLineObject *clip = NULL;
   if( !cli->getStringListValueFromCLI( (char *)command.ascii(), 
-         &list_of_collectors, clip, FALSE ) )
+         &list_of_collectors, clip, TRUE ) )
   {
     QMessageBox::information( this, tr("Error issuing command to cli:"), tr("Unable to run %1 command.").arg(command), QMessageBox::Ok );
   }
-  if( clip )
-  {
-    clip->Set_Results_Used();
-  }
-
 }
 
 QString

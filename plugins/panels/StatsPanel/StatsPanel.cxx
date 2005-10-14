@@ -1528,7 +1528,7 @@ StatsPanel::updateCollectorMetricList()
 list_of_collectors.clear();
   InputLineObject *clip = NULL;
   if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
-         &list_of_collectors, clip, FALSE ) )
+         &list_of_collectors, clip, TRUE ) )
   {
     printf("Unable to run %s command.\n", command.ascii() );
   }
@@ -1550,10 +1550,6 @@ list_of_collectors.clear();
       }
     }
   }
-  if( clip )
-  {
-    clip->Set_Results_Used();
-  }
 }
 
 
@@ -1564,10 +1560,10 @@ StatsPanel::updateThreadsList()
   QString command = QString("listPids -x %1").arg(expID);
 // printf("attempt to run (%s)\n", command.ascii() );
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-list_of_pids.clear();
+  list_of_pids.clear();
   InputLineObject *clip = NULL;
   if( !cli->getIntListValueFromCLI( (char *)command.ascii(),
-         &list_of_pids, clip, FALSE ) )
+         &list_of_pids, clip, TRUE ) )
   {
     printf("Unable to run %s command.\n", command.ascii() );
   }

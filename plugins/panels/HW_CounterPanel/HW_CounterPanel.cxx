@@ -503,11 +503,9 @@ HW_CounterPanel::listener(void *msg)
               QString::null, 0, 1 ) )
       {
         int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
-        InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii());
-        if( clip )
-        {
-          clip->Set_Results_Used();
-        }
+//        InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii());
+        CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+        cli->runSynchronousCLI(command.ascii());
       }
       exitingFLAG = TRUE;
     }
@@ -612,15 +610,10 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
         statusLabelText->setText( tr("Process running...") );
 
         int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
-        InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii());
+//        InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii());
   
+        cli->runSynchronousCLI(command.ascii());
         ret_val = 1;
-/*
-        if( clip )
-        {
-          clip->Set_Results_Used();
-        }
-*/
         }
         break;
       case  PAUSE_T:
@@ -628,14 +621,9 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
         nprintf( DEBUG_MESSAGES ) ("Pause\n");
         command = QString("expPause -x %1\n").arg(expID);
         int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
-        InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii());
+//        InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii());
+        cli->runSynchronousCLI(command.ascii());
         statusLabelText->setText( tr("Process Paused...") );
-/*
-        if( clip )
-        {
-          clip->Set_Results_Used();
-        }
-*/
         }
         ret_val = 1;
         break;
@@ -645,12 +633,9 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
         nprintf( DEBUG_MESSAGES ) ("Continue\n");
         command = QString("expCont -x %1\n").arg(expID);
         int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
-        InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii() );
+//        InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii() );
+        cli->runSynchronousCLI(command.ascii());
         statusLabelText->setText( tr("Process continued...") );
-        if( clip )
-        {
-          clip->Set_Results_Used();
-        }
         }
         ret_val = 1;
         break;
@@ -680,14 +665,9 @@ CLIInterface::interrupt = true;
 //        command = QString("expClose -x %1 -kill\n").arg(expID);
         command = QString("expPause -x %1\n").arg(expID);
         int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
-        InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii() );
+//        InputLineObject *clip = Append_Input_String( wid, (char *)command.ascii() );
+        cli->runSynchronousCLI(command.ascii());
         ret_val = 1;
-/*
-        if( clip )
-        {
-          clip->Set_Results_Used();
-        }
-*/
         nprintf( DEBUG_MESSAGES ) ("Terminate\n");
         }
         break;
@@ -850,6 +830,10 @@ HW_CounterPanel::experimentStatus()
     if( !status || status == ILO_ERROR )
     { // An error occurred.... A message should have been posted.. return;
       QApplication::restoreOverrideCursor();
+      if( clip ) 
+      {
+        clip->Set_Results_Used();
+      }
       return;
     }
 
