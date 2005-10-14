@@ -46,9 +46,23 @@ class OutputClass : public ss_ostream
   private:
     virtual void output_string (std::string s)
     {
+       extern char *Current_OpenSpeedShop_Prompt;
+       extern char *Alternate_Current_OpenSpeedShop_Prompt;
        line_buffer += s.c_str();
  
        if( strchr(line_buffer, '\n') )
+       {
+         QString *data = new QString(line_buffer);
+         cp->postCustomEvent(data);
+         line_buffer = QString::null;
+       }
+
+       int pos = s.find(Current_OpenSpeedShop_Prompt, 0);
+       if( pos != 0 )
+       {
+         pos = s.find(Alternate_Current_OpenSpeedShop_Prompt, 0);
+       }
+       if( pos == 0 )
        {
          QString *data = new QString(line_buffer);
          cp->postCustomEvent(data);
@@ -336,6 +350,7 @@ void CmdPanel::menu2callback()
 }
 
 #define CMDPANELEVENT 10000
+#define CMDPANELPROMPTEVENT 10001
 void
 CmdPanel::postCustomEvent(QString *data)
 {
@@ -345,19 +360,33 @@ CmdPanel::postCustomEvent(QString *data)
   QApplication::postEvent(this, event);
 }
 
+void
+CmdPanel::postCustomPromptEvent(QString *data)
+{
+  QCustomEvent *event;
+  event = new QCustomEvent(CMDPANELPROMPTEVENT);
+  event->setData(data);
+  QApplication::postEvent(this, event);
+}
+
 void CmdPanel::customEvent(QCustomEvent *e)
 {
 //printf("CmdPanel::customEvent() entered\n");
   if( e->type() == CMDPANELEVENT )
   {
-// qApp->processEvents(30);
    QString *data = static_cast<QString *>(e->data());
-//printf("PUt out the string (%s)", data->ascii() );
    // This goes to the text stream...
    output->moveCursor(QTextEdit::MoveEnd, FALSE);
    output->append(*data);
 //   output->insert(*data);
    output->moveCursor(QTextEdit::MoveEnd, FALSE);
-//   delete data;
+  } else if( e->type() == CMDPANELPROMPTEVENT )
+  {
+   QString *data = static_cast<QString *>(e->data());
+   // This goes to the text stream...
+   output->moveCursor(QTextEdit::MoveEnd, FALSE);
+//   output->append(*data);
+   output->insert(*data);
+   output->moveCursor(QTextEdit::MoveEnd, FALSE);
   }
 }

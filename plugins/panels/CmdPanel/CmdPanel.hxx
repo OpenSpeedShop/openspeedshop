@@ -60,6 +60,7 @@ public:
   OutputClass *oclass;
 
   void postCustomEvent(QString *data);
+  void postCustomPromptEvent(QString *data);
   void customEvent(QCustomEvent *event);
 
   QString user_line_buffer;
