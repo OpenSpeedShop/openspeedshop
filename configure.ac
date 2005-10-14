@@ -187,11 +187,6 @@ AC_CONFIG_FILES(Makefile
 		libopenss-guidialogs/Makefile
 		libopenss-guichart/Makefile
 		libopenss-cli/Makefile
-		libopenss-cli/Commands/Makefile
-		libopenss-cli/Commands/ExpFancy/Makefile
-		libopenss-cli/Commands/ExpExtraFancy/Makefile
-		libopenss-cli/Commands/q/Makefile
-		libopenss-cli/Commands/frap/Makefile
 		libopenss-gui/Makefile
 		test/Makefile
 		test/executables/Makefile

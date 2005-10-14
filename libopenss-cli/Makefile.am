@@ -73,10 +73,7 @@ libopenss_cli_la_SOURCES = \
 	SS_View_stats.cxx \
 	SS_Watcher.hxx SS_Watcher.cxx \
 	SS_Start.cxx \
-	Start_Modes.cxx \
-	cli_PluginInfo.hxx cli_PluginInfo.cxx \
-	cli_plugin.cxx 	\
-	CmdClass.hxx CmdClass.cxx
+	Start_Modes.cxx
 
 LFILES = SS_Parse_Lex.lxx
 YFILES = SS_Parse_Yacc.yxx
@@ -102,8 +99,6 @@ SS_Parse_Lex.cxx: $(LFILES) SS_Parse_Yacc.hxx
 EXTRA_DIST = help_cmd_msg.dxx  help_general_msg.dxx  \
 		help_grammar_msg.dxx  help_topic_msg.dxx 
 
-SUBDIRS = \
-	Commands
 
 doc:
 	$(DOXYGEN)
