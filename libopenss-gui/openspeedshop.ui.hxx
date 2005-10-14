@@ -439,29 +439,16 @@ void OpenSpeedshop::filePreferences(QWidget *stackWidgetToRaise, QString panel_t
 #include "GenericProgressDialog.hxx"
 void OpenSpeedshop::fileExit()
 {
- dprintf("fileExit() entered.\n");
+// printf("fileExit() entered.\n");
 
 //  QMessageBox::information( (QWidget *)this, tr("Info:"), tr("Closing down Open|SpeedShop... This may take a few seconds cleaning up...."),  QMessageBox::NoButton );
 
-#ifdef OLDWAY
-  steps = 0;
   pd = new GenericProgressDialog(this, "Exiting Open|SpeedShop", TRUE );
   pd->infoLabel->setText( tr("Waiting to exit: Cleaning up...") );
-  QTimer *loadTimer = new QTimer( this, "progressTimer" );
-  connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
-  loadTimer->start( 1000 );
-
-  pd->show();
-#else // OLDWAY
-  pd = new GenericProgressDialog(this, "Exiting Open|SpeedShop", TRUE );
-  pd->infoLabel->setText( tr("Waiting to exit: Cleaning up...") );
-#endif // OLDWAY
 
   int wid = ((PanelContainer *)topPC)->getMainWindow()->widStr.toInt();
   InputLineObject *ilp = Append_Input_String( wid, "exit\n");
 
-
-//  qapplication->eventLoop()->exitLoop();
   qapplication->exit(0);
 }
 

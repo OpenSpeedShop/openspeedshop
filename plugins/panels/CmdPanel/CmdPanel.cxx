@@ -46,7 +46,11 @@ class OutputClass : public ss_ostream
   private:
     virtual void output_string (std::string s)
     {
-       extern char *Current_OpenSpeedShop_Prompt;
+      if( cp->closingDown == TRUE )
+      {
+        return;
+      }
+             extern char *Current_OpenSpeedShop_Prompt;
        extern char *Alternate_Current_OpenSpeedShop_Prompt;
        line_buffer += s.c_str();
  
@@ -78,6 +82,8 @@ class OutputClass : public ss_ostream
 CmdPanel::CmdPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
 {
   nprintf(DEBUG_CONST_DESTRUCT) ( "CmdPanel::CmdPanel() constructor called.\n");
+
+  closingDown = FALSE;
 
   // grab the prompt from the cli.
   prompt = QString(Current_OpenSpeedShop_Prompt);
@@ -155,6 +161,13 @@ output->append("\n");
     putOutPrompt();
     return;
   }
+
+// printf("user_line_buffer.c_str()=(%s)\n", user_line_buffer.ascii() );
+  if( user_line_buffer == "exit" || user_line_buffer == "quit" )
+  {
+    exit();
+  }
+
 
   int i = 0;
   CommandList commandList;
@@ -324,6 +337,10 @@ CmdPanel::listener(void *msg)
     nprintf(DEBUG_MESSAGES) ("CmdPanel::listener() interested!\n");
     getPanelContainer()->raisePanel(this);
     return 1;
+  } else if( messageObject->msgType == "ClosingDownObject" )
+  {
+// printf("CmdPanel::listener knows we're about to close down.\n");
+    closingDown = TRUE;
   }
   return 0;  // 0 means, did not want this message and did not act on anything.
 }
@@ -389,4 +406,13 @@ void CmdPanel::customEvent(QCustomEvent *e)
    output->insert(*data);
    output->moveCursor(QTextEdit::MoveEnd, FALSE);
   }
+}
+
+void
+CmdPanel::exit()
+{
+// printf("CmdPanel exit|quit received.\n");
+  closingDown = TRUE;
+  
+  getPanelContainer()->getMainWindow()->fileExit();
 }

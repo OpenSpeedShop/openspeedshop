@@ -2325,7 +2325,10 @@ PanelContainer::closeWindow(PanelContainer *targetPC)
   // way out the door.
   if( strcmp(targetPC->getExternalName(), "masterPC") != 0 )
   {
-    delete targetPC;
+    if( targetPC->internal_name )
+    {
+      delete targetPC;
+    }
   }
 }
 

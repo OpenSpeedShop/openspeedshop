@@ -57,6 +57,8 @@ public:
 
   void positionToEnd();
   void putOutPrompt();
+  bool closingDown;
+  void exit();
   OutputClass *oclass;
 
   void postCustomEvent(QString *data);
