@@ -23,6 +23,7 @@ class ExperimentObject;
 extern EXPID Experiment_Sequence_Number;
 extern pthread_mutex_t Experiment_List_Lock;
 extern std::list<ExperimentObject *> ExperimentObject_list;
+extern void openss_error(char *);
 
 #define ExpStatus_NonExistent 0
 #define ExpStatus_Paused      1
@@ -218,5 +219,8 @@ void Filter_ThreadGroup (CommandObject *cmd, ThreadGroup& tgrp);
 inline void Mark_Cmd_With_Std_Error (CommandObject *cmd, const Exception& error) {
    cmd->Result_String ( error.getDescription() );
    cmd->set_Status(CMD_ERROR);
+   
+   // Put in python exception
+   openss_error((char *)error.getDescription().c_str());
    return;
 }
