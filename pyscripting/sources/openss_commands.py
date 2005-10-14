@@ -415,9 +415,15 @@ def expGo(*arglist):
         - Independent commands may be issued and completed 
 	  before this experiment completes.
         - The status of any experiment can be determined 
-	  through the B{listStatus} command.
+	  through the B{listStatus} command. Current available
+	  status strings are:
+	    	"Unknown":  	An unknown status was returned.
+		"Paused":   	The process is in a "paused" state.
+		"Running":  	The process is still running.
+		"Terminated":	The process has finished running.
+		"Error":    	Something went wrong.
         - Depending on the type of data collection that is 
-	  taking place, it may be popenssible to view the results 
+	  taking place, it may be possible to view the results 
 	  before the application completes.
     - The absence of the I{ExpId} and I{ModifierList}(B{"all"}) will result in only the focused experiment being run.
     - The use of I{ExpId} will result in only that experiment 
@@ -1008,6 +1014,15 @@ def listStatus(*arglist):
 	  experiment to be returned.
         - The use of I{ModifierList}(B{"all"}) will cause the status 
 	  of all the defined experiments to be returned.
+	- The return value is a list of strings representing
+	  the status of the current focused experiment process.
+	  Current available status strings are:
+	    	"Unknown":  	An unknown status was returned.
+		"Paused":   	The process is in a "paused" state.
+		"Running":  	The process is still running.
+		"Terminated":	The process has finished running.
+		"Error":    	Something went wrong.
+
 
       <ListOf_statusType> = listStatus [ I{ModifierList}(B{"all"}) || I{ExpId} ] 
 
