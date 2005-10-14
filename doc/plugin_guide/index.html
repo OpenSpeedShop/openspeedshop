@@ -7,64 +7,124 @@
 </head>
 <body>
 <h1 style="text-align: center;"><a class="mozTocH1"
- name="mozTocId831142"></a>Open|SpeedShop Plugin Creation Guide</h1>
+ name="mozTocId724479"></a>Open|SpeedShop Plugin Creation Guide</h1>
 <div style="text-align: center;"><big><span style="font-weight: bold;">Developer
 Beta Release</span><br style="font-weight: bold;">
 <span style="font-weight: bold;">November 13, 2005</span></big><br>
 </div>
 <br>
-<h2><a class="mozTocH2" name="mozTocId259966"></a><span
+<h2><a class="mozTocH2" name="mozTocId240271"></a><span
  style="font-weight: bold;">Table of Contents</span><span
  style="text-decoration: underline;"></span></h2>
 <ul id="mozToc">
-<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId831142">Open|SpeedShop
+<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId724479">Open|SpeedShop
 Plugin Creation Guide</a>
     <ul>
-      <li><a href="#mozTocId259966">Table of Contents</a></li>
-      <li><a href="#mozTocId99355">Open|SpeedShop
-Overview and Information Resources</a></li>
-      <li><a href="#mozTocId892353">Open|SpeedShop Plugin
-Overview </a></li>
-      <li><a href="#mozTocId926177">Performance Data
-Collector Plugin Information</a>
+      <li><a href="#mozTocId240271">Table of Contents</a></li>
+      <li><a href="#mozTocId535857">Open|SpeedShop
+Overview and Information Resources</a>
         <ul>
-          <li><a href="#mozTocId50966">Identifying and Analyzing
-The Performance Data Desired</a></li>
-          <li><a href="#mozTocId177039">Implementing The
-Collector Plugin</a>
-            <ul>
-              <li><a href="#mozTocId372405">Overview</a></li>
-              <li><a href="#mozTocId885458">Data blobs</a></li>
-              <li><a href="#mozTocId449880">Collector Runtime</a></li>
-              <li><a href="#mozTocId635517">Collector Client </a></li>
-            </ul>
-          </li>
-          <li><a href="#mozTocId715407">Example Collector Plugin</a></li>
+          <li><a href="#mozTocId507487">Features:</a></li>
         </ul>
       </li>
-      <li><a href="#mozTocId376321">Graphical User
-Interface Plugin Information </a>
+      <li><a href="#mozTocId11413">Open|SpeedShop Plugin
+Overview
+        </a></li>
+      <li><a href="#mozTocId732797">Performance Data
+Collector Plugin Information</a>
         <ul>
-          <li><a href="#mozTocId337995">Creating The
+          <li><a href="#mozTocId661443">Identifying and Analyzing
+The Performance Data Desired</a></li>
+          <li><a href="#mozTocId904911">Implementing The
+Collector Plugin</a>
+            <ul>
+              <li><a href="#mozTocId773274">Overview</a></li>
+              <li><a href="#mozTocId207808">Data blobs</a></li>
+              <li><a href="#mozTocId667687">Server - Collector Runtime</a></li>
+              <li><a href="#mozTocId637965">Client - Collector
+Plugin&nbsp; </a>
+                <ul>
+                  <li><a href="#mozTocId388988">Start Collecting</a></li>
+                  <li><a href="#mozTocId992246">Stop Collecting</a></li>
+                  <li><a href="#mozTocId278716">Get Metric Values</a></li>
+                  <li><a href="#mozTocId271962">Set Parameter</a></li>
+                  <li><a href="#mozTocId518369">Get Default Parameters</a></li>
+                  <li><a href="#mozTocId769605">Get Parameters</a></li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li><a href="#mozTocId846999">Example Collector Plugin</a></li>
+        </ul>
+      </li>
+      <li><a href="#mozTocId212847">Graphical User
+Interface Plugin Information
+        </a>
+        <ul>
+          <li><a href="#mozTocId930728">Creating The
 Graphical User Interface Panel</a></li>
-          <li><a href="#mozTocId132913">Interfacing With
+          <li><a href="#mozTocId963628">Interfacing With
 Open|SpeedShop - Tips and Example Information</a></li>
-          <li><a href="#mozTocId701931">Example Graphical
+          <li><a href="#mozTocId175785">Example Graphical
 User Interface Plugin</a></li>
         </ul>
       </li>
-      <li><a href="#mozTocId501489">Command Line
-Interface Plugin Information </a></li>
+      <li><a href="#mozTocId1574">Command Line
+Interface Plugin Information
+        </a></li>
     </ul>
   </li>
 </ul>
-<br>
-<h2><a class="mozTocH2" name="mozTocId99355"></a><a
+<h2><a class="mozTocH2" name="mozTocId535857"></a><a
  name="OpenSpeedShop_Overview_and_Information"></a>Open|SpeedShop
 Overview and Information Resources</h2>
-NOTE: This will be filled in with a couple overview paragraphs and
-links to the other Open|SpeedShop documents.<br>
+Open|SpeedShop is a project co-funded by the
+Department of Energy (DOE), managed by the Tri-laboratories
+of LLNL, LANL, and Sandia, and developed by SGI.&nbsp; Open|SpeedShop
+utilizes dynamic instrumentation technology developed at the
+Universities of Wisconsin and Maryland.
 <br>
+<br>
+Open|SpeedShop is an open source multi platform Linux performance tool
+which is initially targeted to support performance analysis of
+applications running on both single node and large scale IA64, IA32,
+EM64T, and AMD64 platforms. It is explicitly designed with usability in
+mind and targets both application and computer scientists. <br>
+&nbsp;<br>
+Open|SpeedShop's base functionality includes metrics like exclusive and
+inclusive user time, MPI call tracing, and CPU hardware performance
+counter experiments.&nbsp; In addition, Open|SpeedShop is designed to
+be modular and easily extendable. It supports several levels of plugins
+which allow users to add their own performance experiments. <br>
+<br>
+The infrastructure and base components of Open|SpeedShop are being
+released open source under GPL and LGPL.
+<h4><a class="mozTocH4" name="mozTocId507487"></a>Features:</h4>
+<ul>
+  <li>Three modes of operation: batch, command line interface, and
+graphical user interface.</li>
+  <li>Multiple platform single system image (SSI), traditional cluster,
+and SGI super cluster support.</li>
+  <li>Support for large numbers of processes, threads, and ranks.</li>
+  <li>Ability for users to create their own experiments via a well
+defined plugin facility.<br>
+  </li>
+  <li>Ability to attach to running processes, threads, and ranks to
+gather performance data.</li>
+  <li>Ability to view performance data for all of application's
+lifetime or smaller time slices.</li>
+  <li>Ability to view performance data on demand (while the experiment
+is running).</li>
+  <li>Ability to save and restore performance experiment data and
+symbol information to do post experiment performance analysis.</li>
+  <li>Ability to compare performance results for processes, threads,
+ranks, or to compare current experiment results with previous
+experiment results.</li>
+  <li>GUI Wizard facility and context sensitive help to aid in tools
+usability.&nbsp;&nbsp; Multiple usability studies have been conducted.</li>
+  <li>CLI help facility which lists the CLI commands, syntax, and
+typical usage.&nbsp; Usability studies are underway.</li>
+</ul>
 Additional information about Open|SpeedShop usage and design can be
 found in a number of Open|SpeedShop documents.&nbsp; The currently
 available documents are:<br>
@@ -87,7 +147,7 @@ Studies and Results of Conducted Studies<br>
   </li>
 </ul>
 <br>
-<h2><a class="mozTocH2" name="mozTocId892353"></a>Open|SpeedShop Plugin
+<h2><a class="mozTocH2" name="mozTocId11413"></a>Open|SpeedShop Plugin
 Overview<br>
 </h2>
 The Open|SpeedShop performance tool is oriented toward gathering
@@ -118,7 +178,7 @@ This document will outline each of the plugin types and give
 instruction and examples of how to create and integrate plugins into
 the Open|SpeedShop tools.<br>
 <br>
-<h2><a class="mozTocH2" name="mozTocId926177"></a>Performance Data
+<h2><a class="mozTocH2" name="mozTocId732797"></a>Performance Data
 Collector Plugin Information</h2>
 Writing a performance data collector consists of several
 steps.&nbsp;&nbsp; The first action is to think about the performance
@@ -129,7 +189,7 @@ performance data criteria is resolved the next action in the collector
 plugin creation is the actual implementation action.&nbsp;&nbsp; See
 the sections below that are associated with implementation and examples.<br>
 <br>
-<h3><a class="mozTocH3" name="mozTocId50966"></a><a
+<h3><a class="mozTocH3" name="mozTocId661443"></a><a
  name="Idenitifying_and_Analysing_The"></a>Identifying and Analyzing
 The Performance Data Desired</h3>
 The first step is the thought process which
@@ -184,10 +244,10 @@ written to support the new collector plugin.<br>
 </span>TBD - need more here................<span
  style="font-weight: bold; font-style: italic; text-decoration: underline;"><br>
 </span><br>
-<h3><a class="mozTocH3" name="mozTocId177039"></a><a
+<h3><a class="mozTocH3" name="mozTocId904911"></a><a
  name="Implementating_The_Collector_Plugin"></a>Implementing The
 Collector Plugin</h3>
-<h4><a class="mozTocH4" name="mozTocId372405"></a>Overview</h4>
+<h4><a class="mozTocH4" name="mozTocId773274"></a>Overview</h4>
 This section provides a brief implementation related overview of what
 is going on inside Open|SpeedShop with respect to the interactions of
 the collector plugin with the other components of the tool and with the
@@ -199,7 +259,10 @@ Open|SpeedShop client when the performance data buffer fills up in the
 victim application.&nbsp;&nbsp; When the Open|SpeedShop client receives
 the performance data it is stored in the experiment database file.<br>
 <br>
-<h4><a class="mozTocH4" name="mozTocId885458"></a>Data blobs</h4>
+<img alt="Tool Overview" src="ToolOverView.png"
+ style="width: 851px; height: 394px;"><br>
+<br>
+<h4><a class="mozTocH4" name="mozTocId207808"></a>Data blobs</h4>
 The collector writer defines the format of the performance data being
 gathered and stored in the victim application.&nbsp;&nbsp;
 Open|SpeedShop uses the term, blob (binary large object), to refer to
@@ -223,7 +286,8 @@ The blob.x file is fed into rpcgen which generates a ".c" file and a
 ".h" file.&nbsp; These files create a compilable C structure and
 functions to convert the data to a C structure and back.<br>
 <br>
-<h4><a class="mozTocH4" name="mozTocId449880"></a>Collector Runtime</h4>
+<h4><a class="mozTocH4" name="mozTocId667687"></a>Server - Collector
+Runtime</h4>
 The collector runtime gathers data dependent on the type of performance
 data the collector writer has decided to gather.&nbsp;&nbsp;&nbsp; The
 collector runtime's purpose is to gather the data, package it, and send
@@ -248,7 +312,9 @@ These are functions that are used by more than one
 collector.&nbsp;&nbsp; For example, some of the libunwind functionality
 is contain in the libopenss-runtime dynamic object.<br>
 <br>
-<h4><a class="mozTocH4" name="mozTocId635517"></a>Collector Client </h4>
+<h4><a class="mozTocH4" name="mozTocId637965"></a>Client - Collector
+Plugin&nbsp;<br>
+</h4>
 The client collector plugin directs the collector runtime by directly
 and indirectly making calls to the collector runtime
 functions.&nbsp;&nbsp;&nbsp; An example user action illustrates the
@@ -261,27 +327,159 @@ function in the client collector plugin.&nbsp;&nbsp; The client
 collector plugin calls a Open|SpeedShop routine which ultimately
 triggers the start collecting function in the runtime collector plugin.<br>
 <br>
-<h3><a class="mozTocH3" name="mozTocId715407"></a><a
+<img alt="Start Collection Illustration"
+ src="ToolStartCollectingView.png" style="width: 696px; height: 342px;"><br>
+<br>
+There are six functions which form the basis for the collector and must
+be defined in every collector plugin.&nbsp;&nbsp; The six functions
+perform these tasks: <br>
+<ul>
+  <li>Start Collecting</li>
+  <li>Stop Collecting</li>
+  <li>Get Metric Values</li>
+  <li>Set Parameter</li>
+  <li>Get Default Parameters</li>
+  <li>Get Parameters</li>
+</ul>
+<h5><a class="mozTocH5" name="mozTocId388988"></a>Start Collecting</h5>
+Start data collection function implements starting data collection for
+a particular thread.<br>
+<br>
+This is an example definition from the Open|SpeedShop Usertime
+Collector Plugin:<br>
+<br>
+void UserTimeCollector::startCollecting (const Collector &amp;
+collector,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+const Thread &amp; thread ) const [virtual]<br>
+<p></p>
+<dl compact="compact">
+  <dt>The meaning or definitions for the arguments above are summarized
+here:<span style="font-weight: bold;"></span></dt>
+</dl>
+<ol>
+  <li>Collector - The collector that will be starting data collection</li>
+  <li>Thread - The thread for which to start data collection.<br>
+  </li>
+</ol>
+<br>
+<h5><a class="mozTocH5" name="mozTocId992246"></a>Stop Collecting</h5>
+Stopt data collection function implements stopping data collection for
+a particular thread.<br>
+<br>
+This is an example definition from the Open|SpeedShop Usertime
+Collector Plugin:<br>
+<br>
+void UserTimeCollector::stopCollecting (const Collector &amp; collector,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+const Thread &amp; thread ) const [virtual]<br>
+<p>
+</p>
+<dl compact="compact">
+  <dt>The meaning or definitions for the arguments above are summarized
+here:<span style="font-weight: bold;"></span></dt>
+</dl>
+<ol>
+  <li>Collector - The collector that will be stopping data collection</li>
+  <li>Thread - The thread for which to stop data collection.<br>
+  </li>
+</ol>
+<br>
+<h5><a class="mozTocH5" name="mozTocId278716"></a>Get Metric Values</h5>
+This routine is used by the Open|SpeedShop framework to get the metrics
+for each data blob the framework processes.&nbsp; The framework first
+queries for address range extents and then calls the collector plugin
+(getMetricValues) once for each data blob.&nbsp;&nbsp; Extents are
+defined as a set of address ranges and a time interval.&nbsp;&nbsp; For
+example, an address range could be the addresses in the function "xyz"
+and the time interval could be the entire running time of the program.<br>
+<br>
+This is an example definition from the Open|SpeedShop Usertime
+Collector Plugin:<br>
+<br>
+&nbsp;virtual void getMetricValues(const std::string&amp;,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; const
+Extent&amp;, <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+const Blob&amp;,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; const ExtentGroup&amp;, <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(void*) const;<br>
+<br>
+The meaning or definitions for the arguments above are summarized here:<br>
+<ol>
+  <li>Metric - Unique identifier of the metric</li>
+  <li>Extent - Extent of the performance data blob</li>
+  <li>Blob - Blob containing the performance data</li>
+  <li>ExtentGroup - The subextents for which to get the values</li>
+  <li>Ptr - Untyped pointer to the return values.</li>
+</ol>
+<h5><a class="mozTocH5" name="mozTocId271962"></a>Set Parameter</h5>
+<br>
+<p>Set a parameter value.</p>
+<p>Implements setting one of collector parameter values.<br>
+</p>
+<p>virtual void setParameterValue(const std::string&amp;,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; const void*, <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Blob&amp;) const;<br>
+<br>
+</p>
+<p></p>
+<dl compact="compact">
+  <dt><b>Parameters:</b></dt>
+</dl>
+<ol>
+  <li>Parameter - Unique identifier of the input parameter to be set</li>
+  <li>Ptr - Untyped pointer to the parameter value</li>
+</ol>
+<dl compact="compact">
+  <dt><b>Return values:</b></dt>
+</dl>
+<ol>
+  <li>Blob - blob containing the parameter values for the collector<br>
+  </li>
+</ol>
+<dl compact="compact">
+  <dd><br>
+  </dd>
+</dl>
+<br>
+<h5><a class="mozTocH5" name="mozTocId518369"></a>Get Default Parameters</h5>
+virtual Blob getDefaultParameterValues() const;<br>
+<br>
+<h5><a class="mozTocH5" name="mozTocId769605"></a>Get Parameters</h5>
+<br>
+virtual void getParameterValue(const std::string&amp;,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+const Blob&amp;, <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+void*) const;<br>
+<br>
+<h3><a class="mozTocH3" name="mozTocId846999"></a><a
  name="Example_Collector_Plugin"></a>Example Collector Plugin</h3>
 <br>
 <br>
-<h2><a class="mozTocH2" name="mozTocId376321"></a>Graphical User
+<h2><a class="mozTocH2" name="mozTocId212847"></a>Graphical User
 Interface Plugin Information<br>
 </h2>
 <br>
-<h3><a class="mozTocH3" name="mozTocId337995"></a><a
+<h3><a class="mozTocH3" name="mozTocId930728"></a><a
  name="Creating_The_Graphical_User_Interface"></a>Creating The
 Graphical User Interface Panel</h3>
-<h3><a class="mozTocH3" name="mozTocId132913"></a><a
+<h3><a class="mozTocH3" name="mozTocId963628"></a><a
  name="Interfacing_With_OpenSpeedShop_-_Tips"></a>Interfacing With
 Open|SpeedShop - Tips and Example Information</h3>
-<h3><a class="mozTocH3" name="mozTocId701931"></a><a
+<h3><a class="mozTocH3" name="mozTocId175785"></a><a
  name="Example_Graphical_User_Interface_Plugin"></a>Example Graphical
 User Interface Plugin</h3>
 <br>
 <br>
 <br>
-<h2><a class="mozTocH2" name="mozTocId501489"></a>Command Line
+<h2><a class="mozTocH2" name="mozTocId1574"></a>Command Line
 Interface Plugin Information<br>
 </h2>
 <br>
