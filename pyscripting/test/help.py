@@ -6,9 +6,13 @@ import openss
 my_modifer = openss.ModifierList("brief")
 my_modifer+= "examples"
 
-output = openss.openss_help(my_modifer,"expAttach")
-output = openss.openss_help(my_modifer)
-output = openss.openss_help("expAttach")
-output = openss.openss_help()
+ret = openss.openss_help(my_modifer,"expAttach")
+ret = openss.openss_help(my_modifer)
+ret = openss.openss_help("expAttach")
+ret = openss.openss_help()
 
-print output
+print ret
+
+r_count = len(ret)
+for ndx in range(r_count):
+        print ret[ndx]
