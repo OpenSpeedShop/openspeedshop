@@ -85,6 +85,10 @@ CmdPanel::CmdPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc
 
   closingDown = FALSE;
 
+  editingHistory = FALSE;
+  start_history_para = 0;
+  start_history_index = 0;
+
   // grab the prompt from the cli.
   prompt = QString(Current_OpenSpeedShop_Prompt);
 // printf("prompt=(%s)\n", prompt.ascii() );
@@ -201,25 +205,45 @@ output->append("\n");
 
  
   user_line_buffer = QString::null;
+
+  editingHistory = FALSE;
 }
 
 
 void
 CmdPanel::upKey()
 {
+
   nprintf(DEBUG_PANELS) ("CmdPanel::upKey()\n");
 // printf("upkey() entered\n");
+
 
   if( cmdHistoryListIterator != cmdHistoryList.begin() ) 
   {
     cmdHistoryListIterator--;
   }
+
   QString str = (QString)*cmdHistoryListIterator;
 
   if( str )
   {
     nprintf(DEBUG_PANELS) ("upKey() str=(%s)\n", str.ascii() );
 // printf("upKey() str=(%s)\n", str.ascii() );
+
+if( editingHistory )
+{
+  int end_para; int end_index;
+  output->moveCursor(QTextEdit::MoveEnd, FALSE);
+  output->getCursorPosition(&end_para, &end_index);
+  output->setSelection(start_history_para, start_history_index, end_para, end_index);
+  output->insert(str);
+} else
+{
+  clearCurrentLine();
+  output->getCursorPosition(&start_history_para, &start_history_index);
+}
+  editingHistory = TRUE;
+
 
     clearCurrentLine();
 
@@ -234,6 +258,7 @@ CmdPanel::downKey()
 {
   nprintf(DEBUG_PANELS) ("CmdPanel::downKey()\n");
 // printf("downkey() entered\n");
+
   if( cmdHistoryListIterator != cmdHistoryList.end() ) 
   {
     cmdHistoryListIterator++;
@@ -245,7 +270,22 @@ CmdPanel::downKey()
   {
     nprintf(DEBUG_PANELS) ("downKey() str=(%s)\n", str.ascii() );
 // printf("downKey() str=(%s)\n", str.ascii() );
+if( editingHistory )
+{
+  int end_para; int end_index;
+  output->moveCursor(QTextEdit::MoveEnd, FALSE);
+  output->getCursorPosition(&end_para, &end_index);
+  output->setSelection(start_history_para, start_history_index, end_para, end_index);
+  output->insert(str);
+} else
+{
+  clearCurrentLine();
+  output->getCursorPosition(&start_history_para, &start_history_index);
+}
+  editingHistory = TRUE;
+
     clearCurrentLine();
+
     appendHistory(prompt+str);
     output->moveCursor(QTextEdit::MoveEnd, FALSE);
     user_line_buffer = str;

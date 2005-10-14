@@ -58,6 +58,9 @@ public:
   void positionToEnd();
   void putOutPrompt();
   bool closingDown;
+  bool editingHistory;
+  int start_history_para;
+  int start_history_index;
   void exit();
   OutputClass *oclass;
 

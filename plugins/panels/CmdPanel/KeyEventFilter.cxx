@@ -34,7 +34,10 @@ KeyEventFilter::eventFilter( QObject *o, QEvent *e)
 {
   if( e->type() == QEvent::KeyPress )
   {
-    cmdPanel->positionToEnd();
+    if( cmdPanel->editingHistory == FALSE )
+    {
+      cmdPanel->positionToEnd();
+    }
     QKeyEvent *key_event = (QKeyEvent *)e;
 // printf("The user pressed a (%s)\n", key_event->text().ascii() );
     if( key_event->key() == Qt::Key_Up ) 
@@ -79,19 +82,17 @@ KeyEventFilter::eventFilter( QObject *o, QEvent *e)
       cmdPanel->user_line_buffer += key_event->text();
    }
 
-#ifdef OLDWAY
-printf("key_event->state()=%d\n", key_event->state() );
-if( key_event->state() == QEvent::ControlButton && key_event->key() == Qt::Key_J )
-{
-  cmdPanel->downKey();
-  return FALSE;
-}
-if( key_event->state() == QEvent::ControlButton && key_event->key() == Qt::Key_K )
-{
-  cmdPanel->upKey();
-  return FALSE;
-}
-#endif // OLDWAY
+// printf("key_event->state()=%d\n", key_event->state() );
+    if( key_event->state() == QEvent::ControlButton && key_event->key() == Qt::Key_J )
+    {
+      cmdPanel->downKey();
+      return FALSE;
+    }
+    if( key_event->state() == QEvent::ControlButton && key_event->key() == Qt::Key_K )
+    {
+      cmdPanel->upKey();
+      return FALSE;
+    }
 
   }
 
