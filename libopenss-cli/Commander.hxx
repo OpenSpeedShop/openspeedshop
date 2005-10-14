@@ -65,6 +65,9 @@ class ss_ostream; // defined in SS_Output.hxx
 void Commander_Initialization ();
 void Commander_Termination ();
 
+void run_cli_plugin(const char *, char *);
+void initialize_cli_plugins();
+
 // Command Windows provide a way to get textual commands into the OpendSpeedShop tool.
 CMDWID Default_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
 CMDWID TLI_Window     (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);

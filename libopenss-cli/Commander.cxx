@@ -22,6 +22,11 @@ extern "C" void loadTheGUI(ArgStruct *);
 #include <fstream>
 #include <iostream>
 
+#include "cli_PluginInfo.hxx"
+#include "CmdClass.hxx"
+extern std::list<CmdClass *> pluginRegistryList;
+extern std::list<cli_PluginInfo *> pluginInfoRegistryList;
+
 char *Current_OpenSpeedShop_Prompt = "openss>>";
 char *Alternate_Current_OpenSpeedShop_Prompt = "....ss>>";
 
@@ -51,6 +56,34 @@ inline std::string ptr2str (void *p) {
   char s[40];
   sprintf ( s, "%p", p);
   return std::string (s);
+}
+
+// cli plugin extension lookup.
+static bool
+TryToProcessAsPlugin(const char *s)
+{
+  char *mycharstr = strdup(s);
+  char *ptr = strchr(mycharstr, '\n');
+  if( ptr )
+  {
+    *ptr = '\0';
+  }
+  std::string mystdstring(mycharstr);
+  for( std::list<cli_PluginInfo *>::iterator it = pluginInfoRegistryList.begin();
+       it != pluginInfoRegistryList.end();
+         it++ )
+  {
+    cli_PluginInfo *pi = (cli_PluginInfo *)*it;
+    unsigned int pos = mystdstring.find(pi->plugin_command_name, 0);
+    if( pos == 0 )
+    {
+      run_cli_plugin(pi->plugin_name, mycharstr);
+//      clip = NULL;
+//      break;
+      return true;
+    }
+  }
+  return false;
 }
 
 // Local Macros
@@ -2447,6 +2480,12 @@ read_another_window:
       break;
     }
     const char *s = clip->Command().c_str();
+    if( TryToProcessAsPlugin(s) )
+    {
+      clip = NULL;
+      continue;
+//      break;
+    }
     (void) strlen(s);
     if (!Isa_SS_Command(readfromwindow, s)) {
       clip = NULL;

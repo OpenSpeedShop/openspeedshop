@@ -1,0 +1,1 @@
+#define PLUGIN_CLASS_NAME q

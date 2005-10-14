@@ -299,6 +299,9 @@ catch_signal (int sig, int error_num)
   cli_init(int argc, char **argv)
   {
 
+printf("cli_init()\n");
+initialize_cli_plugins();
+
    // Basic Initialization
     Watcher_Active = false;
     need_gui = false;
