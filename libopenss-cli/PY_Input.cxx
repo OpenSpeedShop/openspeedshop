@@ -31,9 +31,9 @@ extern char yychar;
 ParseResult *p_parse_result;
 
 /* Global Data for tracking the current command line. */
-InputLineObject *Current_ILO = NULL;
-CommandObject   *Current_CO  = NULL;
-CommandObject   *p_cmdobj = NULL;
+InputLineObject *Current_ILO	= NULL;
+CommandObject   *Current_CO 	= NULL;
+CommandObject   *p_cmdobj   	= NULL;
 
 // The following mechanism is defined to allow python programs
 // to capture the output of OSS commands and avoid sending it
@@ -45,11 +45,61 @@ CommandObject   *p_cmdobj = NULL;
 static CMDWID Embedded_WindowID = 0;
 static bool cmd_output_to_python = false;
 
+// Exception we raise for various reasons
+static PyObject * OpenssError = NULL;
+
+/**
+ * Method: openss_error()
+ * 
+ * Set string and activate exception.
+ *     
+ * @param   str - String to associated with error.
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
+void
+openss_error(char *str)
+{
+    if (OpenssError) {
+    	PyErr_SetString(OpenssError, str);
+    }
+
+    return;	/* To xx, which will return a failure indicator */
+}
+
+/**
+ * Method: SS_Set_Assign()
+ * 
+ * .
+ *     
+ * @param   self
+ * @param   args
+ *
+ * @return  PyObject *
+ *
+ * @todo    Error handling.
+ *
+ */
 static PyObject *SS_Set_Assign (PyObject *self, PyObject *args) {
   cmd_output_to_python = true;
   return Py_BuildValue("");
 }
 
+/**
+ * Method: Convert_CommandResult_To_Python()
+ * 
+ * .
+ *     
+ * @param   cr
+ *
+ * @return  PyObject *
+ *
+ * @todo    Error handling.
+ *
+ */
 static PyObject *Convert_CommandResult_To_Python (CommandResult *cr) {
   PyObject *p_object = NULL;
 
@@ -102,6 +152,18 @@ static PyObject *Convert_CommandResult_To_Python (CommandResult *cr) {
 
 }
 
+/**
+ * Method: Convert_Cmd_To__Python()
+ * 
+ * .
+ *     
+ * @param   cmd command object pointer
+ *
+ * @return  PyObject *
+ *
+ * @todo    Error handling.
+ *
+ */
 static PyObject *Convert_Cmd_To__Python (CommandObject *cmd) {
   PyObject *p_object = NULL;
   PyObject *py_list = NULL;
@@ -145,7 +207,19 @@ static PyObject *Convert_Cmd_To__Python (CommandObject *cmd) {
   return list_returned ? py_list : ((p_object == NULL) ? Py_BuildValue("") : p_object);
 }
 
-// Parse and execute an individual command
+/**
+ * Method: SS_CallParser()
+ * 
+ * Parse and execute an individual command.
+ *     
+ * @param   self
+ * @param   args
+ *
+ * @return  PyObject *
+ *
+ * @todo    Error handling.
+ *
+ */
 static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     char *input_line = NULL;
     PyObject *p_object = NULL;
@@ -187,6 +261,7 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
         (p_parse_result->getCommandType() == CMD_HEAD_ERROR)) {
         cmd->Result_String ("Parsing failed");
 	parse_result->dumpError(cmd);
+	openss_error("Parsing failed");
         cmd->set_Status(CMD_ERROR);
         Cmd_Obj_Complete (cmd);
 
@@ -211,24 +286,46 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     return Convert_Cmd_To__Python (cmd);
 }
 
-// Save a pointer to the most recent Input_Line_Object.
-//
-// Since Python likes character strings better than anything,
-// Convert the pointer to a string so that Python can manipulate
-// it without knowing what it is.  The only use of this string
-// will be by the routine SS_ReadILO.
-//
+/**
+ * Method: SS_DelayILO()
+ * 
+ * Save a pointer to the most recent Input_Line_Object.
+ *
+ * Since Python likes character strings better than anything,
+ * Convert the pointer to a string so that Python can manipulate
+ * it without knowing what it is.  The only use of this string
+ * will be by the routine SS_ReadILO.
+ *     
+ * @param   self
+ * @param   args
+ *
+ * @return  PyObject *
+ *
+ * @todo    Error handling.
+ *
+ */
 static PyObject *SS_DelayILO (PyObject *self, PyObject *args) {
   char *seqnum = (char *)PyMem_Malloc(32);
+
   snprintf( seqnum, 32, "%p", Current_ILO);
   return Py_BuildValue("s", seqnum);
 }
 
-// Extract the input line from an Input_Line_Object.
-//
-// Save this line in a Python object.
-// While at it, set "current" pointers.
-//
+/**
+ * Method: Prepare_Input_Line()
+ * 
+ * Extract the input line from an Input_Line_Object.
+ *
+ * Save this line in a Python object.
+ * While at it, set "current" pointers.
+ *     
+ * @param   clip InputLineObject pointer
+ *
+ * @return  PyObject *
+ *
+ * @todo    Error handling.
+ *
+ */
 static PyObject *Prepare_Input_Line (InputLineObject *clip) {
   int64_t buffer_size = clip->Command().length()+1;
   bool need_newline = false;
@@ -259,9 +356,20 @@ static PyObject *Prepare_Input_Line (InputLineObject *clip) {
   return Py_BuildValue("s", sbuf);
 }
 
-// Convert a Python character string to an ILO pointer.
-// Return the associated line of data to Python.
-//
+/**
+ * Method: SS_ReadILO()
+ * 
+ * Convert a Python character string to an ILO pointer.
+ * Return the associated line of data to Python.
+ *     
+ * @param   self
+ * @param   args
+ *
+ * @return  PyObject *
+ *
+ * @todo    Error handling.
+ *
+ */
 static PyObject *SS_ReadILO (PyObject *self, PyObject *args) {
   char *ILO_Addr = NULL;
   InputLineObject *clip = NULL;
@@ -277,9 +385,20 @@ static PyObject *SS_ReadILO (PyObject *self, PyObject *args) {
   return Prepare_Input_Line(clip);
 }
 
-// Get an Input_Line_Object from the input manager.
-// Return the associated line of data to Python.
-//
+/**
+ * Method: SS_ReadLine()
+ * 
+ * Get an Input_Line_Object from the input manager.
+ * Return the associated line of data to Python.
+ *     
+ * @param   self
+ * @param   args
+ *
+ * @return  PyObject *
+ *
+ * @todo    Error handling.
+ *
+ */
 static PyObject *SS_ReadLine (PyObject *self, PyObject *args) {
   int more = 0;
   
@@ -293,13 +412,24 @@ static PyObject *SS_ReadLine (PyObject *self, PyObject *args) {
   return Prepare_Input_Line(clip);
 }
 
-// This will be used to determine how to react to
-// errors found during the python preparse part
-// of our CLI parsing. This is different from the
-// Scripting API that is done in python.
-//
-// This is not finished yet!
-//
+/**
+ * Method: SS_ParseError()
+ * 
+ * This will be used to determine how to react to
+ * errors found during the python preparse part
+ * of our CLI parsing. This is different from the
+ * Scripting API that is done in python.
+ *
+ * This is not finished yet!
+ *     
+ * @param   self
+ * @param   args
+ *
+ * @return  PyObject *
+ *
+ * @todo    Error handling.
+ *
+ */
 static PyObject *SS_ParseError (PyObject *self, PyObject *args) {
     CommandObject *cmd = NULL;
     PyObject *p_object = NULL;
@@ -320,9 +450,21 @@ static PyObject *SS_ParseError (PyObject *self, PyObject *args) {
 
 }
  
-// Openss can be used as a utility from a Python routine.
-// To do so, this initialization routine must be the first thing called
-// within the Openss utility.
+/**
+ * Method: SS_InitEmbeddedInterface()
+ * 
+ * Openss can be used as a utility from a Python routine.
+ * To do so, this initialization routine must be the first
+ * thing called within the Openss utility.
+ *     
+ * @param   self
+ * @param   args
+ *
+ * @return  PyObject *
+ *
+ * @todo    Error handling.
+ *
+ */
 static PyObject *SS_InitEmbeddedInterface (PyObject *self, PyObject *args) {
 
 //printf("Entering SS_InitEmbeddedInterface()\n");
@@ -349,6 +491,19 @@ static PyObject *SS_InitEmbeddedInterface (PyObject *self, PyObject *args) {
   return Py_BuildValue("");
 }
 
+/**
+ * Method: SS_ExitEmbeddedInterface()
+ * 
+ * .
+ *     
+ * @param   self
+ * @param   args
+ *
+ * @return  PyObject *
+ *
+ * @todo    Error handling.
+ *
+ */
 static PyObject *SS_ExitEmbeddedInterface (PyObject *self, PyObject *args) {
 
 //printf("Entering SS_ExitEmbeddedInterface()\n");
@@ -374,7 +529,20 @@ static PyObject *SS_ExitEmbeddedInterface (PyObject *self, PyObject *args) {
   return Py_BuildValue("");
 }
 
-// Create a Clip for the command and then go parse and execute it.
+/**
+ * Method: SS_EmbeddedParser()
+ * 
+ * Create a Clip for the command and then go parse 
+ * and execute it.
+ *     
+ * @param   self
+ * @param   args
+ *
+ * @return  PyObject *
+ *
+ * @todo    Error handling.
+ *
+ */
 static PyObject *SS_EmbeddedParser (PyObject *self, PyObject *args) {
   InputLineObject *clip = NULL;
   char *input_line = NULL;
@@ -388,14 +556,18 @@ static PyObject *SS_EmbeddedParser (PyObject *self, PyObject *args) {
   PyObject *result = SS_CallParser (self, args);
 
   if (Shut_Down) {
-   // We have seen an Exit command - close down the CLI.
+    // We have seen an Exit command - close down the CLI.
     (void)SS_ExitEmbeddedInterface (self, args);
   }
 
   return result;
 }
 
-
+/**
+ * Table of OpenSS routines accessable from
+ * python.
+ *
+ */
 static PyMethodDef PYopenss_Methods[] = {
 
     {"CallParser",  SS_CallParser, METH_VARARGS,
@@ -428,14 +600,56 @@ static PyMethodDef PYopenss_Methods[] = {
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
+
+/**
+ * Method: initPY_Input()
+ * 
+ * Python initialization for CLI behavior.
+ *     
+ * @param   void
+ *
+ * @return  PyMODINIT_FUNC
+ *
+ * @todo    Error handling.
+ *
+ */
 PyMODINIT_FUNC
 initPY_Input (void) {
-  (void) Py_InitModule("PY_Input", PYopenss_Methods);
+  
+    // Register python exported methods
+    (void) Py_InitModule("PY_Input", PYopenss_Methods);
 }
 
 
+
+/**
+ * Method: initPYopenss()
+ * 
+ * Python initialization for scripting API.
+ *     
+ * @param   void
+ *
+ * @return  PyMODINIT_FUNC
+ *
+ * @todo    Error handling.
+ *
+ */
 PyMODINIT_FUNC
 initPYopenss (void) {
-  (void) Py_InitModule("PYopenss", PYopenss_Methods);
-  (void) SS_InitEmbeddedInterface (NULL,NULL);
+  PyObject *m, *d;
+  
+    // Register python exported methods
+    m =  Py_InitModule("PYopenss", PYopenss_Methods);
+  
+    // Initialize exception handler
+    d = PyModule_GetDict(m);
+    OpenssError = PyErr_NewException("openss.error", NULL, NULL);
+    if (OpenssError != NULL)
+    	PyDict_SetItemString(d, "error", OpenssError);
+
+    // Initialize openss for use.
+    (void) SS_InitEmbeddedInterface (NULL,NULL);
 }
+
+
+
