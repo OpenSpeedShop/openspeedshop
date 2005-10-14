@@ -195,7 +195,7 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     	return p_object;
     }
 
-    SS_Execute_Cmd (cmd, python_needs_result);
+    SS_Execute_Cmd (cmd);
 
     if (!python_needs_result ||
         (cmd->Status() == CMD_ERROR) ||

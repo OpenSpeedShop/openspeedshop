@@ -380,7 +380,9 @@ static void Cmd_EXT_Create () {
 }
 
 
-void SS_Execute_Cmd (CommandObject *cmd, bool serialize_exexcution) {
+void SS_Execute_Cmd (CommandObject *cmd) {
+  bool serialize_exexcution = cmd->Needed_By_Python();
+
  // Prevent unsafe changes
   Assert(pthread_mutex_lock(&Cmd_EXT_Lock) == 0);
 
