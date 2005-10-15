@@ -86,9 +86,9 @@ def expClose(*arglist):
         - All data collectors attached to the experiment are removed 
 	  from the attached applications.
         - All attached applications are removed from the experiment.
-        - If I{ModifierList}(B{"kill"}) is not provided, attached 
+        - If I{ModifierList}("B{kill}") is not provided, attached 
 	  applications will continue executing.
-        - If I{ModifierList}(B{"kill"}) is provided, attached 
+        - If I{ModifierList}("B{kill}") is provided, attached 
 	  applications will be terminated.
         - The database file that was used to save information about 
 	  the applications and the collected data, is deleted if it 
@@ -104,7 +104,7 @@ def expClose(*arglist):
     will be saved if there is any chance that the user will want to take 
     another look at the results.
 
-    Use of I{ModifierList}(B{"all"}) will cause all defined experiments 
+    Use of I{ModifierList}("B{all}") will cause all defined experiments 
     to be deleted.
 
 
@@ -278,7 +278,7 @@ def expDisable(*arglist):
         - B{expClose} can be used to destroy the experiment 
 	  and free all data space used to save the collected 
 	  data.
-    - I{ModifierList}(B{"all"}) will result in data 
+    - I{ModifierList}("B{all}") will result in data 
       collection being stopped for all defined experiments.
     - If this command is issued with no arguments, 
       data collection is stopped for the focused experiment.
@@ -299,7 +299,7 @@ def expDisable(*arglist):
 	openss.expDisable(my_exp)
 
     @param arglist: 1 of 2 optional class objects:
-	- I{ModifierList}(B{"all"}) 
+	- I{ModifierList}("B{all}") 
     	- I{ExpId}
     
     """
@@ -322,7 +322,7 @@ def expEnable(*arglist):
 	  collected data.
         - The attached applications will not continue executing 
 	  until an B{expGo} command is issued.
-    - I{ModifierList}(B{"all"}) will result in data collection 
+    - I{ModifierList}("B{all}") will result in data collection 
       being restarted for all defined experiments.
     - If this command is issued with no arguments, data 
       collection for the focused experiment is restarted.
@@ -343,7 +343,7 @@ def expEnable(*arglist):
 	openss.expEnable(my_exp)
 
     @param arglist: 1 of 2 optional class objects:
-	- I{ModifierList}(B{"all"}) 
+	- I{ModifierList}("B{all}") 
     	- I{ExpId}
     
 
@@ -417,18 +417,18 @@ def expGo(*arglist):
         - The status of any experiment can be determined 
 	  through the B{listStatus} command. Current available
 	  status strings are:
-	    	"Unknown":  	An unknown status was returned.
-		"Paused":   	The process is in a "paused" state.
-		"Running":  	The process is still running.
-		"Terminated":	The process has finished running.
-		"Error":    	Something went wrong.
+    	    - "B{Unknown}":  	An unknown status was returned.
+    	    - "B{Paused}":   	The process is in a "paused" state.
+    	    - "B{Running}":  	The process is still running.
+    	    - "B{Terminated}":	The process has finished running.
+    	    - "B{Error}":    	Something went wrong.
         - Depending on the type of data collection that is 
 	  taking place, it may be possible to view the results 
 	  before the application completes.
-    - The absence of the I{ExpId} and I{ModifierList}(B{"all"}) will result in only the focused experiment being run.
+    - The absence of the I{ExpId} and I{ModifierList}("B{all}") will result in only the focused experiment being run.
     - The use of I{ExpId} will result in only that experiment 
       being run.
-    - The use of I{ModifierList}(B{"all"}) will result in 
+    - The use of I{ModifierList}("B{all}") will result in 
       every defined experiment being run.
 
     Example1::
@@ -446,7 +446,7 @@ def expGo(*arglist):
 	openss.expGo(my_exp)
 
     @param arglist: 1 of 2 optional class objects:
-	- I{ModifierList}(B{"all"}) 
+	- I{ModifierList}("B{all}") 
     	- I{ExpId}
     
 
@@ -465,10 +465,10 @@ def expPause(*arglist):
       experiment id.
     - If I{ExpId} is not provided, the focused experiment is 
       used.
-    - If I{ModifierList}(B{"all"}) is present, every defined 
+    - If I{ModifierList}("B{all}") is present, every defined 
       experiment is halted.
 
-      expPause [ I{ModifierList}(B{"all"}) || I{ExpId} ] 
+      expPause [ I{ModifierList}("B{all}") || I{ExpId} ] 
 
 
     Example1::
@@ -486,7 +486,7 @@ def expPause(*arglist):
 	openss.expPause(my_exp)
 
     @param arglist: 1 of 2 optional class objects:
-	- I{ModifierList}(B{"all"}) 
+	- I{ModifierList}("B{all}") 
     	- I{ExpId}
     
     """
@@ -559,7 +559,7 @@ def expSave(*arglist):
 	  B{expRestore} command.
         - The database is in a special format that supports the 
 	  opertaions that the B{OpenSS} tool must perform.
-    - Without I{ModifierList}(B{"copy"})
+    - Without I{ModifierList}("B{copy}")
         - If the original, temporary database file is still in use, 
 	  it is copied to the specified file name and the B{OpenSS} 
 	  tool will use the new file to collect any new information 
@@ -573,7 +573,7 @@ def expSave(*arglist):
         - The new database is used by the B{OpenSS} tool to collect 
 	  any new information that is added to or collected for, the 
 	  experiment.
-    - With I{ModifierList}(B{"copy"}), the given location receives a 
+    - With I{ModifierList}("B{copy}"), the given location receives a 
       copy of the current state of the database.
         - The current contents of the database is duplicated and saved 
 	  to the given location.
@@ -601,7 +601,7 @@ def expSave(*arglist):
 	openss.expSave(my_exp,my_file)
 
     @param arglist: From 1 to 3 class objects:
-    	- I{ModifierList}(B{"copy"}) (optional)
+    	- I{ModifierList}("B{copy}") (optional)
 	- I{ExpId}                   (optional)
     	- I{FileList}                (required)
 
@@ -660,7 +660,7 @@ def expStatus(*arglist):
 	  being reported for the focused experiment.
         - The use of I{ExpId} will result in information being 
 	  reported for the specified experiment.
-        - The use of I{ModifierList}(B{"all"}) will result in 
+        - The use of I{ModifierList}("B{all}") will result in 
 	  information being reported for all the known experiments.
 
     Example1::
@@ -678,7 +678,7 @@ def expStatus(*arglist):
 	openss.expStatus(my_exp)
 
     @param arglist: 0 to 2 optional class objects:
-	- I{ModifierList}(B{"all"}) 
+	- I{ModifierList}("B{all}") 
     	- I{ExpId}
     
     """
@@ -767,7 +767,7 @@ def listBreaks(*arglist):
 	  for the focused experiment to be listed.
         - The use of I{ExpId} will cause all the breakpoints for 
 	  the specified experiment to be listed.
-        - The use of I{ModifierList}(B{"all"}) will cause all the 
+        - The use of I{ModifierList}("B{all}") will cause all the 
 	  known breakpoints, for all of the experiments defined by 
 	  the user, to be listed.
 
@@ -786,7 +786,7 @@ def listBreaks(*arglist):
 	int_list = openss.listBreaks(my_exp)
 
     @param arglist: 1 of 2 optional class objects:
-	- I{ModifierList}(B{"all"}) (optional)
+	- I{ModifierList}("B{all}") (optional)
     	- I{ExpId} (optional)
     
     """
@@ -858,13 +858,13 @@ def listMetrics(*arglist):
         - The use of I{ExpId} will cause the metrics that are 
 	  associated with the set of data collectors that are 
 	  part of the specified experiment to be listed.
-        - The use of I{ModifierList}(B{"all"}) will cause all the 
+        - The use of I{ModifierList}("B{all}") will cause all the 
 	  metrics for all available collectors to be listed.
         - The use of the "<viewType_list>" option will result in a 
 	  listing of only those metrics associated with the specific 
 	  data collectors in the list.
 
-      <ListOf_expMetric> = listMetrics [ I{ModifierList}(B{"all"}) || I{ExpId} || I{ExpTypeList} ] 
+      <ListOf_expMetric> = listMetrics [ I{ModifierList}("B{all}") || I{ExpId} || I{ExpTypeList} ] 
 
     """
 
@@ -908,13 +908,13 @@ def listParams(*arglist):
         - The use of I{ExpId} will cause the parameters that are 
 	  associated with the set of data collectors that are part of 
 	  the specified experiment to be listed.
-        - The use of I{ModifierList}(B{"all"}) will cause all the 
+        - The use of I{ModifierList}("B{all}") will cause all the 
 	  parameters for all available collectors to be listed.
         - The use of the "<viewType>" option will result in a listing 
 	  of only those parameters associated with that specific data 
 	  collector.
 
-      <ListOf_expParam> = listParams [ I{ModifierList}(B{"all"}) || I{ExpId} || I{ExpTypeList} ] 
+      <ListOf_expParam> = listParams [ I{ModifierList}("B{all}") || I{ExpId} || I{ExpTypeList} ] 
 
     """
 
@@ -1012,19 +1012,19 @@ def listStatus(*arglist):
 	  experiment.
         - The use of I{ExpId} will cause the status of the specified 
 	  experiment to be returned.
-        - The use of I{ModifierList}(B{"all"}) will cause the status 
+        - The use of I{ModifierList}("B{all}") will cause the status 
 	  of all the defined experiments to be returned.
 	- The return value is a list of strings representing
 	  the status of the current focused experiment process.
 	  Current available status strings are:
-	    	"Unknown":  	An unknown status was returned.
-		"Paused":   	The process is in a "paused" state.
-		"Running":  	The process is still running.
-		"Terminated":	The process has finished running.
-		"Error":    	Something went wrong.
+    	    - "B{Unknown}":  	An unknown status was returned.
+    	    - "B{Paused}":   	The process is in a "paused" state.
+    	    - "B{Running}":  	The process is still running.
+    	    - "B{Terminated}":	The process has finished running.
+    	    - "B{Error}":    	Something went wrong.
 
 
-      <ListOf_statusType> = listStatus [ I{ModifierList}(B{"all"}) || I{ExpId} ] 
+      <ListOf_statusType> = listStatus [ I{ModifierList}("B{all}") || I{ExpId} ] 
 
     """
 
@@ -1073,11 +1073,11 @@ def listTypes(*arglist):
 	  to the focused experiment.
         - The use of I{ExpId} will cause the utilities that are attached
 	  to the specified experiment to be listed.
-        - The use of I{ModifierList}(B{"all"}) will cause all the 
+        - The use of I{ModifierList}("B{all}") will cause all the 
 	  popenssible performance measurement utilities that can be used 
 	  in experiments to be listed.
 
-      <ListOf_expType> = listTypes [ I{ModifierList}(B{"all"}) || I{ExpId} ] 
+      <ListOf_expType> = listTypes [ I{ModifierList}("B{all}") || I{ExpId} ] 
 
     """
 
@@ -1097,13 +1097,13 @@ def listViews(*arglist):
         - The use of I{ExpId} will cause the the reports that are 
 	  associated with the set of data collectors that are part of 
 	  the specified experiment to be listed.
-        - The use of I{ModifierList}(B{"all"}) will cause all the the 
+        - The use of I{ModifierList}("B{all}") will cause all the the 
 	  reports for all available collectors to be listed.
         - The use of the "<viewType_list>" option will result in a 
 	  listing of only those reports associated with the specific 
 	  data collectors in the list.
 
-      <ListOf_viewType> = listViews [ I{ModifierList}(B{"all"}) || I{ExpId} || I{ExpTypeList} ] 
+      <ListOf_viewType> = listViews [ I{ModifierList}("B{all}") || I{ExpId} || I{ExpTypeList} ] 
 
 
     """
