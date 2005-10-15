@@ -57,8 +57,15 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
 
   try {
     if (CV.size() == 0) {
+#if 1
+      {
+    	std::string s("(There are no metrics specified to report.)");
+    	Mark_Cmd_With_Soft_Error(cmd,s);
+      }
+#else
       cmd->Result_String ("(There are no metrics specified to report.)");
       cmd->set_Status(CMD_ERROR);
+#endif
       return false;   // There is no collector, return.
     }
 
@@ -76,13 +83,27 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
       ViewInst.push_back(vinst);
     }   
     if (num_columns == 0) {
+#if 1
+      {
+    	std::string s("(There is no display requested.)");
+    	Mark_Cmd_With_Soft_Error(cmd,s);
+      }
+#else
       cmd->Result_String ("(There is no display requested.)");
       cmd->set_Status(CMD_ERROR);
+#endif
       return false;   // There is no column[0] defined, return.
     }
     if (ViewInst[0]->OpCode() != VIEWINST_Display_Metric) {
+#if 1
+      {
+    	std::string s("(The first column is not a metric.)");
+    	Mark_Cmd_With_Soft_Error(cmd,s);
+      }
+#else
       cmd->Result_String ("(The first column is not a metric.)");
       cmd->set_Status(CMD_ERROR);
+#endif
       return false;   // There is nothing to sort on.
     }
 
@@ -93,8 +114,15 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
     std::vector<Function_CommandResult_pair> items;
     GetMetricByFunction (cmd, false, tgrp, CV[Column0index], MV[Column0index], items);
     if (items.begin() == items.end()) {
+#if 1
+      {
+    	std::string s("(There are no data samples for " + MV[Column0index] + " available.)");
+    	Mark_Cmd_With_Soft_Error(cmd,s);
+      }
+#else
       cmd->Result_String ("(There are no data samples for " + MV[Column0index] + " available.)");
       cmd->set_Status(CMD_ERROR);
+#endif
       return false;   // There is no data, return.
     }
 

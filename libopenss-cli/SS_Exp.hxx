@@ -216,11 +216,24 @@ Collector Get_Collector (OpenSpeedShop::Framework::Experiment *fexp, std::string
 bool Filter_Uses_F (CommandObject *cmd);
 void Filter_ThreadGroup (CommandObject *cmd, ThreadGroup& tgrp);
 
+// Error reporting and stopping the presses
 inline void Mark_Cmd_With_Std_Error (CommandObject *cmd, const Exception& error) {
    cmd->Result_String ( error.getDescription() );
    cmd->set_Status(CMD_ERROR);
    
    // Put in python exception
    openss_error((char *)error.getDescription().c_str());
+   return;
+}
+
+// Error reporting and stopping the presses only 
+// for scripting
+inline void 
+Mark_Cmd_With_Soft_Error (CommandObject *cmd, const std::string S) {
+   cmd->Result_String ( S );
+   cmd->set_Status(CMD_ERROR);
+   
+   // Put in python exception
+   openss_error((char *)S.c_str());
    return;
 }

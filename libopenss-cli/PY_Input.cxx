@@ -172,8 +172,13 @@ static PyObject *Convert_Cmd_To__Python (CommandObject *cmd) {
 
   bool list_returned = cmd_desc[cmd->Type()].ret_list;
   if (!list_returned && (cmd_result.size() > 1)) {
+#if 1
+    std::string s("Too many results were generated for the command.");
+    Mark_Cmd_With_Soft_Error(cmd,s);
+#else
     cmd->Result_String ("Too many results were generated for the command");
     cmd->set_Status(CMD_ERROR);
+#endif
   }
 
  // Start building python list object
@@ -193,8 +198,13 @@ static PyObject *Convert_Cmd_To__Python (CommandObject *cmd) {
       if (list_returned) {
         ret = PyList_Append(py_list,p_object);
         if (ret != 0) {
+#if 1
+    	    std::string s("PyList_Append() failed for int.");
+    	    Mark_Cmd_With_Soft_Error(cmd,s);
+#else
             cmd->Result_String ("PyList_Append() failed for int");
             cmd->set_Status(CMD_ERROR);
+#endif
         }
       }
     }
@@ -259,10 +269,14 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     // See if the parse went alright.
     if ((p_parse_result->syntaxError()) ||
         (p_parse_result->getCommandType() == CMD_HEAD_ERROR)) {
+#if 1
+      std::string s("Parsing failed.");
+      Mark_Cmd_With_Soft_Error(cmd,s);
+#else
         cmd->Result_String ("Parsing failed");
-	parse_result->dumpError(cmd);
-	openss_error("Parsing failed");
         cmd->set_Status(CMD_ERROR);
+#endif
+	parse_result->dumpError(cmd);
         Cmd_Obj_Complete (cmd);
 
     	// I should be reporting exactly what went wrong here.
@@ -438,8 +452,13 @@ static PyObject *SS_ParseError (PyObject *self, PyObject *args) {
     // Build a CommandObject so that the semantic routines can be called.
     cmd = new CommandObject (parse_result, false);
 
+#if 1
+    std::string s("Preparse syntax error.");
+    Mark_Cmd_With_Soft_Error(cmd,s);
+#else
     cmd->Result_String ("Preparse syntax error");
     cmd->set_Status(CMD_ERROR);
+#endif
     Cmd_Obj_Complete (cmd);
     
     //cmd->Clip()->Print(stdout);

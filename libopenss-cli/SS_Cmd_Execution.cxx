@@ -117,22 +117,37 @@ static ExperimentObject *Find_Specified_Experiment (CommandObject *cmd) {
   if (ExperimentID == 0) {
     ExperimentID = Experiment_Focus ( WindowID );
     if (ExperimentID == 0) {
+#if 1
+      std::string s("There is no focused experiment.");
+      Mark_Cmd_With_Soft_Error(cmd,s);
+#else
       cmd->Result_String ("There is no focused experiment");
       cmd->set_Status(CMD_ERROR);
+#endif
       return NULL;
     }
   }
   exp = Find_Experiment_Object (ExperimentID);
   if (exp == NULL) {
+#if 1
+    std::string s("The requested experiment ID does not exist.");
+    Mark_Cmd_With_Soft_Error(cmd,s);
+#else
     cmd->Result_String ("The requested experiment ID does not exist");
     cmd->set_Status(CMD_ERROR);
+#endif
     return NULL;
   }
 
  // Is there an FrameWork Experiment to look at?
   if (exp->FW() == NULL) {
+#if 1
+    std::string s("The requested FrameWork experiment does not exist.");
+    Mark_Cmd_With_Soft_Error(cmd,s);
+#else
     cmd->Result_String ("The requested FrameWork experiment does not exist");
     cmd->set_Status(CMD_ERROR);
+#endif
     return NULL;
   }
 
@@ -630,8 +645,13 @@ static void Resolve_H_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
   if (!has_h) {
     char HostName[MAXHOSTNAMELEN+1];
     if (gethostname ( &HostName[0], MAXHOSTNAMELEN)) {
+#if 1
+      std::string s("Can not retrieve host name.");
+      Mark_Cmd_With_Soft_Error(cmd,s);
+#else
       cmd->Result_String ("can not retreive host name");
       cmd->set_Status(CMD_ERROR);
+#endif
       return;
     }
     //pt.pushHostPoint (HostName[0]);
@@ -642,13 +662,23 @@ static void Resolve_H_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
 
  // Semantic check for illegal combinations.
   if ( has_f && (has_p || has_t || has_r) ) {
+#if 1
+    std::string s("The -f option can not be used with -p -t or -r options.");
+    Mark_Cmd_With_Soft_Error(cmd,s);
+#else
     cmd->Result_String ("The -f option can not be used with -p -t or -r options.");
     cmd->set_Status(CMD_ERROR);
+#endif
     return;
   }
   if ( has_t && has_r ) {
+#if 1
+    std::string s("The -t option can not be used with the -r option.");
+    Mark_Cmd_With_Soft_Error(cmd,s);
+#else
     cmd->Result_String ("The -t option can not be used with the -r option.");
     cmd->set_Status(CMD_ERROR);
+#endif
     return;
   }
 
@@ -881,8 +911,13 @@ bool SS_expCreate (CommandObject *cmd) {
  // There is no specified experiment.  Allocate a new Experiment.
   ExperimentObject *exp = new ExperimentObject ();
   if (exp->FW() == NULL) {
+#if 1
+    std::string s("Unable to create a new experiment in the FrameWork.");
+    Mark_Cmd_With_Soft_Error(cmd,s);
+#else
     cmd->Result_String ("Unable to create a new experiment in the FrameWork.");
     cmd->set_Status(CMD_ERROR);
+#endif
     return false;
   }
   EXPID exp_id = exp->ExperimentObject_ID();
@@ -1087,9 +1122,15 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
   if ((exp->Status() == ExpStatus_Terminated) ||
       (exp->Status() == ExpStatus_InError)) {
    // Can not run if ExpStatus_Terminated or ExpStatus_InError
+#if 1
+    std::string s("The experiment can not be run because it is in the "
+    	    	    + exp->ExpStatus_Name() + " state.");
+    Mark_Cmd_With_Soft_Error(cmd,s);
+#else
     cmd->Result_String ("The experiment can not be run because it is in the "
                          + exp->ExpStatus_Name() + " state.");
     cmd->set_Status(CMD_ERROR);
+#endif
     return false;
   }
 
@@ -1101,8 +1142,13 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
     try {
       tgrp = exp->FW()->getThreads();
       if (tgrp.empty()) {
+#if 1
+    	std::string s("There are no applications specified for the experiment.");
+    	Mark_Cmd_With_Soft_Error(cmd,s);
+#else
         cmd->Result_String ("There are no applications specified for the experiment");
         cmd->set_Status(CMD_ERROR);
+#endif
         return false;
       }
     }
@@ -1187,9 +1233,15 @@ static bool Pause_Experiment (CommandObject *cmd, ExperimentObject *exp) {
       (exp->Status() != ExpStatus_Paused) &&
       (exp->Status() != ExpStatus_Running)) {
    // These are the only states that can be changed.
+#if 1
+    std::string s("The experiment can not Pause because it is in the "
+                         + exp->ExpStatus_Name() + " state.");
+    Mark_Cmd_With_Soft_Error(cmd,s);
+#else
     cmd->Result_String ("The experiment can not Pause because it is in the "
                          + exp->ExpStatus_Name() + " state.");
     cmd->set_Status(CMD_ERROR);
+#endif
     return false;
   }
 
@@ -1260,8 +1312,13 @@ bool SS_expRestore (CommandObject *cmd) {
  // Extract the savefile name.
   parse_val_t *file_name_value = Get_Simple_File_Name (cmd);
   if (file_name_value == NULL) {
+#if 1
+    std::string s("A file name for the Database is required.");
+    Mark_Cmd_With_Soft_Error(cmd,s);
+#else
     cmd->Result_String ("A file name for the Database is required.");
     cmd->set_Status(CMD_ERROR);
+#endif
     return false;
   }
 
@@ -1277,8 +1334,13 @@ bool SS_expRestore (CommandObject *cmd) {
   ExperimentObject *exp = new ExperimentObject (data_base_name);
   if ((exp == NULL) ||
       (exp->ExperimentObject_ID() <= 0)) {
+#if 1
+    std::string s("The specified file name is not a legal data base.");
+    Mark_Cmd_With_Soft_Error(cmd,s);
+#else
     cmd->Result_String ("The specified file name is not a legal data base.");
     cmd->set_Status(CMD_ERROR);
+#endif
     return false;
   }
 
@@ -1306,8 +1368,13 @@ bool SS_expSave (CommandObject *cmd) {
  // Extract the savefile name.
   parse_val_t *file_name_value = Get_Simple_File_Name (cmd);
   if (file_name_value == NULL) {
+#if 1
+    std::string s("Need a file name for the Database.");
+    Mark_Cmd_With_Soft_Error(cmd,s);
+#else
     cmd->Result_String ("need a file name for the Database.");
     cmd->set_Status(CMD_ERROR);
+#endif
     return false;
   }
 
@@ -1479,8 +1546,14 @@ bool SS_expSetParam (CommandObject *cmd) {
 
       if (!param_was_set) {
        // Record the error but continue to try to set other parameters.
+#if 1
+    	std::string s("The specified parameter, " + param_name + 
+	    	    	", was not set for any collector.");
+    	Mark_Cmd_With_Soft_Error(cmd,s);
+#else
         cmd->Result_String ("The specified parameter, " + param_name + ", was not set for any collector.");
         cmd->set_Status(CMD_ERROR);
+#endif
       }
     }
   }
@@ -1723,8 +1796,13 @@ bool SS_expView (CommandObject *cmd) {
     if ((exp == NULL) ||
         (exp->FW() == NULL)) {
      // No experiment was specified, so we can't find a useful view to gneerate.
+#if 1
+      std::string s("No valid experiment was specified.");
+      Mark_Cmd_With_Soft_Error(cmd,s);
+#else
       cmd->Result_String ("No valid experiment was specified.");
       cmd->set_Status(CMD_ERROR);
+#endif
       view_result = false;
     } else {
      // Look for a view that would be meaningful.
@@ -1733,8 +1811,13 @@ bool SS_expView (CommandObject *cmd) {
       CollectorGroup cgrp = exp->FW()->getCollectors();
       if (cgrp.begin() == cgrp.end()) {
        // No collector was used.
+#if 1
+    	std::string s("No performance measurements were made for the experiment.");
+    	Mark_Cmd_With_Soft_Error(cmd,s);
+#else
         cmd->Result_String ("No performance measurements were made for the experiment.");
         cmd->set_Status(CMD_ERROR);
+#endif
         view_result = false;
       } else {
         if (cgrp.size() == 1) {
@@ -2103,8 +2186,13 @@ bool SS_ListPids (CommandObject *cmd) {
     }
 
     if (Filter_Uses_F(cmd)) {
+#if 1
+      std::string s("Selection based on file name is not supported.");
+      Mark_Cmd_With_Soft_Error(cmd,s);
+#else
       cmd->Result_String ("Selection based on file name is not supported." );
       cmd->set_Status(CMD_ERROR);
+#endif
       return false;
     }
 
@@ -2150,8 +2238,13 @@ bool SS_ListRanks (CommandObject *cmd) {
     }
 
     if (Filter_Uses_F(cmd)) {
+#if 1
+      std::string s("Selection based on file name is not supported.");
+      Mark_Cmd_With_Soft_Error(cmd,s);
+#else
       cmd->Result_String ("Selection based on file name is not supported." );
       cmd->set_Status(CMD_ERROR);
+#endif
       return false;
     }
 
@@ -2188,8 +2281,13 @@ bool SS_ListRanks (CommandObject *cmd) {
   return true;
 
 #else
+#if 1
+  std::string s("The system does not support MPI Ranks.");
+  Mark_Cmd_With_Soft_Error(cmd,s);
+#else
   cmd->Result_String ("The system does not support MPI Ranks.");
   cmd->set_Status(CMD_ERROR);
+#endif
   return false;
 #endif
 }
@@ -2305,8 +2403,13 @@ bool SS_ListThreads (CommandObject *cmd) {
     }
 
     if (Filter_Uses_F(cmd)) {
+#if 1
+      std::string s("Selection based on file name is not supported.");
+      Mark_Cmd_With_Soft_Error(cmd,s);
+#else
       cmd->Result_String ("Selection based on file name is not supported." );
       cmd->set_Status(CMD_ERROR);
+#endif
       return false;
     }
 
@@ -2332,8 +2435,13 @@ bool SS_ListThreads (CommandObject *cmd) {
   return true;
 
 #else
+#if 1
+  std::string s("The system does not support OpenMp Threads.");
+  Mark_Cmd_With_Soft_Error(cmd,s);
+#else
   cmd->Result_String ("The system does not support OpenMp Threads.");
   cmd->set_Status(CMD_ERROR);
+#endif
   return false;
 #endif
 }
@@ -2549,8 +2657,13 @@ bool SS_OpenGui (CommandObject *cmd) {
      // The GUI was not opened before so we need to define an input control window for it.
       char HostName[MAXHOSTNAMELEN+1];
       if (gethostname ( &HostName[0], MAXHOSTNAMELEN)) {
+#if 1
+    	std::string s("Can not retreive host name.");
+    	Mark_Cmd_With_Soft_Error(cmd,s);
+#else
         cmd->Result_String ("can not retreive host name");
         cmd->set_Status(CMD_ERROR);
+#endif
         return false;
       }
       pid_t my_pid = getpid();
@@ -2575,15 +2688,25 @@ bool SS_Playback (CommandObject *cmd) {
   parse_val_t *f_val = Get_Simple_File_Name (cmd);
 
   if (f_val == NULL) {
+#if 1
+    std::string s("Can not determine file name.");
+    Mark_Cmd_With_Soft_Error(cmd,s);
+#else
     cmd->Result_String ("can not determine file name");
     cmd->set_Status(CMD_ERROR);
+#endif
     return false;
   }
 
   if ( !Push_Input_File (WindowID, f_val->name,
                          &Default_TLI_Line_Output, &Default_TLI_Command_Output) ) {
+#if 1
+    std::string s("Unable to open alternate command file " + f_val->name + ".");
+    Mark_Cmd_With_Soft_Error(cmd,s);
+#else
     cmd->Result_String ("Unable to open alternate command file " + f_val->name);
     cmd->set_Status(CMD_ERROR);
+#endif
     return false;
   }
 

@@ -94,8 +94,15 @@ class ViewType
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                              ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
                              std::vector<ViewInstruction *>IV) {
+#if 1
+    {
+    	std::string s("The requested view has not been implemented.");
+    	Mark_Cmd_With_Soft_Error(cmd,s);
+    }
+#else
     cmd->Result_String ("The requested view has not been implemented.");
     cmd->set_Status(CMD_ERROR);
+#endif
     return false;
   }
 
