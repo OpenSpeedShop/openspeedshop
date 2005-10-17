@@ -24,6 +24,7 @@ TemplatePanel_la_CXXFLAGS = \
     -I. \
     -I$(top_srcdir)/libopenss-gui \
 	-I$(top_srcdir)/libopenss-guichart \
+	-I$(top_srcdir)/libopenss-guiobjects \
     -I$(top_srcdir)/libopenss-guiplugin \
     -I$(top_srcdir)/libopenss-guibase
 
