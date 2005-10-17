@@ -57,8 +57,6 @@ def deconstruct(cmd_name,*args):
 	    	sublist = parse_list("",None,*args[ndx])
     	    elif isinstance(args[ndx],ViewTypeList):
 	    	sublist = parse_list("",None,*args[ndx])
-    	    elif isinstance(args[ndx],ExpId):
-	    	sublist = parse_list("-x",None,*args[ndx])
     	    elif isinstance(args[ndx],LineNoList):
 	    	sublist = parse_list("-l",None,*args[ndx])
     	    elif isinstance(args[ndx],ModifierList):
@@ -67,6 +65,10 @@ def deconstruct(cmd_name,*args):
 	    	sublist = parse_list("","ParamType",*args[ndx])
     	    elif isinstance(args[ndx],BreakList):
 	    	sublist = parse_list("",None,*args[ndx])
+    	    # single instance
+    	    elif isinstance(args[ndx],ExpId):
+	    	sublist = "-x "
+	    	sublist += make_string(args[ndx])
     	    elif is_single_type(args[ndx]):
 	    	sublist = make_string(args[ndx])
     	    else:
@@ -163,6 +165,8 @@ def make_string(arg):
     	    t_string = str(arg)
     	elif type(arg) is types.StringType:
     	    t_string = arg
+    	elif isinstance(arg,ExpId):
+    	    t_string = str(arg)
     	else:
     	    raise SyntaxError
 
@@ -213,7 +217,7 @@ def return_string_list(args):
 ################################################################################
 def cmd_parse(zusamen):
 
-    #print "cmd_parse(",zusamen,")"
+    print "cmd_parse(",zusamen,")"
 
     return EmbeddedParser(zusamen)
 

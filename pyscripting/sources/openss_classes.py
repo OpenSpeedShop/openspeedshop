@@ -177,7 +177,7 @@ class ExpId:
     """
     
     def __init__(self,expid) :
-    	self._openss_expid = [expid]
+    	self._openss_expid = expid
     	return
     def __getattr__(self,expid):
     	return getattr(self._openss_expid,expid)
