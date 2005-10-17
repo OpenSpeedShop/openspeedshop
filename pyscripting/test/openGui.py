@@ -2,6 +2,6 @@
 
 import openss
 
-output = openss.openss_openGui()
+output = openss.openGui()
 
 print output

@@ -4,7 +4,7 @@ import openss
 
 my_file = openss.FileList("myexp.openss")
 
-output = openss.openss_record(my_file)
-output = openss.openss_record()
+output = openss.record(my_file)
+output = openss.record()
 
 print output

@@ -2,7 +2,7 @@
 
 import openss
 
-output = openss.openss_history(66)
-output = openss.openss_history()
+output = openss.history(66)
+output = openss.history()
 
 print output

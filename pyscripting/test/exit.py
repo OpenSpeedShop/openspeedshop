@@ -2,6 +2,6 @@
 
 import openss
 
-output = openss.openss_exit()
+output = openss.exit()
 
 print output

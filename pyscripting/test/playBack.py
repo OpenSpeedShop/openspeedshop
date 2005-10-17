@@ -4,7 +4,7 @@ import openss
 
 my_file = openss.FileList("myexp.openss")
 
-output = openss.openss_playBack(my_file)
-#output = openss.openss_playBack()
+output = openss.playBack(my_file)
+#output = openss.playBack()
 
 print output

@@ -6,10 +6,10 @@ import openss
 my_modifer = openss.ModifierList("brief")
 my_modifer+= "examples"
 
-ret = openss.openss_help(my_modifer,"expAttach")
-ret = openss.openss_help(my_modifer)
-ret = openss.openss_help("expAttach")
-ret = openss.openss_help()
+ret = openss.help(my_modifer,"expAttach")
+ret = openss.help(my_modifer)
+ret = openss.help("expAttach")
+ret = openss.help()
 
 print ret
 
