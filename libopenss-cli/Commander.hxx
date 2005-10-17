@@ -88,6 +88,7 @@ void Default_Log_Output (CommandObject *C);
 extern CMDWID command_line_window;
 extern CMDWID tli_window;
 extern CMDWID gui_window;
+extern CMDWID Embedded_WindowID;
 extern char *Current_OpenSpeedShop_Prompt;
 extern char *Alternate_Current_OpenSpeedShop_Prompt;
 inline void SS_Issue_Prompt (FILE *TFile) {

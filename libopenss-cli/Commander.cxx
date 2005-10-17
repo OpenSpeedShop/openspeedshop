@@ -93,7 +93,7 @@ static CMDWID More_Input_Needed_From_Window = 0;
 static CMDWID Default_WindowID = 0;
 static CMDWID TLI_WindowID = 0;
 static CMDWID GUI_WindowID = 0;
-static CMDWID Embedded_WindowID = 0;
+//static CMDWID Embedded_WindowID = 0;
 
 
 // Input_Source

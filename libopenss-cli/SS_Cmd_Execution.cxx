@@ -2562,7 +2562,8 @@ bool SS_Exit (CommandObject *cmd) {
   Wait_For_Previous_Cmds ();
 
  // Since Python is in control, we need to tell it to quit.
-  PyRun_SimpleString( "myparse.Do_quit ()\n");
+	if (Embedded_WindowID == 0) 
+	    PyRun_SimpleString( "myparse.Do_quit ()\n");
 
  // Force another "Exit" command through the input controler.
  // This is done, after setting the Python signal with the

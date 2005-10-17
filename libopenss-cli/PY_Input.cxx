@@ -42,7 +42,6 @@ CommandObject   *p_cmdobj   	= NULL;
 //   (Embedded_WindowID != 0) is the default action
 //   cmd_output_to_python defines the action for individual commands
 
-static CMDWID Embedded_WindowID = 0;
 static bool cmd_output_to_python = false;
 
 // Exception we raise for various reasons

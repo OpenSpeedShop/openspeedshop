@@ -29,6 +29,7 @@ using namespace OpenSpeedShop::Framework;
 CMDWID gui_window = 0;
 CMDWID tli_window = 0;
 CMDWID command_line_window = 0;
+CMDWID Embedded_WindowID = 0;
 
 #define PTMAX 10
 pthread_t phandle[PTMAX];
