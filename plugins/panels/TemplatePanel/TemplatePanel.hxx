@@ -24,6 +24,7 @@
 
 class PanelContainer;   // Do not remove
 class QHBoxLayout;
+class QVBoxLayout;
 
 #define PANEL_CLASS_NAME TemplatePanel   // Change the value of the define
                                          // to the name of your new class.
@@ -55,7 +56,7 @@ class TemplatePanel  : public Panel
     int broadcast(char *msg);
 
     //! Controls the base layout of the Panel's widgets.
-    QHBoxLayout * frameLayout;
+    QVBoxLayout * frameLayout;
 
   public slots:
 

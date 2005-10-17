@@ -21,6 +21,14 @@
 #include "PanelContainer.hxx"   // Do not remove
 #include "plugin_entry_point.hxx"   // Do not remove
 
+#define SIMPLEPANEL 1
+// #define TOPLEVEL 1
+// #define QTCLASS 1
+#ifdef TOPLEVEL
+#include "ProcessControlObject.hxx"
+#include "qlineedit.h"
+#endif // TOPLEVEL
+
 
 /*! TemplatePanel Class is intended to be used as a starting point to create
     user defined panels.   There's a script: mknewpanel that takes this
@@ -62,28 +70,57 @@
 TemplatePanel::TemplatePanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc, n)
 {
   setCaption("TemplatePanel");
-  frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
+  frameLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
-/* Here's an example of adding a class you created with QtDesigner...
-  ProfileClass *ppc = new ProfileClass(getBaseWidgetFrame(), getName() );
+#ifdef QTCLASS
+// Here's an example of  adding a class you created with QtDesigner...
+// Defining QtClass (above) will enable this block.   
+// This block will include a class that you designed with QtDesigner.
+  YourClass *ppc = new YourClass(getBaseWidgetFrame(), getName() );
   frameLayout->addWidget( ppc );
   ppc->show();
-*/
+#endif // QTCLASS
 
-/*
+
+#ifdef TOPLEVEL
 // Here's an example of a putting a name toplevel panel container in the
 // panel.
+// Defining TOPLEVEL (above) will enable this block.   
+// This block will create an outline much like the pcSamplePanel and 
+// UserTimePanel experiments.   
+// A process control panel (run, pause, update, terminate) will be created
+// and a panel container to place child panels will be created.
+// See pcSamplePanel for a working example.
+  ProcessControlObject *pco = new ProcessControlObject(frameLayout, getBaseWidgetFrame(), (Panel *)this );
+
+  QHBoxLayout *statusLayout = new QHBoxLayout( 0, 10, 0, "statusLayout" );
+
+  QLabel *statusLabel = new QLabel( getBaseWidgetFrame(), "statusLabel");
+  statusLayout->addWidget( statusLabel );
+
+  QLineEdit *statusLabelText = new QLineEdit( getBaseWidgetFrame(), "statusLabelText");
+  statusLabelText->setReadOnly(TRUE);
+  statusLayout->addWidget( statusLabelText );
+
+  frameLayout->addLayout( statusLayout );
+
   QWidget *namedPanelContainerWidget = new QWidget( getBaseWidgetFrame(),
                                         "namedPanelContainerWidget" );
-  PanelContainer *topPPL = createPanelContainer( namedPanelContainerWidget, "PLUGIN_GROUPING", NULL, pc->getMasterPCList() );
+  PanelContainer *topPPL = createPanelContainer( namedPanelContainerWidget, "", NULL, pc->getMasterPCList() );
   frameLayout->addWidget( namedPanelContainerWidget );
   
-  namedPanelContainerWidget->show();
+//  namedPanelContainerWidget->show();
   topPPL->show();
   topPPL->topLevel = TRUE;
-*/
+#endif // TOPLEVEL
 
 
+#ifdef SIMPLEPANEL
+// Here's an example of creating a simple panel.  
+// Defining SIMPLEPANEL (above) will enable this block.   
+// This block creates a panel with a QSplitter.  On the left side of the
+// splitter there is a QListView and on the right a chart widget.
+// See StatsPanel for a working example.
   QSplitter *splitter = new QSplitter(getBaseWidgetFrame(), "splitter");
   splitter->setCaption("splitter");
 
@@ -128,6 +165,7 @@ TemplatePanel::TemplatePanel(PanelContainer *pc, const char *n, void *argument) 
   lv->show();
 
   frameLayout->addWidget( splitter );
+#endif // SIMPLEPANEL
 
   getBaseWidgetFrame()->setCaption("TemplatePanelBaseWidget");
 }
