@@ -40,9 +40,11 @@ Collector Plugin</a>
             <ul>
               <li><a href="#mozTocId773274">Overview</a></li>
               <li><a href="#mozTocId207808">Data blobs</a></li>
-              <li><a href="#mozTocId667687">Server - Collector Runtime</a></li>
+              <li><a href="#mozTocId667687">Server - Collector
+Runtime</a></li>
               <li><a href="#mozTocId637965">Client - Collector
-Plugin&nbsp; </a>
+Plugin&nbsp;
+                </a>
                 <ul>
                   <li><a href="#mozTocId388988">Start Collecting</a></li>
                   <li><a href="#mozTocId992246">Stop Collecting</a></li>
@@ -61,7 +63,7 @@ Plugin&nbsp; </a>
 Interface Plugin Information
         </a>
         <ul>
-          <li><a href="#mozTocId930728">Creating The
+          <li><a href="#mozTocId930728">Creating A
 Graphical User Interface Panel</a></li>
           <li><a href="#mozTocId963628">Interfacing With
 Open|SpeedShop - Tips and Example Information</a></li>
@@ -419,8 +421,8 @@ The meaning or definitions for the arguments above are summarized here:<br>
 </ol>
 <h5><a class="mozTocH5" name="mozTocId271962"></a>Set Parameter</h5>
 <br>
-<p>Set a parameter value.</p>
-<p>Implements setting one of collector parameter values.<br>
+<p>The set a parameter function implements setting one of the collector
+parameter values.<br>
 </p>
 <p>This is an example definition from the Open|SpeedShop Usertime
 Collector Plugin:</p>
@@ -447,12 +449,18 @@ Blob&amp; data) const<br>
   </li>
 </ol>
 <h5><a class="mozTocH5" name="mozTocId518369"></a>Get Default Parameters</h5>
+The get default parameters function implements getting the default
+parameter set for the collector.<br>
+<br>
 This is an example definition from the Open|SpeedShop Usertime
 Collector Plugin:<br>
 <br>
 Blob UserTimeCollector::getDefaultParameterValues() const<br>
 <br>
 <h5><a class="mozTocH5" name="mozTocId769605"></a>Get Parameters</h5>
+The get a parameter function implements getting one of the collector
+parameter values.<br>
+<br>
 This is an example definition from the Open|SpeedShop Usertime
 Collector Plugin:<br>
 <br>
@@ -468,13 +476,51 @@ const Blob&amp; data, void* ptr) const<br>
 <h2><a class="mozTocH2" name="mozTocId212847"></a>Graphical User
 Interface Plugin Information<br>
 </h2>
+All of the Open|SpeedShop GUI functionality is implemented using the
+GUI plugin mechanisms.&nbsp;&nbsp; To create an Open|SpeedShop GUI
+plugin requires some knowledge about how to use the Qt GUI development
+toolkit.&nbsp;&nbsp; A script is provided to help the GUI plugin
+developer create a basic skeletal Open|SpeedShop Qt Panel.&nbsp;&nbsp;
+The GUI plugin developer then must provide the widgets and Qt GUI
+management routines to display what the plugin developer
+desires.&nbsp;&nbsp;&nbsp; The basic skeletal Open|SpeedShop Qt Panel
+code does provide some code options which can be uncommented and
+modified in hopes of jump starting the process of developing additional
+panels.<br>
 <br>
+Tips on interfacing with the rest of the Open|SpeedShop tool set are
+also provided along with the example code.<br>
 <h3><a class="mozTocH3" name="mozTocId930728"></a><a
- name="Creating_The_Graphical_User_Interface"></a>Creating The
+ name="Creating_The_Graphical_User_Interface"></a>Creating A
 Graphical User Interface Panel</h3>
+The "mknewpanel" script creates a basic Open|SpeedShop GUI Panel which
+can then be modified to integrate with the core functionality of
+Open|SpeedShop.&nbsp;&nbsp; This script can be found in the
+subdirectory (from top of tree)
+"plugins/panels/TemplatePanel".&nbsp;&nbsp; A "README" file in that
+same directory gives "mknewpanel" usage information.&nbsp;&nbsp; The
+same information can be obtained by running the "mknewpanel" script
+without any arguments.&nbsp; The script modifies the TemplatePanel
+sources in the TemplatePanel directory and creates a new subdirectory
+under "plugins/panels" using the information given to it by the plugin
+developer running the script.&nbsp;&nbsp; Once the GUI plugin developer
+modifies Open|SpeedShop's "configure.ac" (both in the top source
+directory) and "Makefile.am" (in plugins/panels directory) files to
+include the newly created panels, the menu item representing the panel
+will be displayed under the menu that the GUI plugin developer provided
+to the mknewpanel script.&nbsp;&nbsp; In "configure.ac" add the
+directory path to the newly created GUI plugin anywhere after the list
+of "panel/plugins/&lt;panel name&gt;/Makefile"
+entries.&nbsp;&nbsp;&nbsp; In "Makefile.am" add the name of the newly
+created GUI plugin panel directory into the "SUBDIRS" list.<br>
+<br>
+<br>
 <h3><a class="mozTocH3" name="mozTocId963628"></a><a
  name="Interfacing_With_OpenSpeedShop_-_Tips"></a>Interfacing With
 Open|SpeedShop - Tips and Example Information</h3>
+<br>
+<br>
+<br>
 <h3><a class="mozTocH3" name="mozTocId175785"></a><a
  name="Example_Graphical_User_Interface_Plugin"></a>Example Graphical
 User Interface Plugin</h3>
