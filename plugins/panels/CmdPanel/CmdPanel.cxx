@@ -231,6 +231,7 @@ CmdPanel::returnPressed()
 
     InputLineObject clip;
     cmdHistoryList.push_back(command);
+    cmdHistoryListIterator = cmdHistoryList.end();
     oclass->Set_Issue_Prompt (true);
 // printf("send down command=(%s)\n", command.ascii() );
     Append_Input_String( wid, (char *)command.ascii(), NULL, &Default_TLI_Line_Output, &Default_TLI_Command_Output);
