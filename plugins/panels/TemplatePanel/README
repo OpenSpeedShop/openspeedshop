@@ -16,6 +16,25 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
+# mknewpanel
 
+# Creates a basic skeletal Open|SpeedShop GUI panel that can be modified to integrate with 
+# the Open|SpeedShop tools.  The skeletal panel code created by executing mknewpanel will
+# contain the include header references and basic Qt functionality to compile and integrate
+# with the rest of Open|SpeedShop.  Some minor configuration file and make file changes 
+# are needed for the integration into Open|SpeedShop.  The mknewpanel script informs the
+# script user which files to modify.
+
+# usage: mknewpanel directory panelname "menu header" "menu label" "menu accel" "show immediate" "grouping"
+# where:
+#  directory:  Is the path to the directory to put the new panel code.
+#  panelname:  Is the name of the new panel.
+#  menu header: Is the Menu named to be put on the menu bar.
+#  menu label: Is the menu label under the menu header.
+#  menu accel: Is the menu accelerator.
+#  show immediate: Default is 0.  Setting this to 1 will display the panel upon initialization.
+#  grouping: Which named panel container should this menu item drop this panel by default.
+
+# Example:
 # mknewpanel ../FPE_TracingPanel "FPE_TracingPanel" "E\&xperiments" "\&FPE_Tracing" "Ctrl+F" 0 "Performance"
 mknewpanel ../ExamplePanel "ExamplePanel" "E\&xperiments" "ExamplePanel" " " 0 "Performance"
