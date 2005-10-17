@@ -185,7 +185,10 @@ def expCreate(*arglist):
     """
 
     cmd_string = deconstruct("expCreate",*arglist)
-    return return_int(cmd_string)
+
+    expid = ExpId(return_int(cmd_string))
+
+    return expid
 
 ##################################################
 # expDetach
@@ -1114,7 +1117,7 @@ def listViews(*arglist):
 ##################################################
 # clearBreak
 ##################################################
-def openss_clearBreak(*arglist):
+def clearBreak(*arglist):
 
     """
     - Remove a breakpoint.
@@ -1132,7 +1135,7 @@ def openss_clearBreak(*arglist):
 ##################################################
 # exit
 ##################################################
-def openss_exit(*arglist):
+def exit(*arglist):
 
     """
     - Terminate all experiments and the session.
@@ -1147,7 +1150,7 @@ def openss_exit(*arglist):
     	- Terminate execution of the B{OpenSS} tool.
 
     Example::
-    	openss.openss_exit()
+    	openss.exit()
 
     @param arglist: None
 
@@ -1159,7 +1162,7 @@ def openss_exit(*arglist):
 ##################################################
 # help
 ##################################################
-def openss_help(*arglist):
+def help(*arglist):
 
     """
     - Request information about a topic.
@@ -1176,7 +1179,7 @@ def openss_help(*arglist):
 ##################################################
 # history
 ##################################################
-def openss_history(*arglist):
+def history(*arglist):
 
     """
     - Print a list of previously executed commands.
@@ -1195,7 +1198,7 @@ def openss_history(*arglist):
 ##################################################
 # log
 ##################################################
-def openss_log(*arglist):
+def log(*arglist):
 
     """
     - Begin echoing executed commands and their results to a file.
@@ -1212,7 +1215,7 @@ def openss_log(*arglist):
 ##################################################
 # openGui
 ##################################################
-def openss_openGui(*arglist):
+def openGui(*arglist):
 
     """
     - Open the Graphical User Interface, if it is not already open.
@@ -1220,7 +1223,7 @@ def openss_openGui(*arglist):
       openGui 
 
     Example::
-    	openss.openss_openGui()
+    	openss.openGui()
 
     @param arglist: None
 
@@ -1232,7 +1235,7 @@ def openss_openGui(*arglist):
 ##################################################
 # playBack
 ##################################################
-def openss_playBack(*arglist):
+def playBack(*arglist):
 
     """
     - Read and execute commands from a file.
@@ -1247,7 +1250,7 @@ def openss_playBack(*arglist):
 ##################################################
 # record
 ##################################################
-def openss_record(*arglist):
+def record(*arglist):
 
     """
     - Begin echoing executed commands to a file.
@@ -1271,7 +1274,7 @@ def openss_record(*arglist):
 ##################################################
 # setBreak
 ##################################################
-def openss_setBreak(*arglist):
+def setBreak(*arglist):
 
     """
     - Enter a breakpoint, which will halt the application when reached.
