@@ -25,7 +25,9 @@
 #include <qevent.h>
 
 extern char *Current_OpenSpeedShop_Prompt;
+extern char *Alternate_Current_OpenSpeedShop_Prompt;
 QString prompt = QString::null;
+QString prompt2 = QString::null;
 
 #include "SS_Input_Manager.hxx"
 
@@ -50,9 +52,8 @@ class OutputClass : public ss_ostream
       {
         return;
       }
-             extern char *Current_OpenSpeedShop_Prompt;
-       extern char *Alternate_Current_OpenSpeedShop_Prompt;
        line_buffer += s.c_str();
+// printf("line_buffer=(%s)\n", line_buffer.ascii());
  
        if( strchr(line_buffer, '\n') )
        {
@@ -68,6 +69,7 @@ class OutputClass : public ss_ostream
        }
        if( pos == 0 )
        {
+// printf("We got a openss>>prompt\n");
          QString *data = new QString(line_buffer);
          cp->postCustomEvent(data);
          line_buffer = QString::null;
@@ -91,12 +93,17 @@ CmdPanel::CmdPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc
 
   // grab the prompt from the cli.
   prompt = QString(Current_OpenSpeedShop_Prompt);
+  prompt2 = QString(Alternate_Current_OpenSpeedShop_Prompt);
 // printf("prompt=(%s)\n", prompt.ascii() );
 
   frameLayout = new QHBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
 
   output = new QTextEdit( getBaseWidgetFrame() );
   output->setTextFormat(PlainText);
+
+  connect( output, SIGNAL(clicked(int, int)),
+           this, SLOT(clicked(int, int)) );
+
 
   frameLayout->addWidget(output);
 
@@ -116,6 +123,7 @@ CmdPanel::CmdPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc
   oclass = new OutputClass();
   oclass->setCP(this);
   oclass->Set_Issue_Prompt (true);
+// printf("Got a mainprompt\n");
 
 
   show();
@@ -124,6 +132,7 @@ CmdPanel::CmdPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc
   int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
   Redirect_Window_Output( wid, oclass, oclass );
   putOutPrompt();
+  output->getCursorPosition(&start_history_para, &start_history_index);
 }
 
 
@@ -145,16 +154,47 @@ void Default_TLI_Line_Output( InputLineObject *clip)
   printf("Default_TLI_Line_Output() entered\n");
 }
 
+void
+CmdPanel::clicked(int para, int pos)
+{
+// printf("CmdPanel::clicked() para=%d pos=%d\n", para, pos);
+// printf("CmdPanel::clicked() start_history_para=%d start_history_index=%d\n", start_history_para, start_history_index);
+  if( para >= start_history_para )
+  {
+// printf("Allow editting of history\n");
+    editingHistory = TRUE;
+  } else // move to the end...
+  {
+    output->moveCursor(QTextEdit::MoveEnd, FALSE);
+  }
+}
+
 typedef QValueList<QString> CommandList;
 void
 CmdPanel::returnPressed()
 {
   nprintf(DEBUG_PANELS)  ("CmdPanel::returnPressed()\n");
 
-output->append("\n");
+  output->append("\n");
 
 
 // printf("returnPressed() entered user_line_buffer=%s\n", user_line_buffer.ascii() );
+
+  if( editingHistory == TRUE )
+  {
+// printf("history_buffer = (%s) prompt=(%s)\n", output->text(start_history_para).ascii(), prompt.ascii() );
+    QString history_buffer = output->text(start_history_para);
+    if( history_buffer.startsWith(prompt) )
+    {
+      user_line_buffer = output->text(start_history_para).mid(prompt.length());
+    } else if( history_buffer.startsWith(prompt2) )
+    {
+      user_line_buffer = output->text(start_history_para).mid(prompt2.length());
+    } else
+    {
+      user_line_buffer = output->text(start_history_para);
+    }
+  }
 
   output->scrollToBottom();
 
@@ -207,6 +247,7 @@ output->append("\n");
   user_line_buffer = QString::null;
 
   editingHistory = FALSE;
+
 }
 
 
@@ -296,6 +337,7 @@ void
 CmdPanel::positionToEnd()
 {
   output->moveCursor(QTextEdit::MoveEnd, FALSE);
+  output->getCursorPosition(&start_history_para, &start_history_index);
 }
 
 void
@@ -307,26 +349,20 @@ CmdPanel::clearCurrentLine()
   output->setSelection(para, 0, para, index);
   output->removeSelectedText();
   output->moveCursor(QTextEdit::MoveEnd, FALSE);
-//  output->moveCursor(QTextEdit::MoveLineStart, FALSE);
-//  putOutPrompt();
+  output->getCursorPosition(&start_history_para, &start_history_index);
 }
 
 void
 CmdPanel::putOutPrompt()
 {
 // printf("PutOutPrompt() enterd\n");
-output->moveCursor(QTextEdit::MoveEnd, FALSE);
-oclass->acquireLock();
-oclass->Issue_Prompt();
-oclass->releaseLock();
-output->moveCursor(QTextEdit::MoveEnd, FALSE);
-
-// int para; int index;
-// output->getCursorPosition(&para, &index);
-// output->setCursorPosition(para, index-1);
-// printf("para=%d index=%d\n", para, index );
-// output->moveCursor(QTextEdit::MoveLineEnd, FALSE);
-// output->setCursorPosition(para, index-1);
+  output->moveCursor(QTextEdit::MoveEnd, FALSE);
+  oclass->acquireLock();
+  oclass->Issue_Prompt();
+  oclass->releaseLock();
+  output->moveCursor(QTextEdit::MoveEnd, FALSE);
+  output->getCursorPosition(&start_history_para, &start_history_index);
+// printf("putOutPrompt() finished. %d, %d\n", start_history_para, start_history_index);
 }
 
 void
@@ -406,6 +442,13 @@ void CmdPanel::menu2callback()
   nprintf(DEBUG_PANELS) ("CmdPanel::menu2callback() entered\n");
 }
 
+void CmdPanel::CntrlC()
+{
+  user_line_buffer = QString::null;
+  clearCurrentLine();
+  output->insert(prompt);
+}
+
 #define CMDPANELEVENT 10000
 #define CMDPANELPROMPTEVENT 10001
 void
@@ -428,23 +471,24 @@ CmdPanel::postCustomPromptEvent(QString *data)
 
 void CmdPanel::customEvent(QCustomEvent *e)
 {
-//printf("CmdPanel::customEvent() entered\n");
   if( e->type() == CMDPANELEVENT )
   {
-   QString *data = static_cast<QString *>(e->data());
-   // This goes to the text stream...
-   output->moveCursor(QTextEdit::MoveEnd, FALSE);
-   output->append(*data);
+    QString *data = static_cast<QString *>(e->data());
+    // This goes to the text stream...
+    output->moveCursor(QTextEdit::MoveEnd, FALSE);
+    output->append(*data);
 //   output->insert(*data);
-   output->moveCursor(QTextEdit::MoveEnd, FALSE);
+    output->moveCursor(QTextEdit::MoveEnd, FALSE);
+    output->getCursorPosition(&start_history_para, &start_history_index);
   } else if( e->type() == CMDPANELPROMPTEVENT )
   {
-   QString *data = static_cast<QString *>(e->data());
-   // This goes to the text stream...
-   output->moveCursor(QTextEdit::MoveEnd, FALSE);
+    QString *data = static_cast<QString *>(e->data());
+    // This goes to the text stream...
+    output->moveCursor(QTextEdit::MoveEnd, FALSE);
 //   output->append(*data);
-   output->insert(*data);
-   output->moveCursor(QTextEdit::MoveEnd, FALSE);
+    output->insert(*data);
+    output->moveCursor(QTextEdit::MoveEnd, FALSE);
+    output->getCursorPosition(&start_history_para, &start_history_index);
   }
 }
 

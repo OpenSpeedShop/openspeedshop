@@ -54,6 +54,7 @@ public:
   void upKey();
   void downKey();
   void clearCurrentLine();
+  void CntrlC();
 
   void positionToEnd();
   void putOutPrompt();
@@ -74,6 +75,7 @@ public:
 protected slots:
   void menu1callback();
   void menu2callback();
+  void clicked(int, int);
 
 
 protected:

@@ -39,26 +39,22 @@ KeyEventFilter::eventFilter( QObject *o, QEvent *e)
       cmdPanel->positionToEnd();
     }
     QKeyEvent *key_event = (QKeyEvent *)e;
-// printf("The user pressed a (%s)\n", key_event->text().ascii() );
+//printf("The user pressed a (%s)\n", key_event->text().ascii() );
     if( key_event->key() == Qt::Key_Up ) 
     {
-//      printf("Qt::Key_Up\n");
       cmdPanel->user_line_buffer = QString::null;
       cmdPanel->upKey();
       return TRUE;
     } else if( key_event->key() == Qt::Key_Down ) 
     {
-//      printf("Qt::Key_Down\n");
       cmdPanel->user_line_buffer = QString::null;
       cmdPanel->downKey();
       return TRUE;
     } else if( key_event->key() == Qt::Key_Return ) 
     {
-//      printf("Qt::Key_Return\n");
       cmdPanel->positionToEnd();
       cmdPanel->returnPressed();
       cmdPanel->user_line_buffer = QString::null;
-//      return FALSE;
       return TRUE;
     } else if( key_event->key() == Qt::Key_Backspace )
     {
@@ -72,9 +68,7 @@ KeyEventFilter::eventFilter( QObject *o, QEvent *e)
 // printf("Send the cli an interrupt!\n");
      } else 
      {
-// printf("clear the current command!\n");
        cmdPanel->user_line_buffer = QString::null;
-//       cmdPanel->positionToEnd();
      }
      cmdPanel->putOutPrompt();
    } else
@@ -82,7 +76,12 @@ KeyEventFilter::eventFilter( QObject *o, QEvent *e)
       cmdPanel->user_line_buffer += key_event->text();
    }
 
-// printf("key_event->state()=%d\n", key_event->state() );
+   if( key_event->state() == QEvent::ControlButton && key_event->key() == Qt::Key_C )
+    {
+//printf("User pressed a Cntrl->C\n");
+      cmdPanel->CntrlC();
+    }
+
     if( key_event->state() == QEvent::ControlButton && key_event->key() == Qt::Key_J )
     {
       cmdPanel->downKey();
