@@ -137,33 +137,37 @@ def expClose(*arglist):
 def expCreate(*arglist):
 
     """
-    Start the process of defining an experiment:
+    - Start the process of defining an experiment:
     	- Define a new experiment identifier.
     	- Set the current focus to the new identifier.
     	- Return the experiment identification identifier.
     	- The experiment will not execute until an B{expGo} 
     	  command is issued.
+    - If I{ModifierList} object with B{mpi} is selected, all
+      	  the threads that are part of a running application will
+      	  be included in the experiment.
 
-    If I{ModifierList} object with B{mpi} is selected, all
-    the threads that are part of a running application will
-    be included in the experiment.
+    - If I{ModifierList} object with B{mpi} is not present,
+      	  only those threads that are explicitly listed in
+      	  I{Target} will be included in the experiment.
 
-    If I{ModifierList} object with B{mpi} is not present,
-    only those threads that are explicitly listed in
-    I{Target} will be included in the experiment.
+    - The I{Target} will associate the specified executable 
+      	  with the experiment being defined.
 
-    The I{Target} will associate the specified executable 
-    with the experiment being defined.
+    - The experiment type argument, I{ExpTypeList}, can be used 
+      	  to specify the types of data that will be collected during 
+      	  the experiment.
 
-    The experiment type argument, I{ExpTypeList}, can be used 
-    to specify the types of data that will be collected during 
-    the experiment.
+    - Missing arguments can be supplied later with the B{expAttach} 
+     	  command.
 
-    Missing arguments can be supplied later with the B{expAttach} 
-    command.
+    - An B{expCreate} command with no arguments will still return a 
+      new I{ExpId} and will set the focus.
+    
+    - The return type is an I{ExpId} object which can be used
+      directly by other commands.
 
-    An B{expCreate} command with no arguments will still return a 
-    new I{ExpId} and will set the focus.
+    I{ExpId} = expCreate(arglist) 
 
     B{Examples}::
     	my_file = openss.FileList("file_1")
@@ -374,6 +378,11 @@ def expFocus(*arglist):
     - This command does not change the execution state of 
       an experiment.
 
+    - The return type is an I{ExpId} object which can be used
+      directly by other commands.
+
+    I{ExpId} = expCreate(arglist) 
+
     Example1::
     	#Get the Id of the currently focused experiment
 	cur_id = openss.expEnable()
@@ -389,7 +398,10 @@ def expFocus(*arglist):
     """
 
     cmd_string = deconstruct("expFocus",*arglist)
-    return return_int(cmd_string)
+
+    expid = ExpId(return_int(cmd_string))
+
+    return expid
 
 ##################################################
 # expGo
@@ -527,7 +539,10 @@ def expRestore(*arglist):
 	  A different database can be specified with the 
 	  B{expSave} command.
 
-      I{ExpId} = expRestore <file_spec> 
+    - The return type is an I{ExpId} object which can be used
+      directly by other commands.
+
+    I{ExpId} = expRestore(arglist) 
 
     Example::
     	#Restore an experiment
@@ -540,7 +555,10 @@ def expRestore(*arglist):
     """
 
     cmd_string = deconstruct("expRestore",*arglist)
-    return return_int(cmd_string)
+
+    expid = ExpId(return_int(cmd_string))
+
+    return expid
 
 ##################################################
 # expSave
@@ -1290,4 +1308,45 @@ def setBreak(*arglist):
 
     cmd_string = deconstruct("setBreak",*arglist)
     return return_int(cmd_string)
+
+##################################################################
+# hang_around: Used until latency bug fixed
+##################################################################
+def hang_around():
+
+    while 1:
+    	status = listStatus()
+	stat_count = len(status)
+	for ndx in range(stat_count):
+	    if status[ndx] == 'Terminated':
+	    	return
+
+##################################################################
+# dump_view: For testing
+##################################################################
+def dump_view():
+
+    try :
+    	print "In try part"
+    	ret = expView()
+    	#hang_around()
+
+    except error:
+    	print "In except part"
+
+    if ret is None:
+    	print "expView returned none"
+    	try:
+    	    print "status = ", listStatus()
+    	except error:
+    	    print "listStatus failed"
+
+    else:
+    	r_count = len(ret)
+    	for row_ndx in range(r_count):
+    	    print " "
+    	    row =ret[row_ndx]
+    	    c_count = len(row)
+    	    for rel_ndx in range(c_count):
+            	print row[rel_ndx]
 
