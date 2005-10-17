@@ -48,4 +48,4 @@ openss.expGo()
 
 print "after expgo #4"
 
-openss.exit()
+#openss.exit()
