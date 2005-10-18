@@ -104,15 +104,10 @@ CmdPanel::CmdPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc
   connect( output, SIGNAL(clicked(int, int)),
            this, SLOT(clicked(int, int)) );
 
-
   frameLayout->addWidget(output);
 
   output->show();
 
-/*
-  output->append( prompt );
-  output->moveCursor(QTextEdit::MoveEnd, FALSE);
-*/
   output->setFocus();
 
   KeyEventFilter *keyEventFilter = new KeyEventFilter(output, this);
@@ -154,6 +149,7 @@ void Default_TLI_Line_Output( InputLineObject *clip)
   printf("Default_TLI_Line_Output() entered\n");
 }
 
+
 void
 CmdPanel::clicked(int para, int pos)
 {
@@ -174,6 +170,11 @@ void
 CmdPanel::returnPressed()
 {
   nprintf(DEBUG_PANELS)  ("CmdPanel::returnPressed()\n");
+
+  if( !user_line_buffer.stripWhiteSpace().isEmpty() )
+  {
+    output->append("\n");
+  }
 
 // printf("returnPressed() entered user_line_buffer=(%s)\n", user_line_buffer.ascii() );
 
