@@ -23,7 +23,7 @@ my_viewtype = openss.ViewTypeList()
 my_viewtype += "pcsamp"
 exp1 = openss.expCreate(my_file,my_viewtype)
 
-print "after expcreate"
+print "after expcreate: exp1 = ",exp1
 
 my_modifer = openss.ModifierList()
 my_modifer += "all"
@@ -48,4 +48,4 @@ openss.expGo()
 
 print "after expgo #4"
 
-#openss.exit()
+openss.exit()
