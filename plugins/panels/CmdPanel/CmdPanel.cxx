@@ -175,10 +175,7 @@ CmdPanel::returnPressed()
 {
   nprintf(DEBUG_PANELS)  ("CmdPanel::returnPressed()\n");
 
-  output->append("\n");
-
-
-// printf("returnPressed() entered user_line_buffer=%s\n", user_line_buffer.ascii() );
+// printf("returnPressed() entered user_line_buffer=(%s)\n", user_line_buffer.ascii() );
 
   if( editingHistory == TRUE )
   {
@@ -197,14 +194,6 @@ CmdPanel::returnPressed()
   }
 
   output->scrollToBottom();
-
-  if( user_line_buffer.stripWhiteSpace().isEmpty() )
-  {
-// printf("No command, simply put out prompt.\n");
-    oclass->Set_Issue_Prompt (true);
-    putOutPrompt();
-    return;
-  }
 
 // printf("user_line_buffer.c_str()=(%s)\n", user_line_buffer.ascii() );
   if( user_line_buffer == "exit" || user_line_buffer == "quit" )
@@ -234,8 +223,13 @@ CmdPanel::returnPressed()
     cmdHistoryListIterator = cmdHistoryList.end();
     oclass->Set_Issue_Prompt (true);
 // printf("send down command=(%s)\n", command.ascii() );
-    Append_Input_String( wid, (char *)command.ascii(), NULL, &Default_TLI_Line_Output, &Default_TLI_Command_Output);
-//    Append_Input_String( wid, (char *)command.ascii());
+    if( user_line_buffer.stripWhiteSpace().isEmpty() )
+    {
+      Append_Input_String( wid, "\n", NULL, &Default_TLI_Line_Output, &Default_TLI_Command_Output);
+    } else 
+    {
+      Append_Input_String( wid, (char *)command.ascii(), NULL, &Default_TLI_Line_Output, &Default_TLI_Command_Output);
+    }
 
     output->moveCursor(QTextEdit::MoveEnd, FALSE);
   } 
