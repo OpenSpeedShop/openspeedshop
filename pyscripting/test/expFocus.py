@@ -2,10 +2,32 @@
 
 import openss
 
-my_expid = openss.ExpId(7)
+my_file = openss.FileList("../../usability/phaseIII/fred")
 
-exp1 = openss.expFocus(my_expid)
+# Define and run pcsamp experiment
+pcsamp_viewtype = openss.ViewTypeList()
+pcsamp_viewtype += "pcsamp"
+pcsamp_expid = openss.expCreate(my_file,pcsamp_viewtype)
+openss.expGo()
+#openss.hang_around()
+print pcsamp_expid
 
-exp1 = openss.expFocus()
+#define and run usertime experiment
+user_viewtype = openss.ViewTypeList()
+user_viewtype += "usertime"
+user_expid = openss.expCreate(my_file,user_viewtype)
+openss.expGo()
+print user_expid
 
-print exp1
+expid = openss.expFocus()
+print expid
+openss.dump_view()
+
+expid = openss.expFocus(pcsamp_expid)
+print expid
+openss.dump_view()
+
+expid = openss.expFocus()
+print expid
+
+openss.exit()
