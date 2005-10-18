@@ -357,6 +357,12 @@ StatsPanel::menu( QPopupMenu* contextMenu)
   connect(contextMenu, SIGNAL( activated(int) ),
         this, SLOT(collectorMetricSelected(int)) );
 
+QAction * qaction = new QAction( this,  "_updatePanel");
+qaction->addTo( contextMenu );
+qaction->setText( "Update Panel..." );
+connect( qaction, SIGNAL( activated() ), this, SLOT( updatePanel() ) );
+qaction->setStatusTip( tr("Attempt to update this panel's display with fresh data.") );
+
   contextMenu->insertSeparator();
   // Over all the collectors....
   // Round up the metrics ....
@@ -432,7 +438,7 @@ StatsPanel::menu( QPopupMenu* contextMenu)
         this, SLOT(threadSelected(int)) );
   } else
   {
-    QAction *qaction = new QAction( this,  "manageProcessesMenu");
+    qaction = new QAction( this,  "manageProcessesMenu");
     qaction->addTo( contextMenu );
     qaction->setText( "Manage Processes..." );
     connect( qaction, SIGNAL( activated() ), this, SLOT( manageProcessesSelected() ) );
@@ -447,7 +453,7 @@ StatsPanel::menu( QPopupMenu* contextMenu)
 
   contextMenu->insertSeparator();
 
-  QAction *qaction = new QAction( this,  "compareAction");
+  qaction = new QAction( this,  "compareAction");
   qaction->addTo( contextMenu );
   qaction->setText( "Compare..." );
   connect( qaction, SIGNAL( activated() ), this, SLOT( compareSelected() ) );
@@ -701,6 +707,12 @@ StatsPanel::exportData()
 
   f = NULL;
 
+}
+
+void
+StatsPanel::updatePanel()
+{
+  updateStatsPanelData();
 }
 
 /*! Go to source menu item was selected. */

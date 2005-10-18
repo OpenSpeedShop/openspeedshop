@@ -161,6 +161,7 @@ void setCurrentMetricStr();
     void doOption(int id);
     void exportData();
     void details();
+    void updatePanel();
     void gotoSource(bool use_current_item = FALSE);
     void showPercentageSelected();
     void aboutSelected();
