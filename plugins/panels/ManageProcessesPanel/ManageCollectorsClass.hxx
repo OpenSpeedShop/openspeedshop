@@ -110,6 +110,7 @@ private slots:
     void sortByCollector();
     void sortByHost();
     void sortByMPIRank();
+    void updatePanel();
 
     void progressUpdate();
 

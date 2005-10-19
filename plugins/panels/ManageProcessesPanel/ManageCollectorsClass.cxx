@@ -778,7 +778,7 @@ ManageCollectorsClass::focusOnProcessSelected()
 
   }
 
-printf("host_name=(%s) pidString=(%s)\n", host_name.ascii(), pidString.ascii() );
+// printf("host_name=(%s) pidString=(%s)\n", host_name.ascii(), pidString.ascii() );
 
   if( ok )
   {
@@ -806,6 +806,15 @@ printf("host_name=(%s) pidString=(%s)\n", host_name.ascii(), pidString.ascii() )
   }
 
 }
+
+void
+ManageCollectorsClass::updatePanel()
+{
+// printf("ManageCollectorsClass::updatePanel()\n");
+
+  updateAttachedList();
+}
+
 
 void
 ManageCollectorsClass::loadProgramSelected()
@@ -1099,7 +1108,14 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
 
   contextMenu->insertSeparator();
 
-  QAction *qaction = new QAction( this,  "loadProgram");
+  QAction *qaction = new QAction( this,  "_updatePanel");
+  qaction->addTo( contextMenu );
+  qaction->setText( tr("Update Panel...") );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( updatePanel() ) );
+  qaction->setStatusTip( tr("Attempt to update this panel's display with fresh data.") );
+
+
+  qaction = new QAction( this,  "loadProgram");
   qaction->addTo( contextMenu );
   qaction->setText( tr("Load Program...") );
   connect( qaction, SIGNAL( activated() ), this, SLOT( loadProgramSelected() ) );
@@ -1111,11 +1127,11 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
   connect( qaction, SIGNAL( activated() ), this, SLOT( attachProcessSelected() ) );
   qaction->setStatusTip( tr("Opens dialog box to attach to running process.") );
 
-qaction = new QAction( this,  "focusOnProcess");
-qaction->addTo( contextMenu );
-qaction->setText( tr("Focus on Process...") );
-connect( qaction, SIGNAL( activated() ), this, SLOT( focusOnProcessSelected() ) );
-qaction->setStatusTip( tr("Opens dialog box to attach to running process.") );
+  qaction = new QAction( this,  "focusOnProcess");
+  qaction->addTo( contextMenu );
+  qaction->setText( tr("Focus on Process...") );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( focusOnProcessSelected() ) );
+  qaction->setStatusTip( tr("Opens dialog box to attach to running process.") );
 
 
   collectorMenu = new QPopupMenu(contextMenu);
