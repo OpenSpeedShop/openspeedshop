@@ -635,7 +635,7 @@ Metadata Find_Metadata (Collector C, std::string name) {
   return m;
 }
 
-CommandResult *gen_F_name (Function F) {
+std::string gen_F_name (Function F) {
   std::string S = F.getName();
   LinkedObject L = F.getLinkedObject();
   std::set<Statement> T = F.getDefinitions();
@@ -657,7 +657,7 @@ CommandResult *gen_F_name (Function F) {
   }
   S += ")";
 
-  return (new CommandResult_String (S));
+  return S;
 }
 
 

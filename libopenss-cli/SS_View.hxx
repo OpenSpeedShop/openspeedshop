@@ -177,7 +177,7 @@ extern std::list<ViewType *> Available_Views;
 void Define_New_View (ViewType *vnew);
 bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                    ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
-                   std::vector<ViewInstruction *>IV, std::string *HV = NULL);
+                   std::vector<ViewInstruction *> IV, std::string *HV = NULL);
 
 typedef std::pair<Function, CommandResult *> Function_CommandResult_pair;
 typedef std::pair<Function, double> Function_double_pair;
@@ -214,7 +214,7 @@ std::string Find_Collector_With_Metric (CollectorGroup cgrp,
                                         std::string Metric_Name);
 bool Metadata_hasName (Collector C, std::string name);
 Metadata Find_Metadata (Collector C, std::string name);
-CommandResult *gen_F_name (Function F);
+std::string gen_F_name (Function F);
 ViewInstruction *Find_Base_Def (std::vector<ViewInstruction *>IV);
 ViewInstruction *Find_Total_Def (std::vector<ViewInstruction *>IV);
 ViewInstruction *Find_Percent_Def (std::vector<ViewInstruction *>IV);
