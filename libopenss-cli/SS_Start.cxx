@@ -45,6 +45,8 @@ static bool collector_encountered;
 static bool read_stdin_file;
 
 extern void pcli_load_messages(void);
+extern void Internal_Info_Dump (CMDWID issuedbywindow);
+extern void User_Info_Dump (CMDWID issuedbywindow);
 
 static void
 Process_Command_Line (int argc, char **argv)
@@ -289,8 +291,11 @@ catch_signal (int sig, int error_num)
       abort();
     }
     processing_signal = true;
-   // the folowing is debug print
-    fprintf(stderr,"catch_signal %d\n",sig);
+   // the folowing lines are for debugging
+    // fprintf(stderr,"catch_signal %d\n",sig);
+    // Internal_Info_Dump(1);
+    // User_Info_Dump(1);
+
     cli_terminate ();
   }
   exit (1);
