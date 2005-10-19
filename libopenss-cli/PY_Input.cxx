@@ -494,7 +494,8 @@ static PyObject *SS_InitEmbeddedInterface (PyObject *self, PyObject *args) {
   pcli_load_messages();
 
  // Define Built-In Views
-   SS_Init_BuiltIn_Views ();
+  SS_Init_BuiltIn_Views ();
+  SS_Load_View_plugins ();
 
  // Define a default input window as an anchor for tracking commands
   pid_t my_pid = getpid();
