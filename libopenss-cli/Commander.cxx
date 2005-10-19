@@ -35,7 +35,6 @@ int64_t History_Count = 0;
 std::list<std::string> History;
 
 static FILE *ttyin = NULL;  // Read directly from this xterm window.
-static FILE *ttyout = NULL; // Write directly to this xterm window.
 
 static ss_ostream *ss_err = NULL;
 static ss_ostream *ss_out = NULL;
@@ -56,6 +55,37 @@ inline std::string ptr2str (void *p) {
 // Local Macros
 
 static inline
+ostream *Predefined_ofstream (std::string oname)
+{
+  if (oname.length() == 0) {
+    return NULL;
+  } if (oname == "stdout") {
+    return (ss_out != NULL) ? &ss_out->mystream () : &cout;
+  } else if (oname == "stderr") {
+    return (ss_err != NULL) ? &ss_err->mystream () : &cerr;
+  } else if (oname == "/dev/tty") {
+    return (ss_ttyout != NULL) ? &ss_ttyout->mystream () : &cout;
+  } else {
+    return NULL;
+  }
+}
+
+ss_ostream *Predefined_ostream (std::string oname)
+{
+  if (oname.length() == 0) {
+    return NULL;
+  } if (oname == "stdout") {
+    return ss_out;
+  } else if (oname == "stderr") {
+    return ss_err;
+  } else if (oname == "/dev/tty") {
+    return ss_ttyout;
+  } else {
+    return NULL;
+  }
+}
+
+static inline
 FILE *predefined_filename (std::string filename)
 {
   if (filename.length() == 0) {
@@ -67,7 +97,7 @@ FILE *predefined_filename (std::string filename)
   } else if (!strcmp( filename.c_str(), "stdin")) {
     return stdin;
   } else if (!strcmp( filename.c_str(), "/dev/tty")) {
-    return ttyout;
+    return stdout;
   } else {
     return NULL;
   }
@@ -113,7 +143,7 @@ class Input_Source
   InputLineObject *Input_Object;
   bool Record_To_A_Predefined_File;
   std::string Record_Name;
-  FILE *Record_F;
+  ostream *Record_Stream;
 
  // Used if files are to be read
  // These pointers are copied to the InputLineObject generated for each line from the file.
@@ -143,7 +173,7 @@ class Input_Source
     Input_Object = NULL;
     Record_To_A_Predefined_File = false;
     Record_Name = std::string("");
-    Record_F = NULL;
+    Record_Stream = NULL;
     CallBackLine = NULL;
     CallBackCmd = NULL;
   }
@@ -159,7 +189,7 @@ class Input_Source
     Input_Object = clip;
     Record_To_A_Predefined_File = false;
     Record_Name = std::string("");
-    Record_F = NULL;
+    Record_Stream = NULL;
     CallBackLine = NULL;
     CallBackCmd = NULL;
   }
@@ -175,7 +205,7 @@ class Input_Source
     Input_Object = NULL;
     Record_To_A_Predefined_File = false;
     Record_Name = std::string("");
-    Record_F = NULL;
+    Record_Stream = NULL;
     CallBackLine = NULL;
     CallBackCmd = NULL;
   }
@@ -189,8 +219,8 @@ class Input_Source
       fclose (Fp);
     }
    /* Close Record files. */
-    if (Record_F && !Record_To_A_Predefined_File) {
-      fclose (Record_F);
+    if (Record_Stream && !Record_To_A_Predefined_File) {
+      delete Record_Stream;
     }
   }
 
@@ -219,9 +249,17 @@ class Input_Source
       Last_Valid_Data = 0;
       fgets (&Buffer[0], Buffer_Size, Fp);
       if (Buffer[Buffer_Size-1] != (char)0) {
-        FILE *ef = ((ttyout != NULL)  && isatty(fileno(stderr))) ? ttyout : stderr;
-        fprintf(ef,"ERROR: Input line from %s is too long for buffer.\n",Name.c_str());
-        if (ttyout == ef) SS_Issue_Prompt (ttyout);
+        ss_ostream *this_ss_stream = ((ss_ttyout != NULL) && isatty(fileno(stderr)))
+                                            ? ss_ttyout : ss_err;
+        if (this_ss_stream != NULL) {
+          this_ss_stream->acquireLock();
+          this_ss_stream->mystream()
+                << "ERROR: Input line from " << Name << " is too long for buffer.\n" << std::flush;
+          this_ss_stream->releaseLock();
+          if (ss_ttyout == this_ss_stream) this_ss_stream->Issue_Prompt();
+        } else {
+          cerr << "ERROR: Input line from " << Name << " is too long for buffer.\n" << std::flush;
+        }
         return NULL;
       }
       Last_Valid_Data = strlen(&Buffer[0]);
@@ -244,28 +282,29 @@ class Input_Source
   }
 
   bool Set_Record ( std::string tofname) {
-    if (Record_F && !Record_To_A_Predefined_File) {
-      fclose (Record_F);
+    if (Record_Stream && !Record_To_A_Predefined_File) {
+      delete Record_Stream;
     }
-    FILE *tof = predefined_filename( tofname );
-    bool is_predefined = (tof != NULL);
-    if (tof == NULL) tof = fopen (tofname.c_str(), "a");
-    Record_To_A_Predefined_File = is_predefined;
+    ostream *tof = Predefined_ofstream (tofname);
     Record_Name = tofname;
-    Record_F = tof;
+    Record_To_A_Predefined_File = (tof != NULL);
+    if (tof == NULL) {
+      tof = new ofstream (tofname.c_str(), ios::out);
+    }
+    Record_Stream = tof;
     return (tof != NULL);
   }
   void Remove_Record () {
-    if (Record_F && !Record_To_A_Predefined_File) {
-      fclose (Record_F);
+    if (Record_Stream && !Record_To_A_Predefined_File) {
+      delete Record_Stream;
     }
     Record_To_A_Predefined_File = false;
     Record_Name = std::string("");
-    Record_F = NULL;
+    Record_Stream = NULL;
   }
   bool Record_File_Is_Predefined () { return Record_To_A_Predefined_File; }
   std::string Record_File_Name () { return Record_Name; }
-  FILE *Record_File () { return Record_F; }
+  ostream *Record_Ostream () { return Record_Stream; }
 
   // Debug aids
   void Dump (ostream &mystream) {
@@ -288,38 +327,10 @@ class Input_Source
     if (!nl_at_eol) {
       mystream << std::endl;
     }
-    if (Record_F) {
+    if (Record_Stream) {
       mystream << "     record to: "<< Record_Name << std::endl;
     }
   }
-/*
-  void Dump(FILE *TFile) {
-      bool nl_at_eol = false;
-      fprintf(TFile,"    Read from: %s",
-                    (Fp) ? Name.c_str() : 
-                    (Input_Object) ? "image " : "buffer ");
-      if (Input_Object != NULL) {
-        Input_Object->Print (TFile);
-        nl_at_eol = true;
-      } else if (!Fp) {
-        fprintf(TFile,"len=%d, next=%d",Buffer_Size,Next_Line_At);
-        if (Buffer_Size > Next_Line_At) {
-          int64_t nline = strlen (&(Buffer[Next_Line_At]));
-          nl_at_eol = (Buffer[Next_Line_At+nline] == *("\n"));
-          if (nline > 2) {
-            fprintf(TFile,": %.20s", &(Buffer[Next_Line_At]));
-            if (nline > 20) fprintf(TFile,"...");
-          }
-        }
-      }
-      if (!nl_at_eol) {
-        fprintf(TFile,"\n");
-      }
-      if (Record_F) {
-        fprintf(TFile,"     record to: %s\n",Record_Name.c_str());
-      }
-  }
-*/
 };
 
 // CommandWindowID
@@ -327,7 +338,6 @@ class CommandWindowID
 {
  protected:
   CMDWID id;
-  FILE *default_output;
   ss_ostream *default_outstream;
   ss_ostream *default_errstream;
   bool remote;
@@ -347,11 +357,11 @@ class CommandWindowID
 
   pthread_mutex_t Log_File_Lock;
   std::string Log_File_Name;
-  FILE *Log_F;
+  ostream *Log_Stream;
   bool Log_File_Is_A_Temporary_File;
 
   std::string Record_File_Name;
-  FILE *Record_F;
+  ostream *Record_Stream;
   bool Record_File_Is_A_Temporary_File;
 
   pthread_mutex_t Cmds_List_Lock;
@@ -376,7 +386,6 @@ class CommandWindowID
  public:
   CommandWindowID ( std::string IAM, std::string  Host, pid_t Process, int64_t Panel, bool async)
     {
-      default_output = NULL;
       default_outstream = ss_out;
       default_errstream = ss_err;
       remote = false;
@@ -387,10 +396,10 @@ class CommandWindowID
       Current_Input_Level = 0;
       Cmd_Count_In_Log_File = 0;
       Log_File_Name = "";
-      Log_F = NULL;
+      Log_Stream = NULL;
       Log_File_Is_A_Temporary_File = false;
       Record_File_Name = "";
-      Record_F = NULL;
+      Record_Stream = NULL;
       Record_File_Is_A_Temporary_File = false;
       Input = NULL;
       Input_Is_Async = async;
@@ -415,10 +424,10 @@ class CommandWindowID
       char base[20];
       snprintf(base, 20, "sstr%lld.XXXXXX",id);
       Log_File_Name = std::string(tempnam ("./", &base[0] )) + ".openss";
-      Log_F  = fopen (Log_File_Name.c_str(), "w");
+      Log_Stream = new ofstream (Log_File_Name.c_str(), ios::out);
       Log_File_Is_A_Temporary_File = true;
       Record_File_Name = "";
-      Record_F = NULL;
+      Record_Stream = NULL;
       Record_File_Is_A_Temporary_File = false;
     }
   ~CommandWindowID()
@@ -430,24 +439,19 @@ class CommandWindowID
      // this entry again.
       id = 0;
      // Remove the log files
-      if ((Log_F != NULL) &&
+      if ((Log_Stream != NULL) &&
           (predefined_filename (Log_File_Name) == NULL)) {
-        fclose (Log_F);
-        Log_F = NULL;
+        delete Log_Stream;
+        Log_Stream = NULL;
         if (Log_File_Is_A_Temporary_File) {
           (void ) remove (Log_File_Name.c_str());
           Log_File_Is_A_Temporary_File = false;
         }
       }
      // Remove the record files
-      if ((Record_F != NULL) &&
-          (predefined_filename (Record_File_Name) == NULL)) {
-        fclose (Record_F);
-        Record_F = NULL;
-        if (Record_File_Is_A_Temporary_File) {
-          (void) remove (Record_File_Name.c_str());
-          Record_File_Is_A_Temporary_File = false;
-        }
+      if ((Record_Stream != NULL) &&
+          (Predefined_ofstream (Record_File_Name) == NULL)) {
+        delete Record_Stream;
       }
      // Remove the input specifiers
       if (Input) {
@@ -609,7 +613,8 @@ class CommandWindowID
     for (cmi = cmd_object.begin(); cmi != cmd_object.end(); ) {
       InputLineObject *L = (*cmi);
       if (!L->Results_Used ()) {
-        if (All_Command_Objects_Are_Used( (*cmi) )) {
+        if (L->Semantics_Complete () &&
+            (All_Command_Objects_Are_Used( (*cmi) ))) {
           if (!(L->CallBackL ()) &&
               (L->What() != ILO_COMPLETE) &&
               (L->What() != ILO_ERROR)) {
@@ -620,7 +625,8 @@ class CommandWindowID
         }
       }
       ++cmi;
-      if (L->Results_Used ()) {
+      if (L->Semantics_Complete () &&
+          (L->Results_Used ())) {
         Complete_Cmds.remove(L);
         delete L;
       }
@@ -682,6 +688,7 @@ class CommandWindowID
       if ((L->What () == ILO_IN_PARSER) &&
           (L->How_Many () == 0)) {
         L->SetStatus (ILO_COMPLETE);
+        L->Set_Semantics_Complete ();
       }
     }
 
@@ -794,10 +801,8 @@ public:
   }
 
   // Field access
-  void    set_output (FILE *output) { default_output = output; }
   void    set_outstream (ss_ostream *output) { default_outstream = output; }
   void    set_errstream (ss_ostream *errput) { default_errstream = errput; }
-  FILE   *output () { return default_output; }
   bool has_outstream () { return (default_outstream != NULL); }
   ostream &outstream () { return default_outstream->mystream(); }
   ss_ostream *ss_outstream () { return default_outstream; }
@@ -817,25 +822,26 @@ public:
  // are associate with a particular input stream to a user defined file.
   void   Print_Log_File ( InputLineObject *clip ) {
     Assert(pthread_mutex_lock(&Log_File_Lock) == 0);
-    if (Log_F != NULL) {
-      clip->Print (Log_F);
+    if (Log_Stream != NULL) {
+      clip->Print (*Log_Stream);
     }
     Assert(pthread_mutex_unlock(&Log_File_Lock) == 0);
   }
   void   Print_Log_File ( CommandObject *C ) {
+    // Assert(pthread_mutex_lock(&Cmds_List_Lock) == 0);
     Assert(pthread_mutex_lock(&Log_File_Lock) == 0);
-    if (Log_F != NULL) {
-      C->Print (Log_F);
+    if (Log_Stream != NULL) {
+      C->Print (*Log_Stream);
     }
     Assert(pthread_mutex_unlock(&Log_File_Lock) == 0);
+    // Assert(pthread_mutex_unlock(&Cmds_List_Lock) == 0);
   }
   bool   Set_Log_File ( std::string tofname ) {
     Assert(pthread_mutex_lock(&Log_File_Lock) == 0);
-    FILE *tof = predefined_filename (tofname);
-    if ((Log_F != NULL) &&
+    ostream *tof = Predefined_ofstream (tofname);
+    if ((Log_Stream != NULL) &&
         (predefined_filename (Log_File_Name) == NULL)) {
      // Copy the old file to the new file.
-      fclose (Log_F);
       if ((tof == NULL)  &&
           (tofname != Log_File_Name)) {
         int64_t len1 = Log_File_Name.length();
@@ -853,30 +859,30 @@ public:
       }
     }
     if (Log_File_Is_A_Temporary_File) {
-      fclose (Log_F);
+      delete Log_Stream;
       (void) remove (Log_File_Name.c_str());
     }
     if (tof == NULL) {
-      tof = fopen (tofname.c_str(), "a");
+      tof = new ofstream (tofname.c_str(), ios::out);
     }
     Log_File_Name = tofname;
-    Log_F  = tof;
+    Log_Stream = tof;
     Log_File_Is_A_Temporary_File = false;
     Assert(pthread_mutex_unlock(&Log_File_Lock) == 0);
-    return (Log_F != NULL);
+    return (Log_Stream != NULL);
   }
   void   Remove_Log_File () {
     Assert(pthread_mutex_lock(&Log_File_Lock) == 0);
-    if ((Log_F != NULL)  &&
+    if ((Log_Stream != NULL)  &&
         (predefined_filename (Log_File_Name) == NULL)) {
-      fclose (Log_F);
+      delete Log_Stream;
       if (Log_File_Is_A_Temporary_File) {
         (void) remove (Log_File_Name.c_str());
       }
     }
     Log_File_Is_A_Temporary_File = false;
     Log_File_Name = std::string("");
-    Log_F = NULL;
+    Log_Stream = NULL;
     Assert(pthread_mutex_unlock(&Log_File_Lock) == 0);
   }
 
@@ -888,15 +894,16 @@ public:
     if (Input) {
       file_was_set = (Input->Set_Record ( tofname ));
     } else {
-      if (Record_F && !Record_File_Is_A_Temporary_File) {
-        fclose (Record_F);
+      if (Record_Stream && !Record_File_Is_A_Temporary_File) {
+        delete Record_Stream;
       }
-      FILE *tof = predefined_filename( tofname );
-      bool is_predefined = (tof != NULL);
-      if (tof == NULL) tof = fopen (tofname.c_str(), "a");
-      Record_File_Is_A_Temporary_File = is_predefined;
+      ostream *tof = Predefined_ofstream (tofname);
       Record_File_Name = tofname;
-      Record_F = tof; 
+      Record_File_Is_A_Temporary_File = (tof != NULL);
+      if (tof == NULL) {
+        tof = new ofstream (tofname.c_str(), ios::out);
+      }
+      Record_Stream = tof;
       file_was_set = (tof != NULL);
     }
     Assert(pthread_mutex_unlock(&Log_File_Lock) == 0);
@@ -907,31 +914,31 @@ public:
     if (Input) {
       Input->Remove_Record ();
     } else {
-      if (Record_F && !Record_File_Is_A_Temporary_File) {
-        fclose (Record_F);
+      if (Record_Stream && !Record_File_Is_A_Temporary_File) {
+        delete Record_Stream;
       }
       Record_File_Is_A_Temporary_File = false;
       Record_File_Name = std::string("");
-      Record_F = NULL;
+      Record_Stream = NULL;
     }
     Assert(pthread_mutex_unlock(&Log_File_Lock) == 0);
   }
   void Record (InputLineObject *clip) {
     Assert(pthread_mutex_lock(&Log_File_Lock) == 0);
-    FILE *rf = NULL;
+    ostream *tof = NULL;
     bool is_predefined = false;
     if (Input) {
-      rf = Input->Record_File();
+      tof = Input->Record_Ostream();
       is_predefined = Input->Record_File_Is_Predefined();
     } else {
-      rf = Record_F;
+      tof = Record_Stream;
       is_predefined = Record_File_Is_A_Temporary_File;
     }
-    if (rf) {
-      fprintf(rf,"%s", clip->Command().c_str());  // Commands have a "\n" at the end.
+    if (tof != NULL) {
+      *tof << clip->Command();  // Commands have a "\n" at the end.
       if (is_predefined) {
        // Record_File is something like stdout, so push the message out to user.
-        fflush (rf);
+        *tof << std::flush;
       }
     }
     Assert(pthread_mutex_unlock(&Log_File_Lock) == 0);
@@ -1138,7 +1145,7 @@ bool All_Command_Objects_Are_Used (InputLineObject *clip) {
   std::list<CommandObject *>::iterator coi;
   for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
     if (!((*coi)->Results_Used())) {
-/* TEST */
+     // Try to outputthe results and set Results_Used.
       CommandObject *co = *coi;
       if ((co->Status() == CMD_COMPLETE) ||
           (co->Status() == CMD_ERROR)) {
@@ -1167,17 +1174,14 @@ bool All_Command_Objects_Have_Executed (InputLineObject *clip) {
 }
 
 void Clip_Complete (InputLineObject *clip) {
-  (void)(clip->CallBackL ());
 }
 
 void Cmd_Obj_Complete (CommandObject *C) {
   InputLineObject *clip = C->Clip();
-/* TEST
-  (void)(clip->CallBackC (C));
-TEST */
 
   if (!clip->Complex_Exp()) {
    // If output has been completed, issue a prompt
+    clip->Set_Semantics_Complete ();
     CMDWID w = clip->Who();
     CommandWindowID *cw = (w) ? Find_Command_Window (w) : NULL;
     if (cw != NULL) cw->Remove_Completed_Input_Lines (true);
@@ -1256,7 +1260,7 @@ EXPID Experiment_Focus (CMDWID WindowID, EXPID ExperimentID)
 }
 
 static bool Read_Log_File_History (CommandObject *cmd, enum Log_Entry_Type log_type,
-                                   std::string fname, FILE *TFile)
+                                   std::string fname, ostream *toStream)
 {
   FILE *cmdf = fopen (fname.c_str(), "r");
   struct stat stat_buf;
@@ -1309,12 +1313,12 @@ static bool Read_Log_File_History (CommandObject *cmd, enum Log_Entry_Type log_t
           break;
       }
       if (dump_this_record) {
-        if (TFile == NULL) {
+        if (toStream == NULL) {
           *(s+len-1) = *("\0");
           cmd->Result_String (t);
         } else {
           *(s+len-1) = *("\n");
-          fprintf(TFile,"%s",t);
+          *toStream << t;
         }
       }
     }
@@ -1360,21 +1364,18 @@ void Commander_Initialization () {
   class err_ostream : public ss_ostream {
    private:
     virtual void output_string (std::string s) {
-      // fprintf(stderr,"%s",s.c_str());
+      cerr << s;
     }
     virtual void flush_ostream () {
-      // fflush(stderr);
       cerr << std::flush;
     }
   };
   class out_ostream : public ss_ostream {
    private:
     virtual void output_string (std::string s) {
-      // fprintf(stdout,"%s",s.c_str());
       cout << s;
     }
     virtual void flush_ostream () {
-      // fflush(stdout);
       cout << std::flush;
     }
   };
@@ -1407,11 +1408,9 @@ CMDWID TLI_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel,
   class tli_ostream : public ss_ostream {
    private:
     virtual void output_string (std::string s) {
-      // fprintf(ttyout,"%s",s.c_str());
       *ttyout_stream << s;
     }
     virtual void flush_stream () {
-      // fflush(ttyout);
       *ttyout_stream << std::flush;
     }
   };
@@ -1567,21 +1566,6 @@ void Redirect_Window_Output (CMDWID for_window, ss_ostream *for_out, ss_ostream 
   }
 }
 
-ss_ostream *Predefined_ostream (std::string oname)
-{
-  if (oname.length() == 0) {
-    return NULL;
-  } if (oname == "stdout") {
-    return ss_out;
-  } else if (oname == "stderr") {
-    return ss_err;
-  } else if (oname == "/dev/tty") {
-    return ss_ttyout;
-  } else {
-    return NULL;
-  }
-}
-
 ss_ostream *Window_outstream (CMDWID for_window) {
   CommandWindowID *cw = Find_Command_Window (for_window);
   return (cw != NULL) ? cw->ss_outstream() : NULL;
@@ -1597,7 +1581,7 @@ static std::string Window_Name (CMDWID issuedbywindow) {
   return ((cw == NULL) ? "DEAD" : cw->IAM());
 }
 
-static void Internal_Info_Dump (CMDWID issuedbywindow) {
+void Internal_Info_Dump (CMDWID issuedbywindow) {
   bool Fatal_Error_Encountered = false;
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
   if ((cw == NULL) || (cw->ID() == 0)) {
@@ -1653,7 +1637,7 @@ static void Internal_Info_Dump (CMDWID issuedbywindow) {
   Assert(!Fatal_Error_Encountered);
 }
 
-static void User_Info_Dump (CMDWID issuedbywindow) {
+void User_Info_Dump (CMDWID issuedbywindow) {
   bool Fatal_Error_Encountered = false;
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
   std::list<CommandWindowID *>::reverse_iterator cwi;
@@ -2031,54 +2015,34 @@ bool Push_Input_File (CMDWID issuedbywindow, std::string fromfname,
 void ReDirect_User_Stdout (const char *S, const int &len, void *tag) {
   CMDWID to_window = (CMDWID)tag;
   CommandWindowID *cw = (to_window) ? Find_Command_Window (to_window) : NULL;
+  ss_ostream *this_ss_stream = ((cw != NULL) &&
+                                cw->has_outstream()) ? cw->ss_outstream() : ss_out;
 
-  if ((cw != NULL) &&
-      cw->has_outstream()) {
-    ss_ostream *this_ss_stream = cw->ss_outstream();
+  if (this_ss_stream != NULL) {
     this_ss_stream->acquireLock();
     ostream &mystream = this_ss_stream->mystream();
     mystream.write( S, len);
     this_ss_stream->releaseLock();
   } else {
-    FILE *outfile = (cw) ? cw->output() : NULL;
-    if (outfile == NULL) {
-      outfile = stdout;
-      if ((ttyout != NULL)  &&
-          isatty(fileno(outfile))) {
-        outfile = ttyout;
-      }
-    }
-    for (int i = 0; i < len; i++) {
-      fputc ((S[i]), outfile);
-    }
-    fflush(outfile);
+    cout.write( S, len );
+    cout << flush;
   }
 }
 
 void ReDirect_User_Stderr (const char *S, const int &len, void *tag) {
   CMDWID to_window = (CMDWID)tag;
   CommandWindowID *cw = (to_window) ? Find_Command_Window (to_window) : NULL;
+  ss_ostream *this_ss_stream = ((cw != NULL) &&
+                                cw->has_errstream()) ? cw->ss_errstream() : ss_err;
 
-  if ((cw != NULL) &&
-      cw->has_errstream()) {
-    ss_ostream *this_ss_stream = cw->ss_errstream();
+  if (this_ss_stream != NULL) {
     this_ss_stream->acquireLock();
     ostream &mystream = this_ss_stream->mystream();
     mystream.write( S, len);
     this_ss_stream->releaseLock();
   } else {
-    FILE *errfile = (cw) ? cw->output() : NULL;
-    if (errfile == NULL) {
-      errfile = stderr;
-      if ((ttyout != NULL)  &&
-          isatty(fileno(errfile))) {
-        errfile = ttyout;
-      }
-    }
-    for (int i = 0; i < len; i++) {
-      fputc (S[i], errfile);
-    }
-    fflush(errfile);
+    cerr.write( S, len );
+    cerr << flush;
   }
 }
 
@@ -2118,15 +2082,7 @@ void Default_TLI_Command_Output (CommandObject *C) {
         C->Print_Results (this_ss_stream->mystream(), "\n", "\n");
         this_ss_stream->releaseLock();
       } else {
-        FILE *outfile = (cw) ? cw->output() : NULL; // (C->Status() == CMD_ERROR) ? stderr : stdout;
-        if (outfile == NULL) {
-          outfile = (C->Status() == CMD_ERROR) ? stderr : stdout;
-          if ((ttyout != NULL)  &&
-              isatty(fileno(outfile))) {
-            outfile = ttyout;
-          }
-        }
-
+        FILE *outfile = (C->Status() == CMD_ERROR) ? stderr : stdout;
         if (C->Print_Results (outfile, "\n", "\n") &&
               cw->Async()) {
          // Re-issue the prompt
@@ -2345,11 +2301,16 @@ window_found:
 }
 
 static void There_Must_Be_More_Input (CommandWindowID *cw) {
-  if ((cw == NULL) || (!cw->Input_Available())) {
-    FILE *ef = ((ttyout != NULL)  && isatty(fileno(stderr))) ? ttyout : stderr;
-    fprintf(ef,"ERROR: The input source that started a complex statement"
-                   " failed to complete the expression.\n");
-    fflush (ef);
+  if ((cw != NULL) &&
+      (!cw->Input_Available()) &&
+      (cw->has_outstream())) {
+    ss_ostream *this_ss_stream = (cw->has_errstream())
+                                     ? cw->ss_errstream() : cw->ss_outstream();
+    this_ss_stream->acquireLock();
+    this_ss_stream->mystream()
+                << "ERROR: The input source that started a complex statement" 
+                   " failed to complete the expression.\n";
+    this_ss_stream->releaseLock();
     Assert (cw->Input_Available());
   }
 }
