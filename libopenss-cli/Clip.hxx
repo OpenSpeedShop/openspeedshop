@@ -104,7 +104,6 @@ class InputLineObject
     }
   ~InputLineObject ()
     {
-      Assert (semantics_complete);
       std::list<CommandObject *> cmd_object = Cmd_Obj;
       std::list<CommandObject *>::iterator coi;
       for (coi = cmd_object.begin(); coi != cmd_object.end(); ) {
