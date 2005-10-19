@@ -50,6 +50,7 @@ class InputLineObject
   std::string command;		// The actual command to be executed.
 
  // The following fields contain "result" information.
+  bool semantics_complete;      // Only status and results will be accessed.
   bool results_used;            // This object is no longer needed
   void *LocalCmdId;             // Optional ID to be used by the output routine.
   void (*CallBackLine) (InputLineObject *b);  // Optional call back function to notify output routine.
@@ -58,14 +59,6 @@ class InputLineObject
   oss_cmd_enum cmd_type;	// Filled in when the parser determines the type of command.
   int64_t Num_Cmd_Objs;         // Count the number of CommandObjects on the list.
   std::list<CommandObject *> Cmd_Obj;  // list of associated command objects
-
- public:
-  void status_change () {
-      Default_Log_Output (this);
-  }
-  virtual void issue_msg (char *msg) {fprintf(stdout,"%s\n",msg);}
-  virtual void result_int (int64_t a) {fprintf(stdout,"TLI: %lld\n",a);}
-  virtual void result_char (char *a) {fprintf(stdout,"%s\n",a);}
 
  private:
   void Basic_Initialization ()
@@ -77,6 +70,7 @@ class InputLineObject
       complex_expression = false;
       command = std::string("");
       msg_string = std::string("");
+      semantics_complete = false;
       results_used = false;
       LocalCmdId = NULL;
       CallBackLine = NULL;
@@ -110,6 +104,7 @@ class InputLineObject
     }
   ~InputLineObject ()
     {
+      Assert (semantics_complete);
       std::list<CommandObject *> cmd_object = Cmd_Obj;
       std::list<CommandObject *>::iterator coi;
       for (coi = cmd_object.begin(); coi != cmd_object.end(); ) {
@@ -124,7 +119,7 @@ class InputLineObject
     if (status != ILO_ERROR) {
       cmd_time = time(0);
       status = st;
-      status_change ();
+      Default_Log_Output (this);
     }
   }
   void SetSeq (CMDID seq) {seq_num = seq;}
@@ -135,6 +130,8 @@ class InputLineObject
   CMDID Where () { return seq_num; }
   int64_t How_Many () { return Num_Cmd_Objs; }
   bool Complex_Exp () { return complex_expression; }
+  bool Semantics_Complete () { return semantics_complete; }
+  void Set_Semantics_Complete () { semantics_complete = true; }
   bool Results_Used () { return results_used; }
   std::list<CommandObject *> CmdObj_List () { return Cmd_Obj; }
   void *CallBackId () { return LocalCmdId; }
@@ -287,10 +284,6 @@ class InputLineObject
 class TLI_InputLineObject : public InputLineObject
 {
  public:
-  virtual void issue_msg (char *msg) {fprintf(stdout,"%s\n",msg);}
-  virtual void result_int (int64_t a) {fprintf(stdout,"TLI: %lld\n",a);}
-  virtual void result_char (char *a) {fprintf(stdout,"%s\n",a);}
-
   TLI_InputLineObject (CMDWID From, std::string Cmd) :
     InputLineObject (From, Cmd)
     { }
@@ -299,10 +292,6 @@ class TLI_InputLineObject : public InputLineObject
 class GUI_InputLineObject : public InputLineObject
 {
  public:
-  virtual void issue_msg (char *msg) {fprintf(stdout,"%s\n",msg);}
-  virtual void result_int (int64_t a) {fprintf(stdout,"GUI: %lld\n",a);}
-  virtual void result_char (char *a) {fprintf(stdout,"%s\n",a);}
-
   GUI_InputLineObject (CMDWID From, std::string Cmd) :
     InputLineObject (From, Cmd)
     { }
@@ -311,10 +300,6 @@ class GUI_InputLineObject : public InputLineObject
 class RLI_InputLineObject : public InputLineObject
 {
  public:
-  virtual void issue_msg (char *msg) {fprintf(stdout,"%s\n",msg);}
-  virtual void result_int (int64_t a) {fprintf(stdout,"RLI: %lld\n",a);}
-  virtual void result_char (char *a) {fprintf(stdout,"%s\n",a);}
-
   RLI_InputLineObject (CMDWID From, std::string Cmd) :
     InputLineObject (From, Cmd)
     { }
