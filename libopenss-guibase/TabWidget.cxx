@@ -150,6 +150,6 @@ TabWidget::splitVertical()
 void
 TabWidget::panelContainerMenu()
 {
-  _panelContainer->getMasterPC()->panelContainerContextMenuEvent( _panelContainer, TRUE );
   menuButton->setDown(FALSE);
+  _panelContainer->getMasterPC()->panelContainerContextMenuEvent( _panelContainer, TRUE );
 }
