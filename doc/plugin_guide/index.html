@@ -28,8 +28,7 @@ Overview and Information Resources</a>
         </ul>
       </li>
       <li><a href="#mozTocId11413">Open|SpeedShop Plugin
-Overview
-        </a></li>
+Overview </a></li>
       <li><a href="#mozTocId732797">Performance Data
 Collector Plugin Information</a>
         <ul>
@@ -43,8 +42,7 @@ Collector Plugin</a>
               <li><a href="#mozTocId667687">Server - Collector
 Runtime</a></li>
               <li><a href="#mozTocId637965">Client - Collector
-Plugin&nbsp;
-                </a>
+Plugin&nbsp; </a>
                 <ul>
                   <li><a href="#mozTocId388988">Start Collecting</a></li>
                   <li><a href="#mozTocId992246">Stop Collecting</a></li>
@@ -60,8 +58,7 @@ Plugin&nbsp;
         </ul>
       </li>
       <li><a href="#mozTocId212847">Graphical User
-Interface Plugin Information
-        </a>
+Interface Plugin Information </a>
         <ul>
           <li><a href="#mozTocId930728">Creating A
 Graphical User Interface Panel</a></li>
@@ -72,8 +69,7 @@ User Interface Plugin</a></li>
         </ul>
       </li>
       <li><a href="#mozTocId1574">Command Line
-Interface Plugin Information
-        </a></li>
+Interface Plugin Information </a></li>
     </ul>
   </li>
 </ul>
@@ -103,7 +99,8 @@ The infrastructure and base components of Open|SpeedShop are being
 released open source under GPL and LGPL.
 <h4><a class="mozTocH4" name="mozTocId507487"></a>Features:</h4>
 <ul>
-  <li>Three modes of operation: batch, command line interface, and
+  <li>Three modes of operation: batch, interactive command line
+interface, and
 graphical user interface.</li>
   <li>Multiple platform single system image (SSI), traditional cluster,
 and SGI super cluster support.</li>
@@ -123,9 +120,11 @@ symbol information to do post experiment performance analysis.</li>
 ranks, or to compare current experiment results with previous
 experiment results.</li>
   <li>GUI Wizard facility and context sensitive help to aid in tools
-usability.&nbsp;&nbsp; Multiple usability studies have been conducted.</li>
+usability.&nbsp; <br>
+  </li>
   <li>CLI help facility which lists the CLI commands, syntax, and
-typical usage.&nbsp; Usability studies are underway.</li>
+typical usage. <br>
+  </li>
 </ul>
 Additional information about Open|SpeedShop usage and design can be
 found in a number of Open|SpeedShop documents.&nbsp; The currently
@@ -358,6 +357,7 @@ collector,<br>
 const Thread &amp; thread ) const<br>
 <p></p>
 <dl compact="compact">
+  <dt><small><b>Parameters:</b></small></dt>
   <dt>The meaning or definitions for the arguments above are summarized
 here:<span style="font-weight: bold;"></span></dt>
 </dl>
@@ -380,6 +380,7 @@ const Thread &amp; thread ) const<br>
 <p>
 </p>
 <dl compact="compact">
+  <dt><small><b>Parameters:</b></small></dt>
   <dt>The meaning or definitions for the arguments above are summarized
 here:<span style="font-weight: bold;"></span></dt>
 </dl>
@@ -410,7 +411,7 @@ const Blob&amp; blob,<br>
 const ExtentGroup&amp; subextents,<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 void* ptr) const<br>
-<br>
+<small><b>Parameters:</b></small><br>
 The meaning or definitions for the arguments above are summarized here:<br>
 <ol>
   <li>metric - Unique identifier of the metric</li>
@@ -435,14 +436,16 @@ Blob&amp; data) const<br>
 </p>
 <p></p>
 <dl compact="compact">
-  <dt><b>Parameters:</b></dt>
+  <small> </small><dt><small><b>Parameters:</b></small></dt>
+  <small></small>
 </dl>
 <ol>
   <li>parameter - Unique identifier of the input parameter to be set</li>
   <li>ptr - Untyped pointer to the parameter value</li>
 </ol>
 <dl compact="compact">
-  <dt><b>Return values:</b></dt>
+  <small> </small><dt><small><b>Return values:</b></small></dt>
+  <small></small>
 </dl>
 <ol>
   <li>data - blob containing the parameter values for the collector<br>
@@ -456,19 +459,45 @@ This is an example definition from the Open|SpeedShop Usertime
 Collector Plugin:<br>
 <br>
 Blob UserTimeCollector::getDefaultParameterValues() const<br>
-<br>
+<dl compact="compact">
+  <dt><small><b>Return values:</b></small></dt>
+</dl>
+<ol>
+  <li>data - Blob containing the default parameter values.</li>
+</ol>
 <h5><a class="mozTocH5" name="mozTocId769605"></a>Get Parameters</h5>
+<small><b>What it does:</b></small><br>
 The get a parameter function implements getting one of the collector
 parameter values.<br>
 <br>
+<small><b>Definition:</b></small><br>
 This is an example definition from the Open|SpeedShop Usertime
 Collector Plugin:<br>
-<br>
 void UserTimeCollector::getParameterValue(const std::string&amp;
 parameter,<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 const Blob&amp; data, void* ptr) const<br>
+<dl compact="compact">
+  <dt><small><b>Parameters:</b></small></dt>
+</dl>
+<ol>
+  <li>parameter - Unique identifier of the input parameter to be get.</li>
+  <li>data - blob containing the parameter values for the collector</li>
+</ol>
+<dl compact="compact">
+  <dt><small><b>Return values:</b></small></dt>
+</dl>
+<ol>
+  <li>ptr - Untyped pointer to the parameter value</li>
+</ol>
+<small><b>What is in the function body:<br>
 <br>
+</b></small>The body of the getParameterValue function decodes the data
+blob containing the parameter values using XDR (External Data
+Representation).<br>
+<small><b><br>
+<br>
+</b></small>
 <h3><a class="mozTocH3" name="mozTocId846999"></a><a
  name="Example_Collector_Plugin"></a>Example Collector Plugin</h3>
 <br>
@@ -493,6 +522,7 @@ also provided along with the example code.<br>
 <h3><a class="mozTocH3" name="mozTocId930728"></a><a
  name="Creating_The_Graphical_User_Interface"></a>Creating A
 Graphical User Interface Panel</h3>
+<h4>Initial Skeletal Panel Creation - mknewpanel script</h4>
 The "mknewpanel" script creates a basic Open|SpeedShop GUI Panel which
 can then be modified to integrate with the core functionality of
 Open|SpeedShop.&nbsp;&nbsp; This script can be found in the
@@ -503,16 +533,88 @@ same information can be obtained by running the "mknewpanel" script
 without any arguments.&nbsp; The script modifies the TemplatePanel
 sources in the TemplatePanel directory and creates a new subdirectory
 under "plugins/panels" using the information given to it by the plugin
-developer running the script.&nbsp;&nbsp; Once the GUI plugin developer
+developer running the script.&nbsp;&nbsp; <br>
+<br>
+Here is the example output from the "mknewpanel" script creating a
+Panel named "Test Panel" that will appear under the Performance menu in
+Open|SpeedShop.&nbsp; Note that the initial execution of the Linux
+command "ls" on the "plugins/panels" directory shows no directory named
+"TestPanel".<br>
+$ ls ..<br>
+CmdPanel&nbsp;&nbsp; FPE_TracingPanel&nbsp;
+Makefile&nbsp;&nbsp;&nbsp;&nbsp; ManageProcessesPanel&nbsp;
+mysed&nbsp;&nbsp; StatsPanel<br>
+CustomExperimentPanel&nbsp; HW_CounterPanel&nbsp;&nbsp;
+Makefile.am&nbsp; MPIPanel&nbsp;&nbsp;&nbsp; pcSamplePanel&nbsp;
+TemplatePanel<br>
+DebugPanel&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+IOPanel&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Makefile.in&nbsp;
+mvover&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SourcePanel&nbsp;&nbsp;&nbsp; UserTimePanel<br>
+<br>
+Now we run the "./mknewpanel" script which creates the TestPanel
+subdirectory in "plugins/panels".<br>
+<br>
+$&nbsp; ./mknewpanel ../TestPanel TestPanel TestPanel "Test Panel"
+"Cntrl B" 1 Performance<br>
+PANEL_DIR=../TestPanel<br>
+PANEL_NAME=TestPanel<br>
+MENU_HEADING=TestPanel<br>
+MENU_LABEL=Test Panel<br>
+MENU_ACCEL=Cntrl B<br>
+SHOW_IMMEDIATE=Performance<br>
+PLUGIN_GROUPING=Performance<br>
+Preparing to create your new TestPanel files.<br>
+Succeeded: Finished creating files in ../TestPanel.<br>
+You'll now need to edit the panels/Makefile.am to add this new
+directory to the build list.<br>
+You'll also need to modify the top level configure.ac file to add the
+new directory to the list of directories to have makefiles created.<br>
+<br>
+When we do a "ls" Linux command for the "plugins/panels" directory we
+now see a ""TestPanel subdirectory has been created.<br>
+$ ls ..<br>
+CmdPanel&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+HW_CounterPanel&nbsp;
+Makefile.in&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+mysed&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+TemplatePanel<br>
+CustomExperimentPanel&nbsp;
+IOPanel&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ManageProcessesPanel&nbsp; pcSamplePanel&nbsp; <span
+ style="font-weight: bold;">TestPanel</span><br>
+DebugPanel&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Makefile&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+MPIPanel&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SourcePanel&nbsp;&nbsp;&nbsp; UserTimePanel<br>
+FPE_TracingPanel&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Makefile.am&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+mvover&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+StatsPanel<br>
+<br>
+Doing a list of the files in the "TestPanel" subdirectory, we see that
+the "mknewpanel" script has modified the "TemplatePanel" template code
+and created similar files but renamed "TestPanel".<br>
+<br>
+Once the GUI plugin developer
 modifies Open|SpeedShop's "configure.ac" (both in the top source
 directory) and "Makefile.am" (in plugins/panels directory) files to
-include the newly created panels, the menu item representing the panel
+include the newly created panels and rebuilds Open|SpeedShop, the menu
+item representing the panel
 will be displayed under the menu that the GUI plugin developer provided
-to the mknewpanel script.&nbsp;&nbsp; In "configure.ac" add the
+to the mknewpanel script.&nbsp;&nbsp; <br>
+<ul>
+  <li>In "configure.ac" add the
 directory path to the newly created GUI plugin anywhere after the list
-of "panel/plugins/&lt;panel name&gt;/Makefile"
-entries.&nbsp;&nbsp;&nbsp; In "Makefile.am" add the name of the newly
-created GUI plugin panel directory into the "SUBDIRS" list.<br>
+of "plugins/panels/&lt;panel name&gt;/Makefile"
+entries.&nbsp;&nbsp; In this example, add
+"plugins/panels/TestPanel/Makefile". <br>
+  </li>
+  <li>In "Makefile.am" add the name of the newly
+created GUI plugin panel directory into the "SUBDIRS" list.</li>
+</ul>
+<br>
 <br>
 <br>
 <h3><a class="mozTocH3" name="mozTocId963628"></a><a
