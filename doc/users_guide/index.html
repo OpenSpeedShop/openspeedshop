@@ -3,7 +3,7 @@
 <head>
   <meta content="text/html; charset=ISO-8859-1"
  http-equiv="content-type">
-  <title>Open/SpeedShop User's Guide (Milesone 5)</title>
+  <title>Open/SpeedShop User's Guide (Developer Beta 11-13-05)</title>
   <style type="text/css">
    H1 {border-width: 1; border: solid; text-align: center}
   <style>
@@ -20,16 +20,15 @@ w\:* {behavior:url(#default#VML);}
 <span style="text-decoration: underline;"></span></div>
 <div class="moz-text-html" lang="x-western">
 <div style="text-align: center;">
-<div class="Section1">
-<br>
+<div class="Section1"><br>
 <p class="MsoNormal" style="text-align: center; color: rgb(0, 0, 102);"
  align="center"><b style=""><span
  style="font-size: 22pt; font-family: SGIAlt;">Open|SpeedShop
-Users Guide</span></b></p>
-<p class="MsoNormal" style="text-align: center; color: rgb(0, 0, 102);"
- align="center"><b style=""><span
- style="font-size: 22pt; font-family: SGIAlt;">First Public
-Release: November 13, 2005</span></b></p>
+Users Guide<br>
+</span></b><big><span style="font-weight: bold;">Developer
+Beta Release</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">November 13, 2005</span></big><br>
+</p>
 <div class="Section2"><b style=""><br style="" clear="all">
 </b>
 <p style="text-align: left;" class="MsoNormal"><b style=""><b style=""><span
@@ -75,7 +74,7 @@ Platforms:</a></li>
 Build
 component RPM versions:
             </a></li>
-          <li><a href="#mozTocId883409">OVERVIEW
+          <li><a href="#mozTocId883409">Overview
 - Setting up
 new machine for development on Open|SpeedShop
             </a>
@@ -140,7 +139,7 @@ Open|SpeedShop Tests</a></li>
     </ul>
   </li>
   <li><a href="#mozTocId84094">Open|SpeedShop
-Tools</a>
+Tools Information</a>
     <ul>
       <li><a href="#mozTocId800987">Open|SpeedShop
 Invocation Command&nbsp; "openss"</a>
@@ -315,33 +314,7 @@ Command Tool </a></li>
 API
     </a></li>
   <li><a href="#mozTocId525838">Plugin
-API (Extensibility)&nbsp; Description</a>
-    <ul>
-      <li><a href="#mozTocId579715">Experiment Collector Plugin
-Definition</a>
-        <ul>
-          <li><a href="#mozTocId567891">Collector Plugin FAQ:
-            </a>
-            <ul>
-              <li><a href="#mozTocId434199">What is blob.x for? What is
-the significance of the .x suffix?
-                </a></li>
-              <li><a href="#mozTocId103794">What is
-specifically needed to be known by the framework? Do these class
-structures need to follow a
-particular convention?</a></li>
-            </ul>
-          </li>
-        </ul>
-      </li>
-      <li><a href="#mozTocId256495">Graphical
-User
-Interface Panel Plugin Definition</a></li>
-      <li><a href="#mozTocId456431">Command
-Line
-Interface Plugin Definition</a></li>
-    </ul>
-  </li>
+API (Extensibility)&nbsp; Description</a></li>
   <li><a href="#mozTocId145888">Appendix
 A: Command Syntax
 Description</a></li>
@@ -445,15 +418,16 @@ meanings,
 therefore this section attempts to explain and clarify the meanings of
 the terms used in this document.&nbsp; <br>
 </blockquote>
-<div style="text-align: left; margin-left: 40px;">
+<div style="text-align: left; margin-left: 40px;"><big>
+</big>
 <ul>
-  <li><font size="2"><font size="2"><i style="font-weight: bold;">Experiment</i><span
+  <big> </big><li><i style="font-weight: bold;">Experiment</i><span
  style="font-weight: bold;">:</span>
 A set
 of collectors and
 executables
-bound together to generate performance metric </font></font></li>
-  <li><font size="2"><font size="2"><i style="font-weight: bold;">Component(s):</i>&nbsp;
+bound together to generate performance metrics. </li>
+  <li><i style="font-weight: bold;">Component(s):</i>&nbsp;
 A
 somewhat self-contained section of the Open|SpeedShop performance
 tool.&nbsp;&nbsp; This section of code does a set of specific related
@@ -461,8 +435,8 @@ tasks for the tool.&nbsp;&nbsp; For example, the GUI component does all
 the tasks related to displaying Open|SpeedShop wizards, experiment
 creation, and results using a graphical user interface.&nbsp;&nbsp; The
 CLI component does similar functions but uses the interactive command
-line delivery method.</font></font></li>
-  <li><font size="2"><font size="2"><i style="font-weight: bold;">Collector</i><span
+line delivery method.</li>
+  <li><i style="font-weight: bold;">Collector</i><span
  style="font-weight: bold;">:</span>
 The
 portion of the tool containing logic
@@ -470,30 +444,30 @@ that is
 responsible for the gathering of the performance
 metric.&nbsp;&nbsp;&nbsp; A collector is a portion of the code that is
 included
-in the experiment plugin.</font></font></li>
-  <li><font size="2"><font size="2"><i style="font-weight: bold;">Metric</i><span
+in the experiment plugin.</li>
+  <li><i style="font-weight: bold;">Metric</i><span
  style="font-weight: bold;">:</span>
 The
 entity, which the collector/experiment
 is gathering.&nbsp;
 A time, occurrence counter, or other entity, which reflects in some way
 on the applications performance and is gathered by a performance
-experiment (by the collector).</font></font> </li>
-  <li><font size="2"><font size="2"><i style="font-weight: bold;">Framework</i><span
+experiment (by the collector). </li>
+  <li><i style="font-weight: bold;">Framework</i><span
  style="font-weight: bold;">:</span>&nbsp;
 The set of API functions that
 allows the user
 interface to manage the creation and viewing of performance
 experiments.&nbsp; It is the interface between the&nbsp; user interface
-and the cluster support and dynamic instrumentation components.</font></font></li>
-  <li> <font size="2"><font size="2"><i style="font-weight: bold;">Plugin:</i>&nbsp;
+and the cluster support and dynamic instrumentation components.</li>
+  <li> <i style="font-weight: bold;">Plugin:</i>&nbsp;
 A
 portion of the performance tool that can be loaded and included in the
 tool at tool start-up time.&nbsp; Development of the plugin uses a tool
 specific interface (API) so that the plugin, and the tool it is to be
 included in, know how to interact with each other.&nbsp;&nbsp; Plugins
 are normally placed in a specific directory so that the tool knows
-where to find the plugins.</font></font></li>
+where to find the plugins.</li>
 </ul>
 </div>
 </div>
@@ -533,7 +507,8 @@ relevant section in the remainder of this chapter.<br>
 </p>
 <div class="table">
 <p><b>Table: Summary of Experiments</b></p>
-<table style="text-align: left; margin-left: 0px; margin-right: auto;"
+<table
+ style="text-align: left; margin-left: 0px; margin-right: auto; width: 737px; height: 909px;"
  summary="Summary of Experiments" border="1">
   <colgroup><col char="c" align="left"><col char="c" align="left"><col
  char="c" align="left"></colgroup><thead valign="bottom"><tr
@@ -580,8 +555,8 @@ clock cycles, graduated instructions, primary instruction cache misses,
 secondary instruction cache misses, primary data cache misses,
 secondary data cache misses, translation lookaside buffer (TLB) misses,
 and graduated floating-point instructions.&nbsp; PC sampling is
-used.&nbsp;&nbsp; See&nbsp;<a
- href="OpenSpeedShopUsersGuide.html#HW_Counter_Experiment">"Hardware
+used.&nbsp;&nbsp; <br>
+See&nbsp;<a href="OpenSpeedShopUsersGuide.html#HW_Counter_Experiment">"Hardware
 Counter Experiments (hwc)"</a></p>
       </td>
     </tr>
@@ -594,8 +569,8 @@ Counter Experiments (hwc)"</a></p>
       </td>
       <td char="c" align="left" valign="top">
       <p>Similar to <tt>hwc</tt> experiment, except that callstack
-sampling is used. See <a
- href="OpenSpeedShopUsersGuide.html#HW_Counter_Experiment"
+sampling is used. <br>
+See <a href="OpenSpeedShopUsersGuide.html#HW_Counter_Experiment"
  title="Hardware Counter Experiments (*_hwc, *_hwctime)">&#8220;Hardware
 Counter Experiments (hwctime)&#8221;</a>.</p>
       </td>
@@ -623,8 +598,8 @@ Not implemented as of October 2005.<br>
       <p><tt>mpi</tt> performance is poor.</p>
       </td>
       <td char="c" align="left" valign="top">
-      <p>Traces and times calls to various MPI routines. See <a
- href="OpenSpeedShopUsersGuide.html#MPI_Experiment"
+      <p>Traces and times calls to various MPI routines. <br>
+See <a href="OpenSpeedShopUsersGuide.html#MPI_Experiment"
  title="MPI Call Tracing Experiment (mpi/mpi_trace)">&#8220;MPI Call Tracing
 Experiment (mpi)&#8221;</a><br>
 Not implemented as of October 2005.<br>
@@ -641,8 +616,8 @@ Not implemented as of October 2005.<br>
       <td char="c" align="left" valign="top">
       <p>Actual CPU time at the
 source line, machine instruction, and function levels by sampling the
-program counter at 10 or 1-millisecond intervals. See <a
- href="OpenSpeedShopUsersGuide.html#PC_Sampling_Experiment"
+program counter at 10 or 1-millisecond intervals. <br>
+See <a href="OpenSpeedShopUsersGuide.html#PC_Sampling_Experiment"
  title="PC Sampling Experiment (pcsamp)">&#8220;PC
 Sampling Experiment (pcsamp)&#8221;</a>.</p>
       </td>
@@ -656,8 +631,8 @@ Sampling Experiment (pcsamp)&#8221;</a>.</p>
       </td>
       <td char="c" align="left" valign="top">
       <p>Inclusive and exclusive CPU time for each function by sampling
-the callstack at 30-millisecond intervals. See <a
- href="OpenSpeedShopUsersGuide.html#User_Time_Experiment"
+the callstack at 30-millisecond intervals. <br>
+See <a href="OpenSpeedShopUsersGuide.html#User_Time_Experiment"
  title="Call Stack Profiling Experiment (usertime/totaltime)">&#8220;User
 Time Experiment (usertime)&#8221;</a>.</p>
       </td>
@@ -673,7 +648,12 @@ Re-examining Performance Data With Open|SpeedShop</h3>
 Open|SpeedShop tools allow for the gathering of performance data
 through the specification of experiments as mentioned in the sections
 above.&nbsp;&nbsp; This performance data can be saved into an
-experiment file<br>
+experiment file.&nbsp;&nbsp; Once the experiment data is saved into a
+named experiment file, Open|SpeedShop can be exited without losing any
+performance data.&nbsp;&nbsp;&nbsp; Open|SpeedShop can be invoked at a
+later date to analyse or print the saved experiment performance data by
+using the open saved experiment menu item under the "File" menu.<br>
+<br>
 </div>
 <p style="text-align: left;" class="MsoBodyText"><span
  style="font-family: times new roman,times,serif;"></span></p>
@@ -945,7 +925,7 @@ components require qt3-devel-doc and qt3-devel-tools in addition to
 qt3-devel.<br>
   </li>
 </ol>
-<h3 style="margin-left: 40px;"><a class="mozTocH3" name="mozTocId883409"></a>OVERVIEW
+<h3 style="margin-left: 40px;"><a class="mozTocH3" name="mozTocId883409"></a>Overview
 - Setting up
 new machine for development on Open|SpeedShop<br>
 </h3>
@@ -961,8 +941,7 @@ version of the component is installed.&nbsp;&nbsp; The rpm command "rpm
 --query
 --all | grep component_rpm_name" can be used for this
 purpose.&nbsp;&nbsp;&nbsp; A rpm
-query script, <a
- href="./rpmQuery">rpmQuery</a>,
+query script, <a href="./rpmQuery">rpmQuery</a>,
 that searches for the
 necessary components has been created.&nbsp;&nbsp;&nbsp; Once you know
 what components are available on the prospective development machine,
@@ -1080,8 +1059,7 @@ Grepping
 is
 recommended when doing the queries:&nbsp; "rpm
 --query --all | grep rpm_name"&nbsp; You can use the rpm
-query script, <a
- href="./rpmQuery">rpmQuery</a>
+query script, <a href="./rpmQuery">rpmQuery</a>
 for querying all the
 packages needed.<br>
 </div>
@@ -1445,7 +1423,10 @@ Open|SpeedShop on a cluster or multiple partitions</h2>
 To run Open|SpeedShop on a multiple
 node machine configuration, each node must have DPCL and Dyninst
 installed.&nbsp; Open|SpeedShop support for multiple nodes is through
-DPCL daemons.<br>
+DPCL daemons.&nbsp;&nbsp;&nbsp; See the attaching to <a
+ href="#Attaching_to_Already_Running_MPI">MPI jobs section </a>for
+information on attaching to processes running on other hosts or
+partitions.<br>
   <br>
 </blockquote>
 <p class="MsoBodyText"><span style=""><span style=""><span style=""><span
@@ -1515,7 +1496,7 @@ menu, Tools menu, Experiments menu, and the Wizards menu, as shown at
 the top of the Open|SpeedShop window below.<b style=""><br>
     <br>
     <img alt="Initial Open!SpeedShop Introduction Panel"
- src="InitialPanel.png" style="width: 860px; height: 644px;"><br>
+ src="InitialPanel.png" style="height: 644px; width: 860px;"><br>
     <br>
     </b>
     <h4><a class="mozTocH4" name="mozTocId909976"></a><b style=""><a
@@ -1568,7 +1549,7 @@ corresponding menu items.<b style=""><br>
     <img alt="Experiment Menu" src="snapshot_ExperimentsMenuItems.png"
  style="width: 178px; height: 167px;"><br>
     <br>
-    </b>In reality at this, the Milestone 5 delivery,&nbsp; the PC
+    </b>In reality at this, the Developer Beta delivery,&nbsp; the PC
 Sampling,
 Usertime and HW Counter
 experiments are developed.&nbsp; Clicking on PC Sampling will bring up
@@ -1609,8 +1590,8 @@ experiment first.&nbsp; Once you have narrowed the scope, you can use
 hardware counter experiments to pinpoint the area to be tuned.</p>
 The following sections describe
 hardware counter experiments available in Open|SpeedShop.<br>
-    <h6><a class="mozTocH6" name="mozTocId545662"></a><tt>hwc</tt>
-Hardware Counter Experiment</h6>
+    <h6><a class="mozTocH6" name="mozTocId545662"></a><big><tt>hwc</tt>
+Hardware Counter Experiment</big></h6>
 The <tt>hwc</tt>
 hardware counter experiment shows where the overflows are being
 triggered in the program: at the
@@ -1626,8 +1607,8 @@ profiling experiments should incur a
 slowdown of execution of the program of no more than 5%.&nbsp; <br>
     </p>
     <div class="titlepage">
-    <h6><a class="mozTocH6" name="mozTocId428805"></a><tt>hwctime</tt>
-Hardware Counter Experiment</h6>
+    <h6><a class="mozTocH6" name="mozTocId428805"></a><big><tt>hwctime</tt>
+Hardware Counter Experiment</big></h6>
     </div>
     <p>The <tt>hwctime</tt>
 hardware counter experiments also show where the overflows are being
@@ -1647,9 +1628,9 @@ Experiment</b></h5>
     <h5><a class="mozTocH5" name="mozTocId993712"></a><b style=""><a
  name="PC_Sampling_Experiment"></a>PC Sampling Experiment</b></h5>
     <br>
-    <h6><a class="mozTocH6" name="mozTocId450283"></a><tt><span
+    <h6><a class="mozTocH6" name="mozTocId450283"></a><big><tt><span
  style="font-family: helvetica;">pcsamp</span></tt> PC
-Sampling Experiment</h6>
+Sampling Experiment</big></h6>
     <br>
 The <tt>pcsamp</tt>
 experiment estimates
@@ -1679,8 +1660,9 @@ time.<br>
     <h5><a class="mozTocH5" name="mozTocId733641"></a><b style=""><a
  name="User_Time_Experiment"></a>User Time Experiment</b></h5>
     <h6><a class="mozTocH6" name="mozTocId848866"></a><tt><span
- style="font-family: helvetica;">&nbsp;usertime</span></tt> User Time
-Experiment<br>
+ style="font-family: helvetica;">&nbsp;<big>usertime</big></span></tt><big>
+User Time
+Experiment</big><br>
     </h6>
     <p style="font-family: serif;">The usertime
 experiment is a useful
@@ -2205,9 +2187,7 @@ Open|SpeedShop GUI non-Wizard Usage</b></h3>
 GUI to run an
 experiment directly is a shorter process than that of using the Wizard
 but it takes a bit more knowledge and/or familiarity with the
-Open|SpeedShop product and GUI.&nbsp;&nbsp; At this milestone,
-Milestone 3, only the PC Sampling Experiment is available for
-use.&nbsp; <br>
+Open|SpeedShop product and GUI.&nbsp;&nbsp; <br>
 <br>
 To invoke the PC Sampling Experiment select the Experiments Menu and
 choose the PC Sampling Experiment menu item.&nbsp; This will cause the
@@ -2456,8 +2436,8 @@ in <a href="#mozTocId10491">Appendix A: Command Syntax</a>.&nbsp;
 These commands are primarily related
 to creating, running, and monitoring performance experiments.&nbsp;
 There are also information commands which give machine
-information.&nbsp;&nbsp; An typical usage example of a, Milestone 3
-development phase, PC Sampling Experiment follows:<b style=""><br>
+information.&nbsp;&nbsp; An typical usage example of a PC Sampling
+Experiment follows:<b style=""><br>
     <br>
     </b>[prompt] : <b style=""><span style="font-weight: bold;">openss
 -cli<br>
@@ -2584,98 +2564,22 @@ API</span><br>
  style=""><a name="Plugin_API_Extensibility_Description_"></a><!--[if !supportLists]--><span
  style="color: rgb(0, 0, 128);">Plugin
 API (Extensibility)&nbsp; Description</span></b></h1>
-There are multiple plugin types used in
-Open|SpeedShop.&nbsp; A
-collector plugin defines the performance experiment measurement data
-gathering and analysis mechanism.<b style=""><br>
-<br>
-</b>
-<h2><a class="mozTocH2" name="mozTocId579715"></a><b style=""><a
- name="Collector_Plugin_Definition"></a>Experiment Collector Plugin
-Definition</b></h2>
+A plugin is a mechanism in which to extend the capability of
+Open|SpeedShop by adding additional experiment collectors, Graphical
+User Interface&nbsp; panels or Interactive Command Line Interface data
+views.&nbsp;&nbsp; These are multiple plugin types used in
+Open|SpeedShop:<br>
+<ol>
+  <li>Collector Plugins</li>
+  <li>Graphical User Interface Plugins</li>
+  <li>Interactive Command Line Interface View Plugins <br>
+  </li>
+</ol>
+Please refer to the <a href="../plugin_guide/index.html">Open|SpeedShop
+Plugin Guide</a> for more information on Open|SpeedShop plugin creation.<br>
 <b style=""><br>
-</b>
-<h3><a class="mozTocH3" name="mozTocId567891"></a><b style=""><a
- name="Collector_Plugin_FAQ:"></a>Collector Plugin FAQ:<br>
-<span class="moz-txt-citetags"><span style="font-family: monospace;"></span></span></b></h3>
-<h4><a class="mozTocH4" name="mozTocId434199"></a><b style=""><a
- name="What_is_blob.x_for_What_is_the"></a>What is blob.x for? What is
-the significance of the .x suffix?<br>
-</b></h4>
-</div>
+</b></div>
 <div class="Section13">
-<div style="text-align: left;">
-<blockquote><b style=""> </b>"blob.x" contains XDR descriptions of the
-blobs (Binary Large OBjectS) used by the collector. The term "blob" is
-a standard one in relational databases: <b style=""><br>
-  <a class="moz-txt-link-freetext"
- href="http://www.hyperdictionary.com/dictionary/binary+large+object">http://www.hyperdictionary.com/dictionary/binary+large+object</a><br>
-  <br>
-  </b>And ".x" is the standard suffix used for XDR files. You can do
-(this is
-what I<br>
-did) a search for "XDR file suffix" and you'll see that everyone uses
-".x".<br>
-  <br>
-Collector parameters can be of any arbitrary type or structure. And the
-raw data gathered by the collector can be of any arbitrary type or
-structure. But the relational database doesn't know anything about
-these types... So whenever<br>
-parameters or raw performance data is stored in the database, it must
-first be converted into a "chunk of bytes" (a blob). XDR is added to
-the mix in order to easily handle things like endianess and structure
-alignment issues. <b style=""><span class="moz-txt-citetags"><br>
-  </span></b></blockquote>
-</div>
-<h4 style="text-align: left;"><a class="mozTocH4" name="mozTocId103794"></a><b
- style=""><a name="What_is_specifically_needed_to_be_known"></a>What is
-specifically needed to be known by the framework? Do these<span
- class="moz-txt-citetags"> </span>class structures need to follow a
-particular convention?</b></h4>
-<div style="text-align: left;">
-<blockquote> <b style=""> </b><!----> The naming of these files (e.g.
-"blob.x" vs. "my_funny_file_name.x") makes no difference to the
-framework. I believe Don was worried mainly about sticking to any
-pre-existing naming convention (and I appreciate that). The only things<br>
-that really matter to the framework are:<br>
-  <br>
-1) That a libtool-constructed module is placed into one of the plugin
-search locations (see previous emails regarding how we decide where to
-look for plugins). The name of the module itself is irrelevant
-(although conventions are in place).<br>
-  <br>
-2) That the module defines an externally-visible function:<br>
-  <br>
-CollectorImpl* CollectorFactor();<br>
-  <br>
-which creates an CollectorImpl instance for the collector.<br>
-  <br>
-Each collector defines a single class (e.g. PCSampCollector or
-UserTimeCollector) that inherits from CollectorImpl (which is in the
-framework source). CollectorImpl declares a bunch of pure virtual
-functions which all<br>
-inheriting classes must implement. So you can think of
-CollectorImpl.hxx as the "API" between the framework and the collectors.<b
- style=""><br>
-  </b></blockquote>
-</div>
-<h2 style="text-align: left;"><a class="mozTocH2" name="mozTocId256495"></a><b
- style=""><a name="Graphical_User_Interface_Panel_Plugin"></a>Graphical
-User
-Interface Panel Plugin Definition</b></h2>
-<div style="text-align: left;"><br>
-</div>
-<b style=""><br>
-</b>
-<h2 style="text-align: left;"><a class="mozTocH2" name="mozTocId456431"></a><b
- style=""><a name="Command_Line_Interface_Plugin_Definition"></a>Command
-Line
-Interface Plugin Definition</b></h2>
-<div style="text-align: left;"><br>
-<blockquote><b style=""> </b> <b style=""> </b>
-  <p class="MsoBodyText"><b style=""> </b></p>
-</blockquote>
-</div>
 <h1 style="text-align: left;"><a class="mozTocH1" name="mozTocId145888"></a><b
  style=""><span style="color: rgb(0, 0, 128);"><a
  href="../cli_doc/definition.html">Appendix

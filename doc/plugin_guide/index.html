@@ -24,11 +24,16 @@ Plugin Creation Guide</a>
       <li><a href="#mozTocId535857">Open|SpeedShop
 Overview and Information Resources</a>
         <ul>
-          <li><a href="#mozTocId507487">Features:</a></li>
+          <li>
+            <ul>
+              <li><a href="#mozTocId507487">Features:</a></li>
+            </ul>
+          </li>
         </ul>
       </li>
       <li><a href="#mozTocId11413">Open|SpeedShop Plugin
-Overview </a></li>
+Overview
+        </a></li>
       <li><a href="#mozTocId732797">Performance Data
 Collector Plugin Information</a>
         <ul>
@@ -42,26 +47,95 @@ Collector Plugin</a>
               <li><a href="#mozTocId667687">Server - Collector
 Runtime</a></li>
               <li><a href="#mozTocId637965">Client - Collector
-Plugin&nbsp; </a>
+Plugin&nbsp;
+                </a>
                 <ul>
-                  <li><a href="#mozTocId388988">Start Collecting</a></li>
-                  <li><a href="#mozTocId992246">Stop Collecting</a></li>
-                  <li><a href="#mozTocId278716">Get Metric Values</a></li>
-                  <li><a href="#mozTocId271962">Set Parameter</a></li>
-                  <li><a href="#mozTocId518369">Get Default Parameters</a></li>
-                  <li><a href="#mozTocId769605">Get Parameters</a></li>
+                  <li><a href="#mozTocId388988">Start Collecting</a>
+                    <ul>
+                      <li><a href="#mozTocId199690">What it does:</a></li>
+                      <li><a href="#mozTocId219262">Definition:</a></li>
+                      <li><a href="#mozTocId347609">Parameters:</a></li>
+                      <li><a href="#mozTocId50896">What is in the
+function body:</a></li>
+                    </ul>
+                  </li>
+                  <li><a href="#mozTocId992246">Stop Collecting</a>
+                    <ul>
+                      <li><a href="#mozTocId150755">What it does:</a></li>
+                      <li><a href="#mozTocId352197">Definition:</a></li>
+                      <li><a href="#mozTocId139139">Parameters:</a></li>
+                      <li><a href="#mozTocId722160">What is in the
+function body:</a></li>
+                    </ul>
+                  </li>
+                  <li><a href="#mozTocId278716">Get Metric Values</a>
+                    <ul>
+                      <li><a href="#mozTocId110227">What it does:</a></li>
+                      <li><a href="#mozTocId171646">Definition:</a></li>
+                      <li><a href="#mozTocId530275">Parameters:</a></li>
+                      <li><a href="#mozTocId673416">What is in the
+function body:</a></li>
+                    </ul>
+                  </li>
+                  <li><a href="#mozTocId271962">Set Parameter</a>
+                    <ul>
+                      <li><a href="#mozTocId753822">What it does:</a></li>
+                      <li><a href="#mozTocId163320">Definition:</a></li>
+                      <li><a href="#mozTocId699056"> Parameters:</a></li>
+                      <li><a href="#mozTocId97265"> Return values:</a></li>
+                      <li><a href="#mozTocId259611">What is in the
+function body:</a></li>
+                    </ul>
+                  </li>
+                  <li><a href="#mozTocId518369">Get Default Parameters</a>
+                    <ul>
+                      <li><a href="#mozTocId709984">What it does:</a></li>
+                      <li><a href="#mozTocId832976">Definition:</a></li>
+                      <li><a href="#mozTocId646706">Return values:</a></li>
+                      <li><a href="#mozTocId15384">What is in the
+function body:</a></li>
+                    </ul>
+                  </li>
+                  <li><a href="#mozTocId769605">Get Parameters</a>
+                    <ul>
+                      <li><a href="#mozTocId340210">What it does:</a></li>
+                      <li><a href="#mozTocId552888">Definition:</a></li>
+                      <li><a href="#mozTocId731991">Parameters:</a></li>
+                      <li><a href="#mozTocId705614">Return values:</a></li>
+                      <li><a href="#mozTocId196328">What is in the
+function body:</a></li>
+                    </ul>
+                  </li>
                 </ul>
               </li>
             </ul>
           </li>
           <li><a href="#mozTocId846999">Example Collector Plugin</a></li>
+          <li><a href="#mozTocId377373">Collector Plugin FAQ:
+            </a>
+            <ul>
+              <li><a href="#mozTocId198444">What is blob.x for? What is
+the significance of the .x suffix?
+                </a></li>
+              <li><a href="#mozTocId189119">What is
+specifically needed to be known by the framework? Do these class
+structures need to follow a
+particular convention?</a></li>
+            </ul>
+          </li>
         </ul>
       </li>
       <li><a href="#mozTocId212847">Graphical User
-Interface Plugin Information </a>
+Interface Plugin Information
+        </a>
         <ul>
           <li><a href="#mozTocId930728">Creating A
-Graphical User Interface Panel</a></li>
+Graphical User Interface Panel</a>
+            <ul>
+              <li><a href="#mozTocId570308">Initial Skeletal Panel
+Creation - mknewpanel script</a></li>
+            </ul>
+          </li>
           <li><a href="#mozTocId963628">Interfacing With
 Open|SpeedShop - Tips and Example Information</a></li>
           <li><a href="#mozTocId175785">Example Graphical
@@ -69,7 +143,8 @@ User Interface Plugin</a></li>
         </ul>
       </li>
       <li><a href="#mozTocId1574">Command Line
-Interface Plugin Information </a></li>
+Interface Plugin Information
+        </a></li>
     </ul>
   </li>
 </ul>
@@ -345,19 +420,21 @@ perform these tasks: <br>
   <li>Get Parameters</li>
 </ul>
 <h5><a class="mozTocH5" name="mozTocId388988"></a>Start Collecting</h5>
+<h6><a class="mozTocH6" name="mozTocId199690"></a><big><b><big><b>What
+it does:</b></big></b></big></h6>
 Start data collection function implements starting data collection for
 a particular thread.<br>
 <br>
+<h6><a class="mozTocH6" name="mozTocId219262"></a><big><b><big><b>Definition:</b></big></b></big></h6>
 This is an example definition from the Open|SpeedShop Usertime
 Collector Plugin:<br>
-<br>
 void UserTimeCollector::startCollecting (const Collector &amp;
 collector,<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 const Thread &amp; thread ) const<br>
 <p></p>
+<h6><a class="mozTocH6" name="mozTocId347609"></a><big><b>Parameters:</b></big></h6>
 <dl compact="compact">
-  <dt><small><b>Parameters:</b></small></dt>
   <dt>The meaning or definitions for the arguments above are summarized
 here:<span style="font-weight: bold;"></span></dt>
 </dl>
@@ -366,21 +443,29 @@ here:<span style="font-weight: bold;"></span></dt>
   <li>thread - The thread for which to start data collection.<br>
   </li>
 </ol>
-<br>
+<h6><a class="mozTocH6" name="mozTocId50896"></a><big><b>What is in the
+function body:</b></big></h6>
 <h5><a class="mozTocH5" name="mozTocId992246"></a>Stop Collecting</h5>
+<h6><a class="mozTocH6" name="mozTocId150755"></a><big><b>What it does:</b></big></h6>
 Stop data collection function implements stopping data collection for a
 particular thread.<br>
 <br>
+<h6><a class="mozTocH6" name="mozTocId352197"></a><big><b>Definition:</b></big></h6>
 This is an example definition from the Open|SpeedShop Usertime
 Collector Plugin:<br>
-<br>
-void UserTimeCollector::stopCollecting (const Collector &amp; collector,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-const Thread &amp; thread ) const<br>
+<span style="font-style: italic;">void
+UserTimeCollector::stopCollecting (const Collector &amp; collector,</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+const Thread &amp; thread ) const</span><br>
 <p>
 </p>
 <dl compact="compact">
-  <dt><small><b>Parameters:</b></small></dt>
+  <dt><br>
+  </dt>
+</dl>
+<h6><a class="mozTocH6" name="mozTocId139139"></a><big><b>Parameters:</b></big></h6>
+<dl compact="compact">
   <dt>The meaning or definitions for the arguments above are summarized
 here:<span style="font-weight: bold;"></span></dt>
 </dl>
@@ -389,8 +474,12 @@ here:<span style="font-weight: bold;"></span></dt>
   <li>thread - The thread for which to stop data collection.<br>
   </li>
 </ol>
-<br>
+<h6><a class="mozTocH6" name="mozTocId722160"></a><big><b>What is in
+the function body:</b></big></h6>
+<small>TBD<b><br>
+</b></small>
 <h5><a class="mozTocH5" name="mozTocId278716"></a>Get Metric Values</h5>
+<h6><a class="mozTocH6" name="mozTocId110227"></a><big><b>What it does:</b></big></h6>
 This routine is used by the Open|SpeedShop framework to get the metrics
 for each data blob the framework processes.&nbsp; The framework first
 queries for address range extents and then calls the collector plugin
@@ -399,19 +488,23 @@ defined as a set of address ranges and a time interval.&nbsp;&nbsp; For
 example, an address range could be the addresses in the function "xyz"
 and the time interval could be the entire running time of the program.<br>
 <br>
+<h6><a class="mozTocH6" name="mozTocId171646"></a><big><b>Definition:</b></big></h6>
 This is an example definition from the Open|SpeedShop Usertime
 Collector Plugin:<br>
-<br>
-void UserTimeCollector::getMetricValues(const std::string&amp; metric,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-const Extent&amp; extent,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-const Blob&amp; blob,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-const ExtentGroup&amp; subextents,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<span style="font-style: italic;">void
+UserTimeCollector::getMetricValues(const std::string&amp; metric,</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+const Extent&amp; extent,</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+const Blob&amp; blob,</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+const ExtentGroup&amp; subextents,</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 void* ptr) const<br>
-<small><b>Parameters:</b></small><br>
+<br>
+</span>
+<h6><a class="mozTocH6" name="mozTocId530275"></a><big><b>Parameters:</b></big></h6>
 The meaning or definitions for the arguments above are summarized here:<br>
 <ol>
   <li>metric - Unique identifier of the metric</li>
@@ -420,23 +513,35 @@ The meaning or definitions for the arguments above are summarized here:<br>
   <li>subextents - The subextents for which to get the values</li>
   <li>ptr&nbsp; - Untyped pointer to the return values.</li>
 </ol>
-<h5><a class="mozTocH5" name="mozTocId271962"></a>Set Parameter</h5>
+<h6><a class="mozTocH6" name="mozTocId673416"></a><big><b>What is in
+the function body:</b></big></h6>
+TBD<br>
 <br>
+<h5><a class="mozTocH5" name="mozTocId271962"></a>Set Parameter</h5>
+<h6><a class="mozTocH6" name="mozTocId753822"></a><big><b>What it does:</b></big></h6>
 <p>The set a parameter function implements setting one of the collector
 parameter values.<br>
 </p>
-<p>This is an example definition from the Open|SpeedShop Usertime
-Collector Plugin:</p>
-<p>void UserTimeCollector::setParameterValue(const std::string&amp;
-parameter,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-const void* ptr, <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Blob&amp; data) const<br>
+<h6><a class="mozTocH6" name="mozTocId163320"></a><big><b>Definition:</b></big></h6>
+<p><small><b><br>
+</b></small>This is an example definition from the Open|SpeedShop
+Usertime
+Collector Plugin:<br>
+<span style="font-style: italic;">void
+UserTimeCollector::setParameterValue(const std::string&amp;
+parameter,</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+const void* ptr, </span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Blob&amp; data) const</span><br>
 </p>
 <p></p>
 <dl compact="compact">
-  <small> </small><dt><small><b>Parameters:</b></small></dt>
+</dl>
+<h6><a class="mozTocH6" name="mozTocId699056"></a><small> </small><big><b>Parameters:</b></big></h6>
+<dl compact="compact">
+  <dt><br>
+  </dt>
   <small></small>
 </dl>
 <ol>
@@ -444,33 +549,46 @@ Blob&amp; data) const<br>
   <li>ptr - Untyped pointer to the parameter value</li>
 </ol>
 <dl compact="compact">
-  <small> </small><dt><small><b>Return values:</b></small></dt>
-  <small></small>
 </dl>
+<h6><a class="mozTocH6" name="mozTocId97265"></a><small> </small><big><b>Return
+values:</b></big></h6>
 <ol>
-  <li>data - blob containing the parameter values for the collector<br>
-  </li>
+  <li>data - blob containing the parameter values for the collector</li>
 </ol>
+<h6><a class="mozTocH6" name="mozTocId259611"></a><big><b>What is in
+the function body:</b></big></h6>
+<small>tbd<b><br>
+</b></small>
 <h5><a class="mozTocH5" name="mozTocId518369"></a>Get Default Parameters</h5>
+<h6><a class="mozTocH6" name="mozTocId709984"></a><big><b>What it does:</b></big></h6>
 The get default parameters function implements getting the default
 parameter set for the collector.<br>
 <br>
+<h6><a class="mozTocH6" name="mozTocId832976"></a><big><b>Definition:</b></big></h6>
 This is an example definition from the Open|SpeedShop Usertime
 Collector Plugin:<br>
-<br>
-Blob UserTimeCollector::getDefaultParameterValues() const<br>
+<div style="text-align: left;"><span style="font-style: italic;">Blob
+UserTimeCollector::getDefaultParameterValues() const</span><br
+ style="font-style: italic;">
+</div>
 <dl compact="compact">
-  <dt><small><b>Return values:</b></small></dt>
+  <dt><br>
+  </dt>
 </dl>
+<h6><a class="mozTocH6" name="mozTocId646706"></a><big><b>Return values:</b></big></h6>
 <ol>
   <li>data - Blob containing the default parameter values.</li>
 </ol>
+<h6><a class="mozTocH6" name="mozTocId15384"></a><big><b>What is in the
+function body:</b></big></h6>
+<small>tbd<b><br>
+</b></small>
 <h5><a class="mozTocH5" name="mozTocId769605"></a>Get Parameters</h5>
-<small><b>What it does:</b></small><br>
+<h6><a class="mozTocH6" name="mozTocId340210"></a><big><b>What it does:</b></big></h6>
 The get a parameter function implements getting one of the collector
 parameter values.<br>
 <br>
-<small><b>Definition:</b></small><br>
+<h6><a class="mozTocH6" name="mozTocId552888"></a><big><b>Definition:</b></big></h6>
 This is an example definition from the Open|SpeedShop Usertime
 Collector Plugin:<br>
 void UserTimeCollector::getParameterValue(const std::string&amp;
@@ -478,20 +596,25 @@ parameter,<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 const Blob&amp; data, void* ptr) const<br>
 <dl compact="compact">
-  <dt><small><b>Parameters:</b></small></dt>
+  <dt><br>
+  </dt>
 </dl>
+<h6><a class="mozTocH6" name="mozTocId731991"></a><big><b>Parameters:</b></big></h6>
 <ol>
   <li>parameter - Unique identifier of the input parameter to be get.</li>
   <li>data - blob containing the parameter values for the collector</li>
 </ol>
 <dl compact="compact">
-  <dt><small><b>Return values:</b></small></dt>
+  <dt><br>
+  </dt>
 </dl>
+<h6><a class="mozTocH6" name="mozTocId705614"></a><big><b>Return values:</b></big></h6>
 <ol>
   <li>ptr - Untyped pointer to the parameter value</li>
 </ol>
-<small><b>What is in the function body:<br>
-<br>
+<h6><a class="mozTocH6" name="mozTocId196328"></a><big><b>What is in
+the function body:</b></big></h6>
+<small><b>
 </b></small>The body of the getParameterValue function decodes the data
 blob containing the parameter values using XDR (External Data
 Representation).<br>
@@ -501,6 +624,68 @@ Representation).<br>
 <h3><a class="mozTocH3" name="mozTocId846999"></a><a
  name="Example_Collector_Plugin"></a>Example Collector Plugin</h3>
 <br>
+<h3><a class="mozTocH3" name="mozTocId377373"></a><b style="">Collector
+Plugin FAQ:<br>
+<span class="moz-txt-citetags"><span style="font-family: monospace;"></span></span></b></h3>
+<h4><a class="mozTocH4" name="mozTocId198444"></a><b style="">What is
+blob.x for? What is
+the significance of the .x suffix?<br>
+</b></h4>
+<div class="Section13">
+<div style="text-align: left;">
+<blockquote><b style=""> </b>"blob.x" contains XDR descriptions of the
+blobs (Binary Large OBjectS) used by the collector. The term "blob" is
+a standard one in relational databases: <b style=""><br>
+  <a class="moz-txt-link-freetext"
+ href="http://www.hyperdictionary.com/dictionary/binary+large+object">http://www.hyperdictionary.com/dictionary/binary+large+object</a><br>
+  <br>
+  </b>And ".x" is the standard suffix used for XDR files. You can do
+(this is
+what I<br>
+did) a search for "XDR file suffix" and you'll see that everyone uses
+".x".<br>
+  <br>
+Collector parameters can be of any arbitrary type or structure. And the
+raw data gathered by the collector can be of any arbitrary type or
+structure. But the relational database doesn't know anything about
+these types... So whenever<br>
+parameters or raw performance data is stored in the database, it must
+first be converted into a "chunk of bytes" (a blob). XDR is added to
+the mix in order to easily handle things like endianess and structure
+alignment issues. <b style=""><span class="moz-txt-citetags"><br>
+  </span></b></blockquote>
+</div>
+<h4 style="text-align: left;"><a class="mozTocH4" name="mozTocId189119"></a><b
+ style="">What is
+specifically needed to be known by the framework? Do these<span
+ class="moz-txt-citetags"> </span>class structures need to follow a
+particular convention?</b></h4>
+<div style="text-align: left;">
+<blockquote> <b style=""> </b><!----> The naming of these files (e.g.
+"blob.x" vs. "my_funny_file_name.x") makes no difference to the
+framework. I believe Don was worried mainly about sticking to any
+pre-existing naming convention (and I appreciate that). The only things<br>
+that really matter to the framework are:<br>
+  <br>
+1) That a libtool-constructed module is placed into one of the plugin
+search locations (see previous emails regarding how we decide where to
+look for plugins). The name of the module itself is irrelevant
+(although conventions are in place).<br>
+  <br>
+2) That the module defines an externally-visible function:<br>
+  <br>
+CollectorImpl* CollectorFactor();<br>
+  <br>
+which creates an CollectorImpl instance for the collector.<br>
+  <br>
+Each collector defines a single class (e.g. PCSampCollector or
+UserTimeCollector) that inherits from CollectorImpl (which is in the
+framework source). CollectorImpl declares a bunch of pure virtual
+functions which all<br>
+inheriting classes must implement. So you can think of
+CollectorImpl.hxx as the "API" between the framework and the collectors.</blockquote>
+</div>
+</div>
 <br>
 <h2><a class="mozTocH2" name="mozTocId212847"></a>Graphical User
 Interface Plugin Information<br>
@@ -522,7 +707,8 @@ also provided along with the example code.<br>
 <h3><a class="mozTocH3" name="mozTocId930728"></a><a
  name="Creating_The_Graphical_User_Interface"></a>Creating A
 Graphical User Interface Panel</h3>
-<h4>Initial Skeletal Panel Creation - mknewpanel script</h4>
+<h4><a class="mozTocH4" name="mozTocId570308"></a>Initial Skeletal
+Panel Creation - mknewpanel script</h4>
 The "mknewpanel" script creates a basic Open|SpeedShop GUI Panel which
 can then be modified to integrate with the core functionality of
 Open|SpeedShop.&nbsp;&nbsp; This script can be found in the
