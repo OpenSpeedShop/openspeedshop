@@ -352,6 +352,7 @@ exp_restore_com:    RESTORE_HEAD file_spec
     	    /** expSave [ -v copy ] [ <expId_spec> ] <file_spec> **/
 exp_save_com:	    SAVE_HEAD exp_save_arg
   	    	|   SAVE_HEAD exp_save_arg error END_LINE 
+  	    	|   SAVE_HEAD error END_LINE 
       	    	;
 exp_save_arg:	    
     	    	    file_spec
@@ -796,6 +797,7 @@ expId_spec:	    EXP_ID  NUMBER {p_parse_result->setExpId($2);}
 
 target_list:	    target
     	    	|   target_list SEMICOLON {p_parse_result->pushParseTarget();} target
+    	    	|   target_list SEMICOLON error END_LINE 
     	    	;
 
 target:     	    target_element
