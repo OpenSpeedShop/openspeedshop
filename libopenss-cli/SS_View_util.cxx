@@ -479,6 +479,7 @@ ViewType *Find_View (std::string viewname) {
 void Define_New_View (ViewType *vnew) {
   ViewType *existing = Find_View (vnew->Unique_Name());
   if (existing != NULL) {
+    if (vnew->Unique_Name() == existing->Unique_Name()) return;
     fprintf(stderr,"WARNING: Definition of View named %s may hide the existing definition of %s\n",
                     vnew->Unique_Name().c_str(), existing->Unique_Name().c_str());
   }
