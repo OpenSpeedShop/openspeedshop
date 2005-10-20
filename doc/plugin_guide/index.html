@@ -167,7 +167,7 @@ mind and targets both application and computer scientists. <br>
 Open|SpeedShop's base functionality includes metrics like exclusive and
 inclusive user time, MPI call tracing, and CPU hardware performance
 counter experiments.&nbsp; In addition, Open|SpeedShop is designed to
-be modular and easily extendable. It supports several levels of plugins
+be modular and extensible.&nbsp; It supports several levels of plugins
 which allow users to add their own performance experiments. <br>
 <br>
 The infrastructure and base components of Open|SpeedShop are being
@@ -257,13 +257,17 @@ the Open|SpeedShop tools.<br>
 <h2><a class="mozTocH2" name="mozTocId732797"></a>Performance Data
 Collector Plugin Information</h2>
 Writing a performance data collector consists of several
-steps.&nbsp;&nbsp; The first action is to think about the performance
-data that is to be collected.&nbsp; This action can be characterized as
-identifying and analyzing the performance data desired.&nbsp; See the
-section below for details associated with this action.&nbsp; Once the
-performance data criteria is resolved the next action in the collector
+steps.&nbsp;&nbsp; The first step is to think about the performance
+data that is to be collected.&nbsp; This first step can be
+characterized as
+identifying and analyzing the performance data desired.&nbsp;&nbsp; See
+the
+section below that is dedicated to the outlining the details associated
+with this action.&nbsp; Once the
+performance data criteria is resolved the next step in the collector
 plugin creation is the actual implementation action.&nbsp;&nbsp; See
-the sections below that are associated with implementation and examples.<br>
+the sections below that are associated with implementation and also the
+section detailing a performance data collector plugin example.<br>
 <br>
 <h3><a class="mozTocH3" name="mozTocId661443"></a><a
  name="Idenitifying_and_Analysing_The"></a>Identifying and Analyzing
@@ -275,8 +279,9 @@ collect?".&nbsp;&nbsp; Open|SpeedShop allows the user to collect the
 performance data and then map the gathered data back to the program
 source function name and/or source line numbers.&nbsp;&nbsp; So, one
 question to be asked before starting to write a collector plugin for
-Open|SpeedShop is can the performance data desired be associated with
-the program's source line and function addresses.&nbsp;&nbsp; Does the
+Open|SpeedShop is can the performance data desired&nbsp; be associated
+with
+the program's source line and function addresses.&nbsp; Does the
 performance data map back to the source?&nbsp;&nbsp; If so, then it is
 a candidate
 to be gathered by an Open|SpeedShop plugin.&nbsp;&nbsp;&nbsp; <br>
@@ -284,25 +289,31 @@ to be gathered by an Open|SpeedShop plugin.&nbsp;&nbsp;&nbsp; <br>
 For
 example, the PC Sampling experiment takes periodic samples of the
 program address counter.&nbsp;&nbsp; A periodic timer is set and when
-it goes off, the address of where the program is at, is
-saved.&nbsp;&nbsp; This can be mapped back to the source program
-because we have the address in the program, as the performance data
+it triggers, the address of where the program is executing at that
+point is
+saved.&nbsp;&nbsp; The address can be mapped back to the source program
+because we have saved the address in the program, as the performance
+data
 gathered.&nbsp;&nbsp; We can, by using debugging information, map the
-address back to the program's source.&nbsp;&nbsp; <br>
+saved
+addresses back to the program's source.&nbsp;&nbsp; Actually, a set of
+addresses and the count of the times each address is "hit" is saved.<br>
 <br>
 Another phase of the identify and analyze step is to identify and
 define the metric and parameters.&nbsp; The metric is a function of the
-time intervals and the instruction address space.&nbsp;&nbsp; The
-metric is the basic item of performance data that is to be gathered and
+time intervals and the instruction address space.&nbsp;&nbsp; It is
+also the basic item of performance data that is to be gathered and
 displayed by the collector plugin.&nbsp; The
 parameter(s) can be thought of as the dial, selector, or knob that
 controls how the data is collected.&nbsp;&nbsp; For example, the PC
 Sampling experiment gathers the application's address at time intervals
 across the applications running time.&nbsp; The time interval at which
-each address sample is taken is the dial, selector, or knob control
-how, actually when, the data is collected.&nbsp;&nbsp; The metric is
-time spent in the application's functions and line numbers based on
-translating the addresses that were gathered back to the source
+each address sample is taken is the dial, selector, or knob controlling
+how (actually when)&nbsp; the data is collected.&nbsp;&nbsp; The
+metric, in this case, is
+time spent in the application's functions and source line numbers based
+on
+translating the addresses, that were gathered, back to the source
 function names and line numbers.<br>
 <br>
 Given that the "metric" is the performance data item desired to be
@@ -310,6 +321,7 @@ displayed and that the "parameter(s)" is the dial, selector, or knob to
 control the collection of the "metric", lets examine these items in
 more detail.&nbsp;&nbsp;&nbsp; <br>
 <br>
+TBD - need more here................<br>
 <br>
 <span
  style="font-weight: bold; font-style: italic; text-decoration: underline;">Key
@@ -319,7 +331,7 @@ written to support the new collector plugin.&nbsp;&nbsp; Since, the
 existing types are recognized, a generic view can display the
 performance data.<br>
 <br>
-</span>TBD - need more here................<span
+</span><span
  style="font-weight: bold; font-style: italic; text-decoration: underline;"><br>
 </span><br>
 <h3><a class="mozTocH3" name="mozTocId904911"></a><a
@@ -329,7 +341,8 @@ Collector Plugin</h3>
 This section provides a brief implementation related overview of what
 is going on inside Open|SpeedShop with respect to the interactions of
 the collector plugin with the other components of the tool and with the
-application being analyzed.&nbsp;&nbsp; The collector plugin will cause
+application being analyzed.&nbsp;&nbsp; A collector plugin will
+facilitate
 Open|SpeedShop to gather performance measurements that will be gathered
 and stored temporarily in the victim application.&nbsp; This
 performance data is sent from the victim application to the
@@ -424,14 +437,14 @@ perform these tasks: <br>
 it does:</b></big></b></big></h6>
 Start data collection function implements starting data collection for
 a particular thread.<br>
-<br>
 <h6><a class="mozTocH6" name="mozTocId219262"></a><big><b><big><b>Definition:</b></big></b></big></h6>
 This is an example definition from the Open|SpeedShop Usertime
 Collector Plugin:<br>
-void UserTimeCollector::startCollecting (const Collector &amp;
-collector,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-const Thread &amp; thread ) const<br>
+<span style="font-style: italic;">void
+UserTimeCollector::startCollecting (const Collector &amp;
+collector,</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+const Thread &amp; thread ) const</span><br>
 <p></p>
 <h6><a class="mozTocH6" name="mozTocId347609"></a><big><b>Parameters:</b></big></h6>
 <dl compact="compact">
@@ -445,6 +458,17 @@ here:<span style="font-weight: bold;"></span></dt>
 </ol>
 <h6><a class="mozTocH6" name="mozTocId50896"></a><big><b>What is in the
 function body:</b></big></h6>
+<ol>
+  <li>Assemble and encode collector arguments to the collectors start
+collecting routine.</li>
+  <li>Insert instrumentation to:</li>
+</ol>
+<ul style="margin-left: 40px;">
+  <li>Execute collector's stop_sampling routine when we enter exit()
+for the thread.</li>
+  <li>Execute collector's start_sampling routine in the thread</li>
+</ul>
+<br>
 <h5><a class="mozTocH5" name="mozTocId992246"></a>Stop Collecting</h5>
 <h6><a class="mozTocH6" name="mozTocId150755"></a><big><b>What it does:</b></big></h6>
 Stop data collection function implements stopping data collection for a
@@ -458,12 +482,7 @@ UserTimeCollector::stopCollecting (const Collector &amp; collector,</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 const Thread &amp; thread ) const</span><br>
-<p>
-</p>
-<dl compact="compact">
-  <dt><br>
-  </dt>
-</dl>
+<p></p>
 <h6><a class="mozTocH6" name="mozTocId139139"></a><big><b>Parameters:</b></big></h6>
 <dl compact="compact">
   <dt>The meaning or definitions for the arguments above are summarized
@@ -476,8 +495,19 @@ here:<span style="font-weight: bold;"></span></dt>
 </ol>
 <h6><a class="mozTocH6" name="mozTocId722160"></a><big><b>What is in
 the function body:</b></big></h6>
-<small>TBD<b><br>
-</b></small>
+The primary tasks of this function that need to be done are:
+<ol>
+  <li>Insert instrumentation to execute the collector's stop_sampling
+routine in the thread<br>
+  </li>
+  <li>Remove the instrumentation that was inserted by startCollecting:</li>
+</ol>
+<ul style="margin-left: 40px;">
+  <li>Execute collector's stop_sampling routine when we enter exit()
+for the thread.</li>
+  <li>Execute collector's start_sampling routine in the thread</li>
+</ul>
+<small><b></b></small>
 <h5><a class="mozTocH5" name="mozTocId278716"></a>Get Metric Values</h5>
 <h6><a class="mozTocH6" name="mozTocId110227"></a><big><b>What it does:</b></big></h6>
 This routine is used by the Open|SpeedShop framework to get the metrics
@@ -487,7 +517,6 @@ queries for address range extents and then calls the collector plugin
 defined as a set of address ranges and a time interval.&nbsp;&nbsp; For
 example, an address range could be the addresses in the function "xyz"
 and the time interval could be the entire running time of the program.<br>
-<br>
 <h6><a class="mozTocH6" name="mozTocId171646"></a><big><b>Definition:</b></big></h6>
 This is an example definition from the Open|SpeedShop Usertime
 Collector Plugin:<br>
@@ -502,7 +531,6 @@ const Blob&amp; blob,</span><br style="font-style: italic;">
 const ExtentGroup&amp; subextents,</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 void* ptr) const<br>
-<br>
 </span>
 <h6><a class="mozTocH6" name="mozTocId530275"></a><big><b>Parameters:</b></big></h6>
 The meaning or definitions for the arguments above are summarized here:<br>
@@ -515,17 +543,28 @@ The meaning or definitions for the arguments above are summarized here:<br>
 </ol>
 <h6><a class="mozTocH6" name="mozTocId673416"></a><big><b>What is in
 the function body:</b></big></h6>
-TBD<br>
-<br>
+The primary tasks of this function that need to be done are:<br>
+<ol>
+  <li>Process the collector's metric value(s) by iterating over the
+blob containing the raw performance data.</li>
+  <ul>
+    <li>Check input parameters for validity</li>
+    <li>Decode the data blob using XDR</li>
+    <li>Using subextents to find out if there are metrics to return by
+iterating over the samples in the data blob</li>
+    <li>Do collector specific calculations for time, event counts, or
+other</li>
+  </ul>
+  <li>Free the decoded performance data blob.</li>
+</ol>
 <h5><a class="mozTocH5" name="mozTocId271962"></a>Set Parameter</h5>
 <h6><a class="mozTocH6" name="mozTocId753822"></a><big><b>What it does:</b></big></h6>
 <p>The set a parameter function implements setting one of the collector
 parameter values.<br>
 </p>
-<h6><a class="mozTocH6" name="mozTocId163320"></a><big><b>Definition:</b></big></h6>
-<p><small><b><br>
-</b></small>This is an example definition from the Open|SpeedShop
-Usertime
+<h6><a class="mozTocH6" name="mozTocId163320"></a><big><b>Definition:</b></big><br>
+</h6>
+<p>This is an example definition from the Open|SpeedShop Usertime
 Collector Plugin:<br>
 <span style="font-style: italic;">void
 UserTimeCollector::setParameterValue(const std::string&amp;
@@ -539,11 +578,6 @@ Blob&amp; data) const</span><br>
 <dl compact="compact">
 </dl>
 <h6><a class="mozTocH6" name="mozTocId699056"></a><small> </small><big><b>Parameters:</b></big></h6>
-<dl compact="compact">
-  <dt><br>
-  </dt>
-  <small></small>
-</dl>
 <ol>
   <li>parameter - Unique identifier of the input parameter to be set</li>
   <li>ptr - Untyped pointer to the parameter value</li>
@@ -557,13 +591,16 @@ values:</b></big></h6>
 </ol>
 <h6><a class="mozTocH6" name="mozTocId259611"></a><big><b>What is in
 the function body:</b></big></h6>
-<small>tbd<b><br>
-</b></small>
+The primary tasks of this function that need to be done are:<br>
+<ol>
+  <li>Decode the blob containing the parameter values</li>
+  <li>Set the "collector specific" parameter based on the input</li>
+  <li>Re-encode the blob containing the parameter values</li>
+</ol>
 <h5><a class="mozTocH5" name="mozTocId518369"></a>Get Default Parameters</h5>
 <h6><a class="mozTocH6" name="mozTocId709984"></a><big><b>What it does:</b></big></h6>
 The get default parameters function implements getting the default
 parameter set for the collector.<br>
-<br>
 <h6><a class="mozTocH6" name="mozTocId832976"></a><big><b>Definition:</b></big></h6>
 This is an example definition from the Open|SpeedShop Usertime
 Collector Plugin:<br>
@@ -571,18 +608,18 @@ Collector Plugin:<br>
 UserTimeCollector::getDefaultParameterValues() const</span><br
  style="font-style: italic;">
 </div>
-<dl compact="compact">
-  <dt><br>
-  </dt>
-</dl>
 <h6><a class="mozTocH6" name="mozTocId646706"></a><big><b>Return values:</b></big></h6>
 <ol>
   <li>data - Blob containing the default parameter values.</li>
 </ol>
 <h6><a class="mozTocH6" name="mozTocId15384"></a><big><b>What is in the
 function body:</b></big></h6>
-<small>tbd<b><br>
-</b></small>
+The primary tasks of this function that need to be done are:<br>
+<ol>
+  <li>Setup an empty parameter structure</li>
+  <li>Set the default parameters </li>
+  <li>Return the encoded blob to the caller</li>
+</ol>
 <h5><a class="mozTocH5" name="mozTocId769605"></a>Get Parameters</h5>
 <h6><a class="mozTocH6" name="mozTocId340210"></a><big><b>What it does:</b></big></h6>
 The get a parameter function implements getting one of the collector
@@ -612,14 +649,18 @@ const Blob&amp; data, void* ptr) const<br>
 <ol>
   <li>ptr - Untyped pointer to the parameter value</li>
 </ol>
-<h6><a class="mozTocH6" name="mozTocId196328"></a><big><b>What is in
-the function body:</b></big></h6>
+<h6><a class="mozTocH6" name="mozTocId196328"></a><big><b>What is&nbsp;
+in the function body:</b></big></h6>
 <small><b>
-</b></small>The body of the getParameterValue function decodes the data
+</b></small>
+<ol>
+  <li>Decode the data
 blob containing the parameter values using XDR (External Data
-Representation).<br>
+Representation)</li>
+  <li>Extract the parameter value from the decoded parameter value data
+blob</li>
+</ol>
 <small><b><br>
-<br>
 </b></small>
 <h3><a class="mozTocH3" name="mozTocId846999"></a><a
  name="Example_Collector_Plugin"></a>Example Collector Plugin</h3>
