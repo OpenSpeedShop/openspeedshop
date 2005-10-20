@@ -30,6 +30,8 @@ libopenss_cli_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework \
 	-I$(top_srcdir)/libopenss-queries \
 	-I$(top_srcdir)/libopenss-guiobjects \
+	-DLIBRARY_DIR=\"$(libdir)\" \
+	-DPLUGIN_DIR=\"$(pkglibdir)\" \
 	$(LTDLINCL) \
 	$(PYTHON_CPPFLAGS)
 
