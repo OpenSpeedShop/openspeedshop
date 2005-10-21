@@ -991,7 +991,6 @@ public:
       InputLineObject *clip =  *cmi;
       std::string cmd = clip->Command ();
       if (cmd.length() > 0) {
-// clip->Print(mystream);
         mystream << cmd;
         if (cmd.substr(cmd.length()-1,1) != "\n") {
           mystream << std::endl;
@@ -1634,7 +1633,6 @@ void Internal_Info_Dump (CMDWID issuedbywindow) {
   Assert(pthread_mutex_unlock(&Experiment_List_Lock) == 0);
 
   this_ss_stream->releaseLock();
-  Assert(!Fatal_Error_Encountered);
 }
 
 void User_Info_Dump (CMDWID issuedbywindow) {
@@ -1805,7 +1803,6 @@ void User_Info_Dump (CMDWID issuedbywindow) {
 
   mystream << "************************" << std::endl << std::endl;
   this_ss_stream->releaseLock();
-  Assert(!Fatal_Error_Encountered);
 }
 
 // Send a command to the shell for execution.
@@ -2132,6 +2129,9 @@ static void User_Interrupt (CMDWID issuedbywindow) {
   if (cw != NULL) {
    // Get rid of all queued commands from this window.
     cw->Purge_All_Input ();
+
+   // Get rid of all commands waiting for dispatch.
+    Purge_Dispatch_Queue ();
 
    // Stop commands that are being processed.
     cw->Abort_Executing_Input_Lines ();
