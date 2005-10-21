@@ -259,6 +259,54 @@ class CommandResult_RawString : public CommandResult {
   }
 };
 
+string gen_F_name (Function F); // forward definition needed
+class CommandResult_Function : public CommandResult, Function {
+
+ public:
+
+  CommandResult_Function (Function F) :
+       Framework::Function(F),
+       CommandResult(CMD_RESULT_FUNCTION) {
+  }
+
+  virtual void Value (std::string &F) {
+    F = gen_F_name (*this);
+  };
+
+  virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
+    std::string string_value = gen_F_name (*this);
+    if (leftjustified) {
+     // Left justification is only done on the last column of a report.
+     // Don't truncate the string if it is bigger than the field size.
+     // This is done to make sure everything gets printed.
+
+      to << std::setiosflags(std::ios::left) << string_value;
+
+     // If there is unused space in the field, pad with blanks.
+      if ((string_value.length() < fieldsize) &&
+          (string_value[string_value.length()-1] != *("\n"))) {
+        for (int64_t i = string_value.length(); i < fieldsize; i++) to << " ";
+      }
+
+    } else {
+     // Right justify the string in the field.
+     // Don't let it exceed the size of the field.
+     // Also, limit the size based on our internal buffer size.
+      to << std::setiosflags(std::ios::right) << std::setw(fieldsize)
+         << ((string_value.length() <= fieldsize) ? string_value : string_value.substr(0, fieldsize));
+    }
+  }
+  virtual void Print (FILE *TFile, int64_t fieldsize, bool leftjustified) {
+    std::string string_value = gen_F_name (*this);
+    char F[20];
+    int64_t i = 0;
+    F[i++] = *("%");
+    if (leftjustified) F[i++] = *("-");
+    sprintf(&F[i], "%lld.%llds\0", fieldsize, fieldsize);
+    fprintf(TFile,&F[0],string_value.c_str());
+  }
+};
+
 class CommandResult_Title : public CommandResult {
   std::string string_value;
 
