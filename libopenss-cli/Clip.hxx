@@ -168,7 +168,9 @@ class InputLineObject
     time_t cmd_time = When();
     std::string command = Command();
     mystream << "C " << seq_num << "(" << Num_Cmd_Objs << ")";
-    mystream << " (W" << who << "@" << ctime(&cmd_time) << ") ";
+    std::string Time = ctime(&cmd_time);
+    Time.resize(24);  // Remove any trailing "\n" characters.
+    mystream << " (W" << who << "@" << Time << ") ";
     char *what_c;
     switch (what)
     { 
@@ -180,13 +182,15 @@ class InputLineObject
       case ILO_ERROR:        what_c = "ERROR"; break;
       default:               what_c = "ILLEGAL"; break;
     }
-    mystream << what_c << ":" << std::endl;
+    mystream << what_c << ": ";
     if (command.length() != 0) {
       mystream << command;
       int nline = strlen (command.c_str()) - 1;
       if ((nline <= 0) || (command.c_str()[nline] != *("\n"))) {
         mystream << std::endl;
       }
+    } else {
+      mystream << std::endl;
     }
 
    // CommandObject list
