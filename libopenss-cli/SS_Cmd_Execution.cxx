@@ -2260,7 +2260,7 @@ bool SS_expView (CommandObject *cmd) {
   ExperimentObject *exp = (ExperimentID != 0) ? Find_Experiment_Object (ExperimentID) : NULL;
 
  // For batch processing, wait for completion before generating a report.
-  if ((exp != NULL) && !Window_Is_Async(WindowID)) {
+  if ((exp != NULL) && !Window_Is_Async(WindowID) && (Embedded_WindowID == 0)) {
     (void) Wait_For_Exp_State (cmd, ExpStatus_Paused, exp);
   }
 
