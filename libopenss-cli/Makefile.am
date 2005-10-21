@@ -57,7 +57,6 @@ libopenss_cli_la_SOURCES = \
 	SS_Output.hxx \
 	CommandObject.hxx CommandObject.cxx \
 	SS_Exp.hxx SS_Exp.cxx \
-	help.cxx \
 	Load_Messages.cxx help_cmd_msg.dxx \
 	PY_Input.cxx help_general_msg.dxx \
 	SS_Cmd_Control.hxx SS_Cmd_Control.cxx \
