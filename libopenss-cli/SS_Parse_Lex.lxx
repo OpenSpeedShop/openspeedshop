@@ -77,6 +77,8 @@ extern int ip_number(char *,int);
 "expview"   	{ return VIEW_HEAD; }
 "expView"   	{ return VIEW_HEAD; }
 
+"list"  	{ return LIST_GENERIC_HEAD; }
+
 "listbreaks"	{ return LIST_BREAKS_HEAD; }
 "listBreaks"	{ return LIST_BREAKS_HEAD; }
 "listexp"   	{ return LIST_EXP_HEAD; }

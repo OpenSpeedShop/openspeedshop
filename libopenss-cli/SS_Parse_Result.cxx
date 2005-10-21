@@ -24,13 +24,6 @@ using namespace std;
 using namespace OpenSpeedShop::cli;
 using namespace OpenSpeedShop;
 
-extern void dump_help_cmd(oss_cmd_enum, int, bool, CommandObject *);
-extern void dump_help_brief(CommandObject *);
-extern void dump_help_param(char *, int, bool, CommandObject *);
-extern void dump_help_exp(char *, int, bool, CommandObject *);
-extern void dump_help_view(char *, int, bool, CommandObject *);
-extern void dump_help_gen(char *, int, bool, CommandObject *);
-
 extern SS_Message_Czar& theMessageCzar();
 
 command_type_t OpenSpeedShop::cli::cmd_desc[CMD_MAX] = {
@@ -49,6 +42,8 @@ command_type_t OpenSpeedShop::cli::cmd_desc[CMD_MAX] = {
     "expSetparam",  false,  CMD_EXP_SETPARAM,
     "expStatus",    true,   CMD_EXP_STATUS,
     "expView",	    true,   CMD_EXP_VIEW,
+
+    "list", 	    true,   CMD_LIST_GENERIC,
 
     "listBreaks",   true,   CMD_LIST_BREAKS,
     "listExp",	    true,   CMD_LIST_EXP,

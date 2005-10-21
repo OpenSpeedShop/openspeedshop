@@ -33,6 +33,18 @@ pthread_mutex_t Experiment_List_Lock = PTHREAD_MUTEX_INITIALIZER;
 std::list<ExperimentObject *> ExperimentObject_list;
 static std::string tmpdb = std::string("./ssdbtmpcmd.openss");
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 // Global Termination Call -
 
 // Terminate all experiments and free associated files.
@@ -50,12 +62,36 @@ void Experiment_Termination () {
 
 // Experiment Utilities.
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 inline std::string int2str (int64_t e) {
   char s[40];
   sprintf ( s, "%lld", e);
   return std::string (s);
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 static int Wait_For_Exp_State (CommandObject *cmd, int to_state, ExperimentObject *exp) {
  // After changing the state of each thread, wait for the
  // status of the experiment to change.  This is necessary
@@ -77,6 +113,18 @@ static int Wait_For_Exp_State (CommandObject *cmd, int to_state, ExperimentObjec
   return latest;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 static void Wait_For_Thread_Connected (CommandObject *cmd, Thread t) {
   while (t.getState() == Thread::Connecting) {
    // Check for asnychonous abort command 
@@ -88,6 +136,18 @@ static void Wait_For_Thread_Connected (CommandObject *cmd, Thread t) {
   }
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 ExperimentObject *Find_Experiment_Object (EXPID ExperimentID)
 {
 // Search for existing entry.
@@ -103,6 +163,18 @@ ExperimentObject *Find_Experiment_Object (EXPID ExperimentID)
   return NULL;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 static ExperimentObject *Find_Specified_Experiment (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
@@ -117,43 +189,40 @@ static ExperimentObject *Find_Specified_Experiment (CommandObject *cmd) {
   if (ExperimentID == 0) {
     ExperimentID = Experiment_Focus ( WindowID );
     if (ExperimentID == 0) {
-#if 1
       std::string s("There is no focused experiment.");
       Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-      cmd->Result_String ("There is no focused experiment");
-      cmd->set_Status(CMD_ERROR);
-#endif
       return NULL;
     }
   }
   exp = Find_Experiment_Object (ExperimentID);
   if (exp == NULL) {
-#if 1
     std::string s("The requested experiment ID does not exist.");
     Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-    cmd->Result_String ("The requested experiment ID does not exist");
-    cmd->set_Status(CMD_ERROR);
-#endif
     return NULL;
   }
 
  // Is there an FrameWork Experiment to look at?
   if (exp->FW() == NULL) {
-#if 1
     std::string s("The requested FrameWork experiment does not exist.");
     Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-    cmd->Result_String ("The requested FrameWork experiment does not exist");
-    cmd->set_Status(CMD_ERROR);
-#endif
     return NULL;
   }
 
   return exp;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 parse_val_t *Get_Simple_File_Name (CommandObject *cmd) {
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<ParseTarget> *p_tlist = (p_result != NULL) ? p_result->getTargetList() : NULL;
@@ -179,6 +248,18 @@ parse_val_t *Get_Simple_File_Name (CommandObject *cmd) {
   return &f_range->start_range;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool Look_For_KeyWord (CommandObject *cmd, std::string Key) {
   Assert (cmd->P_Result() != NULL);
 
@@ -196,6 +277,18 @@ bool Look_For_KeyWord (CommandObject *cmd, std::string Key) {
   return false;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool Collector_Used_In_Experiment (OpenSpeedShop::Framework::Experiment *fexp, std::string myname) {
   CollectorGroup current_cgrp = fexp->getCollectors();
   CollectorGroup::iterator ci;
@@ -209,6 +302,18 @@ bool Collector_Used_In_Experiment (OpenSpeedShop::Framework::Experiment *fexp, s
   return false;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 Collector Get_Collector (OpenSpeedShop::Framework::Experiment *fexp, std::string myname) {
   CollectorGroup current_cgrp = fexp->getCollectors();
   CollectorGroup::iterator ci;
@@ -225,6 +330,18 @@ Collector Get_Collector (OpenSpeedShop::Framework::Experiment *fexp, std::string
 // Utilities to restrict a set of OpenSpeedShop::Framework::Experiment::Thread
 // using a <target_list> specification.
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 static bool within_range (int64_t Value, parse_range_t R) {
   parse_val_t pval1 = R.start_range;
   Assert (pval1.tag == VAL_NUMBER);
@@ -243,6 +360,18 @@ static bool within_range (int64_t Value, parse_range_t R) {
   return false;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 static bool within_range (pid_t Value, parse_range_t R) {
   parse_val_t pval1 = R.start_range;
   Assert (pval1.tag == VAL_NUMBER);
@@ -261,6 +390,18 @@ static bool within_range (pid_t Value, parse_range_t R) {
   return false;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 static bool within_range (std::string S, parse_range_t R) {
   parse_val_t pval1 = R.start_range;
   Assert (pval1.tag == VAL_STRING);
@@ -279,6 +420,18 @@ static bool within_range (std::string S, parse_range_t R) {
   return false;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool Filter_Uses_F (CommandObject *cmd) {
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<ParseTarget> *p_tlist = p_result->getTargetList();
@@ -293,6 +446,18 @@ bool Filter_Uses_F (CommandObject *cmd) {
   return !((f_list == NULL) || f_list->empty());
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 void Filter_ThreadGroup (CommandObject *cmd, ThreadGroup& tgrp) {
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<ParseTarget> *p_tlist = p_result->getTargetList();
@@ -435,6 +600,18 @@ void Filter_ThreadGroup (CommandObject *cmd, ThreadGroup& tgrp) {
 
 // Utilities to decode <target_list> and attach or detach
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 static void Attach_Command (CommandObject *cmd, ExperimentObject *exp, Thread t, Collector c) {
   try {
     if (t.getState() == Thread::Disconnected) {
@@ -455,6 +632,18 @@ static void Attach_Command (CommandObject *cmd, ExperimentObject *exp, Thread t,
   }
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 static void Detach_Command (CommandObject *cmd, ExperimentObject *exp, Thread t, Collector c) {
   try {
     Wait_For_Thread_Connected (cmd, t);
@@ -473,6 +662,18 @@ static void Detach_Command (CommandObject *cmd, ExperimentObject *exp, Thread t,
   }
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 // Look through the parse results objects and figure out the rank specification.
 static void Resolve_R_Target (CommandObject *cmd, ExperimentObject *exp, ThreadGroup *tgrp,
                               ParseTarget pt, std::string host_name, pid_t mypid) {
@@ -504,6 +705,18 @@ static void Resolve_R_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
   }
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 // Look through the parse results objects and figure out the thread specification.
 static void Resolve_T_Target (CommandObject *cmd, ExperimentObject *exp, ThreadGroup *tgrp,
                               ParseTarget pt, std::string host_name, pid_t mypid) {
@@ -537,6 +750,18 @@ static void Resolve_T_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
   }
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 // Look through the parse results objects and figure out the pid specification.
 // We do not need to worry about file specifiers.
 // We also know that there is not both a thread and a rank specifier.
@@ -591,6 +816,18 @@ static void Resolve_P_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
   }
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 // Look through the parse results objects and figure out the file specification.
 // This routine is called because there is a file specification.
 // We also know that there is no thread or rank specification.
@@ -626,6 +863,18 @@ static void Resolve_F_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
   }
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 // Look through the parse results objects and figure out the host specification.
 static void Resolve_H_Target (CommandObject *cmd, ExperimentObject *exp, ThreadGroup *tgrp, ParseTarget pt) {
 
@@ -645,13 +894,8 @@ static void Resolve_H_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
   if (!has_h) {
     char HostName[MAXHOSTNAMELEN+1];
     if (gethostname ( &HostName[0], MAXHOSTNAMELEN)) {
-#if 1
       std::string s("Can not retrieve host name.");
       Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-      cmd->Result_String ("can not retreive host name");
-      cmd->set_Status(CMD_ERROR);
-#endif
       return;
     }
     //pt.pushHostPoint (HostName[0]);
@@ -662,23 +906,13 @@ static void Resolve_H_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
 
  // Semantic check for illegal combinations.
   if ( has_f && (has_p || has_t || has_r) ) {
-#if 1
     std::string s("The -f option can not be used with -p -t or -r options.");
     Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-    cmd->Result_String ("The -f option can not be used with -p -t or -r options.");
-    cmd->set_Status(CMD_ERROR);
-#endif
     return;
   }
   if ( has_t && has_r ) {
-#if 1
     std::string s("The -t option can not be used with the -r option.");
     Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-    cmd->Result_String ("The -t option can not be used with the -r option.");
-    cmd->set_Status(CMD_ERROR);
-#endif
     return;
   }
 
@@ -703,6 +937,18 @@ static void Resolve_H_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
   }
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 static ThreadGroup Resolve_Target_List (CommandObject *cmd, ExperimentObject *exp) {
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<ParseTarget> *p_tlist = p_result->getTargetList();
@@ -722,6 +968,18 @@ static ThreadGroup Resolve_Target_List (CommandObject *cmd, ExperimentObject *ex
   return tgrp;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 static bool Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
                               void (*cmdfunc) (CommandObject *cmd, ExperimentObject *exp,
                                            Thread t, Collector c) ) {
@@ -798,6 +1056,18 @@ static bool Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
 
 // Experiment Building Block Commands
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_expAttach (CommandObject *cmd) {
 
  // Determine the specified experiment.
@@ -820,6 +1090,18 @@ bool SS_expAttach (CommandObject *cmd) {
   return process_OK;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 static bool Destroy_Experiment (CommandObject *cmd, ExperimentObject *exp, bool Kill_KeyWord) {
  // Clean up the notice board.
   Cancle_Async_Notice (exp);
@@ -863,6 +1145,18 @@ static bool Destroy_Experiment (CommandObject *cmd, ExperimentObject *exp, bool 
   return true;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_expClose (CommandObject *cmd) {
  // Terminate the experiment and purge the data structure
   bool All_KeyWord = Look_For_KeyWord (cmd, "all");
@@ -898,6 +1192,18 @@ bool SS_expClose (CommandObject *cmd) {
   return cmd_executed;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_expCreate (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
@@ -911,13 +1217,8 @@ bool SS_expCreate (CommandObject *cmd) {
  // There is no specified experiment.  Allocate a new Experiment.
   ExperimentObject *exp = new ExperimentObject ();
   if (exp->FW() == NULL) {
-#if 1
     std::string s("Unable to create a new experiment in the FrameWork.");
     Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-    cmd->Result_String ("Unable to create a new experiment in the FrameWork.");
-    cmd->set_Status(CMD_ERROR);
-#endif
     return false;
   }
   EXPID exp_id = exp->ExperimentObject_ID();
@@ -944,6 +1245,18 @@ bool SS_expCreate (CommandObject *cmd) {
   return true;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_expDetach (CommandObject *cmd) {
 
  // Determine the specified experiment.
@@ -967,6 +1280,18 @@ bool SS_expDetach (CommandObject *cmd) {
   return true;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 static bool Disable_Experiment (CommandObject *cmd, ExperimentObject *exp) {
  // Clean up the notice board.
   Cancle_Async_Notice (exp);
@@ -985,6 +1310,18 @@ static bool Disable_Experiment (CommandObject *cmd, ExperimentObject *exp) {
   return true;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_expDisable (CommandObject *cmd) {
   bool All_KeyWord = Look_For_KeyWord (cmd, "all");
 
@@ -1010,6 +1347,18 @@ bool SS_expDisable (CommandObject *cmd) {
   return true;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 static bool Enable_Experiment (CommandObject *cmd, ExperimentObject *exp) {
  // Clean up the notice board.
   Cancle_Async_Notice (exp);
@@ -1052,6 +1401,18 @@ static bool Enable_Experiment (CommandObject *cmd, ExperimentObject *exp) {
   return true;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_expEnable (CommandObject *cmd) {
   bool All_KeyWord = Look_For_KeyWord (cmd, "all");
 
@@ -1077,6 +1438,18 @@ bool SS_expEnable (CommandObject *cmd) {
   return true;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_expFocus  (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
@@ -1107,6 +1480,18 @@ bool SS_expFocus  (CommandObject *cmd) {
   return true;
 } 
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
  // Get the current status of this experiment.
   exp->Q_Lock (cmd, false);
@@ -1122,15 +1507,9 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
   if ((exp->Status() == ExpStatus_Terminated) ||
       (exp->Status() == ExpStatus_InError)) {
    // Can not run if ExpStatus_Terminated or ExpStatus_InError
-#if 1
     std::string s("The experiment can not be run because it is in the "
     	    	    + exp->ExpStatus_Name() + " state.");
     Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-    cmd->Result_String ("The experiment can not be run because it is in the "
-                         + exp->ExpStatus_Name() + " state.");
-    cmd->set_Status(CMD_ERROR);
-#endif
     return false;
   }
 
@@ -1142,13 +1521,8 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
     try {
       tgrp = exp->FW()->getThreads();
       if (tgrp.empty()) {
-#if 1
     	std::string s("There are no applications specified for the experiment.");
     	Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-        cmd->Result_String ("There are no applications specified for the experiment");
-        cmd->set_Status(CMD_ERROR);
-#endif
         return false;
       }
     }
@@ -1194,6 +1568,18 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
   return true;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_expGo (CommandObject *cmd) {
   bool All_KeyWord = Look_For_KeyWord (cmd, "all");
 
@@ -1220,6 +1606,18 @@ bool SS_expGo (CommandObject *cmd) {
   return true;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 static bool Pause_Experiment (CommandObject *cmd, ExperimentObject *exp) {
  // Clean up the notice board.
   Cancle_Async_Notice (exp);
@@ -1233,15 +1631,9 @@ static bool Pause_Experiment (CommandObject *cmd, ExperimentObject *exp) {
       (exp->Status() != ExpStatus_Paused) &&
       (exp->Status() != ExpStatus_Running)) {
    // These are the only states that can be changed.
-#if 1
     std::string s("The experiment can not Pause because it is in the "
                          + exp->ExpStatus_Name() + " state.");
     Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-    cmd->Result_String ("The experiment can not Pause because it is in the "
-                         + exp->ExpStatus_Name() + " state.");
-    cmd->set_Status(CMD_ERROR);
-#endif
     return false;
   }
 
@@ -1280,6 +1672,18 @@ static bool Pause_Experiment (CommandObject *cmd, ExperimentObject *exp) {
   return true;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_expPause (CommandObject *cmd) {
   bool All_KeyWord = Look_For_KeyWord (cmd, "all");
 
@@ -1305,6 +1709,18 @@ bool SS_expPause (CommandObject *cmd) {
   return true;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_expRestore (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
@@ -1312,13 +1728,8 @@ bool SS_expRestore (CommandObject *cmd) {
  // Extract the savefile name.
   parse_val_t *file_name_value = Get_Simple_File_Name (cmd);
   if (file_name_value == NULL) {
-#if 1
     std::string s("A file name for the Database is required.");
     Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-    cmd->Result_String ("A file name for the Database is required.");
-    cmd->set_Status(CMD_ERROR);
-#endif
     return false;
   }
 
@@ -1334,13 +1745,8 @@ bool SS_expRestore (CommandObject *cmd) {
   ExperimentObject *exp = new ExperimentObject (data_base_name);
   if ((exp == NULL) ||
       (exp->ExperimentObject_ID() <= 0)) {
-#if 1
     std::string s("The specified file name is not a legal data base.");
     Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-    cmd->Result_String ("The specified file name is not a legal data base.");
-    cmd->set_Status(CMD_ERROR);
-#endif
     return false;
   }
 
@@ -1359,6 +1765,18 @@ bool SS_expRestore (CommandObject *cmd) {
   return true;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_expSave (CommandObject *cmd) {
   ExperimentObject *exp = Find_Specified_Experiment (cmd);
   if (exp == NULL) {
@@ -1368,13 +1786,8 @@ bool SS_expSave (CommandObject *cmd) {
  // Extract the savefile name.
   parse_val_t *file_name_value = Get_Simple_File_Name (cmd);
   if (file_name_value == NULL) {
-#if 1
     std::string s("Need a file name for the Database.");
     Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-    cmd->Result_String ("need a file name for the Database.");
-    cmd->set_Status(CMD_ERROR);
-#endif
     return false;
   }
 
@@ -1409,6 +1822,18 @@ bool SS_expSave (CommandObject *cmd) {
   return true;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 static bool setparam (Collector C, std::string pname, ParseParam pvalue) {
      // Stop the collector so we can change the parameter value.
   ThreadGroup active;
@@ -1498,6 +1923,18 @@ static bool setparam (Collector C, std::string pname, ParseParam pvalue) {
   return false;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_expSetParam (CommandObject *cmd) {
   ExperimentObject *exp = Find_Specified_Experiment (cmd);
   if (exp == NULL) {
@@ -1546,14 +1983,9 @@ bool SS_expSetParam (CommandObject *cmd) {
 
       if (!param_was_set) {
        // Record the error but continue to try to set other parameters.
-#if 1
     	std::string s("The specified parameter, " + param_name + 
 	    	    	", was not set for any collector.");
     	Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-        cmd->Result_String ("The specified parameter, " + param_name + ", was not set for any collector.");
-        cmd->set_Status(CMD_ERROR);
-#endif
       }
     }
   }
@@ -1571,6 +2003,18 @@ bool SS_expSetParam (CommandObject *cmd) {
 
 // Information Commands
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 static CommandResult *Get_Collector_Metadata (Collector c, Metadata m) {
   CommandResult *Param_Value = NULL;
   std::string id = m.getUniqueId();
@@ -1608,6 +2052,18 @@ static CommandResult *Get_Collector_Metadata (Collector c, Metadata m) {
   return Param_Value;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
 
  // Prevent this experiment from changing until we are done.
@@ -1739,6 +2195,18 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
   return true;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_expStatus(CommandObject *cmd) {
   bool All_KeyWord = Look_For_KeyWord (cmd, "all");
   ExperimentObject *exp = Find_Specified_Experiment (cmd);
@@ -1768,6 +2236,18 @@ bool SS_expStatus(CommandObject *cmd) {
   return true;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_expView (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
@@ -1796,13 +2276,8 @@ bool SS_expView (CommandObject *cmd) {
     if ((exp == NULL) ||
         (exp->FW() == NULL)) {
      // No experiment was specified, so we can't find a useful view to gneerate.
-#if 1
       std::string s("No valid experiment was specified.");
       Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-      cmd->Result_String ("No valid experiment was specified.");
-      cmd->set_Status(CMD_ERROR);
-#endif
       view_result = false;
     } else {
      // Look for a view that would be meaningful.
@@ -1811,13 +2286,8 @@ bool SS_expView (CommandObject *cmd) {
       CollectorGroup cgrp = exp->FW()->getCollectors();
       if (cgrp.begin() == cgrp.end()) {
        // No collector was used.
-#if 1
     	std::string s("No performance measurements were made for the experiment.");
     	Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-        cmd->Result_String ("No performance measurements were made for the experiment.");
-        cmd->set_Status(CMD_ERROR);
-#endif
         view_result = false;
       } else {
         if (cgrp.size() == 1) {
@@ -1860,6 +2330,113 @@ bool SS_expView (CommandObject *cmd) {
 
 // Primitive Information Commands
 
+/**
+ * Method: SS_ListGeneric()
+ * 
+ * Look at general modifier types for list 
+ * type modifiers and then call respective
+ * list command function.
+ *     
+ * @param   cmd Standard command object.
+ *
+ * @return  bool
+ *
+ * @todo    Error handling for multiple type modifiers.
+ * @todo    Error handling for no type modifiers.
+ *
+ */
+static enum {
+    ENUM_BREAK,
+    ENUM_EXP,
+    ENUM_HOSTS,
+    ENUM_METRICS,
+    ENUM_OBJ,
+    ENUM_PARAMS,
+    ENUM_PIDS,
+    ENUM_RANKS,
+    ENUM_SRC,
+    ENUM_STATUS,
+    ENUM_THREADS,
+    ENUM_TYPES,
+    ENUM_VIEWS,
+} list_enums;
+static char *list_types[] = {
+    "breaks",
+    "exp",
+    "hosts",
+    "metrics",
+    "obj",
+    "params",
+    "pids",
+    "ranks",
+    "src",
+    "status",
+    "threads",
+    "types",
+    "views",
+    NULL
+};
+bool SS_ListGeneric (CommandObject *cmd) {
+  Assert(cmd->P_Result() != NULL);
+
+  int i = 0;
+  // Keep looking until NULL
+  while(list_types[i]) {
+    bool KeyWord = Look_For_KeyWord (cmd, list_types[i]);
+
+    if (KeyWord) {
+    	// If I was clever I would have incorporated
+	// the function name into the list_types array
+	// and have made this a single call.
+    	switch(i) {
+	    case ENUM_BREAK:
+	    	return SS_ListBreaks(cmd);
+	    case ENUM_EXP:
+	    	return SS_ListExp(cmd);
+	    case ENUM_HOSTS:
+	    	return SS_ListHosts(cmd);
+	    case ENUM_METRICS:
+	    	return SS_ListMetrics(cmd);
+	    case ENUM_OBJ:
+	    	return SS_ListObj(cmd);
+	    case ENUM_PARAMS:
+	    	return SS_ListParams(cmd);
+	    case ENUM_PIDS:
+	    	return SS_ListPids(cmd);
+	    case ENUM_RANKS:
+	    	return SS_ListRanks(cmd);
+	    case ENUM_SRC:
+	    	return SS_ListSrc(cmd);
+	    case ENUM_STATUS:
+	    	return SS_ListStatus(cmd);
+	    case ENUM_THREADS:
+	    	return SS_ListThreads(cmd);
+	    case ENUM_TYPES:
+	    	return SS_ListTypes(cmd);
+	    case ENUM_VIEWS:
+	    	return SS_ListViews(cmd);
+	    default :
+	    	break;
+	}
+    }
+    ++i;
+  }
+
+  return false;
+}
+
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_ListBreaks (CommandObject *cmd) {
   ExperimentObject *exp = Find_Specified_Experiment (cmd);
 
@@ -1868,6 +2445,18 @@ bool SS_ListBreaks (CommandObject *cmd) {
   return true;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_ListExp (CommandObject *cmd) {
  // List all the allocated experiments
   SafeToDoNextCmd ();
@@ -1882,6 +2471,18 @@ bool SS_ListExp (CommandObject *cmd) {
   return true;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_ListHosts (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
@@ -1921,6 +2522,18 @@ bool SS_ListHosts (CommandObject *cmd) {
   return true;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_ListMetrics (CommandObject *cmd) {
   bool cmd_error = false;
   InputLineObject *clip = cmd->Clip();
@@ -2026,6 +2639,18 @@ bool SS_ListMetrics (CommandObject *cmd) {
   return cmd_error;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_ListObj (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
@@ -2064,6 +2689,18 @@ bool SS_ListObj (CommandObject *cmd) {
   return true;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_ListParams (CommandObject *cmd) {
   bool cmd_error = false;
   InputLineObject *clip = cmd->Clip();
@@ -2167,6 +2804,18 @@ bool SS_ListParams (CommandObject *cmd) {
   return cmd_error;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_ListPids (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
@@ -2186,13 +2835,8 @@ bool SS_ListPids (CommandObject *cmd) {
     }
 
     if (Filter_Uses_F(cmd)) {
-#if 1
       std::string s("Selection based on file name is not supported.");
       Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-      cmd->Result_String ("Selection based on file name is not supported." );
-      cmd->set_Status(CMD_ERROR);
-#endif
       return false;
     }
 
@@ -2218,6 +2862,18 @@ bool SS_ListPids (CommandObject *cmd) {
   return true;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_ListRanks (CommandObject *cmd) {
 #ifdef HAVE_MPI
   InputLineObject *clip = cmd->Clip();
@@ -2238,13 +2894,8 @@ bool SS_ListRanks (CommandObject *cmd) {
     }
 
     if (Filter_Uses_F(cmd)) {
-#if 1
       std::string s("Selection based on file name is not supported.");
       Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-      cmd->Result_String ("Selection based on file name is not supported." );
-      cmd->set_Status(CMD_ERROR);
-#endif
       return false;
     }
 
@@ -2281,17 +2932,24 @@ bool SS_ListRanks (CommandObject *cmd) {
   return true;
 
 #else
-#if 1
   std::string s("The system does not support MPI Ranks.");
   Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-  cmd->Result_String ("The system does not support MPI Ranks.");
-  cmd->set_Status(CMD_ERROR);
-#endif
   return false;
 #endif
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_ListSrc (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
@@ -2347,6 +3005,18 @@ bool SS_ListSrc (CommandObject *cmd) {
   return true;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_ListStatus (CommandObject *cmd) {
 
  // Look at general modifier types for "all" option.
@@ -2383,6 +3053,18 @@ bool SS_ListStatus (CommandObject *cmd) {
   return true;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_ListThreads (CommandObject *cmd) {
 #ifdef HAVE_OPENMP
   InputLineObject *clip = cmd->Clip();
@@ -2403,13 +3085,8 @@ bool SS_ListThreads (CommandObject *cmd) {
     }
 
     if (Filter_Uses_F(cmd)) {
-#if 1
       std::string s("Selection based on file name is not supported.");
       Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-      cmd->Result_String ("Selection based on file name is not supported." );
-      cmd->set_Status(CMD_ERROR);
-#endif
       return false;
     }
 
@@ -2435,17 +3112,24 @@ bool SS_ListThreads (CommandObject *cmd) {
   return true;
 
 #else
-#if 1
   std::string s("The system does not support OpenMp Threads.");
   Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-  cmd->Result_String ("The system does not support OpenMp Threads.");
-  cmd->set_Status(CMD_ERROR);
-#endif
   return false;
 #endif
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_ListTypes (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
@@ -2486,6 +3170,18 @@ bool SS_ListTypes (CommandObject *cmd) {
   return true;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_ListViews (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
@@ -2540,6 +3236,18 @@ bool SS_ListViews (CommandObject *cmd) {
 
 // Session Commands
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_ClearBreaks (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
@@ -2549,6 +3257,18 @@ bool SS_ClearBreaks (CommandObject *cmd) {
   return true;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_Exit (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
@@ -2576,12 +3296,36 @@ bool SS_Exit (CommandObject *cmd) {
   return true;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_Help (CommandObject *cmd) {
   cmd->P_Result()->dumpHelp(cmd);
   cmd->set_Status(CMD_COMPLETE);
   return true;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_History (CommandObject *cmd) {
 
  // Wait for all executing commands to terminate.
@@ -2620,6 +3364,18 @@ bool SS_History (CommandObject *cmd) {
   return true;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_Log (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
@@ -2645,6 +3401,18 @@ bool SS_Log (CommandObject *cmd) {
 }
 
 extern "C" void loadTheGUI(ArgStruct *);
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_OpenGui (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
@@ -2658,13 +3426,8 @@ bool SS_OpenGui (CommandObject *cmd) {
      // The GUI was not opened before so we need to define an input control window for it.
       char HostName[MAXHOSTNAMELEN+1];
       if (gethostname ( &HostName[0], MAXHOSTNAMELEN)) {
-#if 1
     	std::string s("Can not retreive host name.");
     	Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-        cmd->Result_String ("can not retreive host name");
-        cmd->set_Status(CMD_ERROR);
-#endif
         return false;
       }
       pid_t my_pid = getpid();
@@ -2683,31 +3446,33 @@ bool SS_OpenGui (CommandObject *cmd) {
   return true;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_Playback (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
   parse_val_t *f_val = Get_Simple_File_Name (cmd);
 
   if (f_val == NULL) {
-#if 1
     std::string s("Can not determine file name.");
     Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-    cmd->Result_String ("can not determine file name");
-    cmd->set_Status(CMD_ERROR);
-#endif
     return false;
   }
 
   if ( !Push_Input_File (WindowID, f_val->name,
                          &Default_TLI_Line_Output, &Default_TLI_Command_Output) ) {
-#if 1
     std::string s("Unable to open alternate command file " + f_val->name + ".");
     Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-    cmd->Result_String ("Unable to open alternate command file " + f_val->name);
-    cmd->set_Status(CMD_ERROR);
-#endif
     return false;
   }
 
@@ -2715,6 +3480,18 @@ bool SS_Playback (CommandObject *cmd) {
   return true;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_Record (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
@@ -2736,6 +3513,18 @@ bool SS_Record (CommandObject *cmd) {
   return true;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 bool SS_SetBreak (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
@@ -2753,6 +3542,18 @@ bool SS_SetBreak (CommandObject *cmd) {
 // Dummy routines for commands not finished yet.
 //
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 // No value returned to python.
 bool SS_no_value (CommandObject *cmd) {
 
@@ -2762,6 +3563,18 @@ bool SS_no_value (CommandObject *cmd) {
   return true;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 // String value returned to python.
 bool SS_string_value (CommandObject *cmd) {
 
@@ -2771,6 +3584,18 @@ bool SS_string_value (CommandObject *cmd) {
   return true;
 }
 
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
 // Integer (64 bit) value returned to python..
 bool SS_int_value (CommandObject *cmd) {
 

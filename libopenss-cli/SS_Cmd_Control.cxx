@@ -124,6 +124,9 @@ try {
     break;
 
 // Low Level Information Commands
+  case CMD_LIST_GENERIC:
+    cmd_successful = SS_ListGeneric (cmd);
+    break;
   case CMD_LIST_BREAKS:
     cmd_successful = SS_ListBreaks (cmd);
     break;

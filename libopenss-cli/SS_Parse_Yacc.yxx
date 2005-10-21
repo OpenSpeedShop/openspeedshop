@@ -59,10 +59,11 @@ char *string;
 %token FOCUS_HEAD GO_HEAD PAUSE_HEAD RESTORE_HEAD SAVE_HEAD
 %token SETPARAM_HEAD STATUS_HEAD VIEW_HEAD 
 
+%token LIST_GENERIC_HEAD
 %token LIST_EXP_HEAD LIST_HOSTS_HEAD LIST_OBJ_HEAD LIST_PIDS_HEAD
 %token LIST_SRC_HEAD LIST_METRICS_HEAD LIST_PARAMS_HEAD LIST_VIEWS_HEAD
-%token LIST_BREAKS_HEAD LIST_TYPES_HEAD
-%token LIST_RANKS_HEAD LIST_STATUS_HEAD LIST_THREADS_HEAD
+%token LIST_BREAKS_HEAD LIST_TYPES_HEAD LIST_RANKS_HEAD LIST_STATUS_HEAD
+%token LIST_THREADS_HEAD
 
 %token GEN_CLEAR_BREAK_HEAD GEN_EXIT_HEAD GEN_OPEN_GUI_HEAD GEN_HELP_HEAD
 %token GEN_HISTORY_HEAD GEN_LOG_HEAD GEN_PLAYBACK_HEAD GEN_RECORD_HEAD
@@ -116,6 +117,7 @@ command_desc: exp_attach_com 	{p_parse_result->setCommandType(CMD_EXP_ATTACH);}
 	    | exp_setparam_com  {p_parse_result->setCommandType(CMD_EXP_SETPARAM);}
 	    | exp_status_com  	{p_parse_result->setCommandType(CMD_EXP_STATUS);}
 	    | exp_view_com  	{p_parse_result->setCommandType(CMD_EXP_VIEW);}
+	    | list_generic_com 	{p_parse_result->setCommandType(CMD_LIST_GENERIC);}
 	    | list_breaks_com 	{p_parse_result->setCommandType(CMD_LIST_BREAKS);}
 	    | list_exp_com  	{p_parse_result->setCommandType(CMD_LIST_EXP);}
 	    | list_hosts_com 	{p_parse_result->setCommandType(CMD_LIST_HOSTS);}
@@ -469,6 +471,67 @@ exp_view_arg:
     	    	|   expMetric_list_spec target_list viewType expId_spec 
 
      	    	;
+
+    	    /** GENERIC LIST COMMAND **/
+    	    /** <SomeListInfo> = list -v <list_type> [<other stuff> **/
+list_generic_com:   LIST_GENERIC_HEAD list_generic_arg
+  	    	|   LIST_GENERIC_HEAD list_generic_arg error END_LINE 
+  	    	|   LIST_GENERIC_HEAD error END_LINE 
+      	    	;
+list_generic_arg:   modifier_list_spec
+
+    	    	|   modifier_list_spec expId_spec 
+    	    	|   expId_spec modifier_list_spec 
+    	    	|   modifier_list_spec expType_list 
+    	    	|   expType_list modifier_list_spec 
+    	    	|   modifier_list_spec target 
+    	    	|   target modifier_list_spec 
+
+    	    	|   modifier_list_spec expId_spec expType_list 
+    	    	|   modifier_list_spec expType_list expId_spec 
+    	    	|   expId_spec modifier_list_spec expType_list 
+    	    	|   expId_spec expType_list modifier_list_spec 
+    	    	|   expType_list modifier_list_spec expId_spec 
+    	    	|   expType_list expId_spec modifier_list_spec 
+    	    	|   modifier_list_spec expId_spec target 
+    	    	|   modifier_list_spec target expId_spec 
+    	    	|   expId_spec modifier_list_spec target 
+    	    	|   expId_spec target modifier_list_spec 
+    	    	|   target modifier_list_spec expId_spec 
+    	    	|   target expId_spec modifier_list_spec 
+    	    	|   modifier_list_spec expType_list target 
+    	    	|   modifier_list_spec target expType_list 
+    	    	|   expType_list modifier_list_spec target 
+    	    	|   expType_list target modifier_list_spec 
+    	    	|   target modifier_list_spec expType_list 
+    	    	|   target expType_list modifier_list_spec 
+
+    	    	|   modifier_list_spec expId_spec expType_list target 
+    	    	|   modifier_list_spec expId_spec target expType_list 
+    	    	|   modifier_list_spec expType_list expId_spec target 
+    	    	|   modifier_list_spec expType_list target expId_spec 
+    	    	|   modifier_list_spec target expId_spec expType_list 
+    	    	|   modifier_list_spec target expType_list expId_spec 
+    	    	|   expId_spec modifier_list_spec expType_list target 
+    	    	|   expId_spec modifier_list_spec target expType_list 
+    	    	|   expId_spec expType_list modifier_list_spec target 
+    	    	|   expId_spec expType_list target modifier_list_spec 
+    	    	|   expId_spec target modifier_list_spec expType_list 
+    	    	|   expId_spec target expType_list modifier_list_spec 
+    	    	|   expType_list modifier_list_spec expId_spec target 
+    	    	|   expType_list modifier_list_spec target expId_spec 
+    	    	|   expType_list expId_spec modifier_list_spec target 
+    	    	|   expType_list expId_spec target modifier_list_spec 
+    	    	|   expType_list target modifier_list_spec expId_spec 
+    	    	|   expType_list target expId_spec modifier_list_spec 
+    	    	|   target modifier_list_spec expId_spec expType_list 
+    	    	|   target modifier_list_spec expType_list expId_spec 
+    	    	|   target expId_spec modifier_list_spec expType_list 
+    	    	|   target expId_spec expType_list modifier_list_spec 
+    	    	|   target expType_list modifier_list_spec expId_spec 
+    	    	|   target expType_list expId_spec modifier_list_spec 
+
+    	    	;
 
     	    /** LIST_BREAKS **/
     	    /** <ListOf_breakId> = listBreaks [ -v all || <expId_spec> ] **/

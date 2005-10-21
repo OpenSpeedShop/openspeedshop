@@ -44,6 +44,8 @@ typedef enum {
     CMD_EXP_STATUS,
     CMD_EXP_VIEW,
 
+    CMD_LIST_GENERIC,	// Replaces all the other list commands.
+
     CMD_LIST_BREAKS,
     CMD_LIST_EXP,
     CMD_LIST_HOSTS,

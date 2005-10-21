@@ -35,6 +35,7 @@ bool SS_expStatus(CommandObject *cmd);
 bool SS_expView (CommandObject *cmd);
 
 // Primitive Information level commands
+bool SS_ListGeneric (CommandObject *cmd);
 bool SS_ListBreaks (CommandObject *cmd);
 bool SS_ListExp (CommandObject *cmd);
 bool SS_ListHosts (CommandObject *cmd);
