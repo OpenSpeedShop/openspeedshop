@@ -238,6 +238,58 @@ AC_DEFUN([AC_PKG_PAPI], [
 
 ])
 
+
+################################################################################
+# Check for libunwind (http://www.hpl.hp.com/research/linux/libunwind/)
+################################################################################
+
+AC_DEFUN([AC_PKG_LIBUNWIND], [
+
+    AC_ARG_WITH(libunwind,
+                AC_HELP_STRING([--with-libunwind=DIR],
+                               [libunwind installation @<:@/usr@:>@]),
+                libunwind_dir=$withval, libunwind_dir="/usr")
+
+    LIBUNWIND_CPPFLAGS="-I$libunwind_dir/include"
+    LIBUNWIND_LDFLAGS="-L$libunwind_dir/$abi_libdir"
+    LIBUNWIND_LIBS="-lunwind"
+
+    AC_LANG_PUSH(C++)
+    AC_REQUIRE_CPP
+
+    libunwind_saved_CPPFLAGS=$CPPFLAGS
+    libunwind_saved_LDFLAGS=$LDFLAGS
+
+    CPPFLAGS="$CPPFLAGS $LIBUNWIND_CPPFLAGS"
+    LDFLAGS="$CXXFLAGS $LIBUNWIND_LDFLAGS $LIBUNWIND_LIBS"
+
+    AC_MSG_CHECKING([for LIBUNWIND library and headers])
+
+    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+        #include <libunwind-ptrace.h>
+        ]], [[
+        #ifdef UNW_REMOTE_ONLY
+                int n = 0, ret;
+                unw_cursor_t c;
+                ret = unw_step (&c);
+        #endif
+        ]]), AC_MSG_RESULT(yes), [ AC_MSG_RESULT(no)
+        AC_MSG_FAILURE(cannot locate LIBUNWIND library and/or headers.) ]
+    )
+
+    CPPFLAGS=$libunwind_saved_CPPFLAGS
+    LDFLAGS=$libunwind_saved_LDFLAGS
+
+    AC_LANG_POP(C++)
+
+    AC_SUBST(LIBUNWIND_CPPFLAGS)
+    AC_SUBST(LIBUNWIND_LDFLAGS)
+    AC_SUBST(LIBUNWIND_LIBS)
+
+    AC_DEFINE(HAVE_LIBUNWIND, 1, [Define to 1 if you have LIBUNWIND.])
+
+])
+
 ################################################################################
 # Check for SQLite (http://www.sqlite.org)
 ################################################################################
@@ -285,112 +337,16 @@ AC_DEFUN([AC_PKG_SQLITE], [
 
 ])
 
-
-
 ################################################################################
-# Check for Python minimum version 2.2 (http://www.python.org)
+# Check for python (http://www.python.org)
 ################################################################################
-## ------------------------
-## Python file handling
-## From Andrew Dalke
-## Updated by James Henstridge
-## Modified by Jim Galarowicz
-## ------------------------
+## Find the install dirs for the python installation.
 
-# AM_PATH_PYTHON([MINIMUM-VERSION])
-
-# Adds support for distributing Python modules and packages.  To
-# install modules, copy them to $(pythondir), using the python_PYTHON
-# automake variable.  To install a package with the same name as the
-# automake package, install to $(pkgpythondir), or use the
-# pkgpython_PYTHON automake variable.
-
-# The variables $(pyexecdir) and $(pkgpyexecdir) are provided as
-# locations to install python extension modules (shared libraries).
-# Another macro is required to find the appropriate flags to compile
-# extension modules.
-
-# If your package is configured with a different prefix to python,
-# users will have to add the install directory to the PYTHONPATH
-# environment variable, or create a .pth file (see the python
-# documentation for details).
-
-# If the MINIUMUM-VERSION argument is passed, AM_PATH_PYTHON will
-# cause an error if the version of python installed on the system
-# doesn't meet the requirement.  MINIMUM-VERSION should consist of
-# numbers and dots only.
-
-
-AC_DEFUN([AM_PATH_PYTHON],
- [
-#  AC_PROVIDE([AM_PATH_PYTHON])
-  dnl minimum version 2.2 is checked for
-
-  AC_PATH_PROG(PYTHON, python)
-
-  dnl should we do the version check?
-  ifelse([$1],[],,[
-    AC_MSG_CHECKING(if Python version >= $1)
-    changequote(<<, >>)dnl
-    prog="
-import sys, string
-minver = '$1'
-pyver = string.split(sys.version)[0]  # first word is version string
-# split strings by '.' and convert to numeric
-minver = map(string.atoi, string.split(minver, '.'))
-if hasattr(sys, 'version_info'):
-    pyver = sys.version_info[:3]
-else:
-    pyver = map(string.atoi, string.split(pyver, '.'))
-# we can now do comparisons on the two lists:
-if pyver >= minver:
-        sys.exit(0)
-else:
-        sys.exit(1)"
-    changequote([, ])dnl
-    if $PYTHON -c "$prog" 1>&AC_FD_CC 2>&AC_FD_CC
-    then
-      AC_MSG_RESULT(okay)
-    else
-      AC_MSG_ERROR(too old)
-    fi
-  ])
-
-  AC_MSG_CHECKING([local Python configuration])
-
-  dnl Query Python for its version number.  Getting [:3] seems to be
-  dnl the best way to do this; it's what "site.py" does in the standard
-  dnl library.  Need to change quote character because of [:3]
-
-  AC_SUBST(PYTHON_VERSION)
-  changequote(<<, >>)dnl
-  PYTHON_VERSION=`$PYTHON -c "import sys; print sys.version[:3]"`
-  changequote([, ])dnl
-
-
-  dnl Use the values of $prefix and $exec_prefix for the corresponding
-  dnl values of PYTHON_PREFIX and PYTHON_EXEC_PREFIX.  These are made
-  dnl distinct variables so they can be overridden if need be.  However,
-  dnl general consensus is that you shouldn't need this ability.
-
-  AC_SUBST(PYTHON_PREFIX)
-  PYTHON_PREFIX='${prefix}'
-
-  AC_SUBST(PYTHON_EXEC_PREFIX)
-  PYTHON_EXEC_PREFIX='${exec_prefix}'
-
-  dnl At times (like when building shared libraries) you may want
-  dnl to know which OS platform Python thinks this is.
-
-  AC_SUBST(PYTHON_PLATFORM)
-  PYTHON_PLATFORM=`$PYTHON -c "import sys; print sys.platform"`
-
-  AC_MSG_RESULT([looks good])
-])
-
+## Credits for this particular version of AM_CHECK_PYTHON_HEADERS 
+## By James Henstridge from http://source.macgimp.org/acinclude.m4
 
 dnl a macro to check for ability to create python extensions
-dnl  AM_CHECK_PYTHON_HEADERS([ACTION-IF-POSSIBLE], [ACTION-IF-NOT-POSSIBLE])
+dnl AM_CHECK_PYTHON_HEADERS([ACTION-IF-POSSIBLE], [ACTION-IF-NOT-POSSIBLE])
 dnl function also defines PYTHON_INCLUDES
 AC_DEFUN([AM_CHECK_PYTHON_HEADERS],
 [AC_REQUIRE([AM_PATH_PYTHON])
