@@ -70,7 +70,7 @@ static int Wait_For_Exp_State (CommandObject *cmd, int to_state, ExperimentObjec
         (cmd->Status() == CMD_ABORTED)) {
       break;
     }
-    usleep (10000);
+    usleep (100000);
     latest = exp->Determine_Status();
   }
 
@@ -2337,7 +2337,7 @@ bool SS_ListSrc (CommandObject *cmd) {
     }
    // Now we're ready to list the file names.
     for (std::set<std::string>::iterator mseti = mset.begin(); mseti != mset.end(); mseti++) {
-      cmd->Result_String ( L + ": " + *mseti );
+      cmd->Result_String ( *mseti );
     }
   }
 
