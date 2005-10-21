@@ -142,6 +142,13 @@ static PyObject *Convert_CommandResult_To_Python (CommandResult *cr) {
     }
     return p_object;
    }
+   case CMD_RESULT_FUNCTION:
+   {
+    std::string S;
+    ((CommandResult_Function *)(cr))->Value(S);
+    p_object = Py_BuildValue("s",S.c_str());
+    return p_object;
+   }
    CMD_RESULT_TITLE:              // Ignore for Python
    CMD_RESULT_COLUMN_HEADER:
    CMD_RESULT_COLUMN_ENDER:
@@ -563,16 +570,21 @@ static PyObject *SS_ExitEmbeddedInterface (PyObject *self, PyObject *args) {
  *
  */
 static PyObject *SS_EmbeddedParser (PyObject *self, PyObject *args) {
-  InputLineObject *clip = NULL;
+static CMDID Scripting_Sequence_Number = 0;
   char *input_line = NULL;
+  Assert (Embedded_WindowID != 0);  // Did we forget to initialize??
     
   if (!PyArg_ParseTuple(args, "s", &input_line)) {
   	;
   }
   Current_ILO = new InputLineObject (Embedded_WindowID, std::string(input_line));
+  Current_ILO->SetSeq (++Scripting_Sequence_Number);
+  Current_ILO->SetStatus (ILO_IN_PARSER);;
   Current_CO = NULL;
 
   PyObject *result = SS_CallParser (self, args);
+
+  delete Current_ILO;
 
   if (Shut_Down) {
     // We have seen an Exit command - close down the CLI.
