@@ -120,12 +120,6 @@ static bool Async_Inputs = false;
 static bool Looking_for_Async_Inputs = false;
 static CMDWID More_Input_Needed_From_Window = 0;
 
-static CMDWID Default_WindowID = 0;
-static CMDWID TLI_WindowID = 0;
-static CMDWID GUI_WindowID = 0;
-//static CMDWID Embedded_WindowID = 0;
-
-
 // Input_Source
 #define DEFAULT_INPUT_BUFFER_SIZE 4096
 
@@ -481,8 +475,8 @@ class CommandWindowID
       Assert(pthread_mutex_unlock(&Window_List_Lock) == 0);
 
      // Reclaim ss_ostream structures if not used in another window.
-      if (Default_WindowID != 0) {
-        CommandWindowID *dw = Find_Command_Window (Default_WindowID);
+      if (command_line_window != 0) {
+        CommandWindowID *dw = Find_Command_Window (command_line_window);
         if (default_outstream == dw->ss_outstream()) default_outstream = NULL;
         if (default_outstream == dw->ss_errstream()) default_outstream = NULL;
         if (default_errstream == dw->ss_outstream()) default_errstream = NULL;
@@ -645,13 +639,13 @@ class CommandWindowID
      // If the output is associated with the command line,
      // determine if the output stream is shared between windows.
       CommandWindowID *cw = NULL;
-      if (Default_WindowID == id) {
-        if (TLI_WindowID != 0) {
+      if (command_line_window == id) {
+        if (tli_window != 0) {
          // Command line and TLI share a window.  
-          cw = Find_Command_Window (TLI_WindowID);
-        } else if (GUI_WindowID != 0) {
+          cw = Find_Command_Window (tli_window);
+        } else if (gui_window != 0) {
          // Command line and GUI share a window.  
-          cw = Find_Command_Window (GUI_WindowID);
+          cw = Find_Command_Window (gui_window);
         }
       }
         
@@ -1238,7 +1232,7 @@ EXPID Experiment_Focus (CMDWID WindowID)
         char *m = "The Focus has been initialized to Experiment ";
         bcopy (m, a, strlen(m));
         sprintf (&a[strlen(m)], "%lld\n", f);
-        ReDirect_User_Stderr (a, strlen(a), (void *)WindowID);
+        Send_Message_To_Window ( WindowID, a);
       }
     }
   }
@@ -1390,19 +1384,19 @@ void Commander_Initialization () {
 
 CMDWID Default_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async)
 {
-  // Assert(Default_WindowID == 0);
+  // Assert(command_line_window == 0);
  // Create a new Window
   CommandWindowID *cwid = new CommandWindowID(std::string(my_name ? my_name : ""),
                                               std::string(my_host ? my_host : ""),
                                               my_pid, my_panel, Input_is_Async);
   Async_Inputs |= Input_is_Async;
-  Default_WindowID = cwid->ID();
-  return Default_WindowID;
+  command_line_window = cwid->ID();
+  return command_line_window;
 }
 
 CMDWID TLI_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async)
 {
-  Assert(TLI_WindowID == 0);
+  Assert(tli_window == 0);
  // Define the output control stream for the command terminal.
   class tli_ostream : public ss_ostream {
    private:
@@ -1450,21 +1444,21 @@ CMDWID TLI_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel,
   }
 
   Async_Inputs |= Input_is_Async;
-  TLI_WindowID = cwid->ID();
-  return TLI_WindowID;
+  tli_window = cwid->ID();
+  return tli_window;
 }
 
 CMDWID GUI_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async)
 {
  // Create a new Window
-  Assert(GUI_WindowID == 0);
+  Assert(gui_window == 0);
   CommandWindowID *cwid = new GUI_CommandWindowID(std::string(my_name ? my_name : ""),
                                                  std::string(my_host ? my_host : ""),
                                                  my_pid, my_panel, Input_is_Async);
 
   Async_Inputs |= Input_is_Async;
-  GUI_WindowID = cwid->ID();
-  return GUI_WindowID;
+  gui_window = cwid->ID();
+  return gui_window;
 }
 
 CMDWID RLI_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async)
@@ -1480,9 +1474,9 @@ CMDWID RLI_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel,
 CMDWID Embedded_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async)
 {
  // Check for any previous initialization.
-  Assert(Default_WindowID == 0);
-  Assert(TLI_WindowID == 0);
-  Assert(GUI_WindowID == 0);
+  Assert(command_line_window == 0);
+  Assert(tli_window == 0);
+  Assert(gui_window == 0);
   Assert(Embedded_WindowID == 0);
 
  // Create a new Window
@@ -1496,12 +1490,12 @@ void Window_Termination (CMDWID im)
     CommandWindowID *my_window = Find_Command_Window (im);
 
    // Clear base ID's that are used in the destructor.
-    if (im == Default_WindowID) {
-      Default_WindowID = 0;
-    } else if (im == TLI_WindowID) {
-      TLI_WindowID = 0;
-    } else if (im == GUI_WindowID) {
-      GUI_WindowID = 0;
+    if (im == command_line_window) {
+      command_line_window = 0;
+    } else if (im == tli_window) {
+      tli_window = 0;
+    } else if (im == gui_window) {
+      gui_window = 0;
     }
 
    // Now we can remove the CommandWindowID structure.
@@ -1549,17 +1543,17 @@ void Redirect_Window_Output (CMDWID for_window, ss_ostream *for_out, ss_ostream 
   }
 
  // We may want to redirect command line output.
-  if ((GUI_WindowID == for_window) &&
-      (Default_WindowID != 0) &&
-      (TLI_WindowID == 0)) {
+  if ((gui_window == for_window) &&
+      (command_line_window != 0) &&
+      (tli_window == 0)) {
     if (isatty(fileno(stdout))) {
      // Replace uses of stdout on the command line with the GUI text window.
-      CommandWindowID *my_window = Find_Command_Window (Default_WindowID);
+      CommandWindowID *my_window = Find_Command_Window (command_line_window);
       my_window->set_outstream ( for_out );
     }
     if (isatty(fileno(stderr))) {
      // Replace uses of stderr on the command line with the GUI text window.
-      CommandWindowID *my_window = Find_Command_Window (Default_WindowID);
+      CommandWindowID *my_window = Find_Command_Window (command_line_window);
       my_window->set_errstream ( for_err );
     }
   }
@@ -2143,10 +2137,10 @@ catch_TLI_signal (int sig, int error_num)
 {
   if (sig == SIGINT) {
    // CNTRL-C means that we want to stop commands issued from the TLI.
-    User_Interrupt (TLI_WindowID);
-    if (Default_WindowID) {
+    User_Interrupt (tli_window);
+    if (command_line_window) {
      // Also, stop commands issued from the command line.
-      User_Interrupt (Default_WindowID);
+      User_Interrupt (command_line_window);
     }
 
     ss_ttyout->acquireLock();
@@ -2181,8 +2175,8 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
   pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, &previous_value);
 
  // If this is the only window, send a welcome message to the user.
-  if ((Default_WindowID == 0) &&
-      (GUI_WindowID == 0) &&
+  if ((command_line_window == 0) &&
+      (gui_window == 0) &&
       (Embedded_WindowID == 0)) {
     char *Welcome_Message = "Welcome to Open|SpeedShop, version 0.1.\n"
                             "Type 'help' for more information.\n";
@@ -2226,12 +2220,12 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
 
 pthread_exit (0);
  // We have exited the loop and will no longer read input.
-  TLI_WindowID = 0;
-  if (GUI_WindowID != 0) {
+  tli_window = 0;
+  if (gui_window != 0) {
    // Stop this thread but keep the GUI runnning.
    // The user can stop OpenSS through the GUI.
     /* pthread_exit (0); */
-  } else if (Default_WindowID == 0) {
+  } else if (command_line_window == 0) {
    // This is the only window open, terminate Openss with a normal exit
    // so that all previously read commands finish first.
     (void) Append_Input_String ((CMDWID)attachtowindow, "exit",
@@ -2239,7 +2233,7 @@ pthread_exit (0);
   } else {
    // Add an Exit command to the end of the command line input stream
    // so that the command line arguments and input files are processed first.
-    (void) Append_Input_String (Default_WindowID, "exit",
+    (void) Append_Input_String (command_line_window, "exit",
                                 NULL, &Default_TLI_Line_Output, &Default_TLI_Command_Output);
   }
 }
