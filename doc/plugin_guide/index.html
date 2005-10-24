@@ -6,9 +6,8 @@
   <title>HowToCreatePluginsForOpenSpeedShop</title>
 </head>
 <body>
-<h1 style="text-align: center;"><br>
-</h1>
-<h1 style="text-align: center;"><img alt="Open|SpeedShop logo"
+<h1 style="text-align: center;"><a class="mozTocH1"
+ name="mozTocId873342"></a><img alt="Open|SpeedShop logo"
  src="OpenSpeedShop_Logo.jpg" style="width: 303px; height: 38px;"><br>
 </h1>
 <h1 style="text-align: center;"><a class="mozTocH1"
@@ -22,23 +21,30 @@ Beta Release</span><br style="font-weight: bold;">
  style="font-weight: bold;">Table of Contents</span><span
  style="text-decoration: underline;"></span></h2>
 <ul id="mozToc">
-<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId724479">Open|SpeedShop
-Plugin Creation Guide</a>
+<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId873342"></a></li>
+  <li><a href="#mozTocId724479">Plugin Creation Guide</a>
     <ul>
       <li><a href="#mozTocId240271">Table of Contents</a></li>
       <li><a href="#mozTocId535857">Open|SpeedShop
 Overview and Information Resources</a>
         <ul>
-          <li>
+          <li><a href="#mozTocId507487">Features:</a></li>
+          <li><a href="#mozTocId251693">Information Resources:</a></li>
+        </ul>
+      </li>
+      <li><a href="#mozTocId11413">Open|SpeedShop Plugin
+Overview
+        </a>
+        <ul>
+          <li><a href="#mozTocId405706">Plugin Creation Preview Outline</a>
             <ul>
-              <li><a href="#mozTocId507487">Features:</a></li>
-              <li><a href="#mozTocId251693">Information Resources:</a></li>
+              <li><a href="#mozTocId513127">Performance Data
+Collector Plugin Preview Outline</a></li>
+              <li><a href="#mozTocId679293">Where are the plugins?</a></li>
             </ul>
           </li>
         </ul>
       </li>
-      <li><a href="#mozTocId11413">Open|SpeedShop Plugin
-Overview </a></li>
       <li><a href="#mozTocId732797">Performance Data
 Collector Plugin Information</a>
         <ul>
@@ -52,7 +58,8 @@ Collector Plugin</a>
               <li><a href="#mozTocId667687">Server - Collector
 Runtime</a></li>
               <li><a href="#mozTocId637965">Client - Collector
-Plugin&nbsp; </a>
+Plugin&nbsp;
+                </a>
                 <ul>
                   <li><a href="#mozTocId388988">Start Collecting</a>
                     <ul>
@@ -60,7 +67,8 @@ Plugin&nbsp; </a>
 it does:</a></li>
                       <li><a href="#mozTocId219262">Definition:</a></li>
                       <li><a href="#mozTocId347609">Parameters:</a></li>
-                      <li><a href="#mozTocId50896">What's needed in the
+                      <li><a href="#mozTocId50896">What's needed
+in the
 function body:</a></li>
                     </ul>
                   </li>
@@ -69,7 +77,8 @@ function body:</a></li>
                       <li><a href="#mozTocId150755">What it does:</a></li>
                       <li><a href="#mozTocId352197">Definition:</a></li>
                       <li><a href="#mozTocId139139">Parameters:</a></li>
-                      <li><a href="#mozTocId722160">What's needed in
+                      <li><a href="#mozTocId722160">What's needed
+in
 the function body:</a></li>
                     </ul>
                   </li>
@@ -78,18 +87,21 @@ the function body:</a></li>
                       <li><a href="#mozTocId110227">What it does:</a></li>
                       <li><a href="#mozTocId171646">Definition:</a></li>
                       <li><a href="#mozTocId530275">Parameters:</a></li>
-                      <li><a href="#mozTocId673416">What's needed in
+                      <li><a href="#mozTocId673416">What's needed
+in
 the function body:</a></li>
                     </ul>
                   </li>
                   <li><a href="#mozTocId271962">Set Parameter</a>
                     <ul>
                       <li><a href="#mozTocId753822">What it does:</a></li>
-                      <li><a href="#mozTocId163320">Definition: </a></li>
+                      <li><a href="#mozTocId163320">Definition:
+                        </a></li>
                       <li><a href="#mozTocId699056"> Parameters:</a></li>
                       <li><a href="#mozTocId97265"> Return
 values:</a></li>
-                      <li><a href="#mozTocId259611">What's needed in
+                      <li><a href="#mozTocId259611">What's needed
+in
 the function body:</a></li>
                     </ul>
                   </li>
@@ -99,7 +111,8 @@ Parameters</a>
                       <li><a href="#mozTocId709984">What it does:</a></li>
                       <li><a href="#mozTocId832976">Definition:</a></li>
                       <li><a href="#mozTocId646706">Return values:</a></li>
-                      <li><a href="#mozTocId15384">What's needed in the
+                      <li><a href="#mozTocId15384">What's needed
+in the
 function body:</a></li>
                     </ul>
                   </li>
@@ -109,21 +122,24 @@ function body:</a></li>
                       <li><a href="#mozTocId552888">Definition:</a></li>
                       <li><a href="#mozTocId731991">Parameters:</a></li>
                       <li><a href="#mozTocId705614">Return values:</a></li>
-                      <li><a href="#mozTocId196328">What's needed in
-the function body:</a></li>
+                      <li><a href="#mozTocId196328">What's needed
+in the function body:</a></li>
                     </ul>
                   </li>
                 </ul>
               </li>
+              <li><a href="#mozTocId40824">Framework runtime</a></li>
             </ul>
           </li>
           <li><a href="#mozTocId846999">Example Collector Plugin</a></li>
           <li><a href="#mozTocId377373">Collector
-Plugin FAQ: </a>
+Plugin FAQ:
+            </a>
             <ul>
               <li><a href="#mozTocId198444">What is
 blob.x for? What is
-the significance of the .x suffix? </a></li>
+the significance of the .x suffix?
+                </a></li>
               <li><a href="#mozTocId189119">What is
 specifically needed to be known by the framework? Do these class
 structures need to follow a
@@ -133,14 +149,16 @@ particular convention?</a></li>
         </ul>
       </li>
       <li><a href="#mozTocId212847">Graphical User
-Interface Plugin Information </a>
+Interface Plugin Information
+        </a>
         <ul>
           <li><a href="#mozTocId930728">Creating A
 Graphical User Interface Panel</a>
             <ul>
               <li><a href="#mozTocId570308">Initial Skeletal
 Panel Creation - mknewpanel script</a></li>
-              <li><a href="#mozTocId500145">Example Sections of Code</a>
+              <li><a href="#mozTocId500145">Example Sections of
+Code</a>
                 <ul>
                   <li><a href="#mozTocId66382">QtClass</a></li>
                   <li><a href="#mozTocId14581">TopLevel</a></li>
@@ -151,16 +169,13 @@ Panel Creation - mknewpanel script</a></li>
           <li><a href="#mozTocId1902">Interfacing With
 Open|SpeedShop - Tips and Example Information</a>
             <ul>
-              <li>
-                <ul>
-                  <li><a href="#mozTocId784520">Executing a command
+              <li><a href="#mozTocId784520">Executing a command
 through Command Line Interface (CLI)</a></li>
-                  <li><a href="#mozTocId882832">Setting up a timer</a></li>
-                  <li><a href="#mozTocId803177">Communicating with
+              <li><a href="#mozTocId882832">Setting up a timer</a></li>
+              <li><a href="#mozTocId803177">Communicating with
 other GUI panels</a></li>
-                  <li><a href="#mozTocId525403">Managing process control</a></li>
-                </ul>
-              </li>
+              <li><a href="#mozTocId525403">Managing process
+control</a></li>
             </ul>
           </li>
           <li><a href="#mozTocId175785">Example Graphical
@@ -168,7 +183,8 @@ User Interface Plugin</a></li>
         </ul>
       </li>
       <li><a href="#mozTocId1574">Command Line
-Interface Plugin Information </a></li>
+Interface Plugin Information
+        </a></li>
     </ul>
   </li>
 </ul>
@@ -196,7 +212,7 @@ which allow users to add their own performance experiments. <br>
 <br>
 The infrastructure and base components of Open|SpeedShop are being
 released open source under GPL and LGPL.
-<h4><a class="mozTocH4" name="mozTocId507487"></a>Features:</h4>
+<h3><a class="mozTocH4" name="mozTocId507487"></a>Features:</h3>
 <ul>
   <li>Three modes of operation: batch, interactive command line
 interface, and
@@ -225,7 +241,7 @@ usability.&nbsp; <br>
 typical usage. <br>
   </li>
 </ul>
-<h4><a class="mozTocH4" name="mozTocId251693"></a>Information Resources:</h4>
+<h3><a class="mozTocH4" name="mozTocId251693"></a>Information Resources:</h3>
 Additional information about Open|SpeedShop usage and design can be
 found in a number of Open|SpeedShop documents.&nbsp; The currently
 available documents are:<br>
@@ -279,7 +295,8 @@ This document will outline each of the plugin types and give
 instruction and examples of how to create and integrate plugins into
 the Open|SpeedShop tools.<br>
 <br>
-<h3>Plugin Creation Preview Outline</h3>
+<h3><a class="mozTocH3" name="mozTocId405706"></a>Plugin Creation
+Preview Outline</h3>
 Before getting into all the details, it may be helpful to outline the
 steps involved in writing Open|SpeedShop plugins from a high
 level.&nbsp; The following outline indicates the basic steps needed in
@@ -288,6 +305,43 @@ at this point, don't despair, they will be explained later.&nbsp;&nbsp;
 The purpose of this section is to give a broad overview and context to
 the specific steps that are described in the rest of the document.<br>
 <br>
+<h4><a class="mozTocH4" name="mozTocId513127"></a>Performance Data
+Collector Plugin Preview Outline</h4>
+For building a performance data collector plugin these are the high
+level steps in outline form:<br>
+<ul>
+  <li>Do an identify and evaluation step on the performance data you
+want to gather.</li>
+  <ul>
+    <li>Can it be mapped back to the source line numbers or function
+definitions?</li>
+    <li>What's the goal?&nbsp; Identify the metrics - the performance
+data desired to be output by the Open|SpeedShop tool.</li>
+  </ul>
+  <li>Determine what will be in the performance data structure (data
+blob) in the victim application.</li>
+  <ul>
+    <li>Analyse the data blob structure</li>
+    <ul>
+      <li>Too much information (large data blobs) might impact the
+victim applications behavior (memory growth).</li>
+      <li>Sending lots of small data blobs could cause network
+performance issues.</li>
+    </ul>
+  </ul>
+</ul>
+<h4><a class="mozTocH4" name="mozTocId679293"></a>Where are the plugins?</h4>
+Open|SpeedShop recognizes the OPENSS_PLUGIN_PATH environment variable
+and will search the directory path supplied by this environment
+variable to find user created plugins.&nbsp;&nbsp; This environment
+variable provides an additional plugin path and does not override the
+Open|SpeedShop default plugin location path.&nbsp;&nbsp;&nbsp; The
+default path is based on the "--prefix" specified for the
+Open|SpeedShop build and installation.&nbsp;&nbsp; Open|SpeedShop
+follows the GNU convention which specifies the package name appended
+the &lt;install_dir&gt;/lib/&lt;package_name&gt; for the plugin
+path.&nbsp;&nbsp;&nbsp; So, for Open|SpeedShop the path to the default
+plugin directory will be &lt;install_dir&gt;/lib/openspeedshop.<br>
 <br>
 <h2><a class="mozTocH2" name="mozTocId732797"></a>Performance Data
 Collector Plugin Information</h2>
@@ -713,6 +767,24 @@ Representation)</li>
   <li>Extract the parameter value from the decoded parameter value data
 blob</li>
 </ol>
+<br>
+<h4><a class="mozTocH4" name="mozTocId40824"></a>Framework runtime</h4>
+The framework runtime contains a number of routines that the experiment
+collector can use.&nbsp;&nbsp; The libopenss-runtime Open|SpeedShop
+source directory contains the source for these supporting
+routines.&nbsp;&nbsp; Routines available in this directory provide this
+functionality:<br>
+<ul>
+  <li>Decoding the data blobs via XDR translation</li>
+  <li>Open|SpeedShop timer functions<br>
+  </li>
+  <li>Send the data blobs from the victim application to the
+Open|SpeedShop client</li>
+  <li>Get the program counter address from a given context</li>
+  <li>PAPI support functions</li>
+  <li>Access to libunwind functionality<br>
+  </li>
+</ul>
 <small><b><br>
 </b></small>
 <h3><a class="mozTocH3" name="mozTocId846999"></a><a
@@ -983,8 +1055,8 @@ namedPanelContainerWidget, "", NULL, pc-&gt;getMasterPCList() );<br>
 <br>
 <h3><a class="mozTocH3" name="mozTocId1902"></a>Interfacing With
 Open|SpeedShop - Tips and Example Information</h3>
-<h5><a class="mozTocH5" name="mozTocId784520"></a>Executing a command
-through Command Line Interface (CLI)</h5>
+<h4><a class="mozTocH5" name="mozTocId784520"></a>Executing a command
+through Command Line Interface (CLI)</h4>
 <span style="font-weight: bold;"></span>The GUI panels use the same
 commands that an interactive user would.&nbsp; The Open|SpeedShop tool
 was designed in this manner to prevent the interactive command line
@@ -1017,13 +1089,13 @@ tr("Process Paused...") );<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;</small><br>
 <br>
 <br>
-<h5><a class="mozTocH5" name="mozTocId882832"></a>Setting up a timer</h5>
-<h5><a class="mozTocH5" name="mozTocId803177"></a>Communicating with
-other GUI panels</h5>
+<h4><a class="mozTocH5" name="mozTocId882832"></a>Setting up a timer</h4>
+<h4><a class="mozTocH5" name="mozTocId803177"></a>Communicating with
+other GUI panels</h4>
 pcSamplePanel::listener(void *msg)<br>
 <br>
-<h5><a class="mozTocH5" name="mozTocId525403"></a>Managing process
-control</h5>
+<h4><a class="mozTocH5" name="mozTocId525403"></a>Managing process
+control</h4>
 <br>
 <br>
 <h3><a class="mozTocH3" name="mozTocId175785"></a><a
