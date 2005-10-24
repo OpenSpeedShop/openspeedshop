@@ -683,16 +683,28 @@ void Process::executeNow(const Collector& collector,
 	std::cerr << output.str();
     }
 #endif
+    
+    // Find the requested "callee" function
+    std::pair<LibraryEntry*, ProbeExp> callee_entry =
+	findLibraryFunction(collector, callee);
 
-    // Prepare to call the specified library function
-    std::pair<ProbeExp, std::multimap<Thread, ProbeHandle>::iterator>
-	prepared = prepareCallTo(collector, thread, callee, argument);
+    //
+    // Create a probe expression for the code sequence:
+    //
+    //     callee( StringEncode(argument) )
+    //
+
+    ProbeExp args_exp[1] = { ProbeExp(argument.getStringEncoding().c_str()) };
+    
+    ProbeExp expression = callee_entry.second.call(1, args_exp);
     
     // Request the instrumentation be executed in this process
     MainLoop::suspend();
-    requestExecute(prepared.first, NULL, NULL);
-    prepared.second->second = ProbeHandle();
+    requestExecute(expression, NULL, NULL);
     MainLoop::resume();
+    
+    // Add an empty probe handle to the probes for this thread
+    callee_entry.first->dm_probes.insert(std::make_pair(thread, ProbeHandle()));
 }
 
 
@@ -704,26 +716,18 @@ void Process::executeNow(const Collector& collector,
  * or exit is executed in this process. The library is loaded into the process
  * first if necessary.
  *
- * @pre    Libraries are located using libltdl and the standard search path
- *         established by the CollectorPluginTable class. A LibraryNotFound
- *         exception is thrown if the library can't be located.
- *
- * @pre    The function to be executed must be found in the specified library.
- *         A LibraryFuncNotFound exception is thrown if the function cannot be
- *         found within the specified library.
- *
- * @param collector      Collector requesting the execution.
- * @param thread         Thread in which the function should be executed.
- * @param at_function    Name of the function at whose entry/exit the library
- *                       function should be executed.
- * @param at_entry       Boolean "true" if instrumenting function's entry point,
- *                       or "false" if function's exit point.
- * @param callee         Name of the library function to be executed.
- * @param argument       Blob argument to the function.
+ * @param collector    Collector requesting the execution.
+ * @param thread       Thread in which the function should be executed.
+ * @param where        Name of the function at whose entry/exit the library
+ *                     function should be executed.
+ * @param at_entry     Boolean "true" if instrumenting function's entry point,
+ *                     or "false" if function's exit point.
+ * @param callee       Name of the library function to be executed.
+ * @param argument     Blob argument to the function.
  */
 void Process::executeAtEntryOrExit(const Collector& collector,
 				   const Thread& thread,
-				   const std::string& at_function,
+				   const std::string& where,
 				   const bool& at_entry,
 				   const std::string& callee,
 				   const Blob& argument)
@@ -737,7 +741,7 @@ void Process::executeAtEntryOrExit(const Collector& collector,
 	       << "Process::executeAtEntryOrExit(C"
 	       << EntrySpy(collector).getEntry()  << ", T"
 	       << EntrySpy(thread).getEntry() << ", \"" 
-	       << at_function << "\", "
+	       << where << "\", "
 	       << (at_entry ? "Entry" : "Exit") << ", \""
 	       << callee << "\", ...) for "
 	       << formUniqueName(dm_host, dm_pid) 
@@ -746,33 +750,152 @@ void Process::executeAtEntryOrExit(const Collector& collector,
     }
 #endif
 
-    // Find the requested function
-    SourceObj function = findFunction(at_function);
-    
-    // Go no further if the function could not be found
-    if(function.src_type() != SOT_function)
+    // Find the requested "where" function and return if it couldn't be found
+    SourceObj where_srcobj = findFunction(where);
+    if(where_srcobj.src_type() != SOT_function)
 	return;
-    		
-    // Obtain the entry/exit point to this function
-    InstPoint point;
-    for(int p = 0; p < function.exclusive_point_count(); ++p)
-	if(function.exclusive_point(p).get_type() ==
-	   (at_entry ? IPT_function_entry : IPT_function_exit))
-	    point = function.exclusive_point(p);
-    Assert(point.get_type() == 
-	   (at_entry ? IPT_function_entry : IPT_function_exit));
+
+    // Find the requested "callee" function
+    std::pair<LibraryEntry*, ProbeExp> callee_entry =
+	findLibraryFunction(collector, callee);
     
-    // Prepare to call the specified library function
-    std::pair<ProbeExp, std::multimap<Thread, ProbeHandle>::iterator>
-	prepared = prepareCallTo(collector, thread, callee, argument);
+    //
+    // Create a probe expression for the code sequence:
+    //
+    //     callee( StringEncode(argument) )
+    //
     
-    // Request the instrumentation be inserted into this process
+    ProbeExp args_exp[1] = { ProbeExp(argument.getStringEncoding().c_str()) };
+    
+    ProbeExp expression = callee_entry.second.call(1, args_exp);    
+    
+    // Iterate over the entry/exit points to the "where" function
+    for(int p = 0; p < where_srcobj.exclusive_point_count(); ++p)
+	if(where_srcobj.exclusive_point(p).get_type() ==
+	   (at_entry ? IPT_function_entry : IPT_function_exit)) {
+	    InstPoint point = where_srcobj.exclusive_point(p);
+	    
+	    // Request the instrumentation be inserted into this process
+	    MainLoop::suspend();
+	    ProbeHandle handle = 
+		requestInstallAndActivate(expression, point, NULL, NULL);
+	    MainLoop::resume();    
+	    
+	    // Add this probe handle to the probes for this thread
+	    callee_entry.first->dm_probes.insert(
+		std::make_pair(thread, handle)
+		);
+	    
+	}
+}
+
+
+
+/**
+ * Execute a library function in place of another function.
+ *
+ * Executes the specified library function in place of another function every
+ * other time that other function is called. The library is loaded into the
+ * process first if necessary.
+ *
+ * @pre    Libraries are located using libltdl and the standard search path
+ *         established by the CollectorPluginTable class. A LibraryNotFound
+ *         exception is thrown if the library can't be located.
+ *
+ * @pre    The function to be executed must be found in the specified library.
+ *         A LibraryFuncNotFound exception is thrown if the function cannot be
+ *         found within the specified library.
+ *
+ * @note    The library function <em>must</em> take exactly the same parameters
+ *          as the function it replaces and return the same type of value. It
+ *          also <em>must</em> call the function it replaces once and only once.
+ *
+ * @param collector    Collector requesting the execution.
+ * @param thread       Thread in which the function should be executed.
+ * @param where        Name of the function to be replaced with the library
+ *                     function.
+ * @param callee       Name of the library function to be executed.
+ */
+void Process::executeInPlaceOf(const Collector& collector,
+			       const Thread& thread,
+			       const std::string& where,
+			       const std::string& callee)
+{
+    Guard guard_myself(this);
+    
+#ifndef NDEBUG
+    if(is_debug_enabled) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] "
+	       << "Process::executeInPlaceOf(C"
+	       << EntrySpy(collector).getEntry()  << ", T"
+	       << EntrySpy(thread).getEntry() << ", \"" 
+	       << where << "\", \""
+	       << callee << "\") for "
+	       << formUniqueName(dm_host, dm_pid) 
+	       << std::endl;
+	std::cerr << output.str();
+    }
+#endif
+
+    // Find the requested "where" function and return if it couldn't be found
+    SourceObj where_srcobj = findFunction(where);
+    if(where_srcobj.src_type() != SOT_function)
+	return;
+
+    // Find the requested "callee" function
+    std::pair<LibraryEntry*, ProbeExp> callee_entry =
+	findLibraryFunction(collector, callee);
+
+    // Ask DPCL to allocate a variable in this process for storing a flag
+    int32_t initial_value = 0;
+    AisStatus retval;
     MainLoop::suspend();
-    prepared.second->second =
-	requestInstallAndActivate(prepared.first, point, NULL, NULL);
-    requestExecute(prepared.first, NULL, NULL);
-    prepared.second->second = ProbeHandle();
-    MainLoop::resume();    
+    ProbeExp flag_exp = 
+	dm_process->balloc_mem(int32_type(), (void*)(&initial_value), retval);
+    MainLoop::resume();
+#ifndef NDEBUG
+    if(is_debug_enabled)
+    	debugDPCL("response from balloc_mem", retval);
+#endif
+
+    // Add this variable to the variables for this thread
+    callee_entry.first->dm_variables.insert(std::make_pair(thread, flag_exp));
+    
+    //
+    // Create a probe expression (with recursion enabled) for the code sequence:
+    //
+    //     if(flag == 0) {
+    //         flag = 1;
+    //         jump wrapper();
+    //     } else
+    //         flag = 0;
+    //
+
+    ProbeExp expression = (
+	(flag_exp == 0).ifelse(
+	    flag_exp.assign(1).sequence(callee_entry.second.jump()),
+	    flag_exp.assign(0)
+	    )
+	).recursive();
+
+    // Iterate over the entry points to the "where" function
+    for(int p = 0; p < where_srcobj.exclusive_point_count(); ++p)
+	if(where_srcobj.exclusive_point(p).get_type() == IPT_function_entry) {
+	    InstPoint point = where_srcobj.exclusive_point(p);
+	    
+	    // Request the instrumentation be inserted into this process
+	    MainLoop::suspend();
+	    ProbeHandle handle = 
+		requestInstallAndActivate(expression, point, NULL, NULL);
+	    MainLoop::resume();    
+	    
+	    // Add this probe handle to the probes for this thread
+	    callee_entry.first->dm_probes.insert(
+		std::make_pair(thread, handle)
+		);
+	    
+	}
 }
 
 
@@ -811,7 +934,7 @@ void Process::uninstrument(const Collector& collector, const Thread& thread)
 	if(i->second.dm_collector != collector)
 	    continue;
 
-	// Remove all probes associated with specified thread from the process
+	// Remove all probes associated with the thread from this process
 	for(std::multimap<Thread, ProbeHandle>::iterator
 		j = i->second.dm_probes.lower_bound(thread); 
 	    j != i->second.dm_probes.upper_bound(thread); 
@@ -819,19 +942,38 @@ void Process::uninstrument(const Collector& collector, const Thread& thread)
 
 	    // Note: Probes resulting from executeNow() have empty, dummy, 
 	    //       probe handles that don't actually need to be removed.	
-
+	    
 	    if(j->second.get_point().get_type() != IPT_invalid) {
+
+		// Request the probe be deactivated and removed
 		MainLoop::suspend();
 		requestDeactivateAndRemove(j->second);
 		MainLoop::resume();		
+		
 	    }
 
-	// Remove all probes associated with specified thread from this library
+	// Remove all probes associated with the thread from this library
 	i->second.dm_probes.erase(thread);
 
-	// Have all the probes for this library been removed?
-	if(i->second.dm_probes.empty()) {
+	// Remove all variables associated with the thread from this process
+	for(std::multimap<Thread, ProbeExp>::iterator
+		j = i->second.dm_variables.lower_bound(thread); 
+	    j != i->second.dm_variables.upper_bound(thread); 
+	    ++j) {
+	    
+	    // Request the memory for this variable be freed
+	    MainLoop::suspend();
+	    requestFree(j->second);
+	    MainLoop::resume();	
+	    
+	}
+	
+	// Remove all variables associated with the thread from this library
+	i->second.dm_probes.erase(thread);
 
+	// Have all the probes & variables for this library been removed?
+	if(i->second.dm_probes.empty() && i->second.dm_variables.empty()) {
+	    
 	    // Request the library (module) be unloaded from this process
 	    MainLoop::suspend();
 	    requestUnloadModule(i->second);
@@ -901,19 +1043,25 @@ bool Process::getGlobal(const std::string& global, int64_t& value)
 	return false;
 
     }
-    
-    // Create a probe expression to retrieve this value
-    ProbeExp send_args_exp[3] = { 
+
+    //
+    // Create a probe expression for the code sequence:
+    //
+    //     Ais_send(Ais_msg_handle, &global, size)
+    //
+
+    ProbeExp args_exp[3] = { 
 	Ais_msg_handle,
 	variable.reference().address(),
 	size
     };
-    ProbeExp send_exp = Ais_send.call(3, send_args_exp);
+
+    ProbeExp expression = Ais_send.call(3, args_exp);
     
     // Ask DPCL to execute the probe expression in this process
     MainLoop::suspend();
     AisStatus retval =
-	dm_process->bexecute(send_exp, getIntegerCallback, &value);
+	dm_process->bexecute(expression, getIntegerCallback, &value);
     MainLoop::resume();
 #ifndef NDEBUG
     if(is_debug_enabled)
@@ -1031,21 +1179,28 @@ bool Process::getGlobalMPICHProcTable(Job& value)
     // Calculate the number of bytes in the process table
     size_t num_bytes = size * 
 	(is_64bit ? sizeof(MPIR_PROCDESC_64) : sizeof(MPIR_PROCDESC_32));
+
+    //
+    // Create a probe expression for the code sequence:
+    //
+    //     Ais_send(Ais_msg_handle, &table, num_bytes)
+    //
     
-    // Create a probe expression to retrieve the table
-    ProbeExp send_args_exp[3] = { 
+    ProbeExp args_exp[3] = { 
 	Ais_msg_handle,
 	variable.reference(),
 	ProbeExp(static_cast<int32_t>(num_bytes))
     };
-    ProbeExp send_exp = Ais_send.call(3, send_args_exp);
+
+    ProbeExp expression = Ais_send.call(3, args_exp);
     
     // Define a pointer to the retrieved process table
     void* buffer = NULL;
     
     // Ask DPCL to execute the probe expression in this process
     MainLoop::suspend();
-    AisStatus retval = dm_process->bexecute(send_exp, getBlobCallback, &buffer);
+    AisStatus retval = 
+	dm_process->bexecute(expression, getBlobCallback, &buffer);
     MainLoop::resume();
 #ifndef NDEBUG
     if(is_debug_enabled)
@@ -1822,6 +1977,35 @@ void Process::expandCallback(GCBSysType, GCBTagType tag,
     // Finish symbol table processing if all requests have been completed
     if(requests_completed)
 	finishSymbolTableProcessing(state);
+}
+
+
+
+/**
+ * Free memory callback.
+ *
+ * Callback function called by the DPCL main loop when memory has been freed in
+ * a process. Contains only debugging code for now.
+ */
+void Process::freeMemCallback(GCBSysType, GCBTagType tag,
+			      GCBObjType, GCBMsgType msg)
+{
+    std::string* name = reinterpret_cast<std::string*>(tag);
+    AisStatus* status = reinterpret_cast<AisStatus*>(msg);    
+    
+    // Check assertions
+    Assert(name != NULL);
+    Assert(status != NULL);
+    
+#ifndef NDEBUG
+    if(is_debug_enabled) {
+	debugCallback("freeMem", *name);
+    	debugDPCL("response from free_mem", *status);
+    }
+#endif
+    
+    // Destroy the heap-allocated name string
+    delete name;
 }
 
 
@@ -2925,6 +3109,44 @@ void Process::requestExecute(ProbeExp expression,
 
 
 /**
+ * Request memory release.
+ *
+ * Asynchronously requests that DPCL free memory in this process. Attempts to
+ * issue the request and then immediately returns. After completing the request,
+ * DPCL will call freeMemCallback().
+ *
+ * @param expression    Probe expression for the memory to be freed.
+ */
+void Process::requestFree(ProbeExp expression)
+{
+    Guard guard_myself(this);
+
+#ifndef NDEBUG
+    if(is_debug_enabled)
+	debugRequest("Free");
+#endif
+
+    // Allocate a copy of our unique name
+    std::string* name = new std::string(formUniqueName(dm_host, dm_pid));
+    Assert(name != NULL);
+    
+    // Ask DPCL To asynchronously free the memory in this process
+    AisStatus retval = dm_process->free_mem(expression, freeMemCallback, name);
+#ifndef NDEBUG
+    if(is_debug_enabled) 
+	debugDPCL("request to free_mem", retval);
+#endif
+    if(retval.status() != ASC_success) {
+	
+	// Destroy the heap-allocated unique name string
+	delete name;
+	
+    }
+}
+
+
+
+/**
  * Request instrumentation installation and activation.
  *
  * Asynchronously requests that DPCL install and activate instrumentation in
@@ -3309,81 +3531,11 @@ SourceObj Process::findVariable(const std::string& name)
 
 
 /**
- * Get a string.
+ * Find a library function.
  *
- * Gets the current value of a character string within this process. The value
- * is returned as a C++ standard string rather than a C character array. This
- * makes managing the memory associated with the string more obvious. Returns
- * a boolean value indicating if the string's value was successfully retrieved.
- *
- * @param where     Probe expression for the address of the string whose value
- *                  is being requested.
- * @retval value    Current value of that string.
- * @return          Boolean "true" if the string's value was successfully
- *                  retrieved, "false" otherwise.
- */
-bool Process::getString(const ProbeExp& where, std::string& value)
-{
-    Guard guard_myself(this);
-    
-    // Find the strlen() function
-    SourceObj strlen_func = findFunction("strlen");    
-
-    // Go no further if strlen() could not be found
-    if(strlen_func.src_type() != SOT_function)
-	return false;
-    
-    // Create a probe expression to retrieve this value
-    ProbeExp send_empty_args_exp[3] = {
-	Ais_msg_handle,
-	ProbeExp(""),
-	ProbeExp(1)
-    };
-    ProbeExp strlen_args_exp[1] = { 
-	where
-    };
-    ProbeExp send_args_exp[3] = {
-	Ais_msg_handle, 
-	where,
-	strlen_func.reference().call(1, strlen_args_exp) + ProbeExp(1)
-    };
-    ProbeExp send_exp = where.ifelse(
-	Ais_send.call(3, send_args_exp),
-	Ais_send.call(3, send_empty_args_exp)
-	);
-    
-    // Define a pointer to the retrieved character array
-    char* buffer = NULL;
-    
-    // Ask DPCL to execute the probe expression in this process
-    MainLoop::suspend();
-    AisStatus retval = dm_process->bexecute(send_exp, getBlobCallback, &buffer);
-    MainLoop::resume();
-#ifndef NDEBUG
-    if(is_debug_enabled)
-    	debugDPCL("response from bexecute", retval);
-#endif
-
-    // Extract and return the string's value if it was retrieved
-    if(buffer != NULL) {
-	value = std::string(buffer);
-	delete [] buffer;	
-    }
-    
-    // Indicate to the caller if the value was retrieved
-    return retval.status() == ASC_success; 
-}
-
-
-
-/**
- * Prepare a call to a library function.
- *
- * Prepares to call the specified library function in this process. The library
- * is loaded into the process first if necessary, the function is located within
- * that library, its arguments are encoded, and an entry is added to the probe
- * list for this library. A probe expression for calling the function, and an
- * iterator to the probe list entry, are returned.
+ * Finds the named library function in this process. The library containing
+ * this function is loaded into the process first if necessary. A pointer to
+ * the library's entry, and a probe expression for the function, are returned.
  *
  * @pre    Libraries are located using libltdl and the standard search path
  *         established by the CollectorPluginTable class. A LibraryNotFound
@@ -3393,26 +3545,23 @@ bool Process::getString(const ProbeExp& where, std::string& value)
  *         A LibraryFuncNotFound exception is thrown if the function cannot be
  *         found within the specified library. 
  *
- * @param collector    Collector requesting the execution.
- * @param thread       Thread in which the function should be executed.
- * @param callee       Name of the library function to be executed.
- * @param argument     Blob argument to the function.
- * @return             Pair containing probe expression to call the function and
- *                     an interator to our entry in the library's probe list.
+ * @param collector    Collector requesting the library function.
+ * @param name         Name of the library function to be found.
+ * @return             Pair containing a pointer to the library's entry and a
+ *                     probe expression for the function.
  */
-std::pair<ProbeExp, std::multimap<Thread, ProbeHandle>::iterator>
-Process::prepareCallTo(const Collector& collector, const Thread& thread,
-		       const std::string& callee, const Blob& argument)
+std::pair<Process::LibraryEntry*, ProbeExp>
+Process::findLibraryFunction(const Collector& collector,
+			     const std::string& name)
 {
     Guard guard_myself(this);
     
     // Parse the library function name into separate library and function names
-    std::pair<std::string, std::string> parsed =
-	parseLibraryFunctionName(callee);
+    std::pair<std::string, std::string> parsed = parseLibraryFunctionName(name);
     
     // Check preconditions
     if(parsed.first.empty() || parsed.second.empty())
-	throw Exception(Exception::LibraryNotFound, callee);
+	throw Exception(Exception::LibraryNotFound, name);
     
     // Find the entry for this library
     std::map<std::pair<Collector, std::string>, LibraryEntry>::iterator
@@ -3449,22 +3598,92 @@ Process::prepareCallTo(const Collector& collector, const Thread& thread,
     if(j == i->second.dm_functions.end())
         throw Exception(Exception::LibraryFuncNotFound,
 			parsed.first, parsed.second);
-    
+
     // Obtain a probe expression reference for the function
     ProbeExp function_exp = i->second.dm_module.get_reference(j->second);
-    
-    // Create a probe expression for the argument (first encoded as a string)
-    ProbeExp args_exp[1] = { ProbeExp(argument.getStringEncoding().c_str()) };
-    
-    // Create a probe expression for the function call
-    ProbeExp call_exp = function_exp.call(1, args_exp);
 
-    // Add an empty (for now) probe handle to the probes for this thread
-    std::multimap<Thread, ProbeHandle>::iterator k =
-	i->second.dm_probes.insert(std::make_pair(thread, ProbeHandle()));
-    
     // Return results to the caller
-    return std::make_pair(call_exp, k);    
+    return std::make_pair(&(i->second), function_exp);
+}
+
+
+
+/**
+ * Get a string.
+ *
+ * Gets the current value of a character string within this process. The value
+ * is returned as a C++ standard string rather than a C character array. This
+ * makes managing the memory associated with the string more obvious. Returns
+ * a boolean value indicating if the string's value was successfully retrieved.
+ *
+ * @param where     Probe expression for the address of the string whose value
+ *                  is being requested.
+ * @retval value    Current value of that string.
+ * @return          Boolean "true" if the string's value was successfully
+ *                  retrieved, "false" otherwise.
+ */
+bool Process::getString(const ProbeExp& where, std::string& value)
+{
+    Guard guard_myself(this);
+    
+    // Find the strlen() function
+    SourceObj strlen_func = findFunction("strlen");    
+
+    // Go no further if strlen() could not be found
+    if(strlen_func.src_type() != SOT_function)
+	return false;
+
+    //
+    // Create a probe expression for the code sequence:
+    //
+    //     if(where)
+    //         Ais_send(Ais_msg_handle, where, strlen(where) + 1)
+    //     else
+    //         Ais_send(Ais_msg_handle, "", 1)
+    //
+
+    ProbeExp send_empty_args_exp[3] = {
+	Ais_msg_handle,
+	ProbeExp(""),
+	ProbeExp(1)
+    };
+
+    ProbeExp strlen_args_exp[1] = { 
+	where
+    };
+
+    ProbeExp send_args_exp[3] = {
+	Ais_msg_handle, 
+	where,
+	strlen_func.reference().call(1, strlen_args_exp) + ProbeExp(1)
+    };
+
+    ProbeExp expression = where.ifelse(
+	Ais_send.call(3, send_args_exp),
+	Ais_send.call(3, send_empty_args_exp)
+	);
+    
+    // Define a pointer to the retrieved character array
+    char* buffer = NULL;
+    
+    // Ask DPCL to execute the probe expression in this process
+    MainLoop::suspend();
+    AisStatus retval = 
+	dm_process->bexecute(expression, getBlobCallback, &buffer);
+    MainLoop::resume();
+#ifndef NDEBUG
+    if(is_debug_enabled)
+    	debugDPCL("response from bexecute", retval);
+#endif
+
+    // Extract and return the string's value if it was retrieved
+    if(buffer != NULL) {
+	value = std::string(buffer);
+	delete [] buffer;	
+    }
+    
+    // Indicate to the caller if the value was retrieved
+    return retval.status() == ASC_success; 
 }
 
 

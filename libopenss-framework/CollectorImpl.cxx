@@ -203,8 +203,7 @@ void CollectorImpl::executeAtEntry(const Collector& collector,
 				   const std::string& callee, 
 				   const Blob& argument) const
 {
-    Instrumentor::executeAtEntryOrExit(thread, collector, 
-				       where, true,
+    Instrumentor::executeAtEntryOrExit(thread, collector, where, true,
 				       callee, argument);
 }
 
@@ -230,9 +229,32 @@ void CollectorImpl::executeAtExit(const Collector& collector,
 				  const std::string& callee, 
 				  const Blob& argument) const
 {
-    Instrumentor::executeAtEntryOrExit(thread, collector, 
-				       where, false,
+    Instrumentor::executeAtEntryOrExit(thread, collector, where, false,
 				       callee, argument);
+}
+
+
+
+/**
+ * Execute a library function in place of another function.
+ *
+ * Executes the specified library function in place of another function every
+ * other time that other function is called. Called by derived classes to create
+ * wrappers around functions for the purposes of gathering performance data on
+ * their execution.
+ *
+ * @param collector    Collector requesting the execution.
+ * @param thread       Thread in which the function should be executed.
+ * @param where        Name of the function to be replaced with the library
+ *                     function.
+ * @param callee       Name of the library function to be executed.
+ */
+void CollectorImpl::executeInPlaceOf(const Collector& collector,
+				     const Thread& thread,
+				     const std::string& where,
+				     const std::string& callee) const
+{
+    Instrumentor::executeInPlaceOf(thread, collector, where, callee);
 }
 
 

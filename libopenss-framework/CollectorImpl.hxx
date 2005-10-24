@@ -199,7 +199,9 @@ namespace OpenSpeedShop { namespace Framework {
 			    const std::string&, const Blob&) const;
 	void executeAtExit(const Collector&, const Thread&, const std::string&,
 			   const std::string&, const Blob&) const;
-	
+	void executeInPlaceOf(const Collector&, const Thread&,
+			      const std::string&, const std::string&) const;
+
 	void uninstrument(const Collector&, const Thread&) const;
 	
     private:

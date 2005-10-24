@@ -282,18 +282,18 @@ void Instrumentor::executeNow(const Thread& thread,
  *          only guarantee that can be made is that <em>all</em> threads in the
  *          process containing the specified thread will execute the expression.
  *
- * @param thread         Thread in which the function should be executed.
- * @param collector      Collector requesting the execution.
- * @param at_function    Name of the function at whose entry/exit the library
- *                       function should be executed.
- * @param at_entry       Boolean "true" if instrumenting function's entry point,
- *                       or "false" if function's exit point.
- * @param callee         Name of the library function to be executed.
- * @param argument       Blob argument to the function.
+ * @param thread       Thread in which the function should be executed.
+ * @param collector    Collector requesting the execution.
+ * @param where        Name of the function at whose entry/exit the library
+ *                     function should be executed.
+ * @param at_entry     Boolean "true" if instrumenting function's entry point,
+ *                     or "false" if function's exit point.
+ * @param callee       Name of the library function to be executed.
+ * @param argument     Blob argument to the function.
  */
 void Instrumentor::executeAtEntryOrExit(const Thread& thread,
 					const Collector& collector,
-					const std::string& at_function, 
+					const std::string& where, 
 					const bool& at_entry,
 					const std::string& callee, 
 					const Blob& argument)
@@ -314,9 +314,56 @@ void Instrumentor::executeAtEntryOrExit(const Thread& thread,
                         Exception::toString(thread.getProcessId()));
     
     // Request the library function be executed in the process
-    process->executeAtEntryOrExit(collector, thread,
-				  at_function, at_entry, 
+    process->executeAtEntryOrExit(collector, thread, where, at_entry, 
 				  callee, argument);
+}
+
+
+
+/**
+ * Execute a library function in place of another function.
+ *
+ * Executes the specified library function in place of another function every
+ * other time that other function is called. Used by collectors to create
+ * wrappers around functions for the purposes of gathering performance data on
+ * their execution.
+ *
+ * @pre    Only applies to a thread which is connected. A ThreadUnavailable
+ *         exception is thrown if called for a thread that is not connected.
+ *
+ * @todo    Currently DPCL does not provide the ability to specify the thread
+ *          within a process that will execute a probe expression. For now, the
+ *          only guarantee that can be made is that <em>all</em> threads in the
+ *          process containing the specified thread will execute the expression.
+ *
+ * @param thread       Thread in which the function should be executed.
+ * @param collector    Collector requesting the execution.
+ * @param where        Name of the function to be replaced with the library
+ *                     function.
+ * @param callee       Name of the library function to be executed.
+ */
+void Instrumentor::executeInPlaceOf(const Thread& thread,
+				    const Collector& collector,
+				    const std::string& where, 
+				    const std::string& callee)
+{
+    SmartPtr<Process> process;
+
+    // Critical section touching the process table
+    {
+        Guard guard_process_table(ProcessTable::TheTable);
+
+        // Get the process for this thread (if any)
+        process = ProcessTable::TheTable.getProcessByThread(thread);
+    }
+
+    // Check preconditions
+    if(process.isNull() || !process->isConnected())
+        throw Exception(Exception::ThreadUnavailable, thread.getHost(),
+                        Exception::toString(thread.getProcessId()));
+    
+    // Request the library function be executed in the process
+    process->executeInPlaceOf(collector, thread, where, callee);
 }
 
 

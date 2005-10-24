@@ -90,7 +90,9 @@ namespace OpenSpeedShop { namespace Framework {
 	void executeAtEntryOrExit(const Collector&, const Thread&,
 				  const std::string&, const bool&,
 				  const std::string&, const Blob&);
-	
+	void executeInPlaceOf(const Collector&, const Thread&,
+			      const std::string&, const std::string&);	
+
 	void uninstrument(const Collector&, const Thread&);
 
 	bool getGlobal(const std::string&, int64_t&);
@@ -134,6 +136,8 @@ namespace OpenSpeedShop { namespace Framework {
 				    GCBObjType, GCBMsgType);
 	static void expandCallback(GCBSysType, GCBTagType,
 				   GCBObjType, GCBMsgType);
+	static void freeMemCallback(GCBSysType, GCBTagType,
+				    GCBObjType, GCBMsgType);
 	static void getBlobCallback(GCBSysType, GCBTagType,
 				    GCBObjType, GCBMsgType);
 	static void getIntegerCallback(GCBSysType, GCBTagType,
@@ -210,6 +214,9 @@ namespace OpenSpeedShop { namespace Framework {
 	    
 	    /** Probes used with this library. */
 	    std::multimap<Thread, ProbeHandle> dm_probes;
+
+	    /** Variables used with this library. */
+	    std::multimap<Thread, ProbeExp> dm_variables;
 	    
 	    /** Constructor from collector and library name. */
 	    LibraryEntry(const Collector& collector, const std::string& name) :
@@ -234,6 +241,7 @@ namespace OpenSpeedShop { namespace Framework {
 	void requestDestroy();
 	void requestDisconnect();
 	void requestExecute(ProbeExp, GCBFuncType, GCBTagType);
+	void requestFree(ProbeExp);
 	ProbeHandle requestInstallAndActivate(ProbeExp, InstPoint,
 					      GCBFuncType, GCBTagType);
 	void requestLoadModule(LibraryEntry&);
@@ -244,12 +252,11 @@ namespace OpenSpeedShop { namespace Framework {
 	SourceObj findFunction(const std::string&);
 	SourceObj findVariable(const std::string&);
 
+	std::pair<LibraryEntry*, ProbeExp>
+	findLibraryFunction(const Collector&, const std::string&);	
+	
 	bool getString(const ProbeExp&, std::string&);
 	
-	std::pair<ProbeExp, std::multimap<Thread, ProbeHandle>::iterator>
-	prepareCallTo(const Collector&, const Thread&,
-		      const std::string&, const Blob&);
-
     };
     
 } }
