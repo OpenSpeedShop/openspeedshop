@@ -74,8 +74,8 @@ static void Run(int argc, char* argv[])
     while(experiment.getThreads().isAnyState(Thread::Connecting))
 	sleep(1);
     
-    // Create and start the PC sampling collector
-    Collector collector = experiment.createCollector("pcsamp");
+    // Create and start the example collector
+    Collector collector = experiment.createCollector("example");
     collector.setParameterValue("sampling_rate", (unsigned)100);
     experiment.getThreads().startCollecting(collector);
     

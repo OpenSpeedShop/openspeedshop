@@ -29,7 +29,6 @@ using namespace OpenSpeedShop::Framework;
 
 
 
-#ifdef WDH_DISABLE_EXAMPLE_COLLECTOR
 /**
  * Collector's factory method.
  *
@@ -42,7 +41,6 @@ extern "C" CollectorImpl* example_LTX_CollectorFactory()
 {
     return new ExampleCollector();
 }
-#endif
 
 
 
@@ -55,8 +53,20 @@ ExampleCollector::ExampleCollector() :
     CollectorImpl("example",
 		  "Example",
 		  "Simple example performance data collector illustrating the "
-		  "basics of the Collector API. ...")
+		  "basics of the Collector API. Periodically interrupts the "
+		  "running thread, obtains the current program counter (PC) "
+		  "value, stores it, and allows the thread to continue "
+		  "execution.")
 {
+    // Declare our parameters
+    declareParameter(Metadata("sampling_rate", "Sampling Rate",
+                              "Sampling rate in samples/seconds.",
+                              typeid(unsigned)));
+
+    // Declare our metrics
+    declareMetric(Metadata("time", "CPU Time",
+                           "Exclusive CPU time in seconds.",
+                           typeid(double)));
 }
 
 
@@ -70,7 +80,16 @@ ExampleCollector::ExampleCollector() :
  */
 Blob ExampleCollector::getDefaultParameterValues() const
 {
-    return Blob();
+    // Setup an empty parameter structure
+    example_parameters parameters;
+    memset(&parameters, 0, sizeof(parameters));
+
+    // Set the default parameters
+    parameters.sampling_rate = 100;
+
+    // Return the encoded blob to the caller
+    return Blob(reinterpret_cast<xdrproc_t>(xdr_example_parameters),
+                &parameters);
 }
 
 
@@ -87,6 +106,17 @@ Blob ExampleCollector::getDefaultParameterValues() const
 void ExampleCollector::getParameterValue(const std::string& parameter,
 					 const Blob& data, void* ptr) const
 {
+    // Decode the blob containing the parameter values
+    example_parameters parameters;
+    memset(&parameters, 0, sizeof(parameters));
+    data.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_example_parameters),
+                        &parameters);
+
+    // Handle the "sampling_rate" parameter
+    if(parameter == "sampling_rate") {
+        unsigned* value = reinterpret_cast<unsigned*>(ptr);
+        *value = parameters.sampling_rate;
+    }
 }
 
 
@@ -103,6 +133,21 @@ void ExampleCollector::getParameterValue(const std::string& parameter,
 void ExampleCollector::setParameterValue(const std::string& parameter,
 					 const void* ptr, Blob& data) const
 {
+    // Decode the blob containing the parameter values
+    example_parameters parameters;
+    memset(&parameters, 0, sizeof(parameters));
+    data.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_example_parameters),
+                        &parameters);
+
+    // Handle the "sampling_rate" parameter
+    if(parameter == "sampling_rate") {
+        const unsigned* value = reinterpret_cast<const unsigned*>(ptr);
+        parameters.sampling_rate = *value;
+    }
+
+    // Re-encode the blob containing the parameter values
+    data = Blob(reinterpret_cast<xdrproc_t>(xdr_example_parameters),
+                &parameters);
 }
 
 
@@ -118,6 +163,21 @@ void ExampleCollector::setParameterValue(const std::string& parameter,
 void ExampleCollector::startCollecting(const Collector& collector,
 				       const Thread& thread) const
 {
+    // Assemble and encode arguments to example_start_sampling()
+    example_start_sampling_args args;
+    memset(&args, 0, sizeof(args));
+    collector.getParameterValue("sampling_rate", args.sampling_rate);
+    getECT(collector, thread, args.experiment, args.collector, args.thread);
+    Blob arguments(reinterpret_cast<xdrproc_t>(xdr_example_start_sampling_args),
+                   &args);
+
+    // Execute example_stop_sampling() when we enter exit() for the thread
+    executeAtEntry(collector, thread,
+                   "exit", "example-rt: example_stop_sampling", Blob());
+
+    // Execute example_start_sampling() in the thread
+    executeNow(collector, thread,
+               "example-rt: example_start_sampling", arguments);
 }
 
 
@@ -133,28 +193,86 @@ void ExampleCollector::startCollecting(const Collector& collector,
 void ExampleCollector::stopCollecting(const Collector& collector,
 				      const Thread& thread) const
 {
+    // Execute example_stop_sampling() in the thread
+    executeNow(collector, thread,
+               "example-rt: example_stop_sampling", Blob());
+    
+    // Remove all instrumentation associated with this collector/thread pairing
+    uninstrument(collector, thread);
 }
 
 
 
 /**
- * Get a metric value.
+ * Get metric values.
  *
- * Implement getting one of our metric values for a particular thread, over a
- * specific address range and time interval.
+ * Implements getting one of this collector's metric values over all subextents
+ * of the specified extent for a particular thread, for one of the collected
+ * performance data blobs.
  *
- * @param metric       Unique identifier of the metric.
- * @param collector    Collector for which to get a value.
- * @param thread       Thread for which to get a value.
- * @param range        Address range over which to get a value.
- * @param interval     Time interval over which to get a value.
- * @param ptr          Untyped pointer to the return value.
+ * @param metric        Unique identifier of the metric.
+ * @param extent        Extent of the performance data blob.
+ * @param blob          Blob containing the performance data.
+ * @param subextents    Subextents for which to get values.
+ * @retval ptr          Untyped pointer to the values of the metric.
  */
-void ExampleCollector::getMetricValue(const std::string& metric,
-				      const Collector& collector,
-				      const Thread& thread,
-				      const AddressRange& range,
-				      const TimeInterval& interval,
-				      void* ptr) const
+void ExampleCollector::getMetricValues(const std::string& metric,
+				       const Extent& extent,
+				       const Blob& blob,
+				       const ExtentGroup& subextents,
+				       void* ptr) const
 {
+    // Only the "time" metric returns anything
+    if(metric != "time")
+	return;
+    
+    // Cast the untyped pointer into a vector of doubles
+    std::vector<double>* values = reinterpret_cast<std::vector<double>*>(ptr);
+    
+    // Check assertions
+    Assert(values->size() >= subextents.size());
+    
+    // Decode this data blob
+    example_data data;
+    memset(&data, 0, sizeof(data));
+    blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_example_data), &data);
+    
+    // Calculate the time (in seconds) attributable to each sample
+    double t_sample =
+	static_cast<double>(data.interval) / 1000000000.0;
+    
+    // Calculate time (in nS) of data blob's extent
+    double t_blob = 
+	static_cast<double>(extent.getTimeInterval().getWidth());
+    
+    // Iterate over each of the samples
+    for(unsigned i = 0; i < data.pc.pc_len; ++i) {
+	
+	// Find the subextents that contain this sample
+	std::set<ExtentGroup::size_type> intersection = 
+	    subextents.getIntersectionWith(
+		Extent(extent.getTimeInterval(),
+		       AddressRange(data.pc.pc_val[i]))
+		);
+	
+	// Iterate over each subextent in the intersection
+	for(std::set<ExtentGroup::size_type>::const_iterator
+		j = intersection.begin(); j != intersection.end(); ++j) {
+	    
+	    // Calculate intersection time (in nS) of subextent and data blob
+	    double t_intersection = static_cast<double>
+		((extent.getTimeInterval() & 
+		  subextents[*j].getTimeInterval()).getWidth());	    
+	    
+	    // Add (to the subextent's metric value) the appropriate fraction
+	    // of the total time attributable to this sample
+	    (*values)[*j] += t_sample * (t_intersection / t_blob);
+	    
+	}
+	
+    }
+    
+    // Free the decoded data blob
+    xdr_free(reinterpret_cast<xdrproc_t>(xdr_example_data),
+	     reinterpret_cast<char*>(&data));
 }

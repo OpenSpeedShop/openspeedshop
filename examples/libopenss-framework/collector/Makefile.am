@@ -16,7 +16,10 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-noinst_LTLIBRARIES = example.la example-rt.la
+pkglib_LTLIBRARIES = example.la example-rt.la
+
+BUILT_SOURCES = \
+	blobs.h blobs.c
 
 example_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
@@ -25,7 +28,7 @@ example_la_LDFLAGS = \
 	-no-undefined -module -avoid-version
 
 example_la_SOURCES = \
-	blobs.h blobs.c blobs.x \
+	blobs.x $(BUILT_SOURCES) \
 	ExampleCollector.hxx ExampleCollector.cxx
 
 example_rt_la_CFLAGS = \
@@ -39,11 +42,11 @@ example_rt_la_LIBADD = \
 	-lopenss-runtime -lpthread -lrt
 
 example_rt_la_SOURCES = \
-	blobs.h blobs.c blobs.x \
+	blobs.x $(BUILT_SOURCES) \
 	runtime.c
 
 SUFFIXES = .x
-CLEANFILES = blobs.h blobs.c
+CLEANFILES = $(BUILT_SOURCES)
 
 blobs.h blobs.c : blobs.x
 	rm -f  $(patsubst %.x, %.h, $<) $(patsubst %.x, %.c, $<)

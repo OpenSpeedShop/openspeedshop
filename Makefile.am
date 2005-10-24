@@ -61,8 +61,7 @@ FRAMEWORK_SUBDIRS = \
 	libopenss-runtime \
 	libopenss-framework \
 	libopenss-queries \
-	plugins/collectors/pcsamp \
-	examples/libopenss-framework/tool
+	examples/libopenss-framework
 
 framework:
 	for i in $(FRAMEWORK_SUBDIRS); do (cd $$i; $(MAKE)); done
