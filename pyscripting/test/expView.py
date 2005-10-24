@@ -1,42 +1,34 @@
 # expView [ <expId_spec> ] [ <viewType> ] [ -m <expMetric_list> ] [ <target_list> ]
 import openss
 
-my_host = openss.HostList()
-my_host += ["bosco","111.222.333.444"]
+my_file = openss.FileList("../../usability/phaseIII/fred")
+my_exptype = openss.ExpTypeList("pcsamp")
+my_expid = openss.expCreate(my_file,my_exptype)
 
-my_rank = openss.RankList()
-my_rank += [1,3,(22,33),564]
+my_viewtype = openss.ViewTypeList("pcsamp")
+my_metric_list = openss.MetricList(["pcsamp","time"])
 
-my_file_bosco = openss.FileList("bosco")
 
-my_viewtype = openss.ViewTypeList()
-my_viewtype += "pcsamp"
+openss.expGo()
+openss.wait_for_go()
 
-#my_modifer = openss.ModifierList("all")
+#openss.expView(my_expid)
 
-my_metric_list = openss.MetricList()
-my_metric_list += "exclusive"
-my_metric_list += ("pcsamp","inclusive")
+#openss.expView(my_expid,my_viewtype)
 
-my_expid = openss.ExpId(7)
+#ret = openss.expView(my_expid,my_viewtype,my_metric_list)
 
-openss.expView(my_expid,my_viewtype,my_metric_list,my_rank,my_file_bosco)
+# Dump the raw return data.
+#print ret
+openss.dump_view()
 
-openss.expView(my_expid)
-
-openss.expView(my_expid,my_viewtype)
-
-ret = openss.expView(my_expid,my_viewtype,my_metric_list)
-
-#This is dummied up data packaged in  the C++ module 
-# and passed back by as a python object.
-print ret
-
-r_count = len(ret)
-for row_ndx in range(r_count):
-    print " "
-    row =ret[row_ndx]
-    c_count = len(row)
-    for rel_ndx in range(c_count):
-        print row[rel_ndx]
+# Go through each list (row) and print out
+# the data (columns).
+#r_count = len(ret)
+#for row_ndx in range(r_count):
+#    print " "
+#    row =ret[row_ndx]
+#    c_count = len(row)
+#    for rel_ndx in range(c_count):
+#        print row[rel_ndx]
 

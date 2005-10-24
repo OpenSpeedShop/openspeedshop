@@ -1,6 +1,25 @@
+################################################################################
+# Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+#
+# This library is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this library; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+################################################################################
+
 from openss_classes import *
 from openss_parse import *
 
+import os
 
 #    """OpenSpeedShop scripting language."""
 
@@ -12,7 +31,7 @@ def expAttach(*arglist):
     """
     Attach applications or collectors to an experiment.
     	- The attached applications will not execute until 
-	an B{expGo} command is issued.
+	  an B{expGo} command is issued.
 
     If I{ModifierList} object with B{mpi} is selected, all
     the threads that are part of a running application will
@@ -31,9 +50,9 @@ def expAttach(*arglist):
 
     It is ambiguous to use both the -f and -p options.
     	- The -f option implies that an executable is to 
-	be loaded into the B{OpenSS} tool from a file.
+	  be loaded into the B{OpenSS} tool from a file.
     	- The use of -p option implies that the B{OpenSS} tool 
-	is to attach to a program that is already executing.
+	  is to attach to a program that is already executing.
 
     If I{Target} is provided without I{ExpTypeList}, 
     those applications are attached to all the expTypes 
@@ -671,43 +690,6 @@ def expSetParam(*arglist):
     return return_none(cmd_string)
 
 ##################################################
-# expStatus
-##################################################
-def expStatus(*arglist):
-
-    """
-    - Report the current state of user defined experiments.
-        - The absence of any option will result in information 
-	  being reported for the focused experiment.
-        - The use of I{ExpId} will result in information being 
-	  reported for the specified experiment.
-        - The use of I{ModifierList}("B{all}") will result in 
-	  information being reported for all the known experiments.
-
-    Example1::
-    	#Status for the focused experiment
-	openss.expStatus()
-	
-    Example2::
-    	#Status for all experiments
-	my_modifier = openss.ModifierList("all")
-	openss.expStatus(my_modifier)
-	
-    Example3::
-    	#Status for a specified experiment (7)
-	my_exp = openss.ExpId(7)
-	openss.expStatus(my_exp)
-
-    @param arglist: 0 to 2 optional class objects:
-	- I{ModifierList}("B{all}") 
-    	- I{ExpId}
-    
-    """
-
-    cmd_string = deconstruct("expStatus",*arglist)
-    return return_none(cmd_string)
-
-##################################################
 # expView
 ##################################################
 def expView(*arglist):
@@ -778,359 +760,317 @@ def expView(*arglist):
     return return_int_list(cmd_string)
 
 ##################################################
-# listBreaks
+# list
 ##################################################
-def listBreaks(*arglist):
+def list(*arglist):
 
     """
-    - List the breakpoints that have been set by the user.
-        - The absence of any option will cause all the breakpoints 
-	  for the focused experiment to be listed.
-        - The use of I{ExpId} will cause all the breakpoints for 
-	  the specified experiment to be listed.
-        - The use of I{ModifierList}("B{all}") will cause all the 
-	  known breakpoints, for all of the experiments defined by 
-	  the user, to be listed.
+    - List command for experiment status inquiries.
 
-    Example1::
-    	#List breaks set in the currently focused experiment
-	int_list = openss.listBreaks()
+    Syntax::
+    	# Both <output> and <list args> change for 
+	# each <list modifier>
+    	<output> = list(<list modifiers>,<list args>)
+    - One must include one of the following I{<list modifiers>}:
+    	- "B{breaks}" B{!! NOT SUPPORTED YET !!}
+    	    - List the breakpoints that have been set by the user.
+		- The absence of any option will cause all the
+		  breakpoints  for the focused experiment to be
+		  listed.
+		- The use of I{ExpId} will cause all the breakpoints
+		  for  the specified experiment to be listed.
+		- The use of I{ModifierList}("B{all}") will cause all
+		  the  known breakpoints, for all of the experiments
+		  defined by  the user, to be listed.
+	    
+	    - I{<list args>}: 1 of 2 optional class objects
+	    	- I{ModifierList}("B{all}") (optional)
+    	    	- I{ExpId} (optional)
+	    - I{<output>}: 
+	    	
+
+    	    Example1::
+    	    	#List breaks set in the currently focused experiment
+	    	int_list = openss.listBreaks()
 	
-    Example2::
-    	#List breaks set in all active experiments
-	my_modifier = openss.ModifierList("all")
-	int_list = openss.listBreaks(my_modifier)
+    	    Example2::
+    	    	#List breaks set in all active experiments
+	    	my_modifier = openss.ModifierList("all")
+	    	int_list = openss.listBreaks(my_modifier)
 	
-    Example3::
-    	#List breaks set in a specified experiment (7)
-	my_exp = openss.ExpId(7)
-	int_list = openss.listBreaks(my_exp)
+    	    Example3::
+    	    	#List breaks set in a specified experiment (7)
+	    	my_exp = openss.ExpId(7)
+	    	int_list = openss.listBreaks(my_exp)
 
-    @param arglist: 1 of 2 optional class objects:
-	- I{ModifierList}("B{all}") (optional)
-    	- I{ExpId} (optional)
-    
-    """
+    	- "B{exp}"
+    	    - List the experiments that have been defined.
 
-    cmd_string = deconstruct("listBreaks",*arglist)
-    return return_int_list(cmd_string)
+	    - I{<list args>}: 
+	    	- None
+	    - I{<output>}: 
 
-##################################################
-# listExp
-##################################################
-def listExp(*arglist):
+    	    Example::
+    	    	int_list = openss.listExp()
 
-    """
-    - List the experiments that have been defined.
+    	- "B{hosts}"
+    	    - Lists the hosts that define the specified cluster.
+		- The absence of any options will cause all the hosts 
+		  that have been included in the focused experiment
+		  to  be listed.
+		- The I{ExpId} option will cause all the hosts that
+		  have  been included in the selected experiment to be
+		  listed.
 
-    Example::
-    	int_list = openss.listExp()
+	    - <list args>: 1 optional class object:
+    	    	- I{ExpId} (optional)
 
-    @param arglist: None
+    	    Example1::
+    	    	#List hosts for currently focused experiment (7)
+    	    	int_list = openss.listHosts()
 
-    """
+    	    Example2::
+    	    	#List hosts for a specified experiment (7)
+	    	my_exp = openss.ExpId(7)
+	    	int_list = openss.listHosts(my_exp)
 
-    cmd_string = deconstruct("listExp",*arglist)
-    return return_int_list(cmd_string)
+    	- "B{metrics}"
+    	    - Retrieve the metrics that are associated with a 
+    	      I{ViewTypeList} object.
+		- If no options are selected, metrics for only the
+		  data collectors that are part of the focused
+		  experiment will be listed.
+		- The use of I{ExpId} will cause the metrics that are 
+		  associated with the set of data collectors that are 
+		  part of the specified experiment to be listed.
+		- The use of I{ModifierList}("B{all}") will cause all
+		  the metrics for all available collectors to be
+		  listed.
+		- The use of the "<viewType_list>" option will result
+		  in a listing of only those metrics associated with
+		  the specific data collectors in the list.
 
-##################################################
-# listHosts
-##################################################
-def listHosts(*arglist):
+	    - I{<list args>}: 1 of 3 optional class objects
+		- I{ModifierList}("B{all}") (optional)
+		- I{ExpId} (optional)
+		- I{ExpTypeList} (optional)
+	    - I{<output>}: 
+	    	- I{<ListOf_expMetric>}
 
-    """
-    - Lists the hosts that define the specified cluster.
-        - The absence of any options will cause all the hosts 
-	  that have been included in the focused experiment to 
-	  be listed.
-        - The I{ExpId} option will cause all the hosts that have 
-	  been included in the selected experiment to be listed.
+    	- "B{obj}"
+	    - List the objects of the applications that are part of
+	      the  specified experiment.
+            	- If I{ExpId} is not provided, the focused experiment 
+		  is used.
+	    - The listing can be restricted with the use of a
+	      <target>  specification.
+	    - Any component described in the <target> specification
+	      must be  part of the selected experiment.
+	    - If <target> is not provided, information will be
+	      provided for all  portions of all applications that are
+	      attached to the experiment.
+    	    - The return type is a list of string objects.
 
-      <ListOf_hostname> = listHosts [ I{ExpId} ] 
+	    - I{<list args>}: Up to 2 optional class objects:
+	    	- I{ExpId}
+		- I{<target>}
+	    - I{<output>}: 
+	    	- I{<ListOf_filename>}
 
-    Example1::
-    	#List hosts for currently focused experiment (7)
-    	int_list = openss.listHosts()
+    	- "B{params}"
+	    - Retrieve the parameters that are associated with a
+	      particular  <viewType> or set of <viewType>s.
+		- If no options are selected, parameters for only the
+		  data  collectors that are part of the focused
+		  experiment will be  listed.
+		- The use of I{ExpId} will cause the parameters that
+		  are  associated with the set of data collectors that
+		  are part of  the specified experiment to be listed.
+		- The use of I{ModifierList}("B{all}") will cause all
+		  the  parameters for all available collectors to be
+		  listed.
+		- The use of the "<viewType>" option will result in a
+		  listing  of only those parameters associated with
+		  that specific data  collector.
 
-    Example2::
-    	#List hosts for a specified experiment (7)
-	my_exp = openss.ExpId(7)
-	int_list = openss.listHosts(my_exp)
+	    - I{<list args>}:  Up to 3 optional class objects:
+	    	- I{ModifierList}("B{all}")
+	    	- I{ExpId}
+	    	- I{ExpTypeList}
+	    - I{<output>}:
+	    	- I{<ListOf_expParam>}
 
-    @param arglist: 1 optional class object:
-    	- I{ExpId} (optional)
-    
-    """
+    	- "B{pids}"
+	    - List running processes associated with a specific
+	      experiment and, optionally, on a specific machine.
+		- If no options are supplied, the Pids that are
+		  referenced in  the focused experiment are listed.
+		- If the "I{ExpId}" option is supplied, all the Pids
+		  that are  part of the specified experiment are
+		  listed.
+    	    - The use of the I{HostList} option acts like a filter on 
+	      the output.
+		- The absence of any I{HostList} specification will
+		  cause all  pids in the specified experiment to be
+		  included.
+		- The default cluster contains only localhost and can
+		  be  specified by using I{HostList}.
 
-    cmd_string = deconstruct("listHosts",*arglist)
-    return return_string_list(cmd_string)
+	    - I{<list args>}: Up to 2 optional class objects:
+	    	- I{ExpId}
+	    	- I{<HostList>}
+	    - I{<output>}: 
+	    	- I{<ListOf_pidname>}
 
-##################################################
-# listMetrics
-##################################################
-def listMetrics(*arglist):
+    	- "B{ranks}"	B{!! NOT SUPPORTED YET !!}
+	    - List the mpi ranks associated with a specific
+	      experiment, a  specific Pid or on a specific machine.
+		- If no options are supplied, all the Ranks that are
+		  referenced  in the focused experiment are listed.
+		- If the "I{ExpId}" option is supplied, all the Ranks
+		  that are  part of the specified experiment are
+		  listed.
+    	    - The use of the "<target>" option acts like a filter on 
+	      the output.
+		- The absence of any I{HostList} specification will
+		  cause all  Ranks in the specified experiment to be
+		  included.
+		- The default cluster contains only localhost and can
+		  be  specified by using I{HostList}.
+            	- Use of I{FileList} is not supported.
+		- Use of I{PidList} will result in only the Ranks
+		  associated  with that Pid being included for the
+		  selected hosts.
+		- Use of I{RankList} will result in only that specific
+		  Rank  being included, if it exists on the selected
+		  hosts.
 
-    """
-    - Retrieve the metrics that are associated with a 
-      I{ViewTypeList} object.
-        - If no options are selected, metrics for only the data 
-	  collectors that are part of the focused experiment will 
-	  be listed.
-        - The use of I{ExpId} will cause the metrics that are 
-	  associated with the set of data collectors that are 
-	  part of the specified experiment to be listed.
-        - The use of I{ModifierList}("B{all}") will cause all the 
-	  metrics for all available collectors to be listed.
-        - The use of the "<viewType_list>" option will result in a 
-	  listing of only those metrics associated with the specific 
-	  data collectors in the list.
+	    - I{<list args>}: 
+	    	- I{ExpId}
+	    	- I{<target>}
+	    - I{<output>}: 
+	    	- I{<ListOf_rankname>}
 
-      <ListOf_expMetric> = listMetrics [ I{ModifierList}("B{all}") || I{ExpId} || I{ExpTypeList} ] 
+    	- "B{src}"
+	    - List the source filenames of the modules that are part
+	      of the  specified experiment.
+    	    - If I{ExpId} is not provided, the focused experiment is used.
+	    - The listing can be restricted with the use of a
+	      <target>  specification.
+	    - Any component described in the <target> specification
+	      must be part of the selected experiment.
+	    - I{FileList} can be used to provide a list of object
+	      modules  that will be searched for relevant source
+	      files.
+	    - If <target> is not provided, information will be
+	      provided for all portions of all applications that are
+	      attached to the experiment.
 
-    """
+	    - I{<list args>}: 
+	    	- I{ExpId}
+	    	- I{<target>}
+	    - I{<output>}: 
+	    	- I{<listOf_filename>}
 
-    cmd_string = deconstruct("listMetrics",*arglist)
-    return return_string_list(cmd_string)
+    	- "B{status}"
+    	    - List the status of experiments.
+		- If no option is selected, return the status of the
+		  focused  experiment.
+		- The use of I{ExpId} will cause the status of the
+		  specified  experiment to be returned.
+		- The use of I{ModifierList}("B{all}") will cause the
+		  status  of all the defined experiments to be
+		  returned.
+		- The return value is a list of strings representing
+		  the status of the current focused experiment
+		  process. Current available status strings are:
+    	    	    - "B{Unknown}":  	An unknown status was returned.
+    	    	    - "B{Paused}":   	The process is in a "paused" state.
+    	    	    - "B{Running}":  	The process is still running.
+    	    	    - "B{Terminated}":	The process has finished running.
+    	    	    - "B{Error}":    	Something went wrong.
 
-##################################################
-# listObj
-##################################################
-def listObj(*arglist):
+	    - I{<list args>}: 
+	    	- I{ModifierList}("B{all}")
+	    	- I{ExpId}
+	    - I{<output>}: 
+	    	- I{<ListOf_statusType>}
 
-    """
-    - List the objects of the applications that are part of the 
-      specified experiment.
-        - If I{ExpId} is not provided, the focused experiment is used.
-    - The listing can be restricted with the use of a <target> 
-      specification.
-    - Any component described in the <target> specification must be 
-      part of the selected experiment.
-    - If <target> is not provided, information will be provided for all 
-      portions of all applications that are attached to the experiment.
+    	- "B{threads}"	B{!! NOT SUPPORTED YET !!}
+	    - List the Threads associated with a specific experiment,
+	      a  specific Pid or on a specific machine.
+		- If no options are supplied, the Threads that are
+		  referenced  in the focused experiment are listed.
+		- If the "I{ExpId}" option is supplied, all the
+		  Threads that  are part of the specified experiment
+		  are listed.
+    	    - The use of the "<target>" option acts like a filter on 
+	      the output.
+		- The absence of any I{HostList} specification will
+		  cause all  Threads in the specified experiment to be
+		  included.
+		- The default cluster contains only localhost and can
+		  be  specified by using I{HostList}.
+            	- Use of I{FileList} is not supported.
+		- Use of I{PidList} will result in only the Threads
+		  associated  with that Pid being included for the
+		  selected hosts.
+		- Use of I{TreadList} will result in only that
+		  specific Thread  being included, if it exists on the
+		  selected hosts.
 
-      <ListOf_filename> = listObj [ I{ExpId} ] [ <target> ] 
+	    - I{<list args>}: 
+	    	- I{ExpId}
+	    	- I{<target>}
+	    - I{<output>}: 
+	    	- I{<ListOf_threadname>}
 
-    """
+    	- "B{types}"
+	    - List the available performance measurement utilities
+	      that can be  used to collect data in an experiment.
+		- If no option is selected, list the utilities that
+		  are attached to the focused experiment.
+		- The use of I{ExpId} will cause the utilities that
+		  are attached to the specified experiment to be
+		  listed.
+		- The use of I{ModifierList}("B{all}") will cause all
+		  the  popenssible performance measurement utilities
+		  that can be used  in experiments to be listed.
+	    - The return type is a list of string objects representing
+	      experiment type.
 
-    cmd_string = deconstruct("listObj",*arglist)
-    return return_string_list(cmd_string)
+	    - I{<list args>}: 
+	    	- I{ModifierList}("B{all}")
+	    	- I{ExpId}
+	    - I{<output>}: 
+	    	- I{<ListOf_expType>}
 
-##################################################
-# listParams
-##################################################
-def listParams(*arglist):
+    	- "B{views}"
+    	    - Retrieve the views that are available for an I{ExpTypeList}.
+		- If no options are selected, the reports for only the
+		  data  collectors that are part of the focused
+		  experiment will be  listed.
+		- The use of I{ExpId} will cause the the reports that
+		  are  associated with the set of data collectors that
+		  are part of  the specified experiment to be listed.
+		- The use of I{ModifierList}("B{all}") will cause all
+		  the the  reports for all available collectors to be
+		  listed.
+		- The use of the I{ExpTypeList} option will result
+		  in a  listing of only those reports associated with
+		  the specific  data collectors in the list.
 
-    """
-    - Retrieve the parameters that are associated with a particular 
-      <viewType> or set of <viewType>s.
-        - If no options are selected, parameters for only the data 
-	  collectors that are part of the focused experiment will be 
-	  listed.
-        - The use of I{ExpId} will cause the parameters that are 
-	  associated with the set of data collectors that are part of 
-	  the specified experiment to be listed.
-        - The use of I{ModifierList}("B{all}") will cause all the 
-	  parameters for all available collectors to be listed.
-        - The use of the "<viewType>" option will result in a listing 
-	  of only those parameters associated with that specific data 
-	  collector.
-
-      <ListOf_expParam> = listParams [ I{ModifierList}("B{all}") || I{ExpId} || I{ExpTypeList} ] 
-
-    """
-
-    cmd_string = deconstruct("listParams",*arglist)
-    return return_string_list(cmd_string)
-
-##################################################
-# listPids
-##################################################
-def listPids(*arglist):
-
-    """
-    - List running processes associated with a specific experiment and,
-      optionally, on a specific machine.
-        - If no options are supplied, the Pids that are referenced in 
-	  the focused experiment are listed.
-        - If the "I{ExpId}" option is supplied, all the Pids that are 
-	  part of the specified experiment are listed.
-    - The use of the I{HostList} option acts like a filter on the output.
-        - The absence of any I{HostList} specification will cause all 
-	  pids in the specified experiment to be included.
-        - The default cluster contains only localhost and can be 
-	  specified by using I{HostList}.
-
-      <ListOf_pidname> = listPids [ I{ExpId} ] [ <host_list_spec> ] 
-
-    """
-
-    cmd_string = deconstruct("listPids",*arglist)
-    return return_int_list(cmd_string)
-
-##################################################
-# listRanks
-##################################################
-def listRanks(*arglist):
-
-    """
-    - List the mpi ranks associated with a specific experiment, a 
-      specific Pid or on a specific machine.
-        - If no options are supplied, all the Ranks that are referenced 
-	  in the focused experiment are listed.
-        - If the "I{ExpId}" option is supplied, all the Ranks that are 
-	  part of the specified experiment are listed.
-    - The use of the "<target>" option acts like a filter on the output.
-        - The absence of any I{HostList} specification will cause all 
-	  Ranks in the specified experiment to be included.
-        - The default cluster contains only localhost and can be 
-	  specified by using I{HostList}.
-        - Use of I{FileList} is not supported.
-        - Use of I{PidList} will result in only the Ranks associated 
-	  with that Pid being included for the selected hosts.
-        - Use of I{RankList} will result in only that specific Rank 
-	  being included, if it exists on the selected hosts.
-
-      <ListOf_rankname> = listRanks [ I{ExpId} ] [ <target> ] 
-
-    """
-
-    cmd_string = deconstruct("listRanks",*arglist)
-    return return_int_list(cmd_string)
-
-##################################################
-# listSrc
-##################################################
-def listSrc(*arglist):
-
-    """
-    - List the source filenames of the modules that are part of the 
-      specified experiment.
-    - If I{ExpId} is not provided, the focused experiment is used.
-    - The listing can be restricted with the use of a <target> 
-      specification.
-    - Any component described in the <target> specification must be part
-      of the selected experiment.
-    - I{FileList} can be used to provide a list of object modules 
-      that will be searched for relevant source files.
-    - If <target> is not provided, information will be provided for all
-      portions of all applications that are attached to the experiment.
-
-      <listOf_filename> = listSrc [ I{ExpId} ] [ <target> ] 
-
-    """
-
-    cmd_string = deconstruct("listSrc",*arglist)
-    return return_string_list(cmd_string)
-
-##################################################
-# listStatus
-##################################################
-def listStatus(*arglist):
-
-    """
-    - List the status of experiments.
-        - If no option is selected, return the status of the focused 
-	  experiment.
-        - The use of I{ExpId} will cause the status of the specified 
-	  experiment to be returned.
-        - The use of I{ModifierList}("B{all}") will cause the status 
-	  of all the defined experiments to be returned.
-	- The return value is a list of strings representing
-	  the status of the current focused experiment process.
-	  Current available status strings are:
-    	    - "B{Unknown}":  	An unknown status was returned.
-    	    - "B{Paused}":   	The process is in a "paused" state.
-    	    - "B{Running}":  	The process is still running.
-    	    - "B{Terminated}":	The process has finished running.
-    	    - "B{Error}":    	Something went wrong.
-
-
-      <ListOf_statusType> = listStatus [ I{ModifierList}("B{all}") || I{ExpId} ] 
-
-    """
-
-    cmd_string = deconstruct("listStatus",*arglist)
-    return return_string_list(cmd_string)
-
-##################################################
-# listThreads
-##################################################
-def listThreads(*arglist):
-
-    """
-    - List the Threads associated with a specific experiment, a 
-      specific Pid or on a specific machine.
-        - If no options are supplied, the Threads that are referenced 
-	  in the focused experiment are listed.
-        - If the "I{ExpId}" option is supplied, all the Threads that 
-	  are part of the specified experiment are listed.
-    - The use of the "<target>" option acts like a filter on the output.
-        - The absence of any I{HostList} specification will cause all 
-	  Threads in the specified experiment to be included.
-        - The default cluster contains only localhost and can be 
-	  specified by using I{HostList}.
-        - Use of I{FileList} is not supported.
-        - Use of I{PidList} will result in only the Threads associated 
-	  with that Pid being included for the selected hosts.
-        - Use of I{TreadList} will result in only that specific Thread 
-	  being included, if it exists on the selected hosts.
-
-      <ListOf_threadname> = listThreads [ I{ExpId} ] [ <target> ] 
+	    - I{<list args>}: 1 of 3 optional class objects
+	    	- I{ModifierList}("B{all}")
+	    	- I{ExpId}
+		- I{ExpTypeList}
+	    - I{<output>}: 
+	    	- I{ViewTypeList}
 
     """
 
-    cmd_string = deconstruct("listThreads",*arglist)
-    return return_int_list(cmd_string)
-
-##################################################
-# listTypes
-##################################################
-def listTypes(*arglist):
-
-    """
-    - List the available performance measurement utilities that can be 
-      used to collect data in an experiment.
-        - If no option is selected, list the utilities that are attached
-	  to the focused experiment.
-        - The use of I{ExpId} will cause the utilities that are attached
-	  to the specified experiment to be listed.
-        - The use of I{ModifierList}("B{all}") will cause all the 
-	  popenssible performance measurement utilities that can be used 
-	  in experiments to be listed.
-
-      <ListOf_expType> = listTypes [ I{ModifierList}("B{all}") || I{ExpId} ] 
-
-    """
-
-    cmd_string = deconstruct("listTypes",*arglist)
-    return return_string_list(cmd_string)
-
-##################################################
-# listViews
-##################################################
-def listViews(*arglist):
-
-    """
-    - Retrieve the views that are available for a particular <viewType> or list of <viewType>s.
-        - If no options are selected, the reports for only the data 
-	  collectors that are part of the focused experiment will be 
-	  listed.
-        - The use of I{ExpId} will cause the the reports that are 
-	  associated with the set of data collectors that are part of 
-	  the specified experiment to be listed.
-        - The use of I{ModifierList}("B{all}") will cause all the the 
-	  reports for all available collectors to be listed.
-        - The use of the "<viewType_list>" option will result in a 
-	  listing of only those reports associated with the specific 
-	  data collectors in the list.
-
-      <ListOf_viewType> = listViews [ I{ModifierList}("B{all}") || I{ExpId} || I{ExpTypeList} ] 
-
-
-    """
-
-    cmd_string = deconstruct("listViews",*arglist)
-    return return_string_list(cmd_string)
+    cmd_string = deconstruct("list",*arglist)
+    return return_list(cmd_string)
 
 ##################################################
 # clearBreak
@@ -1138,12 +1078,14 @@ def listViews(*arglist):
 def clearBreak(*arglist):
 
     """
-    - Remove a breakpoint.
-    - This command does not change the execution state of an experiment,
-      although it may be temporarily suspended during execution of 
-      the command.
+    B{!! NOT SUPPORTED YET !!}
+    
+    	- Remove a breakpoint.
+    	- This command does not change the execution state of an experiment,
+    	  although it may be temporarily suspended during execution of 
+    	  the command.
 
-      clearBreak <breakId> 
+    clearBreak <breakId> 
 
     """
 
@@ -1178,164 +1120,77 @@ def exit(*arglist):
     return return_none(cmd_string)
 
 ##################################################
-# help
-##################################################
-def help(*arglist):
-
-    """
-    - Request information about a topic.
-    - The detail of information can be controlled with the optional 
-      <verbosity_spec>.
-
-      <string> = help [ <verbosity_list_spec> ] [ <string> ] 
-
-    """
-
-    cmd_string = deconstruct("help",*arglist)
-    return return_string(cmd_string)
-
-##################################################
-# history
-##################################################
-def history(*arglist):
-
-    """
-    - Print a list of previously executed commands.
-    - If the optional integer is provided, the command will list 
-      that number of previous commands.
-    - If no integer is provided, the command will list a default 
-      number of previous commands.
-
-      <string> = history [ <int> ] 
-
-    """
-
-    cmd_string = deconstruct("history",*arglist)
-    return return_string(cmd_string)
-
-##################################################
-# log
-##################################################
-def log(*arglist):
-
-    """
-    - Begin echoing executed commands and their results to a file.
-    - Stop echoing if no file is specified on a log command.
-    - This is primarly intended to be an internal debug aid for the B{OpenSS} tool developer since the generated files can quickly become huge.
-
-      log [ <file_spec> ] 
-
-    """
-
-    cmd_string = deconstruct("log",*arglist)
-    return return_none(cmd_string)
-
-##################################################
-# openGui
-##################################################
-def openGui(*arglist):
-
-    """
-    - Open the Graphical User Interface, if it is not already open.
-
-      openGui 
-
-    Example::
-    	openss.openGui()
-
-    @param arglist: None
-
-    """
-
-    cmd_string = deconstruct("openGui",*arglist)
-    return return_none(cmd_string)
-
-##################################################
-# playBack
-##################################################
-def playBack(*arglist):
-
-    """
-    - Read and execute commands from a file.
-
-      playBack <file_spec> 
-
-    """
-
-    cmd_string = deconstruct("playBack",*arglist)
-    return return_none(cmd_string)
-
-##################################################
-# record
-##################################################
-def record(*arglist):
-
-    """
-    - Begin echoing executed commands to a file.
-        - Recording is preformed relative to the input source that 
-	  issues this command.
-        - This design causes commands issued by the GUI to be recorded 
-	  seperately from commands issued by the Command window.
-    - Commands read from a file specified on a succeeding playback 
-      command will not be echoed.
-    - Stop echoing if no file is specified on a record command.
-    - Stop echoing if the end of the input file containing the 
-      original record command is encoutnered.
-
-      record [ <file_spec> ] 
-
-    """
-
-    cmd_string = deconstruct("record",*arglist)
-    return return_none(cmd_string)
-
-##################################################
 # setBreak
 ##################################################
 def setBreak(*arglist):
 
     """
-    - Enter a breakpoint, which will halt the application when reached.
-    - If I{ExpId} is not provided, the focused experiment is used.
-    - The break location is specified through the combination of 
-      the <target> and <address_description> arguments.
-    - The break location must be a location in the specified experiment.
-    - If <target> is not provided, the <address_description> must 
-      be valid on every host and executable attached to the experiment.
+    B{!! NOT SUPPORTED YET !!}
+    	- Enter a breakpoint, which will halt the application when reached.
+    	- If I{ExpId} is not provided, the focused experiment is used.
+    	- The break location is specified through the combination of 
+    	  the <target> and <address_description> arguments.
+    	- The break location must be a location in the specified experiment.
+    	- If <target> is not provided, the <address_description> must 
+    	  be valid on every host and executable attached to the experiment.
 
-      <breakId> = setBreak [ I{ExpId} ] [ <target> ] <address_description>
+    <breakId> = setBreak [ I{ExpId} ] [ <target> ] <address_description>
     """
 
     cmd_string = deconstruct("setBreak",*arglist)
     return return_int(cmd_string)
 
 ##################################################################
-# hang_around: Used until latency bug fixed
+# waitForGo: 
+#   Since expGo is asynchric in nature, we need to 
+#   run this routine to see when it is done if we
+#   want to make sure it is really done before continuing
+#   on.
 ##################################################################
-def hang_around():
+def waitForGo():
 
+    """
+    Helper routine to wait until expGo really has finished.
+    
+    Since expGo is asynctric in nature, we need to 
+    run this routine to see when it is done if we
+    want to make sure it is really done before continuing
+    on.
+
+    """
+    modifier = ModifierList("status")
     while 1:
-    	status = listStatus()
+    	# Pause for 10 seconds
+    	os.system("sleep 10")
+
+    	status = list(modifier)
 	stat_count = len(status)
 	for ndx in range(stat_count):
 	    if status[ndx] == 'Terminated':
+	    	return
+	    if status[ndx] == 'Error':
+	    	raise error,"expGo failed for some reason"
 	    	return
 
 ##################################################################
 # dump_view: For testing
 ##################################################################
-def dump_view():
+def dumpView():
+
+    """
+    Helper routine used to dump 2 dimensional views.
+    """
 
     try :
     	print "In try part"
     	ret = expView()
-    	#hang_around()
 
     except error:
     	print "In except part"
+	ret = None
 
     if ret is None:
-    	print "expView returned none"
+    	print "expView returned None"
     	try:
     	    print "status = ", listStatus()
     	except error:

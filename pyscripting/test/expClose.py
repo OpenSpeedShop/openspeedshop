@@ -2,17 +2,35 @@
 
 import openss
 
-exp1 = openss.ExpId(7)
+try :
 
-my_modifer = openss.ModifierList("all")
+    my_file = openss.FileList("../../usability/phaseIII/fred")
+    my_viewtype = openss.ViewTypeList("pcsamp")
+    openss.expCreate(my_file,my_viewtype)
+    
+    exp_mod = openss.ModifierList("exp")
+    print "Current focused expId: ", openss.list(exp_mod)
+    openss.expGo()
+    openss.waitForGo()
 
-openss.expClose(exp1,my_modifer)
+    print "Current focused expId: ",openss.list(exp_mod)
 
-my_modifer = openss.ModifierList("kill")
+    openss.expClose()
 
-openss.expClose(my_modifer)
+    print "Current focused expId: ",openss.list(exp_mod)
 
-openss.expClose(exp1)
 
-openss.expClose()
+
+except openss.error,message:
+    print "ERROR: ", message
+
+openss.exit()
+
+#exp1 = openss.ExpId(7)
+#my_modifer = openss.ModifierList("all")
+#openss.expClose(exp1,my_modifer)
+#my_modifer = openss.ModifierList("kill")
+#openss.expClose(my_modifer)
+#openss.expClose(exp1)
+#openss.expClose()
 

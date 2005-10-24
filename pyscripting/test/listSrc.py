@@ -2,12 +2,24 @@
 
 import openss
 
-my_id = openss.ExpId(openss.expCreate())
-my_host = openss.HostList(["host1,host2"])
+my_viewtype = openss.ViewTypeList("pcsamp")
+my_file = openss.FileList("../../usability/phaseIII/fred")
 
-output = openss.listSrc()
-output = openss.listSrc(my_id)
-output = openss.listSrc(my_host)
-output = openss.listSrc(my_id,my_host)
+my_id	= openss.expCreate(my_file,my_viewtype)
+#my_host = openss.HostList(["host1,host2"])
 
-print output
+ret = openss.listSrc()
+
+#output = openss.listSrc(my_id)
+#output = openss.listSrc(my_host)
+#output = openss.listSrc(my_id,my_host)
+
+print " "
+print ret
+print " "
+
+r_count = len(ret)
+for row_ndx in range(r_count):
+   print ret[row_ndx]
+
+openss.exit()

@@ -5,18 +5,6 @@ import openss
 ##################################################################
 #
 ##################################################################
-def hang_around():
-
-    while 1:
-    	status = openss.listStatus()
-	stat_count = len(status)
-	for ndx in range(stat_count):
-	    if status[ndx] == 'Terminated':
-	    	return
-
-##################################################################
-#
-##################################################################
 
 my_file = openss.FileList("../../usability/phaseIII/fred")
 my_viewtype = openss.ViewTypeList()
@@ -30,7 +18,7 @@ my_modifer += "all"
 
 try:
     openss.expGo(exp1,my_modifer)
-    hang_around()
+    openss.waitForGo()
 except openss.error:
     print "expGo(exp1,my_modifer) failed as it should"
 

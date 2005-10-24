@@ -1,3 +1,21 @@
+################################################################################
+# Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+#
+# This library is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this library; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+################################################################################
+
 from openss_classes import *
 import types
 
@@ -74,7 +92,6 @@ def deconstruct(cmd_name,*args):
     	    else:
 	    	sublist = parse_list("-j",None,*args[ndx])
 
-#    	    print sublist
 	    main_string += " "+sublist
 	
 	return main_string
@@ -185,22 +202,22 @@ def return_none(args):
 def return_int(args):
     	ret = cmd_parse(args)
     	return ret
-	#return 98
 
 def return_string(args):
     	ret = cmd_parse(args)
     	return ret
-	#return "this is a string"
 
 def return_int_list(args):
     	ret = cmd_parse(args)
     	return ret
-    	#return [4,5,6,7,8]
 
 def return_string_list(args):
     	ret = cmd_parse(args)
     	return ret
-	#return ["this","is","a","list","of","strings"]
+
+def return_list(args):
+    	ret = cmd_parse(args)
+    	return ret
 
 ################################################################################
 #
@@ -216,8 +233,6 @@ def return_string_list(args):
 #
 ################################################################################
 def cmd_parse(zusamen):
-
-    print "cmd_parse(",zusamen,")"
 
     return EmbeddedParser(zusamen)
 

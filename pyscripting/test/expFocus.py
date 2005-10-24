@@ -21,11 +21,11 @@ print user_expid
 
 expid = openss.expFocus()
 print expid
-openss.dump_view()
+openss.dumpView()
 
 expid = openss.expFocus(pcsamp_expid)
 print expid
-openss.dump_view()
+openss.dumpView()
 
 expid = openss.expFocus()
 print expid
