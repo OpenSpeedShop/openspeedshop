@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static int f1(int x, int y)
+int f1(int x, int y)
 {
     int i, t = 0;
 
@@ -11,7 +11,7 @@ static int f1(int x, int y)
     return t;
 }
 
-static int f2(int x, int y)
+int f2(int x, int y)
 {
     int i, t = 0;
 
@@ -20,7 +20,7 @@ static int f2(int x, int y)
     return t;
 }
 
-static int f3(int x, int y)
+int f3(int x, int y)
 {
     int i, t = 0;
 
@@ -38,7 +38,7 @@ int work(int size)
             t += f3(i, j) - f2(i, j) - f1(i, j);
     return t;
 }
- 
+
 int main(int argc, char* argv[])
 {
    int size = 1000;
