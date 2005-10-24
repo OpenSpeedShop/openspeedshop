@@ -269,20 +269,44 @@ StatsPanel::listener(void *msg)
     FocusObject *msg = (FocusObject *)msgObject;
 // msg->print();
     expID = msg->expID;
-    currentThreadsStr = msg->pidString;
-    currentThreadGroupStrList.clear();
-    QString ws = msg->pidString;
-    int cnt = ws.contains(",");
-    if( cnt > 1 )
-    {
-      for(int i=0;i<=cnt;i++)
+
+    if( msg->host_pid_vector.size() == 0 )
+    { // Soon to be obsoleted
+      currentThreadsStr = msg->pidString;
+      currentThreadGroupStrList.clear();
+      QString ws = msg->pidString;
+      int cnt = ws.contains(",");
+      if( cnt > 1 )
       {
-        currentThreadGroupStrList.push_back( ws.section(",", i, i) ); 
+        for(int i=0;i<=cnt;i++)
+        {
+          currentThreadGroupStrList.push_back( ws.section(",", i, i) ); 
+        }
+      } else
+      {
+        currentThreadGroupStrList.push_back( ws );
       }
     } else
     {
-      currentThreadGroupStrList.push_back( ws );
+// printf("StatsPanel:: we have a vector list!\n");
+
+      currentThreadsStr = QString::null;
+      std::vector<HostPidPair>::const_iterator sit = msg->host_pid_vector.begin();
+      for(std::vector<HostPidPair>::const_iterator
+                      sit = msg->host_pid_vector.begin();
+                      sit != msg->host_pid_vector.end(); ++sit)
+      {
+// printf("sit->first = (%s) sit->second=(%s)\n", sit->first.c_str(), sit->second.c_str() );
+        if( sit->first.size() )
+        {
+          currentThreadsStr += QString(" -h %1 -p %2").arg(sit->first.c_str()).arg(sit->second.c_str() );
+        } else 
+        {
+          currentThreadsStr += QString(" -p %1").arg(sit->second.c_str() );
+        }
+      }
     }
+// printf("currentThreadStr=(%s)\n", currentThreadStr.ascii() );
 // Currently this causes a second update when loading from a saved file. FIX
 // printf("Currently this causes a second update when loading from a saved file. FIX\n");
 printf("CAUSING DOUBLE REFRESH!\n");
@@ -1164,20 +1188,20 @@ lastAbout += QString("Requested data for collector %1 for top %2 items\n").arg(c
   if( !currentMetricStr.isEmpty() )
   {
      command += QString(" -m %1").arg(currentMetricStr);
-lastAbout += QString("for metrics %1\n").arg(currentMetricStr);
+     lastAbout += QString("for metrics %1\n").arg(currentMetricStr);
   }
   if( !currentThreadsStr.isEmpty() )
   {
-     command += QString(" -p %1").arg(currentThreadsStr);
-lastAbout += QString("for threads %1\n").arg(currentThreadsStr);
+     command += QString(" %1").arg(currentThreadsStr);
+     lastAbout += QString("for threads %1\n").arg(currentThreadsStr);
   }
 
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
 
   QApplication::setOverrideCursor(QCursor::WaitCursor);
   Redirect_Window_Output( cli->wid, spoclass, spoclass );
-// printf("command: (%s)\n", command.ascii() );
-lastAbout += "Command issued: " + command;
+//printf("command: (%s)\n", command.ascii() );
+  lastAbout += "Command issued: " + command;
   InputLineObject *clip = Append_Input_String( cli->wid, (char *)command.ascii());
   if( clip == NULL )
   {
@@ -1189,6 +1213,7 @@ lastAbout += "Command issued: " + command;
 
   while( status != ILO_COMPLETE )
   {
+// printf("ping!\n");
     status = cli->checkStatus(clip);
     if( !status || status == ILO_ERROR )
     { // An error occurred.... A message should have been posted.. return;
@@ -1215,6 +1240,7 @@ lastAbout += "Command issued: " + command;
 
     sleep(1);
   }
+// printf("done pinging...\n");
 
   //Test putting the output to statspanel stream.
   Default_TLI_Line_Output(clip);

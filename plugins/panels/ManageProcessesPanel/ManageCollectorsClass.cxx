@@ -733,15 +733,14 @@ void
 ManageCollectorsClass::focusOnProcessSelected()
 {
 // printf("ManageCollectorsClass::focusOnProcessSelected() entered.\n");
+  QString host_name = QString::null;
+  FocusObject *msg = NULL;
 
   QListViewItem *selectedItem = attachCollectorsListView->selectedItem();
+
 // printf("selectedItem->text(0) =(%s)\n", selectedItem->text(0).ascii() );
 // printf("selectedItem->text(1) =(%s)\n", selectedItem->text(1).ascii() );
 
-#ifdef OLDWAY
-  QString pid_name = selectedItem->text(0);
-// printf("pid_name=(%s)\n", pid_name.ascii() );
-#else // OLDWAY
   QString pid_name = QString::null;
   QString pidString = QString::null;
  
@@ -749,60 +748,89 @@ ManageCollectorsClass::focusOnProcessSelected()
   while( it.current() )
   {
     QListViewItem *lvi = (QListViewItem *)it.current();
-    pid_name = lvi->text(0);
-    if( pidString.isEmpty() )
+    if( dialogSortType == PID_T )
     {
-      pidString = pid_name;
-    } else
+// printf("PID_T: lvi->text(0)=(%s)\n", lvi->text(0).ascii() );
+      host_name = QString::null;
+      pid_name = QString::null;
+      if( lvi->firstChild() )
+      {
+        // Host name
+        host_name = lvi->firstChild()->text(0);
+        pid_name = lvi->text(0);
+      } else if( lvi->parent() )
+      {
+        host_name = lvi->text(0);
+        pid_name = lvi->parent()->text(0);
+      } else
+      {
+        pid_name = lvi->text(0);
+      }
+      if( msg == NULL )
+      {
+        msg = new FocusObject(expID,  host_name, pidString, TRUE);
+      }
+      std::pair<std::string, std::string> p(host_name,pid_name);
+      msg->host_pid_vector.push_back( p );
+    } else if( dialogSortType == HOST_T )
     {
-      pidString += ","+pid_name;
+//printf("HOST_T: lvi->text(0)=(%s)\n", lvi->text(0).ascii() );
+      pid_name = QString::null;
+      host_name = QString::null;
+      if( lvi->parent() == NULL )
+      {
+        ++it;
+        continue;
+      }
+      if( msg == NULL )
+      {
+        msg = new FocusObject(expID,  NULL, NULL, TRUE);
+      }
+      pid_name = lvi->text(0);
+      if( lvi->parent() )
+      {
+        host_name = lvi->parent()->text(0);
+      }
+//printf("host_name=%s pid_name=%s\n", host_name.ascii(), pid_name.ascii() );
+
+      std::pair<std::string, std::string> p(host_name,pid_name);
+      msg->host_pid_vector.push_back( p );
     }
     ++it;
   }
-#endif // OLDWAY
 
-  bool ok = FALSE;
-  pid_name.toInt(&ok);
 
-  QString host_name = QString::null;
-  if( selectedItem )
+  if( !msg || msg->host_pid_vector.size() == 0 )
   {
-//printf("selectedItem->text(0) =(%s)\n", selectedItem->text(0).ascii() );
-    if( selectedItem->parent() )
+    QMessageBox::information( this, tr("Error process selection:"), tr("Unable to focus: No processes selected."), QMessageBox::Ok );
+    if( msg )
     {
-      host_name = selectedItem->parent()->text(0);
-    } else
-    {
-      host_name = selectedItem->text(0);
+      delete msg;
     }
-
+    return;
   }
+
+
 
 // printf("host_name=(%s) pidString=(%s)\n", host_name.ascii(), pidString.ascii() );
 
-  if( ok )
-  {
-    FocusObject *msg = new FocusObject(expID,  host_name, pidString, TRUE);
 // printf("focus the StatsPanel...\n");
-//    p->broadcast((char *)msg, NEAREST_T);
-    if( p->broadcast((char *)msg, NEAREST_T) == 0 )
-    {
+  if( p->broadcast((char *)msg, NEAREST_T) == 0 )
+  {
 // printf("No StatsPanel.   Make one...\n");
-      char *panel_type = "Stats Panel";
-      PanelContainer *bestFitPC = p->getPanelContainer()->getMasterPC()->findBestFitPanelContainer(p->getPanelContainer());
-      ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
-      Panel *sp = p->getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, ao);
-      delete ao;
-      if( sp != NULL )
-      {
-        UpdateObject *msg =
-          new UpdateObject((void *)Find_Experiment_Object((EXPID)expID), expID, "pcsamp", 1);
-        sp->listener( (void *)msg );
-      }
-
+    char *panel_type = "Stats Panel";
+    PanelContainer *bestFitPC = p->getPanelContainer()->getMasterPC()->findBestFitPanelContainer(p->getPanelContainer());
+    ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
+    Panel *sp = p->getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, ao);
+    delete ao;
+    if( sp != NULL )
+    {
+      UpdateObject *msg =
+        new UpdateObject((void *)Find_Experiment_Object((EXPID)expID), expID, "pcsamp", 1);
+      sp->listener( (void *)msg );
+    }
 // msg->print();
-        sp->listener((void *)msg);
-      }
+      sp->listener((void *)msg);
   }
 
 }
@@ -1129,7 +1157,7 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
 
   qaction = new QAction( this,  "focusOnProcess");
   qaction->addTo( contextMenu );
-  qaction->setText( tr("Focus on Process...") );
+  qaction->setText( tr("Focus on Process(es)...") );
   connect( qaction, SIGNAL( activated() ), this, SLOT( focusOnProcessSelected() ) );
   qaction->setStatusTip( tr("Opens dialog box to attach to running process.") );
 

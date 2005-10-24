@@ -21,6 +21,10 @@
 #define FOCUSOBJECT_H
 
 #include "MessageObject.hxx"
+#include <map>
+#include <vector>
+
+typedef std::pair<std::string, std::string> HostPidPair;
 
 //! The message object for focusing an experiment
 class FocusObject : public MessageObject
@@ -44,6 +48,8 @@ public:
 
     //! The pid name
     QString pidString;
+
+    std::vector< HostPidPair > host_pid_vector;
 
     //! The raise FLAG...
     bool raiseFLAG;

@@ -35,6 +35,7 @@ FocusObject::FocusObject(int id, QString hn, QString pn, bool rf) : MessageObjec
   host_name = hn;
   pidString = pn;
   raiseFLAG = rf;
+  host_pid_vector.clear();
 }
 
 /*! Destructor */
