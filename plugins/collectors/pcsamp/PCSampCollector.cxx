@@ -220,8 +220,9 @@ void PCSampCollector::getMetricValues(const std::string& metric,
 				      const ExtentGroup& subextents,
 				      void* ptr) const
 {
-    // Check assertions
-    Assert(metric == "time");
+    // Only the "time" metric returns anything
+    if(metric != "time")
+	return;
 
     // Cast the untyped pointer into a vector of doubles
     std::vector<double>* values = reinterpret_cast<std::vector<double>*>(ptr);
