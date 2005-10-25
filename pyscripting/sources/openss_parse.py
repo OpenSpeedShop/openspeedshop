@@ -62,7 +62,7 @@ def deconstruct(cmd_name,*args):
     	    elif isinstance(args[ndx],RankList):
 	    	sublist = parse_list("-r",None,*args[ndx])
     	    elif isinstance(args[ndx],FileList):
-	    	sublist = parse_list("-f",None,*args[ndx])
+	    	sublist = parse_list("-f","FileType",*args[ndx])
     	    elif isinstance(args[ndx],PidList):
 	    	sublist = parse_list("-p",None,*args[ndx])
     	    elif isinstance(args[ndx],ThreadList):
@@ -86,9 +86,9 @@ def deconstruct(cmd_name,*args):
     	    # single instance
     	    elif isinstance(args[ndx],ExpId):
 	    	sublist = "-x "
-	    	sublist += make_string(args[ndx])
+	    	sublist += make_string(args[ndx],0)
     	    elif is_single_type(args[ndx]):
-	    	sublist = make_string(args[ndx])
+	    	sublist = make_string(args[ndx],0)
     	    else:
 	    	sublist = parse_list("-j",None,*args[ndx])
 
@@ -107,13 +107,17 @@ def deconstruct(cmd_name,*args):
 ################################################################################
 def parse_list(flag, is_special,*arglist):
     
+    	print "is_special = ", is_special
     	if (len(arglist) == 1) and (type(arglist) is types.TupleType):
     	    arglist = arglist[0]
 
     	t_string = []
 
     	if is_single_type(arglist) == 1:
-    	    t_string.append(make_string(arglist))
+	    if is_special is "FileType":
+    	    	t_string.append(make_string(arglist,1))
+	    else:
+    	    	t_string.append(make_string(arglist,0))
     	elif ((type(arglist) is types.ClassType) or
     	      (type(arglist) is types.ListType) or
 	      (type(arglist) is types.TupleType)):
@@ -125,20 +129,22 @@ def parse_list(flag, is_special,*arglist):
     	    	if is_single_type(arg) == 1:
 		    if is_special is "ParamType":
 		    	raise SyntaxError,"param arguments are tuples of 2" 
+		    elif is_special is "FileType":
+    	    	    	t_string.append(make_string(arg,1))
 		    else:
-    	    	    	t_string.append(make_string(arg))
+    	    	    	t_string.append(make_string(arg,0))
     	    	elif type(arg) is types.TupleType:
 		    	if len(arg) != 2:
 		    	    raise SyntaxError, "tuple is not of size 2"
 		    	else:
 
     	    	    	    if is_single_type(arg[0]) == 1:
-    	    	    	    	t1 = make_string(arg[0])
+    	    	    	    	t1 = make_string(arg[0],0)
     	    	    	    else:
 			    	raise SyntaxError,"first argument of tuple not simple type" 
 
     	    	    	    if is_single_type(arg[1]) == 1:
-    	    	    	    	t2 = make_string(arg[1])
+    	    	    	    	t2 = make_string(arg[1],0)
     	    	    	    else:
 			    	raise SyntaxError,"second argument of tuple not simple type" 
 			    
@@ -174,7 +180,7 @@ def parse_list(flag, is_special,*arglist):
 # representation of the argument.
 #
 ################################################################################
-def make_string(arg):
+def make_string(arg, add_quotes):
 
     	if type(arg) is types.IntType:
     	    t_string = str(arg)
@@ -186,6 +192,9 @@ def make_string(arg):
     	    t_string = str(arg)
     	else:
     	    raise SyntaxError
+	    
+	if add_quotes == 1:
+	    t_string = '"'+t_string+'"'
 
     	return t_string
 
