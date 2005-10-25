@@ -50,7 +50,7 @@ static inline void set_bool (bool &env, std::string envName) {
   }
 }
 
-void SS_Init_Environment () {
+void SS_Configure () {
 
   set_int64 (OPENSSS_VIEW_FIELD_SIZE, "OPENSSS_VIEW_FIELD_SIZE");
   set_int64 (OPENSSS_VIEW_PRECISION, "OPENSSS_VIEW_PRECISION");

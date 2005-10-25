@@ -28,4 +28,4 @@ extern bool    OPENSSS_ALLOW_PYTHON_COMMANDS;
 extern bool    OPENSSS_LOG_BY_DEFAULT;
 
 // Read in the environment variables that control OpenSpeedShop
-void SS_Init_Environment ();
+void SS_Configure ();

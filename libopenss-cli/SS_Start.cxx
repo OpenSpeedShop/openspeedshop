@@ -287,12 +287,12 @@ catch_signal (int sig, int error_num)
   if (sig != SIGINT) {
    // If not a user initiated signal, try a normal shutdown.
     if (processing_signal) {
-      fprintf(stderr,"Multiple errors - %d %d\n",sig, error_num);
+      cerr << "Multiple errors - " << sig << " " <<  error_num <<  std::endl;
       abort();
     }
     processing_signal = true;
    // the folowing lines are for debugging
-    // fprintf(stderr,"catch_signal %d\n",sig);
+    // cerr << "catch_signal " << sig << std::endl;
     // Internal_Info_Dump(1);
     // User_Info_Dump(1);
 
@@ -326,8 +326,8 @@ catch_signal (int sig, int error_num)
     SET_SIGNAL (SIGINT, catch_signal); // CNTRL-C
     SET_SIGNAL (SIGQUIT, catch_signal); // CNTRL-\
 
-   // Read in the Environment variables.
-    SS_Init_Environment ();
+   // Read in user alterable configuration options.
+    SS_Configure ();
 
    // Start up the Command line processor.
     Commander_Initialization ();
@@ -338,7 +338,7 @@ catch_signal (int sig, int error_num)
     pid_t my_pid = getpid();
     char HostName[MAXHOSTNAMELEN+1];
     if (gethostname ( &HostName[0], MAXHOSTNAMELEN)) {
-      fprintf(stderr,"ERROR: can not retreive host name\n");
+      cerr << "ERROR: can not retrieve host name\n";
       abort ();
     }
 
@@ -380,7 +380,7 @@ catch_signal (int sig, int error_num)
         return -1;
       }
     } else if (need_batch && (argc <= 2) && !read_stdin_file) {
-      fprintf(stderr,"Missing command line arguments\n");
+      cerr << "Missing command line arguments\n";
       return -1;
     }
 
@@ -453,7 +453,7 @@ catch_signal (int sig, int error_num)
   
     lt_dlhandle dl_gui_object = lt_dlopenext((const char *)gui_dl_name);
     if( dl_gui_object == NULL ) {
-      fprintf(stderr, "%s\n", lt_dlerror() );
+      cerr << "ERROR: can not load GUI - " << lt_dlerror() << std::endl;
       exit(EXIT_FAILURE);
     }
 
@@ -461,14 +461,14 @@ catch_signal (int sig, int error_num)
     dl_gui_init_routine = (lt_ptr (*)(void *, pthread_t *))lt_dlsym(dl_gui_object, gui_entry_point);
     if( dl_gui_init_routine == NULL )
     {
-      fprintf(stderr, "%s\n", lt_dlerror() );
+      cerr << "ERROR: can not initialize GUI - " << lt_dlerror() << std::endl;
       exit(EXIT_FAILURE);
     }
 
     dl_gui_kill_routine = (lt_ptr (*)())lt_dlsym(dl_gui_object, gui_exit_point);
     if( dl_gui_kill_routine == NULL )
     {
-      fprintf(stderr, "%s\n", lt_dlerror() );
+      cerr << "ERROR: can find GUI exit routine - " << lt_dlerror() << std::endl;
       exit(EXIT_FAILURE);
     }
   
