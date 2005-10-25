@@ -40,6 +40,8 @@ libopenss_runtime_la_SOURCES = \
 	OpenSS_GetTime.c \
 	OpenSS_Send.c \
 	OpenSS_Timer.c \
+	OpenSS_GetStackTraceFromContext.c \
+	LibunwindAPI.h \
 	RuntimeAPI.h
 
 if HAVE_PAPI
