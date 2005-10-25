@@ -61,6 +61,7 @@ using namespace std;
 using namespace OpenSpeedShop;
 using namespace OpenSpeedShop::Framework;
 
+#include "SS_Configure.hxx"
 #include "Commander.hxx"
 
 #include "SS_Message_Element.hxx"
