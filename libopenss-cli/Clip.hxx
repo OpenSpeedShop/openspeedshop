@@ -222,66 +222,6 @@ class InputLineObject
     }
   }
 
-  void Print (FILE *TFile) {
-    if (TFile != NULL) {
-      CMDWID who = Who();
-      Input_Line_Status what = What();
-      CMDID seq_num = Where();
-      time_t cmd_time = When();
-      std::string command = Command();
-      fprintf(TFile,"C %lld(%d) (W%lld@%.24s) ",
-                    seq_num,Num_Cmd_Objs,who,ctime(&cmd_time));
-      char *what_c;
-      switch (what)
-      { 
-        case ILO_UNKNOWN:      what_c = "UNKNOWN"; break;
-        case ILO_QUEUED_INPUT: what_c = "QUEUED"; break;
-        case ILO_IN_PARSER:    what_c = "PARSING"; break;
-        case ILO_EXECUTING:    what_c = "EXECUTING"; break;
-        case ILO_COMPLETE:     what_c = "COMPLETE"; break;
-        case ILO_ERROR:        what_c = "ERROR"; break;
-        default:               what_c = "ILLEGAL"; break;
-      }
-      fprintf(TFile,"%s",what_c);
-      fprintf(TFile,":\t");
-      if (command.length() != 0) {
-        fprintf(TFile,"%s", command.c_str());
-        int nline = strlen (command.c_str()) - 1;
-        if ((nline <= 0) || (command.c_str()[nline] != *("\n"))) {
-          fprintf(TFile,"\n");
-        }
-      }
-
-     // CommandObject list
-      std::list<CommandObject *> cmd_object = Cmd_Obj;
-      std::list<CommandObject *>::iterator coi;
-      for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
-        (*coi)->Print (TFile);
- 
-       // Check for asnychonous abort command
-        if (What() == ILO_ERROR) {
-          break;
-        }
-      }
-
-      fflush(TFile);  // So that we can look at the file while still running
-    }
-  }
-
-  void Print_Results (FILE *TFile, std::string list_seperator, std::string termination_char) {
-   // Print only the result information attached to each CommandObject
-    std::list<CommandObject *> cmd_object = Cmd_Obj;
-    std::list<CommandObject *>::iterator coi;
-    for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
-      (*coi)->Print_Results (TFile, list_seperator, termination_char);
- 
-     // Check for asnychonous abort command
-      if (What() == ILO_ERROR) {
-        break;
-      }
-    }
-  }
-
 };
 
 class TLI_InputLineObject : public InputLineObject

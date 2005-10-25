@@ -57,14 +57,6 @@ class CommandResult {
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
        << std::setw(fieldsize) << "(none)";
   }
-  virtual void Print (FILE *TFile, int64_t fieldsize=20, bool leftjustified=false) {
-    char F[20];
-    int64_t i = 0;
-    F[i++] = *("%");
-    if (leftjustified) F[i++] = *("-");
-    sprintf(&F[i], "%llds\0", fieldsize);
-    fprintf(TFile,&F[0],"(none)");
-  }
 };
 
 class CommandResult_Uint : public CommandResult {
@@ -89,14 +81,6 @@ class CommandResult_Uint : public CommandResult {
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
        << std::setw(fieldsize) << uint_value;
-  }
-  virtual void Print (FILE *TFile, int64_t fieldsize, bool leftjustified) {
-    char F[20];
-    int64_t i = 0;
-    F[i++] = *("%");
-    if (leftjustified) F[i++] = *("-");
-    sprintf(&F[i], "%lldllu\0", fieldsize);
-    fprintf(TFile,&F[0],uint_value);
   }
 };
 
@@ -127,14 +111,6 @@ class CommandResult_Int : public CommandResult {
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
        << std::setw(fieldsize) << int_value;
-  }
-  virtual void Print (FILE *TFile, int64_t fieldsize, bool leftjustified) {
-    char F[20];
-    int64_t i = 0;
-    F[i++] = *("%");
-    if (leftjustified) F[i++] = *("-");
-    sprintf(&F[i], "%lldlld\0", fieldsize);
-    fprintf(TFile,&F[0],int_value);
   }
 };
 
@@ -170,14 +146,6 @@ class CommandResult_Float : public CommandResult {
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
        << std::setw(fieldsize) << fixed << setprecision(4) << float_value;
-  }
-  virtual void Print (FILE *TFile, int64_t fieldsize, bool leftjustified) {
-    char F[20];
-    int64_t i = 0;
-    F[i++] = *("%");
-    if (leftjustified) F[i++] = *("-");
-    sprintf(&F[i], "%lldf\0", fieldsize);
-    fprintf(TFile,&F[0],float_value);
   }
 };
 
@@ -221,14 +189,6 @@ class CommandResult_String : public CommandResult {
          << ((string_value.length() <= fieldsize) ? string_value : string_value.substr(0, fieldsize));
     }
   }
-  virtual void Print (FILE *TFile, int64_t fieldsize, bool leftjustified) {
-    char F[20];
-    int64_t i = 0;
-    F[i++] = *("%");
-    if (leftjustified) F[i++] = *("-");
-    sprintf(&F[i], "%lld.%llds\0", fieldsize, fieldsize);
-    fprintf(TFile,&F[0],string_value.c_str());
-  }
 };
 
 class CommandResult_RawString : public CommandResult {
@@ -253,9 +213,6 @@ class CommandResult_RawString : public CommandResult {
     // Ignore fieldsize and leftjustified specifications and just dump the
     // the raw string to the output stream.
     to << string_value;
-  }
-  virtual void Print (FILE *TFile, int64_t fieldsize, bool leftjustified) {
-    fprintf(TFile,"%s",string_value.c_str());
   }
 };
 
@@ -296,15 +253,6 @@ class CommandResult_Function : public CommandResult, Function {
          << ((string_value.length() <= fieldsize) ? string_value : string_value.substr(0, fieldsize));
     }
   }
-  virtual void Print (FILE *TFile, int64_t fieldsize, bool leftjustified) {
-    std::string string_value = gen_F_name (*this);
-    char F[20];
-    int64_t i = 0;
-    F[i++] = *("%");
-    if (leftjustified) F[i++] = *("-");
-    sprintf(&F[i], "%lld.%llds\0", fieldsize, fieldsize);
-    fprintf(TFile,&F[0],string_value.c_str());
-  }
 };
 
 class CommandResult_Title : public CommandResult {
@@ -320,9 +268,6 @@ class CommandResult_Title : public CommandResult {
   }
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
     to << string_value;
-  }
-  virtual void Print (FILE *TFile, int64_t fieldsize, bool leftjustified) {
-    fprintf(TFile,"%s/n",string_value.c_str());
   }
 };
 
@@ -351,17 +296,6 @@ class CommandResult_Headers : public CommandResult {
     for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
       if (num_results++ != 0) to << "  ";
       (*coi)->Print (to, fieldsize, (num_results >= number_of_columns) ? true : false);
-    }
-
-  }
-  virtual void Print (FILE *TFile, int64_t fieldsize=20, bool leftjustified=false) {
-    
-    std::list<CommandResult *> cmd_object = Headers;
-    std::list<CommandResult *>::iterator coi;
-    int64_t num_results = 0;
-    for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
-      if (num_results++ != 0) fprintf(TFile,"  ");
-      (*coi)->Print (TFile, fieldsize, (num_results >= number_of_columns) ? true : false);
     }
 
   }
@@ -395,17 +329,6 @@ class CommandResult_Enders : public CommandResult {
     }
 
   }
-  virtual void Print (FILE *TFile, int64_t fieldsize=20, bool leftjustified=false) {
-    
-    std::list<CommandResult *> cmd_object = Enders;
-    std::list<CommandResult *>::iterator coi;
-    int64_t num_results = 0;
-    for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
-      if (num_results++ != 0) fprintf(TFile,"  ");
-      (*coi)->Print (TFile, fieldsize, (num_results >= number_of_columns) ? true : false);
-    }
-
-  }
 };
 
 class CommandResult_Columns : public CommandResult {
@@ -431,17 +354,6 @@ class CommandResult_Columns : public CommandResult {
     for (coi = Columns.begin(); coi != Columns.end(); coi++) {
       if (num_results++ != 0) to << "  ";
       (*coi)->Print (to, fieldsize, (num_results >= number_of_columns) ? true : false);
-    }
-
-  }
-  virtual void Print (FILE *TFile, int64_t fieldsize=20, bool leftjustified=false) {
-    
-    std::list<CommandResult *> cmd_object = Columns;
-    std::list<CommandResult *>::iterator coi;
-    int64_t num_results = 0;
-    for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
-      if (num_results++ != 0) fprintf(TFile,"  ");
-      (*coi)->Print (TFile, fieldsize, (num_results >= number_of_columns) ? true : false);
     }
 
   }
@@ -714,9 +626,7 @@ public:
 
  // The simple Print is for dumping information to a trace file.
   void Print (ostream &mystream);
-  void Print (FILE *TFile);
  // The Print_Results routine is for sending results to the user.
  // The result returned is "true" if there was information printed.
   bool Print_Results (ostream &to, std::string list_seperator, std::string termination_char);
-  bool Print_Results (FILE *TFile, std::string list_seperator, std::string termination_char);
 };

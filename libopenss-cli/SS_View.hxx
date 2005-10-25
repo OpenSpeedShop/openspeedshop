@@ -57,7 +57,7 @@ class ViewInstruction
   int64_t TMP1 () { return TMP_index1; }
   int64_t TMP2 () { return TMP_index2; }
 
-  void Print (FILE *TFile) {
+  void Print (ostream &to) {
     std::string op;
     switch (Instruction) {
      case VIEWINST_Define_Total: op = "Define_Total"; break;
@@ -68,7 +68,7 @@ class ViewInstruction
      case VIEWINST_Display_Percent_Tmp: op = "Display_Percent_Tmp"; break;
      default: op ="(unknown)"; break;
     }
-    fprintf(TFile,"%s %lld %lld %lld\n",op.c_str(),TmpResult,TMP_index1,TMP_index2);
+    to << op << " " << TmpResult << " " << TMP_index1 << " " << TMP_index2 << std::endl;
   }
 };
 
@@ -220,7 +220,7 @@ ViewInstruction *Find_Total_Def (std::vector<ViewInstruction *>IV);
 ViewInstruction *Find_Percent_Def (std::vector<ViewInstruction *>IV);
 ViewInstruction *Find_Column_Def (std::vector<ViewInstruction *>IV, int64_t Column);
 int64_t Find_Max_Column_Def (std::vector<ViewInstruction *>IV);
-void Print_View_Params (FILE *TFile,
+void Print_View_Params (ostream &to,
                         std::vector<Collector> CV,
                         std::vector<std::string> MV,
                         std::vector<ViewInstruction *>IV);

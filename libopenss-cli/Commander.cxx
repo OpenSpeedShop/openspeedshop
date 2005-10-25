@@ -2072,13 +2072,6 @@ void Default_TLI_Command_Output (CommandObject *C) {
         this_ss_stream->acquireLock();
         C->Print_Results (this_ss_stream->mystream(), "\n", "\n");
         this_ss_stream->releaseLock();
-      } else {
-        FILE *outfile = (C->Status() == CMD_ERROR) ? stderr : stdout;
-        if (C->Print_Results (outfile, "\n", "\n") &&
-              cw->Async()) {
-         // Re-issue the prompt
-          SS_Issue_Prompt (outfile);
-        }
       }
     }
     C->set_Results_Used (); // Everything is where it belongs.

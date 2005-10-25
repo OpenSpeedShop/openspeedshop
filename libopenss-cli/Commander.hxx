@@ -22,39 +22,6 @@ typedef int64_t EXPID;
 typedef int64_t CMDID;
 typedef int64_t CMDWID;
 
-class CodeObjectLocator
-{
- private:
-  std::string Host_Name;
-  std::string File_Name;
-  std::string PID_Name;
-  std::string Rank_Name;
-  std::string Thread_Name;
-
- public:
-  CodeObjectLocator () {
-    Host_Name = File_Name = PID_Name = Rank_Name = Thread_Name = std::string("");
-  }
-  CodeObjectLocator (std::string H, std::string F, std::string P, std::string R, std::string T) {
-    Host_Name = H;
-    File_Name = F;
-    PID_Name  = P;
-    Rank_Name = R;
-    Thread_Name = T;
-  }
-
-  void Dump (FILE *TFile) {
-    if (Host_Name.length()) fprintf(TFile,"-h %s ",Host_Name.c_str());
-    if (File_Name.length()) fprintf(TFile,"-f %s ",File_Name.c_str());
-    if (PID_Name.length()) fprintf(TFile,"-p %s ",PID_Name.c_str());
-    if (Rank_Name.length()) fprintf(TFile,"-r %s ",Rank_Name.c_str());
-    if (Thread_Name.length()) fprintf(TFile,"-t %s ",Thread_Name.c_str());
-  }
-  void dump (FILE *TFile) {
-    this->Dump(TFile);
-  }
-};
-
 // Forward class definitions:
 class CommandObject; // defined in CommandObject.hxx
 class InputLineObject; // defined in Clip.hxx
@@ -91,10 +58,6 @@ extern CMDWID gui_window;
 extern CMDWID Embedded_WindowID;
 extern char *Current_OpenSpeedShop_Prompt;
 extern char *Alternate_Current_OpenSpeedShop_Prompt;
-inline void SS_Issue_Prompt (FILE *TFile) {
-  fprintf(TFile,"%s",Current_OpenSpeedShop_Prompt);
-  fflush(TFile);
-}
 
 // History Buffers
 extern int64_t History_Count;

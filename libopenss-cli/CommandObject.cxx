@@ -75,41 +75,6 @@ void CommandObject::Print (ostream &mystream) {
   mystream << std::endl;
 }
 
-void CommandObject::Print (FILE *TFile) {
- // Header information
-  InputLineObject *clip = Associated_Clip;
-  CMDID when = clip->Seq ();
-  fprintf(TFile,"X %lld.%lld ",when,Seq_Num);
-
- // Status information
-  char *S;
-  switch (Cmd_Status) {
-  case CMD_UNKNOWN:   S = "UNKNOWN"; break;
-  case CMD_PARSED:    S = "PARSED"; break;
-  case CMD_EXECUTING: S = "EXECUTING"; break;
-  case CMD_COMPLETE:  S = "COMPLETE"; break;
-  case CMD_ERROR:     S = "ERROR"; break;
-  case CMD_ABORTED:   S = "ABORTED"; break;
-  default:            S = "ILLEGAL"; break;
-  }
-  fprintf(TFile,"%s: ",S);
-
- // result information
-  std::list<CommandResult *> cmd_result = Result_List();
-  std::list<CommandResult *>::iterator cri;
-  int cnt = 0;
-  for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++) {
-    if (cnt++ > 0) fprintf(TFile,", ");
-    (*cri)->Print (TFile);
-
-   // Check for asnychonous abort command
-    if (Cmd_Status == CMD_ABORTED) {
-      break;
-    }
-  }
-  fprintf(TFile,"\n");
-}
-
 // For printing the results to an Xterm Window.
 
 bool CommandObject::Print_Results (ostream &to, std::string list_seperator, std::string termination_char) {
@@ -164,30 +129,6 @@ bool CommandObject::Print_Results (ostream &to, std::string list_seperator, std:
         (list_seperator != termination_char)) {
       to << termination_char;
     }
-    return true;
-  } else {
-    return false;
-  }
-}
-bool CommandObject::Print_Results (FILE *TFile, std::string list_seperator, std::string termination_char) {
- // Print only the result information
-  std::list<CommandResult *> cmd_result = Result_List();
-  std::list<CommandResult *>::iterator cri = cmd_result.begin();
-  if  (cri != cmd_result.end()) {
-    if (((*cri)->Type() == CMD_RESULT_COLUMN_HEADER) ||
-         (++cri != cmd_result.end())) fprintf(TFile,"\n");
-    int cnt = 0;
-    for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++) {
-      if (cnt++ > 0) fprintf(TFile,"%s",list_seperator.c_str());
-      // (*cri)->Print (TFile);
-      (*cri)->Print (TFile, 20, true);
-
-     // Check for asnychonous abort command
-      if (Cmd_Status == CMD_ABORTED) {
-        break;
-      }
-    }
-    fprintf(TFile,"%s",termination_char.c_str());
     return true;
   } else {
     return false;

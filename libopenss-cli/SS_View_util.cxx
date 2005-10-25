@@ -717,18 +717,18 @@ int64_t Find_Max_Column_Def (std::vector<ViewInstruction *>IV) {
   return Max_Column;
 }
 
-void Print_View_Params (FILE *TFile,
+void Print_View_Params (ostream &to,
                         std::vector<Collector> CV,
                         std::vector<std::string> MV,
                         std::vector<ViewInstruction *>IV) {
   int i;
-  fprintf(TFile,"\nList Metrics\n");
+  to << std::endl << "List Metrics" << std::endl;
   for ( i=0; i < MV.size(); i++) {
-    fprintf(TFile,"\t%s\n",MV[i].c_str());
+    to << "\t" << MV[i] << std::endl;
   }
-  fprintf(TFile,"List Instructions\n");
+  to << "List Instructions" << std::endl;
   for ( i=0; i < IV.size(); i++) {
-    fprintf(TFile,"\t");
-    IV[i]->Print (TFile);
+    to << "\t";
+    IV[i]->Print (to);
   }
 }
