@@ -326,6 +326,9 @@ catch_signal (int sig, int error_num)
     SET_SIGNAL (SIGINT, catch_signal); // CNTRL-C
     SET_SIGNAL (SIGQUIT, catch_signal); // CNTRL-\
 
+   // Read in the Environment variables.
+    SS_Init_Environment ();
+
    // Start up the Command line processor.
     Commander_Initialization ();
 
