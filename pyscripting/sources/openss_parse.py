@@ -107,7 +107,6 @@ def deconstruct(cmd_name,*args):
 ################################################################################
 def parse_list(flag, is_special,*arglist):
     
-    	print "is_special = ", is_special
     	if (len(arglist) == 1) and (type(arglist) is types.TupleType):
     	    arglist = arglist[0]
 
