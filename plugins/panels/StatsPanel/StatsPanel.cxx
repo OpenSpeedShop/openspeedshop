@@ -290,6 +290,7 @@ StatsPanel::listener(void *msg)
     {
 // printf("StatsPanel:: we have a vector list!\n");
 
+      currentThreadGroupStrList.clear();
       currentThreadsStr = QString::null;
       std::vector<HostPidPair>::const_iterator sit = msg->host_pid_vector.begin();
       for(std::vector<HostPidPair>::const_iterator
@@ -304,6 +305,7 @@ StatsPanel::listener(void *msg)
         {
           currentThreadsStr += QString(" -p %1").arg(sit->second.c_str() );
         }
+        currentThreadGroupStrList.push_back( sit->second.c_str() );
       }
     }
 // printf("currentThreadStr=(%s)\n", currentThreadStr.ascii() );
@@ -381,11 +383,11 @@ StatsPanel::menu( QPopupMenu* contextMenu)
   connect(contextMenu, SIGNAL( activated(int) ),
         this, SLOT(collectorMetricSelected(int)) );
 
-QAction * qaction = new QAction( this,  "_updatePanel");
-qaction->addTo( contextMenu );
-qaction->setText( "Update Panel..." );
-connect( qaction, SIGNAL( activated() ), this, SLOT( updatePanel() ) );
-qaction->setStatusTip( tr("Attempt to update this panel's display with fresh data.") );
+  QAction * qaction = new QAction( this,  "_updatePanel");
+  qaction->addTo( contextMenu );
+  qaction->setText( "Update Panel..." );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( updatePanel() ) );
+  qaction->setStatusTip( tr("Attempt to update this panel's display with fresh data.") );
 
   contextMenu->insertSeparator();
   // Over all the collectors....
@@ -1174,15 +1176,15 @@ StatsPanel::updateStatsPanelData()
 
   splv->setSorting ( -1 );
   QString command = QString("expView -x %1").arg(expID);
-lastAbout = QString("Experiment: %1\n").arg(expID);
+  lastAbout = QString("Experiment: %1\n").arg(expID);
   if( currentCollectorStr.isEmpty() || showPercentageFLAG == FALSE )
   {
-     command += QString(" %1%2").arg("stats").arg(numberItemsToDisplayInStats);
-lastAbout += QString("Requested data for all collectors for top %1 items\n").arg(numberItemsToDisplayInStats);
+    command += QString(" %1%2").arg("stats").arg(numberItemsToDisplayInStats);
+    lastAbout += QString("Requested data for all collectors for top %1 items\n").arg(numberItemsToDisplayInStats);
   } else
   {
-     command += QString(" %1%2").arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
-lastAbout += QString("Requested data for collector %1 for top %2 items\n").arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
+    command += QString(" %1%2").arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
+    lastAbout += QString("Requested data for collector %1 for top %2 items\n").arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
 
   }
   if( !currentMetricStr.isEmpty() )
@@ -1311,12 +1313,11 @@ StatsPanel::threadSelected(int val)
 { 
 // printf("threadSelected(int)\n");
 
-// printf("threadMenu:(%s)\n", threadMenu->text(val).ascii() );
+//printf("threadMenu:(%s)\n", threadMenu->text(val).ascii() );
 
   currentThreadStr = threadMenu->text(val).ascii();
 
   currentThreadsStr = QString::null;
-
 
 
   // Dynamically build the menu from the user selected list of threads.
@@ -1342,18 +1343,23 @@ StatsPanel::threadSelected(int val)
   for( ThreadGroupStringList::Iterator it = currentThreadGroupStrList.begin(); it != currentThreadGroupStrList.end(); ++it)
   {
     QString ts = (QString)*it;
-// printf("ts=(%s)\n", ts.ascii() );
+//printf("ts=(%s)\n", ts.ascii() );
   
+    if( ts.isEmpty() )
+    {
+      continue;
+    }
+
     if( currentThreadsStr.isEmpty() )
     {
-      currentThreadsStr =  ts;
+      currentThreadsStr = "-p "+ts;
     } else
     {
       currentThreadsStr += ","+ts;
     }
   }
 
-// printf("currentThreadsStr = %s\n", currentThreadsStr.ascii() );
+//printf("currentThreadsStr = %s\n", currentThreadsStr.ascii() );
  
   updateStatsPanelData();
 }
