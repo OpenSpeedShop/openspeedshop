@@ -245,7 +245,7 @@ void UserTimeCollector::getMetricValues(const std::string& metric,
 	blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_usertime_data),&data);
     
 	// Check assertions
-	// Assert(data.bt.bt_len == data.count.count_len);
+	Assert(data.bt.bt_len == data.count.count_len);
 
 	// Calculate time (in nS) of data blob's extent
 	double t_blob =
@@ -253,9 +253,9 @@ void UserTimeCollector::getMetricValues(const std::string& metric,
 
         // Iterate over each of the samples
 
-	bool top_stack_trace = true;
-	bool add_to_values = true;
 
+	int mycount = 0;
+	int currentcount = 0;
         for(unsigned i = 0; i < data.bt.bt_len; i++)
 	{
 		
@@ -266,7 +266,30 @@ void UserTimeCollector::getMetricValues(const std::string& metric,
 		       AddressRange(data.bt.bt_val[i])) );
 
 	    // Calculate the time (in seconds) attributable to this sample
-	    double t_sample = static_cast<double>(data.interval) / 1000000000.0;
+	    // If using stacks with counts, an address may appear in
+	    // more than one stack.  Need to find count for each stack
+	    // that the addr is in. How? Search each stack for addr?
+	    // Or make count same size as buffer?
+
+	    bool top_stack_trace = true;
+	    bool add_to_values = true;
+
+	    // A count_val > 0 indicates a valid stack in buffer bt.
+	    if (data.count.count_val[i] > 0) {
+		mycount = data.count.count_val[i];
+		currentcount = mycount;
+	    } else if (data.count.count_val[i] == 0) {
+		top_stack_trace = false;
+		currentcount = mycount;
+	    }
+
+	    double t_sample = 0.0;
+	    if (currentcount > 0)
+		t_sample = static_cast<double>(currentcount) *
+			   static_cast<double>(data.interval) / 1000000000.0;
+	    else
+		continue;
+
 
 	    // The boolean add_to_values is used to determine if we
 	    // include the computed t_sample in values.
@@ -282,12 +305,6 @@ void UserTimeCollector::getMetricValues(const std::string& metric,
 		} else {
 		    // t_sample for this stack frame not added to values.
 		    add_to_values = false;
-		}
-
-		if ( !top_stack_trace && data.bt.bt_val[i] == 0) {
-		    // reached end of stack marker. Next t_sample will
-		    // be top of new stack.
-		    top_stack_trace = true;
 		}
 	    }
 
