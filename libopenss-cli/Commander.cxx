@@ -30,7 +30,6 @@ pthread_cond_t  Async_Input_Available = PTHREAD_COND_INITIALIZER;
 bool            Shut_Down = false;
 static bool     Waiting_For_Complex_Cmd = false;
 
-int64_t History_Limit = DEFAULT_HISTORY_BUFFER;
 int64_t History_Count = 0;
 std::list<std::string> History;
 
@@ -415,11 +414,13 @@ class CommandWindowID
       Assert(pthread_mutex_unlock(&Window_List_Lock) == 0);
 
      // Allocate a log file for commands associated with this window
-      char base[20];
-      snprintf(base, 20, "sstr%lld.XXXXXX",id);
-      Log_File_Name = std::string(tempnam ("./", &base[0] )) + ".openss";
-      Log_Stream = new ofstream (Log_File_Name.c_str(), ios::out);
-      Log_File_Is_A_Temporary_File = true;
+      if (OPENSSS_LOG_BY_DEFAULT) {
+        char base[20];
+        snprintf(base, 20, "sstr%lld.XXXXXX",id);
+        Log_File_Name = std::string(tempnam ("./", &base[0] )) + ".openss";
+        Log_Stream = new ofstream (Log_File_Name.c_str(), ios::out);
+        Log_File_Is_A_Temporary_File = true;
+      }
       Record_File_Name = "";
       Record_Stream = NULL;
       Record_File_Is_A_Temporary_File = false;
@@ -1377,7 +1378,6 @@ void Commander_Initialization () {
   ss_ttyout = NULL;
 
  // Set up History Buffer.
-  History_Limit = DEFAULT_HISTORY_BUFFER;
   History_Count = 0;
   History.empty();
 }
@@ -2431,7 +2431,7 @@ read_another_window:
  // Add command to the history file.
   History.push_back(clip->Command());
   History_Count++;
-  if (History_Count > History_Limit) {
+  if (History_Count > OPENSSS_HISTORY_LIMIT) {
     (void) History.pop_front();
     History_Count--;
   }
