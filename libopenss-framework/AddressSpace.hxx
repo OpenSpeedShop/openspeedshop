@@ -101,7 +101,7 @@ namespace OpenSpeedShop { namespace Framework {
 	    
 	};
 	
-	/** Map non-overlapping address ranges to their entries. */
+	/** Map non-overlapping address ranges to their entry. */
 	std::map<AddressRange, Entry> dm_address_range_to_entry;
 	
     };

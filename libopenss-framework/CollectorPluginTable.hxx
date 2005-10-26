@@ -117,7 +117,7 @@ namespace OpenSpeedShop { namespace Framework {
 	    
 	};	
 	
-	/** Map collector plugin's unique identifiers to their entries. */
+	/** Map collector plugin's unique identifiers to their entry. */
         std::map<std::string, Entry> dm_unique_id_to_entry;
 	
 	void build();
