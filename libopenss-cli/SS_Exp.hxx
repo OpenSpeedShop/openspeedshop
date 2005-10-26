@@ -55,10 +55,37 @@ class ExperimentObject
    // Allocate a data base file for the information connected with the experiment.
     std::string Data_File_Name;
     if (data_base_name.length() == 0) {
-      char base[20];
-      snprintf(base, 20, "ssdb%lld.XXXXXX",Exp_ID);
-      Data_File_Name = std::string(tempnam ("/tmp/", &base[0] ) ) + ".openss";
-      Data_File_Has_A_Generated_Name = true;
+      if (OPENSSS_SAVE_EXPERIMENT_DATABASE) {
+       // Try to create a file in the current directory
+       // of the form "X<exp_id>_XXXXXX.openss".
+       // If the genrated name already exists, increment
+       // the "XXXXXX" field and try again with the new name.
+        char base[100];
+        int64_t cnt = 0;
+        for (cnt = 0; cnt < 1000000; cnt++) {
+          snprintf(base, 100, "./X%lld_%lld.openss",Exp_ID,cnt);
+          int fd;
+          if ((fd = open(base, O_RDONLY)) != -1) {
+           // File name is already used!
+            Assert(close(fd) == 0);
+            continue;
+          }
+          Data_File_Name = std::string(base);
+          Data_File_Has_A_Generated_Name = false;
+          break;
+        }
+        Assert(cnt < 1000000);
+      } else {
+       // Create a file in /tmp, for fastest access,
+       // of the form "ssdb<exp_id>XXXXXX.openss".
+        char base[L_tmpnam];
+        snprintf(base, L_tmpnam, "ssdb%lld.XXXXXX",Exp_ID);
+        char *tName = tempnam ("/tmp/", &base[0] );
+        Assert(tName != NULL);
+        Data_File_Name = std::string(tName) + ".openss";
+        Data_File_Has_A_Generated_Name = true;
+        free (tName);
+      }
       try {
         OpenSpeedShop::Framework::Experiment::create (Data_File_Name);
       }
