@@ -145,7 +145,7 @@ class CommandResult_Float : public CommandResult {
   };
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
-       << std::setw(fieldsize) << fixed << setprecision(4) << float_value;
+       << std::setw(fieldsize) << fixed << setprecision(OPENSSS_VIEW_PRECISION) << float_value;
   }
 };
 
@@ -288,7 +288,7 @@ class CommandResult_Headers : public CommandResult {
   virtual void Value (std::list<CommandResult *> &R) {
     R = Headers;
   }
-  virtual void Print (ostream &to, int64_t fieldsize=20, bool leftjustified=false) {
+  virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
     
     std::list<CommandResult *> cmd_object = Headers;
     std::list<CommandResult *>::iterator coi;
@@ -318,7 +318,7 @@ class CommandResult_Enders : public CommandResult {
   virtual void Value (std::list<CommandResult *> &R) {
     R = Enders;
   }
-  virtual void Print (ostream &to, int64_t fieldsize=20, bool leftjustified=false) {
+  virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
     
     std::list<CommandResult *> cmd_object = Enders;
     std::list<CommandResult *>::iterator coi;
@@ -348,7 +348,7 @@ class CommandResult_Columns : public CommandResult {
   virtual void Value (std::list<CommandResult *>  &R) {
     R = Columns;
   }
-  virtual void Print (ostream &to, int64_t fieldsize=20, bool leftjustified=false) {
+  virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
     std::list<CommandResult *>::iterator coi;
     int64_t num_results = 0;
     for (coi = Columns.begin(); coi != Columns.end(); coi++) {
