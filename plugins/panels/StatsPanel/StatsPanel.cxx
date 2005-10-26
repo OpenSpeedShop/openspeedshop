@@ -149,6 +149,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   metricMenu = NULL;
   threadMenu = NULL;
   currentMetricStr = QString::null;
+  currentUserSelectedMetricStr = QString::null;
   metricHeaderTypeArray = NULL;
   currentThreadStr = QString::null;
   currentCollectorStr = QString::null;
@@ -383,7 +384,17 @@ StatsPanel::menu( QPopupMenu* contextMenu)
   connect(contextMenu, SIGNAL( activated(int) ),
         this, SLOT(collectorMetricSelected(int)) );
 
-  QAction * qaction = new QAction( this,  "_updatePanel");
+  QAction *qaction = NULL;
+
+//  contextMenu->insertItem("About...", this, SLOT(aboutSelected()) );
+  qaction = new QAction( this,  "_aboutStatsPanel");
+  qaction->addTo( contextMenu );
+  qaction->setText( "About..." );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( aboutSelected() ) );
+  qaction->setStatusTip( tr("Shows information about what is currently being displayed in the StatsPanel.") );
+
+
+  qaction = new QAction( this,  "_updatePanel");
   qaction->addTo( contextMenu );
   qaction->setText( "Update Panel..." );
   connect( qaction, SIGNAL( activated() ), this, SLOT( updatePanel() ) );
@@ -474,9 +485,6 @@ StatsPanel::menu( QPopupMenu* contextMenu)
   showPercentageID = contextMenu->insertItem("Show Percentages", this, SLOT(showPercentageSelected()) );
   contextMenu->setItemChecked(showPercentageID, showPercentageFLAG);
 
-  contextMenu->insertItem("About...", this, SLOT(aboutSelected()) );
-
-
   contextMenu->insertSeparator();
 
   qaction = new QAction( this,  "compareAction");
@@ -526,24 +534,42 @@ StatsPanel::menu( QPopupMenu* contextMenu)
 
 
   contextMenu->insertSeparator();
-  contextMenu->insertItem("&Re-orientate", this, SLOT(setOrientation()), CTRL+Key_R );
+
+  qaction = new QAction( this,  "re-orientate");
+  qaction->addTo( contextMenu );
+  qaction->setText( "Re-orientate" );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( setOrientation() ) );
+  qaction->setStatusTip( tr("Display chart/statistics horizontal/vertical.") );
+
   if( chartFLAG == TRUE )
   {
-    contextMenu->insertItem("Hide &Chart...", this,
-    SLOT(showChart()), CTRL+Key_L );
+    qaction = new QAction( this,  "hideChart");
+    qaction->addTo( contextMenu );
+    qaction->setText( "Hide Chart..." );
+    connect( qaction, SIGNAL( activated() ), this, SLOT( showChart() ) );
+    qaction->setStatusTip( tr("If graphics are shown, hide the graphic chart.") );
   } else
   {
-    contextMenu->insertItem("Show &Chart...", this,
-    SLOT(showChart()), CTRL+Key_L );
+    qaction = new QAction( this,  "showChart");
+    qaction->addTo( contextMenu );
+    qaction->setText( "Show Chart..." );
+    connect( qaction, SIGNAL( activated() ), this, SLOT( showChart() ) );
+    qaction->setStatusTip( tr("If graphics are available, show the graphic chart.") );
   }
   if( statsFLAG == TRUE )
   {
-    contextMenu->insertItem("Hide &Statistics...", this,
-    SLOT(showStats()), CTRL+Key_L );
+    qaction = new QAction( this,  "hideStatistics");
+    qaction->addTo( contextMenu );
+    qaction->setText( "Hide Statistics..." );
+    connect( qaction, SIGNAL( activated() ), this, SLOT( showStats() ) );
+    qaction->setStatusTip( tr("Hide the statistics display.") );
   } else
   {
-    contextMenu->insertItem("Show &Statistics...", this,
-    SLOT(showStats()), CTRL+Key_L );
+    qaction = new QAction( this,  "showStatistics");
+    qaction->addTo( contextMenu );
+    qaction->setText( "Show Statistics..." );
+    connect( qaction, SIGNAL( activated() ), this, SLOT( showStats() ) );
+    qaction->setStatusTip( tr("Show the statistics display.") );
   }
 
   return( TRUE );
@@ -909,7 +935,6 @@ bool
 StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 {
 // printf("matchSelectedItem() entered. sf=%s\n", sf.c_str() );
-// printf("A: Display the results currentMetricTypeStr=(%s)\n", currentMetricTypeStr.ascii() );
 
 // First lets try to find the function/file pair.
 
@@ -1187,11 +1212,19 @@ StatsPanel::updateStatsPanelData()
     lastAbout += QString("Requested data for collector %1 for top %2 items\n").arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
 
   }
+#ifdef OLDWAY
   if( !currentMetricStr.isEmpty() )
   {
      command += QString(" -m %1").arg(currentMetricStr);
      lastAbout += QString("for metrics %1\n").arg(currentMetricStr);
   }
+#else // OLDWAY
+  if( !currentUserSelectedMetricStr.isEmpty() )
+  {
+     command += QString(" -m %1").arg(currentUserSelectedMetricStr);
+     lastAbout += QString("for metrics %1\n").arg(currentUserSelectedMetricStr);
+  }
+#endif // OLDWAY
   if( !currentThreadsStr.isEmpty() )
   {
      command += QString(" %1").arg(currentThreadsStr);
@@ -1202,7 +1235,7 @@ StatsPanel::updateStatsPanelData()
 
   QApplication::setOverrideCursor(QCursor::WaitCursor);
   Redirect_Window_Output( cli->wid, spoclass, spoclass );
-//printf("command: (%s)\n", command.ascii() );
+// printf("command: (%s)\n", command.ascii() );
   lastAbout += "Command issued: " + command;
   InputLineObject *clip = Append_Input_String( cli->wid, (char *)command.ascii());
   if( clip == NULL )
@@ -1380,6 +1413,7 @@ StatsPanel::collectorMetricSelected(int val)
     { // The user selected one of the metrics
       currentCollectorStr = s.mid(13, index-13 );
       currentMetricStr = s.mid(index+2);
+currentUserSelectedMetricStr = currentMetricStr;
 // printf("B1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
       // This one resets to all...
     } else 
@@ -1387,6 +1421,7 @@ StatsPanel::collectorMetricSelected(int val)
       index = s.find(":");
       currentCollectorStr = s.mid(13, index-13 );
       currentMetricStr = QString::null;
+currentUserSelectedMetricStr = QString::null;
 // printf("B2: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
     }
     updateStatsPanelData();

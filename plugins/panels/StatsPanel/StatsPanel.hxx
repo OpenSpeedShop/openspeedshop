@@ -131,9 +131,8 @@ ThreadGroupStringList currentThreadGroupStrList;
     void setCurrentCollector();
 
     QString currentMetricStr;
-void setCurrentMetricStr();
-    QString optionalMetricStr;
-    QString currentMetricTypeStr;
+    void setCurrentMetricStr();
+    QString currentUserSelectedMetricStr;
 
     //! Current selected chart item.
     SPListViewItem *currentItem;

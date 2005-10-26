@@ -255,8 +255,7 @@ if( lo.first == TRUE )
             return;
           }
         }
-      attachCollectorsListView->setColumnText( 0,
-        tr( QString("Collectors attached to experiment: '%1':").arg(expID) ) );
+      attachCollectorsListView->setColumnText( 0, tr( QString("Collectors")) );
       attachCollectorsListView->setColumnText( 1, tr( QString("Name") ) );
       }
       break;
@@ -352,15 +351,13 @@ if( lo.first == TRUE )
           << std::endl;
         return;
       }
-      attachCollectorsListView->setColumnText( 0,
-        tr( QString("Processes attached to experiment: '%1':").arg(expID) ) );
-      attachCollectorsListView->setColumnText( 1, tr( QString("Name") ) );
+      attachCollectorsListView->setColumnText( 0, tr( QString("Processes:")) );
+      attachCollectorsListView->setColumnText( 1, tr( QString("Status") ) );
     }
     break;
   case  MPIRANK_T:
 // Does this one make sense?
-    attachCollectorsListView->setColumnText( 0,
-      tr( QString("MPI ranks associated with experiment: '%1':").arg(expID) ) );
+    attachCollectorsListView->setColumnText( 0, tr( QString("Ranks")) );
     attachCollectorsListView->setColumnText( 1, tr( QString("Process ID") ) );
     break;
   case  HOST_T:
@@ -457,8 +454,7 @@ if( lo.first == TRUE )
         << std::endl;
       return;
     }
-    attachCollectorsListView->setColumnText( 0,
-      tr( QString("Hosts associated with experiment: '%1':").arg(expID) ) );
+    attachCollectorsListView->setColumnText( 0, tr( QString("Hosts:")) );
     attachCollectorsListView->setColumnText( 1, tr( QString("N/A") ) );
     break;
   }
@@ -1054,12 +1050,6 @@ ManageCollectorsClass::sortByProcess()
 
 
 // printf("attachCollectorsListView->columnText(0) = (%s)\n", attachCollectorsListView->columnText(1).ascii() );
-#ifdef OLDWAY
-  attachCollectorsListView->setColumnText( 0,
-    tr( QString("Processes attached to experiment: '%1':").arg(expID) ) );
-  attachCollectorsListView->setColumnText( 1, tr( QString("Name") ) );
-#endif // OLDWAY
-
   updateAttachedList();
 }
 
@@ -1068,12 +1058,6 @@ ManageCollectorsClass::sortByCollector()
 {
 // printf("sortByCollector\n");
   dialogSortType = COLLECTOR_T;
-
-#ifdef OLDWAY
-  attachCollectorsListView->setColumnText( 0,
-    tr( QString("Collectors attached to experiment: '%1':").arg(expID) ) );
-  attachCollectorsListView->setColumnText( 1, tr( QString("Name") ) );
-#endif // OLDWAY
 
   updateAttachedList();
 }
@@ -1084,12 +1068,6 @@ ManageCollectorsClass::sortByHost()
 // printf("sortByHost\n");
   dialogSortType = HOST_T;
 
-#ifdef OLDWAY
-  attachCollectorsListView->setColumnText( 0,
-    tr( QString("Hosts associated with experiment: '%1':").arg(expID) ) );
-  attachCollectorsListView->setColumnText( 1, tr( QString("N/A") ) );
-#endif // OLDWAY
-
   updateAttachedList();
 }
 
@@ -1098,12 +1076,6 @@ ManageCollectorsClass::sortByMPIRank()
 {
 // printf("sortByMPIRank\n");
   dialogSortType = MPIRANK_T;
-
-#ifdef OLDWAY
-  attachCollectorsListView->setColumnText( 0,
-    tr( QString("MPI ranks associated with experiment: '%1':").arg(expID) ) );
-  attachCollectorsListView->setColumnText( 1, tr( QString("Process ID") ) );
-#endif // OLDWAY
 
   updateAttachedList();
 }
