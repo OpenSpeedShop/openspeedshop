@@ -32,13 +32,15 @@ Overview and Information Resources</a>
         </ul>
       </li>
       <li><a href="#mozTocId11413">Open|SpeedShop Plugin
-Overview </a>
+Overview
+        </a>
         <ul>
           <li><a href="#mozTocId405706">Plugin Creation
 Preview Outline</a>
             <ul>
               <li><a href="#mozTocId513127">Performance Data
 Collector Plugin Preview Outline</a></li>
+              <li><a href="#mozTocId225587">Plugin Structure</a></li>
               <li><a href="#mozTocId743777">How do plugins get
 recognized?</a></li>
               <li><a href="#mozTocId679293">Where are the plugins
@@ -56,17 +58,20 @@ The Performance Data Desired</a></li>
 Collector Plugin</a>
             <ul>
               <li><a href="#mozTocId773274">Overview</a></li>
+              <li><a href="#mozTocId223455">Plugin Recognition</a></li>
               <li><a href="#mozTocId207808">Data blobs</a></li>
-              <li><a href="#mozTocId667687">Server - Collector
-Runtime</a>
+              <li><a href="#mozTocId667687">Collector
+Runtime - Server/Victim portin of Experiment Collector</a>
                 <ul>
                   <li><a href="#mozTocId40824">Framework runtime</a></li>
                 </ul>
               </li>
-              <li><a href="#mozTocId637965">Client - Collector
-Plugin&nbsp; </a>
+              <li><a href="#mozTocId637965">Collector
+Plugin - Client/Tool portion of Experiment Collector
+                </a>
                 <ul>
-                  <li><a href="#mozTocId388988">Start Collecting</a>
+                  <li><a href="#mozTocId388988">The Start Collecting
+function</a>
                     <ul>
                       <li><a href="#mozTocId199690">What
 it does:</a></li>
@@ -77,7 +82,8 @@ in the
 function body:</a></li>
                     </ul>
                   </li>
-                  <li><a href="#mozTocId992246">Stop Collecting</a>
+                  <li><a href="#mozTocId992246">The Stop Collecting
+function</a>
                     <ul>
                       <li><a href="#mozTocId150755">What it does:</a></li>
                       <li><a href="#mozTocId352197">Definition:</a></li>
@@ -88,7 +94,8 @@ in
 the function body:</a></li>
                     </ul>
                   </li>
-                  <li><a href="#mozTocId278716">Get Metric Values</a>
+                  <li><a href="#mozTocId278716">The Get Metric Values
+function</a>
                     <ul>
                       <li><a href="#mozTocId110227">What it does:</a></li>
                       <li><a href="#mozTocId171646">Definition:</a></li>
@@ -99,10 +106,12 @@ in
 the function body:</a></li>
                     </ul>
                   </li>
-                  <li><a href="#mozTocId271962">Set Parameter</a>
+                  <li><a href="#mozTocId271962">The Set Parameter
+function</a>
                     <ul>
                       <li><a href="#mozTocId753822">What it does:</a></li>
-                      <li><a href="#mozTocId163320">Definition: </a></li>
+                      <li><a href="#mozTocId163320">Definition:
+                        </a></li>
                       <li><a href="#mozTocId699056"> Parameters:</a></li>
                       <li><a href="#mozTocId97265"> Return
 values:</a></li>
@@ -112,8 +121,8 @@ in
 the function body:</a></li>
                     </ul>
                   </li>
-                  <li><a href="#mozTocId518369">Get Default
-Parameters</a>
+                  <li><a href="#mozTocId518369">The Get Default
+Parameters function</a>
                     <ul>
                       <li><a href="#mozTocId709984">What it does:</a></li>
                       <li><a href="#mozTocId832976">Definition:</a></li>
@@ -124,7 +133,8 @@ in the
 function body:</a></li>
                     </ul>
                   </li>
-                  <li><a href="#mozTocId769605">Get Parameters</a>
+                  <li><a href="#mozTocId769605">The Get Parameters
+function</a>
                     <ul>
                       <li><a href="#mozTocId340210">What it does:</a></li>
                       <li><a href="#mozTocId552888">Definition:</a></li>
@@ -141,11 +151,13 @@ in the function body:</a></li>
           </li>
           <li><a href="#mozTocId846999">Example Collector Plugin</a></li>
           <li><a href="#mozTocId377373">Collector
-Plugin FAQ: </a>
+Plugin FAQ:
+            </a>
             <ul>
               <li><a href="#mozTocId198444">What is
 blob.x for? What is
-the significance of the .x suffix? </a></li>
+the significance of the .x suffix?
+                </a></li>
               <li><a href="#mozTocId189119">What is
 specifically needed to be known by the framework? Do these class
 structures need to follow a
@@ -155,7 +167,8 @@ particular convention?</a></li>
         </ul>
       </li>
       <li><a href="#mozTocId212847">Graphical User
-Interface Plugin Information </a>
+Interface Plugin Information
+        </a>
         <ul>
           <li><a href="#mozTocId930728">Creating A
 Graphical User Interface Panel</a>
@@ -188,7 +201,8 @@ User Interface Plugin</a></li>
         </ul>
       </li>
       <li><a href="#mozTocId1574">Command Line
-Interface Plugin Information </a></li>
+Interface Plugin Information
+        </a></li>
     </ul>
   </li>
 </ul>
@@ -290,8 +304,15 @@ There are currently three separate types of Plugins that Open|SpeedShop
 recognizes and dynamically integrates into the Open|SpeedShop tool
 set.&nbsp; The three types of plugins are:<br>
 <ul>
-  <li>Performance data collector plugins<br>
+  <li>Performance data collector plugins <br>
   </li>
+  <ul>
+    <li>Collector Runtime - run time plugin - loaded into victim
+application</li>
+    <li>Collector Plugin - client side plugin - loaded into
+Open|SpeedShop client tool<br>
+    </li>
+  </ul>
   <li>Graphical User Interface plugins</li>
   <li>Command Line Interface plugins</li>
 </ul>
@@ -325,7 +346,7 @@ data desired to be output by the Open|SpeedShop tool.</li>
   <li>Determine what will be in the performance data structure (data
 blob) in the victim application.</li>
   <ul>
-    <li>Analyse the data blob structure</li>
+    <li>Analyse and define the data blob structure</li>
     <ul>
       <li>Too much information (large data blobs) might impact the
 victim applications behavior (memory growth).</li>
@@ -333,7 +354,30 @@ victim applications behavior (memory growth).</li>
 performance issues.</li>
     </ul>
   </ul>
+  <li>Create a barebones directory using the Example Plugin directory
+as a model or copy the Example Plugin directory and modify<br>
+  </li>
+  <li>Begin the actual implementation of the collector plugin</li>
+  <ul>
+    <li>Create base files using Example Plugin files as model/guide</li>
+    <li>Implement the plugin recognition portion of the plugin</li>
+    <li><br>
+    </li>
+  </ul>
 </ul>
+<h4><a class="mozTocH4" name="mozTocId225587"></a>Plugin Structure</h4>
+As noted above, the experiment collector plugin is actually physically
+two dynamic shared objects.&nbsp; If one was to view the directory
+where the Open|SpeedShop plugins are installed
+(&lt;install_dir_prefix&gt;/lib/openspeedshop) you would see that there
+are two dso's for each experiment collector.&nbsp;&nbsp; For example,
+here is what is shown for the PC Sampling experiment collector:<br>
+<div style="margin-left: 120px;">pcsamp.la*&nbsp; pcsamp-rt.la*&nbsp;
+pcsamp-rt.so*&nbsp; pcsamp.so*<br>
+</div>
+<br>
+The runtime portion of the experiment collector plugin is appended with
+"-rt".<br>
 <br>
 <h4><a class="mozTocH4" name="mozTocId743777"></a>How do plugins get
 recognized?</h4>
@@ -484,7 +528,7 @@ the performance data it is stored in the experiment database file.<br>
 <img alt="Tool Overview" src="ToolOverView.png"
  style="width: 851px; height: 394px;"><br>
 <br>
-<h4>Plugin Recognition</h4>
+<h4><a class="mozTocH4" name="mozTocId223455"></a>Plugin Recognition</h4>
 The Open|SpeedShop framework component, using libltdl, will search the
 plugin directory
 paths for files that can be dynamically opened, (dso) via dlopen.&nbsp;
@@ -497,18 +541,46 @@ plugin.&nbsp;&nbsp; At this point further plugin verification and
 creation processing occurs.&nbsp;&nbsp; The&nbsp; CollectorFactory
 function is&nbsp; called to create&nbsp; a new instantiation of the
 "CollectorImpl" class which, in reality, creates the collector
-plugin.&nbsp;&nbsp; The unique identification code of the collector
-plugin is checked to see if the plugin has already been
+plugin.&nbsp;&nbsp; The code that is responsible for the instantiation
+can be found in&nbsp; the Open|SpeedShop source file
+"libopenss-framework/CollectorPluginTable.cxx" in CollectorImpl*
+CollectorPluginTable::instantiate function.&nbsp; No changes are
+required by the plugin writer in this function.&nbsp; This information
+is included here for completeness.&nbsp; The unique identification code
+of the collector
+plugin is also checked in this routine to see if the plugin has already
+been
 encountered.&nbsp; If it has not been encountered yet, it is added to
-the list of collector plugins.<br>
+the list of collector plugins.&nbsp;&nbsp; The collector is actually
+added to the collector list in the function
+"Collector::instantiateImpl" which is found in the Open|SpeedShop
+source file "libopenss-framework/Collector.cxx".<br>
+<br>
+So, to assure that the plugin you are creating is found, make sure you
+define the special entry point
+"&lt;your_plugin_name&gt;_LTX_CollectoryFactory".&nbsp;&nbsp;&nbsp; The
+Example collector plugin shows this in the file
+"examples/libopenss-framework/collector/ExampleCollector.cxx"&nbsp;&nbsp;&nbsp;
+Look for the definition of "example_LTX_CollectorFactory()" for the
+example of how to implement the routine.<br>
 <br>
 <h4><a class="mozTocH4" name="mozTocId207808"></a>Data blobs</h4>
 The collector writer defines the format of the performance data being
 gathered and stored in the victim application.&nbsp;&nbsp;
 Open|SpeedShop uses the term, blob (binary large object), to refer to
 the performance data objects being gathered and stored in the victim
-application.&nbsp;&nbsp; There are design issues to consider when
-defining the structure and size of the blob data:<br>
+application.&nbsp; <br>
+<br>
+This is a very important phase of the collector creation!&nbsp;&nbsp;
+Much time needs to be spent in the design and layout of the data blob
+data definitions to optimize the data layout.&nbsp; Having a optimal
+data layout in size and content will help to create an experiment that
+executes efficiently.&nbsp;&nbsp; Size considerations and making sure
+only the necessary performance data items are stored are the two main
+considerations.<br>
+<br>
+&nbsp;The design issues to consider when
+defining the structure and size of the blob data are:<br>
 <ul>
   <li>Try not to use too much memory because the blob is contained in
 the victim application.</li>
@@ -516,6 +588,9 @@ the victim application.</li>
 small blobs across the network could slow the network down.</li>
   <li>16k bytes has been found to be a reasonable size.&nbsp;&nbsp; PC
 Sampling currently uses 8k bytes as the blob size.</li>
+  <li>16k bytes is the high limit on the buffer size able to be sent in
+a message from the Open|SpeedShop runtime to the client tool.<br>
+  </li>
 </ul>
 Data blobs are specified in the XDR (External Data Representation)
 language.&nbsp;&nbsp; XDR deals with endianess issues, data packing,
@@ -526,8 +601,14 @@ The blob.x file is fed into rpcgen which generates a ".c" file and a
 ".h" file.&nbsp; These files create a compilable C structure and
 functions to convert the data to a C structure and back.<br>
 <br>
-<h4><a class="mozTocH4" name="mozTocId667687"></a>Server - Collector
-Runtime</h4>
+The blob data structures are used both by the Collector Runtime plugin
+(server/victim side) and also by the Collector plugin (client
+side).&nbsp; The blob "C" files are compiled into each of the plugins
+(runtime and client) that represent the collector.<br>
+<br>
+<h4><a class="mozTocH4" name="mozTocId667687"></a>Collector
+Runtime - Server/Victim portin of Experiment Collector<br>
+</h4>
 The collector runtime gathers data dependent on the type of performance
 data the collector writer has decided to gather.&nbsp;&nbsp;&nbsp; The
 collector runtime's purpose is to gather the data, package it, and send
@@ -570,8 +651,8 @@ Open|SpeedShop client</li>
 </ul>
 <br>
 <br>
-<h4><a class="mozTocH4" name="mozTocId637965"></a>Client - Collector
-Plugin&nbsp;<br>
+<h4><a class="mozTocH4" name="mozTocId637965"></a>Collector
+Plugin - Client/Tool portion of Experiment Collector<br>
 </h4>
 The client collector plugin activates the collector runtime by directly
 and indirectly making calls to the collector runtime
@@ -599,7 +680,9 @@ perform these tasks: <br>
   <li>Get Default Parameters</li>
   <li>Get Parameters</li>
 </ul>
-<h5><a class="mozTocH5" name="mozTocId388988"></a><big>Start Collecting</big></h5>
+<h5><a class="mozTocH5" name="mozTocId388988"></a><big><big>The Start
+Collecting function<br>
+</big></big></h5>
 <h6><a class="mozTocH6" name="mozTocId199690"></a><big><b><big><b>What
 it does:</b></big></b></big></h6>
 Start data collection function implements starting data collection for
@@ -647,7 +730,9 @@ for the thread.</li>
   <li>Execute collector's start_sampling routine in the thread</li>
 </ul>
 <br>
-<h5><a class="mozTocH5" name="mozTocId992246"></a><big>Stop Collecting</big></h5>
+<h5><a class="mozTocH5" name="mozTocId992246"></a><big><big>The Stop
+Collecting function<br>
+</big></big></h5>
 <h6><a class="mozTocH6" name="mozTocId150755"></a><big><b>What it does:</b></big></h6>
 Stop data collection function implements stopping data collection for a
 particular thread.<br>
@@ -688,7 +773,9 @@ for the thread.</li>
   <li>Execute collector's start_sampling routine in the thread</li>
 </ul>
 <small><b></b></small>
-<h5><a class="mozTocH5" name="mozTocId278716"></a><big>Get Metric Values</big></h5>
+<h5><a class="mozTocH5" name="mozTocId278716"></a><big><big>The Get
+Metric Values function</big><br>
+</big></h5>
 <h6><a class="mozTocH6" name="mozTocId110227"></a><big><b>What it does:</b></big></h6>
 This routine is used by the Open|SpeedShop framework to get the metrics
 for each data blob the framework processes.&nbsp; The framework first
@@ -739,7 +826,9 @@ other</li>
   </ul>
   <li>Free the decoded performance data blob.</li>
 </ol>
-<h5><a class="mozTocH5" name="mozTocId271962"></a><big>Set Parameter</big></h5>
+<h5><a class="mozTocH5" name="mozTocId271962"></a><big><big>The Set
+Parameter function<br>
+</big></big></h5>
 <h6><a class="mozTocH6" name="mozTocId753822"></a><big><b>What it does:</b></big></h6>
 <p>The set a parameter function implements setting one of the collector
 parameter values.<br>
@@ -781,8 +870,10 @@ The primary tasks of this function that need to be done are:<br>
   <li>Set the "collector specific" parameter based on the input</li>
   <li>Re-encode the blob containing the parameter values</li>
 </ol>
-<h5><a class="mozTocH5" name="mozTocId518369"></a><big>Get Default
-Parameters</big></h5>
+<h5><a class="mozTocH5" name="mozTocId518369"></a><big><big>The Get
+Default
+Parameters function<br>
+</big></big></h5>
 <h6><a class="mozTocH6" name="mozTocId709984"></a><big><b>What it does:</b></big></h6>
 The get default parameters function implements getting the default
 parameter set for the collector.<br>
@@ -807,7 +898,9 @@ The primary tasks of this function that need to be done are:<br>
   <li>Set the default parameters </li>
   <li>Return the encoded blob to the caller</li>
 </ol>
-<h5><a class="mozTocH5" name="mozTocId769605"></a><big>Get Parameters</big></h5>
+<h5><a class="mozTocH5" name="mozTocId769605"></a><big><big>The Get
+Parameters function</big><br>
+</big></h5>
 <h6><a class="mozTocH6" name="mozTocId340210"></a><big><b>What it does:</b></big></h6>
 The get a parameter function implements getting one of the collector
 parameter values.<br>
@@ -852,6 +945,18 @@ blob</li>
 <small><b></b></small>
 <h3><a class="mozTocH3" name="mozTocId846999"></a><a
  name="Example_Collector_Plugin"></a>Example Collector Plugin</h3>
+The code for the Example Collector Plugin can be found in the
+&lt;top_srcdir&gt;/examples/libopenss-framework/collector
+directory.&nbsp; The files contained in that directory are outlined
+here:<br>
+<ul>
+  <li>runtime.c</li>
+  <li>Makefile.am</li>
+  <li>ExampleCollector.hxx</li>
+  <li>ExampleCollector.cxx</li>
+  <li>blobs.x</li>
+</ul>
+<br>
 <br>
 <h3><a class="mozTocH3" name="mozTocId377373"></a><b style="">Collector
 Plugin FAQ:<br>
