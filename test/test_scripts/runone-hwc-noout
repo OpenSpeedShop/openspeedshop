@@ -112,6 +112,8 @@ def hosts_result(testName):
                         nooutput = 0
                         break
         tempfileline = outputfileptr.readline()
+	if not tempfileline:
+		return 1
 	i = 0
 	while (tempfileline[i] != ' ' and tempfileline[i] != '\n'):
 		i+=1
@@ -134,6 +136,8 @@ def listexp_result(testName):
                         nooutput = 0
                         break
         tempfileline = outputfileptr.readline()
+	if not tempfileline:	
+		return 1
         i = 0
         while (tempfileline[i] != ' ' and tempfileline[i] != '\n'):
                 i+=1
@@ -150,12 +154,15 @@ def views_result(testName):
         outputfileptr = open(outputfilename, 'r')
         while 1:
                 tempfileline = outputfileptr.readline()
+
                 if not tempfileline:
                         break
                 if tempfileline[0:15] == 'The new focused':
                         nooutput = 0
                         break
         tempfileline = outputfileptr.readline()
+	if not tempfileline:
+		return 1
         i = 0
         while (tempfileline[i] != ' ' and tempfileline[i] != '\n'):
                 i+=1
@@ -178,6 +185,8 @@ def metrics_result(testName):
                         nooutput = 0
                         break
         tempfileline = outputfileptr.readline()
+	if not tempfileline:
+		return 1
         i = 0
         while (tempfileline[i] != ' ' and tempfileline[i] != '\n'):
                 i+=1
@@ -204,6 +213,8 @@ def params_result(testName):
 	if not tempfileline:
 		return 1
         tempfileline = outputfileptr.readline()
+	if not tempfileline:
+		return 1
         i = 0
 	if not tempfileline:
 		return 1
@@ -214,6 +225,8 @@ def params_result(testName):
         else:
                 return 2
 	tempfileline = outputfileptr.readline()
+	if not tempfileline:
+		return 1
         i = 0
 	if not tempfileline:
 		return 1
