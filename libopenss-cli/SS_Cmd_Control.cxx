@@ -222,9 +222,7 @@ catch(const Exception& error) {
   Cmd_Obj_Complete (cmd);
 }
 
-#define EXT_MAX 20
 int64_t EXT_Created = 0;
-static pthread_t EXT_handle[EXT_MAX];
 static int64_t EXT_Allocated = 0;
 static int64_t EXT_Free      = 0;
 static bool Ready_for_Next_Cmd = true;
@@ -428,9 +426,10 @@ void SS_Execute_Cmd (CommandObject *cmd) {
       if (Ready_for_Next_Cmd) {
         if (EXT_Free != 0) {
           Assert(pthread_cond_signal(&Cmd_EXT_Dispatch) == 0);
-        }  else if (EXT_Allocated < EXT_MAX) {
+        }  else if (EXT_Allocated < OPENSSS_MAX_ASYNC_COMMANDS) {
          // Allocate a new process to execute comamnds.
-          int stat = pthread_create(&EXT_handle[EXT_Allocated], 0, (void *(*)(void *))Cmd_EXT_Create,(void *)NULL);
+          pthread_t EXT_handle;
+          int stat = pthread_create(&EXT_handle, 0, (void *(*)(void *))Cmd_EXT_Create,(void *)NULL);
           if (stat != 0) {
            // Attempt error recovery.
             cerr << "ERROR: unable to execute any comands." << std::endl;
@@ -457,11 +456,11 @@ void SS_Execute_Cmd (CommandObject *cmd) {
         Main_Waiting = true;
         Main_Waiting_Count = 0;
         Assert(pthread_cond_wait(&Waiting_For_Main,&Cmd_EXT_Lock) == 0);
-      } else if (EXT_Dispatch.size() > (EXT_MAX * 2)) {
+      } else if (EXT_Dispatch.size() > (OPENSSS_MAX_ASYNC_COMMANDS * 2)) {
        // Don't read any more input until we can process
        // some of the commands we already have.
         Main_Waiting = true;
-        Main_Waiting_Count = EXT_MAX;
+        Main_Waiting_Count = OPENSSS_MAX_ASYNC_COMMANDS;
         Assert(pthread_cond_wait(&Waiting_For_Main,&Cmd_EXT_Lock) == 0);
       }
     }
