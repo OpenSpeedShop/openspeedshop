@@ -358,6 +358,8 @@ class CommandWindowID
   bool Record_File_Is_A_Temporary_File;
 
   pthread_mutex_t Cmds_List_Lock;
+  bool Waiting_For_Cmds_Complete;
+  pthread_cond_t  Wait_For_Cmds_Complete;
   std::list<InputLineObject *>Complete_Cmds;
 
  public:
@@ -399,6 +401,8 @@ class CommandWindowID
       Assert(pthread_mutex_init(&Input_List_Lock, NULL) == 0); // dynamic initialization
       Assert(pthread_mutex_init(&Log_File_Lock, NULL) == 0);   // dynamic initialization
       Assert(pthread_mutex_init(&Cmds_List_Lock, NULL) == 0);  // dynamic initialization
+      Waiting_For_Cmds_Complete = false;
+      Assert(pthread_cond_init(&Wait_For_Cmds_Complete, (pthread_condattr_t *)NULL) == 0);
       FocusedExp = -1;  // This is a "not yet intitialized" flag.  The user should never see it.
 
      // Generate a unique ID and remember it
@@ -461,6 +465,7 @@ class CommandWindowID
       pthread_mutex_destroy(&Input_List_Lock);
       pthread_mutex_destroy(&Log_File_Lock);
       pthread_mutex_destroy(&Cmds_List_Lock);
+      pthread_cond_destroy (&Wait_For_Cmds_Complete);
 
      // Unlink from the chain of windows
 
@@ -661,6 +666,15 @@ class CommandWindowID
         this_ss_stream->Issue_Prompt();
         this_ss_stream->releaseLock();
       }
+    } else if (Waiting_For_Cmds_Complete &&
+               !Shut_Down &&
+               !Waiting_For_Complex_Cmd &&
+               (Complete_Cmds.size() == 1)) {
+     // Input is waiting at a nested Python command.
+     // We only the command that started the transitiion
+     // is left, feed more input to Python.
+      Waiting_For_Cmds_Complete = false;
+      Assert(pthread_cond_signal(&Wait_For_Cmds_Complete) == 0);
     }
 
    // Release the lock
@@ -680,8 +694,14 @@ class CommandWindowID
     std::list<InputLineObject *>::iterator cmi;
     for (cmi = cmd_object.begin(); cmi != cmd_object.end(); cmi++) {
       InputLineObject *L = (*cmi);
-      if ((L->What () == ILO_IN_PARSER) &&
-          (L->How_Many () == 0)) {
+      if (L->Complex_Exp()) {
+       // Part of a Complex_Exp.
+       // It must be complete, or we wouldn't be here!
+        L->SetStatus (ILO_COMPLETE);
+        L->Set_Semantics_Complete ();
+      } else if ((L->What () == ILO_IN_PARSER) &&
+                 (L->How_Many () == 0)) {
+       // Parser command or error.
         L->SetStatus (ILO_COMPLETE);
         L->Set_Semantics_Complete ();
       }
@@ -793,6 +813,15 @@ public:
     bool there_are_some = (Complete_Cmds.size() != 0);
     Assert(pthread_mutex_unlock(&Cmds_List_Lock) == 0);
     return there_are_some;
+  }
+  void Wait_Until_Cmds_Complete () {
+    Assert(pthread_mutex_lock(&Cmds_List_Lock) == 0);
+    if (Complete_Cmds.begin() != Complete_Cmds.end()) {
+      Waiting_For_Cmds_Complete = true;
+      Assert(pthread_cond_wait(&Wait_For_Cmds_Complete,&Cmds_List_Lock) == 0);
+    }
+    Assert(pthread_mutex_unlock(&Cmds_List_Lock) == 0);
+    return;
   }
 
   // Field access
@@ -2304,6 +2333,18 @@ static void There_Must_Be_More_Input (CommandWindowID *cw) {
 
 InputLineObject *SpeedShop_ReadLine (int is_more)
 {
+  CommandWindowID *cw = (Last_ReadWindow != 0)
+                          ? Find_Command_Window (Last_ReadWindow) : NULL;
+  if ((Waiting_For_Complex_Cmd == false) &&
+      is_more &&
+      (cw != 0) &&
+      (cw->Cmds_BeingProcessed())) {
+   // We are going through a transition!
+   // Force previous commands to complete before
+   // we allow Python to execute nested commands.
+    cw->Wait_Until_Cmds_Complete ();
+  }
+
   char *save_prompt = Current_OpenSpeedShop_Prompt;
   InputLineObject *clip;
 
@@ -2315,7 +2356,7 @@ InputLineObject *SpeedShop_ReadLine (int is_more)
 
 read_another_window:
 
-  CommandWindowID *cw = Find_Command_Window (readfromwindow);
+  cw = Find_Command_Window (readfromwindow);
   Assert (cw);
 
   do {
