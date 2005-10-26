@@ -3342,7 +3342,7 @@ bool SS_History (CommandObject *cmd) {
     parse_range_t *c_range = c_limit->begin()->getRange();
     parse_val_t *c_val1 = &c_range->start_range;
     int64_t val1 = c_val1->num;
-    if ((val1 >= 0) && (val1 < History_Count)) { 
+    if (val1 >= 0) {
      // Go with the user's limit.
       num = val1;
     }
