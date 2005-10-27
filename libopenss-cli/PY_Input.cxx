@@ -21,6 +21,7 @@
 #include "SS_Input_Manager.hxx"
 
 extern void pcli_load_messages(void);
+extern void pcli_load_scripting_messages(void);
 
 extern FILE *yyin;
 extern int yyparse (void);
@@ -82,8 +83,11 @@ openss_error(char *str)
  * @todo    Error handling.
  *
  */
-static PyObject *SS_Set_Assign (PyObject *self, PyObject *args) {
+static PyObject *
+SS_Set_Assign (PyObject *self, PyObject *args) {
+
   cmd_output_to_python = true;
+
   return Py_BuildValue("");
 }
 
@@ -99,7 +103,9 @@ static PyObject *SS_Set_Assign (PyObject *self, PyObject *args) {
  * @todo    Error handling.
  *
  */
-static PyObject *Convert_CommandResult_To_Python (CommandResult *cr) {
+static PyObject *
+
+Convert_CommandResult_To_Python (CommandResult *cr) {
   PyObject *p_object = NULL;
 
   switch (cr->Type()) {
@@ -170,7 +176,9 @@ static PyObject *Convert_CommandResult_To_Python (CommandResult *cr) {
  * @todo    Error handling.
  *
  */
-static PyObject *Convert_Cmd_To__Python (CommandObject *cmd) {
+static PyObject *
+Convert_Cmd_To__Python (CommandObject *cmd) {
+
   PyObject *p_object = NULL;
   PyObject *py_list = NULL;
   std::list<CommandResult *> cmd_result = cmd->Result_List();
@@ -178,16 +186,11 @@ static PyObject *Convert_Cmd_To__Python (CommandObject *cmd) {
 
   bool list_returned = cmd_desc[cmd->Type()].ret_list;
   if (!list_returned && (cmd_result.size() > 1)) {
-#if 1
     std::string s("Too many results were generated for the command.");
     Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-    cmd->Result_String ("Too many results were generated for the command");
-    cmd->set_Status(CMD_ERROR);
-#endif
   }
 
- // Start building python list object
+  // Start building python list object
    if (list_returned) {
   	py_list = PyList_New(0);
   }
@@ -204,13 +207,8 @@ static PyObject *Convert_Cmd_To__Python (CommandObject *cmd) {
       if (list_returned) {
         ret = PyList_Append(py_list,p_object);
         if (ret != 0) {
-#if 1
     	    std::string s("PyList_Append() failed for int.");
     	    Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-            cmd->Result_String ("PyList_Append() failed for int");
-            cmd->set_Status(CMD_ERROR);
-#endif
         }
       }
     }
@@ -236,7 +234,9 @@ static PyObject *Convert_Cmd_To__Python (CommandObject *cmd) {
  * @todo    Error handling.
  *
  */
-static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
+static PyObject *
+SS_CallParser (PyObject *self, PyObject *args) {
+
     char *input_line = NULL;
     PyObject *p_object = NULL;
     int ret;
@@ -246,7 +246,7 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     bool list_returned = false;
     PyObject *py_list = NULL;
 
-   // Copy the desired action and reset the default action
+    // Copy the desired action and reset the default action
     bool python_needs_result = cmd_output_to_python;
     cmd_output_to_python = (Embedded_WindowID != 0);
     
@@ -258,7 +258,7 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     }
     
     yyin = tmpfile();
-
+    
     fprintf(yyin,"%s\n", input_line);
     rewind(yyin);
 
@@ -269,19 +269,16 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
     // testing code
     // parse_result->dumpInfo();
 
-    // Build a CommandObject so that the semantic routines can be called.
+    // Build a CommandObject so that the semantic routines 
+    // can be called.
     cmd = new CommandObject (parse_result, python_needs_result);
 
     // See if the parse went alright.
     if ((p_parse_result->syntaxError()) ||
         (p_parse_result->getCommandType() == CMD_HEAD_ERROR)) {
-#if 1
-      std::string s("Parsing failed.");
-      Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-        cmd->Result_String ("Parsing failed");
-        cmd->set_Status(CMD_ERROR);
-#endif
+
+      	std::string s("Parsing failed.");
+      	Mark_Cmd_With_Soft_Error(cmd,s);
 	parse_result->dumpError(cmd);
         Cmd_Obj_Complete (cmd);
 
@@ -324,7 +321,9 @@ static PyObject *SS_CallParser (PyObject *self, PyObject *args) {
  * @todo    Error handling.
  *
  */
-static PyObject *SS_DelayILO (PyObject *self, PyObject *args) {
+static PyObject *
+SS_DelayILO (PyObject *self, PyObject *args) {
+
   char *seqnum = (char *)PyMem_Malloc(32);
 
   snprintf( seqnum, 32, "%p", Current_ILO);
@@ -346,7 +345,9 @@ static PyObject *SS_DelayILO (PyObject *self, PyObject *args) {
  * @todo    Error handling.
  *
  */
-static PyObject *Prepare_Input_Line (InputLineObject *clip) {
+static PyObject *
+Prepare_Input_Line (InputLineObject *clip) {
+
   int64_t buffer_size = clip->Command().length()+1;
   bool need_newline = false;
 
@@ -355,13 +356,15 @@ static PyObject *Prepare_Input_Line (InputLineObject *clip) {
     return NULL;
   }
 
- // Python requires that every input line end with an EOL character.
+ // Python requires that every input line end with 
+ // an EOL character.
   if (clip->Command().c_str()[buffer_size-2] != *("\n")) {
     buffer_size++;
     need_newline = true;
   }
 
- // Use Python's memory allocator so that it will free the space when done.
+ // Use Python's memory allocator so that it will 
+ // free the space when done.
   char *sbuf = (char *)PyMem_Malloc(buffer_size);
   strcpy (sbuf, clip->Command().c_str());
   if (need_newline) {
@@ -390,7 +393,9 @@ static PyObject *Prepare_Input_Line (InputLineObject *clip) {
  * @todo    Error handling.
  *
  */
-static PyObject *SS_ReadILO (PyObject *self, PyObject *args) {
+static PyObject *
+SS_ReadILO (PyObject *self, PyObject *args) {
+
   char *ILO_Addr = NULL;
   InputLineObject *clip = NULL;
   
@@ -419,16 +424,21 @@ static PyObject *SS_ReadILO (PyObject *self, PyObject *args) {
  * @todo    Error handling.
  *
  */
-static PyObject *SS_ReadLine (PyObject *self, PyObject *args) {
-  int more = 0;
+static PyObject *
+SS_ReadLine (PyObject *self, PyObject *args) {
+
+    int more = 0;
   
-  if (!PyArg_ParseTuple(args, "i", &more))
+    if (!PyArg_ParseTuple(args, "i", &more))
         return NULL;
-  InputLineObject *clip = SpeedShop_ReadLine(more);
-  if (clip == NULL) {
-    PyErr_SetString(PyExc_EOFError, "End Of File");
-    return NULL;
-  }
+
+    InputLineObject *clip = SpeedShop_ReadLine(more);
+
+    if (clip == NULL) {
+    	PyErr_SetString(PyExc_EOFError, "End Of File");
+    	return NULL;
+    }
+
   return Prepare_Input_Line(clip);
 }
 
@@ -450,21 +460,19 @@ static PyObject *SS_ReadLine (PyObject *self, PyObject *args) {
  * @todo    Error handling.
  *
  */
-static PyObject *SS_ParseError (PyObject *self, PyObject *args) {
+static PyObject *
+SS_ParseError (PyObject *self, PyObject *args) {
+
     CommandObject *cmd = NULL;
     PyObject *p_object = NULL;
     ParseResult *parse_result = new ParseResult();
 
-    // Build a CommandObject so that the semantic routines can be called.
+    // Build a CommandObject so that the semantic 
+    // routines can be called.
     cmd = new CommandObject (parse_result, false);
 
-#if 1
     std::string s("Preparse syntax error.");
     Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-    cmd->Result_String ("Preparse syntax error");
-    cmd->set_Status(CMD_ERROR);
-#endif
     Cmd_Obj_Complete (cmd);
     
     //cmd->Clip()->Print(stdout);
@@ -490,26 +498,33 @@ static PyObject *SS_ParseError (PyObject *self, PyObject *args) {
  * @todo    Error handling.
  *
  */
-static PyObject *SS_InitEmbeddedInterface (PyObject *self, PyObject *args) {
+static PyObject *
+SS_InitEmbeddedInterface (PyObject *self, PyObject *args) {
 
 //printf("Entering SS_InitEmbeddedInterface()\n");
 
- // Setup the Command Line tracking mechanisms
-  Commander_Initialization ();
+  // Setup the Command Line tracking mechanisms
+  Commander_Initialization();
 
- // Load in pcli messages into message czar
-  pcli_load_messages();
+   // Define Built-In Views
+  SS_Init_BuiltIn_Views();
+  SS_Load_View_plugins();
 
- // Define Built-In Views
-  SS_Init_BuiltIn_Views ();
-  SS_Load_View_plugins ();
-
- // Define a default input window as an anchor for tracking commands
+  // Define a default input window as an anchor 
+  // for tracking commands
   pid_t my_pid = getpid();
   char HostName[MAXHOSTNAMELEN+1];
-  Embedded_WindowID = Embedded_Window ("EmbeddedInterface", &HostName[0],my_pid,0,false);
+  Embedded_WindowID = Embedded_Window ("EmbeddedInterface", 
+    	    	    	    	    	&HostName[0],
+					my_pid,
+					0,
+					false);
 
- // Direct output back to Python.
+  // Load in pcli messages into message czar
+  // This must follow setting Embedded_WindowID
+  pcli_load_scripting_messages();
+
+  // Direct output back to Python.
   cmd_output_to_python = true;
 
 //printf("L SS_InitEmbeddedInterface()\n");
@@ -530,7 +545,8 @@ static PyObject *SS_InitEmbeddedInterface (PyObject *self, PyObject *args) {
  * @todo    Error handling.
  *
  */
-static PyObject *SS_ExitEmbeddedInterface (PyObject *self, PyObject *args) {
+static PyObject *
+SS_ExitEmbeddedInterface (PyObject *self, PyObject *args) {
 
 //printf("Entering SS_ExitEmbeddedInterface()\n");
 
@@ -569,8 +585,11 @@ static PyObject *SS_ExitEmbeddedInterface (PyObject *self, PyObject *args) {
  * @todo    Error handling.
  *
  */
-static PyObject *SS_EmbeddedParser (PyObject *self, PyObject *args) {
+static PyObject *
+SS_EmbeddedParser (PyObject *self, PyObject *args) {
+
 static CMDID Scripting_Sequence_Number = 0;
+
   char *input_line = NULL;
   Assert (Embedded_WindowID != 0);  // Did we forget to initialize??
     
@@ -599,7 +618,8 @@ static CMDID Scripting_Sequence_Number = 0;
  * python.
  *
  */
-static PyMethodDef PYopenss_Methods[] = {
+static PyMethodDef 
+PYopenss_Methods[] = {
 
     {"CallParser",  SS_CallParser, METH_VARARGS,
      "Call the YACC'd parser."},
@@ -667,7 +687,8 @@ initPY_Input (void) {
  */
 PyMODINIT_FUNC
 initPYopenss (void) {
-  PyObject *m, *d;
+
+    PyObject *m, *d;
   
     // Register python exported methods
     m =  Py_InitModule("PYopenss", PYopenss_Methods);
