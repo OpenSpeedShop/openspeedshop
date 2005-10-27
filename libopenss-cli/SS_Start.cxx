@@ -48,6 +48,19 @@ extern void pcli_load_messages(void);
 extern void Internal_Info_Dump (CMDWID issuedbywindow);
 extern void User_Info_Dump (CMDWID issuedbywindow);
 
+/**
+ * Method: Process_Command_Line()
+ * 
+ * 
+ *     
+ * @param   argc
+ * @param   argv
+ *
+ * @return  void
+ *
+ * @todo    .
+ *
+ */
 static void
 Process_Command_Line (int argc, char **argv)
 {
@@ -111,6 +124,18 @@ Process_Command_Line (int argc, char **argv)
 }
 
 extern "C" void initPY_Input ();
+/**
+ * Method: Initial_Python()
+ * 
+ * 
+ *     
+ * @param   void
+ *
+ * @return  void
+ *
+ * @todo    .
+ *
+ */
 static void
 Initial_Python ()
 {
@@ -164,6 +189,18 @@ void SS_Watcher ();
 
 extern "C"
 {
+/**
+ * Method: usage()
+ * 
+ * 
+ *     
+ * @param   void
+ *
+ * @return  void
+ *
+ * @todo    .
+ *
+ */
   void usage()
   {
     printf("openss, version - prepreprepreRelease 0.01\n");
@@ -221,6 +258,18 @@ extern "C"
     printf("  $ openss -f a.out -x pcsamp\n");
   }
 
+/**
+ * Method: cli_terminate()
+ * 
+ * 
+ *     
+ * @param   void
+ *
+ * @return  void
+ *
+ * @todo    .
+ *
+ */
   void
   cli_terminate ()
   {
@@ -276,31 +325,57 @@ extern "C"
     Commander_Termination ();
   }
 
-static void
-catch_signal (int sig, int error_num)
-{
-  static bool processing_signal = false;
-  if (sig == SIGQUIT) {
-   // abort on user signal for CNTRL-\
-    abort();
-  }
-  if (sig != SIGINT) {
-   // If not a user initiated signal, try a normal shutdown.
-    if (processing_signal) {
-      cerr << "Multiple errors - " << sig << " " <<  error_num <<  std::endl;
+/**
+ * Method: catch_signal()
+ * 
+ * 
+ *     
+ * @param   sig
+ * @param   error_num
+ *
+ * @return  void
+ *
+ * @todo    .
+ *
+ */
+  static void
+  catch_signal (int sig, int error_num)
+  {
+    static bool processing_signal = false;
+    if (sig == SIGQUIT) {
+      // abort on user signal for CNTRL-\
       abort();
     }
-    processing_signal = true;
-   // the folowing lines are for debugging
-    // cerr << "catch_signal " << sig << std::endl;
-    // Internal_Info_Dump(1);
-    // User_Info_Dump(1);
+    if (sig != SIGINT) {
+      // If not a user initiated signal, try a normal shutdown.
+      if (processing_signal) {
+        cerr << "Multiple errors - " << sig << " " <<  error_num <<  std::endl;
+        abort();
+      }
+      processing_signal = true;
+     // the folowing lines are for debugging
+    	// cerr << "catch_signal " << sig << std::endl;
+    	// Internal_Info_Dump(1);
+    	// User_Info_Dump(1);
 
-    cli_terminate ();
+      cli_terminate ();
+    }
+    exit (1);
   }
-  exit (1);
-}
 
+/**
+ * Method: cli_init()
+ * 
+ * 
+ *     
+ * @param   argc
+ * @param   argv
+ *
+ * @return  int
+ *
+ * @todo    .
+ *
+ */
   int
   cli_init(int argc, char **argv)
   {
@@ -348,7 +423,10 @@ catch_signal (int sig, int error_num)
     Process_Command_Line (argc, argv);
 
    // Start a thread to look for special conditions.
-    if (pthread_create(&phandle[0], 0, (void *(*)(void *))SS_Watcher,NULL) != 0) {
+    if (pthread_create(&phandle[0], 
+    	    	    	0, 
+			(void *(*)(void *))SS_Watcher,
+			NULL) != 0) {
       Watcher_Active = true;
     }
 
@@ -364,7 +442,11 @@ catch_signal (int sig, int error_num)
 
    // Create the input windows that we will need.
     if (need_command_line || read_stdin_file) {
-      command_line_window = Default_Window ("COMMAND_LINE",&HostName[0],my_pid,0,false);
+      command_line_window = Default_Window ("COMMAND_LINE",
+      	    	    	    	    	    &HostName[0],
+					    my_pid,
+					    0,
+					    false);
     }
     if (need_tli) {
       tli_window = TLI_Window ("TLI",&HostName[0],my_pid,0,true);
@@ -376,7 +458,10 @@ catch_signal (int sig, int error_num)
    // Complete set up for each input window.
     if (command_line_window != 0) {
      // Move the command line options to an input control window.
-      if ( !Start_COMMAND_LINE_Mode( command_line_window, argc, argv, need_batch) ) {
+      if ( !Start_COMMAND_LINE_Mode( command_line_window, 
+      	    	    	    	     argc, 
+				     argv, 
+				     need_batch) ) {
         return -1;
       }
     } else if (need_batch && (argc <= 2) && !read_stdin_file) {
@@ -387,18 +472,25 @@ catch_signal (int sig, int error_num)
     if (need_tli)
     {
      // Start up the Text Line Interface to read from the keyboard.
-      int stat = pthread_create(&phandle[1], 0, (void *(*)(void *))SS_Direct_stdin_Input,(void *)tli_window);
+      int stat = pthread_create(&phandle[1], 
+      	    	    	    	0, 
+				(void *(*)(void *))SS_Direct_stdin_Input,
+				(void *)tli_window);
     }
 
     if (need_gui)
     {
 
-// The following is a timing hack -
-// if the TLI window hasn't been opened or didn't specify async input,
-// the input routines may think they are at the end of file before
-// the GUI can open and define an async input window.
-// The hack is to define a dummy async window before python starts.
-// We will need to sort this out at some point in the future.
+      // The following is a timing hack -
+      // if the TLI window hasn't been opened or
+      // didn't specify async input, the input
+      // routines may think they are at the end of
+      // file before the GUI can open and define an
+      // async input window. The hack is to define a
+      // dummy async window before python starts. We
+      // will need to sort this out at some point in
+      // the future.
+
       argStruct->addArg("-gui");
       argStruct->addArg("-wid");
       char buffer[10];
@@ -426,13 +518,27 @@ catch_signal (int sig, int error_num)
     exit(0);
   }
 
-  // When the cli requests to bring up a new GUI thread.  NOTE: One will 
-  // be brought up for each invocation.   This routine is called to find
-  // the entry point an load it.   This way the cli, when running alone,
-  // doesn't have to take the hit of loading in all those nasty, ugly,
-  // big GUI libraries.   We load the gui as a dynamic library. 
-  // The GUI will then start it's own thread and fire up a copy of the
-  // gui (that will talk with the cli).
+/**
+ * Method: lt_ptr()
+ * 
+ * When the cli requests to bring up a new GUI
+ * thread. NOTE: One will be brought up for each
+ * invocation. This routine is called to find the
+ * entry point an load it. This way the cli, when
+ * running alone, doesn't have to take the hit of
+ * loading in all those nasty, ugly, big GUI
+ * libraries. We load the gui as a dynamic library.
+ * The GUI will then start it's own thread and fire
+ * up a copy of the gui (that will talk with the
+ * cli).
+ *     
+ * @param   dl_gui_kill_routine
+ *
+ * @return  void
+ *
+ * @todo    .
+ *
+ */
   static lt_ptr (*dl_gui_kill_routine)();
   void
   loadTheGUI(ArgStruct *argStruct)
@@ -472,14 +578,26 @@ catch_signal (int sig, int error_num)
       exit(EXIT_FAILURE);
     }
   
-//    pthread_t gui_phandle;
+    //    pthread_t gui_phandle;
     (*dl_gui_init_routine)((void *)argStruct, &phandle[2]);
   }
 
+/**
+ * Method: killTheGUI()
+ * 
+ * 
+ *     
+ * @param   void
+ *
+ * @return  void
+ *
+ * @todo    .
+ *
+ */
   void
   killTheGUI()
   {
     (*dl_gui_kill_routine)();
   }
 
-}
+} // extern "C"
