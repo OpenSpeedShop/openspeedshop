@@ -497,6 +497,11 @@ def expPause(*arglist):
     """
     - Temporarily halt the experiment identified by the input 
       experiment id.
+	-  The experiment will remain suspended until an
+	   expGo  is issued or until the performance tool is
+	   exited, at which time all the instrumentation is
+	   removed from the experiment and the program is
+	   allowed to continue running.
     - If I{ExpId} is not provided, the focused experiment is 
       used.
     - If I{ModifierList}("B{all}") is present, every defined 
