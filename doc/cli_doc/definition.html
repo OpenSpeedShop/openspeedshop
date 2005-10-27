@@ -409,6 +409,12 @@ run. </font><br>
 <ul>
   <font size="-1">- Temporarily
 halt the experiment identified by the input experiment id. <br>
+  <dir> <li>
+    The experiment will remain suspended until an <b>expGo</b> is issued
+    or until the performance tool is exited, at which time all the
+    instrumentation is removed from the experiment and the program
+    is allowed to continue running.
+  </li></dir> 
 - If &lt;expId_spec&gt; is not provided, the focused experiment is
 used. <br>
 - If <b>-v all</b> is present, every defined experiment is
