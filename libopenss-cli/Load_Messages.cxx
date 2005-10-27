@@ -42,10 +42,14 @@ using namespace OpenSpeedShop::cli;
 
 using namespace OpenSpeedShop;
 
+// CLI messages
 #include "help_general_msg.dxx"
 #include "help_cmd_msg.dxx"
 #include "help_grammar_msg.dxx"
 #include "help_topic_msg.dxx"
+
+// Scripting messages
+#include "help_scripting_msg.dxx"
 
 extern SS_Message_Czar& theMessageCzar();
 
@@ -110,5 +114,41 @@ pcli_load_messages()
     }
     
     
+}
+
+/**
+ * Function:  pcli_load_scripting_messages()
+ * 
+ * Load messages for python scripting into the
+ * message czar.
+ *
+ * This will initially only contain parsing syntax
+ * information since the python help facility should
+ * suffice for anything else.
+ *     
+ * @return  void.
+ *
+ * @todo    We may  have to figure out how to extend
+ *  	    this for plugin information.
+ *
+ */
+void
+pcli_load_scripting_messages() 
+{
+
+    // Get reference of the message czar.
+    SS_Message_Czar& czar = theMessageCzar();
+    
+    // Load python scripting api grammar help messages.
+    // Table ends when topic is NULL.
+    int i = 1;
+    while (script_msg[i].keyword != NULL) {
+    	SS_Message_Element element;
+	
+	element.set_element(&script_msg[i],false /* is_topic */);
+	czar.Add_Help(element);
+	++i;
+    }
+        
 }
 
