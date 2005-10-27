@@ -35,11 +35,10 @@ Overview and Information Resources</a>
 Overview
         </a>
         <ul>
-          <li><a href="#mozTocId405706">Plugin Creation
-Preview Outline</a>
+          <li><a href="#mozTocId405706">Plugin Creation Outline</a>
             <ul>
               <li><a href="#mozTocId513127">Performance Data
-Collector Plugin Preview Outline</a></li>
+Collector Plugin Outline</a></li>
               <li><a href="#mozTocId225587">Plugin Structure</a></li>
               <li><a href="#mozTocId743777">How do plugins get
 recognized?</a></li>
@@ -178,6 +177,14 @@ particular convention?</a></li>
 Interface Plugin Information
         </a>
         <ul>
+          <li><a href="#mozTocId347900">Graphical User Interface (GUI)
+Plugin Overview
+            </a>
+            <ul>
+              <li><a href="#mozTocId962438">GUI Plugin Outline</a></li>
+              <li><a href="#mozTocId117100">GUI Plugin Recognition</a></li>
+            </ul>
+          </li>
           <li><a href="#mozTocId930728">Creating A
 Graphical User Interface Panel</a>
             <ul>
@@ -329,7 +336,7 @@ instruction and examples of how to create and integrate plugins into
 the Open|SpeedShop tools.<br>
 <br>
 <h3><a class="mozTocH3" name="mozTocId405706"></a>Plugin Creation
-Preview Outline</h3>
+Outline</h3>
 Before getting into all the details, it may be helpful to outline the
 steps involved in writing Open|SpeedShop plugins from a high
 level.&nbsp; The following outline indicates the basic steps needed in
@@ -339,7 +346,7 @@ The purpose of this section is to give a broad overview and context to
 the specific steps that are described in the rest of the document.<br>
 <br>
 <h4><a class="mozTocH4" name="mozTocId513127"></a>Performance Data
-Collector Plugin Preview Outline</h4>
+Collector Plugin Outline</h4>
 For building a performance data collector plugin these are the high
 level steps in outline form:<br>
 <ul>
@@ -1099,6 +1106,29 @@ panels.<br>
 <br>
 Tips on interfacing with the rest of the Open|SpeedShop tool set are
 also provided along with the example code.<br>
+<br>
+<br>
+<h3><a class="mozTocH3" name="mozTocId347900"></a>Graphical User
+Interface (GUI) Plugin Overview<br>
+</h3>
+<h4><a class="mozTocH4" name="mozTocId962438"></a>GUI Plugin Outline</h4>
+What are the high level steps that are required for creating a
+Graphical User Interface Plugin for Open|SpeedShop?&nbsp;&nbsp; This
+outline provides a form of checklist to give the plugin writer an
+overview before delving into the details of developing the plugin.<br>
+<br>
+<ul>
+  <li>Think about the data that the plugin needs to display - Can this
+be done with the existing plugins?</li>
+  <li>If a GUI plugin is really needed, decide if there is an existing
+GUI plugin or if the Example GUI plugin can be used as a model.</li>
+  <li>tbd<br>
+  </li>
+</ul>
+<br>
+<h4><a class="mozTocH4" name="mozTocId117100"></a>GUI Plugin Recognition</h4>
+tbd<br>
+<br>
 <h3><a class="mozTocH3" name="mozTocId930728"></a><a
  name="Creating_The_Graphical_User_Interface"></a>Creating A
 Graphical User Interface Panel</h3>
@@ -1199,6 +1229,8 @@ created GUI plugin panel directory into the "SUBDIRS" list.</li>
 Code</h4>
 The newly created GUI panel code has examples of GUI code that might be
 interesting to an Open|SpeedShop GUI panel writer.<br>
+The following sections describe the different examples and how to
+enable them.<br>
 <br>
 <h5><a class="mozTocH5" name="mozTocId66382"></a>QtClass</h5>
 This code snippet from the newly created "TestPanel.cxx" can be enabled
@@ -1282,6 +1314,7 @@ namedPanelContainerWidget, "", NULL, pc-&gt;getMasterPCList() );<br>
 &nbsp; topPPL-&gt;topLevel = TRUE;<br>
 #endif // TOPLEVEL</small><br>
 <br>
+<br>
 <h3><a class="mozTocH3" name="mozTocId1902"></a>Interfacing With
 Open|SpeedShop - Tips and Example Information</h3>
 <h4><a class="mozTocH5" name="mozTocId784520"></a>Executing a command
@@ -1319,23 +1352,28 @@ tr("Process Paused...") );<br>
 <br>
 <br>
 <h4><a class="mozTocH5" name="mozTocId882832"></a>Setting up a timer</h4>
+tbd<br>
+<br>
 <h4><a class="mozTocH5" name="mozTocId803177"></a>Communicating with
 other GUI panels</h4>
 pcSamplePanel::listener(void *msg)<br>
+tbd<br>
 <br>
 <h4><a class="mozTocH5" name="mozTocId525403"></a>Managing process
 control</h4>
+tbd<br>
 <br>
 <br>
 <h3><a class="mozTocH3" name="mozTocId175785"></a><a
  name="Example_Graphical_User_Interface_Plugin"></a>Example Graphical
 User Interface Plugin</h3>
+tbd<br>
 <br>
 <br>
 <br>
 <h2><a class="mozTocH2" name="mozTocId1574"></a>Command Line
-Interface Plugin Information<br>
-</h2>
+Interface Plugin Information</h2>
+tbd<br>
 <br>
 <br>
 <br>
