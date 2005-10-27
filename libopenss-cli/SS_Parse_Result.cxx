@@ -70,6 +70,8 @@ command_type_t OpenSpeedShop::cli::cmd_desc[CMD_MAX] = {
     "setBreak",     false,  CMD_SETBREAK
 };
  
+#if 0
+
 /* This will eventually give way to an experiment registry. */
 char *OpenSpeedShop::cli::experiment_name[H_EXP_MAX] = {
     "pcsamp",
@@ -107,6 +109,8 @@ char *OpenSpeedShop::cli::general_name[H_GEN_MAX] = {
     "gui",
     "mpi"
 };
+
+#endif
 
 /**
  * Constructor: ParseResult::ParseResult()
@@ -231,6 +235,9 @@ dumpError(CommandObject *cmd)
 {
     // Get reference of the message czar.
     SS_Message_Czar& czar = theMessageCzar();
+    
+    // Local string for storing up complex message.
+    string err_string;
 
     // Get list of error strings
     vector<ParseRange> *p_list = this->getErrorList();
@@ -245,29 +252,36 @@ dumpError(CommandObject *cmd)
 	    string s("Invalid argument: ");
 	    
 	    s.append(p_val1->name);
-	    cmd->Result_String (s);
+
+	    err_string.append(s);
+	    err_string.append("\n");
     	}
     }
 
-    	    // Print out help for command in question
-    	    vector <SS_Message_Element *> element;
-    	    czar.Find_By_Keyword(this->getCommandname(), &element);
+    // Print out help for command in question
+    vector <SS_Message_Element *> element;
+    czar.Find_By_Keyword(this->getCommandname(), &element);
     
-    	    vector <SS_Message_Element*>:: iterator k;
-    	    for (k = element.begin();
-    	    	k != element.end();
-	    	++k) {
-	    	SS_Message_Element *p_el = *k;
+    vector <SS_Message_Element*>:: iterator k;
+    for (k = element.begin();
+    	 k != element.end();
+    	 ++k) {
 
-    	    	// Syntax list
-	    	vector<string> * const p_string = p_el->get_syntax_list();
-    	    	for (vector <string> :: iterator i=p_string->begin();
-    	     	    i!= p_string->end();
-	     	    ++i) {
-		    cmd->Result_String (*i);
-	    	}
-    	    }
+    	SS_Message_Element *p_el = *k;
 
+    	// Syntax list
+    	vector<string> * const p_string = p_el->get_syntax_list();
+    	for (vector <string> :: iterator i=p_string->begin();
+    	     i!= p_string->end();
+    	     ++i) {
+    	    err_string.append(*i);
+	    err_string.append("\n");
+    	}
+    }
+
+    // This sets the message in whatever message 
+    // delivery system
+    Mark_Cmd_With_Soft_Error(cmd,err_string);
 
 }
 
