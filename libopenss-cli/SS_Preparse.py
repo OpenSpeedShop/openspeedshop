@@ -641,8 +641,13 @@ class CLI(code.InteractiveConsole):
     	    	    	nesting_depth = nesting_depth + 1
                     elif is_more and not line.isspace():
     	    	    	lb = leading_blanks(line)
-    	    	    	d_line = Delay_ILO_Processing(lb)
-    	    	    	line = d_line
+                        if lb is not 0:
+    	    	    	    d_line = Delay_ILO_Processing(lb)
+    	    	    	    line = d_line
+                        else:
+                    	    # Insert a dummy line.  Why is this needed?
+                    	    self.push("")
+                    	    line = self.process(line)
                     else:
                     	line = self.process(line)
 
