@@ -44,6 +44,7 @@ class QLabel;
 class QPopupMenu;
 class QListView;
 class QListViewItem;
+class QSplitter;
 
 class PanelContainer;
 class ManageProcessesPanel;
@@ -57,9 +58,11 @@ public:
     ~ManageCollectorsClass();
 
     QListView* attachCollectorsListView;
+    QListView *psetList;
 
     QString selectedCollectors();
     void updateAttachedList();
+    void updatePSetList();
 
     CollectorListObject *clo;
 
@@ -71,6 +74,7 @@ public:
 protected:
     QVBoxLayout* ManageCollectorsClassLayout;
     QHBoxLayout* AddCollectorLayout;
+    QSplitter *splitter;
     QHBoxLayout* Layout1;
     QSpacerItem* Horizontal_Spacing2;
 

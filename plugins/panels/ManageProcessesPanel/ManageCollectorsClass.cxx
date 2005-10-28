@@ -38,6 +38,14 @@
 #include <qaction.h>
 #include <qmessagebox.h>
 #include <qstring.h>
+#include <qvaluelist.h>
+
+struct StatusStruct
+{
+  QString status;
+  QString host;
+  QString pid;
+};
 
 // #include "SS_Input_Manager.hxx"
 #include "ToolAPI.hxx"
@@ -74,17 +82,53 @@ ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const 
 
   ManageCollectorsClassLayout = new QVBoxLayout( this, 1, 1, "ManageCollectorsClassLayout"); 
 
-  attachCollectorsListView = new QListView( this, "attachCollectorsListView" );
+  splitter = new QSplitter(this, "splitter");
+  splitter->setOrientation(QSplitter::Horizontal);
+
+  attachCollectorsListView = new QListView( splitter, "attachCollectorsListView" );
   attachCollectorsListView->addColumn( 
     tr( QString("Collectors attached to experiment: '%1':").arg(expID) ) );
   attachCollectorsListView->addColumn( tr( QString("Name") ) );
+  attachCollectorsListView->setColumnWidthMode(0, QListView::Manual);
+  attachCollectorsListView->setColumnWidthMode(1, QListView::Maximum);
+  attachCollectorsListView->setColumnWidth(0, 100);
 //  attachCollectorsListView->setSelectionMode( QListView::Single );
   attachCollectorsListView->setSelectionMode( QListView::Multi );
   attachCollectorsListView->setAllColumnsShowFocus( TRUE );
   attachCollectorsListView->setShowSortIndicator( TRUE );
   attachCollectorsListView->setRootIsDecorated(TRUE);
 
-  ManageCollectorsClassLayout->addWidget( attachCollectorsListView );
+  psetList = new QListView( splitter, "*psetlist" );
+  psetList->addColumn(tr("Process Sets"));
+  psetList->addColumn("          ");
+  psetList->addColumn("          ");
+  psetList->setColumnWidthMode(0, QListView::Manual);
+  psetList->setColumnWidth(0, 100);
+  psetList->setColumnWidthMode(1, QListView::Manual);
+  psetList->setColumnWidth(1, 100);
+  psetList->setColumnWidthMode(2, QListView::Maximum);
+
+  psetList->setAllColumnsShowFocus( TRUE );
+  psetList->setShowSortIndicator( TRUE );
+  psetList->setRootIsDecorated(TRUE);
+  psetList->show();
+
+  int width = p->getPanelContainer()->width();
+  int height = p->getPanelContainer()->height();
+  QValueList<int> sizeList;
+  sizeList.clear();
+  if( splitter->orientation() == QSplitter::Vertical )
+  {
+    sizeList.push_back((int)(height/4));
+    sizeList.push_back(height-(int)(height/6));
+  } else
+  {
+    sizeList.push_back((int)(width/4));
+    sizeList.push_back(width-(int)(width/6));
+  }
+  splitter->setSizes(sizeList);
+
+  ManageCollectorsClassLayout->addWidget( splitter );
 
   languageChange();
   connect(attachCollectorsListView, SIGNAL( contextMenuRequested( QListViewItem *, const QPoint& , int ) ), this, SLOT( contextMenuRequested( QListViewItem *, const QPoint &, int ) ) );
@@ -458,6 +502,340 @@ if( lo.first == TRUE )
     attachCollectorsListView->setColumnText( 1, tr( QString("N/A") ) );
     break;
   }
+
+}
+
+
+void
+ManageCollectorsClass::updatePSetList()
+{
+  int pset_count = 0;
+printf("updatePSetList(%d) \n", expID );
+
+  psetList->clear();
+
+  QListViewItem *dynamic_items = new QListViewItem( psetList, "Dynamic Process Set", "N/A");
+  QListViewItem *user_items = new QListViewItem( psetList, "User Defined Process Set", "N/A");
+
+
+  QString pset_name = QString::null;
+
+{ // For each host, create a dynamic collector 
+    try
+    {
+      ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+
+      if( eo->FW() != NULL )
+      {
+// The following bit of code was snag and modified from SS_View_exp.cxx
+        ThreadGroup tgrp = eo->FW()->getThreads();
+        ThreadGroup::iterator ti;
+        std::vector<std::string> v;
+        for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
+        {
+          Thread t = *ti;
+          std::string s = t.getHost();
+        
+          v.push_back(s);
+        
+        }
+        std::sort(v.begin(), v.end());
+        
+        std::vector<std::string>::iterator e 
+                        = unique(v.begin(), v.end());
+
+        for( std::vector<string>::iterator hi = v.begin(); hi != e; hi++ ) 
+        {
+          pset_name = QString("pset%1").arg(pset_count++);
+          QListViewItem *item = new QListViewItem( dynamic_items, pset_name, *hi );
+// printf("hi=(%s)\n", hi->c_str() );
+          bool atleastone = false;
+          for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
+          {
+            Thread t = *ti;
+            std::string host = t.getHost();
+            if( host == *hi )
+            {
+              pid_t pid = t.getProcessId();
+              if (!atleastone) {
+                atleastone = true;
+              }
+              QString pidstr = QString("%1").arg(pid);
+              std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
+              QString tidstr = QString::null;
+              if (pthread.first)
+              {
+                tidstr = QString("%1").arg(pthread.second);
+              }
+              std::pair<bool, int> rank = t.getMPIRank();
+              QString ridstr = QString::null;
+              if (rank.first)
+              {
+                ridstr = QString("%1").arg(rank.second);
+              }
+              CollectorGroup cgrp = t.getCollectors();
+              CollectorGroup::iterator ci;
+              std::string collectorliststring;
+              int collector_count = 0;
+              for (ci = cgrp.begin(); ci != cgrp.end(); ci++)
+              {
+                Collector c = *ci;
+                Metadata m = c.getMetadata();
+                if (collector_count)
+                {
+                  collectorliststring += "," + m.getUniqueId();
+                } else
+                {
+                  collector_count = 1;
+                  collectorliststring = m.getUniqueId();
+                }
+              }
+              if( !tidstr.isEmpty() )
+              {
+                QListViewItem *item2 =
+                  new QListViewItem(item, pidstr, tidstr, collectorliststring );
+              } else if( !ridstr.isEmpty() )
+              {
+                QListViewItem *item2 =
+                  new QListViewItem(item, pidstr, ridstr, collectorliststring );
+              } else
+              {
+                QListViewItem *item2 = 
+                  new QListViewItem( item, pidstr, collectorliststring  );
+              }
+            }
+          }
+        }
+      }
+    }
+    catch(const std::exception& error)
+    {
+      std::cerr << std::endl << "Error: "
+        << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+        "Unknown runtime error." : error.what()) << std::endl
+        << std::endl;
+      return;
+    }
+}
+{ // For each thread status , create a dynamic pset.
+QValueList<StatusStruct> statusDisconnectedList;
+QValueList<StatusStruct> statusConnectingList;
+QValueList<StatusStruct> statusNonexistentList;
+QValueList<StatusStruct> statusRunningList;
+QValueList<StatusStruct> statusSuspendedList;
+QValueList<StatusStruct> statusTerminatedList;
+QValueList<StatusStruct> statusUnknownList;
+statusDisconnectedList.clear();
+statusConnectingList.clear();
+statusNonexistentList.clear();
+statusRunningList.clear();
+statusSuspendedList.clear();
+statusTerminatedList.clear();
+statusUnknownList.clear();
+
+StatusStruct statusStruct;
+
+
+      try
+      {
+        ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+  
+        if( eo->FW() != NULL )
+        {
+// printf("got an experiment.\n");
+  // The following bit of code was snag and modified from SS_View_exp.cxx
+          ThreadGroup tgrp = eo->FW()->getThreads();
+          ThreadGroup::iterator ti;
+          bool atleastone = false;
+          for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
+          {
+            Thread t = *ti;
+            std::string host = t.getHost();
+            pid_t pid = t.getProcessId();
+statusStruct.host = QString(host.c_str());
+statusStruct.pid = QString("%1").arg(pid);
+
+            // Add some status to each thread.
+            QString threadStatusStr;
+            switch( t.getState() )
+            {
+              case Thread::Disconnected:
+                threadStatusStr = "Disconnected";
+statusStruct.status = threadStatusStr;
+statusDisconnectedList.push_back(statusStruct);
+                break;
+              case Thread::Connecting:
+                threadStatusStr = "Connecting";
+statusStruct.status = threadStatusStr;
+statusConnectingList.push_back(statusStruct);
+                break;
+                break;
+              case Thread::Nonexistent:
+                threadStatusStr = "Nonexistent";
+statusStruct.status = threadStatusStr;
+statusNonexistentList.push_back(statusStruct);
+                break;
+              case Thread::Running:
+                threadStatusStr = "Running";
+statusStruct.status = threadStatusStr;
+statusRunningList.push_back(statusStruct);
+                break;
+              case Thread::Suspended:
+                threadStatusStr = "Suspended";
+statusStruct.status = threadStatusStr;
+statusSuspendedList.push_back(statusStruct);
+                break;
+              case Thread::Terminated:
+                threadStatusStr = "Terminate";
+statusStruct.status = threadStatusStr;
+statusTerminatedList.push_back(statusStruct);
+                break;
+              default:
+                threadStatusStr = "Unknown";
+statusStruct.status = threadStatusStr;
+statusUnknownList.push_back(statusStruct);
+                break;
+            }
+  
+            if (!atleastone)
+            {
+              atleastone = true;
+            }
+            QString pidstr = QString("%1").arg(pid);
+            std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
+            QString tidstr = QString::null;
+            if (pthread.first)
+            {
+              tidstr = QString("%1").arg(pthread.second);
+            }
+            std::pair<bool, int> rank = t.getMPIRank();
+            QString ridstr = QString::null;
+            if (rank.first)
+            {
+              ridstr = QString("%1").arg(rank.second);
+            }
+
+            CollectorGroup cgrp = t.getCollectors();
+            CollectorGroup::iterator ci;
+            int collector_count = 0;
+/*
+            QListViewItem *item =
+              new QListViewItem( attachCollectorsListView, pidstr, threadStatusStr );
+*/
+            for (ci = cgrp.begin(); ci != cgrp.end(); ci++)
+            {
+              Collector c = *ci;
+              Metadata m = c.getMetadata();
+              if (collector_count)
+              {
+              } else
+              {
+                collector_count = 1;
+              }
+/*
+              QListViewItem *item2 = new QListViewItem( item, host, m.getUniqueId());
+*/
+            }
+          }
+        }
+      }
+      catch(const std::exception& error)
+      {
+        std::cerr << std::endl << "Error: "
+          << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+          "Unknown runtime error." : error.what()) << std::endl
+          << std::endl;
+        return;
+      }
+  // Put out the Disconnected Dynamic pset (if there is one.)
+  if( statusDisconnectedList.size() > 0 )
+  {
+    QValueList<StatusStruct>::iterator vi = statusDisconnectedList.begin();
+    pset_name = QString("pset%1").arg(pset_count++);
+    QListViewItem *disconnected_items = new QListViewItem( dynamic_items, pset_name, "Disconnected" );
+    for( ;vi != statusDisconnectedList.end(); vi++)
+    {
+      StatusStruct ss = *vi;
+      printf("ss.status=(%s)\n", ss.status.ascii() );
+      printf("ss.host=(%s)\n", ss.host.ascii() );
+      printf("ss.pid=(%s)\n", ss.pid.ascii() );
+      new QListViewItem( disconnected_items, ss.host, ss.pid);
+    }
+  }
+  // Put out the Connecting Dynamic pset (if there is one.)
+  if( statusConnectingList.size() > 0 )
+  {
+    QValueList<StatusStruct>::iterator vi = statusConnectingList.begin();
+    pset_name = QString("pset%1").arg(pset_count++);
+    QListViewItem *items = new QListViewItem( dynamic_items, pset_name, "Connecting" );
+    for( ;vi != statusConnectingList.end(); vi++)
+    {
+      StatusStruct ss = *vi;
+      new QListViewItem( items, ss.host, ss.pid);
+    }
+  }
+  // Put out the Nonexistent Dynamic pset (if there is one.)
+  if( statusNonexistentList.size() > 0 )
+  {
+    QValueList<StatusStruct>::iterator vi = statusNonexistentList.begin();
+    pset_name = QString("pset%1").arg(pset_count++);
+    QListViewItem *items = new QListViewItem( dynamic_items, pset_name, "Nonexistent" );
+    for( ;vi != statusNonexistentList.end(); vi++)
+    {
+      StatusStruct ss = *vi;
+      new QListViewItem( items, ss.host, ss.pid);
+    }
+  }
+  // Put out the Running Dynamic pset (if there is one.)
+  if( statusRunningList.size() > 0 )
+  {
+    QValueList<StatusStruct>::iterator vi = statusRunningList.begin();
+    pset_name = QString("pset%1").arg(pset_count++);
+    QListViewItem *items = new QListViewItem( dynamic_items, pset_name, "Running" );
+    for( ;vi != statusRunningList.end(); vi++)
+    {
+      StatusStruct ss = *vi;
+      new QListViewItem( items, ss.host, ss.pid);
+    }
+  }
+  // Put out the Suspended Dynamic pset (if there is one.)
+  if( statusSuspendedList.size() > 0 )
+  {
+    QValueList<StatusStruct>::iterator vi = statusSuspendedList.begin();
+    pset_name = QString("pset%1").arg(pset_count++);
+    QListViewItem *items = new QListViewItem( dynamic_items, pset_name, "Suspended" );
+    for( ;vi != statusSuspendedList.end(); vi++)
+    {
+      StatusStruct ss = *vi;
+      new QListViewItem( items, ss.host, ss.pid);
+    }
+  }
+  // Put out the status Terminated Dynamic pset (if there is one.)
+  if( statusTerminatedList.size() > 0 )
+  {
+    QValueList<StatusStruct>::iterator vi = statusTerminatedList.begin();
+    pset_name = QString("pset%1").arg(pset_count++);
+    QListViewItem *items = new QListViewItem( dynamic_items, pset_name, "Terminated" );
+    for( ;vi != statusTerminatedList.end(); vi++)
+    {
+      StatusStruct ss = *vi;
+      new QListViewItem( items, ss.host, ss.pid);
+    }
+  }
+  // Put out the Unknown Dynamic pset (if there is one.)
+  if( statusUnknownList.size() > 0 )
+  {
+    QValueList<StatusStruct>::iterator vi = statusUnknownList.begin();
+    pset_name = QString("pset%1").arg(pset_count++);
+    QListViewItem *items = new QListViewItem( dynamic_items, pset_name, "Unknown" );
+    for( ;vi != statusUnknownList.end(); vi++)
+    {
+      StatusStruct ss = *vi;
+      new QListViewItem( items, ss.host, ss.pid);
+    }
+  }
+
+}
 
 }
 
@@ -837,6 +1215,8 @@ ManageCollectorsClass::updatePanel()
 // printf("ManageCollectorsClass::updatePanel()\n");
 
   updateAttachedList();
+
+  updatePSetList();
 }
 
 
