@@ -99,8 +99,7 @@ SS_Parse_Lex.cxx: $(LFILES) SS_Parse_Yacc.hxx
 	-mv lex.yy.c SS_Parse_Lex.cxx
 
 EXTRA_DIST = help_cmd_msg.dxx  help_general_msg.dxx  \
-		help_grammar_msg.dxx  help_topic_msg.dxx 
-
+		help_scripting_msg.dxx help_grammar_msg.dxx  help_topic_msg.dxx 
 
 doc:
 	$(DOXYGEN)
