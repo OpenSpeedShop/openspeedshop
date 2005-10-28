@@ -27,34 +27,10 @@ using namespace OpenSpeedShop;
 using namespace std;
 using namespace OpenSpeedShop::cli;
 
-// Move to Query library
+// Move to Query library?
 
-template <typename T>
-void GetMetricByFunctionInThreadGroup(
-    const Collector& collector,
-    const std::string& metric,
-    const ThreadGroup& tgrp,
-    SmartPtr<std::map<Function, T> >& result)
-{
-  ThreadGroup::iterator ti;
-
-  // Allocate a new map of functions to type T
-  result = SmartPtr<std::map<Function, T> >(
-      new std::map<Function, T>()
-      );
-  Assert(!result.isNull());
-
-  for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
-    Thread thread = *ti;
-    // GetMetricByFunctionInThread(collector, metric, thread, result);
-    Queries::GetMetricOfAllInThread(collector, metric,
-                                    TimeInterval(Time::TheBeginning(), Time::TheEnd()),
-                                    thread, result);
-  }
-}
-
-template <typename TS, typename TO>
-void GetMetricByFunctionSetInThreadGroup(
+template <typename TO, typename TS>
+void GetMetricInThreadGroup(
     const Collector& collector,
     const std::string& metric,
     const ThreadGroup& tgrp,
@@ -64,14 +40,15 @@ void GetMetricByFunctionSetInThreadGroup(
   ThreadGroup::iterator ti;
 
   // Allocate a new map of functions to type TS
-  result = SmartPtr<std::map<Function, TS> >(
-      new std::map<Function, TS>()
+  if (result.isNull()) {
+    result = SmartPtr<std::map<TO, TS> >(
+      new std::map<TO, TS>()
       );
+  }
   Assert(!result.isNull());
 
   for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
     Thread thread = *ti;
-    // GetMetricByFunctionInThread(collector, metric, thread, result);
     Queries::GetMetricInThread(collector, metric,
                                TimeInterval(Time::TheBeginning(), Time::TheEnd()),
                                thread, objects, result);
@@ -106,42 +83,136 @@ struct sort_descending_CommandResult : public std::binary_function<T,T,bool> {
     }
 };
 
-template <typename T>
-void GetMetricsForFunction (CommandObject *cmd,
-                            Function& F,
-                            ThreadGroup& tgrp,
-                            Collector& collector,
-                            std::string& metric,
-                            T& value)
-{
+template <typename TE>
+void GetMetricBySet (CommandObject *cmd,
+                     ThreadGroup& tgrp,
+                     Collector& collector,
+                     std::string& metric,
+                     std::set<TE>& objects,
+                     SmartPtr<std::map<TE, CommandResult *> >& items) {
 
- // Go through all the threads in the group.
-  ThreadGroup::iterator ti;
-  for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
-   // Get the thread containing this function
-    Thread thread = *ti;
+  Metadata m = Find_Metadata ( collector, metric );
+  std::string id = m.getUniqueId();
 
-   // Get the address range of this function
-    ExtentGroup egrp = F.getExtentIn (thread);
-
-   // Go through all the extents in the group.
-    for(Framework::ExtentGroup::const_iterator
-                j = egrp.begin(); j != egrp.end(); ++j) {
-      Extent extent = *j;
-
-     // Evaluate the metric over it's address range
-      T new_value;
-      collector.getMetricValue(metric, thread,
-                               extent.getAddressRange(),
-                               extent.getTimeInterval(),
-                               new_value);
-
-     // Add the new value to the accumulated value.
-      value += new_value;
+  if( m.isType(typeid(unsigned int)) ) {
+    SmartPtr<std::map<TE, uint> > data;
+    GetMetricInThreadGroup (collector, metric, tgrp, objects, data);
+    for(typename std::map<TE, uint>::const_iterator
+        item = data->begin(); item != data->end(); ++item) {
+      std::pair<TE, uint> p = *item;
+      items->insert( std::make_pair(p.first, new CommandResult_Uint (p.second)) );
     }
-
+  } else if( m.isType(typeid(uint64_t)) ) {
+    SmartPtr<std::map<TE, uint64_t> > data;
+    GetMetricInThreadGroup (collector, metric, tgrp, objects, data);
+    for(typename std::map<TE, uint64_t>::const_iterator
+        item = data->begin(); item != data->end(); ++item) {
+      std::pair<TE, uint64_t> p = *item;
+      items->insert( std::make_pair(p.first, new CommandResult_Uint (p.second)) );
+    }
+  } else if( m.isType(typeid(int)) ) {
+    SmartPtr<std::map<TE, int> > data;
+    GetMetricInThreadGroup (collector, metric, tgrp, objects, data);
+    for(typename std::map<TE, int>::const_iterator
+        item = data->begin(); item != data->end(); ++item) {
+      std::pair<TE, int> p = *item;
+      items->insert( std::make_pair(p.first, new CommandResult_Int (p.second)) );
+    }
+  } else if( m.isType(typeid(int64_t)) ) {
+    SmartPtr<std::map<TE, int64_t> > data;
+    GetMetricInThreadGroup (collector, metric, tgrp, objects, data);
+    for(typename std::map<TE, int64_t>::const_iterator
+        item = data->begin(); item != data->end(); ++item) {
+      std::pair<TE, int64_t> p = *item;
+      items->insert( std::make_pair(p.first, new CommandResult_Int (p.second)) );
+    }
+  } else if( m.isType(typeid(float)) ) {
+    SmartPtr<std::map<TE, float> > data;
+    GetMetricInThreadGroup (collector, metric, tgrp, objects, data);
+    for(typename std::map<TE, float>::const_iterator
+        item = data->begin(); item != data->end(); ++item) {
+      std::pair<TE, float> p = *item;
+      items->insert( std::make_pair(p.first, new CommandResult_Float (p.second)) );
+    }
+  } else if( m.isType(typeid(double)) ) {
+    SmartPtr<std::map<TE, double> > data;
+    GetMetricInThreadGroup (collector, metric, tgrp, objects, data);
+    for(typename std::map<TE, double>::const_iterator
+        item = data->begin(); item != data->end(); ++item) {
+      std::pair<TE, double> p = *item;
+      items->insert( std::make_pair(p.first, new CommandResult_Float (p.second)) );
+    }
+  } else if( m.isType(typeid(string)) ) {
+    SmartPtr<std::map<TE, string> > data;
+    GetMetricInThreadGroup (collector, metric, tgrp, objects, data);
+    for(typename std::map<TE, string>::const_iterator
+        item = data->begin(); item != data->end(); ++item) {
+      std::pair<TE, string> p = *item;
+      items->insert( std::make_pair(p.first, new CommandResult_String (p.second)) );
+    }
   }
+
   return;
+}
+
+void GetMetricByFunctionSet (CommandObject *cmd,
+                             ThreadGroup& tgrp,
+                             Collector& collector,
+                             std::string& metric,
+                             std::set<Function>& objects,
+                             SmartPtr<std::map<Function, CommandResult *> >& items) {
+  GetMetricBySet (cmd, tgrp, collector, metric, objects, items);
+}
+
+void GetMetricByStatementSet (CommandObject *cmd,
+                             ThreadGroup& tgrp,
+                             Collector& collector,
+                             std::string& metric,
+                             std::set<Statement>& objects,
+                             SmartPtr<std::map<Statement, CommandResult *> >& items) {
+  GetMetricBySet (cmd, tgrp, collector, metric, objects, items);
+}
+
+void GetMetricByLinkedObjectSet (CommandObject *cmd,
+                             ThreadGroup& tgrp,
+                             Collector& collector,
+                             std::string& metric,
+                             std::set<LinkedObject>& objects,
+                             SmartPtr<std::map<LinkedObject, CommandResult *> >& items) {
+  GetMetricBySet (cmd, tgrp, collector, metric, objects, items);
+}
+
+CommandResult *Init_Collector_Metric (CommandObject *cmd,
+                                      Collector collector,
+                                      std::string metric) {
+  CommandResult *Param_Value = NULL;
+  Metadata m = Find_Metadata ( collector, metric );
+  std::string id = m.getUniqueId();
+  if( m.isType(typeid(unsigned int)) ) {
+    Param_Value = new CommandResult_Uint ();
+  } else if( m.isType(typeid(uint64_t)) ) {
+    Param_Value = new CommandResult_Uint ();
+  } else if( m.isType(typeid(int)) ) {
+    Param_Value = new CommandResult_Int ();
+  } else if( m.isType(typeid(int64_t)) ) {
+    Param_Value = new CommandResult_Int ();
+  } else if( m.isType(typeid(float)) ) {
+    Param_Value = new CommandResult_Float ();
+  } else if( m.isType(typeid(double)) ) {
+    Param_Value = new CommandResult_Float ();
+  } else if( m.isType(typeid(string)) ) {
+    Param_Value = new CommandResult_String ("");
+  } else {
+#if 1
+    std::string s("(The metric, " + id + ", does not have a supported type.)");
+    Mark_Cmd_With_Soft_Error(cmd,s);
+#else
+    cmd->Result_String ("(The metric, " + id + ", does not have a supported type.)");
+    cmd->set_Status(CMD_ERROR);
+#endif
+    Param_Value = NULL;
+  }
+  return Param_Value;
 }
 
 template <typename T>
@@ -178,81 +249,6 @@ void GetMetricsforThreads (CommandObject *cmd,
   return;
 }
 
-CommandResult *Init_Collector_Metric (CommandObject *cmd,
-                                      Collector collector,
-                                      std::string metric) {
-  CommandResult *Param_Value = NULL;
-  Metadata m = Find_Metadata ( collector, metric );
-  std::string id = m.getUniqueId();
-  if( m.isType(typeid(unsigned int)) ) {
-    Param_Value = new CommandResult_Uint ();
-  } else if( m.isType(typeid(uint64_t)) ) {
-    Param_Value = new CommandResult_Uint ();
-  } else if( m.isType(typeid(int)) ) {
-    Param_Value = new CommandResult_Int ();
-  } else if( m.isType(typeid(int64_t)) ) {
-    Param_Value = new CommandResult_Int ();
-  } else if( m.isType(typeid(float)) ) {
-    Param_Value = new CommandResult_Float ();
-  } else if( m.isType(typeid(double)) ) {
-    Param_Value = new CommandResult_Float ();
-  } else if( m.isType(typeid(string)) ) {
-    Param_Value = new CommandResult_String ("");
-  } else {
-#if 1
-    std::string s("(The metric, " + id + ", does not have a supported type.)");
-    Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-    cmd->Result_String ("(The metric, " + id + ", does not have a supported type.)");
-    cmd->set_Status(CMD_ERROR);
-#endif
-    Param_Value = NULL;
-  }
-  return Param_Value;
-}
-
-CommandResult *Get_Function_Metric (CommandObject *cmd,
-                                    Function F,
-                                    ThreadGroup tgrp,
-                                    Collector collector,
-                                    std::string metric) {
-  CommandResult *Param_Value = NULL;
-  Metadata m = Find_Metadata ( collector, metric );
-  std::string id = m.getUniqueId();
-  if( m.isType(typeid(unsigned int)) ) {
-    uint Value = 0;
-    GetMetricsForFunction(cmd, F, tgrp, collector, metric, Value);
-    if (Value != 0) Param_Value = new CommandResult_Uint (Value);
-  } else if( m.isType(typeid(uint64_t)) ) {
-    uint64_t Value = 0;
-    GetMetricsForFunction(cmd, F, tgrp, collector, metric, Value);
-    if (Value != 0) Param_Value = new CommandResult_Uint (Value);
-  } else if( m.isType(typeid(int)) ) {
-    int Value = 0;
-    GetMetricsForFunction(cmd, F, tgrp, collector, metric, Value);
-    if (Value != 0) Param_Value = new CommandResult_Int (Value);
-  } else if( m.isType(typeid(int64_t)) ) {
-    int64_t Value = 0;
-    GetMetricsForFunction(cmd, F, tgrp, collector, metric, Value);
-    if (Value != 0) Param_Value = new CommandResult_Int (Value);
-  } else if( m.isType(typeid(float)) ) {
-    float Value = 0.0;
-    GetMetricsForFunction(cmd, F, tgrp, collector, metric, Value);
-    if (Value != 0.0) Param_Value = new CommandResult_Float (Value);
-  } else if( m.isType(typeid(double)) ) {
-    double Value = 0.0;
-    GetMetricsForFunction(cmd, F, tgrp, collector, metric, Value);
-    if (Value != 0.0) Param_Value = new CommandResult_Float (Value);
-  } else if( m.isType(typeid(string)) ) {
-    std::string Value = "";
-    GetMetricsForFunction(cmd, F, tgrp, collector, metric, Value);
-    if (Value != "") Param_Value = new CommandResult_String (Value);
-  } else {
-    Param_Value = NULL;
-  }
-  return Param_Value;
-}
-
 CommandResult *Get_Total_Metric (CommandObject *cmd,
                                  ThreadGroup tgrp,
                                  Collector collector,
@@ -286,162 +282,6 @@ CommandResult *Get_Total_Metric (CommandObject *cmd,
     if (Value > 0.0000000001) Param_Value = new CommandResult_Float (Value);
   }
   return Param_Value;
-}
-
-void GetMetricByFunction (CommandObject *cmd,
-                          bool ascending_sort,
-                          ThreadGroup tgrp,
-                          Collector collector,
-                          std::string metric,
-                          std::vector<Function_CommandResult_pair>& items) {
-
-  Metadata m = Find_Metadata ( collector, metric );
-  std::string id = m.getUniqueId();
-
-  if( m.isType(typeid(unsigned int)) ) {
-    SmartPtr<std::map<Function, uint> > data;
-    GetMetricByFunctionInThreadGroup (collector, metric, tgrp, data);
-    for(std::map<Function, uint>::const_iterator
-        item = data->begin(); item != data->end(); ++item) {
-      std::pair<Function, uint> p = *item;
-      items.push_back( std::make_pair(p.first, new CommandResult_Uint (p.second)) );
-    }
-  } else if( m.isType(typeid(uint64_t)) ) {
-    SmartPtr<std::map<Function, uint64_t> > data;
-    GetMetricByFunctionInThreadGroup (collector, metric, tgrp, data);
-    for(std::map<Function, uint64_t>::const_iterator
-        item = data->begin(); item != data->end(); ++item) {
-      std::pair<Function, uint64_t> p = *item;
-      items.push_back( std::make_pair(p.first, new CommandResult_Uint (p.second)) );
-    }
-  } else if( m.isType(typeid(int)) ) {
-    SmartPtr<std::map<Function, int> > data;
-    GetMetricByFunctionInThreadGroup (collector, metric, tgrp, data);
-    for(std::map<Function, int>::const_iterator
-        item = data->begin(); item != data->end(); ++item) {
-      std::pair<Function, int> p = *item;
-      items.push_back( std::make_pair(p.first, new CommandResult_Int (p.second)) );
-    }
-  } else if( m.isType(typeid(int64_t)) ) {
-    SmartPtr<std::map<Function, int64_t> > data;
-    GetMetricByFunctionInThreadGroup (collector, metric, tgrp, data);
-    for(std::map<Function, int64_t>::const_iterator
-        item = data->begin(); item != data->end(); ++item) {
-      std::pair<Function, int64_t> p = *item;
-      items.push_back( std::make_pair(p.first, new CommandResult_Int (p.second)) );
-    }
-  } else if( m.isType(typeid(float)) ) {
-    SmartPtr<std::map<Function, float> > data;
-    GetMetricByFunctionInThreadGroup (collector, metric, tgrp, data);
-    for(std::map<Function, float>::const_iterator
-        item = data->begin(); item != data->end(); ++item) {
-      std::pair<Function, float> p = *item;
-      items.push_back( std::make_pair(p.first, new CommandResult_Float (p.second)) );
-    }
-  } else if( m.isType(typeid(double)) ) {
-    SmartPtr<std::map<Function, double> > data;
-    GetMetricByFunctionInThreadGroup (collector, metric, tgrp, data);
-    for(std::map<Function, double>::const_iterator
-        item = data->begin(); item != data->end(); ++item) {
-      std::pair<Function, double> p = *item;
-      items.push_back( std::make_pair(p.first, new CommandResult_Float (p.second)) );
-    }
-  } else if( m.isType(typeid(string)) ) {
-    SmartPtr<std::map<Function, string> > data;
-    GetMetricByFunctionInThreadGroup (collector, metric, tgrp, data);
-    for(std::map<Function, string>::const_iterator
-        item = data->begin(); item != data->end(); ++item) {
-      std::pair<Function, string> p = *item;
-      items.push_back( std::make_pair(p.first, new CommandResult_String (p.second)) );
-    }
-  } else {
-    return;
-  }
-
- // Check for asnychonous abort command
-  if (cmd->Status() == CMD_ABORTED) {
-    return;
-  }
-
- // Now we can sort the data.
-  if (ascending_sort) {
-    std::sort(items.begin(), items.end(), sort_ascending_CommandResult<Function_CommandResult_pair>());
-  } else {
-    std::sort(items.begin(), items.end(), sort_descending_CommandResult<Function_CommandResult_pair>());
-  }
-
-  return;
-}
-
-void GetMetricByFunctionSet (CommandObject *cmd,
-                             ThreadGroup& tgrp,
-                             Collector& collector,
-                             std::string& metric,
-                             std::set<Function>& objects,
-                             SmartPtr<std::map<Function, CommandResult *> >& items) {
-
-  Metadata m = Find_Metadata ( collector, metric );
-  std::string id = m.getUniqueId();
-
-  if( m.isType(typeid(unsigned int)) ) {
-    SmartPtr<std::map<Function, uint> > data;
-    GetMetricByFunctionSetInThreadGroup (collector, metric, tgrp, objects, data);
-    for(std::map<Function, uint>::const_iterator
-        item = data->begin(); item != data->end(); ++item) {
-      std::pair<Function, uint> p = *item;
-      items->insert( std::make_pair(p.first, new CommandResult_Uint (p.second)) );
-    }
-  } else if( m.isType(typeid(uint64_t)) ) {
-    SmartPtr<std::map<Function, uint64_t> > data;
-    GetMetricByFunctionSetInThreadGroup (collector, metric, tgrp, objects, data);
-    for(std::map<Function, uint64_t>::const_iterator
-        item = data->begin(); item != data->end(); ++item) {
-      std::pair<Function, uint64_t> p = *item;
-      items->insert( std::make_pair(p.first, new CommandResult_Uint (p.second)) );
-    }
-  } else if( m.isType(typeid(int)) ) {
-    SmartPtr<std::map<Function, int> > data;
-    GetMetricByFunctionSetInThreadGroup (collector, metric, tgrp, objects, data);
-    for(std::map<Function, int>::const_iterator
-        item = data->begin(); item != data->end(); ++item) {
-      std::pair<Function, int> p = *item;
-      items->insert( std::make_pair(p.first, new CommandResult_Int (p.second)) );
-    }
-  } else if( m.isType(typeid(int64_t)) ) {
-    SmartPtr<std::map<Function, int64_t> > data;
-    GetMetricByFunctionSetInThreadGroup (collector, metric, tgrp, objects, data);
-    for(std::map<Function, int64_t>::const_iterator
-        item = data->begin(); item != data->end(); ++item) {
-      std::pair<Function, int64_t> p = *item;
-      items->insert( std::make_pair(p.first, new CommandResult_Int (p.second)) );
-    }
-  } else if( m.isType(typeid(float)) ) {
-    SmartPtr<std::map<Function, float> > data;
-    GetMetricByFunctionSetInThreadGroup (collector, metric, tgrp, objects, data);
-    for(std::map<Function, float>::const_iterator
-        item = data->begin(); item != data->end(); ++item) {
-      std::pair<Function, float> p = *item;
-      items->insert( std::make_pair(p.first, new CommandResult_Float (p.second)) );
-    }
-  } else if( m.isType(typeid(double)) ) {
-    SmartPtr<std::map<Function, double> > data;
-    GetMetricByFunctionSetInThreadGroup (collector, metric, tgrp, objects, data);
-    for(std::map<Function, double>::const_iterator
-        item = data->begin(); item != data->end(); ++item) {
-      std::pair<Function, double> p = *item;
-      items->insert( std::make_pair(p.first, new CommandResult_Float (p.second)) );
-    }
-  } else if( m.isType(typeid(string)) ) {
-    SmartPtr<std::map<Function, string> > data;
-    GetMetricByFunctionSetInThreadGroup (collector, metric, tgrp, objects, data);
-    for(std::map<Function, string>::const_iterator
-        item = data->begin(); item != data->end(); ++item) {
-      std::pair<Function, string> p = *item;
-      items->insert( std::make_pair(p.first, new CommandResult_String (p.second)) );
-    }
-  }
-
-  return;
 }
 
 static bool Remainaing_Length_Is_Numeric (std::string viewname, int64_t L) {
