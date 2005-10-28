@@ -1099,17 +1099,23 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 
       } else
       { // Clear the highlight list.
-          clearSourceFile(expID);
+//          clearSourceFile(expID);
       }
+    }
+    // If no spo, make one so the source panel is placed correctly.
+    if( !spo )
+    {
+//printf("NO SOURCE PANEL OBJECT to update existing source. Create null one.\n");
+      spo = new SourceObject(NULL, NULL, -1, expID, TRUE, NULL);
     }
     if( spo )
     {
       QString name = QString("Source Panel [%1]").arg(expID);
-// printf("Find a SourcePanel named %s\n", name.ascii() );
+//printf("Find a SourcePanel named %s\n", name.ascii() );
       Panel *sourcePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
       if( !sourcePanel )
       {
-// printf("no source view up, place the source panel.\n");
+//printf("no source view up, place the source panel.\n");
         char *panel_type = "Source Panel";
         PanelContainer *startPC = NULL;
         if( getPanelContainer()->parentPanelContainer != NULL )
@@ -1125,7 +1131,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
       }
       if( sourcePanel )
       {
-// printf("send the spo to the source panel.\n");
+//printf("send the spo to the source panel.\n");
 // spo->print();
        sourcePanel->listener((void *)spo);
 // printf("sent the spo to the source panel.\n");
