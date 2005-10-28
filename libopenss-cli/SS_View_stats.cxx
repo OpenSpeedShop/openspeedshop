@@ -19,14 +19,18 @@
 
 #include "SS_Input_Manager.hxx"
 
-#include "Python.h"
-
-using namespace std;
-
-#include "SS_Parse_Result.hxx"
-#include "SS_Parse_Target.hxx"
-
-using namespace OpenSpeedShop::cli;
+template <class T>
+struct sort_ascending_CommandResult : public std::binary_function<T,T,bool> {
+    bool operator()(const T& x, const T& y) const {
+        return CommandResult_lt (x.second, y.second);
+    }
+};
+template <class T>
+struct sort_descending_CommandResult : public std::binary_function<T,T,bool> {
+    bool operator()(const T& x, const T& y) const {
+        return CommandResult_gt (x.second, y.second);
+    }
+};
 
 // stats view
 
@@ -111,8 +115,19 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
    // Be sure we sort the items based on the metric displayed in the first column.
     ViewInstruction *vinst0 = ViewInst[0];
     int64_t Column0index = vinst0->TMP1();
+    SmartPtr<std::map<Function, CommandResult *> > initial_items =
+            Framework::SmartPtr<std::map<Function, CommandResult *> >(
+                new std::map<Function, CommandResult * >()
+                );
+    GetMetricByObject (cmd, false, tgrp, CV[Column0index], MV[Column0index], initial_items);
     std::vector<Function_CommandResult_pair> items;
-    GetMetricByFunction (cmd, false, tgrp, CV[Column0index], MV[Column0index], items);
+    std::map <Function, CommandResult *>::const_iterator ii;
+    for(ii = initial_items->begin(); ii != initial_items->end(); ii++ ) {
+      items.push_back (std::make_pair(ii->first, ii->second));
+    }
+
+   // Now we can sort the data.
+    std::sort(items.begin(), items.end(), sort_descending_CommandResult<Function_CommandResult_pair>());
     if (items.begin() == items.end()) {
 #if 1
       {
@@ -217,7 +232,7 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
             Framework::SmartPtr<std::map<Function, CommandResult *> >(
                 new std::map<Function, CommandResult * >()
                 );
-        GetMetricByFunctionSet (cmd, tgrp, CV[CM_Index], MV[CM_Index], objects, column_values);
+        GetMetricByObjectSet (cmd, tgrp, CV[CM_Index], MV[CM_Index], objects, column_values);
         Values[i] = column_values;
       }
     }
@@ -246,7 +261,7 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
             Next_Metric_Value = it->second;
           } else if (Values[i].isNull()) {
            // There is no map - look up the individual function.
-            Next_Metric_Value = Get_Function_Metric( cmd, it->first, tgrp,
+            Next_Metric_Value = Get_Object_Metric( cmd, it->first, tgrp,
                                                      CV[CM_Index], MV[CM_Index] );
           } else {
            // The entry should be in the column's values map for this function.
@@ -273,7 +288,7 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
           } else {
             ViewInstruction *percentInst = Find_Column_Def (IV, vinst->TMP1());
             int64_t percentIndex = percentInst->TMP1();
-            CommandResult *Metric_Result = Get_Function_Metric( cmd, it->first, tgrp,
+            CommandResult *Metric_Result = Get_Object_Metric( cmd, it->first, tgrp,
                                                                CV[percentIndex], MV[percentIndex] );
             Next_Metric_Value = Calculate_Percent (Metric_Result, TotalValue);
           }
@@ -284,7 +299,7 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
            // The measured time interval is too small.
             continue;
           }
-          CommandResult *Metric_Result = Get_Function_Metric( cmd, it->first, tgrp,
+          CommandResult *Metric_Result = Get_Object_Metric( cmd, it->first, tgrp,
                                                                CV[CM_Index], MV[CM_Index] );
           Next_Metric_Value = Calculate_Percent (Metric_Result, TotalValue);
         }
