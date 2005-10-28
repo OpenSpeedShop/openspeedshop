@@ -23,6 +23,17 @@
     The idea is to match the standard B{OpenSpeedShop}
     commandline interface using a pure I{python} API.
     
+    Generally, one wants to create an experiment, associate
+    it with the application to be profiled, describe the
+    type of data to be collected. 
+    
+    After the experiment is defined one runs it, either
+    letting it run its course or partially. This generates
+    raw information that is accessed with the B{expView()}
+    command. There may be multiple views available for
+    a particular experiment type (See B{list()}) and can be
+    set with the B{expSetParam()} command.
+    
     A simple example::
     
     	import openss
@@ -40,31 +51,33 @@
 	# Run the instrumented application
 	openss.expGo()
 
-    	# Define what metrics we want to use. In this case
-	# it is exclusive time.
-    	my_metric_list = openss.MetricList()
-    	my_metric_list += "exclusive"
-
+    	# expGo is the only asynchrous command. We may need
+	# to wait until our app is done before harvesting
+	# the data.
+    	openss.waitForGo()
+	
     	# Describe the type of view we want and get the 
 	# results of the experiment.
 	my_viewtype = openss.ViewTypeList()
     	my_viewtype += "pcsamp"
-	result = openss.expView(my_id,my_viewtype,my_metric_list)
+	result = openss.expView(my_id,my_viewtype)
 
     	# Print out the results. In this case the results are
 	# in a double array. Normally either the structure of
 	# the return value will be known or one will have to 
 	# query each of the object elements.
-    	r_count = len(ret)
+    	r_count = len(result)
     	for row_ndx in range(r_count):
     	    print " "
-    	    row =ret[row_ndx]
+    	    row =result[row_ndx]
     	    c_count = len(row)
     	    for rel_ndx in range(c_count):
             	print row[rel_ndx]
 
     	# Cleanup any intermediate openss files.
     	openss.exit()
+
+    
 """
 __all__ = ["openss_commands","openss_parse","openss_classes"]
 
