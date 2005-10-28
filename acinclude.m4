@@ -183,6 +183,76 @@ AC_DEFUN([AC_PKG_DYNINST], [
 ])
 
 ################################################################################
+# Check for MPI (http://www.mpi-forum.org/)
+################################################################################
+
+AC_DEFUN([AC_PKG_MPI], [
+
+    # TODO: Put in real check for MPI, keeping in mind that MPICH library is
+    #       named "libmpich.so" instead of "libmpi.so" and it isn't in the usual
+    #       "$mpi_dir/$abi_libdir" location.
+
+    AM_CONDITIONAL(HAVE_MPI, true)
+    AC_DEFINE(HAVE_MPI, 1, [Define to 1 if you have MPI.])
+
+    MPI_CPPFLAGS=""
+    MPI_LDFLAGS=""
+    MPI_LIBS=""
+
+])
+
+################################################################################
+# Check for Libunwind (http://www.hpl.hp.com/research/linux/libunwind/)
+################################################################################
+
+AC_DEFUN([AC_PKG_LIBUNWIND], [
+
+    AC_ARG_WITH(libunwind,
+                AC_HELP_STRING([--with-libunwind=DIR],
+                               [Libunwind installation @<:@/usr@:>@]),
+                libunwind_dir=$withval, libunwind_dir="/usr")
+
+    LIBUNWIND_CPPFLAGS="-I$libunwind_dir/include"
+    LIBUNWIND_LDFLAGS="-L$libunwind_dir/$abi_libdir"
+    LIBUNWIND_LIBS="-lunwind"
+
+    AC_LANG_PUSH(C++)
+    AC_REQUIRE_CPP
+
+    libunwind_saved_CPPFLAGS=$CPPFLAGS
+    libunwind_saved_LDFLAGS=$LDFLAGS
+
+    CPPFLAGS="$CPPFLAGS $LIBUNWIND_CPPFLAGS"
+    LDFLAGS="$CXXFLAGS $LIBUNWIND_LDFLAGS $LIBUNWIND_LIBS"
+
+    AC_MSG_CHECKING([for Libunwind library and headers])
+
+    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+        #include <libunwind-ptrace.h>
+        ]], [[
+        #ifdef UNW_REMOTE_ONLY
+                int n = 0, ret;
+                unw_cursor_t c;
+                ret = unw_step (&c);
+        #endif
+        ]]), AC_MSG_RESULT(yes), [ AC_MSG_RESULT(no)
+        AC_MSG_FAILURE(cannot locate Libunwind library and/or headers.) ]
+    )
+
+    CPPFLAGS=$libunwind_saved_CPPFLAGS
+    LDFLAGS=$libunwind_saved_LDFLAGS
+
+    AC_LANG_POP(C++)
+
+    AC_SUBST(LIBUNWIND_CPPFLAGS)
+    AC_SUBST(LIBUNWIND_LDFLAGS)
+    AC_SUBST(LIBUNWIND_LIBS)
+
+    AC_DEFINE(HAVE_LIBUNWIND, 1, [Define to 1 if you have Libunwind.])
+
+])
+
+################################################################################
 # Check for PAPI (http://icl.cs.utk.edu/papi)
 ################################################################################
 
@@ -235,58 +305,6 @@ AC_DEFUN([AC_PKG_PAPI], [
     AC_SUBST(PAPI_CPPFLAGS)
     AC_SUBST(PAPI_LDFLAGS)
     AC_SUBST(PAPI_LIBS)
-
-])
-
-
-################################################################################
-# Check for libunwind (http://www.hpl.hp.com/research/linux/libunwind/)
-################################################################################
-
-AC_DEFUN([AC_PKG_LIBUNWIND], [
-
-    AC_ARG_WITH(libunwind,
-                AC_HELP_STRING([--with-libunwind=DIR],
-                               [libunwind installation @<:@/usr@:>@]),
-                libunwind_dir=$withval, libunwind_dir="/usr")
-
-    LIBUNWIND_CPPFLAGS="-I$libunwind_dir/include"
-    LIBUNWIND_LDFLAGS="-L$libunwind_dir/$abi_libdir"
-    LIBUNWIND_LIBS="-lunwind"
-
-    AC_LANG_PUSH(C++)
-    AC_REQUIRE_CPP
-
-    libunwind_saved_CPPFLAGS=$CPPFLAGS
-    libunwind_saved_LDFLAGS=$LDFLAGS
-
-    CPPFLAGS="$CPPFLAGS $LIBUNWIND_CPPFLAGS"
-    LDFLAGS="$CXXFLAGS $LIBUNWIND_LDFLAGS $LIBUNWIND_LIBS"
-
-    AC_MSG_CHECKING([for LIBUNWIND library and headers])
-
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
-        #include <libunwind-ptrace.h>
-        ]], [[
-        #ifdef UNW_REMOTE_ONLY
-                int n = 0, ret;
-                unw_cursor_t c;
-                ret = unw_step (&c);
-        #endif
-        ]]), AC_MSG_RESULT(yes), [ AC_MSG_RESULT(no)
-        AC_MSG_FAILURE(cannot locate LIBUNWIND library and/or headers.) ]
-    )
-
-    CPPFLAGS=$libunwind_saved_CPPFLAGS
-    LDFLAGS=$libunwind_saved_LDFLAGS
-
-    AC_LANG_POP(C++)
-
-    AC_SUBST(LIBUNWIND_CPPFLAGS)
-    AC_SUBST(LIBUNWIND_LDFLAGS)
-    AC_SUBST(LIBUNWIND_LIBS)
-
-    AC_DEFINE(HAVE_LIBUNWIND, 1, [Define to 1 if you have LIBUNWIND.])
 
 ])
 

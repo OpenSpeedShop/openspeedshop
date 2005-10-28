@@ -329,6 +329,224 @@ std::set<Statement> Thread::getStatements() const
 
 
 /**
+ * Get the linked object at an address.
+ *
+ * Returns the linked object containing the specified address at a particular
+ * moment in time. If a linked object cannot be found, the first value in the
+ * pair returned will be "false".
+ *
+ * @param address    Address to be found.
+ * @param time       Time at which to find this address.
+ * @return           Linked object containing this address.
+ */
+std::pair<bool, LinkedObject> 
+Thread::getLinkedObjectAt(const Address& address, const Time& time) const
+{
+    std::pair<bool, LinkedObject> linked_object(false, LinkedObject());
+
+    // Find the linked object containing the requested address/time
+    BEGIN_TRANSACTION(dm_database);
+    validate();
+    dm_database->prepareStatement(
+	"SELECT linked_object "
+	"FROM AddressSpaces "
+	"WHERE thread = ? "
+	"  AND ? >= time_begin "
+	"  AND ? < time_end "
+	"  AND ? >= addr_begin "
+	"  AND ? < addr_end;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    dm_database->bindArgument(2, time);
+    dm_database->bindArgument(3, time);
+    dm_database->bindArgument(4, address);
+    dm_database->bindArgument(5, address);	
+    while(dm_database->executeStatement()) {
+	if(linked_object.first)
+	    throw Exception(Exception::EntryOverlapping, "AddressSpaces");
+	linked_object.first = true;
+	linked_object.second = LinkedObject(dm_database,
+					    dm_database->getResultAsInteger(1));
+    }    
+    END_TRANSACTION(dm_database);
+    
+    // Return the linked object to the caller
+    return linked_object;
+}
+
+
+
+/**
+ * Get the function at an address.
+ *
+ * Returns the function containing the specified address at a particular moment
+ * in time. If a function cannot be found, the first value in the pair returned
+ * will be "false".
+ *
+ * @param address    Address to be found.
+ * @param time       Time at which to find this address.
+ * @return           Function containing this address.
+ */
+std::pair<bool, Function> 
+Thread::getFunctionAt(const Address& address, const Time& time) const
+{
+    std::pair<bool, Function> function(false, Function());
+
+    // Begin a multi-statement transaction
+    BEGIN_TRANSACTION(dm_database);
+    validate();
+    
+    // Find the linked object containing the requested address/time
+    bool found_linked_object = false; 
+    int linked_object;
+    Address addr_begin;    
+    dm_database->prepareStatement(
+	"SELECT linked_object, "
+	"       addr_begin "
+	"FROM AddressSpaces "
+	"WHERE thread = ? "
+	"  AND ? >= time_begin "
+	"  AND ? < time_end "
+	"  AND ? >= addr_begin "
+	"  AND ? < addr_end;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    dm_database->bindArgument(2, time);
+    dm_database->bindArgument(3, time);
+    dm_database->bindArgument(4, address);
+    dm_database->bindArgument(5, address);	
+    while(dm_database->executeStatement()) {
+	if(found_linked_object)
+	    throw Exception(Exception::EntryOverlapping, "AddressSpaces");
+	linked_object = dm_database->getResultAsInteger(1);
+	addr_begin = dm_database->getResultAsAddress(2);
+    }
+
+    // Did we find the linked object?
+    if(found_linked_object) {
+
+	// Find the function containing the requested address
+	dm_database->prepareStatement(
+	    "SELECT Functions.id "
+	    "FROM Functions "
+	    "WHERE Functions.linked_object = ? "
+	    "  AND ? >= Functions.addr_begin "
+	    "  AND ? < Functions.addr_end;"
+	    );
+	dm_database->bindArgument(1, linked_object);
+	dm_database->bindArgument(2, Address(address - addr_begin));
+	dm_database->bindArgument(3, Address(address - addr_begin));
+	while(dm_database->executeStatement()) {
+	    if(function.first)
+		throw Exception(Exception::EntryOverlapping, "Functions");
+	    function.first = true;
+	    function.second = Function(dm_database,
+				       dm_database->getResultAsInteger(1));
+	}
+	
+    }
+
+    // End this multi-statement transaction
+    END_TRANSACTION(dm_database);
+
+    // Return the function to the caller
+    return function;
+}
+
+
+
+/**
+ * Get the statements at an address.
+ *
+ * Returns the statements containing the specified address at a particular
+ * moment in time. An empty set is returned if no statements are found.
+ *
+ * @param address    Address to be found.
+ * @param time       Time at which to find this address.
+ * @return           Statements containing this address.
+ */
+std::set<Statement>
+Thread::getStatementsAt(const Address& address, const Time& time) const
+{
+    std::set<Statement> statements;
+
+    // Begin a multi-statement transaction
+    BEGIN_TRANSACTION(dm_database);
+    validate();
+    
+    // Find the linked object containing the requested address/time
+    bool found_linked_object = false; 
+    int linked_object;
+    Address addr_begin;    
+    dm_database->prepareStatement(
+	"SELECT linked_object, "
+	"       addr_begin "
+	"FROM AddressSpaces "
+	"WHERE thread = ? "
+	"  AND ? >= time_begin "
+	"  AND ? < time_end "
+	"  AND ? >= addr_begin "
+	"  AND ? < addr_end;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    dm_database->bindArgument(2, time);
+    dm_database->bindArgument(3, time);
+    dm_database->bindArgument(4, address);
+    dm_database->bindArgument(5, address);	
+    while(dm_database->executeStatement()) {
+	if(found_linked_object)
+	    throw Exception(Exception::EntryOverlapping, "AddressSpaces");
+	linked_object = dm_database->getResultAsInteger(1);
+	addr_begin = dm_database->getResultAsAddress(2);
+    }
+
+    // Did we find the linked object?
+    if(found_linked_object) {
+
+	// Find the statements containing the requested address    
+	dm_database->prepareStatement(
+	    "SELECT Statements.id, "
+	    "       StatementRanges.addr_begin, "
+	    "       StatementRanges.addr_end, "
+	    "       StatementRanges.valid_bitmap "
+	    "FROM StatementRanges "
+	    "  JOIN Statements "
+	    "ON StatementRanges.statement = Statments.id "
+	    "WHERE Statements.linked_object = ? "
+	    "  AND ? >= StatementRanges.addr_begin "
+	    "  AND ? < StatementRanges.addr_end;"
+	    );
+	dm_database->bindArgument(1, linked_object);
+	dm_database->bindArgument(2, Address(address - addr_begin));
+	dm_database->bindArgument(3, Address(address - addr_begin));
+	while(dm_database->executeStatement()) {
+	    
+	    AddressBitmap bitmap(
+		AddressRange(dm_database->getResultAsAddress(2),
+			     dm_database->getResultAsAddress(3)),
+		dm_database->getResultAsBlob(4)
+		);
+	    
+	    if(bitmap.getValue(address - addr_begin))
+		statements.insert(
+		    Statement(dm_database,
+			      dm_database->getResultAsInteger(1))
+		    );
+	    
+	}
+
+    }
+
+    // End this multi-statement transaction
+    END_TRANSACTION(dm_database);
+
+    // Return the statements to the caller
+    return statements;
+}
+
+
+
+/**
  * Get our executable.
  *
  * Returns the linked object which is this thread's executable at a particular

@@ -26,6 +26,8 @@
 #include "Blob.hxx"
 #include "Database.hxx"
 #include "Exception.hxx"
+#include "Guard.hxx"
+#include "Path.hxx"
 #include "Time.hxx"
 
 #include <errno.h>
@@ -34,7 +36,6 @@
 #include <inttypes.h>
 #endif
 #include <limits>
-#include <pthread.h>
 #include <sqlite3.h>
 #include <string.h>
 #include <time.h>
@@ -57,16 +58,16 @@ namespace {
      * Callback function used by SQLite when an attempt is made to access
      * a database that is currently locked by another process or thread. 
      * Temporarily suspends the calling thread before instructing SQLite to
-     * retry the operation. Currently the thread is suspended for 10 mS.
+     * retry the operation. Currently the thread is suspended for 1 mS.
      *     
      * @return    Always "1" indicating SQLite should retry the operation.
      */
     int busyHandler(void*, int)
     {
-	// Setup to wait for 10 mS
+	// Setup to wait for 1 mS
 	struct timespec wait;
 	wait.tv_sec = 0;
-	wait.tv_nsec = 10 * 1000 * 1000;
+	wait.tv_nsec = 1 * 1000 * 1000;
 	
 	// Suspend ourselves temporarily
 	nanosleep(&wait, NULL);
@@ -76,47 +77,6 @@ namespace {
     }
 
 
-
-    /**
-     * Address addition function.
-     *
-     * Function used by SQLite for adding two addresses. SQLite doesn't support
-     * unsigned 64-bit values directly. So addresses are "shifted" in order to
-     * convert them into signed 64-bit quantities instead. Conditionals on these
-     * transformed addresses can be applied directly, but arithmetic operations
-     * don't work properly because of the sign change. This function implements
-     * addition of two such addresses.
-     *
-     * @param context    Handle to the database context in which to calculate.
-     * @param argc       Number of arguments.
-     * @param argv       Array of arguments.
-     */
-    void addressAdditionFunc(sqlite3_context* context,
-			     int argc, sqlite3_value** argv)
-    {
-	// Check assertions
-	Assert(argc == 2);
-	
-	// Return a null if either argument wasn't an integer
-	if((sqlite3_value_type(argv[0]) != SQLITE_INTEGER) ||
-	   (sqlite3_value_type(argv[1]) != SQLITE_INTEGER)) {
-	    sqlite3_result_null(context);
-	    return;
-	}
-	
-	// Convert the two arguments to addresses
-	Address lhs = sqlite3_value_int64(argv[0]) + signedOffset;
-	Address rhs = sqlite3_value_int64(argv[1]) + signedOffset;
-	
-	// Calculate the addition of these two addresses
-	Address result = lhs + rhs;
-	
-	// Return the result
-	sqlite3_result_int64(context, static_cast<int64_t>(result.getValue()) -
-			     signedOffset);
-    }
-    
-    
     
 }
 
@@ -238,37 +198,17 @@ void Database::remove(const std::string& name)
  * @param name    Name of database to be accessed.
  */
 Database::Database(const std::string& name) :
-    dm_lock(),
+    Lockable(),
     dm_name(name),
-    dm_handle(NULL),
-    dm_statements(),
-    dm_nesting_level(0),
-    dm_is_committable(false),
-    dm_current_statement(NULL)
+    dm_transaction_lock(),
+    dm_handles()
 {
-    // Initialize the mutual exclusion lock
-    pthread_mutexattr_t attr;
-    Assert(pthread_mutexattr_init(&attr) == 0);
-    Assert(pthread_mutexattr_settype(&attr,
-				     PTHREAD_MUTEX_RECURSIVE_NP) == 0);    
-    Assert(pthread_mutex_init(&dm_lock, &attr) == 0);
-    Assert(pthread_mutexattr_destroy(&attr) == 0);
+    // Initialize the transaction lock
+    Assert(pthread_rwlock_init(&dm_transaction_lock, NULL) == 0);
     
     // Verify the database is accessible
     if(!isAccessible(name))
 	throw Exception(Exception::DatabaseDoesNotExist, name);
-    
-    // Open the database
-    Assert(sqlite3_open(dm_name.c_str(), &dm_handle) == SQLITE_OK);
-    Assert(dm_handle != NULL);
-    
-    // Specify our busy handler
-    Assert(sqlite3_busy_handler(dm_handle, busyHandler, this) == SQLITE_OK);
-    
-    // Specify the user-defined address addition function
-    Assert(sqlite3_create_function(dm_handle, "addrAdd", 2,
-				   SQLITE_ANY, NULL, addressAdditionFunc,
-				   NULL, NULL) == SQLITE_OK);
 }
 
 
@@ -276,26 +216,12 @@ Database::Database(const std::string& name) :
 /**
  * Destructor.
  *
- * Closes this database. All cached prepared statements associated with this
- * database are first released.
+ * Closes this database. All per-thread database handles are first released.
  */
 Database::~Database()
 {
-    // Check assertions
-    Assert(dm_handle != NULL);
-    Assert(dm_nesting_level == 0);
-    
-    // Reset and finalize all cached prepared statements
-    for(std::map<std::string, sqlite3_stmt*>::const_iterator
-	    i = dm_statements.begin(); i != dm_statements.end(); ++i)
-	Assert(sqlite3_finalize(i->second) == SQLITE_OK);
-    dm_statements.clear();
-    
-    // Close the database
-    Assert(sqlite3_close(dm_handle) == SQLITE_OK);    
-    
-    // Destroy the mutual exclusion lock
-    Assert(pthread_mutex_destroy(&dm_lock) == 0);
+    // Release all per-thread database handles for this database
+    releaseAllHandles();    
 }
 
 
@@ -310,45 +236,63 @@ Database::~Database()
  */
 void Database::renameTo(const std::string& name)
 {
-    // Copy this database to the new name
-    copyTo(name);
+    //
+    // Acquire write access for the transaction lock
+    //     (indicate no in-progress transactions beyond this point)
+    //
+    Assert(pthread_rwlock_wrlock(&dm_transaction_lock) == 0);
     
-    // Acquire exclusive access to this object
-    Assert(pthread_mutex_lock(&dm_lock) == 0);
-    
-    // Check assertions
-    Assert(dm_handle != NULL);
-    Assert(dm_nesting_level == 0);
-    
-    // Reset and finalize all cached prepared statements
-    for(std::map<std::string, sqlite3_stmt*>::const_iterator
-	    i = dm_statements.begin(); i != dm_statements.end(); ++i)
-	Assert(sqlite3_finalize(i->second) == SQLITE_OK);
-    dm_statements.clear();
-    
-    // Close the database
-    Assert(sqlite3_close(dm_handle) == SQLITE_OK);    
+    // Get our per-thread database handle
+    Handle& handle = getHandle();
 
-    // Remove the original database
-    remove(dm_name);
+    // Begin an exclusive transaction to prevent mid-copy changes
+    Assert(sqlite3_exec(handle.dm_database, "BEGIN EXCLUSIVE TRANSACTION;",
+			NULL, NULL, NULL) == SQLITE_OK);
+
+    // Perform the rename
+    try {
+	
+	// Create a new database with the new name
+	create(name);
+
+	// Copy the original database to the new database
+	copyFile(Path(dm_name), Path(name));
+	
+	// Remove the original database
+	remove(dm_name);
+	
+    }
+    catch(...) {
+	
+	// Commit the transaction to allow changes to now proceed
+	Assert(sqlite3_exec(handle.dm_database, "COMMIT TRANSACTION;",
+			    NULL, NULL, NULL) == SQLITE_OK);
+
+	//
+	// Release write access for the transaction lock
+	//     (indicate transactions can once again proceed)
+	//
+	Assert(pthread_rwlock_wrlock(&dm_transaction_lock) == 0);
+	
+	// Re-throw exception upwards
+	throw;
+    }
     
-    // Switch to the renamed database
+    // Release all per-thread database handles for this database
+    releaseAllHandles();    
+    
+    // Switch to the new database
     dm_name = name;
     
-    // Open the database
-    Assert(sqlite3_open(dm_name.c_str(), &dm_handle) == SQLITE_OK);
-    Assert(dm_handle != NULL);
+    // Commit the transaction to allow changes to now proceed
+    Assert(sqlite3_exec(handle.dm_database, "COMMIT TRANSACTION;",
+			NULL, NULL, NULL) == SQLITE_OK);
     
-    // Specify our busy handler
-    Assert(sqlite3_busy_handler(dm_handle, busyHandler, this) == SQLITE_OK);
-    
-    // Specify the user-defined address addition function
-    Assert(sqlite3_create_function(dm_handle, "addrAdd", 2,
-				   SQLITE_ANY, NULL, addressAdditionFunc,
-				   NULL, NULL) == SQLITE_OK);    
-    
-    // Release exclusive access to this object
-    Assert(pthread_mutex_unlock(&dm_lock) == 0);
+    //
+    // Release write access for the transaction lock
+    //     (indicate transactions can once again proceed)
+    //
+    Assert(pthread_rwlock_wrlock(&dm_transaction_lock) == 0);
 }
 
 
@@ -356,7 +300,7 @@ void Database::renameTo(const std::string& name)
 /**
  * Copy this database.
  *
- * Copies this database to the specified name. The original database is
+ * Copies this database to the specified name. The original database remains
  * unmodified and still accessible via this object. Accessing the copy involves
  * creating a new Database object with the copy's name.
  *
@@ -364,57 +308,54 @@ void Database::renameTo(const std::string& name)
  */
 void Database::copyTo(const std::string& name)
 {
-    const int copyBufferSize = 65536;
+    //
+    // Acquire write access for the transaction lock
+    //     (indicate no in-progress transactions beyond this point)
+    //
+    Assert(pthread_rwlock_wrlock(&dm_transaction_lock) == 0);
     
-    // Create the copy database
-    create(name);
-    
-    // Open the original database (as a simple file) for read-only access
-    int original_fd;
-    Assert((original_fd = open(dm_name.c_str(), O_RDONLY)) != -1);
-    
-    // Open the copy database (as a simple file) for write-only access
-    int copy_fd;
-    Assert((copy_fd = open(name.c_str(), O_WRONLY | O_TRUNC)) != -1);
-    
-    // Allocate a buffer for performing the copy
-    char* buffer = new char[copyBufferSize];
-    
-    // Begin a transaction (insuring original database doesn't change mid-copy)
-    beginTransaction();
-    
-    // Perform the copy
-    for(int num = 1; num > 0;) {
-	
-	// Read bytes from the original database file
-	num = read(original_fd, buffer, copyBufferSize);
-	Assert((num >= 0) || ((num == -1) && (errno == EINTR)));
-	
-	// Write bytes until none remain
-	if(num > 0)
-	    for(int i = 0; i < num;) {
-		
-		// Write bytes to the copy database file
-		int written = write(copy_fd, &(buffer[i]), num - i);
-		Assert((written >= 0) || ((written == -1) && (errno == EINTR)));
-		
-		// Update the number of bytes remaining
-		if(written > 0)
-		    i+= written;
-		
-	    }
-	
+    // Get our per-thread database handle
+    Handle& handle = getHandle();
+
+    // Begin an exclusive transaction to prevent mid-copy changes
+    Assert(sqlite3_exec(handle.dm_database, "BEGIN EXCLUSIVE TRANSACTION;",
+			NULL, NULL, NULL) == SQLITE_OK);
+
+    // Perform the rename
+    try {
+
+	// Create a new database with the new name
+	create(name);
+
+	// Copy the original database to the new database
+	copyFile(dm_name, name);
+
     }
-    
-    // Commit the transaction (allowing changes to proceed)
-    commitTransaction();
-    
-    // Destroy the copy buffer
-    delete [] buffer;
-    
-    // Close the two databases
-    Assert(close(original_fd) == 0);
-    Assert(close(copy_fd) == 0);
+    catch(...) {
+
+	// Commit the transaction to allow changes to now proceed
+	Assert(sqlite3_exec(handle.dm_database, "COMMIT TRANSACTION;",
+			    NULL, NULL, NULL) == SQLITE_OK);
+	
+	//
+	// Release write access for the transaction lock
+	//     (indicate transactions can once again proceed)
+	//
+	Assert(pthread_rwlock_wrlock(&dm_transaction_lock) == 0);
+	
+	// Re-throw exception upwards
+	throw;
+    }
+
+    // Commit the transaction to allow changes to now proceed
+    Assert(sqlite3_exec(handle.dm_database, "COMMIT TRANSACTION;",
+			NULL, NULL, NULL) == SQLITE_OK);
+
+    //
+    // Release write access for the transaction lock
+    //     (indicate transactions can once again proceed)
+    //
+    Assert(pthread_rwlock_wrlock(&dm_transaction_lock) == 0);
 }
 
 
@@ -426,19 +367,12 @@ void Database::copyTo(const std::string& name)
  *
  * @return    Name of this database.
  */
-std::string Database::getName()
+std::string Database::getName() const
 {
-    // Acquire exclusive access to this object
-    Assert(pthread_mutex_lock(&dm_lock) == 0);
-    
-    // Access the database's name
-    std::string name = dm_name;
-    
-    // Release exclusive access to this object
-    Assert(pthread_mutex_unlock(&dm_lock) == 0);
-    
+    Guard guard_myself(this);
+
     // Return the database name to the caller
-    return name;
+    return dm_name;
 }
 
 
@@ -446,41 +380,39 @@ std::string Database::getName()
 /**
  * Begin a new transaction.
  *
- * Begins a new SQL transaction on this database. Exclusive access to the
- * Database object is obtained and the SQL implementation is asked to begin
- * a new transaction.
- *
- * @note    Only one thread may execute a transaction against a given Database
- *          at any given time. Locking is used to insure this constraint is met.
- *          Multiple threads may, however, each create their own Database for
- *          accessing a single, shared, database. Under these circumstances the
- *          locking constraints are imposed by the SQL implementation.
+ * Begins a new SQL transaction on this database.
  *
  * @note    Nested transactions (of a sort) are implemented. A given thread may
  *          begin additional transactions before completing the previous one.
  */
 void Database::beginTransaction()
 {
-    // Acquire exclusive access to this object
-    Assert(pthread_mutex_lock(&dm_lock) == 0);
+    //
+    // Acquire read access for the transaction lock
+    //     (indicate there is an in-progress transaction)
+    //
+    Assert(pthread_rwlock_rdlock(&dm_transaction_lock) == 0);
     
+    // Get our per-thread database handle
+    Handle& handle = getHandle();
+
     // Check assertions
-    Assert(dm_handle != NULL);
+    Assert(handle.dm_database != NULL);
     
     // Is this an outer transaction?
-    if(dm_nesting_level == 0) {
+    if(handle.dm_nesting_level == 0) {
 	
 	// Execute a SQL query to begin a new transaction
-	Assert(sqlite3_exec(dm_handle, "BEGIN TRANSACTION;",
+	Assert(sqlite3_exec(handle.dm_database, "BEGIN DEFERRED TRANSACTION;",
 			    NULL, NULL, NULL) == SQLITE_OK);
 	
 	// Indicate the transaction can be committed
-	dm_is_committable = true;
+	handle.dm_is_committable = true;
 	
     }
     
     // Increment the transaction nesting level
-    dm_nesting_level++;
+    handle.dm_nesting_level++;
 }
 
 
@@ -516,49 +448,52 @@ void Database::beginTransaction()
  */
 void Database::prepareStatement(const std::string& statement)
 {
+    // Get our per-thread database handle
+    Handle& handle = getHandle();
+    
     // Check assertions
-    Assert(dm_handle != NULL);
-    Assert(dm_nesting_level > 0);
-    Assert(dm_current_statement == NULL);
+    Assert(handle.dm_database != NULL);
+    Assert(handle.dm_nesting_level > 0);
+    Assert(handle.dm_statement == NULL);
 
     // Determine if this statement has already been cached
     std::map<std::string, sqlite3_stmt*>::const_iterator i =
-	dm_statements.find(statement);
-    if(i != dm_statements.end()) {
+	handle.dm_cache.find(statement);
+    if(i != handle.dm_cache.end()) {
 	
 	// Use the cached prepared statement
-	dm_current_statement = i->second;
+	handle.dm_statement = i->second;
 	
 	// Reset this statement for re-execution
-	Assert(sqlite3_reset(dm_current_statement) == SQLITE_OK);
+	Assert(sqlite3_reset(handle.dm_statement) == SQLITE_OK);
 	
     }
     else {
 	
 	// Prepare this statement for execution
 	const char* tail = NULL;	
-	int retval = sqlite3_prepare(dm_handle, statement.c_str(),
-				     statement.size(), &dm_current_statement,
-				     &tail);
+	int retval = sqlite3_prepare(handle.dm_database, 
+				     statement.c_str(), statement.size(),
+				     &handle.dm_statement, &tail);
 	if(retval == SQLITE_ERROR) {
-	    std::string errmsg = sqlite3_errmsg(dm_handle);
+	    std::string errmsg = sqlite3_errmsg(handle.dm_database);
 	    if(errmsg.find("syntax error") == std::string::npos)
-		throw Exception(Exception::DatabaseInvalid, dm_name, errmsg);
+		throw Exception(Exception::DatabaseInvalid, getName(), errmsg);
 	}
 	Assert(retval == SQLITE_OK);
 	Assert((tail != NULL) && (*tail == '\0'));
 	
 	// Cache this prepared statement for future use
-	dm_statements[statement] = dm_current_statement;
+	handle.dm_cache[statement] = handle.dm_statement;
 	
     }
     
     // Check assertions
-    Assert(dm_current_statement != NULL);
+    Assert(handle.dm_statement != NULL);
     
     // Bind NULL values to all arguments of this statement
-    for(int i = 1; i <= sqlite3_bind_parameter_count(dm_current_statement); ++i)
-	Assert(sqlite3_bind_null(dm_current_statement, i) == SQLITE_OK);
+    for(int i = 1; i <= sqlite3_bind_parameter_count(handle.dm_statement); ++i)
+	Assert(sqlite3_bind_null(handle.dm_statement, i) == SQLITE_OK);
 }
 
 
@@ -585,13 +520,16 @@ void Database::prepareStatement(const std::string& statement)
  */
 void Database::bindArgument(const unsigned& index, const std::string& value)
 {
-    // Check assertions
-    Assert(dm_current_statement != NULL);
-    Assert((index > 0) && 
-	   (index <= sqlite3_bind_parameter_count(dm_current_statement)));
+    // Get our per-thread database handle
+    Handle& handle = getHandle();
 
+    // Check assertions
+    Assert(handle.dm_statement != NULL);
+    Assert((index > 0) && 
+	   (index <= sqlite3_bind_parameter_count(handle.dm_statement)));
+    
     // Bind the argument
-    Assert(sqlite3_bind_text(dm_current_statement, index,
+    Assert(sqlite3_bind_text(handle.dm_statement, index,
 			     value.c_str(), value.size(),
 			     SQLITE_TRANSIENT) == SQLITE_OK);
 }
@@ -620,13 +558,16 @@ void Database::bindArgument(const unsigned& index, const std::string& value)
  */
 void Database::bindArgument(const unsigned& index, const int& value)
 {
+    // Get our per-thread database handle
+    Handle& handle = getHandle();
+
     // Check assertions
-    Assert(dm_current_statement != NULL);
+    Assert(handle.dm_statement != NULL);
     Assert((index > 0) && 
-	   (index <= sqlite3_bind_parameter_count(dm_current_statement)));
+	   (index <= sqlite3_bind_parameter_count(handle.dm_statement)));
     
     // Bind the argument
-    Assert(sqlite3_bind_int(dm_current_statement, index, value) == SQLITE_OK);
+    Assert(sqlite3_bind_int(handle.dm_statement, index, value) == SQLITE_OK);
 }
 
 
@@ -653,14 +594,16 @@ void Database::bindArgument(const unsigned& index, const int& value)
  */
 void Database::bindArgument(const unsigned& index, const double& value)
 {
+    // Get our per-thread database handle
+    Handle& handle = getHandle();
+
     // Check assertions
-    Assert(dm_current_statement != NULL);
+    Assert(handle.dm_statement != NULL);
     Assert((index > 0) && 
-	   (index <= sqlite3_bind_parameter_count(dm_current_statement)));
+	   (index <= sqlite3_bind_parameter_count(handle.dm_statement)));
     
     // Bind the argument
-    Assert(sqlite3_bind_double(dm_current_statement, index,
-			       value) == SQLITE_OK);
+    Assert(sqlite3_bind_double(handle.dm_statement, index, value) == SQLITE_OK);
 }
 
 
@@ -687,14 +630,18 @@ void Database::bindArgument(const unsigned& index, const double& value)
  */
 void Database::bindArgument(const unsigned& index, const Blob& value)
 {
-    // Check assertions
-    Assert(dm_current_statement != NULL);
-    Assert((index > 0) && 
-	   (index <= sqlite3_bind_parameter_count(dm_current_statement)));
+    // Get our per-thread database handle
+    Handle& handle = getHandle();
 
+    // Check assertions
+    Assert(handle.dm_statement != NULL);
+    Assert((index > 0) && 
+	   (index <= sqlite3_bind_parameter_count(handle.dm_statement)));
+    
     // Bind the argument
-    Assert(sqlite3_bind_blob(dm_current_statement, index, value.getContents(),
-			     value.getSize(), SQLITE_TRANSIENT) == SQLITE_OK);
+    Assert(sqlite3_bind_blob(handle.dm_statement, index, 
+			     value.getContents(), value.getSize(), 
+			     SQLITE_TRANSIENT) == SQLITE_OK);
 }
 
 
@@ -721,13 +668,16 @@ void Database::bindArgument(const unsigned& index, const Blob& value)
  */
 void Database::bindArgument(const unsigned& index, const Address& value)
 {
+    // Get our per-thread database handle
+    Handle& handle = getHandle();
+
     // Check assertions
-    Assert(dm_current_statement != NULL);
+    Assert(handle.dm_statement != NULL);
     Assert((index > 0) && 
-	   (index <= sqlite3_bind_parameter_count(dm_current_statement)));
+	   (index <= sqlite3_bind_parameter_count(handle.dm_statement)));
 
     // Bind the argument
-    Assert(sqlite3_bind_int64(dm_current_statement, index, 
+    Assert(sqlite3_bind_int64(handle.dm_statement, index, 
 			      static_cast<int64_t>(value.getValue()) -
 			      signedOffset) == SQLITE_OK);
 }
@@ -756,13 +706,16 @@ void Database::bindArgument(const unsigned& index, const Address& value)
  */
 void Database::bindArgument(const unsigned& index, const Time& value)
 {
+    // Get our per-thread database handle
+    Handle& handle = getHandle();
+
     // Check assertions
-    Assert(dm_current_statement != NULL);
+    Assert(handle.dm_statement != NULL);
     Assert((index > 0) && 
-	   (index <= sqlite3_bind_parameter_count(dm_current_statement)));
+	   (index <= sqlite3_bind_parameter_count(handle.dm_statement)));
 
     // Bind the argument
-    Assert(sqlite3_bind_int64(dm_current_statement, index, 
+    Assert(sqlite3_bind_int64(handle.dm_statement, index, 
 			      static_cast<int64_t>(value.getValue()) -
 			      signedOffset) == SQLITE_OK);
 }
@@ -788,18 +741,21 @@ void Database::bindArgument(const unsigned& index, const Time& value)
  */
 bool Database::executeStatement()
 {
+    // Get our per-thread database handle
+    Handle& handle = getHandle();
+
     // Check assertions
-    Assert(dm_current_statement != NULL);
+    Assert(handle.dm_statement != NULL);
     
     // Execute the next step of the current statement
-    int retval = sqlite3_step(dm_current_statement);
+    int retval = sqlite3_step(handle.dm_statement);
     Assert((retval == SQLITE_ROW) || (retval == SQLITE_DONE));
     
     // Handle a completed statement
     if(retval == SQLITE_DONE) {
 	
 	// Indicate there is no longer a current statement
-	dm_current_statement = NULL;
+	handle.dm_statement = NULL;
 	
     }
     
@@ -818,15 +774,18 @@ bool Database::executeStatement()
  * @param index    Index (number) of column to test.
  * @return         Boolean "true" if this column is null, "false" otherwise.
  */
-bool Database::getResultIsNull(const unsigned& index) const
+bool Database::getResultIsNull(const unsigned& index)
 {
+    // Get our per-thread database handle
+    Handle& handle = getHandle();
+
     // Check assertions
-    Assert(dm_current_statement != NULL);
+    Assert(handle.dm_statement != NULL);
     Assert((index > 0) &&
-	   (index <= sqlite3_column_count(dm_current_statement)));
+	   (index <= sqlite3_column_count(handle.dm_statement)));
 
     // Return the result to the caller
-    return sqlite3_column_type(dm_current_statement, index - 1) == SQLITE_NULL;
+    return sqlite3_column_type(handle.dm_statement, index - 1) == SQLITE_NULL;
 }
 
 
@@ -849,16 +808,19 @@ bool Database::getResultIsNull(const unsigned& index) const
  * @param index    Index (number) of column to obtain.
  * @return         String result from this column.
  */
-std::string Database::getResultAsString(const unsigned& index) const
+std::string Database::getResultAsString(const unsigned& index)
 {
+    // Get our per-thread database handle
+    Handle& handle = getHandle();
+
     // Check assertions
-    Assert(dm_current_statement != NULL);
+    Assert(handle.dm_statement != NULL);
     Assert((index > 0) &&
-	   (index <= sqlite3_column_count(dm_current_statement)));
+	   (index <= sqlite3_column_count(handle.dm_statement)));
 
     // Return the result to the caller
     return reinterpret_cast<const char*>
-	(sqlite3_column_text(dm_current_statement, index - 1));
+	(sqlite3_column_text(handle.dm_statement, index - 1));
 }
 
 
@@ -881,15 +843,18 @@ std::string Database::getResultAsString(const unsigned& index) const
  * @param index    Index (number) of column to obtain.
  * @return         Signed integer result from this column.
  */
-int Database::getResultAsInteger(const unsigned& index) const
+int Database::getResultAsInteger(const unsigned& index)
 {
+    // Get our per-thread database handle
+    Handle& handle = getHandle();
+
     // Check assertions
-    Assert(dm_current_statement != NULL);
+    Assert(handle.dm_statement != NULL);
     Assert((index > 0) &&
-	   (index <= sqlite3_column_count(dm_current_statement)));
+	   (index <= sqlite3_column_count(handle.dm_statement)));
 
     // Return the result to the caller
-    return sqlite3_column_int(dm_current_statement, index - 1);
+    return sqlite3_column_int(handle.dm_statement, index - 1);
 }
 
 
@@ -912,15 +877,18 @@ int Database::getResultAsInteger(const unsigned& index) const
  * @param index    Index (number) of column to obtain.
  * @return         Real result from this column.
  */
-double Database::getResultAsReal(const unsigned& index) const
+double Database::getResultAsReal(const unsigned& index)
 {
+    // Get our per-thread database handle
+    Handle& handle = getHandle();
+
     // Check assertions
-    Assert(dm_current_statement != NULL);
+    Assert(handle.dm_statement != NULL);
     Assert((index > 0) &&
-	   (index <= sqlite3_column_count(dm_current_statement)));
+	   (index <= sqlite3_column_count(handle.dm_statement)));
 
     // Return the result to the caller
-    return sqlite3_column_double(dm_current_statement, index - 1);
+    return sqlite3_column_double(handle.dm_statement, index - 1);
 }
 
 
@@ -943,16 +911,19 @@ double Database::getResultAsReal(const unsigned& index) const
  * @param index    Index (number) of column to obtain.
  * @return         Blob result from this column.
  */
-Blob Database::getResultAsBlob(const unsigned& index) const
+Blob Database::getResultAsBlob(const unsigned& index)
 {
+    // Get our per-thread database handle
+    Handle& handle = getHandle();
+
     // Check assertions
-    Assert(dm_current_statement != NULL);
+    Assert(handle.dm_statement != NULL);
     Assert((index > 0) &&
-	   (index <= sqlite3_column_count(dm_current_statement)));
+	   (index <= sqlite3_column_count(handle.dm_statement)));
     
     // Return the result to the caller
-    return Blob(sqlite3_column_bytes(dm_current_statement, index - 1),
-		sqlite3_column_blob(dm_current_statement, index - 1));
+    return Blob(sqlite3_column_bytes(handle.dm_statement, index - 1),
+		sqlite3_column_blob(handle.dm_statement, index - 1));
 }
 
 
@@ -975,15 +946,18 @@ Blob Database::getResultAsBlob(const unsigned& index) const
  * @param index    Index (number) of column to obtain.
  * @return         Address result from this column.
  */
-Address Database::getResultAsAddress(const unsigned& index) const
+Address Database::getResultAsAddress(const unsigned& index)
 {
+    // Get our per-thread database handle
+    Handle& handle = getHandle();
+
     // Check assertions
-    Assert(dm_current_statement != NULL);
+    Assert(handle.dm_statement != NULL);
     Assert((index > 0) &&
-	   (index <= sqlite3_column_count(dm_current_statement)));
+	   (index <= sqlite3_column_count(handle.dm_statement)));
     
     // Return the result to the caller
-    return Address(sqlite3_column_int64(dm_current_statement, index - 1) +
+    return Address(sqlite3_column_int64(handle.dm_statement, index - 1) +
 		   signedOffset);
 }
 
@@ -1007,15 +981,18 @@ Address Database::getResultAsAddress(const unsigned& index) const
  * @param index    Index (number) of column to obtain.
  * @return         Time result from this column.
  */
-Time Database::getResultAsTime(const unsigned& index) const
+Time Database::getResultAsTime(const unsigned& index)
 {
+    // Get our per-thread database handle
+    Handle& handle = getHandle();
+
     // Check assertions
-    Assert(dm_current_statement != NULL);
+    Assert(handle.dm_statement != NULL);
     Assert((index > 0) &&
-	   (index <= sqlite3_column_count(dm_current_statement)));
+	   (index <= sqlite3_column_count(handle.dm_statement)));
     
     // Return the result to the caller
-    return Time(sqlite3_column_int64(dm_current_statement, index - 1) +
+    return Time(sqlite3_column_int64(handle.dm_statement, index - 1) +
 		signedOffset);
 }
 
@@ -1034,14 +1011,17 @@ Time Database::getResultAsTime(const unsigned& index) const
  *
  * @return    Unique ID of last inserted row.
  */ 
-int Database::getLastInsertedUID() const
+int Database::getLastInsertedUID()
 {
+    // Get our per-thread database handle
+    Handle& handle = getHandle();
+
     // Check assertions
-    Assert(dm_handle != NULL);
-    Assert(dm_nesting_level > 0);
+    Assert(handle.dm_database != NULL);
+    Assert(handle.dm_nesting_level > 0);
     
     // Return the result to the caller
-    return static_cast<int>(sqlite3_last_insert_rowid(dm_handle));
+    return static_cast<int>(sqlite3_last_insert_rowid(handle.dm_database));
 }
 
 
@@ -1050,8 +1030,7 @@ int Database::getLastInsertedUID() const
  * Commit a transaction.
  *
  * Ends the current SQL transaction on this database by committing any changes
- * that were made. After ending the current transaction, the thread's exclusive
- * lock on the Database object is released.
+ * that were made.
  *
  * @note    Any attempt to commit a transaction that was not first begun with a
  *          call to beginTransaction() will result in an assertion failure.
@@ -1063,25 +1042,31 @@ int Database::getLastInsertedUID() const
  */
 void Database::commitTransaction()
 {
+    // Get our per-thread database handle
+    Handle& handle = getHandle();
+
     // Check assertions
-    Assert(dm_handle != NULL);
-    Assert(dm_nesting_level > 0);
+    Assert(handle.dm_database != NULL);
+    Assert(handle.dm_nesting_level > 0);
 
     // Decrement the transaction nesting level
-    dm_nesting_level--;
+    handle.dm_nesting_level--;
     
     // Commit for the outermost transaction?
-    if(dm_nesting_level == 0) {
+    if(handle.dm_nesting_level == 0) {
 	
 	// Execute a SQL query to commit (or rollback) the transaction
-	Assert(sqlite3_exec(dm_handle, dm_is_committable ?
+	Assert(sqlite3_exec(handle.dm_database, handle.dm_is_committable ?
 			    "COMMIT TRANSACTION;" : "ROLLBACK TRANSACTION;",
 			    NULL, NULL, NULL) == SQLITE_OK);
 	
     }
-    
-    // Release exclusive access to this object
-    Assert(pthread_mutex_unlock(&dm_lock) == 0);	
+
+    //
+    // Release read access for the transaction lock
+    //     (indicate the in-progress transaction has completed)
+    //
+    Assert(pthread_rwlock_unlock(&dm_transaction_lock) == 0);
 }
 
 
@@ -1090,8 +1075,7 @@ void Database::commitTransaction()
  * Rollback a transaction.
  *
  * Ends the current SQL transaction on this database by rolling back any changes
- * that were made. After ending the current transaction, the thread's exclusive
- * lock on the Database object is released.
+ * that were made.
  *
  * @note    Any attempt to rollback a transaction that was not first begun with
  *          a call to beginTransaction() will result in an assertion failure.
@@ -1103,39 +1087,186 @@ void Database::commitTransaction()
  */
 void Database::rollbackTransaction()
 {
+    // Get our per-thread database handle
+    Handle& handle = getHandle();
+
     // Check assertions
-    Assert(dm_handle != NULL);
-    Assert(dm_nesting_level > 0);
+    Assert(handle.dm_database != NULL);
+    Assert(handle.dm_nesting_level > 0);
 
     // Is there a current statement?
-    if(dm_current_statement != NULL) {
+    if(handle.dm_statement != NULL) {
 	
 	// Reset the current statement
-	Assert(sqlite3_reset(dm_current_statement) == SQLITE_OK);	    
+	Assert(sqlite3_reset(handle.dm_statement) == SQLITE_OK);	    
 	
 	// Indicate there is no longer a current statement
-	dm_current_statement = NULL;	    
+	handle.dm_statement = NULL;	    
 	
     }
 
     // Decrement the transaction nesting level
-    dm_nesting_level--;
+    handle.dm_nesting_level--;
     
     // Rollback for the outermost transaction?
-    if(dm_nesting_level == 0) {
+    if(handle.dm_nesting_level == 0) {
 
 	// Execute a SQL query to rollback the transaction
-        Assert(sqlite3_exec(dm_handle, "ROLLBACK TRANSACTION;",
+        Assert(sqlite3_exec(handle.dm_database, "ROLLBACK TRANSACTION;",
         		    NULL, NULL, NULL) == SQLITE_OK);
 	
     }
     else {
 
 	// Simply indicate transaction is no longer committable
-	dm_is_committable = false;    
+	handle.dm_is_committable = false;    
+	
+    }
+
+    //
+    // Release read access for the transaction lock
+    //     (indicate the in-progress transaction has completed)
+    //
+    Assert(pthread_rwlock_unlock(&dm_transaction_lock) == 0);
+}
+
+
+
+/**
+ * Copy a file.
+ *
+ * Copies the contents of one file over the contents of another. The source and
+ * destination file must both already exist and the original contents of the
+ * destination file are completely destroyed.
+ *
+ * @param source         File to be copied.
+ * @param destination    File to be overwritten.
+ */
+void Database::copyFile(const Path& source, const Path& destination)
+{
+    const int copyBufferSize = 65536;
+    
+    // Open the source file for read-only access
+    int source_fd = open(source.c_str(), O_RDONLY);
+    Assert(source_fd != -1);
+    
+    // Open the destination file for write-only access
+    int destination_fd = open(destination.c_str(), O_WRONLY | O_TRUNC);
+    Assert(destination_fd != -1);
+    
+    // Allocate a buffer for performing the copy
+    char* buffer = new char[copyBufferSize];
+    
+    // Perform the copy
+    for(int num = 1; num > 0;) {
+	
+	// Read bytes from the source file
+	num = read(source_fd, buffer, copyBufferSize);
+	Assert((num >= 0) || ((num == -1) && (errno == EINTR)));
+	
+	// Write bytes until none remain
+	if(num > 0)
+	    for(int i = 0; i < num;) {
+		
+		// Write bytes to the destination file
+		int written = write(destination_fd, &(buffer[i]), num - i);
+		Assert((written >= 0) || ((written == -1) && (errno == EINTR)));
+		
+		// Update the number of bytes remaining
+		if(written > 0)
+		    i+= written;
+		
+	    }
 	
     }
     
-    // Release exclusive access to this object
-    Assert(pthread_mutex_unlock(&dm_lock) == 0);
+    // Destroy the copy buffer
+    delete [] buffer;
+    
+    // Close the two files
+    Assert(close(source_fd) == 0);
+    Assert(close(destination_fd) == 0);    
+}
+
+
+
+/**
+ * Get our per-thread database handle.
+ *
+ * Returns the per-thread database handle for the executing thread. A new handle
+ * is created if the executing thread didn't already have a handle.
+ *
+ * @return    Database handle for the executing thread.
+ */
+Database::Handle& Database::getHandle()
+{
+    Guard guard_myself(this);
+    
+    // Find the per-thread database handle (if any) for the executing thread
+    std::map<pthread_t, Handle>::iterator i =
+	dm_handles.find(pthread_self());
+    
+    // Is there no existing handle for this thread?
+    if(i == dm_handles.end()) {
+	
+	// Create a new per-thread database handle
+	Handle handle;
+	
+	// Open the database
+	Assert(sqlite3_open(dm_name.c_str(), &handle.dm_database) == SQLITE_OK);
+	Assert(handle.dm_database != NULL);
+	
+	// Specify our busy handler
+	Assert(sqlite3_busy_handler(handle.dm_database,
+				    busyHandler, NULL) == SQLITE_OK);
+	
+	// Save this handle for future re-use
+	i = dm_handles.insert(std::make_pair(pthread_self(), handle)).first;
+	
+    }
+    
+    // Check assertions
+    Assert(i != dm_handles.end());
+    
+    // Return the per-thread database handle to the caller
+    return i->second;    
+}
+
+
+
+/**
+ * Remove all per-thread database handles.
+ * 
+ * Removes all per-thread database handles for this database. The prepared
+ * statement caches associated with this database are also released.
+ */
+void Database::releaseAllHandles()
+{
+    Guard guard_myself(this);
+
+    // Iterate over each per-thread database handle
+    for(std::map<pthread_t, Handle>::iterator
+	    i = dm_handles.begin(); i != dm_handles.end(); ++i) {
+	
+	// Check assertions
+	Assert(i->second.dm_database != NULL);
+	Assert(i->second.dm_nesting_level == 0);
+	
+	// Finalize all cached prepared statements
+	for(std::map<std::string, sqlite3_stmt*>::const_iterator
+		j = i->second.dm_cache.begin();
+	    j != i->second.dm_cache.end();
+	    ++j)
+	    Assert(sqlite3_finalize(j->second) == SQLITE_OK);
+	
+	// Clear the prepared statement cache
+	i->second.dm_cache.clear();
+
+	// Close the SQLite handle for this database
+	Assert(sqlite3_close(i->second.dm_database) == SQLITE_OK);    
+	
+    }
+
+    // Clear the per-thread database handles
+    dm_handles.clear();
 }

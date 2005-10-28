@@ -29,7 +29,7 @@
 #include "config.h"
 #endif
 
-#include "NonCopyable.hxx"
+#include "Lockable.hxx"
 
 #include <map>
 #include <pthread.h>
@@ -44,6 +44,7 @@ namespace OpenSpeedShop { namespace Framework {
 
     class Address;
     class Blob;
+    class Path;
     class Time;
 
     /**
@@ -72,7 +73,7 @@ namespace OpenSpeedShop { namespace Framework {
      * @ingroup Utility
      */
     class Database :
-	private NonCopyable
+	private Lockable
     {
 
     public:
@@ -87,7 +88,7 @@ namespace OpenSpeedShop { namespace Framework {
 	void renameTo(const std::string&);
 	void copyTo(const std::string&);
 	
-	std::string getName();
+	std::string getName() const;
 
 	void beginTransaction();
 	void prepareStatement(const std::string&);
@@ -101,44 +102,85 @@ namespace OpenSpeedShop { namespace Framework {
 	
 	bool executeStatement();
 
-	bool getResultIsNull(const unsigned&) const;
-	std::string getResultAsString(const unsigned&) const;
-	int getResultAsInteger(const unsigned&) const;
-	double getResultAsReal(const unsigned&) const;
-	Blob getResultAsBlob(const unsigned&) const;
-	Address getResultAsAddress(const unsigned&) const;
-	Time getResultAsTime(const unsigned&) const;
+	bool getResultIsNull(const unsigned&);
+	std::string getResultAsString(const unsigned&);
+	int getResultAsInteger(const unsigned&);
+	double getResultAsReal(const unsigned&);
+	Blob getResultAsBlob(const unsigned&);
+	Address getResultAsAddress(const unsigned&);
+	Time getResultAsTime(const unsigned&);
 
-	int getLastInsertedUID() const;
+	int getLastInsertedUID();
 	
 	void commitTransaction();
 	void rollbackTransaction();
 	
     private:
 
-	/** Mutual exclusion lock. */
-	pthread_mutex_t dm_lock;
-	
+	static void copyFile(const Path&, const Path&);
+
 	/** Name of this database. */
 	std::string dm_name;
 	
-	/** Handle for this database. */
-	sqlite3* dm_handle;
+	/** Lock indicating when transactions are in-progress. */
+	pthread_rwlock_t dm_transaction_lock;	
 	
-	/** Map query strings to their prepared statement. */
-	std::map<std::string, sqlite3_stmt*> dm_statements;
+	/**
+	 * Database handle.
+	 *
+	 * Structure for a per-thread database handle. Contains an SQLite
+	 * handle for the database, a cache of prepared statements, and various
+	 * information about the statement currently being executed by the
+	 * thread (if any).
+	 *
+	 * @note    Database handles are maintained on a per-thread basis mainly
+	 *          because SQLite does not allow a database handle created via
+	 *          sqlite_open() to be passed between threads. SQLite versions
+	 *          3.2.5 and above actually check for this and return an error
+	 *          (SQLITE_MISUSE) if a thread tries to use a handle that was
+	 *          created by a different thread.
+	 *
+	 * @sa    http://www.hwaci.com/sw/sqlite/faq.html#q8
+	 * @sa    http://www.sqlite.org/cvstrac/chngview?cn=2517
+	 */
+	struct Handle
+	{
+	    
+	    /** SQLite handle for this database. */
+	    sqlite3* dm_database;
+	    
+	    /** Map query strings to their cached prepared statement. */
+	    std::map<std::string, sqlite3_stmt*> dm_cache;
 
-	/** Current transaction nesting level. */
-	unsigned dm_nesting_level;
+	    /** Currently executing statement. */
+	    sqlite3_stmt* dm_statement;
+	    	    
+	    /** Current transaction nesting level. */
+	    unsigned dm_nesting_level;
+	    
+	    /** Flag indicating if commit can occur. */
+	    bool dm_is_committable;
 
-	/** Flag indicating if commit can occur. */
-	bool dm_is_committable;
-	
-	/** Currently executing statement. */
-	sqlite3_stmt* dm_current_statement;
-	
+	    /** Default constructor. */
+	    Handle() :
+		dm_database(NULL),
+		dm_cache(),
+		dm_statement(NULL),
+		dm_nesting_level(0),
+		dm_is_committable(false)
+	    {
+	    }
+
+	};
+
+	/** Map threads to their database handle. */	
+	std::map<pthread_t, Handle> dm_handles;
+
+	Handle& getHandle();
+	void releaseAllHandles();
+
     };
-
+    
 } }
 
 

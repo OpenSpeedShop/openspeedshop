@@ -51,6 +51,7 @@ libopenss_framework_la_SOURCES = \
 	Assert.hxx \
 	Blob.hxx Blob.cxx \
 	CallSite.hxx CallSite.cxx \
+	CallStack.hxx \
 	Collector.hxx Collector.cxx \
 	CollectorAPI.hxx \
 	CollectorGroup.hxx CollectorGroup.cxx \

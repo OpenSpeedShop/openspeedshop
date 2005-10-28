@@ -115,7 +115,14 @@ namespace OpenSpeedShop { namespace Framework {
 	std::set<LinkedObject> getLinkedObjects() const;
 	std::set<Function> getFunctions() const;
 	std::set<Statement> getStatements() const;
-	
+
+	std::pair<bool, LinkedObject> getLinkedObjectAt(
+	    const Address&, const Time& = Time::Now()) const;
+	std::pair<bool, Function> getFunctionAt(
+	    const Address&, const Time& = Time::Now()) const;
+	std::set<Statement> getStatementsAt(
+	    const Address&, const Time& = Time::Now()) const;
+
 	std::pair<bool, LinkedObject> getExecutable(
 	    const Time& = Time::Now()) const;	
 	std::pair<bool, Function> getFunctionByName(const std::string&) const;

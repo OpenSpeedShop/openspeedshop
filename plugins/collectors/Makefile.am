@@ -19,8 +19,13 @@
 SUBDIRS = \
 	pcsamp \
 	usertime
+
 if HAVE_PAPI
 SUBDIRS += hwc hwctime
+endif
+
+if HAVE_MPI
+SUBDIRS += mpi
 endif
 
 doc:
