@@ -16,6 +16,8 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
+#include "Queries.hxx"
+
 enum ViewOpCode {
      VIEWINST_Define_Total,
      VIEWINST_Display_Metric,
@@ -184,27 +186,86 @@ typedef std::pair<Function, double> Function_double_pair;
 CommandResult *Init_Collector_Metric (CommandObject *cmd,
                                       Collector collector,
                                       std::string metric);
-CommandResult *Get_Function_Metric (CommandObject *cmd,
-                                    Function F,
-                                    ThreadGroup tgrp,
-                                    Collector collector,
-                                    std::string metric);
 CommandResult *Get_Total_Metric (CommandObject *cmd,
                                  ThreadGroup tgrp,
                                  Collector collector,
                                  std::string metric);
-void GetMetricByFunction (CommandObject *cmd,
-                          bool ascending_sort,
-                          ThreadGroup tgrp,
-                          Collector C,
-                          std::string metric,
-                          std::vector<Function_CommandResult_pair>& items);
 void GetMetricByFunctionSet (CommandObject *cmd,
                              ThreadGroup& tgrp,
                              Collector& collector,
                              std::string& metric,
                              std::set<Function>& objects,
                              SmartPtr<std::map<Function, CommandResult *> >& items);
+void GetMetricByStatementSet (CommandObject *cmd,
+                              ThreadGroup& tgrp,
+                              Collector& collector,
+                              std::string& metric,
+                              std::set<Statement>& objects,
+                              SmartPtr<std::map<Statement, CommandResult *> >& items);
+void GetMetricByLinkedObjectSet (CommandObject *cmd,
+                             ThreadGroup& tgrp,
+                             Collector& collector,
+                             std::string& metric,
+                             std::set<LinkedObject>& objects,
+                             SmartPtr<std::map<LinkedObject, CommandResult *> >& items);
+
+inline void GetMetricByObjectSet (CommandObject *cmd,
+                           ThreadGroup& tgrp,
+                           Collector& collector,
+                           std::string& metric,
+                           std::set<Function>& objects,
+                           SmartPtr<std::map<Framework::Function, CommandResult *> >& items) {
+  GetMetricByFunctionSet (cmd, tgrp, collector, metric, objects, items);
+}
+inline void GetMetricByObjectSet (CommandObject *cmd,
+                           ThreadGroup& tgrp,
+                           Collector& collector,
+                           std::string& metric,
+                           std::set<Statement>& objects,
+                           SmartPtr<std::map<Framework::Statement, CommandResult *> >& items) {
+  GetMetricByStatementSet (cmd, tgrp, collector, metric, objects, items);
+}
+inline void GetMetricByObjectSet (CommandObject *cmd,
+                           ThreadGroup& tgrp,
+                           Collector& collector,
+                           std::string& metric,
+                           std::set<LinkedObject>& objects,
+                           SmartPtr<std::map<Framework::LinkedObject, CommandResult *> >& items) {
+  GetMetricByLinkedObjectSet (cmd, tgrp, collector, metric, objects, items);
+}
+
+template <typename TE>
+void GetMetricByObject (CommandObject *cmd,
+                        bool ascending_sort,
+                        ThreadGroup& tgrp,
+                        Collector& collector,
+                        std::string& metric,
+                        SmartPtr<std::map<TE, CommandResult *> >& items) {
+  Metadata m = Find_Metadata ( collector, metric );
+  std::string id = m.getUniqueId();
+  std::set<TE> objects;
+  for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+    Thread thread = *ti;
+    OpenSpeedShop::Queries::getSourceObjects(thread, objects);
+  }
+  GetMetricByObjectSet (cmd, tgrp, collector, metric, objects, items);
+}
+
+template <typename TE>
+CommandResult *Get_Object_Metric (CommandObject *cmd,
+                                  TE F,
+                                  ThreadGroup tgrp,
+                                  Collector collector,
+                                  std::string metric) {
+  std::set<TE> objects; objects.insert (F);
+  SmartPtr<std::map<TE, CommandResult *> > items =
+             Framework::SmartPtr<std::map<TE, CommandResult *> >(
+                new std::map<TE, CommandResult * >()
+                );;
+  GetMetricByObjectSet (cmd, tgrp, collector ,metric ,objects, items);
+  return (items->begin() != items->end()) ? (*(items->begin())).second : NULL;
+}
+
 ViewType *Find_View (std::string viewname);
 bool Collector_Generates_Metrics (Collector C, std::string *Metric_List);
 std::string Find_Collector_With_Metrics (CollectorGroup cgrp,
