@@ -1,5 +1,26 @@
+/*/*******************************************************************************
+** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+**
+** This library is free software; you can redistribute it and/or modify it under
+** the terms of the GNU Lesser General Public License as published by the Free
+** Software Foundation; either version 2.1 of the License, or (at your option)
+** any later version.
+**
+** This library is distributed in the hope that it will be useful, but WITHOUT
+** ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+** FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+** details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with this library; if not, write to the Free Software Foundation, Inc.,
+** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*******************************************************************************/
 
-
+/** @file
+ *
+ * Message database.
+ *
+ */
 
 /*********************************************/
 // COMMAND ARGUMENTS
@@ -8,7 +29,7 @@ char *script_expAttach_args[] = {
     "expAttach(*arglist)"
     "    arglist - up to 4 optional class objects:"
     "",
-    "        * ModifierList object with mpi",
+    "        * ModifierList object with \"mpi\"",
     "        * ExpId object",
     "        * Target object lists",
     "              o ClusterList",
@@ -20,16 +41,20 @@ char *script_expAttach_args[] = {
     "        * ExpTypeList"
 };
 
+
 char *script_expClose_args[] = {
-    "expClose [ -v kill,all ]",
-    "expClose [ -v kill ] [ -x <expId> ]"
+    "expClose(*arglist)",
+    "    arglist - up to 2 optional class objects:",
+    "",
+    "        * ModifierList object with \"kill\"",
+    "        * ExpId object or ModifierList object with \"all\""
 };
 
 char *script_expCreate_args[] = {
     "ExpId = expCreate(arglist)",
     "    arglist - up to 3 optional class objects:",
     " ",
-    "        * ModifierList object with mpi",
+    "        * ModifierList object with \"mpi\"",
     "        * Target object lists",
     "              o ClusterList",
     "              o FileList",
@@ -40,64 +65,145 @@ char *script_expCreate_args[] = {
     "        * ExpTypeList"
 };
 
+
+
 char *script_expDetach_args[] = {
-    "expDetach [ -x <expId> ] [ <target_list> ] [ <expType_list> ]"
+    "expDetach(*arglist)",
+    " ",
+    "    Parameters:",
+    "        arglist - up to 3 optional class objects:",
+    " ",
+    "            * ExpId object",
+    "            * Target object lists",
+    "                  o ClusterList",
+    "                  o HostList",
+    "                  o PidList",
+    "                  o TreadList",
+    "                  o RankList",
+    "            * ExpTypeList"
 };
 
 char *script_expDisable_args[] = {
-    "expDisable [ -v all || -x <expId> ]"
+    "expDisable(*arglist)",
+    " ",
+    "    Parameters:",
+    "        arglist - 1 of 2 optional class objects:",
+    " ",
+    "            * ModifierList(\"all\")",
+    "            * ExpId"
 };
 
 char *script_expEnable_args[] = {
-    "expEnable [ -v all || -x <expId> ]"
+    "expEnable(*arglist)",
+    " ",
+    "    Parameters:",
+    "        arglist - 1 of 2 optional class objects:",
+    " ",
+    "            * ModifierList(\"all\")",
+    "            * ExpId"
 };
 
 char *script_expFocus_args[] = {
-    "<expId> = expFocus [ -x <expId> ]"
+    "<expId> = expFocus(*arglist)",
+    " ",
+    "    Parameters:",
+    "        arglist - 1 optional class object:",
+    " ",
+    "            * ExpId"
 };
 
 char *script_expGo_args[] = {
-    "expGo [ -v all || -x <expId> ]"
+    "expGo(*arglist)",
+    " ",
+    "    Parameters:",
+    "        arglist - 1 of 2 optional class objects:",
+    " ",
+    "            * ModifierList(\"all\")",
+    "            * ExpId"
 };
 
 char *script_expPause_args[] = {
-    "expPause [ -v all || -x <expId> ]"
+    "expPause(*arglist)",
+    " ",
+    "    Parameters:",
+    "        arglist - 1 of 2 optional class objects:",
+    " ",
+    "            * ModifierList(\"all\")",
+    "            * ExpId"
 };
 
 char *script_expRestore_args[] = {
-    "<exp_Id> = expRestore -f <file_name>"
+    "<expId> = expRestore(*arglist)",
+    " ",
+    "    Parameters:",
+    "        arglist - 1 class object:",
+    " ",
+    "            * FileList"
 };
 
 char *script_expSave_args[] = {
-    "expSave [-v copy] [-x <expId>] -f <file_name>"
+    "expSave(*arglist)",
+    " ",
+    "    Parameters:",
+    "        arglist - From 1 to 3 class objects:",
+    " ",
+    "            * ModifierList(\"copy\") (optional)",
+    "            * ExpId (optional)",
+    "            * FileList (required)"
 };
 
 char *script_expSetParam_args[] = {
-    "expSetParam [-x <expId>] <expParam>=<expParamValue> [, <expParam>=<expParamValue>] ... "
+    "expSetParam(*arglist)",
+    " ",
+    "    Parameters:",
+    "        arglist - From 1 to 2 class objects:",
+    " ",
+    "            * ExpId (optional)",
+    "            * ParamList (required)",
 };
 
 char *script_expView_args[] = {
-    "expView [-x <expId>] [<viewType>] [-m <expMetric_list>] [<target_spec>]"
-};
-
-char *script_listBreaks_args[] = {
-    "<ListOf_breakId> = listBreaks [-v all || -x <expId>]"
+    "expView(*arglist)",
+    " ",
+    "    Parameters:",
+    "        arglist - up to 4 optional class objects:",
+    " ",
+    "            * ExpId object",
+    "            * ViewType",
+    "            * MetricList",
+    "            * Target object lists",
+    "                  o ClusterList",
+    "                  o FileList",
+    "                  o HostList",
+    "                  o PidList",
+    "                  o TreadList",
+    "                  o RankList"
 };
 
 char *script_list_args[] = {
-    "<ListOf_expId> = listExp"
+    "<ListObject> = expView(*arglist)",
+    "",
+    "	The type of list returned and the specific",
+    "	arglist depends on the type requested. See",
+    "	the openss API webpage for list or in python,",
+    "	use help(openss.list)."
 };
 
 char *script_clearBreak_args[] = {
-    "clearBreak <breakId>"
+    "clearBreak <breakId>",
+    "NOT SUPPORTED YET"
 };
 
 char *script_exit_args[] = {
-    "exit"
+    "exit",
+    "",
+    "    Parameters: None"
+
 };
 
 char *script_setBreak_args[] = {
-    "<breakId> setBreak [-x <expId>] [<target>] <address_description>"
+    " <breakId> = setBreak [ ExpId ] [ <target> ] <address_description>",
+    "NOT SUPPORTED YET"
 };
 
 /*********************************************/
@@ -255,7 +361,7 @@ OpenSpeedShop::message_element_t script_msg[] = {
     NULL,0,
     NULL,0,
     NULL,0,
-    script_listBreaks_args,sizeof(script_listBreaks_args)/sizeof(char **),
+    script_list_args,sizeof(script_list_args)/sizeof(char **),
 
 //    CMD_CLEAR_BREAK,
     -1,cmd_desc[CMD_CLEAR_BREAK].name,
