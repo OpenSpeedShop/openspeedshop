@@ -35,7 +35,8 @@ Overview and Information Resources</a>
 Overview
         </a>
         <ul>
-          <li><a href="#mozTocId405706">Plugin Creation Outline</a>
+          <li><a href="#mozTocId405706">Plugin Creation
+Outline</a>
             <ul>
               <li><a href="#mozTocId513127">Performance Data
 Collector Plugin Outline</a></li>
@@ -58,7 +59,8 @@ Collector Plugin</a>
             <ul>
               <li><a href="#mozTocId773274">Overview</a></li>
               <li><a href="#mozTocId223455">Plugin Recognition</a></li>
-              <li><a href="#mozTocId207808">Data blobs</a></li>
+              <li><a href="#mozTocId207808">Data
+blobs</a></li>
               <li><a href="#mozTocId667687">Collector
 Runtime - Server/Victim portion of Experiment Collector
                 </a>
@@ -177,8 +179,8 @@ particular convention?</a></li>
 Interface Plugin Information
         </a>
         <ul>
-          <li><a href="#mozTocId347900">Graphical User Interface (GUI)
-Plugin Overview
+          <li><a href="#mozTocId347900">Graphical User
+Interface (GUI) Plugin Overview
             </a>
             <ul>
               <li><a href="#mozTocId962438">GUI Plugin Outline</a></li>
@@ -190,6 +192,7 @@ Graphical User Interface Panel</a>
             <ul>
               <li><a href="#mozTocId570308">Initial Skeletal
 Panel Creation - mknewpanel script</a></li>
+              <li><a href="#mozTocId921745">The Panel Class</a></li>
               <li><a href="#mozTocId500145">Example Sections of
 Code</a>
                 <ul>
@@ -216,8 +219,7 @@ User Interface Plugin</a></li>
         </ul>
       </li>
       <li><a href="#mozTocId1574">Command Line
-Interface Plugin Information
-        </a></li>
+Interface Plugin Information</a></li>
     </ul>
   </li>
 </ul>
@@ -361,7 +363,7 @@ data desired to be output by the Open|SpeedShop tool.</li>
   <li>Determine what will be in the performance data structure (data
 blob) in the victim application.</li>
   <ul>
-    <li>Analyse and define the data blob structure</li>
+    <li>Analyze and define the data blob structure</li>
     <ul>
       <li>Too much information (large data blobs) might impact the
 victim applications behavior (memory growth).</li>
@@ -369,7 +371,7 @@ victim applications behavior (memory growth).</li>
 performance issues.</li>
     </ul>
   </ul>
-  <li>Create a barebones directory using the Example Plugin directory
+  <li>Create a bare bones directory using the Example Plugin directory
 as a model or copy the Example Plugin directory and modify the files
 accordingly</li>
   <ul>
@@ -394,7 +396,7 @@ client portion of the collector.</li>
 or modify the Makefile.am file</li>
     <ul>
       <li>To build in place modify the &lt;top_srcdir&gt;/configure.ac
-and &lt;top_srcdir&gt;/Makefile.am files to include the new collectore
+and &lt;top_srcdir&gt;/Makefile.am files to include the new collector
 directory.</li>
       <li>Test and refine the new collector</li>
       <li>Point OPENSS_PLUGIN_PATH to the directory with the new
@@ -525,13 +527,13 @@ Examples of metrics already being collected in Open|SpeedShop are:<br>
   <li>Exclusive time - Time spent in this function only</li>
   <li>Inclusive time - Time spent in this function and all functions it
 calls.</li>
-  <li>Numbers of event occurances, such as hardware counter events<br>
+  <li>Numbers of event occurrences, such as hardware counter events<br>
   </li>
 </ul>
 Examples of parameters already supported by Open|SpeedShop are:<br>
 <ul>
   <li>Sampling Rate in milliseconds</li>
-  <li>Trigger Count Number of Events (the number of event occurances
+  <li>Trigger Count Number of Events (the number of event occurrences
 before a sample is taken)<br>
   </li>
 </ul>
@@ -1125,7 +1127,6 @@ GUI plugin or if the Example GUI plugin can be used as a model.</li>
   <li>tbd<br>
   </li>
 </ul>
-<br>
 <h4><a class="mozTocH4" name="mozTocId117100"></a>GUI Plugin Recognition</h4>
 tbd<br>
 <br>
@@ -1225,7 +1226,139 @@ entries.&nbsp;&nbsp; In this example, add
   <li>In "Makefile.am" add the name of the newly
 created GUI plugin panel directory into the "SUBDIRS" list.</li>
 </ul>
-<h4><a class="mozTocH4" name="mozTocId500145"></a>Example Sections of
+<h4><a class="mozTocH4" name="mozTocId921745"></a>The Panel Class</h4>
+The new GUI panel is built off the base class Panel.cxx.&nbsp; The
+Panel base class has several key functions.&nbsp;&nbsp; Understanding
+this base functionality is key for the GUI plugin writer to be
+successful in creating a GUI plugin that does what the writer wants it
+to.<br>
+<br>
+The key classes to create a panel are:
+<br>
+<ul>
+  <li>The new Panel Constructor</li>
+</ul>
+<div style="margin-left: 40px;">This is typically where the new widgets
+for the panel are created.&nbsp;&nbsp;&nbsp; See QtDocumentation for
+how to create Qt widgets.&nbsp;
+When using the 'mknewpanel' script there are several examples of
+creating Qt widgets.&nbsp;
+See the section <a href="#Example_Sections_of_Code">Example Sections
+of Code</a>.<br>
+<br>
+</div>
+<ul>
+  <li>The next two most important member functions are&nbsp; related to
+communication between panels via the "::listener"&nbsp; and the
+"::broadcast" functions.<br>
+  </li>
+</ul>
+<ul style="margin-left: 40px;">
+  <li>The listener function is used by other panels to communicate with
+this panel. </li>
+  <li>The broadcast function is used to communicate with other panels.
+&nbsp;&nbsp; </li>
+</ul>
+<br>
+<div style="margin-left: 40px;">Messages are very simple
+minded.&nbsp;&nbsp; They nothing more than a string (message type) or a
+base message object type (with somedata) being passed
+around.&nbsp;&nbsp; Many examples can be found looking in the existing
+panels.&nbsp;&nbsp; Additionally messages can be broadcast to everyone
+in the tool, a group of panels, or to a specific panel.
+<br>
+</div>
+<br>
+<div style="margin-left: 40px;">An example of creating a message and
+broadcasting it to the group is shown below.
+It's the message send by hitting the "Update" button in any of the
+baseline experiment types. (i.e pcSamplePanel.cxx
+<br>
+Here'd the snippet of code:
+<br>
+<br>
+</div>
+<div style="margin-left: 40px;">&nbsp;&nbsp;&nbsp;&nbsp; UpdateObject
+*update_object = new UpdateObject(NULL, expID, QString::null, FALSE);
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp; broadcast((char *)update_object, GROUP_T);
+<br>
+</div>
+<br>
+<div style="margin-left: 40px;">The example above creates an
+UpdateObject() (which is a canned message to tell everyone that
+recieves it that they should refresh their view(s).&nbsp;&nbsp; It then
+broadcasts it to everyone with the same group id.&nbsp;
+Similarly this could be sent to every panel by changing the scope with:
+<br>
+<br>
+</div>
+<div style="margin-left: 40px;">&nbsp;&nbsp;&nbsp;&nbsp;
+broadcast((char *)update_object, ALL_T);
+<br>
+</div>
+<br>
+<div style="margin-left: 40px;">If there's only one other panel your
+new panel is interested in communicating with you can communicate
+directly to it's listener routine.&nbsp;&nbsp; The StatsPanel does this
+to a particular source panel.
+<br>
+</div>
+<br>
+<div style="margin-left: 40px;">If you're wanting to communicate with a
+specific panel, and your panel doesn't yet have a handle on the new
+panel, it can be queried.&nbsp;&nbsp; (StatsPanel.cxx)
+<br>
+</div>
+<br>
+<div style="margin-left: 40px;">&nbsp;&nbsp;&nbsp; // First construct
+the name of the panel you're looking for...
+<br>
+&nbsp;&nbsp;&nbsp; QString name = QString("Source Panel
+[%1]").arg(expID);
+<br>
+&nbsp;&nbsp;&nbsp; // Now query all panels for that particular named
+panel.
+<br>
+&nbsp;&nbsp;&nbsp; Panel *sourcePanel =
+getPanelContainer()-&gt;findNamedPanel(getPanelContainer()-.getMasterPC(),
+(char *)name.ascii() );
+<br>
+&nbsp;&nbsp;&nbsp; // Now you can send information directly to that
+source panel.
+<br>
+&nbsp;&nbsp;&nbsp; UpdateObject *update_object = new UpdateObject(NULL,
+expID, QString::null, FALSE);
+<br>
+&nbsp;&nbsp;&nbsp; sourcePanel-&gt;listener( (void *)updateObject );
+<br>
+</div>
+<br>
+<div style="margin-left: 40px;">The listener on the recieving end looks
+at the message coming in and if it's interested it
+acts upon it and returns TRUE notifying the broadcast routine that
+someone fielded the message.&nbsp;&nbsp; The listener routine should
+return FALSE if it's not interested in the message of for
+whatever reason failed to be able to handle it properly.
+<br>
+</div>
+<br>
+<ul>
+  <li>Another interesting member function is the "::menu"
+callback.&nbsp;&nbsp; This simply overloads the Qt contextSensitiveMenu
+signal to ping your menu routine for localize menus that you might want
+appended to the menu list.&nbsp;&nbsp;&nbsp; There are numberous
+examples of this in the panels.&nbsp;
+See pcSamplePanel::menu for a simple example. <br>
+  </li>
+</ul>
+<ul>
+  <li>There are other more obscurely used functions in
+Panel.[ch]xx.&nbsp;&nbsp; They are not detailed here.
+  </li>
+</ul>
+<h4><a class="mozTocH4" name="mozTocId500145"></a><a
+ name="Example_Sections_of_Code"></a>Example Sections of
 Code</h4>
 The newly created GUI panel code has examples of GUI code that might be
 interesting to an Open|SpeedShop GUI panel writer.<br>
