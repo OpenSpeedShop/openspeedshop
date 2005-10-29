@@ -69,6 +69,7 @@ typedef enum {
     CMD_PLAYBACK,
     CMD_RECORD,
     CMD_SETBREAK,
+    CMD_WAIT,
     CMD_MAX
 } oss_cmd_enum;
 

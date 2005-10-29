@@ -119,6 +119,7 @@ extern int ip_number(char *,int);
 "record"    	{ return GEN_RECORD_HEAD; }
 "setbreak"  	{ return GEN_SETBREAK_HEAD; }
 "setBreak"  	{ return GEN_SETBREAK_HEAD; }
+"wait"  	{ return GEN_WAIT_HEAD; }
 
 "quit"  	{ return JUST_QUIT_HEAD; }
 

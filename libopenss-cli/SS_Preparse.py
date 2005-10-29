@@ -527,6 +527,7 @@ class CLI(code.InteractiveConsole):
         "playback"      : "return_none",
         "record"        : "return_none",
         "setbreak"      : "return_int",
+        "wait"	    	: "return_none",
         "quit"          : "Do_quit" \
         }
     

@@ -67,7 +67,7 @@ char *string;
 
 %token GEN_CLEAR_BREAK_HEAD GEN_EXIT_HEAD GEN_OPEN_GUI_HEAD GEN_HELP_HEAD
 %token GEN_HISTORY_HEAD GEN_LOG_HEAD GEN_PLAYBACK_HEAD GEN_RECORD_HEAD
-%token GEN_SETBREAK_HEAD
+%token GEN_SETBREAK_HEAD GEN_WAIT_HEAD
 
 %token JUST_QUIT_HEAD
 
@@ -132,14 +132,15 @@ command_desc: exp_attach_com 	{p_parse_result->setCommandType(CMD_EXP_ATTACH);}
 	    | list_threads_com 	{p_parse_result->setCommandType(CMD_LIST_THREADS);}
 	    | list_types_com 	{p_parse_result->setCommandType(CMD_LIST_TYPES);}
 	    | gen_clear_break_com 	{p_parse_result->setCommandType(CMD_CLEAR_BREAK);}
-	    | gen_exit_com      	{p_parse_result->setCommandType(CMD_EXIT);}
-	    | gen_open_gui_com  	{p_parse_result->setCommandType(CMD_OPEN_GUI);}
-	    | gen_help_com      	{p_parse_result->setCommandType(CMD_HELP);}
-	    | gen_history_com   	{p_parse_result->setCommandType(CMD_HISTORY);}
-	    | gen_log_com 	    	{p_parse_result->setCommandType(CMD_LOG);}
-	    | gen_playback_com  	{p_parse_result->setCommandType(CMD_PLAYBACK);}
-	    | gen_record_com    	{p_parse_result->setCommandType(CMD_RECORD);}
-	    | gen_setbreak_com  	{p_parse_result->setCommandType(CMD_SETBREAK);}
+	    | gen_exit_com  	{p_parse_result->setCommandType(CMD_EXIT);}
+	    | gen_open_gui_com	{p_parse_result->setCommandType(CMD_OPEN_GUI);}
+	    | gen_help_com  	{p_parse_result->setCommandType(CMD_HELP);}
+	    | gen_history_com	{p_parse_result->setCommandType(CMD_HISTORY);}
+	    | gen_log_com   	{p_parse_result->setCommandType(CMD_LOG);}
+	    | gen_playback_com	{p_parse_result->setCommandType(CMD_PLAYBACK);}
+	    | gen_record_com	{p_parse_result->setCommandType(CMD_RECORD);}
+	    | gen_setbreak_com	{p_parse_result->setCommandType(CMD_SETBREAK);}
+	    | gen_wait_com  	{p_parse_result->setCommandType(CMD_WAIT);}
 	    | just_quit_com 	 {exit(0);}
     	    ; 
 
@@ -766,6 +767,7 @@ gen_help_arg:	    NAME {p_parse_result->pushHelp($1);}
     	    	|   GEN_PLAYBACK_HEAD	    {p_parse_result->pushHelp(cmd_desc[CMD_PLAYBACK].name);}
     	    	|   GEN_RECORD_HEAD 	    {p_parse_result->pushHelp(cmd_desc[CMD_RECORD].name);}
     	    	|   GEN_SETBREAK_HEAD	    {p_parse_result->pushHelp(cmd_desc[CMD_SETBREAK].name);}
+    	    	|   GEN_WAIT_HEAD	    {p_parse_result->pushHelp(cmd_desc[CMD_WAIT].name);}
 
     	    	|   RANK_ID	    {p_parse_result->pushHelp("-r");}
     	    	|   HOST_ID	    {p_parse_result->pushHelp("-h");}
@@ -841,6 +843,19 @@ gen_setbreak_arg:
     	    	|   address_description expId_spec target 
     	    	|   address_description target expId_spec 
     	    	;
+
+    	    /** WAIT **/
+    	    /** wait [ -v terminate ] [ <expId_spec> ]  **/
+gen_wait_com:	    GEN_WAIT_HEAD gen_wait_arg
+  	    	|   GEN_WAIT_HEAD gen_wait_arg error END_LINE 
+      	    	;
+
+gen_wait_arg:	    /* empty */
+		|   expId_spec
+		|   modifier_list_spec
+		|   expId_spec modifier_list_spec
+		|   modifier_list_spec expId_spec
+   	    	;
 
     	    /** JUST_QUIT **/
 just_quit_com:     JUST_QUIT_HEAD

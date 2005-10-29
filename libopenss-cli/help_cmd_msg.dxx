@@ -1649,11 +1649,16 @@ char *cmd_expStatus_example[] = {
 OpenSpeedShop::message_element_t cmd_msg[CMD_MAX] = {
 
 //    CMD_HEAD_ERROR,
-    -1,NULL,NULL,0,NULL,NULL,
-    NULL,0,
-    NULL,0,
-    NULL,0,
-    NULL,0,
+    -1,     	//  Index for error messages
+    NULL,   	//  Keyword
+    NULL,0, 	//  Related keyword list
+    NULL,   	//  Topic
+    NULL,	//  Brief string
+    NULL,0, 	//  Normal description list of strings
+    NULL,0, 	//  Detailed description list of strings
+    NULL,0, 	//  Example list
+    NULL,0, 	//  Argument list
+
 //    CMD_EXP_ATTACH,
     -1,cmd_desc[CMD_EXP_ATTACH].name,
     cmd_expAttach_related,sizeof(cmd_expAttach_related)/sizeof(char **),
@@ -1919,7 +1924,18 @@ OpenSpeedShop::message_element_t cmd_msg[CMD_MAX] = {
     cmd_setBreak_detailed,sizeof(cmd_setBreak_detailed)/sizeof(char **),
     NULL,0,
     NULL,0,
-    cmd_setBreak_args,sizeof(cmd_setBreak_args)/sizeof(char **)
+    cmd_setBreak_args,sizeof(cmd_setBreak_args)/sizeof(char **),
+//    CMD_WAIT,
+    -1,     	//  Index for error messages
+    NULL,   	//  Keyword
+    NULL,0, 	//  Related keyword list
+    NULL,   	//  Topic
+    NULL,	//  Brief string
+    NULL,0, 	//  Normal description list of strings
+    NULL,0, 	//  Detailed description list of strings
+    NULL,0, 	//  Example list
+    NULL,0 	//  Argument list
+
 };
 
 

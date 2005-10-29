@@ -67,7 +67,8 @@ command_type_t OpenSpeedShop::cli::cmd_desc[CMD_MAX] = {
     "openGui",	    false,  CMD_OPEN_GUI,
     "playBack",     false,  CMD_PLAYBACK,
     "record",	    false,  CMD_RECORD,
-    "setBreak",     false,  CMD_SETBREAK
+    "setBreak",     false,  CMD_SETBREAK,
+    "wait", 	    false,  CMD_WAIT
 };
  
 #if 0
