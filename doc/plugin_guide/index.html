@@ -17,23 +17,18 @@ Beta Release</span><br style="font-weight: bold;">
 <span style="font-weight: bold;">November 13, 2005</span></big><br>
 </div>
 <br>
-<h2><a class="mozTocH2" name="mozTocId240271"></a><span
- style="font-weight: bold;">Table of Contents</span><span
- style="text-decoration: underline;"></span></h2>
+<span class="mozTocH2"></span><big style="font-weight: bold;"><big>Table
+of Contents</big></big><span style="text-decoration: underline;"></span>
 <ul id="mozToc">
-<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId240271">Table
-of Contents</a>
-    <ul>
-      <li><a href="#mozTocId535857">Open|SpeedShop
+<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId535857">Open|SpeedShop
 Overview and Information Resources</a>
-        <ul>
-          <li><a href="#mozTocId507487">Features:</a></li>
-          <li><a href="#mozTocId251693">Information Resources:</a></li>
-        </ul>
-      </li>
+    <ul>
+      <ul>
+        <li><a href="#mozTocId507487">Features:</a></li>
+        <li><a href="#mozTocId251693">Information Resources:</a></li>
+      </ul>
       <li><a href="#mozTocId11413">Open|SpeedShop Plugin
-Overview
-        </a>
+Overview </a>
         <ul>
           <li><a href="#mozTocId405706">Plugin Creation
 Outline</a>
@@ -62,19 +57,16 @@ Collector Plugin</a>
               <li><a href="#mozTocId207808">Data
 blobs</a></li>
               <li><a href="#mozTocId667687">Collector
-Runtime - Server/Victim portion of Experiment Collector
-                </a>
+Runtime - Server/Victim portion of Experiment Collector </a>
                 <ul>
                   <li><a href="#mozTocId40824">Framework runtime</a></li>
                 </ul>
               </li>
               <li><a href="#mozTocId637965">Collector
-Plugin - Client/Tool portion of Experiment Collector
-                </a>
+Plugin - Client/Tool portion of Experiment Collector </a>
                 <ul>
                   <li><a href="#mozTocId388988">The Start
-Collecting function
-                    </a>
+Collecting function </a>
                     <ul>
                       <li><a href="#mozTocId199690">What
 it does:</a></li>
@@ -86,8 +78,7 @@ function body:</a></li>
                     </ul>
                   </li>
                   <li><a href="#mozTocId992246">The Stop
-Collecting function
-                    </a>
+Collecting function </a>
                     <ul>
                       <li><a href="#mozTocId150755">What it does:</a></li>
                       <li><a href="#mozTocId352197">Definition:</a></li>
@@ -99,8 +90,7 @@ the function body:</a></li>
                     </ul>
                   </li>
                   <li><a href="#mozTocId278716">The Get
-Metric Values function
-                    </a>
+Metric Values function </a>
                     <ul>
                       <li><a href="#mozTocId110227">What it does:</a></li>
                       <li><a href="#mozTocId171646">Definition:</a></li>
@@ -112,12 +102,10 @@ the function body:</a></li>
                     </ul>
                   </li>
                   <li><a href="#mozTocId271962">The Set
-Parameter function
-                    </a>
+Parameter function </a>
                     <ul>
                       <li><a href="#mozTocId753822">What it does:</a></li>
-                      <li><a href="#mozTocId163320">Definition:
-                        </a></li>
+                      <li><a href="#mozTocId163320">Definition: </a></li>
                       <li><a href="#mozTocId699056"> Parameters:</a></li>
                       <li><a href="#mozTocId97265"> Return
 values:</a></li>
@@ -129,8 +117,7 @@ the function body:</a></li>
                   </li>
                   <li><a href="#mozTocId518369">The Get
 Default
-Parameters function
-                    </a>
+Parameters function </a>
                     <ul>
                       <li><a href="#mozTocId709984">What it does:</a></li>
                       <li><a href="#mozTocId832976">Definition:</a></li>
@@ -142,8 +129,7 @@ function body:</a></li>
                     </ul>
                   </li>
                   <li><a href="#mozTocId769605">The Get
-Parameters function
-                    </a>
+Parameters function </a>
                     <ul>
                       <li><a href="#mozTocId340210">What it does:</a></li>
                       <li><a href="#mozTocId552888">Definition:</a></li>
@@ -160,13 +146,11 @@ in the function body:</a></li>
           </li>
           <li><a href="#mozTocId846999">Example Collector Plugin</a></li>
           <li><a href="#mozTocId377373">Collector
-Plugin FAQ:
-            </a>
+Plugin FAQ: </a>
             <ul>
               <li><a href="#mozTocId198444">What is
 blob.x for? What is
-the significance of the .x suffix?
-                </a></li>
+the significance of the .x suffix? </a></li>
               <li><a href="#mozTocId189119">What is
 specifically needed to be known by the framework? Do these class
 structures need to follow a
@@ -176,12 +160,10 @@ particular convention?</a></li>
         </ul>
       </li>
       <li><a href="#mozTocId212847">Graphical User
-Interface Plugin Information
-        </a>
+Interface Plugin Information </a>
         <ul>
           <li><a href="#mozTocId347900">Graphical User
-Interface (GUI) Plugin Overview
-            </a>
+Interface (GUI) Plugin Overview </a>
             <ul>
               <li><a href="#mozTocId962438">GUI Plugin Outline</a></li>
               <li><a href="#mozTocId117100">GUI Plugin Recognition</a></li>
@@ -239,7 +221,7 @@ applications running on both single node and large scale IA64, IA32,
 EM64T, and AMD64 platforms. It is explicitly designed with usability in
 mind and targets both application and computer scientists. <br>
 &nbsp;<br>
-Open|SpeedShop's base functionality includes metrics like exclusive and
+Open|SpeedShop's base functionality includes exclusive and
 inclusive user time, MPI call tracing, and CPU hardware performance
 counter experiments.&nbsp; In addition, Open|SpeedShop is designed to
 be modular and extensible.&nbsp; It supports several levels of plugins
@@ -412,12 +394,14 @@ where the Open|SpeedShop plugins are installed
 (&lt;install_dir_prefix&gt;/lib/openspeedshop) you would see that there
 are two dso's for each experiment collector.&nbsp;&nbsp; For example,
 here is what is shown for the PC Sampling experiment collector:<br>
-<div style="margin-left: 120px;">pcsamp.la*&nbsp; pcsamp-rt.la*&nbsp;
-pcsamp-rt.so*&nbsp; pcsamp.so*<br>
+<br>
+<div style="text-align: left;"><span style="font-style: italic;">pcsamp.la*&nbsp;
+pcsamp-rt.la*&nbsp;
+pcsamp-rt.so*&nbsp; pcsamp.so*</span><br>
 </div>
 <br>
 The runtime portion of the experiment collector plugin is appended with
-"-rt".<br>
+"-rt" while the client portion is not.<br>
 <br>
 <h4><a class="mozTocH4" name="mozTocId743777"></a>How do plugins get
 recognized?</h4>
@@ -1354,8 +1338,7 @@ See pcSamplePanel::menu for a simple example. <br>
 </ul>
 <ul>
   <li>There are other more obscurely used functions in
-Panel.[ch]xx.&nbsp;&nbsp; They are not detailed here.
-  </li>
+Panel.[ch]xx.&nbsp;&nbsp; They are not detailed here. </li>
 </ul>
 <h4><a class="mozTocH4" name="mozTocId500145"></a><a
  name="Example_Sections_of_Code"></a>Example Sections of
