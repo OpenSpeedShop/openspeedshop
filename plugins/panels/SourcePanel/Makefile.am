@@ -23,6 +23,7 @@ SourcePanel_la_CXXFLAGS = \
     -I/usr/include \
     $(QTLIB_CPPFLAGS) \
     -I. \
+    -I$(top_srcdir)/libopenss-queries \
     -I$(top_srcdir)/libopenss-cli \
     -I$(top_srcdir)/libopenss-message \
     -I$(top_srcdir)/libopenss-gui \

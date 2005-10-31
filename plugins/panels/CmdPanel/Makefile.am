@@ -24,6 +24,7 @@ CmdPanel_la_CXXFLAGS = \
     -I. \
 	-I$(top_srcdir)/libopenss-guiobjects \
 	-I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/libopenss-queries \
 	-I$(top_srcdir)/libopenss-cli \
 	-I$(top_srcdir)/libopenss-message \
     -I$(top_srcdir)/libopenss-gui \

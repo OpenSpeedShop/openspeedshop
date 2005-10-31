@@ -21,9 +21,10 @@ pkglib_LTLIBRARIES = basic_view.la
 BUILT_SOURCES =
 
 basic_view_la_CXXFLAGS = \
+	-I$(top_srcdir)/libopenss-queries \
+	-I$(top_srcdir)/libopenss-framework \
 	-I$(top_srcdir)/libopenss-cli \
-	-I$(top_srcdir)/libopenss-message \
-	-I$(top_srcdir)/libopenss-framework
+	-I$(top_srcdir)/libopenss-message 
 
 basic_view_la_LDFLAGS = \
 	-no-undefined -module -avoid-version
