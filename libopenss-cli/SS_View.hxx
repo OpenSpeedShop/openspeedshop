@@ -241,8 +241,6 @@ void GetMetricByObject (CommandObject *cmd,
                         Collector& collector,
                         std::string& metric,
                         SmartPtr<std::map<TE, CommandResult *> >& items) {
-  Metadata m = Find_Metadata ( collector, metric );
-  std::string id = m.getUniqueId();
   std::set<TE> objects;
   for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
     Thread thread = *ti;
