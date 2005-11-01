@@ -48,8 +48,6 @@
      #include <netinet/in.h>
      #include <netdb.h>
 
-#include "Python.h"
-
 // for catching hard interrupts and interprocess signals
 #include <sys/wait.h>
 #define SET_SIGNAL(s, f)                              \

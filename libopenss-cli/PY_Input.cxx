@@ -111,13 +111,50 @@ Convert_CommandResult_To_Python (CommandResult *cr) {
   switch (cr->Type()) {
 
    case CMD_RESULT_UINT:
+    uint64_t Uvalue;
+    ((CommandResult_Uint *)cr)->Value(Uvalue);
+    p_object = Py_BuildValue("l", Uvalue);
+    return p_object;
+
    case CMD_RESULT_INT:
+    int64_t Ivalue;
+    ((CommandResult_Int *)cr)->Value(Ivalue);
+    p_object = Py_BuildValue("l", Ivalue);
+    return p_object;
+
    case CMD_RESULT_FLOAT:
+    double Fvalue;
+    ((CommandResult_Float *)cr)->Value(Fvalue);
+    p_object = Py_BuildValue("d", Fvalue);
+    return p_object;
+
    case CMD_RESULT_STRING:
    case CMD_RESULT_RAWSTRING:
+   {
+    std::string S;
+    ((CommandResult_String *)(cr))->Value(S);
+    p_object = Py_BuildValue("s",S.c_str());
+    return p_object;
+   }
    case CMD_RESULT_COLUMN_VALUES:
+   {
+    p_object = PyList_New(0);
+    std::list<CommandResult *> Columns;
+    ((CommandResult_Columns *)(cr))->Value(Columns);
+    std::list<CommandResult *>::iterator cri = Columns.begin();
+    for (cri = Columns.begin(); cri != Columns.end(); cri++) {
+      PyObject *p_item = Convert_CommandResult_To_Python (*cri);
+      PyList_Append(p_object,p_item);
+    }
+    return p_object;
+   }
    case CMD_RESULT_FUNCTION:
-    return cr->pyValue();         // Convert to Python Objects
+   {
+    std::string S;
+    ((CommandResult_Function *)(cr))->Value(S);
+    p_object = Py_BuildValue("s",S.c_str());
+    return p_object;
+   }
    CMD_RESULT_TITLE:              // Ignore for Python
    CMD_RESULT_COLUMN_HEADER:
    CMD_RESULT_COLUMN_ENDER:
