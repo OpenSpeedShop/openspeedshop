@@ -312,8 +312,7 @@ StatsPanel::listener(void *msg)
 // printf("currentThreadStr=(%s)\n", currentThreadStr.ascii() );
 // Currently this causes a second update when loading from a saved file. FIX
 // printf("Currently this causes a second update when loading from a saved file. FIX\n");
-printf("CAUSING DOUBLE REFRESH!\n");
-updateStatsPanelData();
+    updateStatsPanelData();
     if( msg->raiseFLAG == TRUE )
     {
       getPanelContainer()->raisePanel(this);

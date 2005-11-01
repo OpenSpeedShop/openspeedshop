@@ -1176,23 +1176,27 @@ ManageCollectorsClass::focusOnPSetList(QListView *lv)
 
 
 
-// printf("focus the StatsPanel...\n");
-  if( p->broadcast((char *)msg, NEAREST_T) == 0 )
+// printf("A: focus the StatsPanel...\n");
+  QString name = QString("Stats Panel [%1]").arg(expID);
+  Panel *sp = p->getPanelContainer()->findNamedPanel(p->getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+  if( !sp )
   {
-// printf("No StatsPanel.   Make one...\n");
     char *panel_type = "Stats Panel";
     PanelContainer *bestFitPC = p->getPanelContainer()->getMasterPC()->findBestFitPanelContainer(p->getPanelContainer());
     ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
-    Panel *sp = p->getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, ao);
+    sp = p->getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, ao);
     delete ao;
     if( sp != NULL )
     {
+// printf("Created a stats panel... First update it's data...\n");
       UpdateObject *msg =
-        new UpdateObject((void *)Find_Experiment_Object((EXPID)expID), expID, "pcsamp", 1);
+        new UpdateObject((void *)Find_Experiment_Object((EXPID)expID), expID, "none", 1);
       sp->listener( (void *)msg );
     }
-// msg->print();
-      sp->listener((void *)msg);
+  } else
+  {
+// printf("There was a statspanel... send the update message.\n");
+    sp->listener( (void *)msg );
   }
 }
 
