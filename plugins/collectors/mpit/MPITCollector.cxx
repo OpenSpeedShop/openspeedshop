@@ -1,0 +1,285 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+//
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License as published by the Free
+// Software Foundation; either version 2.1 of the License, or (at your option)
+// any later version.
+//
+// This library is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this library; if not, write to the Free Software Foundation, Inc.,
+// 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+////////////////////////////////////////////////////////////////////////////////
+
+/** @file
+ *
+ * Definition of the MPITCollector class.
+ *
+ */
+ 
+#include "MPITCollector.hxx"
+#include "blobs.h"
+
+using namespace OpenSpeedShop::Framework;
+
+
+
+namespace {
+    
+    /**
+     * Traceable function table.
+     *
+     * Table listing the traceable MPI functions. In order for an MPI function
+     * to actually be traceable, corresponding C/C++ and Fortran wrappers must
+     * first be written and compiled into this collector's runtime.
+     *
+     * @note    A function's index position in this table is directly used as
+     *          its index position in the mpit_parameters.traced array. Thus
+     *          the order the functions are listed here is significant. If it
+     *          is changed, users will find that any saved databases suddenly
+     *          trace different MPI functions than they did previously.
+     */
+    const char* TraceableFunctions[] = {
+
+	"MPI_Irecv",
+	"MPI_Isend", 
+	
+	// End Of Table Entry
+	NULL
+    };
+    
+}    
+
+
+
+/**
+ * Collector's factory method.
+ *
+ * Factory method for instantiating a collector implementation. This is the
+ * only function that is externally visible from outside the collector plugin.
+ *
+ * @return    New instance of this collector's implementation.
+ */
+extern "C" CollectorImpl* mpit_LTX_CollectorFactory()
+{
+    return new MPITCollector();
+}
+
+
+
+/**
+ * Default constructor.
+ *
+ * Constructs a new MPI collector with the proper metadata.
+ */
+MPITCollector::MPITCollector() :
+    CollectorImpl("mpit",
+                  "MPI Extended Event Tracing",
+		  "Intercepts all calls to MPI functions that perform any "
+		  "significant amount of work (primarily those that send "
+		  "messages) and records, for each call, the current stack "
+		  "trace and start/end time. Detailed ancillary data is also "
+		  "stored such as the source and destination rank, number of "
+		  "bytes sent, message tag, communicator used, and message "
+		  "data type.")
+{
+    // Declare our parameters
+    declareParameter(Metadata("traced_functions", "Traced Functions",
+			      "Set of MPI functions to be traced.",
+			      typeid(std::set<std::string>)));
+    
+    // Declare our metrics
+    declareMetric(Metadata("inclusive_times", "Inclusive Times",
+			   "Inclusive MPI call times in seconds.",
+			   typeid(std::map<StackTrace, std::vector<double> >)));
+    declareMetric(Metadata("exclusive_times", "Exclusive Times",
+			   "Exclusive MPI call times in seconds.",
+			   typeid(std::map<StackTrace, std::vector<double> >)));
+}
+
+
+
+/**
+ * Get the default parameter values.
+ *
+ * Implement getting our default parameter values.
+ *
+ * @return    Blob containing the default parameter values.
+ */
+Blob MPITCollector::getDefaultParameterValues() const
+{
+    // Setup an empty parameter structure    
+    mpit_parameters parameters;
+    memset(&parameters, 0, sizeof(parameters));
+
+    // Set the default parameters
+    for(unsigned i = 0; TraceableFunctions[i] != NULL; ++i)
+	parameters.traced[i] = true;
+    
+    // Return the encoded blob to the caller
+    return Blob(reinterpret_cast<xdrproc_t>(xdr_mpit_parameters), &parameters);
+}
+
+
+
+/**
+ * Get a parameter value.
+ *
+ * Implement getting one of our parameter values.
+ *
+ * @param parameter    Unique identifier of the parameter.
+ * @param data         Blob containing the parameter values.
+ * @retval ptr         Untyped pointer to the parameter value.
+ */
+void MPITCollector::getParameterValue(const std::string& parameter,
+				      const Blob& data, void* ptr) const
+{
+    // Decode the blob containing the parameter values
+    mpit_parameters parameters;
+    memset(&parameters, 0, sizeof(parameters));
+    data.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_mpit_parameters),
+                        &parameters);
+
+    // Handle the "traced_functions" parameter
+    if(parameter == "traced_functions") {
+	std::set<std::string>* value = 
+	    reinterpret_cast<std::set<std::string>*>(ptr);
+	for(unsigned i = 0; TraceableFunctions[i] != NULL; ++i)
+	    if(parameters.traced[i])
+		value->insert(TraceableFunctions[i]);
+    }
+}
+
+
+
+/**
+ * Set a parameter value.
+ *
+ * Implements setting one of our parameter values.
+ *
+ * @param parameter    Unique identifier of the parameter.
+ * @param ptr          Untyped pointer to the parameter value.
+ * @retval data        Blob containing the parameter values.
+ */
+void MPITCollector::setParameterValue(const std::string& parameter,
+				      const void* ptr, Blob& data) const
+{
+    // Decode the blob containing the parameter values
+    mpit_parameters parameters;
+    memset(&parameters, 0, sizeof(parameters));
+    data.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_mpit_parameters),
+                        &parameters);
+    
+    // Handle the "traced_functions" parameter
+    if(parameter == "traced_functions") {
+	const std::set<std::string>* value = 
+	    reinterpret_cast<const std::set<std::string>*>(ptr);
+	for(unsigned i = 0; TraceableFunctions[i] != NULL; ++i)
+	    parameters.traced[i] =
+		(value->find(TraceableFunctions[i]) == value->end());
+    }
+    
+    // Re-encode the blob containing the parameter values
+    data = Blob(reinterpret_cast<xdrproc_t>(xdr_mpit_parameters), &parameters);
+}
+
+
+
+/**
+ * Start data collection.
+ *
+ * Implement starting data collection for a particular thread.
+ *
+ * @param collector    Collector starting data collection.
+ * @param thread       Thread for which to start collecting data.
+ */
+void MPITCollector::startCollecting(const Collector& collector,
+				    const Thread& thread) const
+{
+    const std::string WrapperPrefix = "mpit-rt: mpit_";
+
+    // Get the set of traced functions for this collector
+    std::set<std::string> traced;
+    collector.getParameterValue("traced_functions", traced);
+    
+    // Assemble and encode arguments to mpit_start_tracing()
+    mpit_start_tracing_args args;
+    memset(&args, 0, sizeof(args));
+    getECT(collector, thread, args.experiment, args.collector, args.thread);
+    Blob arguments(reinterpret_cast<xdrproc_t>(xdr_mpit_start_tracing_args),
+                   &args);
+    
+    // Execute mpit_stop_tracing() when we enter exit() for the thread
+    executeAtEntry(collector, thread,
+                   "exit", "mpit-rt: mpit_stop_tracing", Blob());
+    
+    // Execute mpit_start_tracing() in the thread
+    executeNow(collector, thread,
+               "mpit-rt: mpit_start_tracing", arguments);
+
+    // Execute our wrappers in place of the real MPI functions
+    for(unsigned i = 0; TraceableFunctions[i] != NULL; ++i)
+	if(traced.find(TraceableFunctions[i]) != traced.end()) {
+
+	    // Wrap the C/C++ version of the MPI function
+	    executeInPlaceOf(collector, thread, TraceableFunctions[i],
+			     WrapperPrefix + TraceableFunctions[i]);
+	    
+	    // Wrap the Fortran version of the MPI function
+	    std::string tmp = TraceableFunctions[i];	    
+	    std::transform(tmp.begin(), tmp.end(), tmp.begin(), ::tolower);
+	    tmp += "_";
+	    executeInPlaceOf(collector, thread, tmp, WrapperPrefix + tmp);
+	    
+	}    
+}
+
+
+
+/**
+ * Stops data collection.
+ *
+ * Implement stopping data collection for a particular thread.
+ *
+ * @param collector    Collector stopping data collection.
+ * @param thread       Thread for which to stop collecting data.
+ */
+void MPITCollector::stopCollecting(const Collector& collector,
+				   const Thread& thread) const
+{
+    // Execute mpit_stop_tracing() in the thread
+    executeNow(collector, thread,
+               "mpit-rt: mpit_stop_tracing", Blob());
+    
+    // Remove all instrumentation associated with this collector/thread pairing
+    uninstrument(collector, thread);
+}
+
+
+
+/**
+ * Get metric values.
+ *
+ * Implements getting one of this collector's metric values over all subextents
+ * of the specified extent for a particular thread, for one of the collected
+ * performance data blobs.
+ *
+ * @param metric        Unique identifier of the metric.
+ * @param extent        Extent of the performance data blob.
+ * @param blob          Blob containing the performance data.
+ * @param subextents    Subextents for which to get values.
+ * @retval ptr          Untyped pointer to the values of the metric.
+ */
+void MPITCollector::getMetricValues(const std::string& metric,
+				    const Extent& extent,
+				    const Blob& blob,
+				    const ExtentGroup& subextents,
+				    void* ptr) const
+{
+    // TODO: implement...
+}

@@ -16,57 +16,47 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = @INSTRUMENTOR@
-DIST_SUBDIRS = dpcl dyninst
-
 BUILT_SOURCES = \
-	OpenSS_DataHeader.c OpenSS_DataHeader.x
+	blobs.h blobs.c	
 
-noinst_LTLIBRARIES = libopenss-runtime.la
+pkglib_LTLIBRARIES = mpit.la mpit-rt.la
 
-libopenss_runtime_la_CFLAGS = \
+mpit_la_CXXFLAGS = \
+	-I$(top_srcdir)/libopenss-framework
+
+mpit_la_LDFLAGS = \
+	-no-undefined -module -avoid-version
+
+mpit_la_SOURCES = \
+	blobs.x $(BUILT_SOURCES) \
+	MPITCollector.hxx MPITCollector.cxx
+
+mpit_rt_la_CFLAGS = \
+	-I$(top_srcdir)/libopenss-runtime \
 	@LIBUNWIND_CPPFLAGS@ \
-	@PAPI_CPPFLAGS@
+	@MPI_CPPFLAGS@
 
-libopenss_runtime_la_LDFLAGS = \
+mpit_rt_la_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-runtime \
 	@LIBUNWIND_LDFLAGS@ \
-	@PAPI_LDFLAGS@
+	@MPI_LDFLAGS@ \
+	-no-undefined -module -avoid-version
 
-libopenss_runtime_la_LIBADD = \
-	@INSTRUMENTOR@/libopenss-runtime-@INSTRUMENTOR@.la \
+mpit_rt_la_LIBADD = \
+	-lopenss-runtime \
 	@LIBUNWIND_LIBS@ \
-	@PAPI_LIBS@ \
+	@MPI_LIBS@ \
 	-lpthread -lrt
 
-libopenss_runtime_la_SOURCES = \
-	Assert.h \
-	OpenSS_DataHeader.x $(BUILT_SOURCES) \
-	OpenSS_DecodeParameters.c \
-	OpenSS_GetContext.c \
-	OpenSS_GetPCFromContext.c \
-	OpenSS_GetTime.c \
-	OpenSS_Send.c \
-	OpenSS_Timer.c \
-	RuntimeAPI.h
-
-if HAVE_LIBUNWIND
-libopenss_runtime_la_SOURCES += \
-	OpenSS_GetStackTraceFromContext.c
-endif	
-
-if HAVE_PAPI
-libopenss_runtime_la_SOURCES += \
-	OpenSS_Overflow.c \
-	PapiAPI.h PapiAPI.c
-endif
+mpit_rt_la_SOURCES = \
+	blobs.x $(BUILT_SOURCES) \
+	runtime.h runtime.c \
+	wrappers.c
 
 SUFFIXES = .x
 CLEANFILES = $(BUILT_SOURCES)
 
-OpenSS_DataHeader.h OpenSS_DataHeader.c : OpenSS_DataHeader.x
+blobs.h blobs.c : blobs.x
 	rm -f  $(patsubst %.x, %.h, $<) $(patsubst %.x, %.c, $<)
 	$(RPCGEN) -h -o $(patsubst %.x, %.h, $<) $<
 	$(RPCGEN) -c -o $(patsubst %.x, %.c, $<) $<
-
-doc:
-	$(DOXYGEN)

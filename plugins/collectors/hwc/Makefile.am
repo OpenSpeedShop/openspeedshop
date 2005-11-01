@@ -22,29 +22,28 @@ BUILT_SOURCES = \
 	blobs.h blobs.c	
 
 hwc_la_CXXFLAGS = \
-	-I$(top_srcdir)/libopenss-framework \
-	-I$(top_srcdir)/libopenss-runtime
+	-I$(top_srcdir)/libopenss-framework
 
 hwc_la_LDFLAGS = \
-	-L$(top_srcdir)/libopenss-runtime \
 	-no-undefined -module -avoid-version
-
-hwc_la_LIBADD = \
-	-lopenss-runtime -lpapi
 
 hwc_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	HWCCollector.hxx HWCCollector.cxx
 
 hwc_rt_la_CFLAGS = \
-	-I$(top_srcdir)/libopenss-runtime
+	-I$(top_srcdir)/libopenss-runtime \
+	@PAPI_CPPFLAGS@
 
 hwc_rt_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-runtime \
+	@PAPI_LDFLAGS@ \
 	-no-undefined -module -avoid-version
 
 hwc_rt_la_LIBADD = \
-	-lopenss-runtime -lpthread -lrt -lpapi
+	-lopenss-runtime \
+	@PAPI_LIBS@ \
+	-lpthread -lrt
 
 hwc_rt_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \

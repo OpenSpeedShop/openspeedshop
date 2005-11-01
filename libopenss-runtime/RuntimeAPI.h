@@ -45,10 +45,17 @@ typedef void (*OpenSS_TimerEventHandler)(const ucontext_t*);
 
 
 void OpenSS_DecodeParameters(const char*, const xdrproc_t, void*);
+void OpenSS_GetContext(ucontext_t*);
 uint64_t OpenSS_GetPCFromContext(const ucontext_t*);
 uint64_t OpenSS_GetTime();
 void OpenSS_Send(const OpenSS_DataHeader*, const xdrproc_t, const void*);
 void OpenSS_Timer(uint64_t, OpenSS_TimerEventHandler);
+
+#ifdef HAVE_LIBUNWIND
+#include <libunwind.h>
+void OpenSS_GetStackTraceFromContext(const ucontext_t*, int, int,
+				     int*, uint64_t*);
+#endif
 
 #ifdef HAVE_PAPI
 #include "PapiAPI.h"

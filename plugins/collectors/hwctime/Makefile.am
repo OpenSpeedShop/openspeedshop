@@ -25,25 +25,28 @@ hwctime_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
 
 hwctime_la_LDFLAGS = \
-	-L$(top_srcdir)/libopenss-framework \
 	-no-undefined -module -avoid-version
 
 hwctime_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	HWTimeCollector.hxx HWTimeCollector.cxx
 
-hwctime_la_LIBADD = \
-	-lopenss-framework -lpapi
-
 hwctime_rt_la_CFLAGS = \
-	-I$(top_srcdir)/libopenss-runtime
+	-I$(top_srcdir)/libopenss-runtime \
+	@LIBUNWIND_CPPFLAGS@ \
+	@PAPI_CPPFLAGS@
 
 hwctime_rt_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-runtime \
+	@LIBUNWIND_LDFLAGS@ \
+	@PAPI_LDFLAGS@ \
 	-no-undefined -module -avoid-version
 
 hwctime_rt_la_LIBADD = \
-	-lopenss-runtime -lpthread -lrt -lunwind -lpapi
+	-lopenss-runtime \
+	@LIBUNWIND_LIBS@ \
+	@PAPI_LIBS@ \
+	-lpthread -lrt
 
 hwctime_rt_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \

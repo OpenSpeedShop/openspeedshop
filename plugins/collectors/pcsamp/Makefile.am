@@ -16,10 +16,10 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-pkglib_LTLIBRARIES = pcsamp.la pcsamp-rt.la
-
 BUILT_SOURCES = \
 	blobs.h blobs.c	
+
+pkglib_LTLIBRARIES = pcsamp.la pcsamp-rt.la
 
 pcsamp_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
@@ -39,7 +39,8 @@ pcsamp_rt_la_LDFLAGS = \
 	-no-undefined -module -avoid-version
 
 pcsamp_rt_la_LIBADD = \
-	-lopenss-runtime -lpthread -lrt
+	-lopenss-runtime \
+	-lpthread -lrt
 
 pcsamp_rt_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \

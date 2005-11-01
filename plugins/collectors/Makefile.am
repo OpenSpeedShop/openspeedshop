@@ -17,15 +17,23 @@
 ################################################################################
 
 SUBDIRS = \
-	pcsamp \
-	usertime
+	pcsamp
+
+if HAVE_LIBUNWIND
+SUBDIRS += usertime
+endif
 
 if HAVE_PAPI
-SUBDIRS += hwc hwctime
+SUBDIRS += hwc
+if HAVE_LIBUNWIND
+SUBDIRS += hwctime
+endif
 endif
 
 if HAVE_MPI
-SUBDIRS += mpi
+if HAVE_LIBUNWIND
+SUBDIRS += mpi mpit
+endif
 endif
 
 doc:

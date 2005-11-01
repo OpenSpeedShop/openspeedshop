@@ -16,10 +16,10 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-pkglib_LTLIBRARIES = mpi.la mpi-rt.la
-
 BUILT_SOURCES = \
 	blobs.h blobs.c	
+
+pkglib_LTLIBRARIES = mpi.la mpi-rt.la
 
 mpi_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
@@ -32,14 +32,21 @@ mpi_la_SOURCES = \
 	MPICollector.hxx MPICollector.cxx
 
 mpi_rt_la_CFLAGS = \
-	-I$(top_srcdir)/libopenss-runtime
+	-I$(top_srcdir)/libopenss-runtime \
+	@LIBUNWIND_CPPFLAGS@ \
+	@MPI_CPPFLAGS@
 
 mpi_rt_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-runtime \
+	@LIBUNWIND_LDFLAGS@ \
+	@MPI_LDFLAGS@ \
 	-no-undefined -module -avoid-version
 
 mpi_rt_la_LIBADD = \
-	-lopenss-runtime -lpthread -lrt
+	-lopenss-runtime \
+	@LIBUNWIND_LIBS@ \
+	@MPI_LIBS@ \
+	-lpthread -lrt
 
 mpi_rt_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \

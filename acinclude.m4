@@ -24,7 +24,7 @@ AC_DEFUN([AC_PKG_ARRAYSVCS], [
 
     AC_ARG_WITH(arraysvcs,
                 AC_HELP_STRING([--with-arraysvcs=DIR],
-                               [Array services installation @<:@/usr@:>@]),
+                               [array services installation @<:@/usr@:>@]),
                 arraysvcs_dir=$withval, arraysvcs_dir="/usr")
 
     ARRAYSVCS_CPPFLAGS="-I$arraysvcs_dir/include"
@@ -188,16 +188,80 @@ AC_DEFUN([AC_PKG_DYNINST], [
 
 AC_DEFUN([AC_PKG_MPI], [
 
-    # TODO: Put in real check for MPI, keeping in mind that MPICH library is
-    #       named "libmpich.so" instead of "libmpi.so" and it isn't in the usual
-    #       "$mpi_dir/$abi_libdir" location.
+    AC_ARG_WITH(mpi,
+                AC_HELP_STRING([--with-mpi=DIR],
+                               [MPI installation @<:@/usr@:>@]),
+                mpi_dir=$withval, mpi_dir="/usr")
 
-    AM_CONDITIONAL(HAVE_MPI, true)
-    AC_DEFINE(HAVE_MPI, 1, [Define to 1 if you have MPI.])
+    AC_ARG_WITH(mpich-driver,
+                AC_HELP_STRING([--with-mpich-driver=NAME],
+                               [MPICH driver name @<:@ch-p4@:>@]),
+                mpich_driver=$withval, mpich_driver="ch-p4")
 
-    MPI_CPPFLAGS=""
-    MPI_LDFLAGS=""
-    MPI_LIBS=""
+    AC_MSG_CHECKING([for MPI library and headers])
+
+    mpi_saved_CPPFLAGS=$CPPFLAGS
+    mpi_saved_LDFLAGS=$LDFLAGS
+
+    MPI_CPPFLAGS="-I$mpi_dir/include"
+    MPI_LDFLAGS="-L$mpi_dir/$abi_libdir"
+    MPI_LIBS="-lmpi"
+
+    CPPFLAGS="$CPPFLAGS $MPI_CPPFLAGS"
+    LDFLAGS="$LDFLAGS $MPI_LDFLAGS $MPI_LIBS"
+
+    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+        #include <mpi.h>
+        ]], [[
+	MPI_Initialized((int*)0);
+        ]]), , [
+
+            MPI_CPPFLAGS=""
+            MPI_LDFLAGS=""
+            MPI_LIBS=""
+
+        ]
+    )
+
+    if test x"$MPI_LIBS" == x""; then
+
+        MPI_CPPFLAGS="-I$mpi_dir/include"
+        MPI_LDFLAGS="-L$mpi_dir/$mpich_driver/$abi_libdir/shared"
+        MPI_LIBS="-lmpich"
+
+        CPPFLAGS="$mpi_saved_CPPFLAGS $MPI_CPPFLAGS"
+        LDFLAGS="$mpi_saved_LDFLAGS $MPI_LDFLAGS $MPI_LIBS"
+
+        AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+            #include <mpi.h>
+            ]], [[
+            MPI_Initialized((int*)0);
+            ]]), , [
+
+                MPI_CPPFLAGS=""
+                MPI_LDFLAGS=""
+                MPI_LIBS=""
+
+            ]
+        )
+
+    fi
+
+    CPPFLAGS=$mpi_saved_CPPFLAGS
+    LDFLAGS=$mpi_saved_LDFLAGS
+
+    if test x"$MPI_LIBS" == x""; then
+        AC_MSG_RESULT(no)
+        AM_CONDITIONAL(HAVE_MPI, false)
+    else
+        AC_MSG_RESULT(yes)
+        AM_CONDITIONAL(HAVE_MPI, true)
+        AC_DEFINE(HAVE_MPI, 1, [Define to 1 if you have MPI.])	
+    fi
+
+    AC_SUBST(MPI_CPPFLAGS)
+    AC_SUBST(MPI_LDFLAGS)
+    AC_SUBST(MPI_LIBS)
 
 ])
 
@@ -209,46 +273,46 @@ AC_DEFUN([AC_PKG_LIBUNWIND], [
 
     AC_ARG_WITH(libunwind,
                 AC_HELP_STRING([--with-libunwind=DIR],
-                               [Libunwind installation @<:@/usr@:>@]),
+                               [libunwind installation @<:@/usr@:>@]),
                 libunwind_dir=$withval, libunwind_dir="/usr")
 
-    LIBUNWIND_CPPFLAGS="-I$libunwind_dir/include"
+    LIBUNWIND_CPPFLAGS="-I$libunwind_dir/include -DUNW_LOCAL_ONLY"
     LIBUNWIND_LDFLAGS="-L$libunwind_dir/$abi_libdir"
     LIBUNWIND_LIBS="-lunwind"
-
-    AC_LANG_PUSH(C++)
-    AC_REQUIRE_CPP
 
     libunwind_saved_CPPFLAGS=$CPPFLAGS
     libunwind_saved_LDFLAGS=$LDFLAGS
 
     CPPFLAGS="$CPPFLAGS $LIBUNWIND_CPPFLAGS"
-    LDFLAGS="$CXXFLAGS $LIBUNWIND_LDFLAGS $LIBUNWIND_LIBS"
+    LDFLAGS="$LDFLAGS $LIBUNWIND_LDFLAGS $LIBUNWIND_LIBS"
 
-    AC_MSG_CHECKING([for Libunwind library and headers])
+    AC_MSG_CHECKING([for libunwind library and headers])
 
     AC_LINK_IFELSE(AC_LANG_PROGRAM([[
-        #include <libunwind-ptrace.h>
+        #include <libunwind.h>
         ]], [[
-        #ifdef UNW_REMOTE_ONLY
-                int n = 0, ret;
-                unw_cursor_t c;
-                ret = unw_step (&c);
-        #endif
-        ]]), AC_MSG_RESULT(yes), [ AC_MSG_RESULT(no)
-        AC_MSG_FAILURE(cannot locate Libunwind library and/or headers.) ]
+        unw_init_local((void*)0, (void*)0);
+        ]]), [ AC_MSG_RESULT(yes)
+
+            AM_CONDITIONAL(HAVE_LIBUNWIND, true)
+            AC_DEFINE(HAVE_LIBUNWIND, 1, [Define to 1 if you have libunwind.])
+
+        ], [ AC_MSG_RESULT(no)
+
+            AM_CONDITIONAL(HAVE_LIBUNWIND, false)
+            LIBUNWIND_CPPFLAGS=""
+            LIBUNWIND_LDFLAGS=""
+            LIBUNWIND_LIBS=""
+
+        ]
     )
 
     CPPFLAGS=$libunwind_saved_CPPFLAGS
     LDFLAGS=$libunwind_saved_LDFLAGS
 
-    AC_LANG_POP(C++)
-
     AC_SUBST(LIBUNWIND_CPPFLAGS)
     AC_SUBST(LIBUNWIND_LDFLAGS)
     AC_SUBST(LIBUNWIND_LIBS)
-
-    AC_DEFINE(HAVE_LIBUNWIND, 1, [Define to 1 if you have Libunwind.])
 
 ])
 
@@ -267,14 +331,11 @@ AC_DEFUN([AC_PKG_PAPI], [
     PAPI_LDFLAGS="-L$papi_dir/$abi_libdir"
     PAPI_LIBS="-lpapi"
 
-    AC_LANG_PUSH(C++)
-    AC_REQUIRE_CPP
-
     papi_saved_CPPFLAGS=$CPPFLAGS
     papi_saved_LDFLAGS=$LDFLAGS
 
     CPPFLAGS="$CPPFLAGS $PAPI_CPPFLAGS"
-    LDFLAGS="$CXXFLAGS $PAPI_LDFLAGS $PAPI_LIBS"
+    LDFLAGS="$LDFLAGS $PAPI_LDFLAGS $PAPI_LIBS"
 
     AC_MSG_CHECKING([for PAPI library and headers])
 
@@ -300,8 +361,6 @@ AC_DEFUN([AC_PKG_PAPI], [
     CPPFLAGS=$papi_saved_CPPFLAGS
     LDFLAGS=$papi_saved_LDFLAGS
 
-    AC_LANG_POP(C++)
-
     AC_SUBST(PAPI_CPPFLAGS)
     AC_SUBST(PAPI_LDFLAGS)
     AC_SUBST(PAPI_LIBS)
@@ -323,14 +382,11 @@ AC_DEFUN([AC_PKG_SQLITE], [
     SQLITE_LDFLAGS="-L$sqlite_dir/$abi_libdir"
     SQLITE_LIBS="-lsqlite3"
 
-    AC_LANG_PUSH(C++)
-    AC_REQUIRE_CPP
-
     sqlite_saved_CPPFLAGS=$CPPFLAGS
     sqlite_saved_LDFLAGS=$LDFLAGS
 
     CPPFLAGS="$CPPFLAGS $SQLITE_CPPFLAGS"
-    LDFLAGS="$CXXFLAGS $SQLITE_LDFLAGS $SQLITE_LIBS"
+    LDFLAGS="$LDFLAGS $SQLITE_LDFLAGS $SQLITE_LIBS"
 
     AC_MSG_CHECKING([for SQLite library and headers])
 
@@ -345,8 +401,6 @@ AC_DEFUN([AC_PKG_SQLITE], [
     CPPFLAGS=$sqlite_saved_CPPFLAGS
     LDFLAGS=$sqlite_saved_LDFLAGS
 
-    AC_LANG_POP(C++)
-
     AC_SUBST(SQLITE_CPPFLAGS)
     AC_SUBST(SQLITE_LDFLAGS)
     AC_SUBST(SQLITE_LIBS)
@@ -354,6 +408,10 @@ AC_DEFUN([AC_PKG_SQLITE], [
     AC_DEFINE(HAVE_SQLITE, 1, [Define to 1 if you have SQLite.])
 
 ])
+
+
+
+
 
 ################################################################################
 # Check for python (http://www.python.org)

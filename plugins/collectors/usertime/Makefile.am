@@ -32,14 +32,18 @@ usertime_la_SOURCES = \
 	UserTimeCollector.hxx UserTimeCollector.cxx
 
 usertime_rt_la_CFLAGS = \
-	-I$(top_srcdir)/libopenss-runtime
+	-I$(top_srcdir)/libopenss-runtime \
+	@LIBUNWIND_CPPFLAGS@
 
 usertime_rt_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-runtime \
+	@LIBUNWIND_LDFLAGS@ \
 	-no-undefined -module -avoid-version
 
 usertime_rt_la_LIBADD = \
-	-lopenss-runtime -lpthread -lrt -lunwind
+	-lopenss-runtime \
+	@LIBUNWIND_LIBS@ \
+	-lpthread -lrt
 
 usertime_rt_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \

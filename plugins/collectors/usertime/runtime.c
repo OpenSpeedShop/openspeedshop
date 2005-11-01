@@ -27,7 +27,6 @@
 #endif
 
 #include "RuntimeAPI.h"
-#include "LibunwindAPI.h"
 #include "blobs.h"
 
 /* Forward Declarations */

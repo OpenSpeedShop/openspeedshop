@@ -51,6 +51,7 @@ AH_TOP([
 ################################################################################
 
 AC_GNU_SOURCE
+AC_PROG_CC
 AC_PROG_CXX
 
 AC_DISABLE_STATIC
@@ -153,6 +154,7 @@ AC_CONFIG_FILES(
 	plugins/collectors/hwc/Makefile
 	plugins/collectors/hwctime/Makefile
 	plugins/collectors/mpi/Makefile
+	plugins/collectors/mpit/Makefile
 	plugins/panels/Makefile
 	plugins/panels/pcSamplePanel/Makefile
 	plugins/panels/UserTimePanel/Makefile

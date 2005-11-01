@@ -22,7 +22,7 @@
  *
  */
 
-#include "LibunwindAPI.h"
+#include "RuntimeAPI.h"
 
 /*
    Obtain maxframes callstack addresses for the current context.
