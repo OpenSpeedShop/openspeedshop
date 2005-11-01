@@ -93,7 +93,7 @@ ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const 
   attachCollectorsListView->setColumnWidthMode(0, QListView::Manual);
   attachCollectorsListView->setColumnWidthMode(1, QListView::Maximum);
   attachCollectorsListView->setColumnWidth(0, 100);
-attachCollectorsListView->setSelectionMode( QListView::Multi );
+  attachCollectorsListView->setSelectionMode( QListView::Multi );
   attachCollectorsListView->setAllColumnsShowFocus( TRUE );
   attachCollectorsListView->setShowSortIndicator( TRUE );
   attachCollectorsListView->setRootIsDecorated(TRUE);
@@ -111,7 +111,7 @@ attachCollectorsListView->setSelectionMode( QListView::Multi );
   psetListView->setAllColumnsShowFocus( TRUE );
   psetListView->setShowSortIndicator( TRUE );
   psetListView->setRootIsDecorated(TRUE);
-psetListView->setSelectionMode( QListView::Multi );
+  psetListView->setSelectionMode( QListView::Multi );
   psetListView->show();
 
   int width = p->getPanelContainer()->width();
@@ -217,7 +217,9 @@ ManageCollectorsClass::updateAttachedList()
            ++it )
         {
           ce = (CollectorEntry *)*it;
-          QListViewItem *item = new QListViewItem( attachCollectorsListView, ce->name, ce->short_name );
+MPListViewItem *item = new MPListViewItem( attachCollectorsListView, ce->name, ce->short_name );
+DescriptionClassObject *dco = new DescriptionClassObject(TRUE, QString::null, QString::null, QString::null, ce->name );
+item->descriptionClassObject = dco;
           try
           {
             ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
@@ -281,16 +283,22 @@ if( lo.first == TRUE )
                   {
                     if( !tidstr.isEmpty() )
                     {
-                      QListViewItem *item2 =
-                        new QListViewItem( item, host, pidstr, tidstr );
+MPListViewItem *item2 =
+                        new MPListViewItem( item, host, pidstr, tidstr );
+DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, tidstr  );
+item2->descriptionClassObject = dco;
                     } else if( !ridstr.isEmpty() )
                     {
-                      QListViewItem *item2 =
-                        new QListViewItem( item, host, pidstr, ridstr );
+MPListViewItem *item2 =
+                        new MPListViewItem( item, host, pidstr, ridstr );
+DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, ridstr  );
+item2->descriptionClassObject = dco;
                     } else
                     {
-                      QListViewItem *item2 =
-                        new QListViewItem( item, host, pidstr );
+MPListViewItem *item2 =
+                        new MPListViewItem( item, host, pidstr );
+DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr  );
+item2->descriptionClassObject = dco;
                     }
                   }
                 }
@@ -377,8 +385,10 @@ if( lo.first == TRUE )
             CollectorGroup cgrp = t.getCollectors();
             CollectorGroup::iterator ci;
             int collector_count = 0;
-            QListViewItem *item =
-              new QListViewItem( attachCollectorsListView, pidstr, threadStatusStr );
+MPListViewItem *item =
+              new MPListViewItem( attachCollectorsListView, pidstr, threadStatusStr );
+DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr  );
+item->descriptionClassObject = dco;
             for (ci = cgrp.begin(); ci != cgrp.end(); ci++)
             {
               Collector c = *ci;
@@ -389,7 +399,9 @@ if( lo.first == TRUE )
               {
                 collector_count = 1;
               }
-              QListViewItem *item2 = new QListViewItem( item, host, m.getUniqueId());
+MPListViewItem *item2 = new MPListViewItem( item, host, m.getUniqueId());
+DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr  );
+item2->descriptionClassObject = dco;
             }
           }
         }
@@ -437,7 +449,9 @@ if( lo.first == TRUE )
 
         for( std::vector<string>::iterator hi = v.begin(); hi != e; hi++ ) 
         {
-          QListViewItem *item = new QListViewItem( attachCollectorsListView, *hi );
+MPListViewItem *item = new MPListViewItem( attachCollectorsListView, *hi );
+DescriptionClassObject *dco = new DescriptionClassObject(TRUE, QString::null, QString::null, QString::null  );
+item->descriptionClassObject = dco;
           bool atleastone = false;
           for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
           {
@@ -481,16 +495,22 @@ if( lo.first == TRUE )
               }
               if( !tidstr.isEmpty() )
               {
-                QListViewItem *item2 =
-                  new QListViewItem(item, pidstr, tidstr, collectorliststring );
+MPListViewItem *item2 =
+                  new MPListViewItem(item, pidstr, tidstr, collectorliststring );
+DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, tidstr, collectorliststring  );
+item2->descriptionClassObject = dco;
               } else if( !ridstr.isEmpty() )
               {
-                QListViewItem *item2 =
-                  new QListViewItem(item, pidstr, ridstr, collectorliststring );
+MPListViewItem *item2 =
+                  new MPListViewItem(item, pidstr, ridstr, collectorliststring );
+DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, ridstr, collectorliststring  );
+item2->descriptionClassObject = dco;
               } else
               {
-                QListViewItem *item2 = 
-                  new QListViewItem( item, pidstr, collectorliststring  );
+MPListViewItem *item2 = 
+                  new MPListViewItem( item, pidstr, collectorliststring  );
+DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr, collectorliststring  );
+item2->descriptionClassObject = dco;
               }
             }
           }
@@ -1045,151 +1065,45 @@ ManageCollectorsClass::attachProcessSelected()
 void
 ManageCollectorsClass::focusOnProcessSelected(QListViewItem *item)
 {
-// printf("focusOnProcessSelected() listView=0x%x attachCollectorsListView=0x%x psetListView=0x%x\n", item->listView(), attachCollectorsListView, psetListView );
+// printf("focusOnProcessSelected(QListView *) listView=0x%x attachCollectorsListView=0x%x psetListView=0x%x\n", item->listView(), attachCollectorsListView, psetListView );
  
   if( item->listView() == attachCollectorsListView )
   {
-    focusOnProcessSelected();
+//    focusOnProcessSelected();
+    focusOnPSetList(attachCollectorsListView);
     psetListView->clearSelection();
   } else
   {
-    focusOnPSetSelected();
+//    focusOnPSetSelected();
+    focusOnPSetList(psetListView);
     attachCollectorsListView->clearSelection();
   }
 }
-
-
 
 void
 ManageCollectorsClass::focusOnProcessSelected()
 {
 // printf("ManageCollectorsClass::focusOnProcessSelected() entered.\n");
-  QString host_name = QString::null;
-  FocusObject *msg = NULL;
-
-MPListViewItem *selectedItem = NULL;
-{
-QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
-while( it.current() )
-{
-  selectedItem = (MPListViewItem *)it.current();
-  break;
-}
-}
-
-  // If nothing is selected in the left side, look to the right...
-  if( selectedItem == NULL )
-  {
-    return;
-  }
-
-// printf("selectedItem->text(0) =(%s)\n", selectedItem->text(0).ascii() );
-// printf("selectedItem->text(1) =(%s)\n", selectedItem->text(1).ascii() );
-
-  QString pid_name = QString::null;
-  QString pidString = QString::null;
- 
-  QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
-  while( it.current() )
-  {
-    MPListViewItem *lvi = (MPListViewItem *)it.current();
-    if( dialogSortType == PID_T )
-    {
-// printf("PID_T: lvi->text(0)=(%s)\n", lvi->text(0).ascii() );
-      host_name = QString::null;
-      pid_name = QString::null;
-      if( lvi->firstChild() )
-      {
-        // Host name
-        host_name = lvi->firstChild()->text(0);
-        pid_name = lvi->text(0);
-      } else if( lvi->parent() )
-      {
-        host_name = lvi->text(0);
-        pid_name = lvi->parent()->text(0);
-      } else
-      {
-        pid_name = lvi->text(0);
-      }
-      if( msg == NULL )
-      {
-        msg = new FocusObject(expID,  host_name, pidString, TRUE);
-      }
-      std::pair<std::string, std::string> p(host_name,pid_name);
-      msg->host_pid_vector.push_back( p );
-    } else if( dialogSortType == HOST_T )
-    {
-//printf("HOST_T: lvi->text(0)=(%s)\n", lvi->text(0).ascii() );
-      pid_name = QString::null;
-      host_name = QString::null;
-      if( lvi->parent() == NULL )
-      {
-        ++it;
-        continue;
-      }
-      if( msg == NULL )
-      {
-        msg = new FocusObject(expID,  NULL, NULL, TRUE);
-      }
-      pid_name = lvi->text(0);
-      if( lvi->parent() )
-      {
-        host_name = lvi->parent()->text(0);
-      }
-//printf("host_name=%s pid_name=%s\n", host_name.ascii(), pid_name.ascii() );
-
-      std::pair<std::string, std::string> p(host_name,pid_name);
-      msg->host_pid_vector.push_back( p );
-    }
-    ++it;
-  }
-
-
-  if( !msg || msg->host_pid_vector.size() == 0 )
-  {
-    QMessageBox::information( this, tr("Error process selection:"), tr("Unable to focus: No processes selected."), QMessageBox::Ok );
-    if( msg )
-    {
-      delete msg;
-    }
-    return;
-  }
-
-
-
-// printf("host_name=(%s) pidString=(%s)\n", host_name.ascii(), pidString.ascii() );
-
-// printf("focus the StatsPanel...\n");
-  if( p->broadcast((char *)msg, NEAREST_T) == 0 )
-  {
-// printf("No StatsPanel.   Make one...\n");
-    char *panel_type = "Stats Panel";
-    PanelContainer *bestFitPC = p->getPanelContainer()->getMasterPC()->findBestFitPanelContainer(p->getPanelContainer());
-    ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
-    Panel *sp = p->getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, ao);
-    delete ao;
-    if( sp != NULL )
-    {
-      UpdateObject *msg =
-        new UpdateObject((void *)Find_Experiment_Object((EXPID)expID), expID, "pcsamp", 1);
-      sp->listener( (void *)msg );
-    }
-// msg->print();
-      sp->listener((void *)msg);
-  }
-
+  focusOnPSetList(attachCollectorsListView);
 }
 
 void
 ManageCollectorsClass::focusOnPSetSelected()
 {
-// printf("ManageCollectorsClass::focusOnPSetSelected() entered.\n");
+// printf("ManageCollectorsClass::focusOnPSetSelected() entered\n");
+  focusOnPSetList(psetListView);
+}
+
+void
+ManageCollectorsClass::focusOnPSetList(QListView *lv)
+{
+// printf("ManageCollectorsClass::focusOnPSetList(QListView *) entered.\n");
 
   FocusObject *msg = NULL;
   QString pid_name = QString::null;
   QString pidString = QString::null;
  
-  QListViewItemIterator it(psetListView, QListViewItemIterator::Selected);
+  QListViewItemIterator it(lv, QListViewItemIterator::Selected);
   while( it.current() )
   {
     MPListViewItem *lvi = (MPListViewItem *)it.current();
