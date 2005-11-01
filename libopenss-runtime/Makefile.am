@@ -20,7 +20,7 @@ SUBDIRS = @INSTRUMENTOR@
 DIST_SUBDIRS = dpcl dyninst
 
 BUILT_SOURCES = \
-	OpenSS_DataHeader.c OpenSS_DataHeader.x
+	OpenSS_DataHeader.h OpenSS_DataHeader.c
 
 noinst_LTLIBRARIES = libopenss-runtime.la
 
