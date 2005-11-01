@@ -1255,7 +1255,7 @@ StatsPanel::updateStatsPanelData()
   while( status != ILO_COMPLETE )
   {
 // printf("ping!\n");
-    status = cli->checkStatus(clip);
+    status = cli->checkStatus(clip, command);
     if( !status || status == ILO_ERROR )
     { // An error occurred.... A message should have been posted.. return;
       QApplication::restoreOverrideCursor();
