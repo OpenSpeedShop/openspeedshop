@@ -82,7 +82,7 @@ CLIInterface::runSynchronousCLI(const char *command, int mt, bool wot )
 
   while( status != ILO_COMPLETE )
   {
-    status = checkStatus(clip);
+    status = checkStatus(clip, command);
     if( !status || status == ILO_ERROR )
     { // An error occurred.... A message should have been posted.. return;
        RETURN_FALSE;
@@ -147,7 +147,7 @@ CLIInterface::getIntValueFromCLI(const char *command, int64_t *val, bool mark_va
 
   while( status != ILO_COMPLETE )
   {
-    status = checkStatus(clip);
+    status = checkStatus(clip, command);
 //printf("status = %d\n", status);
     if( !status || status == ILO_ERROR )
     {   // An error occurred.... A message should have been posted.. return;
@@ -241,7 +241,7 @@ CLIInterface::getIntListValueFromCLI(const char *command, std::list<int64_t> *in
 
   while( status != ILO_COMPLETE )
   {
-    status = checkStatus(clip);
+    status = checkStatus(clip, command);
 //printf("status = %d\n", status);
     if( !status || status == ILO_ERROR )
     {   // An error occurred.... A message should have been posted.. return;
@@ -350,7 +350,7 @@ CLIInterface::getStringValueFromCLI(const char *command, std::string *str_val, b
 
   while( status != ILO_COMPLETE )
   {
-    status = checkStatus(clip);
+    status = checkStatus(clip, command);
 //printf("status = %d\n", status);
     if( !status || status == ILO_ERROR )
     {   // An error occurred.... A message should have been posted.. return;
@@ -451,7 +451,7 @@ CLIInterface::getStringListValueFromCLI(const char *command, std::list<std::stri
 
   while( status != ILO_COMPLETE )
   {
-    status = checkStatus(clip);
+    status = checkStatus(clip, command);
     if( !status || status == ILO_ERROR )
     {   // An error occurred.... A message should have been posted.. return;
       fprintf(stderr, "an error occurred processing (%s)!\n", command);
@@ -523,8 +523,9 @@ CLIInterface::getStringListValueFromCLI(const char *command, std::list<std::stri
     in the cli's processing.
 */
 Input_Line_Status
-CLIInterface::checkStatus(InputLineObject *clip)
+CLIInterface::checkStatus(InputLineObject *clip, const char *command)
 {
+// printf("CLIInterface::checkStatus() command=(%s)\n", command);
   Input_Line_Status status = clip->What();
 
   switch( status )
@@ -542,7 +543,7 @@ CLIInterface::checkStatus(InputLineObject *clip)
 //printf("command has sucessfully completed.\n");
       break;
     case ILO_ERROR:
-      fprintf(stderr, "Unable to process the clip.   Error encountered.\n");
+//      fprintf(stderr, "Unable to process the clip.   Error encountered.\n");
 
       // Now put out whatever error message there might be.
       {
@@ -564,7 +565,13 @@ CLIInterface::checkStatus(InputLineObject *clip)
             info_str += str_val.c_str();
           }
 
-          QMessageBox::information( NULL, "Command Failure Information", info_str, QMessageBox::Ok );
+          if( QString(command) == "" )
+          {
+            QMessageBox::information( NULL, "Command Failure Information", info_str, QMessageBox::Ok );
+          } else
+          {
+            QMessageBox::information( NULL, "Command Failure Information", QString("Command: %1\n").arg(command)+info_str, QMessageBox::Ok );
+          }
 
           //Allow the garbage collector to clean up the value...
           clip->Set_Results_Used();

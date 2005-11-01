@@ -64,7 +64,7 @@ class CLIInterface : QObject
     bool shouldWeContinue();
 
     //! A routine to check status of the command.
-    Input_Line_Status checkStatus(InputLineObject *clip);
+    Input_Line_Status checkStatus(InputLineObject *clip, const char *command="");
   private:
     //! The timer set to how long the command should wait before aborting.
     QTimer *timer;
