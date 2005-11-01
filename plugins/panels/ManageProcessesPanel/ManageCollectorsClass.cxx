@@ -32,6 +32,7 @@
 #include <qlabel.h>
 #include <qcombobox.h>
 #include <qlistview.h>
+#include <MPListViewItem.hxx>
 #include <qinputdialog.h>
 #include <qmenubar.h>
 #include <qvaluelist.h>
@@ -553,7 +554,9 @@ ManageCollectorsClass::updatePSetList()
         for( std::vector<string>::iterator hi = v.begin(); hi != e; hi++ ) 
         {
           pset_name = QString("pset%1").arg(pset_count++);
-          QListViewItem *item = new QListViewItem( dynamic_items, pset_name, *hi );
+          MPListViewItem *item = new MPListViewItem( dynamic_items, pset_name, *hi );
+DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
+item->descriptionClassObject = dco;
 // printf("hi=(%s)\n", hi->c_str() );
           bool atleastone = false;
           for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
@@ -598,16 +601,22 @@ ManageCollectorsClass::updatePSetList()
               }
               if( !tidstr.isEmpty() )
               {
-                QListViewItem *item2 =
-                  new QListViewItem(item, pidstr, tidstr, collectorliststring );
+                MPListViewItem *item2 =
+                  new MPListViewItem(item, pidstr, tidstr, collectorliststring );
+DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), tidstr, collectorliststring);
+item2->descriptionClassObject = dco;
               } else if( !ridstr.isEmpty() )
               {
-                QListViewItem *item2 =
-                  new QListViewItem(item, pidstr, ridstr, collectorliststring );
+                MPListViewItem *item2 =
+                  new MPListViewItem(item, pidstr, ridstr, collectorliststring );
+DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), ridstr, collectorliststring);
+item2->descriptionClassObject = dco;
               } else
               {
-                QListViewItem *item2 = 
-                  new QListViewItem( item, pidstr, collectorliststring  );
+                MPListViewItem *item2 = 
+                  new MPListViewItem( item, pidstr, collectorliststring  );
+DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, collectorliststring);
+item2->descriptionClassObject = dco;
               }
             }
           }
@@ -724,10 +733,6 @@ statusUnknownList.push_back(statusStruct);
             CollectorGroup cgrp = t.getCollectors();
             CollectorGroup::iterator ci;
             int collector_count = 0;
-/*
-            QListViewItem *item =
-              new QListViewItem( attachCollectorsListView, pidstr, threadStatusStr );
-*/
             for (ci = cgrp.begin(); ci != cgrp.end(); ci++)
             {
               Collector c = *ci;
@@ -738,9 +743,6 @@ statusUnknownList.push_back(statusStruct);
               {
                 collector_count = 1;
               }
-/*
-              QListViewItem *item2 = new QListViewItem( item, host, m.getUniqueId());
-*/
             }
           }
         }
@@ -758,14 +760,20 @@ statusUnknownList.push_back(statusStruct);
   {
     QValueList<StatusStruct>::iterator vi = statusDisconnectedList.begin();
     pset_name = QString("pset%1").arg(pset_count++);
-    QListViewItem *disconnected_items = new QListViewItem( dynamic_items, pset_name, "Disconnected" );
+
+    MPListViewItem *disconnected_items = new MPListViewItem( dynamic_items, pset_name, "Disconnected" );
+    DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
+    disconnected_items->descriptionClassObject = dco;
     for( ;vi != statusDisconnectedList.end(); vi++)
     {
       StatusStruct ss = *vi;
-      printf("ss.status=(%s)\n", ss.status.ascii() );
-      printf("ss.host=(%s)\n", ss.host.ascii() );
-      printf("ss.pid=(%s)\n", ss.pid.ascii() );
-      new QListViewItem( disconnected_items, ss.host, ss.pid);
+//      printf("ss.status=(%s)\n", ss.status.ascii() );
+//      printf("ss.host=(%s)\n", ss.host.ascii() );
+//      printf("ss.pid=(%s)\n", ss.pid.ascii() );
+
+      MPListViewItem *item = new MPListViewItem( disconnected_items, ss.host, ss.pid);
+      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid );
+      item->descriptionClassObject = dco;
     }
   }
   // Put out the Connecting Dynamic pset (if there is one.)
@@ -773,11 +781,15 @@ statusUnknownList.push_back(statusStruct);
   {
     QValueList<StatusStruct>::iterator vi = statusConnectingList.begin();
     pset_name = QString("pset%1").arg(pset_count++);
-    QListViewItem *items = new QListViewItem( dynamic_items, pset_name, "Connecting" );
+    MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name, "Connecting" );
+    DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
+    items->descriptionClassObject = dco;
     for( ;vi != statusConnectingList.end(); vi++)
     {
       StatusStruct ss = *vi;
-      new QListViewItem( items, ss.host, ss.pid);
+      MPListViewItem *item = new MPListViewItem( items, ss.host, ss.pid);
+      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid );
+      item->descriptionClassObject = dco;
     }
   }
   // Put out the Nonexistent Dynamic pset (if there is one.)
@@ -785,11 +797,15 @@ statusUnknownList.push_back(statusStruct);
   {
     QValueList<StatusStruct>::iterator vi = statusNonexistentList.begin();
     pset_name = QString("pset%1").arg(pset_count++);
-    QListViewItem *items = new QListViewItem( dynamic_items, pset_name, "Nonexistent" );
+    MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name, "Nonexistent" );
+    DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
+    items->descriptionClassObject = dco;
     for( ;vi != statusNonexistentList.end(); vi++)
     {
       StatusStruct ss = *vi;
-      new QListViewItem( items, ss.host, ss.pid);
+      MPListViewItem *item = new MPListViewItem( items, ss.host, ss.pid);
+      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid );
+      item->descriptionClassObject = dco;
     }
   }
   // Put out the Running Dynamic pset (if there is one.)
@@ -797,11 +813,15 @@ statusUnknownList.push_back(statusStruct);
   {
     QValueList<StatusStruct>::iterator vi = statusRunningList.begin();
     pset_name = QString("pset%1").arg(pset_count++);
-    QListViewItem *items = new QListViewItem( dynamic_items, pset_name, "Running" );
+    MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name, "Running" );
+    DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
+    items->descriptionClassObject = dco;
     for( ;vi != statusRunningList.end(); vi++)
     {
       StatusStruct ss = *vi;
-      new QListViewItem( items, ss.host, ss.pid);
+      MPListViewItem *item = new MPListViewItem( items, ss.host, ss.pid);
+      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid );
+      item->descriptionClassObject = dco;
     }
   }
   // Put out the Suspended Dynamic pset (if there is one.)
@@ -809,11 +829,15 @@ statusUnknownList.push_back(statusStruct);
   {
     QValueList<StatusStruct>::iterator vi = statusSuspendedList.begin();
     pset_name = QString("pset%1").arg(pset_count++);
-    QListViewItem *items = new QListViewItem( dynamic_items, pset_name, "Suspended" );
+    MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name, "Suspended" );
+    DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
+    items->descriptionClassObject = dco;
     for( ;vi != statusSuspendedList.end(); vi++)
     {
       StatusStruct ss = *vi;
-      new QListViewItem( items, ss.host, ss.pid);
+      MPListViewItem *item = new MPListViewItem( items, ss.host, ss.pid);
+      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid );
+      item->descriptionClassObject = dco;
     }
   }
   // Put out the status Terminated Dynamic pset (if there is one.)
@@ -821,11 +845,15 @@ statusUnknownList.push_back(statusStruct);
   {
     QValueList<StatusStruct>::iterator vi = statusTerminatedList.begin();
     pset_name = QString("pset%1").arg(pset_count++);
-    QListViewItem *items = new QListViewItem( dynamic_items, pset_name, "Terminated" );
+    MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name, "Terminated" );
+    DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
+    items->descriptionClassObject = dco;
     for( ;vi != statusTerminatedList.end(); vi++)
     {
       StatusStruct ss = *vi;
-      new QListViewItem( items, ss.host, ss.pid);
+      MPListViewItem *item = new MPListViewItem( items, ss.host, ss.pid);
+      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid );
+      item->descriptionClassObject = dco;
     }
   }
   // Put out the Unknown Dynamic pset (if there is one.)
@@ -833,11 +861,15 @@ statusUnknownList.push_back(statusStruct);
   {
     QValueList<StatusStruct>::iterator vi = statusUnknownList.begin();
     pset_name = QString("pset%1").arg(pset_count++);
-    QListViewItem *items = new QListViewItem( dynamic_items, pset_name, "Unknown" );
+    MPListViewItem *items = new MPListViewItem( dynamic_items, pset_name, "Unknown" );
+    DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
+    items->descriptionClassObject = dco;
     for( ;vi != statusUnknownList.end(); vi++)
     {
       StatusStruct ss = *vi;
-      new QListViewItem( items, ss.host, ss.pid);
+      MPListViewItem *item = new MPListViewItem( items, ss.host, ss.pid);
+      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid );
+      item->descriptionClassObject = dco;
     }
   }
 
@@ -850,11 +882,11 @@ ManageCollectorsClass::detachSelected()
 {
 // printf("detachSelected\n");
 
-QListViewItem *selectedItem = NULL;
+MPListViewItem *selectedItem = NULL;
 QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
 while( it.current() )
 {
-  selectedItem = (QListViewItem *)it.current();
+  selectedItem = (MPListViewItem *)it.current();
   break;
 }
   if( selectedItem )
@@ -885,11 +917,11 @@ void
 ManageCollectorsClass::disableSelected()
 {
 // printf("disableSelected\n");
-QListViewItem *selectedItem = NULL;
+MPListViewItem *selectedItem = NULL;
 QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
 while( it.current() )
 {
-  selectedItem = (QListViewItem *)it.current();
+  selectedItem = (MPListViewItem *)it.current();
   break;
 }
   if( selectedItem )
@@ -922,11 +954,11 @@ void
 ManageCollectorsClass::enableSelected()
 {
 // printf("enableSelected\n");
-QListViewItem *selectedItem = NULL;
+MPListViewItem *selectedItem = NULL;
 QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
 while( it.current() )
 {
-  selectedItem = (QListViewItem *)it.current();
+  selectedItem = (MPListViewItem *)it.current();
   break;
 }
   if( selectedItem )
@@ -1035,12 +1067,12 @@ ManageCollectorsClass::focusOnProcessSelected()
   QString host_name = QString::null;
   FocusObject *msg = NULL;
 
-QListViewItem *selectedItem = NULL;
+MPListViewItem *selectedItem = NULL;
 {
 QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
 while( it.current() )
 {
-  selectedItem = (QListViewItem *)it.current();
+  selectedItem = (MPListViewItem *)it.current();
   break;
 }
 }
@@ -1060,7 +1092,7 @@ while( it.current() )
   QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
   while( it.current() )
   {
-    QListViewItem *lvi = (QListViewItem *)it.current();
+    MPListViewItem *lvi = (MPListViewItem *)it.current();
     if( dialogSortType == PID_T )
     {
 // printf("PID_T: lvi->text(0)=(%s)\n", lvi->text(0).ascii() );
@@ -1153,18 +1185,100 @@ ManageCollectorsClass::focusOnPSetSelected()
 {
 // printf("ManageCollectorsClass::focusOnPSetSelected() entered.\n");
 
+  FocusObject *msg = NULL;
   QString pid_name = QString::null;
   QString pidString = QString::null;
  
   QListViewItemIterator it(psetListView, QListViewItemIterator::Selected);
   while( it.current() )
   {
-    QListViewItem *lvi = (QListViewItem *)it.current();
+    MPListViewItem *lvi = (MPListViewItem *)it.current();
 // printf("PSetSelection: lvi->text(0)=(%s)\n", lvi->text(0).ascii() );
 // printf("lvi->text(0) =(%s)\n", lvi->text(0).ascii() );
 // printf("lvi->text(1) =(%s)\n", lvi->text(1).ascii() );
+//    if( lvi->descriptionClassObject )
+//    {
+//      lvi->descriptionClassObject->Print();
+//    }
 
+    if( lvi->descriptionClassObject->root )
+    {
+      // Loop through all the children...
+      MPListViewItem *mpChild = (MPListViewItem *)lvi->firstChild();
+      while( mpChild )
+      {
+        QString host_name = mpChild->descriptionClassObject->host_name;
+        if( host_name.isEmpty() )
+        {
+          host_name = "localhost";
+        }
+        QString pid_name = mpChild->descriptionClassObject->pid_name;
+        if( pid_name.isEmpty() )
+        {
+          mpChild = (MPListViewItem *)mpChild->nextSibling();
+          continue;
+        }
+        std::pair<std::string, std::string> p(host_name,pid_name);
+        if( msg == NULL )
+        {
+          msg = new FocusObject(expID,  NULL, NULL, TRUE);
+        }
+        msg->host_pid_vector.push_back( p );
+        mpChild = (MPListViewItem *)mpChild->nextSibling();
+      }
+    } else
+    {
+      QString host_name = lvi->descriptionClassObject->host_name;
+      if( host_name.isEmpty() )
+      {
+        host_name = "localhost";
+      }
+      QString pid_name = lvi->descriptionClassObject->pid_name;
+      if( pid_name.isEmpty() )
+      {
+        continue;
+      }
+      std::pair<std::string, std::string> p(host_name,pid_name);
+      if( msg == NULL )
+      {
+        msg = new FocusObject(expID,  NULL, NULL, TRUE);
+      }
+      msg->host_pid_vector.push_back( p );
+    } 
+    
     ++it;
+  }
+
+
+  if( !msg || msg->host_pid_vector.size() == 0 )
+  {
+    QMessageBox::information( this, tr("Error process selection:"), tr("Unable to focus: No processes selected."), QMessageBox::Ok );
+    if( msg )
+    {
+      delete msg;
+    }
+    return;
+  }
+
+
+
+// printf("focus the StatsPanel...\n");
+  if( p->broadcast((char *)msg, NEAREST_T) == 0 )
+  {
+// printf("No StatsPanel.   Make one...\n");
+    char *panel_type = "Stats Panel";
+    PanelContainer *bestFitPC = p->getPanelContainer()->getMasterPC()->findBestFitPanelContainer(p->getPanelContainer());
+    ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
+    Panel *sp = p->getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, ao);
+    delete ao;
+    if( sp != NULL )
+    {
+      UpdateObject *msg =
+        new UpdateObject((void *)Find_Experiment_Object((EXPID)expID), expID, "pcsamp", 1);
+      sp->listener( (void *)msg );
+    }
+// msg->print();
+      sp->listener((void *)msg);
   }
 }
 
@@ -1235,12 +1349,12 @@ ManageCollectorsClass::paramSelected(int val)
 {
 //  printf("paramSelected val=%d\n", val);
 //  printf("paramSelected val=%s\n", QString("%1").arg(val).ascii() );
-//  QListViewItem *selectedItem = attachCollectorsListView->selectedItem();
-QListViewItem *selectedItem = NULL;
+//  MPListViewItem *selectedItem = attachCollectorsListView->selectedItem();
+MPListViewItem *selectedItem = NULL;
 QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
 while( it.current() )
 {
-  selectedItem = (QListViewItem *)it.current();
+  selectedItem = (MPListViewItem *)it.current();
   break;
 }
   QString param_text = QString::null;
@@ -1325,12 +1439,12 @@ void
 ManageCollectorsClass::attachCollectorSelected(int val)
 {
 // printf("attachCollectorSelected(val=%d)\n", val);
-//  QListViewItem *selectedItem = attachCollectorsListView->selectedItem();
-QListViewItem *selectedItem = NULL;
+//  MPListViewItem *selectedItem = attachCollectorsListView->selectedItem();
+MPListViewItem *selectedItem = NULL;
 QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
 while( it.current() )
 {
-  selectedItem = (QListViewItem *)it.current();
+  selectedItem = (MPListViewItem *)it.current();
   break;
 }
   QString param_text = QString::null;
@@ -1464,17 +1578,17 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
   bool selectable = TRUE;
   bool leftSide = TRUE;
 
-QListViewItem *selectedItem = NULL;
+MPListViewItem *selectedItem = NULL;
   if( attachCollectorsListView->hasMouse() )
   {
 QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
 while( it.current() )
 {
-  selectedItem = (QListViewItem *)it.current();
+  selectedItem = (MPListViewItem *)it.current();
   break;
 }
     psetListView->clearSelection();
-  } else
+  } else if( psetListView->hasMouse() )
   {
     attachCollectorsListView->clearSelection();
     leftSide = FALSE;
@@ -1483,10 +1597,10 @@ while( it.current() )
 QListViewItemIterator it(psetListView, QListViewItemIterator::Selected);
 while( it.current() )
 {
-  selectedItem = (QListViewItem *)it.current();
+  selectedItem = (MPListViewItem *)it.current();
   break;
 }
-    if( selectedItem->parent() == NULL )
+    if( !selectedItem || selectedItem->parent() == NULL )
     {
       psetListView->clearSelection();
       selectable = FALSE;
