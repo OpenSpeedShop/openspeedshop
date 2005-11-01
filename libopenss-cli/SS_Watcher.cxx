@@ -37,25 +37,40 @@ class Watch_Item {
   friend void SS_Watch_Status ();
 
  public:
-  enum itemCode { expTermination
+  enum itemCode { printTermination,
+                  waitTermination
                 };
 
   itemCode itemtype;
   union {
     struct
       { EXPID expid;
-        CMDWID window; };
+        CMDWID window; } p;
+    struct
+      { EXPID expid;
+        pthread_cond_t condition; } w;
   } item;
 
   Watch_Item () {};
 
  public:
-  Watch_Item (CMDWID Watch_Window, ExperimentObject *exp) {
-    item.window = Watch_Window;
-    item.expid = exp->ExperimentObject_ID();
-    itemtype = expTermination;
+  Watch_Item (ExperimentObject *exp) {
+    pthread_cond_init(&item.w.condition, (pthread_condattr_t *)NULL);
+    item.w.expid = exp->ExperimentObject_ID();
+    itemtype = waitTermination;
   }
-  ~Watch_Item () { }
+  Watch_Item (CMDWID Watch_Window, ExperimentObject *exp) {
+    item.p.window = Watch_Window;
+    item.p.expid = exp->ExperimentObject_ID();
+    itemtype = printTermination;
+  }
+  ~Watch_Item () {
+    if (itemtype == waitTermination) {
+     // Let the Command Processor continue to read commands.
+      Assert(pthread_cond_signal(&item.w.condition) == 0);
+      pthread_cond_destroy (&item.w.condition);
+    }
+  }
   
 };
 
@@ -72,8 +87,10 @@ void Cancle_Async_Notice (ExperimentObject *exp) {
       bool purge_item = false;
       Watch_Item *wi = *wli;
       wli++;
-      if (id == wi->item.expid) {
+      if ((wi->itemtype == Watch_Item::printTermination) &&
+          (id == wi->item.p.expid)) {
         Watch_Item_list.remove(wi);
+        delete wi;
       }
     }
 
@@ -104,10 +121,90 @@ void Request_Async_Notice_Of_Termination (CommandObject *cmd, ExperimentObject *
   Assert(pthread_mutex_unlock(&Watch_Item_Lock) == 0);
 }
 
+void Cancle_Exp_Wait (ExperimentObject *exp) {
+  if (!Watcher_Active) return;
+  EXPID id = (exp != NULL) ? exp->ExperimentObject_ID() : 0;
+  if (id != 0) {
+    std::list<Watch_Item *>::iterator wli;
+    Assert(pthread_mutex_lock(&Watch_Item_Lock) == 0);
+
+    for ( wli = Watch_Item_list.begin(); wli != Watch_Item_list.end(); ) {
+      bool purge_item = false;
+      Watch_Item *wi = *wli;
+      wli++;
+      if ((wi->itemtype == Watch_Item::waitTermination) &&
+          (id == wi->item.w.expid)) {
+        Watch_Item_list.remove(wi);
+        delete wi;
+      }
+    }
+
+    Assert(pthread_mutex_unlock(&Watch_Item_Lock) == 0);
+  }
+}
+
+void Wait_For_Exp (CommandObject *cmd, ExperimentObject *exp) {
+  if (!Watcher_Active) return;
+  if (exp == NULL) return;
+
+ // Post a new notice.
+  Watch_Item *item =  new Watch_Item (exp);
+
+  Assert(pthread_mutex_lock(&Watch_Item_Lock) == 0);
+  Watch_Item_list.push_back(item);
+
+  if (Waiting_to_Watch) {
+    Waiting_to_Watch = false;
+    Assert(pthread_cond_signal(&Waiting_For_Items) == 0);
+  }
+ // Go to sleep until SS_Watcher or ~Watch_Item () wakes me up.
+  Assert(pthread_cond_wait(&(item->item.w.condition),&Watch_Item_Lock) == 0);
+
+ // Return control to caller.
+  Assert(pthread_mutex_unlock(&Watch_Item_Lock) == 0);
+}
+
+void Purge_Watcher_Events () {
+  if (!Watcher_Active) return;
+
+  Assert(pthread_mutex_lock(&Watch_Item_Lock) == 0);
+
+  std::list<Watch_Item *>::iterator wli;
+  for ( wli = Watch_Item_list.begin(); wli != Watch_Item_list.end(); ) {
+    Watch_Item *wi = *wli;
+    wli++;
+    Watch_Item_list.remove(wi);
+    delete wi;
+  }
+
+  Assert(pthread_mutex_unlock(&Watch_Item_Lock) == 0);
+}
+
+void Purge_Watcher_Waits () {
+  if (!Watcher_Active) return;
+
+  Assert(pthread_mutex_lock(&Watch_Item_Lock) == 0);
+
+  std::list<Watch_Item *>::iterator wli;
+  for ( wli = Watch_Item_list.begin(); wli != Watch_Item_list.end(); ) {
+    Watch_Item *wi = *wli;
+    wli++;
+    if (wi->itemtype == Watch_Item::waitTermination) {
+      Watch_Item_list.remove(wi);
+      delete wi;
+    }
+  }
+
+  Assert(pthread_mutex_unlock(&Watch_Item_Lock) == 0);
+}
+
 // Catch SIGUSR1 signal and exit, when sent from main control.
 static void
 catch_TLI_signal (int sig, int error_num)
 {
+ // Clean up.
+  Purge_Watcher_Events ();
+
  // This isn't graceful, but it gets the job done.
   pthread_exit(0);
 }
@@ -136,9 +233,10 @@ void SS_Watcher () {
       Watch_Item *wi = *wli;
       wli++;
       switch (wi->itemtype) {
-        case Watch_Item::expTermination:
-          ExperimentObject *exp = (wi->item.expid != 0)
-                 ? Find_Experiment_Object (wi->item.expid)
+        case Watch_Item::printTermination:
+        case Watch_Item::waitTermination:
+          ExperimentObject *exp = (wi->item.p.expid != 0)
+                 ? Find_Experiment_Object (wi->item.p.expid)
                  : NULL;
           if (exp == NULL) {
             purge_item = true;
@@ -148,14 +246,19 @@ void SS_Watcher () {
             int expStatus = exp->Determine_Status();
             exp->Q_UnLock ();
 
-            if ((expStatus == ExpStatus_Terminated) ||
+            if ((expStatus == ExpStatus_NonExistent) ||
+                (expStatus == ExpStatus_Terminated) ||
                 (expStatus == ExpStatus_InError)) {
-             // Print a message to the window.
-              Send_Message_To_Window ( wi->item.window, 
-                                         std::string("Experiment ")
-                                            +  int2str(wi->item.expid)
-                                            +  " has terminated."
-                                       );
+              if (wi->itemtype == Watch_Item::printTermination) {
+               // Print a message to the window.
+                Send_Message_To_Window ( wi->item.p.window, 
+                                           std::string("Experiment ")
+                                              +  int2str(wi->item.p.expid)
+                                              +  " has terminated."
+                                         );
+              } else if (wi->itemtype == Watch_Item::waitTermination) {
+                Assert(pthread_cond_signal(&(wi->item.w.condition)) == 0);
+              }
               purge_item = true;
             }
 
