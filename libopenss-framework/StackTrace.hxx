@@ -88,19 +88,19 @@ namespace OpenSpeedShop { namespace Framework {
 	std::pair<bool, LinkedObject>
 	getLinkedObjectAt(const size_type& index) const
 	{
-	    return dm_thread.getLinkedObjectAt((*this)[index], time);
+	    return dm_thread.getLinkedObjectAt((*this)[index], dm_time);
 	}
 
 	/** Get the function containing one of the stack trace entries. */
 	std::pair<bool, Function> getFunctionAt(const size_type& index) const
 	{
-	    return dm_thread.getFunctionAt((*this)[index], time);
+	    return dm_thread.getFunctionAt((*this)[index], dm_time);
 	}
 
 	/** Get the statements containing one of the stack trace entries. */
 	std::set<Statement> getStatementsAt(const size_type& index) const
 	{
-	    return dm_thread.getStatementsAt((*this)[index], time);
+	    return dm_thread.getStatementsAt((*this)[index], dm_time);
 	}
 
     private:
