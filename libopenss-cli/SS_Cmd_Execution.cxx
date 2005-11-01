@@ -1105,6 +1105,7 @@ bool SS_expAttach (CommandObject *cmd) {
 static bool Destroy_Experiment (CommandObject *cmd, ExperimentObject *exp, bool Kill_KeyWord) {
  // Clean up the notice board.
   Cancle_Async_Notice (exp);
+  Cancle_Exp_Wait     (exp);
 
   if (Kill_KeyWord &&
       (exp->FW() != NULL) &&
@@ -1295,6 +1296,7 @@ bool SS_expDetach (CommandObject *cmd) {
 static bool Disable_Experiment (CommandObject *cmd, ExperimentObject *exp) {
  // Clean up the notice board.
   Cancle_Async_Notice (exp);
+  Cancle_Exp_Wait     (exp);
   
  // Determine target and collectors and turn off data collection.
   try {
@@ -1362,6 +1364,7 @@ bool SS_expDisable (CommandObject *cmd) {
 static bool Enable_Experiment (CommandObject *cmd, ExperimentObject *exp) {
  // Clean up the notice board.
   Cancle_Async_Notice (exp);
+  Cancle_Exp_Wait     (exp);
 
  // Determine target and collectors and turn on data collection.
   ThreadGroup tgrp = exp->FW()->getThreads();
@@ -1621,6 +1624,7 @@ bool SS_expGo (CommandObject *cmd) {
 static bool Pause_Experiment (CommandObject *cmd, ExperimentObject *exp) {
  // Clean up the notice board.
   Cancle_Async_Notice (exp);
+  Cancle_Exp_Wait     (exp);
 
  // Get the current status of this experiment.
   exp->Q_Lock (cmd, false);
@@ -3541,6 +3545,53 @@ bool SS_SetBreak (CommandObject *cmd) {
   }
 
   cmd->Result_String ("not yet implemented");
+  cmd->set_Status(CMD_COMPLETE);
+  return true;
+}
+
+/**
+ * Method: ()
+ * 
+ * .
+ *     
+ * @param   .
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
+bool SS_Wait (CommandObject *cmd) {
+  InputLineObject *clip = cmd->Clip();
+  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+
+ // Wait for all executing commands to terminate.
+  Wait_For_Previous_Cmds ();
+
+ // Look for a specified experiment
+  Assert(cmd->P_Result() != NULL);
+  EXPID ExperimentID = 0;
+
+  if (cmd->P_Result()->isExpId()) {
+    ExperimentID = cmd->P_Result()->getExpId();
+  } else {
+   // Get the Focused experiment - if it doesn't exist, return the default "0".
+    ExperimentID = Experiment_Focus ( WindowID );
+  }
+  ExperimentObject *exp = NULL;
+  if (ExperimentID != 0) {
+   // Be sure the requested experiment exists.
+    exp = Find_Specified_Experiment (cmd);
+    if (exp == NULL) {
+      return false;
+    }
+  } 
+
+  if (exp != NULL) {
+   // Wait for the execution of the experiment to terminate.
+    Wait_For_Exp (cmd, exp);
+  }
+
   cmd->set_Status(CMD_COMPLETE);
   return true;
 }
