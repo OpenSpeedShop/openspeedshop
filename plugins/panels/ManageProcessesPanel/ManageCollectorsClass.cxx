@@ -1013,7 +1013,7 @@ ManageCollectorsClass::attachProcessSelected()
 void
 ManageCollectorsClass::focusOnProcessSelected(QListViewItem *item)
 {
-printf("focusOnProcessSelected() listView=0x%x attachCollectorsListView=0x%x psetListView=0x%x\n", item->listView(), attachCollectorsListView, psetListView );
+// printf("focusOnProcessSelected() listView=0x%x attachCollectorsListView=0x%x psetListView=0x%x\n", item->listView(), attachCollectorsListView, psetListView );
  
   if( item->listView() == attachCollectorsListView )
   {
@@ -1031,7 +1031,7 @@ printf("focusOnProcessSelected() listView=0x%x attachCollectorsListView=0x%x pse
 void
 ManageCollectorsClass::focusOnProcessSelected()
 {
-printf("ManageCollectorsClass::focusOnProcessSelected() entered.\n");
+// printf("ManageCollectorsClass::focusOnProcessSelected() entered.\n");
   QString host_name = QString::null;
   FocusObject *msg = NULL;
 
@@ -1051,8 +1051,8 @@ while( it.current() )
     return;
   }
 
-printf("selectedItem->text(0) =(%s)\n", selectedItem->text(0).ascii() );
-printf("selectedItem->text(1) =(%s)\n", selectedItem->text(1).ascii() );
+// printf("selectedItem->text(0) =(%s)\n", selectedItem->text(0).ascii() );
+// printf("selectedItem->text(1) =(%s)\n", selectedItem->text(1).ascii() );
 
   QString pid_name = QString::null;
   QString pidString = QString::null;
@@ -1151,7 +1151,7 @@ printf("selectedItem->text(1) =(%s)\n", selectedItem->text(1).ascii() );
 void
 ManageCollectorsClass::focusOnPSetSelected()
 {
-printf("ManageCollectorsClass::focusOnPSetSelected() entered.\n");
+// printf("ManageCollectorsClass::focusOnPSetSelected() entered.\n");
 
   QString pid_name = QString::null;
   QString pidString = QString::null;
@@ -1160,9 +1160,9 @@ printf("ManageCollectorsClass::focusOnPSetSelected() entered.\n");
   while( it.current() )
   {
     QListViewItem *lvi = (QListViewItem *)it.current();
-printf("PSetSelection: lvi->text(0)=(%s)\n", lvi->text(0).ascii() );
-printf("lvi->text(0) =(%s)\n", lvi->text(0).ascii() );
-printf("lvi->text(1) =(%s)\n", lvi->text(1).ascii() );
+// printf("PSetSelection: lvi->text(0)=(%s)\n", lvi->text(0).ascii() );
+// printf("lvi->text(0) =(%s)\n", lvi->text(0).ascii() );
+// printf("lvi->text(1) =(%s)\n", lvi->text(1).ascii() );
 
     ++it;
   }
@@ -1459,7 +1459,7 @@ ManageCollectorsClass::progressUpdate()
 bool
 ManageCollectorsClass::menu(QPopupMenu* contextMenu)
 {
-printf("ManageCollectorsClass::menu(0x%x) entered.\n", contextMenu);
+// printf("ManageCollectorsClass::menu(0x%x) entered.\n", contextMenu);
 
   bool selectable = TRUE;
   bool leftSide = TRUE;
@@ -1472,10 +1472,6 @@ while( it.current() )
 {
   selectedItem = (QListViewItem *)it.current();
   break;
-}
-if( selectedItem )
-{
-  printf("LEFTSIDE has selectedITem\n");
 }
     psetListView->clearSelection();
   } else
@@ -1496,7 +1492,7 @@ while( it.current() )
       selectable = FALSE;
     } else
     {
-printf("Right side has selected item\n");
+// printf("Right side has selected item\n");
     }
   }
 
@@ -1527,11 +1523,11 @@ printf("Right side has selected item\n");
   qaction->setText( tr("Focus on Process(es)...") );
 if( leftSide == TRUE ) 
 {
-printf("LEFT SIDE MENU\n");
+// printf("LEFT SIDE MENU\n");
   connect( qaction, SIGNAL( activated() ), this, SLOT( focusOnProcessSelected() ) );
 } else
 {
-printf("RIGHT SIDE MENU\n");
+// printf("RIGHT SIDE MENU\n");
   connect( qaction, SIGNAL( activated() ), this, SLOT( focusOnPSetSelected() ) );
 }
   qaction->setStatusTip( tr("Opens dialog box to attach to running process.") );
