@@ -154,7 +154,6 @@ static void pcsampTimerHandler(const ucontext_t* context)
 
 
 
-
 /**
  * Start sampling.
  *
