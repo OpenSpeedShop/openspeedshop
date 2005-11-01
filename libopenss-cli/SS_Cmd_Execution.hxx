@@ -60,6 +60,7 @@ bool SS_OpenGui (CommandObject *cmd);
 bool SS_Playback (CommandObject *cmd);
 bool SS_Record (CommandObject *cmd);
 bool SS_SetBreak (CommandObject *cmd);
+bool SS_Wait (CommandObject *cmd);
 
 // Place holders for comands that are not yet implemented
 bool SS_no_value    	(CommandObject *cmd);
