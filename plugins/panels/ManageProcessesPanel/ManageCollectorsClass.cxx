@@ -92,26 +92,26 @@ ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const 
   attachCollectorsListView->setColumnWidthMode(0, QListView::Manual);
   attachCollectorsListView->setColumnWidthMode(1, QListView::Maximum);
   attachCollectorsListView->setColumnWidth(0, 100);
-//  attachCollectorsListView->setSelectionMode( QListView::Single );
-  attachCollectorsListView->setSelectionMode( QListView::Multi );
+attachCollectorsListView->setSelectionMode( QListView::Multi );
   attachCollectorsListView->setAllColumnsShowFocus( TRUE );
   attachCollectorsListView->setShowSortIndicator( TRUE );
   attachCollectorsListView->setRootIsDecorated(TRUE);
 
-  psetList = new QListView( splitter, "*psetlist" );
-  psetList->addColumn(tr("Process Sets"));
-  psetList->addColumn("          ");
-  psetList->addColumn("          ");
-  psetList->setColumnWidthMode(0, QListView::Manual);
-  psetList->setColumnWidth(0, 100);
-  psetList->setColumnWidthMode(1, QListView::Manual);
-  psetList->setColumnWidth(1, 100);
-  psetList->setColumnWidthMode(2, QListView::Maximum);
+  psetListView = new QListView( splitter, "*psetlist" );
+  psetListView->addColumn(tr("Process Sets"));
+  psetListView->addColumn("          ");
+  psetListView->addColumn("          ");
+  psetListView->setColumnWidthMode(0, QListView::Manual);
+  psetListView->setColumnWidth(0, 100);
+  psetListView->setColumnWidthMode(1, QListView::Manual);
+  psetListView->setColumnWidth(1, 100);
+  psetListView->setColumnWidthMode(2, QListView::Maximum);
 
-  psetList->setAllColumnsShowFocus( TRUE );
-  psetList->setShowSortIndicator( TRUE );
-  psetList->setRootIsDecorated(TRUE);
-  psetList->show();
+  psetListView->setAllColumnsShowFocus( TRUE );
+  psetListView->setShowSortIndicator( TRUE );
+  psetListView->setRootIsDecorated(TRUE);
+psetListView->setSelectionMode( QListView::Multi );
+  psetListView->show();
 
   int width = p->getPanelContainer()->width();
   int height = p->getPanelContainer()->height();
@@ -131,9 +131,8 @@ ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const 
   ManageCollectorsClassLayout->addWidget( splitter );
 
   languageChange();
-  connect(attachCollectorsListView, SIGNAL( contextMenuRequested( QListViewItem *, const QPoint& , int ) ), this, SLOT( contextMenuRequested( QListViewItem *, const QPoint &, int ) ) );
   connect( attachCollectorsListView, SIGNAL(doubleClicked(QListViewItem *)), this, SLOT( focusOnProcessSelected( QListViewItem* )) );
-
+  connect( psetListView, SIGNAL(doubleClicked(QListViewItem *)), this, SLOT( focusOnProcessSelected( QListViewItem* )) );
 
 //  updateAttachedList();
 
@@ -170,7 +169,13 @@ void ManageCollectorsClass::languageChange()
 QString
 ManageCollectorsClass::selectedCollectors()
 {
-  QListViewItem *selectedItem = attachCollectorsListView->selectedItem();
+QListViewItem *selectedItem = NULL;
+QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
+while( it.current() )
+{
+  selectedItem = (QListViewItem *)it.current();
+  break;
+}
   if( selectedItem )
   {
     printf("Got an ITEM!\n");
@@ -192,6 +197,7 @@ ManageCollectorsClass::updateAttachedList()
 // printf("updateAttachedList(%d) \n", expID );
 
   attachCollectorsListView->clear();
+  psetListView->clear();
 
   switch( dialogSortType )
   {
@@ -510,12 +516,12 @@ void
 ManageCollectorsClass::updatePSetList()
 {
   int pset_count = 0;
-printf("updatePSetList(%d) \n", expID );
+// printf("updatePSetList(%d) \n", expID );
 
-  psetList->clear();
+  psetListView->clearSelection();
 
-  QListViewItem *dynamic_items = new QListViewItem( psetList, "Dynamic Process Set", "N/A");
-  QListViewItem *user_items = new QListViewItem( psetList, "User Defined Process Set", "N/A");
+  QListViewItem *dynamic_items = new QListViewItem( psetListView, "Dynamic Process Set", "N/A");
+  QListViewItem *user_items = new QListViewItem( psetListView, "User Defined Process Set", "N/A");
 
 
   QString pset_name = QString::null;
@@ -840,125 +846,17 @@ statusUnknownList.push_back(statusStruct);
 }
 
 void
-ManageCollectorsClass::contextMenuRequested( QListViewItem *item, const QPoint &pos, int col)
-{
-  dprintf("ManageCollectorsClass::contextMenuRequested() entered.\n");
-
-
-  if( item == 0 )
-  {
-    return;
-  }
-  QListViewItem *selected_item = item;
-
-
-  QString field_name = QString::null;
-  if( item )
-  {
-// printf("%s %s\n", attachCollectorsListView->selectedItem()->text(0).ascii(), attachCollectorsListView->selectedItem()->text(1).ascii()  );
-// printf("%s %s\n", item->text(0).ascii(), item->text(1).ascii()  );
-    if( dialogSortType == COLLECTOR_T )
-    {
-      field_name = item->text(0);
-    } else
-    {
-// printf("%s %s\n", item->text(0).ascii(), item->text(1).ascii() );
-// printf("%s %s\n", attachCollectorsListView->selectedItem()->text(0).ascii(), attachCollectorsListView->selectedItem()->text(1).ascii()  );
-      field_name = item->text(1);
-    }
-  } else
-  {
-    return;
-  }
-
-  if( popupMenu != NULL )
-  {
-    delete popupMenu;
-  } 
-  popupMenu = new QPopupMenu(this);
-
-  if( paramMenu != NULL )
-  {
-    delete paramMenu;
-  }
-  paramMenu = NULL;
-  if( collectorPopupMenu != NULL )
-  {
-    delete collectorPopupMenu;
-  }
-  collectorPopupMenu = NULL;
-
-
-
-  // It may make sense to allow other SortTypes to add/delete collectors... 
-  // At this point only this sort type is supported.
-  if( dialogSortType == COLLECTOR_T || dialogSortType == PID_T || 
-      dialogSortType == HOST_T )
-  {
-
-    if( selected_item &&
-       ( dialogSortType == COLLECTOR_T && selected_item->parent() == NULL ) ||
-       ( dialogSortType == PID_T && selected_item->parent() != NULL ) )
-    {
-// printf("Here field_name=(%s)\n", !field_name.isEmpty() ? field_name.ascii() : NULL );
-      CollectorEntry *ce = NULL;
-      CollectorEntryList::Iterator it;
-clo = new CollectorListObject(expID);
-      if( clo )
-      {
-        for( it = clo->collectorEntryList.begin();
-             it != clo->collectorEntryList.end();
-             ++it )
-        {
-          ce = (CollectorEntry *)*it;
-          if( field_name == ce->name )
-          {
-// printf("(%s): parameters are\n", ce->name.ascii() );
-            CollectorParameterEntryList::Iterator pit = ce->paramList.begin();
-            if( ce->paramList.size() == 1 )
-            {
-// printf("size == 1\n");
-              CollectorParameterEntry *cpe = (CollectorParameterEntry *)*pit;
-              popupMenu->insertItem( QString("Modify Parameter ... (%1::%2)").arg(cpe->name.ascii()).arg(cpe->param_value.ascii()), this, SLOT(paramSelected(int)) );
-// printf("done size == 1\n");
-            } else
-            {
-// printf("size != 1\n");
-              if( paramMenu == NULL )
-              {
-                paramMenu = new QPopupMenu(this);
-              }
-              connect( paramMenu, SIGNAL( activated( int ) ),
-                         this, SLOT( paramSelected( int ) ) );
-              popupMenu->insertItem("Modify Parameter", paramMenu);
-// printf("done size != 1\n");
-              for( ;pit != ce->paramList.end();  pit++)
-              {
-                CollectorParameterEntry *cpe = (CollectorParameterEntry *)*pit;
-// printf("\t%s   %s\n", cpe->name.ascii(), cpe->param_value.ascii() );
-                paramMenu->insertItem(QString("%1::%2").arg(cpe->name.ascii()).arg(cpe->param_value.ascii()) );
-// printf("\tdone: %s   %s\n", cpe->name.ascii(), cpe->param_value.ascii() );
-              }
-            }
-            break;
-          }
-        }
-      }
-    }
-// printf("here... popupMenu=0x%x\n", popupMenu );
-  menu(popupMenu);
-  }
-
-
-  popupMenu->popup( pos );
-}
-
-void
 ManageCollectorsClass::detachSelected()
 {
 // printf("detachSelected\n");
 
-  QListViewItem *selectedItem = attachCollectorsListView->selectedItem();
+QListViewItem *selectedItem = NULL;
+QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
+while( it.current() )
+{
+  selectedItem = (QListViewItem *)it.current();
+  break;
+}
   if( selectedItem )
   {
     QString ret_value = selectedItem->text(0);
@@ -980,13 +878,20 @@ return;
     QMessageBox::information( this, tr("Detach Collector Info:"), tr("You need to select a collector first."), QMessageBox::Ok );
   }
   updateAttachedList();
+  updatePSetList();
 }
 
 void
 ManageCollectorsClass::disableSelected()
 {
 // printf("disableSelected\n");
-  QListViewItem *selectedItem = attachCollectorsListView->selectedItem();
+QListViewItem *selectedItem = NULL;
+QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
+while( it.current() )
+{
+  selectedItem = (QListViewItem *)it.current();
+  break;
+}
   if( selectedItem )
   {
     QString ret_value = selectedItem->text(0);
@@ -1009,6 +914,7 @@ return;
     QMessageBox::information( this, tr("Detach Collector Info:"), tr("You need to select a collector first."), QMessageBox::Ok );
   }
   updateAttachedList();
+  updatePSetList();
 }
 
 
@@ -1016,7 +922,13 @@ void
 ManageCollectorsClass::enableSelected()
 {
 // printf("enableSelected\n");
-  QListViewItem *selectedItem = attachCollectorsListView->selectedItem();
+QListViewItem *selectedItem = NULL;
+QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
+while( it.current() )
+{
+  selectedItem = (QListViewItem *)it.current();
+  break;
+}
   if( selectedItem )
   {
     QString ret_value = selectedItem->text(0);
@@ -1039,6 +951,7 @@ return;
     QMessageBox::information( this, tr("Detach Collector Info:"), tr("You need to select a collector first."), QMessageBox::Ok );
   }
   updateAttachedList();
+  updatePSetList();
 }
 
 void
@@ -1094,26 +1007,52 @@ ManageCollectorsClass::attachProcessSelected()
   }
   
   updateAttachedList();
+  updatePSetList();
 }
 
 void
-ManageCollectorsClass::focusOnProcessSelected(QListViewItem *)
+ManageCollectorsClass::focusOnProcessSelected(QListViewItem *item)
 {
-  focusOnProcessSelected();
+printf("focusOnProcessSelected() listView=0x%x attachCollectorsListView=0x%x psetListView=0x%x\n", item->listView(), attachCollectorsListView, psetListView );
+ 
+  if( item->listView() == attachCollectorsListView )
+  {
+    focusOnProcessSelected();
+    psetListView->clearSelection();
+  } else
+  {
+    focusOnPSetSelected();
+    attachCollectorsListView->clearSelection();
+  }
 }
+
 
 
 void
 ManageCollectorsClass::focusOnProcessSelected()
 {
-// printf("ManageCollectorsClass::focusOnProcessSelected() entered.\n");
+printf("ManageCollectorsClass::focusOnProcessSelected() entered.\n");
   QString host_name = QString::null;
   FocusObject *msg = NULL;
 
-  QListViewItem *selectedItem = attachCollectorsListView->selectedItem();
+QListViewItem *selectedItem = NULL;
+{
+QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
+while( it.current() )
+{
+  selectedItem = (QListViewItem *)it.current();
+  break;
+}
+}
 
-// printf("selectedItem->text(0) =(%s)\n", selectedItem->text(0).ascii() );
-// printf("selectedItem->text(1) =(%s)\n", selectedItem->text(1).ascii() );
+  // If nothing is selected in the left side, look to the right...
+  if( selectedItem == NULL )
+  {
+    return;
+  }
+
+printf("selectedItem->text(0) =(%s)\n", selectedItem->text(0).ascii() );
+printf("selectedItem->text(1) =(%s)\n", selectedItem->text(1).ascii() );
 
   QString pid_name = QString::null;
   QString pidString = QString::null;
@@ -1210,6 +1149,26 @@ ManageCollectorsClass::focusOnProcessSelected()
 }
 
 void
+ManageCollectorsClass::focusOnPSetSelected()
+{
+printf("ManageCollectorsClass::focusOnPSetSelected() entered.\n");
+
+  QString pid_name = QString::null;
+  QString pidString = QString::null;
+ 
+  QListViewItemIterator it(psetListView, QListViewItemIterator::Selected);
+  while( it.current() )
+  {
+    QListViewItem *lvi = (QListViewItem *)it.current();
+printf("PSetSelection: lvi->text(0)=(%s)\n", lvi->text(0).ascii() );
+printf("lvi->text(0) =(%s)\n", lvi->text(0).ascii() );
+printf("lvi->text(1) =(%s)\n", lvi->text(1).ascii() );
+
+    ++it;
+  }
+}
+
+void
 ManageCollectorsClass::updatePanel()
 {
 // printf("ManageCollectorsClass::updatePanel()\n");
@@ -1268,6 +1227,7 @@ ManageCollectorsClass::loadProgramSelected()
   }
 
   updateAttachedList();
+  updatePSetList();
 }
 
 void
@@ -1275,7 +1235,14 @@ ManageCollectorsClass::paramSelected(int val)
 {
 //  printf("paramSelected val=%d\n", val);
 //  printf("paramSelected val=%s\n", QString("%1").arg(val).ascii() );
-  QListViewItem *selectedItem = attachCollectorsListView->selectedItem();
+//  QListViewItem *selectedItem = attachCollectorsListView->selectedItem();
+QListViewItem *selectedItem = NULL;
+QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
+while( it.current() )
+{
+  selectedItem = (QListViewItem *)it.current();
+  break;
+}
   QString param_text = QString::null;
   if( selectedItem )
   {
@@ -1358,7 +1325,15 @@ void
 ManageCollectorsClass::attachCollectorSelected(int val)
 {
 // printf("attachCollectorSelected(val=%d)\n", val);
-  QListViewItem *selectedItem = attachCollectorsListView->selectedItem();
+//  QListViewItem *selectedItem = attachCollectorsListView->selectedItem();
+QListViewItem *selectedItem = NULL;
+QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
+while( it.current() )
+{
+  selectedItem = (QListViewItem *)it.current();
+  break;
+}
+  QString param_text = QString::null;
   QString collector_name = QString::null;
   QString target_name = QString::null;
   if( selectedItem )
@@ -1484,7 +1459,47 @@ ManageCollectorsClass::progressUpdate()
 bool
 ManageCollectorsClass::menu(QPopupMenu* contextMenu)
 {
-  dprintf("ManageCollectorsClass::menu(0x%x) entered.\n", contextMenu);
+printf("ManageCollectorsClass::menu(0x%x) entered.\n", contextMenu);
+
+  bool selectable = TRUE;
+  bool leftSide = TRUE;
+
+QListViewItem *selectedItem = NULL;
+  if( attachCollectorsListView->hasMouse() )
+  {
+QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
+while( it.current() )
+{
+  selectedItem = (QListViewItem *)it.current();
+  break;
+}
+if( selectedItem )
+{
+  printf("LEFTSIDE has selectedITem\n");
+}
+    psetListView->clearSelection();
+  } else
+  {
+    attachCollectorsListView->clearSelection();
+    leftSide = FALSE;
+
+    // If this is a root node, there's no selection available.  Ignore..
+QListViewItemIterator it(psetListView, QListViewItemIterator::Selected);
+while( it.current() )
+{
+  selectedItem = (QListViewItem *)it.current();
+  break;
+}
+    if( selectedItem->parent() == NULL )
+    {
+      psetListView->clearSelection();
+      selectable = FALSE;
+    } else
+    {
+printf("Right side has selected item\n");
+    }
+  }
+
 
   contextMenu->insertSeparator();
 
@@ -1510,8 +1525,22 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
   qaction = new QAction( this,  "focusOnProcess");
   qaction->addTo( contextMenu );
   qaction->setText( tr("Focus on Process(es)...") );
+if( leftSide == TRUE ) 
+{
+printf("LEFT SIDE MENU\n");
   connect( qaction, SIGNAL( activated() ), this, SLOT( focusOnProcessSelected() ) );
+} else
+{
+printf("RIGHT SIDE MENU\n");
+  connect( qaction, SIGNAL( activated() ), this, SLOT( focusOnPSetSelected() ) );
+}
   qaction->setStatusTip( tr("Opens dialog box to attach to running process.") );
+
+  // If we can't select this item, leave it here, but disable it.
+  if( !selectable ) 
+  {
+    qaction->setEnabled(FALSE);
+  }
 
 
   collectorMenu = new QPopupMenu(contextMenu);

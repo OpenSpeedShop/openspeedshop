@@ -135,6 +135,7 @@ ManageProcessesPanel::listener(void *msg)
 
     mcc->expID = msg->expID;
     mcc->updateAttachedList();
+    mcc->updatePSetList();
 
     if( msg->raiseFLAG )
     {

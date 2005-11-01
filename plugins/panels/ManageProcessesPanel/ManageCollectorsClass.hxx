@@ -58,7 +58,7 @@ public:
     ~ManageCollectorsClass();
 
     QListView* attachCollectorsListView;
-    QListView *psetList;
+    QListView *psetListView;
 
     QString selectedCollectors();
     void updateAttachedList();
@@ -96,8 +96,6 @@ protected slots:
     virtual void languageChange();
 
 public slots:
-    void contextMenuRequested( QListViewItem *item, const QPoint &pos, int col );
-
 
 private slots:
     void attachCollectorSelected(int);
@@ -106,6 +104,7 @@ private slots:
     void enableSelected();
     void attachProcessSelected();
     void focusOnProcessSelected();
+    void focusOnPSetSelected();
     void focusOnProcessSelected(QListViewItem*);
     void loadProgramSelected();
     void fileCollectorAboutToShowSelected();
