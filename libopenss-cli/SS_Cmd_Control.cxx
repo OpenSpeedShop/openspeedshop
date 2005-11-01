@@ -195,6 +195,9 @@ try {
   case CMD_SETBREAK:
     cmd_successful = SS_SetBreak (cmd);
     break;
+  case CMD_WAIT:
+    cmd_successful = SS_Wait (cmd);
+    break;
   default:
 #if 1
     std::string s("This command has not been implimented yet.");
