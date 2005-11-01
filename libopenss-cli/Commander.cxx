@@ -2151,6 +2151,9 @@ static void User_Interrupt (CMDWID issuedbywindow) {
 
    // Stop commands that are being processed.
     cw->Abort_Executing_Input_Lines ();
+
+   // Awaken "wait" commands.
+    Purge_Watcher_Waits ();
   }
 }
 
