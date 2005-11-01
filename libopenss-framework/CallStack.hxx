@@ -18,12 +18,12 @@
 
 /** @file
  *
- * Declaration of the CallStack class.
+ * Declaration of the StackTrace class.
  *
  */
 
-#ifndef _OpenSpeedShop_Framework_CallStack_
-#define _OpenSpeedShop_Framework_CallStack_
+#ifndef _OpenSpeedShop_Framework_StackTrace_
+#define _OpenSpeedShop_Framework_StackTrace_
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -45,7 +45,7 @@
 namespace OpenSpeedShop { namespace Framework {
 
     /**
-     * Call stack.
+     * Stack trace.
      *
      * Ordered list of addresses representing the function call sequence at a
      * particular moment in a thread's execution. The first (zero index) entry
@@ -54,18 +54,18 @@ namespace OpenSpeedShop { namespace Framework {
      * the thread. Entries in between contain caller addresses representing
      * the sequence of function calls that led to the current instruction.
      *
-     * @sa    http://en.wikipedia.org/wiki/Call_stack
+     * @sa    http://en.wikipedia.org/wiki/Stack_trace
      *
-     * @ingroup Implementation
+     * @ingroup CollectorAPI ToolAPI
      */
-    class CallStack :
+    class StackTrace :
 	public std::vector<Address>
     {
 
     public:
 
 	/** Constructor from thread and time. */
-	CallStack::CallStack(const Thread& thread, const Time& time) :
+	StackTrace::StackTrace(const Thread& thread, const Time& time) :
 	    std::vector<Address>(),
 	    dm_thread(thread),
 	    dm_time(time)
@@ -84,20 +84,20 @@ namespace OpenSpeedShop { namespace Framework {
 	    return dm_time;
 	}
 
-	/** Get the linked object containing one of the call stack entries. */
+	/** Get the linked object containing one of the stack trace entries. */
 	std::pair<bool, LinkedObject>
 	getLinkedObjectAt(const size_type& index) const
 	{
 	    return dm_thread.getLinkedObjectAt((*this)[index], time);
 	}
 
-	/** Get the function containing one of the call stack entries. */
+	/** Get the function containing one of the stack trace entries. */
 	std::pair<bool, Function> getFunctionAt(const size_type& index) const
 	{
 	    return dm_thread.getFunctionAt((*this)[index], time);
 	}
 
-	/** Get the statements containing one of the call stack entries. */
+	/** Get the statements containing one of the stack trace entries. */
 	std::set<Statement> getStatementsAt(const size_type& index) const
 	{
 	    return dm_thread.getStatementsAt((*this)[index], time);
@@ -105,10 +105,10 @@ namespace OpenSpeedShop { namespace Framework {
 
     private:
 
-	/** Thread in which this call stack was recorded. */
+	/** Thread in which this stack trace was recorded. */
 	Thread dm_thread;
 	
-	/** Time at which this call stack was recorded. */
+	/** Time at which this stack trace was recorded. */
 	Time dm_time;
 	
     };

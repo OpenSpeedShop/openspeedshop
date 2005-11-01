@@ -36,6 +36,7 @@
 #include "Function.hxx"
 #include "LinkedObject.hxx"
 #include "Path.hxx"
+#include "StackTrace.hxx"
 #include "Statement.hxx"
 #include "Thread.hxx"
 #include "ThreadGroup.hxx"

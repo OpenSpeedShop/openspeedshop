@@ -51,7 +51,6 @@ libopenss_framework_la_SOURCES = \
 	Assert.hxx \
 	Blob.hxx Blob.cxx \
 	CallSite.hxx CallSite.cxx \
-	CallStack.hxx \
 	Collector.hxx Collector.cxx \
 	CollectorAPI.hxx \
 	CollectorGroup.hxx CollectorGroup.cxx \
@@ -77,6 +76,7 @@ libopenss_framework_la_SOURCES = \
 	OutputCallback.hxx \
 	Path.hxx Path.cxx \
 	SmartPtr.hxx \
+	StackTrace.hxx \
 	Statement.hxx Statement.cxx \
 	SymbolTable.hxx SymbolTable.cxx \
 	Thread.hxx Thread.cxx \
