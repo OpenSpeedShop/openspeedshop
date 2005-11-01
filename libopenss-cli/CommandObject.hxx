@@ -53,6 +53,9 @@ class CommandResult {
   virtual void Value (char *&C) {
     C = NULL;
   }
+  virtual PyObject * pyValue () {
+    return Py_BuildValue("");
+  }
   virtual void Print (ostream &to, int64_t fieldsize=20, bool leftjustified=false) {
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
        << std::setw(fieldsize) << "(none)";
@@ -78,6 +81,9 @@ class CommandResult_Uint : public CommandResult {
   virtual void Value (uint64_t &U) {
     U = uint_value;
   };
+  virtual PyObject * pyValue () {
+    return Py_BuildValue("l", uint_value);
+  }
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
        << std::setw(fieldsize) << uint_value;
@@ -108,6 +114,9 @@ class CommandResult_Int : public CommandResult {
   virtual void Value (int64_t &I) {
     I = int_value;
   };
+  virtual PyObject * pyValue () {
+    return Py_BuildValue("l", int_value);
+  }
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
        << std::setw(fieldsize) << int_value;
@@ -143,6 +152,9 @@ class CommandResult_Float : public CommandResult {
   virtual void Value (double &F) {
     F = float_value;
   };
+  virtual PyObject * pyValue () {
+    return Py_BuildValue("d", float_value);
+  }
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
        << std::setw(fieldsize) << fixed << setprecision(OPENSSS_VIEW_PRECISION) << float_value;
@@ -166,6 +178,9 @@ class CommandResult_String : public CommandResult {
 
   virtual void Value (std::string &S) {
     S = string_value;
+  }
+  virtual PyObject * pyValue () {
+    return Py_BuildValue("s",string_value.c_str());
   }
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
     if (leftjustified) {
@@ -209,6 +224,9 @@ class CommandResult_RawString : public CommandResult {
   virtual void Value (std::string &S) {
     S = string_value;
   }
+  virtual PyObject * pyValue () {
+    return Py_BuildValue("s",string_value.c_str());
+  }
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
     // Ignore fieldsize and leftjustified specifications and just dump the
     // the raw string to the output stream.
@@ -229,6 +247,10 @@ class CommandResult_Function : public CommandResult, Function {
   virtual void Value (std::string &F) {
     F = gen_F_name (*this);
   };
+  virtual PyObject * pyValue () {
+    std::string F = gen_F_name (*this);
+    return Py_BuildValue("s",F.c_str());
+  }
 
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
     std::string string_value = gen_F_name (*this);
@@ -266,6 +288,9 @@ class CommandResult_Title : public CommandResult {
   virtual void Value (std::string &S) {
     S = string_value;
   }
+  virtual PyObject * pyValue () {
+    return Py_BuildValue("s",string_value.c_str());
+  }
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
     to << string_value;
   }
@@ -287,6 +312,15 @@ class CommandResult_Headers : public CommandResult {
 
   virtual void Value (std::list<CommandResult *> &R) {
     R = Headers;
+  }
+  virtual PyObject * pyValue () {
+    PyObject *p_object = PyList_New(0);
+    std::list<CommandResult *>::iterator cri = Headers.begin();
+    for (cri = Headers.begin(); cri != Headers.end(); cri++) {
+      PyObject *p_item = (*cri)->pyValue ();
+      PyList_Append(p_object,p_item);
+    }
+    return p_object;
   }
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
     
@@ -318,6 +352,15 @@ class CommandResult_Enders : public CommandResult {
   virtual void Value (std::list<CommandResult *> &R) {
     R = Enders;
   }
+  virtual PyObject * pyValue () {
+    PyObject *p_object = PyList_New(0);
+    std::list<CommandResult *>::iterator cri = Enders.begin();
+    for (cri = Enders.begin(); cri != Enders.end(); cri++) {
+      PyObject *p_item = (*cri)->pyValue ();
+      PyList_Append(p_object,p_item);
+    }
+    return p_object;
+  }
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
     
     std::list<CommandResult *> cmd_object = Enders;
@@ -347,6 +390,15 @@ class CommandResult_Columns : public CommandResult {
 
   virtual void Value (std::list<CommandResult *>  &R) {
     R = Columns;
+  }
+  virtual PyObject * pyValue () {
+    PyObject *p_object = PyList_New(0);
+    std::list<CommandResult *>::iterator cri = Columns.begin();
+    for (cri = Columns.begin(); cri != Columns.end(); cri++) {
+      PyObject *p_item = (*cri)->pyValue ();
+      PyList_Append(p_object,p_item);
+    }
+    return p_object;
   }
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
     std::list<CommandResult *>::iterator coi;
