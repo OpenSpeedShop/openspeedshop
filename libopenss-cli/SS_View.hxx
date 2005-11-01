@@ -181,8 +181,6 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                    ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
                    std::vector<ViewInstruction *> IV, std::string *HV = NULL);
 
-typedef std::pair<Function, CommandResult *> Function_CommandResult_pair;
-typedef std::pair<Function, double> Function_double_pair;
 CommandResult *Init_Collector_Metric (CommandObject *cmd,
                                       Collector collector,
                                       std::string metric);
@@ -190,49 +188,25 @@ CommandResult *Get_Total_Metric (CommandObject *cmd,
                                  ThreadGroup tgrp,
                                  Collector collector,
                                  std::string metric);
-void GetMetricByFunctionSet (CommandObject *cmd,
-                             ThreadGroup& tgrp,
-                             Collector& collector,
-                             std::string& metric,
-                             std::set<Function>& objects,
-                             SmartPtr<std::map<Function, CommandResult *> >& items);
-void GetMetricByStatementSet (CommandObject *cmd,
-                              ThreadGroup& tgrp,
-                              Collector& collector,
-                              std::string& metric,
-                              std::set<Statement>& objects,
-                              SmartPtr<std::map<Statement, CommandResult *> >& items);
-void GetMetricByLinkedObjectSet (CommandObject *cmd,
-                             ThreadGroup& tgrp,
-                             Collector& collector,
-                             std::string& metric,
-                             std::set<LinkedObject>& objects,
-                             SmartPtr<std::map<LinkedObject, CommandResult *> >& items);
 
-inline void GetMetricByObjectSet (CommandObject *cmd,
-                           ThreadGroup& tgrp,
-                           Collector& collector,
-                           std::string& metric,
-                           std::set<Function>& objects,
-                           SmartPtr<std::map<Framework::Function, CommandResult *> >& items) {
-  GetMetricByFunctionSet (cmd, tgrp, collector, metric, objects, items);
-}
-inline void GetMetricByObjectSet (CommandObject *cmd,
+void GetMetricByObjectSet (CommandObject *cmd,
+                            ThreadGroup& tgrp,
+                            Collector& collector,
+                            std::string& metric,
+                            std::set<Function>& objects,
+                            SmartPtr<std::map<Function, CommandResult *> >& items);
+void GetMetricByObjectSet (CommandObject *cmd,
                            ThreadGroup& tgrp,
                            Collector& collector,
                            std::string& metric,
                            std::set<Statement>& objects,
-                           SmartPtr<std::map<Framework::Statement, CommandResult *> >& items) {
-  GetMetricByStatementSet (cmd, tgrp, collector, metric, objects, items);
-}
-inline void GetMetricByObjectSet (CommandObject *cmd,
+                           SmartPtr<std::map<Statement, CommandResult *> >& items);
+void GetMetricByObjectSet (CommandObject *cmd,
                            ThreadGroup& tgrp,
                            Collector& collector,
                            std::string& metric,
                            std::set<LinkedObject>& objects,
-                           SmartPtr<std::map<Framework::LinkedObject, CommandResult *> >& items) {
-  GetMetricByLinkedObjectSet (cmd, tgrp, collector, metric, objects, items);
-}
+                           SmartPtr<std::map<LinkedObject, CommandResult *> >& items);
 
 template <typename TE>
 void GetMetricByObject (CommandObject *cmd,

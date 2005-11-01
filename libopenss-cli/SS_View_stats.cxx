@@ -120,14 +120,14 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                 new std::map<Function, CommandResult * >()
                 );
     GetMetricByObject (cmd, false, tgrp, CV[Column0index], MV[Column0index], initial_items);
-    std::vector<Function_CommandResult_pair> items;
+    std::vector<std::pair<Function, CommandResult *> > items;
     std::map <Function, CommandResult *>::const_iterator ii;
     for(ii = initial_items->begin(); ii != initial_items->end(); ii++ ) {
       items.push_back (std::make_pair(ii->first, ii->second));
     }
 
    // Now we can sort the data.
-    std::sort(items.begin(), items.end(), sort_descending_CommandResult<Function_CommandResult_pair>());
+    std::sort(items.begin(), items.end(), sort_descending_CommandResult<std::pair<Function, CommandResult *> >());
     if (items.begin() == items.end()) {
 #if 1
       {
@@ -223,7 +223,7 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
         int64_t CM_Index = vinst->TMP1();
         std::set<Function> objects;
 
-        std::vector<Function_CommandResult_pair>::const_iterator it = items.begin();
+        std::vector<std::pair<Function, CommandResult *> >::const_iterator it = items.begin();
         for(int64_t foundn = 0; (foundn < topn) && (it != items.end()); foundn++, it++ ) {
           objects.insert(it->first);
         }
@@ -239,7 +239,7 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
 
 
    // Extract the top "n" items from the sorted list.
-    std::vector<Function_CommandResult_pair>::const_iterator it = items.begin();
+    std::vector<std::pair<Function, CommandResult *> >::const_iterator it = items.begin();
     for(int64_t foundn = 0; (foundn < topn) && (it != items.end()); foundn++, it++ ) {
       CommandResult *percent_of = NULL;
 

@@ -155,30 +155,30 @@ void GetMetricBySet (CommandObject *cmd,
   return;
 }
 
-void GetMetricByFunctionSet (CommandObject *cmd,
-                             ThreadGroup& tgrp,
-                             Collector& collector,
-                             std::string& metric,
-                             std::set<Function>& objects,
-                             SmartPtr<std::map<Function, CommandResult *> >& items) {
+void GetMetricByObjectSet (CommandObject *cmd,
+                           ThreadGroup& tgrp,
+                           Collector& collector,
+                           std::string& metric,
+                           std::set<Function>& objects,
+                           SmartPtr<std::map<Function, CommandResult *> >& items) {
   GetMetricBySet (cmd, tgrp, collector, metric, objects, items);
 }
 
-void GetMetricByStatementSet (CommandObject *cmd,
-                             ThreadGroup& tgrp,
-                             Collector& collector,
-                             std::string& metric,
-                             std::set<Statement>& objects,
-                             SmartPtr<std::map<Statement, CommandResult *> >& items) {
+void GetMetricByObjectSet (CommandObject *cmd,
+                           ThreadGroup& tgrp,
+                           Collector& collector,
+                           std::string& metric,
+                           std::set<Statement>& objects,
+                           SmartPtr<std::map<Statement, CommandResult *> >& items) {
   GetMetricBySet (cmd, tgrp, collector, metric, objects, items);
 }
 
-void GetMetricByLinkedObjectSet (CommandObject *cmd,
-                             ThreadGroup& tgrp,
-                             Collector& collector,
-                             std::string& metric,
-                             std::set<LinkedObject>& objects,
-                             SmartPtr<std::map<LinkedObject, CommandResult *> >& items) {
+void GetMetricByObjectSet (CommandObject *cmd,
+                           ThreadGroup& tgrp,
+                           Collector& collector,
+                           std::string& metric,
+                           std::set<LinkedObject>& objects,
+                           SmartPtr<std::map<LinkedObject, CommandResult *> >& items) {
   GetMetricBySet (cmd, tgrp, collector, metric, objects, items);
 }
 
