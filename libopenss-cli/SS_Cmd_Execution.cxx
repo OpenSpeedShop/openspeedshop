@@ -1562,7 +1562,9 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
     (void) Wait_For_Exp_State (cmd, ExpStatus_Running, exp);
 
    // Notify the user when the experiment has terminated.
-    Request_Async_Notice_Of_Termination (cmd, exp);
+    if (Embedded_WindowID == 0) {
+      Request_Async_Notice_Of_Termination (cmd, exp);
+    }
 
    // Annotate the command
     cmd->Result_Annotation ("Start asynchronous execution of experiment:  -x "
