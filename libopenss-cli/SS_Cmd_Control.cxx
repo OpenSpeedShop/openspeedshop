@@ -290,7 +290,8 @@ void SafeToDoNextCmd () {
 }
 
 static void Cmd_EXT_Create () {
- // When we get here Cmd_EXT_Lock is still set.
+ // When we get here Cmd_EXT_Lock is not set.
+  Assert(pthread_mutex_lock(&Cmd_EXT_Lock) == 0);
   EXT_Allocated++;
   EXT_Created++;
 
@@ -434,13 +435,11 @@ void SS_Execute_Cmd (CommandObject *cmd) {
           pthread_t EXT_handle;
           int stat = pthread_create(&EXT_handle, 0, (void *(*)(void *))Cmd_EXT_Create,(void *)NULL);
           if (stat != 0) {
-           // Attempt error recovery.
-            cerr << "ERROR: unable to execute any comands." << std::endl;
+           // Attempt error recovery and exit.
+            cmd->Result_String ("ERROR: unable to execute any commands.");
+            cmd->set_Status (CMD_ERROR);
+            Cmd_Obj_Complete (cmd);
             Shut_Down = true;
-          } else {
-           // Control lock released when thread does a "join".
-           // We need to get it back!
-            Assert(pthread_mutex_lock(&Cmd_EXT_Lock) == 0);
           }
         }
       }
