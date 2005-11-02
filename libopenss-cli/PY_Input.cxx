@@ -482,6 +482,10 @@ SS_ParseError (PyObject *self, PyObject *args) {
     return p_object;
 
 }
+
+// Definitions for basic initialization / termination sequences.
+void Openss_Basic_Initialization ();
+void Openss_Basic_Termination();
  
 /**
  * Method: SS_InitEmbeddedInterface()
@@ -503,15 +507,11 @@ SS_InitEmbeddedInterface (PyObject *self, PyObject *args) {
 
 //printf("Entering SS_InitEmbeddedInterface()\n");
 
-  // Setup the Command Line tracking mechanisms
-  Commander_Initialization();
+ // Initialize the basic CLI mechanisms.
+  Openss_Basic_Initialization ();
 
-   // Define Built-In Views
-  SS_Init_BuiltIn_Views();
-  SS_Load_View_plugins();
-
-  // Define a default input window as an anchor 
-  // for tracking commands
+ // Define a default input window as an anchor 
+ // for tracking commands
   pid_t my_pid = getpid();
   char HostName[MAXHOSTNAMELEN+1];
   Embedded_WindowID = Embedded_Window ("EmbeddedInterface", 
@@ -520,11 +520,11 @@ SS_InitEmbeddedInterface (PyObject *self, PyObject *args) {
 					0,
 					false);
 
-  // Load in pcli messages into message czar
-  // This must follow setting Embedded_WindowID
+ // Load in pcli messages into message czar
+ // This must follow setting Embedded_WindowID
   pcli_load_scripting_messages();
 
-  // Direct output back to Python.
+ // Direct output back to Python.
   cmd_output_to_python = true;
 
 //printf("L SS_InitEmbeddedInterface()\n");
@@ -551,19 +551,13 @@ SS_ExitEmbeddedInterface (PyObject *self, PyObject *args) {
 //printf("Entering SS_ExitEmbeddedInterface()\n");
 
   if (Embedded_WindowID != 0) {
-
-   // Close any open experiments.
-    Experiment_Termination ();
-
-   // Unload plugin views.
-    SS_Remove_View_plugins ();
   
    // Close allocated input windows.
     Window_Termination (Embedded_WindowID);
     Embedded_WindowID = 0;
 
    // Close down the CLI.
-    Commander_Termination ();
+    Openss_Basic_Termination();
   }
 
 //printf("L SS_ExitEmbeddedInterface()\n");
