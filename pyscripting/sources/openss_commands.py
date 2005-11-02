@@ -796,17 +796,21 @@ def list(*arglist):
 
     	    Example1::
     	    	#List breaks set in the currently focused experiment
-	    	int_list = openss.listBreaks()
+	    	my_modifier = openss.ModifierList("breaks")
+	    	int_list = openss.list(my_modifier)
 	
     	    Example2::
     	    	#List breaks set in all active experiments
-	    	my_modifier = openss.ModifierList("all")
-	    	int_list = openss.listBreaks(my_modifier)
+	    	my_modifier = openss.ModifierList(["breaks","all"])
+	    	int_list = openss.list(my_modifier)
 	
     	    Example3::
-    	    	#List breaks set in a specified experiment (7)
-	    	my_exp = openss.ExpId(7)
-	    	int_list = openss.listBreaks(my_exp)
+    	    	#List breaks set in a specified experiment
+	    	my_modifier = openss.ModifierList("breaks")
+		:
+		:
+	    	my_exp = openss.expCreate()
+	    	int_list = openss.list(my_modifier)
 
     	- "B{exp}"
     	    - List the experiments that have been defined.
@@ -816,7 +820,9 @@ def list(*arglist):
 	    - I{<output>}: 
 
     	    Example::
-    	    	int_list = openss.listExp()
+	    	#List of I{ExpId} of active experiments.
+	    	my_modifier = openss.ModifierList("exp")
+    	    	expid_list = openss.listExp()
 
     	- "B{hosts}"
     	    - Lists the hosts that define the specified cluster.
@@ -831,13 +837,17 @@ def list(*arglist):
     	    	- I{ExpId} (optional)
 
     	    Example1::
-    	    	#List hosts for currently focused experiment (7)
-    	    	int_list = openss.listHosts()
+    	    	#List hosts for currently focused experiment
+	    	my_modifier = openss.ModifierList("hosts")
+    	    	string_list = openss.list(my_modifier)
 
     	    Example2::
-    	    	#List hosts for a specified experiment (7)
-	    	my_exp = openss.ExpId(7)
-	    	int_list = openss.listHosts(my_exp)
+    	    	#List hosts for a specified experiment
+	    	my_modifier = openss.ModifierList("hosts")
+	    	my_exp = openss.expCreate()
+		:
+		:
+	    	string_list = openss.listHosts(my_modifier,my_exp)
 
     	- "B{metrics}"
     	    - Retrieve the metrics that are associated with a 
@@ -862,6 +872,22 @@ def list(*arglist):
 	    - I{<output>}: 
 	    	- I{<ListOf_expMetric>}
 
+
+    	    Example1::
+    	    	#List view type metrics for currently focused experiment
+	    	my_modifier = openss.ModifierList("metrics")
+    	    	string_list = openss.list(my_modifier)
+
+    	    Example2::
+    	    	#List view type metrics for a specified experiment
+		#and for a specific host.
+	    	my_modifier = openss.ModifierList("metrics")
+		my_host = openss.HostList("bosco.milk.com")
+	    	my_exp = openss.expCreate()
+		:
+		:
+	    	string_list = openss.listHosts(my_modifier,my_exp,my_host)
+
     	- "B{obj}"
 	    - List the objects of the applications that are part of
 	      the  specified experiment.
@@ -881,6 +907,21 @@ def list(*arglist):
 		- I{<target>}
 	    - I{<output>}: 
 	    	- I{<ListOf_filename>}
+
+    	    Example1::
+    	    	#List the a.out and dsos for currently focused experiment
+	    	my_modifier = openss.ModifierList("obj")
+    	    	string_list = openss.list(my_modifier)
+
+    	    Example2::
+    	    	#List a.out and dsos for a specified experiment
+		#and for a specific host.
+	    	my_modifier = openss.ModifierList("obj")
+		my_host = openss.HostList("bosco.milk.com")
+	    	my_exp = openss.expCreate()
+		:
+		:
+	    	string_list = openss.listHosts(my_modifier,my_exp,my_host)
 
     	- "B{params}"
 	    - Retrieve the parameters that are associated with a
@@ -904,6 +945,25 @@ def list(*arglist):
 	    	- I{ExpTypeList}
 	    - I{<output>}:
 	    	- I{<ListOf_expParam>}
+
+    	    Example1::
+    	    	#List collector parameters set in the currently 
+		#focused experiment
+	    	my_modifier = openss.ModifierList("params")
+	    	string_list = openss.list(my_modifier)
+	
+    	    Example2::
+    	    	#List parameters available in all available collectors
+	    	my_modifier = openss.ModifierList(["params","all"])
+	    	string_list = openss.list(my_modifier)
+	
+    	    Example3::
+    	    	#List collector parameters set in a specified experiment
+	    	my_modifier = openss.ModifierList("params")
+		:
+		:
+	    	my_exp = openss.expCreate()
+	    	string_list = openss.list(my_modifier)
 
     	- "B{pids}"
 	    - List running processes associated with a specific
@@ -1039,7 +1099,7 @@ def list(*arglist):
 		  are attached to the specified experiment to be
 		  listed.
 		- The use of I{ModifierList}("B{all}") will cause all
-		  the  popenssible performance measurement utilities
+		  the  possible performance measurement utilities
 		  that can be used  in experiments to be listed.
 	    - The return type is a list of string objects representing
 	      experiment type.
@@ -1049,6 +1109,16 @@ def list(*arglist):
 	    	- I{ExpId}
 	    - I{<output>}: 
 	    	- I{<ListOf_expType>}
+
+    	    Example1::
+    	    	#List experiment types attached to the currently 
+		#focused experiment.
+    	    	string_list = openss.list(ModifierList("types"))
+
+    	    Example2::
+    	    	#List all experiment types possible for the currently 
+		#focused experiment.
+    	    	string_list = openss.list(ModifierList(["types","all"]))
 
     	- "B{views}"
     	    - Retrieve the views that are available for an I{ExpTypeList}.
@@ -1145,6 +1215,51 @@ def setBreak(*arglist):
     cmd_string = deconstruct("setBreak",*arglist)
     return return_int(cmd_string)
 
+##################################################
+# exit
+##################################################
+def wait(*arglist):
+
+    """
+    - Wait for an event before processing any more commands.
+    - If -v terminate  is not provided, the wait will be until 
+      every preceding command is completed
+    - With -v terminate , the wait will be until the specified 
+      experiment, or the focused experiment has completed execution, 
+      either normally or in error.
+
+    Example::
+    	# Use the following for all the wait() examples:
+    	my_file = openss.FileList("foo")
+	my_exptype = openss.ExpTypeList("pcsamp")
+	my_expid = openss.expCreate(my_file,my_exptype)
+	my_mod = openss.ModifierList("terminate")
+    Example1::
+    	# 
+    	openss.expGo()
+    	openss.wait()
+    Example2::
+    	# 
+    	openss.expGo()
+    	openss.wait(my_mod)
+    Example1::
+    	# 
+    	openss.expGo()
+    	openss.wait(my_mod,my_expid)
+    Example1::
+    	# 
+    	openss.expGo()
+    	openss.wait(my_expid)
+
+    @param arglist: up to 2 optional class objects:
+	- I{ExpId} object (optional)
+    	- I{ModifierList}("B{terminate}") (optional)
+
+    """
+
+    cmd_string = deconstruct("wait",*arglist)
+    return return_none(cmd_string)
+
 ##################################################################
 # waitForGo: 
 #   Since expGo is asynchric in nature, we need to 
@@ -1195,9 +1310,10 @@ def dumpView():
 	ret = None
 
     if ret is None:
+    	my_listtype = ModifierList("status")
     	print "expView returned None"
     	try:
-    	    print "status = ", listStatus()
+    	    print "status = ", list(my_listtype)
     	except error:
     	    print "listStatus failed"
 
