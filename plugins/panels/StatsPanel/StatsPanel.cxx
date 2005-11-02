@@ -961,6 +961,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 
   QApplication::setOverrideCursor(QCursor::WaitCursor);
 
+highlightList->clear();
   // Begin Find the file/function pair.
   try
   {
@@ -975,7 +976,38 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
       { // No threads to look up the data...
         return FALSE;
       }
+
+for( ; ti != tgrp.end(); ti++ )
+{
       Thread thread = *ti;
+//  Check to see if we're in the focused group!
+bool foundFLAG = FALSE;
+if( currentThreadGroupStrList.size() == 0 )
+{
+  foundFLAG = TRUE;
+}
+// printf("Is %d one of us\n", thread.getProcessId() );
+for( ThreadGroupStringList::Iterator it = currentThreadGroupStrList.begin(); it != currentThreadGroupStrList.end(); ++it)
+{
+  QString ts = (QString)*it;
+// printf("Is it ts=(%s)\n", ts.ascii() );
+if( ts.isEmpty() )
+{ // Temporary hack to get initial view to get the right numbers.
+  foundFLAG = TRUE;
+  break;
+}
+  if( QString("%1").arg(thread.getProcessId()) == ts )
+  {
+// printf("Got it!!!!\n");
+    foundFLAG = TRUE;
+    break;
+  }
+}
+if( foundFLAG == FALSE )
+{
+  continue;
+}
+// printf("We've got a match, now can we look up the function (%s)?\n", function_name.ascii() );
       Time time = Time::Now();
       const std::string lookup_string = std::string(function_name.ascii());
       std::pair<bool, Function> function = thread.getFunctionByName(lookup_string);
@@ -1015,6 +1047,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
           setCurrentMetricStr();
         }
 
+#ifdef OLDWAY
         // Since we don't yet aggragate values for all
         // process/metrics/collectors warn that a default is being set
         // and try to position based on that default.
@@ -1026,15 +1059,26 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
           setCurrentMetricStr();
           QMessageBox::information(this, "Warning:", QString("Unable to query metric/thread/collector when trying to focus source.\nCurrently we can only query source annotations per thread... not with aggregated data.\nDefaulting to: %1 %2 %3").arg(currentCollectorStr).arg(currentMetricStr).arg(currentThreadStr), "Ok");
         }
+#else // OLDWAY
+setCurrentCollector();
+setCurrentMetricStr();
+if( currentThread )
+{
+  delete currentThread;
+}
+currentThread = new Thread(*ti);
+// printf("Getting the next currentThread (%d)\n", currentThread->getProcessId() );
+#endif // OLDWAY
         if( item->text(0).contains(".") )
         {
+// printf("DOUBLE\n");
         // If double
           Queries::GetMetricByStatementOfFileInThread(*currentCollector, currentMetricStr.ascii(), TimeInterval(Time::TheBeginning(),Time::TheEnd()), *currentThread, Path(di->getPath()), orig_double_statement_data);
 
 // printf("orig_double_statement_data->size(%d)\n", orig_double_statement_data->size() );
 
           // Begin try to highlight source for doubles....
-          highlightList->clear();
+//          highlightList->clear();
           for(std::map<int, double>::const_iterator
                       sit = orig_double_statement_data->begin();
                       sit != orig_double_statement_data->end(); ++sit)
@@ -1043,21 +1087,54 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
             int64_t line = 1;
       
             int color_index = getLineColor(sit->second);
+
+
+
+// first check to see if there's already a hlo for this line number.
+// If there is, bump the value... Otherwise, push back a new one.
+bool FOUND = FALSE;
+// printf("Do we have a duplicate? (%d)\n", sit->first );
+for( HighlightList::Iterator it = highlightList->begin();
+       it != highlightList->end();
+       ++it)
+{
+  hlo = (HighlightObject *)*it;
+// printf("\thlo->line=(%d)\n", hlo->line );
+  if( hlo->line == sit->first )
+  {
+// printf("We have a duplicate at line (%d)\n", sit->first );
+    float v = hlo->value.toFloat();
+// printf("v=%f\n", v );
+    v += sit->second;
+    hlo->value = QString("%1").arg(v);
+    FOUND = TRUE;
+    break;
+  }
+}
+
+
+if( !FOUND )
+{
             hlo = new HighlightObject(di->getPath(), sit->first, hotToCold_color_names[color_index], QString("%1").arg(sit->second), (char *)QString("\n%1: This line took %2 seconds.").arg(currentThreadStr).arg(sit->second).ascii());
             highlightList->push_back(hlo);
-// printf("Push_back a hlo for %d %f\n", sit->first, sit->second);
+// printf("A: Push_back a hlo for %d %f\n", sit->first, sit->second);
+}
 //hlo->print();
+
+
+
+
           }
 
         } else
         {
+// printf("NOT DOUBLE\n");
           // Not a double value...
           Queries::GetMetricByStatementOfFileInThread(*currentCollector, currentMetricStr.ascii(), TimeInterval(Time::TheBeginning(),Time::TheEnd()), *currentThread, Path(di->getPath()), orig_uint64_statement_data);
       
 // printf("orig_uint64_statement_data->size(%d)\n", orig_uint64_statement_data->size() );
 
           // Begin try to highlight source for doubles....
-          highlightList->clear();
           for(std::map<int, uint64_t>::const_iterator
                 sit = orig_uint64_statement_data->begin();
                 sit != orig_uint64_statement_data->end(); ++sit)
@@ -1066,11 +1143,35 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
             int64_t line = 1;
 
             int color_index = getLineColor(sit->second);
+
+// first check to see if there's already a hlo for this line number.
+// If there is, bump the value... Otherwise, push back a new one.
+bool FOUND = FALSE;
+// printf("Do we have a duplicate? (%d)\n", sit->first );
+for( HighlightList::Iterator it = highlightList->begin();
+       it != highlightList->end();
+       ++it)
+{
+  hlo = (HighlightObject *)*it;
+// printf("\thlo->line=(%d)\n", hlo->line );
+  if( hlo->line == sit->first )
+  {
+// printf("We have a duplicate at line (%d)\n", sit->first );
+    float v = hlo->value.toFloat();
+// printf("v=%f\n", v );
+    v += sit->second;
+    hlo->value = QString("%1").arg(v);
+    FOUND = TRUE;
+    break;
+  }
+}
+if( !FOUND )
+{
             hlo = new HighlightObject(di->getPath(), sit->first, hotToCold_color_names[color_index], QString("%1").arg(sit->second), (char *)QString("\n%1: This line took %2 seconds.").arg(currentThreadStr).arg(sit->second).ascii());
             highlightList->push_back(hlo);
-      
-// printf("Push_back a hlo for %d %f\n", sit->first, sit->second);
+// printf("B: Push_back a hlo for %d %f\n", sit->first, sit->second);
 // hlo->print();
+}
           }
       
         }
@@ -1098,8 +1199,10 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 
       } else
       { // Clear the highlight list.
+// printf("No definitioin for thread's function\n");
 //          clearSourceFile(expID);
       }
+}
     }
     // If no spo, make one so the source panel is placed correctly.
     if( !spo )
