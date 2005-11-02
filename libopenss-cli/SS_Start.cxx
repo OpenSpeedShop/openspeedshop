@@ -15,6 +15,8 @@
 ** along with this library; if not, write to the Free Software Foundation, Inc.,
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
+  void Openss_Basic_Initialization ();
+  void Openss_Basic_Termination();
 
 #include "ToolAPI.hxx"
 #include "SS_Input_Manager.hxx"
@@ -273,12 +275,6 @@ extern "C"
   void
   cli_terminate ()
   {
-    if (Watcher_Active) {
-     // Get rid of thread that looks for special conditions.
-      Watcher_Active = false;
-      pthread_kill (phandle[0], SIGUSR1);
-    }
-
     if (tli_window != 0)
     {
      // Before we do anything else -
@@ -290,12 +286,6 @@ extern "C"
 
    // Close Python
     Py_Finalize ();
-
-   // Close any open experiments
-    Experiment_Termination ();
-
-   // Unload plugin views
-    SS_Remove_View_plugins ();
 
    // Close allocated input windows.
     if (gui_window != 0)
@@ -322,7 +312,6 @@ extern "C"
       command_line_window = 0;
       Window_Termination(w);
     }
-    Commander_Termination ();
   }
 
 /**
@@ -359,6 +348,7 @@ extern "C"
     	// User_Info_Dump(1);
 
       cli_terminate ();
+      Openss_Basic_Termination();
     }
     exit (1);
   }
@@ -379,16 +369,8 @@ extern "C"
   int
   cli_init(int argc, char **argv)
   {
-
    // Basic Initialization
-    Watcher_Active = false;
-    need_gui = false;
-    need_tli = false;
-    need_batch = false;
-    need_command_line = false;
-    gui_window = 0;
-    tli_window = 0;
-    command_line_window = 0;
+    Openss_Basic_Initialization();
 
    // Set up to catch bad errors
     SET_SIGNAL (SIGILL, catch_signal);
@@ -400,12 +382,6 @@ extern "C"
     // SET_SIGNAL (SIGCLD, catch_signal);
     SET_SIGNAL (SIGINT, catch_signal); // CNTRL-C
     SET_SIGNAL (SIGQUIT, catch_signal); // CNTRL-\
-
-   // Read in user alterable configuration options.
-    SS_Configure ();
-
-   // Start up the Command line processor.
-    Commander_Initialization ();
 
    // Process the execution time arguments for openss.
     int i;
@@ -422,20 +398,8 @@ extern "C"
     collector_encountered = false;
     Process_Command_Line (argc, argv);
 
-   // Start a thread to look for special conditions.
-    if (pthread_create(&phandle[0], 
-    	    	    	0, 
-			(void *(*)(void *))SS_Watcher,
-			NULL) != 0) {
-      Watcher_Active = true;
-    }
-
    // Load in pcli messages into message czar
     pcli_load_messages();
-
-   // Define Views
-    SS_Init_BuiltIn_Views ();
-    SS_Load_View_plugins ();
 
    // Open the Python interpreter.
     Initial_Python ();
@@ -510,6 +474,7 @@ extern "C"
 
    // When Python exits, terminate SpeedShop:
     cli_terminate ();
+    Openss_Basic_Termination();
 
    // Release allocated space.
     delete argStruct;
@@ -601,3 +566,81 @@ extern "C"
   }
 
 } // extern "C"
+
+/**
+ * Method: Openss_Basic_Initialization()
+ * 
+ * 
+ *     
+ * @param   argc
+ * @param   argv
+ *
+ * @return  int
+ *
+ * @todo    .
+ *
+ */
+  void
+  Openss_Basic_Initialization ()
+  {
+   // Basic Initialization
+    Watcher_Active = false;
+    need_gui = false;
+    need_tli = false;
+    need_batch = false;
+    need_command_line = false;
+    gui_window = 0;
+    tli_window = 0;
+    command_line_window = 0;
+
+   // Read in user alterable configuration options.
+    SS_Configure ();
+
+   // Start up the Command line processor.
+    Commander_Initialization ();
+
+   // Define Built-In Views
+    SS_Init_BuiltIn_Views();
+    SS_Load_View_plugins();
+
+
+   // Start a thread to look for special conditions.
+    if (pthread_create(&phandle[0],
+                        0,
+                        (void *(*)(void *))SS_Watcher,
+                        NULL) != 0) {
+      Watcher_Active = true;
+    }
+  }
+
+/**
+ * Method: Openss_Basic_Termination()
+ * 
+ * 
+ *     
+ * @param   argc
+ * @param   argv
+ *
+ * @return  int
+ *
+ * @todo    .
+ *
+ */
+  void
+  Openss_Basic_Termination()
+  {
+    if (Watcher_Active) {
+     // Get rid of thread that looks for special conditions.
+      Watcher_Active = false;
+      pthread_kill (phandle[0], SIGUSR1);
+    }
+
+   // Close any open experiments.
+    Experiment_Termination ();
+
+   // Unload plugin views.
+    SS_Remove_View_plugins ();
+
+   // Close down the CLI.
+    Commander_Termination ();
+  }
