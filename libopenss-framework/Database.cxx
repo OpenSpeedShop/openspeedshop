@@ -109,7 +109,7 @@ bool Database::isAccessible(const std::string& name)
     Assert(retval == SQLITE_OK);
     Assert(handle != NULL);
     
-    // Check that we reallly have a database
+    // Check that we really have a database
     retval = sqlite3_exec(handle,
 			  "SELECT * FROM sqlite_master WHERE type='table';",
 			  NULL, NULL, NULL);
@@ -245,37 +245,45 @@ void Database::renameTo(const std::string& name)
     // Get our per-thread database handle
     Handle& handle = getHandle();
 
-    // Begin an exclusive transaction to prevent mid-copy changes
-    Assert(sqlite3_exec(handle.dm_database, "BEGIN EXCLUSIVE TRANSACTION;",
-			NULL, NULL, NULL) == SQLITE_OK);
-
     // Perform the rename
     try {
 	
 	// Create a new database with the new name
 	create(name);
 
+	// Begin an exclusive transaction to prevent mid-copy changes
+	Assert(sqlite3_exec(handle.dm_database, "BEGIN EXCLUSIVE TRANSACTION;",
+			    NULL, NULL, NULL) == SQLITE_OK);
+
 	// Copy the original database to the new database
 	copyFile(Path(dm_name), Path(name));
+
+	// Commit the transaction to allow changes to now proceed
+	Assert(sqlite3_exec(handle.dm_database, "COMMIT TRANSACTION;",
+			    NULL, NULL, NULL) == SQLITE_OK);
 	
 	// Remove the original database
 	remove(dm_name);
 	
     }
     catch(...) {
-	
-	// Commit the transaction to allow changes to now proceed
-	Assert(sqlite3_exec(handle.dm_database, "COMMIT TRANSACTION;",
-			    NULL, NULL, NULL) == SQLITE_OK);
 
+	// Note: Normally it would be necessary to check whether the caught
+	//       exception occured during the middle of the above transaction
+	//       and handle such an occurence by doing a rollback. Neither
+	//       sqlite3_exec() nor copyFile(), however, throw any sort of
+	//       exception. Therefore if the transaction is begun, it will
+	//       either be committed normally or an assertion failure occurs.
+	
 	//
 	// Release write access for the transaction lock
 	//     (indicate transactions can once again proceed)
 	//
-	Assert(pthread_rwlock_wrlock(&dm_transaction_lock) == 0);
+	Assert(pthread_rwlock_unlock(&dm_transaction_lock) == 0);
 	
 	// Re-throw exception upwards
 	throw;
+	
     }
     
     // Release all per-thread database handles for this database
@@ -284,15 +292,11 @@ void Database::renameTo(const std::string& name)
     // Switch to the new database
     dm_name = name;
     
-    // Commit the transaction to allow changes to now proceed
-    Assert(sqlite3_exec(handle.dm_database, "COMMIT TRANSACTION;",
-			NULL, NULL, NULL) == SQLITE_OK);
-    
     //
     // Release write access for the transaction lock
     //     (indicate transactions can once again proceed)
     //
-    Assert(pthread_rwlock_wrlock(&dm_transaction_lock) == 0);
+    Assert(pthread_rwlock_unlock(&dm_transaction_lock) == 0);
 }
 
 
@@ -317,45 +321,49 @@ void Database::copyTo(const std::string& name)
     // Get our per-thread database handle
     Handle& handle = getHandle();
 
-    // Begin an exclusive transaction to prevent mid-copy changes
-    Assert(sqlite3_exec(handle.dm_database, "BEGIN EXCLUSIVE TRANSACTION;",
-			NULL, NULL, NULL) == SQLITE_OK);
-
-    // Perform the rename
+    // Perform the copy
     try {
 
 	// Create a new database with the new name
 	create(name);
 
+	// Begin an exclusive transaction to prevent mid-copy changes
+	Assert(sqlite3_exec(handle.dm_database, "BEGIN EXCLUSIVE TRANSACTION;",
+			    NULL, NULL, NULL) == SQLITE_OK);
+
 	// Copy the original database to the new database
 	copyFile(dm_name, name);
-
-    }
-    catch(...) {
 
 	// Commit the transaction to allow changes to now proceed
 	Assert(sqlite3_exec(handle.dm_database, "COMMIT TRANSACTION;",
 			    NULL, NULL, NULL) == SQLITE_OK);
 	
+    }
+    catch(...) {
+
+	// Note: Normally it would be necessary to check whether the caught
+	//       exception occured during the middle of the above transaction
+	//       and handle such an occurence by doing a rollback. Neither
+	//       sqlite3_exec() nor copyFile(), however, throw any sort of
+	//       exception. Therefore if the transaction is begun, it will
+	//       either be committed normally or an assertion failure occurs.
+	
 	//
 	// Release write access for the transaction lock
 	//     (indicate transactions can once again proceed)
 	//
-	Assert(pthread_rwlock_wrlock(&dm_transaction_lock) == 0);
+	Assert(pthread_rwlock_unlock(&dm_transaction_lock) == 0);
 	
 	// Re-throw exception upwards
 	throw;
-    }
 
-    // Commit the transaction to allow changes to now proceed
-    Assert(sqlite3_exec(handle.dm_database, "COMMIT TRANSACTION;",
-			NULL, NULL, NULL) == SQLITE_OK);
+    }
 
     //
     // Release write access for the transaction lock
     //     (indicate transactions can once again proceed)
     //
-    Assert(pthread_rwlock_wrlock(&dm_transaction_lock) == 0);
+    Assert(pthread_rwlock_unlock(&dm_transaction_lock) == 0);
 }
 
 
