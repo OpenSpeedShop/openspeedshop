@@ -311,16 +311,16 @@ def expDisable(*arglist):
 
 
     Example1::
-    	#Disable the currently focused experiment
+    	# Disable the currently focused experiment
 	openss.expDisable()
 	
     Example2::
-    	#Disable all active experiments
+    	# Disable all active experiments
 	my_modifier = openss.ModifierList("all")
 	openss.expDisable(my_modifier)
 	
     Example3::
-    	#Disable a specified experiment (7)
+    	# Disable a specified experiment (7)
 	my_exp = openss.ExpId(7)
 	openss.expDisable(my_exp)
 
@@ -355,16 +355,16 @@ def expEnable(*arglist):
 
 
     Example1::
-    	#Enable the currently focused experiment
+    	# Enable the currently focused experiment
 	openss.expEnable()
 	
     Example2::
-    	#Enable all experiments
+    	# Enable all experiments
 	my_modifier = openss.ModifierList("all")
 	openss.expEnable(my_modifier)
 	
     Example3::
-    	#Enable a specified experiment (7)
+    	# Enable a specified experiment (7)
 	my_exp = openss.ExpId(7)
 	openss.expEnable(my_exp)
 
@@ -403,11 +403,11 @@ def expFocus(*arglist):
     I{ExpId} = expCreate(arglist) 
 
     Example1::
-    	#Get the Id of the currently focused experiment
+    	# Get the Id of the currently focused experiment
 	cur_id = openss.expEnable()
 	
     Example2::
-    	#Change the focus to experiment #7
+    	# Change the focus to experiment #7
 	my_exp = openss.ExpId(7)
 	cur_id = openss.expEnable(my_exp)
 
@@ -466,16 +466,16 @@ def expGo(*arglist):
       every defined experiment being run.
 
     Example1::
-    	#Run the currently focused experiment
+    	# Run the currently focused experiment
 	openss.expGo()
 	
     Example2::
-    	#Run all experiments
+    	# Run all experiments
 	my_modifier = openss.ModifierList("all")
 	openss.expGo(my_modifier)
 	
     Example3::
-    	#Run a specified experiment (7)
+    	# Run a specified experiment (7)
 	my_exp = openss.ExpId(7)
 	openss.expGo(my_exp)
 
@@ -511,16 +511,16 @@ def expPause(*arglist):
 
 
     Example1::
-    	#Halt the currently focused experiment
+    	# Halt the currently focused experiment
 	openss.expPause()
 	
     Example2::
-    	#Halt all experiments
+    	# Halt all experiments
 	my_modifier = openss.ModifierList("all")
 	openss.expPause(my_modifier)
 	
     Example3::
-    	#Halt a specified experiment (7)
+    	# Halt a specified experiment (7)
 	my_exp = openss.ExpId(7)
 	openss.expPause(my_exp)
 
@@ -569,7 +569,7 @@ def expRestore(*arglist):
     I{ExpId} = expRestore(arglist) 
 
     Example::
-    	#Restore an experiment
+    	# Restore an experiment previously save as "stored_data.db".
 	my_file = openss.FileList("stored_data.db")
 	my_exp = openss.expRestore(my_file)
 
@@ -629,18 +629,18 @@ def expSave(*arglist):
       the command is being executed.
 
     Example1::
-    	#Store the currently focused experiment
+    	# Store the currently focused experiment
 	my_file = openss.FileList("stored_data.db")
 	openss.expSave(my_file)
 	
     Example2::
-    	#Copy the currently focused experiment
+    	# Copy the currently focused experiment
 	my_file = openss.FileList("stored_data.db")
 	my_modifier = openss.ModifierList("copy")
 	openss.expSave(my_modifier,my_file)
 	
     Example3::
-    	#Store a specified experiment (7) to file
+    	# Store a specified experiment (7) to file
 	my_file = openss.FileList("stored_data.db")
 	my_exp = openss.ExpId(7)
 	openss.expSave(my_exp,my_file)
@@ -748,10 +748,10 @@ def expView(*arglist):
 
 
     @param arglist: up to 4 optional class objects:
-	- I{ExpId} object 
-    	- I{ViewType}
-    	- I{MetricList}
-	- I{Target} object lists
+	- I{ExpId}  (optional) 
+    	- I{ViewType} (optional)
+    	- I{MetricList} (optional)
+	- I{Target} object lists (optional)
 	    - I{ClusterList}
 	    - I{FileList}
 	    - I{HostList}
@@ -792,27 +792,26 @@ def list(*arglist):
 	    	- I{ModifierList}("B{all}") (optional)
     	    	- I{ExpId} (optional)
 	    - I{<output>}: 
-	    	
 
     	    Example1::
-    	    	#List breaks set in the currently focused experiment
+    	    	# List breaks set in the currently focused experiment
 	    	my_modifier = openss.ModifierList("breaks")
 	    	int_list = openss.list(my_modifier)
 	
     	    Example2::
-    	    	#List breaks set in all active experiments
+    	    	# List breaks set in all active experiments
 	    	my_modifier = openss.ModifierList(["breaks","all"])
 	    	int_list = openss.list(my_modifier)
 	
     	    Example3::
-    	    	#List breaks set in a specified experiment
+    	    	# List breaks set in a specified experiment
 	    	my_modifier = openss.ModifierList("breaks")
 		:
 		:
 	    	my_exp = openss.expCreate()
 	    	int_list = openss.list(my_modifier)
 
-    	- "B{exp}"
+    	- "B{expid}"
     	    - List the experiments that have been defined.
 
 	    - I{<list args>}: 
@@ -820,9 +819,9 @@ def list(*arglist):
 	    - I{<output>}: 
 
     	    Example::
-	    	#List of I{ExpId} of active experiments.
-	    	my_modifier = openss.ModifierList("exp")
-    	    	expid_list = openss.listExp()
+	    	# List of I{ExpId} of active experiments.
+	    	my_modifier = openss.ModifierList("expid")
+    	    	expid_list = openss.list()
 
     	- "B{hosts}"
     	    - Lists the hosts that define the specified cluster.
@@ -837,17 +836,17 @@ def list(*arglist):
     	    	- I{ExpId} (optional)
 
     	    Example1::
-    	    	#List hosts for currently focused experiment
+    	    	# List hosts for currently focused experiment
 	    	my_modifier = openss.ModifierList("hosts")
     	    	string_list = openss.list(my_modifier)
 
     	    Example2::
-    	    	#List hosts for a specified experiment
+    	    	# List hosts for a specified experiment
 	    	my_modifier = openss.ModifierList("hosts")
 	    	my_exp = openss.expCreate()
 		:
 		:
-	    	string_list = openss.listHosts(my_modifier,my_exp)
+	    	string_list = openss.list(my_modifier,my_exp)
 
     	- "B{metrics}"
     	    - Retrieve the metrics that are associated with a 
@@ -872,21 +871,20 @@ def list(*arglist):
 	    - I{<output>}: 
 	    	- I{<ListOf_expMetric>}
 
-
     	    Example1::
-    	    	#List view type metrics for currently focused experiment
+    	    	# List view type metrics for currently focused experiment
 	    	my_modifier = openss.ModifierList("metrics")
     	    	string_list = openss.list(my_modifier)
 
     	    Example2::
-    	    	#List view type metrics for a specified experiment
-		#and for a specific host.
+    	    	# List view type metrics for a specified experiment
+		# and for a specific host.
 	    	my_modifier = openss.ModifierList("metrics")
 		my_host = openss.HostList("bosco.milk.com")
 	    	my_exp = openss.expCreate()
 		:
 		:
-	    	string_list = openss.listHosts(my_modifier,my_exp,my_host)
+	    	string_list = openss.list(my_modifier,my_exp,my_host)
 
     	- "B{obj}"
 	    - List the objects of the applications that are part of
@@ -894,34 +892,39 @@ def list(*arglist):
             	- If I{ExpId} is not provided, the focused experiment 
 		  is used.
 	    - The listing can be restricted with the use of a
-	      <target>  specification.
-	    - Any component described in the <target> specification
+	      I{Target}  specification.
+	    - Any component described in the I{Target} specification
 	      must be  part of the selected experiment.
-	    - If <target> is not provided, information will be
+	    - If I{Target} is not provided, information will be
 	      provided for all  portions of all applications that are
 	      attached to the experiment.
     	    - The return type is a list of string objects.
 
 	    - I{<list args>}: Up to 2 optional class objects:
-	    	- I{ExpId}
-		- I{<target>}
+	    	- I{ExpId} object  (optional)
+	    	- I{Target} object lists (optional)
+	    	    - I{ClusterList}
+	    	    - I{HostList}
+	    	    - I{PidList}
+	    	    - I{TreadList}
+	    	    - I{RankList}
 	    - I{<output>}: 
 	    	- I{<ListOf_filename>}
 
     	    Example1::
-    	    	#List the a.out and dsos for currently focused experiment
+    	    	# List the a.out and dsos for currently focused experiment
 	    	my_modifier = openss.ModifierList("obj")
     	    	string_list = openss.list(my_modifier)
 
     	    Example2::
-    	    	#List a.out and dsos for a specified experiment
-		#and for a specific host.
+    	    	# List a.out and dsos for a specified experiment
+		# and for a specific host.
 	    	my_modifier = openss.ModifierList("obj")
 		my_host = openss.HostList("bosco.milk.com")
 	    	my_exp = openss.expCreate()
 		:
 		:
-	    	string_list = openss.listHosts(my_modifier,my_exp,my_host)
+	    	string_list = openss.list(my_modifier,my_exp,my_host)
 
     	- "B{params}"
 	    - Retrieve the parameters that are associated with a
@@ -940,25 +943,25 @@ def list(*arglist):
 		  that specific data  collector.
 
 	    - I{<list args>}:  Up to 3 optional class objects:
-	    	- I{ModifierList}("B{all}")
-	    	- I{ExpId}
-	    	- I{ExpTypeList}
+	    	- I{ModifierList}("B{all}") (optional)
+	    	- I{ExpId} (optional)
+	    	- I{ExpTypeList} (optional)
 	    - I{<output>}:
 	    	- I{<ListOf_expParam>}
 
     	    Example1::
-    	    	#List collector parameters set in the currently 
-		#focused experiment
+    	    	# List collector parameters set in the currently 
+		# focused experiment
 	    	my_modifier = openss.ModifierList("params")
 	    	string_list = openss.list(my_modifier)
 	
     	    Example2::
-    	    	#List parameters available in all available collectors
+    	    	# List parameters available in all available collectors
 	    	my_modifier = openss.ModifierList(["params","all"])
 	    	string_list = openss.list(my_modifier)
 	
     	    Example3::
-    	    	#List collector parameters set in a specified experiment
+    	    	# List collector parameters set in a specified experiment
 	    	my_modifier = openss.ModifierList("params")
 		:
 		:
@@ -982,10 +985,25 @@ def list(*arglist):
 		  be  specified by using I{HostList}.
 
 	    - I{<list args>}: Up to 2 optional class objects:
-	    	- I{ExpId}
-	    	- I{<HostList>}
+	    	- I{ExpId} (optional)
+	    	- I{<HostList>} (optional)
 	    - I{<output>}: 
 	    	- I{<ListOf_pidname>}
+
+    	    Example1::
+    	    	# List the process ids for currently focused experiment
+	    	my_modifier = openss.ModifierList("pids")
+    	    	pid_list = openss.list(my_modifier)
+
+    	    Example2::
+    	    	# List process ids for a specified experiment
+		# and for a specific host.
+	    	my_modifier = openss.ModifierList("pids")
+		my_host = openss.HostList("bosco.milk.com")
+	    	my_exp = openss.expCreate()
+		:
+		:
+	    	pid_list = openss.list(my_modifier,my_exp,my_host)
 
     	- "B{ranks}"	B{!! NOT SUPPORTED YET !!}
 	    - List the mpi ranks associated with a specific
@@ -995,7 +1013,7 @@ def list(*arglist):
 		- If the "I{ExpId}" option is supplied, all the Ranks
 		  that are  part of the specified experiment are
 		  listed.
-    	    - The use of the "<target>" option acts like a filter on 
+    	    - The use of the "I{Target}" option acts like a filter on 
 	      the output.
 		- The absence of any I{HostList} specification will
 		  cause all  Ranks in the specified experiment to be
@@ -1011,31 +1029,71 @@ def list(*arglist):
 		  hosts.
 
 	    - I{<list args>}: 
-	    	- I{ExpId}
-	    	- I{<target>}
+	    	- I{ExpId} object  (optional)
+	    	- I{Target} object lists (optional)
+	    	    - I{ClusterList}
+	    	    - I{HostList}
+	    	    - I{PidList}
+	    	    - I{TreadList}
+	    	    - I{RankList}
 	    - I{<output>}: 
 	    	- I{<ListOf_rankname>}
+
+    	    Example1::
+    	    	# List the mpi ranks for currently focused experiment
+	    	my_modifier = openss.ModifierList("ranks")
+    	    	string_list = openss.list(my_modifier)
+
+    	    Example2::
+    	    	# List mpi ranks for a specified experiment
+		# and for a specific host.
+	    	my_modifier = openss.ModifierList("ranks")
+		my_host = openss.HostList("bosco.milk.com")
+	    	my_exp = openss.expCreate()
+		:
+		:
+	    	string_list = openss.list(my_modifier,my_exp,my_host)
 
     	- "B{src}"
 	    - List the source filenames of the modules that are part
 	      of the  specified experiment.
     	    - If I{ExpId} is not provided, the focused experiment is used.
 	    - The listing can be restricted with the use of a
-	      <target>  specification.
-	    - Any component described in the <target> specification
+	      I{Target}  specification.
+	    - Any component described in the I{Target} specification
 	      must be part of the selected experiment.
 	    - I{FileList} can be used to provide a list of object
 	      modules  that will be searched for relevant source
 	      files.
-	    - If <target> is not provided, information will be
+	    - If I{Target} is not provided, information will be
 	      provided for all portions of all applications that are
 	      attached to the experiment.
 
 	    - I{<list args>}: 
-	    	- I{ExpId}
-	    	- I{<target>}
+	    	- I{ExpId} object  (optional)
+	    	- I{Target} object lists (optional)
+	    	    - I{ClusterList}
+	    	    - I{HostList}
+	    	    - I{PidList}
+	    	    - I{TreadList}
+	    	    - I{RankList}
 	    - I{<output>}: 
 	    	- I{<listOf_filename>}
+
+    	    Example1::
+    	    	# List the source files for currently focused experiment
+	    	my_modifier = openss.ModifierList("src")
+    	    	string_list = openss.list(my_modifier)
+
+    	    Example2::
+    	    	# List a.source files for a specified experiment
+		# and for a specific host.
+	    	my_modifier = openss.ModifierList("src")
+		my_host = openss.HostList("bosco.milk.com")
+	    	my_exp = openss.expCreate()
+		:
+		:
+	    	string_list = openss.list(my_modifier,my_exp,my_host)
 
     	- "B{status}"
     	    - List the status of experiments.
@@ -1055,11 +1113,31 @@ def list(*arglist):
     	    	    - "B{Terminated}":	The process has finished running.
     	    	    - "B{Error}":    	Something went wrong.
 
-	    - I{<list args>}: 
-	    	- I{ModifierList}("B{all}")
-	    	- I{ExpId}
+	    - I{<list args>}: up to 1 of 2 optional class objects.
+	    	- I{ModifierList}("B{all}") (optional)
+	    	- I{ExpId} (optional)
 	    - I{<output>}: 
 	    	- I{<ListOf_statusType>}
+
+    	    Example1::
+    	    	# List status for the currently focused experiment
+	    	my_modifier = openss.ModifierList("status")
+	    	string_list = openss.list(my_modifier)
+	
+    	    Example2::
+    	    	# List status for all active experiments
+	    	my_modifier = openss.ModifierList(["status","all"])
+	    	string_list = openss.list(my_modifier)
+	
+    	    Example3::
+    	    	# List status for a specified experiment
+	    	my_modifier = openss.ModifierList("status")
+		:
+		:
+	    	my_exp = openss.expCreate()
+	    	string_list = openss.list(my_modifier)
+	    
+    	    Example4:: See example for waitForGo().
 
     	- "B{threads}"	B{!! NOT SUPPORTED YET !!}
 	    - List the Threads associated with a specific experiment,
@@ -1069,7 +1147,7 @@ def list(*arglist):
 		- If the "I{ExpId}" option is supplied, all the
 		  Threads that  are part of the specified experiment
 		  are listed.
-    	    - The use of the "<target>" option acts like a filter on 
+    	    - The use of the "I{Target}" option acts like a filter on 
 	      the output.
 		- The absence of any I{HostList} specification will
 		  cause all  Threads in the specified experiment to be
@@ -1085,12 +1163,32 @@ def list(*arglist):
 		  selected hosts.
 
 	    - I{<list args>}: 
-	    	- I{ExpId}
-	    	- I{<target>}
+	    	- I{ExpId} object  (optional)
+	    	- I{Target} object lists (optional)
+	    	    - I{ClusterList}
+	    	    - I{HostList}
+	    	    - I{PidList}
+	    	    - I{TreadList}
+	    	    - I{RankList}
 	    - I{<output>}: 
 	    	- I{<ListOf_threadname>}
 
-    	- "B{types}"
+    	    Example1::
+    	    	# List the threads for currently focused experiment
+	    	my_modifier = openss.ModifierList("threads")
+    	    	thread_list = openss.list(my_modifier)
+
+    	    Example2::
+    	    	# List a.threads for a specified experiment
+		# and for a specific host.
+	    	my_modifier = openss.ModifierList("threads")
+		my_host = openss.HostList("bosco.milk.com")
+	    	my_exp = openss.expCreate()
+		:
+		:
+	    	thread_list = openss.list(my_modifier,my_exp,my_host)
+
+    	- "B{exptypes}"
 	    - List the available performance measurement utilities
 	      that can be  used to collect data in an experiment.
 		- If no option is selected, list the utilities that
@@ -1104,20 +1202,20 @@ def list(*arglist):
 	    - The return type is a list of string objects representing
 	      experiment type.
 
-	    - I{<list args>}: 
-	    	- I{ModifierList}("B{all}")
-	    	- I{ExpId}
+	    - I{<list args>}: Up to 1 of 2 optional class objects.
+	    	- I{ModifierList}("B{all}") (optional)
+	    	- I{ExpId} (optional)
 	    - I{<output>}: 
 	    	- I{<ListOf_expType>}
 
     	    Example1::
-    	    	#List experiment types attached to the currently 
-		#focused experiment.
+    	    	# List experiment types attached to the currently 
+		# focused experiment.
     	    	string_list = openss.list(ModifierList("types"))
 
     	    Example2::
-    	    	#List all experiment types possible for the currently 
-		#focused experiment.
+    	    	# List all experiment types possible for the currently 
+		# focused experiment.
     	    	string_list = openss.list(ModifierList(["types","all"]))
 
     	- "B{views}"
@@ -1135,12 +1233,27 @@ def list(*arglist):
 		  in a  listing of only those reports associated with
 		  the specific  data collectors in the list.
 
-	    - I{<list args>}: 1 of 3 optional class objects
-	    	- I{ModifierList}("B{all}")
-	    	- I{ExpId}
-		- I{ExpTypeList}
+	    - I{<list args>}: up to 1 of 3 optional class objects.
+	    	- I{ModifierList}("B{all}") (optional)
+	    	- I{ExpId} (optional)
+		- I{ExpTypeList} (optional)
 	    - I{<output>}: 
 	    	- I{ViewTypeList}
+
+    	    Example1::
+    	    	# Get views available for currently focused experiment
+	    	my_modifier = openss.ModifierList("views")
+    	    	view_list = openss.list(my_modifier)
+
+    	    Example2::
+    	    	# Get views available for a specified experiment
+		# and for a specific host.
+	    	my_modifier = openss.ModifierList("views")
+		my_host = openss.HostList("bosco.milk.com")
+	    	my_exp = openss.expCreate()
+		:
+		:
+	    	view_list = openss.list(my_modifier,my_exp,my_host)
 
     """
 
@@ -1204,12 +1317,12 @@ def setBreak(*arglist):
     	- Enter a breakpoint, which will halt the application when reached.
     	- If I{ExpId} is not provided, the focused experiment is used.
     	- The break location is specified through the combination of 
-    	  the <target> and <address_description> arguments.
+    	  the I{Target} and <address_description> arguments.
     	- The break location must be a location in the specified experiment.
-    	- If <target> is not provided, the <address_description> must 
+    	- If I{Target} is not provided, the <address_description> must 
     	  be valid on every host and executable attached to the experiment.
 
-    <breakId> = setBreak [ I{ExpId} ] [ <target> ] <address_description>
+    <breakId> = setBreak [ I{ExpId} ] [ I{Target} ] <address_description>
     """
 
     cmd_string = deconstruct("setBreak",*arglist)
@@ -1276,7 +1389,26 @@ def waitForGo():
     run this routine to see when it is done if we
     want to make sure it is really done before continuing
     on.
+    
+    This was created before the B{wait()} command was implemented
+    and is retained as an example of how to poll for experiment
+    status using the B{list()} command.
 
+    Example::
+    	modifier = openss.ModifierList("status")
+    	while 1:
+    	    # Pause for 10 seconds
+    	    os.system("sleep 10")
+
+    	    status = openss.list(modifier)
+	    stat_count = len(status)
+	    for ndx in range(stat_count):
+	    	if status[ndx] == 'Terminated':
+	    	    return
+	    	if status[ndx] == 'Error':
+	    	    raise error,"expGo failed for some reason"
+	    	    return
+    
     """
     modifier = ModifierList("status")
     while 1:
@@ -1293,12 +1425,44 @@ def waitForGo():
 	    	return
 
 ##################################################################
-# dump_view: For testing
+# dump_view: For testing 
 ##################################################################
 def dumpView():
 
     """
     Helper routine used to dump 2 dimensional views.
+    This will go away once we pump up our usage 
+    documentation. Until then this will remain as
+    an example of how to harvest an experiments data.
+
+    Example::
+
+    	try :
+    	    print "In try part"
+    	    ret = openss.expView()
+
+    	except openss.error:
+    	    print "In except part"
+	    ret = None
+
+    	if ret is None:
+    	    my_listtype = openss.ModifierList("status")
+    	    print "expView returned None"
+    	    try:
+    	    	print "status = ", openss.list(my_listtype)
+    	    except openss.error:
+    	    	print "listStatus failed"
+
+    	else:
+    	    r_count = len(ret)
+    	    for row_ndx in range(r_count):
+    	    	print " "
+    	    	row =ret[row_ndx]
+    	    	c_count = len(row)
+    	    	for rel_ndx in range(c_count):
+            	    print row[rel_ndx]
+
+
     """
 
     try :
