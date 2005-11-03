@@ -23,4 +23,4 @@ SUBDIRS = phaseII phaseIII
 # i.e. We may not want to include all the SUBDIRS in the tar.gz.
 # for example, a Panel may be experimental or in development and
 # is not to be delivered in the openss release.
-DIST_SUBDIRS = phaseII phaseIII
+DIST_SUBDIRS = phaseII phaseIII phaseIII_scripting
