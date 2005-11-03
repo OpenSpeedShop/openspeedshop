@@ -309,6 +309,7 @@ AC_CONFIG_FILES(
 	usability/Makefile
 	usability/phaseII/Makefile
 	usability/phaseIII/Makefile
+	usability/phaseIII_scripting/Makefile
 )
 
 AC_OUTPUT
