@@ -1073,6 +1073,7 @@ currentThread = new Thread(*ti);
         {
 // printf("DOUBLE\n");
         // If double
+// printf("GetMetric... %s:%s %d\n", currentCollectorStr.ascii(), currentMetricStr.ascii(), currentThread->getProcessId() );
           Queries::GetMetricByStatementOfFileInThread(*currentCollector, currentMetricStr.ascii(), TimeInterval(Time::TheBeginning(),Time::TheEnd()), *currentThread, Path(di->getPath()), orig_double_statement_data);
 
 // printf("orig_double_statement_data->size(%d)\n", orig_double_statement_data->size() );
@@ -1107,6 +1108,7 @@ for( HighlightList::Iterator it = highlightList->begin();
 // printf("v=%f\n", v );
     v += sit->second;
     hlo->value = QString("%1").arg(v);
+// printf("new value=(%s)\n", hlo->value.ascii() );
     FOUND = TRUE;
     break;
   }
@@ -1119,7 +1121,7 @@ if( !FOUND )
             highlightList->push_back(hlo);
 // printf("A: Push_back a hlo for %d %f\n", sit->first, sit->second);
 }
-//hlo->print();
+// hlo->print();
 
 
 
@@ -1548,9 +1550,10 @@ StatsPanel::clearSourceFile(int expID)
 {
 // printf("clearSourceFile() entered\n");
   SourceObject *spo = NULL;
-  spo = new SourceObject(NULL, NULL, -1, expID, TRUE, NULL);
-  if( broadcast((char *)spo, NEAREST_T) == 0 )
-  { // No source view up...
+  QString name = QString("Source Panel [%1]").arg(expID);
+  Panel *sp = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+  if( !sp )
+  {
     char *panel_type = "Source Panel";
     //Find the nearest toplevel and start placement from there...
     PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(getPanelContainer());
