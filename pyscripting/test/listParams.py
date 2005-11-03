@@ -2,13 +2,22 @@
 
 import openss
 
-my_id = openss.ExpId(openss.expCreate())
+my_file = openss.FileList("../../usability/phaseIII/fred")
 my_exptype = openss.ExpTypeList("pcsamp")
-my_modifer = openss.ModifierList("all")
+my_expid = openss.expCreate(my_file,my_exptype)
 
-output = openss.listParams()
-output = openss.listParams(my_id)
-output = openss.listParams(my_exptype)
-output = openss.listParams(my_modifer)
+my_exptype = openss.ExpTypeList("pcsamp")
+my_modifer = openss.ModifierList("params")
 
+output = openss.list(my_modifer)
+print output
+
+output = openss.list(my_modifer,my_expid)
+print output
+
+output = openss.list(my_modifer,my_exptype)
+print output
+
+my_modifer += "all"
+output = openss.list(my_modifer)
 print output
