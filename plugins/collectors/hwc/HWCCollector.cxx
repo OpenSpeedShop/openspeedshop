@@ -261,6 +261,8 @@ void HWCCollector::stopCollecting(const Collector& collector,
  * performance data blobs.
  *
  * @param metric        Unique identifier of the metric.
+ * @param collector     Collector for which to get values.
+ * @param thread        Thread for which to get values.
  * @param extent        Extent of the performance data blob.
  * @param blob          Blob containing the performance data.
  * @param subextents    Subextents for which to get values.
@@ -268,6 +270,8 @@ void HWCCollector::stopCollecting(const Collector& collector,
  *
  */
 void HWCCollector::getMetricValues(const std::string& metric,
+				   const Collector& collector,
+				   const Thread& thread,
 				   const Extent& extent,
 				   const Blob& blob,
 				   const ExtentGroup& subextents,

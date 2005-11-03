@@ -36,9 +36,11 @@
 namespace OpenSpeedShop { namespace Framework {
 
     /**
-     * MPI collector.
+     * MPI event tracing collector.
      *
-     * ...
+     * Intercepts all calls to MPI functions that perform any significant amount
+     * of work (primarily those that send messages) and records, for each call,
+     * the current stack trace and start/end time.
      */
     class MPICollector :
 	public CollectorImpl
@@ -57,7 +59,8 @@ namespace OpenSpeedShop { namespace Framework {
         virtual void startCollecting(const Collector&, const Thread&) const;
         virtual void stopCollecting(const Collector&, const Thread&) const;
 	
-	virtual void getMetricValues(const std::string&, 
+	virtual void getMetricValues(const std::string&,
+				     const Collector&, const Thread&,
 				     const Extent&, const Blob&, 
 				     const ExtentGroup&, void*) const;
 	

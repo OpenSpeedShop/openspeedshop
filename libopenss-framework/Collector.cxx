@@ -678,14 +678,12 @@ void Collector::getMetricValues(const std::string& unique_id,
 	
 	// Defer to our implementation
 	dm_impl->getMetricValues(
-	    unique_id,    
+	    unique_id, *this, thread,
 	    Extent(TimeInterval(dm_database->getResultAsTime(1),
 				dm_database->getResultAsTime(2)),
 		   AddressRange(dm_database->getResultAsAddress(3),
 				dm_database->getResultAsAddress(4))),
-	    dm_database->getResultAsBlob(5),
-	    subextents, 
-	    ptr
+	    dm_database->getResultAsBlob(5), subextents, ptr
 	    );
     
     END_TRANSACTION(dm_database);

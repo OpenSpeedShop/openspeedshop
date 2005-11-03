@@ -59,7 +59,8 @@ namespace OpenSpeedShop { namespace Framework {
         virtual void startCollecting(const Collector&, const Thread&) const;
         virtual void stopCollecting(const Collector&, const Thread&) const;
 	
-	virtual void getMetricValues(const std::string&, 
+	virtual void getMetricValues(const std::string&,
+				     const Collector&, const Thread&,
 				     const Extent&, const Blob&, 
 				     const ExtentGroup&, void*) const;
 	

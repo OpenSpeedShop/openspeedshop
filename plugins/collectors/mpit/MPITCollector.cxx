@@ -30,7 +30,14 @@ using namespace OpenSpeedShop::Framework;
 
 
 namespace {
+
+
     
+    /** Type returned for the MPI call time metrics. */
+    typedef std::map<StackTrace, std::vector<double> > CallTimes;
+    
+    
+
     /**
      * Traceable function table.
      *
@@ -52,6 +59,8 @@ namespace {
 	// End Of Table Entry
 	NULL
     };
+
+
     
 }    
 
@@ -96,10 +105,10 @@ MPITCollector::MPITCollector() :
     // Declare our metrics
     declareMetric(Metadata("inclusive_times", "Inclusive Times",
 			   "Inclusive MPI call times in seconds.",
-			   typeid(std::map<StackTrace, std::vector<double> >)));
+			   typeid(CallTimes)));
     declareMetric(Metadata("exclusive_times", "Exclusive Times",
 			   "Exclusive MPI call times in seconds.",
-			   typeid(std::map<StackTrace, std::vector<double> >)));
+			   typeid(CallTimes)));
 }
 
 
@@ -270,16 +279,97 @@ void MPITCollector::stopCollecting(const Collector& collector,
  * performance data blobs.
  *
  * @param metric        Unique identifier of the metric.
+ * @param collector     Collector for which to get values.
+ * @param thread        Thread for which to get values.
  * @param extent        Extent of the performance data blob.
  * @param blob          Blob containing the performance data.
  * @param subextents    Subextents for which to get values.
  * @retval ptr          Untyped pointer to the values of the metric.
  */
 void MPITCollector::getMetricValues(const std::string& metric,
+				    const Collector& collector,
+				    const Thread& thread,
 				    const Extent& extent,
 				    const Blob& blob,
 				    const ExtentGroup& subextents,
 				    void* ptr) const
 {
-    // TODO: implement...
+    // Only the "inclusive_times" and "exclusive_times" metrics return anything
+    if((metric != "inclusive_times") && (metric != "exclusive_times"))
+	return;
+    bool is_exclusive = (metric == "exclusive_times");
+
+    // Cast the untype pointer into a vector of call times
+    std::vector<CallTimes>* values = 
+	reinterpret_cast<std::vector<CallTimes>*>(ptr);
+    
+    // Check assertions
+    Assert(values->size() >= subextents.size());
+
+    // Decode this data blob
+    mpit_data data;
+    memset(&data, 0, sizeof(data));
+    blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_mpit_data), &data);
+    
+    // Iterate over each of the events
+    for(unsigned i = 0; i < data.events.events_len; ++i) {
+	
+	// Get the stack trace for this event
+	StackTrace trace(thread, Time(data.events.events_val[i].start_time));
+	for(unsigned j = data.events.events_val[i].stacktrace;
+	    data.stacktraces.stacktraces_val[j] != 0;
+	    ++j)
+	    trace.push_back(Address(data.stacktraces.stacktraces_val[j]));
+	
+	// Get the time interval attributable to this event
+	TimeInterval interval(Time(data.events.events_val[i].start_time),
+			      Time(data.events.events_val[i].stop_time));
+	
+	// Calculate the time (in seconds) attributable to this event
+	double t_event = 
+	    static_cast<double>(interval.getWidth()) / 1000000000.0;
+	
+	// Iterate over each of the frames in this event's stack trace
+	for(StackTrace::const_iterator 
+		j = trace.begin(); j != trace.end(); ++j) {
+
+	    // Stop after the first frame if this is "exclusive_times"
+	    if(is_exclusive && (j != trace.begin()))
+		break;
+	    
+	    // Find the subextents that contain this frame
+	    std::set<ExtentGroup::size_type> intersection =
+		subextents.getIntersectionWith(
+		    Extent(interval, AddressRange(*j))
+		    );
+	    
+	    // Iterate over each subextent in the intersection
+	    for(std::set<ExtentGroup::size_type>::const_iterator
+		    k = intersection.begin(); k != intersection.end(); ++k) {
+		
+		// Calculate intersection time (in nS) of subextent and event
+		double t_intersection = static_cast<double>
+		    ((interval & subextents[*k].getTimeInterval()).getWidth());
+
+		//
+		// Add this event's stack trace to the results for this
+		// subextent (or find an existing stack trace)
+		//
+		
+		CallTimes::iterator l = (*values)[*k].insert(
+		    std::make_pair(trace, std::vector<double>())
+		    ).first;
+		
+		// Add this event's time to the results
+		l->second.push_back(t_intersection);
+		
+	    }
+	    
+	}
+
+    }
+
+    // Free the decoded data blob
+    xdr_free(reinterpret_cast<xdrproc_t>(xdr_mpit_data),
+	     reinterpret_cast<char*>(&data));
 }
