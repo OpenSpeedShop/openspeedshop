@@ -20,26 +20,47 @@
     
     B{OpenSpeedShop} I{python} interface package.
     
-    The idea is to match the standard B{OpenSpeedShop}
-    commandline interface using a pure I{python} API.
+    This package is essentially another UI for
+    B{OpenSpeedShop}. Currently this is done by converting the
+    APIs objects into B{OpenSpeedShop} CLI (Command Line
+    Interface) syntax passing them to a common parser and
+    semantic handler. The rational for this method is to reduce
+    duplicate code and make behavior consistant across UIs.
     
-    Generally, one wants to create an experiment, associate
-    it with the application to be profiled, describe the
-    type of data to be collected. 
+    This also means that one needs to reference the 
+    B{Open|SpeedShop User's Guide} for detailed descriptions
+    of experiment setup and behavior, as well as details about
+    experiment collectors and view options.
+
+    B{OpenSpeedShop} is developed to be extensible through
+    dynamic plugins. This means that some information may not
+    be available in a static document. Some information may
+    only be available through the help facilities of the GUI
+    or CLI (Command Line Interface). It is strongly suggested
+    that the B{OpenSpeedShop} I{python} API user become
+    familiar with one or both of these UIs in order to glean
+    information not available in the standard documentation. 
+
+    If the underlying B{OpenSpeedShop} encounters an error
+    it will throw a python exception: B{openss.error}.
+
+    Generally, one wants to create an experiment, associate it
+    with the application to be profiled, and describe the type of
+    data to be collected. 
     
     After the experiment is defined one runs it, either
-    letting it run its course or partially. This generates
-    raw information that is accessed with the B{expView()}
-    command. There may be multiple views available for
-    a particular experiment type (See B{list()}) and can be
-    set with the B{expSetParam()} command.
+    letting it run its course or run partially. This generates raw
+    information that is accessed with the B{expView()}
+    command. There may be multiple views available for a
+    particular experiment type (See B{list()}) and can be set
+    with the B{expSetParam()} command.
     
     A simple example::
     
     	import openss
 
     	# Create a FileList object with the name of
-	# the application to analyse.
+	# the application to analyze.
     	my_file = openss.FileList("myprog")
 	
 	# Determine the type of experiment to run.
@@ -51,10 +72,10 @@
 	# Run the instrumented application
 	openss.expGo()
 
-    	# expGo is the only asynchrous command. We may need
+    	# expGo is the only asynchronous command. We may need
 	# to wait until our app is done before harvesting
 	# the data.
-    	openss.waitForGo()
+    	openss.wait()
 	
     	# Describe the type of view we want and get the 
 	# results of the experiment.
