@@ -1,0 +1,132 @@
+################################################################################
+# Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+#
+# This library is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this library; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+################################################################################
+
+
+                         Usability Study
+
+
+Introduction:
+-------------
+
+For this assignment you'll be asked to do a simple performance
+tuning task.  There is no time constraint to "correctly" complete
+this task.
+
+If taking this study in the presence of the study leader, please 
+try to "think aloud" as you work through the scenario. It
+will help us understand where our problems are. If not, please
+jot down thoughts, questions and frustrations.
+
+Your task is to take a simple program ("fred") and using only the
+OpenSpeedShop Python API, (openss) determine which routine(s) are
+taking the most time. The program, "fred", is provided in the
+current directory.
+
+
+
+Remember:  You are not being tested. The user interface and it's
+ease of use, is being analyzed. Your initial feedback and thoughts
+as you  navigate through this set of tasks will enable us to see our
+problem areas.
+
+Enjoy.
+
+
+Step 1:
+  Type the following command at the prompt:
+    $ make 
+
+  This should have made the test case "fred". It's a very simple 'c'
+  example that has a few straight forward function calls and a few
+  variables.
+
+Step 2:
+  Run the executable "fred".
+
+  Type:
+    $ fred
+    Usage: fred <size>
+    No size argument given.   Defaulting to 750.
+    fred: successfully competed.
+    $
+
+Step 3:
+  The Open|Speedshop Python scripting api is 'openss'. The online
+  api documentation should be set up for you. 
+
+  This will give you the command api plus sample coding
+  examples. In addition you can always use the Python help()
+  facility within Python itself. For example, to get information
+  about the expView command:
+    
+    help(openss.expView)
+
+  Also,
+    
+  You will need to have access to the regular OpenSpeedShop
+  documentation for more detailed information. See the
+  OpenSpeedShop User's Guide. This should be set up for you
+  also.
+
+Step 4:
+  Create a python script, importing openss.
+  
+  You will want to define an experiment, associate 
+  it to your application (fred), run the experiment,
+  and then dump the gathered data.
+
+  Determine which performance experiment will show you where the
+  application is spending the bulk of its time. In the
+  OpenSpeedShop User's Guide look under Selecting an Experiment.
+  
+  May I suggest pcsamp?
+
+Step 5:
+  Using the experiment you determined (in Step 5) gather the
+  performance date for it on the application "fred".
+
+Step 6:
+  Once the application has run to completion, find which routine
+  took the most time.   
+
+  Which routine took the most time?
+
+  What source file is this top routine located?
+
+  Which routine took the second most time?
+
+Step 7:
+  Save the experiment's data to a file for later viewing.
+  
+  How do you know it was saved successfully?
+  
+  How do you read it back in and display it?
+
+Step 8:
+  List out all the parameters (options) that you could have set
+  as non-default values for this experiment.
+
+Step 9:
+  Set the value for the parameter to a new value and rerun.
+
+Step 10:
+  Exit the Open|Speedshop tool.
+
+How would you have passed an argument to fred? That
+is, how would you have changed the <size> argument?
+
