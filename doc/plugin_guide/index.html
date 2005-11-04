@@ -1051,8 +1051,7 @@ particular convention?</b></h4>
 <div style="text-align: left;">
 <blockquote> <b style=""> </b><!----> The naming of these files (e.g.
 "blob.x" vs. "my_funny_file_name.x") makes no difference to the
-framework. I believe Don was worried mainly about sticking to any
-pre-existing naming convention (and I appreciate that). The only things<br>
+framework.&nbsp; The only things<br>
 that really matter to the framework are:<br>
   <br>
 1) That a libtool-constructed module is placed into one of the plugin
@@ -1108,7 +1107,11 @@ overview before delving into the details of developing the plugin.<br>
 be done with the existing plugins?</li>
   <li>If a GUI plugin is really needed, decide if there is an existing
 GUI plugin or if the Example GUI plugin can be used as a model.</li>
-  <li>tbd<br>
+  <li>Use the mknewpanel script to create a new directory and skeletal
+panel</li>
+  <li>Read the information in this document regarding example code and
+apply it to the new panel if appropriate.</li>
+  <li><br>
   </li>
 </ul>
 <h4><a class="mozTocH4" name="mozTocId117100"></a>GUI Plugin Recognition</h4>
@@ -1223,7 +1226,8 @@ The key classes to create a panel are:
   <li>The new Panel Constructor</li>
 </ul>
 <div style="margin-left: 40px;">This is typically where the new widgets
-for the panel are created.&nbsp;&nbsp;&nbsp; See QtDocumentation for
+for the panel are created.&nbsp;&nbsp;&nbsp; See the Qt documentation
+for
 how to create Qt widgets.&nbsp;
 When using the 'mknewpanel' script there are several examples of
 creating Qt widgets.&nbsp;
@@ -1246,7 +1250,7 @@ this panel. </li>
 <br>
 <div style="margin-left: 40px;">Messages are very simple
 minded.&nbsp;&nbsp; They nothing more than a string (message type) or a
-base message object type (with somedata) being passed
+base message object type (with some data) being passed
 around.&nbsp;&nbsp; Many examples can be found looking in the existing
 panels.&nbsp;&nbsp; Additionally messages can be broadcast to everyone
 in the tool, a group of panels, or to a specific panel.
@@ -1258,7 +1262,7 @@ broadcasting it to the group is shown below.
 It's the message send by hitting the "Update" button in any of the
 baseline experiment types. (i.e pcSamplePanel.cxx
 <br>
-Here'd the snippet of code:
+Here's the snippet of code:
 <br>
 <br>
 </div>
@@ -1271,7 +1275,7 @@ Here'd the snippet of code:
 <br>
 <div style="margin-left: 40px;">The example above creates an
 UpdateObject() (which is a canned message to tell everyone that
-recieves it that they should refresh their view(s).&nbsp;&nbsp; It then
+receives it that they should refresh their view(s).&nbsp;&nbsp; It then
 broadcasts it to everyone with the same group id.&nbsp;
 Similarly this could be sent to every panel by changing the scope with:
 <br>
@@ -1318,7 +1322,7 @@ expID, QString::null, FALSE);
 <br>
 </div>
 <br>
-<div style="margin-left: 40px;">The listener on the recieving end looks
+<div style="margin-left: 40px;">The listener on the receiving end looks
 at the message coming in and if it's interested it
 acts upon it and returns TRUE notifying the broadcast routine that
 someone fielded the message.&nbsp;&nbsp; The listener routine should
@@ -1331,7 +1335,7 @@ whatever reason failed to be able to handle it properly.
   <li>Another interesting member function is the "::menu"
 callback.&nbsp;&nbsp; This simply overloads the Qt contextSensitiveMenu
 signal to ping your menu routine for localize menus that you might want
-appended to the menu list.&nbsp;&nbsp;&nbsp; There are numberous
+appended to the menu list.&nbsp;&nbsp;&nbsp; There are numerous
 examples of this in the panels.&nbsp;
 See pcSamplePanel::menu for a simple example. <br>
   </li>
@@ -1483,7 +1487,8 @@ tbd<br>
 <h3><a class="mozTocH3" name="mozTocId175785"></a><a
  name="Example_Graphical_User_Interface_Plugin"></a>Example Graphical
 User Interface Plugin</h3>
-tbd<br>
+The example graphical user interface plugin is the plugin that is used
+as the focus of the "mknewpanel" script, the TemplatePanel.<br>
 <br>
 <br>
 <br>
