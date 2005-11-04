@@ -113,6 +113,7 @@ static CMDID Command_Sequence_Number = 0;
 // add, remove or search the list of defined windows.
 static pthread_mutex_t Window_List_Lock = PTHREAD_MUTEX_INITIALIZER;
 static std::list<CommandWindowID *> CommandWindowID_list;
+static CommandWindowID *Embedded_CommandWindow = NULL;
 static CMDWID Command_Window_ID = 0;
 static CMDWID Last_ReadWindow = 0;
 static bool Async_Inputs = false;
@@ -468,17 +469,19 @@ class CommandWindowID
       pthread_cond_destroy (&Wait_For_Cmds_Complete);
 
      // Unlink from the chain of windows
+      if ((Embedded_CommandWindow != this) &&
+          ((*CommandWindowID_list.begin()) != (*CommandWindowID_list.end()))) {
 
-     // Get exclusive access to the lock so that only one
-     // add/remove/search of the list is done at a time.
-      Assert(pthread_mutex_lock(&Window_List_Lock) == 0);
+       // Get exclusive access to the lock so that only one
+       // add/remove/search of the list is done at a time.
+        Assert(pthread_mutex_lock(&Window_List_Lock) == 0);
 
-      if (*CommandWindowID_list.begin()) {
         CommandWindowID_list.remove(this);
-      }
 
-     // Release the lock.
-      Assert(pthread_mutex_unlock(&Window_List_Lock) == 0);
+       // Release the lock.
+        Assert(pthread_mutex_unlock(&Window_List_Lock) == 0);
+
+      }
 
      // Reclaim ss_ostream structures if not used in another window.
       if (command_line_window != 0) {
@@ -1120,6 +1123,7 @@ CommandWindowID *Find_Command_Window (CMDWID WindowID)
       }
     }
   }
+  Assert (found_window != NULL);
 
  // Release the lock.
   Assert(pthread_mutex_unlock(&Window_List_Lock) == 0);
@@ -1509,7 +1513,10 @@ CMDWID Embedded_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_p
   Assert(Embedded_WindowID == 0);
 
  // Create a new Window
-  Embedded_WindowID = Default_Window(my_name,my_host,my_pid,my_panel,Input_is_Async);
+  Embedded_CommandWindow  = new CommandWindowID(std::string(my_name ? my_name : ""),
+                                                std::string(my_host ? my_host : ""),
+                                                my_pid, my_panel, Input_is_Async);
+  Embedded_WindowID = Embedded_CommandWindow->ID();
   return Embedded_WindowID;
 }
 
@@ -1536,8 +1543,19 @@ void Window_Termination (CMDWID im)
 void Commander_Termination () {
 
  // Remove all remaining input windows.
-  std::list<CommandWindowID *>::reverse_iterator cwi;
-  for (cwi = CommandWindowID_list.rbegin(); cwi != CommandWindowID_list.rend(); )
+  if (Embedded_WindowID != 0) {
+   // Because this routine is called through a static destructor,
+   // we may encoutner an ordering problem: CommandWindowID_list,
+   // which is also called through a static destructor, may have
+   // already been purged.  Try to reclaim the Embedded_WindowID
+   // without looking through the list.
+    Assert (Embedded_CommandWindow != NULL);
+    delete Embedded_CommandWindow;
+    return;
+  }
+
+  std::list<CommandWindowID *>::iterator cwi;
+  for (cwi = CommandWindowID_list.begin(); cwi != CommandWindowID_list.end(); )
   {
     CommandWindowID *my_window = *cwi;
     cwi++;
