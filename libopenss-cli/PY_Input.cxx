@@ -486,6 +486,7 @@ SS_ParseError (PyObject *self, PyObject *args) {
 // Definitions for basic initialization / termination sequences.
 void Openss_Basic_Initialization ();
 void Openss_Basic_Termination();
+
  
 /**
  * Method: SS_InitEmbeddedInterface()
@@ -551,11 +552,6 @@ SS_ExitEmbeddedInterface (PyObject *self, PyObject *args) {
 //printf("Entering SS_ExitEmbeddedInterface()\n");
 
   if (Embedded_WindowID != 0) {
-  
-   // Close allocated input windows.
-    Window_Termination (Embedded_WindowID);
-    Embedded_WindowID = 0;
-
    // Close down the CLI.
     Openss_Basic_Termination();
   }
@@ -606,6 +602,24 @@ static CMDID Scripting_Sequence_Number = 0;
 
   return result;
 }
+
+// Define a basic class with a constructor and destructor
+// to catch dlopens and dlclose on use of the Embedded interface.
+// The constructor could initialize OpenSpeedShop, but Python
+// already has a mechanism that will call an init routine
+// when the dso is loaded.
+// The use of the destructor is a safety check to be sure
+// that the exit routine is called in cases where no 'exit'
+// command is issued by the user.
+class Embedded_Entry_Control {
+ public :
+  Embedded_Entry_Control () {}
+  ~Embedded_Entry_Control () {
+    SS_ExitEmbeddedInterface (NULL, NULL);
+  }
+};
+static Embedded_Entry_Control EEC;
+
 
 /**
  * Table of OpenSS routines accessable from
