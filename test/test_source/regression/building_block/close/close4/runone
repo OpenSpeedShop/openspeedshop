@@ -1,4 +1,4 @@
-!/bin/sh
+#!/bin/sh
 #
 #Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 #
