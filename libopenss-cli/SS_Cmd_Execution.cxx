@@ -1503,7 +1503,9 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
 
   if ((exp->FW() == NULL) ||
       (exp->Status() == ExpStatus_NonExistent)) {
-    cmd->Result_String ("The experiment can not be run because it does not exist.");
+    Mark_Cmd_With_Soft_Error(cmd,
+                             "The experiment can not be run because "
+                             "it is not atached to an application.");
     return false;
   }
 
