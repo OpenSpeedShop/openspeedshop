@@ -206,6 +206,7 @@ try {
     cmd->Result_String ("This command has not been implimented yet");
     cmd->set_Status(CMD_ERROR);
 #endif
+    cmd_successful = false;
   }
 
 }
@@ -213,13 +214,14 @@ catch(const Exception& error) {
   cmd->Result_String ("An unrecoverable error was encountered while trying to execute this command.");
   Mark_Cmd_With_Std_Error (cmd, error);
   cmd->set_Status(CMD_ERROR);
+  cmd_successful = false;
 }
 
   if (cmd->Status() == CMD_EXECUTING) {
    // The semantic processor failed to flag the command as complete!
    // This is clearly NOT how we intend to do things!
    // But we can't get here unless it is complete, so mark it.
-    cmd->set_Status (CMD_COMPLETE);
+    cmd->set_Status (cmd_successful ? CMD_COMPLETE : CMD_ERROR);
   }
 
   if (redirect_streamP != NULL) {
