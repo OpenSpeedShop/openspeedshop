@@ -180,7 +180,9 @@ ThreadGroupStringList currentThreadGroupStrList;
     bool matchUIntSelectedItem( std::string function_name );
     bool matchUInt64SelectedItem( std::string function_name );
 
+#ifdef OLDWAY
     void clearSourceFile(int expID);
+#endif // OLDWAY
 
     void updateStatsPanelData();
 
@@ -209,21 +211,6 @@ ThreadGroupStringList currentThreadGroupStrList;
     int getLineColor(unsigned int value);
     int getLineColor(uint64_t value);
 
-
-    SmartPtr<std::map<Function, double> > orig_double_data;
-    std::vector<Function_double_pair> topNsorted_double_items;
-    std::vector<Function_double_pair> sorted_double_items;
-    SmartPtr<std::map<int, double> > orig_double_statement_data;
-
-    SmartPtr<std::map<Function, unsigned int> > orig_uint_data;
-    std::vector<Function_uint_pair> topNsorted_uint_items;
-    std::vector<Function_uint_pair> sorted_uint_items;
-    SmartPtr<std::map<int, unsigned int> > orig_uint_statement_data;
-
-    SmartPtr<std::map<Function, uint64_t> > orig_uint64_data;
-    std::vector<Function_uint64_pair> topNsorted_uint64_items;
-    std::vector<Function_uint64_pair> sorted_uint64_items;
-    SmartPtr<std::map<int, uint64_t> > orig_uint64_statement_data;
 
     bool descending_sort;
 
