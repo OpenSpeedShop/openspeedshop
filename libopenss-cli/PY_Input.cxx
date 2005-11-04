@@ -554,6 +554,7 @@ SS_ExitEmbeddedInterface (PyObject *self, PyObject *args) {
   if (Embedded_WindowID != 0) {
    // Close down the CLI.
     Openss_Basic_Termination();
+    Embedded_WindowID = 0;
   }
 
 //printf("L SS_ExitEmbeddedInterface()\n");
