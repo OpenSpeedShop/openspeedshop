@@ -1087,11 +1087,14 @@ directory. </li>
   <li>OPENSS_PLUGIN_PATH
 -
 This environment variable
-specifies where the Open|SpeedShop main program looks for the
-experiment plugins.&nbsp; At Open|SpeedShop initialization, set this
-variable to a path,&nbsp; (e.g.
-"setenv OPENSS_PLUGIN_PATH
-/scratch/jeg/openss/install/lib/openspeedshop) </li>
+specifies where the Open|SpeedShop main program will look for
+experiment plugins.&nbsp; This is in addition to the normal search
+path, which is "&lt;installdir&gt;/lib/openspeedshop"&nbsp; Prior to
+Open|SpeedShop initialization set this
+variable to the path to your non-default plugins,&nbsp; (e.g.
+"setenv OPENSS_PLUGIN_PATH /g2/install/lib/openspeedshop) </li>
+</ul>
+<ul>
   <li>LD_LIBRARY_PATH
 - This
 environment variable points to the
@@ -1490,8 +1493,8 @@ corresponding menu items.&nbsp;&nbsp; We will touch on the&nbsp; File
 menu, Tools menu, Experiments menu, and the Wizards menu, as shown at
 the top of the Open|SpeedShop window below.<b style=""><br>
     <br>
-    <img alt="Initial Open!SpeedShop Introduction Panel"
- src="InitialPanel.png" style="height: 644px; width: 860px;"><br>
+    <img style="height: 644px; width: 860px;" src="InitialPanel.png"
+ alt="Initial Open!SpeedShop Introduction Panel"><br>
     <br>
     </b>
     <h4><a class="mozTocH4" name="mozTocId909976"></a><b style=""><a
@@ -1622,7 +1625,6 @@ Experiment</b></h5>
     </b>
     <h5><a class="mozTocH5" name="mozTocId993712"></a><b style=""><a
  name="PC_Sampling_Experiment"></a>PC Sampling Experiment</b></h5>
-    <br>
     <h6><a class="mozTocH6" name="mozTocId450283"></a><big><tt><span
  style="font-family: helvetica;">pcsamp</span></tt> PC
 Sampling Experiment</big></h6>
@@ -2346,7 +2348,7 @@ query of the new host for the user's running processes.<br>
  name="Loading_and_Starting_MPI_Applications"></a>Loading and Starting
 MPI Applications</h4>
 <span style="font-weight: bold;">TBD - Not currently implemented (as of
-09/28/2005).</span><br>
+11/13/2005).</span><br>
 <br>
 <span style="font-family: arial;"><span style="font-style: italic;"><span
  style="font-weight: bold;"></span></span></span></div>
