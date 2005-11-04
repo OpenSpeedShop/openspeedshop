@@ -93,8 +93,15 @@ void Queries::GetMetricByStatementOfFileInThread(
     
     // Strip out everything but the line numbers for the statements
     for(typename std::map<Framework::Statement, TM >::const_iterator
-	    i = statements->begin(); i != statements->end(); ++i)
-	result->insert(std::make_pair(i->first.getLine(), i->second));    
+	    i = statements->begin(); i != statements->end(); ++i) {
+
+	// Add this value into the results
+	if(result->find(i->first.getLine()) == result->end())
+	    result->insert(std::make_pair(i->first.getLine(), i->second));
+	else
+	    (*result)[i->first.getLine()] += i->second;
+
+    }
 }
 
 
