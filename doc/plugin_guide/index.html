@@ -39,7 +39,15 @@ Outline</a>
             <ul>
               <li><a href="#mozTocId513127">General Open|SpeedShop
 Plugin Outline</a></li>
-              <li><a href="#mozTocId225587">General Plugin Structure</a></li>
+              <li><a href="#mozTocId225587">General Plugin Structure</a>
+                <ul>
+                  <li><a href="#mozTocId64311">Performance Data
+Collector Plugin Structure</a></li>
+                  <li><a href="#mozTocId300839">GUI Plugin Structure</a></li>
+                  <li><a href="#mozTocId337518">Interactive CLI Plugin
+Structure</a></li>
+                </ul>
+              </li>
               <li><a href="#mozTocId743777">How do plugins get
 recognized?</a></li>
               <li><a href="#mozTocId679293">Where are the plugins
@@ -51,12 +59,14 @@ located?</a></li>
       <li><a href="#mozTocId732797">Performance Data
 Collector Plugin Information</a>
         <ul>
-          <li><a href="#mozTocId892980">Performance Data Collector
-Quick Overview</a>
+          <li><a href="#mozTocId892980">Performance Data
+Collector Quick Overview
+            </a>
             <ul>
               <li><a href="#mozTocId952547">Performance Data
 Collector Plugin Outline</a></li>
-              <li><a href="#mozTocId636342">Performance Data
+              <li><a href="#mozTocId636342">Performance
+Data
 Collector Plugin Structure</a></li>
             </ul>
           </li>
@@ -79,7 +89,8 @@ Runtime - Server/Victim portion of Experiment Collector
               <li><a href="#mozTocId637965">Collector
 Plugin - Client/Tool portion of Experiment Collector
                 </a></li>
-              <li><a href="#mozTocId775061">Collector Plugin API</a>
+              <li><a href="#mozTocId775061">Collector Plugin API
+                </a>
                 <ul>
                   <li><a href="#mozTocId388988">The Start
 Collecting function
@@ -227,14 +238,15 @@ control</a></li>
 User Interface Plugin</a></li>
         </ul>
       </li>
-      <li><a href="#mozTocId90403">Interactive Command Line
+      <li><a href="#mozTocId90403">Interactive
+Command Line
 Interface Plugin Information</a>
         <ul>
-          <li><a href="#mozTocId192580">Interactive Command Line
-Interface (CLI) Plugin Overview</a>
+          <li><a href="#mozTocId192580">Interactive Command
+Line Interface (CLI) Plugin Overview</a>
             <ul>
-              <li><a href="#mozTocId138060">Interactive Command Line
-Interface (CLI) Plugin Outline</a></li>
+              <li><a href="#mozTocId138060">Interactive Command
+Line Interface (CLI) Plugin Outline</a></li>
             </ul>
           </li>
         </ul>
@@ -392,21 +404,41 @@ Command Line Interface Plugin Outline</a><br>
 </ul>
 <h4><a class="mozTocH4" name="mozTocId225587"></a><a
  name="General_Plugin_Structure"></a>General Plugin Structure</h4>
+<h5><a class="mozTocH5" name="mozTocId64311"></a>Performance Data
+Collector Plugin Structure</h5>
 As noted above, the experiment collector plugin is actually physically
 two dynamic shared objects.&nbsp; If one was to view the directory
 where the Open|SpeedShop plugins are installed
 (&lt;install_dir_prefix&gt;/lib/openspeedshop) you would see that there
 are two dso's for each experiment collector.&nbsp;&nbsp; For example,
 here is what is shown for the PC Sampling experiment collector:<br>
-<br>
-<div style="text-align: left;"><span style="font-style: italic;">pcsamp.la*&nbsp;
+<div style="text-align: left;"><small><span
+ style="font-style: italic; font-weight: bold;">pcsamp.la*&nbsp;
 pcsamp-rt.la*&nbsp;
-pcsamp-rt.so*&nbsp; pcsamp.so*</span><br>
+pcsamp-rt.so*&nbsp; pcsamp.so*</span></small><br>
 </div>
 <br>
 The runtime portion of the experiment collector plugin is appended with
 "-rt" while the client portion is not.<br>
+<h5><a class="mozTocH5" name="mozTocId300839"></a>GUI Plugin Structure<br>
+</h5>
+GUI plugins have on physical shared object for each panel.&nbsp;&nbsp;
+For the pcsamp experiment,&nbsp; a listing of the plugin directory
+would show these files:<br>
+<small><small style="font-weight: bold;"><span
+ style="font-style: italic;"><big>pcSamplePanel.la*&nbsp;
+pcSamplePanel.so*</big>&nbsp; </span></small><br>
+</small><br>
+Additionally, one would see another dynamically shared object relating
+to the PC Sampling experiment.&nbsp; However, support for creating
+wizard plugins is not available at this time.<br>
+<small><span style="font-style: italic; font-weight: bold;">pcSampleWizardPanel.la*&nbsp;
+pcSampleWizardPanel.so*<big><span style="font-weight: bold;"><span
+ style="font-style: italic;"></span></span></big></span></small><br>
 <br>
+<h5><a class="mozTocH5" name="mozTocId337518"></a>Interactive CLI
+Plugin Structure</h5>
+Support for the interactive command line interface plugins is tbd.<br>
 <h4><a class="mozTocH4" name="mozTocId743777"></a>How do plugins get
 recognized?</h4>
 The keys to Open|SpeedShop recognizing that a file is an Open|SpeedShop
