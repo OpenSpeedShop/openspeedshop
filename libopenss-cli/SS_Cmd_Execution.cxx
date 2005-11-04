@@ -3338,7 +3338,7 @@ bool SS_History (CommandObject *cmd) {
 
  // Wait for all executing commands to terminate.
   Wait_For_Previous_Cmds ();
-  int64_t num = OPENSSS_HISTORY_DEFAULT;  // How many to print out
+  int64_t num = OPENSS_HISTORY_DEFAULT;  // How many to print out
 
  // Copy commands from the history list.
   std::list<std::string>::iterator hi = History.begin();  // Start at  beginning
@@ -3355,8 +3355,8 @@ bool SS_History (CommandObject *cmd) {
       num = val1;
     }
    // Reset the limit for the user.
-    if (val1 > OPENSSS_HISTORY_LIMIT) {
-      OPENSSS_HISTORY_LIMIT = val1;
+    if (val1 > OPENSS_HISTORY_LIMIT) {
+      OPENSS_HISTORY_LIMIT = val1;
     }
   }
 

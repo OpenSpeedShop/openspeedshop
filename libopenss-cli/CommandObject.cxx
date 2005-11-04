@@ -87,7 +87,7 @@ bool CommandObject::Print_Results (ostream &to, std::string list_seperator, std:
   bool annotation_printed = false;
   std::list<CommandResult_RawString *>::iterator ari;
   for (ari = cmd_annotation.begin(); ari != cmd_annotation.end(); ari++) {
-    (*ari)->Print (to, OPENSSS_VIEW_FIELD_SIZE, true);
+    (*ari)->Print (to, OPENSS_VIEW_FIELD_SIZE, true);
     annotation_printed = true;
   }
 
@@ -107,7 +107,7 @@ bool CommandObject::Print_Results (ostream &to, std::string list_seperator, std:
     bool list_seperator_needed = false;
     for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++) {
       if (list_seperator_needed) to << list_seperator;
-      (*cri)->Print (to, OPENSSS_VIEW_FIELD_SIZE, true);
+      (*cri)->Print (to, OPENSS_VIEW_FIELD_SIZE, true);
 
       list_seperator_needed = true;
       if ((*cri)->Type() == CMD_RESULT_STRING) {

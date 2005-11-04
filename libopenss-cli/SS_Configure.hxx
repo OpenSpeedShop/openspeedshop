@@ -17,15 +17,16 @@
 *******************************************************************************/
 
 // User control over some of OpenSpeedShop's behavior.
-extern int64_t OPENSSS_VIEW_FIELD_SIZE;
-extern int64_t OPENSSS_VIEW_PRECISION;
-extern int64_t OPENSSS_HISTORY_LIMIT;
-extern int64_t OPENSSS_HISTORY_DEFAULT;
-extern int64_t OPENSSS_MAX_ASYNC_COMMANDS;
-extern int64_t OPENSSS_HELP_LEVEL_DEFAULT;
-extern bool    OPENSSS_SAVE_EXPERIMENT_DATABASE;
-extern bool    OPENSSS_ALLOW_PYTHON_COMMANDS;
-extern bool    OPENSSS_LOG_BY_DEFAULT;
+extern int64_t OPENSS_VIEW_FIELD_SIZE;
+extern int64_t OPENSS_VIEW_PRECISION;
+extern int64_t OPENSS_HISTORY_LIMIT;
+extern int64_t OPENSS_HISTORY_DEFAULT;
+extern int64_t OPENSS_MAX_ASYNC_COMMANDS;
+extern int64_t OPENSS_HELP_LEVEL_DEFAULT;
+extern bool    OPENSS_SAVE_EXPERIMENT_DATABASE;
+extern bool    OPENSS_ALLOW_PYTHON_COMMANDS;
+extern bool    OPENSS_LOG_BY_DEFAULT;
+extern bool    OPENSS_LIMIT_SIGNAL_CATCHING;
 
 // Read in the environment variables that control OpenSpeedShop
 void SS_Configure ();

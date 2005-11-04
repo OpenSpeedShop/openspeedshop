@@ -439,7 +439,7 @@ void SS_Execute_Cmd (CommandObject *cmd) {
       if (Ready_for_Next_Cmd) {
         if (EXT_Free != 0) {
           Assert(pthread_cond_signal(&Cmd_EXT_Dispatch) == 0);
-        }  else if (EXT_Allocated < OPENSSS_MAX_ASYNC_COMMANDS) {
+        }  else if (EXT_Allocated < OPENSS_MAX_ASYNC_COMMANDS) {
          // Allocate a new process to execute comamnds.
           pthread_t EXT_handle;
           int stat = pthread_create(&EXT_handle, 0, (void *(*)(void *))Cmd_EXT_Create,(void *)NULL);
@@ -467,11 +467,11 @@ void SS_Execute_Cmd (CommandObject *cmd) {
         Main_Waiting = true;
         Main_Waiting_Count = 0;
         Assert(pthread_cond_wait(&Waiting_For_Main,&Cmd_EXT_Lock) == 0);
-      } else if (EXT_Dispatch.size() > (OPENSSS_MAX_ASYNC_COMMANDS * 2)) {
+      } else if (EXT_Dispatch.size() > (OPENSS_MAX_ASYNC_COMMANDS * 2)) {
        // Don't read any more input until we can process
        // some of the commands we already have.
         Main_Waiting = true;
-        Main_Waiting_Count = OPENSSS_MAX_ASYNC_COMMANDS;
+        Main_Waiting_Count = OPENSS_MAX_ASYNC_COMMANDS;
         Assert(pthread_cond_wait(&Waiting_For_Main,&Cmd_EXT_Lock) == 0);
       }
     }

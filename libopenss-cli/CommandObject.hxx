@@ -145,7 +145,7 @@ class CommandResult_Float : public CommandResult {
   };
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
-       << std::setw(fieldsize) << fixed << setprecision(OPENSSS_VIEW_PRECISION) << float_value;
+       << std::setw(fieldsize) << fixed << setprecision(OPENSS_VIEW_PRECISION) << float_value;
   }
 };
 

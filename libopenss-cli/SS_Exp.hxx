@@ -55,7 +55,7 @@ class ExperimentObject
    // Allocate a data base file for the information connected with the experiment.
     std::string Data_File_Name;
     if (data_base_name.length() == 0) {
-      if (OPENSSS_SAVE_EXPERIMENT_DATABASE) {
+      if (OPENSS_SAVE_EXPERIMENT_DATABASE) {
        // Try to create a file in the current directory
        // of the form "X<exp_id>_XXXXXX.openss".
        // If the genrated name already exists, increment

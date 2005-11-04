@@ -419,7 +419,7 @@ class CommandWindowID
       Assert(pthread_mutex_unlock(&Window_List_Lock) == 0);
 
      // Allocate a log file for commands associated with this window
-      if (OPENSSS_LOG_BY_DEFAULT) {
+      if (OPENSS_LOG_BY_DEFAULT) {
         char base[20];
         snprintf(base, 20, "sstr%lld.XXXXXX",id);
         Log_File_Name = std::string(tempnam ("./", &base[0] )) + ".openss";
@@ -2486,7 +2486,7 @@ read_another_window:
  // Add command to the history file.
   History.push_back(clip->Command());
   History_Count++;
-  if (History_Count > OPENSSS_HISTORY_LIMIT) {
+  if (History_Count > OPENSS_HISTORY_LIMIT) {
     (void) History.pop_front();
     History_Count--;
   }
