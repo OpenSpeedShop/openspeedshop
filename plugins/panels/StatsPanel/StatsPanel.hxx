@@ -180,10 +180,6 @@ ThreadGroupStringList currentThreadGroupStrList;
     bool matchUIntSelectedItem( std::string function_name );
     bool matchUInt64SelectedItem( std::string function_name );
 
-#ifdef OLDWAY
-    void clearSourceFile(int expID);
-#endif // OLDWAY
-
     void updateStatsPanelData();
 
     SPListViewItem *lastlvi;

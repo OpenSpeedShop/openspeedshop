@@ -42,11 +42,11 @@ public:
       description = "none";
     };
 
-    HighlightObject(QString fn, int l, char *c="red", QString v=QString::null, QString d="N/A")
+    HighlightObject(QString fn, int l, QString c="red", QString v=QString::null, QString d="N/A")
     {
       fileName = fn;
       line = l;
-      color = strdup(c);
+      color = c;
       value = v;
       description = d;
     };
@@ -54,20 +54,16 @@ public:
     ~HighlightObject()
     {
 //      dprintf("delete HighlightObject %s\n", description);
-      if( color )
-      {
-        free(color);
-      }
     }
 
     void print()
     {
-      printf("%d %s %s %s\n", line, color, value.ascii(), description.ascii() );
+      printf("%d %s %s %s\n", line, color.ascii(), value.ascii(), description.ascii() );
     }
 
     QString fileName;
     int line;
-    char *color;
+    QString color;
     QString value;
     QString description;
 };

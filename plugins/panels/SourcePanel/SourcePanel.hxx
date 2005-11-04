@@ -159,7 +159,7 @@ public:
   QColor defaultColor;
 
   //! Highlight a specific line.
-  void highlightLine(int line, char *color="red", bool inverse=FALSE);
+  void highlightLine(int line, QString color="red", bool inverse=FALSE);
 
   //! Clear the highlight of a specific line.
   void clearHighlightedLine(int line);

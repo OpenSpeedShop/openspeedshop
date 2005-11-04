@@ -925,11 +925,11 @@ SourcePanel::whoDoICall()
 
 /*! Highlight a line with the given color. */
 void
-SourcePanel::highlightLine(int line, char *color, bool inverse)
+SourcePanel::highlightLine(int line, QString color, bool inverse)
 {
   // para == line when QTextEdit is in PlainText mode
   line--;
-  nprintf(DEBUG_PANELS) ("highlightLine(%d, %s, %d)\n", line, color, inverse);
+  nprintf(DEBUG_PANELS) ("highlightLine(%d, %s, %d)\n", line, color.ascii(), inverse);
   if( inverse )
   {
     textEdit->setParagraphBackgroundColor(line, QColor(color) );

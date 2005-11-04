@@ -938,8 +938,6 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 // First lets try to find the function/file pair.
 
   SourceObject *spo = NULL;
-//  SmartPtr<std::map<int, double> > double_statement_data;
-//  SmartPtr<std::map<int, uint64_t> > uint64_statement_data;
   HighlightList *highlightList = new HighlightList();
   highlightList->clear();
   QString selected_function_qstring = QString(sf).stripWhiteSpace();
@@ -1102,6 +1100,8 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
                   hlo->value = QString("%1").arg(v);
 // printf("  new value=(%s)\n", hlo->value.ascii() );
                   hlo->description = QString("\nMetric %1 was %2.").arg(currentMetricStr).arg(v);
+                  color_index = getLineColor(v);
+                  hlo->color = hotToCold_color_names[color_index];
                   FOUND = TRUE;
                   break;
                 }
@@ -1147,11 +1147,13 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
                 if( hlo->line == sit->first )
                 {
 // printf("We have a duplicate at line (%d)\n", sit->first );
-                  int64_t v = hlo->value.toUInt();
+                  uint64_t v = hlo->value.toUInt();
 // printf("v=%f\n", v );
                   v += sit->second;
                   hlo->value = QString("%1").arg(v);
                   hlo->description = QString("\nMetric %1 was %2.").arg(currentMetricStr).arg(v);
+                  color_index = getLineColor(v);
+                  hlo->color = hotToCold_color_names[color_index];
                   FOUND = TRUE;
                   break;
                 }
@@ -1202,7 +1204,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
       Panel *sourcePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
       if( !sourcePanel )
       {
-//printf("no source view up, place the source panel.\n");
+// printf("no source view up, place the source panel.\n");
         char *panel_type = "Source Panel";
         PanelContainer *startPC = NULL;
         if( getPanelContainer()->parentPanelContainer != NULL )
@@ -1218,7 +1220,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
       }
       if( sourcePanel )
       {
-//printf("send the spo to the source panel.\n");
+// printf("send the spo to the source panel.\n");
 // spo->print();
        sourcePanel->listener((void *)spo);
 // printf("sent the spo to the source panel.\n");
@@ -1305,19 +1307,11 @@ StatsPanel::updateStatsPanelData()
     lastAbout += QString("Requested data for collector %1 for top %2 items\n").arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
 
   }
-#ifdef OLDWAY
-  if( !currentMetricStr.isEmpty() )
-  {
-     command += QString(" -m %1").arg(currentMetricStr);
-     lastAbout += QString("for metrics %1\n").arg(currentMetricStr);
-  }
-#else // OLDWAY
   if( !currentUserSelectedMetricStr.isEmpty() )
   {
      command += QString(" -m %1").arg(currentUserSelectedMetricStr);
      lastAbout += QString("for metrics %1\n").arg(currentUserSelectedMetricStr);
   }
-#endif // OLDWAY
   if( !currentThreadsStr.isEmpty() )
   {
      command += QString(" %1").arg(currentThreadsStr);
@@ -1556,7 +1550,7 @@ StatsPanel::clearSourceFile(int expID)
 int
 StatsPanel::getLineColor(double value)
 {
-// printf("getLineColor(%f) descending_sort= %d\n", value, descending_sort);
+// printf("getLineColor(%f) descending_sort= %d TotalTime=%f\n", value, descending_sort, TotalTime);
   if( (int) value >  0.0 )
   {
     if( TotalTime*.90 >= value )
@@ -1982,6 +1976,11 @@ StatsPanel::outputCLIData(QString *data)
     int si = columnValueClass[i].start_index;
     int l = columnValueClass[i].end_index-columnValueClass[i].start_index;
     QString value = stripped_data.mid(si,l).stripWhiteSpace();
+    if( i == 0 ) // Grab the (some) default metric FIX
+    {
+      float f = value.toFloat();
+      TotalTime += f;
+    }
     if( percentIndex == i )
     {
       float f = value.toFloat();
