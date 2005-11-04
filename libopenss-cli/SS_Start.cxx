@@ -372,7 +372,7 @@ extern "C"
    // Basic Initialization
     Openss_Basic_Initialization();
 
-    if (OPENSS_LIMIT_SIGNAL_CATCHING) {
+    if (!OPENSS_LIMIT_SIGNAL_CATCHING) {
      // Optionally, set up to catch bad errors
       SET_SIGNAL (SIGILL, catch_signal);
       SET_SIGNAL (SIGFPE, catch_signal);

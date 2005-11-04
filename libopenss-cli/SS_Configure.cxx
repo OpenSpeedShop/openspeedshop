@@ -27,7 +27,7 @@ int64_t OPENSS_HELP_LEVEL_DEFAULT = 2;
 bool    OPENSS_SAVE_EXPERIMENT_DATABASE = false;
 bool    OPENSS_ALLOW_PYTHON_COMMANDS = true;
 bool    OPENSS_LOG_BY_DEFAULT = false;
-bool    OPENSS_LIMIT_SIGNAL_CATCHING = true;
+bool    OPENSS_LIMIT_SIGNAL_CATCHING = false;
 
 static inline void set_int64 (int64_t &env, std::string envName) {
   char *S = getenv (envName.c_str());
