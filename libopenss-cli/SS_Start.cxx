@@ -372,14 +372,17 @@ extern "C"
    // Basic Initialization
     Openss_Basic_Initialization();
 
-   // Set up to catch bad errors
-    SET_SIGNAL (SIGILL, catch_signal);
-    SET_SIGNAL (SIGFPE, catch_signal);
-    SET_SIGNAL (SIGBUS, catch_signal);
-    SET_SIGNAL (SIGSEGV, catch_signal);
-    SET_SIGNAL (SIGSYS, catch_signal);
-    // SET_SIGNAL (SIGPIPE, catch_signal);
-    // SET_SIGNAL (SIGCLD, catch_signal);
+    if (OPENSS_LIMIT_SIGNAL_CATCHING) {
+     // Optionally, set up to catch bad errors
+      SET_SIGNAL (SIGILL, catch_signal);
+      SET_SIGNAL (SIGFPE, catch_signal);
+      SET_SIGNAL (SIGBUS, catch_signal);
+      SET_SIGNAL (SIGSEGV, catch_signal);
+      SET_SIGNAL (SIGSYS, catch_signal);
+      // SET_SIGNAL (SIGPIPE, catch_signal);
+      // SET_SIGNAL (SIGCLD, catch_signal);
+    }
+   // Always catch user signals.
     SET_SIGNAL (SIGINT, catch_signal); // CNTRL-C
     SET_SIGNAL (SIGQUIT, catch_signal); // CNTRL-\
 
