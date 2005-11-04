@@ -40,11 +40,14 @@ Contents<br>
 </span></span></b></b></p>
 <ul style="text-align: left;" id="mozToc">
 <!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId71414">Introduction
-to Open|SpeedShop </a>
+to Open|SpeedShop
+    </a>
     <ul>
       <li><a href="#mozTocId406387">Brief
-Open|SpeedShop Overview </a></li>
-      <li><a href="#mozTocId958848">Common Terminology </a></li>
+Open|SpeedShop Overview
+        </a></li>
+      <li><a href="#mozTocId958848">Common Terminology
+        </a></li>
       <li><a href="#mozTocId760931">Open|SpeedShop
 General Usage</a>
         <ul>
@@ -71,10 +74,12 @@ Development RPM Usage Information</a>
 Platforms:</a></li>
           <li><a href="#mozTocId293268">Open|SpeedShop
 Build
-component RPM versions: </a></li>
+component RPM versions:
+            </a></li>
           <li><a href="#mozTocId883409">Overview
 - Setting up
-new machine for development on Open|SpeedShop </a>
+new machine for development on Open|SpeedShop
+            </a>
             <ul>
               <li><a href="#mozTocId985149">Step
 1 - Check for
@@ -98,7 +103,8 @@ Developer/Build
 Related Environment Variables</a>
                 <ul>
                   <li><a href="#mozTocId227574">Generally used
-environment variables </a></li>
+environment variables
+                    </a></li>
                   <li><a href="#mozTocId365139">Special purpose
 environment variables</a></li>
                 </ul>
@@ -146,7 +152,14 @@ Invocation Command&nbsp; "openss"</a>
         </ul>
       </li>
       <li><a href="#mozTocId805334">Open|SpeedShop Quick Start
-Information</a></li>
+Information</a>
+        <ul>
+          <li><a href="#mozTocId931138">Example 1:&nbsp; Using GUI</a></li>
+          <li><a href="#mozTocId717950">Example 2:&nbsp; Using
+Interactive CLI</a></li>
+          <li><a href="#mozTocId985939">Example 3:&nbsp; Using Batch</a></li>
+        </ul>
+      </li>
       <li><a href="#mozTocId97653">Running
 Open|SpeedShop on a cluster or multiple partitions</a></li>
       <li><a href="#mozTocId696903">Using
@@ -192,8 +205,8 @@ Sampling Experiment</a></li>
                   </li>
                   <li><a href="#mozTocId733641">User Time Experiment</a>
                     <ul>
-                      <li><a href="#mozTocId848866">&nbsp;usertime User
-Time
+                      <li><a href="#mozTocId848866">&nbsp;usertime
+User Time
 Experiment </a></li>
                     </ul>
                   </li>
@@ -234,8 +247,7 @@ Panel</a></li>
 Panel</a></li>
                   <li><a href="#mozTocId757134">Stats
 Panel</a></li>
-                  <li><a href="#mozTocId527350"> </a><br>
-                  </li>
+                  <li><a href="#mozTocId527350"> </a></li>
                 </ul>
               </li>
             </ul>
@@ -245,8 +257,7 @@ Open|SpeedShop GUI Wizard Usage </a>
             <ul>
               <li><a href="#mozTocId943081">Introductory Wizard Display
                 </a></li>
-              <li><a href="#mozTocId549331"> </a><br>
-              </li>
+              <li><a href="#mozTocId549331"> </a></li>
               <li><a href="#mozTocId197580">PC Sampling Wizard
 - Initial Display </a></li>
               <li><a href="#mozTocId68517">PC Sampling
@@ -283,7 +294,8 @@ Running MPI Applications</a>
                 <ul>
                   <li><a href="#mozTocId291888">Gui Wizard Information</a></li>
                   <li><a href="#mozTocId112115">Gui Non-Wizard
-Information&nbsp; </a></li>
+Information&nbsp;
+                    </a></li>
                 </ul>
               </li>
               <li><a href="#mozTocId271423">Loading and Starting
@@ -308,7 +320,8 @@ Command Tool </a></li>
     </ul>
   </li>
   <li><a href="#mozTocId54031">Scripting
-API </a></li>
+API
+    </a></li>
   <li><a href="#mozTocId525838">Plugin
 API (Extensibility)&nbsp; Description</a></li>
   <li><a href="#mozTocId145888">Appendix
@@ -866,7 +879,7 @@ Open|SpeedShop.<br>
     <tr>
       <td>sqlite </td>
       <td>3.0.8 </td>
-      <td>3.2.2 </td>
+      <td>3.2.7 </td>
       <td>none</td>
     </tr>
     <tr>
@@ -1198,7 +1211,8 @@ that need to be installed on your system to run Open|SpeedShop.<br>
         <td>libelf </td>
         <td>0.8.5 </td>
         <td>0.8.5 </td>
-        <td>none</td>
+        <td>(2)<br>
+        </td>
       </tr>
       <tr>
         <td>libunwind </td>
@@ -1213,7 +1227,7 @@ that need to be installed on your system to run Open|SpeedShop.<br>
         </td>
         <td style="vertical-align: top;">3.0.8.1<br>
         </td>
-        <td style="vertical-align: top;">none<br>
+        <td style="vertical-align: top; text-align: left;">(3)<br>
         </td>
       </tr>
       <tr>
@@ -1225,7 +1239,7 @@ that need to be installed on your system to run Open|SpeedShop.<br>
       <tr>
         <td>sqlite </td>
         <td>3.0.8 </td>
-        <td>3.2.2 </td>
+        <td>3.2.7 </td>
         <td>none</td>
       </tr>
       <tr>
@@ -1246,6 +1260,16 @@ Open|SpeedShop.&nbsp;
 Others will almost certainly not work with Open|SpeedShop.&nbsp; For
 advanced users click <a href="BuildingInstallingDPCL">here </a>for
 instructions on building and installing DPCL.</li>
+  <li>There are issues with using a version of libelf other than
+0.8.5.&nbsp;&nbsp; This version of libelf comes as the default on SUSE
+and SLES distributions.&nbsp;&nbsp; RedHat does not.<br>
+  </li>
+  <li>See this PAPI URL for platforms and patches needed for PAPI to
+successfully execute.&nbsp; These requirements must be met for the
+"hwc" and "hwctime" Open|SpeedShop experiments to execute correctly.: <a
+ href="http://icl.cs.utk.edu/papi/custom/index.html?lid=62&amp;slid=96">http://icl.cs.utk.edu/papi/custom/index.html?lid=62&amp;slid=96
+    </a><br>
+  </li>
 </ol>
 <br>
 </div>
@@ -1356,7 +1380,10 @@ type of execution is GUI.&nbsp;&nbsp; So, "openss" with no parameters
 will invoke the Open|SpeedShop GUI tool.&nbsp;&nbsp; The following
 examples show a few simple typical usage scenarios for Open|SpeedShop.<br>
   <br>
-Example 1:&nbsp; Using the Open|SpeedShop GUI,&nbsp; you know your
+  <h3><a class="mozTocH3" name="mozTocId931138"></a>Example 1:&nbsp;
+Using GUI<br>
+  </h3>
+Using the Open|SpeedShop GUI,&nbsp; you know your
 executable and the experiment you want to run (PC Sampling)<br>
   <br>
 prompt:&gt; openss -f &lt;pathTOexecutable&gt;/executable_name pcsamp<br>
@@ -1367,7 +1394,10 @@ user would need to do is push the "Run" button on the GUI and wait for
 the results to be displayed.&nbsp; The path to the executable can be a
 relative path.<br>
   <br>
-Example 2:&nbsp; The user
+  <h3><a class="mozTocH3" name="mozTocId717950"></a>Example 2:&nbsp;
+Using Interactive CLI<br>
+  </h3>
+The user
 wants use the command line interface, knows their executable,&nbsp;
 knows the experiment they want to run (User Time), and knows the host
 (bigiron.sgi.com) on which the performance experiment will be run.<br>
@@ -1393,7 +1423,10 @@ experiment data is available, the performance result viewing command
 (expview) can be used to view the data on demand.&nbsp; Open|SpeedShop
 will return the data that it currently knows about.<br>
   <br>
-Example 3:&nbsp; The user
+  <h3><a class="mozTocH3" name="mozTocId985939"></a>Example 3:&nbsp;
+Using Batch<br>
+  </h3>
+The user
 wants use the batch interface, knows their executable,&nbsp; knows the
 experiment
 they want to run (PC Sampling), and knows the host (bigiron.sgi.com) on

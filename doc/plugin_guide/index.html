@@ -17,25 +17,29 @@ Beta Release</span><br style="font-weight: bold;">
 <span style="font-weight: bold;">November 13, 2005</span></big><br>
 </div>
 <br>
-<span class="mozTocH2"></span><big style="font-weight: bold;"><big>Table
-of Contents</big></big><span style="text-decoration: underline;"></span>
+<h1><a class="mozTocH1" name="mozTocId977725"></a><span class="mozTocH2"></span><small>Table
+of Contents</small><span style="text-decoration: underline;"></span></h1>
 <ul id="mozToc">
-<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId535857">Open|SpeedShop
-Overview and Information Resources</a>
+<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId977725">Table
+of Contents</a>
     <ul>
-      <ul>
-        <li><a href="#mozTocId507487">Features:</a></li>
-        <li><a href="#mozTocId251693">Information Resources:</a></li>
-      </ul>
+      <li><a href="#mozTocId462188">Open|SpeedShop
+Overview and Information Resources</a>
+        <ul>
+          <li><a href="#mozTocId507487">Features:</a></li>
+          <li><a href="#mozTocId251693">Information Resources:</a></li>
+        </ul>
+      </li>
       <li><a href="#mozTocId11413">Open|SpeedShop Plugin
-Overview </a>
+Overview
+        </a>
         <ul>
           <li><a href="#mozTocId405706">Plugin Creation
 Outline</a>
             <ul>
-              <li><a href="#mozTocId513127">Performance Data
-Collector Plugin Outline</a></li>
-              <li><a href="#mozTocId225587">Plugin Structure</a></li>
+              <li><a href="#mozTocId513127">General Open|SpeedShop
+Plugin Outline</a></li>
+              <li><a href="#mozTocId225587">General Plugin Structure</a></li>
               <li><a href="#mozTocId743777">How do plugins get
 recognized?</a></li>
               <li><a href="#mozTocId679293">Where are the plugins
@@ -47,6 +51,15 @@ located?</a></li>
       <li><a href="#mozTocId732797">Performance Data
 Collector Plugin Information</a>
         <ul>
+          <li><a href="#mozTocId892980">Performance Data Collector
+Quick Overview</a>
+            <ul>
+              <li><a href="#mozTocId952547">Performance Data
+Collector Plugin Outline</a></li>
+              <li><a href="#mozTocId636342">Performance Data
+Collector Plugin Structure</a></li>
+            </ul>
+          </li>
           <li><a href="#mozTocId661443">Identifying and Analyzing
 The Performance Data Desired</a></li>
           <li><a href="#mozTocId904911">Implementing The
@@ -57,16 +70,20 @@ Collector Plugin</a>
               <li><a href="#mozTocId207808">Data
 blobs</a></li>
               <li><a href="#mozTocId667687">Collector
-Runtime - Server/Victim portion of Experiment Collector </a>
+Runtime - Server/Victim portion of Experiment Collector
+                </a>
                 <ul>
                   <li><a href="#mozTocId40824">Framework runtime</a></li>
                 </ul>
               </li>
               <li><a href="#mozTocId637965">Collector
-Plugin - Client/Tool portion of Experiment Collector </a>
+Plugin - Client/Tool portion of Experiment Collector
+                </a></li>
+              <li><a href="#mozTocId775061">Collector Plugin API</a>
                 <ul>
                   <li><a href="#mozTocId388988">The Start
-Collecting function </a>
+Collecting function
+                    </a>
                     <ul>
                       <li><a href="#mozTocId199690">What
 it does:</a></li>
@@ -78,7 +95,8 @@ function body:</a></li>
                     </ul>
                   </li>
                   <li><a href="#mozTocId992246">The Stop
-Collecting function </a>
+Collecting function
+                    </a>
                     <ul>
                       <li><a href="#mozTocId150755">What it does:</a></li>
                       <li><a href="#mozTocId352197">Definition:</a></li>
@@ -90,7 +108,8 @@ the function body:</a></li>
                     </ul>
                   </li>
                   <li><a href="#mozTocId278716">The Get
-Metric Values function </a>
+Metric Values function
+                    </a>
                     <ul>
                       <li><a href="#mozTocId110227">What it does:</a></li>
                       <li><a href="#mozTocId171646">Definition:</a></li>
@@ -102,10 +121,12 @@ the function body:</a></li>
                     </ul>
                   </li>
                   <li><a href="#mozTocId271962">The Set
-Parameter function </a>
+Parameter function
+                    </a>
                     <ul>
                       <li><a href="#mozTocId753822">What it does:</a></li>
-                      <li><a href="#mozTocId163320">Definition: </a></li>
+                      <li><a href="#mozTocId163320">Definition:
+                        </a></li>
                       <li><a href="#mozTocId699056"> Parameters:</a></li>
                       <li><a href="#mozTocId97265"> Return
 values:</a></li>
@@ -117,7 +138,8 @@ the function body:</a></li>
                   </li>
                   <li><a href="#mozTocId518369">The Get
 Default
-Parameters function </a>
+Parameters function
+                    </a>
                     <ul>
                       <li><a href="#mozTocId709984">What it does:</a></li>
                       <li><a href="#mozTocId832976">Definition:</a></li>
@@ -129,7 +151,8 @@ function body:</a></li>
                     </ul>
                   </li>
                   <li><a href="#mozTocId769605">The Get
-Parameters function </a>
+Parameters function
+                    </a>
                     <ul>
                       <li><a href="#mozTocId340210">What it does:</a></li>
                       <li><a href="#mozTocId552888">Definition:</a></li>
@@ -146,11 +169,13 @@ in the function body:</a></li>
           </li>
           <li><a href="#mozTocId846999">Example Collector Plugin</a></li>
           <li><a href="#mozTocId377373">Collector
-Plugin FAQ: </a>
+Plugin FAQ:
+            </a>
             <ul>
               <li><a href="#mozTocId198444">What is
 blob.x for? What is
-the significance of the .x suffix? </a></li>
+the significance of the .x suffix?
+                </a></li>
               <li><a href="#mozTocId189119">What is
 specifically needed to be known by the framework? Do these class
 structures need to follow a
@@ -160,10 +185,12 @@ particular convention?</a></li>
         </ul>
       </li>
       <li><a href="#mozTocId212847">Graphical User
-Interface Plugin Information </a>
+Interface Plugin Information
+        </a>
         <ul>
           <li><a href="#mozTocId347900">Graphical User
-Interface (GUI) Plugin Overview </a>
+Interface (GUI) Plugin Overview
+            </a>
             <ul>
               <li><a href="#mozTocId962438">GUI Plugin Outline</a></li>
               <li><a href="#mozTocId117100">GUI Plugin Recognition</a></li>
@@ -200,13 +227,22 @@ control</a></li>
 User Interface Plugin</a></li>
         </ul>
       </li>
-      <li><a href="#mozTocId1574">Command Line
-Interface Plugin Information</a></li>
+      <li><a href="#mozTocId90403">Interactive Command Line
+Interface Plugin Information</a>
+        <ul>
+          <li><a href="#mozTocId192580">Interactive Command Line
+Interface (CLI) Plugin Overview</a>
+            <ul>
+              <li><a href="#mozTocId138060">Interactive Command Line
+Interface (CLI) Plugin Outline</a></li>
+            </ul>
+          </li>
+        </ul>
+      </li>
     </ul>
   </li>
 </ul>
-<h2><a class="mozTocH2" name="mozTocId535857"></a><a
- name="OpenSpeedShop_Overview_and_Information"></a>Open|SpeedShop
+<h2><a class="mozTocH2" name="mozTocId462188"></a><span class="mozTocH2"></span>Open|SpeedShop
 Overview and Information Resources</h2>
 Open|SpeedShop is a project co-funded by the
 Department of Energy (DOE), managed by the Tri-laboratories
@@ -299,6 +335,15 @@ the information inside the plugin to adjust the tools menus, internal
 data structures, etc. to integrate the functionality contained in the
 plugins into the tool.<br>
 <br>
+A key point to be aware of while studying the plugin structure of
+Open|SpeedShop, is that although Open|SpeedShop currently uses Dyninst
+as it's dynamic instrumentation package and uses DPCL as the cluster
+support package, their APIs are not exposed to the plugin
+writer.&nbsp;&nbsp; This is a design decision that allows those
+packages to be replaced or modified without impact to the plugin
+interface.&nbsp; Open|SpeedShop wraps the functionality to hide the
+instrumentation details from the plugin writer.<br>
+<br>
 There are currently three separate types of Plugins that Open|SpeedShop
 recognizes and dynamically integrates into the Open|SpeedShop tool
 set.&nbsp; The three types of plugins are:<br>
@@ -329,65 +374,24 @@ at this point, don't despair, they will be explained later.&nbsp;&nbsp;
 The purpose of this section is to give a broad overview and context to
 the specific steps that are described in the rest of the document.<br>
 <br>
-<h4><a class="mozTocH4" name="mozTocId513127"></a>Performance Data
-Collector Plugin Outline</h4>
-For building a performance data collector plugin these are the high
-level steps in outline form:<br>
+<h4><a class="mozTocH4" name="mozTocId513127"></a><a
+ name="General_OpenSpeedShop_Plugin_Outline"></a>General Open|SpeedShop
+Plugin Outline</h4>
+See each of the following sections for the plugin specific
+outline.&nbsp;&nbsp; As stated above, there are currently three types
+of plugins that can be created in the Open|SpeedShop tools.&nbsp; The
+following list links to each of the plugin outlines:<br>
 <ul>
-  <li>Do an identify and evaluation step on the performance data you
-want to gather.</li>
-  <ul>
-    <li>Can it be mapped back to the source line numbers or function
-definitions?</li>
-    <li>What's the goal?&nbsp; Identify the metrics - the performance
-data desired to be output by the Open|SpeedShop tool.</li>
-  </ul>
-  <li>Determine what will be in the performance data structure (data
-blob) in the victim application.</li>
-  <ul>
-    <li>Analyze and define the data blob structure</li>
-    <ul>
-      <li>Too much information (large data blobs) might impact the
-victim applications behavior (memory growth).</li>
-      <li>Sending lots of small data blobs could cause network
-performance issues.</li>
-    </ul>
-  </ul>
-  <li>Create a bare bones directory using the Example Plugin directory
-as a model or copy the Example Plugin directory and modify the files
-accordingly</li>
-  <ul>
-    <li>Note:&nbsp; The Example Plugin is the simplest plugin code
-found in the Open|SpeedShop source directory.&nbsp; However, if there
-is an already implemented plugin that is closer in functionality to
-what the plugin writer is implementing, then starting with that plugin
-makes more sense than starting with the Example Plugin.<br>
-    </li>
-  </ul>
-  <li>Proceed on the actual implementation of the collector plugin</li>
-  <ul>
-    <li>Create base files using Example Plugin files as model/guide</li>
-    <li>Implement the plugin recognition portion of the plugin</li>
-    <li>Implement the performance data definitions (data blob
-structure) for the data gathered by the collector runtime.</li>
-    <li>Implement the runtime code that gathers the performance data
-defined by the data blob (runtime.c file)</li>
-    <li>Implement the six virtual functions that are required for the
-client portion of the collector.</li>
-    <li>Compile and build plugins using the Makefile.am file as a guide
-or modify the Makefile.am file</li>
-    <ul>
-      <li>To build in place modify the &lt;top_srcdir&gt;/configure.ac
-and &lt;top_srcdir&gt;/Makefile.am files to include the new collector
-directory.</li>
-      <li>Test and refine the new collector</li>
-      <li>Point OPENSS_PLUGIN_PATH to the directory with the new
-collector plugins if not installed in the default location.<br>
-      </li>
-    </ul>
-  </ul>
+  <li><a href="#Performance_Data_Collector_Plugin_Outline">Performance
+Data
+Collector Plugin Outline</a></li>
+  <li><a href="#GUI_Plugin_Outline">GUI Plugin Outline</a></li>
+  <li><a href="#Interactive_Command_Line_Interface_CLI__">Interactive
+Command Line Interface Plugin Outline</a><br>
+  </li>
 </ul>
-<h4><a class="mozTocH4" name="mozTocId225587"></a>Plugin Structure</h4>
+<h4><a class="mozTocH4" name="mozTocId225587"></a><a
+ name="General_Plugin_Structure"></a>General Plugin Structure</h4>
 As noted above, the experiment collector plugin is actually physically
 two dynamic shared objects.&nbsp; If one was to view the directory
 where the Open|SpeedShop plugins are installed
@@ -453,6 +457,87 @@ performance data criteria is resolved the next step in the collector
 plugin creation is the actual implementation action.&nbsp;&nbsp; See
 the sections below that are associated with implementation and also the
 section detailing a performance data collector plugin example.<br>
+<h3><a class="mozTocH3" name="mozTocId892980"></a>Performance Data
+Collector Quick Overview<br>
+</h3>
+<h4><a class="mozTocH4" name="mozTocId952547"></a><a
+ name="Performance_Data_Collector_Plugin_Outline"></a>Performance Data
+Collector Plugin Outline</h4>
+For building a performance data collector plugin these are the high
+level steps in outline form:<br>
+<ul>
+  <li>Do an identify and evaluation step on the performance data you
+want to gather.</li>
+  <ul>
+    <li>Can it be mapped back to the source line numbers or function
+definitions?</li>
+    <li>What's the goal?&nbsp; Identify the metrics - the performance
+data desired to be output by the Open|SpeedShop tool.</li>
+  </ul>
+  <li>Determine what will be in the performance data structure (data
+blob) in the victim application.</li>
+  <ul>
+    <li>Analyze and define the data blob structure</li>
+    <ul>
+      <li>Too much information (large data blobs) might impact the
+victim applications behavior (memory growth).</li>
+      <li>Sending lots of small data blobs could cause network
+performance issues.</li>
+    </ul>
+  </ul>
+  <li>Create a bare bones directory using the Example Plugin directory
+as a model or copy the Example Plugin directory and modify the files
+accordingly</li>
+  <ul>
+    <li>Note:&nbsp; The Example Plugin is the simplest plugin code
+found in the Open|SpeedShop source directory.&nbsp; However, if there
+is an already implemented plugin that is closer in functionality to
+what the plugin writer is implementing, then starting with that plugin
+makes more sense than starting with the Example Plugin.<br>
+    </li>
+  </ul>
+  <li>Proceed on the actual implementation of the collector plugin</li>
+  <ul>
+    <li>Create base files using Example Plugin files as model/guide</li>
+    <li>Implement the plugin recognition portion of the plugin</li>
+    <li>Implement the performance data definitions (data blob
+structure) for the data gathered by the collector runtime.</li>
+    <li>Implement the runtime code that gathers the performance data
+defined by the data blob (runtime.c file)</li>
+    <li>Implement the six virtual functions that are required for the
+client portion of the collector.</li>
+    <li>Compile and build plugins using the Makefile.am file as a guide
+or modify the Makefile.am file</li>
+    <ul>
+      <li>To build in place modify the &lt;top_srcdir&gt;/configure.ac
+and &lt;top_srcdir&gt;/Makefile.am files to include the new collector
+directory.</li>
+      <li>Test and refine the new collector</li>
+      <li>Point OPENSS_PLUGIN_PATH to the directory with the new
+collector plugins if not installed in the default location.</li>
+    </ul>
+  </ul>
+</ul>
+<a href="#General_OpenSpeedShop_Plugin_Outline">Return to General
+Plugin Section</a><br>
+<h4><a class="mozTocH4" name="mozTocId636342"></a><span class="mozTocH4"></span>Performance
+Data
+Collector Plugin Structure</h4>
+As noted above, the experiment collector plugin is actually physically
+two dynamic shared objects.&nbsp; If one was to view the directory
+where the Open|SpeedShop plugins are installed
+(&lt;install_dir_prefix&gt;/lib/openspeedshop) you would see that there
+are two dso's for each experiment collector.&nbsp;&nbsp; For example,
+here is what is shown for the PC Sampling experiment collector:<br>
+<br>
+<div style="text-align: left;"><span style="font-style: italic;">pcsamp.la*&nbsp;
+pcsamp-rt.la*&nbsp;
+pcsamp-rt.so*&nbsp; pcsamp.so*</span><br>
+</div>
+<br>
+The runtime portion of the experiment collector plugin is appended with
+"-rt" while the client portion is not.<br>
+<br>
 <br>
 <h3><a class="mozTocH3" name="mozTocId661443"></a><a
  name="Idenitifying_and_Analysing_The"></a>Identifying and Analyzing
@@ -699,10 +784,11 @@ triggers the start collecting function in the runtime collector plugin.<br>
 <br>
 <img alt="Start Collection Illustration"
  src="ToolStartCollectingView.png" style="width: 696px; height: 342px;"><br>
-<br>
+<h4><a class="mozTocH4" name="mozTocId775061"></a>Collector Plugin API<br>
+</h4>
 There are six functions which form the basis for the collector and must
 be defined in every collector plugin.&nbsp;&nbsp; The six functions
-perform these tasks: <br>
+make up the collector plugin API and perform these tasks: <br>
 <ul>
   <li>Start Collecting</li>
   <li>Stop Collecting</li>
@@ -1096,7 +1182,8 @@ also provided along with the example code.<br>
 <h3><a class="mozTocH3" name="mozTocId347900"></a>Graphical User
 Interface (GUI) Plugin Overview<br>
 </h3>
-<h4><a class="mozTocH4" name="mozTocId962438"></a>GUI Plugin Outline</h4>
+<h4><a class="mozTocH4" name="mozTocId962438"></a><a
+ name="GUI_Plugin_Outline"></a>GUI Plugin Outline</h4>
 What are the high level steps that are required for creating a
 Graphical User Interface Plugin for Open|SpeedShop?&nbsp;&nbsp; This
 outline provides a form of checklist to give the plugin writer an
@@ -1111,11 +1198,20 @@ GUI plugin or if the Example GUI plugin can be used as a model.</li>
 panel</li>
   <li>Read the information in this document regarding example code and
 apply it to the new panel if appropriate.</li>
-  <li><br>
-  </li>
 </ul>
+<a href="#General_OpenSpeedShop_Plugin_Outline">Return to General
+Plugin Section</a>
 <h4><a class="mozTocH4" name="mozTocId117100"></a>GUI Plugin Recognition</h4>
-tbd<br>
+In order for a file to be recognized as a GUI plugin, it must first be
+in the plugin search path.&nbsp;&nbsp; It must be either in the default
+plugin search path or in the path defined by the OPENSS_PLUGIN_PATH
+environment variable.&nbsp;&nbsp; GUI plugins must also have the entry
+point function, panel_init, defined.&nbsp; The Open|SpeedShop function
+"register_plugin" found in "libopenss-guiplugin/plugin_handler.cxx" is
+responsible for checking for this entry point.&nbsp; If it is found the
+GUI plugin is registered in the master plugin list.&nbsp;&nbsp; The
+function "initialize_plugins" from the same file as above calls
+"register_plugin".<br>
 <br>
 <h3><a class="mozTocH3" name="mozTocId930728"></a><a
  name="Creating_The_Graphical_User_Interface"></a>Creating A
@@ -1490,13 +1586,23 @@ User Interface Plugin</h3>
 The example graphical user interface plugin is the plugin that is used
 as the focus of the "mknewpanel" script, the TemplatePanel.<br>
 <br>
-<br>
-<br>
-<h2><a class="mozTocH2" name="mozTocId1574"></a>Command Line
+<h2><a class="mozTocH2" name="mozTocId90403"></a><span class="mozTocH2"></span>Interactive
+Command Line
 Interface Plugin Information</h2>
 tbd<br>
+<h3><a class="mozTocH3" name="mozTocId192580"></a>Interactive Command
+Line Interface (CLI) Plugin Overview</h3>
+tbd<br>
 <br>
+<h4><a class="mozTocH4" name="mozTocId138060"></a><a
+ name="Interactive_Command_Line_Interface_CLI__"></a><span
+ class="mozTocH4"></span><a
+ name="Interactive_Command_Line_Interface_CLI"></a>Interactive Command
+Line Interface (CLI) Plugin Outline</h4>
+tbd<br>
 <br>
+<a href="#General_OpenSpeedShop_Plugin_Outline">Return to General
+Plugin Section</a><br>
 <br>
 <br>
 <br>
