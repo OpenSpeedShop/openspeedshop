@@ -215,6 +215,13 @@ catch(const Exception& error) {
   cmd->set_Status(CMD_ERROR);
 }
 
+  if (cmd->Status() == CMD_EXECUTING) {
+   // The semantic processor failed to flag the command as complete!
+   // This is clearly NOT how we intend to do things!
+   // But we can't get here unless it is complete, so mark it.
+    cmd->set_Status (CMD_COMPLETE);
+  }
+
   if (redirect_streamP != NULL) {
    cmd->Print_Results (*redirect_streamP, "\n", "\n");
    cmd->set_Results_Used ();
