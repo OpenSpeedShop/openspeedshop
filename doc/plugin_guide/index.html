@@ -27,6 +27,7 @@ of Contents</a>
 Overview and Information Resources</a>
         <ul>
           <li><a href="#mozTocId507487">Features:</a></li>
+          <li><a href="#mozTocId88877">Open|SpeedShop Component Diagram</a></li>
           <li><a href="#mozTocId251693">Information Resources:</a></li>
         </ul>
       </li>
@@ -306,6 +307,15 @@ usability.&nbsp; <br>
 typical usage. <br>
   </li>
 </ul>
+<h3><a class="mozTocH3" name="mozTocId88877"></a>Open|SpeedShop
+Component Diagram</h3>
+This diagram illustrates the interactions of the Open|SpeedShop client
+components<br>
+<br>
+<img alt="" src="ToolClientOverView.png"
+ style="width: 666px; height: 404px;"><br>
+<br>
+<br>
 <h3><a class="mozTocH4" name="mozTocId251693"></a>Information Resources:</h3>
 Additional information about Open|SpeedShop usage and design can be
 found in a number of Open|SpeedShop documents.&nbsp; The currently
@@ -412,8 +422,7 @@ where the Open|SpeedShop plugins are installed
 (&lt;install_dir_prefix&gt;/lib/openspeedshop) you would see that there
 are two dso's for each experiment collector.&nbsp;&nbsp; For example,
 here is what is shown for the PC Sampling experiment collector:<br>
-<div style="text-align: left;"><small><span
- style="font-style: italic; font-weight: bold;">pcsamp.la*&nbsp;
+<div style="text-align: left;"><small><span style="font-style: italic;">pcsamp.la*&nbsp;
 pcsamp-rt.la*&nbsp;
 pcsamp-rt.so*&nbsp; pcsamp.so*</span></small><br>
 </div>
@@ -425,16 +434,16 @@ The runtime portion of the experiment collector plugin is appended with
 GUI plugins have on physical shared object for each panel.&nbsp;&nbsp;
 For the pcsamp experiment,&nbsp; a listing of the plugin directory
 would show these files:<br>
-<small><small style="font-weight: bold;"><span
- style="font-style: italic;"><big>pcSamplePanel.la*&nbsp;
+<small><small><span style="font-style: italic;"><big>pcSamplePanel.la*&nbsp;
 pcSamplePanel.so*</big>&nbsp; </span></small><br>
 </small><br>
 Additionally, one would see another dynamically shared object relating
 to the PC Sampling experiment.&nbsp; However, support for creating
 wizard plugins is not available at this time.<br>
-<small><span style="font-style: italic; font-weight: bold;">pcSampleWizardPanel.la*&nbsp;
-pcSampleWizardPanel.so*<big><span style="font-weight: bold;"><span
- style="font-style: italic;"></span></span></big></span></small><br>
+<small><span style="font-style: italic;">pcSampleWizardPanel.la*&nbsp;
+pcSampleWizardPanel.so*</span><span
+ style="font-style: italic; font-weight: bold;"><big><span
+ style="font-weight: bold;"><span style="font-style: italic;"></span></span></big></span></small><br>
 <br>
 <h5><a class="mozTocH5" name="mozTocId337518"></a>Interactive CLI
 Plugin Structure</h5>
@@ -464,7 +473,7 @@ variable to find user created plugins.&nbsp;&nbsp; This environment
 variable provides an additional plugin path and does not override the
 Open|SpeedShop default plugin location path.&nbsp;&nbsp;&nbsp; The
 plugins can be in any accessible directory as long as the
-OPENSS_PLUGIN_PATH environment variable specifies that path.<br>
+OPENSS_PLUGIN_PATH environment variable specifies that path path.<br>
 <br>
 The Open|SpeedShop default plugin search path is based on the
 "--prefix" specified for the Open|SpeedShop build and
@@ -809,7 +818,7 @@ path between the client and runtime collector plugin
 functionality.&nbsp;&nbsp; Suppose the user does an user interface
 gesture that tells Open|SpeedShop to start
 collecting.&nbsp;&nbsp;&nbsp; This triggers the user interface to call
-the Open|SpeedShop framework which then accesses the start_collecting<br>
+the Open|SpeedShop framework which then accesses the start_collecting
 function in the client collector plugin.&nbsp;&nbsp; The client
 collector plugin calls a Open|SpeedShop routine which ultimately
 triggers the start collecting function in the runtime collector plugin.<br>
@@ -829,8 +838,9 @@ make up the collector plugin API and perform these tasks: <br>
   <li>Get Default Parameters</li>
   <li>Get Parameters</li>
 </ul>
-<h5><a class="mozTocH5" name="mozTocId388988"></a><big><big>The Start
-Collecting function<br>
+<h5><a class="mozTocH5" name="mozTocId388988"></a><big><big><small>The
+Start
+Collecting function</small><br>
 </big></big></h5>
 <h6><a class="mozTocH6" name="mozTocId199690"></a><big><b><big><b>What
 it does:</b></big></b></big></h6>
@@ -879,8 +889,9 @@ for the thread.</li>
   <li>Execute collector's start_sampling routine in the thread</li>
 </ul>
 <br>
-<h5><a class="mozTocH5" name="mozTocId992246"></a><big><big>The Stop
-Collecting function<br>
+<h5><a class="mozTocH5" name="mozTocId992246"></a><big><big><small>The
+Stop
+Collecting function</small><br>
 </big></big></h5>
 <h6><a class="mozTocH6" name="mozTocId150755"></a><big><b>What it does:</b></big></h6>
 Stop data collection function implements stopping data collection for a
@@ -922,8 +933,8 @@ for the thread.</li>
   <li>Execute collector's start_sampling routine in the thread</li>
 </ul>
 <small><b></b></small>
-<h5><a class="mozTocH5" name="mozTocId278716"></a><big><big>The Get
-Metric Values function</big><br>
+<h5><a class="mozTocH5" name="mozTocId278716"></a><big>The Get
+Metric Values function<br>
 </big></h5>
 <h6><a class="mozTocH6" name="mozTocId110227"></a><big><b>What it does:</b></big></h6>
 This routine is used by the Open|SpeedShop framework to get the metrics
@@ -976,8 +987,9 @@ other</li>
   </ul>
   <li>Free the decoded performance data blob.</li>
 </ol>
-<h5><a class="mozTocH5" name="mozTocId271962"></a><big><big>The Set
-Parameter function<br>
+<h5><a class="mozTocH5" name="mozTocId271962"></a><big><big><small>The
+Set
+Parameter function</small><br>
 </big></big></h5>
 <h6><a class="mozTocH6" name="mozTocId753822"></a><big><b>What it does:</b></big></h6>
 <p>The set a parameter function implements setting one of the collector
@@ -1016,9 +1028,10 @@ The primary tasks of this function that need to be done are:<br>
   <li>Set the "collector specific" parameter based on the input</li>
   <li>Re-encode the blob containing the parameter values</li>
 </ol>
-<h5><a class="mozTocH5" name="mozTocId518369"></a><big><big>The Get
+<h5><a class="mozTocH5" name="mozTocId518369"></a><big><big><small>The
+Get
 Default
-Parameters function<br>
+Parameters function</small><br>
 </big></big></h5>
 <h6><a class="mozTocH6" name="mozTocId709984"></a><big><b>What it does:</b></big></h6>
 The get default parameters function implements getting the default
@@ -1044,8 +1057,8 @@ The primary tasks of this function that need to be done are:<br>
   <li>Set the default parameters </li>
   <li>Return the encoded blob to the caller</li>
 </ol>
-<h5><a class="mozTocH5" name="mozTocId769605"></a><big><big>The Get
-Parameters function</big><br>
+<h5><a class="mozTocH5" name="mozTocId769605"></a><big>The Get
+Parameters function<br>
 </big></h5>
 <h6><a class="mozTocH6" name="mozTocId340210"></a><big><b>What it does:</b></big></h6>
 The get a parameter function implements getting one of the collector
@@ -1179,7 +1192,7 @@ look for plugins). The name of the module itself is irrelevant
   <br>
 2) That the module defines an externally-visible function:<br>
   <br>
-CollectorImpl* CollectorFactor();<br>
+  <span style="font-style: italic;">CollectorImpl* CollectorFactor();</span><br>
   <br>
 which creates an CollectorImpl instance for the collector.<br>
   <br>
@@ -1187,7 +1200,7 @@ Each collector defines a single class (e.g. PCSampCollector or
 UserTimeCollector) that inherits from CollectorImpl (which is in the
 framework source). CollectorImpl declares a bunch of pure virtual
 functions which all<br>
-inheriting classes must implement. So you can think of
+inheriting classes must implement.&nbsp;&nbsp; So you can think of
 CollectorImpl.hxx as the "API" between the framework and the collectors.</blockquote>
 </div>
 </div>
