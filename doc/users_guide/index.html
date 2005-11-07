@@ -40,14 +40,11 @@ Contents<br>
 </span></span></b></b></p>
 <ul style="text-align: left;" id="mozToc">
 <!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId71414">Introduction
-to Open|SpeedShop
-    </a>
+to Open|SpeedShop </a>
     <ul>
       <li><a href="#mozTocId406387">Brief
-Open|SpeedShop Overview
-        </a></li>
-      <li><a href="#mozTocId958848">Common Terminology
-        </a></li>
+Open|SpeedShop Overview </a></li>
+      <li><a href="#mozTocId958848">Common Terminology </a></li>
       <li><a href="#mozTocId760931">Open|SpeedShop
 General Usage</a>
         <ul>
@@ -74,12 +71,10 @@ Development RPM Usage Information</a>
 Platforms:</a></li>
           <li><a href="#mozTocId293268">Open|SpeedShop
 Build
-component RPM versions:
-            </a></li>
+component RPM versions: </a></li>
           <li><a href="#mozTocId883409">Overview
 - Setting up
-new machine for development on Open|SpeedShop
-            </a>
+new machine for development on Open|SpeedShop </a>
             <ul>
               <li><a href="#mozTocId985149">Step
 1 - Check for
@@ -103,8 +98,7 @@ Developer/Build
 Related Environment Variables</a>
                 <ul>
                   <li><a href="#mozTocId227574">Generally used
-environment variables
-                    </a></li>
+environment variables </a></li>
                   <li><a href="#mozTocId365139">Special purpose
 environment variables</a></li>
                 </ul>
@@ -247,7 +241,8 @@ Panel</a></li>
 Panel</a></li>
                   <li><a href="#mozTocId757134">Stats
 Panel</a></li>
-                  <li><a href="#mozTocId527350"> </a></li>
+                  <li><a href="#mozTocId527350"> </a><br>
+                  </li>
                 </ul>
               </li>
             </ul>
@@ -257,7 +252,8 @@ Open|SpeedShop GUI Wizard Usage </a>
             <ul>
               <li><a href="#mozTocId943081">Introductory Wizard Display
                 </a></li>
-              <li><a href="#mozTocId549331"> </a></li>
+              <li><a href="#mozTocId549331"> </a><br>
+              </li>
               <li><a href="#mozTocId197580">PC Sampling Wizard
 - Initial Display </a></li>
               <li><a href="#mozTocId68517">PC Sampling
@@ -294,8 +290,7 @@ Running MPI Applications</a>
                 <ul>
                   <li><a href="#mozTocId291888">Gui Wizard Information</a></li>
                   <li><a href="#mozTocId112115">Gui Non-Wizard
-Information&nbsp;
-                    </a></li>
+Information&nbsp; </a></li>
                 </ul>
               </li>
               <li><a href="#mozTocId271423">Loading and Starting
@@ -320,8 +315,7 @@ Command Tool </a></li>
     </ul>
   </li>
   <li><a href="#mozTocId54031">Scripting
-API
-    </a></li>
+API </a></li>
   <li><a href="#mozTocId525838">Plugin
 API (Extensibility)&nbsp; Description</a></li>
   <li><a href="#mozTocId145888">Appendix
@@ -668,7 +662,8 @@ using the open saved experiment menu item under the "File" menu.<br>
 <h2 style="margin-left: 40px; text-align: left;"><a class="mozTocH2"
  name="mozTocId683004"></a><b style=""><a name="Extensibility"></a>Extensibility</b></h2>
 <div style="text-align: left;">
-<blockquote><span style="font-family: times new roman,times,serif;">The
+<blockquote style="margin-left: 80px;"><span
+ style="font-family: times new roman,times,serif;">The
 Open|SpeedShop
 performance tool is
 designed in such a way as to enable value-added plugins for the open
@@ -761,13 +756,14 @@ available
 in RPM form are:<br>
 </div>
 <ul style="margin-left: 40px;">
-  <li>dpcl-3.3.4-8</li>
+  <li>dpcl-20051010-2 based on dpcl 3.4.2<br>
+  </li>
   <li>libunwind-0.98.5-2</li>
   <li>libdwarf-20050801-1</li>
-  <li>sqlite-3.2.2-2</li>
+  <li>sqlite-3.2.7-3</li>
   <li>tmake-1.11</li>
   <li>dyninst-4.2.1-7</li>
-  <li>xxdiff-3.1</li>
+  <li>xxdiff-3.1-1</li>
 </ul>
 <div style="margin-left: 40px;"><br>
 In addition, the components listed below are also needed for building
@@ -823,7 +819,7 @@ Open|SpeedShop.<br>
     <tr>
       <td>gcc/g++ </td>
       <td>3.3.3 </td>
-      <td>3.3.3 </td>
+      <td>3.4.3 </td>
       <td>none</td>
     </tr>
     <tr>
@@ -840,8 +836,8 @@ Open|SpeedShop.<br>
     </tr>
     <tr>
       <td>libtool </td>
-      <td>1.5.2 </td>
       <td>1.5.14 </td>
+      <td>1.5.2 </td>
       <td>none</td>
     </tr>
     <tr>
@@ -979,8 +975,8 @@ found in OpenSpeedShop_ROOT/current/RPMS/ia64.<br>
 The installation of
 the RPMs is a per system task.&nbsp; Once the RPMs are installed, all
 users of the system will be using the
-components that were<br>
-installed via the rpm command.&nbsp;&nbsp; Currently all the RPMs in
+components that were installed via the rpm command.&nbsp;&nbsp;
+Currently all the RPMs in
 the ROOT/current/RPMS/{$ARCH} directory are installed in default
 locations, like
 /usr/lib.&nbsp;&nbsp; For example, the dyninst and dpcl libraries are
@@ -1013,13 +1009,10 @@ root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 21 Jun 29 15:10
 </div>
 <h4 style="margin-left: 80px;"><a class="mozTocH4" name="mozTocId664892"></a>Step
 4 - Build
-Open|SpeedShop</h4>
-<div style="margin-left: 40px;">Legacy Build NOTE:&nbsp; If converting
-from the tarball based
-ROOT,&nbsp; then remove any references to $ROOT from your shell login
-scripts.<br>
-<br>
-Rebuild your source tree from scratch. I.e. get rid of ALL generated
+Open|SpeedShop<br>
+</h4>
+<div style="margin-left: 40px;">
+Rebuild your source tree from scratch. i.e. get rid of ALL generated
 files,&nbsp; then do the following commands in the
 OpenSpeedShop/current directory:<br>
 <br>
@@ -1058,7 +1051,8 @@ mentioned.&nbsp; With SuSE 9.1 or SLES 9 you should be able to install
 the RPMS and go.&nbsp;
 Nothing else should be required. <br>
 <br>
-Fedora Core 3 requires libelf-0.8.5 be installed. &nbsp; This RPM can
+Red Hat distributions e.g. Fedora Core 3 require libelf-0.8.5 be
+installed. &nbsp; This RPM can
 be found in
 OpenSpeedShop_ROOT/current/RPMS/i586/FedoraCore3/.&nbsp; You can use
 "rpm
@@ -1066,7 +1060,7 @@ OpenSpeedShop_ROOT/current/RPMS/i586/FedoraCore3/.&nbsp; You can use
 Grepping
 is
 recommended when doing the queries:&nbsp; "rpm
---query --all | grep rpm_name"&nbsp; You can use the rpm
+--query --all |&nbsp; grep rpm_name"&nbsp; You can use the rpm
 query script, <a href="./rpmQuery">rpmQuery</a>
 for querying all the
 packages needed.<br>
@@ -1142,18 +1136,20 @@ is as follows:<br>
 <div style="margin-left: 40px;"># Go to the Open|SpeedShop
 top level
 source directory<br>
-cd &lt;openspeedshop source directory&gt;<br>
+<span style="font-weight: bold;">cd &lt;openspeedshop source
+directory&gt;</span><br>
 # Optional remove files from the last build<br>
-bootstrap --clean<br>
+<span style="font-weight: bold;">bootstrap --clean</span><br>
 # Create initial build files<br>
-bootstrap<br>
+<span style="font-weight: bold;">bootstrap</span><br>
 # Configure Open|SpeedShop with or without optional installation
 directory designation<br>
-configure [--prefix=&lt;Open|SpeedShop Install Directory Path&gt;]<br>
+<span style="font-weight: bold;">configure [--prefix=&lt;Open|SpeedShop
+Install Directory Path&gt;]</span><br>
 # optional uninstall step<br>
-make uninstall<br>
+<span style="font-weight: bold;">make uninstall</span><br>
 # Make and install Open|SpeedShop<br>
-make install<b style=""><br>
+<span style="font-weight: bold;">make install</span><b style=""><br>
 <br>
 </b></div>
 </div>
@@ -1168,8 +1164,9 @@ and Installation<br>
   </h3>
 </blockquote>
 <blockquote>The rpm command:<br>
-&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; rpm --install --nodeps
-openspeedshop-1.0-1.ia64.rpm <br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; <span style="font-weight: bold;">rpm
+--install --nodeps
+openspeedshop-1.0-1.ia64.rpm </span><br>
 will install Open|SpeedShop executables into /usr/local/bin and the
 Open|SpeedShop plugins into /usr/local/lib.<br>
   <b style=""><br>
@@ -1298,7 +1295,13 @@ the regression and dpcl tests.<br>
 <h2><a class="mozTocH2" name="mozTocId768338"></a><a
  name="How_to_Run_the_OpenSpeedShop_Tests"></a>How to Run the
 Open|SpeedShop Tests</h2>
-TBD<br>
+To execute the Open|SpeedShop set of regression tests.&nbsp; Change you
+directory path to "&lt;top_srcdir&gt;/test/test_source/regression" and
+invoke the runall script.&nbsp;&nbsp; The runall script will execute
+all the tests in the subdirectories below the "regression" directory
+and create a test report.&nbsp;&nbsp; Currently the Open|SpeedShop
+tests are only available in the source distribution.<br>
+<br>
 </div>
 <div style="text-align: left;" class="Section6">
 <div style="text-align: left;"></div>
@@ -1526,9 +1529,10 @@ corresponding menu items.&nbsp;&nbsp; We will touch on the&nbsp; File
 menu, Tools menu, Experiments menu, and the Wizards menu, as shown at
 the top of the Open|SpeedShop window below.<b style=""><br>
     <br>
-    <img style="height: 644px; width: 860px;" src="InitialPanel.png"
- alt="Initial Open!SpeedShop Introduction Panel"><br>
-    <br>
+    </b></blockquote>
+  <b style=""><img style="height: 644px; width: 860px;"
+ src="InitialPanel.png" alt="Initial Open!SpeedShop Introduction Panel"></b><br>
+  <blockquote><b style=""> <br>
     </b>
     <h4><a class="mozTocH4" name="mozTocId909976"></a><b style=""><a
  name="File_Menu_"></a>File
@@ -1876,9 +1880,10 @@ This menu item brings up the source panel window.&nbsp;
 There are a number of options available in the source panel that can be
 viewed by holding right mouse button:<b style=""><br>
     <br>
-    <img alt="Source Panel and Options" src="SourcePanel.png"
- style="width: 860px; height: 644px;"><br>
-    <br>
+    </b></blockquote>
+  <b style=""><img alt="Source Panel and Options" src="SourcePanel.png"
+ style="width: 860px; height: 644px;"></b><br>
+  <blockquote><b style=""> <br>
     </b> <b style=""> </b>
     <h5><a class="mozTocH5" name="mozTocId757134"></a><b style="">Stats
 Panel</b></h5>
@@ -1897,9 +1902,10 @@ available (viewed by right mouse down click in Stats Panel tab) include:<br>
       </li>
     </ul>
     <br>
-    <img alt="Statistics Panel with Right Mouse Down Menu"
+  </blockquote>
+  <img alt="Statistics Panel with Right Mouse Down Menu"
  src="StatsPanel.png" style="width: 860px; height: 644px;"><br>
-    <br>
+  <blockquote> <br>
     <h5><a class="mozTocH5" name="mozTocId527350"></a><b style=""> </b></h5>
     <h3><a class="mozTocH3" name="mozTocId464050"></a><b style=""><a
  name="Typical_OpenSpeedShop_GUI_Wizard_Usage"></a>Typical
@@ -1919,12 +1925,12 @@ or -gui options), the initial window will look like this:<b style=""><br>
     <h4><a class="mozTocH4" name="mozTocId549331"></a><b style=""> </b></h4>
   </blockquote>
 </blockquote>
-<blockquote> <b style=""> </b>
-  <p style="margin-left: 40px;"><b style=""><img
+<blockquote> <b style=""> </b> </blockquote>
+<p style="margin-left: 40px;"><b style=""><img
  alt="Wizard Startup Panel - Initial Open|SpeedShop Panel"
  src="InitialPanel.png" style="width: 860px; height: 644px;"><br>
-  </b></p>
-</blockquote>
+</b></p>
+<blockquote></blockquote>
 <b style=""><br>
 </b>
 <blockquote><b style=""> </b>
@@ -1942,12 +1948,12 @@ clicks on the Next button this is the window that appears.<b style=""><br>
 - Initial Display<br>
     </b></h4>
     <b style=""> </b></blockquote>
-  <b style=""> </b>
-  <div style="margin-left: 40px;"><b style=""><img
+  <b style=""> </b> </blockquote>
+<div style="margin-left: 40px;"><b style=""><img
  alt="Second PC Sampling Exp. Wizard Window"
  src="PC_SamplingWizard-2.png" style="width: 860px; height: 644px;"><br>
-  </b></div>
-  <b style=""> <br>
+</b></div>
+<blockquote> <b style=""> <br>
   </b>
   <blockquote>The above panel/window is the introduction
 panel to the
@@ -1972,7 +1978,7 @@ Wizard - Change Sampling Rate Display<br>
     <b style=""> </b></blockquote>
   <b style=""> </b></blockquote>
 <blockquote><b style=""> </b></blockquote>
-<p style="margin-left: 80px;"><b style=""><img
+<p style="margin-left: 40px;"><b style=""><img
  alt="Third PC Sampling Exp. Wizard Window"
  src="PC_SamplingWizard-3.png" style="width: 860px; height: 644px;"><br>
 </b></p>
@@ -2006,12 +2012,12 @@ Wizard - Load Executable or Attach To Running Process Display<br>
     <b style=""> </b></blockquote>
 </blockquote>
 <blockquote><b style=""><br>
-  </b>
-  <div style="margin-left: 40px;"><b style=""><img
+  </b> </blockquote>
+<div style="margin-left: 40px;"><b style=""><img
  alt="Attach/Load Executable Wizard Window"
  src="PC_SamplingWizard-3A.png" style="width: 860px; height: 644px;"><br>
-  </b></div>
-  <b style=""> <br>
+</b></div>
+<blockquote> <b style=""> <br>
   </b>
   <blockquote>The panel/window above allows the user to
 select the
@@ -2064,10 +2070,10 @@ to an entire MPI job using this dialog display.<b style=""><br>
  name="PC_Sampling_Wizard_-_Experiment_Summary"></a>PC Sampling
 Wizard - Experiment Summary Display</h4>
   <b style=""> <br>
-  <img alt="Finish/Summary Wizard Window" src="PC_SamplingWizard-5.png"
- style="width: 860px; height: 644px;"><br>
   </b></div>
-  <b style=""> </b>
+  <b style=""><img alt="Finish/Summary Wizard Window"
+ src="PC_SamplingWizard-5.png" style="width: 860px; height: 644px;"></b><br>
+  <b style=""> </b> <b style=""> </b>
   <blockquote>The panel/window above summarizes the results
 of the
 user's choices and
@@ -2082,13 +2088,13 @@ will appear.<b style=""><br>
 Experiment Display</h4>
     <br>
   </blockquote>
-  <b style=""> </b>
-  <div style="margin-left: 40px;"><b style=""><img
+  <b style=""> </b> </blockquote>
+<div style="margin-left: 40px;"><b style=""><img
  alt="Ready To Run PC Sampling Experiment"
  src="PC_SamplingWizard-6_OR_PC_SampleExperiment-1.png"
  style="width: 860px; height: 644px;"><br>
-  </b></div>
-</blockquote>
+</b></div>
+<blockquote></blockquote>
 <blockquote> <b style=""> </b>
   <div style="margin-left: 40px;"><b style=""> </b>
   <h4><a class="mozTocH4" name="mozTocId522543"></a><b style=""><a
@@ -2129,10 +2135,10 @@ the previous step(s).<b style=""><br>
 Experiment - Running Experiment Display</h4>
     <br>
     <b style=""> <br>
-    <img alt="Running Experiment" src="PC_SampleExperiment-2.png"
- style="width: 860px; height: 644px;"><br>
     </b></blockquote>
-</blockquote>
+  <b style=""><img alt="Running Experiment"
+ src="PC_SampleExperiment-2.png" style="width: 860px; height: 644px;"></b><br>
+  <b style=""> </b></blockquote>
 <div style="margin-left: 80px;"><b style=""><br>
 </b>The image below shows the results after the experiment is
 completed.&nbsp;&nbsp; Because the "Show graphics" preference was set,
@@ -2146,9 +2152,12 @@ on the right hand side of the PC Sampling panel.<br>
 Experiment - Statistics Display</h4>
 <br>
 <b style=""><br>
-<img alt="Stats Panel - Results from PC Sampling"
- src="PCSampling-StatsPanel.png" style="width: 860px; height: 644px;"><br>
-<br>
+</b></div>
+<div style="margin-left: 40px;"><b style=""><img
+ alt="Stats Panel - Results from PC Sampling"
+ src="PCSampling-StatsPanel.png" style="width: 860px; height: 644px;"></b><br>
+</div>
+<div style="margin-left: 80px;"><b style=""><br>
 </b></div>
 <div style="margin-left: 80px;">Either clicking on the
 split panel icon or holding the right mouse
@@ -2174,7 +2183,7 @@ Experiment - Split Panel Display</h4>
 <div style="margin-left: 80px;"><b style=""><a
  name="Source_Panel_Statistics"></a></b><br>
 </div>
-<div style="margin-left: 80px;"><b style=""><img
+<div style="margin-left: 40px;"><b style=""><img
  alt="Show side by side source and results"
  src="PC_SampleExperiment-4-Split.png"
  style="width: 860px; height: 644px;"><br>
@@ -2201,10 +2210,11 @@ be able to focus to the source for the function selected.<b style=""><br>
 Experiment - Source and Statistics Relationship Display</h4>
     <br>
     <b style=""> <br>
-    <img alt="Show function f3 click focuses the source"
+    </b></blockquote>
+  <b style=""><img alt="Show function f3 click focuses the source"
  src="PC_SampleExperiment-5-f3click.png"
- style="width: 860px; height: 644px;"><br>
-    <br>
+ style="width: 860px; height: 644px;"></b><br>
+  <blockquote><b style=""> <br>
     </b>Clicking on the arrows to the right of the Time or Function
 header
 under the PC Stats Panel tab will sort the time or function list in
@@ -2238,7 +2248,9 @@ this link: <a
 to run
 experiment</a>.<br>
 <b style=""><br>
-</b><b style=""><img alt="Activate Manage Process Window"
+</b></div>
+<div style="margin-left: 40px;"><b style=""><img
+ alt="Activate Manage Process Window"
  src="PC_SampleExperiment-non-wizard-2.png"
  style="width: 860px; height: 644px;"></b><br>
 </div>
@@ -2248,7 +2260,7 @@ Sampling menu item from the Experiment Menu.<b style=""><br>
 <br>
 <br>
 </b></div>
-<div style="margin-left: 80px;"><b style=""><img
+<div style="margin-left: 40px;"><b style=""><img
  alt="PC Sampling Experiment - No Wizard Usage"
  src="PC_SampleExperiment-non-wizard-1.png"
  style="width: 860px; height: 644px;"></b></div>
@@ -2263,10 +2275,12 @@ the
 next image.&nbsp;&nbsp;&nbsp; Select the Manage Processes Panel menu
 item.<br>
 <b style=""><br>
-<img alt="Manage Process Panel"
- src="PC_SampleExperiment-non-wizard-3.png"
- style="width: 860px; height: 644px;"><br>
-<br>
+</b></div>
+<div style="margin-left: 40px;"><b style=""><img
+ alt="Manage Process Panel" src="PC_SampleExperiment-non-wizard-3.png"
+ style="width: 860px; height: 644px;"></b><br>
+</div>
+<div style="margin-left: 80px;"><b style=""><br>
 <br>
 </b>Once the Load New Program
 menu item is
@@ -2276,7 +2290,7 @@ window.&nbsp; <b style=""><br>
 <b style=""><br>
 <br>
 </b>
-<div style="margin-left: 80px;"><b style=""><img
+<div style="margin-left: 40px;"><b style=""><img
  alt="Load Program Panel" src="PC_SampleExperiment-non-wizard-4.png"
  style="width: 860px; height: 644px;"><br>
 </b></div>
@@ -2288,7 +2302,7 @@ to find their executable and select it.&nbsp;&nbsp; <br>
 </div>
 <b style=""><br>
 </b>
-<div style="margin-left: 80px;"><b style=""><img alt="Load Program"
+<div style="margin-left: 40px;"><b style=""><img alt="Load Program"
  src="PC_SampleExperiment-non-wizard-5.png"
  style="width: 860px; height: 644px;"></b><br>
 </div>
@@ -2300,10 +2314,11 @@ Sampling Experiment window shows that the program has been loaded.<b
 </b></div>
 <b style=""><br>
 </b>
-<div style="margin-left: 80px;"><b style=""><img alt="Ready to run"
+<div style="margin-left: 40px;"><b style=""><img alt="Ready to run"
  src="PC_SampleExperiment-non-wizard-6.png"
- style="width: 860px; height: 644px;"><br>
-<br>
+ style="width: 860px; height: 644px;"></b><br>
+</div>
+<div style="margin-left: 80px;"><b style=""><br>
 </b>At this point the typical non-Wizard usage matches that of the
 Wizard
 usage.&nbsp;&nbsp; Follow this link for the remainder of the typical
@@ -2359,10 +2374,13 @@ Manage Process menu item.&nbsp;&nbsp; From there the user can choose
 Attach Process (see display below).<br>
 <br>
 <br>
-<img alt="Manage Process Panel - Attach option"
+</div>
+<div style="margin-left: 40px;"><img
+ alt="Manage Process Panel - Attach option"
  src="PC_SampleWizard-AttachToRunningProcess-GUI-nonwizard1.png"
  style="width: 864px; height: 644px;"><br>
-<br>
+</div>
+<div style="margin-left: 80px;"><br>
 Upon selecting the "Attach Process" menu item the user will see the
 Attach Process dialog display and then be able to select a MPI process
 and then either attach to the entire MPI job by selecting the "Attach
