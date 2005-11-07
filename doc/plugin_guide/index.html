@@ -39,8 +39,7 @@ Diagram</a></li>
         </ul>
       </li>
       <li><a href="#mozTocId11413">Open|SpeedShop Plugin
-Overview
-        </a>
+Overview </a>
         <ul>
           <li><a href="#mozTocId405706">Plugin Creation
 Outline</a>
@@ -68,8 +67,7 @@ located?</a></li>
 Collector Plugin Information</a>
         <ul>
           <li><a href="#mozTocId892980">Performance Data
-Collector Quick Overview
-            </a>
+Collector Quick Overview </a>
             <ul>
               <li><a href="#mozTocId952547">Performance Data
 Collector Plugin Outline</a></li>
@@ -94,8 +92,7 @@ blobs</a>
                 </ul>
               </li>
               <li><a href="#mozTocId667687">Collector
-Runtime - Server/Victim portion of Experiment Collector
-                </a>
+Runtime - Server/Victim portion of Experiment Collector </a>
                 <ul>
                   <li><a href="#mozTocId612900">Thread Specific Data</a></li>
                   <li><a href="#mozTocId973451">Timer event handler</a></li>
@@ -105,14 +102,11 @@ Runtime - Server/Victim portion of Experiment Collector
                 </ul>
               </li>
               <li><a href="#mozTocId637965">Collector
-Plugin - Client/Tool portion of Experiment Collector
-                </a></li>
-              <li><a href="#mozTocId775061">Collector Plugin API
-                </a>
+Plugin - Client/Tool portion of Experiment Collector </a></li>
+              <li><a href="#mozTocId775061">Collector Plugin API </a>
                 <ul>
                   <li><a href="#mozTocId388988">The Start
-Collecting function
-                    </a>
+Collecting function </a>
                     <ul>
                       <li><a href="#mozTocId199690">What
 it does:</a></li>
@@ -126,8 +120,7 @@ Code Example:</a></li>
                     </ul>
                   </li>
                   <li><a href="#mozTocId992246">The Stop
-Collecting function
-                    </a>
+Collecting function </a>
                     <ul>
                       <li><a href="#mozTocId150755">What it does:</a></li>
                       <li><a href="#mozTocId352197">Definition:</a></li>
@@ -141,8 +134,7 @@ code example:</a></li>
                     </ul>
                   </li>
                   <li><a href="#mozTocId278716">The Get
-Metric Values function
-                    </a>
+Metric Values function </a>
                     <ul>
                       <li><a href="#mozTocId110227">What it does:</a></li>
                       <li><a href="#mozTocId171646">Definition:</a></li>
@@ -156,12 +148,10 @@ code example:</a></li>
                     </ul>
                   </li>
                   <li><a href="#mozTocId271962">The Set
-Parameter function
-                    </a>
+Parameter function </a>
                     <ul>
                       <li><a href="#mozTocId753822">What it does:</a></li>
-                      <li><a href="#mozTocId163320">Definition:
-                        </a></li>
+                      <li><a href="#mozTocId163320">Definition: </a></li>
                       <li><a href="#mozTocId699056"> Parameters:</a></li>
                       <li><a href="#mozTocId97265"> Return
 values:</a></li>
@@ -175,8 +165,7 @@ code example:</a></li>
                   </li>
                   <li><a href="#mozTocId518369">The Get
 Default
-Parameters function
-                    </a>
+Parameters function </a>
                     <ul>
                       <li><a href="#mozTocId709984">What it does:</a></li>
                       <li><a href="#mozTocId832976">Definition:</a></li>
@@ -190,8 +179,7 @@ code example:</a></li>
                     </ul>
                   </li>
                   <li><a href="#mozTocId769605">The Get
-Parameters function
-                    </a>
+Parameters function </a>
                     <ul>
                       <li><a href="#mozTocId340210">What it does:</a></li>
                       <li><a href="#mozTocId552888">Definition:</a></li>
@@ -210,13 +198,11 @@ code example:</a></li>
           </li>
           <li><a href="#mozTocId846999">Example Collector Plugin</a></li>
           <li><a href="#mozTocId377373">Collector
-Plugin FAQ:
-            </a>
+Plugin FAQ: </a>
             <ul>
               <li><a href="#mozTocId198444">What is
 blob.x for? What is
-the significance of the .x suffix?
-                </a></li>
+the significance of the .x suffix? </a></li>
               <li><a href="#mozTocId189119">What is
 specifically needed to be known by the framework? Do these class
 structures need to follow a
@@ -226,12 +212,10 @@ particular convention?</a></li>
         </ul>
       </li>
       <li><a href="#mozTocId212847">Graphical User
-Interface Plugin Information
-        </a>
+Interface Plugin Information </a>
         <ul>
           <li><a href="#mozTocId347900">Graphical User
-Interface (GUI) Plugin Overview
-            </a>
+Interface (GUI) Plugin Overview </a>
             <ul>
               <li><a href="#mozTocId962438">GUI Plugin Outline</a></li>
               <li><a href="#mozTocId117100">GUI Plugin Recognition</a></li>
@@ -2213,7 +2197,8 @@ entries.&nbsp;&nbsp; In this example, add
   <li>In "Makefile.am" add the name of the newly
 created GUI plugin panel directory into the "SUBDIRS" list.</li>
 </ul>
-<h4><a class="mozTocH4" name="mozTocId921745"></a>The Panel Class</h4>
+<h4><a class="mozTocH4" name="mozTocId921745"></a><a
+ name="The_Panel_Class"></a>The Panel Class</h4>
 The new GUI panel is built off the base class Panel.cxx.&nbsp; The
 Panel base class has several key functions.&nbsp;&nbsp; Understanding
 this base functionality is key for the GUI plugin writer to be
@@ -2249,8 +2234,8 @@ this panel. </li>
 </ul>
 <br>
 <div style="margin-left: 40px;">Messages are very simple
-minded.&nbsp;&nbsp; They nothing more than a string (message type) or a
-base message object type (with some data) being passed
+minded.&nbsp;&nbsp; They are message object type) with some data being
+passed
 around.&nbsp;&nbsp; Many examples can be found looking in the existing
 panels.&nbsp;&nbsp; Additionally messages can be broadcast to everyone
 in the tool, a group of panels, or to a specific panel.
@@ -2470,25 +2455,101 @@ tr("Process Paused...") );<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ret_val = 1;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;</small><br>
 <br>
-<br>
-<h4><a class="mozTocH5" name="mozTocId882832"></a>Setting up a timer</h4>
-tbd<br>
-<br>
 <h4><a class="mozTocH5" name="mozTocId803177"></a>Communicating with
 other GUI panels</h4>
-pcSamplePanel::listener(void *msg)<br>
-tbd<br>
+See <a href="#The_Panel_Class">The Panel Class</a> section for
+examples.<br>
 <br>
 <h4><a class="mozTocH5" name="mozTocId525403"></a>Managing process
 control</h4>
-tbd<br>
+Create a new process control object code example from
+"pcSamplePanel:pcSamplePanel" in "...../plugins/panels/pcSamplePanel"<br>
+<br>
+&nbsp; <small style="font-style: italic;">frameLayout = new
+QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );<br>
+&nbsp; pco = new ProcessControlObject(frameLayout,
+getBaseWidgetFrame(), (Panel *)this );<br>
+&nbsp; runnableFLAG = FALSE;<br>
+&nbsp; pco-&gt;runButton-&gt;setEnabled(FALSE);<br>
+&nbsp; pco-&gt;runButton-&gt;enabledFLAG = FALSE;</small><br>
+<br>
+This code snippet from "pcSamplePanel::listener" in pcSamplePanel.cxx
+gives an example of how Open|SpeedShop manages the process control of
+the experiment/victim application<br>
+<br>
+<small><span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+case&nbsp; RUN_T:</span><span style="font-style: italic;"></span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// Put out some notification that we're about to run this.</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// Otherwise there's a deafning silence between when the user</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// clicks the run button and when the run actually begins.</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// This gives the user immediate feedback of what's taking place.</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+aboutToRunFLAG = TRUE;</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+pco-&gt;runButton-&gt;setEnabled(FALSE);</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+pco-&gt;runButton-&gt;enabledFLAG = FALSE;</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+pco-&gt;pauseButton-&gt;setEnabled(FALSE);</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+pco-&gt;pauseButton-&gt;enabledFLAG = FALSE;</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+pco-&gt;updateButton-&gt;setEnabled(FALSE);</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+pco-&gt;updateButton-&gt;enabledFLAG = FALSE;</span></small><br>
+<small><span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+command = QString("expGo -x %1\n").arg(expID);</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+{</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+int status = -1;</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+nprintf( DEBUG_MESSAGES ) ("Run\n");</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+statusLabelText-&gt;setText( tr("Process running...") );</span><br
+ style="font-style: italic;">
+<br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+int wid = getPanelContainer()-&gt;getMainWindow()-&gt;widStr.toInt();</span><span
+ style="font-style: italic;"></span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+cli-&gt;runSynchronousCLI(command.ascii());</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ret_val = 1;</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+break;</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+case&nbsp; PAUSE_T:</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+{</span></small><br>
 <br>
 <br>
 <h3><a class="mozTocH3" name="mozTocId175785"></a><a
  name="Example_Graphical_User_Interface_Plugin"></a>Example Graphical
 User Interface Plugin</h3>
 The example graphical user interface plugin is the plugin that is used
-as the focus of the "mknewpanel" script, the TemplatePanel.<br>
+as the focus of the "mknewpanel" script, the TemplatePanel is found in
+the "&lt;top_srcdir&gt;/plugins/panels/TemplatePanel" directory in the
+Open|SpeedShop source tree.<br>
 <br>
 <h2><a class="mozTocH2" name="mozTocId90403"></a><span class="mozTocH2"></span>Interactive
 Command Line
