@@ -84,7 +84,8 @@ namespace OpenSpeedShop { namespace Framework {
     public:
 
 	static std::string getLocalHost();
-
+	static std::string getCanonicalName(const std::string&);
+	
 	static bool isAccessible(const std::string&);
 	static void create(const std::string&);
 	static void remove(const std::string&);

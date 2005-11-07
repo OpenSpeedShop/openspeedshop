@@ -32,6 +32,7 @@
 #ifdef HAVE_ARRAYSVCS
 #include <arraysvcs.h>
 #endif
+#include <netdb.h>
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
@@ -191,6 +192,62 @@ std::string Experiment::getLocalHost()
     
     // Return the local host name to the caller
     return buffer;
+}
+
+
+
+/**
+ * Get the canonical name of a host.
+ *
+ * Returns the canonical name of the specified host. This information is
+ * obtained directly from the operating system.
+ *
+ * @param host    Name of host for which to get canonical name.
+ * @return        Canonical name of that host.
+ */
+std::string Experiment::getCanonicalName(const std::string& host)
+{
+    std::string canonical = host;
+
+    // Interested in IPv4 protocol information only (including canonical name)
+    struct addrinfo hints;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_flags = AI_CANONNAME;
+    hints.ai_family = AF_INET;
+    hints.ai_protocol = PF_INET;
+    
+    // Request address information for this host
+    struct addrinfo* results = NULL;
+    getaddrinfo(getLocalHost().c_str(), NULL, &hints, &results);
+    
+    // Was the specified name for the loopback device?
+    if((results != NULL) && 
+       (ntohl(reinterpret_cast<struct sockaddr_in*>
+	      (results->ai_addr)->sin_addr.s_addr) == INADDR_LOOPBACK)) {
+
+	// Free the address information
+	freeaddrinfo(results);
+
+	// Request address information for the local host name
+	results = NULL;
+	getaddrinfo(getLocalHost().c_str(), NULL, &hints, &results);
+	
+    }
+
+    // Did we get address information?
+    if(results != NULL) {
+
+	// Use the canonical name if one was provided
+	if(results->ai_canonname != NULL)
+	    canonical = results->ai_canonname;
+
+	// Free the address information
+	freeaddrinfo(results);
+
+    }
+
+    // Return the canonical name to the caller
+    return canonical;
 }
 
 
@@ -432,10 +489,13 @@ Thread Experiment::createProcess(const std::string& command,
 {   
     Thread thread;
 
+    // Get the canonical name of this host
+    std::string canonical = getCanonicalName(host);
+
     // Create the thread entry in the database
     BEGIN_TRANSACTION(dm_database);
     dm_database->prepareStatement("INSERT INTO Threads (host) VALUES (?);");
-    dm_database->bindArgument(1, host);
+    dm_database->bindArgument(1, canonical);
     while(dm_database->executeStatement());
     thread = Thread(dm_database, dm_database->getLastInsertedUID()); 
     END_TRANSACTION(dm_database);
@@ -542,6 +602,9 @@ ThreadGroup Experiment::attachProcess(const pid_t& pid,
 {
     ThreadGroup threads;
 
+    // Get the canonical name of this host
+    std::string canonical = getCanonicalName(host);
+    
     // Allocate this flag outside the transaction's try/catch block
     bool is_attached = false;
 
@@ -552,7 +615,7 @@ ThreadGroup Experiment::attachProcess(const pid_t& pid,
     dm_database->prepareStatement(	
 	"SELECT id FROM Threads WHERE host = ? AND pid = ?;"
 	);
-    dm_database->bindArgument(1, host);
+    dm_database->bindArgument(1, canonical);
     dm_database->bindArgument(2, pid);
     while(dm_database->executeStatement())
 	threads.insert(Thread(dm_database, dm_database->getResultAsInteger(1)));
@@ -563,7 +626,7 @@ ThreadGroup Experiment::attachProcess(const pid_t& pid,
 	dm_database->prepareStatement(
 	    "INSERT INTO Threads (host, pid) VALUES (?, ?);"
 	    );
-	dm_database->bindArgument(1, host);
+	dm_database->bindArgument(1, canonical);
 	dm_database->bindArgument(2, pid);
 	while(dm_database->executeStatement());
 	Thread thread(dm_database, dm_database->getLastInsertedUID());
