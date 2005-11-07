@@ -40,6 +40,7 @@
 #include <qmessagebox.h>
 #include <qstring.h>
 #include <qvaluelist.h>
+#include <qheader.h>
 
 struct StatusStruct
 {
@@ -112,6 +113,11 @@ ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const 
   psetListView->setShowSortIndicator( TRUE );
   psetListView->setRootIsDecorated(TRUE);
   psetListView->setSelectionMode( QListView::Multi );
+
+
+QHeader *header = psetListView->header();
+header->resizeSection(0, 200);
+
   psetListView->show();
 
   int width = p->getPanelContainer()->width();
@@ -217,9 +223,9 @@ ManageCollectorsClass::updateAttachedList()
            ++it )
         {
           ce = (CollectorEntry *)*it;
-MPListViewItem *item = new MPListViewItem( attachCollectorsListView, ce->name, ce->short_name );
-DescriptionClassObject *dco = new DescriptionClassObject(TRUE, QString::null, QString::null, QString::null, ce->name );
-item->descriptionClassObject = dco;
+          MPListViewItem *item = new MPListViewItem( attachCollectorsListView, ce->name, ce->short_name );
+          DescriptionClassObject *dco = new DescriptionClassObject(TRUE, QString::null, QString::null, QString::null, ce->name );
+          item->descriptionClassObject = dco;
           try
           {
             ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
@@ -233,21 +239,6 @@ item->descriptionClassObject = dco;
               for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
               {
                 Thread t = *ti;
-#if 0
-// Do you want executable name?   Here it is.
-//printf("t.getExecutable().getPath().getBaseName()=%s\n", t.getExecutable().getPath().getBaseName().c_str() );
-// printf("t.getExecutable().getPath()=0x%x", t.getExecutable().getPath() );
-std::pair<bool, LinkedObject> lo = t.getExecutable();
-if( lo.first == TRUE )
-{
-  printf("Got an executable name.\n");
-  printf("(%s)\n", lo.second.getPath().getBaseName().c_str() );
-} else
-{
-  printf("no executable name.\n");
-}
-#endif // 0
-
                 std::string host = t.getHost();
                 pid_t pid = t.getProcessId();
                 if (!atleastone) {
@@ -283,22 +274,22 @@ if( lo.first == TRUE )
                   {
                     if( !tidstr.isEmpty() )
                     {
-MPListViewItem *item2 =
+                      MPListViewItem *item2 =
                         new MPListViewItem( item, host, pidstr, tidstr );
-DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, tidstr  );
-item2->descriptionClassObject = dco;
+                      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, tidstr  );
+                      item2->descriptionClassObject = dco;
                     } else if( !ridstr.isEmpty() )
                     {
-MPListViewItem *item2 =
+                      MPListViewItem *item2 =
                         new MPListViewItem( item, host, pidstr, ridstr );
-DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, ridstr  );
-item2->descriptionClassObject = dco;
+                      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, ridstr  );
+                      item2->descriptionClassObject = dco;
                     } else
                     {
-MPListViewItem *item2 =
+                      MPListViewItem *item2 =
                         new MPListViewItem( item, host, pidstr );
-DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr  );
-item2->descriptionClassObject = dco;
+                      DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr  );
+                      item2->descriptionClassObject = dco;
                     }
                   }
                 }
@@ -385,10 +376,10 @@ item2->descriptionClassObject = dco;
             CollectorGroup cgrp = t.getCollectors();
             CollectorGroup::iterator ci;
             int collector_count = 0;
-MPListViewItem *item =
+            MPListViewItem *item =
               new MPListViewItem( attachCollectorsListView, pidstr, threadStatusStr );
-DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr  );
-item->descriptionClassObject = dco;
+            DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr  );
+            item->descriptionClassObject = dco;
             for (ci = cgrp.begin(); ci != cgrp.end(); ci++)
             {
               Collector c = *ci;
@@ -399,9 +390,9 @@ item->descriptionClassObject = dco;
               {
                 collector_count = 1;
               }
-MPListViewItem *item2 = new MPListViewItem( item, host, m.getUniqueId());
-DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr  );
-item2->descriptionClassObject = dco;
+              MPListViewItem *item2 = new MPListViewItem( item, host, m.getUniqueId());
+              DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr  );
+              item2->descriptionClassObject = dco;
             }
           }
         }
@@ -449,9 +440,9 @@ item2->descriptionClassObject = dco;
 
         for( std::vector<string>::iterator hi = v.begin(); hi != e; hi++ ) 
         {
-MPListViewItem *item = new MPListViewItem( attachCollectorsListView, *hi );
-DescriptionClassObject *dco = new DescriptionClassObject(TRUE, QString::null, QString::null, QString::null  );
-item->descriptionClassObject = dco;
+          MPListViewItem *item = new MPListViewItem( attachCollectorsListView, *hi );
+          DescriptionClassObject *dco = new DescriptionClassObject(TRUE, QString::null, QString::null, QString::null  );
+          item->descriptionClassObject = dco;
           bool atleastone = false;
           for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
           {
@@ -495,22 +486,22 @@ item->descriptionClassObject = dco;
               }
               if( !tidstr.isEmpty() )
               {
-MPListViewItem *item2 =
+                MPListViewItem *item2 =
                   new MPListViewItem(item, pidstr, tidstr, collectorliststring );
-DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, tidstr, collectorliststring  );
-item2->descriptionClassObject = dco;
+                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, tidstr, collectorliststring  );
+                item2->descriptionClassObject = dco;
               } else if( !ridstr.isEmpty() )
               {
-MPListViewItem *item2 =
+                MPListViewItem *item2 =
                   new MPListViewItem(item, pidstr, ridstr, collectorliststring );
-DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, ridstr, collectorliststring  );
-item2->descriptionClassObject = dco;
+                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, ridstr, collectorliststring  );
+                item2->descriptionClassObject = dco;
               } else
               {
-MPListViewItem *item2 = 
+                MPListViewItem *item2 = 
                   new MPListViewItem( item, pidstr, collectorliststring  );
-DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr, collectorliststring  );
-item2->descriptionClassObject = dco;
+                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr, collectorliststring  );
+                item2->descriptionClassObject = dco;
               }
             }
           }
@@ -541,8 +532,8 @@ ManageCollectorsClass::updatePSetList()
 
   psetListView->clearSelection();
 
-  QListViewItem *dynamic_items = new QListViewItem( psetListView, "Dynamic Process Set", "N/A");
-  QListViewItem *user_items = new QListViewItem( psetListView, "User Defined Process Set", "N/A");
+  QListViewItem *dynamic_items = new QListViewItem( psetListView, "Dynamic Process Set");
+  QListViewItem *user_items = new QListViewItem( psetListView, "User Defined Process Set");
 
 
   QString pset_name = QString::null;
@@ -558,13 +549,16 @@ ManageCollectorsClass::updatePSetList()
         ThreadGroup tgrp = eo->FW()->getThreads();
         ThreadGroup::iterator ti;
         std::vector<std::string> v;
+        pset_name = QString("pset%1").arg(pset_count++);
+        MPListViewItem *item = new MPListViewItem( dynamic_items, pset_name, "All" );
+        DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
+        MPListViewItem *item2 = new MPListViewItem(item, QString("All (%1) pids...").arg(tgrp.size()) );
         for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
         {
           Thread t = *ti;
           std::string s = t.getHost();
         
           v.push_back(s);
-        
         }
         std::sort(v.begin(), v.end());
         
@@ -575,8 +569,8 @@ ManageCollectorsClass::updatePSetList()
         {
           pset_name = QString("pset%1").arg(pset_count++);
           MPListViewItem *item = new MPListViewItem( dynamic_items, pset_name, *hi );
-DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
-item->descriptionClassObject = dco;
+          DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
+          item->descriptionClassObject = dco;
 // printf("hi=(%s)\n", hi->c_str() );
           bool atleastone = false;
           for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
@@ -623,20 +617,20 @@ item->descriptionClassObject = dco;
               {
                 MPListViewItem *item2 =
                   new MPListViewItem(item, pidstr, tidstr, collectorliststring );
-DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), tidstr, collectorliststring);
-item2->descriptionClassObject = dco;
+                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), tidstr, collectorliststring);
+                item2->descriptionClassObject = dco;
               } else if( !ridstr.isEmpty() )
               {
                 MPListViewItem *item2 =
                   new MPListViewItem(item, pidstr, ridstr, collectorliststring );
-DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), ridstr, collectorliststring);
-item2->descriptionClassObject = dco;
+                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), ridstr, collectorliststring);
+                item2->descriptionClassObject = dco;
               } else
               {
                 MPListViewItem *item2 = 
                   new MPListViewItem( item, pidstr, collectorliststring  );
-DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, collectorliststring);
-item2->descriptionClassObject = dco;
+                DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, QString(host.c_str()), pidstr, collectorliststring);
+                item2->descriptionClassObject = dco;
               }
             }
           }
@@ -653,22 +647,22 @@ item2->descriptionClassObject = dco;
     }
 }
 { // For each thread status , create a dynamic pset.
-QValueList<StatusStruct> statusDisconnectedList;
-QValueList<StatusStruct> statusConnectingList;
-QValueList<StatusStruct> statusNonexistentList;
-QValueList<StatusStruct> statusRunningList;
-QValueList<StatusStruct> statusSuspendedList;
-QValueList<StatusStruct> statusTerminatedList;
-QValueList<StatusStruct> statusUnknownList;
-statusDisconnectedList.clear();
-statusConnectingList.clear();
-statusNonexistentList.clear();
-statusRunningList.clear();
-statusSuspendedList.clear();
-statusTerminatedList.clear();
-statusUnknownList.clear();
+      QValueList<StatusStruct> statusDisconnectedList;
+      QValueList<StatusStruct> statusConnectingList;
+      QValueList<StatusStruct> statusNonexistentList;
+      QValueList<StatusStruct> statusRunningList;
+      QValueList<StatusStruct> statusSuspendedList;
+      QValueList<StatusStruct> statusTerminatedList;
+      QValueList<StatusStruct> statusUnknownList;
+      statusDisconnectedList.clear();
+      statusConnectingList.clear();
+      statusNonexistentList.clear();
+      statusRunningList.clear();
+      statusSuspendedList.clear();
+      statusTerminatedList.clear();
+      statusUnknownList.clear();
 
-StatusStruct statusStruct;
+      StatusStruct statusStruct;
 
 
       try
@@ -687,8 +681,8 @@ StatusStruct statusStruct;
             Thread t = *ti;
             std::string host = t.getHost();
             pid_t pid = t.getProcessId();
-statusStruct.host = QString(host.c_str());
-statusStruct.pid = QString("%1").arg(pid);
+            statusStruct.host = QString(host.c_str());
+            statusStruct.pid = QString("%1").arg(pid);
 
             // Add some status to each thread.
             QString threadStatusStr;
@@ -696,39 +690,39 @@ statusStruct.pid = QString("%1").arg(pid);
             {
               case Thread::Disconnected:
                 threadStatusStr = "Disconnected";
-statusStruct.status = threadStatusStr;
-statusDisconnectedList.push_back(statusStruct);
+                statusStruct.status = threadStatusStr;
+                statusDisconnectedList.push_back(statusStruct);
                 break;
               case Thread::Connecting:
                 threadStatusStr = "Connecting";
-statusStruct.status = threadStatusStr;
-statusConnectingList.push_back(statusStruct);
+                statusStruct.status = threadStatusStr;
+                statusConnectingList.push_back(statusStruct);
                 break;
                 break;
               case Thread::Nonexistent:
                 threadStatusStr = "Nonexistent";
-statusStruct.status = threadStatusStr;
-statusNonexistentList.push_back(statusStruct);
+                statusStruct.status = threadStatusStr;
+                statusNonexistentList.push_back(statusStruct);
                 break;
               case Thread::Running:
                 threadStatusStr = "Running";
-statusStruct.status = threadStatusStr;
-statusRunningList.push_back(statusStruct);
+                statusStruct.status = threadStatusStr;
+                statusRunningList.push_back(statusStruct);
                 break;
               case Thread::Suspended:
                 threadStatusStr = "Suspended";
-statusStruct.status = threadStatusStr;
-statusSuspendedList.push_back(statusStruct);
+                statusStruct.status = threadStatusStr;
+                statusSuspendedList.push_back(statusStruct);
                 break;
               case Thread::Terminated:
                 threadStatusStr = "Terminate";
-statusStruct.status = threadStatusStr;
-statusTerminatedList.push_back(statusStruct);
+                statusStruct.status = threadStatusStr;
+                statusTerminatedList.push_back(statusStruct);
                 break;
               default:
                 threadStatusStr = "Unknown";
-statusStruct.status = threadStatusStr;
-statusUnknownList.push_back(statusStruct);
+                statusStruct.status = threadStatusStr;
+                statusUnknownList.push_back(statusStruct);
                 break;
             }
   
@@ -902,13 +896,14 @@ ManageCollectorsClass::detachSelected()
 {
 // printf("detachSelected\n");
 
-MPListViewItem *selectedItem = NULL;
-QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
-while( it.current() )
-{
-  selectedItem = (MPListViewItem *)it.current();
-  break;
-}
+  MPListViewItem *selectedItem = NULL;
+  QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
+  while( it.current() )
+  {
+    selectedItem = (MPListViewItem *)it.current();
+    break;
+
+  }
   if( selectedItem )
   {
     QString ret_value = selectedItem->text(0);
@@ -918,8 +913,8 @@ while( it.current() )
     QString command;
     command = QString("expDetach -x %1 %2").arg(expID).arg(collector_name);
 // printf("command=(%s)\n", command.ascii() );
-QMessageBox::information( this, tr("Under Construction:"), tr("This feature currently under construction.\nIt will eventuall do a:\n%1").arg(command), QMessageBox::Ok );
-return;
+//    QMessageBox::information( this, tr("Under Construction:"), tr("This feature currently under construction.\nIt will eventuall do a:\n%1").arg(command), QMessageBox::Ok );
+//    return;
 
     if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
     {
@@ -937,14 +932,14 @@ void
 ManageCollectorsClass::disableSelected()
 {
 // printf("disableSelected\n");
-MPListViewItem *selectedItem = NULL;
-QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
-while( it.current() )
-{
-  selectedItem = (MPListViewItem *)it.current();
-  break;
-}
-  if( selectedItem )
+  MPListViewItem *selectedItem = NULL;
+  QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
+  while( it.current() )
+  {
+    selectedItem = (MPListViewItem *)it.current();
+    break;
+  }
+    if( selectedItem )
   {
     QString ret_value = selectedItem->text(0);
 // printf("disable = (%s)\n", ret_value.ascii() );
@@ -954,8 +949,8 @@ while( it.current() )
     QString command;
     command = QString("expDisable -x %1 %2").arg(expID).arg(collector_name);
 // printf("command=(%s)\n", command.ascii() );
-QMessageBox::information( this, tr("Under Construction:"), tr("This feature currently under construction.\nIt will eventuall do a:\n%1").arg(command), QMessageBox::Ok );
-return;
+//  QMessageBox::information( this, tr("Under Construction:"), tr("This feature currently under construction.\nIt will eventuall do a:\n%1").arg(command), QMessageBox::Ok );
+//return;
     if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
     {
       QMessageBox::information( this, tr("Error issuing command to cli:"), tr("Unable to run %1 command.").arg(command), QMessageBox::Ok );
@@ -974,13 +969,13 @@ void
 ManageCollectorsClass::enableSelected()
 {
 // printf("enableSelected\n");
-MPListViewItem *selectedItem = NULL;
-QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
-while( it.current() )
-{
-  selectedItem = (MPListViewItem *)it.current();
-  break;
-}
+  MPListViewItem *selectedItem = NULL;
+  QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
+  while( it.current() )
+  {
+    selectedItem = (MPListViewItem *)it.current();
+    break;
+  }
   if( selectedItem )
   {
     QString ret_value = selectedItem->text(0);
@@ -991,8 +986,8 @@ while( it.current() )
     QString command;
     command = QString("expEnable -x %1 %2").arg(expID).arg(collector_name);
 // printf("command=(%s)\n", command.ascii() );
-QMessageBox::information( this, tr("Under Construction:"), tr("This feature currently under construction.\nIt will eventuall do a:\n%1").arg(command), QMessageBox::Ok );
-return;
+// QMessageBox::information( this, tr("Under Construction:"), tr("This feature currently under construction.\nIt will eventuall do a:\n%1").arg(command), QMessageBox::Ok );
+// return;
     if( !cli->runSynchronousCLI( (char *)command.ascii() ) )
     {
       QMessageBox::information( this, tr("Error issuing command to cli:"), tr("Unable to run %1 command.").arg(command), QMessageBox::Ok );
