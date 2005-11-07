@@ -3572,28 +3572,30 @@ bool SS_Wait (CommandObject *cmd) {
  // Wait for all executing commands to terminate.
   Wait_For_Previous_Cmds ();
 
- // Look for a specified experiment
-  Assert(cmd->P_Result() != NULL);
-  EXPID ExperimentID = 0;
+  if (Look_For_KeyWord (cmd, "terminate")) {
+   // Look for a specified experiment
+    Assert(cmd->P_Result() != NULL);
+    EXPID ExperimentID = 0;
 
-  if (cmd->P_Result()->isExpId()) {
-    ExperimentID = cmd->P_Result()->getExpId();
-  } else {
-   // Get the Focused experiment - if it doesn't exist, return the default "0".
-    ExperimentID = Experiment_Focus ( WindowID );
-  }
-  ExperimentObject *exp = NULL;
-  if (ExperimentID != 0) {
-   // Be sure the requested experiment exists.
-    exp = Find_Specified_Experiment (cmd);
-    if (exp == NULL) {
-      return false;
+    if (cmd->P_Result()->isExpId()) {
+      ExperimentID = cmd->P_Result()->getExpId();
+    } else {
+     // Get the Focused experiment - if it doesn't exist, return the default "0".
+      ExperimentID = Experiment_Focus ( WindowID );
     }
-  } 
+    ExperimentObject *exp = NULL;
+    if (ExperimentID != 0) {
+     // Be sure the requested experiment exists.
+      exp = Find_Specified_Experiment (cmd);
+      if (exp == NULL) {
+        return false;
+      }
+    } 
 
-  if (exp != NULL) {
-   // Wait for the execution of the experiment to terminate.
-    Wait_For_Exp (cmd, exp);
+    if (exp != NULL) {
+     // Wait for the execution of the experiment to terminate.
+      Wait_For_Exp (cmd, exp);
+    }
   }
 
   cmd->set_Status(CMD_COMPLETE);
