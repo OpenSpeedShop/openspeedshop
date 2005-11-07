@@ -1985,7 +1985,82 @@ this file creating "C" language data definition and data packaging code.</li>
  href="#Data_blobs">data blob</a> for how to design and implement the
 performance data definitions for the data that the runtime collector
 plugin will send to the Open|SpeedShop client.<br>
+<br>
+<br>
 </div>
+Executing the "make install" make file command in the
+"&lt;top_srcdir&gt;/examples/libopenss-framework/collector" directory
+will install the example plugin to the default plugin installation
+path, which is &lt;top_srcdir&gt;../lib/openspeedshop or to
+"$OPENSS_INSTALL_DIR/lib/openspeedshop".&nbsp;&nbsp; After the example
+collector plugin is installed, the Open|SpeedShop tool recognizes it's
+presence and it can be used as a collector.&nbsp;&nbsp; <br>
+<br>
+The example tool does pcsampling, but all the hashing and any extra
+code that might make it more complicated has been taken out so that
+only the basic plugin functionality is present.&nbsp;&nbsp; For this
+run, the example plugin was installed
+into the default plugin directory and used in the same manner as any
+other plugin.&nbsp;&nbsp; This is the example plugin experiment output:<br>
+<br>
+orbit20-169&gt;pwd<br>
+/home/jeg/openss/current/test/executables/fred<br>
+orbit20-170&gt;<b>openss -cli</b><br>
+Welcome to Open|SpeedShop, version 0.1.<br>
+Type 'help' for more information.<br>
+# Create an interactive command line interface experiment on the
+executable "fred" using the "example" collector<br>
+openss&gt;&gt;<b>expcreate -f fred example</b><br>
+&nbsp;&nbsp; Found symtab<br>
+The new focused experiment identifier is:&nbsp; -x 1<br>
+# Run the focused experiment asynchroniously<br>
+openss&gt;&gt;<small><b><big>expgo</big></b></small><br>
+Start asynchronous execution of experiment:&nbsp; -x 1<br>
+openss&gt;&gt;<br>
+# Give me status of the focused experiment<br>
+openss&gt;&gt;<b>expstatus</b><br>
+Experiment definition<br>
+{ # ExpId is 1, Status is Running, Temporary database is
+/tmp/ssdb1DthPUP.openss<br>
+&nbsp; Currently Specified Components:<br>
+&nbsp;&nbsp;&nbsp; -h orbit20 -p 32414 example<br>
+&nbsp; Metrics:<br>
+&nbsp;&nbsp;&nbsp; example::time<br>
+&nbsp; Parameter Values:<br>
+&nbsp;&nbsp;&nbsp; example::sampling_rate =&nbsp; 100<br>
+&nbsp; Available Views:<br>
+&nbsp;&nbsp;&nbsp; pcsamp<br>
+}<br>
+openss&gt;&gt;<br>
+# Execute a ps in the shell, outside of Open|SpeedShop<br>
+openss&gt;&gt;<b>!ps -u jeg</b><br>
+&nbsp; PID TTY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+TIME CMD<br>
+27766 ?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 00:00:02 sshd<br>
+27767 pts/0&nbsp;&nbsp;&nbsp; 00:00:00 csh<br>
+31008 ?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 00:00:00 sshd<br>
+31009 pts/1&nbsp;&nbsp;&nbsp; 00:00:00 csh<br>
+32403 pts/1&nbsp;&nbsp;&nbsp; 00:00:04 openss<br>
+32413 ?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 00:00:03 dpcld64<br>
+32414 ?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 00:03:06 fred<br>
+32416 pts/1&nbsp;&nbsp;&nbsp; 00:00:00 openss<br>
+32417 pts/1&nbsp;&nbsp;&nbsp; 00:00:00 ps<br>
+<br>
+openss&gt;&gt;Experiment 1 has terminated.<br>
+# View the results of the focused experiment, using the default view<br>
+openss&gt;&gt;<small><b><big>expview</big></b></small><br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CPU
+Time&nbsp; Function Name<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+141.2500&nbsp; f3(fred: f3.c,2)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+95.0400&nbsp; f2(fred: f2.c,2)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+47.5100&nbsp; f1(fred: f1.c,2)<br>
+openss&gt;&gt;<br>
+<br>
+<div style="margin-left: 40px;"></div>
 <h3><a class="mozTocH3" name="mozTocId377373"></a><b style="">Collector
 Plugin FAQ:<br>
 <span class="moz-txt-citetags"><span style="font-family: monospace;"></span></span></b></h3>
