@@ -85,11 +85,21 @@ Collector Plugin</a>
               <li><a href="#mozTocId773274">Overview</a></li>
               <li><a href="#mozTocId223455">Plugin Recognition</a></li>
               <li><a href="#mozTocId207808">Data
-blobs</a></li>
+blobs</a>
+                <ul>
+                  <li><a href="#mozTocId281427">blobs.x:</a></li>
+                  <li><a href="#mozTocId57477">blobs.h:</a></li>
+                  <li><a href="#mozTocId839482">blobs.c:</a></li>
+                </ul>
+              </li>
               <li><a href="#mozTocId667687">Collector
 Runtime - Server/Victim portion of Experiment Collector
                 </a>
                 <ul>
+                  <li><a href="#mozTocId612900">Thread Specific Data</a></li>
+                  <li><a href="#mozTocId973451">Timer event handler</a></li>
+                  <li><a href="#mozTocId10166">Start Sampling</a></li>
+                  <li><a href="#mozTocId999542">Stop Sampling</a></li>
                   <li><a href="#mozTocId40824">Framework runtime</a></li>
                 </ul>
               </li>
@@ -110,6 +120,8 @@ it does:</a></li>
                       <li><a href="#mozTocId50896">What's needed
 in the
 function body:</a></li>
+                      <li><a href="#mozTocId628096">Example Collector
+Code Example:</a></li>
                     </ul>
                   </li>
                   <li><a href="#mozTocId992246">The Stop
@@ -724,10 +736,37 @@ define the special entry point
 "&lt;your_plugin_name&gt;_LTX_CollectoryFactory".&nbsp;&nbsp;&nbsp; The
 Example collector plugin shows this in the file
 "examples/libopenss-framework/collector/ExampleCollector.cxx"&nbsp;&nbsp;&nbsp;
-Look for the definition of "example_LTX_CollectorFactory()" for the
-example of how to implement the routine.<br>
+Here is the definition of "example_LTX_CollectorFactory()" from the
+example collector. <br>
 <br>
-<h4><a class="mozTocH4" name="mozTocId207808"></a><a name="Data_blobs"></a>Data
+<small><span style="font-style: italic;">/**</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;* Collector's factory method.</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;*</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;* Factory method for
+instantiating a collector implementation. This is the</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;* only function that is
+externally visible from outside the collector plugin.</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;*</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;* @return&nbsp;&nbsp;&nbsp; New
+instance of this collector's implementation.</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;*/</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">extern "C" CollectorImpl*
+example_LTX_CollectorFactory()</span><br style="font-style: italic;">
+<span style="font-style: italic;">{</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; return new
+ExampleCollector();</span><br style="font-style: italic;">
+<span style="font-style: italic;">}</span></small><br>
+<h4><a class="mozTocH4" name="mozTocId207808"></a><a name="Data_blobs"></a><a
+ name="Data_blobs_"></a>Data
 blobs</h4>
 The collector writer defines the format of the performance data being
 gathered and stored in the victim application.&nbsp;&nbsp;
@@ -764,14 +803,194 @@ blob.x.&nbsp;&nbsp; This is what the collector plugin expects.&nbsp;
 The blob.x file is fed into rpcgen which generates a ".c" file and a
 ".h" file.&nbsp; These files create a compilable C structure and
 functions to convert the data to a C structure and back.<br>
+<h5><a class="mozTocH5" name="mozTocId281427"></a>blobs.x:</h5>
+For the example collector the blobs.x XDR language defines the
+experiments parameter(s), performance data, and the structure to pass
+parameters to the runtime/victim start_sampling routine.<br>
 <br>
+<small><span style="font-style: italic;">/** Structure of the blob
+containing our parameters. */</span><br style="font-style: italic;">
+<span style="font-style: italic;">struct example_parameters {</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; unsigned
+sampling_rate;&nbsp; /**&lt; Sampling rate in samples/second. */</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">};</span><br
+ style="font-style: italic;">
+<br style="font-style: italic;">
+<span style="font-style: italic;">/** Structure of the blob containing
+our performance data. */</span><br style="font-style: italic;">
+<span style="font-style: italic;">struct example_data {</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; uint64_t
+interval;&nbsp;&nbsp;&nbsp; /**&lt; Sampling interval in nanoseconds. */</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; uint64_t
+pc&lt;&gt;;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /**&lt; Program
+counter (PC) addresses. */</span><br style="font-style: italic;">
+<span style="font-style: italic;">};</span><br
+ style="font-style: italic;">
+<br style="font-style: italic;">
+<span style="font-style: italic;">/** Structure of the blob containing
+example_start_sampling()'s arguments. */</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">struct example_start_sampling_args {</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; unsigned
+sampling_rate;&nbsp; /**&lt; Sampling rate in samples/second. */</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; int
+experiment;&nbsp; /**&lt; Identifier of experiment to contain the data.
+*/</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; int
+collector;&nbsp;&nbsp; /**&lt; Identifier of collector gathering data.
+*/</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; int
+thread;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /**&lt; Identifier of gathered
+data's thread. */</span><br style="font-style: italic;">
+<span style="font-style: italic;">};<br>
+</span></small><small><span style="font-style: italic;"></span></small>
+<p><small><a href="#Data_blobs_">Return to top of Data blobs section</a></small><br>
+</p>
+<h5><a class="mozTocH5" name="mozTocId57477"></a>blobs.h:</h5>
 The blob data structures are used both by the Collector Runtime plugin
 (server/victim side) and also by the Collector plugin (client
-side).&nbsp; The blob "C" files are compiled into each of the plugins
-(runtime and client) that represent the collector.<br>
+side).&nbsp; <br>
+Excerpts from the blobs.h file are shown here.&nbsp; Note the
+similarity between the C structures here, in blobs.h, with the XDR
+definitions in blobs.x.<br>
 <br>
+<small><span style="font-style: italic;">struct example_parameters {</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+u_int sampling_rate;</span><br style="font-style: italic;">
+<span style="font-style: italic;">};</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">typedef struct example_parameters
+example_parameters;</span><br style="font-style: italic;">
+<br style="font-style: italic;">
+<span style="font-style: italic;">struct example_data {</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+uint64_t interval;</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+struct {</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+u_int pc_len;</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+uint64_t *pc_val;</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+} pc;</span><br style="font-style: italic;">
+<span style="font-style: italic;">};</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">typedef struct example_data
+example_data;</span><br style="font-style: italic;">
+<br style="font-style: italic;">
+<span style="font-style: italic;">struct example_start_sampling_args {</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+u_int sampling_rate;</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+int experiment;</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+int collector;</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+int thread;</span><br style="font-style: italic;">
+<span style="font-style: italic;">};</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">typedef struct
+example_start_sampling_args example_start_sampling_args;</span><br
+ style="font-style: italic;">
+<br style="font-style: italic;">
+<span style="font-style: italic;">/* the xdr functions */</span><br
+ style="font-style: italic;">
+<br style="font-style: italic;">
+<span style="font-style: italic;">#if defined(__STDC__) ||
+defined(__cplusplus)</span><br style="font-style: italic;">
+<span style="font-style: italic;">extern&nbsp; bool_t
+xdr_example_parameters (XDR *, example_parameters*);</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">extern&nbsp; bool_t xdr_example_data
+(XDR *, example_data*);</span><br style="font-style: italic;">
+<span style="font-style: italic;">extern&nbsp; bool_t
+xdr_example_start_sampling_args (XDR *, example_start_sampling_args*);</span><br
+ style="font-style: italic;">
+<br style="font-style: italic;">
+<span style="font-style: italic;">#else /* K&amp;R C */</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">extern bool_t xdr_example_parameters
+();</span><br style="font-style: italic;">
+<span style="font-style: italic;">extern bool_t xdr_example_data ();</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">extern bool_t
+xdr_example_start_sampling_args ();</span><br
+ style="font-style: italic;">
+<br style="font-style: italic;">
+<span style="font-style: italic;">#endif /* K&amp;R C */<br>
+<br>
+</span></small><small><a href="index.html#Data_blobs_">Return to top of
+Data blobs section</a></small><br>
+<h5><a class="mozTocH5" name="mozTocId839482"></a>blobs.c:</h5>
+In blobs.c, we see routines that are generated by rpcgen.&nbsp; These
+routines contain code using XDR functionality&nbsp; to return the
+experiments (example in this case) parameter and data.&nbsp; The blob
+"C" files are compiled into each of the plugins
+(runtime and client) that represent the collector.&nbsp; Excerpts from
+the blobs.c file are shown here.<br>
+<br>
+<br>
+<small><span style="font-style: italic;">#include "blobs.h"</span><br
+ style="font-style: italic;">
+<br style="font-style: italic;">
+<span style="font-style: italic;">bool_t</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">xdr_example_parameters (XDR *xdrs,
+example_parameters *objp)</span><br style="font-style: italic;">
+<span style="font-style: italic;">{</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+register int32_t *buf;</span><br style="font-style: italic;">
+<br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if (!xdr_u_int (xdrs, &amp;objp-&gt;sampling_rate))</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return FALSE;</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return TRUE;</span><br style="font-style: italic;">
+<span style="font-style: italic;">}</span><br
+ style="font-style: italic;">
+<br style="font-style: italic;">
+<span style="font-style: italic;">bool_t</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">xdr_example_data (XDR *xdrs,
+example_data *objp)</span><br style="font-style: italic;">
+<span style="font-style: italic;">{</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+register int32_t *buf;</span><br style="font-style: italic;">
+<br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if (!xdr_uint64_t (xdrs, &amp;objp-&gt;interval))</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return FALSE;</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if (!xdr_array (xdrs, (char **)&amp;objp-&gt;pc.pc_val, (u_int *)
+&amp;objp-&gt;pc.pc_len, ~0,</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+sizeof (uint64_t), (xdrproc_t) xdr_uint64_t))</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return FALSE;</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return TRUE;</span><br style="font-style: italic;">
+<span style="font-style: italic;">}<br>
+</span></small><small><a href="index.html#Data_blobs_">Return to top of
+Data blobs section</a></small><small><span style="font-style: italic;"></span></small><br>
 <h4><a class="mozTocH4" name="mozTocId667687"></a><a
- name="Collector_Runtime_-_ServerVictim_"></a>Collector
+ name="Collector_Runtime_-_ServerVictim_"></a><a
+ name="Collector_Runtime_-_ServerVictim"></a>Collector
 Runtime - Server/Victim portion of Experiment Collector<br>
 </h4>
 The collector runtime gathers data dependent on the type of performance
@@ -779,9 +998,21 @@ data the collector writer has decided to gather.&nbsp;&nbsp;&nbsp; The
 collector runtime's purpose is to gather the data, package it, and send
 it from the victim application to the Open|SpeedShop experiment
 collector plugin client.&nbsp;&nbsp; Functionality that is generally
-needed by collector runtime plugins includes the following:<br>
+needed by collector runtime plugins includes the
+following.&nbsp;&nbsp;&nbsp; Note that the code examples in this
+section reference a thread local storage structure which holds thread
+specific information (see <a href="#Thread_specific_data">Thread
+Specific Data</a> for the definition).<br>
 <ul>
-  <li>Setting up a timer to trigger the gathering of performance data</li>
+  <li>Setting up a timer to trigger the gathering of performance data
+(see <a href="#Timer_event_handler">Timer event handler</a> for
+example code)<small style="font-style: italic;"></small><small
+ style="font-style: italic;"></small></li>
+  <li>Start Sampling - enable Open|SpeedShop to gather performance data
+(see <a href="#Start_Sampling">Start Sampling</a> for example code)</li>
+  <li>Stop Sampling - disable Open|SpeedShop's gathering of performance
+data (see <a href="#Stop_Sampling">Stop Sampling</a> for example code)<br>
+  </li>
   <li>Using the PAPI overflow mechanism</li>
   <li>Obtaining a callstack entry</li>
   <li>Getting a program counter (PC) address</li>
@@ -796,11 +1027,230 @@ There is also a set of commonly used shared functions that are bundled
 into the Open|SpeedShop libopenss-runtime dynamic object.&nbsp;&nbsp;
 These are functions that are used by more than one
 collector.&nbsp;&nbsp; For example, some of the libunwind functionality
-is contain in the libopenss-runtime dynamic object.<br>
-<br>
-The implementation of this portion of the collector is contained in the
+is contain in the libopenss-runtime dynamic object.&nbsp; The
+implementation of this portion of the collector is contained in the
 file "runtime.c"&nbsp;&nbsp; The runtime versions of start and stop
 sampling are contained in this file.<br>
+<br>
+<h5><a class="mozTocH5" name="mozTocId612900"></a><a
+ name="Thread_specific_data"></a>Thread Specific Data</h5>
+<small><span style="font-style: italic;">/** Thread-local storage. */</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">static __thread struct {</span><br
+ style="font-style: italic;">
+<br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; OpenSS_DataHeader
+header;&nbsp; /**&lt; Header for following data blob. */</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; example_data
+data;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /**&lt; Actual
+data blob. */</span><br style="font-style: italic;">
+<br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; /** Sample buffer.
+*/</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; struct {</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+uint64_t pc[BufferSize];&nbsp; /**&lt; Program counter (PC) addresses.
+*/</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; } buffer;</span><br
+ style="font-style: italic;">
+<br style="font-style: italic;">
+<span style="font-style: italic;">} tls;</span></small><br>
+<br>
+<br>
+<h5><a class="mozTocH5" name="mozTocId973451"></a><a
+ name="Timer_event_handler"></a>Timer event handler</h5>
+<small style="font-style: italic;">/**<br>
+&nbsp;* Timer event handler.<br>
+&nbsp;*<br>
+&nbsp;* Called by the timer handler each time a sample is to be taken.
+Extracts the<br>
+&nbsp;* program counter (PC) address from the signal context and places
+it into the<br>
+&nbsp;* sample buffer. When the sample buffer is full, it is sent to
+the framework<br>
+&nbsp;* for storage in the experiment's database.<br>
+&nbsp;*<br>
+&nbsp;* @param context&nbsp;&nbsp;&nbsp; Thread context at timer
+interrupt.<br>
+&nbsp;*/<br>
+static void exampleTimerHandler(const ucontext_t* context)<br>
+{<br>
+&nbsp;&nbsp;&nbsp; uint64_t pc;<br>
+<br>
+&nbsp;&nbsp;&nbsp; /* Obtain the program counter (PC) address from the
+thread context */<br>
+&nbsp;&nbsp;&nbsp; pc = OpenSS_GetPCFromContext(context);<br>
+<br>
+&nbsp;&nbsp;&nbsp; /* Add a new entry for this PC address to the sample
+buffer */<br>
+&nbsp;&nbsp;&nbsp; tls.buffer.pc[tls.data.pc.pc_len++] = pc;<br>
+<br>
+&nbsp;&nbsp;&nbsp; /* Update the address interval in the data blob's
+header */<br>
+&nbsp;&nbsp;&nbsp; if(pc &lt; tls.header.addr_begin)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tls.header.addr_begin = pc;<br>
+&nbsp;&nbsp;&nbsp; if(pc &gt; tls.header.addr_end)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tls.header.addr_end = pc;<br>
+<br>
+&nbsp;&nbsp;&nbsp; /* Is the sample buffer full? */<br>
+&nbsp;&nbsp;&nbsp; if(tls.data.pc.pc_len == BufferSize) {<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /* Send these samples */<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tls.header.time_end =
+OpenSS_GetTime();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+OpenSS_Send(&amp;(tls.header), (xdrproc_t)xdr_example_data,
+&amp;(tls.data));<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /* Re-initialize the data
+blob's header */<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tls.header.time_begin =
+tls.header.time_end;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tls.header.time_end = 0;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tls.header.addr_begin = ~0;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tls.header.addr_end = 0;<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /* Re-initialize the actual
+data blob */<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tls.data.pc.pc_len = 0;<br>
+<br>
+&nbsp;&nbsp;&nbsp; }<br>
+}</small><br>
+<a href="#Collector_Runtime_-_ServerVictim_"><small>Back To Collector
+Runtime - Server/Victim portion of Experiment Collector</small></a><br>
+<br>
+<h5><a class="mozTocH5" name="mozTocId10166"></a><a
+ name="Start_Sampling"></a>Start Sampling</h5>
+<small><span style="font-style: italic;">/**</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;* Start sampling.</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;*</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;* Starts program counter (PC)
+sampling for the thread executing this function.</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;* Initializes the appropriate
+thread-local data structures and then enables the</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;* sampling timer.</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;*</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;* @param
+arguments&nbsp;&nbsp;&nbsp; Encoded function arguments.</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;*/</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">void example_start_sampling(const
+char* arguments)</span><br style="font-style: italic;">
+<span style="font-style: italic;">{</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;
+example_start_sampling_args args;</span><br style="font-style: italic;">
+<br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; /* Decode the
+passed function arguments. */</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; memset(&amp;args,
+0, sizeof(args));</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;
+OpenSS_DecodeParameters(arguments,</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(xdrproc_t)xdr_example_start_sampling_args,</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&amp;args);</span><br style="font-style: italic;">
+<br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; /* Initialize the
+data blob's header */</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;
+tls.header.experiment = args.experiment;</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;
+tls.header.collector = args.collector;</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; tls.header.thread
+= args.thread;</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;
+tls.header.time_begin = 0;</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;
+tls.header.time_end = 0;</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;
+tls.header.addr_begin = ~0;</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;
+tls.header.addr_end = 0;</span><br style="font-style: italic;">
+<br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; /* Initialize the
+actual data blob */</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; tls.data.interval
+= (uint64_t)(1000000000) / (uint64_t)(args.sampling_rate);</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; tls.data.pc.pc_len
+= 0;</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; tls.data.pc.pc_val
+= tls.buffer.pc;</span><br style="font-style: italic;">
+<br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; /* Begin sampling
+*/</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;
+tls.header.time_begin = OpenSS_GetTime();</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;
+OpenSS_Timer(tls.data.interval, exampleTimerHandler);</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">}</span></small><br>
+<a href="index.html#Collector_Runtime_-_ServerVictim_"><small>Back To
+Collector
+Runtime - Server/Victim portion of Experiment Collector</small></a><br>
+<br>
+<h5><a class="mozTocH5" name="mozTocId999542"></a><a
+ name="Stop_Sampling"></a>Stop Sampling</h5>
+<small><span style="font-style: italic;">/**</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;* Stop sampling.</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;*</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;* Stops program counter (PC)
+sampling for the thread executing this function.</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;* Disables the sampling timer
+and sends any samples remaining in the buffer.</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;*</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;* @param
+arguments&nbsp;&nbsp;&nbsp; Encoded (unused) function arguments.</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;*/</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">void example_stop_sampling(const
+char* arguments)</span><br style="font-style: italic;">
+<span style="font-style: italic;">{</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; /* Stop sampling */</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; OpenSS_Timer(0,
+NULL);</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;
+tls.header.time_end = OpenSS_GetTime();</span><br
+ style="font-style: italic;">
+<br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; /* Send any
+samples remaining in the sample buffer */</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;
+if(tls.data.pc.pc_len &gt; 0)</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+OpenSS_Send(&amp;(tls.header), (xdrproc_t)xdr_example_data,
+&amp;(tls.data));</span><br style="font-style: italic;">
+<span style="font-style: italic;">}</span></small><br>
+<a href="index.html#Collector_Runtime_-_ServerVictim_"><small>Back To
+Collector
+Runtime - Server/Victim portion of Experiment Collector</small></a><br>
+<br>
 <br>
 <h5><a class="mozTocH4" name="mozTocId40824"></a>Framework runtime</h5>
 The framework runtime contains a number of routines that the experiment
@@ -818,8 +1268,6 @@ Open|SpeedShop client</li>
   <li>PAPI support functions</li>
   <li>Access to libunwind functionality</li>
 </ul>
-<br>
-<br>
 <h4><a class="mozTocH4" name="mozTocId637965"></a><a
  name="Collector_Plugin_-_ClientTool_portion"></a>Collector
 Plugin - Client/Tool portion of Experiment Collector<br>
@@ -836,8 +1284,9 @@ function in the client collector plugin.&nbsp;&nbsp; The client
 collector plugin calls a Open|SpeedShop routine which ultimately
 triggers the start collecting function in the runtime collector plugin.<br>
 <br>
-<img alt="Start Collection Illustration"
+<div style="margin-left: 40px;"><img alt="Start Collection Illustration"
  src="ToolStartCollectingView.png" style="width: 696px; height: 342px;"><br>
+</div>
 <h4><a class="mozTocH4" name="mozTocId775061"></a>Collector Plugin API<br>
 </h4>
 There are six functions which form the basis for the collector and must
@@ -901,6 +1350,50 @@ collecting routine.</li>
 for the thread.</li>
   <li>Execute collector's start_sampling routine in the thread</li>
 </ul>
+<h6><a class="mozTocH6" name="mozTocId628096"></a><big><a
+ name="Example_Collector_Code_Example:"></a>Example Collector Code
+Example:</big><br>
+</h6>
+<small style="font-style: italic;"><br>
+/**<br>
+&nbsp;* Start data collection.<br>
+&nbsp;*<br>
+&nbsp;* Implement starting data collection for a particular thread.<br>
+&nbsp;*<br>
+&nbsp;* @param collector&nbsp;&nbsp;&nbsp; Collector starting data
+collection.<br>
+&nbsp;* @param thread&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Thread for
+which to start collecting data.<br>
+&nbsp;*/<br>
+void ExampleCollector::startCollecting(const Collector&amp; collector,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+const Thread&amp; thread) const<br>
+{<br>
+&nbsp;&nbsp;&nbsp; // Assemble and encode arguments to
+example_start_sampling()<br>
+&nbsp;&nbsp;&nbsp; example_start_sampling_args args;<br>
+&nbsp;&nbsp;&nbsp; memset(&amp;args, 0, sizeof(args));<br>
+&nbsp;&nbsp;&nbsp; collector.getParameterValue("sampling_rate",
+args.sampling_rate);<br>
+&nbsp;&nbsp;&nbsp; getECT(collector, thread, args.experiment,
+args.collector, args.thread);<br>
+&nbsp;&nbsp;&nbsp; Blob
+arguments(reinterpret_cast&lt;xdrproc_t&gt;(xdr_example_start_sampling_args),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&amp;args);<br>
+<br>
+&nbsp;&nbsp;&nbsp; // Execute example_stop_sampling() when we enter
+exit() for the thread<br>
+&nbsp;&nbsp;&nbsp; executeAtEntry(collector, thread,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"exit", "example-rt: example_stop_sampling", Blob());<br>
+<br>
+&nbsp;&nbsp;&nbsp; // Execute example_start_sampling() in the thread<br>
+&nbsp;&nbsp;&nbsp; executeNow(collector, thread,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"example-rt: example_start_sampling", arguments);<br>
+}</small><br>
+<br>
 <br>
 <h5><a class="mozTocH5" name="mozTocId992246"></a><big><big><small>The
 Stop
@@ -945,7 +1438,51 @@ routine in the thread<br>
 for the thread.</li>
   <li>Execute collector's start_sampling routine in the thread</li>
 </ul>
-<small><b></b></small>
+<br>
+<h6><big><b><big><b><a name="Example_collectory_code_example:"></a>Example
+collectory code example:</b></big></b></big></h6>
+<small><span style="font-style: italic;">/**</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;* Stops data collection.</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;*</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;* Implement stopping data
+collection for a particular thread.</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;*</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;* @param
+collector&nbsp;&nbsp;&nbsp; Collector stopping data collection.</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;* @param
+thread&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Thread for which to stop
+collecting data.</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;*/</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">void
+ExampleCollector::stopCollecting(const Collector&amp; collector,</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+const Thread&amp; thread) const</span><br style="font-style: italic;">
+<span style="font-style: italic;">{</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; // Execute
+example_stop_sampling() in the thread</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;
+executeNow(collector, thread,</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"example-rt: example_stop_sampling", Blob());</span><br
+ style="font-style: italic;">
+<br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; // Remove all
+instrumentation associated with this collector/thread pairing</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;
+uninstrument(collector, thread);</span><br style="font-style: italic;">
+<span style="font-style: italic;">}</span></small><br>
+<small></small>
 <h5><a class="mozTocH5" name="mozTocId278716"></a><big>The Get
 Metric Values function<br>
 </big></h5>
@@ -1000,6 +1537,179 @@ other</li>
   </ul>
   <li>Free the decoded performance data blob.</li>
 </ol>
+<h6><small><small><b><big><b><big><b><big><b><a
+ name="Example_collectory_code_example:_"></a>Example collector code
+example:</b></big></b></big></b></big></b></small></small></h6>
+<small><span style="font-style: italic;">/**</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;* Get metric values.</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;*</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;* Implements getting one of
+this collector's metric values over all subextents</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;* of the specified extent for a
+particular thread, for one of the collected</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;* performance data blobs.</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;*</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;* @param
+metric&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Unique identifier of
+the metric.</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;* @param
+collector&nbsp;&nbsp;&nbsp;&nbsp; Collector for which to get values.</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;* @param
+thread&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Thread for which to
+get values.</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;* @param
+extent&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Extent of the
+performance data blob.</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;* @param
+blob&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Blob
+containing the performance data.</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;* @param
+subextents&nbsp;&nbsp;&nbsp; Subextents for which to get values.</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;* @retval
+ptr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Untyped
+pointer to the values of the metric.</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;*/</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">void
+ExampleCollector::getMetricValues(const std::string&amp; metric,</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+const Collector&amp; collector,</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+const Thread&amp; thread,</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+const Extent&amp; extent,</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+const Blob&amp; blob,</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+const ExtentGroup&amp; subextents,</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+void* ptr) const</span><br style="font-style: italic;">
+<span style="font-style: italic;">{</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; // Only the "time"
+metric returns anything</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; if(metric !=
+"time")</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return;</span><br style="font-style: italic;">
+<br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; // Cast the
+untyped pointer into a vector of doubles</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;
+std::vector&lt;double&gt;* values =
+reinterpret_cast&lt;std::vector&lt;double&gt;*&gt;(ptr);</span><br
+ style="font-style: italic;">
+<br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; // Check assertions</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;
+Assert(values-&gt;size() &gt;= subextents.size());</span><br
+ style="font-style: italic;">
+<br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; // Decode this
+data blob</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; example_data data;</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; memset(&amp;data,
+0, sizeof(data));</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;
+blob.getXDRDecoding(reinterpret_cast&lt;xdrproc_t&gt;(xdr_example_data),
+&amp;data);</span><br style="font-style: italic;">
+<br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; // Calculate the
+time (in seconds) attributable to each sample</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; double t_sample =</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+static_cast&lt;double&gt;(data.interval) / 1000000000.0;</span><br
+ style="font-style: italic;">
+<br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; // Calculate time
+(in nS) of data blob's extent</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; double t_blob =</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+static_cast&lt;double&gt;(extent.getTimeInterval().getWidth());</span><br
+ style="font-style: italic;">
+<br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; // Iterate over
+each of the samples</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; for(unsigned i =
+0; i &lt; data.pc.pc_len; ++i) {</span><br style="font-style: italic;">
+<br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// Find the subextents that contain this sample</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+std::set&lt;ExtentGroup::size_type&gt; intersection =</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+subextents.getIntersectionWith(</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Extent(extent.getTimeInterval(),</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+AddressRange(data.pc.pc_val[i]))</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+);</span><br style="font-style: italic;">
+<br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// Iterate over each subextent in the intersection</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+for(std::set&lt;ExtentGroup::size_type&gt;::const_iterator</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+j = intersection.begin(); j != intersection.end(); ++j) {</span><br
+ style="font-style: italic;">
+<br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// Calculate intersection time (in nS) of subextent and data blob</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+double t_intersection = static_cast&lt;double&gt;</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+((extent.getTimeInterval() &amp;</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+subextents[*j].getTimeInterval()).getWidth());</span><br
+ style="font-style: italic;">
+<br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// Add (to the subextent's metric value) the appropriate fraction</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// of the total time attributable to this sample</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(*values)[*j] += t_sample * (t_intersection / t_blob);</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; }</span><br
+ style="font-style: italic;">
+<br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp; // Free the
+decoded data blob</span><br style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;
+xdr_free(reinterpret_cast&lt;xdrproc_t&gt;(xdr_example_data),</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+reinterpret_cast&lt;char*&gt;(&amp;data));</span><br
+ style="font-style: italic;">
+<span style="font-style: italic;">}</span></small><br>
 <h5><a class="mozTocH5" name="mozTocId271962"></a><big><big><small>The
 Set
 Parameter function</small><br>
@@ -1041,6 +1751,50 @@ The primary tasks of this function that need to be done are:<br>
   <li>Set the "collector specific" parameter based on the input</li>
   <li>Re-encode the blob containing the parameter values</li>
 </ol>
+<br>
+<h6><small><small><small><small><b><big><b><big><b><big><b><small><small><b><big><b><big><b><big><b><a
+ name="Example_collector_code_example:"></a>Example collector code
+example:</b></big></b></big></b></big></b></small></small></b></big></b></big></b></big></b></small></small></small></small></h6>
+<small style="font-style: italic;">/**<br>
+&nbsp;* Set a parameter value.<br>
+&nbsp;*<br>
+&nbsp;* Implements setting one of our parameter values.<br>
+&nbsp;*<br>
+&nbsp;* @param parameter&nbsp;&nbsp;&nbsp; Unique identifier of the
+parameter.<br>
+&nbsp;* @param
+ptr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Untyped
+pointer to the parameter value.<br>
+&nbsp;* @retval data&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Blob
+containing the parameter values.<br>
+&nbsp;*/<br>
+void ExampleCollector::setParameterValue(const std::string&amp;
+parameter,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+const void* ptr, Blob&amp; data) const<br>
+{<br>
+&nbsp;&nbsp;&nbsp; // Decode the blob containing the parameter values<br>
+&nbsp;&nbsp;&nbsp; example_parameters parameters;<br>
+&nbsp;&nbsp;&nbsp; memset(&amp;parameters, 0, sizeof(parameters));<br>
+&nbsp;&nbsp;&nbsp;
+data.getXDRDecoding(reinterpret_cast&lt;xdrproc_t&gt;(xdr_example_parameters),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&amp;parameters);<br>
+<br>
+&nbsp;&nbsp;&nbsp; // Handle the "sampling_rate" parameter<br>
+&nbsp;&nbsp;&nbsp; if(parameter == "sampling_rate") {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const unsigned* value =
+reinterpret_cast&lt;const unsigned*&gt;(ptr);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; parameters.sampling_rate =
+*value;<br>
+&nbsp;&nbsp;&nbsp; }<br>
+<br>
+&nbsp;&nbsp;&nbsp; // Re-encode the blob containing the parameter values<br>
+&nbsp;&nbsp;&nbsp; data =
+Blob(reinterpret_cast&lt;xdrproc_t&gt;(xdr_example_parameters),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&amp;parameters);<br>
+}</small><br>
 <h5><a class="mozTocH5" name="mozTocId518369"></a><big><big><small>The
 Get
 Default
@@ -1070,6 +1824,37 @@ The primary tasks of this function that need to be done are:<br>
   <li>Set the default parameters </li>
   <li>Return the encoded blob to the caller</li>
 </ol>
+<br>
+<h6><small><small><small><small><b><big><b><big><b><big><b><small><small><b><big><b><big><b><big><b><small><small><small><small><b><big><b><big><b><big><b><small><small><b><big><b><big><b><big><b><a
+ name="Example_collector_code_example:_"></a>Example collector code
+example:</b></big></b></big></b></big></b></small></small></b></big></b></big></b></big></b></small></small></small></small></b></big></b></big></b></big></b></small></small></b></big></b></big></b></big></b></small></small></small></small></h6>
+<small style="font-style: italic;">/**<br>
+&nbsp;* Get the default parameter values.<br>
+&nbsp;*<br>
+&nbsp;* Implement getting our default parameter values.<br>
+&nbsp;*<br>
+&nbsp;* @return&nbsp;&nbsp;&nbsp; Blob containing the default parameter
+values.<br>
+&nbsp;*/<br>
+Blob ExampleCollector::getDefaultParameterValues() const<br>
+{<br>
+&nbsp;&nbsp;&nbsp; // Setup an empty parameter structure<br>
+&nbsp;&nbsp;&nbsp; example_parameters parameters;<br>
+&nbsp;&nbsp;&nbsp; memset(&amp;parameters, 0, sizeof(parameters));<br>
+<br>
+&nbsp;&nbsp;&nbsp; // Set the default parameters<br>
+&nbsp;&nbsp;&nbsp; parameters.sampling_rate = 100;<br>
+<br>
+&nbsp;&nbsp;&nbsp; // Return the encoded blob to the caller<br>
+&nbsp;&nbsp;&nbsp; return
+Blob(reinterpret_cast&lt;xdrproc_t&gt;(xdr_example_parameters),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&amp;parameters);<br>
+}<br>
+<br>
+<br>
+<br>
+</small><br>
 <h5><a class="mozTocH5" name="mozTocId769605"></a><big>The Get
 Parameters function<br>
 </big></h5>
@@ -1105,6 +1890,42 @@ Representation)</li>
   <li>Extract the parameter value from the decoded parameter value data
 blob</li>
 </ol>
+<h6><small><small><small><small><b><big><b><big><b><big><b><small><small><b><big><b><big><b><big><b><small><small><small><small><b><big><b><big><b><big><b><small><small><b><big><b><big><b><big><b><small><small><small><small><b><big><b><big><b><big><b><small><small><b><big><b><big><b><big><b><small><small><small><small><b><big><b><big><b><big><b><small><small><b><big><b><big><b><big><b><a
+ name="Example_collector_code_example-getp"></a>Example collector code
+example:</b></big></b></big></b></big></b></small></small></b></big></b></big></b></big></b></small></small></small></small></b></big></b></big></b></big></b></small></small></b></big></b></big></b></big></b></small></small></small></small></b></big></b></big></b></big></b></small></small></b></big></b></big></b></big></b></small></small></small></small></b></big></b></big></b></big></b></small></small></b></big></b></big></b></big></b></small></small></small></small></h6>
+<small style="font-style: italic;">/**<br>
+&nbsp;* Get a parameter value.<br>
+&nbsp;*<br>
+&nbsp;* Implement getting one of our parameter values.<br>
+&nbsp;*<br>
+&nbsp;* @param parameter&nbsp;&nbsp;&nbsp; Unique identifier of the
+parameter.<br>
+&nbsp;* @param data&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Blob containing the parameter values.<br>
+&nbsp;* @retval ptr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Untyped pointer to the parameter value.<br>
+&nbsp;*/<br>
+void ExampleCollector::getParameterValue(const std::string&amp;
+parameter,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+const Blob&amp; data, void* ptr) const<br>
+{<br>
+&nbsp;&nbsp;&nbsp; // Decode the blob containing the parameter values<br>
+&nbsp;&nbsp;&nbsp; example_parameters parameters;<br>
+&nbsp;&nbsp;&nbsp; memset(&amp;parameters, 0, sizeof(parameters));<br>
+&nbsp;&nbsp;&nbsp;
+data.getXDRDecoding(reinterpret_cast&lt;xdrproc_t&gt;(xdr_example_parameters),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&amp;parameters);<br>
+<br>
+&nbsp;&nbsp;&nbsp; // Handle the "sampling_rate" parameter<br>
+&nbsp;&nbsp;&nbsp; if(parameter == "sampling_rate") {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; unsigned* value =
+reinterpret_cast&lt;unsigned*&gt;(ptr);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *value =
+parameters.sampling_rate;<br>
+&nbsp;&nbsp;&nbsp; }<br>
+}</small><br>
 <br>
 <h3><a class="mozTocH3" name="mozTocId846999"></a><a
  name="Example_Collector_Plugin"></a>Example Collector Plugin</h3>
