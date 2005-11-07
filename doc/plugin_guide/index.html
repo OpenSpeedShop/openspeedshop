@@ -17,7 +17,8 @@ Beta Release</span><br style="font-weight: bold;">
 <span style="font-weight: bold;">November 13, 2005</span></big><br>
 </div>
 <br>
-<h1><a class="mozTocH1" name="mozTocId977725"></a><span class="mozTocH2"></span><small>Table
+<h1><a class="mozTocH1" name="mozTocId977725"></a><span class="mozTocH2"></span><small><a
+ name="Top"></a>Table
 of Contents</small><span style="text-decoration: underline;"></span></h1>
 <ul id="mozToc">
 <!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId977725">Table
@@ -135,6 +136,8 @@ Collecting function
 what's needed
 in
 the function body:</a></li>
+                      <li><a href="#mozTocId499496">Example collectory
+code example:</a></li>
                     </ul>
                   </li>
                   <li><a href="#mozTocId278716">The Get
@@ -148,6 +151,8 @@ Metric Values function
 what's needed
 in
 the function body:</a></li>
+                      <li><a href="#mozTocId435581">Example collector
+code example:</a></li>
                     </ul>
                   </li>
                   <li><a href="#mozTocId271962">The Set
@@ -164,6 +169,8 @@ values:</a></li>
 what's needed
 in
 the function body:</a></li>
+                      <li><a href="#mozTocId999507">Example collector
+code example:</a></li>
                     </ul>
                   </li>
                   <li><a href="#mozTocId518369">The Get
@@ -178,6 +185,8 @@ Parameters function
 what's needed
 in the
 function body:</a></li>
+                      <li><a href="#mozTocId207187">Example collector
+code example:</a></li>
                     </ul>
                   </li>
                   <li><a href="#mozTocId769605">The Get
@@ -191,6 +200,8 @@ Parameters function
                       <li><a href="#mozTocId196328">Decisions and
 what's needed
 in the function body:</a></li>
+                      <li><a href="#mozTocId334143">Example collector
+code example:</a></li>
                     </ul>
                   </li>
                 </ul>
@@ -1312,7 +1323,7 @@ a particular thread.<br>
 This is an example definition from the Open|SpeedShop Usertime
 Collector Plugin:<br>
 <span style="font-style: italic;">void
-UserTimeCollector::startCollecting (const Collector &amp;
+ExampleCollector::startCollecting (const Collector &amp;
 collector,</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 const Thread &amp; thread ) const</span><br>
@@ -1404,11 +1415,10 @@ Stop data collection function implements stopping data collection for a
 particular thread.<br>
 <br>
 <h6><a class="mozTocH6" name="mozTocId352197"></a><big><b>Definition:</b></big></h6>
-This is an example definition from the Open|SpeedShop Usertime
-Collector Plugin:<br>
-<span style="font-style: italic;">void
-UserTimeCollector::stopCollecting (const Collector &amp; collector,</span><br
- style="font-style: italic;">
+This is an example definition from the Open|SpeedShop Example Collector
+Plugin:<br>
+<span style="font-style: italic;">void ExampleCollector::stopCollecting
+(const Collector &amp; collector,</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 const Thread &amp; thread ) const</span><br>
 <p></p>
@@ -1439,8 +1449,9 @@ for the thread.</li>
   <li>Execute collector's start_sampling routine in the thread</li>
 </ul>
 <br>
-<h6><big><b><big><b><a name="Example_collectory_code_example:"></a>Example
-collectory code example:</b></big></b></big></h6>
+<h6><a class="mozTocH6" name="mozTocId499496"></a><big><b><big><b><a
+ name="Example_collectory_code_example:"></a>Example collectory code
+example:</b></big></b></big></h6>
 <small><span style="font-style: italic;">/**</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;* Stops data collection.</span><br
@@ -1495,10 +1506,10 @@ defined as a set of address ranges and a time interval.&nbsp;&nbsp; For
 example, an address range could be the addresses in the function "xyz"
 and the time interval could be the entire running time of the program.<br>
 <h6><a class="mozTocH6" name="mozTocId171646"></a><big><b>Definition:</b></big></h6>
-This is an example definition from the Open|SpeedShop Usertime
-Collector Plugin:<br>
+This is an example definition from the Open|SpeedShop Example Collector
+Plugin:<br>
 <span style="font-style: italic;">void
-UserTimeCollector::getMetricValues(const std::string&amp; metric,</span><br
+ExampleCollector::getMetricValues(const std::string&amp; metric,</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 const Extent&amp; extent,</span><br style="font-style: italic;">
@@ -1537,7 +1548,7 @@ other</li>
   </ul>
   <li>Free the decoded performance data blob.</li>
 </ol>
-<h6><small><small><b><big><b><big><b><big><b><a
+<h6><a class="mozTocH6" name="mozTocId435581"></a><small><small><b><big><b><big><b><big><b><a
  name="Example_collectory_code_example:_"></a>Example collector code
 example:</b></big></b></big></b></big></b></small></small></h6>
 <small><span style="font-style: italic;">/**</span><br
@@ -1720,10 +1731,10 @@ parameter values.<br>
 </p>
 <h6><a class="mozTocH6" name="mozTocId163320"></a><big><b>Definition:</b></big><br>
 </h6>
-<p>This is an example definition from the Open|SpeedShop Usertime
+<p>This is an example definition from the Open|SpeedShop Example
 Collector Plugin:<br>
 <span style="font-style: italic;">void
-UserTimeCollector::setParameterValue(const std::string&amp;
+ExampleCollector::setParameterValue(const std::string&amp;
 parameter,</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 const void* ptr, </span><br style="font-style: italic;">
@@ -1752,7 +1763,7 @@ The primary tasks of this function that need to be done are:<br>
   <li>Re-encode the blob containing the parameter values</li>
 </ol>
 <br>
-<h6><small><small><small><small><b><big><b><big><b><big><b><small><small><b><big><b><big><b><big><b><a
+<h6><a class="mozTocH6" name="mozTocId999507"></a><small><small><small><small><b><big><b><big><b><big><b><small><small><b><big><b><big><b><big><b><a
  name="Example_collector_code_example:"></a>Example collector code
 example:</b></big></b></big></b></big></b></small></small></b></big></b></big></b></big></b></small></small></small></small></h6>
 <small style="font-style: italic;">/**<br>
@@ -1804,10 +1815,10 @@ Parameters function</small><br>
 The get default parameters function implements getting the default
 parameter set for the collector.<br>
 <h6><a class="mozTocH6" name="mozTocId832976"></a><big><b>Definition:</b></big></h6>
-This is an example definition from the Open|SpeedShop Usertime
-Collector Plugin:<br>
+This is an example definition from the Open|SpeedShop Example Collector
+Plugin:<br>
 <div style="text-align: left;"><span style="font-style: italic;">Blob
-UserTimeCollector::getDefaultParameterValues() const</span><br
+ExampleCollector::getDefaultParameterValues() const</span><br
  style="font-style: italic;">
 </div>
 <h6><a class="mozTocH6" name="mozTocId646706"></a><big><b>Return values:</b></big></h6>
@@ -1825,7 +1836,7 @@ The primary tasks of this function that need to be done are:<br>
   <li>Return the encoded blob to the caller</li>
 </ol>
 <br>
-<h6><small><small><small><small><b><big><b><big><b><big><b><small><small><b><big><b><big><b><big><b><small><small><small><small><b><big><b><big><b><big><b><small><small><b><big><b><big><b><big><b><a
+<h6><a class="mozTocH6" name="mozTocId207187"></a><small><small><small><small><b><big><b><big><b><big><b><small><small><b><big><b><big><b><big><b><small><small><small><small><b><big><b><big><b><big><b><small><small><b><big><b><big><b><big><b><a
  name="Example_collector_code_example:_"></a>Example collector code
 example:</b></big></b></big></b></big></b></small></small></b></big></b></big></b></big></b></small></small></small></small></b></big></b></big></b></big></b></small></small></b></big></b></big></b></big></b></small></small></small></small></h6>
 <small style="font-style: italic;">/**<br>
@@ -1863,11 +1874,11 @@ The get a parameter function implements getting one of the collector
 parameter values.<br>
 <br>
 <h6><a class="mozTocH6" name="mozTocId552888"></a><big><b>Definition:</b></big></h6>
-This is an example definition from the Open|SpeedShop Usertime
-Collector Plugin:<br>
-void UserTimeCollector::getParameterValue(const std::string&amp;
+This is an example definition from the Open|SpeedShop Example Collector
+Plugin:<br>
+void ExampleCollector::getParameterValue(const std::string&amp;
 parameter,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 const Blob&amp; data, void* ptr) const<br>
 <h6><a class="mozTocH6" name="mozTocId731991"></a><big><b>Parameters:</b></big></h6>
 <ol>
@@ -1890,7 +1901,7 @@ Representation)</li>
   <li>Extract the parameter value from the decoded parameter value data
 blob</li>
 </ol>
-<h6><small><small><small><small><b><big><b><big><b><big><b><small><small><b><big><b><big><b><big><b><small><small><small><small><b><big><b><big><b><big><b><small><small><b><big><b><big><b><big><b><small><small><small><small><b><big><b><big><b><big><b><small><small><b><big><b><big><b><big><b><small><small><small><small><b><big><b><big><b><big><b><small><small><b><big><b><big><b><big><b><a
+<h6><a class="mozTocH6" name="mozTocId334143"></a><small><small><small><small><b><big><b><big><b><big><b><small><small><b><big><b><big><b><big><b><small><small><small><small><b><big><b><big><b><big><b><small><small><b><big><b><big><b><big><b><small><small><small><small><b><big><b><big><b><big><b><small><small><b><big><b><big><b><big><b><small><small><small><small><b><big><b><big><b><big><b><small><small><b><big><b><big><b><big><b><a
  name="Example_collector_code_example-getp"></a>Example collector code
 example:</b></big></b></big></b></big></b></small></small></b></big></b></big></b></big></b></small></small></small></small></b></big></b></big></b></big></b></small></small></b></big></b></big></b></big></b></small></small></small></small></b></big></b></big></b></big></b></small></small></b></big></b></big></b></big></b></small></small></small></small></b></big></b></big></b></big></b></small></small></b></big></b></big></b></big></b></small></small></small></small></h6>
 <small style="font-style: italic;">/**<br>
@@ -1907,8 +1918,10 @@ Untyped pointer to the parameter value.<br>
 &nbsp;*/<br>
 void ExampleCollector::getParameterValue(const std::string&amp;
 parameter,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-const Blob&amp; data, void* ptr) const<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp;&nbsp; const Blob&amp; data, void* ptr) const<br>
 {<br>
 &nbsp;&nbsp;&nbsp; // Decode the blob containing the parameter values<br>
 &nbsp;&nbsp;&nbsp; example_parameters parameters;<br>
@@ -2483,6 +2496,7 @@ tbd<br>
 <a href="#General_OpenSpeedShop_Plugin_Outline">Return to General
 Plugin Section</a><br>
 <br>
+<a href="#Top">Top</a><br>
 <br>
 <br>
 <br>
