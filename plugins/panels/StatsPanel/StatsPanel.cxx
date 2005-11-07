@@ -285,12 +285,13 @@ StatsPanel::listener(void *msg)
         }
       } else
       {
-        currentThreadGroupStrList.push_back( ws );
+        if( !ws.isEmpty() )
+        {
+          currentThreadGroupStrList.push_back( ws );
+        }
       }
     } else
     {
-// printf("StatsPanel:: we have a vector list!\n");
-
       currentThreadGroupStrList.clear();
       currentThreadsStr = QString::null;
       std::vector<HostPidPair>::const_iterator sit = msg->host_pid_vector.begin();
@@ -298,7 +299,6 @@ StatsPanel::listener(void *msg)
                       sit = msg->host_pid_vector.begin();
                       sit != msg->host_pid_vector.end(); ++sit)
       {
-// printf("sit->first = (%s) sit->second=(%s)\n", sit->first.c_str(), sit->second.c_str() );
         if( sit->first.size() )
         {
           currentThreadsStr += QString(" -h %1 -p %2").arg(sit->first.c_str()).arg(sit->second.c_str() );
@@ -992,11 +992,14 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
         {
           QString ts = (QString)*it;
 // printf("Is it ts=(%s)\n", ts.ascii() );
+#ifdef PULL
           if( ts.isEmpty() )
           { // Temporary hack to get initial view to get the right numbers.
+// printf("NULL! !!!!\n");
             foundFLAG = TRUE;
             break;
           }
+#endif // PULL
           if( QString("%1").arg(thread.getProcessId()) == ts )
           {
 // printf("Got it!!!!\n");
@@ -1006,6 +1009,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
         }
         if( foundFLAG == FALSE )
         {
+// printf("foundFLAG == FALSE.. continue\n");
           continue;
         }
 // printf("We've got a match, now can we look up the function (%s)?\n", function_name.ascii() );
@@ -1431,31 +1435,34 @@ StatsPanel::updateStatsPanelData()
 void
 StatsPanel::threadSelected(int val)
 { 
-// printf("threadSelected(int)\n");
+// printf("threadSelected(%d)\n", val);
 
-//printf("threadMenu:(%s)\n", threadMenu->text(val).ascii() );
 
   currentThreadStr = threadMenu->text(val).ascii();
 
   currentThreadsStr = QString::null;
 
+// printf("threadMenu: selected text=(%s)\n", threadMenu->text(val).ascii() );
 
-  // Dynamically build the menu from the user selected list of threads.
+
   bool FOUND_FLAG = FALSE;
   for( ThreadGroupStringList::Iterator it = currentThreadGroupStrList.begin(); it != currentThreadGroupStrList.end(); ++it)
   {
     QString ts = (QString)*it;
-//  printf("ts=(%s)\n", ts.ascii() );
 
     if( ts == currentThreadStr )
     {   // Then it's already in the list... now remove it.
+// printf("add the selected thread (%s).\n", ts.ascii() );
       currentThreadGroupStrList.remove(ts);
       FOUND_FLAG = TRUE;
       break;
     }
   }
+
+  // We didn't find it to remove it, so this is a different thread... add it.
   if( FOUND_FLAG == FALSE )
   {
+// printf("We must need to add it (%s) then!\n", currentThreadStr.ascii() );
     currentThreadGroupStrList.push_back(currentThreadStr);
   }
 
@@ -1463,7 +1470,7 @@ StatsPanel::threadSelected(int val)
   for( ThreadGroupStringList::Iterator it = currentThreadGroupStrList.begin(); it != currentThreadGroupStrList.end(); ++it)
   {
     QString ts = (QString)*it;
-//printf("ts=(%s)\n", ts.ascii() );
+// printf("A: ts=(%s)\n", ts.ascii() );
   
     if( ts.isEmpty() )
     {
@@ -1479,9 +1486,20 @@ StatsPanel::threadSelected(int val)
     }
   }
 
-//printf("currentThreadsStr = %s\n", currentThreadsStr.ascii() );
- 
+// printf("currentThreadsStr = %s\n", currentThreadsStr.ascii() );
+
+
   updateStatsPanelData();
+
+
+  // Now, try to focus the source panel on the first entry...
+  QListViewItemIterator it( splv );
+  if( it.current() )
+  {
+    int i = 0;
+    QListViewItem *item = *it;
+    StatsPanel::itemSelected(item);
+  }
 }
 
 void
@@ -1738,17 +1756,6 @@ StatsPanel::updateThreadsList()
   }
 // printf("ran %s\n", command.ascii() );
 
-  if( list_of_pids.size() > 0 )
-  {
-// printf("got pids... put them out.\n");
-    for( std::list<int64_t>::const_iterator it = list_of_pids.begin();
-                                                it != list_of_pids.end(); it++ )
-    {
-      int pid = (int64_t)*it;
-//      printf("pid_name=(%s)\n", pid_name.ascii() );
-// printf("pid=(%d)\n", pid );
-    }
-  }
   if( clip )
   {
     clip->Set_Results_Used();
