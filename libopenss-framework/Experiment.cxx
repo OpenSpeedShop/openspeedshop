@@ -218,7 +218,7 @@ std::string Experiment::getCanonicalName(const std::string& host)
     
     // Request address information for this host
     struct addrinfo* results = NULL;
-    getaddrinfo(getLocalHost().c_str(), NULL, &hints, &results);
+    getaddrinfo(host.c_str(), NULL, &hints, &results);
     
     // Was the specified name for the loopback device?
     if((results != NULL) && 
