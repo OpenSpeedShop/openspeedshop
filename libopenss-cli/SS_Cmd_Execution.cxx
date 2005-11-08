@@ -405,11 +405,11 @@ static bool within_range (pid_t Value, parse_range_t R) {
 static bool within_range (std::string S, parse_range_t R) {
   parse_val_t pval1 = R.start_range;
   Assert (pval1.tag == VAL_STRING);
-  std::string Rname1 = pval1.name;
+  std::string Rname1 = Experiment::getCanonicalName(pval1.name);
   if (R.is_range) {
     parse_val_t pval2 = R.end_range;
     Assert (pval2.tag == VAL_STRING);
-    std::string Rname2 = pval2.name;
+    std::string Rname2 = Experiment::getCanonicalName(pval2.name);
     if ((S >= Rname1) &&
         (S <= Rname2)) {
       return true;
@@ -488,7 +488,7 @@ void Filter_ThreadGroup (CommandObject *cmd, ThreadGroup& tgrp) {
     ThreadGroup::iterator ti;
     for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
       Thread t = *ti;
-      std::string hid = t.getHost();
+      std::string hid = Experiment::getCanonicalName(t.getHost());
       bool within_list = false;
 
       vector<ParseRange>::iterator pr_iter;
@@ -2091,7 +2091,7 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
         bool atleastone = false;
         for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
           Thread t = *ti;
-          std::string host = t.getHost();
+          std::string host = Experiment::getCanonicalName(t.getHost());
           pid_t pid = t.getProcessId();
           if (!atleastone) {
             atleastone = true;
@@ -2517,7 +2517,7 @@ bool SS_ListHosts (CommandObject *cmd) {
     std::set<std::string> hset;
     for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
       Thread t = *ti;
-      hset.insert (t.getHost());
+      hset.insert (Experiment::getCanonicalName(t.getHost()));
     }
     for (std::set<std::string>::iterator hseti = hset.begin(); hseti != hset.end(); hseti++) {
       cmd->Result_String ( *hseti );

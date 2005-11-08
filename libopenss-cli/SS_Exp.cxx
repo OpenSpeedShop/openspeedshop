@@ -104,7 +104,7 @@ void ExperimentObject::Print(ostream &mystream) {
       bool atleastone = false;
       for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
         Thread t = *ti;
-        std::string host = t.getHost();
+        std::string host = Experiment::getCanonicalName(t.getHost());
         pid_t pid = t.getProcessId();
         if (!atleastone) {
           atleastone = true;
