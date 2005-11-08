@@ -53,6 +53,12 @@ class CommandResult {
   virtual void Value (char *&C) {
     C = NULL;
   }
+  virtual std::string Form () {
+    return std::string("");
+  }
+  virtual PyObject * pyValue () {
+    return Py_BuildValue("");
+  }
   virtual void Print (ostream &to, int64_t fieldsize=20, bool leftjustified=false) {
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
        << std::setw(fieldsize) << "(none)";
@@ -78,6 +84,14 @@ class CommandResult_Uint : public CommandResult {
   virtual void Value (uint64_t &U) {
     U = uint_value;
   };
+  virtual std::string Form () {
+    char s[20];
+    sprintf ( s, "%lld", uint_value);
+    return std::string (s);
+  }
+  virtual PyObject * pyValue () {
+    return Py_BuildValue("l", uint_value);
+  }
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
        << std::setw(fieldsize) << uint_value;
@@ -108,6 +122,14 @@ class CommandResult_Int : public CommandResult {
   virtual void Value (int64_t &I) {
     I = int_value;
   };
+  virtual std::string Form () {
+    char s[20];
+    sprintf ( s, "%lld", int_value);
+    return std::string (s);
+  }
+  virtual PyObject * pyValue () {
+    return Py_BuildValue("l", int_value);
+  }
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
        << std::setw(fieldsize) << int_value;
@@ -143,9 +165,21 @@ class CommandResult_Float : public CommandResult {
   virtual void Value (double &F) {
     F = float_value;
   };
+  virtual std::string Form () {
+    char F[20];
+    F[0] = *("%"); // left justify in field
+    sprintf(&F[1], "%lld.%lldf\0", OPENSS_VIEW_FIELD_SIZE, OPENSS_VIEW_PRECISION);
+
+    char s[20];
+    sprintf ( s, &F[0], float_value);
+    return std::string (s);
+  }
+  virtual PyObject * pyValue () {
+    return Py_BuildValue("d", float_value);
+  }
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
-       << std::setw(fieldsize) << fixed << setprecision(OPENSS_VIEW_PRECISION) << float_value;
+       << std::setw(fieldsize) << Form ();
   }
 };
 
@@ -166,6 +200,12 @@ class CommandResult_String : public CommandResult {
 
   virtual void Value (std::string &S) {
     S = string_value;
+  }
+  virtual std::string Form () {
+    return string_value;
+  }
+  virtual PyObject * pyValue () {
+    return Py_BuildValue("s",string_value.c_str());
   }
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
     if (leftjustified) {
@@ -209,6 +249,12 @@ class CommandResult_RawString : public CommandResult {
   virtual void Value (std::string &S) {
     S = string_value;
   }
+  virtual std::string Form () {
+    return string_value;
+  }
+  virtual PyObject * pyValue () {
+    return Py_BuildValue("s",string_value.c_str());
+  }
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
     // Ignore fieldsize and leftjustified specifications and just dump the
     // the raw string to the output stream.
@@ -216,7 +262,6 @@ class CommandResult_RawString : public CommandResult {
   }
 };
 
-string gen_F_name (Function F); // forward definition needed
 class CommandResult_Function : public CommandResult, Function {
 
  public:
@@ -227,11 +272,129 @@ class CommandResult_Function : public CommandResult, Function {
   }
 
   virtual void Value (std::string &F) {
-    F = gen_F_name (*this);
+    F = getName();
   };
+  virtual std::string Form () {
+    std::string S = getName();
+    LinkedObject L = getLinkedObject();
+    std::set<Statement> T = getDefinitions();
+
+    S = S + "(" + L.getPath().getBaseName();
+
+    if (T.size() > 0) {
+      std::set<Statement>::const_iterator ti;
+      for (ti = T.begin(); ti != T.end(); ti++) {
+        if (ti != T.begin()) {
+          S += "  &...";
+          break;
+        }
+        Statement s = *ti;
+        char l[20];
+        sprintf( &l[0], "%lld", (int64_t)s.getLine());
+        S = S + ": " + s.getPath().getBaseName() + "," + &l[0];
+      }
+    }
+    S += ")";
+
+    return S;
+  }
+  virtual PyObject * pyValue () {
+    std::string F = Form ();
+    return Py_BuildValue("s",F.c_str());
+  }
 
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
-    std::string string_value = gen_F_name (*this);
+    std::string string_value = Form ();
+    if (leftjustified) {
+     // Left justification is only done on the last column of a report.
+     // Don't truncate the string if it is bigger than the field size.
+     // This is done to make sure everything gets printed.
+
+      to << std::setiosflags(std::ios::left) << string_value;
+
+     // If there is unused space in the field, pad with blanks.
+      if ((string_value.length() < fieldsize) &&
+          (string_value[string_value.length()-1] != *("\n"))) {
+        for (int64_t i = string_value.length(); i < fieldsize; i++) to << " ";
+      }
+
+    } else {
+     // Right justify the string in the field.
+     // Don't let it exceed the size of the field.
+     // Also, limit the size based on our internal buffer size.
+      to << std::setiosflags(std::ios::right) << std::setw(fieldsize)
+         << ((string_value.length() <= fieldsize) ? string_value : string_value.substr(0, fieldsize));
+    }
+  }
+};
+
+class CommandResult_Statement : public CommandResult, Statement {
+
+ public:
+
+  CommandResult_Statement (Statement S) :
+       Framework::Statement(S),
+       CommandResult(CMD_RESULT_STATEMENT) {
+  }
+
+  virtual void Value (std::string &S) {
+  };
+  virtual std::string Form () {
+    std::string S;
+    return S;
+  }
+  virtual PyObject * pyValue () {
+    std::string S = Form ();
+    return Py_BuildValue("s",S.c_str());
+  }
+
+  virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
+    std::string string_value = Form ();
+    if (leftjustified) {
+     // Left justification is only done on the last column of a report.
+     // Don't truncate the string if it is bigger than the field size.
+     // This is done to make sure everything gets printed.
+
+      to << std::setiosflags(std::ios::left) << string_value;
+
+     // If there is unused space in the field, pad with blanks.
+      if ((string_value.length() < fieldsize) &&
+          (string_value[string_value.length()-1] != *("\n"))) {
+        for (int64_t i = string_value.length(); i < fieldsize; i++) to << " ";
+      }
+
+    } else {
+     // Right justify the string in the field.
+     // Don't let it exceed the size of the field.
+     // Also, limit the size based on our internal buffer size.
+      to << std::setiosflags(std::ios::right) << std::setw(fieldsize)
+         << ((string_value.length() <= fieldsize) ? string_value : string_value.substr(0, fieldsize));
+    }
+  }
+};
+
+class CommandResult_LinkedObject : public CommandResult, LinkedObject {
+
+ public:
+
+  CommandResult_LinkedObject (LinkedObject F) :
+       Framework::LinkedObject(F),
+       CommandResult(CMD_RESULT_LINKEDOBJECT) {
+  }
+
+  virtual void Value (std::string &L) {
+  };
+  virtual std::string Form () {
+    std::string S;
+    return S;
+  }
+  virtual PyObject * pyValue () {
+    std::string F = Form ();
+    return Py_BuildValue("s",F.c_str());
+  }
+
+  virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
+    std::string string_value = Form ();
     if (leftjustified) {
      // Left justification is only done on the last column of a report.
      // Don't truncate the string if it is bigger than the field size.
@@ -266,6 +429,12 @@ class CommandResult_Title : public CommandResult {
   virtual void Value (std::string &S) {
     S = string_value;
   }
+  virtual std::string Form () {
+    return string_value;
+  }
+  virtual PyObject * pyValue () {
+    return Py_BuildValue("s",string_value.c_str());
+  }
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
     to << string_value;
   }
@@ -287,6 +456,32 @@ class CommandResult_Headers : public CommandResult {
 
   virtual void Value (std::list<CommandResult *> &R) {
     R = Headers;
+  }
+  virtual std::string Form () {
+    std::string S;
+    std::list<CommandResult *>::iterator cri = Headers.begin();
+    for (cri = Headers.begin(); cri != Headers.end(); cri++) {
+      std::string R = (*cri)->Form ();
+      if (R.size () > OPENSS_VIEW_FIELD_SIZE) {
+        R.resize (OPENSS_VIEW_FIELD_SIZE);
+      } else if (R.size () < OPENSS_VIEW_FIELD_SIZE) {
+        std::string T;
+        T.resize ((OPENSS_VIEW_FIELD_SIZE - R.size ()), *" ");
+        R = T + R;
+      }
+      if (S.size() > 0) S.append (std::string("  ")); // 2 spaces between string
+      S += R;
+    }
+    return S;
+  }
+  virtual PyObject * pyValue () {
+    PyObject *p_object = PyList_New(0);
+    std::list<CommandResult *>::iterator cri = Headers.begin();
+    for (cri = Headers.begin(); cri != Headers.end(); cri++) {
+      PyObject *p_item = (*cri)->pyValue ();
+      PyList_Append(p_object,p_item);
+    }
+    return p_object;
   }
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
     
@@ -318,6 +513,32 @@ class CommandResult_Enders : public CommandResult {
   virtual void Value (std::list<CommandResult *> &R) {
     R = Enders;
   }
+  virtual std::string Form () {
+    std::string S;
+    std::list<CommandResult *>::iterator cri = Enders.begin();
+    for (cri = Enders.begin(); cri != Enders.end(); cri++) {
+      std::string R = (*cri)->Form ();
+      if (R.size () > OPENSS_VIEW_FIELD_SIZE) {
+        R.resize (OPENSS_VIEW_FIELD_SIZE);
+      } else if (R.size () < OPENSS_VIEW_FIELD_SIZE) {
+        std::string T;
+        T.resize ((OPENSS_VIEW_FIELD_SIZE - R.size ()), *" ");
+        R = T + R;
+      }
+      if (S.size() > 0) S.append (std::string("  ")); // 2 spaces between string
+      S += R;
+    }
+    return S;
+  }
+  virtual PyObject * pyValue () {
+    PyObject *p_object = PyList_New(0);
+    std::list<CommandResult *>::iterator cri = Enders.begin();
+    for (cri = Enders.begin(); cri != Enders.end(); cri++) {
+      PyObject *p_item = (*cri)->pyValue ();
+      PyList_Append(p_object,p_item);
+    }
+    return p_object;
+  }
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
     
     std::list<CommandResult *> cmd_object = Enders;
@@ -347,6 +568,32 @@ class CommandResult_Columns : public CommandResult {
 
   virtual void Value (std::list<CommandResult *>  &R) {
     R = Columns;
+  }
+  virtual std::string Form () {
+    std::string S;
+    std::list<CommandResult *>::iterator cri = Columns.begin();
+    for (cri = Columns.begin(); cri != Columns.end(); cri++) {
+      std::string R = (*cri)->Form ();
+      if (R.size () > OPENSS_VIEW_FIELD_SIZE) {
+        R.resize (OPENSS_VIEW_FIELD_SIZE);
+      } else if (R.size () < OPENSS_VIEW_FIELD_SIZE) {
+        std::string T;
+        T.resize ((OPENSS_VIEW_FIELD_SIZE - R.size ()), *" ");
+        R = T + R;
+      }
+      if (S.size() > 0) S.append (std::string("  ")); // 2 spaces between string
+      S += R;
+    }
+    return S;
+  }
+  virtual PyObject * pyValue () {
+    PyObject *p_object = PyList_New(0);
+    std::list<CommandResult *>::iterator cri = Columns.begin();
+    for (cri = Columns.begin(); cri != Columns.end(); cri++) {
+      PyObject *p_item = (*cri)->pyValue ();
+      PyList_Append(p_object,p_item);
+    }
+    return p_object;
   }
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
     std::list<CommandResult *>::iterator coi;
