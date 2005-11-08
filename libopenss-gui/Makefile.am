@@ -22,6 +22,7 @@ libopenss_gui_la_CXXFLAGS =  \
 	-g \
 	-I/usr/include \
 	$(QTLIB_CPPFLAGS) \
+	$(PYTHON_INCLUDES) \
 	-I. \
 	-I$(top_srcdir)/libopenss-framework \
 	-I$(top_srcdir)/libopenss-queries \

@@ -21,6 +21,7 @@ pkglib_LTLIBRARIES = StatsPanel.la
 StatsPanel_la_CXXFLAGS = \
     -I/usr/include \
 	$(QTLIB_CPPFLAGS) \
+	$(PYTHON_INCLUDES) \
     -I. \
     -I$(top_srcdir)/libopenss-guiobjects \
     -I$(top_srcdir)/libopenss-framework \

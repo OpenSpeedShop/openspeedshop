@@ -22,6 +22,7 @@ lib_LTLIBRARIES = libopenss-guiobjects.la
 libopenss_guiobjects_la_CXXFLAGS = \
 	-I/usr/include \
 	-I$(QTDIR)/include \
+	$(PYTHON_INCLUDES) \
 	-I. \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/libopenss-guiimages \

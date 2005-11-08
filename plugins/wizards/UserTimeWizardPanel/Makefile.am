@@ -21,6 +21,7 @@ pkglib_LTLIBRARIES = UserTimeWizardPanel.la
 UserTimeWizardPanel_la_CXXFLAGS = \
     -I/usr/include \
 	$(QTLIB_CPPFLAGS) \
+	$(PYTHON_INCLUDES) \
     -I. \
     -I$(top_srcdir)/libopenss-gui \
     -I$(top_srcdir)/libopenss-guiimages \

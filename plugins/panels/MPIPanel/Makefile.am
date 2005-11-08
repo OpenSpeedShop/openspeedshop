@@ -22,6 +22,7 @@ MPIPanel_la_CXXFLAGS = \
 	-c -LANG:std -fpic \
     -I/usr/include \
 	$(QTLIB_CPPFLAGS) \
+	$(PYTHON_INCLUDES) \
 	-I. \
 	-I$(top_srcdir)/libopenss-framework \
     -I$(top_srcdir)/libopenss-queries \

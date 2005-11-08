@@ -21,6 +21,7 @@ pkglib_LTLIBRARIES = ManageProcessesPanel.la
 ManageProcessesPanel_la_CXXFLAGS = \
     -I/usr/include \
      $(QTLIB_CPPFLAGS) \
+     $(PYTHON_INCLUDES) \
     -I. \
     -I$(top_srcdir) \
     -I$(top_srcdir)/libopenss-framework \

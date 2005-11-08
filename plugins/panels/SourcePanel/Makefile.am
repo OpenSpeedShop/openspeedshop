@@ -22,6 +22,7 @@ SourcePanel_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-guiobjects \
     -I/usr/include \
     $(QTLIB_CPPFLAGS) \
+    $(PYTHON_INCLUDES) \
     -I. \
     -I$(top_srcdir)/libopenss-queries \
     -I$(top_srcdir)/libopenss-cli \

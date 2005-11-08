@@ -21,6 +21,7 @@ pkglib_LTLIBRARIES = basic_view.la
 BUILT_SOURCES =
 
 basic_view_la_CXXFLAGS = \
+	$(PYTHON_INCLUDES) \
 	-I$(top_srcdir)/libopenss-queries \
 	-I$(top_srcdir)/libopenss-framework \
 	-I$(top_srcdir)/libopenss-cli \
