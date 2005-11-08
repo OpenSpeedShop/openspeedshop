@@ -48,6 +48,22 @@
      #include <netinet/in.h>
      #include <netdb.h>
 
+// 'slots' is a reserved word in QT.
+// There will be compile problems with the GUI,
+// because 'slots' is used as a variable name in Python.h.
+// We will play the game of undef'ing it before we include
+// Python.h and redefining it afterwards.
+// All so we can get a definition for PyObject.
+#ifdef slots
+#define SS_SAVE_SLOTS
+#undef  slots
+#endif
+#include "Python.h"
+#ifdef SS_SAVE_SLOTS
+#undef SS_SAVE_SLOTS
+#define slots		// it needs to be redefined and blanks seem to work.
+#endif
+
 // for catching hard interrupts and interprocess signals
 #include <sys/wait.h>
 #define SET_SIGNAL(s, f)                              \
