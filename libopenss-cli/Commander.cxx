@@ -2093,6 +2093,7 @@ void Default_TLI_Line_Output (InputLineObject *clip) {
     for (cmi = cmd_list.begin(); cmi != cmd_list.end(); cmi++) {
       if (!(*cmi)->Results_Used ()) {
         Default_TLI_Command_Output (*cmi);
+        if (!(*cmi)->Results_Used ()) return;
       }
     }
     clip->Set_Results_Used();
