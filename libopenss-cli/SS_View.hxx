@@ -218,7 +218,7 @@ void GetMetricByObject (CommandObject *cmd,
   std::set<TE> objects;
   for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
     Thread thread = *ti;
-    OpenSpeedShop::Queries::getSourceObjects(thread, objects);
+    OpenSpeedShop::Queries::GetSourceObjects(thread, objects);
   }
   GetMetricByObjectSet (cmd, tgrp, collector, metric, objects, items);
 }
