@@ -33,6 +33,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 
 
@@ -51,6 +52,13 @@ namespace OpenSpeedShop {
     namespace Queries
     {
 
+	void GetSourceObjects(const Framework::Thread&,
+                              std::set<Framework::LinkedObject>&);
+        void GetSourceObjects(const Framework::Thread&,
+                              std::set<Framework::Function>&);
+        void GetSourceObjects(const Framework::Thread&,
+                              std::set<Framework::Statement>&);
+	
 	template <typename TS, typename TM>
 	void GetMetricInThread(
 	    const Framework::Collector&,
@@ -83,6 +91,13 @@ namespace OpenSpeedShop {
     }
 
 }
+
+
+
+void operator+=(
+    std::map<OpenSpeedShop::Framework::StackTrace, std::vector<double> >&,
+    const std::map<OpenSpeedShop::Framework::StackTrace, std::vector<double> >&
+    );
 
 
 

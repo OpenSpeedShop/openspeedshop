@@ -68,7 +68,7 @@ namespace OpenSpeedShop { namespace Framework {
  * @ingroup Implementation
  */
 typedef std::map<AddressRange, std::pair<SymbolTable, std::set<LinkedObject> > >
-SymbolTableMap;
+    SymbolTableMap;
 
 
 
@@ -797,14 +797,6 @@ void Process::executeAtEntryOrExit(const Collector& collector,
  * Executes the specified library function in place of another function every
  * other time that other function is called. The library is loaded into the
  * process first if necessary.
- *
- * @pre    Libraries are located using libltdl and the standard search path
- *         established by the CollectorPluginTable class. A LibraryNotFound
- *         exception is thrown if the library can't be located.
- *
- * @pre    The function to be executed must be found in the specified library.
- *         A LibraryFuncNotFound exception is thrown if the function cannot be
- *         found within the specified library.
  *
  * @note    The library function <em>must</em> take exactly the same parameters
  *          as the function it replaces and return the same type of value. It

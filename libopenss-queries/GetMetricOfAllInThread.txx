@@ -49,17 +49,6 @@ namespace OpenSpeedShop {
 
 
 
-    namespace Queries {
-	void getSourceObjects(const Framework::Thread&,
-			      std::set<Framework::LinkedObject>&);
-	void getSourceObjects(const Framework::Thread&,
-			      std::set<Framework::Function>&);
-	void getSourceObjects(const Framework::Thread&,
-			      std::set<Framework::Statement>&);
-    }
-    
-
-
 /**
  * Get metric values of all source objects in a thread.
  *
@@ -87,7 +76,7 @@ void Queries::GetMetricOfAllInThread(
 {
     // Get the set of all source objects in this thread 
     std::set<TS > objects;
-    getSourceObjects(thread, objects);
+    GetSourceObjects(thread, objects);
     
     // Get the metric values for these source objects
     GetMetricInThread(collector, metric, interval, thread, objects, result);

@@ -34,57 +34,28 @@
 
 
 
-/* Declaration of Fortran MPI functions. */
-
-extern void mpi_isend_(void*, int*, MPI_Datatype*, int*, int*, MPI_Comm*,
-			MPI_Request*, int*);
-extern void mpi_irecv_(void*, int*, MPI_Datatype*, int*, int*, MPI_Comm*,
-		       MPI_Request*, int*);
-
-
-
 /*
  * MPI_Irecv
  */
 
-int mpit_MPI_Irecv(void* buf, int count, MPI_Datatype datatype, int source, 
-		   int tag, MPI_Comm comm, MPI_Request* request)
+int mpit_PMPI_Irecv(void* buf, int count, MPI_Datatype datatype, int source, 
+		    int tag, MPI_Comm comm, MPI_Request* request)
 {
     int retval, datatype_size;
     mpit_event event;
     
     event.start_time = OpenSS_GetTime();
-    retval = MPI_Irecv(buf, count, datatype, source, tag, comm, request);
+    retval = PMPI_Irecv(buf, count, datatype, source, tag, comm, request);
     event.stop_time = OpenSS_GetTime();
     event.source = source;
-    MPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
-    MPI_Type_size(datatype, &datatype_size);
+    PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
+    PMPI_Type_size(datatype, &datatype_size);
     event.size = count * datatype_size;
     event.tag = tag;
     event.communicator = comm;
     event.datatype = datatype;
     mpit_record_event(&event);
     return retval;
-}
-
-void mpit_mpi_irecv_(void* buf, int* count, MPI_Datatype* datatype, int* source,
-		     int* tag, MPI_Comm* comm, MPI_Request* request, 
-		     int* retval)
-{
-    int datatype_size;
-    mpit_event event;
-    
-    event.start_time = OpenSS_GetTime();
-    mpi_irecv_(buf, count, datatype, source, tag, comm, request, retval);
-    event.stop_time = OpenSS_GetTime();
-    event.source = *source;
-    MPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
-    MPI_Type_size(*datatype, &datatype_size);
-    event.size = *count * datatype_size;
-    event.tag = *tag;
-    event.communicator = *comm;
-    event.datatype = *datatype;
-    mpit_record_event(&event);
 }
 
 
@@ -93,42 +64,22 @@ void mpit_mpi_irecv_(void* buf, int* count, MPI_Datatype* datatype, int* source,
  * MPI_Isend
  */
 
-int mpit_MPI_Isend(void* buf, int count, MPI_Datatype datatype, int dest,
-		   int tag, MPI_Comm comm, MPI_Request* request)
+int mpit_PMPI_Isend(void* buf, int count, MPI_Datatype datatype, int dest,
+		    int tag, MPI_Comm comm, MPI_Request* request)
 {
     int retval, datatype_size;
     mpit_event event;
     
     event.start_time = OpenSS_GetTime();
-    retval = MPI_Isend(buf, count, datatype, dest, tag, comm, request);
+    retval = PMPI_Isend(buf, count, datatype, dest, tag, comm, request);
     event.stop_time = OpenSS_GetTime();
-    MPI_Comm_rank(MPI_COMM_WORLD, &(event.source));
+    PMPI_Comm_rank(MPI_COMM_WORLD, &(event.source));
     event.destination = dest;
-    MPI_Type_size(datatype, &datatype_size);
+    PMPI_Type_size(datatype, &datatype_size);
     event.size = count * datatype_size;
     event.tag = tag;
     event.communicator = comm;
     event.datatype = datatype;
     mpit_record_event(&event);
     return retval;
-}
-
-void mpit_mpi_isend_(void* buf, int* count, MPI_Datatype* datatype, int* dest,
-		     int* tag, MPI_Comm* comm, MPI_Request* request, 
-		     int* retval)
-{
-    int datatype_size;
-    mpit_event event;
-    
-    event.start_time = OpenSS_GetTime();
-    mpi_isend_(buf, count, datatype, dest, tag, comm, request, retval);
-    event.stop_time = OpenSS_GetTime();
-    MPI_Comm_rank(MPI_COMM_WORLD, &(event.source));
-    event.destination = *dest;
-    MPI_Type_size(*datatype, &datatype_size);
-    event.size = *count * datatype_size;
-    event.tag = *tag;
-    event.communicator = *comm;
-    event.datatype = *datatype;
-    mpit_record_event(&event);
 }

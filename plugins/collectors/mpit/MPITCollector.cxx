@@ -42,8 +42,8 @@ namespace {
      * Traceable function table.
      *
      * Table listing the traceable MPI functions. In order for an MPI function
-     * to actually be traceable, corresponding C/C++ and Fortran wrappers must
-     * first be written and compiled into this collector's runtime.
+     * to actually be traceable, corresponding wrapper(s) must first be written
+     * and compiled into this collector's runtime.
      *
      * @note    A function's index position in this table is directly used as
      *          its index position in the mpit_parameters.traced array. Thus
@@ -100,7 +100,7 @@ MPITCollector::MPITCollector() :
     // Declare our parameters
     declareParameter(Metadata("traced_functions", "Traced Functions",
 			      "Set of MPI functions to be traced.",
-			      typeid(std::set<std::string>)));
+			      typeid(std::map<std::string, bool>)));
     
     // Declare our metrics
     declareMetric(Metadata("inclusive_times", "Inclusive Times",
@@ -156,11 +156,11 @@ void MPITCollector::getParameterValue(const std::string& parameter,
 
     // Handle the "traced_functions" parameter
     if(parameter == "traced_functions") {
-	std::set<std::string>* value = 
-	    reinterpret_cast<std::set<std::string>*>(ptr);
-	for(unsigned i = 0; TraceableFunctions[i] != NULL; ++i)
-	    if(parameters.traced[i])
-		value->insert(TraceableFunctions[i]);
+	std::map<std::string, bool>* value =
+	    reinterpret_cast<std::map<std::string, bool>*>(ptr);    
+        for(unsigned i = 0; TraceableFunctions[i] != NULL; ++i)
+	    value->insert(std::make_pair(TraceableFunctions[i],
+					  parameters.traced[i]));
     }
 }
 
@@ -186,11 +186,12 @@ void MPITCollector::setParameterValue(const std::string& parameter,
     
     // Handle the "traced_functions" parameter
     if(parameter == "traced_functions") {
-	const std::set<std::string>* value = 
-	    reinterpret_cast<const std::set<std::string>*>(ptr);
+	const std::map<std::string, bool>* value = 
+	    reinterpret_cast<const std::map<std::string, bool>*>(ptr);
 	for(unsigned i = 0; TraceableFunctions[i] != NULL; ++i)
 	    parameters.traced[i] =
-		(value->find(TraceableFunctions[i]) == value->end());
+		(value->find(TraceableFunctions[i]) != value->end()) &&
+		value->find(TraceableFunctions[i])->second;
     }
     
     // Re-encode the blob containing the parameter values
@@ -210,10 +211,8 @@ void MPITCollector::setParameterValue(const std::string& parameter,
 void MPITCollector::startCollecting(const Collector& collector,
 				    const Thread& thread) const
 {
-    const std::string WrapperPrefix = "mpit-rt: mpit_";
-
     // Get the set of traced functions for this collector
-    std::set<std::string> traced;
+    std::map<std::string, bool> traced;
     collector.getParameterValue("traced_functions", traced);
     
     // Assemble and encode arguments to mpit_start_tracing()
@@ -232,20 +231,18 @@ void MPITCollector::startCollecting(const Collector& collector,
                "mpit-rt: mpit_start_tracing", arguments);
 
     // Execute our wrappers in place of the real MPI functions
-    for(unsigned i = 0; TraceableFunctions[i] != NULL; ++i)
-	if(traced.find(TraceableFunctions[i]) != traced.end()) {
-
-	    // Wrap the C/C++ version of the MPI function
-	    executeInPlaceOf(collector, thread, TraceableFunctions[i],
-			     WrapperPrefix + TraceableFunctions[i]);
+    for(unsigned i = 0; TraceableFunctions[i] != NULL; ++i)	
+	if((traced.find(TraceableFunctions[i]) != traced.end()) &&
+	   traced.find(TraceableFunctions[i])->second) {
 	    
-	    // Wrap the Fortran version of the MPI function
-	    std::string tmp = TraceableFunctions[i];	    
-	    std::transform(tmp.begin(), tmp.end(), tmp.begin(), ::tolower);
-	    tmp += "_";
-	    executeInPlaceOf(collector, thread, tmp, WrapperPrefix + tmp);
+	    // Wrap the MPI function
+	    std::string function = 
+		std::string("P") + TraceableFunctions[i];
+	    std::string wrapper = 
+		std::string("mpit-rt: mpit_P") + TraceableFunctions[i];
+	    executeInPlaceOf(collector, thread, function, wrapper);
 	    
-	}    
+	}
 }
 
 

@@ -31,8 +31,8 @@ libopenss_queries_la_LIBADD = \
 libopenss_queries_la_SOURCES = \
 	GetMetricByStatement.txx \
 	GetMetricInThread.txx \
-	GetMetricOfAllInThread.txx GetMetricOfAllInThread.cxx \
-	Queries.hxx
+	GetMetricOfAllInThread.txx \
+	Queries.hxx Queries.cxx
 
 doc:
 	$(DOXYGEN)

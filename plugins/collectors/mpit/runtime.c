@@ -243,7 +243,7 @@ void mpit_start_tracing(const char* arguments)
  *
  * @param arguments    Encoded (unused) function arguments.
  */
-void mpit_stop_sampling(const char* arguments)
+void mpit_stop_tracing(const char* arguments)
 {
     /* Send events if there are any remaining in the tracing buffer */
     if(tls.data.events.events_len > 0)
