@@ -1635,7 +1635,7 @@ void Internal_Info_Dump (CMDWID issuedbywindow) {
   ss_ostream *this_ss_stream = Window_outstream (issuedbywindow);
   this_ss_stream->acquireLock();
   ostream &mystream = this_ss_stream->mystream();
-  mystream << "SpeedShop Status:" << std::endl;
+  mystream << PACKAGE_STRING << " Status:" << std::endl;
   mystream << "    " << (Looking_for_Async_Inputs?" ":"Not") << " Waiting for Async input" << std::endl;
   if (Looking_for_Async_Inputs) {
     if (More_Input_Needed_From_Window) {
@@ -1694,7 +1694,7 @@ void User_Info_Dump (CMDWID issuedbywindow) {
   ostream &mystream = this_ss_stream->mystream();
 
   mystream << std::endl << "************************" << std::endl;
-  mystream << "Current status of Open|SS" << std::endl;
+  mystream << "Current status of " << PACKAGE_STRING << std::endl;
   mystream << "If you want information about commands, ask for 'help'" << std::endl;
 
  // An error check
@@ -2221,10 +2221,8 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
   if ((command_line_window == 0) &&
       (gui_window == 0) &&
       (Embedded_WindowID == 0)) {
-    char *Welcome_Message = "Welcome to Open|SpeedShop, version 0.1.\n"
-                            "Type 'help' for more information.\n";
     ss_ttyout->acquireLock();
-    ss_ttyout->mystream() << Welcome_Message;
+    ss_ttyout->mystream() << "Welcome to " << PACKAGE_STRING  << std::endl;
     ss_ttyout->Issue_Prompt();
     ss_ttyout->releaseLock();
   }
