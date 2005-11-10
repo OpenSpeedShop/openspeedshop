@@ -50,6 +50,7 @@ Component Diagram</a></li>
           <li><a href="#mozTocId251693">Information Resources:</a></li>
         </ul>
       </li>
+      <li><a href="#mozTocId351566">General Plugin Definition</a></li>
       <li><a href="#mozTocId11413">Open|SpeedShop Plugin
 Overview
         </a>
@@ -154,7 +155,7 @@ Collecting function
 what's needed
 in
 the function body:</a></li>
-                      <li><a href="#mozTocId499496">Example collectory
+                      <li><a href="#mozTocId499496">Example collector
 code
 example:</a></li>
                     </ul>
@@ -231,23 +232,34 @@ example:</a></li>
                   </li>
                 </ul>
               </li>
-              <li><a href="#mozTocId761089">Collector Plugin API -
-Protected Member Functions</a>
+              <li><a href="#mozTocId761089">Collector Plugin
+API - Protected Member Functions</a>
                 <ul>
                   <li><a href="#mozTocId237373">Collector
-Implementation Constructor</a></li>
+Implementation Constructor</a>
+                    <ul>
+                      <li><a href="#mozTocId876077">Definition</a></li>
+                      <li><a href="#mozTocId610118">What it does, when
+it can be used, and example usage code</a></li>
+                    </ul>
+                  </li>
                   <li><a href="#mozTocId778216">Declare a Parameter</a>
                     <ul>
                       <li><a href="#mozTocId399016">Definition</a></li>
                       <li><a href="#mozTocId654759">What it does, when
-it can be used, and example usage code</a></li>
+it
+can be used, and example usage code</a></li>
+                      <li><a href="#mozTocId373057">Parameters</a></li>
+                      <li><a href="#mozTocId722064">Return Values</a></li>
                     </ul>
                   </li>
                   <li><a href="#mozTocId957175">Declare a Metric</a>
                     <ul>
                       <li><a href="#mozTocId684094">Definition</a></li>
                       <li><a href="#mozTocId626761">What it does, when
-it can be used, and example usage code</a></li>
+it
+can be used, and example usage code
+                        </a></li>
                       <li><a href="#mozTocId741847">Parameters</a></li>
                       <li><a href="#mozTocId804375">Return Values</a></li>
                     </ul>
@@ -262,8 +274,8 @@ function at another function's entry.</a></li>
 function at another function's exit.</a></li>
                   <li><a href="#mozTocId197213"> Execute a library
 function in place of another function.</a></li>
-                  <li><a href="#mozTocId342846">Remove instrumentation
-from a thread</a></li>
+                  <li><a href="#mozTocId342846">Remove
+instrumentation from a thread</a></li>
                 </ul>
               </li>
             </ul>
@@ -405,7 +417,7 @@ components.&nbsp;&nbsp; An item note in this diagram is that the
 Command Line Interface is at the center of the user interface options
 for Open|SpeedShop.&nbsp;&nbsp; All user interface requests come
 through the Command Line Interface.&nbsp;&nbsp; The Command Line
-Interface interperpts the CLI commands and interacts with the
+Interface interprets the CLI commands and interacts with the
 Open|SpeedShop Framework component to execute the commands.<br>
 <br>
 The Framework is at the heart of the Open|SpeedShop tool.&nbsp;&nbsp;
@@ -416,8 +428,9 @@ application, and stores the performance data into the Performance
 Experiment Database file. <br>
 <br>
 <br>
-<img alt="" src="ToolClientOverView.png"
- style="width: 700px; height: 425px;"><br>
+<img alt="Open|SpeedShop Client Overview"
+ title="Open|SpeedShop Client Overview" src="ToolClientOverView2.png"
+ style="width: 741px; height: 450px;"><br>
 <h4><a class="mozTocH4" name="mozTocId377936"></a>Runtime/Server
 Component Diagram</h4>
 TBD<br>
@@ -445,6 +458,29 @@ Usability Study Plan and Detailed Results</a> - List of Usability
 Studies and Results of Conducted Studies<br>
   </li>
 </ul>
+<h2><a class="mozTocH2" name="mozTocId351566"></a>General Plugin
+Definition</h2>
+A plugin is a mechanism that allows new functionality to be added to a
+software program without having to change the infrastructure of the
+existing software program.&nbsp;&nbsp; The new plugin creator can add
+additional features by following a set of rules and using a set of well
+defined function calls (API) to create a plugin.&nbsp;&nbsp; In general
+most tool's plugin API and rules are different from another tools
+plugin API and plugin rules.&nbsp; However, the basic concepts are the
+same.&nbsp; The plugin needs to be recognized as a software entity that
+is associated with the base software tool.&nbsp; Plugins have to be
+dynamically shared objects in order for the base software tool to
+dynamically link in the plugin.&nbsp; There may also be entry points
+that the base software program looks for in the dynamic shared object
+to verify that the shared object is associated with it.<br>
+<br>
+When the plugin is verified to be compatible with the base software
+program the base software program updates it's internal data structures
+and an applicable user interface items that would make the new
+functionality available to the user.<br>
+<br>
+Open|SpeedShop uses this methodology.&nbsp;&nbsp; This document
+describes how to create an Open|SpeedShop specific plugin.<br>
 <br>
 <h2><a class="mozTocH2" name="mozTocId11413"></a>Open|SpeedShop Plugin
 Overview<br>
@@ -601,7 +637,7 @@ identifying and analyzing the performance data desired.&nbsp;&nbsp; See
 the
 section below that is dedicated to the outlining the details associated
 with this action.&nbsp; Once the
-performance data criteria is resolved the next step in the collector
+performance data criteria are resolved the next step in the collector
 plugin creation is the actual implementation action.&nbsp;&nbsp; See
 the sections below that are associated with implementation and also the
 section detailing a performance data collector plugin example.<br>
@@ -614,7 +650,7 @@ Collector Plugin Outline</h4>
 For building a performance data collector plugin these are the high
 level steps in outline form:<br>
 <ul>
-  <li>Do an identify and evaluation step on the performance data you
+  <li>Identify and evaluate the performance data you
 want to gather.</li>
   <ul>
     <li>Can it be mapped back to the source line numbers or function
@@ -715,9 +751,9 @@ data
 gathered.&nbsp;&nbsp; We can, by using debugging information, map the
 saved
 addresses back to the program's source.&nbsp;&nbsp; Actually, a set of
-addresses and the count of the times each address is "hit" is saved.<br>
+addresses and the count of the times each address is "hit" are saved.<br>
 <br>
-Another phase of the identify and analyze step is to identify and
+Another part of this step is to identify and
 define the metric and parameters.&nbsp; The metric is a function of the
 time intervals and the instruction address space.&nbsp;&nbsp; It is
 also the basic item of performance data that is to be gathered and
@@ -731,7 +767,7 @@ how (actually when)&nbsp; the data is collected.&nbsp;&nbsp; The
 metric, in this case, is
 time spent in the application's functions and source line numbers based
 on
-translating the addresses, that were gathered, back to the source
+translating the addresses that were gathered, back to the source
 function names and line numbers.<br>
 <br>
 Given that the "metric" is the performance data item desired to be
@@ -858,7 +894,7 @@ application.&nbsp; <br>
 <br>
 This is a very important phase of the collector creation!&nbsp;&nbsp;
 Much time needs to be spent in the design and layout of the data blob
-data definitions to optimize the data layout.&nbsp; Having a optimal
+data definitions to optimize the data layout.&nbsp; Having an optimal
 data layout in size and content will help to create an experiment that
 executes efficiently.&nbsp;&nbsp; Size considerations and making sure
 only the necessary performance data items are stored are the two main
@@ -871,7 +907,7 @@ defining the structure and size of the blob data are:<br>
 the victim application.</li>
   <li>The blob should not be too small because having to send many
 small blobs across the network could slow the network down.</li>
-  <li>16k bytes has been found to be a reasonable size.&nbsp;&nbsp; PC
+  <li>16k bytes have been found to be a reasonable size.&nbsp;&nbsp; PC
 Sampling currently uses 8k bytes as the blob size.</li>
   <li>16k bytes is the high limit on the buffer size able to be sent in
 a message from the Open|SpeedShop runtime to the client tool.<br>
@@ -882,7 +918,7 @@ language.&nbsp;&nbsp; XDR deals with endianess issues, data packing,
 and other related issues.&nbsp;&nbsp; The XDR language looks like a C
 structure definition and is specified in a file call
 blob.x.&nbsp;&nbsp; This is what the collector plugin expects.&nbsp;
-The blob.x file is fed into rpcgen which generates a ".c" file and a
+The blob.x file is fed into rpcgen which generates a ".c" file and an
 ".h" file.&nbsp; These files create a compilable C structure and
 functions to convert the data to a C structure and back.<br>
 <h5><a class="mozTocH5" name="mozTocId281427"></a>blobs.x:</h5>
@@ -1358,12 +1394,12 @@ The client collector plugin activates the collector runtime by directly
 and indirectly making calls to the collector runtime
 functions.&nbsp;&nbsp;&nbsp; An example user action illustrates the
 path between the client and runtime collector plugin
-functionality.&nbsp;&nbsp; Suppose the user does an user interface
+functionality.&nbsp;&nbsp; Suppose the user does a user interface
 gesture that tells Open|SpeedShop to start
 collecting.&nbsp;&nbsp;&nbsp; This triggers the user interface to call
 the Open|SpeedShop framework which then accesses the start_collecting
 function in the client collector plugin.&nbsp;&nbsp; The client
-collector plugin calls a Open|SpeedShop routine which ultimately
+collector plugin calls an Open|SpeedShop routine which ultimately
 triggers the start collecting function in the runtime collector plugin.<br>
 <br>
 <div style="margin-left: 40px;"><img alt="Start Collection Illustration"
@@ -1526,7 +1562,7 @@ for the thread.</li>
 </ul>
 <br>
 <h6><a class="mozTocH6" name="mozTocId499496"></a><big><b><big><b><a
- name="Example_collectory_code_example:"></a><small>Example collectory
+ name="Example_collectory_code_example:"></a><small>Example collector
 code
 example:</small></b></big></b></big></h6>
 <small><span style="font-style: italic;">/**</span><br
@@ -1576,8 +1612,9 @@ Metric Values function</small><br>
 </big></h5>
 <h6><a class="mozTocH6" name="mozTocId110227"></a><big><b>What it does:</b></big></h6>
 This routine is used by the Open|SpeedShop framework to get the metrics
-for each data blob the framework processes.&nbsp; The framework first
-queries for address range extents and then calls the collector plugin
+for each data blob the framework processes.&nbsp; The framework will
+first
+query for address range extents and then calls the collector plugin
 (getMetricValues) once for each data blob.&nbsp;&nbsp; Extents are
 defined as a set of address ranges and a time interval.&nbsp;&nbsp; For
 example, an address range could be the addresses in the function "xyz"
@@ -1803,7 +1840,8 @@ Set
 Parameter function</small></small><br>
 </big></big></h5>
 <h6><a class="mozTocH6" name="mozTocId753822"></a><big><b>What it does:</b></big></h6>
-<p>The set a parameter function implements setting one of the collector
+<p>The set a parameter function is responsible for setting one of the
+collector
 parameter values.<br>
 </p>
 <h6><a class="mozTocH6" name="mozTocId163320"></a><big><b>Definition:</b></big><br>
@@ -2024,10 +2062,11 @@ library.&nbsp;&nbsp; The source can be found in
 <br>
 <h5><a class="mozTocH5" name="mozTocId237373"></a>Collector
 Implementation Constructor</h5>
-<h6>Definition</h6>
+<h6><a class="mozTocH6" name="mozTocId876077"></a>Definition</h6>
 &nbsp;&nbsp;&nbsp;&nbsp; CollectorImpl (const std::string &amp;, const
 std::string &amp;, const std::string &amp;)<br>
-<h6>What it does, when it can be used, and example usage code</h6>
+<h6><a class="mozTocH6" name="mozTocId610118"></a>What it does, when it
+can be used, and example usage code</h6>
 Constructs a collector implementation with the given metadata.&nbsp; <br>
 <br>
 <small><span style="font-style: italic;">/**</span><br
@@ -2158,7 +2197,7 @@ typeid(double)));</span><br
  style="font-style: italic; font-weight: bold;">
 <span style="font-style: italic;">}</span>
 </small><br>
-<h6>Parameters</h6>
+<h6><a class="mozTocH6" name="mozTocId373057"></a>Parameters</h6>
 <div style="margin-left: 40px;">Metadata&nbsp; - &nbsp; Declares the
 properties of the parameter to be used by the collector.<br>
 <br>
@@ -2174,7 +2213,8 @@ for describing collectors, their parameters, and their metrics.<br>
 </div>
 <small style="font-style: italic;"><br>
 </small>
-<h6><span class="mozTocH6"></span>Return Values</h6>
+<h6><a class="mozTocH6" name="mozTocId722064"></a><span class="mozTocH6"></span>Return
+Values</h6>
 <div style="margin-left: 40px;">None.<br>
 </div>
 <h5><a class="mozTocH5" name="mozTocId957175"></a>Declare a Metric</h5>
@@ -2335,7 +2375,8 @@ new collector plugin.<br>
 <ul>
   <li><span style="font-weight: bold;">ExampleCollector.cxx</span>&nbsp;
 -&nbsp; Contains code that is used on
-the client side to decode the data blobs, control collecting, manage
+the client side to decode the data blobs, control collecting, and
+manage
 parameters.&nbsp;&nbsp; This file also contains the collector's factory
 method that is the key to plugin recognition.<br>
   </li>
@@ -2484,7 +2525,7 @@ look for plugins). The name of the module itself is irrelevant
   <br>
   <span style="font-style: italic;">CollectorImpl* CollectorFactor();</span><br>
   <br>
-which creates an CollectorImpl instance for the collector.<br>
+which creates a CollectorImpl instance for the collector.<br>
   <br>
 Each collector defines a single class (e.g. PCSampCollector or
 UserTimeCollector) that inherits from CollectorImpl (which is in the
@@ -2602,7 +2643,7 @@ directory to the build list.<br>
 You'll also need to modify the top level configure.ac file to add the
 new directory to the list of directories to have makefiles created.<br>
 <br>
-When we do a "ls" Linux command for the "plugins/panels" directory we
+When we do an "ls" Linux command for the "plugins/panels" directory we
 now see a ""TestPanel subdirectory has been created.<br>
 $ ls ..<br>
 CmdPanel&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -2648,7 +2689,7 @@ created GUI plugin panel directory into the "SUBDIRS" list.</li>
  name="The_Panel_Class"></a>The Panel Class</h4>
 The new GUI panel is built off the base class Panel.cxx.&nbsp; The
 Panel base class has several key functions.&nbsp;&nbsp; Understanding
-this base functionality is key for the GUI plugin writer to be
+this base functionality is critical for the GUI plugin writer to be
 successful in creating a GUI plugin that does what the writer wants it
 to.<br>
 <br>
@@ -2681,7 +2722,7 @@ this panel. </li>
 </ul>
 <br>
 <div style="margin-left: 40px;">Messages are very simple
-minded.&nbsp;&nbsp; They are message object type) with some data being
+minded.&nbsp;&nbsp; They are message object type with some data being
 passed
 around.&nbsp;&nbsp; Many examples can be found looking in the existing
 panels.&nbsp;&nbsp; Additionally messages can be broadcast to everyone
@@ -2692,7 +2733,7 @@ in the tool, a group of panels, or to a specific panel.
 <div style="margin-left: 40px;">An example of creating a message and
 broadcasting it to the group is shown below.
 It's the message send by hitting the "Update" button in any of the
-baseline experiment types. (i.e pcSamplePanel.cxx
+baseline experiment types. (i.e. pcSamplePanel.cxx
 <br>
 Here's the snippet of code:
 <br>
@@ -2720,12 +2761,13 @@ broadcast((char *)update_object, ALL_T);
 <br>
 <div style="margin-left: 40px;">If there's only one other panel your
 new panel is interested in communicating with you can communicate
-directly to it's listener routine.&nbsp;&nbsp; The StatsPanel does this
+directly to its listener routine.&nbsp;&nbsp; The StatsPanel does this
 to a particular source panel.
 <br>
 </div>
 <br>
-<div style="margin-left: 40px;">If you're wanting to communicate with a
+<div style="margin-left: 40px;">If panel writer wants to communicate
+with a
 specific panel, and your panel doesn't yet have a handle on the new
 panel, it can be queried.&nbsp;&nbsp; (StatsPanel.cxx)
 <br>
