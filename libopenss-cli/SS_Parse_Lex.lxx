@@ -16,7 +16,6 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////// */
 
-/*[0-7]+.[0-7]+.[0-7]+.[0-7]+  yylval.val = ipnum(yytext); return NUMBER; } */
 
 %{
 #include <stdio.h>
@@ -30,8 +29,8 @@
 #include <string.h>
 #include "SS_Parse_Yacc.hxx"
 extern int yylex();
-extern char * copy_string(char *);
 extern int ip_number(char *,int);
+#define ECHO
 %}
 
 %%
@@ -138,8 +137,8 @@ extern int ip_number(char *,int);
 0x[0-9a-f]+	{yylval.val = atoi(yytext); return(HEXNUMBER);}
 [0-9]+   { yylval.val = atoi(yytext); return NUMBER; }
 -[0-9]+   { yylval.val = atoi(yytext); return NUMBER; }
-[a-zA-Z./][a-zA-Z0-9_./\-\+]+  { yylval.string = copy_string(yytext); return NAME; }
-[<][a-zA-Z./][a-zA-Z0-9_./\-\+]+[>] { yylval.string = copy_string(yytext); return NAME; }
+[a-zA-Z./][a-zA-Z0-9_./\-\+]+  { yylval.string = strdup(yytext); return NAME; }
+[<][a-zA-Z./][a-zA-Z0-9_./\-\+]+[>] { yylval.string = strdup(yytext); return NAME; }
 
 [\n]	{ return END_LINE; }
 ">" 	{ return REDIRECT; } 
