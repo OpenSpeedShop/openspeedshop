@@ -22,5 +22,5 @@
 
 PROJECT_NAME     = "Open|SpeedShop Graphical User Interface"
 OUTPUT_DIRECTORY = ../doc/design_doc/GUI
-INPUT            = ../libopenss-guibase ../libopenss-guichart ../libopenss-guidialogs ../expr_info ../libopenss-gui \
+INPUT            = ../libopenss-guibase ../libopenss-guichart ../libopenss-guidialogs ../libopenss-guiexprinfo ../libopenss-gui \
 		   ../libopenss-guiobjects ../libopenss-guiplugin
