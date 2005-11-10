@@ -1,3 +1,21 @@
+/* //////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+//
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License as published by the Free
+// Software Foundation; either version 2.1 of the License, or (at your option)
+// any later version.
+//
+// This library is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this library; if not, write to the Free Software Foundation, Inc.,
+// 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+////////////////////////////////////////////////////////////////////////////// */
+
 /** @file
  *
  * Storage for the parse results of a single OpenSpeedShop command.
@@ -70,48 +88,7 @@ command_type_t OpenSpeedShop::cli::cmd_desc[CMD_MAX] = {
     "setBreak",     false,  CMD_SETBREAK,
     "wait", 	    false,  CMD_WAIT
 };
- 
-#if 0
 
-/* This will eventually give way to an experiment registry. */
-char *OpenSpeedShop::cli::experiment_name[H_EXP_MAX] = {
-    "pcsamp",
-    "usertime",
-    "mpi",
-    "fpe",
-    "hwc",
-    "io"
-};
-
-/* This will eventually give way to a viewtype registry. */
-char *OpenSpeedShop::cli::viewtype_name[H_VIEW_MAX] = {
-    "vTopN",
-    "vExclTime",
-    "vIO",
-    "VFpe",
-    "vHwc"
-};
-
-/* This will eventually give way to a paramtype registry. */
-char *OpenSpeedShop::cli::paramtype_name[H_PARAM_MAX] = {
-    "displayMode",
-    "displayMedia",
-    "displayRefreshRate",
-    "expSaveFile",
-    "samplingRate"
-};
-
-/* General hodgepodge of names. */
-char *OpenSpeedShop::cli::general_name[H_GEN_MAX] = {
-    "focus",
-    "all",
-    "copy",
-    "kill",
-    "gui",
-    "mpi"
-};
-
-#endif
 
 /**
  * Constructor: ParseResult::ParseResult()

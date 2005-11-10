@@ -270,10 +270,6 @@ typedef struct a_command_struct {
 
 // External references.
 extern command_type_t cmd_desc[];
-extern char *experiment_name[];
-extern char *viewtype_name[];
-extern char *paramtype_name[];
-extern char *general_name[];
 
 /**
  * Parser result class.
@@ -364,10 +360,6 @@ class ParseResult {
 
     	void pushModifiers(char * name) {
     	    dm_modifier_list.push_back(name);
-	}
-
-    	void pushModifiers(help_gen_enum ndx) {
-    	    dm_modifier_list.push_back(general_name[ndx]);
 	}
 
     	/** Handle list of help requests. */
