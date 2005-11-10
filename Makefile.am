@@ -26,7 +26,7 @@ SUBDIRS = \
 	libopenss-guibase \
 	libopenss-guiobjects \
 	libopenss-guidialogs \
-	libopenss_guiexprinfo \
+	libopenss-guiexprinfo \
 	libopenss-guiplugin \
 	libopenss-guichart \
 	libopenss-gui \
