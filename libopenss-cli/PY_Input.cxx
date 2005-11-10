@@ -25,10 +25,6 @@ extern void pcli_load_scripting_messages(void);
 
 extern FILE *yyin;
 extern int yyparse (void);
-extern int yydebug;
-extern int yynerrs;
-extern char yychar;
-// extern yylval;
 ParseResult *p_parse_result;
 
 /* Global Data for tracking the current command line. */
@@ -226,7 +222,7 @@ SS_CallParser (PyObject *self, PyObject *args) {
     rewind(yyin);
 
     ret = yyparse();
-
+ 
     fclose(yyin); 
     
     // testing code
@@ -251,7 +247,7 @@ SS_CallParser (PyObject *self, PyObject *args) {
     }
 
     SS_Execute_Cmd (cmd);
-
+ 
     if (!python_needs_result ||
         (cmd->Status() == CMD_ERROR) ||
         (cmd->Status() == CMD_ABORTED) ||
@@ -546,6 +542,7 @@ static CMDID Scripting_Sequence_Number = 0;
 
   char *input_line = NULL;
   Assert (Embedded_WindowID != 0);  // Did we forget to initialize??
+  
     
   if (!PyArg_ParseTuple(args, "s", &input_line)) {
   	;
