@@ -819,7 +819,7 @@ public:
   }
   void Wait_Until_Cmds_Complete () {
     Assert(pthread_mutex_lock(&Cmds_List_Lock) == 0);
-    if (Complete_Cmds.begin() != Complete_Cmds.end()) {
+    if (Complete_Cmds.size() > 1) {
       Waiting_For_Cmds_Complete = true;
       Assert(pthread_cond_wait(&Wait_For_Cmds_Complete,&Cmds_List_Lock) == 0);
     }
@@ -866,6 +866,7 @@ public:
   bool   Set_Log_File ( std::string tofname ) {
     Assert(pthread_mutex_lock(&Log_File_Lock) == 0);
     ostream *tof = Predefined_ofstream (tofname);
+    ios_base::openmode open_mode = ios::out;  // The default is to overwrite existing files.
     if ((Log_Stream != NULL) &&
         (predefined_filename (Log_File_Name) == NULL)) {
      // Copy the old file to the new file.
@@ -873,15 +874,14 @@ public:
           (tofname != Log_File_Name)) {
         int64_t len1 = Log_File_Name.length();
         int64_t len2 = tofname.length();
-        char *scmd = (char *)malloc(6 + len1 + len2);
-        sprintf(scmd,"mv %s %s\n\0",Log_File_Name.c_str(),tofname.c_str());
-        int64_t ret = system(scmd);
-        free (scmd);
+        std::string scmd = std::string("mv ") + Log_File_Name + " " + tofname;
+        int64_t ret = system(scmd.c_str());
         if (ret != 0) {
          // Some system error.  Keep the old log file around.
           Assert(pthread_mutex_unlock(&Log_File_Lock) == 0);
           return false;
         }
+        open_mode = ios::app;  // Save recently generated records.
         Log_File_Is_A_Temporary_File = false;
       }
     }
@@ -890,7 +890,7 @@ public:
       (void) remove (Log_File_Name.c_str());
     }
     if (tof == NULL) {
-      tof = new ofstream (tofname.c_str(), ios::out);
+      tof = new ofstream (tofname.c_str(), open_mode);
     }
     Log_File_Name = tofname;
     Log_Stream = tof;
@@ -2171,9 +2171,13 @@ static void User_Interrupt (CMDWID issuedbywindow) {
    // Stop commands that are being processed.
     cw->Abort_Executing_Input_Lines ();
 
-   // Awaken "wait" commands.
-    Purge_Watcher_Waits ();
+   // Clean out comands-in-process list.
+    cw->Remove_Completed_Input_Lines (false);
+
   }
+
+ // Awaken "wait" commands.
+  Purge_Watcher_Waits ();
 }
 
 static void
