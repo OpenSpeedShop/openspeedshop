@@ -99,7 +99,11 @@ Blob HWTimeCollector::getDefaultParameterValues() const
     // based on event type...
 
 #if defined(linux)
-    parameters.sampling_rate = (unsigned) hw_info->mhz*10000*2;
+    if (hw_info) {
+	parameters.sampling_rate = (unsigned) hw_info->mhz*10000*2;
+    } else {
+	parameters.sampling_rate = THRESHOLD*2;
+    }
 #else
     parameters.sampling_rate = THRESHOLD*2;
 #endif

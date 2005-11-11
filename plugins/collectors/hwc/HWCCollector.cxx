@@ -93,7 +93,11 @@ Blob HWCCollector::getDefaultParameterValues() const
 
     // Set the default parameters
 #if defined(linux)
-    parameters.sampling_rate = (unsigned) hw_info->mhz*10000*2;
+    if (hw_info) {
+	parameters.sampling_rate = (unsigned) hw_info->mhz*10000*2;
+    } else {
+	parameters.sampling_rate = (unsigned) THRESHOLD*2;
+    }
 #else
     parameters.sampling_rate = THRESHOLD*2;
 #endif
