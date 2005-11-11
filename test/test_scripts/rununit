@@ -116,22 +116,6 @@ def CreateTestList(whichLanguage):
 		output_testlist.write(test_name + '\n')
 
 
-def ReadConfigFile(executable_name, v_input, v_output):
-	con_input = open('test_config', 'r')
-	counter = 0
-	while 1:
-	  	config_line = con_input.readline()
-		if not config_line:
-			break
-		if counter == 2:
-			executable_name = config_line
-		elif counter == 3:
-			v_input = config_line
-		elif counter == 4:
-			v_output = config_line
-			
-		counter = counter + 1
-	con_input.close()
 
 if __name__ == '__main__':
 

@@ -115,23 +115,6 @@ def determineIfTopDir():
 	else:
 		return 1
 	
-def ReadConfigFile(frm_addr, t_addr):
-	
-	con_input = open('test_config', 'r')
-	line_counter = 0
-	
-	for line in con_input.read().split('\n'):
-		config_line = line
-		if not config_line:
-			break
-		if line_counter == 0:
-			frm_addr = config_line
-		if line_counter == 1:
-			t_addr = config_line
-				
-		line_counter = line_counter + 1
-		
-	con_input.close()
 
 if __name__ == '__main__':
 
@@ -226,30 +209,6 @@ if __name__ == '__main__':
 			os.system('more '+resultsFileName+' >> ' + resultsFile)
 			
 		isHere = os.path.isfile(resultsFile)
-	
-		if isHere:
-				
-			con_input = open('test_config', 'r')
-			line_counter = 0
-			
-			frm_addr = ''
-			t_addr = ''
-			for line in con_input.read().split('\n'):
-				config_line = line
-				if not config_line:
-					break
-				if line_counter == 0:
-					frm_addr = config_line
-				if line_counter == 1:
-					t_addr = config_line
-				
-				line_counter = line_counter + 1
-		
-			con_input.close()
-			
-			mailResults(resultsFile, frm_addr, t_addr)
-	
-	
 
 	if (typeofdir == not_leaf or checkForTop):
 		if (os.path.isfile('inthisdirectory')):
