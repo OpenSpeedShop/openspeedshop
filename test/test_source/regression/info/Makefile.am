@@ -21,6 +21,6 @@ SUBDIRS = hosts listexp views types metrics params pids status
 DIST_SUBDIRS = $(SUBDIRS)
 
 EXTRA_DIST = \
-	runall \
-	test_config
+	runall 
+
 
