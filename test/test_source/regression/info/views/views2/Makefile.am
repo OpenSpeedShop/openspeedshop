@@ -19,6 +19,5 @@
 EXTRA_DIST = \
 	views2.tst \
 	runone \
-	runall \
-	test_config
+	runall 
 

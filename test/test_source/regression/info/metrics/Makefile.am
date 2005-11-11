@@ -21,6 +21,5 @@ SUBDIRS = metrics1 metrics2 metrics3
 DIST_SUBDIRS = $(SUBDIRS)
 
 EXTRA_DIST = \
-	runall \
-	test_config
+	runall 
 

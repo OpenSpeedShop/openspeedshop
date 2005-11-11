@@ -19,6 +19,5 @@
 EXTRA_DIST = \
 	status3.tst \
 	runone \
-	runall \
-	test_config
+	runall 
 

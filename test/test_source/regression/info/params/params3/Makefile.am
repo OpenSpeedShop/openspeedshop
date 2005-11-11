@@ -19,6 +19,5 @@
 EXTRA_DIST = \
 	params3.tst \
 	runone \
-	runall \
-	test_config
+	runall 
 

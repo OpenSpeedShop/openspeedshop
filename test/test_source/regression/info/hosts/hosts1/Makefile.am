@@ -19,6 +19,5 @@
 EXTRA_DIST = \
 	hosts1.tst \
 	runone \
-	runall \
-	test_config
+	runall 
 

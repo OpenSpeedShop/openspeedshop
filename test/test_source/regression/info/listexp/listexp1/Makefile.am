@@ -19,6 +19,5 @@
 EXTRA_DIST = \
 	listexp1.tst \
 	runone \
-	runall \
-	test_config
+	runall 
 

@@ -21,6 +21,5 @@ SUBDIRS = types1 types2 types3
 DIST_SUBDIRS = $(SUBDIRS)
 
 EXTRA_DIST = \
-	runall \
-	test_config
+	runall 
 

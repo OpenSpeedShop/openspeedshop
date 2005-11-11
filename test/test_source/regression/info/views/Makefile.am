@@ -21,6 +21,5 @@ SUBDIRS = views1 views2 views3
 DIST_SUBDIRS = $(SUBDIRS)
 
 EXTRA_DIST = \
-	runall \
-	test_config
+	runall 
 

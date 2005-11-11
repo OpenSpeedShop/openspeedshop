@@ -21,6 +21,5 @@ SUBDIRS = pids1 pids2 pids3
 DIST_SUBDIRS = $(SUBDIRS)
 
 EXTRA_DIST = \
-	runall \
-	test_config
+	runall 
 
