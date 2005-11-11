@@ -17,6 +17,7 @@
 *******************************************************************************/
 
 #include "SS_Input_Manager.hxx"
+// where is this include????    #include <libxml/xmlreader.h>
 
 int64_t OPENSS_VIEW_FIELD_SIZE = 20;
 int64_t OPENSS_VIEW_PRECISION = 4;
@@ -64,4 +65,39 @@ void SS_Configure () {
   set_bool (OPENSS_ALLOW_PYTHON_COMMANDS, "OPENSS_ALLOW_PYTHON_COMMANDS");
   set_bool (OPENSS_LOG_BY_DEFAULT, "OPENSS_LOG_BY_DEFAULT");
   set_bool (OPENSS_LIMIT_SIGNAL_CATCHING, "OPENSS_LIMIT_SIGNAL_CATCHING");
+}
+
+static void Search_rc_Files () {
+  std::string baseName = ".openss/preferencesrc";
+  int fd;
+
+ // Look for installation definitions.
+  char *S = getenv ("OPENSS_INSTALL_DIR");
+  if (S != NULL) {
+    std::string FilePath = std::string(S) + baseName;
+    if ((fd = open(FilePath.c_str(), O_RDONLY)) != -1) {
+     // File name exists!
+      Assert(close(fd) == 0);
+      continue;
+    }
+  }
+
+ // Look for global user definitions.
+  S = getenv ("HOME");
+  if (S != NULL) {
+    std::string FilePath = std::string(S) + baseName;
+    if ((fd = open(FilePath.c_str(), O_RDONLY)) != -1) {
+     // File name exists!
+      Assert(close(fd) == 0);
+      continue;
+    }
+  }
+
+ // Look for local user definitions.
+  std::string FilePath = std::string("./") + baseName;
+  if ((fd = open(FilePath.c_str(), O_RDONLY)) != -1) {
+   // File name exists!
+    Assert(close(fd) == 0);
+    continue;
+  }
 }
