@@ -700,11 +700,12 @@ void Process::executeNow(const Collector& collector,
     
     // Request the instrumentation be executed in this process
     MainLoop::suspend();
+    ProbeHandle handle;
     requestExecute(expression, NULL, NULL);
     MainLoop::resume();
     
-    // Add an empty probe handle to the probes for this thread
-    callee_entry.first->dm_probes.insert(std::make_pair(thread, ProbeHandle()));
+    // Add the empty probe handle to the probes for this thread
+    callee_entry.first->dm_probes.insert(std::make_pair(thread, handle));
 }
 
 
