@@ -33,8 +33,8 @@ unit_leaf = 2
 not_leaf = 3
 resultsFile = 'testresults'
 testResultsFile = ''
-from_addr = ''
-to_addr = ''
+from_addr = ''   ######INSERT YOUR EMAIL ADDRESS HERE IF YOU WANT RESULTS MAIL
+to_addr = ''	#####################AND HERE
 
 def whatKindofDirectory():
 
@@ -61,7 +61,6 @@ def getResultFileFromDir(directoryName):
 	checkForMarker = os.path.isfile('../inthisdirectory')
 	
 	if checkForMarker:
-		os.system('pwd')	
 		resultsfilenameinput = open('testresultsfilename', 'r')
 		resultsFileName = resultsfilenameinput.readline()
 		os.chdir('..')
@@ -95,7 +94,6 @@ def determineIfSimpleUnit():
 
 def mailResults(filename, fm_add, to_add):
 
-
 		fp = open(filename, 'r')
 		msg = MIMEText(fp.read())
 		fp.close
@@ -112,29 +110,12 @@ def mailResults(filename, fm_add, to_add):
 def determineIfTopDir():
 
 
-	isNotTop = os.path.isfile('../inthisdirectory')
-	if isNotTop:
+	Top = os.path.isfile('../inthisdirectory')
+	if Top:
 		return 0
 	else:
 		return 1
 	
-def ReadConfigFile(frm_addr, t_addr):
-	
-	con_input = open('test_config', 'r')
-	line_counter = 0
-	
-	for line in con_input.read().split('\n'):
-		config_line = line
-		if not config_line:
-			break
-		if line_counter == 0:
-			frm_addr = config_line
-		if line_counter == 1:
-			t_addr = config_line
-				
-		line_counter += 1
-		
-	con_input.close()
 
 if __name__ == '__main__':
 
@@ -189,9 +170,10 @@ if __name__ == '__main__':
 			       		os.chdir(dirName)
 			       		os.system('./runall')
 					getResultFileFromDir(dirName)
-					#os.remove('inthisdirectory')
-					#os.remove('testresultsfilename')
 					os.chdir('..')
+					os.remove(dirName+'/inthisdirectory')
+					os.remove(dirName+'/testresultsfilename')
+					os.remove(dirName+'/temptestlist')
 					
 					
 
@@ -209,49 +191,36 @@ if __name__ == '__main__':
 		if unitNum == 3:
 			os.system('./rununit -f')
 	isTop = 0
-	if (typeofdir == unit_leaf or (checkForTop == 1) or typeofdir == reg_leaf):
-		os.chdir('..')
-		isTop = determineIfTopDir()
-	#if isTop:
-	if checkForTop or isTop:
-		#if (typeofdir == unit_leaf and checkForTop):
-			#hello = "hello"
-			#resultsfilenameinput = open('testresultsfilename', 'r')
-			#resultsFileName = resultsfilenameinput.readline()
-			#os.system('more '+resultsFileName+' >> ' + resultsFile)
+#	if (typeofdir == unit_leaf or (checkForTop == 0) or typeofdir == reg_leaf):
+#	if (checkForTop == 0):
+#		os.chdir('..')
+#		isTop = determineIfTopDir()
+#	if checkForTop or isTop:
+	if checkForTop:
+		resultsfilenameinput = open('testresultsfilename', 'r')
+		resultsFileName = resultsfilenameinput.readline()
+		resultsfilenameinput.close()
 			
-		isHere = os.path.isfile(resultsFile)
+		isHere = os.path.isfile(resultsFileName)
+		do_mail = 1
+		if (from_addr =='' or to_addr==''):
+			print 'You must add your email address to the top of runall'
+			print 'in order for the result file to mail.'
+			do_mail = 0 
 	
-		if isHere:
-				
-			con_input = open('test_config', 'r')
-			line_counter = 0
-			
-			frm_addr = ''
-			t_addr = ''
-			for line in con_input.read().split('\n'):
-				config_line = line
-				if not config_line:
-					break
-				if line_counter == 0:
-					frm_addr = config_line
-				if line_counter == 1:
-					t_addr = config_line
-				
-				line_counter += 1
-		
-			con_input.close()
-			
-			mailResults(resultsFile, frm_addr, t_addr)
+		if isHere and do_mail:
+			mailResults(resultsFileName, from_addr, to_addr)
 	
 	
 
-	if (typeofdir == not_leaf or checkForTop):
+	if (checkForTop == 1 ):
 		if (os.path.isfile('inthisdirectory')):
 			os.remove('inthisdirectory')
-		#if (os.path.isfile('testresultsfilename')):
-			#os.remove('testresultsfilename')
+		if (os.path.isfile('testresultsfilename')):
+			os.remove('testresultsfilename')
+		if (os.path.isfile('dirlist')):
+			os.remove('dirlist')
 
 
 		  
-	
+
