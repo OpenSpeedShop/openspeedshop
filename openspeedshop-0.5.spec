@@ -39,6 +39,12 @@ processing performance tool.
 
 %prep
 # show the current build environment for rpmbuild.
+# show the current build environment for rpmbuild.
+%ifarch x86_64 x86-64
+    %define LIBDIR /usr/local/lib64
+%else
+    %define LIBDIR /usr/local/lib
+%endif
 env
 
 %setup -q
@@ -78,9 +84,11 @@ make install
 %{_bindir}/*
 # The following will pickup everything in --prefix/lib including
 # the openspeedshop plugin dir
-%{_libdir}/*
+%{LIBDIR}/*
 
 %changelog
+* Fri Nov 11 2005  Don Maghrak
+- libdir is lib64 for Operton and EMT64...
 * Thu Nov 10 2005  Jim Galarowicz
 - Change version to 0.5 for the developers beta
 * Mon Mar 28 2005  Don Maghrak
