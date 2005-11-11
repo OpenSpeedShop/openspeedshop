@@ -173,7 +173,6 @@ if __name__ == '__main__':
 					os.chdir('..')
 					os.remove(dirName+'/inthisdirectory')
 					os.remove(dirName+'/testresultsfilename')
-					os.remove(dirName+'/temptestlist')
 					
 					
 
