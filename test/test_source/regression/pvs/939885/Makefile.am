@@ -18,7 +18,6 @@
 
 EXTRA_DIST = \
 	runall \
-	test_config \
 	939885.tst \
 	runone
 

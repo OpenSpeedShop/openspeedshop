@@ -21,6 +21,5 @@ SUBDIRS = enable1 enable2 enable3 enable4
 DIST_SUBDIRS = $(SUBDIRS)
 
 EXTRA_DIST = \
-	runall \
-	test_config
+	runall 
 

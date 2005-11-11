@@ -21,6 +21,5 @@ SUBDIRS = usertime1 usertime2 usertime3 usertime4 usertime5 usertime6
 DIST_SUBDIRS = $(SUBDIRS)
 
 EXTRA_DIST = \
-	runall \
-	test_config
+	runall 
 

@@ -21,8 +21,7 @@ SUBDIRS = pcsamp usertime pvs hwc building_block info hwctime
 DIST_SUBDIRS = $(SUBDIRS)
 
 EXTRA_DIST = \
-	runall \
-	test_config
+	runall 
 
 check_SCRIPTS_common = runall
 

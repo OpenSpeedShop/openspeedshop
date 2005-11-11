@@ -18,7 +18,6 @@
 
 EXTRA_DIST = \
 	runall \
-	test_config \
 	pcsamp2.tst \
 	pcsamp2.tst.expected \
 	runone

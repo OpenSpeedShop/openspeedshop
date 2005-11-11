@@ -21,6 +21,5 @@ SUBDIRS = focus1 focus2 focus3 focus4
 DIST_SUBDIRS = $(SUBDIRS)
 
 EXTRA_DIST = \
-	runall \
-	test_config
+	runall 
 

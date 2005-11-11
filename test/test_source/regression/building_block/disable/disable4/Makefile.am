@@ -19,6 +19,5 @@
 EXTRA_DIST = \
 	disable4.tst \
 	runone \
-	runall \
-	test_config
+	runall 
 

@@ -21,6 +21,5 @@ SUBDIRS = restore1 restore2 restore3 restore4
 DIST_SUBDIRS = $(SUBDIRS)
 
 EXTRA_DIST = \
-	runall \
-	test_config
+	runall 
 

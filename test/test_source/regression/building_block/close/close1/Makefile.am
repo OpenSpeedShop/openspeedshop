@@ -19,6 +19,4 @@
 EXTRA_DIST = \
 	close1.tst \
 	runone \
-	runall \
-	test_config
-
+	runall 

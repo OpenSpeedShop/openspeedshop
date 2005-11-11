@@ -21,6 +21,5 @@ SUBDIRS = hwc1 hwc2 hwc3
 DIST_SUBDIRS = $(SUBDIRS)
 
 EXTRA_DIST = \
-	runall \
-	test_config
+	runall 
 

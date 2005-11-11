@@ -21,6 +21,5 @@ SUBDIRS = close detach disable enable focus pause restore
 DIST_SUBDIRS = $(SUBDIRS)
 
 EXTRA_DIST = \
-	runall \
-	test_config
+	runall 
 

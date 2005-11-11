@@ -20,6 +20,5 @@ EXTRA_DIST = \
 	restore2.tst \
 	restore2.tst.expected \
 	runone \
-	runall \
-	test_config
+	runall 
 

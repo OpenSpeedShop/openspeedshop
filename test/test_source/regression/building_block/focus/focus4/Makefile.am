@@ -19,6 +19,5 @@
 EXTRA_DIST = \
 	focus4.tst \
 	runone \
-	runall \
-	test_config
+	runall 
 

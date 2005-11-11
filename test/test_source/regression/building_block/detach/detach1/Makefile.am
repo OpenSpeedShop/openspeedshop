@@ -19,6 +19,4 @@
 EXTRA_DIST = \
 	detach1.tst \
 	runone \
-	runall \
-	test_config
-
+	runall 

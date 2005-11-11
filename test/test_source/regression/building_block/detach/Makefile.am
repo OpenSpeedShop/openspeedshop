@@ -21,6 +21,5 @@ SUBDIRS = detach1 detach2 detach3 detach4
 DIST_SUBDIRS = $(SUBDIRS)
 
 EXTRA_DIST = \
-	runall \
-	test_config
+	runall 
 

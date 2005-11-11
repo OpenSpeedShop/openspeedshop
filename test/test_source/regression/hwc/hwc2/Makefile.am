@@ -18,7 +18,6 @@
 
 EXTRA_DIST = \
 	runall \
-	test_config \
 	hwc2.tst \
 	hwc2.tst.expected \
 	runone

@@ -18,7 +18,6 @@
 
 EXTRA_DIST = \
 	runall \
-	test_config \
 	usertime6.tst \
 	usertime6.tst.expected \
 	runone

@@ -21,6 +21,5 @@ SUBDIRS = close1 close2 close3 close4
 DIST_SUBDIRS = $(SUBDIRS)
 
 EXTRA_DIST = \
-	runall \
-	test_config
+	runall 
 

@@ -21,6 +21,5 @@ SUBDIRS = 939887 939885
 DIST_SUBDIRS = $(SUBDIRS)
 
 EXTRA_DIST = \
-	runall \
-	test_config
+	runall 
 

@@ -19,6 +19,5 @@
 EXTRA_DIST = \
 	pause3.tst \
 	runone \
-	runall \
-	test_config
+	runall 
 
