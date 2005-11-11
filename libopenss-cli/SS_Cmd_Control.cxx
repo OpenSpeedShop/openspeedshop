@@ -301,8 +301,6 @@ void SafeToDoNextCmd () {
 static void Cmd_EXT_Create () {
  // When we get here Cmd_EXT_Lock is not set.
   Assert(pthread_mutex_lock(&Cmd_EXT_Lock) == 0);
-  EXT_Allocated++;
-  EXT_Created++;
 
  // This is an infinite loop that waits for the dispatch signal.
   for(;;) {
@@ -412,18 +410,7 @@ void SS_Execute_Cmd (CommandObject *cmd) {
 
   if (!Shut_Down) {
 
-    if (serialize_exexcution) {
-      if (EXT_Allocated != EXT_Free) {
-        Main_Waiting = true;
-        Main_Waiting_Count = 0;
-        Assert(pthread_cond_wait(&Waiting_For_Main,&Cmd_EXT_Lock) == 0);
-      }
-      if (!Shut_Down) {
-        Assert(pthread_mutex_unlock(&Cmd_EXT_Lock) == 0);
-        Cmd_Execute (cmd);
-        return;
-      }
-    } else  if (cmd->Type() == CMD_RECORD) {
+    if (cmd->Type() == CMD_RECORD) {
      // Execute this command with the main thread
      // and do it immediately so that any new comamnds
      // read from the same input file will be logged
@@ -442,18 +429,27 @@ void SS_Execute_Cmd (CommandObject *cmd) {
         }  else if (EXT_Allocated < OPENSS_MAX_ASYNC_COMMANDS) {
          // Allocate a new process to execute comamnds.
           pthread_t EXT_handle;
+          EXT_Allocated++;
           int stat = pthread_create(&EXT_handle, 0, (void *(*)(void *))Cmd_EXT_Create,(void *)NULL);
           if (stat != 0) {
            // Attempt error recovery and exit.
+            EXT_Allocated--;
             cmd->Result_String ("ERROR: unable to execute any commands.");
             cmd->set_Status (CMD_ERROR);
             Cmd_Obj_Complete (cmd);
             Shut_Down = true;
           }
+          EXT_Created++;
         }
       }
 
-      if (cmd->Type() == CMD_EXIT) {
+      if (serialize_exexcution) {
+       // Don't read any more input until this command is
+       // processed and the result is ready for use.
+        Main_Waiting = true;
+        Main_Waiting_Count = 0;
+        Assert(pthread_cond_wait(&Waiting_For_Main,&Cmd_EXT_Lock) == 0);
+      } else if (cmd->Type() == CMD_EXIT) {
        // Don't read any more input until this command is
        // processed and shut down can be initiated.
         if (!Shut_Down) {
