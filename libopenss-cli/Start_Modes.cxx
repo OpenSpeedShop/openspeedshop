@@ -16,32 +16,8 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
-#include <unistd.h>
-#include <sys/types.h>
-#include <pthread.h>
-#include <sys/stat.h>               /* for fstat() */
-#include <sys/mman.h>               /* for mmap() */
-#include <time.h>
-#include <stdio.h>
-#include <list>
-#include <inttypes.h>
-#include <stdexcept>
-#include <string>
-
-// for host name description
-     #include <sys/socket.h>
-     #include <netinet/in.h>
-     #include <netdb.h>
-
-#ifndef PTHREAD_MUTEX_RECURSIVE_NP
-#define PTHREAD_MUTEX_RECURSIVE_NP 0
-#endif
-
 #include "ToolAPI.hxx"
-using namespace OpenSpeedShop::Framework;
-
-#include "Commander.hxx"
-#include "Python.h"
+#include "SS_Input_Manager.hxx"
 
 static void Input_Command_Args (CMDWID my_window, int argc, char ** argv)
 {
@@ -120,7 +96,7 @@ bool Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, bool bat
    // Read a piped-in file.
     if ( !Append_Input_File (my_window, std::string("stdin"),
                            &Default_TLI_Line_Output, &Default_TLI_Command_Output) ) {
-      fprintf(stderr,"ERROR: Unable to read piped in stdin file\n");
+      cerr << "ERROR: Unable to read piped in stdin file" << std::endl;
       return false;
     }
   }
@@ -133,7 +109,7 @@ bool Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, bool bat
                                       &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ||
         (NULL == Append_Input_String (my_window, "expView\n", NULL,
                                       &Default_TLI_Line_Output, &Default_TLI_Command_Output))) {
-      fprintf(stderr,"ERROR: Unable to initiate execution of commands.\n");
+      cerr << "ERROR: Unable to initiate execution of commands." << std::endl;
       return false;
     }
   }
