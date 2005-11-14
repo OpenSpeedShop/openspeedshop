@@ -78,7 +78,6 @@ static void Search_rc_Files () {
     if ((fd = open(FilePath.c_str(), O_RDONLY)) != -1) {
      // File name exists!
       Assert(close(fd) == 0);
-      continue;
     }
   }
 
@@ -89,7 +88,6 @@ static void Search_rc_Files () {
     if ((fd = open(FilePath.c_str(), O_RDONLY)) != -1) {
      // File name exists!
       Assert(close(fd) == 0);
-      continue;
     }
   }
 
@@ -98,6 +96,5 @@ static void Search_rc_Files () {
   if ((fd = open(FilePath.c_str(), O_RDONLY)) != -1) {
    // File name exists!
     Assert(close(fd) == 0);
-    continue;
   }
 }
