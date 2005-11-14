@@ -3,8 +3,12 @@
 
 import openss
 
-my_id = openss.ExpId(openss.expCreate())
+my_file = openss.FileList("../../usability/phaseIII/fred")
+my_viewtype = openss.ViewTypeList()
+my_viewtype += "pcsamp"
+my_id = openss.expCreate(my_file,my_viewtype)
 
-output = openss.listHosts()
-output = openss.listHosts(my_id)
+my_modifer = openss.ModifierList("hosts")
+
+output = openss.list(my_id,my_modifer)
 print output
