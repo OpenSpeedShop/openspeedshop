@@ -267,11 +267,6 @@ FPE_TracingWizardPanel::FPE_TracingWizardPanel(PanelContainer *pc, const char *n
   vSummaryPageLayout = new QVBoxLayout( vSummaryPageWidget, 11, 6, "vSummaryPageLayout"); 
 
   vSummaryPageLabelLayout = new QVBoxLayout( 0, 0, 6, "vSummaryPageLabelLayout"); 
-#ifdef OLDWAY
-  vSummaryPageSpacer = new QSpacerItem( 20, 1, QSizePolicy::Minimum, QSizePolicy::Fixed );
-  vSummaryPageLabelLayout->addItem( vSummaryPageSpacer );
-#endif // OLDWAY
-
   vSummaryPageFinishLabel = new QTextEdit( vSummaryPageWidget, "vSummaryPageFinishLabel" );
   vSummaryPageFinishLabel->setMinimumSize( QSize(10,10) );
   vSummaryPageFinishLabel->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Preferred, 0, 0, FALSE ) );
@@ -1273,7 +1268,7 @@ FPE_TracingWizardPanel::languageChange()
   vAttachOrLoadPageDescriptionLabel->setText( tr( "We can attach to an existing process (or processes) or load an executable from disk .  Please select the desired action.<br><br>Note: A dialog will be posted prompting for the information.</p>") );
   vAttachOrLoadPageAttachToProcessCheckBox->setText( tr( "Attach to one or more processes." ) );
   vAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load an executable from disk." ) );
-vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new executable from disk." ) );
+vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a different executable from disk." ) );
   vAttachOrLoadPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( vAttachOrLoadPageBackButton, tr( "Takes you back one page." ) );
   vAttachOrLoadPageClearButton->setText( tr( "Clear" ) );
@@ -1311,7 +1306,7 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new execu
   eAttachOrLoadPageDescriptionLabel->setText( tr( "Select one of the following:" ) );
   eAttachOrLoadPageAttachToProcessCheckBox->setText( tr( "Attach to one or more processes." ) );
   eAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load an executable from disk." ) );
-  eAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new executable from disk." ) );
+  eAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a different executable from disk." ) );
   eAttachOrLoadPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( eAttachOrLoadPageBackButton, tr( "Takes you back one page." ) );
   eAttachOrLoadPageClearButton->setText( tr( "Clear" ) );
@@ -1395,14 +1390,6 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new execu
 void
 FPE_TracingWizardPanel::vUpdateAttachOrLoadPageWidget()
 {
-#ifdef OLDWAY
-  vAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
-  vAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
-  vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
-  eAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
-  eAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
-  eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
-#endif // OLDWAY
   vAttachOrLoadPageProcessListLabel->hide();
   eAttachOrLoadPageProcessListLabel->hide();
   vAttachOrLoadPageExecutableLabel->hide();
@@ -1420,6 +1407,8 @@ FPE_TracingWizardPanel::vUpdateAttachOrLoadPageWidget()
         eAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
         vAttachOrLoadPageExecutableLabel->setText( mw->executableName );
         eAttachOrLoadPageExecutableLabel->setText( mw->executableName );
+        vAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load the following executable from disk." ) );
+        eAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load the following executable from disk." ) );
         vAttachOrLoadPageExecutableLabel->show();
         eAttachOrLoadPageExecutableLabel->show();
         vAttachOrLoadPageLoadDifferentExecutableCheckBox->show();
@@ -1432,6 +1421,8 @@ FPE_TracingWizardPanel::vUpdateAttachOrLoadPageWidget()
         eAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
         vAttachOrLoadPageProcessListLabel->setText( mw->pidStr );
         eAttachOrLoadPageProcessListLabel->setText( mw->pidStr );
+        vAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load an executable from disk." ) );
+        eAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load an executable from disk." ) );
         vAttachOrLoadPageProcessListLabel->show();
         eAttachOrLoadPageProcessListLabel->show();
         vAttachOrLoadPageLoadDifferentExecutableCheckBox->hide();

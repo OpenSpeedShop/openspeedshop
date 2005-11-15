@@ -1305,13 +1305,9 @@ QString papi_preset_event_strings = "<pre>";
   vParameterPageSampleRateText->setText( tr( QString("%1").arg(sampling_rate) ) );
   QToolTip::add( vParameterPageSampleRateText, tr( QString("The rate to sample.   (Default %1.)").arg(sampling_rate) ) );
 
-vParamaterPagePAPIDescriptionLabel->setText( tr( "PAPI String:" ) );
-#ifdef OLDWAY
-vParameterPagePAPIDescriptionText->setText( tr( QString("%1").arg(PAPIDescriptionStr) ) );
-#else // OLDWAY
-appendComboBoxItems();
-#endif // OLDWAY
-QToolTip::add( vParameterPagePAPIDescriptionText, tr( QString("The HW Counter one wants to leverage - Default Total Cycles: PAPI_TOT_CYC") ));
+  vParamaterPagePAPIDescriptionLabel->setText( tr( "PAPI String:" ) );
+  appendComboBoxItems();
+  QToolTip::add( vParameterPagePAPIDescriptionText, tr( QString("The HW Counter one wants to leverage - Default Total Cycles: PAPI_TOT_CYC") ));
 
   vParameterPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( vParameterPageBackButton, tr( "Takes you back one page." ) );
@@ -1325,7 +1321,7 @@ QToolTip::add( vParameterPagePAPIDescriptionText, tr( QString("The HW Counter on
   vAttachOrLoadPageDescriptionLabel->setText( tr( "We can attach to an existing process (or processes) or load an executable from disk .  Please select the desired action.<br><br>Note: A dialog will be posted prompting for the information.</p>") );
   vAttachOrLoadPageAttachToProcessCheckBox->setText( tr( "Attach to one or more processes." ) );
   vAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load an executable from disk." ) );
-vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new executable from disk." ) );
+vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a different executable from disk." ) );
   vAttachOrLoadPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( vAttachOrLoadPageBackButton, tr( "Takes you back one page." ) );
   vAttachOrLoadPageClearButton->setText( tr( "Clear" ) );
@@ -1368,7 +1364,7 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new execu
   eAttachOrLoadPageDescriptionLabel->setText( tr( "Select one of the following:" ) );
   eAttachOrLoadPageAttachToProcessCheckBox->setText( tr( "Attach to one or more processes." ) );
   eAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load an executable from disk." ) );
-  eAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new executable from disk." ) );
+  eAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a different executable from disk." ) );
   eAttachOrLoadPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( eAttachOrLoadPageBackButton, tr( "Takes you back one page." ) );
   eAttachOrLoadPageClearButton->setText( tr( "Clear" ) );
@@ -1427,18 +1423,13 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a new execu
       hwCounterCollector.getParameterValue("sampling_rate", sampling_rate);
 // printf("sampling_rate=%d\n", sampling_rate);
 // printf("Initialize the text fields... (%d)\n", sampling_rate);
-vParameterPageSampleRateText->setText(QString("%1").arg(sampling_rate));
-eParameterPageSampleRateText->setText(QString("%1").arg(sampling_rate));
+      vParameterPageSampleRateText->setText(QString("%1").arg(sampling_rate));
+      eParameterPageSampleRateText->setText(QString("%1").arg(sampling_rate));
       hwCounterCollector.getParameterValue("event", PAPIDescriptionStr);
 // printf("event=%s\n", PAPIDescriptionStr.c_str() );
-#ifdef OLDWAY
-vParameterPagePAPIDescriptionText->setText(PAPIDescriptionStr.c_str());
-eParameterPagePAPIDescriptionText->setText(PAPIDescriptionStr.c_str());
-#else // OLDWAY
-QString str = findPAPIStr(QString(PAPIDescriptionStr.c_str()));
-vParameterPagePAPIDescriptionText->setCurrentText(str);
-eParameterPagePAPIDescriptionText->setCurrentText(str);
-#endif // OLDWAY
+      QString str = findPAPIStr(QString(PAPIDescriptionStr.c_str()));
+      vParameterPagePAPIDescriptionText->setCurrentText(str);
+      eParameterPagePAPIDescriptionText->setCurrentText(str);
 
     if( temp_name )
     {
@@ -1462,14 +1453,6 @@ eParameterPagePAPIDescriptionText->setCurrentText(str);
 void
 HW_CounterWizardPanel::vUpdateAttachOrLoadPageWidget()
 {
-#ifdef OLDWAY
-  vAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
-  vAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
-  vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
-  eAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
-  eAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
-  eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
-#endif // OLDWAY
   vAttachOrLoadPageProcessListLabel->hide();
   eAttachOrLoadPageProcessListLabel->hide();
   vAttachOrLoadPageExecutableLabel->hide();
@@ -1487,6 +1470,8 @@ HW_CounterWizardPanel::vUpdateAttachOrLoadPageWidget()
         eAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
         vAttachOrLoadPageExecutableLabel->setText( mw->executableName );
         eAttachOrLoadPageExecutableLabel->setText( mw->executableName );
+        vAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load the following executable from disk." ) );
+        eAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load the following executable from disk." ) );
         vAttachOrLoadPageExecutableLabel->show();
         eAttachOrLoadPageExecutableLabel->show();
         vAttachOrLoadPageLoadDifferentExecutableCheckBox->show();
@@ -1499,6 +1484,8 @@ HW_CounterWizardPanel::vUpdateAttachOrLoadPageWidget()
         eAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
         vAttachOrLoadPageProcessListLabel->setText( mw->pidStr );
         eAttachOrLoadPageProcessListLabel->setText( mw->pidStr );
+        vAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load an executable from disk." ) );
+        eAttachOrLoadPageLoadExecutableCheckBox->setText( tr( "Load an executable from disk." ) );
         vAttachOrLoadPageProcessListLabel->show();
         eAttachOrLoadPageProcessListLabel->show();
         vAttachOrLoadPageLoadDifferentExecutableCheckBox->hide();
