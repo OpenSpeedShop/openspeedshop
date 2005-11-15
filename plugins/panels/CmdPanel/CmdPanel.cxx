@@ -197,9 +197,11 @@ CmdPanel::returnPressed()
   output->scrollToBottom();
 
 // printf("user_line_buffer.c_str()=(%s)\n", user_line_buffer.ascii() );
-  if( user_line_buffer == "exit" || user_line_buffer == "quit" )
+  if( user_line_buffer.stripWhiteSpace() == "exit" || 
+      user_line_buffer.stripWhiteSpace() == "quit" )
   {
-    exit();
+// printf("call cmd_exit() \n");
+    cmd_exit();
   }
 
 
@@ -489,7 +491,7 @@ void CmdPanel::customEvent(QCustomEvent *e)
 }
 
 void
-CmdPanel::exit()
+CmdPanel::cmd_exit()
 {
 // printf("CmdPanel exit|quit received.\n");
   closingDown = TRUE;

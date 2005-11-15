@@ -2271,8 +2271,10 @@ void
 PanelContainer::closeAllExternalPanelContainers()
 {
   nprintf(DEBUG_PANELCONTAINERS) ("closeAllExternalPanelContainers() entered.\n");
+
   PanelContainerList topLevelPanelContainersToDeleteList;
   topLevelPanelContainersToDeleteList.clear();
+ 
 
   PanelContainer *pc = NULL;
   for( PanelContainerList::Iterator it = _masterPanelContainerList->begin();
@@ -2286,6 +2288,7 @@ PanelContainer::closeAllExternalPanelContainers()
       // OpenSpeedShop::fileExit().
       if( strcmp(pc->getExternalName(),"masterPC") != 0 )
       { 
+// printf("pushback pc(%s:%s)\n", pc->getInternalName(), pc->getExternalName() );
         topLevelPanelContainersToDeleteList.push_back(pc);
       }
     }
@@ -2309,7 +2312,7 @@ PanelContainer::closeAllExternalPanelContainers()
 void
 PanelContainer::closeWindow(PanelContainer *targetPC)
 {
-// printf("PanelContainer::closeWindow() entered\n");
+  nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::closeWindow() entered\n");
   if( targetPC == NULL )
   {
     fprintf(stderr, "WARNING: PanelContainer::closeWindow() no targetPC!\n");
@@ -2319,17 +2322,6 @@ PanelContainer::closeWindow(PanelContainer *targetPC)
   nprintf(DEBUG_PANELCONTAINERS)  ("PanelContainer::closeWindow 0x%x (%s-%s)\n", targetPC, targetPC->getInternalName(), targetPC->getExternalName() );
 
   targetPC->getMasterPC()->removePanelContainer(targetPC);
-
-  targetPC->parent->hide();
-  // If this is the masterPC, don't delete it.   We'll be deleting it on the
-  // way out the door.
-  if( strcmp(targetPC->getExternalName(), "masterPC") != 0 )
-  {
-    if( targetPC->internal_name )
-    {
-      delete targetPC;
-    }
-  }
 }
 
 /*! If there are PanelContainers to recover,  (That is they were only 

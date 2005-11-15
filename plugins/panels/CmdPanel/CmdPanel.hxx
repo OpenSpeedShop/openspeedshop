@@ -62,7 +62,7 @@ public:
   bool editingHistory;
   int start_history_para;
   int start_history_index;
-  void exit();
+  void cmd_exit();
   OutputClass *oclass;
 
   void postCustomEvent(QString *data);
