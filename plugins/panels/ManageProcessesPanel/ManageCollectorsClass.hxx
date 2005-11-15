@@ -31,6 +31,7 @@
 #include "CollectorEntryClass.hxx"
 
 #include "GenericProgressDialog.hxx"
+#include "MPListView.hxx"
 
 enum DialogSortType  { COLLECTOR_T, PID_T, MPIRANK_T, HOST_T };
 
@@ -58,7 +59,7 @@ public:
     ~ManageCollectorsClass();
 
     QListView* attachCollectorsListView;
-    QListView *psetListView;
+    MPListView *psetListView;
 
     QString selectedCollectors();
     void updateAttachedList();
@@ -91,6 +92,8 @@ protected:
     QPopupMenu *collectorPopupMenu;
     DialogSortType dialogSortType;
     std::list<std::string> list_of_collectors;
+
+    QListViewItem *user_defined_psets;
     
 protected slots:
     virtual void languageChange();
@@ -115,6 +118,8 @@ private slots:
     void sortByHost();
     void sortByMPIRank();
     void updatePanel();
+    void createUserPSet();
+    void removeUserPSet();
 
     void progressUpdate();
 

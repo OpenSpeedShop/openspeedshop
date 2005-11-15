@@ -29,6 +29,9 @@ using namespace std;
 #include "qlistview.h"
 #include <qwidget.h>
 
+#define DPS "Dynamic Process Set"
+#define UDPS "User Defined Process Set"
+
 class DescriptionClassObject
 {
   public:
@@ -40,11 +43,13 @@ class DescriptionClassObject
       host_name = h;
       pid_name = pn;
       collector_name = c;
+      all = FALSE;
     }
     ~DescriptionClassObject()
     {
     };
 
+    bool all;  // Is this for all processes.  This is a special case.
     bool root;
     QString pset_name;
     QString host_name;
@@ -53,6 +58,7 @@ class DescriptionClassObject
 
     void Print()
     {
+      cout << "all=" << all << endl;
       cout << "root=" << root << endl;
       if( !pset_name.isEmpty() )
       {
@@ -84,7 +90,7 @@ public:
 
   ~MPListViewItem( );
 
-   DescriptionClassObject *descriptionClassObject;
+  DescriptionClassObject *descriptionClassObject;
 
 public slots:
 

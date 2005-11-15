@@ -271,7 +271,7 @@ StatsPanel::listener(void *msg)
 // msg->print();
     expID = msg->expID;
 
-    if( msg->host_pid_vector.size() == 0 )
+    if( msg->host_pid_vector.size() == 0 && !msg->pidString.isEmpty() )
     { // Soon to be obsoleted
       currentThreadsStr = msg->pidString;
       currentThreadGroupStrList.clear();

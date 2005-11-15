@@ -44,10 +44,4 @@ MPListViewItem::MPListViewItem( QListViewItem * parent, QString label1, QString 
 /*! The default destructor. */
 MPListViewItem::~MPListViewItem( )
 {
-  // default destructor.
-// printf ("  MPListViewItem::~MPListViewItem( ) destructor called\n");
-  if( descriptionClassObject )
-  {
-    delete descriptionClassObject;
-  }
 }

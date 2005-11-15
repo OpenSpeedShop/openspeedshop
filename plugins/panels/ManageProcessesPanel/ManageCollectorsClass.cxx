@@ -67,6 +67,7 @@ ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const 
 //  nprintf(DEBUG_CONST_DESTRUCT) ("ManageCollectorsClass::ManageCollectorsClass() constructor called.\n");
   dprintf("ManageCollectorsClass::ManageCollectorsClass() constructor called.\n");
   
+  user_defined_psets = NULL;
   loadTimer = NULL;
   p = _p;
   dialogSortType = PID_T;
@@ -99,7 +100,7 @@ ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const 
   attachCollectorsListView->setShowSortIndicator( TRUE );
   attachCollectorsListView->setRootIsDecorated(TRUE);
 
-  psetListView = new QListView( splitter, "*psetlist" );
+  psetListView = new MPListView( (QWidget *)splitter, (const char *)"psetlist", 0 );
   psetListView->addColumn(tr("Process Sets"));
   psetListView->addColumn("          ");
   psetListView->addColumn("          ");
@@ -112,11 +113,12 @@ ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const 
   psetListView->setAllColumnsShowFocus( TRUE );
   psetListView->setShowSortIndicator( TRUE );
   psetListView->setRootIsDecorated(TRUE);
-  psetListView->setSelectionMode( QListView::Multi );
+//  psetListView->setSelectionMode( QListView::Multi );
+  psetListView->setSelectionMode( QListView::Single );
 
 
-QHeader *header = psetListView->header();
-header->resizeSection(0, 200);
+  QHeader *header = psetListView->header();
+  header->resizeSection(0, 200);
 
   psetListView->show();
 
@@ -204,7 +206,9 @@ ManageCollectorsClass::updateAttachedList()
 // printf("updateAttachedList(%d) \n", expID );
 
   attachCollectorsListView->clear();
+#ifdef OLDWAY
   psetListView->clear();
+#endif // OLDWAY
 
   switch( dialogSortType )
   {
@@ -530,10 +534,28 @@ ManageCollectorsClass::updatePSetList()
   int pset_count = 0;
 // printf("updatePSetList(%d) \n", expID );
 
+  
   psetListView->clearSelection();
 
-  QListViewItem *dynamic_items = new QListViewItem( psetListView, "Dynamic Process Set");
-  QListViewItem *user_items = new QListViewItem( psetListView, "User Defined Process Set");
+  if( user_defined_psets == NULL )
+  {
+    user_defined_psets = new QListViewItem( psetListView, UDPS);
+  }
+
+  if( user_defined_psets )
+  {
+    psetListView->takeItem(user_defined_psets);
+  }
+
+  psetListView->clear();
+
+
+  QListViewItem *dynamic_items = new QListViewItem( psetListView, DPS);
+
+  psetListView->insertItem(user_defined_psets);
+
+
+
 
 
   QString pset_name = QString::null;
@@ -552,7 +574,13 @@ ManageCollectorsClass::updatePSetList()
         pset_name = QString("pset%1").arg(pset_count++);
         MPListViewItem *item = new MPListViewItem( dynamic_items, pset_name, "All" );
         DescriptionClassObject *dco = new DescriptionClassObject(TRUE, pset_name);
+        dco->all = TRUE;
+        item->descriptionClassObject = dco;
+
         MPListViewItem *item2 = new MPListViewItem(item, QString("All (%1) pids...").arg(tgrp.size()) );
+        dco = new DescriptionClassObject(FALSE, "All");
+        dco->all = TRUE;
+        item2->descriptionClassObject = dco;
         for (ti = tgrp.begin(); ti != tgrp.end(); ti++)
         {
           Thread t = *ti;
@@ -1058,6 +1086,51 @@ ManageCollectorsClass::attachProcessSelected()
 }
 
 void
+ManageCollectorsClass::createUserPSet()
+{
+    bool ok;
+// printf("createUserPSet() entered\n");
+  QString res = QInputDialog::getText("Create Named PSet %1 : %2", QString("Pwet Name:"), QLineEdit::Normal, ">Insert your pset name here<", &ok, this);
+  if( ok )
+  {
+// printf("The user named his set %s\n", res.ascii() );
+    MPListViewItem *item = new MPListViewItem( user_defined_psets, res );
+    DescriptionClassObject *dco = new DescriptionClassObject(TRUE, res);
+    item->descriptionClassObject = dco;
+  }
+}
+
+
+void
+ManageCollectorsClass::removeUserPSet()
+{
+// printf("removeUserPSet() entered\n");
+
+  QListViewItem *top = psetListView->currentItem();
+  QListViewItem *last = top;
+  if( !top || top->parent() == NULL )
+  {
+    return;
+  }
+  while( top )
+  {
+    last = top;
+    top = top->parent();
+  }
+  
+  if( last->text(0) != UDPS )
+  {
+    return;
+  }
+  
+  QListViewItem *item = psetListView->currentItem();
+  if( item )
+  {
+     delete item;
+  }
+}
+
+void
 ManageCollectorsClass::focusOnProcessSelected(QListViewItem *item)
 {
 // printf("focusOnProcessSelected(QListView *) listView=0x%x attachCollectorsListView=0x%x psetListView=0x%x\n", item->listView(), attachCollectorsListView, psetListView );
@@ -1105,14 +1178,23 @@ ManageCollectorsClass::focusOnPSetList(QListView *lv)
 // printf("PSetSelection: lvi->text(0)=(%s)\n", lvi->text(0).ascii() );
 // printf("lvi->text(0) =(%s)\n", lvi->text(0).ascii() );
 // printf("lvi->text(1) =(%s)\n", lvi->text(1).ascii() );
-//    if( lvi->descriptionClassObject )
-//    {
-//      lvi->descriptionClassObject->Print();
-//    }
+// if( lvi->descriptionClassObject )
+// {
+// lvi->descriptionClassObject->Print();
+// }
+    if( msg == NULL )
+    {
+      msg = new FocusObject(expID,  NULL, NULL, TRUE);
+    }
 
-    if( lvi->descriptionClassObject->root )
+    if( lvi->descriptionClassObject->all )
+    {
+// printf("Do ALL threads, everywhere.\n");
+        msg->host_pid_vector.clear();
+    } else if( lvi->descriptionClassObject->root )
     {
       // Loop through all the children...
+// printf("Loop through all the children.\n");
       MPListViewItem *mpChild = (MPListViewItem *)lvi->firstChild();
       while( mpChild )
       {
@@ -1128,11 +1210,8 @@ ManageCollectorsClass::focusOnPSetList(QListView *lv)
           continue;
         }
         std::pair<std::string, std::string> p(host_name,pid_name);
-        if( msg == NULL )
-        {
-          msg = new FocusObject(expID,  NULL, NULL, TRUE);
-        }
         msg->host_pid_vector.push_back( p );
+// printf("push_back a new vector list..\n");
         mpChild = (MPListViewItem *)mpChild->nextSibling();
       }
     } else
@@ -1148,10 +1227,6 @@ ManageCollectorsClass::focusOnPSetList(QListView *lv)
         continue;
       }
       std::pair<std::string, std::string> p(host_name,pid_name);
-      if( msg == NULL )
-      {
-        msg = new FocusObject(expID,  NULL, NULL, TRUE);
-      }
       msg->host_pid_vector.push_back( p );
     } 
     
@@ -1159,6 +1234,8 @@ ManageCollectorsClass::focusOnPSetList(QListView *lv)
   }
 
 
+
+/* 
   if( !msg || msg->host_pid_vector.size() == 0 )
   {
     QMessageBox::information( this, tr("Error process selection:"), tr("Unable to focus: No processes selected."), QMessageBox::Ok );
@@ -1168,6 +1245,7 @@ ManageCollectorsClass::focusOnPSetList(QListView *lv)
     }
     return;
   }
+*/
 
 
 
@@ -1487,6 +1565,8 @@ bool
 ManageCollectorsClass::menu(QPopupMenu* contextMenu)
 {
 // printf("ManageCollectorsClass::menu(0x%x) entered.\n", contextMenu);
+psetListView->contentsDragLeaveEvent(NULL);
+
 
   bool selectable = TRUE;
   bool leftSide = TRUE;
@@ -1631,6 +1711,20 @@ if( leftSide == TRUE )
   qaction->setText( tr("Disable Collector") );
   connect( qaction, SIGNAL( activated() ), this, SLOT( disableSelected() ) );
   qaction->setStatusTip( tr("Disable the selected (highlighted) collector from the experiment.") );
+
+  contextMenu->insertSeparator();
+
+  qaction = new QAction( this,  "createUserPSet");
+  qaction->addTo( contextMenu );
+  qaction->setText( tr("Create A New PSet") );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( createUserPSet() ) );
+  qaction->setStatusTip( tr("Create a new user defined process set.") );
+
+  qaction = new QAction( this,  "removeUserPSet");
+  qaction->addTo( contextMenu );
+  qaction->setText( tr("Remove PSet") );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( removeUserPSet() ) );
+  qaction->setStatusTip( tr("Remove the highlighted user defined process set.") );
 
 
   return( TRUE );

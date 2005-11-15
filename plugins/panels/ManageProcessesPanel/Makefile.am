@@ -44,10 +44,15 @@ moc_ManageProcessesPanel.cxx: ManageProcessesPanel.hxx
 moc_ManageCollectorsClass.cxx: ManageCollectorsClass.hxx
 	-moc -o moc_ManageCollectorsClass.cxx ManageCollectorsClass.hxx
 
+moc_MPListView.cxx: MPListView.hxx
+	-moc -o moc_MPListView.cxx MPListView.hxx
+
+
 ManageProcessesPanel_la_SOURCES = \
 	ManageProcessesPanel.hxx ManageProcessesPanel.cxx moc_ManageProcessesPanel.cxx \
 	ManageCollectorsClass.hxx ManageCollectorsClass.cxx moc_ManageCollectorsClass.cxx \
 	MPListViewItem.hxx MPListViewItem.cxx \
+	MPListView.hxx MPListView.cxx moc_MPListView.cxx \
 	local_plugin_info.hxx preference_plugin_info.hxx
 
 CLEANFILES=moc_ManageProcessesPanel.cxx
