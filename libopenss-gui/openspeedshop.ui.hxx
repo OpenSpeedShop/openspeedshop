@@ -446,6 +446,10 @@ void OpenSpeedshop::fileExit()
   pd = new GenericProgressDialog(this, "Exiting Open|SpeedShop", TRUE );
   pd->infoLabel->setText( tr("Waiting to exit: Cleaning up...") );
 
+// printf("fileExit() close all external panel containers\n");
+  topPC->closeAllExternalPanelContainers();
+
+// printf("fileExit() now send the exit to the cli\n");
   int wid = ((PanelContainer *)topPC)->getMainWindow()->widStr.toInt();
   InputLineObject *ilp = Append_Input_String( wid, "exit\n");
 
