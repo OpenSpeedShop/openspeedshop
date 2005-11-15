@@ -119,7 +119,7 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
             Framework::SmartPtr<std::map<Function, CommandResult *> >(
                 new std::map<Function, CommandResult * >()
                 );
-    GetMetricByObject (cmd, false, tgrp, CV[Column0index], MV[Column0index], initial_items);
+    GetMetricByObject (cmd, tgrp, CV[Column0index], MV[Column0index], initial_items);
     std::vector<std::pair<Function, CommandResult *> > items;
     std::map <Function, CommandResult *>::const_iterator ii;
     for(ii = initial_items->begin(); ii != initial_items->end(); ii++ ) {

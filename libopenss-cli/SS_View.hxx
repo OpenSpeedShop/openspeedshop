@@ -210,7 +210,6 @@ void GetMetricByObjectSet (CommandObject *cmd,
 
 template <typename TE>
 void GetMetricByObject (CommandObject *cmd,
-                        bool ascending_sort,
                         ThreadGroup& tgrp,
                         Collector& collector,
                         std::string& metric,
