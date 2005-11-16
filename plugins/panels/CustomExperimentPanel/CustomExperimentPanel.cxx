@@ -490,7 +490,7 @@ CustomExperimentPanel::listener(void *msg)
   } else if( mo->msgType == "ClosingDownObject" )
   {
     nprintf( DEBUG_MESSAGES ) ("CustomExperimentPanel::listener() ClosingDownObject!\n");
-    if( exitingFLAG == FALSE )
+    if( exitingFLAG == FALSE && mw->shuttingDown == FALSE )
     {
       QString command = QString::null;
       command = QString("expClose -x %1").arg(expID);
