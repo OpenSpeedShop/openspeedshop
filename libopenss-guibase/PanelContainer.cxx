@@ -1637,7 +1637,9 @@ PanelContainer::removeTopLevelPanelContainer(PanelContainer *toppc, bool recursi
     }
   }
 
-  getMasterPC()->_masterPanelContainerList->remove(toppc);
+// This should get remove with the delet...
+//  getMasterPC()->_masterPanelContainerList->remove(toppc);
+
   toppc->panelList.clear(); // You should have already deleted these panels.
   toppc->leftPanelContainer = NULL;
   toppc->rightPanelContainer = NULL;
@@ -1749,6 +1751,8 @@ PanelContainer::hidePanel(Panel *targetPanel)
 }
 
 /*! If there is a Panel raised, remove it. */
+#include "openspeedshop.hxx"
+
 void
 PanelContainer::removeRaisedPanel(PanelContainer *targetPC)
 {
@@ -1767,18 +1771,32 @@ PanelContainer::removeRaisedPanel(PanelContainer *targetPC)
     Panel *p = targetPC->getRaisedPanel();
     nprintf(DEBUG_PANELCONTAINERS)("Current page (raised tab) = %d (%s) p=(%s)\n", currentPageIndex, targetPC->tabWidget->label(currentPageIndex).ascii(), p->getName() );
 
-    if( currentPageIndex == -1 || p == NULL)
-    {
-      fprintf(stderr, "Unable to remove raised panel.\n");
-      return;
-    }
+   if( strcmp(p->getName(), "&Command Panel") == 0  )
+   {
+     OpenSpeedshop *mw = getMainWindow();
+     if( mw->shuttingDown == TRUE )
+     {
+        PanelContainer *start_pc = findBestFitPanelContainer(getMasterPC());
+        if( start_pc != targetPC )
+        {
+          p->getPanelContainer()->movePanel(p, currentPage, start_pc);
+        }
+     }
+   } else
+   {
+     if( currentPageIndex == -1 || p == NULL)
+     {
+       fprintf(stderr, "Unable to remove raised panel.\n");
+       return;
+     }
 
 //printf("%d: Current page (raised tab) = %d (%s) p=(%s)\n", getMasterPC()->_eventsEnabled, currentPageIndex, targetPC->tabWidget->label(currentPageIndex).ascii(), p->getName() );
-    ClosingDownObject *cdo = new ClosingDownObject();
-    p->listener((char *)cdo);
-
-    targetPC->tabWidget->removePage(currentPage);
-    deletePanel(p, targetPC);
+      ClosingDownObject *cdo = new ClosingDownObject();
+      p->listener((char *)cdo);
+   
+      targetPC->tabWidget->removePage(currentPage);
+      deletePanel(p, targetPC);
+    }
   }
 
   targetPC->getMasterPC()->deleteHiddenPanels(targetPC);

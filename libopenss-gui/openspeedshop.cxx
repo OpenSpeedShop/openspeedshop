@@ -59,6 +59,7 @@ OpenSpeedshop::OpenSpeedshop( int _wid, int _climode, QWidget* parent, const cha
   expStr = QString::null;
   preferencesDialog = NULL;
   mpiFLAG = FALSE;
+  shuttingDown = FALSE;
 
   widStr = QString("%1").arg(_wid);
 

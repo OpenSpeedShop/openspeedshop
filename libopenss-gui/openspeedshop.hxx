@@ -92,6 +92,9 @@ class OpenSpeedshop : public QMainWindow
     CLIInterface *cli;
     bool climode;
 
+    //! Global flag indicating if we're shutting down.   Caused by File->exit or CmdPanel "exit" command.
+    bool shuttingDown;
+
     //! A list to all plugin panel preferences 
     PreferencesStackPagesList preferencesStackPagesList;
 

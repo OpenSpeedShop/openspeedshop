@@ -441,6 +441,8 @@ void OpenSpeedshop::fileExit()
 {
 // printf("fileExit() entered.\n");
 
+  shuttingDown = TRUE;
+
 //  QMessageBox::information( (QWidget *)this, tr("Info:"), tr("Closing down Open|SpeedShop... This may take a few seconds cleaning up...."),  QMessageBox::NoButton );
 
   pd = new GenericProgressDialog(this, "Exiting Open|SpeedShop", TRUE );
