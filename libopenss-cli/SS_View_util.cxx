@@ -94,7 +94,7 @@ void GetMetricBySet (CommandObject *cmd,
     for(typename std::map<TE, uint>::const_iterator
         item = data->begin(); item != data->end(); ++item) {
       std::pair<TE, uint> p = *item;
-      items->insert( std::make_pair(p.first, new CommandResult_Uint (p.second)) );
+      items->insert( std::make_pair(p.first, CRPTR (p.second)) );
     }
   } else if( m.isType(typeid(uint64_t)) ) {
     SmartPtr<std::map<TE, uint64_t> > data;
@@ -102,7 +102,7 @@ void GetMetricBySet (CommandObject *cmd,
     for(typename std::map<TE, uint64_t>::const_iterator
         item = data->begin(); item != data->end(); ++item) {
       std::pair<TE, uint64_t> p = *item;
-      items->insert( std::make_pair(p.first, new CommandResult_Uint (p.second)) );
+      items->insert( std::make_pair(p.first, CRPTR (p.second)) );
     }
   } else if( m.isType(typeid(int)) ) {
     SmartPtr<std::map<TE, int> > data;
@@ -110,7 +110,7 @@ void GetMetricBySet (CommandObject *cmd,
     for(typename std::map<TE, int>::const_iterator
         item = data->begin(); item != data->end(); ++item) {
       std::pair<TE, int> p = *item;
-      items->insert( std::make_pair(p.first, new CommandResult_Int (p.second)) );
+      items->insert( std::make_pair(p.first, CRPTR (p.second)) );
     }
   } else if( m.isType(typeid(int64_t)) ) {
     SmartPtr<std::map<TE, int64_t> > data;
@@ -118,7 +118,7 @@ void GetMetricBySet (CommandObject *cmd,
     for(typename std::map<TE, int64_t>::const_iterator
         item = data->begin(); item != data->end(); ++item) {
       std::pair<TE, int64_t> p = *item;
-      items->insert( std::make_pair(p.first, new CommandResult_Int (p.second)) );
+      items->insert( std::make_pair(p.first, CRPTR (p.second)) );
     }
   } else if( m.isType(typeid(float)) ) {
     SmartPtr<std::map<TE, float> > data;
@@ -126,7 +126,7 @@ void GetMetricBySet (CommandObject *cmd,
     for(typename std::map<TE, float>::const_iterator
         item = data->begin(); item != data->end(); ++item) {
       std::pair<TE, float> p = *item;
-      items->insert( std::make_pair(p.first, new CommandResult_Float (p.second)) );
+      items->insert( std::make_pair(p.first, CRPTR (p.second)) );
     }
   } else if( m.isType(typeid(double)) ) {
     SmartPtr<std::map<TE, double> > data;
@@ -134,7 +134,7 @@ void GetMetricBySet (CommandObject *cmd,
     for(typename std::map<TE, double>::const_iterator
         item = data->begin(); item != data->end(); ++item) {
       std::pair<TE, double> p = *item;
-      items->insert( std::make_pair(p.first, new CommandResult_Float (p.second)) );
+      items->insert( std::make_pair(p.first, CRPTR (p.second)) );
     }
   } else if( m.isType(typeid(string)) ) {
     SmartPtr<std::map<TE, string> > data;
@@ -142,7 +142,7 @@ void GetMetricBySet (CommandObject *cmd,
     for(typename std::map<TE, string>::const_iterator
         item = data->begin(); item != data->end(); ++item) {
       std::pair<TE, string> p = *item;
-      items->insert( std::make_pair(p.first, new CommandResult_String (p.second)) );
+      items->insert( std::make_pair(p.first, CRPTR (p.second)) );
     }
   }
 
@@ -253,27 +253,27 @@ CommandResult *Get_Total_Metric (CommandObject *cmd,
   if( m.isType(typeid(unsigned int)) ) {
     uint Value = 0;
     GetMetricsforThreads(cmd, tgrp, collector, metric, Value);
-    if (Value != 0) Param_Value = new CommandResult_Uint (Value);
+    if (Value != 0) Param_Value = CRPTR (Value);
   } else if( m.isType(typeid(uint64_t)) ) {
     uint64_t Value = 0;
     GetMetricsforThreads(cmd, tgrp, collector, metric, Value);
-    if (Value != 0) Param_Value = new CommandResult_Uint (Value);
+    if (Value != 0) Param_Value = CRPTR (Value);
   } else if( m.isType(typeid(int)) ) {
     int Value = 0;
     GetMetricsforThreads(cmd, tgrp, collector, metric, Value);
-    if (Value > 0) Param_Value = new CommandResult_Int (Value);
+    if (Value > 0) Param_Value = CRPTR (Value);
   } else if( m.isType(typeid(int64_t)) ) {
     int64_t Value = 0;
     GetMetricsforThreads(cmd, tgrp, collector, metric, Value);
-    if (Value > 0) Param_Value = new CommandResult_Int (Value);
+    if (Value > 0) Param_Value = CRPTR (Value);
   } else if( m.isType(typeid(float)) ) {
     float Value = 0.0;
     GetMetricsforThreads(cmd, tgrp, collector, metric, Value);
-    if (Value > 0.0000000001) Param_Value = new CommandResult_Float (Value);
+    if (Value > 0.0000000001) Param_Value = CRPTR (Value);
   } else if( m.isType(typeid(double)) ) {
     double Value = 0.0;
     GetMetricsforThreads(cmd, tgrp, collector, metric, Value);
-    if (Value > 0.0000000001) Param_Value = new CommandResult_Float (Value);
+    if (Value > 0.0000000001) Param_Value = CRPTR (Value);
   }
   return Param_Value;
 }
@@ -326,7 +326,7 @@ void Add_Column_Headers (CommandResult_Headers *H, std::string *column_titles)
 {
   int64_t i = 0;
   while (column_titles[i].length() != 0) {
-    CommandResult *T = new CommandResult_String ( column_titles[i] );
+    CommandResult *T = CRPTR ( column_titles[i] );
     H->CommandResult_Headers::Add_Header (T);
     i++;
   }

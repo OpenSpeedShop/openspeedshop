@@ -738,9 +738,13 @@ inline CommandResult *Calculate_Percent (CommandResult *A, CommandResult *B) {
 }
 
 // Overloaded utility that will generate the right CommandResult object.
+inline CommandResult *CRPTR (uint& V) { return new CommandResult_Uint (V); }
 inline CommandResult *CRPTR (uint64_t& V) { return new CommandResult_Uint (V); }
+inline CommandResult *CRPTR (int& V) { return new CommandResult_Int (V); }
 inline CommandResult *CRPTR (int64_t& V) { return new CommandResult_Int (V); }
+inline CommandResult *CRPTR (float& V) { return new CommandResult_Float (V); }
 inline CommandResult *CRPTR (double& V) { return new CommandResult_Float (V); }
+inline CommandResult *CRPTR (char *V) { return new CommandResult_String (std::string(V)); }
 inline CommandResult *CRPTR (std::string& V) { return new CommandResult_String (V); }
 inline CommandResult *CRPTR (Function& V) { return new CommandResult_Function (V); }
 inline CommandResult *CRPTR (Statement& V) { return new CommandResult_Statement (V); }
@@ -854,19 +858,19 @@ public:
   void set_Results_Used () { results_used = true; }
 
   void Result_Uint (uint64_t U) {
-    Attach_Result (new CommandResult_Uint(U));
+    Attach_Result (CRPTR (U));
   }
   void Result_Int (int64_t I) {
-    Attach_Result (new CommandResult_Int(I));
+    Attach_Result (CRPTR (I));
   }
   void Result_Float (double F) {
-    Attach_Result (new CommandResult_Float(F));
+    Attach_Result (CRPTR (F));
   }
   void Result_String (std::string S) {
-    Attach_Result (new CommandResult_String (S));
+    Attach_Result (CRPTR (S));
   }
   void Result_String (char *C) {
-    Attach_Result (new CommandResult_String (C));
+    Attach_Result (CRPTR (C));
   }
   void Result_RawString (std::string S) {
     Attach_Result (new CommandResult_RawString (S));

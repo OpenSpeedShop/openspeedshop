@@ -2029,33 +2029,33 @@ static CommandResult *Get_Collector_Metadata (Collector c, Metadata m) {
   if( m.isType(typeid(int)) ) {
     int Value;
     c.getParameterValue(id, Value);
-    Param_Value = new CommandResult_Int (Value);
+    Param_Value = CRPTR (Value);
   } else if( m.isType(typeid(int64_t)) ) {
     int64_t Value;
     c.getParameterValue(id, Value);
-    Param_Value = new CommandResult_Int (Value);
+    Param_Value = CRPTR (Value);
   } else if( m.isType(typeid(unsigned int)) ) {
     uint Value;
     c.getParameterValue(id, Value);
-    Param_Value = new CommandResult_Uint (Value);
+    Param_Value = CRPTR (Value);
   } else if( m.isType(typeid(uint64_t)) ) {
     int64_t Value;
     c.getParameterValue(id, Value);
-    Param_Value = new CommandResult_Uint (Value);
+    Param_Value = CRPTR (Value);
   } else if( m.isType(typeid(float)) ) {
     float Value;
     c.getParameterValue(id, Value);
-    Param_Value = new CommandResult_Float (Value);
+    Param_Value = CRPTR (Value);
   } else if( m.isType(typeid(double)) ) {
     double Value;
     c.getParameterValue(id, Value);
-    Param_Value = new CommandResult_Float (Value);
+    Param_Value = CRPTR (Value);
   } else if( m.isType(typeid(string)) ) {
     std::string Value;
     c.getParameterValue(id, Value);
-    Param_Value = new CommandResult_String (Value);
+    Param_Value = CRPTR (Value);
   } else {
-    Param_Value = new CommandResult_String("Unknown type.");
+    Param_Value = CRPTR ("Unknown type.");
   }
   return Param_Value;
 }

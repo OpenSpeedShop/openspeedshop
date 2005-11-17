@@ -181,7 +181,7 @@ void Construct_View (CommandObject *cmd,
           Next_Metric_Value = Calculate_Percent (Metric_Result, TotalValue);
         }
         if (Next_Metric_Value == NULL) {
-          Next_Metric_Value = new CommandResult_String ("");
+          Next_Metric_Value = CRPTR ("");
         }
         C->CommandResult_Columns::Add_Column (Next_Metric_Value);
         if (report_Column_summary) {
@@ -205,7 +205,7 @@ void Construct_View (CommandObject *cmd,
         E->CommandResult_Enders::Add_Ender (Column_Sum[i]);
       }
      // Add ID
-      E->CommandResult_Enders::Add_Ender ( new CommandResult_String ( "Report Summary" ) );
+      E->CommandResult_Enders::Add_Ender ( CRPTR ( "Report Summary" ) );
       cmd->Result_Predefined (E);
     }
 
@@ -368,10 +368,10 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
         }
         column_header = "% of Total";
       }
-      H->CommandResult_Headers::Add_Header ( new CommandResult_String ( column_header ) );
+      H->CommandResult_Headers::Add_Header ( CRPTR ( column_header ) );
     }
    // Add Entry Object name
-    H->CommandResult_Headers::Add_Header ( new CommandResult_String ( EO_Title ) );
+    H->CommandResult_Headers::Add_Header ( CRPTR ( EO_Title ) );
     cmd->Result_Predefined (H);
 
    // Now format the view.
