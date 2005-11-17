@@ -343,7 +343,7 @@ extern "C"
       }
       processing_signal = true;
      // the folowing lines are for debugging
-    	// cerr << "catch_signal " << sig << std::endl;
+    	cerr << "catch_signal " << sig << std::endl;
     	// Internal_Info_Dump(1);
     	// User_Info_Dump(1);
 
