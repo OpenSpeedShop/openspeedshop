@@ -16,6 +16,9 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
+// A utility used to look at command options
+bool Look_For_KeyWord (CommandObject *cmd, std::string Key);
+
 // Experiment level commands
 bool SS_expAttach (CommandObject *cmd);
 bool SS_expClose (CommandObject *cmd);
@@ -62,7 +65,7 @@ bool SS_Record (CommandObject *cmd);
 bool SS_SetBreak (CommandObject *cmd);
 bool SS_Wait (CommandObject *cmd);
 
-// Place holders for comands that are not yet implemented
+// Place holders for commands that are not yet implemented
 bool SS_no_value    	(CommandObject *cmd);
 bool SS_string_value    (CommandObject *cmd);
 bool SS_int_value   	(CommandObject *cmd);

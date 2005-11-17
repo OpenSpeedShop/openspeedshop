@@ -279,7 +279,9 @@ class CommandResult_Function : public CommandResult, Function {
     LinkedObject L = getLinkedObject();
     std::set<Statement> T = getDefinitions();
 
-    S = S + "(" + L.getPath().getBaseName();
+    S = S + "(" + ((OPENSS_VIEW_FULLPATH)
+                      ? L.getPath()
+                      : L.getPath().getBaseName());
 
     if (T.size() > 0) {
       std::set<Statement>::const_iterator ti;
@@ -291,7 +293,11 @@ class CommandResult_Function : public CommandResult, Function {
         Statement s = *ti;
         char l[20];
         sprintf( &l[0], "%lld", (int64_t)s.getLine());
-        S = S + ": " + s.getPath().getBaseName() + "," + &l[0];
+        S = S + ": "
+              + ((OPENSS_VIEW_FULLPATH)
+                      ? s.getPath()
+                      : s.getPath().getBaseName())
+              + "," + &l[0];
       }
     }
     S += ")";
@@ -337,10 +343,15 @@ class CommandResult_Statement : public CommandResult, Statement {
        CommandResult(CMD_RESULT_STATEMENT) {
   }
 
-  virtual void Value (std::string &S) {
+  virtual void Value (int64_t& L) {
+    L = (int64_t)getLine();
   };
   virtual std::string Form () {
-    std::string S;
+    char l[20];
+    sprintf( &l[0], "%lld", (int64_t)getLine());
+    std::string S = (OPENSS_VIEW_FULLPATH)
+                      ? std::string(l) + " " + getPath()
+                      : std::string(l) + " " + getPath().getBaseName();
     return S;
   }
   virtual PyObject * pyValue () {
@@ -383,9 +394,14 @@ class CommandResult_LinkedObject : public CommandResult, LinkedObject {
   }
 
   virtual void Value (std::string &L) {
+    L = (OPENSS_VIEW_FULLPATH)
+                      ? getPath()
+                      : getPath().getBaseName();
   };
   virtual std::string Form () {
-    std::string S;
+    std::string S = (OPENSS_VIEW_FULLPATH)
+                      ? getPath()
+                      : getPath().getBaseName();
     return S;
   }
   virtual PyObject * pyValue () {
@@ -484,11 +500,9 @@ class CommandResult_Headers : public CommandResult {
     return p_object;
   }
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
-    
-    std::list<CommandResult *> cmd_object = Headers;
     std::list<CommandResult *>::iterator coi;
     int64_t num_results = 0;
-    for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
+    for (coi = Headers.begin(); coi != Headers.end(); coi++) {
       if (num_results++ != 0) to << "  ";
       (*coi)->Print (to, fieldsize, (num_results >= number_of_columns) ? true : false);
     }
@@ -540,11 +554,9 @@ class CommandResult_Enders : public CommandResult {
     return p_object;
   }
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
-    
-    std::list<CommandResult *> cmd_object = Enders;
     std::list<CommandResult *>::iterator coi;
     int64_t num_results = 0;
-    for (coi = cmd_object.begin(); coi != cmd_object.end(); coi++) {
+    for (coi = Enders.begin(); coi != Enders.end(); coi++) {
       if (num_results++ != 0) to << "  ";
       (*coi)->Print (to, fieldsize, (num_results >= number_of_columns) ? true : false);
     }
@@ -724,7 +736,16 @@ inline CommandResult *Calculate_Percent (CommandResult *A, CommandResult *B) {
   if (percent < 0.0) percent = 0.0;
   return new CommandResult_Float (percent);
 }
-    
+
+// Overloaded utility that will generate the right CommandResult object.
+inline CommandResult *CRPTR (uint64_t& V) { return new CommandResult_Uint (V); }
+inline CommandResult *CRPTR (int64_t& V) { return new CommandResult_Int (V); }
+inline CommandResult *CRPTR (double& V) { return new CommandResult_Float (V); }
+inline CommandResult *CRPTR (std::string& V) { return new CommandResult_String (V); }
+inline CommandResult *CRPTR (Function& V) { return new CommandResult_Function (V); }
+inline CommandResult *CRPTR (Statement& V) { return new CommandResult_Statement (V); }
+inline CommandResult *CRPTR (LinkedObject& V) { return new CommandResult_LinkedObject (V); }
+
 
 enum Command_Status
 {
