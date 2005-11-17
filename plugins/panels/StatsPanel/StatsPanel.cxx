@@ -230,6 +230,8 @@ StatsPanel::~StatsPanel()
 // printf("Destructor delete the currentCollector\n");
     delete currentCollector;
   }
+
+  delete spoclass;
 }
 
 void

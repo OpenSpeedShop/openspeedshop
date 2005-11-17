@@ -303,7 +303,9 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
     } else
     {
 
-      if( ao && ao->loadedFromSavedFile == TRUE )
+      ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+      if( ao && ao->loadedFromSavedFile == TRUE &&
+          eo && eo->Determine_Status() == ExpStatus_NonExistent )
       {
         topPC->splitVertical(40);
         postProcessFLAG = TRUE;
@@ -1017,7 +1019,6 @@ pcSamplePanel::loadMain()
 void
 pcSamplePanel::updateStatus()
 {
-// printf("updateStatus() entered\n");
   if( expID <= 0 )
   {
     statusLabelText->setText( "No expid" );
