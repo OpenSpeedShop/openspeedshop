@@ -1582,11 +1582,40 @@ void Commander_Termination () {
 
 void Redirect_Window_Output (CMDWID for_window, ss_ostream *for_out, ss_ostream *for_err) {
   CommandWindowID *my_window = Find_Command_Window (for_window);
-  if (for_out != NULL) {
-    my_window->set_outstream (for_out);
+  if ((for_out == NULL) &&
+      (for_window != tli_window) &&
+      (tli_window != 0)) {
+   // Find a default value to use for the stream.
+    CommandWindowID *tliw = Find_Command_Window (tli_window);
+    for_out = tliw->has_outstream() ? tliw->ss_outstream() : ss_out;
   }
-  if (for_err != NULL) {
-    my_window->set_errstream (for_err);
+ // Overwrite the previous stream - note we don't close it!
+  ss_ostream *old_outstream = my_window->ss_outstream();
+  if (old_outstream != NULL) {
+   // Wait until in-process-output is complete
+    old_outstream->acquireLock();
+  }
+  my_window->set_outstream (for_out);
+  if (old_outstream != NULL) {
+    old_outstream->releaseLock();
+  }
+
+  if ((for_err == NULL) &&
+      (for_window != tli_window) &&
+      (tli_window != 0)) {
+   // Find a default value to use for the stream.
+    CommandWindowID *tliw = Find_Command_Window (tli_window);
+    for_err = tliw->has_errstream() ? tliw->ss_errstream() : ss_err;
+  }
+ // Overwrite the previous stream - note we don't close it!
+  ss_ostream *old_errstream = my_window->ss_errstream();
+  if (old_errstream != NULL) {
+   // Wait until in-process-output is complete
+    old_errstream->acquireLock();
+  }
+  my_window->set_errstream (for_err);
+  if (old_errstream != NULL) {
+    old_errstream->releaseLock();
   }
 
  // We may want to redirect command line output.
