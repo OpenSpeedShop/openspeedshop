@@ -404,8 +404,10 @@ CmdPanel::listener(void *msg)
 {
   nprintf(DEBUG_MESSAGES) ("CmdPanel::listener() requested.\n");
 
+
   nprintf(DEBUG_MESSAGES) ("CmdPanel::listener() getName(%s)\n", getName() );
   MessageObject *messageObject = (MessageObject *)msg;
+  nprintf(DEBUG_MESSAGES) ("CmdPanel::listener() messageObject->msgType = (%s)\n", messageObject->msgType.ascii() );
   if( messageObject->msgType == getName() )
   {
     nprintf(DEBUG_MESSAGES) ("CmdPanel::listener() interested!\n");
@@ -416,6 +418,19 @@ CmdPanel::listener(void *msg)
 // printf("CmdPanel::listener knows we're about to close down.\n");
     closingDown = TRUE;
   }
+
+  // make sure you redirect the output back to the cli...\n");
+  // We have a strange (temporary problem) because we're currently using
+  // Redirect_Window_Output( cli->wid, spoclass, spoclass ); to push the
+  // cli output to a parser that then generates the
+  // This is paired up with the StatsPanel.  When you pull this, pull that one
+  // too.
+  if( messageObject->msgType == "Redirect_Window_Output()" )
+  {
+    int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
+    Redirect_Window_Output( wid, oclass, oclass );
+  }
+  
   return 0;  // 0 means, did not want this message and did not act on anything.
 }
 

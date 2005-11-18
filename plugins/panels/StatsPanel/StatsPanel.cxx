@@ -257,7 +257,7 @@ StatsPanel::listener(void *msg)
   PreferencesChangedObject *pco = NULL;
 
   MessageObject *msgObject = (MessageObject *)msg;
-// printf("StatsPanel::listener() msg->msgType = (%s)\n", msgObject->msgType.ascii() );
+  nprintf(DEBUG_MESSAGES) ("StatsPanel::listener() msg->msgType = (%s)\n", msgObject->msgType.ascii() );
   if( msgObject->msgType == getName() && recycleFLAG == TRUE )
   {
     nprintf(DEBUG_MESSAGES) ("StatsPanel::listener() interested!\n");
@@ -364,6 +364,7 @@ StatsPanel::listener(void *msg)
     f = sao->f;
     exportData();
   }
+
 
   return 0;  // 0 means, did not want this message and did not act on anything.
 }
@@ -1332,6 +1333,7 @@ StatsPanel::updateStatsPanelData()
 // printf("command: (%s)\n", command.ascii() );
   lastAbout += "Command issued: " + command;
   InputLineObject *clip = Append_Input_String( cli->wid, (char *)command.ascii());
+
   if( clip == NULL )
   {
     fprintf(stderr, "FATAL ERROR: No clip returned from cli.\n");
@@ -1373,6 +1375,23 @@ StatsPanel::updateStatsPanelData()
 
   //Test putting the output to statspanel stream.
   Default_TLI_Line_Output(clip);
+
+  // make sure you redirect the output back to the cli...\n");
+  // We have a strange (temporary problem) because we're currently using
+  // Redirect_Window_Output( cli->wid, spoclass, spoclass ); to push the 
+  // cli output to a parser that then generates the 
+  // This is (obviously) paired with the CmdPanel.   When you pull this,
+  // pull that one too.
+  Panel *cmdPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), "&Command Panel");
+  if( cmdPanel )
+  {
+    MessageObject *msg = new MessageObject("Redirect_Window_Output()");
+    cmdPanel->listener((void *)msg);
+    delete msg;
+  } else
+  {
+    fprintf(stderr, "Unable to redirect output to the cmdpanel.\n");
+  }
 
 
 
@@ -1907,6 +1926,7 @@ StatsPanel::setCurrentMetricStr()
 void
 StatsPanel::outputCLIData(QString *data)
 {
+// printf("StatsPanel::outputCLIData\n");
 // printf("%s", data->ascii() );
   // Skip any blank lines.
   if( *data == QString("\n") )
@@ -1948,6 +1968,8 @@ StatsPanel::outputCLIData(QString *data)
     gotHeader = TRUE;
     return;
   }
+
+// printf("fieldCount=(%d)\n", fieldCount);
 
 
 //  if( gotColumns == FALSE )
