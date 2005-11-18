@@ -231,7 +231,8 @@ StatsPanel::~StatsPanel()
     delete currentCollector;
   }
 
-  delete spoclass;
+// FIX - This causes the cli fits on exit.   Common out until resolved.
+//  delete spoclass;
 }
 
 void
