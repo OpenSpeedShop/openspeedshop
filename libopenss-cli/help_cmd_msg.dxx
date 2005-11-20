@@ -259,7 +259,7 @@ char *cmd_expStatus_args[] = {
 };
 
 char *cmd_expView_args[] = {
-    "expView [-x <expId>] [<viewType>] [-m <expMetric_list>] [<target_spec>]"
+    "expView [-v <modifier_list>] [-x <expId>] [<viewType>] [-m <expMetric_list>] [<target_spec>]"
 };
 
 char *cmd_listBreaks_args[] = {
