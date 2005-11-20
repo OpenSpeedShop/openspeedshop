@@ -44,37 +44,37 @@ Command Summary
 <small>Experiment Building Block Commands</small><br>
 <font face="Arial"><font size="+0"> </font></font>
 </h2>
-<font size="-1"><b>expAttach</b> [ <b>-v mpi</b> ] [ &lt;expId_spec&gt; ] [
+<font size="-1"><b>expAttach</b> [ <b>-v mpi</b> ] [ <b>-x</b> &lt;expId&gt; ] [
 &lt;target_list&gt; ] [ &lt;expType_list&gt; ]</font>
 <br>
 <font size="-1"><b>expClose</b> [ <b>-v kill</b> ] [ <b>-v all</b> || 
-&lt;expId_spec&gt; ]</font>
+<b>-x</b> &lt;expId&gt; ]</font>
 <br>
 <font size="-1">&lt;expId&gt; <b>=</b>
 <b>expCreate</b> [ <b>-v mpi</b> ] [ &lt;target_list&gt; ] [ &lt;expType_list&gt;
 ]</font>
 <br>
-<font size="-1"><b>expDetach </b>[ &lt;expId_spec&gt; ] [
+<font size="-1"><b>expDetach </b>[ <b>-x</b> &lt;expId&gt; ] [
 &lt;target_list&gt; ] [ &lt;expType_list&gt; ]</font>
 <br>
-<font size="-1"><b>expDisable </b>[ <b>-v all</b> || &lt;expId_spec&gt; ]</font>
+<font size="-1"><b>expDisable </b>[ <b>-v all</b> || <b>-x</b> &lt;expId&gt; ]</font>
 <br>
-<font size="-1"><b>expEnable </b>[ <b>-v all</b> || &lt;expId_spec&gt; ]</font>
+<font size="-1"><b>expEnable </b>[ <b>-v all</b> || <b>-x</b> &lt;expId&gt; ]</font>
 <br>
 <font size="-1">&lt;expId&gt; =
-<b>expFocus </b>[ &lt;expId_spec&gt; ]</font>
+<b>expFocus </b>[ <b>-x</b> &lt;expId&gt; ]</font>
 <br>
-<font size="-1"><b>expGo </b>[ <b>-v all</b> || &lt;expId_spec&gt; ]</font>
+<font size="-1"><b>expGo </b>[ <b>-v all</b> || <b>-x</b> &lt;expId&gt; ]</font>
 <br>
-<font size="-1"><b>expPause</b> [ <b>-v all</b> || &lt;expId_spec&gt; ]</font>
+<font size="-1"><b>expPause</b> [ <b>-v all</b> || <b>-x</b> &lt;expId&gt; ]</font>
 <br>
 <font size="-1">&lt;expId&gt; <b>=</b>
 <b>expRestore </b> &lt;file_spec&gt;</font>
 <br>
-<font size="-1"><b>expSave</b> [ <b>-v copy</b> ] [ &lt;expId_spec&gt; ]
+<font size="-1"><b>expSave</b> [ <b>-v copy</b> ] [ <b>-x</b> &lt;expId&gt; ]
 &lt;file_spec&gt;</font>
 <br>
-<font size="-1"><b>expSetParam </b> [ &lt;expId_spec&gt; ]
+<font size="-1"><b>expSetParam </b> [ <b>-x</b> &lt;expId&gt; ]
 &lt;expParam&gt; <b>=</b> &lt;expParamValue&gt;
 [ <b>,</b> &lt;expParam&gt; <b>=</b> &lt;expParamValue&gt; ]+</font>
 <br>
@@ -83,9 +83,9 @@ Command Summary
 <h2><a name="mozTocId327520" class="mozTocH2"></a><a
  name="Information_Commands"></a><small>Experiment Information Commands</small><br>
 <font face="Arial"><font size="+0"></font></font></h2>
-<font size="-1"><b>expStatus</b> [ <b>-v all</b> || &lt;expId_spec&gt; ]</font>
+<font size="-1"><b>expStatus</b> [ <b>-v all</b> || <b>-x</b> &lt;expId&gt; ]</font>
 <br>
-<font size="-1"><b>expView </b>[ &lt;expId_spec&gt; ] [ &lt;viewType&gt; ]
+<font size="-1"><b>expView </b>[<b>-v</b> &lt;modifier_list&gt; ] [ <b>-x</b> &lt;expId&gt; ] [ &lt;viewType&gt; ]
 [ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target_list&gt; ]</font>
 <br>
 <br>
@@ -95,10 +95,10 @@ Command Summary
 <font face="Arial"><font size="+0"></font></font></h2>
 
 <font size="-1">&lt;ListOf_breakId&gt;
-<b>= list</b> <b>-v breaks</b>  [ &lt;expId_spec&gt; ] </font>
+<b>= list</b> <b>-v breaks</b>  [ <b>-x</b> &lt;expId&gt; ] </font>
 <br>
 <font size="-1">&lt;ListOf_breakId&gt;
-<b>= list</b> <b>-v breaks , all</b>  [ &lt;expId_spec&gt; ] </font>
+<b>= list</b> <b>-v breaks , all</b>  [ <b>-x</b> &lt;expId&gt; ] </font>
 <br>
 <br>
 
@@ -108,72 +108,72 @@ Command Summary
 <br>
 
 <font size="-1">&lt;ListOf_hostname&gt;
-<b>= list</b> <b>-v hosts</b> [ &lt;expId_spec&gt; ]</font>
+<b>= list</b> <b>-v hosts</b> [ <b>-x</b> &lt;expId&gt; ]</font>
 <br>
 <br>
 
 <font size="-1">&lt;ListOf_expMetric&gt;
-<b>= list</b> <b>-v metrics</b>  [ &lt;expId_spec&gt; || &lt;expType_list&gt; ]</font>
+<b>= list</b> <b>-v metrics</b>  [ <b>-x</b> &lt;expId&gt; || &lt;expType_list&gt; ]</font>
 <br>
 <font size="-1">&lt;ListOf_expMetric&gt;
-<b>= list</b> <b>-v metrics , all</b>  [ &lt;expId_spec&gt; || &lt;expType_list&gt; ]</font>
+<b>= list</b> <b>-v metrics , all</b>  [ <b>-x</b> &lt;expId&gt; || &lt;expType_list&gt; ]</font>
 <br>
 <br>
 
 <font size="-1">&lt;ListOf_filename&gt;
-<b>= list</b> <b>-v obj</b>  [ &lt;expId_spec&gt; ] [ &lt;target&gt; ] </font>
+<b>= list</b> <b>-v obj</b>  [ <b>-x</b> &lt;expId&gt; ] [ &lt;target&gt; ] </font>
 <br>
 <br>
 
 <font size="-1">&lt;ListOf_expParam&gt;
-<b>= list</b> <b>-v params</b>  [ &lt;expId_spec&gt; || &lt;expType_list&gt; ] </font>
+<b>= list</b> <b>-v params</b>  [ <b>-x</b> &lt;expId&gt; || &lt;expType_list&gt; ] </font>
 <br>
 <font size="-1">&lt;ListOf_expParam&gt;
-<b>= list</b> <b>-v params , all</b>  [ &lt;expId_spec&gt; || &lt;expType_list&gt; ] </font>
+<b>= list</b> <b>-v params , all</b>  [ <b>-x</b> &lt;expId&gt; || &lt;expType_list&gt; ] </font>
 <br>
 <br>
 
 <font size="-1">&lt;ListOf_pidname&gt;
-<b>= list</b> <b>-v pids</b>  [ &lt;expId_spec&gt; ] [ &lt;host_list_spec&gt; ] </font>
+<b>= list</b> <b>-v pids</b>  [ <b>-x</b> &lt;expId&gt; ] [ &lt;host_list_spec&gt; ] </font>
 <br>
 <br>
 
 <font size="-1">&lt;ListOf_rankname&gt;
-<b>= list</b> <b>-v ranks</b>  [ &lt;expId_spec&gt; ] [ &lt;target&gt; ] </font>
+<b>= list</b> <b>-v ranks</b>  [ <b>-x</b> &lt;expId&gt; ] [ &lt;target&gt; ] </font>
 <br>
 <br>
 
 <font size="-1">&lt;listOf_filename&gt;
-<b>= list</b> <b>-v src</b>  [ &lt;expId_spec&gt; ] [ &lt;target&gt; ] </font>
+<b>= list</b> <b>-v src</b>  [ <b>-x</b> &lt;expId&gt; ] [ &lt;target&gt; ] </font>
 <br>
 <br>
 
 <font size="-1">&lt;ListOf_statusType&gt;
-<b>= list</b> <b>-v status</b>  [ &lt;expId_spec&gt; ] </font>
+<b>= list</b> <b>-v status</b>  [ <b>-x</b> &lt;expId&gt; ] </font>
 <br>
 <font size="-1">&lt;ListOf_statusType&gt;
-<b>= list</b> <b>-v status , all</b>  [ &lt;expId_spec&gt; ] </font>
+<b>= list</b> <b>-v status , all</b>  [ <b>-x</b> &lt;expId&gt; ] </font>
 <br>
 <br>
 
 <font size="-1">&lt;ListOf_threadname&gt;
-<b>= list</b> <b>-v threads</b>  [ &lt;expId_spec&gt; ] [ &lt;target&gt; ] </font>
+<b>= list</b> <b>-v threads</b>  [ <b>-x</b> &lt;expId&gt; ] [ &lt;target&gt; ] </font>
 <br>
 <br>
 
 <font size="-1">&lt;ListOf_expType&gt;
-<b>= list</b> <b>-v exptypes</b>  [ &lt;expId_spec&gt; ] </font>
+<b>= list</b> <b>-v exptypes</b>  [ <b>-x</b> &lt;expId&gt; ] </font>
 <br>
 <font size="-1">&lt;ListOf_expType&gt;
-<b>= list</b> <b>-v exptypes , all</b>  [ &lt;expId_spec&gt; ] </font>
+<b>= list</b> <b>-v exptypes , all</b>  [ <b>-x</b> &lt;expId&gt; ] </font>
 <br>
 <br>
 
 <font size="-1">&lt;ListOf_viewType&gt;
-<b>= list</b> <b>-v views</b>  [&lt;expId_spec&gt; || &lt;expType_list&gt; ]</font>
+<b>= list</b> <b>-v views</b>  [<b>-x</b> &lt;expId&gt; || &lt;expType_list&gt; ]</font>
 <br>
 <font size="-1">&lt;ListOf_viewType&gt;
-<b>= list</b> <b>-v views , all</b>  [ &lt;expId_spec&gt; || &lt;expType_list&gt; ]</font>
+<b>= list</b> <b>-v views , all</b>  [ <b>-x</b> &lt;expId&gt; || &lt;expType_list&gt; ]</font>
 <br>
 <br>
 <br>
@@ -198,11 +198,11 @@ Command Summary
 <font size="-1"><b>record</b> [ &lt;file_spec&gt; ]</font>
 <br>
 <font size="-1">&lt;breakId&gt;
-<b>= setBreak</b> [ &lt;expId_spec&gt; ]
+<b>= setBreak</b> [ <b>-x</b> &lt;expId&gt; ]
 [ &lt;target&gt; ] &lt;address_description&gt;
 <br>
 <font size="-1"><b>wait</b>
-[ <b>-v terminate</b> ] [ &lt;expId_spec&gt; ]</font>
+[ <b>-v terminate</b> ] [ <b>-x</b> &lt;expId&gt; ]</font>
 <br>
 <br>
 <br>
