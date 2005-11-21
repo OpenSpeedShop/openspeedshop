@@ -357,7 +357,7 @@ IntroWizardPanel::languageChange()
 
   vHelpfulLabel->setText( tr( "Please select which of the following are true for your application:" ) );
   vpage1LoadExperimentCheckBox->setText( tr( "I already have experiment data and would like to analyze it." ) );
-  vpage1pcSampleRB->setText( tr( "I'm trying to find where my program is spending most of it's time. (pcsamp)" ) );
+  vpage1pcSampleRB->setText( tr( "I'm trying to find where my program is spending most of its time. (pcsamp)" ) );
   vpage1UserTimeRB->setText( tr( "I'd like to find out how much time is system time vs. my program's time. (usertime)" ) );
   vpage1HardwareCounterRB->setText( tr( "I'd like to see what the internal Hardware Counters can show me.\n"
 "(Hardware Counters are an advanced feature that utilizes machine \n"
