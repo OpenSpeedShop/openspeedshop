@@ -53,7 +53,12 @@ bool First_Column (CommandObject *cmd,
             Framework::SmartPtr<std::map<TE, CommandResult *> >(
                 new std::map<TE, CommandResult * >()
                 );
-    GetMetricByObject (cmd, tgrp, CV[Column0index], MV[Column0index], initial_items);
+    std::set<TE> objects;
+    Get_Filtered_Objects (cmd, tgrp, objects);
+    if (objects.empty()) {
+      return false;
+    }
+    GetMetricByObjectSet (cmd, tgrp, CV[Column0index], MV[Column0index], objects, initial_items);
     typename std::map <TE, CommandResult *>::const_iterator ii;
     for(ii = initial_items->begin(); ii != initial_items->end(); ii++ ) {
       items.push_back (std::make_pair(ii->first, ii->second));
@@ -288,7 +293,7 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
      case VIEW_STATEMENTS:
       first_column_found = First_Column (cmd, tgrp, CV, MV, Column0index, s_items);
       topn = min(topn, (int64_t)s_items.size());
-      EO_Title = "Statement Number / Location";
+      EO_Title = "Statement Location (Line Number)";
       break;
      case VIEW_LINKEDOBJECTS:
       first_column_found = First_Column (cmd, tgrp, CV, MV, Column0index, l_items);

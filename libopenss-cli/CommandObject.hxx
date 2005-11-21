@@ -350,8 +350,9 @@ class CommandResult_Statement : public CommandResult, Statement {
     char l[20];
     sprintf( &l[0], "%lld", (int64_t)getLine());
     std::string S = (OPENSS_VIEW_FULLPATH)
-                      ? std::string(l) + " " + getPath()
-                      : std::string(l) + " " + getPath().getBaseName();
+                        ? getPath()
+                        : getPath().getBaseName();
+    S = S + "(" + std::string(l) + ")";
     return S;
   }
   virtual PyObject * pyValue () {
