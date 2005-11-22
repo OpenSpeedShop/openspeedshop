@@ -22,7 +22,8 @@ BUILT_SOURCES = \
 	blobs.h blobs.c
 
 hwctime_la_CXXFLAGS = \
-	-I$(top_srcdir)/libopenss-framework
+	-I$(top_srcdir)/libopenss-framework \
+	@PAPI_CPPFLAGS@
 
 hwctime_la_LDFLAGS = \
 	-no-undefined -module -avoid-version
