@@ -3554,7 +3554,8 @@ Process::findLibraryFunction(const Collector& collector,
     
     // Check preconditions
     if(parsed.first.empty() || parsed.second.empty())
-	throw Exception(Exception::LibraryNotFound, name);
+	throw Exception(Exception::LibraryNotFound, name,
+			"library function name could not be parsed");
     
     // Find the entry for this library
     std::map<std::pair<Collector, std::string>, LibraryEntry>::iterator
@@ -3580,8 +3581,11 @@ Process::findLibraryFunction(const Collector& collector,
     }
     
     // Check preconditions
-    if(i == dm_libraries.end())
-	throw Exception(Exception::LibraryNotFound, parsed.first);
+    if(i == dm_libraries.end()) {
+	const char* libltdl_error = lt_dlerror();
+	throw Exception(Exception::LibraryNotFound, parsed.first,
+			libltdl_error ? libltdl_error : "unknown error");
+    }
     
     // Find the function's entry within the library
     std::map<std::string, int>::const_iterator

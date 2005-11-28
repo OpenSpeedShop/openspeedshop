@@ -80,7 +80,7 @@ namespace {
 	  "Function \"%2\" could not be found within library \"%1\"." },
 
 	{ Exception::LibraryNotFound,
-	  "Library \"%1\" could not be found." },
+	  "Library \"%1\" could not be found (%2)." },
 
 	{ Exception::ParameterValueInvalid,
 	  "Specified parameter value is invalid. %1" },
