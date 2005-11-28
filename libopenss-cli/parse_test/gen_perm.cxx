@@ -59,9 +59,19 @@ vector<char> vec(char *s)
  *
  */
 void
-gen_perms(char *new_pat)
+gen_perms(char *pat,
+    	  int *fish_array,
+	  int num_fish)
 {
 
+    char new_pat[26];
+
+	// Put together the new pattern
+	for (int i=0; i<num_fish; ++i) {
+	    new_pat[i] = pat[fish_array[i]];
+	}
+	new_pat[num_fish] = '\0';
+	
     // This produces all permutation of the
     // manufactured string.
     vector<char> word = vec(new_pat);
@@ -89,84 +99,44 @@ gen_perms(char *new_pat)
  * @return  void.
  *
  */
-void
-permutate(int num_fish, int num_buckets, char *pat)
+bool
+permutate(  int group_size, 	// Number of fish in net
+    	    int bucket_count, 	// Number of buckets for fish
+	    int ndx_level,  	// Fish that gets moved each loop.
+	    int *pos_array, 	// Where current fish are
+	    char *pat)
 {
-    int next_shift; 	// The next fish to be shifted.
-    int last_bucket;	// This is the wall
-    int last_fish;  	// Fish that gets moved each loop.
-    int next_bucket;	// Next slot to put last fish.
-    int *fish_array = (int *)malloc(sizeof(int)*num_fish);
-    char new_pat[26];
+    bool ret = false;
     
-    // initialize the fish array for the first
-    // set of patterns. We don't care about the
-    // last fish because it will be set later.
-    last_bucket = num_buckets-1;
-    last_fish = num_fish-1;
-
-    if (num_fish == 2) {
-    	next_bucket = 0;
-    }
-    else {
-    	next_bucket = num_fish-2;
-    }
-
-    for (int i=0; i<(num_fish-1); ++i) {
-    	fish_array[i] = i;
-    }
-    
-    // This is the fish that will move to the
-    // left when the last fish hits the wall.
-    next_shift = num_fish-2;
-    
-    // Loop until combinations run out.
-    while (1) {
-
-    	if (next_bucket != last_bucket) {
-    	    fish_array[last_fish] = ++next_bucket;
-	}
-	else {
-	    // special case 2. We always shift the first fish.
-	    if (num_fish == 2) {
-	    	fish_array[0] = fish_array[0] +1;
-		next_bucket = fish_array[0];
-		fish_array[last_fish] = ++next_bucket;
+    // We need to get deeper
+    if (ndx_level < (group_size-1)) {
+    	for (int i=pos_array[ndx_level];i<bucket_count;++i) {
+	    pos_array[ndx_level] = i;
+	    pos_array[ndx_level+1] = i+1;
+	    if (1) {
+	    	ret = permutate(group_size,
+		    	    	bucket_count,
+				ndx_level+1,
+				pos_array,
+				pat);
+		if (ret !=true)
+		    break; // Go up a level
 	    }
-	    else {
-	    
-	    	fish_array[next_shift] = fish_array[next_shift] +1;
-	    	if (fish_array[next_shift] > last_bucket)
-	    	    return;
-	    	
-	    	if (next_shift ==0)
-	    	    next_shift = fish_array[num_fish-2];
-	    	else
-	    	    --next_shift;
-
-	    }
-
-    	    if (fish_array[num_fish-2] == last_bucket) {
-    	    	return;
-    	    }
-
 	}
-	// Put together the new pattern
-	for (int i=0; i<num_fish; ++i) {
-	    new_pat[i] = pat[fish_array[i]];
-	}
-	new_pat[num_fish] = '\0';
-	
-	// This is a kluge. I need to figure out how
-	// it could happen that new_pat is smaller than
-	// num_fish.
-	if ((strlen(new_pat)) < num_fish)
-	    return;;
-	
-	gen_perms(new_pat);
     }
+    else { // leaf situation, last fish
+    	for (int i=pos_array[ndx_level];i<bucket_count;++i) {
+	    pos_array[ndx_level] = i;
+	    if (ndx_level < group_size) {
+	    	gen_perms(pat,pos_array,group_size);
+	    }
+	    else
+	    	return false; // end of the road
+	}
+    }
+
+    return true;
 }
-
 
 /**
  * Function: main
@@ -200,7 +170,13 @@ main(int argc ,char ** argv)
 		cout << endl;
 		break;
 	    default:
-    	    	permutate (i,len,new_pat);
+    	    	int *pos_array = (int *)malloc(sizeof(int)*i);
+		memset(pos_array,0,sizeof(int)*i);
+    	    	permutate(i,
+		    	  len,
+			  0,	// Fish that gets shifted
+			  pos_array,
+			  new_pat);
 		cout << endl;
 		break;
 	}
