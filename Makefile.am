@@ -33,7 +33,6 @@ SUBDIRS = \
 	openss \
 	plugins \
 	examples \
-	test \
 	usability
 
 DOC_SUBDIRS = \
