@@ -203,9 +203,11 @@ AC_DEFUN([AC_PKG_MPI], [
     mpi_saved_CPPFLAGS=$CPPFLAGS
     mpi_saved_LDFLAGS=$LDFLAGS
 
+#   defaults to /usr or --with-mpi argument.
     MPI_CPPFLAGS="-I$mpi_dir/include"
     MPI_LDFLAGS="-L$mpi_dir/$abi_libdir"
     MPI_LIBS="-lmpi"
+    MPI_HEADER="$mpi_dir/include/mpi.h"
 
     CPPFLAGS="$CPPFLAGS $MPI_CPPFLAGS"
     LDFLAGS="$LDFLAGS $MPI_LDFLAGS $MPI_LIBS"
@@ -219,6 +221,7 @@ AC_DEFUN([AC_PKG_MPI], [
             MPI_CPPFLAGS=""
             MPI_LDFLAGS=""
             MPI_LIBS=""
+	    MPI_HEADER=""
 
         ]
     )
@@ -228,6 +231,7 @@ AC_DEFUN([AC_PKG_MPI], [
         MPI_CPPFLAGS="-I$mpi_dir/include"
         MPI_LDFLAGS="-L$mpi_dir/$mpich_driver/$abi_libdir/shared"
         MPI_LIBS="-lmpich"
+	MPI_HEADER="$mpi_dir/include/mpi.h"
 
         CPPFLAGS="$mpi_saved_CPPFLAGS $MPI_CPPFLAGS"
         LDFLAGS="$mpi_saved_LDFLAGS $MPI_LDFLAGS $MPI_LIBS"
@@ -241,6 +245,7 @@ AC_DEFUN([AC_PKG_MPI], [
                 MPI_CPPFLAGS=""
                 MPI_LDFLAGS=""
                 MPI_LIBS=""
+		MPI_HEADER=""
 
             ]
         )
@@ -262,6 +267,7 @@ AC_DEFUN([AC_PKG_MPI], [
     AC_SUBST(MPI_CPPFLAGS)
     AC_SUBST(MPI_LDFLAGS)
     AC_SUBST(MPI_LIBS)
+    AC_SUBST(MPI_HEADER)
 
 ])
 
