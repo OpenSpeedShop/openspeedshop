@@ -29,6 +29,7 @@
 #include "config.h"
 #endif
 
+#include "Assert.h"
 #include "OpenSS_DataHeader.h"
 
 #ifdef HAVE_INTTYPES_H
@@ -45,7 +46,6 @@ typedef void (*OpenSS_TimerEventHandler)(const ucontext_t*);
 
 
 void OpenSS_DecodeParameters(const char*, const xdrproc_t, void*);
-void OpenSS_GetContext(ucontext_t*);
 uint64_t OpenSS_GetPCFromContext(const ucontext_t*);
 uint64_t OpenSS_GetTime();
 void OpenSS_Send(const OpenSS_DataHeader*, const xdrproc_t, const void*);
@@ -65,6 +65,20 @@ void OpenSS_Overflow(int, int, int, void*);
 void OpenSS_Start(int);
 void OpenSS_Stop(int);
 #endif
+
+
+
+/**
+ * Get the current context.
+ *
+ * Returns the current context of the calling thread.
+ *
+ * @retval context    Current context.
+ *
+ * @ingroup RuntimeAPI
+ */
+#define OpenSS_GetContext(context)    \
+    Assert(getcontext(context) == 0);
 
 
 

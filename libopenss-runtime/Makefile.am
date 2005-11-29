@@ -42,7 +42,6 @@ libopenss_runtime_la_SOURCES = \
 	Assert.h \
 	OpenSS_DataHeader.x $(BUILT_SOURCES) \
 	OpenSS_DecodeParameters.c \
-	OpenSS_GetContext.c \
 	OpenSS_GetPCFromContext.c \
 	OpenSS_GetTime.c \
 	OpenSS_Send.c \
