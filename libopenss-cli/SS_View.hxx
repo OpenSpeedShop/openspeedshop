@@ -341,7 +341,7 @@ void Get_Filtered_Objects (CommandObject *cmd, ThreadGroup& tgrp, std::set<TE >&
         for (pr_iter=f_list->begin(); pr_iter != f_list->end(); pr_iter++) {
           OpenSpeedShop::cli::parse_range_t R = *pr_iter->getRange();
           OpenSpeedShop::cli::parse_val_t pval1 = R.start_range;
-          Assert (pval1.tag == VAL_STRING);
+          Assert (pval1.tag == OpenSpeedShop::cli::VAL_STRING);
           std::string F_Name = pval1.name;
           if (Include_Object (F_Name, thread, new_object)) {
             objects.insert(new_object);
