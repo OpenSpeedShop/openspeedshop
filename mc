@@ -16,6 +16,7 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
+
 if [ "$OPENSS_INSTALL_DIR" = "" ]
 then
   echo "OPENSS_INSTALL_DIR not set."
