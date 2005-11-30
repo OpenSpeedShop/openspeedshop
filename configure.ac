@@ -296,6 +296,9 @@ AC_CONFIG_FILES(
 	test/test_source/regression/usertime/usertime4/Makefile
 	test/test_source/regression/usertime/usertime5/Makefile
 	test/test_source/regression/usertime/usertime6/Makefile
+	test/test_source/regression/mpi/Makefile
+	test/test_source/regression/mpi/smg2000/Makefile
+	test/test_source/regression/mpi/smg2000/smg1/Makefile
 	test/test_source/dpcl/Makefile
 	test/test_source/dpcl/one_shot/Makefile
 	test/test_source/dpcl/probe_module/Makefile
