@@ -513,7 +513,7 @@ Thread::getStatementsAt(const Address& address, const Time& time) const
 	    "       StatementRanges.valid_bitmap "
 	    "FROM StatementRanges "
 	    "  JOIN Statements "
-	    "ON StatementRanges.statement = Statments.id "
+	    "ON StatementRanges.statement = Statements.id "
 	    "WHERE Statements.linked_object = ? "
 	    "  AND ? >= StatementRanges.addr_begin "
 	    "  AND ? < StatementRanges.addr_end;"
