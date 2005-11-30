@@ -1,0 +1,7 @@
+  CPU Time (Seconds)  Function
+    15.740    hypre_SMGResidual
+     5.790    hypre_CyclicReduction
+     3.520    __divdf3
+     0.840    hypre_SemiRestrict
+     0.760    hypre_SemiInterp
+
