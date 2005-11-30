@@ -236,11 +236,11 @@ void MPITCollector::startCollecting(const Collector& collector,
 	   traced.find(TraceableFunctions[i])->second) {
 	    
 	    // Wrap the MPI function
-	    std::string function = 
-		std::string("P") + TraceableFunctions[i];
-	    std::string wrapper = 
-		std::string("mpit-rt: mpit_P") + TraceableFunctions[i];
-	    executeInPlaceOf(collector, thread, function, wrapper);
+	    executeInPlaceOf(
+		collector, thread, 
+		std::string("P") + TraceableFunctions[i],
+		std::string("mpit-rt: mpit_P") + TraceableFunctions[i]
+		);
 	    
 	}
 }
@@ -310,21 +310,17 @@ void MPITCollector::getMetricValues(const std::string& metric,
     
     // Iterate over each of the events
     for(unsigned i = 0; i < data.events.events_len; ++i) {
-	
+
+	// Get the time interval attributable to this event
+	TimeInterval interval(Time(data.events.events_val[i].start_time),
+			      Time(data.events.events_val[i].stop_time));
+
 	// Get the stack trace for this event
-	StackTrace trace(thread, Time(data.events.events_val[i].start_time));
+	StackTrace trace(thread, interval.getBegin());
 	for(unsigned j = data.events.events_val[i].stacktrace;
 	    data.stacktraces.stacktraces_val[j] != 0;
 	    ++j)
 	    trace.push_back(Address(data.stacktraces.stacktraces_val[j]));
-	
-	// Get the time interval attributable to this event
-	TimeInterval interval(Time(data.events.events_val[i].start_time),
-			      Time(data.events.events_val[i].stop_time));
-	
-	// Calculate the time (in seconds) attributable to this event
-	double t_event = 
-	    static_cast<double>(interval.getWidth()) / 1000000000.0;
 	
 	// Iterate over each of the frames in this event's stack trace
 	for(StackTrace::const_iterator 
@@ -357,8 +353,8 @@ void MPITCollector::getMetricValues(const std::string& metric,
 		    std::make_pair(trace, std::vector<double>())
 		    ).first;
 		
-		// Add this event's time to the results
-		l->second.push_back(t_intersection);
+		// Add this event's time (in seconds) to the results
+		l->second.push_back(t_intersection / 1000000000.0);
 		
 	    }
 	    

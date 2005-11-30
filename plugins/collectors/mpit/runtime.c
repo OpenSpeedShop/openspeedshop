@@ -45,10 +45,10 @@ const int OverheadFrameCount = 1;
 #define MaxFramesPerStackTrace 64
 
 /** Number of stack trace entries in the tracing buffer. */
-#define StackTraceBufferSize 1024
+#define StackTraceBufferSize 512
 
 /** Number of event entries in the tracing buffer. */
-#define EventBufferSize 256
+#define EventBufferSize 192
 
 /** Thread-local storage. */
 #ifdef WDH_PER_THREAD_DATA_COLLECTION
@@ -107,9 +107,11 @@ void mpit_send_events()
  * buffer is full, it is sent to the framework for storage in the experiment's
  * database.
  *
- * @param event    Event to be recorded.
+ * @param event       Event to be recorded.
+ * @param function    Address of the MPI function for which the event is being
+ *                    recorded.
  */
-void mpit_record_event(const mpit_event* event)
+void mpit_record_event(const mpit_event* event, void* function)
 {
     ucontext_t context;
     uint64_t stacktrace[MaxFramesPerStackTrace];
@@ -118,9 +120,22 @@ void mpit_record_event(const mpit_event* event)
 
     /* Obtain the stack trace from the current thread context */
     OpenSS_GetContext(&context);
-    OpenSS_GetStackTraceFromContext(&context, 
-				    OverheadFrameCount, MaxFramesPerStackTrace,
+    OpenSS_GetStackTraceFromContext(&context, 0,  /* OverheadFrameCount */
+				    MaxFramesPerStackTrace,
 				    &stacktrace_size, stacktrace);
+    
+    /*
+     * Strip off the overhead frames manually until such time that
+     * OpenSS_GetStackTraceFromContext() doesn't ignore the value we
+     * pass into it.
+     */
+    for(start = 0, i = OverheadFrameCount; i < stacktrace_size; ++start, ++i)
+	stacktrace[start] = stacktrace[i];
+    stacktrace_size -= OverheadFrameCount;
+    
+    /* Use the real address of the MPI function rather than our wraper's */
+    if(stacktrace_size > 0)
+	stacktrace[0] = function;
     
     /*
      * Search the tracing buffer for an existing stack trace matching the stack
@@ -232,7 +247,7 @@ void mpit_start_tracing(const char* arguments)
     /* Set the begin time of this data blob */
     tls.header.time_begin = OpenSS_GetTime();
 }
-    
+
 
 
 /**

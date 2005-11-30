@@ -29,7 +29,7 @@
 
 
 
-void mpit_record_event(const mpit_event*);
+void mpit_record_event(const mpit_event*, void*);
 
 
 

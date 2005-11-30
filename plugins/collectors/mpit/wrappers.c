@@ -54,7 +54,7 @@ int mpit_PMPI_Irecv(void* buf, int count, MPI_Datatype datatype, int source,
     event.tag = tag;
     event.communicator = comm;
     event.datatype = datatype;
-    mpit_record_event(&event);
+    mpit_record_event(&event, &PMPI_Irecv);
     return retval;
 }
 
@@ -80,6 +80,6 @@ int mpit_PMPI_Isend(void* buf, int count, MPI_Datatype datatype, int dest,
     event.tag = tag;
     event.communicator = comm;
     event.datatype = datatype;
-    mpit_record_event(&event);
+    mpit_record_event(&event, &PMPI_Isend);
     return retval;
 }
