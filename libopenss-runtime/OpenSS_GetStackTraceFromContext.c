@@ -24,6 +24,8 @@
 
 #include "RuntimeAPI.h"
 
+#include <libunwind.h>
+
 /*
    Obtain maxframes callstack addresses for the current context.
    There may be 3 frames of overhead we need to remove

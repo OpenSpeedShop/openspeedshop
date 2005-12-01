@@ -22,6 +22,7 @@
  *
  */
 
+#include "RuntimeAPI.h"
 #include "PapiAPI.h"
 
 static void OpenSS_PAPIerror (int rval)

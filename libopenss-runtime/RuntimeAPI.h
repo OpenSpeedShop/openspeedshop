@@ -52,13 +52,11 @@ void OpenSS_Send(const OpenSS_DataHeader*, const xdrproc_t, const void*);
 void OpenSS_Timer(uint64_t, OpenSS_TimerEventHandler);
 
 #ifdef HAVE_LIBUNWIND
-#include <libunwind.h>
 void OpenSS_GetStackTraceFromContext(const ucontext_t*, int, int,
 				     int*, uint64_t*);
 #endif
 
 #ifdef HAVE_PAPI
-#include "PapiAPI.h"
 void OpenSS_Create_Eventset(int*);
 void OpenSS_AddEvent(int, int);
 void OpenSS_Overflow(int, int, int, void*);
