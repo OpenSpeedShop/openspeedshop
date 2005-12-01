@@ -16,7 +16,15 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = pcsamp usertime pvs hwc building_block info hwctime mpi
+SUBDIRS = \
+	pcsamp \
+	usertime \
+	pvs \
+	hwc \
+	building_block \
+	info \
+	hwctime \
+	mpi
 
 DIST_SUBDIRS = $(SUBDIRS)
 
