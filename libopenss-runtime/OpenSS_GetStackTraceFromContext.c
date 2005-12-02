@@ -18,115 +18,148 @@
 
 /** @file
  *
- * Stack trace function (uses libunwind).
+ * Definition of the OpenSS_GetStackTraceFromContext() function.
  *
  */
 
+#include "Assert.h"
 #include "RuntimeAPI.h"
 
 #include <libunwind.h>
 
-/*
-   Obtain maxframes callstack addresses for the current context.
-   There may be 3 frames of overhead we need to remove
-   (4 frames for papi).
-   The address buffer returned is by framebuf is the current callstack
-   without any overhead frames introduced by openss.
-*/
-void OpenSS_GetStackTraceFromContext (const ucontext_t* context,
-				      int overhead,
-				      int maxframes,
-				      int *framecount,
-				      uint64_t *framebuf)
+
+
+/**
+ * Get stack trace from a thread context.
+ *
+ * Returns the stack trace from a thread context. The current thread context is
+ * obtained directly in almost all cases, with the one exception being described
+ * in the note below. All frames up to the first signal frame can be skipped, as
+ * can a fixed number of additional frames.
+ *
+ * @note    In theory libunwind could and should <em>always</em> be used to
+ *          directly obtain the context for the stack trace - even in the case
+ *          of signal contexts. However libunwind is unable to unwind past the
+ *          signal frame on many IA32 and AMD64/EM64T systems. Our only recourse
+ *          on these systems is to use the signal context directly for doing the
+ *          unwind. Hopefully in the future this restriction can be removed and
+ *          the signal_context argument to this function can be dropped.
+ *
+ * @param signal_context        Thread signal context from which to extract the
+ *                              stack trace. Use null when obtaining stack trace
+ *                              from a non-signal context.
+ * @param skip_signal_frames    Flag indiciating if frames up to and including
+ *                              the signal frame should be skipped.
+ * @param skip_frames           Fixed number of additional frames to skip.
+ * @param max_frames            Maximum number of frames to be stored.
+ * @retval stacktrace_size      Actual size (in number of frames) of the stack
+ *                              trace obtained from the current context.
+ * @retval stacktrace           Stack trace obtained from the current context.
+ */
+void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
+				     bool_t skip_signal_frames,
+				     unsigned skip_frames,
+				     unsigned max_frames,
+				     unsigned* stacktrace_size,
+				     uint64_t* stacktrace)
 {
-    /* Obtain the program counter (PC) address from the thread context */
-    /* We will test passedpc against the first stack frame address */
-    /* to see if we have to skip any signal handler overhead. */
-    /* Suse and SLES may not have the signal handler overhead. */
-    uint64_t passedpc;
-    passedpc = OpenSS_GetPCFromContext(context);
-    unw_word_t ip;      /* current stack trace pc address */
-
-    /* Obtain the program counter current address from the thread context */
-    /* and unwind the stack from there. */
-    /* Libunwind provides it's own get context routines and the libunwind */
-    /* documentation suggests that we use that. */
+    unw_context_t context;
+    unw_cursor_t cursor;
+    int retval;
+    unw_word_t pc;
+    unsigned index = 0;
 
 
-    unw_cursor_t cursor;          /* libunwind stack cursor (pointer) */
-    unw_context_t uc;             /* libunwind context */
-
-#if UNW_TARGET_IA64
-    unw_getcontext (&uc);         /* get the libunwind context */
-#else
-    /* copy passed context to a libunwind context */
-    memcpy(&uc, context, sizeof(ucontext_t));
+#ifdef WDH_REMOVE_LATER
+    {
+	printf("\nOpenSS_GetStackTraceFromContext(%p, %s, %u, %u, %p, %p)\n",
+	       signal_context, skip_signal_frames ? "TRUE" : "FALSE", 
+	       skip_frames, max_frames, stacktrace_size, stacktrace);
+    }
 #endif
 
-    /* FIXME: handle errors from libunwind. */
-    if (unw_init_local (&cursor, &uc) < 0) {
-        /* handle error if we get a negative stack pointer */
-        /*panic ("unw_init_local failed!\n"); */
-    }
+
+#if defined(__linux) && (defined(__i386) || defined(__x86_64))
 
     /*
-     * Loop through stack address and add to the sample buffer
-     * (i.e. the current fame pc value at the stack trace cursor).
-     * We may incur 3 or 4 frames of overhead for the signal handler.
-     * The caller provides the number of possible frames to skip.
-     * If overhead is 0, all frames including signal handler frames
-     * are included in the stack trace.
-     *
-    */
-
-    int overhead_marker = 0;  /* marker to count signal handler overhead*/
-    int i = 0;     /* framebuf index */
-    int rval = 0;  /* return value from libunwind calls */
-
-    *framecount = 0;
-
-    do
-    {
-        /* get current stack address pointed to by cursor */
-        unw_get_reg (&cursor, UNW_REG_IP, &ip);
-
-        /* are we already past the signal handler frames overhead? */
-	/* there are 3 frames of overhead due to openspeedshop.
-	   there is one additional frame of overhead due to papi
-	   for collectors that use papi. Caller passes the overhead value.
-	*/
-        if (overhead_marker == 0 && passedpc == ip) {
-            overhead_marker = overhead; /* we started past the overhead */
-        }
-
-        /* add frame address if we are past any signal handler overhead */
-        if (overhead_marker > (overhead - 1) ) {
-
-            /* add frame address to framebuf */
-            framebuf[i] = (uint64_t) ip;
-            i++;
-
-        } else {
-
-            /* increment past signal handler overhead */
-            overhead_marker++;
-        }
-
-        /* step (unwind) the cursor to the preceding frame */
-        rval = unw_step (&cursor);
-        if (rval < 0) {
-            unw_get_reg (&cursor, UNW_REG_IP, &ip);
-            printf ("FAILURE: unw_step() returned %d for ip=%lx\n",
-                  rval, (uint64_t) ip);
-        }
-
-        /* Is the sample framebuf full? */
-        if(i == (maxframes - 1) ) {
-	    /* we have maxframes, need to return this stack trace.
-	    */
-	    break;
-        }
+     * Use the signal context if one was provided, otherwise get the current
+     * thread context directly.
+     */
+    if(signal_context != NULL) {
+	memcpy(&context, signal_context, sizeof(unw_context_t));
+	skip_signal_frames = FALSE;
     }
-    while (rval > 0);
-    *framecount = i;
+    else
+	Assert(unw_getcontext(&context) == 0);
+
+#elif defined(__linux) && defined(__ia64)
+
+    /* Get the current thread context */
+    Assert(unw_getcontext(&context) == 0);
+    
+#else
+#error "Platform/OS Combination Unsupported!"
+#endif
+
+    /* Initialize the unwind cursor from the context */
+    Assert(unw_init_local(&cursor, &context) == 0);
+	
+    /* Iterate over each frame in the stack trace from this context */
+    while(TRUE) {
+
+
+#ifdef WDH_REMOVE_LATER
+	{
+	    char function[1024];
+	    unw_word_t offset = 0;
+	    unw_word_t ip = 0;
+	    
+	    unw_get_reg(&cursor, UNW_REG_IP, &ip);
+	    unw_get_proc_name(&cursor, function, sizeof(function), &offset);
+	    printf("    %s %u %u    %p %s\n",
+		   skip_signal_frames ? "T" : "F", skip_frames, index,
+		   ip, function);
+	}
+#endif
+
+
+	/* Are we still unwinding past skipped signal frames? */
+	if(skip_signal_frames) {
+	    
+	    /* Stop skipping signal frames after we've encountered one */
+	    retval = unw_is_signal_frame(&cursor);
+	    Assert(retval >= 0);
+	    if(retval > 0)		
+		skip_signal_frames = FALSE;
+	    
+	}
+	
+	/* Are we still unwinding past skipped additional frames? */
+	else if(skip_frames > 0) {
+	    
+	    /* Decrement the number of fixed additional frames to be skipped */
+	    --skip_frames;
+	    
+	}
+	
+	/* Stop unwinding if the stack trace buffer is full */
+	else if(index == max_frames)
+	    break;
+	
+	/* Otherwise store the PC value from this frame in the stack trace */
+	else {
+	    Assert(unw_get_reg(&cursor, UNW_REG_IP, &pc) == 0);
+	    stacktrace[index++] = (uint64_t)pc;	    
+	}
+	
+	/* Unwind to the next frame, stopping after the last frame */
+	retval = unw_step(&cursor);
+	Assert(retval >= 0);
+	if(retval == 0)
+	    break;
+	
+    }
+    
+    /* Return the stack trace size to the caller */
+    *stacktrace_size = index;
 }

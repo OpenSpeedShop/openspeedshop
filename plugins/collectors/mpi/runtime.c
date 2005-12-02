@@ -32,7 +32,7 @@
 
 
 /** Number of overhead frames in each stack frame to be skipped. */
-const int OverheadFrameCount = 1;
+const unsigned OverheadFrameCount = 2;
 
 /*
  * NOTE: For some reason GCC doesn't like it when the following two macros are
@@ -113,25 +113,14 @@ void mpi_send_events()
  */
 void mpi_record_event(const mpi_event* event, void* function)
 {
-    ucontext_t context;
     uint64_t stacktrace[MaxFramesPerStackTrace];
-    int stacktrace_size = 0;
+    unsigned stacktrace_size = 0;
     unsigned entry, start, i;
 
     /* Obtain the stack trace from the current thread context */
-    OpenSS_GetContext(&context);
-    OpenSS_GetStackTraceFromContext(&context, 0,  /* OverheadFrameCount */
+    OpenSS_GetStackTraceFromContext(NULL, FALSE, OverheadFrameCount,
 				    MaxFramesPerStackTrace,
 				    &stacktrace_size, stacktrace);
-    
-    /*
-     * Strip off the overhead frames manually until such time that
-     * OpenSS_GetStackTraceFromContext() doesn't ignore the value we
-     * pass into it.
-     */
-    for(start = 0, i = OverheadFrameCount; i < stacktrace_size; ++start, ++i)
-	stacktrace[start] = stacktrace[i];
-    stacktrace_size -= OverheadFrameCount;
     
     /* Use the real address of the MPI function rather than our wraper's */
     if(stacktrace_size > 0)
@@ -164,11 +153,11 @@ void mpi_record_event(const mpi_event* event, void* function)
 	}
     
     /* Did we find a match in the tracing buffer? */
-    if(i == stacktrace_size) {
+    if(i == stacktrace_size)
 	entry = start;
     
     /* Otherwise add this stack trace to the tracing buffer */
-    } else {
+    else {
 	
 	/* Send events if there is insufficient room for this stack trace */
 	if((tls.data.stacktraces.stacktraces_len + stacktrace_size + 1) >=

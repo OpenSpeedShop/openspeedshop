@@ -32,7 +32,7 @@
  *
  * Returns the program counter value from the specified thread context as a
  * single 64-bit unsigned integer. Thread contexts are typically obtained from
- * a signal handler or from calling getcontext().
+ * a signal handler or from calling OpenSS_GetContext().
  *
  * @param context    Thread context from which to extract the PC value.
  * @return           PC value from this context.

@@ -52,8 +52,9 @@ void OpenSS_Send(const OpenSS_DataHeader*, const xdrproc_t, const void*);
 void OpenSS_Timer(uint64_t, OpenSS_TimerEventHandler);
 
 #ifdef HAVE_LIBUNWIND
-void OpenSS_GetStackTraceFromContext(const ucontext_t*, int, int,
-				     int*, uint64_t*);
+void OpenSS_GetStackTraceFromContext(const ucontext_t*,
+				     bool_t, unsigned, unsigned,
+				     unsigned*, uint64_t*);
 #endif
 
 #ifdef HAVE_PAPI

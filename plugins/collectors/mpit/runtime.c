@@ -32,7 +32,7 @@
 
 
 /** Number of overhead frames in each stack frame to be skipped. */
-const int OverheadFrameCount = 1;
+const unsigned OverheadFrameCount = 2;
 
 /*
  * NOTE: For some reason GCC doesn't like it when the following two macros are
@@ -113,25 +113,14 @@ void mpit_send_events()
  */
 void mpit_record_event(const mpit_event* event, void* function)
 {
-    ucontext_t context;
     uint64_t stacktrace[MaxFramesPerStackTrace];
-    int stacktrace_size;
+    unsigned stacktrace_size = 0;
     unsigned entry, start, i;
 
     /* Obtain the stack trace from the current thread context */
-    OpenSS_GetContext(&context);
-    OpenSS_GetStackTraceFromContext(&context, 0,  /* OverheadFrameCount */
+    OpenSS_GetStackTraceFromContext(NULL, FALSE, OverheadFrameCount,
 				    MaxFramesPerStackTrace,
 				    &stacktrace_size, stacktrace);
-    
-    /*
-     * Strip off the overhead frames manually until such time that
-     * OpenSS_GetStackTraceFromContext() doesn't ignore the value we
-     * pass into it.
-     */
-    for(start = 0, i = OverheadFrameCount; i < stacktrace_size; ++start, ++i)
-	stacktrace[start] = stacktrace[i];
-    stacktrace_size -= OverheadFrameCount;
     
     /* Use the real address of the MPI function rather than our wraper's */
     if(stacktrace_size > 0)

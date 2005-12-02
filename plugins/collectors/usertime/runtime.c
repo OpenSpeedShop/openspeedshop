@@ -44,9 +44,6 @@ void usertime_stop_sampling(const char*);
 /** Number of entries in the sample buffer. */
 #define BufferSize 1024
 
-/** possible number of signal handler overhead frames */
-#define FRAMEOVERHEAD 4
-
 /** Man number of frames for callstack collection */
 #define MAXFRAMES 100
 
@@ -193,12 +190,9 @@ static void usertimeTimerHandler(const ucontext_t* context)
     uint64_t beginaddr = tls.header.addr_begin;
     uint64_t endaddr = tls.header.addr_end;
 
-    /* get stack address for current context and store them into framebuf
-     * with a terminating 0.
-     * The number of overhead frames for usertime is 3.
-    */
+    /* get stack address for current context and store them into framebuf. */
 
-    OpenSS_GetStackTraceFromContext (context, FRAMEOVERHEAD /* overhead */,
+    OpenSS_GetStackTraceFromContext (context, TRUE, 0,
                         MAXFRAMES /* maxframes*/, &framecount, framebuf) ;
 
     stack_already_exists = cmp_samplebuffer(framecount, &stackindex, framebuf);
