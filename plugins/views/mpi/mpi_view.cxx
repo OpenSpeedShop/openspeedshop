@@ -983,7 +983,7 @@ class mpit_view : public ViewType {
 
 // This is the only external entrypoint.
 // Calls to the VIEWs needs to be done through the ViewType class objects.
-extern "C" void mpi_LTX_ViewFactory () {
+extern "C" void mpi_view_LTX_ViewFactory () {
   Define_New_View (new mpi_view());
   Define_New_View (new mpit_view());
 }
