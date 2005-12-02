@@ -18,39 +18,19 @@
 
 /** @file
  *
- * Specification of the MPI collector's blobs.
+ * Definition of the MPI event tracing collector's runtime.
  *
  */
 
-/** Structure of the blob containing our parameters. */
-struct mpi_parameters {
+#ifndef _MPICollector_runtime_
+#define _MPICollector_runtime_
 
-    /** Flags indicating if each MPI function is to be traced. */
-    uint8_t traced[1024];
-
-};
+#include "blobs.h"
 
 
 
-/** Event structure describing a single MPI call. */
-struct mpi_event {
-
-    uint64_t start_time;  /**< Start time of the call. */
-    uint64_t stop_time;   /**< End time of the call. */
-    uint16_t stacktrace;  /**< Index of the stack trace. */
-};
-
-/** Structure of the blob containing our performance data. */
-struct mpi_data {
-    uint64_t stacktraces<>;  /**< Stack traces. */
-    mpi_event events<>;     /**< MPI call events. */
-};
+void mpi_record_event(const mpi_event*, void*);
 
 
 
-/** Structure of the blob containing mpi_start_tracing()'s arguments. */
-struct mpi_start_tracing_args {
-    int experiment;  /**< Identifier of experiment to contain the data. */
-    int collector;   /**< Identifier of collector gathering data. */
-    int thread;      /**< Identifier of gathered data's thread. */
-};
+#endif

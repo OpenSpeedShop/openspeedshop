@@ -29,6 +29,83 @@ using namespace OpenSpeedShop::Framework;
 
 
 
+namespace {
+
+
+    
+    /** Type returned for the MPI call time metrics. */
+    typedef std::map<StackTrace, std::vector<double> > CallTimes;
+    
+    
+
+    /**
+     * Traceable function table.
+     *
+     * Table listing the traceable MPI functions. In order for an MPI function
+     * to actually be traceable, corresponding wrapper(s) must first be written
+     * and compiled into this collector's runtime.
+     *
+     * @note    A function's index position in this table is directly used as
+     *          its index position in the mpi_parameters.traced array. Thus
+     *          the order the functions are listed here is significant. If it
+     *          is changed, users will find that any saved databases suddenly
+     *          trace different MPI functions than they did previously.
+     */
+    const char* TraceableFunctions[] = {
+
+        "MPI_Allgather",
+        "MPI_Allgatherv",
+        "MPI_Allreduce",
+        "MPI_Alltoall",
+        "MPI_Alltoallv",
+        "MPI_Barrier",
+        "MPI_Bcast",
+        "MPI_Bsend",
+        "MPI_Cancel",
+        "MPI_Finalize",
+        "MPI_Gather",
+        "MPI_Gatherv",
+        "MPI_Get_count",
+        "MPI_Ibsend",
+        "MPI_Init",
+        "MPI_Irecv",
+        "MPI_Irsend",
+        "MPI_Isend",
+        "MPI_Issend",
+        "MPI_Pack",
+        "MPI_Probe",
+        "MPI_Recv",
+        "MPI_Reduce",
+        "MPI_Reduce_scatter",
+        "MPI_Request_free",
+        "MPI_Rsend",
+        "MPI_Scan",
+        "MPI_Scatter",
+        "MPI_Scatterv",
+        "MPI_Send",
+        "MPI_Sendrecv",
+        "MPI_Sendrecv_replace",
+        "MPI_Ssend",
+        "MPI_Test",
+        "MPI_Testall",
+        "MPI_Testany",
+        "MPI_Testsome",
+        "MPI_Unpack",
+        "MPI_Wait",
+        "MPI_Waitall",
+        "MPI_Waitany",
+        "MPI_Waitsome",
+	
+	// End Of Table Entry
+	NULL
+    };
+
+
+    
+}    
+
+
+
 /**
  * Collector's factory method.
  *
@@ -51,9 +128,27 @@ extern "C" CollectorImpl* mpi_LTX_CollectorFactory()
  */
 MPICollector::MPICollector() :
     CollectorImpl("mpi",
-                  "MPI Event Tracing",
-		  "...")
+                  "MPI Extended Event Tracing",
+		  "Intercepts all calls to MPI functions that perform any "
+		  "significant amount of work (primarily those that send "
+		  "messages) and records, for each call, the current stack "
+		  "trace and start/end time. Detailed ancillary data is also "
+		  "stored such as the source and destination rank, number of "
+		  "bytes sent, message tag, communicator used, and message "
+		  "data type.")
 {
+    // Declare our parameters
+    declareParameter(Metadata("traced_functions", "Traced Functions",
+			      "Set of MPI functions to be traced.",
+			      typeid(std::map<std::string, bool>)));
+    
+    // Declare our metrics
+    declareMetric(Metadata("inclusive_times", "Inclusive Times",
+			   "Inclusive MPI call times in seconds.",
+			   typeid(CallTimes)));
+    declareMetric(Metadata("exclusive_times", "Exclusive Times",
+			   "Exclusive MPI call times in seconds.",
+			   typeid(CallTimes)));
 }
 
 
@@ -67,7 +162,16 @@ MPICollector::MPICollector() :
  */
 Blob MPICollector::getDefaultParameterValues() const
 {
-    return Blob();
+    // Setup an empty parameter structure    
+    mpi_parameters parameters;
+    memset(&parameters, 0, sizeof(parameters));
+
+    // Set the default parameters
+    for(unsigned i = 0; TraceableFunctions[i] != NULL; ++i)
+	parameters.traced[i] = true;
+    
+    // Return the encoded blob to the caller
+    return Blob(reinterpret_cast<xdrproc_t>(xdr_mpi_parameters), &parameters);
 }
 
 
@@ -82,8 +186,22 @@ Blob MPICollector::getDefaultParameterValues() const
  * @retval ptr         Untyped pointer to the parameter value.
  */
 void MPICollector::getParameterValue(const std::string& parameter,
-				     const Blob& data, void* ptr) const
+				      const Blob& data, void* ptr) const
 {
+    // Decode the blob containing the parameter values
+    mpi_parameters parameters;
+    memset(&parameters, 0, sizeof(parameters));
+    data.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_mpi_parameters),
+                        &parameters);
+
+    // Handle the "traced_functions" parameter
+    if(parameter == "traced_functions") {
+	std::map<std::string, bool>* value =
+	    reinterpret_cast<std::map<std::string, bool>*>(ptr);    
+        for(unsigned i = 0; TraceableFunctions[i] != NULL; ++i)
+	    value->insert(std::make_pair(TraceableFunctions[i],
+					  parameters.traced[i]));
+    }
 }
 
 
@@ -98,8 +216,26 @@ void MPICollector::getParameterValue(const std::string& parameter,
  * @retval data        Blob containing the parameter values.
  */
 void MPICollector::setParameterValue(const std::string& parameter,
-				     const void* ptr, Blob& data) const
+				      const void* ptr, Blob& data) const
 {
+    // Decode the blob containing the parameter values
+    mpi_parameters parameters;
+    memset(&parameters, 0, sizeof(parameters));
+    data.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_mpi_parameters),
+                        &parameters);
+    
+    // Handle the "traced_functions" parameter
+    if(parameter == "traced_functions") {
+	const std::map<std::string, bool>* value = 
+	    reinterpret_cast<const std::map<std::string, bool>*>(ptr);
+	for(unsigned i = 0; TraceableFunctions[i] != NULL; ++i)
+	    parameters.traced[i] =
+		(value->find(TraceableFunctions[i]) != value->end()) &&
+		value->find(TraceableFunctions[i])->second;
+    }
+    
+    // Re-encode the blob containing the parameter values
+    data = Blob(reinterpret_cast<xdrproc_t>(xdr_mpi_parameters), &parameters);
 }
 
 
@@ -113,8 +249,40 @@ void MPICollector::setParameterValue(const std::string& parameter,
  * @param thread       Thread for which to start collecting data.
  */
 void MPICollector::startCollecting(const Collector& collector,
-				   const Thread& thread) const
+				    const Thread& thread) const
 {
+    // Get the set of traced functions for this collector
+    std::map<std::string, bool> traced;
+    collector.getParameterValue("traced_functions", traced);
+    
+    // Assemble and encode arguments to mpi_start_tracing()
+    mpi_start_tracing_args args;
+    memset(&args, 0, sizeof(args));
+    getECT(collector, thread, args.experiment, args.collector, args.thread);
+    Blob arguments(reinterpret_cast<xdrproc_t>(xdr_mpi_start_tracing_args),
+                   &args);
+    
+    // Execute mpi_stop_tracing() when we enter exit() for the thread
+    executeAtEntry(collector, thread,
+                   "exit", "mpi-rt: mpi_stop_tracing", Blob());
+    
+    // Execute mpi_start_tracing() in the thread
+    executeNow(collector, thread,
+               "mpi-rt: mpi_start_tracing", arguments);
+
+    // Execute our wrappers in place of the real MPI functions
+    for(unsigned i = 0; TraceableFunctions[i] != NULL; ++i)	
+	if((traced.find(TraceableFunctions[i]) != traced.end()) &&
+	   traced.find(TraceableFunctions[i])->second) {
+	    
+	    // Wrap the MPI function
+	    executeInPlaceOf(
+		collector, thread, 
+		std::string("P") + TraceableFunctions[i],
+		std::string("mpi-rt: mpi_P") + TraceableFunctions[i]
+		);
+	    
+	}
 }
 
 
@@ -128,8 +296,14 @@ void MPICollector::startCollecting(const Collector& collector,
  * @param thread       Thread for which to stop collecting data.
  */
 void MPICollector::stopCollecting(const Collector& collector,
-				  const Thread& thread) const
+				   const Thread& thread) const
 {
+    // Execute mpi_stop_tracing() in the thread
+    executeNow(collector, thread,
+               "mpi-rt: mpi_stop_tracing", Blob());
+    
+    // Remove all instrumentation associated with this collector/thread pairing
+    uninstrument(collector, thread);
 }
 
 
@@ -150,11 +324,85 @@ void MPICollector::stopCollecting(const Collector& collector,
  * @retval ptr          Untyped pointer to the values of the metric.
  */
 void MPICollector::getMetricValues(const std::string& metric,
-				   const Collector& collector,
-				   const Thread& thread,
-				   const Extent& extent,
-				   const Blob& blob,
-				   const ExtentGroup& subextents,
-				   void* ptr) const
+				    const Collector& collector,
+				    const Thread& thread,
+				    const Extent& extent,
+				    const Blob& blob,
+				    const ExtentGroup& subextents,
+				    void* ptr) const
 {
+    // Only the "inclusive_times" and "exclusive_times" metrics return anything
+    if((metric != "inclusive_times") && (metric != "exclusive_times"))
+	return;
+    bool is_exclusive = (metric == "exclusive_times");
+
+    // Cast the untype pointer into a vector of call times
+    std::vector<CallTimes>* values = 
+	reinterpret_cast<std::vector<CallTimes>*>(ptr);
+    
+    // Check assertions
+    Assert(values->size() >= subextents.size());
+
+    // Decode this data blob
+    mpi_data data;
+    memset(&data, 0, sizeof(data));
+    blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_mpi_data), &data);
+    
+    // Iterate over each of the events
+    for(unsigned i = 0; i < data.events.events_len; ++i) {
+
+	// Get the time interval attributable to this event
+	TimeInterval interval(Time(data.events.events_val[i].start_time),
+			      Time(data.events.events_val[i].stop_time));
+
+	// Get the stack trace for this event
+	StackTrace trace(thread, interval.getBegin());
+	for(unsigned j = data.events.events_val[i].stacktrace;
+	    data.stacktraces.stacktraces_val[j] != 0;
+	    ++j)
+	    trace.push_back(Address(data.stacktraces.stacktraces_val[j]));
+	
+	// Iterate over each of the frames in this event's stack trace
+	for(StackTrace::const_iterator 
+		j = trace.begin(); j != trace.end(); ++j) {
+
+	    // Stop after the first frame if this is "exclusive_times"
+	    if(is_exclusive && (j != trace.begin()))
+		break;
+	    
+	    // Find the subextents that contain this frame
+	    std::set<ExtentGroup::size_type> intersection =
+		subextents.getIntersectionWith(
+		    Extent(interval, AddressRange(*j))
+		    );
+	    
+	    // Iterate over each subextent in the intersection
+	    for(std::set<ExtentGroup::size_type>::const_iterator
+		    k = intersection.begin(); k != intersection.end(); ++k) {
+		
+		// Calculate intersection time (in nS) of subextent and event
+		double t_intersection = static_cast<double>
+		    ((interval & subextents[*k].getTimeInterval()).getWidth());
+
+		//
+		// Add this event's stack trace to the results for this
+		// subextent (or find an existing stack trace)
+		//
+		
+		CallTimes::iterator l = (*values)[*k].insert(
+		    std::make_pair(trace, std::vector<double>())
+		    ).first;
+		
+		// Add this event's time (in seconds) to the results
+		l->second.push_back(t_intersection / 1000000000.0);
+		
+	    }
+	    
+	}
+
+    }
+
+    // Free the decoded data blob
+    xdr_free(reinterpret_cast<xdrproc_t>(xdr_mpi_data),
+	     reinterpret_cast<char*>(&data));
 }
