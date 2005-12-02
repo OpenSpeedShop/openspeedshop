@@ -28,6 +28,7 @@ enum cmd_result_type_enum {
   CMD_RESULT_RAWSTRING,
   CMD_RESULT_FUNCTION,
   CMD_RESULT_STATEMENT,
+  CMD_RESULT_CALLTRACE,
   CMD_RESULT_LINKEDOBJECT,
   CMD_RESULT_TITLE,
   CMD_RESULT_COLUMN_HEADER,
@@ -37,35 +38,47 @@ enum cmd_result_type_enum {
 };
 
 class CommandResult {
+  bool NullValue;
   cmd_result_type_enum Result_Type;
 
  private:
   CommandResult () {
+    NullValue = false;
     Result_Type = CMD_RESULT_NULL; }
 
  public:
   CommandResult (cmd_result_type_enum T) {
+    NullValue = false;
     Result_Type = T; }
+  bool setNullValue () {
+    NullValue = true;
+  }
+  bool isNullValue () {
+    return NullValue;
+  }
   cmd_result_type_enum Type () {
     return Result_Type;
   }
+  virtual ~CommandResult () { }
 
-  virtual void Value (char *&C) {
+  void Value (char *&C) {
     C = NULL;
   }
+
   virtual std::string Form () {
     return std::string("");
   }
   virtual PyObject * pyValue () {
     return Py_BuildValue("");
   }
-  virtual void Print (ostream &to, int64_t fieldsize=20, bool leftjustified=false) {
+  virtual void Print (ostream& to, int64_t fieldsize=20, bool leftjustified=false) {
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
        << std::setw(fieldsize) << "(none)";
   }
 };
 
-class CommandResult_Uint : public CommandResult {
+class CommandResult_Uint :
+     public CommandResult {
   uint64_t uint_value;
 
  public:
@@ -75,15 +88,19 @@ class CommandResult_Uint : public CommandResult {
   CommandResult_Uint (uint64_t U) : CommandResult(CMD_RESULT_UINT) {
     uint_value = U;
   }
+  CommandResult_Uint (CommandResult_Uint *C) :
+       CommandResult(CMD_RESULT_UINT) {
+    uint_value = C->uint_value;
+  }
+  virtual ~CommandResult_Uint () { }
 
   static void Accumulate_Uint (CommandResult_Uint *A, CommandResult_Uint *B) {
     A->uint_value += B->uint_value;
   }
-
-
-  virtual void Value (uint64_t &U) {
+  void Value (uint64_t& U) {
     U = uint_value;
-  };
+  }
+
   virtual std::string Form () {
     char s[20];
     sprintf ( s, "%lld", uint_value);
@@ -92,13 +109,14 @@ class CommandResult_Uint : public CommandResult {
   virtual PyObject * pyValue () {
     return Py_BuildValue("l", uint_value);
   }
-  virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
        << std::setw(fieldsize) << uint_value;
   }
 };
 
-class CommandResult_Int : public CommandResult {
+class CommandResult_Int :
+     public CommandResult {
   int64_t int_value;
 
  public:
@@ -113,15 +131,19 @@ class CommandResult_Int : public CommandResult {
   CommandResult_Int (int64_t I) : CommandResult(CMD_RESULT_INT) {
     int_value = I;
   }
+  CommandResult_Int (CommandResult_Int *C) :
+       CommandResult(CMD_RESULT_INT) {
+    int_value = C->int_value;
+  }
+  virtual ~CommandResult_Int () { }
 
   static void Accumulate_Int (CommandResult_Int *A, CommandResult_Int *B) {
     A->int_value += B->int_value;
   }
-
-
-  virtual void Value (int64_t &I) {
+  void Value (int64_t& I) {
     I = int_value;
-  };
+  }
+
   virtual std::string Form () {
     char s[20];
     sprintf ( s, "%lld", int_value);
@@ -130,13 +152,14 @@ class CommandResult_Int : public CommandResult {
   virtual PyObject * pyValue () {
     return Py_BuildValue("l", int_value);
   }
-  virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
        << std::setw(fieldsize) << int_value;
   }
 };
 
-class CommandResult_Float : public CommandResult {
+class CommandResult_Float :
+     public CommandResult {
   double float_value;
 
  public:
@@ -156,15 +179,19 @@ class CommandResult_Float : public CommandResult {
   CommandResult_Float (double f) : CommandResult(CMD_RESULT_FLOAT) {
     float_value = f;
   }
+  CommandResult_Float (CommandResult_Float *C) :
+       CommandResult(CMD_RESULT_FLOAT) {
+    float_value = C->float_value;
+  }
+  virtual ~CommandResult_Float () { }
 
   static void Accumulate_Float (CommandResult_Float *A, CommandResult_Float *B) {
     A->float_value += B->float_value;
   }
-
-
-  virtual void Value (double &F) {
+  void Value (double& F) {
     F = float_value;
-  };
+  }
+
   virtual std::string Form () {
     char F[20];
     F[0] = *("%"); // left justify in field
@@ -177,13 +204,14 @@ class CommandResult_Float : public CommandResult {
   virtual PyObject * pyValue () {
     return Py_BuildValue("d", float_value);
   }
-  virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
        << std::setw(fieldsize) << Form ();
   }
 };
 
-class CommandResult_String : public CommandResult {
+class CommandResult_String :
+     public CommandResult {
   std::string string_value;
 
  public:
@@ -193,21 +221,26 @@ class CommandResult_String : public CommandResult {
   CommandResult_String (char *S) : CommandResult(CMD_RESULT_STRING) {
     string_value = std::string(S);
   }
+  CommandResult_String (CommandResult_String *C) :
+       CommandResult(CMD_RESULT_STRING) {
+    string_value = C->string_value;
+  }
+  virtual ~CommandResult_String () { }
 
   static void Accumulate_String (CommandResult_String *A, CommandResult_String *B) {
     A->string_value += B->string_value;
   }
-
-  virtual void Value (std::string &S) {
+  void Value (std::string& S) {
     S = string_value;
   }
+
   virtual std::string Form () {
     return string_value;
   }
   virtual PyObject * pyValue () {
     return Py_BuildValue("s",string_value.c_str());
   }
-  virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
     if (leftjustified) {
      // Left justification is only done on the last column of a report.
      // Don't truncate the string if it is bigger than the field size.
@@ -231,7 +264,8 @@ class CommandResult_String : public CommandResult {
   }
 };
 
-class CommandResult_RawString : public CommandResult {
+class CommandResult_RawString :
+     public CommandResult {
   std::string string_value;
 
  public:
@@ -241,28 +275,36 @@ class CommandResult_RawString : public CommandResult {
   CommandResult_RawString (char *S) : CommandResult(CMD_RESULT_RAWSTRING) {
     string_value = std::string(S);
   }
+  CommandResult_RawString (CommandResult_RawString *C) :
+       CommandResult(CMD_RESULT_RAWSTRING) {
+    string_value = C->string_value;
+  }
+  virtual ~CommandResult_RawString () { }
 
   static void Accumulate_RawString (CommandResult_RawString *A, CommandResult_RawString *B) {
     A->string_value += B->string_value;
   }
-
-  virtual void Value (std::string &S) {
+  void Value (std::string& S) {
     S = string_value;
   }
+
   virtual std::string Form () {
     return string_value;
   }
   virtual PyObject * pyValue () {
     return Py_BuildValue("s",string_value.c_str());
   }
-  virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
     // Ignore fieldsize and leftjustified specifications and just dump the
     // the raw string to the output stream.
     to << string_value;
   }
 };
 
-class CommandResult_Function : public CommandResult, Function {
+class CommandResult_Function :
+     public CommandResult,
+     public Function {
+  std::set<Statement> ST;
 
  public:
 
@@ -270,10 +312,25 @@ class CommandResult_Function : public CommandResult, Function {
        Framework::Function(F),
        CommandResult(CMD_RESULT_FUNCTION) {
   }
+  CommandResult_Function  (Function F, std::set<Statement>& st) :
+       Framework::Function(F),
+       CommandResult(CMD_RESULT_FUNCTION) {
+    ST = st;
+  }
+  CommandResult_Function  (CommandResult_Function *C) :
+       Framework::Function(*C),
+       CommandResult(CMD_RESULT_FUNCTION) {
+    ST = C->ST;
+  }
+  virtual ~CommandResult_Function () { }
 
-  virtual void Value (std::string &F) {
+  void Value (std::string& F) {
     F = getName();
-  };
+  }
+  void Value (std::set<Statement>& st) {
+    st = ST;
+  }
+
   virtual std::string Form () {
     std::string S = getName();
     LinkedObject L = getLinkedObject();
@@ -309,7 +366,7 @@ class CommandResult_Function : public CommandResult, Function {
     return Py_BuildValue("s",F.c_str());
   }
 
-  virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
     std::string string_value = Form ();
     if (leftjustified) {
      // Left justification is only done on the last column of a report.
@@ -334,18 +391,25 @@ class CommandResult_Function : public CommandResult, Function {
   }
 };
 
-class CommandResult_Statement : public CommandResult, Statement {
+class CommandResult_Statement :
+     public CommandResult,
+     public Statement {
 
  public:
-
   CommandResult_Statement (Statement S) :
        Framework::Statement(S),
        CommandResult(CMD_RESULT_STATEMENT) {
   }
+  CommandResult_Statement (CommandResult_Statement *C) :
+       Framework::Statement(*C),
+       CommandResult(CMD_RESULT_STATEMENT) {
+  }
+  virtual ~CommandResult_Statement () { }
 
-  virtual void Value (int64_t& L) {
+  void Value (int64_t& L) {
     L = (int64_t)getLine();
-  };
+  }
+
   virtual std::string Form () {
     char l[20];
     sprintf( &l[0], "%lld", (int64_t)getLine());
@@ -359,8 +423,7 @@ class CommandResult_Statement : public CommandResult, Statement {
     std::string S = Form ();
     return Py_BuildValue("s",S.c_str());
   }
-
-  virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
     std::string string_value = Form ();
     if (leftjustified) {
      // Left justification is only done on the last column of a report.
@@ -385,7 +448,10 @@ class CommandResult_Statement : public CommandResult, Statement {
   }
 };
 
-class CommandResult_LinkedObject : public CommandResult, LinkedObject {
+class CommandResult_LinkedObject :
+     public CommandResult,
+     public LinkedObject {
+  uint64_t Offset;
 
  public:
 
@@ -393,12 +459,27 @@ class CommandResult_LinkedObject : public CommandResult, LinkedObject {
        Framework::LinkedObject(F),
        CommandResult(CMD_RESULT_LINKEDOBJECT) {
   }
+  CommandResult_LinkedObject (LinkedObject F, uint64_t off) :
+       Framework::LinkedObject(F),
+       CommandResult(CMD_RESULT_LINKEDOBJECT) {
+    Offset = off;
+  }
+  CommandResult_LinkedObject  (CommandResult_LinkedObject *C) :
+       Framework::LinkedObject(*C),
+       CommandResult(CMD_RESULT_LINKEDOBJECT) {
+    Offset = C->Offset;
+  }
+  virtual ~CommandResult_LinkedObject () { }
 
-  virtual void Value (std::string &L) {
+  void Value (std::string& L) {
     L = (OPENSS_VIEW_FULLPATH)
                       ? getPath()
                       : getPath().getBaseName();
-  };
+  }
+  void Value (uint64_t& off) {
+    off = Offset;
+  }
+
   virtual std::string Form () {
     std::string S = (OPENSS_VIEW_FULLPATH)
                       ? getPath()
@@ -409,8 +490,7 @@ class CommandResult_LinkedObject : public CommandResult, LinkedObject {
     std::string F = Form ();
     return Py_BuildValue("s",F.c_str());
   }
-
-  virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
     std::string string_value = Form ();
     if (leftjustified) {
      // Left justification is only done on the last column of a report.
@@ -435,29 +515,33 @@ class CommandResult_LinkedObject : public CommandResult, LinkedObject {
   }
 };
 
-class CommandResult_Title : public CommandResult {
+class CommandResult_Title :
+     public CommandResult {
   std::string string_value;
 
  public:
   CommandResult_Title (std::string S) : CommandResult(CMD_RESULT_TITLE) {
     string_value = S;
   }
+  virtual ~CommandResult_Title () { }
 
-  virtual void Value (std::string &S) {
+  void Value (std::string& S) {
     S = string_value;
   }
+
   virtual std::string Form () {
     return string_value;
   }
   virtual PyObject * pyValue () {
     return Py_BuildValue("s",string_value.c_str());
   }
-  virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
     to << string_value;
   }
 };
 
-class CommandResult_Headers : public CommandResult {
+class CommandResult_Headers :
+     public CommandResult {
 
  int64_t number_of_columns;
  std::list<CommandResult *> Headers;
@@ -466,14 +550,21 @@ class CommandResult_Headers : public CommandResult {
   CommandResult_Headers () : CommandResult(CMD_RESULT_COLUMN_HEADER) {
     number_of_columns = 0;
   }
+  virtual ~CommandResult_Headers () {
+    std::list<CommandResult *>::iterator hi;
+    for (hi = Headers.begin(); hi != Headers.end(); hi++) {
+      delete (*hi);
+    }
+  }
+
   void Add_Header (CommandResult *R) {
     number_of_columns++;
     Headers.push_back(R);
   }
-
-  virtual void Value (std::list<CommandResult *> &R) {
+  void Value (std::list<CommandResult *>& R) {
     R = Headers;
   }
+
   virtual std::string Form () {
     std::string S;
     std::list<CommandResult *>::iterator cri = Headers.begin();
@@ -500,7 +591,7 @@ class CommandResult_Headers : public CommandResult {
     }
     return p_object;
   }
-  virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
     std::list<CommandResult *>::iterator coi;
     int64_t num_results = 0;
     for (coi = Headers.begin(); coi != Headers.end(); coi++) {
@@ -511,7 +602,8 @@ class CommandResult_Headers : public CommandResult {
   }
 };
 
-class CommandResult_Enders : public CommandResult {
+class CommandResult_Enders :
+     public CommandResult {
 
  int64_t number_of_columns;
  std::list<CommandResult *> Enders;
@@ -520,14 +612,21 @@ class CommandResult_Enders : public CommandResult {
   CommandResult_Enders () : CommandResult(CMD_RESULT_COLUMN_ENDER) {
     number_of_columns = 0;
   }
+  virtual ~CommandResult_Enders () {
+    std::list<CommandResult *>::iterator ei;
+    for (ei = Enders.begin(); ei != Enders.end(); ei++) {
+      delete (*ei);
+    }
+  }
+
   void Add_Ender (CommandResult *R) {
     number_of_columns++;
     Enders.push_back(R);
   }
-
-  virtual void Value (std::list<CommandResult *> &R) {
+  void Value (std::list<CommandResult *>& R) {
     R = Enders;
   }
+
   virtual std::string Form () {
     std::string S;
     std::list<CommandResult *>::iterator cri = Enders.begin();
@@ -554,7 +653,7 @@ class CommandResult_Enders : public CommandResult {
     }
     return p_object;
   }
-  virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
     std::list<CommandResult *>::iterator coi;
     int64_t num_results = 0;
     for (coi = Enders.begin(); coi != Enders.end(); coi++) {
@@ -565,7 +664,8 @@ class CommandResult_Enders : public CommandResult {
   }
 };
 
-class CommandResult_Columns : public CommandResult {
+class CommandResult_Columns :
+     public CommandResult {
 
  int64_t number_of_columns;
  std::list<CommandResult *> Columns;
@@ -574,14 +674,21 @@ class CommandResult_Columns : public CommandResult {
   CommandResult_Columns (int64_t C = 0) : CommandResult(CMD_RESULT_COLUMN_VALUES) {
     number_of_columns = 0;
   }
+  virtual ~CommandResult_Columns () {
+    std::list<CommandResult *>::iterator ci;
+    for (ci = Columns.begin(); ci != Columns.end(); ci++) {
+      delete (*ci);
+    }
+  }
+
   void Add_Column (CommandResult *R) {
     number_of_columns++;
     Columns.push_back(R);
   }
-
-  virtual void Value (std::list<CommandResult *>  &R) {
+  void Value (std::list<CommandResult *>& R) {
     R = Columns;
   }
+
   virtual std::string Form () {
     std::string S;
     std::list<CommandResult *>::iterator cri = Columns.begin();
@@ -608,12 +715,18 @@ class CommandResult_Columns : public CommandResult {
     }
     return p_object;
   }
-  virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
     std::list<CommandResult *>::iterator coi;
     int64_t num_results = 0;
     for (coi = Columns.begin(); coi != Columns.end(); coi++) {
       if (num_results++ != 0) to << "  ";
-      (*coi)->Print (to, fieldsize, (num_results >= number_of_columns) ? true : false);
+      if ((*coi)->isNullValue()) {
+       // Avoid print lots of meaningless "0" values - blank fill the field.
+        to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
+           << std::setw(fieldsize) << " ";
+      } else {
+        (*coi)->Print (to, fieldsize, (num_results >= number_of_columns) ? true : false);
+      }
     }
 
   }
@@ -840,7 +953,7 @@ public:
   // command_t *P_Result () { return Parse_Result; }
   //command_type_t *P_Result () { return Parse_Result; }
 
-  void Wait_On_Dependency (pthread_mutex_t &exp_lock) {
+  void Wait_On_Dependency (pthread_mutex_t& exp_lock) {
    // Suspend processing of the command.
 
    // Release the lock and wait for the all-clear signal.
@@ -898,8 +1011,8 @@ public:
  // The following are defined in CommandObject.cxx
 
  // The simple Print is for dumping information to a trace file.
-  void Print (ostream &mystream);
+  void Print (ostream& mystream);
  // The Print_Results routine is for sending results to the user.
  // The result returned is "true" if there was information printed.
-  bool Print_Results (ostream &to, std::string list_seperator, std::string termination_char);
+  bool Print_Results (ostream& to, std::string list_seperator, std::string termination_char);
 };
