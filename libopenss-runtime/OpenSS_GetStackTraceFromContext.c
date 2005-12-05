@@ -69,16 +69,6 @@ void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
     unw_word_t pc;
     unsigned index = 0;
 
-
-#ifdef WDH_REMOVE_LATER
-    {
-	printf("\nOpenSS_GetStackTraceFromContext(%p, %s, %u, %u, %p, %p)\n",
-	       signal_context, skip_signal_frames ? "TRUE" : "FALSE", 
-	       skip_frames, max_frames, stacktrace_size, stacktrace);
-    }
-#endif
-
-
 #if defined(__linux) && (defined(__i386) || defined(__x86_64))
 
     /*
@@ -106,22 +96,6 @@ void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
 	
     /* Iterate over each frame in the stack trace from this context */
     while(TRUE) {
-
-
-#ifdef WDH_REMOVE_LATER
-	{
-	    char function[1024];
-	    unw_word_t offset = 0;
-	    unw_word_t ip = 0;
-	    
-	    unw_get_reg(&cursor, UNW_REG_IP, &ip);
-	    unw_get_proc_name(&cursor, function, sizeof(function), &offset);
-	    printf("    %s %u %u    %p %s\n",
-		   skip_signal_frames ? "T" : "F", skip_frames, index,
-		   ip, function);
-	}
-#endif
-
 
 	/* Are we still unwinding past skipped signal frames? */
 	if(skip_signal_frames) {

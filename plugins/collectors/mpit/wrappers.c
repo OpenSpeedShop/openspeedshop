@@ -22,12 +22,7 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include "RuntimeAPI.h"
-#include "blobs.h"
 #include "runtime.h"
 
 #include <mpi.h>
@@ -44,6 +39,7 @@ int mpit_PMPI_Irecv(void* buf, int count, MPI_Datatype datatype, int source,
     int retval, datatype_size;
     mpit_event event;
     
+    mpit_start_event(&event);
     event.start_time = OpenSS_GetTime();
     retval = PMPI_Irecv(buf, count, datatype, source, tag, comm, request);
     event.stop_time = OpenSS_GetTime();
@@ -54,7 +50,7 @@ int mpit_PMPI_Irecv(void* buf, int count, MPI_Datatype datatype, int source,
     event.tag = tag;
     event.communicator = comm;
     event.datatype = datatype;
-    mpit_record_event(&event, &PMPI_Irecv);
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Irecv));
     return retval;
 }
 
@@ -70,6 +66,7 @@ int mpit_PMPI_Isend(void* buf, int count, MPI_Datatype datatype, int dest,
     int retval, datatype_size;
     mpit_event event;
     
+    mpit_start_event(&event);
     event.start_time = OpenSS_GetTime();
     retval = PMPI_Isend(buf, count, datatype, dest, tag, comm, request);
     event.stop_time = OpenSS_GetTime();
@@ -80,6 +77,6 @@ int mpit_PMPI_Isend(void* buf, int count, MPI_Datatype datatype, int dest,
     event.tag = tag;
     event.communicator = comm;
     event.datatype = datatype;
-    mpit_record_event(&event, &PMPI_Isend);
+    mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Isend));
     return retval;
 }

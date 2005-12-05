@@ -25,11 +25,16 @@
 #ifndef _MPITCollector_runtime_
 #define _MPITCollector_runtime_
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "blobs.h"
 
 
 
-void mpit_record_event(const mpit_event*, void*);
+void mpit_start_event(mpit_event*);
+void mpit_record_event(const mpit_event*, uint64_t);
 
 
 
