@@ -84,7 +84,7 @@ def expAttach(*arglist):
 	    - I{FileList}
 	    - I{HostList}
 	    - I{PidList}
-	    - I{TreadList}
+	    - I{ThreadList}
 	    - I{RankList}
     	- I{ExpTypeList}
     
@@ -201,7 +201,7 @@ def expCreate(*arglist):
 	    - I{FileList}
 	    - I{HostList}
 	    - I{PidList}
-	    - I{TreadList}
+	    - I{ThreadList}
 	    - I{RankList}
     	- I{ExpTypeList}
 
@@ -245,7 +245,7 @@ def expDetach(*arglist):
         - Use of I{PidList} will result in only the Threads 
 	  associated with that Pid to stop measuring 
 	  performance.
-        - Use of I{TreadList} will result in only that 
+        - Use of I{ThreadList} will result in only that 
 	  specific Thread to stop measuring performance.
     - If both I{Target} and I{ExpTypeList} are provided, only 
       the specified collectores in I{ExpTypeList} are detached 
@@ -272,7 +272,7 @@ def expDetach(*arglist):
 	    - I{ClusterList}
 	    - I{HostList}
 	    - I{PidList}
-	    - I{TreadList}
+	    - I{ThreadList}
 	    - I{RankList}
     	- I{ExpTypeList}
     
@@ -404,12 +404,12 @@ def expFocus(*arglist):
 
     Example1::
     	# Get the Id of the currently focused experiment
-	cur_id = openss.expEnable()
+	cur_id = openss.expFocus()
 	
     Example2::
     	# Change the focus to experiment #7
 	my_exp = openss.ExpId(7)
-	cur_id = openss.expEnable(my_exp)
+	cur_id = openss.expFocus(my_exp)
 
 
     @param arglist: 1 optional class object:
@@ -733,7 +733,7 @@ def expView(*arglist):
         - Use of I{FileList} is not supported.
         - Use of I{PidList} will result in only the Threads associated 
 	  with that Pid being included for the selected hosts.
-        - Use of I{TreadList} will result in only that specific Thread 
+        - Use of I{ThreadList} will result in only that specific Thread 
 	  being included, if it exists on the selected hosts.
 
       expView [ I{ExpId} ] [ <viewType> ] [ -m <expMetric_list> ] [ I{Target} ] 
@@ -756,7 +756,7 @@ def expView(*arglist):
 	    - I{FileList}
 	    - I{HostList}
 	    - I{PidList}
-	    - I{TreadList}
+	    - I{ThreadList}
 	    - I{RankList}
     
     """
@@ -822,6 +822,36 @@ def list(*arglist):
 	    	# List of I{ExpId} of active experiments.
 	    	my_modifier = openss.ModifierList("expid")
     	    	expid_list = openss.list()
+
+    	- "B{exptypes}"
+	    - List the available performance measurement utilities
+	      that can be  used to collect data in an experiment.
+		- If no option is selected, list the utilities that
+		  are attached to the focused experiment.
+		- The use of I{ExpId} will cause the utilities that
+		  are attached to the specified experiment to be
+		  listed.
+		- The use of I{ModifierList}("B{all}") will cause all
+		  the  possible performance measurement utilities
+		  that can be used  in experiments to be listed.
+	    - The return type is a list of string objects representing
+	      experiment type.
+
+	    - I{<list args>}: Up to 1 of 2 optional class objects.
+	    	- I{ModifierList}("B{all}") (optional)
+	    	- I{ExpId} (optional)
+	    - I{<output>}: 
+	    	- I{<ListOf_expType>}
+
+    	    Example1::
+    	    	# List experiment types attached to the currently 
+		# focused experiment.
+    	    	string_list = openss.list(ModifierList("types"))
+
+    	    Example2::
+    	    	# List all experiment types possible for the currently 
+		# focused experiment.
+    	    	string_list = openss.list(ModifierList(["types","all"]))
 
     	- "B{hosts}"
     	    - Lists the hosts that define the specified cluster.
@@ -906,7 +936,7 @@ def list(*arglist):
 	    	    - I{ClusterList}
 	    	    - I{HostList}
 	    	    - I{PidList}
-	    	    - I{TreadList}
+	    	    - I{ThreadList}
 	    	    - I{RankList}
 	    - I{<output>}: 
 	    	- I{<ListOf_filename>}
@@ -1034,7 +1064,7 @@ def list(*arglist):
 	    	    - I{ClusterList}
 	    	    - I{HostList}
 	    	    - I{PidList}
-	    	    - I{TreadList}
+	    	    - I{ThreadList}
 	    	    - I{RankList}
 	    - I{<output>}: 
 	    	- I{<ListOf_rankname>}
@@ -1075,7 +1105,7 @@ def list(*arglist):
 	    	    - I{ClusterList}
 	    	    - I{HostList}
 	    	    - I{PidList}
-	    	    - I{TreadList}
+	    	    - I{ThreadList}
 	    	    - I{RankList}
 	    - I{<output>}: 
 	    	- I{<listOf_filename>}
@@ -1158,7 +1188,7 @@ def list(*arglist):
 		- Use of I{PidList} will result in only the Threads
 		  associated  with that Pid being included for the
 		  selected hosts.
-		- Use of I{TreadList} will result in only that
+		- Use of I{ThreadList} will result in only that
 		  specific Thread  being included, if it exists on the
 		  selected hosts.
 
@@ -1168,7 +1198,7 @@ def list(*arglist):
 	    	    - I{ClusterList}
 	    	    - I{HostList}
 	    	    - I{PidList}
-	    	    - I{TreadList}
+	    	    - I{ThreadList}
 	    	    - I{RankList}
 	    - I{<output>}: 
 	    	- I{<ListOf_threadname>}
@@ -1187,36 +1217,6 @@ def list(*arglist):
 		:
 		:
 	    	thread_list = openss.list(my_modifier,my_exp,my_host)
-
-    	- "B{exptypes}"
-	    - List the available performance measurement utilities
-	      that can be  used to collect data in an experiment.
-		- If no option is selected, list the utilities that
-		  are attached to the focused experiment.
-		- The use of I{ExpId} will cause the utilities that
-		  are attached to the specified experiment to be
-		  listed.
-		- The use of I{ModifierList}("B{all}") will cause all
-		  the  possible performance measurement utilities
-		  that can be used  in experiments to be listed.
-	    - The return type is a list of string objects representing
-	      experiment type.
-
-	    - I{<list args>}: Up to 1 of 2 optional class objects.
-	    	- I{ModifierList}("B{all}") (optional)
-	    	- I{ExpId} (optional)
-	    - I{<output>}: 
-	    	- I{<ListOf_expType>}
-
-    	    Example1::
-    	    	# List experiment types attached to the currently 
-		# focused experiment.
-    	    	string_list = openss.list(ModifierList("types"))
-
-    	    Example2::
-    	    	# List all experiment types possible for the currently 
-		# focused experiment.
-    	    	string_list = openss.list(ModifierList(["types","all"]))
 
     	- "B{views}"
     	    - Retrieve the views that are available for an I{ExpTypeList}.

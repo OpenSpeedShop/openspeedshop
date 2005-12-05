@@ -140,6 +140,9 @@ class RankList(OssList):
 class FileList(OssList):
     """
     Object for creating a list of file names.
+
+    Currently file names are represented as strings.
+    You  may need to use the full path.
     """
 
     pass
@@ -147,6 +150,8 @@ class FileList(OssList):
 class PidList(OssList):
     """
     Object for creating a list of Process ids.
+
+    Currently pids are represented as integers.
     """
 
     pass
@@ -154,6 +159,8 @@ class PidList(OssList):
 class ThreadList(OssList):
     """
     Object for creating a list of thread ids.
+
+    Currently thread ids are represented as integers.
     """
 
     pass
@@ -161,6 +168,8 @@ class ThreadList(OssList):
 class ClusterList(OssList):
     """
     Object for creating a list of cluster names.
+
+    Currently clusters are represented as strings.
     """
 
     pass
@@ -168,6 +177,10 @@ class ClusterList(OssList):
 class MetricList(OssList):
     """
     Object for creating a list of MetricTypes.
+
+    Use the list() command with the 'metrics' modifier
+    to see which MetricTypes are available.
+    
     """
 
     pass
@@ -175,6 +188,19 @@ class MetricList(OssList):
 class ExpTypeList(OssList):
     """
     Object for creating a list of experiment types.
+    
+    Experiment types or ExpTypes basically define
+    what experiment data collectors are used for 
+    a given experiment. These collectors are in the
+    form of plugins.
+    
+    Use the list() command with the 'exptypes' modifier
+    to see which ExpTypes are available.
+    
+    If you are unfamiliar with a particular ExpType it
+    may be neccesary to 'run openss -cli' and then 
+    use the 'help <exptype>' command, where <exptype>
+    is the string of the ExpType in question.
     """
 
     pass
@@ -182,6 +208,14 @@ class ExpTypeList(OssList):
 class ViewTypeList(OssList):
     """
     Object for creating a list of view types.
+    
+    Available ViewTypes will vary depending on
+    what ExpType collector is used and what
+    view plugins are present. 
+    
+    Use the list() command with the 'views' modifier
+    to see which ViewTypes can be used for your
+    experiment.
     """
 
     pass
@@ -192,6 +226,22 @@ class ExpId:
     
     Currently this is just an integer and may not
     need to have a unique class.
+    
+    The experiment id is the connection you have 
+    between a particular defined experiment and
+    commands. When you invoke an expCreate() or
+    expAttach() command the return value is the
+    experiment id representing this experiment.
+    
+    If you are only running one experiment the
+    experiment id is not really interesting since
+    the default id will be that of the currently
+    focused experiment.
+    
+    If on the other hand, you are running multiple
+    experiments, sometimes simutaniously, it is
+    neccesary to use the experiment id to execute
+    a command on the intended experiment.
     """
     
     def __init__(self,expid) :
@@ -203,6 +253,11 @@ class ExpId:
 class ModifierList(OssList):
     """
     Object for creating a list of modifier names.
+    
+    Modifiers are different for each command and
+    the documentation for a specific command should
+    be read to see which modifier strings are appropriate
+    and what their affect on the command is. 
     """
 
     pass

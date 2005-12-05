@@ -27,6 +27,10 @@
     semantic handler. The rational for this method is to reduce
     duplicate code and make behavior consistant across UIs.
     
+    To see which classes are available and what arguments
+    they take, go to the B{Table of Contents} for the API and
+    choose B{openss.openss_classes}.
+    
     This also means that one needs to reference the 
     B{Open|SpeedShop User's Guide} for detailed descriptions
     of experiment setup and behavior, as well as details about
@@ -62,7 +66,12 @@
     	# Create a FileList object with the name of
 	# the application to analyze.
     	my_file = openss.FileList("myprog")
-	
+
+	# If I wanted to pass an argument to "myprog"
+	# I would have put it within the parenthesis
+	# along with the executable name:
+	#    my_file = openss.FileList("myprog 893")
+
 	# Determine the type of experiment to run.
 	my_exptype = openss.ExpTypeList("pcsamp")
 
@@ -84,7 +93,7 @@
 	result = openss.expView(my_id,my_viewtype)
 
     	# Print out the results. In this case the results are
-	# in a double array. Normally either the structure of
+	# in a 2 dimensional array. Normally either the structure of
 	# the return value will be known or one will have to 
 	# query each of the object elements.
     	r_count = len(result)
