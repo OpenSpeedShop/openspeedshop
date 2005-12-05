@@ -72,31 +72,26 @@ class CommandResult_CallStackEntry : public CommandResult {
     }
    // Add line number.
     if (sz > 1) {
-      CommandResult *CL = (*CallStack)[sz - 2];
-      if (CL->Type() == CMD_RESULT_FUNCTION) {
+      if (CE->Type() == CMD_RESULT_FUNCTION) {
         std::set<Statement> T;
-        ((CommandResult_Function *)CL)->Value(T);
+        ((CommandResult_Function *)CE)->Value(T);
         if (T.begin() != T.end()) {
           std::set<Statement>::const_iterator sti = T.begin();;
           Statement S = *sti;
           char l[50];
           sprintf( &l[0], "%lld", (int64_t)(S.getLine()));
-          Name = Name + "@ " + l + " ";
+          Name = Name + " @ " + l + " in ";
         }
-      } else if (CL->Type() == CMD_RESULT_LINKEDOBJECT) {
+      } else if (CE->Type() == CMD_RESULT_LINKEDOBJECT) {
         uint64_t V;
-        ((CommandResult_LinkedObject *)CL)->Value(V);
+        ((CommandResult_LinkedObject *)CE)->Value(V);
         char l[50];
         sprintf( &l[0], "+0x%llx", V);
         std::string l_name;
-        ((CommandResult_LinkedObject *)CL)->Value(l_name);
-        Name = Name + "@ " + l_name + l + " ";
-      } else if (CL->Type() == CMD_RESULT_UINT) {
-        uint64_t V;
-        ((CommandResult_Uint *)CL)->Value(V);
-        char l[50];
-        sprintf( &l[0], "0x%llx", V);
-        Name = Name + "@ " + l + " ";
+        ((CommandResult_LinkedObject *)CE)->Value(l_name);
+        Name = Name + " @ " + l_name + l + " in ";
+      } else if (CE->Type() == CMD_RESULT_UINT) {
+        Name += " @ ";
       }
     }
    // Add function name and location information.
@@ -144,6 +139,7 @@ struct sort_descending_CommandResult : public std::binary_function<T,T,bool> {
         return CommandResult_gt (x.second, y.second);
     }
 };
+
 template <typename TO, typename TS>
 void GetMetricInThreadGroup(
     const Collector& collector,
@@ -170,6 +166,17 @@ void GetMetricInThreadGroup(
   }
 }
 
+static void Dump_Intermediate_CallStack (
+       std::vector<std::pair<CommandResult_CallStackEntry *, CommandResult *> >& c_items) {
+  std::vector<std::pair<CommandResult_CallStackEntry *, CommandResult *> >::iterator vpi;
+  for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
+   // Foreach CallStack entry, dump the corresponding value and the last call stack function name.
+    std::pair<CommandResult_CallStackEntry *, CommandResult *> cp = *vpi;
+    cerr << "    "; ((CommandResult *)(cp.second))->Print(cerr); cerr << "  ";
+     ((CommandResult *)(cp.first))->Print(cerr); cerr << std::endl;
+  }
+}
+
 static
 bool Raw_Data (CommandObject *cmd,
                Collector& collector,
@@ -191,17 +198,15 @@ bool Raw_Data (CommandObject *cmd,
 static void Summary_Report(
               SmartPtr<std::map<Function, std::map<Framework::StackTrace, std::vector<double> > > >& f_items,
               std::vector<std::pair<CommandResult_CallStackEntry *, CommandResult *> >& c_items) {
-// Summary Report
+ // Combine all the items for each function.
+ // Input data is sorted by function.
     std::map<Function, std::map<Framework::StackTrace, std::vector<double> > >::iterator fi;
     for (fi = f_items->begin(); fi != f_items->end(); fi++) {
-// cerr << "Next function\n";
       double sum = 0.0;
       std::map<Framework::StackTrace, std::vector<double> >:: iterator si;
       for (si = (*fi).second.begin(); si != (*fi).second.end(); si++) {
-// cerr << " Next statck trace entry\n";
         std::vector<double>::iterator vi;
         for (vi = (*si).second.begin(); vi != (*si).second.end(); vi++) {
-// cerr << "  Accumulate: " << sum << " + " << *vi << std::endl;
           sum += *vi;
         }
       }
@@ -220,13 +225,11 @@ static void Summary_Report(
       call_stack->push_back(new CommandResult_Function (F, T));
       CommandResult_CallStackEntry *CSE = new CommandResult_CallStackEntry (call_stack);
       c_items.push_back(std::make_pair(CSE, Sum));
-// cerr << "Result: "; Sum->Print(cerr); cerr << "  "; ((CommandResult *)CSE)->Print(cerr); cerr << std::endl;
     }
 }
 
 static SmartPtr<std::vector<CommandResult *> > 
        Construct_CallBack (Framework::StackTrace& st) {
-// cerr << "Construct_CallBack\n";
   SmartPtr<std::vector<CommandResult *> > call_stack;
   int64_t len = st.size();
   if (len == 0) return call_stack;
@@ -245,16 +248,15 @@ static SmartPtr<std::vector<CommandResult *> >
      // Use Absolute Address.
       SE = new CommandResult_Uint (st[i].getValue());
     }
-// cerr << " call back entry ";SE->Print(cerr); cerr << std::endl;
     call_stack->push_back(SE);
   }
   return call_stack;
 }
 
-static void Base_Report (
+static void CallStack_Report (
               SmartPtr<std::map<Function, std::map<Framework::StackTrace, std::vector<double> > > >& f_items,
               std::vector<std::pair<CommandResult_CallStackEntry *, CommandResult *> >& c_items) {
-// Straight Report.
+ // Sum the data items for each call stack.
   std::map<Function, std::map<Framework::StackTrace, std::vector<double> > >::iterator fi;
   for (fi = f_items->begin(); fi != f_items->end(); fi++) {
    // Foreach MPI function ...
@@ -262,15 +264,14 @@ static void Base_Report (
     for (sti = (*fi).second.begin(); sti != (*fi).second.end(); sti++) {
      // Foreach call stack ...
       Framework::StackTrace st = (*sti).first;
-      SmartPtr<std::vector<CommandResult *> > call_stack = Construct_CallBack (st);
       double sum = 0.0;
       for (int64_t i = 0; i < (*sti).second.size(); i++) {
        // Combine all the values.
         sum += (*sti).second[i];
       }
       CommandResult *Sum = CRPTR (sum);
+      SmartPtr<std::vector<CommandResult *> > call_stack = Construct_CallBack (st);
       CommandResult_CallStackEntry *CSE = new CommandResult_CallStackEntry (call_stack);
-// cerr << "Result: "; Sum->Print(cerr); cerr << "  "; ((CommandResult *)CSE)->Print(cerr); cerr << std::endl;
       c_items.push_back(std::make_pair(CSE, Sum));
     }
   }
@@ -332,38 +333,13 @@ static int64_t Match_Call_Stack (SmartPtr<std::vector<CommandResult *> >& cs,
 
     if (ty == CMD_RESULT_FUNCTION) {
      // Compare functions and Statements.
-/*
-      if (((CommandResult_Function *)cse) != ((CommandResult_Function *)ncse)) return (i - 1);
-*/
-// Does the above compare work properly?  Or do we need the following, expensive code sequence?
+      if (*((CommandResult_Function *)cse) != *((CommandResult_Function *)ncse)) return (i - 1);
 
-      std::string S = ((CommandResult_Function *)cse)->getName();
-      std::string NS = ((CommandResult_Function *)ncse)->getName();
-      if (S != NS) return (i - 1);
-      LinkedObject L = ((CommandResult_Function *)cse)->getLinkedObject();
-      LinkedObject NL = ((CommandResult_Function *)ncse)->getLinkedObject();
-      S = L.getPath();
-      NS = NL.getPath();
-      if (S != NS) return (i - 1);
-
-/*
       std::set<Statement> T;
       std::set<Statement> NT;
       ((CommandResult_Function *)cse)->Value(T);
       ((CommandResult_Function *)ncse)->Value(NT);
-// Does this compare even work right?
       if (T != NT) return (i - 1);
-*/
-/*
-if (((CommandResult_Function *)cse) != ((CommandResult_Function *)ncse)) {
-  cerr << "Normal commpare is == but function test is !=\n";
-  cerr << ((CommandResult_Function *)cse)->getName() << " -vs- "
-       << ((CommandResult_Function *)ncse)->getName() << std::endl;
-  if (((CommandResult_Function *)cse) == ((CommandResult_Function *)ncse)) {
-    cerr << "Items also compare ==\n";
-  }
-}
-*/
     } else if (ty == CMD_RESULT_LINKEDOBJECT) {
      // Compare LinkedObjects and offsets.
       uint64_t V;
@@ -371,13 +347,7 @@ if (((CommandResult_Function *)cse) != ((CommandResult_Function *)ncse)) {
       ((CommandResult_LinkedObject *)cse)->Value(V);
       ((CommandResult_LinkedObject *)ncse)->Value(NV);
       if (V != NV) return (i - 1);
-      if (((CommandResult_LinkedObject *)cse) != ((CommandResult_LinkedObject *)ncse)) return (i - 1);
-// Does the above compare work properly?  Or do we need the following, expensive code sequence?
-/*
-      std::string S = ((CommandResult_LinkedObject *)cse)->getPath();
-      std::string NS = ((CommandResult_LinkedObject *)ncse)->getPath();
-      if (S != NS) return (i - 1);
-*/
+      if (*((CommandResult_LinkedObject *)cse) != *((CommandResult_LinkedObject *)ncse)) return (i - 1);
     } else if (ty == CMD_RESULT_UINT) {
      // Compare absolute addresses.
       uint64_t V;
@@ -393,19 +363,79 @@ if (((CommandResult_Function *)cse) != ((CommandResult_Function *)ncse)) {
   return minsz;
 }
 
+static void Combine_Duplicate_CallStacks (
+              std::vector<std::pair<CommandResult_CallStackEntry *, CommandResult *> >& c_items) {
+/* TEST
+  cerr << "Initial CallStack list:\n";
+  Dump_Intermediate_CallStack (c_items);
+TEST */
+  std::vector<std::pair<CommandResult_CallStackEntry *, CommandResult *> >::iterator vpi;
+
+  for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
+   // Foreach CallStack entry, look for duplicates and missing intermediates.
+    std::vector<std::pair<CommandResult_CallStackEntry *, CommandResult *> >::iterator nvpi = vpi+1;
+    if (nvpi == c_items.end()) break;
+    std::pair<CommandResult_CallStackEntry *, CommandResult *> cp = *vpi;
+// cerr << "Pick up vector(1) from "; ((CommandResult *)(cp.first))->Print(cerr); cerr << std::endl;
+    SmartPtr<std::vector<CommandResult *> > cs = cp.first->Value();
+    int64_t cs_size = cs->size();
+   // Compare the current entry to all following ones.
+
+    for ( ; nvpi != c_items.end(); ) {
+      std::pair<CommandResult_CallStackEntry *, CommandResult *> ncp = *nvpi;
+      SmartPtr<std::vector<CommandResult *> > ncs = ncp.first->Value();
+      if (cs_size > ncs->size()) {
+        break;
+      }
+      if (cs_size != ncs->size()) {
+       // We can do this because the original call stacks are expanded in place.
+        nvpi++;
+        continue;
+      }
+      int64_t matchcount = Match_Call_Stack (cs, ncs);
+      if ((matchcount >= 0) &&
+          (matchcount == cs->size()) &&
+          (matchcount == ncs->size())) {
+       // Call stacks are identical - combine entries.
+        if (ncp.second != NULL) {
+          if (cp.second != NULL) {
+            Accumulate_CommandResult (cp.second, ncp.second);
+          } else {
+            cp.second = ncp.second;
+            ncp.second = NULL;
+          }
+        }
+// cerr << "erase identical item "; ((CommandResult *)(ncp.first))->Print(cerr); cerr << std::endl;
+        nvpi = c_items.erase(nvpi);
+        delete ncp.first;
+        if (ncp.second != NULL) {
+          delete ncp.second;
+        }
+        continue;
+      }
+     // Match failed.
+      if (cs_size == ncs->size()) {
+// cerr << "  equal level match failed\n";
+        break;
+      }
+      nvpi++;
+    }
+
+  }
+/* TEST
+  cerr << "Merged CallStack list:\n";
+  Dump_Intermediate_CallStack (c_items);
+TEST */
+}
+
 static void Expand_Straight (
               std::vector<std::pair<CommandResult_CallStackEntry *, CommandResult *> >& c_items) {
 // Process base report.
   std::vector<std::pair<CommandResult_CallStackEntry *, CommandResult *> >::iterator vpi;
-/*
-cerr << "Initial list is:\n";
-  std::vector<std::pair<CommandResult_CallStackEntry *, CommandResult *> >::iterator xvpi;
-  for (xvpi = c_items.begin(); xvpi != c_items.end(); xvpi++) {
-   // Foreach CallStack entry, look for duplicates and missing intermediates.
-    std::pair<CommandResult_CallStackEntry *, CommandResult *> cp = *xvpi;
-cerr << "    "; ((CommandResult *)(cp.first))->Print(cerr); cerr << std::endl;
-  }
-*/
+/* TEST
+  cerr << "Initial list is:\n";
+  Dump_Intermediate_CallStack (c_items);
+TEST */
   for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
    // Foreach CallStack entry, look for duplicates and missing intermediates.
     std::vector<std::pair<CommandResult_CallStackEntry *, CommandResult *> >::iterator nvpi = vpi+1;
@@ -444,83 +474,6 @@ cerr << "    "; ((CommandResult *)(cp.first))->Print(cerr); cerr << std::endl;
       vpi = nvpi + 1;
     }
   }
-/*
-cerr << "Reformatted list is:\n";
-  for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
-   // Foreach CallStack entry, look for duplicates and missing intermediates.
-    std::pair<CommandResult_CallStackEntry *, CommandResult *> cp = *vpi;
-cerr << "    "; ((CommandResult *)(cp.first))->Print(cerr); cerr << std::endl;
-  }
-*/
-  for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
-   // Foreach CallStack entry, look for duplicates and missing intermediates.
-    std::vector<std::pair<CommandResult_CallStackEntry *, CommandResult *> >::iterator nvpi = vpi+1;
-    if (nvpi == c_items.end()) break;
-    std::pair<CommandResult_CallStackEntry *, CommandResult *> cp = *vpi;
-// cerr << "Pick up vector(1) from "; ((CommandResult *)(cp.first))->Print(cerr); cerr << std::endl;
-    SmartPtr<std::vector<CommandResult *> > cs = cp.first->Value();
-// cerr << "  complete: " << cs->size() << std::endl;
-    // cp.first->Value(cs);
-   // Compare the current entry to all following ones.
-    for ( ; nvpi != c_items.end(); ) {
-      std::pair<CommandResult_CallStackEntry *, CommandResult *> ncp = *nvpi;
-      SmartPtr<std::vector<CommandResult *> > ncs = ncp.first->Value();
-      // ncp.first->Value(ncs);
-      int64_t matchcount = Match_Call_Stack (cs, ncs);
-      if ((matchcount >= 0) &&
-          (matchcount == cs->size()) &&
-          (matchcount == ncs->size())) {
-       // Call stacks are identical - combine entries.
-        if (ncp.second != NULL) {
-          if (cp.second != NULL) {
-            Accumulate_CommandResult (cp.second, ncp.second);
-          } else {
-            cp.second = ncp.second;
-            ncp.second = NULL;
-          }
-        }
-// cerr << "erase indentical item "; ((CommandResult *)(ncp.first))->Print(cerr); cerr << std::endl;
-        nvpi = c_items.erase(nvpi);
-        delete ncp.first;
-        if (ncp.second != NULL) {
-          delete ncp.second;
-        }
-// std::pair<CommandResult_CallStackEntry *, CommandResult *> ncp = *nvpi;
-// cerr << "new nvpi item is ";((CommandResult *)(ncp.first))->Print(cerr); cerr << std::endl;
-        continue;
-      } else if ((matchcount >= 0) &&
-                 (matchcount == cs->size())) {
-       // First call stack is a subset of the second.
-/*
-cerr << "Subset item\n";
-        Accumulate_CommandResult (cp.second, ncp.second);
-*/
-      } else if (matchcount >= 0) {
-       // Split entry and create an intermediate.
-/*
-cerr << "Overlapping item\n";
-        SmartPtr<std::vector<CommandResult *> > ncs = Dup_Call_Stack (matchcount, cs);
-        CommandResult *nv = Dup_CommandResult (cp.second);
-        if (nv != NULL) {
-          Accumulate_CommandResult (nv, ncp.second);
-        }
-        CommandResult_CallStackEntry *CSE = new CommandResult_CallStackEntry (ncs);
-        nvpi = c_items.insert(nvpi, std::make_pair(CSE, nv));
-        nvpi++;
-*/
-      }
-      nvpi++;
-    }
-
-  }
-/*
-cerr << "Merged items list is:\n";
-  for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
-   // Foreach CallStack entry, look for duplicates and missing intermediates.
-    std::pair<CommandResult_CallStackEntry *, CommandResult *> cp = *vpi;
-cerr << "    "; ((CommandResult *)(cp.first))->Print(cerr); cerr << std::endl;
-  }
-*/
 }
 
 template <typename TE>
@@ -537,7 +490,6 @@ void Construct_View (CommandObject *cmd,
                      CommandResult *TotalValue,
                      bool report_Column_summary,
                      std::vector<std::pair<TE, CommandResult *> >& items) {
-                     // SmartPtr<std::map<Function, std::map<Framework::StackTrace, std::vector<double> > > >& items) {
     int64_t i;
 
    // Should we accumulate column sums?
@@ -550,34 +502,9 @@ void Construct_View (CommandObject *cmd,
       }
     }
 
-   // Extract the top "n" items from the sorted list and get all the metric values.
-// cerr << "Construct_View with " << topn << " items and " << num_columns << " columns\n";
-    std::set<TE> objects;   // Build set of objects only once.
-    std::vector<SmartPtr<std::map<TE, CommandResult *> > > Values(num_columns);
-    for ( i=1; i < num_columns; i++) {
-      ViewInstruction *vinst = ViewInst[i];
-      if (vinst->OpCode() == VIEWINST_Display_Metric) {
-        int64_t CM_Index = vinst->TMP1();
-
-        if (objects.empty()) {
-          typename std::vector<std::pair<TE, CommandResult *> >::const_iterator it = items.begin();
-          for(int64_t foundn = 0; (foundn < topn); foundn++, it++ ) {
-            objects.insert(it->first);
-          }
-        }
-
-        SmartPtr<std::map<TE, CommandResult *> > column_values =
-            Framework::SmartPtr<std::map<TE, CommandResult *> >(
-                new std::map<TE, CommandResult * >()
-                );
-        // TEST GetMetricByObjectSet (cmd, tgrp, CV[CM_Index], MV[CM_Index], objects, column_values);
-        Values[i] = column_values;
-      }
-    }
-
    // Extract the top "n" items from the sorted list.
-    typename std::vector<std::pair<TE, CommandResult *> >::iterator it = items.begin();
-    for(int64_t foundn = 0; (foundn < topn); foundn++, it++ ) {
+    typename std::vector<std::pair<TE, CommandResult *> >::iterator it;
+    for(it = items.begin(); it != items.end(); it++ ) {
       CommandResult *percent_of = NULL;
 
      // Check for asnychonous abort command
@@ -594,24 +521,7 @@ void Construct_View (CommandObject *cmd,
 
         CommandResult *Next_Metric_Value = NULL;
         if (vinst->OpCode() == VIEWINST_Display_Metric) {
-          if (i == 0) {
-            Next_Metric_Value = it->second;
-          } else if (Values[i].isNull()) {
-           // There is no map - look up the individual function.
-            // Next_Metric_Value = Get_Object_Metric( cmd, it->first, tgrp,
-            //                                          CV[CM_Index], MV[CM_Index] );
-          } else {
-           // The entry should be in the column's values map for this function.
-            Next_Metric_Value = NULL;
-            SmartPtr<std::map<TE, CommandResult *> > column_values = Values[i];
-            typename std::map<TE, CommandResult *>::iterator sm = column_values->find(it->first);
-            if (sm != column_values->end()) {
-              Next_Metric_Value = sm->second;
-            }
-          }
-          if (Next_Metric_Value == NULL) {
-            Next_Metric_Value = Init_Collector_Metric ( cmd, CV[CM_Index], MV[CM_Index] );
-          }
+          Next_Metric_Value = it->second;
         } else if (vinst->OpCode() == VIEWINST_Display_Tmp) {
           // Next_Metric_Value  = ???
         } else if (vinst->OpCode() == VIEWINST_Display_Percent_Column) {
@@ -732,10 +642,15 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
      // Straight Report will break down report by call stack.
       vg = VIEW_STATEMENTS;
       EO_Title = "Call Stack Function (defining location)";
-      Base_Report (f_items, c_items);
+      CallStack_Report (f_items, c_items);
+      Combine_Duplicate_CallStacks (c_items);
       std::sort(c_items.begin(), c_items.end(),
                 sort_descending_CommandResult<std::pair<CommandResult_CallStackEntry *, CommandResult *> >());
+      if (topn < (int64_t)c_items.size()) {
+        c_items.erase ( (c_items.begin() + topn), c_items.end());
+      }
       Expand_Straight (c_items);
+      Combine_Duplicate_CallStacks (c_items);
     } else if (Look_For_KeyWord(cmd, "LinkedObjects")) {
      // LinkedObjects doesn't seem to be meaningful.
       vg = VIEW_LINKEDOBJECTS;
@@ -747,10 +662,13 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
       Summary_Report (f_items, c_items);
       std::sort(c_items.begin(), c_items.end(),
                 sort_descending_CommandResult<std::pair<CommandResult_CallStackEntry *, CommandResult *> >());
+      if (topn < (int64_t)c_items.size()) {
+        c_items.erase ( (c_items.begin() + topn), c_items.end());
+      }
     }
 
-
     topn = min(topn, (int64_t)c_items.size());
+
 
    // Calculate %?
     CommandResult *TotalValue = NULL;
@@ -831,13 +749,6 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
        // The display logic may decide to replace the value with
        // blanks, if it is easier to read.
         cp.second->setNullValue();
-        // delete cp.second;
-        //SmartPtr<std::vector<CommandResult *> > cs = cp.first->Value();
-        //CommandResult_CallStackEntry *CSE = new CommandResult_CallStackEntry (cs);
-        // CommandResult *v = new CommandResult_String ("");
-        //*c_items[xvpi] = std::make_pair(CSE, (CommandResult *)(new CommandResult_String ("")));
-        // c_items.insert(xvpi, std::make_pair(CSE, (CommandResult *)(new CommandResult_String ("")));
-        // c_itesm.erase(xvpi);
       }
     }
 
