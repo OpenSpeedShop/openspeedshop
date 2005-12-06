@@ -1227,6 +1227,7 @@ MPIPanel::processLAO(LoadAttachObject *lao)
 // printf("ProcessLOA entered mpiFLAG=%d\n", getPanelContainer()->getMainWindow()->mpiFLAG );
   if( lao->paramList ) // Really not a list yet, just one param.
   {
+#if 0
     QString sample_rate_str = (QString)*lao->paramList->begin();
 // printf("sample_rate_str=(%s)\n", sample_rate_str.ascii() );
     unsigned int sampling_rate = sample_rate_str.toUInt();
@@ -1277,6 +1278,7 @@ MPIPanel::processLAO(LoadAttachObject *lao)
     {
       return 0;
     }
+#endif // 0
     delete lao->paramList;
   }
   nprintf( DEBUG_MESSAGES ) ("we've got a LoadAttachObject message\n");

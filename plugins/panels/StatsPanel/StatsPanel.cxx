@@ -356,6 +356,7 @@ catch(const std::exception& error)
   return FALSE;
 }
 // End determine if there's mpi stats
+
 // printf("currentThreadStr=(%s)\n", currentThreadStr.ascii() );
 // Currently this causes a second update when loading from a saved file. FIX
 // printf("Currently this causes a second update when loading from a saved file. FIX\n");
@@ -386,6 +387,47 @@ catch(const std::exception& error)
 
     UpdateObject *msg = (UpdateObject *)msgObject;
     expID = msg->expID;
+
+// Begin determine if there's mpi stats
+try
+{
+  ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+  if( eo && eo->FW() )
+  {
+    Experiment *fw_experiment = eo->FW();
+    CollectorGroup cgrp = fw_experiment->getCollectors();
+// printf("Is says you have %d collectors.\n", cgrp.size() );
+    if( cgrp.size() == 0 )
+    {
+      fprintf(stderr, "There are no known collectors for this experiment.\n");
+    }
+    for(CollectorGroup::iterator ci = cgrp.begin();ci != cgrp.end();ci++)
+    {
+      Collector collector = *ci;
+      Metadata cm = collector.getMetadata();
+      QString name = QString(cm.getUniqueId().c_str());
+
+// printf("Try to match: name.ascii()=%s currentCollectorStr.ascii()=%s\n", name.ascii(), currentCollectorStr.ascii() );
+      int i = name.find("mpi");
+      if( i == 0 )
+      {
+        mpiFLAG = TRUE;
+        break;
+      }
+    }
+  }
+}
+catch(const std::exception& error)
+{ 
+  std::cerr << std::endl << "Error: "
+            << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+            "Unknown runtime error." : error.what()) << std::endl
+            << std::endl;
+  QApplication::restoreOverrideCursor( );
+  return FALSE;
+}
+// End determine if there's mpi stats
+
     updateStatsPanelData();
     if( msg->raiseFLAG )
     {
@@ -1427,6 +1469,11 @@ if( mpiFLAG )
   } else
   {
     command = QString("expView -x %1 -v Functions").arg(expID);
+  }
+  if( !currentThreadsStr.isEmpty() )
+  {
+     command += QString(" %1").arg(currentThreadsStr);
+     lastAbout += QString("for threads %1\n").arg(currentThreadsStr);
   }
 } 
 
