@@ -2356,6 +2356,7 @@ bool SS_expView (CommandObject *cmd) {
 static enum {
     ENUM_BREAK,
     ENUM_EXP,
+    ENUM_TYPES_NEW,
     ENUM_HOSTS,
     ENUM_METRICS,
     ENUM_OBJ,
@@ -2365,12 +2366,14 @@ static enum {
     ENUM_SRC,
     ENUM_STATUS,
     ENUM_THREADS,
+    ENUM_TYPES_OLD,
     ENUM_TYPES,
     ENUM_VIEWS,
 } list_enums;
 static char *list_types[] = {
     "breaks",
     "exp",
+    "exptypes",
     "hosts",
     "metrics",
     "obj",
@@ -2419,7 +2422,8 @@ bool SS_ListGeneric (CommandObject *cmd) {
 	    	return SS_ListStatus(cmd);
 	    case ENUM_THREADS:
 	    	return SS_ListThreads(cmd);
-	    case ENUM_TYPES:
+	    case ENUM_TYPES_OLD:
+	    case ENUM_TYPES_NEW:
 	    	return SS_ListTypes(cmd);
 	    case ENUM_VIEWS:
 	    	return SS_ListViews(cmd);
