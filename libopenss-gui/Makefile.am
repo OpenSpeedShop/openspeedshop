@@ -38,7 +38,7 @@ libopenss_gui_la_CXXFLAGS =  \
 libopenss_gui_la_LDFLAGS = \
 	-export-dynamic -version-info 0:0:0
 
-libopenss_gui_la_LIBADD = $(LIBLTDL) $(QTLIB_LIBS) $(QTLIB_LDFLAGS) -lqassistantclient -L/usr/X11R6/lib -lXext -lX11 -lm -lpthread -L$(top_srcdir)/libopenss-guibase -lopenss-guibase -L$(top_srcdir)/libopenss-guidialogs -lopenss-guidialogs -L$(top_srcdir)/libopenss-guiplugin -lopenss-guiplugin -lopenss-guiobjects
+libopenss_gui_la_LIBADD = $(LIBLTDL) $(QTLIB_LIBS) $(QTLIB_LDFLAGS) -lqassistantclient -L/usr/X11R6/lib -lXext -lX11 -lm -lpthread -L$(top_srcdir)/libopenss-guibase -lopenss-guibase -L$(top_srcdir)/libopenss-guidialogs -lopenss-guidialogs -L$(top_srcdir)/libopenss-guiplugin -lopenss-guiplugin -L$(top_srcdir)/libopenss-guiobjects -lopenss-guiobjects
 
 moc_CLIInterface.cxx: CLIInterface.hxx
 	-moc -o moc_CLIInterface.cxx CLIInterface.hxx
