@@ -732,6 +732,29 @@ class CommandResult_Columns :
   }
 };
 
+inline CommandResult *Dup_CommandResult (CommandResult *C) {
+  if (C == NULL) return NULL;
+  switch (C->Type()) {
+   case CMD_RESULT_UINT:
+     return new CommandResult_Uint((CommandResult_Uint *)C);
+   case CMD_RESULT_INT:
+     return new CommandResult_Int((CommandResult_Int *)C);
+   case CMD_RESULT_FLOAT:
+     return new CommandResult_Float((CommandResult_Float *)C);
+   case CMD_RESULT_STRING:
+     return new CommandResult_String((CommandResult_String *)C);
+   case CMD_RESULT_RAWSTRING:
+     return new CommandResult_RawString((CommandResult_RawString *)C);
+   case CMD_RESULT_FUNCTION:
+     return new CommandResult_Function((CommandResult_Function *)C);
+   case CMD_RESULT_STATEMENT:
+     return new CommandResult_Statement((CommandResult_Statement *)C);
+   case CMD_RESULT_LINKEDOBJECT:
+     return new CommandResult_LinkedObject((CommandResult_LinkedObject *)C);
+  }
+  return NULL;
+}
+
 inline bool CommandResult_lt (CommandResult *lhs, CommandResult *rhs) {
   Assert (lhs->Type() == rhs->Type());
   switch (lhs->Type()) {
@@ -750,6 +773,31 @@ inline bool CommandResult_lt (CommandResult *lhs, CommandResult *rhs) {
     ((CommandResult_Float *)lhs)->Value(Fvalue1);
     ((CommandResult_Float *)rhs)->Value(Fvalue2);
     return Fvalue1 < Fvalue2;
+   case CMD_RESULT_LINKEDOBJECT:
+    return (*((CommandResult_LinkedObject *)lhs) < *((CommandResult_LinkedObject *)rhs));
+   case CMD_RESULT_FUNCTION:
+    if (*((CommandResult_Function *)lhs) < *((CommandResult_Function *)rhs)) {
+      return true;
+    }
+    if (*((CommandResult_Function *)lhs) > *((CommandResult_Function *)rhs)) {
+      return false;
+    } else {
+      std::set<Statement> L;
+      std::set<Statement> R;
+      ((CommandResult_Function *)lhs)->Value(L);
+      ((CommandResult_Function *)rhs)->Value(R);
+      int64_t Ls = 0;
+      int64_t Rs = 0;
+      if (L.begin() != L.end()) {
+        Ls = (*L.begin()).getLine();
+      }
+      if (R.begin() != R.end()) {
+        Rs = (*R.begin()).getLine();
+      }
+      return (Ls < Rs);
+    }
+   case CMD_RESULT_STATEMENT:
+    return (*((CommandResult_Statement *)lhs) < *((CommandResult_Statement *)rhs));
   }
   return false;
 }
@@ -772,6 +820,31 @@ inline bool CommandResult_gt (CommandResult *lhs, CommandResult *rhs) {
     ((CommandResult_Float *)lhs)->Value(Fvalue1);
     ((CommandResult_Float *)rhs)->Value(Fvalue2);
     return Fvalue1 > Fvalue2;
+   case CMD_RESULT_LINKEDOBJECT:
+    return (*((CommandResult_LinkedObject *)lhs) > *((CommandResult_LinkedObject *)rhs));
+   case CMD_RESULT_FUNCTION:
+    if (*((CommandResult_Function *)lhs) > *((CommandResult_Function *)rhs)) {
+      return true;
+    }
+    if (*((CommandResult_Function *)lhs) < *((CommandResult_Function *)rhs)) {
+      return false;
+    } else {
+      std::set<Statement> L;
+      std::set<Statement> R;
+      ((CommandResult_Function *)lhs)->Value(L);
+      ((CommandResult_Function *)rhs)->Value(R);
+      int64_t Ls = 0;
+      int64_t Rs = 0;
+      if (L.begin() != L.end()) {
+        Ls = (*L.begin()).getLine();
+      }
+      if (R.begin() != R.end()) {
+        Rs = (*R.begin()).getLine();
+      }
+      return (Ls > Rs);
+    }
+   case CMD_RESULT_STATEMENT:
+    return (*((CommandResult_Statement *)lhs) > *((CommandResult_Statement *)rhs));
   }
   return false;
 }
