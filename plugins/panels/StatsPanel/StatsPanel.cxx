@@ -37,6 +37,7 @@ typedef QValueList<MetricHeaderInfo *> MetricHeaderInfoList;
 #include "ManageProcessesPanel.hxx"
 
 
+
 // These are the pie chart colors..
 static char *hotToCold_color_names[] = { 
   "red", 
@@ -133,6 +134,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
 // printf("StatsPanel() entered\n");
   setCaption("StatsPanel");
 
+  mpiFLAG = FALSE;
   currentThread = NULL;
   currentCollector = NULL;
   currentItem = NULL;
@@ -213,6 +215,10 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
 
   spoclass = new SPOutputClass();
   spoclass->setSP(this);
+
+
+
+
 }
 
 
@@ -311,6 +317,45 @@ StatsPanel::listener(void *msg)
         currentThreadGroupStrList.push_back( sit->second.c_str() );
       }
     }
+// Begin determine if there's mpi stats
+try
+{
+  ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+  if( eo && eo->FW() )
+  {
+    Experiment *fw_experiment = eo->FW();
+    CollectorGroup cgrp = fw_experiment->getCollectors();
+// printf("Is says you have %d collectors.\n", cgrp.size() );
+    if( cgrp.size() == 0 )
+    {
+      fprintf(stderr, "There are no known collectors for this experiment.\n");
+    }
+    for(CollectorGroup::iterator ci = cgrp.begin();ci != cgrp.end();ci++)
+    {
+      Collector collector = *ci;
+      Metadata cm = collector.getMetadata();
+      QString name = QString(cm.getUniqueId().c_str());
+
+// printf("Try to match: name.ascii()=%s currentCollectorStr.ascii()=%s\n", name.ascii(), currentCollectorStr.ascii() );
+      int i = name.find("mpi");
+      if( i == 0 )
+      {
+        mpiFLAG = TRUE;
+        break;
+      }
+    }
+  }
+}
+catch(const std::exception& error)
+{ 
+  std::cerr << std::endl << "Error: "
+            << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+            "Unknown runtime error." : error.what()) << std::endl
+            << std::endl;
+  QApplication::restoreOverrideCursor( );
+  return FALSE;
+}
+// End determine if there's mpi stats
 // printf("currentThreadStr=(%s)\n", currentThreadStr.ascii() );
 // Currently this causes a second update when loading from a saved file. FIX
 // printf("Currently this causes a second update when loading from a saved file. FIX\n");
@@ -414,9 +459,14 @@ StatsPanel::menu( QPopupMenu* contextMenu)
   {
 // printf("We only have more than one collector... one metric\n");
     defaultStatsReportStr = QString("Show Metric: %1").arg(currentCollectorStr);
+if( mpiFLAG == FALSE )
+{
     mid = contextMenu->insertItem(defaultStatsReportStr);
+}
 // printf("mid=%d for %s\n", mid, defaultStatsReportStr.ascii() );
   }
+if( mpiFLAG == FALSE )
+{
   for( std::list<std::string>::const_iterator it = list_of_collectors.begin();
       it != list_of_collectors.end(); it++ )
   {
@@ -425,10 +475,9 @@ StatsPanel::menu( QPopupMenu* contextMenu)
     QString s = QString("Show Metric: %1").arg(collector_name.c_str());
     mid = contextMenu->insertItem(s);
 // printf("mid=%d for %s\n", mid, s.ascii() );
+
     if( currentMetricStr.isEmpty() || currentCollectorStr.isEmpty() )
     {
-// printf("Can you toggle this (currentCollector) menu?\n");
-//        contextMenu->setItemChecked(mid, TRUE);
       int index = s.find("Show Metric:");
 // printf("s=(%s)\n", s.ascii() );
       if( index != -1 )
@@ -441,6 +490,13 @@ StatsPanel::menu( QPopupMenu* contextMenu)
       }
     }
   }
+} else
+{
+    QString s = QString("Show Metric: Functions");
+    contextMenu->insertItem(s);
+    s = QString("Show Metric: Statements");
+    contextMenu->insertItem(s);
+}
     
   if( threadMenu )
   {
@@ -959,7 +1015,40 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
   int end_file_index = intermediate_string.find(",");
   QString filename = intermediate_string.mid(0, end_file_index );
 
+// printf("A: selected_function_qstring=(%s)\n", selected_function_qstring.ascii() );
 // printf("A: filename=(%s)\n", filename.ascii() );
+// printf("A: funcString=(%s)\n", funcString.ascii() );
+
+if( mpiFLAG )
+{
+  int bof = -1;
+  int eof = selected_function_qstring.find('(');
+// printf("eof=%d\n", eof);
+  if( eof == -1 )
+  {
+// printf("main:  you should never be here..\n");
+    function_name = "main";
+  } else
+  {
+
+    QString tempString = selected_function_qstring.mid(0,eof);
+// printf("tempString=%s\n", tempString.ascii() );
+
+    QRegExp rxp = QRegExp( "[ >]");
+    bof = tempString.findRev(rxp, eof);
+// printf("bof=%d\n", bof);
+    if( bof == -1 )
+    {
+      bof = 0;
+    } else
+    {
+      bof++;
+    }
+  }
+  function_name = selected_function_qstring.mid(bof,eof-bof);
+  
+// printf("mpi: function_name=(%s)\n", function_name.ascii() );
+}
 
 
   QApplication::setOverrideCursor(QCursor::WaitCursor);
@@ -1065,6 +1154,8 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
           }
           currentThread = new Thread(*ti);
 // printf("Getting the next currentThread (%d)\n", currentThread->getProcessId() );
+if( !mpiFLAG )
+{
         if( item->text(0).contains(".") )
         {
 // printf("DOUBLE\n");
@@ -1174,6 +1265,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
               }
             }
           }
+}
 
           currentItemIndex = 0;
           QListViewItemIterator lvit = (splv);
@@ -1324,6 +1416,19 @@ StatsPanel::updateStatsPanelData()
      command += QString(" %1").arg(currentThreadsStr);
      lastAbout += QString("for threads %1\n").arg(currentThreadsStr);
   }
+
+
+if( mpiFLAG )
+{ 
+// printf("currentCollectorStr=(%s)\n", currentCollectorStr.ascii() );
+  if( currentCollectorStr.isEmpty() || currentCollectorStr == "Statements" )
+  {
+    command = QString("expView -x %1 -v Statements").arg(expID);
+  } else
+  {
+    command = QString("expView -x %1 -v Functions").arg(expID);
+  }
+} 
 
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
 
@@ -1927,13 +2032,13 @@ StatsPanel::outputCLIData(QString *data)
 {
 // printf("StatsPanel::outputCLIData\n");
 // printf("%s", data->ascii() );
+
   // Skip any blank lines.
   if( *data == QString("\n") )
   {
     return;
   }
 
-  // The first line is a header ... mine this for the column headers.
   QString stripped_data = data->stripWhiteSpace();
   if( gotHeader == FALSE )
   {
@@ -1971,8 +2076,21 @@ StatsPanel::outputCLIData(QString *data)
 // printf("fieldCount=(%d)\n", fieldCount);
 
 
-//  if( gotColumns == FALSE )
-  {
+if( mpiFLAG == TRUE )
+{
+// printf("Figure out where the fields start and stop.\n");
+    int start_index = 0;
+    int end_index = 99999;
+    int MAX_COLUMN_COUNT = 10;
+// printf(" end_index = (%d)\n", end_index );
+    columnValueClass[0].start_index = 0;
+    columnValueClass[0].end_index = 21;
+  
+    columnValueClass[1].start_index = 22;
+    columnValueClass[1].end_index = end_index;
+    gotColumns = TRUE;
+} else
+{
     QRegExp rxp = QRegExp( " [A-Z,a-z,0-9,%,_]");
 // printf("Figure out where the fields start and stop.\n");
     int start_index = 0;
@@ -1997,11 +2115,13 @@ StatsPanel::outputCLIData(QString *data)
       start_index = end_index+1;
     }
     gotColumns = TRUE;
-  }
+}
 
   QString *strings = new QString[fieldCount];
  
   int percent = 0;
+if( mpiFLAG == FALSE )
+{
   for( int i = 0; i<fieldCount; i++)
   {
     int si = columnValueClass[i].start_index;
@@ -2021,6 +2141,39 @@ StatsPanel::outputCLIData(QString *data)
     }
     strings[i] = value;
   }
+} else
+{
+  for( int i = 0; i<fieldCount; i++)
+  {
+    int si = columnValueClass[i].start_index;
+    int l = columnValueClass[i].end_index-columnValueClass[i].start_index;
+// printf("%d %d\n%s\n", columnValueClass[i].start_index, columnValueClass[i].end_index, data->ascii() );
+    QString value = data->mid(si,l);
+// printf("value=(%s)\n", value.ascii() );
+    QString c = value.stripWhiteSpace().mid(0,1);
+// printf("c=(%s)\n", c.ascii() );
+    QRegExp rxp = QRegExp( "[0-9]");
+    int gotit = c.contains( rxp );
+// printf("gotit=(%d)\n", gotit );
+    if( value.stripWhiteSpace().isEmpty() )
+    {
+// printf("EMPTY!\n");
+      strings[i] = "";
+    } else if( !value.stripWhiteSpace().isEmpty() && gotit == 0 )
+    {
+// printf("VALUE!\n");
+      strings[i] = value;
+    } else if( !value.stripWhiteSpace().isEmpty() && gotit != 0 )
+    {
+// printf("ISDIGIT!\n");
+      strings[i] = value;
+    } else
+    {
+// printf("NULL!\n");
+      strings[i] = "";
+    }
+  }
+}
 // printf("total_percent=%f\n", total_percent );
 
 
