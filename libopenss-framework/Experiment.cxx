@@ -167,6 +167,13 @@ namespace {
 
 
 
+#ifndef NDEBUG
+/** Flag indicating if debuging for MPI jobs is enabled. */
+bool Experiment::is_debug_mpijob_enabled = false;
+#endif
+
+
+
 //
 // Maximum length of a host name. According to the Linux manual page for the
 // gethostname() function, this should be available in a header somewhere. But
@@ -553,6 +560,20 @@ ThreadGroup Experiment::attachMPIJob(const pid_t& pid,
 				     const std::string& host) const
 {
     ThreadGroup threads;
+
+#ifndef NDEBUG
+    // Is MPI job debugging enabled?
+    if(getenv("OPENSS_DEBUG_MPIJOB") != NULL)
+	is_debug_mpijob_enabled = true;
+	    
+    if(is_debug_mpijob_enabled) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] "
+	       << "Experiment::attachMPIJob(" << pid << ", \"" << host << "\")"
+	       << std::endl;
+	std::cerr << output.str();
+    }
+#endif
     
     // Attach to the initial, specified, process
     threads = attachProcess(pid, host);
@@ -944,10 +965,35 @@ void Experiment::getMPIJobFromMPT(const Thread& thread, Job& job)
     bool is_mpt_job = true;
     int64_t ash = 0;
     std::string array = "";
+
+#ifndef NDEBUG
+    if(is_debug_mpijob_enabled) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] "
+	       << "Experiment::getMPIJobFromMPT("
+	       << thread.getHost() << ":" << thread.getProcessId() << ", ...)"
+	       << std::endl;
+	std::cerr << output.str();
+    }
+#endif
     
     // Attempt to access the ASH and array name from this thread
     is_mpt_job &= Instrumentor::getGlobal(thread, "MPI_debug_ash", ash);
     is_mpt_job &= Instrumentor::getGlobal(thread, "MPI_debug_array", array);
+
+#ifndef NDEBUG
+    if(is_debug_mpijob_enabled) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] "
+	       << "is_mpt_job = " << (is_mpt_job ? "true" : "false")
+	       << std::endl
+	       << "[TID " << pthread_self() << "] "
+	       << "MPI_debug_ash   = " << ash << std::endl
+	       << "[TID " << pthread_self() << "] "
+	       << "MPI_debug_array = \"" << array << "\"" << std::endl;
+	std::cerr << output.str();
+    }
+#endif
     
     // Go no further if this thread isn't in an MPT MPI job
     if(!is_mpt_job)
@@ -956,27 +1002,75 @@ void Experiment::getMPIJobFromMPT(const Thread& thread, Job& job)
     // Open the MPT array services server on the host where this thread resides
     asserver_t server = asopenserver(thread.getHost().c_str(), -1);
 
+#ifndef NDEBUG
+    if(is_debug_mpijob_enabled) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] "
+	       << "asopenserver(\"" << thread.getHost().c_str() 
+	       << "\", -1) = " << server 
+	       << std::endl;
+	if(server == 0) {
+	    output << "[TID " << pthread_self() << "] "
+		   << "asgeterror() = " << asgeterror()
+		   << " (\"" << asstrerror(asgeterror()) << "\")" << std::endl;
+	}
+	std::cerr << output.str();
+    }
+#endif
+      
     // Go no further if the MPT array services server couldn't be opened
     if(server == 0)
 	return;
-    
+
     // Get the list of hosts and their corresponding pids for this session
     asarraypidlist_t* list =
 	aspidsinash_array(server, array.empty() ? NULL : array.c_str(), ash);
 
+#ifndef NDEBUG
+    if(is_debug_mpijob_enabled) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] "
+	       << "aspidsinash_array(" << server << ", ";
+	if(array.empty())
+	    output << "NULL";
+	else
+	    output << "\"" << array << "\"";
+	output << ", " << ash << ") = " << list << std::endl;
+	if(list == NULL) {
+	    output << "[TID " << pthread_self() << "] "
+		   << "asgeterror() = " << asgeterror()
+		   << " (\"" << asstrerror(asgeterror()) << "\")" << std::endl;
+	}
+	std::cerr << output.str();
+    }
+#endif
+
     // Go no further if the list couldn't be accessed
     if(list == NULL)
 	return;
-    
+        
     // Iterate over each machine in the array
     for(int i = 0; i < list->nummachines; ++i)
 	
         // Iterate over each PID on this machine in the job
-        for(int j = 0; j < list->machines[i]->numpids; ++j)
+        for(int j = 0; j < list->machines[i]->numpids; ++j) {
 
 	    // Add this host/pid to the MPI job information
 	    job.insert(std::make_pair(list->machines[i]->machname,
 				      list->machines[i]->pids[j]));
+
+#ifndef NDEBUG
+	    if(is_debug_mpijob_enabled) {
+		std::stringstream output;
+		output << "[TID " << pthread_self() << "] "
+		       << "job += " << list->machines[i]->machname
+		       << ":" << list->machines[i]->pids[j]
+		       << std::endl;
+		std::cerr << output.str();
+	    }
+#endif
+	    
+	}
     
     // Free the list of hosts and their corresponding pids
     asfreearraypidlist(list, ASFLF_FREEDATA);
@@ -1010,9 +1104,35 @@ void Experiment::getMPIJobFromMPICH(const Thread& thread, Job& job)
     bool is_mpich_job = true;
     Job table;
 
+#ifndef NDEBUG
+    if(is_debug_mpijob_enabled) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] "
+	       << "Experiment::getMPIJobFromMPICH("
+	       << thread.getHost() << ":" << thread.getProcessId() << ", ...)"
+	       << std::endl;
+	std::cerr << output.str();
+    }
+#endif
+
     // Attempt to access the MPICH process table from this thread
     is_mpich_job &= Instrumentor::getGlobalMPICHProcTable(thread, table);
-    
+
+#ifndef NDEBUG
+    if(is_debug_mpijob_enabled) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] "
+	       << "is_mpich_job = " << (is_mpich_job ? "true" : "false")
+	       << std::endl;
+	std::cerr << output.str();
+	for(Job::const_iterator i = table.begin(); i != table.end(); ++i) {
+	    output << "[TID " << pthread_self() << "]     "
+		   << "job += " << i->first << ":" << i->second << std::endl;
+	    std::cerr << output.str();
+	}
+    }
+#endif
+        
     // Go no further if this thread isn't in an MPICH MPI job
     if(!is_mpich_job)
 	return;

@@ -124,6 +124,10 @@ namespace OpenSpeedShop { namespace Framework {
 	
     private:
 
+#ifndef NDEBUG
+	static bool is_debug_mpijob_enabled;
+#endif
+
 	static void getMPIJobFromMPT(const Thread&, Job&);
 	static void getMPIJobFromMPICH(const Thread&, Job&);
 	
