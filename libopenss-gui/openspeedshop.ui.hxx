@@ -136,7 +136,7 @@ void OpenSpeedshop::fileSaveSession()
 
 void OpenSpeedshop::fileOpenExperiment(int selectedID)
 {
-//printf("OpenSpeedshop::fileOpenExperiment(%d) entered\n", selectedID );
+// printf("OpenSpeedshop::fileOpenExperiment(%d) entered\n", selectedID );
   QApplication::setOverrideCursor(QCursor::WaitCursor);
   SelectExperimentDialog *dialog = new SelectExperimentDialog(this, "Select Experiment To Open Dialog", TRUE);
 
@@ -249,8 +249,7 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
           panel_type = "IO";
           knownCollectorType = TRUE;
           break;
-//        } else if( collector_name == "mpi" )
-        } else if( collector_name == "mpit" )
+        } else if( collector_name == "mpi" || collector_name == "mpit" )
         {
           panel_type = "MPI";
           knownCollectorType = TRUE;
@@ -279,7 +278,7 @@ ao->loadedFromSavedFile = loadedFromSavedFile;
 
 void OpenSpeedshop::fileOpenSavedExperiment(QString filename)
 {
-//printf("OpenSpeedshop::fileOpenSavedExperiment() entered\n");
+// printf("OpenSpeedshop::fileOpenSavedExperiment() entered\n");
 //printf("  Get a list of all the experiment files in the current directory\n");
 //printf("  and in the environment variable >INSERTONEHERE<.   Then create\n");
 //printf("  a dynamice menu with the list...    \n\n");
