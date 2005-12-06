@@ -22,14 +22,19 @@
  *
  */
 
-#ifndef _MPICollector_runtime_
-#define _MPICollector_runtime_
+#ifndef _MPITCollector_runtime_
+#define _MPITCollector_runtime_
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
 #include "blobs.h"
 
 
 
-void mpi_record_event(const mpi_event*, void*);
+void mpi_start_event(mpi_event*);
+void mpi_record_event(const mpi_event*, uint64_t);
 
 
 

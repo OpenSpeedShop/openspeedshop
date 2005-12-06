@@ -28,6 +28,7 @@ int mpi_P@FUNCTION@(@TYPED_ARGS@)
     int retval, datatype_size;
     mpi_event event;
 
+    mpi_start_event(&event);
     event.start_time = OpenSS_GetTime();
 
     /* Call the real MPI function */
@@ -36,7 +37,7 @@ int mpi_P@FUNCTION@(@TYPED_ARGS@)
     event.stop_time = OpenSS_GetTime();
 
     /* Record event */
-    mpi_record_event(&event, &@FUNCTION@);
+    mpi_record_event(&event, OpenSS_GetAddressOfFunction(P@FUNCTION@));
 
     /* Return the real MPI function's return value to the caller */
     return retval;

@@ -22,20 +22,21 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include "RuntimeAPI.h"
+#include "blobs.h"
 #include "runtime.h"
 
 
 
 /** Number of overhead frames in each stack frame to be skipped. */
+#if defined(__linux) && defined(__ia64)
+const unsigned OverheadFrameCount = 3;
+#else
 const unsigned OverheadFrameCount = 2;
+#endif
 
 /*
- * NOTE: For some reason GCC doesn't like it when the following two macros are
+ * NOTE: For some reason GCC doesn't like it when the following three macros are
  *       replaced with constant unsigned integers. It complains about the arrays
  *       in the tls structure being "variable-size type declared outside of any
  *       function" even though the size IS constant... Maybe this can be fixed?
@@ -56,7 +57,10 @@ static __thread struct {
 #else
 static struct {
 #endif
-
+    
+    /** Nesting depth within the MPI function wrappers. */
+    unsigned nesting_depth;
+    
     OpenSS_DataHeader header;  /**< Header for following data blob. */
     mpi_data data;            /**< Actual data blob. */
     
@@ -77,7 +81,7 @@ static struct {
  * the experiment's database. Then resets the tracing buffer to the empty state.
  * This is done regardless of whether or not the buffer is actually full.
  */
-void mpi_send_events()
+static void mpi_send_events()
 {
     /* Set the end time of this data blob */
     tls.header.time_end = OpenSS_GetTime();
@@ -96,7 +100,26 @@ void mpi_send_events()
     tls.data.events.events_len = 0;    
 }
     
+
+
+/**
+ * Start an event.
+ *
+ * Called by the MPI function wrappers each time an event is to be started.
+ * Initializes the event record and increments the wrappers nesting depth.
+ *
+ * @param event    Event to be started.
+ */
+void mpi_start_event(mpi_event* event)
+{
+    /* Increment the MPI function wrapper nesting depth */
+    ++tls.nesting_depth;
     
+    /* Initialize the event record. */
+    memset(event, 0, sizeof(mpi_event));
+}
+
+
     
 /**
  * Record an event.
@@ -111,18 +134,37 @@ void mpi_send_events()
  * @param function    Address of the MPI function for which the event is being
  *                    recorded.
  */
-void mpi_record_event(const mpi_event* event, void* function)
+void mpi_record_event(const mpi_event* event, uint64_t function)
 {
     uint64_t stacktrace[MaxFramesPerStackTrace];
     unsigned stacktrace_size = 0;
     unsigned entry, start, i;
 
+    /* Decrement the MPI function wrapper nesting depth */
+    --tls.nesting_depth;
+
+    /*
+     * Don't record events for any recursive calls to our MPI function wrappers.
+     * The place where this occurs is when the MPI implemetnation calls itself.
+     * We don't record that data here because we are primarily interested in
+     * direct calls by the application to the MPI library - not in the internal
+     * implementation details of that library.
+     */
+    if(tls.nesting_depth > 0)
+	return;
+    
     /* Obtain the stack trace from the current thread context */
     OpenSS_GetStackTraceFromContext(NULL, FALSE, OverheadFrameCount,
 				    MaxFramesPerStackTrace,
 				    &stacktrace_size, stacktrace);
-    
-    /* Use the real address of the MPI function rather than our wraper's */
+
+    /*
+     * Replace the first entry in the call stack with the address of the MPI
+     * function that is being wrapped. On most platforms, this entry will be
+     * the address of the call site of mpi_record_event() within the calling
+     * wrapper. On IA64, because OverheadFrameCount is one higher, it will be
+     * the mini-tramp for the wrapper that is calling mpi_record_event().
+     */
     if(stacktrace_size > 0)
 	stacktrace[0] = function;
     
@@ -217,6 +259,9 @@ void mpi_start_tracing(const char* arguments)
     OpenSS_DecodeParameters(arguments,
                             (xdrproc_t)xdr_mpi_start_tracing_args,
                             &args);
+    
+    /* Initialize the MPI function wrapper nesting depth */
+    tls.nesting_depth = 0;
 
     /* Initialize the data blob's header */
     tls.header.experiment = args.experiment;

@@ -41,6 +41,7 @@ int mpi_PMPI_Init(int *argc, char ***argv)
     int retval, datatype_size;
     mpi_event event;
 
+    mpi_start_event(&event);
     event.start_time = OpenSS_GetTime();
 
     /* Call the real MPI function */
@@ -49,7 +50,7 @@ int mpi_PMPI_Init(int *argc, char ***argv)
     event.stop_time = OpenSS_GetTime();
 
     /* Record event */
-    mpi_record_event(&event, &MPI_Init);
+    mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Init));
     
     /* Return the real MPI function's return value to the caller */
     return retval;
@@ -60,6 +61,7 @@ int mpi_PMPI_Finalize(void)
     int retval, datatype_size;
     mpi_event event;
 
+    mpi_start_event(&event);
     event.start_time = OpenSS_GetTime();
     
     /* Call the real MPI function */
@@ -68,7 +70,7 @@ int mpi_PMPI_Finalize(void)
     event.stop_time = OpenSS_GetTime();
 
     /* Record event */
-    mpi_record_event(&event, &MPI_Finalize);
+    mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Finalize));
 
     /* Return the real MPI function's return value to the caller */
     return retval;
