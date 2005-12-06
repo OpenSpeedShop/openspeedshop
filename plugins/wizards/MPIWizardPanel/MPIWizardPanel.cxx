@@ -488,6 +488,7 @@ MPIWizardPanel::MPIWizardPanel(PanelContainer *pc, const char *n, ArgumentObject
 
 
   languageChange();
+
   resize( QSize(631, 508).expandedTo(minimumSizeHint()) );
   clearWState( WState_Polished );
 
@@ -646,7 +647,6 @@ int
 MPIWizardPanel::listener(void *msg)
 {
   nprintf(DEBUG_PANELS) ("MPIWizardPanel::listener() requested.\n");
-// printf("MPIWizardPanel::listener() requested.\n");
 
   MessageObject *messageObject = (MessageObject *)msg;
   nprintf(DEBUG_PANELS) ("  messageObject->msgType = %s\n", messageObject->msgType.ascii() );
@@ -1234,11 +1234,11 @@ ao->lao = lao;
 void
 MPIWizardPanel::languageChange()
 {
-  unsigned int sampling_rate = 100;
+  unsigned int traced_functions = 100;
 
   setCaption( tr( "MPI Wizard Panel" ) );
   vDescriptionPageTitleLabel->setText( tr( "<h1>MPI Wizard</h1>" ) );
-  vDescriptionPageText->setText( tr( vMPIDescription ) );
+//  vDescriptionPageText->setText( tr( vMPIDescription ) );
   vDescriptionPageIntroButton->setText( tr( "<< Intro" ) );
   QToolTip::add( vDescriptionPageIntroButton, tr( "Takes you back to the Intro Wizard so you can make a different selection." ) );
   vDescriptionPageNextButton->setText( tr( "> Next" ) );
@@ -1251,11 +1251,11 @@ MPIWizardPanel::languageChange()
 "performance and a larger data file.<br><br>\n"
 "It may take a little experimenting to find the right setting for your \n"
 "particular executable.   We suggest starting with the default setting\n"
-"of %1.").arg(sampling_rate) ) );
+"of %1.").arg(traced_functions) ) );
   vParameterPageSampleRateHeaderLabel->setText( tr( "You can set the following option(s):" ) );
   vParameterPageSampleRateLabel->setText( tr( "sample rate:" ) );
-  vParameterPageSampleRateText->setText( tr( QString("%1").arg(sampling_rate) ) );
-  QToolTip::add( vParameterPageSampleRateText, tr( QString("The rate to sample.   (Default %1.)").arg(sampling_rate) ) );
+  vParameterPageSampleRateText->setText( tr( QString("%1").arg(traced_functions) ) );
+  QToolTip::add( vParameterPageSampleRateText, tr( QString("The rate to sample.   (Default %1.)").arg(traced_functions) ) );
   vParameterPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( vParameterPageBackButton, tr( "Takes you back one page." ) );
   vParameterPageResetButton->setText( tr( "Reset" ) );
@@ -1293,8 +1293,8 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a different
   eParameterPageDescriptionLabel->setText( tr( "The following options (paramaters) are available to adjust.     <br>These are the options the collector has exported." ) );
   eParameterPageSampleRateHeaderLabel->setText( tr( "You can set the following option(s):" ) );
   eParameterPageSampleRateLabel->setText( tr( "sample rate:" ) );
-  eParameterPageSampleRateText->setText( tr( QString("%1").arg(sampling_rate) ) );
-  QToolTip::add( eParameterPageSampleRateText, tr( QString("The rate to sample.   (Default %1.)").arg(sampling_rate) ) );
+  eParameterPageSampleRateText->setText( tr( QString("%1").arg(traced_functions) ) );
+  QToolTip::add( eParameterPageSampleRateText, tr( QString("The rate to sample.   (Default %1.)").arg(traced_functions) ) );
   eParameterPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( eParameterPageBackButton, tr( "Takes you back one page." ) );
   eParameterPageResetButton->setText( tr( "Reset" ) );
@@ -1340,7 +1340,8 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a different
     for( std::set<Metadata>::const_iterator mi = collectortypes.begin();
          mi != collectortypes.end(); mi++ )
     {
-      if( mi->getUniqueId() == "mpi" )
+//      if( mi->getUniqueId() == "mpi" )
+      if( mi->getUniqueId() == "mpit" )
       {
         found_one = TRUE;
       }
@@ -1350,23 +1351,25 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a different
       return;
     }
 
-    Collector mpiCollector = dummy_experiment.createCollector("mpi");
+    Collector mpiCollector = dummy_experiment.createCollector("mpit");
 
     Metadata cm = mpiCollector.getMetadata();
-      std::set<Metadata> md =mpiCollector.getParameters();
-      std::set<Metadata>::const_iterator mi;
-      for (mi = md.begin(); mi != md.end(); mi++) {
+    std::set<Metadata> md =mpiCollector.getParameters();
+    std::set<Metadata>::const_iterator mi;
+    for (mi = md.begin(); mi != md.end(); mi++)
+    {
         Metadata m = *mi;
-//        printf("%s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
-//        printf("%s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
-//        printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
-      }
-      mpiCollector.getParameterValue("sampling_rate", sampling_rate);
-// printf("sampling_rate=%d\n", sampling_rate);
-//    mpiCollector.setParameterValue("sampling_rate", (unsigned)100);
-// printf("Initialize the text fields... (%d)\n", sampling_rate);
-    vParameterPageSampleRateText->setText(QString("%1").arg(sampling_rate));
-    eParameterPageSampleRateText->setText(QString("%1").arg(sampling_rate));
+// printf("A: %s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
+// printf("B: %s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
+// printf("C: %s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
+
+vDescriptionPageText->setText( tr( cm.getDescription().c_str() ) );
+    }
+std::map<std::string,bool> tracedFunctions;
+      mpiCollector.getParameterValue("traced_functions", tracedFunctions);
+// printf("Initialize the text fields... (%s)\n", tracedFunctions.first);
+//    vParameterPageSampleRateText->setText(QString("%1").arg(tracedFunctions.first));
+//    eParameterPageSampleRateText->setText(QString("%1").arg(tracedFunctions.first));
 
     if( temp_name )
     {

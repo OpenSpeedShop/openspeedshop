@@ -249,7 +249,8 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
           panel_type = "IO";
           knownCollectorType = TRUE;
           break;
-        } else if( collector_name == "mpi" )
+//        } else if( collector_name == "mpi" )
+        } else if( collector_name == "mpit" )
         {
           panel_type = "MPI";
           knownCollectorType = TRUE;
@@ -1210,7 +1211,8 @@ OpenSpeedshop::lookForExperiment()
           panel_type = "IO";
           knownCollectorType = TRUE;
           break;
-        } else if( collector_name == "mpi" )
+//        } else if( collector_name == "mpi" )
+        } else if( collector_name == "mpit" )
         {
           panel_type = "MPI";
           knownCollectorType = TRUE;
