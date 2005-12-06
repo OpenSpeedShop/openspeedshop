@@ -54,7 +54,7 @@ class CommandResult_CallStackEntry : public CommandResult {
     }
   }
 
-  SmartPtr<std::vector<CommandResult *> > Value () {
+  SmartPtr<std::vector<CommandResult *> >& Value () {
     return CallStack;
   };
   void Value (SmartPtr<std::vector<CommandResult *> >& call_stack) {
@@ -139,6 +139,46 @@ struct sort_descending_CommandResult : public std::binary_function<T,T,bool> {
         return CommandResult_gt (x.second, y.second);
     }
 };
+template <class T>
+struct sort_ascending_CallStacks : public std::binary_function<T,T,bool> {
+    bool operator()(const T& x, const T& y) const {
+        SmartPtr<std::vector<CommandResult *> > xs = x.first->Value();
+        SmartPtr<std::vector<CommandResult *> > ys = y.first->Value();
+        vector<CommandResult *>::iterator i;
+        vector<CommandResult *>::iterator j;
+       // Always go for call stack ordering.
+        for (i = xs->begin(), j = ys->begin();
+             (i != xs->end()) && (j != ys->end()); i++, j++) {
+          if (CommandResult_lt (*i, *j)) return true;
+          if (CommandResult_lt (*j, *i)) return false;
+        }
+        if (xs->size() < ys->size()) return true;
+        if (xs->size() > ys->size()) return false;
+       // Ascending order is used for value compares
+       // when the call stacks are identical.
+        return CommandResult_lt (x.second, y.second);
+    }
+};
+template <class T>
+struct sort_descending_CallStacks : public std::binary_function<T,T,bool> {
+    bool operator()(const T& x, const T& y) const {
+        SmartPtr<std::vector<CommandResult *> > xs = x.first->Value();
+        SmartPtr<std::vector<CommandResult *> > ys = y.first->Value();
+        vector<CommandResult *>::iterator i;
+        vector<CommandResult *>::iterator j;
+       // Always go for call stack ordering.
+        for (i = xs->begin(), j = ys->begin();
+             (i != xs->end()) && (j != ys->end()); i++, j++) {
+          if (CommandResult_lt (*i, *j)) return true;
+          if (CommandResult_lt (*j, *i)) return false;
+        }
+        if (xs->size() < ys->size()) return true;
+        if (xs->size() > ys->size()) return false;
+       // Descending order is used for value compares
+       // when the call stacks are identical.
+        return CommandResult_gt (x.second, y.second);
+    }
+};
 
 template <typename TO, typename TS>
 void GetMetricInThreadGroup(
@@ -166,14 +206,14 @@ void GetMetricInThreadGroup(
   }
 }
 
-static void Dump_Intermediate_CallStack (
+static void Dump_Intermediate_CallStack (ostream &tostream,
        std::vector<std::pair<CommandResult_CallStackEntry *, CommandResult *> >& c_items) {
   std::vector<std::pair<CommandResult_CallStackEntry *, CommandResult *> >::iterator vpi;
   for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
    // Foreach CallStack entry, dump the corresponding value and the last call stack function name.
     std::pair<CommandResult_CallStackEntry *, CommandResult *> cp = *vpi;
-    cerr << "    "; ((CommandResult *)(cp.second))->Print(cerr); cerr << "  ";
-     ((CommandResult *)(cp.first))->Print(cerr); cerr << std::endl;
+    tostream << "    "; ((CommandResult *)(cp.second))->Print(tostream); tostream << "  ";
+     ((CommandResult *)(cp.first))->Print(tostream); tostream << std::endl;
   }
 }
 
@@ -228,15 +268,14 @@ static void Summary_Report(
     }
 }
 
-static SmartPtr<std::vector<CommandResult *> > 
+static SmartPtr<std::vector<CommandResult *> >
        Construct_CallBack (Framework::StackTrace& st) {
-  SmartPtr<std::vector<CommandResult *> > call_stack;
-  int64_t len = st.size();
-  if (len == 0) return call_stack;
-  call_stack = Framework::SmartPtr<std::vector<CommandResult *> >(
+  SmartPtr<std::vector<CommandResult *> > call_stack
+             = Framework::SmartPtr<std::vector<CommandResult *> >(
                            new std::vector<CommandResult *>()
                            );
-  // for (int64_t i = 0; i < len; i++) {
+  int64_t len = st.size();
+  if (len == 0) return call_stack;
   for (int64_t i = len-1; i >= 0; i--) {
     CommandResult *SE = NULL;
     std::pair<bool, Function> fp = st.getFunctionAt(i);
@@ -265,7 +304,8 @@ static void CallStack_Report (
      // Foreach call stack ...
       Framework::StackTrace st = (*sti).first;
       double sum = 0.0;
-      for (int64_t i = 0; i < (*sti).second.size(); i++) {
+      int64_t len = (*sti).second.size();
+      for (int64_t i = 0; i < len; i++) {
        // Combine all the values.
         sum += (*sti).second[i];
       }
@@ -275,29 +315,6 @@ static void CallStack_Report (
       c_items.push_back(std::make_pair(CSE, Sum));
     }
   }
-}
-
-CommandResult * Dup_CommandResult (CommandResult *C) {
-  if (C == NULL) return NULL;
-  switch (C->Type()) {
-   case CMD_RESULT_UINT:
-     return new CommandResult_Uint((CommandResult_Uint *)C);
-   case CMD_RESULT_INT:
-     return new CommandResult_Int((CommandResult_Int *)C);
-   case CMD_RESULT_FLOAT:
-     return new CommandResult_Float((CommandResult_Float *)C);
-   case CMD_RESULT_STRING:
-     return new CommandResult_String((CommandResult_String *)C);
-   case CMD_RESULT_RAWSTRING:
-     return new CommandResult_RawString((CommandResult_RawString *)C);
-   case CMD_RESULT_FUNCTION:
-     return new CommandResult_Function((CommandResult_Function *)C);
-   case CMD_RESULT_STATEMENT:
-     return new CommandResult_Statement((CommandResult_Statement *)C);
-   case CMD_RESULT_LINKEDOBJECT:
-     return new CommandResult_LinkedObject((CommandResult_LinkedObject *)C);
-  }
-  return NULL;
 }
 
 static SmartPtr<std::vector<CommandResult *> > 
@@ -314,7 +331,6 @@ static SmartPtr<std::vector<CommandResult *> >
     CommandResult *NCE;
     cmd_result_type_enum ty = CE->Type();
     NCE = Dup_CommandResult (CE);
-// cerr << "  new cse "; NCE->Print(cerr); cerr << std::endl;
     call_stack->push_back(NCE);
   }
   return call_stack;
@@ -365,10 +381,6 @@ static int64_t Match_Call_Stack (SmartPtr<std::vector<CommandResult *> >& cs,
 
 static void Combine_Duplicate_CallStacks (
               std::vector<std::pair<CommandResult_CallStackEntry *, CommandResult *> >& c_items) {
-/* TEST
-  cerr << "Initial CallStack list:\n";
-  Dump_Intermediate_CallStack (c_items);
-TEST */
   std::vector<std::pair<CommandResult_CallStackEntry *, CommandResult *> >::iterator vpi;
 
   for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
@@ -376,7 +388,6 @@ TEST */
     std::vector<std::pair<CommandResult_CallStackEntry *, CommandResult *> >::iterator nvpi = vpi+1;
     if (nvpi == c_items.end()) break;
     std::pair<CommandResult_CallStackEntry *, CommandResult *> cp = *vpi;
-// cerr << "Pick up vector(1) from "; ((CommandResult *)(cp.first))->Print(cerr); cerr << std::endl;
     SmartPtr<std::vector<CommandResult *> > cs = cp.first->Value();
     int64_t cs_size = cs->size();
    // Compare the current entry to all following ones.
@@ -405,7 +416,6 @@ TEST */
             ncp.second = NULL;
           }
         }
-// cerr << "erase identical item "; ((CommandResult *)(ncp.first))->Print(cerr); cerr << std::endl;
         nvpi = c_items.erase(nvpi);
         delete ncp.first;
         if (ncp.second != NULL) {
@@ -415,27 +425,18 @@ TEST */
       }
      // Match failed.
       if (cs_size == ncs->size()) {
-// cerr << "  equal level match failed\n";
         break;
       }
       nvpi++;
     }
 
   }
-/* TEST
-  cerr << "Merged CallStack list:\n";
-  Dump_Intermediate_CallStack (c_items);
-TEST */
 }
 
 static void Expand_Straight (
               std::vector<std::pair<CommandResult_CallStackEntry *, CommandResult *> >& c_items) {
 // Process base report.
   std::vector<std::pair<CommandResult_CallStackEntry *, CommandResult *> >::iterator vpi;
-/* TEST
-  cerr << "Initial list is:\n";
-  Dump_Intermediate_CallStack (c_items);
-TEST */
   for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
    // Foreach CallStack entry, look for duplicates and missing intermediates.
     std::vector<std::pair<CommandResult_CallStackEntry *, CommandResult *> >::iterator nvpi = vpi+1;
@@ -644,11 +645,15 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
       EO_Title = "Call Stack Function (defining location)";
       CallStack_Report (f_items, c_items);
       Combine_Duplicate_CallStacks (c_items);
-      std::sort(c_items.begin(), c_items.end(),
-                sort_descending_CommandResult<std::pair<CommandResult_CallStackEntry *, CommandResult *> >());
       if (topn < (int64_t)c_items.size()) {
+       // Determine the topn items.
+        std::sort(c_items.begin(), c_items.end(),
+                sort_descending_CommandResult<std::pair<CommandResult_CallStackEntry *, CommandResult *> >());
         c_items.erase ( (c_items.begin() + topn), c_items.end());
       }
+     // Sort report in calling tree order.
+      std::sort(c_items.begin(), c_items.end(),
+                sort_descending_CallStacks<std::pair<CommandResult_CallStackEntry *, CommandResult *> >());
       Expand_Straight (c_items);
       Combine_Duplicate_CallStacks (c_items);
     } else if (Look_For_KeyWord(cmd, "LinkedObjects")) {
@@ -771,11 +776,15 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
 
 static std::string VIEW_mpi_brief = "Mpi Report";
 static std::string VIEW_mpi_short = "Report the metric values gathered for each mpi function in a program.";
-static std::string VIEW_mpi_long  = "The report is sorted in descending order by the first metric."
-                                      " A positive integer can be added to the end of the keyword"
+static std::string VIEW_mpi_long  = " A positive integer can be added to the end of the keyword"
                                       " ""mpi"" to indicate the maximum number of items in the report."
-                                      " A summary report can be requested with the '-v Functions' option."
-                                      " A call stack report can be requested with the '-v Statements' option.";
+                                      " A summary report can be requested with the '-v Functions' option"
+                                      " and will be sorted in descending order of the time spent in each"
+                                      " function."
+                                      " A call stack report can be requested with the '-v Statements' option"
+                                      " and will be presented in calling tree order."
+                                      " If no '-v' option is specified, the default report is equivalent to"
+                                      " '-v Functions'";
 static std::string VIEW_mpi_metrics[] =
   { ""
   };
@@ -833,11 +842,15 @@ class mpi_view : public ViewType {
 
 static std::string VIEW_mpit_brief = "Mpit Report";
 static std::string VIEW_mpit_short = "Report the metric values gathered for each mpi function in a program.";
-static std::string VIEW_mpit_long  = "The report is sorted in descending order by the first metric."
-                                      " A positive integer can be added to the end of the keyword"
+static std::string VIEW_mpit_long  = " A positive integer can be added to the end of the keyword"
                                       " ""mpit"" to indicate the maximum number of items in the report."
-                                      " A summary report can be requested with the '-v Functions' option."
-                                      " A call stack report can be requested with the '-v Statements' option.";
+                                      " A summary report can be requested with the '-v Functions' option"
+                                      " and will be sorted in descending order of the time spent in each"
+                                      " function."
+                                      " A call stack report can be requested with the '-v Statements' option"
+                                      " and will be presented in calling tree order."
+                                      " If no '-v' option is specified, the default report is equivalent to"
+                                      " '-v Functions'";
 static std::string VIEW_mpit_metrics[] =
   { ""
   };
