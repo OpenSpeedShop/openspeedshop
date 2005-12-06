@@ -1,0 +1,231 @@
+#!/bin/ksh
+################################################################################
+# Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+# Place, Suite 330, Boston, MA  02111-1307  USA
+################################################################################
+#set -x
+
+if [ "$WORKAREA" = "" ] ; then
+  echo "WORKAREA not set. exiting..."
+  exit 1
+fi
+
+# get complete path to this script (path include this filename)
+HERE=`which $0`
+
+# now remove everything after and including last / (just the path)
+MYCURRENT=${HERE%/*}
+
+# directory above MYCURRENT
+TOPLEVEL=${MYCURRENT%/*}
+
+# install the build from the workarea here if OPENSS_INSTALL_DIR is not set:
+export MYOSSINSTALLDIR=$TOPLEVEL/OpensSpeedShop/usr/local
+
+if [ "$OPENSS_INSTALL_DIR" = "" ] ; then
+  echo "NOTE: OPENSS_INSTALL_DIR not set."
+  echo "NOTE: Defaulting to $MYOSSINSTALLDIR ..."
+  export OPENSS_INSTALL_DIR=$MYOSSINSTALLDIR
+else
+  echo "OPENSS_INSTALL_DIR is set: $OPENSS_INSTALL_DIR"
+fi
+
+echo
+echo "$0: configure workarea build/install using:"
+echo "configure --prefix=$OPENSS_INSTALL_DIR --with-mpi=/opt/mpich"
+
+MYPWD=`pwd`
+echo
+
+if [ "$MYPWD" == "$MYCURRENT" ] ; then
+ if test "$1" == ""  ; then
+  echo "$0: Running build in $MYCURRENT"
+  # prepare workarea to be configured
+  echo "$0: Running bootstrap"
+  bootstrap;
+
+  # configure the workarea build
+  echo "$0: Running configure --prefix=$OPENSS_INSTALL_DIR --with-mpi=/opt/mpich"
+  configure --prefix=$OPENSS_INSTALL_DIR --with-mpi=/opt/mpich
+
+  # clean up any previous build
+  echo "$0: Running make clean"
+  make clean
+
+  # clean up any previous install
+  echo "$0: Running make uninstall"
+  make uninstall
+
+  # build and install from the configured workarea source
+  echo "$0: Running make install"
+  make install
+
+  # remove any existing tarball from a previous build.
+  # create the tarball. rpmbuild performs a complete configure,
+  # build, install from the tarball sources. If everything goes fine,
+  # then source and binary rpm packages are created.
+  echo "$0: Removing previous openspeedshop-0.5.tar.gz"
+  rm -f openspeedshop-0.5.tar.gz
+  echo "$0: Running make dist"
+  make dist
+ fi
+else
+  echo $0: This must be run from the WORKAREA 'current' directory...
+fi
+
+# ensure we have a valid tarball before proceeding. 
+#
+cd $MYCURRENT
+if [ -f openspeedshop-0.5.tar.gz ] ; then
+  echo $0: tarball openspeedshop-0.5.tar.gz created successfully.
+else
+  echo $0 ERROR: no openspeedshop-0.5.tar.gz exists. Build of tarball failed
+  echo $0 ERROR: can not perform rpmbuild. exiting...
+  exit 1
+fi
+
+#############################################################################
+# At this point, the tarball has been generated in $WORKAREA/current.
+# If there were no errors, $WORKAREA/current/openspeedshop-0.5.tar.gz
+# should exist. The next step configures, builds and installs your tarball as
+# a user would and then creates rpm packages. The rpmbuild command
+# reads $WORKAREA/current/openspeedshop-0.5.spec which controls the
+# configure/build/install. The openspeedshop-0.5.spec file is aware
+# the the $ROOT and $QTDIR environment variables.
+# Please review openspeedshop-0.5.spec
+# for the details. The key configuration directories are:
+# 
+# $WORKAREA/RPM
+# directory where all rpm related work is performed.
+# This can be changed to /tmp or made an option if desired.
+# 
+# $WORKAREA/RPM/BUILD 
+# directory where tarball is expanded and built.
+# 
+# %{_topdir}/../rpminstall
+# The above expands to $WORKAREA/rpminstall and the spec file
+# uses $WORKAREA/rpminstall for $RPM_BUILD_ROOT.
+# The openspeedshop-0.5.spec configures the build to use:
+# configure --prefix=$RPM_BUILD_ROOT/usr/local
+# Setting your environment (i.e. PATH, LD_LIBRARY_PATH,OPENSS_PLUGIN_PATH)
+# to this installation allows you to test the software that
+# a user would build (not the software in you workare build).
+# i.e. $RPM_BUILD_ROOT/usr/local is the $OPENSS_INSTALL_DIR
+# for the software built from the tarball.
+##############################################################################
+
+cd $MYCURRENT
+
+# prepare to build the rpm packages in the RPM directory
+# in the users TOPLEVEL (i.e. workarea) directory.
+# (this is %{_topdir} in the specfile)
+#
+RPMBUILDDIR=$TOPLEVEL/RPM
+
+# create local rpmmacros file used by rpmbuild to control the
+# build, install of the tarball source and creation rpm packages.
+# This overides the users $HOME/.rpmmacros file if it exists
+# since this is specific to this instance of the OSS software
+# in this specific WORKAREA.
+#
+RPMMACROSFILES=$MYCURRENT/RPMMACROS
+rm -f $RPMMACROSFILES
+
+cat << EOF > $RPMMACROSFILES
+#! /bin/ksh
+%_topdir          $RPMBUILDDIR
+%_prefix          /usr/local
+%_exec_prefix     %{_prefix}
+%_bindir          %{_exec_prefix}/bin
+%_sbindir         %{_exec_prefix}/sbin
+%_libexecdir      %{_exec_prefix}/libexec
+%_datadir         %{_prefix}/share
+%_sysconfdir      %{_prefix}/etc
+%_sharedstatedir  %{_prefix}/com
+%_localstatedir   %{_prefix}/var
+%_libdir          %{_exec_prefix}/lib
+%_includedir      %{_prefix}/include
+%_infodir         %{_prefix}/info
+%_mandir          %{_prefix}/man
+
+# do not generate debugging packages by default
+%debug_package %{nil}
+EOF
+
+# create local rpmrc file used by rpmbuild to control the
+# build, install of the tarball source and creation rpm packages.
+# This rpmrc file adds our $RPMMACROSFILE to the rpmbuild macro
+# file search list. Used as the --rpmrc argument for rpmbuild.
+#
+RPMRCFILE=$MYCURRENT/RPMRC
+rm -f $MYCURRENT/RPMRC
+
+cat << EOF > $RPMRCFILE
+#! /bin/ksh
+macrofiles: /usr/lib/rpm/macros:/usr/lib/rpm/%{_target}/macros:/etc/rpm/macros.specspo:/etc/rpm/macros.prelink:/etc/rpm/macros.solve:/etc/rpm/macros.up2date:/etc/rpm/macros:/etc/rpm/%{_target}/macros:$RPMMACROSFILES
+EOF
+
+if [ ! -d $RPMBUILDDIR ] ; then
+	mkdir -p $RPMBUILDDIR
+fi
+
+if [ ! -d $RPMBUILDDIR/SOURCES ] ; then
+	mkdir -p $RPMBUILDDIR/SOURCES
+else
+	rm -f $RPMBUILDDIR/SOURCES/*
+fi
+
+if [ ! -d $RPMBUILDDIR/BUILD ] ; then
+	mkdir -p $RPMBUILDDIR/BUILD
+else
+	rm -rf $RPMBUILDDIR/BUILD/*
+fi
+
+if [ ! -d $RPMBUILDDIR/RPMS ] ; then
+	mkdir -p $RPMBUILDDIR/RPMS
+else
+	rm -rf $RPMBUILDDIR/RPMS/*
+fi
+
+if [ ! -d $RPMBUILDDIR/SRPMS ] ; then
+	mkdir -p $RPMBUILDDIR/SRPMS
+else
+	rm -rf $RPMBUILDDIR/SRPMS/*
+fi
+
+if [ ! -d $RPMBUILDDIR/SPECS ] ; then
+	mkdir -p $RPMBUILDDIR/SPECS
+else
+	rm -rf $RPMBUILDDIR/SPECS/*
+fi
+
+# copy the tarball to the direcotry rpmbuild expects.
+#
+rm -f $RPMBUILDDIR/SOURCES/openspeedshop-0.5.tar.gz
+cp openspeedshop-0.5.tar.gz $RPMBUILDDIR/SOURCES
+
+# Fire off the build and install of the tarball source using
+# the current spec file. This will build the source an binary
+# rpm packages (-ba -> build all) if the tarball source builds
+# and install succesfully.
+#
+# NOTE: any errors in config/build/install of the tarball
+# will prevent the rpm packages from being generated.
+# This step allows developers to verify that any changes
+# they make to the product will build for a user of the tarball.
+#
+echo "$0: Invoking rpmbuild --rcfile=$RPMRCFILE -ba -v openspeedshop-0.5.spec"
+rpmbuild --rcfile=$RPMRCFILE -ba -v openspeedshop-0.5.spec
