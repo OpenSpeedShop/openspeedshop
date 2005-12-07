@@ -46,10 +46,10 @@ const unsigned OverheadFrameCount = 2;
 #define MaxFramesPerStackTrace 64
 
 /** Number of stack trace entries in the tracing buffer. */
-#define StackTraceBufferSize 512
+#define StackTraceBufferSize 384
 
 /** Number of event entries in the tracing buffer. */
-#define EventBufferSize 192
+#define EventBufferSize 554
 
 /** Thread-local storage. */
 #ifdef WDH_PER_THREAD_DATA_COLLECTION
