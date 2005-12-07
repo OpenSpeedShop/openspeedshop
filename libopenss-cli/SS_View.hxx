@@ -24,7 +24,8 @@ enum ViewOpCode {
      VIEWINST_Display_Tmp,
      VIEWINST_Display_Percent_Column,
      VIEWINST_Display_Percent_Metric,
-     VIEWINST_Display_Percent_Tmp
+     VIEWINST_Display_Percent_Tmp,
+     VIEWINST_Display_Average_Tmp
 };
 
 class ViewInstruction
@@ -68,6 +69,7 @@ class ViewInstruction
      case VIEWINST_Display_Percent_Column: op = "Display_Percent_Column"; break;
      case VIEWINST_Display_Percent_Metric: op = "Display_Percent_Metric"; break;
      case VIEWINST_Display_Percent_Tmp: op = "Display_Percent_Tmp"; break;
+     case VIEWINST_Display_Average_Tmp: op = "Display_Average_Tmp"; break;
      default: op ="(unknown)"; break;
     }
     to << op << " " << TmpResult << " " << TMP_index1 << " " << TMP_index2 << std::endl;

@@ -225,8 +225,11 @@ bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string vi
   }
 
  // Determine the required Collectors.
+  std::string *Metric_List = vt->Metrics();
   vector<ParseRange> *p_slist = p_result->getexpMetricList();
-  if (p_slist->begin() != p_slist->end()) {
+  if ((p_slist->begin() != p_slist->end()) &&
+      (vt->Deterimne_Metrics() ||
+       (Metric_List[0].length() > 0))) {
    // Prefer user specified collector::metric specifications.
     int64_t i = 0;
     vector<ParseRange>::iterator mi;
@@ -290,7 +293,6 @@ bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string vi
   } else {
    // Use the metrics specified in the experiment definition.
     bool collector_found = false;
-    std::string *Metric_List = vt->Metrics();
     std::string *Collector_List = vt->Collectors();
     std::string C_Name = Collector_List[0];
     if ((Collector_List[0].length() != 0) &&

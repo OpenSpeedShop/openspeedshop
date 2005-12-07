@@ -196,15 +196,6 @@ CommandResult *Init_Collector_Metric (CommandObject *cmd,
     Param_Value = new CommandResult_Float ();
   } else if( m.isType(typeid(string)) ) {
     Param_Value = new CommandResult_String ("");
-  } else {
-#if 1
-    std::string s("(The metric, " + id + ", does not have a supported type.)");
-    Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-    cmd->Result_String ("(The metric, " + id + ", does not have a supported type.)");
-    cmd->set_Status(CMD_ERROR);
-#endif
-    Param_Value = NULL;
   }
   return Param_Value;
 }
@@ -530,7 +521,8 @@ ViewInstruction *Find_Column_Def (std::vector<ViewInstruction *>IV, int64_t Colu
           (vp->OpCode() == VIEWINST_Display_Tmp) ||
           (vp->OpCode() == VIEWINST_Display_Percent_Column) ||
           (vp->OpCode() == VIEWINST_Display_Percent_Metric) ||
-          (vp->OpCode() == VIEWINST_Display_Percent_Tmp)) {
+          (vp->OpCode() == VIEWINST_Display_Percent_Tmp) ||
+          (vp->OpCode() == VIEWINST_Display_Average_Tmp)) {
         return vp;
       }
     }

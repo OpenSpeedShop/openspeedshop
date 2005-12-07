@@ -871,6 +871,53 @@ inline void Accumulate_CommandResult (CommandResult *A, CommandResult *B) {
   }
 }
 
+inline CommandResult *Calculate_Average (CommandResult *A, CommandResult *B) {
+
+  if (B == NULL) {
+    return NULL;
+  }
+  if (A == NULL) {
+    return new CommandResult_Float (0.0);
+  }
+
+  double Avalue;
+  double Bvalue;
+
+  switch (A->Type()) {
+   case CMD_RESULT_UINT:
+    uint64_t Uvalue;
+    ((CommandResult_Uint *)A)->Value(Uvalue);
+    Avalue = Uvalue;
+    break;
+   case CMD_RESULT_INT:
+    int64_t Ivalue;
+    ((CommandResult_Int *)A)->Value(Ivalue);
+    Avalue = Ivalue;
+    break;
+   case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)A)->Value(Avalue);
+    break;
+  }
+  switch (B->Type()) {
+   case CMD_RESULT_UINT:
+    uint64_t Uvalue;
+    ((CommandResult_Uint *)B)->Value(Uvalue);
+    Bvalue = Uvalue;
+    break;
+   case CMD_RESULT_INT:
+    int64_t Ivalue;
+    ((CommandResult_Int *)B)->Value(Ivalue);
+    Bvalue = Ivalue;
+    break;
+   case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)B)->Value(Bvalue);
+    break;
+  }
+
+  double average = Avalue / Bvalue;
+  return new CommandResult_Float (average);
+}
+
 inline CommandResult *Calculate_Percent (CommandResult *A, CommandResult *B) {
 
   if (B == NULL) {
