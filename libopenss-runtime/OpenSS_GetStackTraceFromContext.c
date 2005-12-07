@@ -128,8 +128,7 @@ void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
 	
 	/* Unwind to the next frame, stopping after the last frame */
 	retval = unw_step(&cursor);
-	Assert(retval >= 0);
-	if(retval == 0)
+	if(retval <= 0)
 	    break;
 	
     }
