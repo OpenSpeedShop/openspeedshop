@@ -130,13 +130,13 @@ class CommandResult_CallStackEntry : public CommandResult {
 template <class T>
 struct sort_ascending_CommandResult : public std::binary_function<T,T,bool> {
     bool operator()(const T& x, const T& y) const {
-        return CommandResult_lt (x.second, y.second);
+        return CommandResult_gt ((*x.second)[0], (*y.second)[0]);
     }
 };
 template <class T>
 struct sort_descending_CommandResult : public std::binary_function<T,T,bool> {
     bool operator()(const T& x, const T& y) const {
-        return CommandResult_gt (x.second, y.second);
+        return CommandResult_gt ((*x.second)[0], (*y.second)[0]);
     }
 };
 template <class T>
@@ -156,7 +156,7 @@ struct sort_ascending_CallStacks : public std::binary_function<T,T,bool> {
         if (xs->size() > ys->size()) return false;
        // Ascending order is used for value compares
        // when the call stacks are identical.
-        return CommandResult_lt (x.second, y.second);
+        return CommandResult_lt ((*x.second)[0], (*y.second)[0]);
     }
 };
 template <class T>
@@ -176,7 +176,7 @@ struct sort_descending_CallStacks : public std::binary_function<T,T,bool> {
         if (xs->size() > ys->size()) return false;
        // Descending order is used for value compares
        // when the call stacks are identical.
-        return CommandResult_gt (x.second, y.second);
+        return CommandResult_gt ((*x.second)[0], (*y.second)[0]);
     }
 };
 
@@ -207,13 +207,19 @@ void GetMetricInThreadGroup(
 }
 
 static void Dump_Intermediate_CallStack (ostream &tostream,
-       std::vector<std::pair<CommandResult_CallStackEntry *, CommandResult *> >& c_items) {
-  std::vector<std::pair<CommandResult_CallStackEntry *, CommandResult *> >::iterator vpi;
+       std::vector<std::pair<CommandResult_CallStackEntry *,
+                             SmartPtr<std::vector<CommandResult *> > > >& c_items) {
+  std::vector<std::pair<CommandResult_CallStackEntry *,
+                        SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
   for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
    // Foreach CallStack entry, dump the corresponding value and the last call stack function name.
-    std::pair<CommandResult_CallStackEntry *, CommandResult *> cp = *vpi;
-    tostream << "    "; ((CommandResult *)(cp.second))->Print(tostream); tostream << "  ";
-     ((CommandResult *)(cp.first))->Print(tostream); tostream << std::endl;
+    std::pair<CommandResult_CallStackEntry *,
+              SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
+    tostream << "    ";
+    for (int64_t i = 0; i < (*cp.second).size(); i++) {
+      (*cp.second)[i]->Print(tostream); tostream << "  ";
+    }
+    ((CommandResult *)(cp.first))->Print(tostream); tostream << std::endl;
   }
 }
 
@@ -222,7 +228,9 @@ bool Raw_Data (CommandObject *cmd,
                Collector& collector,
                std::string& metric,
                ThreadGroup& tgrp,
-               SmartPtr<std::map<Function, std::map<Framework::StackTrace, std::vector<double> > > >& items) {
+               SmartPtr<std::map<Function,
+                        std::map<Framework::StackTrace,
+                                 std::vector<double> > > >& items) {
 
    // Pick up the raw data samples for the measured fucntions.
     std::set<Function> objects;
@@ -236,24 +244,40 @@ bool Raw_Data (CommandObject *cmd,
 }
 
 static void Summary_Report(
-              SmartPtr<std::map<Function, std::map<Framework::StackTrace, std::vector<double> > > >& f_items,
-              std::vector<std::pair<CommandResult_CallStackEntry *, CommandResult *> >& c_items) {
+              SmartPtr<std::map<Function,
+                                std::map<Framework::StackTrace,
+                                         std::vector<double> > > >& f_items,
+              std::vector<std::pair<CommandResult_CallStackEntry *,
+                                    SmartPtr<std::vector<CommandResult *> > > >& c_items) {
  // Combine all the items for each function.
  // Input data is sorted by function.
     std::map<Function, std::map<Framework::StackTrace, std::vector<double> > >::iterator fi;
     for (fi = f_items->begin(); fi != f_items->end(); fi++) {
+      int64_t cnt = 0;
       double sum = 0.0;
+      double vmax = 0.0;
+      double vmin = 0.0;
       std::map<Framework::StackTrace, std::vector<double> >:: iterator si;
       for (si = (*fi).second.begin(); si != (*fi).second.end(); si++) {
         std::vector<double>::iterator vi;
         for (vi = (*si).second.begin(); vi != (*si).second.end(); vi++) {
+          cnt ++;
+          vmin = min(vmin,*vi);
+          vmax = max(vmax,*vi);
           sum += *vi;
         }
       }
-      CommandResult *Sum = CRPTR (sum);
+      SmartPtr<std::vector<CommandResult *> > vcs = Framework::SmartPtr<std::vector<CommandResult *> >(
+                           new std::vector<CommandResult *>()
+                           );
+      vcs->push_back ( CRPTR (sum) );
+      vcs->push_back ( CRPTR (vmin) );
+      vcs->push_back ( CRPTR (vmax) );
+      vcs->push_back ( CRPTR (cnt) );
      // Construct callstack for last entry in the stack trace.
       Function F = (*fi).first;
-      std::map<Framework::StackTrace, std::vector<double> >::iterator first_si = 
+      std::map<Framework::StackTrace,
+               std::vector<double> >::iterator first_si = 
                                   (*fi).second.begin();
       Framework::StackTrace st = (*first_si).first;
       std::set<Statement> T = st.getStatementsAt(st.size()-1);
@@ -264,7 +288,7 @@ static void Summary_Report(
                            );
       call_stack->push_back(new CommandResult_Function (F, T));
       CommandResult_CallStackEntry *CSE = new CommandResult_CallStackEntry (call_stack);
-      c_items.push_back(std::make_pair(CSE, Sum));
+      c_items.push_back(std::make_pair(CSE, vcs));
     }
 }
 
@@ -293,26 +317,46 @@ static SmartPtr<std::vector<CommandResult *> >
 }
 
 static void CallStack_Report (
-              SmartPtr<std::map<Function, std::map<Framework::StackTrace, std::vector<double> > > >& f_items,
-              std::vector<std::pair<CommandResult_CallStackEntry *, CommandResult *> >& c_items) {
+              SmartPtr<std::map<Function,
+                                std::map<Framework::StackTrace,
+                                         std::vector<double> > > >& f_items,
+              std::vector<std::pair<CommandResult_CallStackEntry *,
+                                    SmartPtr<std::vector<CommandResult *> > > >& c_items) {
  // Sum the data items for each call stack.
-  std::map<Function, std::map<Framework::StackTrace, std::vector<double> > >::iterator fi;
+  std::map<Function,
+           std::map<Framework::StackTrace,
+                    std::vector<double> > >::iterator fi;
   for (fi = f_items->begin(); fi != f_items->end(); fi++) {
    // Foreach MPI function ...
-    std::map<Framework::StackTrace, std::vector<double> >::iterator sti;
+    std::map<Framework::StackTrace,
+             std::vector<double> >::iterator sti;
     for (sti = (*fi).second.begin(); sti != (*fi).second.end(); sti++) {
      // Foreach call stack ...
       Framework::StackTrace st = (*sti).first;
+      int64_t cnt = 0;
       double sum = 0.0;
+      double vmax = 0.0;
+      double vmin = LONG_MAX;
       int64_t len = (*sti).second.size();
       for (int64_t i = 0; i < len; i++) {
        // Combine all the values.
-        sum += (*sti).second[i];
+        double v = (*sti).second[i];
+        cnt ++;
+        vmin = min(vmin,v);
+        vmax = max(vmax,v);
+        sum += v;
       }
-      CommandResult *Sum = CRPTR (sum);
+      SmartPtr<std::vector<CommandResult *> > vcs
+               = Framework::SmartPtr<std::vector<CommandResult *> >(
+                           new std::vector<CommandResult *>()
+                           );
+      vcs->push_back ( CRPTR (sum) );
+      vcs->push_back ( CRPTR (vmin) );
+      vcs->push_back ( CRPTR (vmax) );
+      vcs->push_back ( CRPTR (cnt) );
       SmartPtr<std::vector<CommandResult *> > call_stack = Construct_CallBack (st);
       CommandResult_CallStackEntry *CSE = new CommandResult_CallStackEntry (call_stack);
-      c_items.push_back(std::make_pair(CSE, Sum));
+      c_items.push_back(std::make_pair(CSE, vcs));
     }
   }
 }
@@ -380,20 +424,25 @@ static int64_t Match_Call_Stack (SmartPtr<std::vector<CommandResult *> >& cs,
 }
 
 static void Combine_Duplicate_CallStacks (
-              std::vector<std::pair<CommandResult_CallStackEntry *, CommandResult *> >& c_items) {
-  std::vector<std::pair<CommandResult_CallStackEntry *, CommandResult *> >::iterator vpi;
+              std::vector<std::pair<CommandResult_CallStackEntry *,
+                                    SmartPtr<std::vector<CommandResult *> > > >& c_items) {
+  std::vector<std::pair<CommandResult_CallStackEntry *,
+                        SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
 
   for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
    // Foreach CallStack entry, look for duplicates and missing intermediates.
-    std::vector<std::pair<CommandResult_CallStackEntry *, CommandResult *> >::iterator nvpi = vpi+1;
+    std::vector<std::pair<CommandResult_CallStackEntry *,
+                          SmartPtr<std::vector<CommandResult *> > > >::iterator nvpi = vpi+1;
     if (nvpi == c_items.end()) break;
-    std::pair<CommandResult_CallStackEntry *, CommandResult *> cp = *vpi;
+    std::pair<CommandResult_CallStackEntry *,
+              SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
     SmartPtr<std::vector<CommandResult *> > cs = cp.first->Value();
     int64_t cs_size = cs->size();
    // Compare the current entry to all following ones.
 
     for ( ; nvpi != c_items.end(); ) {
-      std::pair<CommandResult_CallStackEntry *, CommandResult *> ncp = *nvpi;
+      std::pair<CommandResult_CallStackEntry *,
+                SmartPtr<std::vector<CommandResult *> > > ncp = *nvpi;
       SmartPtr<std::vector<CommandResult *> > ncs = ncp.first->Value();
       if (cs_size > ncs->size()) {
         break;
@@ -408,18 +457,21 @@ static void Combine_Duplicate_CallStacks (
           (matchcount == cs->size()) &&
           (matchcount == ncs->size())) {
        // Call stacks are identical - combine entries.
-        if (ncp.second != NULL) {
-          if (cp.second != NULL) {
-            Accumulate_CommandResult (cp.second, ncp.second);
+        if ((*ncp.second).begin() != (*ncp.second).end()) {
+          if ((*cp.second).begin() != (*cp.second).end()) {
+            for (int64_t i = 0; i < (*cp.second).size(); i++) {
+              Accumulate_CommandResult ((*cp.second)[i], (*ncp.second)[i]);
+            }
           } else {
             cp.second = ncp.second;
-            ncp.second = NULL;
           }
         }
         nvpi = c_items.erase(nvpi);
         delete ncp.first;
-        if (ncp.second != NULL) {
-          delete ncp.second;
+        if ((*ncp.second).begin() != (*ncp.second).end()) {
+          for (int64_t i = 0; i < (*ncp.second).size(); i++) {
+            delete (*ncp.second)[i];
+          }
         }
         continue;
       }
@@ -434,13 +486,17 @@ static void Combine_Duplicate_CallStacks (
 }
 
 static void Expand_Straight (
-              std::vector<std::pair<CommandResult_CallStackEntry *, CommandResult *> >& c_items) {
+              std::vector<std::pair<CommandResult_CallStackEntry *,
+                                    SmartPtr<std::vector<CommandResult *> > > >& c_items) {
 // Process base report.
-  std::vector<std::pair<CommandResult_CallStackEntry *, CommandResult *> >::iterator vpi;
+  std::vector<std::pair<CommandResult_CallStackEntry *,
+                        SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
   for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
    // Foreach CallStack entry, look for duplicates and missing intermediates.
-    std::vector<std::pair<CommandResult_CallStackEntry *, CommandResult *> >::iterator nvpi = vpi+1;
-    std::pair<CommandResult_CallStackEntry *, CommandResult *> cp = *vpi;
+    std::vector<std::pair<CommandResult_CallStackEntry *,
+                          SmartPtr<std::vector<CommandResult *> > > >::iterator nvpi = vpi+1;
+    std::pair<CommandResult_CallStackEntry *,
+              SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
     SmartPtr<std::vector<CommandResult *> > cs = cp.first->Value();
     // cp.first->Value(cs);
 
@@ -451,7 +507,8 @@ static void Expand_Straight (
      // Fully expand current call tree.
       lcnt = cs->size();
     } else {
-      std::pair<CommandResult_CallStackEntry *, CommandResult *> ncp = *nvpi;
+      std::pair<CommandResult_CallStackEntry *,
+                SmartPtr<std::vector<CommandResult *> > > ncp = *nvpi;
       SmartPtr<std::vector<CommandResult *> > ncs = ncp.first->Value();
       // ncp.first->Value(ncs);
       xcnt = Match_Call_Stack (cs, ncs);
@@ -468,16 +525,39 @@ static void Expand_Straight (
     }
     for (int64_t i = (xcnt + 1); i < lcnt; i++) {
      // Insert intermediate, dummy entry to fill a gap in the trace.
+      SmartPtr<std::vector<CommandResult *> > vcs
+              = Framework::SmartPtr<std::vector<CommandResult *> >(
+                           new std::vector<CommandResult *>()
+                           );
+     // Generte initial value for each column.
+      for (int64_t j = 0; j < cp.second->size(); j++) {
+        CommandResult *old = (*cp.second)[j];
+        CommandResult *v = NULL;
+        switch (old->Type()) {
+         case CMD_RESULT_UINT:
+          v = new CommandResult_Uint ();
+          break;
+         case CMD_RESULT_INT:
+          v = new CommandResult_Int ();
+          break;
+         case CMD_RESULT_FLOAT:
+          v = new CommandResult_Float ();
+          break;
+         default:
+          v = new CommandResult_String ("");
+          break;
+        }
+        vcs->push_back ( v );
+      }
       SmartPtr<std::vector<CommandResult *> > ncs = Dup_Call_Stack (i, cs);
-      CommandResult *nv = new CommandResult_Float (0.0); // get "0" value
       CommandResult_CallStackEntry *CSE = new CommandResult_CallStackEntry (ncs);
-      nvpi = c_items.insert(vpi, std::make_pair(CSE, nv));
+      nvpi = c_items.insert(vpi, std::make_pair(CSE, vcs));
       vpi = nvpi + 1;
     }
   }
 }
 
-template <typename TE>
+static
 void Construct_View (CommandObject *cmd,
                      int64_t topn,
                      ThreadGroup& tgrp,
@@ -490,7 +570,8 @@ void Construct_View (CommandObject *cmd,
                      int64_t percentofcolumn,
                      CommandResult *TotalValue,
                      bool report_Column_summary,
-                     std::vector<std::pair<TE, CommandResult *> >& items) {
+                     std::vector<std::pair<CommandResult_CallStackEntry *,
+                                           SmartPtr<std::vector<CommandResult *> > > >& items) {
     int64_t i;
 
    // Should we accumulate column sums?
@@ -504,7 +585,8 @@ void Construct_View (CommandObject *cmd,
     }
 
    // Extract the top "n" items from the sorted list.
-    typename std::vector<std::pair<TE, CommandResult *> >::iterator it;
+    std::vector<std::pair<CommandResult_CallStackEntry *,
+                          SmartPtr<std::vector<CommandResult *> > > >::iterator it;
     for(it = items.begin(); it != items.end(); it++ ) {
       CommandResult *percent_of = NULL;
 
@@ -522,9 +604,14 @@ void Construct_View (CommandObject *cmd,
 
         CommandResult *Next_Metric_Value = NULL;
         if (vinst->OpCode() == VIEWINST_Display_Metric) {
-          Next_Metric_Value = it->second;
+          Next_Metric_Value = (*it->second)[i];
         } else if (vinst->OpCode() == VIEWINST_Display_Tmp) {
-          // Next_Metric_Value  = ???
+          Next_Metric_Value = (*it->second)[CM_Index];
+        } else if (vinst->OpCode() == VIEWINST_Display_Average_Tmp) {
+          CommandResult *V = (*it->second)[CM_Index];
+          if (!V->isNullValue ()) {
+            Next_Metric_Value = Calculate_Average (V, (*it->second)[vinst->TMP2()]);
+          }
         } else if (vinst->OpCode() == VIEWINST_Display_Percent_Column) {
           if (!Gen_Total_Percent) {
            // The measured time interval is too small.
@@ -541,18 +628,20 @@ void Construct_View (CommandObject *cmd,
             // Next_Metric_Value = Calculate_Percent (Metric_Result, TotalValue);
           }
         } else if (vinst->OpCode() == VIEWINST_Display_Percent_Tmp) {
-          // Next_Metric_Value = NULL; /?? not sure how to implement this
-        } else if (vinst->OpCode() == VIEWINST_Display_Percent_Metric) {
-          if (!Gen_Total_Percent) {
-           // The measured time interval is too small.
-            continue;
+          CommandResult *V = (*it->second)[CM_Index];
+          if (!V->isNullValue ()) {
+            Next_Metric_Value = Calculate_Percent (V, TotalValue);
           }
+        } else if (vinst->OpCode() == VIEWINST_Display_Percent_Metric) {
+          if (Gen_Total_Percent) {
           // CommandResult *Metric_Result = Get_Object_Metric( cmd, it->first, tgrp,
           //                                                      CV[CM_Index], MV[CM_Index] );
           // Next_Metric_Value = Calculate_Percent (Metric_Result, TotalValue);
+          }
         }
         if (Next_Metric_Value == NULL) {
           Next_Metric_Value = CRPTR ("");
+/* TEST */ Next_Metric_Value = (*it->second)[i];
         }
         C->CommandResult_Columns::Add_Column (Next_Metric_Value);
         if (report_Column_summary) {
@@ -584,7 +673,7 @@ void Construct_View (CommandObject *cmd,
 
 static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                        ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
-                       std::vector<ViewInstruction *> IV, std::string *HV) {
+                       std::vector<ViewInstruction *> IV, std::vector<std::string> HV) {
   // Print_View_Params (cerr, CV,MV,IV);
 
   bool report_Column_summary = false;
@@ -616,7 +705,8 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
       Mark_Cmd_With_Soft_Error(cmd,s);
       return false;   // There is no column[0] defined, return.
     }
-    if (ViewInst[0]->OpCode() != VIEWINST_Display_Metric) {
+    if ((ViewInst[0]->OpCode() != VIEWINST_Display_Metric)  &&
+        (ViewInst[0]->OpCode() != VIEWINST_Display_Tmp)) {
       std::string s("(The first column is not a metric.)");
       Mark_Cmd_With_Soft_Error(cmd,s);
       return false;   // There is nothing to sort on.
@@ -634,54 +724,42 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
       return false;   // There is no data, return.
     }
 
-
-   // What granularity has been requested?
-    View_Granularity vg = VIEW_FUNCTIONS;
-    std::string EO_Title;
-    std::vector<std::pair<CommandResult_CallStackEntry *, CommandResult *> > c_items;
-    if (Look_For_KeyWord(cmd, "Statements")) {
-     // Straight Report will break down report by call stack.
-      vg = VIEW_STATEMENTS;
-      EO_Title = "Call Stack Function (defining location)";
-      CallStack_Report (f_items, c_items);
-      Combine_Duplicate_CallStacks (c_items);
-      if (topn < (int64_t)c_items.size()) {
-       // Determine the topn items.
-        std::sort(c_items.begin(), c_items.end(),
-                sort_descending_CommandResult<std::pair<CommandResult_CallStackEntry *, CommandResult *> >());
-        c_items.erase ( (c_items.begin() + topn), c_items.end());
-      }
-     // Sort report in calling tree order.
-      std::sort(c_items.begin(), c_items.end(),
-                sort_descending_CallStacks<std::pair<CommandResult_CallStackEntry *, CommandResult *> >());
-      Expand_Straight (c_items);
-      Combine_Duplicate_CallStacks (c_items);
-    } else if (Look_For_KeyWord(cmd, "LinkedObjects")) {
-     // LinkedObjects doesn't seem to be meaningful.
-      vg = VIEW_LINKEDOBJECTS;
-      Mark_Cmd_With_Soft_Error(cmd,"(LinkedObject View is not supported)");
-      return false;   // There is no data, return.
-    } else {
-     // Default is the summary report by MPI function.
-      EO_Title = "Function (defining location)";
-      Summary_Report (f_items, c_items);
-      std::sort(c_items.begin(), c_items.end(),
-                sort_descending_CommandResult<std::pair<CommandResult_CallStackEntry *, CommandResult *> >());
-      if (topn < (int64_t)c_items.size()) {
-        c_items.erase ( (c_items.begin() + topn), c_items.end());
-      }
-    }
-
-    topn = min(topn, (int64_t)c_items.size());
-
-
    // Calculate %?
     CommandResult *TotalValue = NULL;
     ViewInstruction *totalInst = Find_Total_Def (IV);
-    bool Gen_Total_Percent = (totalInst != NULL);
     int64_t totalIndex = 0;
     int64_t percentofcolumn = -1;
-    if (Gen_Total_Percent) {
+    bool Gen_Total_Percent = true;
+
+    if (totalInst == NULL) {
+      ViewInstruction *vinst = Find_Percent_Def (IV);
+      if ((vinst != NULL) &&
+          (vinst->OpCode() == VIEWINST_Display_Percent_Tmp)) {
+       // 
+        if (vinst->TMP1() >= num_columns) {
+         // Clearly, this is an error.
+          Gen_Total_Percent = false;
+        } else {
+         // Sum the time temp.
+          double sum = 0.0;
+          std::map<Function, std::map<Framework::StackTrace, std::vector<double> > >::iterator fi;
+          for (fi = f_items->begin(); fi != f_items->end(); fi++) {
+            std::map<Framework::StackTrace, std::vector<double> >:: iterator si;
+            for (si = (*fi).second.begin(); si != (*fi).second.end(); si++) {
+              std::vector<double>::iterator vi;
+              for (vi = (*si).second.begin(); vi != (*si).second.end(); vi++) {
+                sum += *vi;
+              }
+            }
+          }
+          if (sum > 0.0) {
+            TotalValue = new CommandResult_Float(sum);
+          } else {
+            Gen_Total_Percent = false;
+          }
+        }
+      }
+    } else {
       totalIndex = totalInst->TMP1(); // this is a CV/MV index, not a column number!
       ViewInstruction *vinst = Find_Percent_Def (IV);
       if (vinst != NULL) {
@@ -698,15 +776,62 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
        // No % displayed, so why calcualte total?
         Gen_Total_Percent = false;
       }
+      if (Gen_Total_Percent) {
+       // We calculate Total by adding all the values that were recorded for the thread group.
+        TotalValue = Get_Total_Metric ( cmd, tgrp, CV[totalIndex], MV[totalIndex] );
+      }
     }
     if (Gen_Total_Percent) {
-     // We calculate Total by adding all the values that were recorded for the thread group.
-      TotalValue = Get_Total_Metric ( cmd, tgrp, CV[totalIndex], MV[totalIndex] );
       if (TotalValue == NULL) {
        // Something went wrong, delete the column of % from the report.
         Gen_Total_Percent = false;
       }
     }
+
+
+   // What granularity has been requested?
+    View_Granularity vg = VIEW_FUNCTIONS;
+    std::string EO_Title;
+    std::vector<std::pair<CommandResult_CallStackEntry *,
+                          SmartPtr<std::vector<CommandResult *> > > > c_items;
+    if (Look_For_KeyWord(cmd, "Statements")) {
+     // Straight Report will break down report by call stack.
+      vg = VIEW_STATEMENTS;
+      EO_Title = "Call Stack Function (defining location)";
+      CallStack_Report (f_items, c_items);
+      Combine_Duplicate_CallStacks (c_items);
+      if (topn < (int64_t)c_items.size()) {
+       // Determine the topn items.
+        std::sort(c_items.begin(), c_items.end(),
+                sort_descending_CommandResult<std::pair<CommandResult_CallStackEntry *,
+                                                        SmartPtr<std::vector<CommandResult *> > > >());
+        c_items.erase ( (c_items.begin() + topn), c_items.end());
+      }
+     // Sort report in calling tree order.
+      std::sort(c_items.begin(), c_items.end(),
+                sort_descending_CallStacks<std::pair<CommandResult_CallStackEntry *,
+                                                     SmartPtr<std::vector<CommandResult *> > > >());
+      Expand_Straight (c_items);
+      Combine_Duplicate_CallStacks (c_items);
+    } else if (Look_For_KeyWord(cmd, "LinkedObjects")) {
+     // LinkedObjects doesn't seem to be meaningful.
+      vg = VIEW_LINKEDOBJECTS;
+      Mark_Cmd_With_Soft_Error(cmd,"(LinkedObject View is not supported)");
+      return false;   // There is no data, return.
+    } else {
+     // Default is the summary report by MPI function.
+      EO_Title = "Function (defining location)";
+      Summary_Report (f_items, c_items);
+      std::sort(c_items.begin(), c_items.end(),
+                sort_descending_CommandResult<std::pair<CommandResult_CallStackEntry *,
+                                                        SmartPtr<std::vector<CommandResult *> > > >());
+      if (topn < (int64_t)c_items.size()) {
+        c_items.erase ( (c_items.begin() + topn), c_items.end());
+      }
+    }
+
+    topn = min(topn, (int64_t)c_items.size());
+
 
    // Build a Header for each column in the table.
     CommandResult_Headers *H = new CommandResult_Headers ();
@@ -716,17 +841,22 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
       int64_t CM_Index = vinst->TMP1();
 
       std::string column_header;
-      if (vinst->OpCode() == VIEWINST_Display_Metric) {
-        if (HV != NULL) {
-          column_header = HV[i];
-        } else if (Metadata_hasName( CV[CM_Index], MV[CM_Index] )) {
+      if ((HV.size() > i) &&
+          (HV[i].length() > 0)) {
+        column_header = HV[i];
+      } else if (vinst->OpCode() == VIEWINST_Display_Metric) {
+        if (Metadata_hasName( CV[CM_Index], MV[CM_Index] )) {
           Metadata m = Find_Metadata ( CV[CM_Index], MV[CM_Index] );
           column_header = m.getShortName();
         } else {
           column_header = MV[CM_Index];
         }
       } else if (vinst->OpCode() == VIEWINST_Display_Tmp) {
-        column_header = std::string("Temp" + CM_Index);
+        if (HV.size() > i) {
+          column_header = HV[i];
+        } else {
+          column_header = std::string("Temp" + CM_Index);
+        }
       } else if ((vinst->OpCode() == VIEWINST_Display_Percent_Column) ||
                  (vinst->OpCode() == VIEWINST_Display_Percent_Metric) ||
                  (vinst->OpCode() == VIEWINST_Display_Percent_Tmp)) {
@@ -743,17 +873,21 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
     cmd->Result_Predefined (H);
 
    // Convert "0" values to blanks.
-    std::vector<std::pair<CommandResult_CallStackEntry *, CommandResult *> >::iterator xvpi;
+    std::vector<std::pair<CommandResult_CallStackEntry *,
+                          SmartPtr<std::vector<CommandResult *> > > >::iterator xvpi;
     for (xvpi = c_items.begin(); xvpi != c_items.end(); xvpi++) {
      // Foreach CallStack entry, look for duplicates and missing intermediates.
-      std::pair<CommandResult_CallStackEntry *, CommandResult *> cp = *xvpi;
+      std::pair<CommandResult_CallStackEntry *,
+                SmartPtr<std::vector<CommandResult *> > > cp = *xvpi;
       double V;
-      ((CommandResult_Float *)cp.second)->Value(V);
+      ((CommandResult_Float *)(*cp.second)[0])->Value(V);
       if (V == 0.0) {
        // Set flag in CommandResult to indicate null value.
        // The display logic may decide to replace the value with
        // blanks, if it is easier to read.
-        cp.second->setNullValue();
+        for (int64_t i = 0; i < (*cp.second).size(); i++) {
+          (*cp.second)[i]->setNullValue();
+        }
       }
     }
 
@@ -772,19 +906,130 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
   return ((cmd->Status() != CMD_ERROR) && (cmd->Status() != CMD_ABORTED));
 }
 
+static void define_columns (CommandObject *cmd,
+                           std::vector<ViewInstruction *>& IV,
+                           std::vector<std::string>& HV) {
+
+  OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
+  vector<ParseRange> *p_slist = p_result->getexpMetricList();
+
+ // Initial instructions to insert time into first column.
+  int64_t last_column = 1;
+  bool first_column_is_sum = true;
+  IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, 0, 0));  // first is total time
+  HV.push_back("Exclusive Time");
+  
+  if (p_slist->begin() != p_slist->end()) {
+   // Prefer user specified collector::metric specifications.
+    int64_t i = 0;
+    vector<ParseRange>::iterator mi;
+    for (mi = p_slist->begin(); mi != p_slist->end(); mi++) {
+      parse_range_t *m_range = (*mi).getRange();
+      std::string C_Name;
+      std::string M_Name;
+      if (m_range->is_range) {
+        C_Name = m_range->start_range.name;
+        M_Name = m_range->end_range.name;
+      } else {
+        M_Name = m_range->start_range.name;
+      }
+
+     // Try to match the name with built in values.
+      if (M_Name.length() > 0) {
+        // Select temp values for columns and build column headers
+        if (!strcasecmp(M_Name.c_str(), "sum")) {
+          if (first_column_is_sum) {
+           // Get rid of the default and use the user's position.
+            ViewInstruction *v = IV.front();
+            (void)IV.erase(IV.begin());
+            delete v;
+            (void)HV.erase(HV.begin());
+            first_column_is_sum = false;
+          }
+         // first temp is total time
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, 0));
+          HV.push_back("Exclusive Time");
+        } else if (!strcasecmp(M_Name.c_str(), "min")) {
+         // second temp is min time
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, 1));
+          HV.push_back("Min Time");
+        } else if (!strcasecmp(M_Name.c_str(), "max")) {
+         // third temp is max time
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, 2));
+          HV.push_back("Max Time");
+        } else if (!strcasecmp(M_Name.c_str(), "count")) {
+         // fourth temp is total counts
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, 3));
+          HV.push_back("Number of Calls");
+        } else if (!strcasecmp(M_Name.c_str(), "average")) {
+         // average time is calculated from two temps: sum (#0) and total counts (#3).
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Average_Tmp, last_column++, 0, 3));
+          HV.push_back("Average Time");
+        } else if (!strcasecmp(M_Name.c_str(), "percent")) {
+         // sixth temp is percent of first tmp
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, 0));
+          HV.push_back("% of Total");
+        }
+      }
+    }
+  }
+}
+
+static bool mpi_definition ( CommandObject *cmd, ExperimentObject *exp, int64_t topn,
+                             ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
+                             std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV) {
+    CV.erase(++CV.begin(), CV.end());  // Save the collector name
+   // Clean the other vectors
+    IV.erase(IV.begin(), IV.end());
+    HV.erase(HV.begin(), HV.end());
+    MV.erase(MV.begin(), MV.end());
+
+    CollectorGroup cgrp = exp->FW()->getCollectors();
+    std::string M_Name("exclusive_times");
+    MV.push_back(M_Name);
+    std::string C_Name = Find_Collector_With_Metric ( cgrp, M_Name);
+    if (C_Name .length() == 0) {
+      std::string s("The metrics required to generate the view are not available in the experiment.");
+      Mark_Cmd_With_Soft_Error(cmd,s);
+      return false;
+    }
+    if (!Collector_Used_In_Experiment (exp->FW(), C_Name)) {
+      std::string s("The required collector, " + C_Name + ", was not used in the experiment.");
+      Mark_Cmd_With_Soft_Error(cmd,s);
+      return false;
+    }
+
+    define_columns (cmd, IV, HV);
+
+    return true;
+}
+
+
 // mpi view
 
 static std::string VIEW_mpi_brief = "Mpi Report";
-static std::string VIEW_mpi_short = "Report the metric values gathered for each mpi function in a program.";
-static std::string VIEW_mpi_long  = " A positive integer can be added to the end of the keyword"
-                                      " ""mpi"" to indicate the maximum number of items in the report."
-                                      " A summary report can be requested with the '-v Functions' option"
+static std::string VIEW_mpi_short = "Report the time spent in each mpi function.";
+static std::string VIEW_mpi_long  = "\nA positive integer can be added to the end of the keyword"
+                                      " 'mpi' to indicate the maximum number of items in the report."
+                                      "\nA summary report can be requested with the '-v Functions' option"
                                       " and will be sorted in descending order of the time spent in each"
                                       " function."
                                       " A call stack report can be requested with the '-v Statements' option"
                                       " and will be presented in calling tree order."
                                       " If no '-v' option is specified, the default report is equivalent to"
-                                      " '-v Functions'";
+                                      " '-v Functions'."
+                                      "\nAdditional information can be requested with the '-m' option.  Items"
+                                      " listed after the option will cause additiional columns to be added"
+                                      " to the report. More than one option can be selected."
+                                      " The full set available options is: 'min', 'max', 'average', 'count'"
+                                      " and 'percent'."
+                                      " Each option reports information about the set of mpi calls that is"
+                                      " reported for the function on that particular line in the report."
+                                      " \n\t'-v min' reports the minimum time spent in the function."
+                                      " \n\t'-v max' reports the maximum time spent in the function."
+                                      " \n\t'-v average' reports the average time spent in the function."
+                                      " \n\t'-v count' reports the number of times the function was called."
+                                      " \n\t'-v percent' reports the percent of mpi time the function represents.";
 static std::string VIEW_mpi_metrics[] =
   { ""
   };
@@ -811,40 +1056,24 @@ class mpi_view : public ViewType {
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                          ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
                          std::vector<ViewInstruction *>IV) {
-   // Start with a clean slate.
+
+    std::vector<std::string> HV;
     CV.erase(CV.begin(), CV.end());
-    MV.erase(MV.begin(), MV.end());
-    IV.erase(IV.begin(), IV.end());
-
-    CollectorGroup cgrp = exp->FW()->getCollectors();
-    std::string M_Name("exclusive_times");
-    std::string C_Name = Find_Collector_With_Metric ( cgrp, M_Name);
-    if (C_Name .length() == 0) {
-      std::string s("The metrics required to generate the view are not available in the experiment.");
-      Mark_Cmd_With_Soft_Error(cmd,s);
-      return false;
+    CV.push_back (Get_Collector (exp->FW(), "mpi"));  // Define the collector
+    if (mpi_definition (cmd, exp, topn, tgrp, CV, MV, IV, HV)) {
+       return Generic_mpi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV);
     }
-    if (!Collector_Used_In_Experiment (exp->FW(), C_Name)) {
-      std::string s("The required collector, " + C_Name + ", was not used in the experiment.");
-      Mark_Cmd_With_Soft_Error(cmd,s);
-      return false;
-    }
-
-    CV.push_back (Get_Collector (exp->FW(), "mpi"));  // Get the collector
-    MV.push_back("exclusive_times");  // Get the name of the metric
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, 0, 0));  // first column is metric
-
-    return Generic_mpi_View (cmd, exp, topn, tgrp, CV, MV, IV, NULL);
+    return false;
   }
 };
 
 // mpit view
 
 static std::string VIEW_mpit_brief = "Mpit Report";
-static std::string VIEW_mpit_short = "Report the metric values gathered for each mpi function in a program.";
-static std::string VIEW_mpit_long  = " A positive integer can be added to the end of the keyword"
-                                      " ""mpit"" to indicate the maximum number of items in the report."
-                                      " A summary report can be requested with the '-v Functions' option"
+static std::string VIEW_mpit_short = "Report the time spend in each each mpi function.";
+static std::string VIEW_mpit_long  = "\nA positive integer can be added to the end of the keyword"
+                                      " 'mpit' to indicate the maximum number of items in the report."
+                                      "\nA summary report can be requested with the '-v Functions' option"
                                       " and will be sorted in descending order of the time spent in each"
                                       " function."
                                       " A call stack report can be requested with the '-v Statements' option"
@@ -872,35 +1101,18 @@ class mpit_view : public ViewType {
                          &VIEW_mpit_collectors[0],
                          &VIEW_mpit_header[0],
                            true,
-                           true) {
+                           false) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                          ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
                          std::vector<ViewInstruction *>IV) {
-   // Start with a clean slate.
+    std::vector<std::string> HV;
     CV.erase(CV.begin(), CV.end());
-    MV.erase(MV.begin(), MV.end());
-    IV.erase(IV.begin(), IV.end());
-
-    CollectorGroup cgrp = exp->FW()->getCollectors();
-    std::string M_Name("exclusive_times");
-    std::string C_Name = Find_Collector_With_Metric ( cgrp, M_Name);
-    if (C_Name .length() == 0) {
-      std::string s("The metrics required to generate the view are not available in the experiment.");
-      Mark_Cmd_With_Soft_Error(cmd,s);
-      return false;
+    CV.push_back (Get_Collector (exp->FW(), "mpit"));  // Define the collector
+    if (mpi_definition (cmd, exp, topn, tgrp, CV, MV, IV, HV)) {
+       return Generic_mpi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV);
     }
-    if (!Collector_Used_In_Experiment (exp->FW(), C_Name)) {
-      std::string s("The required collector, " + C_Name + ", was not used in the experiment.");
-      Mark_Cmd_With_Soft_Error(cmd,s);
-      return false;
-    }
-
-    CV.push_back (Get_Collector (exp->FW(), "mpit"));  // Get the collector
-    MV.push_back("exclusive_times");  // Get the name of the metric
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, 0, 0));  // first column is metric
-
-    return Generic_mpi_View (cmd, exp, topn, tgrp, CV, MV, IV, NULL);
+    return false;
   }
 };
 
