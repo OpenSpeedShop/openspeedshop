@@ -23,6 +23,9 @@
 #include "plugin_entry_point.hxx"   // Do not remove
 #include "AttachProcessDialog.hxx"
 
+#define MAXROWS 8
+#define MAXCOLUMNS 8
+
 #include <qapplication.h>
 #include <qvariant.h>
 #include <qpushbutton.h>
@@ -30,6 +33,7 @@
 #include <qlabel.h>
 #include <qtextedit.h>
 #include <qcheckbox.h>
+#include <qgroupbox.h>
 #include <qframe.h>
 #include <qradiobutton.h>
 #include <qlineedit.h>
@@ -143,25 +147,18 @@ MPIWizardPanel::MPIWizardPanel(PanelContainer *pc, const char *n, ArgumentObject
 
   vParameterPageParameterLayout = new QVBoxLayout( 0, 0, 6, "vParameterPageParameterLayout"); 
 
-  vParameterPageSampleRateHeaderLabel = new QLabel( vParameterPageWidget, "vParameterPageSampleRateHeaderLabel" );
-//  vParameterPageSampleRateHeaderLabel->setMinimumSize( QSize(10,10) );
-  vParameterPageSampleRateHeaderLabel->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, 0, 0, FALSE ) );
-  vParameterPageParameterLayout->addWidget( vParameterPageSampleRateHeaderLabel );
+  vParameterPageFunctionListHeaderLabel = new QLabel( vParameterPageWidget, "vParameterPageFunctionListHeaderLabel" );
+  vParameterPageFunctionListHeaderLabel->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed, 0, 0, FALSE ) );
+  vParameterPageParameterLayout->addWidget( vParameterPageFunctionListHeaderLabel );
 
-  vParameterPageSampleRateLayout = new QHBoxLayout( 0, 0, 6, "vParameterPageSampleRateLayout"); 
+  vParameterPageFunctionListLayout = new QVBoxLayout( 0, 0, 6, "vParameterPageFunctionListLayout");
 
-  vParameterPageSampleRateLabel = new QLabel( vParameterPageWidget, "vParameterPageSampleRateLabel" );
-  vParameterPageSampleRateLabel->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
-  vParameterPageSampleRateLayout->addWidget( vParameterPageSampleRateLabel );
-
-  vParameterPageSampleRateText = new QLineEdit( vParameterPageWidget, "vParameterPageSampleRateText" );
-  vParameterPageSampleRateText->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
-  vParameterPageSampleRateLayout->addWidget( vParameterPageSampleRateText );
+  vParameterPageFunctionListGridLayout = new QGridLayout( vParameterPageFunctionListLayout, MAXROWS, MAXCOLUMNS, 3, "vParameterPageFunctionListGridLayout"); 
 
   vParameterPageSpacer = new QSpacerItem( 400, 30, QSizePolicy::Preferred, QSizePolicy::Fixed );
-  vParameterPageSampleRateLayout->addItem( vParameterPageSpacer );
+  vParameterPageFunctionListLayout->addItem( vParameterPageSpacer );
 
-  vParameterPageParameterLayout->addLayout( vParameterPageSampleRateLayout );
+  vParameterPageParameterLayout->addLayout( vParameterPageFunctionListLayout );
   vParameterPageLayout->addLayout( vParameterPageParameterLayout );
 
   vParameterPageButtonLayout = new QHBoxLayout( 0, 0, 6, "vParameterPageButtonLayout"); 
@@ -346,25 +343,18 @@ MPIWizardPanel::MPIWizardPanel(PanelContainer *pc, const char *n, ArgumentObject
 
   eParameterPageParameterLayout = new QVBoxLayout( 0, 0, 6, "eParameterPageParameterLayout"); 
 
-  eParameterPageSampleRateHeaderLabel = new QLabel( eParameterPageWidget, "eParameterPageSampleRateHeaderLabel" );
-//  eParameterPageSampleRateHeaderLabel->setMinimumSize( QSize(10,10) );
-  eParameterPageSampleRateHeaderLabel->setSizePolicy( QSizePolicy( QSizePolicy::Maximum, QSizePolicy::Fixed, 0, 0, FALSE ) );
-  eParameterPageParameterLayout->addWidget( eParameterPageSampleRateHeaderLabel );
+  eParameterPageFunctionListHeaderLabel = new QLabel( eParameterPageWidget, "eParameterPageFunctionListHeaderLabel" );
+  eParameterPageFunctionListHeaderLabel->setSizePolicy( QSizePolicy( QSizePolicy::Maximum, QSizePolicy::Fixed, 0, 0, FALSE ) );
+  eParameterPageParameterLayout->addWidget( eParameterPageFunctionListHeaderLabel );
 
-  eParameterPageSampleRateLayout = new QHBoxLayout( 0, 0, 6, "eParameterPageSampleRateLayout"); 
+  eParameterPageFunctionListLayout = new QHBoxLayout( 0, 0, 6, "eParameterPageFunctionListLayout"); 
 
-  eParameterPageSampleRateLabel = new QLabel( eParameterPageWidget, "eParameterPageSampleRateLabel" );
-  eParameterPageSampleRateLabel->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
-  eParameterPageSampleRateLayout->addWidget( eParameterPageSampleRateLabel );
-
-  eParameterPageSampleRateText = new QLineEdit( eParameterPageWidget, "eParameterPageSampleRateText" );
-  eParameterPageSampleRateText->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
-  eParameterPageSampleRateLayout->addWidget( eParameterPageSampleRateText );
+  eParameterPageFunctionListGridLayout = new QGridLayout( eParameterPageFunctionListLayout, MAXROWS, MAXCOLUMNS, 3, "eParameterPageFunctionListGridLayout"); 
 
   eParameterPageSpacer = new QSpacerItem( 20, 1, QSizePolicy::Preferred, QSizePolicy::Fixed );
-  eParameterPageSampleRateLayout->addItem( eParameterPageSpacer );
+  eParameterPageFunctionListLayout->addItem( eParameterPageSpacer );
 
-  eParameterPageParameterLayout->addLayout( eParameterPageSampleRateLayout );
+  eParameterPageParameterLayout->addLayout( eParameterPageFunctionListLayout );
   eParameterPageLayout->addLayout( eParameterPageParameterLayout );
   eParameterPageButtonLayout = new QHBoxLayout( 0, 0, 6, "eParameterPageButtonLayout"); 
 
@@ -503,9 +493,6 @@ MPIWizardPanel::MPIWizardPanel(PanelContainer *pc, const char *n, ArgumentObject
            SLOT( eParameterPageNextButtonSelected() ) );
   connect( eParameterPageResetButton, SIGNAL( clicked() ), this,
            SLOT( eParameterPageResetButtonSelected() ) );
-  connect( eParameterPageSampleRateText, SIGNAL( returnPressed() ), this,
-           SLOT( eParameterPageSampleRateTextReturnPressed() ) );
-
   connect( eAttachOrLoadPageBackButton, SIGNAL( clicked() ), this,
            SLOT( eAttachOrLoadPageBackButtonSelected() ) );
   connect( eAttachOrLoadPageNextButton, SIGNAL( clicked() ), this,
@@ -521,8 +508,6 @@ MPIWizardPanel::MPIWizardPanel(PanelContainer *pc, const char *n, ArgumentObject
            SLOT( vDescriptionPageNextButtonSelected() ) );
   connect( vDescriptionPageIntroButton, SIGNAL( clicked() ), this,
            SLOT( vDescriptionPageIntroButtonSelected() ) );
-  connect( vParameterPageSampleRateText, SIGNAL( returnPressed() ), this,
-           SLOT( vParameterPageSampleRateTextReturnPressed() ) );
   connect( vParameterPageBackButton, SIGNAL( clicked() ), this,
            SLOT( vParameterPageBackButtonSelected() ) );
   connect( vParameterPageResetButton, SIGNAL( clicked() ), this,
@@ -800,9 +785,6 @@ void MPIWizardPanel::eParameterPageNextButtonSelected()
 {
   nprintf(DEBUG_PANELS) ("eParameterPageNextButtonSelected() \n");
 
-  sampleRate = eParameterPageSampleRateText->text();
-vParameterPageSampleRateText->setText(eParameterPageSampleRateText->text());
-
 //  eUpdateAttachOrLoadPageWidget();
   vUpdateAttachOrLoadPageWidget();
 
@@ -896,7 +878,7 @@ void MPIWizardPanel::eAttachOrLoadPageNextButtonSelected()
       {
         return;
       }
-      sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", with a sampling rate of \"%s\".<br><br></p>", mw->pidStr.ascii(), mw->hostStr.ascii(), eParameterPageSampleRateText->text().ascii() );
+      sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", with monitoring \"%s\" mpi functions.<br><br></p>", mw->pidStr.ascii(), mw->hostStr.ascii(), "ALL" );
     }
   }
   if( eAttachOrLoadPageLoadExecutableCheckBox->isChecked() ||
@@ -915,7 +897,7 @@ void MPIWizardPanel::eAttachOrLoadPageNextButtonSelected()
     QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
-    sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", with a sampling rate of \"%s\".<br><br></p>", mw->executableName.ascii(), mw->hostStr.ascii(), vParameterPageSampleRateText->text().ascii() );
+    sprintf(buffer, "<p align=\"left\">Requesting to load executable \"%s\" on host \"%s\", with monitoring \"%s\" mpi functions.<br><br></p>", mw->executableName.ascii(), mw->hostStr.ascii(), "ALL" );
   }
 
   eSummaryPageFinishLabel->setText( tr( buffer ) );
@@ -967,9 +949,6 @@ void MPIWizardPanel::vParameterPageNextButtonSelected()
 {
   nprintf(DEBUG_PANELS) ("vParameterPageNextButtonSelected() \n");
 
-  sampleRate = vParameterPageSampleRateText->text();
-eParameterPageSampleRateText->setText(vParameterPageSampleRateText->text());
-
   vUpdateAttachOrLoadPageWidget();
 
   mainWidgetStack->raiseWidget(vAttachOrLoadPageWidget);
@@ -992,11 +971,13 @@ void MPIWizardPanel::vAttachOrLoadPageClearButtonSelected()
   nprintf(DEBUG_PANELS) ("vAttachOrLoadPageClearButtonSelected() \n");
 
   vAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
-  vAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
-  vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
-  eAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
+  vAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
+  vAttachOrLoadPageAttachToProcessCheckBox->setChecked(TRUE);
+vAttachOrLoadPageLoadExecutableCheckBox->setEnabled(FALSE);
+  eAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
   eAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
-  eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+  eAttachOrLoadPageAttachToProcessCheckBox->setChecked(TRUE);
+eAttachOrLoadPageLoadExecutableCheckBox->setEnabled(FALSE);
 
   if( getPanelContainer()->getMainWindow() )
   { 
@@ -1107,7 +1088,7 @@ void MPIWizardPanel::vAttachOrLoadPageNextButtonSelected()
     QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
-    sprintf(buffer, "<p align=\"left\">You've selected a MPI experiment for process \"%s\" running on host \"%s\".  Furthermore, you've chosen a sampling rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"mpi\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->pidStr.ascii(), mw->hostStr.ascii(), vParameterPageSampleRateText->text().ascii() );
+    sprintf(buffer, "<p align=\"left\">You've selected a MPI experiment for process \"%s\" running on host \"%s\".  Furthermore, you've chosen to monitor \"%s\" mpi functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"mpi\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->pidStr.ascii(), mw->hostStr.ascii(), "ALL" );
   }
   if( vAttachOrLoadPageLoadExecutableCheckBox->isChecked() ||
       vAttachOrLoadPageLoadDifferentExecutableCheckBox->isChecked() )
@@ -1125,7 +1106,7 @@ void MPIWizardPanel::vAttachOrLoadPageNextButtonSelected()
     QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
-    sprintf(buffer, "<p align=\"left\">You've selected a MPI experiment for executable \"%s\" to be run on host \"%s\".  Furthermore, you've chosen a sampling rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"mpi\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), mw->hostStr.ascii(), vParameterPageSampleRateText->text().ascii() );
+    sprintf(buffer, "<p align=\"left\">You've selected a MPI experiment for executable \"%s\" to be run on host \"%s\".  Furthermore, you've chosen to monitor \"%s\" mpi functions.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"mpi\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), mw->hostStr.ascii(), "ALL" );
   }
 
   vSummaryPageFinishLabel->setText( tr( buffer ) );
@@ -1185,7 +1166,6 @@ void MPIWizardPanel::vSummaryPageFinishButtonSelected()
     {
       LoadAttachObject *lao = NULL;
       ParamList *paramList = new ParamList();
-      paramList->push_back(vParameterPageSampleRateText->text() );
 // printf("A: push_back (%s)\n", vParameterPageSampleRateText->text().ascii() );
       if( !mw->executableName.isEmpty() )
       {
@@ -1245,17 +1225,9 @@ MPIWizardPanel::languageChange()
   QToolTip::add( vDescriptionPageNextButton, tr( "Advance to the next wizard page." ) );
   vDescriptionPageFinishButton->setText( tr( ">> Finish" ) );
   QToolTip::add( vDescriptionPageFinishButton, tr( "Advance to the wizard finish page." ) );
-  vParameterPageDescriptionText->setText( tr( QString("The following options (paramaters) are available to adjust.   These are the options the collector has exported.<br><br>\n"
-"The larger the number used for the sample rate, the more\n"
-"MPI detail will be shown.   However, the trade off will be slower\n"
-"performance and a larger data file.<br><br>\n"
-"It may take a little experimenting to find the right setting for your \n"
-"particular executable.   We suggest starting with the default setting\n"
-"of %1.").arg(traced_functions) ) );
-  vParameterPageSampleRateHeaderLabel->setText( tr( "You can set the following option(s):" ) );
-  vParameterPageSampleRateLabel->setText( tr( "sample rate:" ) );
-  vParameterPageSampleRateText->setText( tr( QString("%1").arg(traced_functions) ) );
-  QToolTip::add( vParameterPageSampleRateText, tr( QString("The rate to sample.   (Default %1.)").arg(traced_functions) ) );
+  vParameterPageDescriptionText->setText( tr( QString("The following options (paramaters) are available to adjust.   These are the list of functions that the MPI collector is able to monitor.<br><br>\n") ) );
+
+  vParameterPageFunctionListHeaderLabel->setText( tr( "You can monitor the following mpi functions(s):" ) );
   vParameterPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( vParameterPageBackButton, tr( "Takes you back one page." ) );
   vParameterPageResetButton->setText( tr( "Reset" ) );
@@ -1264,6 +1236,8 @@ MPIWizardPanel::languageChange()
   QToolTip::add( vParameterPageNextButton, tr( "Advance to the next wizard page." ) );
   vParameterPageFinishButton->setText( tr( ">> Finish" ) );
   QToolTip::add( vParameterPageFinishButton, tr( "Advance to the wizard finish page." ) );
+
+  appendFunctionsToMonitor();
 
   vAttachOrLoadPageDescriptionLabel->setText( tr( "We can attach to an existing process (or processes) or load an executable from disk .  Please select the desired action.<br><br>Note: A dialog will be posted prompting for the information.</p>") );
   vAttachOrLoadPageAttachToProcessCheckBox->setText( tr( "Attach to one or more processes." ) );
@@ -1291,10 +1265,7 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a different
   eDescriptionPageFinishButton->setText( tr( ">> Finish" ) );
   QToolTip::add( eDescriptionPageFinishButton, tr( "Advance to the wizard finish page." ) );
   eParameterPageDescriptionLabel->setText( tr( "The following options (paramaters) are available to adjust.     <br>These are the options the collector has exported." ) );
-  eParameterPageSampleRateHeaderLabel->setText( tr( "You can set the following option(s):" ) );
-  eParameterPageSampleRateLabel->setText( tr( "sample rate:" ) );
-  eParameterPageSampleRateText->setText( tr( QString("%1").arg(traced_functions) ) );
-  QToolTip::add( eParameterPageSampleRateText, tr( QString("The rate to sample.   (Default %1.)").arg(traced_functions) ) );
+  eParameterPageFunctionListHeaderLabel->setText( tr( "You can monitor the following mpi function(s):" ) );
   eParameterPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( eParameterPageBackButton, tr( "Takes you back one page." ) );
   eParameterPageResetButton->setText( tr( "Reset" ) );
@@ -1363,7 +1334,7 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a different
 // printf("B: %s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
 // printf("C: %s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
 
-vDescriptionPageText->setText( tr( cm.getDescription().c_str() ) );
+      vDescriptionPageText->setText( tr( cm.getDescription().c_str() ) );
     }
 std::map<std::string,bool> tracedFunctions;
       mpiCollector.getParameterValue("traced_functions", tracedFunctions);
@@ -1383,11 +1354,13 @@ std::map<std::string,bool> tracedFunctions;
   }
 
   vAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
-  vAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
-  vAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
-  eAttachOrLoadPageLoadExecutableCheckBox->setChecked(TRUE);
+  vAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
+  vAttachOrLoadPageAttachToProcessCheckBox->setChecked(TRUE);
+  vAttachOrLoadPageLoadExecutableCheckBox->setEnabled(FALSE);
+  eAttachOrLoadPageLoadExecutableCheckBox->setChecked(FALSE);
   eAttachOrLoadPageLoadDifferentExecutableCheckBox->setChecked(FALSE);
-  eAttachOrLoadPageAttachToProcessCheckBox->setChecked(FALSE);
+  eAttachOrLoadPageAttachToProcessCheckBox->setChecked(TRUE);
+  eAttachOrLoadPageLoadExecutableCheckBox->setEnabled(FALSE);
 }
 
 void
@@ -1445,4 +1418,96 @@ MPIWizardPanel::vUpdateAttachOrLoadPageWidget()
       eAttachOrLoadPageProcessListLabel->setText( mw->pidStr );
     }
   }
+}
+
+void
+MPIWizardPanel::appendFunctionsToMonitor()
+{
+
+std::map<std::string, bool> function_map;
+
+std::string str = "MPI_Allgather";
+
+// function_map.insert(std::make_pair(str, true));
+function_map.insert(std::make_pair("MPI_Allgather", true));
+function_map.insert(std::make_pair("MPI_Allgatherv", true));
+function_map.insert(std::make_pair("MPI_Allreduce", true));
+function_map.insert(std::make_pair("MPI_Alltoall", true));
+function_map.insert(std::make_pair("MPI_Alltoallv", true));
+function_map.insert(std::make_pair("MPI_Barrier", true));
+function_map.insert(std::make_pair("MPI_Bcast", true));
+function_map.insert(std::make_pair("MPI_Bsend", true));
+function_map.insert(std::make_pair("MPI_Cancel", true));
+function_map.insert(std::make_pair("MPI_Finalize", true));
+function_map.insert(std::make_pair("MPI_Gather", true));
+function_map.insert(std::make_pair("MPI_Gatherv", true));
+function_map.insert(std::make_pair("MPI_Get_count", true));
+function_map.insert(std::make_pair("MPI_Ibsend", true));
+function_map.insert(std::make_pair("MPI_Init", true));
+function_map.insert(std::make_pair("MPI_Irecv", true));
+function_map.insert(std::make_pair("MPI_Irsend", true));
+function_map.insert(std::make_pair("MPI_Isend", true));
+function_map.insert(std::make_pair("MPI_Issend", true));
+function_map.insert(std::make_pair("MPI_Pack", true));
+function_map.insert(std::make_pair("MPI_Probe", true));
+function_map.insert(std::make_pair("MPI_Recv", true));
+function_map.insert(std::make_pair("MPI_Reduce", true));
+function_map.insert(std::make_pair("MPI_Reduce_scatter", true));
+function_map.insert(std::make_pair("MPI_Request_free", true));
+function_map.insert(std::make_pair("MPI_Rsend", true));
+function_map.insert(std::make_pair("MPI_Scan", true));
+function_map.insert(std::make_pair("MPI_Scatter", true));
+function_map.insert(std::make_pair("MPI_Scatterv", true));
+function_map.insert(std::make_pair("MPI_Send", true));
+function_map.insert(std::make_pair("MPI_Sendrecv", true));
+function_map.insert(std::make_pair("MPI_Sendrecv_replace", true));
+function_map.insert(std::make_pair("MPI_Ssend", true));
+function_map.insert(std::make_pair("MPI_Test", true));
+function_map.insert(std::make_pair("MPI_Testall", true));
+function_map.insert(std::make_pair("MPI_Testany", true));
+function_map.insert(std::make_pair("MPI_Testsome", true));
+function_map.insert(std::make_pair("MPI_Unpack", true));
+function_map.insert(std::make_pair("MPI_Wait", true));
+function_map.insert(std::make_pair("MPI_Waitall", true));
+function_map.insert(std::make_pair("MPI_Waitany", true));
+function_map.insert(std::make_pair("MPI_Waitsome", true));
+
+
+QCheckBox *vParameterPageCheckBox;
+QCheckBox *eParameterPageCheckBox;
+
+int i = 0;
+int r = 0;
+int c = 0;
+for( std::map<std::string, bool>::const_iterator it = function_map.begin();
+     it != function_map.end(); it++)
+{
+
+  vParameterPageCheckBox = new QCheckBox( vParameterPageWidget, "vParameterPageCheckBox3" );
+  vParameterPageCheckBox->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
+  vParameterPageCheckBox->setText( it->first.c_str() );
+  vParameterPageFunctionListGridLayout->addWidget( vParameterPageCheckBox, r, c );
+  vParameterPageCheckBox->setChecked(it->second);
+  vParameterPageCheckBox->setEnabled(FALSE);
+  
+  eParameterPageCheckBox = new QCheckBox( eParameterPageWidget, "eParameterPageCheckBox3" );
+  eParameterPageCheckBox->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
+  eParameterPageCheckBox->setText( it->first.c_str() );
+  eParameterPageFunctionListGridLayout->addWidget( eParameterPageCheckBox, r, c );
+  eParameterPageCheckBox->setChecked(it->second);
+  eParameterPageCheckBox->setEnabled(FALSE);
+
+  i++;
+  if( i%MAXROWS == 0 )
+  {
+    r = -1;  // It's going to be incremented by one...
+    c++;
+    if( c > MAXCOLUMNS )
+    {
+       fprintf(stderr, "There were over %d function entries.   Not all functions may be displayed.\n", MAXROWS*MAXCOLUMNS);
+    }
+  }
+  r++;
+}
+
 }
