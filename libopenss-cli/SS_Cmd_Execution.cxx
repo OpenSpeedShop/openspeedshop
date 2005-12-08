@@ -2434,6 +2434,11 @@ bool SS_ListGeneric (CommandObject *cmd) {
     ++i;
   }
 
+//  cmd->P_Result()->setError("Non valid list command argument.");
+  std::string s1("Non valid list command argument.\n");
+  std::string s2("Try: help list");
+  Mark_Cmd_With_Soft_Error(cmd,s1+s2);
+  cmd->set_Status(CMD_ERROR);
   return false;
 }
 
