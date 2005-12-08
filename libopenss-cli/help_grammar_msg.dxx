@@ -62,10 +62,6 @@ char *gram_statusType_related[] = {
     "expStatus"
 };
 
-char *gram_viewType_related[] = {
-    "listViews"
-};
-
 char *gram_list_related[] = {
     "<target>",
     "<range>"
@@ -123,7 +119,10 @@ char *gram_expType_list_arg = {
     "<expType_list> ::= <expType> [ , <expType> ]*"
 };
 char *gram_expType_arg = {
-    "<expType>> ::= [ <predefined_exp> || <user_defined_exp> ]"
+    "<expType> ::= [ <predefined_exp> || <user_defined_exp> ]"
+};
+char *gram_listType_arg = {
+    "<listType> ::= <string>"
 };
 char *gram_user_defined_exp_arg = {
     "<user_defined_exp> ::= <file_name>"
@@ -324,6 +323,10 @@ char *gram_predefined_exp_brief = {
 char *gram_user_defined_exp_brief = {
     "User defined experiment type."
 };
+char *gram_listType_brief = {
+    "The modifier for the list command that determins the \n"
+    "type of listing."
+};
 char *gram_expType_brief = {
     "The experiment type designator. "
 };
@@ -519,7 +522,7 @@ char *gram_expMetric_list_spec_detailed[] = {
     gram_expMetric_list_spec_brief,
     " ",
     "To see all of the current available metric types, type:",
-    "\t\"listMetrics -v all\"",
+    "\t\"list -v metrics,all\"",
     "You can then get more detailed information on each of the",
     "metric types listed through the \"help\" facility."
 };
@@ -529,7 +532,7 @@ char *gram_param_name_detailed[] = {
     gram_param_name_brief,
     " ",
     "To see all of the current available parameter types, type:,",
-    "\t\"listParams -v all\"",
+    "\t\"list -v params,all\"",
     "You can then get more detailed information on each of the",
     "parameter types listed through the \"help\" facility."
 };
@@ -575,10 +578,32 @@ char *gram_expType_detailed[] = {
     "fills in the default values for the experiment."
     " ",
     "To see all of the current available experiment types, type:",
-    "\t\"listtypes -v all\"",
+    "\t\"list -v types,all\"",
     "You can then get more detailed information on each of the",
     "experiment types listed through the \"help\" facility."
     " ",
+    " "
+};
+char *gram_listType_detailed[] = {
+    gram_listType_arg,
+    " ",
+    gram_listType_brief,
+    " ",
+    "breaks   -> List the breakpoints that have been defined.",
+    "expId    -> List the experiments that have been defined.",
+    "expTypes -> List available performance measurement utilities.",
+    "hosts    -> List the hosts that define the specified cluster.",
+    "metrics  -> List the measurements that an experiment is capable ",
+    "            of making.",
+    "obj      -> List the object files that are known.",
+    "params   -> Report the current values assigned to all the parameters",
+    "pids     -> List the process Id's that are known.",
+    "ranks    -> List the mpi ranks that are known.",
+    "src      -> List the source filenames of the modules that are ",
+    "            part of the specified experiment.",
+    "status   -> List the current status of an experiment.",
+    "threads  -> List the threads that are known.",
+    "views    -> List the reports that can be produced by an experiment.",
     " "
 };
 char *gram_expType_list_detailed[] = {
@@ -930,7 +955,7 @@ char *gram_viewType_detailed[] = {
     gram_viewType_brief,
     " ",
     "To see all of the current available view types, type:",
-    "\t\"listViews -v all\"",
+    "\t\"list -v views,all\"",
     "You can then get more detailed information on each of the",
     "view types listed through the \"help\" facility."
 };
@@ -1164,6 +1189,11 @@ OpenSpeedShop::message_element_t grammar_msg[] = {
 //    <user_defined_exp>
     -1,"user_defined_exp",NULL,0,"grammar",gram_user_defined_exp_brief,
     gram_user_defined_exp_detailed,sizeof(gram_user_defined_exp_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
+//    <listType>
+    -1,"listType",NULL,0,"grammar",gram_listType_brief,
+    gram_listType_detailed,sizeof(gram_listType_detailed)/sizeof(char **),
     NULL,0,NULL,0,
     NULL,0,
 //    <expType>
