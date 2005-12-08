@@ -34,13 +34,8 @@ static void Cmd_Execute (CommandObject *cmd) {
    // If they give us a real file name, direct command output there.
     redirect_streamP = new ofstream (redirect_name->c_str(), open_mode);
     if (redirect_streamP == NULL) {
-#if 1
-  std::string s("Could not open file " + *redirect_name + ".");
-  Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-      cmd->Result_String (std::string("Could not open file ") + *redirect_name);
-      cmd->set_Status(CMD_ERROR);
-#endif
+      std::string s("Could not open file " + *redirect_name + ".");
+      Mark_Cmd_With_Soft_Error(cmd,s);
       Cmd_Obj_Complete (cmd);
       return;
     }
@@ -199,13 +194,8 @@ try {
     cmd_successful = SS_Wait (cmd);
     break;
   default:
-#if 1
     std::string s("This command has not been implimented yet.");
     Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-    cmd->Result_String ("This command has not been implimented yet");
-    cmd->set_Status(CMD_ERROR);
-#endif
     cmd_successful = false;
   }
 
