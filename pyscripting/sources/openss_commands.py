@@ -968,7 +968,7 @@ def list(*arglist):
 		- The use of I{ModifierList}("B{all}") will cause all
 		  the  parameters for all available collectors to be
 		  listed.
-		- The use of the "<viewType>" option will result in a
+		- The use of the "<ExpType>" option will result in a
 		  listing  of only those parameters associated with
 		  that specific data  collector.
 
