@@ -897,8 +897,7 @@ MPIPanel::loadStatsPanel()
     {
       experiment = eo->FW();
       UpdateObject *msg =
-//        new UpdateObject((void *)experiment, expID, "mpi", 1);
-        new UpdateObject((void *)experiment, expID, "mpit", 1);
+        new UpdateObject((void *)experiment, expID, "mpi", 1);
       statsPanel->listener( (void *)msg );
     }
   }
@@ -938,8 +937,7 @@ MPIPanel::loadManageProcessesPanel()
     {
       experiment = eo->FW();
       UpdateObject *msg =
-//        new UpdateObject((void *)experiment, expID, "mpi", 1);
-        new UpdateObject((void *)experiment, expID, "mpit", 1);
+        new UpdateObject((void *)experiment, expID, "mpi", 1);
       manageProcessPanel->listener( (void *)msg );
     }
   }

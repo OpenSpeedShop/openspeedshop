@@ -364,7 +364,7 @@ IntroWizardPanel::languageChange()
 "hardware to measure certain attributes of program execution.) (hwc)" ) );
   vpage1FloatingPointRB->setText( tr( "I need to measure how many times I am causing Floating Point Exceptions. (fpe)" ) );
   vpage1InputOutputRB->setText( tr( "My program does a lot of Input and Output and I'd like to trace that work. (io)" ) );
-  vpage1MPIRB->setText( tr( "I have an MPI program and I'd like measure the mpi calls. (mpit)" ) );
+  vpage1MPIRB->setText( tr( "I have an MPI program and I'd like measure the mpi calls. (mpi)" ) );
   eHelpfulLabel->setText( tr( "Please select which of the following are true for your application:" ) );
   epage1LoadExperimentCheckBox->setText( tr( "Load experiment data" ) );
   epage1pcSampleRB->setText( tr( "pcSampling (profiling)" ) );

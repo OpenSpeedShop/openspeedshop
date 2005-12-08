@@ -1311,8 +1311,7 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a different
     for( std::set<Metadata>::const_iterator mi = collectortypes.begin();
          mi != collectortypes.end(); mi++ )
     {
-//      if( mi->getUniqueId() == "mpi" )
-      if( mi->getUniqueId() == "mpit" )
+      if( mi->getUniqueId() == "mpi" )
       {
         found_one = TRUE;
       }
@@ -1322,7 +1321,7 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a different
       return;
     }
 
-    Collector mpiCollector = dummy_experiment.createCollector("mpit");
+    Collector mpiCollector = dummy_experiment.createCollector("mpi");
 
     Metadata cm = mpiCollector.getMetadata();
     std::set<Metadata> md =mpiCollector.getParameters();
