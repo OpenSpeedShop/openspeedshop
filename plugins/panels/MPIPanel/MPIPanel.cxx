@@ -130,6 +130,7 @@ if( attachFLAG )
       if( eo && eo->FW() )
       {
         experiment = eo->FW();
+// printf("experiment assignement for %d\n", expID );
       }
 //      ThreadGroup tgrp = experiment->getThreads();
 //      if( tgrp.size() == 0 )
@@ -238,6 +239,7 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
     if( eo && eo->FW() )
     {
       experiment = eo->FW();
+// printf("A: experiment assignement for %d\n", expID );
     }
 
     statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the \"Run\" button to begin the experiment.")) );
@@ -256,6 +258,7 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
     ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
     if( eo && eo->FW() )
     {
+// printf("B: experiment assignement for %d\n", expID );
       experiment = eo->FW();
     }
     statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the \"Run\" button to begin the experiment.")) );
@@ -290,11 +293,13 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
     updateInitialStatus();
   } else if( expID > 0 )
   {
-// printf("Here B: \n");
+// printf("Here B: expID =%d\n", expID); 
+#ifdef PULL
     ThreadGroup tgrp = experiment->getThreads();
     ThreadGroup::iterator ti = tgrp.begin();
     if( tgrp.size() == 0 )
     {
+printf("trgp.size() = 0 \n");
       statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\".") );
         PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
       ArgumentObject *ao = new ArgumentObject("ArgumentObject", (Panel *)this);
@@ -303,6 +308,7 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
     } else
     {
 
+#endif // PULL
       if( ao && ao->loadedFromSavedFile == TRUE )
       {
         topPC->splitVertical(40);
@@ -325,7 +331,9 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
 // printf("D: call updateInitialStatus() \n");
         updateInitialStatus();
       }
+#ifdef PULL
     }
+#endif // PULL
   } else if( executableNameStr.isEmpty() )
   {
 // printf("Here C: \n");
@@ -349,6 +357,46 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
       wizardPanel->getPanelContainer()->hidePanel(wizardPanel);
     }
   }
+
+
+if( expID > 0 )
+{
+// printf("Put out local wizard?\n");
+// Now get the threads.
+  QString command = QString("listPids -x %1").arg(expID);
+// printf("attempt to run (%s)\n", command.ascii() );
+  CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+  std::list<int64_t> list_of_pids;
+  list_of_pids.clear();
+  InputLineObject *clip = NULL;
+  if( !cli->getIntListValueFromCLI( (char *)command.ascii(),
+         &list_of_pids, clip, TRUE ) )
+  {
+    printf("Unable to run %s command.\n", command.ascii() );
+  }
+// printf("ran %s\n", command.ascii() );
+
+  if( clip )
+  {
+    clip->Set_Results_Used();
+  }
+
+// printf("size=(%d)\n",  list_of_pids.size()  );
+  if( list_of_pids.size() == 0 )
+  {
+      statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\".") );
+        PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
+      ArgumentObject *ao = new ArgumentObject("ArgumentObject", (Panel *)this);
+      topPC->dl_create_and_add_panel("MPI Wizard", bestFitPC, ao);
+      delete ao;
+  } else
+  {
+    if( ao && ao->loadedFromSavedFile != TRUE )
+    {
+      loadManageProcessesPanel();
+    }
+  }
+}
 
 
 }
@@ -896,6 +944,7 @@ MPIPanel::loadStatsPanel()
     if( eo && eo->FW() )
     {
       experiment = eo->FW();
+// printf("C: experiment assignement for %d\n", expID );
       UpdateObject *msg =
         new UpdateObject((void *)experiment, expID, "mpi", 1);
       statsPanel->listener( (void *)msg );
@@ -936,6 +985,7 @@ MPIPanel::loadManageProcessesPanel()
     if( eo && eo->FW() )
     {
       experiment = eo->FW();
+// printf("E: experiment assignement for %d\n", expID );
       UpdateObject *msg =
         new UpdateObject((void *)experiment, expID, "mpi", 1);
       manageProcessPanel->listener( (void *)msg );
@@ -1236,6 +1286,7 @@ MPIPanel::processLAO(LoadAttachObject *lao)
       if( eo && eo->FW() )
       {
         experiment = eo->FW();
+// printf("F: experiment assignement for %d\n", expID );
       }
       ThreadGroup tgrp = experiment->getThreads();
       CollectorGroup cgrp = experiment->getCollectors();
