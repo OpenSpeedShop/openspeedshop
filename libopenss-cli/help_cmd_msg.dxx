@@ -101,8 +101,24 @@ char *cmd_expView_related[] = {
     "<lists>"
 };
 
+char *cmd_list_related[] = {
+    "<listBreaks>",
+    "<listExp>",
+    "<listExpTypes>",
+    "<listHosts>",
+    "<listMetrics>",
+    "<listObj>",
+    "<listParams>",
+    "<listPids>",
+    "<listRanks>",
+    "<listSrc>",
+    "<listThreads>",
+    "<listTypes>",
+    "<listViews>"
+};
+
 char *cmd_listBreaks_related[] = {
-    "<expId>",
+    "<expId>"
 };
 
 char *cmd_listExp_related[] = {
@@ -262,56 +278,76 @@ char *cmd_expView_args[] = {
     "expView [-v <modifier_list>] [-x <expId>] [<viewType>] [-m <expMetric_list>] [<target_spec>]"
 };
 
+char *cmd_list_args[] = {
+    "<ListOf_info> = list -v <listType> [-v all || -x <expId>]"
+};
+
 char *cmd_listBreaks_args[] = {
-    "<ListOf_breakId> = listBreaks [-v all || -x <expId>]"
+    "<ListOf_breakId> = list -v breaks ",
+    "<ListOf_breakId> = list -v breaks,all",
+    "<ListOf_breakId> = list -v breaks -x <expId>"
 };
 
 char *cmd_listExp_args[] = {
-    "<ListOf_expId> = listExp"
+    "<ListOf_expId> = list -v expId"
 };
 
 char *cmd_listHosts_args[] = {
-    "<ListOf_hostname> = listHosts [-x <expId>]"
+    "<ListOf_hostname> = list -v hosts",
+    "<ListOf_hostname> = list -v hosts -x <expId>"
 };
 
 char *cmd_listMetrics_args[] = {
-    "<ListOf_expMetric> = listMetrics [-v all || -x <expId> || <expType_list>]"
+    "<ListOf_expMetric> = list -v metrics",
+    "<ListOf_expMetric> = list -v metrics,all ",
+    "<ListOf_expMetric> = list -v metrics -x <expId>",
+    "<ListOf_expMetric> = list -v metrics <expType>"
 };
 
 char *cmd_listObj_args[] = {
-    "<ListOf_filename> = listObj [-x <expId>] [<target>]"
+    "<ListOf_filename> = list -v obj [-x <expId>] [<target>]"
 };
 
 char *cmd_listParams_args[] = {
-    "<ListOf_expParam> = listParams [-v all || -x <expId> || <expType_list>]"
+    "<ListOf_expParam> = list -v params",
+    "<ListOf_expParam> = list -v params,all",
+    "<ListOf_expParam> = list -v params -x <expId>",
+    "<ListOf_expParam> = list -v params <expType>"
 };
 
 char *cmd_listPids_args[] = {
-    "<ListOf_pidname> = listPids [-x <expId>] [-h <host_name> [ , <host_name> ]*]"
+    "<ListOf_pidname> = list -v pids [-x <expId>] [-h <host_name> [ , <host_name> ]*]"
 };
 
 char *cmd_listRanks_args[] = {
-    "<ListOf_Ranks> = listRanks [-x <expId> ] [ <target>]"
+    "<ListOf_Ranks> = list -v ranks [-x <expId> ] [ <target>]"
 };
 
 char *cmd_listSrc_args[] = {
-    "<ListOf_filename> = listSrc [-x <expId>] [<target>]"
+    "<ListOf_filename> = list -v src [-x <expId>] [<target>]"
 };
 
 char *cmd_listStatus_args[] = {
-    "<ListOf_statusType> = listStatus [-v all || -x <expId>]"
+    "<ListOf_statusType> = list -v status",
+    "<ListOf_statusType> = list -v status,all",
+    "<ListOf_statusType> = list -v status -x <expId>"
 };
 
 char *cmd_listThreads_args[] = {
-    "<ListOf_Threads> = listThreads [-x <expId>] [<target>]"
+    "<ListOf_Threads> = list -v threads [-x <expId>] [<target>]"
 };
 
 char *cmd_listTypes_args[] = {
-    "<ListOf_expType> = listTypes [-v all || -x <expId>]"
+    "<ListOf_expType> = list -v expType",
+    "<ListOf_expType> = list -v expType,all",
+    "<ListOf_expType> = list -v expType -x <expId>"
 };
 
 char *cmd_listViews_args[] = {
-    "<ListOf_viewType> = listViews [-v all || -x <expId> || <expType>]"
+    "<ListOf_viewType> = list -v views",
+    "<ListOf_viewType> = list -v views,all",
+    "<ListOf_viewType> = list -v views -x <expId>",
+    "<ListOf_viewType> = list -v views <expType>"
 };
 
 char *cmd_clearBreak_args[] = {
@@ -421,6 +457,11 @@ char *cmd_expStatus_brief = {
 
 char *cmd_expView_brief = {
     "View the experiment's output in text form."
+};
+
+
+char *cmd_list_brief = {
+    "List information based on <listType>."
 };
 
 
@@ -1001,20 +1042,53 @@ char *cmd_expView_detailed[] = {
     " "
 };
 
+char *cmd_list_detailed[] = {
+    cmd_list_args[0],
+    " ",
+    cmd_list_brief,
+    " ",
+    "\t Where <listType> is one of: ",
+    " ",
+    "\t\t breaks:    List breakpoints (help listBreaks)",
+    "\t\t expId:     List the experiments that have been defined. ",
+    "\t\t            (help listExpId)",
+    "\t\t exptypes:  List the available performance measurement ",
+    "\t\t            utilities that can be used to collect data in ",
+    "\t\t            an experiment. (help listExpTypes)",
+    "\t\t hosts:     Lists the hosts that define the specified cluster. ",
+    "\t\t            (help listHosts)",
+    "\t\t metrics:   Lists the metrics that are associated with a ",
+    "\t\t            ViewTypeList object. (help listMetrics)",
+    "\t\t obj:       List the objects of the applications that are part ",
+    "\t\t            of the specified experiment. (help listObj)",
+    "\t\t params:    List the parameters that are associated with a ",
+    "\t\t            particular <viewType> or set of <viewType>s.",
+    "\t\t            (help listParams)",
+    "\t\t pids:      List running processes associated with a specific ",
+    "\t\t            experiment and, optionally, on a specific machine. ",
+    "\t\t            (help listPids)",
+    "\t\t ranks:     List the mpi ranks associated with a specific ",
+    "\t\t            experiment, a specific Pid or on a specific machine.",
+    "\t\t            (help listRanks)",
+    "\t\t src:       List the source filenames of the modules that are part ",
+    "\t\t            of the specified experiment. (help listSrc)",
+    "\t\t status:    List the status of user experiments. (help listStatus)",
+    "\t\t threads:   List the Threads associated with a specific experiment, ",
+    "\t\t            a specific Pid or on a specific machine. ",
+    "\t\t            (help listThreads)",
+    "\t\t views:     List the views that are available for an ExpTypeList. ",
+    "\t\t            (help listViews)",
+    " ",
+    "\t The format of the output list is dependant on the type ",
+    "\t of list requested.",
+    " "
+};
 
 char *cmd_listBreaks_detailed[] = {
     cmd_listBreaks_args[0],
     " ",
     cmd_listBreaks_brief,
     " ",
-    "\t The absence of any option will cause all the breakpoints ",
-    "\t for the focused experiment to be listed.",
-    " ",
-    "\t The use of -x <expId> will cause all the breakpoints ",
-    "\t for the specified experiment to be listed.",
-    " ",
-    "\t The use of all will cause all the known breakpoints, for ",
-    "\t all of the experiments defined by the user, to be listed.",
     " "
 };
 
@@ -1770,6 +1844,13 @@ OpenSpeedShop::message_element_t cmd_msg[CMD_MAX] = {
     cmd_expView_detailed,sizeof(cmd_expView_detailed)/sizeof(char **),
     NULL,0,NULL,0,
     cmd_expView_args,sizeof(cmd_expView_args)/sizeof(char **),
+//    CMD_LIST_GENERIC,
+    -1,cmd_desc[CMD_LIST_GENERIC].name,
+    cmd_list_related,sizeof(cmd_list_related)/sizeof(char **),
+    "commands",cmd_list_brief,
+    cmd_list_detailed,sizeof(cmd_list_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    cmd_list_args,sizeof(cmd_list_args)/sizeof(char **),
 //    CMD_LIST_BREAKS,
     -1,cmd_desc[CMD_LIST_BREAKS].name,
     cmd_listBreaks_related,sizeof(cmd_listBreaks_related)/sizeof(char **),

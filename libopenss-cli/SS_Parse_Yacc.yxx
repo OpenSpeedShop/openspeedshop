@@ -1000,6 +1000,8 @@ gen_help_arg:	    NAME {p_parse_result->pushHelp($1);}
     	    	|   STATUS_HEAD	    	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_STATUS].name);}
     	    	|   VIEW_HEAD	    	    {p_parse_result->pushHelp(cmd_desc[CMD_EXP_VIEW].name);}
 
+    	    	|   LIST_GENERIC_HEAD	    {p_parse_result->pushHelp(cmd_desc[CMD_LIST_GENERIC].name);}
+
     	    	|   LIST_BREAKS_HEAD	    {p_parse_result->pushHelp(cmd_desc[CMD_LIST_BREAKS].name);}
     	    	|   LIST_EXP_HEAD   	    {p_parse_result->pushHelp(cmd_desc[CMD_LIST_EXP].name);}
     	    	|   LIST_HOSTS_HEAD 	    {p_parse_result->pushHelp(cmd_desc[CMD_LIST_HOSTS].name);}
