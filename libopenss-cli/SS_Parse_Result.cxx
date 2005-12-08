@@ -438,13 +438,19 @@ dumpHelp(CommandObject *cmd)
     
     	if (element.begin() == element.end()) {
 	    cmd->Result_String( "No help for " + name);
+	    continue;
     	}
+	else {
+	    found_match = true;
+	}
 
     	vector <SS_Message_Element*>:: iterator k;
     	for (k = element.begin();
     	    k != element.end();
 	    ++k) {
 	    SS_Message_Element *p_el = *k;
+	    
+	    cmd->Result_String ("    *********");
 
     	    // Normal list
 	    vector<string> * const p_string = p_el->get_normal_list();
