@@ -19,112 +19,10 @@
 
 #include "SS_Input_Manager.hxx"
 
-inline std::string ptr2str (void *p) {
-  char s[40];
-  sprintf ( s, "%p", p);
-  return std::string (s);
-}
-
 enum View_Granularity {
   VIEW_FUNCTIONS,
   VIEW_STATEMENTS,
   VIEW_LINKEDOBJECTS
-};
-
-class CommandResult_CallStackEntry : public CommandResult {
- private:
-  bool Bottom_up;
-  SmartPtr<std::vector<CommandResult *> > CallStack;
-
-  CommandResult_CallStackEntry () : CommandResult(CMD_RESULT_EXTENSION) {
-    Bottom_up = false;
-  }
-
- public:
-  CommandResult_CallStackEntry (SmartPtr<std::vector<CommandResult *> >& call_stack,
-                                bool Reverse=false)
-      : CommandResult(CMD_RESULT_CALLTRACE) {
-    Bottom_up = Reverse;
-    CallStack = call_stack;
-  }
-  virtual ~CommandResult_CallStackEntry () {
-    std::vector<CommandResult *>::iterator csi;
-    for (csi = CallStack->begin(); csi != CallStack->end(); csi++) {
-      delete (*csi);
-    }
-  }
-
-  SmartPtr<std::vector<CommandResult *> >& Value () {
-    return CallStack;
-  };
-  void Value (SmartPtr<std::vector<CommandResult *> >& call_stack) {
-    call_stack = CallStack;
-  };
-
-  virtual std::string Form () {
-    int64_t sz = CallStack->size();
-    if (sz <= 0) return std::string("");
-    CommandResult *CE = (*CallStack)[sz - 1];
-    std::string Name;
-   // Add indentation.
-    for (int64_t i = 1; i < sz; i++) {
-      Name += ((Bottom_up) ? "<" : ">");
-    }
-   // Add line number.
-    if (sz > 1) {
-      if (CE->Type() == CMD_RESULT_FUNCTION) {
-        std::set<Statement> T;
-        ((CommandResult_Function *)CE)->Value(T);
-        if (T.begin() != T.end()) {
-          std::set<Statement>::const_iterator sti = T.begin();;
-          Statement S = *sti;
-          char l[50];
-          sprintf( &l[0], "%lld", (int64_t)(S.getLine()));
-          Name = Name + " @ " + l + " in ";
-        }
-      } else if (CE->Type() == CMD_RESULT_LINKEDOBJECT) {
-        uint64_t V;
-        ((CommandResult_LinkedObject *)CE)->Value(V);
-        char l[50];
-        sprintf( &l[0], "+0x%llx", V);
-        std::string l_name;
-        ((CommandResult_LinkedObject *)CE)->Value(l_name);
-        Name = Name + " @ " + l_name + l + " in ";
-      } else if (CE->Type() == CMD_RESULT_UINT) {
-        Name += " @ ";
-      }
-    }
-   // Add function name and location information.
-    Name += CE->Form();
-    return Name;
-  }
-  virtual PyObject * pyValue () {
-    std::string F = Form ();
-    return Py_BuildValue("s",F.c_str());
-  }
-  virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
-    std::string string_value = Form ();
-    if (leftjustified) {
-     // Left justification is only done on the last column of a report.
-     // Don't truncate the string if it is bigger than the field size.
-     // This is done to make sure everything gets printed.
-
-      to << std::setiosflags(std::ios::left) << string_value;
-
-     // If there is unused space in the field, pad with blanks.
-      if ((string_value.length() < fieldsize) &&
-          (string_value[string_value.length()-1] != *("\n"))) {
-        for (int64_t i = string_value.length(); i < fieldsize; i++) to << " ";
-      }
-
-    } else {
-     // Right justify the string in the field.
-     // Don't let it exceed the size of the field.
-     // Also, limit the size based on our internal buffer size.
-      to << std::setiosflags(std::ios::right) << std::setw(fieldsize)
-         << ((string_value.length() <= fieldsize) ? string_value : string_value.substr(0, fieldsize));
-    }
-  }
 };
 
 template <class T>
@@ -256,7 +154,7 @@ static void Summary_Report(
       int64_t cnt = 0;
       double sum = 0.0;
       double vmax = 0.0;
-      double vmin = 0.0;
+      double vmin = LONG_MAX;
       std::map<Framework::StackTrace, std::vector<double> >:: iterator si;
       for (si = (*fi).second.begin(); si != (*fi).second.end(); si++) {
         std::vector<double>::iterator vi;
@@ -641,7 +539,6 @@ void Construct_View (CommandObject *cmd,
         }
         if (Next_Metric_Value == NULL) {
           Next_Metric_Value = CRPTR ("");
-/* TEST */ Next_Metric_Value = (*it->second)[i];
         }
         C->CommandResult_Columns::Add_Column (Next_Metric_Value);
         if (report_Column_summary) {
@@ -914,13 +811,12 @@ static void define_columns (CommandObject *cmd,
   vector<ParseRange> *p_slist = p_result->getexpMetricList();
 
  // Initial instructions to insert time into first column.
-  int64_t last_column = 1;
-  bool first_column_is_sum = true;
-  IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, 0, 0));  // first is total time
+  int64_t last_column = 0;
+  IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, 0));  // first is total time
   HV.push_back("Exclusive Time");
   
   if (p_slist->begin() != p_slist->end()) {
-   // Prefer user specified collector::metric specifications.
+   // Add modifiers to output list.
     int64_t i = 0;
     vector<ParseRange>::iterator mi;
     for (mi = p_slist->begin(); mi != p_slist->end(); mi++) {
@@ -937,19 +833,7 @@ static void define_columns (CommandObject *cmd,
      // Try to match the name with built in values.
       if (M_Name.length() > 0) {
         // Select temp values for columns and build column headers
-        if (!strcasecmp(M_Name.c_str(), "sum")) {
-          if (first_column_is_sum) {
-           // Get rid of the default and use the user's position.
-            ViewInstruction *v = IV.front();
-            (void)IV.erase(IV.begin());
-            delete v;
-            (void)HV.erase(HV.begin());
-            first_column_is_sum = false;
-          }
-         // first temp is total time
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, 0));
-          HV.push_back("Exclusive Time");
-        } else if (!strcasecmp(M_Name.c_str(), "min")) {
+        if (!strcasecmp(M_Name.c_str(), "min")) {
          // second temp is min time
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, 1));
           HV.push_back("Min Time");
@@ -978,23 +862,25 @@ static void define_columns (CommandObject *cmd,
 static bool mpi_definition ( CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                              ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
                              std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV) {
+    Assert (CV.begin() != CV.end());
     CV.erase(++CV.begin(), CV.end());  // Save the collector name
    // Clean the other vectors
+    MV.erase(MV.begin(), MV.end());
     IV.erase(IV.begin(), IV.end());
     HV.erase(HV.begin(), HV.end());
-    MV.erase(MV.begin(), MV.end());
 
     CollectorGroup cgrp = exp->FW()->getCollectors();
-    std::string M_Name("exclusive_times");
-    MV.push_back(M_Name);
-    std::string C_Name = Find_Collector_With_Metric ( cgrp, M_Name);
-    if (C_Name .length() == 0) {
-      std::string s("The metrics required to generate the view are not available in the experiment.");
+    Collector C = *CV.begin();
+    if (cgrp.find(C) == std::set<Collector>::iterator(cgrp.end())) {
+      std::string C_Name = C.getMetadata().getUniqueId();
+      std::string s("The required collector, " + C_Name + ", was not used in the experiment.");
       Mark_Cmd_With_Soft_Error(cmd,s);
       return false;
     }
-    if (!Collector_Used_In_Experiment (exp->FW(), C_Name)) {
-      std::string s("The required collector, " + C_Name + ", was not used in the experiment.");
+    std::string M_Name("exclusive_times");
+    MV.push_back(M_Name);
+    if (!Collector_Generates_Metric (*CV.begin(), M_Name)) {
+      std::string s("The metrics required to generate the view are not available in the experiment.");
       Mark_Cmd_With_Soft_Error(cmd,s);
       return false;
     }
@@ -1025,11 +911,11 @@ static std::string VIEW_mpi_long  = "\nA positive integer can be added to the en
                                       " and 'percent'."
                                       " Each option reports information about the set of mpi calls that is"
                                       " reported for the function on that particular line in the report."
-                                      " \n\t'-v min' reports the minimum time spent in the function."
-                                      " \n\t'-v max' reports the maximum time spent in the function."
-                                      " \n\t'-v average' reports the average time spent in the function."
-                                      " \n\t'-v count' reports the number of times the function was called."
-                                      " \n\t'-v percent' reports the percent of mpi time the function represents.";
+                                      " \n\t'-m min' reports the minimum time spent in the function."
+                                      " \n\t'-m max' reports the maximum time spent in the function."
+                                      " \n\t'-m average' reports the average time spent in the function."
+                                      " \n\t'-m count' reports the number of times the function was called."
+                                      " \n\t'-m percent' reports the percent of mpi time the function represents.";
 static std::string VIEW_mpi_metrics[] =
   { ""
   };

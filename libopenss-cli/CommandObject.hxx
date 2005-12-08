@@ -515,6 +515,101 @@ class CommandResult_LinkedObject :
   }
 };
 
+class CommandResult_CallStackEntry : public CommandResult {
+ private:
+  bool Bottom_up;
+  SmartPtr<std::vector<CommandResult *> > CallStack;
+
+  CommandResult_CallStackEntry () : CommandResult(CMD_RESULT_EXTENSION) {
+    Bottom_up = false;
+  }
+
+ public:
+  CommandResult_CallStackEntry (SmartPtr<std::vector<CommandResult *> >& call_stack,
+                                bool Reverse=false)
+      : CommandResult(CMD_RESULT_CALLTRACE) {
+    Bottom_up = Reverse;
+    CallStack = call_stack;
+  }
+  virtual ~CommandResult_CallStackEntry () {
+    std::vector<CommandResult *>::iterator csi;
+    for (csi = CallStack->begin(); csi != CallStack->end(); csi++) {
+      delete (*csi);
+    }
+  }
+
+  SmartPtr<std::vector<CommandResult *> >& Value () {
+    return CallStack;
+  };
+  void Value (SmartPtr<std::vector<CommandResult *> >& call_stack) {
+    call_stack = CallStack;
+  };
+
+  virtual std::string Form () {
+    int64_t sz = CallStack->size();
+    if (sz <= 0) return std::string("");
+    CommandResult *CE = (*CallStack)[sz - 1];
+    std::string Name;
+   // Add indentation.
+    for (int64_t i = 1; i < sz; i++) {
+      Name += ((Bottom_up) ? "<" : ">");
+    }
+   // Add line number.
+    if (sz > 1) {
+      if (CE->Type() == CMD_RESULT_FUNCTION) {
+        std::set<Statement> T;
+        ((CommandResult_Function *)CE)->Value(T);
+        if (T.begin() != T.end()) {
+          std::set<Statement>::const_iterator sti = T.begin();;
+          Statement S = *sti;
+          char l[50];
+          sprintf( &l[0], "%lld", (int64_t)(S.getLine()));
+          Name = Name + " @ " + l + " in ";
+        }
+      } else if (CE->Type() == CMD_RESULT_LINKEDOBJECT) {
+        uint64_t V;
+        ((CommandResult_LinkedObject *)CE)->Value(V);
+        char l[50];
+        sprintf( &l[0], "+0x%llx", V);
+        std::string l_name;
+        ((CommandResult_LinkedObject *)CE)->Value(l_name);
+        Name = Name + " @ " + l_name + l + " in ";
+      } else if (CE->Type() == CMD_RESULT_UINT) {
+        Name += " @ ";
+      }
+    }
+   // Add function name and location information.
+    Name += CE->Form();
+    return Name;
+  }
+  virtual PyObject * pyValue () {
+    std::string F = Form ();
+    return Py_BuildValue("s",F.c_str());
+  }
+  virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
+    std::string string_value = Form ();
+    if (leftjustified) {
+     // Left justification is only done on the last column of a report.
+     // Don't truncate the string if it is bigger than the field size.
+     // This is done to make sure everything gets printed.
+
+      to << std::setiosflags(std::ios::left) << string_value;
+
+     // If there is unused space in the field, pad with blanks.
+      if ((string_value.length() < fieldsize) &&
+          (string_value[string_value.length()-1] != *("\n"))) {
+        for (int64_t i = string_value.length(); i < fieldsize; i++) to << " ";      }
+
+    } else {
+     // Right justify the string in the field.
+     // Don't let it exceed the size of the field.
+     // Also, limit the size based on our internal buffer size.
+      to << std::setiosflags(std::ios::right) << std::setw(fieldsize)
+         << ((string_value.length() <= fieldsize) ? string_value : string_value.substr(0, fieldsize));
+    }
+  }
+};
+
 class CommandResult_Title :
      public CommandResult {
   std::string string_value;
