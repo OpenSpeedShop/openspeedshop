@@ -1124,12 +1124,10 @@ void Experiment::getMPIJobFromMPICH(const Thread& thread, Job& job)
 	output << "[TID " << pthread_self() << "] "
 	       << "is_mpich_job = " << (is_mpich_job ? "true" : "false")
 	       << std::endl;
-	std::cerr << output.str();
-	for(Job::const_iterator i = table.begin(); i != table.end(); ++i) {
+	for(Job::const_iterator i = table.begin(); i != table.end(); ++i)
 	    output << "[TID " << pthread_self() << "]     "
 		   << "job += " << i->first << ":" << i->second << std::endl;
-	    std::cerr << output.str();
-	}
+	std::cerr << output.str();
     }
 #endif
         
