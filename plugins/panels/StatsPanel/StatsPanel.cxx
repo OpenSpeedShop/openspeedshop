@@ -1036,6 +1036,8 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 {
 // printf("matchSelectedItem() entered. sf=%s\n", sf.c_str() );
 
+QString lineNumberStr = "-1"; // MPI only
+
 // First lets try to find the function/file pair.
 
   SourceObject *spo = NULL;
@@ -1088,6 +1090,13 @@ if( mpiFLAG )
     }
   }
   function_name = selected_function_qstring.mid(bof,eof-bof);
+
+  int boln = selected_function_qstring.find('@');
+  boln++;
+  int eoln = selected_function_qstring.find(" in ");
+  lineNumberStr = selected_function_qstring.mid(boln,eoln-boln).stripWhiteSpace();
+// printf("lineNumberStr=(%s)\n", lineNumberStr.ascii() );
+
   
 // printf("mpi: function_name=(%s)\n", function_name.ascii() );
 }
@@ -1323,8 +1332,15 @@ if( !mpiFLAG )
             currentItemIndex++;
             lvit++;
           }
+if( mpiFLAG == TRUE && lineNumberStr != "-1" )
+{
+  hlo = new HighlightObject(NULL, lineNumberStr.toInt(), hotToCold_color_names[2], ">", "Callsite");
+  highlightList->push_back(hlo);
+  spo = new SourceObject(function_name.ascii(), di->getPath(), lineNumberStr.toInt()-1, expID, TRUE, highlightList);
+} else
+{
           spo = new SourceObject(function_name.ascii(), di->getPath(), di->getLine()-1, expID, TRUE, highlightList);
-
+}
 // End try to highlight source for doubles....
         } else
         { // Clear the highlight list.
@@ -1465,16 +1481,18 @@ if( mpiFLAG )
 // printf("currentCollectorStr=(%s)\n", currentCollectorStr.ascii() );
   if( currentCollectorStr.isEmpty() || currentCollectorStr == "Statements" )
   {
-    command = QString("expView -x %1 -v Statements").arg(expID);
+    command = QString("expView -x %1 mpi%2 -v Statements").arg(expID).arg(numberItemsToDisplayInStats);
   } else
   {
-    command = QString("expView -x %1 -v Functions").arg(expID);
+    command = QString("expView -x %1 mpi%2 -v Functions").arg(expID).arg(numberItemsToDisplayInStats);
   }
   if( !currentThreadsStr.isEmpty() )
   {
      command += QString(" %1").arg(currentThreadsStr);
      lastAbout += QString("for threads %1\n").arg(currentThreadsStr);
   }
+
+// printf("command=(%s)\n", command.ascii() );
 } 
 
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
