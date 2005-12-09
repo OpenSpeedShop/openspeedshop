@@ -1037,7 +1037,21 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 {
 // printf("matchSelectedItem() entered. sf=%s\n", sf.c_str() );
 
-QString lineNumberStr = "-1"; // MPI only
+  QString lineNumberStr = "-1"; // MPI only
+
+  if( mpiFLAG )
+  { // The mpi tree is different.   We need to look up the highlighted
+    // text directly.
+  // printf("Here\n");
+    SPListViewItem *selectedItem = (SPListViewItem *)splv->selectedItem();
+    if( selectedItem )
+    {
+  // printf("Got an ITEM!\n");
+      QString ret_value = selectedItem->text(1);
+      sf = ret_value.ascii();
+  // printf("         (%s)\n", sf.c_str() );
+    }
+  }
 
 // First lets try to find the function/file pair.
 
@@ -2099,6 +2113,8 @@ StatsPanel::outputCLIData(QString *data)
 // printf("StatsPanel::outputCLIData\n");
 // printf("%s", data->ascii() );
 
+  QString strippedString1 = QString::null; // MPI only.
+
   // Skip any blank lines.
   if( *data == QString("\n") )
   {
@@ -2262,6 +2278,7 @@ if( mpiFLAG == FALSE )
   bool indented = strings[1].startsWith(">");
   int indent_level = 0;
 
+
 // printf("indented = (%d)\n", indented );
 // printf("%d %s %s", indented, strings[0].ascii(), strings[1].ascii() );
   
@@ -2275,20 +2292,24 @@ if( mpiFLAG == FALSE )
     {
       QRegExp rxp = QRegExp( "[_,' ',@,A-Z,a-z,0-9,%]");
       indent_level = strings[1].find(rxp);
+      strippedString1 = strings[1].mid(indent_level,9999);
       if( indent_level == -1 )
       {
-        fprintf(stderr, "Error in determining depth for (%s).\n", strings[1].ascii() );
+//        fprintf(stderr, "Error in determining depth for (%s).\n", strings[1].ascii() );
+        fprintf(stderr, "Error in determining depth for (%s).\n", strippedString1.ascii() );
 
       }
 // printf("indent_level = %d lastIndentLevel = %d\n", indent_level, lastIndentLevel);
       if( indent_level > lastIndentLevel )
       {
 // printf("A: adding (%s) to (%s) after (%s)\n", strings[1].ascii(), lastlvi->text(1).ascii(), lastlvi->text(1).ascii() );
-        lastlvi = splvi =  new SPListViewItem( this, lastlvi, lastlvi, strings[0], strings[1] );
+//        lastlvi = splvi =  new SPListViewItem( this, lastlvi, lastlvi, strings[0], strings[1] );
+        lastlvi = splvi =  new SPListViewItem( this, lastlvi, lastlvi, strings[0], strippedString1 );
       } else if( indent_level == lastIndentLevel )
       {
 // printf("B: adding (%s) to (%s) after (%s)\n", strings[1].ascii(), lastlvi->parent()->text(1).ascii(), lastlvi->text(1).ascii() );
-        lastlvi = splvi =  new SPListViewItem( this, (SPListView *)lastlvi->parent(), lastlvi, strings[0], strings[1] );
+//        lastlvi = splvi =  new SPListViewItem( this, (SPListView *)lastlvi->parent(), lastlvi, strings[0], strings[1] );
+        lastlvi = splvi =  new SPListViewItem( this, (SPListView *)lastlvi->parent(), lastlvi, strings[0], strippedString1 );
       } else
       {
 // printf("Go figure out the right leaf to put this in...\n");
@@ -2322,11 +2343,13 @@ if( mpiFLAG == FALSE )
         }
 //        } // END TRY TO POSITION
 // printf("C: adding (%s) to (%s) after (%s)\n", strings[1].ascii(), lastlvi->text(1).ascii(), after->text(1).ascii() );
-        lastlvi = splvi =  new SPListViewItem( this, lastlvi, after, strings[0], strings[1] );
+//        lastlvi = splvi =  new SPListViewItem( this, lastlvi, after, strings[0], strings[1] );
+        lastlvi = splvi =  new SPListViewItem( this, lastlvi, after, strings[0], strippedString1 );
       }
     } else
     {
-      fprintf(stderr, "Error in chaining child (%s) to tree.\n", strings[1].ascii() );
+//      fprintf(stderr, "Error in chaining child (%s) to tree.\n", strings[1].ascii() );
+      fprintf(stderr, "Error in chaining child (%s) to tree.\n", strippedString1.ascii() );
     }
   }
   lastIndentLevel = indent_level;
