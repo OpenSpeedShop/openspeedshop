@@ -140,6 +140,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   currentItem = NULL;
   currentItemIndex = 0;
   lastlvi = NULL;
+lastIndentLevel = 0;
   gotHeader = FALSE;
   fieldCount = 0;
   percentIndex = -1;
@@ -1334,7 +1335,7 @@ if( !mpiFLAG )
           }
 if( mpiFLAG == TRUE && lineNumberStr != "-1" )
 {
-  hlo = new HighlightObject(NULL, lineNumberStr.toInt(), hotToCold_color_names[2], ">", "Callsite");
+  hlo = new HighlightObject(NULL, lineNumberStr.toInt(), hotToCold_color_names[2], ">>", "Callsite");
   highlightList->push_back(hlo);
   spo = new SourceObject(function_name.ascii(), di->getPath(), lineNumberStr.toInt()-1, expID, TRUE, highlightList);
 } else
@@ -2242,7 +2243,10 @@ if( mpiFLAG == FALSE )
 // printf("total_percent=%f\n", total_percent );
 
 
+
   SPListViewItem *splvi;
+if( mpiFLAG == FALSE )
+{
   if( fieldCount == 2 )
   {
     lastlvi = splvi =  new SPListViewItem( this, splv, lastlvi, strings[0], strings[1] );
@@ -2253,6 +2257,141 @@ if( mpiFLAG == FALSE )
   { // i.e. like usertime
     lastlvi = splvi =  new SPListViewItem( this, splv, lastlvi, strings[0], strings[1], strings[2], strings[3] );
   }
+} else
+{ // MPI
+  bool indented = strings[1].startsWith(">");
+  int indent_level = 0;
+
+// printf("indented = (%d)\n", indented );
+// printf("%d %s %s", indented, strings[0].ascii(), strings[1].ascii() );
+  
+  if( !indented )
+  {
+    lastlvi = splvi =  new SPListViewItem( this, splv, lastlvi, strings[0], strings[1] );
+    lastIndentLevel = 0;
+  } else
+  {
+    if( indented && lastlvi != NULL )
+    {
+      QRegExp rxp = QRegExp( "[_,' ',@,A-Z,a-z,0-9,%]");
+      indent_level = strings[1].find(rxp);
+      if( indent_level == -1 )
+      {
+        fprintf(stderr, "Error in determining depth for (%s).\n", strings[1].ascii() );
+
+      }
+// printf("indent_level = %d lastIndentLevel = %d\n", indent_level, lastIndentLevel);
+      if( indent_level > lastIndentLevel )
+      {
+// printf("A: adding (%s) to (%s) after (%s)\n", strings[1].ascii(), lastlvi->text(1).ascii(), lastlvi->text(1).ascii() );
+        lastlvi = splvi =  new SPListViewItem( this, lastlvi, lastlvi, strings[0], strings[1] );
+      } else if( indent_level == lastIndentLevel )
+      {
+// printf("B: adding (%s) to (%s) after (%s)\n", strings[1].ascii(), lastlvi->parent()->text(1).ascii(), lastlvi->text(1).ascii() );
+        lastlvi = splvi =  new SPListViewItem( this, (SPListView *)lastlvi->parent(), lastlvi, strings[0], strings[1] );
+      } else
+      {
+// printf("Go figure out the right leaf to put this in...\n");
+
+        SPListViewItem *mynextlvi = lastlvi;
+        SPListViewItem *after = NULL;
+        while( mynextlvi->parent() )
+        {
+           mynextlvi = (SPListViewItem *)mynextlvi->parent();
+        }
+        for(int i=0;i<indent_level-1;i++)
+        {
+          SPListViewItem *lastChild = (SPListViewItem *)mynextlvi->firstChild();
+          while( lastChild->nextSibling() )
+          {
+            lastChild = (SPListViewItem *)lastChild->nextSibling();
+          }
+          mynextlvi = lastChild;
+        }
+
+        lastlvi = mynextlvi;
+
+        // go to this head, count down the children of the indent level... Then add
+        // this item.
+//        { // BEGIN TRY TO POSITION
+        // after = (SPListViewItem *)lastlvi->parent()->firstChild();
+        after = (SPListViewItem *)lastlvi->firstChild();
+        while( after->nextSibling() )
+        {
+          after = (SPListViewItem *)after->nextSibling();
+        }
+//        } // END TRY TO POSITION
+// printf("C: adding (%s) to (%s) after (%s)\n", strings[1].ascii(), lastlvi->text(1).ascii(), after->text(1).ascii() );
+        lastlvi = splvi =  new SPListViewItem( this, lastlvi, after, strings[0], strings[1] );
+      }
+    } else
+    {
+      fprintf(stderr, "Error in chaining child (%s) to tree.\n", strings[1].ascii() );
+    }
+  }
+  lastIndentLevel = indent_level;
+
+
+#if 0
+// Debug print
+SPListViewItem *top = (SPListViewItem *)splv->firstChild();
+printf("Debug:\n");
+while( top )
+{
+  printf("  %s, %s", top->text(0).ascii(), top->text(1).ascii() );
+  SPListViewItem *level1 = (SPListViewItem *)top->firstChild();
+  while( level1 )
+  {
+    printf("  --%s, %s", level1->text(0).ascii(), level1->text(1).ascii() );
+
+    SPListViewItem *level2 = (SPListViewItem *)level1->firstChild();
+    while( level2 )
+    {
+      printf("  ----%s, %s", level2->text(0).ascii(), level2->text(1).ascii() );
+  
+      SPListViewItem *level3 = (SPListViewItem *)level2->firstChild();
+      while( level3 )
+      {
+        printf("  ------%s, %s", level3->text(0).ascii(), level3->text(1).ascii() );
+        SPListViewItem *level4 = (SPListViewItem *)level3->firstChild();
+        while( level4 )
+        {
+          printf("  --------%s, %s", level4->text(0).ascii(), level4->text(1).ascii() );
+          SPListViewItem *level5 = (SPListViewItem *)level4->firstChild();
+          while( level5 )
+          {
+            printf("  ----------%s, %s", level5->text(0).ascii(), level5->text(1).ascii() );
+        
+            level5 = (SPListViewItem *)level5->nextSibling();
+          }
+      
+          level4 = (SPListViewItem *)level4->nextSibling();
+        }
+    
+        level3 = (SPListViewItem *)level3->nextSibling();
+      }
+
+      level2 = (SPListViewItem *)level2->nextSibling();
+    }
+
+    level1 = (SPListViewItem *)level1->nextSibling();
+  }
+  
+  top = (SPListViewItem *)top->nextSibling();
+}
+printf("End Debug\n");
+// endif Debug
+
+
+if( !strings[0].isEmpty() )
+{
+printf("You're at an end.... You'll need to do something special next line.\n");
+}
+#endif // 0
+
+}
+
+
   if( total_percent > 0.0 && cpvl.count() < numberItemsToDisplayInStats  &&
       ctvl.count() < numberItemsToDisplayInChart )
   {

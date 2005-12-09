@@ -184,6 +184,7 @@ ThreadGroupStringList currentThreadGroupStrList;
     void updateStatsPanelData();
 
     SPListViewItem *lastlvi;
+int lastIndentLevel;
     bool gotHeader;
     bool gotColumns;
     int fieldCount;
