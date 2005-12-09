@@ -47,6 +47,9 @@ struct sort_ascending_CallStacks : public std::binary_function<T,T,bool> {
        // Always go for call stack ordering.
         for (i = xs->begin(), j = ys->begin();
              (i != xs->end()) && (j != ys->end()); i++, j++) {
+          if ((*i)->Type() != (*j)->Type()) {
+            return ((*i)->Type() < (*j)->Type());
+          }
           if (CommandResult_lt (*i, *j)) return true;
           if (CommandResult_lt (*j, *i)) return false;
         }
@@ -67,6 +70,9 @@ struct sort_descending_CallStacks : public std::binary_function<T,T,bool> {
        // Always go for call stack ordering.
         for (i = xs->begin(), j = ys->begin();
              (i != xs->end()) && (j != ys->end()); i++, j++) {
+          if ((*i)->Type() != (*j)->Type()) {
+            return ((*i)->Type() > (*j)->Type());
+          }
           if (CommandResult_lt (*i, *j)) return true;
           if (CommandResult_lt (*j, *i)) return false;
         }
@@ -937,7 +943,7 @@ class mpi_view : public ViewType {
                          &VIEW_mpi_collectors[0],
                          &VIEW_mpi_header[0],
                            true,
-                           true) {
+                           false) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                          ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
