@@ -2367,7 +2367,6 @@ static enum {
     ENUM_STATUS,
     ENUM_THREADS,
     ENUM_TYPES_OLD,
-    ENUM_TYPES,
     ENUM_VIEWS,
 } list_enums;
 static char *list_types[] = {
@@ -3188,13 +3187,37 @@ bool SS_ListTypes (CommandObject *cmd) {
 }
 
 /**
- * Method: ()
+ * Method: SS_ViewTypeHint()
+ * 
+ * Dumps a hint on how to find out more info on
+ * a specific viewtype.
+ *     
+ * @param   CommandObject *cmd.
+ *
+ * @return  void
+ *
+ * @todo    Error handling.
+ *
+ */
+static void
+SS_ViewTypeHint(CommandObject *cmd)
+{
+
+    // More help for the user
+    cmd->Result_String("For more information on the viewtypes use the");
+    cmd->Result_String("\"help\" command for the specicific view, like:");
+    cmd->Result_String("    help pcsamp");
+
+}
+
+/**
+ * Method: SS_ListViews()
  * 
  * .
  *     
- * @param   .
+ * @param   CommandObject *cmd.
  *
- * @return  void
+ * @return  bool
  *
  * @todo    Error handling.
  *
@@ -3211,6 +3234,9 @@ bool SS_ListViews (CommandObject *cmd) {
   CollectorGroup cgrp;
 
   if (All_KeyWord) {
+
+    SS_ViewTypeHint(cmd);
+
    // What are all the known views that can be generated?
     SS_Get_Views (cmd);
   } else if (cmd->P_Result()->isExpId()) {
@@ -3219,6 +3245,8 @@ bool SS_ListViews (CommandObject *cmd) {
     if (exp == NULL) {
       return false;
     }
+
+    SS_ViewTypeHint(cmd);
 
    // Prevent this experiment from changing until we are done.
     exp->Q_Lock (cmd, true);

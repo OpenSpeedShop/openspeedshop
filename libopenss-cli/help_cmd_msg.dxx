@@ -1039,6 +1039,21 @@ char *cmd_expView_detailed[] = {
     "  experiment, although the nature of the requested data may ",
     "  require that the experiment complete execution before the ",
     "  information can be provided.",
+    " ",
+    "- To find the viewtypes available for your experiment use",
+    "    list -v views.",
+    " ",
+    "- To find the all the viewtypes available to you use",
+    "    list -v views,all.",
+    " ",
+    "- To get detailed information for a specific viewtype use:",
+    " ",
+    "    help <viewType> where <viewType> is the view type.",
+    " ",
+    "  Examples: ",
+    "      help mpi",
+    "      help pcsamp",
+    "      help hwc",
     " "
 };
 
