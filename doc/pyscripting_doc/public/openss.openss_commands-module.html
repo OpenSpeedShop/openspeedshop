@@ -1,0 +1,2567 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>openss.openss_commands</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css"></link>
+</head>
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="openss-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" align="right" width="100%">
+      <table border="0" cellpadding="0" cellspacing="0">
+      <tr><th class="navbar" align="center">
+        <p class="nomargin">
+          openss
+      </p></th></tr></table>
+    </th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <font size="-1"><b class="breadcrumbs">
+        <a href="openss-module.html">Package&nbsp;openss</a> ::
+        Module&nbsp;openss_commands
+      </b></font></br>
+    </td>
+    <td><table cellpadding="0" cellspacing="0">
+      <tr><td align="right"><font size="-2">[<a href="../private/openss.openss_commands-module.html">show&nbsp;private</a>&nbsp;|&nbsp;hide&nbsp;private]</font></td></tr>
+      <tr><td align="right"><font size="-2">[<a href="frames.html"target="_top">frames</a>&nbsp;|&nbsp;<a href="openss.openss_commands-module.html" target="_top">no&nbsp;frames</a>]</font></td></tr>
+    </table></td>
+</tr></table>
+
+<!-- =========== START OF MODULE DESCRIPTION =========== -->
+<h2 class="module">Module openss.openss_commands</h2>
+
+
+<!-- =========== START OF FUNCTION SUMMARY =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Function Summary</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="openss.openss_commands-module.html#clearBreak" class="summary-sig-name"><code>clearBreak</code></a>(<span class="summary-sig-vararg">*arglist</span>)</span></code>
+<br />
+<b>!! NOT SUPPORTED YET !!</b></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="openss.openss_commands-module.html#dumpView" class="summary-sig-name"><code>dumpView</code></a>()</span></code>
+<br />
+Helper routine used to dump 2 dimensional views.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="openss.openss_commands-module.html#exit" class="summary-sig-name"><code>exit</code></a>(<span class="summary-sig-vararg">*arglist</span>)</span></code>
+<br />
+Terminate all experiments and the session.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="openss.openss_commands-module.html#expAttach" class="summary-sig-name"><code>expAttach</code></a>(<span class="summary-sig-vararg">*arglist</span>)</span></code>
+<br />
+Attach applications or collectors to an experiment.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="openss.openss_commands-module.html#expClose" class="summary-sig-name"><code>expClose</code></a>(<span class="summary-sig-vararg">*arglist</span>)</span></code>
+<br />
+Close/Terminate the experiment specified by <i>ExpId</i>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="openss.openss_commands-module.html#expCreate" class="summary-sig-name"><code>expCreate</code></a>(<span class="summary-sig-vararg">*arglist</span>)</span></code>
+<br />
+Start the process of defining an experiment:</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="openss.openss_commands-module.html#expDetach" class="summary-sig-name"><code>expDetach</code></a>(<span class="summary-sig-vararg">*arglist</span>)</span></code>
+<br />
+Detach applications from collectors for an experiment.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="openss.openss_commands-module.html#expDisable" class="summary-sig-name"><code>expDisable</code></a>(<span class="summary-sig-vararg">*arglist</span>)</span></code>
+<br />
+Turn off data collection.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="openss.openss_commands-module.html#expEnable" class="summary-sig-name"><code>expEnable</code></a>(<span class="summary-sig-vararg">*arglist</span>)</span></code>
+<br />
+Turn on any instrumentation that was turned off with an 
+<b>expDisable</b> command.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="openss.openss_commands-module.html#expFocus" class="summary-sig-name"><code>expFocus</code></a>(<span class="summary-sig-vararg">*arglist</span>)</span></code>
+<br />
+Make the given experiment id the current, focused experiment.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="openss.openss_commands-module.html#expGo" class="summary-sig-name"><code>expGo</code></a>(<span class="summary-sig-vararg">*arglist</span>)</span></code>
+<br />
+Run the experiment and collect performance data.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="openss.openss_commands-module.html#expPause" class="summary-sig-name"><code>expPause</code></a>(<span class="summary-sig-vararg">*arglist</span>)</span></code>
+<br />
+Temporarily halt the experiment identified by the input experiment 
+id.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="openss.openss_commands-module.html#expRestore" class="summary-sig-name"><code>expRestore</code></a>(<span class="summary-sig-vararg">*arglist</span>)</span></code>
+<br />
+Restore an experiment's definition and previously saved data from a 
+database that was saved with an expSave command.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="openss.openss_commands-module.html#expSave" class="summary-sig-name"><code>expSave</code></a>(<span class="summary-sig-vararg">*arglist</span>)</span></code>
+<br />
+Save the experiment information for further analysis.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="openss.openss_commands-module.html#expSetParam" class="summary-sig-name"><code>expSetParam</code></a>(<span class="summary-sig-vararg">*arglist</span>)</span></code>
+<br />
+Change the value an experiment's argument.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="openss.openss_commands-module.html#expView" class="summary-sig-name"><code>expView</code></a>(<span class="summary-sig-vararg">*arglist</span>)</span></code>
+<br />
+Display the performance data that has been collected for an 
+experiment.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="openss.openss_commands-module.html#list" class="summary-sig-name"><code>list</code></a>(<span class="summary-sig-vararg">*arglist</span>)</span></code>
+<br />
+List command for experiment status inquiries.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="openss.openss_commands-module.html#setBreak" class="summary-sig-name"><code>setBreak</code></a>(<span class="summary-sig-vararg">*arglist</span>)</span></code>
+<br />
+<b>!! NOT SUPPORTED YET !!</b></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="openss.openss_commands-module.html#wait" class="summary-sig-name"><code>wait</code></a>(<span class="summary-sig-vararg">*arglist</span>)</span></code>
+<br />
+Wait for an event before processing any more commands.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="openss.openss_commands-module.html#waitForGo" class="summary-sig-name"><code>waitForGo</code></a>()</span></code>
+<br />
+Helper routine to wait until expGo really has finished.</td></tr>
+</table><br />
+
+
+<!-- =========== START OF FUNCTION DETAILS =========== -->
+<table class="details" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="details">
+  <th colspan="2">Function Details</th></tr>
+</table>
+
+<a name="clearBreak"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">clearBreak</span>(<span class="sig-vararg">*arglist</span>)</span>
+  </h3>
+  <b>!! NOT SUPPORTED YET !!</b>
+  <ul>
+    <li>
+      Remove a breakpoint.
+    </li>
+    <li>
+      This command does not change the execution state of an 
+      experiment, although it may be temporarily suspended during 
+      execution of the command.
+    </li>
+  </ul>
+  clearBreak &lt;breakId&gt;
+  <dl><dt></dt><dd>
+  </dd></dl>
+</td></tr></table>
+
+<a name="dumpView"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">dumpView</span>()</span>
+  </h3>
+  <p>Helper routine used to dump 2 dimensional views. This will go away 
+  once we pump up our usage documentation. Until then this will remain as 
+  an example of how to harvest an experiments data.</p>
+  Example:
+<pre class="literalblock">
+   try :
+       print &quot;In try part&quot;
+       ret = openss.expView()
+
+   except openss.error:
+       print &quot;In except part&quot;
+       ret = None
+
+   if ret is None:
+       my_listtype = openss.ModifierList(&quot;status&quot;)
+       print &quot;expView returned None&quot;
+       try:
+           print &quot;status = &quot;, openss.list(my_listtype)
+       except openss.error:
+           print &quot;listStatus failed&quot;
+
+   else:
+       r_count = len(ret)
+       for row_ndx in range(r_count):
+           print &quot; &quot;
+           row =ret[row_ndx]
+           c_count = len(row)
+           for rel_ndx in range(c_count):
+               print row[rel_ndx]
+</pre>
+  <dl><dt></dt><dd>
+  </dd></dl>
+</td></tr></table>
+
+<a name="exit"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">exit</span>(<span class="sig-vararg">*arglist</span>)</span>
+  </h3>
+  <ul>
+    <li>
+      Terminate all experiments and the session.
+      <ul>
+        <li>
+          Suspend execution of all executables
+        </li>
+        <li>
+          Suspend data collection.
+        </li>
+        <li>
+          Remove instrumentation from all applications.
+        </li>
+        <li>
+          Release all applications from control of the <b>OpenSS</b> 
+          tool
+        </li>
+        <li>
+          Allow all applications to continue executing.
+        </li>
+        <li>
+          Close all database files.
+        </li>
+        <li>
+          Delete all temporary database files.
+        </li>
+        <li>
+          Close the GUI and Command windows.
+        </li>
+        <li>
+          Terminate execution of the <b>OpenSS</b> tool.
+        </li>
+      </ul>
+      Example:
+<pre class="literalblock">
+   openss.exit()
+</pre>
+    </li>
+  </ul>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>arglist</b></code> -
+         None
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="expAttach"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">expAttach</span>(<span class="sig-vararg">*arglist</span>)</span>
+  </h3>
+  Attach applications or collectors to an experiment.
+  <ul>
+    <li>
+      The attached applications will not execute until an <b>expGo</b> 
+      command is issued.
+    </li>
+  </ul>
+  <p>If <i>ModifierList</i> object with <b>mpi</b> is selected, all the 
+  threads that are part of a running application will be included in the 
+  experiment.</p>
+  <p>If <i>ModifierList</i> object with <b>mpi</b> is not present, only 
+  those threads that are explicitly listed in <i>Target</i> will be 
+  included in the experiment.</p>
+  <p>If there is no <i>ExpId</i> provided, information is attached to the 
+  focused experiment.</p>
+  <p>The <i>Target</i> is used to restrict the knowledge of the 
+  experiment or data collection to certain portions of an 
+  appliaction.</p>
+  It is ambiguous to use both the -f and -p options.
+  <ul>
+    <li>
+      The -f option implies that an executable is to be loaded into 
+      the <b>OpenSS</b> tool from a file.
+    </li>
+    <li>
+      The use of -p option implies that the <b>OpenSS</b> tool is to 
+      attach to a program that is already executing.
+    </li>
+  </ul>
+  <p>If <i>Target</i> is provided without <i>ExpTypeList</i>, those 
+  applications are attached to all the expTypes that are already attached 
+  of the experiment.</p>
+  <p>If <i>ExpTypeList</i> is provided without <i>Target</i>, the 
+  specified data collectors are used to instrument all the executable 
+  routines that are already attached to the indicated experiment.</p>
+  <p>If both <i>Target</i> and <i>ExpTypeList</i> are provided, only 
+  those portions of the application in the <i>Target</i> are linked to 
+  the specified collectors in <i>ExpTypeList</i>.</p>
+  <p>If neither <i>Target</i> nor <i>ExpTypeList</i> is provided, the 
+  command does nothing.</p>
+  Example:
+<pre class="literalblock">
+   my_file = openss.FileList(&quot;file_1&quot;)
+   my_exptype = openss.ExpTypeList(&quot;pcsamp&quot;)
+   my_expid = openss.expCreate()
+   openss.expAttach(my_expid,my_file,my_exptype)
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>arglist</b></code> -
+         up to 4 optional class objects:
+        <ul>
+          <li>
+            <i>ModifierList</i> object with <b>mpi</b>
+          </li>
+          <li>
+            <i>ExpId</i> object
+          </li>
+          <li>
+            <i>Target</i> object lists
+            <ul>
+              <li>
+                <i>ClusterList</i>
+              </li>
+              <li>
+                <i>FileList</i>
+              </li>
+              <li>
+                <i>HostList</i>
+              </li>
+              <li>
+                <i>PidList</i>
+              </li>
+              <li>
+                <i>ThreadList</i>
+              </li>
+              <li>
+                <i>RankList</i>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <i>ExpTypeList</i>
+          </li>
+        </ul>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="expClose"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">expClose</span>(<span class="sig-vararg">*arglist</span>)</span>
+  </h3>
+  Close/Terminate the experiment specified by <i>ExpId</i>.
+  <ul>
+    <li>
+      The <b>OpenSS</b> tool is NOT terminated. Use exit to terminate 
+      the session.
+    </li>
+    <li>
+      All data collectors attached to the experiment are removed from 
+      the attached applications.
+    </li>
+    <li>
+      All attached applications are removed from the experiment.
+    </li>
+    <li>
+      If <i>ModifierList</i>(&quot;<b>kill</b>&quot;) is not provided, 
+      attached applications will continue executing.
+    </li>
+    <li>
+      If <i>ModifierList</i>(&quot;<b>kill</b>&quot;) is provided, 
+      attached applications will be terminated.
+    </li>
+    <li>
+      The database file that was used to save information about the 
+      applications and the collected data, is deleted if it is a 
+      temporary file, or closed if it is a user defined file. Use 
+      <b>expSave</b> for saving information.
+    </li>
+  </ul>
+  <p>If there is no <i>ExpId</i> provided, the focused experiment will be 
+  closed.</p>
+  <p>Because important information may accidently be lost, this command 
+  should only be issued when the user is certain that more performance 
+  measurements are not needed and that the collected data measurements 
+  will be saved if there is any chance that the user will want to take 
+  another look at the results.</p>
+  <p>Use of <i>ModifierList</i>(&quot;<b>all</b>&quot;) will cause all 
+  defined experiments to be deleted.</p>
+  <b>Examples</b>:
+<pre class="literalblock">
+   my_expid = openss.expCreate()
+   all_mod = openss.ModifierList(&quot;all&quot;)
+   kill_mod = openss.ModifierList(&quot;kill&quot;)
+
+   openss.expclose(all_mod,my_expid)
+       -or-
+   openss.expclose(all_mod,kill_mod)
+       -or-
+   openss.expclose(all_mod)
+       -or-
+   openss.expclose()
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>arglist</b></code> -
+         up to 2 optional class objects:
+        <ul>
+          <li>
+            <i>ModifierList</i> object with <b>kill</b>
+          </li>
+          <li>
+            <i>ExpId</i> object or <i>ModifierList</i> object with 
+            <b>all</b>
+          </li>
+        </ul>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="expCreate"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">expCreate</span>(<span class="sig-vararg">*arglist</span>)</span>
+  </h3>
+  <ul>
+    <li>
+      Start the process of defining an experiment:
+      <ul>
+        <li>
+          Define a new experiment identifier.
+        </li>
+        <li>
+          Set the current focus to the new identifier.
+        </li>
+        <li>
+          Return the experiment identification identifier.
+        </li>
+        <li>
+          The experiment will not execute until an <b>expGo</b> 
+          command is issued.
+        </li>
+      </ul>
+    </li>
+    <li>
+      If <i>ModifierList</i> object with <b>mpi</b> is selected, all 
+      the threads that are part of a running application will be included 
+      in the experiment.
+    </li>
+    <li>
+      If <i>ModifierList</i> object with <b>mpi</b> is not present, 
+      only those threads that are explicitly listed in <i>Target</i> will 
+      be included in the experiment.
+    </li>
+    <li>
+      The <i>Target</i> will associate the specified executable with 
+      the experiment being defined.
+    </li>
+    <li>
+      The experiment type argument, <i>ExpTypeList</i>, can be used to 
+      specify the types of data that will be collected during the 
+      experiment.
+    </li>
+    <li>
+      Missing arguments can be supplied later with the 
+      <b>expAttach</b> command.
+    </li>
+    <li>
+      An <b>expCreate</b> command with no arguments will still return 
+      a new <i>ExpId</i> and will set the focus.
+    </li>
+    <li>
+      The return type is an <i>ExpId</i> object which can be used 
+      directly by other commands.
+    </li>
+  </ul>
+  <p><i>ExpId</i> = expCreate(arglist)</p>
+  <b>Examples</b>:
+<pre class="literalblock">
+   my_file = openss.FileList(&quot;file_1&quot;)
+   my_exptype = openss.ExpTypeList(&quot;usertime&quot;)
+   my_expid = openss.expCreate(my_file,my_exptype)
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>arglist</b></code> -
+         up to 3 optional class objects:
+        <ul>
+          <li>
+            <i>ModifierList</i> object with <b>mpi</b>
+          </li>
+          <li>
+            <i>Target</i> object lists
+            <ul>
+              <li>
+                <i>ClusterList</i>
+              </li>
+              <li>
+                <i>FileList</i>
+              </li>
+              <li>
+                <i>HostList</i>
+              </li>
+              <li>
+                <i>PidList</i>
+              </li>
+              <li>
+                <i>ThreadList</i>
+              </li>
+              <li>
+                <i>RankList</i>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <i>ExpTypeList</i>
+          </li>
+        </ul>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="expDetach"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">expDetach</span>(<span class="sig-vararg">*arglist</span>)</span>
+  </h3>
+  <ul>
+    <li>
+      Detach applications from collectors for an experiment.
+      <ul>
+        <li>
+          The remaining applications will not execute until an 
+          <b>expGo</b> command is issued.
+        </li>
+        <li>
+          The experiment retains knowledge of both the applications 
+          and the collectors and they can be referenced on later 
+          commands.
+        </li>
+        <li>
+          All previously collected data samples will be retained.
+        </li>
+        <li>
+          No new data, of the specified type, will be collected for 
+          the specified application.
+        </li>
+      </ul>
+    </li>
+    <li>
+      If there is no <i>ExpId</i> provided, the focused experiment is 
+      used.
+    </li>
+    <li>
+      If <i>Target</i> is provided without <i>ExpTypeList</i>, all 
+      collectors are detached for those applications.
+    </li>
+    <li>
+      The use of <i>Target</i>&quot; allows control over the parts of 
+      an executable program that will no longer generate performance 
+      data.
+      <ul>
+        <li>
+          The absence of any <i>HostList</i> specification will cause 
+          all the hosts in the specifed experiment to stop measuring 
+          performance.
+        </li>
+        <li>
+          The default cluster contains only localhost and can be 
+          specified by using -h localhost.
+        </li>
+        <li>
+          Use of <i>FileList</i> is not supported.
+        </li>
+        <li>
+          Use of <i>PidList</i> will result in only the Threads 
+          associated with that Pid to stop measuring performance.
+        </li>
+        <li>
+          Use of <i>ThreadList</i> will result in only that specific 
+          Thread to stop measuring performance.
+        </li>
+      </ul>
+    </li>
+    <li>
+      If both <i>Target</i> and <i>ExpTypeList</i> are provided, only 
+      the specified collectores in <i>ExpTypeList</i> are detached from 
+      just those applications described in <i>Target</i>.
+    </li>
+    <li>
+      If <i>ExpTypeList</i> is provided without <i>Target</i>, the 
+      specified data collectors are detached from all the executable 
+      routines that are ttached to the indicated experiment.
+    </li>
+    <li>
+      If neither <i>Target</i> nor <i>ExpTypeList</i> is provided, the 
+      command does nothing.
+    </li>
+  </ul>
+  Example:
+<pre class="literalblock">
+   my_file = openss.FileList(&quot;file_1&quot;)
+   my_exptype = openss.ExpTypeList(&quot;pcsamp&quot;)
+   my_expid = openss.expCreate()
+   openss.expAttach(my_expid,my_file,my_exptype)
+   openss.expDetach(my_expid,my_exptype)
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>arglist</b></code> -
+         up to 3 optional class objects:
+        <ul>
+          <li>
+            <i>ExpId</i> object
+          </li>
+          <li>
+            <i>Target</i> object lists
+            <ul>
+              <li>
+                <i>ClusterList</i>
+              </li>
+              <li>
+                <i>HostList</i>
+              </li>
+              <li>
+                <i>PidList</i>
+              </li>
+              <li>
+                <i>ThreadList</i>
+              </li>
+              <li>
+                <i>RankList</i>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <i>ExpTypeList</i>
+          </li>
+        </ul>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="expDisable"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">expDisable</span>(<span class="sig-vararg">*arglist</span>)</span>
+  </h3>
+  <ul>
+    <li>
+      Turn off data collection.
+      <ul>
+        <li>
+          The experiment remains defined.
+        </li>
+        <li>
+          Data collection is &quot;turned off&quot; and no new 
+          information is saved.
+        </li>
+        <li>
+          Instrumentation is disabled but may not be removed from the 
+          application.
+        </li>
+        <li>
+          Previously collected data is still available and can be 
+          viewed or saved.
+        </li>
+        <li>
+          The attached applications will not continue executing until 
+          an <b>expGo</b> command is issued.
+        </li>
+      </ul>
+    </li>
+    <li>
+      See related commands:
+      <ul>
+        <li>
+          <b>expEnable</b> can be used to restart data collection.
+        </li>
+        <li>
+          <b>expSave</b> can be used to save previously collected 
+          data.
+        </li>
+        <li>
+          <b>expClose</b> can be used to destroy the experiment and 
+          free all data space used to save the collected data.
+        </li>
+      </ul>
+    </li>
+    <li>
+      <i>ModifierList</i>(&quot;<b>all</b>&quot;) will result in data 
+      collection being stopped for all defined experiments.
+    </li>
+    <li>
+      If this command is issued with no arguments, data collection is 
+      stopped for the focused experiment.
+    </li>
+  </ul>
+  Example1:
+<pre class="literalblock">
+   # Disable the currently focused experiment
+   openss.expDisable()
+</pre>
+  Example2:
+<pre class="literalblock">
+   # Disable all active experiments
+   my_modifier = openss.ModifierList(&quot;all&quot;)
+   openss.expDisable(my_modifier)
+</pre>
+  Example3:
+<pre class="literalblock">
+   # Disable a specified experiment (7)
+   my_exp = openss.ExpId(7)
+   openss.expDisable(my_exp)
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>arglist</b></code> -
+         1 of 2 optional class objects:
+        <ul>
+          <li>
+            <i>ModifierList</i>(&quot;<b>all</b>&quot;)
+          </li>
+          <li>
+            <i>ExpId</i>
+          </li>
+        </ul>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="expEnable"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">expEnable</span>(<span class="sig-vararg">*arglist</span>)</span>
+  </h3>
+  <ul>
+    <li>
+      Turn on any instrumentation that was turned off with an 
+      <b>expDisable</b> command.
+      <ul>
+        <li>
+          Existing instrumentation is enabled.
+        </li>
+        <li>
+          Data collection is &quot;turned on&quot; and new information 
+          will be saved.
+        </li>
+        <li>
+          New information will be merged with any previously collected 
+          data.
+        </li>
+        <li>
+          The attached applications will not continue executing until 
+          an <b>expGo</b> command is issued.
+        </li>
+      </ul>
+    </li>
+    <li>
+      <i>ModifierList</i>(&quot;<b>all</b>&quot;) will result in data 
+      collection being restarted for all defined experiments.
+    </li>
+    <li>
+      If this command is issued with no arguments, data collection for 
+      the focused experiment is restarted.
+    </li>
+  </ul>
+  Example1:
+<pre class="literalblock">
+   # Enable the currently focused experiment
+   openss.expEnable()
+</pre>
+  Example2:
+<pre class="literalblock">
+   # Enable all experiments
+   my_modifier = openss.ModifierList(&quot;all&quot;)
+   openss.expEnable(my_modifier)
+</pre>
+  Example3:
+<pre class="literalblock">
+   # Enable a specified experiment (7)
+   my_exp = openss.ExpId(7)
+   openss.expEnable(my_exp)
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>arglist</b></code> -
+         1 of 2 optional class objects:
+        <ul>
+          <li>
+            <i>ModifierList</i>(&quot;<b>all</b>&quot;)
+          </li>
+          <li>
+            <i>ExpId</i>
+          </li>
+        </ul>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="expFocus"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">expFocus</span>(<span class="sig-vararg">*arglist</span>)</span>
+  </h3>
+  <ul>
+    <li>
+      Make the given experiment id the current, focused 
+      experiment.
+    </li>
+    <li>
+      In many commands <i>ExpId</i> is optional. When omitted, the 
+      currently &quot;focused&quot; experiment is used.
+    </li>
+    <li>
+      If no argument is present on this command, return the focused 
+      experiment.
+    </li>
+    <li>
+      If the <i>ExpId</i> argument has an experiment id of zero (0), 
+      then clear the experiment focus.
+      <ul>
+        <li>
+          A command that uses an experiment id of zero is illegal and 
+          will produce a fatal error.
+        </li>
+      </ul>
+    </li>
+    <li>
+      This command does not change the execution state of an 
+      experiment.
+    </li>
+    <li>
+      The return type is an <i>ExpId</i> object which can be used 
+      directly by other commands.
+    </li>
+  </ul>
+  <p><i>ExpId</i> = expCreate(arglist)</p>
+  Example1:
+<pre class="literalblock">
+   # Get the Id of the currently focused experiment
+   cur_id = openss.expFocus()
+</pre>
+  Example2:
+<pre class="literalblock">
+   # Change the focus to experiment #7
+   my_exp = openss.ExpId(7)
+   cur_id = openss.expFocus(my_exp)
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>arglist</b></code> -
+         1 optional class object:
+        <ul>
+          <li>
+            <i>ExpId</i>
+          </li>
+        </ul>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="expGo"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">expGo</span>(<span class="sig-vararg">*arglist</span>)</span>
+  </h3>
+  <ul>
+    <li>
+      Run the experiment and collect performance data.
+    </li>
+    <li>
+      If the experiment has already begun execution, this command 
+      causes execution to continue from where it was interrupted. - The 
+      experiment will continue to run until either
+      <ul>
+        <li>
+          the application terminates, or
+        </li>
+        <li>
+          the application executes a programmed halt, or
+        </li>
+        <li>
+          the user issues another exp... command that refers to this 
+          experiment Id. or
+        </li>
+        <li>
+          the <b>OpenSS</b> tool terminates due to an exit command, an 
+          external interrupt, or abnormal, internal event.
+        </li>
+      </ul>
+    </li>
+    <li>
+      Except when executed in batch mode, the execution of the 
+      application and the collection of performance data does not, 
+      automatically, prevent other commands from being issued
+      <ul>
+        <li>
+          A following command that depends on the result of this 
+          experiment may not be able to execute and may block further 
+          commands from being issued.
+        </li>
+        <li>
+          Independent commands may be issued and completed before this 
+          experiment completes.
+        </li>
+        <li>
+          The status of any experiment can be determined through the 
+          <b>listStatus</b> command. Current available status strings 
+          are:
+          <ul>
+            <li>
+              &quot;<b>Unknown</b>&quot;: An unknown status was 
+              returned.
+            </li>
+            <li>
+              &quot;<b>Paused</b>&quot;: The process is in a 
+              &quot;paused&quot; state.
+            </li>
+            <li>
+              &quot;<b>Running</b>&quot;: The process is still 
+              running.
+            </li>
+            <li>
+              &quot;<b>Terminated</b>&quot;: The process has finished 
+              running.
+            </li>
+            <li>
+              &quot;<b>Error</b>&quot;: Something went wrong.
+            </li>
+          </ul>
+        </li>
+        <li>
+          Depending on the type of data collection that is taking 
+          place, it may be possible to view the results before the 
+          application completes.
+        </li>
+      </ul>
+    </li>
+    <li>
+      The absence of the <i>ExpId</i> and 
+      <i>ModifierList</i>(&quot;<b>all</b>&quot;) will result in only the 
+      focused experiment being run.
+    </li>
+    <li>
+      The use of <i>ExpId</i> will result in only that experiment 
+      being run.
+    </li>
+    <li>
+      The use of <i>ModifierList</i>(&quot;<b>all</b>&quot;) will 
+      result in every defined experiment being run.
+    </li>
+  </ul>
+  Example1:
+<pre class="literalblock">
+   # Run the currently focused experiment
+   openss.expGo()
+</pre>
+  Example2:
+<pre class="literalblock">
+   # Run all experiments
+   my_modifier = openss.ModifierList(&quot;all&quot;)
+   openss.expGo(my_modifier)
+</pre>
+  Example3:
+<pre class="literalblock">
+   # Run a specified experiment (7)
+   my_exp = openss.ExpId(7)
+   openss.expGo(my_exp)
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>arglist</b></code> -
+         1 of 2 optional class objects:
+        <ul>
+          <li>
+            <i>ModifierList</i>(&quot;<b>all</b>&quot;)
+          </li>
+          <li>
+            <i>ExpId</i>
+          </li>
+        </ul>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="expPause"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">expPause</span>(<span class="sig-vararg">*arglist</span>)</span>
+  </h3>
+  <ul>
+    <li>
+      Temporarily halt the experiment identified by the input 
+      experiment id.
+      <ul>
+        <li>
+          The experiment will remain suspended until an expGo is 
+          issued or until the performance tool is exited, at which time 
+          all the instrumentation is removed from the experiment and the 
+          program is allowed to continue running.
+        </li>
+      </ul>
+    </li>
+    <li>
+      If <i>ExpId</i> is not provided, the focused experiment is 
+      used.
+    </li>
+    <li>
+      <p>If <i>ModifierList</i>(&quot;<b>all</b>&quot;) is present, every 
+      defined experiment is halted.</p>
+      expPause [ <i>ModifierList</i>(&quot;<b>all</b>&quot;) || 
+      <i>ExpId</i> ]
+    </li>
+  </ul>
+  Example1:
+<pre class="literalblock">
+   # Halt the currently focused experiment
+   openss.expPause()
+</pre>
+  Example2:
+<pre class="literalblock">
+   # Halt all experiments
+   my_modifier = openss.ModifierList(&quot;all&quot;)
+   openss.expPause(my_modifier)
+</pre>
+  Example3:
+<pre class="literalblock">
+   # Halt a specified experiment (7)
+   my_exp = openss.ExpId(7)
+   openss.expPause(my_exp)
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>arglist</b></code> -
+         1 of 2 optional class objects:
+        <ul>
+          <li>
+            <i>ModifierList</i>(&quot;<b>all</b>&quot;)
+          </li>
+          <li>
+            <i>ExpId</i>
+          </li>
+        </ul>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="expRestore"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">expRestore</span>(<span class="sig-vararg">*arglist</span>)</span>
+  </h3>
+  <ul>
+    <li>
+      Restore an experiment's definition and previously saved data 
+      from a database that was saved with an expSave command.
+      <ul>
+        <li>
+          A new experiment is created and intitialize with this 
+          information.
+        </li>
+        <li>
+          This command also sets the focus to the new experiment's 
+          Identifier.
+        </li>
+        <li>
+          The new experiment will be in the same state as that 
+          established with the <b>expDisable</b> command.
+        </li>
+        <li>
+          If the original applications are still running, the user can 
+          reconnect to them, and reinsert instrumentation into them, 
+          through the use of the <b>expEnable</b> command. Doing this 
+          will interrupt the executing application and an <b>expGo</b> 
+          command will be required before the application continues and 
+          new data samples can be collected.
+        </li>
+        <li>
+          Previously collected data can be looked at with the 
+          <b>expView</b> command without reconnecting to the original 
+          applications.
+        </li>
+        <li>
+          If an <b>expGo</b> command is issued, new data samples will 
+          be placed into the database specified by <i>FileList</i>. A 
+          different database can be specified with the <b>expSave</b> 
+          command.
+        </li>
+      </ul>
+    </li>
+    <li>
+      The return type is an <i>ExpId</i> object which can be used 
+      directly by other commands.
+    </li>
+  </ul>
+  <p><i>ExpId</i> = expRestore(arglist)</p>
+  Example:
+<pre class="literalblock">
+   # Restore an experiment previously save as &quot;stored_data.db&quot;.
+   my_file = openss.FileList(&quot;stored_data.db&quot;)
+   my_exp = openss.expRestore(my_file)
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>arglist</b></code> -
+         1 class object:
+        <ul>
+          <li>
+            <i>FileList</i>
+          </li>
+        </ul>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="expSave"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">expSave</span>(<span class="sig-vararg">*arglist</span>)</span>
+  </h3>
+  <ul>
+    <li>
+      Save the experiment information for further analysis.
+      <ul>
+        <li>
+          For each experiment, information about the executable 
+          programs that are instrumented, information about the 
+          instrumentation that is used and any performance data that is 
+          collected are saved in a database.
+        </li>
+        <li>
+          The database is created by the <b>OpenSS</b> tool in a 
+          temporary location and will be deleted when an <b>expClose</b> 
+          command is issued for the experiment, or when an exit command 
+          is issued that terminates the <b>OpenSS</b> tool.
+        </li>
+        <li>
+          The entire database can be saved with the expSave command 
+          and can be reloaded into the <b>OpenSS</b> tool with the 
+          <b>expRestore</b> command.
+        </li>
+        <li>
+          The database is in a special format that supports the 
+          opertaions that the <b>OpenSS</b> tool must perform.
+        </li>
+      </ul>
+    </li>
+    <li>
+      Without <i>ModifierList</i>(&quot;<b>copy</b>&quot;)
+      <ul>
+        <li>
+          If the original, temporary database file is still in use, it 
+          is copied to the specified file name and the <b>OpenSS</b> tool 
+          will use the new file to collect any new information about the 
+          experiment. When the experiment completes, this database will 
+          be retained.
+        </li>
+        <li>
+          If a previous <b>expSave</b> command has caused the 
+          experiment's information to be directed to a user defined 
+          database
+        </li>
+        <li>
+          The contents of the previous database - without any of the 
+          data samples - is copied to the new database.
+        </li>
+        <li>
+          The previous database is closed.
+        </li>
+        <li>
+          The new database is used by the <b>OpenSS</b> tool to 
+          collect any new information that is added to or collected for, 
+          the experiment.
+        </li>
+      </ul>
+    </li>
+    <li>
+      With <i>ModifierList</i>(&quot;<b>copy</b>&quot;), the given 
+      location receives a copy of the current state of the database.
+      <ul>
+        <li>
+          The current contents of the database is duplicated and saved 
+          to the given location.
+        </li>
+        <li>
+          No new information will be added to the given location.
+        </li>
+        <li>
+          New information will be added to the original database.
+        </li>
+      </ul>
+    </li>
+    <li>
+      This command does not change the execution state of the 
+      experiment, although it may temporarily suspend execution while the 
+      command is being executed.
+    </li>
+  </ul>
+  Example1:
+<pre class="literalblock">
+   # Store the currently focused experiment
+   my_file = openss.FileList(&quot;stored_data.db&quot;)
+   openss.expSave(my_file)
+</pre>
+  Example2:
+<pre class="literalblock">
+   # Copy the currently focused experiment
+   my_file = openss.FileList(&quot;stored_data.db&quot;)
+   my_modifier = openss.ModifierList(&quot;copy&quot;)
+   openss.expSave(my_modifier,my_file)
+</pre>
+  Example3:
+<pre class="literalblock">
+   # Store a specified experiment (7) to file
+   my_file = openss.FileList(&quot;stored_data.db&quot;)
+   my_exp = openss.ExpId(7)
+   openss.expSave(my_exp,my_file)
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>arglist</b></code> -
+         From 1 to 3 class objects:
+        <ul>
+          <li>
+            <i>ModifierList</i>(&quot;<b>copy</b>&quot;) 
+            (optional)
+          </li>
+          <li>
+            <i>ExpId</i> (optional)
+          </li>
+          <li>
+            <i>FileList</i> (required)
+          </li>
+        </ul>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="expSetParam"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">expSetParam</span>(<span class="sig-vararg">*arglist</span>)</span>
+  </h3>
+  <ul>
+    <li>
+      Change the value an experiment's argument.
+    </li>
+    <li>
+      A parameter's setting will be unique within the experiment.
+    </li>
+    <li>
+      The parameter names can be used by other experiments.
+    </li>
+    <li>
+      This command does not change the execution state of the 
+      experiment, although it may temporarily suspend execution while the 
+      command is being executed.
+    </li>
+  </ul>
+  Example1:
+<pre class="literalblock">
+   # Create a hardware counting experiment
+   my_expid = openss.expCreate(&quot;hwc&quot;)
+
+   my_param_list = openss.ParamList()
+   # Set which counter event we want
+   my_param_list += (&quot;event&quot;,&quot;PAPI_HW_INT&quot;)
+   # Set the sampling rate
+   my_param_list += (&quot;sampling_rate&quot;,2000)
+   # Set the paramerter list to the experiment
+   openss.expSetParam(my_expid,my_param_list)
+   # Attach the test program to the experiment
+   my_prog = openss.FileList(&quot;bosco.exe&quot;)
+   openss.expAttach(my_expid,my_prog)
+   # Run the experiment
+   openss.expGo()
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>arglist</b></code> -
+         From 1 to 2 class objects:
+        <ul>
+          <li>
+            <i>ExpId</i> (optional)
+          </li>
+          <li>
+            <i>ParamList</i> (required)
+          </li>
+        </ul>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="expView"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">expView</span>(<span class="sig-vararg">*arglist</span>)</span>
+  </h3>
+  <ul>
+    <li>
+      Display the performance data that has been collected for an 
+      experiment.
+    </li>
+    <li>
+      If this command is issued with no <i>ExpId</i>, the focused 
+      experiment is used.
+    </li>
+    <li>
+      If this command is issued with no <i>ViewType</i>, the specified 
+      experiment is examined and an attempt is made to find a 
+      <i>ViewType</i> with the same name as the <i>ExpType</i> used in 
+      the experiment. If there is no matching <i>ViewType</i>, or if 
+      there is more than one <i>ExpType</i> used in the experiment, a 
+      generic view is requested that will display all the metrics that 
+      were generated for the experiment.
+    </li>
+    <li>
+      This command does not change the execution state of the 
+      experiment, although the nature of the requested data may require 
+      that the experiment complete execution before the information can 
+      be provided.
+    </li>
+    <li>
+      The use of the <i>MetricList</i> option allows control over the 
+      data that is included in the report.
+      <ul>
+        <li>
+          Only the metrics specified in the list will be included in 
+          the report.
+        </li>
+        <li>
+          The meterics will be reported in the order that they occur 
+          in the list.
+        </li>
+        <li>
+          The report will be sorted in descending order of the first 
+          metric in the list.
+        </li>
+      </ul>
+    </li>
+    <li>
+      The use of the <i>Target</i> option acts like a filter on the 
+      output.
+      <ul>
+        <li>
+          The absence of any <i>HostList</i> specification will cause 
+          all the information available for all hosts in the specifed 
+          experiment to be included.
+        </li>
+        <li>
+          The default cluster contains only localhost and can be 
+          specified by using -h localhost.
+        </li>
+        <li>
+          Use of <i>FileList</i> is not supported.
+        </li>
+        <li>
+          Use of <i>PidList</i> will result in only the Threads 
+          associated with that Pid being included for the selected 
+          hosts.
+        </li>
+        <li>
+          Use of <i>ThreadList</i> will result in only that specific 
+          Thread being included, if it exists on the selected hosts.
+        </li>
+      </ul>
+      expView [ <i>ExpId</i> ] [ &lt;viewType&gt; ] [ -m 
+      &lt;expMetric_list&gt; ] [ <i>Target</i> ]
+    </li>
+  </ul>
+  Example:
+<pre class="literalblock">
+   my_file = openss.FileList(&quot;bosco&quot;)
+   my_viewtype = openss.ViewTypeList(&quot;pcsamp&quot;)
+   my_metric_list = openss.MetricList()
+   my_metric_list += (&quot;pcsamp&quot;,&quot;inclusive&quot;)
+
+   ret = openss.expView(my_expid,my_viewtype,my_metric_list)
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>arglist</b></code> -
+         up to 4 optional class objects:
+        <ul>
+          <li>
+            <i>ExpId</i> (optional)
+          </li>
+          <li>
+            <i>ViewType</i> (optional)
+          </li>
+          <li>
+            <i>MetricList</i> (optional)
+          </li>
+          <li>
+            <i>Target</i> object lists (optional)
+            <ul>
+              <li>
+                <i>ClusterList</i>
+              </li>
+              <li>
+                <i>FileList</i>
+              </li>
+              <li>
+                <i>HostList</i>
+              </li>
+              <li>
+                <i>PidList</i>
+              </li>
+              <li>
+                <i>ThreadList</i>
+              </li>
+              <li>
+                <i>RankList</i>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="list"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">list</span>(<span class="sig-vararg">*arglist</span>)</span>
+  </h3>
+  <ul>
+    <li>
+      <p>List command for experiment status inquiries.</p>
+      Syntax:
+<pre class="literalblock">
+   # Both &lt;output&gt; and &lt;list args&gt; change for 
+   # each &lt;list modifier&gt;
+   &lt;output&gt; = list(&lt;list modifiers&gt;,&lt;list args&gt;)
+</pre>
+    </li>
+    <li>
+      One must include one of the following <i>&lt;list 
+      modifiers&gt;</i>:
+      <ul>
+        <li>
+          &quot;<b>breaks</b>&quot; <b>!! NOT SUPPORTED YET !!</b>
+          <ul>
+            <li>
+              List the breakpoints that have been set by the user.
+              <ul>
+                <li>
+                  The absence of any option will cause all the 
+                  breakpoints for the focused experiment to be 
+                  listed.
+                </li>
+                <li>
+                  The use of <i>ExpId</i> will cause all the 
+                  breakpoints for the specified experiment to be 
+                  listed.
+                </li>
+                <li>
+                  The use of 
+                  <i>ModifierList</i>(&quot;<b>all</b>&quot;) will cause 
+                  all the known breakpoints, for all of the experiments 
+                  defined by the user, to be listed.
+                </li>
+              </ul>
+            </li>
+            <li>
+              <i>&lt;list args&gt;</i>: 1 of 2 optional class 
+              objects
+              <ul>
+                <li>
+                  <i>ModifierList</i>(&quot;<b>all</b>&quot;) 
+                  (optional)
+                </li>
+                <li>
+                  <i>ExpId</i> (optional)
+                </li>
+              </ul>
+            </li>
+            <li>
+              <p><i>&lt;output&gt;</i>:</p>
+              Example1:
+<pre class="literalblock">
+   # List breaks set in the currently focused experiment
+   my_modifier = openss.ModifierList(&quot;breaks&quot;)
+   int_list = openss.list(my_modifier)
+</pre>
+              Example2:
+<pre class="literalblock">
+   # List breaks set in all active experiments
+   my_modifier = openss.ModifierList([&quot;breaks&quot;,&quot;all&quot;])
+   int_list = openss.list(my_modifier)
+</pre>
+              Example3:
+<pre class="literalblock">
+   # List breaks set in a specified experiment
+   my_modifier = openss.ModifierList(&quot;breaks&quot;)
+   :
+   :
+   my_exp = openss.expCreate()
+   int_list = openss.list(my_modifier)
+</pre>
+            </li>
+          </ul>
+        </li>
+        <li>
+          &quot;<b>expid</b>&quot;
+          <ul>
+            <li>
+              List the experiments that have been defined.
+            </li>
+            <li>
+              <i>&lt;list args&gt;</i>:
+              <ul>
+                <li>
+                  None
+                </li>
+              </ul>
+            </li>
+            <li>
+              <p><i>&lt;output&gt;</i>:</p>
+              Example:
+<pre class="literalblock">
+   # List of I{ExpId} of active experiments.
+   my_modifier = openss.ModifierList(&quot;expid&quot;)
+   expid_list = openss.list()
+</pre>
+            </li>
+          </ul>
+        </li>
+        <li>
+          &quot;<b>exptypes</b>&quot;
+          <ul>
+            <li>
+              List the available performance measurement utilities 
+              that can be used to collect data in an experiment.
+              <ul>
+                <li>
+                  If no option is selected, list the utilities that 
+                  are attached to the focused experiment.
+                </li>
+                <li>
+                  The use of <i>ExpId</i> will cause the utilities 
+                  that are attached to the specified experiment to be 
+                  listed.
+                </li>
+                <li>
+                  The use of 
+                  <i>ModifierList</i>(&quot;<b>all</b>&quot;) will cause 
+                  all the possible performance measurement utilities that 
+                  can be used in experiments to be listed.
+                </li>
+              </ul>
+            </li>
+            <li>
+              The return type is a list of string objects representing 
+              experiment type.
+            </li>
+            <li>
+              <i>&lt;list args&gt;</i>: Up to 1 of 2 optional class 
+              objects.
+              <ul>
+                <li>
+                  <i>ModifierList</i>(&quot;<b>all</b>&quot;) 
+                  (optional)
+                </li>
+                <li>
+                  <i>ExpId</i> (optional)
+                </li>
+              </ul>
+            </li>
+            <li>
+              <i>&lt;output&gt;</i>:
+              <ul>
+                <li>
+                  <i>&lt;ListOf_expType&gt;</i>
+                </li>
+              </ul>
+              Example1:
+<pre class="literalblock">
+   # List experiment types attached to the currently 
+   # focused experiment.
+   string_list = openss.list(ModifierList(&quot;types&quot;))
+</pre>
+              Example2:
+<pre class="literalblock">
+   # List all experiment types possible for the currently 
+   # focused experiment.
+   string_list = openss.list(ModifierList([&quot;types&quot;,&quot;all&quot;]))
+</pre>
+            </li>
+          </ul>
+        </li>
+        <li>
+          &quot;<b>hosts</b>&quot;
+          <ul>
+            <li>
+              Lists the hosts that define the specified cluster.
+              <ul>
+                <li>
+                  The absence of any options will cause all the hosts 
+                  that have been included in the focused experiment to be 
+                  listed.
+                </li>
+                <li>
+                  The <i>ExpId</i> option will cause all the hosts 
+                  that have been included in the selected experiment to 
+                  be listed.
+                </li>
+              </ul>
+            </li>
+            <li>
+              &lt;list args&gt;: 1 optional class object:
+              <ul>
+                <li>
+                  <i>ExpId</i> (optional)
+                </li>
+              </ul>
+              Example1:
+<pre class="literalblock">
+   # List hosts for currently focused experiment
+   my_modifier = openss.ModifierList(&quot;hosts&quot;)
+   string_list = openss.list(my_modifier)
+</pre>
+              Example2:
+<pre class="literalblock">
+   # List hosts for a specified experiment
+   my_modifier = openss.ModifierList(&quot;hosts&quot;)
+   my_exp = openss.expCreate()
+   :
+   :
+   string_list = openss.list(my_modifier,my_exp)
+</pre>
+            </li>
+          </ul>
+        </li>
+        <li>
+          &quot;<b>metrics</b>&quot;
+          <ul>
+            <li>
+              Retrieve the metrics that are associated with a 
+              <i>ViewTypeList</i> object.
+              <ul>
+                <li>
+                  If no options are selected, metrics for only the 
+                  data collectors that are part of the focused experiment 
+                  will be listed.
+                </li>
+                <li>
+                  The use of <i>ExpId</i> will cause the metrics that 
+                  are associated with the set of data collectors that are 
+                  part of the specified experiment to be listed.
+                </li>
+                <li>
+                  The use of 
+                  <i>ModifierList</i>(&quot;<b>all</b>&quot;) will cause 
+                  all the metrics for all available collectors to be 
+                  listed.
+                </li>
+                <li>
+                  The use of the &quot;&lt;viewType_list&gt;&quot; 
+                  option will result in a listing of only those metrics 
+                  associated with the specific data collectors in the 
+                  list.
+                </li>
+              </ul>
+            </li>
+            <li>
+              <i>&lt;list args&gt;</i>: 1 of 3 optional class 
+              objects
+              <ul>
+                <li>
+                  <i>ModifierList</i>(&quot;<b>all</b>&quot;) 
+                  (optional)
+                </li>
+                <li>
+                  <i>ExpId</i> (optional)
+                </li>
+                <li>
+                  <i>ExpTypeList</i> (optional)
+                </li>
+              </ul>
+            </li>
+            <li>
+              <i>&lt;output&gt;</i>:
+              <ul>
+                <li>
+                  <i>&lt;ListOf_expMetric&gt;</i>
+                </li>
+              </ul>
+              Example1:
+<pre class="literalblock">
+   # List view type metrics for currently focused experiment
+   my_modifier = openss.ModifierList(&quot;metrics&quot;)
+   string_list = openss.list(my_modifier)
+</pre>
+              Example2:
+<pre class="literalblock">
+   # List view type metrics for a specified experiment
+   # and for a specific host.
+   my_modifier = openss.ModifierList(&quot;metrics&quot;)
+   my_host = openss.HostList(&quot;bosco.milk.com&quot;)
+   my_exp = openss.expCreate()
+   :
+   :
+   string_list = openss.list(my_modifier,my_exp,my_host)
+</pre>
+            </li>
+          </ul>
+        </li>
+        <li>
+          &quot;<b>obj</b>&quot;
+          <ul>
+            <li>
+              List the objects of the applications that are part of 
+              the specified experiment.
+              <ul>
+                <li>
+                  If <i>ExpId</i> is not provided, the focused 
+                  experiment is used.
+                </li>
+              </ul>
+            </li>
+            <li>
+              The listing can be restricted with the use of a 
+              <i>Target</i> specification.
+            </li>
+            <li>
+              Any component described in the <i>Target</i> 
+              specification must be part of the selected experiment.
+            </li>
+            <li>
+              If <i>Target</i> is not provided, information will be 
+              provided for all portions of all applications that are 
+              attached to the experiment.
+            </li>
+            <li>
+              The return type is a list of string objects.
+            </li>
+            <li>
+              <i>&lt;list args&gt;</i>: Up to 2 optional class 
+              objects:
+              <ul>
+                <li>
+                  <i>ExpId</i> object (optional)
+                </li>
+                <li>
+                  <i>Target</i> object lists (optional)
+                  <ul>
+                    <li>
+                      <i>ClusterList</i>
+                    </li>
+                    <li>
+                      <i>HostList</i>
+                    </li>
+                    <li>
+                      <i>PidList</i>
+                    </li>
+                    <li>
+                      <i>ThreadList</i>
+                    </li>
+                    <li>
+                      <i>RankList</i>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <i>&lt;output&gt;</i>:
+              <ul>
+                <li>
+                  <i>&lt;ListOf_filename&gt;</i>
+                </li>
+              </ul>
+              Example1:
+<pre class="literalblock">
+   # List the a.out and dsos for currently focused experiment
+   my_modifier = openss.ModifierList(&quot;obj&quot;)
+   string_list = openss.list(my_modifier)
+</pre>
+              Example2:
+<pre class="literalblock">
+   # List a.out and dsos for a specified experiment
+   # and for a specific host.
+   my_modifier = openss.ModifierList(&quot;obj&quot;)
+   my_host = openss.HostList(&quot;bosco.milk.com&quot;)
+   my_exp = openss.expCreate()
+   :
+   :
+   string_list = openss.list(my_modifier,my_exp,my_host)
+</pre>
+            </li>
+          </ul>
+        </li>
+        <li>
+          &quot;<b>params</b>&quot;
+          <ul>
+            <li>
+              Retrieve the parameters that are associated with a 
+              particular &lt;viewType&gt; or set of 
+              &lt;viewType&gt;s.
+              <ul>
+                <li>
+                  If no options are selected, parameters for only the 
+                  data collectors that are part of the focused experiment 
+                  will be listed.
+                </li>
+                <li>
+                  The use of <i>ExpId</i> will cause the parameters 
+                  that are associated with the set of data collectors 
+                  that are part of the specified experiment to be 
+                  listed.
+                </li>
+                <li>
+                  The use of 
+                  <i>ModifierList</i>(&quot;<b>all</b>&quot;) will cause 
+                  all the parameters for all available collectors to be 
+                  listed.
+                </li>
+                <li>
+                  The use of the &quot;&lt;ExpType&gt;&quot; option 
+                  will result in a listing of only those parameters 
+                  associated with that specific data collector.
+                </li>
+              </ul>
+            </li>
+            <li>
+              <i>&lt;list args&gt;</i>: Up to 3 optional class 
+              objects:
+              <ul>
+                <li>
+                  <i>ModifierList</i>(&quot;<b>all</b>&quot;) 
+                  (optional)
+                </li>
+                <li>
+                  <i>ExpId</i> (optional)
+                </li>
+                <li>
+                  <i>ExpTypeList</i> (optional)
+                </li>
+              </ul>
+            </li>
+            <li>
+              <i>&lt;output&gt;</i>:
+              <ul>
+                <li>
+                  <i>&lt;ListOf_expParam&gt;</i>
+                </li>
+              </ul>
+              Example1:
+<pre class="literalblock">
+   # List collector parameters set in the currently 
+   # focused experiment
+   my_modifier = openss.ModifierList(&quot;params&quot;)
+   string_list = openss.list(my_modifier)
+</pre>
+              Example2:
+<pre class="literalblock">
+   # List parameters available in all available collectors
+   my_modifier = openss.ModifierList([&quot;params&quot;,&quot;all&quot;])
+   string_list = openss.list(my_modifier)
+</pre>
+              Example3:
+<pre class="literalblock">
+   # List collector parameters set in a specified experiment
+   my_modifier = openss.ModifierList(&quot;params&quot;)
+   :
+   :
+   my_exp = openss.expCreate()
+   string_list = openss.list(my_modifier)
+</pre>
+            </li>
+          </ul>
+        </li>
+        <li>
+          &quot;<b>pids</b>&quot;
+          <ul>
+            <li>
+              List running processes associated with a specific 
+              experiment and, optionally, on a specific machine.
+              <ul>
+                <li>
+                  If no options are supplied, the Pids that are 
+                  referenced in the focused experiment are listed.
+                </li>
+                <li>
+                  If the &quot;<i>ExpId</i>&quot; option is supplied, 
+                  all the Pids that are part of the specified experiment 
+                  are listed.
+                </li>
+              </ul>
+            </li>
+            <li>
+              The use of the <i>HostList</i> option acts like a filter 
+              on the output.
+              <ul>
+                <li>
+                  The absence of any <i>HostList</i> specification 
+                  will cause all pids in the specified experiment to be 
+                  included.
+                </li>
+                <li>
+                  The default cluster contains only localhost and can 
+                  be specified by using <i>HostList</i>.
+                </li>
+              </ul>
+            </li>
+            <li>
+              <i>&lt;list args&gt;</i>: Up to 2 optional class 
+              objects:
+              <ul>
+                <li>
+                  <i>ExpId</i> (optional)
+                </li>
+                <li>
+                  <i>&lt;HostList&gt;</i> (optional)
+                </li>
+              </ul>
+            </li>
+            <li>
+              <i>&lt;output&gt;</i>:
+              <ul>
+                <li>
+                  <i>&lt;ListOf_pidname&gt;</i>
+                </li>
+              </ul>
+              Example1:
+<pre class="literalblock">
+   # List the process ids for currently focused experiment
+   my_modifier = openss.ModifierList(&quot;pids&quot;)
+   pid_list = openss.list(my_modifier)
+</pre>
+              Example2:
+<pre class="literalblock">
+   # List process ids for a specified experiment
+   # and for a specific host.
+   my_modifier = openss.ModifierList(&quot;pids&quot;)
+   my_host = openss.HostList(&quot;bosco.milk.com&quot;)
+   my_exp = openss.expCreate()
+   :
+   :
+   pid_list = openss.list(my_modifier,my_exp,my_host)
+</pre>
+            </li>
+          </ul>
+        </li>
+        <li>
+          &quot;<b>ranks</b>&quot; <b>!! NOT SUPPORTED YET !!</b>
+          <ul>
+            <li>
+              List the mpi ranks associated with a specific 
+              experiment, a specific Pid or on a specific machine.
+              <ul>
+                <li>
+                  If no options are supplied, all the Ranks that are 
+                  referenced in the focused experiment are listed.
+                </li>
+                <li>
+                  If the &quot;<i>ExpId</i>&quot; option is supplied, 
+                  all the Ranks that are part of the specified experiment 
+                  are listed.
+                </li>
+              </ul>
+            </li>
+            <li>
+              The use of the &quot;<i>Target</i>&quot; option acts 
+              like a filter on the output.
+              <ul>
+                <li>
+                  The absence of any <i>HostList</i> specification 
+                  will cause all Ranks in the specified experiment to be 
+                  included.
+                </li>
+                <li>
+                  The default cluster contains only localhost and can 
+                  be specified by using <i>HostList</i>.
+                </li>
+                <li>
+                  Use of <i>FileList</i> is not supported.
+                </li>
+                <li>
+                  Use of <i>PidList</i> will result in only the Ranks 
+                  associated with that Pid being included for the 
+                  selected hosts.
+                </li>
+                <li>
+                  Use of <i>RankList</i> will result in only that 
+                  specific Rank being included, if it exists on the 
+                  selected hosts.
+                </li>
+              </ul>
+            </li>
+            <li>
+              <i>&lt;list args&gt;</i>:
+              <ul>
+                <li>
+                  <i>ExpId</i> object (optional)
+                </li>
+                <li>
+                  <i>Target</i> object lists (optional)
+                  <ul>
+                    <li>
+                      <i>ClusterList</i>
+                    </li>
+                    <li>
+                      <i>HostList</i>
+                    </li>
+                    <li>
+                      <i>PidList</i>
+                    </li>
+                    <li>
+                      <i>ThreadList</i>
+                    </li>
+                    <li>
+                      <i>RankList</i>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <i>&lt;output&gt;</i>:
+              <ul>
+                <li>
+                  <i>&lt;ListOf_rankname&gt;</i>
+                </li>
+              </ul>
+              Example1:
+<pre class="literalblock">
+   # List the mpi ranks for currently focused experiment
+   my_modifier = openss.ModifierList(&quot;ranks&quot;)
+   string_list = openss.list(my_modifier)
+</pre>
+              Example2:
+<pre class="literalblock">
+   # List mpi ranks for a specified experiment
+   # and for a specific host.
+   my_modifier = openss.ModifierList(&quot;ranks&quot;)
+   my_host = openss.HostList(&quot;bosco.milk.com&quot;)
+   my_exp = openss.expCreate()
+   :
+   :
+   string_list = openss.list(my_modifier,my_exp,my_host)
+</pre>
+            </li>
+          </ul>
+        </li>
+        <li>
+          &quot;<b>src</b>&quot;
+          <ul>
+            <li>
+              List the source filenames of the modules that are part 
+              of the specified experiment.
+            </li>
+            <li>
+              If <i>ExpId</i> is not provided, the focused experiment 
+              is used.
+            </li>
+            <li>
+              The listing can be restricted with the use of a 
+              <i>Target</i> specification.
+            </li>
+            <li>
+              Any component described in the <i>Target</i> 
+              specification must be part of the selected experiment.
+            </li>
+            <li>
+              <i>FileList</i> can be used to provide a list of object 
+              modules that will be searched for relevant source 
+              files.
+            </li>
+            <li>
+              If <i>Target</i> is not provided, information will be 
+              provided for all portions of all applications that are 
+              attached to the experiment.
+            </li>
+            <li>
+              <i>&lt;list args&gt;</i>:
+              <ul>
+                <li>
+                  <i>ExpId</i> object (optional)
+                </li>
+                <li>
+                  <i>Target</i> object lists (optional)
+                  <ul>
+                    <li>
+                      <i>ClusterList</i>
+                    </li>
+                    <li>
+                      <i>HostList</i>
+                    </li>
+                    <li>
+                      <i>PidList</i>
+                    </li>
+                    <li>
+                      <i>ThreadList</i>
+                    </li>
+                    <li>
+                      <i>RankList</i>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <i>&lt;output&gt;</i>:
+              <ul>
+                <li>
+                  <i>&lt;listOf_filename&gt;</i>
+                </li>
+              </ul>
+              Example1:
+<pre class="literalblock">
+   # List the source files for currently focused experiment
+   my_modifier = openss.ModifierList(&quot;src&quot;)
+   string_list = openss.list(my_modifier)
+</pre>
+              Example2:
+<pre class="literalblock">
+   # List a.source files for a specified experiment
+   # and for a specific host.
+   my_modifier = openss.ModifierList(&quot;src&quot;)
+   my_host = openss.HostList(&quot;bosco.milk.com&quot;)
+   my_exp = openss.expCreate()
+   :
+   :
+   string_list = openss.list(my_modifier,my_exp,my_host)
+</pre>
+            </li>
+          </ul>
+        </li>
+        <li>
+          &quot;<b>status</b>&quot;
+          <ul>
+            <li>
+              List the status of experiments.
+              <ul>
+                <li>
+                  If no option is selected, return the status of the 
+                  focused experiment.
+                </li>
+                <li>
+                  The use of <i>ExpId</i> will cause the status of the 
+                  specified experiment to be returned.
+                </li>
+                <li>
+                  The use of 
+                  <i>ModifierList</i>(&quot;<b>all</b>&quot;) will cause 
+                  the status of all the defined experiments to be 
+                  returned.
+                </li>
+                <li>
+                  The return value is a list of strings representing 
+                  the status of the current focused experiment process. 
+                  Current available status strings are:
+                  <ul>
+                    <li>
+                      &quot;<b>Unknown</b>&quot;: An unknown status 
+                      was returned.
+                    </li>
+                    <li>
+                      &quot;<b>Paused</b>&quot;: The process is in a 
+                      &quot;paused&quot; state.
+                    </li>
+                    <li>
+                      &quot;<b>Running</b>&quot;: The process is still 
+                      running.
+                    </li>
+                    <li>
+                      &quot;<b>Terminated</b>&quot;: The process has 
+                      finished running.
+                    </li>
+                    <li>
+                      &quot;<b>Error</b>&quot;: Something went 
+                      wrong.
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <i>&lt;list args&gt;</i>: up to 1 of 2 optional class 
+              objects.
+              <ul>
+                <li>
+                  <i>ModifierList</i>(&quot;<b>all</b>&quot;) 
+                  (optional)
+                </li>
+                <li>
+                  <i>ExpId</i> (optional)
+                </li>
+              </ul>
+            </li>
+            <li>
+              <i>&lt;output&gt;</i>:
+              <ul>
+                <li>
+                  <i>&lt;ListOf_statusType&gt;</i>
+                </li>
+              </ul>
+              Example1:
+<pre class="literalblock">
+   # List status for the currently focused experiment
+   my_modifier = openss.ModifierList(&quot;status&quot;)
+   string_list = openss.list(my_modifier)
+</pre>
+              Example2:
+<pre class="literalblock">
+   # List status for all active experiments
+   my_modifier = openss.ModifierList([&quot;status&quot;,&quot;all&quot;])
+   string_list = openss.list(my_modifier)
+</pre>
+              Example3:
+<pre class="literalblock">
+   # List status for a specified experiment
+   my_modifier = openss.ModifierList(&quot;status&quot;)
+   :
+   :
+   my_exp = openss.expCreate()
+   string_list = openss.list(my_modifier)
+</pre>
+              Example4:: See example for waitForGo().
+            </li>
+          </ul>
+        </li>
+        <li>
+          &quot;<b>threads</b>&quot; <b>!! NOT SUPPORTED YET 
+          !!</b>
+          <ul>
+            <li>
+              List the Threads associated with a specific experiment, 
+              a specific Pid or on a specific machine.
+              <ul>
+                <li>
+                  If no options are supplied, the Threads that are 
+                  referenced in the focused experiment are listed.
+                </li>
+                <li>
+                  If the &quot;<i>ExpId</i>&quot; option is supplied, 
+                  all the Threads that are part of the specified 
+                  experiment are listed.
+                </li>
+              </ul>
+            </li>
+            <li>
+              The use of the &quot;<i>Target</i>&quot; option acts 
+              like a filter on the output.
+              <ul>
+                <li>
+                  The absence of any <i>HostList</i> specification 
+                  will cause all Threads in the specified experiment to 
+                  be included.
+                </li>
+                <li>
+                  The default cluster contains only localhost and can 
+                  be specified by using <i>HostList</i>.
+                </li>
+                <li>
+                  Use of <i>FileList</i> is not supported.
+                </li>
+                <li>
+                  Use of <i>PidList</i> will result in only the 
+                  Threads associated with that Pid being included for the 
+                  selected hosts.
+                </li>
+                <li>
+                  Use of <i>ThreadList</i> will result in only that 
+                  specific Thread being included, if it exists on the 
+                  selected hosts.
+                </li>
+              </ul>
+            </li>
+            <li>
+              <i>&lt;list args&gt;</i>:
+              <ul>
+                <li>
+                  <i>ExpId</i> object (optional)
+                </li>
+                <li>
+                  <i>Target</i> object lists (optional)
+                  <ul>
+                    <li>
+                      <i>ClusterList</i>
+                    </li>
+                    <li>
+                      <i>HostList</i>
+                    </li>
+                    <li>
+                      <i>PidList</i>
+                    </li>
+                    <li>
+                      <i>ThreadList</i>
+                    </li>
+                    <li>
+                      <i>RankList</i>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <i>&lt;output&gt;</i>:
+              <ul>
+                <li>
+                  <i>&lt;ListOf_threadname&gt;</i>
+                </li>
+              </ul>
+              Example1:
+<pre class="literalblock">
+   # List the threads for currently focused experiment
+   my_modifier = openss.ModifierList(&quot;threads&quot;)
+   thread_list = openss.list(my_modifier)
+</pre>
+              Example2:
+<pre class="literalblock">
+   # List a.threads for a specified experiment
+   # and for a specific host.
+   my_modifier = openss.ModifierList(&quot;threads&quot;)
+   my_host = openss.HostList(&quot;bosco.milk.com&quot;)
+   my_exp = openss.expCreate()
+   :
+   :
+   thread_list = openss.list(my_modifier,my_exp,my_host)
+</pre>
+            </li>
+          </ul>
+        </li>
+        <li>
+          &quot;<b>views</b>&quot;
+          <ul>
+            <li>
+              Retrieve the views that are available for an 
+              <i>ExpTypeList</i>.
+              <ul>
+                <li>
+                  If no options are selected, the reports for only the 
+                  data collectors that are part of the focused experiment 
+                  will be listed.
+                </li>
+                <li>
+                  The use of <i>ExpId</i> will cause the the reports 
+                  that are associated with the set of data collectors 
+                  that are part of the specified experiment to be 
+                  listed.
+                </li>
+                <li>
+                  The use of 
+                  <i>ModifierList</i>(&quot;<b>all</b>&quot;) will cause 
+                  all the the reports for all available collectors to be 
+                  listed.
+                </li>
+                <li>
+                  The use of the <i>ExpTypeList</i> option will result 
+                  in a listing of only those reports associated with the 
+                  specific data collectors in the list.
+                </li>
+              </ul>
+            </li>
+            <li>
+              <i>&lt;list args&gt;</i>: up to 1 of 3 optional class 
+              objects.
+              <ul>
+                <li>
+                  <i>ModifierList</i>(&quot;<b>all</b>&quot;) 
+                  (optional)
+                </li>
+                <li>
+                  <i>ExpId</i> (optional)
+                </li>
+                <li>
+                  <i>ExpTypeList</i> (optional)
+                </li>
+              </ul>
+            </li>
+            <li>
+              <i>&lt;output&gt;</i>:
+              <ul>
+                <li>
+                  <i>ViewTypeList</i>
+                </li>
+              </ul>
+              Example1:
+<pre class="literalblock">
+   # Get views available for currently focused experiment
+   my_modifier = openss.ModifierList(&quot;views&quot;)
+   view_list = openss.list(my_modifier)
+</pre>
+              Example2:
+<pre class="literalblock">
+   # Get views available for a specified experiment
+   # and for a specific host.
+   my_modifier = openss.ModifierList(&quot;views&quot;)
+   my_host = openss.HostList(&quot;bosco.milk.com&quot;)
+   my_exp = openss.expCreate()
+   :
+   :
+   view_list = openss.list(my_modifier,my_exp,my_host)
+</pre>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+  <dl><dt></dt><dd>
+  </dd></dl>
+</td></tr></table>
+
+<a name="setBreak"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">setBreak</span>(<span class="sig-vararg">*arglist</span>)</span>
+  </h3>
+  <b>!! NOT SUPPORTED YET !!</b>
+  <ul>
+    <li>
+      Enter a breakpoint, which will halt the application when 
+      reached.
+    </li>
+    <li>
+      If <i>ExpId</i> is not provided, the focused experiment is 
+      used.
+    </li>
+    <li>
+      The break location is specified through the combination of the 
+      <i>Target</i> and &lt;address_description&gt; arguments.
+    </li>
+    <li>
+      The break location must be a location in the specified 
+      experiment.
+    </li>
+    <li>
+      If <i>Target</i> is not provided, the 
+      &lt;address_description&gt; must be valid on every host and 
+      executable attached to the experiment.
+    </li>
+  </ul>
+  &lt;breakId&gt; = setBreak [ <i>ExpId</i> ] [ <i>Target</i> ] 
+  &lt;address_description&gt;
+  <dl><dt></dt><dd>
+  </dd></dl>
+</td></tr></table>
+
+<a name="wait"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">wait</span>(<span class="sig-vararg">*arglist</span>)</span>
+  </h3>
+  <ul>
+    <li>
+      Wait for an event before processing any more commands.
+    </li>
+    <li>
+      If -v terminate is not provided, the wait will be until every 
+      preceding command is completed
+    </li>
+    <li>
+      With -v terminate , the wait will be until the specified 
+      experiment, or the focused experiment has completed execution, 
+      either normally or in error.
+    </li>
+  </ul>
+  Example:
+<pre class="literalblock">
+   # Use the following for all the wait() examples:
+   my_file = openss.FileList(&quot;foo&quot;)
+   my_exptype = openss.ExpTypeList(&quot;pcsamp&quot;)
+   my_expid = openss.expCreate(my_file,my_exptype)
+   my_mod = openss.ModifierList(&quot;terminate&quot;)
+</pre>
+  Example1:
+<pre class="literalblock">
+   # 
+   openss.expGo()
+   openss.wait()
+</pre>
+  Example2:
+<pre class="literalblock">
+   # 
+   openss.expGo()
+   openss.wait(my_mod)
+</pre>
+  Example1:
+<pre class="literalblock">
+   # 
+   openss.expGo()
+   openss.wait(my_mod,my_expid)
+</pre>
+  Example1:
+<pre class="literalblock">
+   # 
+   openss.expGo()
+   openss.wait(my_expid)
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>arglist</b></code> -
+         up to 2 optional class objects:
+        <ul>
+          <li>
+            <i>ExpId</i> object (optional)
+          </li>
+          <li>
+            <i>ModifierList</i>(&quot;<b>terminate</b>&quot;) 
+            (optional)
+          </li>
+        </ul>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="waitForGo"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">waitForGo</span>()</span>
+  </h3>
+  <p>Helper routine to wait until expGo really has finished.</p>
+  <p>Since expGo is asynctric in nature, we need to run this routine to 
+  see when it is done if we want to make sure it is really done before 
+  continuing on.</p>
+  <p>This was created before the <b>wait()</b> command was implemented 
+  and is retained as an example of how to poll for experiment status 
+  using the <b>list()</b> command.</p>
+  Example:
+<pre class="literalblock">
+   modifier = openss.ModifierList(&quot;status&quot;)
+   while 1:
+       # Pause for 10 seconds
+       os.system(&quot;sleep 10&quot;)
+
+       status = openss.list(modifier)
+       stat_count = len(status)
+       for ndx in range(stat_count):
+           if status[ndx] == 'Terminated':
+               return
+           if status[ndx] == 'Error':
+               raise error,&quot;expGo failed for some reason&quot;
+               return
+</pre>
+  <dl><dt></dt><dd>
+  </dd></dl>
+</td></tr></table>
+<br />
+
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="openss-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" align="right" width="100%">
+      <table border="0" cellpadding="0" cellspacing="0">
+      <tr><th class="navbar" align="center">
+        <p class="nomargin">
+          openss
+      </p></th></tr></table>
+    </th>
+  </tr>
+</table>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tr>
+    <td align="left"><font size="-2">Generated by Epydoc 2.1 on Sat Dec 10 16:20:24 2005</font></td>
+    <td align="right"><a href="http://epydoc.sourceforge.net"
+                      ><font size="-2">http://epydoc.sf.net</font></a></td>
+  </tr>
+</table>
+</body>
+</html>
