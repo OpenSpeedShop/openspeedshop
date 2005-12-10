@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>openss</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css"></link>
+</head>
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th bgcolor="#70b0f0" class="navselect">&nbsp;&nbsp;&nbsp;Home&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" align="right" width="100%">
+      <table border="0" cellpadding="0" cellspacing="0">
+      <tr><th class="navbar" align="center">
+        <p class="nomargin">
+          openss
+      </p></th></tr></table>
+    </th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <font size="-1"><b class="breadcrumbs">
+        Package&nbsp;openss
+      </b></font></br>
+    </td>
+    <td><table cellpadding="0" cellspacing="0">
+      <tr><td align="right"><font size="-2">[show&nbsp;private&nbsp;|&nbsp;<a href="../public/openss-module.html">hide&nbsp;private</a>]</font></td></tr>
+      <tr><td align="right"><font size="-2">[<a href="frames.html"target="_top">frames</a>&nbsp;|&nbsp;<a href="openss-module.html" target="_top">no&nbsp;frames</a>]</font></td></tr>
+    </table></td>
+</tr></table>
+
+<!-- =========== START OF PACKAGE DESCRIPTION =========== -->
+<h2 class="package">Package openss</h2>
+
+<p><b>OpenSpeedShop</b> <i>python</i> interface package.</p>
+<p>This package is essentially another UI for <b>OpenSpeedShop</b>. 
+Currently this is done by converting the APIs objects into 
+<b>OpenSpeedShop</b> CLI (Command Line Interface) syntax passing them to 
+a common parser and semantic handler. The rational for this method is to 
+reduce duplicate code and make behavior consistant across UIs.</p>
+<p>To see which classes are available and what arguments they take, go to 
+the <b>Table of Contents</b> for the API and choose 
+<b>openss.openss_classes</b>.</p>
+<p>This also means that one needs to reference the <b>Open|SpeedShop 
+User's Guide</b> for detailed descriptions of experiment setup and 
+behavior, as well as details about experiment collectors and view 
+options.</p>
+<p><b>OpenSpeedShop</b> is developed to be extensible through dynamic 
+plugins. This means that some information may not be available in a 
+static document. Some information may only be available through the help 
+facilities of the GUI or CLI (Command Line Interface). It is strongly 
+suggested that the <b>OpenSpeedShop</b> <i>python</i> API user become 
+familiar with one or both of these UIs in order to glean information not 
+available in the standard documentation.</p>
+<p>If the underlying <b>OpenSpeedShop</b> encounters an error it will 
+throw a python exception: <b>openss.error</b>.</p>
+<p>Generally, one wants to create an experiment, associate it with the 
+application to be profiled, and describe the type of data to be 
+collected.</p>
+<p>After the experiment is defined one runs it, either letting it run its 
+course or run partially. This generates raw information that is accessed 
+with the <b>expView()</b> command. There may be multiple views available 
+for a particular experiment type (See <b>list()</b>) and can be set with 
+the <b>expSetParam()</b> command.</p>
+A simple example:
+<pre class="literalblock">
+   import openss
+
+   # Create a FileList object with the name of
+   # the application to analyze.
+   my_file = openss.FileList(&quot;myprog&quot;)
+
+   # If I wanted to pass an argument to &quot;myprog&quot;
+   # I would have put it within the parenthesis
+   # along with the executable name:
+   #    my_file = openss.FileList(&quot;myprog 893&quot;)
+
+   # Determine the type of experiment to run.
+   my_exptype = openss.ExpTypeList(&quot;pcsamp&quot;)
+
+   # Register the experiment to be run.
+   my_id = openss.expCreate(my_file,my_exptype)
+   
+   # Run the instrumented application
+   openss.expGo()
+
+   # expGo is the only asynchronous command. We may need
+   # to wait until our app is done before harvesting
+   # the data.
+   openss.wait()
+   
+   # Describe the type of view we want and get the 
+   # results of the experiment.
+   my_viewtype = openss.ViewTypeList()
+   my_viewtype += &quot;pcsamp&quot;
+   result = openss.expView(my_id,my_viewtype)
+
+   # Print out the results. In this case the results are
+   # in a 2 dimensional array. Normally either the structure of
+   # the return value will be known or one will have to 
+   # query each of the object elements.
+   r_count = len(result)
+   for row_ndx in range(r_count):
+       print &quot; &quot;
+       row =result[row_ndx]
+       c_count = len(row)
+       for rel_ndx in range(c_count):
+           print row[rel_ndx]
+
+   # Cleanup any intermediate openss files.
+   openss.exit()
+</pre>
+<hr/>
+
+<!-- =========== START OF SUBMODULES =========== -->
+<table class="details" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="details">
+  <th colspan="2">Submodules</th></tr>
+  <tr><td><ul>
+<li> <b><a href="openss.openss_classes-module.html"><code>openss_classes</code></a></b>
+<li> <b><a href="openss.openss_commands-module.html"><code>openss_commands</code></a></b>
+<li> <b><a href="openss.openss_parse-module.html"><code>openss_parse</code></a></b>
+  </ul></td></tr>
+</table><br />
+
+
+<!-- =========== START OF EXCEPTIONS =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Exceptions</th></tr>
+<tr><td width="15%">
+  <b><a href="../private/openss.error-class.html"><code>error</code></a></b></td>
+  <td>&nbsp;</td></tr>
+</table><br />
+
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th bgcolor="#70b0f0" class="navselect">&nbsp;&nbsp;&nbsp;Home&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" align="right" width="100%">
+      <table border="0" cellpadding="0" cellspacing="0">
+      <tr><th class="navbar" align="center">
+        <p class="nomargin">
+          openss
+      </p></th></tr></table>
+    </th>
+  </tr>
+</table>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tr>
+    <td align="left"><font size="-2">Generated by Epydoc 2.1 on Sat Dec 10 16:20:24 2005</font></td>
+    <td align="right"><a href="http://epydoc.sourceforge.net"
+                      ><font size="-2">http://epydoc.sf.net</font></a></td>
+  </tr>
+</table>
+</body>
+</html>
