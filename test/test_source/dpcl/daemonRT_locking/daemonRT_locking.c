@@ -160,8 +160,11 @@ void LockObject(object_t* object)
   
   while(_check_lock((atomic_p)&object->lock, 0, my_tid) != false) {
     pthread_t locking_tid = _safe_fetch((atomic_p)&object->lock);    
+/* Enable this if you want to debug test */
+/*
     printf("[TID %d]: Already locked by TID %d (Retry #%d)\n",
 	   my_tid, locking_tid, ++tries);   
+*/
   }
 }
 
