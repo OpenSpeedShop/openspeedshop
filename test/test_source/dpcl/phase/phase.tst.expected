@@ -5427,5 +5427,4 @@ data_func() called
 end_func() called
 OO-style eon Time= 94.625000
 Ais_override_default_callback() succeeded: ASC_success
-Found symtab
 SUCCESS!

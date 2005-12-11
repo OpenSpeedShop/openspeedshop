@@ -1,4 +1,3 @@
-Found symtab
 Process::bexecute of one-shot probe() succeeded: ASC_success
 ONE SHOT Hello world from myprobe module
 
