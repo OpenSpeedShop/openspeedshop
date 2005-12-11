@@ -1,5 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!
+<html>
+<head>
+<!--
       Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
       Permission is granted to copy, distribute and/or modify this document
       under the terms of the GNU Free Documentation License, Version 1.2
@@ -7,12 +9,10 @@
       with no Invariant Sections, no Front-Cover Texts, and no Back-Cover
          Texts.  A copy of the license is included in the section entitled "GNU
       Free Documentation License".
->
-<html>
-<head>
+-->
   <meta content="text/html; charset=ISO-8859-1"
  http-equiv="content-type">
-  <title>Open/SpeedShop User's Guide (Milestone 6 12-14-05)</title>
+  <title>Open/SpeedShop User's Guide (Developer Beta 11-13-05)</title>
   <style type="text/css">
    H1 {border-width: 1; border: solid; text-align: center}
   <style>
@@ -36,8 +36,8 @@ w\:* {behavior:url(#default#VML);}
  alt="Open|SpeedShop logo" src="../plugin_guide/OpenSpeedShop_Logo.jpg"
  style="width: 303px; height: 38px;"><br>
 Users Guide<br>
-</span></b><big><span style="font-weight: bold;">Milestone 6 
-Release</span><br style="font-weight: bold;">
+</span></b><big><span style="font-weight: bold;">Milestone 6 Release</span><br
+ style="font-weight: bold;">
 <span style="font-weight: bold;">December 14, 2005</span></big><br>
 </p>
 <div class="Section2"><b style=""><br style="" clear="all">
@@ -49,11 +49,14 @@ Contents<br>
 </span></span></b></b></p>
 <ul style="text-align: left;" id="mozToc">
 <!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId71414">Introduction
-to Open|SpeedShop </a>
+to Open|SpeedShop
+    </a>
     <ul>
       <li><a href="#mozTocId406387">Brief
-Open|SpeedShop Overview </a></li>
-      <li><a href="#mozTocId958848">Common Terminology </a></li>
+Open|SpeedShop Overview
+        </a></li>
+      <li><a href="#mozTocId958848">Common Terminology
+        </a></li>
       <li><a href="#mozTocId760931">Open|SpeedShop
 General Usage</a>
         <ul>
@@ -80,10 +83,12 @@ Development RPM Usage Information</a>
 Platforms:</a></li>
           <li><a href="#mozTocId293268">Open|SpeedShop
 Build
-component RPM versions: </a></li>
+component RPM versions:
+            </a></li>
           <li><a href="#mozTocId883409">Overview
 - Setting up
-new machine for development on Open|SpeedShop </a>
+new machine for development on Open|SpeedShop
+            </a>
             <ul>
               <li><a href="#mozTocId985149">Step
 1 - Check for
@@ -96,7 +101,8 @@ OpenSpeedShop_ROOT/current</a></li>
 missing RPMS</a></li>
               <li><a href="#mozTocId664892">Step
 4 - Build
-Open|SpeedShop</a></li>
+Open|SpeedShop
+                </a></li>
             </ul>
           </li>
           <li><a href="#mozTocId132468">Key
@@ -107,7 +113,8 @@ Developer/Build
 Related Environment Variables</a>
                 <ul>
                   <li><a href="#mozTocId227574">Generally used
-environment variables </a></li>
+environment variables
+                    </a></li>
                   <li><a href="#mozTocId365139">Special purpose
 environment variables</a></li>
                 </ul>
@@ -157,10 +164,12 @@ Invocation Command&nbsp; "openss"</a>
       <li><a href="#mozTocId805334">Open|SpeedShop Quick Start
 Information</a>
         <ul>
-          <li><a href="#mozTocId931138">Example 1:&nbsp; Using GUI</a></li>
-          <li><a href="#mozTocId717950">Example 2:&nbsp; Using
-Interactive CLI</a></li>
-          <li><a href="#mozTocId985939">Example 3:&nbsp; Using Batch</a></li>
+          <li><a href="#mozTocId931138">Example 1:&nbsp;
+Using GUI </a></li>
+          <li><a href="#mozTocId717950">Example 2:&nbsp;
+Using Interactive CLI </a></li>
+          <li><a href="#mozTocId985939">Example 3:&nbsp;
+Using Batch </a></li>
         </ul>
       </li>
       <li><a href="#mozTocId97653">Running
@@ -250,8 +259,7 @@ Panel</a></li>
 Panel</a></li>
                   <li><a href="#mozTocId757134">Stats
 Panel</a></li>
-                  <li><a href="#mozTocId527350"> </a><br>
-                  </li>
+                  <li><a href="#mozTocId527350"> </a></li>
                 </ul>
               </li>
             </ul>
@@ -261,8 +269,7 @@ Open|SpeedShop GUI Wizard Usage </a>
             <ul>
               <li><a href="#mozTocId943081">Introductory Wizard Display
                 </a></li>
-              <li><a href="#mozTocId549331"> </a><br>
-              </li>
+              <li><a href="#mozTocId549331"> </a></li>
               <li><a href="#mozTocId197580">PC Sampling Wizard
 - Initial Display </a></li>
               <li><a href="#mozTocId68517">PC Sampling
@@ -299,7 +306,8 @@ Running MPI Applications</a>
                 <ul>
                   <li><a href="#mozTocId291888">Gui Wizard Information</a></li>
                   <li><a href="#mozTocId112115">Gui Non-Wizard
-Information&nbsp; </a></li>
+Information&nbsp;
+                    </a></li>
                 </ul>
               </li>
               <li><a href="#mozTocId271423">Loading and Starting
@@ -324,7 +332,8 @@ Command Tool </a></li>
     </ul>
   </li>
   <li><a href="#mozTocId54031">Scripting
-API </a></li>
+API
+    </a></li>
   <li><a href="#mozTocId525838">Plugin
 API (Extensibility)&nbsp; Description</a></li>
   <li><a href="#mozTocId145888">Appendix
@@ -2349,7 +2358,9 @@ a non-MPI running application or process.&nbsp;&nbsp; When stepping
 through the experiment Wizards one eventually comes to the window that
 allows the user to select their executable to load or processes,
 threads, or ranks to attach to.&nbsp;&nbsp; If one chooses, "Attach to
-running process" in that window (see xxxx for details) then the Attach
+running process" in that window (see the <a
+ href="#PC_Sampling_Wizard_-_Load_Executable">Wizard load/attach dialog</a>
+for details) then the Attach
 Process Dialog display (see below) appears.&nbsp;&nbsp; This is where
 the user can choose the process(es) related to the MPI application they
 wish to attach to.<br>
@@ -2363,6 +2374,16 @@ related processes" option causes Open|SpeedShop to attach to all the
 MPI processes that are related to the process or processes
 selected.&nbsp;&nbsp; In the example below, Open|SpeedShop would attach
 to processes 27112, 27113, and 27114.<br>
+<br>
+For MPICH MPI jobs you may select any of the rank processes to attach
+to.&nbsp;&nbsp; Open|SpeedShop will attach to the entire job if you
+have selected the "Attach to all MPI
+related processes" option.<br>
+<br>
+For SGI MPT MPI job you must select the MPIRUN process to attach
+to.&nbsp;&nbsp; Just as in the MPICH case, Open|SpeedShop will attach
+to the entire job if you have selected the "Attach to all MPI
+related processes" option.<br>
 <br>
 <img alt="Attaching to a MPI job dialog display"
  src="PC_SampleWizard-AttachToRunningProcess-MPIJOB1.png"
@@ -2613,7 +2634,9 @@ Function<br>
  style="color: rgb(0, 0, 128);">Scripting
 API</span><br>
 </b></h1>
-<blockquote><b style=""> &lt;&gt;TBD<br>
+<blockquote><b style="">Follow this<a
+ href="../../../../OpenSpeedShop/doc/pyscripting_doc/index.html"> link </a>to
+the documentations associated with the Python scripting API definition.<br>
   </b></blockquote>
 <p class="MsoBodyText"><b style="">&nbsp;</b></p>
 </div>
