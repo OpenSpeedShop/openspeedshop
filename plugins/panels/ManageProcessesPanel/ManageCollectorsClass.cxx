@@ -1235,7 +1235,8 @@ ManageCollectorsClass::focusOnPSetList(QListView *lv)
 
 
 
-/* 
+
+// If nothing was selected, just return.
   if( !msg || msg->host_pid_vector.size() == 0 )
   {
     QMessageBox::information( this, tr("Error process selection:"), tr("Unable to focus: No processes selected."), QMessageBox::Ok );
@@ -1245,7 +1246,6 @@ ManageCollectorsClass::focusOnPSetList(QListView *lv)
     }
     return;
   }
-*/
 
 
 
