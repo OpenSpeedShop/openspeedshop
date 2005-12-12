@@ -177,6 +177,33 @@ class ViewType
 };
 
 
+template <typename TO, typename TS>
+void GetMetricInThreadGroup(
+    const Collector& collector,
+    const std::string& metric,
+    const ThreadGroup& tgrp,
+    const std::set<TO >& objects,
+    SmartPtr<std::map<TO, TS> >& result)
+{
+  ThreadGroup::iterator ti;
+
+  // Allocate a new map of functions to type TS
+  if (result.isNull()) {
+    result = SmartPtr<std::map<TO, TS> >(
+      new std::map<TO, TS>()
+      );
+  }
+  Assert(!result.isNull());
+
+  for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+    Thread thread = *ti;
+    Queries::GetMetricInThread(collector, metric,
+                               TimeInterval(Time::TheBeginning(), Time::TheEnd()),
+                               thread, objects, result);
+  }
+}
+
+
 extern std::list<ViewType *> Available_Views;
 void Define_New_View (ViewType *vnew);
 bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
@@ -331,6 +358,7 @@ void Get_Filtered_Objects (CommandObject *cmd, ThreadGroup& tgrp, std::set<TE >&
     Thread thread = *ti;
     std::set<TE> threadObjects;
     OpenSpeedShop::Queries::GetSourceObjects(thread, threadObjects);
+cerr << "Size of threadObjects group is " << threadObjects.size() << std::endl;
     if (has_f) {
      // Only include selected objects.
       bool object_inserted = false;

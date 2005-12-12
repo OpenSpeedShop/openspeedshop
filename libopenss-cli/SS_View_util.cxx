@@ -21,34 +21,6 @@
 
 #include "Queries.hxx"
 
-// Move to Query library?
-
-template <typename TO, typename TS>
-void GetMetricInThreadGroup(
-    const Collector& collector,
-    const std::string& metric,
-    const ThreadGroup& tgrp,
-    const std::set<TO >& objects,
-    SmartPtr<std::map<TO, TS> >& result)
-{
-  ThreadGroup::iterator ti;
-
-  // Allocate a new map of functions to type TS
-  if (result.isNull()) {
-    result = SmartPtr<std::map<TO, TS> >(
-      new std::map<TO, TS>()
-      );
-  }
-  Assert(!result.isNull());
-
-  for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
-    Thread thread = *ti;
-    Queries::GetMetricInThread(collector, metric,
-                               TimeInterval(Time::TheBeginning(), Time::TheEnd()),
-                               thread, objects, result);
-  }
-}
-
 // Global View management utilities
 
 template <class T>

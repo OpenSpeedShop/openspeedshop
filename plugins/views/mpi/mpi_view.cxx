@@ -25,6 +25,8 @@ enum View_Granularity {
   VIEW_LINKEDOBJECTS
 };
 
+static bool OPENSS_VIEW_TRACEBACK_ORDER = false;
+
 template <class T>
 struct sort_ascending_CommandResult : public std::binary_function<T,T,bool> {
     bool operator()(const T& x, const T& y) const {
@@ -84,32 +86,6 @@ struct sort_descending_CallStacks : public std::binary_function<T,T,bool> {
     }
 };
 
-template <typename TO, typename TS>
-void GetMetricInThreadGroup(
-    const Collector& collector,
-    const std::string& metric,
-    const ThreadGroup& tgrp,
-    const std::set<TO >& objects,
-    SmartPtr<std::map<TO, TS> >& result)
-{ 
-  ThreadGroup::iterator ti;
-  
-  // Allocate a new map of functions to type TS
-  if (result.isNull()) {
-    result = SmartPtr<std::map<TO, TS> >(
-      new std::map<TO, TS>()
-      );
-  }
-  Assert(!result.isNull());
-  
-  for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
-    Thread thread = *ti;
-    Queries::GetMetricInThread(collector, metric,
-                               TimeInterval(Time::TheBeginning(), Time::TheEnd()),
-                               thread, objects, result);
-  }
-}
-
 static void Dump_Intermediate_CallStack (ostream &tostream,
        std::vector<std::pair<CommandResult_CallStackEntry *,
                              SmartPtr<std::vector<CommandResult *> > > >& c_items) {
@@ -135,14 +111,63 @@ bool Raw_Data (CommandObject *cmd,
                SmartPtr<std::map<Function,
                         std::map<Framework::StackTrace,
                                  std::vector<double> > > >& items) {
+// Pick up the raw data samples for the measured functions.
 
-   // Pick up the raw data samples for the measured fucntions.
+   // Get all the functions from all the threads.
     std::set<Function> objects;
-    Get_Filtered_Objects (cmd, tgrp, objects);
+    for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+
+     // Check for asnychonous abort command
+      if (cmd->Status() == CMD_ABORTED) {
+        break;
+      }
+
+      Thread thread = *ti;
+      std::set<Function> threadObjects;
+      OpenSpeedShop::Queries::GetSourceObjects(thread, threadObjects);
+      objects.insert(threadObjects.begin(), threadObjects.end());
+    }
     if (objects.empty()) {
       return false;
     }
+
+   // Get the callstacks and data from the collector.
     GetMetricInThreadGroup (collector, metric, tgrp, objects, items);
+
+   // Retain only the requested functions.
+    OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
+    vector<OpenSpeedShop::cli::ParseTarget> *p_tlist = p_result->getTargetList();
+    bool has_f = false;
+    OpenSpeedShop::cli::ParseTarget pt;
+    vector<OpenSpeedShop::cli::ParseRange> *f_list = NULL;
+    if (p_tlist->begin() != p_tlist->end()) {
+     // There is a list.  Is there a "-f" specifier?
+      pt = *p_tlist->begin(); // There can only be one!
+      f_list = pt.getFileList();
+      if ((f_list != NULL) && !(f_list->empty())) {
+       // Remove unneeded functions.
+        std::map<Function, std::map<Framework::StackTrace, std::vector<double> > >::iterator fi;
+        for (fi = items->begin(); fi != items->end(); fi++) {
+          bool object_needed = false;
+          Function func = (*fi).first;
+          vector<OpenSpeedShop::cli::ParseRange>::iterator pr_iter;
+          for (pr_iter=f_list->begin(); pr_iter != f_list->end(); pr_iter++) {
+            OpenSpeedShop::cli::parse_range_t R = *pr_iter->getRange();
+            OpenSpeedShop::cli::parse_val_t pval1 = R.start_range;
+            Assert (pval1.tag == OpenSpeedShop::cli::VAL_STRING);
+            std::string F_Name = pval1.name;
+            if (Include_Object (F_Name, (*func.getThreads().begin()), func)) {
+              object_needed = true;
+              break;
+            }
+          }
+
+          if (!object_needed) {
+            items->erase (fi);
+          }
+        }
+      }
+    }
 
     return !(items->empty());
 }
@@ -196,15 +221,8 @@ static void Summary_Report(
     }
 }
 
-static SmartPtr<std::vector<CommandResult *> >
-       Construct_CallBack (Framework::StackTrace& st) {
-  SmartPtr<std::vector<CommandResult *> > call_stack
-             = Framework::SmartPtr<std::vector<CommandResult *> >(
-                           new std::vector<CommandResult *>()
-                           );
-  int64_t len = st.size();
-  if (len == 0) return call_stack;
-  for (int64_t i = len-1; i >= 0; i--) {
+static inline
+CommandResult *Build_CallBack_Entry (Framework::StackTrace& st, int64_t i) {
     CommandResult *SE = NULL;
     std::pair<bool, Function> fp = st.getFunctionAt(i);
     if (fp.first) {
@@ -215,7 +233,25 @@ static SmartPtr<std::vector<CommandResult *> >
      // Use Absolute Address.
       SE = new CommandResult_Uint (st[i].getValue());
     }
-    call_stack->push_back(SE);
+    return SE;
+}
+
+static SmartPtr<std::vector<CommandResult *> >
+       Construct_CallBack (Framework::StackTrace& st) {
+  SmartPtr<std::vector<CommandResult *> > call_stack
+             = Framework::SmartPtr<std::vector<CommandResult *> >(
+                           new std::vector<CommandResult *>()
+                           );
+  int64_t len = st.size();
+  int64_t i;
+  if (len == 0) return call_stack;
+if (OPENSS_VIEW_TRACEBACK_ORDER)
+  for ( i = 0;  i < len; i++) {
+    call_stack->push_back(Build_CallBack_Entry(st, i));
+  }
+else
+  for ( i = len-1; i >= 0; i--) {
+    call_stack->push_back(Build_CallBack_Entry(st, i));
   }
   return call_stack;
 }
@@ -259,7 +295,8 @@ static void CallStack_Report (
       vcs->push_back ( CRPTR (vmax) );
       vcs->push_back ( CRPTR (cnt) );
       SmartPtr<std::vector<CommandResult *> > call_stack = Construct_CallBack (st);
-      CommandResult_CallStackEntry *CSE = new CommandResult_CallStackEntry (call_stack);
+      CommandResult_CallStackEntry *CSE = new CommandResult_CallStackEntry (call_stack,
+                                                                            OPENSS_VIEW_TRACEBACK_ORDER);
       c_items.push_back(std::make_pair(CSE, vcs));
     }
   }
@@ -454,7 +491,8 @@ static void Expand_Straight (
         vcs->push_back ( v );
       }
       SmartPtr<std::vector<CommandResult *> > ncs = Dup_Call_Stack (i, cs);
-      CommandResult_CallStackEntry *CSE = new CommandResult_CallStackEntry (ncs);
+      CommandResult_CallStackEntry *CSE = new CommandResult_CallStackEntry (ncs,
+                                                                            OPENSS_VIEW_TRACEBACK_ORDER);
       nvpi = c_items.insert(vpi, std::make_pair(CSE, vcs));
       vpi = nvpi + 1;
     }
@@ -476,7 +514,13 @@ void Construct_View (CommandObject *cmd,
                      bool report_Column_summary,
                      std::vector<std::pair<CommandResult_CallStackEntry *,
                                            SmartPtr<std::vector<CommandResult *> > > >& items) {
+    if (items.empty()) return;
+
+    int64_t num_temps = items[0].second->size();
+    bool temp_used[num_temps];
+
     int64_t i;
+
 
    // Should we accumulate column sums?
     std::vector<CommandResult *> Column_Sum(topn);
@@ -488,18 +532,23 @@ void Construct_View (CommandObject *cmd,
       }
     }
 
-   // Extract the top "n" items from the sorted list.
+   // Format the report with the items that are left in the vector.
     std::vector<std::pair<CommandResult_CallStackEntry *,
                           SmartPtr<std::vector<CommandResult *> > > >::iterator it;
     for(it = items.begin(); it != items.end(); it++ ) {
-      CommandResult *percent_of = NULL;
 
      // Check for asnychonous abort command
       if (cmd->Status() == CMD_ABORTED) {
         return;
       }
 
+     // Local data values
+      CommandResult *percent_of = NULL;
       CommandResult_Columns *C = new CommandResult_Columns ();
+
+      for ( i=0; i < num_temps; i++) {
+        temp_used[i] = false;
+      }
 
      // Add Metrics
       for ( i=0; i < num_columns; i++) {
@@ -509,8 +558,10 @@ void Construct_View (CommandObject *cmd,
         CommandResult *Next_Metric_Value = NULL;
         if (vinst->OpCode() == VIEWINST_Display_Metric) {
           Next_Metric_Value = (*it->second)[i];
+          temp_used[i] = true;
         } else if (vinst->OpCode() == VIEWINST_Display_Tmp) {
           Next_Metric_Value = (*it->second)[CM_Index];
+          temp_used[CM_Index] = true;
         } else if (vinst->OpCode() == VIEWINST_Display_Average_Tmp) {
           CommandResult *V = (*it->second)[CM_Index];
           if (!V->isNullValue ()) {
@@ -558,6 +609,13 @@ void Construct_View (CommandObject *cmd,
      // Add ID for row
       C->CommandResult_Columns::Add_Column (it->first);
       cmd->Result_Predefined (C);
+
+     // Reclaim space for unused temps.
+      for ( i=0; i < num_temps; i++) {
+        if (!temp_used[i]) {
+          delete (*it->second)[i];;
+        }
+      }
     }
 
     if (report_Column_summary) {
@@ -799,6 +857,9 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
                     num_columns,
                     ViewInst, Gen_Total_Percent, percentofcolumn, TotalValue, report_Column_summary,
                     c_items);
+
+   // Release space for no longer needed items.
+    if (TotalValue != NULL) delete TotalValue;
 
   }
   catch(const Exception& error) {
