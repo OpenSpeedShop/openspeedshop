@@ -199,6 +199,9 @@ if __name__ == '__main__':
 		resultsfilenameinput = open('testresultsfilename', 'r')
 		resultsFileName = resultsfilenameinput.readline()
 		resultsfilenameinput.close()
+		os.system('rm -f /tmp/dpcl.*')
+        	os.system('rm -f /tmp/ssdb*')
+        	os.system('rm -f /tmp/dpclProbeModule*')
 			
 		isHere = os.path.isfile(resultsFileName)
 		do_mail = 1
@@ -220,8 +223,4 @@ if __name__ == '__main__':
 		if (os.path.isfile('dirlist')):
 			os.remove('dirlist')
 
-	os.system('rm -f /tmp/dpcl.*')
-	os.system('rm -f /tmp/ssdb*')
-	os.system('rm -f /tmp/dpclProbeModule*')
-		  
 
