@@ -33,8 +33,8 @@ unit_leaf = 2
 not_leaf = 3
 resultsFile = 'testresults'
 testResultsFile = ''
-from_addr = ''   ######INSERT YOUR EMAIL ADDRESS HERE IF YOU WANT RESULTS MAIL
-to_addr = ''	#####################AND HERE
+from_addr = 'helens@sgi.com'   ######INSERT YOUR EMAIL ADDRESS HERE IF YOU WANT RESULTS MAIL
+to_addr = 'helens@sgi.com'	#####################AND HERE
 
 def whatKindofDirectory():
 
@@ -220,6 +220,8 @@ if __name__ == '__main__':
 		if (os.path.isfile('dirlist')):
 			os.remove('dirlist')
 
-
+	os.system('rm -f /tmp/dpcl.*')
+	os.system('rm -f /tmp/ssdb*')
+	os.system('rm -f /tmp/dpclProbeModule*')
 		  
 
