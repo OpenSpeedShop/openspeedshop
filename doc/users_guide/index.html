@@ -389,11 +389,12 @@ value-added plugins to be added to the open source version.&nbsp; <br>
   <br>
 Another key feature of the performance tool is its usability.&nbsp; The
 user
-interface is designed for scientists not computer scientists.&nbsp; To
+interface is designed so that a degree in computer science
+is not required to use it.&nbsp; To
 make
 the tool usable for a greater range of users, the performance tool will
 provide novice user Wizards, easily understood language in the user
-interface components, and context sensitive help. <br>
+interface components, and interactive help. <br>
   <br>
 SGI will release, primarily under the GPL and LGPL Open Source
 licenses, the Open|SpeedShop baseline functionality.&nbsp;
@@ -441,53 +442,74 @@ the terms used in this document.&nbsp; <br>
 <div style="text-align: left; margin-left: 40px;"><big>
 </big>
 <ul>
-  <big> </big><li><i style="font-weight: bold;">Experiment</i><span
- style="font-weight: bold;">:</span>
-A set
-of collectors and
-executables
+  <big> </big>
+
+  <li><i style="font-weight: bold;">Experiment</i><span style="font-weight: bold;">:</span>&nbsp;
+A set of collectors and executables
 bound together to generate performance metrics. </li>
-  <li><i style="font-weight: bold;">Component(s):</i>&nbsp;
-A
-somewhat self-contained section of the Open|SpeedShop performance
+
+  <li><i style="font-weight: bold;">Focused Experiment</i><span style="font-weight: bold;">:</span>&nbsp;
+The current experiment commands operate on. The user may 
+run or view multiple experiments simultaneously and unless
+a particular experiment is specified directly, the focused
+experiment will used. Experiments are given an enumeration
+(expId) for identification. </li>
+
+  <li><i style="font-weight: bold;">Component(s)</i><span style="font-weight: bold;">:</span>&nbsp;
+A somewhat self-contained section of the <b>Open|SpeedShop</b> performance
 tool.&nbsp;&nbsp; This section of code does a set of specific related
 tasks for the tool.&nbsp;&nbsp; For example, the GUI component does all
-the tasks related to displaying Open|SpeedShop wizards, experiment
+the tasks related to displaying <b>Open|SpeedShop</b> wizards, experiment
 creation, and results using a graphical user interface.&nbsp;&nbsp; The
 CLI component does similar functions but uses the interactive command
 line delivery method.</li>
-  <li><i style="font-weight: bold;">Collector</i><span
- style="font-weight: bold;">:</span>
-The
-portion of the tool containing logic
-that is
+
+  <li><i style="font-weight: bold;">Collector</i><span style="font-weight: bold;">:</span>&nbsp;
+The portion of the tool containing logic that is
 responsible for the gathering of the performance
 metric.&nbsp;&nbsp;&nbsp; A collector is a portion of the code that is
-included
-in the experiment plugin.</li>
-  <li><i style="font-weight: bold;">Metric</i><span
- style="font-weight: bold;">:</span>
-The
-entity, which the collector/experiment
-is gathering.&nbsp;
+included in the experiment plugin.</li>
+
+  <li><i style="font-weight: bold;">Metric</i><span style="font-weight: bold;">:</span>&nbsp;
+The entity, which the collector/experiment is gathering.&nbsp;
 A time, occurrence counter, or other entity, which reflects in some way
 on the applications performance and is gathered by a performance
 experiment (by the collector). </li>
-  <li><i style="font-weight: bold;">Framework</i><span
- style="font-weight: bold;">:</span>&nbsp;
+
+  <li><i style="font-weight: bold;">Param</i><span style="font-weight: bold;">:</span>&nbsp;
+Each collector allows the user to set certain values that control the
+way a collector behaves.  The parameter or <b>param</b> may cause the collector to
+perform various operations at certain time intervals or it may cause a
+collector to measure certain types of data.  Although <b>Open|SpeedShop</b> provides a
+standard way to set a parameter, it is up to the individual collector to
+decide what to do with that information.
+
+Detailed documentation about the available parameters is part of the
+collector's documentation. </li>
+
+
+  <li><i style="font-weight: bold;">Framework</i><span style="font-weight: bold;">:</span>&nbsp;
 The set of API functions that
 allows the user
 interface to manage the creation and viewing of performance
 experiments.&nbsp; It is the interface between the&nbsp; user interface
 and the cluster support and dynamic instrumentation components.</li>
+
   <li> <i style="font-weight: bold;">Plugin:</i>&nbsp;
-A
-portion of the performance tool that can be loaded and included in the
+A portion of the performance tool that can be loaded and included in the
 tool at tool start-up time.&nbsp; Development of the plugin uses a tool
 specific interface (API) so that the plugin, and the tool it is to be
 included in, know how to interact with each other.&nbsp;&nbsp; Plugins
 are normally placed in a specific directory so that the tool knows
 where to find the plugins.</li>
+
+  <li><i style="font-weight: bold;">Target</i><span style="font-weight: bold;">:</span>&nbsp;
+This is the application or part of the application one is 
+running the experiment on. In order to fine tune what is
+being targeted, <b>Open|SpeedShop</b> gives target options that
+describes file names, host names, thread identifiers, 
+rank identifiers and process identifiers.</li>
+
 </ul>
 </div>
 </div>
@@ -499,7 +521,7 @@ General Usage</span></h2>
 <h3 style="margin-left: 80px; text-align: left;"><a class="mozTocH3"
  name="mozTocId170405"></a><a name="Concept_of_an_Experiment"></a>Concept
 of an Experiment</h3>
-<div style="margin-left: 80px; text-align: left;">Open|SpeedShop uses
+<div style="margin-left: 80px; text-align: left;"><b>Open|SpeedShop</b> uses
 the concept of an experiment to describe the
 gathering of performance measurement data for a particular performance
 area of interest.&nbsp;&nbsp; Experiments consist of the collector with
@@ -518,7 +540,7 @@ data file alone.<br>
 <h3><a class="mozTocH3" name="mozTocId491105"></a>Selecting an
 Experiment</h3>
 <p>The Summary of Experiments table below shows the possible
-experiments you can perform using the Open|SpeedShop tools and the
+experiments you can perform using the <b>Open|SpeedShop</b> tools and the
 reasons why you might want to choose a specific
 experiment. The Clues column shows when you might use an experiment.
 The Data Collected column indicates performance data collected by the
@@ -665,12 +687,12 @@ Time Experiment (usertime)&#8221;</a>.</p>
  name="Gathering_Saving_and_Re-examining"></a>Gathering, Saving, and
 Re-examining Performance Data With Open|SpeedShop</h3>
 <br>
-Open|SpeedShop tools allow for the gathering of performance data
+<b>Open|SpeedShop</b> tools allow for the gathering of performance data
 through the specification of experiments as mentioned in the sections
 above.&nbsp;&nbsp; This performance data can be saved into an
 experiment file.&nbsp;&nbsp; Once the experiment data is saved into a
-named experiment file, Open|SpeedShop can be exited without losing any
-performance data.&nbsp;&nbsp;&nbsp; Open|SpeedShop can be invoked at a
+named experiment file, <b>Open|SpeedShop</b> can be exited without losing any
+performance data.&nbsp;&nbsp;&nbsp; <b>Open|SpeedShop</b> can be invoked at a
 later date to analyze or print the saved experiment performance data by
 using the open saved experiment menu item under the "File" menu.<br>
 <br>
@@ -681,30 +703,35 @@ using the open saved experiment menu item under the "File" menu.<br>
  name="mozTocId683004"></a><b style=""><a name="Extensibility"></a>Extensibility</b></h2>
 <div style="text-align: left;">
 <blockquote style="margin-left: 80px;"><span
- style="font-family: times new roman,times,serif;">The
-Open|SpeedShop
-performance tool is
-designed in such a way as to enable value-added plugins for the open
-source version. These value-added plugins can be the pre-canned
-performance analysis experiments, which contain the experiment specific
-collector and the corresponding command line interface and GUI support
-software.&nbsp; There are separate plugins for the collector, command
-line interface, and GUI software components.&nbsp; Plugins can also be
-written for advanced/enhanced versions of experiment collectors,
-command line interface and GUI analysis tools. These plugins allow the
-Open|SpeedShop performance tool to be enhanced by the open source
-community.&nbsp;&nbsp; </span><span
- style="font-family: times new roman,times,serif;">Open|SpeedShop
-supports clustering.&nbsp;&nbsp; The open
-source component, DPCL, is used by Open|SpeedShop to provide
-the clustering capability.&nbsp;&nbsp; The use of the Dyninst component
-allows Open|SpeedShop to insert instrumentation and also to attach to
-running processes.&nbsp;&nbsp; See the </span><span
+ style="font-family: times new roman,times,serif;">
+ The <b>Open|SpeedShop</b> performance tool is designed to
+be extensible for both users and developers of
+<b>Open|SpeedShop</b> itself.
+</p>
+
+<p>
+The principle concept is the plugin. Plugins are in
+the form of shared libraries and data files. The 
+plugins control experiment definition, data collection 
+and data display, whether ASCII output or as a GUI panel.
+All the stock experiments are in plugin form.
+</p>
+
+<p>
+Plugins can be written for advanced/enhanced
+versions of experiment collectors, and views
+for all the UIs. These plugins allow the <b>Open|SpeedShop</b>
+performance tool to be enhanced by the open source community
+for either a general or specific need.
+</p>
+
+See the </span><span
  style="color: rgb(0, 0, 128);"><a
  href="#Plugin_API_Extensibility_Description_">Plugin
 API (Extensibility)&nbsp; Description</a> <span
  style="color: rgb(0, 0, 0);">section for a detailed description.</span><b
  style=""><br>
+
   </b></span></blockquote>
 </div>
 </div>
@@ -719,9 +746,9 @@ API (Extensibility)&nbsp; Description</a> <span
  style="color: rgb(0, 0, 128);">Open|SpeedShop
 Build and Installation Information</span></b></h1>
 <blockquote>The following sections describe how to build
-and install Open|SpeedShop.&nbsp;&nbsp; The RPM packages that are
-needed to build Open|SpeedShop and the RPM packages that are needed to
-run Open|SpeedShop are defined below.<b style=""><br>
+and install <b>Open|SpeedShop</b>.&nbsp;&nbsp; The RPM packages that are
+needed to build <b>Open|SpeedShop</b> and the RPM packages that are needed to
+run <b>Open|SpeedShop</b> are defined below.<b style=""><br>
   </b></blockquote>
 <h2 style="margin-left: 40px;"><a class="mozTocH2" name="mozTocId733358"></a><b
  style=""><a name="Building_OpenSpeedShop"></a>Building Open|SpeedShop</b>
@@ -731,7 +758,7 @@ Development RPM Usage Information</h2>
 <h3 style="margin-left: 40px;"><a class="mozTocH3" name="mozTocId435044"></a><a
  name="OpenSpeedShop_Tested_Platforms:"></a>Open|SpeedShop Tested
 Platforms:</h3>
-<div style="margin-left: 40px;">Open|SpeedShop has been run
+<div style="margin-left: 40px;"><b>Open|SpeedShop</b> has been run
 successfully on IA32, IA64, and X86_64 platforms using the RPM
 components listed in the next section.&nbsp; There are Linux operating
 system differences that can cause problems.&nbsp;&nbsp; The following
@@ -753,12 +780,12 @@ component RPM versions:<br>
 </h3>
 <div style="margin-left: 40px;">This file documents the list of
 software packages used by the
-Open|SpeedShop developers when building Open|SpeedShop or developing
+<b>Open|SpeedShop</b> developers when building <b>Open|SpeedShop</b> or developing
 plugin modules
 for it.&nbsp; For each package, a minimum and maximum version is given.
 These are the
 KNOWN minimum and maximum versions that have been found to work with
-Open|SpeedShop.<br>
+<b>Open|SpeedShop</b>.<br>
 <br>
 You may find newer (or older) versions of these packages work just
 fine.&nbsp;&nbsp; Let us know if they do and we can update this
@@ -785,7 +812,7 @@ in RPM form are:<br>
 </ul>
 <div style="margin-left: 40px;"><br>
 In addition, the components listed below are also needed for building
-Open|SpeedShop.<br>
+<b>Open|SpeedShop</b>.<br>
 </div>
 <br>
 <table
@@ -935,13 +962,13 @@ NOTES:<br>
 </div>
 <ol style="margin-left: 40px;">
   <li>Always use the Dyninst and DPCL versions supplied with
-Open|SpeedShop.&nbsp;
-Others will almost certainly not work with Open|SpeedShop.&nbsp; For
+<b>Open|SpeedShop</b>.&nbsp;
+Others will almost certainly not work with <b>Open|SpeedShop</b>.&nbsp; For
 advanced users click <a href="BuildingInstallingDPCL">here </a>for
 instructions on building and installing DPCL.<br>
   </li>
-  <li>Utilities commonly used by the Open|SpeedShop developers but not
-strictly need to build Open|SpeedShop.</li>
+  <li>Utilities commonly used by the <b>Open|SpeedShop</b> developers but not
+strictly need to build <b>Open|SpeedShop</b>.</li>
   <li>On SLES 9 Linux distributions the necessary qt development
 components require qt3-devel-doc and qt3-devel-tools in addition to
 qt3-devel.<br>
@@ -949,7 +976,7 @@ qt3-devel.<br>
 </ol>
 <h3 style="margin-left: 40px;"><a class="mozTocH3" name="mozTocId883409"></a>Overview
 - Setting up
-new machine for development on Open|SpeedShop<br>
+new machine for development on <b>Open|SpeedShop</b><br>
 </h3>
 <div style="margin-left: 40px;">So, how do you prepare a machine for
 building O|SS?&nbsp;&nbsp; <br>
@@ -1034,26 +1061,26 @@ Rebuild your source tree from scratch. i.e. get rid of ALL generated
 files,&nbsp; then do the following commands in the
 OpenSpeedShop/current directory:<br>
 <br>
-Open|SpeedShop uses
+<b>Open|SpeedShop</b> uses
 automake/autoconf
-in it's build process.&nbsp; The sequence used to build Open|SpeedShop
+in it's build process.&nbsp; The sequence used to build <b>Open|SpeedShop</b>
 is as follows:<br>
 </div>
 <br>
 <div style="margin-left: 40px;">
 <ul>
-  <li># Go to the Open|SpeedShop
+  <li># Go to the <b>Open|SpeedShop</b>
 top level
 source directory</li>
   <li><span style="font-weight: bold;">cd &lt;openspeedshop source
 directory&gt;</span></li>
   <li># Create initial build files</li>
   <li><span style="font-weight: bold;">bootstrap</span></li>
-  <li># Configure Open|SpeedShop with or without optional installation
+  <li># Configure <b>Open|SpeedShop</b> with or without optional installation
 directory designation</li>
   <li><span style="font-weight: bold;">configure
 [--prefix=&lt;Open|SpeedShop Install Directory Path&gt;]</span></li>
-  <li># Make and install Open|SpeedShop</li>
+  <li># Make and install <b>Open|SpeedShop</b></li>
   <li><span style="font-weight: bold;">make install</span></li>
 </ul>
 </div>
@@ -1098,10 +1125,10 @@ Related Environment Variables</h4>
 <ul style="margin-left: 200px;">
   <li>OPENSS_INSTALL_DIR
 - This environment variable
-specifies where the Open|SpeedShop binaries and libraries will be
+specifies where the <b>Open|SpeedShop</b> binaries and libraries will be
 installed.&nbsp; Set this variable to a path, (e.g. "setenv
 OPENSS_INSTALL_DIR /scratch/jeg/openss/install).&nbsp;&nbsp; After
-installation, a bin and lib directory containing the Open|SpeedShop
+installation, a bin and lib directory containing the <b>Open|SpeedShop</b>
 components, will be present under the /scratch/jeg/openss/install
 directory. </li>
 </ul>
@@ -1112,10 +1139,10 @@ directory. </li>
   <li>OPENSS_PLUGIN_PATH
 -
 This environment variable
-specifies where the Open|SpeedShop main program will look for
+specifies where the <b>Open|SpeedShop</b> main program will look for
 experiment plugins.&nbsp; This is in addition to the normal search
 path, which is "&lt;installdir&gt;/lib/openspeedshop"&nbsp; Prior to
-Open|SpeedShop initialization set this
+<b>Open|SpeedShop</b> initialization set this
 variable to the path to your non-default plugins,&nbsp; (e.g.
 "setenv OPENSS_PLUGIN_PATH /g2/install/lib/openspeedshop) </li>
 </ul>
@@ -1147,11 +1174,11 @@ Open|SpeedShop
 from Source</b></h3>
 <b style=""><br>
 </b>
-<div style="margin-left: 40px;">Open|SpeedShop uses
+<div style="margin-left: 40px;"><b>Open|SpeedShop</b> uses
 automake/autoconf
-in it's build process.&nbsp; The sequence used to build Open|SpeedShop
+in it's build process.&nbsp; The sequence used to build <b>Open|SpeedShop</b>
 is as follows:<br>
-<div style="margin-left: 40px;"># Go to the Open|SpeedShop
+<div style="margin-left: 40px;"># Go to the <b>Open|SpeedShop</b>
 top level
 source directory<br>
 <span style="font-weight: bold;">cd &lt;openspeedshop source
@@ -1160,7 +1187,7 @@ directory&gt;</span><br>
 <span style="font-weight: bold;">bootstrap --clean</span><br>
 # Create initial build files<br>
 <span style="font-weight: bold;">bootstrap</span><br>
-# Configure Open|SpeedShop with or without optional installation
+# Configure <b>Open|SpeedShop</b> with or without optional installation
 directory designation<br>
 <span style="font-weight: bold;">configure [--prefix=&lt;Open|SpeedShop
 Install Directory Path&gt;]</span><br>
@@ -1177,7 +1204,7 @@ Install Directory Path&gt;]</span><br>
   <h2><a class="mozTocH2" name="mozTocId940195"></a><b style="">Installing
 Open|SpeedShop
 from Executable RPM package(s)&nbsp; and required RPMS</b></h2>
-  <h3><a class="mozTocH3" name="mozTocId973912"></a>Open|SpeedShop RPM
+  <h3><a class="mozTocH3" name="mozTocId973912"></a><b>Open|SpeedShop</b> RPM
 and Installation<br>
   </h3>
 </blockquote>
@@ -1185,15 +1212,15 @@ and Installation<br>
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; <span style="font-weight: bold;">rpm
 --install --nodeps
 openspeedshop-1.0-1.ia64.rpm </span><br>
-will install Open|SpeedShop executables into /usr/local/bin and the
-Open|SpeedShop plugins into /usr/local/lib.<br>
+will install <b>Open|SpeedShop</b> executables into /usr/local/bin and the
+<b>Open|SpeedShop</b> plugins into /usr/local/lib.<br>
   <b style=""><br>
   </b><span style="font-family: arial;"><span style="font-weight: bold;"></span></span>
   <h3><a class="mozTocH3" name="mozTocId429415"></a>RPMs Required for
-Open|SpeedShop Execution</h3>
+<b>Open|SpeedShop</b> Execution</h3>
   <br>
 The following table defines the RPMs
-that need to be installed on your system to run Open|SpeedShop.<br>
+that need to be installed on your system to run <b>Open|SpeedShop</b>.<br>
   <br>
   <table style="width: 684px; height: 513px; margin-left: 40px;"
  border="1" cellpadding="2" cellspacing="2">
@@ -1271,8 +1298,8 @@ that need to be installed on your system to run Open|SpeedShop.<br>
 <div style="margin-left: 80px; text-align: left;">NOTES:<br>
 <ol>
   <li>Always use the Dyninst and DPCL versions supplied with
-Open|SpeedShop.&nbsp;
-Others will almost certainly not work with Open|SpeedShop.&nbsp; For
+<b>Open|SpeedShop</b>.&nbsp;
+Others will almost certainly not work with <b>Open|SpeedShop</b>.&nbsp; For
 advanced users click <a href="BuildingInstallingDPCL">here </a>for
 instructions on building and installing DPCL.</li>
   <li>There are issues with using a version of libelf other than
@@ -1281,7 +1308,7 @@ and SLES distributions.&nbsp;&nbsp; RedHat does not.<br>
   </li>
   <li>See this PAPI URL for platforms and patches needed for PAPI to
 successfully execute.&nbsp; These requirements must be met for the
-"hwc" and "hwctime" Open|SpeedShop experiments to execute correctly.: <a
+"hwc" and "hwctime" <b>Open|SpeedShop</b> experiments to execute correctly.: <a
  href="http://icl.cs.utk.edu/papi/custom/index.html?lid=62&amp;slid=96">http://icl.cs.utk.edu/papi/custom/index.html?lid=62&amp;slid=96
     </a><br>
   </li>
@@ -1297,8 +1324,8 @@ Information</span></b></b></h1>
 <h2><a class="mozTocH2" name="mozTocId968100"></a><a
  name="Location_and_Organization_of_Tests"></a>Location and
 Organization of Tests</h2>
-The Open|SpeedShop test suite can be found under the test subdirectory
-in the Open|SpeedShop source repository.&nbsp;&nbsp; Under the test
+The <b>Open|SpeedShop</b> test suite can be found under the test subdirectory
+in the <b>Open|SpeedShop</b> source repository.&nbsp;&nbsp; Under the test
 subdirectory there are three directories:<br>
 <ul>
   <li>"test_scripts" contains the testing scripts that are used to run
@@ -1313,11 +1340,11 @@ the regression and dpcl tests.<br>
 <h2><a class="mozTocH2" name="mozTocId768338"></a><a
  name="How_to_Run_the_OpenSpeedShop_Tests"></a>How to Run the
 Open|SpeedShop Tests</h2>
-To execute the Open|SpeedShop set of regression tests.&nbsp; Change you
+To execute the <b>Open|SpeedShop</b> set of regression tests.&nbsp; Change you
 directory path to "&lt;top_srcdir&gt;/test/test_source/regression" and
 invoke the runall script.&nbsp;&nbsp; The runall script will execute
 all the tests in the subdirectories below the "regression" directory
-and create a test report.&nbsp;&nbsp; Currently the Open|SpeedShop
+and create a test report.&nbsp;&nbsp; Currently the <b>Open|SpeedShop</b>
 tests are only available in the source distribution.<br>
 <br>
 </div>
@@ -1329,12 +1356,12 @@ tests are only available in the source distribution.<br>
 Tools Information</span></b></b></h1>
 <blockquote> <b style=""> </b>
   <p class="MsoBodyText"><span style=""><span style=""><span style=""><span
- style="">The tools that are the basis for Open|SpeedShop
+ style="">The tools that are the basis for <b>Open|SpeedShop</b>
 are the
 performance tool graphical user interface (GUI), the
 interactive
 command line (CLI), and the batch command.&nbsp;&nbsp; These are the
-three Open|SpeedShop
+three <b>Open|SpeedShop</b>
 tools that have user interfaces.&nbsp; <b style=""><br>
   </b></span></span></span></span></p>
 </blockquote>
@@ -1343,9 +1370,9 @@ tools that have user interfaces.&nbsp; <b style=""><br>
  name="OpenSpeedShop_Invocation_Command_"></a>Open|SpeedShop
 Invocation Command&nbsp; "openss"</b></h2>
   <b style=""> <br>
-  </b>The Open|SpeedShop program will be invoked by the user
+  </b>The <b>Open|SpeedShop</b> program will be invoked by the user
 typing the
-"openss" command.&nbsp; When the user invokes Open|SpeedShop command
+"openss" command.&nbsp; When the user invokes <b>Open|SpeedShop</b> command
 there are
 three options for it's mode of operation:<br>
 </blockquote>
@@ -1356,9 +1383,9 @@ three options for it's mode of operation:<br>
     </li>
   </ul>
   <div style="margin-left: 40px;">This invocation of
-Open|SpeedShop causes the GUI to be raised then a command panel is also
+<b>Open|SpeedShop</b> causes the GUI to be raised then a command panel is also
 created.&nbsp; This command panel window becomes the interactive CLI
-window.&nbsp; Under this invocation Open|SpeedShop interactive commands
+window.&nbsp; Under this invocation <b>Open|SpeedShop</b> interactive commands
 can be entered
 into the GUI's command panel and have the same effect as if they were
 entered under the "openss -cli" option.</div>
@@ -1368,7 +1395,7 @@ entered under the "openss -cli" option.</div>
     </li>
   </ul>
   <div style="margin-left: 40px;">This invocation of
-Open|SpeedShop
+<b>Open|SpeedShop</b>
 causes the window terminal becomes the interactive
 CLI window.&nbsp;&nbsp; </div>
   <ul>
@@ -1377,8 +1404,8 @@ CLI window.&nbsp;&nbsp; </div>
     </li>
   </ul>
   <div style="margin-left: 40px;">This invocation of
-Open|SpeedShop
-causes Open|SpeedShop to execute a performance experiment. specified by
+<b>Open|SpeedShop</b>
+causes <b>Open|SpeedShop</b> to execute a performance experiment. specified by
 additional arguments, directly without user interaction.&nbsp;&nbsp;
 The -batch operation can be used in scripts and batch processing
 environments.<br>
@@ -1388,23 +1415,23 @@ environments.<br>
  style=""><span style=""><span style=""><span style=""><span style=""><span
  style="">Open|SpeedShop Quick Start Information</span></span></span></span></span></span></b></b></h2>
   <br>
-Open|SpeedShop can be invoked in a
+<b>Open|SpeedShop</b> can be invoked in a
 number of ways.&nbsp; This section gives a few examples that will
 hopefully help the first time users to get started and serve as an
-introduction to the following sections about Open|SpeedShop tool usage.<br>
+introduction to the following sections about <b>Open|SpeedShop</b> tool usage.<br>
   <br>
-As stated above in the "openss" command section, the Open|SpeedShop
-command "openss" will initiate the Open|SpeedShop performance
-tool.&nbsp;&nbsp; The type of execution of Open|SpeedShop arguments to
+As stated above in the "openss" command section, the <b>Open|SpeedShop</b>
+command "openss" will initiate the <b>Open|SpeedShop</b> performance
+tool.&nbsp;&nbsp; The type of execution of <b>Open|SpeedShop</b> arguments to
 the openss command are "-batch", "-cli", and "-gui".&nbsp; The default
 type of execution is GUI.&nbsp;&nbsp; So, "openss" with no parameters
-will invoke the Open|SpeedShop GUI tool.&nbsp;&nbsp; The following
-examples show a few simple typical usage scenarios for Open|SpeedShop.<br>
+will invoke the <b>Open|SpeedShop</b> GUI tool.&nbsp;&nbsp; The following
+examples show a few simple typical usage scenarios for <b>Open|SpeedShop</b>.<br>
   <br>
   <h3><a class="mozTocH3" name="mozTocId931138"></a>Example 1:&nbsp;
 Using GUI<br>
   </h3>
-Using the Open|SpeedShop GUI,&nbsp; you know your
+Using the <b>Open|SpeedShop</b> GUI,&nbsp; you know your
 executable and the experiment you want to run (PC Sampling)<br>
   <br>
 prompt:&gt; openss -f &lt;pathTOexecutable&gt;/executable_name pcsamp<br>
@@ -1435,13 +1462,13 @@ initial state.&nbsp;&nbsp; The user would then type the experiment
 create command (expcreate) and specify the host, executable file and
 experiment name.&nbsp;&nbsp; The command to run the experiment (expgo)
 will start the user application and performance experiment
-running.&nbsp;&nbsp; Currently the Open|SpeedShop command line
+running.&nbsp;&nbsp; Currently the <b>Open|SpeedShop</b> command line
 interface is asynchronous.&nbsp;&nbsp; The user will get a prompt back
 immediately after issuing the expgo command.&nbsp;&nbsp; This allows
 the user to issue other commands and/or monitor performance data prior
 to completion of a long running job.&nbsp;&nbsp; If performance
 experiment data is available, the performance result viewing command
-(expview) can be used to view the data on demand.&nbsp; Open|SpeedShop
+(expview) can be used to view the data on demand.&nbsp; <b>Open|SpeedShop</b>
 will return the data that it currently knows about.<br>
   <br>
   <h3><a class="mozTocH3" name="mozTocId985939"></a>Example 3:&nbsp;
@@ -1460,21 +1487,21 @@ expgo<br>
 expview<br>
 exit<br>
   <br>
-Then execute the Open|SpeedShop batch tool by using the "-batch"
+Then execute the <b>Open|SpeedShop</b> batch tool by using the "-batch"
 argument on the "openss" command:<br>
   <br>
 openss -batch &lt; batch.input<br>
   <br>
-The Open|SpeedShop PC Sampling experiment will be run and the output
+The <b>Open|SpeedShop</b> PC Sampling experiment will be run and the output
 will be output to stout.<span style="font-weight: bold;"><br>
   </span><br>
   <h2><a class="mozTocH2" name="mozTocId97653"></a><a
  name="Running_OpenSpeedShop_on_a_cluster_or"></a>Running
 Open|SpeedShop on a cluster or multiple partitions</h2>
   <br>
-To run Open|SpeedShop on a multiple
+To run <b>Open|SpeedShop</b> on a multiple
 node machine configuration, each node must have DPCL and Dyninst
-installed.&nbsp; Open|SpeedShop support for multiple nodes is through
+installed.&nbsp; <b>Open|SpeedShop</b> support for multiple nodes is through
 DPCL daemons.&nbsp;&nbsp;&nbsp; See the attaching to <a
  href="#Attaching_to_Already_Running_MPI">MPI jobs section </a>for
 information on attaching to processes running on other hosts or
@@ -1489,7 +1516,7 @@ partitions.<br>
  name="GUI_Tool_"></a><span style=""><span style=""><!--[if !supportLists]-->Using
 the GUI Tool</span></span></span></span></span></span></b></h2>
 </blockquote>
-<blockquote>The Open|SpeedShop GUI contains a main window
+<blockquote>The <b>Open|SpeedShop</b> GUI contains a main window
 from which
 users can choose a wizard to help choose the proper experiment based on
 input to the wizard selecting questions.&nbsp; The GUI also contains a
@@ -1512,17 +1539,17 @@ demand.&nbsp;&nbsp;
 It's the Command Line Interface (CLI) that launches the
 GUI.&nbsp;&nbsp; By
 default the CLI will launch the GUI upon invocation of the
-Open|SpeedShop tool.&nbsp;&nbsp;
+<b>Open|SpeedShop</b> tool.&nbsp;&nbsp;
 However, the CLI can be started without starting the GUI ($ openss
 -cli)
 and then the GUI can loaded and initialized when needed via the CLI "<a
  href="../cli_doc/definition.html#mozTocId753973">openGui</a>"
 command.<br>
     </p>
-    <p>Upon invoking Open|SpeedShop
+    <p>Upon invoking <b>Open|SpeedShop</b>
 ($ openss) the command line is parsed, and if the GUI is requested, the
 GUI
-library is loaded and launched.&nbsp; Open|SpeedShop then drops into an
+library is loaded and launched.&nbsp; <b>Open|SpeedShop</b> then drops into an
 event loops, one for parsing command line events and the other for
 parsing GUI events.</p>
     <p>When the GUI is loaded, the GUI looks for GUI
@@ -1541,11 +1568,11 @@ loop waiting for user interaction.<b style=""><br>
     <h3><a class="mozTocH3" name="mozTocId325154"></a><b style=""><a
  name="Basic_Menus_and_Menu_Item_Introduction"></a>Basic Menus and Menu
 Item Introduction</b></h3>
-This section briefly discusses the Open|SpeedShop GUI
+This section briefly discusses the <b>Open|SpeedShop</b> GUI
 menus and their
 corresponding menu items.&nbsp;&nbsp; We will touch on the&nbsp; File
 menu, Tools menu, Experiments menu, and the Wizards menu, as shown at
-the top of the Open|SpeedShop window below.<b style=""><br>
+the top of the <b>Open|SpeedShop</b> window below.<b style=""><br>
     <br>
     </b></blockquote>
   <b style=""><img style="height: 644px; width: 860px;"
@@ -1582,7 +1609,7 @@ opened again.<b style=""><br>
     <h5><a class="mozTocH5" name="mozTocId577794"></a><b style=""><a
  name="Save_Experiment_Data"></a>Save Experiment Data</b></h5>
 The Save Experiment Data menu item writes the
-Open|SpeedShop performance experiment information and data to a
+<b>Open|SpeedShop</b> performance experiment information and data to a
 filename specified by the user.&nbsp;&nbsp; The information saved will
 allow the user to examine and display performance information at a
 later time by opening this saved file with the <a
@@ -1616,7 +1643,7 @@ TBD<b style=""><br>
     </b>
     <h5><a class="mozTocH5" name="mozTocId746748"></a><b style=""><a
  name="HW_Counter_Experiment"></a>HW Counter Experiments</b></h5>
-    <p>In the Open|SpeedShop
+    <p>In the <b>Open|SpeedShop</b>
 hardware counter experiments, overflows of a particular hardware
 counter are recorded. Each hardware counter is configured to count from
 zero to a number designated as the <i>overflow value</i>. When the
@@ -1642,7 +1669,7 @@ gathered at the hardware level. You probably want to run a higher level
 experiment first.&nbsp; Once you have narrowed the scope, you can use
 hardware counter experiments to pinpoint the area to be tuned.</p>
 The following sections describe
-hardware counter experiments available in Open|SpeedShop.<br>
+hardware counter experiments available in <b>Open|SpeedShop</b>.<br>
     <h6><a class="mozTocH6" name="mozTocId545662"></a><big><tt>hwc</tt>
 Hardware Counter Experiment</big></h6>
 The <tt>hwc</tt>
@@ -1650,7 +1677,7 @@ hardware counter experiment shows where the overflows are being
 triggered in the program: at the
 function, source-line, or individual instruction level.&nbsp;&nbsp;
 When you create a report from the data collected during the experiment
-using the Open|SpeedShop GUI or CLI tools, the overflow counts are
+using the <b>Open|SpeedShop</b> GUI or CLI tools, the overflow counts are
 multiplied by the overflow value to compute the total number of events.
 These numbers are statistical, meaning they are not precise. The
 generated reports show exclusive hardware counts: that is, information
@@ -1809,7 +1836,7 @@ GUI Wizard Usage</a><br>
  name="Preferences_Menu_Item"></a>Preferences Menu Item <br>
     </b></h5>
 Selecting the Preferences menu item will cause the
-Open|SpeedShop
+<b>Open|SpeedShop</b>
 Preferences Dialog window to appear.&nbsp;&nbsp; Selections for various
 configuration items can be done by selecting either General or a
 specific panel and then changing the particular preference item and
@@ -1826,7 +1853,7 @@ Currently there are three areas of preference processing:<b style=""><br>
     <br>
 The General preferences are, as
 the general title implies, for setting
-items that apply to the overall Open|SpeedShop tool.&nbsp; Items such
+items that apply to the overall <b>Open|SpeedShop</b> tool.&nbsp; Items such
 as font characteristics, graphics, splash screen, and remote shell
 command processing are now supported.<br>
     <b style=""> <br>
@@ -1856,12 +1883,12 @@ the source panel with statistics image at this <a
  name="Close_Menu_Item"></a>Close
 Menu Item</b></h5>
 &nbsp;The Close menu item will cause the window to
-close but the Open|SpeedShop will continue......<b style=""><br>
+close but the <b>Open|SpeedShop</b> will continue......<b style=""><br>
     </b>
     <h5><a class="mozTocH5" name="mozTocId494559"></a><b style=""><a
  name="Exit_Menu_Item"></a>Exit
 Menu Item</b></h5>
-&nbsp; The Exit menu item will cause the Open|SpeedShop
+&nbsp; The Exit menu item will cause the <b>Open|SpeedShop</b>
 tool to
 completely stop execution and close all windows.<b style=""><br>
     <br>
@@ -1886,7 +1913,7 @@ Panel</b></h5>
 The command panel is the panel that supports input of
 the same set of
 interactive command line interface (CLI) commands.&nbsp; These are the
-commands that that may be entered when the Open|SpeedShop tool is
+commands that that may be entered when the <b>Open|SpeedShop</b> tool is
 invoked via "openss -gui".&nbsp;&nbsp; See the <a
  href="../cli_doc/command_definition.html">CLI command section</a> for
 more information.<b style=""><br>
@@ -1956,7 +1983,7 @@ or -gui options), the initial window will look like this:<b style=""><br>
 Given this window the user can answer the wizard
 questions and
 proceed by clicking on the Next button on the lower right hand side of
-the Open|SpeedShop GUI window.&nbsp; In this example the user has
+the <b>Open|SpeedShop</b> GUI window.&nbsp; In this example the user has
 chosen the default option which is to find out where the time is spent
 in the user's yet to be defined application.&nbsp;&nbsp; When the user
 clicks on the Next button this is the window that appears.<b style=""><br>
@@ -1977,10 +2004,10 @@ clicks on the Next button this is the window that appears.<b style=""><br>
 panel to the
 PC (Program
 Counter) Sampling Experiment Wizard.&nbsp; This panel explains what the
-Open|SpeedShop experiment, named PC sampling does.&nbsp; The program
+<b>Open|SpeedShop</b> experiment, named PC sampling does.&nbsp; The program
 counter sampling experiment takes periodic samples of the machines
 program counter and stores them.&nbsp;&nbsp; Later in analysis the
-Open|SpeedShop tool associates the program counter addresses with the
+<b>Open|SpeedShop</b> tool associates the program counter addresses with the
 user's application and reports which functions, and/or source lines
 were executed during the applications execution.&nbsp;&nbsp; The user
 can now click on Next to proceed with the wizard process, go back, or
@@ -2011,7 +2038,7 @@ sampling rate at which the PC sampling experiment will sample the
 program counter and save that address as the experiment measurement
 data.&nbsp; The Program Counter experiment
 takes the periodic samples of the machines program counter and stores
-them.&nbsp;&nbsp; Later in analysis the Open|SpeedShop tool associates
+them.&nbsp;&nbsp; Later in analysis the <b>Open|SpeedShop</b> tool associates
 the
 program counter addresses with the user's application and reports which
 functions, and/or source lines were executed during the applications
@@ -2143,7 +2170,7 @@ experiment<br>
 The source panel contains the source associated with the loaded
 application/executable.&nbsp;&nbsp; To run the experiment, click on the
 right arrow icon, which corresponds to the Run button.&nbsp;&nbsp;
-Doing this will engage Open|SpeedShop to start the application and to
+Doing this will engage <b>Open|SpeedShop</b> to start the application and to
 gather the PC Sampling performance data at the sampling rate chosen in
 the previous step(s).<b style=""><br>
     <br>
@@ -2247,16 +2274,16 @@ Open|SpeedShop GUI non-Wizard Usage</b></h3>
 GUI to run an
 experiment directly is a shorter process than that of using the Wizard
 but it takes a bit more knowledge and/or familiarity with the
-Open|SpeedShop product and GUI.&nbsp;&nbsp; <br>
+<b>Open|SpeedShop</b> product and GUI.&nbsp;&nbsp; <br>
 <br>
 To invoke the PC Sampling Experiment select the Experiments Menu and
 choose the PC Sampling Experiment menu item.&nbsp; This will cause the
 PC Sampling Experiment Window to be created and displayed, as in the
 image below.<br>
 <br>
-Note: using this Open|SpeedShop command, "openss -f
+Note: using this <b>Open|SpeedShop</b> command, "openss -f
 usability/phaseIII/fred pcsamp" will get the same result as the
-following steps which are needed when one invokes Open|SpeedShop with
+following steps which are needed when one invokes <b>Open|SpeedShop</b> with
 the "openss" (no arguments) command.&nbsp; Invoking the
 former command ("openss -f usability/phaseIII/fred
 pcsamp") will create the PC Sampling experiment and
@@ -2370,18 +2397,18 @@ input area and then clicking the "Update" button.&nbsp;&nbsp; This will
 cause a query of the new host for the user's running processes.<br>
 <br>
 In the following dialog display, selecting the "Attach to all MPI
-related processes" option causes Open|SpeedShop to attach to all the
+related processes" option causes <b>Open|SpeedShop</b> to attach to all the
 MPI processes that are related to the process or processes
-selected.&nbsp;&nbsp; In the example below, Open|SpeedShop would attach
+selected.&nbsp;&nbsp; In the example below, <b>Open|SpeedShop</b> would attach
 to processes 27112, 27113, and 27114.<br>
 <br>
 For MPICH MPI jobs you may select any of the rank processes to attach
-to.&nbsp;&nbsp; Open|SpeedShop will attach to the entire job if you
+to.&nbsp;&nbsp; <b>Open|SpeedShop</b> will attach to the entire job if you
 have selected the "Attach to all MPI
 related processes" option.<br>
 <br>
 For SGI MPT MPI job you must select the MPIRUN process to attach
-to.&nbsp;&nbsp; Just as in the MPICH case, Open|SpeedShop will attach
+to.&nbsp;&nbsp; Just as in the MPICH case, <b>Open|SpeedShop</b> will attach
 to the entire job if you have selected the "Attach to all MPI
 related processes" option.<br>
 <br>
@@ -2397,7 +2424,7 @@ related processes" option.<br>
 The Non-Wizard attach dialog is the same dialog display, but the user
 arrives at the attach dialog display from a different GUI gesture
 path.&nbsp;&nbsp;&nbsp; After the user choose the
-File-&gt;Experiments-&gt;PC Sampling menu item, Open|SpeedShop creates
+File-&gt;Experiments-&gt;PC Sampling menu item, <b>Open|SpeedShop</b> creates
 the PC Sampling Experiment window below.&nbsp; The user can then right
 mouse button down on the PC Sampling Experiment tab and select the
 Manage Process menu item.&nbsp;&nbsp; From there the user can choose
@@ -2443,7 +2470,7 @@ CLI Tool<br>
 </blockquote>
 <blockquote>The interactive command line interface tool
 accepts a
-number of Open|SpeedShop commands.&nbsp; These commands allow the user
+number of <b>Open|SpeedShop</b> commands.&nbsp; These commands allow the user
 to create performance measurement experiments, attach executables, run
 the experiment to gather performance metric data, and also to display
 the data to the screen via the text view commands or to launch the GUI
@@ -2471,17 +2498,17 @@ Information:<br>
     <p>The CLI is bundled into a dynamic library that is
 loaded on
 demand.&nbsp;&nbsp;
-It's the Open|SpeedShop main program that launches the CLI.&nbsp;&nbsp;
+It's the <b>Open|SpeedShop</b> main program that launches the CLI.&nbsp;&nbsp;
 By
 default the openss command will launch the GUI upon invocation of the
-Open|SpeedShop tool.&nbsp;&nbsp;
+<b>Open|SpeedShop</b> tool.&nbsp;&nbsp;
 However, the CLI can be started without starting the GUI ($ openss
 -cli).<br>
     </p>
-    <p>Upon invoking Open|SpeedShop
+    <p>Upon invoking <b>Open|SpeedShop</b>
 ($ openss -cli) the command line is parsed, and if the CLI is
 requested, the
-CLI library is loaded and launched.&nbsp; Open|SpeedShop then drops
+CLI library is loaded and launched.&nbsp; <b>Open|SpeedShop</b> then drops
 into an
 event loop for parsing command line events.</p>
     <p>When the CLI or GUI is loaded, they look for CLI
@@ -2544,7 +2571,7 @@ Usage: /home/openss/demo/Simple/mutatee &lt;size&gt;<br>
 No size argument given.&nbsp;&nbsp; Defaulting to 250.<br>
 /home/openss/demo/Simple/mutatee: successfully completed.<b style=""><br>
     <br>
-    </b># The next user command tells Open|SpeedShop to print the
+    </b># The next user command tells <b>Open|SpeedShop</b> to print the
 results of
 the experiment<br>
 # NOTE - the 5 at the end of the stats parameter indicates you want to
@@ -2647,10 +2674,10 @@ the documentations associated with the Python scripting API definition.<br>
  style="color: rgb(0, 0, 128);">Plugin
 API (Extensibility)&nbsp; Description</span></b></h1>
 A plugin is a mechanism in which to extend the capability of
-Open|SpeedShop by adding additional experiment collectors, Graphical
+<b>Open|SpeedShop</b> by adding additional experiment collectors, Graphical
 User Interface&nbsp; panels or Interactive Command Line Interface data
 views.&nbsp;&nbsp; These are multiple plugin types used in
-Open|SpeedShop:<br>
+<b>Open|SpeedShop</b>:<br>
 <ol>
   <li>Collector Plugins</li>
   <li>Graphical User Interface Plugins</li>
