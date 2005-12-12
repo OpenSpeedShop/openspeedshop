@@ -1635,6 +1635,8 @@ if( mpiFLAG )
   {
     clip->Set_Results_Used();
   }
+
+
 }
 
 
@@ -2352,6 +2354,11 @@ if( mpiFLAG == FALSE )
       fprintf(stderr, "Error in chaining child (%s) to tree.\n", strippedString1.ascii() );
     }
   }
+
+// Now try to open all the items.\n");
+    lastlvi->setOpen(TRUE);
+// printf("open lastlvi=(%s)\n", lastlvi->text(1).ascii() );
+
   lastIndentLevel = indent_level;
 
 
