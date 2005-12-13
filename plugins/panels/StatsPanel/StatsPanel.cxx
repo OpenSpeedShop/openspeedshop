@@ -539,6 +539,11 @@ if( mpiFLAG == FALSE )
     contextMenu->insertItem(s);
     s = QString("Show Metric: Statements");
     contextMenu->insertItem(s);
+    if( !currentCollectorStr.isEmpty() || currentCollectorStr == "Functions" )
+    {
+      s = QString("Show Metric: Statements by Selected Function");
+      contextMenu->insertItem(s);
+    }
 }
     
   if( threadMenu )
@@ -1424,7 +1429,6 @@ StatsPanel::updateStatsPanelData()
 
   SPListViewItem *splvi;
   columnHeaderList.clear();
-  splv->clear();
 
   // Percent value list (for the chart)
   cpvl.clear();
@@ -1454,11 +1458,6 @@ StatsPanel::updateStatsPanelData()
   fieldCount = 0;
   percentIndex = -1;
 
-  for(int i=splv->columns();i>=0;i--)
-  {
-    splv->removeColumn(i-1);
-  }
-
   updateCollectorMetricList();
 
   updateThreadsList();
@@ -1466,7 +1465,6 @@ StatsPanel::updateStatsPanelData()
 
   nprintf( DEBUG_PANELS) ("Find_Experiment_Object() for %d\n", expID);
 
-  splv->setSorting ( -1 );
   QString command = QString("expView -x %1").arg(expID);
   lastAbout = QString("Experiment: %1\n").arg(expID);
   if( currentCollectorStr.isEmpty() || showPercentageFLAG == FALSE )
@@ -1484,19 +1482,46 @@ StatsPanel::updateStatsPanelData()
      command += QString(" -m %1").arg(currentUserSelectedMetricStr);
      lastAbout += QString("for metrics %1\n").arg(currentUserSelectedMetricStr);
   }
+if( !mpiFLAG )
+{ 
   if( !currentThreadsStr.isEmpty() )
   {
      command += QString(" %1").arg(currentThreadsStr);
      lastAbout += QString("for threads %1\n").arg(currentThreadsStr);
   }
+}
 
 
 if( mpiFLAG )
 { 
 // printf("currentCollectorStr=(%s)\n", currentCollectorStr.ascii() );
+// printf("currentMetricStr=(%s)\n", currentMetricStr.ascii() );
   if( currentCollectorStr.isEmpty() || currentCollectorStr == "Statements" )
   {
     command = QString("expView -x %1 mpi%2 -v Statements").arg(expID).arg(numberItemsToDisplayInStats);
+  } else if ( currentCollectorStr == "Statements by Selected Function" )
+  {
+    QString selectedFunction = QString::null;
+    QListViewItem *selected_function_item = NULL;
+    QListViewItemIterator it( splv, QListViewItemIterator::Selected );
+    while( it.current() )
+    {
+      int i = 0;
+      selected_function_item = it.current();
+      break;  // only select one for now...
+      ++it;
+    }
+    if( selectedFunction && selected_function_item->text(1).isEmpty() )
+    {
+      return;
+    }
+    if( selected_function_item && !selected_function_item->text(1).isEmpty() )
+    {
+      QString tstr = selected_function_item->text(1);
+      int eof = tstr.find('(');
+      selectedFunction = tstr.mid(0,eof);
+    }
+    command = QString("expView -x %1 mpi%2 -v Statements -f %3").arg(expID).arg(numberItemsToDisplayInStats).arg(selectedFunction);
   } else
   {
     command = QString("expView -x %1 mpi%2 -v Functions").arg(expID).arg(numberItemsToDisplayInStats);
@@ -1511,6 +1536,14 @@ if( mpiFLAG )
 } 
 
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+
+  splv->clear();
+  for(int i=splv->columns();i>=0;i--)
+  {
+    splv->removeColumn(i-1);
+  }
+
+  splv->setSorting ( -1 );
 
   QApplication::setOverrideCursor(QCursor::WaitCursor);
   Redirect_Window_Output( cli->wid, spoclass, spoclass );
@@ -1726,7 +1759,7 @@ StatsPanel::collectorMetricSelected(int val)
     { // The user selected one of the metrics
       currentCollectorStr = s.mid(13, index-13 );
       currentMetricStr = s.mid(index+2);
-currentUserSelectedMetricStr = currentMetricStr;
+      currentUserSelectedMetricStr = currentMetricStr;
 // printf("B1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
       // This one resets to all...
     } else 
@@ -1734,7 +1767,7 @@ currentUserSelectedMetricStr = currentMetricStr;
       index = s.find(":");
       currentCollectorStr = s.mid(13, index-13 );
       currentMetricStr = QString::null;
-currentUserSelectedMetricStr = QString::null;
+      currentUserSelectedMetricStr = QString::null;
 // printf("B2: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
     }
     updateStatsPanelData();
@@ -2363,6 +2396,30 @@ if( mpiFLAG == FALSE )
 
 
 #if 0
+debugList(splv);
+#endif // 0
+}
+
+
+  if( total_percent > 0.0 && cpvl.count() < numberItemsToDisplayInStats  &&
+      ctvl.count() < numberItemsToDisplayInChart )
+  {
+// printf("put out data for the chart. %d %s\n", percent, strings[percentIndex].stripWhiteSpace().ascii() );
+    cpvl.push_back( percent );
+  } 
+  if( total_percent > 0.0 && cpvl.count() <= numberItemsToDisplayInChart &&
+      ctvl.count() < numberItemsToDisplayInChart )
+  {
+// printf("Push back another one!(%s)\n", strings[percentIndex].stripWhiteSpace().ascii());
+    ctvl.push_back( strings[percentIndex].stripWhiteSpace() );
+  }
+
+}
+
+#if 0
+static void
+debugList(QListView *splv)
+{
 // Debug print
 SPListViewItem *top = (SPListViewItem *)splv->firstChild();
 printf("Debug:\n");
@@ -2410,29 +2467,6 @@ while( top )
   top = (SPListViewItem *)top->nextSibling();
 }
 printf("End Debug\n");
+}
 // endif Debug
-
-
-if( !strings[0].isEmpty() )
-{
-printf("You're at an end.... You'll need to do something special next line.\n");
-}
 #endif // 0
-
-}
-
-
-  if( total_percent > 0.0 && cpvl.count() < numberItemsToDisplayInStats  &&
-      ctvl.count() < numberItemsToDisplayInChart )
-  {
-// printf("put out data for the chart. %d %s\n", percent, strings[percentIndex].stripWhiteSpace().ascii() );
-    cpvl.push_back( percent );
-  } 
-  if( total_percent > 0.0 && cpvl.count() <= numberItemsToDisplayInChart &&
-      ctvl.count() < numberItemsToDisplayInChart )
-  {
-// printf("Push back another one!(%s)\n", strings[percentIndex].stripWhiteSpace().ascii());
-    ctvl.push_back( strings[percentIndex].stripWhiteSpace() );
-  }
-
-}
