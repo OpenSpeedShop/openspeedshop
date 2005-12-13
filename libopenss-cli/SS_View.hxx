@@ -358,7 +358,6 @@ void Get_Filtered_Objects (CommandObject *cmd, ThreadGroup& tgrp, std::set<TE >&
     Thread thread = *ti;
     std::set<TE> threadObjects;
     OpenSpeedShop::Queries::GetSourceObjects(thread, threadObjects);
-cerr << "Size of threadObjects group is " << threadObjects.size() << std::endl;
     if (has_f) {
      // Only include selected objects.
       bool object_inserted = false;
