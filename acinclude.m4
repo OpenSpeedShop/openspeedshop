@@ -203,10 +203,9 @@ AC_DEFUN([AC_PKG_MPI], [
     mpi_saved_CPPFLAGS=$CPPFLAGS
     mpi_saved_LDFLAGS=$LDFLAGS
 
-#   defaults to /usr or --with-mpi argument.
     MPI_CPPFLAGS="-I$mpi_dir/include"
-    MPI_LDFLAGS="-L$mpi_dir/$abi_libdir"
-    MPI_LIBS="-lmpi"
+    MPI_LDFLAGS="-L$mpi_dir/$mpich_driver/$abi_libdir/shared"
+    MPI_LIBS="-lmpich"
     MPI_HEADER="$mpi_dir/include/mpi.h"
 
     CPPFLAGS="$CPPFLAGS $MPI_CPPFLAGS"
@@ -215,13 +214,13 @@ AC_DEFUN([AC_PKG_MPI], [
     AC_LINK_IFELSE(AC_LANG_PROGRAM([[
         #include <mpi.h>
         ]], [[
-	MPI_Initialized((int*)0);
+        MPI_Initialized((int*)0);
         ]]), , [
 
             MPI_CPPFLAGS=""
             MPI_LDFLAGS=""
             MPI_LIBS=""
-	    MPI_HEADER=""
+            MPI_HEADER=""
 
         ]
     )
@@ -229,9 +228,9 @@ AC_DEFUN([AC_PKG_MPI], [
     if test x"$MPI_LIBS" == x""; then
 
         MPI_CPPFLAGS="-I$mpi_dir/include"
-        MPI_LDFLAGS="-L$mpi_dir/$mpich_driver/$abi_libdir/shared"
-        MPI_LIBS="-lmpich"
-	MPI_HEADER="$mpi_dir/include/mpi.h"
+        MPI_LDFLAGS="-L$mpi_dir/$abi_libdir"
+        MPI_LIBS="-lmpi"
+        MPI_HEADER="$mpi_dir/include/mpi.h"
 
         CPPFLAGS="$mpi_saved_CPPFLAGS $MPI_CPPFLAGS"
         LDFLAGS="$mpi_saved_LDFLAGS $MPI_LDFLAGS $MPI_LIBS"
@@ -239,13 +238,13 @@ AC_DEFUN([AC_PKG_MPI], [
         AC_LINK_IFELSE(AC_LANG_PROGRAM([[
             #include <mpi.h>
             ]], [[
-            MPI_Initialized((int*)0);
+	    MPI_Initialized((int*)0);
             ]]), , [
 
                 MPI_CPPFLAGS=""
                 MPI_LDFLAGS=""
                 MPI_LIBS=""
-		MPI_HEADER=""
+                MPI_HEADER=""
 
             ]
         )
