@@ -19,7 +19,7 @@
 noinst_PROGRAMS = nbody
 
 CFLAGS = \
-	-g -gdwarf-2 -O1
+	-g -gdwarf-2 -O1 -lm -lmpi
 
 nbody_LDADD = \
 	-ldl
