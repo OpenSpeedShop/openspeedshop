@@ -198,6 +198,7 @@ AC_CONFIG_FILES(
 	test/executables/forever_cxx/Makefile
 	test/executables/fredO2/Makefile
 	test/executables/fred/Makefile
+	test/executables/nbody/Makefile
 	test/executables/mutatee/Makefile
 	test/executables/mutatee/c_version/Makefile
 	test/executables/mutatee/cplus_version/Makefile
@@ -298,6 +299,7 @@ AC_CONFIG_FILES(
 	test/test_source/regression/usertime/usertime5/Makefile
 	test/test_source/regression/usertime/usertime6/Makefile
 	test/test_source/regression/mpi/Makefile
+	test/test_source/regression/mpi/mpi1/Makefile
 	test/test_source/regression/mpi/smg2000/Makefile
 	test/test_source/regression/mpi/smg2000/smg1/Makefile
 	test/test_source/dpcl/Makefile
