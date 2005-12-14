@@ -25,4 +25,4 @@ nbody_LDADD = \
 	-ldl
 
 nbody_SOURCES = \
-	bnody-mpi.c
+	nbody-mpi.c
