@@ -1,3 +1,4 @@
+#!/bin/sh
 ###############################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 #
@@ -16,10 +17,24 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = smg2000 mpi1
+export MPI_TYPE_DEPTH=16
+export MPI_TYPE_MAX=65536
 
-DIST_SUBDIRS = $(SUBDIRS)
+mpirun -np 2 ../../../../executables/nbody/nbody < /dev/null > /dev/null &
 
-EXTRA_DIST = \
-	runall 
+mpipid=mpipid.$$
+rm -rf $mpipid
+ps r -C mpirun -o pid --no-heading > $mpipid
+ls -1 $mpipid
+cat $mpipid
+read i < $mpipid
+rm -rf $mpipid
+
+rm -rf input.script
+echo expcreate -v mpi -p $i mpi >> input.script
+echo expgo >> input.script
+echo ! sleep 180 >> input.script
+echo expview -v nowait >>input.script
+openss -batch < input.script
+kill -9 $i
 

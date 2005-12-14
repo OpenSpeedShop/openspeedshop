@@ -16,10 +16,9 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-SUBDIRS = smg2000 mpi1
-
-DIST_SUBDIRS = $(SUBDIRS)
-
 EXTRA_DIST = \
-	runall 
+	runall \
+	mpi1.tst \
+	mpi1.tst.expected \
+	runone
 
