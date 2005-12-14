@@ -1,0 +1,136 @@
+#!/usr/bin/env python
+#
+#Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+# Place, Suite 330, Boston, MA  02111-1307  USA
+#
+
+from sys import *
+import sys
+import os
+from time import *
+from string import *
+from array import *
+#from datetime import *
+def createTestList():	
+	checktemptestlist = os.system('test -e temptestlist')
+	if checktemptestlist == 0:
+        	os.system('rm -f temptestlist')
+	os.system('ls -1 *.tst >> temptestlist')
+def runTest(testName):
+	checkinput = os.system('test -e input.script')
+	if checkinput == 0:
+		os.system('rm -f input.script')
+	#test_input = open(testName, 'r')
+	#testCommand = test_input.readline(
+	#linesToCompare = test_input.readline()
+	#test_input.close()
+	os.system('./'+testName+ '>> '+ testName+'.output')
+def iterateThroughTestList(fileptr):
+	con_input = open('temptestlist', 'r')
+        while 1:
+                config_line = con_input.readline()
+                if not config_line:
+                        break
+                test_name = config_line
+		i = 0
+	        while 1:
+                	if test_name[i] == '.':
+                        	break
+                	else:
+                        	i += 1
+        	testName = test_name[0:i+4]
+		runTest(testName)
+		CompareResults(testName, fileptr)
+	con_input.close()
+def CompareResults(testName, fileptr):
+	expected_functions = [] 
+	expected_functions_counter = 0
+	outputfilename = testName + '.output'
+	expectedfilename = testName + '.expected'
+	outputfileptr = open(outputfilename, 'r')
+	expectedfileptr = open(expectedfilename, 'r')
+	nooutput = 0
+	failure_reason = 3
+	while 1:
+		expectedfileline = expectedfileptr.readline()
+		if not expectedfileline:
+			break
+		k = 0
+		while expectedfileline[k] != '(':
+			k +=1
+		expected_functions.append(expectedfileline[0:k])
+		expected_functions_counter += 1
+		
+      	while 1:
+		tempfileline = outputfileptr.readline()
+
+		if not tempfileline:
+			nooutput = 1
+			break
+		if tempfileline[0:9] == '      Exc':
+ 			break
+
+	failure_reason = 0
+	output_function_counter = 0
+	while 1:
+		if (nooutput == 1):
+			failure_reason = 3
+			passing_ratio = 0
+			break
+		outputfileline = outputfileptr.readline()
+		if not outputfileline:
+			break
+		i = 0
+		while outputfileline[i] == ' ':
+			i +=1
+		j = i
+		while (outputfileline[j] != ' '):
+			j +=1
+		actual_inclusive_time = atof(outputfileline[i:j])
+		i = j+1	
+		while outputfileline[i]==' ':
+			i +=1
+		j = i
+		while (outputfileline[j]!='') and (outputfileline[j]!=' ') and (outputfileline[j]!= '(' ):
+			j +=1
+		actual_function = outputfileline[i:j]
+		output_function_counter += expected_functions.count(actual_function)
+	if output_function_counter != expected_functions_counter:
+		failure_reason = 2
+		
+	if (failure_reason == 0 ):
+		fileptr.write(testName + ' has PASSED ')
+	else:
+		fileptr.write(testName + ' has FAILED.  ')
+
+		if (failure_reason == 3):
+			fileptr.write('Looks like openss crashed. ')
+		if (failure_reason == 2):
+			fileptr.write('Some of the expected functions are missing.')
+
+
+if __name__ == '__main__':
+	checkoutput = os.system('test -e *.output')
+        if checkoutput == 0:
+                os.system('rm -f *.output')
+	currTime = strftime("%d_%m_%Y_%H%M%S", localtime())
+        resultsFile =  'testresults_' + currTime
+        resultfileptr = open(resultsFile, 'w')
+	tempfileptr = open('testresultsfilename', 'w')
+	tempfileptr.write(resultsFile)
+	createTestList()
+	iterateThroughTestList(resultfileptr)
+
