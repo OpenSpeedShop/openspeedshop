@@ -2338,13 +2338,7 @@ if( mpiFLAG == FALSE )
       if( indent_level > lastIndentLevel )
       {
 // printf("A: adding (%s) to (%s) after (%s)\n", strings[1].ascii(), lastlvi->text(1).ascii(), lastlvi->text(1).ascii() );
-//        lastlvi = splvi =  new SPListViewItem( this, lastlvi, lastlvi, strings[0], strings[1] );
         lastlvi = splvi =  new SPListViewItem( this, lastlvi, lastlvi, strings[0], strippedString1 );
-      } else if( indent_level == lastIndentLevel )
-      {
-// printf("B: adding (%s) to (%s) after (%s)\n", strings[1].ascii(), lastlvi->parent()->text(1).ascii(), lastlvi->text(1).ascii() );
-//        lastlvi = splvi =  new SPListViewItem( this, (SPListView *)lastlvi->parent(), lastlvi, strings[0], strings[1] );
-        lastlvi = splvi =  new SPListViewItem( this, (SPListView *)lastlvi->parent(), lastlvi, strings[0], strippedString1 );
       } else
       {
 // printf("Go figure out the right leaf to put this in...\n");
@@ -2378,7 +2372,6 @@ if( mpiFLAG == FALSE )
         }
 //        } // END TRY TO POSITION
 // printf("C: adding (%s) to (%s) after (%s)\n", strings[1].ascii(), lastlvi->text(1).ascii(), after->text(1).ascii() );
-//        lastlvi = splvi =  new SPListViewItem( this, lastlvi, after, strings[0], strings[1] );
         lastlvi = splvi =  new SPListViewItem( this, lastlvi, after, strings[0], strippedString1 );
       }
     } else
