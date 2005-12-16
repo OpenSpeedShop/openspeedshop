@@ -40,6 +40,8 @@ DOC_SUBDIRS = \
 	libopenss-framework \
 	libopenss-queries \
 	libopenss-cli \
+	libopenss-message \
+	plugins/collectors \
 	libopenss-gui
 
 doc: $(DOC_SUBDIRS) 
