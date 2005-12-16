@@ -232,6 +232,9 @@ StatsPanel::~StatsPanel()
   nprintf( DEBUG_CONST_DESTRUCT ) ("  StatsPanel::~StatsPanel() destructor called\n");
 // printf("  StatsPanel::~StatsPanel() destructor called\n");
 
+  CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+  Redirect_Window_Output( cli->wid, NULL, NULL );
+
   if( currentCollector )
   {
 // printf("Destructor delete the currentCollector\n");
@@ -342,7 +345,6 @@ try
       if( i == 0 )
       {
         mpiFLAG = TRUE;
-        break;
       }
     }
   }
@@ -413,7 +415,6 @@ try
       if( i == 0 )
       {
         mpiFLAG = TRUE;
-        break;
       }
     }
   }
@@ -508,43 +509,48 @@ if( mpiFLAG == FALSE )
 }
 // printf("mid=%d for %s\n", mid, defaultStatsReportStr.ascii() );
   }
-if( mpiFLAG == FALSE )
-{
   for( std::list<std::string>::const_iterator it = list_of_collectors.begin();
       it != list_of_collectors.end(); it++ )
   {
      std::string collector_name = (std::string)*it;
 // printf("collector_name=(%s)\n", collector_name.c_str() );
-    QString s = QString("Show Metric: %1").arg(collector_name.c_str());
-    mid = contextMenu->insertItem(s);
+// Only do this once for the mpi collector.  The mpi menus are not 
+// driven of the metric names, but rather are static.
+    if( QString(collector_name).startsWith("mpi") )
+    {
+      if( QString(collector_name).startsWith("mpi::exclusive_times") )
+      {
+        QString s = QString("Show Metric: Functions");
+        contextMenu->insertItem(s);
+        s = QString("Show Metric: Statements");
+        contextMenu->insertItem(s);
+        if( !currentCollectorStr.isEmpty() || currentCollectorStr == "Functions" )
+        {
+          s = QString("Show Metric: Statements by Selected Function");
+          contextMenu->insertItem(s);
+        }
+      }
+    } else
+    {
+      QString s = QString("Show Metric: %1").arg(collector_name.c_str());
+      mid = contextMenu->insertItem(s);
 // printf("mid=%d for %s\n", mid, s.ascii() );
 
-    if( currentMetricStr.isEmpty() || currentCollectorStr.isEmpty() )
-    {
-      int index = s.find("Show Metric:");
-// printf("s=(%s)\n", s.ascii() );
-      if( index != -1 )
+      if( currentMetricStr.isEmpty() || currentCollectorStr.isEmpty() )
       {
-        index = s.find("::");
+        int index = s.find("Show Metric:");
+// printf("s=(%s)\n", s.ascii() );
+        if( index != -1 )
+        {
+          index = s.find("::");
 // printf("index=%d\n", index );
-        currentCollectorStr = s.mid(13, index-13 );
-        currentMetricStr = s.mid(index+2);
+          currentCollectorStr = s.mid(13, index-13 );
+          currentMetricStr = s.mid(index+2);
 // printf("A: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
+        }
       }
     }
   }
-} else
-{
-    QString s = QString("Show Metric: Functions");
-    contextMenu->insertItem(s);
-    s = QString("Show Metric: Statements");
-    contextMenu->insertItem(s);
-    if( !currentCollectorStr.isEmpty() || currentCollectorStr == "Functions" )
-    {
-      s = QString("Show Metric: Statements by Selected Function");
-      contextMenu->insertItem(s);
-    }
-}
     
   if( threadMenu )
   {
@@ -1083,43 +1089,43 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 // printf("A: filename=(%s)\n", filename.ascii() );
 // printf("A: funcString=(%s)\n", funcString.ascii() );
 
-if( mpiFLAG )
-{
-  int bof = -1;
-  int eof = selected_function_qstring.find('(');
+  if( mpiFLAG && ( currentCollectorStr.startsWith("Statements") || currentCollectorStr.startsWith("Functions") ) )
+  {
+    int bof = -1;
+    int eof = selected_function_qstring.find('(');
 // printf("eof=%d\n", eof);
-  if( eof == -1 )
-  {
-// printf("main:  you should never be here..\n");
-    function_name = "main";
-  } else
-  {
-
-    QString tempString = selected_function_qstring.mid(0,eof);
-// printf("tempString=%s\n", tempString.ascii() );
-
-    QRegExp rxp = QRegExp( "[ >]");
-    bof = tempString.findRev(rxp, eof);
-// printf("bof=%d\n", bof);
-    if( bof == -1 )
+    if( eof == -1 )
     {
-      bof = 0;
+// printf("main:  you should never be here..\n");
+      function_name = "main";
     } else
     {
-      bof++;
-    }
-  }
-  function_name = selected_function_qstring.mid(bof,eof-bof);
 
-  int boln = selected_function_qstring.find('@');
-  boln++;
-  int eoln = selected_function_qstring.find(" in ");
-  lineNumberStr = selected_function_qstring.mid(boln,eoln-boln).stripWhiteSpace();
+      QString tempString = selected_function_qstring.mid(0,eof);
+// printf("tempString=%s\n", tempString.ascii() );
+
+      QRegExp rxp = QRegExp( "[ >]");
+      bof = tempString.findRev(rxp, eof);
+// printf("bof=%d\n", bof);
+      if( bof == -1 )
+      {
+        bof = 0;
+      } else
+      {
+        bof++;
+      }
+    }
+    function_name = selected_function_qstring.mid(bof,eof-bof);
+
+    int boln = selected_function_qstring.find('@');
+    boln++;
+    int eoln = selected_function_qstring.find(" in ");
+    lineNumberStr = selected_function_qstring.mid(boln,eoln-boln).stripWhiteSpace();
 // printf("lineNumberStr=(%s)\n", lineNumberStr.ascii() );
 
   
 // printf("mpi: function_name=(%s)\n", function_name.ascii() );
-}
+  }
 
 
   QApplication::setOverrideCursor(QCursor::WaitCursor);
@@ -1225,67 +1231,65 @@ if( mpiFLAG )
           }
           currentThread = new Thread(*ti);
 // printf("Getting the next currentThread (%d)\n", currentThread->getProcessId() );
-if( !mpiFLAG )
-{
-        if( item->text(0).contains(".") )
-        {
+          if( !mpiFLAG )
+          {
+            if( item->text(0).contains(".") )
+            {
 // printf("DOUBLE\n");
-          // If double
+              // If double
 //  SmartPtr<std::map<int, double> > double_statement_data;
               SmartPtr<std::map<int, double> > double_statement_data = Framework::SmartPtr<std::map<int, double> >(new std::map<int, double>() );;
 
 // printf("GetMetric... %s:%s %d %s\n", currentCollectorStr.ascii(), currentMetricStr.ascii(), currentThread->getProcessId(), Path(di->getPath()).c_str() );
 
-            Queries::GetMetricByStatementOfFileInThread(*currentCollector, currentMetricStr.ascii(), TimeInterval(Time::TheBeginning(),Time::TheEnd()), *currentThread, Path(di->getPath()), double_statement_data);
+              Queries::GetMetricByStatementOfFileInThread(*currentCollector, currentMetricStr.ascii(), TimeInterval(Time::TheBeginning(),Time::TheEnd()), *currentThread, Path(di->getPath()), double_statement_data);
 
-            // Begin try to highlight source for doubles....
+              // Begin try to highlight source for doubles....
 // printf("Build/append to a list of highlights for the source panel to update.\n");
-            for(std::map<int, double>::const_iterator
+              for(std::map<int, double>::const_iterator
                     sit = double_statement_data->begin();
                     sit != double_statement_data->end(); ++sit)
-            {
+              {
 
-              int64_t line = 1;
-      
-              int color_index = getLineColor(sit->second);
+                int64_t line = 1;
+                int color_index = getLineColor(sit->second);
 
-
-              // first check to see if there's already a hlo for this line number.
-              // If there is, bump the value... Otherwise, push back a new one.
-              bool FOUND = FALSE;
+                // first check to see if there's already a hlo for this line number.
+                // If there is, bump the value... Otherwise, push back a new one.
+                bool FOUND = FALSE;
 // printf("Do we have a duplicate? (%d) %f \n", sit->first, sit->second );
-              for( HighlightList::Iterator it = highlightList->begin();
+                for( HighlightList::Iterator it = highlightList->begin();
                        it != highlightList->end();
                        ++it)
-              {
-                hlo = (HighlightObject *)*it;
-// printf("\thlo->line=(%d)\n", hlo->line );
-                if( hlo->line == sit->first )
                 {
+                  hlo = (HighlightObject *)*it;
+// printf("\thlo->line=(%d)\n", hlo->line );
+                  if( hlo->line == sit->first )
+                  {
 // printf("We have a duplicate at line (%d)\n", sit->first );
-                  float v = hlo->value.toFloat();
+                    float v = hlo->value.toFloat();
 // printf("%f + %f =%f\n", v, sit->second, v+sit->second );
-                  v += sit->second;
-                  hlo->value = QString("%1").arg(v);
+                    v += sit->second;
+                    hlo->value = QString("%1").arg(v);
 // printf("  new value=(%s)\n", hlo->value.ascii() );
-                  hlo->description = QString("\nMetric %1 was %2.").arg(currentMetricStr).arg(v);
-                  color_index = getLineColor(v);
-                  hlo->color = hotToCold_color_names[color_index];
-                  FOUND = TRUE;
-                  break;
+                    hlo->description = QString("\nMetric %1 was %2.").arg(currentMetricStr).arg(v);
+                    color_index = getLineColor(v);
+                    hlo->color = hotToCold_color_names[color_index];
+                    FOUND = TRUE;
+                    break;
+                  }
                 }
-              }
 
-              if( !FOUND )
-              {
-                hlo = new HighlightObject(di->getPath(), sit->first, hotToCold_color_names[color_index], QString("%1").arg(sit->second), QString("\nMetric %1 %2.").arg(currentMetricStr).arg(sit->second) );
-                highlightList->push_back(hlo);
+                if( !FOUND )
+                {
+                  hlo = new HighlightObject(di->getPath(), sit->first, hotToCold_color_names[color_index], QString("%1").arg(sit->second), QString("\nMetric %1 %2.").arg(currentMetricStr).arg(sit->second) );
+                  highlightList->push_back(hlo);
 // printf("A: Push_back a hlo for %d %f (%s)\n", sit->first, sit->second, hlo->description.ascii() );
                 }
 // hlo->print();
-            }
-          } else
-          {
+              }
+            } else
+            {
 // printf("NOT DOUBLE\n");
               // Not a double value...
               SmartPtr<std::map<int, uint64_t> > uint64_statement_data = Framework::SmartPtr<std::map<int, uint64_t> >(new std::map<int, uint64_t>() );;
@@ -1293,77 +1297,78 @@ if( !mpiFLAG )
       
 // printf("uint64_statement_data->size(%d)\n", uint64_statement_data->size() );
 
-            // Begin try to highlight source for doubles....
-            for(std::map<int, uint64_t>::const_iterator
+              // Begin try to highlight source for doubles....
+              for(std::map<int, uint64_t>::const_iterator
                     sit = uint64_statement_data->begin();
                     sit != uint64_statement_data->end(); ++sit)
-            {
+              {
 // printf("Build a list of highlights for the source panel to update.\n");
-              int64_t line = 1;
+                int64_t line = 1;
 
-              int color_index = getLineColor(sit->second);
+                int color_index = getLineColor(sit->second);
 
-              // first check to see if there's already a hlo for this line number.
-              // If there is, bump the value... Otherwise, push back a new one.
-              bool FOUND = FALSE;
+                // first check to see if there's already a hlo for this line number.
+                // If there is, bump the value... Otherwise, push back a new one.
+                bool FOUND = FALSE;
 // printf("Do we have a duplicate? (%d)\n", sit->first );
-              for( HighlightList::Iterator it = highlightList->begin();
+                for( HighlightList::Iterator it = highlightList->begin();
                        it != highlightList->end();
                        ++it)
-              {
-                hlo = (HighlightObject *)*it;
-// printf("\thlo->line=(%d)\n", hlo->line );
-                if( hlo->line == sit->first )
                 {
+                  hlo = (HighlightObject *)*it;
+// printf("\thlo->line=(%d)\n", hlo->line );
+                  if( hlo->line == sit->first )
+                  {
 // printf("We have a duplicate at line (%d)\n", sit->first );
-                  uint64_t v = hlo->value.toUInt();
+                    uint64_t v = hlo->value.toUInt();
 // printf("v=%f\n", v );
-                  v += sit->second;
-                  hlo->value = QString("%1").arg(v);
-                  hlo->description = QString("\nMetric %1 was %2.").arg(currentMetricStr).arg(v);
-                  color_index = getLineColor(v);
-                  hlo->color = hotToCold_color_names[color_index];
-                  FOUND = TRUE;
-                  break;
+                    v += sit->second;
+                    hlo->value = QString("%1").arg(v);
+                    hlo->description = QString("\nMetric %1 was %2.").arg(currentMetricStr).arg(v);
+                    color_index = getLineColor(v);
+                    hlo->color = hotToCold_color_names[color_index];
+                    FOUND = TRUE;
+                    break;
+                  }
                 }
-              }
-              if( !FOUND )
-              {
-                hlo = new HighlightObject(di->getPath(), sit->first, hotToCold_color_names[color_index], QString("%1").arg(sit->second), QString("\nMetric %1 was %2.").arg(currentMetricStr).arg(sit->second) );
-                highlightList->push_back(hlo);
+                if( !FOUND )
+                {
+                  hlo = new HighlightObject(di->getPath(), sit->first, hotToCold_color_names[color_index], QString("%1").arg(sit->second), QString("\nMetric %1 was %2.").arg(currentMetricStr).arg(sit->second) );
+                  highlightList->push_back(hlo);
 // printf("B: Push_back a hlo for %d %f\n", sit->first, sit->second);
 // hlo->print();
+                }
               }
             }
-          }
-}
+        }
 
-          currentItemIndex = 0;
-          QListViewItemIterator lvit = (splv);
-          while( lvit.current() )
+        currentItemIndex = 0;
+        QListViewItemIterator lvit = (splv);
+        while( lvit.current() )
+        {
+          QListViewItem *this_item = lvit.current();
+        
+          if( this_item == item )
           {
-            QListViewItem *this_item = lvit.current();
-        
-            if( this_item == item )
-            {
-              break;
-            }
-        
-            currentItemIndex++;
-            lvit++;
+            break;
           }
-if( mpiFLAG == TRUE && lineNumberStr != "-1" )
-{
-  hlo = new HighlightObject(NULL, lineNumberStr.toInt(), hotToCold_color_names[2], ">>", "Callsite");
-  highlightList->push_back(hlo);
-  spo = new SourceObject(function_name.ascii(), di->getPath(), lineNumberStr.toInt()-1, expID, TRUE, highlightList);
-} else
-{
+        
+          currentItemIndex++;
+          lvit++;
+        }
+        if( mpiFLAG && lineNumberStr != "-1" &&
+            ( currentCollectorStr.startsWith("Statements") ||
+              currentCollectorStr.startsWith("Functions") ) )
+        {
+          hlo = new HighlightObject(NULL, lineNumberStr.toInt(), hotToCold_color_names[2], ">>", "Callsite");
+          highlightList->push_back(hlo);
+          spo = new SourceObject(function_name.ascii(), di->getPath(), lineNumberStr.toInt()-1, expID, TRUE, highlightList);
+        } else
+        {
           spo = new SourceObject(function_name.ascii(), di->getPath(), di->getLine()-1, expID, TRUE, highlightList);
 }
-// End try to highlight source for doubles....
         } else
-        { // Clear the highlight list.
+        {
 // printf("No definitioin for thread's function\n");
         }
       }
@@ -1492,10 +1497,8 @@ if( !mpiFLAG )
 }
 
 
-if( mpiFLAG )
+if( mpiFLAG && ( currentCollectorStr.startsWith("Statements") || currentCollectorStr.startsWith("Functions") ) )
 { 
-// printf("currentCollectorStr=(%s)\n", currentCollectorStr.ascii() );
-// printf("currentMetricStr=(%s)\n", currentMetricStr.ascii() );
   if( currentCollectorStr.isEmpty() || currentCollectorStr == "Statements" )
   {
     command = QString("expView -x %1 mpi%2 -v Statements").arg(expID).arg(numberItemsToDisplayInStats);
@@ -2193,9 +2196,9 @@ StatsPanel::outputCLIData(QString *data)
 // printf("fieldCount=(%d)\n", fieldCount);
 
 
-if( mpiFLAG == TRUE )
-{
-// printf("Figure out where the fields start and stop.\n");
+  if( mpiFLAG && ( currentCollectorStr.startsWith("Statements") || currentCollectorStr.startsWith("Functions") ) )
+  {
+// printf("MPI: Figure out where the fields start and stop.\n");
     int start_index = 0;
     int end_index = 99999;
     int MAX_COLUMN_COUNT = 10;
@@ -2206,10 +2209,10 @@ if( mpiFLAG == TRUE )
     columnValueClass[1].start_index = 22;
     columnValueClass[1].end_index = end_index;
     gotColumns = TRUE;
-} else
-{
+  } else
+  {
     QRegExp rxp = QRegExp( " [A-Z,a-z,0-9,%,_]");
-// printf("Figure out where the fields start and stop.\n");
+// printf("NOT MPI: Figure out where the fields start and stop.\n");
     int start_index = 0;
     int end_index = 99999;
     int MAX_COLUMN_COUNT = 10;
@@ -2232,166 +2235,164 @@ if( mpiFLAG == TRUE )
       start_index = end_index+1;
     }
     gotColumns = TRUE;
-}
+  }
 
   QString *strings = new QString[fieldCount];
  
   int percent = 0;
-if( mpiFLAG == FALSE )
-{
-  for( int i = 0; i<fieldCount; i++)
+  if( mpiFLAG && ( currentCollectorStr.startsWith("Statements") || currentCollectorStr.startsWith("Functions") ) )
   {
-    int si = columnValueClass[i].start_index;
-    int l = columnValueClass[i].end_index-columnValueClass[i].start_index;
-    QString value = stripped_data.mid(si,l).stripWhiteSpace();
-    if( i == 0 ) // Grab the (some) default metric FIX
+    for( int i = 0; i<fieldCount; i++)
     {
-      float f = value.toFloat();
-      TotalTime += f;
-    }
-    if( percentIndex == i )
-    {
-      float f = value.toFloat();
-      percent = (int)f;
-// printf("percent=(%d)\n", percent);
-      total_percent += f;
-    }
-    strings[i] = value;
-  }
-} else
-{
-  for( int i = 0; i<fieldCount; i++)
-  {
-    int si = columnValueClass[i].start_index;
-    int l = columnValueClass[i].end_index-columnValueClass[i].start_index;
+      int si = columnValueClass[i].start_index;
+      int l = columnValueClass[i].end_index-columnValueClass[i].start_index;
 // printf("%d %d\n%s\n", columnValueClass[i].start_index, columnValueClass[i].end_index, data->ascii() );
-    QString value = data->mid(si,l);
+      QString value = data->mid(si,l);
 // printf("value=(%s)\n", value.ascii() );
-    QString c = value.stripWhiteSpace().mid(0,1);
+      QString c = value.stripWhiteSpace().mid(0,1);
 // printf("c=(%s)\n", c.ascii() );
-    QRegExp rxp = QRegExp( "[0-9]");
-    int gotit = c.contains( rxp );
+      QRegExp rxp = QRegExp( "[0-9]");
+      int gotit = c.contains( rxp );
 // printf("gotit=(%d)\n", gotit );
-    if( value.stripWhiteSpace().isEmpty() )
-    {
+      if( value.stripWhiteSpace().isEmpty() )
+      {
 // printf("EMPTY!\n");
-      strings[i] = "";
-    } else if( !value.stripWhiteSpace().isEmpty() && gotit == 0 )
-    {
+        strings[i] = "";
+      } else if( !value.stripWhiteSpace().isEmpty() && gotit == 0 )
+      {
 // printf("VALUE!\n");
-      strings[i] = value;
-    } else if( !value.stripWhiteSpace().isEmpty() && gotit != 0 )
-    {
+        strings[i] = value;
+      } else if( !value.stripWhiteSpace().isEmpty() && gotit != 0 )
+      {
 // printf("ISDIGIT!\n");
-      strings[i] = value;
-    } else
-    {
+        strings[i] = value;
+      } else
+      {
 // printf("NULL!\n");
-      strings[i] = "";
+        strings[i] = "";
+      }
+    }
+  } else
+  {
+    for( int i = 0; i<fieldCount; i++)
+    {
+      int si = columnValueClass[i].start_index;
+      int l = columnValueClass[i].end_index-columnValueClass[i].start_index;
+      QString value = stripped_data.mid(si,l).stripWhiteSpace();
+      if( i == 0 ) // Grab the (some) default metric FIX
+      {
+        float f = value.toFloat();
+        TotalTime += f;
+      }
+      if( percentIndex == i )
+      {
+        float f = value.toFloat();
+        percent = (int)f;
+// printf("percent=(%d)\n", percent);
+        total_percent += f;
+      }
+      strings[i] = value;
     }
   }
-}
 // printf("total_percent=%f\n", total_percent );
 
 
 
   SPListViewItem *splvi;
-if( mpiFLAG == FALSE )
-{
-  if( fieldCount == 2 )
+  if( mpiFLAG && ( currentCollectorStr.startsWith("Statements") || currentCollectorStr.startsWith("Functions") ) )
   {
-    lastlvi = splvi =  new SPListViewItem( this, splv, lastlvi, strings[0], strings[1] );
-  } else if( fieldCount == 3 )
-  { // i.e. like pcsamp
-    lastlvi = splvi =  new SPListViewItem( this, splv, lastlvi, strings[0], strings[1], strings[2] );
-  } else
-  { // i.e. like usertime
-    lastlvi = splvi =  new SPListViewItem( this, splv, lastlvi, strings[0], strings[1], strings[2], strings[3] );
-  }
-} else
-{ // MPI
-  bool indented = strings[1].startsWith(">");
-  int indent_level = 0;
+    bool indented = strings[1].startsWith(">");
+    int indent_level = 0;
 
 
 // printf("indented = (%d)\n", indented );
 // printf("%d %s %s", indented, strings[0].ascii(), strings[1].ascii() );
   
-  if( !indented )
-  {
-    lastlvi = splvi =  new SPListViewItem( this, splv, lastlvi, strings[0], strings[1] );
-    lastIndentLevel = 0;
-  } else
-  {
-    if( indented && lastlvi != NULL )
+    if( !indented )
     {
-      QRegExp rxp = QRegExp( "[_,' ',@,A-Z,a-z,0-9,%]");
-      indent_level = strings[1].find(rxp);
-      strippedString1 = strings[1].mid(indent_level,9999);
-      if( indent_level == -1 )
-      {
-//        fprintf(stderr, "Error in determining depth for (%s).\n", strings[1].ascii() );
-        fprintf(stderr, "Error in determining depth for (%s).\n", strippedString1.ascii() );
-
-      }
-// printf("indent_level = %d lastIndentLevel = %d\n", indent_level, lastIndentLevel);
-      if( indent_level > lastIndentLevel )
-      {
-// printf("A: adding (%s) to (%s) after (%s)\n", strings[1].ascii(), lastlvi->text(1).ascii(), lastlvi->text(1).ascii() );
-        lastlvi = splvi =  new SPListViewItem( this, lastlvi, lastlvi, strings[0], strippedString1 );
-      } else
-      {
-// printf("Go figure out the right leaf to put this in...\n");
-
-        SPListViewItem *mynextlvi = lastlvi;
-        SPListViewItem *after = NULL;
-        while( mynextlvi->parent() )
-        {
-           mynextlvi = (SPListViewItem *)mynextlvi->parent();
-        }
-        for(int i=0;i<indent_level-1;i++)
-        {
-          SPListViewItem *lastChild = (SPListViewItem *)mynextlvi->firstChild();
-          while( lastChild->nextSibling() )
-          {
-            lastChild = (SPListViewItem *)lastChild->nextSibling();
-          }
-          mynextlvi = lastChild;
-        }
-
-        lastlvi = mynextlvi;
-
-        // go to this head, count down the children of the indent level... Then add
-        // this item.
-//        { // BEGIN TRY TO POSITION
-        // after = (SPListViewItem *)lastlvi->parent()->firstChild();
-        after = (SPListViewItem *)lastlvi->firstChild();
-        while( after->nextSibling() )
-        {
-          after = (SPListViewItem *)after->nextSibling();
-        }
-//        } // END TRY TO POSITION
-// printf("C: adding (%s) to (%s) after (%s)\n", strings[1].ascii(), lastlvi->text(1).ascii(), after->text(1).ascii() );
-        lastlvi = splvi =  new SPListViewItem( this, lastlvi, after, strings[0], strippedString1 );
-      }
+      lastlvi = splvi =  new SPListViewItem( this, splv, lastlvi, strings[0], strings[1] );
+      lastIndentLevel = 0;
     } else
     {
+      if( indented && lastlvi != NULL )
+      {
+        QRegExp rxp = QRegExp( "[_,' ',@,A-Z,a-z,0-9,%]");
+        indent_level = strings[1].find(rxp);
+        strippedString1 = strings[1].mid(indent_level,9999);
+        if( indent_level == -1 )
+        {
+//        fprintf(stderr, "Error in determining depth for (%s).\n", strings[1].ascii() );
+          fprintf(stderr, "Error in determining depth for (%s).\n", strippedString1.ascii() );
+
+        }
+// printf("indent_level = %d lastIndentLevel = %d\n", indent_level, lastIndentLevel);
+        if( indent_level > lastIndentLevel )
+        {
+// printf("A: adding (%s) to (%s) after (%s)\n", strings[1].ascii(), lastlvi->text(1).ascii(), lastlvi->text(1).ascii() );
+          lastlvi = splvi =  new SPListViewItem( this, lastlvi, lastlvi, strings[0], strippedString1 );
+        } else
+        {
+// printf("Go figure out the right leaf to put this in...\n");
+
+          SPListViewItem *mynextlvi = lastlvi;
+          SPListViewItem *after = NULL;
+          while( mynextlvi->parent() )
+          {
+             mynextlvi = (SPListViewItem *)mynextlvi->parent();
+          }
+          for(int i=0;i<indent_level-1;i++)
+          {
+            SPListViewItem *lastChild = (SPListViewItem *)mynextlvi->firstChild();
+            while( lastChild->nextSibling() )
+            {
+              lastChild = (SPListViewItem *)lastChild->nextSibling();
+            }
+            mynextlvi = lastChild;
+          }
+  
+          lastlvi = mynextlvi;
+  
+          // go to this head, count down the children of the indent level... Then add
+          // this item.
+          // after = (SPListViewItem *)lastlvi->parent()->firstChild();
+          after = (SPListViewItem *)lastlvi->firstChild();
+          while( after->nextSibling() )
+          {
+            after = (SPListViewItem *)after->nextSibling();
+          }
+// printf("C: adding (%s) to (%s) after (%s)\n", strings[1].ascii(), lastlvi->text(1).ascii(), after->text(1).ascii() );
+          lastlvi = splvi =  new SPListViewItem( this, lastlvi, after, strings[0], strippedString1 );
+        }
+      } else
+      {
 //      fprintf(stderr, "Error in chaining child (%s) to tree.\n", strings[1].ascii() );
-      fprintf(stderr, "Error in chaining child (%s) to tree.\n", strippedString1.ascii() );
+        fprintf(stderr, "Error in chaining child (%s) to tree.\n", strippedString1.ascii() );
+      }
     }
-  }
 
 // Now try to open all the items.\n");
-    lastlvi->setOpen(TRUE);
+      lastlvi->setOpen(TRUE);
 // printf("open lastlvi=(%s)\n", lastlvi->text(1).ascii() );
 
-  lastIndentLevel = indent_level;
+    lastIndentLevel = indent_level;
 
 
 #if 0
 debugList(splv);
 #endif // 0
-}
+  } else
+  {
+    if( fieldCount == 2 )
+    {
+      lastlvi = splvi =  new SPListViewItem( this, splv, lastlvi, strings[0], strings[1] );
+    } else if( fieldCount == 3 )
+    { // i.e. like pcsamp
+      lastlvi = splvi =  new SPListViewItem( this, splv, lastlvi, strings[0], strings[1], strings[2] );
+    } else
+    { // i.e. like usertime
+      lastlvi = splvi =  new SPListViewItem( this, splv, lastlvi, strings[0], strings[1], strings[2], strings[3] );
+    }
+  }
 
 
   if( total_percent > 0.0 && cpvl.count() < numberItemsToDisplayInStats  &&
