@@ -89,7 +89,7 @@ AC_DEFUN([AC_PKG_DPCL], [
                                [DPCL installation @<:@/usr@:>@]),
                 dpcl_dir=$withval, dpcl_dir="/usr")
 
-    DPCL_CPPFLAGS="-I$dpcl_dir/include/dpcl"
+    DPCL_CPPFLAGS="-I$dpcl_dir/include/dpcl -D_DYNINST"
     DPCL_LDFLAGS="-L$dpcl_dir/$abi_libdir"
 
     case "$host" in
