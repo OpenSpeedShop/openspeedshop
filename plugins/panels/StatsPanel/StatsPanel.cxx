@@ -2180,34 +2180,40 @@ StatsPanel::outputCLIData(QString *data)
     return;
   }
 
+  int start_index = 0;
   QString stripped_data = data->stripWhiteSpace();
+  QRegExp rxp = QRegExp( "  [A-Z,a-z,0-9,%]");
+  start_index = data->find(rxp, start_index);
+  start_index += 2;
   if( gotHeader == FALSE )
   {
     QRegExp rxp = QRegExp( "  [A-Z,a-z,0-9,%]");
-    fieldCount = stripped_data.contains( rxp );
-    fieldCount++;
+    fieldCount = data->contains( rxp );
 
-    int start_index = 0;
     int end_index = 99999;
     for(int i=0;i<fieldCount;i++)
     {
-      end_index = stripped_data.find(rxp, start_index);
+      end_index = data->find(rxp, start_index);
+      columnValueClass[i].start_index = start_index;
+      columnValueClass[i].end_index = end_index;
 
       if( end_index == -1 )
       {
-        columnHeaderList.push_back(stripped_data.mid(start_index).stripWhiteSpace());
-        splv->addColumn( stripped_data.mid(start_index).stripWhiteSpace() );
+        columnValueClass[i].end_index = 99999;
+        columnHeaderList.push_back(data->mid(start_index).stripWhiteSpace());
+        splv->addColumn( data->mid(start_index).stripWhiteSpace() );
         break;
       }
-      columnHeaderList.push_back(stripped_data.mid(start_index, end_index-start_index));
-      splv->addColumn( stripped_data.mid(start_index, end_index-start_index) );
+      columnHeaderList.push_back(data->mid(start_index, end_index-start_index).stripWhiteSpace());
+      splv->addColumn( data->mid(start_index, end_index-start_index).stripWhiteSpace() );
 // Find the percent column
-      if( stripped_data.find("%") != -1 )
+      if( data->find("%") != -1 )
       {
         percentIndex = i;
       }
   
       start_index = end_index+2;
+// printf("columnValueClass[%d].start_index=%d end=%d\n", i, columnValueClass[i].start_index, columnValueClass[i].end_index );
     }
   
     gotHeader = TRUE;
@@ -2215,105 +2221,31 @@ StatsPanel::outputCLIData(QString *data)
   }
 
 // printf("fieldCount=(%d)\n", fieldCount);
+// printf("currentCollectorStr=(%s)\n", currentCollectorStr.ascii() );
 
-
-  if( mpiFLAG && ( currentCollectorStr.startsWith("Statements") || currentCollectorStr.startsWith("Functions") ) )
-  {
-// printf("MPI: Figure out where the fields start and stop.\n");
-    int start_index = 0;
-    int end_index = 99999;
-    int MAX_COLUMN_COUNT = 10;
-// printf(" end_index = (%d)\n", end_index );
-    columnValueClass[0].start_index = 0;
-    columnValueClass[0].end_index = 21;
-  
-    columnValueClass[1].start_index = 22;
-    columnValueClass[1].end_index = end_index;
-    gotColumns = TRUE;
-  } else
-  {
-    QRegExp rxp = QRegExp( " [A-Z,a-z,0-9,%,_]");
-// printf("NOT MPI: Figure out where the fields start and stop.\n");
-    int start_index = 0;
-    int end_index = 99999;
-    int MAX_COLUMN_COUNT = 10;
-// printf("stripped_data=(%s)\n", stripped_data.ascii() );
-    for(int i=0;i<fieldCount && i < MAX_COLUMN_COUNT;i++)
-    {
-      end_index = stripped_data.find(rxp, start_index);
-
-// printf(" end_index = (%d)\n", end_index );
-      if( end_index == -1 || i == fieldCount-1 )
-      {
-        columnValueClass[i].start_index = start_index;
-        columnValueClass[i].end_index = 99999;
-// columnValueClass[i].print();
-        break;
-      }
-      columnValueClass[i].start_index = start_index;
-      columnValueClass[i].end_index = end_index;
-  
-      start_index = end_index+1;
-    }
-    gotColumns = TRUE;
-  }
 
   QString *strings = new QString[fieldCount];
  
   int percent = 0;
-  if( mpiFLAG && ( currentCollectorStr.startsWith("Statements") || currentCollectorStr.startsWith("Functions") ) )
+  for( int i = 0; i<fieldCount; i++)
   {
-    for( int i = 0; i<fieldCount; i++)
+    int si = columnValueClass[i].start_index;
+    int l = columnValueClass[i].end_index-columnValueClass[i].start_index;
+    QString value = data->mid(si,l).stripWhiteSpace();
+// printf("si=%d ei=%d (%s)\n", columnValueClass[i].start_index, columnValueClass[i].end_index, value.ascii() );
+    if( i == 0 ) // Grab the (some) default metric FIX
     {
-      int si = columnValueClass[i].start_index;
-      int l = columnValueClass[i].end_index-columnValueClass[i].start_index;
-// printf("%d %d\n%s\n", columnValueClass[i].start_index, columnValueClass[i].end_index, data->ascii() );
-      QString value = data->mid(si,l);
-// printf("value=(%s)\n", value.ascii() );
-      QString c = value.stripWhiteSpace().mid(0,1);
-// printf("c=(%s)\n", c.ascii() );
-      QRegExp rxp = QRegExp( "[0-9]");
-      int gotit = c.contains( rxp );
-// printf("gotit=(%d)\n", gotit );
-      if( value.stripWhiteSpace().isEmpty() )
-      {
-// printf("EMPTY!\n");
-        strings[i] = "";
-      } else if( !value.stripWhiteSpace().isEmpty() && gotit == 0 )
-      {
-// printf("VALUE!\n");
-        strings[i] = value;
-      } else if( !value.stripWhiteSpace().isEmpty() && gotit != 0 )
-      {
-// printf("ISDIGIT!\n");
-        strings[i] = value;
-      } else
-      {
-// printf("NULL!\n");
-        strings[i] = "";
-      }
+      float f = value.toFloat();
+      TotalTime += f;
     }
-  } else
-  {
-    for( int i = 0; i<fieldCount; i++)
+    if( percentIndex == i )
     {
-      int si = columnValueClass[i].start_index;
-      int l = columnValueClass[i].end_index-columnValueClass[i].start_index;
-      QString value = stripped_data.mid(si,l).stripWhiteSpace();
-      if( i == 0 ) // Grab the (some) default metric FIX
-      {
-        float f = value.toFloat();
-        TotalTime += f;
-      }
-      if( percentIndex == i )
-      {
-        float f = value.toFloat();
-        percent = (int)f;
+      float f = value.toFloat();
+      percent = (int)f;
 // printf("percent=(%d)\n", percent);
-        total_percent += f;
-      }
-      strings[i] = value;
+      total_percent += f;
     }
+    strings[i] = value;
   }
 // printf("total_percent=%f\n", total_percent );
 
@@ -2397,10 +2329,6 @@ StatsPanel::outputCLIData(QString *data)
 
     lastIndentLevel = indent_level;
 
-
-#if 0
-debugList(splv);
-#endif // 0
   } else
   {
     if( fieldCount == 2 )
