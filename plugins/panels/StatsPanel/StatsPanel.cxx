@@ -1015,12 +1015,29 @@ StatsPanel::itemSelected(QListViewItem *item)
       nitem = (SPListViewItem *)nitem->parent();
       index++;
     } 
+
   
     
+    // Now set the currentIndexItem so we can look up the correctl
+    // color for the function later.
     if( nitem )
     {
-// printf("YOU NEED TO LOOP THROUGH AND FIND THE FUNCTION FIELD!!!\n");
       currentItem = (SPListViewItem *)nitem;
+
+      index = 0;
+      QListViewItemIterator it( splv );
+      while( it.current() )
+      {
+        QListViewItem *item = *it;
+        if( item->isSelected() )
+        {
+          currentItemIndex = index;
+          break;
+        }
+        index++;
+        it++;
+      }
+
       matchSelectedItem( nitem, std::string(nitem->text(fieldCount-1).ascii()) );
     }
   }
@@ -1204,7 +1221,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 
           hlo = new HighlightObject(di->getPath(), di->getLine(), hotToCold_color_names[currentItemIndex], QString::null, QString("Beginning of function %1").arg(function_name.ascii()) );
           highlightList->push_back(hlo);
-// printf("push_back function entry\n");
+// printf("push_back function entry (currentItemIndex=%d\n", currentItemIndex);
 // hlo->print();
 
 // printf("Query:\n");
