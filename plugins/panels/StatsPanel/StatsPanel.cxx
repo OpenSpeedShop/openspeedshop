@@ -505,10 +505,10 @@ StatsPanel::menu( QPopupMenu* contextMenu)
   {
 // printf("We only have more than one collector... one metric\n");
     defaultStatsReportStr = QString("Show Metric: %1").arg(currentCollectorStr);
-if( mpiFLAG == FALSE )
-{
-    mid = contextMenu->insertItem(defaultStatsReportStr);
-}
+    if( mpiFLAG == FALSE )
+    {
+      mid = contextMenu->insertItem(defaultStatsReportStr);
+    }
 // printf("mid=%d for %s\n", mid, defaultStatsReportStr.ascii() );
   }
   for( std::list<std::string>::const_iterator it = list_of_collectors.begin();
@@ -520,13 +520,15 @@ if( mpiFLAG == FALSE )
 // driven of the metric names, but rather are static.
     if( QString(collector_name).startsWith("mpi") )
     {
+// printf("currentCollectorStr=%s\n", currentCollectorStr.ascii() );
       if( QString(collector_name).startsWith("mpi::exclusive_times") )
       {
         QString s = QString("Show Metric: Functions");
         contextMenu->insertItem(s);
         s = QString("Show Metric: Statements");
         contextMenu->insertItem(s);
-        if( !currentCollectorStr.isEmpty() || currentCollectorStr == "Functions" )
+        if( !currentCollectorStr.isEmpty() && 
+            (currentCollectorStr == "Functions" || currentCollectorStr == "mpi") )
         {
           s = QString("Show Metric: Statements by Selected Function");
           contextMenu->insertItem(s);
