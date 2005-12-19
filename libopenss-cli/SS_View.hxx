@@ -24,8 +24,32 @@ enum ViewOpCode {
      VIEWINST_Display_Tmp,
      VIEWINST_Display_Percent_Column,
      VIEWINST_Display_Percent_Metric,
-     VIEWINST_Display_Percent_Tmp,
-     VIEWINST_Display_Average_Tmp
+     VIEWINST_Display_Percent_Tmp,      // TmpResult is column# to display in.
+                                        // TMP_index1 is row_tmp# with numerator.
+                                        // TMP_index2 is row_tmp# with denominator.
+     VIEWINST_Display_Average_Tmp,      // TmpResult is column# to display in.
+                                        // TMP_index1 is row_tmp# with numerator.
+                                        // TMP_index2 is row_tmp# with denominator.
+     VIEWINST_Display_StdDeviation_Tmp, // TmpResult is column# to display in.
+                                        // TMP_index1 is row_tmp# with sums.
+                                        // TMP_index2 is row_tmp# with sum of squares
+     VIEWINST_Display_Summary_Tmp,      // TmpResult is column# to display summary temp in.
+                                        // TMP_index1 is summary-tmp# to display.
+     VIEWINST_Display_Summary_Percent,  // TmpResult is column# to display summary calcuation in.
+                                        // TMP_index1 is summary_tmp# with numerator.
+     VIEWINST_Display_Summary_StdDev,   // TmpResult is column# to display summary calcuation in.
+                                        // TMP_index1 is summary_tmp# with sums.
+                                        // TMP_index2 is summary_tmp# with sum of squares.
+                                        // TMP_index3 is summary_tmp# with number of counts.
+     VIEWINST_Display_Summary_Average,  // TmpResult is column# to display summary calcuation in.
+                                        // TMP_index1 is summary_tmp# with numerator.
+                                        // TMP_index2 is summary_tmp# with denominator.
+     VIEWINST_Column_Summary_Add,       // TmpResult is summary_tmp# to accumulate result.
+                                        // TMP_index1 is row_temp# to sum.
+     VIEWINST_Column_Summary_Min,       // TmpResult is summary_tmp# to accumulate result.
+                                        // TMP_index1 is row_temp# to take min of.
+     VIEWINST_Column_Summary_Max,       // TmpResult is summary_tmp# to accumulate result.
+                                        // TMP_index1 is row_temp# to take max of.
 };
 
 class ViewInstruction
@@ -35,6 +59,7 @@ class ViewInstruction
   int64_t TmpResult;  // result temp or column number
   int64_t TMP_index1; // index of Collector::Metric vectors or temp
   int64_t TMP_index2; // index of temp
+  int64_t TMP_index3; // index of temp
 
  public:
   ViewInstruction (ViewOpCode I, int64_t TR) {
@@ -42,23 +67,34 @@ class ViewInstruction
     TmpResult = -1;
     TMP_index1 = TR;
     TMP_index2 = -1;
+    TMP_index3 = -1;
   }
   ViewInstruction (ViewOpCode I, int64_t TR, int64_t TMP1) {
     Instruction = I;
     TmpResult = TR;
     TMP_index1 = TMP1;
     TMP_index2 = -1;
+    TMP_index3 = -1;
   }
   ViewInstruction (ViewOpCode I, int64_t TR, int64_t TMP1, int64_t TMP2) {
     Instruction = I;
     TmpResult = TR;
     TMP_index1 = TMP1;
     TMP_index2 = TMP2;
+    TMP_index3 = -1;
+  }
+  ViewInstruction (ViewOpCode I, int64_t TR, int64_t TMP1, int64_t TMP2, int64_t TMP3) {
+    Instruction = I;
+    TmpResult = TR;
+    TMP_index1 = TMP1;
+    TMP_index2 = TMP2;
+    TMP_index3 = TMP3;
   }
   ViewOpCode OpCode () { return Instruction; }
   int64_t TR () { return TmpResult; }
   int64_t TMP1 () { return TMP_index1; }
   int64_t TMP2 () { return TMP_index2; }
+  int64_t TMP3 () { return TMP_index3; }
 
   void Print (ostream &to) {
     std::string op;
@@ -70,9 +106,20 @@ class ViewInstruction
      case VIEWINST_Display_Percent_Metric: op = "Display_Percent_Metric"; break;
      case VIEWINST_Display_Percent_Tmp: op = "Display_Percent_Tmp"; break;
      case VIEWINST_Display_Average_Tmp: op = "Display_Average_Tmp"; break;
+     case VIEWINST_Display_StdDeviation_Tmp: op = "Display_StdDeviation_Tmp"; break;
+     case VIEWINST_Display_Summary_Tmp: op = "Display_Summary_Tmp"; break;
+     case VIEWINST_Display_Summary_StdDev: op = "Display_Summary_StdDev"; break;
+     case VIEWINST_Display_Summary_Average: op= "Display_Summary_Average"; break;
+     case VIEWINST_Display_Summary_Percent: op= "Display_Summary_Percent"; break;
+     case VIEWINST_Column_Summary_Add: op = "Column_Summary_Add"; break;
+     case VIEWINST_Column_Summary_Min: op = "Column_Summary_Min"; break;
+     case VIEWINST_Column_Summary_Max: op = "Column_Summary_Max"; break;
      default: op ="(unknown)"; break;
     }
-    to << op << " " << TmpResult << " " << TMP_index1 << " " << TMP_index2 << std::endl;
+    to << op << " " << TmpResult  << " "
+                    << TMP_index1 << " "
+                    << TMP_index2 << " "
+                    << TMP_index3 << std::endl;
   }
 };
 
@@ -396,12 +443,12 @@ std::string Find_Collector_With_Metric (CollectorGroup cgrp,
                                         std::string Metric_Name);
 bool Metadata_hasName (Collector C, std::string name);
 Metadata Find_Metadata (Collector C, std::string name);
-std::string gen_F_name (Function F);
 ViewInstruction *Find_Base_Def (std::vector<ViewInstruction *>IV);
 ViewInstruction *Find_Total_Def (std::vector<ViewInstruction *>IV);
 ViewInstruction *Find_Percent_Def (std::vector<ViewInstruction *>IV);
 ViewInstruction *Find_Column_Def (std::vector<ViewInstruction *>IV, int64_t Column);
 int64_t Find_Max_Column_Def (std::vector<ViewInstruction *>IV);
+int64_t Find_Max_Tmp_Def (std::vector<ViewInstruction *>IV);
 void Print_View_Params (ostream &to,
                         std::vector<Collector> CV,
                         std::vector<std::string> MV,

@@ -494,7 +494,8 @@ ViewInstruction *Find_Column_Def (std::vector<ViewInstruction *>IV, int64_t Colu
           (vp->OpCode() == VIEWINST_Display_Percent_Column) ||
           (vp->OpCode() == VIEWINST_Display_Percent_Metric) ||
           (vp->OpCode() == VIEWINST_Display_Percent_Tmp) ||
-          (vp->OpCode() == VIEWINST_Display_Average_Tmp)) {
+          (vp->OpCode() == VIEWINST_Display_Average_Tmp) ||
+          (vp->OpCode() == VIEWINST_Display_StdDeviation_Tmp)) {
         return vp;
       }
     }
@@ -510,11 +511,27 @@ int64_t Find_Max_Column_Def (std::vector<ViewInstruction *>IV) {
         (vp->OpCode() == VIEWINST_Display_Tmp) ||
         (vp->OpCode() == VIEWINST_Display_Percent_Column) ||
         (vp->OpCode() == VIEWINST_Display_Percent_Metric) ||
-        (vp->OpCode() == VIEWINST_Display_Percent_Tmp)) {
+        (vp->OpCode() == VIEWINST_Display_Percent_Tmp) ||
+        (vp->OpCode() == VIEWINST_Display_Average_Tmp) ||
+        (vp->OpCode() == VIEWINST_Display_StdDeviation_Tmp)) {
       if (vp->TR() > Max_Column) Max_Column = vp->TR();
     }
   }
   return Max_Column;
+}
+
+int64_t Find_Max_Tmp_Def (std::vector<ViewInstruction *>IV) {
+  int64_t Max_Tmp = 0;
+  for (int64_t i = 0; i < IV.size(); i++) {
+   // Check the instructions that can define a temp result.
+    ViewInstruction *vp = IV[i];
+    if ((vp->OpCode() == VIEWINST_Column_Summary_Add) ||
+        (vp->OpCode() == VIEWINST_Column_Summary_Min) ||
+        (vp->OpCode() == VIEWINST_Column_Summary_Max)) {
+      Max_Tmp = max (Max_Tmp,vp->TR());
+    }
+  }
+  return Max_Tmp;
 }
 
 void Print_View_Params (ostream &to,

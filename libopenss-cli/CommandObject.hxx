@@ -94,8 +94,14 @@ class CommandResult_Uint :
   }
   virtual ~CommandResult_Uint () { }
 
-  static void Accumulate_Uint (CommandResult_Uint *A, CommandResult_Uint *B) {
-    A->uint_value += B->uint_value;
+  void Min_Uint (CommandResult_Uint *B) {
+    uint_value = min (uint_value, B->uint_value);
+  }
+  void Max_Uint (CommandResult_Uint *B) {
+    uint_value = max (uint_value, B->uint_value);
+  }
+  void Accumulate_Uint (CommandResult_Uint *B) {
+    uint_value += B->uint_value;
   }
   void Value (uint64_t& U) {
     U = uint_value;
@@ -137,8 +143,14 @@ class CommandResult_Int :
   }
   virtual ~CommandResult_Int () { }
 
-  static void Accumulate_Int (CommandResult_Int *A, CommandResult_Int *B) {
-    A->int_value += B->int_value;
+  void Min_Int (CommandResult_Int *B) {
+    int_value = min (int_value, B->int_value);
+  }
+  void Max_Int (CommandResult_Int *B) {
+    int_value = max (int_value, B->int_value);
+  }
+  void Accumulate_Int (CommandResult_Int *B) {
+    int_value += B->int_value;
   }
   void Value (int64_t& I) {
     I = int_value;
@@ -185,8 +197,14 @@ class CommandResult_Float :
   }
   virtual ~CommandResult_Float () { }
 
-  static void Accumulate_Float (CommandResult_Float *A, CommandResult_Float *B) {
-    A->float_value += B->float_value;
+  void Min_Float (CommandResult_Float *B) {
+    float_value = min (float_value, B->float_value);
+  }
+  void Max_Float (CommandResult_Float *B) {
+    float_value = max (float_value, B->float_value);
+  }
+  void Accumulate_Float (CommandResult_Float *B) {
+    float_value += B->float_value;
   }
   void Value (double& F) {
     F = float_value;
@@ -227,8 +245,8 @@ class CommandResult_String :
   }
   virtual ~CommandResult_String () { }
 
-  static void Accumulate_String (CommandResult_String *A, CommandResult_String *B) {
-    A->string_value += B->string_value;
+  void Accumulate_String (CommandResult_String *B) {
+    string_value += B->string_value;
   }
   void Value (std::string& S) {
     S = string_value;
@@ -281,8 +299,8 @@ class CommandResult_RawString :
   }
   virtual ~CommandResult_RawString () { }
 
-  static void Accumulate_RawString (CommandResult_RawString *A, CommandResult_RawString *B) {
-    A->string_value += B->string_value;
+  void Accumulate_RawString (CommandResult_RawString *B) {
+    string_value += B->string_value;
   }
   void Value (std::string& S) {
     S = string_value;
@@ -949,22 +967,55 @@ inline void Accumulate_CommandResult (CommandResult *A, CommandResult *B) {
   Assert (A->Type() == B->Type());
   switch (A->Type()) {
   case CMD_RESULT_UINT:
-    CommandResult_Uint::Accumulate_Uint ((CommandResult_Uint *)A, (CommandResult_Uint *)B);
+    ((CommandResult_Uint *)A)->Accumulate_Uint ((CommandResult_Uint *)B);
     break;
   case CMD_RESULT_INT:
-    CommandResult_Int::Accumulate_Int ((CommandResult_Int *)A, (CommandResult_Int *)B);
+    ((CommandResult_Int *)A)->Accumulate_Int ((CommandResult_Int *)B);
     break;
   case CMD_RESULT_FLOAT:
-    CommandResult_Float::Accumulate_Float ((CommandResult_Float *)A, (CommandResult_Float *)B);
+    ((CommandResult_Float *)A)->Accumulate_Float ((CommandResult_Float *)B);
     break;
   case CMD_RESULT_STRING:
-    CommandResult_String::Accumulate_String ((CommandResult_String *)A, (CommandResult_String *)B);
+    ((CommandResult_String *)A)->Accumulate_String ((CommandResult_String *)B);
     break;
   case CMD_RESULT_RAWSTRING:
-    CommandResult_RawString::Accumulate_RawString ((CommandResult_RawString *)A, (CommandResult_RawString *)B);
+    ((CommandResult_RawString *)A)->Accumulate_RawString ((CommandResult_RawString *)B);
     break;
   }
 }
+
+inline void Accumulate_Min_CommandResult (CommandResult *A, CommandResult *B) {
+  if (!A || !B) return;
+  Assert (A->Type() == B->Type());
+  switch (A->Type()) {
+  case CMD_RESULT_UINT:
+    ((CommandResult_Uint *)A)->Min_Uint ((CommandResult_Uint *)B);
+    break;
+  case CMD_RESULT_INT:
+    ((CommandResult_Int *)A)->Min_Int ((CommandResult_Int *)B);
+    break;
+  case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)A)->Min_Float ((CommandResult_Float *)B);
+    break;
+  }
+}
+
+inline void Accumulate_Max_CommandResult (CommandResult *A, CommandResult *B) {
+  if (!A || !B) return;
+  Assert (A->Type() == B->Type());
+  switch (A->Type()) {
+  case CMD_RESULT_UINT:
+    ((CommandResult_Uint *)A)->Max_Uint ((CommandResult_Uint *)B);
+    break;
+  case CMD_RESULT_INT:
+    ((CommandResult_Int *)A)->Max_Int ((CommandResult_Int *)B);
+    break;
+  case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)A)->Max_Float ((CommandResult_Float *)B);
+    break;
+  }
+}
+
 
 inline CommandResult *Calculate_Average (CommandResult *A, CommandResult *B) {
 
@@ -1011,6 +1062,73 @@ inline CommandResult *Calculate_Average (CommandResult *A, CommandResult *B) {
 
   double average = Avalue / Bvalue;
   return new CommandResult_Float (average);
+}
+
+inline CommandResult *Calculate_StdDev  (CommandResult *A,
+                                         CommandResult *B,
+                                         CommandResult *C) {
+
+  if ((A == NULL) ||
+      (B == NULL) ||
+      (C == NULL)) {
+    return NULL;
+  }
+
+  double Avalue;
+  double Bvalue;
+  double Cvalue;
+
+  switch (A->Type()) {
+   case CMD_RESULT_UINT:
+    uint64_t Uvalue;
+    ((CommandResult_Uint *)A)->Value(Uvalue);
+    Avalue = Uvalue;
+    break;
+   case CMD_RESULT_INT:
+    int64_t Ivalue;
+    ((CommandResult_Int *)A)->Value(Ivalue);
+    Avalue = Ivalue;
+    break;
+   case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)A)->Value(Avalue);
+    break;
+  }
+  switch (B->Type()) {
+   case CMD_RESULT_UINT:
+    uint64_t Uvalue;
+    ((CommandResult_Uint *)B)->Value(Uvalue);
+    Bvalue = Uvalue;
+    break;
+   case CMD_RESULT_INT:
+    int64_t Ivalue;
+    ((CommandResult_Int *)B)->Value(Ivalue);
+    Bvalue = Ivalue;
+    break;
+   case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)B)->Value(Bvalue);
+    break;
+  }
+  switch (C->Type()) {
+   case CMD_RESULT_UINT:
+    uint64_t Uvalue;
+    ((CommandResult_Uint *)C)->Value(Uvalue);
+    Cvalue = Uvalue;
+    break;
+   case CMD_RESULT_INT:
+    int64_t Ivalue;
+    ((CommandResult_Int *)C)->Value(Ivalue);
+    Cvalue = Ivalue;
+    break;
+   case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)C)->Value(Cvalue);
+    break;
+  }
+  if (Cvalue <= 1.0) {
+    return NULL;
+  }
+
+  double result = sqrt (((Cvalue * Bvalue) - (Avalue * Avalue)) / (Cvalue * (Cvalue -1.0)));
+  return isnan(result) ? NULL : new CommandResult_Float (result);
 }
 
 inline CommandResult *Calculate_Percent (CommandResult *A, CommandResult *B) {
