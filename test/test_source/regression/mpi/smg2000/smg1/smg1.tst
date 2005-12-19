@@ -25,8 +25,12 @@ ps r -C mpirun -o pid --no-heading > file1
 ls -l file1
 cat file1
 read i < file1
-echo expcreate  -v mpi -h localhost -p $i pcsamp >> input.script
+echo expcreate  -v mpi -p $i mpi >> input.script
 echo expgo >> input.script
-echo expview stats5 -m time>> input.script
+echo ! sleep 400>> input.script
+echo expview -v nowait>> input.script
 echo exit >> input.script
 openss -batch < input.script
+kill -9 $i
+rm -f file1
+
