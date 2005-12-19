@@ -232,8 +232,10 @@ StatsPanel::~StatsPanel()
   nprintf( DEBUG_CONST_DESTRUCT ) ("  StatsPanel::~StatsPanel() destructor called\n");
 // printf("  StatsPanel::~StatsPanel() destructor called\n");
 
+#ifdef CAUSES_CLI_FITS_ON_EXIT
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
   Redirect_Window_Output( cli->wid, NULL, NULL );
+#endif // CAUSES_CLI_FITS_ON_EXIT
 
   if( currentCollector )
   {
