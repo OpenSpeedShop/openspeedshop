@@ -426,7 +426,8 @@ SourcePanel::listener(void *msg)
       }
     }
 
-// printf ("load the file spo->fileName=%s\n", spo->fileName.ascii() );
+    lineCount = 0;
+//printf ("load the file spo->fileName=%s\n", spo->fileName.ascii() );
     if( loadFile(spo->fileName) == FALSE )
     {
       // We didn't find or load the file, but we did attempt
@@ -435,16 +436,8 @@ SourcePanel::listener(void *msg)
     }
 
 
-//printf("Why won't you highlight!???!!\n");
-//canvasForm->hide();
-//qApp->flushX();
     highlightList = spo->highlightList;
     doFileHighlights();
-//canvasForm->update();
-//canvasForm->show();
-//qApp->flushX();
-//canvasForm->update();
-
 
     // Try to highlight the line...
     hscrollbar->setValue(0);
@@ -821,12 +814,14 @@ SourcePanel::loadFile(const QString &_fileName)
       textEdit->append(line_number+line);
       lineCount++;
     }
+//printf("line_numbersFLAG lineCount=%d\n", lineCount);
   } else
   {
 // As Qt documentation suggests, but it always adds an extra line...
     textEdit->setText( ts.read() );
     lineCount = textEdit->paragraphs();
     lineCount--;
+//printf("no line_numbersFLAG lineCount=%d\n", lineCount);
   }
   textEdit->setCursorPosition(0, 0);
   nprintf(DEBUG_PANELS) ("lineCount=%d paragraphs()=%d\n", lineCount, textEdit->paragraphs() );
@@ -1198,9 +1193,11 @@ void SourcePanel::handleSizeEvent(QResizeEvent *e)
 void
 SourcePanel::calculateLastParameters()
 {
+//printf("calculateLastParameters()\n");
   int lineHeight = 1;
   int height = textEdit->height();
   int heightForWidth = textEdit->heightForWidth(80);
+//printf("lineHeight=%d height=%d heightForWidth=%d lineCount=%d\n", lineHeight, height, heightForWidth );
   if( lineCount == 0 )
   {
     lastLineHeight = 1;
@@ -1212,6 +1209,8 @@ SourcePanel::calculateLastParameters()
   }
   lastLineHeight = lineHeight;
   nprintf(DEBUG_PANELS) ("height=%d lineHeight=%d\n", height, lineHeight );
+
+//printf("height=%d lineHeight=%d\n", height, lineHeight );
 
   lastVisibleLines = (int)(height/lineHeight);
 
