@@ -533,6 +533,13 @@ StatsPanel::menu( QPopupMenu* contextMenu)
           s = QString("Show Metric: Statements by Selected Function");
           contextMenu->insertItem(s);
         }
+s = QString("Show Metric: mpi::min");
+contextMenu->insertItem(s);
+s = QString("Show Metric: mpi::max");
+contextMenu->insertItem(s);
+s = QString("Show Metric: mpi::percent");
+contextMenu->insertItem(s);
+
       }
     } else
     {
@@ -1517,6 +1524,8 @@ if( !mpiFLAG )
   }
 }
 
+
+// printf("so far: command=(%s) currentCollectorStr=(%s) currentMetricStr=(%s)\n", command.ascii(), currentCollectorStr.ascii(), currentMetricStr.ascii() );
 
 if( mpiFLAG && ( currentCollectorStr.startsWith("Statements") || currentCollectorStr.startsWith("Functions") ) )
 { 
