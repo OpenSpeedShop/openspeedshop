@@ -101,7 +101,7 @@ class StatsPanel  : public Panel
 
     SPListView *splv;
 
-    QString lastAbout;
+    QString about;
 
     QHBoxLayout *frameLayout;
     QSplitter *splitterA;
@@ -112,6 +112,8 @@ ColumnValueClass columnValueClass[10];
 
     std::list<std::string> list_of_collectors;
     std::list<int64_t> list_of_pids;
+    std::list<std::string> list_of_modifiers;
+    std::list<std::string> current_list_of_modifiers;
     void updateThreadsList();
     void updateCollectorMetricList();
     void outputCLIData(QString *data);
@@ -143,7 +145,7 @@ ThreadGroupStringList currentThreadGroupStrList;
     bool showPercentageFLAG;
 
     QPopupMenu *threadMenu;
-    QPopupMenu *metricMenu;
+    QPopupMenu *modifierMenu;
     QPopupMenu *popupMenu;   // Pointer to the contextMenu
 
     QString currentThreadStr;
@@ -170,6 +172,7 @@ ThreadGroupStringList currentThreadGroupStrList;
 
   private slots:
     void threadSelected(int);
+    void modifierSelected(int);
     void collectorMetricSelected(int);
     void showStats();
     void showChart();
@@ -228,6 +231,13 @@ int lastIndentLevel;
     bool chartFLAG;
 
     CollectorListObject *clo;
+
+
+    QString selectedFunctionStr;
+
+    SPListViewItem *MYListViewItem( StatsPanel *arg1, SPListViewItem *arg2, SPListViewItem *arg3, QString *strings);
+
+    SPListViewItem *MYListViewItem( StatsPanel *arg1, QListView *arg2, SPListViewItem *arg3, QString *strings);
 
 };
 #endif // PCSTATSPANEL_H

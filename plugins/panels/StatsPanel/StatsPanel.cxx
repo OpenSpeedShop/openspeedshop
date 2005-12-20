@@ -140,16 +140,19 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   currentItem = NULL;
   currentItemIndex = 0;
   lastlvi = NULL;
-lastIndentLevel = 0;
+  lastIndentLevel = 0;
   gotHeader = FALSE;
   fieldCount = 0;
   percentIndex = -1;
   gotColumns = FALSE;
-  lastAbout = QString::null;
+  about = QString::null;
 // printf("currentItemIndex initialized to 0\n");
 
   f = NULL;
-  metricMenu = NULL;
+  modifierMenu = NULL;
+  list_of_modifiers.clear(); // This is the global known list of modifiers.
+  current_list_of_modifiers.clear();  // This is this list of user selected modifiers.
+  selectedFunctionStr = QString::null;
   threadMenu = NULL;
   currentMetricStr = QString::null;
   currentUserSelectedMetricStr = QString::null;
@@ -466,12 +469,6 @@ StatsPanel::menu( QPopupMenu* contextMenu)
 
   Panel::menu(contextMenu);
 
-  if( metricMenu != NULL )
-  {
-    delete metricMenu;
-  }
-  metricMenu = NULL;
-
   popupMenu = contextMenu; // So we can look up the text easily later.
 
   connect(contextMenu, SIGNAL( activated(int) ),
@@ -497,7 +494,6 @@ StatsPanel::menu( QPopupMenu* contextMenu)
   // Over all the collectors....
   // Round up the metrics ....
   // Create a menu of metrics....
-  metricMenu = new QPopupMenu(this);
   contextMenu->setCheckable(TRUE);
   int mid = -1;
   QString defaultStatsReportStr = QString::null;
@@ -520,25 +516,57 @@ StatsPanel::menu( QPopupMenu* contextMenu)
 // driven of the metric names, but rather are static.
     if( QString(collector_name).startsWith("mpi") )
     {
+      // Build the static list of mpi modifiers.
+      list_of_modifiers.clear();
+      list_of_modifiers.push_back("min");
+      list_of_modifiers.push_back("max");
+      list_of_modifiers.push_back("average");
+      list_of_modifiers.push_back("count");
+      list_of_modifiers.push_back("percent");
+      list_of_modifiers.push_back("stddev");
+
 // printf("currentCollectorStr=%s\n", currentCollectorStr.ascii() );
       if( QString(collector_name).startsWith("mpi::exclusive_times") )
       {
         QString s = QString("Show Metric: Functions");
         contextMenu->insertItem(s);
-        s = QString("Show Metric: Statements");
+        s = QString("Show Metric: CallTrees");
         contextMenu->insertItem(s);
         if( !currentCollectorStr.isEmpty() && 
             (currentCollectorStr == "Functions" || currentCollectorStr == "mpi") )
         {
-          s = QString("Show Metric: Statements by Selected Function");
+          s = QString("Show Metric: CallTrees by Selected Function");
           contextMenu->insertItem(s);
         }
-s = QString("Show Metric: mpi::min");
-contextMenu->insertItem(s);
-s = QString("Show Metric: mpi::max");
-contextMenu->insertItem(s);
-s = QString("Show Metric: mpi::percent");
-contextMenu->insertItem(s);
+        if( modifierMenu )
+        {
+          delete modifierMenu;
+        }
+        modifierMenu = new QPopupMenu(this);
+        modifierMenu->setCheckable(TRUE);
+        connect(modifierMenu, SIGNAL( activated(int) ),
+          this, SLOT(modifierSelected(int)) );
+        for( std::list<std::string>::const_iterator it = list_of_modifiers.begin();
+                it != list_of_modifiers.end(); it++ )
+        {
+          std::string modifier = (std::string)*it;
+    
+          QString s = QString(modifier.c_str() );
+          mid = modifierMenu->insertItem(s);
+          for( std::list<std::string>::const_iterator it = current_list_of_modifiers.begin();
+               it != current_list_of_modifiers.end(); it++ )
+          {
+            std::string current_modifier = (std::string)*it;
+// printf("building menu : current_list_of_modifier here one (%s)\n", current_modifier.c_str() );
+            if( modifier == current_modifier )
+            {
+// printf("WE have a match to check\n");
+              modifierMenu->setItemChecked(mid, TRUE);
+            }
+          }
+        }
+        contextMenu->insertItem(QString("Show mpi modifiers:"), modifierMenu);
+
 
       }
     } else
@@ -547,7 +575,8 @@ contextMenu->insertItem(s);
       mid = contextMenu->insertItem(s);
 // printf("mid=%d for %s\n", mid, s.ascii() );
 
-      if( currentMetricStr.isEmpty() || currentCollectorStr.isEmpty() )
+//      if( currentMetricStr.isEmpty() || currentCollectorStr.isEmpty() )
+      if( currentMetricStr.isEmpty() && currentCollectorStr.isEmpty() )
       {
         int index = s.find("Show Metric:");
 // printf("s=(%s)\n", s.ascii() );
@@ -929,7 +958,7 @@ void
 StatsPanel::aboutSelected()
 {
 
-QString aboutString = lastAbout;
+QString aboutString = about;
 QMessageBox::information(this, "About stats information", aboutString, "Ok");
 }
 
@@ -1085,10 +1114,10 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
     SPListViewItem *selectedItem = (SPListViewItem *)splv->selectedItem();
     if( selectedItem )
     {
-  // printf("Got an ITEM!\n");
-      QString ret_value = selectedItem->text(1);
+// printf("Got an ITEM!\n");
+      QString ret_value = selectedItem->text(fieldCount-1);
       sf = ret_value.ascii();
-  // printf("         (%s)\n", sf.c_str() );
+// printf("         (%s)\n", sf.c_str() );
     }
   }
 
@@ -1117,7 +1146,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 // printf("A: filename=(%s)\n", filename.ascii() );
 // printf("A: funcString=(%s)\n", funcString.ascii() );
 
-  if( mpiFLAG && ( currentCollectorStr.startsWith("Statements") || currentCollectorStr.startsWith("Functions") ) )
+  if( mpiFLAG && ( currentCollectorStr.startsWith("CallTrees") || currentCollectorStr.startsWith("Functions") ) )
   {
     int bof = -1;
     int eof = selected_function_qstring.find('(');
@@ -1385,7 +1414,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
           lvit++;
         }
         if( mpiFLAG && lineNumberStr != "-1" &&
-            ( currentCollectorStr.startsWith("Statements") ||
+            ( currentCollectorStr.startsWith("CallTrees") ||
               currentCollectorStr.startsWith("Functions") ) )
         {
           hlo = new HighlightObject(NULL, lineNumberStr.toInt(), hotToCold_color_names[2], ">>", "Callsite");
@@ -1459,6 +1488,7 @@ StatsPanel::updateStatsPanelData()
 {
 // printf("StatsPanel::updateStatsPanelData() entered.\n");
 
+  QString modifierStr = QString::null;
 
   SPListViewItem *splvi;
   columnHeaderList.clear();
@@ -1488,85 +1518,109 @@ StatsPanel::updateStatsPanelData()
   lastlvi = NULL;
   gotHeader = FALSE;
   gotColumns = FALSE;
-  fieldCount = 0;
+//  fieldCount = 0;
   percentIndex = -1;
 
   updateCollectorMetricList();
 
   updateThreadsList();
 
+QString lastAbout = about;
 
   nprintf( DEBUG_PANELS) ("Find_Experiment_Object() for %d\n", expID);
 
   QString command = QString("expView -x %1").arg(expID);
-  lastAbout = QString("Experiment: %1\n").arg(expID);
+  about = QString("Experiment: %1\n").arg(expID);
   if( currentCollectorStr.isEmpty() || showPercentageFLAG == FALSE )
   {
     command += QString(" %1%2").arg("stats").arg(numberItemsToDisplayInStats);
-    lastAbout += QString("Requested data for all collectors for top %1 items\n").arg(numberItemsToDisplayInStats);
+    about += QString("Requested data for all collectors for top %1 items\n").arg(numberItemsToDisplayInStats);
   } else
   {
     command += QString(" %1%2").arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
-    lastAbout += QString("Requested data for collector %1 for top %2 items\n").arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
+    about += QString("Requested data for collector %1 for top %2 items\n").arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
 
   }
   if( !currentUserSelectedMetricStr.isEmpty() )
   {
      command += QString(" -m %1").arg(currentUserSelectedMetricStr);
-     lastAbout += QString("for metrics %1\n").arg(currentUserSelectedMetricStr);
+     about += QString("for metrics %1\n").arg(currentUserSelectedMetricStr);
   }
-if( !mpiFLAG )
-{ 
-  if( !currentThreadsStr.isEmpty() )
-  {
-     command += QString(" %1").arg(currentThreadsStr);
-     lastAbout += QString("for threads %1\n").arg(currentThreadsStr);
+  if( !mpiFLAG )
+  { 
+    if( !currentThreadsStr.isEmpty() )
+    {
+       command += QString(" %1").arg(currentThreadsStr);
+       about += QString("for threads %1\n").arg(currentThreadsStr);
+    }
   }
-}
 
 
 // printf("so far: command=(%s) currentCollectorStr=(%s) currentMetricStr=(%s)\n", command.ascii(), currentCollectorStr.ascii(), currentMetricStr.ascii() );
 
-if( mpiFLAG && ( currentCollectorStr.startsWith("Statements") || currentCollectorStr.startsWith("Functions") ) )
-{ 
-  if( currentCollectorStr.isEmpty() || currentCollectorStr == "Statements" )
-  {
-    command = QString("expView -x %1 mpi%2 -v Statements").arg(expID).arg(numberItemsToDisplayInStats);
-  } else if ( currentCollectorStr == "Statements by Selected Function" )
-  {
-    QString selectedFunction = QString::null;
-    QListViewItem *selected_function_item = NULL;
-    QListViewItemIterator it( splv, QListViewItemIterator::Selected );
-    while( it.current() )
+  if( mpiFLAG && ( currentCollectorStr.startsWith("CallTrees") || currentCollectorStr.startsWith("Functions") || currentCollectorStr.startsWith("mpi") ) )
+  { 
+    if( currentCollectorStr.isEmpty() || currentCollectorStr == "CallTrees" )
     {
-      int i = 0;
-      selected_function_item = it.current();
-      break;  // only select one for now...
-      ++it;
-    }
-    if( selectedFunction && selected_function_item->text(1).isEmpty() )
+      command = QString("expView -x %1 mpi%2 -v CallTrees").arg(expID).arg(numberItemsToDisplayInStats);
+    } else if ( currentCollectorStr == "CallTrees by Selected Function" )
     {
-      return;
-    }
-    if( selected_function_item && !selected_function_item->text(1).isEmpty() )
+      if( selectedFunctionStr.isEmpty() )
+      {
+        QListViewItem *selected_function_item = NULL;
+        QListViewItemIterator it( splv, QListViewItemIterator::Selected );
+        while( it.current() )
+        {
+          int i = 0;
+          selected_function_item = it.current();
+          break;  // only select one for now...
+          ++it;
+        }
+        if( selected_function_item == NULL || selected_function_item->text(fieldCount-1).isEmpty() )
+        {
+// printf("Whoa!  No function selected.\n");
+          about = lastAbout;
+          return;
+        }
+// printf("selected_function_item->text(%d)=(%s)\n", fieldCount-1, selected_function_item->text(fieldCount-1).ascii() );
+        if( selected_function_item && !selected_function_item->text(fieldCount-1).isEmpty() )
+        {
+          QString tstr = selected_function_item->text(fieldCount-1);
+          int eof = tstr.find('(');
+          selectedFunctionStr = tstr.mid(0,eof);
+        }
+      }
+      command = QString("expView -x %1 mpi%2 -v CallTrees -f %3").arg(expID).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr);
+    } else
     {
-      QString tstr = selected_function_item->text(1);
-      int eof = tstr.find('(');
-      selectedFunction = tstr.mid(0,eof);
+      command = QString("expView -x %1 mpi%2 -v Functions").arg(expID).arg(numberItemsToDisplayInStats);
     }
-    command = QString("expView -x %1 mpi%2 -v Statements -f %3").arg(expID).arg(numberItemsToDisplayInStats).arg(selectedFunction);
-  } else
-  {
-    command = QString("expView -x %1 mpi%2 -v Functions").arg(expID).arg(numberItemsToDisplayInStats);
-  }
-  if( !currentThreadsStr.isEmpty() )
-  {
-     command += QString(" %1").arg(currentThreadsStr);
-     lastAbout += QString("for threads %1\n").arg(currentThreadsStr);
-  }
+    if( !currentThreadsStr.isEmpty() )
+    {
+       command += QString(" %1").arg(currentThreadsStr);
+       about += QString("for threads %1\n").arg(currentThreadsStr);
+    }
+
+// printf("add any modifiers...\n");
+    for( std::list<std::string>::const_iterator it = current_list_of_modifiers.begin();
+       it != current_list_of_modifiers.end(); it++ )
+    {
+      std::string modifier = (std::string)*it;
+      if( modifierStr.isEmpty() )
+      {
+        modifierStr = QString(" -m %1").arg(modifier.c_str());
+      } else
+      {
+        modifierStr += QString(",%1").arg(modifier.c_str());
+      }
+    }
+    if( !modifierStr.isEmpty() )
+    {
+      command += QString(" %1").arg(modifierStr);
+    }
 
 // printf("command=(%s)\n", command.ascii() );
-} 
+  } 
 
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
 
@@ -1581,7 +1635,7 @@ if( mpiFLAG && ( currentCollectorStr.startsWith("Statements") || currentCollecto
   QApplication::setOverrideCursor(QCursor::WaitCursor);
   Redirect_Window_Output( cli->wid, spoclass, spoclass );
 // printf("command: (%s)\n", command.ascii() );
-  lastAbout += "Command issued: " + command;
+  about += "Command issued: " + command;
   InputLineObject *clip = Append_Input_String( cli->wid, (char *)command.ascii());
 
   if( clip == NULL )
@@ -1802,9 +1856,54 @@ StatsPanel::collectorMetricSelected(int val)
       currentMetricStr = QString::null;
       currentUserSelectedMetricStr = QString::null;
 // printf("B2: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
+if( currentCollectorStr != "Show Metric: CallTrees by Selected Function" )
+{
+  selectedFunctionStr = QString::null;
+}
     }
     updateStatsPanelData();
   }
+}
+
+
+void
+StatsPanel::modifierSelected(int val)
+{ 
+// printf("modifierSelected val=%d\n", val);
+// printf("modifierSelected: (%s)\n", modifierMenu->text(val).ascii() );
+
+
+  std::string s = modifierMenu->text(val).ascii();
+// printf("B1: modifierStr=(%s)\n", s.c_str() );
+
+  bool FOUND = FALSE;
+  for( std::list<std::string>::const_iterator it = current_list_of_modifiers.begin();
+       it != current_list_of_modifiers.end();  )
+  {
+    std::string modifier = (std::string)*it;
+
+    if( modifier ==  s )
+    {   // It's in the list, so take it out...
+// printf("The modifier was in the list ... take it out!\n");
+      FOUND = TRUE;
+    }
+
+    it++;
+
+    if( FOUND == TRUE )
+    {
+      current_list_of_modifiers.remove(modifier);
+      break;
+    }
+  }
+
+  if( FOUND == FALSE )
+  {
+// printf("The modifier was not in the list ... add it!\n");
+    current_list_of_modifiers.push_back(s);
+  }
+
+  updateStatsPanelData();
 }
 
 void
@@ -2084,7 +2183,7 @@ StatsPanel::setCurrentCollector()
               << std::endl;
     return;
   }
-// printf("The currentCollector has been set.\n");
+// printf("The currentCollector has been set. currentCollectorStr=(%s)\n", currentCollectorStr.ascii() );
 }
 
 void
@@ -2198,6 +2297,7 @@ StatsPanel::outputCLIData(QString *data)
   {
     QRegExp rxp = QRegExp( "  [A-Z,a-z,0-9,%]");
     fieldCount = data->contains( rxp );
+// printf("fieldCount... hot off the wire = (%d)\n", fieldCount );
 
     int end_index = 99999;
     for(int i=0;i<fieldCount;i++)
@@ -2255,32 +2355,35 @@ StatsPanel::outputCLIData(QString *data)
       total_percent += f;
     }
     strings[i] = value;
+// printf("        strings[%d]=(%s)\n", i, strings[i].ascii() );
   }
 // printf("total_percent=%f\n", total_percent );
 
 
 
   SPListViewItem *splvi;
-  if( mpiFLAG && ( currentCollectorStr.startsWith("Statements") || currentCollectorStr.startsWith("Functions") ) )
+  if( mpiFLAG && ( currentCollectorStr.startsWith("CallTrees") || currentCollectorStr.startsWith("Functions") ) )
   {
-    bool indented = strings[1].startsWith(">");
+    bool indented = strings[fieldCount-1].startsWith(">");
     int indent_level = 0;
 
 
 // printf("indented = (%d)\n", indented );
-// printf("%d %s %s", indented, strings[0].ascii(), strings[1].ascii() );
+// printf("%d %s %s\n", indented, strings[0].ascii(), strings[fieldCount-1].ascii() );
   
     if( !indented )
     {
-      lastlvi = splvi =  new SPListViewItem( this, splv, lastlvi, strings[0], strings[1] );
+//      lastlvi = splvi =  new SPListViewItem( this, splv, lastlvi, strings[0], strings[1] );
+      lastlvi = splvi =  MYListViewItem( this, splv, lastlvi, strings);
       lastIndentLevel = 0;
     } else
     {
       if( indented && lastlvi != NULL )
       {
         QRegExp rxp = QRegExp( "[_,' ',@,A-Z,a-z,0-9,%]");
-        indent_level = strings[1].find(rxp);
-        strippedString1 = strings[1].mid(indent_level,9999);
+        indent_level = strings[fieldCount-1].find(rxp);
+        strippedString1 = strings[fieldCount-1].mid(indent_level,9999);
+strings[fieldCount-1] = strippedString1;
         if( indent_level == -1 )
         {
 //        fprintf(stderr, "Error in determining depth for (%s).\n", strings[1].ascii() );
@@ -2290,8 +2393,9 @@ StatsPanel::outputCLIData(QString *data)
 // printf("indent_level = %d lastIndentLevel = %d\n", indent_level, lastIndentLevel);
         if( indent_level > lastIndentLevel )
         {
-// printf("A: adding (%s) to (%s) after (%s)\n", strings[1].ascii(), lastlvi->text(1).ascii(), lastlvi->text(1).ascii() );
-          lastlvi = splvi =  new SPListViewItem( this, lastlvi, lastlvi, strings[0], strippedString1 );
+// printf("A: adding (%s) to (%s) after (%s)\n", strings[1].ascii(), lastlvi->text(fieldCount-1).ascii(), lastlvi->text(fieldCount-1).ascii() );
+//          lastlvi = splvi =  new SPListViewItem( this, lastlvi, lastlvi, strings[0], strippedString1 );
+          lastlvi = splvi =  MYListViewItem( this, lastlvi, lastlvi, strings);
         } else
         {
 // printf("Go figure out the right leaf to put this in...\n");
@@ -2322,8 +2426,9 @@ StatsPanel::outputCLIData(QString *data)
           {
             after = (SPListViewItem *)after->nextSibling();
           }
-// printf("C: adding (%s) to (%s) after (%s)\n", strings[1].ascii(), lastlvi->text(1).ascii(), after->text(1).ascii() );
-          lastlvi = splvi =  new SPListViewItem( this, lastlvi, after, strings[0], strippedString1 );
+// printf("C: adding (%s) to (%s) after (%s)\n", strings[1].ascii(), lastlvi->text(fieldCount-1).ascii(), after->text(fieldCount-1).ascii() );
+//          lastlvi = splvi =  new SPListViewItem( this, lastlvi, after, strings[0], strippedString1 );
+          lastlvi = splvi = MYListViewItem( this, lastlvi, after, strings );
         }
       } else
       {
@@ -2334,7 +2439,7 @@ StatsPanel::outputCLIData(QString *data)
 
 // Now try to open all the items.\n");
       lastlvi->setOpen(TRUE);
-// printf("open lastlvi=(%s)\n", lastlvi->text(1).ascii() );
+// printf("open lastlvi=(%s)\n", lastlvi->text(fieldCount-1).ascii() );
 
     lastIndentLevel = indent_level;
 
@@ -2368,6 +2473,86 @@ StatsPanel::outputCLIData(QString *data)
 
 }
 
+
+SPListViewItem *
+StatsPanel::MYListViewItem( StatsPanel *arg1, QListView *arg2, SPListViewItem *arg3, QString *strings)
+{
+  SPListViewItem *item = NULL;
+  switch( fieldCount )
+  {
+    case 0:
+      break;
+    case 1:
+      item = new SPListViewItem( arg1, arg2, arg3, strings[0] );
+      break;
+    case 2:
+      item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1] );
+      break;
+    case 3:
+      item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2] );
+      break;
+    case 4:
+      item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2], strings[3] );
+      break;
+    case 5:
+      item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4] );
+      break;
+    case 6:
+      item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4], strings[5] );
+      break;
+    case 7:
+      item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4], strings[5], strings[6] );
+      break;
+    case 8:
+      item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4], strings[5], strings[6], strings[7] );
+      break;
+    default:
+      break;
+  }
+
+  return item;
+} 
+
+
+SPListViewItem *
+StatsPanel::MYListViewItem( StatsPanel *arg1, SPListViewItem *arg2, SPListViewItem *arg3, QString *strings)
+{
+  SPListViewItem *item = NULL;
+  switch( fieldCount )
+  {
+    case 0:
+      break;
+    case 1:
+      item = new SPListViewItem( arg1, arg2, arg3, strings[0] );
+      break;
+    case 2:
+      item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1] );
+      break;
+    case 3:
+      item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2] );
+      break;
+    case 4:
+      item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2], strings[3] );
+      break;
+    case 5:
+      item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4] );
+      break;
+    case 6:
+      item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4], strings[5] );
+      break;
+    case 7:
+      item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4], strings[5], strings[6] );
+      break;
+    case 8:
+      item = new SPListViewItem( arg1, arg2, arg3, strings[0], strings[1], strings[2], strings[3], strings[4], strings[5], strings[6], strings[7] );
+      break;
+    default:
+      break;
+  }
+
+  return item;
+}
+
 #if 0
 static void
 debugList(QListView *splv)
@@ -2377,29 +2562,29 @@ SPListViewItem *top = (SPListViewItem *)splv->firstChild();
 printf("Debug:\n");
 while( top )
 {
-  printf("  %s, %s", top->text(0).ascii(), top->text(1).ascii() );
+  printf("  %s, %s", top->text(0).ascii(), top->text(fieldCount-1).ascii() );
   SPListViewItem *level1 = (SPListViewItem *)top->firstChild();
   while( level1 )
   {
-    printf("  --%s, %s", level1->text(0).ascii(), level1->text(1).ascii() );
+    printf("  --%s, %s", level1->text(0).ascii(), level1->text(fieldCount-1).ascii() );
 
     SPListViewItem *level2 = (SPListViewItem *)level1->firstChild();
     while( level2 )
     {
-      printf("  ----%s, %s", level2->text(0).ascii(), level2->text(1).ascii() );
+      printf("  ----%s, %s", level2->text(0).ascii(), level2->text(fieldCount-1).ascii() );
   
       SPListViewItem *level3 = (SPListViewItem *)level2->firstChild();
       while( level3 )
       {
-        printf("  ------%s, %s", level3->text(0).ascii(), level3->text(1).ascii() );
+        printf("  ------%s, %s", level3->text(0).ascii(), level3->text(fieldCount-1).ascii() );
         SPListViewItem *level4 = (SPListViewItem *)level3->firstChild();
         while( level4 )
         {
-          printf("  --------%s, %s", level4->text(0).ascii(), level4->text(1).ascii() );
+          printf("  --------%s, %s", level4->text(0).ascii(), level4->text(fieldCount-1).ascii() );
           SPListViewItem *level5 = (SPListViewItem *)level4->firstChild();
           while( level5 )
           {
-            printf("  ----------%s, %s", level5->text(0).ascii(), level5->text(1).ascii() );
+            printf("  ----------%s, %s", level5->text(0).ascii(), level5->text(fieldCount-1).ascii() );
         
             level5 = (SPListViewItem *)level5->nextSibling();
           }
