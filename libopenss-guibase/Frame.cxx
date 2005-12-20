@@ -75,7 +75,7 @@ Frame::Frame( PanelContainer *pc, QWidget *parent, const char *n )
 
   setAcceptDrops(TRUE);
 
-  sprintf(tmp_name, "%s: %s", pc->getInternalName(), n);
+  sprintf(tmp_name, "%s: %s", pc->getInternalName().ascii(), n);
   name = strdup(tmp_name);
   setDragEnabled(FALSE);
   setDropEnabled(FALSE);
@@ -110,8 +110,8 @@ void Frame::mousePressEvent(QMouseEvent *e)
     return;
   }
 
-  nprintf(DEBUG_FRAMES) ("Frame::mousePressEvent(%s) pc=(%s)\n", getName(), getPanelContainer()->getInternalName() );
-printf ("HERE!!!!  Frame::mousePressEvent(%s) pc=(%s)\n", getName(), getPanelContainer()->getInternalName() );
+  nprintf(DEBUG_FRAMES) ("Frame::mousePressEvent(%s) pc=(%s)\n", getName(), getPanelContainer()->getInternalName().ascii() );
+printf ("HERE!!!!  Frame::mousePressEvent(%s) pc=(%s)\n", getName(), getPanelContainer()->getInternalName().ascii() );
 
   if( e->button() != LeftButton )
   {
@@ -148,7 +148,7 @@ void Frame::mouseReleaseEvent(QMouseEvent *)
     return;
   }
 
-  nprintf(DEBUG_FRAMES) ("Frame::mouseReleaseEvent(%s-%s) isDropEnabled()=%d Frame::dragging=%d entered\n", getPanelContainer()->getInternalName(), getPanelContainer()->getExternalName(), isDropEnabled(), Frame::dragging );
+  nprintf(DEBUG_FRAMES) ("Frame::mouseReleaseEvent(%s-%s) isDropEnabled()=%d Frame::dragging=%d entered\n", getPanelContainer()->getInternalName().ascii(), getPanelContainer()->getExternalName().ascii(), isDropEnabled(), Frame::dragging );
 
   if( !isDropEnabled() || !Frame::dragging )
   {
@@ -203,7 +203,7 @@ void Frame::dragEnterEvent(QDragEnterEvent* event)
 void Frame::dropEvent(QDropEvent* event)
 {
   nprintf(DEBUG_FRAMES) ("Frame::dropEnterEvent() entered\n");
-  nprintf(DEBUG_FRAMES) ("Frame::dropEvent(%s-%s) isDropEnabled()=%d Frame::dragging=%d entered\n", getPanelContainer()->getInternalName(), getPanelContainer()->getExternalName(), isDropEnabled(), Frame::dragging );
+  nprintf(DEBUG_FRAMES) ("Frame::dropEvent(%s-%s) isDropEnabled()=%d Frame::dragging=%d entered\n", getPanelContainer()->getInternalName().ascii(), getPanelContainer()->getExternalName().ascii(), isDropEnabled(), Frame::dragging );
 
   nprintf(DEBUG_FRAMES) ("attempt to drop the panel \n");
 
@@ -274,7 +274,7 @@ Frame::contextMenuEvent( QContextMenuEvent *, bool localMenu )
 
 
   nprintf(DEBUG_FRAMES) ("Frame::contextMenuEvent(%s-%s)\n",
-    getPanelContainer()->getInternalName(), getPanelContainer()->getExternalName() );
+    getPanelContainer()->getInternalName().ascii(), getPanelContainer()->getExternalName().ascii() );
 
   getPanelContainer()->getMasterPC()->panelContainerContextMenuEvent( getPanelContainer(), localMenu );
 
@@ -285,14 +285,14 @@ Frame::contextMenuEvent( QContextMenuEvent *, bool localMenu )
 #ifdef OLDWAY
 void Frame::enterEvent ( QEvent * )
 {
-  nprintf(DEBUG_FRAMES) ("Frame::enterEvent(%s) pc=(%s-%s)\n", getName(), getPanelContainer()->getInternalName(), getPanelContainer()->getExternalName() );
+  nprintf(DEBUG_FRAMES) ("Frame::enterEvent(%s) pc=(%s-%s)\n", getName(), getPanelContainer()->getInternalName().ascii(), getPanelContainer()->getExternalName().ascii() );
 }
 
 
 // Not active at this time, but it's the hook to handle leave events.
 void Frame::leaveEvent ( QEvent * )
 {
-//  nprintf(DEBUG_FRAMES) ("Frame::leaveEvent(%s) pc=(%s)\n", getName(), getPanelContainer()->getInternalName() );
+//  nprintf(DEBUG_FRAMES) ("Frame::leaveEvent(%s) pc=(%s)\n", getName(), getPanelContainer()->getInternalName().ascii() );
 }
 #endif // OLDWAY
 

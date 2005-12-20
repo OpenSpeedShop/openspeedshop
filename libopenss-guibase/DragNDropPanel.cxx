@@ -87,7 +87,7 @@ DragNDropPanel::DragNDropPanel( const char *mimeType, PanelContainer *sourcePC, 
   panelContainer = sourcePC;
   frame = sourceFrame;
 
-  nprintf(DEBUG_DND) ("\n\n\nDragNDropPanel(load: %s) Frame=(%s)\n", panelContainer->getInternalName(), sourceFrame->getName() );
+  nprintf(DEBUG_DND) ("\n\n\nDragNDropPanel(load: %s) Frame=(%s)\n", panelContainer->getInternalName().ascii(), sourceFrame->getName() );
 
 #ifdef CHANGE_CURSOR
   QBitmap custom_bits(
@@ -107,7 +107,7 @@ DragNDropPanel::DragNDropPanel( const char *mimeType, PanelContainer *sourcePC, 
 DragNDropPanel::~DragNDropPanel( )
 {
   // default destructor.
-  nprintf(DEBUG_DND) ("DragNDropPanel (%s) destructor called\n", panelContainer ? panelContainer->getInternalName() : "" );
+  nprintf(DEBUG_DND) ("DragNDropPanel (%s) destructor called\n", panelContainer ? panelContainer->getInternalName().ascii() : "" );
 
   panelContainer = NULL;
 
@@ -135,7 +135,7 @@ DragNDropPanel::~DragNDropPanel( )
 void
 DragNDropPanel::DropPanel( PanelContainer *sourcePC, bool doubleClickedFLAG )
 {
-  nprintf(DEBUG_DND) ("DropPanel  sourcePC=(%s)\n", sourcePC->getInternalName() );
+  nprintf(DEBUG_DND) ("DropPanel  sourcePC=(%s)\n", sourcePC->getInternalName().ascii() );
 
   // Now, get the location of the mouse and return a PanelContainer given 
   // current mouse location.
@@ -216,7 +216,7 @@ targetPC->topWidget = topLevelWidget;
   }
 
  
-  nprintf(DEBUG_DND) ("onto targetPC=(%s)\n", targetPC->getInternalName() );
+  nprintf(DEBUG_DND) ("onto targetPC=(%s)\n", targetPC->getInternalName().ascii() );
   QWidget *w = targetPC->dropSiteLayoutParent;
 
   // Make sure there is a drop site.   If there's not one create one.
@@ -238,14 +238,14 @@ targetPC->topWidget = topLevelWidget;
 
   if( p->topLevel )
   {
-    nprintf(DEBUG_DND) ("Check for parenting issues on the drop site targetPC=(%s:%s)\n", targetPC->getInternalName(), targetPC->getExternalName() );
-    nprintf(DEBUG_DND) ("p->topPC=(%s:%s)\n", p->topPC->getInternalName(), p->topPC->getExternalName() );
+    nprintf(DEBUG_DND) ("Check for parenting issues on the drop site targetPC=(%s:%s)\n", targetPC->getInternalName().ascii(), targetPC->getExternalName().ascii() );
+    nprintf(DEBUG_DND) ("p->topPC=(%s:%s)\n", p->topPC->getInternalName().ascii(), p->topPC->getExternalName().ascii() );
      // Make sure this topLevel isn't being parented into one of it's own
      // child panel containers.
     PanelContainer *upPC = targetPC;
     while( upPC != NULL )
     {
-      nprintf(DEBUG_DND) ("Check %s-%s.\n", upPC->getInternalName(), upPC->getExternalName() );
+      nprintf(DEBUG_DND) ("Check %s-%s.\n", upPC->getInternalName().ascii(), upPC->getExternalName().ascii() );
       if( upPC == p->topPC )
       {
         QString msg;
@@ -279,7 +279,7 @@ targetPC->topWidget = topLevelWidget;
 void
 DragNDropPanel::DropPanelWithQtDnD( PanelContainer *targetPC)
 {
-  nprintf(DEBUG_DND) ("DropPanel in targetPC=(%s)\n", targetPC->getInternalName() );
+  nprintf(DEBUG_DND) ("DropPanel in targetPC=(%s)\n", targetPC->getInternalName().ascii() );
 
   // Make sure there is a valid place to drop it.
   if( panelContainer == targetPC || panelContainer->tabWidget == NULL )
@@ -353,7 +353,7 @@ targetPC->topWidget = topLevelWidget;
   }
 
  
-  nprintf(DEBUG_DND) ("onto targetPC=(%s)\n", targetPC->getInternalName() );
+  nprintf(DEBUG_DND) ("onto targetPC=(%s)\n", targetPC->getInternalName().ascii() );
   QWidget *w = targetPC->dropSiteLayoutParent;
 
   // Make sure there is a drop site.   If there's not one create one.
@@ -377,14 +377,14 @@ targetPC->topWidget = topLevelWidget;
 
   if( p->topLevel )
   {
-    nprintf(DEBUG_DND) ("Check for parenting issues on the drop site targetPC=(%s:%s)\n", targetPC->getInternalName(), targetPC->getExternalName() );
-    nprintf(DEBUG_DND) ("p->topPC=(%s:%s)\n", p->topPC->getInternalName(), p->topPC->getExternalName() );
+    nprintf(DEBUG_DND) ("Check for parenting issues on the drop site targetPC=(%s:%s)\n", targetPC->getInternalName().ascii(), targetPC->getExternalName().ascii() );
+    nprintf(DEBUG_DND) ("p->topPC=(%s:%s)\n", p->topPC->getInternalName().ascii(), p->topPC->getExternalName().ascii() );
      // Make sure this topLevel isn't being parented into one of it's own
      // child panel containers.
     PanelContainer *upPC = targetPC;
     while( upPC != NULL )
     {
-      nprintf(DEBUG_DND) ("Check %s-%s.\n", upPC->getInternalName(), upPC->getExternalName() );
+      nprintf(DEBUG_DND) ("Check %s-%s.\n", upPC->getInternalName().ascii(), upPC->getExternalName().ascii() );
       if( upPC == p->topPC )
       {
         QString msg;

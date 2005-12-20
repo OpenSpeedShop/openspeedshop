@@ -147,7 +147,7 @@ class PanelContainer : public QWidget
     QColor getTabColor(int);
                   
     //! The name of this PanelContainer given by the panel developer.
-    char *external_name;
+    QString external_name;
 
     //! A convienience routine to set the PanelContainer's internal  name.
     void setInternalName(const char *n);
@@ -156,9 +156,9 @@ class PanelContainer : public QWidget
     void setExternalName(const char *n);
 
     //! A convinience routine to get the internal PanelContainer name.
-    const char *getInternalName() { return internal_name ? internal_name : (char *)"dead pc"; };
+    QString getInternalName() { return !internal_name.isEmpty() ? internal_name : QString("dead pc"); };
     //! A convinience routine to get the external PanelContainer name.
-    const char *getExternalName() { return external_name ? external_name : (char *)"dead pc"; };
+    QString getExternalName() { return !external_name.isEmpty() ? external_name : QString("dead pc"); };
 
     //! Called to save the PanelContainer tree to a file.
     void savePanelContainerTree(char *fn = NULL);
@@ -443,7 +443,7 @@ class PanelContainer : public QWidget
     QPopupMenu *contextMenu;
 
     //! The name of this PanelContainer.
-    char *internal_name;
+    QString internal_name;
 
     //! Find the nearest Panel that is interested in a message.
     Panel *findNearestInterestedPanel(PanelContainer *start_pc, char *msg, int *ret_val);

@@ -166,8 +166,8 @@ PanelContainer::PanelContainer( QWidget* _parent, const char* n, PanelContainer 
 
   pc_rename_count = 0;
   sprintf(pc_name_count, "pc:%d", getMasterPC()->_panel_container_count);
-  internal_name = strdup(pc_name_count);
-  external_name = strdup(n);
+  internal_name = QString(pc_name_count);
+  external_name = QString(n);
 
   _masterPanelContainerList = pcl;
 
@@ -199,13 +199,13 @@ PanelContainer::PanelContainer( QWidget* _parent, const char* n, PanelContainer 
   }
   // Add this panel container to the global list.
   nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::PanelContainer() add PC getInternalName()=(%s)\n",
-    getInternalName() );
+    getInternalName().ascii() );
 
   _masterPanelContainerList->push_back(this);
 
   panelList.clear();  // Make sure the panelList interator list is empty.
 
-  if( !internal_name ) // Set the internal name...
+  if( internal_name.isEmpty() ) // Set the internal name...
   {
     setInternalName(pc_name_count);
   }
@@ -218,14 +218,14 @@ PanelContainer::PanelContainer( QWidget* _parent, const char* n, PanelContainer 
   // and right or top and bottom.
   splitter = new QSplitter(parent, "splitter");
 splitter->setMinimumSize( QSize(10,10) );
-  strcpy(cn,"splitter:");strcat(cn, internal_name);strcat(cn,"-");strcat(cn,external_name); splitter->setCaption(cn);
+  strcpy(cn,"splitter:");strcat(cn, internal_name.ascii());strcat(cn,"-");strcat(cn,external_name.ascii()); splitter->setCaption(cn);
   if( debug(DEBUG_FRAMES) ) splitter->setBackgroundColor("red");
 
   // The orientation doesn't matter at this point... at least not yet.
   splitter->setOrientation( QSplitter::Vertical );
 
   // Create a frame for the left side and show it.
-  sprintf(tmp_str, "originalLeftFrame for %s", getInternalName() );
+  sprintf(tmp_str, "originalLeftFrame for %s", getInternalName().ascii() );
   leftFrame = new Frame(this, splitter, "left_frame");
 leftFrame->setMinimumSize( QSize(10,10) );
   if( debug(DEBUG_FRAMES) ) leftFrame->setBackgroundColor("white");
@@ -262,7 +262,7 @@ leftFrame->setMinimumSize( QSize(10,10) );
   dropSiteLayoutParent = new QWidget( leftFrame, "dropSiteLayoutParent" );
 dropSiteLayoutParent->setMinimumSize( QSize(10,10) );
   if( debug(DEBUG_FRAMES) ) dropSiteLayoutParent->setBackgroundColor("blue");
-  strcpy(cn,"dropSiteLayoutParent:");strcat(cn, internal_name);strcat(cn,"-");strcat(cn,external_name); dropSiteLayoutParent->setCaption(cn);
+  strcpy(cn,"dropSiteLayoutParent:");strcat(cn, internal_name.ascii());strcat(cn,"-");strcat(cn,external_name.ascii()); dropSiteLayoutParent->setCaption(cn);
 
   dropSiteLayout = new QVBoxLayout( dropSiteLayoutParent, 0, 0, "dropSiteLayout");
 
@@ -270,11 +270,11 @@ dropSiteLayoutParent->setMinimumSize( QSize(10,10) );
   tabWidget = new TabWidget( this, dropSiteLayoutParent, "tabWidget" );
 tabWidget->setMinimumSize( QSize(10,10) );
   if( debug(DEBUG_FRAMES) ) tabWidget->setBackgroundColor("orange");
-  strcpy(cn,"tabWidget:");strcat(cn, internal_name);strcat(cn,"-");strcat(cn,external_name); tabWidget->setCaption(cn);
+  strcpy(cn,"tabWidget:");strcat(cn, internal_name.ascii());strcat(cn,"-");strcat(cn,external_name.ascii()); tabWidget->setCaption(cn);
 
   tabBarWidget = new TabBarWidget( this, dropSiteLayoutParent, "tabBarWidget");
   if( debug(DEBUG_FRAMES) ) tabBarWidget->setBackgroundColor("pink");
-  strcpy(cn,"tabBarWidget:");strcat(cn, internal_name);strcat(cn,"-");strcat(cn,external_name); tabBarWidget->setCaption(cn);
+  strcpy(cn,"tabBarWidget:");strcat(cn, internal_name.ascii());strcat(cn,"-");strcat(cn,external_name.ascii()); tabBarWidget->setCaption(cn);
 
   tabWidget->setTabBar(tabBarWidget);
 
@@ -313,7 +313,7 @@ rightFrame->setMinimumSize( QSize(10,10) );
 */
 PanelContainer::~PanelContainer()
 {
-  nprintf(DEBUG_CONST_DESTRUCT) ("->>>> 0x%x   PanelContainer::~PanelContainer(%s-%s) destructor called.\n", this, getInternalName(), getExternalName() );
+  nprintf(DEBUG_CONST_DESTRUCT) ("->>>> 0x%x   PanelContainer::~PanelContainer(%s-%s) destructor called.\n", this, getInternalName().ascii(), getExternalName().ascii() );
 
   menuEnabled = FALSE;
 
@@ -340,6 +340,7 @@ PanelContainer::~PanelContainer()
 
 
 
+#ifdef PULL
   delete tabBarWidget;
   delete tabWidget;
   delete dropSiteLayout;
@@ -347,20 +348,19 @@ PanelContainer::~PanelContainer()
   delete rightFrame;
   delete leftFrame;
   delete splitter;
+#endif // PULL
 
   delete( panelContainerFrameLayout );
 
-  if( internal_name )
+  if( !internal_name.isEmpty() )
   {
-    nprintf(DEBUG_PANELCONTAINERS) ("delete %s", getInternalName() );
-    delete internal_name;
-    internal_name = NULL;
+    nprintf(DEBUG_PANELCONTAINERS) ("delete %s", getInternalName().ascii() );
+    internal_name = QString::null;
   }
-  if( external_name )
+  if( !external_name.isEmpty() )
   {
-    nprintf(DEBUG_PANELCONTAINERS) ("  -%s\n", getExternalName() );
-    delete external_name;
-    external_name = NULL;
+    nprintf(DEBUG_PANELCONTAINERS) ("  -%s\n", getExternalName().ascii() );
+    external_name = QString::null;
   }
 }
 
@@ -371,9 +371,9 @@ PanelContainer::languageChange()
 {
   char name_buffer[1024];
   name_buffer[0] = '\0';
-  strcpy(name_buffer, external_name);
+  strcpy(name_buffer, external_name.ascii());
   strcat(name_buffer, "-");
-  strcat(name_buffer, internal_name);
+  strcat(name_buffer, internal_name.ascii());
   setCaption( tr( name_buffer ) );
 }
 
@@ -385,7 +385,7 @@ void
 PanelContainer::split(Orientation orientation, bool showRight, int leftSidePercent)
 {
   // We've received a request to split the panelContainer.
-  nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::split(%s-%s)\n", getInternalName(), getExternalName() );
+  nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::split(%s-%s)\n", getInternalName().ascii(), getExternalName().ascii() );
 
   menuEnabled = FALSE;
 
@@ -568,7 +568,7 @@ PanelContainer::splitVertical(int leftSidePercent )
 Panel *
 PanelContainer::getRaisedPanel()
 {
-  nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::getRaisedPanel(%s-%s) entered.\n", getInternalName(), getExternalName() );
+  nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::getRaisedPanel(%s-%s) entered.\n", getInternalName().ascii(), getExternalName().ascii() );
   Panel *p = NULL;
 
   if( !areTherePanels() )
@@ -665,7 +665,7 @@ static const char *drag_xpm[]={
 void
 PanelContainer::dragRaisedPanel()
 {
-  nprintf(DEBUG_DND) ("PanelContainer::dragRaisedPanel(%s) entered.\n", getInternalName() );
+  nprintf(DEBUG_DND) ("PanelContainer::dragRaisedPanel(%s) entered.\n", getInternalName().ascii() );
 
   Frame::dragging = TRUE;
 
@@ -698,7 +698,7 @@ PanelContainer::dragRaisedPanel()
 void
 PanelContainer::dragRaisedPanel()
 {
-  nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::dragRaisedPanel(%s) entered.\n", getInternalName() );
+  nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::dragRaisedPanel(%s) entered.\n", getInternalName().ascii() );
 
   // First find the associated Frame.
   Frame::dragging = TRUE;
@@ -726,7 +726,7 @@ void
 PanelContainer::reparentPCPanels(PanelContainer *tPC, PanelContainer *fPC)
 {
   nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::reparentPCPanels(%s-%s, %s-%s)\n",
-    tPC->getInternalName(), tPC->getExternalName(), fPC->getInternalName(), fPC->getExternalName() );
+    tPC->getInternalName().ascii(), tPC->getExternalName().ascii(), fPC->getInternalName().ascii(), fPC->getExternalName().ascii() );
 
   sourcePC = fPC;
   tPC->movePanelsToNewPanelContainer( sourcePC );
@@ -815,11 +815,11 @@ PanelContainer::findInternalNamedPanelContainer(char *panel_container_name)
   {
     pc = (PanelContainer *)*it;
     nprintf(DEBUG_PANELCONTAINERS) ("findInternalNamedPanelContainer: is (%s) (%s)\n",
-      pc->getInternalName(), panel_container_name );
+      pc->getInternalName().ascii(), panel_container_name );
     if( pc->markedForDelete == FALSE && 
-        strcmp(panel_container_name, pc->getInternalName()) == 0 )
+        strcmp(panel_container_name, pc->getInternalName().ascii()) == 0 )
     {
-      nprintf(DEBUG_PANELCONTAINERS) ("findInternalNamedPanelContainer(%s): found one\n", pc->getInternalName() );
+      nprintf(DEBUG_PANELCONTAINERS) ("findInternalNamedPanelContainer(%s): found one\n", pc->getInternalName().ascii() );
       return pc;
     }
   }
@@ -829,7 +829,7 @@ PanelContainer::findInternalNamedPanelContainer(char *panel_container_name)
   
   pc = findFirstEmptyPanelContainer(getMasterPC());
   nprintf(DEBUG_PANELCONTAINERS) ("findInternalNamedPanelContainer(%s) says drop it in %s instead.\n",
-    panel_container_name, pc->getInternalName() );
+    panel_container_name, pc->getInternalName().ascii() );
 
   return( pc );
 } 
@@ -857,7 +857,7 @@ PanelContainer::findBestFitPanelContainer(PanelContainer *start_pc)
     nprintf(DEBUG_PANELCONTAINERS) ("WARNING! You can't add this to this panelContainer!  It's split!\n");
   }
 
-  nprintf(DEBUG_PANELCONTAINERS) ("findBestFitPanelContainer() from %s %s\n", start_pc->getInternalName(), start_pc->getExternalName() );
+  nprintf(DEBUG_PANELCONTAINERS) ("findBestFitPanelContainer() from %s %s\n", start_pc->getInternalName().ascii(), start_pc->getExternalName().ascii() );
 
 
   PanelContainer *epc = NULL;
@@ -926,11 +926,11 @@ PanelContainer::findPanelContainerWithNamedPanel(char *panel_container_name)
   {
     pc = (PanelContainer *)*it;
     nprintf(DEBUG_PANELCONTAINERS) ("findPanelContainerWithNamedPanel: is (%s) (%s)\n",
-      pc->getExternalName(), panel_container_name );
+      pc->getExternalName().ascii(), panel_container_name );
     if( pc->markedForDelete == FALSE && 
-        strcmp(panel_container_name, pc->getExternalName()) == 0 )
+        strcmp(panel_container_name, pc->getExternalName().ascii()) == 0 )
     {
-      nprintf(DEBUG_PANELCONTAINERS) ("findPanelContainerWithNamedPanel(%s): found one\n", pc->getExternalName() );
+      nprintf(DEBUG_PANELCONTAINERS) ("findPanelContainerWithNamedPanel(%s): found one\n", pc->getExternalName().ascii() );
       // We found one
       if( pc->getRaisedPanel() )
       { // The matching PanelContainer with a raised Panel always
@@ -989,12 +989,12 @@ int found_count = 0;
       int height=pc->parent->height();
 
       nprintf(DEBUG_PANELCONTAINERS) ("(%s) x=%d y=%d width=%d height=%d\n",
-        pc->getInternalName(), x, y, width, height );
+        pc->getInternalName().ascii(), x, y, width, height );
 
       if( mouse_x >= x && mouse_x <= x+width  &&
           mouse_y >= y && mouse_y <= y+height )
       {
-        nprintf(DEBUG_PANELCONTAINERS) ("findPanelContainerByMouseLocation(%s-%s): found one\n", pc->getInternalName(), pc->getExternalName() );
+        nprintf(DEBUG_PANELCONTAINERS) ("findPanelContainerByMouseLocation(%s-%s): found one\n", pc->getInternalName().ascii(), pc->getExternalName().ascii() );
 
         // If one of the matches is itself, just return 'this'.
         if( pc == this )
@@ -1021,7 +1021,7 @@ found_count++;
   }
 
 nprintf(DEBUG_PANELCONTAINERS) ("findPanelContainerByMouseLocation() found (%d) possible candidates.\n", found_count );
-nprintf(DEBUG_PANELCONTAINERS) ("  the found_pc=(%s-%s)\n", found_pc ? found_pc->getInternalName() : "", found_pc ? found_pc->getExternalName() : "" );
+nprintf(DEBUG_PANELCONTAINERS) ("  the found_pc=(%s-%s)\n", found_pc ? found_pc->getInternalName().ascii() : "", found_pc ? found_pc->getExternalName().ascii() : "" );
 
   return( found_pc );
 } 
@@ -1145,7 +1145,7 @@ PanelContainer::savePanelContainerTree(char *fn)
     if( pc->topLevel == TRUE )
     { // If this is a topLevel tree walk the tree.
       depth = 1;
-      nprintf(DEBUG_PANELCONTAINERS) ("save pc=(%s)\n", pc->getInternalName() );
+      nprintf(DEBUG_PANELCONTAINERS) ("save pc=(%s)\n", pc->getInternalName().ascii() );
 // First rename panel containers in the tree...
       max_depth = 1;
       setDepthPanelContainerTree(pc);
@@ -1188,7 +1188,7 @@ PanelContainer::setDepthPanelContainerTree(PanelContainer *pc)
 void
 PanelContainer::renamePanelContainerTree(PanelContainer *pc)
 {
-  nprintf(DEBUG_PANELCONTAINERS) ("renamePanelConantinerTree() from pc (%s)\n", pc->getInternalName() );
+  nprintf(DEBUG_PANELCONTAINERS) ("renamePanelConantinerTree() from pc (%s)\n", pc->getInternalName().ascii() );
   for( int i = 0; i<max_depth+1; i++ )
   {
     // From the top again...  Rename sequencing off depth.
@@ -1224,9 +1224,6 @@ PanelContainer::renamePanelContainer()
 {
   char tmpstr[100];
 
-  free(internal_name);
-  free(external_name);
-
   sprintf(tmpstr, "pc:%d", pc_rename_count);
   pc_rename_count++;
 
@@ -1258,15 +1255,15 @@ PanelContainer::savePanelContainer(int depth, FILE *fd)
   {
     indentString(depth,indent_buffer);
     sprintf(buffer, "%s %s  %d %d %d %d %d %d %d %d\n",
-      getInternalName(),
-      parentPanelContainer ? parentPanelContainer->getInternalName() : "toplevel",
+      getInternalName().ascii(),
+      parentPanelContainer ? parentPanelContainer->getInternalName().ascii() : "toplevel",
       SPLIT, splitter->orientation(), 
 parentPanelContainer ? parentPanelContainer->leftPanelContainer == this : 0,
       width(), height(),
       markedForDelete, tl->x(), tl->y() );
       nprintf(DEBUG_PANELCONTAINERS) ("%s(%s) (%s) SPLIT: o=%d ls=%d w=%d h=%d mfd=%s x=%d y=%d\n",
-        indent_buffer, getInternalName(),
-        parentPanelContainer ? parentPanelContainer->getInternalName() : "toplevel",
+        indent_buffer, getInternalName().ascii(),
+        parentPanelContainer ? parentPanelContainer->getInternalName().ascii() : "toplevel",
         splitter->orientation(), 
 parentPanelContainer ? parentPanelContainer->leftPanelContainer == this : 0,
         width(), height(),
@@ -1277,15 +1274,15 @@ parentPanelContainer ? parentPanelContainer->leftPanelContainer == this : 0,
   {
     indentString(depth,indent_buffer);
     sprintf(buffer, "%s %s %d %d %d %d %d %d %d %d\n",
-      getInternalName(),
-      parentPanelContainer ? parentPanelContainer->getInternalName() : "toplevel",
+      getInternalName().ascii(),
+      parentPanelContainer ? parentPanelContainer->getInternalName().ascii() : "toplevel",
       !SPLIT, -1,
       parentPanelContainer ? parentPanelContainer->leftPanelContainer == this : 0,
       width(), height(),
       markedForDelete, tl->x(), tl->y() );
       nprintf(DEBUG_PANELCONTAINERS) ("%s(%s) (%s) NO SPLIT: ls=%d w=%d h=%d mfd=%s x=%d y=%d \n",
-      indent_buffer, getInternalName(),
-      parentPanelContainer ? parentPanelContainer->getInternalName() : "toplevel",
+      indent_buffer, getInternalName().ascii(),
+      parentPanelContainer ? parentPanelContainer->getInternalName().ascii() : "toplevel",
 parentPanelContainer ? parentPanelContainer->leftPanelContainer == this : 0,
       width(), height(),
       markedForDelete ? "mfd" : "---", tl->x(), tl->y() );
@@ -1300,7 +1297,7 @@ parentPanelContainer ? parentPanelContainer->leftPanelContainer == this : 0,
 void
 PanelContainer::_saveOrderedPanelContainerTree(PanelContainer *pc, FILE *fd)
 {
-  nprintf(DEBUG_PANELCONTAINERS) ("_saveOrderedPanelContainerTree() from pc (%s)\n", pc->getInternalName() );
+  nprintf(DEBUG_PANELCONTAINERS) ("_saveOrderedPanelContainerTree() from pc (%s)\n", pc->getInternalName().ascii() );
   for( int i = 0; i<max_depth+1; i++ )
   {
     // From the top again...  save by depth
@@ -1348,7 +1345,7 @@ PanelContainer::addPanel(Panel *p, PanelContainer *panel_container, char *tab_na
     return NULL;
   }
 
-  nprintf(DEBUG_PANELCONTAINERS) ("PanelContinaer::addPanel(%s, %s) in (%s)\n", tab_name, p->getName(), start_pc->getInternalName() );
+  nprintf(DEBUG_PANELCONTAINERS) ("PanelContinaer::addPanel(%s, %s) in (%s)\n", tab_name, p->getName(), start_pc->getInternalName().ascii() );
   if( start_pc->tabWidget == NULL )
   {
     fprintf(stderr, tr("Internal Warning: addPanel.  No tabWidget\n"));
@@ -1500,7 +1497,7 @@ Panel * PanelContainer::raiseToTop(Panel *p)
   Panel *pmatch = NULL;
   while( pc )
   {
-//printf("hmm: (%s:%s)\n", pc->getInternalName(), pc->getExternalName() );
+//printf("hmm: (%s:%s)\n", pc->getInternalName().ascii(), pc->getExternalName().ascii() );
     if( pc->topLevel == TRUE )
     {
       //    printf("pc is toplevel.\n");
@@ -1551,7 +1548,7 @@ void
 PanelContainer::removeTopLevelPanelContainer(PanelContainer *toppc, bool recursive)
 {
 
-  nprintf(DEBUG_PANELCONTAINERS) ("Here is the panel container to delete (%s-%s):\n", toppc->getInternalName(), toppc->getExternalName() );
+  nprintf(DEBUG_PANELCONTAINERS) ("Here is the panel container to delete (%s-%s):\n", toppc->getInternalName().ascii(), toppc->getExternalName().ascii() );
 
 
   bool savedResizeEnableState = getMasterPC()->_resizeEventsEnabled;
@@ -1592,8 +1589,8 @@ PanelContainer::removeTopLevelPanelContainer(PanelContainer *toppc, bool recursi
         Panel *p = (Panel *)*pit;
         nprintf(DEBUG_PANELCONTAINERS) ("remove the simple panel for (%s) in (%s-%s)\n",
           p->getName(),
-          p->getPanelContainer()->getInternalName(),
-          p->getPanelContainer()->getExternalName() );
+          p->getPanelContainer()->getInternalName().ascii(),
+          p->getPanelContainer()->getExternalName().ascii() );
         if( recursive == TRUE )
         {
           nprintf(DEBUG_PANELCONTAINERS) ("wah:C: delete (%s)\n", p->getName() );
@@ -1611,8 +1608,8 @@ PanelContainer::removeTopLevelPanelContainer(PanelContainer *toppc, bool recursi
         Panel *p = (Panel *)*pit;
         nprintf(DEBUG_PANELCONTAINERS) ("do the removal of all panels for (%s) in (%s-%s)\n",
           p->getName(),
-          p->getPanelContainer()->getInternalName(),
-          p->getPanelContainer()->getExternalName() );
+          p->getPanelContainer()->getInternalName().ascii(),
+          p->getPanelContainer()->getExternalName().ascii() );
         getMasterPC()->removePanels(p->getPanelContainer());
       }
     }
@@ -1621,8 +1618,8 @@ PanelContainer::removeTopLevelPanelContainer(PanelContainer *toppc, bool recursi
     if( toppc->rightPanelContainer )
     {
       nprintf(DEBUG_PANELCONTAINERS) ("I think you want to delete right %s-%s\n", 
-        toppc->rightPanelContainer->getInternalName(),
-        toppc->rightPanelContainer->getExternalName() );
+        toppc->rightPanelContainer->getInternalName().ascii(),
+        toppc->rightPanelContainer->getExternalName().ascii() );
   
       getMasterPC()->removeTopLevelPanelContainer(toppc->rightPanelContainer, TRUE);
     } 
@@ -1630,8 +1627,8 @@ PanelContainer::removeTopLevelPanelContainer(PanelContainer *toppc, bool recursi
     if( toppc->leftPanelContainer )
     {
       nprintf(DEBUG_PANELCONTAINERS) ("I think you want to delete left %s-%s\n", 
-        toppc->leftPanelContainer->getInternalName(),
-        toppc->leftPanelContainer->getExternalName() );
+        toppc->leftPanelContainer->getInternalName().ascii(),
+        toppc->leftPanelContainer->getExternalName().ascii() );
   
       getMasterPC()->removeTopLevelPanelContainer(toppc->leftPanelContainer, TRUE);
     }
@@ -1644,7 +1641,7 @@ PanelContainer::removeTopLevelPanelContainer(PanelContainer *toppc, bool recursi
   toppc->leftPanelContainer = NULL;
   toppc->rightPanelContainer = NULL;
 
-  nprintf(DEBUG_PANELCONTAINERS) ("wah:DeletePC.   Delete (%s-%s)\n", toppc->getInternalName(), toppc->getExternalName() );
+  nprintf(DEBUG_PANELCONTAINERS) ("wah:DeletePC.   Delete (%s-%s)\n", toppc->getInternalName().ascii(), toppc->getExternalName().ascii() );
  
   delete toppc;
 
@@ -1756,12 +1753,12 @@ PanelContainer::hidePanel(Panel *targetPanel)
 void
 PanelContainer::removeRaisedPanel(PanelContainer *targetPC)
 {
-   nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::removeRaisedPanel from (%s-%s) entered.\n", getInternalName(), getExternalName() );
+   nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::removeRaisedPanel from (%s-%s) entered.\n", getInternalName().ascii(), getExternalName().ascii() );
   if( targetPC == NULL )
   {
     targetPC = getMasterPC()->_lastPC;
   } 
-  nprintf(DEBUG_PANELCONTAINERS) ("targetPC = (%s-%s)\n", targetPC->getInternalName(), targetPC->getExternalName() );
+  nprintf(DEBUG_PANELCONTAINERS) ("targetPC = (%s-%s)\n", targetPC->getInternalName().ascii(), targetPC->getExternalName().ascii() );
   nprintf(DEBUG_PANELCONTAINERS)("There are %d panels in this PC.\n", targetPC->panelList.count() );
 
   if( targetPC->tabWidget != NULL )
@@ -1816,12 +1813,12 @@ PanelContainer::removeRaisedPanel(PanelContainer *targetPC)
 void
 PanelContainer::removePanels(PanelContainer *targetPC)
 {
-//   nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::removePanels (%s-%s)\n", getInternalName(), getExternalName() );
+//   nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::removePanels (%s-%s)\n", getInternalName().ascii(), getExternalName().ascii() );
   if( targetPC == NULL )
   {
     targetPC = getMasterPC()->_lastPC;
   }
-  nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::removePanels from (%s-%s)\n", targetPC->getInternalName(), targetPC->getExternalName() );
+  nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::removePanels from (%s-%s)\n", targetPC->getInternalName().ascii(), targetPC->getExternalName().ascii() );
 
   bool savedEnableState = getMasterPC()->_eventsEnabled;
   getMasterPC()->_eventsEnabled = FALSE;
@@ -1848,7 +1845,7 @@ PanelContainer::removePanels(PanelContainer *targetPC)
 void
 PanelContainer::setThenRemoveLastPanelContainer() 
 {
-//printf("setThenRemoveLastPanelContainer() - %s:%s\n", getInternalName(), getExternalName() );
+//printf("setThenRemoveLastPanelContainer() - %s:%s\n", getInternalName().ascii(), getExternalName().ascii() );
   getMasterPC()->_lastPC = this;
 
   // I'm not sure this is going to work...!!!!   FIX
@@ -1858,7 +1855,7 @@ PanelContainer::setThenRemoveLastPanelContainer()
 void
 PanelContainer::removeLastPanelContainer() 
 {
-// printf("removeLastPanelContainer() - %s:%s\n", getInternalName(), getExternalName() );
+// printf("removeLastPanelContainer() - %s:%s\n", getInternalName().ascii(), getExternalName().ascii() );
   removePanelContainer(getMasterPC()->_lastPC);
 }
 
@@ -1888,7 +1885,7 @@ PanelContainer::removePanelContainer(PanelContainer *targetPC)
   getMasterPC()->notifyAllDecendants((char *)cdo, targetPC);
  
 
-// printf("PanelContainer::removePanelContainer(%s:%s) entered\n", targetPC->getInternalName(), targetPC->getExternalName() );
+// printf("PanelContainer::removePanelContainer(%s:%s) entered\n", targetPC->getInternalName().ascii(), targetPC->getExternalName().ascii() );
 
 
   bool savedEnableState = getMasterPC()->_eventsEnabled;
@@ -1901,7 +1898,7 @@ PanelContainer::removePanelContainer(PanelContainer *targetPC)
     fprintf(stderr, "Warning: You should only be here when this is the master panel container.\n");
   }
 
-  nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::removePanelContainer(%s-%s) from (%s-%s)\n", targetPC->getInternalName(), targetPC->getExternalName(), getInternalName(), getExternalName() );
+  nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::removePanelContainer(%s-%s) from (%s-%s)\n", targetPC->getInternalName().ascii(), targetPC->getExternalName().ascii(), getInternalName().ascii(), getExternalName().ascii() );
   nprintf(DEBUG_PANELCONTAINERS) ("targetPC=0x%x targetPC->parentWidget=0x%x\n", targetPC, targetPC->parentWidget() );
 
   PanelContainer *pcToReparent = NULL;
@@ -1921,7 +1918,7 @@ PanelContainer::removePanelContainer(PanelContainer *targetPC)
   // If its the main PerformanceLeader window, consider this an exit().
   if( parentPC == NULL || targetPC->topLevel == TRUE )
   {
-    if( strcmp(targetPC->getInternalName(), "pc:0") == 0 )
+    if( strcmp(targetPC->getInternalName().ascii(), "pc:0") == 0 )
     {
       getMasterPC()->_eventsEnabled = savedEnableState;
       getMasterPC()->_resizeEventsEnabled = savedResizeEnableState;
@@ -1950,7 +1947,7 @@ PanelContainer::removePanelContainer(PanelContainer *targetPC)
     pcToRemove = parentPC->leftPanelContainer;
     sideType = Hide_Left_SIDE;
     nprintf(DEBUG_PANELCONTAINERS) ("removing left=(%s-%s) reparenting parentPC->rightPanelContainer\n",
-      targetPC->getInternalName(), targetPC->getExternalName() );
+      targetPC->getInternalName().ascii(), targetPC->getExternalName().ascii() );
   } else if( targetPC == parentPC->rightPanelContainer )
   {
     // if the pc being delete is the right, pcToReparent=parentPC->leftPC;
@@ -1958,8 +1955,8 @@ PanelContainer::removePanelContainer(PanelContainer *targetPC)
     pcToRemove = parentPC->rightPanelContainer;
     sideType = Hide_Right_SIDE;
     nprintf(DEBUG_PANELCONTAINERS) ("removing right=(%s-%s) reparenting parentPC->lpc=(%s-%s)\n",
-      targetPC->getInternalName(), targetPC->getExternalName(),
-      pcToReparent->getInternalName(), pcToReparent->getExternalName() );
+      targetPC->getInternalName().ascii(), targetPC->getExternalName().ascii(),
+      pcToReparent->getInternalName().ascii(), pcToReparent->getExternalName().ascii() );
   } else
   {
     fprintf(stderr, "Warning: Unexpected error removing panel\n");
@@ -2003,7 +2000,7 @@ PanelContainer::removePanelContainer(PanelContainer *targetPC)
       if( sideType == Hide_Left_SIDE )
       { // If left side is to be hidden.
         nprintf(DEBUG_PANELCONTAINERS) ("Hide the left side of (%s-%s)!\n",
-          parentPC->getInternalName(), parentPC->getExternalName() );
+          parentPC->getInternalName().ascii(), parentPC->getExternalName().ascii() );
         parentPC->leftPanelContainer->markedForDelete = TRUE;
         parentPC->leftFrame->hide();
         parentPC->rightFrame->show();
@@ -2023,7 +2020,7 @@ PanelContainer::removePanelContainer(PanelContainer *targetPC)
       } else
       { // If right side is to be hidden.
         nprintf(DEBUG_PANELCONTAINERS) ("Hide the right side! of (%s-%s)\n",
-          parentPC->getInternalName(), parentPC->getExternalName() );
+          parentPC->getInternalName().ascii(), parentPC->getExternalName().ascii() );
         parentPC->rightPanelContainer->markedForDelete = TRUE;
         parentPC->rightFrame->hide();
         parentPC->leftFrame->show();
@@ -2221,8 +2218,8 @@ PanelContainer::removePanelContainer(PanelContainer *targetPC)
     if( parentPC->parentPanelContainer )
     {
       nprintf(DEBUG_PANELCONTAINERS) ("A: parentPC->parentPanelContainer(%s-%s)\n",
-        parentPC->parentPanelContainer->getInternalName(),
-        parentPC->parentPanelContainer->getExternalName() );
+        parentPC->parentPanelContainer->getInternalName().ascii(),
+        parentPC->parentPanelContainer->getExternalName().ascii() );
       if( !parentPC->parentPanelContainer->leftPanelContainer->markedForDelete )
       {
         parentPC->parentPanelContainer->leftPanelContainer->show();
@@ -2304,9 +2301,9 @@ PanelContainer::closeAllExternalPanelContainers()
     {
       // Don't close the masterPC here.  It can only be closed from
       // OpenSpeedShop::fileExit().
-      if( strcmp(pc->getExternalName(),"masterPC") != 0 )
+      if( strcmp(pc->getExternalName().ascii(),"masterPC") != 0 )
       { 
-// printf("pushback pc(%s:%s)\n", pc->getInternalName(), pc->getExternalName() );
+// printf("pushback pc(%s:%s)\n", pc->getInternalName().ascii(), pc->getExternalName().ascii() );
         topLevelPanelContainersToDeleteList.push_back(pc);
       }
     }
@@ -2319,7 +2316,7 @@ PanelContainer::closeAllExternalPanelContainers()
                it++ )
     {
       pc = (PanelContainer *)*it;
-      nprintf(DEBUG_PANELCONTAINERS) ("attempt to close window %s-%s\n", pc->getInternalName(), pc->getExternalName() );
+      nprintf(DEBUG_PANELCONTAINERS) ("attempt to close window %s-%s\n", pc->getInternalName().ascii(), pc->getExternalName().ascii() );
       getMasterPC()->closeWindow(pc);
     }
   }
@@ -2337,7 +2334,7 @@ PanelContainer::closeWindow(PanelContainer *targetPC)
     targetPC = getMasterPC()->_lastPC;
   }
 
-  nprintf(DEBUG_PANELCONTAINERS)  ("PanelContainer::closeWindow 0x%x (%s-%s)\n", targetPC, targetPC->getInternalName(), targetPC->getExternalName() );
+  nprintf(DEBUG_PANELCONTAINERS)  ("PanelContainer::closeWindow 0x%x (%s-%s)\n", targetPC, targetPC->getInternalName().ascii(), targetPC->getExternalName().ascii() );
 
   targetPC->getMasterPC()->removePanelContainer(targetPC);
 }
@@ -2347,7 +2344,7 @@ PanelContainer::closeWindow(PanelContainer *targetPC)
 void
 PanelContainer::recover(PanelContainer *pc)
 {
-  nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::recover (%s-%s)\n", pc->getInternalName(), pc->getExternalName() );
+  nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::recover (%s-%s)\n", pc->getInternalName().ascii(), pc->getExternalName().ascii() );
 
   if( pc->leftPanelContainer->markedForDelete )
   {
@@ -2378,7 +2375,7 @@ PanelContainer::recover(PanelContainer *pc)
 void
 PanelContainer::handleSizeEvent(QResizeEvent *e)
 {
-//  nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::handleSizeEvent() for %s-%s\n", getInternalName(), getExternalName() );
+//  nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::handleSizeEvent() for %s-%s\n", getInternalName().ascii(), getExternalName().ascii() );
 
   if( !dropSiteLayout )
   {
@@ -2437,8 +2434,7 @@ PanelContainer::areTherePanels()
 void
 PanelContainer::setInternalName( const char *n )
 {
-  internal_name = new char(strlen(n)+1);
-  strcpy(internal_name, n);
+  internal_name = QString(n);
 }
 
 /*! Simply 'new' an external name for this PanelContainer */
@@ -2448,8 +2444,7 @@ PanelContainer::setInternalName( const char *n )
 void
 PanelContainer::setExternalName( const char *n )
 {
-  external_name = new char(strlen(n)+1);
-  strcpy(external_name, n);
+  external_name = QString(n);
 }
 
 /*! This is the launching routine for Panels that create other panels.
@@ -2478,7 +2473,7 @@ PanelContainer::dl_create_and_add_panel(const char *panel_type, PanelContainer *
     }
     if( pc )
     {
-      nprintf(DEBUG_PANELCONTAINERS) ("Nearest toplevel=(%s:%s)\n", pc->getInternalName(), pc->getExternalName() );
+      nprintf(DEBUG_PANELCONTAINERS) ("Nearest toplevel=(%s:%s)\n", pc->getInternalName().ascii(), pc->getExternalName().ascii() );
       targetPC = pc;
     }
   }
@@ -2527,9 +2522,9 @@ createPanelContainer( QWidget* parent, const char* name, PanelContainer *parentP
 
   PanelContainer *npc = new PanelContainer( parent, name, parentPanelContainer, panelContainerList );
 
-  nprintf(DEBUG_PANELCONTAINERS) ("created npc=(%s) (%s)\n", npc->getInternalName(), npc->getExternalName() );
+  nprintf(DEBUG_PANELCONTAINERS) ("created npc=(%s) (%s)\n", npc->getInternalName().ascii(), npc->getExternalName().ascii() );
 
-  if( strcmp("TOPLEVEL", npc->getExternalName()) == 0 )
+  if( strcmp("TOPLEVEL", npc->getExternalName().ascii()) == 0 )
   {
     npc->topLevel = TRUE;
   }
@@ -2554,7 +2549,7 @@ PanelContainer::movePanelsToNewPanelContainer( PanelContainer *sourcePC)
 {
   PanelContainer *targetPC = this;
 
-  nprintf(DEBUG_PANELCONTAINERS) ("movePanelsToNewPanelContainer targetPC=(%s-%s) from (%s-%s)\n", targetPC->getInternalName(), targetPC->getExternalName(), sourcePC->getInternalName(), sourcePC->getExternalName() );
+  nprintf(DEBUG_PANELCONTAINERS) ("movePanelsToNewPanelContainer targetPC=(%s-%s) from (%s-%s)\n", targetPC->getInternalName().ascii(), targetPC->getExternalName().ascii(), sourcePC->getInternalName().ascii(), sourcePC->getExternalName().ascii() );
 
   if( sourcePC == NULL || sourcePC == targetPC || 
       sourcePC->tabWidget == NULL )
@@ -2576,7 +2571,7 @@ PanelContainer::movePanelsToNewPanelContainer( PanelContainer *sourcePC)
 
   nprintf(DEBUG_PANELCONTAINERS) ("I think there are %d panels to move original_index=%d", sourcePC->tabWidget->count(), original_index );
  
-  nprintf(DEBUG_PANELCONTAINERS) ("onto targetPC=(%s)\n", targetPC->getInternalName() );
+  nprintf(DEBUG_PANELCONTAINERS) ("onto targetPC=(%s)\n", targetPC->getInternalName().ascii() );
 
   QWidget *w = targetPC->dropSiteLayoutParent;
 
@@ -2585,12 +2580,12 @@ PanelContainer::movePanelsToNewPanelContainer( PanelContainer *sourcePC)
     targetPC->dropSiteLayout = new QVBoxLayout( w, 0, 0, "dropSiteLayout");
     targetPC->tabWidget = new TabWidget( targetPC, w, "tabWidget" );
     {
-    char n[1024]; strcpy(n,"tabWidget:A:");strcat(n, targetPC->internal_name);strcat(n,"-");strcat(n,targetPC->external_name);
+    char n[1024]; strcpy(n,"tabWidget:A:");strcat(n, targetPC->internal_name.ascii());strcat(n,"-");strcat(n,targetPC->external_name.ascii());
     targetPC->setCaption(n);
     }
     tabBarWidget = new TabBarWidget( targetPC, w, "tabBarWidget");
     {
-    char n[1024]; strcpy(n,"tabBarWidget:");strcat(n, internal_name);strcat(n,"-");strcat(n,external_name);
+    char n[1024]; strcpy(n,"tabBarWidget:");strcat(n, internal_name.ascii());strcat(n,"-");strcat(n,external_name.ascii());
     tabBarWidget->setCaption(n);
     }
     tabWidget->setTabBar(tabBarWidget);
@@ -2666,7 +2661,7 @@ PanelContainer::moveCurrentPanelToNewPanelContainer( PanelContainer *sourcePC )
 {
   PanelContainer *targetPC = this;
 
-  nprintf(DEBUG_PANELCONTAINERS) ("moveCurrentPanelToNewPanelContainer targetPC=(%s-%s) from (%s-%s)\n", targetPC->getInternalName(), targetPC->getExternalName(), sourcePC->getInternalName(), sourcePC->getExternalName() );
+  nprintf(DEBUG_PANELCONTAINERS) ("moveCurrentPanelToNewPanelContainer targetPC=(%s-%s) from (%s-%s)\n", targetPC->getInternalName().ascii(), targetPC->getExternalName().ascii(), sourcePC->getInternalName().ascii(), sourcePC->getExternalName().ascii() );
 
   if( sourcePC == NULL || sourcePC == targetPC || 
       sourcePC->tabWidget == NULL )
@@ -2688,7 +2683,7 @@ PanelContainer::moveCurrentPanelToNewPanelContainer( PanelContainer *sourcePC )
 
   nprintf(DEBUG_PANELCONTAINERS) ("I think there are %d panels to move ", sourcePC->tabWidget->count() );
  
-  nprintf(DEBUG_PANELCONTAINERS) ("onto targetPC=(%s)\n", targetPC->getInternalName() );
+  nprintf(DEBUG_PANELCONTAINERS) ("onto targetPC=(%s)\n", targetPC->getInternalName().ascii() );
 
   QWidget *w = targetPC->dropSiteLayoutParent;
 
@@ -2697,12 +2692,12 @@ PanelContainer::moveCurrentPanelToNewPanelContainer( PanelContainer *sourcePC )
     targetPC->dropSiteLayout = new QVBoxLayout( w, 0, 0, "dropSiteLayout");
     targetPC->tabWidget = new TabWidget( targetPC, w, "tabWidget" );
     {
-    char n[1024]; strcpy(n,"tabWidget:A:");strcat(n, targetPC->internal_name);strcat(n,"-");strcat(n,targetPC->external_name);
+    char n[1024]; strcpy(n,"tabWidget:A:");strcat(n, targetPC->internal_name.ascii());strcat(n,"-");strcat(n,targetPC->external_name.ascii());
     targetPC->setCaption(n);
     }
     tabBarWidget = new TabBarWidget( targetPC, w, "tabBarWidget");
     {
-    char n[1024]; strcpy(n,"tabBarWidget:");strcat(n, internal_name);strcat(n,"-");strcat(n,external_name);
+    char n[1024]; strcpy(n,"tabBarWidget:");strcat(n, internal_name.ascii());strcat(n,"-");strcat(n,external_name.ascii());
     tabBarWidget->setCaption(n);
     }
     tabWidget->setTabBar(tabBarWidget);
@@ -2757,7 +2752,7 @@ PanelContainer::movePanel( Panel *p, QWidget *currentPage, PanelContainer *targe
   QPoint point;
   QWidget *w = targetPC->dropSiteLayoutParent;
 
-  nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::movePanel() %s From(%s-%s) to(%s-%s)\n", p->getName(), sourcePC->getInternalName(), sourcePC->getExternalName(), targetPC->getInternalName(), targetPC->getExternalName() );
+  nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::movePanel() %s From(%s-%s) to(%s-%s)\n", p->getName(), sourcePC->getInternalName().ascii(), sourcePC->getExternalName().ascii(), targetPC->getInternalName().ascii(), targetPC->getExternalName().ascii() );
 
   // First remove the Panel from the old PanelContainer list.
   p->getPanelContainer()->panelList.remove(p);
@@ -2894,14 +2889,14 @@ bool brief = TRUE;
 if( brief )
 {
     printf("%s(%s-%s) o=%d mfd=%s \n",
-       indent_buffer, getInternalName(), getExternalName(),
+       indent_buffer, getInternalName().ascii(), getExternalName().ascii(),
        splitter->orientation(), 
        markedForDelete ? "mfd" : "---" );
 } else 
 {
     printf("0x%x %s(%s-%s) o=%d w=%d h=%d mfd=%s menuEnabled=%d depth=%d\n",
        this,
-       indent_buffer, getInternalName(), getExternalName(),
+       indent_buffer, getInternalName().ascii(), getExternalName().ascii(),
        splitter->orientation(), width(), height(),
        markedForDelete ? "mfd" : "---", menuEnabled, _depth );
 }
@@ -2911,22 +2906,22 @@ if( brief )
 if( brief )
 {
     printf("%s(%s-%s) o=%d mfd=%s menuEnabled=%d\n",
-      indent_buffer, getInternalName(), getExternalName(),
+      indent_buffer, getInternalName().ascii(), getExternalName().ascii(),
       splitter->orientation(), 
       markedForDelete ? "mfd" : "---", menuEnabled );
 } else
 {
     printf("0x%x %s(%s-%s) o=%d w=%d h=%d mfd=%s menuEnabled=%d depth=%d\n",
       this,
-      indent_buffer, getInternalName(), getExternalName(),
+      indent_buffer, getInternalName().ascii(), getExternalName().ascii(),
       splitter->orientation(), width(), height(),
       markedForDelete ? "mfd" : "---", menuEnabled, _depth );
 }
 #ifdef MORE_INFO_NEEDED
     printf("%s-%s  leftFrame->panelContainer=(%s)\n",  indent_buffer,
-      leftFrame->panelContainer ? leftFrame->panelContainer->getInternalName() : "aaack!", leftFrame->panelContainer ? leftFrame->panelContainer->getExternalName() : "aaack!" );
+      leftFrame->panelContainer ? leftFrame->panelContainer->getInternalName().ascii() : "aaack!", leftFrame->panelContainer ? leftFrame->panelContainer->getExternalName().ascii() : "aaack!" );
     printf("%s-%s  rightFrame->panelContainer=(%s)\n",  indent_buffer,
-      rightFrame->panelContainer ? rightFrame->panelContainer->getInternalName() : "aaack!", rightFrame->panelContainer ? rightFrame->panelContainer->getExternalName() : "aaack!" );
+      rightFrame->panelContainer ? rightFrame->panelContainer->getInternalName().ascii() : "aaack!", rightFrame->panelContainer ? rightFrame->panelContainer->getExternalName().ascii() : "aaack!" );
 #endif // MORE_INFO_NEEDED
     printPanels(indent_buffer);
   }
@@ -2948,7 +2943,7 @@ PanelContainer::printPanels(char *buffer)
                ++it )
   {
     Panel *p = (Panel *)*it;
-    printf("%s    Panel (%s) pc=(%s)\n", buffer, p->getName(), p->getPanelContainer()->getInternalName() );
+    printf("%s    Panel (%s) pc=(%s)\n", buffer, p->getName(), p->getPanelContainer()->getInternalName().ascii() );
   }
 }
 
@@ -2991,7 +2986,7 @@ PanelContainer::debugAllWidgets()
 void
 PanelContainer::panelContainerContextMenuEvent( PanelContainer *targetPC, bool localMenu )
 {
-  nprintf(DEBUG_PANELCONTAINERS) ("A: PanelContainer::panelContainerContextMenuEvent(%s-%s) targetPC=(%s-%s)\n", getInternalName(), getExternalName(), targetPC->getInternalName(), targetPC->getExternalName() );
+  nprintf(DEBUG_PANELCONTAINERS) ("A: PanelContainer::panelContainerContextMenuEvent(%s-%s) targetPC=(%s-%s)\n", getInternalName().ascii(), getExternalName().ascii(), targetPC->getInternalName().ascii(), targetPC->getExternalName().ascii() );
 
    getMasterPC()->_lastPC = targetPC;
 
@@ -3006,7 +3001,7 @@ PanelContainer::panelContainerContextMenuEvent( PanelContainer *targetPC, bool l
 
   getMasterPC()->pcMenu = new QPopupMenu( this );
   {
-  char n[1024]; strcpy(n,"pcMenu:");strcat(n, internal_name);strcat(n,"-");strcat(n,external_name);
+  char n[1024]; strcpy(n,"pcMenu:");strcat(n, internal_name.ascii());strcat(n,"-");strcat(n,external_name.ascii());
   getMasterPC()->pcMenu->setCaption(n);
   }
 
@@ -3061,7 +3056,7 @@ if( targetPC->areTherePanels() )
   {
     getMasterPC()->contextMenu = new QPopupMenu( this );
     {
-    char n[1024]; strcpy(n,"contextMenu:A:");strcat(n, internal_name);strcat(n,"-");strcat(n,external_name);
+    char n[1024]; strcpy(n,"contextMenu:A:");strcat(n, internal_name.ascii());strcat(n,"-");strcat(n,external_name.ascii());
 //    getMasterPC()->pcMenu->setCaption(n);
     getMasterPC()->contextMenu->setCaption(n);
     }
@@ -3236,7 +3231,7 @@ PanelContainer::wasThereAnInterestedPanel(PanelContainer *pc, char *msg, int *re
   }
 
   // Then look in this PanelContainer
-  nprintf(DEBUG_PANELCONTAINERS) ("wasThereAnInterestedPanel() look at the rest of the panel container (%s,%s) panels.\n", pc->getInternalName(), pc->getExternalName() );
+  nprintf(DEBUG_PANELCONTAINERS) ("wasThereAnInterestedPanel() look at the rest of the panel container (%s,%s) panels.\n", pc->getInternalName().ascii(), pc->getExternalName().ascii() );
   for( PanelList::Iterator pit = pc->panelList.begin();
            pit != pc->panelList.end();
            ++pit )
@@ -3262,7 +3257,7 @@ PanelContainer::findNearestInterestedPanel(PanelContainer *pc, char *msg, int *r
 {
   Panel *foundPanel = NULL;
 
-  nprintf(DEBUG_PANELCONTAINERS) ("findNearestInterestedPanel: (%s,%s) entered\n", pc->getInternalName(), pc->getExternalName() );
+  nprintf(DEBUG_PANELCONTAINERS) ("findNearestInterestedPanel: (%s,%s) entered\n", pc->getInternalName().ascii(), pc->getExternalName().ascii() );
 
   if( pc->markedForDelete == FALSE &&
       !pc->leftPanelContainer && !pc->rightPanelContainer )
@@ -3349,7 +3344,7 @@ PanelContainer::notifyGroup(char *msg, int groupID)
 int
 PanelContainer::notifyAllDecendants(char *msg, PanelContainer *startPC)
 {
-  nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::notifyAllDecendents(%s-%s)\n", startPC->getInternalName(), startPC->getExternalName() );
+  nprintf(DEBUG_PANELCONTAINERS) ("PanelContainer::notifyAllDecendents(%s-%s)\n", startPC->getInternalName().ascii(), startPC->getExternalName().ascii() );
   int return_value = 0;
    
   _notifyAllDecendants(msg, startPC);
@@ -3368,7 +3363,7 @@ PanelContainer::_notifyAllDecendants(char *msg, PanelContainer *pc)
 
   if( !pc->leftPanelContainer && !pc->rightPanelContainer )
   {
-    nprintf(DEBUG_PANELCONTAINERS) ("notify all panels in %s-%s\n", pc->getInternalName(), pc->getExternalName() );
+    nprintf(DEBUG_PANELCONTAINERS) ("notify all panels in %s-%s\n", pc->getInternalName().ascii(), pc->getExternalName().ascii() );
     for( PanelList::Iterator pit = pc->panelList.begin();
              pit != pc->panelList.end();
              ++pit )
