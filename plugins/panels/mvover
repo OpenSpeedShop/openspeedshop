@@ -23,44 +23,10 @@
 # views.   It will be obsolted shortly.    It can be removed from the 
 # source tree without any side effects.
 
-for i in `p_list -c`
-do
-  if [ $i == "CustomExperimentPanel" ]
-  then
-    echo "WARNING: $i  is check out."
-    exit
-  fi
-  if [ $i == "FPE_TracingPanel" ]
-  then
-    echo "WARNING: $i  is check out."
-    exit
-  fi
-  if [ $i == "HW_CounterPanel" ]
-  then
-    echo "WARNING: $i  is check out."
-    exit
-  fi
-  if [ $i == "IOPanel" ]
-  then
-    echo "WARNING: $i  is check out."
-    exit
-  fi
-  if [ $i == "MPIPanel" ]
-  then
-    echo "WARNING: $i  is check out."
-    exit
-  fi
-  if [ $i == "UserTimePanel" ]
-  then
-    echo "WARNING: $i  is check out."
-    exit
-  fi
-done
 for i in `echo "CustomExperimentPanel FPE_TracingPanel HW_CounterPanel IOPanel MPIPanel UserTimePanel"`
 do
   echo Doing $i
 
-  p_modify $i/$i.cxx $i/$i.hxx $i/Makefile.am
   cp pcSamplePanel/pcSamplePanel.cxx $i/$i.cxx
   cp pcSamplePanel/pcSamplePanel.hxx $i/$i.hxx
   cp pcSamplePanel/Makefile.am $i

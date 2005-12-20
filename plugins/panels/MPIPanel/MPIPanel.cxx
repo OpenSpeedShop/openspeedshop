@@ -130,7 +130,6 @@ if( attachFLAG )
       if( eo && eo->FW() )
       {
         experiment = eo->FW();
-// printf("experiment assignement for %d\n", expID );
       }
 //      ThreadGroup tgrp = experiment->getThreads();
 //      if( tgrp.size() == 0 )
@@ -239,7 +238,6 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
     if( eo && eo->FW() )
     {
       experiment = eo->FW();
-// printf("A: experiment assignement for %d\n", expID );
     }
 
     statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the \"Run\" button to begin the experiment.")) );
@@ -258,7 +256,6 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
     ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
     if( eo && eo->FW() )
     {
-// printf("B: experiment assignement for %d\n", expID );
       experiment = eo->FW();
     }
     statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the \"Run\" button to begin the experiment.")) );
@@ -293,14 +290,12 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
     updateInitialStatus();
   } else if( expID > 0 )
   {
-// printf("Here B: expID =%d\n", expID); 
-#ifdef PULL
+// printf("Here B: \n");
     ThreadGroup tgrp = experiment->getThreads();
     ThreadGroup::iterator ti = tgrp.begin();
     if( tgrp.size() == 0 )
     {
-printf("trgp.size() = 0 \n");
-      statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\".") );
+      statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\" or \"Use the Wizard to begin your experiment...\"") );
         PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
       ArgumentObject *ao = new ArgumentObject("ArgumentObject", (Panel *)this);
       topPC->dl_create_and_add_panel("MPI Wizard", bestFitPC, ao);
@@ -308,8 +303,9 @@ printf("trgp.size() = 0 \n");
     } else
     {
 
-#endif // PULL
-      if( ao && ao->loadedFromSavedFile == TRUE )
+      ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+      if( ao && ao->loadedFromSavedFile == TRUE &&
+          eo && eo->Determine_Status() == ExpStatus_NonExistent )
       {
         topPC->splitVertical(40);
         postProcessFLAG = TRUE;
@@ -331,13 +327,11 @@ printf("trgp.size() = 0 \n");
 // printf("D: call updateInitialStatus() \n");
         updateInitialStatus();
       }
-#ifdef PULL
     }
-#endif // PULL
   } else if( executableNameStr.isEmpty() )
   {
 // printf("Here C: \n");
-    statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\".") );
+    statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\" or \"Use the Wizard to begin your experiment...\"") );
     runnableFLAG = FALSE;
     pco->runButton->setEnabled(FALSE);
     pco->runButton->enabledFLAG = FALSE;
@@ -348,55 +342,8 @@ printf("trgp.size() = 0 \n");
   {
     processLAO(ao->lao);
 // printf("A: Attempt to remove the wizard panel from the mpile panel.\n");
-    QString name = QString("MPI Wizard");
-// printf("try to find (%s)\n", name.ascii() );
-    Panel *wizardPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
-    if( wizardPanel )
-    {
-//printf("Found the wizard... Try to hide it.\n");
-      wizardPanel->getPanelContainer()->hidePanel(wizardPanel);
-    }
+    hideWizard();
   }
-
-
-if( expID > 0 )
-{
-// printf("Put out local wizard?\n");
-// Now get the threads.
-  QString command = QString("listPids -x %1").arg(expID);
-// printf("attempt to run (%s)\n", command.ascii() );
-  CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-  std::list<int64_t> list_of_pids;
-  list_of_pids.clear();
-  InputLineObject *clip = NULL;
-  if( !cli->getIntListValueFromCLI( (char *)command.ascii(),
-         &list_of_pids, clip, TRUE ) )
-  {
-    printf("Unable to run %s command.\n", command.ascii() );
-  }
-// printf("ran %s\n", command.ascii() );
-
-  if( clip )
-  {
-    clip->Set_Results_Used();
-  }
-
-// printf("size=(%d)\n",  list_of_pids.size()  );
-  if( list_of_pids.size() == 0 )
-  {
-      statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\".") );
-        PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
-      ArgumentObject *ao = new ArgumentObject("ArgumentObject", (Panel *)this);
-      topPC->dl_create_and_add_panel("MPI Wizard", bestFitPC, ao);
-      delete ao;
-  } else
-  {
-    if( ao && ao->loadedFromSavedFile != TRUE )
-    {
-      loadManageProcessesPanel();
-    }
-  }
-}
 
 
 }
@@ -433,6 +380,26 @@ MPIPanel::menu(QPopupMenu* contextMenu)
   qaction->setText( "About..." );
   connect( qaction, SIGNAL( activated() ), this, SLOT( experimentStatus() ) );
   qaction->setStatusTip( tr("Get general information about this experiment...") );
+
+if( experiment != NULL )
+{
+  ThreadGroup tgrp = experiment->getThreads();
+  ThreadGroup::iterator ti = tgrp.begin();
+  if( tgrp.size() == 0 )
+  {
+    qaction = new QAction( this,  "loadProgram");
+    qaction->addTo( contextMenu );
+    qaction->setText( tr("Load Program...") );
+    connect( qaction, SIGNAL( activated() ), this, SLOT( loadProgramSelected() ) );
+    qaction->setStatusTip( tr("Opens dialog box to load application from disk.") );
+
+    qaction = new QAction( this,  "attachProcess");
+    qaction->addTo( contextMenu );
+    qaction->setText( tr("Attach Process...") );
+    connect( qaction, SIGNAL( activated() ), this, SLOT( attachProcessSelected() ) );
+    qaction->setStatusTip( tr("Opens dialog box to attach to running process.") );
+  }
+}
 
   contextMenu->insertSeparator();
 
@@ -944,7 +911,6 @@ MPIPanel::loadStatsPanel()
     if( eo && eo->FW() )
     {
       experiment = eo->FW();
-// printf("C: experiment assignement for %d\n", expID );
       UpdateObject *msg =
         new UpdateObject((void *)experiment, expID, "mpi", 1);
       statsPanel->listener( (void *)msg );
@@ -985,7 +951,6 @@ MPIPanel::loadManageProcessesPanel()
     if( eo && eo->FW() )
     {
       experiment = eo->FW();
-// printf("E: experiment assignement for %d\n", expID );
       UpdateObject *msg =
         new UpdateObject((void *)experiment, expID, "mpi", 1);
       manageProcessPanel->listener( (void *)msg );
@@ -1067,7 +1032,6 @@ MPIPanel::loadMain()
 void
 MPIPanel::updateStatus()
 {
-// printf("updateStatus() entered\n");
   if( expID <= 0 )
   {
     statusLabelText->setText( "No expid" );
@@ -1275,7 +1239,6 @@ MPIPanel::processLAO(LoadAttachObject *lao)
 // printf("ProcessLOA entered mpiFLAG=%d\n", getPanelContainer()->getMainWindow()->mpiFLAG );
   if( lao->paramList ) // Really not a list yet, just one param.
   {
-#if 0
     QString sample_rate_str = (QString)*lao->paramList->begin();
 // printf("sample_rate_str=(%s)\n", sample_rate_str.ascii() );
     unsigned int sampling_rate = sample_rate_str.toUInt();
@@ -1286,7 +1249,6 @@ MPIPanel::processLAO(LoadAttachObject *lao)
       if( eo && eo->FW() )
       {
         experiment = eo->FW();
-// printf("F: experiment assignement for %d\n", expID );
       }
       ThreadGroup tgrp = experiment->getThreads();
       CollectorGroup cgrp = experiment->getCollectors();
@@ -1327,7 +1289,6 @@ MPIPanel::processLAO(LoadAttachObject *lao)
     {
       return 0;
     }
-#endif // 0
     delete lao->paramList;
   }
   nprintf( DEBUG_MESSAGES ) ("we've got a LoadAttachObject message\n");
@@ -1428,4 +1389,127 @@ MPIPanel::outputCLIData(QString *data)
 // printf("data=%s\n", data->ascii() );
 
  expStatsInfoStr += *data;  
+}
+
+
+
+void
+MPIPanel::attachProcessSelected()
+{
+  mw->executableName = QString::null;
+  mw->pidStr = QString::null;
+  mw->attachNewProcess();
+
+
+  if( !mw->pidStr.isEmpty() )
+  {
+    QString command;
+
+    // Hack to get host and pid strings for the attach... This will be 
+    // replace with something better shortly.
+
+    QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
+    QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
+    QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
+    command = QString("expAttach -x %1 -p %2 -h %3\n").arg(expID).arg(mw->pidStr).arg(mw->hostStr); 
+// printf("A: command=(%s)\n", command.ascii() );
+
+    steps = 0;
+    pd = new GenericProgressDialog(this, "Loading process...", TRUE);
+    loadTimer = new QTimer( this, "progressTimer" );
+    connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
+    loadTimer->start( 0 );
+    pd->show();
+
+    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+    if( !cli->runSynchronousCLI(command.ascii()) )
+    {
+      QMessageBox::information( this, tr("Error issuing command to cli:"), tr("Unable to run %1 command.").arg(command), QMessageBox::Ok );
+  //    return;
+    }
+
+    // Send out a message to all those that might care about this change request
+    ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+    
+
+    loadTimer->stop();
+    pd->hide();
+
+    if( eo->FW() != NULL )
+    {
+      UpdateObject *msg = new UpdateObject(eo->FW(), expID,  NULL, 0);
+      broadcast((char *)msg, GROUP_T);
+    }
+
+    updateInitialStatus();
+    updateStatus();
+
+    hideWizard();
+  }
+}
+
+void
+MPIPanel::loadProgramSelected()
+{
+// printf("MPIPanel::loadProgramSelected()\n");
+  mw->executableName = QString::null;
+  mw->argsStr = QString::null;
+  mw->loadNewProgram();
+  QString executableNameStr = mw->executableName;
+  if( !mw->executableName.isEmpty() )
+  {
+// printf("MPIPanel::loadProgramSelected() executableName=%s\n", mw->executableName.ascii() );
+    executableNameStr = mw->executableName;
+    QString command =
+      QString("expAttach -x %1 -f \"%2 %3\"").arg(expID).arg(executableNameStr).arg(mw->argsStr);
+
+// printf("command=(%s)\n", command.ascii() );
+    steps = 0;
+    pd = new GenericProgressDialog(this, "Loading process...", TRUE);
+    loadTimer = new QTimer( this, "progressTimer" );
+    connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
+    loadTimer->start( 0 );
+    pd->show();
+        
+    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+    if( !cli->runSynchronousCLI(command.ascii() ) )
+    {
+      QMessageBox::information( this, tr("Error issuing command to cli:"), tr("Unable to run %1 command.").arg(command), QMessageBox::Ok );
+  //    return;
+  
+    }
+    loadTimer->stop();
+    pd->hide();
+
+//    delete(pd);
+
+    // Send out a message to all those that might care about this change request
+    ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+    
+// printf("Send out update?\n");
+    if( eo->FW() != NULL )
+    {
+// printf("Yes!  Send out update?\n");
+      UpdateObject *msg = new UpdateObject(eo->FW(), expID,  NULL, 0);
+      broadcast((char *)msg, GROUP_T);
+    }
+  
+    updateInitialStatus();
+    updateStatus();
+
+    hideWizard();
+  }
+}
+
+void
+MPIPanel::hideWizard()
+{
+    QString name = QString("MPI Wizard");
+// printf("try to find (%s)\n", name.ascii() );
+    Panel *wizardPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+    if( wizardPanel )
+    {
+//printf("Found the wizard... Try to hide it.\n");
+      wizardPanel->getPanelContainer()->hidePanel(wizardPanel);
+    }
 }

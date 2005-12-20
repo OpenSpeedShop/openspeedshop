@@ -295,7 +295,7 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
     ThreadGroup::iterator ti = tgrp.begin();
     if( tgrp.size() == 0 )
     {
-      statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\".") );
+      statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\" or \"Use the Wizard to begin your experiment...\"") );
         PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
       ArgumentObject *ao = new ArgumentObject("ArgumentObject", (Panel *)this);
       topPC->dl_create_and_add_panel("HW Counter Wizard", bestFitPC, ao);
@@ -331,7 +331,7 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
   } else if( executableNameStr.isEmpty() )
   {
 // printf("Here C: \n");
-    statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\".") );
+    statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\" or \"Use the Wizard to begin your experiment...\"") );
     runnableFLAG = FALSE;
     pco->runButton->setEnabled(FALSE);
     pco->runButton->enabledFLAG = FALSE;
@@ -342,14 +342,7 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
   {
     processLAO(ao->lao);
 // printf("A: Attempt to remove the wizard panel from the hwcle panel.\n");
-    QString name = QString("HW Counter Wizard");
-// printf("try to find (%s)\n", name.ascii() );
-    Panel *wizardPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
-    if( wizardPanel )
-    {
-//printf("Found the wizard... Try to hide it.\n");
-      wizardPanel->getPanelContainer()->hidePanel(wizardPanel);
-    }
+    hideWizard();
   }
 
 
@@ -387,6 +380,26 @@ HW_CounterPanel::menu(QPopupMenu* contextMenu)
   qaction->setText( "About..." );
   connect( qaction, SIGNAL( activated() ), this, SLOT( experimentStatus() ) );
   qaction->setStatusTip( tr("Get general information about this experiment...") );
+
+if( experiment != NULL )
+{
+  ThreadGroup tgrp = experiment->getThreads();
+  ThreadGroup::iterator ti = tgrp.begin();
+  if( tgrp.size() == 0 )
+  {
+    qaction = new QAction( this,  "loadProgram");
+    qaction->addTo( contextMenu );
+    qaction->setText( tr("Load Program...") );
+    connect( qaction, SIGNAL( activated() ), this, SLOT( loadProgramSelected() ) );
+    qaction->setStatusTip( tr("Opens dialog box to load application from disk.") );
+
+    qaction = new QAction( this,  "attachProcess");
+    qaction->addTo( contextMenu );
+    qaction->setText( tr("Attach Process...") );
+    connect( qaction, SIGNAL( activated() ), this, SLOT( attachProcessSelected() ) );
+    qaction->setStatusTip( tr("Opens dialog box to attach to running process.") );
+  }
+}
 
   contextMenu->insertSeparator();
 
@@ -1019,7 +1032,6 @@ HW_CounterPanel::loadMain()
 void
 HW_CounterPanel::updateStatus()
 {
-// printf("updateStatus() entered\n");
   if( expID <= 0 )
   {
     statusLabelText->setText( "No expid" );
@@ -1377,4 +1389,127 @@ HW_CounterPanel::outputCLIData(QString *data)
 // printf("data=%s\n", data->ascii() );
 
  expStatsInfoStr += *data;  
+}
+
+
+
+void
+HW_CounterPanel::attachProcessSelected()
+{
+  mw->executableName = QString::null;
+  mw->pidStr = QString::null;
+  mw->attachNewProcess();
+
+
+  if( !mw->pidStr.isEmpty() )
+  {
+    QString command;
+
+    // Hack to get host and pid strings for the attach... This will be 
+    // replace with something better shortly.
+
+    QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
+    QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
+    QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
+    command = QString("expAttach -x %1 -p %2 -h %3\n").arg(expID).arg(mw->pidStr).arg(mw->hostStr); 
+// printf("A: command=(%s)\n", command.ascii() );
+
+    steps = 0;
+    pd = new GenericProgressDialog(this, "Loading process...", TRUE);
+    loadTimer = new QTimer( this, "progressTimer" );
+    connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
+    loadTimer->start( 0 );
+    pd->show();
+
+    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+    if( !cli->runSynchronousCLI(command.ascii()) )
+    {
+      QMessageBox::information( this, tr("Error issuing command to cli:"), tr("Unable to run %1 command.").arg(command), QMessageBox::Ok );
+  //    return;
+    }
+
+    // Send out a message to all those that might care about this change request
+    ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+    
+
+    loadTimer->stop();
+    pd->hide();
+
+    if( eo->FW() != NULL )
+    {
+      UpdateObject *msg = new UpdateObject(eo->FW(), expID,  NULL, 0);
+      broadcast((char *)msg, GROUP_T);
+    }
+
+    updateInitialStatus();
+    updateStatus();
+
+    hideWizard();
+  }
+}
+
+void
+HW_CounterPanel::loadProgramSelected()
+{
+// printf("HW_CounterPanel::loadProgramSelected()\n");
+  mw->executableName = QString::null;
+  mw->argsStr = QString::null;
+  mw->loadNewProgram();
+  QString executableNameStr = mw->executableName;
+  if( !mw->executableName.isEmpty() )
+  {
+// printf("HW_CounterPanel::loadProgramSelected() executableName=%s\n", mw->executableName.ascii() );
+    executableNameStr = mw->executableName;
+    QString command =
+      QString("expAttach -x %1 -f \"%2 %3\"").arg(expID).arg(executableNameStr).arg(mw->argsStr);
+
+// printf("command=(%s)\n", command.ascii() );
+    steps = 0;
+    pd = new GenericProgressDialog(this, "Loading process...", TRUE);
+    loadTimer = new QTimer( this, "progressTimer" );
+    connect( loadTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
+    loadTimer->start( 0 );
+    pd->show();
+        
+    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+    if( !cli->runSynchronousCLI(command.ascii() ) )
+    {
+      QMessageBox::information( this, tr("Error issuing command to cli:"), tr("Unable to run %1 command.").arg(command), QMessageBox::Ok );
+  //    return;
+  
+    }
+    loadTimer->stop();
+    pd->hide();
+
+//    delete(pd);
+
+    // Send out a message to all those that might care about this change request
+    ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+    
+// printf("Send out update?\n");
+    if( eo->FW() != NULL )
+    {
+// printf("Yes!  Send out update?\n");
+      UpdateObject *msg = new UpdateObject(eo->FW(), expID,  NULL, 0);
+      broadcast((char *)msg, GROUP_T);
+    }
+  
+    updateInitialStatus();
+    updateStatus();
+
+    hideWizard();
+  }
+}
+
+void
+HW_CounterPanel::hideWizard()
+{
+    QString name = QString("HW Counter Wizard");
+// printf("try to find (%s)\n", name.ascii() );
+    Panel *wizardPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+    if( wizardPanel )
+    {
+//printf("Found the wizard... Try to hide it.\n");
+      wizardPanel->getPanelContainer()->hidePanel(wizardPanel);
+    }
 }

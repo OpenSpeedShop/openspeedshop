@@ -2372,6 +2372,13 @@ StatsPanel::outputCLIData(QString *data)
 // printf("total_percent=%f\n", total_percent );
 
 
+  if( fieldCount == 0 )
+  {
+    QMessageBox::information( (QWidget *)this, tr("Info:"), tr("There are no data samples yet available.   This could be a timing issue.\nTry an update of the StatsPanel."), QMessageBox::Ok );
+  
+    return;
+  }
+
 
   SPListViewItem *splvi;
 //  if( mpiFLAG && ( currentCollectorStr.startsWith("CallTrees") || currentCollectorStr.startsWith("Functions") ) )
@@ -2401,7 +2408,7 @@ StatsPanel::outputCLIData(QString *data)
         QRegExp rxp = QRegExp( "[_,' ',@,A-Z,a-z,0-9,%]");
         indent_level = strings[fieldCount-1].find(rxp);
         strippedString1 = strings[fieldCount-1].mid(indent_level,9999);
-strings[fieldCount-1] = strippedString1;
+        strings[fieldCount-1] = strippedString1;
         if( indent_level == -1 )
         {
 //        fprintf(stderr, "Error in determining depth for (%s).\n", strings[1].ascii() );

@@ -136,6 +136,8 @@ public:
   
   void outputCLIData(QString *data);
 
+  void hideWizard();
+
 public slots:
   void saveAsSelected();
   void manageDataSetsSelected();
@@ -148,6 +150,8 @@ public slots:
 
 private slots:
   void statusUpdateTimerSlot();
+  void attachProcessSelected();
+  void loadProgramSelected();
 
 protected slots:
   virtual void languageChange();
