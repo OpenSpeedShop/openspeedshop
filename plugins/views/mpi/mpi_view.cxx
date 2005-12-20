@@ -840,7 +840,9 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
         Look_For_KeyWord(cmd, "CallTree") ||
         Look_For_KeyWord(cmd, "CallTrees") ||
         Look_For_KeyWord(cmd, "TraceBack") ||
-        Look_For_KeyWord(cmd, "TraceBacks")) {
+        Look_For_KeyWord(cmd, "TraceBacks") ||
+        Look_For_KeyWord(cmd, "FullStack") ||
+        Look_For_KeyWord(cmd, "FullStacks")) {
      // Straight Report will break down report by call stack.
       EO_Title = "Call Stack Function (defining location)";
 
@@ -1173,7 +1175,9 @@ static std::string VIEW_mpi_long  = "\nA positive integer can be added to the en
                                       " \n\t'-m max' reports the maximum time spent in the function."
                                       " \n\t'-m average' reports the average time spent in the function."
                                       " \n\t'-m count' reports the number of times the function was called."
-                                      " \n\t'-m percent' reports the percent of mpi time the function represents.";
+                                      " \n\t'-m percent' reports the percent of mpi time the function represents."
+                                      " \n\t'-m stddev' reports the standard deviation of the average mpi time"
+                                      " that the function represents.";
 static std::string VIEW_mpi_metrics[] =
   { ""
   };
