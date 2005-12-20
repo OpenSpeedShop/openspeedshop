@@ -38,7 +38,7 @@ static std::string VIEW_pcsamp_metrics[] =
     ""
   };
 static std::string VIEW_pcsamp_collectors[] =
-  { ""
+  { "pcsamp"
   };
 static std::string VIEW_pcsamp_header[] =
   { ""
@@ -54,15 +54,16 @@ class pcsamp_view : public ViewType {
                             &VIEW_pcsamp_collectors[0],
                             &VIEW_pcsamp_header[0],
                              true,
-                             true) {
+                             false) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                          ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
                          std::vector<ViewInstruction *>IV) {
-    CV.erase(++CV.begin(), CV.end());  // Save the collector name
+    CV.erase(CV.begin(), CV.end());
     MV.erase(MV.begin(), MV.end());
     IV.erase(IV.begin(), IV.end());
 
+    CV.push_back( Get_Collector (exp->FW(), VIEW_pcsamp_collectors[0]) ); // use pcsamp collector
     MV.push_back(VIEW_pcsamp_metrics[0]);  // Use the Collector with the first metric
     IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, 0, 0));  // first column is metric
     IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 0));  // total the metric in first column
