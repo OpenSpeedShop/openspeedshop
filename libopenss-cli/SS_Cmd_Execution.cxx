@@ -2291,8 +2291,6 @@ bool SS_expView (CommandObject *cmd) {
       view_result = false;
     } else {
      // Look for a view that would be meaningful.
-      std::string use_view = "stats";  // Use generic view as default
-
       CollectorGroup cgrp = exp->FW()->getCollectors();
       if (cgrp.begin() == cgrp.end()) {
        // No collector was used.
@@ -2300,19 +2298,25 @@ bool SS_expView (CommandObject *cmd) {
     	Mark_Cmd_With_Soft_Error(cmd,s);
         view_result = false;
       } else {
-        if (cgrp.size() == 1) {
-         // The experiment used only one collector.
+        bool view_found = false;
+        CollectorGroup::iterator cgi;
+        for (cgi = cgrp.begin(); cgi != cgrp.end(); cgi++) {
          // See if there is a view by the same name.
-          Collector c = *(cgrp.begin());
+          Collector c = *cgi;
           Metadata m = c.getMetadata();
           std::string collector_name = m.getUniqueId();
           ViewType *vt = Find_View (collector_name);
           if (vt != NULL) {
-            use_view = collector_name;
+           // Generate the selected view
+            view_found = true;
+            view_result = SS_Generate_View (cmd, exp, collector_name);
           }
         }
-       // Generate the selected view
-        view_result = SS_Generate_View (cmd, exp, use_view);
+
+        if (!view_found) {
+         // Use generic view as default
+          std::string use_view = "stats";
+        }
       }
     }
   } else {

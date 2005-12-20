@@ -189,13 +189,8 @@ bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string vi
  // Determine the availability of the view.
   ViewType *vt = Find_View (viewname);
   if (vt == NULL) {
-#if 1
     std::string s("The requested view is unavailable.");
     Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-    cmd->Result_String ("The requested view is unavailable.");
-    cmd->set_Status(CMD_ERROR);
-#endif
     return false;
   }
 
@@ -203,23 +198,13 @@ bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string vi
   if (vt->Need_Exp()) {
     if (exp == NULL) {
      // The requested view requires an ExperimentObject.
-#if 1
       std::string s("An Experiment has not been specified.");
       Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-      cmd->Result_String ("An Experiment has not been specified.");
-      cmd->set_Status(CMD_ERROR);
-#endif
       return false;
     } else if (exp->FW() == NULL) {
      // There should always be a link to the FrameWork.
-#if 1
       std::string s("The experiment has been disconnected from the FrameWork.");
       Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-      cmd->Result_String ("The experiment has been disconnected from the FrameWork.");
-      cmd->set_Status(CMD_ERROR);
-#endif
       return false;
     }
   }
@@ -241,14 +226,9 @@ bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string vi
         C_Name = m_range->start_range.name;
         M_Name = m_range->end_range.name;
         if (!Collector_Used_In_Experiment (exp->FW(), C_Name)) {
-#if 1
       	  std::string s("The specified collector, " + C_Name + 
 	    	    	", was not used in the experiment.");
       	  Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-          cmd->Result_String ("The specified collector, " + C_Name + ", was not used in the experiment.");
-          cmd->set_Status(CMD_ERROR);
-#endif
           return false;
         }
       } else {
@@ -258,14 +238,9 @@ bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string vi
           CollectorGroup cgrp = exp->FW()->getCollectors();
           C_Name = Find_Collector_With_Metric ( cgrp, M_Name);
           if (C_Name.length() == 0) {
-#if 1
     	    std::string s("The specified metric, " + M_Name + 
 	    	    	    " was not generated for the experiment.");
     	    Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-            cmd->Result_String ("The specified metric, " + M_Name + " was not generated for the experiment.");
-            cmd->set_Status(CMD_ERROR);
-#endif
             return false;
           }
         }
@@ -273,15 +248,9 @@ bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string vi
 
       Collector C = Get_Collector (exp->FW(), C_Name);
       if (!Collector_Generates_Metric ( C, M_Name)) {
-#if 1
     	std::string s("The specified collector, " + C_Name +
     	    	      ", does not generate the specified metric, " + M_Name);
     	Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-        cmd->Result_String ("The specified collector, " + C_Name +
-                            ", does not generate the specified metric, " + M_Name);
-        cmd->set_Status(CMD_ERROR);
-#endif
         return false;
       }
 
@@ -317,23 +286,13 @@ bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string vi
         ((Collector_List[0].length() != 0) ||
          (Metric_List[0].length() != 0))) {
       if (!collector_found) {
-#if 1
     	std::string s("The metrics required to generate the view are not available in the experiment.");
     	Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-        cmd->Result_String ("The metrics required to generate the view are not available in the experiment.");
-        cmd->set_Status(CMD_ERROR);
-#endif
         return false;
       }
       if (!Collector_Used_In_Experiment (exp->FW(), C_Name)) {
-#if 1
     	std::string s("The required collector, " + C_Name + ", was not used in the experiment.");
     	Mark_Cmd_With_Soft_Error(cmd,s);
-#else
-        cmd->Result_String ("The required collector, " + C_Name + ", was not used in the experiment.");
-        cmd->set_Status(CMD_ERROR);
-#endif
         return false;
       }
     }
