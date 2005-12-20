@@ -532,7 +532,7 @@ StatsPanel::menu( QPopupMenu* contextMenu)
         contextMenu->insertItem(s);
         s = QString("Show Metric: TraceBacks");
         contextMenu->insertItem(s);
-        s = QString("Show Metric: FullStack");
+        s = QString("Show Metric: TraceBacks/FullStack");
         contextMenu->insertItem(s);
         s = QString("Show Metric: CallTrees");
         contextMenu->insertItem(s);
@@ -1150,7 +1150,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 // printf("A: filename=(%s)\n", filename.ascii() );
 // printf("A: funcString=(%s)\n", funcString.ascii() );
 
-  if( mpiFLAG && ( currentCollectorStr.startsWith("CallTrees") || currentCollectorStr.startsWith("Functions") || currentCollectorStr.startsWith("TraceBacks") || currentCollectorStr.startsWith("FullStack") ) )
+  if( mpiFLAG && ( currentCollectorStr.startsWith("CallTrees") || currentCollectorStr.startsWith("Functions") || currentCollectorStr.startsWith("TraceBacks") || currentCollectorStr.startsWith("TraceBacks/FullStack") ) )
   {
     int bof = -1;
     int eof = selected_function_qstring.find('(');
@@ -1421,7 +1421,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
             ( currentCollectorStr.startsWith("CallTrees") ||
               currentCollectorStr.startsWith("Functions") ||
               currentCollectorStr.startsWith("TraceBacks") ||
-              currentCollectorStr.startsWith("FullStack") ) )
+              currentCollectorStr.startsWith("TraceBacks/FullStack") ) )
         {
           hlo = new HighlightObject(NULL, lineNumberStr.toInt(), hotToCold_color_names[2], ">>", "Callsite");
           highlightList->push_back(hlo);
@@ -1564,7 +1564,7 @@ QString lastAbout = about;
 
 // printf("so far: command=(%s) currentCollectorStr=(%s) currentMetricStr=(%s)\n", command.ascii(), currentCollectorStr.ascii(), currentMetricStr.ascii() );
 
-  if( mpiFLAG && ( currentCollectorStr.startsWith("CallTrees") || currentCollectorStr.startsWith("Functions") || currentCollectorStr.startsWith("mpi") || currentCollectorStr.startsWith("TraceBacks") || currentCollectorStr.startsWith("FullStack") ) )
+  if( mpiFLAG && ( currentCollectorStr.startsWith("CallTrees") || currentCollectorStr.startsWith("Functions") || currentCollectorStr.startsWith("mpi") || currentCollectorStr.startsWith("TraceBacks") || currentCollectorStr.startsWith("TraceBacks/FullStack") ) )
   { 
     if( currentCollectorStr.isEmpty() || currentCollectorStr == "CallTrees" )
     {
@@ -1600,9 +1600,9 @@ QString lastAbout = about;
     } else if ( currentCollectorStr == "TraceBacks" )
     {
       command = QString("expView -x %1 mpi%2 -v TraceBacks").arg(expID).arg(numberItemsToDisplayInStats);
-    } else if ( currentCollectorStr == "FullStack" )
+    } else if ( currentCollectorStr == "TraceBacks/FullStack" )
     {
-      command = QString("expView -x %1 mpi%2 -v FullStack").arg(expID).arg(numberItemsToDisplayInStats);
+      command = QString("expView -x %1 mpi%2 -v TraceBacks,FullStack").arg(expID).arg(numberItemsToDisplayInStats);
     } else
     {
       command = QString("expView -x %1 mpi%2 -v Functions").arg(expID).arg(numberItemsToDisplayInStats);
@@ -2382,10 +2382,10 @@ StatsPanel::outputCLIData(QString *data)
 
   SPListViewItem *splvi;
 //  if( mpiFLAG && ( currentCollectorStr.startsWith("CallTrees") || currentCollectorStr.startsWith("Functions") ) )
-  if( mpiFLAG && ( currentCollectorStr.startsWith("CallTrees") || currentCollectorStr.startsWith("Functions") || currentCollectorStr.startsWith("TraceBacks") || currentCollectorStr.startsWith("FullStack") ) )
+  if( mpiFLAG && ( currentCollectorStr.startsWith("CallTrees") || currentCollectorStr.startsWith("Functions") || currentCollectorStr.startsWith("TraceBacks") || currentCollectorStr.startsWith("TraceBacks/FullStack") ) )
   {
     QString indentChar = ">";
-    if( currentCollectorStr.startsWith("TraceBacks") || currentCollectorStr.startsWith("FullStack") )
+    if( currentCollectorStr.startsWith("TraceBacks") || currentCollectorStr.startsWith("TraceBacks/FullStack") )
     {
       indentChar = "<";
     } 
