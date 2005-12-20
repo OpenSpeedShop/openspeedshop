@@ -530,6 +530,10 @@ StatsPanel::menu( QPopupMenu* contextMenu)
       {
         QString s = QString("Show Metric: Functions");
         contextMenu->insertItem(s);
+        s = QString("Show Metric: TraceBacks");
+        contextMenu->insertItem(s);
+        s = QString("Show Metric: FullStack");
+        contextMenu->insertItem(s);
         s = QString("Show Metric: CallTrees");
         contextMenu->insertItem(s);
         if( !currentCollectorStr.isEmpty() && 
@@ -1146,7 +1150,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 // printf("A: filename=(%s)\n", filename.ascii() );
 // printf("A: funcString=(%s)\n", funcString.ascii() );
 
-  if( mpiFLAG && ( currentCollectorStr.startsWith("CallTrees") || currentCollectorStr.startsWith("Functions") ) )
+  if( mpiFLAG && ( currentCollectorStr.startsWith("CallTrees") || currentCollectorStr.startsWith("Functions") || currentCollectorStr.startsWith("TraceBacks") || currentCollectorStr.startsWith("FullStack") ) )
   {
     int bof = -1;
     int eof = selected_function_qstring.find('(');
@@ -1415,7 +1419,9 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
         }
         if( mpiFLAG && lineNumberStr != "-1" &&
             ( currentCollectorStr.startsWith("CallTrees") ||
-              currentCollectorStr.startsWith("Functions") ) )
+              currentCollectorStr.startsWith("Functions") ||
+              currentCollectorStr.startsWith("TraceBacks") ||
+              currentCollectorStr.startsWith("FullStack") ) )
         {
           hlo = new HighlightObject(NULL, lineNumberStr.toInt(), hotToCold_color_names[2], ">>", "Callsite");
           highlightList->push_back(hlo);
@@ -1558,7 +1564,7 @@ QString lastAbout = about;
 
 // printf("so far: command=(%s) currentCollectorStr=(%s) currentMetricStr=(%s)\n", command.ascii(), currentCollectorStr.ascii(), currentMetricStr.ascii() );
 
-  if( mpiFLAG && ( currentCollectorStr.startsWith("CallTrees") || currentCollectorStr.startsWith("Functions") || currentCollectorStr.startsWith("mpi") ) )
+  if( mpiFLAG && ( currentCollectorStr.startsWith("CallTrees") || currentCollectorStr.startsWith("Functions") || currentCollectorStr.startsWith("mpi") || currentCollectorStr.startsWith("TraceBacks") || currentCollectorStr.startsWith("FullStack") ) )
   { 
     if( currentCollectorStr.isEmpty() || currentCollectorStr == "CallTrees" )
     {
@@ -1591,6 +1597,12 @@ QString lastAbout = about;
         }
       }
       command = QString("expView -x %1 mpi%2 -v CallTrees -f %3").arg(expID).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr);
+    } else if ( currentCollectorStr == "TraceBacks" )
+    {
+      command = QString("expView -x %1 mpi%2 -v TraceBacks").arg(expID).arg(numberItemsToDisplayInStats);
+    } else if ( currentCollectorStr == "FullStack" )
+    {
+      command = QString("expView -x %1 mpi%2 -v FullStack").arg(expID).arg(numberItemsToDisplayInStats);
     } else
     {
       command = QString("expView -x %1 mpi%2 -v Functions").arg(expID).arg(numberItemsToDisplayInStats);
@@ -2362,9 +2374,15 @@ StatsPanel::outputCLIData(QString *data)
 
 
   SPListViewItem *splvi;
-  if( mpiFLAG && ( currentCollectorStr.startsWith("CallTrees") || currentCollectorStr.startsWith("Functions") ) )
+//  if( mpiFLAG && ( currentCollectorStr.startsWith("CallTrees") || currentCollectorStr.startsWith("Functions") ) )
+  if( mpiFLAG && ( currentCollectorStr.startsWith("CallTrees") || currentCollectorStr.startsWith("Functions") || currentCollectorStr.startsWith("TraceBacks") || currentCollectorStr.startsWith("FullStack") ) )
   {
-    bool indented = strings[fieldCount-1].startsWith(">");
+    QString indentChar = ">";
+    if( currentCollectorStr.startsWith("TraceBacks") || currentCollectorStr.startsWith("FullStack") )
+    {
+      indentChar = "<";
+    } 
+    bool indented = strings[fieldCount-1].startsWith(indentChar);
     int indent_level = 0;
 
 
@@ -2442,7 +2460,6 @@ strings[fieldCount-1] = strippedString1;
 // printf("open lastlvi=(%s)\n", lastlvi->text(fieldCount-1).ascii() );
 
     lastIndentLevel = indent_level;
-
   } else
   {
     if( fieldCount == 2 )
