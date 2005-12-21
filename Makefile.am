@@ -35,6 +35,14 @@ SUBDIRS = \
 	examples \
 	usability
 
+CHECK_SUBDIRS = \
+    test/executables \
+    test/test_source/regression 
+
+check: $(CHECK_SUBDIRS)
+	cd $(CHECK_SUBDIRS); $(MAKE) check
+
+
 DOC_SUBDIRS = \
 	libopenss-runtime \
 	libopenss-framework \
