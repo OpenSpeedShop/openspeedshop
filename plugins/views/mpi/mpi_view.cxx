@@ -434,14 +434,8 @@ static void Combine_Duplicate_CallStacks (
       if ((matchcount >= 0) &&
           (matchcount == cs->size()) &&
           (matchcount == ncs->size())) {
-       // Call stacks are identical - combine entries.
-        if ((*ncp.second).begin() != (*ncp.second).end()) {
-          if ((*cp.second).begin() != (*cp.second).end()) {
-            Accumulate_PreDefined_Temps ((*cp.second), (*ncp.second));
-          } else {
-            cp.second = ncp.second;
-          }
-        }
+       // Call stacks are identical - combine values.
+        Accumulate_PreDefined_Temps ((*cp.second), (*ncp.second));
         nvpi = c_items.erase(nvpi);
         delete ncp.first;
         if ((*ncp.second).begin() != (*ncp.second).end()) {
@@ -915,38 +909,16 @@ static bool Generic_mpi_View (CommandObject *cmd, ExperimentObject *exp, int64_t
     topn = min(topn, (int64_t)c_items.size());
 
 
-   // Build a Header for each column in the table.
+   // Add Header for each column in the table.
     CommandResult_Headers *H = new CommandResult_Headers ();
-   // Add Metrics
     for ( i=0; i < num_columns; i++) {
       ViewInstruction *vinst = ViewInst[i];
-      int64_t CM_Index = vinst->TMP1();
-
       std::string column_header;
       if ((HV.size() > i) &&
           (HV[i].length() > 0)) {
         column_header = HV[i];
-      } else if (vinst->OpCode() == VIEWINST_Display_Metric) {
-        if (Metadata_hasName( CV[CM_Index], MV[CM_Index] )) {
-          Metadata m = Find_Metadata ( CV[CM_Index], MV[CM_Index] );
-          column_header = m.getShortName();
-        } else {
-          column_header = MV[CM_Index];
-        }
-      } else if (vinst->OpCode() == VIEWINST_Display_Tmp) {
-        if (HV.size() > i) {
-          column_header = HV[i];
-        } else {
-          column_header = std::string("Temp" + CM_Index);
-        }
-      } else if ((vinst->OpCode() == VIEWINST_Display_Percent_Column) ||
-                 (vinst->OpCode() == VIEWINST_Display_Percent_Metric) ||
-                 (vinst->OpCode() == VIEWINST_Display_Percent_Tmp)) {
-        if (!Gen_Total_Percent) {
-         // The measured time interval is too small.
-          continue;
-        }
-        column_header = "% of Total";
+      } else {
+        column_header = "?";
       }
       H->CommandResult_Headers::Add_Header ( CRPTR ( column_header ) );
     }
