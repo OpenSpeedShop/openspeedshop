@@ -523,10 +523,11 @@ AC_DEFUN([AC_PKG_PYTHON], [
     AC_SUBST(PYTHON_CPPFLAGS)
     AC_SUBST(PYTHON_LDFLAGS)
     AC_SUBST(PYTHON_LIBS)
-
-    if PYTHON_VERSION < 2.2; then
-	AC_MSG_ERROR([** PYTHON version 2.2 or greater is required for the Open|SpeedShop.])
-    fi
+#
+# Comment out until a working check can be created
+#    if PYTHON_VERSION < 2.2; then
+#	AC_MSG_ERROR([** PYTHON version 2.2 or greater is required for the Open|SpeedShop.])
+#    fi
 
     AC_DEFINE(HAVE_PYTHON, 1, [Define to 1 if you have Python ${PYTHON_VERSION} ])
 
