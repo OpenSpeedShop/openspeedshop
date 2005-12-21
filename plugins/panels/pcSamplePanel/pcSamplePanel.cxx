@@ -291,6 +291,7 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
   } else if( expID > 0 )
   {
 // printf("Here B: \n");
+#ifdef PULL
     ThreadGroup tgrp = experiment->getThreads();
     ThreadGroup::iterator ti = tgrp.begin();
     if( tgrp.size() == 0 )
@@ -303,9 +304,9 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
     } else
     {
 
+#endif // PULL
       ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-      if( ao && ao->loadedFromSavedFile == TRUE &&
-          eo && eo->Determine_Status() == ExpStatus_NonExistent )
+      if( ao && ao->loadedFromSavedFile == TRUE )
       {
         topPC->splitVertical(40);
         postProcessFLAG = TRUE;
@@ -327,7 +328,9 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
 // printf("D: call updateInitialStatus() \n");
         updateInitialStatus();
       }
+#ifdef PULL
     }
+#endif // PULL
   } else if( executableNameStr.isEmpty() )
   {
 // printf("Here C: \n");
@@ -345,6 +348,45 @@ if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
     hideWizard();
   }
 
+
+  if( expID > 0 )
+  {
+// printf("Put out local wizard?\n");
+// Now get the threads.
+    QString command = QString("listPids -x %1").arg(expID);
+// printf("attempt to run (%s)\n", command.ascii() );
+    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+    std::list<int64_t> list_of_pids;
+    list_of_pids.clear();
+    InputLineObject *clip = NULL;
+    if( !cli->getIntListValueFromCLI( (char *)command.ascii(),
+           &list_of_pids, clip, TRUE ) )
+    {
+      printf("Unable to run %s command.\n", command.ascii() );
+    }
+// printf("ran %s\n", command.ascii() );
+
+    if( clip )
+    {
+      clip->Set_Results_Used();
+    }
+
+// printf("size=(%d)\n",  list_of_pids.size()  );
+    if( list_of_pids.size() == 0 )
+    {
+      statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("\"Load a New Program...\" or \"Attach to Executable...\" or \"Use the Wizard to begin your experiment...\".") );
+        PanelContainer *bestFitPC = getPanelContainer()->getMasterPC()->findBestFitPanelContainer(topPC);
+      ArgumentObject *ao = new ArgumentObject("ArgumentObject", (Panel *)this);
+      topPC->dl_create_and_add_panel("MPI Wizard", bestFitPC, ao);
+      delete ao;
+    } else
+    {
+      if( ao && ao->loadedFromSavedFile != TRUE )
+      {
+        loadManageProcessesPanel();
+      }
+    }
+  }
 
 }
 
@@ -1236,8 +1278,18 @@ pcSamplePanel::progressUpdate()
 int
 pcSamplePanel::processLAO(LoadAttachObject *lao)
 {
+//NOTE: ALL the exeriments use the same basic template for the 
+//      experiemnts.   Occassionally you'll see code related 
+//      to a specific collector type in the code.   This is 
+//      done simply to keep all experiment's source bases consistent.
+//      At least until I get time to rearchitect this to 
+//      have a base class of experiment and have all the 
+//      experiments inherit from that...   Not hard, just timeconsuming.
 // printf("ProcessLOA entered mpiFLAG=%d\n", getPanelContainer()->getMainWindow()->mpiFLAG );
-  if( lao->paramList ) // Really not a list yet, just one param.
+if( QString(getName()).startsWith("MPI") || QString(getName()).startsWith("MPT") )
+{
+  // Currently we don't set any mpi parameters.
+} else if( lao->paramList )
   {
     QString sample_rate_str = (QString)*lao->paramList->begin();
 // printf("sample_rate_str=(%s)\n", sample_rate_str.ascii() );
@@ -1255,6 +1307,8 @@ pcSamplePanel::processLAO(LoadAttachObject *lao)
       if( cgrp.size() > 0 )
       {
         CollectorGroup::iterator ci = cgrp.begin();
+        // All others have a sampling_rate parameter... hwc, hwt,
+        // pcsamp, and usertime
         nprintf( DEBUG_MESSAGES ) ("sampling_rate=%u\n", sampling_rate);
         QString command = QString("expSetParam -x %1 sampling_rate = %2").arg(expID).arg(sampling_rate);
         CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
@@ -1265,8 +1319,8 @@ pcSamplePanel::processLAO(LoadAttachObject *lao)
         }
         if( QString(getName()).contains("HW Counter") )
         {
-//          printf("W'ere the HW Counter Panel!!!\n");
-            
+//        printf("W'ere the HW Counter Panel!!!\n");
+              
           ParamList::Iterator it = lao->paramList->begin();
           it++;
           if( it != lao->paramList->end() )
