@@ -57,8 +57,8 @@ class pcsamp_view : public ViewType {
                              false) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
-                         std::vector<ViewInstruction *>IV) {
+                         ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
+                         std::vector<ViewInstruction *>& IV) {
     CV.erase(CV.begin(), CV.end());
     MV.erase(MV.begin(), MV.end());
     IV.erase(IV.begin(), IV.end());
@@ -112,8 +112,8 @@ class usertime_view : public ViewType {
                              false) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
-                         std::vector<ViewInstruction *>IV) {
+                         ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
+                         std::vector<ViewInstruction *>& IV) {
     if (MV.size() > 2) {
      // There are only two metrics.  Default to the basic report.
       CV.erase(CV.begin(), CV.end());
@@ -193,8 +193,8 @@ class hwc_view : public ViewType {
                              false) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
-                         std::vector<ViewInstruction *>IV) {
+                         ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
+                         std::vector<ViewInstruction *>& IV) {
    // Start with a clean slate.
     CV.erase(CV.begin(), CV.end());
     MV.erase(MV.begin(), MV.end());
@@ -256,8 +256,8 @@ class hwctime_view : public ViewType {
                              false) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
-                         std::vector<ViewInstruction *>IV) {
+                         ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
+                         std::vector<ViewInstruction *>& IV) {
     if (MV.size() > 2) {
      // There are only two metrics.  Default to the basic report.
       CV.erase(CV.begin(), CV.end());

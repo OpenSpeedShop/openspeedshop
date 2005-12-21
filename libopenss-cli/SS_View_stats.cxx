@@ -423,8 +423,8 @@ class stats_view : public ViewType {
                            true) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
-                         std::vector<ViewInstruction *>IV) {
+                         ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
+                         std::vector<ViewInstruction *>& IV) {
     std::vector<std::string> HV; // Headers will be calculated from metrics
     return Generic_View (cmd, exp, topn, tgrp, CV, MV, IV, HV);
   }

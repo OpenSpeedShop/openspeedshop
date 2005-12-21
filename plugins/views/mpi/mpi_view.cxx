@@ -1174,8 +1174,8 @@ class mpi_view : public ViewType {
                            false) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
-                         std::vector<ViewInstruction *>IV) {
+                         ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
+                         std::vector<ViewInstruction *>& IV) {
 
     std::vector<std::string> HV;
     CV.erase(CV.begin(), CV.end());
