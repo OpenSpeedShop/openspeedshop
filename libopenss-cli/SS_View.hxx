@@ -254,8 +254,8 @@ void GetMetricInThreadGroup(
 extern std::list<ViewType *> Available_Views;
 void Define_New_View (ViewType *vnew);
 bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                   ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
-                   std::vector<ViewInstruction *> IV, std::string *HV = NULL);
+                   ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
+                   std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV);
 
 CommandResult *Init_Collector_Metric (CommandObject *cmd,
                                       Collector collector,

@@ -234,8 +234,8 @@ static std::string VIEW_stats_header[] =
   { ""
   };
 bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                   ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
-                   std::vector<ViewInstruction *> IV, std::string *HV) {
+                   ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
+                   std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV) {
   // Print_View_Params (cerr, CV,MV,IV);
 
   bool report_Column_summary = false;
@@ -354,7 +354,7 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
 
       std::string column_header;
       if (vinst->OpCode() == VIEWINST_Display_Metric) {
-        if (HV != NULL) {
+        if (HV.begin() != HV.end()) {
           column_header = HV[i];
         } else if (Metadata_hasName( CV[CM_Index], MV[CM_Index] )) {
           Metadata m = Find_Metadata ( CV[CM_Index], MV[CM_Index] );
@@ -425,7 +425,8 @@ class stats_view : public ViewType {
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                          ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
                          std::vector<ViewInstruction *>IV) {
-    return Generic_View (cmd, exp, topn, tgrp, CV, MV, IV, NULL);
+    std::vector<std::string> HV; // Headers will be calculated from metrics
+    return Generic_View (cmd, exp, topn, tgrp, CV, MV, IV, HV);
   }
 };
 

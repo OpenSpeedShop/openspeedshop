@@ -68,7 +68,8 @@ class pcsamp_view : public ViewType {
     IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, 0, 0));  // first column is metric
     IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 0));  // total the metric in first column
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, 1, 0));  // second column is %
-    return Generic_View (cmd, exp, topn, tgrp, CV, MV, IV);
+    std::vector<std::string> HV; // Headers will be calculated from metrics
+    return Generic_View (cmd, exp, topn, tgrp, CV, MV, IV, HV);
   }
 };
 
@@ -151,7 +152,8 @@ class usertime_view : public ViewType {
    // Column[2] is % of  whatever is the first metric in the list.
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, ++Max_Column, 0));
 
-    return Generic_View (cmd, exp, topn, tgrp, CV, MV, IV);
+    std::vector<std::string> HV; // Headers will be calculated from metrics
+    return Generic_View (cmd, exp, topn, tgrp, CV, MV, IV, HV);
   }
 };
 
@@ -206,8 +208,10 @@ class hwc_view : public ViewType {
 
    // Get the name of the event that we were collecting.
    // Use this for the column header in the report rather then the name of the metric.
-    std::string HV[1];
-    CV[0].getParameterValue ("event", HV[0]);
+    std::vector<std::string> HV;
+    std::string H;
+    CV[0].getParameterValue ("event", H);
+    HV.push_back(H);
 
     return Generic_View (cmd, exp, topn, tgrp, CV, MV, IV, HV);
   }
@@ -294,7 +298,7 @@ class hwctime_view : public ViewType {
 
    // Get the name of the event that we were collecting.
    // Use this for the column header in the report rather then the name of the metric.
-    std::string HV[2];
+    std::vector<std::string> HV(2);
     std::string name;
     CV[0].getParameterValue ("event", name);
     std::string prename;
