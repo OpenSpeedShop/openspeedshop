@@ -19,7 +19,11 @@
 noinst_PROGRAMS = nbody
 
 CFLAGS = \
-	-g -gdwarf-2 -O1 -lm -lmpi
+	$(MPI_CPPFLAGS) \
+	-g -gdwarf-2 -O1 
+
+nbody_LDFLAGS = \
+	-lm $(MPI_LDFLAGS) $(MPI_LIBS)
 
 nbody_LDADD = \
 	-ldl
