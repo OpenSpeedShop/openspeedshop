@@ -216,23 +216,8 @@ void Construct_View (CommandObject *cmd,
 
 }
 
-// stats view
+// Generic routine to genearte a simple view
 
-static std::string VIEW_stats_brief = "Generic Report";
-static std::string VIEW_stats_short = "Report the metric values gathered for each function in a program.";
-static std::string VIEW_stats_long  = "The report is sorted in descending order by the first metric."
-                                      " A positive integer can be added to the end of the keyword"
-                                      " ""stats"" to indicate the maximum number of items in"
-                                      " the report.";
-static std::string VIEW_stats_metrics[] =
-  { ""
-  };
-static std::string VIEW_stats_collectors[] =
-  { ""
-  };
-static std::string VIEW_stats_header[] =
-  { ""
-  };
 bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                    ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
                    std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV) {
@@ -409,6 +394,143 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
 
   return ((cmd->Status() != CMD_ERROR) && (cmd->Status() != CMD_ABORTED));
 }
+
+// Select the metrics that the user specified and display only them.
+bool Select_User_Metrics (CommandObject *cmd, ExperimentObject *exp,
+                          std::vector<Collector>& CV, std::vector<std::string>& MV,
+                          std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV) {
+  OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
+  vector<ParseRange> *p_slist = p_result->getexpMetricList();
+  int64_t i = 0;
+  vector<ParseRange>::iterator mi;
+  for (mi = p_slist->begin(); mi != p_slist->end(); mi++) {
+    parse_range_t *m_range = (*mi).getRange();
+    std::string C_Name;
+    std::string M_Name;
+    if (m_range->is_range) {
+      C_Name = m_range->start_range.name;
+      M_Name = m_range->end_range.name;
+      if (!Collector_Used_In_Experiment (exp->FW(), C_Name)) {
+        std::string s("The specified collector, " + C_Name +
+                      ", was not used in the experiment.");
+        Mark_Cmd_With_Soft_Error(cmd,s);
+        return false;
+      }
+    } else {
+      M_Name = m_range->start_range.name;
+      if ((exp != NULL) &&
+          (exp->FW() != NULL)) {
+        CollectorGroup cgrp = exp->FW()->getCollectors();
+        C_Name = Find_Collector_With_Metric ( cgrp, M_Name);
+        if (C_Name.length() == 0) {
+          std::string s("The specified metric, " + M_Name +
+                          " was not generated for the experiment.");
+          Mark_Cmd_With_Soft_Error(cmd,s);
+          return false;
+        }
+      }
+    }
+
+    Collector C = Get_Collector (exp->FW(), C_Name);
+    if (!Collector_Generates_Metric ( C, M_Name)) {
+      std::string s("The specified collector, " + C_Name +
+                    ", does not generate the specified metric, " + M_Name);
+      Mark_Cmd_With_Soft_Error(cmd,s);
+      return false;
+    }
+
+    CV.push_back(C);
+    MV.push_back(M_Name);
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, i, i));
+
+    std::string column_header;
+    if (Metadata_hasName( C, M_Name)) {
+      Metadata m = Find_Metadata ( C, M_Name );
+      column_header = m.getShortName();
+    } else {
+      column_header = M_Name;
+    }
+    HV.push_back(column_header);
+
+    i++;
+  }
+
+  return true;
+}
+
+// Select every metric defined in the experiment and display it.
+static bool Select_All_Metrics (CommandObject *cmd, ExperimentObject *exp,
+                                std::vector<Collector>& CV, std::vector<std::string>& MV,
+                                std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV) {
+ // Use the metrics specified in the experiment definition.
+  if ((exp == NULL) ||
+      (exp->FW() == NULL)) {
+    std::string s("There was no data collected for the experiment.");
+    Mark_Cmd_With_Soft_Error(cmd,s);
+    return false;
+  }
+
+  bool collector_found = false;
+  int64_t column = 0;
+  CollectorGroup cgrp = exp->FW()->getCollectors();
+  CollectorGroup::iterator ci;
+  for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
+    Collector c = *ci;
+    Metadata cm = c.getMetadata();
+    std::set<Metadata> md = c.getMetrics();
+    std::set<Metadata>::const_iterator mi;
+    for (mi = md.begin(); mi != md.end(); mi++) {
+      Metadata m = *mi;
+      std::string M_Name = m.getUniqueId();
+      CV.push_back(c);
+      MV.push_back(M_Name);
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, column, column));
+
+      std::string column_header;
+      if (Metadata_hasName( c, M_Name)) {
+        Metadata m = Find_Metadata ( c, M_Name );
+        column_header = m.getShortName();
+      } else {
+        column_header = M_Name;
+      }
+      HV.push_back(column_header);
+
+      column++;
+      collector_found = true;
+    }
+  }
+
+  return collector_found;
+}
+
+// stats view
+
+static std::string VIEW_stats_brief = "Generic Report";
+static std::string VIEW_stats_short = "Report the metric values gathered for each function in a program.";
+static std::string VIEW_stats_long  = "The report is sorted in descending order by the first metric."
+                                      " A positive integer can be added to the end of the keyword"
+                                      " 'stats' to indicate the maximum number of items in the report."
+                                      "\n\nThe general form of the display can be selected with the '-v'"
+                                      " option."
+                                      "\n\t'-v LinkedObjects' will report metrics by linked object."
+                                      "\n\t'-v Functions' will report metrics by function. This is the default."
+                                      "\n\t'-v Statements' will report metrics by statement."
+                                      " \n\nThe user can select individual metrics for display by listing"
+                                      " them after the '-m' option key.  Multiple selections will be"
+                                      " displayed in the order they are listed.  Only the metrics in"
+                                      " the list will be displayed."
+                                      " \n\nIf the '-m' option is not specified, an attempt is made to"
+                                      " include all the metrics gathered for the experiment."
+                                      "\n\nOnly simple data values that can be associated with"
+                                      " single function, statement or linkedobject can be handled.";
+static std::string VIEW_stats_example = "\texpView stats\n"
+                                        "\texpView -v LinkedObjects stats5 -m SomeCollector::time\n";
+static std::string VIEW_stats_metrics[] =
+  { ""
+  };
+static std::string VIEW_stats_collectors[] =
+  { ""
+  };
 class stats_view : public ViewType {
 
  public: 
@@ -416,23 +538,39 @@ class stats_view : public ViewType {
                             VIEW_stats_brief,
                             VIEW_stats_short,
                             VIEW_stats_long,
+                            VIEW_stats_example,
                            &VIEW_stats_metrics[0],
                            &VIEW_stats_collectors[0],
-                           &VIEW_stats_header[0],
-                           true,
-                           true) {
+                            true) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                         ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
-                         std::vector<ViewInstruction *>& IV) {
-    std::vector<std::string> HV; // Headers will be calculated from metrics
+                             ThreadGroup& tgrp) {
+    std::vector<Collector> CV;
+    std::vector<std::string> MV;
+    std::vector<ViewInstruction *>IV;
+    std::vector<std::string> HV;
+
+    OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
+    vector<ParseRange> *p_slist = p_result->getexpMetricList();
+    if (p_slist->empty()) {
+     // If we are attempting a default 'stats' view, show every available data metric.
+      if (!Select_All_Metrics (cmd, exp, CV, MV, IV, HV)) {
+        return false;
+      }
+    } else {
+     // Otherwise, use the metrics that the user listed.
+      if (!Select_User_Metrics (cmd, exp, CV, MV, IV, HV)) {
+        return false;
+      }
+    }
     return Generic_View (cmd, exp, topn, tgrp, CV, MV, IV, HV);
   }
 };
 
 
-// This is the only external entrypoint.
-// Calls to the VIEWs needs to be done through the ViewType class objects.
+// This is not the only external entrypoint.
+//   Also exported are: 'Generic_View' and 'Select_User_Metrics'
+// However, Calls to the 'stats' VIEW needs to be done through the ViewType class objects.
 extern "C" void stats_LTX_ViewFactory () {
   Define_New_View (new stats_view());
 }

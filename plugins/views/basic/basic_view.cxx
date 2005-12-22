@@ -26,13 +26,20 @@ using namespace OpenSpeedShop::cli;
 // pcsamp view
 
 static std::string VIEW_pcsamp_brief = "PC (Program Counter) report";
-static std::string VIEW_pcsamp_short = "Report the amount and percent of program time spent in a function.";
+static std::string VIEW_pcsamp_short = "Report the amount and percent of program time spent in a code unit.";
 static std::string VIEW_pcsamp_long  = "The report is sorted in descending order by the amount of time that"
-                                       " was used in each function.  Also included in the report is the"
-                                       " percent of total time that each function uses."
+                                       " was used in each unit. Also included in the report is the"
+                                       " percent of total time that each unit uses."
                                        " A positive integer can be added to the end of the keyword"
-                                       " 'pcsamp' to indicate the maximum number of items in"
-                                       " the report.";
+                                       " 'pcsamp' to indicate the maximum number of items in the report."
+                                       "\n\nThe type of unit displayed can be selected with the '-v'"
+                                       " option."
+                                       "\n\t'-v LinkedObjects' will report times by linked object."
+                                       "\n\t'-v Functions' will report times by function. This is the default."
+                                       "\n\t'-v Statements' will report times by statement."
+                                       "\n";
+static std::string VIEW_pcsamp_example = "\texpView pcsamp\n"
+                                         "\texpView -v statements pcsamp10\n";
 static std::string VIEW_pcsamp_metrics[] =
   { "time",
     ""
@@ -40,35 +47,31 @@ static std::string VIEW_pcsamp_metrics[] =
 static std::string VIEW_pcsamp_collectors[] =
   { "pcsamp"
   };
-static std::string VIEW_pcsamp_header[] =
-  { ""
-  };
 class pcsamp_view : public ViewType {
 
  public: 
   pcsamp_view() : ViewType ("pcsamp",
-                             VIEW_pcsamp_brief,
-                             VIEW_pcsamp_short,
-                             VIEW_pcsamp_long,
-                            &VIEW_pcsamp_metrics[0],
-                            &VIEW_pcsamp_collectors[0],
-                            &VIEW_pcsamp_header[0],
-                             true,
-                             false) {
+                            VIEW_pcsamp_brief,
+                            VIEW_pcsamp_short,
+                            VIEW_pcsamp_long,
+                            VIEW_pcsamp_example,
+                           &VIEW_pcsamp_metrics[0],
+                           &VIEW_pcsamp_collectors[0],
+                            true) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                         ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
-                         std::vector<ViewInstruction *>& IV) {
-    CV.erase(CV.begin(), CV.end());
-    MV.erase(MV.begin(), MV.end());
-    IV.erase(IV.begin(), IV.end());
+                             ThreadGroup& tgrp) {
+    std::vector<Collector> CV;
+    std::vector<std::string> MV;
+    std::vector<ViewInstruction *>IV;
+    std::vector<std::string> HV;
 
+   // There is only 1 supported metric.  Use it and ignore what the user may have specified with '-m'.
     CV.push_back( Get_Collector (exp->FW(), VIEW_pcsamp_collectors[0]) ); // use pcsamp collector
     MV.push_back(VIEW_pcsamp_metrics[0]);  // Use the Collector with the first metric
     IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, 0, 0));  // first column is metric
     IV.push_back(new ViewInstruction (VIEWINST_Define_Total, 0));  // total the metric in first column
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, 1, 0));  // second column is %
-    std::vector<std::string> HV; // Headers will be calculated from metrics
     return Generic_View (cmd, exp, topn, tgrp, CV, MV, IV, HV);
   }
 };
@@ -76,16 +79,32 @@ class pcsamp_view : public ViewType {
 // UserTime Report
 
 static std::string VIEW_usertime_brief = "Usertime call stack report";
-static std::string VIEW_usertime_short = "Report the amount of time spent in a function.";
+static std::string VIEW_usertime_short = "Report the amount of time spent in a code unit.";
 static std::string VIEW_usertime_long  = "The report is sorted in descending order by the amount of time that"
-                                       " was used in each function.  Included in the report is both the time"
-                                       " used individually by each function (exclusive_time) and the time used"
-                                       " in aggregate by the function and all the functions it calls"
-                                       " (inclusive_time).  Also included in the report is the" 
-                                       " percent of total time that each function uses."
-                                       " A positive integer can be added to the end of the keyword"
-                                       " 'usertime' to indicate the maximum number of items in"
-                                       " the report.";
+                                         " was used in each unit.  Included in the default report is both the"
+                                         " time used individually by each unit (exclusive_time) and the time"
+                                         " used in aggregate by the unit and all the units it calls"
+                                         " (inclusive_time).  Also included in the report is the" 
+                                         " percent of total time that each unit uses."
+                                         " A positive integer can be added to the end of the keyword"
+                                         " 'usertime' to indicate the maximum number of items in the report."
+                                         "\n\nThe type of unit displayed can be selected with the '-v'"
+                                         " option."
+                                         "\n\t'-v LinkedObjects' will report times by linked object."
+                                         "\n\t'-v Functions' will report times by function. This is the default."
+                                         "\n\t'-v Statements' will report times by statement."
+                                         " \n\nThe user can select individual metrics for display by listing"
+                                         " them after the '-m' option key.  Multiple selections will be"
+                                         " displayed in the order they are listed.  Only the metrics in"
+                                         " the list will be displayed."
+                                         " \n\nIf the '-m' option is not specified, the report is equivalent"
+                                         " to '-m inclusive_time, exclusive_time."
+                                         "\n";
+static std::string VIEW_usertime_example = "\texpView usertime\n"
+                                           "\texpView -v LinkedObjects usertime\n"
+                                           "\texpView -v Statements usertime20\n"
+                                           "\texpView -v Functions usertime10 -m usertime::inclusive_time\n"
+                                           "\texpView usertime20 -m inclusive_time, exclusive_time\n";
 static std::string VIEW_usertime_metrics[] =
   { "inclusive_time",
     "exclusive_time",
@@ -95,30 +114,32 @@ static std::string VIEW_usertime_collectors[] =
   { "usertime",
     ""
   };
-static std::string VIEW_usertime_header[] =
-  { ""
-  };
 class usertime_view : public ViewType {
 
  public: 
   usertime_view() : ViewType ("usertime",
-                             VIEW_usertime_brief,
-                             VIEW_usertime_short,
-                             VIEW_usertime_long,
-                            &VIEW_usertime_metrics[0],
-                            &VIEW_usertime_collectors[0],
-                            &VIEW_usertime_header[0],
-                             true,
-                             false) {
+                              VIEW_usertime_brief,
+                              VIEW_usertime_short,
+                              VIEW_usertime_long,
+                              VIEW_usertime_example,
+                             &VIEW_usertime_metrics[0],
+                             &VIEW_usertime_collectors[0],
+                              true) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                         ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
-                         std::vector<ViewInstruction *>& IV) {
-    if (MV.size() > 2) {
-     // There are only two metrics.  Default to the basic report.
-      CV.erase(CV.begin(), CV.end());
-      MV.erase(MV.begin(), MV.end());
-      IV.erase(IV.begin(), IV.end());
+                             ThreadGroup& tgrp) {
+    std::vector<Collector> CV;
+    std::vector<std::string> MV;
+    std::vector<ViewInstruction *>IV;
+    std::vector<std::string> HV;
+
+    OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
+    vector<ParseRange> *p_slist = p_result->getexpMetricList();
+    if (!p_slist->empty()) {
+     // Use the metrics that the user listed.
+      if (!Select_User_Metrics (cmd, exp, CV, MV, IV, HV)) {
+        return false;
+      }
     }
 
     int64_t Max_Column = Find_Max_Column_Def (IV);
@@ -152,7 +173,6 @@ class usertime_view : public ViewType {
    // Column[2] is % of  whatever is the first metric in the list.
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Column, ++Max_Column, 0));
 
-    std::vector<std::string> HV; // Headers will be calculated from metrics
     return Generic_View (cmd, exp, topn, tgrp, CV, MV, IV, HV);
   }
 };
@@ -160,14 +180,22 @@ class usertime_view : public ViewType {
 // Hardware Counter Report
 
 static std::string VIEW_hwc_brief = "Hardware counter report";
-static std::string VIEW_hwc_short = "Report the hardware counts spent in a function.";
+static std::string VIEW_hwc_short = "Report the hardware counts spent in a code unit.";
 static std::string VIEW_hwc_long  = "The report is sorted in descending order by the number of counts that"
-                                    " were accumulated in each function.  The reported counter is the one"
+                                    " were accumulated in each unit.  The reported counter is the one"
                                     " set in the 'event' parameter when the experiment was run."
-                                    "  Also included in the report is the percent of total cycles"
-                                    " that each function uses."
-                                    "  A positive integer can be added to the end of the keyword 'hwc'"
-                                    " to indicate the maximum number of items in the report.";
+                                    " Also included in the report is the percent of total cycles"
+                                    " that each unit uses."
+                                    " A positive integer can be added to the end of the keyword 'hwc'"
+                                    " to indicate the maximum number of items in the report."
+                                    "\n\nThe type of unit displayed can be selected with the '-v'"
+                                    " option."
+                                    "\n\t'-v LinkedObjects' will report counts by linked object."
+                                    "\n\t'-v Functions' will report counts by function. This is the default."
+                                    "\n\t'-v Statements' will report counts by statement."
+                                    "\n";
+static std::string VIEW_hwc_example = "\texpView hwc\n"
+                                      "\texpView -v Functions hwc10\n";
 static std::string VIEW_hwc_metrics[] =
   { "overflows",
     ""
@@ -176,30 +204,26 @@ static std::string VIEW_hwc_collectors[] =
   { "hwc",
     ""
   };
-static std::string VIEW_hwc_header[] =
-  { ""
-  };
 class hwc_view : public ViewType {
 
  public: 
   hwc_view() : ViewType ("hwc",
-                             VIEW_hwc_brief,
-                             VIEW_hwc_short,
-                             VIEW_hwc_long,
-                            &VIEW_hwc_metrics[0],
-                            &VIEW_hwc_collectors[0],
-                            &VIEW_hwc_header[0],
-                             true,
-                             false) {
+                         VIEW_hwc_brief,
+                         VIEW_hwc_short,
+                         VIEW_hwc_long,
+                         VIEW_hwc_example,
+                        &VIEW_hwc_metrics[0],
+                        &VIEW_hwc_collectors[0],
+                         true) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                         ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
-                         std::vector<ViewInstruction *>& IV) {
-   // Start with a clean slate.
-    CV.erase(CV.begin(), CV.end());
-    MV.erase(MV.begin(), MV.end());
-    IV.erase(IV.begin(), IV.end());
+                             ThreadGroup& tgrp) {
+    std::vector<Collector> CV;
+    std::vector<std::string> MV;
+    std::vector<ViewInstruction *>IV;
+    std::vector<std::string> HV;
 
+   // There is only 1 supported metric.  Use it and ignore what the user may have specified with '-m'.
     CV.push_back (Get_Collector (exp->FW(), VIEW_hwc_collectors[0]));  // Get the collector
     MV.push_back(VIEW_hwc_metrics[0]);  // Get the name of the metric
     IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, 0, 0));  // first column is metric
@@ -208,7 +232,6 @@ class hwc_view : public ViewType {
 
    // Get the name of the event that we were collecting.
    // Use this for the column header in the report rather then the name of the metric.
-    std::vector<std::string> HV;
     std::string H;
     CV[0].getParameterValue ("event", H);
     HV.push_back(H);
@@ -220,16 +243,33 @@ class hwc_view : public ViewType {
 // Hardware Counter UserTime Report
 
 static std::string VIEW_hwctime_brief = "Usertime call stack report";
-static std::string VIEW_hwctime_short = "Report the amount of time spent in a function.";
-static std::string VIEW_hwctime_long  = "The report is sorted in descending order by the amount of time that"
-                                       " was used in each function.  Included in the report is both the time"
-                                       " used individually by each function (exclusive_time) and the time used"
-                                       " in aggregate by the function and all the functions it calls"
-                                       " (inclusive_time).  Also included in the report is the" 
-                                       " percent of total time that each function uses."
-                                       " A positive integer can be added to the end of the keyword"
-                                       " 'hwctime' to indicate the maximum number of items in"
-                                       " the report.";
+static std::string VIEW_hwctime_short = "Report the hardware counts spent in a code unit.";
+static std::string VIEW_hwctime_long  = "The report is sorted in descending order by the number of counts that"
+                                        " were accumulated in each unit.  The reported counter is the one"
+                                        " set in the 'event' parameter when the experiment was run."
+                                        " Included in the default report is both the counts"
+                                        " used individually by each unit (exclusive_overflows) and the counts used"
+                                        " in aggregate by the unit and all the units it calls"
+                                        " (inclusive_overflows).  Also included in the report is the"
+                                        " percent of total counts that each unit uses."
+                                        " A positive integer can be added to the end of the keyword"
+                                        " 'hwctime' to indicate the maximum number of items in the report."
+                                        "\n\nThe type of unit displayed can be selected with the '-v'"
+                                        " option."
+                                        "\n\t'-v LinkedObjects' will report counts by linked object."
+                                        "\n\t'-v Functions' will report counts by function. This is the default."
+                                        "\n\t'-v Statements' will report counts by statement."
+                                        " \n\nThe user can select individual metrics for display by listing"
+                                        " them after the '-m' option key.  Multiple selections will be"
+                                        " displayed in the order they are listed.  Only the metrics in"
+                                        " the list will be displayed."
+                                        " \n\nIf the '-m' option is not specified, the report is equivalent"
+                                        " to '-m inclusive_overflows, exclusive_overflows."
+                                        "\n";
+static std::string VIEW_hwctime_example = "\texpView hwctime\n"
+                                          "\texpView -v LinkedObjects hwctime10\n"
+                                          "\texpView -v Functions hwctime10 -m inclusive_overflows\n"
+                                          "\texpView hwctime10 -m exclusive_overflows, inclusive_overflows\n";
 static std::string VIEW_hwctime_metrics[] =
   { "inclusive_overflows",
     "exclusive_overflows",
@@ -249,20 +289,25 @@ class hwctime_view : public ViewType {
                              VIEW_hwctime_brief,
                              VIEW_hwctime_short,
                              VIEW_hwctime_long,
+                             VIEW_hwctime_example,
                             &VIEW_hwctime_metrics[0],
                             &VIEW_hwctime_collectors[0],
-                            &VIEW_hwctime_header[0],
-                             true,
-                             false) {
+                             true) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                         ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
-                         std::vector<ViewInstruction *>& IV) {
-    if (MV.size() > 2) {
-     // There are only two metrics.  Default to the basic report.
-      CV.erase(CV.begin(), CV.end());
-      MV.erase(MV.begin(), MV.end());
-      IV.erase(IV.begin(), IV.end());
+                             ThreadGroup& tgrp) {
+    std::vector<Collector> CV;
+    std::vector<std::string> MV;
+    std::vector<ViewInstruction *>IV;
+    std::vector<std::string> HV;
+
+    OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
+    vector<ParseRange> *p_slist = p_result->getexpMetricList();
+    if (!p_slist->empty()) {
+     // Use the metrics that the user listed.
+      if (!Select_User_Metrics (cmd, exp, CV, MV, IV, HV)) {
+        return false;
+      }
     }
 
     int64_t Max_Column = Find_Max_Column_Def (IV);
@@ -298,7 +343,6 @@ class hwctime_view : public ViewType {
 
    // Get the name of the event that we were collecting.
    // Use this for the column header in the report rather then the name of the metric.
-    std::vector<std::string> HV(2);
     std::string name;
     CV[0].getParameterValue ("event", name);
     std::string prename;

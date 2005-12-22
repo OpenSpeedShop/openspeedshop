@@ -127,20 +127,14 @@ class ViewType
 {
 
   std::string Id;                 // Unique name of this report.
-  std::string Brief_Description;  // What is the meaning of each column?
-  std::string Short_Description;  // What type of report is generated?
-  std::string Long_Description;   // When would I want to use this?
   std::string *Metric_Name;       // This view requires these metrics.
   std::string *Collector_Name;    // This view requires these collectors.
-  std::string *Headers_Name;      // The names associated with each column.
   bool Requires_Exp;              // This view is only meaninful with an experiment.
-  bool PreDetermine_Metrics;      // If false, the View will deterimne what is needed.
 
  public:
   // The call to generate the view must have this form.
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                             ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
-                             std::vector<ViewInstruction *>& IV) {
+                             ThreadGroup& tgrp) {
     {
     	std::string s("The requested view has not been implemented.");
     	Mark_Cmd_With_Soft_Error(cmd,s);
@@ -156,20 +150,14 @@ class ViewType
             std::string BriefD,
             std::string ShortD,
             std::string LongD,
+            std::string ExampleD,
             std::string *Metric,
             std::string *Collect,
-            std::string *Head,
-            bool NeedsExp = true,
-            bool DeterimneMetrics = true) {
+            bool NeedsExp = true) {
     Id = viewname;
-    Brief_Description    = BriefD;
-    Short_Description    = ShortD;
-    Long_Description     = LongD;
     Metric_Name          = Metric;
     Collector_Name       = Collect;
-    Headers_Name         = Head;
     Requires_Exp         = NeedsExp;
-    PreDetermine_Metrics = DeterimneMetrics;
 
    // Send information to the message czar.
     SS_Message_Czar& czar = theMessageCzar();
@@ -198,20 +186,15 @@ class ViewType
     element.add_verbose(BriefD + ":\n\n" + ShortD + " " + LongD);
 
    // Standard example for views.
-    element.add_example("expView " + viewname);
+    element.add_example(ExampleD);
 
    // Submit the message to the database
     czar.Add_Help(element);
   }
   std::string Unique_Name() { return Id; }
-  std::string Brief_Name() { return Brief_Description; }
-  std::string Short_Name() { return Short_Description; }
-  std::string Long_Name() { return Long_Description; }
   std::string *Metrics() { return Metric_Name; }
   std::string *Collectors() { return Collector_Name; }
-  std::string *Headers() { return Headers_Name; }
   bool        Need_Exp() { return Requires_Exp; }
-  bool        Deterimne_Metrics() { return PreDetermine_Metrics; }
 };
 
 
@@ -440,6 +423,9 @@ ViewInstruction *Find_Percent_Def (std::vector<ViewInstruction *>IV);
 ViewInstruction *Find_Column_Def (std::vector<ViewInstruction *>IV, int64_t Column);
 int64_t Find_Max_Column_Def (std::vector<ViewInstruction *>IV);
 int64_t Find_Max_Tmp_Def (std::vector<ViewInstruction *>IV);
+bool Select_User_Metrics (CommandObject *cmd, ExperimentObject *exp,
+                          std::vector<Collector>& CV, std::vector<std::string>& MV,
+                          std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV);
 void Print_View_Params (ostream &to,
                         std::vector<Collector> CV,
                         std::vector<std::string> MV,

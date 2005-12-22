@@ -539,7 +539,11 @@ void Print_View_Params (ostream &to,
                         std::vector<std::string> MV,
                         std::vector<ViewInstruction *>IV) {
   int i;
-  to << std::endl << "List Metrics" << std::endl;
+  to << std::endl << "List Collectors" << std::endl;
+  for ( i=0; i < CV.size(); i++) {
+    to << "\t" << CV[i].getMetadata().getUniqueId() << std::endl;
+  }
+  to << "List Metrics" << std::endl;
   for ( i=0; i < MV.size(); i++) {
     to << "\t" << MV[i] << std::endl;
   }

@@ -1150,6 +1150,8 @@ static std::string VIEW_mpi_long  = "\nA positive integer can be added to the en
                                       " \n\t'-m percent' reports the percent of mpi time the function represents."
                                       " \n\t'-m stddev' reports the standard deviation of the average mpi time"
                                       " that the function represents.";
+static std::string VIEW_mpi_example = "\texpView mpi\n"
+                                      "\texpView -v CallTrees,FullStack mpi10 -m min,max,count\n";
 static std::string VIEW_mpi_metrics[] =
   { ""
   };
@@ -1157,28 +1159,25 @@ static std::string VIEW_mpi_collectors[] =
   { "mpi",
     ""
   };
-static std::string VIEW_mpi_header[] =
-  { ""
-  };
 class mpi_view : public ViewType {
 
  public: 
   mpi_view() : ViewType ("mpi",
-                          VIEW_mpi_brief,
-                          VIEW_mpi_short,
-                          VIEW_mpi_long,
-                         &VIEW_mpi_metrics[0],
-                         &VIEW_mpi_collectors[0],
-                         &VIEW_mpi_header[0],
-                           true,
-                           false) {
+                         VIEW_mpi_brief,
+                         VIEW_mpi_short,
+                         VIEW_mpi_long,
+                         VIEW_mpi_example,
+                        &VIEW_mpi_metrics[0],
+                        &VIEW_mpi_collectors[0],
+                         true) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                         ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
-                         std::vector<ViewInstruction *>& IV) {
-
+                             ThreadGroup& tgrp) {
+    std::vector<Collector> CV;
+    std::vector<std::string> MV;
+    std::vector<ViewInstruction *>IV;
     std::vector<std::string> HV;
-    CV.erase(CV.begin(), CV.end());
+
     CV.push_back (Get_Collector (exp->FW(), "mpi"));  // Define the collector
     if (mpi_definition (cmd, exp, topn, tgrp, CV, MV, IV, HV)) {
        return Generic_mpi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV);
@@ -1192,23 +1191,15 @@ class mpi_view : public ViewType {
 static std::string VIEW_mpit_brief = "Mpit Report";
 static std::string VIEW_mpit_short = "Report the time spend in each each mpi function.";
 static std::string VIEW_mpit_long  = "\nA positive integer can be added to the end of the keyword"
-                                      " 'mpit' to indicate the maximum number of items in the report."
-                                      "\nA summary report can be requested with the '-v Functions' option"
-                                      " and will be sorted in descending order of the time spent in each"
-                                      " function."
-                                      " A call stack report can be requested with the '-v Statements' option"
-                                      " and will be presented in calling tree order."
-                                      " If no '-v' option is specified, the default report is equivalent to"
-                                      " '-v Functions'";
+                                      " 'mpit' to indicate the maximum number of items in the report.";
+static std::string VIEW_mpit_example = "\texpView mpit\n"
+                                       "\texpView -v CallTree mpit10\n";
 static std::string VIEW_mpit_metrics[] =
   { ""
   };
 static std::string VIEW_mpit_collectors[] =
   { "mpit",
     ""
-  };
-static std::string VIEW_mpit_header[] =
-  { ""
   };
 class mpit_view : public ViewType {
 
@@ -1217,17 +1208,18 @@ class mpit_view : public ViewType {
                           VIEW_mpit_brief,
                           VIEW_mpit_short,
                           VIEW_mpit_long,
+                          VIEW_mpit_example,
                          &VIEW_mpit_metrics[0],
                          &VIEW_mpit_collectors[0],
-                         &VIEW_mpit_header[0],
-                           true,
-                           false) {
+                          true) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                         ThreadGroup tgrp, std::vector<Collector> CV, std::vector<std::string> MV,
-                         std::vector<ViewInstruction *>IV) {
+                             ThreadGroup tgrp) {
+    std::vector<Collector> CV;
+    std::vector<std::string> MV;
+    std::vector<ViewInstruction *>IV;
     std::vector<std::string> HV;
-    CV.erase(CV.begin(), CV.end());
+
     CV.push_back (Get_Collector (exp->FW(), "mpit"));  // Define the collector
     if (mpi_definition (cmd, exp, topn, tgrp, CV, MV, IV, HV)) {
        return Generic_mpi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV);
