@@ -52,7 +52,7 @@ void bill()
 main()
 {
   int i;
-  int number = 5000;
+  int number = 10000;
   cout << getpid() << endl;
 
   for(i=0;i<number;i++)

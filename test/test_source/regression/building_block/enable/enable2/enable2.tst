@@ -31,4 +31,4 @@ echo expgo >> input.script
 echo expstatus >> input.script
 echo exit >> input.script
 openss -batch < input.script
-kill $i
+kill -n 9 $i
