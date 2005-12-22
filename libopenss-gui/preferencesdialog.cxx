@@ -174,33 +174,34 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     generalStackPageLayout = new QVBoxLayout( generalStackPage, 11, 6, "generalStackPageLayout"); 
 
     GeneralGroupBox = new QGroupBox( generalStackPage, "GeneralGroupBox" );
+    GeneralGroupBox->setColumnLayout(0, Qt::Vertical );
+    GeneralGroupBox->layout()->setSpacing( 6 );
+    GeneralGroupBox->layout()->setMargin( 11 );
 
-    QWidget* generalPrivateLayout = new QWidget( GeneralGroupBox, "rightSideLayout" );
-    generalPrivateLayout->setGeometry( QRect( 10, 20, 300, 200 ) );
-    rightSideLayout = new QVBoxLayout( generalPrivateLayout, 11, 6, "rightSideLayout"); 
+    rightSideLayout = new QVBoxLayout( GeneralGroupBox->layout(), 11, "rightSideLayout"); 
 
     fontLayout = new QHBoxLayout( 0, 0, 6, "fontLayout"); 
 
-    setFontButton = new QPushButton( generalPrivateLayout, "setFontButton" );
+    setFontButton = new QPushButton( GeneralGroupBox, "setFontButton" );
     fontLayout->addWidget( setFontButton );
 
-    fontLineEdit = new QLineEdit( generalPrivateLayout, "fontLineEdit" );
+    fontLineEdit = new QLineEdit( GeneralGroupBox, "fontLineEdit" );
     fontLayout->addWidget( fontLineEdit );
     rightSideLayout->addLayout( fontLayout );
 
     remoteShellLayout = new QHBoxLayout( 0, 0, 6, "remoteShellLayout"); 
-    remoteShellLabel = new QLabel( generalPrivateLayout, "remote shell label" );
+    remoteShellLabel = new QLabel( GeneralGroupBox, "remote shell label" );
     remoteShellLayout->addWidget( remoteShellLabel );
 
-    remoteShellEdit = new QLineEdit( generalPrivateLayout, "remoteShellEdit" );
+    remoteShellEdit = new QLineEdit( GeneralGroupBox, "remoteShellEdit" );
     remoteShellLayout->addWidget( remoteShellEdit );
     rightSideLayout->addLayout( remoteShellLayout );
 
-    setShowSplashScreenCheckBox = new QCheckBox( generalPrivateLayout, "setShowSplashScreenCheckBox" );
+    setShowSplashScreenCheckBox = new QCheckBox( GeneralGroupBox, "setShowSplashScreenCheckBox" );
     setShowSplashScreenCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, setShowSplashScreenCheckBox->sizePolicy().hasHeightForWidth() ) );
     rightSideLayout->addWidget( setShowSplashScreenCheckBox );
 
-    showGraphicsCheckBox = new QCheckBox( generalPrivateLayout, "showGraphicsCheckBox" );
+    showGraphicsCheckBox = new QCheckBox( GeneralGroupBox, "showGraphicsCheckBox" );
     showGraphicsCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, showGraphicsCheckBox->sizePolicy().hasHeightForWidth() ) );
     rightSideLayout->addWidget( showGraphicsCheckBox );
     generalStackPageLayout->addWidget( GeneralGroupBox );

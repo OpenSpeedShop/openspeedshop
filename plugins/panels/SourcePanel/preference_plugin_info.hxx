@@ -28,6 +28,8 @@
 #include <qcheckbox.h>
 #include <qsettings.h>
 
+typedef QValueList<QLineEdit *> LineEditList;
+static int numEntries = 10;
 extern "C"
 {
   QWidget* sourcePanelStackPage;
@@ -36,6 +38,18 @@ extern "C"
   QCheckBox* showLineNumbersCheckBox;
   QVBoxLayout* generalStackPageLayout_2;
   QVBoxLayout* layout6;
+
+  QHBoxLayout *headerLayout;
+
+  QLabel *leftSideHeaderLabel;
+  QLabel *rightSideHeaderLabel;
+
+
+
+  QHBoxLayout *gridLayout;
+  QGridLayout *glayout;
+  LineEditList leftSideLineEditList;
+  LineEditList rightSideLineEditList;
 
   static char *pname = NULL;
 
@@ -51,15 +65,23 @@ extern "C"
     return( showLineNumbersCheckBox->isChecked() );
   }
 
+  LineEditList *getLeftSideLineEditList()
+  {
+    return( &leftSideLineEditList );
+  }
+
+  LineEditList *getRightSideLineEditList()
+  {
+    return( &rightSideLineEditList );
+  }
+
 // #include <assert.h>
-static int i = 1;
   void initSourcePanelPreferenceSettings()
   {
 // printf("initSourcePanelPreferenceSettings(%s)\n", pname);
 // assert(i);
     showStatisticsCheckBox->setChecked(FALSE);
     showLineNumbersCheckBox->setChecked(FALSE);
-i--;
   }
 
   QWidget *initialize_preferences_entry_point(QSettings *settings, QWidgetStack *stack, char *name)
@@ -71,32 +93,58 @@ i--;
     generalStackPageLayout_2 = new QVBoxLayout( sourcePanelStackPage, 11, 6, "generalStackPageLayout_2"); 
 
     sourcePanelGroupBox = new QGroupBox( sourcePanelStackPage, "sourcePanelGroupBox" );
+    sourcePanelGroupBox->setColumnLayout(0, Qt::Vertical );
+    sourcePanelGroupBox->layout()->setSpacing( 6 );
+    sourcePanelGroupBox->layout()->setMargin( 11 );
 
-    QWidget* sourcePanelPrivateLayout = new QWidget( sourcePanelGroupBox, "layout6" );
-//    sourcePanelPrivateLayout->setGeometry( QRect( 10, 40, 150, 52 ) );
-    sourcePanelPrivateLayout->setGeometry( QRect( 10, 40, 200, 100 ) );
-    layout6 = new QVBoxLayout( sourcePanelPrivateLayout, 11, 6, "layout6"); 
+
+    layout6 = new QVBoxLayout( sourcePanelGroupBox->layout(), 11, "layout6"); 
 
     showStatisticsCheckBox =
-      new QCheckBox( sourcePanelPrivateLayout, "showStatisticsCheckBox" );
+      new QCheckBox( sourcePanelGroupBox, "showStatisticsCheckBox" );
     showStatisticsCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, showStatisticsCheckBox->sizePolicy().hasHeightForWidth() ) );
     layout6->addWidget( showStatisticsCheckBox );
 
-    showLineNumbersCheckBox = new QCheckBox( sourcePanelPrivateLayout, "showLineNumbersCheckBox" );
+    showLineNumbersCheckBox = new QCheckBox( sourcePanelGroupBox, "showLineNumbersCheckBox" );
     showLineNumbersCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, showLineNumbersCheckBox->sizePolicy().hasHeightForWidth() ) );
     layout6->addWidget( showLineNumbersCheckBox );
     generalStackPageLayout_2->addWidget( sourcePanelGroupBox );
     stack->addWidget( sourcePanelStackPage, 1 );
 
 // languageChange();
-/*
-    sourcePanelGroupBox->setTitle( tr( "Source Panel" ) );
-    showStatisticsCheckBox->setText( tr( "Show statistics" ) );
-    showLineNumbersCheckBox->setText( tr( "Show line numbers" ) );
-*/
     sourcePanelGroupBox->setTitle( "Source Panel" );
     showStatisticsCheckBox->setText( "Show statistics" );
     showLineNumbersCheckBox->setText( "Show line numbers" );
+
+{
+    headerLayout = new QHBoxLayout( layout6 );
+
+    leftSideHeaderLabel = new QLabel("Old Path Name", sourcePanelGroupBox, "leftSideHeaderLabel");
+    rightSideHeaderLabel = new QLabel("New Path Name", sourcePanelGroupBox, "rightSideHeaderLabel");
+  
+    headerLayout->addWidget(leftSideHeaderLabel);
+    headerLayout->addWidget(rightSideHeaderLabel);
+
+    gridLayout = new QHBoxLayout( layout6 );
+
+
+    glayout = new QGridLayout(gridLayout,10,2);
+
+
+    for(int i=0;i<numEntries;i++)
+    {
+      QLineEdit *lsle = new QLineEdit(sourcePanelGroupBox,QString("leftSideLineEdit%1").arg(i));
+//      lsle->setText(QString("leftSideLineEdit%1").arg(i));
+      leftSideLineEditList.push_back(lsle);
+  
+      QLineEdit *rsle = new QLineEdit(sourcePanelGroupBox,QString("rightSideLineEdit%1").arg(i));
+//      rsle->setText(QString("rightSideLineEdit%1").arg(i));
+      rightSideLineEditList.push_back(rsle);
+  
+      glayout->addWidget(lsle, i, 0);
+      glayout->addWidget(rsle, i, 1);
+    }
+}
 
     initSourcePanelPreferenceSettings();
 
@@ -113,6 +161,47 @@ i--;
         "openspeedshop", name, showLineNumbersCheckBox->name() );
       showLineNumbersCheckBox->setChecked(
         settings->readBoolEntry(settings_buffer) );
+
+      for(int i=0;i<numEntries;i++)
+      {
+        QString ls_name = QString("leftSideLineEdit%1").arg(i);
+        QString rs_name = QString("rightSideLineEdit%1").arg(i);
+
+        sprintf(settings_buffer, "/%s/%s/%s",
+                "openspeedshop", name, ls_name.ascii() );
+        QString lsentryStr = settings->readEntry(settings_buffer);
+        sprintf(settings_buffer, "/%s/%s/%s",
+                "openspeedshop", name, rs_name.ascii() );
+        QString rsentryStr = settings->readEntry(settings_buffer);
+
+
+        // Now try to find this named widget and set the value
+        for( LineEditList::Iterator it = leftSideLineEditList.begin();
+             it != leftSideLineEditList.end(); ++it )
+        {
+        //   QLineEdit *lsle = (QLineEdit *)it.current(); 
+           QLineEdit *lsle = (QLineEdit *)*it; 
+
+           if( lsle->name() == ls_name )
+           {
+             lsle->setText(lsentryStr);
+             break;
+           }
+
+        }
+        for( LineEditList::Iterator it = rightSideLineEditList.begin();
+             it != rightSideLineEditList.end(); ++it )
+        {
+        //   QLineEdit *lsle = (QLineEdit *)it.current(); 
+           QLineEdit *rsle = (QLineEdit *)*it; 
+
+           if( rsle->name() == rs_name )
+           {
+             rsle->setText(rsentryStr);
+             break;
+           }
+        }
+      }
     }
 
     return( sourcePanelStackPage );
@@ -137,6 +226,44 @@ i--;
     if( !settings->writeEntry(settings_buffer, showLineNumbersCheckBox->isChecked()) )
     {
       printf("error writting %s\n", settings_buffer);
+    }
+
+    for(int i=0;i<numEntries;i++)
+    {
+      QString ls_name = QString("leftSideLineEdit%1").arg(i);
+      QString rs_name = QString("rightSideLineEdit%1").arg(i);
+
+      // Now try to find this named widget and set the value
+      for( LineEditList::Iterator it = leftSideLineEditList.begin();
+           it != leftSideLineEditList.end(); ++it )
+      {
+      //   QLineEdit *lsle = (QLineEdit *)it.current(); 
+         QLineEdit *lsle = (QLineEdit *)*it; 
+      
+         if( lsle->name() == ls_name )
+         {
+           QString lsText = lsle->text();
+           sprintf(settings_buffer, "/%s/%s/%s",
+               "openspeedshop", name, ls_name.ascii() );
+           settings->writeEntry(settings_buffer, lsText.ascii() );
+           break;
+         }
+      }
+      for( LineEditList::Iterator it = rightSideLineEditList.begin();
+           it != rightSideLineEditList.end(); ++it )
+      {
+      //   QLineEdit *rsle = (QLineEdit *)it.current(); 
+         QLineEdit *rsle = (QLineEdit *)*it; 
+      
+         if( rsle->name() == rs_name )
+         {
+           QString rsText = rsle->text();
+           sprintf(settings_buffer, "/%s/%s/%s",
+               "openspeedshop", name, rs_name.ascii() );
+           settings->writeEntry(settings_buffer, rsText.ascii() );
+           break;
+         }
+      }
     }
   }
 }

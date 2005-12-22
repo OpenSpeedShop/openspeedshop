@@ -240,5 +240,8 @@ private:
 //  OpenSpeedShop::Framework::Experiment *fw_experiment() { return experiment; }
   
   void raisePreferencePanel();
+
+  QString remapPath(QString _fileName);
+
 };
 #endif // SOURCE_PANEL_H

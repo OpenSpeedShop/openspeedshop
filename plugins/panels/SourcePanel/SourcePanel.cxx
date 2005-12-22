@@ -750,13 +750,16 @@ SourcePanel::loadFile(const QString &_fileName)
 {
   nprintf(DEBUG_PANELS) ("SourcePanel::loadFile() entered\n");
 
+// printf("attempt to remap the path to _fileName=(%s)\n", _fileName.ascii() );
+  QString remapped_fileName = remapPath(_fileName);
+
   canvasForm->hide();
   canvasForm->clearAllItems();
   canvasForm->show();
 
 
   bool sameFile = FALSE;
-  if( fileName == _fileName )
+  if( fileName == remapped_fileName )
   {
     sameFile = TRUE;
     nprintf(DEBUG_PANELS) ("loadFile:: sameFile: lastTop=%d\n", lastTop );
@@ -771,14 +774,14 @@ SourcePanel::loadFile(const QString &_fileName)
     last_index = -1;   // For last find command.
 
   }
-  if( _fileName.isEmpty() )
+  if( remapped_fileName.isEmpty() )
   { // Just clear the Source Panel and return.
     textEdit->clear();
     textEdit->clearScrollBar();
     label->setText(tr("No file found."));
     return FALSE;
   }
-  fileName = _fileName;
+  fileName = remapped_fileName;
 
   QFile f( fileName );
   if( !f.open( IO_ReadOnly ) )
@@ -1238,4 +1241,48 @@ SourcePanel::raisePreferencePanel()
 {
 // printf("StatsPanel::raisePreferencePanel() \n");
   getPanelContainer()->getMainWindow()->filePreferences( sourcePanelStackPage, QString(pluginInfo->panel_type) );
+}
+
+QString
+SourcePanel::remapPath(QString _fileName)
+{
+// printf("SourcePanel::remapPath(%s\n", _fileName.ascii() );
+  QString fromStr = QString::null;
+  QString toStr = QString::null;
+
+  LineEditList *lslel = getLeftSideLineEditList();
+  LineEditList *rslel = getRightSideLineEditList();
+
+  QString newStr = _fileName;
+
+  // Look up the matching fromStr
+  int lscnt = 0;
+  int rscnt = 0;
+  LineEditList::Iterator lsit = lslel->begin();
+  LineEditList::Iterator rsit = rslel->begin();
+  for(  ; lsit != lslel->end(); ++lsit, ++rsit )
+  {
+    QLineEdit *lsle = (QLineEdit *)*lsit;
+    QLineEdit *rsle = (QLineEdit *)*rsit;
+
+    QString fromStr = lsle->text();
+    QString toStr = rsle->text();
+
+    if( fromStr.isEmpty() )
+    {
+      continue;
+    }
+    if( _fileName.startsWith(fromStr) )
+    {
+      int i = _fileName.find(fromStr);
+      if( i > -1 )
+      {
+        newStr = toStr + _fileName.right( _fileName.length()-fromStr.length() );
+      }
+      break;
+    }
+  }
+
+// printf("Return newStr=(%s)\n", newStr.ascii() );
+  return( newStr );
 }

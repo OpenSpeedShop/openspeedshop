@@ -64,13 +64,14 @@ extern "C"
     generalStackPageLayout_2 = new QVBoxLayout( manageProcessesPanelStackPage, 11, 6, "generalStackPageLayout_2");
 
     managerProcessesPanelGroupBox = new QGroupBox( manageProcessesPanelStackPage, "managerProcessesPanelGroupBox" );
+    managerProcessesPanelGroupBox->setColumnLayout(0, Qt::Vertical );
+    managerProcessesPanelGroupBox->layout()->setSpacing( 6 );
+    managerProcessesPanelGroupBox->layout()->setMargin( 11 );
 
-    QWidget* managerProcessesPanelPrivateLayout = new QWidget( managerProcessesPanelGroupBox, "layout6" );
-    managerProcessesPanelPrivateLayout->setGeometry( QRect( 10, 40, 200, 100 ) );
-    layout6 = new QVBoxLayout( managerProcessesPanelPrivateLayout, 11, 6, "layout6");
+    layout6 = new QVBoxLayout( managerProcessesPanelGroupBox->layout(), 11, "layout6");
 
     sortPreferenceCheckBox =
-      new QCheckBox( managerProcessesPanelPrivateLayout, "sortPreferenceCheckBox" );
+      new QCheckBox( managerProcessesPanelGroupBox, "sortPreferenceCheckBox" );
     sortPreferenceCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7
 , (QSizePolicy::SizeType)0, 0, 0, sortPreferenceCheckBox->sizePolicy().hasHeightForWidth() ) );
     layout6->addWidget( sortPreferenceCheckBox );

@@ -106,19 +106,20 @@ extern "C"
       new QVBoxLayout( statsPanelStackPage, 11, 6, "generalStackPageLayout_3");
 
     statsPanelGroupBox = new QGroupBox( statsPanelStackPage, "statsPanelGroupBox" );
+    statsPanelGroupBox->setColumnLayout(0, Qt::Vertical );
+    statsPanelGroupBox->layout()->setSpacing( 6 );
+    statsPanelGroupBox->layout()->setMargin( 11 );
 
-    QWidget* statsPanelPrivateLayout = new QWidget( statsPanelGroupBox, "layout8" );
-    statsPanelPrivateLayout->setGeometry( QRect( 10, 40, 200, 200) );
-    layout8 = new QVBoxLayout( statsPanelPrivateLayout, 11, 6, "layout8");
+    layout8 = new QVBoxLayout( statsPanelGroupBox->layout(), 11, "layout8");
 
     layoutTopN = new QHBoxLayout( 0, 0, 6, "layoutTopN");
 
     showTopNTextLabel =
-      new QLabel( statsPanelPrivateLayout, "showTopNTextLabel" );
+      new QLabel( statsPanelGroupBox, "showTopNTextLabel" );
     layoutTopN->addWidget( showTopNTextLabel );
 
     showTopNLineEdit =
-      new QLineEdit( statsPanelPrivateLayout, "showTopNLineEdit" );
+      new QLineEdit( statsPanelGroupBox, "showTopNLineEdit" );
 
     layoutTopN->addWidget( showTopNLineEdit );
 
@@ -127,11 +128,11 @@ extern "C"
     layoutTopNChart = new QHBoxLayout( 0, 0, 6, "layoutTopNChart");
 
     showTopNChartTextLabel =
-      new QLabel( statsPanelPrivateLayout, "showTopNChartTextLabel" );
+      new QLabel( statsPanelGroupBox, "showTopNChartTextLabel" );
     layoutTopNChart->addWidget( showTopNChartTextLabel );
 
     showTopNChartLineEdit =
-      new QLineEdit( statsPanelPrivateLayout, "showTopNChartLineEdit" );
+      new QLineEdit( statsPanelGroupBox, "showTopNChartLineEdit" );
 
     layoutTopNChart->addWidget( showTopNChartLineEdit );
 
@@ -139,12 +140,12 @@ extern "C"
 
 
     showTextInChartCheckBox =
-      new QCheckBox( statsPanelPrivateLayout, "showTextInChartCheckBox" );
+      new QCheckBox( statsPanelGroupBox, "showTextInChartCheckBox" );
 showTextInChartCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, showTextInChartCheckBox->sizePolicy().hasHeightForWidth() ) );
     layout8->addWidget( showTextInChartCheckBox );
 
     sortDecendingCheckBox =
-      new QCheckBox( statsPanelPrivateLayout, "sortDecendingCheckBox" );
+      new QCheckBox( statsPanelGroupBox, "sortDecendingCheckBox" );
 sortDecendingCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, sortDecendingCheckBox->sizePolicy().hasHeightForWidth() ) );
     layout8->addWidget( sortDecendingCheckBox );
 
@@ -153,11 +154,11 @@ sortDecendingCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QS
     layoutColumnToSort = new QHBoxLayout( 0, 0, 6, "layoutTopN");
 
     showColumnToSortTextLabel =
-      new QLabel( statsPanelPrivateLayout, "showColumnToSortTextLabel" );
+      new QLabel( statsPanelGroupBox, "showColumnToSortTextLabel" );
     layoutColumnToSort->addWidget( showColumnToSortTextLabel );
 
     showColumnToSortLineEdit =
-      new QLineEdit( statsPanelPrivateLayout, "showColumnToSortLineEdit" );
+      new QLineEdit( statsPanelGroupBox, "showColumnToSortLineEdit" );
 
     layoutColumnToSort->addWidget( showColumnToSortLineEdit );
     layout8->addLayout( layoutColumnToSort );
