@@ -28,4 +28,4 @@ echo exppause -x 1 >> input.script
 echo expstatus -x 1 >> input.script
 echo exit >> input.script
 openss -batch < input.script
-kill $i
+kill -n 9 $i
