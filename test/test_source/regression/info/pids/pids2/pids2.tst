@@ -28,4 +28,4 @@ echo expCreate  -p $i usertime >> input.script
 echo list -v pids >> input.script
 echo exit >> input.script
 openss -batch < input.script
-kill $i
+kill -n 9 $i
