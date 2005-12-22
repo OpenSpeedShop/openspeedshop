@@ -22,6 +22,7 @@
 
 #include <qwidgetstack.h>
 #include <qlayout.h>
+#include <qframe.h>
 #include <qgroupbox.h>
 #include <qlineedit.h>
 #include <qlabel.h>
@@ -116,16 +117,22 @@ extern "C"
     showStatisticsCheckBox->setText( "Show statistics" );
     showLineNumbersCheckBox->setText( "Show line numbers" );
 
-{
-    headerLayout = new QHBoxLayout( layout6 );
+    //Begin PathRempping Section
+    QFrame *remapFrame = new QFrame( sourcePanelGroupBox, "remapFrameHeader" );
+    remapFrame->setFrameShape( QFrame::Box );
+    remapFrame->setFrameShadow( QFrame::Plain );
+    QVBoxLayout *remapLayout = new QVBoxLayout( remapFrame, 11, 6, "remapFrameLayout" );
+    layout6->addWidget(remapFrame);
+    headerLayout = new QHBoxLayout( remapLayout );
 
-    leftSideHeaderLabel = new QLabel("Old Path Name", sourcePanelGroupBox, "leftSideHeaderLabel");
-    rightSideHeaderLabel = new QLabel("New Path Name", sourcePanelGroupBox, "rightSideHeaderLabel");
+    leftSideHeaderLabel = new QLabel("Old Path Name", remapFrame, "leftSideHeaderLabel");
+    leftSideHeaderLabel->setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed, 0, 0) );
+    rightSideHeaderLabel = new QLabel("New Path Name", remapFrame, "rightSideHeaderLabel");
   
     headerLayout->addWidget(leftSideHeaderLabel);
     headerLayout->addWidget(rightSideHeaderLabel);
 
-    gridLayout = new QHBoxLayout( layout6 );
+    gridLayout = new QHBoxLayout( remapLayout );
 
 
     glayout = new QGridLayout(gridLayout,10,2);
@@ -133,18 +140,16 @@ extern "C"
 
     for(int i=0;i<numEntries;i++)
     {
-      QLineEdit *lsle = new QLineEdit(sourcePanelGroupBox,QString("leftSideLineEdit%1").arg(i));
-//      lsle->setText(QString("leftSideLineEdit%1").arg(i));
+      QLineEdit *lsle = new QLineEdit(remapFrame,QString("leftSideLineEdit%1").arg(i));
       leftSideLineEditList.push_back(lsle);
   
-      QLineEdit *rsle = new QLineEdit(sourcePanelGroupBox,QString("rightSideLineEdit%1").arg(i));
-//      rsle->setText(QString("rightSideLineEdit%1").arg(i));
+      QLineEdit *rsle = new QLineEdit(remapFrame,QString("rightSideLineEdit%1").arg(i));
       rightSideLineEditList.push_back(rsle);
   
       glayout->addWidget(lsle, i, 0);
       glayout->addWidget(rsle, i, 1);
     }
-}
+    //End PathRempping Section
 
     initSourcePanelPreferenceSettings();
 
