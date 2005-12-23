@@ -27,7 +27,7 @@
 #include "ProcessListObject.hxx"  // For getting pid list off a host...
 #include "ProcessEntryClass.hxx"
 
-// typedef QValueList<QString *> QStringList;
+typedef QValueList<QString> IncExcList;
 
 class QVBoxLayout;
 class QHBoxLayout;
@@ -35,11 +35,14 @@ class QGridLayout;
 class QSpacerItem;
 class QFrame;
 class QPushButton;
+class QLineEdit;
 class QLabel;
 class QComboBox;
 class QListView;
 class QListViewItem;
 class QRadioButton;
+class QSplitter;
+class QSettings;
 
 class AttachProcessDialog : public QDialog
 {
@@ -52,25 +55,56 @@ public:
     QPushButton* buttonHelp;
     QPushButton* buttonOk;
     QPushButton* updateOk;
+    QPushButton* buttonFilter;
     QPushButton* buttonCancel;
 
     QLabel* attachHostLabel;
     QComboBox * attachHostComboBox;
     QListView* availableProcessListView;
+    QListView* exclusionInclusionList;
     QRadioButton *mpiRB;
+    QRadioButton *inclusionRB;
+    QRadioButton *exclusionRB;
+
+    QVBoxLayout *layout;
+    QFrame *topFrame;
+    QFrame *bottomFrame;
+    QVBoxLayout *bottomLayout;
+
+    QSplitter *attachProcessSplitter;
+
+    QHBoxLayout *addLayout;
+    QLabel *addButtonLabel;
+    QLineEdit *addButtonText;
+    QPushButton *addButton;
+
+    bool filterFLAG;
 
 //    QString selectedProcesses(bool *);
     QStringList * selectedProcesses(bool *);
     void updateAttachableProcessList();
+    void updateFilterList();
+
+    bool addSelectedFLAG; // Workaround for Qt bug that sends errant signal to buttonFilterSelected() 
 
     ProcessListObject *plo;
 
     void accept();
 
+    int width;
+    int height;
+
+    IncExcList incExcList;
+
+    QSettings *settings;
+
 protected:
     QVBoxLayout* AttachProcessDialogLayout;
-    QHBoxLayout* Layout1;
-    QSpacerItem* Horizontal_Spacing2;
+    QHBoxLayout* buttonLayout;
+    QSpacerItem* buttonSpacing;
+
+    bool includeOrExcludeThisItem(const char *);
+    void readFilterList();
 
 private slots:
    void ok_accept();
@@ -79,7 +113,13 @@ protected slots:
     virtual void languageChange();
 
 public slots:
-    virtual void attachHostComboBoxActivated();
+    void attachHostComboBoxActivated();
+    void buttonFilterSelected();
+    void inclusionRBSelected();
+    void exclusionRBSelected();
+    void addSelected();
+    void removeSelected();
+    void saveSelected();
 
 };
 
