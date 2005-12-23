@@ -222,7 +222,7 @@ void AttachProcessDialog::languageChange()
   setCaption( tr( "AttachProcessDialog" ) );
   buttonHelp->setText( tr( "&Help" ) );
   buttonHelp->setAccel( QKeySequence( tr( "F1" ) ) );
-  buttonOk->setText( tr( "&OK" ) );
+  buttonOk->setText( tr( "&Attach" ) );
   buttonOk->setAccel( QKeySequence( QString::null ) );
   updateOk->setText( tr( "&Update" ) );
   updateOk->setAccel( QKeySequence( QString::null ) );
