@@ -488,6 +488,15 @@ AttachProcessDialog::readFilterList()
     }
   }
 
+  char settings_buffer[1024];
+  sprintf(settings_buffer, "/%s/%s/%s",
+        "openspeedshop", "general", exclusionRB->name() );
+  exclusionRB->setChecked(
+        settings->readBoolEntry(settings_buffer, TRUE) );
+  sprintf(settings_buffer, "/%s/%s/%s",
+        "openspeedshop", "general", inclusionRB->name() );
+  inclusionRB->setChecked(
+        settings->readBoolEntry(settings_buffer, FALSE) );
 
   updateFilterList();
   delete settings;
@@ -519,8 +528,20 @@ AttachProcessDialog::saveSelected()
     {
       fprintf(stderr, "Write of process list failed.\n");
     }
-    delete settings;
   }
+
+  char settings_buffer[1024];
+
+  sprintf(settings_buffer, "/%s/%s/%s",
+      "openspeedshop", "general", exclusionRB->name() );
+  settings->writeEntry(settings_buffer, exclusionRB->isChecked() );
+
+  sprintf(settings_buffer, "/%s/%s/%s",
+      "openspeedshop", "general", inclusionRB->name() );
+  settings->writeEntry(settings_buffer, inclusionRB->isChecked() );
+
+
+  delete settings;
 }
 
 void
