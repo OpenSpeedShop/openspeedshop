@@ -61,6 +61,33 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n, ArgumentObject *ao) 
 {
   nprintf(DEBUG_CONST_DESTRUCT) ( "SourcePanel::SourcePanel() constructor called\n");
 //printf ( "SourcePanel::SourcePanel() constructor called\n");
+
+  frameLayout = NULL;
+  textEditLayoutFrame = NULL;
+  textEditHeaderLayout = NULL;
+  textEditLayout = NULL;
+  splitter = NULL;
+  label = NULL;
+  canvasForm = NULL;
+  textEdit = NULL;
+  vscrollbar = NULL;
+  hscrollbar = NULL;
+  vbar = NULL;
+  hbar = NULL;
+
+  lineCount = 0;
+  lastTop = 0;
+  lastScrollBarValue = 0;
+  lastLineHeight = 1;
+  lastVisibleLines = 0;
+  line_numbersFLAG = FALSE;
+  statsFLAG = FALSE;
+  firstTimeShowingStatAreaFLAG = TRUE;
+  highlightList = NULL;
+  fileName = QString::null;
+  last_para = -1;   // For last find command.
+  last_index = -1;   // For last find command.
+  lastSearchText = QString::null;
   expID = 0;
 
   frameLayout = new QVBoxLayout( getBaseWidgetFrame(), 1, 2, getName() );
@@ -76,23 +103,13 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n, ArgumentObject *ao) 
 //  splitter->setHandleWidth(1);
   splitter->setHandleWidth(3);
 
-  lastTop = 0;
-  lastLineHeight = 1;
-  lastVisibleLines = 0;
-  last_para = -1;   // For last find command.
-  last_index = -1;   // For last find command.
-  lastSearchText = QString::null;
-  lineCount = 0;
-  line_numbersFLAG = FALSE;
-  highlightList = NULL;
-  firstTimeShowingStatAreaFLAG = TRUE;
 
 // Create a label so I can get's it's height...
   label = new QLabel( getBaseWidgetFrame(), "text label", 0 );
-// printf("label->height()=%d\n", label->height() );
 
   canvasForm = new SPCanvasForm( label->height(), splitter, "Stats" );
   canvasForm->hide();
+canvasForm->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, canvasForm->sizePolicy().hasHeightForWidth() ) );
 
 #ifdef CANVAS_FORM_2
   canvasForm2 = new SPCanvasForm( label->height(), splitter, "stats" );
@@ -116,7 +133,8 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n, ArgumentObject *ao) 
   QString label_text = "No source file specified.";
   label->setText(label_text);
   label->setMinimumSize( QSize(0,0) );
-  label->setSizePolicy(QSizePolicy( (QSizePolicy::SizeType)2, (QSizePolicy::SizeType)5, 0, 0, FALSE ) );
+//  label->setSizePolicy(QSizePolicy( (QSizePolicy::SizeType)2, (QSizePolicy::SizeType)5, 0, 0, FALSE ) );
+  label->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, label->sizePolicy().hasHeightForWidth() ) );
 
 
   textEditHeaderLayout->addWidget( label );
