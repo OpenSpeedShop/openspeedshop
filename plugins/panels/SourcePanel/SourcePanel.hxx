@@ -207,6 +207,9 @@ public:
   //! Creates the context popup menu.
   void createPopupMenu( QPopupMenu *popupMenu, const QPoint &pos );
 
+  void refresh();
+  SourceObject *last_spo;
+
 public slots:
   void clicked(int para, int offset);
   void valueChanged(int = -1);

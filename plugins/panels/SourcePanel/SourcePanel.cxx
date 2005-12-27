@@ -62,6 +62,8 @@ SourcePanel::SourcePanel(PanelContainer *pc, const char *n, ArgumentObject *ao) 
   nprintf(DEBUG_CONST_DESTRUCT) ( "SourcePanel::SourcePanel() constructor called\n");
 //printf ( "SourcePanel::SourcePanel() constructor called\n");
 
+  last_spo = NULL;
+
   frameLayout = NULL;
   textEditLayoutFrame = NULL;
   textEditHeaderLayout = NULL;
@@ -251,14 +253,14 @@ SourcePanel::menu(QPopupMenu* contextMenu)
   connect( qaction, SIGNAL( activated() ), this, SLOT( goToLine() ) );
   qaction->setStatusTip( tr("Goto a specific source line.") );
 
-if( expID > 0 )
-{
-  qaction = new QAction( this,  "gotoFunction");
-  qaction->addTo( contextMenu );
-  qaction->setText( tr("Goto Function...") );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( goToFunction() ) );
-  qaction->setStatusTip( tr("Goto a specific function.") );
-}
+  if( expID > 0 )
+  {
+    qaction = new QAction( this,  "gotoFunction");
+    qaction->addTo( contextMenu );
+    qaction->setText( tr("Goto Function...") );
+    connect( qaction, SIGNAL( activated() ), this, SLOT( goToFunction() ) );
+    qaction->setStatusTip( tr("Goto a specific function.") );
+  }
   if( line_numbersFLAG == TRUE )
   {
     qaction = new QAction( this,  "hideLineNumbers");
@@ -399,6 +401,9 @@ SourcePanel::preferencesChanged()
   {
     showLineNumbers();
   }
+
+  // Ignore return value.
+  refresh();
 }
 
 /*! 
@@ -444,6 +449,10 @@ SourcePanel::listener(void *msg)
       }
     }
 
+    last_spo = spo;
+
+
+#if OLDWAY
     lineCount = 0;
 //printf ("load the file spo->fileName=%s\n", spo->fileName.ascii() );
     if( loadFile(spo->fileName) == FALSE )
@@ -471,6 +480,9 @@ SourcePanel::listener(void *msg)
 
     // Now just make sure everything is lined up and resized correctly.
     valueChanged(-1);
+#else // OLDWAY
+    refresh();
+#endif // OLDWAY
   } else if( msgObject->msgType == "SaveAsObject" )
   {
     sao = (SaveAsObject *)msg;
@@ -1303,4 +1315,35 @@ SourcePanel::remapPath(QString _fileName)
 
 // printf("Return newStr=(%s)\n", newStr.ascii() );
   return( newStr );
+}
+
+void
+SourcePanel::refresh()
+{
+  lineCount = 0;
+//printf ("load the file last_spo->fileName=%s\n", last_spo->fileName.ascii() );
+  if( loadFile(last_spo->fileName) == FALSE )
+  {
+    // We didn't find or load the file, but we did attempt
+    // to handle this message.   Return 1.
+    return;
+  }
+
+  highlightList = last_spo->highlightList;
+  doFileHighlights();
+
+  // Try to highlight the line...
+  hscrollbar->setValue(0);
+
+  if( last_spo->raiseFLAG == TRUE )
+  {
+    this->getPanelContainer()->raisePanel(this);
+  }
+
+  nprintf(DEBUG_PANELS) ("Try to position at line %d\n", last_spo->line_number);
+
+  positionLineAtCenter(last_spo->line_number);
+
+  // Now just make sure everything is lined up and resized correctly.
+  valueChanged(-1);
 }
