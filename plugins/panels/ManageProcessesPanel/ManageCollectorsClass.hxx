@@ -72,6 +72,8 @@ public:
     int expID;
     Panel *p;
 
+    int userPsetCount;
+
 protected:
     QVBoxLayout* ManageCollectorsClassLayout;
     QHBoxLayout* AddCollectorLayout;

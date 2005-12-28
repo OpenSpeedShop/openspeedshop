@@ -226,7 +226,7 @@ void MPListView::contentsDropEvent( QDropEvent *e )
         }
 
         MPListViewItem *item2 =
-          new MPListViewItem( item, host_name, pid_name );
+          new MPListViewItem( item, pid_name, host_name );
         item2->descriptionClassObject = mpChild->descriptionClassObject;
 
         mpChild = (MPListViewItem *)mpChild->nextSibling();
@@ -250,7 +250,7 @@ void MPListView::contentsDropEvent( QDropEvent *e )
       } else
       {
         MPListViewItem *item2 =
-          new MPListViewItem( item, MPListView::oldCurrent->text(0).ascii() );
+          new MPListViewItem( item, MPListView::oldCurrent->descriptionClassObject->pid_name, MPListView::oldCurrent->descriptionClassObject->host_name );
         item2->descriptionClassObject = MPListView::oldCurrent->descriptionClassObject;
       }
     }

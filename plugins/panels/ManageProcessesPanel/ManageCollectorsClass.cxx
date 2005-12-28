@@ -68,6 +68,7 @@ ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const 
   dprintf("ManageCollectorsClass::ManageCollectorsClass() constructor called.\n");
   
   user_defined_psets = NULL;
+  userPsetCount = 0;
   loadTimer = NULL;
   p = _p;
   dialogSortType = PID_T;
@@ -810,7 +811,7 @@ ManageCollectorsClass::updatePSetList()
 //      printf("ss.host=(%s)\n", ss.host.ascii() );
 //      printf("ss.pid=(%s)\n", ss.pid.ascii() );
 
-      MPListViewItem *item = new MPListViewItem( disconnected_items, ss.host, ss.pid);
+      MPListViewItem *item = new MPListViewItem( disconnected_items, ss.pid, ss.host);
       DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid );
       item->descriptionClassObject = dco;
     }
@@ -826,7 +827,7 @@ ManageCollectorsClass::updatePSetList()
     for( ;vi != statusConnectingList.end(); vi++)
     {
       StatusStruct ss = *vi;
-      MPListViewItem *item = new MPListViewItem( items, ss.host, ss.pid);
+      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.host);
       DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid );
       item->descriptionClassObject = dco;
     }
@@ -842,7 +843,7 @@ ManageCollectorsClass::updatePSetList()
     for( ;vi != statusNonexistentList.end(); vi++)
     {
       StatusStruct ss = *vi;
-      MPListViewItem *item = new MPListViewItem( items, ss.host, ss.pid);
+      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.host);
       DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid );
       item->descriptionClassObject = dco;
     }
@@ -858,7 +859,7 @@ ManageCollectorsClass::updatePSetList()
     for( ;vi != statusRunningList.end(); vi++)
     {
       StatusStruct ss = *vi;
-      MPListViewItem *item = new MPListViewItem( items, ss.host, ss.pid);
+      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.host);
       DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid );
       item->descriptionClassObject = dco;
     }
@@ -874,7 +875,7 @@ ManageCollectorsClass::updatePSetList()
     for( ;vi != statusSuspendedList.end(); vi++)
     {
       StatusStruct ss = *vi;
-      MPListViewItem *item = new MPListViewItem( items, ss.host, ss.pid);
+      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.host);
       DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid );
       item->descriptionClassObject = dco;
     }
@@ -890,7 +891,7 @@ ManageCollectorsClass::updatePSetList()
     for( ;vi != statusTerminatedList.end(); vi++)
     {
       StatusStruct ss = *vi;
-      MPListViewItem *item = new MPListViewItem( items, ss.host, ss.pid);
+      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.host);
       DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid );
       item->descriptionClassObject = dco;
     }
@@ -906,7 +907,7 @@ ManageCollectorsClass::updatePSetList()
     for( ;vi != statusUnknownList.end(); vi++)
     {
       StatusStruct ss = *vi;
-      MPListViewItem *item = new MPListViewItem( items, ss.host, ss.pid);
+      MPListViewItem *item = new MPListViewItem( items, ss.pid, ss.host);
       DescriptionClassObject *dco = new DescriptionClassObject(FALSE, pset_name, ss.host, ss.pid );
       item->descriptionClassObject = dco;
     }
@@ -1087,13 +1088,14 @@ ManageCollectorsClass::createUserPSet()
 {
     bool ok;
 // printf("createUserPSet() entered\n");
-  QString res = QInputDialog::getText("Create Named PSet %1 : %2", QString("Pwet Name:"), QLineEdit::Normal, ">Insert your pset name here<", &ok, this);
+  QString res = QInputDialog::getText("Create Named PSet %1 : %2", QString("Pwet Name:"), QLineEdit::Normal, QString("upset%1").arg(userPsetCount), &ok, this);
   if( ok )
   {
 // printf("The user named his set %s\n", res.ascii() );
     MPListViewItem *item = new MPListViewItem( user_defined_psets, res );
     DescriptionClassObject *dco = new DescriptionClassObject(TRUE, res);
     item->descriptionClassObject = dco;
+    userPsetCount++;
   }
 }
 
