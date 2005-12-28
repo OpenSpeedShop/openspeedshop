@@ -199,11 +199,27 @@ void MPListView::contentsDropEvent( QDropEvent *e )
 
     e->accept();
 
+
 // printf("Drop (%s) on item=(%s)\n", MPListView::oldCurrent->text(0).ascii(), item->text(0).ascii() );
 // for( int i=0; !MPListView::oldCurrent->text(i).isEmpty(); i++)
 // {
 // printf("field[%d]=(%s)\n", i, MPListView::oldCurrent->text(i).ascii() );
 // }
+
+    // First check to see if it's already been added.
+    QListViewItemIterator it( item->parent() );
+    while( it.current() )
+    {
+      QListViewItem *myitem = *it;
+// printf("myitem=(%s) (%s)\n", myitem->text(0).ascii(), myitem->text(1).ascii() );
+      if( myitem->text(0) == MPListView::oldCurrent->descriptionClassObject->pid_name &&
+       myitem->text(1) == MPListView::oldCurrent->descriptionClassObject->host_name )
+      {  
+// printf("Don't add duplicates... just ignore.\n");
+        return;
+      }
+      it++;
+    }
 
     if( MPListView::oldCurrent && MPListView::oldCurrent->descriptionClassObject &&
         MPListView::oldCurrent->descriptionClassObject->root &&
