@@ -823,6 +823,8 @@ SourcePanel::loadFile(const QString &_fileName)
     textEdit->clear();
     textEdit->clearScrollBar();
     label->setText(tr("No file found."));
+textEdit->clear();
+textEdit->append(msg);
     return FALSE;
   }
 
