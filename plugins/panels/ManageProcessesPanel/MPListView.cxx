@@ -30,9 +30,11 @@
 #include <qheader.h>
 #include <qmessagebox.h>
 
+MPListViewItem *MPListView::oldCurrent = 0;
+
 MPListView::MPListView( QWidget *parent, const char *name, WFlags f = 0)
      : QListView( parent, name, f),
-       oldCurrent(0), dropItem(0), mousePressed( FALSE )
+       dropItem(0), mousePressed( FALSE )
 {
   setAcceptDrops( TRUE );
   viewport()->setAcceptDrops(TRUE);
@@ -47,13 +49,16 @@ MPListView::~MPListView( )
 void MPListView::contentsDragEnterEvent( QDragEnterEvent *e )
 {
 // printf("MPListView::contentsDragEnterEvent() \n");
+  if( MPListView::oldCurrent == 0 )
+  {
+    return;
+  }
+
   if( !QUriDrag::canDecode(e) )
   {
     e->ignore();
     return;
   }
-
-  oldCurrent = (MPListViewItem *)currentItem();
 
   QListViewItem *i = itemAt( contentsToViewport(e->pos()) );
   if( i )
@@ -65,7 +70,10 @@ void MPListView::contentsDragEnterEvent( QDragEnterEvent *e )
 
 void MPListView::contentsDragMoveEvent( QDragMoveEvent *e )
 {
-// printf("MPListView::contentsDragMoveEvent()\n");
+if( MPListView::oldCurrent == 0 )
+{
+  return;
+}
   if( !QUriDrag::canDecode(e) )
   {
     e->ignore();
@@ -104,16 +112,17 @@ void MPListView::contentsDragMoveEvent( QDragMoveEvent *e )
 
 void MPListView::contentsDragLeaveEvent( QDragLeaveEvent * )
 {
-// printf("MPListView::contentsDragLeaveEvent()\n");
+//printf("MPListView::contentsDragLeaveEvent()\n");
   dropItem = 0;
-
-  setCurrentItem( oldCurrent );
-  setSelected( oldCurrent, TRUE );
 }
 
 void MPListView::contentsDropEvent( QDropEvent *e )
 {
 // printf("           MPListView::contentsDropEvent() \n");
+  if( MPListView::oldCurrent == 0 )
+  {
+    return;
+  }
 
   if( !QUriDrag::canDecode(e) )
   {
@@ -190,18 +199,18 @@ void MPListView::contentsDropEvent( QDropEvent *e )
 
     e->accept();
 
-// printf("Drop (%s) on item=(%s)\n", oldCurrent->text(0).ascii(), item->text(0).ascii() );
-//    for( int i=0; !oldCurrent->text(i).isEmpty(); i++)
-//    {
-//      printf("field[%d]=(%s)\n", i, oldCurrent->text(i).ascii() );
-//    }
+// printf("Drop (%s) on item=(%s)\n", MPListView::oldCurrent->text(0).ascii(), item->text(0).ascii() );
+// for( int i=0; !MPListView::oldCurrent->text(i).isEmpty(); i++)
+// {
+// printf("field[%d]=(%s)\n", i, MPListView::oldCurrent->text(i).ascii() );
+// }
 
-    if( oldCurrent && oldCurrent->descriptionClassObject &&
-        oldCurrent->descriptionClassObject->root &&
-        !oldCurrent->descriptionClassObject->all )
+    if( MPListView::oldCurrent && MPListView::oldCurrent->descriptionClassObject &&
+        MPListView::oldCurrent->descriptionClassObject->root &&
+        !MPListView::oldCurrent->descriptionClassObject->all )
     {
       // Loop through all the children...
-      MPListViewItem *mpChild = (MPListViewItem *)oldCurrent->firstChild();
+      MPListViewItem *mpChild = (MPListViewItem *)MPListView::oldCurrent->firstChild();
       while( mpChild )
       {
         QString host_name = mpChild->descriptionClassObject->host_name;
@@ -224,25 +233,25 @@ void MPListView::contentsDropEvent( QDropEvent *e )
       }
     } else
     {
-      if( oldCurrent && oldCurrent->descriptionClassObject &&
-          oldCurrent->descriptionClassObject->all )
+      if( MPListView::oldCurrent && MPListView::oldCurrent->descriptionClassObject &&
+          MPListView::oldCurrent->descriptionClassObject->all )
       {
-        if( oldCurrent->descriptionClassObject->root )
+        if( MPListView::oldCurrent->descriptionClassObject->root )
         {
           MPListViewItem *item2 =
-            new MPListViewItem( item, oldCurrent->firstChild()->text(0).ascii() );
-          item2->descriptionClassObject = oldCurrent->descriptionClassObject;
+            new MPListViewItem( item, MPListView::oldCurrent->firstChild()->text(0).ascii() );
+          item2->descriptionClassObject = MPListView::oldCurrent->descriptionClassObject;
         } else
         {
           MPListViewItem *item2 =
-            new MPListViewItem( item, oldCurrent->text(0).ascii() );
-          item2->descriptionClassObject = oldCurrent->descriptionClassObject;
+            new MPListViewItem( item, MPListView::oldCurrent->text(0).ascii() );
+          item2->descriptionClassObject = MPListView::oldCurrent->descriptionClassObject;
         }
       } else
       {
         MPListViewItem *item2 =
-          new MPListViewItem( item, oldCurrent->text(0).ascii() );
-        item2->descriptionClassObject = oldCurrent->descriptionClassObject;
+          new MPListViewItem( item, MPListView::oldCurrent->text(0).ascii() );
+        item2->descriptionClassObject = MPListView::oldCurrent->descriptionClassObject;
       }
     }
   } else
@@ -253,13 +262,18 @@ void MPListView::contentsDropEvent( QDropEvent *e )
 
 void MPListView::contentsMousePressEvent( QMouseEvent* e )
 {
-// printf("MPListView::contentsMousePressEvent() entered\n");
+//printf("MPListView::contentsMousePressEvent() entered\n");
+  if( e->button() != QMouseEvent::LeftButton )
+  {
+// printf("Not a left mouse button... return\n");
+    return;
+  }
   QListView::contentsMousePressEvent(e);
   QPoint p( contentsToViewport( e->pos() ) );
   QListViewItem *i = itemAt( p );
 
 // Reset these on a select.
-  oldCurrent = 0;
+  MPListView::oldCurrent = 0;
   setCurrentItem(i);
 
   if( i )
@@ -285,9 +299,11 @@ void MPListView::contentsMouseMoveEvent( QMouseEvent* e )
     mousePressed = FALSE;
     QListViewItem *item = itemAt( contentsToViewport(presspos) );
 
-    if( item && item->parent() )
+//    if( item && item->parent() )
+    if( item )
     {
-// printf("We have an item! (%s)\n", item->text(0).ascii() );
+//printf("We have an item! (%s)\n", item->text(0).ascii() );
+      MPListView::oldCurrent = (MPListViewItem *)item;
       QUriDrag* ud = new QUriDrag(viewport());
       ud->setUnicodeUris( "Barney-boy" );
       if( ud->drag() )
@@ -308,14 +324,16 @@ void MPListView::contentsMouseReleaseEvent( QMouseEvent * )
 void MPListView::dragEnterEvent( QDragEnterEvent* e)
 {
 // printf("MPListView::dragEnterEvent() entered\n");
+  if( MPListView::oldCurrent == 0 )
+  {
+    return;
+  }
 
   if ( !QUriDrag::canDecode(e) )
   {
     e->ignore();
     return;
   }
-
-  oldCurrent = (MPListViewItem *)currentItem();
 
   QListViewItem *i = itemAt( contentsToViewport(e->pos()) );
   if ( i )

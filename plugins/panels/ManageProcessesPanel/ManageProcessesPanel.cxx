@@ -182,6 +182,6 @@ ManageProcessesPanel::broadcast(char *msg)
 void
 ManageProcessesPanel::raisePreferencePanel()
 {
-printf("ManageProcessesPanel::raisePreferencePanel() \n");
+// printf("ManageProcessesPanel::raisePreferencePanel() \n");
   getPanelContainer()->getMainWindow()->filePreferences( manageProcessesPanelStackPage, QString(pluginInfo->panel_type) );
 }

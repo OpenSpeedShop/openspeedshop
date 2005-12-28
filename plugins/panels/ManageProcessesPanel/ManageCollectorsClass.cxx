@@ -88,7 +88,7 @@ ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const 
   splitter = new QSplitter(this, "splitter");
   splitter->setOrientation(QSplitter::Horizontal);
 
-  attachCollectorsListView = new QListView( splitter, "attachCollectorsListView" );
+  attachCollectorsListView = new MPListView( splitter, "attachCollectorsListView", 0 );
   attachCollectorsListView->addColumn( 
     tr( QString("Collectors attached to experiment: '%1':").arg(expID) ) );
   attachCollectorsListView->addColumn( tr( QString("Name") ) );
@@ -206,9 +206,6 @@ ManageCollectorsClass::updateAttachedList()
 // printf("updateAttachedList(%d) \n", expID );
 
   attachCollectorsListView->clear();
-#ifdef OLDWAY
-  psetListView->clear();
-#endif // OLDWAY
 
   switch( dialogSortType )
   {
@@ -1566,20 +1563,21 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
 {
 // printf("ManageCollectorsClass::menu(0x%x) entered.\n", contextMenu);
 psetListView->contentsDragLeaveEvent(NULL);
+psetListView->contentsMouseReleaseEvent(NULL);
 
 
   bool selectable = TRUE;
   bool leftSide = TRUE;
 
-MPListViewItem *selectedItem = NULL;
+  MPListViewItem *selectedItem = NULL;
   if( attachCollectorsListView->hasMouse() )
   {
-QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
-while( it.current() )
-{
-  selectedItem = (MPListViewItem *)it.current();
-  break;
-}
+    QListViewItemIterator it(attachCollectorsListView, QListViewItemIterator::Selected);
+    while( it.current() )
+    {
+      selectedItem = (MPListViewItem *)it.current();
+      break;
+    }
     psetListView->clearSelection();
   } else if( psetListView->hasMouse() )
   {
@@ -1646,85 +1644,90 @@ if( leftSide == TRUE )
   }
 
 
-  collectorMenu = new QPopupMenu(contextMenu);
-  connect( collectorMenu, SIGNAL( activated( int ) ),
-                     this, SLOT( attachCollectorSelected( int ) ) );
-  connect( collectorMenu, SIGNAL( aboutToShow() ),
-                     this, SLOT( fileCollectorAboutToShowSelected( ) ) );
-
-  contextMenu->insertItem("Add Collector", collectorMenu);
-  if( list_of_collectors.size() > 0 ) 
+  if( leftSide == TRUE )
   {
-    for( std::list<std::string>::const_iterator it = list_of_collectors.begin();         it != list_of_collectors.end(); it++ )
+    collectorMenu = new QPopupMenu(contextMenu);
+    connect( collectorMenu, SIGNAL( activated( int ) ),
+                       this, SLOT( attachCollectorSelected( int ) ) );
+    connect( collectorMenu, SIGNAL( aboutToShow() ),
+                       this, SLOT( fileCollectorAboutToShowSelected( ) ) );
+  
+    contextMenu->insertItem("Add Collector", collectorMenu);
+    if( list_of_collectors.size() > 0 ) 
     {
-      std::string collector_name = *it;
-      QAction *qaction = new QAction( this,  "addCollector");
-      qaction->addTo( collectorMenu );
-      qaction->setText( QString(collector_name.c_str()) );
-      qaction->setStatusTip( tr(QString("Add the collector %1 to the experiment.").arg(collector_name.c_str()) ) );
+      for( std::list<std::string>::const_iterator it = list_of_collectors.begin();         it != list_of_collectors.end(); it++ )
+      {
+        std::string collector_name = *it;
+        QAction *qaction = new QAction( this,  "addCollector");
+        qaction->addTo( collectorMenu );
+        qaction->setText( QString(collector_name.c_str()) );
+        qaction->setStatusTip( tr(QString("Add the collector %1 to the experiment.").arg(collector_name.c_str()) ) );
 // printf("Add item (%s)\n", collector_name.c_str() );
+      }
     }
-  }
 // printf("A: size =(%d) \n", list_of_collectors.size() );
   
-  QPopupMenu *sortByMenu = new QPopupMenu( contextMenu );
-  qaction = new QAction( this,  "sortByProcess");
-  qaction->addTo( sortByMenu );
-  qaction->setText( tr("Sort By Process") );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( sortByProcess() ) );
-  qaction->setStatusTip( tr("Sort the collectors by attached processes.") );
+    QPopupMenu *sortByMenu = new QPopupMenu( contextMenu );
+    qaction = new QAction( this,  "sortByProcess");
+    qaction->addTo( sortByMenu );
+    qaction->setText( tr("Sort By Process") );
+    connect( qaction, SIGNAL( activated() ), this, SLOT( sortByProcess() ) );
+    qaction->setStatusTip( tr("Sort the collectors by attached processes.") );
 
-  qaction = new QAction( this,  "sortByCollector");
-  qaction->addTo( sortByMenu );
-  qaction->setText( tr("Sort By Collector") );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( sortByCollector() ) );
-  qaction->setStatusTip( tr("Sort the list by attached collectors.") );
+    qaction = new QAction( this,  "sortByCollector");
+    qaction->addTo( sortByMenu );
+    qaction->setText( tr("Sort By Collector") );
+    connect( qaction, SIGNAL( activated() ), this, SLOT( sortByCollector() ) );
+    qaction->setStatusTip( tr("Sort the list by attached collectors.") );
 
-  qaction = new QAction( this,  "sortByHost");
-  qaction->addTo( sortByMenu );
-  qaction->setText( tr("Sort By Host") );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( sortByHost() ) );
-  qaction->setStatusTip( tr("Sort the list by known hosts.") );
+    qaction = new QAction( this,  "sortByHost");
+    qaction->addTo( sortByMenu );
+    qaction->setText( tr("Sort By Host") );
+    connect( qaction, SIGNAL( activated() ), this, SLOT( sortByHost() ) );
+    qaction->setStatusTip( tr("Sort the list by known hosts.") );
 
-  qaction = new QAction( this,  "sortByMPIRank");
-  qaction->addTo( sortByMenu );
-  qaction->setText( tr("Sort By MPI Rank") );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( sortByMPIRank() ) );
-  qaction->setStatusTip( tr("Sort the list mpi rank. (Currently unimplemented)") );
+    qaction = new QAction( this,  "sortByMPIRank");
+    qaction->addTo( sortByMenu );
+    qaction->setText( tr("Sort By MPI Rank") );
+    connect( qaction, SIGNAL( activated() ), this, SLOT( sortByMPIRank() ) );
+    qaction->setStatusTip( tr("Sort the list mpi rank. (Currently unimplemented)") );
 
-  contextMenu->insertItem("Sort By... ", sortByMenu);
+    contextMenu->insertItem("Sort By... ", sortByMenu);
 
-  qaction = new QAction( this,  "detachCollector");
-  qaction->addTo( contextMenu );
-  qaction->setText( tr("Detach Collector") );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( detachSelected() ) );
-  qaction->setStatusTip( tr("Detach the selected (highlighted) collector from the experiment.") );
+    qaction = new QAction( this,  "detachCollector");
+    qaction->addTo( contextMenu );
+    qaction->setText( tr("Detach Collector") );
+    connect( qaction, SIGNAL( activated() ), this, SLOT( detachSelected() ) );
+    qaction->setStatusTip( tr("Detach the selected (highlighted) collector from the experiment.") );
 
-  qaction = new QAction( this,  "enableCollector");
-  qaction->addTo( contextMenu );
-  qaction->setText( tr("Enable Collector") );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( enableSelected() ) );
-  qaction->setStatusTip( tr("Enable the selected (highlighted) collector from the experiment.") );
+    qaction = new QAction( this,  "enableCollector");
+    qaction->addTo( contextMenu );
+    qaction->setText( tr("Enable Collector") );
+    connect( qaction, SIGNAL( activated() ), this, SLOT( enableSelected() ) );
+    qaction->setStatusTip( tr("Enable the selected (highlighted) collector from the experiment.") );
 
-  qaction = new QAction( this,  "disableCollector");
-  qaction->addTo( contextMenu );
-  qaction->setText( tr("Disable Collector") );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( disableSelected() ) );
-  qaction->setStatusTip( tr("Disable the selected (highlighted) collector from the experiment.") );
+    qaction = new QAction( this,  "disableCollector");
+    qaction->addTo( contextMenu );
+    qaction->setText( tr("Disable Collector") );
+    connect( qaction, SIGNAL( activated() ), this, SLOT( disableSelected() ) );
+    qaction->setStatusTip( tr("Disable the selected (highlighted) collector from the experiment.") );
+  } else
+  {
 
-  contextMenu->insertSeparator();
+    contextMenu->insertSeparator();
 
-  qaction = new QAction( this,  "createUserPSet");
-  qaction->addTo( contextMenu );
-  qaction->setText( tr("Create A New PSet") );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( createUserPSet() ) );
-  qaction->setStatusTip( tr("Create a new user defined process set.") );
+    qaction = new QAction( this,  "createUserPSet");
+    qaction->addTo( contextMenu );
+    qaction->setText( tr("Create A New PSet") );
+    connect( qaction, SIGNAL( activated() ), this, SLOT( createUserPSet() ) );
+    qaction->setStatusTip( tr("Create a new user defined process set.") );
 
-  qaction = new QAction( this,  "removeUserPSet");
-  qaction->addTo( contextMenu );
-  qaction->setText( tr("Remove PSet") );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( removeUserPSet() ) );
-  qaction->setStatusTip( tr("Remove the highlighted user defined process set.") );
+    qaction = new QAction( this,  "removeUserPSet");
+    qaction->addTo( contextMenu );
+    qaction->setText( tr("Remove Item") );
+    connect( qaction, SIGNAL( activated() ), this, SLOT( removeUserPSet() ) );
+    qaction->setStatusTip( tr("Remove the highlighted user defined process set.") );
+  }
 
 
   return( TRUE );

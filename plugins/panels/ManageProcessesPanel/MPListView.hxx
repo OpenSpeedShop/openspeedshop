@@ -53,7 +53,7 @@ public:
   QPoint presspos;
   bool mousePressed;
 
-  MPListViewItem *oldCurrent;
+  static MPListViewItem *oldCurrent;
   QListViewItem *dropItem;
 
 public slots:

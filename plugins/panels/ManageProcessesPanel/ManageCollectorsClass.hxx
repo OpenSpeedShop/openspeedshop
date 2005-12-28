@@ -58,7 +58,7 @@ public:
     ManageCollectorsClass( Panel *p, QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0, int exp_id = -1 );
     ~ManageCollectorsClass();
 
-    QListView* attachCollectorsListView;
+    MPListView* attachCollectorsListView;
     MPListView *psetListView;
 
     QString selectedCollectors();
