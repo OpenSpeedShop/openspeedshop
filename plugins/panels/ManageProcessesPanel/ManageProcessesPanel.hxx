@@ -62,9 +62,13 @@ class ManageProcessesPanel  : public Panel
 
     ManageCollectorsClass *mcc;
 
+    void preferencesChanged();
+
     int expID;
 
   public slots:
+
+    void updateTimerCallback();
 
   protected:
     //! Sets the language specific strings.

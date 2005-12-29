@@ -62,6 +62,8 @@ public:
     MPListView *psetListView;
 
     QString selectedCollectors();
+    QTimer *updateTimer;
+    int timerValue;
     void updateAttachedList();
     void updatePSetList();
 
@@ -101,6 +103,8 @@ protected slots:
     virtual void languageChange();
 
 public slots:
+    void updatePanel();
+    void updateTimerCallback();
 
 private slots:
     void attachCollectorSelected(int);
@@ -119,7 +123,6 @@ private slots:
     void sortByCollector();
     void sortByHost();
     void sortByMPIRank();
-    void updatePanel();
     void createUserPSet();
     void removeUserPSet();
 

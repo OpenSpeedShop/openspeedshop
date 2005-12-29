@@ -70,6 +70,7 @@ ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const 
   user_defined_psets = NULL;
   userPsetCount = 0;
   loadTimer = NULL;
+  updateTimer = NULL;
   p = _p;
   dialogSortType = PID_T;
 //  dialogSortType = COLLECTOR_T;
@@ -80,6 +81,7 @@ ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const 
   cli = p->getPanelContainer()->getMainWindow()->cli;
   clo = NULL;
   expID = exp_id;
+  timerValue = 10000;
   list_of_collectors.clear();
 
   if ( !name ) setName( "ManageCollectorsClass" );
@@ -148,7 +150,6 @@ attachCollectorsListView->viewport()->setAcceptDrops(TRUE);
   connect( psetListView, SIGNAL(doubleClicked(QListViewItem *)), this, SLOT( focusOnProcessSelected( QListViewItem* )) );
 
 //  updateAttachedList();
-
 }
 
 /*
@@ -156,6 +157,11 @@ attachCollectorsListView->viewport()->setAcceptDrops(TRUE);
  */
 ManageCollectorsClass::~ManageCollectorsClass()
 {
+  if( updateTimer )
+  {
+    updateTimer->stop();
+  }
+
   // no need to delete child widgets, Qt does it all for us
   nprintf(DEBUG_CONST_DESTRUCT) ("ManageCollectorsClass::ManageCollectorsClass() destructor called.\n");
 }
@@ -355,6 +361,11 @@ ManageCollectorsClass::updateAttachedList()
                 break;
               case Thread::Terminated:
                 threadStatusStr = "Terminate";
+if( updateTimer )
+{
+  updateTimer->stop();
+  updateTimer = NULL;
+}
                 break;
               default:
                 threadStatusStr = "Unknown";
@@ -747,6 +758,11 @@ ManageCollectorsClass::updatePSetList()
                 threadStatusStr = "Terminate";
                 statusStruct.status = threadStatusStr;
                 statusTerminatedList.push_back(statusStruct);
+if( updateTimer )
+{
+  updateTimer->stop();
+  updateTimer = NULL;
+}
                 break;
               default:
                 threadStatusStr = "Unknown";
@@ -1283,6 +1299,14 @@ ManageCollectorsClass::updatePanel()
   updateAttachedList();
 
   updatePSetList();
+
+  if( updateTimer )
+  {
+    updateTimer->stop();
+    updateTimer->start( timerValue, TRUE );
+  }
+
+
 }
 
 
@@ -1561,6 +1585,16 @@ ManageCollectorsClass::progressUpdate()
   {
     step_forward = TRUE;
   }
+}
+
+void
+ManageCollectorsClass::updateTimerCallback()
+{
+// printf("updateTimerCallback() entered\n");
+
+  updateTimer->stop();
+
+  updatePanel();
 }
 
 bool

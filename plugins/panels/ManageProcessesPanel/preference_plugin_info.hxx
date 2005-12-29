@@ -38,6 +38,8 @@ extern "C"
   QVBoxLayout* generalStackPageLayout_2;
   QVBoxLayout* layout6;
   QCheckBox* sortPreferenceCheckBox;
+  QCheckBox* updateOnCheckBox;
+  QLineEdit* updateDisplayLineEdit;
 
   static char *pname = NULL;
 
@@ -46,10 +48,29 @@ extern "C"
     return( sortPreferenceCheckBox->isChecked() );
   }
 
+  bool getUpdateOnPreference()
+  {
+    return( updateOnCheckBox->isChecked() );
+  }
+
+  QString getUpdateDisplayLineEdit()
+  {
+    return( updateDisplayLineEdit->text() );
+  }
+
+
   void initManageProcessesPanelPreferenceSettings()
   {
     sortPreferenceCheckBox->setChecked(FALSE);
+    updateOnCheckBox->setChecked(TRUE);
+    updateDisplayLineEdit->setText( "15000" );
   }
+
+  QString getPreferenceUpdateDisplayLineEdit()
+  {
+    return( updateDisplayLineEdit->text() );
+  }
+
 
   QWidget *initialize_preferences_entry_point(QSettings *settings, QWidgetStack *stack, char *name)
   {
@@ -74,7 +95,29 @@ extern "C"
       new QCheckBox( managerProcessesPanelGroupBox, "sortPreferenceCheckBox" );
     sortPreferenceCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7
 , (QSizePolicy::SizeType)0, 0, 0, sortPreferenceCheckBox->sizePolicy().hasHeightForWidth() ) );
+sortPreferenceCheckBox->hide();
     layout6->addWidget( sortPreferenceCheckBox );
+
+    updateOnCheckBox =
+      new QCheckBox( managerProcessesPanelGroupBox, "updateOnCheckBox" );
+    updateOnCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7
+, (QSizePolicy::SizeType)0, 0, 0, updateOnCheckBox->sizePolicy().hasHeightForWidth() ) );
+    layout6->addWidget( updateOnCheckBox );
+    updateOnCheckBox->setText( "Update display automatically" );
+
+QHBoxLayout *updateDisplayLayout = new QHBoxLayout( layout6, 11, "updateDisplayLayout" );
+
+    QLabel *updateDisplayTextLabel =
+      new QLabel( managerProcessesPanelGroupBox, "updateDisplayTextLabel" );
+    updateDisplayLayout->addWidget( updateDisplayTextLabel );
+    updateDisplayTextLabel->setText("Number of seconds before updating display:");
+
+
+    updateDisplayLineEdit =
+      new QLineEdit( managerProcessesPanelGroupBox, "updateDisplayLineEdit" );
+    updateDisplayLayout->addWidget( updateDisplayLineEdit );
+
+
     generalStackPageLayout_2->addWidget( managerProcessesPanelGroupBox );
     stack->addWidget( manageProcessesPanelStackPage, 1 );
 
@@ -83,6 +126,21 @@ extern "C"
 
     initManageProcessesPanelPreferenceSettings();
 
+
+    if( settings != NULL )
+    {
+      char settings_buffer[1024];
+      sprintf(settings_buffer, "/%s/%s/%s",
+        "openspeedshop", name, updateOnCheckBox->name() );
+      updateOnCheckBox->setChecked(
+        settings->readBoolEntry(settings_buffer, TRUE) );
+
+      sprintf(settings_buffer, "/%s/%s/%s",
+        "openspeedshop", name, updateDisplayLineEdit->name() );
+      updateDisplayLineEdit->setText(
+        settings->readEntry(settings_buffer, "15000") );
+    }
+
     return( manageProcessesPanelStackPage );
   }
   void save_preferences_entry_point(QSettings *settings, char *name)
@@ -90,6 +148,16 @@ extern "C"
 //printf("save_preferences_entry_point() entered\n");
     // Add your preferences to save here.   See Source Panel for 
     // an example.
+    char settings_buffer[1024];
+
+    sprintf(settings_buffer, "/%s/%s/%s",
+      "openspeedshop", name, updateOnCheckBox->name() );
+    settings->writeEntry(settings_buffer, updateOnCheckBox->isChecked() );
+
+    sprintf(settings_buffer, "/%s/%s/%s",
+      "openspeedshop", name, updateDisplayLineEdit->name() );
+    settings->writeEntry(settings_buffer, updateDisplayLineEdit->text() );
+
   }
 }
 

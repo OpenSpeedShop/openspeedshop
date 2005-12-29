@@ -40,14 +40,13 @@ ManageProcessesPanel::ManageProcessesPanel(PanelContainer *pc, const char *n, Ar
   mcc->show();
   mcc->expID = ao->int_data;
   groupID = mcc->expID;
-
   getBaseWidgetFrame()->setCaption("ManageProcessesPanelBaseWidget");
 
   char name_buffer[100];
   sprintf(name_buffer, "%s [%d]", getName(), expID);
   setName(name_buffer);
 
-  getSortPreference();
+  preferencesChanged();
 }
 
 
@@ -134,8 +133,9 @@ ManageProcessesPanel::listener(void *msg)
     nprintf(DEBUG_MESSAGES) ("ManageProcessesPanel::listener() UpdateExperimentDataObject!\n");
 
     mcc->expID = msg->expID;
-    mcc->updateAttachedList();
-    mcc->updatePSetList();
+//    mcc->updateAttachedList();
+//    mcc->updatePSetList();
+    mcc->updatePanel();
 
     if( msg->raiseFLAG )
     {
@@ -147,7 +147,7 @@ ManageProcessesPanel::listener(void *msg)
     nprintf(DEBUG_MESSAGES) ("ManageProcessesPanel::listener() PreferencesChangedObject!\n");
     pco = (PreferencesChangedObject *)msgObject;
 // Currently ignored.
-//    preferencesChanged();
+    preferencesChanged();
   } else if( msgObject->msgType == "SaveAsObject" )
   {
 //    SaveAsObject *sao = (SaveAsObject *)msg;
@@ -184,4 +184,26 @@ ManageProcessesPanel::raisePreferencePanel()
 {
 // printf("ManageProcessesPanel::raisePreferencePanel() \n");
   getPanelContainer()->getMainWindow()->filePreferences( manageProcessesPanelStackPage, QString(pluginInfo->panel_type) );
+}
+
+void
+ManageProcessesPanel::updateTimerCallback()
+{
+  mcc->updateTimerCallback();
+}
+
+void
+ManageProcessesPanel::preferencesChanged()
+{
+  getSortPreference();
+  if( getUpdateOnPreference() )
+  {
+    mcc->updateTimer = new QTimer( mcc, "updateTimer" );
+    connect( mcc->updateTimer, SIGNAL(timeout()), mcc, SLOT(updateTimerCallback()) );
+  }
+  getUpdateDisplayLineEdit();
+
+//printf("getUpdateDisplayLineEdit()=%s\n", getUpdateDisplayLineEdit().ascii() );
+  mcc->timerValue = getUpdateDisplayLineEdit().toInt() * 1000;
+  mcc->updatePanel();
 }
