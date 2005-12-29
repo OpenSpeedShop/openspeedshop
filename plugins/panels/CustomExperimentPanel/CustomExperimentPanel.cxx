@@ -144,10 +144,10 @@ if( attachFLAG )
       {
         nprintf( DEBUG_PANELS ) ("There are no known collectors for this experiment so add one.\n");
         QString command = QString("expAttach -x %1  ").arg(expID);
-if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
-{
-  command += " -v mpi";
-}
+        if( getPanelContainer()->getMainWindow()->mpiFLAG == TRUE )
+        {
+          command += " -v mpi";
+        }
         CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
 // printf("A: command=(%s)\n", command.ascii() );
         if( !cli->runSynchronousCLI((char *)command.ascii() ) )
@@ -738,9 +738,10 @@ CLIInterface::interrupt = true;
   } else if( lao )
   {
     nprintf( DEBUG_MESSAGES ) ("we've got a LoadAttachObject message\n");
-
     ret_val = processLAO(lao);
+// printf("ret_val from processLAO()=%d\n", ret_val );
 // printf("B: Attempt to remove the wizard panel from the  le panel.\n");
+    loadManageProcessesPanel();
     QString name = QString("Custom Experiemnt Wizard");
 // printf("try to find (%s)\n", name.ascii() );
     Panel *wizardPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
