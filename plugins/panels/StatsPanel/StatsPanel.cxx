@@ -240,6 +240,18 @@ StatsPanel::~StatsPanel()
   Redirect_Window_Output( cli->wid, NULL, NULL );
 #endif // CAUSES_CLI_FITS_ON_EXIT
 
+// Just make sure any pending output goes "somewhere".
+  Panel *cmdPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), "&Command Panel");
+  if( cmdPanel )
+  {
+    MessageObject *msg = new MessageObject("Redirect_Window_Output()");
+    cmdPanel->listener((void *)msg);
+    delete msg;
+  } else
+  {
+    fprintf(stderr, "Unable to redirect output to the cmdpanel.\n");
+  }
+
   if( currentCollector )
   {
 // printf("Destructor delete the currentCollector\n");
