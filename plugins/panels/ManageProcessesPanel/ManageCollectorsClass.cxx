@@ -100,6 +100,9 @@ ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const 
   attachCollectorsListView->setAllColumnsShowFocus( TRUE );
   attachCollectorsListView->setShowSortIndicator( TRUE );
   attachCollectorsListView->setRootIsDecorated(TRUE);
+attachCollectorsListView->setAcceptDrops( FALSE );
+attachCollectorsListView->viewport()->setAcceptDrops(TRUE);
+
 
   psetListView = new MPListView( (QWidget *)splitter, (const char *)"psetlist", 0 );
   psetListView->addColumn(tr("Process Sets"));
@@ -537,7 +540,7 @@ ManageCollectorsClass::updatePSetList()
 
   if( user_defined_psets == NULL )
   {
-    user_defined_psets = new QListViewItem( psetListView, UDPS);
+    user_defined_psets = new MPListViewItem( psetListView, UDPS);
   }
 
   if( user_defined_psets )
@@ -548,7 +551,7 @@ ManageCollectorsClass::updatePSetList()
   psetListView->clear();
 
 
-  QListViewItem *dynamic_items = new QListViewItem( psetListView, DPS);
+  QListViewItem *dynamic_items = new MPListViewItem( psetListView, DPS);
 
   psetListView->insertItem(user_defined_psets);
 

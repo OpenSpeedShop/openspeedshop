@@ -123,6 +123,12 @@ void MPListView::contentsDropEvent( QDropEvent *e )
   {
     return;
   }
+  if( !acceptDrops() || !viewport()->acceptDrops() )
+  {
+// printf("We don't accept drops at this time... please move along.\n");
+    mousePressed = FALSE;
+    return;
+  }
 
   if( !QUriDrag::canDecode(e) )
   {
@@ -207,21 +213,15 @@ void MPListView::contentsDropEvent( QDropEvent *e )
 // }
 
     // First check to see if it's already been added.
-    QListViewItemIterator it( item->parent() );
-    while( it.current() )
+    if( isThisADuplicate( item ) )
     {
-      QListViewItem *myitem = *it;
-// printf("myitem=(%s) (%s)\n", myitem->text(0).ascii(), myitem->text(1).ascii() );
-      if( myitem->text(0) == MPListView::oldCurrent->descriptionClassObject->pid_name &&
-       myitem->text(1) == MPListView::oldCurrent->descriptionClassObject->host_name )
-      {  
-// printf("Don't add duplicates... just ignore.\n");
-        return;
-      }
-      it++;
+      return;
     }
 
-    if( MPListView::oldCurrent && MPListView::oldCurrent->descriptionClassObject &&
+    if( MPListView::oldCurrent && !MPListView::oldCurrent->descriptionClassObject )
+    {
+      e->ignore();
+    } else if( MPListView::oldCurrent && MPListView::oldCurrent->descriptionClassObject &&
         MPListView::oldCurrent->descriptionClassObject->root &&
         !MPListView::oldCurrent->descriptionClassObject->all )
     {
@@ -279,11 +279,11 @@ void MPListView::contentsDropEvent( QDropEvent *e )
 void MPListView::contentsMousePressEvent( QMouseEvent* e )
 {
 //printf("MPListView::contentsMousePressEvent() entered\n");
-  if( e->button() != QMouseEvent::LeftButton )
+  if( QString(name()) == "attachCollectorsListView" )
   {
-// printf("Not a left mouse button... return\n");
-    return;
+    setSelectionMode(QListView::Multi);
   }
+
   QListView::contentsMousePressEvent(e);
   QPoint p( contentsToViewport( e->pos() ) );
   QListViewItem *i = itemAt( p );
@@ -291,6 +291,12 @@ void MPListView::contentsMousePressEvent( QMouseEvent* e )
 // Reset these on a select.
   MPListView::oldCurrent = 0;
   setCurrentItem(i);
+
+  if( e->button() != QMouseEvent::LeftButton )
+  {
+// printf("Not a left mouse button... return\n");
+    return;
+  }
 
   if( i )
   {
@@ -318,8 +324,17 @@ void MPListView::contentsMouseMoveEvent( QMouseEvent* e )
 //    if( item && item->parent() )
     if( item )
     {
-//printf("We have an item! (%s)\n", item->text(0).ascii() );
+// printf("We have an item! (%s)\n", item->text(0).ascii() );
       MPListView::oldCurrent = (MPListViewItem *)item;
+      if( MPListView::oldCurrent->descriptionClassObject == NULL )
+      {
+        MPListView::oldCurrent = NULL;
+        return;
+      }
+      if( QString(name()) == "attachCollectorsListView" )
+      {
+        setSelectionMode(QListView::NoSelection);
+      }
       QUriDrag* ud = new QUriDrag(viewport());
       ud->setUnicodeUris( "Barney-boy" );
       if( ud->drag() )
@@ -351,9 +366,51 @@ void MPListView::dragEnterEvent( QDragEnterEvent* e)
     return;
   }
 
+
   QListViewItem *i = itemAt( contentsToViewport(e->pos()) );
   if ( i )
   {
       dropItem = i;
   }
 }
+
+bool
+MPListView::isThisADuplicate(MPListViewItem *item)
+{
+// printf("isThisADuplicate(%s %s) entered\n", MPListView::oldCurrent->text(0).ascii(), item->text(0).ascii() );
+
+#if 0
+if( MPListView::oldCurrent->childCount() > 1 )
+{
+printf("This one has (%d) kids!\n", MPListView::oldCurrent->childCount() );
+  QListViewItemIterator oit( MPListView::oldCurrent );
+  while( oit.current() )
+  {
+    QListViewItem *omyitem = *oit;
+printf("omyitem=(%s) (%s)\n", omyitem->text(0).ascii(), omyitem->text(1).ascii() );
+    oit++;
+  }
+}
+#endif // 0
+
+
+  QListViewItemIterator it( item->parent() );
+  while( it.current() )
+  {
+    QListViewItem *myitem = *it;
+// printf("myitem=(%s) (%s)\n", myitem->text(0).ascii(), myitem->text(1).ascii() );
+
+    if( MPListView::oldCurrent &&
+        MPListView::oldCurrent->descriptionClassObject &&
+        myitem->text(0) == MPListView::oldCurrent->descriptionClassObject->pid_name &&
+        myitem->text(1) == MPListView::oldCurrent->descriptionClassObject->host_name )
+    {  
+// printf("Don't add duplicates... just ignore.\n");
+      return( TRUE );
+    }
+    it++;
+  }
+
+  return(FALSE);
+}
+

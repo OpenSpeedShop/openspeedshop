@@ -53,8 +53,11 @@ public:
   QPoint presspos;
   bool mousePressed;
 
+  QListView::SelectionMode savedSelectionMode;
+
   static MPListViewItem *oldCurrent;
   QListViewItem *dropItem;
+  bool isThisADuplicate(MPListViewItem *item);
 
 public slots:
 
