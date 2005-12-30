@@ -564,6 +564,25 @@ ManageCollectorsClass::updatePSetList()
   int pset_count = 0;
 // printf("updatePSetList(%d) \n", expID );
 
+  QValueList<QString> openList;
+
+  openList.clear();
+
+// Construct an "open list"
+  if( psetListView->childCount() > 0 )
+  {
+    QListViewItemIterator it( psetListView );
+    while ( it.current() )
+    {
+      QListViewItem *item = it.current();
+      if( psetListView->isOpen( item ) )
+      {
+// printf("psetListView (%s) is open\n", item->text(0).ascii() );
+        openList.push_back(item->text(0));
+      }
+      ++it;
+    }
+  }
   
   psetListView->clearSelection();
 
@@ -776,11 +795,11 @@ ManageCollectorsClass::updatePSetList()
                 threadStatusStr = "Terminate";
                 statusStruct.status = threadStatusStr;
                 statusTerminatedList.push_back(statusStruct);
-if( updateTimer )
-{
-  updateTimer->stop();
-  updateTimer = NULL;
-}
+                if( updateTimer )
+                {
+                  updateTimer->stop();
+                  updateTimer = NULL;
+                }
                 break;
               default:
                 threadStatusStr = "Unknown";
@@ -951,6 +970,37 @@ if( updateTimer )
   }
 
 }
+
+  if( psetListView->childCount() > 0 )
+  {
+    QListViewItemIterator it( psetListView );
+    while ( it.current() )
+    {
+      QListViewItem *item = it.current();
+
+      for( QValueList<QString>::iterator vi = openList.begin();
+           vi != openList.end(); vi++)
+      {
+        QString ols = (QString)*vi;
+        if( ols == item->text(0) )
+        {
+// printf("Open %s\n", ols.ascii() );
+          bool closeParent = FALSE;
+          if( item->parent() && !psetListView->isOpen(item->parent()) )
+          {
+// printf("%s has a parent that is not open. close the parent\n", item->parent()->text(0).ascii() );
+            closeParent = TRUE;
+          }
+          psetListView->setOpen(item, TRUE);
+          if( closeParent )
+          {
+            psetListView->setOpen( item->parent(), FALSE );
+          }
+        }
+      }
+      ++it;
+    }
+  }
 
 }
 
