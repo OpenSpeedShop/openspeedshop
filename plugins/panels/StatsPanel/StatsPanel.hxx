@@ -194,6 +194,8 @@ int lastIndentLevel;
     int percentIndex;
     void raisePreferencePanel();
 
+    int levelsToOpen;
+
     double TotalTime;
     double total_percent;
     int numberItemsToDisplayInStats;

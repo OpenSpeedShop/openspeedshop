@@ -40,13 +40,19 @@ extern "C"
 
   QHBoxLayout* layoutTopN;
   QHBoxLayout* layoutTopNChart;
+
+  QLabel* levelsToOpenTextLabel;
+  QLineEdit* levelsToOpenLineEdit;
+
   QLabel* showTopNTextLabel;
-  QLabel* showTopNChartTextLabel;
   QLineEdit* showTopNLineEdit;
+
+  QLabel* showTopNChartTextLabel;
   QLineEdit* showTopNChartLineEdit;
 
   QHBoxLayout* layoutColumnToSort;
   QLabel* showColumnToSortTextLabel;
+
   QLineEdit* showColumnToSortLineEdit;
 
   QCheckBox* showTextInChartCheckBox;
@@ -57,6 +63,12 @@ extern "C"
   {
 // printf("getPreferenceSortDecending(%s)\n", pname);
     return( sortDecendingCheckBox->isChecked() );
+  }
+
+  QString getPreferenceLevelsToOpen()
+  {
+// printf("getPreferenceLevelsToOpen(%s)\n", pname);
+    return( levelsToOpenLineEdit->text() );
   }
 
   QString getPreferenceColumnToSortLineEdit()
@@ -89,6 +101,7 @@ extern "C"
   {
 // printf("initStatsPanelPreferenceSettings(%s)\n", pname);
     sortDecendingCheckBox->setChecked(TRUE);
+    levelsToOpenLineEdit->setText( "-1" );
     showTopNLineEdit->setText( "10" );
     showTopNChartLineEdit->setText( "5" );
     showColumnToSortLineEdit->setText( "0" );
@@ -111,6 +124,19 @@ extern "C"
     statsPanelGroupBox->layout()->setMargin( 11 );
 
     layout8 = new QVBoxLayout( statsPanelGroupBox->layout(), 11, "layout8");
+
+QHBoxLayout *layoutLevelsToOpen = new QHBoxLayout( 0, 0, 6, "layoutLevelsToOpen");
+
+levelsToOpenTextLabel =
+      new QLabel( statsPanelGroupBox, "levelsToOpenTextLabel" );
+layoutLevelsToOpen->addWidget( levelsToOpenTextLabel );
+
+levelsToOpenLineEdit =
+      new QLineEdit( statsPanelGroupBox, "levelsToOpenLineEdit" );
+
+layoutLevelsToOpen->addWidget( levelsToOpenLineEdit );
+
+layout8->addLayout( layoutLevelsToOpen );
 
     layoutTopN = new QHBoxLayout( 0, 0, 6, "layoutTopN");
 
@@ -170,6 +196,7 @@ sortDecendingCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QS
 
     statsPanelGroupBox->setTitle( "Stats Panel" );
     sortDecendingCheckBox->setText( "Sort Descending" );
+    levelsToOpenTextLabel->setText( "Open this many levels in display:" );
     showTopNTextLabel->setText( "Show top N items in list:" );
     showTopNChartTextLabel->setText( "Show top N items in chart:" );
     showColumnToSortTextLabel->setText( "Column to sort:" );
@@ -184,6 +211,11 @@ sortDecendingCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QS
         "openspeedshop", name, sortDecendingCheckBox->name() );
       sortDecendingCheckBox->setChecked(
         settings->readBoolEntry(settings_buffer, TRUE) );
+
+      sprintf(settings_buffer, "/%s/%s/%s",
+        "openspeedshop", name, levelsToOpenLineEdit->name() );
+      levelsToOpenLineEdit->setText(
+        settings->readEntry(settings_buffer, "-1") );
 
       sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, showTopNLineEdit->name() );
@@ -213,6 +245,10 @@ sortDecendingCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QS
 // printf("save_preferences_entry_point(0x%x %s) entered\n", settings, name);
 
     char settings_buffer[1024];
+
+    sprintf(settings_buffer, "/%s/%s/%s",
+      "openspeedshop", name, levelsToOpenLineEdit->name() );
+    settings->writeEntry(settings_buffer, levelsToOpenLineEdit->text() );
 
     sprintf(settings_buffer, "/%s/%s/%s",
       "openspeedshop", name, sortDecendingCheckBox->name() );

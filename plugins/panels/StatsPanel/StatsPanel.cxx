@@ -1508,6 +1508,8 @@ StatsPanel::updateStatsPanelData()
 
   QString modifierStr = QString::null;
 
+  levelsToOpen = getPreferenceLevelsToOpen().toInt();
+
   SPListViewItem *splvi;
   columnHeaderList.clear();
 
@@ -2410,7 +2412,6 @@ StatsPanel::outputCLIData(QString *data)
   
     if( !indented )
     {
-//      lastlvi = splvi =  new SPListViewItem( this, splv, lastlvi, strings[0], strings[1] );
       lastlvi = splvi =  MYListViewItem( this, splv, lastlvi, strings);
       lastIndentLevel = 0;
     } else
@@ -2474,8 +2475,12 @@ StatsPanel::outputCLIData(QString *data)
       }
     }
 
-// Now try to open all the items.\n");
-      lastlvi->setOpen(TRUE);
+    // Now try to open all the items.\n");
+// printf("  indent_level=%d\n", indent_level );
+    if( indent_level < levelsToOpen || levelsToOpen == -1 )
+    {
+          lastlvi->setOpen(TRUE);
+    }
 // printf("open lastlvi=(%s)\n", lastlvi->text(fieldCount-1).ascii() );
 
     lastIndentLevel = indent_level;
