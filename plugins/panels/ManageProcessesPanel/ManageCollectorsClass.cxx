@@ -148,8 +148,6 @@ attachCollectorsListView->viewport()->setAcceptDrops(TRUE);
   languageChange();
   connect( attachCollectorsListView, SIGNAL(doubleClicked(QListViewItem *)), this, SLOT( focusOnProcessSelected( QListViewItem* )) );
   connect( psetListView, SIGNAL(doubleClicked(QListViewItem *)), this, SLOT( focusOnProcessSelected( QListViewItem* )) );
-
-//  updateAttachedList();
 }
 
 /*
@@ -214,6 +212,15 @@ ManageCollectorsClass::updateAttachedList()
 {
 // printf("updateAttachedList() dialogSortType=%d\n", dialogSortType);
 // printf("updateAttachedList(%d) \n", expID );
+
+  bool openAll = FALSE;
+  if( attachCollectorsListView->childCount() > 0 )
+  {
+    if( attachCollectorsListView->isOpen( attachCollectorsListView->firstChild()) )
+    {
+      openAll = TRUE;
+    }
+  }
 
   attachCollectorsListView->clear();
 
@@ -537,6 +544,17 @@ if( updateTimer )
     break;
   }
 
+
+  if( openAll )
+  {
+    QPtrList<QListViewItem> lst;
+    QListViewItemIterator it( attachCollectorsListView );
+    while ( it.current() )
+    {
+      attachCollectorsListView->setOpen( it.current(), TRUE);
+      ++it;
+    }
+  }
 }
 
 
@@ -969,8 +987,7 @@ ManageCollectorsClass::detachSelected()
   {
     QMessageBox::information( this, tr("Detach Collector Info:"), tr("You need to select a collector first."), QMessageBox::Ok );
   }
-  updateAttachedList();
-  updatePSetList();
+  updatePanel();
 }
 
 void
@@ -1005,8 +1022,7 @@ ManageCollectorsClass::disableSelected()
   {
     QMessageBox::information( this, tr("Detach Collector Info:"), tr("You need to select a collector first."), QMessageBox::Ok );
   }
-  updateAttachedList();
-  updatePSetList();
+  updatePanel();
 }
 
 
@@ -1042,8 +1058,7 @@ ManageCollectorsClass::enableSelected()
   {
     QMessageBox::information( this, tr("Detach Collector Info:"), tr("You need to select a collector first."), QMessageBox::Ok );
   }
-  updateAttachedList();
-  updatePSetList();
+  updatePanel();
 }
 
 void
@@ -1098,8 +1113,7 @@ ManageCollectorsClass::attachProcessSelected()
     p->broadcast((char *)msg, GROUP_T);
   }
   
-  updateAttachedList();
-  updatePSetList();
+  updatePanel();
 }
 
 void
@@ -1357,8 +1371,7 @@ ManageCollectorsClass::loadProgramSelected()
   
   }
 
-  updateAttachedList();
-  updatePSetList();
+  updatePanel();
 }
 
 void
@@ -1447,6 +1460,7 @@ while( it.current() )
     }
     
   }
+
   updateAttachedList();
 }
 
