@@ -155,13 +155,16 @@ attachCollectorsListView->viewport()->setAcceptDrops(TRUE);
  */
 ManageCollectorsClass::~ManageCollectorsClass()
 {
+  // no need to delete child widgets, Qt does it all for us
+  nprintf(DEBUG_CONST_DESTRUCT) ("ManageCollectorsClass::ManageCollectorsClass() destructor called.\n");
   if( updateTimer )
   {
     updateTimer->stop();
   }
-
-  // no need to delete child widgets, Qt does it all for us
-  nprintf(DEBUG_CONST_DESTRUCT) ("ManageCollectorsClass::ManageCollectorsClass() destructor called.\n");
+  if( loadTimer )
+  {
+    loadTimer->stop();
+  }
 }
 
 /*

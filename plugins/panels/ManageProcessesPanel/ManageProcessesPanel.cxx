@@ -56,6 +56,8 @@ ManageProcessesPanel::ManageProcessesPanel(PanelContainer *pc, const char *n, Ar
 ManageProcessesPanel::~ManageProcessesPanel()
 {
   // Delete anything you new'd from the constructor.
+// printf("ManageProcessPanel::destructo called.\n");
+  delete mcc;
 }
 
 void
