@@ -230,9 +230,6 @@ protected:
     QVBoxLayout* vSummaryPageLayout;
     QVBoxLayout* vSummaryPageLabelLayout;
     QSpacerItem* vSummaryPageButtonSpacer;
-#ifdef OLDWAY
-    QSpacerItem* vSummaryPageSpacer;
-#endif // OLDWAY
     QHBoxLayout* vSummaryPageButtonLayout;
     QVBoxLayout* eDescriptionPageLayout;
     QHBoxLayout* eDescriptionPageButtonLayout;
@@ -266,6 +263,7 @@ protected slots:
 
 private:
     QString sampleRate;
+    unsigned int original_sampling_rate;
 
     Panel *pcSamplePanel;
 };

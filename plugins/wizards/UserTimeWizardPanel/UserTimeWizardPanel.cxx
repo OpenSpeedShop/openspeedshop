@@ -60,6 +60,7 @@ using namespace OpenSpeedShop::Framework;
 UserTimeWizardPanel::UserTimeWizardPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(pc, n)
 {
   nprintf(DEBUG_CONST_DESTRUCT) ("UserTimeWizardPanel::UserTimeWizardPanel() constructor called\n");
+  original_sampling_rate = 35;
   if ( !getName() )
   {
 	setName( "User Time" );
@@ -812,6 +813,8 @@ vParameterPageSampleRateText->setText(eParameterPageSampleRateText->text());
 void UserTimeWizardPanel::eParameterPageResetButtonSelected()
 {
   nprintf(DEBUG_PANELS) ("eParameterPageResetButtonSelected() \n");
+  vParameterPageSampleRateText->setText(QString("%1").arg(original_sampling_rate));
+  eParameterPageSampleRateText->setText(QString("%1").arg(original_sampling_rate));
 }
 
 void UserTimeWizardPanel::eSummaryPageBackButtonSelected()
@@ -978,6 +981,8 @@ eParameterPageSampleRateText->setText(vParameterPageSampleRateText->text());
 void UserTimeWizardPanel::vParameterPageResetButtonSelected()
 {
   nprintf(DEBUG_PANELS) ("vParameterPageResetButtonSelected() \n");
+  vParameterPageSampleRateText->setText(QString("%1").arg(original_sampling_rate));
+  eParameterPageSampleRateText->setText(QString("%1").arg(original_sampling_rate));
 }
 
 void UserTimeWizardPanel::vAttachOrLoadPageBackButtonSelected()
@@ -1234,7 +1239,7 @@ ao->lao = lao;
 void
 UserTimeWizardPanel::languageChange()
 {
-  unsigned int sampling_rate = 100;
+  unsigned int sampling_rate = original_sampling_rate;
 
   setCaption( tr( "User Time Wizard Panel" ) );
   vDescriptionPageTitleLabel->setText( tr( "<h1>User Time Wizard</h1>" ) );
@@ -1362,8 +1367,9 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a different
 //        printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
       }
       usertimeCollector.getParameterValue("sampling_rate", sampling_rate);
+      original_sampling_rate = sampling_rate;
 // printf("sampling_rate=%d\n", sampling_rate);
-//    usertimeCollector.setParameterValue("sampling_rate", (unsigned)100);
+//    usertimeCollector.setParameterValue("sampling_rate", (unsigned)original_sampling_rate);
 // printf("Initialize the text fields... (%d)\n", sampling_rate);
     vParameterPageSampleRateText->setText(QString("%1").arg(sampling_rate));
     eParameterPageSampleRateText->setText(QString("%1").arg(sampling_rate));

@@ -812,6 +812,8 @@ vParameterPageSampleRateText->setText(eParameterPageSampleRateText->text());
 void pcSampleWizardPanel::eParameterPageResetButtonSelected()
 {
   nprintf(DEBUG_PANELS) ("eParameterPageResetButtonSelected() \n");
+  vParameterPageSampleRateText->setText(QString("%1").arg(original_sampling_rate));
+  eParameterPageSampleRateText->setText(QString("%1").arg(original_sampling_rate));
 }
 
 void pcSampleWizardPanel::eSummaryPageBackButtonSelected()
@@ -978,6 +980,8 @@ eParameterPageSampleRateText->setText(vParameterPageSampleRateText->text());
 void pcSampleWizardPanel::vParameterPageResetButtonSelected()
 {
   nprintf(DEBUG_PANELS) ("vParameterPageResetButtonSelected() \n");
+  vParameterPageSampleRateText->setText(QString("%1").arg(original_sampling_rate));
+  eParameterPageSampleRateText->setText(QString("%1").arg(original_sampling_rate));
 }
 
 void pcSampleWizardPanel::vAttachOrLoadPageBackButtonSelected()
@@ -1362,6 +1366,7 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a different
 //        printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
       }
       pcSampleCollector.getParameterValue("sampling_rate", sampling_rate);
+      original_sampling_rate = sampling_rate;
 // printf("sampling_rate=%d\n", sampling_rate);
 //    pcSampleCollector.setParameterValue("sampling_rate", (unsigned)100);
 // printf("Initialize the text fields... (%d)\n", sampling_rate);

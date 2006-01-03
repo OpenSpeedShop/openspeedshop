@@ -266,6 +266,7 @@ protected slots:
 
 private:
     QString sampleRate;
+    unsigned int original_sampling_rate;
 
     Panel *usertimePanel;
 };
