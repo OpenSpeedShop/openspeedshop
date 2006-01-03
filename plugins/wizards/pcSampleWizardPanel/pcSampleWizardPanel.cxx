@@ -1253,9 +1253,9 @@ pcSampleWizardPanel::languageChange()
 "particular executable.   We suggest starting with the default setting\n"
 "of %1.").arg(sampling_rate) ) );
   vParameterPageSampleRateHeaderLabel->setText( tr( "You can set the following option(s):" ) );
-  vParameterPageSampleRateLabel->setText( tr( "pc Sample rate:" ) );
+  vParameterPageSampleRateLabel->setText( tr( "pc Sample rate (in samples/second):" ) );
   vParameterPageSampleRateText->setText( tr( QString("%1").arg(sampling_rate) ) );
-  QToolTip::add( vParameterPageSampleRateText, tr( QString("The rate to sample.   (Default %1.)").arg(sampling_rate) ) );
+  QToolTip::add( vParameterPageSampleRateText, tr( QString("The number of times to sample per second.   (Default %1.)").arg(sampling_rate) ) );
   vParameterPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( vParameterPageBackButton, tr( "Takes you back one page." ) );
   vParameterPageResetButton->setText( tr( "Reset" ) );
@@ -1292,9 +1292,9 @@ vAttachOrLoadPageLoadDifferentExecutableCheckBox->setText( tr( "Load a different
   QToolTip::add( eDescriptionPageFinishButton, tr( "Advance to the wizard finish page." ) );
   eParameterPageDescriptionLabel->setText( tr( "The following options (paramaters) are available to adjust.     <br>These are the options the collector has exported." ) );
   eParameterPageSampleRateHeaderLabel->setText( tr( "You can set the following option(s):" ) );
-  eParameterPageSampleRateLabel->setText( tr( "pc Sample rate:" ) );
+  eParameterPageSampleRateLabel->setText( tr( "pc Sample rate (in samples/second):" ) );
   eParameterPageSampleRateText->setText( tr( QString("%1").arg(sampling_rate) ) );
-  QToolTip::add( eParameterPageSampleRateText, tr( QString("The rate to sample.   (Default %1.)").arg(sampling_rate) ) );
+  QToolTip::add( eParameterPageSampleRateText, tr( QString("The number of times to sample per second.   (Default %1.)").arg(sampling_rate) ) );
   eParameterPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( eParameterPageBackButton, tr( "Takes you back one page." ) );
   eParameterPageResetButton->setText( tr( "Reset" ) );
