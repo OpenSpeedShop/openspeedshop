@@ -1214,7 +1214,7 @@ class mpit_view : public ViewType {
                           true) {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                             ThreadGroup tgrp) {
+                             ThreadGroup& tgrp) {
     std::vector<Collector> CV;
     std::vector<std::string> MV;
     std::vector<ViewInstruction *>IV;
