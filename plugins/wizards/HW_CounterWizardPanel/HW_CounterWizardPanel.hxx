@@ -279,9 +279,11 @@ protected slots:
     virtual void languageChange();
 
 private:
-    QString sampleRate;
     QString PAPIDescription;
 
+    QString overflowRate;
+    unsigned int original_overflow_rate;
+    QString original_papi_str;
     Panel *hwCounterPanel;
 
     std::vector<papi_preset_event> papi_available_presets;
