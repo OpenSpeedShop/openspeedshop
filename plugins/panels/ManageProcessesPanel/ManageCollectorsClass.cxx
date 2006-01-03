@@ -216,6 +216,12 @@ ManageCollectorsClass::updateAttachedList()
 // printf("updateAttachedList() dialogSortType=%d\n", dialogSortType);
 // printf("updateAttachedList(%d) \n", expID );
 
+if( MPListView::draggingFLAG == TRUE )
+{
+printf("A: We're dragging!....\n");
+  return;
+}
+
   bool openAll = FALSE;
   if( attachCollectorsListView->childCount() > 0 )
   {
@@ -566,6 +572,12 @@ ManageCollectorsClass::updatePSetList()
 {
   int pset_count = 0;
 // printf("updatePSetList(%d) \n", expID );
+
+if( MPListView::draggingFLAG == TRUE )
+{
+printf("B: We're dragging!....\n");
+  return;
+}
 
   QValueList<QString> openList;
 

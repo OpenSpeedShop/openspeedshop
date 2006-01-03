@@ -31,6 +31,7 @@
 #include <qmessagebox.h>
 
 MPListViewItem *MPListView::oldCurrent = 0;
+bool MPListView::draggingFLAG = FALSE;
 
 MPListView::MPListView( QWidget *parent, const char *name, WFlags f = 0)
      : QListView( parent, name, f),
@@ -290,6 +291,7 @@ void MPListView::contentsMousePressEvent( QMouseEvent* e )
 
 // Reset these on a select.
   MPListView::oldCurrent = 0;
+  MPListView::draggingFLAG = FALSE;
   setCurrentItem(i);
 
   if( e->button() != QMouseEvent::LeftButton )
@@ -326,9 +328,11 @@ void MPListView::contentsMouseMoveEvent( QMouseEvent* e )
     {
 // printf("We have an item! (%s)\n", item->text(0).ascii() );
       MPListView::oldCurrent = (MPListViewItem *)item;
+      MPListView::draggingFLAG = TRUE;
       if( MPListView::oldCurrent->descriptionClassObject == NULL )
       {
         MPListView::oldCurrent = NULL;
+        MPListView::draggingFLAG = FALSE;
         return;
       }
       if( QString(name()) == "attachCollectorsListView" )
