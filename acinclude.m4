@@ -207,6 +207,7 @@ AC_DEFUN([AC_PKG_MPI], [
     MPI_LDFLAGS="-L$mpi_dir/$mpich_driver/$abi_libdir/shared"
     MPI_LIBS="-lmpich"
     MPI_HEADER="$mpi_dir/include/mpi.h"
+    MPI_DIR="$mpi_dir"
 
     CPPFLAGS="$CPPFLAGS $MPI_CPPFLAGS"
     LDFLAGS="$LDFLAGS $MPI_LDFLAGS $MPI_LIBS"
@@ -221,6 +222,7 @@ AC_DEFUN([AC_PKG_MPI], [
             MPI_LDFLAGS=""
             MPI_LIBS=""
             MPI_HEADER=""
+            MPI_DIR=""
 
         ]
     )
@@ -231,6 +233,7 @@ AC_DEFUN([AC_PKG_MPI], [
         MPI_LDFLAGS="-L$mpi_dir/$abi_libdir"
         MPI_LIBS="-lmpi"
         MPI_HEADER="$mpi_dir/include/mpi.h"
+        MPI_DIR="$mpi_dir"
 
         CPPFLAGS="$mpi_saved_CPPFLAGS $MPI_CPPFLAGS"
         LDFLAGS="$mpi_saved_LDFLAGS $MPI_LDFLAGS $MPI_LIBS"
@@ -245,6 +248,7 @@ AC_DEFUN([AC_PKG_MPI], [
                 MPI_LDFLAGS=""
                 MPI_LIBS=""
                 MPI_HEADER=""
+                MPI_DIR=""
 
             ]
         )
@@ -267,6 +271,7 @@ AC_DEFUN([AC_PKG_MPI], [
     AC_SUBST(MPI_LDFLAGS)
     AC_SUBST(MPI_LIBS)
     AC_SUBST(MPI_HEADER)
+    AC_SUBST(MPI_DIR)
 
 ])
 
