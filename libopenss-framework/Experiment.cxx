@@ -26,6 +26,7 @@
 #include "DataQueues.hxx"
 #include "EntrySpy.hxx"
 #include "Experiment.hxx"
+#include "Function.hxx"
 #include "Instrumentor.hxx"
 #include "ThreadGroup.hxx"
 
@@ -101,6 +102,7 @@ namespace {
 	"    addr_end INTEGER,"
 	"    name TEXT"
 	");",
+	"CREATE INDEX IndexFunctionsByName ON Functions (name);",
 
 	// Call Site Table
 	// "CREATE TABLE CallSites ("
@@ -940,6 +942,38 @@ void Experiment::removeCollector(const Collector& collector) const
     
     // End this multi-statement transaction
     END_TRANSACTION(dm_database);
+}
+
+
+
+/**
+ * Get functions by name pattern.
+ *
+ * Returns the functions that match the passed name pattern. An empty set is
+ * returned if no such function can be found. Wildcards are expressed using
+ * standard UNIX file globbing syntax (e.g. "pthread_*").
+ *
+ * @param pattern    Name pattern to find.
+ * @return           Functions matching this name pattern.
+ */
+std::set<Function>
+Experiment::getFunctionsByNamePattern(const std::string& pattern) const
+{
+    std::set<Function> functions;
+
+    // Find the functions matching this name
+    BEGIN_TRANSACTION(dm_database);
+    dm_database->prepareStatement(
+	"SELECT id FROM Functions WHERE name GLOB ?;"
+	);
+    dm_database->bindArgument(1, pattern);
+    while(dm_database->executeStatement())
+	functions.insert(Function(dm_database,
+				  dm_database->getResultAsInteger(1)));
+    END_TRANSACTION(dm_database);
+    
+    // Return the functions to the caller
+    return functions;
 }
 
 

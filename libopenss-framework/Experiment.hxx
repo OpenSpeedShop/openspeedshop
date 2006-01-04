@@ -49,6 +49,7 @@ namespace OpenSpeedShop { namespace Framework {
 
     class Collector;
     class CollectorGroup;
+    class Function;
     class Thread;
     class ThreadGroup;
     
@@ -121,6 +122,8 @@ namespace OpenSpeedShop { namespace Framework {
 	CollectorGroup getCollectors() const;
 	Collector createCollector(const std::string&) const;
 	void removeCollector(const Collector&) const;
+
+	std::set<Function> getFunctionsByNamePattern(const std::string&) const;
 	
     private:
 

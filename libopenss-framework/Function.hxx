@@ -40,6 +40,7 @@ namespace OpenSpeedShop { namespace Framework {
 
     class CallSite;
     class Database;
+    class Experiment;
     class ExtentGroup;
     class LinkedObject;
     template <typename> class SmartPtr;
@@ -58,6 +59,7 @@ namespace OpenSpeedShop { namespace Framework {
     class Function :
 	public Entry
     {
+	friend class Experiment;
 	friend class LinkedObject;
 	friend class Statement;
 	friend class Thread;
