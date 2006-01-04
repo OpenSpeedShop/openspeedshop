@@ -36,11 +36,10 @@ SUBDIRS = \
 	usability
 
 CHECK_SUBDIRS = \
-    test/executables \
-    test/test_source/regression 
+    test
 
 check: $(CHECK_SUBDIRS)
-	cd $(CHECK_SUBDIRS); $(MAKE) check
+	cd $(CHECK_SUBDIRS); $(MAKE) clean; $(MAKE) check
 
 
 DOC_SUBDIRS = \
