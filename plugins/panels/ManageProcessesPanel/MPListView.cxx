@@ -383,36 +383,18 @@ MPListView::isThisADuplicate(MPListViewItem *item)
 {
 // printf("isThisADuplicate(%s %s) entered\n", MPListView::oldCurrent->text(0).ascii(), item->text(0).ascii() );
 
-#if 0
-if( MPListView::oldCurrent->childCount() > 1 )
-{
-printf("This one has (%d) kids!\n", MPListView::oldCurrent->childCount() );
-  QListViewItemIterator oit( MPListView::oldCurrent );
-  while( oit.current() )
+  QListViewItem *nitem = item->firstChild();
+  while( nitem )
   {
-    QListViewItem *omyitem = *oit;
-printf("omyitem=(%s) (%s)\n", omyitem->text(0).ascii(), omyitem->text(1).ascii() );
-    oit++;
-  }
-}
-#endif // 0
-
-
-  QListViewItemIterator it( item->parent() );
-  while( it.current() )
-  {
-    QListViewItem *myitem = *it;
-// printf("myitem=(%s) (%s)\n", myitem->text(0).ascii(), myitem->text(1).ascii() );
-
     if( MPListView::oldCurrent &&
         MPListView::oldCurrent->descriptionClassObject &&
-        myitem->text(0) == MPListView::oldCurrent->descriptionClassObject->pid_name &&
-        myitem->text(1) == MPListView::oldCurrent->descriptionClassObject->host_name )
+        nitem->text(0) == MPListView::oldCurrent->descriptionClassObject->pid_name &&
+        nitem->text(1) == MPListView::oldCurrent->descriptionClassObject->host_name )
     {  
 // printf("Don't add duplicates... just ignore.\n");
       return( TRUE );
     }
-    it++;
+    nitem = nitem->nextSibling();
   }
 
   return(FALSE);
