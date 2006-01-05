@@ -75,7 +75,8 @@ libopenss_cli_la_SOURCES = \
 	SS_View_stats.cxx \
 	SS_Watcher.hxx SS_Watcher.cxx \
 	SS_Start.cxx \
-	Start_Modes.cxx
+	Start_Modes.cxx \
+	SS_Settings.cxx
 
 LFILES = SS_Parse_Lex.lxx
 YFILES = SS_Parse_Yacc.yxx
