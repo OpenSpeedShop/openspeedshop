@@ -29,7 +29,7 @@
 
 void PreferencesDialog::readPreferencesOnEntry()
 {
-  //printf("readPreferencesOnEntry() entered\n");
+// printf("readPreferencesOnEntry() entered\n");
 
 //  settings->insertSearchPath( QSettings::Unix, "openspeedshop" );
   // No search path needed for Unix; see notes further on.
@@ -64,6 +64,44 @@ void PreferencesDialog::readPreferencesOnEntry()
      settings->readBoolEntry("/openspeedshop/general/globalFontItalic");
 
 
+  viewFieldSize =
+    settings->readNumEntry("/openspeedshop/general/viewFieldSize");
+  viewFieldSizeLineEdit->setText( QString("%1").arg(viewFieldSize) );
+
+  viewPrecision =
+    settings->readNumEntry("/openspeedshop/general/viewPrecision");
+  viewPrecisionLineEdit->setText( QString("%1").arg(viewPrecision) );
+
+  historyLimit =
+    settings->readNumEntry("/openspeedshop/general/historyLimit");
+  historyLimitLineEdit->setText( QString("%1").arg(historyLimit) );
+
+  historyDefault =
+    settings->readNumEntry("/openspeedshop/general/historyDefault");
+  historyDefaultLineEdit->setText( QString("%1").arg(historyDefault) );
+
+  maxAsyncCommands =
+    settings->readNumEntry("/openspeedshop/general/maxAsyncCommands");
+  maxAsyncCommandsLineEdit->setText( QString("%1").arg(maxAsyncCommands) );
+
+  helpLevelDefault =
+    settings->readNumEntry("/openspeedshop/general/helpLevelDefault");
+  helpLevelDefaultLineEdit->setText( QString("%1").arg(helpLevelDefault) );
+
+  viewFullPathCheckBox->setChecked(
+    settings->readBoolEntry( "/openspeedshop/general/viewFullPath") );
+
+  saveExperimentDatabaseCheckBox->setChecked(
+    settings->readBoolEntry( "/openspeedshop/general/saveExperimentDatabase") );
+
+  allowPythonCommandsCheckBox->setChecked(
+    settings->readBoolEntry( "/openspeedshop/general/allowPythonCommands") );
+
+  logByDefaultCheckBox->setChecked(
+    settings->readBoolEntry( "/openspeedshop/general/logByDefault") );
+
+  limitSignalCatchingCheckBox->setChecked(
+    settings->readBoolEntry( "/openspeedshop/general/limitSignalCatching") );
 
   setShowSplashScreenCheckBox->setChecked(
     settings->readBoolEntry( "/openspeedshop/general/showSplashScreen") );
@@ -82,12 +120,35 @@ void PreferencesDialog::resetPreferenceDefaults()
    fontLineEdit->setText( globalFontFamily );
    fontLineEdit->setReadOnly(TRUE);
 
-globalRemoteShell = "/usr/bin/ssh";
-remoteShellEdit->setText( globalRemoteShell );
-remoteShellEdit->setReadOnly(FALSE);
+   globalRemoteShell = "/usr/bin/ssh";
+   remoteShellEdit->setText( globalRemoteShell );
+   remoteShellEdit->setReadOnly(FALSE);
 
    setShowSplashScreenCheckBox->setChecked( TRUE );
    showGraphicsCheckBox->setChecked(FALSE);
+
+   viewFieldSize = 20;
+   viewFieldSizeLineEdit->setText(QString("%1").arg(viewFieldSize));
+   viewPrecision = 4;
+   viewPrecisionLineEdit->setText(QString("%1").arg(viewPrecision));
+   historyLimit = 100;
+   historyLimitLineEdit->setText(QString("%1").arg(historyLimit));
+   historyDefault = 24;
+   historyDefaultLineEdit->setText(QString("%1").arg(historyDefault));
+   maxAsyncCommands = 20;
+   maxAsyncCommandsLineEdit->setText(QString("%1").arg(maxAsyncCommands));
+   helpLevelDefault = 2;
+   helpLevelDefaultLineEdit->setText(QString("%1").arg(helpLevelDefault));
+   viewFullPath = FALSE;
+   viewFullPathCheckBox->setChecked(viewFullPath);
+   saveExperimentDatabase = FALSE;
+   saveExperimentDatabaseCheckBox->setChecked(saveExperimentDatabase);
+   allowPythonCommands = TRUE;
+   allowPythonCommandsCheckBox->setChecked(allowPythonCommands);
+   logByDefault = FALSE;
+   logByDefaultCheckBox->setChecked(logByDefault);
+   limitSignalCatching = FALSE;
+   limitSignalCatchingCheckBox->setChecked(limitSignalCatching);
 
 
   // Begin reset all preferences to defaults
@@ -254,6 +315,61 @@ void PreferencesDialog::savePreferences()
   if( !settings->writeEntry( "/openspeedshop/general/showGraphics", showGraphicsCheckBox->isChecked() ) )
   {
     printf("Unable to write showGraphics.\n");
+  }
+
+  if( !settings->writeEntry("/openspeedshop/general/viewFieldSize", viewFieldSizeLineEdit->text() ) )
+  {
+    printf("Unable to write viewFieldSize.\n");
+  }
+
+  if( !settings->writeEntry("/openspeedshop/general/viewPrecision", viewPrecisionLineEdit->text() ) )
+  {
+    printf("Unable to write viewPrecision.\n");
+  }
+
+  if( !settings->writeEntry("/openspeedshop/general/historyLimit", historyLimitLineEdit->text() ) )
+  {
+    printf("Unable to write historyLimit.\n");
+  }
+
+  if( !settings->writeEntry("/openspeedshop/general/historyDefault", historyDefaultLineEdit->text() ) )
+  {
+    printf("Unable to write historyDefault.\n");
+  }
+
+  if( !settings->writeEntry("/openspeedshop/general/maxAsyncCommands", maxAsyncCommandsLineEdit->text() ) )
+  {
+    printf("Unable to write maxAsyncCommands.\n");
+  }
+
+  if( !settings->writeEntry("/openspeedshop/general/helpLevelDefault", helpLevelDefaultLineEdit->text() ) )
+  {
+    printf("Unable to write helpLevelDefault.\n");
+  }
+
+  if( !settings->writeEntry( "/openspeedshop/general/viewFullPath", viewFullPathCheckBox->isChecked() ) )
+  {
+    printf("Unable to write viewFullPath.\n");
+  }
+
+  if( !settings->writeEntry( "/openspeedshop/general/saveExperimentDatabase", saveExperimentDatabaseCheckBox->isChecked() ) )
+  {
+    printf("Unable to write saveExperimentDatabase.\n");
+  }
+
+  if( !settings->writeEntry( "/openspeedshop/general/allowPythonCommands", allowPythonCommandsCheckBox->isChecked() ) )
+  {
+    printf("Unable to write allowPythonCommands.\n");
+  }
+
+  if( !settings->writeEntry( "/openspeedshop/general/logByDefault", logByDefaultCheckBox->isChecked() ) )
+  {
+    printf("Unable to write logByDefault.\n");
+  }
+
+  if( !settings->writeEntry( "/openspeedshop/general/limitSignalCatching", limitSignalCatchingCheckBox->isChecked() ) )
+  {
+    printf("Unable to write limitSignalCatching.\n");
   }
 
   // Begin save all preferences

@@ -82,6 +82,18 @@ QString globalRemoteShell;
     int globalFontWeight;
     bool globalFontItalic;
 
+    int viewFieldSize;
+    int viewPrecision; 
+    int historyLimit; 
+    int historyDefault; 
+    int maxAsyncCommands; 
+    int helpLevelDefault; 
+    bool viewFullPath; 
+    bool saveExperimentDatabase; 
+    bool allowPythonCommands; 
+    bool logByDefault; 
+    bool limitSignalCatching; 
+
     QSettings *settings;
     void readPreferencesOnEntry();
     void savePreferences();
@@ -101,10 +113,34 @@ protected:
     QVBoxLayout* generalStackPageLayout;
     QVBoxLayout* rightSideLayout;
     QHBoxLayout* fontLayout;
-QHBoxLayout* remoteShellLayout;
+    QHBoxLayout* remoteShellLayout;
     QVBoxLayout* generalStackPageLayout_4;
     QHBoxLayout* preferenceDialogWidgetStackLayout;
     QSpacerItem* Horizontal_Spacing2;
+
+    QHBoxLayout *viewFieldSizeLayout;
+      QLabel *viewFieldSizeLabel;
+      QLineEdit *viewFieldSizeLineEdit;
+    QHBoxLayout *viewPrecisionLayout;
+      QLabel *viewPrecisionLabel;
+      QLineEdit *viewPrecisionLineEdit;
+    QHBoxLayout *historyLimitLayout;
+      QLabel *historyLimitLabel;
+      QLineEdit *historyLimitLineEdit;
+    QHBoxLayout *historyDefaultLayout;
+      QLabel *historyDefaultLabel;
+      QLineEdit *historyDefaultLineEdit;
+    QHBoxLayout *maxAsyncCommandsLayout;
+      QLabel *maxAsyncCommandsLabel;
+      QLineEdit *maxAsyncCommandsLineEdit;
+    QHBoxLayout *helpLevelDefaultLayout;
+      QLabel *helpLevelDefaultLabel;
+      QLineEdit *helpLevelDefaultLineEdit;
+    QCheckBox *viewFullPathCheckBox;
+    QCheckBox *saveExperimentDatabaseCheckBox;
+    QCheckBox *allowPythonCommandsCheckBox;
+    QCheckBox *logByDefaultCheckBox;
+    QCheckBox *limitSignalCatchingCheckBox;
 
 protected slots:
     virtual void languageChange();

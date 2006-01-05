@@ -57,6 +57,19 @@ PreferencesDialog::PreferencesDialog( QWidget* parent, const char* name, bool mo
    globalFontWeight = QFont::Normal;
    globalFontItalic = FALSE;
 
+   viewFieldSize = 20; 
+   viewPrecision = 4; 
+   historyLimit = 100; 
+   historyDefault = 24; 
+   maxAsyncCommands = 20; 
+   helpLevelDefault = 2; 
+   viewFullPath = FALSE;  
+   saveExperimentDatabase = FALSE; 
+   allowPythonCommands = TRUE; 
+   logByDefault = FALSE; 
+   limitSignalCatching = FALSE; 
+
+
    globalRemoteShell = "/usr/bin/rsh";
 
     if ( !name )
@@ -204,6 +217,103 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     showGraphicsCheckBox = new QCheckBox( GeneralGroupBox, "showGraphicsCheckBox" );
     showGraphicsCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, showGraphicsCheckBox->sizePolicy().hasHeightForWidth() ) );
     rightSideLayout->addWidget( showGraphicsCheckBox );
+
+    { // VIEW_FIELD_SIZE
+    viewFieldSizeLayout = new QHBoxLayout( 0, 0, 6, "viewFieldSizeLayout");
+    viewFieldSizeLabel = new QLabel( GeneralGroupBox, "viewFieldSizeLabel" );
+    viewFieldSizeLabel->setText("View field size:");
+    viewFieldSizeLayout->addWidget( viewFieldSizeLabel );
+    viewFieldSizeLineEdit = new QLineEdit( GeneralGroupBox, "viewFieldSizeLineEdit" );
+    viewFieldSizeLineEdit->setText("123");
+    viewFieldSizeLayout->addWidget( viewFieldSizeLineEdit );
+    rightSideLayout->addLayout( viewFieldSizeLayout );
+    }
+    { // VIEW_PRECISION
+    viewPrecisionLayout = new QHBoxLayout( 0, 0, 6, "viewPrecisionLayout");
+    viewPrecisionLabel = new QLabel( GeneralGroupBox, "viewPrecisionLabel" );
+    viewPrecisionLabel->setText("View Precision:");
+    viewPrecisionLayout->addWidget( viewPrecisionLabel );
+    viewPrecisionLineEdit = new QLineEdit( GeneralGroupBox, "viewPrecisionLineEdit" );
+    viewPrecisionLineEdit->setText("123");
+    viewPrecisionLayout->addWidget( viewPrecisionLineEdit );
+    rightSideLayout->addLayout( viewPrecisionLayout );
+    }
+    { // HISTORY_LIMIT
+    historyLimitLayout = new QHBoxLayout( 0, 0, 6, "historyLimitLayout");
+    historyLimitLabel = new QLabel( GeneralGroupBox, "historyLimitLabel" );
+    historyLimitLabel->setText("History Limit:");
+    historyLimitLayout->addWidget( historyLimitLabel );
+    historyLimitLineEdit = new QLineEdit( GeneralGroupBox, "historyLimitLineEdit" );
+    historyLimitLineEdit->setText("123");
+    historyLimitLayout->addWidget( historyLimitLineEdit );
+    rightSideLayout->addLayout( historyLimitLayout );
+    }
+    { // HISTORY_DEFAULT
+    historyDefaultLayout = new QHBoxLayout( 0, 0, 6, "historyDefaultLayout");
+    historyDefaultLabel = new QLabel( GeneralGroupBox, "historyDefaultLabel" );
+    historyDefaultLabel->setText("History Default:");
+    historyDefaultLayout->addWidget( historyDefaultLabel );
+    historyDefaultLineEdit = new QLineEdit( GeneralGroupBox, "historyDefaultLineEdit" );
+    historyDefaultLineEdit->setText("123");
+    historyDefaultLayout->addWidget( historyDefaultLineEdit );
+    rightSideLayout->addLayout( historyDefaultLayout );
+    }
+    { // MAX_ASYNC_COMMANDS
+    maxAsyncCommandsLayout = new QHBoxLayout( 0, 0, 6, "maxAsyncCommandsLayout");
+    maxAsyncCommandsLabel = new QLabel( GeneralGroupBox, "maxAsyncCommandsLabel" );
+    maxAsyncCommandsLabel->setText("Max Async Commands:");
+    maxAsyncCommandsLayout->addWidget( maxAsyncCommandsLabel );
+    maxAsyncCommandsLineEdit = new QLineEdit( GeneralGroupBox, "maxAsyncCommandsLineEdit" );
+    maxAsyncCommandsLineEdit->setText("123");
+    maxAsyncCommandsLayout->addWidget( maxAsyncCommandsLineEdit );
+    rightSideLayout->addLayout( maxAsyncCommandsLayout );
+    }
+    { // HELP_LEVEL_DEFAULT
+    helpLevelDefaultLayout = new QHBoxLayout( 0, 0, 6, "helpLevelDefaultLayout");
+    helpLevelDefaultLabel = new QLabel( GeneralGroupBox, "helpLevelDefaultLabel" );
+    helpLevelDefaultLabel->setText("Help Level Default:");
+    helpLevelDefaultLayout->addWidget( helpLevelDefaultLabel );
+    helpLevelDefaultLineEdit = new QLineEdit( GeneralGroupBox, "helpLevelDefaultLineEdit" );
+    helpLevelDefaultLineEdit->setText("123");
+    helpLevelDefaultLayout->addWidget( helpLevelDefaultLineEdit );
+    rightSideLayout->addLayout( helpLevelDefaultLayout );
+    }
+    { // VIEW_FULLPATH
+    viewFullPathCheckBox = new QCheckBox( GeneralGroupBox, "viewFullPathCheckBox" );
+    viewFullPathCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, viewFullPathCheckBox->sizePolicy().hasHeightForWidth() ) );
+    viewFullPathCheckBox->setChecked( TRUE );
+    viewFullPathCheckBox->setText( tr( "View Full Path" ) );
+    rightSideLayout->addWidget( viewFullPathCheckBox );
+    }
+    { // SAVE_EXPERIMENT_DATABASE
+    saveExperimentDatabaseCheckBox = new QCheckBox( GeneralGroupBox, "saveExperimentDatabaseCheckBox" );
+    saveExperimentDatabaseCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, saveExperimentDatabaseCheckBox->sizePolicy().hasHeightForWidth() ) );
+    saveExperimentDatabaseCheckBox->setChecked( TRUE );
+    saveExperimentDatabaseCheckBox->setText( tr( "Save Experiment Database" ) );
+    rightSideLayout->addWidget( saveExperimentDatabaseCheckBox );
+    }
+    { // ALLOW_PYTHON_COMMANDS
+    allowPythonCommandsCheckBox = new QCheckBox( GeneralGroupBox, "allowPythonCommandsCheckBox" );
+    allowPythonCommandsCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, allowPythonCommandsCheckBox->sizePolicy().hasHeightForWidth() ) );
+    allowPythonCommandsCheckBox->setChecked( TRUE );
+    allowPythonCommandsCheckBox->setText( tr( "Allow Python Commands" ) );
+    rightSideLayout->addWidget( allowPythonCommandsCheckBox );
+    }
+    { // LOG_BY_DEFAULT
+    logByDefaultCheckBox = new QCheckBox( GeneralGroupBox, "logByDefaultCheckBox" );
+    logByDefaultCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, logByDefaultCheckBox->sizePolicy().hasHeightForWidth() ) );
+    logByDefaultCheckBox->setChecked( TRUE );
+    logByDefaultCheckBox->setText( tr( "Log By Default" ) );
+    rightSideLayout->addWidget( logByDefaultCheckBox );
+    }
+    { // LIMIT_SIGNAL_CATCHING
+    limitSignalCatchingCheckBox = new QCheckBox( GeneralGroupBox, "limitSignalCatchingCheckBox" );
+    limitSignalCatchingCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, limitSignalCatchingCheckBox->sizePolicy().hasHeightForWidth() ) );
+    limitSignalCatchingCheckBox->setChecked( TRUE );
+    limitSignalCatchingCheckBox->setText( tr( "Limit Signal Catching" ) );
+    rightSideLayout->addWidget( limitSignalCatchingCheckBox );
+    }
+
     generalStackPageLayout->addWidget( GeneralGroupBox );
     stack->addWidget( generalStackPage, 0 );
 }
@@ -226,12 +336,56 @@ void PreferencesDialog::languageChange()
 
   remoteShellLabel->setText( tr("Remote Shell Command:") );
   globalRemoteShell = "/usr/bin/rsh";
-  remoteShellEdit->setText( tr(globalRemoteShell) );
+  remoteShellEdit->setText( globalRemoteShell );
   remoteShellEdit->setReadOnly(FALSE);
 
   setShowSplashScreenCheckBox->setChecked( TRUE );
 
   showGraphicsCheckBox->setChecked(FALSE);
+
+  viewFieldSizeLineEdit->setText( QString("%1").arg(viewFieldSize) );
+QToolTip::add(viewFieldSizeLineEdit,
+  tr("Define the width of the field used for each column when the result of\nan 'expView' command is printed.  The default is 20.") );
+
+  viewPrecisionLineEdit->setText( QString("%1").arg(viewPrecision) );
+QToolTip::add(viewPrecisionLineEdit,
+  tr("Define the precision used to format a floating point number when\nthe result of an 'expView' command is printed.  The default is 4.") );
+
+  historyLimitLineEdit->setText( QString("%1").arg(historyLimit) );
+QToolTip::add(historyLimitLineEdit,
+  tr("Define the maximum number of commands that are remembered for the\n'history' command.  If the command is issued with a larger number,\nthis limit is automatically increased.  The default is 100.") );
+
+  historyDefaultLineEdit->setText( QString("%1").arg(historyDefault) );
+QToolTip::add(historyDefaultLineEdit,
+  tr("Define the number of previous commands that will be printed when\nthe 'history' command is issued without a requesting length. The\ndefault is 24;") );
+
+  maxAsyncCommandsLineEdit->setText( QString("%1").arg(maxAsyncCommands) );
+QToolTip::add(maxAsyncCommandsLineEdit,
+  tr("Define the maximum number of commands that can be processed at\nthe same time. This is a limit on the parallel execution of\ncommands in OpenSS and controls the degree to which commands\ncan be overlapped.  The default is 20.\n") );
+
+  helpLevelDefaultLineEdit->setText( QString("%1").arg(helpLevelDefault) );
+QToolTip::add(helpLevelDefaultLineEdit,
+  tr("Define the level of help information that is displayed when\nthe 'help' command is issued without a <verbosity_list_spec>.\nThe default is 2.") );
+
+  viewFullPathCheckBox->setChecked(viewFullPathCheckBox);
+QToolTip::add(viewFullPathCheckBox,
+  tr("Declare whether or not a full path is displayed in place of\na file name when the function, linkedobject, or statement\nlocation is displayed as part of an 'expView' command.  The\ndefault is false, allowing only the containing file name to\nbe displayed.") );
+
+  saveExperimentDatabaseCheckBox->setChecked(saveExperimentDatabase);
+QToolTip::add(saveExperimentDatabaseCheckBox,
+  tr("Declare that the database created when an 'expCreate'\ncommand is issued will be saved when the OpenSS session is\nterminated.  The saved database will be in the user's\ncurrent directory and will be of the form:\n \"X<exp_id>_iiiiii.openss\"\nwhere the 'iiiiii' field is an integer, starting with 0,\nthat generates a unique file name.  The default is 'false'\nand experiment databases will be deleted when the OpenSS\nsession terminates unless the user has issued an 'expSave'\ncommand.") );
+
+  allowPythonCommandsCheckBox->setChecked(allowPythonCommands);
+QToolTip::add(allowPythonCommandsCheckBox,
+  tr("Declare that Python commands may be intermixed with OpenSS\ncommands.  The default is true.") );
+
+  logByDefaultCheckBox->setChecked(logByDefault);
+QToolTip::add(logByDefaultCheckBox,
+  tr("Declare that a log file will be opened and each command\nwill be tracked through the various internal processing\nstep of OpenSS.  This is intended to be an internal debug\naid and is not generally useful.  The default is false.") );
+
+  limitSignalCatchingCheckBox->setChecked(limitSignalCatching);
+QToolTip::add(limitSignalCatchingCheckBox,
+  tr("Declare that OpenSS should limit the types of signals it\ntraps. When set to true, OpenSS will ignore the following\nfaults:\n SIGILL - illegal instructions\n SIGFPE - floating point exceptions\n SIGBUS - bus errors\n SIGSEGV - illegal memory addresses\n SIGSYS - system errors\nIgnoring the errors will allow a core file to be generated,\nso this is intended to be an internal debug aid.  The default\nvalue is false and OpenSS will attempt to clean up if an\nerror is encountered.  Setting the value to true may result\nin a number of files being left around if OpenSS encounters\na fault.") );
 
     setCaption( tr( "Preferences Dialog" ) );
     categoryListView->header()->setLabel( 0, tr( "Categories" ) );
